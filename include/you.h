@@ -63,6 +63,7 @@ struct u_event {
     Bitfield(uvlad, 1);             /* destroyed Vlad */
     Bitfield(ugking, 1);            /* killed the Goblin King */
     Bitfield(ulucifer, 1);          /* killed Lucifer */
+    Bitfield(umichael, 1);          /* killed Saint Michael */
     Bitfield(udemigod, 1);          /* killed the wiz */
     Bitfield(ascended, 1);          /* has offered the Amulet */
     Bitfield(ulearned_elbereth, 1); /* learned how to write Elbereth */
@@ -88,6 +89,7 @@ struct u_achieve {
     Bitfield(killed_vlad, 1);
     Bitfield(killed_gking, 1);
     Bitfield(killed_lucifer, 1);
+    Bitfield(killed_michael, 1);
 
     Bitfield(vibrating_square, 1); /* stepped on "vibrating square" */
 };

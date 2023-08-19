@@ -3257,6 +3257,13 @@ luciferdead()
 }
 
 void
+michaeldead()
+{
+    if (!u.uevent.umichael)
+        u.uevent.umichael = TRUE;
+}
+
+void
 mondead(mtmp)
 register struct monst *mtmp;
 {
@@ -3527,6 +3534,8 @@ register struct monst *mtmp;
         goblinkingdead();
     if (mtmp->islucifer)
         luciferdead();
+    if (mtmp->ismichael)
+        michaeldead();
     if (tmp == urole.neminum)
         nemdead();
     if (mtmp->data->msound == MS_LEADER)
@@ -3554,6 +3563,9 @@ register struct monst *mtmp;
     } else if (mtmp->islucifer && !u.uachieve.killed_lucifer) {
         u.uachieve.killed_lucifer = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Lucifer");
+    } else if (mtmp->ismichael && !u.uachieve.killed_michael) {
+        u.uachieve.killed_michael = 1;
+        livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Saint Michael");
     } else if (mtmp->data == &mons[PM_DEATH]) {
         switch (mvitals[tmp].died) {
         case 1:

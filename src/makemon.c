@@ -3120,6 +3120,8 @@ long mmflags;
         mtmp->isgking = TRUE;
     } else if (mndx == PM_LUCIFER) {
         mtmp->islucifer = TRUE;
+    } else if (mndx == PM_SAINT_MICHAEL) {
+        mtmp->ismichael = TRUE;
     } else if (mndx == PM_WIZARD_OF_YENDOR) {
         mtmp->iswiz = TRUE;
         context.no_of_wizards++;

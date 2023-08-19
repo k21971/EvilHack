@@ -168,6 +168,7 @@ struct monst {
     Bitfield(isvlad, 1);     /* is Vlad the Impaler */
     Bitfield(isgking, 1);    /* is the Goblin King */
     Bitfield(islucifer, 1);  /* is Lucifer */
+    Bitfield(ismichael, 1);  /* is Saint Michael */
     Bitfield(iswiz, 1);      /* is the Wizard of Yendor */
     Bitfield(wormno, 5);     /* at most 31 worms on any level */
     Bitfield(mwither_from_u, 1); /* is withering due to player */
@@ -175,7 +176,7 @@ struct monst {
     Bitfield(mstonebyu, 1);  /* you caused the monster to start stoning */
     Bitfield(mstone, 3);     /* monster is turning to stone */
     Bitfield(mberserk, 1);   /* monster is berserk */
-    /* 0 free bits */
+    /* 7 free bits */
 
     uchar mwither;           /* withering; amount of turns left till recovery */
     uchar vuln_fire;         /* timeout of temp vulnerability to fire */

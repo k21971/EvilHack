@@ -3919,6 +3919,9 @@ int final;
     if (u.uachieve.killed_lucifer)
         enl_msg(You_, "have ", "",
                 "defeated Lucifer", ""), ++acnt;
+    if (u.uachieve.killed_michael)
+        enl_msg(You_, "have ", "",
+                "defeated Saint Michael", ""), ++acnt;
     if (u.uachieve.defeat_icequeen)
         enl_msg(You_, "have ", "",
                 "defeated Kathryn the Ice Queen", ""), ++acnt;

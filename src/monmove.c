@@ -213,7 +213,7 @@ struct monst *mtmp;
         || mtmp->data->mlet == S_HUMAN || unique_corpstat(mtmp->data)
         || (mtmp->isshk && inhishop(mtmp))
         || (mtmp->ispriest && inhistemple(mtmp))
-        || mtmp->mberserk)
+        || mtmp->ismichael || mtmp->mberserk)
         return FALSE;
 
     /* <0,0> is used by musical scaring to check for the above;

@@ -1562,6 +1562,7 @@ E void NDECL(vecnadead);
 E void NDECL(vladdead);
 E void NDECL(goblinkingdead);
 E void NDECL(luciferdead);
+E void NDECL(michaeldead);
 E void FDECL(mondead, (struct monst *));
 E void FDECL(mondied, (struct monst *));
 E void FDECL(mongone, (struct monst *));
