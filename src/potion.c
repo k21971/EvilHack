@@ -1131,6 +1131,12 @@ register struct obj *otmp;
                 goto no_rise;
             }
 
+            /* revamped wizard's tower is also prohibited */
+            if (Is_wiz2_level(&u.uz) || Is_wiz3_level(&u.uz)) {
+                You("have an uneasy feeling.");
+                goto no_rise;
+            }
+
             /* Being in the presence of demon lords/princes
                can negate cursed potions of gain level most
                of the time */

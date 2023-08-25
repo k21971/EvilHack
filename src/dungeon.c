@@ -699,7 +699,7 @@ struct level_map {
                   { "bigrm", &bigroom_level },
                   { "castle", &stronghold_level },
                   { "earth", &earth_level },
-                  { "fakewiz1", &portal_level },
+                  { "wizportal", &portal_level },
                   { "fire", &fire_level },
                   { "hella", &hella_level },
                   { "hellb", &hellb_level },
@@ -1683,7 +1683,7 @@ level_difficulty()
          * below rather than stairs 1 level beneath the entry level.
          */
         else if (On_W_tower_level(&u.uz) && In_W_tower(some_X, some_Y, &u.uz))
-            res += (fakewiz1.dlev - u.uz.dlev);
+            res += (wizportal.dlev - u.uz.dlev);
             /*
              * Handling this properly would need more information here:
              * an inside/outside flag, or coordinates to calculate it.

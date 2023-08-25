@@ -57,6 +57,7 @@ struct u_event {
     Bitfield(vecnad_entered, 1);    /* entered Vecna's domain */
     Bitfield(gtown_entered, 1);     /* entered Goblin Town */
     Bitfield(purgatory_entered, 1); /* entered Purgatory */
+    Bitfield(wiztower_entered, 1);  /* entered final Wizard's tower level */
     Bitfield(uhand_of_elbereth, 3); /* became Hand of Elbereth */
     Bitfield(ucerberus, 1);         /* killed Cerberus */
     Bitfield(uvecna, 1);            /* destroyed Vecna */
@@ -78,6 +79,8 @@ struct u_achieve {
              1);           /* entered Gehennom by any means */
     Bitfield(enter_purgatory,
              1);           /* entered Purgatory by any means */
+    Bitfield(enter_wiztower,
+             1);           /* entered the Wizard of Yendor's final level by any means */
     Bitfield(ascended, 1); /* not quite the same as u.uevent.ascended */
     Bitfield(mines_luckstone, 1); /* got a luckstone at end of mines */
     Bitfield(finish_sokoban, 1);  /* obtained the sokoban prize */

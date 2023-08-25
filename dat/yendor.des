@@ -4,319 +4,468 @@
 # NetHack may be freely redistributed.  See license for details.
 #
 # The top (real) wizard level.
-# Keeping the Moat for old-time's sake
 MAZE:"wizard1",' '
-FLAGS:noteleport,hardfloor
+FLAGS:noteleport,hardfloor,shortsighted,nommap
 INIT_MAP:solidfill,' '
 GEOMETRY:center,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
- LLLLLLLLLLLLL LLLLLLLLLLLLLL
-L----------------------------L
-L|.......|..|.........|.....|L
-L|.......S..|.}}}}}}}.|.....|L
-L|..--S--|..|.}}---}}.|---S-|L
-L|..|....|..|.}--.--}.|..|..|L
-L|..|....|..|.}|...|}.|..|..|L
- |..--------|.}--.--}.|..|..|
-L|..|.......|.}}---}}.|..|..|L
-L|..S.......|.}}}}}}}.|..|..|L
-L|..|.......|.........|..|..|L
-L|..|.......|-----------S-S-|L
-L|..|.......S...............|L
-L----------------------------L
- LLLLLLLLLLLLL LLLLLLLLLLLLLL
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAA-------AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAA|.....|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAA---LLL---AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAA|.......|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAA|.......|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAA--F-----------F--AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAA|...............|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..tAAAAAAAAAAAAAAAAAAAA
+AAAAF...............|-FF--AAAAAAAAAAAAAAAAAAAAAAAAA.......AAAAAAAAAAAAAAAAAA
+AAAA|...|.......|...|....|L..........AAAAA..........|.....tAAAAAAAAAAAAAAAAA
+AAAA|...|.......|...|....|L..AAAA...........AA..AA..|......AAAAAAAAAAAAAAAAA
+AAAAF...............|-FF--AAAAAAAAAAAAAAAAAAAAAAAAA..t....AAAAAAAAAAAAAAAAAA
+AAAA|...............|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAA
+AAAA--F-----------F--AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAA|.......|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAA|.......|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAA---LLL---AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAA|.....|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAA-------AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 ENDMAP
-TELEPORT_REGION:(01,01,28,13),levregion(01,00,79,20)
-# Make it a morgue for rm id in mkmaze.c
-# for the purpose of random sdoor placement
-REGION:(13,02,21,10),unlit,"morgue",unfilled
-# another region to constrain monster arrival
-REGION:(02,02,11,12),unlit,"ordinary",unfilled
-LADDER:(07,06),down
+TELEPORT_REGION:(06,09,07,10),(00,00,00,00)
+# entire tower in a region, constrains monster migration
+REGION:(00,00,79,19),lit,"ordinary",unfilled
 
-TERRAIN: (00,00), ' '
-TERRAIN: (00,07), ' '
-TERRAIN: (00,14), ' '
-TERRAIN: (14,00), ' '
-TERRAIN: (14,14), ' '
-TERRAIN: (29,00), ' '
-TERRAIN: (29,07), ' '
-TERRAIN: (29,14), ' '
+# random wandering monster locations
+$place = { (03,02),(03,17),(24,04),(24,15),
+           (40,06),(40,13),(61,02),(61,17) }
+SHUFFLE: $place
 
-TERRAIN: floodfill (00,00), 'L'
-TERRAIN: floodfill (00,07), 'L'
-TERRAIN: floodfill (00,14), 'L'
-TERRAIN: floodfill (14,00), 'L'
-TERRAIN: floodfill (14,14), 'L'
-TERRAIN: floodfill (29,00), 'L'
-TERRAIN: floodfill (29,07), 'L'
-TERRAIN: floodfill (29,14), 'L'
+# stairs down
+LADDER:(05,09),down
 
-# Non diggable walls
-# Walls inside the moat stay diggable
-NON_DIGGABLE:(01,01,12,13)
-NON_DIGGABLE:(12,01,22,01)
-NON_DIGGABLE:(12,11,28,13)
-NON_DIGGABLE:(22,01,28,11)
-# Non passable walls
-NON_PASSWALL:(01,01,12,13)
-NON_PASSWALL:(12,01,22,01)
-NON_PASSWALL:(12,11,28,13)
-NON_PASSWALL:(22,01,28,11)
-# The wizard and his guards
-MONSTER:('@',"Wizard of Yendor"),(17,06),asleep
-MONSTER:('d',"hell hound"),(16,06)
-MONSTER:('V',"vampire royal"),(18,06)
+# drawbridges
+DRAWBRIDGE:(26,09),west,closed
+DRAWBRIDGE:(26,10),west,closed
+
+# doors
+DOOR:locked,(12,06)
+DOOR:locked,(12,13)
+DOOR:locked,(20,09)
+DOOR:locked,(20,10)
+
+# The wizard and his pet
+MONSTER:('@',"Wizard of Yendor"),(55,10),asleep
+MONSTER:('d',"hell hound"),(55,09),asleep
 # The local treasure
-OBJECT:('+',"Book of the Dead"),(17,06)
-# Surrounding terror
-MONSTER:(';',"kraken"),(15,03)
-MONSTER:(';',"giant eel"),(18,03)
-MONSTER:(';',"kraken"),(14,05)
-MONSTER:(';',"giant eel"),(14,07)
-MONSTER:(';',"kraken"),(20,05)
-MONSTER:(';',"giant eel"),(20,07)
-MONSTER:(';',"kraken"),(16,09)
-MONSTER:(';',"giant eel"),(18,09)
-MONSTER:(';',"piranha"),(16,03)
-MONSTER:(';',"piranha"),(20,09)
-MONSTER:(':',"salamander"),(00,00)
-MONSTER:(':',"salamander"),(00,14)
-MONSTER:(':',"salamander"),(29,00)
-MONSTER:(':',"salamander"),(29,14)
-MONSTER:(' ',"shade"),(36,05)
-MONSTER:(' ',"shade"),(40,10)
-# Random monsters
-MONSTER:'D',random
-MONSTER:'H',random
-MONSTER:'&',random
-MONSTER:'&',random
-MONSTER:'&',random
-MONSTER:'&',random
-# And to make things a little harder.
-TRAP:"board",(17,05)
-TRAP:"board",(17,07)
-TRAP:"board",(16,06)
-TRAP:"board",(18,06)
-# Random traps.
-TRAP:"spiked pit",random
-TRAP:"sleep gas",random
-TRAP:"anti magic",random
-TRAP:"magic",random
-# Some random loot.
-OBJECT:('*',"ruby"),random
-OBJECT:'!',random
-OBJECT:'!',random
-OBJECT:'?',random
-OBJECT:'?',random
-OBJECT:'+',random
-OBJECT:'+',random
-OBJECT:'+',random
-
-# the lava river
-IF [50%] {
-  TERRAIN: grow(north | west, randline (36,00),(50,20), 10), 'L'
-} ELSE {
-  TERRAIN: grow(north | west, randline (50,00),(36,20), 10), 'L'
+OBJECT:('+',"Book of the Dead"),(55,10)
+CONTAINER:('(',"crystal chest"),(55,09) {
+  OBJECT:('!',"full healing")
+  OBJECT:('!',"gain level")
+  OBJECT:'?'
+  OBJECT:'+'
+  OBJECT:'"'
+  IF [25%] {
+    OBJECT:('(',"magic marker")
+  }
 }
+
+# defenders inside the tower
+MONSTER:('@',"infidel"),(12,08),hostile
+MONSTER:('&',"weredemon"),(12,11),hostile
+MONSTER:('@',"drow cleric"),(09,04),hostile
+MONSTER:('@',"drow cleric"),(15,04),hostile
+MONSTER:('@',"elven wizard"),(15,15),hostile
+MONSTER:('@',"elven wizard"),(09,15),hostile
+# bridge
+MONSTER:'H',(39,10),asleep,hostile
+# flying monsters outside
+MONSTER:'D',$place[0],hostile
+MONSTER:'D',$place[1],hostile
+MONSTER:'D',$place[2],hostile
+MONSTER:'D',$place[3],hostile
+MONSTER:'V',$place[4],hostile
+MONSTER:'V',$place[5],hostile
+MONSTER:'e',$place[6],hostile
+MONSTER:'e',$place[7],hostile
+
+# loot
+OBJECT:'+',(10,02)
+OBJECT:'?',(11,02)
+OBJECT:'?',(12,02)
+OBJECT:'?',(13,02)
+OBJECT:'+',(14,02)
+OBJECT:'+',(10,17)
+OBJECT:'?',(11,17)
+OBJECT:'?',(12,17)
+OBJECT:'?',(13,17)
+OBJECT:'+',(14,17)
+
+# none shall pass
+NON_DIGGABLE:(04,01,25,18)
+NON_PASSWALL:(04,01,25,18)
 
 
 # The middle wizard level.
 MAZE:"wizard2",' '
-FLAGS:noteleport,hardfloor
+FLAGS:noteleport,hardfloor,nommap
 INIT_MAP:solidfill,' '
 GEOMETRY:center,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
- LLLLLLLLLLLLL LLLLLLLLLLLLLL
-L----------------------------L
-L|.....|.S....|.............|L
-L|.....|.-------S--------S--|L
-L|.....|.|.........|........|L
-L|..-S--S|.........|........|L
-L|..|....|.........|------S-|L
- |..|....|.........|.....|..|
-L|-S-----|.........|.....|..|L
-L|.......|.........|S--S--..|L
-L|.......|.........|.|......|L
-L|-----S----S-------.|......|L
-L|............|....S.|......|L
-L----------------------------L
- LLLLLLLLLLLLL LLLLLLLLLLLLLL
+          -------------------
+       ----.................----
+    ----.....-------------.....----
+  ---.....----...........----.....---
+  ||....---.................---....||
+  |...---.|..--------------------...|
+--|..||...|--|wwwwwS.FL.........||..|--
+|.F..|....|...wwwww|-|L..........|..F.|
+|.|..|....|...wwwwwS.FL..........|..F.|
+|.F..|....|...wwwww|-|L..........|..F.|
+--|..||...|--|wwwwwS.FL.........||..|--
+  |...---.|..--------------------...|
+  ||....---.................---....||
+  ---.....----...........----.....---
+    ----.....-------------.....----
+       ----.................----
+          -------------------
+
 ENDMAP
-TELEPORT_REGION:(0,0,29,14),levregion(01,00,79,20)
+TELEPORT_REGION:(01,07,01,07),(00,00,00,00)
 # entire tower in a region, constrains monster migration
-REGION:(02,02,27,12),unlit,"ordinary",unfilled
-REGION:(10,04,18,10),unlit,"zoo"
-DOOR:closed,(16,03)
-DOOR:closed,(12,11)
-LADDER:(13,02),up
-LADDER:(15,12),down
+REGION:(00,00,38,16),unlit,"ordinary",unfilled
 
-TERRAIN: (00,00), ' '
-TERRAIN: (00,07), ' '
-TERRAIN: (00,14), ' '
-TERRAIN: (14,00), ' '
-TERRAIN: (14,14), ' '
-TERRAIN: (29,00), ' '
-TERRAIN: (29,07), ' '
-TERRAIN: (29,14), ' '
+# random wandering monster locations
+$place = { (07,04),(19,01),(19,04),(31,04),
+           (31,12),(19,12),(19,15),(07,12),
+           (24,07),(24,09),(08,08) }
+SHUFFLE: $place
 
-TERRAIN: floodfill (00,00), 'L'
-TERRAIN: floodfill (00,07), 'L'
-TERRAIN: floodfill (00,14), 'L'
-TERRAIN: floodfill (14,00), 'L'
-TERRAIN: floodfill (14,14), 'L'
-TERRAIN: floodfill (29,00), 'L'
-TERRAIN: floodfill (29,07), 'L'
-TERRAIN: floodfill (29,14), 'L'
+# various captive monsters
+$bars = { (20,06),(20,08),(20,10),(37,08) }
+SHUFFLE: $bars
 
-# Non diggable walls everywhere
-NON_DIGGABLE:(01,01,28,13)
-#
-NON_PASSWALL:(01,01,07,13)
-NON_PASSWALL:(07,01,28,03)
-NON_PASSWALL:(17,03,28,13)
-NON_PASSWALL:(07,13,17,13)
-# Random traps.
-TRAP:"spiked pit",random
-TRAP:"sleep gas",random
-TRAP:"anti magic",random
-TRAP:"magic",random
-# Some random loot.
-OBJECT:'!',random
-OBJECT:'!',random
-OBJECT:'?',random
-OBJECT:'?',random
-OBJECT:'+',random
-# Monsters outside
-MONSTER:(':',"salamander"),(00,00)
-MONSTER:(':',"salamander"),(00,14)
-MONSTER:(':',"salamander"),(29,00)
-MONSTER:(':',"salamander"),(29,14)
-MONSTER:(' ',"shade"),(36,05)
-MONSTER:(' ',"shade"),(40,10)
-# treasures
-OBJECT:'"',(05,07)
+# stairs
+LADDER:(11,08),up
+LADDER:(01,08),down
 
-# the lava river
+# random corridor path / secret doors
 IF [50%] {
-  TERRAIN: grow(north | west, randline (36,00),(50,20), 10), 'L'
+   TERRAIN:(03,05),'-'
+   TERRAIN:(04,05),'-'
+   TERRAIN:(05,05),'-'
+   TERRAIN:(07,05),'S'
 } ELSE {
-  TERRAIN: grow(north | west, randline (50,00),(36,20), 10), 'L'
+   TERRAIN:(03,11),'-'
+   TERRAIN:(04,11),'-'
+   TERRAIN:(05,11),'-'
+   TERRAIN:(07,11),'S'
 }
+
+IF [50%] {
+   TERRAIN:(18,11),'S'
+   TERRAIN:(10,05),'S'
+} ELSE {
+   TERRAIN:(18,05),'S'
+   TERRAIN:(10,11),'S'
+}
+
+# doors
+DOOR:locked,(02,08)
+DOOR:locked,(24,05)
+DOOR:locked,(24,11)
+
+# captive monsters
+MONSTER:('A',"angel"),$bars[0]
+MONSTER:('e',"beholder"),$bars[1],hostile
+MONSTER:'D',$bars[2],hostile
+MONSTER:'D',$bars[3],hostile
+
+# roaming monsters
+MONSTER:'D',$place[0],hostile
+MONSTER:'&',$place[1],hostile
+MONSTER:'J',$place[2],hostile
+MONSTER:'L',$place[3],hostile
+MONSTER:'T',$place[4],hostile
+MONSTER:'N',$place[5],hostile
+MONSTER:('@',"drow cleric"),$place[6],hostile
+MONSTER:('@',"elven wizard"),$place[7],hostile
+MONSTER:('H',"hill giant shaman"),$place[8],hostile
+MONSTER:('@',"elven wizard"),$place[9],hostile
+MONSTER:('@',"drow cleric"),$place[10],hostile
+
+# wizard apprectices
+MONSTER:('@',"apprentice"),(29,07),hostile
+MONSTER:('@',"apprentice"),(29,09),hostile
+MONSTER:('@',"apprentice"),(30,07),hostile
+MONSTER:('@',"apprentice"),(30,09),hostile
+
+# mind flayer nursery
+MONSTER:(';',"mind flayer larva"),(14,06),hostile
+MONSTER:(';',"mind flayer larva"),(14,08),hostile
+MONSTER:(';',"mind flayer larva"),(14,10),hostile
+MONSTER:(';',"mind flayer larva"),(15,07),hostile
+MONSTER:(';',"mind flayer larva"),(15,09),hostile
+MONSTER:(';',"mind flayer larva"),(16,06),hostile
+MONSTER:(';',"mind flayer larva"),(16,10),hostile
+MONSTER:(';',"mind flayer larva"),(17,07),hostile
+MONSTER:(';',"mind flayer larva"),(17,09),hostile
+MONSTER:(';',"mind flayer larva"),(18,06),hostile
+MONSTER:(';',"mind flayer larva"),(18,08),hostile
+MONSTER:(';',"mind flayer larva"),(18,10),hostile
+MONSTER:('@',"apprentice"),(16,07),asleep,hostile
+MONSTER:('@',"apprentice"),(16,09),asleep,hostile
+IF [50%] {
+  MONSTER:('w',"neothelid"),(16,08),hostile
+}
+
+# loot
+OBJECT:('(',"crystal chest"),(20,06)
+OBJECT:('(',"crystal chest"),(20,08)
+OBJECT:('(',"crystal chest"),(20,10)
+
+# traps
+TRAP:random,(12,07)
+TRAP:random,(12,08)
+TRAP:random,(12,09)
+TRAP:random,(24,06)
+TRAP:random,(24,10)
+
+# none shall pass
+NON_DIGGABLE:(00,00,38,16)
+NON_PASSWALL:(00,00,38,16)
 
 
 # The bottom wizard level.
-# Memorialize the fakewiz setup.
 MAZE:"wizard3",' '
-FLAGS:noteleport,hardfloor
+FLAGS:noteleport,hardfloor,nommap
 INIT_MAP:solidfill,' '
 GEOMETRY:center,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
- LLLLLLLLLLLLL LLLLLLLLLLLLLL
-L----------------------------L
-L|..|............S..........|L
-L|..|..------------------S--|L
-L|..|..|.........|..........|L
-L|..S..|.}}}}}}}.|..........|L
-L|..|..|.}}---}}.|-S--------|L
- |..|..|.}--.--}.|..|.......|
-L|..|..|.}|...|}.|..|.......|L
-L|..---|.}--.--}.|..|.......|L
-L|.....|.}}---}}.|..|.......|L
-L|.....S.}}}}}}}.|..|.......|L
-L|.....|.........|..|.......|L
-L----------------------------L
- LLLLLLLLLLLLL LLLLLLLLLLLLLL
+...TTT..T.......}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}.....t....TTT
+............t..}}---------------------------------------------}}...TTT.....T
+..........}}}}}}}|....|..............|...|..............|....|}}}}}}}T......
+..........}--FF--|....|..............|...|..............|....|--FF--}.......
+.....T....}|...|-|....|..............-----..............|....|-|...|}.......
+..........}F...|......|.................................|......|...F}.TT....
+..........}|...|......|.................................|......|...|}.......
+.TT.......}|...|--S-----------------------------------------S--|...|}....T..
+..T.......}F...|..........|.......|.........|.......|..........|...F}....T..
+..........}F...|..........|.......|...T.T...|.......|..........|...F}...t...
+..........}|...|..........|.......S..T.{.T..S.......|..........|...|}.......
+....t.....}|...|..........|.......|...T.T...|.......|..........|...|}.......
+..........}F...|..........|.......|.........|.......|..........|...F}.......
+.....TT...}|...|-----..---|-------|---------|-------|---..-----|...|}.....TT
+..........}--FF--|........|.......|...F.F...|.......|........|--FF--}.......
+..........}}}}}}}|........|.......|...F.F...|.......|........|}}}}}}}.......
+tTT............}}-----------F---F-------------F---F-----------}}.......TTt..
+.......T........}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}...T.........
+......TT....................................................................
+............................TT..............................TTTT............
 ENDMAP
-TELEPORT_REGION:(0,0,29,14),levregion(01,00,79,20)
-BRANCH:(26,12,26,12),(0,0,0,0)
-REGION:(08,04,16,12),unlit,"morgue",unfilled
-REGION:(18,07,19,12),unlit,"beehive"
-# make the entry chamber a real room; it affects monster arrival;
-# `unfilled' is a kludge to force an ordinary room to remain a room
-REGION:(21,07,27,12),unlit,"ordinary",unfilled {
-  ROOMDOOR:true, closed, north|west, random
+TELEPORT_REGION:(00,00,02,02),(00,00,00,00)
+REGION:(01,00,79,20),lit,"ordinary"
+# constrains monster migration
+REGION:(16,02,62,15),lit,"ordinary",unfilled
+REGION:(12,04,14,13),lit,"ordinary",unfilled
+REGION:(64,04,66,13),lit,"ordinary",unfilled
+BRANCH:(01,01,01,01),(00,00,00,00)
+
+# random wandering monster locations
+$place = { (06,06),(01,08),(04,17),(22,19),
+           (56,18),(70,17),(72,08),(74,01) }
+SHUFFLE: $place
+
+# random monsters
+MONSTER:'D',$place[0],hostile
+MONSTER:'J',$place[1],hostile
+MONSTER:'H',$place[2],hostile
+MONSTER:'V',$place[3],hostile
+MONSTER:'D',$place[4],hostile
+MONSTER:'L',$place[5],hostile
+MONSTER:'D',$place[6],hostile
+MONSTER:'e',$place[7],hostile
+
+# player monster barbarian
+MONSTER:('@',"barbarian"),(67,01),hostile
+
+# moat
+MONSTER:(';',"kraken"),(10,02)
+MONSTER:(';',"kraken"),(10,15)
+MONSTER:(';',"kraken"),(68,02)
+MONSTER:(';',"kraken"),(68,15)
+MONSTER:(';',"shark"),(16,00)
+MONSTER:(';',"shark"),(62,00)
+MONSTER:(';',"shark"),(30,00)
+MONSTER:(';',"shark"),(48,00)
+MONSTER:(';',"shark"),(10,07)
+MONSTER:(';',"shark"),(10,10)
+MONSTER:(';',"giant eel"),(15,01)
+MONSTER:(';',"giant eel"),(15,16)
+MONSTER:(';',"giant eel"),(63,01)
+MONSTER:(';',"giant eel"),(63,16)
+MONSTER:(';',"electric eel"),(37,00)
+MONSTER:(';',"electric eel"),(38,00)
+MONSTER:(';',"electric eel"),(40,00)
+MONSTER:(';',"electric eel"),(41,00)
+MONSTER:(';',"shark"),(16,17)
+MONSTER:(';',"shark"),(62,17)
+MONSTER:(';',"shark"),(30,17)
+MONSTER:(';',"shark"),(48,17)
+MONSTER:(';',"shark"),(68,07)
+MONSTER:(';',"shark"),(68,10)
+MONSTER:(';',"giant eel"),(13,02)
+MONSTER:(';',"giant eel"),(13,15)
+MONSTER:(';',"giant eel"),(65,02)
+MONSTER:(';',"giant eel"),(65,15)
+MONSTER:(';',"electric eel"),(37,17)
+MONSTER:(';',"electric eel"),(38,17)
+MONSTER:(';',"electric eel"),(40,17)
+MONSTER:(';',"electric eel"),(41,17)
+
+# barracks / soldier areas
+REGION:(27,08,33,12),lit,"barracks",filled
+REGION:(45,08,51,12),lit,"barracks",filled
+MONSTER:('@',"soldier"),(13,05)
+MONSTER:('@',"sergeant"),(13,08)
+MONSTER:('@',"sergeant"),(13,09)
+MONSTER:('@',"soldier"),(13,12)
+MONSTER:('@',"soldier"),(65,05)
+MONSTER:('@',"sergeant"),(65,08)
+MONSTER:('@',"sergeant"),(65,09)
+MONSTER:('@',"soldier"),(65,12)
+MONSTER:('@',"sergeant"),(28,15)
+MONSTER:('@',"sergeant"),(32,15)
+MONSTER:('@',"sergeant"),(46,15)
+MONSTER:('@',"sergeant"),(50,15)
+
+# officers quarters
+MONSTER:('@',"lieutenant"),(19,03)
+MONSTER:('@',"lieutenant"),(19,04)
+MONSTER:('@',"lieutenant"),(20,04)
+MONSTER:('@',"captain"),(20,05)
+MONSTER:('@',"lieutenant"),(59,03)
+MONSTER:('@',"lieutenant"),(59,04)
+MONSTER:('@',"lieutenant"),(58,04)
+MONSTER:('@',"captain"),(58,05)
+
+# stables
+MONSTER:('u',"horse"),(18,15),asleep
+MONSTER:('u',"warhorse"),(20,15),asleep
+MONSTER:('u',"nightmare"),(23,15),asleep
+MONSTER:('q',"woolly mammoth"),(25,15),asleep
+MONSTER:(':',"large cave lizard"),(53,15),asleep
+MONSTER:('u',"warhorse"),(55,15),asleep
+MONSTER:('u',"nightmare"),(58,15),asleep
+MONSTER:('u',"cauchemar"),(60,15),asleep
+MONSTER:('@',"soldier"),(21,14)
+MONSTER:('@',"soldier"),(57,14)
+
+# forge/training areas
+MONSTER:('@',"sergeant"),(19,09)
+MONSTER:('@',"soldier"),(19,11)
+MONSTER:('@',"soldier"),(22,09)
+MONSTER:('@',"soldier"),(22,11)
+MONSTER:('@',"soldier"),(56,09)
+MONSTER:('@',"soldier"),(56,11)
+MONSTER:('@',"sergeant"),(59,09)
+MONSTER:('@',"soldier"),(59,11)
+
+# zoo
+REGION:(23,02,36,06),unlit,"zoo",filled,irregular
+
+# foyer
+MONSTER:('&',"marilith"),(36,14),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
 }
-DOOR:closed,(19,06)
-LADDER:(12,08),up
+MONSTER:('&',"marilith"),(36,15),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+MONSTER:('&',"marilith"),(42,14),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
+MONSTER:('&',"marilith"),(42,15),awake {
+  OBJECT:(')',"orcish bow"),uncursed
+  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
+}
 
-TERRAIN: (00,00), ' '
-TERRAIN: (00,07), ' '
-TERRAIN: (00,14), ' '
-TERRAIN: (14,00), ' '
-TERRAIN: (14,14), ' '
-TERRAIN: (29,00), ' '
-TERRAIN: (29,07), ' '
-TERRAIN: (29,14), ' '
+# various loot
+CONTAINER:('(',"chest"),(18,14),locked {
+  OBJECT:('%',"apple"),quantity:3
+  OBJECT:('%',"carrot"),quantity:3
+  OBJECT:('(',"saddle"),uncursed
+  IF [20%] {
+    IF [80%] {
+      OBJECT:('(',"spiked barding"),uncursed
+    } ELSE {
+      OBJECT:('(',"barding of reflection"),uncursed
+    }
+  }
+}
+CONTAINER:('(',"chest"),(60,14),locked {
+  OBJECT:('%',"apple"),quantity:3
+  OBJECT:('%',"tripe ration"),quantity:3
+  OBJECT:('(',"saddle"),uncursed
+  IF [20%] {
+    IF [80%] {
+      OBJECT:('(',"spiked barding"),uncursed
+    } ELSE {
+      OBJECT:('(',"barding of reflection"),uncursed
+    }
+  }
+}
+OBJECT:('(',"chest"),(18,02)
+OBJECT:('(',"chest"),(60,02)
 
-TERRAIN: floodfill (00,00), 'L'
-TERRAIN: floodfill (00,07), 'L'
-TERRAIN: floodfill (00,14), 'L'
-TERRAIN: floodfill (14,00), 'L'
-TERRAIN: floodfill (14,14), 'L'
-TERRAIN: floodfill (29,00), 'L'
-TERRAIN: floodfill (29,07), 'L'
-TERRAIN: floodfill (29,14), 'L'
+# stairs up
+DOOR:locked,(39,04)
+LADDER:(39,02),up
 
-# Non diggable walls
-# Walls inside the moat stay diggable
-NON_DIGGABLE:(01,01,07,13)
-NON_DIGGABLE:(07,01,28,03)
-NON_DIGGABLE:(17,03,28,13)
-NON_DIGGABLE:(07,13,17,13)
-#
-NON_PASSWALL:(01,01,07,13)
-NON_PASSWALL:(07,01,28,03)
-NON_PASSWALL:(17,03,28,13)
-NON_PASSWALL:(07,13,17,13)
-#
-MONSTER:'L',(11,08)
-MONSTER:('V',"vampire noble"),(13,08)
-# Some surrounding horrors
-MONSTER:(';',"kraken"),(09,06)
-MONSTER:(';',"giant eel"),(09,09)
-MONSTER:(';',"kraken"),(15,06)
-MONSTER:(';',"giant eel"),(15,09)
-# Other monsters
-MONSTER:'L',random
-MONSTER:'D',random
-MONSTER:'D',(27,10)
-MONSTER:'&',random
-MONSTER:'&',random
-MONSTER:'&',random
-MONSTER:(':',"salamander"),(00,00)
-MONSTER:(':',"salamander"),(00,14)
-MONSTER:(':',"salamander"),(29,00)
-MONSTER:(':',"salamander"),(29,14)
-MONSTER:(' ',"shade"),(36,05)
-MONSTER:(' ',"shade"),(40,10)
-# And to make things a little harder.
-TRAP:"board",(11,08)
-TRAP:"board",(13,08)
-TRAP:"board",(12,07)
-TRAP:"board",(12,09)
-# Some loot
-OBJECT:')',random
-OBJECT:'!',random
-OBJECT:'?',random
-OBJECT:'?',random
-OBJECT:'(',random
-# treasures
-OBJECT:'"',(12,08)
+# drawbridge
+DRAWBRIDGE:(39,17),north,closed
 
-# the lava river
+# random forge
 IF [50%] {
-  TERRAIN: grow(north | west, randline (36,00),(50,20), 10), 'L'
-} ELSE {
-  TERRAIN: grow(north | west, randline (50,00),(36,20), 10), 'L'
+  FORGE:(17,11)
+}
+IF [50%] {
+  FORGE:(61,11)
 }
 
+# doors
+DOOR:locked,(26,09)
+DOOR:locked,(26,11)
+DOOR:locked,(39,13)
+DOOR:locked,(52,09)
+DOOR:locked,(52,11)
 
-# The former decoy wizard levels.
-# There are two of these, and we need to
-# distinguish between them for the portal.
-MAZE:"fakewiz1",' '
+# random door
+IF [50%] {
+  DOOR:locked,(22,04)
+} ELSE {
+  DOOR:locked,(56,04)
+}
+
+# random secret doors
+IF [20%] {
+   TERRAIN:(62,03),'S'
+   TERRAIN:(62,04),'S'
+}
+
+# none shall pass
+NON_DIGGABLE:(11,01,67,16)
+NON_PASSWALL:(11,01,67,16)
+
+
+# Guarded portal to the Wizard's Tower.
+MAZE:"wizportal",' '
 INIT_MAP:mines,'.',' ',true,true,unlit,true
 GEOMETRY:center,center
 MAP
@@ -395,120 +544,6 @@ TRAP:"board",(10,09)
 TRAP:"board",(10,11)
 TRAP:"board",(09,10)
 TRAP:"board",(11,10)
-
-# chance of evil critters
-IF [50%] {
-  MONSTER:'L',random,hostile
-} ELSE {
-  MONSTER:random,random,hostile
-}
-# some flavor from GruntHack
-IF [50%] {
-  MONSTER:(' ',"shade"),random,hostile
-  MONSTER:(' ',"shade"),random,hostile
-} ELSE {
-  MONSTER:('Z',"skeleton"),random,hostile
-  MONSTER:('Z',"skeleton"),random,hostile
-}
-IF [66%] {
-# could be a snark now, so up the percentage a bit
-  MONSTER:'J',random,hostile
-} ELSE {
-  MONSTER:random,random,hostile
-}
-
-IF [75%] {
-  MONSTER:(':',"salamander"),random,hostile
-  MONSTER:(':',"salamander"),random,hostile
-} ELSE {
-  MONSTER:(':',"salamander"),random,hostile
-  MONSTER:('&',"lava demon"),random,hostile
-}
-
-# the lava river
-IF [50%] {
-  TERRAIN: grow(north | west, randline (30,00),(50,20), 10), 'L'
-} ELSE {
-  TERRAIN: grow(north | west, randline (50,00),(30,20), 10), 'L'
-}
-
-
-MAZE:"fakewiz2",' '
-INIT_MAP:mines,'.',' ',true,true,unlit,true
-GEOMETRY:center,center
-MAP
- LLLLLLLLLLLLLLLLLLL
-LLL...LLLLLLLLL...LLL
-LL.....L-----L.....LL
-L......LF...FL......L
-L......L-FFF-L......L
-LL.................LL
-LLL...............LLL
-LLLLL..LLLLLLL..LLLLL
-LL-F-..LL---LL..-F-LL
-LL|.F..L--.--L..F.|LL
- L|.F..L|...|L..F.|L
-LL|.F..L--.--L..F.|LL
-LL-F-..LL---LL..-F-LL
-LLLLL..LLLLLLL..LLLLL
-LLL...............LLL
-LL.................LL
-L......L-FFF-L......L
-L......LF...FL......L
-LL.....L-----L.....LL
-LLL...LLLLLLLLL...LLL
- LLLLLLLLLLLLLLLLLLL
-ENDMAP
-STAIR:levregion(01,00,79,20),(0,0,20,20),up
-STAIR:levregion(01,00,79,20),(0,0,20,20),down
-TELEPORT_REGION:levregion(01,00,79,20),(08,08,12,12)
-REGION:(10,09,12,12),unlit,"ordinary",unfilled,irregular
-
-TERRAIN: (00,00), ' '
-TERRAIN: (00,10), ' '
-TERRAIN: (00,20), ' '
-TERRAIN: (20,00), ' '
-TERRAIN: (20,10), ' '
-TERRAIN: (20,20), ' '
-
-TERRAIN: floodfill (00,00), 'L'
-TERRAIN: floodfill (00,10), 'L'
-TERRAIN: floodfill (00,20), 'L'
-TERRAIN: floodfill (20,00), 'L'
-TERRAIN: floodfill (20,10), 'L'
-TERRAIN: floodfill (20,20), 'L'
-
-# Tower monsters
-MONSTER:('&',"balrog"),(10,10)
-MONSTER:('V',"vampire royal"),(09,10)
-MONSTER:(':',"salamander"),(08,08)
-MONSTER:(':',"salamander"),(12,12)
-MONSTER:(':',"salamander"),(01,10)
-MONSTER:(':',"salamander"),(19,10)
-# Archers in the watch towers
-MONSTER:('&',"marilith"),(03,10),awake {
-  OBJECT:(')',"orcish bow"),uncursed
-  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
-}
-MONSTER:('&',"marilith"),(17,10),awake {
-  OBJECT:(')',"orcish bow"),uncursed
-  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
-}
-MONSTER:('&',"marilith"),(10,03),awake {
-  OBJECT:(')',"orcish bow"),uncursed
-  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
-}
-MONSTER:('&',"marilith"),(10,17),awake {
-  OBJECT:(')',"orcish bow"),uncursed
-  OBJECT:(')',"orcish arrow"),uncursed,quantity:100
-}
-# And to make things a little harder.
-TRAP:"board",(10,09)
-TRAP:"board",(10,11)
-TRAP:"board",(09,10)
-TRAP:"board",(11,10)
-# treasures
-OBJECT:'"',(10,10)
 
 # chance of evil critters
 IF [50%] {

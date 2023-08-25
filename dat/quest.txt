@@ -4820,6 +4820,19 @@ Purgatory, a seemingly beautful, peaceful place.  But not all is as
 it seems...
 %E [You have entered Purgatory.]
 #
+# Entering the Wizard of Yendor's lair
+#
+%Cc - 00308
+You have finally made the ascent to the top of the tower.  As you
+catch your breath, you peer outside through the iron-barred windows.
+You can view off in the distance a small rocky platform that appears
+to be suspended in midair, and a slender jagged bridge connecting it
+to the top of the tower.  Various creatures hover around the platform,
+guarding... something?  One misstep, and you would certainly fall to
+your death.  You sense an evil, powerful presence here, and realize you
+are in the lair of the Wizard of Yendor himself.  Beware!
+%E [You have entered the Wizard of Yendor's lair.]
+#
 # Lucifer
 #
 %Cc - 00400

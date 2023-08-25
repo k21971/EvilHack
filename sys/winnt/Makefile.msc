@@ -1290,7 +1290,6 @@ spotless: clean
 	if exist $(DAT)\dungeon		 del $(DAT)\dungeon
 	if exist $(DAT)\dungeon.pdf	 del $(DAT)\dungeon.pdf
 	if exist $(DAT)\earth.lev	 del $(DAT)\earth.lev
-	if exist $(DAT)\fakewiz?.lev	 del $(DAT)\fakewiz?.lev
 	if exist $(DAT)\fire.lev	 del $(DAT)\fire.lev
 	if exist $(DAT)\goblintown-?.lev del $(DAT)\goblintown-?.lev
 	if exist $(DAT)\hella-?.lev	 del $(DAT)\hella-?.lev
@@ -1322,6 +1321,7 @@ spotless: clean
 	if exist $(DAT)\vlt-????.lev	 del $(DAT)\vlt-????.lev
 	if exist $(DAT)\water.lev	 del $(DAT)\water.lev
 	if exist $(DAT)\wizard?.lev	 del $(DAT)\wizard?.lev
+	if exist $(DAT)\wizportal.lev	 del $(DAT)\wizportal.lev
 	if exist $(DAT)\dlb.lst		 del $(DAT)\dlb.lst
 	if exist $(DAT)\porthelp	 del $(DAT)\porthelp
 	if exist $(O)sp_lev.tag	         del $(O)sp_lev.tag

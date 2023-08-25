@@ -83,13 +83,13 @@ CSS = NHdump.css
 
 DATHELP = help hh cmdhelp keyhelp history opthelp wizhelp
 
-SPEC_LEVS = bigrm-*.lev castle-?.lev fakewiz?.lev hellfill.lev \
-        nymph.lev knox-?.lev medusa-?.lev minend-?.lev minefill.lev \
+SPEC_LEVS = bigrm-*.lev castle-?.lev hellfill.lev nymph.lev \
+        knox-?.lev medusa-?.lev minend-?.lev minefill.lev \
         vlt-*.lev hella-?.lev hellb-?.lev hellc-?.lev \
         minetn-?.lev oracle-?.lev orcus.lev sanctum.lev soko?-?.lev \
         goblintown-?.lev icequeen-?.lev vecna-?.lev purgatory-?.lev \
-        tower?.lev valley.lev wizard?.lev astral.lev air.lev earth.lev \
-        fire.lev water.lev
+        tower?.lev valley.lev wizard?.lev wizportal.lev astral.lev \
+        air.lev earth.lev fire.lev water.lev
 QUEST_LEVS = ???-goal.lev ???-fil?.lev ???-loca.lev ???-strt.lev
 
 DATNODLB = $(VARDATND) license symbols $(CSS)

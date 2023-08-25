@@ -1554,8 +1554,6 @@
 				"$(NH_DAT_DIR)/earth.lev",
 				"$(NH_DAT_DIR)/engrave",
 				"$(NH_DAT_DIR)/epitaph",
-				"$(NH_DAT_DIR)/fakewiz1.lev",
-				"$(NH_DAT_DIR)/fakewiz2.lev",
 				"$(NH_DAT_DIR)/fire.lev",
 				"$(NH_DAT_DIR)/goblintown-1.lev",
 				"$(NH_DAT_DIR)/goblintown-2.lev",
@@ -1683,6 +1681,7 @@
 				"$(NH_DAT_DIR)/wizard1.lev",
 				"$(NH_DAT_DIR)/wizard2.lev",
 				"$(NH_DAT_DIR)/wizard3.lev",
+				"$(NH_DAT_DIR)/wizportal.lev",
 				"$(NH_DAT_DIR)/wizhelp",
 			);
 			name = "Build nhdat";
@@ -1693,7 +1692,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/dlb cf nhdat help hh cmdhelp keyhelp history opthelp wizhelp dungeon tribute bigrm-*.lev castle-?.lev fakewiz?.lev goblintown-?.lev hella-?.lev hellb-?.lev hellc-?.lev hellfill.lev icequeen-?.lev knox-?.lev medusa-?.lev minend-?.lev minefill.lev minetn-?.lev nymph.lev oracle-1.lev oracle-2.lev oracle-3.lev orcus.lev purgatory-?.lev sanctum.lev soko?-?.lev tower?.lev valley.lev vecna-?.lev vlt-????.lev wizard?.lev astral.lev air.lev earth.lev fire.lev water.lev ???-goal.lev ???-fil?.lev ???-loca.lev ???-strt.lev bogusmon data engrave epitaph oracles options quest.dat rumors vaults.dat\n\n";
+			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/dlb cf nhdat help hh cmdhelp keyhelp history opthelp wizhelp dungeon tribute bigrm-*.lev castle-?.lev goblintown-?.lev hella-?.lev hellb-?.lev hellc-?.lev hellfill.lev icequeen-?.lev knox-?.lev medusa-?.lev minend-?.lev minefill.lev minetn-?.lev nymph.lev oracle-1.lev oracle-2.lev oracle-3.lev orcus.lev purgatory-?.lev sanctum.lev soko?-?.lev tower?.lev valley.lev vecna-?.lev vlt-????.lev wizard?.lev wizportal.lev astral.lev air.lev earth.lev fire.lev water.lev ???-goal.lev ???-fil?.lev ???-loca.lev ???-strt.lev bogusmon data engrave epitaph oracles options quest.dat rumors vaults.dat\n\n";
 		};
 		3192867021A39F6A00325BEB /* Install */ = {
 			isa = PBXShellScriptBuildPhase;

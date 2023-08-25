@@ -3934,6 +3934,9 @@ int final;
     if (u.uachieve.enter_purgatory)
         enl_msg(You_, "have ", "",
                 "entered Purgatory", ""), ++acnt;
+    if (u.uachieve.enter_wiztower)
+        enl_msg(You_, "have ", "",
+                "entered the Wizard of Yendor's lair", ""), ++acnt;
     if (u.uachieve.menorah)
         enl_msg(You_, "have ", "",
                 "handled the Candelabrum of Invocation", ""), ++acnt;

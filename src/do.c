@@ -1955,6 +1955,17 @@ boolean at_stairs, falling, portal;
         resurrect();
     }
 
+    /* entered the Wizard's lair (final tower level) */
+    if (!Is_wiz1_level(&u.uz0) && Is_wiz1_level(&u.uz)
+        && !u.uevent.wiztower_entered) {
+        u.uevent.wiztower_entered = 1;
+        if (!Blind)
+            com_pager(308);
+        if (!u.uachieve.enter_wiztower)
+            livelog_write_string(LL_ACHIEVE, "entered the Wizard of Yendor's lair");
+        u.uachieve.enter_wiztower = 1;
+    }
+
     if (familiar) {
         static const char *const fam_msgs[4] = {
             "You have a sense of deja vu.",
@@ -1990,7 +2001,8 @@ boolean at_stairs, falling, portal;
             resurrect(); /* force confrontation with Wizard */
     } else if (In_quest(&u.uz)) {
         onquest(); /* might be reaching locate|goal level */
-    } else if (In_V_tower(&u.uz)) {
+    } else if (In_V_tower(&u.uz) || Is_wiz3_level(&u.uz)
+               || In_vecna_branch(&u.uz)) {
         if (newdungeon && In_hell(&u.uz0))
             pline_The("heat and smoke are gone.");
     } else if (Is_knox(&u.uz)) {

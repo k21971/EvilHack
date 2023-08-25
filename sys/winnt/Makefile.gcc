@@ -1295,7 +1295,6 @@ ifneq "$(W_DAT)" ""
 	if exist $(W_DAT)\dungeon          del $(W_DAT)\dungeon
 	if exist $(W_DAT)\dungeon.pdf	   del $(W_DAT)\dungeon.pdf
 	if exist $(W_DAT)\earth.lev	   del $(W_DAT)\earth.lev
-	if exist $(W_DAT)\fakewiz?.lev	   del $(W_DAT)\fakewiz?.lev
 	if exist $(W_DAT)\fire.lev	   del $(W_DAT)\fire.lev
 	if exist $(W_DAT)\goblintown-?.lev del $(W_DAT)\goblintown-?.lev
 	if exist $(W_DAT)\hella-?.lev	   del $(W_DAT)\hella-?.lev
@@ -1327,6 +1326,7 @@ ifneq "$(W_DAT)" ""
 	if exist $(W_DAT)\vlt-????.lev     del $(W_DAT)\vlt-????.lev
 	if exist $(W_DAT)\water.lev	   del $(W_DAT)\water.lev
 	if exist $(W_DAT)\wizard?.lev	   del $(W_DAT)\wizard?.lev
+	if exist $(W_DAT)\wizportal.lev	   del $(W_DAT)\wizportal.lev
 	if exist $(W_DAT)\dlb.lst          del $(W_DAT)\dlb.lst
 	if exist $(W_DAT)\porthelp	   del $(W_DAT)\porthelp
 endif

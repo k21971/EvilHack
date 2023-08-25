@@ -3105,4 +3105,5 @@ The following changes to date are:
 - Merge various skills
 - Track defeating Saint Michael
 - Fix: certain armor would disappear on save/reload under specific conditions
+- Wizard of Yendor's tower overhaul
 

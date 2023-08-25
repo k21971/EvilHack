@@ -939,7 +939,10 @@ int x, y;
     if (!IS_DRAWBRIDGE(lev1->typ))
         return;
 
-    if (IS_DRAWBRIDGE(lev1->typ) && Is_valley(&u.uz)) {
+    if (IS_DRAWBRIDGE(lev1->typ)
+        && (Is_valley(&u.uz)
+            || Is_wiz1_level(&u.uz)
+            || Is_wiz3_level(&u.uz))) {
         pline("This drawbridge cannot be destroyed.");
         return;
     }

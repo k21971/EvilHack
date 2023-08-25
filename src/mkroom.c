@@ -992,15 +992,13 @@ courtmon()
         return mkclass(S_KOBOLD, 0);
 }
 
-#define NSTYPES (PM_CAPTAIN - PM_SOLDIER + 1)
-
 static struct {
     unsigned pm;
     unsigned prob;
-} squadprob[NSTYPES] = { { PM_SOLDIER, 80 },
-                         { PM_SERGEANT, 15 },
-                         { PM_LIEUTENANT, 4 },
-                         { PM_CAPTAIN, 1 } };
+} squadprob[] = { { PM_SOLDIER, 80 },
+                  { PM_SERGEANT, 15 },
+                  { PM_LIEUTENANT, 4 },
+                  { PM_CAPTAIN, 1 } };
 
 /* return soldier types. */
 STATIC_OVL struct permonst *
@@ -1011,14 +1009,14 @@ squadmon()
     sel_prob = rnd(80 + level_difficulty());
 
     cpro = 0;
-    for (i = 0; i < NSTYPES; i++) {
+    for (i = 0; i < SIZE(squadprob); i++) {
         cpro += squadprob[i].prob;
         if (cpro > sel_prob) {
             mndx = squadprob[i].pm;
             goto gotone;
         }
     }
-    mndx = squadprob[rn2(NSTYPES)].pm;
+    mndx = squadprob[rn2(SIZE(squadprob))].pm;
 gotone:
     if (!(mvitals[mndx].mvflags & G_GONE))
         return &mons[mndx];

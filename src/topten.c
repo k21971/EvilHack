@@ -448,6 +448,7 @@ encode_extended_achievements()
     add_achieveX(buf, "obtained_the_candelabrum_of_invocation", u.uachieve.menorah);
     add_achieveX(buf, "entered_gehennom", u.uachieve.enter_gehennom);
     add_achieveX(buf, "entered_purgatory", u.uachieve.enter_purgatory);
+    add_achieveX(buf, "entered_wiztower", u.uachieve.enter_wiztower);
     add_achieveX(buf, "defeated_medusa", u.uachieve.killed_medusa);
     add_achieveX(buf, "obtained_the_luckstone_from_the_mines", u.uachieve.mines_luckstone);
     add_achieveX(buf, "obtained_the_sokoban_prize", u.uachieve.finish_sokoban);
@@ -640,6 +641,8 @@ encodeachieve()
         r |= 1L << 20;
     if (u.uachieve.killed_michael)
         r |= 1L << 21;
+    if (u.uachieve.enter_wiztower)
+        r |= 1L << 22;
 
     return r;
 }
