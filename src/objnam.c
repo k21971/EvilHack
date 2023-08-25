@@ -714,6 +714,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, "pair of ");
         else if (typ == GOGGLES)
             Strcat(buf, "pair of ");
+        else if (is_barding(obj))
+            Strcat(buf, "set of ");
         else if (is_wet_towel(obj))
             Strcat(buf, (obj->spe < 3) ? "moist " : "wet ");
 
@@ -1306,9 +1308,6 @@ unsigned doname_flags;
         /* skip article prefix for corpses [else corpse_xname()
            would have to be taught how to strip it off again] */
         *prefix = '\0';
-    } else if (is_barding(obj)
-               && obj->oartifact != ART_ITHILMAR) {
-        Strcpy(prefix, "some ");
     } else if (obj_is_pname(obj) || the_unique_obj(obj)) {
         if (!strncmpi(bp, "the ", 4))
             bp += 4;

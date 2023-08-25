@@ -3110,4 +3110,5 @@ The following changes to date are:
 - Fix: throwing an attached ball & chain at a metalvore and it tries to catch
   and eat it
 - Fix: objects embedded in wall in Croesus' throne room with one map variant
+- Fix: article for describing barding
 
