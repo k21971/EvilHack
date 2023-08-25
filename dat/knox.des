@@ -314,7 +314,7 @@ REGION:(00,00,75,19),lit,"ordinary"
 # Portal arrival point
 BRANCH:(06,16,06,16),(0,0,0,0)
 #   Throne room, with Croesus on the throne
-REGION:(62,12,75,15),lit,"throne"
+REGION:(62,12,75,15),lit,"throne",filled,irregular
 MONSTER:('@',"Croesus"),(66,14),hostile
 #   50% chance each to move fort's entry secret door up one row
 IF [50%] {

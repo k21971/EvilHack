@@ -153,23 +153,23 @@ LADDER:(01,08),down
 
 # random corridor path / secret doors
 IF [50%] {
-   TERRAIN:(03,05),'-'
-   TERRAIN:(04,05),'-'
-   TERRAIN:(05,05),'-'
-   TERRAIN:(07,05),'S'
+  TERRAIN:(03,05),'-'
+  TERRAIN:(04,05),'-'
+  TERRAIN:(05,05),'-'
+  TERRAIN:(07,05),'S'
 } ELSE {
-   TERRAIN:(03,11),'-'
-   TERRAIN:(04,11),'-'
-   TERRAIN:(05,11),'-'
-   TERRAIN:(07,11),'S'
+  TERRAIN:(03,11),'-'
+  TERRAIN:(04,11),'-'
+  TERRAIN:(05,11),'-'
+  TERRAIN:(07,11),'S'
 }
 
 IF [50%] {
-   TERRAIN:(18,11),'S'
-   TERRAIN:(10,05),'S'
+  TERRAIN:(18,11),'S'
+  TERRAIN:(10,05),'S'
 } ELSE {
-   TERRAIN:(18,05),'S'
-   TERRAIN:(10,11),'S'
+  TERRAIN:(18,05),'S'
+  TERRAIN:(10,11),'S'
 }
 
 # doors
@@ -455,8 +455,8 @@ IF [50%] {
 
 # random secret doors
 IF [20%] {
-   TERRAIN:(62,03),'S'
-   TERRAIN:(62,04),'S'
+  TERRAIN:(62,03),'S'
+  TERRAIN:(62,04),'S'
 }
 
 # none shall pass
