@@ -6708,15 +6708,17 @@ doenshelling(VOID_ARGS)
         Hidinshell ? "emerge from" : "retreat into");
 
     if (delay) {
+        static char shelling_reason[26]; /* "retreating into his shell\0" */
         afternmv = toggleshell;
         nomul(-delay);
         if (Hidinshell) {
             nomovemsg = "You finish emerging from your shell.";
-            multi_reason = "emerging from a tortle shell";
+            Sprintf(shelling_reason, "emerging from %s shell", uhis());
         } else {
             nomovemsg = "You finish hiding in your shell.";
-            multi_reason = "retreating into a tortle shell";
+            Sprintf(shelling_reason, "retreating into %s shell", uhis());
         }
+        multi_reason = shelling_reason;
         return 1;
     } else {
         return toggleshell();

@@ -276,7 +276,7 @@ struct attack *mattk;
                 killed(mtmp);
         }
         /* train shield skill if the shield made a block */
-        if ((blocker == uarms))
+        if (blocker == uarms)
             use_skill(P_SHIELD, 1);
         /* the artifact shield Ashmar has a chance to knockback
            the attacker if it deflects an attack. Check for

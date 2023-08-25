@@ -3106,4 +3106,5 @@ The following changes to date are:
 - Track defeating Saint Michael
 - Fix: certain armor would disappear on save/reload under specific conditions
 - Wizard of Yendor's tower overhaul
+- Fix: enshelling tortle feedback
 
