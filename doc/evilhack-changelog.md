@@ -3107,4 +3107,6 @@ The following changes to date are:
 - Fix: certain armor would disappear on save/reload under specific conditions
 - Wizard of Yendor's tower overhaul
 - Fix: enshelling tortle feedback
+- Fix: throwing an attached ball & chain at a metalvore and it tries to catch
+  and eat it
 

@@ -188,6 +188,10 @@ boolean check_if_better, stashing;
              || otmp->otyp == UNICORN_HORN
              || cures_stoning(mtmp, otmp, FALSE)));
 
+    /* don't try to pick up uball/uchain */
+    if (otmp == uball || otmp == uchain)
+        return FALSE;
+
     if (can_use) {
         /* arbitrary - greedy monsters keep any item you can use */
         if (likes_gold(mtmp->data) && !stashing)
