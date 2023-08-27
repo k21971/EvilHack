@@ -31,7 +31,7 @@
 
 /*	Add new damage types below.
  *
- *	Note that 1-10 correspond to the types of attack used in buzz().
+ *	Note that 1-11 correspond to the types of attack used in buzz().
  *	Please don't disturb the order unless you rewrite the buzz() code.
  */
 #define AD_ANY (-1) /* fake damage; attacktype_fordmg wildcard */
@@ -46,10 +46,10 @@
 #define AD_ACID 8   /* acid damage */
 #define AD_WATR 9   /* water (physical) attack */
 #define AD_DRLI 10  /* drains life levels (Vampire) */
-#define AD_SPC1 11  /* for extension of buzz() */
-#define AD_SPC2 12  /* for extension of buzz() */
-#define AD_BLND 13  /* blinds (yellow light) */
-#define AD_STUN 14  /* stuns */
+#define AD_STUN 11  /* stuns */
+#define AD_SPC1 12  /* for extension of buzz() */
+#define AD_SPC2 13  /* for extension of buzz() */
+#define AD_BLND 14  /* blinds (yellow light) */
 #define AD_SLOW 15  /* slows */
 #define AD_PLYS 16  /* paralyses */
 #define AD_DREN 17  /* drains magic energy */

@@ -502,19 +502,21 @@ int x, y, typ;
                     ttmp->launch.x = lx;
                     ttmp->launch.y = ly;
                     /* no AD_DISN, thanks */
-                    ttmp->launch_otyp = -10-(AD_MAGM - 1);
+                    ttmp->launch_otyp = -11 - (AD_MAGM - 1);
                     if (!rn2(15))
-                        ttmp->launch_otyp = -20-(AD_ELEC - 1);
+                        ttmp->launch_otyp = -22 - (AD_ELEC - 1);
                     else if (!rn2(10))
-                        ttmp->launch_otyp = -20-(AD_FIRE - 1);
+                        ttmp->launch_otyp = -22 - (AD_FIRE - 1);
                     else if (!rn2(10))
-                        ttmp->launch_otyp = -10-(AD_COLD - 1);
+                        ttmp->launch_otyp = -11 - (AD_COLD - 1);
                     else if (!rn2(7))
-                        ttmp->launch_otyp = -20-(AD_DRST - 1);
+                        ttmp->launch_otyp = -22 - (AD_DRST - 1);
                     else if (!rn2(7))
-                        ttmp->launch_otyp = -20-(AD_ACID - 1);
+                        ttmp->launch_otyp = -22 - (AD_ACID - 1);
                     else if (!rn2(5))
-                        ttmp->launch_otyp = -10-(AD_SLEE - 1);
+                        ttmp->launch_otyp = -11 - (AD_SLEE - 1);
+                    else if (!rn2(5))
+                        ttmp->launch_otyp = -22 - (AD_STUN - 1);
                     ok = 1;
                 }
             }
@@ -3195,9 +3197,9 @@ register struct monst *mtmp;
             if (isok(trap->launch.x, trap->launch.y)
                 && IS_STWALL(levl[trap->launch.x][trap->launch.y].typ)) {
                 dobuzz(trap->launch_otyp, 8,
-                     trap->launch.x, trap->launch.y,
-                     sgn(trap->tx - trap->launch.x), sgn(trap->ty - trap->launch.y),
-                     FALSE);
+                       trap->launch.x, trap->launch.y,
+                       sgn(trap->tx - trap->launch.x),
+                       sgn(trap->ty - trap->launch.y), FALSE);
                 trap->once = 1;
                 if (DEADMONSTER(mtmp))
                     trapkilled = TRUE;
@@ -5848,11 +5850,8 @@ boolean disarm;
                       the(xname(obj)));
             }
             if (yours) {
-                if (wielding_artifact(ART_TEMPEST)) {
-                    You_feel("a slight itch.");
-                    break;
-                }
-                if (!Stunned) {
+                if (!Stunned || Stun_resistance
+                    || wielding_artifact(ART_TEMPEST)) {
                     if (Hallucination)
                         pline("What a groovy feeling!");
                     else
@@ -5865,7 +5864,11 @@ boolean disarm;
                 (void) make_hallucinated(
                     (HHallucination & TIMEOUT) + (long) rn1(5, 16), FALSE, 0L);
             } else {
-                mon->mstun = mon->mconf = 1;
+                if (!(resists_stun(mon->data) || defended(mon, AD_STUN)
+                      || (MON_WEP(mon)
+                          && MON_WEP(mon)->oartifact == ART_TEMPEST)))
+                    mon->mstun = 1;
+                mon->mconf = 1;
                 if (canseemon(mon))
                     pline("%s staggers for a moment.", Monnam(mon));
             }
@@ -6110,8 +6113,7 @@ int bodypart;
     exercise(A_STR, FALSE);
     if (bodypart)
         exercise(A_CON, FALSE);
-    if (!wielding_artifact(ART_TEMPEST))
-        make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
+    make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
 }
 
 /* Monster is hit by trap. */

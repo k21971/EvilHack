@@ -188,6 +188,11 @@ boolean talk;
                      Hallucination ? "less wobbly" : "a bit steadier");
     }
     if (xtime && !old) {
+        if (Stun_resistance
+            || wielding_artifact(ART_TEMPEST)) {
+            You_feel("a slight itch.");
+            return;
+        }
         if (talk) {
             if (u.usteed)
                 You("wobble in the saddle.");

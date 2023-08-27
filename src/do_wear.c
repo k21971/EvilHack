@@ -959,14 +959,19 @@ dragon_armor_handling(struct obj *otmp, boolean puton)
         return;
 
     switch (Dragon_armor_to_scales(otmp)) {
-    
     /* gray: no extra effect */
-
     case GOLD_DRAGON_SCALES:
         if (puton) {
             ESick_resistance |= W_ARM;
         } else {
             ESick_resistance &= ~W_ARM;
+        }
+        break;
+    case ORANGE_DRAGON_SCALES:
+        if (puton) {
+            Free_action |= W_ARM;
+        } else {
+            Free_action &= ~W_ARM;
         }
         break;
     case SILVER_DRAGON_SCALES:
@@ -1008,12 +1013,10 @@ dragon_armor_handling(struct obj *otmp, boolean puton)
     case SHIMMERING_DRAGON_SCALES:
         if (puton) {
             toggle_displacement(uarm, (EDisplaced & ~W_ARM), TRUE);
-            toggle_stealth(uarm, (EStealth & ~W_ARM), TRUE);
-            EStealth |= W_ARM;
+            EStun_resistance |= W_ARM;
         } else {
             toggle_displacement(otmp, (EDisplaced & ~W_ARM), FALSE);
-            toggle_stealth(otmp, (EStealth & ~W_ARM), FALSE);
-            EStealth &= ~W_ARM;
+            EStun_resistance &= ~W_ARM;
         }
         break;
     case SEA_DRAGON_SCALES:
@@ -1103,6 +1106,10 @@ dragon_armor_handling(struct obj *otmp, boolean puton)
             EAcid_resistance   |= W_ARM;
             EStone_resistance  |= W_ARM;
             EReflecting        |= W_ARM;
+            if (Stone_resistance && Stoned) {
+                make_stoned(0L, "You no longer seem to be petrifying.", 0,
+                            (char *) 0);
+            }
         } else {
             EPoison_resistance &= ~W_ARM;
             EFire_resistance   &= ~W_ARM;

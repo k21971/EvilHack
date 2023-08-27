@@ -23,7 +23,7 @@ STATIC_DCL int FDECL(drop_throw, (struct obj *, BOOLEAN_P, int, int));
 STATIC_OVL NEARDATA const char *breathwep[] = {
     "fragments", "fire", "frost", "sleep gas",  "a disintegration blast",
     "lightning", "poison gas", "acid", "water", "a dark energy blast",
-    "strange breath #10"
+    "a disorienting blast", "strange breath #11"
 };
 
 extern boolean notonhead; /* for long worms */
@@ -1190,8 +1190,8 @@ breamm(mtmp, mattk, mtarg)
 struct monst *mtmp, *mtarg;
 struct attack  *mattk;
 {
-    /* if new breath types are added, change AD_DRLI to max type */
-    int typ = (mattk->adtyp == AD_RBRE) ? rnd(AD_DRLI) : mattk->adtyp ;
+    /* if new breath types are added, change AD_STUN to max type */
+    int typ = (mattk->adtyp == AD_RBRE) ? rnd(AD_STUN) : mattk->adtyp ;
     boolean player_resists = FALSE;
 
     if (mlined_up(mtmp, mtarg, TRUE)) {
@@ -1215,10 +1215,10 @@ struct attack  *mattk;
         }
 
         if (!mtmp->mspec_used && rn2(3)) {
-            if ((typ >= AD_MAGM) && (typ <= AD_DRLI)) {
+            if ((typ >= AD_MAGM) && (typ <= AD_STUN)) {
                 if (canseemon(mtmp))
                     pline("%s breathes %s!", Monnam(mtmp), breathwep[typ - 1]);
-                dobuzz((int) (-20 - (typ - 1)), (int) mattk->damn,
+                dobuzz((int) (-22 - (typ - 1)), (int) mattk->damn,
                        mtmp->mx, mtmp->my, sgn(tbx), sgn(tby), FALSE);
                 nomul(0);
                 /* breath runs out sometimes. Also, give monster some
@@ -1418,8 +1418,8 @@ breamu(mtmp, mattk)
 struct monst *mtmp;
 struct attack *mattk;
 {
-    /* if new breath types are added, change AD_DRLI to max type */
-    int typ = (mattk->adtyp == AD_RBRE) ? rnd(AD_DRLI) : mattk->adtyp;
+    /* if new breath types are added, change AD_STUN to max type */
+    int typ = (mattk->adtyp == AD_RBRE) ? rnd(AD_STUN) : mattk->adtyp;
 
     if (lined_up(mtmp)) {
         if (mtmp->mcan) {
@@ -1432,11 +1432,11 @@ struct attack *mattk;
             return 0;
         }
         if (!mtmp->mspec_used && rn2(3)) {
-            if ((typ >= AD_MAGM) && (typ <= AD_DRLI)) {
+            if ((typ >= AD_MAGM) && (typ <= AD_STUN)) {
                 if (canseemon(mtmp))
                     pline("%s breathes %s!", Monnam(mtmp),
                           breathwep[typ - 1]);
-                buzz((int) (-20 - (typ - 1)), (int) mattk->damn, mtmp->mx,
+                buzz((int) (-22 - (typ - 1)), (int) mattk->damn, mtmp->mx,
                      mtmp->my, sgn(tbx), sgn(tby));
                 nomul(0);
                 /* breath runs out sometimes. Also, give monster some

@@ -726,10 +726,10 @@ static const char * damagetypes[] = {
     "acid",
     "water",
     "level drain",
+    "stun",
     NULL, /* AD_SPC1 - not used */
     NULL, /* AD_SPC2 - not used */
     "blind",
-    "stun",
     "slow",
     "paralyze",
     "energy drain",

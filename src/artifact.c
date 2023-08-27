@@ -733,6 +733,8 @@ struct obj *otmp;
             return (otyp == CELESTIAL_DRAGON_SCALES);
         case AD_DRLI: /* drain resistance */
             return (otyp == SHADOW_DRAGON_SCALES);
+        case AD_STUN: /* stun resistance */
+            return (otyp == SHIMMERING_DRAGON_SCALES);
         default:
             break;
         }
@@ -1588,11 +1590,11 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
     /* stun if that was selected and a worse effect didn't occur */
     if (do_stun) {
         if (youdefend) {
-            if (!wielding_artifact(ART_TEMPEST))
-                make_stunned(((HStun & TIMEOUT) + 3L), FALSE);
+            make_stunned(((HStun & TIMEOUT) + 3L), FALSE);
         } else {
-            if (!(MON_WEP(mdef)
-                  && MON_WEP(mdef)->oartifact == ART_TEMPEST))
+            if (!(resists_stun(mdef->data) || defended(mdef, AD_STUN)
+                  || (MON_WEP(mdef)
+                      && MON_WEP(mdef)->oartifact == ART_TEMPEST)))
                 mdef->mstun = 1;
         }
         /* avoid extra stun message below if we used mb_verb["stun"] above */

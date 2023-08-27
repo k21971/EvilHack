@@ -3111,4 +3111,5 @@ The following changes to date are:
   and eat it
 - Fix: objects embedded in wall in Croesus' throne room with one map variant
 - Fix: article for describing barding
+- Adjust some dragon-scaled secondary resistances/passive defenses
 

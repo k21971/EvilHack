@@ -63,6 +63,7 @@ const struct propname {
     { STONE_RES, "stoning resistance" },
     { PSYCHIC_RES, "psionic resistance" },
     { DRAIN_RES, "drain resistance" },
+    { STUN_RES, "stun resistance" },
     { SICK_RES, "sickness resistance" },
     { DEATH_RES, "death magic resistance" },
     { ANTIMAGIC, "magic resistance" },
@@ -211,8 +212,7 @@ vomiting_dialogue()
         txt = vomiting_texts[1];
         break;
     case 6:
-        if (!wielding_artifact(ART_TEMPEST))
-            make_stunned((HStun & TIMEOUT) + (long) d(2, 4), FALSE);
+        make_stunned((HStun & TIMEOUT) + (long) d(2, 4), FALSE);
         if (!Popeye(VOMITING))
             stop_occupation();
     /*FALLTHRU*/

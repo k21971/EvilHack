@@ -56,6 +56,12 @@
 #define EPsychic_resistance u.uprops[PSYCHIC_RES].extrinsic
 #define Psychic_resistance (HPsychic_resistance || EPsychic_resistance)
 
+#define HStun_resistance u.uprops[STUN_RES].intrinsic
+#define EStun_resistance u.uprops[STUN_RES].extrinsic
+#define Stun_resistance (HStun_resistance || EStun_resistance                  \
+                         || youmonst.data == &mons[PM_SHIMMERING_DRAGON]       \
+                         || youmonst.data == &mons[PM_BABY_SHIMMERING_DRAGON])
+
 #define HVulnerable_fire u.uprops[VULN_FIRE].intrinsic
 #define EVulnerable_fire u.uprops[VULN_FIRE].extrinsic
 #define Vulnerable_fire (HVulnerable_fire || EVulnerable_fire \

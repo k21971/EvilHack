@@ -1391,8 +1391,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                 otmp->spe += -1;
                 adj_abon(otmp, -1);
             }
-            if (!wielding_artifact(ART_TEMPEST))
-                make_stunned((HStun & TIMEOUT) + (long) rn1(10, 10), TRUE);
+            make_stunned((HStun & TIMEOUT) + (long) rn1(10, 10), TRUE);
         }
     } break;
     case SCR_CONFUSE_MONSTER:

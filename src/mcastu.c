@@ -806,17 +806,15 @@ int spellnum;
             impossible("no reason for monster to cast disappear spell?");
         break;
     case MGC_STUN_YOU:
-        if (wielding_artifact(ART_TEMPEST)) {
-            You_feel("a slight itch.");
-            break; /* no effect */
-        }
         if (Antimagic || Free_action || Hidinshell) {
             shieldeff(u.ux, u.uy);
-            if (!Stunned)
+            if (!(Stunned
+                  || Stun_resistance || wielding_artifact(ART_TEMPEST)))
                 You_feel("momentarily disoriented.");
             make_stunned(1L, FALSE);
         } else {
-            You(Stunned ? "struggle to keep your balance." : "reel...");
+            if (!(Stun_resistance || wielding_artifact(ART_TEMPEST)))
+                You(Stunned ? "struggle to keep your balance." : "reel...");
             dmg = d(ACURR(A_DEX) < 12 ? 6 : 4, 4);
             if (Half_spell_damage)
                 dmg = (dmg + 1) / 2;
@@ -1513,8 +1511,8 @@ int spellnum;
     return FALSE;
 }
 
-/* convert 1..10 to 0..9; add 10 for second group (spell casting) */
-#define ad_to_typ(k) (10 + (int) k - 1)
+/* convert 1..11 to 0..10; add 11 for second group (spell casting) */
+#define ad_to_typ(k) (11 + (int) k - 1)
 
 /* monster uses spell against player (ranged) */
 int
@@ -1533,10 +1531,10 @@ register struct attack *mattk;
     }
     if (lined_up(mtmp) && rn2(3)) {
         nomul(0);
-        if (mattk->adtyp && (mattk->adtyp < 11)) { /* no cf unsigned > 0 */
+        if (mattk->adtyp && (mattk->adtyp < 12)) { /* no cf unsigned > 0 */
             if (canseemon(mtmp))
                 pline("%s zaps you with a %s!", Monnam(mtmp),
-                      flash_types[ad_to_typ(mattk->adtyp) - 10]);
+                      flash_types[ad_to_typ(mattk->adtyp) - 11]);
             buzz(-ad_to_typ(mattk->adtyp), (int) mattk->damn, mtmp->mx,
                  mtmp->my, sgn(tbx), sgn(tby));
         } else
@@ -1563,10 +1561,10 @@ register struct attack *mattk;
     }
     if (mlined_up(mtmp, mdef, FALSE) && rn2(3)) {
         nomul(0);
-        if (mattk->adtyp && (mattk->adtyp < 11)) { /* no cf unsigned > 0 */
+        if (mattk->adtyp && (mattk->adtyp < 12)) { /* no cf unsigned > 0 */
             if (canseemon(mtmp))
                 pline("%s zaps %s with a %s!", Monnam(mtmp),
-                      mon_nam(mdef), flash_types[ad_to_typ(mattk->adtyp) - 10]);
+                      mon_nam(mdef), flash_types[ad_to_typ(mattk->adtyp) - 11]);
             dobuzz(-ad_to_typ(mattk->adtyp), (int) mattk->damn, mtmp->mx,
                    mtmp->my, sgn(tbx), sgn(tby), FALSE);
         } else
@@ -2226,6 +2224,7 @@ int spellnum;
         if (resist(mtmp, 0, 0, FALSE)) {
             shieldeff(mtmp->mx, mtmp->my);
             if (yours || canseemon(mtmp)
+                || resists_stun(mtmp->data) || defended(mtmp, AD_STUN)
                 || (MON_WEP(mtmp) && MON_WEP(mtmp)->oartifact == ART_TEMPEST))
                 pline("%s seems momentarily disoriented.", Monnam(mtmp));
         } else {

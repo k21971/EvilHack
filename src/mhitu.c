@@ -1615,10 +1615,8 @@ register struct attack *mattk;
                 /* Update monster's knowledge of your position */
                 mtmp->mux = u.ux;
                 mtmp->muy = u.uy;
-                if (!rn2(4)) {
-                    if (!wielding_artifact(ART_TEMPEST))
-                        make_stunned((HStun & TIMEOUT) + (long) rnd(2) + 1, TRUE);
-                }
+                if (!rn2(4))
+                    make_stunned((HStun & TIMEOUT) + (long) rnd(2) + 1, TRUE);
             }
             if (mtmp->data == &mons[PM_WATER_ELEMENTAL]
                 || mtmp->data == &mons[PM_BABY_SEA_DRAGON]
@@ -2290,10 +2288,6 @@ do_rust:
         break;
     case AD_STUN:
         hitmsg(mtmp, mattk);
-        if (wielding_artifact(ART_TEMPEST)) {
-            ; /* immune */
-            break;
-        }
         if (!mtmp->mcan && !rn2(4)) {
             make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
             dmg /= 2;
@@ -2552,9 +2546,9 @@ do_rust:
 
     /* player monster monks can sometimes stun with their kick attack */
     if (mattk->aatyp == AT_KICK && mdat == &mons[PM_MONK]
-        && !wielding_artifact(ART_TEMPEST) && !rn2(10)
-        && youmonst.data->msize < MZ_HUGE) {
-        You("reel from %s powerful kick!", s_suffix(mon_nam(mtmp)));
+        && !rn2(10) && youmonst.data->msize < MZ_HUGE) {
+        if (!(Stun_resistance || wielding_artifact(ART_TEMPEST)))
+            You("reel from %s powerful kick!", s_suffix(mon_nam(mtmp)));
         make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
         dmg /= 2;
     }
@@ -3176,7 +3170,11 @@ struct attack *mattk;
                    && Dragon_armor_to_scales(uarm) == CELESTIAL_DRAGON_SCALES) {
             pline("Your armor negates the lethal sonic assault.");
             break;
-        } else if (wielding_artifact(ART_TEMPEST)) {
+        } else if (Stun_resistance
+                   || wielding_artifact(ART_TEMPEST)) {
+            /* make_stunned() handles having stun resistance,
+               but for feedback purposes, we specifically
+               handle it here */
             You("are unaffected by %s scream.",
                 s_suffix(mon_nam(mtmp)));
             break;
@@ -3381,11 +3379,6 @@ struct attack *mattk;
                 if (!rn2(4))
                     pline("%s protect you from %s stunning gaze.",
                           An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
-                break;
-            } else if (wielding_artifact(ART_TEMPEST)) {
-                if (!rn2(4))
-                    You("are unaffected by %s stunning gaze.",
-                        s_suffix(mon_nam(mtmp)));
                 break;
             } else {
                 int stun = d(2, 6);
@@ -4336,6 +4329,30 @@ struct attack *mattk;
                 return 2;
             }
             break;
+        case YELLOW_DRAGON_SCALES:
+            if (resists_acid(mtmp) || defended(mtmp, AD_ACID)
+                || mon_underwater(mtmp))
+                break;
+            if (rn2(20)) {
+                if (!rn2(3)) {
+                    if (canseemon(mtmp))
+                        pline("%s is seared!", Monnam(mtmp));
+                    damage_mon(mtmp, rnd(4), AD_ACID);
+                }
+            } else {
+                if (canseemon(mtmp))
+                    pline("%s is critically seared!", Monnam(mtmp));
+                damage_mon(mtmp, d(6, 6), AD_ACID);
+            }
+            if (mtmp->mhp < 1) {
+                if (canseemon(mtmp))
+                    pline("%s dies!", Monnam(mtmp));
+                xkilled(mtmp, XKILL_NOMSG);
+                if (!DEADMONSTER(mtmp))
+                    return 1;
+                return 2;
+            }
+            break;
         case GRAY_DRAGON_SCALES:
             if (!rn2(6))
                 (void) cancel_monst(mtmp, (struct obj *) 0, TRUE, TRUE, FALSE);
@@ -4397,11 +4414,16 @@ struct attack *mattk;
     switch (oldu_mattk->adtyp) {
     case AD_ACID:
         if (!rn2(2)) {
-            pline("%s is splashed by %s%s!", Monnam(mtmp),
-                  /* temporary? hack for sequencing issue:  "your acid"
-                     looks strange coming immediately after player has
-                     been told that hero has reverted to normal form */
-                  !Upolyd ? "" : "your ", hliquid("acid"));
+            if (youmonst.data == &mons[PM_YELLOW_DRAGON]
+                || youmonst.data == &mons[PM_BABY_YELLOW_DRAGON]) {
+                pline("%s is seared by your acidic hide!", Monnam(mtmp));
+            } else {
+                pline("%s is splashed by %s%s!", Monnam(mtmp),
+                      /* temporary? hack for sequencing issue:  "your acid"
+                         looks strange coming immediately after player has
+                         been told that hero has reverted to normal form */
+                      !Upolyd ? "" : "your ", hliquid("acid"));
+            }
             if (resists_acid(mtmp) || defended(mtmp, AD_ACID)
                 || mon_underwater(mtmp)) {
                 pline("%s is not affected.", Monnam(mtmp));
@@ -4613,7 +4635,8 @@ struct attack *mattk;
                 (void) split_mon(&youmonst, mtmp);
             break;
         case AD_STUN: /* Yellow mold */
-            if (mon_tempest_wield) {
+            if (resists_stun(mtmp->data)
+                || defended(mtmp, AD_STUN) || mon_tempest_wield) {
                 ; /* immune */
                 break;
             }

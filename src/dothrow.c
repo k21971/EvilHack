@@ -1032,8 +1032,9 @@ int dx, dy, range;
     wakeup(mon, !context.mon_moving);
     /* At the very least, debilitate the monster */
     mon->movement = 0;
-    if (!(MON_WEP(mon)
-          && MON_WEP(mon)->oartifact == ART_TEMPEST))
+    if (!(resists_stun(mon->data) || defended(mon, AD_STUN)
+          || (MON_WEP(mon)
+              && MON_WEP(mon)->oartifact == ART_TEMPEST)))
         mon->mstun = 1;
 
     /* Is the monster stuck or too heavy to push?

@@ -48,32 +48,33 @@ STATIC_DCL void FDECL(wishcmdassist, (int));
 #define ZT_ACID (AD_ACID - 1)
 #define ZT_WATER (AD_WATR - 1)
 #define ZT_DRAIN (AD_DRLI - 1)
+#define ZT_STUN (AD_STUN - 1)
 
 #define ZT_WAND(x) (x)
-#define ZT_SPELL(x) (10 + (x))
-#define ZT_BREATH(x) (20 + (x))
+#define ZT_SPELL(x) (11 + (x))
+#define ZT_BREATH(x) (22 + (x))
 
-#define is_hero_spell(type) ((type) >= 10 && (type) < 20)
+#define is_hero_spell(type) ((type) >= 11 && (type) < 22)
 
 STATIC_VAR const char are_blinded_by_the_flash[] =
     "are blinded by the flash!";
 
 const char *const flash_types[] =       /* also used in buzzmu(mcastu.c) */
     {
-        "magic missile", /* Wands must be 0-9 */
+        "magic missile", /* Wands must be 0-10 */
         "bolt of fire", "bolt of cold", "sleep ray", "death ray",
-        "bolt of lightning", "", "", "", "",
+        "bolt of lightning", "", "", "", "", "",
 
-        "magic missile", /* Spell equivalents must be 10-19 */
+        "magic missile", /* Spell equivalents must be 11-21 */
         "fireball", "cone of cold", "sleep ray", "finger of death",
         "bolt of lightning", "blast of poison gas", "blast of acid",
-        "", "",
+        "blast of water", "blast of dark energy", "disorienting blast",
 
-        "blast of missiles", /* Dragon breath equivalents 20-29*/
+        "blast of missiles", /* Dragon breath equivalents 22-32*/
         "blast of fire", "blast of frost", "blast of sleep gas",
         "blast of disintegration", "blast of lightning",
         "blast of poison gas",  "blast of acid", "blast of water",
-        "blast of dark energy"
+        "blast of dark energy", "disorienting blast"
     };
 
 /*
@@ -1227,8 +1228,9 @@ unturn_you()
 {
     (void) unturn_dead(&youmonst); /* hit carried corpses and eggs */
 
-    if (is_undead(youmonst.data) && !wielding_artifact(ART_TEMPEST)) {
-        You_feel("frightened and %sstunned.", Stunned ? "even more " : "");
+    if (is_undead(youmonst.data)) {
+        if (!(Stun_resistance || wielding_artifact(ART_TEMPEST)))
+            You_feel("frightened and %sstunned.", Stunned ? "even more " : "");
         make_stunned((HStun & TIMEOUT) + (long) rnd(30), FALSE);
     } else {
         You("shudder in dread.");
@@ -2695,8 +2697,7 @@ boolean ordinary;
                 ugolemeffects(AD_PSYC, d(2, 6));
             } else {
                 You("assault your own mind!");
-                if (!wielding_artifact(ART_TEMPEST))
-                    make_stunned((HStun & TIMEOUT) + (long) rnd(10), FALSE);
+                make_stunned((HStun & TIMEOUT) + (long) rnd(10), FALSE);
                 if (u.ulevel >= 26)
                     damage = d(4, 6);
                 else
@@ -4299,9 +4300,11 @@ register int type, nd;
 struct obj **ootmp; /* to return worn armor for caller to disintegrate */
 {
     register int tmp = 0;
-    register int abstype = abs(type) % 10;
+    register int abstype = abs(type) % 11;
     boolean sho_shieldeff = FALSE;
     boolean spellcaster = is_hero_spell(type); /* maybe get a bonus! */
+    boolean mon_tempest_wield = (MON_WEP(mon)
+                                 && MON_WEP(mon)->oartifact == ART_TEMPEST);
 
     *ootmp = (struct obj *) 0;
     switch (abstype) {
@@ -4502,6 +4505,16 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         }
         break;
         }
+    case ZT_STUN:
+        if (resists_stun(mon->data) || defended(mon, AD_STUN)
+            || mon_tempest_wield) {
+            sho_shieldeff = TRUE;
+            break;
+        }
+        tmp = d(nd, 6);
+        if (!mon->mstun)
+            mon->mstun = 1;
+        break;
     }
     if (sho_shieldeff)
         shieldeff(mon->mx, mon->my);
@@ -4530,7 +4543,7 @@ xchar sx, sy;
 {
     int dam = 0, abstyp = abs(type);
 
-    switch (abstyp % 10) {
+    switch (abstyp % 11) {
     case ZT_MAGIC_MISSILE:
         dam = d(nd, 6);
         exercise(A_STR, FALSE);
@@ -4744,7 +4757,11 @@ xchar sx, sy;
         const char *life = nonliving(youmonst.data) ? "animating force"
                                                     : "life";
 
+        /* will still take physical damage from the force of
+           the breath attack, even if drain resistant */
         dam = d(nd, 6);
+        if (Half_physical_damage)
+            dam = (dam + 1) / 2;
         if (Drain_resistance) {
             ugolemeffects(AD_DRLI, d(nd, 6));
             break;
@@ -4764,6 +4781,17 @@ xchar sx, sy;
         }
         break;
         }
+    case ZT_STUN:
+        /* will still take physical damage from the force of
+           the breath attack, even if stun resistant */
+        dam = d(nd, 6);
+        if (Half_physical_damage)
+            dam = (dam + 1) / 2;
+        if (Stun_resistance
+            || wielding_artifact(ART_TEMPEST))
+            shieldeff(sx, sy); /* resistance handled in make_stunned() */
+        make_stunned((HStun & TIMEOUT) + (long) dam / (Reflecting ? 4 : 2), TRUE);
+        break;
     }
 
     /* Half_spell_damage protection yields half-damage for wands & spells,
@@ -4901,12 +4929,12 @@ int dx, dy;
 }
 
 /*
- * type ==   0 to   9 : you shooting a wand
- * type ==  10 to  19 : you casting a spell
- * type ==  20 to  29 : you breathing as a monster
- * type == -10 to -19 : monster casting spell
- * type == -20 to -29 : monster breathing at you
- * type == -30 to -39 : monster shooting a wand
+ * type ==   0 to  10 : you shooting a wand
+ * type ==  11 to  21 : you casting a spell
+ * type ==  22 to  32 : you breathing as a monster
+ * type == -11 to -21 : monster casting spell
+ * type == -22 to -32 : monster breathing at you
+ * type == -33 to -43 : monster shooting a wand
  * called with dx = dy = 0 with vertical bolts
  */
 void
@@ -4916,7 +4944,7 @@ register xchar sx, sy;
 register int dx, dy;
 boolean say; /* Announce out of sight hit/miss events if true */
 {
-    int range, abstype = abs(type) % 10;
+    int range, abstype = abs(type) % 11;
     register xchar lsx, lsy;
     struct monst *mon;
     coord save_bhitpos;
@@ -4924,12 +4952,12 @@ boolean say; /* Announce out of sight hit/miss events if true */
     const char *fltxt;
     struct obj *otmp;
     int spell_type;
-    boolean is_wand = (type >= 0 && type <= 9);
+    boolean is_wand = (type >= 0 && type <= 10);
 
     /* if its a Hero Spell then get its SPE_TYPE */
     spell_type = is_hero_spell(type) ? SPE_MAGIC_MISSILE + abstype : 0;
 
-    fltxt = flash_types[(type <= -30) ? abstype : abs(type)];
+    fltxt = flash_types[(type <= -33) ? abstype : abs(type)];
     if (u.uswallow) {
         register int tmp;
 
@@ -5062,7 +5090,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
                                if it's fire, highly flammable monsters leave
                                no corpse; don't bother reporting that they
                                "burn completely" -- unnecessary verbosity */
-                            if ((type % 10 == ZT_FIRE)
+                            if ((type % 11 == ZT_FIRE)
                                 /* paper golem or straw golem */
                                 && completelyburns(mon->data))
                                 xkflags |= XKILL_NOCORPSE;
@@ -5376,7 +5404,7 @@ boolean moncast;
     struct trap *t;
     struct rm *lev = &levl[x][y];
     boolean see_it = cansee(x, y), yourzap;
-    int rangemod = 0, abstype = abs(type) % 10;
+    int rangemod = 0, abstype = abs(type) % 11;
 
     if (type == PHYS_EXPL_TYPE) {
         /* this won't have any effect on the floor */
