@@ -3404,7 +3404,8 @@ const char * in_str;
         && strncmpi(in_str, "wand of orcus", 13)
         && strncmpi(in_str, "food ration", 11)
         && strncmpi(in_str, "meat ring", 9)
-        && strncmpi(in_str, "glamdring", 9)) {
+        && strncmpi(in_str, "glamdring", 9)
+        && strncmpi(in_str, "one ring", 8)) {
         for (i = 0; i < (int) (sizeof wrpsym); i++) {
             int j = strlen(wrp[i]);
             if (!strncmpi(in_str, wrp[i], j)) {
@@ -4195,7 +4196,8 @@ struct obj *no_wish;
         && strncmpi(bp, "wand of orcus", 13)
         && strncmpi(bp, "food ration", 11)
         && strncmpi(bp, "meat ring", 9)
-        && strncmpi(bp, "glamdring", 9))
+        && strncmpi(bp, "glamdring", 9)
+        && strncmpi(bp, "one ring", 8))
         for (i = 0; i < (int) (sizeof wrpsym); i++) {
             register int j = strlen(wrp[i]);
 
@@ -5095,6 +5097,7 @@ struct obj *no_wish;
             case ART_EYE_OF_VECNA:
             case ART_HAND_OF_VECNA:
             case ART_SWORD_OF_KAS:
+            case ART_ONE_RING:
             case ART_SWORD_OF_ANNIHILATION:
             case ART_GLAMDRING:
             case ART_STAFF_OF_THE_ARCHMAGI:
