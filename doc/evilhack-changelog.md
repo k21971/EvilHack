@@ -3119,3 +3119,5 @@ The following changes to date are:
 - Fix: blue-scaled armor prevents any form of slowing
 - Fix: Slowed monsters remain slowed
 - Water walking prevents sewage from slowing you
+- Fix: rising from the grave as a zombie
+
