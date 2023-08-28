@@ -3112,4 +3112,8 @@ The following changes to date are:
 - Fix: objects embedded in wall in Croesus' throne room with one map variant
 - Fix: article for describing barding
 - Adjust some dragon-scaled secondary resistances/passive defenses
+- Fix: inconsistencies with slowing attacks and dragon scale passive attacks
+- Fix: blue-scaled armor prevents any form of slowing
+- Fix: Slowed monsters remain slowed
+- Water walking prevents sewage from slowing you
 
