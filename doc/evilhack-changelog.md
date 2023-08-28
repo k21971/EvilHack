@@ -3113,4 +3113,6 @@ The following changes to date are:
 - Fix: article for describing barding
 - Adjust some dragon-scaled secondary resistances/passive defenses
 - A couple more dragon-scaled secondary changes
+- Convert the named ring of invisibility found in Gollum's cave to an
+  actual artifact
 
