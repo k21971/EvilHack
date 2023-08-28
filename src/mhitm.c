@@ -1986,8 +1986,6 @@ post_stone:
         break;
     case AD_SLOW:
         if (!cancelled && mdef->mspeed != MSLOW) {
-            unsigned int oldspeed = mdef->mspeed;
-
             if (mattk->aatyp == AT_GAZE) {
                 if (vis) {
                     if (mdef->data->mlet == S_MIMIC
@@ -2008,9 +2006,6 @@ post_stone:
 
             mon_adjust_speed(mdef, -1, (struct obj *) 0);
             mdef->mstrategy &= ~STRAT_WAITFORU;
-
-            if (mdef->mspeed != oldspeed && vis && canspotmon(mdef))
-                pline("%s slows down.", Monnam(mdef));
         }
         break;
     case AD_LUCK:
@@ -3270,16 +3265,8 @@ struct obj *mwep;
                 pline("%s is jolted with electricity!", Monnam(magr));
             break;
         case AD_SLOW:
-            if (resists_sleep(magr) || defended(magr, AD_SLOW)) {
-                tmp = 0;
-                break;
-            }
             if (mhit && !mdef->mcan && magr->mspeed != MSLOW && !rn2(3)) {
-                unsigned int oldspeed = magr->mspeed;
-
                 mon_adjust_speed(magr, -1, (struct obj *) 0);
-                if (magr->mspeed != oldspeed && canseemon(magr))
-                    pline("%s slows down.", Monnam(magr));
             }
             tmp = 0;
             break;

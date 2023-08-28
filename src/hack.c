@@ -1610,9 +1610,12 @@ domove_core()
                 || maybe_polyd(is_tortle(youmonst.data), Race_if(PM_TORTLE))
                 || is_clinger(youmonst.data) || is_whirly(youmonst.data)
                 || (uarm && Is_dragon_scaled_armor(uarm)
-                    && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)) {
+                    && (Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES
+                        || Dragon_armor_to_scales(uarm) == BLUE_DRAGON_SCALES))
+                || Wwalking
+                || (uarmf && !strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4))) {
                 walk_sewage = FALSE;
-            } else if (!uarmf || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4)) {
+            } else {
                 HSlow |= FROMOUTSIDE;
                 HSlow &= ~TIMEOUT;
                 HSlow += 3; /* slowed on next move */
@@ -2443,8 +2446,14 @@ boolean newspot;             /* true if called by spoteffects */
                 pline("You splash through the shallow water.");
 
             if (is_sewage(u.ux, u.uy) && u.umoved && !rn2(4)
-                && !maybe_polyd(is_tortle(youmonst.data), Race_if(PM_TORTLE))
-                && (!uarmf || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4))) {
+                && !(is_swimmer(youmonst.data)
+                     || maybe_polyd(is_tortle(youmonst.data), Race_if(PM_TORTLE))
+                     || is_clinger(youmonst.data) || is_whirly(youmonst.data)
+                     || (uarm && Is_dragon_scaled_armor(uarm)
+                         && (Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES
+                             || Dragon_armor_to_scales(uarm) == BLUE_DRAGON_SCALES))
+                     || Wwalking
+                     || (uarmf && !strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4)))) {
                 pline("%s %s difficulty %s through %s.",
                       u.usteed ? upstart(x_monnam(u.usteed,
                                          (has_mname(u.usteed)) ? ARTICLE_NONE

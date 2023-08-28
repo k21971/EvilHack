@@ -3310,17 +3310,8 @@ do_rust:
         /* if (negated) break; */
         break;
     case AD_SLOW:
-        if (defended(mdef, AD_SLOW))
-            break;
-
         if (!negated && mdef->mspeed != MSLOW) {
-            unsigned int oldspeed = mdef->mspeed;
-
             mon_adjust_speed(mdef, -1, (struct obj *) 0);
-            if (mdef->mspeed != oldspeed && canseemon(mdef)) {
-                if (canseemon(mdef))
-                    pline("%s slows down.", Monnam(mdef));
-            }
         }
         break;
     case AD_CONF:
@@ -4712,7 +4703,7 @@ boolean wep_was_destroyed;
             }
             break;
         case AD_SLOW: /* specifically orange dragons */
-            if (!Slow)
+            if (!Slow && !defended(&youmonst, AD_SLOW))
                 u_slow_down();
             break;
         case AD_SLEE: /* specifically black fungus */
@@ -4872,7 +4863,7 @@ boolean wep_was_destroyed;
                 if (how_resistant(SLEEP_RES) == 100) {
                     break;
                 } else {
-                    if (!Slow)
+                    if (!Slow && !defended(&youmonst, AD_SLOW))
                         u_slow_down();
                 }
                 break;

@@ -273,10 +273,8 @@ struct obj *obj; /* item to make known if effect can be seen */
     unsigned int oldspeed = mon->mspeed;
 
     switch (adjust) {
-    case 3: /* no longer in sewage */
-        if (mon->permspeed == MSLOW)
-            mon->permspeed = 0;
-        give_msg = FALSE;
+    case 3:
+        give_msg = FALSE; /* recovering from sewage */
         break;
     case 2:
         mon->permspeed = MFAST;
@@ -293,13 +291,14 @@ struct obj *obj; /* item to make known if effect can be seen */
     case -1:
         if (mon->permspeed == MFAST)
             mon->permspeed = 0;
-        else
+        else if (!defended(mon, AD_SLOW))
             mon->permspeed = MSLOW;
         break;
-    case -2: /* wading through sewage */
-        mon->permspeed = MSLOW;
+    case -2: /* wading through sewage: set mspeed for temporary slow */
+        if (!defended(mon, AD_SLOW))
+            mon->mspeed = MSLOW;
         give_msg = FALSE;
-        break;
+        return; /* return early so mspeed isn't changed */
     case -3: /* petrification */
         /* take away intrinsic speed but don't reduce normal speed */
         if (mon->permspeed == MFAST)
@@ -313,10 +312,14 @@ struct obj *obj; /* item to make known if effect can be seen */
         break;
     }
 
-    for (otmp = mon->minvent; otmp; otmp = otmp->nobj)
+    for (otmp = mon->minvent; otmp; otmp = otmp->nobj) {
         if (otmp->owornmask && objects[otmp->otyp].oc_oprop == FAST)
             break;
-    if (otmp) /* speed boots */
+        if (otmp->owornmask && Is_dragon_scaled_armor(otmp)
+            && Dragon_armor_to_scales(otmp))
+            break;
+    }
+    if (otmp) /* speed boots/blue-scaled armor */
         mon->mspeed = MFAST;
     else
         mon->mspeed = mon->permspeed;

@@ -374,6 +374,10 @@ struct attack *mattk;
 void
 u_slow_down()
 {
+    if (defended(&youmonst, AD_SLOW)) {
+        You("feel as spry as ever.");
+        return;
+    }
     if (!Fast && !Slow)
         You("slow down.");
     else if (!Slow)	 /* speed of some sort */
@@ -3528,7 +3532,7 @@ struct attack *mattk;
     case AD_SLOW:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
             /* (HFast & (INTRINSIC | TIMEOUT)) && */
-            && !Slow && !defended(mtmp, AD_SLOW) && !rn2(4)) {
+            && !Slow && !defended(&youmonst, AD_SLOW) && !rn2(4)) {
             if (cancelled) {
                 react = 7; /* "dulled" */
                 already = (mtmp->mspeed == MSLOW);
@@ -4274,12 +4278,8 @@ struct attack *mattk;
             }
             break;
         case ORANGE_DRAGON_SCALES:
-            if (resists_sleep(mtmp) || defended(mtmp, AD_SLEE))
-                break;
-            if (!rn2(3) && mtmp->mspeed != MSLOW) {
-                if (canseemon(mtmp))
-                    pline("%s looks a little sluggish...", Monnam(mtmp));
-                mtmp->mspeed = MSLOW;
+            if (!rn2(3)) {
+                mon_adjust_speed(mtmp, -1, (struct obj *) 0);
             }
             break;
         case WHITE_DRAGON_SCALES:
@@ -4687,14 +4687,8 @@ struct attack *mattk;
             }
             break;
         case AD_SLOW:
-            if (resists_sleep(mtmp) || defended(mtmp, AD_SLEE)) {
-                tmp = 0;
-                break;
-            }
-            if (rn2(2) && mtmp->mspeed != MSLOW) {
-                if (canseemon(mtmp))
-                    pline("%s looks a little sluggish...", Monnam(mtmp));
-                mtmp->mspeed = MSLOW;
+            if (!rn2(3)) {
+                mon_adjust_speed(mtmp, -1, (struct obj *) 0);
             }
             tmp = 0;
             break;
