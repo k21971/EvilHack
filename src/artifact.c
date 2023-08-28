@@ -710,7 +710,7 @@ struct obj *otmp;
             return (otyp == GRAY_DRAGON_SCALES
                     || otyp == CHROMATIC_DRAGON_SCALES);
         case AD_DISE: /* blocks disease but not slime */
-            return (otyp == GOLD_DRAGON_SCALES);
+            return (otyp == GREEN_DRAGON_SCALES);
         case AD_FIRE:
             return (otyp == RED_DRAGON_SCALES); /* red but not gold */
         case AD_COLD:
