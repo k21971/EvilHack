@@ -5931,7 +5931,7 @@ int osym, dmgtyp;
         quan = obj->quan;
         switch (osym) {
         case RING_CLASS:
-            /* The Ring of P'hul is not affected,
+            /* The Ring of P'hul and the One Ring are not affected,
                artifacts are off-limits per destroy_item() */
             if (((obj->owornmask & W_RING) && uarmg && !is_metallic(uarmg))
                 || obj->otyp == RIN_SHOCK_RESISTANCE) {

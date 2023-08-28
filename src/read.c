@@ -469,6 +469,18 @@ doread()
                     "became literate by reading the Magic 8-Ball");
         }
         return 1;
+    } else if (scroll->oartifact == ART_ONE_RING) {
+        if (Blind) {
+            You_feel("an engraving on the %s.", singular(scroll, xname));
+            return 0;
+        }
+        if (flags.verbose)
+            pline("It reads:");
+        pline("\"One Ring to rule them all, One Ring to find them, One Ring to bring them all and in the darkness bind them.\"");
+        if (!u.uconduct.literate++)
+            livelog_write_string(LL_CONDUCT,
+                    "became literate by reading the One Ring");
+        return 1;
     } else if (scroll->otyp == CANDY_BAR) {
         static const char *wrapper_msgs[] = {
             "Apollo",       /* Lost */

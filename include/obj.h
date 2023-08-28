@@ -405,29 +405,30 @@ struct obj {
 
 /* MAGIC_LAMP intentionally excluded below */
 /* age field of this is relative age rather than absolute */
-#define age_is_relative(otmp)                                       \
-    ((otmp)->otyp == LANTERN || (otmp)->otyp == OIL_LAMP      \
+#define age_is_relative(otmp) \
+    ((otmp)->otyp == LANTERN || (otmp)->otyp == OIL_LAMP            \
      || (otmp)->otyp == CANDELABRUM_OF_INVOCATION                   \
      || (otmp)->otyp == TALLOW_CANDLE || (otmp)->otyp == WAX_CANDLE \
      || (otmp)->otyp == POT_OIL)
 /* object can be ignited */
-#define ignitable(otmp)                                             \
-    ((otmp)->otyp == LANTERN || (otmp)->otyp == OIL_LAMP      \
+#define ignitable(otmp) \
+    ((otmp)->otyp == LANTERN || (otmp)->otyp == OIL_LAMP            \
      || (otmp)->otyp == CANDELABRUM_OF_INVOCATION                   \
      || (otmp)->otyp == TALLOW_CANDLE || (otmp)->otyp == WAX_CANDLE \
      || (otmp)->otyp == POT_OIL)
 
 /* things that can be read */
-#define is_readable(otmp)                                                    \
-    ((otmp)->otyp == FORTUNE_COOKIE || (otmp)->otyp == T_SHIRT               \
-     || (otmp)->otyp == ALCHEMY_SMOCK || (otmp)->otyp == HAWAIIAN_SHIRT      \
-     || (otmp)->otyp == CREDIT_CARD || (otmp)->otyp == CAN_OF_GREASE         \
-     || (otmp)->otyp == MAGIC_MARKER || (otmp)->oclass == COIN_CLASS         \
-     || (otmp)->oartifact == ART_GJALLAR || (otmp)->otyp == STRIPED_SHIRT    \
-     || (otmp)->oartifact == ART_MAGIC___BALL || (otmp)->otyp == CANDY_BAR)
+#define is_readable(otmp) \
+    ((otmp)->otyp == FORTUNE_COOKIE || (otmp)->otyp == T_SHIRT             \
+     || (otmp)->otyp == ALCHEMY_SMOCK || (otmp)->otyp == HAWAIIAN_SHIRT    \
+     || (otmp)->otyp == CREDIT_CARD || (otmp)->otyp == CAN_OF_GREASE       \
+     || (otmp)->otyp == MAGIC_MARKER || (otmp)->oclass == COIN_CLASS       \
+     || (otmp)->oartifact == ART_GJALLAR || (otmp)->otyp == STRIPED_SHIRT  \
+     || (otmp)->oartifact == ART_MAGIC___BALL || (otmp)->otyp == CANDY_BAR \
+     || (otmp)->oartifact == ART_ONE_RING)
 
 /* special stones */
-#define is_graystone(obj)                                 \
+#define is_graystone(obj) \
     ((obj)->otyp == LUCKSTONE || (obj)->otyp == LOADSTONE \
      || (obj)->otyp == FLINT || (obj)->otyp == TOUCHSTONE)
 

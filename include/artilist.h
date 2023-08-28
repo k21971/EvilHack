@@ -297,6 +297,12 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_RESTR | SPFX_INTEL | SPFX_PROTECT | SPFX_WARN | SPFX_DFLAGH),
       0, MH_DEMON, PHYS(8, 8), DFNS(AD_MAGM), NO_CARY, 0, A_LAWFUL,
       NON_PM, PM_DWARF, 9000L, CLR_RED, MITHRIL),
+    /* The One Ring, from J.R.R Tolkien lore */
+    A("The One Ring", RIN_INVISIBILITY,
+      (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_INTEL | SPFX_STLTH
+       | SPFX_SEARCH),
+      0, 0, NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM,
+      NON_PM, 7500L, NO_COLOR, GOLD),
 
     /*
      *      Forged artifacts
