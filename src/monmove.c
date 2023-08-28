@@ -626,7 +626,9 @@ register struct monst *mtmp;
     if (mwalk_sewage) {
         if (is_flyer(mdat) || is_floater(mdat)
             || is_clinger(mdat) || is_swimmer(mdat)
-            || passes_walls(mdat) || can_levitate(mtmp)) {
+            || passes_walls(mdat) || can_levitate(mtmp)
+            || can_wwalk(mtmp) || defended(mtmp, AD_SLOW)
+            || resists_slow(r_data(mtmp))) {
             mwalk_sewage = FALSE;
         } else {
             mon_adjust_speed(mtmp, -2, (struct obj *) 0);

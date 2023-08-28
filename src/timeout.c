@@ -738,6 +738,7 @@ nh_timeout()
             case SLOW:
                 HSlow &= ~FROMOUTSIDE;
                 You_feel("less sluggish.");
+                context.botl = TRUE;
                 break;
             case REFLECTING:
                 if (!Blind)

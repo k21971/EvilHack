@@ -1986,8 +1986,6 @@ post_stone:
         break;
     case AD_SLOW:
         if (!cancelled && mdef->mspeed != MSLOW) {
-            unsigned int oldspeed = mdef->mspeed;
-
             if (mattk->aatyp == AT_GAZE) {
                 if (vis) {
                     if (mdef->data->mlet == S_MIMIC
@@ -2005,12 +2003,10 @@ post_stone:
                     return MM_MISS;
                 }
             }
-
-            mon_adjust_speed(mdef, -1, (struct obj *) 0);
-            mdef->mstrategy &= ~STRAT_WAITFORU;
-
-            if (mdef->mspeed != oldspeed && vis && canspotmon(mdef))
-                pline("%s slows down.", Monnam(mdef));
+            if (mattk->aatyp == AT_GAZE || !rn2(3)) {
+                mon_adjust_speed(mdef, -1, (struct obj *) 0);
+                mdef->mstrategy &= ~STRAT_WAITFORU;
+            }
         }
         break;
     case AD_LUCK:
@@ -2944,6 +2940,206 @@ struct obj *mwep;
 
     boolean mon_tempest_wield = (MON_WEP(mdef)
                                  && MON_WEP(mdef)->oartifact == ART_TEMPEST);
+    struct obj *passive_armor;
+    if ((passive_armor = which_armor(mdef, W_ARM))) {
+        if (mhit && !rn2(3)
+            && Is_dragon_scaled_armor(passive_armor)) {
+            int otyp = Dragon_armor_to_scales(passive_armor);
+            switch (otyp) {
+            case GREEN_DRAGON_SCALES:
+                if (resists_poison(magr) || defended(magr, AD_DRST))
+                    break;
+                if (rn2(20)) {
+                    if (!rn2(3)) {
+                        if (canseemon(magr))
+                            pline("%s staggers from the poison!", Monnam(magr));
+                        damage_mon(magr, rnd(4), AD_DRST);
+                    }
+                } else {
+                    if (canseemon(magr))
+                        pline("%s is fatally poisoned!", Monnam(magr));
+                    magr->mhp = -1;
+                    monkilled(magr, "", AD_DRST);
+                    return (mdead | mhit | MM_AGR_DIED);
+                }
+                if (magr->mhp < 1) {
+                    if (canseemon(magr))
+                        pline("%s dies!", Monnam(magr));
+                    monkilled(magr, "", AD_DRST);
+                    return (mdead | mhit | MM_AGR_DIED);
+                }
+                break;
+            case BLACK_DRAGON_SCALES:
+                if (resists_disint(magr) || defended(magr, AD_DISN)) {
+                    if (canseemon(magr) && !rn2(3)) {
+                        shieldeff(magr->mx, magr->my);
+                        Your("armor does not appear to affect %s.",
+                            mon_nam(magr));
+                    }
+                    break;
+                } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
+                        || aatyp == AT_TUCH || aatyp == AT_KICK
+                        || aatyp == AT_BITE || aatyp == AT_HUGS
+                        || aatyp == AT_BUTT || aatyp == AT_STNG
+                        || aatyp == AT_TENT) {
+                    /* if magr is wielding a weapon, that disintegrates first before
+                    the actual monster. Same if magr is wearing gloves or boots */
+                    if (MON_WEP(magr) && !rn2(12)) {
+                        if (canseemon(magr))
+                            pline("%s %s is disintegrated!",
+                                s_suffix(Monnam(magr)), xname(MON_WEP(magr)));
+                        m_useup(magr, MON_WEP(magr));
+                    } else if ((magr->misc_worn_check & W_ARMF)
+                            && aatyp == AT_KICK && !rn2(12)) {
+                        if (canseemon(magr))
+                            pline("%s %s are disintegrated!",
+                                s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMF)));
+                        m_useup(magr, which_armor(magr, W_ARMF));
+                    } else if ((magr->misc_worn_check & W_ARMG)
+                            && (aatyp == AT_WEAP || aatyp == AT_CLAW
+                                || aatyp == AT_TUCH)
+                            && !MON_WEP(magr) && !rn2(12)
+                            && !((which_armor(magr, W_ARMG))->oartifact == ART_DRAGONBANE)) {
+                        if (canseemon(magr))
+                            pline("%s %s are disintegrated!",
+                                s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMG)));
+                        m_useup(magr, which_armor(magr, W_ARMG));
+                    } else {
+                        if (rn2(40)) {
+                            if (canseemon(magr))
+                                pline("%s partially disintegrates!", Monnam(magr));
+                            magr->mhp -= rnd(4);
+                        } else {
+                            if (canseemon(magr))
+                                pline("%s is disintegrated completely!", Monnam(magr));
+                            disint_mon_invent(magr);
+                            if (is_rider(magr->data)) {
+                                if (canseemon(magr)) {
+                                    pline("%s body reintegrates before your %s!",
+                                        s_suffix(Monnam(magr)),
+                                        (eyecount(youmonst.data) == 1)
+                                            ? body_part(EYE)
+                                            : makeplural(body_part(EYE)));
+                                    pline("%s resurrects!", Monnam(magr));
+                                }
+                                magr->mhp = magr->mhpmax;
+                            } else {
+                                monkilled(magr, "", AD_DISN);
+                                return (mdead | mhit | MM_AGR_DIED);
+                            }
+                        }
+                    }
+                }
+                if (magr->mhp < 1) {
+                    if (canseemon(magr))
+                        pline("%s dies!", Monnam(magr));
+                    monkilled(magr, "", AD_DISN);
+                    return (mdead | mhit | MM_AGR_DIED);
+                }
+                break;
+            case ORANGE_DRAGON_SCALES:
+                if (!rn2(3)) {
+                    mon_adjust_speed(magr, -1, (struct obj *) 0);
+                }
+                break;
+            case WHITE_DRAGON_SCALES:
+                if (resists_cold(magr) || defended(magr, AD_COLD))
+                    break;
+                if (rn2(20)) {
+                    if (!rn2(3)) {
+                        if (canseemon(magr))
+                            pline("%s flinches from the cold!", Monnam(magr));
+                        damage_mon(magr, rnd(4), AD_COLD);
+                    }
+                } else {
+                    if (canseemon(magr))
+                        pline("%s is frozen solid!", Monnam(magr));
+                    damage_mon(magr, d(6, 6), AD_COLD);
+                }
+                if (magr->mhp < 1) {
+                    if (canseemon(magr))
+                        pline("%s dies!", Monnam(magr));
+                    monkilled(magr, "", AD_COLD);
+                    return (mdead | mhit | MM_AGR_DIED);
+                }
+                break;
+            case RED_DRAGON_SCALES:
+                if (resists_fire(magr) || defended(magr, AD_FIRE)
+                    || mon_underwater(magr))
+                    break;
+                if (rn2(20)) {
+                    if (!rn2(3)) {
+                        if (canseemon(magr))
+                            pline("%s is burned!", Monnam(magr));
+                        damage_mon(magr, rnd(4), AD_FIRE);
+                    }
+                } else {
+                    if (canseemon(magr))
+                        pline("%s is severely burned!", Monnam(magr));
+                    damage_mon(magr, d(6, 6), AD_FIRE);
+                }
+                if (magr->mhp < 1) {
+                    if (canseemon(magr))
+                        pline("%s dies!", Monnam(magr));
+                    monkilled(magr, "", AD_FIRE);
+                    return (mdead | mhit | MM_AGR_DIED);
+                }
+                break;
+            case YELLOW_DRAGON_SCALES:
+                if (resists_acid(magr) || defended(magr, AD_ACID)
+                    || mon_underwater(magr))
+                    break;
+                if (rn2(20)) {
+                    if (!rn2(3)) {
+                        if (canseemon(magr))
+                            pline("%s is seared!", Monnam(magr));
+                        damage_mon(magr, rnd(4), AD_ACID);
+                    }
+                } else {
+                    if (canseemon(magr))
+                        pline("%s is critically seared!", Monnam(magr));
+                    damage_mon(magr, d(6, 6), AD_ACID);
+                }
+                if (magr->mhp < 1) {
+                    if (canseemon(magr))
+                        pline("%s dies!", Monnam(magr));
+                    monkilled(magr, "", AD_ACID);
+                    return (mdead | mhit | MM_AGR_DIED);
+                }
+                break;
+            case GRAY_DRAGON_SCALES:
+                if (!rn2(6))
+                    (void) cancel_monst(magr, (struct obj *) 0, TRUE, TRUE, FALSE);
+                break;
+            default: /* all other types of armor, just pass on through */
+                break;
+            }
+        }
+
+    }
+    if ((passive_armor = which_armor(mdef, W_ARMG))) {
+        switch (passive_armor->otyp) {
+        case GLOVES:
+            if (!is_dragon(magr->data))
+                break;
+            if (!rn2(3) && is_dragon(magr->data)
+                && passive_armor->oartifact == ART_DRAGONBANE) {
+                if (canseemon(magr))
+                    pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(magr)));
+                magr->mhp -= rnd(6) + 2;
+            }
+            if (magr->mhp < 1) {
+                if (canseemon(magr))
+                    pline("Dragonbane's power overwhelms %s!", mon_nam(magr));
+                pline("%s dies!", Monnam(magr));
+                monkilled(magr, "", AD_PHYS);
+                return (mdead | mhit | MM_AGR_DIED);
+            }
+            break;
+        default: /* all other types of armor, just pass on through */
+            break;
+        }
+    }
 
     for (i = 0;; i++) {
         if (i >= NATTK)
@@ -3270,16 +3466,8 @@ struct obj *mwep;
                 pline("%s is jolted with electricity!", Monnam(magr));
             break;
         case AD_SLOW:
-            if (resists_sleep(magr) || defended(magr, AD_SLOW)) {
-                tmp = 0;
-                break;
-            }
             if (mhit && !mdef->mcan && magr->mspeed != MSLOW && !rn2(3)) {
-                unsigned int oldspeed = magr->mspeed;
-
                 mon_adjust_speed(magr, -1, (struct obj *) 0);
-                if (magr->mspeed != oldspeed && canseemon(magr))
-                    pline("%s slows down.", Monnam(magr));
             }
             tmp = 0;
             break;

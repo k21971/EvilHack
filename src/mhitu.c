@@ -374,6 +374,10 @@ struct attack *mattk;
 void
 u_slow_down()
 {
+    if (defended(&youmonst, AD_SLOW) || resists_slow(youmonst.data)) {
+        You("feel as spry as ever.");
+        return;
+    }
     if (!Fast && !Slow)
         You("slow down.");
     else if (!Slow)	 /* speed of some sort */
@@ -2310,7 +2314,8 @@ do_rust:
         break;
     case AD_SLOW:
         hitmsg(mtmp, mattk);
-        if (uncancelled && !Slow && !defended(&youmonst, AD_SLOW) && !rn2(3))
+        if (uncancelled && !Slow && !defended(&youmonst, AD_SLOW)
+            && !resists_slow(youmonst.data) && !rn2(3))
             u_slow_down();
         stop_occupation();
         break;
@@ -3528,7 +3533,8 @@ struct attack *mattk;
     case AD_SLOW:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
             /* (HFast & (INTRINSIC | TIMEOUT)) && */
-            && !Slow && !defended(mtmp, AD_SLOW) && !rn2(4)) {
+            && !Slow && !defended(&youmonst, AD_SLOW)
+            && !resists_slow(youmonst.data) && !rn2(4)) {
             if (cancelled) {
                 react = 7; /* "dulled" */
                 already = (mtmp->mspeed == MSLOW);
@@ -4171,7 +4177,7 @@ struct attack *mattk;
     boolean mon_tempest_wield = (MON_WEP(mtmp)
                                  && MON_WEP(mtmp)->oartifact == ART_TEMPEST);
 
-    if (uarm && Is_dragon_scaled_armor(uarm)) {
+    if (uarm && Is_dragon_scaled_armor(uarm) && !rn2(3)) {
         int otyp = Dragon_armor_to_scales(uarm);
 
         switch (otyp) {
@@ -4204,12 +4210,12 @@ struct attack *mattk;
             break;
         case BLACK_DRAGON_SCALES:
             if (resists_disint(mtmp) || defended(mtmp, AD_DISN)) {
-                break;
                 if (canseemon(mtmp) && !rn2(3)) {
                     shieldeff(mtmp->mx, mtmp->my);
                     Your("armor does not appear to affect %s.",
                          mon_nam(mtmp));
                 }
+                break;
             } else if (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW
                        || mattk->aatyp == AT_TUCH || mattk->aatyp == AT_KICK
                        || mattk->aatyp == AT_BITE || mattk->aatyp == AT_HUGS
@@ -4231,7 +4237,8 @@ struct attack *mattk;
                 } else if ((mtmp->misc_worn_check & W_ARMG)
                            && (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW
                                || mattk->aatyp == AT_TUCH)
-                           && !MON_WEP(mtmp) && !rn2(12)) {
+                           && !MON_WEP(mtmp) && !rn2(12)
+                           && !((which_armor(mtmp, W_ARMG))->oartifact == ART_DRAGONBANE)) {
                     if (canseemon(mtmp))
                         pline("%s %s are disintegrated!",
                               s_suffix(Monnam(mtmp)), xname(which_armor(mtmp, W_ARMG)));
@@ -4274,12 +4281,8 @@ struct attack *mattk;
             }
             break;
         case ORANGE_DRAGON_SCALES:
-            if (resists_sleep(mtmp) || defended(mtmp, AD_SLEE))
-                break;
-            if (!rn2(3) && mtmp->mspeed != MSLOW) {
-                if (canseemon(mtmp))
-                    pline("%s looks a little sluggish...", Monnam(mtmp));
-                mtmp->mspeed = MSLOW;
+            if (!rn2(3)) {
+                mon_adjust_speed(mtmp, -1, (struct obj *) 0);
             }
             break;
         case WHITE_DRAGON_SCALES:
@@ -4687,14 +4690,8 @@ struct attack *mattk;
             }
             break;
         case AD_SLOW:
-            if (resists_sleep(mtmp) || defended(mtmp, AD_SLEE)) {
-                tmp = 0;
-                break;
-            }
-            if (rn2(2) && mtmp->mspeed != MSLOW) {
-                if (canseemon(mtmp))
-                    pline("%s looks a little sluggish...", Monnam(mtmp));
-                mtmp->mspeed = MSLOW;
+            if (!rn2(3)) {
+                mon_adjust_speed(mtmp, -1, (struct obj *) 0);
             }
             tmp = 0;
             break;
