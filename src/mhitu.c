@@ -374,7 +374,7 @@ struct attack *mattk;
 void
 u_slow_down()
 {
-    if (defended(&youmonst, AD_SLOW)) {
+    if (defended(&youmonst, AD_SLOW) || resists_slow(youmonst.data)) {
         You("feel as spry as ever.");
         return;
     }
@@ -2314,7 +2314,8 @@ do_rust:
         break;
     case AD_SLOW:
         hitmsg(mtmp, mattk);
-        if (uncancelled && !Slow && !defended(&youmonst, AD_SLOW) && !rn2(3))
+        if (uncancelled && !Slow && !defended(&youmonst, AD_SLOW)
+            && !resists_slow(youmonst.data) && !rn2(3))
             u_slow_down();
         stop_occupation();
         break;
@@ -3532,7 +3533,8 @@ struct attack *mattk;
     case AD_SLOW:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
             /* (HFast & (INTRINSIC | TIMEOUT)) && */
-            && !Slow && !defended(&youmonst, AD_SLOW) && !rn2(4)) {
+            && !Slow && !defended(&youmonst, AD_SLOW)
+            && !resists_slow(youmonst.data) && !rn2(4)) {
             if (cancelled) {
                 react = 7; /* "dulled" */
                 already = (mtmp->mspeed == MSLOW);

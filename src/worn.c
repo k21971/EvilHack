@@ -291,11 +291,11 @@ struct obj *obj; /* item to make known if effect can be seen */
     case -1:
         if (mon->permspeed == MFAST)
             mon->permspeed = 0;
-        else if (!defended(mon, AD_SLOW))
+        else if (!(defended(mon, AD_SLOW) || resists_slow(r_data(mon))))
             mon->permspeed = MSLOW;
         break;
     case -2: /* wading through sewage: set mspeed for temporary slow */
-        if (!defended(mon, AD_SLOW))
+        if (!(defended(mon, AD_SLOW) || resists_slow(r_data(mon))))
             mon->mspeed = MSLOW;
         give_msg = FALSE;
         return; /* return early so mspeed isn't changed */

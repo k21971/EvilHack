@@ -4703,7 +4703,7 @@ boolean wep_was_destroyed;
             }
             break;
         case AD_SLOW: /* specifically orange dragons */
-            if (!Slow && !defended(&youmonst, AD_SLOW))
+            if (!Slow && !defended(&youmonst, AD_SLOW) && !resists_slow(youmonst.data))
                 u_slow_down();
             break;
         case AD_SLEE: /* specifically black fungus */
@@ -4863,7 +4863,8 @@ boolean wep_was_destroyed;
                 if (how_resistant(SLEEP_RES) == 100) {
                     break;
                 } else {
-                    if (!Slow && !defended(&youmonst, AD_SLOW))
+                    if (!Slow && !defended(&youmonst, AD_SLOW)
+                        && !resists_slow(youmonst.data))
                         u_slow_down();
                 }
                 break;
