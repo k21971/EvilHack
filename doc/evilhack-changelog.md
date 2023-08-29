@@ -3120,4 +3120,5 @@ The following changes to date are:
 - Fix: Slowed monsters remain slowed
 - Water walking prevents sewage from slowing you
 - Fix: rising from the grave as a zombie
+- Wearing the One Ring warns of wraith-type monsters
 

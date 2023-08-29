@@ -3260,7 +3260,9 @@ int final;
                                             ? "angels"
                                             : (context.warntype.polyd & MH_JABBERWOCK)
                                                 ? "jabberwocks"
-                                                : "certain monsters");
+                                                : (context.warntype.polyd & MH_WRAITH)
+                                                    ? "wraiths"
+                                                    : "certain monsters");
         you_are(buf, "");
     }
     if (Warn_of_mon && context.warntype.speciesidx >= LOW_PM) {

@@ -603,7 +603,11 @@ boolean resuming;
                             || (wielding_artifact(ART_ANGELSLAYER)
                                 && is_angel(mtmp->data))
                             || (wielding_artifact(ART_VORPAL_BLADE)
-                                && is_jabberwock(mtmp->data))) {
+                                && is_jabberwock(mtmp->data))
+                            || (uleft && uleft->oartifact == ART_ONE_RING
+                                && is_wraith(mtmp->data))
+                            || (uright && uright->oartifact == ART_ONE_RING
+                                && is_wraith(mtmp->data))) {
                             if (mtmp->mpeaceful || mtmp->mtame)
                                 mtmp->mpeaceful = mtmp->mtame = 0;
                         }

@@ -1182,6 +1182,12 @@ register struct obj *obj;
     if (uarmg && uarmg->oartifact == ART_DRAGONBANE && is_dragon(mtmp->data))
         return FALSE;
 
+    if (uleft && uleft->oartifact == ART_ONE_RING && is_wraith(mtmp->data))
+        return FALSE;
+
+    if (uright && uright->oartifact == ART_ONE_RING && is_wraith(mtmp->data))
+        return FALSE;
+
     /* worst case, at least it'll be peaceful. */
     mtmp->mpeaceful = 1;
     set_malign(mtmp);
