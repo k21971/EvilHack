@@ -3306,13 +3306,19 @@ struct attack *mattk;
                 break;
             return 2;
         }
-        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
-            && !Stone_resistance && !rn2(3)) {
+        if (canseemon(mtmp)
+            && couldsee(mtmp->mx, mtmp->my) && !rn2(3)) {
             You("meet %s petrifying gaze!", s_suffix(mon_nam(mtmp)));
             stop_occupation();
+            if (Stone_resistance
+                || (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))) {
+                You("are unaffected by %s gaze.", s_suffix(mon_nam(mtmp)));
+                break;
+            }
             if (mtmp->data == &mons[PM_BEHOLDER]) {
                 /* The EotO can afford the player some protection when worn */
                 int dmg;
+
                 if (ublindf
                     && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
                     pline("%s partially protect you from %s petrifying gaze.  That hurts!",
@@ -3320,9 +3326,7 @@ struct attack *mattk;
                     dmg = d(4, 6);
                     if (dmg)
                         mdamageu(mtmp, dmg);
-                } else if (!Stoned && !Stone_resistance
-                    && !(poly_when_stoned(youmonst.data)
-                    && polymon(PM_STONE_GOLEM))) {
+                } else if (!Stoned) {
                     int kformat = KILLED_BY_AN;
                     const char *kname = mtmp->data->mname;
 
@@ -3335,8 +3339,6 @@ struct attack *mattk;
                     return 1;
                 }
             } else if (mtmp->data == &mons[PM_MEDUSA]) {
-                if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
-                    break;
                 if (ublindf
                        && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD)
                     pline("%s gaze is too powerful for %s to resist!",
@@ -3509,35 +3511,43 @@ struct attack *mattk;
         break;
     /* Comment out the PM_BEHOLDER indef here so the below attack types function */
     case AD_SLEE:
-        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
-            && multi >= 0 && !rn2(5) && (how_resistant(SLEEP_RES) < 100)) {
+        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
+            && mtmp->mcansee && multi >= 0 && !rn2(5)) {
+            if (!cancelled)
+                You("meet %s slumbering gaze.",
+                    s_suffix(mon_nam(mtmp)));
             if (cancelled) {
                 react = 6;                      /* "tired" */
                 already = (mtmp->mfrozen != 0); /* can't happen... */
+                break;
+            } else if (how_resistant(SLEEP_RES) == 100) {
+                You("yawn.");
+                monstseesu(M_SEEN_SLEEP);
+                break;
             } else if (ublindf
                        && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
                 if (!rn2(4))
                     pline("%s protect you from %s slumbering gaze.",
                           An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
                 break;
-            } else {
+            } else if (how_resistant(SLEEP_RES) < 100) {
                 fall_asleep(-resist_reduce(rnd(10), SLEEP_RES), TRUE);
                 pline("%s gaze makes you very sleepy...",
                       s_suffix(Monnam(mtmp)));
-            }
-            if (how_resistant(SLEEP_RES) == 100) {
-                monstseesu(M_SEEN_SLEEP);
+                break;
             }
         }
         break;
     case AD_SLOW:
-        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
-            /* (HFast & (INTRINSIC | TIMEOUT)) && */
-            && !Slow && !defended(&youmonst, AD_SLOW)
-            && !resists_slow(youmonst.data) && !rn2(4)) {
+        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
+            && mtmp->mcansee && !rn2(4)) {
+            if (!cancelled)
+                You("meet %s lethargic gaze.",
+                    s_suffix(mon_nam(mtmp)));
             if (cancelled) {
                 react = 7; /* "dulled" */
                 already = (mtmp->mspeed == MSLOW);
+                break;
             /* The EotO can afford the player some protection when worn */
             } else if (ublindf
                        && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
@@ -3545,11 +3555,11 @@ struct attack *mattk;
                     pline("%s protect you from %s lethargic gaze.",
                           An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
                 break;
-            } else {
-                You("meet %s lethargic gaze.",
-                    s_suffix(mon_nam(mtmp)));
+            } else if (!Slow && !(defended(&youmonst, AD_SLOW)
+                                  || resists_slow(youmonst.data))) {
                 u_slow_down();
                 stop_occupation();
+                break;
             }
         }
         break;
@@ -3558,8 +3568,8 @@ struct attack *mattk;
      * Why you may ask? Because the Beholder was never enabled.
      */
     case AD_DISN:
-        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my) && mtmp->mcansee
-            && multi >= 0 && !rn2(5)) {
+        if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
+            && mtmp->mcansee && multi >= 0 && !rn2(5)) {
             int dmg = d(8, 8);
 
             pline("%s turns %s towards you%s", Monnam(mtmp),
@@ -3571,6 +3581,7 @@ struct attack *mattk;
                 pline("You bask in its %s aura.", hcolor(NH_BLACK));
                 monstseesu(M_SEEN_DISINT);
                 stop_occupation();
+                break;
             } else if (how_resistant(DISINT_RES) > 0) {
                 You("aren't disintegrated, but that really hurts!");
                 dmg = resist_reduce(dmg, DISINT_RES);
@@ -3585,6 +3596,7 @@ struct attack *mattk;
                        && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
                 pline("%s partially protect you.  That stings!",
                       An(bare_artifactname(ublindf)));
+                dmg /= 2;
                 if (dmg)
                     mdamageu(mtmp, dmg);
                 break;
@@ -3619,9 +3631,12 @@ struct attack *mattk;
             && mtmp->mcansee && !rn2(3)) {
             int dmg;
 
+            if (!cancelled)
+                You("meet %s strange gaze.", s_suffix(mon_nam(mtmp)));
             if (cancelled) {
                 react = 9; /* "lackluster" */
                 already = (mtmp->mcan != 0);
+                break;
             /* The EotO can afford the player some protection when worn */
             } else if (ublindf
                 && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
@@ -3630,12 +3645,13 @@ struct attack *mattk;
                 dmg = d(2, 4);
                 if (dmg)
                     mdamageu(mtmp, dmg);
+                break;
             } else {
-                You("meet %s strange gaze.", s_suffix(mon_nam(mtmp)));
                 (void) cancel_monst(&youmonst, (struct obj *) 0, FALSE, TRUE, FALSE);
                 dmg = d(4, 4);
                 if (dmg)
                     mdamageu(mtmp, dmg);
+                break;
             }
         }
         break;

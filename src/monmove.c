@@ -204,12 +204,12 @@ struct monst *mtmp;
      * Vecna, the Goblin King, monster players, demon lords and princes,
      * honey badgers, shopkeepers inside their own shop, anything that
      * is mindless, priests inside their own temple, the quest leaders
-     * and nemesis, neothelids, other unique creatures
+     * and nemesis, neothelids, beholders, other unique creatures
      */
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
         || mtmp->data == &mons[PM_ARCHANGEL] || mtmp->data == &mons[PM_HONEY_BADGER]
-        || mtmp->data == &mons[PM_NEOTHELID] || mindless(mtmp->data)
-        || is_mplayer(mtmp->data) || is_rider(mtmp->data)
+        || mtmp->data == &mons[PM_BEHOLDER] || mtmp->data == &mons[PM_NEOTHELID]
+        || mindless(mtmp->data) || is_mplayer(mtmp->data) || is_rider(mtmp->data)
         || mtmp->isvecna || mtmp->isvlad || mtmp->isgking
         || mtmp->data->mlet == S_HUMAN || unique_corpstat(mtmp->data)
         || (mtmp->isshk && inhishop(mtmp))

@@ -1726,13 +1726,17 @@ register struct monst *mtmp;
     int mat_idx;
 
     if ((gold = g_at(mtmp->mx, mtmp->my)) != 0
-        && !(is_floater(mtmp->data) || can_levitate(mtmp))) {
+        && !((is_floater(mtmp->data)
+              && mtmp->data != &mons[PM_BEHOLDER])
+             || can_levitate(mtmp))) {
         mat_idx = gold->material;
         obj_extract_self(gold);
         add_to_minv(mtmp, gold);
         if (cansee(mtmp->mx, mtmp->my)) {
             if (flags.verbose && !mtmp->isgd)
-                pline("%s picks up some %s.", Monnam(mtmp),
+                pline("%s %s some %s.", Monnam(mtmp),
+                      (mtmp->data == &mons[PM_BEHOLDER]
+                          ? "magically gathers up" : "picks up"),
                       mat_idx == GOLD ? "gold" : "money");
             newsym(mtmp->mx, mtmp->my);
         }
@@ -2001,7 +2005,9 @@ register const char *str;
 
     /* levitating/floating monsters can't reach the ground, just
        like levitating players */
-    if (is_floater(mtmp->data) || can_levitate(mtmp))
+    if ((is_floater(mtmp->data)
+         && mtmp->data != &mons[PM_BEHOLDER])
+        || can_levitate(mtmp))
         return FALSE;
 
     for (otmp = level.objects[mtmp->mx][mtmp->my]; otmp; otmp = otmp2) {
@@ -2102,7 +2108,9 @@ register const char *str;
             if (is_soko_prize_flag(otmp))
                 continue;
             if (vismon && flags.verbose)
-                pline("%s picks up %s.", Monnam(mtmp),
+                pline("%s %s %s.", Monnam(mtmp),
+                      (mtmp->data == &mons[PM_BEHOLDER]
+                          ? "magically gathers up" : "picks up"),
                       (distu(mtmp->mx, mtmp->my) <= 5)
                           ? doname(otmp3)
                           : distant_name(otmp3, doname));
