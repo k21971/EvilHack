@@ -3048,7 +3048,7 @@ The following changes to date are:
 
 ### Version 0.9.0
 
-- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of February 24th, 2023)
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of August 28th, 2023)
 - Initial preparation for new version (0.9.0)
 - Allow self-targeting advanced spells when blind
 - Fix: Dexcellence
