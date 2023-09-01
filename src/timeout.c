@@ -2434,6 +2434,7 @@ struct obj *obj;
     switch (obj->where) {
     case OBJ_INVENT:
     case OBJ_MIGRATING:
+    case OBJ_SOMEWHERE:
         return FALSE;
     case OBJ_FLOOR:
     case OBJ_BURIED:

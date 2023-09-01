@@ -18,6 +18,7 @@ STATIC_DCL void NDECL(do_positionbar);
 STATIC_DCL void FDECL(regen_hp, (int));
 STATIC_DCL void FDECL(interrupt_multi, (const char *));
 STATIC_DCL void FDECL(debug_fields, (const char *));
+STATIC_DCL void NDECL(init_mchest);
 
 #ifdef EXTRAINFO_FN
 static long prev_dgl_extrainfo = 0;
@@ -172,6 +173,7 @@ boolean resuming;
            clairvoyance (wizard with cornuthaum perhaps?); without this,
            first "random" occurrence would always kick in on turn 1 */
         context.seer_turn = (long) rnd(30);
+        init_mchest();
     }
     context.botlx = TRUE; /* for STATUS_HILITES */
     update_inventory(); /* for perm_invent */
@@ -829,6 +831,15 @@ boolean resuming;
             display_nhwindow(WIN_MAP, FALSE);
         }
     }
+}
+
+struct obj *mchest = (struct obj *) 0;
+STATIC_OVL void
+init_mchest()
+{
+    mchest = mksobj(HIDDEN_CHEST, FALSE, FALSE);
+    mchest->where = OBJ_SOMEWHERE;
+    return;
 }
 
 /* maybe recover some lost health (or lose some when an eel out of water) */

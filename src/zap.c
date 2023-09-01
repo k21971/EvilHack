@@ -961,7 +961,8 @@ boolean by_hero;
          */
         || (container && (container->olocked || container_nesting > 2
                           || container->otyp == STATUE
-                          || (container->otyp == BAG_OF_HOLDING && rn2(40))))
+                          || (container->otyp == BAG_OF_HOLDING && rn2(40))
+                          || container->otyp == HIDDEN_CHEST))
         /* if buried zombie cannot dig itself out, do not revive */
         || (is_zomb && corpse->where == OBJ_BURIED && !zombie_can_dig(x, y)))
         return (struct monst *) 0;

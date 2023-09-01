@@ -1699,6 +1699,11 @@ boolean countem;
     struct obj *cobj, *nobj;
     int container_count = 0;
 
+    if (IS_MAGIC_CHEST(levl[x][y].typ)) {
+        ++container_count;
+        if (!countem)
+            return container_count;
+    }
     for (cobj = level.objects[x][y]; cobj; cobj = nobj) {
         nobj = cobj->nexthere;
         if (Is_nonprize_container(cobj)) {
@@ -1895,6 +1900,11 @@ doloot()
             win = create_nhwindow(NHW_MENU);
             start_menu(win);
 
+            if (IS_MAGIC_CHEST(levl[cc.x][cc.y].typ)) {
+                any.a_obj = mchest;
+                add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                         "magic chest", MENU_UNSELECTED);
+            }
             for (cobj = level.objects[cc.x][cc.y]; cobj;
                  cobj = cobj->nexthere)
                 if (Is_nonprize_container(cobj)) {
@@ -1921,6 +1931,12 @@ doloot()
             if (n != 0)
                 c = 'y';
         } else {
+            if (IS_MAGIC_CHEST(levl[cc.x][cc.y].typ)) {
+                anyfound = TRUE;
+                timepassed |= do_loot_cont(&mchest, 1, 1);
+                if (abort_looting)
+                    return timepassed;
+            }
             for (cobj = level.objects[cc.x][cc.y]; cobj; cobj = nobj) {
                 nobj = cobj->nexthere;
 
@@ -3291,7 +3307,14 @@ dotip()
                 win = create_nhwindow(NHW_MENU);
                 start_menu(win);
 
-                for (cobj = level.objects[cc.x][cc.y], i = 0; cobj;
+                i = 0;
+                if (IS_MAGIC_CHEST(levl[cc.x][cc.y].typ)) {
+                    ++i;
+                    any.a_obj = mchest;
+                    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                             "magic chest", MENU_UNSELECTED);
+                }
+                for (cobj = level.objects[cc.x][cc.y]; cobj;
                      cobj = cobj->nexthere)
                     if (Is_nonprize_container(cobj)) {
                         ++i;
@@ -3333,20 +3356,31 @@ dotip()
                     return 0;
                 /* else pick-from-invent below */
             } else {
-                for (cobj = level.objects[cc.x][cc.y]; cobj; cobj = nobj) {
-                    nobj = cobj->nexthere;
-                    if (!Is_nonprize_container(cobj))
-                        continue;
-                    c = ynq(safe_qbuf(qbuf, "There is ", " here, tip it?",
-                                      cobj,
-                                      doname, ansimpleoname, "container"));
+                if (IS_MAGIC_CHEST(levl[cc.x][cc.y].typ)) {
+                    c = ynq("There is a magic chest here, tip it?");
                     if (c == 'q')
                         return 0;
-                    if (c == 'n')
-                        continue;
-                    tipcontainer(cobj);
-                    /* can only tip one container at a time */
-                    return 1;
+                    if (!(c == 'n')) {
+                        tipcontainer(mchest);
+                        /* can only tip one container at a time */
+                        return 1;
+                    }
+                } else {
+                    for (cobj = level.objects[cc.x][cc.y]; cobj; cobj = nobj) {
+                        nobj = cobj->nexthere;
+                        if (!Is_nonprize_container(cobj))
+                            continue;
+                        c = ynq(safe_qbuf(qbuf, "There is ", " here, tip it?",
+                                        cobj,
+                                        doname, ansimpleoname, "container"));
+                        if (c == 'q')
+                            return 0;
+                        if (c == 'n')
+                            continue;
+                        tipcontainer(cobj);
+                        /* can only tip one container at a time */
+                        return 1;
+                    }
                 }
             }
         }
@@ -3554,6 +3588,13 @@ struct obj *box; /* or bag */
     boolean held = FALSE, maybeshopgoods;
     struct obj *targetbox = (struct obj *) 0;
     boolean cancelled = FALSE;
+
+    /* magic chests are too heavy to tip. also, they don't have a location.
+       return before anyone notices! */
+    if (box->otyp == HIDDEN_CHEST) {
+        pline_The("chest is bolted down!");
+        return;
+    }
 
     /* box is either held or on floor at hero's spot; no need to check for
        nesting; when held, we need to update its location to match hero's;

@@ -1024,6 +1024,10 @@ boolean artif;
                 otmp->olocked = 1;
                 mkbox_cnts(otmp);
                 break;
+            case HIDDEN_CHEST: /* should not happen */
+                otmp->olocked = 0;
+                otmp->otrapped = 0;
+                break;
             case CRYSTAL_CHEST:
                 otmp->olocked = 1;
                 otmp->otrapped = 0;
@@ -3536,6 +3540,7 @@ struct obj* obj;
         case GRAPPLING_HOOK:
         case IRON_SAFE:
         case CRYSTAL_CHEST:
+        case HIDDEN_CHEST:
         case LEATHER_DRUM:
         case DRUM_OF_EARTHQUAKE:
         case LAND_MINE:

@@ -69,7 +69,8 @@ struct obj {
 #define OBJ_MIGRATING 5 /* object sent off to another level */
 #define OBJ_BURIED 6    /* object buried */
 #define OBJ_ONBILL 7    /* object on shk bill */
-#define NOBJ_STATES 8
+#define OBJ_SOMEWHERE 9 /* for magic chests */
+#define NOBJ_STATES 10
     xchar timed; /* # of fuses (timers) attached to this obj */
 
     Bitfield(cursed, 1);
@@ -324,7 +325,7 @@ struct obj {
      (o)->cobj != (struct obj *) 0)
 #define Is_container(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS)
 #define Is_nonprize_container(o) (Is_container(o) && !is_soko_prize_flag(o))
-#define Is_box(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= MAGIC_CHEST)
+#define Is_box(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= HIDDEN_CHEST)
 #define Is_mbag(o) ((o)->otyp == BAG_OF_HOLDING || (o)->otyp == BAG_OF_TRICKS)
 #define Is_allbag(o) ((o)->otyp >= SACK && (o)->otyp <= BAG_OF_TRICKS)
 #define SchroedingersBox(o) ((o)->otyp == LARGE_BOX && (o)->spe == 1)
