@@ -550,6 +550,7 @@ struct {
 {S_throne,   "throne", "opulent throne"},
 {S_sink,     "sink", "sink"},
 {S_forge,    "forge", "forge"},
+{S_magic_chest, "magic chest", "magic chest"},
 {S_fountain, "fountain", "fountain"},
 {S_pool,     "pool", "water"},
 {S_ice,      "ice", "ice"},

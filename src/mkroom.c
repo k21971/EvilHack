@@ -1183,6 +1183,9 @@ int sym;
     case S_forge:
         typ = FORGE;
         break;
+    case S_magic_chest:
+        typ = MAGIC_CHEST;
+        break;
     case S_fountain:
         typ = FOUNTAIN;
         break;

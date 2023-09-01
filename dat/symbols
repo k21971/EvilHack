@@ -62,7 +62,7 @@ start: NHAccess
 	S_hcdoor: \043
 	S_bars: \046
 	S_tree: \035
-        S_deadtree: \035
+	S_deadtree: \035
 	S_room: \035
 	S_corr: \060
 	S_litcorr: \062
@@ -140,7 +140,7 @@ finish
 
 # All symbols are spaces
 start: Blank
-	Description: completely blank symbols
+        Description: completely blank symbols
         S_air: \032
         S_altar: \032
         S_amulet: \032
@@ -231,6 +231,7 @@ start: Blank
         S_lizard: \032
         S_lslant: \032
         S_magic_beam_trap: \032
+        S_magic_chest: \032
         S_magic_portal: \032
         S_magic_trap: \032
         S_mimic: \032
@@ -344,17 +345,17 @@ start: IBMgraphics
 	S_hodoor: \xfe			# meta-~, small centered square
 	S_bars: \xf0			# equivalence symbol
 	S_tree: \xf1			# plus or minus symbol
-        S_deadtree: \xf1                # plus or minus symbol
+	S_deadtree: \xf1		# plus or minus symbol
 	S_room: \xfa			# meta-z, centered dot
 	S_corr: \xb0			# meta-0, light shading
 	S_litcorr: \xb1			# meta-1, medium shading
 	S_forge: \xf4			# meta-t, integral top half
 	S_fountain: \xf4		# meta-t, integral top half
-	S_sink: \xf4                    # meta-t, integral top half
+	S_sink: \xf4			# meta-t, integral top half
 	S_puddle: \xf7			# meta-w, approx. equals
 	S_sewage: \xf7			# meta-w, approx. equals
 	S_pool: \xf7			# meta-w, approx. equals
-	S_ice: \xfa			# meta-z, centered dot
+	S_ice: \xfa				# meta-z, centered dot
 	S_lava: \xf7			# meta-w, approx. equals
 	S_vodbridge: \xfa		# meta-z, centered dot
 	S_hodbridge: \xfa		# meta-z, centered dot
@@ -489,6 +490,7 @@ start: RogueEpyx
 	S_magic_portal: \x04
 	S_web: \x04
 	S_statue_trap: \x04
+	S_magic_chest: \x28		# match it to tools
 	S_magic_trap: \x04
 	S_anti_magic_trap: \x04
 	S_polymorph_trap: \x04
@@ -609,7 +611,7 @@ start: DECgraphics
 	S_puddle: \xe0			# meta-\, diamond
 	S_sewage: \xe0			# meta-\, diamond
 	S_pool: \xe0			# meta-\, diamond
-	S_ice: \xfe			# meta-~, centered dot
+	S_ice: \xfe				# meta-~, centered dot
 	S_lava: \xe0			# meta-\, diamond
 	S_vodbridge: \xfe		# meta-~, centered dot
 	S_hodbridge: \xfe		# meta-~, centered dot

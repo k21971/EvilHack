@@ -1319,6 +1319,8 @@ char c;
         return (SCORR);
     case 'U':
         return (FORGE);
+    case 'Z': /* as in 'omega'. we're running out of letters... */
+        return (MAGIC_CHEST);
     case '{':
         return (FOUNTAIN);
     case '\\':

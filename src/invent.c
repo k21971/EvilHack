@@ -3494,6 +3494,8 @@ char *buf;
         cmap = S_sink; /* "sink" */
     else if (IS_FORGE(ltyp))
         cmap = S_forge; /* "forge" */
+    else if (IS_MAGIC_CHEST(ltyp))
+        cmap = S_magic_chest; /* "magic chest" */
     else if (IS_ALTAR(ltyp)) {
         Sprintf(altbuf, "%saltar to %s (%s)",
                 ((lev->altarmask & AM_SHRINE)

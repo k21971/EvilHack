@@ -198,7 +198,7 @@ extern char curr_token[512];
 %token	<i> MAZEWALK_ID WALLIFY_ID REGION_ID FILLING IRREGULAR JOINED
 %token	<i> ALTAR_ID LADDER_ID STAIR_ID NON_DIGGABLE_ID NON_PASSWALL_ID ROOM_ID
 %token	<i> PORTAL_ID TELEPRT_ID BRANCH_ID LEV MINERALIZE_ID
-%token	<i> CORRIDOR_ID GOLD_ID ENGRAVING_ID FORGE_ID FOUNTAIN_ID PUDDLE_ID SEWAGE_ID POOL_ID SINK_ID NONE
+%token	<i> CORRIDOR_ID GOLD_ID ENGRAVING_ID FORGE_ID MAGIC_CHEST_ID FOUNTAIN_ID PUDDLE_ID SEWAGE_ID POOL_ID SINK_ID NONE
 %token	<i> RAND_CORRIDOR_ID DOOR_STATE LIGHT_STATE CURSE_TYPE ENGRAVING_TYPE
 %token	<i> DIRECTION RANDOM_TYPE RANDOM_TYPE_BRACKET A_REGISTER
 %token	<i> ALIGNMENT LEFT_OR_RIGHT CENTER TOP_OR_BOT ALTAR_TYPE UP_OR_DOWN
@@ -506,6 +506,7 @@ levstatement 	: message
 		| mineralize
 		| fountain_detail
 		| forge_detail
+		| magic_chest_detail
 		| gold_detail
 		| switchstatement
 		| forstatement
@@ -1899,10 +1900,15 @@ teleprt_detail	: /* empty */
 		;
 
 forge_detail : FORGE_ID ':' ter_selection
-                  {
-                      add_opvars(splev, "o", VA_PASS1(SPO_FORGE));
-                  }
-                ;
+		  {
+		      add_opvars(splev, "o", VA_PASS1(SPO_FORGE));
+		  }
+		;
+
+magic_chest_detail : MAGIC_CHEST_ID ':' ter_selection
+		  {
+		      add_opvars(splev, "o", VA_PASS1(SPO_MAGIC_CHEST));
+		  }
 
 fountain_detail : FOUNTAIN_ID ':' ter_selection
 		  {
@@ -1917,16 +1923,16 @@ sink_detail : SINK_ID ':' ter_selection
 		;
 
 puddle_detail : PUDDLE_ID ':' ter_selection
-                  {
-                      add_opvars(splev, "o", VA_PASS1(SPO_PUDDLE));
-                  }
-                ;
+		  {
+		      add_opvars(splev, "o", VA_PASS1(SPO_PUDDLE));
+		  }
+		;
 
 sewage_detail : SEWAGE_ID ':' ter_selection
-                  {
-                      add_opvars(splev, "o", VA_PASS1(SPO_SEWAGE));
-                  }
-                ;
+		  {
+		      add_opvars(splev, "o", VA_PASS1(SPO_SEWAGE));
+		  }
+		;
 
 pool_detail : POOL_ID ':' ter_selection
 		  {
