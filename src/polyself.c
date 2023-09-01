@@ -1306,7 +1306,7 @@ dobreathe()
     else if (!u.dx && !u.dy && !u.dz)
         ubreatheu(mattk);
     else
-        buzz((int) (20 + mattk->adtyp - 1), (int) mattk->damn, u.ux, u.uy,
+        buzz((int) (22 + mattk->adtyp - 1), (int) mattk->damn, u.ux, u.uy,
              u.dx, u.dy);
     return 1;
 }
