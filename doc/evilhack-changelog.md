@@ -3127,4 +3127,5 @@ The following changes to date are:
 - Fix: a few more cases where beam type needed to be updated
 - Fix: illithid corpses can boost intelligence when eaten
 - Fix: monsters ransacking players possessions on death from a distance
+- Fix: perm_invent not updating when sokoban prize is acquired
 
