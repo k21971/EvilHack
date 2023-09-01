@@ -3676,7 +3676,7 @@ struct obj *obj;
         if (otyp == WAN_DIGGING || otyp == SPE_DIG)
             zap_dig();
         else if (otyp >= SPE_MAGIC_MISSILE && otyp <= SPE_ACID_BLAST)
-            buzz(otyp - SPE_MAGIC_MISSILE + 10, u.ulevel / 2 + 1, u.ux, u.uy,
+            buzz(otyp - SPE_MAGIC_MISSILE + 11, u.ulevel / 2 + 1, u.ux, u.uy,
                  u.dx, u.dy);
         else if (otyp >= WAN_MAGIC_MISSILE && otyp <= WAN_LIGHTNING)
             buzz(otyp - WAN_MAGIC_MISSILE,
