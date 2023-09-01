@@ -3126,4 +3126,5 @@ The following changes to date are:
 - Fix: incorrect beam type when a monster zaps a wand at the player
 - Fix: a few more cases where beam type needed to be updated
 - Fix: illithid corpses can boost intelligence when eaten
+- Fix: monsters ransacking players possessions on death from a distance
 
