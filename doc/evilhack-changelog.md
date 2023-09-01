@@ -3128,4 +3128,5 @@ The following changes to date are:
 - Fix: illithid corpses can boost intelligence when eaten
 - Fix: monsters ransacking players possessions on death from a distance
 - Fix: perm_invent not updating when sokoban prize is acquired
+- Fix: pet petrified by eating Medusa's corpse
 

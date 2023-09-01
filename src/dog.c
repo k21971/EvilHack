@@ -928,7 +928,10 @@ register struct obj *obj;
 
         if (obj->otyp == CORPSE && is_rider(fptr))
             return TABU;
-        if ((obj->otyp == CORPSE || obj->otyp == EGG) && touch_petrifies(fptr)
+        if ((obj->otyp == CORPSE || obj->otyp == EGG)
+            /* Medusa's corpse doesn't pass the touch_petrifies() test
+               but does cause petrification if eaten */
+            && (touch_petrifies(fptr) || obj->corpsenm == PM_MEDUSA)
             && !(resists_ston(mon) || defended(mon, AD_STON)))
             return POISON;
         if (!carni && !herbi)
