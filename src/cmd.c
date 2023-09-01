@@ -1379,6 +1379,8 @@ wiz_map_levltyp(VOID_ARGS)
                 Strcat(dsc, " Goblin Town");
             if (slev->flags.purg)
                 Strcat(dsc, " Purgatory");
+            if (slev->flags.hdgn)
+                Strcat(dsc, " Hidden Dungeon");
             if (slev->flags.town)
                 Strcat(dsc, " town");
             if (slev->flags.rogue_like)
@@ -3917,6 +3919,9 @@ int final;
     if (u.uachieve.killed_vlad)
         enl_msg(You_, "have ", "",
                 "defeated Vlad the Impaler", ""), ++acnt;
+    if (u.uachieve.killed_talgath)
+        enl_msg(You_, "have ", "",
+                "defeated Tal'Gath", ""), ++acnt;
     if (u.uachieve.killed_gking)
         enl_msg(You_, "have ", "",
                 "defeated the Goblin King", ""), ++acnt;
@@ -3938,6 +3943,9 @@ int final;
     if (u.uachieve.enter_purgatory)
         enl_msg(You_, "have ", "",
                 "entered Purgatory", ""), ++acnt;
+    if (u.uachieve.enter_hdgn)
+        enl_msg(You_, "have ", "",
+                "entered the Hidden Dungeon", ""), ++acnt;
     if (u.uachieve.enter_wiztower)
         enl_msg(You_, "have ", "",
                 "entered the Wizard of Yendor's lair", ""), ++acnt;

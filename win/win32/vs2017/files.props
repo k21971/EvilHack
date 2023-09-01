@@ -37,6 +37,7 @@
     <Desfiles Include = "endgame.des"/>
     <Desfiles Include = "gehennom.des"/>
     <Desfiles Include = "goblintown.des"/>
+    <Desfiles Include = "hdgn.des"/>
     <Desfiles Include = "healer.des"/>
     <Desfiles Include = "icequeen.des"/>
     <Desfiles Include = "infidel.des"/>
@@ -96,6 +97,7 @@
     <Levfiles Include = "valley.lev"/>
     <Levfiles Include = "goblintown-1.lev"/>
     <Levfiles Include = "goblintown-2.lev"/>
+    <Levfiles Include = "hdgn.lev"/>
     <Levfiles Include = "icequeen-1.lev"/>
     <Levfiles Include = "icequeen-2.lev"/>
     <Levfiles Include = "icequeen-3.lev"/>

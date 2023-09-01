@@ -3116,6 +3116,8 @@ long mmflags;
         mtmp->iscerberus = TRUE;
     } else if (mndx == PM_VECNA) {
         mtmp->isvecna = TRUE;
+    } else if (mndx == PM_TAL_GATH) {
+        mtmp->istalgath = TRUE;
     } else if (mndx == PM_GOBLIN_KING) {
         mtmp->isgking = TRUE;
     } else if (mndx == PM_LUCIFER) {

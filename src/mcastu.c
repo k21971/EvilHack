@@ -346,7 +346,7 @@ boolean foundyou;
            types of monsters half of the time */
         if (rn2(2)
             && (is_dprince(mtmp->data) || is_dlord(mtmp->data)
-                || mtmp->iswiz || mtmp->isvecna
+                || mtmp->iswiz || mtmp->isvecna || mtmp->istalgath
                 || mtmp->data->msound == MS_LEADER
                 || mtmp->data->msound == MS_NEMESIS
                 || mtmp->data == &mons[PM_ORACLE]

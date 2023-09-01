@@ -103,6 +103,7 @@ iceq		{ yylval.i=ICEQ ; return(DESCRIPTOR); }
 vecnad		{ yylval.i=VECNAD ; return(DESCRIPTOR); }
 gtown		{ yylval.i=GTOWN ; return(DESCRIPTOR); }
 purg		{ yylval.i=PURGATORY ; return(DESCRIPTOR); }
+hdgn		{ yylval.i=HDGN ; return(DESCRIPTOR); }
 unaligned       { yylval.i=D_ALIGN_NONE ; return(DESCRIPTOR); }
 noalign         { yylval.i=D_ALIGN_NONE ; return(DESCRIPTOR); }
 lawful          { yylval.i=D_ALIGN_LAWFUL ; return(DESCRIPTOR); }

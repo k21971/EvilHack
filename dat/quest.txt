@@ -4833,6 +4833,24 @@ your death.  You sense an evil, powerful presence here, and realize you
 are in the lair of the Wizard of Yendor himself.  Beware!
 %E [You have entered the Wizard of Yendor's lair.]
 #
+# Entering the Hidden Dungeon
+#
+%Cc - 00309
+The putrid stench of raw sewage assails you the moment you materialize.
+You can barely keep yourself from vommiting, the smell is so bad.
+As you steady yourself, you notice that the sewage around you has a
+faint green glow, which illuminates a row of rusted-out jail cells
+nearby.  Off in the distance, you can just barely make out what sounds
+like whimpering or moaning.  You realize that you have stumbled upon
+the fabled Hidden Dungeon, which was rumored to be somewhere beneath the
+castle.  Legend has it that some evil force had infiltrated this place
+long ago, chasing off the castle guard.  The prisoners left behind were
+at the mercy of whatever evil entity now controls this cursed place.
+
+You sense that the powerful evil force that took over the castle
+dungeon is still here...
+%E [You have entered the Hidden Dungeon.]
+#
 # Lucifer
 #
 %Cc - 00400

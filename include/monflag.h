@@ -200,6 +200,7 @@
 #define MH_ANY 0x80000000L
 
 /* for mons[].geno (constant during game) */
+#define G_TALG 0x8000     /* can't be genocided until Tal'Gath is destroyed */
 #define G_VLAD 0x4000     /* can't be genocided until Vlad is destroyed */
 #define G_VECNA 0x2000    /* can't be genocided until Vecna is destroyed */
 #define G_UNIQ 0x1000     /* generated only once */

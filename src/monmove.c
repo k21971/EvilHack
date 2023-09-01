@@ -210,7 +210,7 @@ struct monst *mtmp;
         || mtmp->data == &mons[PM_ARCHANGEL] || mtmp->data == &mons[PM_HONEY_BADGER]
         || mtmp->data == &mons[PM_BEHOLDER] || mtmp->data == &mons[PM_NEOTHELID]
         || mindless(mtmp->data) || is_mplayer(mtmp->data) || is_rider(mtmp->data)
-        || mtmp->isvecna || mtmp->isvlad || mtmp->isgking
+        || mtmp->isvecna || mtmp->isvlad || mtmp->isgking || mtmp->istalgath
         || mtmp->data->mlet == S_HUMAN || unique_corpstat(mtmp->data)
         || (mtmp->isshk && inhishop(mtmp))
         || (mtmp->ispriest && inhistemple(mtmp))
@@ -914,8 +914,8 @@ toofar:
         || (mtmp->minvis && !rn2(3))
         || (mdat->mlet == S_LEPRECHAUN && !findgold(invent, FALSE)
             && (findgold(mtmp->minvent, FALSE) || rn2(2)))
-        || (is_wanderer(mdat) && !rn2(4)) || (Conflict && !mtmp->iswiz) || is_skittish(mdat)
-        || (!mtmp->mcansee && !rn2(4)) || mtmp->mpeaceful) {
+        || (is_wanderer(mdat) && !rn2(4)) || (Conflict && !mtmp->iswiz)
+        || is_skittish(mdat) || (!mtmp->mcansee && !rn2(4)) || mtmp->mpeaceful) {
         /* Possibly cast an undirected spell if not attacking you */
         /* note that most of the time castmu() will pick a directed
            spell and do nothing, so the monster moves normally */
@@ -930,7 +930,7 @@ toofar:
             for (a = &mattk[0]; a < &mattk[NATTK]; a++) {
                 if (a->aatyp == AT_MAGC
                     && (a->adtyp == AD_SPEL || a->adtyp == AD_CLRC)) {
-                    if (castmu(mtmp, a, FALSE, FALSE)) {
+                    if (castmu(mtmp, a, FALSE, FALSE) && !mtmp->istalgath) {
                         tmp = is_skittish(mdat) ? 0 : 3;
                         break;
                     }
@@ -1360,11 +1360,6 @@ register int after;
     gx = mtmp->mux;
     gy = mtmp->muy;
     appr = mtmp->mflee ? -1 : 1;
-   /* does this monster like to play keep-away? */
-    if (is_skittish(ptr)
-        && (dist2(omx, omy, gx, gy) < 10)
-        && !mtmp->mberserk)
-        appr = -1;
     if (mtmp->mconf || (u.uswallow && mtmp == u.ustuck)) {
         appr = 0;
     } else {
@@ -1388,6 +1383,12 @@ register int after;
         if ((Hidinshell && (is_animal(ptr) || mindless(ptr) || !rn2(6))))
             appr = 0;
 
+        /* does this monster like to play keep-away? */
+        if (is_skittish(ptr)
+            && (dist2(omx, omy, gx, gy) < 10)
+            && !mtmp->mberserk)
+            appr = -1;
+
         if (monsndx(ptr) == PM_LEPRECHAUN && (appr == 1)
             && ((lepgold = findgold(mtmp->minvent, TRUE))
                 && (lepgold->quan
@@ -1396,7 +1397,7 @@ register int after;
 
         /* hostile monsters with ranged thrown weapons try to stay away */
         if (!mtmp->mpeaceful
-            && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) < 5*5)
+            && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) < 5 * 5)
             && m_canseeu(mtmp) && m_has_launcher_and_ammo(mtmp))
             appr = -1;
 

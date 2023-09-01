@@ -1,0 +1,134 @@
+# NetHack 3.6 hdgn.des $NHDT-Date: 1693331439 2023/08/29 17:50:39 $  $NHDT-Branch: master $:$NHDT-Revision: 1.9 $
+#	Copyright (c) 2023 by Keith Simpson
+# NetHack may be freely redistributed.  See license for details.
+#
+#	The Hidden Dungeon -
+#
+MAZE: "hdgn",' '
+FLAGS: noteleport,hardfloor,shortsighted
+GEOMETRY:left,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+------------ssssssssssss......sssssss--------sss|...-----------ss..---------
+|ssssss..ss||sss|sssss....|.......sss|......|sss|.s.|...|.|.|.|.ss.|.|.|.|.|
+|ss...ssssss|sss|sss...sss|sss......s|......|sss|...-FFF-F-F-F-.ss.-F-F-F-F-
+|sssssssssss|sssssss...ssssssssss....+......|sss|.ss..s..........s......ss..
+|s.ssssss..s--ssssss..sss-----ssss...--------sss|.....sss.......ss........s.
+|..sssssssssss........sssss|sssssss.....ssssssss|...-----------..ss.---..---
+||sssss----ss..sss...sssssss|ssssss....sss|sssss|..s|.........|..s..|.F..F.|
+s-------ssssssssssssssss|sssssssss...sss---sssss|.ss+.........|...s.|-|..|-|
+sssssssssss|ssss--ssss--|ssssssss..sssssssssssss|.ss+.....-S--|...s.|.F..F.|
+ss|ssssssss|ssssssssssssss--sss...ssssssssss|sss|ss.|.....|...F...ss|-|s.|-|
+ss---ssssssssss----ssssssssssss..sssss|sssss---s|...|.....|...F....s|.Fs.F.|
+sssssss---sssss|sssssss|ssss....ssssss|ss|ssssss|...--------FF-.....|-|..|-|
+ssssssssssssssssssssss--ss...sssssssssss--sss...+.s..sssss......s...|.F.sF.|
+sssssss....ssss............sssss--ssssssssss....+........sss........---.s---
+--ss...............|.....ssssssssssss|sssss...ss|s..-----------.........ss..
+sss....ssss....ss---sssssss|sssssss---sssss..sss|...|.|.|.|.|.|.sss.........
+ss...ssss|ssssssssssssssssss|sssssssssssss...sss|...-F-F-F-F-F-..sss.....sss
+..|..ssss|ssssssssss....ssss|sssssssssss....ssss|s....ss.s..s......s..ssssss
+.--........ssss..................sss......ssssss|s..-F-F-F-F-F-......ssss...
+.......ss.........sssssssssssss..........ss--sss|ss.|.|.|.|.|.|.....sss.....
+......ssssssssssssss----ssssssssssssssssssssssss|.ss-----------..ssssssss...
+ENDMAP
+TELEPORT_REGION:(73,18,73,19),(00,00,00,00)
+REGION:(00,00,75,20),unlit,"ordinary",unfilled
+
+# random wandering monster locations
+$corpse = { (59,01),(68,01),(74,01),(74,10),
+            (69,06),(69,08),(55,15),(59,19),
+            (61,15),(51,10),(66,18) }
+SHUFFLE: $corpse
+
+$sewer = { (12,05),(08,09),(05,16),(24,02),
+           (25,07),(18,19),(34,00),(35,10),
+           (30,16),(46,05),(43,12),(46,17) }
+SHUFFLE: $sewer
+
+$beholder = { (14,11),(17,01),(36,14),(44,20),
+              (66,06) }
+SHUFFLE: $beholder
+
+# Portal
+BRANCH:(74,19,74,19),(00,00,00,00)
+
+# various room types
+REGION:(53,06,57,10),unlit,"barracks",irregular,unfilled
+REGION:(38,01,43,03),unlit,"nursery",filled
+
+# doors
+DOOR:locked,(37,03)
+DOOR:locked,(48,12)
+DOOR:locked,(48,13)
+DOOR:locked,(52,07)
+DOOR:locked,(52,08)
+
+# boss monster + loot
+MONSTER:('e',"Tal'Gath"),(01,01)
+CONTAINER:('(',"crystal chest"),(01,01) {
+  OBJECT:'!'
+  OBJECT:'!'
+  OBJECT:'?'
+  OBJECT:'+'
+  OBJECT:'"'
+  OBJECT:'='
+  OBJECT:'='
+  IF [15%] {
+    OBJECT:('(',"magic marker")
+  }
+}
+
+# monsters
+MONSTER:('q',"mastodon"),(54,01)
+MONSTER:('U',"shambling horror"),(60,10)
+MONSTER:('@',"prisoner"),(61,01)
+MONSTER:('@',"prisoner"),(74,12)
+MONSTER:('@',"prisoner"),(53,19)
+MONSTER:('a',"giant cockroach"),$sewer[0]
+MONSTER:('a',"giant cockroach"),$sewer[1]
+MONSTER:('a',"giant cockroach"),$sewer[2]
+MONSTER:('a',"giant cockroach"),$sewer[3]
+MONSTER:('w',"giant leech"),$sewer[4]
+MONSTER:('w',"giant leech"),$sewer[5]
+MONSTER:('w',"giant leech"),$sewer[6]
+MONSTER:('w',"giant leech"),$sewer[7]
+MONSTER:(':',"crocodile"),$sewer[8]
+MONSTER:(':',"giant crocodile"),$sewer[9]
+MONSTER:('T',"troll"),$sewer[10]
+MONSTER:('c',"basilisk"),$sewer[11]
+MONSTER:('e',"beholder"),$beholder[0]
+MONSTER:('e',"beholder"),$beholder[1]
+MONSTER:('e',"beholder"),$beholder[2]
+MONSTER:('e',"magical eye"),$beholder[3]
+MONSTER:('Z',"revenant"),random
+MONSTER:('Z',"revenant"),random
+MONSTER:('Z',"skeleton"),random
+
+# random corpses
+OBJECT:('%',"corpse"),$corpse[0],montype:"archeologist"
+OBJECT:('%',"corpse"),$corpse[1],montype:"barbarian"
+OBJECT:('%',"corpse"),$corpse[2],montype:"caveman"
+OBJECT:('%',"corpse"),$corpse[3],montype:"convict"
+OBJECT:('%',"corpse"),$corpse[4],montype:"healer"
+OBJECT:('%',"corpse"),$corpse[5],montype:"infidel"
+OBJECT:('%',"corpse"),$corpse[6],montype:"priestess"
+OBJECT:('%',"corpse"),$corpse[7],montype:"ranger"
+OBJECT:('%',"corpse"),$corpse[8],montype:"rogue"
+OBJECT:('%',"corpse"),$corpse[9],montype:"valkyrie"
+OBJECT:('%',"corpse"),$corpse[10],montype:"wizard"
+
+# traps
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:"falling rock",random
+TRAP:"falling rock",random
+TRAP:"falling rock",random
+TRAP:"falling rock",random
+
+# none shall pass
+NON_DIGGABLE:(00,00,58,20)

@@ -1095,10 +1095,10 @@ register struct obj *obj;
     boolean same_align = (sgn(mon_aligntyp(mtmp)) == u.ualign.type);
 
     /* The Wiz, Vecna, Cerberus, Medusa, the Goblin King,
-       Lucifer, Vlad, Saint Michael, and the quest nemeses
-       aren't even made peaceful */
+       Lucifer, Vlad, Tal'Gath, Saint Michael, and the
+       quest nemeses aren't even made peaceful */
     if (mtmp->iswiz || mtmp->isvecna || mtmp->ismichael
-        || mtmp->isvlad || mtmp->islucifer
+        || mtmp->isvlad || mtmp->islucifer || mtmp->istalgath
         || mtmp->iscerberus || mtmp->isgking
         || mtmp->data == &mons[PM_MEDUSA]
         || (mtmp->data->mflags3 & M3_WANTSARTI)

@@ -1727,7 +1727,8 @@ register struct monst *mtmp;
 
     if ((gold = g_at(mtmp->mx, mtmp->my)) != 0
         && !((is_floater(mtmp->data)
-              && mtmp->data != &mons[PM_BEHOLDER])
+              && !(mtmp->data == &mons[PM_BEHOLDER]
+                   || mtmp->data == &mons[PM_TAL_GATH]))
              || can_levitate(mtmp))) {
         mat_idx = gold->material;
         obj_extract_self(gold);
@@ -1735,7 +1736,8 @@ register struct monst *mtmp;
         if (cansee(mtmp->mx, mtmp->my)) {
             if (flags.verbose && !mtmp->isgd)
                 pline("%s %s some %s.", Monnam(mtmp),
-                      (mtmp->data == &mons[PM_BEHOLDER]
+                      ((mtmp->data == &mons[PM_BEHOLDER]
+                        || mtmp->data == &mons[PM_TAL_GATH])
                           ? "magically gathers up" : "picks up"),
                       mat_idx == GOLD ? "gold" : "money");
             newsym(mtmp->mx, mtmp->my);
@@ -2006,7 +2008,8 @@ register const char *str;
     /* levitating/floating monsters can't reach the ground, just
        like levitating players */
     if ((is_floater(mtmp->data)
-         && mtmp->data != &mons[PM_BEHOLDER])
+         && !(mtmp->data == &mons[PM_BEHOLDER]
+              || mtmp->data == &mons[PM_TAL_GATH]))
         || can_levitate(mtmp))
         return FALSE;
 
@@ -2109,7 +2112,8 @@ register const char *str;
                 continue;
             if (vismon && flags.verbose)
                 pline("%s %s %s.", Monnam(mtmp),
-                      (mtmp->data == &mons[PM_BEHOLDER]
+                      ((mtmp->data == &mons[PM_BEHOLDER]
+                        || mtmp->data == &mons[PM_TAL_GATH])
                           ? "magically gathers up" : "picks up"),
                       (distu(mtmp->mx, mtmp->my) <= 5)
                           ? doname(otmp3)
@@ -3249,6 +3253,13 @@ vladdead()
 }
 
 void
+talgathdead()
+{
+    if (!u.uevent.utalgath)
+        u.uevent.utalgath = TRUE;
+}
+
+void
 goblinkingdead()
 {
     if (!u.uevent.ugking)
@@ -3538,6 +3549,8 @@ register struct monst *mtmp;
         vecnadead();
     if (mtmp->isvlad)
         vladdead();
+    if (mtmp->istalgath)
+        talgathdead();
     if (mtmp->isgking)
         goblinkingdead();
     if (mtmp->islucifer)
@@ -3565,6 +3578,9 @@ register struct monst *mtmp;
     } else if (mtmp->isvlad && !u.uachieve.killed_vlad) {
         u.uachieve.killed_vlad = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "destroyed Vlad the Impaler");
+    } else if (mtmp->istalgath && !u.uachieve.killed_talgath) {
+        u.uachieve.killed_talgath = 1;
+        livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Tal'Gath");
     } else if (mtmp->isgking && !u.uachieve.killed_gking) {
         u.uachieve.killed_gking = 1;
         livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed the Goblin King");

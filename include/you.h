@@ -57,11 +57,13 @@ struct u_event {
     Bitfield(vecnad_entered, 1);    /* entered Vecna's domain */
     Bitfield(gtown_entered, 1);     /* entered Goblin Town */
     Bitfield(purgatory_entered, 1); /* entered Purgatory */
+    Bitfield(hdgn_entered, 1);      /* entered the Hidden Dungeon */
     Bitfield(wiztower_entered, 1);  /* entered final Wizard's tower level */
     Bitfield(uhand_of_elbereth, 3); /* became Hand of Elbereth */
     Bitfield(ucerberus, 1);         /* killed Cerberus */
     Bitfield(uvecna, 1);            /* destroyed Vecna */
     Bitfield(uvlad, 1);             /* destroyed Vlad */
+    Bitfield(utalgath, 1);          /* killed Tal'Gath */
     Bitfield(ugking, 1);            /* killed the Goblin King */
     Bitfield(ulucifer, 1);          /* killed Lucifer */
     Bitfield(umichael, 1);          /* killed Saint Michael */
@@ -79,6 +81,8 @@ struct u_achieve {
              1);           /* entered Gehennom by any means */
     Bitfield(enter_purgatory,
              1);           /* entered Purgatory by any means */
+    Bitfield(enter_hdgn,
+             1);           /* entered the Hidden Dungeon by any means */
     Bitfield(enter_wiztower,
              1);           /* entered the Wizard of Yendor's final level by any means */
     Bitfield(ascended, 1); /* not quite the same as u.uevent.ascended */
@@ -90,6 +94,7 @@ struct u_achieve {
     Bitfield(killed_cerberus, 1);
     Bitfield(killed_vecna, 1);
     Bitfield(killed_vlad, 1);
+    Bitfield(killed_talgath, 1);
     Bitfield(killed_gking, 1);
     Bitfield(killed_lucifer, 1);
     Bitfield(killed_michael, 1);

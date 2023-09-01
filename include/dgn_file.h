@@ -59,15 +59,16 @@ struct tmpbranch {
 #define VECNAD 32
 #define GTOWN 64
 #define PURGATORY 128
+#define HDGN 256
 
 /* if you add flags up above, the values for bit shifting
    also have to be adjusted */
 #define D_ALIGN_NONE 0
-#define D_ALIGN_CHAOTIC (AM_CHAOTIC << 8) /* 256 */
-#define D_ALIGN_NEUTRAL (AM_NEUTRAL << 8) /* 512 */
-#define D_ALIGN_LAWFUL (AM_LAWFUL << 8)   /* 1024 */
+#define D_ALIGN_CHAOTIC (AM_CHAOTIC << 9) /* 512 */
+#define D_ALIGN_NEUTRAL (AM_NEUTRAL << 9) /* 1024 */
+#define D_ALIGN_LAWFUL (AM_LAWFUL << 9)   /* 2048 */
 
-#define D_ALIGN_MASK 0x700 /* total D_ALIGN_x values */
+#define D_ALIGN_MASK 0xE00 /* total D_ALIGN_x values */
 
 /*
  *	Max number of prototype levels and branches.

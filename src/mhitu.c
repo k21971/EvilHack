@@ -3315,7 +3315,8 @@ struct attack *mattk;
                 You("are unaffected by %s gaze.", s_suffix(mon_nam(mtmp)));
                 break;
             }
-            if (mtmp->data == &mons[PM_BEHOLDER]) {
+            if (mtmp->data == &mons[PM_BEHOLDER]
+                || mtmp->data == &mons[PM_TAL_GATH]) {
                 /* The EotO can afford the player some protection when worn */
                 int dmg;
 

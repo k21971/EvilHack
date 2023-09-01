@@ -449,12 +449,12 @@ NEARDATA struct permonst mons[] = {
         SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_COLD | MR_FIRE | MR_ELEC, 0,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD,
         M2_NOPOLY | M2_HOSTILE | M2_NEUTER | M2_NASTY,
-        M3_SKITTISH | M3_INFRAVISIBLE | M3_INFRAVISION, 0, 0, 12, HI_LORD),
-    /* One of my favorite creatures from GruntHack. I'm not going to make it
-     * identical to how it is now in that variant, but it is going to get some
-     * changes here from the original template.
-     */
-    MON("beholder", S_EYE, LVL(8, 6, -8, 50, -10), (1),
+        M3_SKITTISH | M3_INFRAVISIBLE | M3_INFRAVISION,
+        0, 0, 12, HI_LORD),
+    /* One of my favorite creatures from GruntHack, different implementation
+       for EvilHack. Not mindless, so they can be seen via telepathy, but
+       cannot be genocided until Tal'Gath has been killed */
+    MON("beholder", S_EYE, LVL(8, 6, -8, 50, -10), (G_GENO | G_TALG | 1),
         A(ATTK(AT_GAZE, AD_SLOW, 0, 0), ATTK(AT_GAZE, AD_SLEE, 2, 25),
           ATTK(AT_GAZE, AD_DISN, 0, 0), ATTK(AT_GAZE, AD_STON, 0, 0),
           ATTK(AT_GAZE, AD_CNCL, 4, 4), ATTK(AT_BITE, AD_PHYS, 8, 8)),
@@ -463,7 +463,20 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD,
         M2_NOPOLY | M2_HOSTILE | M2_NASTY | M2_NEUTER
             | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        M3_SKITTISH | M3_INFRAVISIBLE, 0, 0, 14, CLR_BROWN),
+        M3_SKITTISH | M3_INFRAVISIBLE | M3_INFRAVISION,
+        0, 0, 14, CLR_BROWN),
+    MON("Tal'Gath", S_EYE, LVL(46, 12, -10, 70, -18), (G_NOGEN | G_UNIQ),
+        A(ATTK(AT_GAZE, AD_SLOW, 0, 0), ATTK(AT_GAZE, AD_DISN, 0, 0),
+          ATTK(AT_GAZE, AD_STON, 0, 0), ATTK(AT_GAZE, AD_CNCL, 6, 6),
+          ATTK(AT_MAGC, AD_MAGM, 16, 4), ATTK(AT_BITE, AD_PHYS, 10, 10)),
+        SIZ(4500, 1500, MS_CUSS, MZ_HUGE), MR_COLD | MR_ELEC | MR_POISON
+            | MR_STONE | MR_DISINT, MR_POISON | MR_DISINT,
+        M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_SEE_INVIS,
+        M2_NOPOLY | M2_HOSTILE | M2_STALK | M2_PNAME | M2_NASTY
+            | M2_NEUTER | M2_STRONG | M2_PRINCE | M2_GREEDY
+            | M2_JEWELS | M2_MAGIC,
+        M3_WAITFORU | M3_SKITTISH | M3_INFRAVISIBLE | M3_INFRAVISION,
+        0, 0, 50, CLR_BRIGHT_MAGENTA),
     /*
      * felines
      */

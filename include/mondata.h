@@ -453,6 +453,9 @@
 /* monsters that cannot be genocided until Vlad the Impaler has been destroyed */
 #define no_geno_vlad(ptr) (((ptr)->geno & G_VLAD) != 0)
 
+/* monsters that cannot be genocided until Tal'Gath has been destroyed */
+#define no_geno_talgath(ptr) (((ptr)->geno & G_TALG) != 0)
+
 /* this returns the light's range, or 0 if none; if we add more light emitting
    monsters, we'll likely have to add a new light range field to mons[].
    shadow dragon types emit darkness instead of light, see do_light_sources()

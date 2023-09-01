@@ -295,8 +295,8 @@ static void yy_fatal_error FDECL(FDECL_dummy, (yyconst char msg[]  )) NORETURN;
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
 
-#define YY_NUM_RULES 39
-#define YY_END_OF_BUFFER 40
+#define YY_NUM_RULES 40
+#define YY_END_OF_BUFFER 41
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -912,78 +912,82 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-{ yylval.i=D_ALIGN_NONE ; return(DESCRIPTOR); }
-	YY_BREAK
+{ yylval.i=HDGN ; return(DESCRIPTOR); }
+        YY_BREAK
 case 23:
 YY_RULE_SETUP
 { yylval.i=D_ALIGN_NONE ; return(DESCRIPTOR); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-{ yylval.i=D_ALIGN_LAWFUL ; return(DESCRIPTOR); }
+{ yylval.i=D_ALIGN_NONE ; return(DESCRIPTOR); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-{ yylval.i=D_ALIGN_NEUTRAL ; return(DESCRIPTOR); }
+{ yylval.i=D_ALIGN_LAWFUL ; return(DESCRIPTOR); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-{ yylval.i=D_ALIGN_CHAOTIC ; return(DESCRIPTOR); }
+{ yylval.i=D_ALIGN_NEUTRAL ; return(DESCRIPTOR); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-return(BRANCH);
+{ yylval.i=D_ALIGN_CHAOTIC ; return(DESCRIPTOR); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-return(CHBRANCH);
+return(BRANCH);
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-return(LEVEL);
+return(CHBRANCH);
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-return(RNDLEVEL);
+return(LEVEL);
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-return(CHLEVEL);
+return(RNDLEVEL);
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-return(RNDCHLEVEL);
+return(CHLEVEL);
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-{ yylval.i=atoi(yytext); return(INTEGER); }
+return(RNDCHLEVEL);
 	YY_BREAK
 case 34:
+YY_RULE_SETUP
+{ yylval.i=atoi(yytext); return(INTEGER); }
+	YY_BREAK
+case 35:
 /* rule 32 can match eol */
 YY_RULE_SETUP
 { yytext[yyleng - 1] = '\0'; /* discard the trailing \" */
 		  yylval.str = dupstr(yytext + 1); /* skip the first \" */
 		  return STRING; }
 	YY_BREAK
-case 35:
+case 36:
 /* rule 33 can match eol */
 YY_RULE_SETUP
 { nh_line_number++; }
 	YY_BREAK
-case 36:
+case 37:
 /* rule 34 can match eol */
 YY_RULE_SETUP
 { nh_line_number++; }
 	YY_BREAK
-case 37:
+case 38:
 YY_RULE_SETUP
 ;	/* skip trailing tabs & spaces */
 	YY_BREAK
-case 38:
+case 39:
 YY_RULE_SETUP
 { return yytext[0]; }
 	YY_BREAK
-case 39:
+case 40:
 YY_RULE_SETUP
 ECHO;
 	YY_BREAK

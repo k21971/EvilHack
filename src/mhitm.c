@@ -1884,7 +1884,8 @@ post_stone:
                         You(brief_feeling, "peculiarly sad");
                     return (MM_DEF_DIED | (grow_up(magr, mdef)
                             ? 0 : MM_AGR_DIED));
-                } else if (magr->data == &mons[PM_BEHOLDER] && !rn2(3)) {
+                } else if ((magr->data == &mons[PM_BEHOLDER]
+                            || magr->data == &mons[PM_TAL_GATH]) && !rn2(3)) {
                     if (vis) {
                         if (mdef->data->mlet == S_MIMIC
                             && M_AP_TYPE(mdef) != M_AP_NOTHING)

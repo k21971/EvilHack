@@ -94,21 +94,22 @@ dumpit()
                 DD.num_dunlevs, DD.dunlev_ureached);
         fprintf(stderr, "    depth_start %d, ledger_start %d\n",
                 DD.depth_start, DD.ledger_start);
-        fprintf(stderr, "    flags:%s%s%s%s%s%s%s\n",
+        fprintf(stderr, "    flags:%s%s%s%s%s%s%s%s\n",
                 DD.flags.rogue_like ? " rogue_like" : "",
                 DD.flags.maze_like ? " maze_like" : "",
                 DD.flags.hellish ? " hellish" : "",
                 DD.flags.iceq ? " iceq" : "",
                 DD.flags.vecnad ? " vecnad" : "",
                 DD.flags.gtown ? " gtown" : "",
-                DD.flags.purg ? " purg" : "");
+                DD.flags.purg ? " purg" : "",
+                DD.flags.hdgn ? " hdgn" : "");
         getchar();
     }
     fprintf(stderr, "\nSpecial levels:\n");
     for (x = sp_levchn; x; x = x->next) {
         fprintf(stderr, "%s (%d): ", x->proto, x->rndlevs);
         fprintf(stderr, "on %d, %d; ", x->dlevel.dnum, x->dlevel.dlevel);
-        fprintf(stderr, "flags:%s%s%s%s%s%s%s%s\n",
+        fprintf(stderr, "flags:%s%s%s%s%s%s%s%s%s\n",
                 x->flags.rogue_like ? " rogue_like" : "",
                 x->flags.maze_like ? " maze_like" : "",
                 x->flags.hellish ? " hellish" : "",
@@ -116,6 +117,7 @@ dumpit()
                 x->flags.vecnad ? " vecnad" : "",
                 x->flags.gtown ? " gtown" : "",
                 x->flags.purg ? " purg" : "",
+                x->flags.hdgn ? " hdgn" : "",
                 x->flags.town ? " town" : "");
         getchar();
     }
@@ -573,11 +575,12 @@ struct proto_dungeon *pd;
     new_level->flags.vecnad = !!(tlevel->flags & VECNAD);
     new_level->flags.gtown = !!(tlevel->flags & GTOWN);
     new_level->flags.purg = !!(tlevel->flags & PURGATORY);
+    new_level->flags.hdgn = !!(tlevel->flags & HDGN);
     /* bit shift needs to match that in include/dgn_file.h */
-    new_level->flags.align = ((tlevel->flags & D_ALIGN_MASK) >> 8);
+    new_level->flags.align = ((tlevel->flags & D_ALIGN_MASK) >> 9);
     if (!new_level->flags.align)
         new_level->flags.align =
-            ((pd->tmpdungeon[dgn].flags & D_ALIGN_MASK) >> 8);
+            ((pd->tmpdungeon[dgn].flags & D_ALIGN_MASK) >> 9);
 
     new_level->rndlevs = tlevel->rndlevs;
     new_level->next = (s_level *) 0;
@@ -831,9 +834,10 @@ init_dungeons()
         dungeons[i].flags.vecnad = !!(pd.tmpdungeon[i].flags & VECNAD);
         dungeons[i].flags.gtown = !!(pd.tmpdungeon[i].flags & GTOWN);
         dungeons[i].flags.purg = !!(pd.tmpdungeon[i].flags & PURGATORY);
+        dungeons[i].flags.hdgn = !!(pd.tmpdungeon[i].flags & HDGN);
         /* bit shift needs to match that in include/dgn_file.h */
         dungeons[i].flags.align =
-            ((pd.tmpdungeon[i].flags & D_ALIGN_MASK) >> 8);
+            ((pd.tmpdungeon[i].flags & D_ALIGN_MASK) >> 9);
         /*
          * Set the entry level for this dungeon.  The pd.tmpdungeon entry
          * value means:
@@ -1473,6 +1477,14 @@ In_purgatory(lev)
 d_level *lev;
 {
     return (boolean) (dungeons[lev->dnum].flags.purg);
+}
+
+/* are you in the Hidden Dungeon? */
+boolean
+In_hdgn(lev)
+d_level *lev;
+{
+    return (boolean) (dungeons[lev->dnum].flags.hdgn);
 }
 
 /*

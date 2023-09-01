@@ -1444,7 +1444,7 @@ The following changes to date are:
 - Fix: Kas not flagged as a vampshifter, pets would eat the Eye of Vecna
 - Cover all the bases for lich/alhoon genocide prevention while Vecna
   exists, switch Vecna's gaze attack to a death gaze
-- Refactor tracking Cerberus alive/dead state for opening up Gehennom  
+- Refactor tracking Cerberus alive/dead state for opening up Gehennom
 - Invoking the Eye of Vecna uses actual death magic
 - Fix: invoking the Eye of Vecna and it killing a monster
 - Fix: 'It flies into a berserker rage!'
@@ -3122,4 +3122,5 @@ The following changes to date are:
 - Fix: rising from the grave as a zombie
 - Wearing the One Ring warns of wraith-type monsters
 - Some changes to beholders
+- New branch: The Hidden Dungeon
 

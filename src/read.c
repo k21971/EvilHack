@@ -2541,6 +2541,10 @@ do_class_genocide()
                     if (!gameover)
                         pline("A dark magic prevents you from genociding alhoons.");
                     continue;
+                } else if (!u.uevent.utalgath && i == PM_BEHOLDER) {
+                    if (!gameover)
+                        pline("A dark magic prevents you from genociding beholders.");
+                    continue;
                 } else if (Your_Own_Role(i) || Your_Own_Race(i)
                     || ((mons[i].geno & G_GENO)
                         && !(mvitals[i].mvflags & G_GENOD))) {
@@ -2717,6 +2721,33 @@ int how;
             if (!u.uevent.uvlad
                 && no_geno_vlad(ptr)) {
                 pline_The("voice of Vlad the Impaler fills your mind:");
+                verbalize("Thou shalt do no harm to %s whilst I exist!",
+                          makeplural(buf));
+                if (how & ONTHRONE) { /* dark magic causes the throne to burn you */
+                    pline_The("throne glows white hot!");
+                    if (how_resistant(FIRE_RES) == 100) {
+                        shieldeff(u.ux, u.uy);
+                        monstseesu(M_SEEN_FIRE);
+                    } else {
+                        losehp(rnd(3), "sitting on a searing hot throne", KILLED_BY);
+                    }
+                } else { /* the dark magic causes the scroll to burn */
+                    pline("A dark magic catches the scroll on fire and you burn your %s.",
+                          makeplural(body_part(HAND)));
+                    if (how_resistant(FIRE_RES) == 100) {
+                        shieldeff(u.ux, u.uy);
+                        monstseesu(M_SEEN_FIRE);
+                    } else {
+                        losehp(rnd(3), "burning scroll of genocide", KILLED_BY_AN);
+                    }
+                }
+                return;
+            }
+
+            /* Beholders are immune to genocide until Tal'Gath is killed */
+            if (!u.uevent.utalgath
+                && no_geno_talgath(ptr)) {
+                pline_The("voice of Tal'Gath fills your mind:");
                 verbalize("Thou shalt do no harm to %s whilst I exist!",
                           makeplural(buf));
                 if (how & ONTHRONE) { /* dark magic causes the throne to burn you */

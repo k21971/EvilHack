@@ -1955,6 +1955,17 @@ boolean at_stairs, falling, portal;
         resurrect();
     }
 
+    /* Entered the Hidden Dungeon */
+    if (!In_hdgn(&u.uz0) && Inhdgn
+        && !u.uevent.hdgn_entered) {
+        u.uevent.hdgn_entered = 1;
+        if (!Blind)
+            com_pager(309);
+        if (!u.uachieve.enter_hdgn)
+            livelog_write_string(LL_ACHIEVE, "entered the Hidden Dungeon");
+        u.uachieve.enter_hdgn = 1;
+    }
+
     /* entered the Wizard's lair (final tower level) */
     if (!Is_wiz1_level(&u.uz0) && Is_wiz1_level(&u.uz)
         && !u.uevent.wiztower_entered) {

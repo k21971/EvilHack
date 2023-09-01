@@ -925,6 +925,12 @@ const char *const random_vecna[] = {
     "I will rip your soul to shreds"
 };
 
+const char *const random_talgath[] = {
+    "Puny creature!  Bow before my might",
+    "Look into my eyes, if you dare",
+    "Beauty truly is in the eye of the beholder"
+};
+
 const char *const random_goblinking[] = {
     "Bones will be shattered, necks will be wrung!  You'll be beaten and battered, from racks you'll be hung",
     "You will die down here and never be found, down in the deep of Goblin Town",
@@ -1003,6 +1009,9 @@ register struct monst *mtmp;
     } else if (mtmp->isvecna) {
         verbalize("%s!",
                   random_vecna[rn2(SIZE(random_vecna))]);
+    } else if (mtmp->istalgath) {
+        verbalize("%s!",
+                  random_talgath[rn2(SIZE(random_talgath))]);
     } else if (mtmp->isgking) {
         if (!rn2(3)) {
             if (uwep && uwep->oartifact == ART_ORCRIST) {
