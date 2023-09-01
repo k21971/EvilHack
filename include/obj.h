@@ -324,8 +324,7 @@ struct obj {
      (o)->cobj != (struct obj *) 0)
 #define Is_container(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS)
 #define Is_nonprize_container(o) (Is_container(o) && !is_soko_prize_flag(o))
-#define Is_box(o) ((o)->otyp == LARGE_BOX || (o)->otyp == CHEST \
-                   || (o)->otyp == IRON_SAFE || (o)->otyp == CRYSTAL_CHEST)
+#define Is_box(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= MAGIC_CHEST)
 #define Is_mbag(o) ((o)->otyp == BAG_OF_HOLDING || (o)->otyp == BAG_OF_TRICKS)
 #define Is_allbag(o) ((o)->otyp >= SACK && (o)->otyp <= BAG_OF_TRICKS)
 #define SchroedingersBox(o) ((o)->otyp == LARGE_BOX && (o)->spe == 1)

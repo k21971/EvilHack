@@ -733,6 +733,9 @@ CONTAINER("chest",            None, 1, 0, 0, 25, 600,  16, WOOD, HI_WOOD),
 CONTAINER("iron safe",        None, 1, 0, 0, 10, 900,  50, IRON, HI_METAL),
 CONTAINER("crystal chest",    None, 1, 1, 0,  1, 500,  20, GEMSTONE, CLR_WHITE),
 CONTAINER("ice box",          None, 1, 0, 0,  5, 900,  42, PLASTIC, CLR_WHITE),
+OBJECT(OBJ("hidden chest", None),                                       \
+       BITS(1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, P_NONE, GEMSTONE),        \
+       0, TOOL_CLASS, 0, 0, 5000, 999, 0, 0, 0, 0, 5000, CLR_MAGENTA),
 CONTAINER("sack",            "bag", 0, 0, 0, 35,  15,   2, CLOTH, HI_CLOTH),
 CONTAINER("oilskin sack",    "bag", 0, 0, 0,  5,  15, 100, CLOTH, HI_CLOTH),
 CONTAINER("bag of holding",  "bag", 0, 1, 0, 20,  15, 100, CLOTH, HI_CLOTH),
