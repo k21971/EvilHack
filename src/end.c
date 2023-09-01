@@ -510,8 +510,9 @@ int how;
 }
 
 #define is_rummager(ptr) \
-    (likes_gold(ptr) || likes_gems(ptr) || likes_objs(ptr) \
-     || likes_magic(ptr) || is_covetous(ptr))
+    ((likes_gold(ptr) || likes_gems(ptr)                          \
+      || likes_objs(ptr) || likes_magic(ptr) || is_covetous(ptr)) \
+     && (distu(mtmp->mx, mtmp->my) < 3))
 
 void
 done_in_by(mtmp, how)

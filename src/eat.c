@@ -1285,6 +1285,7 @@ int pm;
         You_feel("your fortune oscillate.");
         change_luck(2-rn2(4));
         break;
+    case PM_ILLITHID:
     case PM_MIND_FLAYER:
     case PM_MASTER_MIND_FLAYER:
         if (ABASE(A_INT) < ATTRMAX(A_INT)) {

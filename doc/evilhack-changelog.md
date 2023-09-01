@@ -3048,7 +3048,7 @@ The following changes to date are:
 
 ### Version 0.9.0
 
-- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of February 24th, 2023)
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of August 28th, 2023)
 - Initial preparation for new version (0.9.0)
 - Allow self-targeting advanced spells when blind
 - Fix: Dexcellence
@@ -3125,4 +3125,8 @@ The following changes to date are:
 - New branch: The Hidden Dungeon
 - Fix: incorrect beam type when a monster zaps a wand at the player
 - Fix: a few more cases where beam type needed to be updated
+- Fix: illithid corpses can boost intelligence when eaten
+- Fix: monsters ransacking players possessions on death from a distance
+- Fix: perm_invent not updating when sokoban prize is acquired
+- Fix: pet petrified by eating Medusa's corpse
 

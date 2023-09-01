@@ -1584,7 +1584,8 @@ boolean telekinesis; /* not picking it up directly by hand */
         makeknown(obj->otyp);    /* obj is already known */
         obj->sokoprize = FALSE;  /* reset sokoprize flag */
         livelog_printf(LL_ACHIEVE, "completed Sokoban, acquiring %s", an(xname(obj)));
-        del_soko_prizes();	 /* delete other sokoprizes */
+        del_soko_prizes(); /* delete other sokoprizes */
+        update_inventory();
         return -1;
     }
     return 1;
