@@ -1257,7 +1257,7 @@ boolean force; /* 'force==TRUE' used when reviving Rider corpses */
         was_pile = (level.objects[x][y] && level.objects[x][y]->nexthere);
     }
     obj_extract_self(obj);
-    if (update_map) { /* floor object's coordinates are always up to date */
+    if (update_map) {
         is_pile = (level.objects[x][y] && level.objects[x][y]->nexthere);
         maybe_unhide_at(x, y);
         if (was_pile != is_pile)
