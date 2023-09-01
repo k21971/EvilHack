@@ -663,6 +663,7 @@ unsigned int *stuckid, *steedid;
     restore_timers(fd, RANGE_GLOBAL, FALSE, 0L);
     restore_light_sources(fd);
     invent = restobjchn(fd, FALSE, FALSE);
+    mchest = restobjchn(fd, FALSE, FALSE);
 
     /* restore dangling (not on floor or in inventory) ball and/or chain */
     bc_obj = restobjchn(fd, FALSE, FALSE);

@@ -1122,6 +1122,7 @@ clear_bypasses()
         otmp->bypass = 0;
     for (otmp = migrating_objs; otmp; otmp = otmp->nobj)
         otmp->bypass = 0;
+    mchest->bypass = 0;
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
             continue;

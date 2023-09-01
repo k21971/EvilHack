@@ -2031,6 +2031,8 @@ unsigned id;
         return obj;
     if ((obj = o_on(id, migrating_objs)) != 0)
         return obj;
+    if ((obj = o_on(id, mchest)) != 0)
+        return obj;
 
     /* not found yet; check inventory for members of various monst lists */
     mmtmp[0] = fmon;

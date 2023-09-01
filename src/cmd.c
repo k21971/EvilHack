@@ -4828,6 +4828,10 @@ wiz_show_stats()
               &total_obj_count, &total_obj_size);
     obj_chain(win, "migrating obj", migrating_objs, FALSE,
               &total_obj_count, &total_obj_size);
+    /* just showing mchest isn't very informative.
+       mchest items are not counted as "contained" later */
+    obj_chain(win, "magic chest contents", mchest->cobj, FALSE,
+              &total_obj_count, &total_obj_size);
     obj_chain(win, "billobjs", billobjs, FALSE,
               &total_obj_count, &total_obj_size);
     mon_invent_chain(win, "minvent", fmon, &total_obj_count, &total_obj_size);

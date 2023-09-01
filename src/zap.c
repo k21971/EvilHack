@@ -850,6 +850,7 @@ boolean adjacentok; /* False: at obj's spot only, True: nearby is allowed */
  *      OBJ_INVENT      if in hero's inventory; return 0.
  *      OBJ_FLOOR       if on the floor; return 0.
  *      OBJ_BURIED      if buried; return 0.
+ *      OBJ_SOMEWHERE   if in magic chest; return 0.
  *      OBJ_MINVENT     if in monster's inventory; return monster.
  * container_nesting is updated with the nesting depth of the containers
  * if applicable.

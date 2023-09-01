@@ -833,7 +833,6 @@ boolean resuming;
     }
 }
 
-struct obj *mchest = (struct obj *) 0;
 STATIC_OVL void
 init_mchest()
 {

@@ -593,6 +593,7 @@ struct obj *obj;
     case OBJ_ONBILL:
     case OBJ_MIGRATING:
     case OBJ_BURIED:
+    case OBJ_SOMEWHERE:
     default:
         return (struct obj *) 0;
     case OBJ_INVENT:
@@ -2312,6 +2313,9 @@ struct obj *obj;
     case OBJ_ONBILL:
         extract_nobj(obj, &billobjs);
         break;
+    case OBJ_SOMEWHERE:
+        extract_nobj(obj, &mchest);
+        break;
     default:
         panic("obj_extract_self");
         break;
@@ -2645,6 +2649,7 @@ obj_sanity_check()
 
     objlist_sanity(invent, OBJ_INVENT, "invent sanity");
     objlist_sanity(migrating_objs, OBJ_MIGRATING, "migrating sanity");
+    objlist_sanity(mchest, OBJ_SOMEWHERE, "magic chest sanity");
     objlist_sanity(level.buriedobjlist, OBJ_BURIED, "buried sanity");
     objlist_sanity(billobjs, OBJ_ONBILL, "bill sanity");
 
