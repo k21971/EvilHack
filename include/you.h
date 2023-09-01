@@ -440,6 +440,7 @@ struct you {
     xchar skill_record[P_SKILL_LIMIT]; /* skill advancements */
     struct skills weapon_skills[P_NUM_SKILLS];
     boolean twoweap;         /* KMH -- Using two-weapon combat */
+    short umovement;         /* hero movement points */
 
 }; /* end of `struct you' */
 

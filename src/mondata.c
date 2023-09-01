@@ -15,11 +15,12 @@ struct monst *mon;
 struct permonst *ptr;
 {
     int new_speed, old_speed = mon->data ? mon->data->mmove : 0;
+    short *movement_p = (mon == &youmonst) ? &u.umovement : &mon->movement;
 
     mon->data = ptr;
     mon->mnum = (short) monsndx(ptr);
 
-    if (mon->movement) { /* used to adjust poly'd hero as well as monsters */
+    if (*movement_p) { /* used to adjust poly'd hero as well as monsters */
         new_speed = ptr->mmove;
         /* prorate unused movement if new form is slower so that
            it doesn't get extra moves leftover from previous form;
@@ -27,12 +28,12 @@ struct permonst *ptr;
         if (new_speed < old_speed) {
             /*
              * Some static analysis warns that this might divide by 0
-               mon->movement = new_speed * mon->movement / old_speed;
+               *movement_p = new_speed * *movement_p / old_speed;
              * so add a redundant test to suppress that.
              */
-            mon->movement *= new_speed;
+            *movement_p *= new_speed;
             if (old_speed > 0) /* old > new and new >= 0, so always True */
-                mon->movement /= old_speed;
+                *movement_p /= old_speed;
         }
     }
     return;

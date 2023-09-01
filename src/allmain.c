@@ -174,6 +174,7 @@ boolean resuming;
            first "random" occurrence would always kick in on turn 1 */
         context.seer_turn = (long) rnd(30);
         init_mchest();
+        u.umovement = NORMAL_SPEED;  /* giants and tortles put their best foot forward */
     }
     context.botlx = TRUE; /* for STATUS_HILITES */
     update_inventory(); /* for perm_invent */
@@ -189,7 +190,6 @@ boolean resuming;
     initrack();
 
     u.uz0.dlevel = u.uz.dlevel;
-    youmonst.movement = NORMAL_SPEED; /* give the hero some movement points */
     context.move = 0;
 
     program_state.in_moveloop = 1;
@@ -210,7 +210,7 @@ boolean resuming;
 
         if (context.move) {
             /* actual time passed */
-            youmonst.movement -= NORMAL_SPEED;
+            u.umovement -= NORMAL_SPEED;
 
             do { /* hero can't move this turn loop */
                 wtcap = encumber_msg();
@@ -218,12 +218,12 @@ boolean resuming;
                 context.mon_moving = TRUE;
                 do {
                     monscanmove = movemon();
-                    if (youmonst.movement >= NORMAL_SPEED)
+                    if (u.umovement >= NORMAL_SPEED)
                         break; /* it's now your turn */
                 } while (monscanmove);
                 context.mon_moving = FALSE;
 
-                if (!monscanmove && youmonst.movement < NORMAL_SPEED) {
+                if (!monscanmove && u.umovement < NORMAL_SPEED) {
                     /* both hero and monsters are out of steam this round */
                     struct monst *mtmp;
 
@@ -336,9 +336,9 @@ boolean resuming;
                         break;
                     }
 
-                    youmonst.movement += moveamt;
-                    if (youmonst.movement < 0)
-                        youmonst.movement = 0;
+                    u.umovement += moveamt;
+                    if (u.umovement < 0)
+                        u.umovement = 0;
                     settrack();
 
                     monstermoves++;
@@ -615,7 +615,7 @@ boolean resuming;
                         }
                     }
                 }
-            } while (youmonst.movement < NORMAL_SPEED); /* hero can't move */
+            } while (u.umovement < NORMAL_SPEED); /* hero can't move */
 
             /******************************************/
             /* once-per-hero-took-time things go here */
