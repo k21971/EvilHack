@@ -2272,7 +2272,7 @@ struct monst *mtmp;
         if (oseen)
             makeknown(otmp->otyp);
         m_using = TRUE;
-        buzz((int) (-30 - (otmp->otyp - WAN_MAGIC_MISSILE)),
+        buzz((int) (-33 - (otmp->otyp - WAN_MAGIC_MISSILE)),
              (otmp->otyp == WAN_MAGIC_MISSILE) ? 2 : 6, mtmp->mx, mtmp->my,
              sgn(tbx), sgn(tby));
         m_using = FALSE;
@@ -2281,7 +2281,7 @@ struct monst *mtmp;
     case MUSE_FROST_HORN:
         mplayhorn(mtmp, otmp, FALSE);
         m_using = TRUE;
-        buzz(-30 - ((otmp->otyp == FROST_HORN) ? AD_COLD - 1 : AD_FIRE - 1),
+        buzz(-33 - ((otmp->otyp == FROST_HORN) ? AD_COLD - 1 : AD_FIRE - 1),
              rn1(6, 6), mtmp->mx, mtmp->my, sgn(tbx),
              sgn(tby));
         m_using = FALSE;

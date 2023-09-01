@@ -930,7 +930,7 @@ toofar:
             for (a = &mattk[0]; a < &mattk[NATTK]; a++) {
                 if (a->aatyp == AT_MAGC
                     && (a->adtyp == AD_SPEL || a->adtyp == AD_CLRC)) {
-                    if (castmu(mtmp, a, FALSE, FALSE) && !mtmp->istalgath) {
+                    if (castmu(mtmp, a, FALSE, FALSE)) {
                         tmp = is_skittish(mdat) ? 0 : 3;
                         break;
                     }

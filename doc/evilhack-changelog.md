@@ -3123,4 +3123,5 @@ The following changes to date are:
 - Wearing the One Ring warns of wraith-type monsters
 - Some changes to beholders
 - New branch: The Hidden Dungeon
+- Fix: incorrect beam type when a monster zaps a wand at the player
 

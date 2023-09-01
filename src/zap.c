@@ -3014,7 +3014,7 @@ void
 ubreatheu(mattk)
 struct attack *mattk;
 {
-    int dtyp = 20 + mattk->adtyp - 1;      /* breath by hero */
+    int dtyp = 22 + mattk->adtyp - 1;      /* breath by hero */
     const char *fltxt = flash_types[dtyp]; /* blast of <something> */
 
     zhitu(dtyp, mattk->damn, fltxt, u.ux, u.uy);
