@@ -339,6 +339,9 @@ register int fd, mode;
        pointers into invent (uwep, uarmg, uamul, &c) are set to Null too */
     saveobjchn(fd, &invent, mode);
 
+    /* it's just the one object, but saveobj doesn't do everything needed */
+    saveobjchn(fd, &mchest, mode);
+
     /* save ball and chain if they happen to be in an unusal state */
     save_bc(fd, mode);
 
@@ -1499,6 +1502,7 @@ freedynamicdata()
     free_timers(RANGE_GLOBAL);
     free_light_sources(RANGE_GLOBAL);
     freeobjchn(invent);
+    freeobjchn(mchest);
     freeobjchn(migrating_objs);
     freemonchn(migrating_mons);
     freemonchn(mydogs); /* ascension or dungeon escape */

@@ -208,6 +208,8 @@ NEARDATA long wailmsg = 0L;
 
 /* objects that are moving to another dungeon level */
 NEARDATA struct obj *migrating_objs = (struct obj *) 0;
+/* magic chest */
+struct obj *mchest = (struct obj *) 0;
 /* objects not yet paid for */
 NEARDATA struct obj *billobjs = (struct obj *) 0;
 

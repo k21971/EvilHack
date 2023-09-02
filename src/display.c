@@ -1820,6 +1820,9 @@ xchar x, y;
     case FORGE:
         idx = S_forge;
         break;
+    case MAGIC_CHEST:
+        idx = S_magic_chest;
+        break;
     case FOUNTAIN:
         idx = S_fountain;
         break;
@@ -2042,10 +2045,10 @@ static int bad_count[MAX_TYPE]; /* count of positions flagged as bad */
 static const char *type_names[MAX_TYPE] = {
     "STONE", "VWALL", "HWALL", "TLCORNER", "TRCORNER", "BLCORNER", "BRCORNER",
     "CROSSWALL", "TUWALL", "TDWALL", "TLWALL", "TRWALL", "DBWALL", "TREE",
-    "SDOOR", "SCORR", "POOL", "MOAT", "WATER", "DRAWBRIDGE_UP", "LAVAPOOL",
-    "IRON_BARS", "DEADTREE" "DOOR", "CORR", "ROOM", "STAIRS", "LADDER", "FORGE",
-    "FOUNTAIN", "THRONE", "SINK", "GRAVE", "ALTAR", "ICE", "DRAWBRIDGE_DOWN",
-    "AIR", "CLOUD", "PUDDLE", "SEWAGE"
+    "DEADTREE", "SDOOR", "SCORR", "POOL", "MOAT", "WATER", "DRAWBRIDGE_UP", 
+    "LAVAPOOL", "IRON_BARS", "DOOR", "CORR", "ROOM", "STAIRS", "LADDER", "FORGE",
+    "MAGIC_CHEST", "FOUNTAIN", "THRONE", "SINK", "GRAVE", "ALTAR", "ICE", 
+    "DRAWBRIDGE_DOWN", "AIR", "CLOUD", "PUDDLE", "SEWAGE"
 };
 
 static const char *

@@ -352,9 +352,9 @@ register struct obj *obj;
         return 0;
 
     res = (moves == context.stethoscope_move)
-          && (youmonst.movement == context.stethoscope_movement);
+          && (u.umovement == context.stethoscope_movement);
     context.stethoscope_move = moves;
-    context.stethoscope_movement = youmonst.movement;
+    context.stethoscope_movement = u.umovement;
 
     bhitpos.x = u.ux, bhitpos.y = u.uy; /* tentative, reset below */
     notonhead = u.uswallow;

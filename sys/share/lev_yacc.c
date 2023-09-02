@@ -4891,6 +4891,9 @@ case 406:
                   }
 break;
 case 407:
+{                     add_opvars(splev, "o", VA_PASS1(SPO_MAGIC_CHEST));
+                  }
+case 408:
 {
 			if (yyvsp[-7].i <= 0 || yyvsp[-7].i >= COLNO)
 			    lc_error(
@@ -4915,7 +4918,7 @@ case 407:
 			yyval.lregn.area = 1;
 		  }
 break;
-case 408:
+case 409:
 {
 /* This series of if statements is a hack for MSC 5.1.  It seems that its
    tiny little brain cannot compile if these are all one big if statement. */

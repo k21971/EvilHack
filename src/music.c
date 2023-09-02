@@ -318,6 +318,8 @@ int force;
                 if (cansee(x, y))
                     pline_The("forge falls into a chasm.");
                 goto do_pit;
+            case MAGIC_CHEST:
+                break;
             case ALTAR:
                 /* always preserve the high altars */
                 if (Is_astralevel(&u.uz) || Is_sanctum(&u.uz))

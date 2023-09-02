@@ -246,6 +246,9 @@ unsigned whichchains;
     if (!qarti && (whichchains & (1 << OBJ_BURIED)) != 0)
         qarti = find_qarti(level.buriedobjlist);
 
+    if (!qarti && (whichchains & (1 << OBJ_SOMEWHERE)) != 0)
+        qarti = find_qarti(mchest);
+
     return qarti;
 }
 
