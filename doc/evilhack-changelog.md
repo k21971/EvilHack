@@ -3136,4 +3136,5 @@ The following changes to date are:
 - Fix: warning: the comparison will always evaluate as ‘true’ for the
   pointer operand in ‘s + (sizetype)((long unsigned int)sidx * 128)’ must
   not be NULL [-Waddress] (botl.c)
+- Change Convict quest artifact from an iron ball to a striped shirt
 

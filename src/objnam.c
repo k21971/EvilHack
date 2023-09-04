@@ -5015,7 +5015,7 @@ struct obj *no_wish;
                 pm = PM_CAVEMAN;
                 break;
             case ART_LUCK_BLADE:
-            case ART_IRON_BALL_OF_LIBERATION:
+            case ART_STRIPED_SHIRT_OF_LIBERATIO:
                 pm = PM_CONVICT;
                 break;
             case ART_STAFF_OF_AESCULAPIUS:

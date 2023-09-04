@@ -335,6 +335,9 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                     if (mtmp->data == q_guardian)
                         setmangry(mtmp, FALSE);
                 }
+                /* Convict quest leader is extra harsh */
+                if (Role_if(PM_CONVICT) && !Punished)
+                    punish((struct obj *) 0);
                 livelog_printf(LL_ACHIEVE, "refused to give up %s to %s",
                                qa_name, ldr_name);
             }

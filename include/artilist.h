@@ -558,13 +558,13 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NO_ATTK, DFNS(AD_MAGM), CARY(AD_DISE), 0, A_CHAOTIC, PM_BARBARIAN,
       NON_PM, 5000L, NO_COLOR, GEMSTONE),
 
-    /* Convict role quest artifact. Provides magic resistance when carried,
+    /* Convict role quest artifact. Provides magic resistance when worn,
      * invoke to phase through walls like a xorn.
      */
-    A("The Iron Ball of Liberation", HEAVY_IRON_BALL,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL),
-      (SPFX_STLTH | SPFX_SEARCH | SPFX_WARN), 0,
-      NO_ATTK, NO_DFNS, CARY(AD_MAGM), PHASING,
+    A("The Striped Shirt of Liberation", STRIPED_SHIRT,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_STLTH
+       | SPFX_SEARCH | SPFX_WARN), 0, 0,
+      NO_ATTK, DFNS(AD_MAGM), NO_CARY, PHASING,
       A_CHAOTIC, PM_CONVICT, NON_PM, 10000L, NO_COLOR, DEFAULT_MAT),
 
     /* Infidel role quest artifact. Confers energy regeneration,

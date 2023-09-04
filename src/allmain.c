@@ -61,9 +61,7 @@ elf_can_regen()
             return 0;
         if (ublindf && is_iron(ublindf))
             return 0;
-        if (uchain && is_iron(uchain)
-            && !((uball->spe == 1)
-                 && is_quest_artifact(uball)))
+        if (uchain && is_iron(uchain))
             return 0;
         if (uswapwep && is_iron(uswapwep)
             && u.twoweap && !uarmg)

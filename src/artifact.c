@@ -1100,15 +1100,6 @@ struct monst *mon;
         }
         return 0;
     }
-    if (oart == &artilist[ART_IRON_BALL_OF_LIBERATION]) {
-        if (Role_if(PM_CONVICT) && (!obj->oerodeproof)) {
-            obj->oerodeproof = TRUE;
-            obj->owt = 300; /* Magically lightened, but still heavy */
-        }
-        if (Punished && (obj != uball)) {
-            unpunish(); /* Remove a mundane heavy iron ball */
-        }
-    }
     if (oart == &artilist[ART_CROSSBOW_OF_CARL]) {
         if (yours ? Role_if(PM_RANGER) && Race_if(PM_GNOME)
                   : racial_gnome(mon))
@@ -3000,24 +2991,6 @@ struct obj *obj;
         case PHASING: /* Walk through walls and stone like a xorn */
             if (Passes_walls)
                 goto nothing_special;
-            if (oart == &artilist[ART_IRON_BALL_OF_LIBERATION]) {
-                if (Punished && (obj != uball)) {
-                    unpunish(); /* Remove a mundane heavy iron ball */
-                }
-
-                if (!Punished) {
-                    setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN);
-                    setworn(obj, W_BALL);
-                    uball->spe = 1;
-                    uchain->oerodeproof = 1;
-                    if (!u.uswallow) {
-                        placebc();
-                        if (Blind) set_bc(1);	/* set up ball and chain variables */
-                            newsym(u.ux, u.uy);	/* see ball&chain if can't see self */
-                    }
-                    Your("%s chains itself to you!", xname(obj));
-                }
-            }
             if (!Hallucination) {
                 Your("body begins to feel less solid.");
             } else {
@@ -3595,15 +3568,8 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
         if (!bane && !(direct || is_demon(raceptr(&youmonst))))
             return 1;
 
-        /* Convict deity negates the quest artifact from being
-           harmful to Drow */
-        if (!bane && Race_if(PM_DROW) && Role_if(PM_CONVICT)
-            && obj->oartifact == ART_IRON_BALL_OF_LIBERATION)
-            return 1;
-
         /* hero can't handle this object, but didn't get touch_artifact()'s
            "<obj> evades your grasp|control" message; give an alternate one */
-
         if (!bane && !(hatemat && obj->material == SILVER)) {
             pline("The %s of %s %s!", materialnm[obj->material],
                   yname(obj), rn2(2) ? "hurts to touch" : "burns your skin");
@@ -3612,7 +3578,7 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
                      obj->owornmask ? " anymore" : "");
         }
         /* damage is somewhat arbitrary: 1d10 magical for <foo>bane,
-            * half of the usual damage for materials */
+           half of the usual damage for materials */
         if (hatemat && (direct || is_demon(raceptr(&youmonst))))
             dmg += rnd(sear_damage(obj->material) / 2);
         if (bane)
