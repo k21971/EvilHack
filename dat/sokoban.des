@@ -38,10 +38,10 @@ GEOMETRY:center,center
 #12345678901234567890123456789012345678901234567890
 MAP
 ------  -----
-|....|  |...|
-|....----...| 
-|...........| 
-|..|-|.|-|..| 
+|....|--|...|
+|....|.--...|
+|...........|
+|..|-|.|-|..|
 ---------|.---
 |......|.....|
 |..----|.....|
@@ -49,7 +49,7 @@ MAP
  |.|---|.....|
  |...........|
  |..|---------
- ----         
+ ----
 ENDMAP
 # Since there isn't a return portal, this forces the hero's initial placement
 TELEPORT_REGION:(00,00,13,12),(0,0,0,0)
@@ -85,6 +85,9 @@ TRAP:"pit",(05,10)
 TRAP:"pit",(06,10)
 TRAP:"pit",(07,10)
 
+# Magic chest
+MAGIC_CHEST:(06,02)
+
 # A little help
 OBJECT:('?',"earth"),(02,11)
 [50%]: OBJECT:('?',"earth"),(03,11)
@@ -106,8 +109,8 @@ MAP
 -------- ------
 |.|....|-|....|
 |.|-..........|
-|.||....|.....|
-|.||....|.....|
+|.|.....|.....|
+|.|-....|.....|
 |.|-----|.-----
 |.|    |......|
 |.-----|......|
@@ -152,6 +155,9 @@ TRAP:"pit",(04,08)
 TRAP:"pit",(05,08)
 TRAP:"pit",(06,08)
 
+# Magic chest
+MAGIC_CHEST:(03,03)
+
 # A little help
 OBJECT:('?',"earth"),(01,09)
 [50%]: OBJECT:('?',"earth"),(02,09)
@@ -177,15 +183,15 @@ GEOMETRY:center,center
 MAP
      -------
      |..|..|     --------
-------.....--- ---......---
-|......---...| |..........|
-|.|.|......|.--|........|.---
+------.....-------......---
+|......---...|.|..........|
+|.|.|......|.|.|........|.---
 |.|.--..|..|...-F-F-F-F--...|
 |.......|...................|
 |.|.--..|..|...-F-F-F-F--...|
-|.|.|......|.--|........|.---
-|......---...| |..........|
-------.....--- ---......---
+|.|.|......|.|.|........|.---
+|......---...|.|..........|
+------.....-------......---
      |..|..|     --------
      -------
 ENDMAP
@@ -197,8 +203,14 @@ STAIR:(26,06), up
 REGION:(00,00,28,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,28,12)
 NON_PASSWALL:(00,00,28,12)
+
+# Magic chest
+MAGIC_CHEST:(14,03)
+
+# A little help
 OBJECT:('?',"earth"),(16,03)
 [50%]: OBJECT:('?',"earth"),(16,09)
+
 OBJECT:('`',"boulder"),(08,02)
 OBJECT:('`',"boulder"),(08,04)
 OBJECT:('`',"boulder"),(03,05)
@@ -248,8 +260,8 @@ MAP
 |.-FF-.......--...|
 |............|-----
 |..---.......|
----- ------.--
-          ---
+---- ------..|
+          ----
 ENDMAP
 # Since there isn't a return portal, this forces the hero's initial placement
 TELEPORT_REGION:(00,00,18,15),(0,0,0,0)
@@ -260,8 +272,14 @@ REGION:(00,00,18,15),lit,"ordinary"
 NON_DIGGABLE:(00,00,18,15)
 NON_PASSWALL:(00,00,18,15)
 DOOR:locked,(02,02)
+
+# Magic chest
+MAGIC_CHEST:(12,14)
+
+# A little help
 OBJECT:('?',"earth"),(01,13)
 [50%]: OBJECT:('?',"earth"),(02,13)
+
 OBJECT:('`',"boulder"),(08,06)
 OBJECT:('`',"boulder"),(10,06)
 OBJECT:('`',"boulder"),(15,06)
@@ -327,8 +345,14 @@ REGION:(00,00,15,15),lit,"ordinary"
 NON_DIGGABLE:(00,00,15,15)
 NON_PASSWALL:(00,00,15,15)
 DOOR:locked,(14,04)
+
+# Magic chest
+MAGIC_CHEST:(08,14)
+
+# A little help
 OBJECT:('?',"earth"),(01,01)
 [50%]: OBJECT:('?',"earth"),(02,01)
+
 OBJECT:('`',"boulder"),(02,04)
 OBJECT:('`',"boulder"),(02,05)
 OBJECT:('`',"boulder"),(04,05)
@@ -390,8 +414,14 @@ STAIR:(11,07), up
 REGION:(00,00,16,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,16,12)
 NON_PASSWALL:(00,00,16,12)
+
+# Magic chest
+MAGIC_CHEST:(02,04)
+
+# A little help
 OBJECT:('?',"earth"),(14,01)
 [50%]: OBJECT:('?',"earth"),(15,01)
+
 OBJECT:('`',"boulder"),(12,02)
 OBJECT:('`',"boulder"),(06,03)
 OBJECT:('`',"boulder"),(12,03)

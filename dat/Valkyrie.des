@@ -62,8 +62,8 @@ MONSTER:('@',"Norn"),(35,10) {
   OBJECT:('[',"banded mail"),+4
   OBJECT:(')',"long sword"),+4
 }
-# The treasure of the Norn
-OBJECT:('(',"chest"),(36,10)
+# Magic chest
+MAGIC_CHEST:(36,10)
 # valkyrie guards for the audience chamber
 MONSTER:('@',"warrior"),(27,08)
 MONSTER:('@',"warrior"),(27,09)

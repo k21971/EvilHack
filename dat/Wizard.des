@@ -63,8 +63,8 @@ MONSTER:('@',"Neferet the Green"),(23,05) {
   OBJECT:('[',"elven cloak"),+5
   OBJECT:(')',"quarterstaff"),+5
 }
-# The treasure of the quest leader
-OBJECT:('(',"chest"),(24,05)
+# Magic chest
+MAGIC_CHEST:(24,05)
 # apprentice guards for the audience chamber
 MONSTER:('@',"apprentice"),(30,07)
 MONSTER:('@',"apprentice"),(24,06)

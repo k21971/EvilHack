@@ -49,13 +49,13 @@ MONSTER:('@',"Orion"),(20,10) {
   OBJECT:(')',"yumi"),+4
   OBJECT:(')',"arrow"),+4,quantity:50
 }
-# The treasure of Orion
-OBJECT:('(',"chest"),(20,10)
+# Magic chest
+MAGIC_CHEST:(19,10)
 # Guards for the audience chamber
 MONSTER:('@',"hunter"),(19,09)
 MONSTER:('@',"hunter"),(20,09)
 MONSTER:('@',"hunter"),(21,09)
-MONSTER:('@',"hunter"),(19,10)
+MONSTER:('@',"hunter"),(18,10)
 MONSTER:('@',"hunter"),(21,10)
 MONSTER:('@',"hunter"),(19,11)
 MONSTER:('@',"hunter"),(20,11)

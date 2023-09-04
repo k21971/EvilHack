@@ -104,6 +104,9 @@ FOUNTAIN:(25,09)
 # the altar's defiled; useful for BUC but never coaligned
 ALTAR:(20,13),noalign,shrine
 
+# Magic chest
+MAGIC_CHEST:(20,14)
+
 # set up the shop doors; could be broken down
 DOOR:random,(9,8)
 DOOR:random,(13,7)
@@ -302,6 +305,7 @@ SUBROOM: "candle shop", lit, (11,10), (4,3) {
 SUBROOM: "temple", lit, (19,5), (4,4) {
   ROOMDOOR: false, closed, north, random
   ALTAR:(02,02),align[0],shrine
+  MAGIC_CHEST:(02,03)
   MONSTER: ('G', "gnomish wizard"), random
   MONSTER: ('G', "gnomish wizard"), random
 }
@@ -370,7 +374,8 @@ SUBROOM:"ordinary",random,(5,9),(2,2) {
 
 SUBROOM:"temple",lit,(10,2),(3,4) {
   ROOMDOOR: false,closed,east,random
-  ALTAR:(1,1),align[0],shrine
+  ALTAR:(01,01),align[0],shrine
+  MAGIC_CHEST:(00,01)
   MONSTER: ('G', "gnomish wizard"), random
   MONSTER: ('G', "gnomish wizard"), random
 }
@@ -470,7 +475,8 @@ SUBROOM:"ordinary",random,(8,2),(2,2) {
 
 SUBROOM:"temple",lit,(11,3),(5,4) {
   ROOMDOOR: false,closed,south,random
-  ALTAR:(2,1),align[0],shrine
+  ALTAR:(02,01),align[0],shrine
+  MAGIC_CHEST:(02,00)
   MONSTER: ('G', "gnomish wizard"), random
   MONSTER: ('G', "gnomish wizard"), random
 }
@@ -677,7 +683,8 @@ OBJECT: ('`', "statue"), (38,15), montype:"gnome royal", 1
 REGION:(29,02,33,04),lit,"temple"
 DOOR:closed,(31,05)
 ALTAR:(31,03),align[0],shrine
-
+# Magic chest
+MAGIC_CHEST:(29,02)
 
 # "Zoo Town" by Derek S. Ray (SporkHack)
 #
@@ -717,6 +724,8 @@ REGION:(26,1,28,3),lit,"shop"
 REGION:(22,12,24,13),lit,"food shop"
 REGION:(31,12,36,14),lit,"temple"
 ALTAR:(35,13),align[0],shrine
+# Magic chest
+MAGIC_CHEST:(36,13)
 
 DOOR:closed,(5,2)
 DOOR:locked,(4,8)
@@ -864,6 +873,7 @@ SUBROOM: "tool shop" [30%], lit, (25,2), (3,3) {
 SUBROOM: "temple", lit, (24,6), (4,4) {
   ROOMDOOR: false, closed, west, random
   ALTAR:(02,01),align[0],shrine
+  MAGIC_CHEST:(03,01)
   MONSTER: ('G', "gnomish wizard"), random
   MONSTER: ('G', "gnomish wizard"), random
 }
@@ -956,6 +966,7 @@ SUBROOM: "ordinary", lit, (19,2),  (2,3) {
 SUBROOM: "temple", lit, (15,9), (4,4) {
   ROOMDOOR: false, closed, north, random
   ALTAR:(02,02),align[0],shrine
+  MAGIC_CHEST:(02,03)
   MONSTER: ('G', "gnomish wizard"), random
   MONSTER: ('G', "gnomish wizard"), random
 }

@@ -68,7 +68,8 @@ DOOR:closed,(52,14)
 ALTAR:(28,09),noalign,altar
 # Master Po
 MONSTER:('@',"Master Po"),(28,10)
-# No treasure chest!
+# Magic chest
+MAGIC_CHEST:(27,09)
 # guards for the audience chamber
 MONSTER:('@',"abbot"),(32,07)
 MONSTER:('@',"abbot"),(32,08)

@@ -42,10 +42,12 @@ REGION:(37,08,46,11),lit,"throne"
 #   50% chance each to move throne and/or fort's entry secret door up one row
 IF [50%] {
    MONSTER:('@',"Croesus"),(43,10),hostile
+   MAGIC_CHEST:(42,10)
 } ELSE {
    MONSTER:('@',"Croesus"),(43,09),hostile
    TERRAIN:(43,09), '\'
    TERRAIN:(43,10), '.'
+   MAGIC_CHEST:(42,09)
 }
 IF [50%] {
    TERRAIN:(47,09), 'S'
@@ -192,10 +194,12 @@ REGION:(57,06,66,09),lit,"throne"
 #   50% chance each to move throne and/or fort's entry secret door up one row
 IF [50%] {
    MONSTER:('@',"Croesus"),(63,08),hostile
+   MAGIC_CHEST:(62,08)
 } ELSE {
    MONSTER:('@',"Croesus"),(63,07),hostile
    TERRAIN:(63,07), '\'
    TERRAIN:(63,08), '.'
+   MAGIC_CHEST:(62,07)
 }
 IF [50%] {
    TERRAIN:(67,07), 'S'
@@ -316,6 +320,8 @@ BRANCH:(06,16,06,16),(0,0,0,0)
 #   Throne room, with Croesus on the throne
 REGION:(62,12,75,15),lit,"throne",filled,irregular
 MONSTER:('@',"Croesus"),(66,14),hostile
+# Magic chest
+MAGIC_CHEST:(67,14)
 #   50% chance each to move fort's entry secret door up one row
 IF [50%] {
    TERRAIN:(61,13), 'S'

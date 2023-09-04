@@ -56,8 +56,8 @@ MONSTER:('@',"Shaman Karnov"),(35,02) {
   OBJECT:('[',"armor"),+5
   OBJECT:(')',"club"),+5
 }
-# The treasure of Shaman Karnov
-OBJECT:('(',"chest"),(34,02)
+# Magic chest
+MAGIC_CHEST:(40,03)
 # neanderthal guards for the audience chamber
 MONSTER:('@',"neanderthal"),(20,03)
 MONSTER:('@',"neanderthal"),(20,02)

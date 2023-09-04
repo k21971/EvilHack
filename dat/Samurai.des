@@ -56,8 +56,8 @@ MONSTER:('@',"Lord Sato"),(20,04) {
   OBJECT:('[',"splint mail"),+4
   OBJECT:(')',"katana"),+4
 }
-# The treasure of Lord Sato
-OBJECT:('(',"chest"),(20,04)
+# Magic chest
+MAGIC_CHEST:(19,04)
 # roshi guards for the audience chamber
 MONSTER:('@',"roshi"),(18,04)
 MONSTER:('@',"roshi"),(18,05)

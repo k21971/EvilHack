@@ -70,8 +70,6 @@ struct obj {
 #define OBJ_BURIED 6    /* object buried */
 #define OBJ_ONBILL 7    /* object on shk bill */
 #define OBJ_SOMEWHERE 8 /* for magic chest */
-/* note: more than 8 could potentially mess up find_quest_artifact(),
-   and possibly other things */
 #define NOBJ_STATES 9
     xchar timed; /* # of fuses (timers) attached to this obj */
 

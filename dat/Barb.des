@@ -71,8 +71,8 @@ MONSTER:('@',"Pelias"),(10,07) {
   OBJECT:(')',"runesword"),+5
   OBJECT:('[',"chain mail"),+5
 }
-# The treasure of Pelias
-OBJECT:('(',"chest"),(09,05)
+# Magic chest
+MAGIC_CHEST:(09,05)
 # chieftain guards for the audience chamber
 MONSTER:('@',"chieftain"),(10,05)
 MONSTER:('@',"chieftain"),(10,09)

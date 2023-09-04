@@ -48,6 +48,9 @@ LADDER:(05,09),down
 DRAWBRIDGE:(26,09),west,closed
 DRAWBRIDGE:(26,10),west,closed
 
+# Magic chest
+MAGIC_CHEST:(56,10)
+
 # doors
 DOOR:locked,(12,06)
 DOOR:locked,(12,13)

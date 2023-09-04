@@ -72,6 +72,9 @@ IF [50%] {
 # Forge
 FORGE:(24,12)
 
+# Magic chest
+MAGIC_CHEST:(74,03)
+
 # Various objects
 CONTAINER:('(',"chest"),(23,18) {
   OBJECT:('+',"novel"),uncursed,name:"The Blacksmith's Cookbook"

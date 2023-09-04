@@ -255,6 +255,9 @@ DOOR:locked,(67,10)
 TRAP:"spear",(23,09)
 TRAP:"spear",(23,10)
 
+# Magic chest
+MAGIC_CHEST:(72,10)
+
 # Evil altar
 ALTAR:(70,10),noalign,shrine
  

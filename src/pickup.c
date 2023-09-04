@@ -3361,27 +3361,26 @@ dotip()
                     c = ynq("There is a magic chest here, tip it?");
                     if (c == 'q')
                         return 0;
-                    if (!(c == 'n')) {
+                    if (c != 'n') {
                         tipcontainer(mchest);
                         /* can only tip one container at a time */
                         return 1;
                     }
-                } else {
-                    for (cobj = level.objects[cc.x][cc.y]; cobj; cobj = nobj) {
-                        nobj = cobj->nexthere;
-                        if (!Is_nonprize_container(cobj))
-                            continue;
-                        c = ynq(safe_qbuf(qbuf, "There is ", " here, tip it?",
-                                        cobj,
-                                        doname, ansimpleoname, "container"));
-                        if (c == 'q')
-                            return 0;
-                        if (c == 'n')
-                            continue;
-                        tipcontainer(cobj);
-                        /* can only tip one container at a time */
-                        return 1;
-                    }
+                }
+                for (cobj = level.objects[cc.x][cc.y]; cobj; cobj = nobj) {
+                    nobj = cobj->nexthere;
+                    if (!Is_nonprize_container(cobj))
+                        continue;
+                    c = ynq(safe_qbuf(qbuf, "There is ", " here, tip it?",
+                                      cobj, doname, ansimpleoname,
+                                      "container"));
+                    if (c == 'q')
+                        return 0;
+                    if (c == 'n')
+                        continue;
+                    tipcontainer(cobj);
+                    /* can only tip one container at a time */
+                    return 1;
                 }
             }
         }

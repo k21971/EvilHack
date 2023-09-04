@@ -38,6 +38,8 @@ STAIR:(64,08),down
 BRANCH:(71,03,71,03),(0,0,0,0)
 # Altar
 ALTAR:(70,16),chaos,shrine
+# Magic chest
+MAGIC_CHEST:(71,16)
 # Robert the Lifer
 MONSTER:('@',"Robert the Lifer"),(74,18)
 # fellow prisoners
