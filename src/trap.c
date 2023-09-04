@@ -6323,10 +6323,7 @@ lava_effects()
      */
     if (!usurvive)
         for (obj = invent; obj; obj = obj->nobj)
-            if ((is_organic(obj) || obj->oclass == POTION_CLASS)
-                && !obj->oerodeproof
-                && objects[obj->otyp].oc_oprop != FIRE_RES
-                && obj->otyp != SCR_FIRE && obj->otyp != SPE_FIREBALL
+            if (is_flammable(obj) && !obj->oerodeproof
                 && !obj_resists(obj, 0, 0)) /* for invocation items */
                 obj->in_use = 1;
 
@@ -6334,7 +6331,7 @@ lava_effects()
      * make the player sink into the lava. Assumption: water walking only
      * comes from boots.
      */
-    if (uarmf && is_organic(uarmf) && !uarmf->oerodeproof) {
+    if (uarmf && is_flammable(uarmf) && !uarmf->oerodeproof) {
         obj = uarmf;
         pline("%s into flame!", Yobjnam2(obj, "burst"));
         iflags.in_lava_effects++; /* (see above) */

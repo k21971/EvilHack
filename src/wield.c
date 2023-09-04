@@ -946,14 +946,22 @@ register int amount;
     /* there is a (soft) upper and lower limit to uwep->spe */
     if (((uwep->spe > 5 && amount >= 0) || (uwep->spe < -5 && amount < 0))
         && rn2(3)) {
-        if (!Blind)
-            pline("%s %s for a while and then %s.",
-                  Yobjnam2(uwep, "violently glow"), color,
-                  otense(uwep, "evaporate"));
-        else
-            pline("%s.", Yobjnam2(uwep, "evaporate"));
+        if (uwep->oartifact == ART_SWORD_OF_ANNIHILATION) {
+            if (!Blind)
+                pline("%s %s for a while, but %s intact.",
+                    Yobjnam2(uwep, "violently glow"), color,
+                    otense(uwep, "remain"));
+            /* no particular sensation of "non-evaporation" if blind */
+        } else {
+            if (!Blind)
+                pline("%s %s for a while and then %s.",
+                    Yobjnam2(uwep, "violently glow"), color,
+                    otense(uwep, "evaporate"));
+            else
+                pline("%s.", Yobjnam2(uwep, "evaporate"));
 
-        useupall(uwep); /* let all of them disappear */
+            useupall(uwep); /* let all of them disappear */
+        }
         return 1;
     }
     if (!Blind) {
