@@ -3167,24 +3167,33 @@ register struct monst *mtmp;
                 seetrap(trap);
                 pline("A spear stabs up from a hole in the ground!");
             }
-            if (is_flyer(mptr)) {
+            boolean isrider = has_erid(mtmp);
+            /* spear hits steed if mtmp is riding one */
+            struct monst *spear_target = isrider ? ERID(mtmp)->mon_steed
+                                                        : mtmp;
+            /* update steed position, if it exists, since it might die */
+            spear_target->mx = mtmp->mx;
+            spear_target->my = mtmp->my;
+            if (is_flyer(spear_target->data)) {
                 if (in_sight)
-                    pline("The spear isn't long enough to reach %s.", mon_nam(mtmp));
-            } else if (thick_skinned(mptr)) {
+                    pline("The spear isn't long enough to reach %s.", mon_nam(spear_target));
+            } else if (thick_skinned(spear_target->data)) {
                 if (in_sight)
-                    pline("But it breaks off against %s.", mon_nam(mtmp));
+                    pline("But it breaks off against %s.", mon_nam(spear_target));
                 deltrap(trap);
                 newsym(mtmp->mx, mtmp->my);
-            } else if (unsolid(mptr)) {
+            } else if (unsolid(spear_target->data)) {
                 if (in_sight)
-                    pline("It passes right through %s!", mon_nam(mtmp));
+                    pline("It passes right through %s!", mon_nam(spear_target));
             } else {
-                if (DEADMONSTER(mtmp)
-                    || thitm(0, mtmp, (struct obj *) 0,
-                             (rnd(8) + 6), FALSE))
+                if ((DEADMONSTER(spear_target)
+                     || thitm(0, spear_target, (struct obj *) 0,
+                              (rnd(8) + 6), FALSE))
+                    /* only set trapkilled if original mtmp has died*/
+                    && !isrider)
                     trapkilled = TRUE;
-                else if (in_sight)
-                    pline("%s is skewered!", Monnam(mtmp));
+                else if (in_sight && !DEADMONSTER(spear_target))
+                    pline("%s is skewered!", Monnam(spear_target));
             }
             break;
         case MAGIC_BEAM_TRAP:
