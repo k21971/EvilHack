@@ -3133,4 +3133,7 @@ The following changes to date are:
 - Magic chest placement
 - Fix: warning: the comparison will always evaluate as ‘true’ for the
   address of ‘mons’ will never be NULL [-Waddress] (mhitu.c)
+- Fix: warning: the comparison will always evaluate as ‘true’ for the
+  pointer operand in ‘s + (sizetype)((long unsigned int)sidx * 128)’ must
+  not be NULL [-Waddress] (botl.c)
 
