@@ -3131,4 +3131,6 @@ The following changes to date are:
 - Fix: pet petrified by eating Medusa's corpse
 - New dungeon feature: magic chests
 - Magic chest placement
+- Fix: warning: the comparison will always evaluate as ‘true’ for the
+  address of ‘mons’ will never be NULL [-Waddress] (mhitu.c)
 

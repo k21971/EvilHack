@@ -2076,7 +2076,8 @@ register struct attack *mattk;
                        && uarmg && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY)) {
             if (!Blind)
                 pline("%s tries to %s you, but you seem %s.",
-                      &mons[PM_GRAZ_ZT] ? Monnam(mtmp) : Adjmonnam(mtmp, "plain"),
+                      mtmp->data == &mons[PM_GRAZ_ZT] ? Monnam(mtmp)
+                                                      : Adjmonnam(mtmp, "plain"),
                       flags.female ? "charm" : "seduce",
                       flags.female ? "unaffected" : "uninterested");
             if (rn2(3)) {
