@@ -847,14 +847,14 @@ uqwepgone()
 void
 untwoweapon()
 {
+    struct obj *tmp = uswapwep;
     if (u.twoweap) {
-        struct obj *tmp = uswapwep;
         You("can no longer use two weapons at once.");
         u.twoweap = FALSE;
-        setuswapwep((struct obj *) 0);
-        setuswapwep(tmp);
-        update_inventory();
     }
+    setuswapwep((struct obj *) 0);
+    setuswapwep(tmp);
+    update_inventory();
     return;
 }
 
