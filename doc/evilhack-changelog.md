@@ -3138,4 +3138,8 @@ The following changes to date are:
   not be NULL [-Waddress] (botl.c)
 - Change Convict quest artifact from an iron ball to a striped shirt
 - Tweaks to the new Convict quest artifact
+- Fix: close a couple loopholes where indestructible artifacts could be
+  destroyed
+- Spear traps can hit monster's steeds
+- Fix: offhand artifact intrinsics
 
