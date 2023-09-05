@@ -3249,6 +3249,10 @@ register struct obj *otmp;
                                                    ? c_axe
                                                    : c_weapon);
             why = uwep;
+        } else if (otmp == uarmu
+                   && uarmu->oartifact == ART_STRIPED_SHIRT_OF_LIBERATIO) {
+            You("cannot remove your %s.", simpleonames(uarmu));
+            return 0;
         }
         if (why) {
             You("cannot %s to take off %s.", buf, the(xname(otmp)));

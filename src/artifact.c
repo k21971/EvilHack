@@ -2989,6 +2989,12 @@ struct obj *obj;
             }
         }
         case PHASING: /* Walk through walls and stone like a xorn */
+            if (obj->oartifact == ART_STRIPED_SHIRT_OF_LIBERATIO
+                && !Role_if(PM_CONVICT) && rn2(5)) {
+                You_feel("that %s %s purposely ignoring you.", the(xname(obj)),
+                         otense(obj, "are"));
+                break;
+            }
             if (Passes_walls)
                 goto nothing_special;
             if (!Hallucination) {

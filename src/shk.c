@@ -613,6 +613,13 @@ char *enterstring;
         eshkp->pbanned = TRUE;
     }
 
+    /* The Striped Shirt of Liberation does not need
+       to be visible if worn... */
+    if (uarmu
+        && (uarmu->oartifact == ART_STRIPED_SHIRT_OF_LIBERATIO)) {
+        eshkp->pbanned = TRUE;
+    }
+
     rt = rooms[*enterstring - ROOMOFFSET].rtype;
 
     if (ANGRY(shkp)) {
