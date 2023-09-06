@@ -1307,6 +1307,7 @@ int tmp;
         spec_dbon_applies = FALSE;
     else if ((otmp->oartifact == ART_GRIMTOOTH
               && !(yours ? Sick_resistance : resists_sick(mon->data)))
+             || otmp->oartifact == ART_SHADOWBLADE
              || otmp->oartifact == ART_VORPAL_BLADE
              || (otmp->oartifact == ART_ANGELSLAYER
                  && !(yours ? is_demon(raceptr(&youmonst)) : is_demon(mon->data)))
@@ -2237,17 +2238,21 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         k = !rn2(20); /* 5% chance if same weapon is used against the player */
         switch (otmp->oartifact) {
         case ART_WEREBANE:
+        case ART_SHADOWBLADE:
             if (youattack && is_were(mdef->data) && j) {
-                You("severely burn %s with your silver blade!", mon_nam(mdef));
+                You("severely burn %s with your %s blade!", mon_nam(mdef),
+                    (otmp->oartifact == ART_WEREBANE ? "silver" : "shadowy"));
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
             } else if (!youattack && !youdefend
                        && magr && is_were(mdef->data) && j) {
                 if (show_instakill)
-                    pline("%s severely burns %s with its silver blade!",
-                          Monnam(magr), mon_nam(mdef));
+                    pline("%s severely burns %s with its %s blade!",
+                          Monnam(magr), mon_nam(mdef),
+                          (otmp->oartifact == ART_WEREBANE ? "silver" : "shadowy"));
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
             } else if (youdefend && is_were(youmonst.data) && k) {
-                pline("The silver blade gravely burns you!");
+                pline("The %s blade gravely burns you!",
+                      (otmp->oartifact == ART_WEREBANE ? "silver" : "shadowy"));
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form */
             } else

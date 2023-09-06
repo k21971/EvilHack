@@ -598,6 +598,8 @@ boolean resuming;
                                     || is_demon(mtmp->data)))
                             || (wielding_artifact(ART_WEREBANE)
                                 && is_were(mtmp->data))
+                            || (wielding_artifact(ART_SHADOWBLADE)
+                                && is_were(mtmp->data))
                             || (wielding_artifact(ART_DEMONBANE)
                                 && is_demon(mtmp->data))
                             || (wielding_artifact(ART_ANGELSLAYER)

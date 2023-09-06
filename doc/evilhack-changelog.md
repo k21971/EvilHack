@@ -3145,4 +3145,5 @@ The following changes to date are:
 - Fix: close a loophole being able to produce tame non-tameable monsters 
 - Fix: container trap outcomes for monsters using them was determined by
   the players luck
+- Change Shadowblade forging recipe
 

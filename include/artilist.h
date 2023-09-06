@@ -347,15 +347,16 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       SPFX_HSPDAM, 0, STUN(5, 8), DFNS(AD_MAGM), NO_CARY, PHASING, A_NEUTRAL,
       NON_PM, NON_PM, 35000L, NO_COLOR, DEFAULT_MAT),
     /* Shadowblade is a chaotic aligned athame that is created by
-       forging Stormbringer and Grimtooth together. Inherits
+       forging Stormbringer and Werebane together. Inherits
        Stormbringer's drain life attack and protection without its
        penchant for attacking peaceful creatures. Can be invoked to
        cause fear or create an aura of darkness. Is made of adamantine,
        and is attuned to Drow */
     A("Shadowblade", ATHAME,
       (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK
-       | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI | SPFX_SEARCH | SPFX_STLTH),
-      0, 0, DRLI(8, 10), DFNS(AD_DRLI), NO_CARY, SHADOWBLADE, A_CHAOTIC,
+       | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI | SPFX_SEARCH | SPFX_STLTH
+       | SPFX_WARN | SPFX_DFLAGH), 0, MH_WERE,
+      DRLI(8, 10), DFNS(AD_DRLI), NO_CARY, SHADOWBLADE, A_CHAOTIC,
       NON_PM, PM_DROW, 15000L, NO_COLOR, ADAMANTINE),
     /* The Gauntlets of Purity are a divine artifact that is created
        by forging Dragonbane and Grayswandir together. These gauntlets

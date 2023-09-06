@@ -1172,6 +1172,10 @@ struct obj *obj;
         && is_were(mtmp->data))
         return FALSE;
 
+    if (wielding_artifact(ART_SHADOWBLADE)
+        && is_were(mtmp->data))
+        return FALSE;
+
     /* can't really tame demons, but this is here for completeness sake */
     if ((wielding_artifact(ART_DEMONBANE)
          || wielding_artifact(ART_HAMMER_OF_THE_GODS))
