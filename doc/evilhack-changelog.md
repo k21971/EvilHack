@@ -3146,4 +3146,5 @@ The following changes to date are:
 - Fix: container trap outcomes for monsters using them was determined by
   the players luck
 - Change Shadowblade forging recipe
+- Goblin Town traps spawn in random spots
 

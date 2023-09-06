@@ -47,6 +47,12 @@ REGION:(71,01,74,04),lit,"ordinary"
 $gollum_cave = { (25,18),(42,02),(70,13),(07,00),(64,01) }
 SHUFFLE:$gollum_cave
 
+# random other traps
+$traps = { (06,06),(07,08),(19,11),(61,09),
+           (62,13),(72,08),(38,16),(46,15),
+           (49,07),(29,06) }
+SHUFFLE:$traps
+
 # Shop (maybe?)
 IF [50%] {
   REGION:(14,03,18,05),lit,"shop"
@@ -92,14 +98,17 @@ OBJECT:('`',"boulder"),(71,11)
 DOOR:locked,(19,05)
 DOOR:locked,(73,05)
 
-# Traps
-TRAP:"board", (06,06)
-TRAP:"board", (07,08)
-TRAP:"board", (72,08)
-TRAP:"arrow", (19,11)
-TRAP:"arrow", (61,09)
-TRAP:"arrow", (62,13)
-TRAP:"trap door", $gollum_cave[0]
+# Traps - eight out of ten possible locales
+TRAP:"board",$traps[0]
+TRAP:"board",$traps[1]
+TRAP:"board",$traps[2]
+TRAP:"arrow",$traps[3]
+TRAP:"arrow",$traps[4]
+TRAP:"crossbow bolt",$traps[5]
+TRAP:"crossbow bolt",$traps[6]
+TRAP:"bear",$traps[7]
+
+TRAP:"trap door",$gollum_cave[0]
 
 # Prisoners
 MONSTER:('@',"Woodland-elf"),(23,17),peaceful
