@@ -3142,4 +3142,5 @@ The following changes to date are:
   destroyed
 - Spear traps can hit monster's steeds
 - Fix: offhand artifact intrinsics
+- Fix: close a loophole being able to produce tame non-tameable monsters 
 

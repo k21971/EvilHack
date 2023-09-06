@@ -3170,21 +3170,24 @@ register struct monst *mtmp;
             boolean isrider = has_erid(mtmp);
             /* spear hits steed if mtmp is riding one */
             struct monst *spear_target = isrider ? ERID(mtmp)->mon_steed
-                                                        : mtmp;
+                                                 : mtmp;
             /* update steed position, if it exists, since it might die */
             spear_target->mx = mtmp->mx;
             spear_target->my = mtmp->my;
             if (is_flyer(spear_target->data)) {
                 if (in_sight)
-                    pline("The spear isn't long enough to reach %s.", mon_nam(spear_target));
+                    pline("The spear isn't long enough to reach %s.",
+                          mon_nam(spear_target));
             } else if (thick_skinned(spear_target->data)) {
                 if (in_sight)
-                    pline("But it breaks off against %s.", mon_nam(spear_target));
+                    pline("But it breaks off against %s.",
+                          mon_nam(spear_target));
                 deltrap(trap);
                 newsym(mtmp->mx, mtmp->my);
             } else if (unsolid(spear_target->data)) {
                 if (in_sight)
-                    pline("It passes right through %s!", mon_nam(spear_target));
+                    pline("It passes right through %s!",
+                          mon_nam(spear_target));
             } else {
                 if ((DEADMONSTER(spear_target)
                      || thitm(0, spear_target, (struct obj *) 0,

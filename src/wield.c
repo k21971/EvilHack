@@ -949,14 +949,14 @@ register int amount;
         if (uwep->oartifact == ART_SWORD_OF_ANNIHILATION) {
             if (!Blind)
                 pline("%s %s for a while, but %s intact.",
-                    Yobjnam2(uwep, "violently glow"), color,
-                    otense(uwep, "remain"));
+                      Yobjnam2(uwep, "violently glow"), color,
+                      otense(uwep, "remain"));
             /* no particular sensation of "non-evaporation" if blind */
         } else {
             if (!Blind)
                 pline("%s %s for a while and then %s.",
-                    Yobjnam2(uwep, "violently glow"), color,
-                    otense(uwep, "evaporate"));
+                      Yobjnam2(uwep, "violently glow"), color,
+                      otense(uwep, "evaporate"));
             else
                 pline("%s.", Yobjnam2(uwep, "evaporate"));
 
@@ -967,8 +967,8 @@ register int amount;
     if (!Blind) {
         xtime = (amount * amount == 1) ? "moment" : "while";
         pline("%s %s for a %s.",
-              Yobjnam2(uwep, amount == 0 ? "violently glow" : "glow"), color,
-              xtime);
+              Yobjnam2(uwep, amount == 0 ? "violently glow" : "glow"),
+              color, xtime);
         if (otyp != STRANGE_OBJECT && uwep->known
             && (amount > 0 || (amount < 0 && otmp->bknown)))
             makeknown(otyp);

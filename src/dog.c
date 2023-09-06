@@ -151,6 +151,13 @@ boolean quietly;
         if (chance > 2)
             chance = otmp->blessed ? 0 : !otmp->cursed ? 1 : 2;
         /* 0,1,2:  b=80%,10,10; nc=10%,80,10; c=10%,10,80 */
+
+        /* Unique monsters, monsters that covet the Amulet,
+           and various other creatures (see mondata.h) can't
+           be tamed */
+        if (non_tameable(mtmp->data))
+            chance = 2;
+
         if (Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL
             && mtmp->data == &mons[PM_ELDRITCH_KI_RIN])
             chance = 2;
@@ -1092,24 +1099,28 @@ register struct obj *obj;
  */
 boolean
 tamedog(mtmp, obj)
-register struct monst *mtmp;
-register struct obj *obj;
+struct monst *mtmp;
+struct obj *obj;
 {
     boolean same_align = (sgn(mon_aligntyp(mtmp)) == u.ualign.type);
 
-    /* The Wiz, Vecna, Cerberus, Medusa, the Goblin King,
-       Lucifer, Vlad, Tal'Gath, Saint Michael, and the
-       quest nemeses aren't even made peaceful */
-    if (mtmp->iswiz || mtmp->isvecna || mtmp->ismichael
-        || mtmp->isvlad || mtmp->islucifer || mtmp->istalgath
-        || mtmp->iscerberus || mtmp->isgking
-        || mtmp->data == &mons[PM_MEDUSA]
-        || (mtmp->data->mflags3 & M3_WANTSARTI)
-        || unique_corpstat(mtmp->data))
+    /* reduce timed sleep or paralysis, leaving mtmp->mcanmove as-is
+       (note: if mtmp is donning armor, this will reduce its busy time) */
+    if (mtmp->mfrozen)
+        mtmp->mfrozen = (mtmp->mfrozen + 1) / 2;
+    /* end indefinite sleep; using distance==1 limits the waking to mtmp */
+    if (mtmp->msleeping)
+        wake_nearto(mtmp->mx, mtmp->my, 1); /* [different from wakeup()] */
+
+    /* Unique monsters, monsters that covet the Amulet,
+       and various other creatures (see mondata.h) aren't
+       even made peaceful */
+    if (non_tameable(mtmp->data))
         return FALSE;
 
     /* Knights can never tame dragons of differing alignment */
-    if (Role_if(PM_KNIGHT) && is_dragon(mtmp->data) && !same_align)
+    if (Role_if(PM_KNIGHT) && is_dragon(mtmp->data)
+        && !same_align)
         return FALSE;
 
     /* Dark knights cannot tame ki-rin, lawful knights cannot
@@ -1122,43 +1133,34 @@ register struct obj *obj;
         && mtmp->data == &mons[PM_KI_RIN])
         return FALSE;
 
-    /* These monsters should never be able to be tamed. Ever. Just no */
-    if (mtmp->data == &mons[PM_BEHOLDER]
-        || mtmp->data == &mons[PM_FELL_BEAST]
-        || mtmp->data == &mons[PM_MAGICAL_EYE]
-        || mtmp->data == &mons[PM_ELDER_MINOTAUR]
-        || mtmp->data == &mons[PM_PALE_HORSE]
-        || mtmp->data == &mons[PM_WHITE_HORSE]
-        || mtmp->data == &mons[PM_BLACK_HORSE]
-        || mtmp->data == &mons[PM_SNOW_GOLEM]
-        || mtmp->data == &mons[PM_ALHOON]
-        || mtmp->data == &mons[PM_NEOTHELID]
-        || mtmp->data == &mons[PM_SHAMBLING_HORROR])
-        return FALSE;
-
     /* If wielding/wearing any of the 'banes, taming becomes
        impossible */
     if (wielding_artifact(ART_STING)
         && (racial_orc(mtmp) || is_spider(mtmp->data)))
         return FALSE;
 
-    if (wielding_artifact(ART_ORCRIST) && racial_orc(mtmp))
+    if (wielding_artifact(ART_ORCRIST)
+        && racial_orc(mtmp))
         return FALSE;
 
-    if (wielding_artifact(ART_GLAMDRING) && racial_orc(mtmp))
+    if (wielding_artifact(ART_GLAMDRING)
+        && racial_orc(mtmp))
         return FALSE;
 
     if (wielding_artifact(ART_GRIMTOOTH)
         && (racial_elf(mtmp) || racial_drow(mtmp)))
         return FALSE;
 
-    if (wielding_artifact(ART_GIANTSLAYER) && racial_giant(mtmp))
+    if (wielding_artifact(ART_GIANTSLAYER)
+        && racial_giant(mtmp))
         return FALSE;
 
-    if (wielding_artifact(ART_TROLLSBANE) && is_troll(mtmp->data))
+    if (wielding_artifact(ART_TROLLSBANE)
+        && is_troll(mtmp->data))
         return FALSE;
 
-    if (wielding_artifact(ART_OGRESMASHER) && is_ogre(mtmp->data))
+    if (wielding_artifact(ART_OGRESMASHER)
+        && is_ogre(mtmp->data))
         return FALSE;
 
     if ((wielding_artifact(ART_SUNSWORD)
@@ -1166,7 +1168,8 @@ register struct obj *obj;
         && is_undead(mtmp->data))
         return FALSE;
 
-    if (wielding_artifact(ART_WEREBANE) && is_were(mtmp->data))
+    if (wielding_artifact(ART_WEREBANE)
+        && is_were(mtmp->data))
         return FALSE;
 
     /* can't really tame demons, but this is here for completeness sake */
@@ -1176,19 +1179,24 @@ register struct obj *obj;
         return FALSE;
 
     /* same for angels */
-    if (wielding_artifact(ART_ANGELSLAYER) && is_angel(mtmp->data))
+    if (wielding_artifact(ART_ANGELSLAYER)
+        && is_angel(mtmp->data))
         return FALSE;
 
-    if (wielding_artifact(ART_VORPAL_BLADE) && is_jabberwock(mtmp->data))
+    if (wielding_artifact(ART_VORPAL_BLADE)
+        && is_jabberwock(mtmp->data))
         return FALSE;
 
-    if (uarmg && uarmg->oartifact == ART_DRAGONBANE && is_dragon(mtmp->data))
+    if (uarmg && uarmg->oartifact == ART_DRAGONBANE
+        && is_dragon(mtmp->data))
         return FALSE;
 
-    if (uleft && uleft->oartifact == ART_ONE_RING && is_wraith(mtmp->data))
+    if (uleft && uleft->oartifact == ART_ONE_RING
+        && is_wraith(mtmp->data))
         return FALSE;
 
-    if (uright && uright->oartifact == ART_ONE_RING && is_wraith(mtmp->data))
+    if (uright && uright->oartifact == ART_ONE_RING
+        && is_wraith(mtmp->data))
         return FALSE;
 
     /* worst case, at least it'll be peaceful. */
@@ -1244,7 +1252,20 @@ register struct obj *obj;
             return FALSE;
     }
 
-    if (mtmp->mtame || !mtmp->mcanmove
+    /* if already tame, taming magic might make it become tamer */
+    if (mtmp->mtame) {
+        /* maximum tameness is 20, only reachable via eating */
+        if (rnd(10) > mtmp->mtame)
+            mtmp->mtame++;
+        return FALSE; /* didn't just get tamed */
+    }
+    /* pacify angry shopkeeper but don't tame him/her/it/them */
+    if (mtmp->isshk) {
+        make_happy_shk(mtmp, FALSE);
+        return FALSE;
+    }
+
+    if (!mtmp->mcanmove
         /* monsters with conflicting structures cannot be tamed */
         || mtmp->isshk || mtmp->isgd || mtmp->ispriest || mtmp->isminion
         || is_covetous(mtmp->data) || is_human(mtmp->data)
