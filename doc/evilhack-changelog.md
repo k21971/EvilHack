@@ -3143,4 +3143,6 @@ The following changes to date are:
 - Spear traps can hit monster's steeds
 - Fix: offhand artifact intrinsics
 - Fix: close a loophole being able to produce tame non-tameable monsters 
+- Fix: container trap outcomes for monsters using them was determined by
+  the players luck
 

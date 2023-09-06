@@ -5581,7 +5581,8 @@ boolean disarm;
                disarm ? "sets it off" : "triggers a trap");
 
     display_nhwindow(WIN_MESSAGE, FALSE);
-    if (Luck > -13 && rn2(13 + Luck) > 7) { /* saved by luck */
+    if (yours ? (Luck > -13 && rn2(13 + Luck) > 7)
+              : rn2(13) > 9) { /* player saved by luck, monster by chance */
         /* trap went off, but good luck prevents damage */
         switch (rn2(13)) {
         case 12:
@@ -5615,7 +5616,8 @@ boolean disarm;
         if (msg && (yours || canseemon(mon)))
             pline("But luckily the %s!", msg);
     } else {
-        switch (rn2(20) ? ((Luck >= 13) ? 0 : rn2(13 - Luck)) : rn2(26)) {
+        switch (yours ? (rn2(20) ? ((Luck >= 13) ? 0 : rn2(13 - Luck))
+                                 : rn2(26)) : rn2(26)) {
         case 25:
         case 24:
         case 23:
