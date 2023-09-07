@@ -3147,4 +3147,5 @@ The following changes to date are:
   the players luck
 - Change Shadowblade forging recipe
 - Goblin Town traps spawn in random spots
+- New random Goblin Town map (top level)
 

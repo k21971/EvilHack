@@ -1297,7 +1297,7 @@ ifneq "$(W_DAT)" ""
 	if exist $(W_DAT)\dungeon.pdf	   del $(W_DAT)\dungeon.pdf
 	if exist $(W_DAT)\earth.lev	   del $(W_DAT)\earth.lev
 	if exist $(W_DAT)\fire.lev	   del $(W_DAT)\fire.lev
-	if exist $(W_DAT)\goblintown-?.lev del $(W_DAT)\goblintown-?.lev
+	if exist $(W_DAT)\goblintown*.lev  del $(W_DAT)\goblintown*.lev
 	if exist $(W_DAT)\hdgn.lev	   del $(W_DAT)\hdgn.lev
 	if exist $(W_DAT)\hella-?.lev	   del $(W_DAT)\hella-?.lev
 	if exist $(W_DAT)\hellb-?.lev	   del $(W_DAT)\hellb-?.lev

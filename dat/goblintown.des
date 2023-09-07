@@ -6,7 +6,7 @@
 #	to open up access to Mine Town and Mines' End in the
 #	Gnomish Mines.
 #
-MAZE: "goblintown-1",' '
+MAZE: "goblintown-1-1",' '
 FLAGS: noteleport,hardfloor,solidify,shortsighted
 
 GEOMETRY:left,center
@@ -17,7 +17,7 @@ MAP
 ....t..                                                         ..|........|
 ......       -------            .tt..   ...                     t.|........|
 .t...        |.....|    .............. F..                     ...|..|...\.|
- ....        |.....|.....     ..  .....FFF                      .....|.....|
+ ....        |.....|.....     ..  .....FF.                      .....|.....|
     ..       |.....+.        ..     .......         ...          ....----S--
      ..      -------        ..        .t....       ..t..        ...t   ...  
       ..                   ..             ................     ..       .   
@@ -26,8 +26,8 @@ MAP
      .........       ..t....                          .                ..   
      ......................tt                         .             .. .    
       .t..           .......                         ...           F....    
-       ..             .......                      ..t...    ......F...     
-                       ...........                ........  ..     F..      
+       ..             .......                      ..t...    ..........
+                       ...........                ........  ..     F..
                      ........    ..       ............tt.....               
                       FFFF.F      ..........        ......t..               
                       ......                                                
@@ -55,7 +55,11 @@ SHUFFLE:$traps
 
 # Shop (maybe?)
 IF [50%] {
-  REGION:(14,03,18,05),lit,"shop"
+  IF [50%] {
+    REGION:(14,03,18,05),lit,"shop"
+  } ELSE {
+    REGION:(14,03,18,05),lit,"armor shop"
+  }
 }
 
 # Door to jail cells?
@@ -166,6 +170,192 @@ NON_DIGGABLE:(42,00,75,11)
 NON_DIGGABLE:(28,05,66,19)
 NON_DIGGABLE:(00,17,75,19)
 NON_DIGGABLE:(68,00,75,19)
+NON_PASSWALL:(00,00,75,19)
+
+
+MAZE: "goblintown-1-2",' '
+FLAGS: noteleport,hardfloor,solidify,shortsighted
+
+GEOMETRY:left,center
+#         1         2         3         4         5         6         7    7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
+MAP
+  ..t                                     ..t.               ...............
+ ....                                  ........BBBBBBBBBBBBB..   ..    ....t
+......               BBBBBBBBBBBBBBBBB..  FF.F             ..          ....t
+..........BBBBBBBBBBBBB               .    ..             ..            t...
+ tt..    ..                           .     ..           ..              ...
+  ..      .t                         -+-                 .                ..
+          .                         .....                .
+         ..                      ...........            ...t.
+          .-------              .\............         .......
+         ..|.....|               ............            ...t..    ..
+         ..|.....|                 .......            ........    ...
+      .....+.....|                   -+-             ..  ......  FF.F
+     ..  ..-------                    .                 tt....  ......
+    ..    ...                         .                  ..........
+   ..                                ..                   ..
+   .                           ..t   .                     .         tt.
+  ..t             BBBBBBBBBBBB........BBBBBB               .        ......
+ .....BBBBBBBBBBBBBB            F.F      BBBBBBBBBBBBBBBBBB..       ...t...
+.......                        ....                         ................
+ tt.t                                                              .tt....
+
+ENDMAP
+REGION:(00,00,75,19),unlit,"ordinary"
+REGION:(31,18,34,18),lit,"ordinary"
+REGION:(43,03,44,04),lit,"ordinary"
+REGION:(66,09,68,10),lit,"ordinary"
+REGION:(32,06,45,10),lit,"ordinary"
+
+# random trap door that leads to Gollum's Cave
+$gollum_cave = { (45,04),(31,18),(68,09),(12,13),(02,05) }
+SHUFFLE:$gollum_cave
+
+# random other traps
+$traps = { (69,00),(64,18),(58,09),(38,03),
+           (37,15),(35,08),(07,11),(03,02),
+           (03,17),(39,07) }
+SHUFFLE:$traps
+
+# Make the arrival, exit, and paths somewhat unpredictable
+IF [50%] {
+  TELEPORT_REGION:(75,18,75,18),(00,00,00,00)
+  BRANCH:(02,00,02,00),(00,00,00,00)
+  TERRAIN:line (10,03),(22,03), ' '
+  TERRAIN:line (21,02),(37,02), ' '
+  TERRAIN:line (06,17),(19,17), 'B'
+  TERRAIN:line (18,16),(29,16), 'B'
+  TERRAIN:line (38,16),(43,16), ' '
+  TERRAIN:line (41,17),(58,17), ' '
+  TERRAIN:line (47,01),(59,01), 'B'
+} ELSE {
+  TELEPORT_REGION:(75,05,75,05),(00,00,00,00)
+  BRANCH:(00,18,00,18),(00,00,00,00)
+  TERRAIN:line (10,03),(22,03), 'B'
+  TERRAIN:line (21,02),(37,02), 'B'
+  TERRAIN:line (06,17),(19,17), ' '
+  TERRAIN:line (18,16),(29,16), ' '
+  TERRAIN:line (38,16),(43,16), 'B'
+  TERRAIN:line (41,17),(58,17), 'B'
+  TERRAIN:line (47,01),(59,01), ' '
+}
+
+# Shop (maybe?)
+IF [50%] {
+  IF [50%] {
+    REGION:(12,09,16,11),lit,"armor shop"
+  } ELSE {
+    REGION:(12,09,16,11),lit,"weapon shop"
+  }
+}
+
+# Door to jail cells?
+IF [35%] {
+  TERRAIN:(67,11),'F'
+} ELSE {
+  DOOR:locked,(67,11)
+}
+IF [50%] {
+  TERRAIN:(44,02),'F'
+} ELSE {
+  DOOR:locked,(44,02)
+}
+IF [50%] {
+  TERRAIN:(33,17),'F'
+} ELSE {
+  DOOR:locked,(33,17)
+}
+
+# Forge
+FORGE:(59,11)
+
+# Magic chest
+MAGIC_CHEST:(32,08)
+
+# Various objects
+CONTAINER:('(',"chest"),(67,09) {
+  OBJECT:('+',"novel"),uncursed,name:"The Blacksmith's Cookbook"
+  IF [65%] {
+    OBJECT:(')',"war hammer"),uncursed
+  }
+  IF [50%] {
+    OBJECT:('!',"acid"),uncursed
+  }
+}
+
+# Doors
+DOOR:locked,(11,11)
+DOOR:locked,(38,05)
+DOOR:locked,(38,11)
+
+# Traps - eight out of ten possible locales
+TRAP:"board",$traps[0]
+TRAP:"board",$traps[1]
+TRAP:"board",$traps[2]
+TRAP:"arrow",$traps[3]
+TRAP:"arrow",$traps[4]
+TRAP:"crossbow bolt",$traps[5]
+TRAP:"crossbow bolt",$traps[6]
+TRAP:"bear",$traps[7]
+
+TRAP:"trap door",$gollum_cave[0]
+
+# Prisoners
+MONSTER:('@',"Woodland-elf"),(66,10),peaceful
+MONSTER:('G',"rock gnome"),(68,10),peaceful
+MONSTER:('@',"Woodland-elf"),(43,03),peaceful
+MONSTER:('h',"mountain dwarf"),(67,10),peaceful
+MONSTER:('@',"Green-elf"),(44,03),peaceful
+MONSTER:('G',"gnome noble"),(44,04),peaceful
+MONSTER:('G',"rock gnome"),(31,18),peaceful
+MONSTER:('@',"Grey-elf"),(32,18),peaceful
+MONSTER:('G',"rock gnome"),(34,18),peaceful
+
+# Residents of Goblin Town
+MONSTER:('o',"goblin"),(72,01),hostile
+MONSTER:('o',"goblin"),(66,00),hostile
+MONSTER:('o',"goblin"),(70,17),hostile
+MONSTER:('o',"goblin"),(66,18),hostile
+MONSTER:('o',"goblin"),(38,06),hostile
+MONSTER:('o',"goblin"),(38,10),hostile
+MONSTER:('o',"goblin"),(04,01),hostile
+MONSTER:('o',"goblin"),(03,03),hostile
+MONSTER:('o',"goblin"),(05,17),hostile
+MONSTER:('o',"goblin"),(03,19),hostile
+MONSTER:('o',"goblin"),(09,07),hostile
+MONSTER:('o',"goblin"),(10,12),hostile
+MONSTER:('o',"goblin"),(38,02),hostile
+MONSTER:('o',"goblin"),(38,13),hostile
+MONSTER:('o',"goblin shaman"),(42,08),hostile
+MONSTER:('o',"hobgoblin"),(53,11),hostile
+MONSTER:('o',"hobgoblin"),(61,09),hostile
+MONSTER:('o',"hobgoblin"),(45,00),hostile
+MONSTER:('o',"hobgoblin"),(31,15),hostile
+MONSTER:('o',"bugbear"),(69,12),hostile
+
+# The Goblin King and his treasure
+MONSTER:('o',"goblin king"),(33,08),hostile
+
+CONTAINER:('(',"chest"),(33,07) {
+  IF [10%] {
+    OBJECT:('(',"magic marker"),uncursed
+  }
+  OBJECT:'*'
+  OBJECT:'*'
+  OBJECT:'*'
+  OBJECT:'='
+  OBJECT:'$',quantity:100
+}
+
+# None shall pass
+NON_DIGGABLE:(00,00,31,19)
+NON_DIGGABLE:(32,00,41,16)
+NON_DIGGABLE:(42,00,75,01)
+NON_DIGGABLE:(46,00,75,10)
+NON_DIGGABLE:(35,03,64,19)
+NON_DIGGABLE:(35,12,75,19)
+NON_DIGGABLE:(69,00,75,19)
 NON_PASSWALL:(00,00,75,19)
 
 

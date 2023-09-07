@@ -1292,7 +1292,7 @@ spotless: clean
 	if exist $(DAT)\dungeon.pdf	 del $(DAT)\dungeon.pdf
 	if exist $(DAT)\earth.lev	 del $(DAT)\earth.lev
 	if exist $(DAT)\fire.lev	 del $(DAT)\fire.lev
-	if exist $(DAT)\goblintown-?.lev del $(DAT)\goblintown-?.lev
+	if exist $(DAT)\goblintown*.lev  del $(DAT)\goblintown*.lev
 	if exist $(DAT)\hdgn.lev	 del $(DAT)\hdgn.lev
 	if exist $(DAT)\hella-?.lev	 del $(DAT)\hella-?.lev
 	if exist $(DAT)\hellb-?.lev	 del $(DAT)\hellb-?.lev

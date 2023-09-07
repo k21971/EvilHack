@@ -95,7 +95,8 @@
     <Levfiles Include = "orcus.lev"/>
     <Levfiles Include = "sanctum.lev"/>
     <Levfiles Include = "valley.lev"/>
-    <Levfiles Include = "goblintown-1.lev"/>
+    <Levfiles Include = "goblintown-1-1.lev"/>
+    <Levfiles Include = "goblintown-1-2.lev"/>
     <Levfiles Include = "goblintown-2.lev"/>
     <Levfiles Include = "hdgn.lev"/>
     <Levfiles Include = "icequeen-1.lev"/>

@@ -1208,9 +1208,9 @@ register struct monst *mtmp;
         } else if (racial_elf(mtmp) && !Ingtown) {
             if (rn2(2))
                 (void) mongets(mtmp,
-		 (rn2(2) && (mm == PM_GREY_ELF || mm == PM_ELVEN_NOBLE
+                 (rn2(2) && (mm == PM_GREY_ELF || mm == PM_ELVEN_NOBLE
                              || mm == PM_ELVEN_ROYAL || mm == PM_ELVEN_WIZARD))
-			     ? ELVEN_HELM : ELVEN_CLOAK);
+                            ? ELVEN_HELM : ELVEN_CLOAK);
             if (rn2(2) && mm != PM_ELVEN_WIZARD) {
                 struct obj* mail = m_carrying(mtmp, ELVEN_CHAIN_MAIL);
                 if (mail)
@@ -1976,8 +1976,15 @@ register struct monst *mtmp;
         }
     }
 
-    if ((int) mtmp->m_lev > rn2(75))
-        (void) mongets(mtmp, rnd_offensive_item(mtmp));
+    if ((int) mtmp->m_lev > rn2(75)) {
+        if ((racial_elf(mtmp) || is_dwarf(ptr)
+             || is_gnome(ptr))
+            && Ingtown) {
+            ; /* nothing */
+        } else {
+            (void) mongets(mtmp, rnd_offensive_item(mtmp));
+        }
+    }
 }
 
 /*
