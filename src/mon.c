@@ -318,6 +318,8 @@ struct monst* mdef;
         if (is_izchak(mdef, TRUE) && racial_human(mdef)) {
             pline("But wait!  %s transforms again into his true form!",
                   Monnam(mdef));
+            newcham(mdef, &mons[PM_ARCHANGEL], FALSE, FALSE);
+
             mdef->mcanmove = 1;
             mdef->mfrozen = 0;
             mdef->mstone = 0;
@@ -326,7 +328,7 @@ struct monst* mdef;
             mdef->mwither = 0;
             mdef->mconf = 0;
             mdef->mstun = 0;
-            newcham(mdef, &mons[PM_ARCHANGEL], FALSE, FALSE);
+
             free_erac(mdef);
             mdef->mhp = mdef->mhpmax = 1500;
             newsym(mdef->mx, mdef->my);
@@ -6249,6 +6251,14 @@ struct monst *mtmp;
             You("watch as %s undergoes a transformation, back into her original form.",
                 mon_nam(mtmp));
     }
+
+    if (!u.uachieve.defeat_icequeen) /* should be redundant, but in case of funky business */
+        u.uachieve.defeat_icequeen = 1;
+
+    mvitals[PM_KATHRYN_THE_ICE_QUEEN].died++;
+    livelog_printf(LL_UMONST, "defeated %s", livelog_mon_nam(mtmp));
+    newcham(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], FALSE, FALSE);
+
     mtmp->mcanmove = 1;
     mtmp->mfrozen = 0;
     mtmp->mstone = 0;
@@ -6257,14 +6267,9 @@ struct monst *mtmp;
     mtmp->mwither = 0;
     mtmp->mconf = 0;
     mtmp->mstun = 0;
+    mtmp->minvis = 0;
     mtmp->mpeaceful = 1;
 
-    if (!u.uachieve.defeat_icequeen) /* should be redundant, but in case of funky business */
-        u.uachieve.defeat_icequeen = 1;
-
-    mvitals[PM_KATHRYN_THE_ICE_QUEEN].died++;
-    livelog_printf(LL_UMONST, "defeated %s", livelog_mon_nam(mtmp));
-    newcham(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], FALSE, FALSE);
     if (kathryn_bday()) {
         mtmp->mhp = mtmp->mhpmax = 15000;
     } else {

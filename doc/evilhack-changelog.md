@@ -3148,4 +3148,5 @@ The following changes to date are:
 - Change Shadowblade forging recipe
 - Goblin Town traps spawn in random spots
 - New random Goblin Town map (top level)
+- Make Kathryn the Enchantress visible if invisible as the Ice Queen
 
