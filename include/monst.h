@@ -273,4 +273,6 @@ struct monst {
 
 #define helpless(mon) ((mon)->msleeping || !(mon)->mcanmove)
 
+#define mon_perma_blind(mon) (!mon->mcansee && !mon->mblinded)
+
 #endif /* MONST_H */

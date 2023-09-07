@@ -246,6 +246,17 @@ struct obj *obj; /* aatyp == AT_WEAP, AT_SPIT */
     if (!haseyes(mdef->data))
         return FALSE;
 
+    /* if monster has been permanently blinded, the deed is already done */
+    if (!is_you && mon_perma_blind(mdef))
+        return FALSE;
+
+    /* /corvus oculum corvi non eruit/
+       a saying expressed in Latin rather than a zoological observation:
+       "a crow will not pluck out the eye of another crow"
+       so prevent ravens from blinding each other */
+    if (magr && magr->data == &mons[PM_RAVEN] && mdef->data == &mons[PM_RAVEN])
+        return FALSE;
+
     switch (aatyp) {
     case AT_EXPL:
     case AT_BOOM:
