@@ -2094,11 +2094,12 @@ dosacrifice()
                     if (!canspotself())
                         newsym_force(u.ux, u.uy);
 
-                    if (u.ualign.record > 0 && rnd(u.ualign.record)
-                        > (3 * ALIGNLIM) / (temple_occupied(u.urooms)
-                        ? 12 : u.ulevel)) {
-			    (void) summon_minion(altaralign, TRUE);
-		    }
+                    if (u.ualign.record > 0
+                        && rnd(u.ualign.record) >
+                        (3 * ALIGNLIM) / (temple_occupied(u.urooms)
+                                          ? 12 : u.ulevel)) {
+                        (void) summon_minion(altaralign, TRUE);
+                    }
                     /* anger priest; test handles bones files */
                     if ((pri = findpriest(temple_occupied(u.urooms)))
                         && !p_coaligned(pri))

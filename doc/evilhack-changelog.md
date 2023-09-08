@@ -3150,4 +3150,5 @@ The following changes to date are:
 - New random Goblin Town map (top level)
 - Make Kathryn the Enchantress visible if invisible as the Ice Queen
 - Fix: undoing monsters' permablindness by accident
+- Add archangels to the non-tameable monster list
 
