@@ -2141,7 +2141,7 @@ unearth_you()
     u.uburied = FALSE;
     under_ground(0);
     if (!uamul || uamul->otyp != AMULET_OF_STRANGULATION)
-        Strangled = 0;
+        Strangled = 0L;
     vision_recalc(0);
 }
 

@@ -3955,7 +3955,7 @@ struct monst *mtmp;
                 && (!(uamul && uamul->otyp == AMULET_OF_STRANGULATION))) {
                 /* FIXME: What if the hero was being strangled by some other
                  * source that isn't the amulet? */
-                Strangled = 0;
+                Strangled = 0L;
                 You("can breathe again.");
             }
         }

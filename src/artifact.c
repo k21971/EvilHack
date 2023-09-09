@@ -797,28 +797,45 @@ long wp_mask;
     else
         dtyp = 0;
 
-    if (dtyp == AD_FIRE)
+    if (dtyp == AD_FIRE) {
         mask = &EFire_resistance;
-    else if (dtyp == AD_COLD)
+    } else if (dtyp == AD_COLD) {
         mask = &ECold_resistance;
-    else if (dtyp == AD_ELEC)
+    } else if (dtyp == AD_ELEC) {
         mask = &EShock_resistance;
-    else if (dtyp == AD_MAGM)
+    } else if (dtyp == AD_MAGM) {
         mask = &EAntimagic;
-    else if (dtyp == AD_DISN)
+    } else if (dtyp == AD_DISN) {
         mask = &EDisint_resistance;
-    else if (dtyp == AD_DRST)
+    } else if (dtyp == AD_DRST) {
         mask = &EPoison_resistance;
-    else if (dtyp == AD_DRLI)
+    } else if (dtyp == AD_DRLI) {
         mask = &EDrain_resistance;
-    else if (dtyp == AD_ACID)
+    } else if (dtyp == AD_ACID) {
         mask = &EAcid_resistance;
-    else if (dtyp == AD_STON)
+    } else if (dtyp == AD_STON) {
         mask = &EStone_resistance;
-    else if (dtyp == AD_DISE)
+        if (Stoned) {
+            make_stoned(0L, "You no longer seem to be petrifying.", 0,
+                        (char *) 0);
+        }
+    } else if (dtyp == AD_DISE) {
         mask = &ESick_resistance;
-    else if (dtyp == AD_DETH)
+        if (Sick) {
+            You_feel("cured.  What a relief!");
+            Sick = 0L;
+        }
+    } else if (dtyp == AD_DETH) {
         mask = &EDeath_resistance;
+    } else if (dtyp == AD_STUN) {
+        mask = &EStun_resistance;
+        if (Stunned) {
+            You_feel("%s now.",
+                     Hallucination ? "less wobbly"
+                                   : "a bit steadier");
+            Stunned = 0L;
+        }
+    }
 
     if (mask && wp_mask == W_ART && !on) {
         /* find out if some other artifact also confers this intrinsic;
@@ -1650,9 +1667,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     boolean vis = (!youattack && magr && cansee(magr->mx, magr->my))
                   || (!youdefend && cansee(mdef->mx, mdef->my))
                   || (youattack && u.uswallow && mdef == u.ustuck && !Blind);
-    /* used to determine if an instakill message should be shown. 
-     * currently consistent with behavior of other instakill weapons,
-     * but not realizes_damage */
+    /* used to determine if an instakill message should be shown.
+       currently consistent with behavior of other instakill weapons,
+       but not realizes_damage */
     boolean show_instakill = (youattack || youdefend || vis);
     boolean realizes_damage;
     const char *wepdesc;

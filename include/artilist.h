@@ -178,8 +178,9 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *                      --Koko, Lord high executioner of Titipu
      *                        (From Sir W.S. Gilbert's "The Mikado")
      */
-    A("Snickersnee", KATANA, SPFX_RESTR, 0, 0, PHYS(5, 8), NO_DFNS, NO_CARY,
-      0, A_LAWFUL, PM_SAMURAI, NON_PM, 1200L, NO_COLOR, DEFAULT_MAT),
+    A("Snickersnee", KATANA, (SPFX_RESTR | SPFX_DEFN), 0, 0,
+      PHYS(5, 8), DFNS(AD_STUN), NO_CARY, 0, A_LAWFUL, PM_SAMURAI,
+      NON_PM, 1800L, NO_COLOR, DEFAULT_MAT),
     /*
      *      Sunsword from SporkHack warned of nearby undead
      */

@@ -3151,4 +3151,6 @@ The following changes to date are:
 - Make Kathryn the Enchantress visible if invisible as the Ice Queen
 - Fix: undoing monsters' permablindness by accident
 - Add archangels to the non-tameable monster list
+- Fix: gaining certain resistances would not cure current effect they
+  protect against / Snickersnee grants stun resistance when wielded
 

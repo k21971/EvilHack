@@ -963,6 +963,10 @@ dragon_armor_handling(struct obj *otmp, boolean puton)
     case GREEN_DRAGON_SCALES:
         if (puton) {
             ESick_resistance |= W_ARM;
+            if (Sick) {
+                You_feel("cured.  What a relief!");
+                Sick = 0L;
+            }
         } else {
             ESick_resistance &= ~W_ARM;
         }
@@ -1020,6 +1024,12 @@ dragon_armor_handling(struct obj *otmp, boolean puton)
     case SHIMMERING_DRAGON_SCALES:
         if (puton) {
             toggle_displacement(uarm, (EDisplaced & ~W_ARM), TRUE);
+            if (Stunned) {
+                You_feel("%s now.",
+                         Hallucination ? "less wobbly"
+                                       : "a bit steadier");
+                Stunned = 0L;
+            }
             EStun_resistance |= W_ARM;
         } else {
             toggle_displacement(otmp, (EDisplaced & ~W_ARM), FALSE);
@@ -1030,7 +1040,7 @@ dragon_armor_handling(struct obj *otmp, boolean puton)
         if (puton) {
             if (Strangled) {
                 You("can suddenly breathe again!");
-                Strangled = 0;
+                Strangled = 0L;
             }
             ESwimming |= W_ARM;
         } else {
@@ -1274,7 +1284,7 @@ Amulet_on()
              * strangulation constricts the neck and ignores magical breathing.
              */
             You("can suddenly breathe again!");
-            Strangled = 0;
+            Strangled = 0L;
         }
         break;
     case AMULET_OF_UNCHANGING:
