@@ -1203,9 +1203,19 @@ struct obj *obj;
         && is_wraith(mtmp->data))
         return FALSE;
 
+    /* steeds' disposition matches their owners.
+       it shouldn't be changed independently */
+    if (mtmp->ridden_by)
+        return FALSE;
+
     /* worst case, at least it'll be peaceful. */
     mtmp->mpeaceful = 1;
     set_malign(mtmp);
+    /* steeds follow their riders' direction */
+    if (has_erid(mtmp)) {
+        ERID(mtmp)->mon_steed->mpeaceful = 1;
+        set_malign(ERID(mtmp)->mon_steed);
+    }
     if (flags.moonphase == FULL_MOON && night() && rn2(6) && obj
         && mtmp->data->mlet == S_DOG)
         return FALSE;
@@ -1219,6 +1229,10 @@ struct obj *obj;
     /* If we cannot tame it, at least it's no longer afraid. */
     mtmp->mflee = 0;
     mtmp->mfleetim = 0;
+    if (has_erid(mtmp)) {
+        ERID(mtmp)->mon_steed->mflee = 0;
+        ERID(mtmp)->mon_steed->mfleetim = 0;
+    }
 
     /* make grabber let go now, whether it becomes tame or not */
     if (mtmp == u.ustuck) {
@@ -1226,6 +1240,12 @@ struct obj *obj;
             expels(mtmp, mtmp->data, TRUE);
         else if (!(Upolyd && sticks(youmonst.data)))
             unstuck(mtmp);
+    }
+    if (has_erid(mtmp) && ERID(mtmp)->mon_steed == u.ustuck) {
+        if (u.uswallow)
+            expels(ERID(mtmp)->mon_steed, mtmp->data, TRUE);
+        else if (!(Upolyd && sticks(youmonst.data)))
+            unstuck(ERID(mtmp)->mon_steed);
     }
 
     /* feeding it treats makes it tamer */
@@ -1282,6 +1302,15 @@ struct obj *obj;
     if (mtmp->m_id == quest_status.leader_m_id)
         return FALSE;
 
+    /* don't allow pets to ride.
+       note their steed will not become tame, though it will be peaceful.
+       this allows for minor abuse with making ki-rin and maybe unicorns
+       peaceful, but most steeds already have pretty low MR. */
+    if (has_erid(mtmp)) {
+        if (canseemon(mtmp))
+            pline("%s pats %s steed and clambers off.", Monnam(mtmp), mhis(mtmp));
+        separate_steed_and_rider(mtmp);
+    }
     /* add the pet extension */
     newedog(mtmp);
     initedog(mtmp);
