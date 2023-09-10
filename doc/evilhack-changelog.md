@@ -3155,4 +3155,5 @@ The following changes to date are:
   protect against / Snickersnee grants stun resistance when wielded
 - Fix: tame monsters and riding
 - Sword of Annihilation recipe changes
+- Fix: add bracers to pair_of() define
 

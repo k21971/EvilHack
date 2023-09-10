@@ -447,7 +447,7 @@ struct obj {
          && !undiscovered_artifact(ART_EYES_OF_THE_OVERWORLD)))
 #define pair_of(o) \
     ((o)->otyp == LENSES || (o)->otyp == GOGGLES \
-     || is_gloves(o) || is_boots(o))
+     || is_gloves(o) || is_boots(o) || is_bracer(o))
 
 #define bypass_forging_rules(obj) \
     ((obj)->otyp == SADDLE                     \
