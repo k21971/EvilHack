@@ -1307,7 +1307,8 @@ struct obj *obj;
        this allows for minor abuse with making ki-rin and maybe unicorns
        peaceful, but most steeds already have pretty low MR. */
     if (has_erid(mtmp)) {
-        pline("%s pats %s steed and clambers off.", Monnam(mtmp), mhis(mtmp));
+        if (canseemon(mtmp))
+            pline("%s pats %s steed and clambers off.", Monnam(mtmp), mhis(mtmp));
         separate_steed_and_rider(mtmp);
     }
     /* add the pet extension */
