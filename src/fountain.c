@@ -505,7 +505,12 @@ static const struct forge_arti {
     short typ2;
 } artifusions[] = {
     /* artifacts */
-    { ART_SWORD_OF_ANNIHILATION, ART_FIRE_BRAND, ART_FROST_BRAND },
+
+    /* the sword of annihilation has two different recipes; either
+       body part from Vecna will suffice in its creation */
+    { ART_SWORD_OF_ANNIHILATION, ART_ANGELSLAYER, ART_EYE_OF_VECNA },
+    { ART_SWORD_OF_ANNIHILATION, ART_ANGELSLAYER, ART_HAND_OF_VECNA },
+    /* forged artifacts made from existing regular artifacts */
     { ART_GLAMDRING, ART_ORCRIST, ART_STING },
     { ART_STAFF_OF_THE_ARCHMAGI, ART_MAGICBANE, ART_SECESPITA },
     { ART_SHADOWBLADE, ART_STORMBRINGER, ART_WEREBANE },
@@ -513,6 +518,8 @@ static const struct forge_arti {
     { ART_ASHMAR, ART_TROLLSBANE, ART_OGRESMASHER },
     { ART_HAMMER_OF_THE_GODS, ART_SUNSWORD, ART_DEMONBANE },
     { ART_TEMPEST, ART_CLEAVER, ART_MJOLLNIR },
+    /* forged artifacts that require at least one other forged
+       artifact to be created */
     { ART_ITHILMAR, ART_VORPAL_BLADE, ART_GAUNTLETS_OF_PURITY },
     { ART_ARMOR_OF_RETRIBUTION, ART_SWORD_OF_ANNIHILATION, ART_ASHMAR },
     { 0, 0, 0 }

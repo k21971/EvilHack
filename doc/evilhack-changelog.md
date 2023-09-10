@@ -3154,4 +3154,5 @@ The following changes to date are:
 - Fix: gaining certain resistances would not cure current effect they
   protect against / Snickersnee grants stun resistance when wielded
 - Fix: tame monsters and riding
+- Sword of Annihilation recipe changes
 
