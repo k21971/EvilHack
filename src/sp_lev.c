@@ -4404,6 +4404,8 @@ genericptr_t arg;
     if (IS_FURNITURE(levl[x][y].typ))
         return;
     levl[x][y].typ = (*(int *) arg);
+    if IS_FORGE(levl[x][y].typ)
+        levl[x][y].lit = TRUE;
 }
 
 void

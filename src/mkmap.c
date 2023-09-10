@@ -367,7 +367,7 @@ boolean lit, walled, icedpools;
        ice might be frozen pool rather than frozen moat */
     for (i = 1; i < COLNO; i++)
         for (j = 0; j < ROWNO; j++) {
-            if (levl[i][j].typ == LAVAPOOL)
+            if (levl[i][j].typ == LAVAPOOL || levl[i][j].typ == FORGE)
                 levl[i][j].lit = TRUE;
             else if (levl[i][j].typ == ICE)
                 levl[i][j].icedpool = icedpools ? ICED_POOL : ICED_MOAT;
