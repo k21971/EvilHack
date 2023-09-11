@@ -3158,4 +3158,5 @@ The following changes to date are:
 - Fix: add bracers to pair_of() define
 - Fix: forges are always lit
 - New forging artifact recipe - Dichotomy
+- More 'merge various skills'
 

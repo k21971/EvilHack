@@ -137,7 +137,7 @@ int shotlimit;
         && !(Confusion || Stunned)) {
         /* some roles don't get a volley bonus until becoming expert */
         weakmultishot = (Role_if(PM_WIZARD) || Role_if(PM_PRIEST)
-                         || (Role_if(PM_HEALER) && skill != P_KNIFE)
+                         || Role_if(PM_HEALER)
                          || (Role_if(PM_INFIDEL) && skill != P_DAGGER)
                          || (Role_if(PM_TOURIST) && skill != -P_DART)
                          /* poor dexterity also inhibits multishot */
@@ -226,8 +226,7 @@ int shotlimit;
                 break;
             case PM_HOBBIT:
                 /* Hobbits are also good with slings and small blades */
-                if ((skill == -P_SLING) || (skill == P_KNIFE)
-                    || (skill == P_DAGGER))
+                if ((skill == -P_SLING) || (skill == P_DAGGER))
                     multishot++;
                 break;
             case PM_CENTAUR:
