@@ -1434,6 +1434,7 @@ struct obj *obj;
                   || wielding_artifact(ART_FIRE_BRAND)
                   || wielding_artifact(ART_XIUHCOATL)
                   || wielding_artifact(ART_ANGELSLAYER)
+                  || wielding_artifact(ART_DICHOTOMY)
                   || (u.twoweap && uswapwep->oprops & ITEM_FIRE)
                   || (uwep && uwep->oprops & ITEM_FIRE)) ? 25 : 5;
         break;
@@ -1441,6 +1442,7 @@ struct obj *obj;
         if (!(resists_cold(mon) || defended(mon, AD_COLD)))
             rc = (dmgtype(youmonst.data, AD_COLD)
                   || wielding_artifact(ART_FROST_BRAND)
+                  || wielding_artifact(ART_DICHOTOMY)
                   || (u.twoweap && uswapwep->oprops & ITEM_FROST)
                   || (uwep && uwep->oprops & ITEM_FROST)) ? 25 : 5;
         break;

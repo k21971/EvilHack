@@ -6108,6 +6108,10 @@ int osym, dmgtyp;
         if (dmgtyp == AD_ELEC && wielding_artifact(ART_TEMPEST))
             continue; /* tempest grants shock resistance
                          to objects in open inventory */
+        if ((dmgtyp == AD_FIRE || dmgtyp == AD_COLD)
+            && wielding_artifact(ART_DICHOTOMY))
+            continue; /* dichotomy grants fire/cold resistance
+                         to objects in open inventory */
 
         /* if loss of this item might dump us onto a trap, hold off
            until later because potential recursive destroy_item() will
@@ -6170,6 +6174,10 @@ int osym, dmgtyp;
         if (dmgtyp == AD_ELEC && MON_WEP(mtmp)
             && MON_WEP(mtmp)->oartifact == ART_TEMPEST)
             continue; /* tempest grants shock resistance
+                         to objects in open inventory */
+        if ((dmgtyp == AD_FIRE || dmgtyp == AD_COLD)
+            && MON_WEP(mtmp) && MON_WEP(mtmp)->oartifact == ART_DICHOTOMY)
+            continue; /* dichotomy grants fire/cold resistance
                          to objects in open inventory */
         skip = 0;
         quan = 0L;

@@ -2117,8 +2117,13 @@ int dieroll;
 #if 0
     /* debug pline to verify damage dealt from whatever
        object hits its target */
-    if (wizard)
-        pline("Damage from %s: %d.", simpleonames(obj), tmp);
+    if (wizard) {
+        /* check that an obj exists (e.g. attacking with a potion,
+           or a glass dagger, or something else that could get
+           used up) */
+        if (obj)
+            pline("Damage from %s: %d.", simpleonames(obj), tmp);
+    }
 #endif
 
     return destroyed ? FALSE : TRUE;
@@ -3447,7 +3452,7 @@ register struct attack *mattk;
     case AD_ACID:
         /* See comment in mon_explodes() and in zap.c for an explanation of this
          * math.  Here, the player is causing the explosion, so it should be in
-         * the +20 to +29 range instead of negative. */
+         * the +20 to +30 range instead of negative. */
         explode(u.ux, u.uy, (mattk->adtyp - 1) + 20, tmp, MON_EXPLODE,
                 adtyp_to_expltype(mattk->adtyp));
         if (mdef && mattk->adtyp == AD_ACID) {

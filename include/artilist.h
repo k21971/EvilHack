@@ -39,6 +39,7 @@ static const char *artifact_names[] = {
 #define     STON(a,b)   {0,AD_STON,a,b}         /* petrification */
 #define     DETH(a,b)   {0,AD_DETH,a,b}         /* special death attack */
 #define     DISN(a,b)   {0,AD_DISN,a,b}         /* disintegration attack */
+#define     FUSE(a,b)   {0,AD_FUSE,a,b}         /* combine fire and cold attack */
 
 #define DEFAULT_MAT 0 /* use base object's default material */
 /* clang-format on */
@@ -92,7 +93,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      damage bonus applies to all targets rather than just elves
      *      (handled as special case in spec_dbon()).
      */
-    A("Grimtooth", ORCISH_DAGGER, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH),
+    A("Grimtooth", ORCISH_DAGGER,
+      (SPFX_RESTR | SPFX_ATTK | SPFX_WARN | SPFX_DFLAGH),
       0, MH_ELF | MH_DROW, DISE(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
       NON_PM, PM_ORC, 1500L, CLR_RED, DEFAULT_MAT),
     /*
@@ -318,10 +320,11 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      */
 
     /* The Sword of Annihilation can only be created by forging the
-       artifacts Fire Brand and Frost Brand together. Their combined
-       magic and energy form to produce a sword capable of
-       disintegrating most anything it hits, while protecting the
-       one that wields it from the same type of attack */
+       artifacts Angelslayer and either of the Vecna artifacts
+       (eye or hand) together. Their combined magic and energy form
+       to produce a sword capable of disintegrating most anything it
+       hits, while protecting the one that wields it from the same type
+       of attack */
     A("The Sword of Annihilation", LONG_SWORD,
       (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK
        | SPFX_DEFN | SPFX_INTEL),
@@ -426,6 +429,14 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        | SPFX_INTEL | SPFX_PROTECT | SPFX_HPHDAM | SPFX_HSPDAM),
       0, 0, NO_ATTK, DFNS(AD_DISN), CARY(AD_ACID), 0, A_NONE,
       NON_PM, NON_PM, 60000L, NO_COLOR, DEFAULT_MAT),
+    /* Dichotomy is a crystal runed broadsword that is created by forging
+       Fire Brand and Frost Brand together. It inhereits the damage types
+       and protection from both (fire/cold) */
+    A("Dichotomy", RUNESWORD,
+      (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK
+       | SPFX_DEFN), 0, 0,
+      FUSE(8, 0), DFNS(AD_FUSE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 15000L,
+      NO_COLOR, GEMSTONE),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

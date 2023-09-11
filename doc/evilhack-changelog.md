@@ -3156,4 +3156,6 @@ The following changes to date are:
 - Fix: tame monsters and riding
 - Sword of Annihilation recipe changes
 - Fix: add bracers to pair_of() define
+- Fix: forges are always lit
+- New forging artifact recipe - Dichotomy
 

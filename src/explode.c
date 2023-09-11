@@ -143,7 +143,7 @@ int expltype;
         /* If str is e.g. "flaming sphere's explosion" from above, we want to
          * still assign adtyp appropriately, but not replace str. */
         const char *adstr = NULL;
-        switch (abs(type) % 11) {
+        switch (abs(type) % 10) {
         case 0:
             adstr = "magical blast";
             adtyp = AD_MAGM;
@@ -269,7 +269,7 @@ int expltype;
                         break;
                     case AD_ACID:
                         explmask[i][j] |= (resists_acid(mtmp)
-                                           || defended(mtmp, AD_DRST));
+                                           || defended(mtmp, AD_ACID));
                         break;
                     default:
                         impossible("explosion type %d?", adtyp);
@@ -898,8 +898,8 @@ boolean diluted_oil;
 {
     int dmg = d(diluted_oil ? 3 : 4, 4);
 
-/* ZT_SPELL(ZT_FIRE) = ZT_SPELL(AD_FIRE-1) = 11+(2-1) = 12 */
-#define ZT_SPELL_O_FIRE 12 /* value kludge, see zap.c */
+/* ZT_SPELL(ZT_FIRE) = ZT_SPELL(AD_FIRE-1) = 10+(2-1) = 11 */
+#define ZT_SPELL_O_FIRE 11 /* value kludge, see zap.c */
     explode(x, y, ZT_SPELL_O_FIRE, dmg, BURNING_OIL, EXPL_FIERY);
 }
 

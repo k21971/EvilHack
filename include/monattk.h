@@ -89,11 +89,12 @@
 #define AD_WTHR 51  /* withering attack (mummies) */
 #define AD_PITS 52  /* create pit under target (pit fiend) */
 #define AD_WEBS 53  /* entangles target in webbing */
-#define AD_CURS 54  /* random curse (ex. gremlin) */
-#define AD_CLRC 55  /* random clerical spell */
-#define AD_SPEL 56  /* random magic spell */
-#define AD_RBRE 57  /* random breath weapon */
-#define AD_SAMU 58  /* hits, may steal Amulet (Wizard) */
+#define AD_FUSE 54  /* combines different damage types into one type */
+#define AD_CURS 55  /* random curse (ex. gremlin) */
+#define AD_CLRC 56  /* random clerical spell */
+#define AD_SPEL 57  /* random magic spell */
+#define AD_RBRE 58  /* random breath weapon */
+#define AD_SAMU 59  /* hits, may steal Amulet (Wizard) */
 #define LAST_AD AD_SAMU
 
 /*

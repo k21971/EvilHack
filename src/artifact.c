@@ -700,8 +700,13 @@ struct obj *otmp;
 
     if (!otmp)
         return FALSE;
-    if ((weap = get_artifact(otmp)) != 0)
+    if ((weap = get_artifact(otmp)) != 0) {
+        if (weap->defn.adtyp == AD_FUSE
+            && (adtyp == AD_FIRE || adtyp == AD_COLD))
+            return TRUE;
         return (boolean) (weap->defn.adtyp == adtyp);
+    }
+
     if (Is_dragon_armor(otmp)) {
         int otyp = Dragon_armor_to_scales(otmp);
 
@@ -724,6 +729,8 @@ struct obj *otmp;
         case AD_DISN: /* disintegration */
             return (otyp == BLACK_DRAGON_SCALES);
         case AD_ELEC: /* electricity == lightning */
+            return (otyp == BLUE_DRAGON_SCALES
+                    || otyp == CELESTIAL_DRAGON_SCALES);
         case AD_SLOW: /* confers speed so blocks speed removal */
             return (otyp == BLUE_DRAGON_SCALES);
         case AD_ACID:
@@ -783,6 +790,7 @@ boolean on;
 long wp_mask;
 {
     long *mask = 0;
+    long *mask2 = 0;
     register const struct artifact *art, *oart = get_artifact(otmp);
     register struct obj *obj;
     register uchar dtyp;
@@ -835,6 +843,9 @@ long wp_mask;
                                    : "a bit steadier");
             Stunned = 0L;
         }
+    } else if (dtyp == AD_FUSE) {
+        mask  = &EFire_resistance;
+        mask2 = &ECold_resistance;
     }
 
     if (mask && wp_mask == W_ART && !on) {
@@ -855,6 +866,12 @@ long wp_mask;
             *mask |= wp_mask;
         else
             *mask &= ~wp_mask;
+    }
+    if (mask2) { /* special handling for AD_FUSE */
+        if (on)
+            *mask2 |= wp_mask;
+        else
+            *mask2 &= ~wp_mask;
     }
 
     /* intrinsics from the spfx field; there could be more than one */
@@ -1228,6 +1245,10 @@ struct monst *mtmp;
             return !(yours ? Death_resistance : immune_death_magic(ptr));
         case AD_DISN:
             return !(yours ? Disint_resistance : resists_disint(mtmp));
+        case AD_FUSE:
+            return !(!yours ? (resists_fire(mtmp) && resists_cold(mtmp))
+                            : ((how_resistant(FIRE_RES) > 99) && (how_resistant(COLD_RES) > 99))
+                                ? TRUE : FALSE);
         default:
             impossible("Weird weapon special attack.");
         }
@@ -1279,32 +1300,32 @@ int tmp;
     if (!weap && otmp->oprops
         && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))) {
         /* until we know otherwise... */
-        if ((attacks(adtype = AD_FIRE, otmp)
-            && ((yours) ? !(Fire_resistance || Underwater)
-                        : !(resists_fire(mon) || mon_underwater(mon))))
-                || (attacks(adtype = AD_COLD, otmp)
-                    && ((yours) ? (!Cold_resistance) : (!resists_cold(mon))))
-                        || (attacks(adtype = AD_ELEC, otmp)
-                            && ((yours) ? (!Shock_resistance) : (!resists_elec(mon))))
-                                || (attacks(adtype = AD_DRST, otmp)
-                                    && ((yours) ? (!Poison_resistance) : (!resists_poison(mon))))
-                || (attacks(adtype = AD_ACID, otmp)
-                    && ((yours) ? !(Acid_resistance || Underwater)
-                                : !(resists_acid(mon) || mon_underwater(mon))))
-                        || (attacks(adtype = AD_DISE, otmp)
-                            && ((yours) ? (!Sick_resistance) : (!resists_sick(mon->data))))
-                                || (attacks(adtype = AD_DETH, otmp)
-                                    && ((yours) ? (!Death_resistance) : (!immune_death_magic(mon->data))))
-                                        || (attacks(adtype = AD_DISN, otmp)
-                                            && ((yours) ? (!Disint_resistance) : (!resists_disint(mon))))) {
+        if (((attacks(adtype = AD_FIRE, otmp) || attacks(adtype = AD_FUSE, otmp))
+             && ((yours) ? !(Fire_resistance || Underwater)
+                         : !(resists_fire(mon) || defended(mon, AD_FIRE) || mon_underwater(mon))))
+                 || ((attacks(adtype = AD_COLD, otmp) || attacks(adtype = AD_FUSE, otmp))
+                     && ((yours) ? (!Cold_resistance) : !(resists_cold(mon) || defended(mon, AD_COLD))))
+                         || (attacks(adtype = AD_ELEC, otmp)
+                             && ((yours) ? (!Shock_resistance) : !(resists_elec(mon) || defended(mon, AD_ELEC))))
+                 || (attacks(adtype = AD_DRST, otmp)
+                     && ((yours) ? (!Poison_resistance) : !(resists_poison(mon) || defended(mon, AD_DRST))))
+                         || (attacks(adtype = AD_ACID, otmp)
+                             && ((yours) ? !(Acid_resistance || Underwater)
+                                         : !(resists_acid(mon) || defended(mon, AD_ACID) || mon_underwater(mon))))
+                 || (attacks(adtype = AD_DISE, otmp)
+                     && ((yours) ? (!Sick_resistance) : !(resists_sick(mon->data) || defended(mon, AD_DISE))))
+                         || (attacks(adtype = AD_DETH, otmp)
+                             && ((yours) ? (!Death_resistance) : (!immune_death_magic(mon->data))))
+                 || (attacks(adtype = AD_DISN, otmp)
+                     && ((yours) ? (!Disint_resistance) : !(resists_disint(mon) || defended(mon, AD_DISN))))) {
 
             spec_dbon_applies = TRUE;
             /* majority of ITEM_VENOM damage
              * handled in src/uhitm.c */
-            if (otmp->oprops & ITEM_VENOM)
+            if (otmp->oprops & ITEM_VENOM) {
                 /* don't worry about vulnerability (it doesn't exist for poison anyway) */
                 return rnd(2);
-            else {
+            } else {
                 dbon = rnd(5) + 3;
                 if (vulnerable_to(mon, adtype))
                     dbon = ((3 * dbon) + 1) / 2;
@@ -1312,7 +1333,8 @@ int tmp;
             }
         }
         if ((otmp->oprops & ITEM_DRLI)
-            && ((yours) ? (!Drain_resistance) : (!resists_drli(mon)))) {
+            && ((yours) ? (!Drain_resistance)
+                        : !(resists_drli(mon) || defended(mon, AD_DRLI)))) {
             spec_dbon_applies = TRUE;
             return 0;
         }
@@ -1323,7 +1345,8 @@ int tmp;
                   && weap->attk.damn == 0 && weap->attk.damd == 0))
         spec_dbon_applies = FALSE;
     else if ((otmp->oartifact == ART_GRIMTOOTH
-              && !(yours ? Sick_resistance : resists_sick(mon->data)))
+              && !(yours ? Sick_resistance
+                         : (resists_sick(mon->data) || defended(mon, AD_DISE))))
              || otmp->oartifact == ART_SHADOWBLADE
              || otmp->oartifact == ART_VORPAL_BLADE
              || (otmp->oartifact == ART_ANGELSLAYER
@@ -1344,9 +1367,17 @@ int tmp;
            it would double-count the damage when the weapon hits */
         if (vulnerable_to(mon, weap->attk.adtyp))
             dbon = ((3 * dbon) + 1) / 2;
+        /* damage bonus doubles if Dichotomy hits a target that resists
+           neither fire or cold */
+        if (otmp->oartifact == ART_DICHOTOMY
+            && (yours ? (!Fire_resistance && !Cold_resistance)
+                      : (!(resists_fire(mon) || defended(mon, AD_FIRE))
+                         && !(resists_cold(mon) || defended(mon, AD_COLD)))))
+            dbon = (2 * dbon) + 1;
         /* hellfire is mitigated by fire resistance */
         if (otmp->oartifact == ART_ANGELSLAYER
-            && (yours ? Fire_resistance : resists_fire(mon)))
+            && (yours ? Fire_resistance
+                      : (resists_fire(mon) || defended(mon, AD_FIRE))))
             dbon = (dbon + 1) / 2;
         return dbon;
     }
@@ -1878,11 +1909,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
            successful hit, and can cause additional
            electrical damage (area of effect) */
         if (!rn2(5)
-            && spec_dbon_applies && otmp->oartifact == ART_TEMPEST)
+            && spec_dbon_applies && otmp->oartifact == ART_TEMPEST) {
+            pline("A massive surge of energy courses through the halberd!");
             explode(mdef->mx, mdef->my,
                     (youattack ? (AD_ELEC - 1) + 20
                                : -((AD_ELEC - 1) + 20)), d(6, 6),
                     (youattack ? 0 : MON_CASTBALL), EXPL_SHOCK);
+        }
 
         if (!rn2(5))
             (void) destroy_mitem(mdef, RING_CLASS, AD_ELEC);
@@ -2219,6 +2252,64 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 }
             }
         }
+        return realizes_damage;
+    }
+    /* Ninth basic attack, combines fire and cold together */
+    if (attacks(AD_FUSE, otmp)) {
+        if (realizes_damage) {
+            if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))
+                && (resists_cold(mdef) || defended(mdef, AD_COLD))) {
+                pline_The("scintillating blade %s %s%c",
+                          !spec_dbon_applies
+                              ? "hits"
+                              : can_vaporize(mdef->data)
+                                  ? "vaporizes part of"
+                                  : mon_underwater(mdef) ? "hits" : "burns",
+                          hittee, !spec_dbon_applies ? '.' : '!');
+            } else if (!(resists_cold(mdef) || defended(mdef, AD_COLD))
+                       && (resists_fire(mdef) || defended(mdef, AD_FIRE))) {
+                pline_The("scintillating blade %s %s%c",
+                          !spec_dbon_applies
+                              ? "hits"
+                              : can_freeze(mdef->data)
+                                  ? "freezes part of"
+                                  : "freezes",
+                          hittee,  !spec_dbon_applies ? '.' : '!');
+            } else {
+                pline_The("scintillating blade %s %s%c",
+                          !spec_dbon_applies
+                              ? "hits" : "sears",
+                          hittee,  !spec_dbon_applies ? '.' : '!');
+            }
+
+            /* Dichotomy has a chance of exploding either
+               a ball of fire or cold on a successful hit,
+               and can cause additional elemental damage
+               (area of effect) */
+            if (!rn2(6) && spec_dbon_applies) {
+                pline("A surge of power flows through the blade!");
+                if (rn2(2))
+                    explode(mdef->mx, mdef->my,
+                            (youattack ? (AD_FIRE - 1) + 20
+                                       : -((AD_FIRE - 1) + 20)), d(4, 6),
+                            (youattack ? 0 : MON_CASTBALL), EXPL_FIERY);
+                else
+                    explode(mdef->mx, mdef->my,
+                            (youattack ? (AD_COLD - 1) + 20
+                                       : -((AD_COLD - 1) + 20)), d(4, 6),
+                            (youattack ? 0 : MON_CASTBALL), EXPL_FROSTY);
+            }
+        }
+        if (!rn2(4))
+            (void) destroy_mitem(mdef, POTION_CLASS, AD_COLD);
+        if (!rn2(4))
+            (void) destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
+        if (!rn2(4))
+            (void) destroy_mitem(mdef, SCROLL_CLASS, AD_FIRE);
+        if (!rn2(7))
+            (void) destroy_mitem(mdef, SPBOOK_CLASS, AD_FIRE);
+        if (youdefend && Slimed)
+            burn_away_slime();
         return realizes_damage;
     }
 

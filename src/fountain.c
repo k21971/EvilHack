@@ -518,6 +518,7 @@ static const struct forge_arti {
     { ART_ASHMAR, ART_TROLLSBANE, ART_OGRESMASHER },
     { ART_HAMMER_OF_THE_GODS, ART_SUNSWORD, ART_DEMONBANE },
     { ART_TEMPEST, ART_CLEAVER, ART_MJOLLNIR },
+    { ART_DICHOTOMY, ART_FIRE_BRAND, ART_FROST_BRAND },
     /* forged artifacts that require at least one other forged
        artifact to be created */
     { ART_ITHILMAR, ART_VORPAL_BLADE, ART_GAUNTLETS_OF_PURITY },
