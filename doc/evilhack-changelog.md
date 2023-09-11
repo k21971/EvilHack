@@ -3159,4 +3159,5 @@ The following changes to date are:
 - Fix: forges are always lit
 - New forging artifact recipe - Dichotomy
 - More 'merge various skills'
+- Rangers gain broadsword skill
 
