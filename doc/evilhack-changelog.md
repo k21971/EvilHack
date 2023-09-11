@@ -3160,4 +3160,5 @@ The following changes to date are:
 - New forging artifact recipe - Dichotomy
 - More 'merge various skills'
 - Rangers gain broadsword skill
+- Revert 'Allow helm of speed to be made of more materials'
 

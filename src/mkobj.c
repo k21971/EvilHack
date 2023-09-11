@@ -3495,27 +3495,6 @@ static const struct icp sling_bullet_materials[] = {
     { 10, PLATINUM}
 };
 
-/* special case array for helm of speed */
-static const struct icp helm_speed_materials[] = {
-    {300, 0}, /* default to base type, steel */
-    {250, LEATHER},
-    {120, CLOTH},
-    { 70, BONE},
-    { 50, METAL},
-    { 50, WOOD},
-    { 40, SILVER},
-    { 40, COPPER},
-    { 30, MITHRIL},
-    { 10, GOLD},
-    { 10, GLASS},
-    { 10, MINERAL},
-    { 10, PLATINUM},
-    {  8, DRAGON_HIDE},
-    {  2, ADAMANTINE}
-};
-
-
-
 /* Return the appropriate above list for a given object, or NULL if there isn't
  * an appropriate list. */
 const struct icp*
@@ -3640,8 +3619,6 @@ struct obj* obj;
             return rod_materials;
         case SLING_BULLET:
             return sling_bullet_materials;
-        case HELM_OF_SPEED:
-            return helm_speed_materials;
         default:
             break;
     }
