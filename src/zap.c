@@ -226,6 +226,13 @@ struct obj *otmp;
                     dmg = d(4, 6);
                 else
                     dmg = d(2, 6);
+
+                if (!rn2(4) && uarmh && uarmh->otyp == HELM_OF_TELEPATHY) {
+                    Your("%s focuses your psychic attack!",
+                         helm_simple_name(uarmh));
+                    dmg += rnd(6) + 2; /* 3-8 hit points extra damage */
+                }
+
                 damage_mon(mtmp, dmg, AD_PSYC);
                 if (DEADMONSTER(mtmp)) {
                     killed(mtmp);

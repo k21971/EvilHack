@@ -3161,4 +3161,6 @@ The following changes to date are:
 - More 'merge various skills'
 - Rangers gain broadsword skill
 - Revert 'Allow helm of speed to be made of more materials'
+- Wearing a helm of telepathy can focus psychic attacks, tweak to
+  ESP object property
 

@@ -978,6 +978,7 @@ boolean wiz_cast;
      * decrement of spell knowledge is done every turn.
      */
     if (wiz_cast) {
+        ;
     } else if (spellknow(spell) <= 0) {
         if (spellid(spell) == SPE_PSIONIC_WAVE)
             You("have somehow lost your psychic ability!");
