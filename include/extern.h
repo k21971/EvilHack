@@ -2222,6 +2222,7 @@ E void NDECL(clearpriests);
 E void FDECL(restpriest, (struct monst *, BOOLEAN_P));
 E void FDECL(newepri, (struct monst *));
 E void FDECL(free_epri, (struct monst *));
+E int NDECL(dogenocided);
 E const char *FDECL(align_str, (ALIGNTYP_P));
 E char *FDECL(piousness, (BOOLEAN_P, const char *));
 E void FDECL(mstatusline, (struct monst *));

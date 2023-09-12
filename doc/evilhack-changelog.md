@@ -3168,4 +3168,5 @@ The following changes to date are:
 - Fix: mind flayer attacking without knowing your location
 - Dichotomy tweaks
 - Stop handing out blank spellbooks as a prayer/sacrifice gift
+- Add #genocided command
 
