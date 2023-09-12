@@ -128,8 +128,7 @@ const char *msg;
                        !has_ceiling(&u.uz) ? "without ceiling"
                                            : "in solid stone",
                        msg);
-        if (mtmp->mtrapped && (t = t_at(mtmp->mx, mtmp->my)) != 0
-            && !(t->ttyp == PIT || t->ttyp == SPIKED_PIT))
+        if (mtmp->mtrapped && (t = t_at(mx, my)) != 0 && !is_pit(t->ttyp))
             impossible("hiding while trapped in a non-pit (%s)", msg);
     }
 
@@ -5040,21 +5039,12 @@ maybe_unhide_at(x, y)
 xchar x, y;
 {
     struct monst *mtmp;
-    boolean undetected = FALSE, trapped = FALSE;
 
-    if ((mtmp = m_at(x, y)) != (struct monst *) 0) {
-        undetected = mtmp->mundetected;
-        trapped = mtmp->mtrapped;
-    } else if (x == u.ux && y == u.uy) {
+    if ((mtmp = m_at(x, y)) == 0
+        && (x == u.ux && y == u.uy))
         mtmp = &youmonst;
-        undetected = u.uundetected;
-        trapped = u.utrap;
-    } else {
-        return;
-    }
-
-    if (undetected
-        && ((hides_under(mtmp->data) && (!OBJ_AT(x, y) || trapped))
+    if (mtmp && mtmp->mundetected
+        && ((hides_under(mtmp->data) && (!OBJ_AT(x, y) || mtmp->mtrapped))
             || (mtmp->data->mlet == S_EEL && !is_damp_terrain(x, y))
             || (mtmp->data == &mons[PM_GIANT_LEECH] && !is_sewage(x, y))))
         (void) hideunder(mtmp);
@@ -5070,11 +5060,11 @@ struct monst *mtmp;
     xchar x = is_u ? u.ux : mtmp->mx, y = is_u ? u.uy : mtmp->my;
 
     if (mtmp == u.ustuck) {
-        ; /* can't hide if holding you or held by you */
+        ; /* undetected==FALSE; can't hide if holding you or held by you */
     } else if (is_u ? (u.utrap && u.utraptype != TT_PIT)
-                    : (mtmp->mtrapped && (t = t_at(x, y)) != 0
-                       && !is_pit(t->ttyp))) {
-        ; /* can't hide while stuck in a non-pit trap */
+                    : (mtmp->mtrapped
+                       && (t = t_at(x, y)) != 0 && !is_pit(t->ttyp))) {
+        ; /* undetected==FALSE; can't hide while stuck in a non-pit trap */
     } else if (mtmp->data->mlet == S_EEL) {
         undetected = ((is_pool(x, y) || is_puddle(x, y))
                       && !Is_waterlevel(&u.uz));
@@ -5143,7 +5133,8 @@ boolean construct;
         /* if (n == 0) animal_temp[n++] = NON_PM; */
 
         animal_list = (short *) alloc(n * sizeof *animal_list);
-        (void) memcpy((genericptr_t) animal_list, (genericptr_t) animal_temp,
+        (void) memcpy((genericptr_t) animal_list,
+                      (genericptr_t) animal_temp,
                       n * sizeof *animal_list);
         animal_list_count = n;
     } else { /* release */

@@ -2275,7 +2275,13 @@ struct obj *obj, *otmp;
                 res = 0;
                 break;
             }
-            (void) rloco(obj);
+
+            {
+                xchar ox = obj->ox, oy = obj->oy;
+
+                (void) rloco(obj);
+                maybe_unhide_at(ox, oy);
+            }
             break;
         case WAN_MAKE_INVISIBLE:
             break;

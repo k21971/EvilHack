@@ -1154,7 +1154,8 @@ unsigned trflags;
         otmp = t_missile(ARROW, trap);
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
-        } else if (thitu(8, dmgval(otmp, &youmonst), &otmp, "arrow")) {
+        } else if (thitu(8, dmgval(otmp, &youmonst),
+                         &otmp, "arrow")) {
             if (otmp)
                 obfree(otmp, (struct obj *) 0);
         } else {
@@ -1180,7 +1181,8 @@ unsigned trflags;
         otmp = t_missile(CROSSBOW_BOLT, trap);
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
-        } else if (thitu(8, dmgval(otmp, &youmonst), &otmp, "crossbow bolt")) {
+        } else if (thitu(8, dmgval(otmp, &youmonst),
+                         &otmp, "crossbow bolt")) {
             if (otmp)
                 obfree(otmp, (struct obj *) 0);
         } else {
@@ -1226,7 +1228,8 @@ unsigned trflags;
         oldumort = u.umortality;
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
-        } else if (thitu(7, dmgval(otmp, &youmonst), &otmp, "little dart")) {
+        } else if (thitu(7, dmgval(otmp, &youmonst),
+                         &otmp, "little dart")) {
             if (otmp) {
                 if (otmp->opoisoned)
                     poisoned("dart", A_CON, "little dart",
@@ -3252,6 +3255,18 @@ register struct monst *mtmp;
         default:
             impossible("Some monster encountered a strange trap of type %d.",
                        tt);
+        }
+
+        /* mtmp can't stay hiding under an object if trapped in non-pit
+           (mtmp hiding under object at armed bear trap loccation, hero
+           zaps wand of locking or spell of wizard lock at spot triggering
+           the trap and trapping mtmp there) */
+        if (!DEADMONSTER(mtmp) && mtmp->mtrapped) {
+            boolean alreadyspotted = canspotmon(mtmp);
+
+            maybe_unhide_at(mtmp->mx, mtmp->my);
+            if (!alreadyspotted && canseemon(mtmp))
+                pline("%s appears.", Amonnam(mtmp));
         }
     }
     if (trapkilled)

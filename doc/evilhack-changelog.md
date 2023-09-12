@@ -3164,4 +3164,5 @@ The following changes to date are:
 - Wearing a helm of telepathy can focus psychic attacks, tweak to
   ESP object property
 - Fix: another incorrect damage type value (mon_explodes.c)
+- Fix: various 'monster hiding under objects' bugs
 
