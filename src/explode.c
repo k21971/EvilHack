@@ -972,9 +972,9 @@ struct attack *mattk;
     if (mattk->adtyp == AD_PHYS) {
         type = PHYS_EXPL_TYPE;
     } else if (mattk->adtyp >= AD_MAGM && mattk->adtyp <= AD_SPC2) {
-        /* The -1, +22, *-1 math is to set it up as a 'monster breath' type for
+        /* The -1, +20, *-1 math is to set it up as a 'monster breath' type for
          * the explosions (it isn't, but this is the closest analogue). */
-        type = -((mattk->adtyp - 1) + 22);
+        type = -((mattk->adtyp - 1) + 20);
     } else {
         impossible("unknown type for mon_explode %d", mattk->adtyp);
         return;
