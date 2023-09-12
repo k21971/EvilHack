@@ -3165,4 +3165,5 @@ The following changes to date are:
   ESP object property
 - Fix: another incorrect damage type value (mon_explodes.c)
 - Fix: various 'monster hiding under objects' bugs
+- Fix: mind flayer attacking without knowing your location
 
