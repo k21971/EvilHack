@@ -1390,7 +1390,7 @@ aligntyp g_align;
                              || carrying(MAGIC_MARKER)) && u.uconduct.literate)
                             break;
                     }
-                    otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
+                    otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_FREEZE_SPHERE);
                     otmp->material = objects[otmp->otyp].oc_material;
                     otmp->owt = weight(otmp);
                 }
@@ -2290,7 +2290,7 @@ dosacrifice()
                                      || carrying(MAGIC_MARKER)) && u.uconduct.literate)
                                     break;
                             }
-                            otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
+                            otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_FREEZE_SPHERE);
                             otmp->material = objects[otmp->otyp].oc_material;
                             otmp->owt = weight(otmp);
                         }
