@@ -334,29 +334,35 @@ vulnerable_to(mon, element)
 struct monst* mon;
 int element;
 {
+    boolean fire_vuln = (((mon->data->mflags4 & M4_VULNERABLE_FIRE) != 0
+                          || mon->vuln_fire)
+                         && !resists_fire(mon));
+    boolean cold_vuln = (((mon->data->mflags4 & M4_VULNERABLE_COLD) != 0
+                          || mon->vuln_cold)
+                         && !resists_cold(mon));
+    boolean elec_vuln = (((mon->data->mflags4 & M4_VULNERABLE_ELEC) != 0
+                          || mon->vuln_elec)
+                         && !resists_elec(mon));
+    boolean acid_vuln = (((mon->data->mflags4 & M4_VULNERABLE_ACID) != 0
+                          || mon->vuln_acid)
+                         && !resists_acid(mon));
+
     if (defended(mon, element))
         return FALSE;
 
     switch (element) {
-        case AD_FIRE:
-            return (((mon->data->mflags4 & M4_VULNERABLE_FIRE) != 0
-                     || mon->vuln_fire)
-                    && !resists_fire(mon));
-        case AD_COLD:
-            return (((mon->data->mflags4 & M4_VULNERABLE_COLD) != 0
-                     || mon->vuln_cold)
-                    && !resists_cold(mon));
-        case AD_ELEC:
-            return (((mon->data->mflags4 & M4_VULNERABLE_ELEC) != 0
-                     || mon->vuln_elec)
-                    && !resists_elec(mon));
-        case AD_ACID:
-            return (((mon->data->mflags4 & M4_VULNERABLE_ACID) != 0
-                     || mon->vuln_acid)
-                    && !resists_acid(mon));
-        /* TODO: case AD_FUSE */
-        default:
-            break;
+    case AD_FIRE:
+        return fire_vuln;
+    case AD_COLD:
+        return cold_vuln;
+    case AD_ELEC:
+        return elec_vuln;
+    case AD_ACID:
+        return acid_vuln;
+    case AD_FUSE:
+        return (fire_vuln || cold_vuln);
+    default:
+        break;
     }
     return FALSE;
 }

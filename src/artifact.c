@@ -2295,17 +2295,21 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                and can cause additional elemental damage
                (area of effect) */
             if (!rn2(6) && spec_dbon_applies) {
-                pline("A surge of power flows through the blade!");
-                if (rn2(2))
-                    explode(mdef->mx, mdef->my,
-                            (youattack ? (AD_FIRE - 1) + 20
-                                       : -((AD_FIRE - 1) + 20)), d(4, 6),
-                            (youattack ? 0 : MON_CASTBALL), EXPL_FIERY);
-                else
-                    explode(mdef->mx, mdef->my,
-                            (youattack ? (AD_COLD - 1) + 20
-                                       : -((AD_COLD - 1) + 20)), d(4, 6),
-                            (youattack ? 0 : MON_CASTBALL), EXPL_FROSTY);
+                if (rn2(2)) {
+                    if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))) {
+                        pline("A surge of flame flows through the blade!");
+                        explode(mdef->mx, mdef->my,
+                                (youattack ? (AD_FIRE - 1) + 20
+                                           : -((AD_FIRE - 1) + 20)), d(4, 6),
+                                (youattack ? 0 : MON_CASTBALL), EXPL_FIERY);
+                    } else if (!(resists_cold(mdef) || defended(mdef, AD_COLD))) {
+                        pline("A surge of frost flows through the blade!");
+                        explode(mdef->mx, mdef->my,
+                                (youattack ? (AD_COLD - 1) + 20
+                                           : -((AD_COLD - 1) + 20)), d(4, 6),
+                                (youattack ? 0 : MON_CASTBALL), EXPL_FROSTY);
+                    }
+                }
             }
         }
         if (!rn2(4))
