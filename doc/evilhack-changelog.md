@@ -3169,4 +3169,5 @@ The following changes to date are:
 - Dichotomy tweaks
 - Stop handing out blank spellbooks as a prayer/sacrifice gift
 - Add #genocided command
+- Fix: Drow shouldn't be able to handle artifacts that give off light
 

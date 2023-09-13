@@ -1112,7 +1112,7 @@ struct monst *mon;
     if (((badclass || badalign) && self_willed)
         || (badalign && (!yours || !rn2(4)))
         || ((yours || !is_demon(mon->data))
-            && obj->oartifact == ART_WAND_OF_ORCUS)) {
+            && oart == &artilist[ART_WAND_OF_ORCUS])) {
         int dmg;
         char buf[BUFSZ];
 
@@ -1123,7 +1123,7 @@ struct monst *mon;
         dmg = d((Antimagic ? 2 : 4), (self_willed ? 10 : 4));
         /* wearing the gauntlets of purity can harm the player
            even more if their alignment doesn't match */
-        if (obj->oartifact == ART_GAUNTLETS_OF_PURITY
+        if (oart == &artilist[ART_GAUNTLETS_OF_PURITY]
             && oart->alignment != u.ualign.type)
             dmg += d((u.ualign.record > 50 ? 6 : 8), 10);
         Sprintf(buf, "touching %s", oart->name);
@@ -1133,14 +1133,18 @@ struct monst *mon;
 
     /* can pick it up unless you're totally non-synch'd with the artifact */
     if ((badclass && badalign && self_willed)
-        || (yours && obj->oartifact == ART_WAND_OF_ORCUS && !wizard)) {
+        || (yours && oart == &artilist[ART_WAND_OF_ORCUS])
+        || (yours && maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))
+            && (oart == &artilist[ART_SUNSWORD]
+                || oart == &artilist[ART_HAMMER_OF_THE_GODS]))) {
         if (yours) {
             if (!carried(obj))
                 pline("%s your grasp!", Tobjnam(obj, "evade"));
             else
                 pline("%s beyond your control!", Tobjnam(obj, "are"));
         }
-        return 0;
+        if (!wizard || yn("Override?") != 'y')
+            return 0;
     }
     if (oart == &artilist[ART_CROSSBOW_OF_CARL]) {
         if (yours ? Role_if(PM_RANGER) && Race_if(PM_GNOME)
