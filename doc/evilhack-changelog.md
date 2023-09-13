@@ -3172,4 +3172,5 @@ The following changes to date are:
 - Fix: Drow shouldn't be able to handle artifacts that give off light
 - Tweak to Drow handling lit artifacts
 - Fix: armor-based artifacts could come with an object property
+- Fix: spawn rate behavior
 

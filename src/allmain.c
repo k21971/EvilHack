@@ -262,14 +262,15 @@ boolean resuming;
                         past_clock = moves - timeout_start;
                         if (past_clock > 0)
                             monclock = MIN_MONGEN_RATE * 30000 / (past_clock + 30000);
-                        if (monclock > MIN_MONGEN_RATE / 2 && (depth(&u.uz) > depth(&stronghold_level)
+                        if (monclock > MIN_MONGEN_RATE / 2 && (u.uevent.gehennom_entered
                                                                || u.uevent.uhand_of_elbereth
-                                                               || ((quest_status.got_quest || quest_status.got_thanks)
+                                                               || ((quest_status.got_quest
+                                                                    || quest_status.got_thanks)
                                                                    && u.ulevel < 14)))
                             monclock = MIN_MONGEN_RATE / 2;
-                        if (monclock > MIN_MONGEN_RATE / 3 && depth(&u.uz) > depth(&hella_level))
+                        if (monclock > MIN_MONGEN_RATE / 3 && u.uevent.hella_entered)
                             monclock = MIN_MONGEN_RATE / 3;
-                        if (monclock > MIN_MONGEN_RATE / 4 && depth(&u.uz) > depth(&wiz1_level))
+                        if (monclock > MIN_MONGEN_RATE / 4 && u.uevent.hellc_entered)
                             monclock = MIN_MONGEN_RATE / 4;
                         if (monclock > MIN_MONGEN_RATE / 6 && u.uevent.udemigod)
                             monclock = MIN_MONGEN_RATE / 6;
