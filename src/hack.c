@@ -1890,6 +1890,8 @@ domove_core()
                3.7: used to say "solid rock" for STONE, but that made it be
                different from unmapped walls outside of rooms (and was wrong
                on arboreal levels) */
+            if (levl[x][y].seenv && IS_MAGIC_CHEST(levl[x][y].typ))
+                Strcpy(buf, "thin air"); /* acts like a chest object would */
             if (levl[x][y].seenv || IS_STWALL(levl[x][y].typ)
                 || levl[x][y].typ == SDOOR || levl[x][y].typ == SCORR) {
                 glyph = back_to_glyph(x, y);

@@ -1813,7 +1813,7 @@ register int after;
     } while (0)
 
                 /* if mon has MKoT, disarm door trap; no message given */
-                if (btrapped && has_magic_key(mtmp)) {
+                if (btrapped && has_roguish_key(mtmp)) {
                     /* BUG: this lets a vampire or blob or a doorbuster
                        holding the Key disarm the trap even though it isn't
                        using that Key when squeezing under or smashing the

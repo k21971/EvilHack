@@ -339,7 +339,7 @@ boolean opening; /* True: key, pick, or card; False: key or pick */
         } else {
             switch (o->otyp) {
             case SKELETON_KEY:
-                if (!key || is_magic_key(&youmonst, o))
+                if (!key || is_roguish_key(&youmonst, o))
                     key = o;
                 break;
             case LOCK_PICK:
@@ -414,7 +414,7 @@ struct obj *container; /* container, for autounlock */
             const char *action = lock_action();
 
             You("resume your attempt at %s.", action);
-            xlock.magic_key = is_magic_key(&youmonst, pick);
+            xlock.magic_key = is_roguish_key(&youmonst, pick);
             set_occupation(picklock, action, 0);
             return PICKLOCK_DID_SOMETHING;
         }
@@ -436,7 +436,8 @@ struct obj *container; /* container, for autounlock */
     if (picktyp != LOCK_PICK
         && picktyp != STETHOSCOPE
         && picktyp != CREDIT_CARD
-        && picktyp != SKELETON_KEY) {
+        && picktyp != SKELETON_KEY
+        && picktyp != MAGIC_KEY) {
         impossible("picking lock with object %d?", picktyp);
         return PICKLOCK_DID_NOTHING;
     }
@@ -476,7 +477,8 @@ struct obj *container; /* container, for autounlock */
 
         count = 0;
         c = 'n'; /* in case there are no boxes here */
-        for (otmp = level.objects[cc.x][cc.y]; otmp; otmp = otmp->nexthere)
+        otmp = IS_MAGIC_CHEST(levl[cc.x][cc.y].typ) ? mchest : level.objects[cc.x][cc.y];
+        while (otmp) {
             /* autounlock on boxes: only the one that just informed you it was
              * locked. Don't include any other boxes which might be here. */
             if ((!autounlock && Is_box(otmp)) || (otmp == container)) {
@@ -515,8 +517,10 @@ struct obj *container; /* container, for autounlock */
                     c = ynq(qbuf);
                     if (c == 'q')
                         return 0;
-                    if (c == 'n')
+                    if (c == 'n') {
+                        otmp = (otmp == mchest) ? level.objects[cc.x][cc.y] : otmp->nexthere;
                         continue;
+                    }
                 }
 
                 if (otmp->obroken) {
@@ -545,8 +549,17 @@ struct obj *container; /* container, for autounlock */
                     }
                 }
 
-                /* crystal chest can only be opened by magical means */
+                /* crystal chest can only be opened by artifacts */
                 if (otmp->otyp == CRYSTAL_CHEST && !pick->oartifact) {
+                    You_cant("%s %ssuch a container with a mundane %s.",
+                             verb, it ? "" : "the lock on ",
+                             simple_typename(picktyp));
+                    return PICKLOCK_LEARNED_SOMETHING;
+                }
+
+                /* magic chests can be opened by artifacts or purpose-made keys */
+                if (otmp->otyp == HIDDEN_CHEST
+                    && !(pick->oartifact || pick->otyp == MAGIC_KEY)) {
                     You_cant("%s %ssuch a container with a mundane %s.",
                              verb, it ? "" : "the lock on ",
                              simple_typename(picktyp));
@@ -561,11 +574,12 @@ struct obj *container; /* container, for autounlock */
                     ch = 4 * ACURR(A_DEX) + 25 * Role_if(PM_ROGUE);
                     break;
                 case SKELETON_KEY:
+                case MAGIC_KEY:
                     ch = 75 + ACURR(A_DEX);
                     break;
-		case STETHOSCOPE:
-	            ch = 5 + 2 * ACURR(A_DEX) * Role_if(PM_ROGUE);
-		    break;
+                case STETHOSCOPE:
+                    ch = 5 + 2 * ACURR(A_DEX) * Role_if(PM_ROGUE);
+                    break;
                 default:
                     ch = 0;
                 }
@@ -575,6 +589,7 @@ struct obj *container; /* container, for autounlock */
                 /* small chance a cursed locking tool will break on use */
                 if (pick->cursed && !rn2(5)
                     && picktyp != STETHOSCOPE
+                    && picktyp != MAGIC_KEY
                     && pick->oartifact != ART_MASTER_KEY_OF_THIEVERY
                     && pick->oartifact != ART_YENDORIAN_EXPRESS_CARD) {
                     pline("As you start to %s the %s, your %s breaks!",
@@ -592,6 +607,8 @@ struct obj *container; /* container, for autounlock */
                 xlock.door = 0;
                 break;
             }
+            otmp = (otmp == mchest) ? level.objects[cc.x][cc.y] : otmp->nexthere;
+        }
         if (c != 'y') {
             if (!count)
                 There("doesn't seem to be any sort of pickable lock here.");
@@ -668,6 +685,7 @@ struct obj *container; /* container, for autounlock */
                 ch = 3 * ACURR(A_DEX) + 30 * Role_if(PM_ROGUE);
                 break;
             case SKELETON_KEY:
+            case MAGIC_KEY:
                 ch = 70 + ACURR(A_DEX);
                 break;
             default:
@@ -677,6 +695,7 @@ struct obj *container; /* container, for autounlock */
             /* small chance a cursed locking tool will break on use */
             if (pick->cursed && !rn2(5)
                 && picktyp != STETHOSCOPE
+                && picktyp != MAGIC_KEY
                 && pick->oartifact != ART_MASTER_KEY_OF_THIEVERY
                 && pick->oartifact != ART_YENDORIAN_EXPRESS_CARD) {
                 pline("As you start to %s the door, your %s breaks!",
@@ -698,7 +717,7 @@ struct obj *container; /* container, for autounlock */
     context.move = 0;
     xlock.chance = ch;
     xlock.picktyp = picktyp;
-    xlock.magic_key = is_magic_key(&youmonst, pick);
+    xlock.magic_key = is_roguish_key(&youmonst, pick);
     xlock.usedtime = 0;
     set_occupation(picklock, lock_action(), 0);
     return PICKLOCK_DID_SOMETHING;

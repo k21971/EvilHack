@@ -3946,7 +3946,7 @@ mkot_trap_warn()
 /* Master Key is magic key if its bless/curse state meets our criteria:
    not cursed for rogues or blessed for non-rogues */
 boolean
-is_magic_key(mon, obj)
+is_roguish_key(mon, obj)
 struct monst *mon; /* if null, non-rogue is assumed */
 struct obj *obj;
 {
@@ -3962,7 +3962,7 @@ struct obj *obj;
 
 /* figure out whether 'mon' (usually youmonst) is carrying the magic key */
 struct obj *
-has_magic_key(mon)
+has_roguish_key(mon)
 struct monst *mon; /* if null, hero assumed */
 {
     struct obj *o;
@@ -3972,7 +3972,7 @@ struct monst *mon; /* if null, hero assumed */
         mon = &youmonst;
     for (o = ((mon == &youmonst) ? invent : mon->minvent); o;
          o = nxtobj(o, key, FALSE)) {
-        if (is_magic_key(mon, o))
+        if (is_roguish_key(mon, o))
             return o;
     }
     return (struct obj *) 0;

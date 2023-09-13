@@ -4020,6 +4020,17 @@ struct obj **pobj; /* object tossed/used, set to NULL
             if (learn_it)
                 learnwand(obj);
         }
+        
+        if (weapon == ZAPPED_WAND && typ == MAGIC_CHEST) {
+            switch (obj->otyp) {
+                case WAN_OPENING:
+                case SPE_KNOCK:
+                case WAN_LOCKING:
+                case SPE_WIZARD_LOCK:
+                    if (boxlock(mchest, obj))
+                        learnwand(obj);
+            }
+        }
 
         if (weapon == ZAPPED_WAND)
             maybe_explode_trap(t_at(bhitpos.x, bhitpos.y), obj);

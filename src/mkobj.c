@@ -1025,7 +1025,7 @@ boolean artif;
                 otmp->olocked = 1;
                 mkbox_cnts(otmp);
                 break;
-            case HIDDEN_CHEST: /* should not happen */
+            case HIDDEN_CHEST: /* should not happen unless wizmode wishing */
                 otmp->olocked = 0;
                 otmp->otrapped = 0;
                 break;
@@ -3525,6 +3525,7 @@ struct obj* obj;
         case IRON_SAFE:
         case CRYSTAL_CHEST:
         case HIDDEN_CHEST:
+        case MAGIC_KEY:
         case LEATHER_DRUM:
         case DRUM_OF_EARTHQUAKE:
         case LAND_MINE:
