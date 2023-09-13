@@ -5222,40 +5222,44 @@ struct obj *no_wish;
             otmp->oerodeproof = (Luck >= 0 || wizard);
     }
 
+    /* object property restrictions */
     if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
         || otmp->oclass == ARMOR_CLASS) {
-        /* check for restrictions */
         if (objprops & ITEM_FROST)
-            objprops &= ~(ITEM_FIRE | ITEM_DRLI | ITEM_SHOCK | ITEM_VENOM);
+            objprops &= ~(ITEM_FIRE | ITEM_DRLI
+                          | ITEM_SHOCK | ITEM_VENOM);
         else if (objprops & ITEM_FIRE)
-            objprops &= ~(ITEM_FROST | ITEM_DRLI | ITEM_SHOCK | ITEM_VENOM);
+            objprops &= ~(ITEM_FROST | ITEM_DRLI
+                          | ITEM_SHOCK | ITEM_VENOM);
         else if (objprops & ITEM_DRLI)
-            objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_SHOCK | ITEM_VENOM);
+            objprops &= ~(ITEM_FIRE | ITEM_FROST
+                          | ITEM_SHOCK | ITEM_VENOM);
         else if (objprops & ITEM_SHOCK)
-            objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI | ITEM_VENOM);
+            objprops &= ~(ITEM_FIRE | ITEM_FROST
+                          | ITEM_DRLI | ITEM_VENOM);
         else if (objprops & ITEM_VENOM)
-            objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI | ITEM_SHOCK);
+            objprops &= ~(ITEM_FIRE | ITEM_FROST
+                          | ITEM_DRLI | ITEM_SHOCK);
+
+        if (objects[otmp->otyp].oc_unique || otmp->oartifact
+            || Is_dragon_armor(otmp))
+            objprops &= ~ITEM_PROP_MASK;
 
         if (objects[otmp->otyp].oc_magic && !wizard)
-            objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI | ITEM_SHOCK
-                          | ITEM_VENOM | ITEM_OILSKIN | ITEM_ESP | ITEM_SEARCHING
-                          | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER | ITEM_EXCEL);
-
-        if (Is_dragon_armor(otmp))
-            objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI | ITEM_SHOCK
-                          | ITEM_VENOM | ITEM_OILSKIN | ITEM_ESP | ITEM_SEARCHING
-                          | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER | ITEM_EXCEL);
+            objprops &= ~ITEM_PROP_MASK;
 
         if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
-            objprops &= ~(ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER);
+            objprops &= ~(ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER
+                          | ITEM_OILSKIN);
 
         if (is_launcher(otmp))
             objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI
                           | ITEM_SHOCK | ITEM_VENOM | ITEM_OILSKIN);
 
         if (is_ammo(otmp) || is_missile(otmp))
-            objprops &= ~(ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP | ITEM_SEARCHING
-                          | ITEM_WARNING | ITEM_FUMBLING | ITEM_HUNGER | ITEM_EXCEL);
+            objprops &= ~(ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP
+                          | ITEM_SEARCHING | ITEM_WARNING | ITEM_FUMBLING
+                          | ITEM_HUNGER | ITEM_EXCEL);
 
         if (otmp->material != CLOTH)
             objprops &= ~ITEM_OILSKIN;
