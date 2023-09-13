@@ -656,7 +656,7 @@ struct monst *mtmp;
         /* grease protects quest artifacts but not invocation items */
         if (otmp->greased
             && (!otmp->cursed || rn2(4))
-            && !obj_resists(obj, 0, 0)) {
+            && !obj_resists(otmp, 0, 0)) {
             pline("%s %s slip off of your greased %s!", s_suffix(Monnam(mtmp)),
                   makeplural(mbodypart(mtmp, HAND)),
                   xname(otmp));
