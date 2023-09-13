@@ -388,7 +388,8 @@ boolean allow_detrimental;
 
         /* check for restrictions */
         if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
-            && (j & (ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER)))
+            && (j & (ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER
+                     | ITEM_OILSKIN)))
             continue;
 
         if (is_launcher(otmp)
@@ -1133,10 +1134,7 @@ struct monst *mon;
 
     /* can pick it up unless you're totally non-synch'd with the artifact */
     if ((badclass && badalign && self_willed)
-        || (yours && oart == &artilist[ART_WAND_OF_ORCUS])
-        || (yours && maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))
-            && (oart == &artilist[ART_SUNSWORD]
-                || oart == &artilist[ART_HAMMER_OF_THE_GODS]))) {
+        || (yours && oart == &artilist[ART_WAND_OF_ORCUS])) {
         if (yours) {
             if (!carried(obj))
                 pline("%s your grasp!", Tobjnam(obj, "evade"));
@@ -1184,6 +1182,12 @@ struct monst *mon;
         atmp = *oart;
         atmp.spfx &= SPFX_DBONUS; /* clear other spfx fields */
         if (spec_applies(&atmp, mon))
+            return TRUE;
+    }
+    if (maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))
+        && (oart == &artilist[ART_SUNSWORD]
+            || oart == &artilist[ART_HAMMER_OF_THE_GODS])) {
+        if (!wizard || yn("Override?") != 'y')
             return TRUE;
     }
     return FALSE;

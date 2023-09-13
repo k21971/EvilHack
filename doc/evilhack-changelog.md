@@ -3170,4 +3170,8 @@ The following changes to date are:
 - Stop handing out blank spellbooks as a prayer/sacrifice gift
 - Add #genocided command
 - Fix: Drow shouldn't be able to handle artifacts that give off light
+- Tweak to Drow handling lit artifacts
+- Fix: armor-based artifacts could come with an object property
+- Fix: spawn rate behavior
+- Partial fix: monsters can loot bags on the ground that they can't carry
 
