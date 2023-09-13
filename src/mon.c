@@ -2016,7 +2016,8 @@ register const char *str;
 
     for (otmp = level.objects[mtmp->mx][mtmp->my]; otmp; otmp = otmp2) {
         otmp2 = otmp->nexthere;
-        if (Is_box(otmp) || otmp->otyp == ICE_BOX) {
+        if (Is_box(otmp) || otmp->otyp == ICE_BOX
+            || (Is_allbag(otmp) && !can_carry(mtmp, otmp))) {
             if (nohands(mtmp->data) || r_verysmall(mtmp))
                 continue;
             if (otmp->olocked) {
@@ -2081,6 +2082,7 @@ register const char *str;
                     }
                     otmp->olocked = 0;
                     mloot_container(mtmp, otmp, vismon);
+                    otmp->owt = weight(otmp);
                     newsym(mtmp->mx, mtmp->my);
                     return TRUE;
                 }
