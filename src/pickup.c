@@ -1768,6 +1768,7 @@ struct obj **cobjp;
 int cindex, ccount; /* index of this container (1..N), number of them (N) */
 {
     struct obj *cobj = *cobjp;
+    struct obj *maybeart;
 
     if (!cobj)
         return 0;
@@ -1792,8 +1793,25 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
             case CHEST:
                 unlocktool = autokey(TRUE);
                 break;
+            case HIDDEN_CHEST:
+                unlocktool = autokey(TRUE);
+                if (unlocktool
+                    && (unlocktool->otyp == MAGIC_KEY || unlocktool->oartifact))
+                    break;
+                /* may be you have the MKoT and are cross-aligned */
+                for (maybeart = invent; maybeart;
+                     maybeart = nxtobj(maybeart, SKELETON_KEY, FALSE))
+                    if (maybeart->oartifact)
+                        unlocktool = maybeart;
+                /* may be that you have neither magic key nor MKoT, but you
+                   have a regular key/pick and the PYEC */
+                for (maybeart = invent; maybeart;
+                     maybeart = nxtobj(maybeart, CREDIT_CARD, FALSE))
+                    if (maybeart->oartifact)
+                        unlocktool = maybeart;
+                break;
             default:
-                /* Don't prompt for crystal/magic chest; only special unlocking
+                /* Don't prompt for crystal chest; only artifact unlocking
                  * tools can unlock them, and we don't want to give that away
                  * by suggesting them automatically to the user. */
                 break;
