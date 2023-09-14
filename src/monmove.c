@@ -1126,8 +1126,8 @@ xchar nix,niy;
 
 STATIC_OVL boolean
 likes_contents(mtmp, container)
-register struct monst *mtmp;
-register struct obj *container;
+struct monst *mtmp;
+struct obj *container;
 {
     boolean likegold = 0, likegems = 0,
             likeobjs = 0, likemagic = 0, uses_items = 0;
@@ -1180,8 +1180,8 @@ register struct obj *container;
              || (uses_items && searches_for_item(mtmp, otmp))
              || (likegems && otmp->oclass == GEM_CLASS
                  && otmp->material != MINERAL))
-            && touch_artifact(otmp, mtmp))
-	    return TRUE;
+            && touch_artifact(otmp, mtmp) && can_carry(mtmp, otmp))
+            return TRUE;
     }
     return FALSE;
 }

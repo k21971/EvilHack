@@ -3176,4 +3176,6 @@ The following changes to date are:
 - Partial fix: monsters can loot bags on the ground that they can't carry
 - Lockable and monster-lootable magic chests
 - Tweaks and fixes to magic chests
+- Fix: prevent monsters from hovering over a container with something
+  in it that they want but can't carry
 
