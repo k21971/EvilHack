@@ -1470,7 +1470,20 @@ register int after;
             oomy = min(ROWNO - 1, omy + minr);
             lmx = max(1, omx - minr);
             lmy = max(0, omy - minr);
-            for (otmp = fobj; otmp; otmp = otmp->nobj) {
+            otmp = fobj;
+            if (level.flags.nmagicchests) {
+                int mcx, mcy;
+                for (mcx = lmx; mcx <= oomx; ++mcx)
+                    for (mcy = lmy; mcy <= oomy; ++mcy)
+                        if (IS_MAGIC_CHEST(levl[mcx][mcy].typ)) {
+                            mchest->nobj = fobj;
+                            mchest->ox = mcx;
+                            mchest->oy = mcy;
+                            otmp = mchest;
+                            break;
+                        }
+            }
+            for (; otmp; otmp = otmp->nobj) {
                 /* monsters may pick rocks up, but won't go out of their way
                    to grab them; this might hamper sling wielders, but it cuts
                    down on move overhead by filtering out most common item */
@@ -1544,12 +1557,16 @@ register int after;
                             gy = otmp->oy;
                             if (gx == omx && gy == omy) {
                                 mmoved = 3; /* actually unnecessary */
+                                mchest->ox = mchest->oy = 0;
+                                mchest->nobj = (struct obj *) 0;
                                 goto postmov;
                             }
                         }
                     }
                 }
             }
+            mchest->ox = mchest->oy = 0;
+            mchest->nobj = (struct obj *) 0;
         } else if (likegold) {
             /* don't try to pick up anything else, but use the same loop */
             uses_items = 0;
@@ -1925,7 +1942,8 @@ register int after;
             } else
                 newsym(mtmp->mx, mtmp->my);
         }
-        if (OBJ_AT(mtmp->mx, mtmp->my) && mtmp->mcanmove) {
+        if ((OBJ_AT(mtmp->mx, mtmp->my) || IS_MAGIC_CHEST(levl[mtmp->mx][mtmp->my].typ))
+            && mtmp->mcanmove) {
             /* recompute the likes tests, in case we polymorphed
              * or if the "likegold" case got taken above */
             if (setlikes) {
@@ -1977,10 +1995,10 @@ register int after;
 
                 if (likeobjs)
                     picked |= mpickstuff(mtmp, practical);
-		if (mhp > mtmp->mhp) {
+                if (mhp > mtmp->mhp) {
                     mmoved = 3;
-		    goto end;
-		}
+                    goto end;
+                }
 
                 if (likemagic)
                     picked |= mpickstuff(mtmp, magical);

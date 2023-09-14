@@ -2014,7 +2014,15 @@ register const char *str;
         || can_levitate(mtmp))
         return FALSE;
 
-    for (otmp = level.objects[mtmp->mx][mtmp->my]; otmp; otmp = otmp2) {
+    if (IS_MAGIC_CHEST(levl[mtmp->mx][mtmp->my].typ)) {
+        /* set temporarily to make the for loop smoother. 
+        too many continues to change it to a while nicely. */
+        mchest->nexthere = level.objects[mtmp->mx][mtmp->my];
+        otmp = mchest;
+    } else {
+        otmp = level.objects[mtmp->mx][mtmp->my];
+    }
+    for (; otmp; otmp = otmp2) {
         otmp2 = otmp->nexthere;
         if (Is_box(otmp) || otmp->otyp == ICE_BOX
             || (Is_allbag(otmp) && !can_carry(mtmp, otmp))) {
@@ -2024,9 +2032,14 @@ register const char *str;
                 if ((nohands(mtmp->data) || r_verysmall(mtmp)
                     || otmp->otyp == IRON_SAFE
                     || otmp->otyp == CRYSTAL_CHEST
+                    || (otmp->otyp == MAGIC_CHEST
+                        && !m_carrying(mtmp, MAGIC_KEY))
+                        /* monsters don't think to use artifacts on either
+                           magic or crystal chests */
                     || (!m_carrying(mtmp, SKELETON_KEY)
                         && !m_carrying(mtmp, LOCK_PICK)
-                        && !m_carrying(mtmp, CREDIT_CARD)))
+                        && !m_carrying(mtmp, CREDIT_CARD)
+                        && !m_carrying(mtmp, MAGIC_KEY)))
                     && !mtmp->iswiz && !is_rider(mtmp->data))
                     continue;
                 waslocked = TRUE;
@@ -2046,6 +2059,7 @@ register const char *str;
                 }
                 otmp->olocked = 0;
                 (void) chest_trap(mtmp, otmp, FINGER, FALSE);
+                mchest->nexthere = (struct obj *) 0;
                 return TRUE;
             }
             for (otmp3 = otmp->cobj; otmp3; otmp3 = otmp4) {
@@ -2084,10 +2098,14 @@ register const char *str;
                     mloot_container(mtmp, otmp, vismon);
                     otmp->owt = weight(otmp);
                     newsym(mtmp->mx, mtmp->my);
+                    mchest->nexthere = (struct obj *) 0;
                     return TRUE;
                 }
             }
         }
+        /* magic chests can be looted but not picked up. */
+        if (otmp == mchest)
+            continue;
 
         /* Nymphs take everything.  Most monsters don't pick up corpses. */
         if (!str ? searches_for_item(mtmp, otmp)
@@ -2126,9 +2144,11 @@ register const char *str;
             /* let them try and equip it on the next turn */
             check_gear_next_turn(mtmp);
             newsym(mtmp->mx, mtmp->my);
+            mchest->nexthere = (struct obj *) 0;
             return TRUE; /* pick only one object */
         }
     }
+    mchest->nexthere = (struct obj *) 0;
     return FALSE;
 }
 
