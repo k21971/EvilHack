@@ -374,6 +374,9 @@ boolean opening; /* True: key, pick, or card; False: key or pick */
     /* only resort to other role's quest artifact if no other choice */
     if (!key && !mkey && !pick && !card)
         mkey = amkey;
+    /* rogues favor MKoT for its untrapping */
+    if (is_roguish_key(&youmonst, key) && Role_if(PM_ROGUE))
+        mkey = key;
     if (!key && !pick && !card)
         key = akey;
     if (!pick && !card)
