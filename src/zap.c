@@ -3474,6 +3474,8 @@ struct obj *obj; /* wand or spell */
                    && on_level(&u.uz, &qstart_level) && !ok_to_quest()) {
             pline_The("stairs seem to ripple momentarily.");
             disclose = TRUE;
+        } else if (IS_MAGIC_CHEST(levl[x][y].typ) && u.dz > 0) {
+            disclose = boxlock(mchest, obj);
         }
         /* down will release you from bear trap or web */
         if (u.dz > 0 && u.utrap) {
@@ -3513,6 +3515,8 @@ struct obj *obj; /* wand or spell */
                 stackobj(otmp);
             }
             newsym(x, y);
+        } else if (!striking && IS_MAGIC_CHEST(levl[x][y].typ) && u.dz > 0) {
+            disclose = boxlock(mchest, obj);
         } else if (u.dz > 0 && ttmp) {
             if (!striking && closeholdingtrap(&youmonst, &disclose)) {
                 ; /* now stuck in web or bear trap */
@@ -4019,6 +4023,17 @@ struct obj **pobj; /* object tossed/used, set to NULL
             }
             if (learn_it)
                 learnwand(obj);
+        }
+        
+        if (weapon == ZAPPED_WAND && typ == MAGIC_CHEST) {
+            switch (obj->otyp) {
+                case WAN_OPENING:
+                case SPE_KNOCK:
+                case WAN_LOCKING:
+                case SPE_WIZARD_LOCK:
+                    if (boxlock(mchest, obj))
+                        learnwand(obj);
+            }
         }
 
         if (weapon == ZAPPED_WAND)

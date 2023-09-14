@@ -1793,15 +1793,20 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
                 unlocktool = autokey(TRUE);
                 break;
             default:
-                /* Don't prompt for crystal chest; only artifact unlocking
-                 * tools can unlock it, and we don't want to give that away
+                /* Don't prompt for crystal/magic chest; only special unlocking
+                 * tools can unlock them, and we don't want to give that away
                  * by suggesting them automatically to the user. */
                 break;
             }
 
-            if (unlocktool)
-                /* pass ox and oy to avoid direction prompt */
-                return (pick_lock(unlocktool, cobj->ox, cobj->oy, cobj) != 0);
+            if (unlocktool) {
+                /* pass ox and oy to avoid direction prompt.
+                   fake the hidden chest coordinates, since it has none. */
+                if (cobj->otyp == HIDDEN_CHEST)
+                    return (pick_lock(unlocktool, u.ux, u.uy, cobj) != 0);
+                else
+                    return (pick_lock(unlocktool, cobj->ox, cobj->oy, cobj) != 0);
+            }
         }
         return 0;
     }
@@ -1904,7 +1909,7 @@ doloot()
             if (IS_MAGIC_CHEST(levl[cc.x][cc.y].typ)) {
                 any.a_obj = mchest;
                 add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
-                         "magic chest", MENU_UNSELECTED);
+                         doname(mchest), MENU_UNSELECTED);
             }
             for (cobj = level.objects[cc.x][cc.y]; cobj;
                  cobj = cobj->nexthere)
@@ -3313,7 +3318,7 @@ dotip()
                     ++i;
                     any.a_obj = mchest;
                     add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
-                             "magic chest", MENU_UNSELECTED);
+                             doname(mchest), MENU_UNSELECTED);
                 }
                 for (cobj = level.objects[cc.x][cc.y]; cobj;
                      cobj = cobj->nexthere)
@@ -3358,7 +3363,9 @@ dotip()
                 /* else pick-from-invent below */
             } else {
                 if (IS_MAGIC_CHEST(levl[cc.x][cc.y].typ)) {
-                    c = ynq("There is a magic chest here, tip it?");
+                    c = ynq(safe_qbuf(qbuf, "There is ", " here, tip it?",
+                                      mchest, doname, ansimpleoname,
+                                      "container"));
                     if (c == 'q')
                         return 0;
                     if (c != 'n') {

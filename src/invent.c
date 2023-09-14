@@ -3530,6 +3530,13 @@ char *buf;
 
     if (cmap >= 0)
         dfeature = defsyms[cmap].explanation;
+    if (cmap == S_magic_chest) {
+        dfeature = doname(mchest); /* hack to show lock status */
+        if (!strncmpi(dfeature, "an ", 3))
+            dfeature += 3;
+        else
+            dfeature += 2;
+    }
     if (dfeature)
         Strcpy(buf, dfeature);
     return dfeature;
@@ -3631,7 +3638,8 @@ boolean picked_some;
         Sprintf(fbuf, "There is %s here.", an(dfeature));
 
     if (!otmp || is_lava(u.ux, u.uy)
-        || (is_pool(u.ux, u.uy) && !Underwater)) {
+        || ((is_pool(u.ux, u.uy) && !Underwater)
+        || (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ)))) {
         if (dfeature)
             pline1(fbuf);
         read_engr_at(u.ux, u.uy); /* Eric Backus */

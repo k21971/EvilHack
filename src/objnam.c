@@ -45,10 +45,10 @@ struct Jitem {
 /* true for gems/rocks that should have " stone" appended to their names */
 #define GemStone(typ)                                                  \
     (typ == FLINT                                                      \
-     || (objects[typ].oc_material == GEMSTONE                          \
+     || ((objects[typ].oc_material == GEMSTONE                          \
          && (typ != DILITHIUM_CRYSTAL && typ != RUBY && typ != DIAMOND \
              && typ != SAPPHIRE && typ != BLACK_OPAL && typ != EMERALD \
-             && typ != OPAL)))
+             && typ != OPAL)) && objects[typ].oc_class == GEM_CLASS))
 
 STATIC_OVL struct Jitem Japanese_items[] = { { SHORT_SWORD, "wakizashi" },
                                              { BROADSWORD, "ninja-to" },
@@ -214,7 +214,7 @@ register int otyp;
     default:
         if (nn) {
             Strcpy(buf, actualn);
-            if (GemStone(otyp) && ocl->oc_class != ARMOR_CLASS)
+            if (GemStone(otyp))
                 Strcat(buf, " stone");
             if (un) /* 3: length of " (" + ")" which will enclose 'dn' */
                 xcalled(buf, BUFSZ - (dn ? (int) strlen(dn) + 3 : 0), "", un);

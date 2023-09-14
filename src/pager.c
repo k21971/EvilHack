@@ -485,6 +485,7 @@ char *buf, *monbuf;
     struct monst *mtmp = (struct monst *) 0;
     struct permonst *pm = (struct permonst *) 0;
     int glyph;
+    char *releasep;
 
     buf[0] = monbuf[0] = '\0';
     glyph = glyph_at(x, y);
@@ -608,6 +609,10 @@ char *buf, *monbuf;
         case S_cloud:
             Strcpy(buf,
                    Is_airlevel(&u.uz) ? "cloudy area" : "fog/vapor cloud");
+            break;
+        case S_magic_chest:
+            Strcpy(buf, releasep = doname(mchest));
+            maybereleaseobuf(releasep);
             break;
         case S_stone:
             if (!levl[x][y].seenv) {
@@ -1306,6 +1311,7 @@ short otyp;
         case ICE_BOX:
         case IRON_SAFE:
         case CRYSTAL_CHEST:
+        case HIDDEN_CHEST:
         case SACK:
         case OILSKIN_SACK:
         case BAG_OF_HOLDING:
@@ -1314,6 +1320,7 @@ short otyp;
         case SKELETON_KEY:
         case LOCK_PICK:
         case CREDIT_CARD:
+        case MAGIC_KEY:
             subclass = "unlocking tool";
             break;
         case TALLOW_CANDLE:
@@ -2073,6 +2080,8 @@ struct permonst **for_supplement;
             if (alt_i++ == 2)
                 i = 0; /* undo loop increment */
             x_str = defsyms[i].explanation;
+            if (i == S_magic_chest)
+                x_str = doname(mchest); /* hack to show locked status */
             if (submerged && !strcmp(x_str, defsyms[0].explanation))
                 x_str = "land"; /* replace "dark part of a room" */
             /* alt_i is now 3 or more and no longer of interest */

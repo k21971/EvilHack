@@ -746,9 +746,10 @@ CONTAINER("bag of tricks",   "bag", 0, 1, 1, 20,  15, 100, CLOTH, HI_CLOTH),
 #undef CONTAINER
 
 /* lock opening tools */
-TOOL("skeleton key",       "key", 0, 0, 0, 0,  80,   3,  10, BONE, CLR_WHITE),
-TOOL("lock pick",           None, 1, 0, 0, 0,  60,   4,  20, METAL, HI_METAL),
-TOOL("credit card",         None, 1, 0, 0, 0,  15,   1,  10, PLASTIC, CLR_WHITE),
+TOOL("skeleton key",       "key", 0, 0, 0, 0,  80,   3,   10, BONE, CLR_WHITE),
+TOOL("lock pick",           None, 1, 0, 0, 0,  60,   4,   20, METAL, HI_METAL),
+TOOL("credit card",         None, 1, 0, 0, 0,  15,   1,   10, PLASTIC, CLR_WHITE),
+TOOL("magic key",   "ornate key", 0, 0, 1, 0,   0,   5, 1000, GEMSTONE, CLR_RED),
 /* light sources */
 TOOL("tallow candle",   "candle", 0, 1, 0, 0,  20,   2,  10, WAX, CLR_WHITE),
 TOOL("wax candle",      "candle", 0, 1, 0, 0,   5,   2,  20, WAX, CLR_WHITE),

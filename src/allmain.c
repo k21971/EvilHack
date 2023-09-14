@@ -838,6 +838,7 @@ STATIC_OVL void
 init_mchest()
 {
     mchest = mksobj(HIDDEN_CHEST, FALSE, FALSE);
+    mchest->olocked = 1;
     mchest->where = OBJ_SOMEWHERE;
     return;
 }

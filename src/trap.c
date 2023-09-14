@@ -5167,7 +5167,7 @@ boolean force;
     }
     /* 'force' is true for #invoke; make it be true for #untrap if
        carrying MKoT */
-    if (!force && has_magic_key(&youmonst))
+    if (!force && has_roguish_key(&youmonst))
         force = TRUE;
 
     ttmp = t_at(x, y);
