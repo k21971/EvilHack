@@ -1013,7 +1013,8 @@ RANDOM_CORRIDORS
 #
 MAZE: "minend-1", ' '
 GEOMETRY:center,center
-#1234567890123456789012345678901234567890123456789012345678901234567890
+#         1         2         3         4         5         6         7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
 ------------------------------------------------------------------   ------
 |                        |.......|     |.......-...|       |.....|.       |
@@ -1079,6 +1080,13 @@ OBJECT:('*',"loadstone"),$place[4]
 OBJECT:('*',"ruby"),$place[5]
 OBJECT:('*',"worthless piece of red glass"),$place[5]
 OBJECT:('*',"luckstone"),$place[5]
+
+# magic key is buried in a chest
+ENGRAVING:$place[6],engrave,"One-Eyed Sam was here"
+CONTAINER:('(', "chest"),$place[6],buried,locked {
+  OBJECT:('(',"magic key")
+}
+
 # Random objects
 OBJECT:'*',random
 OBJECT:'*',random
@@ -1128,11 +1136,13 @@ MONSTER:'h',random
 #
 MAZE: "minend-2", ' '
 GEOMETRY:center,center
+#         1         2         3         4         5         6         7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
 ---------------------------------------------------------------------------
 |...................................................|                     |
-|.|---------S--.--|...|--------------------------|..|                     |
-|.||---|   |.||-| |...|..........................|..|                     |
+|.|---------S--.--|...|--------------------------|..|  ..                 |
+|.||---|   |.||-| |...|..........................|..|   ..                |
 |.||...| |-|.|.|---...|.............................|                ..   |
 |.||...|-|.....|....|-|..........................|..|.               ..   |
 |.||.....|-S|..|....|............................|..|..                   |
@@ -1148,6 +1158,9 @@ MAP
 |.................|                    |.....................|........    |
 ---------------------------------------------------------------------------
 ENDMAP
+
+$place = { (05,05),(22,11),(54,12),(56,02) }
+SHUFFLE: $place
 
 IF [50%] {
    TERRAIN:(55,14),'-'
@@ -1215,6 +1228,11 @@ OBJECT:('!',"booze"),(10,09)
 OBJECT:('!',"booze"),(10,09)
 OBJECT:('!',"object detection"),(10,09)
 # Objects
+# magic key is buried in a chest
+ENGRAVING:$place[0],engrave,"Property of Croesus"
+CONTAINER:('(', "chest"),$place[0],buried,locked {
+  OBJECT:('(',"magic key")
+}
 # The Treasure chamber...
 OBJECT:('*',"luckstone"),(70,05)
 OBJECT:('*',"diamond"),(69,04)
@@ -1283,6 +1301,8 @@ MONSTER:'h',random
 MAZE:"minend-3",'-'
 FLAGS:nommap
 GEOMETRY:center,bottom
+#         1         2         3         4         5         6         7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
  - - - - - - - - - - -- -- - - . - - - - - - - - - -- - - -- - - - - . - - |
 ------...---------.-----------...-----.-------.-------     ----------------|
@@ -1306,6 +1326,10 @@ ENDMAP
 $place = { (1,15),(68,6),(1,13) }
 SHUFFLE: $place
 
+$key = { (04,12),(18,01),(24,07),
+         (31,16),(70,05),(68,13) }
+SHUFFLE: $key
+
 NON_DIGGABLE:(67,3,73,7)
 NON_DIGGABLE:(0,12,2,16)
 FOUNTAIN:(12,08)
@@ -1321,6 +1345,12 @@ STAIR:(42,8),up
 WALLIFY
 
 # Objects
+# magic key is buried in a chest
+ENGRAVING:$key[0],engrave,"X"
+CONTAINER:('(', "chest"),$key[0],buried,locked {
+  OBJECT:('(',"magic key")
+}
+
 OBJECT:('*',"luckstone"),$place[0]
 OBJECT:('*',"flint"),$place[1]
 OBJECT:('*',"diamond"),random
@@ -1388,6 +1418,8 @@ MONSTER:'e',random
 MAZE:"minend-4",' '
 FLAGS:nommap
 GEOMETRY:center,center
+#         1         2         3         4         5         6         7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
                                                                    |-----|
                                              -------        ----- |-LLLLL-|
@@ -1470,6 +1502,12 @@ OBJECT:'*',$stones[5]
 OBJECT:'*',$stones[6]
 OBJECT:'*',$stones[7]
 
+# magic key is buried in a chest
+ENGRAVING:$stones[8],engrave,"Do not dig here"
+CONTAINER:('(', "chest"),$stones[8],buried,locked {
+  OBJECT:('(',"magic key")
+}
+
 #shamans guarding the inner temple/figurine
 MONSTER:('o',"orc shaman"),(69,3),asleep,hostile
 MONSTER:('o',"orc shaman"),(71,3),asleep,hostile
@@ -1549,7 +1587,7 @@ MESSAGE: "You enter the sewers of the Gnomish Mines."
 MESSAGE: "The stench of fetid sewage is barely tolerable."
 GEOMETRY:center,center
 #         1         2         3         4         5         6         7
-#12345678901234567890123456789012345678901234567890123456789012345678901234
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
 ---------------------------------------------------------------------------
 |                           ---------------                               |
@@ -1611,6 +1649,7 @@ TRAP:random,random
 CONTAINER:('(',"chest"),trapped,(19,06) {
   OBJECT:'/'
   OBJECT:'+'
+  OBJECT:('(',"magic key")
   # trying to have a random tool spawn inside
   # a container could result in large box or
   # chest forming inside of it, so specifiy

@@ -153,6 +153,13 @@ OBJECT:('*',"ruby"),(48,06)
 OBJECT:('*',"amethyst"),(46,13)
 OBJECT:('*',"amethyst"),(47,13)
 OBJECT:('*',"amethyst"),(48,13)
+# magic key is in an iron safe
+CONTAINER:('(', "iron safe"),(03,16),locked {
+  OBJECT:('(',"magic key")
+  OBJECT:'*'
+  OBJECT:'='
+  OBJECT:'"'
+}
 
 
 #
@@ -280,7 +287,13 @@ OBJECT:('*',"ruby"),(68,04)
 OBJECT:('*',"amethyst"),(66,11)
 OBJECT:('*',"amethyst"),(67,11)
 OBJECT:('*',"amethyst"),(68,11)
-
+# magic key is in an iron safe
+CONTAINER:('(', "iron safe"),(03,16),locked {
+  OBJECT:('(',"magic key")
+  OBJECT:'*'
+  OBJECT:'='
+  OBJECT:'"'
+}
 
 #
 # "Minas Tirith?" by Patric Mueller <bhaak@gmx.net>
@@ -525,3 +538,10 @@ OBJECT:('*',"ruby"),(62,03)
 OBJECT:('*',"amethyst"),(74,01)
 OBJECT:('*',"amethyst"),(74,02)
 OBJECT:('*',"amethyst"),(74,03)
+# magic key is in an iron safe
+CONTAINER:('(', "iron safe"),(01,16),locked {
+  OBJECT:('(',"magic key")
+  OBJECT:'*'
+  OBJECT:'='
+  OBJECT:'"'
+}
