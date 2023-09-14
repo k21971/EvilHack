@@ -1129,17 +1129,20 @@ likes_contents(mtmp, container)
 register struct monst *mtmp;
 register struct obj *container;
 {
-    boolean likegold = 0, likegems = 0, likeobjs = 0, likemagic = 0, uses_items = 0;
+    boolean likegold = 0, likegems = 0,
+            likeobjs = 0, likemagic = 0, uses_items = 0;
     boolean can_open = 0, can_unlock = 0;
-    register int pctload = (curr_mon_load(mtmp) * 100) / max_mon_load(mtmp);
-    register struct obj *otmp;
+    int pctload = (curr_mon_load(mtmp) * 100) / max_mon_load(mtmp);
+    struct obj *otmp;
 
     can_open = !(nohands(mtmp->data) || r_verysmall(mtmp)
-                 || container->otyp == IRON_SAFE || container->otyp == CRYSTAL_CHEST);
+                 || container->otyp == IRON_SAFE
+                 || container->otyp == CRYSTAL_CHEST);
     can_unlock = ((can_open
                   && (m_carrying(mtmp, SKELETON_KEY)
                       || m_carrying(mtmp, LOCK_PICK)
-                      || m_carrying(mtmp, CREDIT_CARD)))
+                      || m_carrying(mtmp, CREDIT_CARD)
+                      || m_carrying(mtmp, MAGIC_KEY)))
                   || mtmp->iswiz || is_rider(mtmp->data));
 
     if (!Is_nonprize_container(container))
@@ -1148,21 +1151,31 @@ register struct obj *container;
     if (container->olocked && !can_unlock)
         return FALSE;
 
-    likegold = (likes_gold(mtmp->data) && pctload < 95 && !can_levitate(mtmp));
-    likegems = (likes_gems(mtmp->data) && pctload < 85 && !can_levitate(mtmp));
+    if (container->otyp == HIDDEN_CHEST
+        && container->olocked && !m_carrying(mtmp, MAGIC_KEY))
+        return FALSE;
+
+    likegold = (likes_gold(mtmp->data) && pctload < 95
+                && !can_levitate(mtmp));
+    likegems = (likes_gems(mtmp->data) && pctload < 85
+                && !can_levitate(mtmp));
     uses_items = (!mindless(mtmp->data) && !is_animal(mtmp->data)
                   && pctload < 75);
-    likeobjs = (likes_objs(mtmp->data) && pctload < 75 && !can_levitate(mtmp));
-    likemagic = (likes_magic(mtmp->data) && pctload < 85 && !can_levitate(mtmp));
+    likeobjs = (likes_objs(mtmp->data) && pctload < 75
+                && !can_levitate(mtmp));
+    likemagic = (likes_magic(mtmp->data) && pctload < 85
+                 && !can_levitate(mtmp));
 
-    if (!likegold && !likegems && !uses_items && !likeobjs && !likemagic)
+    if (!likegold && !likegems && !uses_items
+        && !likeobjs && !likemagic)
         return FALSE;
 
     for (otmp = container->cobj; otmp; otmp = otmp->nobj) {
         if (((likegold && otmp->oclass == COIN_CLASS)
               || (likeobjs && index(practical, otmp->oclass)
-                  && (otmp->otyp != CORPSE || (mtmp->data->mlet == S_NYMPH
-                      && !is_rider(&mons[otmp->corpsenm]))))
+                  && (otmp->otyp != CORPSE
+                      || (mtmp->data->mlet == S_NYMPH
+                          && !is_rider(&mons[otmp->corpsenm]))))
              || (likemagic && index(magical, otmp->oclass))
              || (uses_items && searches_for_item(mtmp, otmp))
              || (likegems && otmp->oclass == GEM_CLASS
@@ -1473,8 +1486,8 @@ register int after;
             otmp = fobj;
             if (level.flags.nmagicchests) {
                 int mcx, mcy;
-                for (mcx = lmx; mcx <= oomx; ++mcx)
-                    for (mcy = lmy; mcy <= oomy; ++mcy)
+                for (mcx = lmx; mcx <= oomx; ++mcx) {
+                    for (mcy = lmy; mcy <= oomy; ++mcy) {
                         if (IS_MAGIC_CHEST(levl[mcx][mcy].typ)) {
                             mchest->nobj = fobj;
                             mchest->ox = mcx;
@@ -1482,6 +1495,8 @@ register int after;
                             otmp = mchest;
                             break;
                         }
+                    }
+                }
             }
             for (; otmp; otmp = otmp->nobj) {
                 /* monsters may pick rocks up, but won't go out of their way
@@ -1942,7 +1957,8 @@ register int after;
             } else
                 newsym(mtmp->mx, mtmp->my);
         }
-        if ((OBJ_AT(mtmp->mx, mtmp->my) || IS_MAGIC_CHEST(levl[mtmp->mx][mtmp->my].typ))
+        if ((OBJ_AT(mtmp->mx, mtmp->my)
+            || IS_MAGIC_CHEST(levl[mtmp->mx][mtmp->my].typ))
             && mtmp->mcanmove) {
             /* recompute the likes tests, in case we polymorphed
              * or if the "likegold" case got taken above */

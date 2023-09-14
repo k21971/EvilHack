@@ -3955,7 +3955,8 @@ struct obj **pobj; /* object tossed/used, set to NULL
 
         if (typ == IRONBARS
             && ((levl[bhitpos.x][bhitpos.y].wall_info & W_NONDIGGABLE) == 0)
-            && ((!(weapon == KICKED_WEAPON || weapon == THROWN_WEAPON) && obj->otyp == SPE_FORCE_BOLT)
+            && ((!(weapon == KICKED_WEAPON || weapon == THROWN_WEAPON)
+                 && obj->otyp == SPE_FORCE_BOLT)
                 || (weapon == ZAPPED_WAND && obj->otyp == WAN_STRIKING))) {
             levl[bhitpos.x][bhitpos.y].typ = ROOM;
             if (cansee(bhitpos.x, bhitpos.y))
@@ -3969,7 +3970,8 @@ struct obj **pobj; /* object tossed/used, set to NULL
             break;
         } else if (typ == IRONBARS
                    && ((levl[bhitpos.x][bhitpos.y].wall_info & W_NONDIGGABLE) != 0)
-                   && ((!(weapon == KICKED_WEAPON || weapon == THROWN_WEAPON) && obj->otyp == SPE_FORCE_BOLT)
+                   && ((!(weapon == KICKED_WEAPON || weapon == THROWN_WEAPON)
+                        && obj->otyp == SPE_FORCE_BOLT)
                        || (weapon == ZAPPED_WAND && obj->otyp == WAN_STRIKING))) {
             if (cansee(bhitpos.x, bhitpos.y))
                 pline_The("iron bars vibrate, but are otherwise intact.");
@@ -4024,16 +4026,21 @@ struct obj **pobj; /* object tossed/used, set to NULL
             if (learn_it)
                 learnwand(obj);
         }
-        
+
         if (weapon == ZAPPED_WAND && typ == MAGIC_CHEST) {
+            boolean learn_it = FALSE;
+
             switch (obj->otyp) {
-                case WAN_OPENING:
-                case SPE_KNOCK:
-                case WAN_LOCKING:
-                case SPE_WIZARD_LOCK:
-                    if (boxlock(mchest, obj))
-                        learnwand(obj);
+            case WAN_OPENING:
+            case SPE_KNOCK:
+            case WAN_LOCKING:
+            case SPE_WIZARD_LOCK:
+                if (boxlock(mchest, obj))
+                    learn_it = TRUE;
+                break;
             }
+            if (learn_it)
+                learnwand(obj);
         }
 
         if (weapon == ZAPPED_WAND)

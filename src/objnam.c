@@ -43,9 +43,9 @@ struct Jitem {
 #define Strcasecpy(dst, src) (void) strcasecpy(dst, src)
 
 /* true for gems/rocks that should have " stone" appended to their names */
-#define GemStone(typ)                                                  \
+#define GemStone(typ) \
     (typ == FLINT                                                      \
-     || ((objects[typ].oc_material == GEMSTONE                          \
+     || ((objects[typ].oc_material == GEMSTONE                         \
          && (typ != DILITHIUM_CRYSTAL && typ != RUBY && typ != DIAMOND \
              && typ != SAPPHIRE && typ != BLACK_OPAL && typ != EMERALD \
              && typ != OPAL)) && objects[typ].oc_class == GEM_CLASS))

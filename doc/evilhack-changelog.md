@@ -3174,4 +3174,6 @@ The following changes to date are:
 - Fix: armor-based artifacts could come with an object property
 - Fix: spawn rate behavior
 - Partial fix: monsters can loot bags on the ground that they can't carry
+- Lockable and monster-lootable magic chests
+- Tweaks and fixes to magic chests
 

@@ -3548,7 +3548,8 @@ struct obj *obj;
                               && mon->data != &mons[PM_ELDRITCH_KI_RIN]);
         if (typ == FROST_HORN || typ == FIRE_HORN)
             return (obj->spe > 0 && can_blow(mon));
-        if (typ == SKELETON_KEY || typ == LOCK_PICK || typ == CREDIT_CARD)
+        if (typ == SKELETON_KEY || typ == LOCK_PICK
+            || typ == CREDIT_CARD || typ == MAGIC_KEY)
             return TRUE;
         if ((typ == BAG_OF_HOLDING && !obj->cursed) || typ == OILSKIN_SACK
             || typ == SACK || (typ == BAG_OF_TRICKS && obj->spe > 0))
