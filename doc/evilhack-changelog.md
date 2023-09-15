@@ -3181,4 +3181,6 @@ The following changes to date are:
   in it that they want but can't carry
 - Magic key placement
 - Fix: starting/ending alignment reporting in xlogfile
+- Fix: don't prompt to autounlock a magic chest if you don't have
+  a magic key
 

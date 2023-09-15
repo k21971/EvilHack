@@ -1799,6 +1799,7 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
                     && (unlocktool->otyp == MAGIC_KEY || unlocktool->oartifact))
                     break;
                 /* may be you have the MKoT and are cross-aligned */
+                unlocktool = (struct obj *) 0;
                 for (maybeart = invent; maybeart;
                      maybeart = nxtobj(maybeart, SKELETON_KEY, FALSE))
                     if (maybeart->oartifact)
