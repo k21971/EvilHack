@@ -3180,4 +3180,5 @@ The following changes to date are:
 - Fix: prevent monsters from hovering over a container with something
   in it that they want but can't carry
 - Magic key placement
+- Fix: starting/ending alignment reporting in xlogfile
 

@@ -395,7 +395,8 @@ int how;
             (long) ubirthday, XLOG_SEP, (long) urealtime.finish_time);
     Fprintf(rfile, "%cgender0=%s%calign0=%s%crace0=%s", XLOG_SEP,
             genders[flags.initgend].filecode, XLOG_SEP,
-            aligns[u.ualign.type == A_NONE ? 3 : 1 - u.ualign.type].filecode,
+            aligns[u.ualignbase[A_ORIGINAL] == A_NONE
+                   ? 3 : 1 - sgn(u.ualignbase[A_ORIGINAL])].filecode,
             XLOG_SEP, races[flags.initrace].filecode);
     Fprintf(rfile, "%cflags=0x%lx", XLOG_SEP, encodexlogflags());
     Fprintf(rfile, "%cgold=%ld", XLOG_SEP, money_cnt(invent) + hidden_gold());
