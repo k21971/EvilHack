@@ -3183,4 +3183,5 @@ The following changes to date are:
 - Fix: starting/ending alignment reporting in xlogfile
 - Fix: don't prompt to autounlock a magic chest if you don't have
   a magic key
+- Fix: The bow welds itself to the gnome lord's claws!
 

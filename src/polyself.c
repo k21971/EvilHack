@@ -1956,7 +1956,7 @@ int part;
        such attacks should still reference hands rather than claws */
     static const char not_claws[] = {
         S_HUMAN,     S_ANGEL,   S_NYMPH,  S_LEPRECHAUN,
-        S_QUANTMECH, S_ORC,     S_GIANT, /* quest nemeses */
+        S_QUANTMECH, S_ORC,     S_GIANT,  S_GNOME, /* quest nemeses */
         '\0' /* string terminator; assert( S_xxx != 0 ); */
     };
     struct permonst *mptr = mon->data;
