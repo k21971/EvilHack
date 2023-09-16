@@ -3185,4 +3185,5 @@ The following changes to date are:
   a magic key
 - Fix: The bow welds itself to the gnome lord's claws!
 - Gold dragon-scaled armor imparts clairvoyance when worn
+- Change placement of magic key in Gollum's Cave
 

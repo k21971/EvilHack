@@ -414,7 +414,7 @@ IF [50%] {
 }
 
 # Small chance to jump across to the far island
-IF [25%] {
+IF [33%] {
   TERRAIN:(47,09), 'w'
   TERRAIN:(50,09), 'w'
   TERRAIN:(52,11), 'w'
@@ -431,19 +431,20 @@ CONTAINER:('(',"chest"),(40,10) {
   IF [65%] {
     OBJECT:('(',"goggles"),uncursed
   }
-  OBJECT:('(',"magic key"),uncursed
   OBJECT:'*'
   OBJECT:'*'
   OBJECT:'!'
 }
 
-CONTAINER:('(',"chest"),(64,15) {
+CONTAINER:('(',"chest"),(64,15),locked {
   IF [35%] {
     OBJECT:('[',"elven chain mail")
   }
   IF [50%] {
     OBJECT:('[',"elven cloak")
   }
+  OBJECT:(')',"elven dagger")
+  OBJECT:('(',"magic key"),uncursed
   OBJECT:'*'
   OBJECT:'*'
   OBJECT:'*'
