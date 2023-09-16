@@ -974,8 +974,10 @@ dragon_armor_handling(struct obj *otmp, boolean puton)
     case GOLD_DRAGON_SCALES:
         if (puton) {
             EInfravision |= W_ARM;
+            EClairvoyant |= W_ARM;
         } else {
             EInfravision &= ~W_ARM;
+            EClairvoyant &= ~W_ARM;
         }
         break;
     case ORANGE_DRAGON_SCALES:

@@ -3184,4 +3184,5 @@ The following changes to date are:
 - Fix: don't prompt to autounlock a magic chest if you don't have
   a magic key
 - Fix: The bow welds itself to the gnome lord's claws!
+- Gold dragon-scaled armor imparts clairvoyance when worn
 
