@@ -1951,8 +1951,10 @@ boolean at_stairs, falling, portal;
         if (!u.uachieve.enter_purgatory)
             livelog_write_string(LL_ACHIEVE, "entered Purgatory");
         u.uachieve.enter_purgatory = 1;
-        /* force confrontation with Wizard, but only on first arrival */
-        resurrect();
+        /* force chance of a confrontation with Wizard,
+           but only on first arrival */
+        if (!rn2(3))
+            resurrect();
     }
 
     /* Entered the Hidden Dungeon */

@@ -2109,7 +2109,7 @@ register struct attack *mattk;
     case AD_SAMU:
         hitmsg(mtmp, mattk);
         /* when the Wizard or quest nemesis hits, there's a 1/20 chance
-           to steal a quest artifact (any, not just the one for the hero's
+           to steal a quest artifact (any but the one for the hero's
            own role) or the Amulet or one of the invocation tools */
         if (Hidinshell)
             break;
