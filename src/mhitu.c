@@ -259,11 +259,6 @@ struct attack *mattk;
         }
         if (!blocker)
             goto end;
-        /* glass armor, or certain drow armor if in the presence
-           of light, can potentially break if it deflects an attack */
-        if (blocker
-            && (is_glass(blocker) || is_adamantine(blocker)))
-            break_glass_obj(blocker);
         /* called if attacker hates the material of the armor
            that deflected their attack */
         if (blocker
@@ -278,11 +273,16 @@ struct attack *mattk;
         /* train shield skill if the shield made a block */
         if (blocker == uarms)
             use_skill(P_SHIELD, 1);
+        /* glass armor, or certain drow armor if in the presence
+           of light, can potentially break if it deflects an attack */
+        if (blocker
+            && (is_glass(blocker) || is_adamantine(blocker)))
+            break_glass_obj(blocker);
         /* the artifact shield Ashmar has a chance to knockback
            the attacker if it deflects an attack. Check for
            dead monster in case the attacker kills themselves
            by some other means from the shield (material hatred) */
-        if (!rn2(4) && (blocker == uarms)
+        if (!rn2(4) && blocker && (blocker == uarms)
             && !DEADMONSTER(mtmp)
             && blocker->oartifact == ART_ASHMAR) {
             pline("%s knocks %s away from you!",
@@ -299,7 +299,7 @@ struct attack *mattk;
         }
         /* the artifact Armor of Retribution can do the same
            as Ashmar, just not as often */
-        if (!rn2(7) && (blocker == uarm)
+        if (!rn2(7) && blocker && (blocker == uarm)
             && !DEADMONSTER(mtmp)
             && blocker->oartifact == ART_ARMOR_OF_RETRIBUTION) {
             pline_The("%s knocks %s away from you!",
