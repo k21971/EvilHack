@@ -3187,4 +3187,7 @@ The following changes to date are:
 - Gold dragon-scaled armor imparts clairvoyance when worn
 - Change placement of magic key in Gollum's Cave
 - Some Wizard of Yendor behavior tweaks
+- Fix: farlooking tools
+- Fix: don't reference armor after they're broken
+- Fix: AD_FUSE not accounted for in pokedex monster lookup
 

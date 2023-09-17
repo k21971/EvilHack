@@ -775,6 +775,7 @@ static const char * damagetypes[] = {
     "withering",
     "create pit",
     "web",
+    "fire and cold",
     "steal intrinsic",
     "clerical",
     "arcane",
