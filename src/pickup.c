@@ -1800,13 +1800,13 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
                     break;
                 /* may be you have the MKoT and are cross-aligned */
                 unlocktool = (struct obj *) 0;
-                for (maybeart = invent; maybeart;
+                for (maybeart = nxtobj(invent, SKELETON_KEY, FALSE); maybeart;
                      maybeart = nxtobj(maybeart, SKELETON_KEY, FALSE))
                     if (maybeart->oartifact)
                         unlocktool = maybeart;
                 /* may be that you have neither magic key nor MKoT, but you
                    have a regular key/pick and the PYEC */
-                for (maybeart = invent; maybeart;
+                for (nxtobj(invent, CREDIT_CARD, FALSE); maybeart;
                      maybeart = nxtobj(maybeart, CREDIT_CARD, FALSE))
                     if (maybeart->oartifact)
                         unlocktool = maybeart;

@@ -3638,8 +3638,7 @@ boolean picked_some;
         Sprintf(fbuf, "There is %s here.", an(dfeature));
 
     if (!otmp || is_lava(u.ux, u.uy)
-        || ((is_pool(u.ux, u.uy) && !Underwater)
-        || (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ)))) {
+        || ((is_pool(u.ux, u.uy) && !Underwater))) {
         if (dfeature)
             pline1(fbuf);
         read_engr_at(u.ux, u.uy); /* Eric Backus */
