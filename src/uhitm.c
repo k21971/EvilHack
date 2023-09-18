@@ -3998,8 +3998,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                         && were_beastie(mon->mnum) == u.ulycn
                         && !Role_if(PM_CAVEMAN) && !Race_if(PM_ORC))
                     || (how_resistant(DISINT_RES) == 0
-                        && (mon->data == &mons[PM_BLACK_DRAGON]
-                            || mon->data == &mons[PM_BABY_BLACK_DRAGON]))))
+                        && mon->data == &mons[PM_BLACK_DRAGON])))
                 break;
             /*FALLTHRU*/
         case AT_BITE:
@@ -4007,8 +4006,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 && is_vampire(youmonst.data)
                 && (touch_petrifies(mon->data)
                     || (how_resistant(DISINT_RES) == 0
-                        && (mon->data == &mons[PM_BLACK_DRAGON]
-                            || mon->data == &mons[PM_BABY_BLACK_DRAGON]))))
+                        && mon->data == &mons[PM_BLACK_DRAGON])))
                 break;
             if (is_zombie(youmonst.data)
                 && mattk->aatyp == AT_BITE
@@ -4027,8 +4025,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                     Race_if(PM_DEMON)))
                 && (touch_petrifies(mon->data)
                     || (how_resistant(DISINT_RES) == 0
-                        && (mon->data == &mons[PM_BLACK_DRAGON]
-                            || mon->data == &mons[PM_BABY_BLACK_DRAGON]))))
+                        && mon->data == &mons[PM_BLACK_DRAGON])))
                 break;
             /*FALLTHRU*/
         case AT_KICK:
@@ -4354,15 +4351,13 @@ boolean wep_was_destroyed;
     case AD_ACID:
         if (mhit && rn2(2)) {
             if (Blind || !flags.verbose) {
-                if (mon->data == &mons[PM_YELLOW_DRAGON]
-                    || mon->data == &mons[PM_BABY_YELLOW_DRAGON])
+                if (mon->data == &mons[PM_YELLOW_DRAGON])
                     You("are%s seared!",
                         (Acid_resistance || Underwater) ? " mildly" : "");
                 else
                     You("are splashed!");
             } else {
-                if (mon->data == &mons[PM_YELLOW_DRAGON]
-                    || mon->data == &mons[PM_BABY_YELLOW_DRAGON])
+                if (mon->data == &mons[PM_YELLOW_DRAGON])
                     You("are%s seared by %s acidic hide!",
                         (Acid_resistance || Underwater) ? " mildly" : "",
                         s_suffix(mon_nam(mon)));

@@ -3161,8 +3161,7 @@ struct obj *mwep;
         if (mhit && !rn2(2)) {
             Strcpy(buf, Monnam(magr));
             if (canseemon(magr)) {
-                if (mdef->data == &mons[PM_YELLOW_DRAGON]
-                    || mdef->data == &mons[PM_BABY_YELLOW_DRAGON]) {
+                if (mdef->data == &mons[PM_YELLOW_DRAGON]) {
                     pline("%s is seared by %s acidic hide!", buf,
                           s_suffix(mon_nam(mdef)));
                 } else {

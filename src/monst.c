@@ -1643,13 +1643,13 @@ NEARDATA struct permonst mons[] = {
      * Dragons
      */
     /* The order of the dragons is VERY IMPORTANT.
-     * The code depends on the *order* being the same as that for dragon scales
-     * in objects.c.  Baby dragons cannot confer intrinsics, to avoid
-     * polyself/egg abuse.
+     * The code depends on the *order* being the same as that for dragon
+     * scales in objects.c.  Baby dragons cannot confer intrinsics, to
+     * avoid polyself/egg abuse.
      *
-     * Adult dragons are all lawful or chaotic; sea dragons as well as
-     * baby dragons are all neutral.  This affects monster generation on
-     * some special levels.
+     * Dragons are all lawful or chaotic; sea dragons and celestial
+     * dragons are the exception (neutral).  This affects monster
+     * generation on some special levels.
      *
      * As reptiles, dragons are cold-blooded and thus aren't seen with
      * infravision.  Red and gold dragons (also Tiamat) are the
@@ -1659,79 +1659,71 @@ NEARDATA struct permonst mons[] = {
     /* From GruntHack - baby dragons are a bit more dangerous now.
      * Sure, it's a baby... but it's still a dragon.
      */
-    MON("baby gray dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
+    MON("baby gray dragon", S_DRAGON, LVL(12, 9, 2, 10, 4), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 2, 4),
-          ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_NONE, AD_CNCL, 0, 0),
-          NO_ATTK, NO_ATTK),
+          ATTK(AT_CLAW, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), 0, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, 0,
         MH_DRAGON, 13, CLR_GRAY),
-    MON("baby silver dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
+    MON("baby silver dragon", S_DRAGON, LVL(12, 9, 2, 10, 4), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 2, 4),
           ATTK(AT_CLAW, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), 0, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, 0,
         MH_DRAGON, 13, DRAGON_SILVER),
-    MON("baby shimmering dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
+    MON("baby shimmering dragon", S_DRAGON, LVL(12, 9, 2, 10, 4), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 2, 4),
           ATTK(AT_CLAW, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), 0, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, 0,
         MH_DRAGON, 13, CLR_CYAN),
-    MON("baby red dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
+    MON("baby red dragon", S_DRAGON, LVL(12, 9, 2, 10, -4), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 6, 5), ATTK(AT_CLAW, AD_PHYS, 2, 6),
-          ATTK(AT_CLAW, AD_PHYS, 2, 6), ATTK(AT_NONE, AD_FIRE, 0, 1),
-          NO_ATTK, NO_ATTK),
+          ATTK(AT_CLAW, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_FIRE, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_INFRAVISIBLE,
         M4_VULNERABLE_COLD, MH_DRAGON, 13, CLR_RED),
-    MON("baby white dragon", S_DRAGON, LVL(12, 9, 2, 10, 0),
+    MON("baby white dragon", S_DRAGON, LVL(12, 9, 2, 10, -4),
         (G_NOHELL |G_GENO),
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 2, 4),
-          ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_NONE, AD_COLD, 0, 1),
-          NO_ATTK, NO_ATTK),
+          ATTK(AT_CLAW, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_COLD, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0,
         M4_VULNERABLE_FIRE, MH_DRAGON, 13, CLR_WHITE),
-    MON("baby orange dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
+    MON("baby orange dragon", S_DRAGON, LVL(12, 9, 2, 10, -5), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 2, 4),
-          ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_NONE, AD_SLOW, 0, 2),
-          NO_ATTK, NO_ATTK),
+          ATTK(AT_CLAW, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_SLEEP, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, 0,
         MH_DRAGON, 13, CLR_ORANGE),
-    MON("baby black dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
+    MON("baby black dragon", S_DRAGON, LVL(12, 9, 2, 10, -6), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 2, 4),
-          ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_NONE, AD_DISN, 0, 0),
-          NO_ATTK, NO_ATTK),
+          ATTK(AT_CLAW, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_DISINT, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, 0,
         MH_DRAGON, 13, CLR_BLACK),
-    MON("baby blue dragon", S_DRAGON, LVL(12, 14, 2, 10, 0), G_GENO,
+    MON("baby blue dragon", S_DRAGON, LVL(12, 14, 2, 10, -7), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 2, 4),
           ATTK(AT_CLAW, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_ELEC, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, 0,
         MH_DRAGON, 13, CLR_BLUE),
-    MON("baby green dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
+    MON("baby green dragon", S_DRAGON, LVL(12, 9, 2, 10, -6), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 2, 4),
-          ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_NONE, AD_DRST, 0, 1),
-          NO_ATTK, NO_ATTK),
+          ATTK(AT_CLAW, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_POISON, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_POIS,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, 0,
         MH_DRAGON, 13, CLR_GREEN),
-    /* From SporkHack.
-     */
-    MON("baby gold dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
+    MON("baby gold dragon", S_DRAGON, LVL(12, 9, 2, 10, 4), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 2, 4),
           ATTK(AT_CLAW, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_FIRE, 0,
@@ -1746,15 +1738,14 @@ NEARDATA struct permonst mons[] = {
         M1_SWIM | M1_AMPHIBIOUS | M1_NOHANDS | M1_CARNIVORE | M1_UNSOLID,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS,
         0, M4_VULNERABLE_ELEC, MH_DRAGON, 13, HI_ZAP),
-    MON("baby yellow dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), G_GENO,
+    MON("baby yellow dragon", S_DRAGON, LVL(12, 9, 2, 10, -7), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 2, 4),
-          ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_NONE, AD_ACID, 0, 2),
-          NO_ATTK, NO_ATTK),
+          ATTK(AT_CLAW, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_ACID | MR_STONE, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_ACID,
         M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, 0,
         MH_DRAGON, 13, CLR_YELLOW),
-    MON("baby shadow dragon", S_DRAGON, LVL(18, 12, 0, 25, 0), G_GENO,
+    MON("baby shadow dragon", S_DRAGON, LVL(18, 12, 0, 25, -15), G_GENO,
         A(ATTK(AT_BITE, AD_PHYS, 3, 8), ATTK(AT_CLAW, AD_PHYS, 3, 4),
           ATTK(AT_CLAW, AD_PHYS, 3, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_SLEEP | MR_POISON, 0,

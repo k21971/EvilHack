@@ -4435,8 +4435,7 @@ struct attack *mattk;
     switch (oldu_mattk->adtyp) {
     case AD_ACID:
         if (!rn2(2)) {
-            if (youmonst.data == &mons[PM_YELLOW_DRAGON]
-                || youmonst.data == &mons[PM_BABY_YELLOW_DRAGON]) {
+            if (youmonst.data == &mons[PM_YELLOW_DRAGON]) {
                 pline("%s is seared by your acidic hide!", Monnam(mtmp));
             } else {
                 pline("%s is splashed by %s%s!", Monnam(mtmp),

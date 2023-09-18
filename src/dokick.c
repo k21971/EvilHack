@@ -269,8 +269,7 @@ xchar x, y;
             || Race_if(PM_TORTLE))
         && (touch_petrifies(mon->data)
             || (how_resistant(DISINT_RES) == 0
-                && (mon->data == &mons[PM_BLACK_DRAGON]
-                    || mon->data == &mons[PM_BABY_BLACK_DRAGON]))))
+                && mon->data == &mons[PM_BLACK_DRAGON])))
         return;
     else if (Role_if(PM_MONK) || Role_if(PM_SAMURAI))
         You("%s %s!", martial_arts_kick[rn2(SIZE(martial_arts_kick))], mon_nam(mon));
