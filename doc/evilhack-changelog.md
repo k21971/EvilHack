@@ -3193,4 +3193,6 @@ The following changes to date are:
 - Fix: occasional program in disorder when autounlocking magic chests
 - Fix: report objects on magic chest square when nearlooking
 - Fix: let all and only giants wield two-handed weapons in one hand
+- Fix: hated material sear message feedback not appearing if
+  attacking unarmed
 

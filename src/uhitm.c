@@ -1097,6 +1097,7 @@ int dieroll;
     boolean isvenom  = FALSE;
     boolean valid_weapon_attack = FALSE;
     boolean unarmed = !uwep && !uarm && !uarms;
+    boolean actually_unarmed = !obj;
     boolean hand_to_hand = (thrown == HMON_MELEE
                             /* not grapnels; applied implies uwep */
                             || (thrown == HMON_APPLIED && is_pole(uwep)));
@@ -1126,7 +1127,7 @@ int dieroll;
     }
 
     wakeup(mon, TRUE);
-    if (!obj) { /* attack with bare hands */
+    if (actually_unarmed) { /* attack with bare hands */
         if (noncorporeal(mdat)) {
             tmp = 0;
         } else {
@@ -1692,8 +1693,8 @@ int dieroll;
         /* If you throw using a propellor, you don't get a strength
          * bonus but you do get an increase-damage bonus.
          */
-        if (thrown != HMON_THROWN || !obj || !uwep
-            || !ammo_and_launcher(obj, uwep))
+        if (thrown != HMON_THROWN || actually_unarmed
+            || !uwep || !ammo_and_launcher(obj, uwep))
             tmp += dbon();
     }
 
@@ -1816,7 +1817,8 @@ int dieroll;
         if (mhurtle_to_doom(mon, tmp, &mdat, TRUE))
             already_killed = TRUE;
         hittxt = TRUE;
-    } else if (unarmed && tmp > 1 && !thrown && !obj && !Upolyd && !thievery) {
+    } else if (unarmed && tmp > 1 && !thrown
+               && actually_unarmed && !Upolyd && !thievery) {
         /* VERY small chance of stunning or confusing opponent if unarmed. */
         if (rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT)
             && !biggermonst(mdat) && !thick_skinned(mdat) && !unsolid(mdat)) {
@@ -1986,7 +1988,7 @@ int dieroll;
         }
     }
 
-    if (obj && hated_obj)
+    if ((obj || actually_unarmed) && hated_obj)
         searmsg(&youmonst, mon, hated_obj, FALSE);
 
     if (lightobj) {
