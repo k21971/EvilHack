@@ -3195,4 +3195,5 @@ The following changes to date are:
 - Fix: let all and only giants wield two-handed weapons in one hand
 - Fix: hated material sear message feedback not appearing if
   attacking unarmed
+- Include more monsters as 'flaming'
 
