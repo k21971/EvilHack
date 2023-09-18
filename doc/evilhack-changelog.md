@@ -3196,4 +3196,5 @@ The following changes to date are:
 - Fix: hated material sear message feedback not appearing if
   attacking unarmed
 - Include more monsters as 'flaming'
+- Added some new rumors (true and false)
 
