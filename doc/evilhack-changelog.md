@@ -3197,4 +3197,5 @@ The following changes to date are:
   attacking unarmed
 - Include more monsters as 'flaming'
 - Added some new rumors (true and false)
+- Wielding Dichotomy will protect worn armor from being burnt
 

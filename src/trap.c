@@ -64,6 +64,12 @@ struct monst *victim;
         return 0;
     hitting_u = (victim == &youmonst);
 
+    /* wielding Dichotomy protects worn armor */
+    if (hitting_u ? wielding_artifact(ART_DICHOTOMY)
+                  : (MON_WEP(victim)
+                     && MON_WEP(victim)->oartifact == ART_DICHOTOMY))
+        return 0;
+
     /* burning damage may dry wet towel */
     item = hitting_u ? carrying(TOWEL) : m_carrying(victim, TOWEL);
     while (item) {
