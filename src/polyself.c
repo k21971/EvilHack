@@ -1229,7 +1229,7 @@ int alone;
             if (updateinv)
                 update_inventory();
         } else if ((u.twoweap && (bimanual(uwep) || bimanual(uswapwep)))
-                   || (bimanual(uwep) && uarms)) {
+                   || (bimanual(uwep) && uarms && !is_bracer(uarms))) {
             otmp = bimanual(uwep) ? uwep : uswapwep;
             which = is_sword(otmp) ? "sword" : weapon_descr(otmp);
             if (otmp->quan != 1L)
