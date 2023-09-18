@@ -233,9 +233,10 @@ struct obj {
 
 #define is_wet_towel(o) ((o)->otyp == TOWEL && (o)->spe > 0)
 #define bimanual(otmp) \
-    ((!(Race_if(PM_GIANT)) || (Race_if(PM_GIANT) && is_2h_launcher(otmp))) \
-     && ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS)      \
-     && objects[otmp->otyp].oc_bimanual))
+    ((!(maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))      \
+      || is_2h_launcher(otmp))                                        \
+     && (otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS)  \
+     && objects[otmp->otyp].oc_bimanual)
 #define is_multigen(otmp)                           \
     (otmp->oclass == WEAPON_CLASS                   \
      && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
