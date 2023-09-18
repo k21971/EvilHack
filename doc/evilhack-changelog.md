@@ -3190,4 +3190,7 @@ The following changes to date are:
 - Fix: farlooking tools
 - Fix: don't reference armor after they're broken
 - Fix: AD_FUSE not accounted for in pokedex monster lookup
+- Fix: occasional program in disorder when autounlocking magic chests
+- Fix: report objects on magic chest square when nearlooking
+- Fix: let all and only giants wield two-handed weapons in one hand
 
