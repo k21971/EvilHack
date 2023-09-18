@@ -113,6 +113,7 @@ set_uasmon()
         BWithering &= ~FROMFORM;
     /* context.botl = TRUE happens in the next line. */
 
+    drop_weapon(1);
     float_vs_flight(); /* maybe toggle (BFlying & I_SPECIAL) */
     polysense();
 
@@ -208,6 +209,9 @@ const char *fmt, *arg;
         u.umonnum = u.umonster;
         flags.female = u.mfemale;
     }
+
+    You(fmt, arg);
+
     set_uasmon();
 
     u.mh = u.mhmax = 0;
@@ -227,7 +231,6 @@ const char *fmt, *arg;
 
     newsym(u.ux, u.uy);
 
-    You(fmt, arg);
     /* check whether player foolishly genocided self while poly'd */
     if (ugenocided()) {
         /* intervening activity might have clobbered genocide info */
@@ -1225,6 +1228,32 @@ int alone;
 
             if (updateinv)
                 update_inventory();
+        } else if ((u.twoweap && (bimanual(uwep) || bimanual(uswapwep)))
+                   || (bimanual(uwep) && uarms)) {
+            otmp = bimanual(uwep) ? uwep : uswapwep;
+            which = is_sword(otmp) ? "sword" : weapon_descr(otmp);
+            if (otmp->quan != 1L)
+                which = makeplural(which);
+            if (u.twoweap && bimanual(uwep) && bimanual(uswapwep))
+                which = "weapons";
+            You("can no longer wield your %s with one %s.", which, body_part(HAND));
+            if (u.twoweap) {
+                /* avoid redundant/incorrect untwoweapon feedback */
+                u.twoweap = 0;
+                untwoweapon();
+                You("switch to your primary weapon.");
+            /* try to avoid unwielding a cursed weapon */
+            } else if (!(uwep->cursed) || uarms->cursed) {
+                setuwep((struct obj *) 0);
+                You("let it go.");
+            } else {
+                Shield_off();
+                You("let go of your shield.");
+            }
+            update_inventory();
+        /* must follow the bimanual check, since that never leaves you
+           two-weaponing but this block might leave you wielding a 
+           two-hander and wearing a shield */
         } else if (!could_twoweap(youmonst.data)) {
             untwoweapon();
         }
@@ -1259,6 +1288,7 @@ rehumanize()
         del_light_source(LS_MONSTER, monst_to_any(&youmonst));
     polyman("return to %s form!", urace.adj);
     break_armor();
+    drop_weapon(1);
 
     if (u.uhp < 1) {
         /* can only happen if some bit of code reduces u.uhp
