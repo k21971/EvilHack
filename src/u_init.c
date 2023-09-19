@@ -1257,7 +1257,7 @@ int damg_melee_types [] =
 
 int damg_breath_types [] =
     { AD_MAGM, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
-      AD_DRST, AD_WATR, AD_ACID
+      AD_DRST, AD_WATR, AD_ACID, AD_DRLI, AD_STUN
     };
 
 int damg_spit_types [] =
@@ -1301,7 +1301,7 @@ shambler_init()
     shambler->mmove = rn2(10) + 9;      /* slow to very fast */
     shambler->ac = rn2(31) - 20;        /* any AC */
     shambler->mr = rn2(5) * 25;         /* varying amounts of MR */
-    shambler->maligntyp = rn2(21) - 10;
+    shambler->maligntyp = rn2(21) - 10; /* varying alignment */
 
     shambler_attacks = rnd(4);
     for (i = 0; i < shambler_attacks; i++) {
@@ -1352,17 +1352,18 @@ shambler_init()
         }
     }
 
-    shambler->msize = !rn2(6) ? MZ_GIGANTIC : rn2(MZ_HUGE); /* any size */
-    shambler->cwt = 20;                                     /* fortunately moot as it's flagged NOCORPSE */
-    shambler->cnutrit = 20;                                 /* see above */
-    shambler->msound = rn2(MS_HUMANOID);                    /* any but the specials */
+    shambler->msize = !rn2(6) ? MZ_GIGANTIC
+                              : rn2(MZ_HUGE);    /* any size */
+    shambler->cwt = 20;                          /* fortunately moot as it's flagged NOCORPSE */
+    shambler->cnutrit = 20;                      /* see above */
+    shambler->msound = rn2(MS_HUMANOID);         /* any but the specials */
     shambler->mresists = 0;
 
     for (i = 0; i < rnd(6); i++)
-        shambler->mresists |= (1 << rn2(8));                /* physical resistances... */
+        shambler->mresists |= (1 << rn2(9));     /* physical resistances... */
     for (i = 0; i < rnd(5); i++)
-        shambler->mresists |= (0x100 << rn2(7));            /* 'different' resistances, even clumsy */
-    shambler->mconveys = 0;                                 /* flagged NOCORPSE */
+        shambler->mresists |= (0x200 << rn2(9)); /* 'different' resistances, even clumsy */
+    shambler->mconveys = 0;                      /* flagged NOCORPSE */
 
     /*
      * now time for the random flags.  this will likely produce

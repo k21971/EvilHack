@@ -876,6 +876,8 @@ struct permonst * pm;
     ADDRESIST(resists_drain(pm), "life-drain");
     ADDRESIST(resists_sick(pm), "sickness");
     ADDRESIST(resists_mgc(pm), "magic");
+    ADDRESIST(resists_stun(pm), "stun");
+    ADDRESIST(resists_slow(pm), "slow");
     ADDRESIST(immune_death_magic(pm), "death magic");
     if (*buf) {
         Sprintf(buf2, "Resists %s.", buf);
@@ -967,14 +969,18 @@ struct permonst * pm;
     APPENDC(regenerates(pm), "regenerating");
     APPENDC(is_reviver(pm), "reviving");
     APPENDC(is_floater(pm), "floating");
+    ADDRESIST(pm_resistance(pm, MR2_LEVITATE), "floating");
     APPENDC(pm_invisible(pm), "invisible");
     APPENDC(is_undead(pm), "undead");
     if (!is_undead(pm))
         APPENDC(nonliving(pm), "nonliving");
     APPENDC(telepathic(pm), "telepathic");
+    ADDRESIST(pm_resistance(pm, MR2_TELEPATHY), "telepathic");
     APPENDC(is_displaced(pm), "displaced");
+    ADDRESIST(pm_resistance(pm, MR2_DISPLACED), "displaced");
     APPENDC(is_skittish(pm), "skittish");
     APPENDC(is_accurate(pm), "accurate");
+    APPENDC(infravisible(pm), "infravisible");
     APPENDC((mflag4 & M4_VULNERABLE_FIRE) != 0, "vulnerable to fire");
     APPENDC((mflag4 & M4_VULNERABLE_COLD) != 0, "vulnerable to cold");
     APPENDC((mflag4 & M4_VULNERABLE_ELEC) != 0, "vulnerable to electricity");
@@ -996,8 +1002,11 @@ struct permonst * pm;
     APPENDC(can_teleport(pm), "teleport");
     APPENDC(is_clinger(pm), "cling to the ceiling");
     APPENDC(is_jumper(pm), "jump");
+    ADDRESIST(pm_resistance(pm, MR2_JUMPING), "jump");
+    ADDRESIST(pm_resistance(pm, MR2_WATERWALK), "walk on water");
     APPENDC(webmaker(pm), "spin webs");
     APPENDC(needspick(pm), "mine");
+    APPENDC(is_berserker(pm), "go berserk");
     if (!needspick(pm))
         APPENDC(tunnels(pm), "dig");
     if (*buf) {
@@ -1009,6 +1018,10 @@ struct permonst * pm;
     /* Full-line remarks. */
     if (touch_petrifies(pm))
         MONPUTSTR("Petrifies by touch.");
+    if (infravision(pm))
+        MONPUTSTR("Has infravision.");
+    if (ultravision(pm))
+        MONPUTSTR("Has ultravision.");
     if (perceives(pm))
         MONPUTSTR("Can see invisible.");
     if (control_teleport(pm))
@@ -1020,6 +1033,13 @@ struct permonst * pm;
             MONPUTSTR("May be eaten by vegans.");
         else if (vegetarian(pm))
             MONPUTSTR("May be eaten by vegetarians.");
+    }
+    if (emits_light(pm)) {
+        if (pm == &mons[PM_SHADOW_DRAGON]
+            || pm == &mons[PM_BABY_SHADOW_DRAGON])
+            MONPUTSTR("Emits darkness.");
+        else
+            MONPUTSTR("Emits light.");
     }
     Sprintf(buf, "Is %sa valid polymorph form.",
             polyok(pm) ? "" : "not ");

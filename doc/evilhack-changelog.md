@@ -3199,4 +3199,5 @@ The following changes to date are:
 - Added some new rumors (true and false)
 - Wielding Dichotomy will protect worn armor from being burnt
 - Baby dragon tweaks
+- Fix: shambling horror possible resistances, add more info to pokedex
 
