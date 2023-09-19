@@ -3997,16 +3997,18 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                     || (u.ulycn >= LOW_PM
                         && were_beastie(mon->mnum) == u.ulycn
                         && !Role_if(PM_CAVEMAN) && !Race_if(PM_ORC))
-                    || (how_resistant(DISINT_RES) == 0
-                        && mon->data == &mons[PM_BLACK_DRAGON])))
+                    || (how_resistant(DISINT_RES) <= 49
+                        && (mon->data == &mons[PM_BLACK_DRAGON]
+                            || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
                 break;
             /*FALLTHRU*/
         case AT_BITE:
             if ((uwep || !uwep || (u.twoweap && uswapwep))
                 && is_vampire(youmonst.data)
                 && (touch_petrifies(mon->data)
-                    || (how_resistant(DISINT_RES) == 0
-                        && mon->data == &mons[PM_BLACK_DRAGON])))
+                    || (how_resistant(DISINT_RES) <= 49
+                        && (mon->data == &mons[PM_BLACK_DRAGON]
+                            || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
                 break;
             if (is_zombie(youmonst.data)
                 && mattk->aatyp == AT_BITE
@@ -4024,8 +4026,9 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 && (maybe_polyd(is_demon(youmonst.data),
                     Race_if(PM_DEMON)))
                 && (touch_petrifies(mon->data)
-                    || (how_resistant(DISINT_RES) == 0
-                        && mon->data == &mons[PM_BLACK_DRAGON])))
+                    || (how_resistant(DISINT_RES) <= 49
+                        && (mon->data == &mons[PM_BLACK_DRAGON]
+                            || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
                 break;
             /*FALLTHRU*/
         case AT_KICK:

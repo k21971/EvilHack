@@ -3200,4 +3200,5 @@ The following changes to date are:
 - Wielding Dichotomy will protect worn armor from being burnt
 - Baby dragon tweaks
 - Fix: shambling horror possible resistances, add more info to pokedex
+- Fix: pets and players poly'd and attacking disintegrators
 
