@@ -246,8 +246,10 @@ xchar x, y;
 
     if (i < (j * 3) / 10) {
         if (!rn2((i < j / 10) ? 2 : (i < j / 5) ? 3 : 4)) {
-            if (martial())   /* if you're a martial artist, you're not a clumsy kicker */
+            if (martial()) {
+                /* if you're a martial artist, you're not a clumsy kicker */
                 goto doit;
+            }
             Your("clumsy kick does no damage.");
             (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
             return;
@@ -258,21 +260,24 @@ xchar x, y;
             clumsy = TRUE;
     }
 
-    if (Fumbling)
+    if (Fumbling) {
         clumsy = TRUE;
-
-    else if (uarm && objects[uarm->otyp].oc_bulky && ACURR(A_DEX) < rnd(25))
+    } else if (uarm && objects[uarm->otyp].oc_bulky
+               && ACURR(A_DEX) < rnd(25)) {
         clumsy = TRUE;
+    }
  doit:
     if (Role_if(PM_MONK)
         && (Race_if(PM_CENTAUR)
             || Race_if(PM_TORTLE))
         && (touch_petrifies(mon->data)
-            || (how_resistant(DISINT_RES) == 0
-                && mon->data == &mons[PM_BLACK_DRAGON])))
+            || (how_resistant(DISINT_RES) <= 49
+                && (mon->data == &mons[PM_BLACK_DRAGON]
+                    || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
         return;
     else if (Role_if(PM_MONK) || Role_if(PM_SAMURAI))
-        You("%s %s!", martial_arts_kick[rn2(SIZE(martial_arts_kick))], mon_nam(mon));
+        You("%s %s!", martial_arts_kick[rn2(SIZE(martial_arts_kick))],
+            mon_nam(mon));
     else
         You("kick %s.", mon_nam(mon));
 

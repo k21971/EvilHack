@@ -3201,4 +3201,5 @@ The following changes to date are:
 - Baby dragon tweaks
 - Fix: shambling horror possible resistances, add more info to pokedex
 - Fix: pets and players poly'd and attacking disintegrators
+- Fix: follow-up to last commit (kicking and martial arts)
 
