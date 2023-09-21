@@ -3493,6 +3493,7 @@ long *abil;
         { &EStone_resistance, AD_STON },
         { &ESick_resistance, AD_DISE },
         { &EDeath_resistance, AD_DETH },
+        { &EStun_resistance, AD_STUN },
     };
     int k;
 

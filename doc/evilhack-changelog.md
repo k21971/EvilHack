@@ -3203,5 +3203,6 @@ The following changes to date are:
 - Fix: pets and players poly'd and attacking disintegrators
 - Fix: follow-up to last commit (kicking and martial arts)
 - Fix: 'null obj after quiver merge' panic
+- Fix: stun resistance from source in ctrl-x info.
 - Fix: a couple bugs with wizmode command #wizspell
 
