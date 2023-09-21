@@ -1758,7 +1758,7 @@ char *supplemental_name;
             if (!lookat_mon) {
                 pm = (struct permonst *) 0; /* just to be safe */
                 if (!object_not_monster(dbase_str_with_material)) {
-                    int mndx = name_to_mon(dbase_str_with_material);
+                    int mndx = name_to_mon(dbase_str_with_material, (int *) 0);
                     if (mndx != NON_PM) {
                         pm = &mons[mndx];
                     }

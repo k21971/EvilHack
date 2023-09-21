@@ -701,7 +701,7 @@ nh_timeout()
                 }
                 dealloc_killer(kptr);
 
-                if ((m_idx = name_to_mon(killer.name)) >= LOW_PM) {
+                if ((m_idx = name_to_mon(killer.name, (int *) 0)) >= LOW_PM) {
                     if (type_is_pname(&mons[m_idx])) {
                         killer.format = KILLED_BY;
                     } else if (mons[m_idx].geno & G_UNIQ) {

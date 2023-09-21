@@ -1775,7 +1775,7 @@ struct mkroom *croom;
                 if (!strcmpi(m->appear_as.str, "random"))
                     mndx = select_newcham_form(mtmp);
                 else
-                    mndx = name_to_mon(m->appear_as.str);
+                    mndx = name_to_mon(m->appear_as.str, (int *) 0);
 
                 if (mndx == NON_PM || (is_vampshifter(mtmp)
                                        && !validvamp(mtmp, &mndx, S_HUMAN))) {

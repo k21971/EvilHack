@@ -483,7 +483,7 @@ int psflags;
                 continue;  /* end do-while(--tryct > 0) loop */
             }
             class = 0;
-            mntmp = name_to_mon(buf);
+            mntmp = name_to_mon(buf, (int *) 0);
             if (mntmp < LOW_PM) {
             by_class:
                 class = name_to_monclass(buf, &mntmp);

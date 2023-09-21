@@ -3925,7 +3925,7 @@ struct obj *no_wish;
         || !strcmpi(bp, "globs") || !BSTRCMPI(bp, bp + i - 6, " globs")
         || (p = strstri(bp, "glob of ")) != 0
         || (p = strstri(bp, "globs of ")) != 0) {
-        mntmp = name_to_mon(!p ? bp : (strstri(p, " of ") + 4));
+        mntmp = name_to_mon(!p ? bp : (strstri(p, " of ") + 4), (int *) 0);
         /* if we didn't recognize monster type, pick a valid one at random */
         if (mntmp == NON_PM)
             mntmp = rn1(PM_BLACK_PUDDING - PM_GRAY_OOZE, PM_GRAY_OOZE);
@@ -3962,7 +3962,7 @@ struct obj *no_wish;
                 } else {
                     tmp = tin_variety_txt(p + 7, &tinv);
                     tvariety = tinv;
-                    mntmp = name_to_mon(p + 7 + tmp);
+                    mntmp = name_to_mon(p + 7 + tmp, (int *) 0);
                 }
                 typ = TIN;
                 goto typfnd;
@@ -3992,7 +3992,7 @@ struct obj *no_wish;
 
                 l = 0;
 
-                if ((mntmp = name_to_mon(p + of)) >= LOW_PM) {
+                if ((mntmp = name_to_mon(p + of, (int *) 0)) >= LOW_PM) {
                     *p = 0;
                     p = 0;
                 } else if (!strncmpi((p + of), "fire", l = 4)
@@ -4092,7 +4092,7 @@ struct obj *no_wish;
         && strncmpi(bp, "master key", 10)   /* not the "master" rank */
         && strncmpi(bp, "magenta", 7)) {    /* not the "mage" rank */
         if (mntmp < LOW_PM && strlen(bp) > 2
-            && (mntmp = name_to_mon(bp)) >= LOW_PM) {
+            && (mntmp = name_to_mon(bp, (int *) 0)) >= LOW_PM) {
             int mntmptoo, mntmplen; /* double check for rank title */
             char *obp = bp;
 

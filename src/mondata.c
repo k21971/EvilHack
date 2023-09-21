@@ -925,8 +925,9 @@ struct alt_spl {
 
 /* figure out what type of monster a user-supplied string is specifying */
 int
-name_to_mon(in_str)
+name_to_mon(in_str, matchlen)
 const char *in_str;
+int *matchlen;
 {
     /* Be careful.  We must check the entire string in case it was
      * something such as "ettin zombie corpse".  The calling routine
@@ -1052,6 +1053,8 @@ const char *in_str;
         if (m_i_len > len && !strncmpi(mons[i].mname, str, m_i_len)) {
             if (m_i_len == slen) {
                 mntmp = i;
+                if (matchlen)
+                    *matchlen = m_i_len;
                 break; /* exact match */
             } else if (slen > m_i_len
                        && (str[m_i_len] == ' '
@@ -1064,6 +1067,8 @@ const char *in_str;
                            || !strcmpi(&str[m_i_len], "es")
                            || !strncmpi(&str[m_i_len], "es ", 3))) {
                 mntmp = i;
+                if (matchlen)
+                    *matchlen = m_i_len;
                 len = m_i_len;
             }
         }
@@ -1156,7 +1161,7 @@ int *mndx_p;
                 return i;
         }
         /* check individual species names */
-        i = name_to_mon(in_str);
+        i = name_to_mon(in_str, (int *) 0);
         if (i != NON_PM) {
             if (mndx_p)
                 *mndx_p = i;
