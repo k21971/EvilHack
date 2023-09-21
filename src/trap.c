@@ -508,21 +508,21 @@ int x, y, typ;
                     ttmp->launch.x = lx;
                     ttmp->launch.y = ly;
                     /* no AD_DISN, thanks */
-                    ttmp->launch_otyp = -11 - (AD_MAGM - 1);
+                    ttmp->launch_otyp = -ZT_SPELL(ZT_MAGIC_MISSILE);
                     if (!rn2(15))
-                        ttmp->launch_otyp = -22 - (AD_ELEC - 1);
+                        ttmp->launch_otyp = -ZT_BREATH(ZT_LIGHTNING);
                     else if (!rn2(10))
-                        ttmp->launch_otyp = -22 - (AD_FIRE - 1);
+                        ttmp->launch_otyp = -ZT_BREATH(ZT_FIRE);
                     else if (!rn2(10))
-                        ttmp->launch_otyp = -11 - (AD_COLD - 1);
+                        ttmp->launch_otyp = -ZT_SPELL(ZT_COLD);
                     else if (!rn2(7))
-                        ttmp->launch_otyp = -22 - (AD_DRST - 1);
+                        ttmp->launch_otyp = -ZT_BREATH(ZT_POISON_GAS);
                     else if (!rn2(7))
-                        ttmp->launch_otyp = -22 - (AD_ACID - 1);
+                        ttmp->launch_otyp = -ZT_BREATH(ZT_ACID);
                     else if (!rn2(5))
-                        ttmp->launch_otyp = -11 - (AD_SLEE - 1);
+                        ttmp->launch_otyp = -ZT_SPELL(ZT_SLEEP);
                     else if (!rn2(5))
-                        ttmp->launch_otyp = -22 - (AD_STUN - 1);
+                        ttmp->launch_otyp = -ZT_BREATH(ZT_STUN);
                     ok = 1;
                 }
             }

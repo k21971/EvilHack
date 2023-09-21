@@ -3452,10 +3452,7 @@ register struct attack *mattk;
     case AD_FIRE:
     case AD_ELEC:
     case AD_ACID:
-        /* See comment in mon_explodes() and in zap.c for an explanation of this
-         * math.  Here, the player is causing the explosion, so it should be in
-         * the +20 to +30 range instead of negative. */
-        explode(u.ux, u.uy, (mattk->adtyp - 1) + 20, tmp, MON_EXPLODE,
+        explode(u.ux, u.uy, ZT_BREATH(mattk->adtyp - 1), tmp, MON_EXPLODE,
                 adtyp_to_expltype(mattk->adtyp));
         if (mdef && mattk->adtyp == AD_ACID) {
             if (rn2(4))

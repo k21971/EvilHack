@@ -3206,4 +3206,6 @@ The following changes to date are:
 - Fix: stun resistance from source in ctrl-x info.
 - Fix: a couple bugs with wizmode command #wizspell
 - Fix: forging Drow objects
+- Improve #wizgenesis monster race parsing
+- Fix: zap/explosion types, overhaul
 

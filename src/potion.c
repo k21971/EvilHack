@@ -2686,7 +2686,7 @@ dodip()
         /* Turn off engine before fueling, turn off fuel too :-)  */
         if (obj->lamplit || potion->lamplit) {
             useup(potion);
-            explode(u.ux, u.uy, 11, d(6, 6), 0, EXPL_FIERY);
+            explode(u.ux, u.uy, ZT_SPELL(ZT_FIRE), d(6, 6), 0, EXPL_FIERY);
             exercise(A_WIS, FALSE);
             return 1;
         }

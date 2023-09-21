@@ -1928,8 +1928,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             && spec_dbon_applies && otmp->oartifact == ART_TEMPEST) {
             pline("A massive surge of energy courses through the halberd!");
             explode(mdef->mx, mdef->my,
-                    (youattack ? (AD_ELEC - 1) + 20
-                               : -((AD_ELEC - 1) + 20)), d(6, 6),
+                    (youattack ? ZT_BREATH(ZT_LIGHTNING)
+                               : -ZT_BREATH(ZT_LIGHTNING)), d(6, 6),
                     (youattack ? 0 : MON_CASTBALL), EXPL_SHOCK);
         }
 
@@ -2307,14 +2307,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))) {
                         pline("A surge of flame flows through the blade!");
                         explode(mdef->mx, mdef->my,
-                                (youattack ? (AD_FIRE - 1) + 20
-                                           : -((AD_FIRE - 1) + 20)), d(4, 6),
+                                (youattack ? ZT_BREATH(ZT_FIRE)
+                                           : -ZT_BREATH(ZT_FIRE)), d(4, 6),
                                 (youattack ? 0 : MON_CASTBALL), EXPL_FIERY);
                     } else if (!(resists_cold(mdef) || defended(mdef, AD_COLD))) {
                         pline("A surge of frost flows through the blade!");
                         explode(mdef->mx, mdef->my,
-                                (youattack ? (AD_COLD - 1) + 20
-                                           : -((AD_COLD - 1) + 20)), d(4, 6),
+                                (youattack ? ZT_BREATH(ZT_COLD)
+                                           : -ZT_BREATH(ZT_COLD)), d(4, 6),
                                 (youattack ? 0 : MON_CASTBALL), EXPL_FROSTY);
                     }
                 }

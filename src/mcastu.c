@@ -1511,8 +1511,10 @@ int spellnum;
     return FALSE;
 }
 
-/* convert 1..11 to 0..10; add 11 for second group (spell casting) */
-#define ad_to_typ(k) (11 + (int) k - 1)
+/* convert 1..11 to 0..10 */
+#define ad_to_typ(k) ((int) k - 1)
+/* do the same and then add MAX_ZT for spells */
+#define ad_to_spelltyp(k) BASE_ZT(ad_to_typ((k)))
 
 /* monster uses spell against player (ranged) */
 int
@@ -1531,11 +1533,11 @@ register struct attack *mattk;
     }
     if (lined_up(mtmp) && rn2(3)) {
         nomul(0);
-        if (mattk->adtyp && (mattk->adtyp < 12)) { /* no cf unsigned > 0 */
+        if (mattk->adtyp && (mattk->adtyp <= MAX_ZT)) { /* no cf unsigned > 0 */
             if (canseemon(mtmp))
                 pline("%s zaps you with a %s!", Monnam(mtmp),
-                      flash_types[ad_to_typ(mattk->adtyp) - 11]);
-            buzz(-ad_to_typ(mattk->adtyp), (int) mattk->damn, mtmp->mx,
+                      flash_types[ad_to_typ(mattk->adtyp)]);
+            buzz(-ad_to_spelltyp(mattk->adtyp), (int) mattk->damn, mtmp->mx,
                  mtmp->my, sgn(tbx), sgn(tby));
         } else
             impossible("Monster spell %d cast", mattk->adtyp - 1);
@@ -1561,11 +1563,11 @@ register struct attack *mattk;
     }
     if (mlined_up(mtmp, mdef, FALSE) && rn2(3)) {
         nomul(0);
-        if (mattk->adtyp && (mattk->adtyp < 12)) { /* no cf unsigned > 0 */
+        if (mattk->adtyp && (mattk->adtyp <= MAX_ZT)) { /* no cf unsigned > 0 */
             if (canseemon(mtmp))
                 pline("%s zaps %s with a %s!", Monnam(mtmp),
-                      mon_nam(mdef), flash_types[ad_to_typ(mattk->adtyp) - 11]);
-            dobuzz(-ad_to_typ(mattk->adtyp), (int) mattk->damn, mtmp->mx,
+                      mon_nam(mdef), flash_types[ad_to_typ(mattk->adtyp)]);
+            dobuzz(-ad_to_spelltyp(mattk->adtyp), (int) mattk->damn, mtmp->mx,
                    mtmp->my, sgn(tbx), sgn(tby), FALSE);
         } else
             impossible("Monster spell %d cast", mattk->adtyp - 1);

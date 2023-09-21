@@ -38,23 +38,7 @@ STATIC_DCL int FDECL(spell_hit_bonus, (int, BOOLEAN_P));
 STATIC_DCL void FDECL(destroy_one_item, (struct obj *, int, int));
 STATIC_DCL void FDECL(wishcmdassist, (int));
 
-#define ZT_MAGIC_MISSILE (AD_MAGM - 1)
-#define ZT_FIRE (AD_FIRE - 1)
-#define ZT_COLD (AD_COLD - 1)
-#define ZT_SLEEP (AD_SLEE - 1)
-#define ZT_DEATH (AD_DISN - 1) /* or disintegration */
-#define ZT_LIGHTNING (AD_ELEC - 1)
-#define ZT_POISON_GAS (AD_DRST - 1)
-#define ZT_ACID (AD_ACID - 1)
-#define ZT_WATER (AD_WATR - 1)
-#define ZT_DRAIN (AD_DRLI - 1)
-#define ZT_STUN (AD_STUN - 1)
-
-#define ZT_WAND(x) (x)
-#define ZT_SPELL(x) (11 + (x))
-#define ZT_BREATH(x) (22 + (x))
-
-#define is_hero_spell(type) ((type) >= 11 && (type) < 22)
+#define is_hero_spell(type) ((type) >= MAX_ZT && (type) < (MAX_ZT * 2))
 
 STATIC_VAR const char are_blinded_by_the_flash[] =
     "are blinded by the flash!";
@@ -2624,7 +2608,8 @@ boolean ordinary;
 
     case SPE_FIREBALL:
         You("explode a fireball on top of yourself!");
-        explode(u.ux, u.uy, 11, d(6, 6), WAND_CLASS, EXPL_FIERY);
+        explode(u.ux, u.uy, ZT_SPELL(ZT_FIRE), d(6, 6), WAND_CLASS,
+                EXPL_FIERY);
         break;
     case WAN_FIRE:
     case FIRE_HORN:
@@ -3692,8 +3677,8 @@ struct obj *obj;
         if (otyp == WAN_DIGGING || otyp == SPE_DIG)
             zap_dig();
         else if (otyp >= SPE_MAGIC_MISSILE && otyp <= SPE_ACID_BLAST)
-            buzz(otyp - SPE_MAGIC_MISSILE + 11, u.ulevel / 2 + 1, u.ux, u.uy,
-                 u.dx, u.dy);
+            buzz(ZT_SPELL(otyp - SPE_MAGIC_MISSILE), u.ulevel / 2 + 1,
+                 u.ux, u.uy, u.dx, u.dy);
         else if (otyp >= WAN_MAGIC_MISSILE && otyp <= WAN_LIGHTNING)
             buzz(otyp - WAN_MAGIC_MISSILE,
                  (otyp == WAN_MAGIC_MISSILE) ? 2 : 6, u.ux, u.uy, u.dx, u.dy);
@@ -4334,7 +4319,7 @@ register int type, nd;
 struct obj **ootmp; /* to return worn armor for caller to disintegrate */
 {
     register int tmp = 0;
-    register int abstype = abs(type) % 11;
+    register int abstype = BASE_ZT(abs(type));
     boolean sho_shieldeff = FALSE;
     boolean spellcaster = is_hero_spell(type); /* maybe get a bonus! */
     boolean mon_tempest_wield = (MON_WEP(mon)
@@ -4577,7 +4562,7 @@ xchar sx, sy;
 {
     int dam = 0, abstyp = abs(type);
 
-    switch (abstyp % 11) {
+    switch (BASE_ZT(abstyp)) {
     case ZT_MAGIC_MISSILE:
         dam = d(nd, 6);
         exercise(A_STR, FALSE);
@@ -4963,12 +4948,12 @@ int dx, dy;
 }
 
 /*
- * type ==   0 to  10 : you shooting a wand
- * type ==  11 to  21 : you casting a spell
- * type ==  22 to  32 : you breathing as a monster
- * type == -11 to -21 : monster casting spell
- * type == -22 to -32 : monster breathing at you
- * type == -33 to -43 : monster shooting a wand
+ * type ==   0 to  11 : you shooting a wand
+ * type ==  12 to  22 : you casting a spell
+ * type ==  23 to  33 : you breathing as a monster
+ * type == -12 to -22 : monster casting spell
+ * type == -23 to -33 : monster breathing at you
+ * type == -34 to -44 : monster shooting a wand
  * called with dx = dy = 0 with vertical bolts
  */
 void
@@ -4978,7 +4963,7 @@ register xchar sx, sy;
 register int dx, dy;
 boolean say; /* Announce out of sight hit/miss events if true */
 {
-    int range, abstype = abs(type) % 11;
+    int range, abstype = BASE_ZT(abs(type));
     register xchar lsx, lsy;
     struct monst *mon;
     coord save_bhitpos;
@@ -4986,7 +4971,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
     const char *fltxt;
     struct obj *otmp;
     int spell_type;
-    boolean is_wand = (type >= 0 && type <= 10);
+    boolean is_wand = (type >= 0 && type <= MAX_ZT);
 
     /* if its a Hero Spell then get its SPE_TYPE */
     spell_type = is_hero_spell(type) ? SPE_MAGIC_MISSILE + abstype : 0;
@@ -5124,7 +5109,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
                                if it's fire, highly flammable monsters leave
                                no corpse; don't bother reporting that they
                                "burn completely" -- unnecessary verbosity */
-                            if ((type % 11 == ZT_FIRE)
+                            if ((BASE_ZT(type) == ZT_FIRE)
                                 /* paper golem or straw golem */
                                 && completelyburns(mon->data))
                                 xkflags |= XKILL_NOCORPSE;
@@ -5438,7 +5423,7 @@ boolean moncast;
     struct trap *t;
     struct rm *lev = &levl[x][y];
     boolean see_it = cansee(x, y), yourzap;
-    int rangemod = 0, abstype = abs(type) % 11;
+    int rangemod = 0, abstype = BASE_ZT(abs(type));
 
     if (type == PHYS_EXPL_TYPE) {
         /* this won't have any effect on the floor */

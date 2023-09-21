@@ -194,6 +194,27 @@ enum bhit_call_types {
     INVIS_BEAM    = 5
 };
 
+/* zap type definitions, formerly in zap.c */
+#define ZT_MAGIC_MISSILE (AD_MAGM - 1)
+#define ZT_FIRE (AD_FIRE - 1)
+#define ZT_COLD (AD_COLD - 1)
+#define ZT_SLEEP (AD_SLEE - 1)
+#define ZT_DEATH (AD_DISN - 1) /* or disintegration */
+#define ZT_LIGHTNING (AD_ELEC - 1)
+#define ZT_POISON_GAS (AD_DRST - 1)
+#define ZT_ACID (AD_ACID - 1)
+#define ZT_WATER (AD_WATR - 1)
+#define ZT_DRAIN (AD_DRLI - 1)
+#define ZT_STUN (AD_STUN - 1)
+
+#define MAX_ZT (ZT_STUN + 1)
+
+#define BASE_ZT(x) ((x) % MAX_ZT)
+
+#define ZT_WAND(x) (x)
+#define ZT_SPELL(x) (MAX_ZT + (x))
+#define ZT_BREATH(x) (MAX_ZT + MAX_ZT + (x))
+
 /* attack mode for hmon() */
 enum hmon_atkmode_types {
     HMON_MELEE   = 0, /* hand-to-hand */
