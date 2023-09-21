@@ -1883,7 +1883,6 @@ struct mkroom *croom;
 
     /* Put a forge at m.x, m.y */
     levl[m.x][m.y].typ = FORGE;
-    levl[m.x][m.y].lit = TRUE;
 
     level.flags.nforges++;
 }

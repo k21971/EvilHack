@@ -3205,4 +3205,5 @@ The following changes to date are:
 - Fix: 'null obj after quiver merge' panic
 - Fix: stun resistance from source in ctrl-x info.
 - Fix: a couple bugs with wizmode command #wizspell
+- Fix: forging Drow objects
 
