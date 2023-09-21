@@ -2489,7 +2489,7 @@ do_class_genocide()
         }
 
         class = name_to_monclass(buf, (int *) 0);
-        if (class == 0 && (i = name_to_mon(buf)) != NON_PM)
+        if (class == 0 && (i = name_to_mon(buf, (int *) 0)) != NON_PM)
             class = mons[i].mlet;
         immunecnt = gonecnt = goodcnt = 0;
         for (i = LOW_PM; i < NUMMONS; i++) {
@@ -2686,7 +2686,7 @@ int how;
                 return;
             }
 
-            mndx = name_to_mon(buf);
+            mndx = name_to_mon(buf, (int *) 0);
             ptr = &mons[mndx];
 
             /* Liches and the like are immune to genocide until Vecna
@@ -3019,9 +3019,9 @@ create_particular_parse(str, d)
 char *str;
 struct _create_particular_data *d;
 {
-    char *rbufp = (char *) 0, *bufp = str;
+    char *bufp = str;
     char *tmpp;
-    int i, race = NON_PM;
+    int i;
 
     d->monclass = MAXMCLASSES;
     d->which = urole.malenum; /* an arbitrary index into mons[] */
@@ -3082,15 +3082,29 @@ struct _create_particular_data *d;
         d->makehostile = TRUE;
     }
 
-    /* determine if a race was specified for the resulting mon
-       TODO?: currently limited only to player-valid races. */
-    for (i = 0; races[i].adj; i++) {
-        int adjlen = strlen(races[i].adj);
-        if (!strncmpi(bufp, races[i].adj, adjlen)
-            && !strncmpi(bufp + adjlen, " race ", 6)) {
-            rbufp = bufp + adjlen + 6;
-            race = races[i].malenum;
-            break;
+    /* determine if a race was specified for the resulting mon */
+    if (!strncmpi(bufp, "racial ", 7)) {
+        bufp += 7;
+        int adjlen;
+        for (i = 0; races[i].adj; i++) {
+            adjlen = strlen(races[i].adj);
+            if (!strncmpi(bufp, races[i].adj, adjlen)
+                && bufp[adjlen] == ' ') {
+                bufp = bufp + adjlen + 1;
+                d->race = races[i].malenum;
+                break;
+            }
+        }
+        /* if no "real" (hero-valid) race matches, try normal monster name */
+        if (d->race == NON_PM) {
+            int race = name_to_mon(bufp, &adjlen);
+            if (race >= LOW_PM && bufp[adjlen] != '\0') {
+                bufp += adjlen;
+                d->race = race;
+                if (*bufp != ' ')
+                    bufp = index(bufp, ' ');
+                ++bufp;
+            }
         }
     }
     /* decide whether a valid monster was chosen */
@@ -3099,12 +3113,7 @@ struct _create_particular_data *d;
         return TRUE;
     }
 
-    if (race != NON_PM && (d->which = name_to_mon(rbufp)) >= LOW_PM) {
-        d->race = race;
-        return TRUE;
-    }
-
-    d->which = name_to_mon(bufp);
+    d->which = name_to_mon(bufp, (int *) 0);
     if (d->which >= LOW_PM)
         return TRUE; /* got one */
 

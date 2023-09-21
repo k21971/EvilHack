@@ -365,7 +365,7 @@ boolean thrown_weapon; /* thrown weapons are less deadly */
     }
 
     /* suppress killer prefix if it already has one */
-    i = name_to_mon(pkiller);
+    i = name_to_mon(pkiller, (int *) 0);
     if (i >= LOW_PM && (mons[i].geno & G_UNIQ)) {
         kprefix = KILLED_BY;
         if (!type_is_pname(&mons[i]))

@@ -5478,7 +5478,7 @@ struct monst *mon;
                 mndx = NON_PM;
                 break;
             }
-            mndx = name_to_mon(buf);
+            mndx = name_to_mon(buf, (int *) 0);
             if (mndx == NON_PM) {
                 /* didn't get a type, so check whether it's a class
                    (single letter or text match with def_monsyms[]) */
