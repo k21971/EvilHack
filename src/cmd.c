@@ -946,19 +946,24 @@ wiz_map(VOID_ARGS)
     return 0;
 }
 
-/* ^S command - cast any spell. */
+/* ^S command - cast any spell, does not require energy to use */
 STATIC_PTR int
 wiz_spell(VOID_ARGS)
 {
     char buf[BUFSZ] = DUMMY;
     int last_spbook, i;
+
     while (buf[0] == '\0' || buf[0] == '\033') {
-        getlin("What spell do you successfully cast without energy use?", buf);
+        getlin("Which spell to cast?", buf);
         (void) mungspaces(buf);
     }
-    last_spbook = (SPBOOK_CLASS + 1 < MAXOCLASSES ? bases[SPBOOK_CLASS + 1] : NUM_OBJECTS) - 1;
+
+    last_spbook = (SPBOOK_CLASS + 1 < MAXOCLASSES
+                   ? bases[SPBOOK_CLASS + 1] : NUM_OBJECTS) - 1;
+
     for (i = bases[SPBOOK_CLASS]; i <= last_spbook; ++i) {
-        if (objects[i].oc_skill < P_FIRST_SPELL || objects[i].oc_skill > P_LAST_SPELL)
+        if (objects[i].oc_skill < P_FIRST_SPELL
+            || objects[i].oc_skill > P_LAST_SPELL)
             continue;
         if (!strcmpi(buf, OBJ_NAME(objects[i]))) {
             /* pline("Casting [%d] %s", i, buf); */

@@ -1167,7 +1167,7 @@ boolean wiz_cast;
        added per cast. the players intelligence must be greater than 6
        to be able to help remember spells as they're cast. cavepersons
        are the one role that do not have this benefit */
-    if (!Role_if(PM_CAVEMAN) && ACURR(A_INT) > 6) {
+    if (!wiz_cast && !Role_if(PM_CAVEMAN) && ACURR(A_INT) > 6) {
         spl_book[spell].sp_know += rn1(ACURR(A_INT) * 5, ACURR(A_INT) * 2);
         if (spl_book[spell].sp_know >= KEEN)
             spl_book[spell].sp_know = KEEN;
@@ -1237,7 +1237,8 @@ boolean wiz_cast;
         } else if (role_skill >= P_SKILLED) {
             /* player said not to cast advanced spell; return up to half of the
              * magical energy */
-            u.uen += rnd(energy / 2);
+            if (!wiz_cast)
+                u.uen += rnd(energy / 2);
         }
         /*FALLTHRU*/
 
