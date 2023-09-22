@@ -1489,8 +1489,17 @@ docallcmd()
         allowall[0] = ALL_CLASSES;
         allowall[1] = '\0';
         obj = getobj(allowall, "name");
-        if (obj)
-            do_oname(obj);
+        if (obj) {
+            char *tempstr = xname(obj);
+            maybereleaseobuf(tempstr);
+
+            if (!obj->dknown) {
+                You("would never recognize %s later.",
+                    obj->quan > 1L ? "them" : "it");
+            } else {
+                do_oname(obj);
+            }
+        }
         break;
     case 'o': /* name a type of object in inventory */
         obj = getobj(callable, "call");
@@ -1498,7 +1507,8 @@ docallcmd()
             /* behave as if examining it in inventory;
                this might set dknown if it was picked up
                while blind and the hero can now see */
-            (void) xname(obj);
+            char *tempstr = xname(obj);
+            maybereleaseobuf(tempstr);
 
             if (!obj->dknown) {
                 You("would never recognize another one.");

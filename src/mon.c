@@ -2297,8 +2297,28 @@ struct obj *otmp;
     if (mdat->mlet == S_NYMPH)
         return (otmp->oclass == ROCK_CLASS) ? 0 : iquan;
 
-    if (curr_mon_load(mtmp) + newload > max_mon_load(mtmp))
-        return 0;
+    /* maybe can't take whole stack */
+    if (curr_mon_load(mtmp) + newload > max_mon_load(mtmp)) {
+        int weightper;
+        /* For parity with weight()'s provision for massive piles of corpses.
+         * owt is an int but quan is long, so owt can max out, in theory.
+         * weight() sets owt to maximum for corpses in that case.
+         * NB: weight() breaks for large quantities (read: billions) of
+         * non-corpses, which will render this calculation invalid. It's never
+         * going to happen in a real game. If need be, weight() can be fixed.
+         * By someone else.
+         */
+        if (otmp->owt == LARGEST_INT)
+            /* the 24 = 120 / 5 is ratio of densest to lightest material, in case
+             * otmp isn't its base material. We can't access actual densities, so
+             * just assume worst case.
+             */
+            weightper = objects[otmp->otyp].oc_weight * 24;
+        /* the normal case: divide stack weight by quantity, rounding up */
+        else
+            weightper = (int) ((((long) otmp->owt) - 1 + otmp->quan) / otmp->quan);
+        return (max_mon_load(mtmp) - curr_mon_load(mtmp)) / weightper;
+    }
 
     return iquan;
 }
@@ -2650,11 +2670,13 @@ struct monst *magr, *mdef;
 
     /* elvenkind vs orcs */
     if ((racial_elf(magr) || racial_drow(magr))
-        && racial_orc(mdef))
+        && racial_orc(mdef)
+        && !(nonliving(ma) || nonliving(md)))
         return ALLOW_M | ALLOW_TM;
 
     /* elves vs drow */
-    if (racial_elf(magr) && racial_drow(mdef))
+    if (racial_elf(magr) && racial_drow(mdef)
+        && !(nonliving(ma) || nonliving(md)))
         return ALLOW_M | ALLOW_TM;
 
     /* angels vs demons */
