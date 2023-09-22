@@ -3209,4 +3209,5 @@ The following changes to date are:
 - Improve #wizgenesis monster race parsing
 - Fix: zap/explosion types, overhaul
 - Allow being unpunished (ball & chain) if poly'd into monster with no limbs
+- Prevent waking up the Wizard of Yendor before actual encounter
 

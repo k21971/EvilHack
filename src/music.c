@@ -664,7 +664,8 @@ struct obj *instr;
         if (instr->oartifact == ART_GJALLAR) {
             awaken_monsters(ROWNO * COLNO);
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-                if (DEADMONSTER(mtmp) || mtmp->islucifer)
+                if (DEADMONSTER(mtmp)
+                    || mtmp->islucifer || mtmp->iswiz)
                     continue;
                 /* Gjallar's sound is so awesome, even those
                    predisposed to wait decide to take action */
@@ -729,7 +730,8 @@ struct obj *instr;
         pline_The("entire %s is shaking around you!", generic_lvl_desc());
         do_earthquake((u.ulevel - 1) / 3 + 1);
         for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-            if (DEADMONSTER(mtmp) || mtmp->islucifer)
+            if (DEADMONSTER(mtmp)
+                || mtmp->islucifer || mtmp->iswiz)
                 continue;
             wakeup(mtmp, TRUE); /* peaceful monster will become hostile */
         }

@@ -592,7 +592,8 @@ aggravate()
     boolean in_w_tower = In_W_tower(u.ux, u.uy, &u.uz);
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (DEADMONSTER(mtmp) || mtmp->islucifer)
+        if (DEADMONSTER(mtmp) || mtmp->islucifer
+            || mtmp->iswiz)
             continue;
         if (in_w_tower != In_W_tower(mtmp->mx, mtmp->my, &u.uz))
             continue;
