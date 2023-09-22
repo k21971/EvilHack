@@ -2300,9 +2300,9 @@ struct obj *otmp;
     /* maybe can't take whole stack */
     if (curr_mon_load(mtmp) + newload > max_mon_load(mtmp)) {
         int weightper;
-        /* For parity's with weight()'s accounting for massive corpse weights.
+        /* For parity with weight()'s provision for massive piles of corpses.
          * owt is an int but quan is long, so owt can max out, in theory.
-         * weight() sets owt to maximum for corpses in this case.
+         * weight() sets owt to maximum for corpses in that case.
          * NB: weight() breaks for large quantities (read: billions) of
          * non-corpses, which will render this calculation invalid. It's never
          * going to happen in a real game. If need be, weight() can be fixed.
