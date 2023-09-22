@@ -702,7 +702,7 @@ int spellnum;
     case MGC_ACID_BLAST:
         if (m_canseeu(mtmp) && distu(mtmp->mx, mtmp->my) <= 192) {
             pline("%s douses you in a torrent of acid!", Monnam(mtmp));
-            explode(u.ux, u.uy, AD_ACID - 1, d((ml / 2) + 4, 8),
+            explode(u.ux, u.uy, ZT_ACID, d((ml / 2) + 4, 8),
                     MON_CASTBALL, EXPL_ACID);
             if (how_resistant(ACID_RES) == 100) {
                 shieldeff(u.ux, u.uy);
@@ -836,8 +836,8 @@ int spellnum;
         if (m_canseeu(mtmp) && distu(mtmp->mx, mtmp->my) <= 192) {
             pline("%s blasts you with %s!", Monnam(mtmp),
                   (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
-            explode(u.ux, u.uy, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1
-                                                            : AD_COLD - 1,
+            explode(u.ux, u.uy,
+                    (spellnum == MGC_FIRE_BOLT) ? ZT_FIRE : ZT_COLD,
                     resist_reduce(d((ml / 5) + 1, 8),
                     (spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES),
                     MON_CASTBALL, (spellnum == MGC_FIRE_BOLT) ? EXPL_FIERY
@@ -2081,7 +2081,7 @@ int spellnum;
         }
         if (yours || canseemon(mtmp))
             You("douse %s in a torrent of acid!", mon_nam(mtmp));
-        explode(mtmp->mx, mtmp->my, AD_ACID - 1, d((u.ulevel / 2) + 4, 8),
+        explode(mtmp->mx, mtmp->my, ZT_ACID, d((u.ulevel / 2) + 4, 8),
                 WAND_CLASS, EXPL_ACID);
         if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
             shieldeff(mtmp->mx, mtmp->my);
@@ -2273,8 +2273,8 @@ int spellnum;
         if (yours || canseemon(mtmp)) {
             You("blast %s with %s!", mon_nam(mtmp),
                 (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
-            explode(mtmp->mx, mtmp->my, (spellnum == MGC_FIRE_BOLT) ? AD_FIRE - 1
-                                                                    : AD_COLD - 1,
+            explode(mtmp->mx, mtmp->my,
+                    (spellnum == MGC_FIRE_BOLT) ? ZT_FIRE : ZT_COLD,
                     d((u.ulevel / 5) + 1, 8), WAND_CLASS, 1);
             if (spellnum == MGC_FIRE_BOLT
                 && (resists_fire(mtmp) || defended(mtmp, AD_FIRE))) {

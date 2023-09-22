@@ -6140,7 +6140,7 @@ int bodypart;
     }
 
     pline("KABOOM!!  %s was booby-trapped!", The(item));
-    explode(u.ux, u.uy, AD_FIRE - 1, resist_reduce(dmg, FIRE_RES),
+    explode(u.ux, u.uy, ZT_FIRE, resist_reduce(dmg, FIRE_RES),
             TRAPPED_DOOR, EXPL_FIERY);
     scatter(u.ux, u.uy, dmg,
             VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, 0);

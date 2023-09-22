@@ -889,7 +889,7 @@ struct monst *priest;
         break;
     }
 
-    buzz(-11 - (AD_ELEC - 1), 6, x, y, sgn(tbx),
+    buzz(-(ZT_SPELL(ZT_LIGHTNING)), 6, x, y, sgn(tbx),
          sgn(tby)); /* bolt of lightning */
     exercise(A_WIS, FALSE);
 }
