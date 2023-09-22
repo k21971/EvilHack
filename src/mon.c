@@ -2650,11 +2650,13 @@ struct monst *magr, *mdef;
 
     /* elvenkind vs orcs */
     if ((racial_elf(magr) || racial_drow(magr))
-        && racial_orc(mdef))
+        && racial_orc(mdef)
+        && !(nonliving(ma) || nonliving(md)))
         return ALLOW_M | ALLOW_TM;
 
     /* elves vs drow */
-    if (racial_elf(magr) && racial_drow(mdef))
+    if (racial_elf(magr) && racial_drow(mdef)
+        && !(nonliving(ma) || nonliving(md)))
         return ALLOW_M | ALLOW_TM;
 
     /* angels vs demons */
