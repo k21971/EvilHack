@@ -3208,4 +3208,5 @@ The following changes to date are:
 - Fix: forging Drow objects
 - Improve #wizgenesis monster race parsing
 - Fix: zap/explosion types, overhaul
+- Allow being unpunished (ball & chain) if poly'd into monster with no limbs
 
