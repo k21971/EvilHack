@@ -1484,7 +1484,7 @@ register struct monst *mtmp;
             (void) mongets(mtmp, ROBE);
             (void) mongets(mtmp, CORNUTHAUM);
             if (rn2(2))
-                (void) mongets(mtmp, rn2(2) ? AMULET_OF_GUARDING
+                (void) mongets(mtmp, rn2(4) ? AMULET_OF_GUARDING
                                             : AMULET_OF_MAGIC_RESISTANCE);
         }
         break;

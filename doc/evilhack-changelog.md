@@ -3215,4 +3215,5 @@ The following changes to date are:
 - Fix: monsters will pick up partial stacks
 - Fix: give message when walking onto a magic chest square
 - Fix: the Hidden Dungeon and magic mapping
+- Adjust odds of the Wizard of Yendor spawning with magic resistance
 
