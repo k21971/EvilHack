@@ -5,7 +5,7 @@
 #	The Hidden Dungeon -
 #
 MAZE: "hdgn",' '
-FLAGS: noteleport,hardfloor,shortsighted
+FLAGS: noteleport,hardfloor,shortsighted,nommap
 GEOMETRY:left,center
 #         1         2         3         4         5         6         7    7
 #123456789012345678901234567890123456789012345678901234567890123456789012345

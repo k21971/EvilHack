@@ -3210,4 +3210,9 @@ The following changes to date are:
 - Fix: zap/explosion types, overhaul
 - Allow being unpunished (ball & chain) if poly'd into monster with no limbs
 - Prevent waking up the Wizard of Yendor before actual encounter
+- Don't allow players to name objects they don't know the appearance of
+- Fix: undead don't grudge each other
+- Fix: monsters will pick up partial stacks
+- Fix: give message when walking onto a magic chest square
+- Fix: the Hidden Dungeon and magic mapping
 
