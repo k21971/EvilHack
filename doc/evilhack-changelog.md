@@ -3219,4 +3219,5 @@ The following changes to date are:
 - Fix: more zap/explosion type corrections
 - Fix: grammar when killed by a spear trap
 - Fix: don't allow magic keys in bones
+- Castle chest with wand of wishing is always locked
 
