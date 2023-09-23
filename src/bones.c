@@ -214,6 +214,10 @@ boolean restore;
                 /* "special prize" in this game becomes ordinary object
                    if loaded into another game */
                 otmp->record_achieve_special = NON_PM;
+            } else if (otmp->otyp == MAGIC_KEY) {
+                /* magic key becomes a regular key */
+                otmp->otyp = SKELETON_KEY;
+                set_material(otmp, BONE);
             } else if (otmp->otyp == AMULET_OF_YENDOR) {
                 /* no longer the real Amulet */
                 otmp->otyp = FAKE_AMULET_OF_YENDOR;
