@@ -107,7 +107,7 @@ MONSTER:('@',"Master of Thieves"),(36,11) {
   OBJECT:(')',"dagger"),+5
 }
 # Magic chest
-MAGIC_CHEST:(35,10)
+MAGIC_CHEST:(34,10)
 # thug guards, room #1
 MONSTER:('@',"thug"),(28,10)
 MONSTER:('@',"thug"),(29,11)
