@@ -896,15 +896,16 @@ register boolean verbose;
                     hitv += mon->m_lev;
                 }
                 /* Drow are affected by being in both the light or the dark */
-                if (racial_drow(mon)
-                    && (!(levl[mon->mx][mon->my].lit
+                if (racial_drow(mon)) {
+                    if (!(levl[mon->mx][mon->my].lit
                           || (viz_array[mon->my][mon->mx] & TEMP_LIT))
-                        || (viz_array[mon->my][mon->mx] & TEMP_DARK))) {
-                    /* in darkness */
-                    hitv += (mon->m_lev / 6) + 2;
-                } else {
-                    /* in the light */
-                    hitv -= 3;
+                        || (viz_array[mon->my][mon->mx] & TEMP_DARK)) {
+                        /* in darkness */
+                        hitv += (mon->m_lev / 6) + 2;
+                    } else {
+                        /* in the light */
+                        hitv -= 3;
+                    }
                 }
                 if (dam < 1)
                     dam = 1;

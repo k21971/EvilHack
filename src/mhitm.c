@@ -518,15 +518,16 @@ register struct monst *magr, *mdef;
         tmp++;
 
     /* Drow are affected by being in both the light or the dark */
-    if (racial_drow(magr)
-        && (!(levl[magr->mx][magr->my].lit
+    if (racial_drow(magr)) {
+        if (!(levl[magr->mx][magr->my].lit
               || (viz_array[magr->my][magr->mx] & TEMP_LIT))
-            || (viz_array[magr->my][magr->mx] & TEMP_DARK))) {
-        /* in darkness */
-        tmp += (magr->m_lev / 3) + 2;
-    } else {
-        /* in the light */
-        tmp -= 3;
+            || (viz_array[magr->my][magr->mx] & TEMP_DARK)) {
+            /* in darkness */
+            tmp += (magr->m_lev / 3) + 2;
+        } else {
+            /* in the light */
+            tmp -= 3;
+        }
     }
 
     /* Set up the visibility of action */

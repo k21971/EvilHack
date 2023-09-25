@@ -869,15 +869,16 @@ register struct monst *mtmp;
     if (Hidinshell) /* enshelled tortles are much harder to hit */
         tmp -= 12;
     /* Drow are affected by being in both the light or the dark */
-    if (racial_drow(mtmp)
-        && (!(levl[mtmp->mx][mtmp->my].lit
+    if (racial_drow(mtmp)) {
+        if (!(levl[mtmp->mx][mtmp->my].lit
               || (viz_array[mtmp->my][mtmp->mx] & TEMP_LIT))
-            || (viz_array[mtmp->my][mtmp->mx] & TEMP_DARK))) {
-        /* in darkness */
-        tmp += (mtmp->m_lev / 3) + 2;
-    } else {
-        /* in the light */
-        tmp -= 3;
+            || (viz_array[mtmp->my][mtmp->mx] & TEMP_DARK)) {
+            /* in darkness */
+            tmp += (mtmp->m_lev / 3) + 2;
+        } else {
+            /* in the light */
+            tmp -= 3;
+        }
     }
     if (tmp <= 0)
         tmp = 1;
