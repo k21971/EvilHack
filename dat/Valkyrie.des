@@ -63,7 +63,7 @@ MONSTER:('@',"Norn"),(35,10) {
   OBJECT:(')',"long sword"),+4
 }
 # Magic chest
-MAGIC_CHEST:(36,10)
+MAGIC_CHEST:(33,10)
 # valkyrie guards for the audience chamber
 MONSTER:('@',"warrior"),(27,08)
 MONSTER:('@',"warrior"),(27,09)

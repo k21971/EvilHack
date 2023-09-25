@@ -51,7 +51,7 @@ DOOR: locked, (31, 10)
 REGION: (20, 10, 20, 10), lit, "temple", irregular
 ALTAR: (20, 10), coaligned, altar
 # Magic chest
-MAGIC_CHEST:(19,10)
+MAGIC_CHEST:(18,10)
 
 # Archbishop and his entourage
 MONSTER: "Archbishop of Moloch", (20, 10)

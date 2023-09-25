@@ -57,7 +57,7 @@ MONSTER:('@',"Lord Sato"),(20,04) {
   OBJECT:(')',"katana"),+4
 }
 # Magic chest
-MAGIC_CHEST:(19,04)
+MAGIC_CHEST:(20,06)
 # roshi guards for the audience chamber
 MONSTER:('@',"roshi"),(18,04)
 MONSTER:('@',"roshi"),(18,05)

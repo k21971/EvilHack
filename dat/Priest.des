@@ -72,7 +72,7 @@ MONSTER:('@',"Arch Priest"),(28,10) {
   OBJECT:(')',"mace"),+4
 }
 # Magic chest
-MAGIC_CHEST:(27,09)
+MAGIC_CHEST:(26,09)
 # knight guards for the audience chamber
 MONSTER:('@',"acolyte"),(32,07)
 MONSTER:('@',"acolyte"),(32,08)

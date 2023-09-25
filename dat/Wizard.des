@@ -64,7 +64,7 @@ MONSTER:('@',"Neferet the Green"),(23,05) {
   OBJECT:(')',"quarterstaff"),+5
 }
 # Magic chest
-MAGIC_CHEST:(24,05)
+MAGIC_CHEST:(25,05)
 # apprentice guards for the audience chamber
 MONSTER:('@',"apprentice"),(30,07)
 MONSTER:('@',"apprentice"),(24,06)

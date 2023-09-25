@@ -3220,4 +3220,6 @@ The following changes to date are:
 - Fix: grammar when killed by a spear trap
 - Fix: don't allow magic keys in bones
 - Castle chest with wand of wishing is always locked
+- Fix: offhand weapons and warning (bane)
+- Fix: magic chest placement and quest leaders
 
