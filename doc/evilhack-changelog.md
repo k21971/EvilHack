@@ -3225,4 +3225,5 @@ The following changes to date are:
 - Fix: drow monsters to-hit in light penalty was affecting all monsters
 - Tweaks to monster behavior when wielding/wearing a bane artifact
 - Fix: silly typo
+- Fix: heap-use-after-free when magic beam trap is destroyed
 
