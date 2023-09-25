@@ -651,7 +651,7 @@ register struct monst *mtmp;
     /* Might be attacking your image around the corner, or
      * invisible, or you might be blind....
      */
-    boolean skipnonmagc = FALSE;
+    boolean skipnonmagc, firstfoundyou = FALSE;
     /* Are further physical attack attempts useless? */
 
     if (!ranged)
@@ -973,14 +973,14 @@ register struct monst *mtmp;
             return (foo == 1);
     }
 
+    firstfoundyou = foundyou;
+
     for (i = 0; i < NATTK; i++) {
-        /* update these in case someone moves */
-        ranged = (distu(mtmp->mx, mtmp->my) > 3);
-        range2 = !monnear(mtmp, mtmp->mux, mtmp->muy);
-        foundyou = (mtmp->mux == u.ux && mtmp->muy == u.uy);
-        youseeit = canseemon(mtmp);
         sum[i] = 0;
-        mon_currwep = (struct obj *)0;
+        if (i > 0 && firstfoundyou /* previous attack might have moved hero */
+            && (mtmp->mux != u.ux || mtmp->muy != u.uy))
+            continue; /* fill in sum[] with 'miss' but skip other actions */
+        mon_currwep = (struct obj *) 0;
         mattk = getmattk(mtmp, &youmonst, i, sum, &alt_attk);
         if ((u.uswallow && mattk->aatyp != AT_ENGL)
             || (skipnonmagc && mattk->aatyp != AT_MAGC))

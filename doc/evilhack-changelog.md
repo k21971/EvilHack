@@ -3226,4 +3226,5 @@ The following changes to date are:
 - Tweaks to monster behavior when wielding/wearing a bane artifact
 - Fix: silly typo
 - Fix: heap-use-after-free when magic beam trap is destroyed
+- Fix: skipping attacks if hero moved away
 
