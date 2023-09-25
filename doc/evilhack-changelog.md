@@ -3217,4 +3217,5 @@ The following changes to date are:
 - Fix: the Hidden Dungeon and magic mapping
 - Adjust odds of the Wizard of Yendor spawning with magic resistance
 - Fix: more zap/explosion type corrections
+- Fix: grammar when killed by a spear trap
 

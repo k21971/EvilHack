@@ -1858,7 +1858,7 @@ unsigned trflags;
               body_part(LEG));
             set_wounded_legs(rn2(2) ? RIGHT_SIDE : LEFT_SIDE, rn1(10, 10));
             exercise(A_DEX, FALSE);
-            losehp(Maybe_Half_Phys(rnd(8) + 6), "spear trap", KILLED_BY);
+            losehp(Maybe_Half_Phys(rnd(8) + 6), "spear trap", KILLED_BY_AN);
         }
         break;
 
