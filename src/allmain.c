@@ -574,6 +574,17 @@ boolean resuming;
                        monsters that they are against hostile should they
                        be tame or peaceful */
                     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                        boolean is_shkp = has_eshk(mtmp) && inhishop(mtmp);
+                        boolean is_prst = has_epri(mtmp) && inhistemple(mtmp);
+
+                        /* monster in question has to see you, not just
+                           sense you, before it becomes hostile */
+                        if (!(mtmp->mcansee && m_canseeu(mtmp)))
+                            continue;
+                        /* coaligned temple priests will stay civil */
+                        if (is_prst && p_coaligned(mtmp))
+                            continue;
+
                         if ((uarmg && uarmg->oartifact == ART_DRAGONBANE
                              && is_dragon(mtmp->data))
                             || (wielding_artifact(ART_STING)
@@ -611,8 +622,12 @@ boolean resuming;
                                 && is_wraith(mtmp->data))
                             || (uright && uright->oartifact == ART_ONE_RING
                                 && is_wraith(mtmp->data))) {
-                            if (mtmp->mpeaceful || mtmp->mtame)
+                            if (is_shkp) { /* shopkeepers ban you from their shop */
+                                ESHK(mtmp)->pbanned = TRUE;
+                            } else if (mtmp->mpeaceful || mtmp->mtame) {
+                                setmangry(mtmp, FALSE);
                                 mtmp->mpeaceful = mtmp->mtame = 0;
+                            }
                         }
                     }
                 }
