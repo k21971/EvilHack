@@ -3224,4 +3224,5 @@ The following changes to date are:
 - Fix: magic chest placement and quest leaders
 - Fix: drow monsters to-hit in light penalty was affecting all monsters
 - Tweaks to monster behavior when wielding/wearing a bane artifact
+- Fix: silly typo
 

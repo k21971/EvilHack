@@ -1247,7 +1247,7 @@ mcalcdistress()
         if (mtmp->msummoned && mtmp->msummoned == 1) {
             if (canseemon(mtmp))
                 pline(Hallucination ? "%s folds in on itself!"
-                                    : "%s winks out of existience.", Monnam(mtmp));
+                                    : "%s winks out of existence.", Monnam(mtmp));
             for (obj = mtmp->minvent; obj; obj = otmp) {
                 otmp = obj->nobj;
                 obj_extract_self(obj);
