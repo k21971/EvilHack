@@ -963,7 +963,9 @@ long wp_mask;
                 if (obj == otmp && !on) {
                     glow_warning_effects(otmp);
                     obj->lastwarncnt = 0;
-                } else if (obj->owornmask && has_glow_warning(obj)) {
+                } else if (((obj->owornmask & ~W_SWAPWEP)
+                            || (obj->owornmask && u.twoweap))
+                           && has_glow_warning(obj)) {
                     EWarn_of_mon |= obj->owornmask;
                     context.warntype.obj |= spec_mh(obj);
                 }
