@@ -1768,7 +1768,6 @@ struct obj **cobjp;
 int cindex, ccount; /* index of this container (1..N), number of them (N) */
 {
     struct obj *cobj = *cobjp;
-    struct obj *maybeart;
 
     if (!cobj)
         return 0;
@@ -1794,27 +1793,15 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
                 unlocktool = autokey(TRUE);
                 break;
             case HIDDEN_CHEST:
-                unlocktool = autokey(TRUE);
-                if (unlocktool
-                    && (unlocktool->otyp == MAGIC_KEY || unlocktool->oartifact))
-                    break;
-                /* may be you have the MKoT and are cross-aligned */
-                unlocktool = (struct obj *) 0;
-                for (maybeart = nxtobj(invent, SKELETON_KEY, FALSE); maybeart;
-                     maybeart = nxtobj(maybeart, SKELETON_KEY, FALSE))
-                    if (maybeart->oartifact)
-                        unlocktool = maybeart;
-                /* may be that you have neither magic key nor MKoT, but you
-                   have a regular key/pick and the PYEC */
-                for (nxtobj(invent, CREDIT_CARD, FALSE); maybeart;
-                     maybeart = nxtobj(maybeart, CREDIT_CARD, FALSE))
-                    if (maybeart->oartifact)
-                        unlocktool = maybeart;
+                /* artifact unlocking tools can also unlock magic chests,
+                   but don't give that away by suggesting them (same logic
+                   as with crystal chests [see below comment]) */
+                unlocktool = carrying(MAGIC_KEY);
                 break;
             default:
                 /* Don't prompt for crystal chest; only artifact unlocking
-                 * tools can unlock them, and we don't want to give that away
-                 * by suggesting them automatically to the user. */
+                   tools can unlock them, and we don't want to give that
+                   away by suggesting them automatically to the user */
                 break;
             }
 
