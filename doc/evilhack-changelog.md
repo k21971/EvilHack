@@ -3229,4 +3229,5 @@ The following changes to date are:
 - Fix: skipping attacks if hero moved away
 - Fix: correction to last commit (skipping attacks)
 - Fix: crash when trying to loot a magic chest with nothing in inventory
+- Fix: crashes from splitobj() caused by can_carry()
 
