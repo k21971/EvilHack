@@ -641,18 +641,22 @@ register struct monst *mtmp;
     struct attack *mattk, alt_attk;
     int i, j = 0, tmp, sum[NATTK];
     struct permonst *mdat = mtmp->data;
-    boolean ranged = (distu(mtmp->mx, mtmp->my) > 3);
-    /* Is it near you?  Affects your actions */
-    boolean range2 = !monnear(mtmp, mtmp->mux, mtmp->muy);
-    /* Does it think it's near you?  Affects its actions */
-    boolean foundyou = (mtmp->mux == u.ux && mtmp->muy == u.uy);
-    /* Is it attacking you or your image? */
-    boolean youseeit = canseemon(mtmp);
-    /* Might be attacking your image around the corner, or
-     * invisible, or you might be blind....
+    /*
+     * ranged: Is it near you?  Affects your actions.
+     * ranged2: Does it think it's near you?  Affects its actions.
+     * foundyou: Is it attacking you or your image?
+     * youseeit: Can you observe the attack?  It might be attacking your
+     *     image around the corner, or invisible, or you might be blind.
+     * skipnonmagc: Are further physical attack attempts useless?  (After
+     *     a wild miss--usually due to attacking displaced image.  Avoids
+     *     excessively verbose miss feedback when monster can do multiple
+     *     attacks and would miss the same wrong spot each time.)
      */
-    boolean skipnonmagc, firstfoundyou = FALSE;
-    /* Are further physical attack attempts useless? */
+    boolean ranged = (distu(mtmp->mx, mtmp->my) > 3);
+    boolean range2 = !monnear(mtmp, mtmp->mux, mtmp->muy);
+    boolean foundyou = (mtmp->mux == u.ux && mtmp->muy == u.uy);
+    boolean youseeit = canseemon(mtmp);
+    boolean firstfoundyou, skipnonmagc = FALSE;
 
     if (!ranged)
         nomul(0);

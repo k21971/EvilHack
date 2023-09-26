@@ -3227,4 +3227,5 @@ The following changes to date are:
 - Fix: silly typo
 - Fix: heap-use-after-free when magic beam trap is destroyed
 - Fix: skipping attacks if hero moved away
+- Fix: correction to last commit (skipping attacks)
 
