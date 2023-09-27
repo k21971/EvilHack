@@ -27,8 +27,6 @@ STATIC_DCL boolean FDECL(makemon_rnd_goodpos, (struct monst *,
 
 #define m_initsgrp(mtmp, x, y, mmf) m_initgrp(mtmp, x, y, 3, mmf)
 #define m_initlgrp(mtmp, x, y, mmf) m_initgrp(mtmp, x, y, 10, mmf)
-#define toostrong(monindx, lev) (mons[monindx].difficulty > lev)
-#define tooweak(monindx, lev) (mons[monindx].difficulty < lev)
 
 boolean
 is_home_elemental(ptr)
@@ -2598,7 +2596,6 @@ boolean ghostly;
                         makeplural(mons[mndx].mname));
         }
         mvitals[mndx].mvflags |= G_EXTINCT;
-        reset_rndmonst(mndx);
     }
     return result;
 }
@@ -3368,122 +3365,98 @@ register struct permonst *ptr;
     return alshift;
 }
 
-static NEARDATA struct {
-    int choice_count;
-    char mchoices[SPECIAL_PM]; /* value range is 0..127 */
-} rndmonst_state = { -1, { 0 } };
-
 /* select a random monster type */
 struct permonst *
 rndmonst()
 {
     register struct permonst *ptr;
-    register int mndx, ct;
+    register int mndx;
+    int weight, totalweight, selected_mndx, zlevel, minmlev, maxmlev;
+    boolean elemlevel, upper;
 
     if (u.uz.dnum == quest_dnum && rn2(7) && (ptr = qt_montype()) != 0)
         return ptr;
 
-    if (rndmonst_state.choice_count < 0) { /* need to recalculate */
-        int zlevel, minmlev, maxmlev;
-        boolean elemlevel;
-        boolean upper;
+    zlevel = level_difficulty();
+    minmlev = monmin_difficulty(zlevel);
+    maxmlev = monmax_difficulty(zlevel);
+    upper = Is_rogue_level(&u.uz); /* prefer uppercase only on rogue level */
+    elemlevel = In_endgame(&u.uz) && !Is_astralevel(&u.uz); /* elmntl plane */
 
-        rndmonst_state.choice_count = 0;
-        /* look for first common monster */
-        for (mndx = LOW_PM; mndx < SPECIAL_PM; mndx++) {
-            if (!uncommon(mndx))
-                break;
-            rndmonst_state.mchoices[mndx] = 0;
-        }
-        if (mndx == SPECIAL_PM) {
-            /* evidently they've all been exterminated */
-            debugpline0("rndmonst: no common mons!");
-            return (struct permonst *) 0;
-        } /* else `mndx' now ready for use below */
-        zlevel = level_difficulty();
-        /* determine the level of the weakest monster to make. */
-        minmlev = zlevel / 6;
-        /* determine the level of the strongest monster to make.
-           once the invocation is performed, or the Wizard of
-           Yendor is killed, all bets are off */
-        maxmlev = u.uevent.udemigod ? 256 : ((zlevel + u.ulevel) / 2);
-        upper = Is_rogue_level(&u.uz);
-        elemlevel = In_endgame(&u.uz) && !Is_astralevel(&u.uz);
+    /* amount processed so far */
+    totalweight = 0;
+    selected_mndx = NON_PM;
+
+    for (mndx = LOW_PM; mndx < SPECIAL_PM; ++mndx) {
+        ptr = &mons[mndx];
+
+        if (montooweak(mndx, minmlev) || montoostrong(mndx, maxmlev))
+            continue;
+        if (upper && !isupper((uchar) def_monsyms[(int) ptr->mlet].sym))
+            continue;
+        if (elemlevel && wrong_elem_type(ptr))
+            continue;
+        if (uncommon(mndx))
+            continue;
+        if (Inhell && (ptr->geno & G_NOHELL))
+            continue;
+        if (Iniceq && !likes_iceq(ptr))
+            continue;
+        if (!Iniceq && is_iceq_only(ptr))
+            continue;
+        if (Ingtown && !likes_gtown(ptr))
+            continue;
+        if (Inpurg && !likes_purg(ptr))
+            continue;
+        /* reduce the number of player monsters that could spawn */
+        if (is_mplayer(ptr) && rn2(3))
+            continue;
 
         /*
-         * Find out how many monsters exist in the range we have selected.
+         * Weighted reservoir sampling:  select ptr with a
+         * (ptr weight)/(total of all weights so far including ptr's)
+         * probability.  For example, if the previous total is 10, and
+         * this is now looking at acid blobs with a frequency of 2, it
+         * has a 2/12 chance of abandoning ptr's previous value in favor
+         * of acid blobs, and 10/12 chance of keeping whatever it was.
+         *
+         * This does not bias results towards either the earlier or the
+         * later monsters:  the smaller pool and better odds from being
+         * earlier are exactly canceled out by having more monsters to
+         * potentially steal its spot.
          */
-        for ( ; mndx < SPECIAL_PM; mndx++) { /* (`mndx' initialized above) */
-            ptr = &mons[mndx];
-            rndmonst_state.mchoices[mndx] = 0;
-            if (tooweak(mndx, minmlev) || toostrong(mndx, maxmlev))
-                continue;
-            if (upper && !isupper((uchar) def_monsyms[(int) ptr->mlet].sym))
-                continue;
-            if (elemlevel && wrong_elem_type(ptr))
-                continue;
-            if (uncommon(mndx))
-                continue;
-            if (Inhell && (ptr->geno & G_NOHELL))
-                continue;
-            if (Iniceq && !likes_iceq(ptr))
-                continue;
-            if (!Iniceq && is_iceq_only(ptr))
-                continue;
-            if (Ingtown && !likes_gtown(ptr))
-                continue;
-            if (Inpurg && !likes_purg(ptr))
-                continue;
-            ct = (int) (ptr->geno & G_FREQ) + align_shift(ptr);
-            if (!is_mplayer(ptr))
-                ct *= 3;
-            if (Iniceq && likes_iceq(ptr))
-                ct *= 5;
-            if (ct < 0 || ct > 127)
-                panic("rndmonst: bad count [#%d: %d]", mndx, ct);
-            rndmonst_state.choice_count += ct;
-            rndmonst_state.mchoices[mndx] = (char) ct;
-        }
-        /*
-         *      Possible modification:  if choice_count is "too low",
-         *      expand minmlev..maxmlev range and try again.
-         */
-    } /* choice_count+mchoices[] recalc */
+        weight = (int) (ptr->geno & G_FREQ) + align_shift(ptr);
 
-    if (rndmonst_state.choice_count <= 0) {
-        /* maybe no common mons left, or all are too weak or too strong */
-        debugpline1("rndmonst: choice_count=%d", rndmonst_state.choice_count);
-        return (struct permonst *) 0;
+        /* adjust rate at which the undead spawn on Halloween,
+           chaotic-aligned levels will see a greater increase
+           than lawful/neutral */
+        if (is_undead(ptr) && halloween())
+            weight *= 3;
+
+        if (weight < 0 || weight > 127) {
+            impossible("bad weight in rndmonst for mndx %d", mndx);
+            weight = 0;
+        }
+        /* was unconditional, but if weight==0, rn2() < 0 will always fail;
+           also need to avoid rn2(0) if totalweight is still 0 so far */
+        if (weight > 0) {
+            totalweight += weight; /* totalweight now guaranteed to be > 0 */
+            if (rn2(totalweight) < weight)
+                selected_mndx = mndx;
+        }
     }
-
     /*
-     *  Now, select a monster at random.
+     * Possible modification:  if totalweight is "too low" or nothing
+     * viable was picked, expand minmlev..maxmlev range and try again.
      */
-    ct = rnd(rndmonst_state.choice_count);
-    for (mndx = LOW_PM; mndx < SPECIAL_PM; mndx++)
-        if ((ct -= (int) rndmonst_state.mchoices[mndx]) <= 0)
-            break;
-
-    if (mndx == SPECIAL_PM || uncommon(mndx)) { /* shouldn't happen */
-        impossible("rndmonst: bad `mndx' [#%d]", mndx);
+    if (selected_mndx == NON_PM || uncommon(selected_mndx)) {
+        /* maybe no common monsters left, or all are too weak or too strong */
+        if (selected_mndx != NON_PM)
+            debugpline1("rndmonst returning Null [uncommon 'mndx'=#%d]",
+                        selected_mndx);
         return (struct permonst *) 0;
     }
-    return &mons[mndx];
-}
-
-/* called when you change level (experience or dungeon depth) or when
-   monster species can no longer be created (genocide or extinction) */
-void
-reset_rndmonst(mndx)
-int mndx; /* particular species that can no longer be created */
-{
-    /* cached selection info is out of date */
-    if (mndx == NON_PM) {
-        rndmonst_state.choice_count = -1; /* full recalc needed */
-    } else if (mndx < SPECIAL_PM) {
-        rndmonst_state.choice_count -= rndmonst_state.mchoices[mndx];
-        rndmonst_state.mchoices[mndx] = 0;
-    } /* note: safe to ignore extinction of unique monsters */
+    return &mons[selected_mndx];
 }
 
 /* decide whether it's ok to generate a candidate monster by mkclass() */
@@ -3572,7 +3545,7 @@ aligntyp atyp;
                (or lower) difficulty as preceding candidate (non-zero
                'num' implies last > first so mons[last-1] is safe);
                sometimes accept it even if high difficulty */
-            if (num && toostrong(last, maxmlev)
+            if (num && montoostrong(last, maxmlev)
                 && mons[last].difficulty > mons[last - 1].difficulty
                 && rn2(2))
                 break;

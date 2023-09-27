@@ -3230,4 +3230,5 @@ The following changes to date are:
 - Fix: correction to last commit (skipping attacks)
 - Fix: crash when trying to loot a magic chest with nothing in inventory
 - Fix: crashes from splitobj() caused by can_carry()
+- Refactor rndmonst()
 

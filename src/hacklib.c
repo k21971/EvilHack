@@ -64,6 +64,7 @@
         time_t          time_from_yyyymmddhhmmss (char *)
         int             phase_of_the_moon (void)
         boolean         friday_13th     (void)
+        boolean         halloween       (void)
         int             night           (void)
         int             midnight        (void)
         boolean         kathryn_bday    (void)
@@ -1141,6 +1142,12 @@ friday_13th()
 
     /* tm_wday (day of week; 0==Sunday) == 5 => Friday */
     return (boolean) (lt->tm_wday == 5 && lt->tm_mday == 13);
+}
+
+boolean
+halloween()
+{
+    return (boolean) ((getmday() == 31) && (getmonth() == 10));
 }
 
 int

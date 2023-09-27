@@ -2565,7 +2565,6 @@ do_class_genocide()
                         || Your_Own_Role(i) || Your_Own_Race(i)) {
                         killed++;
                         mvitals[i].mvflags |= (G_GENOD | G_NOCORPSE);
-                        reset_rndmonst(i);
                         kill_genocided_monsters();
                         update_inventory();	/* eggs & tins */
                         pline("Wiped out all %s.", nam);
@@ -2870,7 +2869,6 @@ int how;
         } else if (ptr == youmonst.data) {
             rehumanize();
         }
-        reset_rndmonst(mndx);
         kill_genocided_monsters();
         update_inventory(); /* in case identified eggs were affected */
     } else {
