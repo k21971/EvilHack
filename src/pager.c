@@ -1494,6 +1494,25 @@ short otyp;
         OBJPUTSTR(buf);
     }
 
+    /* forge recipes */
+    const struct forge_recipe *recipe;
+    boolean has_recipes = FALSE;
+
+    for (recipe = fusions; recipe->result_typ; recipe++) {
+        if (otyp == recipe->typ1 || otyp == recipe->typ2
+            || otyp == recipe->result_typ) {
+            if (!has_recipes) {
+                OBJPUTSTR("Forging recipes (#forge):");
+                has_recipes = TRUE;
+            }
+            Sprintf(buf, "  %d %s + %d %s = %s", recipe->quan_typ1,
+                    OBJ_NAME(objects[recipe->typ1]), recipe->quan_typ1,
+                    OBJ_NAME(objects[recipe->typ2]),
+                    OBJ_NAME(objects[recipe->result_typ]));
+            OBJPUTSTR(buf);
+        }
+    }
+
     /* TODO: prevent obj lookup from displaying with monster database entry
      * (e.g. scroll of light gives "light" monster database) */
 

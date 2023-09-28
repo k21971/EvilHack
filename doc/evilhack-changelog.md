@@ -3231,4 +3231,5 @@ The following changes to date are:
 - Fix: crash when trying to loot a magic chest with nothing in inventory
 - Fix: crashes from splitobj() caused by can_carry()
 - Refactor rndmonst()
+- Show forge recipes in object lookup (pokedex)
 

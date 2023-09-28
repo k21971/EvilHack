@@ -387,13 +387,7 @@ lava:
 
 /* forging recipes - first object is the end result
    of combining objects two and three */
-static const struct forge_recipe {
-    short result_typ;
-    short typ1;
-    short typ2;
-    int quan_typ1;
-    int quan_typ2;
-} fusions[] = {
+const struct forge_recipe fusions[] = {
     /* weapons */
     { SHURIKEN, DART, DAGGER, 2, 1 },
     { SPEAR, ARROW, DAGGER, 2, 1 },

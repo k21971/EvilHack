@@ -480,6 +480,16 @@ enum bodypart_types {
     SKIN      = 19
 };
 
+struct forge_recipe {
+    short result_typ;
+    short typ1;
+    short typ2;
+    int quan_typ1;
+    int quan_typ2;
+};
+
+extern const struct forge_recipe fusions[]; /* array of forge recipes */
+
 /* indices for some special tin types */
 #define ROTTEN_TIN 0
 #define HOMEMADE_TIN 1
