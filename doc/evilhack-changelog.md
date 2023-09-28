@@ -3232,4 +3232,5 @@ The following changes to date are:
 - Fix: crashes from splitobj() caused by can_carry()
 - Refactor rndmonst()
 - Show forge recipes in object lookup (pokedex)
+- Forging sling bullets
 

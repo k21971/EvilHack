@@ -451,10 +451,10 @@ struct obj {
      || is_gloves(o) || is_boots(o) || is_bracer(o))
 
 #define bypass_forging_rules(obj) \
-    ((obj)->otyp == SADDLE                     \
-     || (obj)->oartifact == ART_MAGICBANE      \
-     || (obj)->oartifact == ART_DRAGONBANE     \
-     || (obj)->oartifact == ART_EYE_OF_VECNA   \
+    ((obj)->otyp == SADDLE || (obj)->otyp == ROCK \
+     || (obj)->oartifact == ART_MAGICBANE         \
+     || (obj)->oartifact == ART_DRAGONBANE        \
+     || (obj)->oartifact == ART_EYE_OF_VECNA      \
      || (obj)->oartifact == ART_HAND_OF_VECNA)
 #define is_magic(obj) \
     (((obj)->oprops & ITEM_PROP_MASK)   \
