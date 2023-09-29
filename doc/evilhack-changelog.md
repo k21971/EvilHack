@@ -3233,4 +3233,5 @@ The following changes to date are:
 - Refactor rndmonst()
 - Show forge recipes in object lookup (pokedex)
 - Forging sling bullets
+- Fix: Weapons with the excellence property could grant a permanent luck bonus.
 
