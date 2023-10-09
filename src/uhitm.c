@@ -1516,10 +1516,10 @@ int dieroll;
                         useup_eggs(obj);
                         if (resists_ston(mon) || defended(mon, AD_STON))
                             break;
-			if (!mon->mstone) {
-			    mon->mstone = 5;
-			    mon->mstonebyu = TRUE;
-			}
+                        if (!mon->mstone) {
+                            mon->mstone = 5;
+                            mon->mstonebyu = TRUE;
+                        }
                         return (boolean) (!DEADMONSTER(mon));
                     } else { /* ordinary egg(s) */
                         const char *eggp = (obj->corpsenm != NON_PM

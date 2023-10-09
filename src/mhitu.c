@@ -249,11 +249,13 @@ struct attack *mattk;
         } else if (blocker == &zeroobj) {
             pline("%s is stopped by your golden haze.", Monnam(mtmp));
         } else {
-            Your("%s %s%s %s attack.",
-                 blocker->oartifact ? xname(blocker)
-                                    : simple_typename(blocker->otyp),
+            /* NB: currently all artifact shields (Ashmar) are automatically dknown */
+            boolean nameart = (blocker->oartifact && blocker->dknown);
+            pline("%s%s %s%s %s attack.", nameart ? "Your " : "",
+                 nameart ? xname(blocker) : Ysimple_name2(blocker),
                  rn2(2) ? "block" : "deflect",
-                 (((blocker == uarmg) && blocker->oartifact != ART_DRAGONBANE)
+                 (((blocker == uarmg) && (blocker->oartifact != ART_DRAGONBANE
+                   || !nameart))
                   || (blocker == uarmf)) ? "" : "s",
                  s_suffix(mon_nam(mtmp)));
         }
