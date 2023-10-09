@@ -1138,8 +1138,7 @@ break_armor()
         }
     }
     if (nohands(youmonst.data) || verysmall(youmonst.data)
-        || slithy(youmonst.data) || racial_centaur(&youmonst)
-        || racial_tortle(&youmonst)) {
+        || slithy(youmonst.data) || racial_centaur(&youmonst)) {
         if ((otmp = uarmf) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -1149,26 +1148,6 @@ break_armor()
                 Your("boots %s off your feet!",
                      verysmall(youmonst.data) ? "slide" : "are pushed");
             (void) Boots_off();
-            dropp(otmp);
-        }
-    }
-    if (racial_tortle(&youmonst)) {
-        if ((otmp = uarmh) != 0 && is_hard(otmp)) {
-            if (donning(otmp))
-                cancel_don();
-            Your("%s falls to the %s!", helm_simple_name(otmp),
-                 surface(u.ux, u.uy));
-            (void) Helmet_off();
-            dropp(otmp);
-        }
-        if ((otmp = uarmg) != 0 && is_hard(otmp)) {
-            if (donning(otmp))
-                cancel_don();
-            /* Drop weapon along with gloves */
-            You("drop your gloves%s!", uwep ? " and weapon" : "");
-            drop_weapon(0);
-            (void) Gloves_off();
-            /* Glib manipulation (ends immediately) handled by Gloves_off */
             dropp(otmp);
         }
     }
