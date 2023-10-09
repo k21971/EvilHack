@@ -1445,6 +1445,8 @@ short otyp;
                     case POLYMORPH_CONTROL:
                     case FREE_ACTION:
                     case FIXED_ABIL:
+                    case MAGICAL_BREATHING:
+                    case PASSES_WALLS:
                         confers = "Confers";
                         break;
                     default:
