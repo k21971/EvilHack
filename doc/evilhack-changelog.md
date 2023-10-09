@@ -3233,4 +3233,12 @@ The following changes to date are:
 - Refactor rndmonst()
 - Show forge recipes in object lookup (pokedex)
 - Forging sling bullets
-
+- Fix: Display beatitude of (un)holy water if potion type is unknown
+- Fix: Grammar in object lookup
+- Fix: Messages and IDing polymorph potions when dipping while blind
+- Fix: Don't tell player if unseen items resist shock damage
+- makemon inventory generation tweaks
+- Fix: Messaging when blocking with !dknown shield, instakilling with
+  artifacts
+- Fix: Don't push hard helmets/gloves off of newly poly'd tortles 
+- Fix: defensive knockback didn't stop monster attacks
