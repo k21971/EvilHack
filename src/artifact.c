@@ -1181,6 +1181,10 @@ struct monst *mon;
     struct artifact atmp;
 
     if (oart && (oart->spfx & SPFX_DBONUS) != 0) {
+        /* special case so non-chaotics can wield it */
+        if (oart == &artilist[ART_SWORD_OF_KAS])
+            return FALSE;
+
         atmp = *oart;
         atmp.spfx &= SPFX_DBONUS; /* clear other spfx fields */
         if (spec_applies(&atmp, mon))
@@ -3726,7 +3730,10 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
             dmg += rnd(sear_damage(obj->material) / 2);
         if (bane)
             dmg += rnd(10);
-        Sprintf(buf, "handling %s that was made of %s",
+        if (bane)
+            Sprintf(buf, "handling %s.", killer_xname(obj));
+        else
+            Sprintf(buf, "handling %s that was made of %s",
                 killer_xname(obj), materialnm[obj->material]);
         losehp(dmg, buf, KILLED_BY);
         exercise(A_CON, FALSE);
