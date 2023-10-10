@@ -3243,3 +3243,4 @@ The following changes to date are:
 - Fix: Don't push hard helmets/gloves off of newly poly'd tortles 
 - Fix: defensive knockback didn't stop monster attacks
 - Fix: Allow non-chaotics to wield the Sword of Kas again
+- Fix: searmsg from unseen monster triggering a trap
