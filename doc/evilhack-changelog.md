@@ -3245,3 +3245,4 @@ The following changes to date are:
 - Fix: Allow non-chaotics to wield the Sword of Kas again
 - Fix: searmsg from unseen monster triggering a trap
 - Fix: Don't "discover" warned-of monsters when blind
+- Fix: Celestial dragon scale polymorph

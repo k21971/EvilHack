@@ -2140,6 +2140,12 @@ struct monst *mon;
             if (Is_dragon_armor(array[i])) {
                 if (Dragon_armor_to_pm(array[i]) == PM_CHROMATIC_DRAGON)
                     return PM_RED_DRAGON;
+                else if (Dragon_armor_to_pm(array[i]) == PM_CELESTIAL_DRAGON)
+                    /* their scales grant shock resistance... */
+                    return PM_BLUE_DRAGON;
+                /* catchall for nopoly cases that aren't handled above */
+                else if (!polyok(&mons[Dragon_armor_to_pm(array[i])]))
+                    return PM_RED_DRAGON;
                 else
                     return Dragon_armor_to_pm(array[i]);
             }
