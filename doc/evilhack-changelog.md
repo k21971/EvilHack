@@ -3246,3 +3246,4 @@ The following changes to date are:
 - Fix: searmsg from unseen monster triggering a trap
 - Fix: Don't "discover" warned-of monsters when blind
 - Fix: Celestial dragon scale polymorph
+- Fix: Summoned spheres stay indefinitely if abandoned
