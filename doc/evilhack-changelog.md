@@ -3247,3 +3247,4 @@ The following changes to date are:
 - Fix: Don't "discover" warned-of monsters when blind
 - Fix: Celestial dragon scale polymorph
 - Fix: Summoned spheres stay indefinitely if abandoned
+- Fix: Player blamed for monster spells killing monsters

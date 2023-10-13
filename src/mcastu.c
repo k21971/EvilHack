@@ -1513,8 +1513,8 @@ int spellnum;
 
 /* convert 1..11 to 0..10 */
 #define ad_to_typ(k) ((int) k - 1)
-/* do the same and then add MAX_ZT for spells */
-#define ad_to_spelltyp(k) BASE_ZT(ad_to_typ((k)))
+/* convert AD_FOO to ZT_FOO as a spell (i.e. add MAX_ZT) */
+#define ad_to_spelltyp(k) ZT_SPELL(ad_to_typ(k))
 
 /* monster uses spell against player (ranged) */
 int
