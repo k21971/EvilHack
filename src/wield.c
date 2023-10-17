@@ -290,6 +290,8 @@ void
 setuswapwep(obj)
 register struct obj *obj;
 {
+    struct obj *olduswapwep = uswapwep;
+
     if (u.twoweap && obj && (obj->oartifact || obj->oprops))
         set_artifact_intrinsic(obj, 1, W_SWAPWEP);
 
@@ -336,6 +338,13 @@ register struct obj *obj;
         context.botl = 1;
         update_inventory();
     }
+    if (olduswapwep && (olduswapwep->oprops & ITEM_EXCEL)) {
+        olduswapwep->oprops_known |= ITEM_EXCEL;
+        set_moreluck();
+        context.botl = 1;
+        update_inventory();
+    }
+
     return;
 }
 
