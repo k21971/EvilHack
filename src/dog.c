@@ -626,8 +626,8 @@ long nmv; /* number of moves */
             mtmp->mfleetim -= imv;
     }
     if (mtmp->msummoned) {
-        if (imv >= (int) mtmp->msummoned)
-            mtmp->msummoned = 1;
+        if (imv >= (int) mtmp->msummoned - 1)
+            mtmp->msummoned = 2;
         else
             mtmp->msummoned -= imv;
     }

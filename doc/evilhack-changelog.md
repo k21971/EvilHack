@@ -3233,5 +3233,21 @@ The following changes to date are:
 - Refactor rndmonst()
 - Show forge recipes in object lookup (pokedex)
 - Forging sling bullets
+- Fix: Display beatitude of (un)holy water if potion type is unknown
+- Fix: Grammar in object lookup
+- Fix: Messages and IDing polymorph potions when dipping while blind
+- Fix: Don't tell player if unseen items resist shock damage
+- makemon inventory generation tweaks
+- Fix: Messaging when blocking with !dknown shield, instakilling with
+  artifacts
+- Fix: Don't push hard helmets/gloves off of newly poly'd tortles 
+- Fix: defensive knockback didn't stop monster attacks
+- Fix: Allow non-chaotics to wield the Sword of Kas again
+- Fix: searmsg from unseen monster triggering a trap
+- Fix: Don't "discover" warned-of monsters when blind
+- Fix: Celestial dragon scale polymorph
+- Fix: Summoned spheres stay indefinitely if abandoned
+- Fix: Player blamed for monster spells killing monsters
+- Fix: Display suffocation attacks differently from drowning
 - Fix: Weapons with the excellence property could grant a permanent luck bonus.
 

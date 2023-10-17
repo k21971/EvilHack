@@ -1915,11 +1915,16 @@ boolean via_warning;
     }
 
     if (found_something) {
-        if (!canspotmon(mtmp) && glyph_is_invisible(levl[x][y].glyph))
-            return -1; /* Found invisible monster in square which already has
-                        * 'I' in it.  Logically, this should still take time
-                        * and lead to `return 1', but if we did that the hero
-                        * would keep finding the same monster every turn. */
+        if (!canspotmon(mtmp)
+            /* don't "find" a monster when you already see it via warning
+               and won't gain further information */
+            && ((Blind && warning_of(mtmp))
+            /* Found invisible monster in square which already has
+             * 'I' in it.  Logically, this should still take time
+             * and lead to `return 1', but if we did that the hero
+             * would keep finding the same monster every turn. */
+                 || glyph_is_invisible(levl[x][y].glyph)))
+            return -1;
         exercise(A_WIS, TRUE);
         if (!canspotmon(mtmp)) {
             map_invisible(x, y);

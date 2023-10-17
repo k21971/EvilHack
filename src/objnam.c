@@ -1335,9 +1335,10 @@ unsigned doname_flags;
 
     if (bknown && obj->oclass != COIN_CLASS
         && (obj->otyp != POT_WATER || !objects[POT_WATER].oc_name_known
-            || (!obj->cursed && !obj->blessed))) {
+            || (!obj->cursed && !obj->blessed) || !dknown)) {
         /* allow 'blessed clear potion' if we don't know it's holy water;
-         * always allow "uncursed potion of water"
+         * always allow "uncursed potion of water;"
+         * always show "blessed/cursed potion" if potion type is unknown.
          */
         if (obj->cursed)
             Strcat(prefix, "cursed ");

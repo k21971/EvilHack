@@ -1138,8 +1138,7 @@ break_armor()
         }
     }
     if (nohands(youmonst.data) || verysmall(youmonst.data)
-        || slithy(youmonst.data) || racial_centaur(&youmonst)
-        || racial_tortle(&youmonst)) {
+        || slithy(youmonst.data) || racial_centaur(&youmonst)) {
         if ((otmp = uarmf) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -1149,26 +1148,6 @@ break_armor()
                 Your("boots %s off your feet!",
                      verysmall(youmonst.data) ? "slide" : "are pushed");
             (void) Boots_off();
-            dropp(otmp);
-        }
-    }
-    if (racial_tortle(&youmonst)) {
-        if ((otmp = uarmh) != 0 && is_hard(otmp)) {
-            if (donning(otmp))
-                cancel_don();
-            Your("%s falls to the %s!", helm_simple_name(otmp),
-                 surface(u.ux, u.uy));
-            (void) Helmet_off();
-            dropp(otmp);
-        }
-        if ((otmp = uarmg) != 0 && is_hard(otmp)) {
-            if (donning(otmp))
-                cancel_don();
-            /* Drop weapon along with gloves */
-            You("drop your gloves%s!", uwep ? " and weapon" : "");
-            drop_weapon(0);
-            (void) Gloves_off();
-            /* Glib manipulation (ends immediately) handled by Gloves_off */
             dropp(otmp);
         }
     }
@@ -2160,6 +2139,12 @@ struct monst *mon;
         if (array[i] != NULL) {
             if (Is_dragon_armor(array[i])) {
                 if (Dragon_armor_to_pm(array[i]) == PM_CHROMATIC_DRAGON)
+                    return PM_RED_DRAGON;
+                else if (Dragon_armor_to_pm(array[i]) == PM_CELESTIAL_DRAGON)
+                    /* their scales grant shock resistance... */
+                    return PM_BLUE_DRAGON;
+                /* catchall for nopoly cases that aren't handled above */
+                else if (!polyok(&mons[Dragon_armor_to_pm(array[i])]))
                     return PM_RED_DRAGON;
                 else
                     return Dragon_armor_to_pm(array[i]);

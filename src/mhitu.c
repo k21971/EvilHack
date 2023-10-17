@@ -249,11 +249,13 @@ struct attack *mattk;
         } else if (blocker == &zeroobj) {
             pline("%s is stopped by your golden haze.", Monnam(mtmp));
         } else {
-            Your("%s %s%s %s attack.",
-                 blocker->oartifact ? xname(blocker)
-                                    : simple_typename(blocker->otyp),
+            /* NB: currently all artifact shields (Ashmar) are automatically dknown */
+            boolean nameart = (blocker->oartifact && blocker->dknown);
+            pline("%s%s %s%s %s attack.", nameart ? "Your " : "",
+                 nameart ? xname(blocker) : Ysimple_name2(blocker),
                  rn2(2) ? "block" : "deflect",
-                 (((blocker == uarmg) && blocker->oartifact != ART_DRAGONBANE)
+                 (((blocker == uarmg) && (blocker->oartifact != ART_DRAGONBANE
+                   || !nameart))
                   || (blocker == uarmf)) ? "" : "s",
                  s_suffix(mon_nam(mtmp)));
         }
@@ -981,8 +983,14 @@ register struct monst *mtmp;
 
     for (i = 0; i < NATTK; i++) {
         sum[i] = 0;
+        /* ranged &c must be updated in case the attacker has been knocked
+           back by Ashmar or the Armor of Retribution */
+        ranged = (distu(mtmp->mx, mtmp->my) > 3);
+        range2 = !monnear(mtmp, mtmp->mux, mtmp->muy);
+        foundyou = (mtmp->mux == u.ux && mtmp->muy == u.uy);
+        youseeit = canseemon(mtmp);
         if (i > 0 && firstfoundyou /* previous attack might have moved hero */
-            && (mtmp->mux != u.ux || mtmp->muy != u.uy))
+            && !foundyou)
             continue; /* fill in sum[] with 'miss' but skip other actions */
         mon_currwep = (struct obj *) 0;
         mattk = getmattk(mtmp, &youmonst, i, sum, &alt_attk);
@@ -1063,6 +1071,9 @@ register struct monst *mtmp;
                             return 1;
                     }
                 } else {
+                    /* note: wildmiss only expects cases where the hero is
+                       displaced, invisible, or underwater. if foundyou is
+                       false for other reasons, it must be dealt with above */
                     wildmiss(mtmp, mattk);
                     /* skip any remaining non-spell attacks */
                     skipnonmagc = TRUE;
@@ -1071,8 +1082,6 @@ register struct monst *mtmp;
             break;
 
         case AT_HUGS: /* automatic if prev two attacks succeed */
-            /* Note: if displaced, prev attacks never succeeded,
-               but ashmar/AoR may have knocked them away. */
             if ((!ranged && i >= 2 && sum[i - 1] && sum[i - 2])
                 || mtmp == u.ustuck)
                 sum[i] = hitmu(mtmp, mattk);

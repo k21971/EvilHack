@@ -911,12 +911,6 @@ boolean artif;
                 otmp = mk_artifact(otmp, (aligntyp) A_NONE);
             else if (rn2(175) < (level_difficulty() / 2))
                 otmp = create_oprop(otmp, TRUE);
-
-            if (Is_medusa_level(&u.uz) && otmp->otyp == ORCISH_ARROW) {
-                bless(otmp);
-                otmp->oerodeproof = TRUE;
-                otmp->spe = rn2(3) + 3;
-            }
             break;
         case FOOD_CLASS:
             otmp->oeaten = 0;

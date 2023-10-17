@@ -152,8 +152,14 @@ int otyp, oquan;
     otmp = mksobj(otyp, TRUE, FALSE);
     otmp->quan = (long) rn1(oquan, 3);
     otmp->owt = weight(otmp);
-    if (otyp == ORCISH_ARROW)
+    if (otyp == ORCISH_ARROW) {
         otmp->opoisoned = TRUE;
+        if (mtmp->data == &mons[PM_MEDUSA]) {
+            bless(otmp);
+            otmp->oerodeproof = TRUE;
+            otmp->spe = rn2(3) + 3;
+        }
+    }
     (void) mpickobj(mtmp, otmp);
 }
 
@@ -1496,8 +1502,12 @@ register struct monst *mtmp;
             if ((!rn2(20) || is_lord(ptr))
                 && sgn(mtmp->isminion ? EMIN(mtmp)->min_align
                                       : ptr->maligntyp) == A_LAWFUL) {
-                otmp = oname(otmp, artiname(typ == LONG_SWORD
-                                            ? ART_SUNSWORD : ART_DEMONBANE));
+                if (typ == LONG_SWORD)
+                    otmp = oname(otmp, artiname(ART_SUNSWORD));
+                else if (!Role_if(PM_PRIEST)
+                         || u.ualignbase[A_ORIGINAL] == A_LAWFUL)
+                    otmp = oname(otmp, artiname(ART_DEMONBANE));
+
                 if (!otmp->oartifact && !rn2(10)) {
                     create_oprop(otmp, FALSE);
                 }
