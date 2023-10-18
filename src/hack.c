@@ -2672,10 +2672,14 @@ boolean pick;
         done(DIED);
     }
     if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ) && !Levitation) {
+        char *tmp = doname(mchest);
         if (!Blind)
-            You("see here a magic chest.");
-        else
-            You("feel here a magic chest.");
+            You("see here %s.", tmp);
+        /* magic chest is already mentioned if objects are on square */
+        else if (!OBJ_AT(u.ux, u.uy))
+            You("feel here %s.", tmp);
+        /* release doname's obuf, just in case */
+        maybereleaseobuf(tmp);
     }
  spotdone:
     if (!--inspoteffects) {
