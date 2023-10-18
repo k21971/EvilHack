@@ -3249,5 +3249,6 @@ The following changes to date are:
 - Fix: Summoned spheres stay indefinitely if abandoned
 - Fix: Player blamed for monster spells killing monsters
 - Fix: Display suffocation attacks differently from drowning
-- Fix: Weapons with the excellence property could grant a permanent luck bonus.
+- Fix: Weapons with the excellence property could grant a permanent luck bonus
+- Fix: mention locked/empty status of magic chest when walking on it
 
