@@ -18,7 +18,7 @@ WIZARDS=root games
 # Which users can use explore mode (aka discover mode; accessed via '-X'
 # command line flag or OPTIONS=playmode:explore in runtime options file or
 # via '#exploremode' command during normal play).  Same syntax as WIZARDS.
-EXPLORERS=nobody
+EXPLORERS=*
 
 # Users allowed to use the '!' (shell escape) and '^Z' (suspend process)
 # commands to temporarily leave the game and enter a shell process.
@@ -39,7 +39,7 @@ EXPLORERS=nobody
 
 # Use the player name for matching WIZARDS, EXPLORERS and SHELLERS,
 # instead of the user's login name.
-#CHECK_PLNAME=1
+CHECK_PLNAME=1
 
 # Limit the number of simultaneous games (see also nethack.sh).
 # Valid values are 0-25.
@@ -84,7 +84,7 @@ PERSMAX=50
 # Maximum entries in the record file.
 ENTRYMAX=2000
 # Minimum points to get an entry.
-#POINTSMIN=1
+POINTSMIN=1
 # Determine identity of "person" in the score file with name (0) or
 # numeric (1) user id.
 #PERS_IS_UID=1

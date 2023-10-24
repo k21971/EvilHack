@@ -3251,4 +3251,5 @@ The following changes to date are:
 - Fix: Display suffocation attacks differently from drowning
 - Fix: Weapons with the excellence property could grant a permanent luck bonus
 - Fix: mention locked/empty status of magic chest when walking on it
+- Sysconf tweaks
 
