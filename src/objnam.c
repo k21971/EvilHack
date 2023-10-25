@@ -2218,6 +2218,7 @@ const char *verb;
             && obj->oartifact != ART_GJALLAR)
         || obj->oartifact == ART_DRAGONBANE
         || obj->oartifact == ART_MAGIC___BALL
+        || obj->oartifact == ART_WAND_OF_ORCUS
         || obj->oartifact == ART_BAG_OF_THE_HESPERIDES
         || obj->oartifact == ART_GAUNTLETS_OF_PURITY
         || obj->oartifact == ART_HAMMER_OF_THE_GODS) {
@@ -2305,6 +2306,7 @@ struct obj *obj;
             && obj->oartifact != ART_GJALLAR)
         || obj->oartifact == ART_DRAGONBANE
         || obj->oartifact == ART_MAGIC___BALL
+        || obj->oartifact == ART_WAND_OF_ORCUS
         || obj->oartifact == ART_BAG_OF_THE_HESPERIDES
         || obj->oartifact == ART_GAUNTLETS_OF_PURITY
         || obj->oartifact == ART_HAMMER_OF_THE_GODS) {

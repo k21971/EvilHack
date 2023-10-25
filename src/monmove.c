@@ -267,7 +267,10 @@ mon_regen(mon, digest_meal)
 struct monst *mon;
 boolean digest_meal;
 {
-    if (mon->mhp < mon->mhpmax && !mon->mwither
+    boolean mon_orcus_wield = (MON_WEP(mon)
+                               && MON_WEP(mon)->oartifact == ART_WAND_OF_ORCUS);
+
+    if (mon->mhp < mon->mhpmax && !mon->mwither && !mon_orcus_wield
         && (!Is_valley(&u.uz) || is_undead(r_data(mon)))
         && (moves % 20 == 0 || mon_prop(mon, REGENERATION)))
         mon->mhp++;

@@ -73,7 +73,8 @@ enum invoke_prop_types {
     SHADOWBLADE,
     PHASING,
     CHANNEL,
-    DEATH_MAGIC
+    DEATH_MAGIC,
+    COMMAND_UNDEAD
 };
 
 #endif /* ARTIFACT_H */

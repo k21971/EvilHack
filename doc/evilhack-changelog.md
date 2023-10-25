@@ -3253,4 +3253,5 @@ The following changes to date are:
 - Fix: mention locked/empty status of magic chest when walking on it
 - Sysconf tweaks
 - More sysconf tweaks
+- Wand of Orcus changes
 

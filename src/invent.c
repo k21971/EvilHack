@@ -1187,7 +1187,7 @@ struct obj *obj;
         set_artifact_intrinsic(obj, 0, W_ART);
     }
 
-    if (obj->otyp == LOADSTONE) {
+    if (obj->otyp == LOADSTONE || obj->oartifact == ART_WAND_OF_ORCUS) {
         curse(obj);
     } else if (confers_luck(obj) || (obj->oprops & ITEM_EXCEL)) {
         set_moreluck();
@@ -1727,8 +1727,7 @@ register const char *let, *word;
         allowall = FALSE;
     } else if (!strcmp(word, "enchant")) { /* ugly check for enchant armor */
         allowall = FALSE;
-    }
-    else if (!strcmp(word, "magically repair")) { /* ugly check for repair armor */
+    } else if (!strcmp(word, "magically repair")) { /* ugly check for repair armor */
         allowall = FALSE;
     }
     for (;;) {

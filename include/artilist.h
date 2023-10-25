@@ -275,7 +275,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      * of his ilk */
     A("Wand of Orcus", ROD,
       (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK | SPFX_INTEL),
-      0, 0, DETH(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC,
+      0, 0, DETH(5, 6), NO_DFNS, NO_CARY, COMMAND_UNDEAD, A_CHAOTIC,
       NON_PM, NON_PM, 75000L, NO_COLOR, GEMSTONE),
     /* The Eye of Vecna, which Vecna will sometimes death drop
        before the rest of his body crumbles to dust */
@@ -614,6 +614,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
 #undef STON
 #undef DETH
 #undef DISN
+#undef FUSE
 #endif
 
 /*artilist.h*/

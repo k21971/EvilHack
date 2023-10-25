@@ -179,48 +179,6 @@ OPTIONS=menu_objsyms,perm_invent,hitpointbar,quick_farsight
 # realtime options (wallclock time / play time / disabled)
 OPTIONS=realtime:wallclock time 
 
-# hilite_status - allowed colors are black, red, green, brown, blue,
-# magenta, cyan, gray, orange, lightgreen, yellow, lightblue, lightmagenta,
-# lightcyan, and white.
-OPTIONS=statushilites
-OPTIONS=hilite_status: hitpoints-max/green&normal
-OPTIONS=hilite_status: hitpoints/100%/green&normal
-OPTIONS=hilite_status: hitpoints/<100%/lightgreen&normal
-OPTIONS=hilite_status: hitpoints/<76%/yellow&normal
-OPTIONS=hilite_status: hitpoints/<51%/orange&normal
-OPTIONS=hilite_status: hitpoints/<26%/red&normal
-OPTIONS=hilite_status: hitpoints/<11%/black&normal
-OPTIONS=hilite_status: power-max/green&normal
-OPTIONS=hilite_status: power/100%/green&normal
-OPTIONS=hilite_status: power/<100%/lightgreen&normal
-OPTIONS=hilite_status: power/<76%/yellow&normal
-OPTIONS=hilite_status: power/<51%/orange&normal
-OPTIONS=hilite_status: power/<26%/red&normal
-OPTIONS=hilite_status: power/<11%/black&normal
-OPTIONS=hilite_status: gold/always/yellow&normal
-OPTIONS=hilite_status: hunger/satiated/brown&normal
-OPTIONS=hilite_status: hunger/hungry/orange&normal
-OPTIONS=hilite_status: hunger/weak/red&normal
-OPTIONS=hilite_status: hunger/fainting/black&normal
-OPTIONS=hilite_status: hunger/fainted/black&normal
-OPTIONS=hilite_status: condition/conf/orange&normal
-OPTIONS=hilite_status: condition/stun/red&normal
-OPTIONS=hilite_status: condition/blind/black&normal
-OPTIONS=hilite_status: condition/deaf/cyan&normal
-OPTIONS=hilite_status: condition/foodpois/lightgreen&normal
-OPTIONS=hilite_status: condition/termill/lightgreen&normal
-OPTIONS=hilite_status: condition/slime/lightgreen&normal
-OPTIONS=hilite_status: condition/wither/green&normal
-OPTIONS=hilite_status: condition/hallu/magenta&normal
-OPTIONS=hilite_status: condition/strngl/red&normal
-OPTIONS=hilite_status: condition/stone/brown&bold&normal
-OPTIONS=hilite_status: condition/movement/lightblue&normal
-OPTIONS=hilite_status: carrying-capacity/burdened/yellow&normal
-OPTIONS=hilite_status: carrying-capacity/stressed/orange&normal
-OPTIONS=hilite_status: carrying-capacity/strained/red&normal
-OPTIONS=hilite_status: carrying-capacity/overtaxed/red&normal
-OPTIONS=hilite_status: carrying-capacity/overloaded/black&normal
-
 # Various MSGTYPE examples
 MSGTYPE=hide "Unknown command *"
 MSGTYPE=alert "The (couatl|.*eel|kraken) swings itself around you!"

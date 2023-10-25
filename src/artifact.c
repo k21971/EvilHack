@@ -1114,8 +1114,7 @@ struct monst *mon;
 
     if (((badclass || badalign) && self_willed)
         || (badalign && (!yours || !rn2(4)))
-        || ((yours || !is_demon(mon->data))
-            && oart == &artilist[ART_WAND_OF_ORCUS])) {
+        || (yours && oart == &artilist[ART_WAND_OF_ORCUS])) {
         int dmg;
         char buf[BUFSZ];
 
@@ -1135,8 +1134,7 @@ struct monst *mon;
     }
 
     /* can pick it up unless you're totally non-synch'd with the artifact */
-    if ((badclass && badalign && self_willed)
-        || (yours && oart == &artilist[ART_WAND_OF_ORCUS])) {
+    if ((badclass && badalign && self_willed)) {
         if (yours) {
             if (!carried(obj))
                 pline("%s your grasp!", Tobjnam(obj, "evade"));
@@ -1848,7 +1846,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (youattack)
                     xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                 else
-                    monkilled(mdef, 0, AD_FIRE);
+                    monkilled(mdef, (char *) 0, AD_FIRE);
             }
             return TRUE;
         }
@@ -2043,7 +2041,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (!(resists_magm(mdef) || defended(mdef, AD_MAGM))
                     && !resist(mdef, 0, 0, 0)) {
                     mdef->mhp = 0;
-                    monkilled(mdef, "", AD_DETH);
+                    monkilled(mdef, (char *) 0, AD_DETH);
                     if (!DEADMONSTER(mdef))
                         return 0;
                     return (MM_DEF_DIED
@@ -2054,7 +2052,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (vis)
                     pline("%s looks weaker!", Monnam(mdef));
                 /* mhp will then still be less than this value */
-                mdef->mhpmax -= rn2(*dmgptr / 2 + 1);
+                mdef->mhpmax -= (rn2(*dmgptr / 2 + 1) + (*dmgptr / 4));
                 if (mdef->mhpmax <= 0) /* protect against invalid value */
                     mdef->mhpmax = 1;
                 break;
@@ -2150,7 +2148,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (youattack) {
                     xkilled(mdef, XKILL_NOMSG);
                 } else {
-                    monkilled(mdef, 0, AD_DISE);
+                    monkilled(mdef, (char *) 0, AD_DISE);
                 }
             }
             return TRUE;
@@ -2212,7 +2210,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         }
                         mdef->mhp = mdef->mhpmax;
                     } else {
-                        monkilled(mdef, 0, AD_DISN);
+                        monkilled(mdef, (char *) 0, AD_DISN);
                     }
                 }
             }
@@ -3131,8 +3129,8 @@ struct obj *obj;
         case PHASING: /* Walk through walls and stone like a xorn */
             if (obj->oartifact == ART_STRIPED_SHIRT_OF_LIBERATIO
                 && !Role_if(PM_CONVICT) && rn2(5)) {
-                You_feel("that %s %s purposely ignoring you.", the(xname(obj)),
-                         otense(obj, "are"));
+                You_feel("that %s %s purposely ignoring you.",
+                         the(xname(obj)), otense(obj, "are"));
                 break;
             }
             if (Passes_walls)
@@ -3320,6 +3318,24 @@ struct obj *obj;
             }
             change_luck(-3);
             exercise(A_WIS, FALSE);
+            break;
+        case COMMAND_UNDEAD:
+            if (u.uswallow) {
+                if (is_undead(u.ustuck->data))
+                    maybe_tame(u.ustuck, obj);
+            } else {
+                int i, j, bd = 1;
+
+                for (i = -bd; i <= bd; i++) {
+                    for (j = -bd; j <= bd; j++) {
+                        if (!isok(u.ux + i, u.uy + j))
+                            continue;
+                        if ((mtmp = m_at(u.ux + i, u.uy + j)) != 0
+                            && is_undead(mtmp->data))
+                            maybe_tame(mtmp, obj);
+                    }
+                }
+            }
             break;
         }
     } else {

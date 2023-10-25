@@ -130,6 +130,11 @@ register struct obj *obj;
         context.botl = 1;
         update_inventory();
     }
+
+    if (uwep == obj
+        && uwep && uwep->oartifact == ART_WAND_OF_ORCUS)
+        curse(uwep);
+
     /* Note: Explicitly wielding a pick-axe will not give a "bashing"
      * message.  Wielding one via 'a'pplying it will.
      * 3.2.2:  Wielding arbitrary objects will give bashing message too.
@@ -191,7 +196,8 @@ struct obj *wep;
     } else {
         /* Weapon WILL be wielded after this point */
         res++;
-        if (will_weld_to_you(wep)) {
+        if (will_weld_to_you(wep)
+            || (wep->oartifact == ART_WAND_OF_ORCUS && !Role_if(PM_INFIDEL))) {
             const char *tmp = xname(wep), *thestr = "The ";
 
             if (strncmp(tmp, thestr, 4) && !strncmp(The(tmp), thestr, 4))
@@ -338,6 +344,7 @@ register struct obj *obj;
         context.botl = 1;
         update_inventory();
     }
+
     if (olduswapwep && (olduswapwep->oprops & ITEM_EXCEL)) {
         olduswapwep->oprops_known |= ITEM_EXCEL;
         set_moreluck();

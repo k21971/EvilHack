@@ -728,6 +728,17 @@ boolean resuming;
             orc_regen = orc_can_regen();
         }
 
+        /* If wielding the Wand of Orcus and it's been uncursed,
+           it will periodically curse itself */
+        if (!rn2(100) && uwep && !uwep->cursed
+            && uwep->oartifact == ART_WAND_OF_ORCUS) {
+            curse(uwep);
+            if (!Role_if(PM_INFIDEL))
+                pline_The("%s itself to your %s!", aobjnam(uwep, "weld"),
+                          body_part(HAND));
+            set_bknown(uwep, 1);
+        }
+
         /* The Gauntlets of Purity cannot stay worn if
            our hero isn't pious */
         if (!wizard
@@ -894,6 +905,7 @@ int wtcap;
                 heal = -1;
         } else if (u.mh < u.mhmax) {
             if ((!Is_valley(&u.uz) || is_undead(youmonst.data))
+                && !wielding_artifact(ART_WAND_OF_ORCUS)
                 && (Regeneration || (encumbrance_ok && !(moves % 20L))))
                 heal = 1;
         }
@@ -916,7 +928,7 @@ int wtcap;
            while located in the Valley of the Dead */
         if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
             && (encumbrance_ok || Regeneration) && !Is_valley(&u.uz)
-            && !infidel_no_amulet) {
+            && !infidel_no_amulet && !wielding_artifact(ART_WAND_OF_ORCUS)) {
             if (u.ulevel > 9) {
                 long rate = 3L;
                 if (drow_in_light)
