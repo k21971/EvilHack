@@ -3322,7 +3322,7 @@ struct obj *obj;
         case COMMAND_UNDEAD:
             if (u.uswallow) {
                 if (is_undead(u.ustuck->data))
-                    maybe_tame(u.ustuck, obj);
+                    (void) tamedog(u.ustuck, (struct obj *) 0);
             } else {
                 int i, j, bd = 1;
 
@@ -3332,7 +3332,7 @@ struct obj *obj;
                             continue;
                         if ((mtmp = m_at(u.ux + i, u.uy + j)) != 0
                             && is_undead(mtmp->data))
-                            maybe_tame(mtmp, obj);
+                            (void) tamedog(mtmp, (struct obj *) 0);
                     }
                 }
             }

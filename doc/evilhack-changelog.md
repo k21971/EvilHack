@@ -3256,4 +3256,5 @@ The following changes to date are:
 - Wand of Orcus changes
 - Some further tweaks to the Wand of Orcus
 - Clean up some issues from last commit (Wand of Orcus)
+- Fix: Wand of Orcus dual-wielding and invoke function
 

@@ -132,8 +132,10 @@ register struct obj *obj;
     }
 
     if (uwep == obj
-        && uwep && uwep->oartifact == ART_WAND_OF_ORCUS)
+        && uwep && uwep->oartifact == ART_WAND_OF_ORCUS) {
         curse(uwep);
+        update_inventory();
+    }
 
     /* Note: Explicitly wielding a pick-axe will not give a "bashing"
      * message.  Wielding one via 'a'pplying it will.
@@ -736,23 +738,27 @@ can_twoweapon()
     } else if (bimanual(uwep) || bimanual(uswapwep)) {
         otmp = bimanual(uwep) ? uwep : uswapwep;
         pline("%s isn't one-handed.", Yname2(otmp));
-    } else if (uarms && !is_bracer(uarms))
+    } else if (uarms && !is_bracer(uarms)) {
         You_cant("use two weapons while wearing a shield.");
     /* Allow two-weaponing with an artifact, but not if they are of
        opposite alignements. As expected, neutral artifacts don't care */
-    else if (uswapwep->oartifact
-             && ((is_lawful_artifact(uswapwep) && is_chaotic_artifact(uwep))
-                 || (is_chaotic_artifact(uswapwep) && is_lawful_artifact(uwep))))
+    } else if (uswapwep->oartifact
+               && ((is_lawful_artifact(uswapwep) && is_chaotic_artifact(uwep))
+                   || (is_chaotic_artifact(uswapwep) && is_lawful_artifact(uwep)))) {
         pline("%s being held second to an opposite aligned weapon!",
               Yobjnam2(uswapwep, "resist"));
     /* The Wand of Orcus will not tolerate being wielded along with
        another artifact */
-    else if (wielding_artifact(ART_WAND_OF_ORCUS)
-             || uswapwep->oartifact == ART_WAND_OF_ORCUS)
+    } else if (uwep->oartifact == ART_WAND_OF_ORCUS && uswapwep->oartifact) {
         pline("%s being held alongside another artifact!",
-              Yobjnam2(wielding_artifact(ART_WAND_OF_ORCUS) ? uwep
-                                                            : uswapwep, "resist"));
-    else if (uswapwep->otyp == CORPSE && cant_wield_corpse(uswapwep)) {
+              Yobjnam2(uwep, "resist"));
+    /* The Wand of Orcus will not tolerate being held second to
+       any object */
+    } else if (uswapwep->oartifact == ART_WAND_OF_ORCUS
+               && (is_weptool(uwep) || uwep->oclass == WEAPON_CLASS)) {
+        pline("%s being held second to another %s!",
+              Yobjnam2(uswapwep, "resist"), uwep->oartifact ? "artifact" : "weapon");
+    } else if (uswapwep->otyp == CORPSE && cant_wield_corpse(uswapwep)) {
         /* [Note: NOT_WEAPON() check prevents ever getting here...] */
         ; /* must be life-saved to reach here; return FALSE */
     } else if (Glib || uswapwep->cursed) {
