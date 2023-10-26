@@ -3255,4 +3255,5 @@ The following changes to date are:
 - More sysconf tweaks
 - Wand of Orcus changes
 - Some further tweaks to the Wand of Orcus
+- Clean up some issues from last commit (Wand of Orcus)
 

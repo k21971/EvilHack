@@ -745,11 +745,11 @@ can_twoweapon()
                  || (is_chaotic_artifact(uswapwep) && is_lawful_artifact(uwep))))
         pline("%s being held second to an opposite aligned weapon!",
               Yobjnam2(uswapwep, "resist"));
-    /* The Wand of Orcus will not tolerate being second to another
-       artifact */
+    /* The Wand of Orcus will not tolerate being wielded along with
+       another artifact */
     else if (wielding_artifact(ART_WAND_OF_ORCUS)
              || uswapwep->oartifact == ART_WAND_OF_ORCUS)
-        pline("%s being held along side another weapon!",
+        pline("%s being held alongside another artifact!",
               Yobjnam2(wielding_artifact(ART_WAND_OF_ORCUS) ? uwep
                                                             : uswapwep, "resist"));
     else if (uswapwep->otyp == CORPSE && cant_wield_corpse(uswapwep)) {

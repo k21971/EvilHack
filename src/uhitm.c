@@ -3934,6 +3934,9 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 /* opposite-aligned artifacts can't be twoweaponed */
                 && !((is_lawful_artifact(uwep) && is_chaotic_artifact(uswapwep))
                      || (is_chaotic_artifact(uwep) && is_lawful_artifact(uswapwep)))
+                /* the Wand of Orcus can't be twoweaponed with any other artifact */
+                && !((uwep->oartifact == ART_WAND_OF_ORCUS && uswapwep->oartifact)
+                     || (uswapwep->oartifact == ART_WAND_OF_ORCUS && uwep->oartifact))
                 /* only switch to uswapwep if it's a weapon */
                 && (uswapwep->oclass == WEAPON_CLASS || is_weptool(uswapwep))
                 /* only switch if uswapwep is not bow, arrows, or darts */
