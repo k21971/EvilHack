@@ -3254,4 +3254,5 @@ The following changes to date are:
 - Sysconf tweaks
 - More sysconf tweaks
 - Wand of Orcus changes
+- Some further tweaks to the Wand of Orcus
 

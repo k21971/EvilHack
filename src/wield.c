@@ -738,13 +738,20 @@ can_twoweapon()
         pline("%s isn't one-handed.", Yname2(otmp));
     } else if (uarms && !is_bracer(uarms))
         You_cant("use two weapons while wearing a shield.");
-    /* Allow two-weaponing with an artifact, but not if they are of opposite alignements.
-     * As expected, neutral artifacts don't care */
+    /* Allow two-weaponing with an artifact, but not if they are of
+       opposite alignements. As expected, neutral artifacts don't care */
     else if (uswapwep->oartifact
              && ((is_lawful_artifact(uswapwep) && is_chaotic_artifact(uwep))
                  || (is_chaotic_artifact(uswapwep) && is_lawful_artifact(uwep))))
         pline("%s being held second to an opposite aligned weapon!",
               Yobjnam2(uswapwep, "resist"));
+    /* The Wand of Orcus will not tolerate being second to another
+       artifact */
+    else if (wielding_artifact(ART_WAND_OF_ORCUS)
+             || uswapwep->oartifact == ART_WAND_OF_ORCUS)
+        pline("%s being held along side another weapon!",
+              Yobjnam2(wielding_artifact(ART_WAND_OF_ORCUS) ? uwep
+                                                            : uswapwep, "resist"));
     else if (uswapwep->otyp == CORPSE && cant_wield_corpse(uswapwep)) {
         /* [Note: NOT_WEAPON() check prevents ever getting here...] */
         ; /* must be life-saved to reach here; return FALSE */
