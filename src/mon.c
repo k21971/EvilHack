@@ -4724,6 +4724,7 @@ struct monst *mtmp;
                         verbalize("Ahhhh!  Eggs!  %s has eggs!!",
                                   (flags.female) ? "She" : "He");
                     monflee(mtmp, d(2, 6) + 10, TRUE, TRUE);
+                    break;
                 }
             }
         }
