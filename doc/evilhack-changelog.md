@@ -3259,4 +3259,5 @@ The following changes to date are:
 - Fix: Wand of Orcus dual-wielding and invoke function
 - Fix: various artifact death messages
 - Fix: remove extra feedback when Death attacks another monster
+- Fix: multiple messages for gnomes noticing eggs
 
