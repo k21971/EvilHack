@@ -271,7 +271,8 @@ int ef_flags;
 
         return ER_DAMAGED;
     } else if (ef_flags & EF_DESTROY
-               && otmp != uball && otmp != uchain) {
+               && otmp != uball && otmp != uchain
+               && !obj_resists(otmp, 5, 95)) {
         if (type == ERODE_FRACTURE) {
             if (uvictim || vismon || visobj)
                 pline("%s %s %s and shatters!",

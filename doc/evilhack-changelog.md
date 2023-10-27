@@ -3261,4 +3261,5 @@ The following changes to date are:
 - Fix: remove extra feedback when Death attacks another monster
 - Fix: multiple messages for gnomes noticing eggs
 - Allow cutting a known spider web by force-fighting it
+- Check obj_resists when destroying items via erosion
 

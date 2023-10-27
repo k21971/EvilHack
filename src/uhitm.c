@@ -4841,7 +4841,7 @@ boolean wep_was_destroyed;
                             pline("%s disintegration-proof and %s intact.",
                                   Yobjnam2(weapon, "are"), otense(weapon, "remain"));
                             break;
-                        } else if (weapon->oartifact && rn2(50)) {
+                        } else if (weapon->oartifact && rn2(20)) {
                                    pline("%s %s, but remains %s.", Yname2(weapon),
                                    rn2(2) ? "shudders violently" : "vibrates unexpectedly",
                                    rn2(2) ? "whole" : "intact");
@@ -5060,7 +5060,7 @@ struct attack *mattk;     /* null means we find one internally */
                 pline("%s disintegration-proof and %s intact.",
                       Yobjnam2(obj, "are"), otense(obj, "remain"));
                 break;
-            } else if (obj->oartifact && rn2(50)) {
+            } else if (obj->oartifact && rn2(20)) {
                 pline("%s %s, but remains %s.", Yname2(obj),
                       rn2(2) ? "shudders violently" : "vibrates unexpectedly",
                       rn2(2) ? "whole" : "intact");
