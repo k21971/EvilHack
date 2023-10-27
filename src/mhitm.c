@@ -2336,11 +2336,7 @@ post_stone:
         res = eat_brains(magr, mdef, vis, &tmp);
         break;
     case AD_DETH:
-        if (pa == &mons[PM_DEATH]) {
-            if (vis)
-                pline("%s reaches out with its deadly touch.",
-                      Monnam(magr));
-        } else if (mattk->aatyp == AT_GAZE) {
+        if (mattk->aatyp == AT_GAZE) {
             if (vis) {
                 if (mdef->data->mlet == S_MIMIC
                     && M_AP_TYPE(mdef) != M_AP_NOTHING)

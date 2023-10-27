@@ -3258,4 +3258,5 @@ The following changes to date are:
 - Clean up some issues from last commit (Wand of Orcus)
 - Fix: Wand of Orcus dual-wielding and invoke function
 - Fix: various artifact death messages
+- Fix: remove extra feedback when Death attacks another monster
 
