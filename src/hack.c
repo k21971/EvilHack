@@ -13,6 +13,7 @@ STATIC_DCL int FDECL(still_chewing, (XCHAR_P, XCHAR_P));
 STATIC_DCL void NDECL(dosinkfall);
 STATIC_DCL boolean FDECL(findtravelpath, (int));
 STATIC_DCL boolean FDECL(trapmove, (int, int, struct trap *));
+STATIC_DCL boolean FDECL(domove_fight_web, (XCHAR_P, XCHAR_P));
 STATIC_DCL struct monst *FDECL(monstinroom, (struct permonst *, int));
 STATIC_DCL boolean FDECL(doorless_door, (int, int));
 STATIC_DCL void FDECL(move_update, (BOOLEAN_P));
@@ -1495,6 +1496,36 @@ struct trap *desttrap; /* nonnull if another trap at <x,y> */
     return FALSE;
 }
 
+/* force-fight a spider web with your weapon */
+STATIC_OVL boolean
+domove_fight_web(x, y)
+register xchar x, y;
+{
+    struct trap *trap = t_at(x, y);
+
+    if (context.forcefight && trap && trap->ttyp == WEB
+        && trap->tseen && uwep) {
+        if (uwep->oartifact == ART_STING) {
+            /* guaranteed success */
+            pline("%s cuts through the web!",
+                  bare_artifactname(uwep));
+        } else if (!is_blade(uwep)) {
+            You_cant("cut a web with %s!", an(xname(uwep)));
+            return TRUE;
+        } else if (rn2(20) > ACURR(A_STR) + uwep->spe) {
+            /* TODO: add failures, maybe make an occupation? */
+            You("hack ineffectually at some of the strands.");
+            return TRUE;
+        } else {
+            You("cut through the web.");
+        }
+        deltrap(trap);
+        newsym(x, y);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 boolean
 u_rooted()
 {
@@ -1834,6 +1865,9 @@ domove_core()
         hit_bars(&obj, u.ux, u.uy, x, y, breakflags);
         return;
     }
+
+    if (domove_fight_web(x, y))
+        return;
 
     /* specifying 'F' with no monster wastes a turn */
     if (context.forcefight

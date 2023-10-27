@@ -3260,4 +3260,5 @@ The following changes to date are:
 - Fix: various artifact death messages
 - Fix: remove extra feedback when Death attacks another monster
 - Fix: multiple messages for gnomes noticing eggs
+- Allow cutting a known spider web by force-fighting it
 
