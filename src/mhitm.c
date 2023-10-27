@@ -982,7 +982,7 @@ struct attack *mattk;
         if (magr->mcan || !magr->mcansee || !mdef->mcansee
             || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
             if (vis && canspotmon(mdef))
-                pline("but nothing happens.");
+                pline("But nothing happens.");
             return MM_MISS;
         }
         if (mon_reflects(mdef, (char *) 0)) {
@@ -1457,7 +1457,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             if (magr->mcan || !magr->mcansee || !mdef->mcansee
                 || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
                 if (vis && canspotmon(mdef))
-                    pline("but nothing happens.");
+                    pline("But nothing happens.");
                 return MM_MISS;
             }
         }
@@ -1690,7 +1690,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 || (magr->minvis && !racial_perceives(mdef))
                 || mdef->msleeping || mon_underwater(mdef)) {
                 if (vis && canspotmon(mdef))
-                    pline("but nothing happens.");
+                    pline("But nothing happens.");
                 return MM_MISS;
             }
         }
@@ -1738,7 +1738,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             if (magr->mcan || !magr->mcansee || !mdef->mcansee
                 || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
                 if (vis && canspotmon(mdef))
-                    pline("but nothing happens.");
+                    pline("But nothing happens.");
                 return MM_MISS;
             }
         }
@@ -1899,7 +1899,7 @@ post_stone:
                     if (magr->mcan || !magr->mcansee || !mdef->mcansee
                         || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
                         if (vis && canspotmon(mdef))
-                            pline("but nothing happens.");
+                            pline("But nothing happens.");
                         return MM_MISS;
                     }
                     if (vis && canseemon(mdef) && !mdef->mstone)
@@ -1959,7 +1959,7 @@ post_stone:
                 if (magr->mcan || !magr->mcansee || !mdef->mcansee
                     || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
                     if (vis && canspotmon(mdef))
-                        pline("but nothing happens.");
+                        pline("But nothing happens.");
                     return MM_MISS;
                 }
             }
@@ -2001,7 +2001,7 @@ post_stone:
                 if (magr->mcan || !magr->mcansee || !mdef->mcansee
                     || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
                     if (vis && canspotmon(mdef))
-                        pline("but nothing happens.");
+                        pline("But nothing happens.");
                     return MM_MISS;
                 }
             }
@@ -2032,7 +2032,7 @@ post_stone:
                 if (magr->mcan || !magr->mcansee || !mdef->mcansee
                     || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
                     if (vis && canspotmon(mdef))
-                        pline("but nothing happens.");
+                        pline("But nothing happens.");
                     return MM_MISS;
                 }
             }
@@ -2060,7 +2060,7 @@ post_stone:
                 if (magr->mcan || !magr->mcansee || !mdef->mcansee
                     || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
                     if (vis && canspotmon(mdef))
-                        pline("but nothing happens.");
+                        pline("But nothing happens.");
                     return MM_MISS;
                 }
             }
@@ -2336,7 +2336,11 @@ post_stone:
         res = eat_brains(magr, mdef, vis, &tmp);
         break;
     case AD_DETH:
-        if (mattk->aatyp == AT_GAZE) {
+        if (pa == &mons[PM_DEATH]) {
+            if (vis)
+                pline("%s reaches out with its deadly touch.",
+                      Monnam(magr));
+        } else if (mattk->aatyp == AT_GAZE) {
             if (vis) {
                 if (mdef->data->mlet == S_MIMIC
                     && M_AP_TYPE(mdef) != M_AP_NOTHING)
@@ -2347,9 +2351,10 @@ post_stone:
             }
 
             if (magr->mcan || !magr->mcansee || !mdef->mcansee
-                || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
+                || (magr->minvis && !racial_perceives(mdef))
+                || mdef->msleeping) {
                 if (vis && canspotmon(mdef))
-                    pline("but nothing happens.");
+                    pline("But nothing happens.");
                 return MM_MISS;
             }
         }
@@ -2368,8 +2373,14 @@ post_stone:
         case 17:
             if (!(resists_magm(mdef) || defended(mdef, AD_MAGM))
                 && !resist(mdef, 0, 0, 0)) {
+                if (mattk->aatyp == AT_GAZE)
+                    pline("%s annihilates %s with %s deadly gaze!",
+                          Monnam(magr), mon_nam(mdef), mhis(magr));
+                else
+                    pline("%s consumes %s life force!",
+                          Monnam(magr), s_suffix(mon_nam(mdef)));
                 mdef->mhp = 0;
-                monkilled(mdef, "", AD_DETH);
+                monkilled(mdef, (char *) 0, AD_DETH);
                 if (!DEADMONSTER(mdef))
                     return 0;
                 return (MM_DEF_DIED
@@ -2471,7 +2482,7 @@ msickness:
                 && breathless(mdef->data))) {
             tmp = 0;
         }
-        if (magr->data == &mons[PM_MIND_FLAYER_LARVA]) {
+        if (pa == &mons[PM_MIND_FLAYER_LARVA]) {
             if (can_become_flayer(mdef->data)) {
                 if (rn2(6)) {
                     if (canseemon(mdef))
@@ -2559,7 +2570,7 @@ msickness:
                 if (magr->mcan || !magr->mcansee || !mdef->mcansee
                     || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
                     if (vis && canspotmon(mdef))
-                        pline("but nothing happens.");
+                        pline("But nothing happens.");
                     return MM_MISS;
                 }
             }
@@ -2658,7 +2669,7 @@ msickness:
                 if (magr->mcan || !magr->mcansee || !mdef->mcansee
                     || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
                     if (vis && canspotmon(mdef))
-                        pline("but nothing happens.");
+                        pline("But nothing happens.");
                     return MM_MISS;
                 }
             }

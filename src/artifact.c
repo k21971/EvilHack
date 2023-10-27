@@ -1968,9 +1968,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             case 19:
             case 18:
             case 17:
-                You_feel("the %s trying to annihilate your soul!",
-                         distant_name(otmp, xname));
                 if (!Antimagic) {
+                    pline_The("%s consumes your soul!",
+                              distant_name(otmp, xname));
                     killer.format = KILLED_BY;
                     Strcpy(killer.name, "the Wand of Orcus");
                     ukiller = magr;
@@ -2040,6 +2040,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             case 17:
                 if (!(resists_magm(mdef) || defended(mdef, AD_MAGM))
                     && !resist(mdef, 0, 0, 0)) {
+                    pline_The("%s consumes %s life force!",
+                              distant_name(otmp, xname),
+                              s_suffix(mon_nam(mdef)));
                     mdef->mhp = 0;
                     monkilled(mdef, (char *) 0, AD_DETH);
                     if (!DEADMONSTER(mdef))
@@ -3258,19 +3261,20 @@ struct obj *obj;
                                                             : canspotmon(mtmp))
                         && !immune_death_magic(mtmp->data)) {
                         int tmp = 12;
+
                         switch (rn2(20)) {
                         case 19:
                         case 18:
                         case 17:
                             if (!(resists_magm(mtmp) || defended(mtmp, AD_MAGM))
                                 && !resist(mtmp, 0, 0, 0)) {
+                                pline_The("%s annihilates %s!",
+                                          distant_name(obj, xname),
+                                          mon_nam(mtmp));
                                 mtmp->mhp = 0;
-                                if (DEADMONSTER(mtmp)) {
-                                    if (context.mon_moving)
-                                        monkilled(mtmp, (char *) 0, AD_DETH);
-                                    else
-                                        killed(mtmp);
-                                }
+                                monkilled(mtmp, (char *) 0, AD_DETH);
+                                if (!DEADMONSTER(mtmp))
+                                    return 0;
                             }
                             break;
                         default: /* case 16 through case 2 */
