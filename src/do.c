@@ -2302,6 +2302,9 @@ long timeout UNUSED;
         } else { /* rot this corpse away */
             if (!obj_has_timer(body, ROT_CORPSE))
                 You_feel("%sless hassled.", is_rider(mptr) ? "much " : "");
+            /* corpsenm was changed by zombify_mon; change it back since the
+               corpse is going to stick around */
+            set_corpsenm(body, undead_to_corpse(body->corpsenm));
             action = ROT_CORPSE;
             when = 250L - (monstermoves - body->age);
             if (when < 1L)
