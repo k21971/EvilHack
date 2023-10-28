@@ -1464,10 +1464,8 @@ struct obj *obj;
     xchar x, y;
 
     if (obj->lamplit) {
-        if (Underwater && obj->otyp == MAGIC_LAMP)
-            return FALSE;
-        if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
-            || obj->otyp == LANTERN || obj->otyp == POT_OIL) {
+        if (obj->otyp == OIL_LAMP || obj->otyp == LANTERN
+            || obj->otyp == POT_OIL) {
             (void) get_obj_location(obj, &x, &y, 0);
             if (obj->where == OBJ_MINVENT ? cansee(x, y) : !Blind)
                 pline("%s %s out!", Yname2(obj), otense(obj, "go"));

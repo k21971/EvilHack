@@ -1389,7 +1389,6 @@ unsigned trflags;
             pline("%s you!", A_gush_of_water_hits);
             for (otmp = invent; otmp; otmp = otmp->nobj)
                 if (otmp->lamplit && otmp != uwep
-                    && otmp->otyp != MAGIC_LAMP
                     && (otmp != uswapwep || !u.twoweap))
                     (void) snuff_lit(otmp);
             if (uarmc)
@@ -2776,7 +2775,7 @@ register struct monst *mtmp;
                 if (in_sight)
                     pline("%s %s!", A_gush_of_water_hits, mon_nam(mtmp));
                 for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
-                    if (otmp->lamplit && otmp->otyp != MAGIC_LAMP
+                    if (otmp->lamplit
                         && (otmp->owornmask & (W_WEP | W_SWAPWEP)) == 0)
                         (void) snuff_lit(otmp);
                 if ((target = which_armor(mtmp, W_ARMC)) != 0)

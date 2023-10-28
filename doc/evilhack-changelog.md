@@ -3264,4 +3264,5 @@ The following changes to date are:
 - Check obj_resists when destroying items via erosion
 - Fix: player could drop a cursed loadstone by wielding it
 - Fix: zombie corpses changing when failing to revive
+- Fix: prevent magic lamps from being extinguished when entering a pool
 
