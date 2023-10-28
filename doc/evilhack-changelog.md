@@ -3262,4 +3262,5 @@ The following changes to date are:
 - Fix: multiple messages for gnomes noticing eggs
 - Allow cutting a known spider web by force-fighting it
 - Check obj_resists when destroying items via erosion
+- Fix: player could drop a cursed loadstone by wielding it
 

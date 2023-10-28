@@ -741,7 +741,7 @@ const char *word;
             Norep("You cannot %s %s you are wearing.", word, something);
         return FALSE;
     }
-    if (obj->otyp == LOADSTONE && cursed(obj, TRUE)) {
+    if (obj->otyp == LOADSTONE && obj->cursed) {
         /* getobj() kludge sets corpsenm to user's specified count
            when refusing to split a stack of cursed loadstones */
         if (*word) {
