@@ -4291,6 +4291,7 @@ int dx, dy;
             } else { /* we catch it */
                 tmp_at(DISP_END, 0);
                 You("skillfully catch the boomerang.");
+                retouch_object(&obj, !uarmg, FALSE);
                 return &youmonst;
             }
         }
