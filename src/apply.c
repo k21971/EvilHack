@@ -1028,8 +1028,10 @@ struct obj *obj;
     } else if (invis_mirror && !mon_prop(mtmp, SEE_INVIS)) {
         if (vis)
             pline("%s fails to notice your %s.", Monnam(mtmp), mirror);
-        /* infravision doesn't produce an image in the mirror */
-    } else if ((how_seen & SEENMON) == MONSEEN_INFRAVIS) {
+        /* if monster can't see in dark, it won't see a reflection if it's
+           in the dark (i.e. only seen via (ult|inf)ravision) */
+    } else if (!((how_seen & SEENMON) & ~MONSEEN_INFRAVIS & ~MONSEEN_ULTRAVIS)
+               && !ultravision(r_data(mtmp))) {
         if (vis) /* (redundant) */
             pline("%s is too far away to see %sself in the dark.",
                   Monnam(mtmp), mhim(mtmp));
