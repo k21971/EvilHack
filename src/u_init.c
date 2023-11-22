@@ -1197,7 +1197,7 @@ u_init()
         struct obj *otmp;
         for (otmp = invent; otmp; otmp = otmp->nobj) {
             if (otmp->otyp == TRIDENT) {
-                otmp->oerodeproof = 1;
+                maybe_erodeproof(otmp, 1);
                 otmp->rknown = 1;
             }
         }
@@ -1661,7 +1661,7 @@ register struct trobj *origtrop;
             }
             if (Role_if(PM_INFIDEL) && obj->oclass == ARMOR_CLASS) {
                 /* Infidels are used to playing with fire */
-                obj->oerodeproof = 1;
+                maybe_erodeproof(obj, 1);
             }
             if (obj->otyp == STRIPED_SHIRT)
                 obj->cursed = TRUE;

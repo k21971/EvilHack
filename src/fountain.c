@@ -1014,7 +1014,7 @@ register struct obj *obj;
             curse(obj);
             if (obj->spe > -6 && !rn2(3))
                 obj->spe--;
-            obj->oerodeproof = FALSE;
+            maybe_erodeproof(obj, 0);
             exercise(A_WIS, FALSE);
             livelog_printf(LL_ARTIFACT, "was denied Excalibur! The Lady of the Lake has deemed %s unworthy", uhim());
         } else {
@@ -1030,7 +1030,7 @@ register struct obj *obj;
             if (obj->spe < 0)
                 obj->spe = 0;
             obj->oeroded = obj->oeroded2 = 0;
-            obj->oerodeproof = TRUE;
+            maybe_erodeproof(obj, 1);
             exercise(A_WIS, TRUE);
             u.uconduct.artitouch++;
             livelog_printf(LL_ARTIFACT, "%s", excalmsgs[rn2(SIZE(excalmsgs))]);

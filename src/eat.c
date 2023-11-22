@@ -2813,7 +2813,7 @@ doeat()
         }
         pline("Ulch - that %s was rustproofed!", xname(otmp));
         /* The regurgitated object's rustproofing is gone now */
-        otmp->oerodeproof = 0;
+        maybe_erodeproof(otmp, 0);
         make_stunned((HStun & TIMEOUT) + (long) rn2(10), TRUE);
         /*
          * We don't expect rust monsters to be wielding welded weapons

@@ -1967,14 +1967,14 @@ struct mkroom *croom;
 
     if (o->eroded) {
         if (o->eroded < 0) {
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);
         } else {
             otmp->oeroded = (o->eroded % 4);
             otmp->oeroded2 = ((o->eroded >> 2) % 4);
         }
     } else {
         otmp->oeroded = otmp->oeroded2 = 0;
-        otmp->oerodeproof = 0;
+        maybe_erodeproof(otmp, 0);
     }
     if (o->recharged > -1)
         otmp->recharged = (o->recharged % 8);

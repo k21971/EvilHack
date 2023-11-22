@@ -156,7 +156,7 @@ int otyp, oquan;
         otmp->opoisoned = TRUE;
         if (mtmp->data == &mons[PM_MEDUSA]) {
             bless(otmp);
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rn2(3) + 3;
         }
     }
@@ -696,7 +696,7 @@ unsigned short chance;
                 if (mtmp && mtmp->mnum == PM_INFIDEL
                     && obj->oclass == ARMOR_CLASS
                     && is_flammable(obj)) {
-                    obj->oerodeproof = 1;
+                    maybe_erodeproof(obj, 1);
                 }
                 if (mtmp && mtmp->mnum == PM_INFIDEL
                     && (obj->oclass == WEAPON_CLASS
@@ -1350,7 +1350,7 @@ register struct monst *mtmp;
             otmp = oname(otmp, artiname(ART_EXCALIBUR));
             bless(otmp);
             otmp->oeroded = otmp->oeroded2 = 0;
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rnd(4) + 1;
             (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, LARGE_SHIELD);
@@ -1373,7 +1373,7 @@ register struct monst *mtmp;
             bless(otmp);
             otmp->oprops = ITEM_VENOM;
             otmp->oeroded = otmp->oeroded2 = 0;
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rnd(3);
             (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, HIGH_BOOTS);
@@ -1388,7 +1388,7 @@ register struct monst *mtmp;
             bless(otmp);
             otmp->oprops = ITEM_FROST;
             otmp->oeroded = otmp->oeroded2 = 0;
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rnd(3) + 4;
             (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, AMULET_OF_REFLECTION);
@@ -1514,7 +1514,7 @@ register struct monst *mtmp;
             }
             bless(otmp);
             otmp->oeroded = otmp->oeroded2 = 0;
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rn2(4);
             (void) mpickobj(mtmp, otmp);
 
@@ -1524,7 +1524,7 @@ register struct monst *mtmp;
                                    : SHIELD_OF_LIGHT,
                           FALSE, FALSE);
             /* uncurse(otmp); -- mksobj(,FALSE,) item is always uncursed */
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = 0;
             (void) mpickobj(mtmp, otmp);
 
@@ -1536,7 +1536,7 @@ register struct monst *mtmp;
                 item = RUNESWORD;
                 otmp = mksobj(item, FALSE, FALSE);
                 bless(otmp);
-                otmp->oerodeproof = TRUE;
+                maybe_erodeproof(otmp, 1);
                 otmp->spe = rn2(3) + 5;
                 otmp->oprops = ITEM_FIRE;
                 (void) mpickobj(mtmp, otmp);
@@ -1623,7 +1623,7 @@ register struct monst *mtmp;
             if (otmp->spe < 2)
                 otmp->spe = rnd(3);
             if (!rn2(4))
-                otmp->oerodeproof = 1;
+                maybe_erodeproof(otmp, 1);
             (void) mpickobj(mtmp, otmp);
         } else if (is_gnoll(ptr)) {
             if (rn2(4))
@@ -1791,7 +1791,7 @@ register struct monst *mtmp;
                              artiname(ART_ANGELSLAYER));
                 curse(otmp);
                 otmp->oeroded = otmp->oeroded2 = 0;
-                otmp->oerodeproof = TRUE;
+                maybe_erodeproof(otmp, 1);
                 otmp->spe = rnd(3);
                 (void) mpickobj(mtmp, otmp);
             } else {
@@ -1835,7 +1835,7 @@ register struct monst *mtmp;
             otmp = oname(otmp, artiname(ART_BUTCHER));
             curse(otmp);
             otmp->oeroded = otmp->oeroded2 = 0;
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rnd(3) + 2;
             (void) mpickobj(mtmp, otmp);
             break;
@@ -1852,7 +1852,7 @@ register struct monst *mtmp;
             otmp->oprops = ITEM_VENOM;
             curse(otmp);
             otmp->oeroded = otmp->oeroded2 = 0;
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rnd(3) + 2;
             (void) mpickobj(mtmp, otmp);
             break;
@@ -1861,7 +1861,7 @@ register struct monst *mtmp;
             otmp->oprops = ITEM_FIRE;
             curse(otmp);
             otmp->oeroded = otmp->oeroded2 = 0;
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rnd(3) + 2;
             (void) mpickobj(mtmp, otmp);
             break;
@@ -2255,7 +2255,8 @@ register struct monst *mtmp;
         } else if (ptr == &mons[PM_PALADIN]) {
             otmp = mksobj(MORNING_STAR, FALSE, FALSE);
             otmp->oeroded = otmp->oeroded2 = 0;
-            otmp->blessed = otmp->oerodeproof = 1;
+            otmp->blessed = 1;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rn1(3, 3);
             if (rn2(2)) { /* spice it up a little */
                 set_material(otmp, SILVER);
@@ -2313,7 +2314,7 @@ register struct monst *mtmp;
             if (otmp->spe < 2)
                 otmp->spe = rnd(3);
             if (!rn2(4))
-                otmp->oerodeproof = 1;
+                maybe_erodeproof(otmp, 1);
             (void) mpickobj(mtmp, otmp);
         } else if (ptr == &mons[PM_VECNA]) {
             otmp = mksobj(ROBE, FALSE, FALSE);
@@ -3807,7 +3808,7 @@ int otyp;
             otmp->cursed = FALSE;
             if (otmp->spe < 0)
                 otmp->spe = 0;
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
         } else if (is_mplayer(mtmp->data) && is_sword(otmp)) {
             otmp->spe = (3 + rn2(4));
         }
@@ -3837,12 +3838,12 @@ int otyp;
                 otmp->spe = rn2(3) + 1;
                 otmp->oeroded = otmp->oeroded2 = 0;
                 if (!rn2(5))
-                    otmp->oerodeproof = TRUE;
+                    maybe_erodeproof(otmp, 1);
             } else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 1) {
                 otmp->spe = mtmp->iswiz ? rn2(2) : rn2(4) + 1;
                 otmp->oeroded = otmp->oeroded2 = 0;
                 if (!rn2(5))
-                    otmp->oerodeproof = TRUE;
+                    maybe_erodeproof(otmp, 1);
             }
         }
         if (is_lord(mtmp->data)) {
@@ -3850,12 +3851,12 @@ int otyp;
                 otmp->spe = rn2(2) + 1;
                 otmp->oeroded = otmp->oeroded2 = 0;
                 if (!rn2(8))
-                    otmp->oerodeproof = TRUE;
+                    maybe_erodeproof(otmp, 1);
             } else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 1) {
                 otmp->spe = rn2(2) + 1;
                 otmp->oeroded = otmp->oeroded2 = 0;
                 if (!rn2(8))
-                    otmp->oerodeproof = TRUE;
+                    maybe_erodeproof(otmp, 1);
             }
         }
 
@@ -3864,7 +3865,7 @@ int otyp;
             if (otmp->oclass == WEAPON_CLASS && otmp->spe < 7)
                 otmp->spe = rn2(3) + 3;
             otmp->blessed = TRUE;
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
         }
 
         /* if mtmp would hate the material of the object they're getting,

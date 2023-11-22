@@ -793,34 +793,34 @@ int shp_indx;
             create_oprop(otmp, FALSE);
             bless(otmp);
             otmp->spe = rn2(4) + 1;
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             (void) mpickobj(shk, otmp);
         }
         otmp = mksobj(SHIELD_OF_REFLECTION, FALSE, FALSE);
         if (otmp) {
             bless(otmp);
             otmp->spe = rn2(4);
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             (void) mpickobj(shk, otmp);
         }
         otmp = mksobj(CLOAK_OF_MAGIC_RESISTANCE, FALSE, FALSE);
         if (otmp) {
             bless(otmp);
             otmp->spe = rn2(4);
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             (void) mpickobj(shk, otmp);
         }
         otmp = mksobj(CRYSTAL_PLATE_MAIL, FALSE, FALSE);
         if (otmp) {
             bless(otmp);
             otmp->spe = rn2(4);
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             (void) mpickobj(shk, otmp);
         }
         otmp = mksobj(RIN_SLOW_DIGESTION, FALSE, FALSE);
         if (otmp) {
             bless(otmp);
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             (void) mpickobj(shk, otmp);
         }
         m_dowear(shk, TRUE);

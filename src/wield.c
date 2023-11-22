@@ -919,7 +919,7 @@ register int amount;
         Your("%s %s much sharper now.", simpleonames(uwep),
              multiple ? "fuse, and become" : "is");
         uwep->otyp = CRYSKNIFE;
-        uwep->oerodeproof = 0;
+        maybe_erodeproof(uwep, 0);
         set_material(uwep, objects[CRYSKNIFE].oc_material);
         if (multiple) {
             uwep->quan = 1L;
@@ -942,7 +942,7 @@ register int amount;
              multiple ? "fuse, and become" : "is");
         costly_alteration(uwep, COST_DEGRD); /* DECHNT? other? */
         uwep->otyp = WORM_TOOTH;
-        uwep->oerodeproof = 0;
+        maybe_erodeproof(uwep, 0);
         set_material(uwep, objects[WORM_TOOTH].oc_material);
         if (multiple) {
             uwep->quan = 1L;

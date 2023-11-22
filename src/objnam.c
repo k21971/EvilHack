@@ -5222,7 +5222,7 @@ struct obj *no_wish;
          */
         if (erodeproof && (is_damageable(otmp) || otmp->otyp == CRYSKNIFE
                            || objects[otmp->otyp].oc_material == GLASS))
-            otmp->oerodeproof = (Luck >= 0 || wizard);
+            maybe_erodeproof(otmp, (Luck >= 0 || wizard));
     }
 
     /* object property restrictions */

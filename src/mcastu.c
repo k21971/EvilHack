@@ -569,7 +569,7 @@ struct monst *mattk, *mdef;
             } else {
                 pline("%s briefly emits an odd smell.", Yname2(oatmp));
             }
-            oatmp->oerodeproof = 0;
+            maybe_erodeproof(oatmp, 0);
             erodelvl--;
         }
 

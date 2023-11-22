@@ -1742,7 +1742,7 @@ int id;
         if (is_corrodeable(otmp) || is_rottable(otmp))
             otmp->oeroded2 = obj->oeroded2;
         if (is_damageable(otmp))
-            otmp->oerodeproof = obj->oerodeproof;
+            maybe_erodeproof(otmp, obj->oerodeproof);
     }
 
     /* Keep chest/box traps and poisoned ammo if we may */
@@ -1762,7 +1762,7 @@ int id;
             otmp->oclass = ARMOR_CLASS;
             otmp->spe = 0;
             otmp->oeroded = 0;
-            otmp->oerodeproof = TRUE;
+            maybe_erodeproof(otmp, 1);
             otmp->quan = 1L;
             otmp->cursed = FALSE;
             set_material(otmp, LEATHER);

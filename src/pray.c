@@ -1062,7 +1062,7 @@ gcrownu()
         else
             bless(obj);
         obj->oeroded = obj->oeroded2 = 0;
-        obj->oerodeproof = TRUE;
+        maybe_erodeproof(obj, 1);
         obj->bknown = obj->rknown = 1; /* ok to skip set_bknown() */
         if (obj->spe < 1)
             obj->spe = 1;
@@ -1807,7 +1807,7 @@ dosacrifice()
                 if (uwep->spe < 0)
                     uwep->spe = 0;
                 uwep->oeroded = uwep->oeroded2 = 0;
-                uwep->oerodeproof = TRUE;
+                maybe_erodeproof(uwep, 1);
                 exercise(A_WIS, TRUE);
                 u.uconduct.artitouch++;
                 livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
@@ -2476,7 +2476,7 @@ dosacrifice()
                             else
                                 bless(otmp);
                             otmp->spe = rn2(3) + 3; /* +3 to +5 */
-                            otmp->oerodeproof = TRUE;
+                            maybe_erodeproof(otmp, 1);
                             otmp->oeroded = otmp->oeroded2 = 0;
                             if (altaralign > A_CHAOTIC) /* lawful or neutral altar */
                                 otmp->opoisoned = otmp->otainted = 0;
@@ -2515,7 +2515,7 @@ dosacrifice()
                         curse(otmp);
                     else
                         bless(otmp);
-                    otmp->oerodeproof = TRUE;
+                    maybe_erodeproof(otmp, 1);
                     otmp->oeroded = otmp->oeroded2 = 0;
                     if (altaralign > A_CHAOTIC) /* lawful or neutral altar */
                         otmp->opoisoned = otmp->otainted = 0;

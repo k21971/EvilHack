@@ -1056,7 +1056,7 @@ const char *drop_fmt, *drop_arg, *hold_msg;
         obj_extract_self(obj);
         if (crysknife) {
             obj->otyp = CRYSKNIFE;
-            obj->oerodeproof = oerode;
+            maybe_erodeproof(obj, oerode);
         }
     }
     if (Fumbling) {
