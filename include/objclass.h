@@ -119,7 +119,8 @@ struct objclass {
     (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL  \
      || otmp->material == GOLD || otmp->material == PLATINUM     \
      || otmp->material == SILVER || otmp->material == MINERAL    \
-     || otmp->material == METAL || otmp->material == ADAMANTINE)
+     || otmp->material == METAL || otmp->material == ADAMANTINE  \
+     || otmp->material == GEMSTONE)
 
 #define is_fixed(otmp) \
     (is_supermaterial(otmp) || otmp->oerodeproof)
