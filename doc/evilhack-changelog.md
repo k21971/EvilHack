@@ -3267,3 +3267,6 @@ The following changes to date are:
 - Fix: prevent magic lamps from being extinguished when entering a pool
 - Fix: characters with ultravision shouldn't be visible in dark
 - Fix: boomerang sear damage
+- Don't allow supermaterials to be erodeproofed
+- Fix: gemstone is a supermaterial
+
