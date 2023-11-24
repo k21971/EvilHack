@@ -4264,14 +4264,14 @@ struct monst *mon;
     case 3:
         otmp = mksobj(AMULET_OF_LIFE_SAVING, FALSE, FALSE);
         bless(otmp);
-        otmp->oerodeproof = 1;
+        maybe_erodeproof(otmp, 1);
         wearable = TRUE;
         break;
     case 4:
         if (!has_displacement(mon) && !cantweararm(mon)) {
             otmp = mksobj(CLOAK_OF_DISPLACEMENT, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rn2(3) + 1;
             wearable = TRUE;
         } else {
@@ -4282,7 +4282,7 @@ struct monst *mon;
         if (!nohands(mon->data)) {
             otmp = mksobj(GAUNTLETS_OF_DEXTERITY, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rn2(3) + 1;
             wearable = TRUE;
         } else {
@@ -4297,31 +4297,32 @@ struct monst *mon;
             else
                 otmp = mksobj(AMULET_OF_MAGIC_RESISTANCE, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rn2(3) + 1;
             wearable = TRUE;
         } else {
             otmp = mksobj(WAN_CREATE_MONSTER, TRUE, FALSE);
+            maybe_erodeproof(otmp, 1);
         }
         break;
     case 7:
         if (!cantweararm(mon)) {
             otmp = mksobj(CRYSTAL_PLATE_MAIL, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rn2(3) + 1;
             wearable = TRUE;
         } else {
             otmp = mksobj(BAG_OF_HOLDING, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);
         }
         break;
     case 8:
         if (!is_flyer(mon->data)) {
             otmp = mksobj(AMULET_OF_FLYING, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);
             wearable = TRUE;
         } else {
             otmp = mksobj(POT_FULL_HEALING, FALSE, FALSE);
@@ -4332,12 +4333,13 @@ struct monst *mon;
         if (!can_wwalk(mon) && !sliparm(mon)) {
             otmp = mksobj(WATER_WALKING_BOOTS, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rn2(3) + 1;
             wearable = TRUE;
         } else {
             otmp = mksobj(RIN_SLOW_DIGESTION, FALSE, FALSE);
             bless(otmp);
+            maybe_erodeproof(otmp, 1);
         }
         break;
     case 10:
@@ -4347,7 +4349,7 @@ struct monst *mon;
             else
                 otmp = mksobj(AMULET_OF_REFLECTION, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);;
             otmp->spe = rn2(3) + 1;
             wearable = TRUE;
         } else {
@@ -4359,7 +4361,7 @@ struct monst *mon;
         if (!nohands(mon->data) && !strongmonst(mon->data)) {
             otmp = mksobj(GAUNTLETS_OF_POWER, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);;
             otmp->spe = rn2(3) + 1;
             wearable = TRUE;
         } else {
@@ -4371,7 +4373,7 @@ struct monst *mon;
         if (mon->mspeed != MFAST && !sliparm(mon)) {
             otmp = mksobj(SPEED_BOOTS, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);;
             otmp->spe = rn2(3) + 1;
             wearable = TRUE;
         } else {
@@ -4384,7 +4386,7 @@ struct monst *mon;
             && !sliparm(mon) && !has_horns(mon->data)) {
             otmp = mksobj(HELM_OF_TELEPATHY, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);;
             otmp->spe = rn2(3) + 1;
             wearable = TRUE;
         } else {
@@ -4396,13 +4398,13 @@ struct monst *mon;
         if (!sliparm(mon) && !has_horns(mon->data)) {
             otmp = mksobj(HELM_OF_BRILLIANCE, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);;
             otmp->spe = rn2(3) + 1;
             wearable = TRUE;
         } else {
             otmp = mksobj(UNICORN_HORN, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);;
             otmp->spe = rn2(3) + 1;
         }
         break;
@@ -4410,12 +4412,13 @@ struct monst *mon;
         if (!cantweararm(mon)) {
             otmp = mksobj(CLOAK_OF_PROTECTION, FALSE, FALSE);
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);;
             otmp->spe = rn2(3) + 1;
             wearable = TRUE;
         } else {
             otmp = mksobj(RIN_PROTECTION, FALSE, FALSE);
             bless(otmp);
+            maybe_erodeproof(otmp, 1);
             otmp->spe = rn2(3) + 1;
         }
         break;
@@ -4423,7 +4426,7 @@ struct monst *mon;
         otmp = mk_artifact((struct obj *) 0, mon->malign);
         if (otmp) {
             bless(otmp);
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);;
             otmp->spe = rn2(3) + 1;
             wearable = TRUE;
         }
@@ -4440,6 +4443,7 @@ struct monst *mon;
             otmp = mksobj(WAN_DEATH, TRUE, FALSE);
             break;
         }
+        maybe_erodeproof(otmp, 1);
         break;
     case 18:
         otmp = mksobj(EGG, FALSE, FALSE);

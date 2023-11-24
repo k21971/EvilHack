@@ -1142,32 +1142,38 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             break;
         }
         if (confused) {
-            old_erodeproof = (otmp->oerodeproof != 0);
-            new_erodeproof = !scursed;
-            otmp->oerodeproof = 0; /* for messages */
-            if (Blind) {
-                otmp->rknown = FALSE;
-                pline("%s warm for a moment.", Yobjnam2(otmp, "feel"));
+            /* naturally fixed armors are always fixed*/
+            if (is_supermaterial(otmp)) {
+                pline("%s for a moment.", Yobjnam2(otmp, "shimmer"));
+                break;
             } else {
-                otmp->rknown = TRUE;
-                pline("%s covered by a %s %s %s!", Yobjnam2(otmp, "are"),
-                      scursed ? "mottled" : "shimmering",
-                      hcolor(scursed ? NH_BLACK : NH_GOLDEN),
-                      scursed ? "glow"
-                              : (is_shield(otmp) ? "layer" : "shield"));
+                old_erodeproof = (otmp->oerodeproof != 0);
+                new_erodeproof = !scursed;
+                otmp->oerodeproof = 0; /* for messages */
+                if (Blind) {
+                    otmp->rknown = FALSE;
+                    pline("%s warm for a moment.", Yobjnam2(otmp, "feel"));
+                } else {
+                    otmp->rknown = TRUE;
+                    pline("%s covered by a %s %s %s!", Yobjnam2(otmp, "are"),
+                        scursed ? "mottled" : "shimmering",
+                        hcolor(scursed ? NH_BLACK : NH_GOLDEN),
+                        scursed ? "glow"
+                                : (is_shield(otmp) ? "layer" : "shield"));
+                }
+                if (new_erodeproof && (otmp->oeroded || otmp->oeroded2)) {
+                    otmp->oeroded = otmp->oeroded2 = 0;
+                    pline("%s as good as new!",
+                        Yobjnam2(otmp, Blind ? "feel" : "look"));
+                }
+                if (old_erodeproof && !new_erodeproof) {
+                    /* restore old_erodeproof before shop charges */
+                    otmp->oerodeproof = 1;
+                    costly_alteration(otmp, COST_DEGRD);
+                }
+                otmp->oerodeproof = new_erodeproof ? 1 : 0;
+                break;
             }
-            if (new_erodeproof && (otmp->oeroded || otmp->oeroded2)) {
-                otmp->oeroded = otmp->oeroded2 = 0;
-                pline("%s as good as new!",
-                      Yobjnam2(otmp, Blind ? "feel" : "look"));
-            }
-            if (old_erodeproof && !new_erodeproof) {
-                /* restore old_erodeproof before shop charges */
-                otmp->oerodeproof = 1;
-                costly_alteration(otmp, COST_DEGRD);
-            }
-            otmp->oerodeproof = new_erodeproof ? 1 : 0;
-            break;
         }
         /* elven armor vibrates warningly when enchanted beyond a limit */
         special_armor = is_elven_armor(otmp)
@@ -1375,17 +1381,23 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                 exercise(A_CON, FALSE);
                 break;
             }
-            old_erodeproof = (otmp->oerodeproof != 0);
-            new_erodeproof = scursed;
-            otmp->oerodeproof = 0; /* for messages */
-            p_glow2(otmp, NH_PURPLE);
-            if (old_erodeproof && !new_erodeproof) {
-                /* restore old_erodeproof before shop charges */
-                otmp->oerodeproof = 1;
-                costly_alteration(otmp, COST_DEGRD);
+            /* naturally fixed armors are always fixed */
+            if (is_supermaterial(otmp)) {
+                pline("%s for a moment.", Yobjnam2(otmp, "shimmer"));
+                break;
+            } else {
+                old_erodeproof = (otmp->oerodeproof != 0);
+                new_erodeproof = scursed;
+                otmp->oerodeproof = 0; /* for messages */
+                p_glow2(otmp, NH_PURPLE);
+                if (old_erodeproof && !new_erodeproof) {
+                    /* restore old_erodeproof before shop charges */
+                    otmp->oerodeproof = 1;
+                    costly_alteration(otmp, COST_DEGRD);
+                }
+                otmp->oerodeproof = new_erodeproof ? 1 : 0;
+                break;
             }
-            otmp->oerodeproof = new_erodeproof ? 1 : 0;
-            break;
         }
         if (!scursed || !otmp || !otmp->cursed) {
             if (!destroy_arm(otmp)) {
@@ -1621,31 +1633,37 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
            would be too powerful, but shouldn't we choose randomly between
            primary and secondary instead of always acting on primary?] */
         if (confused && uwep && erosion_matters(uwep)) {
-            old_erodeproof = (uwep->oerodeproof != 0);
-            new_erodeproof = !scursed;
-            uwep->oerodeproof = 0; /* for messages */
-            if (Blind) {
-                uwep->rknown = FALSE;
-                Your("weapon feels warm for a moment.");
+            /* naturally fixed weapons are always fixed */
+            if (is_supermaterial(uwep)) {
+                pline("%s for a moment.", Yobjnam2(uwep, "shimmer"));
+                break;
             } else {
-                uwep->rknown = TRUE;
-                pline("%s covered by a %s %s %s!", Yobjnam2(uwep, "are"),
-                      scursed ? "mottled" : "shimmering",
-                      hcolor(scursed ? NH_PURPLE : NH_GOLDEN),
-                      scursed ? "glow" : "shield");
+                old_erodeproof = (uwep->oerodeproof != 0);
+                new_erodeproof = !scursed;
+                uwep->oerodeproof = 0; /* for messages */
+                if (Blind) {
+                    uwep->rknown = FALSE;
+                    pline("%s warm for a moment.", Yobjnam2(uwep, "feel"));
+                } else {
+                    uwep->rknown = TRUE;
+                    pline("%s covered by a %s %s %s!", Yobjnam2(uwep, "are"),
+                        scursed ? "mottled" : "shimmering",
+                        hcolor(scursed ? NH_PURPLE : NH_GOLDEN),
+                        scursed ? "glow" : "shield");
+                }
+                if (new_erodeproof && (uwep->oeroded || uwep->oeroded2)) {
+                    uwep->oeroded = uwep->oeroded2 = 0;
+                    pline("%s as good as new!",
+                        Yobjnam2(uwep, Blind ? "feel" : "look"));
+                }
+                if (old_erodeproof && !new_erodeproof) {
+                    /* restore old_erodeproof before shop charges */
+                    uwep->oerodeproof = 1;
+                    costly_alteration(uwep, COST_DEGRD);
+                }
+                uwep->oerodeproof = new_erodeproof ? 1 : 0;
+                break;
             }
-            if (new_erodeproof && (uwep->oeroded || uwep->oeroded2)) {
-                uwep->oeroded = uwep->oeroded2 = 0;
-                pline("%s as good as new!",
-                      Yobjnam2(uwep, Blind ? "feel" : "look"));
-            }
-            if (old_erodeproof && !new_erodeproof) {
-                /* restore old_erodeproof before shop charges */
-                uwep->oerodeproof = 1;
-                costly_alteration(uwep, COST_DEGRD);
-            }
-            uwep->oerodeproof = new_erodeproof ? 1 : 0;
-            break;
         }
         if (!chwepon(sobj, scursed ? -1
                              : !uwep ? 1

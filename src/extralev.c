@@ -347,14 +347,14 @@ makerogueghost()
         ghostobj = mksobj_at(RING_MAIL, x, y, FALSE, FALSE);
         ghostobj->spe = rn2(3);
         if (!rn2(3))
-            ghostobj->oerodeproof = TRUE;
+            maybe_erodeproof(ghostobj, 1);
         if (rn2(4))
             curse(ghostobj);
     } else {
         ghostobj = mksobj_at(PLATE_MAIL, x, y, FALSE, FALSE);
         ghostobj->spe = rnd(5) - 2;
         if (!rn2(3))
-            ghostobj->oerodeproof = TRUE;
+            maybe_erodeproof(ghostobj, 1);
         if (rn2(4))
             curse(ghostobj);
     }
