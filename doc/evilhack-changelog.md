@@ -3269,4 +3269,6 @@ The following changes to date are:
 - Fix: boomerang sear damage
 - Don't allow supermaterials to be erodeproofed
 - Fix: gemstone is a supermaterial
+- Gloves and shields with certain object properties, if used offensively,
+  will cause extra damage based on the object property
 
