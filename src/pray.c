@@ -968,12 +968,24 @@ gcrownu()
                 u.ugifts++;
                 u.uconduct.artitouch++;
             }
+        } else if (obj && obj->otyp == HEAVY_WAR_HAMMER && !obj->oartifact
+                   && Role_if(PM_PRIEST)) {
+            if (!Blind)
+                Your("hammer shines brightly for a moment.");
+            obj = oname(obj, artiname(ART_MJOLLNIR));
+            if (obj && obj->oartifact == ART_MJOLLNIR) {
+                u.ugifts++;
+                u.uconduct.artitouch++;
+            }
         }
-        /* acquire Excalibur's skill regardless of weapon or gift */
+        /* acquire Excalibur's skill regardless of weapon or gift
+           (non-priests only) */
         if (!Role_if(PM_PRIEST))
             unrestrict_weapon_skill(P_LONG_SWORD);
         if (obj && obj->oartifact == ART_EXCALIBUR)
             discover_artifact(ART_EXCALIBUR);
+        if (obj && obj->oartifact == ART_MJOLLNIR)
+            discover_artifact(ART_MJOLLNIR);
         break;
     case A_NEUTRAL:
         if (class_gift != STRANGE_OBJECT) {
