@@ -163,6 +163,7 @@ typedef struct branch {
 #define MIGR_SSTAIRS 7      /* dungeon branch */
 #define MIGR_PORTAL 8       /* magic portal */
 #define MIGR_WITH_HERO 9    /* mon: followers; obj: trap door */
+#define MIGR_STALK 10       /* dlords follow if the hero skips their lair */
 #define MIGR_NOBREAK 1024   /* bitmask: don't break on delivery */
 #define MIGR_NOSCATTER 2048 /* don't scatter on delivery */
 #define MIGR_TO_SPECIES 4096 /* migrating to species as they are made */
