@@ -2363,9 +2363,10 @@ struct monst *mtmp;
             (void) destroy_mitem(mtmp, SPBOOK_CLASS, AD_FIRE);
             (void) destroy_mitem(mtmp, POTION_CLASS, AD_FIRE);
             num = (2 * (rn1(3, 3) + 2 * bcsign(otmp)) + 1) / 3;
-            if (how_resistant(FIRE_RES) == 100)
+            if (how_resistant(FIRE_RES) == 100) {
                 You("are not harmed.");
-            monstseesu(M_SEEN_FIRE);
+                monstseesu(M_SEEN_FIRE);
+            }
             burn_away_slime();
             if (Half_spell_damage)
                 num = (num + 1) / 2;
