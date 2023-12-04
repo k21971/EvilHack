@@ -3272,4 +3272,5 @@ The following changes to date are:
 - Gloves and shields with certain object properties, if used offensively,
   will cause extra damage based on the object property
 - Fix: lawful priests weren't receiving any kind of crowning gift
+- Fix: "You bash the orc shaman with your shield of mobility?"
 

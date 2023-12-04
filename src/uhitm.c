@@ -1420,10 +1420,10 @@ int dieroll;
                 case SHIELD_OF_LIGHT:
                 case SHIELD_OF_MOBILITY:
                     if (obj && (obj == uarms) && is_shield(obj)) {
+                        tmp = shield_dmg(obj, mon);
                         You("bash %s with %s%s",
                             mon_nam(mon), ysimple_name(obj),
                             canseemon(mon) ? exclam(tmp) : ".");
-                        tmp = shield_dmg(obj, mon);
 
                         /* potential for shield with an object property
                            to do additional damage */
