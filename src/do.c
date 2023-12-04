@@ -16,6 +16,7 @@ STATIC_PTR int FDECL(drop, (struct obj *));
 STATIC_PTR int NDECL(wipeoff);
 STATIC_DCL int FDECL(menu_drop, (int));
 STATIC_DCL int NDECL(currentlevel_rewrite);
+STATIC_DCL void NDECL(dlords_stalk);
 STATIC_DCL void NDECL(final_level);
 /* static boolean FDECL(badspot, (XCHAR_P,XCHAR_P)); */
 
@@ -1418,6 +1419,25 @@ register xchar x, y;
 }
 */
 
+/* Make demon lords follow the player if they levelport below their lairs */
+void
+dlords_stalk()
+{
+    struct monst *mtmp, *mtmp2;
+    boolean stalked = 0;
+    for (mtmp = fmon; mtmp; mtmp = mtmp2) {
+        /* save in case mtmp gets migrated */
+        mtmp2 = mtmp->nmon;
+        if (is_dlord(mtmp->data) || is_dprince(mtmp->data)) {
+            stalked = 1;
+            migrate_to_level(mtmp, ledger_no(&u.uz), MIGR_STALK, (coord *) 0);
+            mtmp->mstate |= MON_MIGRATING;
+        }
+    }
+    if (stalked)
+        You("feel an ominous presence at your back.");
+}
+
 /* when arriving on a level, if hero and a monster are trying to share same
    spot, move one; extracted from goto_level(); also used by wiz_makemap() */
 void
@@ -1616,6 +1636,12 @@ boolean at_stairs, falling, portal;
     u.uinwater = 0;
     u.uundetected = 0; /* not hidden, even if means are available */
     keepdogs(FALSE);
+    /* called after keepdogs(), so adjacent or engulfing dlords will
+       follow player as before. */
+    if (Is_hella_level(&u.uz) || Is_hellb_level(&u.uz)
+        || Is_hellc_level(&u.uz) || Is_orcustown(&u.uz)) {
+        dlords_stalk();
+    }
     if (u.uswallow) /* idem */
         u.uswldtim = u.uswallow = 0;
     recalc_mapseen(); /* recalculate map overview before we leave the level */

@@ -343,6 +343,7 @@ losedogs()
 {
     register struct monst *mtmp, *mtmp0, *mtmp2;
     int dismissKops = 0;
+    boolean stalked = 0;
 
     /*
      * First, scan migrating_mons for shopkeepers who want to dismiss Kops,
@@ -401,7 +402,10 @@ losedogs()
        back onto the list (at head), so traversing it is tricky */
     for (mtmp = migrating_mons; mtmp; mtmp = mtmp2) {
         mtmp2 = mtmp->nmon;
-        if (mtmp->mux == u.uz.dnum && mtmp->muy == u.uz.dlevel) {
+        if (mtmp->mux == u.uz.dnum
+            && (mtmp->muy == u.uz.dlevel
+                || (mtmp->muy < u.uz.dlevel 
+                    && mtmp->mtrack[0].x == MIGR_STALK))) {
             /* remove mtmp from migrating_mons list */
             if (mtmp == migrating_mons) {
                 migrating_mons = mtmp->nmon;
@@ -414,9 +418,13 @@ losedogs()
                 if (!mtmp0)
                     panic("losedogs: can't find migrating mon");
             }
+            if (mtmp->muy < u.uz.dlevel && mtmp->mtrack[0].x == MIGR_STALK)
+                stalked = 1;
             mon_arrive(mtmp, FALSE);
         }
     }
+    if (stalked)
+        pline("The rulers of hell laugh at your attempt to avoid their judgement!");
 }
 
 /* called from resurrect() in addition to losedogs() */
@@ -426,7 +434,7 @@ struct monst *mtmp;
 boolean with_you;
 {
     struct trap *t;
-    xchar xlocale, ylocale, xyloc, xyflags, wander;
+    xchar xlocale, ylocale, xyloc, xyflags, wander, dlev;
     int num_segs;
     boolean failed_to_place = FALSE;
 
@@ -449,6 +457,7 @@ boolean with_you;
     mtmp->mstrategy |= STRAT_ARRIVE;
 
     /* make sure mnexto(rloc_to(set_apparxy())) doesn't use stale data */
+    dlev = mtmp->muy;
     mtmp->mux = u.ux, mtmp->muy = u.uy;
     xyloc = mtmp->mtrack[0].x;
     xyflags = mtmp->mtrack[0].y;
@@ -512,6 +521,17 @@ boolean with_you;
         break;
     case MIGR_SSTAIRS:
         xlocale = sstairs.sx, ylocale = sstairs.sy;
+        break;
+    case MIGR_STALK:
+        /* if returning to same level, pretend it never left, so no movement.
+           if going to new level, don't give the hero any breathing room. */
+        wander = 0;
+        if (dlev < u.uz.dlevel) {
+            xlocale = u.ux;
+            ylocale = u.uy;
+            mtmp->mstrategy &= ~STRAT_WAITMASK;
+            mtmp->mpeaceful = 0;
+        }
         break;
     case MIGR_PORTAL:
         if (In_endgame(&u.uz) || Is_stronghold(&u.uz)) {
