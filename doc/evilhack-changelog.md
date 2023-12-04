@@ -3275,4 +3275,8 @@ The following changes to date are:
 - Fix: "You bash the orc shaman with your shield of mobility?"
 - Fix: monsters using a scroll of fire against the player and noticing they
   have fire resistance
+- Fix: demon lords/princes will follow you if you try to levelport past
+  them on their home level
+- Hallucination potions can confuse monsters
+- Fix: avoid impossible when restoring stale steed ptr
 

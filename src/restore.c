@@ -761,7 +761,12 @@ boolean ghostly;
             }
 
             if (!mtmp) {
-                free_erid(mon);
+                /* can't use free_erid since pointer from savefile is stale */
+                free((genericptr_t) ERID(mon));
+                ERID(mon) = (struct erid *) 0;
+                impossible("steed ID %d (ridden by %s [%s]) does not exist?",
+                           steed_id, an(mon->data->mname),
+                           fmt_ptr((genericptr_t) mon));
             } else {
                 ERID(mon)->mon_steed = mtmp;
             }

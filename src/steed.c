@@ -137,7 +137,9 @@ free_erid(mtmp)
 struct monst *mtmp;
 {
     if (mtmp->mextra && ERID(mtmp)) {
-        ERID(mtmp)->mon_steed->ridden_by = 0; /* Remove pointer to monster in steed */
+        struct monst *steed = ERID(mtmp)->mon_steed;
+        if (steed)
+            steed->ridden_by = 0; /* Remove pointer to monster in steed */
         free((genericptr_t) ERID(mtmp));
         ERID(mtmp) = (struct erid *) 0;
     }
