@@ -683,7 +683,9 @@ struct obj *otmp;
         return TRUE;
 
     if (!weap && otmp->oprops
-        && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))) {
+        && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+            || (uarms && otmp == uarms)
+            || (uarmg && otmp == uarmg))) {
         if (adtyp == AD_FIRE
             && (otmp->oprops & ITEM_FIRE))
             return TRUE;
@@ -1318,7 +1320,9 @@ int tmp;
     int dbon = 0, adtype;
 
     if (!weap && otmp->oprops
-        && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))) {
+        && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+            || (uarms && otmp == uarms)
+            || (uarmg && otmp == uarmg))) {
         /* until we know otherwise... */
         if (((attacks(adtype = AD_FIRE, otmp) || attacks(adtype = AD_FUSE, otmp))
              && ((yours) ? !(Fire_resistance || Underwater)
@@ -1789,10 +1793,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                   ? "vaporizes part of"
                                   : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
-            } else if (otmp->oclass == WEAPON_CLASS
+            } else if ((otmp->oclass == WEAPON_CLASS
+                        || otmp == uarms || otmp == uarmg)
                        && (otmp->oprops & ITEM_FIRE)) {
                 pline_The("%s %s %s%c",
-                          distant_name(otmp, xname),
+                          otmp->oclass == WEAPON_CLASS
+                              ? distant_name(otmp, xname)
+                              : simpleonames(otmp),
                           !spec_dbon_applies
                               ? "hits"
                               : can_vaporize(mdef->data)
@@ -1862,10 +1869,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                   ? "freezes part of"
                                   : "freezes",
                           hittee,  !spec_dbon_applies ? '.' : '!');
-            } else if (otmp->oclass == WEAPON_CLASS
+            } else if ((otmp->oclass == WEAPON_CLASS
+                        || otmp == uarms || otmp == uarmg)
                        && (otmp->oprops & ITEM_FROST)) {
                 pline_The("%s %s %s%c",
-                          distant_name(otmp, xname),
+                          otmp->oclass == WEAPON_CLASS
+                              ? distant_name(otmp, xname)
+                              : simpleonames(otmp),
                           !spec_dbon_applies
                               ? "hits"
                               : can_freeze(mdef->data)
@@ -1904,10 +1914,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           ? ""
                           : "!  Lightning strikes",
                       hittee, !spec_dbon_applies ? '.' : '!');
-            } else if (otmp->oclass == WEAPON_CLASS
+            } else if ((otmp->oclass == WEAPON_CLASS
+                        || otmp == uarms || otmp == uarmg)
                        && (otmp->oprops & ITEM_SHOCK)) {
                 pline_The("%s %s %s%c",
-                          distant_name(otmp, xname),
+                          otmp->oclass == WEAPON_CLASS
+                              ? distant_name(otmp, xname)
+                              : simpleonames(otmp),
                           !spec_dbon_applies
                               ? "hits"
                               : rn2(2) ? "jolts" : "shocks",

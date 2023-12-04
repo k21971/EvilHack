@@ -244,7 +244,7 @@ struct obj *otmp;
          * possibly erodeproof. An item that generates eroded will never be
          * erodeproof, and vice versa. */
         if (!rn2(100)) {
-            otmp->oerodeproof = 1;
+            maybe_erodeproof(otmp, 1);
         } else {
             if (!rn2(80) && (is_flammable(otmp) || is_rustprone(otmp))) {
                 do {
@@ -1130,10 +1130,10 @@ boolean artif;
                 && (moves <= 1 || In_quest(&u.uz))) {
 #ifdef UNIXPC
                 /* optimizer bitfield bug */
-                otmp->oerodeproof = 1;
+                maybe_erodeproof(otmp, 1);
                 otmp->rknown = 1;
 #else
-                otmp->oerodeproof = otmp->rknown = 1;
+                maybe_erodeproof(otmp, otmp->rknown = 1);
 #endif
             }
             /* since it's fairly easy for objects to erode/burn
@@ -1143,10 +1143,10 @@ boolean artif;
                 && (moves <= 1)) {
 #ifdef UNIXPC
                 /* optimizer bitfield bug */
-                otmp->oerodeproof = 1;
+                maybe_erodeproof(otmp, 1);
                 otmp->rknown = 1;
 #else
-                otmp->oerodeproof = otmp->rknown = 1;
+                maybe_erodeproof(otmp, otmp->rknown = 1);
 #endif
             }
             break;
@@ -1591,6 +1591,26 @@ unsigned onoff; /* 1 or 0 */
             update_inventory();
     }
 }
+
+/* (un)?erodeproof an object if fixedness is relevant.
+   supermaterials should always have oerodeproof == 0
+   to play nice with destroy armor spells. return value
+   does NOT indicate whether the object is, in fact, fixed. */
+int
+maybe_erodeproof(otmp, fix)
+struct obj *otmp;
+boolean fix; /* TRUE = proof it, FALSE = unproof it */
+{
+    if (is_supermaterial(otmp))
+        otmp->oerodeproof = 0;
+    else if (fix)
+        otmp->oerodeproof = 1;
+    else
+        otmp->oerodeproof = 0;
+
+    return otmp->oerodeproof;
+}
+
 
 /* Relative weights of different materials.
  * This used to be an attempt at making them super realistic, with densities in
@@ -3772,7 +3792,7 @@ int material;
         otmp->oeroded2 = 0;
     if (otmp->oerodeproof && !is_damageable(otmp)
         && (otmp->material != GLASS) && (otmp->material != GEMSTONE))
-        otmp->oerodeproof = FALSE;
+        maybe_erodeproof(otmp, 0);
 }
 
 /*mkobj.c*/

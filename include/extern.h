@@ -1474,6 +1474,7 @@ E void FDECL(curse, (struct obj *));
 E void FDECL(uncurse, (struct obj *));
 E void FDECL(blessorcurse, (struct obj *, int));
 E void FDECL(set_bknown, (struct obj *, unsigned));
+E int FDECL(maybe_erodeproof, (struct obj *, BOOLEAN_P));
 E boolean FDECL(is_flammable, (struct obj *));
 E boolean FDECL(is_rottable, (struct obj *));
 E void FDECL(place_object, (struct obj *, int, int));
@@ -2820,6 +2821,7 @@ E int FDECL(passive_obj, (struct monst *, struct obj *, struct attack *));
 E void FDECL(stumble_onto_mimic, (struct monst *));
 E int FDECL(flash_hits_mon, (struct monst *, struct obj *));
 E void FDECL(light_hits_light_hater, (struct monst *, int));
+E int FDECL(shield_dmg, (struct obj *, struct monst *));
 
 /* ### unixmain.c ### */
 

@@ -356,7 +356,7 @@ short typ;
     obj = mksobj(typ, FALSE, FALSE);
     obj->oeroded = obj->oeroded2 = 0;
     if (!rn2(3))
-        obj->oerodeproof = 1;
+        maybe_erodeproof(obj, 1);
     if (!rn2(3))
         curse(obj);
     if (!rn2(3))
@@ -547,7 +547,7 @@ struct obj *obj;
             otmp->oeroded = otmp->oeroded2 = 0;
             otmp->spe = (ascending ? rn1(5, 4) : rn2(4));
             if (!rn2(3))
-                otmp->oerodeproof = 1;
+                maybe_erodeproof(otmp, 1);
             else if (!rn2(2))
                 otmp->greased = 1;
             if (special && rn2(2)) {

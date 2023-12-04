@@ -3267,3 +3267,12 @@ The following changes to date are:
 - Fix: prevent magic lamps from being extinguished when entering a pool
 - Fix: characters with ultravision shouldn't be visible in dark
 - Fix: boomerang sear damage
+- Don't allow supermaterials to be erodeproofed
+- Fix: gemstone is a supermaterial
+- Gloves and shields with certain object properties, if used offensively,
+  will cause extra damage based on the object property
+- Fix: lawful priests weren't receiving any kind of crowning gift
+- Fix: "You bash the orc shaman with your shield of mobility?"
+- Fix: monsters using a scroll of fire against the player and noticing they
+  have fire resistance
+

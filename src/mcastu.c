@@ -561,6 +561,13 @@ struct monst *mattk, *mdef;
                       uattk ? "your" : s_suffix(mon_nam(mattk)));
             }
             return 0;
+        } else if (oatmp->otyp == CRYSTAL_PLATE_MAIL) {
+            if (udefend && !Blind)
+                pline("%s glimmers brightly.", Yname2(oatmp));
+            pline("%s is immune to %s destructive magic.",
+                      Yname2(oatmp),
+                      uattk ? "your" : s_suffix(mon_nam(mattk)));
+            return 0; /* no effect */
         } else if (oatmp->oerodeproof) {
             if (!udefend && !canseemon(mdef)) {
                 You("smell something strange.");
@@ -569,7 +576,7 @@ struct monst *mattk, *mdef;
             } else {
                 pline("%s briefly emits an odd smell.", Yname2(oatmp));
             }
-            oatmp->oerodeproof = 0;
+            maybe_erodeproof(oatmp, 0);
             erodelvl--;
         }
 

@@ -293,7 +293,7 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                     /* Leader still gives the artifact their special treatment */
                     fully_identify_obj(obj);
                     obj->oeroded = obj->oeroded2 = 0; /* undo any damage */
-                    obj->oerodeproof = 1;
+                    maybe_erodeproof(obj, 1);
                     remove_worn_item(obj, TRUE);
                     obj_extract_self(obj);
                     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -363,7 +363,7 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
             if (!Qstat(pissed_off)) {
                 fully_identify_obj(obj);
                 obj->oeroded = obj->oeroded2 = 0; /* undo any damage */
-                obj->oerodeproof = 1; /* Leader 'fixes' it for you */
+                maybe_erodeproof(obj, 1); /* Leader 'fixes' it for you */
             }
             update_inventory();
             livelog_printf(LL_ACHIEVE, "completed %s quest without incident",

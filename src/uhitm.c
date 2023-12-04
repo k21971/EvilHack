@@ -1162,9 +1162,12 @@ int dieroll;
             mon->weapon_check = NEED_WEAPON;
             You("%s your qi.  %s from the force of your blow!",
                   rn2(2) ? "channel" : "focus",
-                  Yobjnam2(monwep, (monwep->material == WOOD || monwep->material == BONE)
-                           ? "splinter" : (monwep->material == PLATINUM || monwep->material == GOLD
-                                           || monwep->material == SILVER || monwep->material == COPPER)
+                  Yobjnam2(monwep, (monwep->material == WOOD
+                                    || monwep->material == BONE)
+                           ? "splinter" : (monwep->material == PLATINUM
+                                           || monwep->material == GOLD
+                                           || monwep->material == SILVER
+                                           || monwep->material == COPPER)
                            ? "break" : "shatter"));
             m_useupall(mon, monwep);
             /* If someone just shattered MY weapon, I'd flee! */
@@ -1309,9 +1312,12 @@ int dieroll;
                     setmnotwielded(mon, monwep);
                     mon->weapon_check = NEED_WEAPON;
                     pline("%s from the force of your blow!",
-                          Yobjnam2(monwep, (monwep->material == WOOD || monwep->material == BONE)
-                                   ? "splinter" : (monwep->material == PLATINUM || monwep->material == GOLD
-                                                   || monwep->material == SILVER || monwep->material == COPPER)
+                          Yobjnam2(monwep, (monwep->material == WOOD
+                                            || monwep->material == BONE)
+                                   ? "splinter" : (monwep->material == PLATINUM
+                                                   || monwep->material == GOLD
+                                                   || monwep->material == SILVER
+                                                   || monwep->material == COPPER)
                                    ? "break" : "shatter"));
                     m_useupall(mon, monwep);
                     /* If someone just shattered MY weapon, I'd flee! */
@@ -1413,22 +1419,17 @@ int dieroll;
                 case SHIELD_OF_REFLECTION:
                 case SHIELD_OF_LIGHT:
                 case SHIELD_OF_MOBILITY:
-                    if (uarms && P_SKILL(P_SHIELD) >= P_BASIC) {
-                         /* dmgval for shields is just one point,
-                            plus whatever material damage applies */
-                        tmp = dmgval(obj, mon);
+                    if (obj && (obj == uarms) && is_shield(obj)) {
+                        tmp = shield_dmg(obj, mon);
+                        You("bash %s with %s%s",
+                            mon_nam(mon), ysimple_name(obj),
+                            canseemon(mon) ? exclam(tmp) : ".");
 
-                        /* add extra damage based on the type
-                           of shield */
-                        if (obj->otyp == SMALL_SHIELD)
-                            tmp += rn2(3) + 1;
-                        else
-                            tmp += rn2(6) + 2;
-
-                        /* sprinkle on a bit more damage if
-                           shield skill is high enough */
-                        if (P_SKILL(P_SHIELD) >= P_EXPERT)
-                            tmp += rnd(4);
+                        /* potential for shield with an object property
+                           to do additional damage */
+                        if (!rn2(4)
+                            && (obj->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK)))
+                            artifact_hit(&youmonst, mon, uarms, &tmp, dieroll);
                     }
                     if (mon_hates_material(mon, obj->material)) {
                         /* dmgval() already added damage, but track hated_obj */
@@ -1945,9 +1946,6 @@ int dieroll;
                 canseemon(mon) ? exclam(tmp) : ".");
         } else {
             if (obj && (obj == uarms) && is_shield(obj)) {
-                You("bash %s with %s%s",
-                    mon_nam(mon), ysimple_name(obj),
-                    canseemon(mon) ? exclam(tmp) : ".");
                 /* placing this here, because order of events */
                 if (!rn2(10) && P_SKILL(P_SHIELD) >= P_EXPERT
                     && (!(resists_stun(mon->data) || defended(mon, AD_STUN)
@@ -1987,6 +1985,12 @@ int dieroll;
             tmp += rnd(5) + 7; /* 8-12 hit points of cold damage */
         }
     }
+
+    /* potential for gloves with an object property
+       to do additional damage */
+    if (!destroyed && !rn2(3) && !uwep && uarmg
+        && (uarmg->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK)))
+        artifact_hit(&youmonst, mon, uarmg, &tmp, dieroll);
 
     if ((obj || actually_unarmed) && hated_obj)
         searmsg(&youmonst, mon, hated_obj, FALSE);
@@ -5214,6 +5218,32 @@ int dmg;
     } else if (cansee(mon->mx, mon->my) && !canspotmon(mon)) {
         map_invisible(mon->mx, mon->my);
     }
+}
+
+int
+shield_dmg(obj, mon)
+struct monst *mon;
+struct obj *obj;
+{
+    int tmp;
+    if (uarms && P_SKILL(P_SHIELD) >= P_BASIC) {
+        /* dmgval for shields is just one point,
+           plus whatever material damage applies */
+        tmp = dmgval(obj, mon);
+
+        /* add extra damage based on the type
+           of shield */
+        if (obj->otyp == SMALL_SHIELD)
+            tmp += rn2(3) + 1;
+        else
+            tmp += rn2(6) + 2;
+
+        /* sprinkle on a bit more damage if
+           shield skill is high enough */
+        if (P_SKILL(P_SHIELD) >= P_EXPERT)
+            tmp += rnd(4);
+    }
+    return tmp;
 }
 
 /*uhitm.c*/
