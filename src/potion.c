@@ -1676,8 +1676,8 @@ int how;
                                    : obj->cursed ? " a lot" : "");
                 dmg = d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
                 losehp(Maybe_Half_Phys(dmg), "potion of acid", KILLED_BY_AN);
-	    } else {
-		monstseesu(M_SEEN_ACID);
+            } else {
+                monstseesu(M_SEEN_ACID);
             }
             break;
         case POT_HALLUCINATION:
@@ -1826,6 +1826,7 @@ int how;
             break;
         case POT_CONFUSION:
         case POT_BOOZE:
+        case POT_HALLUCINATION:
             if (!resist(mon, POTION_CLASS, 0, NOTELL))
                 mon->mconf = TRUE;
             break;
