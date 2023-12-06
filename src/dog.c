@@ -424,7 +424,7 @@ losedogs()
         }
     }
     if (stalked)
-        pline("The rulers of hell laugh at your attempt to avoid their judgement!");
+        You_hear("demonic laughter.");
 }
 
 /* called from resurrect() in addition to losedogs() */
