@@ -3279,4 +3279,5 @@ The following changes to date are:
   them on their home level
 - Hallucination potions can confuse monsters
 - Fix: avoid impossible when restoring stale steed ptr
+- Fix: to-hit formula for player experience levels 21 to 29 inclusive
 

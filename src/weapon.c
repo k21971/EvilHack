@@ -173,7 +173,9 @@ botl_hitbonus()
     struct obj *weapon = uwep;
 
     tmp = 1 + (Luck / 3) + abon() + u.uhitinc
-          + (int) maybe_polyd(youmonst.data->mlevel, (u.ulevel > 20 ? 20 : u.ulevel));
+          + (int) maybe_polyd(youmonst.data->mlevel,
+                              (u.ulevel > 20 ? 10 + (u.ulevel / 2)
+                                             : u.ulevel));
 
     /* suppress weapon/ring enchantments unless their enchantment is
        known - try not to hand out any freebies */

@@ -276,7 +276,9 @@ int *attk_count, *role_roll_penalty;
     /* luck still plays a role with to-hit calculations, but
        it's toned down vs regular NetHack */
     tmp = 1 + (Luck / 3) + abon() + find_mac(mtmp) + u.uhitinc
-          + maybe_polyd(youmonst.data->mlevel, (u.ulevel > 20 ? 20 : u.ulevel));
+          + maybe_polyd(youmonst.data->mlevel,
+                        (u.ulevel > 20 ? 10 + (u.ulevel / 2)
+                                       : u.ulevel));
 
     /* some actions should occur only once during multiple attacks */
     if (!(*attk_count)++) {
