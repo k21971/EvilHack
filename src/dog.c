@@ -427,7 +427,7 @@ losedogs()
         if (!Deaf)
             You_hear("demonic laughter.");
         else
-            You_feel("a forboding force surround you.")
+            You_feel("a forboding force surround you.");
     }
 }
 
