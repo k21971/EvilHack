@@ -423,8 +423,12 @@ losedogs()
             mon_arrive(mtmp, FALSE);
         }
     }
-    if (stalked)
-        You_hear("demonic laughter.");
+    if (stalked) {
+        if (!Deaf)
+            You_hear("demonic laughter.");
+        else
+            You_feel("a forboding force surround you.")
+    }
 }
 
 /* called from resurrect() in addition to losedogs() */
