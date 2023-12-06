@@ -1424,18 +1424,14 @@ void
 dlords_stalk()
 {
     struct monst *mtmp, *mtmp2;
-    boolean stalked = 0;
     for (mtmp = fmon; mtmp; mtmp = mtmp2) {
         /* save in case mtmp gets migrated */
         mtmp2 = mtmp->nmon;
         if (is_dlord(mtmp->data) || is_dprince(mtmp->data)) {
-            stalked = 1;
             migrate_to_level(mtmp, ledger_no(&u.uz), MIGR_STALK, (coord *) 0);
             mtmp->mstate |= MON_MIGRATING;
         }
     }
-    if (stalked)
-        You("feel an ominous presence at your back.");
 }
 
 /* when arriving on a level, if hero and a monster are trying to share same
@@ -1638,8 +1634,7 @@ boolean at_stairs, falling, portal;
     keepdogs(FALSE);
     /* called after keepdogs(), so adjacent or engulfing dlords will
        follow player as before. */
-    if (Is_hella_level(&u.uz) || Is_hellb_level(&u.uz)
-        || Is_hellc_level(&u.uz) || Is_orcustown(&u.uz)) {
+    if (Inhell) {
         dlords_stalk();
     }
     if (u.uswallow) /* idem */
