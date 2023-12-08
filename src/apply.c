@@ -1467,12 +1467,17 @@ struct obj *obj;
 
     if (obj->lamplit) {
         if (obj->otyp == OIL_LAMP || obj->otyp == LANTERN
-            || obj->otyp == POT_OIL) {
+            || obj->otyp == POT_OIL || obj->otyp == MAGIC_LAMP) {
             (void) get_obj_location(obj, &x, &y, 0);
-            if (obj->where == OBJ_MINVENT ? cansee(x, y) : !Blind)
+
+            if (obj->otyp == MAGIC_LAMP
+                && (is_damp_terrain(x, y) || u.uswallow)) {
+                return FALSE;
+            } else if (obj->where == OBJ_MINVENT ? cansee(x, y) : !Blind) {
                 pline("%s %s out!", Yname2(obj), otense(obj, "go"));
-            end_burn(obj, TRUE);
-            return TRUE;
+                end_burn(obj, TRUE);
+                return TRUE;
+            }
         }
         if (snuff_candle(obj))
             return TRUE;
