@@ -712,9 +712,9 @@ doforging(void)
 
             /* try to take on the material from one of the source objects */
             if (valid_obj_material(output, obj2->material)) {
-                output->material = obj2->material;
+                set_material(output, obj2->material);
             } else if (valid_obj_material(output, obj1->material)) {
-                output->material = obj1->material;
+                set_material(output, obj1->material);
             } else {
                 /* neither material is valid for the output object, so can't
                  * forge them successfully */

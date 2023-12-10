@@ -3283,4 +3283,4 @@ The following changes to date are:
 - Fix: tweaks to demon lords/princes following the player via levelport
 - Fix: magic lamps and snuff_lit()
 - Pacify Kathryn the Enchantress with a candy bar
-
+- Fix: forging fooproof supermaterials
