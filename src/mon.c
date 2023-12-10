@@ -6346,11 +6346,11 @@ struct monst *mtmp;
             if (u.uhp <= 0 && !Lifesaved) {
                 ; /* suppress feedback */
             } else {
-                if (mon->data == bourbon) {
+                if (mon->data == bourbon && !mon->mpeaceful) {
                     if (m_cansee(mtmp, mon->mx, mon->my))
                         pline("%s motions for Bourbon to heel and stop %s attack.",
                               Monnam(mtmp), mhis(mon));
-                } else {
+                } else if (mon->data == ozzy && !mon->mpeaceful) {
                     if (m_cansee(mtmp, mon->mx, mon->my))
                         pline("%s motions for Ozzy to heel and stop %s attack.",
                               Monnam(mtmp), mhis(mon));

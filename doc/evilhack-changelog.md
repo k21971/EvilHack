@@ -3282,4 +3282,5 @@ The following changes to date are:
 - Fix: to-hit formula for player experience levels 21 to 29 inclusive
 - Fix: tweaks to demon lords/princes following the player via levelport
 - Fix: magic lamps and snuff_lit()
+- Pacify Kathryn the Enchantress with a candy bar
 
