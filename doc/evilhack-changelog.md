@@ -3284,3 +3284,6 @@ The following changes to date are:
 - Fix: magic lamps and snuff_lit()
 - Pacify Kathryn the Enchantress with a candy bar
 - Fix: forging fooproof supermaterials
+- Healing/extra healing spells effectiveness is determined by skill in
+  casting healing spells
+
