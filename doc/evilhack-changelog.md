@@ -3288,4 +3288,4 @@ The following changes to date are:
   casting healing spells
 - Cure sickness spell damage vs zombies scales based on skill in casting
   healing spells
-
+- Fix: distinguish case for protecting classes from genocide

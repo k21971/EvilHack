@@ -2472,7 +2472,7 @@ do_class_genocide()
 
         /* Liches and the like are immune to genocide until Vecna
            is destroyed */
-        if (!u.uevent.uvecna && !strcmpi(buf, "L")) {
+        if (!u.uevent.uvecna && !strcmp(buf, "L")) {
             pline_The("voice of Vecna fills your mind:");
             verbalize("Thou shalt do no harm to my kind whilst I exist!");
             /* the dark magic causes the scroll to burn */
@@ -2488,7 +2488,7 @@ do_class_genocide()
         }
 
         /* Vampires are immune to genocide until Vlad is destroyed */
-        if (!u.uevent.uvlad && !strcmpi(buf, "V")) {
+        if (!u.uevent.uvlad && !strcmp(buf, "V")) {
             pline_The("voice of Vlad the Impaler fills your mind:");
             verbalize("Thou shalt do no harm to my kind whilst I exist!");
             /* the dark magic causes the scroll to burn */
