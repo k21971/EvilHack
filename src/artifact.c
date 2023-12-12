@@ -1207,6 +1207,7 @@ struct monst *mtmp;
 {
     struct permonst *ptr;
     boolean yours;
+    int applies = 0;
 
     if (!(weap->spfx & (SPFX_DBONUS | SPFX_ATTK)))
         return (weap->attk.adtyp == AD_PHYS);
@@ -1215,67 +1216,83 @@ struct monst *mtmp;
     ptr = mtmp->data;
 
     if (weap->spfx & SPFX_DMONS) {
-        return (ptr == &mons[(int) weap->mtype]);
-    } else if (weap->spfx & SPFX_DCLAS) {
-        return ((weap->mtype == (unsigned long) ptr->mlet)
-                || (has_erac(mtmp) && weap->mtype ==
-                    (unsigned long) mons[ERAC(mtmp)->rmnum].mlet));
-    } else if (weap->spfx & SPFX_DFLAG1) {
-        return (((has_erac(mtmp) && (ERAC(mtmp)->mflags1 & weap->mtype))
-                || (ptr->mflags1 & weap->mtype) != 0L));
-    } else if (weap->spfx & SPFX_DFLAGH) {
-        return ((has_erac(mtmp) && (ERAC(mtmp)->mrace & weap->mtype))
-                || (!has_erac(mtmp) && (ptr->mhflags & weap->mtype))
-                || (yours
-                    && ((!Upolyd && (urace.selfmask & weap->mtype))
-                        || ((weap->mtype & MH_WERE) && u.ulycn >= LOW_PM))));
-    } else if (weap->spfx & SPFX_DALIGN) {
-        return yours ? (u.ualign.type != weap->alignment)
-                     : (mon_aligntyp(mtmp) == A_NONE
-                        || sgn(mon_aligntyp(mtmp)) != weap->alignment);
-    } else if (weap->spfx & SPFX_ATTK) {
-        if (defended(mtmp, (int) weap->attk.adtyp))
-            return FALSE;
-
+        applies += !!(ptr == &mons[(int) weap->mtype]);
+    }
+    if (weap->spfx & SPFX_DCLAS) {
+        applies += !!((weap->mtype == (unsigned long) ptr->mlet)
+                      || (has_erac(mtmp) && weap->mtype ==
+                          (unsigned long) mons[ERAC(mtmp)->rmnum].mlet));
+    }
+    if (weap->spfx & SPFX_DFLAG1) {
+        applies += !!(((has_erac(mtmp) && (ERAC(mtmp)->mflags1 & weap->mtype))
+                      || (ptr->mflags1 & weap->mtype) != 0L));
+    }
+    if (weap->spfx & SPFX_DFLAGH) {
+        applies += !!((has_erac(mtmp) && (ERAC(mtmp)->mrace & weap->mtype))
+                      || (!has_erac(mtmp) && (ptr->mhflags & weap->mtype))
+                      || (yours
+                          && ((!Upolyd && (urace.selfmask & weap->mtype))
+                              || ((weap->mtype & MH_WERE) && u.ulycn >= LOW_PM))));
+    }
+    if (weap->spfx & SPFX_DALIGN) {
+        applies += !!(yours ? (u.ualign.type != weap->alignment)
+                            : (mon_aligntyp(mtmp) == A_NONE
+                               || sgn(mon_aligntyp(mtmp)) != weap->alignment));
+    }
+    if ((weap->spfx & SPFX_ATTK) && !(defended(mtmp, (int) weap->attk.adtyp)))
+    {
         switch (weap->attk.adtyp) {
         case AD_FIRE:
-            return !(!yours ? resists_fire(mtmp)
-                            : (how_resistant(FIRE_RES) > 99) ? TRUE : FALSE);
+            applies += !(!yours ? resists_fire(mtmp)
+                                : (how_resistant(FIRE_RES) > 99) ? TRUE : FALSE);
+            break;
         case AD_COLD:
-            return !(!yours ? resists_cold(mtmp)
-                            : (how_resistant(COLD_RES) > 99) ? TRUE : FALSE);
+            applies += !(!yours ? resists_cold(mtmp)
+                                : (how_resistant(COLD_RES) > 99) ? TRUE : FALSE);
+            break;
         case AD_ELEC:
-            return !(!yours ? resists_elec(mtmp)
-                            : (how_resistant(SHOCK_RES) > 99) ? TRUE : FALSE);
+            applies += !(!yours ? resists_elec(mtmp)
+                                : (how_resistant(SHOCK_RES) > 99) ? TRUE : FALSE);
+            break;
         case AD_MAGM:
         case AD_STUN:
-            return !(yours ? Antimagic : (rn2(100) < ptr->mr));
+            applies += !(yours ? Antimagic : (rn2(100) < ptr->mr));
+            break;
         case AD_DRST:
-            return !(!yours ? resists_poison(mtmp)
-                            : (how_resistant(POISON_RES) > 99) ? TRUE : FALSE);
+            applies += !(!yours ? resists_poison(mtmp)
+                                : (how_resistant(POISON_RES) > 99) ? TRUE : FALSE);
+            break;
         case AD_DRLI:
-            return !(yours ? Drain_resistance : resists_drli(mtmp));
+            applies += !(yours ? Drain_resistance : resists_drli(mtmp));
+            break;
         case AD_DREN:
-            return !nonliving(ptr);
+            applies += !nonliving(ptr);
+            break;
         case AD_STON:
-            return !(yours ? Stone_resistance : resists_ston(mtmp));
+            applies += !(yours ? Stone_resistance : resists_ston(mtmp));
+            break;
         case AD_ACID:
-            return !(yours ? Acid_resistance : resists_acid(mtmp));
+            applies += !(yours ? Acid_resistance : resists_acid(mtmp));
+            break;
         case AD_DISE:
-            return !(yours ? Sick_resistance : resists_sick(ptr));
+            applies += !(yours ? Sick_resistance : resists_sick(ptr));
+            break;
         case AD_DETH:
-            return !(yours ? Death_resistance : immune_death_magic(ptr));
+            applies += !(yours ? Death_resistance : immune_death_magic(ptr));
+            break;
         case AD_DISN:
-            return !(yours ? Disint_resistance : resists_disint(mtmp));
+            applies += !(yours ? Disint_resistance : resists_disint(mtmp));
+            break;
         case AD_FUSE:
-            return !(!yours ? (resists_fire(mtmp) && resists_cold(mtmp))
-                            : ((how_resistant(FIRE_RES) > 99) && (how_resistant(COLD_RES) > 99))
-                                ? TRUE : FALSE);
+            applies += !(!yours ? (resists_fire(mtmp) && resists_cold(mtmp))
+                                : ((how_resistant(FIRE_RES) > 99) && (how_resistant(COLD_RES) > 99))
+                                  ? TRUE : FALSE);
+            break;
         default:
             impossible("Weird weapon special attack.");
         }
     }
-    return 0;
+    return !!applies;
 }
 
 /* return the MH flags of monster that an artifact's special attacks apply
@@ -1371,7 +1388,6 @@ int tmp;
     else if ((otmp->oartifact == ART_GRIMTOOTH
               && !(yours ? Sick_resistance
                          : (resists_sick(mon->data) || defended(mon, AD_DISE))))
-             || otmp->oartifact == ART_SHADOWBLADE
              || otmp->oartifact == ART_VORPAL_BLADE
              || (otmp->oartifact == ART_ANGELSLAYER
                  && !(yours ? is_demon(raceptr(&youmonst)) : is_demon(mon->data)))
@@ -2403,8 +2419,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                       (otmp->oartifact == ART_WEREBANE ? "silver" : "shadowy"));
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form */
-            } else
+            } else if (!(youdefend ? is_were(youmonst.data) : is_were(mdef->data))
+                       && otmp->oartifact == ART_SHADOWBLADE) {
+                /* Shadowblade still has a DRLI attack */
+                break;
+            } else {
                 return FALSE;
+            }
             return TRUE;
         case ART_GIANTSLAYER:
             if (youattack && racial_giant(mdef) && j) {

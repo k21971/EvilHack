@@ -3289,3 +3289,4 @@ The following changes to date are:
 - Cure sickness spell damage vs zombies scales based on skill in casting
   healing spells
 - Fix: distinguish case for protecting classes from genocide
+- Fix: Shadowblade drain life attack not triggering
