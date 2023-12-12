@@ -3286,4 +3286,6 @@ The following changes to date are:
 - Fix: forging fooproof supermaterials
 - Healing/extra healing spells effectiveness is determined by skill in
   casting healing spells
+- Cure sickness spell damage vs zombies scales based on skill in casting
+  healing spells
 

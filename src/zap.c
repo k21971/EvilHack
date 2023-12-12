@@ -141,6 +141,8 @@ struct obj *otmp;
     int healing_skill = ((P_SKILL(P_HEALING_SPELL) >= P_EXPERT)
                          ? 10 : (P_SKILL(P_HEALING_SPELL) == P_SKILLED)
                            ? 8 : (P_SKILL(P_HEALING_SPELL) == P_BASIC) ? 6 : 4);
+    int sickness_skill = ((P_SKILL(P_HEALING_SPELL) >= P_EXPERT)
+                          ? 3 : (P_SKILL(P_HEALING_SPELL) == P_SKILLED) ? 2 : 1);
 
     if (u.uswallow && mtmp == u.ustuck)
         reveal_invis = FALSE;
@@ -187,7 +189,7 @@ struct obj *otmp;
         break;
     case SPE_PSIONIC_WAVE:
         if (!(maybe_polyd(is_illithid(youmonst.data),
-            Race_if(PM_ILLITHID)))) {
+                          Race_if(PM_ILLITHID)))) {
             Your("mind is not capable of using psionic abilities.");
             dmg = 0;
             wake = FALSE;
@@ -517,7 +519,7 @@ struct obj *otmp;
             mtmp->msick = mtmp->mwither = 0;
         } else if (is_zombie(mtmp->data)) {
             if (!DEADMONSTER(mtmp)) {
-                dmg = d(1, 8);
+                dmg = d(sickness_skill, 8);
                 damage_mon(mtmp, dmg, AD_PHYS);
                 if (canseemon(mtmp))
                     pline("%s shudders in agony!", Monnam(mtmp));
@@ -2575,6 +2577,8 @@ boolean ordinary;
     int healing_skill = ((P_SKILL(P_HEALING_SPELL) >= P_EXPERT)
                          ? 10 : (P_SKILL(P_HEALING_SPELL) == P_SKILLED)
                            ? 8 : (P_SKILL(P_HEALING_SPELL) == P_BASIC) ? 6 : 4);
+    int sickness_skill = ((P_SKILL(P_HEALING_SPELL) >= P_EXPERT)
+                          ? 3 : (P_SKILL(P_HEALING_SPELL) == P_SKILLED) ? 2 : 1);
 
     switch (obj->otyp) {
     case WAN_STRIKING:
@@ -2689,7 +2693,7 @@ boolean ordinary;
     case SPE_PSIONIC_WAVE:
         learn_it = TRUE;
         if (!(maybe_polyd(is_illithid(youmonst.data),
-            Race_if(PM_ILLITHID)))) {
+                          Race_if(PM_ILLITHID)))) {
             Your("mind is not capable of using psionic abilities.");
         } else if (uarmh && is_heavy_metallic(uarmh)
             && uarmh->oartifact != ART_MITRE_OF_HOLINESS) {
@@ -2858,14 +2862,20 @@ boolean ordinary;
         You_feel("%sbetter.", obj->otyp == SPE_EXTRA_HEALING ? "much " : "");
         break;
     case SPE_CURE_SICKNESS:
-        if (Sick)
-            You("are no longer ill.");
-        if (Slimed)
-            make_slimed(0L, "The slime disappears!");
-        if (Withering) {
-            set_itimeout(&HWithering, (long) 0);
-            if (!Withering)
-                You("are no longer withering away.");
+        if (is_zombie(youmonst.data)) {
+            You("shudder in agony!");
+            damage = d(sickness_skill, 8);
+            exercise(A_CON, FALSE);
+        } else {
+            if (Sick)
+                You("are no longer ill.");
+            if (Slimed)
+                make_slimed(0L, "The slime disappears!");
+            if (Withering) {
+                set_itimeout(&HWithering, (long) 0);
+                if (!Withering)
+                    You("are no longer withering away.");
+            }
         }
         healup(0, 0, TRUE, FALSE);
         break;
