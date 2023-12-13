@@ -910,12 +910,17 @@ boolean by_hero;
     xchar x, y;
     boolean one_of;
     int montype, container_nesting = 0;
-    boolean is_zomb = (mons[corpse->corpsenm].mlet == S_ZOMBIE);
+    boolean is_zomb;
 
     if (corpse->otyp != CORPSE) {
         impossible("Attempting to revive %s?", xname(corpse));
         return (struct monst *) 0;
     }
+    montype = corpse->corpsenm;
+    /* treat buried auto-reviver (troll, Rider?) like a zombie
+       so that it can dig itself out of the ground if it revives */
+    is_zomb = mons[montype].mlet == S_ZOMBIE
+              || (corpse->where == OBJ_BURIED && is_reviver(&mons[montype]));
 
     x = y = 0;
     if (corpse->where != OBJ_CONTAINED) {
@@ -965,7 +970,6 @@ boolean by_hero;
         return (struct monst *) 0;
 
     /* prepare for the monster */
-    montype = corpse->corpsenm;
     mptr = &mons[montype];
     /* [should probably handle recorporealization first; if corpse and
        ghost are at same location, revived creature shouldn't be bumped

@@ -3290,3 +3290,5 @@ The following changes to date are:
   healing spells
 - Fix: distinguish case for protecting classes from genocide
 - Fix: Shadowblade drain life attack not triggering
+- Fix: reviving buried corpse
+
