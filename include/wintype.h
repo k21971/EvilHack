@@ -64,6 +64,7 @@ typedef struct mi {
 #define PICK_NONE 0 /* user picks nothing (display only) */
 #define PICK_ONE 1  /* only pick one */
 #define PICK_ANY 2  /* can pick any amount */
+#define PICK_ALL 3  /* start with every menu item autoselected */
 
 /* window types */
 /* any additional port specific types should be defined in win*.h */
