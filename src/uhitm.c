@@ -1725,7 +1725,8 @@ int dieroll;
     /* if lawful, trained in martial arts, and wearing the
        Gauntlets of Purity, get a damage bonus when attacking
        unarmed */
-    if (!uwep && P_SKILL(P_MARTIAL_ARTS) && u.ualign.type == A_LAWFUL
+    if (actually_unarmed && P_SKILL(P_MARTIAL_ARTS)
+        && u.ualign.type == A_LAWFUL && martial_bonus()
         && uarmg && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY)
         tmp += rnd(4) + 2;
 

@@ -3292,3 +3292,4 @@ The following changes to date are:
 - Fix: Shadowblade drain life attack not triggering
 - Fix: reviving buried corpse
 - Fix: Allow rogues and convicts to train thrown weapons when unarmed
+- Fix: Gauntlets of Purity damage bonus applying in too many cases
