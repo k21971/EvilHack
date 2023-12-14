@@ -3291,4 +3291,4 @@ The following changes to date are:
 - Fix: distinguish case for protecting classes from genocide
 - Fix: Shadowblade drain life attack not triggering
 - Fix: reviving buried corpse
-
+- Fix: Allow rogues and convicts to train thrown weapons when unarmed

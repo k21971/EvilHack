@@ -1738,7 +1738,8 @@ int dieroll;
         /* [this assumes that `!thrown' implies wielded...] */
         wtype = thrown ? weapon_type(wep) : uwep_skill_type();
         /* train thievery in steal_it() when we know if theft succeeded */
-        if (!(!uwep && (Role_if(PM_ROGUE) || Role_if(PM_CONVICT))))
+        if (!((wtype == P_THIEVERY)
+              && (Role_if(PM_ROGUE) || Role_if(PM_CONVICT))))
             use_skill(wtype, 1);
     }
 
