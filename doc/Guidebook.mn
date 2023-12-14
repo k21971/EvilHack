@@ -2925,6 +2925,13 @@ If you prefix the value with \(oq!\(cq or \(lqno\(rq, you will
 exclude that alignment from being picked randomly.
 Cannot be set with the \(oqO\(cq command.
 Persistent.
+.lp autoall_menu
+When selecting the 'A' option while looting a bag, show a menu of inventory
+items with everything preselected instead of immediately moving the items
+(default false).
+'A' can be combined with other filters to show a preselected
+list of all items satisfying the filters. Only matters with full menustyle.
+Persistent.
 .lp autodescribe
 Automatically describe the terrain under cursor when asked to get a location
 on the map (default true).
