@@ -288,9 +288,11 @@ register struct obj *obj;
             You("place the ball and chain inside the forge.");
             pline("Raising your %s, you strike the chain...",
                   xname(uwep));
-            if (!rn2((P_SKILL(P_HAMMER) < P_SKILLED) ? 8 : 2)
+            if ((!rn2((P_SKILL(P_HAMMER) < P_SKILLED) ? 8 : 2)
+                 || uchain->oeroded)
                 && Luck >= 0) { /* training up hammer skill pays off */
-                pline("The chain breaks free!");
+                pline("The %schain breaks free!",
+                      uchain->oeroded ? "rusted " : "");
                 unpunish();
             } else {
                 pline("Clang!");

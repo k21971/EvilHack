@@ -3294,3 +3294,6 @@ The following changes to date are:
 - Fix: Allow rogues and convicts to train thrown weapons when unarmed
 - Fix: Gauntlets of Purity damage bonus applying in too many cases
 - Fix: impossible() when killing multiple vault guards in succession
+- Make it easier to remove a ball & chain with a forge/hammer if the
+  chain is rusted
+

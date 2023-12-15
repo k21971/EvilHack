@@ -4961,7 +4961,7 @@ boolean wep_was_destroyed;
             }
         }
     }
-    if  ((passive_armor = which_armor(mon, W_ARMG))) {
+    if ((passive_armor = which_armor(mon, W_ARMG))) {
         switch (passive_armor->otyp) {
         case GLOVES:
             if (!is_dragon(youmonst.data))
