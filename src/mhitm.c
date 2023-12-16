@@ -2704,8 +2704,12 @@ msickness:
         tmp = 0;
         break;
     }
-    if (!tmp)
+
+    if (!tmp) {
+        if (DEADMONSTER(mdef))
+            res = MM_DEF_DIED;
         return res;
+    }
 
     if (damage_mon(mdef, tmp, mattk->adtyp)) {
         if (m_at(mdef->mx, mdef->my) == magr) { /* see gulpmm() */

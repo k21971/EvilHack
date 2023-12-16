@@ -3298,4 +3298,4 @@ The following changes to date are:
   chain is rusted
 - Fix: wielding Dichotomy protecting objects in open inventory from
   burning while walking on lava
-
+- Fix: Minor issues with damage of various special attacks

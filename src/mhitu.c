@@ -3257,6 +3257,7 @@ struct attack *mattk;
     };
     int react = -1;
     boolean cancelled = (mtmp->mcan != 0), already = FALSE;
+    int dmg = d((int) mattk->damn, (int) mattk->damd);
 
     /* assumes that hero has to see monster's gaze in order to be
        affected, rather than monster just having to look at hero;
@@ -3333,8 +3334,6 @@ struct attack *mattk;
             if (mtmp->data == &mons[PM_BEHOLDER]
                 || mtmp->data == &mons[PM_TAL_GATH]) {
                 /* The EotO can afford the player some protection when worn */
-                int dmg;
-
                 if (ublindf
                     && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
                     pline("%s partially protect you from %s petrifying gaze.  That hurts!",
@@ -3379,14 +3378,12 @@ struct attack *mattk;
                           An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
                 break;
             } else {
-                int conf = d(3, 4);
-
-                mtmp->mspec_used = mtmp->mspec_used + (conf + rn2(6));
+                mtmp->mspec_used = mtmp->mspec_used + (dmg + rn2(6));
                 if (!Confusion)
                     pline("%s gaze confuses you!", s_suffix(Monnam(mtmp)));
                 else
                     You("are getting more and more confused.");
-                make_confused(HConfusion + conf, FALSE);
+                make_confused(HConfusion + dmg, FALSE);
                 stop_occupation();
             }
         }
@@ -3404,11 +3401,9 @@ struct attack *mattk;
                           An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
                 break;
             } else {
-                int stun = d(2, 6);
-
-                mtmp->mspec_used = mtmp->mspec_used + (stun + rn2(6));
+                mtmp->mspec_used = mtmp->mspec_used + (dmg + rn2(6));
                 pline("%s stares piercingly at you!", Monnam(mtmp));
-                make_stunned((HStun & TIMEOUT) + (long) stun, TRUE);
+                make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
                 stop_occupation();
             }
         }
@@ -3424,10 +3419,8 @@ struct attack *mattk;
                 if (mtmp->mcan && mtmp->data == &mons[PM_ARCHON] && rn2(5))
                     react = -1;
             } else {
-                int blnd = d((int) mattk->damn, (int) mattk->damd);
-
                 You("are blinded by %s radiance!", s_suffix(mon_nam(mtmp)));
-                make_blinded((long) blnd, FALSE);
+                make_blinded((long) dmg, FALSE);
                 stop_occupation();
                 /* not blind at this point implies you're wearing
                    the Eyes of the Overworld; make them block this
@@ -3450,7 +3443,7 @@ struct attack *mattk;
             if (cancelled) {
                 react = rn1(2, 4); /* "irritated" || "inflamed" */
             } else {
-                int dmg = d(2, 6), lev = (int) mtmp->m_lev;
+                int lev = (int) mtmp->m_lev;
 
                 pline("%s attacks you with a fiery gaze!", Monnam(mtmp));
                 stop_occupation();
@@ -3488,7 +3481,7 @@ struct attack *mattk;
             if (cancelled) {
                 react = 8; /* "chilly" */
             } else {
-                int dmg = d(2, 6), lev = (int) mtmp->m_lev;
+                int lev = (int) mtmp->m_lev;
 
                 pline("%s attacks you with a chilling gaze!", Monnam(mtmp));
                 stop_occupation();
@@ -3547,7 +3540,7 @@ struct attack *mattk;
                           An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
                 break;
             } else if (how_resistant(SLEEP_RES) < 100) {
-                fall_asleep(-resist_reduce(rnd(10), SLEEP_RES), TRUE);
+                fall_asleep(-resist_reduce(dmg, SLEEP_RES), TRUE);
                 pline("%s gaze makes you very sleepy...",
                       s_suffix(Monnam(mtmp)));
                 break;
@@ -3586,8 +3579,6 @@ struct attack *mattk;
     case AD_DISN:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
             && mtmp->mcansee && multi >= 0 && !rn2(5)) {
-            int dmg = d(8, 8);
-
             pline("%s turns %s towards you%s", Monnam(mtmp),
                   cancelled ? "an impotent leer" : "a destructive gaze",
                   cancelled ? "." : "!");
@@ -3645,8 +3636,6 @@ struct attack *mattk;
     case AD_CNCL:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
             && mtmp->mcansee && !rn2(3)) {
-            int dmg;
-
             if (!cancelled)
                 You("meet %s strange gaze.", s_suffix(mon_nam(mtmp)));
             if (cancelled) {
@@ -3658,13 +3647,12 @@ struct attack *mattk;
                 && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) {
                 pline("%s partially protect you from %s strange gaze.  Ouch!",
                       An(bare_artifactname(ublindf)), s_suffix(mon_nam(mtmp)));
-                dmg = d(2, 4);
+                dmg = (dmg + 1) / 2;
                 if (dmg)
                     mdamageu(mtmp, dmg);
                 break;
             } else {
                 (void) cancel_monst(&youmonst, (struct obj *) 0, FALSE, TRUE, FALSE);
-                dmg = d(4, 4);
                 if (dmg)
                     mdamageu(mtmp, dmg);
                 break;
@@ -3674,7 +3662,7 @@ struct attack *mattk;
     case AD_DETH:
         if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)
             && mtmp->mcansee && rn2(4)) {
-            int dmg, permdmg = 0;
+            int permdmg = 0;
             /* currently only Vecna has the gaze of death */
             if (mtmp && mtmp->data == &mons[PM_VECNA])
                 You("meet %s deadly gaze!", s_suffix(mon_nam(mtmp)));
@@ -3723,7 +3711,6 @@ struct attack *mattk;
                  *  otherwise        0..50%
                  * Never reduces hpmax below 1 hit point per level.
                  */
-                dmg = d((int) mattk->damn, (int) mattk->damd);
                 permdmg = rn2(dmg / 2 + 1);
                 if (Upolyd || u.uhpmax > 25 * u.ulevel)
                     permdmg = dmg;
