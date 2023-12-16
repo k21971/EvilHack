@@ -6450,7 +6450,8 @@ lava_effects()
     }
 
 burn_stuff:
-    fire_damage_chain(invent, FALSE, FALSE, u.ux, u.uy);
+    if (!wielding_artifact(ART_DICHOTOMY))
+        fire_damage_chain(invent, FALSE, FALSE, u.ux, u.uy);
     return FALSE;
 }
 

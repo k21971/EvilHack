@@ -3296,4 +3296,6 @@ The following changes to date are:
 - Fix: impossible() when killing multiple vault guards in succession
 - Make it easier to remove a ball & chain with a forge/hammer if the
   chain is rusted
+- Fix: wielding Dichotomy protecting objects in open inventory from
+  burning while walking on lava
 
