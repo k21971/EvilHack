@@ -3299,3 +3299,5 @@ The following changes to date are:
 - Fix: wielding Dichotomy protecting objects in open inventory from
   burning while walking on lava
 - Fix: Minor issues with damage of various special attacks
+- Adjust potion of paralysis effect vs monsters
+

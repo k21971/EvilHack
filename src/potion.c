@@ -1851,10 +1851,9 @@ int how;
                 pline("%s stiffens momentarily.", Monnam(mon));
                 break;
             } else if (mon->mcanmove) {
-                /* really should be rnd(5) for consistency with players
-                 * breathing potions, but...
-                 */
-                paralyze_monst(mon, rnd(25));
+                /* effect will last 3-24 turns, or 1-12 turns if diluted */
+                paralyze_monst(mon, rnd(obj->odiluted ? 12 : 22)
+                               + (obj->odiluted ? 0 : 2));
             }
             break;
         case POT_SPEED:
