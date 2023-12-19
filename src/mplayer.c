@@ -311,7 +311,9 @@ struct monst *mtmp;
     case PM_ROGUE:
         /* flags for all rogues regardless of race */
         rptr->mattk[0].adtyp = AD_SAMU;
+        rptr->mattk[1].aatyp = AT_CLAW;
         rptr->mattk[1].adtyp = AD_SITM;
+        rptr->mattk[1].damn = rptr->mattk[1].damd = 0;
         rptr->mflags3 |= M3_ACCURATE;
         break;
     case PM_SAMURAI:
