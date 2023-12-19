@@ -3300,4 +3300,5 @@ The following changes to date are:
   burning while walking on lava
 - Fix: Minor issues with damage of various special attacks
 - Adjust potion of paralysis effect vs monsters
+- Fix: misspelling (Hidden Dungeon branch)
 

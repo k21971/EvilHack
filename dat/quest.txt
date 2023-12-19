@@ -4837,7 +4837,7 @@ are in the lair of the Wizard of Yendor himself.  Beware!
 #
 %Cc - 00309
 The putrid stench of raw sewage assails you the moment you materialize.
-You can barely keep yourself from vommiting, the smell is so bad.
+You can barely keep yourself from vomiting, the smell is so bad.
 As you steady yourself, you notice that the sewage around you has a
 faint green glow, which illuminates a row of rusted-out jail cells
 nearby.  Off in the distance, you can just barely make out what sounds
