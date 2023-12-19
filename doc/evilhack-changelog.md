@@ -3302,3 +3302,4 @@ The following changes to date are:
 - Adjust potion of paralysis effect vs monsters
 - Fix: misspelling (Hidden Dungeon branch)
 - Fix: More theft attack damage tweaks
+- Fix: Allow repair of deteriorated supermaterials
