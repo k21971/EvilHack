@@ -3623,7 +3623,7 @@ register struct monst *mtmp;
         michaeldead();
     if (tmp == urole.neminum)
         nemdead();
-    if (mtmp->data->msound == MS_LEADER)
+    if (mtmp->m_id == quest_status.leader_m_id)
         leaddead();
     /* Medusa, Cerberus, Vecna, and Lucifer fall into two livelog
      * categories, we log one message flagged for both categories,

@@ -3303,3 +3303,6 @@ The following changes to date are:
 - Fix: misspelling (Hidden Dungeon branch)
 - Fix: More theft attack damage tweaks
 - Fix: Allow repair of deteriorated supermaterials
+- Fix: killing quest leader won't flag the quest as complete if they were
+  killed while polymorphed
+
