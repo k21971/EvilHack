@@ -3307,3 +3307,4 @@ The following changes to date are:
   killed while polymorphed
 - Fix: Checking floor for tippables can stone you
 - Allow tipping into containers on the floor
+
