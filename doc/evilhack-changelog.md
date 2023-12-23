@@ -3306,3 +3306,4 @@ The following changes to date are:
 - Fix: killing quest leader won't flag the quest as complete if they were
   killed while polymorphed
 - Fix: Checking floor for tippables can stone you
+- Allow tipping into containers on the floor

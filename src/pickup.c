@@ -3806,6 +3806,8 @@ boolean *cancelled;
     menu_item *pick_list = (menu_item *) 0;
     struct obj dummyobj, *otmp;
     boolean hands_available = TRUE, exclude_it;
+    char qbuf[QBUFSZ];
+    char c;
 
 #if 0   /* [skip potential early return so that menu response is needed
          *  regardless of whether other containers are being carried] */
@@ -3819,6 +3821,110 @@ boolean *cancelled;
     }
 #endif /* #if 0 */
 
+    if (!iflags.menu_requested) {
+        if (Blind && !uarmg) {
+            /* if blind and without gloves, attempting to #tip at the
+               location of a cockatrice corpse is fatal before asking
+               whether to manipulate any containers */
+            for (otmp = sobj_at(CORPSE, u.ux, u.uy); otmp;
+                 otmp = nxtobj(otmp, CORPSE, TRUE))
+                if (will_feel_cockatrice(otmp, FALSE)) {
+                    feel_cockatrice(otmp, FALSE);
+                    /* if life-saved (or poly'd into stone golem),
+                       terminate attempt to loot */
+                    *cancelled = 1;
+                    return (struct obj *) 0;
+                }
+        }
+        if (container_at(u.ux, u.uy, TRUE) > 1
+            && flags.menu_style != MENU_TRADITIONAL) {
+                int i;
+                any = zeroany;
+                win = create_nhwindow(NHW_MENU);
+                start_menu(win);
+
+                i = 0;
+                if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ)) {
+                    ++i;
+                    any.a_obj = mchest;
+                    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                             doname(mchest), MENU_UNSELECTED);
+                }
+                for (otmp = level.objects[u.ux][u.uy]; otmp;
+                     otmp = otmp->nexthere)
+                    if (Is_nonprize_container(otmp)) {
+                        ++i;
+                        any.a_obj = otmp;
+                        add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                 doname(otmp), MENU_UNSELECTED);
+                    }
+                if (invent) {
+                    any = zeroany;
+                    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                             "", MENU_UNSELECTED);
+                    any.a_obj = &dummyobj;
+                    /* use 'i' for inventory unless there are so many
+                       containers that it's already being used */
+                    i = (i <= 'i' - 'a' && !flags.lootabc) ? 'i' : 0;
+                    add_menu(win, NO_GLYPH, &any, i, 0, ATR_NONE,
+                             "tip into something being carried", MENU_SELECTED);
+                }
+                end_menu(win, "Tip into which container?");
+                n = select_menu(win, PICK_ONE, &pick_list);
+                destroy_nhwindow(win);
+
+                /*
+                 * Deal with quirk of preselected item in pick-one menu:
+                 * n ==  0 => picked preselected entry, toggling it off;
+                 * n ==  1 => accepted preselected choice via SPACE or RETURN;
+                 * n ==  2 => picked something other than preselected entry;
+                 * n == -1 => cancelled via ESC;
+                 */
+                otmp = (n <= 0) ? (struct obj *) 0 : pick_list[0].item.a_obj;
+                if (n > 1 && otmp == &dummyobj)
+                    otmp = pick_list[1].item.a_obj;
+                if (pick_list)
+                    free((genericptr_t) pick_list);
+                if (otmp && otmp != &dummyobj) {
+                    return otmp;
+                }
+                if (n == -1) {
+                    *cancelled = TRUE;
+                    return (struct obj *) 0;
+                }
+                /* else pick-from-invent below */
+        } else {
+            if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ)) {
+                char qsfx[QBUFSZ];
+                Sprintf(qbuf, "There is ");
+                Sprintf(qsfx, " here; tip into it?");
+                (void) safe_qbuf(qbuf, qbuf, qsfx, mchest, doname, ansimpleoname,
+                                something);
+                if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y')
+                    return  mchest;
+                else if (c == 'q')
+                    return (struct obj *) 0;
+            }
+            for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere) {
+                if (!Is_nonprize_container(otmp)
+                    || (otmp->otyp == BAG_OF_TRICKS && otmp->dknown
+                        && objects[otmp->otyp].oc_name_known))
+                    continue;
+
+                char qsfx[QBUFSZ];
+                Sprintf(qbuf, "There is ");
+                Sprintf(qsfx, " here; tip into it?");
+                (void) safe_qbuf(qbuf, qbuf, qsfx, otmp, doname, ansimpleoname,
+                                something);
+                if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y')
+                    return  otmp;
+                else if (c == 'q')
+                    return (struct obj *) 0;
+            }
+        }
+    }
+
+    n_conts = 0;
     win = create_nhwindow(NHW_MENU);
     start_menu(win);
 
@@ -3832,14 +3938,12 @@ boolean *cancelled;
     any = zeroany;
     add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
              "", MENU_UNSELECTED);
-
-    n_conts = 0;
     for (otmp = invent; otmp; otmp = otmp->nobj) {
         if (otmp == box)
             continue;
         /* skip non-containers; bag of tricks passes Is_container() test,
            only include it if it isn't known to be a bag of tricks */
-        if (!Is_container(otmp)
+        if (!Is_nonprize_container(otmp)
             || (otmp->otyp == BAG_OF_TRICKS && otmp->dknown
                 && objects[otmp->otyp].oc_name_known))
             continue;
