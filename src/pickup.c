@@ -3301,13 +3301,29 @@ dotip()
     /* at present, can only tip things at current spot, not adjacent ones */
     cc.x = u.ux, cc.y = u.uy;
 
+    /* overload menu_requested ('m'), like #loot, to ignore floor objects */
+    if (!iflags.menu_requested) {
+        if (Blind && !uarmg) {
+        /* if blind and without gloves, attempting to #tip at the
+            location of a cockatrice corpse is fatal before asking
+            whether to manipulate any containers */
+        for (nobj = sobj_at(CORPSE, cc.x, cc.y); nobj;
+                nobj = nxtobj(nobj, CORPSE, TRUE))
+            if (will_feel_cockatrice(nobj, FALSE)) {
+                feel_cockatrice(nobj, FALSE);
+                /* if life-saved (or poly'd into stone golem),
+                    terminate attempt to loot */
+                return 1;
+            }
+        }
+    }
     /* check floor container(s) first; at most one will be accessed */
-    if ((boxes = container_at(cc.x, cc.y, TRUE)) > 0) {
+    if (!iflags.menu_requested
+        && (boxes = container_at(cc.x, cc.y, TRUE)) > 0) {
         Sprintf(buf, "You can't tip %s while carrying so much.",
                 !flags.verbose ? "a container" : (boxes > 1) ? "one" : "it");
         if (!check_capacity(buf) && able_to_loot(cc.x, cc.y, FALSE)) {
-            if (boxes > 1 && (flags.menu_style != MENU_TRADITIONAL
-                              || iflags.menu_requested)) {
+            if (boxes > 1 && flags.menu_style != MENU_TRADITIONAL) {
                 /* use menu to pick a container to tip */
                 int n, i;
                 winid win;
