@@ -2011,7 +2011,7 @@ domove_core()
          * if the player is wearing it unidentified and has identified
          * fireproof boots of water walking and is walking over lava. However,
          * this is such a marginal case that it may not be worth fixing. */
-        known_lwalking = ((HWwalking && Fire_resistance)
+        known_lwalking = ((HWwalking && Fire_resistance && !u.usteed)
                           || (uarmf && known_wwalking && Fire_resistance
                               && uarmf->oerodeproof && uarmf->rknown)
                           || (uarm && Is_dragon_scaled_armor(uarm)
