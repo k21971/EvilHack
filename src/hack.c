@@ -2004,14 +2004,16 @@ domove_core()
         known_wwalking = (((uarmf && uarmf->otyp == WATER_WALKING_BOOTS
                             && objects[WATER_WALKING_BOOTS].oc_name_known)
                            || (uarm && Is_dragon_scaled_armor(uarm)
-                               && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES))
+                               && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES)
+                           || HWwalking)
                           && !u.usteed);
         /* FIXME: This can be exploited to identify the ring of fire resistance
          * if the player is wearing it unidentified and has identified
          * fireproof boots of water walking and is walking over lava. However,
          * this is such a marginal case that it may not be worth fixing. */
-        known_lwalking = ((uarmf && known_wwalking && Fire_resistance
-                           && uarmf->oerodeproof && uarmf->rknown)
+        known_lwalking = ((HWwalking && Fire_resistance)
+                          || (uarmf && known_wwalking && Fire_resistance
+                              && uarmf->oerodeproof && uarmf->rknown)
                           || (uarm && Is_dragon_scaled_armor(uarm)
                                && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES));
 

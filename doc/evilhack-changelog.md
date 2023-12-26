@@ -3307,4 +3307,6 @@ The following changes to date are:
   killed while polymorphed
 - Fix: Checking floor for tippables can stone you
 - Allow tipping into containers on the floor
+- Fix: players with intrinsic water walking and paranoid: swim enabled
+  still being asked if they really want to enter water/lava
 
