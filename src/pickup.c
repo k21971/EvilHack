@@ -3904,13 +3904,13 @@ boolean *cancelled;
                 (void) safe_qbuf(qbuf, qbuf, qsfx, mchest, doname,
                                  ansimpleoname, something);
                 if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y')
-                    return  mchest;
+                    return mchest;
                 else if (c == 'q')
                     return (struct obj *) 0;
             }
             for (otmp = level.objects[u.ux][u.uy]; otmp;
                  otmp = otmp->nexthere) {
-                if (!Is_nonprize_container(otmp)
+                if (!Is_nonprize_container(otmp) || otmp == box
                     || (otmp->otyp == BAG_OF_TRICKS && otmp->dknown
                         && objects[otmp->otyp].oc_name_known))
                     continue;
@@ -3921,7 +3921,7 @@ boolean *cancelled;
                 (void) safe_qbuf(qbuf, qbuf, qsfx, otmp, doname,
                                  ansimpleoname, something);
                 if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y')
-                    return  otmp;
+                    return otmp;
                 else if (c == 'q')
                     return (struct obj *) 0;
             }

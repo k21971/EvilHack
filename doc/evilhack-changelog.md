@@ -3310,4 +3310,5 @@ The following changes to date are:
 - Fix: players with intrinsic water walking and paranoid: swim enabled
   still being asked if they really want to enter water/lava
 - Fix: tweak to last commit (check for steeds if attempting to walk on lava)
+- Fix: don't allow tipping a floor container into itself
 
