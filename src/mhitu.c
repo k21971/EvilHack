@@ -1787,7 +1787,7 @@ register struct attack *mattk;
             break;
         }
 
-        if (is_zombie(mdat) && rn2(5)) {
+        if (is_zombie(mdat) && rn2(6)) {
             if (uncancelled) {
                 pline("%s eats your brains!", Monnam(mtmp));
                 diseasemu(mdat);
@@ -1816,9 +1816,11 @@ register struct attack *mattk;
             break;
         } else {
             (void) adjattrib(A_INT, -rnd(2), FALSE);
-            forget_traps();
-            if (rn2(2))
-                forget(rnd(u.uluck <= 0 ? 4 : 2));
+            if (!is_zombie(mdat)) {
+                forget_traps();
+                if (rn2(2))
+                    forget(rnd(u.uluck <= 0 ? 4 : 2));
+            }
             break;
         }
     case AD_PLYS:
