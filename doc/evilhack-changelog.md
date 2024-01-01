@@ -3313,4 +3313,5 @@ The following changes to date are:
 - Fix: don't allow tipping a floor container into itself
 - Zombie brain eating won't cause known spells/skill training loss
 - Update copyright year to 2024
+- Switch status from beta to post release
 
