@@ -3312,4 +3312,5 @@ The following changes to date are:
 - Fix: tweak to last commit (check for steeds if attempting to walk on lava)
 - Fix: don't allow tipping a floor container into itself
 - Zombie brain eating won't cause known spells/skill training loss
+- Update copyright year to 2024
 

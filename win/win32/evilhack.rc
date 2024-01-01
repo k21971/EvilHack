@@ -79,7 +79,7 @@ BEGIN
             VALUE "FileDescription", "EvilHack for Windows - TTY Interface"
             VALUE "FileVersion", "0.8.3"
             VALUE "InternalName", "EvilHack"
-            VALUE "LegalCopyright", "Copyright (C) 2018 - 2023 by Keith Simpson - a NetHack 3.6.x variant, copyright (C) 1985 - 2023.  By Stichting Mathematisch Centrum and M. Stephenson.  See license for details."
+            VALUE "LegalCopyright", "Copyright (C) 2018 - 2024 by Keith Simpson - a NetHack 3.6.x variant, copyright (C) 1985 - 2024.  By Stichting Mathematisch Centrum and M. Stephenson.  See license for details."
             VALUE "OriginalFilename", "EvilHack.exe"
             VALUE "ProductName", "EvilHack"
             VALUE "ProductVersion", "0.8.3"
