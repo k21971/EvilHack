@@ -3320,4 +3320,6 @@ The following changes to date are:
 
 - Latest merges from 'vanilla' NetHack 3.6.7 official release (as of August 28th, 2023)
 - Initial preparation for new version (0.9.0)
+- Fix: prevent the Amulet of Yendor from being teleported whilst in the
+  Sanctum
 
