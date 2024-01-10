@@ -2264,7 +2264,9 @@ struct obj *obj, *otmp;
             break;
         case WAN_TELEPORTATION:
         case SPE_TELEPORT_AWAY:
-            if (obj->otyp == CRYSTAL_CHEST) {
+            if (obj->otyp == CRYSTAL_CHEST
+                || (obj->otyp == AMULET_OF_YENDOR
+                    && Is_sanctum(&u.uz))) {
                 res = 0;
                 break;
             }

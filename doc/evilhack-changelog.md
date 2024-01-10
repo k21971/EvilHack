@@ -3314,4 +3314,5 @@ The following changes to date are:
 - Zombie brain eating won't cause known spells/skill training loss
 - Update copyright year to 2024
 - Switch status from beta to post release
+- Fix: prevent the Amulet of Yendor from being teleported whilst in the Sanctum.)
 
