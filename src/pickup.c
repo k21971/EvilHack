@@ -3846,7 +3846,7 @@ boolean *cancelled;
             start_menu(win);
 
             i = 0;
-            if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ)) {
+            if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ) && box != mchest) {
                 ++i;
                 any.a_obj = mchest;
                 add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
@@ -3854,7 +3854,11 @@ boolean *cancelled;
             }
             for (otmp = level.objects[u.ux][u.uy]; otmp;
                  otmp = otmp->nexthere) {
-                if (Is_nonprize_container(otmp)) {
+                if (!Is_nonprize_container(otmp) || otmp == box
+                    || (otmp->otyp == BAG_OF_TRICKS && otmp->dknown
+                        && objects[otmp->otyp].oc_name_known))
+                    continue;
+                else {
                     ++i;
                     any.a_obj = otmp;
                     add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
