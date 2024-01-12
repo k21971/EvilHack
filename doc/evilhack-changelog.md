@@ -3315,4 +3315,6 @@ The following changes to date are:
 - Update copyright year to 2024
 - Switch status from beta to post release
 - Fix: prevent the Amulet of Yendor from being teleported whilst in the Sanctum.)
+- Fix: prevent monsters that are carrying the Amulet of Yendor from
+  being teleported while in the Sanctum
 

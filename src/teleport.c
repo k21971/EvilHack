@@ -1723,7 +1723,13 @@ u_teleport_mon(mtmp, give_feedback)
 struct monst *mtmp;
 boolean give_feedback;
 {
+    struct obj *otmp;
     coord cc;
+
+    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+        if (otmp->otyp == AMULET_OF_YENDOR && Is_sanctum(&u.uz))
+            return FALSE;
+    }
 
     if (mtmp->ispriest && *in_rooms(mtmp->mx, mtmp->my, TEMPLE)) {
         if (give_feedback)
