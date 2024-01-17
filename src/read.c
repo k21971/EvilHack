@@ -1141,7 +1141,8 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             exercise(A_STR, !scursed);
             break;
         }
-        if (confused) {
+        /* dragon scales are handled later and shouldn't/can't become fixed */
+        if (confused && !Is_dragon_scales(otmp)) {
             old_erodeproof = (otmp->oerodeproof != 0);
             new_erodeproof = !scursed;
             otmp->oerodeproof = 0; /* for messages */
