@@ -3330,3 +3330,4 @@ The following changes to date are:
 - Fix: immolation when especially flammable monsters are hit with fiery weapons
 - Fix: messaging when hit by fiery weapons underwater
 - Fix: messaging when hit by Dichotomy
+- Fix: early returns from artifact_hit
