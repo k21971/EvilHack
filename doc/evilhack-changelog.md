@@ -3329,3 +3329,4 @@ The following changes to date are:
 - Fix: update gold & green dragon sickness resistance
 - Fix: immolation when especially flammable monsters are hit with fiery weapons
 - Fix: messaging when hit by fiery weapons underwater
+- Fix: messaging when hit by Dichotomy
