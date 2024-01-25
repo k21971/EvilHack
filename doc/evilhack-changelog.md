@@ -3321,3 +3321,4 @@ The following changes to date are:
 - Fix: confused enchanting dragon scales
 - Fix: update gold & green dragon sickness resistance
 - Fix: immolation when especially flammable monsters are hit with fiery weapons
+- Fix: messaging when hit by fiery weapons underwater
