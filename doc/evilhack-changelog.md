@@ -3331,3 +3331,4 @@ The following changes to date are:
 - Fix: messaging when hit by fiery weapons underwater
 - Fix: messaging when hit by Dichotomy
 - Fix: early returns from artifact_hit
+- Fix: looting lit armor from pets makes it stop shining
