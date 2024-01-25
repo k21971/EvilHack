@@ -1179,6 +1179,7 @@ const struct artifact *oart;
 struct monst *mon;
 {
     struct artifact atmp;
+    boolean yours = (mon == &youmonst);
 
     if (oart && (oart->spfx & SPFX_DBONUS) != 0) {
         /* special case so non-chaotics can wield it */
@@ -1190,12 +1191,18 @@ struct monst *mon;
         if (spec_applies(&atmp, mon))
             return TRUE;
     }
-    if (maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))
+    if (yours && maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))
         && (oart == &artilist[ART_SUNSWORD]
             || oart == &artilist[ART_HAMMER_OF_THE_GODS])) {
         if (!wizard || yn("Override?") != 'y')
             return TRUE;
-    }
+    /* not relevant currently, since monster drow are all chaotic */
+    } else if (!yours && is_drow(mon->data)
+               && (oart == &artilist[ART_SUNSWORD]
+                   || oart == &artilist[ART_HAMMER_OF_THE_GODS]
+                   /* SotA does not accommodate monster drow */
+                   || oart == &artilist[ART_STAFF_OF_THE_ARCHMAGI]))
+        return TRUE;
     return FALSE;
 }
 
