@@ -1782,6 +1782,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                        /* feel the effect even if not seen */
                        || (youattack && mdef == u.ustuck));
 
+    boolean def_underwater = youdefend ? Underwater : mon_underwater(mdef);
+
     /* the four basic attacks: fire, cold, shock and missiles */
     if (attacks(AD_FIRE, otmp)) {
         if (realizes_damage) {
@@ -1791,7 +1793,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_vaporize(mdef->data)
                                   ? "vaporizes part of"
-                                  : mon_underwater(mdef) ? "hits" : "burns",
+                                  : def_underwater ? "hits" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             } else if (otmp->oartifact == ART_XIUHCOATL) {
                 pline_The("flaming spear %s %s%c",
@@ -1799,7 +1801,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_vaporize(mdef->data)
                                   ? "vaporizes part of"
-                                  : mon_underwater(mdef) ? "hits" : "burns",
+                                  : def_underwater ? "hits" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             } else if (otmp->oartifact == ART_ANGELSLAYER) {
                 pline_The("infernal trident %s %s%c",
@@ -1820,7 +1822,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_vaporize(mdef->data)
                                   ? "vaporizes part of"
-                                  : mon_underwater(mdef) ? "hits" : "burns",
+                                  : def_underwater ? "hits" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             }
         }
@@ -1830,8 +1832,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             update_inventory();
         }
 
-        if ((youdefend ? !Underwater : !mon_underwater(mdef))
-            || otmp->oartifact == ART_ANGELSLAYER) {
+        if (!def_underwater || otmp->oartifact == ART_ANGELSLAYER) {
             if (!rn2(4))
                 (void) destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
             if (!rn2(4))
@@ -2104,10 +2105,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           ? "hits"
                           : can_corrode(mdef->data)
                               ? "eats away part of"
-                              : mon_underwater(mdef) ? "hits" : "burns",
+                              : def_underwater ? "hits" : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
         }
-        if (youdefend ? !Underwater : !mon_underwater(mdef)) {
+        if (!def_underwater) {
             if (!rn2(5))
                 erode_armor(mdef, ERODE_CORRODE);
         }
@@ -2320,7 +2321,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_vaporize(mdef->data)
                                   ? "vaporizes part of"
-                                  : mon_underwater(mdef) ? "hits" : "burns",
+                                  : def_underwater ? "hits" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             } else if (!(resists_cold(mdef) || defended(mdef, AD_COLD))
                        && (resists_fire(mdef) || defended(mdef, AD_FIRE))) {
