@@ -3320,3 +3320,4 @@ The following changes to date are:
 - Fix: don't allow tipping a floor container into itself II
 - Fix: confused enchanting dragon scales
 - Fix: update gold & green dragon sickness resistance
+- Fix: immolation when especially flammable monsters are hit with fiery weapons
