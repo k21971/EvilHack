@@ -21,6 +21,9 @@ STATIC_DCL void FDECL(see_lamp_flicker, (struct obj *, const char *));
 STATIC_DCL void FDECL(lantern_message, (struct obj *));
 STATIC_DCL void FDECL(cleanup_burn, (ANY_P *, long));
 
+/* imported from vision.c, for when lights begin burning from afar */
+extern short circle_radii2[];
+
 /* used by wizard mode #timeout and #wizintrinsic; order by 'interest'
    for timeout countdown, where most won't occur in normal play */
 const struct propname {
@@ -1633,6 +1636,19 @@ boolean already_lit;
     int radius = 3;
     long turns = 0;
     boolean do_timer = TRUE;
+    xchar objx, objy;
+    if (carried(obj)) {
+        objx = u.ux;
+        objy = u.uy;
+    } else if (mcarried(obj)) {
+        struct monst *mon = obj->ocarry;
+        objx = mon->mx;
+        objy = mon->my;
+    /* i don't think this can happen? */
+    } else {
+        objx = obj->ox;
+        objy = obj->oy;
+    }
 
     if (obj->age == 0 && obj->otyp != MAGIC_LAMP
         && !artifact_light(obj))
@@ -1642,9 +1658,10 @@ boolean already_lit;
     case MAGIC_LAMP:
         obj->lamplit = 1;
         do_timer = FALSE;
-        if (!obj->cursed) {
+        if (!obj->cursed && distu(objx, objy) < circle_radii2[radius]
+            && couldsee(objx, objy)) {
             if (lightdamage(obj, FALSE, 5)) {
-                ; /* light haters */
+                ; /* hurts light-hating players */
             }
         }
         break;
@@ -1687,7 +1704,8 @@ boolean already_lit;
     default:
         /* [ALI] Support artifact light sources */
         if (artifact_light(obj)) {
-            boolean staff = (wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)
+            boolean staff = (obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
+                             && wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)
                              && !Upolyd && Race_if(PM_DROW));
             boolean armor = (Is_dragon_armor(obj)
                              && Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES);
@@ -1695,7 +1713,8 @@ boolean already_lit;
             obj->lamplit = 1;
             do_timer = FALSE;
             radius = arti_light_radius(obj);
-            if (!(staff || armor)) {
+            if (!(staff || armor) && distu(objx, objy) < circle_radii2[radius]
+                && couldsee(objx, objy)) {
                 if (lightdamage(obj, FALSE, 5)) {
                     ; /* light haters */
                 }
