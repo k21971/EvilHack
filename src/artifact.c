@@ -1775,7 +1775,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 
     /* incorporeal monsters are immune to various
        types of damage */
-    if (!(shade_glare(otmp) || spec_dbon_applies || hurtle_distance))
+    if (noncorporeal(mdef->data) && !(shade_glare(otmp) || spec_dbon_applies))
         return FALSE;
 
     realizes_damage = (youdefend || vis
