@@ -3329,3 +3329,4 @@ The following changes to date are:
 - Fix: only cause light damage when sources begin burning near you
 - Fix: convicts don't feel guilty about stealing
 - Fix: push boots off tortles when reverting from polyform
+- Require manual suppression of attacks vs. dangerous enemies
