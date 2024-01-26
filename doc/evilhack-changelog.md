@@ -3326,3 +3326,4 @@ The following changes to date are:
   being teleported while in the Sanctum
 - Fix: don't allow tipping a floor container into itself II
 - Fix: confused enchanting dragon scales
+- Fix: push boots off tortles when reverting from polyform
