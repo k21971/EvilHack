@@ -4799,23 +4799,29 @@ boolean via_attack;
         if (mtmp->mtame)
             return;
         mtmp->mpeaceful = 0;
-        if (mtmp->ispriest) {
-            if (p_coaligned(mtmp)) {
-                if (canspotmon(mtmp))
-                    You_feel("guilty.");
-                else
-                    You("have a vague sense of guilt.");
-                adjalign(-5); /* very bad */
+        /* peacefuls always catch convicts stealing. but, convicts don't feel
+           guilty about it. (note there's still an alignment penalty for
+           *failing* to steal from a priest) in steal_it()) */
+        if (!(via_attack && (Role_if(PM_CONVICT)
+            && !uwep && context.forcefight && !Upolyd))) {
+            if (mtmp->ispriest) {
+                if (p_coaligned(mtmp)) {
+                    if (canspotmon(mtmp))
+                        You_feel("guilty.");
+                    else
+                        You("have a vague sense of guilt.");
+                    adjalign(-5); /* very bad */
+                } else {
+                    adjalign(2);
+                }
             } else {
-                adjalign(2);
-            }
-        } else {
-            if (u.ualign.type != A_NONE) { /* Infidels are supposed to be bad */
-                if (canspotmon(mtmp))
-                    You_feel("guilty.");
-                else
-                    You("have a vague sense of guilt.");
-                adjalign(-1); /* attacking peaceful monsters is bad */
+                if (u.ualign.type != A_NONE) { /* Infidels are supposed to be bad */
+                    if (canspotmon(mtmp))
+                        You_feel("guilty.");
+                    else
+                        You("have a vague sense of guilt.");
+                    adjalign(-1); /* attacking peaceful monsters is bad */
+                }
             }
         }
         if (mtmp->data == oracle)

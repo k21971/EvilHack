@@ -986,7 +986,9 @@ struct attack *uattk;
         && wearshield && !is_bracer(uarms)
         && P_SKILL(P_SHIELD) >= P_BASIC
         && !(multi < 0 || u.umortality > oldumort
-             || u.uinwater || !malive || m_at(x, y) != mon)) {
+             || u.uinwater || !malive || m_at(x, y) != mon)
+        /* suppress bashes with 'F' */
+        && !context.forcefight) {
         tmp = find_roll_to_hit(mon, uattk->aatyp, wearshield, &attknum,
                                &armorpenalty);
         dieroll = rnd(20);
@@ -3996,30 +3998,11 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 goto use_weapon;
             /*FALLTHRU*/
         case AT_TENT:
-            if ((uwep || !uwep || (u.twoweap && uswapwep))
-                && (maybe_polyd(is_illithid(youmonst.data),
-                    Race_if(PM_ILLITHID)))
-                && (touch_petrifies(mon->data)
-                    || u.uswallow
-                    || is_rider(mon->data)
-                    || mon->data == &mons[PM_MEDUSA]
-                    || mon->data == &mons[PM_GREEN_SLIME]
-                    || (u.ulycn >= LOW_PM
-                        && were_beastie(mon->mnum) == u.ulycn
-                        && !Role_if(PM_CAVEMAN) && !Race_if(PM_ORC))
-                    || (how_resistant(DISINT_RES) <= 49
-                        && (mon->data == &mons[PM_BLACK_DRAGON]
-                            || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
+            if (!Upolyd && Race_if(PM_ILLITHID) && context.forcefight
+                && mattk->aatyp == AT_TENT)
                 break;
             /*FALLTHRU*/
         case AT_BITE:
-            if ((uwep || !uwep || (u.twoweap && uswapwep))
-                && is_vampire(youmonst.data)
-                && (touch_petrifies(mon->data)
-                    || (how_resistant(DISINT_RES) <= 49
-                        && (mon->data == &mons[PM_BLACK_DRAGON]
-                            || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
-                break;
             if (is_zombie(youmonst.data)
                 && mattk->aatyp == AT_BITE
                 && mon->data->msize <= MZ_SMALL
@@ -4032,13 +4015,8 @@ boolean weapon_attacks; /* skip weapon attacks if false */
             }
             /*FALLTHRU*/
         case AT_STNG:
-            if ((uwep || !uwep || (u.twoweap && uswapwep))
-                && (maybe_polyd(is_demon(youmonst.data),
-                    Race_if(PM_DEMON)))
-                && (touch_petrifies(mon->data)
-                    || (how_resistant(DISINT_RES) <= 49
-                        && (mon->data == &mons[PM_BLACK_DRAGON]
-                            || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
+            if (!Upolyd && Race_if(PM_DEMON) && context.forcefight
+                && mattk->aatyp == AT_STNG)
                 break;
             /*FALLTHRU*/
         case AT_KICK:
@@ -4812,7 +4790,7 @@ boolean wep_was_destroyed;
                             || aatyp == AT_MAGC || aatyp == AT_TUCH)) {
                         if (uarmg) {
                             if (uarmg->oartifact == ART_DRAGONBANE)
-                                pline("%s %s, but remains %s.", xname(uarmg),
+                                pline("%s %s, but remains %s.", The(xname(uarmg)),
                                       rn2(2) ? "shudders violently" : "vibrates unexpectedly",
                                       rn2(2) ? "whole" : "intact");
                             else if (rn2(2)
@@ -5058,7 +5036,7 @@ struct attack *mattk;     /* null means we find one internally */
                 break;
             } else if (obj->oartifact == ART_DRAGONBANE
                        && mon->data != &mons[PM_ANTIMATTER_VORTEX]) {
-                pline("%s %s, but remains %s.", xname(obj),
+                pline("%s %s, but remains %s.", The(xname(obj)),
                       rn2(2) ? "shudders violently" : "vibrates unexpectedly",
                       rn2(2) ? "whole" : "intact");
                 break;

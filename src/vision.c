@@ -65,6 +65,27 @@ char circle_start[] = {
     /*15*/ 119,
 };
 
+/* The "true" squared radius of each circle---the squared distance of the
+   furthest included square of each size of circle, + 1 */
+short circle_radii2[] = {
+    /*  */ 0, /* circles of radius zero are not used */
+    /* 1*/ 3,
+    /* 2*/ 6,
+    /* 3*/ 11,
+    /* 4*/ 21,
+    /* 5*/ 30,
+    /* 6*/ 42,
+    /* 7*/ 54,
+    /* 8*/ 73,
+    /* 9*/ 91,
+    /*10*/ 110,
+    /*11*/ 131,
+    /*12*/ 154,
+    /*13*/ 182,
+    /*14*/ 209,
+    /*15*/ 235,
+};
+
 /*==========================================================================*/
 /* Vision (arbitrary line of sight)
  * =========================================*/

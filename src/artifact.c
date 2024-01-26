@@ -1179,6 +1179,7 @@ const struct artifact *oart;
 struct monst *mon;
 {
     struct artifact atmp;
+    boolean yours = (mon == &youmonst);
 
     if (oart && (oart->spfx & SPFX_DBONUS) != 0) {
         /* special case so non-chaotics can wield it */
@@ -1190,12 +1191,18 @@ struct monst *mon;
         if (spec_applies(&atmp, mon))
             return TRUE;
     }
-    if (maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))
+    if (yours && maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))
         && (oart == &artilist[ART_SUNSWORD]
             || oart == &artilist[ART_HAMMER_OF_THE_GODS])) {
         if (!wizard || yn("Override?") != 'y')
             return TRUE;
-    }
+    /* not relevant currently, since monster drow are all chaotic */
+    } else if (!yours && is_drow(mon->data)
+               && (oart == &artilist[ART_SUNSWORD]
+                   || oart == &artilist[ART_HAMMER_OF_THE_GODS]
+                   /* SotA does not accommodate monster drow */
+                   || oart == &artilist[ART_STAFF_OF_THE_ARCHMAGI]))
+        return TRUE;
     return FALSE;
 }
 
@@ -1775,12 +1782,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 
     /* incorporeal monsters are immune to various
        types of damage */
-    if (!(shade_glare(otmp) || spec_dbon_applies || hurtle_distance))
+    if (noncorporeal(mdef->data) && !(shade_glare(otmp) || spec_dbon_applies))
         return FALSE;
 
     realizes_damage = (youdefend || vis
                        /* feel the effect even if not seen */
                        || (youattack && mdef == u.ustuck));
+
+    boolean def_underwater = youdefend ? Underwater : mon_underwater(mdef);
 
     /* the four basic attacks: fire, cold, shock and missiles */
     if (attacks(AD_FIRE, otmp)) {
@@ -1791,7 +1800,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_vaporize(mdef->data)
                                   ? "vaporizes part of"
-                                  : mon_underwater(mdef) ? "hits" : "burns",
+                                  : def_underwater ? "hits" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             } else if (otmp->oartifact == ART_XIUHCOATL) {
                 pline_The("flaming spear %s %s%c",
@@ -1799,7 +1808,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_vaporize(mdef->data)
                                   ? "vaporizes part of"
-                                  : mon_underwater(mdef) ? "hits" : "burns",
+                                  : def_underwater ? "hits" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             } else if (otmp->oartifact == ART_ANGELSLAYER) {
                 pline_The("infernal trident %s %s%c",
@@ -1820,7 +1829,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_vaporize(mdef->data)
                                   ? "vaporizes part of"
-                                  : mon_underwater(mdef) ? "hits" : "burns",
+                                  : def_underwater ? "hits" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             }
         }
@@ -1830,42 +1839,45 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             update_inventory();
         }
 
-        if ((youdefend ? !Underwater : !mon_underwater(mdef))
-            || otmp->oartifact == ART_ANGELSLAYER) {
+        if (!def_underwater || otmp->oartifact == ART_ANGELSLAYER) {
             if (!rn2(4))
                 (void) destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
             if (!rn2(4))
                 (void) destroy_mitem(mdef, SCROLL_CLASS, AD_FIRE);
             if (!rn2(7))
                 (void) destroy_mitem(mdef, SPBOOK_CLASS, AD_FIRE);
+            if (youdefend && Slimed)
+                burn_away_slime();
+            /* NB: if youdefend, then mdef == &youmonst */
+            if (completelyburns(mdef->data) || is_wooden(mdef->data)
+                || mdef->data == &mons[PM_GREEN_SLIME]) {
+                    if (youdefend) {
+                        You("ignite and turn to ash!");
+                        losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",
+                        NO_KILLER_PREFIX);
+                    } else {
+                        if (show_instakill)
+                            pline("%s ignites and turns to ash!", Monnam(mdef));
+                        if (youattack)
+                            xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                        else
+                            monkilled(mdef, (char *) 0, AD_FIRE);
+                    }
+                return TRUE;
+            }
         }
-        if (youdefend && Slimed && (!Underwater || otmp->oartifact == ART_ANGELSLAYER))
-            burn_away_slime();
 
         boolean angel = youdefend ? is_angel(youmonst.data)
                                   : is_angel(mdef->data);
 
-        if (otmp->oartifact == ART_ANGELSLAYER
-            && ((completelyburns(mdef->data) || is_wooden(mdef->data)
-                 || mdef->data == &mons[PM_GREEN_SLIME])
-                || (!rn2(10) && angel))) {
+        if (otmp->oartifact == ART_ANGELSLAYER && !rn2(10) && angel) {
             if (youdefend) {
-                if (angel) {
-                    pline("Angelslayer's eldritch flame consumes %s!", hittee);
-                    losehp((Upolyd ? u.mh : u.uhp) + 1, "incinerated by Angelslayer",
-                           NO_KILLER_PREFIX);
-                } else {
-                    You("ignite and turn to ash!");
-                    losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",
-                           NO_KILLER_PREFIX);
-                }
+                pline("Angelslayer's eldritch flame consumes %s!", hittee);
+                losehp((Upolyd ? u.mh : u.uhp) + 1, "incinerated by Angelslayer",
+                        NO_KILLER_PREFIX);
             } else {
-                if (show_instakill) {
-                    if (angel)
-                        pline("The infernal trident's eldritch flame consumes %s!", hittee);
-                    else
-                        pline("%s ignites and turns to ash!", Monnam(mdef));
-                }
+                if (show_instakill)
+                    pline("The infernal trident's eldritch flame consumes %s!", hittee);
                 if (youattack)
                     xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                 else
@@ -2100,10 +2112,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           ? "hits"
                           : can_corrode(mdef->data)
                               ? "eats away part of"
-                              : mon_underwater(mdef) ? "hits" : "burns",
+                              : def_underwater ? "hits" : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
         }
-        if (youdefend ? !Underwater : !mon_underwater(mdef)) {
+        if (!def_underwater) {
             if (!rn2(5))
                 erode_armor(mdef, ERODE_CORRODE);
         }
@@ -2309,17 +2321,22 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     /* Ninth basic attack, combines fire and cold together */
     if (attacks(AD_FUSE, otmp)) {
         if (realizes_damage) {
-            if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))
-                && (resists_cold(mdef) || defended(mdef, AD_COLD))) {
+            boolean no_burn = youdefend ? (Fire_resistance || Underwater)
+                                        : (resists_fire(mdef)
+                                           || defended(mdef, AD_FIRE)
+                                           || mon_underwater(mdef));
+            boolean no_freeze = youdefend ? Cold_resistance
+                                          : (resists_cold(mdef)
+                                             || defended(mdef, AD_COLD));
+            if (no_freeze) {
                 pline_The("scintillating blade %s %s%c",
                           !spec_dbon_applies
                               ? "hits"
                               : can_vaporize(mdef->data)
                                   ? "vaporizes part of"
-                                  : mon_underwater(mdef) ? "hits" : "burns",
+                                  : def_underwater ? "hits" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
-            } else if (!(resists_cold(mdef) || defended(mdef, AD_COLD))
-                       && (resists_fire(mdef) || defended(mdef, AD_FIRE))) {
+            } else if (no_burn) {
                 pline_The("scintillating blade %s %s%c",
                           !spec_dbon_applies
                               ? "hits"
@@ -2358,14 +2375,33 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         }
         if (!rn2(4))
             (void) destroy_mitem(mdef, POTION_CLASS, AD_COLD);
-        if (!rn2(4))
-            (void) destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
-        if (!rn2(4))
-            (void) destroy_mitem(mdef, SCROLL_CLASS, AD_FIRE);
-        if (!rn2(7))
-            (void) destroy_mitem(mdef, SPBOOK_CLASS, AD_FIRE);
-        if (youdefend && Slimed)
-            burn_away_slime();
+        if (!(youdefend ? Underwater : mon_underwater(mdef))) {
+            if (!rn2(4))
+                (void) destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
+            if (!rn2(4))
+                (void) destroy_mitem(mdef, SCROLL_CLASS, AD_FIRE);
+            if (!rn2(7))
+                (void) destroy_mitem(mdef, SPBOOK_CLASS, AD_FIRE);
+            if (youdefend && Slimed)
+                burn_away_slime();
+            /* NB: if youdefend, then mdef == &youmonst */
+            if (completelyburns(mdef->data) || is_wooden(mdef->data)
+                || mdef->data == &mons[PM_GREEN_SLIME]) {
+                    if (youdefend) {
+                        You("ignite and turn to ash!");
+                        losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",
+                        NO_KILLER_PREFIX);
+                    } else {
+                        if (show_instakill)
+                            pline("%s ignites and turns to ash!", Monnam(mdef));
+                        if (youattack)
+                            xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                        else
+                            monkilled(mdef, (char *) 0, AD_FIRE);
+                    }
+                return TRUE;
+            }
+        }
         return realizes_damage;
     }
 

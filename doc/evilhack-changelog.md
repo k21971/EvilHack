@@ -3326,3 +3326,14 @@ The following changes to date are:
   being teleported while in the Sanctum
 - Fix: don't allow tipping a floor container into itself II
 - Fix: confused enchanting dragon scales
+- Fix: update gold & green dragon sickness resistance
+- Fix: immolation when especially flammable monsters are hit with fiery weapons
+- Fix: messaging when hit by fiery weapons underwater
+- Fix: messaging when hit by Dichotomy
+- Fix: early returns from artifact_hit
+- Fix: looting lit armor from pets makes it stop shining
+- Fix: monsters wouldn't wield Sunsword/HotG if you were drow
+- Fix: only cause light damage when sources begin burning near you
+- Fix: convicts don't feel guilty about stealing
+- Fix: push boots off tortles when reverting from polyform
+- Require manual suppression of attacks vs. dangerous enemies
