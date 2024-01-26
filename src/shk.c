@@ -511,7 +511,8 @@ struct monst *shkp;
     livelog_printf(LL_ACHIEVE, "stole %ld %s worth of merchandise from %s %s",
                    total, currency(total), s_suffix(shkname(shkp)),
                    shtypes[eshkp->shoptype - SHOPBASE].name);
-    if (!Role_if(PM_ROGUE) && u.ualign.type != A_NONE) { /* stealing is unlawful */
+    if (!(Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
+        && u.ualign.type != A_NONE) { /* stealing is unlawful */
         You_feel("guilty.");
         adjalign(-sgn(u.ualign.type));
     }
