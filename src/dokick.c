@@ -267,13 +267,8 @@ xchar x, y;
         clumsy = TRUE;
     }
  doit:
-    if (Role_if(PM_MONK)
-        && (Race_if(PM_CENTAUR)
-            || Race_if(PM_TORTLE))
-        && (touch_petrifies(mon->data)
-            || (how_resistant(DISINT_RES) <= 49
-                && (mon->data == &mons[PM_BLACK_DRAGON]
-                    || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
+    /* monks can suppress their extra kicks with 'F' */
+    if (context.forcefight)
         return;
     else if (Role_if(PM_MONK) || Role_if(PM_SAMURAI))
         You("%s %s!", martial_arts_kick[rn2(SIZE(martial_arts_kick))],

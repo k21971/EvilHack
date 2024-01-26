@@ -3327,3 +3327,4 @@ The following changes to date are:
 - Fix: don't allow tipping a floor container into itself II
 - Fix: confused enchanting dragon scales
 - Fix: push boots off tortles when reverting from polyform
+- Require manual suppression of attacks vs. dangerous enemies
