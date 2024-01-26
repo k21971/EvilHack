@@ -16,17 +16,18 @@
  */
 
 struct flag {
-    boolean acoustics;  /* allow dungeon sound messages */
-    boolean autodig;    /* MRKR: Automatically dig */
-    boolean autoquiver; /* Automatically fill quiver */
-    boolean autoopen;   /* open doors by walking into them */
-    boolean autounlock; /* automatically apply unlocking tools */
-    boolean beginner;   /* True early in each game; affects feedback */
-    boolean biff;      /* enable checking for mail */
-    boolean bones;     /* allow saving/loading bones */
-    boolean confirm;   /* confirm before hitting tame monsters */
-    boolean dark_room; /* show shadows in lit rooms */
-    boolean debug;     /* in debugging mode (aka wizard mode) */
+    boolean acoustics;    /* allow dungeon sound messages */
+    boolean autoall_menu; /* show menu with 'A' menu option */
+    boolean autodig;      /* MRKR: Automatically dig */
+    boolean autoquiver;   /* Automatically fill quiver */
+    boolean autoopen;     /* open doors by walking into them */
+    boolean autounlock;   /* automatically apply unlocking tools */
+    boolean beginner;     /* True early in each game; affects feedback */
+    boolean biff;         /* enable checking for mail */
+    boolean bones;        /* allow saving/loading bones */
+    boolean confirm;      /* confirm before hitting tame monsters */
+    boolean dark_room;    /* show shadows in lit rooms */
+    boolean debug;        /* in debugging mode (aka wizard mode) */
 #define wizard flags.debug
     boolean end_own; /* list all own scores */
     boolean explore; /* in exploration mode (aka discover mode) */

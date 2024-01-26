@@ -943,7 +943,8 @@ boolean FDECL((*allow), (OBJ_P)); /* allow function */
                          (qflags & USE_INVLET) ? curr->invlet
                            : (first && curr->oclass == COIN_CLASS) ? '$' : 0,
                          def_oc_syms[(int) objects[curr->otyp].oc_class].sym,
-                         ATR_NONE, doname_with_price(curr), MENU_UNSELECTED);
+                         ATR_NONE, doname_with_price(curr),
+                         how == PICK_ALL ? MENU_SELECTED : MENU_UNSELECTED);
                 first = FALSE;
             }
         }
@@ -3148,7 +3149,7 @@ boolean put_in;
         free((genericptr_t) pick_list);
     }
 
-    if (loot_everything) {
+    if (!flags.autoall_menu && loot_everything) {
         if (!put_in) {
             current_container->cknown = 1;
             for (otmp = current_container->cobj; otmp; otmp = otmp2) {
@@ -3175,7 +3176,8 @@ boolean put_in;
             current_container->cknown = 1;
         Sprintf(buf, "%s what?", action);
         n = query_objlist(buf, put_in ? &invent : &(current_container->cobj),
-                          mflags, &pick_list, PICK_ANY,
+                          mflags, &pick_list, loot_everything ? PICK_ALL
+                                                              : PICK_ANY,
                           all_categories ? allow_all : allow_category);
         if (n) {
             n_looted = n;
