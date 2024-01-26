@@ -1138,7 +1138,8 @@ break_armor()
         }
     }
     if (nohands(youmonst.data) || verysmall(youmonst.data)
-        || slithy(youmonst.data) || racial_centaur(&youmonst)) {
+        || slithy(youmonst.data) || racial_centaur(&youmonst)
+        || racial_tortle(&youmonst)) {
         if ((otmp = uarmf) != 0) {
             if (donning(otmp))
                 cancel_don();
