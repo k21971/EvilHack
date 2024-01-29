@@ -3330,3 +3330,4 @@ The following changes to date are:
 - Fix: convicts don't feel guilty about stealing
 - Fix: push boots off tortles when reverting from polyform
 - Require manual suppression of attacks vs. dangerous enemies
+- Fix: fixedness knowledge preventing merging of supermaterials
