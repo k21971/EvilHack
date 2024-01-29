@@ -3790,8 +3790,7 @@ int material;
         otmp->oeroded = 0;
     if ((otmp->oeroded2) && !is_corrodeable(otmp) && !is_rottable(otmp))
         otmp->oeroded2 = 0;
-    if (otmp->oerodeproof && !is_damageable(otmp))
-        otmp->oerodeproof = 0;
+    maybe_erodeproof(otmp, otmp->oerodeproof);
 }
 
 /*mkobj.c*/

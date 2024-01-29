@@ -3822,6 +3822,7 @@ register struct obj *otmp, *obj;
         return FALSE;
 
     if ((obj->oclass == WEAPON_CLASS || obj->oclass == ARMOR_CLASS)
+        && !is_supermaterial(obj)
         && (obj->oerodeproof != otmp->oerodeproof
             || obj->rknown != otmp->rknown))
         return FALSE;

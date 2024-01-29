@@ -1754,8 +1754,7 @@ struct obj *otmp;
         || otmp->oclass == POTION_CLASS)
         return FALSE;
     else /* lack of `rknown' only matters for vulnerable objects */
-        return (boolean) (is_rustprone(otmp) || is_corrodeable(otmp)
-                          || is_flammable(otmp));
+        return (boolean) (is_damageable(otmp));
 }
 
 /* format a corpse name (xname() omits monster type; doname() calls us);

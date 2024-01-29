@@ -1403,8 +1403,7 @@ aligntyp g_align;
                             break;
                     }
                     otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_FREEZE_SPHERE);
-                    otmp->material = objects[otmp->otyp].oc_material;
-                    otmp->owt = weight(otmp);
+                    set_material(otmp, objects[otmp->otyp].oc_material);
                 }
                 if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                     && !known_spell(otmp->otyp)) {
@@ -2303,7 +2302,7 @@ dosacrifice()
                                     break;
                             }
                             otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_FREEZE_SPHERE);
-                            otmp->material = objects[otmp->otyp].oc_material;
+                            set_material(otmp, objects[otmp->otyp].oc_material);
                             otmp->owt = weight(otmp);
                         }
 
