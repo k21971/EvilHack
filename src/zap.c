@@ -1771,10 +1771,10 @@ int id;
             otmp->oclass = ARMOR_CLASS;
             otmp->spe = 0;
             otmp->oeroded = 0;
-            maybe_erodeproof(otmp, 1);
             otmp->quan = 1L;
             otmp->cursed = FALSE;
             set_material(otmp, LEATHER);
+            maybe_erodeproof(otmp, 1);
         }
     }
 

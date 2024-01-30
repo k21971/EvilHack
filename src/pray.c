@@ -2303,7 +2303,6 @@ dosacrifice()
                             }
                             otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_FREEZE_SPHERE);
                             set_material(otmp, objects[otmp->otyp].oc_material);
-                            otmp->owt = weight(otmp);
                         }
 
                         if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
