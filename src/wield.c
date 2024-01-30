@@ -679,7 +679,7 @@ const char *verb; /* "rub",&c */
         return FALSE;
     }
     /* check shield */
-    if (uarms && bimanual(obj)) {
+    if (uarms && bimanual(obj) && !is_bracer(uarms)) {
         You("cannot %s a two-handed %s while wearing a shield.", verb,
             (obj->oclass == WEAPON_CLASS) ? "weapon" : "tool");
         return FALSE;
