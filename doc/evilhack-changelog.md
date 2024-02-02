@@ -3333,4 +3333,5 @@ The following changes to date are:
 - Fix: fixedness knowledge preventing merging of supermaterials
 - Fix: Polymorphed crocodile corpses should produce fireproof shoes
 - Fix: a couple cases of bracers preventing wielding bimanual weapons
+- Restore auto-suppression of some dangerous attacks
 

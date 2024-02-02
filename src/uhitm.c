@@ -948,9 +948,18 @@ struct attack *uattk;
        or greater in martial arts */
     if (!rn2(3) && !uwep && Role_if(PM_MONK)
         && P_SKILL(P_MARTIAL_ARTS) >= P_MASTER
+        /* physical restrictions */
         && !(u.usteed || u.uswallow || u.uinwater
              || multi < 0 || u.umortality > oldumort
-             || !malive || m_at(x, y) != mon)) {
+             || !malive || m_at(x, y) != mon)
+        /* suppress automatically if deadly and cannot be prevented with boots */
+        && !((Race_if(PM_CENTAUR) || Race_if(PM_TORTLE))
+             && ((touch_petrifies(mon->data) && !Stone_resistance)
+                 || (how_resistant(DISINT_RES) <= 49
+                     && (mon->data == &mons[PM_BLACK_DRAGON]
+                         || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
+        /* suppress manually via forcefight */
+        && !context.forcefight) {
         if (weararmor) {
             if (!rn2(8))
                 pline("Your extra kick attack is ineffective while wearing %s.",
@@ -3998,8 +4007,26 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 goto use_weapon;
             /*FALLTHRU*/
         case AT_TENT:
-            if (!Upolyd && Race_if(PM_ILLITHID) && context.forcefight
-                && mattk->aatyp == AT_TENT)
+            /* don't eat brain if racial illithid and it would be particularly
+               detrimental or you're force-fighting */
+            if (!Upolyd && Race_if(PM_ILLITHID) && mattk->aatyp == AT_TENT
+                && (context.forcefight
+                    || ((touch_petrifies(mon->data)
+                         || mon->data == &mons[PM_MEDUSA])
+                        && !Stone_resistance)
+                    || is_rider(mon->data)
+                    || mon->data == &mons[PM_GREEN_SLIME]
+                    /* we don't need to worry about illithid-on-illithid
+                       cannibalism since their minds are psionically shielded */
+                    || (u.ulycn >= LOW_PM
+                        && were_beastie(mon->mnum) == u.ulycn
+                        && !Role_if(PM_CAVEMAN))
+                    || (how_resistant(DISINT_RES) <= 49
+                        && (mon->data == &mons[PM_BLACK_DRAGON]
+                            || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
+                break;
+            /* never eat brains if engulfed */
+            if (mattk->aatyp == AT_TENT && u.uswallow)
                 break;
             /*FALLTHRU*/
         case AT_BITE:
@@ -4015,8 +4042,12 @@ boolean weapon_attacks; /* skip weapon attacks if false */
             }
             /*FALLTHRU*/
         case AT_STNG:
-            if (!Upolyd && Race_if(PM_DEMON) && context.forcefight
-                && mattk->aatyp == AT_STNG)
+            if (!Upolyd && Race_if(PM_DEMON) && mattk->aatyp == AT_STNG
+                && (context.forcefight
+                    || (touch_petrifies(mon->data) && !Stone_resistance)
+                    || (how_resistant(DISINT_RES) <= 49
+                        && (mon->data == &mons[PM_BLACK_DRAGON]
+                            || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
                 break;
             /*FALLTHRU*/
         case AT_KICK:
