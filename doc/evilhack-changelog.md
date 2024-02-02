@@ -3339,3 +3339,4 @@ The following changes to date are:
 - Require manual suppression of attacks vs. dangerous enemies
 - Fix: fixedness knowledge preventing merging of supermaterials
 - Fix: a couple cases of bracers preventing wielding bimanual weapons
+- Restore auto-suppression of some dangerous attacks
