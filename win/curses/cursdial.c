@@ -318,7 +318,7 @@ curses_character_input_dialog(const char *prompt, const char *choices,
             }
             break;
         } else if ((answer == '\n') || (answer == '\r') || (answer == ' ')) {
-            if ((choices != NULL) && (def != '\0')) {
+            if (choices != NULL) {
                 answer = def;
             }
             break;
