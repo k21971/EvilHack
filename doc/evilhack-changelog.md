@@ -3336,4 +3336,5 @@ The following changes to date are:
 - Restore auto-suppression of some dangerous attacks
 - Fix: crash when examining discoveries with '`' in certain cases
 - Fix: allow spear traps to be disarmed
+- Fix: heap-use-after-free (bones)
 
