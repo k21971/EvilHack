@@ -3340,3 +3340,4 @@ The following changes to date are:
 - Fix: fixedness knowledge preventing merging of supermaterials
 - Fix: a couple cases of bracers preventing wielding bimanual weapons
 - Restore auto-suppression of some dangerous attacks
+- Fix: crash when examining discoveries with '`' in certain cases
