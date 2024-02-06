@@ -27,6 +27,7 @@ STATIC_DCL int FDECL(try_disarm, (struct trap *, BOOLEAN_P));
 STATIC_DCL void FDECL(reward_untrap, (struct trap *, struct monst *));
 STATIC_DCL int FDECL(disarm_holdingtrap, (struct trap *));
 STATIC_DCL int FDECL(disarm_landmine, (struct trap *));
+STATIC_DCL int FDECL(disarm_spear_trap, (struct trap *));
 STATIC_DCL int FDECL(disarm_squeaky_board, (struct trap *));
 STATIC_DCL int FDECL(disarm_shooting_trap, (struct trap *, int));
 STATIC_DCL void FDECL(clear_conjoined_pits, (struct trap *));
@@ -4976,6 +4977,42 @@ struct trap *ttmp;
     return 1;
 }
 
+STATIC_OVL int
+disarm_spear_trap(ttmp)
+struct trap *ttmp;
+{
+    int fails = try_disarm(ttmp, FALSE);
+
+    if (fails < 2)
+        return fails;
+    You("disarm %s spear trap.", the_your[ttmp->madeby_u]);
+
+    if (rnl(10) > 5) {
+        switch (rn2(5)) {
+        case 0:
+            cnv_trap_obj(SPEAR, 1, ttmp, FALSE);
+            break;
+        case 1:
+            cnv_trap_obj(ELVEN_SPEAR, 1, ttmp, FALSE);
+            break;
+        case 2:
+            cnv_trap_obj(ORCISH_SPEAR, 1, ttmp, FALSE);
+            break;
+        case 3:
+            cnv_trap_obj(DWARVISH_SPEAR, 1, ttmp, FALSE);
+            break;
+        case 4:
+            cnv_trap_obj(DARK_ELVEN_SPEAR, 1, ttmp, FALSE);
+            break;
+        }
+    } else {
+        pline_The("spear breaks!");
+        deltrap(ttmp);
+        newsym(u.ux + u.dx, u.uy + u.dy);
+    }
+    return 1;
+}
+
 /* getobj will filter down to cans of grease and known potions of oil */
 static NEARDATA const char oil[] = { ALL_CLASSES, TOOL_CLASS, POTION_CLASS,
                                      0 };
@@ -5260,6 +5297,8 @@ boolean force;
                     return disarm_shooting_trap(ttmp, ARROW);
                 case BOLT_TRAP:
                     return disarm_shooting_trap(ttmp, CROSSBOW_BOLT);
+                case SPEAR_TRAP:
+                    return disarm_spear_trap(ttmp);
                 case PIT:
                 case SPIKED_PIT:
                     if (here) {
