@@ -4102,7 +4102,7 @@ boolean unpaid, showsym;
     else if ((pos = index(oth_symbols, let)) != 0)
         class_name = oth_names[pos - oth_symbols];
     else
-        class_name = names[0];
+        class_name = names[ILLOBJ_CLASS];
 
     len = strlen(class_name) + (unpaid ? sizeof "unpaid_" : sizeof "")
           + (oclass ? (strlen(ocsymfmt) + invbuf_sympadding) : 0);

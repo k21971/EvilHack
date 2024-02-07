@@ -3343,4 +3343,5 @@ The following changes to date are:
 - Fix: crash when examining discoveries with '`' in certain cases
 - Fix: allow spear traps to be disarmed
 - Fix: heap-use-after-free (bones)
+- Fix: follow up to crash when examining discoveries with '`' in certain cases
 
