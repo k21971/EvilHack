@@ -167,14 +167,15 @@ getlock()
             goto gotlock;
         (void) close(fd);
 
-      {
+        /* drop the "perm" lock while the user decides */
+        unlock_file(HLOCK);
         if (iflags.window_inited) {
             /* this is a candidate for paranoid_confirmation */
-            c = yn_function("There is already a game in progress under your name.  Recover it [r], Destroy old game [y], Cancel [n] ?", "ryn", 'n');
+            c = yn_function("Old game in progress.  Destroy [y], Recover [r], or Cancel [n]?", "ynr", 'n');
         } else {
             (void) printf("\nThere is already a game in progress under your name.  Do what?\n");
-            (void) printf("\n  r - Try to recover it?");
-            (void) printf("\n  y - Destroy old game?");
+            (void) printf("\n  y - Destroy old game");
+            (void) printf("\n  r - Try to recover it");
             (void) printf("\n  n - Cancel");
             (void) printf("\n\n  => ");
             (void) fflush(stdout);
@@ -184,10 +185,10 @@ getlock()
             (void) printf("\033[7A"); /* cursor up 7 */
             (void) printf("\033[J"); /* clear from cursor down */
         }
-      }
+
         if (c == 'r' || c == 'R') {
             if (restore_savefile(lock, fqn_prefix[SAVEPREFIX]) == 0) {
-                const char *msg = "Automatic recovery of save file successful!  "
+                const char *msg = "Automatic recovery of game successful!  "
                                   "Press any key to continue...\n";
                 fflush(stdout);
                 if (iflags.window_inited) {

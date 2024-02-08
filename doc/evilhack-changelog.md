@@ -3344,4 +3344,5 @@ The following changes to date are:
 - Fix: allow spear traps to be disarmed
 - Fix: heap-use-after-free (bones)
 - Fix: follow up to crash when examining discoveries with '`' in certain cases
+- Adjust auto-recovery feedback
 
