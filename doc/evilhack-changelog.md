@@ -3345,4 +3345,4 @@ The following changes to date are:
 - Fix: heap-use-after-free (bones)
 - Fix: follow up to crash when examining discoveries with '`' in certain cases
 - Adjust auto-recovery feedback
-
+- Fix: Amulets could burn your skin but then allow you to regenerate
