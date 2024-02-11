@@ -1226,6 +1226,302 @@ the Astral plane.  There you must offer the Amulet
 to %d."
 %E ["Take the amulet to the Astral plane and offer it to %d."]
 #
+#	Druid
+#
+%Cc Dru 00001
+What sorcery has brought you back to %H?  The smell
+of fresh funeral pyres tells you that something is amiss with the healing
+powers that used to practice here.
+
+No rhizotomists are tending the materia medica gardens, and where are the
+common folk who used to come for the cures?
+
+You know that you must quickly make your way to the collegium, and
+%ls iatreion, and find out what has happened in your absence.
+%E [You arrive back at %H and must find %l.]
+%Cp Dru 00002
+After your last experience you expected to be here, but you certainly
+did not expect to see things so much worse.  This time you must succeed.
+%E
+%Cp Dru 00003
+Again, you %x %H in the distance.
+
+The smell of death and disease permeates the air.  You do not have
+to be %Ra to know that %n is on the verge of victory.
+%E
+%Cp Dru 00005
+"Did you read that new treatise on the therapeutic use of leeches?"
+%E
+%Cp Dru 00006
+"Paint a red caduceus on your shield and monsters won't hit you."
+%E
+%Cp Dru 00007
+"I passed handwriting so they are demoting me a rank."
+%E
+%Cp Dru 00008
+"I've heard that even %l has not been able to cure Chiron."
+%E
+%Cp Dru 00009
+"We think %n has used %nj alchemists, and %o,
+to unleash a new disease we call 'the cold' on Gehennom."
+%E
+%Cp Dru 00010
+"Did you read that new treatise on the therapeutic use of leeches?"
+%E
+%Cp Dru 00011
+"Paint a red caduceus on your shield and monsters won't hit you."
+%E
+%Cp Dru 00012
+"How are you feeling?  Perhaps a good bleeding will improve your spirits."
+%E
+%Cp Dru 00013
+"Have you heard the absurd new theory that diseases are caused by
+microscopic organisms, and not ill humors?"
+%E
+%Cp Dru 00014
+"I see that you bring %o, now you can cure this plague!"
+%E
+%Cc Dru 00015
+Feebly, %l raises %lj head to look at you.
+
+"It is good to see you again, %p.  I see the concern in your
+eyes, but do not worry for me.  I am not ready for Hades yet.  We have
+exhausted much of our healing powers holding off %n.
+I need your fresh strength to carry on our work.
+
+"Come closer and let me lay hands on you, and determine if you have
+the skills necessary to accomplish this mission."
+%E [%l is weak from the struggle with %n.  %lH wants to examine you.]
+%Cp Dru 00016
+"Again you return to me, %p.  I sense that each trip back
+the pleurisy and maladies of our land begin to infect you.  Let us
+hope and pray to %d that you become ready for your task before
+you fall victim to the bad humors."
+%E
+%Cp Dru 00017
+"Chiron has fallen, Hermes has fallen, what else must I tell you to
+impress upon you the importance of your mission!  I hope that you
+have come prepared this time."
+%E
+%Cc Dru 00018
+"You have failed us, %p.  You are a quack!  A charlatan!
+
+"Hades will be happy to hear that you are once again practicing your
+arts on the unsuspecting.  You shall never be allowed to attempt this
+quest while I still live."
+%E [You are a failure as a healer.]
+%Cc Dru 00019
+"Alas, %p, you are yet too inexperienced to deal with the rigors
+of such a task.  You must be able to draw on the knowledge of botany,
+alchemy and veterinary practices before I can send you on this quest 
+with good conscience.
+
+"Return when you wear %Ra's caduceus."
+%E [You are too inexperienced.  Return when you are %Ra.]
+%Cc Dru 00020
+"You have learned much of the remedies that benefit, but you must also
+know which physic for which ail.  That is why %ds teachings are a
+part of your training.
+
+"Return to us when you have healed thyself."
+%E [Return when you are more %a.]
+%Cc Dru 00021
+For the first time, you sense a smile on %ls face.
+
+    "You have indeed learned as much as we can teach you in preparation
+    for this task.  Let me tell you what I know of the symptoms and hope
+    that you can provide a cure.
+
+    "A short while ago, the dreaded %nt was fooled by the gods
+    into thinking that %nh could use %o to find a
+    cure for old age.  Think of it, eternal youth!  But %nj good
+    health is accomplished by drawing the health from those around %ni.
+
+    "He has exhausted %nj own supply of healthy people and now %nh seeks to
+    extend %nj influence into our world.  You must recover from %ni
+    %o and break the spell.  Recover the silver bell as well, for it is
+    cursed and must be restored.  Without it, you will never find the
+    Amulet of Yendor.
+
+    "You must travel into the swamps to %i, and from there
+    follow the trail to %ns island lair.  Be careful."
+%E [Travel to %i on your way to recover %o from %n.]
+%Cp Dru 00024
+"Remember, you must return with %o so
+that we may lift the curse from the silver bell."
+%E
+%Cp Dru 00025
+"Remember, %p, to always wash your hands before operating."
+%E
+%Cp Dru 00026
+"%nC has no real magic of %nj own.  To this %nh is vulnerable."
+%E
+%Cp Dru 00027
+"If you have been true to %d, you can draw on the power of
+%o."
+%E
+%Cp Dru 00028
+"Bring with you antidotes for poisons."
+%E
+%Cp Dru 00029
+"Remember this, %n can twist the powers of %o
+to hurt instead of heal."
+%E
+%Cp Dru 00030
+"I have sent for Chiron, but I am afraid he will come too late."
+%E
+%Cp Dru 00031
+"Maybe when you return the snakes will once again begin to shed."
+%E
+%Cp Dru 00032
+"The plague grows worse as we speak.  Hurry, %p!"
+%E
+%Cp Dru 00033
+"Many times %n has caused trouble in these lands.  It is
+time that %nh was eradicated like the diseases %nh has caused."
+%E
+%Cp Dru 00034
+"With but one eye, %n should be easy to blind.  Remember this."
+%E
+%Cc Dru 00035
+You stand before the entrance to %i.  Strange
+scratching noises come from within the building.
+
+The swampy ground around you seems to stink with disease.
+%E [You have reached %i but all is not well.]
+%Cp Dru 00036
+Once again you stand at the entrance to %i.
+%E
+%Cc Dru 00040
+You stand within sight of the infamous Isle of %n.  Even
+the words of %l had not prepared you for this.
+
+Steeling yourself against the wails of the ill that pierce your ears,
+you hurry on your task.  Maybe with %o you can
+heal them on your return, but not now.
+%E [You have reached the lair of %n.  Take %o away from %ni.]
+%Cp Dru 00041
+Once again, you %x the Isle of %n in the distance.
+%E
+%Cc Dru 00050
+"They have made a mistake in sending you, %p.
+
+"When I add your youth to mine, it will just make it easier for me
+to defeat %l."
+%E ["I will take your life, then defeat %l."]
+%Cp Dru 00051
+"Unlike your patients, you seem to keep coming back, %p!"
+%E
+%Cp Dru 00052
+"Which would you like, %p?  Boils, pleurisy, convulsions?"
+%E
+%Cp Dru 00053
+"I'll have %o back from you, %r.  You are
+not going to live to escape this place."
+%E
+%Cp Dru 00060
+"They might as well give scalpels to wizards as to let you try to
+use %o!"
+%E
+%Cp Dru 00061
+"If I could strike %l, surrounded by %lj %gP, imagine what I
+can do to you here by yourself."
+%E
+%Cp Dru 00062
+"I will put my %Rp to work making a physic out of your ashes."
+%E
+%Cp Dru 00063
+"As we speak, Hades gathers your patients to join you."
+%E
+%Cp Dru 00064
+"After I'm done with you, I'll destroy %l as well."
+%E
+%Cp Dru 00065
+"You will have to kill me if you ever hope to leave this place."
+%E
+%Cp Dru 00066
+"I will impale your head on my caduceus for all to see."
+%E
+%Cp Dru 00067
+"There is no materia medica in your sack which will cure you of me!"
+%E
+%Cp Dru 00068
+"Do not fight too hard, I want your soul strong, not weakened!"
+%E
+%Cp Dru 00069
+"You should have stopped studying at vetenary."
+%E
+%Cc Dru 00070
+As you pick up %o, you feel its healing begin to
+warm your soul.  You curse Zeus for taking it from its rightful owner,
+but at least you hope that %l can put it to good use once
+again.
+%E [You feel the healing power of %o and should return it to %l.]
+%Cc Dru 00071
+As you pick up %o, you feel its healing begin to
+warm your soul.  You curse Zeus for taking it from its rightful owner.
+%E [You feel the healing power of %o warm your soul.]
+%Cc Dru 00080
+The battered body of %n slumps to the ground and gasps
+out one last curse:
+
+    "You have defeated me, %p, but I shall have my revenge.
+    How, I shall not say, but this curse shall be like a cancer
+    on you."
+
+With that %n dies.
+%E [%nC curses you as %nh dies.]
+%Cc Dru 00081
+As soon as %l sees %o %lh summons %lj
+%gP.
+
+Gently, %l reaches out and touches %o.
+He instructs each of the assembled to do the same.  When everyone
+has finished %lh speaks to you.
+
+    "Now that we have been replenished we can defeat this plague.  You must
+    take %o with you and replenish the worlds you have
+    been called upon to travel next.  The silver bell has also been restored.
+    I wish you could ride Chiron to the end of your journey, but I need him
+    to help me spread the cure.  Go now and continue your journey."
+%E [%l touches %o and tells %lj %gP to do so too, then tells you to take it with you.]
+%Cc Dru 00082
+%l cautiously handles %o while watching you.
+
+"You are its keeper now, and the time has come to resume your search
+for the Amulet.  The silver bell will aid you in your search, as its
+curse has been lifted.  %Z await your return
+through the magic portal which brought you here."
+%E [%l tells you to keep %o and return to %Z to search for the Amulet.]
+%Cc Dru 00083
+%l looks intently at %o.
+
+"Well done, %p.  You have defeated %n and
+recovered %o, and we have lifted
+the curse from the silver bell.  Alas, I fear
+that %o shall never be truly
+safe unless it is kept here with us
+at %H.
+
+Please %p, return %o to us now.
+%E ["%lC asks you to forfeit %o."]
+%Cc Dru 00084
+"Thank you %p for your sacrifice, I know this must have been
+difficult to do. Rest assured, %d smiles down
+upon you this day.  %o will be safe with us."
+%E ["You give %o to %l."]
+%Cp Dru 00090
+"You have again returned to us, %p.  We have done well in your
+absence, yes?  How fare you upon your quest for the Amulet?"
+%E
+%Cc Dru 00091
+"Ah, you have recovered the Amulet, %p.  Well done!
+
+"Now, you should know that you must travel through the Elemental Planes
+to the Astral, and there return the Amulet to %d.  Go forth and
+may our prayers be as a wind upon your back."
+%E ["You have recovered the Amulet.  Travel to the Astral Plane and return it to %d."]
+#
 #	Healer
 #
 %Cc Hea 00001

@@ -3345,4 +3345,5 @@ The following changes to date are:
 - Fix: heap-use-after-free (bones)
 - Fix: follow up to crash when examining discoveries with '`' in certain cases
 - Adjust auto-recovery feedback
+- New player role: Druid (initial commit)
 

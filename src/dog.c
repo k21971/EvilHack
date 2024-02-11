@@ -263,6 +263,8 @@ makedog()
         }
     } else if (pettype == PM_LARGE_SPIDER) {
         petname = spidername;
+    } else if (pettype == PM_HAWK) {
+        petname = hawkname;
     } else if (pettype == PM_PONY) {
         petname = horsename;
         /* hijack creation for chaotic knights */
@@ -1057,6 +1059,7 @@ register struct obj *obj;
         case ORANGE:
         case PEAR:
         case MELON:
+        case MISTLETOE:
         case KELP_FROND:
         case SLIME_MOLD:
             return herbi ? DOGFOOD : starving ? ACCFOOD : MANFOOD;

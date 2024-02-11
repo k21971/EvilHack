@@ -2541,6 +2541,10 @@ struct obj *otmp;
         if (Vomiting && !otmp->cursed)
             make_vomiting(0L, TRUE);
         break;
+    case MISTLETOE:
+        if (Hallucination && !otmp->cursed)
+            make_hallucinated(0L, TRUE, 0L);
+        break;
     case APPLE:
         if (otmp->cursed && !Sleep_resistance) {
             /* Snow White; 'poisoned' applies to [a subset of] weapons,

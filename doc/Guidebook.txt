@@ -98,12 +98,31 @@
                Cavemen and Cavewomen start with exceptional  strength  but,
           unfortunately, with neolithic weapons.
 
+               Convicts are escaped prisoners who are on the run,  actively
+          wanted by the Yendorian authorities.  All they have to their name
+          is an attached heavy iron ball & chain,  and their striped prison
+          t-shirt.  Due to their life in prison, Convicts have developed an
+          immunity to all forms of illness. Otherwise they are fairly weak,
+          and  are always  hungry. Convicts have a  special  affinity  with
+          rats, and are able to tame them.
+
+               Druids are primal spellcasters of considerable power and ve-
+          rsatility,  who gain their power through being at one with nature
+          or  through a  connection to a  powerful  deity or nature spirit.
+          Guardians of the wilderness,  druids see themselves less as mast-
+          ers of the natural order and more as an extension of its will.
+
                Healers  are wise in medicine and apothecary.  They know the
           herbs and simples that can restore  vitality,  ease  pain,  anes-
           thetize, and neutralize poisons; and with their instruments, they
           can divine a being's state of health or sickness.  Their  medical
           practice earns them quite reasonable amounts of money, with which
           they enter the dungeon.
+
+               Infidels are cultists of the evil god Moloch. They are quite
+          proficient  in black magics,  but less so in the physical combat.
+          As an  Infidel,  your goal is not to retrieve the Amulet,  but to
+          return it to its hiding place within Gehennom.
 
                Knights are distinguished  from  the  common  skirmisher  by
           their  devotion  to  the ideals of chivalry and by the surpassing

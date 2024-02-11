@@ -62,6 +62,18 @@ struct trobj Convict[] = {
     { STRIPED_SHIRT, 0, ARMOR_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
+struct trobj Druid[] = {
+    { QUARTERSTAFF, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { BRACERS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { CLOAK, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { EUCALYPTUS_LEAF, 0, FOOD_CLASS, 1, 0 },
+    { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
+    { SPE_DRUID_TEST, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
+    { SACK, 0, TOOL_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
 struct trobj Healer[] = {
     { SCALPEL, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { GLOVES, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -281,6 +293,7 @@ struct inv_sub {
     { PM_ELF, HELMET, ELVEN_HELM },
     { PM_ELF, GAUNTLETS, GLOVES },
     /* { PM_ELF, SMALL_SHIELD, ELVEN_SHIELD }, */
+    { PM_ELF, CLOAK, ELVEN_CLOAK },
     { PM_ELF, CLOAK_OF_DISPLACEMENT, ELVEN_CLOAK },
     { PM_ELF, CRAM_RATION, LEMBAS_WAFER },
     { PM_ORC, DAGGER, ORCISH_DAGGER },
@@ -321,6 +334,7 @@ struct inv_sub {
     { PM_HOBBIT, BOW, ELVEN_BOW },
     { PM_HOBBIT, ARROW, ELVEN_ARROW },
     { PM_HOBBIT, HELMET, ELVEN_HELM },
+    { PM_HOBBIT, CLOAK, ELVEN_CLOAK },
     { PM_HOBBIT, CLOAK_OF_DISPLACEMENT, ELVEN_CLOAK },
     { PM_HOBBIT, CRAM_RATION, LEMBAS_WAFER },
     /* Tortles also have special considerations */
@@ -329,6 +343,7 @@ struct inv_sub {
     { PM_TORTLE, SPLINT_MAIL, TOQUE },
     { PM_TORTLE, BATTLE_AXE, TRIDENT },
     { PM_TORTLE, TWO_HANDED_SWORD, TRIDENT },
+    { PM_TORTLE, CLOAK, TOQUE },
     { PM_TORTLE, ROBE, TOQUE },
     { PM_TORTLE, HAWAIIAN_SHIRT, TOQUE },
     { PM_TORTLE, CLOAK_OF_MAGIC_RESISTANCE, GLOVES },
@@ -443,6 +458,23 @@ static const struct def_skill Skill_Con[] = {
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_THIEVERY, P_SKILLED },
     { P_SHIELD, P_BASIC },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_D[] = {
+    { P_DAGGER, P_BASIC },
+    { P_SABER, P_EXPERT },
+    { P_CLUB, P_SKILLED },
+    { P_MACE, P_BASIC },
+    { P_HAMMER, P_BASIC },
+    { P_QUARTERSTAFF, P_EXPERT },
+    { P_SPEAR, P_SKILLED },
+    { P_SLING, P_SKILLED },
+    { P_DART, P_BASIC },
+    { P_UNICORN_HORN, P_BASIC },
+    { P_CLERIC_SPELL, P_SKILLED },
+    { P_EVOCATION_SPELL, P_EXPERT },
+    { P_RIDING, P_EXPERT },
+    { P_BARE_HANDED_COMBAT, P_SKILLED },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_H[] = {
@@ -845,6 +877,13 @@ u_init()
         u.ualignbase[A_CURRENT] = u.ualignbase[A_ORIGINAL]
             = u.ualign.type = A_CHAOTIC; /* Override racial alignment */
         break;
+    case PM_DRUID:
+        ini_inv(Druid);
+        if (!rn2(25))
+            ini_inv(Lamp);
+        knows_object(SACK);
+        skill_init(Skill_D);
+        break;
     case PM_HEALER:
         u.umoney0 = rn1(1000, 1001);
         ini_inv(Healer);
@@ -978,7 +1017,8 @@ u_init()
          * Non-warriors get an instrument.  We use a kludge to
          * get only non-magic instruments.
          */
-        if (Role_if(PM_PRIEST) || Role_if(PM_WIZARD)) {
+        if (Role_if(PM_PRIEST) || Role_if(PM_WIZARD)
+            || Role_if(PM_DRUID)) {
             static int trotyp[] = { FLUTE,  TOOLED_HORN,       HARP,
                                     BELL,         BUGLE,       LEATHER_DRUM };
             Instrument[0].trotyp = trotyp[rn2(SIZE(trotyp))];
@@ -1028,10 +1068,12 @@ u_init()
         break;
 
     case PM_TORTLE:
-        if (!rn2(4)
-            && !Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_ROGUE)) {
-            /* in case they want to go for a swim */
-            ini_inv(Oilskin);
+        if (!Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_ROGUE)
+            && !Role_if(PM_DRUID)) {
+            if (!rn2(4)) {
+                /* in case they want to go for a swim */
+                ini_inv(Oilskin);
+            }
         }
         break;
 
@@ -1423,6 +1465,9 @@ int otyp;
     case PM_CONVICT:
         skills = Skill_Con;
         break;
+    case PM_DRUID:
+        skills = Skill_D;
+        break;
     case PM_HEALER:
         skills = Skill_H;
         break;
@@ -1523,7 +1568,9 @@ register struct trobj *origtrop;
                    || (otyp == SCR_ENCHANT_WEAPON && Role_if(PM_MONK))
                    /* wizard patch -- they already have one */
                    || (otyp == SPE_FORCE_BOLT && Role_if(PM_WIZARD))
-                   /* same for infidels */
+                   /* same for druids */
+                   || (otyp == SPE_DRUID_TEST && Role_if(PM_DRUID))
+                   /* and same for infidels */
                    || (otyp == SPE_DRAIN_LIFE && Role_if(PM_INFIDEL))
                    /* infidels already have auto-clairvoyance
                       by having the Amulet of Yendor in starting
@@ -1690,6 +1737,8 @@ register struct trobj *origtrop;
                 u.twoweap = FALSE;
             } else if (is_helmet(obj) && !uarmh)
                 setworn(obj, W_ARMH);
+            else if (is_bracer(obj) && !uarms)
+                setworn(obj, W_ARMS);
             else if (is_gloves(obj) && !uarmg)
                 setworn(obj, W_ARMG);
             else if (is_shirt(obj) && !uarmu)

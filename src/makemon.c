@@ -181,6 +181,7 @@ extern struct trobj Archeologist[];
 extern struct trobj Barbarian[];
 extern struct trobj Cave_man[];
 extern struct trobj Convict[];
+extern struct trobj Druid[];
 extern struct trobj Healer[];
 extern struct trobj Knight[];
 extern struct trobj Elven_Knight[];
@@ -370,6 +371,19 @@ struct trobj tortleBarbarian[] = {
     { AXE, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { TOQUE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { FOOD_RATION, 0, FOOD_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj tortleDruid[] = {
+    { QUARTERSTAFF, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { BRACERS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { TOQUE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { EUCALYPTUS_LEAF, 0, FOOD_CLASS, 1, 0 },
+    { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
+    { SPE_DRUID_TEST, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
+    { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
 
@@ -631,6 +645,8 @@ unsigned short chance;
                            && mtmp->mnum == PM_MONK)
                        || (otyp == SPE_FORCE_BOLT
                            && mtmp->mnum == PM_WIZARD)
+                       || (otyp == SPE_DRUID_TEST
+                           && mtmp->mnum == PM_DRUID)
                        || (otyp == SPE_DRAIN_LIFE
                            && mtmp->mnum == PM_INFIDEL)
                        || (obj->oclass == SPBOOK_CLASS
@@ -857,6 +873,14 @@ register struct monst *mtmp;
             mongets(mtmp, SKELETON_KEY);
             if (!racial_drow(mtmp)) /* iron bad */
                 mongets(mtmp, GRAPPLING_HOOK);
+            break;
+        case PM_DRUID:
+            if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleDruid, 1);
+            else
+                ini_mon_inv(mtmp, Druid, 1);
+            ini_mon_inv(mtmp, Lamp, 25);
+            mongets(mtmp, SKELETON_KEY);
             break;
         case PM_HEALER:
             mkmonmoney(mtmp, (long) rn1(1000, 1001));
@@ -1401,6 +1425,7 @@ register struct monst *mtmp;
             /* quest "guardians" */
             switch (mm) {
             case PM_STUDENT:
+            case PM_ASPIRANT:
             case PM_ATTENDANT:
             case PM_CULTIST:
             case PM_ABBOT:

@@ -34,6 +34,7 @@
     <Desfiles Include = "castle.des"/>
     <Desfiles Include = "caveman.des"/>
     <Desfiles Include = "convict.des"/>
+    <Desfiles Include = "druid.des"/>
     <Desfiles Include = "endgame.des"/>
     <Desfiles Include = "gehennom.des"/>
     <Desfiles Include = "goblintown.des"/>
@@ -218,6 +219,11 @@
     <Levfiles Include = "con-goal.lev"/>
     <Levfiles Include = "con-loca.lev"/>
     <Levfiles Include = "con-strt.lev"/>
+    <Levfiles Include = "dru-fila.lev"/>
+    <Levfiles Include = "dru-filb.lev"/>
+    <Levfiles Include = "dru-goal.lev"/>
+    <Levfiles Include = "dru-loca.lev"/>
+    <Levfiles Include = "dru-strt.lev"/>
     <Levfiles Include = "hea-fila.lev"/>
     <Levfiles Include = "hea-filb.lev"/>
     <Levfiles Include = "hea-goal.lev"/>
