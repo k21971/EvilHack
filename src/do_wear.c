@@ -2529,7 +2529,7 @@ boolean
 will_touch_skin(mask)
 long mask;
 {
-    if (mask == W_ARMC && (uarm || uarmu))
+    if ((mask == W_ARMC || mask == W_AMUL) && (uarm || uarmu))
         return FALSE;
     else if (mask == W_ARM && uarmu)
         return FALSE;
@@ -2643,6 +2643,7 @@ struct obj *obj;
                 already_wearing("an amulet");
                 return 0;
             }
+            mask = W_AMUL;
         } else if (eyewear) {
             if (ublindf) {
                 if (ublindf->otyp == TOWEL)
@@ -2680,10 +2681,8 @@ struct obj *obj;
             return 0;
         }
     }
-
     if (!retouch_object(&obj, will_touch_skin(mask), FALSE))
         return 1; /* costs a turn even though it didn't get worn */
-
     if (armor) {
         int delay;
 
