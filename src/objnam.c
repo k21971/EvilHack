@@ -3225,7 +3225,7 @@ STATIC_OVL NEARDATA const struct o_range o_ranges[] = {
     { "candle", TOOL_CLASS, TALLOW_CANDLE, WAX_CANDLE },
     { "horn", TOOL_CLASS, TOOLED_HORN, HORN_OF_PLENTY },
     { "shield", ARMOR_CLASS, SMALL_SHIELD, SHIELD_OF_MOBILITY },
-    { "bracers", ARMOR_CLASS, BRACERS, DARK_ELVEN_BRACERS },
+    { "bracers", ARMOR_CLASS, BRACERS, RUNED_BRACERS },
     { "hat", ARMOR_CLASS, DUNCE_CAP, FEDORA },
     { "helm", ARMOR_CLASS, DUNCE_CAP, HELM_OF_TELEPATHY },
     { "gloves", ARMOR_CLASS, GLOVES, MUMMIFIED_HAND },
@@ -3318,6 +3318,7 @@ static const struct alt_spellings {
     /* armor */
     { "gloves", GLOVES },
     { "bracers", BRACERS },
+    { "runed bracers", RUNED_BRACERS },
     { (const char *) 0, 0 },
 };
 
@@ -5051,6 +5052,9 @@ struct obj *no_wish;
             case ART_STRIPED_SHIRT_OF_LIBERATIO:
                 pm = PM_CONVICT;
                 break;
+            case ART_BRACERS_OF_THE_FIRST_CIRCL:
+                pm = PM_DRUID;
+                break;
             case ART_STAFF_OF_AESCULAPIUS:
                 pm = PM_HEALER;
                 break;
@@ -5137,7 +5141,7 @@ struct obj *no_wish;
                 if (u.ualign.type == A_CHAOTIC)
                     pm = PM_BARBARIAN;
                 else
-                    pm = PM_CAVEMAN;
+                    pm = PM_DRUID;
                 break;
             /* non-wishable artifacts (wizmode only) */
             case ART_MAGIC___BALL:

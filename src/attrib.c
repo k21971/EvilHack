@@ -42,6 +42,12 @@ static const struct innate {
                  { 20, &(HSearching), "perceptive", "unaware" },
                  { 0, 0, 0, 0 } },
 
+  dru_abil[] = { { 1, &(HStealth), "", "" },
+                 { 7, &(HSleep_resistance), "awake", "tired" },
+                 { 10, &(HSearching), "perceptive", "unaware" },
+                 { 14, &(HWarning), "sensitive", "" },
+                 { 0, 0, 0, 0 } },
+
   hea_abil[] = { { 3, &(HPoison_resistance), "healthy", "" },
                  { 15, &(HSick_resistance), "hale", "" },
                  { 0, 0, 0, 0 } },
@@ -810,6 +816,7 @@ int r;
         { PM_BARBARIAN, bar_abil },
         { PM_CAVEMAN, cav_abil },
         { PM_CONVICT, con_abil},
+        { PM_DRUID, dru_abil },
         { PM_HEALER, hea_abil },
         { PM_INFIDEL, inf_abil },
         { PM_KNIGHT, kni_abil },

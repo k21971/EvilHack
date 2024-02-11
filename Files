@@ -30,17 +30,17 @@ prepare-commit-msg
 
 dat:
 (files for all versions)
-Arch.des        Barb.des      Caveman.des   GENFILES      Healer.des
-Infidel.des     Knight.des    Monk.des      Priest.des    Ranger.des
-Rogue.des       Samurai.des   Tourist.des   Valkyrie.des  Wizard.des
-bigroom.des     bogusmon.txt  castle.des    cmdhelp       data.base
-dungeon.def     endgame.des   engrave.txt   epitaph.txt   gehennom.des
-goblintown.des  help          hh            history       hdgn.des
-icequeen.des    keyhelp       knox.des      license       medusa.des
-mines.des       nymph.des     opthelp       oracle.des    oracles.txt
-purgatory.des   quest.txt     rumors.fal    rumors.tru    sokoban.des
-symbols         tower.des     tribute       vaults.des    vecna.des
-wizhelp         yendor.des
+Arch.des        Barb.des        Caveman.des   Druid.des     GENFILES
+Healer.des      Infidel.des     Knight.des    Monk.des      Priest.des
+Ranger.des      Rogue.des       Samurai.des   Tourist.des   Valkyrie.des
+Wizard.des      bigroom.des     bogusmon.txt  castle.des    cmdhelp
+data.base       dungeon.def     endgame.des   engrave.txt   epitaph.txt
+gehennom.des    goblintown.des  help          hh            history
+hdgn.des        icequeen.des    keyhelp       knox.des      license
+medusa.des      mines.des       nymph.des     opthelp       oracle.des
+oracles.txt     purgatory.des   quest.txt     rumors.fal    rumors.tru
+sokoban.des     symbols         tower.des     tribute       vaults.des
+vecna.des       wizhelp         yendor.des
 
 doc:
 (files for all versions)
@@ -475,6 +475,7 @@ Arc-fila.lev     Arc-filb.lev     Arc-goal.lev        Arc-loca.lev        Arc-st
 Bar-fila.lev     Bar-filb.lev     Bar-goal.lev        Bar-loca.lev        Bar-strt.lev
 Cav-fila.lev     Cav-filb.lev     Cav-goal.lev        Cav-loca.lev        Cav-strt.lev
 Con-fila.lev     Con-filb.lev     Con-goal.lev        Con-loca.lev        Con-strt.lev
+Dru-fila.lev     Dru-filb.lev     Dru-goal.lev        Dru-loca.lev        Dru-strt.lev
 Hea-fila.lev     Hea-filb.lev     Hea-goal.lev        Hea-loca.lev        Hea-strt.lev
 Inf-fila.lev     Inf-filb.lev     Inf-goal.lev        Inf-loca.lev        Inf-strt.lev
 Kni-fila.lev     Kni-filb.lev     Kni-goal.lev        Kni-loca.lev        Kni-strt.lev

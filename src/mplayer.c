@@ -282,6 +282,13 @@ struct monst *mtmp;
         /* flags for all convicts regardless of race */
         mtmp->mintrinsics |= MR_POISON;
         break;
+    case PM_DRUID:
+        /* flags for all druids regardless of race */
+        rptr->mattk[0].adtyp = AD_SAMU;
+        rptr->mattk[1].aatyp = AT_MAGC;
+        rptr->mattk[1].adtyp = AD_CLRC;
+        mtmp->mintrinsics |= MR_SLEEP;
+        break;
     case PM_HEALER:
         /* flags for all healers regardless of race */
         rptr->mattk[0].adtyp = AD_SAMU;
@@ -474,6 +481,14 @@ struct obj *obj;
         case PM_CONVICT:
             if (rn2(2))
                 weapon = FLAIL;
+            break;
+        case PM_DRUID:
+            if (rn2(4))
+                weapon = QUARTERSTAFF;
+            else if (rn2(2))
+                weapon = SCIMITAR;
+            cloak = CLOAK;
+            shield = BRACERS;
             break;
         case PM_HEALER:
             if (rn2(4))

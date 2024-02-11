@@ -773,6 +773,8 @@ int skill;
         return "escape";
     case P_MATTER_SPELL:
         return "matter";
+    case P_EVOCATION_SPELL:
+        return "evocation";
     default:
         impossible("Unknown spell skill, %d;", skill);
         return "";
@@ -1442,6 +1444,7 @@ boolean wiz_cast;
         }
         break;
     case SPE_REFLECTION:
+    case SPE_DRUID_TEST:
         cast_reflection(&youmonst);
         break;
     case SPE_FLAME_SPHERE:
@@ -2018,7 +2021,7 @@ int spell;
 
     /* Casting roles */
     primary_casters = (Role_if(PM_HEALER) || Role_if(PM_PRIEST)
-                       || Role_if(PM_WIZARD) || Role_if(PM_INFIDEL));
+                       || Role_if(PM_WIZARD) || Role_if(PM_INFIDEL) || Role_if(PM_DRUID));
 
     non_casters = (Role_if(PM_ARCHEOLOGIST) || Role_if(PM_BARBARIAN) || Role_if(PM_CAVEMAN)
                    || Role_if(PM_CONVICT) || Role_if(PM_KNIGHT) || Role_if(PM_MONK)

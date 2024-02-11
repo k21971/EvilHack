@@ -1790,7 +1790,8 @@ struct obj * obj;
     return diff;
 }
 
-static int treefruits[] = { APPLE, ORANGE, PEAR, BANANA, EUCALYPTUS_LEAF };
+static int treefruits[] = { APPLE, ORANGE, PEAR, BANANA,
+                            EUCALYPTUS_LEAF, MISTLETOE };
 
 /* called when a tree is kicked; never returns Null */
 struct obj *
@@ -3592,6 +3593,7 @@ struct obj* obj;
     case MUMMY_WRAPPING:
     case OILSKIN_SACK:
     case OILSKIN_CLOAK:
+    case RUNED_BRACERS:
     case AMULET_OF_YENDOR:
     case FAKE_AMULET_OF_YENDOR:
         return NULL;

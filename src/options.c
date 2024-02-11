@@ -335,6 +335,8 @@ static struct Comp_Opt {
       DISP_IN_GAME }, /*WC*/
     { "fruit", "the name of a fruit you enjoy eating", PL_FSIZ, SET_IN_GAME },
     { "gender", "your starting gender (male or female)", 8, DISP_IN_GAME },
+    { "hawkname", "the name of your (first) hawk (e.g., hawkname:Betty)",
+      PL_PSIZ, DISP_IN_GAME },
     { "homunname", "the name of your (first) homunculus (e.g., homunname:Steve)",
       PL_PSIZ, DISP_IN_GAME },
     { "horsename", "the name of your (first) horse (e.g., horsename:Silver)",
@@ -2245,6 +2247,9 @@ boolean tinitial, tfrom_file;
                 case 's': /* spider */
                     preferred_pet = 's';
                     break;
+                case 'B': /* hawk */
+                    preferred_pet = 'B';
+                    break;
                 case 'n': /* no pet */
                     preferred_pet = 'n';
                     break;
@@ -2290,6 +2295,22 @@ boolean tinitial, tfrom_file;
         } else
             return FALSE;
         sanitize_name(dogname);
+        return retval;
+    }
+
+    fullname = "hawkname";
+    if (match_optname(opts, fullname, 4, TRUE)) {
+        if (duplicate)
+            complain_about_duplicate(opts, 1);
+        if (negated) {
+            bad_negation(fullname, FALSE);
+            return FALSE;
+        } else if ((op = string_for_env_opt(fullname, opts, FALSE))
+                                            != empty_optstr) {
+            nmcpy(hawkname, op, PL_PSIZ);
+        } else
+            return FALSE;
+        sanitize_name(hawkname);
         return retval;
     }
 
@@ -5928,6 +5949,8 @@ char *buf;
         Sprintf(buf, "%s", pl_fruit);
     else if (!strcmp(optname, "gender"))
         Sprintf(buf, "%s", rolestring(flags.initgend, genders, adj));
+    else if (!strcmp(optname, "hawkname"))
+        Sprintf(buf, "%s", hawkname[0] ? hawkname : none);
     else if (!strcmp(optname, "horsename"))
         Sprintf(buf, "%s", horsename[0] ? horsename : none);
     else if (!strcmp(optname, "homunname"))
@@ -6056,8 +6079,9 @@ char *buf;
                                  : (preferred_pet == 'p') ? "pseudodragon"
                                    : (preferred_pet == 'r') ? "ratname"
                                      : (preferred_pet == 's') ? "spidername"
-                                       : (preferred_pet == 'n') ? "none"
-                                         : "random");
+                                       : (preferred_pet == 'B') ? "hawkname"
+                                         : (preferred_pet == 'n') ? "none"
+                                           : "random");
     } else if (!strcmp(optname, "pickup_burden")) {
         Sprintf(buf, "%s", burdentype[flags.pickup_burden]);
     } else if (!strcmp(optname, "pickup_types")) {

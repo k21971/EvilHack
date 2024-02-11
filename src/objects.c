@@ -554,6 +554,8 @@ SHIELD("bracers", None,
        1, 0, 0,           0, 4, 0,  10,  10, 9, 0,  LEATHER, CLR_BROWN),
 SHIELD("dark elven bracers", "etched bracers",
        0, 0, 0,           0, 1, 0,  20,  30, 8, 0,  ADAMANTINE, CLR_BLACK),
+SHIELD("runed bracers", None,
+       1, 1, 0,           0, 0, 0,  15, 100, 8, 0,  WOOD, CLR_BRIGHT_GREEN),
 
 /* gloves */
 /* These have their color but not material shuffled, so the IRON must
@@ -869,6 +871,7 @@ FOOD("glob of black pudding", 0,  2, 20, 0, FLESH,  20, CLR_BLACK),
 /* fruits & veggies */
 FOOD("kelp frond",            0,  1,  1, 0, VEGGY,  30, CLR_GREEN),
 FOOD("eucalyptus leaf",      10,  1,  1, 0, VEGGY,  30, CLR_GREEN),
+FOOD("mistletoe",             3,  1,  1, 0, VEGGY, 100, CLR_GREEN),
 FOOD("apple",                10,  1,  2, 0, VEGGY,  50, CLR_RED),
 FOOD("orange",               10,  1,  2, 0, VEGGY,  80, CLR_ORANGE),
 FOOD("pear",                 10,  1,  2, 0, VEGGY,  50, CLR_BRIGHT_GREEN),
@@ -884,7 +887,7 @@ FOOD("slime mold",           75,  1,  5, 0, VEGGY, 250, HI_ORGANIC),
 /* people food */
 FOOD("lump of royal jelly",   0,  1,  2, 0, VEGGY, 200, CLR_MAGENTA),
 FOOD("cream pie",            25,  1, 10, 0, VEGGY, 100, CLR_WHITE),
-FOOD("candy bar",            13,  1,  2, 0, VEGGY, 100, CLR_BROWN),
+FOOD("candy bar",            10,  1,  2, 0, VEGGY, 100, CLR_BROWN),
 FOOD("fortune cookie",       55,  1,  1, 0, VEGGY,  40, CLR_YELLOW),
 FOOD("pancake",              25,  2,  2, 0, VEGGY, 200, CLR_YELLOW),
 FOOD("lembas wafer",         20,  2,  5, 0, VEGGY, 800, CLR_WHITE),
@@ -1125,6 +1128,9 @@ SPELL("flame sphere",     "canvas",
       P_MATTER_SPELL,      15,  2, 2, 1, NODIR, CLR_BROWN),
 SPELL("freeze sphere",    "hardcover",
       P_MATTER_SPELL,      15,  2, 2, 1, NODIR, CLR_BROWN),
+/* Druid spells */
+SPELL("druid test",       "kiwi",
+      P_EVOCATION_SPELL,   15,  2, 1, 1, NODIR, CLR_GREEN),
 /* books with fixed descriptions
  */
 SPELL("blank paper", "plain", P_NONE, 15, 0, 0, 0, 0, HI_PAPER),

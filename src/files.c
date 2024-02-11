@@ -2602,6 +2602,9 @@ char *origbuf;
         (void) strncpy(homunname, bufp, PL_PSIZ - 1);
     } else if (match_varname(buf, "SPIDERNAME", 6)) {
         (void) strncpy(spidername, bufp, PL_PSIZ - 1);
+    } else if (match_varname(buf, "HAWKNAME", 4)) {
+        (void) strncpy(hawkname, bufp, PL_PSIZ - 1);
+
 #ifdef SYSCF
     } else if (src == SET_IN_SYS && match_varname(buf, "WIZARDS", 7)) {
         if (sysopt.wizards)

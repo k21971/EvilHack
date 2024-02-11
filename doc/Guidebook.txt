@@ -106,6 +106,12 @@
           and  are always  hungry. Convicts have a  special  affinity  with
           rats, and are able to tame them.
 
+               Druids are primal spellcasters of considerable power and ve-
+          rsatility,  who gain their power through being at one with nature
+          or  through a  connection to a  powerful  deity or nature spirit.
+          Guardians of the wilderness,  druids see themselves less as mast-
+          ers of the natural order and more as an extension of its will.
+
                Healers  are wise in medicine and apothecary.  They know the
           herbs and simples that can restore  vitality,  ease  pain,  anes-
           thetize, and neutralize poisons; and with their instruments, they
