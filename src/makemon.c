@@ -708,6 +708,7 @@ struct trobj Level10Kit2[] = {
 #define B_MAJOR	        0 /* two-handed sword or battle-axe  */
 #define B_MINOR	        1 /* matched with axe or short sword */
 #define C_AMMO          2
+#define D_MAJOR         0 /* quarterstaff or scimitar */
 #define M_BOOK          2
 #define RAN_BOW	        1
 #define RAN_TWO_ARROWS  2
@@ -1010,6 +1011,8 @@ register struct monst *mtmp;
                 mongets(mtmp, GRAPPLING_HOOK);
             break;
         case PM_DRUID:
+            if (rn2(100) >= 50)
+                Druid[D_MAJOR].trotyp = SCIMITAR;
             if (racial_tortle(mtmp))
                 ini_mon_inv(mtmp, tortleDruid, 1);
             else

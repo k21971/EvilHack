@@ -3599,4 +3599,5 @@ The following changes to date are:
 - Initial preparation for new version (0.9.0)
 - Update README.md
 - New player role: Druid (initial commit)
+- Minor tweaks to Druid role
 
