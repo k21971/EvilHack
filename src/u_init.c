@@ -63,6 +63,7 @@ struct trobj Convict[] = {
     { 0, 0, 0, 0, 0 }
 };
 struct trobj Druid[] = {
+#define D_MAJOR 0 /* quarterstaff or scimitar */
     { QUARTERSTAFF, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { BRACERS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { CLOAK, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -878,6 +879,8 @@ u_init()
             = u.ualign.type = A_CHAOTIC; /* Override racial alignment */
         break;
     case PM_DRUID:
+        if (rn2(100) >= 50)
+            Druid[D_MAJOR].trotyp = SCIMITAR;
         ini_inv(Druid);
         if (!rn2(25))
             ini_inv(Lamp);
