@@ -3600,4 +3600,5 @@ The following changes to date are:
 - Update README.md
 - New player role: Druid (initial commit)
 - Minor tweaks to Druid role
+- Set default Druid pet name if one isn't set in the player config
 
