@@ -539,7 +539,6 @@ boolean with_you;
             xlocale = u.ux;
             ylocale = u.uy;
             mtmp->mstrategy &= ~STRAT_WAITMASK;
-            mtmp->mpeaceful = 0;
         }
         break;
     case MIGR_PORTAL:

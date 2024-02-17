@@ -1427,7 +1427,9 @@ dlords_stalk()
     for (mtmp = fmon; mtmp; mtmp = mtmp2) {
         /* save in case mtmp gets migrated */
         mtmp2 = mtmp->nmon;
-        if (is_dlord(mtmp->data) || is_dprince(mtmp->data)) {
+        if ((is_dlord(mtmp->data) || is_dprince(mtmp->data))
+            /* infidels can get peaceful dlords who won't hound them */
+            && !mtmp->mpeaceful) {
             migrate_to_level(mtmp, ledger_no(&u.uz), MIGR_STALK, (coord *) 0);
             mtmp->mstate |= MON_MIGRATING;
         }
