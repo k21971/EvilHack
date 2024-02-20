@@ -3351,4 +3351,5 @@ The following changes to date are:
 - Set default Druid pet name if one isn't set in the player config
 - Fix: Peaceful demon lords won't follow you across levels
 - Add regular bracers as a forge recipe
+- Ammo created by the Ranger quest artifact is fully identified
 

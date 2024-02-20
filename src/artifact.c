@@ -3167,6 +3167,11 @@ struct obj *obj;
             } else
                 otmp->quan += rnd(5);
             otmp->owt = weight(otmp);
+            otmp->known = obj->known;
+            otmp->bknown = obj->bknown;
+            otmp->dknown = obj->dknown;
+            otmp->rknown = obj->rknown;
+            otmp->oprops_known |= obj->oprops_known;
             otmp = hold_another_object(otmp, "Suddenly %s out.",
                                        aobjnam(otmp, "fall"), (char *) 0);
             nhUse(otmp);
