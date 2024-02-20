@@ -3350,3 +3350,5 @@ The following changes to date are:
 - Minor tweaks to Druid role
 - Set default Druid pet name if one isn't set in the player config
 - Fix: Peaceful demon lords won't follow you across levels
+- Add regular bracers as a forge recipe
+

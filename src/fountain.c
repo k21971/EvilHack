@@ -473,6 +473,7 @@ const struct forge_recipe fusions[] = {
     { ORCISH_SHIELD, ORCISH_HELM, ORCISH_BOOTS, 1, 1 },
     { LARGE_SHIELD, HELMET, HELMET, 1, 1 },
     { DWARVISH_ROUNDSHIELD, LARGE_SHIELD, DWARVISH_HELM, 1, 1 },
+    { BRACERS, SMALL_SHIELD, HELMET, 1, 1 },
     /* armor (gauntlets and boots) */
     { GAUNTLETS, MACE, HELMET, 1, 1 },
     { DWARVISH_BOOTS, GAUNTLETS, DWARVISH_SHORT_SWORD, 1, 1 },
