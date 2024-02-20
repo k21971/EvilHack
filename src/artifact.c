@@ -1147,8 +1147,9 @@ struct monst *mon;
             return 0;
     }
     if (oart == &artilist[ART_CROSSBOW_OF_CARL]) {
-        if (yours ? Role_if(PM_RANGER) && Race_if(PM_GNOME)
-                  : racial_gnome(mon))
+        if (yours ? Role_if(PM_RANGER) && (Race_if(PM_GNOME)
+                                           || Race_if(PM_HOBBIT))
+                  : (racial_gnome(mon) || racial_hobbit(mon)))
             obj->owt = 24; /* Magically lightened,
                               same weight as the Longbow of Diana */
     }
@@ -3153,7 +3154,6 @@ struct obj *obj;
                 goto nothing_special;
             otmp->blessed = obj->blessed;
             otmp->cursed = obj->cursed;
-            otmp->bknown = obj->bknown;
             otmp->oeroded = otmp->oeroded2 = 0;
             if (obj->blessed) {
                 if (otmp->spe < 0)

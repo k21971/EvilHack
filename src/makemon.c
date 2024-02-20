@@ -2419,7 +2419,7 @@ register struct monst *mtmp;
         break;
     case S_SPIDER:
         if (ptr == &mons[PM_SCORPIUS]) {
-            if (Race_if(PM_GNOME)) {
+            if (Race_if(PM_GNOME) || Race_if(PM_HOBBIT)) {
                 otmp = mksobj(CROSSBOW, FALSE, FALSE);
                 otmp = oname(otmp, artiname(ART_CROSSBOW_OF_CARL));
                 bless(otmp);

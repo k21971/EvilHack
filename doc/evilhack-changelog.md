@@ -3352,4 +3352,6 @@ The following changes to date are:
 - Fix: Peaceful demon lords won't follow you across levels
 - Add regular bracers as a forge recipe
 - Ammo created by the Ranger quest artifact is fully identified
+- Hobbit rangers start with a crossbow instead of a bow, quest artifact is
+  the Crossbow of Carl
 

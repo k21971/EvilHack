@@ -779,7 +779,7 @@ const struct Role align_roles[] = {
     { { 0, 0 } }
 };
 
-/* Gnomish Ranger */
+/* Gnomish/Hobbit Ranger */
 const struct Role race_roles[] = {
     { { "Ranger", 0 },
       {
@@ -2527,7 +2527,8 @@ role_init()
         urole = align_roles[0];
     }
 
-    if (Race_if(PM_GNOME) && Role_if(PM_RANGER)) {
+    if ((Race_if(PM_GNOME) || Race_if(PM_HOBBIT))
+        && Role_if(PM_RANGER)) {
         urole = race_roles[0];
     }
 
