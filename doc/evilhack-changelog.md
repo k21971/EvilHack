@@ -3360,4 +3360,5 @@ The following changes to date are:
   the objects being stolen have the oilskin object property 
 - Fix: if the player blows up their bag of holding, make known the bag,
   and the object placed inside of it that made the bag blow up
+- Fix: Tiamat couldn't fly
 

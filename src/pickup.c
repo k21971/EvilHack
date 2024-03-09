@@ -2543,9 +2543,9 @@ register struct obj *obj;
         /* did not actually insert obj yet */
         if (was_unpaid)
             addtobill(obj, FALSE, FALSE, TRUE);
-	if (obj->otyp == WAN_CANCELLATION
+        if (obj->otyp == WAN_CANCELLATION
             || obj->otyp == BAG_OF_TRICKS)
-	    makeknown(obj->otyp);
+            makeknown(obj->otyp);
         if (obj->otyp == BAG_OF_HOLDING) /* one bag of holding into another */
             do_boh_explosion(obj, (obj->where == OBJ_FLOOR));
         obfree(obj, (struct obj *) 0);
