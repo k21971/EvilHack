@@ -3358,4 +3358,6 @@ The following changes to date are:
   destoryed or fell off when polymorphing
 - Fix: incorrect feedback when attempting to steal from a monster and
   the objects being stolen have the oilskin object property 
+- Fix: if the player blows up their bag of holding, make known the bag,
+  and the object placed inside of it that made the bag blow up
 

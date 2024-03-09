@@ -2404,6 +2404,7 @@ boolean on_floor;
                            VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, otmp);
         }
     }
+    makeknown(BAG_OF_HOLDING); /* bag just blew up? must be a bag of holding */
 }
 
 STATIC_OVL long
@@ -2542,7 +2543,8 @@ register struct obj *obj;
         /* did not actually insert obj yet */
         if (was_unpaid)
             addtobill(obj, FALSE, FALSE, TRUE);
-	if (obj->otyp == WAN_CANCELLATION)
+	if (obj->otyp == WAN_CANCELLATION
+            || obj->otyp == BAG_OF_TRICKS)
 	    makeknown(obj->otyp);
         if (obj->otyp == BAG_OF_HOLDING) /* one bag of holding into another */
             do_boh_explosion(obj, (obj->where == OBJ_FLOOR));
@@ -3716,6 +3718,9 @@ struct obj *box; /* or bag */
                     pline(
                    "As %s %s inside, you are blasted by a magical explosion!",
                                  ansimpleoname(otmp), otense(otmp, "tumble"));
+                    if (otmp->otyp == WAN_CANCELLATION
+                        || otmp->otyp == BAG_OF_TRICKS)
+                        makeknown(otmp->otyp);
                     do_boh_explosion(targetbox, held);
                     nobj = 0; /* stop tipping; want loop to exit 'normally' */
 
