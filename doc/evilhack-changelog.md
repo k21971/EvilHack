@@ -3354,4 +3354,6 @@ The following changes to date are:
 - Ammo created by the Ranger quest artifact is fully identified
 - Hobbit rangers start with a crossbow instead of a bow, quest artifact is
   the Crossbow of Carl
+- Fix: object property from wearing a t-shirt persisted if the t-shirt was
+  destoryed or fell off when polymorphing
 

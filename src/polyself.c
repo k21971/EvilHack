@@ -1042,9 +1042,10 @@ break_armor()
                 }
             }
         }
-        if (uarmu) {
+        if ((otmp = uarmu)) {
             Your("shirt rips to shreds!");
-            useup(uarmu);
+            (void) Shirt_off();
+            useup(otmp);
         }
     } else if (sliparm(&youmonst)) {
         if (((otmp = uarm) != 0) && (racial_exception(&youmonst, otmp) < 1)) {
@@ -1071,7 +1072,7 @@ break_armor()
                 You("seep right through your shirt!");
             else
                 You("become much too small for your shirt!");
-            setworn((struct obj *) 0, otmp->owornmask & W_ARMU);
+            (void) Shirt_off();
             dropp(otmp);
         }
     /* catch what breakarm() and sliparm() doesn't handle */
