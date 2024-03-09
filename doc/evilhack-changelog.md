@@ -3356,4 +3356,6 @@ The following changes to date are:
   the Crossbow of Carl
 - Fix: object property from wearing a t-shirt persisted if the t-shirt was
   destoryed or fell off when polymorphing
+- Fix: incorrect feedback when attempting to steal from a monster and
+  the objects being stolen have the oilskin object property 
 

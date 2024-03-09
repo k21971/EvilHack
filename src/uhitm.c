@@ -2467,7 +2467,7 @@ struct attack *mattk;
               otmp->greased ? "greased" : "slippery",
               (otmp->greased || objects[otmp->otyp].oc_name_known)
                   ? xname(otmp)
-                  : cloak_simple_name(otmp));
+                  : simpleonames(otmp));
 
         if (otmp->greased && !rn2(2)) {
             pline_The("grease wears off.");
@@ -2655,7 +2655,7 @@ struct attack *mattk;
                     mhis(mdef));
 
         /* only triggered if (stealoid && items have already been stolen).
-           failing to steal a greased object will stop you from stealing 
+           failing to steal a greased object will stop you from stealing
            anything else to avoid infinite loop nastiness */
         if (otmp && (otmp->greased || otmp->otyp == OILSKIN_CLOAK
             || otmp->otyp == OILSKIN_SACK
@@ -2668,7 +2668,7 @@ struct attack *mattk;
                 otmp->greased ? "greased" : "slippery",
                 (otmp->greased || objects[otmp->otyp].oc_name_known)
                     ? xname(otmp)
-                    : cloak_simple_name(otmp));
+                    : simpleonames(otmp));
 
             if (otmp->greased && !rn2(2)) {
                 pline_The("grease wears off.");
