@@ -4987,7 +4987,10 @@ struct trap *ttmp;
         return fails;
     You("disarm %s spear trap.", the_your[ttmp->madeby_u]);
 
-    if (rnl(10) > 5) {
+    /* Luck:   0       +2      +5      +8      +11
+     * Chance: 14.3%   28.2%   42.1%   56.1%   70.0%
+     */
+    if (rnl(7) == 0) {
         switch (rn2(5)) {
         case 0:
             cnv_trap_obj(SPEAR, 1, ttmp, FALSE);

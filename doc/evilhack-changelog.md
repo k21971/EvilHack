@@ -3361,4 +3361,5 @@ The following changes to date are:
 - Fix: if the player blows up their bag of holding, make known the bag,
   and the object placed inside of it that made the bag blow up
 - Fix: Tiamat couldn't fly
+- Fix: disarming spear trap chances luck check was inverted
 
