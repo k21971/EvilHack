@@ -3362,4 +3362,6 @@ The following changes to date are:
   and the object placed inside of it that made the bag blow up
 - Fix: Tiamat couldn't fly
 - Fix: disarming spear trap chances luck check was inverted
+- Carrying the Master Key of Thievery in open inventory improves thievery
+  chances
 

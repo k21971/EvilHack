@@ -2541,6 +2541,8 @@ struct attack *mattk;
 
     /* other conditions that could affect success, and these
        can stack if multiple conditions are met */
+    if (has_roguish_key(&youmonst))
+        other -= 6; /* MKoT in open inventory, meets is_roguish_key() criteria */
     if (mdef->mfrozen) /* target is immobile or incapacitated */
         other -= 5;
     if (mdef->mconf || mdef->mstun) /* target can't think straight */
