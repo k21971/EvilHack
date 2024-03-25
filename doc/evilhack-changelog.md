@@ -3365,4 +3365,5 @@ The following changes to date are:
 - Carrying the Master Key of Thievery in open inventory improves thievery
   chances
 - Fix: text in the Convict quest still referenced the Iron Ball of Liberation
+- Fix: same-race monsters could still spawn peaceful for Convicts and Infidels
 
