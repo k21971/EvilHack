@@ -3806,8 +3806,8 @@ struct monst *mtmp, *victim;
         if (mtmp->mhpmax == hp_threshold + 1)
             mtmp->mhpmax--;
     }
-    if (mtmp->mhpmax > 50 * 8)
-        mtmp->mhpmax = 50 * 8; /* absolute limit */
+    if ((mtmp->mhpmax > 50 * 8) && !unique_corpstat(ptr))
+        mtmp->mhpmax = 50 * 8; /* absolute limit, except for uniques */
     if (mtmp->mhp > mtmp->mhpmax)
         mtmp->mhp = mtmp->mhpmax;
 
