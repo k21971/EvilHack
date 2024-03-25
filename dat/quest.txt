@@ -1003,7 +1003,7 @@ left.  The dungeons are overrun by vermin, guards
 have become brutal and corrupt, and I believe that
 %n has had dealings with dark powers.
 
-"I had spent many years enchanting my iron ball
+"I had spent many years enchanting my prison shirt
 with powers to help lead an escape from this place,
 turning it into %o.
 Unfortunately, %n stole it from me,

@@ -3364,4 +3364,5 @@ The following changes to date are:
 - Fix: disarming spear trap chances luck check was inverted
 - Carrying the Master Key of Thievery in open inventory improves thievery
   chances
+- Fix: text in the Convict quest still referenced the Iron Ball of Liberation
 
