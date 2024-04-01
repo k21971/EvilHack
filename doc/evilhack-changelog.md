@@ -3367,4 +3367,5 @@ The following changes to date are:
 - Fix: text in the Convict quest still referenced the Iron Ball of Liberation
 - Fix: same-race monsters could still spawn peaceful for Convicts and Infidels
 - Fix: unique monsters are not bound by maximum hit point value in grow_up()
+- Fix: Infidels couldn't drop cursed loadstones
 
