@@ -2239,6 +2239,7 @@ struct obj *otmp;
                 }
                 break;
             case RIN_INVISIBILITY:
+            case RIN_LUSTROUS:
                 if (!oldprop && !EInvis && !BInvis && !See_invisible
                     && !Blind) {
                     newsym(u.ux, u.uy);
@@ -2298,6 +2299,7 @@ struct obj *otmp;
             context.botl = 1;
             break;
         case RIN_FREE_ACTION:
+        case RIN_ANCIENT:
             /* Give sleep resistance instead */
             if (how_resistant(SLEEP_RES) < 100) {
                 accessory_has_effect(otmp);

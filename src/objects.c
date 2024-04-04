@@ -614,73 +614,77 @@ BOOTS("fumble boots", "riding boots",
 #undef ARMOR
 
 /* rings ... */
-/* note that prob = 1 for all rings and currently can't be specified
- * per ring without changing the RING definition */
-#define RING(name,stone,power,cost,mgc,spec,mohs,metal,color) \
-    OBJECT(OBJ(name, stone),                                          \
-           BITS(0, 0, spec, 0, mgc, spec, 0, 0, 0,                    \
-                HARDGEM(mohs), 0, P_NONE, metal),                     \
-           power, RING_CLASS, 1, 0, 3, cost, 0, 0, 0, 0, 15, color)
+/* note that prob = 1 for all normal rings */
+#define RING(name,stone,power,prob,cost,mgc,spec,mohs,metal,color) \
+    OBJECT(OBJ(name, stone),                                           \
+           BITS(0, 0, spec, 0, mgc, spec, 0, 0, 0,                     \
+                HARDGEM(mohs), 0, P_NONE, metal),                      \
+           power, RING_CLASS, prob, 0, 3, cost, 0, 0, 0, 0, 15, color)
 RING("adornment", "wooden",
-     ADORNED,                  100, 1, 1, 2, WOOD, HI_WOOD),
+     ADORNED,                  1, 100, 1, 1, 2, WOOD, HI_WOOD),
 RING("gain strength", "granite",
-     0,                        150, 1, 1, 7, MINERAL, HI_MINERAL),
+     0,                        1, 150, 1, 1, 7, MINERAL, HI_MINERAL),
 RING("gain constitution", "opal",
-     0,                        150, 1, 1, 7, MINERAL, HI_MINERAL),
+     0,                        1, 150, 1, 1, 7, MINERAL, HI_MINERAL),
 RING("increase accuracy", "clay",
-     0,                        150, 1, 1, 4, MINERAL, CLR_RED),
+     0,                        1, 150, 1, 1, 4, MINERAL, CLR_RED),
 RING("increase damage", "coral",
-     0,                        150, 1, 1, 4, MINERAL, CLR_ORANGE),
+     0,                        1, 150, 1, 1, 4, MINERAL, CLR_ORANGE),
 RING("protection", "black onyx",
-     PROTECTION,               100, 1, 1, 7, MINERAL, CLR_BLACK),
+     PROTECTION,               1, 100, 1, 1, 7, MINERAL, CLR_BLACK),
         /* 'PROTECTION' intrinsic enhances MC from worn armor by +1,
            regardless of ring's enchantment; wearing a second ring of
            protection (or even one ring of protection combined with
            cloak of protection) doesn't give a second MC boost */
 RING("regeneration", "moonstone",
-     REGENERATION,             200, 1, 0,  6, MINERAL, HI_MINERAL),
+     REGENERATION,             1, 200, 1, 0,  6, MINERAL, HI_MINERAL),
 RING("searching", "tiger eye",
-     SEARCHING,                200, 1, 0,  6, GEMSTONE, CLR_BROWN),
+     SEARCHING,                1, 200, 1, 0,  6, GEMSTONE, CLR_BROWN),
 RING("stealth", "jade",
-     STEALTH,                  100, 1, 0,  6, GEMSTONE, CLR_GREEN),
+     STEALTH,                  1, 100, 1, 0,  6, GEMSTONE, CLR_GREEN),
 RING("sustain ability", "bronze",
-     FIXED_ABIL,               100, 1, 0,  4, COPPER, HI_COPPER),
+     FIXED_ABIL,               1, 100, 1, 0,  4, COPPER, HI_COPPER),
 RING("levitation", "agate",
-     LEVITATION,               200, 1, 0,  7, GEMSTONE, CLR_RED),
+     LEVITATION,               1, 200, 1, 0,  7, GEMSTONE, CLR_RED),
 RING("hunger", "topaz",
-     HUNGER,                   100, 1, 0,  8, GEMSTONE, CLR_CYAN),
+     HUNGER,                   1, 100, 1, 0,  8, GEMSTONE, CLR_CYAN),
 RING("aggravate monster", "sapphire",
-     AGGRAVATE_MONSTER,        150, 1, 0,  9, GEMSTONE, CLR_BLUE),
+     AGGRAVATE_MONSTER,        1, 150, 1, 0,  9, GEMSTONE, CLR_BLUE),
 RING("conflict", "ruby",
-     CONFLICT,                 300, 1, 0,  9, GEMSTONE, CLR_RED),
+     CONFLICT,                 1, 300, 1, 0,  9, GEMSTONE, CLR_RED),
 RING("warning", "diamond",
-     WARNING,                  100, 1, 0, 10, GEMSTONE, CLR_WHITE),
+     WARNING,                  1, 100, 1, 0, 10, GEMSTONE, CLR_WHITE),
 RING("poison resistance", "pearl",
-     POISON_RES,               150, 1, 0,  4, BONE, CLR_WHITE),
+     POISON_RES,               1, 150, 1, 0,  4, BONE, CLR_WHITE),
 RING("fire resistance", "iron",
-     FIRE_RES,                 200, 1, 0,  5, IRON, HI_METAL),
+     FIRE_RES,                 1, 200, 1, 0,  5, IRON, HI_METAL),
 RING("cold resistance", "brass",
-     COLD_RES,                 150, 1, 0,  4, COPPER, HI_COPPER),
+     COLD_RES,                 1, 150, 1, 0,  4, COPPER, HI_COPPER),
 RING("shock resistance", "copper",
-     SHOCK_RES,                150, 1, 0,  3, COPPER, HI_COPPER),
+     SHOCK_RES,                1, 150, 1, 0,  3, COPPER, HI_COPPER),
 RING("free action", "twisted",
-     FREE_ACTION,              200, 1, 0,  6, METAL, HI_METAL),
+     FREE_ACTION,              1, 200, 1, 0,  6, METAL, HI_METAL),
 RING("slow digestion", "steel",
-     SLOW_DIGESTION,           200, 1, 0,  8, METAL, HI_METAL),
+     SLOW_DIGESTION,           1, 200, 1, 0,  8, METAL, HI_METAL),
 RING("teleportation", "silver",
-     TELEPORT,                 200, 1, 0,  3, SILVER, HI_SILVER),
+     TELEPORT,                 1, 200, 1, 0,  3, SILVER, HI_SILVER),
 RING("teleport control", "gold",
-     TELEPORT_CONTROL,         300, 1, 0,  3, GOLD, HI_GOLD),
+     TELEPORT_CONTROL,         1, 300, 1, 0,  3, GOLD, HI_GOLD),
 RING("polymorph", "ivory",
-     POLYMORPH,                300, 1, 0,  4, BONE, CLR_WHITE),
+     POLYMORPH,                1, 300, 1, 0,  4, BONE, CLR_WHITE),
 RING("polymorph control", "emerald",
-     POLYMORPH_CONTROL,        300, 1, 0,  8, GEMSTONE, CLR_BRIGHT_GREEN),
+     POLYMORPH_CONTROL,        1, 300, 1, 0,  8, GEMSTONE, CLR_BRIGHT_GREEN),
 RING("invisibility", "wire",
-     INVIS,                    150, 1, 0,  5, METAL, HI_METAL),
+     INVIS,                    1, 150, 1, 0,  5, METAL, HI_METAL),
 RING("see invisible", "engagement",
-     SEE_INVIS,                150, 1, 0,  5, GOLD, HI_METAL),
+     SEE_INVIS,                1, 150, 1, 0,  5, GOLD, HI_METAL),
 RING("protection from shape changers", "shiny",
-     PROT_FROM_SHAPE_CHANGERS, 100, 1, 0,  5, PLATINUM, CLR_BRIGHT_CYAN),
+     PROT_FROM_SHAPE_CHANGERS, 1, 100, 1, 0,  5, PLATINUM, CLR_BRIGHT_CYAN),
+/* placeholders for artifact rings; will not spawn randomly */
+RING("ancient", None,
+     FREE_ACTION,              0, 800, 1, 0,  8, GEMSTONE, CLR_BRIGHT_GREEN),
+RING("lustrous", None,
+     INVIS,                    0, 600, 1, 0,  3, GOLD, HI_GOLD),
 #undef RING
 
 /* amulets ... - THE Amulet comes last because it is special */

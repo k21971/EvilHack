@@ -3490,7 +3490,8 @@ struct obj *obj;
         || mon->data == &mons[PM_GHOST]) /* don't loot bones piles */
         return FALSE;
 
-    if (typ == WAN_MAKE_INVISIBLE || typ == POT_INVISIBILITY || typ == RIN_INVISIBILITY)
+    if (typ == WAN_MAKE_INVISIBLE || typ == POT_INVISIBILITY
+        || typ == RIN_INVISIBILITY || typ == RIN_LUSTROUS)
         return (boolean) (!mon->minvis && !mon->invis_blkd
                           && !attacktype(mon->data, AT_GAZE));
     if (typ == WAN_SPEED_MONSTER || typ == POT_SPEED)
@@ -3576,9 +3577,7 @@ struct obj *obj;
             return TRUE;
         break;
     case RING_CLASS:
-        /* Should match the list in m_dowear_type.
-         * Uniques don't go for invisibility or teleportation;
-         * it would probably be a waste of time. */
+        /* Should match the list in m_dowear_type */
         if (typ == RIN_PROTECTION
             || typ == RIN_INCREASE_DAMAGE
             || typ == RIN_INCREASE_ACCURACY)
@@ -3599,12 +3598,9 @@ struct obj *obj;
             return (!mon_prop(mon, REGENERATION));
         if (typ == RIN_LEVITATION)
             return (grounded(mon->data));
-        if (typ == RIN_FREE_ACTION)
+        if (typ == RIN_FREE_ACTION || typ == RIN_ANCIENT)
             return TRUE;
-        /* Below this line are off-limits to uniques */
-        if (mon->data->geno & G_UNIQ)
-            return (FALSE);
-        if (typ == RIN_INVISIBILITY)
+        if (typ == RIN_INVISIBILITY || typ == RIN_LUSTROUS)
             return !(mon->minvis);
         if (typ == RIN_TELEPORTATION)
             return (!mon_prop(mon, TELEPORT));

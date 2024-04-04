@@ -1516,6 +1516,7 @@ register struct obj *obj;
     case RIN_POLYMORPH:
     case RIN_POLYMORPH_CONTROL:
     case RIN_FREE_ACTION:
+    case RIN_ANCIENT:
     case RIN_SLOW_DIGESTION:
     case RIN_SUSTAIN_ABILITY:
     case MEAT_RING:
@@ -1544,6 +1545,7 @@ register struct obj *obj;
         }
         break;
     case RIN_INVISIBILITY:
+    case RIN_LUSTROUS:
         if (!oldprop && !HInvis && !BInvis && !Blind) {
             learnring(obj, TRUE);
             newsym(u.ux, u.uy);
@@ -1632,6 +1634,7 @@ boolean gone;
     case RIN_POLYMORPH:
     case RIN_POLYMORPH_CONTROL:
     case RIN_FREE_ACTION:
+    case RIN_ANCIENT:
     case RIN_SLOW_DIGESTION:
     case RIN_SUSTAIN_ABILITY:
     case MEAT_RING:
@@ -1656,6 +1659,7 @@ boolean gone;
         }
         break;
     case RIN_INVISIBILITY:
+    case RIN_LUSTROUS:
         if (!Invis && !BInvis && !Blind) {
             newsym(u.ux, u.uy);
             Your("body seems to unfade%s.",

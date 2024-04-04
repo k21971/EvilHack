@@ -919,7 +919,9 @@ boolean racialexception;
                     && obj->otyp != RIN_INCREASE_ACCURACY
                     && obj->otyp != RIN_PROTECTION
                     && obj->otyp != RIN_LEVITATION
-                    && obj->otyp != RIN_FREE_ACTION))
+                    && obj->otyp != RIN_FREE_ACTION
+                    && obj->otyp != RIN_ANCIENT
+                    && obj->otyp != RIN_LUSTROUS))
                 continue;
             if (mon->data == &mons[PM_NAZGUL]
                 && obj->otyp == RIN_INVISIBILITY)
@@ -1470,6 +1472,7 @@ struct obj *obj;
         rc = !mon_prop(mon, REGENERATION) ? 25 : 5;
         break;
     case RIN_INVISIBILITY:
+    case RIN_LUSTROUS:
         if (mon->mtame || mon->mpeaceful)
             /* Monsters actually don't know if you can
              * see invisible, but for tame or peaceful monsters
@@ -1501,6 +1504,7 @@ struct obj *obj;
         rc = grounded(mon->data) ? 20 : 0;
         break;
     case RIN_FREE_ACTION:
+    case RIN_ANCIENT:
         rc = 30;
         break;
     }

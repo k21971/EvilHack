@@ -211,6 +211,9 @@ int *lo_p, *hi_p; /* output: range that item belongs among */
         *hi_p = i - 1;
         break;
     case RING_CLASS:
+        if (otyp >= RIN_ADORNMENT && otyp <= RIN_PROTECTION_FROM_SHAPE_CHAN)
+            *lo_p = RIN_ADORNMENT, *hi_p = RIN_PROTECTION_FROM_SHAPE_CHAN;
+        break;
     case WAND_CLASS:
     case VENOM_CLASS:
         /* entire class */

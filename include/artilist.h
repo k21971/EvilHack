@@ -301,7 +301,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       0, MH_DEMON, PHYS(8, 8), DFNS(AD_MAGM), NO_CARY, 0, A_LAWFUL,
       NON_PM, PM_DWARF, 9000L, CLR_RED, MITHRIL),
     /* The One Ring, from J.R.R Tolkien lore */
-    A("The One Ring", RIN_INVISIBILITY,
+    A("The One Ring", RIN_LUSTROUS,
       (SPFX_NOGEN | SPFX_NOWISH | SPFX_RESTR | SPFX_INTEL | SPFX_STLTH
        | SPFX_SEARCH | SPFX_WARN | SPFX_DFLAGH),
       0, MH_WRAITH, NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM,
@@ -571,7 +571,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      Barbarian artifact chaotic (why it was neutral before is a bit confusing
      *      to me as most vanilla Barbarian race/role combinations are chaotic).
      */
-    A("The Ring of P\'hul", RIN_FREE_ACTION,
+    A("The Ring of P\'hul", RIN_ANCIENT,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DEFN), 0, 0,
       NO_ATTK, DFNS(AD_MAGM), CARY(AD_DISE), 0, A_CHAOTIC, PM_BARBARIAN,
       NON_PM, 5000L, NO_COLOR, GEMSTONE),

@@ -671,9 +671,11 @@ register struct obj *obj;
             pline_The("sink looks as good as new.");
             break;
         case RIN_INVISIBILITY:
+        case RIN_LUSTROUS:
             You("don't see anything happen to the sink.");
             break;
         case RIN_FREE_ACTION:
+        case RIN_ANCIENT:
             You_see("the ring slide right down the drain!");
             break;
         case RIN_SEE_INVISIBLE:

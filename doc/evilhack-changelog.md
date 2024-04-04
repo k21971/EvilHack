@@ -3369,4 +3369,7 @@ The following changes to date are:
 - Fix: unique monsters are not bound by maximum hit point value in grow_up()
 - Fix: Infidels couldn't drop cursed loadstones
 - Fix: misbehavior by #adjust
+- Fix: artifact rings have a fixed material
+- Revert: artifact rings have a fixed material
+- Fix: artifact rings have a fixed material, take two
 
