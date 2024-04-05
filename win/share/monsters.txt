@@ -581,20 +581,20 @@ Z = (195, 195, 195)
 # tile 29 (warg)
 {
   ................
-  ...P..P....PP...
-  ...P.PP......P..
-  ..PPPP.......P.A
-  ..N.NPP......P.A
-  .P..PPPPP....P.A
-  PPPPDPPPPPPPPPAA
-  DPPNDPPPPPPPPPAA
-  ..DDDPPPPPPPPPAA
-  PNDNP.PPPPPPPPAA
-  .PPPPAPPPPAPP.A.
-  ...PAAPPAAAAPPAA
-  ...PAAP.AAAAP.A.
-  .PPPAAPAAAAAPAA.
-  ....PPPAA.PPPA..
+  ...P..0....P0...
+  ...0.0P......0..
+  ..0P0P.......P.A
+  ..N.N0P......0.A
+  .P..0P0P0....P.A
+  P0P0D0P0P0P0P0AA
+  DP0NDP0P0P0P0PAA
+  ..DDD0P0P0P0P0AA
+  0NDN0.0P0P0P0PAA
+  .0P0PAP0P0A0P.A.
+  ...PAA0PAAAA0PAA
+  ...0AAP.AAAAP.A.
+  .P0PAA0AAAAA0AA.
+  ....P0PAA.P0PA..
   ................
 }
 # tile 30 (winter wolf)
@@ -7822,18 +7822,18 @@ Z = (195, 195, 195)
   ................
   ......OPP.O.....
   ......PPPP......
-  .....CPPDP......
-  ....CCCPPP......
-  ....CCPPPP......
-  ....C..PPA......
-  .....DDAADD.AAA.
-  ....DDDDDDDDAAA.
-  ....DADDDDADAAA.
-  ....DADDDDADAAA.
-  ....DADDDDADAAA.
-  ......DAADAAAA..
-  ......DAADAA.A..
-  .....DDA.DDA....
+  .....KPPDP......
+  ....KJJPPP......
+  ....KJPPPP......
+  ....K..PPA......
+  .....GGAAGG.AAA.
+  ....FDFDFDFDAAA.
+  ..G.GADGDFAGAGA.
+  ....GAFGFGAGAAA.
+  ..G.DADFDGAFAAA.
+  ......GAADAAAG..
+  .F.G..GAAFAA.A..
+  .....DFA.GGA..F.
   ................
 }
 # tile 411 (hezrou)

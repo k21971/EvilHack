@@ -3372,4 +3372,5 @@ The following changes to date are:
 - Fix: artifact rings have a fixed material
 - Revert: artifact rings have a fixed material
 - Fix: artifact rings have a fixed material, take two
+- Minor monster color changes
 
