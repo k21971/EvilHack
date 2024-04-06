@@ -66,6 +66,7 @@ travel         enable the command to travel to a map location via [TRUE]
                a shortest-path algorithm, usually invoked by '_'.
 use_darkgray   use bold black instead of blue for black glyphs.   [TRUE]
 use_inverse    display detected monsters in highlighted manner    [FALSE]
+use_menu_glyphs display object glyphs in inventory                [TRUE]
 verbose        print more commentary during the game              [TRUE]
 whatis_menu    show menu when getting a map location              [FALSE]
 whatis_moveskip skip same glyphs when getting a map location      [FALSE]

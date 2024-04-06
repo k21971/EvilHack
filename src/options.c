@@ -262,6 +262,7 @@ static struct Bool_Opt {
 #else
     { "use_inverse", &iflags.wc_inverse, FALSE, SET_IN_GAME }, /*WC*/
 #endif
+    { "use_menu_glyphs", &iflags.use_menu_glyphs, TRUE, SET_IN_GAME }, /*WC2*/
     { "verbose", &flags.verbose, TRUE, SET_IN_GAME },
 #ifdef TTY_TILES_ESCCODES
     { "vt_tiledata", &iflags.vt_tiledata, FALSE, SET_IN_FILE },
@@ -4373,6 +4374,7 @@ boolean tinitial, tfrom_file;
                 }
 #endif
             } else if (boolopt[i].addr == &iflags.use_menu_color
+                       || boolopt[i].addr == &iflags.use_menu_glyphs
                        || boolopt[i].addr == &iflags.wc2_guicolor) {
                 update_inventory();
 #endif /* TEXTCOLOR */
@@ -6918,6 +6920,7 @@ static struct wc_Opt wc2_options[] = {
     { "guicolor", WC2_GUICOLOR },
     { "statuslines", WC2_STATUSLINES },
     { "windowborders", WC2_WINDOWBORDERS },
+    { "use_menu_glyphs", WC2_MENU_GLYPHS },
     { (char *) 0, 0L }
 };
 

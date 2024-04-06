@@ -1031,10 +1031,8 @@ menu_win_size(nhmenu *menu)
         } else {
             /* Add space for accelerator (selector letter) */
             curentrywidth += 4;
-#if 0 /* FIXME: menu glyphs */
             if (menu_item_ptr->glyph != NO_GLYPH && iflags.use_menu_glyphs)
                 curentrywidth += 2;
-#endif
         }
         if (curentrywidth > maxentrywidth) {
             maxentrywidth = curentrywidth;
@@ -1172,8 +1170,6 @@ menu_display_page(nhmenu *menu, WINDOW * win, int page_num, char *selectors)
             entry_cols -= 4;
             start_col += 4;
         }
-#if 0
-        /* FIXME: menuglyphs not implemented yet */
         if (menu_item_ptr->glyph != NO_GLYPH && iflags.use_menu_glyphs) {
             unsigned special;  /*notused */
 
@@ -1185,7 +1181,6 @@ menu_display_page(nhmenu *menu, WINDOW * win, int page_num, char *selectors)
             entry_cols -= 2;
             start_col += 2;
         }
-#endif
         color = NONE;
         menu_color = iflags.use_menu_color
                      && get_menu_coloring(menu_item_ptr->str, &color, &attr);

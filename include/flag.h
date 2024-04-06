@@ -324,6 +324,7 @@ struct instance_flags {
     boolean toptenwin;        /* ending list in window instead of stdout */
     boolean use_background_glyph; /* use background glyph when appropriate */
     boolean use_menu_color;   /* use color in menus; only if wc_color */
+    boolean use_menu_glyphs;  /* use glyphs in menus */
 #ifdef STATUS_HILITES
     long hilite_delta;     /* number of moves to leave a temp hilite lit */
     long unhilite_deadline; /* time when oldest temp hilite should be unlit */

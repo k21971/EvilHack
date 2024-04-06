@@ -3373,4 +3373,5 @@ The following changes to date are:
 - Revert: artifact rings have a fixed material
 - Fix: artifact rings have a fixed material, take two
 - Minor monster color changes
+- Add object menu glyphs to inventory in curses mode
 

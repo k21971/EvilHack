@@ -118,21 +118,17 @@ curses_add_inv(int y,
         else if (!strncmpi(str, "the ", 4))
             stroffset = 4;
     }
-#if 0 /* FIXME: MENU GLYPHS */
     if (accelerator && glyph != NO_GLYPH && iflags.use_menu_glyphs) {
         unsigned dummy = 0; /* Not used */
-        int color = 0;
+        int glyph_color = 0;
         int symbol = 0;
-        attr_t glyphclr;
 
-        mapglyph(glyph, &symbol, &color, &dummy, u.ux, u.uy, 0);
-        glyphclr = curses_color_attr(color, 0);
-        wattron(win, glyphclr);
+        mapglyph(glyph, &symbol, &glyph_color, &dummy, u.ux, u.uy, 0);
+        curses_toggle_color_attr(win, glyph_color, A_NORMAL, ON);
         wprintw(win, "%c ", symbol);
-        wattroff(win, glyphclr);
+        curses_toggle_color_attr(win, glyph_color, A_NORMAL, OFF);
         available_width -= 2;
     }
-#endif
     if (accelerator /* Don't colorize categories */
         && iflags.use_menu_color) {
         attr = 0;
