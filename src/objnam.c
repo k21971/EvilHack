@@ -235,6 +235,9 @@ register int otyp;
     if (nn) {
         if (ocl->oc_unique)
             Strcpy(buf, actualn); /* avoid spellbook of Book of the Dead */
+        else if (otyp == RIN_ANCIENT || otyp == RIN_LUSTROUS)
+        /* also special-case artifact rings */
+            Sprintf(buf, "%s ring", actualn);
         else
             Sprintf(eos(buf), " of %s", actualn);
     }
@@ -975,8 +978,12 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     case RING_CLASS:
         if (!dknown)
             Strcpy(buf, "ring");
-        else if (nn)
-            Sprintf(eos(buf), "ring of %s", actualn);
+        else if (nn) {
+            if (typ != RIN_ANCIENT && typ != RIN_LUSTROUS)
+                Sprintf(eos(buf), "ring of %s", actualn);
+            else
+                Sprintf(eos(buf), "%s ring", actualn);
+        }
         else if (un)
             xcalled(buf, BUFSZ - PREFIX, "ring", un);
         else
