@@ -3376,4 +3376,5 @@ The following changes to date are:
 - Add object menu glyphs to inventory in curses mode
 - Fix: names of new ring types when type is known
 - Proper encyclopedia entries/lookup for the artifact rings
+- Fix: Convicts felt guilty when encountering the guard from a gold vault
 
