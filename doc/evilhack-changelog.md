@@ -3378,4 +3378,5 @@ The following changes to date are:
 - Proper encyclopedia entries/lookup for the artifact rings
 - Fix: Convicts felt guilty when encountering the guard from a gold vault
 - Hobbit pickpockets are always hostile
+- Fix: monster casting summon minion against another monster
 

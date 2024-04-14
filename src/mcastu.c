@@ -2364,6 +2364,12 @@ int spellnum;
             return;
         }
 
+        /* monster vs monster is suppressed, as summon_minion()
+           currently does not support anything but the player
+           as a target */
+        if (!yours)
+            return;
+
         aligntype = yours ? u.ualign.type : mon_aligntyp(mattk);
         minion = summon_minion(aligntype, FALSE);
         if (minion && canspotmon(minion))
@@ -2620,8 +2626,7 @@ int spellnum;
             shieldeff(mtmp->mx, mtmp->my);
             dmg = (dmg + 1) / 2;
         }
-        /* not canseemon; if you can't see it you don't know it was wounded */
-        if (yours) {
+        if (yours || canseemon(mtmp)) {
             if (dmg <= 5)
                 pline("%s looks itchy!", Monnam(mtmp));
             else if (dmg <= 10)
