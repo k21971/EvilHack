@@ -3376,3 +3376,4 @@ The following changes to date are:
 - Add object menu glyphs to inventory in curses mode
 - Fix: names of new ring types when type is known
 - Fix: spec_applies didn't consider if target was underwater
+- Fix: monster priests shouldn't wield edged weapons either

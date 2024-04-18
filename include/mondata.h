@@ -311,6 +311,10 @@
 #define is_rogue(ptr) \
     ((ptr) == &mons[PM_ROGUE] \
      || (ptr) == &mons[PM_HOBBIT_PICKPOCKET] || (ptr) == &mons[PM_GOLLUM])
+#define is_priest(ptr) \
+    ((ptr) == &mons[PM_PRIEST] || (ptr) == &mons[PM_PRIESTESS]           \
+     || (ptr) == &mons[PM_HIGH_PRIEST] || (ptr) == &mons[PM_ARCH_PRIEST] \
+     || (ptr) == &mons[PM_ACOLYTE] || (ptr) == &mons[PM_ALIGNED_PRIEST])
 #define is_male(ptr) (((ptr)->mflags2 & M2_MALE) != 0L)
 #define is_female(ptr) (((ptr)->mflags2 & M2_FEMALE) != 0L)
 #define is_neuter(ptr) (((ptr)->mflags2 & M2_NEUTER) != 0L)

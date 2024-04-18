@@ -810,6 +810,10 @@ int x;
                  && !touch_petrifies(&mons[otmp->corpsenm]))
             /* never select a weapon made of a hated material */
             && !mon_hates_material(mtmp, otmp->material)
+            && !(is_priest(mtmp->data)
+                 && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
+                     && (is_pierce(otmp) || is_slash(otmp)
+                         || (is_launcher(otmp) && !(otmp->otyp == SLING))))
             && (!otmp->oartifact || touch_artifact(otmp, mtmp))) {
        	        if (!obest || dmgval(otmp, &youmonst) > dmgval(obest, &youmonst))
                     obest = otmp;
@@ -858,15 +862,12 @@ struct obj *otmp;
             return TRUE;
     }
 
-    if (((strongmonst(mtmp->data) && (mtmp->misc_worn_check & W_ARMS) == 0)
-	  || !objects[pwep[i]].oc_bimanual)
-        && (objects[pwep[i]].oc_material != SILVER
- 	    || !mon_hates_material(mtmp, otmp->material))) {
+    if (strongmonst(mtmp->data) && (mtmp->misc_worn_check & W_ARMS) == 0) {
         for (i = 0; i < SIZE(pwep); i++) {
             if (wep && wep->otyp == pwep[i]
                 && !(otmp->otyp == pwep[i]
-	        && dmgval(otmp, &youmonst) > dmgval(wep, &youmonst)))
-	        return FALSE;
+            && dmgval(otmp, &youmonst) > dmgval(wep, &youmonst)))
+            return FALSE;
             if (otmp->otyp == pwep[i])
                 return TRUE;
         }
