@@ -1251,8 +1251,9 @@ struct monst *mtmp;
     {
         switch (weap->attk.adtyp) {
         case AD_FIRE:
-            applies += !(!yours ? resists_fire(mtmp)
-                                : (how_resistant(FIRE_RES) > 99) ? TRUE : FALSE);
+            applies += !(!yours ? (resists_fire(mtmp) || mon_underwater(mtmp))
+                                : ((how_resistant(FIRE_RES) > 99)
+                                   || Underwater) ? TRUE : FALSE);
             break;
         case AD_COLD:
             applies += !(!yours ? resists_cold(mtmp)
@@ -1280,7 +1281,8 @@ struct monst *mtmp;
             applies += !(yours ? Stone_resistance : resists_ston(mtmp));
             break;
         case AD_ACID:
-            applies += !(yours ? Acid_resistance : resists_acid(mtmp));
+            applies += !(yours ? (Acid_resistance || Underwater)
+                               : (resists_acid(mtmp) || mon_underwater(mtmp)));
             break;
         case AD_DISE:
             applies += !(yours ? Sick_resistance : resists_sick(ptr));
@@ -1292,8 +1294,11 @@ struct monst *mtmp;
             applies += !(yours ? Disint_resistance : resists_disint(mtmp));
             break;
         case AD_FUSE:
-            applies += !(!yours ? (resists_fire(mtmp) && resists_cold(mtmp))
-                                : ((how_resistant(FIRE_RES) > 99) && (how_resistant(COLD_RES) > 99))
+            applies += !(!yours ? ((resists_fire(mtmp) || mon_underwater(mtmp)
+                                    || defended(mtmp, AD_FIRE))
+                                   && (resists_cold(mtmp) || defended(mtmp, AD_COLD)))
+                                : (((how_resistant(FIRE_RES) > 99) || Underwater)
+                                   && (how_resistant(COLD_RES) > 99))
                                   ? TRUE : FALSE);
             break;
         default:
@@ -1418,8 +1423,9 @@ int tmp;
         /* damage bonus doubles if Dichotomy hits a target that resists
            neither fire or cold */
         if (otmp->oartifact == ART_DICHOTOMY
-            && (yours ? (!Fire_resistance && !Cold_resistance)
-                      : (!(resists_fire(mon) || defended(mon, AD_FIRE))
+            && (yours ? (!(Fire_resistance || Underwater) && !Cold_resistance)
+                      : (!(resists_fire(mon) || defended(mon, AD_FIRE)
+                           || mon_underwater(mon))
                          && !(resists_cold(mon) || defended(mon, AD_COLD)))))
             dbon = (2 * dbon) + 1;
         /* hellfire is mitigated by fire resistance */

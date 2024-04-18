@@ -3375,3 +3375,4 @@ The following changes to date are:
 - Minor monster color changes
 - Add object menu glyphs to inventory in curses mode
 - Fix: names of new ring types when type is known
+- Fix: spec_applies didn't consider if target was underwater
