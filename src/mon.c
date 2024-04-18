@@ -4818,7 +4818,8 @@ boolean via_attack;
                     adjalign(2);
                 }
             } else {
-                if (u.ualign.type != A_NONE) { /* Infidels are supposed to be bad */
+                /* Infidels and Convicts don't feel guilt from this */
+                if (!(u.ualign.type == A_NONE || Role_if(PM_CONVICT))) {
                     if (canspotmon(mtmp))
                         You_feel("guilty.");
                     else

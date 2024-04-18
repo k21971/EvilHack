@@ -3375,5 +3375,11 @@ The following changes to date are:
 - Minor monster color changes
 - Add object menu glyphs to inventory in curses mode
 - Fix: names of new ring types when type is known
+- Proper encyclopedia entries/lookup for the artifact rings
+- Fix: Convicts felt guilty when encountering the guard from a gold vault
+- Hobbit pickpockets are always hostile
+- Fix: monster casting summon minion against another monster
+
+
 - Fix: spec_applies didn't consider if target was underwater
 - Fix: monster priests shouldn't wield edged weapons either
