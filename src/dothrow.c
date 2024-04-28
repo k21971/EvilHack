@@ -1419,7 +1419,11 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             if (obj->owornmask & W_QUIVER) /* in case addinv() autoquivered */
                 setuqwep((struct obj *) 0);
             setuwep(obj);
-            u.twoweap = twoweap;
+            if (twoweap) {
+                u.twoweap = 1;
+                setuswapwep(uswapwep);
+                update_inventory();
+            }
             if (artifact_light(obj) && !obj->lamplit) {
                 begin_burn(obj, FALSE);
                 if (!Blind)
@@ -1450,8 +1454,11 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             (void) encumber_msg();
             if (wep_mask && !(obj->owornmask & wep_mask)) {
                 setworn(obj, wep_mask);
-                /* moot; can no longer two-weapon with missile(s) */
-                u.twoweap = twoweap;
+                if (twoweap) {
+                    u.twoweap = 1;
+                    setuswapwep(uswapwep);
+                    update_inventory();
+                }
             }
             clear_thrownobj = TRUE;
             goto throwit_return;
@@ -1635,7 +1642,11 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                     if (obj->owornmask & W_QUIVER)
                         setuqwep((struct obj *) 0);
                     setuwep(obj);
-                    u.twoweap = twoweap;
+                    if (twoweap) {
+                        u.twoweap = 1;
+                        setuswapwep(uswapwep);
+                        update_inventory();
+                    }
                     retouch_object(&obj, !uarmg, TRUE);
                     if (artifact_light(obj) && !obj->lamplit) {
                         begin_burn(obj, FALSE);

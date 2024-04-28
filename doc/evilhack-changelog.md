@@ -3381,3 +3381,4 @@ The following changes to date are:
 - Fix: monster casting summon minion against another monster
 - Fix: spec_applies didn't consider if target was underwater
 - Fix: monster priests shouldn't wield edged weapons either
+- Fix: reactivate offhand weapon intrinsics when catching a returning weapon
