@@ -2714,7 +2714,8 @@ struct monst *magr, *mdef;
         return ALLOW_M | ALLOW_TM;
 
     /* Nazgul vs hobbits */
-    if (ma == &mons[PM_NAZGUL] && racial_hobbit(mdef))
+    if (ma == &mons[PM_NAZGUL]
+        && (racial_hobbit(mdef) && !is_undead(md)))
         return ALLOW_M | ALLOW_TM;
 
     /* bees and honey badgers don't play nice */
