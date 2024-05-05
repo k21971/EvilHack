@@ -1130,10 +1130,10 @@ boolean artif;
                 && (moves <= 1 || In_quest(&u.uz))) {
 #ifdef UNIXPC
                 /* optimizer bitfield bug */
-                maybe_erodeproof(otmp, 1);
+                otmp->oerodeproof = 1;
                 otmp->rknown = 1;
 #else
-                maybe_erodeproof(otmp, otmp->rknown = 1);
+                otmp->oerodeproof = otmp->rknown = 1;
 #endif
             }
             /* since it's fairly easy for objects to erode/burn
@@ -1143,10 +1143,10 @@ boolean artif;
                 && (moves <= 1)) {
 #ifdef UNIXPC
                 /* optimizer bitfield bug */
-                maybe_erodeproof(otmp, 1);
+                otmp->oerodeproof = 1;
                 otmp->rknown = 1;
 #else
-                maybe_erodeproof(otmp, otmp->rknown = 1);
+                otmp->oerodeproof = otmp->rknown = 1;
 #endif
             }
             break;

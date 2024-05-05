@@ -3382,3 +3382,4 @@ The following changes to date are:
 - Fix: spec_applies didn't consider if target was underwater
 - Fix: monster priests shouldn't wield edged weapons either
 - Fix: reactivate offhand weapon intrinsics when catching a returning weapon
+- Fix: samurai splint mails were not always rustproof
