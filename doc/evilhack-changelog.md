@@ -3384,4 +3384,5 @@ The following changes to date are:
 - Fix: reactivate offhand weapon intrinsics when catching a returning weapon
 - Fix: samurai splint mails were not always rustproof
 - Fix: prevent Nazgul from attacking undead hobbit types
+- Fix: Monks incurring to-hit penalty when wearing bracers (martial arts)
 

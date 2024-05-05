@@ -199,7 +199,7 @@ botl_hitbonus()
     if (Role_if(PM_MONK) && !Upolyd) {
         if (uarm)
             tmp -= urole.spelarmr + 20;
-        else if (!uwep && !uarms)
+        else if (!uwep && (!uarms || is_bracer(uarms)))
             tmp += (u.ulevel / 3) + 2;
     }
 
