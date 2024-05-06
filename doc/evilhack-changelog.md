@@ -3385,4 +3385,5 @@ The following changes to date are:
 - Fix: samurai splint mails were not always rustproof
 - Fix: prevent Nazgul from attacking undead hobbit types
 - Fix: Monks incurring to-hit penalty when wearing bracers (martial arts)
+- Fix: Kathryn the Enchantress and 'summon insects' spell
 

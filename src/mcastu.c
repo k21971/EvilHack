@@ -254,7 +254,8 @@ int spellnum;
         if ((is_demon(mtmp->data)
              && mtmp->data != &mons[PM_LOLTH])
             || mtmp->mtame || mtmp->mpeaceful
-            || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+            || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
             return CLC_VULN_YOU;
         else
             return CLC_INSECTS;
