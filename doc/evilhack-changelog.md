@@ -3385,5 +3385,6 @@ The following changes to date are:
 - Fix: Kathryn the Enchantress and 'summon insects' spell
 - Revert Druid role
 - Re-add regular bracers, minor bug fixes from initial Druid commit
-- Re-add encycopedia and guidebook entries (bracers, existing roles)
+- Re-add encyclopedia and guidebook entries (bracers, existing roles)
+- 'Deslog' the first wizard's tower level
 

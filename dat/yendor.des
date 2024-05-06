@@ -251,11 +251,11 @@ GEOMETRY:center,center
 MAP
 ...TTT..T.......}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}.....t....TTT
 ............t..}}---------------------------------------------}}...TTT.....T
-..........}}}}}}}|....|..............|...|..............|....|}}}}}}}T......
-..........}--FF--|....|..............|...|..............|....|--FF--}.......
-.....T....}|...|-|....|..............-----..............|....|-|...|}.......
-..........}F...|......|.................................|......|...F}.TT....
-..........}|...|......|.................................|......|...|}.......
+..........}}}}}}}|....|L...LL.....LLL|...|LLLLL....L...L|....|}}}}}}}T......
+..........}--FF--|....|LL.L...LL....L|...|LLL....L...L.L|....|--FF--}.......
+.....T....}|...|-|....|LL...L....L..L-----L...LL.....LLL|....|-|...|}.......
+..........}F...|......|LL......LL...LLLLLLL.........LL.L|......|...F}.TT....
+..........}|...|......|L...LLL....LLL...L.....LLLL.....L|......|...|}.......
 .TT.......}|...|--S-----------------------------------------S--|...|}....T..
 ..T.......}F...|..........|.......|.........|.......|..........|...F}....T..
 ..........}F...|..........|.......|...T.T...|.......|..........|...F}...t...
@@ -294,7 +294,7 @@ MONSTER:'D',$place[6],hostile
 MONSTER:'e',$place[7],hostile
 
 # player monster barbarian
-MONSTER:('@',"barbarian"),(67,01),hostile
+MONSTER:('@',"barbarian"),(66,01),hostile
 
 # moat
 MONSTER:(';',"kraken"),(10,02)
@@ -378,8 +378,34 @@ MONSTER:('@',"soldier"),(56,11)
 MONSTER:('@',"sergeant"),(59,09)
 MONSTER:('@',"soldier"),(59,11)
 
-# zoo
-REGION:(23,02,36,06),unlit,"zoo",filled,irregular
+# lava room
+$lava = { (23,02),(26,02),(30,02),(34,02),
+          (43,02),(46,02),(51,02),(54,02),
+          (24,04),(32,04),(44,04),(49,04),
+          (23,06),(27,06),(32,06),(36,06),
+          (42,06),(48,06),(53,06),(55,06) }
+SHUFFLE: $lava
+
+MONSTER:('D',"red dragon"),$lava[0],hostile
+MONSTER:('D',"red dragon"),$lava[1],hostile
+MONSTER:('&',"lava demon"),$lava[2],hostile
+MONSTER:('&',"lava demon"),$lava[3],hostile
+MONSTER:('e',"flaming sphere"),$lava[4],hostile
+MONSTER:('e',"flaming sphere"),$lava[5],hostile
+MONSTER:(':',"salamander"),$lava[6],hostile
+MONSTER:(':',"salamander"),$lava[7],hostile
+MONSTER:(':',"salamander"),$lava[8],hostile
+MONSTER:(':',"salamander"),$lava[9],hostile
+MONSTER:(':',"salamander"),$lava[10],hostile
+MONSTER:(':',"salamander"),$lava[11],hostile
+MONSTER:('E',"fire elemental"),$lava[12],hostile
+MONSTER:('E',"fire elemental"),$lava[13],hostile
+MONSTER:('&',"balrog"),$lava[14],hostile
+MONSTER:('&',"balrog"),$lava[15],hostile
+MONSTER:('&',"pit fiend"),$lava[16],hostile
+MONSTER:('&',"pit fiend"),$lava[17],hostile
+MONSTER:('&',"barbed devil"),$lava[18],hostile
+MONSTER:('&',"barbed devil"),$lava[19],hostile
 
 # foyer
 MONSTER:('&',"marilith"),(36,14),awake {
