@@ -302,9 +302,6 @@ makedog()
     } else if (!*petname && pettype == PM_LESSER_HOMUNCULUS) {
         if (Role_if(PM_INFIDEL))
             petname = "Hecubus"; /* The Kids in the Hall */
-    } else if (!*petname && pettype == PM_HAWK) {
-        if (Role_if(PM_DRUID))
-            petname = "Bobo"; /* Viva La Dirt League */
     }
 
     mtmp = makemon(&mons[pettype], u.ux, u.uy, MM_EDOG);
