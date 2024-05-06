@@ -1313,7 +1313,6 @@
 				"$(NH_DAT_DIR)/Barb.des",
 				"$(NH_DAT_DIR)/Caveman.des",
 				"$(NH_DAT_DIR)/Convict.des",
-				"$(NH_DAT_DIR)/Druid.des",
 				"$(NH_DAT_DIR)/Healer.des",
 				"$(NH_DAT_DIR)/Infidel.des",
 				"$(NH_DAT_DIR)/Knight.des",
@@ -1334,7 +1333,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/lev_comp Arch.des\n${NH_UTIL_DIR}/lev_comp Barb.des\n${NH_UTIL_DIR}/lev_comp Caveman.des\n${NH_UTIL_DIR}/lev_comp  Convict.des\n${NH_UTIL_DIR}/lev_comp Druid.des\n${NH_UTIL_DIR}/lev_comp Healer.des\n${NH_UTIL_DIR}/lev_comp Infidel.des\n${NH_UTIL_DIR}/lev_comp Knight.des\n${NH_UTIL_DIR}/lev_comp Monk.des\n${NH_UTIL_DIR}/lev_comp Priest.des\n${NH_UTIL_DIR}/lev_comp Ranger.des\n${NH_UTIL_DIR}/lev_comp Rogue.des\n${NH_UTIL_DIR}/lev_comp Samurai.des\n${NH_UTIL_DIR}/lev_comp Tourist.des\n${NH_UTIL_DIR}/lev_comp Valkyrie.des\n${NH_UTIL_DIR}/lev_comp Wizard.des\ntouch quest_levs\n";
+			shellScript = "cd ${NH_DAT_DIR}\n${NH_UTIL_DIR}/lev_comp Arch.des\n${NH_UTIL_DIR}/lev_comp Barb.des\n${NH_UTIL_DIR}/lev_comp Caveman.des\n${NH_UTIL_DIR}/lev_comp  Convict.des\n${NH_UTIL_DIR}/lev_comp Healer.des\n${NH_UTIL_DIR}/lev_comp Infidel.des\n${NH_UTIL_DIR}/lev_comp Knight.des\n${NH_UTIL_DIR}/lev_comp Monk.des\n${NH_UTIL_DIR}/lev_comp Priest.des\n${NH_UTIL_DIR}/lev_comp Ranger.des\n${NH_UTIL_DIR}/lev_comp Rogue.des\n${NH_UTIL_DIR}/lev_comp Samurai.des\n${NH_UTIL_DIR}/lev_comp Tourist.des\n${NH_UTIL_DIR}/lev_comp Valkyrie.des\n${NH_UTIL_DIR}/lev_comp Wizard.des\ntouch quest_levs\n";
 		};
 		317E7C4E21A3697300F6E4E5 /* Build options and headers */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1478,11 +1477,6 @@
 				"$(NH_DAT_DIR)/Con-goal.lev",
 				"$(NH_DAT_DIR)/Con-loca.lev",
 				"$(NH_DAT_DIR)/Con-strt.lev",
-				"$(NH_DAT_DIR)/Dru-fila.lev",
-				"$(NH_DAT_DIR)/Dru-filb.lev",
-				"$(NH_DAT_DIR)/Dru-goal.lev",
-				"$(NH_DAT_DIR)/Dru-loca.lev",
-				"$(NH_DAT_DIR)/Dru-strt.lev",
 				"$(NH_DAT_DIR)/Hea-fila.lev",
 				"$(NH_DAT_DIR)/Hea-filb.lev",
 				"$(NH_DAT_DIR)/Hea-goal.lev",

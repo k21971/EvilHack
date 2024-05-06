@@ -3346,7 +3346,6 @@ The following changes to date are:
 - Fix: follow up to crash when examining discoveries with '`' in certain cases
 - Adjust auto-recovery feedback
 - Fix: Amulets could burn your skin but then allow you to regenerate
-- New player role: Druid (initial commit)
 - Fix: Peaceful demon lords won't follow you across levels
 - Add regular bracers as a forge recipe
 - Ammo created by the Ranger quest artifact is fully identified

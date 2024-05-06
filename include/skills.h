@@ -55,15 +55,14 @@ enum p_skills {
     P_CLERIC_SPELL       = 30,
     P_ESCAPE_SPELL       = 31,
     P_MATTER_SPELL       = 32,
-    P_EVOCATION_SPELL    = 33,
 
     /* Other types of combat */
-    P_BARE_HANDED_COMBAT = 34, /* actually weaponless; gloves are ok */
-    P_TWO_WEAPON_COMBAT  = 35, /* pair of weapons, one in each hand */
-    P_SHIELD             = 36, /* How well you use a shield */
-    P_RIDING             = 37, /* How well you control your steed */
+    P_BARE_HANDED_COMBAT = 33, /* actually weaponless; gloves are ok */
+    P_TWO_WEAPON_COMBAT  = 34, /* pair of weapons, one in each hand */
+    P_SHIELD             = 35, /* How well you use a shield */
+    P_RIDING             = 36, /* How well you control your steed */
 
-    P_NUM_SKILLS         = 38
+    P_NUM_SKILLS         = 37
 };
 
 #define P_MARTIAL_ARTS P_BARE_HANDED_COMBAT /* Role distinguishes */
@@ -73,7 +72,7 @@ enum p_skills {
 #define P_LAST_WEAPON P_UNICORN_HORN
 
 #define P_FIRST_SPELL P_ATTACK_SPELL
-#define P_LAST_SPELL P_EVOCATION_SPELL
+#define P_LAST_SPELL P_MATTER_SPELL
 
 #define P_LAST_H_TO_H P_RIDING
 #define P_FIRST_H_TO_H P_BARE_HANDED_COMBAT

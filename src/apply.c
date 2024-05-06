@@ -2195,7 +2195,7 @@ struct obj *obj;
             break;
         case 6:
             if (Slow)
-                goto end; /* unicorn horns don't cure being slow */
+            goto end; /* unicorn horns don't cure being slow */
             break;
         case 7:
             if (Deaf) /* make_deaf() won't give feedback when already deaf */

@@ -187,7 +187,6 @@ boolean check_if_better, stashing;
              || otmp->otyp == DRUM_OF_EARTHQUAKE
              || otmp->otyp == FIGURINE
              || otmp->otyp == EUCALYPTUS_LEAF
-             || otmp->otyp == MISTLETOE
              || otmp->otyp == UNICORN_HORN
              || cures_stoning(mtmp, otmp, FALSE)));
 

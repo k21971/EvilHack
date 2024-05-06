@@ -5,7 +5,7 @@
 #ifndef QTEXT_H
 #define QTEXT_H
 
-#define N_HDR 19 /* Maximum number of categories */
+#define N_HDR 18 /* Maximum number of categories */
 /* (i.e., num roles + 1) */
 #define LEN_HDR 3 /* Maximum length of a category name */
 

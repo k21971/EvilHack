@@ -853,8 +853,6 @@ Shield_on(VOID_ARGS)
     switch (uarms->otyp) {
     case SMALL_SHIELD:
     case ELVEN_SHIELD:
-    case BRACERS:
-    case RUNED_BRACERS:
     case DARK_ELVEN_BRACERS:
     case URUK_HAI_SHIELD:
     case ORCISH_SHIELD:
@@ -891,8 +889,6 @@ Shield_off(VOID_ARGS)
     switch (otmp->otyp) {
     case SMALL_SHIELD:
     case ELVEN_SHIELD:
-    case BRACERS:
-    case RUNED_BRACERS:
     case DARK_ELVEN_BRACERS:
     case URUK_HAI_SHIELD:
     case ORCISH_SHIELD:
@@ -2926,15 +2922,6 @@ find_ac()
             uac -= 7;
         else
             uac -= 5;
-    }
-    if (uarms && uarms->oartifact == ART_BRACERS_OF_THE_FIRST_CIRCL) {
-        /* the Druid quest artifact grants extra AC on top of
-           what its base material provides. Moreso if the
-           wearer is actually a Druid */
-        if (Role_if(PM_DRUID))
-            uac -= 6;
-        else
-            uac -= 3;
     }
     if (uarm
         && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION)

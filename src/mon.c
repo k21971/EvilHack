@@ -454,9 +454,6 @@ int mndx, mode;
     case PM_INMATE:
         mndx = mode ? PM_CONVICT : PM_HUMAN;
         break;
-    case PM_ASPIRANT:
-        mndx = mode ? PM_DRUID : PM_HUMAN;
-        break;
     case PM_ATTENDANT:
         mndx = mode ? PM_HEALER : PM_HUMAN;
         break;
@@ -6520,10 +6517,6 @@ short mndx;
             (MH_DWARF | MH_ORC | MH_GNOME | MH_HOBBIT | MH_ILLITHID
              | MH_DROW);
         break;
-    case PM_DRUID:
-        permitted |=
-            (MH_ELF | MH_HOBBIT | MH_CENTAUR | MH_TORTLE);
-        break;
     case PM_HEALER:
         permitted |=
             (MH_DWARF | MH_ELF | MH_GNOME | MH_HOBBIT | MH_CENTAUR
@@ -6652,8 +6645,7 @@ short raceidx;
     case PM_ELF:
         if (mtmp->mnum == PM_INFIDEL)
             rptr->ralign = -128;
-        if (mtmp->mnum == PM_HEALER
-            || mtmp->mnum == PM_DRUID)
+        if (mtmp->mnum == PM_HEALER)
             rptr->ralign = 0;
         if (mtmp->mnum == PM_KNIGHT)
             rptr->ralign = -3;
@@ -6731,8 +6723,7 @@ short raceidx;
         if (mtmp->mnum == PM_INFIDEL)
             rptr->ralign = -128;
         if (mtmp->mnum == PM_HEALER
-            || mtmp->mnum == PM_VALKYRIE
-            || mtmp->mnum == PM_DRUID)
+            || mtmp->mnum == PM_VALKYRIE)
             rptr->ralign = 0;
         if (mtmp->mnum == PM_BARBARIAN
             || mtmp->mnum == PM_MONK

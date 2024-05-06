@@ -33,7 +33,6 @@ STATIC_DCL void FDECL(skill_advance, (int));
 #define PN_CLERIC_SPELL (-13)
 #define PN_ESCAPE_SPELL (-14)
 #define PN_MATTER_SPELL (-15)
-#define PN_EVOCATION_SPELL (-16)
 
 STATIC_VAR NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     /* Weapon */
@@ -43,8 +42,7 @@ STATIC_VAR NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     BOOMERANG, PN_WHIP, UNICORN_HORN,
     /* Spell */
     PN_ATTACK_SPELL, PN_HEALING_SPELL, PN_DIVINATION_SPELL,
-    PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL,
-    PN_MATTER_SPELL, PN_EVOCATION_SPELL,
+    PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL, PN_MATTER_SPELL,
     /* Other */
     PN_BARE_HANDED, PN_TWO_WEAPONS, PN_SHIELD, PN_RIDING
 };
@@ -55,7 +53,6 @@ STATIC_VAR NEARDATA const char *const odd_skill_names[] = {
     "two weapon combat", "shield", "riding", "polearms", "saber", "hammer",
     "whip", "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
-    "evocation spells",
 };
 /* indexed vis rogue/convict role ? 2 : is_martial() */
 STATIC_VAR NEARDATA const char *const barehands_or_martial[] = {
@@ -2226,9 +2223,7 @@ const struct def_skill *class_skill;
     }
 
     /* set skills for magic */
-    if (Role_if(PM_DRUID)) {
-        P_SKILL(P_EVOCATION_SPELL) = P_BASIC;
-    } else if (Role_if(PM_HEALER) || Role_if(PM_MONK)) {
+    if (Role_if(PM_HEALER) || Role_if(PM_MONK)) {
         P_SKILL(P_HEALING_SPELL) = P_BASIC;
     } else if (Role_if(PM_INFIDEL)) {
         P_SKILL(P_ATTACK_SPELL) = P_BASIC;

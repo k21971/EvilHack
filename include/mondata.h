@@ -264,10 +264,6 @@
     ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
      || (ptr) == &mons[PM_VAMPIRE_BAT])
 #define is_bird(ptr) ((ptr)->mlet == S_BAT && !is_bat(ptr))
-#define is_hawk(ptr) \
-    ((ptr) == &mons[PM_HAWK]           \
-     || (ptr) == &mons[PM_LARGE_HAWK]  \
-     || (ptr) == &mons[PM_GIANT_HAWK])
 #define has_beak(ptr) \
     (is_bird(ptr) || (ptr) == &mons[PM_TENGU] \
      || (ptr) == &mons[PM_VROCK]              \
@@ -586,7 +582,6 @@
      ? (obj)->otyp == BANANA                                                 \
      : ((is_domestic(ptr)                                                    \
          || (is_rat(ptr) && Role_if(PM_CONVICT))                             \
-         || (is_hawk(ptr) && Role_if(PM_DRUID))                              \
          || (((is_spider(ptr) && (ptr) != &mons[PM_DRIDER])                  \
              || is_cavelizard(ptr)) && Race_if(PM_DROW))                     \
          || ((ptr) == &mons[PM_WARG] && Race_if(PM_ORC))                     \
