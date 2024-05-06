@@ -3383,4 +3383,6 @@ The following changes to date are:
 - Fix: prevent Nazgul from attacking undead hobbit types
 - Fix: Monks incurring to-hit penalty when wearing bracers (martial arts)
 - Fix: Kathryn the Enchantress and 'summon insects' spell
+- Revert Druid role
+- Re-add regular bracers, minor bug fixes from initial Druid commit
 

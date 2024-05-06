@@ -2398,15 +2398,6 @@ boolean tinitial, tfrom_file;
         return retval;
     }
 
-    fullname = "ratname";
-    if (match_optname(opts, fullname, 3, TRUE)) {
-        if (negated)
-            bad_negation(fullname, FALSE);
-        else if ((op = string_for_env_opt(fullname, opts, FALSE)) != 0)
-            nmcpy(ratname, op, PL_PSIZ);
-        return retval;
-    }
-
     fullname = "number_pad";
     if (match_optname(opts, fullname, 10, TRUE)) {
         boolean compat = (strlen(opts) <= 10);

@@ -1028,10 +1028,11 @@ u_init()
         break;
 
     case PM_TORTLE:
-        if (!rn2(4)
-            && !Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_ROGUE)) {
-            /* in case they want to go for a swim */
-            ini_inv(Oilskin);
+        if (!Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_ROGUE)) {
+            if (!rn2(4)) {
+                /* in case they want to go for a swim */
+                ini_inv(Oilskin);
+            }
         }
         break;
 
@@ -1690,6 +1691,8 @@ register struct trobj *origtrop;
                 u.twoweap = FALSE;
             } else if (is_helmet(obj) && !uarmh)
                 setworn(obj, W_ARMH);
+            else if (is_bracer(obj) && !uarms)
+                setworn(obj, W_ARMS);
             else if (is_gloves(obj) && !uarmg)
                 setworn(obj, W_ARMG);
             else if (is_shirt(obj) && !uarmu)

@@ -2596,7 +2596,12 @@ char *origbuf;
         (void) strncpy(catname, bufp, PL_PSIZ - 1);
     } else if (match_varname(buf, "RATNAME", 3)) {
         (void) strncpy(ratname, bufp, PL_PSIZ - 1);
-
+    } else if (match_varname(buf, "PSEUDONAME", 6)) {
+        (void) strncpy(pseudoname, bufp, PL_PSIZ - 1);
+    } else if (match_varname(buf, "HOMUNNAME", 5)) {
+        (void) strncpy(homunname, bufp, PL_PSIZ - 1);
+    } else if (match_varname(buf, "SPIDERNAME", 6)) {
+        (void) strncpy(spidername, bufp, PL_PSIZ - 1);
 #ifdef SYSCF
     } else if (src == SET_IN_SYS && match_varname(buf, "WIZARDS", 7)) {
         if (sysopt.wizards)

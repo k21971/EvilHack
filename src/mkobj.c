@@ -3509,6 +3509,19 @@ static const struct icp sling_bullet_materials[] = {
     { 10, PLATINUM}
 };
 
+static const struct icp bracers_materials[] = {
+    {500, LEATHER},
+    {200, IRON},
+    {100, BONE},
+    { 50, MINERAL},
+    { 50, METAL},
+    { 30, MITHRIL},
+    { 20, SILVER},
+    { 20, COPPER},
+    { 20, GOLD},
+    { 10, DRAGON_HIDE}
+};
+
 /* Return the appropriate above list for a given object, or NULL if there isn't
  * an appropriate list. */
 const struct icp*
@@ -3634,6 +3647,8 @@ struct obj* obj;
             return rod_materials;
         case SLING_BULLET:
             return sling_bullet_materials;
+        case BRACERS:
+            return bracers_materials;
         default:
             break;
     }

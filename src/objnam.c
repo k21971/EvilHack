@@ -609,7 +609,7 @@ struct obj *obj;
  * identification status */
 #define force_material_name(typ) \
     ((typ) == ARMOR || (typ) == STUDDED_ARMOR                     \
-     || (typ) == JACKET || (typ) == CLOAK                         \
+     || (typ) == JACKET || (typ) == CLOAK || (typ) == BRACERS     \
      || ((typ) == GLOVES && objects[GLOVES].oc_name_known)        \
      || ((typ) == GAUNTLETS && objects[GAUNTLETS].oc_name_known))
 
@@ -762,7 +762,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
 
         if (is_boots(obj)
-            || typ == DARK_ELVEN_BRACERS
+            || is_bracer(obj)
             || (is_gloves(obj) && typ != MUMMIFIED_HAND))
             Strcat(buf, "pair of ");
 
@@ -778,13 +778,13 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
 
         if (obj->otyp >= ELVEN_SHIELD && obj->otyp <= ORCISH_SHIELD
-            && obj->otyp != DARK_ELVEN_BRACERS && !dknown) {
+            && !is_bracer(obj) && !dknown) {
             Strcat(buf, "shield");
             propnames(buf, obj->oprops, obj->oprops_known,
                       FALSE, FALSE);
             break;
         }
-        if (obj->otyp == DARK_ELVEN_BRACERS && !dknown) {
+        if (is_bracer(obj) && !dknown) {
             Strcat(buf, "bracers");
             propnames(buf, obj->oprops, obj->oprops_known,
                       FALSE, FALSE);
@@ -812,6 +812,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                 Strcat(buf, helm_simple_name(obj));
             else if (is_shield(obj))
                 Strcat(buf, "shield");
+            else if (is_bracer(obj))
+                Strcat(buf, "bracers");
             else
                 Strcat(buf, "armor");
             propnames(buf, obj->oprops, obj->oprops_known,
@@ -2612,7 +2614,7 @@ static struct sing_plur one_off[] = {
 static const char *const as_is[] = {
     /* makesingular() leaves these plural due to how they're used */
     "boots",   "shoes",     "gloves",    "lenses",   "scales",
-    "eyes",    "gauntlets", "iron bars", "goggles",
+    "eyes",    "gauntlets", "iron bars", "goggles",  "bracers",
     /* both singular and plural are spelled the same */
     "bison",   "deer",      "elk",       "fish",      "fowl",
     "tuna",    "yaki",      "-hai",      "krill",     "manes",
@@ -3203,6 +3205,7 @@ STATIC_OVL NEARDATA const struct o_range o_ranges[] = {
     { "candle", TOOL_CLASS, TALLOW_CANDLE, WAX_CANDLE },
     { "horn", TOOL_CLASS, TOOLED_HORN, HORN_OF_PLENTY },
     { "shield", ARMOR_CLASS, SMALL_SHIELD, SHIELD_OF_MOBILITY },
+    { "bracers", ARMOR_CLASS, BRACERS, DARK_ELVEN_BRACERS },
     { "hat", ARMOR_CLASS, DUNCE_CAP, FEDORA },
     { "helm", ARMOR_CLASS, DUNCE_CAP, HELM_OF_TELEPATHY },
     { "gloves", ARMOR_CLASS, GLOVES, MUMMIFIED_HAND },
@@ -3294,6 +3297,7 @@ static const struct alt_spellings {
     { "drow boots", DARK_ELVEN_BOOTS },
     /* armor */
     { "gloves", GLOVES },
+    { "bracers", BRACERS },
     { (const char *) 0, 0 },
 };
 

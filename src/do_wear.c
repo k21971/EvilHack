@@ -853,6 +853,7 @@ Shield_on(VOID_ARGS)
     switch (uarms->otyp) {
     case SMALL_SHIELD:
     case ELVEN_SHIELD:
+    case BRACERS:
     case DARK_ELVEN_BRACERS:
     case URUK_HAI_SHIELD:
     case ORCISH_SHIELD:
@@ -889,6 +890,7 @@ Shield_off(VOID_ARGS)
     switch (otmp->otyp) {
     case SMALL_SHIELD:
     case ELVEN_SHIELD:
+    case BRACERS:
     case DARK_ELVEN_BRACERS:
     case URUK_HAI_SHIELD:
     case ORCISH_SHIELD:
