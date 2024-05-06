@@ -3387,4 +3387,5 @@ The following changes to date are:
 - Re-add regular bracers, minor bug fixes from initial Druid commit
 - Re-add encyclopedia and guidebook entries (bracers, existing roles)
 - 'Deslog' the first wizard's tower level
+- Lava gremlin exploding a forge
 
