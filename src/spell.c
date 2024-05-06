@@ -1406,7 +1406,7 @@ boolean wiz_cast;
         break;
     case SPE_REFLECTION:
         cast_reflection(&youmonst);
-	break;
+        break;
     case SPE_FLAME_SPHERE:
     case SPE_FREEZE_SPHERE:
         pline("You conjure elemental energy...");
