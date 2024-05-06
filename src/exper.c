@@ -28,10 +28,10 @@ enermod(en)
 int en;
 {
     switch (Role_switch) {
-    case PM_DRUID:
     case PM_PRIEST:
     case PM_WIZARD:
         return (2 * en);
+    case PM_DRUID:
     case PM_HEALER:
     case PM_INFIDEL:
     case PM_KNIGHT:
