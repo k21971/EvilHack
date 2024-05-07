@@ -327,7 +327,7 @@ struct obj *otmp;
          || ptr == &mons[PM_CAVE_LIZARD]
          || ptr == &mons[PM_LARGE_CAVE_LIZARD]) && !Race_if(PM_DROW)) {
         if (!Deaf)
-            pline("%s hisses threatenly at you!", Monnam(mtmp));
+            pline("%s hisses threateningly at you!", Monnam(mtmp));
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
@@ -470,7 +470,7 @@ struct obj *otmp;
          || ptr == &mons[PM_CAVE_LIZARD]
          || ptr == &mons[PM_LARGE_CAVE_LIZARD]) && !Race_if(PM_DROW)) {
         if (!Deaf)
-            pline("%s hisses threatenly at you!", Monnam(mtmp));
+            pline("%s hisses threateningly at you!", Monnam(mtmp));
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
