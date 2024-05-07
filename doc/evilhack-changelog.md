@@ -3388,4 +3388,5 @@ The following changes to date are:
 - Re-add encyclopedia and guidebook entries (bracers, existing roles)
 - 'Deslog' the first wizard's tower level
 - Fix: Lava gremlin exploding a forge
+- Fix: ID_MANIFEST target (windows build)
 
