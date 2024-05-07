@@ -93,7 +93,7 @@ struct window_procs tty_procs = {
      | WC2_HILITE_STATUS | WC2_HITPOINTBAR | WC2_FLUSH_STATUS
      | WC2_RESET_STATUS
 #endif
-     | WC2_DARKGRAY | WC2_SUPPRESS_HIST | WC2_STATUSLINES),
+     | WC2_DARKGRAY | WC2_SUPPRESS_HIST | WC2_STATUSLINES | WC2_PEACEFUL),
 #ifdef TEXTCOLOR
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},   /* color availability */
 #else
@@ -3404,7 +3404,7 @@ int glyph;
 int bkglyph UNUSED;
 {
     int ch;
-    boolean reverse_on = FALSE;
+    boolean reverse_on = FALSE, underline_on = FALSE;
     int color;
     unsigned special;
 
@@ -3452,12 +3452,21 @@ int bkglyph UNUSED;
         reverse_on = TRUE;
     }
 
+    if ((special & MG_PEACEFUL) && iflags.underline_peacefuls) {
+        term_start_attr(ATR_ULINE);
+        underline_on = TRUE;
+    }
+
 #if defined(USE_TILES) && defined(MSDOS)
     if (iflags.grmode && iflags.tile_view)
         xputg(glyph, ch, special);
     else
 #endif
         g_putch(ch); /* print the character */
+
+    if (underline_on) {
+        term_end_attr(ATR_ULINE);
+    }
 
     if (reverse_on) {
         term_end_attr(ATR_INVERSE);

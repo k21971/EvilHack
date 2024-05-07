@@ -53,7 +53,7 @@ struct window_procs curses_procs = {
 #endif
      | WC2_FLUSH_STATUS | WC2_TERM_SIZE
      | WC2_STATUSLINES | WC2_WINDOWBORDERS | WC2_PETATTR | WC2_GUICOLOR
-     | WC2_SUPPRESS_HIST | WC2_MENU_GLYPHS),
+     | WC2_SUPPRESS_HIST | WC2_MENU_GLYPHS | WC2_PEACEFUL),
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, /* color availability */
     curses_init_nhwindows,
     curses_player_selection,
@@ -700,6 +700,8 @@ curses_print_glyph(winid wid, XCHAR_P x, XCHAR_P y, int glyph,
     mapglyph(glyph, &ch, &color, &special, x, y, 0);
     if ((special & MG_PET) && iflags.hilite_pet) {
         attr = iflags.wc2_petattr;
+    } else if ((special & MG_PEACEFUL) && iflags.underline_peacefuls) {
+        attr = A_UNDERLINE;
     }
     if ((special & MG_DETECT) && iflags.use_inverse) {
         attr = A_REVERSE;

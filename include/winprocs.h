@@ -217,9 +217,9 @@ extern
 #define WC2_DARKGRAY      0x00020L /* 06 use bold black for black glyphs */
 #define WC2_HITPOINTBAR   0x00040L /* 07 show bar representing hit points */
 #define WC2_FLUSH_STATUS  0x00080L /* 08 call status_update(BL_FLUSH)
-                                   *    after updating status window fields */
+                                    *    after updating status window fields */
 #define WC2_RESET_STATUS  0x00100L /* 09 call status_update(BL_RESET) to
-                                   *    indicate 'draw everything'      */
+                                    *    indicate 'draw everything'      */
 #define WC2_TERM_SIZE     0x00200L /* 10 support setting terminal size   */
 #define WC2_STATUSLINES   0x00400L /* 16 switch between 2 or 3 lines of status */
 #define WC2_WINDOWBORDERS 0x00800L /* 11 display borders on nh windows   */
@@ -228,11 +228,12 @@ extern
 /* pline() can overload the display attributes argument passed to putstr()
    with one or more flags and at most one of bold/blink/inverse/&c */
 #define WC2_URGENT_MESG   0x04000L /* 14 putstr(WIN_MESSAGE) supports urgency
-                                   *    via non-display attribute flag  */
+                                    *    via non-display attribute flag  */
 #define WC2_SUPPRESS_HIST 0x08000L /* 15 putstr(WIN_MESSAGE) supports history
-                                   *    suppression via non-disp attr   */
+                                    *    suppression via non-disp attr   */
 #define WC2_MENU_GLYPHS   0x10000L /* 16 object menu glyphs in inventory */
-                                  /* 15 free bits */
+#define WC2_PEACEFUL      0x20000L /* 17 supports underlined peaceful monsters */
+                                   /* 14 free bits */
 
 #define ALIGN_LEFT   1
 #define ALIGN_RIGHT  2

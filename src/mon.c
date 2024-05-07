@@ -4786,6 +4786,7 @@ boolean via_attack;
                 mon->mpeaceful = 0;
                 growl(mon);
             }
+            newsym(mon->mx, mon->my); /* clear peaceful glyph */
         }
     }
 
@@ -4800,6 +4801,7 @@ boolean via_attack;
         if (mtmp->mtame)
             return;
         mtmp->mpeaceful = 0;
+        newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
         /* peacefuls always catch convicts stealing. but, convicts don't feel
            guilty about it. (note there's still an alignment penalty for
            *failing* to steal from a priest) in steal_it()) */
@@ -4850,6 +4852,7 @@ boolean via_attack;
                     continue;
                 if (mon->data == q_guardian && mon->mpeaceful) {
                     mon->mpeaceful = 0;
+                    newsym(mon->mx, mon->my); /* clear peaceful glyph */
                     if (canseemon(mon))
                         ++got_mad;
                 }
@@ -4906,6 +4909,7 @@ boolean via_attack;
                                    perhaps reduce tameness? */
                             } else {
                                 mon->mpeaceful = 0;
+                                newsym(mon->mx, mon->my); /* clear peaceful glyph */
                                 if (u.ualign.type != A_NONE) {
                                     if (canspotmon(mon))
                                         You_feel("guilty.");
@@ -6107,6 +6111,7 @@ boolean silent;
                 mtmp->msleeping = mtmp->mfrozen = 0;
             }
             mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
         }
     }
     if (ct) {
@@ -6137,8 +6142,10 @@ pacify_guards()
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
             continue;
-        if (is_watch(mtmp->data))
+        if (is_watch(mtmp->data)) {
             mtmp->mpeaceful = 1;
+            newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
+        }
     }
 }
 
@@ -6374,6 +6381,7 @@ struct monst *mtmp;
             mon->mconf = 0;
             mon->mstun = 0;
             mon->mpeaceful = 1;
+            newsym(mon->mx, mon->my); /* enable peaceful glyph */
         }
     }
     /* in case player kills themselves while defeating
@@ -6387,6 +6395,7 @@ struct monst *mtmp;
                and get the hell out before the situation becomes dire */
             com_pager(201);
             mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
             paralyze_monst(mtmp, 100);
         } else {
             com_pager(200);
