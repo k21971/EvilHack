@@ -3316,10 +3316,10 @@ The following changes to date are:
 - Switch status from beta to post release
 
 
-### Version 0.9.0
+### Version 0.8.4
 
 - Latest merges from 'vanilla' NetHack 3.6.7 official release (as of August 28th, 2023)
-- Initial preparation for new version (0.9.0)
+- Initial preparation for new version (0.8.4)
 - Fix: prevent the Amulet of Yendor from being teleported whilst in the
   Sanctum
 - Fix: prevent monsters that are carrying the Amulet of Yendor from
@@ -3387,5 +3387,5 @@ The following changes to date are:
 - Re-add regular bracers, minor bug fixes from initial Druid commit
 - Re-add encyclopedia and guidebook entries (bracers, existing roles)
 - 'Deslog' the first wizard's tower level
-- Lava gremlin exploding a forge
+- Fix: Lava gremlin exploding a forge
 
