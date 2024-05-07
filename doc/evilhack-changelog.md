@@ -3389,4 +3389,5 @@ The following changes to date are:
 - 'Deslog' the first wizard's tower level
 - Fix: Lava gremlin exploding a forge
 - Fix: ID_MANIFEST target (windows build)
+- New conduct: never forged an artifact
 

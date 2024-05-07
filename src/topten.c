@@ -520,6 +520,7 @@ encode_extended_conducts()
     add_achieveX(buf, "bonesless",                 !u.uroleplay.numbones);
     add_achieveX(buf, "never_died",                 u.umortality == 0);
     add_achieveX(buf, "never_abused_alignment",     u.ualign.abuse == 0);
+    add_achieveX(buf, "never_forged_an_artifact",  !u.uconduct.forgedarti);
 
     return buf;
 }
@@ -591,6 +592,8 @@ encodeconduct()
         e |= 1L << 19;
     if (u.ualign.abuse == 0)
         e |= 1L << 20;
+    if (!u.uconduct.forgedarti)
+        e |= 1L << 21;
 
     return e;
 }

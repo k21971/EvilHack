@@ -3857,8 +3857,13 @@ int final;
                     " for any artifacts", "");
     }
 
-    if (!u.uconduct.pets)
-       you_have_never("owned a pet");
+    if (!u.uconduct.pets) {
+        you_have_never("owned a pet");
+    }
+
+    if (!u.uconduct.forgedarti) {
+        you_have_never("forged an artifact");
+    }
 
     show_achievements(final);
 

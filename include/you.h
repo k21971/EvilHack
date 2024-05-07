@@ -129,6 +129,7 @@ struct u_conduct {     /* number of times... */
     long elbereth;     /* engraved Elbereth */
     long artitouch;    /* touched an artifact */
     long pets;         /* obtained a pet */
+    long forgedarti;   /* forged an artifact */
     /* genocides already listed at end of game */
 };
 
