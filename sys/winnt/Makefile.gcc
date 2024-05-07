@@ -134,7 +134,7 @@ TARGET_CPU=x86
 #
 #==============================================================================
 
-SKIP_NETHACKW=Y
+#SKIP_NETHACKW=Y
 
 #==============================================================================
 
@@ -317,7 +317,9 @@ VOBJ27 = $(O)worm.o     $(O)worn.o     $(O)write.o    $(O)zap.o
 
 DLBOBJ = $(O)dlb.o
 
-REGEX  = $(O)cppregex.o
+REGEX  = cppregex
+#REGEX  = posixregex
+REGEXOBJ = $(O)$(REGEX).o
 
 TTYOBJ = $(O)topl.o     $(O)getline.o  $(O)wintty.o
 
@@ -336,7 +338,7 @@ OBJS   = $(VOBJ01) $(VOBJ02) $(VOBJ03) $(VOBJ04) $(VOBJ05) \
 	 $(VOBJ11) $(VOBJ12) $(VOBJ13) $(VOBJ14) $(VOBJ15) \
 	 $(VOBJ16) $(VOBJ17) $(VOBJ18) $(VOBJ19) $(VOBJ20) \
 	 $(VOBJ21) $(VOBJ22) $(VOBJ23) $(VOBJ24) $(VOBJ25) \
-	 $(VOBJ26) $(VOBJ27) $(VOBJ28) $(VOBJ29) $(REGEX)  \
+	 $(VOBJ26) $(VOBJ27) $(VOBJ28) $(VOBJ29) $(REGEXOBJ)  \
 	 $(CURSESOBJ)
 
 ifneq "$(SKIP_NETHACKW)" "Y"
@@ -375,8 +377,8 @@ endif
 
 COMCTRL = comctl32.lib
 
-KEYDLLS = $(GAMEDIR)/nhdefkey.dll $(GAMEDIR)/nh340key.dll \
-	  $(GAMEDIR)/nhraykey.dll
+#KEYDLLS = $(GAMEDIR)/nhdefkey.dll $(GAMEDIR)/nh340key.dll \
+#	  $(GAMEDIR)/nhraykey.dll
 
 TILEUTIL16  = $(UTIL)/tile2bmp.exe
 TILEBMP16   = $(SRC)/tiles.bmp
@@ -483,14 +485,18 @@ endif
 
 ifndef TRAVIS_COMPILER
 cc     = i686-w64-mingw32-gcc.exe
-cxx    = g++
+cxx    = i686-w64-mingw32-g++.exe
 rc     = windres
-link   = i686-w64-mingw32-gcc.exe
 else
 cc     = gcc
 cxx    = g++
 rc     = windres
-link   = gcc
+endif
+
+ifeq "$(REGEX)" "cppregex"
+link   = $(cxx)
+else
+link   = $(cc)
 endif
 
 ifeq "$(WANT_WIN_QT4)" "Y"
@@ -507,12 +513,13 @@ cdebug =
 linkdebug =
 endif
 
+RESTARGET = --target=pe-i386
 CFLAGSBASE  = -c $(cflags) $(WINPINC) $(cdebug) $(CURSESDEF)
 #LFLAGSBASEC = $(linkdebug)
 #LFLAGSBASEG = $(linkdebug) -mwindows
 baselibs = -lwinmm -lshell32 -lole32 -luuid
 conlibs = -lgdi32 $(baselibs) $(BCRYPT)
-guilibs = -lcomctl32 $(baselibs)
+guilibs = -lgdi32 -lcomctl32 -lcomdlg32 -lwinmm -lshcore $(baselibs) $(BCRYPT)
 ifeq "$(WANT_WIN_QT4)" "Y"
     # Might be either Qt 4 or Qt 5
     ifeq "$(HAVE_QT5)" "Y"
@@ -556,7 +563,7 @@ LFLAGSU = $(LFLAGSBASEC)
 #==========================================
 
 CFLAGS   = $(CFLAGSBASE) $(WINPFLAG) $(DLBFLG) -DSAFEPROCS
-lflags  = $(LFLAGSBASEC) $(linkdebuf)
+lflags  = $(LFLAGSBASEC) $(linkdebug)
 
 CXXFLAGS = $(CFLAGS)
 
@@ -841,10 +848,10 @@ $(O)winres.o: $(TILEBMP16) $(MSWIN)/EvilHackW.rc $(MSWIN)/mnsel.bmp \
 	 $(MSWIN)/mnselcnt.bmp $(MSWIN)/mnunsel.bmp \
 	 $(MSWIN)/petmark.bmp $(MSWIN)/pilemark.bmp $(MSWIN)/NetHack.ico $(MSWIN)/rip.bmp \
 	 $(MSWIN)/splash.bmp
-	$(rc) -o$@ --include-dir $(MSWIN) -i $(MSWIN)/EvilHackW.rc
+	$(rc) -o$@ --include-dir $(MSWIN) $(RESTARGET) -DVIA_MAKE -i $(MSWIN)/EvilHackW.rc
 
 $(O)conres.o: $(MSWSYS)/console.rc $(MSWSYS)/NetHack.ico
-	$(rc) -o$@ --include-dir $(MSWSYS) -i $(MSWSYS)/console.rc
+	$(rc) -o$@ --include-dir $(MSWSYS) $(RESTARGET) -i $(MSWSYS)/console.rc
 
 #==========================================
 #  The game targets.
@@ -856,11 +863,11 @@ gamedir.tag:
 	test -d $(GAMEDIR) && echo directory created > $@
 
 $(GAMEDIR)/EvilHack.exe : gamedir.tag $(PDCLIB) $(O)tile.o $(O)nttty.o $(O)guistub.o \
-			$(ALLOBJ) $(TTYOBJ) $(GUIOBJ) $(O)conres.o $(KEYDLLS)
+			$(ALLOBJ) $(TTYOBJ) $(GUIOBJ) $(O)conres.o
 	@echo Linking $@...
 	$(link) $(lflags) -o$@ $(ALLOBJ) $(TTYOBJ) $(O)nttty.o $(O)tile.o \
 		$(O)guistub.o $(O)conres.o $(PDCLIB) $(conlibs) -static -lstdc++
-	$(subst /,\,@if exist $(O)install.tag del $(O)install.tag)
+	@$(subst /,\,@if exist $(O)install.tag del $(O)install.tag)
 
 # EvilHackW
 # full tty linkage libs:
@@ -872,11 +879,11 @@ $(GAMEDIR)/EvilHack.exe : gamedir.tag $(PDCLIB) $(O)tile.o $(O)nttty.o $(O)guist
 
 ifneq "$(SKIP_NETHACKW)" "Y"
 $(GAMEDIR)/EvilHackW.exe : gamedir.tag $(PDCLIB) $(O)tile.o $(O)ttystub.o \
-			$(ALLOBJ) $(TTYOBJ) $(GUIOBJ) $(O)winres.o $(KEYDLLS)
+			$(ALLOBJ) $(TTYOBJ) $(GUIOBJ) $(O)winres.o
 	@echo Linking $@...
 	$(link) $(lflags) -mwindows -o$@ $(ALLOBJ) $(GUIOBJ) $(O)tile.o $(O)ttystub.o \
 		$(O)winres.o $(PDCLIB) $(guilibs) -static -lstdc++
-	$(subst /,\,@if exist $(O)install.tag del $(O)install.tag)
+	@$(subst /,\,@if exist $(O)install.tag del $(O)install.tag)
 endif
 
 $(O)nhdefkey.o:
@@ -1380,8 +1387,8 @@ endif
 
 clean:
 	if exist initialchk del initialchk
-	if exist $(O)install.tag del $(O)install.tag
-	if exist $(O)utility.tag del $(O)utility.tag
+	$(subst /,\,if exist $(O)install.tag del $(O)install.tag)
+	$(subst /,\,if exist $(O)utility.tag del $(O)utility.tag)
 ifneq "$(W_UTIL)" ""
 	if exist $(W_UTIL)\makedefs.exe    del $(W_UTIL)\makedefs.exe
 	if exist $(W_UTIL)\levcomp.exe     del $(W_UTIL)\levcomp.exe
