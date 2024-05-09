@@ -3392,4 +3392,5 @@ The following changes to date are:
 - New conduct: never forged an artifact
 - Underline peaceful monsters via config (tty and curses)
 - New trap: ice
+- Fix: cmap ordering in tilemap.c (addition of ice trap)
 
