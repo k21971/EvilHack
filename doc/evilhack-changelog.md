@@ -3393,4 +3393,6 @@ The following changes to date are:
 - Underline peaceful monsters via config (tty and curses)
 - New trap: ice
 - Fix: cmap ordering in tilemap.c (addition of ice trap)
+- Prevent levelporting throughout the Wizard's tower until the Wizard of
+  Yendor has been defeated
 

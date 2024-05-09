@@ -863,6 +863,13 @@ level_tele()
             return;
         }
     }
+    /* Prevent levelporting in the Wizard's tower until the
+       Wizard has been defeated for the first time */
+    if (!u.uevent.udemigod && On_W_tower_level(&u.uz)
+        && (!wizard || yn("The Wizard of Yendor has not been defeated.  Override?") != 'y')) {
+        pline("Powerful magic prevents you from teleporting.");
+        return;
+    }
     if ((Teleport_control && !Stunned) || wizard) {
         char qbuf[BUFSZ];
         int trycnt = 0;

@@ -1137,7 +1137,7 @@ register struct obj *otmp;
             }
 
             /* revamped wizard's tower is also prohibited */
-            if (Is_wiz2_level(&u.uz) || Is_wiz3_level(&u.uz)) {
+            if (On_W_tower_level(&u.uz)) {
                 You("have an uneasy feeling.");
                 goto no_rise;
             }
