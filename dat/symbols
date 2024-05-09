@@ -95,6 +95,7 @@ start: NHAccess
 	S_sleeping_gas_trap: \094
 	S_rust_trap: \094
 	S_fire_trap: \094
+	S_ice_trap: \094
 	S_pit: \094
 	S_spiked_pit: \094
 	S_hole: \094
@@ -193,6 +194,7 @@ start: Blank
         S_falling_rock_trap: \032
         S_feline: \032
         S_fire_trap: \032
+        S_ice_trap: \032
         S_flashbeam: \032
         S_food: \032
         S_forge: \032
@@ -481,6 +483,7 @@ start: RogueEpyx
 	S_sleeping_gas_trap: \x04
 	S_rust_trap: \x04
 	S_fire_trap: \x04
+	S_ice_trap: \x04
 	S_pit: \x04
 	S_spiked_pit: \x04
 	S_hole: \x04

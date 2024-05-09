@@ -2625,6 +2625,8 @@ long flag;
                                 && !can_levitate(mon)))
                         && (ttmp->ttyp != FIRE_TRAP
                             || !(resists_fire(mon) || defended(mon, AD_FIRE)))
+                       && (ttmp->ttyp != ICE_TRAP
+                            || !(resists_cold(mon) || defended(mon, AD_COLD)))
                         && (ttmp->ttyp != SQKY_BOARD
                             || !(is_flyer(mdat) || can_levitate(mon)))
                         && (ttmp->ttyp != WEB

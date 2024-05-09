@@ -98,6 +98,8 @@ MONSTER:' ',random
 MONSTER:' ',random
 
 # Random traps
+TRAP:"ice",random
+TRAP:"ice",random
 TRAP:random, random
 TRAP:random, random
 TRAP:random, random
@@ -227,6 +229,8 @@ MONSTER:' ',random
 MONSTER:' ',random
 
 # Random traps
+TRAP:"ice",random
+TRAP:"ice",random
 TRAP:random, random
 TRAP:random, random
 TRAP:random, random
@@ -424,6 +428,8 @@ OBJECT:random,random
 OBJECT:(')',"axe"),random
 
 # Random traps
+TRAP:"ice",random
+TRAP:"ice",random
 TRAP:random, random
 TRAP:random, random
 TRAP:random, random

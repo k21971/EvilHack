@@ -1479,6 +1479,7 @@ dospinweb()
         case BEAR_TRAP:
         case ROCKTRAP:
         case FIRE_TRAP:
+        case ICE_TRAP:
         case LANDMINE:
         case SLP_GAS_TRAP:
         case RUST_TRAP:

@@ -576,6 +576,7 @@ struct {
 {S_sleeping_gas_trap,    "sleeping gas trap", "sleeping gas trap"},
 {S_rust_trap,            "rust trap", "rust trap"},
 {S_fire_trap,            "fire trap", "fire trap"},
+{S_ice_trap,             "ice trap", "ice trap"},
 {S_pit,                  "pit", "pit"},
 {S_spiked_pit,           "spiked pit", "spiked pit"},
 {S_hole,                 "hole", "hole"},

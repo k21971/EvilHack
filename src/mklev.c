@@ -1529,6 +1529,9 @@ coord *tm;
     } else if (Inhell && !Iniceq && !rn2(5)) {
         /* bias the frequency of fire traps in Gehennom */
         kind = FIRE_TRAP;
+    } else if (Iniceq && !rn2(3)) {
+        /* same for ice traps in the Ice Queen branch */
+        kind = ICE_TRAP;
     } else {
         do {
             kind = rnd(TRAPNUM - 1);
@@ -1586,6 +1589,10 @@ coord *tm;
                 break;
             case FIRE_TRAP:
                 if (!Inhell)
+                    kind = NO_TRAP;
+                break;
+            case ICE_TRAP:
+                if (!Iniceq)
                     kind = NO_TRAP;
                 break;
             case TELEP_TRAP:

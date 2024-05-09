@@ -3391,4 +3391,5 @@ The following changes to date are:
 - Fix: ID_MANIFEST target (windows build)
 - New conduct: never forged an artifact
 - Underline peaceful monsters via config (tty and curses)
+- New trap: ice
 

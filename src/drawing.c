@@ -198,10 +198,11 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '^', "sleeping gas trap", C(HI_ZAP) },      /* trap */
        { '^', "rust trap", C(CLR_BLUE) },            /* trap */
        { '^', "fire trap", C(CLR_ORANGE) },          /* trap */
+       { '^', "ice trap", C(CLR_BRIGHT_CYAN) },      /* trap */
        { '^', "pit", C(CLR_BLACK) },                 /* trap */
        { '^', "spiked pit", C(CLR_BLACK) },          /* trap */
-       { '^', "hole", C(CLR_BROWN) },                /* trap */
-/*60*/ { '^', "trap door", C(CLR_BROWN) },           /* trap */
+/*60*/ { '^', "hole", C(CLR_BROWN) },                /* trap */
+       { '^', "trap door", C(CLR_BROWN) },           /* trap */
        { '^', "teleportation trap", C(CLR_MAGENTA) },  /* trap */
        { '^', "level teleporter", C(CLR_MAGENTA) },    /* trap */
        { '^', "magic portal", C(CLR_BRIGHT_MAGENTA) }, /* trap */
@@ -210,8 +211,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '^', "magic trap", C(HI_ZAP) },               /* trap */
        { '^', "anti-magic field", C(HI_ZAP) },         /* trap */
        { '^', "polymorph trap", C(CLR_BRIGHT_GREEN) }, /* trap */
-       { '^', "spear trap", C(CLR_BROWN) },            /* trap */
-/*70*/ { '^', "magic beam trap", C(CLR_YELLOW) },      /* trap */
+/*70*/ { '^', "spear trap", C(CLR_BROWN) },            /* trap */
+       { '^', "magic beam trap", C(CLR_YELLOW) },      /* trap */
        { '~', "vibrating square", C(CLR_MAGENTA) },    /* "trap" */
        /* zap colors are changed by mapglyph() to match type of beam */
        { '|', "", C(CLR_GRAY) },                /* vbeam */
@@ -221,8 +222,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '*', "", C(CLR_WHITE) },               /* dig beam */
        { '!', "", C(CLR_WHITE) },               /* camera flash beam */
        { ')', "", C(HI_WOOD) },                 /* boomerang open left */
-       { '(', "", C(HI_WOOD) },                 /* boomerang open right */
-/*80*/ { '0', "", C(HI_ZAP) },                  /* 4 magic shield symbols */
+/*80*/ { '(', "", C(HI_WOOD) },                 /* boomerang open right */
+       { '0', "", C(HI_ZAP) },                  /* 4 magic shield symbols */
        { '#', "", C(HI_ZAP) },
        { '@', "", C(HI_ZAP) },
        { '*', "", C(HI_ZAP) },
@@ -232,8 +233,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '/', "", C(CLR_GREEN) },         /* swallow top left      */
        { '-', "", C(CLR_GREEN) },         /* swallow top center    */
        { '\\', "", C(CLR_GREEN) },        /* swallow top right     */
-       { '|', "", C(CLR_GREEN) },         /* swallow middle left   */
-/*90*/ { '|', "", C(CLR_GREEN) },         /* swallow middle right  */
+/*90*/ { '|', "", C(CLR_GREEN) },         /* swallow middle left   */
+       { '|', "", C(CLR_GREEN) },         /* swallow middle right  */
        { '\\', "", C(CLR_GREEN) },        /* swallow bottom left   */
        { '-', "", C(CLR_GREEN) },         /* swallow bottom center */
        { '/', "", C(CLR_GREEN) },         /* swallow bottom right  */
@@ -243,8 +244,8 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '\\', "", C(CLR_ORANGE) },       /* explosion top right    */
        { '|', "", C(CLR_ORANGE) },        /* explosion middle left  */
        { ' ', "", C(CLR_ORANGE) },        /* explosion middle center*/
-       { '|', "", C(CLR_ORANGE) },        /* explosion middle right */
-/*100*/{ '\\', "", C(CLR_ORANGE) },       /* explosion bottom left  */
+/*100*/{ '|', "", C(CLR_ORANGE) },        /* explosion middle right */
+       { '\\', "", C(CLR_ORANGE) },       /* explosion bottom left  */
        { '-', "", C(CLR_ORANGE) },        /* explosion bottom center*/
        { '/', "", C(CLR_ORANGE) },        /* explosion bottom right */
 };
@@ -708,6 +709,7 @@ struct symparse loadsyms[] = {
     { SYM_PCHAR, S_sleeping_gas_trap, "S_sleeping_gas_trap" },
     { SYM_PCHAR, S_rust_trap, "S_rust_trap" },
     { SYM_PCHAR, S_fire_trap, "S_fire_trap" },
+    { SYM_PCHAR, S_ice_trap, "S_ice_trap" },
     { SYM_PCHAR, S_pit, "S_pit" },
     { SYM_PCHAR, S_spiked_pit, "S_spiked_pit" },
     { SYM_PCHAR, S_hole, "S_hole" },

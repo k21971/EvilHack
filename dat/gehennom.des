@@ -191,6 +191,7 @@ TRAP:"anti magic", random
 TRAP:"anti magic", random
 TRAP:"magic", random
 TRAP:"magic", random
+TRAP:"ice",random
 
 # Random monsters.
 # The ghosts.
@@ -1416,8 +1417,8 @@ TRAP: "fire", random
 TRAP: "fire", random
 TRAP: "fire", random
 TRAP: "fire", random
-TRAP: "fire", random
-TRAP: "fire", random
+TRAP: "ice", random
+TRAP: "ice", random
 TRAP: "magic", random
 TRAP: "magic", random
 TRAP: "magic beam", random
@@ -1545,7 +1546,7 @@ IF [50%] {
 TRAP:"board",(10,12)
 TRAP:"board",(11,12)
 TRAP:"board",(12,12)
-TRAP:"fire",(11,11)
+TRAP:"ice",(11,11)
 TRAP:"fire",(10,10)
 TRAP:"fire",(12,10)
 # The 'fake' throne room
@@ -1582,7 +1583,7 @@ TRAP:"anti magic",(21,06)
 TRAP:"sleep gas",(19,05)
 TRAP:"fire",(56,06)
 TRAP:"spear",(53,06)
-TRAP:"spiked pit",(50,03)
+TRAP:"ice",(50,03)
 TRAP:"polymorph",(69,02)
 # Teleport scrolls are kept in a closet
 OBJECT:('?',"teleportation"),(63,06)
@@ -1615,7 +1616,7 @@ GOLD:1,(50,14)
 GOLD:1,(52,15)
 GOLD:1,(53,13)
 TRAP:"fire",(54,13)
-TRAP:"fire",(54,14)
+TRAP:"ice",(54,14)
 TRAP:"magic",(52,12)
 TRAP:"magic beam",(52,15)
 TRAP:"spiked pit",(51,13)
@@ -1799,8 +1800,8 @@ OBJECT:('(',"crystal chest"),$niches[5]
 # some traps
 TRAP: "fire", random
 TRAP: "fire", random
-TRAP: "fire", random
-TRAP: "fire", random
+TRAP: "ice", random
+TRAP: "ice", random
 TRAP: "magic", random
 TRAP: "magic beam", random
 TRAP: "spear", random
@@ -1919,7 +1920,7 @@ TRAP:"sleep gas", random
 TRAP:"anti magic", random
 TRAP:"fire", random
 TRAP:"fire", random
-TRAP:"fire", random
+TRAP:"ice", random
 TRAP:"magic", random
 TRAP:"magic", random
 # Some random objects
@@ -2039,7 +2040,7 @@ TRAP:"spiked pit", random
 TRAP:"fire", random
 TRAP:"sleep gas", random
 TRAP:"anti magic", random
-TRAP:"fire", random
+TRAP:"ice", random
 TRAP:"magic", random
 TRAP:"spear", random
 TRAP:"magic beam", random

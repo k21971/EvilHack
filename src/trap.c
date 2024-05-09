@@ -19,6 +19,7 @@ STATIC_DCL int FDECL(mkroll_launch, (struct trap *, XCHAR_P, XCHAR_P,
                                      SHORT_P, long));
 STATIC_DCL boolean FDECL(isclearpath, (coord *, int, SCHAR_P, SCHAR_P));
 STATIC_DCL void FDECL(dofiretrap, (struct obj *));
+STATIC_DCL void FDECL(doicetrap, (struct obj *));
 STATIC_DCL void NDECL(domagictrap);
 STATIC_DCL boolean FDECL(emergency_disrobe, (boolean *));
 STATIC_DCL int FDECL(untrap_prob, (struct trap *));
@@ -45,6 +46,7 @@ STATIC_DCL void NDECL(maybe_finish_sokoban);
 STATIC_VAR const char *const a_your[2] = { "a", "your" };
 STATIC_VAR const char *const A_Your[2] = { "A", "Your" };
 STATIC_VAR const char tower_of_flame[] = "tower of flame";
+STATIC_VAR const char freezing_mist[] = "freezing mist";
 STATIC_VAR const char *const A_gush_of_water_hits = "A gush of water hits";
 STATIC_VAR const char *const blindgas[6] = { "humid",   "odorless",
                                              "pungent", "chilling",
@@ -1418,6 +1420,11 @@ unsigned trflags;
     case FIRE_TRAP:
         seetrap(trap);
         dofiretrap((struct obj *) 0);
+        break;
+
+    case ICE_TRAP:
+        seetrap(trap);
+        doicetrap((struct obj *) 0);
         break;
 
     case PIT:
@@ -2809,8 +2816,8 @@ register struct monst *mtmp;
         } /* RUST_TRAP */
         case FIRE_TRAP:
         mfiretrap:
-            if ((is_puddle(mtmp->mx, mtmp->my)
-                || is_sewage(mtmp->mx, mtmp->my))) {
+            if (is_puddle(mtmp->mx, mtmp->my)
+                || is_sewage(mtmp->mx, mtmp->my)) {
                 if (in_sight)
                     pline("A cascade of steamy bubbles erupts from the %s under %s!",
                           surface(mtmp->mx, mtmp->my), mon_nam(mtmp));
@@ -2889,6 +2896,43 @@ register struct monst *mtmp;
                 You("smell smoke.");
             if (is_ice(mtmp->mx, mtmp->my))
                 melt_ice(mtmp->mx, mtmp->my, (char *) 0);
+            if (see_it && t_at(mtmp->mx, mtmp->my))
+                seetrap(trap);
+            break;
+        case ICE_TRAP:
+            if (in_sight)
+                pline("A %s shoots up from the %s under %s!",
+                      freezing_mist, surface(mtmp->mx, mtmp->my),
+                      mon_nam(mtmp));
+            else if (see_it)
+                You_see("a %s shoot up from the %s!",
+                        freezing_mist, surface(mtmp->mx, mtmp->my));
+
+            if (resists_cold(mtmp) || defended(mtmp, AD_COLD)) {
+                if (in_sight) {
+                    shieldeff(mtmp->mx, mtmp->my);
+                    if (!rn2(3)) {
+                        if (mtmp->mintrinsics & MR_COLD) {
+                            mtmp->mintrinsics &= ~MR_COLD;
+                            pline("%s momentarily %s.", Monnam(mtmp),
+                                  makeplural(locomotion(mtmp->data, "stumble")));
+                        }
+                    } else {
+                        pline("%s is uninjured.", Monnam(mtmp));
+                    }
+                }
+            } else {
+                int num = d(4, 8);
+                if (thitm(0, mtmp, (struct obj *) 0, num, FALSE))
+                    trapkilled = TRUE;
+                else if (!rn2(2))
+                    (void) destroy_mitem(mtmp, POTION_CLASS, AD_COLD);
+            }
+            if (is_puddle(mtmp->mx, mtmp->my)
+                || is_sewage(mtmp->mx, mtmp->my)) {
+                pline_The("water freezes!");
+                levl[mtmp->mx][mtmp->my].typ = ICE;
+            }
             if (see_it && t_at(mtmp->mx, mtmp->my))
                 seetrap(trap);
             break;
@@ -3693,7 +3737,8 @@ struct obj *box; /* null for floor trap */
      */
 
     if ((box && !carried(box)) ? is_pool(box->ox, box->oy)
-                               : (Underwater || is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy))) {
+                               : (Underwater || is_puddle(u.ux, u.uy)
+                                  || is_sewage(u.ux, u.uy))) {
         pline("A cascade of steamy bubbles erupts from %s!",
               the(box ? xname(box) : surface(u.ux, u.uy)));
         if (how_resistant(FIRE_RES) > 50) {
@@ -3761,6 +3806,56 @@ struct obj *box; /* null for floor trap */
 }
 
 STATIC_OVL void
+doicetrap(box)
+struct obj *box; /* at the moment only for floor traps */
+{
+    int num = d(4, 8);
+
+    if (box) {
+        impossible("doicetrap() called with non-null box.");
+        return;
+    }
+
+    pline("A %s shoots up from the %s!", freezing_mist,
+          surface(u.ux, u.uy));
+    if (how_resistant(COLD_RES) >= 50) {
+        shieldeff(u.ux, u.uy);
+        num = rn2(3);
+        pline_The("mist flash-freezes around you as your heat is drawn away!");
+        if (HCold_resistance && !rn2(3)) {
+            if (HCold_resistance & (FROMEXPER | FROMRACE)) {
+                if (Vulnerable_cold)
+                    return;
+                incr_itimeout(&HVulnerable_cold, rnd(75) + 75);
+                You_feel("extremely chilly.");
+            } else {
+                HCold_resistance = HCold_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
+                decr_resistance(&HCold_resistance, rnd(25) + 25);
+                You_feel("alarmingly cooler.");
+            }
+        }
+    }
+
+    num = resist_reduce(d(4, 8), COLD_RES);
+    if (!num)
+        You("are uninjured.");
+    else
+        losehp(num, freezing_mist, KILLED_BY_AN);
+
+    destroy_item(POTION_CLASS, AD_COLD);
+    if (rn2(2)) {
+        Your("%s become encrusted with ice!", makeplural(body_part(FOOT)));
+        u_slow_down();
+    }
+
+    if (is_puddle(u.ux, u.uy) || is_sewage(u.ux, u.uy)) {
+        pline_The("water freezes!");
+        levl[u.ux][u.uy].typ = ICE;
+    }
+}
+
+
+STATIC_OVL void
 domagictrap()
 {
     register int fate = rnd(20);
@@ -3824,8 +3919,11 @@ domagictrap()
                                          : (HInvis | FROMOUTSIDE);
             newsym(u.ux, u.uy);
             break;
-        case 12: /* a flash of fire */
-            dofiretrap((struct obj *) 0);
+        case 12: /* a flash of fire or ice */
+            if (rn2(2))
+                dofiretrap((struct obj *) 0);
+            else
+                doicetrap((struct obj *) 0);
             break;
 
         /* odd feelings */
@@ -6128,7 +6226,7 @@ register struct trap *ttmp;
     /* some of these are arbitrary -dlc */
     if (ttmp && ((ttmp->ttyp == SQKY_BOARD) || (ttmp->ttyp == BEAR_TRAP)
                  || (ttmp->ttyp == LANDMINE) || (ttmp->ttyp == FIRE_TRAP)
-                 || is_pit(ttmp->ttyp)
+                 || (ttmp->ttyp == ICE_TRAP) || is_pit(ttmp->ttyp)
                  || is_hole(ttmp->ttyp)
                  || (ttmp->ttyp == TELEP_TRAP) || (ttmp->ttyp == LEVEL_TELEP)
                  || (ttmp->ttyp == WEB) || (ttmp->ttyp == MAGIC_TRAP)

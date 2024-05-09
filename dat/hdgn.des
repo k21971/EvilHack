@@ -125,6 +125,7 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 TRAP:random,random
+TRAP:"ice",random
 TRAP:"falling rock",random
 TRAP:"falling rock",random
 TRAP:"falling rock",random
