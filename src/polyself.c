@@ -1234,7 +1234,7 @@ int alone;
             }
             update_inventory();
         /* must follow the bimanual check, since that never leaves you
-           two-weaponing but this block might leave you wielding a 
+           two-weaponing but this block might leave you wielding a
            two-hander and wearing a shield */
         } else if (!could_twoweap(youmonst.data)) {
             untwoweapon();
@@ -1996,10 +1996,12 @@ int part;
     }
     if ((part == HAND || part == HANDED)
         && ((humanoid(mptr) && attacktype(mptr, AT_CLAW)
-             && (has_claws(mptr) || has_claws_undead(mptr))
              && !index(not_claws, mptr->mlet) && mptr != &mons[PM_STONE_GOLEM]
              && mptr != &mons[PM_INCUBUS] && mptr != &mons[PM_SUCCUBUS])
-            || Race_if(PM_DEMON) || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)))
+            || (has_claws(mptr) || has_claws_undead(mptr))
+            || (mon == &youmonst
+                && (Race_if(PM_DEMON) || Race_if(PM_ILLITHID)
+                   || Race_if(PM_TORTLE)))))
         return (part == HAND) ? "claw" : "clawed";
     if ((mptr == &mons[PM_MUMAK] || mptr == &mons[PM_MASTODON]
          || mptr == &mons[PM_WOOLLY_MAMMOTH])

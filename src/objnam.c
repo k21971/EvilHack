@@ -1270,7 +1270,8 @@ unsigned doname_flags;
     boolean ispoisoned = FALSE, istainted = FALSE,
             with_price = (doname_flags & DONAME_WITH_PRICE) != 0,
             vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0,
-            weightshown = FALSE;
+            weightshown = FALSE,
+            isyours = carried(obj);
     boolean known, dknown, cknown, bknown, lknown;
     long orig_opknwn = obj->oprops_known;
     int omndx = obj->corpsenm;
@@ -1279,6 +1280,9 @@ unsigned doname_flags;
                                 the start of prefix instead of the
                                 end (Strcat is used on the end) */
     register char *bp = xname(obj);
+    struct monst *owner = isyours ? &youmonst
+                                  : mcarried(obj) ? obj->ocarry
+                                                  : (struct monst *) 0;
 
     if (iflags.override_ID) {
         known = dknown = cknown = bknown = lknown = TRUE;
@@ -1426,6 +1430,7 @@ unsigned doname_flags;
                  * change to "(something; slippery)" */
                 Strcpy(rindex(bp, ')'), "; slippery)");
             } else if (obj->otyp == MUMMIFIED_HAND) {
+                /* monsters don't wear these, so assuming it's yours is fine */
                 if (Glib)
                     Sprintf(rindex(bp, ' '), " (merged to your left %s; slippery)",
                             body_part(ARM));
@@ -1512,7 +1517,7 @@ unsigned doname_flags;
         if (obj->owornmask & W_RINGL)
             Strcat(bp, " (on left ");
         if (obj->owornmask & W_RING) {
-            Strcat(bp, body_part(HAND));
+            Strcat(bp, mbodypart(owner, HAND));
             Strcat(bp, ")");
         }
         if (known && objects[obj->otyp].oc_charged) {
@@ -1555,7 +1560,7 @@ unsigned doname_flags;
     case CHAIN_CLASS:
         add_erosion_words(obj, prefix);
         if (obj->owornmask & W_BALL)
-            Strcat(bp, " (chained to you)");
+            Sprintf(eos(bp), " (chained to %s)", isyours ? "you" : mon_nam(owner));
         break;
     case GEM_CLASS:
         if (obj->otyp == SLING_BULLET)
@@ -1567,7 +1572,7 @@ unsigned doname_flags;
         if (obj->quan != 1L) {
             Strcat(bp, " (wielded)");
         } else {
-            const char *hand_s = body_part(HAND);
+            const char *hand_s = mbodypart(owner, HAND);
 
             if (bimanual(obj))
                 hand_s = makeplural(hand_s);
@@ -1582,7 +1587,7 @@ unsigned doname_flags;
     }
     if (obj->owornmask & W_SWAPWEP) {
         if (u.twoweap) {
-            Sprintf(eos(bp), " (wielded in other %s)", body_part(HAND));
+            Sprintf(eos(bp), " (wielded in other %s)", mbodypart(owner, HAND));
         } else {
             Strcat(bp, " (alternate weapon; not wielded)");
         }

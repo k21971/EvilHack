@@ -3395,4 +3395,5 @@ The following changes to date are:
 - Fix: cmap ordering in tilemap.c (addition of ice trap)
 - Prevent levelporting throughout the Wizard's tower until the Wizard of
   Yendor has been defeated
+- Fix: various monsters showing as having claws when they don't
 
