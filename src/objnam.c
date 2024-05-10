@@ -1560,7 +1560,7 @@ unsigned doname_flags;
     case CHAIN_CLASS:
         add_erosion_words(obj, prefix);
         if (obj->owornmask & W_BALL)
-            Sprintf(eos(bp), " (chained to %s)", isyours ? "you" : mon_nam(owner));
+            Strcat(bp, " (chained to you)");
         break;
     case GEM_CLASS:
         if (obj->otyp == SLING_BULLET)

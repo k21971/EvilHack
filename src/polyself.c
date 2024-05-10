@@ -1965,13 +1965,7 @@ int part;
                           "head", "peduncle", "played out", "gills",
                           "dorsal fin", "caudal fin", "scales", "blood",
                           "gill", "nostril", "stomach", "scales" };
-    /* claw attacks are overloaded in mons[]; most humanoids with
-       such attacks should still reference hands rather than claws */
-    static const char not_claws[] = {
-        S_HUMAN,     S_ANGEL,   S_NYMPH,  S_LEPRECHAUN,
-        S_QUANTMECH, S_ORC,     S_GIANT,  S_GNOME, /* quest nemeses */
-        '\0' /* string terminator; assert( S_xxx != 0 ); */
-    };
+
     struct permonst *mptr = mon->data;
 
     /* some special cases */
@@ -1995,13 +1989,10 @@ int part;
         return humanoid_parts[part]; /* yeti/sasquatch, monkey/ape */
     }
     if ((part == HAND || part == HANDED)
-        && ((humanoid(mptr) && attacktype(mptr, AT_CLAW)
-             && !index(not_claws, mptr->mlet) && mptr != &mons[PM_STONE_GOLEM]
-             && mptr != &mons[PM_INCUBUS] && mptr != &mons[PM_SUCCUBUS])
-            || (has_claws(mptr) || has_claws_undead(mptr))
+        && ((humanoid(mptr) && (has_claws(mptr) || has_claws_undead(mptr)))
             || (mon == &youmonst
                 && (Race_if(PM_DEMON) || Race_if(PM_ILLITHID)
-                   || Race_if(PM_TORTLE)))))
+                    || Race_if(PM_TORTLE)))))
         return (part == HAND) ? "claw" : "clawed";
     if ((mptr == &mons[PM_MUMAK] || mptr == &mons[PM_MASTODON]
          || mptr == &mons[PM_WOOLLY_MAMMOTH])

@@ -3396,4 +3396,5 @@ The following changes to date are:
 - Prevent levelporting throughout the Wizard's tower until the Wizard of
   Yendor has been defeated
 - Fix: various monsters showing as having claws when they don't
+- Fix: update to last commit (claws)
 
