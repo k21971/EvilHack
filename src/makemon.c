@@ -1343,6 +1343,9 @@ register struct monst *mtmp;
             if (!rn2(3))
                 (void) mongets(mtmp, ARMOR);
             (void) mongets(mtmp, POT_INVISIBILITY);
+        } else if (mm == PM_HIPPOCRATES) {
+            (void) mongets(mtmp, AMULET_OF_REFLECTION);
+            (void) mongets(mtmp, RIN_SLOW_DIGESTION);
         } else if (mm == PM_KING_ARTHUR) {
             /* If it has not yet been generated, of course
                Arthur gets Excalibur */

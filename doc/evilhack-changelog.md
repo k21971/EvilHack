@@ -3397,4 +3397,5 @@ The following changes to date are:
   Yendor has been defeated
 - Fix: various monsters showing as having claws when they don't
 - Fix: update to last commit (claws)
+- Hippocrates (Healer quest leader) additional gear
 
