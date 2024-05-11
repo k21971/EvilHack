@@ -4246,6 +4246,24 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         change_luck(-20);
         pline("That was %sa bad idea...",
               u.uevent.qcompleted ? "probably " : "");
+    } else if (mdat == &mons[PM_LOLTH]
+               && u.ualign.type == A_CHAOTIC
+               && Race_if(PM_DROW)) { /* Super bad, just killed your deity */
+        if (canspotmon(mtmp))
+            You_feel("very guilty.");
+        else
+            You("have a vague sense of intense guilt.");
+        uchangealign(A_LAWFUL, 0); /* permanent alignment change */
+        /* even though alignment has changed and the player
+           is now bound to a different deity, they don't take
+           kindly to one of their own being killed */
+        adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
+        u.ugangr += 7; /* instantly become "extremely" angry */
+        change_luck(-20);
+        if (!Hallucination)
+            pline("That was an extremely bad idea...");
+        else
+            pline("Umm... err...");
     } else if (mndx == urole.neminum) { /* Real good! */
         if (!quest_status.killed_leader)
             adjalign((int) (ALIGNLIM / 4));

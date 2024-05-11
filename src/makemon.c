@@ -4059,6 +4059,9 @@ struct monst *mtmp;
             ; /* Moloch's indifference */
         else
             mtmp->malign = -20;
+    } else if (mdat == &mons[PM_LOLTH]
+               && u.ualign.type == A_CHAOTIC && Race_if(PM_DROW)) {
+        mtmp->malign = -30; /*super bad, just killed your deity */
     } else if (mal == A_NONE) {
         if (mtmp->mpeaceful)
             mtmp->malign = 0;
