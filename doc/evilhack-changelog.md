@@ -3398,4 +3398,6 @@ The following changes to date are:
 - Fix: various monsters showing as having claws when they don't
 - Fix: update to last commit (claws)
 - Hippocrates (Healer quest leader) additional gear
+- Fix: certain monster steeds should only be ridden by certain monster
+  riders
 

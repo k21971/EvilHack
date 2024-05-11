@@ -94,6 +94,18 @@ struct monst *rider;
         if (nmon == rider)
             nmon = rider->nmon;
         /* criteria for an acceptable steed */
+        if (!is_drow(rider->data) && is_spider(steed->data))
+            continue;
+        if (!is_drow(rider->data)
+            && (steed->data == &mons[PM_CAVE_LIZARD]
+                || steed->data == &mons[PM_LARGE_CAVE_LIZARD]))
+            continue;
+        if (!is_orc(rider->data) && steed->data == &mons[PM_WARG])
+            continue;
+        if (!(rider->data == &mons[PM_CAVEMAN]
+              || rider->data == &mons[PM_CAVEWOMAN])
+            && steed->data == &mons[PM_SABER_TOOTHED_TIGER])
+            continue;
         if (monnear(rider, steed->mx, steed->my) && mon_can_be_ridden(steed)
             && !steed->ridden_by) {
             break;
