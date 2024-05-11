@@ -3961,15 +3961,21 @@ register struct monst *mtmp;
         return TRUE;
 
     /* Major demons will sometimes be peaceful to unaligned Infidels.
-     * They must pass this 50% check, then the 50% check for chaotics
-     * being non-hostile to unaligned, then the usual check for coaligned.
-     * For crowned Infidels, the random check is bypassed */
+       They must pass this 50% check, then the 50% check for chaotics
+       being non-hostile to unaligned, then the usual check for coaligned.
+       For crowned Infidels, the random check is bypassed. Followers of
+       Lolth - if they are Drow, stay chaotic, and are at least fervently
+       aligned, she will spawn peaceful */
     if (always_hostile(ptr)) {
         if (Role_if(PM_INFIDEL) && is_demon(ptr)
-            && (u.uevent.uhand_of_elbereth || rn2(2)))
+            && (u.uevent.uhand_of_elbereth || rn2(2))) {
             return TRUE;
-        else
+        } else if (ptr == &mons[PM_LOLTH] && ual == A_CHAOTIC
+            && u.ualign.record >= 9 && Race_if(PM_DROW)) {
+            return TRUE;
+        } else {
             return FALSE;
+        }
     }
 
     if (ptr->msound == MS_LEADER || ptr->msound == MS_GUARDIAN)
@@ -3989,15 +3995,15 @@ register struct monst *mtmp;
         return FALSE;
 
     /* the monster is hostile if its alignment is different from the
-     * player's */
+       player's */
     if (sgn(mal) != sgn(ual))
         return FALSE;
 
-    /* Not all chaotics support Moloch.  This goes especially for elves. */
+    /* Not all chaotics support Moloch.  This goes especially for elves */
     if (ual == A_NONE && (racial_elf(mtmp) || rn2(2)))
         return FALSE;
 
-    /* Chaotic monsters hostile to players with Amulet, except Infidels. */
+    /* Chaotic monsters hostile to players with Amulet, except Infidels */
     if (mal < A_NEUTRAL && u.uhave.amulet && !Role_if(PM_INFIDEL))
         return FALSE;
 
@@ -4005,10 +4011,9 @@ register struct monst *mtmp;
     if (is_minion(ptr))
         return (boolean) (u.ualign.record >= 0);
 
-    /* Last case:  a chance of a co-aligned monster being
-     * hostile.  This chance is greater if the player has strayed
-     * (u.ualign.record negative) or the monster is not strongly aligned.
-     */
+    /* Last case: a chance of a co-aligned monster being
+       hostile. This chance is greater if the player has strayed
+       (u.ualign.record negative) or the monster is not strongly aligned */
     return (boolean) (!!rn2(16 + (u.ualign.record < -15 ? -15
                                                         : u.ualign.record))
                       && !!rn2(2 + abs(mal)));

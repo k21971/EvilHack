@@ -3400,4 +3400,6 @@ The following changes to date are:
 - Hippocrates (Healer quest leader) additional gear
 - Fix: certain monster steeds should only be ridden by certain monster
   riders
+- Lolth will be peaceful towards Drow players under the right
+  circumstances
 
