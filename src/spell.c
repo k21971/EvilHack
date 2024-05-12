@@ -971,7 +971,13 @@ boolean wiz_cast;
      *  Note: dotele() also calculates energy use and checks nutrition
      *  and strength requirements; it any of these change, update it too.
      */
-    energy = wiz_cast ? 0 : (spellev(spell) * 5); /* 5 <= energy <= 35 */
+    if (Role_if(PM_WIZARD) && spellid(spell) == SPE_FORCE_BOLT) {
+        /* wizards power use for force bolt is only
+           one point of power per cast */
+        energy = wiz_cast ? 0 : spellev(spell);
+    } else {
+        energy = wiz_cast ? 0 : (spellev(spell) * 5); /* 5 <= energy <= 35 */
+    }
 
     /*
      * Spell casting no longer affects knowledge of the spell. A
@@ -1157,13 +1163,7 @@ boolean wiz_cast;
             losehp(energy, killer.name, KILLED_BY);
         }
     } else {
-        if (Role_if(PM_WIZARD) && spellid(spell) == SPE_FORCE_BOLT) {
-            /* wizards power use for force bolt is only
-               one point of power per cast */
-            u.uen -= energy / 5;
-        } else {
-            u.uen -= energy;
-        }
+        u.uen -= energy;
     }
 
     /* successful casting increases the amount of time the cast

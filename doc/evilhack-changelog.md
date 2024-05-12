@@ -3404,5 +3404,7 @@ The following changes to date are:
   circumstances
 - Penalty for a chaotic Drow killing Lolth
 - Attempt to make Wizards less reliant on weapons, focus more
-  on spellcasting
+  on spellcasting (round one)
+- Attempt to make Wizards less reliant on weapons, focus more
+  on spellcasting (round two)
 

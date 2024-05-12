@@ -138,6 +138,9 @@ struct obj *otmp;
     struct permonst *mdat = mtmp->data;
     boolean disguised_mimic = (mtmp->data->mlet == S_MIMIC
                                && M_AP_TYPE(mtmp) != M_AP_NOTHING);
+    int attack_skill = ((P_SKILL(P_ATTACK_SPELL) >= P_EXPERT)
+                        ? 20 : (P_SKILL(P_ATTACK_SPELL) == P_SKILLED)
+                          ? 16 : (P_SKILL(P_ATTACK_SPELL) == P_BASIC) ? 12 : 6);
     int healing_skill = ((P_SKILL(P_HEALING_SPELL) >= P_EXPERT)
                          ? 10 : (P_SKILL(P_HEALING_SPELL) == P_SKILLED)
                            ? 8 : (P_SKILL(P_HEALING_SPELL) == P_BASIC) ? 6 : 4);
@@ -165,13 +168,13 @@ struct obj *otmp;
             pline("Boing!");
             break; /* skip makeknown */
         } else if (u.uswallow || rnd(20) < 10 + find_mac(mtmp)) {
-            dmg = d(2, 12);
+            dmg = d(2, (otyp == WAN_STRIKING ? 12 : attack_skill));
             if (dbldam)
                 dmg *= 2;
             if (otyp == SPE_FORCE_BOLT)
                 dmg = spell_damage_bonus(dmg);
             hit(zap_type_text, mtmp, exclam(dmg));
-            if (dmg > 16) {
+            if (dmg > 20) {
                 last_hurtled = mtmp;
                 if (dmg < mtmp->mhp) {
                     pline_The("force of %s knocks %s back!",
@@ -211,10 +214,13 @@ struct obj *otmp;
                 shieldeff(mtmp->mx, mtmp->my);
                 pline("%s resists your mental onslaught!", Monnam(mtmp));
             } else if (!DEADMONSTER(mtmp)) {
-                if (u.ulevel >= 26)
+                if (u.ulevel >= 26) {
                     dmg = d(4, 6);
-                else
+                } else if (u.ulevel >= 14) {
+                    dmg = d(3, 6);
+                } else {
                     dmg = d(2, 6);
+                }
 
                 if (!rn2(4) && uarmh && uarmh->otyp == HELM_OF_TELEPATHY) {
                     Your("%s focuses your psychic attack!",
@@ -2581,6 +2587,9 @@ boolean ordinary;
 {
     boolean learn_it = FALSE;
     int damage = 0;
+    int attack_skill = ((P_SKILL(P_ATTACK_SPELL) >= P_EXPERT)
+                        ? 20 : (P_SKILL(P_ATTACK_SPELL) == P_SKILLED)
+                          ? 16 : (P_SKILL(P_ATTACK_SPELL) == P_BASIC) ? 12 : 6);
     int healing_skill = ((P_SKILL(P_HEALING_SPELL) >= P_EXPERT)
                          ? 10 : (P_SKILL(P_HEALING_SPELL) == P_SKILLED)
                            ? 8 : (P_SKILL(P_HEALING_SPELL) == P_BASIC) ? 6 : 4);
@@ -2598,7 +2607,7 @@ boolean ordinary;
         } else {
             if (ordinary) {
                 You("bash yourself!");
-                damage = d(2, 12);
+                damage = d(2, (obj->otyp == WAN_STRIKING ? 12 : attack_skill));
             } else
                 damage = d(1 + obj->spe, 6);
             exercise(A_STR, FALSE);
@@ -2715,10 +2724,13 @@ boolean ordinary;
             } else {
                 You("assault your own mind!");
                 make_stunned((HStun & TIMEOUT) + (long) rnd(10), FALSE);
-                if (u.ulevel >= 26)
+                if (u.ulevel >= 26) {
                     damage = d(4, 6);
-                else
+                } else if (u.ulevel >= 14) {
+                    damage = d(3, 6);
+                } else {
                     damage = d(2, 6);
+                }
             }
         }
         break;
@@ -3756,22 +3768,23 @@ boolean is_wand;
     int dex = ACURR(A_DEX);
 
     if (is_wand) {
-	if (!uwep) { hit_bon = 3; }	/* easier to aim with hands free */
+        if (!uwep) /* easier to aim with hands free */
+            hit_bon = 3;
     } else {
-    switch (P_SKILL(spell_skilltype(skill))) {
-    case P_ISRESTRICTED:
-    case P_UNSKILLED:
-        hit_bon = -4;
-        break;
-    case P_BASIC:
-        hit_bon = 0;
-        break;
-    case P_SKILLED:
-        hit_bon = 4;
-        break;
-    case P_EXPERT:
-        hit_bon = 6;
-        break;
+        switch (P_SKILL(spell_skilltype(skill))) {
+        case P_ISRESTRICTED:
+        case P_UNSKILLED:
+            hit_bon = -4;
+            break;
+        case P_BASIC:
+            hit_bon = 0;
+            break;
+        case P_SKILLED:
+            hit_bon = 4;
+            break;
+        case P_EXPERT:
+            hit_bon = 6;
+            break;
         }
     }
 
