@@ -3408,4 +3408,5 @@ The following changes to date are:
 - Attempt to make Wizards less reliant on weapons, focus more
   on spellcasting (round two)
 - Changes to to-hit formula for force bolt spell
+- Fix: restore ability spell could not be used on ridden steed
 
