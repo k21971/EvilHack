@@ -3403,4 +3403,6 @@ The following changes to date are:
 - Lolth will be peaceful towards Drow players under the right
   circumstances
 - Penalty for a chaotic Drow killing Lolth
+- Attempt to make Wizards less reliant on weapons, focus more
+  on spellcasting
 

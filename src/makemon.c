@@ -311,8 +311,8 @@ struct trobj giantSamurai[] = {
 };
 
 struct trobj giantWizard[] = {
-    { QUARTERSTAFF, 1, WEAPON_CLASS, 1, 1 },
     { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, UNDEF_BLESS },
+    { WAN_MAGIC_MISSILE, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, RING_CLASS, 2, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 3, UNDEF_BLESS },
@@ -418,9 +418,9 @@ struct trobj tortleTourist[] = {
 };
 
 struct trobj tortleWizard[] = {
-    { QUARTERSTAFF, 1, WEAPON_CLASS, 1, 1 },
     { GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, UNDEF_BLESS },
+    { WAN_MAGIC_MISSILE, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, RING_CLASS, 2, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 3, UNDEF_BLESS },
@@ -631,7 +631,11 @@ unsigned short chance;
                            && mtmp->mnum == PM_MONK)
                        || (otyp == SPE_FORCE_BOLT
                            && mtmp->mnum == PM_WIZARD)
+                       || (otyp == WAN_MAGIC_MISSILE
+                           && mtmp->mnum == PM_WIZARD)
                        || (otyp == SPE_DRAIN_LIFE
+                           && mtmp->mnum == PM_INFIDEL)
+                       || (otyp == SPE_CLAIRVOYANCE
                            && mtmp->mnum == PM_INFIDEL)
                        || (obj->oclass == SPBOOK_CLASS
                            && objects[otyp].oc_level > 3)) {

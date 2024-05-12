@@ -222,8 +222,8 @@ struct trobj Valkyrie[] = {
 struct trobj Wizard[] = {
 #define W_MULTSTART 2
 #define W_MULTEND 6
-    { QUARTERSTAFF, 1, WEAPON_CLASS, 1, 1 },
     { CLOAK_OF_MAGIC_RESISTANCE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { WAN_MAGIC_MISSILE, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, RING_CLASS, 2, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 3, UNDEF_BLESS },
@@ -1524,6 +1524,7 @@ register struct trobj *origtrop;
                    || (otyp == SCR_ENCHANT_WEAPON && Role_if(PM_MONK))
                    /* wizard patch -- they already have one */
                    || (otyp == SPE_FORCE_BOLT && Role_if(PM_WIZARD))
+                   || (otyp == WAN_MAGIC_MISSILE && Role_if(PM_WIZARD))
                    /* same for infidels */
                    || (otyp == SPE_DRAIN_LIFE && Role_if(PM_INFIDEL))
                    /* infidels already have auto-clairvoyance

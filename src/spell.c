@@ -1006,6 +1006,7 @@ boolean wiz_cast;
     }
 
     if (wiz_cast) {
+        ;
     } else if (u.uhunger <= 10 && spellid(spell) != SPE_DETECT_FOOD) {
         You("are too hungry to cast that spell.");
         return 0;
@@ -1156,7 +1157,13 @@ boolean wiz_cast;
             losehp(energy, killer.name, KILLED_BY);
         }
     } else {
-        u.uen -= energy;
+        if (Role_if(PM_WIZARD) && spellid(spell) == SPE_FORCE_BOLT) {
+            /* wizards power use for force bolt is only
+               one point of power per cast */
+            u.uen -= energy / 5;
+        } else {
+            u.uen -= energy;
+        }
     }
 
     /* successful casting increases the amount of time the cast
