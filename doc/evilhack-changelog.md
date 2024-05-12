@@ -3407,4 +3407,5 @@ The following changes to date are:
   on spellcasting (round one)
 - Attempt to make Wizards less reliant on weapons, focus more
   on spellcasting (round two)
+- Changes to to-hit formula for force bolt spell
 

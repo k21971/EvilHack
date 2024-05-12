@@ -138,6 +138,9 @@ struct obj *otmp;
     struct permonst *mdat = mtmp->data;
     boolean disguised_mimic = (mtmp->data->mlet == S_MIMIC
                                && M_AP_TYPE(mtmp) != M_AP_NOTHING);
+    int tohit_attack_skill = ((P_SKILL(P_ATTACK_SPELL) >= P_EXPERT)
+                              ? 30 : (P_SKILL(P_ATTACK_SPELL) == P_SKILLED)
+                                ? 20 : (P_SKILL(P_ATTACK_SPELL) == P_BASIC) ? 10 : 8);
     int attack_skill = ((P_SKILL(P_ATTACK_SPELL) >= P_EXPERT)
                         ? 20 : (P_SKILL(P_ATTACK_SPELL) == P_SKILLED)
                           ? 16 : (P_SKILL(P_ATTACK_SPELL) == P_BASIC) ? 12 : 6);
@@ -167,7 +170,10 @@ struct obj *otmp;
             shieldeff(mtmp->mx, mtmp->my);
             pline("Boing!");
             break; /* skip makeknown */
-        } else if (u.uswallow || rnd(20) < 10 + find_mac(mtmp)) {
+        } else if (u.uswallow
+                   || (rnd(20) < (otyp == WAN_STRIKING ? 10
+                                                       : tohit_attack_skill)
+                       + find_mac(mtmp))) {
             dmg = d(2, (otyp == WAN_STRIKING ? 12 : attack_skill));
             if (dbldam)
                 dmg *= 2;
