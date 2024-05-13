@@ -1549,7 +1549,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 tmp += rn1(4, 3); /* 3..6 */
             if (tmp < 1) /* is this necessary?  mhitu.c has it... */
                 tmp = 1;
-            if (mwep->oartifact) {
+            if (mwep->oartifact
+                || ((mwep->oclass == WEAPON_CLASS
+                     || is_weptool(mwep) || is_bullet(mwep))
+                    && mwep->oprops)) {
                 (void) artifact_hit(magr, mdef, mwep, &tmp, dieroll);
                 if (DEADMONSTER(mdef))
                     return (MM_DEF_DIED

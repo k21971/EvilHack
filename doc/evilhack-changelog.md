@@ -3412,4 +3412,5 @@ The following changes to date are:
 - Set max skill for Wizards and quarterstaff back to expert
 - Allow lightning spell to be cast as an area of effect  ball of
   lightning at skilled or greater in attack spells
+- Sling bullets can have object properties
 

@@ -1011,6 +1011,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, actualn);
             if (GemStone(typ))
                 Strcat(buf, " stone");
+            propnames(buf, obj->oprops, obj->oprops_known,
+                      TRUE, !!strstri(buf, " of "));
         }
         break;
     }
@@ -5242,7 +5244,7 @@ struct obj *no_wish;
 
     /* object property restrictions */
     if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
-        || otmp->oclass == ARMOR_CLASS) {
+        || is_bullet(otmp) || otmp->oclass == ARMOR_CLASS) {
         if (objprops & ITEM_FROST)
             objprops &= ~(ITEM_FIRE | ITEM_DRLI
                           | ITEM_SHOCK | ITEM_VENOM);
@@ -5274,7 +5276,7 @@ struct obj *no_wish;
             objprops &= ~(ITEM_FIRE | ITEM_FROST | ITEM_DRLI
                           | ITEM_SHOCK | ITEM_VENOM | ITEM_OILSKIN);
 
-        if (is_ammo(otmp) || is_missile(otmp))
+        if (is_ammo(otmp) || is_missile(otmp) || is_bullet(otmp))
             objprops &= ~(ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP
                           | ITEM_SEARCHING | ITEM_WARNING | ITEM_FUMBLING
                           | ITEM_HUNGER | ITEM_EXCEL);

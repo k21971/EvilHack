@@ -1511,9 +1511,10 @@ register struct attack *mattk;
                     dmg += rn1(4, 3); /* 3..6 */
                 if (dmg <= 0)
                     dmg = 1;
-                if (!(((otmp->oclass == WEAPON_CLASS
+                if (!((((otmp->oclass == WEAPON_CLASS
+                         || is_weptool(otmp) || is_bullet(otmp))
                         && otmp->oprops) || otmp->oartifact)
-                        && artifact_hit(mtmp, &youmonst, otmp, &dmg, dieroll)))
+                      && artifact_hit(mtmp, &youmonst, otmp, &dmg, dieroll)))
                     hitmsg(mtmp, mattk);
 
                 if (otmp->opoisoned && is_poisonable(otmp))

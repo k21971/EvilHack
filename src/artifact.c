@@ -368,7 +368,7 @@ boolean allow_detrimental;
         return otmp;
 
     /* properties only added to weapons and armor */
-    if (otmp->oclass != WEAPON_CLASS
+    if (otmp->oclass != WEAPON_CLASS && !is_bullet(otmp)
         && !is_weptool(otmp) && otmp->oclass != ARMOR_CLASS)
         return otmp;
 
@@ -397,7 +397,7 @@ boolean allow_detrimental;
                       | ITEM_VENOM | ITEM_DRLI | ITEM_OILSKIN)))
             continue;
 
-        if ((is_ammo(otmp) || is_missile(otmp))
+        if ((is_ammo(otmp) || is_missile(otmp) || is_bullet(otmp))
             && (j & (ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP
                      | ITEM_EXCEL | ITEM_SEARCHING | ITEM_WARNING
                      | ITEM_FUMBLING | ITEM_HUNGER)))
@@ -428,7 +428,7 @@ boolean allow_detrimental;
     /* Fix it up as necessary */
     if (otmp->oprops
         && (otmp->oclass == WEAPON_CLASS
-            || otmp->oclass == ARMOR_CLASS)
+            || otmp->oclass == ARMOR_CLASS || is_bullet(otmp))
         && !(otmp->oprops & (ITEM_FUMBLING | ITEM_HUNGER))) {
         if (!rn2(8)) {
             blessorcurse(otmp, 8);
@@ -683,7 +683,8 @@ struct obj *otmp;
         return TRUE;
 
     if (!weap && otmp->oprops
-        && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+        && (otmp->oclass == WEAPON_CLASS
+            || is_weptool(otmp) || is_bullet(otmp)
             || (uarms && otmp == uarms)
             || (uarmg && otmp == uarmg))) {
         if (adtyp == AD_FIRE
@@ -1350,7 +1351,8 @@ int tmp;
     int dbon = 0, adtype;
 
     if (!weap && otmp->oprops
-        && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+        && (otmp->oclass == WEAPON_CLASS
+            || is_weptool(otmp) || is_bullet(otmp)
             || (uarms && otmp == uarms)
             || (uarmg && otmp == uarmg))) {
         /* until we know otherwise... */
@@ -1826,6 +1828,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                   : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             } else if ((otmp->oclass == WEAPON_CLASS
+                        || is_weptool(otmp) || is_bullet(otmp)
                         || otmp == uarms || otmp == uarmg)
                        && (otmp->oprops & ITEM_FIRE)) {
                 pline_The("%s %s %s%c",
@@ -1905,6 +1908,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                   : "freezes",
                           hittee,  !spec_dbon_applies ? '.' : '!');
             } else if ((otmp->oclass == WEAPON_CLASS
+                        || is_weptool(otmp) || is_bullet(otmp)
                         || otmp == uarms || otmp == uarmg)
                        && (otmp->oprops & ITEM_FROST)) {
                 pline_The("%s %s %s%c",
@@ -1950,6 +1954,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           : "!  Lightning strikes",
                       hittee, !spec_dbon_applies ? '.' : '!');
             } else if ((otmp->oclass == WEAPON_CLASS
+                        || is_weptool(otmp) || is_bullet(otmp)
                         || otmp == uarms || otmp == uarmg)
                        && (otmp->oprops & ITEM_SHOCK)) {
                 pline_The("%s %s %s%c",
@@ -2137,7 +2142,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : rn2(2) ? "poisons" : "eviscerates",
                           hittee, !spec_dbon_applies ? '.' : '!');
-            } else if (otmp->oclass == WEAPON_CLASS
+            } else if ((otmp->oclass == WEAPON_CLASS
+                        || is_weptool(otmp) || is_bullet(otmp))
                        && (otmp->oprops & ITEM_VENOM)) {
                 pline_The("%s %s %s%c",
                           distant_name(otmp, xname),

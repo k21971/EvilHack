@@ -210,6 +210,7 @@ struct obj {
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
      && objects[otmp->otyp].oc_skill >= -P_BOOMERANG              \
      && objects[otmp->otyp].oc_skill <= -P_DART)
+#define is_bullet(otmp) (otmp->otyp == SLING_BULLET)
 #define is_weptool(o) \
     ((o)->oclass == TOOL_CLASS && objects[(o)->otyp].oc_skill != P_NONE)
         /* towel is not a weptool:  spe isn't an enchantment, cursed towel

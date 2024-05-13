@@ -1201,7 +1201,8 @@ boolean hitsroof;
         int dmg = dmgval(obj, &youmonst);
 
         if (obj->oartifact
-            || (obj->oclass == WEAPON_CLASS && obj->oprops))
+            || ((obj->oclass == WEAPON_CLASS
+                 || is_weptool(obj) || is_bullet(obj)) && obj->oprops))
             /* need a fake die roll here; rn1(18,2) avoids 1 and 20 */
             artimsg = artifact_hit((struct monst *) 0, &youmonst, obj, &dmg,
                                    rn1(18, 2));
@@ -1350,7 +1351,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                 You("hit yourself in the %s!", body_part(LEG));
 
                 if (obj->oartifact
-                    || (obj->oclass == WEAPON_CLASS && obj->oprops))
+                    || ((obj->oclass == WEAPON_CLASS
+                         || is_weptool(obj) || is_bullet(obj)) && obj->oprops))
                     /* need a fake die roll here; rn1(18,2) avoids 1 and 20 */
                     (void) artifact_hit((struct monst *) 0, &youmonst, obj, &dmg,
                                         rn1(18, 2));

@@ -855,7 +855,9 @@ struct attack *uattk;
             Your("cursed %s turns against you!", simpleonames(uwep));
             You("hit yourself in the %s!", body_part(FACE));
             if (uwep->oartifact
-                || (uwep->oclass == WEAPON_CLASS && uwep->oprops))
+                || ((uwep->oclass == WEAPON_CLASS
+                     || is_weptool(uwep) || is_bullet(uwep))
+                    && uwep->oprops))
                 /* need a fake die roll here; rn1(18,2) avoids 1 and 20 */
                 (void) artifact_hit((struct monst *) 0, &youmonst, uwep, &dmg_wep,
                                     rn1(18, 2));
@@ -1338,7 +1340,9 @@ int dieroll;
                         monflee(mon, d(2, 3), TRUE, TRUE);
                     hittxt = TRUE;
                 }
-                if (((obj->oclass == WEAPON_CLASS && obj->oprops) || obj->oartifact)
+                if ((((obj->oclass == WEAPON_CLASS
+                       || is_weptool(obj) || is_bullet(obj)) && obj->oprops)
+                     || obj->oartifact)
                     && artifact_hit(&youmonst, mon, obj, &tmp, dieroll)) {
                     if (DEADMONSTER(mon)) /* artifact killed monster */
                         return FALSE;
