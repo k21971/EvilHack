@@ -3409,4 +3409,5 @@ The following changes to date are:
   on spellcasting (round two)
 - Changes to to-hit formula for force bolt spell
 - Fix: restore ability spell could not be used on ridden steed
+- Set max skill for Wizards and quarterstaff back to expert
 
