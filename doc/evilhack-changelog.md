@@ -3410,4 +3410,6 @@ The following changes to date are:
 - Changes to to-hit formula for force bolt spell
 - Fix: restore ability spell could not be used on ridden steed
 - Set max skill for Wizards and quarterstaff back to expert
+- Allow lightning spell to be cast as an area of effect  ball of
+  lightning at skilled or greater in attack spells
 
