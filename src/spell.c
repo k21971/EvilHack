@@ -1150,7 +1150,9 @@ boolean wiz_cast;
            healing can cure 6d4 worth of hit points,
            casting it drains 30 hit points.
            extra healing can cure 6d8 worth of hit points,
-           but casting it drains 60 hit points. The net
+           but casting it drains 60 hit points. critical
+           healing can cure 6d12 worth of hit points, but
+           casting it drains 90 hit points. The net
            result is that our Infidel will still lose about
            the same amount of hit points as if casting
            something other than healing/extra healing */
@@ -1159,6 +1161,8 @@ boolean wiz_cast;
             losehp(6 * energy, killer.name, KILLED_BY);
         } else if (spellid(spell) == SPE_EXTRA_HEALING) {
             losehp(4 * energy, killer.name, KILLED_BY);
+        } else if (spellid(spell) == SPE_CRITICAL_HEALING) {
+            losehp(3 * energy, killer.name, KILLED_BY);
         } else {
             losehp(energy, killer.name, KILLED_BY);
         }
@@ -1272,6 +1276,7 @@ boolean wiz_cast;
     case SPE_DETECT_UNSEEN:
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
+    case SPE_CRITICAL_HEALING:
     case SPE_CURE_SICKNESS:
     case SPE_RESTORE_ABILITY:
     case SPE_DRAIN_LIFE:
@@ -1279,8 +1284,8 @@ boolean wiz_cast;
     case SPE_PSIONIC_WAVE:
         if (objects[otyp].oc_dir != NODIR) {
             if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING
-                || otyp == SPE_RESTORE_ABILITY) {
-                /* healing/extra healing/restore ability are actually potion
+                || otyp == SPE_CRITICAL_HEALING || otyp == SPE_RESTORE_ABILITY) {
+                /* damage healing spells/restore ability are actually potion
                    effects, but they've been extended to take a direction
                    like wands */
                 if (role_skill >= P_SKILLED)
@@ -2039,6 +2044,7 @@ int spell;
     /* `healing spell' bonus */
     if (spellid(spell) == SPE_HEALING
         || spellid(spell) == SPE_EXTRA_HEALING
+        || spellid(spell) == SPE_CRITICAL_HEALING
         || spellid(spell) == SPE_CURE_BLINDNESS
         || spellid(spell) == SPE_CURE_SICKNESS
         || spellid(spell) == SPE_RESTORE_ABILITY

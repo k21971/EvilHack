@@ -6182,7 +6182,8 @@ short otyp;
     case M_AP_MONSTER:
         break;
     case M_AP_OBJECT:
-        if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING) {
+        if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING
+            || otyp == SPE_CRITICAL_HEALING) {
             pline("%s seems a more vivid %s than before.",
                   The(simple_typename(ap)),
                   c_obj_colors[objects[ap].oc_color]);

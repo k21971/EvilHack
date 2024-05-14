@@ -472,22 +472,28 @@ struct obj *otmp;
         break;
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
+    case SPE_CRITICAL_HEALING:
         reveal_invis = TRUE;
         if (mtmp->data != &mons[PM_PESTILENCE]) {
             boolean already_max = (mtmp->mhp == mtmp->mhpmax);
             wake = FALSE; /* wakeup() makes the target angry */
-            mtmp->mhp += d(healing_skill, otyp == SPE_EXTRA_HEALING ? 8 : 4);
+            mtmp->mhp += d(healing_skill,
+                           otyp == SPE_CRITICAL_HEALING
+                             ? 12 : otyp == SPE_EXTRA_HEALING ? 8 : 4);
             if (mtmp->mhp > mtmp->mhpmax)
                 mtmp->mhp = mtmp->mhpmax;
             /* plain healing must be blessed to cure blindness; extra
                healing only needs to not be cursed, so spell always cures
                [potions quaffed by monsters behave slightly differently;
                we use the rules for the hero here...] */
-            if (skilled_spell || otyp == SPE_EXTRA_HEALING)
+            if (skilled_spell || otyp == SPE_EXTRA_HEALING
+                || otyp == SPE_CRITICAL_HEALING)
                 mcureblindness(mtmp, canseemon(mtmp));
+            if (!rn2(4) && otyp == SPE_CRITICAL_HEALING)
+                mtmp->msick = mtmp->mwither = 0;
             if (canseemon(mtmp)) {
                 if (disguised_mimic) {
-                    if (is_obj_mappear(mtmp,STRANGE_OBJECT)) {
+                    if (is_obj_mappear(mtmp, STRANGE_OBJECT)) {
                         /* it can do better now */
                         set_mimic_sym(mtmp);
                         newsym(mtmp->mx, mtmp->my);
@@ -495,7 +501,9 @@ struct obj *otmp;
                         mimic_hit_msg(mtmp, otyp);
                 } else
                     pline("%s looks%s better.", Monnam(mtmp),
-                          otyp == SPE_EXTRA_HEALING ? " much" : "");
+                          otyp == SPE_CRITICAL_HEALING
+                          ? " considerably" : otyp == SPE_EXTRA_HEALING
+                            ? " much" : "");
             }
             if ((mtmp->mtame || mtmp->mpeaceful) && !already_max) {
                 if (Role_if(PM_HEALER)) {
@@ -509,7 +517,8 @@ struct obj *otmp;
         } else { /* Pestilence */
             /* Pestilence will always resist; damage is half of 3d{4,8} */
             (void) resist(mtmp, otmp->oclass,
-                          d(3, otyp == SPE_EXTRA_HEALING ? 8 : 4), TELL);
+                          d(3, otyp == SPE_CRITICAL_HEALING
+                            ? 12 : otyp == SPE_EXTRA_HEALING ? 8 : 4), TELL);
         }
         break;
     case SPE_CURE_SICKNESS:
@@ -2366,6 +2375,7 @@ struct obj *obj, *otmp;
         case WAN_NOTHING:
         case SPE_HEALING:
         case SPE_EXTRA_HEALING:
+        case SPE_CRITICAL_HEALING:
         case SPE_CURE_SICKNESS:
         case SPE_RESTORE_ABILITY:
         case SPE_PSIONIC_WAVE:
@@ -2881,10 +2891,29 @@ boolean ordinary;
         break;
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
+    case SPE_CRITICAL_HEALING:
         learn_it = TRUE; /* (no effect for spells...) */
-        healup(d(healing_skill, obj->otyp == SPE_EXTRA_HEALING ? 8 : 4), 0, FALSE,
-               (obj->blessed || obj->otyp == SPE_EXTRA_HEALING));
-        You_feel("%sbetter.", obj->otyp == SPE_EXTRA_HEALING ? "much " : "");
+        if (!rn2(4) && obj->otyp == SPE_CRITICAL_HEALING) {
+            if (Sick) {
+                You("are no longer ill.");
+                healup(0, 0, TRUE, FALSE);
+            }
+            if (Slimed)
+                make_slimed(0L, "The slime disappears!");
+            if (Withering) {
+                set_itimeout(&HWithering, (long) 0);
+                if (!Withering)
+                    You("are no longer withering away.");
+            }
+        }
+        healup(d(healing_skill, obj->otyp == SPE_CRITICAL_HEALING
+                 ? 12 : obj->otyp == SPE_EXTRA_HEALING ? 8 : 4), 0, FALSE,
+               (obj->blessed
+                || obj->otyp == SPE_EXTRA_HEALING
+                || obj->otyp == SPE_CRITICAL_HEALING));
+        You_feel("%sbetter.", obj->otyp == SPE_CRITICAL_HEALING
+                              ? "considerably " : obj->otyp == SPE_EXTRA_HEALING
+                                ? "much " : "");
         break;
     case SPE_CURE_SICKNESS:
         if (is_zombie(youmonst.data)) {
@@ -3162,6 +3191,7 @@ struct obj *obj; /* wand or spell */
     case WAN_SPEED_MONSTER:
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
+    case SPE_CRITICAL_HEALING:
     case SPE_DRAIN_LIFE:
     case WAN_OPENING:
     case SPE_KNOCK:

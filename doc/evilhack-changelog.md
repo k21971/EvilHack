@@ -3413,4 +3413,5 @@ The following changes to date are:
 - Allow lightning spell to be cast as an area of effect  ball of
   lightning at skilled or greater in attack spells
 - Sling bullets can have object properties
+- New spell - critical healing
 
