@@ -221,7 +221,7 @@ const struct Role roles[] = {
       S_YETI,
       ART_STAFF_OF_AESCULAPIUS,
       MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
-          | MH_CENTAUR | MH_TORTLE,
+          | MH_GIANT | MH_CENTAUR | MH_TORTLE,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 13, 7, 11, 16 },

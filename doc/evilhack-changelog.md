@@ -3414,4 +3414,5 @@ The following changes to date are:
   lightning at skilled or greater in attack spells
 - Sling bullets can have object properties
 - New spell - critical healing
+- New player race/role combo - giant Healer
 

@@ -6550,7 +6550,7 @@ short mndx;
     case PM_HEALER:
         permitted |=
             (MH_DWARF | MH_ELF | MH_GNOME | MH_HOBBIT | MH_CENTAUR
-             | MH_TORTLE);
+             | MH_GIANT | MH_TORTLE);
         break;
     case PM_INFIDEL:
         permitted |= (MH_ELF | MH_GIANT | MH_ORC | MH_ILLITHID
@@ -6707,7 +6707,8 @@ short raceidx;
         break;
     case PM_GIANT:
         if (!(mtmp->mnum == PM_WIZARD || mtmp->mnum == PM_MONK
-              || mtmp->mnum == PM_PRIEST || mtmp->mnum == PM_PRIESTESS)) {
+              || mtmp->mnum == PM_HEALER || mtmp->mnum == PM_PRIEST
+              || mtmp->mnum == PM_PRIESTESS)) {
             rptr->mattk[0].aatyp = AT_WEAP;
             rptr->mattk[0].adtyp = AD_CLOB;
             rptr->mattk[0].damn = 2;
@@ -6722,6 +6723,8 @@ short raceidx;
         if (mtmp->mnum == PM_BARBARIAN
             || mtmp->mnum == PM_WIZARD)
             rptr->ralign = rn2(2) ? 0 : -3;
+        if (mtmp->mnum == PM_HEALER)
+            rptr->ralign = 0;
         if (mtmp->mnum == PM_MONK
             || mtmp->mnum == PM_PRIEST
             || mtmp->mnum == PM_PRIESTESS)
