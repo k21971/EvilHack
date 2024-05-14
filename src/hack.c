@@ -2422,7 +2422,7 @@ boolean newspot;             /* true if called by spoteffects */
             still_inwater = TRUE;
         } else if (Levitation) {
             You("pop out of the %s like a cork!", hliquid("water"));
-        } else if (Flying) {
+        } else if (EFlying) { /* extrinsic source only */
             You("fly out of the %s.", hliquid("water"));
         } else if (EWwalking) { /* extrinsic source only */
             You("slowly rise above the surface.");

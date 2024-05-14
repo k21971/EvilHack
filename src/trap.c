@@ -4613,7 +4613,10 @@ drown()
 
     if (!u.uinwater) {
         You("%s into the %s%c",
-            (Is_waterlevel(&u.uz) || HWwalking) ? "plunge" : "fall",
+            (Is_waterlevel(&u.uz)
+             ? "plunge" : HWwalking
+                        ? "step down" : HFlying
+                                      ? "fly down" : "fall"),
             hliquid(!is_sewage(u.ux, u.uy) ? "water" : "sewage"),
             Amphibious || Swimming ? '.' : '!');
         if (!Swimming && !Is_waterlevel(&u.uz))

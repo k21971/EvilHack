@@ -1215,8 +1215,10 @@ dodown()
         if (trap && (uteetering_at_seen_pit(trap) || uescaped_shaft(trap))) {
             dotrap(trap, TOOKPLUNGE);
             return 1;
-        } else if (IS_POOL(levl[u.ux][u.uy].typ) && HWwalking) {
-            /* Monks that have intrinsic water walking but
+        } else if (IS_POOL(levl[u.ux][u.uy].typ)
+                   && (HWwalking || HFlying)) {
+            /* Monks that have intrinsic water walking,
+               or Illithids that have obtained flight, but
                still wish to go for a dip in the pool */
             drown();
             return 1;
@@ -1309,6 +1311,23 @@ doup()
     /* "up" to get out of a pit... */
     if (u.utrap && u.utraptype == TT_PIT) {
         climb_pit();
+        return 1;
+    }
+
+    /* "up" to get out of a pool if you have
+        intrinsic water walking or flying */
+    if (u.uinwater && (HWwalking || HFlying)) {
+        boolean was_underwater = (Underwater && !Is_waterlevel(&u.uz));
+
+        You("%s out of the water.",
+            HWwalking ? "step up" : "fly");
+        u.uinwater = 0;       /* leave the water */
+        if (was_underwater) { /* restore vision */
+            if (See_underwater)
+                vision_reset();
+            docrt();
+            vision_full_recalc = 1;
+        }
         return 1;
     }
 
