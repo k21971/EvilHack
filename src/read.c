@@ -1418,7 +1418,8 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             }
             make_stunned((HStun & TIMEOUT) + (long) rn1(10, 10), TRUE);
         }
-    } break;
+        break;
+    }
     case SCR_CONFUSE_MONSTER:
     case SPE_CONFUSE_MONSTER:
         if (youmonst.data->mlet != S_HUMAN || scursed) {
@@ -1457,6 +1458,113 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                     u.umconf++;
                 else
                     u.umconf += rn1(8, 2);
+            }
+        }
+        break;
+    case SPE_BURNING_HANDS:
+        if (u.umshock) {
+            Your("%s are already energized.",
+                 makeplural(body_part(HAND)));
+            break;
+        } else if (u.uinwater) {
+            Your("%s glow for a brief moment, then return to normal.",
+                 makeplural(body_part(HAND)));
+            break;
+        } else if (confused) {
+            /* can't cast spells when confused, but including this
+               here in case this ever becomes a scroll that can
+               be read */
+            if (!sblessed) {
+                if (Blind)
+                    Your("%s feel warm.", makeplural(body_part(HAND)));
+                else
+                    Your("%s are engulfed in a %s flame.",
+                         makeplural(body_part(HAND)), hcolor(NH_PURPLE));
+                if (how_resistant(FIRE_RES) < 100)
+                    losehp(1, "burning hands", KILLED_BY);
+            } else {
+                if (Blind)
+                    Your("%s feel warm.", body_part(HEAD));
+                else
+                    pline("A %s flame engulfs your %s.",
+                          hcolor(NH_PURPLE), body_part(HEAD));
+                if (how_resistant(FIRE_RES) < 100)
+                    losehp(6, "burning hands", KILLED_BY);
+            }
+        } else {
+            if (!sblessed) {
+                if (Blind)
+                    Your("%s feel hot.", makeplural(body_part(HAND)));
+                else
+                    Your("%s are engulfed in a%s%s flame.",
+                         makeplural(body_part(HAND)),
+                         u.umburn ? " bright " : "n ", hcolor(NH_ORANGE));
+                u.umburn++;
+            } else {
+                if (Blind)
+                    Your("%s feel %s hot.", makeplural(body_part(HAND)),
+                         u.umburn ? "extremely" : "very");
+                else
+                    Your("%s are engulfed in a %s %s flame.",
+                         makeplural(body_part(HAND)),
+                         u.umburn ? "searing" : "brilliant", hcolor(NH_ORANGE));
+                /* after a while, repeated uses become less effective */
+                if (u.umburn >= 20)
+                    u.umburn++;
+                else
+                    u.umburn += rn1(4, 2);
+            }
+            burn_away_slime();
+        }
+        break;
+    case SPE_SHOCKING_GRASP:
+        if (u.umburn) {
+            Your("%s are already engulfed in flame.",
+                 makeplural(body_part(HAND)));
+            break;
+        } else if (confused) {
+            /* can't cast spells when confused, but including this
+               here in case this ever becomes a scroll that can
+               be read */
+            if (!sblessed) {
+                if (Blind)
+                    Your("%s feel numb.", makeplural(body_part(HAND)));
+                else
+                    Your("%s are surrounded by a %s aura.",
+                         makeplural(body_part(HAND)), hcolor(NH_PURPLE));
+                if (how_resistant(SHOCK_RES) < 100)
+                    losehp(1, "shocking grasp", KILLED_BY);
+            } else {
+                if (Blind)
+                    Your("%s feel numb.", body_part(HEAD));
+                else
+                    pline("A %s aura surrounds your %s.",
+                          hcolor(NH_PURPLE), body_part(HEAD));
+                if (how_resistant(SHOCK_RES) < 100)
+                    losehp(6, "shocking grasp", KILLED_BY);
+            }
+        } else {
+            if (!sblessed) {
+                if (Blind)
+                    Your("%s feel energized.", makeplural(body_part(HAND)));
+                else
+                    Your("%s are surrounded by a %s%s aura.",
+                         makeplural(body_part(HAND)),
+                         u.umshock ? "bright " : "", hcolor(NH_BLUE));
+                u.umshock++;
+            } else {
+                if (Blind)
+                    Your("%s feel %s energized.", makeplural(body_part(HAND)),
+                         u.umshock ? "extremely" : "very");
+                else
+                    Your("%s are surrounded by a%s %s aura.",
+                         makeplural(body_part(HAND)),
+                         u.umshock ? "n energetic" : " brilliant", hcolor(NH_BLUE));
+                /* after a while, repeated uses become less effective */
+                if (u.umshock >= 20)
+                    u.umshock++;
+                else
+                    u.umshock += rn1(4, 2);
             }
         }
         break;

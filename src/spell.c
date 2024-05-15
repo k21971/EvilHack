@@ -1324,6 +1324,8 @@ boolean wiz_cast;
     /* these are all duplicates of scroll effects */
     case SPE_REMOVE_CURSE:
     case SPE_CONFUSE_MONSTER:
+    case SPE_BURNING_HANDS:
+    case SPE_SHOCKING_GRASP:
     case SPE_DETECT_FOOD:
     case SPE_CAUSE_FEAR:
     case SPE_IDENTIFY:

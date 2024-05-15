@@ -23,6 +23,8 @@ STATIC_DCL void NDECL(end_engulf);
 STATIC_DCL int FDECL(gulpum, (struct monst *, struct attack *));
 STATIC_DCL boolean FDECL(hmonas, (struct monst *, int, BOOLEAN_P));
 STATIC_DCL void FDECL(nohandglow, (struct monst *));
+STATIC_DCL void NDECL(nohandburn);
+STATIC_DCL void NDECL(nohandshock);
 STATIC_DCL boolean FDECL(shade_aware, (struct obj *));
 
 extern boolean notonhead; /* for long worms */
@@ -1722,6 +1724,14 @@ int dieroll;
         && Dragon_armor_to_scales(uarm) == RED_DRAGON_SCALES)
 	tmp += rnd(6);
 
+    /* potential for gloves with an object property
+       to do additional damage */
+    if (!destroyed && !rn2(3) && !uwep && uarmg
+        && (uarmg->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK))) {
+        artifact_hit(&youmonst, mon, uarmg, &tmp, dieroll);
+        hittxt = TRUE;
+    }
+
     /* wielding The Sword of Kas against Vecna does
        triple damage. Has to be wielded in primary hand */
     if (uwep && uwep->oartifact == ART_SWORD_OF_KAS
@@ -1737,6 +1747,26 @@ int dieroll;
             || mdat == &mons[PM_ALHOON]))
         tmp *= 2;
 
+    /* The Hand of Vecna imparts cold damage to attacks,
+       whether bare-handed or wielding a weapon */
+    if (!destroyed && uarmg
+        && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
+        if (!Blind)
+            pline("%s covers %s in frost!", The(xname(uarmg)),
+                  mon_nam(mon));
+        if (resists_cold(mon) || defended(mon, AD_COLD)) {
+            shieldeff(mon->mx, mon->my);
+            if (!Blind)
+                pline_The("frost doesn't chill %s!", mon_nam(mon));
+            golemeffects(mon, AD_COLD, tmp);
+            tmp = 0;
+        } else {
+            (void) destroy_mitem(mon, POTION_CLASS, AD_COLD);
+            tmp += rnd(5) + 7; /* 8-12 hit points of cold damage */
+        }
+        hittxt = TRUE;
+    }
+
     /* if lawful, trained in martial arts, and wearing the
        Gauntlets of Purity, get a damage bonus when attacking
        unarmed */
@@ -1744,6 +1774,78 @@ int dieroll;
         && u.ualign.type == A_LAWFUL && martial_bonus()
         && uarmg && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY)
         tmp += rnd(4) + 2;
+
+    /* burning hands spell */
+    if (!destroyed && u.umburn
+        && hand_to_hand && actually_unarmed) {
+        int enchant_skill = ((P_SKILL(P_ENCHANTMENT_SPELL) >= P_EXPERT)
+                             ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
+                               ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
+                                 ? 2 : 1);
+
+        nohandburn();
+        if (resists_fire(mon) || defended(mon, AD_FIRE)
+            || mon_underwater(mon)) {
+            shieldeff(mon->mx, mon->my);
+            if (!Blind)
+                Your("%s don't burn %s!",
+                     makeplural(body_part(HAND)),
+                     mon_nam(mon));
+            golemeffects(mon, AD_FIRE, tmp);
+            tmp = 0;
+        } else {
+            You("burn %s with your %s!", mon_nam(mon),
+                 makeplural(body_part(HAND)));
+
+            if (!rn2(4))
+                (void) destroy_mitem(mon, POTION_CLASS, AD_FIRE);
+            if (!rn2(4))
+                (void) destroy_mitem(mon, SCROLL_CLASS, AD_FIRE);
+            if (!rn2(7))
+                (void) destroy_mitem(mon, SPBOOK_CLASS, AD_FIRE);
+
+            if (completelyburns(mon->data) || is_wooden(mon->data)
+                || mon->data == &mons[PM_GREEN_SLIME]) {
+                if (!already_killed)
+                    pline("%s ignites and turns to ash!", Monnam(mon));
+                destroyed = TRUE; /* return FALSE; */
+            } else {
+                tmp += d(enchant_skill, 4);
+            }
+        }
+        hittxt = TRUE;
+    }
+
+    /* shocking grasp spell */
+    if (!destroyed && u.umshock
+        && hand_to_hand && actually_unarmed) {
+        int enchant_skill = ((P_SKILL(P_ENCHANTMENT_SPELL) >= P_EXPERT)
+                             ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
+                               ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
+                                 ? 2 : 1);
+
+        nohandshock();
+        if (resists_elec(mon) || defended(mon, AD_ELEC)) {
+            shieldeff(mon->mx, mon->my);
+            if (!Blind)
+                Your("%s don't shock %s!",
+                     makeplural(body_part(HAND)),
+                     mon_nam(mon));
+            golemeffects(mon, AD_ELEC, tmp);
+            tmp = 0;
+        } else {
+            You("shock %s with your %s!", mon_nam(mon),
+                 makeplural(body_part(HAND)));
+
+            if (!rn2(4))
+                (void) destroy_mitem(mon, WAND_CLASS, AD_ELEC);
+            if (!rn2(5))
+                (void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
+
+            tmp += d(enchant_skill, 6);
+        }
+        hittxt = TRUE;
+    }
 
     if (valid_weapon_attack) {
         struct obj *wep;
@@ -1986,31 +2088,6 @@ int dieroll;
         }
     }
 
-    /* The Hand of Vecna imparts cold damage to attacks,
-       whether bare-handed or wielding a weapon */
-    if (!destroyed && uarmg
-        && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
-        if (!Blind)
-            pline("%s covers %s in frost!", The(xname(uarmg)),
-                  mon_nam(mon));
-        if (resists_cold(mon) || defended(mon, AD_COLD)) {
-            shieldeff(mon->mx, mon->my);
-            if (!Blind)
-                pline_The("frost doesn't chill %s!", mon_nam(mon));
-            golemeffects(mon, AD_COLD, tmp);
-            tmp = 0;
-        } else {
-            tmp += destroy_mitem(mon, POTION_CLASS, AD_COLD);
-            tmp += rnd(5) + 7; /* 8-12 hit points of cold damage */
-        }
-    }
-
-    /* potential for gloves with an object property
-       to do additional damage */
-    if (!destroyed && !rn2(3) && !uwep && uarmg
-        && (uarmg->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK)))
-        artifact_hit(&youmonst, mon, uarmg, &tmp, dieroll);
-
     if ((obj || actually_unarmed) && hated_obj)
         searmsg(&youmonst, mon, hated_obj, FALSE);
 
@@ -2037,6 +2114,7 @@ int dieroll;
             whom = strcat(s_suffix(whom), " flesh");
         pline(fmt, whom);
     }
+
     /* Weapons have a chance to id after a certain number of kills with
        them. The more powerful a weapon, the lower this chance is. This
        way, there is uncertainty about when a weapon will ID, but spoiled
@@ -2083,18 +2161,14 @@ int dieroll;
             obj->oprops_known |= ITEM_VENOM;
             update_inventory();
         }
-    } else if (destroyed) {
+    } else if (taintsleep) {
+        if (sleep_monst(mon, rn2(3) + 2, WEAPON_CLASS)) {
+            pline("%s loses consciousness.", Monnam(mon));
+            slept_monst(mon);
+        }
+    } else if (destroyed) { /* any function using tmp needs to be above this line */
         if (!already_killed)
             killed(mon); /* takes care of most messages */
-    } else if (taintsleep) {
-        if (!rn2(3)) {
-            tmp += rnd(2);
-        } else {
-            if (sleep_monst(mon, rn2(3) + 2, WEAPON_CLASS)) {
-                pline("%s loses consciousness.", Monnam(mon));
-                slept_monst(mon);
-            }
-        }
     } else if (u.umconf && hand_to_hand) {
         nohandglow(mon);
         if (!mon->mconf && !resist(mon, SPBOOK_CLASS, 0, NOTELL)) {
@@ -2104,10 +2178,12 @@ int dieroll;
                 pline("%s appears confused.", Monnam(mon));
         }
     }
+
     if (DEADMONSTER(mon) && !ispotion && obj /* potion obj will have been freed by here */
         && (obj == uwep || (u.twoweap && obj == uswapwep)) && issecespita
         && !nonliving(mdat) && u.uen < u.uenmax) {
         int energy = mon->m_lev + 1;
+
         energy += rn2(energy);
         pline_The("ritual knife captures the evanescent life force.");
         u.uen += energy;
@@ -5179,6 +5255,48 @@ struct monst *mon;
             Your("%s no longer glow so brightly %s.", hands, hcolor(NH_RED));
     }
     u.umconf--;
+}
+
+STATIC_OVL void
+nohandburn()
+{
+    char *hands = makeplural(body_part(HAND));
+
+    if (!u.umburn)
+        return;
+    if (u.umburn == 1) {
+        if (Blind)
+            Your("%s no longer feel hot.", hands);
+        else
+            Your("%s stop burning %s.", hands, hcolor(NH_ORANGE));
+    } else {
+        if (Blind)
+            pline_The("burning sensation in your %s lessens.", hands);
+        else
+            Your("%s no longer burn so brightly.", hands);
+    }
+    u.umburn--;
+}
+
+STATIC_OVL void
+nohandshock()
+{
+    char *hands = makeplural(body_part(HAND));
+
+    if (!u.umshock)
+        return;
+    if (u.umshock == 1) {
+        if (Blind)
+            Your("%s no longer feel energized.", hands);
+        else
+            Your("%s stop shimmering %s.", hands, hcolor(NH_BLUE));
+    } else {
+        if (Blind)
+            pline_The("energetic sensation in your %s lessens.", hands);
+        else
+            Your("%s no longer shimmer so brightly.", hands);
+    }
+    u.umshock--;
 }
 
 int

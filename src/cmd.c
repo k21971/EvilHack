@@ -3299,6 +3299,10 @@ int final;
         you_are("sensing the presence of monsters", "");
     if (u.umconf)
         you_are("going to confuse monsters", "");
+    if (u.umburn)
+        you_are("able to burn monsters bare-handed", "");
+    if (u.umshock)
+        you_are("able to shock monsters bare-handed", "");
     if (Food_sense)
         you_can("recognize detrimental food", from_what(FOOD_SENSE));
 
@@ -3410,8 +3414,10 @@ int final;
     /*** Physical attributes ***/
     if (Regeneration && elf_can_regen() && orc_can_regen())
         enl_msg("You regenerate", "", "d", "", from_what(REGENERATION));
-    if (!elf_can_regen()) you_are("in direct contact with cold iron", "");
-    if (!orc_can_regen()) you_are("in direct contact with mithril", "");
+    if (!elf_can_regen())
+        you_are("in direct contact with cold iron", "");
+    if (!orc_can_regen())
+        you_are("in direct contact with mithril", "");
     if (Slow_digestion)
         you_have("slower digestion", from_what(SLOW_DIGESTION));
     if (inediate(raceptr(&youmonst)))

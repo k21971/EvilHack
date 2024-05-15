@@ -3417,4 +3417,5 @@ The following changes to date are:
 - New player race/role combo - giant Healer
 - Allow Illithids with intrinsic flying to enter into and stay
   in pools/moats
+- New spells - burning hands, shocking grasp
 

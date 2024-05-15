@@ -345,6 +345,8 @@ struct you {
     struct prop uprops[LAST_PROP + 1];
 
     unsigned umconf;
+    unsigned umburn;
+    unsigned umshock;
     Bitfield(usick_type, 3);
 #define SICK_VOMITABLE 0x01
 #define SICK_NONVOMITABLE 0x02

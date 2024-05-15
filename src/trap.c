@@ -4621,6 +4621,10 @@ drown()
             Amphibious || Swimming ? '.' : '!');
         if (!Swimming && !Is_waterlevel(&u.uz))
             You("sink like %s.", Hallucination ? "the Titanic" : "a rock");
+        if (u.umburn) {
+            u.umburn = 0;
+            Your("%s are extinguished.", makeplural(body_part(HAND)));
+        }
     }
 
     water_damage_chain(invent, FALSE, 0, TRUE, u.ux, u.uy);
