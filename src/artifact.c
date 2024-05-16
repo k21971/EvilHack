@@ -825,6 +825,7 @@ long wp_mask;
         mask = &EShock_resistance;
     } else if (dtyp == AD_MAGM) {
         mask = &EAntimagic;
+        u.uconduct.antimagic++;
     } else if (dtyp == AD_DISN) {
         mask = &EDisint_resistance;
     } else if (dtyp == AD_DRST) {

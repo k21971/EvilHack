@@ -1645,6 +1645,10 @@ struct obj *armor;
     if (!prop && Is_dragon_armor(armor))
         return objects[Dragon_armor_to_scales(armor)].oc_oprop;
 
+    /* no magic resistance conduct */
+    if (prop == ANTIMAGIC)
+        u.uconduct.antimagic++;
+
     return prop;
 }
 

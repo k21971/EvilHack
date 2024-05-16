@@ -1121,7 +1121,7 @@ doengrave()
 
     /* A single `x' is the traditional signature of an illiterate person */
     if (len != 1 || (!index(ebuf, 'x') && !index(ebuf, 'X')))
-        if(!u.uconduct.literate++)
+        if (!u.uconduct.literate++)
             livelog_printf(LL_CONDUCT,"became literate by engraving \"%s\"", ebuf);
 
 

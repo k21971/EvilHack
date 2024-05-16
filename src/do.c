@@ -389,10 +389,10 @@ register struct obj *obj;
 
     if (obj->oclass != COIN_CLASS) {
         /* KMH, conduct */
-        if(!u.uconduct.gnostic++)
+        if (!u.uconduct.gnostic++)
             livelog_printf(LL_CONDUCT,
-                    "eschewed atheism, by dropping %s on an altar",
-                    doname(obj));
+                           "eschewed atheism, by dropping %s on an altar",
+                           doname(obj));
     } else {
         /* coins don't have bless/curse status */
         obj->blessed = obj->cursed = 0;

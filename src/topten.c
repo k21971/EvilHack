@@ -498,29 +498,30 @@ encode_extended_conducts()
     static char buf[BUFSZ];
 
     buf[0] = '\0';
-    add_achieveX(buf, "foodless",                  !u.uconduct.food);
-    add_achieveX(buf, "vegan",                     !u.uconduct.unvegan);
-    add_achieveX(buf, "vegetarian",                !u.uconduct.unvegetarian);
-    add_achieveX(buf, "atheist",                   !u.uconduct.gnostic);
-    add_achieveX(buf, "weaponless",                !u.uconduct.weaphit);
-    add_achieveX(buf, "pacifist",                  !u.uconduct.killer);
-    add_achieveX(buf, "illiterate",                !u.uconduct.literate);
-    add_achieveX(buf, "polyless",                  !u.uconduct.polypiles);
-    add_achieveX(buf, "polyselfless",              !u.uconduct.polyselfs);
-    add_achieveX(buf, "wishless",                  !u.uconduct.wishes);
-    add_achieveX(buf, "artiwishless",              !u.uconduct.wisharti);
-    add_achieveX(buf, "genocideless",              !num_genocides());
-    add_achieveX(buf, "never_had_a_pet",           !u.uconduct.pets);
-    add_achieveX(buf, "never_touched_an_artifact", !u.uconduct.artitouch);
-    add_achieveX(buf, "elberethless",              !u.uconduct.elbereth);
-    add_achieveX(buf, "blindfolded",                u.uroleplay.blind);
-    add_achieveX(buf, "nudist",                     u.uroleplay.nudist);
-    add_achieveX(buf, "hallucinating",              u.uroleplay.hallu);
-    add_achieveX(buf, "deaf",                       u.uroleplay.deaf);
-    add_achieveX(buf, "bonesless",                 !u.uroleplay.numbones);
-    add_achieveX(buf, "never_died",                 u.umortality == 0);
-    add_achieveX(buf, "never_abused_alignment",     u.ualign.abuse == 0);
-    add_achieveX(buf, "never_forged_an_artifact",  !u.uconduct.forgedarti);
+    add_achieveX(buf, "foodless",                        !u.uconduct.food);
+    add_achieveX(buf, "vegan",                           !u.uconduct.unvegan);
+    add_achieveX(buf, "vegetarian",                      !u.uconduct.unvegetarian);
+    add_achieveX(buf, "atheist",                         !u.uconduct.gnostic);
+    add_achieveX(buf, "weaponless",                      !u.uconduct.weaphit);
+    add_achieveX(buf, "pacifist",                        !u.uconduct.killer);
+    add_achieveX(buf, "illiterate",                      !u.uconduct.literate);
+    add_achieveX(buf, "polyless",                        !u.uconduct.polypiles);
+    add_achieveX(buf, "polyselfless",                    !u.uconduct.polyselfs);
+    add_achieveX(buf, "wishless",                        !u.uconduct.wishes);
+    add_achieveX(buf, "artiwishless",                    !u.uconduct.wisharti);
+    add_achieveX(buf, "genocideless",                    !num_genocides());
+    add_achieveX(buf, "never_had_a_pet",                 !u.uconduct.pets);
+    add_achieveX(buf, "never_touched_an_artifact",       !u.uconduct.artitouch);
+    add_achieveX(buf, "elberethless",                    !u.uconduct.elbereth);
+    add_achieveX(buf, "blindfolded",                      u.uroleplay.blind);
+    add_achieveX(buf, "nudist",                           u.uroleplay.nudist);
+    add_achieveX(buf, "hallucinating",                    u.uroleplay.hallu);
+    add_achieveX(buf, "deaf",                             u.uroleplay.deaf);
+    add_achieveX(buf, "bonesless",                       !u.uroleplay.numbones);
+    add_achieveX(buf, "never_died",                       u.umortality == 0);
+    add_achieveX(buf, "never_abused_alignment",           u.ualign.abuse == 0);
+    add_achieveX(buf, "never_forged_an_artifact",        !u.uconduct.forgedarti);
+    add_achieveX(buf, "never_acquired_magic_resistance", !u.uconduct.antimagic);
 
     return buf;
 }
@@ -594,6 +595,8 @@ encodeconduct()
         e |= 1L << 20;
     if (!u.uconduct.forgedarti)
         e |= 1L << 21;
+    if (!u.uconduct.antimagic)
+        e |= 1L << 22;
 
     return e;
 }

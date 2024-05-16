@@ -3150,7 +3150,6 @@ int final;
         you_are("invulnerable", from_what(INVULNERABLE));
     if (Antimagic)
         you_are("magic-protected", from_what(ANTIMAGIC));
-
     /* Partial intrinsic resistances */
     Sprintf(buf, "%d%% fire resistant", how_resistant(FIRE_RES));
     if (Fire_resistance)
@@ -3869,6 +3868,10 @@ int final;
 
     if (!u.uconduct.forgedarti) {
         you_have_never("forged an artifact");
+    }
+
+    if (!u.uconduct.antimagic) {
+        you_have_never("acquired magic resistance");
     }
 
     show_achievements(final);

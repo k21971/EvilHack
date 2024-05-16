@@ -796,6 +796,10 @@ int mntmp;
     if (nohands(youmonst.data))
         make_glib(0);
 
+    /* no magic resistance conduct */
+    if (resists_mgc(youmonst.data))
+        u.uconduct.antimagic++;
+
     /*
     mlvl = adj_lev(&mons[mntmp]);
      * We can't do the above, since there's no such thing as an

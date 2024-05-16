@@ -3420,4 +3420,5 @@ The following changes to date are:
 - New spells - burning hands, shocking grasp
 - Fix: repair armor spell will not randomly target the Hand of Vecna
 - Suppress livelogging whilst in explore mode
+- New conduct: never acquired magic resistance
 

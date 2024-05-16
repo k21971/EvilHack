@@ -130,6 +130,7 @@ struct u_conduct {     /* number of times... */
     long artitouch;    /* touched an artifact */
     long pets;         /* obtained a pet */
     long forgedarti;   /* forged an artifact */
+    long antimagic;    /* acquired magic resistance */
     /* genocides already listed at end of game */
 };
 

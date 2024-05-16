@@ -1630,8 +1630,13 @@ register struct trobj *origtrop;
                 }
         }
 
-        /* nudist gets no armor */
-        if (u.uroleplay.nudist && obj->oclass == ARMOR_CLASS) {
+        /* nudist gets no armor. remove amulet for
+           wizards (giant and tortle races) in case
+           they want to try for the no magic resistance
+           conduct */
+        if (u.uroleplay.nudist
+            && (obj->oclass == ARMOR_CLASS
+                || (Role_if(PM_WIZARD) && obj->oclass == AMULET_CLASS))) {
             dealloc_obj(obj);
             origtrop++;
             memcpy(&temptrop, origtrop, sizeof(struct trobj));
