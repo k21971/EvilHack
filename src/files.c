@@ -4688,15 +4688,21 @@ const char *buffer;
 #define LLOG_SEP '\t' /* livelog field separator */
     FILE* livelogfile;
 
-    if(!(ll_type & sysopt.livelog)) return;
-    if((ll_type == LL_CONDUCT) && (moves < sysopt.ll_conduct_turns)) return;
-    if(lock_file(LIVELOGFILE, SCOREPREFIX, 10)) {
-        if(!(livelogfile = fopen_datafile(LIVELOGFILE, "a", SCOREPREFIX))) {
+    if (!(ll_type & sysopt.livelog))
+        return;
+    if ((ll_type == LL_CONDUCT)
+        && (moves < sysopt.ll_conduct_turns))
+        return;
+    if (discover) /* don't livelog in explore mode */
+        return;
+    if (lock_file(LIVELOGFILE, SCOREPREFIX, 10)) {
+        if (!(livelogfile = fopen_datafile(LIVELOGFILE, "a", SCOREPREFIX))) {
             pline("Cannot open live log file!");
         } else {
             char tmpbuf[1024+1];
             char msgbuf[512+1];
             char *c1 = msgbuf;
+
             strncpy(msgbuf, buffer, 512);
             msgbuf[512] = '\0';
             while (*c1 != '\0') {
@@ -4719,9 +4725,9 @@ const char *buffer;
                      moves,
                      LLOG_SEP,
                      urealtime.realtime + (getnow() - urealtime.start_timing), LLOG_SEP,
-                     (long)ubirthday,
+                     (long) ubirthday,
                      LLOG_SEP,
-                     (long)time(NULL),
+                     (long) time(NULL),
                      LLOG_SEP,
                      msgbuf);
 
