@@ -1248,8 +1248,8 @@ struct monst *mtmp;
                             : (mon_aligntyp(mtmp) == A_NONE
                                || sgn(mon_aligntyp(mtmp)) != weap->alignment));
     }
-    if ((weap->spfx & SPFX_ATTK) && !(defended(mtmp, (int) weap->attk.adtyp)))
-    {
+    if ((weap->spfx & SPFX_ATTK)
+        && !(defended(mtmp, (int) weap->attk.adtyp))) {
         switch (weap->attk.adtyp) {
         case AD_FIRE:
             applies += !(!yours ? (resists_fire(mtmp) || mon_underwater(mtmp))

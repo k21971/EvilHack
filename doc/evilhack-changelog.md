@@ -3418,4 +3418,5 @@ The following changes to date are:
 - Allow Illithids with intrinsic flying to enter into and stay
   in pools/moats
 - New spells - burning hands, shocking grasp
+- Fix: repair armor spell will not randomly target the Hand of Vecna
 

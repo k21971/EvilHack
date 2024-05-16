@@ -1722,7 +1722,7 @@ int dieroll;
        a slight damage boost */
     if (uarm && Is_dragon_scaled_armor(uarm)
         && Dragon_armor_to_scales(uarm) == RED_DRAGON_SCALES)
-	tmp += rnd(6);
+        tmp += rnd(6);
 
     /* potential for gloves with an object property
        to do additional damage */

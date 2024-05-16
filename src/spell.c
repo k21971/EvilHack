@@ -1396,28 +1396,34 @@ boolean wiz_cast;
             }
         } else {
             otmp = some_armor(&youmonst);
+            while (otmp && otmp->oartifact == ART_HAND_OF_VECNA) {
+                otmp = some_armor(&youmonst);
+            }
         }
         if (otmp) {
             if (greatest_erosion(otmp) > 0) {
                 if (Blind)
-                    pline("Your %s feels warmer for a brief moment.",
-                          xname(otmp));
+                    Your("%s feels warmer for a brief moment.",
+                         xname(otmp));
                 else
-                    pline("Your %s glows faintly golden for a moment.",
-                          xname(otmp));
+                    Your("%s glows faintly golden for a moment.",
+                         xname(otmp));
                 if (otmp->oeroded > 0)
                     otmp->oeroded--;
                 if (otmp->oeroded2 > 0)
                     otmp->oeroded2--;
                 update_inventory();
             } else {
-                if (!Blind)
-                    pline("Your %s glows briefly, but looks as new as ever.",
-                          xname(otmp));
+                if (Blind)
+                    Your("%s feels lukewarm for a brief moment.",
+                         xname(otmp));
+                else
+                    Your("%s glows briefly, but looks as new as ever.",
+                         xname(otmp));
             }
         } else {
             /* the player can probably feel this, so no need for a !Blind check :) */
-            pline("Your embarrassing skin rash clears up slightly.");
+            Your("embarrassing skin rash clears up slightly.");
         }
         break;
     case SPE_REFLECTION:
@@ -1425,7 +1431,7 @@ boolean wiz_cast;
         break;
     case SPE_FLAME_SPHERE:
     case SPE_FREEZE_SPHERE:
-        pline("You conjure elemental energy...");
+        You("conjure elemental energy...");
         for (n = 0; n < max(role_skill - 1, 1); n++) {
             mtmp = make_helper((pseudo->otyp == SPE_FLAME_SPHERE) ?
                                PM_FLAMING_SPHERE : PM_FREEZING_SPHERE, u.ux, u.uy);
