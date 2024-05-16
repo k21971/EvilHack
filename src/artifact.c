@@ -1022,29 +1022,33 @@ long wp_mask;
     }
     if (spfx & SPFX_REFLECT) {
         if (otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN) {
-            if (on)
+            if (on) {
                 EReflecting |= wp_mask;
-            else
+                u.uconduct.reflection++;
+            } else
                 EReflecting &= ~wp_mask;
         } else if (otmp
             && (otmp->oartifact == ART_LONGBOW_OF_DIANA
                 || otmp->oartifact == ART_CROSSBOW_OF_CARL)
             && (wp_mask & W_WEP)) { /* wielding various reflecting artifacts */
-            if (on)
+            if (on) {
                 EReflecting |= wp_mask;
-            else
+                u.uconduct.reflection++;
+            } else
                 EReflecting &= ~wp_mask;
         } else if (otmp && otmp->oartifact == ART_DRAGONBANE
             && (wp_mask & W_ARMG)) { /* or in Dragonbane's case, wear them */
-            if (on)
+            if (on) {
                 EReflecting |= wp_mask;
-            else
+                u.uconduct.reflection++;
+            } else
                 EReflecting &= ~wp_mask;
         } else if (otmp && otmp->oartifact == ART_GAUNTLETS_OF_PURITY
             && (wp_mask & W_ARMG)) { /* same */
-            if (on)
+            if (on) {
                 EReflecting |= wp_mask;
-            else
+                u.uconduct.reflection++;
+            } else
                 EReflecting &= ~wp_mask;
         }
     }

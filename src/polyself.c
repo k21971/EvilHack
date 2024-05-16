@@ -800,6 +800,13 @@ int mntmp;
     if (resists_mgc(youmonst.data))
         u.uconduct.antimagic++;
 
+    /* no reflection conduct. currently, the only monster
+       that has reflection that a player can polymorph
+       into is an adult silver dragon. should that ever
+       change, we'll need to revisit this bit of code */
+    if (youmonst.data == &mons[PM_SILVER_DRAGON])
+        u.uconduct.reflection++;
+
     /*
     mlvl = adj_lev(&mons[mntmp]);
      * We can't do the above, since there's no such thing as an

@@ -522,6 +522,7 @@ encode_extended_conducts()
     add_achieveX(buf, "never_abused_alignment",           u.ualign.abuse == 0);
     add_achieveX(buf, "never_forged_an_artifact",        !u.uconduct.forgedarti);
     add_achieveX(buf, "never_acquired_magic_resistance", !u.uconduct.antimagic);
+    add_achieveX(buf, "never_acquired_reflection",       !u.uconduct.reflection);
 
     return buf;
 }
@@ -597,6 +598,8 @@ encodeconduct()
         e |= 1L << 21;
     if (!u.uconduct.antimagic)
         e |= 1L << 22;
+    if (!u.uconduct.reflection)
+        e |= 1L << 23;
 
     return e;
 }

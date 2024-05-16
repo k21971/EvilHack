@@ -869,6 +869,7 @@ register struct monst *mdef;
                              ? 250 : 100);
 
     if (youdefend) {
+        u.uconduct.reflection++;
         if (HReflecting) {
             if (!Blind)
 	        pline("The shimmering globe around you becomes slightly brighter.");

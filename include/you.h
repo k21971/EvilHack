@@ -131,6 +131,7 @@ struct u_conduct {     /* number of times... */
     long pets;         /* obtained a pet */
     long forgedarti;   /* forged an artifact */
     long antimagic;    /* acquired magic resistance */
+    long reflection;   /* acquired reflection */
     /* genocides already listed at end of game */
 };
 

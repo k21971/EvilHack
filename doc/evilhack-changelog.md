@@ -3421,4 +3421,5 @@ The following changes to date are:
 - Fix: repair armor spell will not randomly target the Hand of Vecna
 - Suppress livelogging whilst in explore mode
 - New conduct: never acquired magic resistance
+- New conduct: never acquired reflection
 

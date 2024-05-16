@@ -848,7 +848,7 @@ Shield_on(VOID_ARGS)
 {
     /* no shield currently requires special handling when put on, but we
        keep this uncommented in case somebody adds a new one which does
-       [reflection is handled by setting u.uprops[REFLECTION].extrinsic
+       [reflection is handled by setting u.uprops[REFLECTING].extrinsic
        in setworn() called by armor_or_accessory_on() before Shield_on()] */
     switch (uarms->otyp) {
     case SMALL_SHIELD:
