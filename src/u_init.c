@@ -89,6 +89,17 @@ struct trobj Infidel[] = {
     { OILSKIN_SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
+struct trobj Draugr_Infidel[] = {
+    { AMULET_OF_YENDOR, 0, AMULET_CLASS, 1, 0 },
+    { DAGGER, 1, WEAPON_CLASS, 1, 0 },
+    { JACKET, 1, ARMOR_CLASS, 1, CURSED },
+    { CLOAK_OF_PROTECTION, 0, ARMOR_CLASS, 1, CURSED },
+    { POT_WATER, 0, POTION_CLASS, 3, CURSED },
+    { SCR_CHARGING, 0, SCROLL_CLASS, 2, 0 },
+    { FIRE_HORN, UNDEF_SPE, TOOL_CLASS, 1, 0 },
+    { OILSKIN_SACK, 0, TOOL_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
 struct trobj Knight[] = {
     { LONG_SWORD, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { LANCE, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
@@ -354,6 +365,8 @@ struct inv_sub {
     { PM_DROW, LARGE_SHIELD, DARK_ELVEN_BRACERS },
     { PM_DROW, CLOAK_OF_DISPLACEMENT, DARK_ELVEN_CLOAK },
     { PM_DROW, CLOAK_OF_PROTECTION, DARK_ELVEN_CLOAK },
+    /* Draugr */
+    { PM_DRAUGR, FOOD_RATION, EGG },
     /* end */
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
@@ -855,7 +868,10 @@ u_init()
         break;
     case PM_INFIDEL:
         u.umoney0 = rn1(251, 250);
-        ini_inv(Infidel);
+        if (Race_if(PM_DRAUGR))
+            ini_inv(Draugr_Infidel);
+        else
+            ini_inv(Infidel);
         knows_object(SCR_CHARGING);
         skill_init(Skill_Inf);
         break;

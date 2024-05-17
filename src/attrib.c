@@ -163,6 +163,15 @@ static const struct innate {
                  { 9, &(HSearching), "perceptive", "unaware" },
                  { 0, 0, 0, 0 } },
 
+  dra_abil[] = { { 1, &(HInfravision), "", "" },
+                 { 1, &(HSick_resistance), "", "" },
+                 { 1, &(HCold_resistance), "", "" },
+                 { 1, &(HSleep_resistance), "", "" },
+                 { 1, &(HPoison_resistance), "", "" },
+                 { 1, &(HAggravate_monster), "", "" },
+                 { 1, &(HLifesaved), "", "" }, /* only a random number of times */
+                 { 0, 0, 0, 0 } },
+
   hum_abil[] = { { 0, 0, 0, 0 } };
 
 STATIC_DCL void NDECL(exerper);
@@ -865,6 +874,9 @@ long frommask;
         case PM_DROW:
             abil = dro_abil;
             break;
+        case PM_DRAUGR:
+            abil = dra_abil;
+            break;
         case PM_HUMAN:
             abil = hum_abil;
             break;
@@ -1066,6 +1078,9 @@ int oldlevel, newlevel;
         break;
     case PM_DROW:
         rabil = dro_abil;
+        break;
+    case PM_DRAUGR:
+        rabil = dra_abil;
         break;
     case PM_DEMON:
         rabil = dem_abil;

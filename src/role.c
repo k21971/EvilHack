@@ -93,7 +93,7 @@ const struct Role roles[] = {
       S_TROLL,
       ART_RING_OF_P_HUL,
       MH_HUMAN | MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR
-          | MH_TORTLE,
+          | MH_TORTLE | MH_DRAUGR,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 16, 7, 7, 15, 16, 6 },
@@ -178,7 +178,7 @@ const struct Role roles[] = {
       S_SPIDER,
       ART_STRIPED_SHIRT_OF_LIBERATIO,
       MH_HUMAN | MH_DWARF | MH_GNOME | MH_ORC | MH_HOBBIT
-          | MH_ILLITHID | MH_DROW,
+          | MH_ILLITHID | MH_DROW | MH_DRAUGR,
       ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC | ROLE_NORACEALIGN,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 7, 7, 13, 6 },
@@ -264,7 +264,7 @@ const struct Role roles[] = {
       S_UNICORN,
       ART_IDOL_OF_MOLOCH,
       MH_HUMAN | MH_ELF | MH_ORC | MH_ILLITHID | MH_GIANT
-          | MH_CENTAUR | MH_DROW,
+          | MH_CENTAUR | MH_DROW | MH_DRAUGR,
       ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC, /* actually unaligned */
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 10, 7, 7, 7 },
@@ -307,7 +307,7 @@ const struct Role roles[] = {
       S_JELLY,
       ART_MAGIC_MIRROR_OF_MERLIN,
       MH_HUMAN | MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
-          | MH_DROW,
+          | MH_DROW | MH_DRAUGR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 13, 7, 14, 8, 10, 17 },
@@ -441,7 +441,7 @@ const struct Role roles[] = {
       S_NAGA,
       ART_MASTER_KEY_OF_THIEVERY,
       MH_HUMAN | MH_ELF | MH_ORC | MH_HOBBIT | MH_GNOME
-          | MH_DROW,
+          | MH_DROW | MH_DRAUGR,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 7, 10, 7, 6 },
@@ -716,7 +716,7 @@ const struct Role align_roles[] = {
       S_JELLY,
       ART_MAGIC_MIRROR_OF_MERLIN,
       MH_HUMAN | MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
-          | MH_DROW,
+          | MH_DROW | MH_DRAUGR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 13, 7, 14, 8, 10, 17 },
@@ -831,7 +831,7 @@ const struct Race races[] = {
             | ROLE_CHAOTIC,
         MH_HUMAN,
         0,
-        MH_GNOME | MH_ORC | MH_CENTAUR | MH_ILLITHID,
+        MH_GNOME | MH_ORC | MH_CENTAUR | MH_ILLITHID | MH_DRAUGR,
         /*    Str     Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(100), 18, 18, 18, 18, 18 },
@@ -852,7 +852,7 @@ const struct Race races[] = {
         MH_ELF | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
         MH_ELF,
         MH_ELF,
-        MH_DROW | MH_ORC | MH_ILLITHID,
+        MH_DROW | MH_ORC | MH_ILLITHID | MH_DRAUGR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { 18, 20, 20, 20, 16, 18 },
@@ -873,7 +873,7 @@ const struct Race races[] = {
         MH_DWARF | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
         MH_DWARF,
         MH_DWARF | MH_GNOME,
-        MH_ORC | MH_ILLITHID | MH_GIANT | MH_DROW,
+        MH_ORC | MH_ILLITHID | MH_GIANT | MH_DROW | MH_DRAUGR,
         /*    Str     Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(100), 16, 16, 20, 20, 16 },
@@ -894,7 +894,8 @@ const struct Race races[] = {
         MH_GNOME | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
         MH_GNOME,
         MH_DWARF | MH_GNOME,
-        MH_HUMAN | MH_ORC | MH_GIANT | MH_ILLITHID | MH_DROW,
+        MH_HUMAN | MH_ORC | MH_GIANT | MH_ILLITHID | MH_DROW
+            | MH_DRAUGR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(50), 19, 18, 18, 18, 18 },
@@ -916,7 +917,7 @@ const struct Race races[] = {
         MH_ORC,
         0,
         MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
-            | MH_TORTLE | MH_DROW,
+            | MH_TORTLE | MH_DROW | MH_DRAUGR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(50), 16, 16, 18, 19, 16 },
@@ -938,7 +939,8 @@ const struct Race races[] = {
             | ROLE_CHAOTIC,
         MH_GIANT,
         MH_GIANT,
-        MH_HUMAN | MH_DWARF | MH_GNOME | MH_ORC | MH_ILLITHID,
+        MH_HUMAN | MH_DWARF | MH_GNOME | MH_ORC | MH_ILLITHID
+            | MH_DRAUGR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR19(25), 14, 18, 14, 25, 16 },
@@ -959,7 +961,7 @@ const struct Race races[] = {
         MH_HOBBIT | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
         MH_HOBBIT,
         MH_HOBBIT | MH_TORTLE,
-        MH_ORC | MH_ILLITHID | MH_DROW,
+        MH_ORC | MH_ILLITHID | MH_DROW | MH_DRAUGR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { 16, 16, 20, 20, 20, 16 },
@@ -980,7 +982,7 @@ const struct Race races[] = {
         MH_CENTAUR | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
         MH_CENTAUR,
         MH_CENTAUR,
-        MH_HUMAN | MH_DWARF | MH_GNOME | MH_ILLITHID,
+        MH_HUMAN | MH_DWARF | MH_GNOME | MH_ILLITHID | MH_DRAUGR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR19(20), 12, 14, 20, 18, 16 },
@@ -1003,7 +1005,7 @@ const struct Race races[] = {
         MH_ILLITHID,
         MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
             | MH_GIANT | MH_CENTAUR | MH_ORC
-            | MH_TORTLE | MH_DROW,
+            | MH_TORTLE | MH_DROW | MH_DRAUGR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { 10, 22, 22, 20, 12, 16 },
@@ -1025,7 +1027,7 @@ const struct Race races[] = {
             | ROLE_NEUTRAL,
         MH_TORTLE,
         MH_TORTLE | MH_HOBBIT,
-        MH_ORC | MH_ILLITHID | MH_DROW,
+        MH_ORC | MH_ILLITHID | MH_DROW | MH_DRAUGR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR19(19), 18, 20, 10, 18, 14 },
@@ -1046,13 +1048,36 @@ const struct Race races[] = {
         MH_DROW | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
         MH_DROW,
         MH_DROW,
-        MH_ELF | MH_ORC | MH_ILLITHID,
+        MH_ELF | MH_ORC | MH_ILLITHID | MH_DRAUGR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { 18, 20, 20, 20, 16, 18 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 1, 0 }, /* Hit points */
         { 2, 0, 3, 0, 3, 0 }  /* Energy */
+    },
+    {
+        "draugr",
+        "draugr",
+        "draugr",
+        "Dra",
+        { 0, 0 },
+        PM_DRAUGR,
+        NON_PM,
+        NON_PM,
+        NON_PM,
+        MH_DRAUGR | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
+        MH_DRAUGR,
+        MH_DRAUGR,
+        MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
+            | MH_GIANT | MH_CENTAUR | MH_ORC
+            | MH_TORTLE | MH_DROW | MH_ILLITHID,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { STR18(100), 18, 18, 18, 18, 18 },
+        /* Init   Lower  Higher */
+        { 2, 0, 0, 2, 1, 0 }, /* Hit points */
+        { 1, 0, 2, 0, 2, 0 }  /* Energy */
     },
     /* Array terminator */
     { 0, 0, 0, 0 }

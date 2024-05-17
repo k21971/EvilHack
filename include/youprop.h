@@ -329,7 +329,8 @@
      || (ublindf && ublindf->otyp == GOGGLES))
 
 #define Breathless \
-    (HMagical_breathing || EMagical_breathing || breathless(youmonst.data))
+    (HMagical_breathing || EMagical_breathing                  \
+     || breathless(youmonst.data) || racial_draugr(&youmonst))
 
 #define Underwater (u.uinwater)
 /* Note that Underwater and u.uinwater are both used in code.
@@ -450,7 +451,9 @@
 
 #define Fixed_abil u.uprops[FIXED_ABIL].extrinsic /* KMH */
 
-#define Lifesaved u.uprops[LIFESAVED].extrinsic
+#define HLifesaved u.uprops[LIFESAVED].intrinsic /* Draugr race */
+#define ELifesaved u.uprops[LIFESAVED].extrinsic
+#define Lifesaved (HLifesaved || ELifesaved)
 
 /*
  * Some pseudo-properties.

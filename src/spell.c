@@ -349,7 +349,7 @@ learn(VOID_ARGS)
     /* JDS: lenses give 50% faster reading; 33% smaller read time */
     if (context.spbook.delay && ublindf && ublindf->otyp == LENSES && rn2(2))
         context.spbook.delay++;
-    if (Confusion) { /* became confused while learning */
+    if (Confusion || (Race_if(PM_DRAUGR) && book->otyp != SPE_BOOK_OF_THE_DEAD)) { /* became confused while learning */
         (void) confused_book(book);
         context.spbook.book = 0; /* no longer studying */
         context.spbook.o_id = 0;
@@ -872,12 +872,12 @@ register struct monst *mdef;
         u.uconduct.reflection++;
         if (HReflecting) {
             if (!Blind)
-	        pline("The shimmering globe around you becomes slightly brighter.");
+                pline("The shimmering globe around you becomes slightly brighter.");
             else
                 You_feel("slightly more smooth");
         } else {
             if (!Blind)
-	        pline("A shimmering globe appears around you!");
+                pline("A shimmering globe appears around you!");
             else
                 You_feel("smooth.");
         }
@@ -940,7 +940,7 @@ int
 spelleffects(spell, atme, wiz_cast)
 int spell;
 boolean atme;
-/* Set TRUE when cast from the wizard mode #wiz_spell command.
+/* Set TRUE when cast from the wizard mode #wizspell command.
  * Such a cast takes no energy, is cast at the highest skill, and always succeeds.
  * In that case "spell" is the spell ID rather than the spellbook index
  * -- the equivalent of spellid(spell).

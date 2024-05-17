@@ -1262,24 +1262,33 @@ dochat()
         return 0;
     }
 
-    if (Role_if(PM_CONVICT) && is_rat(mtmp->data)
-        && !mtmp->mpeaceful && !mtmp->mtame) {
-        You("attempt to soothe the %s with chittering sounds.",
-            l_monnam(mtmp));
-        if (rnl(10) < 2) {
-            (void) tamedog(mtmp, (struct obj *) 0);
-        } else {
-            if (rnl(10) > 8) {
-                pline("%s unfortunately ignores your overtures.",
-                      Monnam(mtmp));
-                return 0;
-            }
-            mtmp->mpeaceful = 1;
-            set_malign(mtmp);
-        }
-        return 0;
-    }
+    if ((Role_if(PM_CONVICT) && is_rat(mtmp->data))
+        || (Race_if(PM_DRAUGR) && is_zombie(mtmp->data))) {
+        if (!mtmp->mpeaceful && !mtmp->mtame) {
+            if (Role_if(PM_CONVICT))
+                You("attempt to soothe the %s with chittering sounds...",
+                    l_monnam(mtmp));
+            else
+                You("attempt to impose your will over the %s...",
+                    l_monnam(mtmp));
 
+            if (rnl(10) < (Role_if(PM_CONVICT) ? 2 : 1)) {
+                (void) tamedog(mtmp, (struct obj *) 0);
+            } else {
+                if (Role_if(PM_CONVICT)) {
+                    pline("%s unfortunately ignores your overtures.",
+                          Monnam(mtmp));
+                    if (rnl(10) < 3) {
+                        mtmp->mpeaceful = 1;
+                        set_malign(mtmp);
+                    }
+                } else {
+                    pline("%s ignores you.", Monnam(mtmp));
+                }
+                return 1;
+            }
+        }
+    }
     return domonnoise(mtmp);
 }
 

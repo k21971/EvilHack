@@ -3550,11 +3550,16 @@ weight_cap()
     } else if (racial_tortle(&youmonst)) {
         carrcap += 100;
         maxcarrcap += 200;
+        /* same for tortle */
         if (!Upolyd) {
             youmonst.data->cwt = 1600;
             youmonst.data->mmove = 10;
             youmonst.data->msize = MZ_LARGE;
         }
+    } else if (racial_draugr(&youmonst)) {
+        /* and draugr, but just movement speed here? */
+        if (!Upolyd)
+            youmonst.data->mmove = 10;
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
         if (youmonst.data->mlet == S_NYMPH)

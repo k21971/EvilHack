@@ -1198,7 +1198,8 @@ struct monst *mon;
         if (spec_applies(&atmp, mon))
             return TRUE;
     }
-    if (yours && maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))
+    if (yours
+        && maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))
         && (oart == &artilist[ART_SUNSWORD]
             || oart == &artilist[ART_HAMMER_OF_THE_GODS])) {
         if (!wizard || yn("Override?") != 'y')

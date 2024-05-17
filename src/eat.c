@@ -41,7 +41,8 @@ STATIC_DCL boolean FDECL(maybe_cannibal, (int, BOOLEAN_P));
 char msgbuf[BUFSZ];
 
 /* also used to see if you're allowed to eat cats and dogs */
-#define CANNIBAL_ALLOWED() (Role_if(PM_CAVEMAN) || Race_if(PM_ORC))
+#define CANNIBAL_ALLOWED() \
+    (Role_if(PM_CAVEMAN) || Race_if(PM_ORC) || Race_if(PM_DRAUGR))
 
 /* monster types that cause hero to be turned into stone if eaten */
 #define flesh_petrifies(pm) (touch_petrifies(pm) || (pm) == &mons[PM_MEDUSA])
@@ -94,10 +95,10 @@ register struct obj *obj;
         return TRUE;
 
     /* Ghouls only eat non-veggy corpses or eggs (see dogfood()) */
-    if (u.umonnum == PM_GHOUL)
-        return (boolean)((obj->otyp == CORPSE
-                          && !vegan(&mons[obj->corpsenm]))
-                         || (obj->otyp == EGG));
+    if (u.umonnum == PM_GHOUL || (!Upolyd && Race_if(PM_DRAUGR)))
+        return (boolean) ((obj->otyp == CORPSE
+                           && !vegan(&mons[obj->corpsenm]))
+                          || (obj->otyp == EGG));
 
     if (u.umonnum == PM_GELATINOUS_CUBE && is_organic(obj)
         /* [g.cubes can eat containers and retain all contents
@@ -599,7 +600,7 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
                 context.botl = 1;
             }
             exercise(A_WIS, TRUE);
-            if (Race_if(PM_ILLITHID)) {
+            if (Race_if(PM_ILLITHID) || Race_if(PM_DRAUGR)) {
                 if (u.ulevel >= 26)
                     *dmg_p += rn2(10) + 7;
                 else if (u.ulevel >= 14)
@@ -620,8 +621,10 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
         /*
          * monster mind flayer is eating hero's brain
          */
-        /* no such thing as mindless players */
-        if (ABASE(A_INT) <= ATTRMIN(A_INT)) {
+        if (Race_if(PM_DRAUGR)) {
+            You("don't notice.");
+            return MM_MISS;
+        } else if (ABASE(A_INT) <= ATTRMIN(A_INT)) {
             static NEARDATA const char brainlessness[] = "brainlessness";
 
             if (Lifesaved) {

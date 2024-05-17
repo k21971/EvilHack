@@ -1023,7 +1023,7 @@ struct attack *uattk;
         int race = (flags.female && urace.femalenum != NON_PM)
                     ? urace.femalenum : urace.malenum;
         struct attack *attacks = mons[race].mattk;
-        if ((Race_if(PM_ILLITHID) && rn2(4))
+        if (((Race_if(PM_ILLITHID) || Race_if(PM_DRAUGR)) && rn2(4))
             || Race_if(PM_CENTAUR))
             return 0;
         for (i = 0; i < NATTK; i++) {
@@ -2062,6 +2062,7 @@ int dieroll;
                              || has_claws_undead(youmonst.data)
                              || (Race_if(PM_DEMON) && !Upolyd)
                              || (Race_if(PM_TORTLE) && !Upolyd)
+                             || (Race_if(PM_DRAUGR) && !Upolyd)
                              || (Race_if(PM_ILLITHID) && !Upolyd))) {
             You("claw %s%s", mon_nam(mon),
                 canseemon(mon) ? exclam(tmp) : ".");
@@ -3251,7 +3252,8 @@ do_rust:
         struct obj *helmet;
         struct obj *barding;
 
-        if (is_zombie(youmonst.data) && rn2(5)) {
+        if (((!Upolyd && Race_if(PM_DRAUGR))
+             || is_zombie(youmonst.data)) && rn2(5)) {
             if (!(resists_sick(pd) || defended(mdef, AD_DISE))) {
                 if (mdef->msicktime)
                     mdef->msicktime -= rnd(3);
@@ -4112,7 +4114,29 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 break;
             /*FALLTHRU*/
         case AT_BITE:
-            if (is_zombie(youmonst.data)
+            if (((!Upolyd && Race_if(PM_DRAUGR))
+                 || is_zombie(youmonst.data))
+                && mattk->aatyp == AT_BITE
+                && (context.forcefight
+                    || ((touch_petrifies(mon->data)
+                         || mon->data == &mons[PM_MEDUSA])
+                        && !Stone_resistance)
+                    || is_rider(mon->data)
+                    || mon->data == &mons[PM_GREEN_SLIME]
+                    /* we don't need to worry about illithid-on-illithid
+                       cannibalism since their minds are psionically shielded */
+                    || (u.ulycn >= LOW_PM
+                        && were_beastie(mon->mnum) == u.ulycn
+                        && !Role_if(PM_CAVEMAN))
+                    || (how_resistant(DISINT_RES) <= 49
+                        && (mon->data == &mons[PM_BLACK_DRAGON]
+                            || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
+                break;
+            /* never eat brains if engulfed */
+            if (mattk->aatyp == AT_BITE && u.uswallow)
+                break;
+            if (((!Upolyd && Race_if(PM_DRAUGR))
+                 || is_zombie(youmonst.data))
                 && mattk->aatyp == AT_BITE
                 && mon->data->msize <= MZ_SMALL
                 && is_animal(mon->data)

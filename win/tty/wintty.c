@@ -1167,6 +1167,8 @@ int role, gend, algn;
         if (this_ch == 'd') {
             if (!strcmp(races[i].noun, "drow"))
                 this_ch = 'D';
+            else if (!strcmp(races[i].noun, "draugr"))
+                this_ch = 'Z';
             else
                 high_ch = 0;
         }

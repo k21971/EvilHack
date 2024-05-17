@@ -1790,7 +1790,11 @@ register struct attack *mattk;
 
         if (is_zombie(mdat) && rn2(6)) {
             if (uncancelled) {
-                pline("%s eats your brains!", Monnam(mtmp));
+                if (!Upolyd && Race_if(PM_DRAUGR))
+                    pline("%s tries to eat your brains, but can't.",
+                          Monnam(mtmp));
+                else
+                    pline("%s eats your brains!", Monnam(mtmp));
                 diseasemu(mdat);
             }
             break;
@@ -2497,7 +2501,8 @@ do_rust:
     case AD_WTHR: {
         uchar withertime = max(2, dmg);
         boolean no_effect =
-            (nonliving(youmonst.data) || !uncancelled);
+            (nonliving(youmonst.data)
+             || racial_draugr(&youmonst) || !uncancelled);
         boolean lose_maxhp = (withertime >= 8 && !BWithering); /* if already withering */
         dmg = 0; /* doesn't deal immediate damage */
 

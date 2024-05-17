@@ -204,9 +204,10 @@
      || (ptr) == &mons[PM_NEOTHELID] || (ptr) == &mons[PM_TORTLE_SHAMAN]          \
      || (ptr) == &mons[PM_DROW_MAGE] || (ptr) == &mons[PM_DROW_CLERIC])
 #define has_claws(ptr) \
-    ((is_illithid(ptr)                                         \
-      && !((ptr) == &mons[PM_MIND_FLAYER_LARVA]                \
-           || (ptr) == &mons[PM_NEOTHELID])) || is_gnoll(ptr)  \
+    (is_draugr(ptr) || is_gnoll(ptr)                           \
+     || (is_illithid(ptr)                                      \
+         && !((ptr) == &mons[PM_MIND_FLAYER_LARVA]             \
+              || (ptr) == &mons[PM_NEOTHELID]))                \
      || (ptr)->mlet == S_COCKATRICE || (ptr)->mlet == S_FELINE \
      || (ptr)->mlet == S_GREMLIN || (ptr)->mlet == S_IMP       \
      || (ptr)->mlet == S_MIMIC || (ptr)->mlet == S_SPIDER      \
@@ -218,7 +219,7 @@
          && (ptr) != &mons[PM_SUCCUBUS])                       \
      || (ptr)->mlet == S_LIZARD || (ptr)->mlet == S_DOG)
 #define has_claws_undead(ptr) \
-    ((ptr)->mlet == S_MUMMY || (ptr)->mlet == S_ZOMBIE          \
+    ((ptr)->mlet == S_MUMMY || (ptr)->mlet == S_ZOMBIE       \
      || (ptr)->mlet == S_WRAITH || (ptr)->mlet == S_VAMPIRE)
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
 #define can_sting(ptr) attacktype(ptr, AT_STNG)
@@ -259,6 +260,8 @@
 #define racial_tortle(mon) mon_has_race(mon, MH_TORTLE)
 #define is_drow(ptr) (((ptr)->mhflags & MH_DROW) != 0L)
 #define racial_drow(mon) mon_has_race(mon, MH_DROW)
+#define is_draugr(ptr) (((ptr)->mhflags & MH_DRAUGR) != 0L)
+#define racial_draugr(mon) mon_has_race(mon, MH_DRAUGR)
 #define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
 #define racial_match(mon) mon_has_race(mon, urace.selfmask)
 #define is_bat(ptr) \
@@ -286,7 +289,9 @@
 #define is_not_zombie(ptr) \
     ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON] \
      || (ptr) == &mons[PM_REVENANT])
-#define is_zombie(ptr) ((ptr)->mlet == S_ZOMBIE && !is_not_zombie(ptr))
+#define is_zombie(ptr) \
+    (((ptr)->mlet == S_ZOMBIE && !is_not_zombie(ptr)) \
+     || is_draugr(ptr))
 #define can_become_zombie(ptr) \
     ((ptr)->mlet == S_KOBOLD || (ptr)->mlet == S_GIANT   \
      || (ptr)->mlet == S_HUMAN || (ptr)->mlet == S_KOP   \
@@ -394,7 +399,7 @@
      || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_DEMON]  \
      || (ptr) == &mons[PM_DWARF] || (ptr) == &mons[PM_GNOME]    \
      || (ptr) == &mons[PM_ILLITHID] || (ptr) == &mons[PM_NYMPH] \
-     || (ptr) == &mons[PM_DROW])
+     || (ptr) == &mons[PM_DROW] || (ptr) == &mons[PM_DRAUGR])
 
 /* Ice Queen branch defines */
 #define is_iceq_only(ptr) \

@@ -240,6 +240,10 @@ struct permonst * pm;
             return FALSE;
         return TRUE;
     }
+
+    if (!Upolyd && Race_if(PM_DRAUGR))
+        return TRUE;
+
     return FALSE;
 }
 
@@ -513,6 +517,8 @@ int mndx, mode;
                 mndx = PM_ILLITHID;
             else if (is_tortle(ptr))
                 mndx = PM_TORTLE;
+            else if (is_draugr(ptr))
+                mndx = PM_DRAUGR;
         }
         break;
     }
@@ -3241,7 +3247,7 @@ struct monst *mtmp;
          * to show this for a long worm with only a tail visible.
          * Nor do you check invisibility, because glowing and
          * disintegrating amulets are always visible. */
-        if (lifesave->cursed) {
+        if (lifesave->cursed || nonliving(mtmp->data)) {
             if (cansee(mtmp->mx, mtmp->my)) {
                 pline("But wait...");
                 pline("%s medallion glows white-hot!", s_suffix(Monnam(mtmp)));
@@ -6334,7 +6340,7 @@ struct monst *mtmp;
 
     /* in case player kills themselves while defeating
        the ice queen and isn't lifesaved */
-    if (u.uhp <= 0 && !Lifesaved) {
+    if (u.uhp <= 0 && !ELifesaved) {
         ; /* suppress feedback */
     } else {
         Your("actions have released %s from a powerful curse!", mon_nam(mtmp));
@@ -6380,7 +6386,7 @@ struct monst *mtmp;
             continue;
         /* cure any ailments the dogs may have also */
         if (mon->data == bourbon || mon->data == ozzy) {
-            if (u.uhp <= 0 && !Lifesaved) {
+            if (u.uhp <= 0 && !ELifesaved) {
                 ; /* suppress feedback */
             } else {
                 if (mon->data == bourbon && !mon->mpeaceful) {
@@ -6407,7 +6413,7 @@ struct monst *mtmp;
     }
     /* in case player kills themselves while defeating
        the ice queen and isn't lifesaved */
-    if (u.uhp <= 0 && !Lifesaved) {
+    if (u.uhp <= 0 && !ELifesaved) {
         ; /* suppress feedback */
     } else {
         if (Role_if(PM_INFIDEL)) {

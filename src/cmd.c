@@ -3527,8 +3527,10 @@ int final;
         you_have("free action", from_what(FREE_ACTION));
     if (Fixed_abil)
         you_have("fixed abilities", from_what(FIXED_ABIL));
-    if (Lifesaved)
+    if (ELifesaved)
         enl_msg("Your life ", "will be", "would have been", " saved", "");
+    if (HLifesaved) /* Draugr race only */
+        you_can("revive a number of times", "");
 
     /*** Miscellany ***/
     if (Luck) {

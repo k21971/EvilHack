@@ -905,31 +905,33 @@ gcrownu()
         if (Role_if(PM_INFIDEL)) {
             verbalize("Thou shalt be my vassal of suffering and terror!");
             livelog_printf(LL_DIVINEGIFT, "became the Emissary of Moloch");
-            class_gift = SPE_FIREBALL; /* no special weapon */
             unrestrict_weapon_skill(P_TRIDENT);
             P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
-            if (Upolyd)
-                rehumanize(); /* return to original form -- not a demon yet */
-            /* lose ALL old racial abilities */
-            adjabil(u.ulevel, 0);
-            maxint = urace.attrmax[A_INT];
-            maxwis = urace.attrmax[A_WIS];
-            urace = race_demon;
-            /* mental faculties are not changed by demonization */
-            urace.attrmax[A_INT] = maxint;
-            urace.attrmax[A_WIS] = maxwis;
-            youmonst.data->msize = MZ_HUMAN; /* in case we started out as a giant */
-            /* gain demonic resistances */
-            adjabil(0, u.ulevel);
-            /* resistances - not shock res because that can be gained by leveling
-               up, and not cold res because demons and cold typically don't mix */
-            incr_resistance(&HSleep_resistance, 100);
-            /* move this line so adjabil doesn't flash e.g. warning on and off */
-            pline1("Wings sprout from your back and you grow a barbed tail!");
-            set_uasmon();
-            newsym(u.ux, u.uy);
-            retouch_equipment(2); /* silver */
-            monstseesu(M_SEEN_FIRE | M_SEEN_POISON | M_SEEN_SLEEP);
+            if (!Race_if(PM_DRAUGR)) {
+                if (Upolyd)
+                    rehumanize(); /* return to original form -- not a demon yet */
+                class_gift = SPE_FIREBALL; /* no special weapon */
+                /* lose ALL old racial abilities */
+                adjabil(u.ulevel, 0);
+                maxint = urace.attrmax[A_INT];
+                maxwis = urace.attrmax[A_WIS];
+                urace = race_demon;
+                /* mental faculties are not changed by demonization */
+                urace.attrmax[A_INT] = maxint;
+                urace.attrmax[A_WIS] = maxwis;
+                youmonst.data->msize = MZ_HUMAN; /* in case we started out as a giant */
+                /* gain demonic resistances */
+                adjabil(0, u.ulevel);
+                /* resistances - not shock res because that can be gained by leveling
+                   up, and not cold res because demons and cold typically don't mix */
+                incr_resistance(&HSleep_resistance, 100);
+                /* move this line so adjabil doesn't flash e.g. warning on and off */
+                pline1("Wings sprout from your back and you grow a barbed tail!");
+                set_uasmon();
+                newsym(u.ux, u.uy);
+                retouch_equipment(2); /* silver */
+                monstseesu(M_SEEN_FIRE | M_SEEN_POISON | M_SEEN_SLEEP);
+            }
             break;
         }
     }
@@ -1385,8 +1387,9 @@ aligntyp g_align;
             struct obj *otmp;
             int trycnt = u.ulevel + 1;
 
-            /* cavepersons don't mess around with spells, so do nothing */
-            if (Role_if(PM_CAVEMAN)) {
+            /* cavepersons or those of the draugr race don't mess around
+               with spells, so do nothing */
+            if (Role_if(PM_CAVEMAN) || Race_if(PM_DRAUGR)) {
                 break;
             } else {
                 /* not yet known spells given preference over already known ones.
@@ -2280,7 +2283,8 @@ dosacrifice()
                             if (typ && !P_RESTRICTED(objects[typ].oc_skill))
                                 break;
                         } while (ncount++ < 1000);
-                    } else if ((primary_casters || primary_casters_priest) && !rn2(3)) {
+                    } else if ((primary_casters || primary_casters_priest)
+                               && !Race_if(PM_DRAUGR) && !rn2(3)) {
                         /* Making a spellbook */
                         int trycnt = u.ulevel + 1;
 

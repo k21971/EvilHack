@@ -509,6 +509,7 @@ can_chant(mtmp)
 struct monst *mtmp;
 {
     if ((mtmp == &youmonst && Strangled)
+        || racial_draugr(&youmonst)
         || is_silent(mtmp->data) || !has_head(mtmp->data)
         || mtmp->data->msound == MS_BUZZ || mtmp->data->msound == MS_BURBLE)
         return FALSE;
@@ -799,6 +800,8 @@ struct permonst *pm1, *pm2;
         return is_centaur(pm2);
     if (is_tortle(pm1))
         return is_tortle(pm2);
+    if (is_draugr(pm1))
+        return is_draugr(pm2);
     /* other creatures are less precise */
     if (is_giant(pm1))
         return is_giant(pm2); /* open to quibbling here */
@@ -912,7 +915,7 @@ unsigned mhflag;
     static const char* mrnames[] = {
         "human", "elf", "dwarf", "gnome",
         "orc", "giant", "hobbit", "centaur",
-        "illithid", "tortle", "drow",
+        "illithid", "tortle", "drow", "draugr",
         "undead",
         "lycanthrope",
         "demon",

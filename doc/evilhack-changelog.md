@@ -3422,4 +3422,5 @@ The following changes to date are:
 - Suppress livelogging whilst in explore mode
 - New conduct: never acquired magic resistance
 - New conduct: never acquired reflection
+- New race: Draugr
 

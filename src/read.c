@@ -532,8 +532,8 @@ doread()
            scroll didn't come from bones, ask for confirmation */
         if (!u.uconduct.literate) {
             if (!scroll->spe && yn(
-             "Reading mail will violate \"illiterate\" conduct.  Read anyway?"
-                                   ) != 'y')
+                "Reading mail will violate \"illiterate\" conduct.  Read anyway?"
+                ) != 'y')
                 return 0;
         }
     }
