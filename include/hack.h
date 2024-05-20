@@ -159,12 +159,13 @@ enum game_end_types {
     STONING      =  8,
     TURNED_SLIME =  9,
     DECAPITATED  = 10,
-    GENOCIDED    = 11,
-    PANICKED     = 12,
-    TRICKED      = 13,
-    QUIT         = 14,
-    ESCAPED      = 15,
-    ASCENDED     = 16
+    INCINERATED  = 11,
+    GENOCIDED    = 12,
+    PANICKED     = 13,
+    TRICKED      = 14,
+    QUIT         = 15,
+    ESCAPED      = 16,
+    ASCENDED     = 17
 };
 
 typedef struct strbuf {

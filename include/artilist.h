@@ -186,9 +186,9 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     /*
      *      Sunsword from SporkHack warned of nearby undead
      */
-    A("Sunsword", LONG_SWORD, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH), 0, MH_UNDEAD,
-      PHYS(5, 0), DFNS(AD_BLND), NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 2500L,
-      NO_COLOR, GEMSTONE),
+    A("Sunsword", LONG_SWORD, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH),
+      0, (MH_UNDEAD | MH_DRAUGR), PHYS(5, 0), DFNS(AD_BLND), NO_CARY,
+      0, A_LAWFUL, NON_PM, NON_PM, 2500L, NO_COLOR, GEMSTONE),
     /*
      *      Lifestealer from SporkHack - many of the same properties as Stormbringer
      *      Meant to be wielded by Vlad. Enjoy the buff Vlad ;)
@@ -396,7 +396,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
        along with imparting disease resistance when wielded */
     A("Hammer of the Gods", HEAVY_WAR_HAMMER,
       (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_WARN
-       | SPFX_INTEL | SPFX_DFLAGH), 0, (MH_DEMON | MH_UNDEAD),
+       | SPFX_INTEL | SPFX_DFLAGH), 0, (MH_DEMON | MH_UNDEAD | MH_DRAUGR),
       PHYS(8, 0), DFNS(AD_DISE), NO_CARY, 0, A_LAWFUL,
       NON_PM, NON_PM, 25000L, NO_COLOR, SILVER),
     /* Tempest is a halberd that can be created by forging Cleaver and
@@ -502,9 +502,9 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       2500L, NO_COLOR, DEFAULT_MAT),
 
     A("The Mitre of Holiness", HELM_OF_BRILLIANCE,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_DFLAGH | SPFX_INTEL | SPFX_PROTECT), 0,
-      MH_UNDEAD, NO_ATTK, NO_DFNS, CARY(AD_FIRE), ENERGY_BOOST, A_LAWFUL,
-      PM_PRIEST, NON_PM, 2000L, NO_COLOR, METAL),
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_DFLAGH | SPFX_INTEL | SPFX_PROTECT),
+      0, (MH_UNDEAD | MH_DRAUGR), NO_ATTK, NO_DFNS, CARY(AD_FIRE),
+      ENERGY_BOOST, A_LAWFUL, PM_PRIEST, NON_PM, 2000L, NO_COLOR, METAL),
 
     /* If playing a gnomish ranger, the player receives the 'Crossbow of Carl',
        otherwise rangers will receive the Longbow of Diana. Exact same properties

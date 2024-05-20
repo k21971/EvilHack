@@ -315,8 +315,8 @@ static NEARDATA const char *deaths[] = {
     /* the array of death */
     "died", "choked", "poisoned", "starvation", "drowning", "burning",
     "dissolving under the heat and pressure", "crushed", "turned to stone",
-    "turned into slime", "decapitated", "genocided", "panic", "trickery",
-    "quit", "escaped", "ascended"
+    "turned into slime", "decapitated", "incinerated", "genocided",
+    "panic", "trickery", "quit", "escaped", "ascended"
 };
 
 static NEARDATA const char *ends[] = {
@@ -326,7 +326,8 @@ static NEARDATA const char *ends[] = {
     "dissolved in the lava",
     "were crushed", "turned to stone",
     "turned into slime", "were decapitated",
-    "were genocided", "panicked", "were tricked",
+    "were incinerated", "were genocided",
+    "panicked", "were tricked",
     "quit", "escaped", "ascended"
 };
 
@@ -1360,6 +1361,8 @@ int how;
         } else if (how == DECAPITATED) { /* can't revive if you've lost your head */
             pline("Unfortunately you've lost your %s...",
                   body_part(HEAD));
+        } else if (how == INCINERATED) { /* nothing to revive */
+            pline("Unfortunately there's nothing left to revive...");
         } else if (u.umortality > DRAUGR_REVIVE) { /* ran out of revive chances */
             pline("Unfortunately you weren't strong enough to revive fully...");
         } else if (is_open_air(x, y) && !Levitation

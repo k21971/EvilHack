@@ -2615,9 +2615,15 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               mon_nam(mdef));
                     mongone(mdef);
                 }
-            } else if (youdefend && is_undead(youmonst.data) && k) {
+            } else if (youdefend
+                       && (is_undead(youmonst.data)
+                           || maybe_polyd(is_draugr(youmonst.data), Race_if(PM_DRAUGR)))
+                       && k) {
                 pline("The holy power of Sunsword incinerates your undead flesh!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                killer.format = NO_KILLER_PREFIX;
+                Sprintf(killer.name, "incinerated by %s", xname(otmp));
+                done(INCINERATED);
                 /* player returns to their original form */
             } else
                 return FALSE;
@@ -2730,9 +2736,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 pline("The Hammer of the Gods shines brilliantly, destroying you!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form if poly'd */
-            } else if (youdefend && is_undead(youmonst.data) && k) {
+            } else if (youdefend && k
+                       && (is_undead(youmonst.data)
+                           || maybe_polyd(is_draugr(youmonst.data), Race_if(PM_DRAUGR)))) {
                 pline("The Hammer of the Gods incinerates your undead flesh!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
+                killer.format = NO_KILLER_PREFIX;
+                Sprintf(killer.name, "incinerated by %s", the(xname(otmp)));
+                done(INCINERATED);
                 /* player returns to their original form */
             } else
                 return FALSE;
