@@ -851,7 +851,7 @@ const struct Race races[] = {
         PM_ELF_ZOMBIE,
         MH_ELF | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
         MH_ELF,
-        MH_ELF,
+        MH_ELF | MH_HOBBIT,
         MH_DROW | MH_ORC | MH_ILLITHID | MH_DRAUGR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
@@ -960,7 +960,7 @@ const struct Race races[] = {
         PM_HOBBIT_ZOMBIE,
         MH_HOBBIT | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
         MH_HOBBIT,
-        MH_HOBBIT | MH_TORTLE,
+        MH_HOBBIT | MH_ELF | MH_TORTLE,
         MH_ORC | MH_ILLITHID | MH_DROW | MH_DRAUGR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
@@ -1048,7 +1048,9 @@ const struct Race races[] = {
         MH_DROW | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
         MH_DROW,
         MH_DROW,
-        MH_ELF | MH_ORC | MH_ILLITHID | MH_DRAUGR,
+        MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
+            | MH_GIANT | MH_CENTAUR | MH_ORC
+            | MH_TORTLE | MH_ILLITHID | MH_DRAUGR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { 18, 20, 20, 20, 16, 18 },
@@ -1067,14 +1069,14 @@ const struct Race races[] = {
         NON_PM,
         NON_PM,
         MH_DRAUGR | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
-        MH_DRAUGR,
-        MH_DRAUGR,
+        MH_DRAUGR | MH_UNDEAD,
+        MH_DRAUGR | MH_UNDEAD,
         MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
             | MH_GIANT | MH_CENTAUR | MH_ORC
             | MH_TORTLE | MH_DROW | MH_ILLITHID,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
-        { STR18(100), 18, 18, 18, 18, 18 },
+        { STR19(20), 10, 10, 18, 20, 6 },
         /* Init   Lower  Higher */
         { 2, 0, 0, 2, 1, 0 }, /* Hit points */
         { 1, 0, 2, 0, 2, 0 }  /* Energy */
@@ -1098,7 +1100,8 @@ struct Race race_demon = {
     MH_DEMON,
     MH_DEMON,
     MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
-        | MH_GIANT | MH_CENTAUR | MH_TORTLE | MH_DROW,
+        | MH_GIANT | MH_CENTAUR | MH_ORC | MH_TORTLE
+        | MH_DROW | MH_ILLITHID | MH_DRAUGR,
     /*  Str    Int Wis Dex Con Cha */
     { 3, 3, 3, 3, 3, 3 },
     { STR18(100), 18, 18, 20, 20, 18 },

@@ -3425,4 +3425,5 @@ The following changes to date are:
 - New race: Draugr
 - Revival routine for Draugr race
 - Draugr and critical hits from Sunsword/The Hammer of the Gods
+- Draugr really are undead
 

@@ -581,7 +581,8 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
             done(DIED);
             /* life-saving needed to reach here */
             exercise(A_WIS, FALSE);
-            if (Race_if(PM_ILLITHID)) {
+            if (!Upolyd
+                && (Race_if(PM_ILLITHID) || Race_if(PM_DRAUGR))) {
                 if (u.ulevel >= 26)
                     *dmg_p += rn2(10) + 7;
                 else if (u.ulevel >= 14)
@@ -600,7 +601,8 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
                 context.botl = 1;
             }
             exercise(A_WIS, TRUE);
-            if (Race_if(PM_ILLITHID) || Race_if(PM_DRAUGR)) {
+            if (!Upolyd
+                && (Race_if(PM_ILLITHID) || Race_if(PM_DRAUGR))) {
                 if (u.ulevel >= 26)
                     *dmg_p += rn2(10) + 7;
                 else if (u.ulevel >= 14)
@@ -621,7 +623,7 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
         /*
          * monster mind flayer is eating hero's brain
          */
-        if (Race_if(PM_DRAUGR)) {
+        if (!Upolyd && Race_if(PM_DRAUGR)) {
             You("don't notice.");
             return MM_MISS;
         } else if (ABASE(A_INT) <= ATTRMIN(A_INT)) {
