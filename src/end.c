@@ -24,6 +24,8 @@
 #define FIRST_AMULET AMULET_OF_ESP
 #define LAST_AMULET AMULET_OF_YENDOR
 
+#define DRAUGR_REVIVE rnd(3)
+
 extern const int matprices[];
 
 struct valuable_data {
@@ -313,8 +315,8 @@ static NEARDATA const char *deaths[] = {
     /* the array of death */
     "died", "choked", "poisoned", "starvation", "drowning", "burning",
     "dissolving under the heat and pressure", "crushed", "turned to stone",
-    "turned into slime", "genocided", "panic", "trickery", "quit",
-    "escaped", "ascended"
+    "turned into slime", "decapitated", "genocided", "panic", "trickery",
+    "quit", "escaped", "ascended"
 };
 
 static NEARDATA const char *ends[] = {
@@ -323,9 +325,9 @@ static NEARDATA const char *ends[] = {
     "starved", "drowned", "burned",
     "dissolved in the lava",
     "were crushed", "turned to stone",
-    "turned into slime", "were genocided",
-    "panicked", "were tricked", "quit",
-    "escaped", "ascended"
+    "turned into slime", "were decapitated",
+    "were genocided", "panicked", "were tricked",
+    "quit", "escaped", "ascended"
 };
 
 static boolean Schroedingers_cat = FALSE;
@@ -1039,7 +1041,7 @@ int how;
     uhpmin = max(2 * u.ulevel, 10);
     if (u.uhpmax < uhpmin)
         u.uhpmax = uhpmin;
-    u.uhp = min(u.uhpmax, 150);
+    u.uhp = min(u.uhpmax, (HLifesaved ? u.uhpmax : 150));
 
     if (Upolyd) /* Unchanging, or death which bypasses losing hit points */
         u.mh = min(u.mhmax, 150);
@@ -1348,11 +1350,18 @@ int how;
         }
     }
     if (HLifesaved && (how <= GENOCIDED)) { /* Draugr */
-        You("float in a sea of nothingness.  Then suddenly, you revive!");
+        pline("But then suddenly, you start to revive!");
+        /* reviving takes a toll */
+        (void) adjattrib(A_STR, -1, TRUE);
         (void) adjattrib(A_CON, -1, TRUE);
         savelife(how);
         if (how == GENOCIDED) {
             pline("Unfortunately you are still genocided...");
+        } else if (how == DECAPITATED) { /* can't revive if you've lost your head */
+            pline("Unfortunately you've lost your %s...",
+                  body_part(HEAD));
+        } else if (u.umortality > DRAUGR_REVIVE) { /* ran out of revive chances */
+            pline("Unfortunately you weren't strong enough to revive fully...");
         } else if (is_open_air(x, y) && !Levitation
                    && !(Flying && !(Punished && !carried(uball)
                         && is_open_air(uball->ox, uball->oy)))) {
@@ -1375,7 +1384,8 @@ int how;
             || !nonliving(youmonst.data) || Race_if(PM_DRAUGR)) {
             Your("medallion %s!", !Blind ? "glows white-hot"
                                          : "sears your neck");
-            You("hear manic laughter in the distance...");
+            if (!Deaf)
+                You("hear manic laughter in the distance...");
             Your("medallion turns to ash!");
             if (uamul->cursed)
                 pline("It appears your luck has run out...");
@@ -1421,7 +1431,10 @@ int how;
     /* explore and wizard modes offer player the option to keep playing */
     if (!survive && (wizard || discover) && how <= GENOCIDED
         && !paranoid_query(ParanoidDie, "Die?")) {
-        pline("OK, so you don't %s.", (how == CHOKING) ? "choke" : "die");
+        pline("OK, so you don't %s.",
+              (how == CHOKING) ? "choke"
+                               : (how == DECAPITATED) ? "lose your head"
+                                                      : "die");
         iflags.last_msg = PLNMSG_OK_DONT_DIE;
         savelife(how);
         ukiller = (struct monst*) 0;

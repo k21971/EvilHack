@@ -2487,7 +2487,7 @@ do_rust:
                 killer.format = NO_KILLER_PREFIX;
                 Sprintf(killer.name, "decapitated by %s",
                         an(l_monnam(mtmp)));
-                done(DIED);
+                done(DECAPITATED);
             }
             dmg = 0;
         }

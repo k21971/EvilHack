@@ -2850,6 +2850,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 *dmgptr = 2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER;
                 pline(behead_msg[rn2(SIZE(behead_msg))], wepdesc, "you");
                 otmp->dknown = TRUE;
+                killer.format = NO_KILLER_PREFIX;
+                Sprintf(killer.name, "decapitated by %s", xname(otmp));
+                done(DECAPITATED);
                 /* Should amulets fall off? */
                 return TRUE;
             }

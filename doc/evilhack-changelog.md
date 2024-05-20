@@ -3423,4 +3423,5 @@ The following changes to date are:
 - New conduct: never acquired magic resistance
 - New conduct: never acquired reflection
 - New race: Draugr
+- Revival routine for Draugr race
 
