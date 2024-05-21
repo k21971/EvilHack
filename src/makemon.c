@@ -3969,8 +3969,8 @@ register struct monst *mtmp;
        being non-hostile to unaligned, then the usual check for coaligned.
        For crowned Infidels, the random check is bypassed. Followers of
        Lolth - if they are Drow, stay chaotic, and are at least fervently
-       aligned, she will spawn peaceful. Undead will be peaceful towards
-       Draugr more often than not */
+       aligned, she will spawn peaceful. Undead (non-uniques) will be
+       peaceful towards Draugr more often than not */
     if (always_hostile(ptr)) {
         if (Role_if(PM_INFIDEL) && is_demon(ptr)
             && (u.uevent.uhand_of_elbereth || rn2(2))) {
@@ -3980,7 +3980,8 @@ register struct monst *mtmp;
                    && !Upolyd && Race_if(PM_DROW)) {
             return TRUE;
         } else if (!Upolyd && Race_if(PM_DRAUGR)
-                   && is_undead(ptr) && rn2(3)) {
+                   && is_undead(ptr)
+                   && !unique_corpstat(ptr) && rn2(3)) {
             return TRUE;
         } else {
             return FALSE;
