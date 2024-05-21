@@ -1298,6 +1298,13 @@ u_init()
     case PM_DRAUGR:
         if (!Role_if(PM_CONVICT))
             ini_inv(Dra_food);
+        if (!Role_if(PM_CONVICT)
+            && !Role_if(PM_INFIDEL)) {
+            /* same alignment penalty as the typical Convict */
+            adjalign(-20);
+            /* prevent automatic alignment abuse penalty */
+            u.ualign.abuse = 0;
+        }
         break;
 
     default: /* impossible */

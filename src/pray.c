@@ -1066,7 +1066,7 @@ gcrownu()
                 ; /* already got bonus above */
             } else if (obj && in_hand) {
                 if (!Blind)
-                    Your("%s briefly flares with an eldrtich glow.",
+                    Your("%s briefly flares with an eldritch glow.",
                          xname(obj));
                 obj->dknown = TRUE;
             } else if (!already_exists) {

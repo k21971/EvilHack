@@ -4081,8 +4081,10 @@ struct monst *mtmp;
     } else if (always_peaceful(mdat)) {
         int absmal = abs(mal);
         if (mtmp->mpeaceful) {
-            if (u.ualign.type == A_NONE) {
-                mtmp->malign += 1; /* Moloch's will */
+            if (u.ualign.type == A_NONE
+                || (!Upolyd && Race_if(PM_DRAUGR))) {
+                /* Moloch's will, or being a Draugr */
+                mtmp->malign += 1;
             } else if (Role_if(PM_CONVICT)) {
                 /* Several 'always peaceful' types become hostile
                    once they see a Convict. Still an alignment

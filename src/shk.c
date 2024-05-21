@@ -608,6 +608,10 @@ char *enterstring;
         return;
     }
 
+    /* Draugr being zombies */
+    if (!Upolyd && Race_if(PM_DRAUGR))
+        eshkp->pbanned = TRUE;
+
     /* Visible striped prison shirt */
     if ((uarmu && (uarmu->otyp == STRIPED_SHIRT))
         && !uarm && !uarmc) {

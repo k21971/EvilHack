@@ -3429,4 +3429,5 @@ The following changes to date are:
 - Clean up role-specific bits for Draugr
 - Draugr cannot gain intrinsic telepathy
 - Draugr as Infidel and crowning
+- Draugr and various interactions with NPC's
 

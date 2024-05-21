@@ -141,7 +141,12 @@ register struct monst *mtmp;
 
     if (mtmp->mpeaceful && in_town(u.ux + u.dx, u.uy + u.dy)
         && mtmp->mcansee && m_canseeu(mtmp) && !rn2(3)) {
-        if (Role_if(PM_CONVICT) && !Upolyd) {
+        if (Race_if(PM_DRAUGR) && !Upolyd) {
+            mon_yells(mtmp, "Another zombie!  Attack!");
+            (void) angry_guards(!!Deaf);
+            stop_occupation();
+            return;
+        } else if (Role_if(PM_CONVICT) && !Upolyd) {
             mon_yells(mtmp, "Hey, you're the one from the wanted poster!");
             (void) angry_guards(!!Deaf);
             stop_occupation();

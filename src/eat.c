@@ -2141,8 +2141,9 @@ struct obj *otmp;
             /* increasing existing nausea means that it will take longer
                before eventual vomit, but also means that constitution
                will be abused more times before illness completes */
-            if (Role_if(PM_CONVICT) && (rn2(8) > u.ulevel)) {
-	        You_feel("a slight stomach ache.");	/* prisoners are used to bad food */
+            if ((!Upolyd && Race_if(PM_DRAUGR))
+                || (Role_if(PM_CONVICT) && (rn2(8) > u.ulevel))) {
+                You_feel("a slight stomach ache."); /* prisoners are used to bad food */
 	    } else
                 make_vomiting((Vomiting & TIMEOUT) + (long) d(10, 4), TRUE);
         } else {
@@ -3154,8 +3155,9 @@ gethungry()
        amount of nutrition in the 'moves % 20' ring/amulet check below */
     if ((!Unaware || !rn2(10)) /* slow metabolic rate while asleep */
         && !inediate(raceptr(&youmonst))
-        /* Convicts can last twice as long at hungry and below */
-        && (!Role_if(PM_CONVICT) || (moves % 2) || (u.uhs < HUNGRY))
+        /* Convicts/Draugr can last twice as long at hungry and below */
+        && (!Role_if(PM_CONVICT) || !Race_if(PM_DRAUGR)
+            || (moves % 2) || (u.uhs < HUNGRY))
         && !Slow_digestion)
         u.uhunger--; /* ordinary food consumption */
 

@@ -1243,8 +1243,9 @@ struct obj *obj;
         && mtmp->data->mlet == S_DOG)
         return FALSE;
 
-    if (Role_if(PM_CONVICT) && (is_domestic(mtmp->data) && obj)) {
-        /* Domestic animals are wary of the Convict */
+    if ((Role_if(PM_CONVICT) || (!Upolyd && Race_if(PM_DRAUGR)))
+        && (is_domestic(mtmp->data) && !mtmp->mtame && obj)) {
+        /* Domestic animals are wary of Convicts and Draugr */
         pline("%s still looks wary of you.", Monnam(mtmp));
         return FALSE;
     }
