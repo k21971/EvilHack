@@ -907,7 +907,14 @@ gcrownu()
             livelog_printf(LL_DIVINEGIFT, "became the Emissary of Moloch");
             unrestrict_weapon_skill(P_TRIDENT);
             P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
-            if (!Race_if(PM_DRAUGR)) {
+            if (Race_if(PM_DRAUGR)) {
+                in_hand = wielding_artifact(ART_ANGELSLAYER);
+                already_exists =
+                    exist_artifact(TRIDENT, artiname(ART_ANGELSLAYER));
+                incr_resistance(&HShock_resistance, 100);
+                HSee_invisible |= FROMOUTSIDE;
+                monstseesu(M_SEEN_ELEC);
+            } else {
                 if (Upolyd)
                     rehumanize(); /* return to original form -- not a demon yet */
                 class_gift = SPE_FIREBALL; /* no special weapon */
@@ -1054,14 +1061,36 @@ gcrownu()
         break;
     }
     case A_NONE:
-        /* OK, we don't get an artifact, but surely Moloch
-         * can at least offer His own blessing? */
-        obj = uwep;
-        if (ok_wep(obj) && !obj->oartifact
-            && obj->quan == 1 && (obj->oprops & ITEM_PROP_MASK) == 0L) {
-            Your("%s is wreathed in hellfire!", simple_typename(obj->otyp));
-            obj->oprops |= ITEM_FIRE;
-            obj->oprops_known |= ITEM_FIRE;
+        if (Race_if(PM_DRAUGR)) {
+            if (class_gift != STRANGE_OBJECT) {
+                ; /* already got bonus above */
+            } else if (obj && in_hand) {
+                if (!Blind)
+                    Your("%s briefly flares with an eldrtich glow.",
+                         xname(obj));
+                obj->dknown = TRUE;
+            } else if (!already_exists) {
+                obj = mksobj(TRIDENT, FALSE, FALSE);
+                obj = oname(obj, artiname(ART_ANGELSLAYER));
+                obj->spe = 1;
+                at_your_feet("A trident");
+                dropy(obj);
+                u.ugifts++;
+            }
+            if (obj && obj->oartifact == ART_ANGELSLAYER)
+                discover_artifact(ART_ANGELSLAYER);
+        } else {
+            /* OK, we don't get an artifact, but surely Moloch
+             * can at least offer His own blessing? */
+            obj = uwep;
+            if (ok_wep(obj) && !obj->oartifact
+                && obj->quan == 1
+                && (obj->oprops & ITEM_PROP_MASK) == 0L) {
+                Your("%s is wreathed in hellfire!",
+                     simple_typename(obj->otyp));
+                obj->oprops |= ITEM_FIRE;
+                obj->oprops_known |= ITEM_FIRE;
+            }
         }
         break;
     default:

@@ -3428,4 +3428,5 @@ The following changes to date are:
 - Draugr really are undead
 - Clean up role-specific bits for Draugr
 - Draugr cannot gain intrinsic telepathy
+- Draugr as Infidel and crowning
 
