@@ -3434,4 +3434,5 @@ The following changes to date are:
 - More role-specific bits for Draugr
 - Ensure unique undead monsters are appropriately hostile towards Draugr
 - Tweak feedback between shopkeepers and Draugr
+- Shop prices for Draugr, other price tweaks
 
