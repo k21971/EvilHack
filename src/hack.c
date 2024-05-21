@@ -3557,6 +3557,8 @@ weight_cap()
             youmonst.data->msize = MZ_LARGE;
         }
     } else if (racial_draugr(&youmonst)) {
+        carrcap += 100;
+        maxcarrcap += 200;
         /* and draugr, but just movement speed here? */
         if (!Upolyd)
             youmonst.data->mmove = 10;

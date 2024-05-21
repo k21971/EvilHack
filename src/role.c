@@ -350,7 +350,7 @@ const struct Role roles[] = {
       S_XORN,
       ART_EYES_OF_THE_OVERWORLD,
       MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR
-          | MH_TORTLE | MH_DROW,
+          | MH_TORTLE | MH_DROW | MH_DRAUGR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
@@ -961,6 +961,50 @@ const struct Role draugr_roles[] = {
       A_WIS,
       0,
       -4 },
+    { { "Monk", 0 },
+      { { "Candidate", 0 },
+        { "Novice", 0 },
+        { "Initiate", 0 },
+        { "Student of Stones", 0 },
+        { "Student of Waters", 0 },
+        { "Student of Metals", 0 },
+        { "Student of Winds", 0 },
+        { "Student of Fire", 0 },
+        { "Master", 0 } },
+      "Shan Lai Ching", "Chih Sung-tzu", "Huan Ti", /* Chinese */
+      "Mon",
+      "the Monastery of Chan-Sune",
+      "the Monastery of the Earth-Lord",
+      PM_MONK,
+      NON_PM,
+      NON_PM,
+      PM_MASTER_PO,
+      PM_ABBOT,
+      PM_MASTER_KAEN,
+      PM_EARTH_ELEMENTAL,
+      PM_XORN,
+      S_ELEMENTAL,
+      S_XORN,
+      ART_EYES_OF_THE_OVERWORLD,
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR
+          | MH_TORTLE | MH_DROW | MH_DRAUGR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
+          | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 10, 7, 8, 8, 7, 7 },
+      { 25, 10, 20, 20, 15, 10 },
+      /* Init   Lower  Higher */
+      { 12, 0, 0, 8, 1, 0 }, /* Hit points */
+      { 2, 2, 0, 2, 0, 2 },
+      10, /* Energy */
+      10,
+      8,
+      -2,
+      2,
+      20,
+      A_WIS,
+      0,
+      -4 },
     { { "Rogue", 0 },
       { { "Footpad", 0 },
         { "Cutpurse", 0 },
@@ -1297,7 +1341,7 @@ const struct Race races[] = {
             | MH_TORTLE | MH_DROW | MH_ILLITHID,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
-        { STR19(20), 10, 10, 18, 20, 6 },
+        { STR19(20), 6, 8, 18, 20, 6 },
         /* Init   Lower  Higher */
         { 2, 0, 0, 2, 1, 0 }, /* Hit points */
         { 1, 0, 2, 0, 2, 0 }  /* Energy */
@@ -2749,8 +2793,10 @@ role_init()
             urole = draugr_roles[2];
         else if (Role_if(PM_KNIGHT))
             urole = draugr_roles[3];
-        else if (Role_if(PM_ROGUE))
+        else if (Role_if(PM_MONK))
             urole = draugr_roles[4];
+        else if (Role_if(PM_ROGUE))
+            urole = draugr_roles[5];
     }
 
     /* Fix up the quest leader */

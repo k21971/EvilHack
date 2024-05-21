@@ -2228,7 +2228,9 @@ const struct def_skill *class_skill;
         P_SKILL(P_QUARTERSTAFF) = P_BASIC;
 
     /* set skills for magic */
-    if (Role_if(PM_HEALER) || Role_if(PM_MONK)) {
+    if (Role_if(PM_HEALER)
+        || (Role_if(PM_MONK)
+            && !Race_if(PM_DRAUGR))) {
         P_SKILL(P_HEALING_SPELL) = P_BASIC;
     } else if (Role_if(PM_INFIDEL)
                && !Race_if(PM_DRAUGR)) {

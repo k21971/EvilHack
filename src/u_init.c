@@ -160,6 +160,19 @@ struct trobj Monk[] = {
     { FORTUNE_COOKIE, 0, FOOD_CLASS, 3, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
+struct trobj Draugr_Monk[] = {
+#define M_BOOK 2
+    { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { ROBE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+    { POT_HEALING, 0, POTION_CLASS, 3, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 3, 0 },
+    /* Yes, we know fortune cookies aren't really from China.  They were
+     * invented by George Jung in Los Angeles, California, USA in 1916.
+     */
+    { FORTUNE_COOKIE, 0, FOOD_CLASS, 3, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
 struct trobj Priest[] = {
     { MACE, 1, WEAPON_CLASS, 1, 1 },
     { ROBE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -369,6 +382,7 @@ struct inv_sub {
     { PM_DROW, CLOAK_OF_PROTECTION, DARK_ELVEN_CLOAK },
     /* Draugr */
     { PM_DRAUGR, FOOD_RATION, EGG },
+    { PM_DRAUGR, FORTUNE_COOKIE, EGG },
     /* end */
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
@@ -626,6 +640,16 @@ static const struct def_skill Skill_Mon[] = {
     { P_CLERIC_SPELL, P_SKILLED },
     { P_ESCAPE_SPELL, P_SKILLED },
     { P_MATTER_SPELL, P_BASIC },
+    { P_RIDING, P_BASIC },
+    { P_MARTIAL_ARTS, P_GRAND_MASTER },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Dra_Mon[] = {
+    { P_QUARTERSTAFF, P_EXPERT },
+    { P_SHURIKEN, P_BASIC },
+    { P_SPEAR, P_SKILLED },
+    { P_TRIDENT, P_SKILLED },
+    { P_BROAD_SWORD, P_BASIC },
     { P_RIDING, P_BASIC },
     { P_MARTIAL_ARTS, P_GRAND_MASTER },
     { P_NONE, 0 }
@@ -1013,13 +1037,19 @@ u_init()
         static short M_spell[] = { SPE_HEALING, SPE_PROTECTION, SPE_CONFUSE_MONSTER };
 
         Monk[M_BOOK].trotyp = M_spell[rn2(90) / 30]; /* [0..2] */
-        ini_inv(Monk);
+        if (Race_if(PM_DRAUGR))
+            ini_inv(Draugr_Monk);
+        else
+            ini_inv(Monk);
         if (!rn2(4) && !Race_if(PM_DROW))
             ini_inv(Lamp);
         knows_class(ARMOR_CLASS);
         /* sufficiently martial-arts oriented item to ignore language issue */
         knows_object(SHURIKEN);
-        skill_init(Skill_Mon);
+        if (Race_if(PM_DRAUGR))
+            skill_init(Skill_Dra_Mon);
+        else
+            skill_init(Skill_Mon);
         break;
     }
     case PM_PRIEST:

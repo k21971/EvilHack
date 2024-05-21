@@ -3422,7 +3422,7 @@ The following changes to date are:
 - Suppress livelogging whilst in explore mode
 - New conduct: never acquired magic resistance
 - New conduct: never acquired reflection
-- New race: Draugr
+- New race: Draugr (initial commit)
 - Revival routine for Draugr race
 - Draugr and critical hits from Sunsword/The Hammer of the Gods
 - Draugr really are undead
@@ -3431,4 +3431,5 @@ The following changes to date are:
 - Draugr as Infidel and crowning
 - Draugr and various interactions with NPC's
 - Draugr can regenerate hit points while in the Valley of the Dead
+- More role-specific bits for Draugr
 
