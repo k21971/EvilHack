@@ -2144,7 +2144,7 @@ struct obj *otmp;
             if ((!Upolyd && Race_if(PM_DRAUGR))
                 || (Role_if(PM_CONVICT) && (rn2(8) > u.ulevel))) {
                 You_feel("a slight stomach ache."); /* prisoners are used to bad food */
-	    } else
+            } else
                 make_vomiting((Vomiting & TIMEOUT) + (long) d(10, 4), TRUE);
         } else {
  give_feedback:

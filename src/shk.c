@@ -699,7 +699,10 @@ char *enterstring;
                       tool, plur(cnt));
             should_block = TRUE;
         } else if (eshkp->pbanned && !ANGRY(shkp)) {
-            verbalize("I don't sell to your kind here.");
+            if (!Upolyd && Race_if(PM_DRAUGR))
+                verbalize("I don't do business with zombies!");
+            else
+                verbalize("I don't sell to your kind here.");
             should_block = TRUE;
         } else if (u.usteed) {
             if (!Deaf && !muteshk(shkp))

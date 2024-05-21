@@ -3433,4 +3433,5 @@ The following changes to date are:
 - Draugr can regenerate hit points while in the Valley of the Dead
 - More role-specific bits for Draugr
 - Ensure unique undead monsters are appropriately hostile towards Draugr
+- Tweak feedback between shopkeepers and Draugr
 
