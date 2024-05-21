@@ -258,6 +258,8 @@ struct trobj Instrument[] = { { FLUTE, 0, TOOL_CLASS, 1, 0 },
                                      { 0, 0, 0, 0, 0 } };
 struct trobj Xtra_food[] = { { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 2, 0 },
                                     { 0, 0, 0, 0, 0 } };
+struct trobj Dra_food[] = { { EGG, UNDEF_SPE, FOOD_CLASS, 5, 0 },
+                                    { 0, 0, 0, 0, 0 } };
 struct trobj Leash[] = { { LEASH, 0, TOOL_CLASS, 1, 0 },
                                 { 0, 0, 0, 0, 0 } };
 struct trobj Towel[] = { { TOWEL, 0, TOOL_CLASS, 1, 0 },
@@ -418,6 +420,29 @@ static const struct def_skill Skill_B[] = {
     { P_SHIELD, P_SKILLED },
     { P_NONE, 0 }
 };
+static const struct def_skill Skill_Dra_B[] = {
+    { P_DAGGER, P_BASIC },
+    { P_AXE, P_EXPERT },
+    { P_PICK_AXE, P_SKILLED },
+    { P_SHORT_SWORD, P_EXPERT },
+    { P_BROAD_SWORD, P_SKILLED },
+    { P_LONG_SWORD, P_SKILLED },
+    { P_TWO_HANDED_SWORD, P_EXPERT },
+    { P_SABER, P_SKILLED },
+    { P_CLUB, P_SKILLED },
+    { P_MACE, P_SKILLED },
+    { P_FLAIL, P_BASIC },
+    { P_HAMMER, P_EXPERT },
+    { P_QUARTERSTAFF, P_BASIC },
+    { P_SPEAR, P_SKILLED },
+    { P_TRIDENT, P_SKILLED },
+    { P_BOW, P_BASIC },
+    { P_RIDING, P_SKILLED },
+    { P_TWO_WEAPON_COMBAT, P_SKILLED },
+    { P_BARE_HANDED_COMBAT, P_MASTER },
+    { P_SHIELD, P_SKILLED },
+    { P_NONE, 0 }
+};
 static const struct def_skill Skill_C[] = {
     { P_DAGGER, P_SKILLED },
     { P_AXE, P_SKILLED },
@@ -452,6 +477,23 @@ static const struct def_skill Skill_Con[] = {
     { P_SLING, P_SKILLED },
     { P_ATTACK_SPELL, P_BASIC },
     { P_ESCAPE_SPELL, P_EXPERT },
+    { P_RIDING, P_BASIC },
+    { P_TWO_WEAPON_COMBAT, P_SKILLED },
+    { P_THIEVERY, P_SKILLED },
+    { P_SHIELD, P_BASIC },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Dra_Con[] = {
+    { P_DAGGER, P_EXPERT },
+    { P_HAMMER, P_SKILLED },
+    { P_PICK_AXE, P_EXPERT },
+    { P_CLUB, P_EXPERT },
+    { P_MACE, P_BASIC },
+    { P_DART, P_SKILLED },
+    { P_FLAIL, P_EXPERT },
+    { P_SHORT_SWORD, P_BASIC },
+    { P_BROAD_SWORD, P_SKILLED },
+    { P_SLING, P_SKILLED },
     { P_RIDING, P_BASIC },
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_THIEVERY, P_SKILLED },
@@ -500,6 +542,24 @@ static const struct def_skill Skill_Inf[] = {
     { P_RIDING, P_SKILLED },
     { P_NONE, 0 }
 };
+static const struct def_skill Skill_Dra_Inf[] = {
+    { P_DAGGER, P_EXPERT },
+    { P_SHORT_SWORD, P_SKILLED },
+    { P_BROAD_SWORD, P_BASIC },
+    { P_SABER, P_SKILLED },
+    { P_CLUB, P_BASIC },
+    { P_HAMMER, P_BASIC },
+    { P_QUARTERSTAFF, P_SKILLED },
+    { P_POLEARMS, P_SKILLED },
+    { P_SPEAR, P_BASIC },
+    { P_SLING, P_BASIC },
+    { P_CROSSBOW, P_SKILLED },
+    { P_DART, P_BASIC },
+    { P_WHIP, P_SKILLED },
+    { P_BARE_HANDED_COMBAT, P_SKILLED },
+    { P_RIDING, P_SKILLED },
+    { P_NONE, 0 }
+};
 static const struct def_skill Skill_K[] = {
     { P_DAGGER, P_BASIC },
     { P_AXE, P_EXPERT },
@@ -522,6 +582,31 @@ static const struct def_skill Skill_K[] = {
     { P_ATTACK_SPELL, P_BASIC },
     { P_HEALING_SPELL, P_BASIC },
     { P_CLERIC_SPELL, P_SKILLED },
+    { P_RIDING, P_EXPERT },
+    { P_TWO_WEAPON_COMBAT, P_SKILLED },
+    { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_SHIELD, P_EXPERT },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Dra_K[] = {
+    { P_DAGGER, P_BASIC },
+    { P_AXE, P_EXPERT },
+    { P_PICK_AXE, P_BASIC },
+    { P_SHORT_SWORD, P_SKILLED },
+    { P_BROAD_SWORD, P_EXPERT },
+    { P_LONG_SWORD, P_EXPERT },
+    { P_TWO_HANDED_SWORD, P_EXPERT },
+    { P_SABER, P_SKILLED },
+    { P_CLUB, P_BASIC },
+    { P_MACE, P_BASIC },
+    { P_FLAIL, P_BASIC },
+    { P_HAMMER, P_BASIC },
+    { P_POLEARMS, P_EXPERT },
+    { P_SPEAR, P_EXPERT },
+    { P_TRIDENT, P_BASIC },
+    { P_LANCE, P_EXPERT },
+    { P_BOW, P_BASIC },
+    { P_CROSSBOW, P_SKILLED },
     { P_RIDING, P_EXPERT },
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
@@ -581,6 +666,28 @@ static const struct def_skill Skill_R[] = {
     { P_DIVINATION_SPELL, P_SKILLED },
     { P_ESCAPE_SPELL, P_SKILLED },
     { P_MATTER_SPELL, P_SKILLED },
+    { P_RIDING, P_BASIC },
+    { P_TWO_WEAPON_COMBAT, P_EXPERT },
+    { P_THIEVERY, P_MASTER },
+    { P_SHIELD, P_BASIC },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Dra_R[] = {
+    { P_DAGGER, P_EXPERT },
+    { P_SHORT_SWORD, P_EXPERT },
+    { P_BROAD_SWORD, P_SKILLED },
+    { P_LONG_SWORD, P_SKILLED },
+    { P_TWO_HANDED_SWORD, P_BASIC },
+    { P_SABER, P_SKILLED },
+    { P_CLUB, P_SKILLED },
+    { P_MACE, P_SKILLED },
+    { P_FLAIL, P_BASIC },
+    { P_HAMMER, P_BASIC },
+    { P_POLEARMS, P_BASIC },
+    { P_SPEAR, P_BASIC },
+    { P_CROSSBOW, P_EXPERT },
+    { P_DART, P_EXPERT },
+    { P_SHURIKEN, P_SKILLED },
     { P_RIDING, P_BASIC },
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
     { P_THIEVERY, P_MASTER },
@@ -842,7 +949,10 @@ u_init()
             ini_inv(Lamp);
         knows_class(WEAPON_CLASS);
         knows_class(ARMOR_CLASS);
-        skill_init(Skill_B);
+        if (Race_if(PM_DRAUGR))
+            skill_init(Skill_Dra_B);
+        else
+            skill_init(Skill_B);
         break;
     case PM_CAVEMAN:
         Cave_man[C_AMMO].trquan = rn1(11, 10); /* 10..20 */
@@ -853,7 +963,10 @@ u_init()
         ini_inv(Convict);
         knows_object(SKELETON_KEY);
         knows_object(GRAPPLING_HOOK);
-        skill_init(Skill_Con);
+        if (Race_if(PM_DRAUGR))
+            skill_init(Skill_Dra_Con);
+        else
+            skill_init(Skill_Con);
         u.uhunger = 200;  /* On the verge of hungry */
         u.ualignbase[A_CURRENT] = u.ualignbase[A_ORIGINAL]
             = u.ualign.type = A_CHAOTIC; /* Override racial alignment */
@@ -873,7 +986,10 @@ u_init()
         else
             ini_inv(Infidel);
         knows_object(SCR_CHARGING);
-        skill_init(Skill_Inf);
+        if (Race_if(PM_DRAUGR))
+            skill_init(Skill_Dra_Inf);
+        else
+            skill_init(Skill_Inf);
         break;
     case PM_KNIGHT:
         if (Race_if(PM_ELF))
@@ -888,7 +1004,10 @@ u_init()
         knows_class(ARMOR_CLASS);
         /* give knights chess-like mobility--idea from wooledge@..cwru.edu */
         HJumping |= FROMOUTSIDE;
-        skill_init(Skill_K);
+        if (Race_if(PM_DRAUGR))
+            skill_init(Skill_Dra_K);
+        else
+            skill_init(Skill_K);
         break;
     case PM_MONK: {
         static short M_spell[] = { SPE_HEALING, SPE_PROTECTION, SPE_CONFUSE_MONSTER };
@@ -936,7 +1055,10 @@ u_init()
         if (!rn2(5))
             ini_inv(Blindfold);
         knows_object(SACK);
-        skill_init(Skill_R);
+        if (Race_if(PM_DRAUGR))
+            skill_init(Skill_Dra_R);
+        else
+            skill_init(Skill_R);
         break;
     case PM_SAMURAI:
         Samurai[S_ARROWS].trquan = rn1(20, 26);
@@ -1169,6 +1291,13 @@ u_init()
         knows_object(DARK_ELVEN_BRACERS);
         knows_object(DARK_ELVEN_BOOTS);
         knows_object(DARK_ELVEN_GLOVES);
+        break;
+
+    /* Draugr can only eat meaty corpses and eggs,
+       start them out with some provisions */
+    case PM_DRAUGR:
+        if (!Role_if(PM_CONVICT))
+            ini_inv(Dra_food);
         break;
 
     default: /* impossible */

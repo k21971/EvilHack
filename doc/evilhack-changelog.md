@@ -3426,4 +3426,5 @@ The following changes to date are:
 - Revival routine for Draugr race
 - Draugr and critical hits from Sunsword/The Hammer of the Gods
 - Draugr really are undead
+- Clean up role-specific bits for Draugr
 

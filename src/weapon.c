@@ -2230,7 +2230,8 @@ const struct def_skill *class_skill;
     /* set skills for magic */
     if (Role_if(PM_HEALER) || Role_if(PM_MONK)) {
         P_SKILL(P_HEALING_SPELL) = P_BASIC;
-    } else if (Role_if(PM_INFIDEL)) {
+    } else if (Role_if(PM_INFIDEL)
+               && !Race_if(PM_DRAUGR)) {
         P_SKILL(P_ATTACK_SPELL) = P_BASIC;
     } else if (Role_if(PM_PRIEST)) {
         P_SKILL(P_CLERIC_SPELL) = P_BASIC;
