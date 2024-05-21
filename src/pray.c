@@ -1353,7 +1353,7 @@ aligntyp g_align;
 
             godvoice(u.ualign.type,
                      "Thou hast pleased me with thy progress,");
-            if (!(HTelepat & INTRINSIC)) {
+            if (!(HTelepat & INTRINSIC) && !Race_if(PM_DRAUGR)) {
                 HTelepat |= FROMOUTSIDE;
                 pline(msg, "Telepathy");
                 if (Blind)

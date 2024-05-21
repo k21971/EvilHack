@@ -1056,6 +1056,8 @@ register struct permonst *ptr;
         break;
     case TELEPAT:
         debugpline0("Trying to give telepathy");
+        if (Race_if(PM_DRAUGR))
+            break;
         if (!(HTelepat & (FROMOUTSIDE | FROMRACE | FROMEXPER))) {
             You_feel(Hallucination ? "in touch with the cosmos."
                                    : "a strange mental acuity.");
