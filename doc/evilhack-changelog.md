@@ -3430,4 +3430,5 @@ The following changes to date are:
 - Draugr cannot gain intrinsic telepathy
 - Draugr as Infidel and crowning
 - Draugr and various interactions with NPC's
+- Draugr can regenerate hit points while in the Valley of the Dead
 
