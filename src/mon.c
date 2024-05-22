@@ -293,6 +293,9 @@ struct permonst *pm;
             break;
     case S_GNOME:
         return PM_GNOME_ZOMBIE;
+    case S_ZOMBIE:
+        if (pm == &mons[PM_DRAUGR])
+            return PM_DRAUGR;
     }
     return NON_PM;
 }
@@ -639,6 +642,7 @@ unsigned corpseflags;
     case PM_GIANT_ZOMBIE:
     case PM_ETTIN_ZOMBIE:
     case PM_GNOLL_WITHERLING:
+    case PM_DRAUGR:
         corpstatflags |= CORPSTAT_ZOMBIE;
         /* FALLTHRU */
     case PM_KOBOLD_MUMMY:
@@ -757,9 +761,13 @@ unsigned corpseflags;
             return (struct obj *) 0;
         } else {
             corpstatflags |= CORPSTAT_INIT;
+            if racial_zombie(mtmp)
+                corpstatflags |= CORPSTAT_ZOMBIE;
             /* preserve the unique traits of some creatures */
             obj = mkcorpstat(CORPSE, KEEPTRAITS(mtmp) ? mtmp : 0,
                              mdat, x, y, corpstatflags);
+            if racial_zombie(mtmp)
+                obj->age -= 100;
             if (burythem) {
                 boolean dealloc;
 

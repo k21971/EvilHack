@@ -3443,3 +3443,4 @@ The following changes to date are:
 - Refactor diseasemu() to allow use of racial_zombie()
 - Refactor resists_sick to allow checking racial data
 - Draugr infidels don't cast spells
+- Draugr can revive

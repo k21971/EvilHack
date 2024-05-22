@@ -2375,21 +2375,25 @@ long timeout;
     struct obj *body = arg->a_obj;
     struct permonst *mptr = &mons[body->corpsenm];
     int zmon;
-
     if (!body->zombie_corpse && has_omonst(body) && has_erac(OMONST(body)))
          mptr = r_data(OMONST(body));
-    zmon = zombie_form(mptr);
-
-    if (zmon != NON_PM) {
-        if (has_omid(body))
-            free_omid(body);
-        if (has_omonst(body))
-            free_omonst(body);
-
-        set_corpsenm(body, zmon);
+    if (has_omonst(body) && has_erac(OMONST(body))
+        && ERAC(OMONST(body))->rmnum == PM_DRAUGR) {
         revive_mon(arg, timeout);
     } else {
-        rot_corpse(arg, timeout);
+        zmon = zombie_form(mptr);
+
+        if (zmon != NON_PM) {
+            if (has_omid(body))
+                free_omid(body);
+            if (has_omonst(body))
+                free_omonst(body);
+
+            set_corpsenm(body, zmon);
+            revive_mon(arg, timeout);
+        } else {
+            rot_corpse(arg, timeout);
+        }
     }
 }
 
