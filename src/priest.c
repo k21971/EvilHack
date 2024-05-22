@@ -466,13 +466,19 @@ int roomno;
             epri_p->enter_time = 0L;
         }
         msg1 = msg2 = 0;
-        if (((sanctum && Is_sanctum(&u.uz)) || u.ualign.type == A_NONE)
+        if (((sanctum && Is_sanctum(&u.uz)) || u.ualign.type == A_NONE
+             || (!Upolyd && Race_if(PM_DRAUGR)))
             && !p_coaligned(priest)) {
             /* either a non-Infidel in the Sanctum, or an Infidel in any
              * non-Moloch temple; either way, the priest is not happy */
             if (priest->mpeaceful) {
                 /* first time inside */
-                if (u.ualign.type == A_NONE) {
+                if (!Upolyd && Race_if(PM_DRAUGR)
+                    && !Role_if(PM_INFIDEL)) {
+                    msg1 = "Begone, foul abomination!";
+                    msg2 = "You desecrate this holy Sanctum!";
+                    call_guards = in_town(priest->mx, priest->my);
+                } else if (u.ualign.type == A_NONE) {
                     msg1 = "Begone, infidel!";
                     msg2 = "This place is barred for your cult!";
                     call_guards = in_town(priest->mx, priest->my);
@@ -481,6 +487,7 @@ int roomno;
                     msg2 = "Be gone!";
                 }
                 priest->mpeaceful = 0;
+                newsym(priest->mx, priest->my); /* clear peaceful glyph */
                 /* became angry voluntarily; no penalty for attacking him */
                 set_malign(priest);
             } else {
@@ -498,7 +505,8 @@ int roomno;
                 verbalize1(msg2);
             epri_p->enter_time = moves + (long) d(10, 100); /* ~505 */
         }
-        /* for Infidels, visiting the Minetown temple is a very bad idea */
+        /* for Infidels or possibly Draugr, visiting the Minetown
+           temple is a very bad idea */
         if (call_guards) {
             pline("%s calls for guards!", Monnam(priest));
             (void) angry_guards(FALSE);
@@ -576,12 +584,15 @@ struct monst* ghost;
 {
     ghost->mpeaceful = 0;
     set_malign(ghost);
-    if (multi >= 0) {
-        if (flags.verbose)
-            You("are frightened to death, and unable to move.");
-        nomul(-3);
-        multi_reason = "being terrified of a ghost";
-        nomovemsg = "You regain your composure.";
+    /* Draugr do not fear the undead. Or anything else for that matter */
+    if (!maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))) {
+        if (multi >= 0) {
+            if (flags.verbose)
+                You("are frightened to death, and unable to move.");
+            nomul(-3);
+            multi_reason = "being terrified of a ghost";
+            nomovemsg = "You regain your composure.";
+        }
     }
 }
 
@@ -617,13 +628,15 @@ register struct monst *priest;
     if (priest->mflee || (!priest->ispriest && coaligned && strayed)) {
         pline("%s doesn't want anything to do with you!", Monnam(priest));
         priest->mpeaceful = 0;
+        newsym(priest->mx, priest->my); /* clear peaceful glyph */
         return;
     }
 
     /* priests don't chat unless peaceful and in their own temple */
     if (!inhistemple(priest) || !priest->mpeaceful
         || !priest->mcanmove || priest->msleeping
-        || (u.ualign.type == A_NONE && !coaligned)) {
+        || (u.ualign.type == A_NONE && !coaligned)
+        || (!Upolyd && Race_if(PM_DRAUGR) && !coaligned)) {
         static const char *cranky_msg[3] = {
             "Thou wouldst have words, eh?  I'll give thee a word or two!",
             "Talk?  Here is what I have to say!",
@@ -638,6 +651,7 @@ register struct monst *priest;
 		priest->mcanmove = 1;
         }
         priest->mpeaceful = 0;
+        newsym(priest->mx, priest->my); /* clear peaceful glyph */
         verbalize1(cranky_msg[rn2(3)]);
         return;
     }
@@ -648,6 +662,7 @@ register struct monst *priest;
         verbalize(
               "Begone!  Thou desecratest this holy place with thy presence.");
         priest->mpeaceful = 0;
+        newsym(priest->mx, priest->my); /* clear peaceful glyph */
         return;
     }
     if (!money_cnt(invent)) {

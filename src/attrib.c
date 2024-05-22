@@ -270,8 +270,8 @@ boolean givemsg;
 {
     int num = incr;
 
-    if ((!num) || ((Race_if(PM_GIANT)
-                    || Race_if(PM_CENTAUR) || Race_if(PM_TORTLE))
+    if ((!num) || ((Race_if(PM_GIANT) || Race_if(PM_CENTAUR)
+                    || Race_if(PM_TORTLE) || Race_if(PM_DRAUGR))
                    && (!(otmp && otmp->cursed)))) {
         if (ABASE(A_STR) < 18)
             num = (rn2(4) ? 1 : rnd(6));

@@ -925,9 +925,10 @@ int wtcap;
            Drow heal more slowly in the light (3x slower), Infidels
            won't heal at all without the Amulet of Yendor with them
            (pre-idol imbuement). No one can regenerate hit points
-           while located in the Valley of the Dead */
+           while located in the Valley of the Dead, except for Draugr */
         if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
-            && (encumbrance_ok || Regeneration) && !Is_valley(&u.uz)
+            && (encumbrance_ok || Regeneration)
+            && (!Is_valley(&u.uz) || Race_if(PM_DRAUGR))
             && !infidel_no_amulet && !wielding_artifact(ART_WAND_OF_ORCUS)) {
             if (u.ulevel > 9) {
                 long rate = 3L;

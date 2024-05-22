@@ -608,6 +608,10 @@ char *enterstring;
         return;
     }
 
+    /* Draugr being zombies */
+    if (!Upolyd && Race_if(PM_DRAUGR))
+        eshkp->pbanned = TRUE;
+
     /* Visible striped prison shirt */
     if ((uarmu && (uarmu->otyp == STRIPED_SHIRT))
         && !uarm && !uarmc) {
@@ -695,7 +699,10 @@ char *enterstring;
                       tool, plur(cnt));
             should_block = TRUE;
         } else if (eshkp->pbanned && !ANGRY(shkp)) {
-            verbalize("I don't sell to your kind here.");
+            if (!Upolyd && Race_if(PM_DRAUGR))
+                verbalize("I don't do business with zombies!");
+            else
+                verbalize("I don't sell to your kind here.");
             should_block = TRUE;
         } else if (u.usteed) {
             if (!Deaf && !muteshk(shkp))
@@ -2153,6 +2160,8 @@ long *numerator, *denominator;
         } else if (Race_if(PM_CENTAUR)) {
             *numerator = 3L;
             *denominator = 2L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
         }
     } else if (is_elf(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)
@@ -2164,6 +2173,8 @@ long *numerator, *denominator;
         } else if (Race_if(PM_ELF)) {
             *numerator = 4L;
             *denominator = 5L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
         }
     } else if (is_drow(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)
@@ -2175,6 +2186,8 @@ long *numerator, *denominator;
         } else if (Race_if(PM_DROW)) {
             *numerator = 4L;
             *denominator = 5L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
         }
     } else if (is_dwarf(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
@@ -2188,6 +2201,8 @@ long *numerator, *denominator;
         } else if (Race_if(PM_DWARF)) {
             *numerator = 3L;
             *denominator = 4L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
         }
     } else if (is_orc(shkdat)) {
         if (Race_if(PM_ELF) || Race_if(PM_GNOME)
@@ -2202,9 +2217,15 @@ long *numerator, *denominator;
         } else if (Race_if(PM_ORC)) {
             *numerator = 2L;
             *denominator = 3L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
         }
     } else if (is_gnome(shkdat)) {
-        if (ACURR(A_INT) < 15) {
+        if (ACURR(A_INT) <= 6) {
+            *numerator = 6L;
+        } else if (ACURR(A_INT) < 12) {
+            *numerator = 2L;
+        } else if (ACURR(A_INT) < 15) {
             *numerator = 3L;
             *denominator = 2L;
         } else if (ACURR(A_INT) < 18) {
@@ -2217,7 +2238,8 @@ long *numerator, *denominator;
             return;
         }
         if (!Race_if(PM_ILLITHID))
-            *numerator = ((mnum - PM_ILLITHID + 1) * 10);
+            *numerator =
+                ((mnum - PM_ILLITHID + 1) * (Race_if(PM_DRAUGR) ? 20 : 10));
     } else if (is_centaur(shkdat)) {
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
             || Race_if(PM_DWARF) || Race_if(PM_ORC)
@@ -2227,6 +2249,8 @@ long *numerator, *denominator;
         } else if (Race_if(PM_CENTAUR)) {
             *numerator = 3L;
             *denominator = 4L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
         }
     } else if (is_giant(shkdat)) {
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
@@ -2240,17 +2264,19 @@ long *numerator, *denominator;
         } else if (Race_if(PM_GIANT)) {
             *numerator = 3L;
             *denominator = 4L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
         }
     } else if (shkdat == &mons[PM_NYMPH]) {
-        if (mnum < PM_NYMPH) {
-            impossible("mnum for nymph shopkeeper is too low!");
-            return;
-        }
-        if (ACURR(A_CHA) > 14) {
-            *numerator = 4L;
-            *denominator = 3L;
-        } else {
+        if (ACURR(A_CHA) <= 6) {
+            *numerator = 8L;
+        } else if (ACURR(A_CHA) < 12) {
+            *numerator = 3L;
+        } else if (ACURR(A_CHA) < 15) {
             *numerator = 5L;
+            *denominator = 3L;
+        } else if (ACURR(A_CHA) < 18) {
+            *numerator = 4L;
             *denominator = 3L;
         }
     } else {

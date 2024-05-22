@@ -350,7 +350,7 @@ const struct Role roles[] = {
       S_XORN,
       ART_EYES_OF_THE_OVERWORLD,
       MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR
-          | MH_TORTLE | MH_DROW,
+          | MH_TORTLE | MH_DROW | MH_DRAUGR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
@@ -787,6 +787,271 @@ const struct Role race_roles[] = {
     { { 0, 0 } }
 };
 
+/* Draugr roles */
+const struct Role draugr_roles[] = {
+    { { "Barbarian", 0 },
+      { { "Plunderer", "Plunderess" },
+        { "Pillager", 0 },
+        { "Bandit", 0 },
+        { "Brigand", 0 },
+        { "Raider", 0 },
+        { "Reaver", 0 },
+        { "Slayer", 0 },
+        { "Chieftain", "Chieftainess" },
+        { "Conqueror", "Conqueress" } },
+      "Mitra", "Crom", "Set", /* Hyborian */
+      "Bar",
+      "the Camp of the Duali Tribe",
+      "the Duali Oasis",
+      PM_BARBARIAN,
+      NON_PM,
+      NON_PM,
+      PM_PELIAS,
+      PM_CHIEFTAIN,
+      PM_THOTH_AMON,
+      PM_OGRE,
+      PM_TROLL,
+      S_OGRE,
+      S_TROLL,
+      ART_RING_OF_P_HUL,
+      MH_HUMAN | MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR
+          | MH_TORTLE | MH_DRAUGR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 16, 7, 7, 15, 16, 6 },
+      { 30, 6, 7, 20, 30, 7 },
+      /* Init   Lower  Higher */
+      { 14, 0, 0, 10, 2, 0 }, /* Hit points */
+      { 1, 0, 0, 1, 0, 1 },
+      10, /* Energy */
+      10,
+      14,
+      0,
+      0,
+      8,
+      A_INT,
+      0,
+      -4 },
+    { { "Convict", 0 },
+      { { "Detainee", 0 },
+        { "Inmate", 0 },
+        { "Jail-bird", 0 },
+        { "Prisoner", 0 },
+        { "Outlaw", 0 },
+        { "Crook", 0 },
+        { "Desperado", 0 },
+        { "Felon", 0 },
+        { "Fugitive", 0 } },
+      "Ilmater", "Grumbar", "_Tymora",  /* Faerunian */
+      "Con",
+      "Castle Waterdeep Dungeon",
+      "the Warden's Level",
+      PM_CONVICT,
+      NON_PM,
+      PM_SEWER_RAT,
+      PM_ROBERT_THE_LIFER,
+      PM_INMATE,
+      PM_WARDEN_ARIANNA,
+      PM_GIANT_BEETLE,
+      PM_SOLDIER_ANT,
+      S_RODENT,
+      S_SPIDER,
+      ART_STRIPED_SHIRT_OF_LIBERATIO,
+      MH_HUMAN | MH_DWARF | MH_GNOME | MH_ORC | MH_HOBBIT
+          | MH_ILLITHID | MH_DROW | MH_DRAUGR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC | ROLE_NORACEALIGN,
+      /* Str Int Wis Dex Con Cha */
+      { 10, 7, 7, 7, 13, 6 },
+      { 20, 20, 10, 20, 20, 10 },
+      /* Init   Lower  Higher */
+      { 8, 0, 0, 8, 0, 0 },     /* Hit points */
+      { 1, 0, 0, 1, 0, 1 },
+      10, /* Energy */
+      -10,
+      5,
+      0,
+      2,
+      10,
+      A_INT,
+      0,
+      -4 },
+    { { "Infidel", 0 },
+      { { "Apostate", 0 },
+        { "Heathen", 0 },
+        { "Heretic", 0 },
+        { "Idolater", "Idolatress" },
+        { "Cultist", 0 },
+        { "Splanchomancer", 0 },
+        { "Maleficus", "Malefica" },
+        { "Demonologist", 0 },
+        { "Heresiarch", 0 } },
+      0, 0, 0, /* uses a random role's pantheon */
+      "Inf",
+      "the Hidden Temple",
+      "the Howling Forest",
+      PM_INFIDEL,
+      NON_PM,
+      PM_LESSER_HOMUNCULUS,
+      PM_ARCHBISHOP_OF_MOLOCH,
+      PM_CULTIST,
+      PM_PALADIN,
+      PM_AGENT,
+      PM_CHAMPION,
+      S_DOG,
+      S_UNICORN,
+      ART_IDOL_OF_MOLOCH,
+      MH_HUMAN | MH_ELF | MH_ORC | MH_ILLITHID | MH_GIANT
+          | MH_CENTAUR | MH_DROW | MH_DRAUGR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC, /* actually unaligned */
+      /* Str Int Wis Dex Con Cha */
+      { 7, 7, 10, 7, 7, 7 },
+      { 20, 10, 25, 15, 20, 10 },
+      /* Init   Lower  Higher */
+      { 10, 0, 0, 8, 1, 0 }, /* Hit points */
+      { 4, 3, 0, 1, 0, 2 },
+      10, /* Energy */
+      10,
+      3,
+      1,
+      2,
+      10,
+      A_WIS,
+      0,
+      -4 },
+    { { "Dark Knight", 0 },
+      { { "Sniveler", 0 },
+        { "Pawn", 0 },
+        { "Brute", 0 },
+        { "Mercenary", 0 },
+        { "Blackguard", 0 },
+        { "Turncoat", 0 },
+        { "Knave", "Vixen" },
+        { "Dark Baron", "Dark Baroness" },
+        { "Dark Paladin", 0 } },
+      "Lugh", "_Brigit", "Manannan Mac Lir", /* Celtic */
+      "Kni",
+      "Camelot Castle",
+      "the Isle of Glass",
+      PM_KNIGHT,
+      NON_PM,
+      PM_PONY,
+      PM_KING_ARTHUR,
+      PM_PAGE,
+      PM_IXOTH,
+      PM_QUASIT,
+      PM_OCHRE_JELLY,
+      S_IMP,
+      S_JELLY,
+      ART_MAGIC_MIRROR_OF_MERLIN,
+      MH_HUMAN | MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
+          | MH_DROW | MH_DRAUGR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 13, 7, 14, 8, 10, 17 },
+      { 30, 15, 15, 10, 20, 10 },
+      /* Init   Lower  Higher */
+      { 14, 0, 0, 8, 2, 0 }, /* Hit points */
+      { 1, 4, 0, 1, 0, 2 },
+      10, /* Energy */
+      10,
+      8,
+      -2,
+      0,
+      9,
+      A_WIS,
+      0,
+      -4 },
+    { { "Monk", 0 },
+      { { "Candidate", 0 },
+        { "Novice", 0 },
+        { "Initiate", 0 },
+        { "Student of Stones", 0 },
+        { "Student of Waters", 0 },
+        { "Student of Metals", 0 },
+        { "Student of Winds", 0 },
+        { "Student of Fire", 0 },
+        { "Master", 0 } },
+      "Shan Lai Ching", "Chih Sung-tzu", "Huan Ti", /* Chinese */
+      "Mon",
+      "the Monastery of Chan-Sune",
+      "the Monastery of the Earth-Lord",
+      PM_MONK,
+      NON_PM,
+      NON_PM,
+      PM_MASTER_PO,
+      PM_ABBOT,
+      PM_MASTER_KAEN,
+      PM_EARTH_ELEMENTAL,
+      PM_XORN,
+      S_ELEMENTAL,
+      S_XORN,
+      ART_EYES_OF_THE_OVERWORLD,
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR
+          | MH_TORTLE | MH_DROW | MH_DRAUGR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
+          | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 10, 7, 8, 8, 7, 7 },
+      { 25, 10, 20, 20, 15, 10 },
+      /* Init   Lower  Higher */
+      { 12, 0, 0, 8, 1, 0 }, /* Hit points */
+      { 2, 2, 0, 2, 0, 2 },
+      10, /* Energy */
+      10,
+      8,
+      -2,
+      2,
+      20,
+      A_WIS,
+      0,
+      -4 },
+    { { "Rogue", 0 },
+      { { "Footpad", 0 },
+        { "Cutpurse", 0 },
+        { "Rogue", 0 },
+        { "Pilferer", 0 },
+        { "Robber", 0 },
+        { "Burglar", 0 },
+        { "Filcher", 0 },
+        { "Magsman", "Magswoman" },
+        { "Thief", 0 } },
+      "Issek", "Mog", "Kos", /* Nehwon */
+      "Rog",
+      "the Thieves' Guild Hall",
+      "the Assassins' Guild Hall",
+      PM_ROGUE,
+      NON_PM,
+      NON_PM,
+      PM_MASTER_OF_THIEVES,
+      PM_THUG,
+      PM_MASTER_ASSASSIN,
+      PM_LEPRECHAUN,
+      PM_GUARDIAN_NAGA,
+      S_NYMPH,
+      S_NAGA,
+      ART_MASTER_KEY_OF_THIEVERY,
+      MH_HUMAN | MH_ELF | MH_ORC | MH_HOBBIT | MH_GNOME
+          | MH_DROW | MH_DRAUGR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 7, 7, 7, 10, 7, 6 },
+      { 20, 10, 10, 30, 20, 10 },
+      /* Init   Lower  Higher */
+      { 10, 0, 0, 8, 1, 0 }, /* Hit points */
+      { 1, 0, 0, 1, 0, 1 },
+      11, /* Energy */
+      10,
+      8,
+      0,
+      1,
+      9,
+      A_INT,
+      0,
+      -4 },
+    /* Array terminator */
+    { { 0, 0 } }
+};
+
 /* The player's role, created at runtime from initial
  * choices.  This may be munged in role_init().
  */
@@ -1076,7 +1341,7 @@ const struct Race races[] = {
             | MH_TORTLE | MH_DROW | MH_ILLITHID,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
-        { STR19(20), 10, 10, 18, 20, 6 },
+        { STR19(20), 6, 8, 18, 20, 6 },
         /* Init   Lower  Higher */
         { 2, 0, 0, 2, 1, 0 }, /* Hit points */
         { 1, 0, 2, 0, 2, 0 }  /* Energy */
@@ -2509,13 +2774,29 @@ role_init()
         urace = races[flags.initrace];
 
     /* kick it over to alternate-alignment role */
-    if (alignmnt == A_CHAOTIC && Role_if(PM_KNIGHT)) {
+    if (alignmnt == A_CHAOTIC && Role_if(PM_KNIGHT)
+        && !Race_if(PM_DRAUGR)) {
         urole = align_roles[0];
     }
 
     if ((Race_if(PM_GNOME) || Race_if(PM_HOBBIT))
         && Role_if(PM_RANGER)) {
         urole = race_roles[0];
+    }
+
+    if (Race_if(PM_DRAUGR)) {
+        if (Role_if(PM_BARBARIAN))
+            urole = draugr_roles[0];
+        else if (Role_if(PM_CONVICT))
+            urole = draugr_roles[1];
+        else if (Role_if(PM_INFIDEL))
+            urole = draugr_roles[2];
+        else if (Role_if(PM_KNIGHT))
+            urole = draugr_roles[3];
+        else if (Role_if(PM_MONK))
+            urole = draugr_roles[4];
+        else if (Role_if(PM_ROGUE))
+            urole = draugr_roles[5];
     }
 
     /* Fix up the quest leader */
