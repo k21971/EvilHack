@@ -2218,7 +2218,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         }
 
         if (youdefend && !rn2(5)) {
-            diseasemu(mdef->data);
+            diseasemu(mdef);
         } else if (!youdefend) {
             mdef->mdiseasetime = rnd(10) + 5;
             if (!no_sick && !rn2(5)) {

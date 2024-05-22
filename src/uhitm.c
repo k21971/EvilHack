@@ -4806,7 +4806,7 @@ boolean wep_was_destroyed;
             mdamageu(mon, tmp);
 	    break;
 	case AD_DISE: /* specifically gray fungus */
-            diseasemu(ptr);
+            diseasemu(mon);
             break;
         case AD_DRST: /* specifically green dragons */
             if (how_resistant(POISON_RES) == 100) {

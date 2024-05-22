@@ -3440,4 +3440,5 @@ The following changes to date are:
 - Fix: ^X message for being warned of undead
 - Merge & use racial_zombie when applicable
 - Fix: makedefs.c merge from last commit
+- Refactor diseasemu() to allow use of racial_zombie()
 

@@ -1345,7 +1345,7 @@ E struct monst *NDECL(cloneu);
 E void FDECL(expels, (struct monst *, struct permonst *, BOOLEAN_P));
 E struct attack *FDECL(getmattk, (struct monst *, struct monst *,
                                   int, int *, struct attack *));
-E boolean FDECL(diseasemu, (struct permonst *));
+E boolean FDECL(diseasemu, (struct monst *));
 E int FDECL(mattacku, (struct monst *));
 E int FDECL(magic_negation, (struct monst *));
 E boolean NDECL(gulp_blnd_check);

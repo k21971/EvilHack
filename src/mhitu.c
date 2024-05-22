@@ -1216,15 +1216,17 @@ register struct monst *mtmp;
 }
 
 boolean
-diseasemu(mdat)
-struct permonst *mdat;
+diseasemu(mtmp)
+struct monst *mtmp;
 {
     if (Sick_resistance) {
         You_feel("a slight illness.");
         return FALSE;
     } else {
-        make_sick(Sick ? Sick / 3L + 1L : (long) rn1(ACURR(A_CON), 20),
-                  mdat->mname, TRUE, is_zombie(mdat) ? SICK_ZOMBIE : SICK_NONVOMITABLE);
+        make_sick(Sick ? Sick / 3L + 1L
+                       : (long) rn1(ACURR(A_CON), 20),
+                  mtmp->data->mname, TRUE,
+                  racial_zombie(mtmp) ? SICK_ZOMBIE : SICK_NONVOMITABLE);
         return TRUE;
     }
 }
@@ -1645,7 +1647,7 @@ register struct attack *mattk;
         break;
     case AD_DISE:
         hitmsg(mtmp, mattk);
-        if (!diseasemu(r_data(mtmp)))
+        if (!diseasemu(mtmp))
             dmg = 0;
         break;
     case AD_FIRE:
@@ -1797,7 +1799,7 @@ register struct attack *mattk;
                           Monnam(mtmp));
                 else
                     pline("%s eats your brains!", Monnam(mtmp));
-                diseasemu(mdat);
+                diseasemu(mtmp);
             }
             break;
         }
@@ -2402,7 +2404,7 @@ do_rust:
         break;
     case AD_PEST:
         pline("%s reaches out, and you feel fever and chills.", Monnam(mtmp));
-        (void) diseasemu(mdat); /* plus the normal damage */
+        (void) diseasemu(mtmp); /* plus the normal damage */
         break;
     case AD_FAMN:
         pline("%s reaches out, and your body shrivels.", Monnam(mtmp));
@@ -2955,7 +2957,7 @@ struct attack *mattk;
             tmp = 0;
         break;
     case AD_DISE:
-        if (!diseasemu(mtmp->data))
+        if (!diseasemu(mtmp))
             tmp = 0;
         break;
     case AD_DREN:
