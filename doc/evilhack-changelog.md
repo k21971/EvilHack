@@ -3439,3 +3439,5 @@ The following changes to date are:
 - Draugr really are zombies, which are undead
 - Fix: ^X message for being warned of undead
 - Merge & use racial_zombie when applicable
+- Fix: makedefs.c merge from last commit
+

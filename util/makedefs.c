@@ -992,10 +992,6 @@ const char *deflt_content;
         exit(EXIT_FAILURE);
     }
     Fprintf(ofp, "%s", Dont_Edit_Data);
-    /* lines from the file include trailing newline so make sure that the
-       default one does too */
-    if (!index(deflt_content, '\n'))
-        deflt_content = strcat(strcpy(buf, deflt_content), "\n");
     /* write out the default content entry unconditionally instead of
        waiting to see whether there are no regular output lines; if it
        matches a regular entry (bogusmon "grue"), that entry will become
