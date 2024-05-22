@@ -1292,7 +1292,7 @@ struct monst *mtmp;
                                : (resists_acid(mtmp) || mon_underwater(mtmp)));
             break;
         case AD_DISE:
-            applies += !(yours ? Sick_resistance : resists_sick(ptr));
+            applies += !(yours ? Sick_resistance : resists_sick(mtmp));
             break;
         case AD_DETH:
             applies += !(yours ? Death_resistance : immune_death_magic(ptr));
@@ -1375,7 +1375,7 @@ int tmp;
                              && ((yours) ? !(Acid_resistance || Underwater)
                                          : !(resists_acid(mon) || defended(mon, AD_ACID) || mon_underwater(mon))))
                  || (attacks(adtype = AD_DISE, otmp)
-                     && ((yours) ? (!Sick_resistance) : !(resists_sick(mon->data) || defended(mon, AD_DISE))))
+                     && ((yours) ? (!Sick_resistance) : !(resists_sick(mon) || defended(mon, AD_DISE))))
                          || (attacks(adtype = AD_DETH, otmp)
                              && ((yours) ? (!Death_resistance) : (!immune_death_magic(mon->data))))
                  || (attacks(adtype = AD_DISN, otmp)
@@ -1408,7 +1408,7 @@ int tmp;
         spec_dbon_applies = FALSE;
     else if ((otmp->oartifact == ART_GRIMTOOTH
               && !(yours ? Sick_resistance
-                         : (resists_sick(mon->data) || defended(mon, AD_DISE))))
+                         : (resists_sick(mon) || defended(mon, AD_DISE))))
              || otmp->oartifact == ART_VORPAL_BLADE
              || (otmp->oartifact == ART_ANGELSLAYER
                  && !(yours ? is_demon(raceptr(&youmonst)) : is_demon(mon->data)))
@@ -2180,7 +2180,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                                Race_if(PM_DROW))
                                  : racial_drow(mdef);
         boolean no_sick = youdefend ? Sick_resistance
-                                    : (resists_sick(mdef->data)
+                                    : (resists_sick(mdef)
                                        || defended(mdef, AD_DISE));
 
         if (Role_if(PM_SAMURAI)) {

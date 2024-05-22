@@ -1291,7 +1291,7 @@ boolean ranged;
       || (!ranged && touch_petrifies(mtmp2->data)
           && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
       || (!ranged && mtmp2->data == &mons[PM_GRAY_FUNGUS]
-          && !(resists_sick(mtmp->data) || defended(mtmp, AD_DISE)))
+          && !(resists_sick(mtmp) || defended(mtmp, AD_DISE)))
       || (!ranged && (mtmp2->data == &mons[PM_BLACK_DRAGON]
                       || mtmp2->data == &mons[PM_ANTIMATTER_VORTEX])
           && !(resists_disint(mtmp) || defended(mtmp, AD_DISN))));

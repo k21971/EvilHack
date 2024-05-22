@@ -3331,12 +3331,12 @@ struct _create_particular_data *d;
                 unblock_point(mx, my);
         }
         if (d->sick
-            && !(resists_sick(mtmp->data) || defended(mtmp, AD_DISE))) {
+            && !(resists_sick(mtmp) || defended(mtmp, AD_DISE))) {
             mtmp->msick = 1;
             mtmp->msicktime = rn1(9, 6);
         }
         if (d->diseased
-            && !(resists_sick(mtmp->data) || defended(mtmp, AD_DISE))) {
+            && !(resists_sick(mtmp) || defended(mtmp, AD_DISE))) {
             mtmp->mdiseased = 1;
             mtmp->mdiseasetime = rn1(9, 6);
         }

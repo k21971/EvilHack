@@ -4726,7 +4726,7 @@ struct attack *mattk;
             tmp = 0;
             break;
         case AD_DISE: /* gray fungus */
-            if (resists_sick(mtmp->data) || defended(mtmp, AD_DISE)) {
+            if (resists_sick(mtmp) || defended(mtmp, AD_DISE)) {
                 if (canseemon(mtmp))
                     pline("%s resists infection.", Monnam(mtmp));
                 tmp = 0;

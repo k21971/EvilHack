@@ -3236,7 +3236,7 @@ do_rust:
         }
         break;
     case AD_DISE:
-        if (!(resists_sick(pd) || defended(mdef, AD_DISE))) {
+        if (!(resists_sick(mdef) || defended(mdef, AD_DISE))) {
             if (mdef->mdiseasetime)
                 mdef->mdiseasetime -= rnd(3);
             else
@@ -3254,7 +3254,7 @@ do_rust:
 
         if (((!Upolyd && Race_if(PM_DRAUGR))
              || is_zombie(youmonst.data)) && rn2(5)) {
-            if (!(resists_sick(pd) || defended(mdef, AD_DISE))) {
+            if (!(resists_sick(mdef) || defended(mdef, AD_DISE))) {
                 if (mdef->msicktime)
                     mdef->msicktime -= rnd(3);
                 else

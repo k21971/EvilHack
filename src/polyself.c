@@ -73,7 +73,7 @@ set_uasmon()
     PROPSET(VULN_ACID, vulnerable_to(&youmonst, AD_ACID));
 
     PROPSET(ANTIMAGIC, resists_mgc(mdat));
-    PROPSET(SICK_RES, resists_sick(mdat));
+    PROPSET(SICK_RES, ptr_resists_sick(mdat));
     PROPSET(DEATH_RES, immune_death_magic(racedat));
 
     PROPSET(STUNNED, (mdat == &mons[PM_STALKER] || is_bat(mdat)));

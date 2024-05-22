@@ -3441,4 +3441,4 @@ The following changes to date are:
 - Merge & use racial_zombie when applicable
 - Fix: makedefs.c merge from last commit
 - Refactor diseasemu() to allow use of racial_zombie()
-
+- Refactor resists_sick to allow checking racial data

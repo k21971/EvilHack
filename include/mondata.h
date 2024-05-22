@@ -47,7 +47,7 @@
 #define has_free_action(mon) \
     ((mon_resistancebits(mon) & MR2_FREE_ACTION) != 0)
 
-#define resists_sick(ptr) \
+#define ptr_resists_sick(ptr) \
     ((ptr)->mlet == S_FUNGUS || nonliving(ptr)                                   \
      || is_angel(ptr) || is_demon(ptr) || is_rider(ptr)                          \
      || (ptr) == &mons[PM_BABY_GREEN_DRAGON] || (ptr) == &mons[PM_GREEN_DRAGON]  \
@@ -56,6 +56,10 @@
      || (ptr) == &mons[PM_KATHRYN_THE_ENCHANTRESS] || (ptr) == &mons[PM_CONVICT] \
      || (ptr) == &mons[PM_AIR_ELEMENTAL] || (ptr) == &mons[PM_EARTH_ELEMENTAL]   \
      || (ptr) == &mons[PM_FIRE_ELEMENTAL] || (ptr) == &mons[PM_WATER_ELEMENTAL])
+
+#define resists_sick(mon) \
+    (ptr_resists_sick((mon)->data)                                       \
+     || (has_erac(mon) ? ptr_resists_sick(&mons[ERAC(mon)->rmnum]) : 0))
 
 #define resists_stun(ptr) \
     ((ptr) == &mons[PM_BABY_SHIMMERING_DRAGON] \

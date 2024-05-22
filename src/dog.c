@@ -1016,7 +1016,7 @@ register struct obj *obj;
                                       || defended(mon, AD_ACID)))
                 || (poisonous(fptr) && !(resists_poison(mon)
                                          || defended(mon, AD_DRST)))
-                || (obj->zombie_corpse && !(resists_sick(mptr)
+                || (obj->zombie_corpse && !(resists_sick(mon)
                                             || defended(mon, AD_DISE)))
                 || (touch_petrifies(&mons[obj->corpsenm])
                     && !(resists_ston(mon) || defended(mon, AD_STON))))
