@@ -236,9 +236,7 @@ struct permonst * pm;
     switch(pm->mlet) {
     case S_ZOMBIE:
         /* Z-class monsters that aren't actually zombies go here */
-        if (is_not_zombie(pm))
-            return FALSE;
-        return TRUE;
+        return is_zombie(pm);
     }
 
     if (!Upolyd && Race_if(PM_DRAUGR))
@@ -517,7 +515,7 @@ int mndx, mode;
                 mndx = PM_ILLITHID;
             else if (is_tortle(ptr))
                 mndx = PM_TORTLE;
-            else if (is_draugr(ptr))
+            else if (is_zombie(ptr))
                 mndx = PM_DRAUGR;
         }
         break;

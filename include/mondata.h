@@ -204,7 +204,7 @@
      || (ptr) == &mons[PM_NEOTHELID] || (ptr) == &mons[PM_TORTLE_SHAMAN]          \
      || (ptr) == &mons[PM_DROW_MAGE] || (ptr) == &mons[PM_DROW_CLERIC])
 #define has_claws(ptr) \
-    (is_draugr(ptr) || is_gnoll(ptr)                           \
+    (is_gnoll(ptr)                                             \
      || (is_illithid(ptr)                                      \
          && !((ptr) == &mons[PM_MIND_FLAYER_LARVA]             \
               || (ptr) == &mons[PM_NEOTHELID]))                \
@@ -260,8 +260,8 @@
 #define racial_tortle(mon) mon_has_race(mon, MH_TORTLE)
 #define is_drow(ptr) (((ptr)->mhflags & MH_DROW) != 0L)
 #define racial_drow(mon) mon_has_race(mon, MH_DROW)
-#define is_draugr(ptr) (((ptr)->mhflags & MH_DRAUGR) != 0L)
-#define racial_draugr(mon) mon_has_race(mon, MH_DRAUGR)
+#define is_zombie(ptr) (((ptr)->mhflags & MH_ZOMBIE) != 0L)
+#define racial_zombie(mon) mon_has_race(mon, MH_ZOMBIE)
 #define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
 #define racial_match(mon) mon_has_race(mon, urace.selfmask)
 #define is_bat(ptr) \
@@ -286,12 +286,6 @@
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
 #define is_gnoll(ptr) (((ptr)->mhflags & MH_GNOLL) != 0L)
 #define is_spider(ptr) (((ptr)->mhflags & MH_SPIDER) != 0L)
-#define is_not_zombie(ptr) \
-    ((ptr) == &mons[PM_GHOUL] || (ptr) == &mons[PM_SKELETON] \
-     || (ptr) == &mons[PM_REVENANT])
-#define is_zombie(ptr) \
-    (((ptr)->mlet == S_ZOMBIE && !is_not_zombie(ptr)) \
-     || is_draugr(ptr))
 #define can_become_zombie(ptr) \
     ((ptr)->mlet == S_KOBOLD || (ptr)->mlet == S_GIANT   \
      || (ptr)->mlet == S_HUMAN || (ptr)->mlet == S_KOP   \

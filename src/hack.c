@@ -3556,7 +3556,7 @@ weight_cap()
             youmonst.data->mmove = 10;
             youmonst.data->msize = MZ_LARGE;
         }
-    } else if (racial_draugr(&youmonst)) {
+    } else if (racial_zombie(&youmonst)) {
         /* and draugr, but just movement speed here? */
         if (!Upolyd)
             youmonst.data->mmove = 10;

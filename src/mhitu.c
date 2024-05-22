@@ -2502,7 +2502,7 @@ do_rust:
         uchar withertime = max(2, dmg);
         boolean no_effect =
             (nonliving(youmonst.data)
-             || racial_draugr(&youmonst) || !uncancelled);
+             || racial_zombie(&youmonst) || !uncancelled);
         boolean lose_maxhp = (withertime >= 8 && !BWithering); /* if already withering */
         dmg = 0; /* doesn't deal immediate damage */
 

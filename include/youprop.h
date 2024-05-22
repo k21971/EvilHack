@@ -330,7 +330,7 @@
 
 #define Breathless \
     (HMagical_breathing || EMagical_breathing                  \
-     || breathless(youmonst.data) || racial_draugr(&youmonst))
+     || breathless(youmonst.data) || racial_zombie(&youmonst))
 
 #define Underwater (u.uinwater)
 /* Note that Underwater and u.uinwater are both used in code.

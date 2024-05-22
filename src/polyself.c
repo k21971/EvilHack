@@ -107,7 +107,7 @@ set_uasmon()
      * make a large set of monsters immune like
      * fungus, blobs, and jellies.
      * TODO: make is_vampshifter actually work for youmonst, and include that. */
-    if (nonliving(mdat) || racial_draugr(&youmonst))
+    if (nonliving(mdat) || racial_zombie(&youmonst))
         BWithering |= FROMFORM;
     else
         BWithering &= ~FROMFORM;

@@ -184,9 +184,10 @@
 #define MH_ILLITHID 0x00000100L
 #define MH_TORTLE 0x00000200L
 #define MH_DROW 0x00000400L
-#define MH_DRAUGR 0x00000800L
+#define MH_ZOMBIE 0x00000800L
 /* Flags below not used as a player race (demon has one exception) */
-#define MH_UNDEAD 0x00001000L
+#define MH_UNZOMBIE 0x00001000L
+#define MH_UNDEAD (MH_ZOMBIE | MH_UNZOMBIE)
 #define MH_WERE 0x00002000L
 #define MH_DEMON 0x00004000L
 #define MH_DRAGON 0x00008000L
