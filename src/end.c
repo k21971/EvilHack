@@ -527,7 +527,7 @@ struct monst *mtmp;
 int how;
 {
     char buf[BUFSZ];
-    struct permonst *mptr = mtmp->data,
+    struct permonst *mptr = r_data(mtmp),
                     *champtr = ((mtmp->cham >= LOW_PM)
                                    ? &mons[mtmp->cham]
                                    : mptr);

@@ -538,7 +538,7 @@ struct obj *otmp;
                 }
             }
             mtmp->msick = mtmp->mwither = 0;
-        } else if (is_zombie(mtmp->data)) {
+        } else if (racial_zombie(mtmp)) {
             if (!DEADMONSTER(mtmp)) {
                 dmg = d(sickness_skill, 8);
                 damage_mon(mtmp, dmg, AD_PHYS);
@@ -548,7 +548,7 @@ struct obj *otmp;
                     killed(mtmp);
             }
         }
-        if (mtmp->mpeaceful && !is_zombie(mtmp->data))
+        if (mtmp->mpeaceful && !racial_zombie(mtmp))
             helpful_gesture = TRUE;
         break;
     case SPE_RESTORE_ABILITY:
@@ -2916,7 +2916,7 @@ boolean ordinary;
                                 ? "much " : "");
         break;
     case SPE_CURE_SICKNESS:
-        if (is_zombie(youmonst.data)) {
+        if (maybe_polyd(is_zombie(youmonst.data), Race_if(PM_DRAUGR))) {
             You("shudder in agony!");
             damage = d(sickness_skill, 8);
             exercise(A_CON, FALSE);

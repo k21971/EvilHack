@@ -3435,5 +3435,7 @@ The following changes to date are:
 - Ensure unique undead monsters are appropriately hostile towards Draugr
 - Tweak feedback between shopkeepers and Draugr
 - Shop prices for Draugr, other price tweaks
+- Allow player monsters to be Draugr, part one
 - Draugr really are zombies, which are undead
 - Fix: ^X message for being warned of undead
+- Merge & use racial_zombie when applicable

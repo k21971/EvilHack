@@ -170,6 +170,18 @@ static const char *drow_female_names[] = {
     0
 };
 
+static const char *draugr_male_names[] = {
+    "Bjorn",        "Erik",        "Gorm",       "Halfdan",    "Leif",
+    "Njal",         "Sten",        "Svend",      "Torsten",    "Ulf",
+    0
+};
+
+static const char *draugr_female_names[] = {
+    "Astrid",       "Frida",       "Gunhild",    "Helga",      "Sigrid",
+    "Revna",        "Thyra",       "Thurid",     "Yrsa",       "Ulfhild",
+    0
+};
+
 struct mfnames {
     const char **male;
     const char **female;
@@ -187,7 +199,8 @@ static const struct mfnames namelists[] = {
     { centaur_male_names, centaur_female_names },
     { illithid_male_names, illithid_female_names },
     { tortle_male_names, tortle_female_names },
-    { drow_male_names, drow_female_names }
+    { drow_male_names, drow_female_names },
+    { draugr_male_names, draugr_female_names }
 };
 
 void

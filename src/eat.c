@@ -673,7 +673,7 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
             if (*dmg_p >= mdef->mhp && visflag && canspotmon(mdef))
                 pline("%s last thought fades away...",
                       s_suffix(Monnam(mdef)));
-            if (*dmg_p < mdef->mhp && is_zombie(magr->data)) {
+            if (*dmg_p < mdef->mhp && racial_zombie(magr)) {
                 if (visflag && canspotmon(mdef)
                     && !(resists_sick(pd) || defended(mdef, AD_DISE)))
                     pline("%s looks %s.", Monnam(mdef),

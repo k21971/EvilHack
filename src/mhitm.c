@@ -605,7 +605,7 @@ register struct monst *magr, *mdef;
             /* tiny/small monsters have a chance to dodge
                a zombies bite attack due to zombies being
                mindless and slow */
-            if (is_zombie(pa) && mattk->aatyp == AT_BITE
+            if (racial_zombie(magr) && mattk->aatyp == AT_BITE
                 && mdef->data->msize <= MZ_SMALL
                 && is_animal(mdef->data)
                 && !(mdef->mfrozen || mdef->mstone
@@ -1513,7 +1513,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             mondied(mdef);
             if (mdef->mhp > 0)
                 return 0;
-            if (is_zombie(mdef->data) || is_troll(mdef->data))
+            if (racial_zombie(mdef) || is_troll(mdef->data))
                 mdef->mcan = 1; /* no head? no reviving */
             return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
         }
@@ -2328,7 +2328,7 @@ post_stone:
             }
             break;
         }
-        if (is_zombie(pa) && rn2(5)) {
+        if (racial_zombie(magr) && rn2(5)) {
             if (!(resists_sick(pd) || defended(mdef, AD_DISE))) {
                 if (vis && canspotmon(mdef))
                     pline("%s looks %s.", Monnam(mdef),
@@ -2722,7 +2722,7 @@ msickness:
             mdef->mhp = 0;
         }
 
-        zombify = !mwep && zombie_maker(magr->data)
+        zombify = !mwep && zombie_maker(r_data(magr))
             && can_become_zombie(r_data(mdef))
             && ((mattk->aatyp == AT_TUCH
                  || mattk->aatyp == AT_CLAW

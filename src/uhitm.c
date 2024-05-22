@@ -2924,7 +2924,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
             if (canseemon(mdef))
                 You("%s %s!",
                     rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
-            if (is_zombie(mdef->data)
+            if (racial_zombie(mdef)
                 || (is_troll(mdef->data) && !mlifesaver(mdef)))
                 mdef->mcan = 1; /* no head? no reviving */
             xkilled(mdef, 0);
@@ -4114,8 +4114,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 break;
             /*FALLTHRU*/
         case AT_BITE:
-            if (((!Upolyd && Race_if(PM_DRAUGR))
-                 || is_zombie(youmonst.data))
+            if (maybe_polyd(is_zombie(youmonst.data), Race_if(PM_DRAUGR))
                 && mattk->aatyp == AT_BITE
                 && (context.forcefight
                     || ((touch_petrifies(mon->data)
@@ -4135,8 +4134,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
             /* never eat brains if engulfed */
             if (mattk->aatyp == AT_BITE && u.uswallow)
                 break;
-            if (((!Upolyd && Race_if(PM_DRAUGR))
-                 || is_zombie(youmonst.data))
+            if (maybe_polyd(is_zombie(youmonst.data), Race_if(PM_DRAUGR))
                 && mattk->aatyp == AT_BITE
                 && mon->data->msize <= MZ_SMALL
                 && is_animal(mon->data)

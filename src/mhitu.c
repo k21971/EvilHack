@@ -1012,7 +1012,7 @@ register struct monst *mtmp;
                     /* if our hero is sized tiny/small and unencumbered,
                        they have a decent chance of evading a zombie's
                        bite attack */
-                    if (is_zombie(mdat) && mattk->aatyp == AT_BITE
+                    if (racial_zombie(mtmp) && mattk->aatyp == AT_BITE
                         && (youmonst.data)->msize <= MZ_SMALL
                         && is_animal(youmonst.data)
                         && (near_capacity() == UNENCUMBERED)
@@ -1254,7 +1254,7 @@ struct attack *mattk;
               (mattk->adtyp == AD_WRAP
                && mtmp->data != &mons[PM_SALAMANDER])
                    ? "slips off of"
-                   : (mattk->adtyp == AD_DRIN && is_zombie(mtmp->data))
+                   : (mattk->adtyp == AD_DRIN && racial_zombie(mtmp))
                        ? "bites you, but slips off of"
                        : "grabs you, but cannot hold onto",
               obj->greased ? "greased" : "slippery",
@@ -1645,7 +1645,7 @@ register struct attack *mattk;
         break;
     case AD_DISE:
         hitmsg(mtmp, mattk);
-        if (!diseasemu(mdat))
+        if (!diseasemu(r_data(mtmp)))
             dmg = 0;
         break;
     case AD_FIRE:
@@ -1772,23 +1772,25 @@ register struct attack *mattk;
         if (uarmh && is_hard(uarmh) && rn2(4)) {
             /* not body_part(HEAD) */
             Your("%s blocks the %s to your head.",
-                 helm_simple_name(uarmh), is_zombie(mdat) ? "bite" : "attack");
+                 helm_simple_name(uarmh),
+                 racial_zombie(mtmp) ? "bite" : "attack");
             break;
         }
 
         if (uarmh && !is_hard(uarmh) && rn2(2)) {
             Your("%s repels the %s to your head.",
-                 helm_simple_name(uarmh), is_zombie(mdat) ? "bite" : "attack");
+                 helm_simple_name(uarmh),
+                 racial_zombie(mtmp) ? "bite" : "attack");
             break;
         }
 
         if (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID))
-            && !is_zombie(mdat)) {
+            && !racial_zombie(mtmp)) {
             Your("psionic abilities shield your brain.");
             break;
         }
 
-        if (is_zombie(mdat) && rn2(6)) {
+        if (racial_zombie(mtmp) && rn2(6)) {
             if (uncancelled) {
                 if (!Upolyd && Race_if(PM_DRAUGR))
                     pline("%s tries to eat your brains, but can't.",
@@ -1821,7 +1823,7 @@ register struct attack *mattk;
             break;
         } else {
             (void) adjattrib(A_INT, -rnd(2), FALSE);
-            if (!is_zombie(mdat)) {
+            if (!racial_zombie(mtmp)) {
                 forget_traps();
                 if (rn2(2))
                     forget(rnd(u.uluck <= 0 ? 4 : 2));
