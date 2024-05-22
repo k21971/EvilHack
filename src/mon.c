@@ -6470,7 +6470,8 @@ unsigned long permitted;
 
     const short mraces[] = { PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME,
                              PM_ORC, PM_GIANT, PM_HOBBIT, PM_CENTAUR,
-                             PM_ILLITHID, PM_TORTLE, PM_DROW, 0 };
+                             PM_ILLITHID, PM_TORTLE, PM_DROW, PM_DRAUGR,
+                             0 };
 
     for (i = 0; mraces[i]; i++) {
         if (permitted & mons[mraces[i]].mhflags
@@ -6542,7 +6543,7 @@ short mndx;
         break;
     case PM_BARBARIAN:
         permitted |= (MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR
-                      | MH_TORTLE);
+                      | MH_TORTLE | MH_DRAUGR);
         break;
     case PM_CAVEMAN:
     case PM_CAVEWOMAN:
@@ -6551,7 +6552,7 @@ short mndx;
     case PM_CONVICT:
         permitted |=
             (MH_DWARF | MH_ORC | MH_GNOME | MH_HOBBIT | MH_ILLITHID
-             | MH_DROW);
+             | MH_DROW | MH_DRAUGR);
         break;
     case PM_HEALER:
         permitted |=
@@ -6560,15 +6561,15 @@ short mndx;
         break;
     case PM_INFIDEL:
         permitted |= (MH_ELF | MH_GIANT | MH_ORC | MH_ILLITHID
-                      | MH_DROW);
+                      | MH_DROW | MH_DRAUGR);
         break;
     case PM_KNIGHT:
         permitted |= (MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
-                      | MH_DROW);
+                      | MH_DROW | MH_DRAUGR);
         break;
     case PM_MONK:
         permitted |= (MH_DWARF | MH_ELF | MH_GIANT | MH_CENTAUR
-                      | MH_TORTLE | MH_DROW);
+                      | MH_TORTLE | MH_DROW | MH_DRAUGR);
         break;
     case PM_PRIEST:
     case PM_PRIESTESS:
@@ -6582,7 +6583,7 @@ short mndx;
         break;
     case PM_ROGUE:
         permitted |= (MH_ELF | MH_HOBBIT | MH_ORC | MH_GNOME
-                      | MH_DROW);
+                      | MH_DROW | MH_DRAUGR);
         break;
     case PM_SAMURAI:
         permitted |= (MH_DWARF | MH_GIANT | MH_TORTLE);
@@ -6793,6 +6794,15 @@ short raceidx;
             rptr->ralign = rn2(4) ? 3 : 0;
         break;
     case PM_DROW:
+        rptr->ralign = -3;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        break;
+    case PM_DRAUGR:
+        rptr->mattk[2].aatyp = AT_BITE;
+        rptr->mattk[2].adtyp = AD_DRIN;
+        rptr->mattk[2].damn = 2;
+        rptr->mattk[2].damd = 1;
         rptr->ralign = -3;
         if (mtmp->mnum == PM_INFIDEL)
             rptr->ralign = -128;
