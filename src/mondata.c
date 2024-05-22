@@ -915,7 +915,7 @@ unsigned mhflag;
     static const char* mrnames[] = {
         "human", "elf", "dwarf", "gnome",
         "orc", "giant", "hobbit", "centaur",
-        "illithid", "tortle", "drow", "draugr",
+        "illithid", "tortle", "drow", "zombie",
         "undead",
         "lycanthrope",
         "demon",

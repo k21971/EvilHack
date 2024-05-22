@@ -3436,3 +3436,4 @@ The following changes to date are:
 - Tweak feedback between shopkeepers and Draugr
 - Shop prices for Draugr, other price tweaks
 - Draugr really are zombies, which are undead
+- Fix: ^X message for being warned of undead

@@ -3225,8 +3225,12 @@ int final;
                 && has_glow_warning(otmp)) {
                 int i;
                 for (i = 0; i < 32; i++) {
+                    long raceflag = 1 << i;
                     /* Artifacts let you know they are responsible even in non-Wizard mode. */
-                    if (has_glow_warning(otmp) & (1 << i)) {
+                    if (has_glow_warning(otmp) & raceflag) {
+                        /* skip zombie-specific message if all undead are warned of */
+                        if (raceflag == MH_ZOMBIE && (has_glow_warning(otmp) & MH_UNZOMBIE))
+                            continue;
                         Sprintf(buf, "aware of the presence of %s because of ",
                             makeplural(mon_race_name(i)));
                         you_are(buf, bare_artifactname(otmp));

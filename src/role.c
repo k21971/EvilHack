@@ -350,7 +350,7 @@ const struct Role roles[] = {
       S_XORN,
       ART_EYES_OF_THE_OVERWORLD,
       MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR
-          | MH_TORTLE | MH_DROW | MH_DRAUGR,
+          | MH_TORTLE | MH_DROW | MH_ZOMBIE,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
@@ -815,7 +815,7 @@ const struct Role draugr_roles[] = {
       S_TROLL,
       ART_RING_OF_P_HUL,
       MH_HUMAN | MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR
-          | MH_TORTLE | MH_DRAUGR,
+          | MH_TORTLE | MH_ZOMBIE,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 16, 7, 7, 15, 16, 6 },
@@ -858,7 +858,7 @@ const struct Role draugr_roles[] = {
       S_SPIDER,
       ART_STRIPED_SHIRT_OF_LIBERATIO,
       MH_HUMAN | MH_DWARF | MH_GNOME | MH_ORC | MH_HOBBIT
-          | MH_ILLITHID | MH_DROW | MH_DRAUGR,
+          | MH_ILLITHID | MH_DROW | MH_ZOMBIE,
       ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC | ROLE_NORACEALIGN,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 7, 7, 13, 6 },
@@ -901,7 +901,7 @@ const struct Role draugr_roles[] = {
       S_UNICORN,
       ART_IDOL_OF_MOLOCH,
       MH_HUMAN | MH_ELF | MH_ORC | MH_ILLITHID | MH_GIANT
-          | MH_CENTAUR | MH_DROW | MH_DRAUGR,
+          | MH_CENTAUR | MH_DROW | MH_ZOMBIE,
       ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC, /* actually unaligned */
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 10, 7, 7, 7 },
@@ -944,7 +944,7 @@ const struct Role draugr_roles[] = {
       S_JELLY,
       ART_MAGIC_MIRROR_OF_MERLIN,
       MH_HUMAN | MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
-          | MH_DROW | MH_DRAUGR,
+          | MH_DROW | MH_ZOMBIE,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 13, 7, 14, 8, 10, 17 },
@@ -987,7 +987,7 @@ const struct Role draugr_roles[] = {
       S_XORN,
       ART_EYES_OF_THE_OVERWORLD,
       MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR
-          | MH_TORTLE | MH_DROW | MH_DRAUGR,
+          | MH_TORTLE | MH_DROW | MH_ZOMBIE,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
@@ -1031,7 +1031,7 @@ const struct Role draugr_roles[] = {
       S_NAGA,
       ART_MASTER_KEY_OF_THIEVERY,
       MH_HUMAN | MH_ELF | MH_ORC | MH_HOBBIT | MH_GNOME
-          | MH_DROW | MH_DRAUGR,
+          | MH_DROW | MH_ZOMBIE,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 7, 10, 7, 6 },
