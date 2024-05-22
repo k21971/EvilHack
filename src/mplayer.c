@@ -292,8 +292,13 @@ struct monst *mtmp;
     case PM_INFIDEL:
         /* flags for all infidels regardless of race */
         rptr->mattk[0].adtyp = AD_SAMU;
-        rptr->mattk[1].aatyp = AT_MAGC;
-        rptr->mattk[1].adtyp = AD_SPEL;
+        if (rptr->mrace == MH_ZOMBIE) {
+            rptr->mattk[1].aatyp = AT_CLAW;
+            rptr->mattk[1].adtyp = AD_DRCO;
+        } else {
+            rptr->mattk[1].aatyp = AT_MAGC;
+            rptr->mattk[1].adtyp = AD_SPEL;
+        }
         mtmp->mintrinsics |= MR_FIRE;
         break;
     case PM_KNIGHT:

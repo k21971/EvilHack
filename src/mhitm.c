@@ -918,9 +918,9 @@ int dieroll;
                 break;
             case AT_WEAP:
                 if (!MON_WEP(magr)) { /* AT_WEAP but isn't wielding anything */
-                    if (has_claws(magr->data))
+                    if (has_claws(r_data(magr)))
                         Sprintf(buf, "%s claws", magr_name);
-                    else if (has_claws_undead(magr->data))
+                    else if (has_claws_undead(r_data(magr)))
                         Sprintf(buf, "%s scratches", magr_name);
                     else
                         Sprintf(buf, "%s %ss", magr_name,
@@ -938,9 +938,9 @@ int dieroll;
                     Sprintf(buf, "%s hits", magr_name);
                 break;
             case AT_CLAW:
-                if (has_claws(magr->data))
+                if (has_claws(r_data(magr)))
                     Sprintf(buf, "%s claws", magr_name);
-                else if (has_claws_undead(magr->data))
+                else if (has_claws_undead(r_data(magr)))
                     Sprintf(buf, "%s scratches", magr_name);
                 else
                     Sprintf(buf, "%s hits", magr_name);

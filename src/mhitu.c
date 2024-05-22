@@ -100,9 +100,9 @@ struct attack *mattk;
             break;
         case AT_WEAP:
             if (!MON_WEP(mtmp)) { /* AT_WEAP but isn't wielding anything */
-                if (has_claws(mtmp->data))
+                if (has_claws(r_data(mtmp)))
                     pfmt = "%s claws you!";
-                else if (has_claws_undead(mtmp->data))
+                else if (has_claws_undead(r_data(mtmp)))
                     pfmt = "%s scratches you!";
                 else
                     pline("%s %ss you!", Monnam(mtmp),
@@ -120,9 +120,9 @@ struct attack *mattk;
                 pfmt = "%s hits you!";
             break;
         case AT_CLAW:
-            if (has_claws(mtmp->data))
+            if (has_claws(r_data(mtmp)))
                 pfmt = "%s claws you!";
-            else if (has_claws_undead(mtmp->data))
+            else if (has_claws_undead(r_data(mtmp)))
                 pfmt = "%s scratches you!";
             else
                 pfmt = "%s hits!";

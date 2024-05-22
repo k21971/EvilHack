@@ -3442,3 +3442,4 @@ The following changes to date are:
 - Fix: makedefs.c merge from last commit
 - Refactor diseasemu() to allow use of racial_zombie()
 - Refactor resists_sick to allow checking racial data
+- Draugr infidels don't cast spells
