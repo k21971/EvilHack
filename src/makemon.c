@@ -187,6 +187,7 @@ extern struct trobj Elven_Knight[];
 extern struct trobj Dwarvish_Knight[];
 extern struct trobj Orcish_Knight[];
 extern struct trobj Monk[];
+extern struct trobj Draugr_Monk[];
 extern struct trobj Priest[];
 extern struct trobj Ranger[];
 extern struct trobj Rogue[];
@@ -199,6 +200,7 @@ extern struct trobj Tinopener[];
 extern struct trobj Lamp[];
 extern struct trobj Blindfold[];
 extern struct trobj Xtra_food[];
+extern struct trobj Dra_food[];
 extern struct trobj Leash[];
 extern struct trobj Towel[];
 extern struct trobj Wishing[];
@@ -220,6 +222,18 @@ struct trobj subInfidel[] = {
     { SCR_CHARGING, 0, SCROLL_CLASS, 1, 0 },
     { SPE_DRAIN_LIFE, 0, SPBOOK_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+    { FIRE_HORN, UNDEF_SPE, TOOL_CLASS, 1, 0 },
+    { OILSKIN_SACK, 0, TOOL_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+
+struct trobj draugrInfidel[] = {
+    { FAKE_AMULET_OF_YENDOR, 0, AMULET_CLASS, 1, 0 },
+    { DAGGER, 1, WEAPON_CLASS, 1, 0 },
+    { JACKET, 1, ARMOR_CLASS, 1, CURSED },
+    { CLOAK_OF_PROTECTION, 0, ARMOR_CLASS, 1, CURSED },
+    { POT_WATER, 0, POTION_CLASS, 3, CURSED },
+    { SCR_CHARGING, 0, SCROLL_CLASS, 1, 0 },
     { FIRE_HORN, UNDEF_SPE, TOOL_CLASS, 1, 0 },
     { OILSKIN_SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
@@ -872,6 +886,8 @@ register struct monst *mtmp;
             mkmonmoney(mtmp, (long) rn1(251, 250));
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantInfidel, 1);
+            else if (racial_zombie(mtmp))
+                ini_mon_inv(mtmp, draugrInfidel, 1);
             else
                 ini_mon_inv(mtmp, subInfidel, 1);
             mongets(mtmp, SKELETON_KEY);
@@ -900,6 +916,8 @@ register struct monst *mtmp;
                 ini_mon_inv(mtmp, giantMonk, 1);
             else if (racial_tortle(mtmp))
                 ini_mon_inv(mtmp, tortleMonk, 1);
+            else if (racial_zombie(mtmp))
+                ini_mon_inv(mtmp, Draugr_Monk, 1);
             else
                 ini_mon_inv(mtmp, Monk, 1);
             ini_mon_inv(mtmp, Lamp, 10);

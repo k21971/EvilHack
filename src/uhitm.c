@@ -4804,8 +4804,8 @@ boolean wep_was_destroyed;
             You("are jolted with electricity!");
             tmp = resist_reduce(tmp, SHOCK_RES);
             mdamageu(mon, tmp);
-	    break;
-	case AD_DISE: /* specifically gray fungus */
+            break;
+        case AD_DISE: /* specifically gray fungus */
             diseasemu(mon);
             break;
         case AD_DRST: /* specifically green dragons */
