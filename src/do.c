@@ -2375,6 +2375,7 @@ long timeout;
     struct obj *body = arg->a_obj;
     struct permonst *mptr = &mons[body->corpsenm];
     int zmon;
+
     if (!body->zombie_corpse && has_omonst(body) && has_erac(OMONST(body)))
          mptr = r_data(OMONST(body));
     if (has_omonst(body) && has_erac(OMONST(body))

@@ -3445,3 +3445,6 @@ The following changes to date are:
 - Draugr infidels don't cast spells
 - Allow player monsters to be Draugr, part two
 - Draugr can revive
+- Fix: if burning hands or shocking grasp is active, don't activate
+  whilst using thievery skill
+

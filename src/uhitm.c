@@ -1023,11 +1023,13 @@ struct attack *uattk;
         int race = (flags.female && urace.femalenum != NON_PM)
                     ? urace.femalenum : urace.malenum;
         struct attack *attacks = mons[race].mattk;
+
         if (((Race_if(PM_ILLITHID) || Race_if(PM_DRAUGR)) && rn2(4))
             || Race_if(PM_CENTAUR))
             return 0;
         for (i = 0; i < NATTK; i++) {
-            if (attacks[i].aatyp != AT_WEAP && attacks[i].aatyp != AT_NONE) {
+            if (attacks[i].aatyp != AT_WEAP
+                && attacks[i].aatyp != AT_NONE) {
                 malive = hmonas(mon, race, FALSE);
                 break;
             }
@@ -1777,7 +1779,7 @@ int dieroll;
 
     /* burning hands spell */
     if (!destroyed && u.umburn
-        && hand_to_hand && actually_unarmed) {
+        && hand_to_hand && actually_unarmed && !thievery) {
         int enchant_skill = ((P_SKILL(P_ENCHANTMENT_SPELL) >= P_EXPERT)
                              ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
                                ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
@@ -1818,7 +1820,7 @@ int dieroll;
 
     /* shocking grasp spell */
     if (!destroyed && u.umshock
-        && hand_to_hand && actually_unarmed) {
+        && hand_to_hand && actually_unarmed && !thievery) {
         int enchant_skill = ((P_SKILL(P_ENCHANTMENT_SPELL) >= P_EXPERT)
                              ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
                                ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
@@ -1979,7 +1981,7 @@ int dieroll;
            the skill without risk */
         if (mon->mtame) {
             You_cant("bring yourself to steal from %s.",
-                mon_nam(mon));
+                     mon_nam(mon));
             return 0;
         }
         /* engulfed? ummm no */
