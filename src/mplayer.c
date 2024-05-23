@@ -221,7 +221,7 @@ char *nam;
         ; /* count the number of names in the list */
 
     Strcpy(nam, (In_endgame(&u.uz) && ttname != 0)
-                  ? ttname : mp_names[rn2(ncnt)]);
+           ? ttname : mp_names[rn2(ncnt)]);
     Strcat(nam, " the ");
     Strcat(nam, rank_of_mplayer((int) mtmp->m_lev, mtmp,
                                 (boolean) mtmp->female));

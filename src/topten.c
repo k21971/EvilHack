@@ -1451,7 +1451,7 @@ get_rnd_toptenentry()
 
     rfile = fopen_datafile(RECORD, "r", SCOREPREFIX);
     if (!rfile) {
-        impossible("Cannot open record file!");
+        raw_print("Cannot open record file!");
         return NULL;
     }
 
@@ -1516,7 +1516,7 @@ boolean unique; /* don't accept a name that's already in use on the level */
 
     rfile = fopen_datafile(RECORD, "r", SCOREPREFIX);
     if (!rfile) {
-        impossible("get_rnd_tt_name: Cannot open record file!");
+        raw_print("get_rnd_tt_name: Cannot open record file!");
         return (char *) 0;
     }
 

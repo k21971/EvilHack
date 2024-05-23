@@ -3451,4 +3451,6 @@ The following changes to date are:
   destroyed while reading it
 - Fix: force steed dismount if steed becomes hostile from the player
   wielding or wearing a bane artifact vs the steed
+- Switch from impossible to raw_print for 'Cannot open record file!'
+  errors
 
