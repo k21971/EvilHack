@@ -3447,4 +3447,6 @@ The following changes to date are:
 - Draugr can revive
 - Fix: if burning hands or shocking grasp is active, don't activate
   whilst using thievery skill
+- Fix: Draugr trying to read a spellbook and the spellbook is
+  destroyed while reading it
 
