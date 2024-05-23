@@ -3449,4 +3449,6 @@ The following changes to date are:
   whilst using thievery skill
 - Fix: Draugr trying to read a spellbook and the spellbook is
   destroyed while reading it
+- Fix: force steed dismount if steed becomes hostile from the player
+  wielding or wearing a bane artifact vs the steed
 

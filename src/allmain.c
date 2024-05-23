@@ -630,6 +630,8 @@ boolean resuming;
                             } else if (mtmp->mpeaceful || mtmp->mtame) {
                                 setmangry(mtmp, FALSE);
                                 mtmp->mpeaceful = mtmp->mtame = 0;
+                                if (u.usteed)
+                                    dismount_steed(DISMOUNT_THROWN);
                             }
                         }
                     }
