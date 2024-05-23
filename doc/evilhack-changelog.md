@@ -3453,4 +3453,5 @@ The following changes to date are:
   wielding or wearing a bane artifact vs the steed
 - Switch from impossible to raw_print for 'Cannot open record file!'
   errors
+- Switch status from work in progress to beta
 
