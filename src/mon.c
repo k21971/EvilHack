@@ -761,12 +761,12 @@ unsigned corpseflags;
             return (struct obj *) 0;
         } else {
             corpstatflags |= CORPSTAT_INIT;
-            if racial_zombie(mtmp)
+            if (racial_zombie(mtmp))
                 corpstatflags |= CORPSTAT_ZOMBIE;
             /* preserve the unique traits of some creatures */
             obj = mkcorpstat(CORPSE, KEEPTRAITS(mtmp) ? mtmp : 0,
                              mdat, x, y, corpstatflags);
-            if racial_zombie(mtmp)
+            if (racial_zombie(mtmp))
                 obj->age -= 100;
             if (burythem) {
                 boolean dealloc;
