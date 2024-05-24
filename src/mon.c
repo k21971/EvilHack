@@ -4051,7 +4051,9 @@ struct monst *mtmp;
 void
 xkilled(mtmp, xkill_flags)
 struct monst *mtmp;
-int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
+int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
+                  * XKILL_NOCONDUCT (maintain pacificst),
+                  * or XKILL_FROMPET (killed by a tame mon, not the hero) */
 {
     int tmp, mndx, x = mtmp->mx, y = mtmp->my;
     struct monst museum = zeromonst;
