@@ -4064,8 +4064,8 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
             burycorpse = FALSE,
             nomsg = (xkill_flags & XKILL_NOMSG) != 0,
             nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
-            noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0,
-            petkill = (xkill_flags & XKILL_FROMPET) != 0;
+            petkill = (xkill_flags & XKILL_FROMPET) != 0,
+            noconduct = (petkill || (xkill_flags & XKILL_NOCONDUCT) != 0);
 
     mtmp->mhp = 0; /* caller will usually have already done this */
     if (!noconduct) /* KMH, conduct */
