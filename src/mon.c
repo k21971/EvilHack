@@ -4001,9 +4001,9 @@ int how;
     disintegested = (how == AD_DGST || how == -AD_RBRE
                      || how == AD_WTHR || how == AD_DISN);
     if (disintegested)
-        xkilled(mdef, XKILL_NOCORPSE);
+        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE | XKILL_INDIRECT);
     else
-        xkilled(mdef, XKILL_NOMSG);
+        xkilled(mdef, XKILL_NOMSG | XKILL_INDIRECT);
 
     if (be_sad && DEADMONSTER(mdef))
         You("have a sad feeling for a moment, then it passes.");
@@ -4062,7 +4062,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             burycorpse = FALSE,
             nomsg = (xkill_flags & XKILL_NOMSG) != 0,
             nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
-            noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0;
+            noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0,
+            indirect = (xkill_flags & XKILL_INDIRECT) != 0;
 
     mtmp->mhp = 0; /* caller will usually have already done this */
     if (!noconduct) /* KMH, conduct */
@@ -4179,9 +4180,16 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         }
         /* corpse--none if hero was inside the monster */
         if (!wasinside && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
-            zombify = (!thrownobj && !stoned && !uwep
-                       && zombie_maker(youmonst.data)
-                       && zombie_form(r_data(mtmp)) != NON_PM);
+            /* for kills by monsters credited to the hero (e.g. summoned
+             * exploding spheres), zombify will have been set already in
+             * mhitm.c where the information about the particular attacking
+             * monster, etc, was available; for actual kills by the hero we
+             * can figure it out here */
+            if (!indirect) {
+                zombify = (!thrownobj && !stoned && !uwep
+                           && zombie_maker(youmonst.data)
+                           && zombie_form(r_data(mtmp)) != NON_PM);
+            }
             cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
                                                    : CORPSTAT_NONE);
             zombify = FALSE; /* reset */
