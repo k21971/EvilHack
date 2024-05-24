@@ -844,7 +844,10 @@ gcrownu()
     } else if (Role_if(PM_MONK) && (!uwep || !uwep->oartifact)
                && !carrying(SPE_RESTORE_ABILITY)) {
         /* monks rarely wield a weapon */
-        class_gift = SPE_RESTORE_ABILITY;
+        if (!Race_if(PM_DRAUGR))
+            class_gift = SPE_RESTORE_ABILITY;
+        else
+            class_gift = GAUNTLETS_OF_PROTECTION;
     }
 
     obj = ok_wep(uwep) ? uwep : 0;

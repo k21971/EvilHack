@@ -3454,4 +3454,5 @@ The following changes to date are:
 - Switch from impossible to raw_print for 'Cannot open record file!'
   errors
 - Switch status from work in progress to beta
+- Make sure Draugr monk prayer gift isn't a spellbook
 
