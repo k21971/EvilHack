@@ -447,10 +447,11 @@ enum explosion_types {
 
 /* flags for xkilled() [note: meaning of first bit used to be reversed,
    1 to give message and 0 to suppress] */
-#define XKILL_GIVEMSG   0
-#define XKILL_NOMSG     1
-#define XKILL_NOCORPSE  2
-#define XKILL_NOCONDUCT 4
+#define XKILL_GIVEMSG   0x0
+#define XKILL_NOMSG     0x1
+#define XKILL_NOCORPSE  0x2
+#define XKILL_NOCONDUCT 0x4
+#define XKILL_FROMPET   0x8
 
 /* pline_flags; mask values for custompline()'s first argument */
 /* #define PLINE_ORDINARY 0 */
