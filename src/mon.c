@@ -230,19 +230,13 @@ struct monst *mtmp;
 /* Return TRUE if this monster is capable of converting other monsters into
  * zombies. */
 boolean
-zombie_maker(pm)
-struct permonst * pm;
+zombie_maker(mon)
+struct monst *mon;
 {
-    switch(pm->mlet) {
-    case S_ZOMBIE:
-        /* Z-class monsters that aren't actually zombies go here */
-        return is_zombie(pm);
-    }
-
-    if (!Upolyd && Race_if(PM_DRAUGR))
-        return TRUE;
-
-    return FALSE;
+    /* NB: right now, this is literally just a wrapper around racial_zombie,
+     * but maybe in the future there will be more complicated rules or
+     * exceptions about when zombies will be created -- esp. by the hero */
+    return racial_zombie(mon);
 }
 
 /* From xNetHack: return the monster index of the zombie monster which this monster could be
@@ -4189,7 +4183,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
              * can figure it out here */
             if (!indirect) {
                 zombify = (!thrownobj && !stoned && !uwep
-                           && zombie_maker(youmonst.data)
+                           && zombie_maker(&youmonst)
                            && zombie_form(r_data(mtmp)) != NON_PM);
             }
             cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED

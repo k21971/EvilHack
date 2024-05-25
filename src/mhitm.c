@@ -2723,7 +2723,7 @@ msickness:
             mdef->mhp = 0;
         }
 
-        zombify = !mwep && zombie_maker(r_data(magr))
+        zombify = !mwep && zombie_maker(magr)
             && can_become_zombie(r_data(mdef))
             && ((mattk->aatyp == AT_TUCH
                  || mattk->aatyp == AT_CLAW

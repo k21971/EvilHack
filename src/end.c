@@ -640,7 +640,7 @@ int how;
         u.ugrave_arise = PM_WRAITH;
     else if (mptr->mlet == S_MUMMY && urace.mummynum != NON_PM)
         u.ugrave_arise = urace.mummynum;
-    else if (zombie_maker(mptr) && urace.zombienum != NON_PM)
+    else if (zombie_maker(mtmp) && urace.zombienum != NON_PM)
         u.ugrave_arise = urace.zombienum;
     /* Vampire Mages can produce more of their kind if
        conditions are just right */
