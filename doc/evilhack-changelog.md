@@ -3463,4 +3463,5 @@ The following changes to date are:
 - Fix: Draugr Monks feeling guilty eating meat, other feedback fixes
 - Draugr can't revive from being stoned
 - Fix: being breathless not taken into account in several scenarios
+- Fix: some bugs with various life saving conditions
 

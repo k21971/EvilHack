@@ -1350,7 +1350,7 @@ int how;
             context.botl = 1;
         }
     }
-    if (HLifesaved && (how <= GENOCIDED)) { /* Draugr */
+    if (HLifesaved && !ELifesaved && (how <= GENOCIDED)) { /* Draugr */
         pline("But wait...  Suddenly, you start to revive!");
         /* reviving takes a toll */
         (void) adjattrib(A_STR, -1, TRUE);
@@ -1386,7 +1386,7 @@ int how;
         makeknown(AMULET_OF_LIFE_SAVING);
         Your("medallion %s!", !Blind ? "begins to glow" : "feels warm");
         if (uamul->cursed
-            || !nonliving(youmonst.data) || Race_if(PM_DRAUGR)) {
+            || nonliving(youmonst.data) || racial_zombie(&youmonst)) {
             Your("medallion %s!", !Blind ? "glows white-hot"
                                          : "sears your neck");
             if (!Deaf)
@@ -1395,7 +1395,7 @@ int how;
             if (uamul->cursed)
                 pline("It appears your luck has run out...");
             else
-                pline_The("undead have no life to save...");
+                pline("It appears you have no life to save...");
             savelife(how); /* killed by foo, while bar */
             survive = FALSE;
             if (uamul)
