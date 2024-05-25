@@ -450,7 +450,7 @@ int x, y;
         return TRUE;
     if (is_pool(x, y))
         return (boolean) ((is_u(etmp) && (Wwalking || Amphibious || Swimming
-                                          || Flying || Levitation))
+                                          || Breathless || Flying || Levitation))
                           || is_swimmer(etmp->edata)
                           || is_flyer(etmp->edata)
                           || is_floater(etmp->edata)

@@ -3462,4 +3462,5 @@ The following changes to date are:
 - Fix: curses initial race selection
 - Fix: Draugr Monks feeling guilty eating meat, other feedback fixes
 - Draugr can't revive from being stoned
+- Fix: being breathless not taken into account in several scenarios
 

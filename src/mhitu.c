@@ -1989,8 +1989,9 @@ register struct attack *mattk;
                 }
             } else if (u.ustuck == mtmp) {
                 boolean freeze = has_cold_feet(&youmonst);
-                if (is_pool(mtmp->mx, mtmp->my) && !Swimming && !Amphibious
-                    && !freeze && mtmp->data != &mons[PM_MIND_FLAYER_LARVA]) {
+                if (is_pool(mtmp->mx, mtmp->my) && !Swimming
+                    && !Amphibious && !Breathless && !freeze
+                    && mtmp->data != &mons[PM_MIND_FLAYER_LARVA]) {
                     boolean moat = (levl[mtmp->mx][mtmp->my].typ != POOL)
                                    && (levl[mtmp->mx][mtmp->my].typ != WATER)
                                    && !Is_medusa_level(&u.uz)
@@ -2836,8 +2837,8 @@ struct attack *mattk;
                                  : Amphibious
                                        ? "feel comforted."
                                        : "can barely breathe!");
-            /* NB: Amphibious includes Breathless */
-            if (Amphibious && !flaming(youmonst.data))
+            if ((Amphibious || Breathless)
+                && !flaming(youmonst.data))
                 tmp = 0;
         } else {
             You("are pummeled with debris!");

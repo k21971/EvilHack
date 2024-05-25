@@ -68,9 +68,8 @@ long gpflags;
         if (!ignorewater
             && (is_pool(x, y) || ((is_puddle(x, y) || is_sewage(x, y))
                                   && vs_cantflyorswim(mtmp->data)))) {
-            /* [what about Breathless?] */
             if (mtmp == &youmonst)
-                return (Swimming || Amphibious
+                return (Swimming || Amphibious || Breathless
                         || (!Is_waterlevel(&u.uz)
                             /* water on the Plane of Water has no surface
                                so there's no way to be on or above that */

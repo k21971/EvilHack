@@ -4603,7 +4603,7 @@ drown()
         && (is_pool(u.ux - u.dx, u.uy - u.dy)
             || (is_damp_terrain(u.ux - u.dx, u.uy - u.dy)
                 && verysmall(youmonst.data)))
-        && (Swimming || Amphibious)) {
+        && (Swimming || Amphibious || Breathless)) {
         /* water effects on objects every now and then */
         if (!rn2(5))
             inpool_ok = TRUE;
@@ -4618,7 +4618,7 @@ drown()
                         ? "step down" : HFlying
                                       ? "fly down" : "fall"),
             hliquid(!is_sewage(u.ux, u.uy) ? "water" : "sewage"),
-            Amphibious || Swimming ? '.' : '!');
+            (Amphibious || Swimming || Breathless) ? '.' : '!');
         if (!Swimming && !Is_waterlevel(&u.uz))
             You("sink like %s.", Hallucination ? "the Titanic" : "a rock");
         if (u.umburn) {
@@ -4647,8 +4647,8 @@ drown()
         unleash_all();
     }
 
-    if (Amphibious || Swimming) {
-        if (Amphibious) {
+    if (Amphibious || Swimming || Breathless) {
+        if (Amphibious || Breathless) {
             if (flags.verbose)
                 pline("But you aren't drowning.");
             if (!Is_waterlevel(&u.uz)) {

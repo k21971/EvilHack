@@ -127,7 +127,8 @@ register int nk;
         /* extra heavy damage bonus */
         if ((int) (ptr->mattk[i].damd * ptr->mattk[i].damn) > 23)
             tmp += mtmp->m_lev;
-        if (tmp2 == AD_WRAP && ptr->mlet == S_EEL && !Amphibious)
+        if (tmp2 == AD_WRAP && ptr->mlet == S_EEL
+            && !Amphibious && !Breathless)
             tmp += 1000;
     }
 

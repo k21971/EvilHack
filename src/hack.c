@@ -2475,7 +2475,8 @@ boolean newspot;             /* true if called by spoteffects */
                 if (lava_effects())
                     return TRUE;
             } else if (!Wwalking
-                       && (newspot || !u.uinwater || !(Swimming || Amphibious))) {
+                       && (newspot || !u.uinwater
+                           || !(Swimming || Amphibious || Breathless))) {
                 if (drown())
                     return TRUE;
             }
