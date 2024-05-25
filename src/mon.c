@@ -230,19 +230,13 @@ struct monst *mtmp;
 /* Return TRUE if this monster is capable of converting other monsters into
  * zombies. */
 boolean
-zombie_maker(pm)
-struct permonst * pm;
+zombie_maker(mon)
+struct monst *mon;
 {
-    switch(pm->mlet) {
-    case S_ZOMBIE:
-        /* Z-class monsters that aren't actually zombies go here */
-        return is_zombie(pm);
-    }
-
-    if (!Upolyd && Race_if(PM_DRAUGR))
-        return TRUE;
-
-    return FALSE;
+    /* NB: right now, this is literally just a wrapper around racial_zombie,
+     * but maybe in the future there will be more complicated rules or
+     * exceptions about when zombies will be created -- esp. by the hero */
+    return racial_zombie(mon);
 }
 
 /* From xNetHack: return the monster index of the zombie monster which this monster could be
@@ -761,12 +755,12 @@ unsigned corpseflags;
             return (struct obj *) 0;
         } else {
             corpstatflags |= CORPSTAT_INIT;
-            if racial_zombie(mtmp)
+            if (racial_zombie(mtmp))
                 corpstatflags |= CORPSTAT_ZOMBIE;
             /* preserve the unique traits of some creatures */
             obj = mkcorpstat(CORPSE, KEEPTRAITS(mtmp) ? mtmp : 0,
                              mdat, x, y, corpstatflags);
-            if racial_zombie(mtmp)
+            if (racial_zombie(mtmp))
                 obj->age -= 100;
             if (burythem) {
                 boolean dealloc;
@@ -4001,9 +3995,9 @@ int how;
     disintegested = (how == AD_DGST || how == -AD_RBRE
                      || how == AD_WTHR || how == AD_DISN);
     if (disintegested)
-        xkilled(mdef, XKILL_NOCORPSE);
+        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE | XKILL_INDIRECT);
     else
-        xkilled(mdef, XKILL_NOMSG);
+        xkilled(mdef, XKILL_NOMSG | XKILL_INDIRECT);
 
     if (be_sad && DEADMONSTER(mdef))
         You("have a sad feeling for a moment, then it passes.");
@@ -4051,7 +4045,9 @@ struct monst *mtmp;
 void
 xkilled(mtmp, xkill_flags)
 struct monst *mtmp;
-int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
+int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
+                  * XKILL_NOCONDUCT (maintain pacificst),
+                  * or XKILL_INDIRECT (mtmp killed by summoned sphere) */
 {
     int tmp, mndx, x = mtmp->mx, y = mtmp->my;
     struct monst museum = zeromonst;
@@ -4062,7 +4058,8 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
             burycorpse = FALSE,
             nomsg = (xkill_flags & XKILL_NOMSG) != 0,
             nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
-            noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0;
+            noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0,
+            indirect = (xkill_flags & XKILL_INDIRECT) != 0;
 
     mtmp->mhp = 0; /* caller will usually have already done this */
     if (!noconduct) /* KMH, conduct */
@@ -4179,9 +4176,16 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         }
         /* corpse--none if hero was inside the monster */
         if (!wasinside && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
-            zombify = (!thrownobj && !stoned && !uwep
-                       && zombie_maker(youmonst.data)
-                       && zombie_form(r_data(mtmp)) != NON_PM);
+            /* for kills by monsters credited to the hero (e.g. summoned
+             * exploding spheres), zombify will have been set already in
+             * mhitm.c where the information about the particular attacking
+             * monster, etc, was available; for actual kills by the hero we
+             * can figure it out here */
+            if (!indirect) {
+                zombify = (!thrownobj && !stoned && !uwep
+                           && zombie_maker(&youmonst)
+                           && zombie_form(r_data(mtmp)) != NON_PM);
+            }
             cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
                                                    : CORPSTAT_NONE);
             zombify = FALSE; /* reset */

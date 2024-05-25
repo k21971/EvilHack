@@ -2640,6 +2640,7 @@ msickness:
 #undef oresist_disintegration
 
                 mdef->mhp = 0;
+                zombify = FALSE;
                 if (magr->uexp)
                     mon_xkilled(mdef, (char *) 0, -AD_RBRE);
                 else
@@ -2722,7 +2723,7 @@ msickness:
             mdef->mhp = 0;
         }
 
-        zombify = !mwep && zombie_maker(r_data(magr))
+        zombify = !mwep && zombie_maker(magr)
             && can_become_zombie(r_data(mdef))
             && ((mattk->aatyp == AT_TUCH
                  || mattk->aatyp == AT_CLAW
@@ -3502,6 +3503,7 @@ struct obj *mwep;
 
  assess_dmg:
     if (damage_mon(magr, tmp, (int) mdattk[i].adtyp)) {
+        zombify = FALSE;
         if (mdef->uexp)
             mon_xkilled(magr, "", (int) mdattk[i].adtyp);
         else

@@ -1527,7 +1527,7 @@ E int FDECL(cmap_to_type, (int));
 
 E void NDECL(mon_sanity_check);
 E int FDECL(m_poisongas_ok, (struct monst *));
-E boolean FDECL(zombie_maker, (struct permonst *));
+E boolean FDECL(zombie_maker, (struct monst *));
 E int FDECL(zombie_form, (struct permonst *));
 E void FDECL(become_flayer, (struct monst *));
 E int FDECL(undead_to_corpse, (int));
