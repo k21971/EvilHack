@@ -1769,7 +1769,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     static const char you[] = "you";
     char hittee[BUFSZ];
     struct artifact *atmp;
-    int j, k, permdmg = 0;
+    int j, k, l, permdmg = 0;
 
     Strcpy(hittee, youdefend ? you : mon_nam(mdef));
 
@@ -2455,6 +2455,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     if (atmp->spfx & (SPFX_DFLAGH | SPFX_DCLAS)) {
         j = !rn2(10); /* 10% chance of instakill for some artifacts */
         k = !rn2(20); /* 5% chance if same weapon is used against the player */
+        l = !rn2(5);  /* special chance of incineration (Draugr) */
+
         switch (otmp->oartifact) {
         case ART_WEREBANE:
         case ART_SHADOWBLADE:
@@ -2615,7 +2617,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               mon_nam(mdef));
                     mongone(mdef);
                 }
-            } else if (youdefend && k
+            } else if (youdefend && l
                        && maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))) {
                 pline("The holy power of Sunsword incinerates your undead flesh!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
@@ -2734,7 +2736,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 pline("The Hammer of the Gods shines brilliantly, destroying you!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form if poly'd */
-            } else if (youdefend && k
+            } else if (youdefend && l
                        && maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))) {
                 pline("The Hammer of the Gods incinerates your undead flesh!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);

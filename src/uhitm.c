@@ -4124,11 +4124,6 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                         && !Stone_resistance)
                     || is_rider(mon->data)
                     || mon->data == &mons[PM_GREEN_SLIME]
-                    /* we don't need to worry about illithid-on-illithid
-                       cannibalism since their minds are psionically shielded */
-                    || (u.ulycn >= LOW_PM
-                        && were_beastie(mon->mnum) == u.ulycn
-                        && !Role_if(PM_CAVEMAN))
                     || (how_resistant(DISINT_RES) <= 49
                         && (mon->data == &mons[PM_BLACK_DRAGON]
                             || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))

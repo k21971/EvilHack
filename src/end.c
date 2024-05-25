@@ -1351,7 +1351,7 @@ int how;
         }
     }
     if (HLifesaved && (how <= GENOCIDED)) { /* Draugr */
-        pline("But then suddenly, you start to revive!");
+        pline("But wait...  Suddenly, you start to revive!");
         /* reviving takes a toll */
         (void) adjattrib(A_STR, -1, TRUE);
         (void) adjattrib(A_CON, -1, TRUE);
@@ -1363,6 +1363,8 @@ int how;
                   body_part(HEAD));
         } else if (how == INCINERATED) { /* nothing to revive */
             pline("Unfortunately there's nothing left to revive...");
+        } else if (how == STONING) { /* stoning */
+            pline("Unfortunately you've turned to stone...");
         } else if (u.umortality > DRAUGR_REVIVE) { /* ran out of revive chances */
             pline("Unfortunately you weren't strong enough to revive fully...");
         } else if (is_open_air(x, y) && !Levitation
@@ -1436,8 +1438,9 @@ int how;
         && !paranoid_query(ParanoidDie, "Die?")) {
         pline("OK, so you don't %s.",
               (how == CHOKING) ? "choke"
-                               : (how == DECAPITATED) ? "lose your head"
-                                                      : "die");
+                : (how == DECAPITATED) ? "lose your head"
+                    : (how == STONING) ? "turn to stone"
+                        : "die");
         iflags.last_msg = PLNMSG_OK_DONT_DIE;
         savelife(how);
         ukiller = (struct monst*) 0;
