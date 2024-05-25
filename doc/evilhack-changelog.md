@@ -3455,4 +3455,4 @@ The following changes to date are:
   errors
 - Switch status from work in progress to beta
 - Make sure Draugr monk prayer gift isn't a spellbook
-
+- Fix: curses initial race selection

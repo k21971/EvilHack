@@ -696,6 +696,15 @@ curses_character_dialog(const char **choices, const char *prompt)
             }
         }
 
+        if (!strcmp(choices[count], "giant"))
+            curletter = 'G';
+        else if (!strcmp(choices[count], "hobbit"))
+            curletter = 'H';
+        else if (!strcmp(choices[count], "drow"))
+            curletter = 'D';
+        else if (!strcmp(choices[count], "draugr"))
+            curletter = 'Z';
+
         identifier.a_int = (count + 1); /* Must be non-zero */
         curses_add_menu(wid, NO_GLYPH, &identifier, curletter, 0,
                         A_NORMAL, choices[count], FALSE);
