@@ -3455,4 +3455,10 @@ The following changes to date are:
   errors
 - Switch status from work in progress to beta
 - Make sure Draugr monk prayer gift isn't a spellbook
+- Fix: summoned spheres could zombify victims
+- Fix: if statement syntax typo
+- Update xkill_flags comment
+- Fix: zombie_maker and hero or monster race
 - Fix: curses initial race selection
+- Fix: Draugr Monks feeling guilty eating meat, other feedback fixes
+

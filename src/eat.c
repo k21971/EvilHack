@@ -1352,7 +1352,7 @@ void
 violated_vegetarian()
 {
     u.uconduct.unvegetarian++;
-    if (Role_if(PM_MONK)) {
+    if (Role_if(PM_MONK) && !Race_if(PM_DRAUGR)) {
         You_feel("guilty.");
         adjalign(-1);
     }
@@ -1743,42 +1743,46 @@ STATIC_OVL int
 rottenfood(obj)
 struct obj *obj;
 {
-    pline("Blecch!  Rotten %s!", foodword(obj));
-    if (!rn2(4)) {
-        if (Hallucination)
-            You_feel("rather trippy.");
-        else
-            You_feel("rather %s.", body_part(LIGHT_HEADED));
-        make_confused(HConfusion + d(2, 4), FALSE);
-    } else if (!rn2(4) && !Blind) {
-        pline("Everything suddenly goes dark.");
-        /* hero is not Blind, but Blinded timer might be nonzero if
-           blindness is being overridden by the Eyes of the Overworld */
-        make_blinded((Blinded & TIMEOUT) + (long) d(2, 10), FALSE);
-        if (!Blind)
-            Your1(vision_clears);
-    } else if (!rn2(3)) {
-        const char *what, *where;
-        int duration = rnd(10);
+    pline("%s!  Rotten %s!",
+          (!Upolyd && Race_if(PM_DRAUGR)) ? "Mmmm" : "Blecch",
+          foodword(obj));
+    if (!Race_if(PM_DRAUGR)) {
+        if (!rn2(4)) {
+            if (Hallucination)
+                You_feel("rather trippy.");
+            else
+                You_feel("rather %s.", body_part(LIGHT_HEADED));
+            make_confused(HConfusion + d(2, 4), FALSE);
+        } else if (!rn2(4) && !Blind) {
+            pline("Everything suddenly goes dark.");
+            /* hero is not Blind, but Blinded timer might be nonzero if
+               blindness is being overridden by the Eyes of the Overworld */
+            make_blinded((Blinded & TIMEOUT) + (long) d(2, 10), FALSE);
+            if (!Blind)
+                Your1(vision_clears);
+        } else if (!rn2(3)) {
+            const char *what, *where;
+            int duration = rnd(10);
 
-        if (!Blind)
-            what = "goes", where = "dark";
-        else if (Levitation || Is_airlevel(&u.uz) || Is_waterlevel(&u.uz))
-            what = "you lose control of", where = "yourself";
-        else
-            what = "you slap against the",
-            where = (u.usteed) ? "saddle" : surface(u.ux, u.uy);
-        pline_The("world spins and %s %s.", what, where);
-        if (!Levitation && !Flying && !u.usteed
-            && is_damp_terrain(u.ux, u.uy))
-            water_damage_chain(invent, FALSE, rnd(3), FALSE, u.ux, u.uy);
-        incr_itimeout(&HDeaf, duration);
-        context.botl = TRUE;
-        nomul(-duration);
-        multi_reason = "unconscious from rotten food";
-        nomovemsg = "You are conscious again.";
-        afternmv = Hear_again;
-        return 1;
+            if (!Blind)
+                what = "goes", where = "dark";
+            else if (Levitation || Is_airlevel(&u.uz) || Is_waterlevel(&u.uz))
+                what = "you lose control of", where = "yourself";
+            else
+                what = "you slap against the",
+                where = (u.usteed) ? "saddle" : surface(u.ux, u.uy);
+            pline_The("world spins and %s %s.", what, where);
+            if (!Levitation && !Flying && !u.usteed
+                && is_damp_terrain(u.ux, u.uy))
+                water_damage_chain(invent, FALSE, rnd(3), FALSE, u.ux, u.uy);
+            incr_itimeout(&HDeaf, duration);
+            context.botl = TRUE;
+            nomul(-duration);
+            multi_reason = "unconscious from rotten food";
+            nomovemsg = "You are conscious again.";
+            afternmv = Hear_again;
+            return 1;
+        }
     }
     return 0;
 }
@@ -1832,7 +1836,8 @@ struct obj *otmp;
         else
             cannibal = maybe_cannibal(mnum, FALSE);
 
-        pline("Ulch - that %s was tainted%s!",
+        pline("%s - that %s was tainted%s!",
+              (!Upolyd && Race_if(PM_DRAUGR)) ? "Yum" : "Ulch",
               (mons[mnum].mlet == S_FUNGUS) ? "fungoid vegetation"
                   : glob ? "glob"
                       : vegetarian(&mons[mnum]) ? "protoplasm"
@@ -2666,7 +2671,8 @@ struct obj *otmp;
         else
             return 2;
     }
-    if (otmp->orotten || (cadaver && rotted > 3L)) {
+    if ((otmp->orotten || (cadaver && rotted > 3L))
+        && !Race_if(PM_DRAUGR)) {
         /* Rotten */
         Sprintf(buf, "%s like %s could be rotten!  %s", foodsmell, it_or_they,
                 eat_it_anyway);
@@ -2742,7 +2748,7 @@ struct obj *otmp;
 
     if (((cadaver && mnum != PM_ACID_BLOB && rotted > 5L)
           || (cadaver && (otmp->zombie_corpse)))
-        && Sick_resistance) {
+        && Sick_resistance && !Race_if(PM_DRAUGR)) {
         /* Tainted meat with Sick_resistance */
         Sprintf(buf, "%s like %s could be tainted!  %s",
                 foodsmell, it_or_they, eat_it_anyway);
