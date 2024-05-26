@@ -3012,7 +3012,7 @@ struct attack *mattk;
             killer.format = NO_KILLER_PREFIX;
             Sprintf(killer.name, "disintegrated by %s",
                     an(mtmp->data->mname));
-            done(DIED);
+            done(DISINTEGRATED);
         } else {
             tmp = 0;
         }
@@ -3642,7 +3642,7 @@ struct attack *mattk;
                 killer.format = NO_KILLER_PREFIX;
                 Sprintf(killer.name, "disintegrated by %s",
                         an(mtmp->data->mname));
-                done(DIED);
+                done(DISINTEGRATED);
             }
         }
         break;

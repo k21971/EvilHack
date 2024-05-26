@@ -148,24 +148,25 @@ enum on_fire_types {
  * code assume that PANIC separates the deaths from the non-deaths.
  */
 enum game_end_types {
-    DIED         =  0,
-    CHOKING      =  1,
-    POISONING    =  2,
-    STARVING     =  3,
-    DROWNING     =  4,
-    BURNING      =  5,
-    DISSOLVED    =  6,
-    CRUSHING     =  7,
-    STONING      =  8,
-    TURNED_SLIME =  9,
-    DECAPITATED  = 10,
-    INCINERATED  = 11,
-    GENOCIDED    = 12,
-    PANICKED     = 13,
-    TRICKED      = 14,
-    QUIT         = 15,
-    ESCAPED      = 16,
-    ASCENDED     = 17
+    DIED          =  0,
+    CHOKING       =  1,
+    POISONING     =  2,
+    STARVING      =  3,
+    DROWNING      =  4,
+    BURNING       =  5,
+    DISSOLVED     =  6,
+    CRUSHING      =  7,
+    STONING       =  8,
+    TURNED_SLIME  =  9,
+    DECAPITATED   = 10,
+    INCINERATED   = 11,
+    DISINTEGRATED = 12,
+    GENOCIDED     = 13,
+    PANICKED      = 14,
+    TRICKED       = 15,
+    QUIT          = 16,
+    ESCAPED       = 17,
+    ASCENDED      = 18
 };
 
 typedef struct strbuf {

@@ -2247,7 +2247,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 u.ugrave_arise = (NON_PM - 2); /* no corpse */
                 killer.format = NO_KILLER_PREFIX;
                 Sprintf(killer.name, "disintegrated by %s", the(xname(otmp)));
-                done(DIED);
+                done(DISINTEGRATED);
             } else { /* you or mon hit monster */
                 disint_mon_invent(mdef);
                 if (youattack) {
@@ -2620,11 +2620,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else if (youdefend && l
                        && maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))) {
                 pline("The holy power of Sunsword incinerates your undead flesh!");
-                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                killer.format = NO_KILLER_PREFIX;
-                Sprintf(killer.name, "incinerated by %s", xname(otmp));
-                done(INCINERATED);
-                /* player returns to their original form */
+                if (Upolyd) {
+                    /* player returns to their original form */
+                    *dmgptr = ((2 * u.mh) + FATAL_DAMAGE_MODIFIER);
+                } else {
+                    killer.format = NO_KILLER_PREFIX;
+                    Sprintf(killer.name, "incinerated by %s", xname(otmp));
+                    done(INCINERATED);
+                }
             } else
                 return FALSE;
             return TRUE;
@@ -2739,11 +2742,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else if (youdefend && l
                        && maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))) {
                 pline("The Hammer of the Gods incinerates your undead flesh!");
-                *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
-                killer.format = NO_KILLER_PREFIX;
-                Sprintf(killer.name, "incinerated by %s", the(xname(otmp)));
-                done(INCINERATED);
-                /* player returns to their original form */
+                if (Upolyd) {
+                    /* player returns to their original form */
+                    *dmgptr = ((2 * u.mh) + FATAL_DAMAGE_MODIFIER);
+                } else {
+                    killer.format = NO_KILLER_PREFIX;
+                    Sprintf(killer.name, "incinerated by %s", xname(otmp));
+                    done(INCINERATED);
+                }
             } else
                 return FALSE;
             return TRUE;
@@ -2857,12 +2863,16 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     pline("%s glances harmlessly off of your protective shell.", wepdesc);
                     return TRUE;
                 }
-                *dmgptr = 2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER;
                 pline(behead_msg[rn2(SIZE(behead_msg))], wepdesc, "you");
                 otmp->dknown = TRUE;
-                killer.format = NO_KILLER_PREFIX;
-                Sprintf(killer.name, "decapitated by %s", xname(otmp));
-                done(DECAPITATED);
+                if (Upolyd) {
+                    /* player returns to their original form */
+                    *dmgptr = ((2 * u.mh) + FATAL_DAMAGE_MODIFIER);
+                } else {
+                    killer.format = NO_KILLER_PREFIX;
+                    Sprintf(killer.name, "decapitated by %s", xname(otmp));
+                    done(DECAPITATED);
+                }
                 /* Should amulets fall off? */
                 return TRUE;
             }

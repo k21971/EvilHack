@@ -3464,4 +3464,5 @@ The following changes to date are:
 - Draugr can't revive from being stoned
 - Fix: being breathless not taken into account in several scenarios
 - Fix: some bugs with various life saving conditions
+- Draugr can't revive from being disintegrated
 

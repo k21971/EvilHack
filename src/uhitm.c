@@ -4606,7 +4606,7 @@ boolean wep_was_destroyed;
                             killer.format = NO_KILLER_PREFIX;
                             Sprintf(killer.name, "disintegrated by %s",
                                     an(l_monnam(mon)));
-                            done(DIED);
+                            done(DISINTEGRATED);
                             return 2;
                         } else {
                             You("partially disintegrate!");
@@ -4905,7 +4905,7 @@ boolean wep_was_destroyed;
                                     pline("%s deadly armor disintegrates you!",
                                           s_suffix(Monnam(mon)));
                                     u.ugrave_arise = -3;
-                                    done_in_by(mon, DIED);
+                                    done_in_by(mon, DISINTEGRATED);
                                     return 2;
                                 } else {
                                     You("partially disintegrate!");

@@ -108,8 +108,8 @@ boolean incl_helpless;
         "drowned in ", "burned by ", "dissolved in ", "crushed to death by ",
         /* STONING, TURNED_SLIME, DECAPITATED, */
         "petrified by ", "turned to slime by ", "decapitated by ",
-        /* INCINERATED, GENOCIDED, */
-        "incinerated by ", "killed by ",
+        /* INCINERATED, DISINTEGRATED, GENOCIDED, */
+        "incinerated by ", "disintegrated by ", "killed by ",
         /* PANICKED, TRICKED, QUIT, ESCAPED, ASCENDED */
         "", "", "", "", ""
     };
@@ -1082,6 +1082,8 @@ boolean so;
             Strcat(linebuf, "decapitated");
         } else if (!strncmp(t1->death, "incinerated by ", 15)) {
             Strcat(linebuf, "incinerated");
+        } else if (!strncmp(t1->death, "disintegrated by ", 17)) {
+            Strcat(linebuf, "disintegrated");
         } else
             Strcat(linebuf, "died");
 
