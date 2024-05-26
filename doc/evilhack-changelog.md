@@ -3466,4 +3466,6 @@ The following changes to date are:
 - Fix: some bugs with various life saving conditions
 - Draugr can't revive from being disintegrated
 - Fix: artifact rings and wrong name in .des file
+- Fix: hit point bar would still show full hit points if life saving
+  or revival failed 
 

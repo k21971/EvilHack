@@ -1357,16 +1357,26 @@ int how;
         (void) adjattrib(A_CON, -1, TRUE);
         savelife(how);
         if (how == GENOCIDED) {
+            u.uhp = 0;
+            context.botl = 1;
             pline("Unfortunately you are still genocided...");
         } else if (how == DECAPITATED) { /* can't revive if you've lost your head */
+            u.uhp = 0;
+            context.botl = 1;
             pline("Unfortunately you've lost your %s...",
                   body_part(HEAD));
         } else if ((how == INCINERATED)
                    || (how == DISINTEGRATED)) { /* nothing to revive */
+            u.uhp = 0;
+            context.botl = 1;
             pline("Unfortunately there's nothing left to revive...");
         } else if (how == STONING) { /* stoning */
+            u.uhp = 0;
+            context.botl = 1;
             pline("Unfortunately you've turned to stone...");
-        } else if (u.umortality > DRAUGR_REVIVE) { /* ran out of revive chances */
+        } else if (u.umortality > DRAUGR_REVIVE) { /* ran out of revival chances */
+            u.uhp = 0;
+            context.botl = 1;
             pline("Unfortunately you weren't strong enough to revive fully...");
         } else if (is_open_air(x, y) && !Levitation
                    && !(Flying && !(Punished && !carried(uball)
@@ -1374,6 +1384,8 @@ int how;
             if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT))
                 return; /* successful life-save */
             /* nowhere safe to land; repeat falling loop... */
+            u.uhp = 0;
+            context.botl = 1;
             pline("Unfortunately the impact was too great...");
         } else {
             char killbuf[BUFSZ];
@@ -1393,12 +1405,12 @@ int how;
             if (!Deaf)
                 You("hear manic laughter in the distance...");
             Your("medallion turns to ash!");
+            u.uhp = 0;
+            context.botl = 1;
             if (uamul->cursed)
                 pline("It appears your luck has run out...");
             else
                 pline("It appears you have no life to save...");
-            savelife(how); /* killed by foo, while bar */
-            survive = FALSE;
             if (uamul)
                 useup(uamul);
         } else {
@@ -1412,6 +1424,8 @@ int how;
             (void) adjattrib(A_CON, -1, TRUE);
             savelife(how);
             if (how == GENOCIDED) {
+                u.uhp = 0;
+                context.botl = 1;
                 pline("Unfortunately you are still genocided...");
             } else if (is_open_air(x, y) && !Levitation
                        && !(Flying && !(Punished && !carried(uball)
@@ -1419,6 +1433,8 @@ int how;
                 if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT))
                     return; /* successful life-save */
                 /* nowhere safe to land; repeat falling loop... */
+                u.uhp = 0;
+                context.botl = 1;
                 pline("Unfortunately the impact was too great...");
             } else {
                 char killbuf[BUFSZ];
