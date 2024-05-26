@@ -425,7 +425,7 @@ IF [33%] {
 }
 
 # various objects
-OBJECT:('=',"invisibility"),random,cursed,name:"The One Ring"
+OBJECT:('=',"lustrous"),random,cursed,name:"The One Ring"
 
 CONTAINER:('(',"chest"),(40,10) {
   IF [65%] {
