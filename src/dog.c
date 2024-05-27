@@ -973,10 +973,10 @@ register struct obj *obj;
         /* even carnivores will eat carrots if they're temporarily blind */
         mblind = (!mon->mcansee && haseyes(mon->data));
 
-        /* ghouls prefer old corpses and unhatchable eggs, yum!
+        /* ghouls/draugr prefer old corpses and unhatchable eggs, yum!
            they'll eat fresh non-veggy corpses and hatchable eggs
            when starving; they never eat stone-to-flesh'd meat */
-        if (mptr == &mons[PM_GHOUL]) {
+        if (mptr == &mons[PM_GHOUL] || racial_zombie(mon)) {
             if (obj->otyp == CORPSE)
                 return (peek_at_iced_corpse_age(obj) + 50L <= monstermoves
                         && fptr != &mons[PM_LIZARD]

@@ -3468,4 +3468,5 @@ The following changes to date are:
 - Fix: artifact rings and wrong name in .des file
 - Fix: hit point bar would still show full hit points if life saving
   or revival failed 
+- Same food eating rules for monster draugr vs player draugr
 

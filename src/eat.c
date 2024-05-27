@@ -94,7 +94,7 @@ register struct obj *obj;
         && (youmonst.data != &mons[PM_RUST_MONSTER] || is_rustprone(obj)))
         return TRUE;
 
-    /* Ghouls only eat non-veggy corpses or eggs (see dogfood()) */
+    /* Ghouls/Draugr only eat non-veggy corpses or eggs (see dogfood()) */
     if (u.umonnum == PM_GHOUL || (!Upolyd && Race_if(PM_DRAUGR)))
         return (boolean) ((obj->otyp == CORPSE
                            && !vegan(&mons[obj->corpsenm]))
