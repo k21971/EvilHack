@@ -3469,4 +3469,5 @@ The following changes to date are:
 - Fix: hit point bar would still show full hit points if life saving
   or revival failed 
 - Same food eating rules for monster draugr vs player draugr
+- Fix: 'Achievements completed' header in dumplog
 

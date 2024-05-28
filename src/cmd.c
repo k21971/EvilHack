@@ -3917,7 +3917,7 @@ int final;
     } else {
         awin = create_nhwindow(NHW_MENU);
     }
-    putstr(awin, 0, "Achievements completed:");
+    putstr(awin, ATR_HEADING, "Achievements completed:");
     /* arranged in approximate order of difficulty */
     if (u.uevent.minor_oracle)
         enl_msg(You_, "have ", "",
@@ -4009,6 +4009,8 @@ int final;
         enlght_out(" You ascended!"), ++acnt;
     if (!acnt)
         enlght_out(" You have no achievements.");
+
+    putstr(awin, 0, "");
 
     if (awin != en_win) {
         display_nhwindow(awin, TRUE);
