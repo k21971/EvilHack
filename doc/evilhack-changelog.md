@@ -3470,4 +3470,6 @@ The following changes to date are:
   or revival failed 
 - Same food eating rules for monster draugr vs player draugr
 - Fix: 'Achievements completed' header in dumplog
+- Fix: no magic resistance/reflection conducts were being broken
+  by monsters
 
