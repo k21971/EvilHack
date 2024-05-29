@@ -497,7 +497,7 @@ encode_extended_achievements()
 static char *
 encode_extended_conducts()
 {
-    static char buf[BUFSZ];
+    static char buf[350]; /* XXX: Expand this when adding new conducts */
 
     buf[0] = '\0';
     add_achieveX(buf, "foodless",                        !u.uconduct.food);
@@ -525,6 +525,8 @@ encode_extended_conducts()
     add_achieveX(buf, "never_forged_an_artifact",        !u.uconduct.forgedarti);
     add_achieveX(buf, "never_acquired_magic_resistance", !u.uconduct.antimagic);
     add_achieveX(buf, "never_acquired_reflection",       !u.uconduct.reflection);
+    /* NB: when adding new conducts, increase the size of buf[] above based on
+     * the length of the conduct string */
 
     return buf;
 }
