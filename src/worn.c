@@ -101,19 +101,17 @@ long mask;
                             p = armor_provides_extrinsic(obj);
                             u.uprops[p].extrinsic =
                                 u.uprops[p].extrinsic | wp->w_mask;
+                            /* no magic resistance conduct */
+                            if (p == ANTIMAGIC)
+                                u.uconduct.antimagic++;
+                            /* no reflection conduct */
+                            if (p == REFLECTING)
+                                u.uconduct.reflection++;
                             if ((p = w_blocks(obj, mask)) != 0)
                                 u.uprops[p].blocked |= wp->w_mask;
                         }
                         if (obj->oartifact || obj->oprops)
                             set_artifact_intrinsic(obj, 1, mask);
-
-                        /* no magic resistance conduct */
-                        if (obj_has_prop(obj, ANTIMAGIC))
-                            u.uconduct.antimagic++;
-
-                        /* no reflection conduct */
-                        if (obj_has_prop(obj, REFLECTING))
-                            u.uconduct.reflection++;
                     }
                 }
             }

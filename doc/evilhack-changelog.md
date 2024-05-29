@@ -3472,4 +3472,6 @@ The following changes to date are:
 - Fix: 'Achievements completed' header in dumplog
 - Fix: no magic resistance/reflection conducts were being broken
   by monsters
+- Fix: no magic resistance/reflection conducts were being broken
+  by monsters, round two
 
