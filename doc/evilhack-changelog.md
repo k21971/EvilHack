@@ -3475,4 +3475,4 @@ The following changes to date are:
 - Fix: no magic resistance/reflection conducts were being broken
   by monsters, round two
 - Force paranoid quit to be yes [no] instead of y/n
-
+- Update paranoid_confirmation in Guidebook

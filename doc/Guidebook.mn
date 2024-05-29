@@ -3344,7 +3344,8 @@ symbols for the various object types.
 Any omitted types are filled in at the end from the previous order.
 .lp paranoid_confirmation
 A space separated list of specific situations where alternate
-prompting is desired.  The default is paranoid_confirmation:pray.
+prompting is desired.  The default is paranoid_confirmation:pray quit. quit is
+always set unless specifically disabled with OPTIONS=!paranoid_confirmation.
 .PS Were-change
 .PL Confirm
 for any prompts which are set to require \(lqyes\(rq rather than \(oqy\(cq,

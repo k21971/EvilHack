@@ -3814,7 +3814,8 @@
           paranoid_confirmation
             A space separated list of specific situations  where  alternate
             prompting   is  desired.   The  default  is  paranoid_confirma-
-            tion:pray.
+            tion:pray quit.  quit is always set  unless entirely  disabled
+            with OPTIONS=!paranoid_confirmation.
 
             Confirm     - for any prompts which are set  to  require  "yes"
                           rather  than `y', also require "no" to reject in-
