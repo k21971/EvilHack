@@ -466,25 +466,28 @@ int roomno;
             epri_p->enter_time = 0L;
         }
         msg1 = msg2 = 0;
-        if (((sanctum && Is_sanctum(&u.uz)) || u.ualign.type == A_NONE
-             || (!Upolyd && Race_if(PM_DRAUGR)))
-            && !p_coaligned(priest)) {
+        if ((((sanctum && Is_sanctum(&u.uz)) || u.ualign.type == A_NONE)
+             && !p_coaligned(priest))
+            || (!Upolyd && Race_if(PM_DRAUGR)
+                && mon_aligntyp(priest) >= A_NEUTRAL)) {
             /* either a non-Infidel in the Sanctum, or an Infidel in any
-             * non-Moloch temple; either way, the priest is not happy */
+               non-Moloch temple, or a Draugr in a lawful or neutral temple;
+               either way, the priest is not happy */
             if (priest->mpeaceful) {
                 /* first time inside */
                 if (!Upolyd && Race_if(PM_DRAUGR)
-                    && !Role_if(PM_INFIDEL)) {
+                    && !Role_if(PM_INFIDEL)
+                    && (mon_aligntyp(priest) >= A_NEUTRAL)) {
                     msg1 = "Begone, foul abomination!";
                     msg2 = "You desecrate this holy Sanctum!";
                     call_guards = in_town(priest->mx, priest->my);
                 } else if (u.ualign.type == A_NONE) {
-                    msg1 = "Begone, infidel!";
+                    msg1 = "Begone, Infidel!";
                     msg2 = "This place is barred for your cult!";
                     call_guards = in_town(priest->mx, priest->my);
                 } else {
-                    msg1 = "Infidel, you have entered Moloch's Sanctum!";
-                    msg2 = "Be gone!";
+                    msg1 = "Heathen, you have entered Moloch's Sanctum!";
+                    msg2 = "Begone!";
                 }
                 priest->mpeaceful = 0;
                 newsym(priest->mx, priest->my); /* clear peaceful glyph */

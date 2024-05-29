@@ -3476,3 +3476,6 @@ The following changes to date are:
   by monsters, round two
 - Force paranoid quit to be yes [no] instead of y/n
 - Update paranoid_confirmation in Guidebook
+- Fix: undersized buffer for dumplog conducts
+- Fix: unaligned priests were hostile to Draugr
+
