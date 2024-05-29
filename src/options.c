@@ -774,7 +774,7 @@ initoptions_init()
     flags.end_own = FALSE;
     flags.end_top = 3;
     flags.end_around = 2;
-    flags.paranoia_bits = PARANOID_PRAY; /* old prayconfirm=TRUE */
+    flags.paranoia_bits = (PARANOID_PRAY | PARANOID_QUIT); /* old prayconfirm=TRUE */
     flags.pile_limit = PILE_LIMIT_DFLT;  /* 5 */
     flags.runmode = RUN_LEAP;
     iflags.msg_history = 20;
@@ -3056,7 +3056,7 @@ boolean tinitial, tfrom_file;
            option, but we do throw away the old settings whenever
            we process a new one [clearing old flags is essential
            for handling default paranoid_confirm:pray sanely] */
-        flags.paranoia_bits = 0; /* clear all */
+        flags.paranoia_bits = PARANOID_QUIT; /* clear all */
         if (negated) {
             flags.paranoia_bits = 0; /* [now redundant...] */
         } else if ((op = string_for_opt(opts, TRUE)) != empty_optstr) {

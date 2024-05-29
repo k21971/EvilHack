@@ -3474,4 +3474,5 @@ The following changes to date are:
   by monsters
 - Fix: no magic resistance/reflection conducts were being broken
   by monsters, round two
+- Force paranoid quit to be yes [no] instead of y/n
 
