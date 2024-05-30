@@ -350,6 +350,38 @@ boolean resuming;
                     /* once-per-turn things go here */
                     /********************************/
 
+                    /* if you have too many pets on the level, untame the weakest ones */
+                    int numdogs;
+                    do {
+                        numdogs = 0;
+                        int numties = 1;
+                        struct monst *weakdog = 0;
+                        for (struct monst *curmon = fmon; curmon; curmon = curmon->nmon) {
+                            if (curmon->mtame && !(curmon->msummoned)) {
+                                ++numdogs;
+                                /* never untame steed, but it still counts towards total pets */
+                                if (curmon == u.usteed)
+                                    continue;
+                                if (!weakdog) {
+                                    weakdog = curmon;
+                                } else if (weakdog->m_lev > curmon->m_lev) {
+                                    weakdog = curmon;
+                                    numties = 1;
+                                } else if (weakdog->m_lev == curmon->m_lev) {
+                                    if (!rn2(++numties))
+                                        weakdog = curmon;
+                                }
+                            }
+                        }
+                        if (weakdog && numdogs > ACURR(A_CHA) / 3) {
+                            weakdog->mtame = 0;
+                            if (rn2(EDOG(weakdog)->abuse + 1))
+                                weakdog->mpeaceful = 0;
+                            if (weakdog->mleashed)
+                                m_unleash(weakdog, TRUE);
+                        }
+                    } while (numdogs > ACURR(A_CHA) / 3);
+
                     if (Glib)
                         glibr();
                     nh_timeout();

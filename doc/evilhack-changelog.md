@@ -3484,3 +3484,4 @@ The following changes to date are:
 - Prevent phasing in more areas of the Sanctum
 - Fix: unaligned priests were hostile to Draugr II
 - Abused pets can turn hostile when untamed
+- Limit number of pets you can have
