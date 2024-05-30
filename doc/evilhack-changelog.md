@@ -3480,4 +3480,5 @@ The following changes to date are:
 - Fix: unaligned priests were hostile to Draugr
 - Draugr gained intrinsic changes (fire res, ESP)
 - Include a few more races for boulder breaking chances
+- Small tweak to Draugr eating feedback
 

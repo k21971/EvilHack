@@ -496,12 +496,13 @@ struct permonst *pd;
         livelog_printf(LL_CONDUCT, "ate for the first time - %s", pd->mname);
         ll_conduct++;
     }
-    if (!vegan(pd))
+    if (!vegan(pd)) {
         if (!u.uconduct.unvegan++ && !ll_conduct) {
             livelog_printf(LL_CONDUCT, "consumed animal products (%s) for the first time",
                            pd->mname);
             ll_conduct++;
         }
+    }
     if (!vegetarian(pd)) {
         if (!u.uconduct.unvegetarian && !ll_conduct)
             livelog_printf(LL_CONDUCT, "tasted meat (%s) for the first time", pd->mname);
@@ -1889,7 +1890,8 @@ struct obj *otmp;
                KILLED_BY_AN); /* acid damage */
     } else if (poisonous(&mons[mnum]) && rn2(5)) {
         tp++;
-        pline("Ecch - that must have been poisonous!");
+        pline("%s - that must have been poisonous!",
+              (!Upolyd && Race_if(PM_DRAUGR)) ? "Mmmm" : "Ecch");
         if (how_resistant(POISON_RES) < 100) {
             losestr(resist_reduce(rnd(4), POISON_RES));
             losehp(resist_reduce(rnd(15), POISON_RES), !glob ? "poisonous corpse" : "poisonous glob",
@@ -2647,11 +2649,12 @@ struct obj *otmp;
      * These problems with food should be checked in
      * order from most detrimental to least detrimental.
      */
-    if (((cadaver && mnum != PM_ACID_BLOB && rotted > 5L) || (cadaver && (otmp->zombie_corpse)))
+    if (((cadaver && mnum != PM_ACID_BLOB && rotted > 5L)
+         || (cadaver && (otmp->zombie_corpse)))
         && !Sick_resistance) {
         /* Tainted meat */
-        Sprintf(buf, "%s like %s could be tainted!  %s", foodsmell, it_or_they,
-                eat_it_anyway);
+        Sprintf(buf, "%s like %s could be tainted!  %s",
+                foodsmell, it_or_they, eat_it_anyway);
         if (yn_function(buf, ynchars, 'n') == 'n')
             return 1;
         else
@@ -2677,26 +2680,28 @@ struct obj *otmp;
     if ((otmp->orotten || (cadaver && rotted > 3L))
         && !Race_if(PM_DRAUGR)) {
         /* Rotten */
-        Sprintf(buf, "%s like %s could be rotten!  %s", foodsmell, it_or_they,
-                eat_it_anyway);
+        Sprintf(buf, "%s like %s could be rotten!  %s",
+                foodsmell, it_or_they, eat_it_anyway);
         if (yn_function(buf, ynchars, 'n') == 'n')
             return 1;
         else
             return 2;
     }
-    if (cadaver && poisonous(&mons[mnum]) && how_resistant(POISON_RES) < 100) {
+    if (cadaver && poisonous(&mons[mnum])
+        && how_resistant(POISON_RES) < 100) {
         /* poisonous */
-        Sprintf(buf, "%s like %s might be poisonous!  %s", foodsmell,
-                it_or_they, eat_it_anyway);
+        Sprintf(buf, "%s like %s might be poisonous!  %s",
+                foodsmell, it_or_they, eat_it_anyway);
         if (yn_function(buf, ynchars, 'n') == 'n')
             return 1;
         else
             return 2;
     }
-    if (otmp->otyp == APPLE && otmp->cursed && how_resistant(SLEEP_RES) < 100) {
+    if (otmp->otyp == APPLE && otmp->cursed
+        && how_resistant(SLEEP_RES) < 100) {
         /* causes sleep, for long enough to be dangerous */
-        Sprintf(buf, "%s like %s might have been poisoned.  %s", foodsmell,
-                it_or_they, eat_it_anyway);
+        Sprintf(buf, "%s like %s might have been poisoned.  %s",
+                foodsmell, it_or_they, eat_it_anyway);
         return (yn_function(buf, ynchars, 'n') == 'n') ? 1 : 2;
     }
     if (cadaver && !vegetarian(&mons[mnum]) && !u.uconduct.unvegetarian
