@@ -356,6 +356,7 @@ boolean resuming;
                         numdogs = 0;
                         int numties = 1;
                         struct monst *weakdog = 0;
+
                         for (struct monst *curmon = fmon; curmon; curmon = curmon->nmon) {
                             if (curmon->mtame && !(curmon->msummoned)) {
                                 ++numdogs;
@@ -662,6 +663,8 @@ boolean resuming;
                             } else if (mtmp->mpeaceful || mtmp->mtame) {
                                 setmangry(mtmp, FALSE);
                                 mtmp->mpeaceful = mtmp->mtame = 0;
+                                if (mtmp->mleashed)
+                                    m_unleash(mtmp, TRUE);
                                 if (u.usteed)
                                     dismount_steed(DISMOUNT_THROWN);
                             }
