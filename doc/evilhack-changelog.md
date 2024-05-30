@@ -3486,4 +3486,4 @@ The following changes to date are:
 - Abused pets can turn hostile when untamed
 - Limit number of pets you can have
 - Fix: unleash pets affected by wielding/wearing a bane artifact
-
+- Diluted potions of full healing heal less HP
