@@ -1447,6 +1447,10 @@ struct monst *mtmp;
     else
         mtmp->mtame--;
 
+    if (!mtmp->mtame
+        && (Aggravate_monster || Conflict || rn2(EDOG(mtmp)->abuse + 1)))
+        mtmp->mpeaceful = 0;
+
     if (mtmp->mtame && !mtmp->isminion)
         EDOG(mtmp)->abuse++;
 

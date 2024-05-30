@@ -3483,3 +3483,4 @@ The following changes to date are:
 - Small tweak to Draugr eating feedback
 - Prevent phasing in more areas of the Sanctum
 - Fix: unaligned priests were hostile to Draugr II
+- Abused pets can turn hostile when untamed
