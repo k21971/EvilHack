@@ -736,7 +736,9 @@ ma_break()
         prob -= 3;
     if (Race_if(PM_CENTAUR))
         prob -= 2;
-    if (Race_if(PM_ELF))
+    if (Race_if(PM_TORTLE) || Race_if(PM_DRAUGR))
+        prob -= 1;
+    if (Race_if(PM_ELF) || Race_if(PM_DROW))
         prob += 1;
 
     if (uarmg) {

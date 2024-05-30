@@ -3479,4 +3479,5 @@ The following changes to date are:
 - Fix: undersized buffer for dumplog conducts
 - Fix: unaligned priests were hostile to Draugr
 - Draugr gained intrinsic changes (fire res, ESP)
+- Include a few more races for boulder breaking chances
 
