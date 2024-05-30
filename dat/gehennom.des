@@ -1998,24 +1998,24 @@ GEOMETRY:center,center
 #123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
 LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
-LLLLLLLLLLLLLL----F----F----LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLLLLLLLL--------------LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 LLLLLLLLLLLLLL|............|LLLLLLLLLLLLL-------LLLLLLLLLLLLLLLLLLLLLLLLLLLL
-LLLLLLLL------|............---F-LLLLLLLLLF.....FLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+LLLLLLLL------|............-----LLLLLLLLLF.....FLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 LLLLLLLL|.....|................|LLLLLLLL--.....|LLLLLLLLLLLL--F---F--LLLLLLL
-LLLLL----.....|................-F-----LL|......----LLLLLLLLL|.......|LLLLLLL
+LLLLL----.....|................-------LL|......----LLLLLLLLL|.......|LLLLLLL
 LLLLL|........|LLLLLLLLL.........|...|LL|.........|--F----F---+---..FLLLLLLL
 LL-------.....|--------L.........--S--LL|.........|.....S........|..|LLLLLLL
 --|....|......|.......|L............|LLLF.........---S---..-----S----LLLLLLL
 |.S..|........|.......|L.........----LLL|..........|....|..|......|LLLLLLLLL
-|.|..|........|.......|L.........FLLLLLL--.......----+---S---S--..FLLLLLLLLL
+|.|..|........|.......|L.........|LLLLLL--.......----+---S---S--..FLLLLLLLLL
 --|....|......|.......|L.........|LLLLLLLF.......|.............|..|LLLLLLLLL
 LL-------.....|--------L.........|LLLLLLL-----+-------S---------S---LLLLLLLL
-LLLLL|........|LLLLLLLLL.........FLLLLLLLLLL|...F.F......|....|....|--LLLLLL
+LLLLL|........|LLLLLLLLL.........|LLLLLLLLLL|...F.F......|....|....|--LLLLLL
 LLLLL----.....|...............----LLLLLLLLLLF...-F-....------S-......FLLLLLL
 LLLLLLLL|.....|...............|LLLLLLLLLLLLL|..........|LLLL|.....----LLLLLL
-LLLLLLLL------|...........---F-LLLLLLLLLLLLL--...----F--LLLLF.....|LLLLLLLLL
+LLLLLLLL------|...........-----LLLLLLLLLLLLL--...----F--LLLLF.....|LLLLLLLLL
 LLLLLLLLLLLLLL|...........|LLLLLLLLLLLLLLLLLLF...FLLLLLLLLLL|.....FLLLLLLLLL
-LLLLLLLLLLLLLL----F----F---LLLLLLLLLLLLLLLLLL-----LLLLLLLLLL-------LLLLLLLLL
+LLLLLLLLLLLLLL-------------LLLLLLLLLLLLLLLLLL-----LLLLLLLLLL-------LLLLLLLLL
 LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 ENDMAP
 BRANCH:(01,10,01,10),(0,0,0,0)
@@ -2026,8 +2026,7 @@ REGION:(41,06,48,11),unlit,"morgue",filled,irregular
 NON_DIGGABLE:(00,00,75,19)
 # Invisible barrier separating the left & right halves of the level
 # as well as Lucifer's chamber
-NON_PASSWALL:(00,00,14,19)
-NON_PASSWALL:(37,00,39,19)
+NON_PASSWALL:(00,00,39,19)
 # Drawbridges
 DRAWBRIDGE:(38,06),west,closed
 DRAWBRIDGE:(39,06),east,closed

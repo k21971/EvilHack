@@ -3481,4 +3481,5 @@ The following changes to date are:
 - Draugr gained intrinsic changes (fire res, ESP)
 - Include a few more races for boulder breaking chances
 - Small tweak to Draugr eating feedback
+- Prevent phasing in more areas of the Sanctum
 
