@@ -3487,3 +3487,4 @@ The following changes to date are:
 - Limit number of pets you can have
 - Fix: unleash pets affected by wielding/wearing a bane artifact
 - Diluted potions of full healing heal less HP
+- Fix: Potion of full healing messaging
