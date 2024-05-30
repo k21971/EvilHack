@@ -249,7 +249,7 @@ long mask;
     if (props & ITEM_FUMBLING) {
         EFumbling &= ~mask;
         if (!EFumbling && !(HFumbling & ~TIMEOUT))
-           HFumbling = EFumbling = 0;
+            HFumbling = EFumbling = 0L;
     }
     if (props & ITEM_HUNGER)
         EHunger &= ~mask;

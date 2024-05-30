@@ -1326,6 +1326,8 @@ u_init()
     /* Draugr can only eat meaty corpses and eggs,
        start them out with some provisions */
     case PM_DRAUGR:
+        if (HFire_resistance) /* no fire res */
+            HFire_resistance = 0L;
         if (!Role_if(PM_CONVICT))
             ini_inv(Dra_food);
         if (!Role_if(PM_CONVICT)

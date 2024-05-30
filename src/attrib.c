@@ -1112,7 +1112,9 @@ int oldlevel, newlevel;
             mask = FROMRACE;
         }
         prevabil = *(abil->ability);
-        if (!(Race_if(PM_GIANT) && (abil->ability == &HStealth))) {
+        if (!(Race_if(PM_GIANT) && (abil->ability == &HStealth))
+            && !(Race_if(PM_DRAUGR) && (abil->ability == &HFire_resistance))
+            && !(Race_if(PM_DRAUGR) && (abil->ability == &HTelepat))) {
             if (oldlevel < abil->ulevel && newlevel >= abil->ulevel) {
                 /* Abilities gained at level 1 can never be lost
                  * via level loss, but can be lost by race change via

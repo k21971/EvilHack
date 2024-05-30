@@ -106,7 +106,12 @@ int which;
         val = 100;
     } else {
         val = (u.uprops[which].intrinsic & TIMEOUT);
-        if (val > 100) {
+
+        if (Race_if(PM_DRAUGR) && which == FIRE_RES && val > 50) {
+            val = 50; /* Draugr intrinsic fire res capped at 50% */
+            u.uprops[which].intrinsic &= ~TIMEOUT;
+            u.uprops[which].intrinsic |= (val | HAVEPARTIAL);
+        } else if (val > 100) {
             val = 100;
             u.uprops[which].intrinsic &= ~TIMEOUT;
             u.uprops[which].intrinsic |= (val | HAVEPARTIAL);

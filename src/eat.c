@@ -904,6 +904,7 @@ struct monst *mon;
 #define mon_has_intrinsic(intrinsic, mon) \
     (((mon)->mintrinsics | (mon)->data->mresists) & intrinsic)
     int i;
+
     for (i = 1; i <= STONE_RES; i++) {
         if (intrinsic_possible(i, ptr)
             && !mon_has_intrinsic((1 << (i - 1)), mon)) {
@@ -955,10 +956,11 @@ register struct permonst *ptr;
 {
     const char *adj;
     long percentincrease;
-    debugpline1("Attempting to give intrinsic %d", type);
 
     percentincrease = (ptr->cwt / 90);
-    if (percentincrease < 5) { percentincrease = 5; }
+
+    if (percentincrease < 5)
+        percentincrease = 5;
 
     if (percentincrease > 32) {
         adj = "much";
@@ -977,17 +979,24 @@ register struct permonst *ptr;
     switch (type) {
     /* All these use the new system, which is based on corpse weight. */
     case FIRE_RES:
-        debugpline0("Trying to give fire resistance");
+        /* Due to their undead nature, Draugr only gain intrinsic
+           fire resistance a third as much as other races per corpse,
+           and is capped at 50% resistance (see how_resistant() in
+           potion.c) */
         if ((HFire_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
-            incr_resistance(&HFire_resistance, percentincrease);
+            incr_resistance(&HFire_resistance,
+                            (Race_if(PM_DRAUGR) ? (percentincrease / 3)
+                                                : percentincrease));
             if ((HFire_resistance & TIMEOUT) == 100)
-                You(Hallucination ? "be chillin'." : "feel completely chilled.");
+                You_feel(Hallucination ? "like... so chill."
+                                       : "feel completely chilled.");
+            else if (Race_if(PM_DRAUGR) && (HFire_resistance & TIMEOUT) >= 50)
+                ; /* no feedback */
             else
                 You_feel("%s more chill.", adj);
         }
         break;
     case SLEEP_RES:
-        debugpline0("Trying to give sleep resistance");
         if ((HSleep_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
             incr_resistance(&HSleep_resistance, percentincrease);
             if ((HSleep_resistance & TIMEOUT) == 100)
@@ -997,7 +1006,6 @@ register struct permonst *ptr;
         }
         break;
     case COLD_RES:
-        debugpline0("Trying to give cold resistance");
         if ((HCold_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
             incr_resistance(&HCold_resistance, percentincrease);
             if ((HCold_resistance & TIMEOUT) == 100)
@@ -1007,17 +1015,16 @@ register struct permonst *ptr;
         }
         break;
     case DISINT_RES:
-        debugpline0("Trying to give disintegration resistance");
         if ((HDisint_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
             incr_resistance(&HDisint_resistance, percentincrease);
             if ((HDisint_resistance & TIMEOUT) == 100)
-                You_feel(Hallucination ? "totally together, man." : "completely firm.");
+                You_feel(Hallucination ? "totally together, man."
+                                       : "completely firm.");
             else
                 You_feel("%s more firm.", adj);
         }
         break;
     case SHOCK_RES: /* shock (electricity) resistance */
-        debugpline0("Trying to give shock resistance");
         if ((HShock_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
             incr_resistance(&HShock_resistance, percentincrease);
             if ((HShock_resistance & TIMEOUT) == 100)
@@ -1028,7 +1035,6 @@ register struct permonst *ptr;
         }
         break;
     case POISON_RES:
-        debugpline0("Trying to give poison resistance");
         if ((HPoison_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
             incr_resistance(&HPoison_resistance, percentincrease);
             if ((HPoison_resistance & TIMEOUT) == 100)
@@ -1038,7 +1044,6 @@ register struct permonst *ptr;
         }
         break;
     case TELEPORT:
-        debugpline0("Trying to give teleport");
         if (!(HTeleportation & (FROMOUTSIDE | FROMRACE | FROMEXPER))
             && !rn2(5)) {
             You_feel(Hallucination ? "diffuse." : "very jumpy.");
@@ -1046,7 +1051,6 @@ register struct permonst *ptr;
         }
         break;
     case TELEPORT_CONTROL:
-        debugpline0("Trying to give teleport control");
         if (!(HTeleport_control & (FROMOUTSIDE | FROMRACE | FROMEXPER))
             && !rn2(10)) {
             You_feel(Hallucination ? "centered in your personal space."
@@ -1055,7 +1059,6 @@ register struct permonst *ptr;
         }
         break;
     case TELEPAT:
-        debugpline0("Trying to give telepathy");
         if (Race_if(PM_DRAUGR))
             break;
         if (!(HTelepat & (FROMOUTSIDE | FROMRACE | FROMEXPER))) {
@@ -1068,7 +1071,7 @@ register struct permonst *ptr;
         }
         break;
     default:
-        debugpline0("Tried to give an impossible intrinsic");
+        debugpline0("Tried to give an impossible intrinsic.");
         break;
     }
 }
