@@ -3488,3 +3488,4 @@ The following changes to date are:
 - Fix: unleash pets affected by wielding/wearing a bane artifact
 - Diluted potions of full healing heal less HP
 - Fix: Potion of full healing messaging
+- Fix: don't undilute potions in set_material()

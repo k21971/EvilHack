@@ -3804,9 +3804,14 @@ int material;
 
     otmp->material = material;
     otmp->owt = weight(otmp);
-    if ((otmp->oeroded) && !is_rustprone(otmp) && !is_flammable(otmp))
+
+    /* oeroded bits are overloaded for e.g. potions. don't mess with them. */
+    if (!erosion_matters(otmp))
+        return;
+
+    if (!is_rustprone(otmp) && !is_flammable(otmp))
         otmp->oeroded = 0;
-    if ((otmp->oeroded2) && !is_corrodeable(otmp) && !is_rottable(otmp))
+    if (!is_corrodeable(otmp) && !is_rottable(otmp)  && !is_glass(otmp))
         otmp->oeroded2 = 0;
     maybe_erodeproof(otmp, otmp->oerodeproof);
 }
