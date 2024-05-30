@@ -3482,4 +3482,4 @@ The following changes to date are:
 - Include a few more races for boulder breaking chances
 - Small tweak to Draugr eating feedback
 - Prevent phasing in more areas of the Sanctum
-
+- Fix: unaligned priests were hostile to Draugr II

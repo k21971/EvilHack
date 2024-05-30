@@ -639,7 +639,8 @@ register struct monst *priest;
     if (!inhistemple(priest) || !priest->mpeaceful
         || !priest->mcanmove || priest->msleeping
         || (u.ualign.type == A_NONE && !coaligned)
-        || (!Upolyd && Race_if(PM_DRAUGR) && !coaligned)) {
+        || (!Upolyd && Race_if(PM_DRAUGR)
+            && mon_aligntyp(priest) >= A_NEUTRAL)) {
         static const char *cranky_msg[3] = {
             "Thou wouldst have words, eh?  I'll give thee a word or two!",
             "Talk?  Here is what I have to say!",
