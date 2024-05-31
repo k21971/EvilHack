@@ -3489,3 +3489,4 @@ The following changes to date are:
 - Diluted potions of full healing heal less HP
 - Fix: Potion of full healing messaging
 - Fix: don't undilute potions in set_material()
+- Object/magic detection work through all non-crystal containers
