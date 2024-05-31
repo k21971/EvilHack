@@ -142,8 +142,9 @@ int which;
     return val;
 }
 
-/* Handles the damage-reduction shuffle necessary to convert 80% resistance
- * into 20% damage (and keeps the floating-point silliness out of the main lines) */
+/* Handles the damage-reduction shuffle necessary to
+   convert 80% resistance into 20% damage (and keeps
+   the floating-point silliness out of the main lines) */
 int
 resist_reduce(amount, which)
 int amount, which;
@@ -151,9 +152,20 @@ int amount, which;
     float tmp = 100 - how_resistant(which);
 
     tmp /= 100;
+
+    /* Draugr, as most undead, are vulnerable
+       to fire, and take 1.5 times the amount
+       of damage */
+    if (!Upolyd && Race_if(PM_DRAUGR)
+        && which == AD_FIRE - 1)
+        amount = ((amount * 3) + 1) / 2;
+
+#if 0
     /* debug line */
-    /*pline("incoming: %d  outgoing: %d",
-            amount, (int) ((float) amount * tmp));*/
+    pline("incoming: %d  outgoing: %d",
+          amount, (int) ((float) amount * tmp));
+#endif
+
     return (int) ((float) amount * tmp);
 }
 

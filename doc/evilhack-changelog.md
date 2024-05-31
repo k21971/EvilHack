@@ -3493,3 +3493,5 @@ The following changes to date are:
   Valley of the Dead as Draugr
 - Fix: Draugr should not be affected by hellfire
 - Object/magic detection work through all non-crystal containers
+- Draugr are properly vulnerable to fire
+

@@ -3191,7 +3191,8 @@ int final;
                 from_what(HALLUC_RES));
     if (u.uedibility)
         you_can("recognize detrimental food", "");
-    if (Vulnerable_fire)
+    if (Vulnerable_fire
+        || (!Upolyd && Race_if(PM_DRAUGR)))
         you_are("vulnerable to fire", from_what(VULN_FIRE));
     if (Vulnerable_cold)
         you_are("vulnerable to cold", from_what(VULN_COLD));
