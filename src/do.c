@@ -1915,7 +1915,12 @@ boolean at_stairs, falling, portal;
 #endif
             if (!Deaf)
                 You_hear("groans and moans everywhere.");
-            You("feel unable to rest or recuperate here.");
+            if (!Upolyd && Race_if(PM_DRAUGR)) {
+                ; /* Draugr that are not poly'd into another form
+                     can still regenerate hit points */
+            } else {
+                You("feel unable to rest or recuperate here.");
+            }
         } else
             pline("It is hot here.  You smell smoke...");
     }

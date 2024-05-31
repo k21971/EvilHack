@@ -3489,4 +3489,8 @@ The following changes to date are:
 - Diluted potions of full healing heal less HP
 - Fix: Potion of full healing messaging
 - Fix: don't undilute potions in set_material()
+- Fix: tweak message about recuperation when entering the
+  Valley of the Dead as Draugr
+- Fix: Draugr should not be affected by hellfire
+
 - Object/magic detection work through all non-crystal containers
