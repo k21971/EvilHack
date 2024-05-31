@@ -3492,5 +3492,4 @@ The following changes to date are:
 - Fix: tweak message about recuperation when entering the
   Valley of the Dead as Draugr
 - Fix: Draugr should not be affected by hellfire
-
 - Object/magic detection work through all non-crystal containers
