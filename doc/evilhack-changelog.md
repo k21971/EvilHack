@@ -3494,4 +3494,6 @@ The following changes to date are:
 - Fix: Draugr should not be affected by hellfire
 - Object/magic detection work through all non-crystal containers
 - Draugr are properly vulnerable to fire
+- Fix: Infidel Draugr kept getting fire resistance back after
+  save/reload
 

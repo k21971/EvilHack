@@ -54,23 +54,27 @@ set_uasmon()
             u.uprops[PropIndx].intrinsic &= ~FROMFORM; \
     } while (0)
 
-    PROPSET(FIRE_RES, resists_fire(&youmonst));
-    PROPSET(COLD_RES, resists_cold(&youmonst));
-    PROPSET(SLEEP_RES, resists_sleep(&youmonst));
-    PROPSET(DISINT_RES, resists_disint(&youmonst));
-    PROPSET(SHOCK_RES, resists_elec(&youmonst));
-    PROPSET(POISON_RES, resists_poison(&youmonst));
-    PROPSET(ACID_RES, resists_acid(&youmonst));
-    PROPSET(STONE_RES, resists_ston(&youmonst));
-    PROPSET(PSYCHIC_RES, resists_psychic(&youmonst));
-    PROPSET(DRAIN_RES, resists_drain(racedat));
-    PROPSET(STUN_RES, resists_stun(racedat));
+    /* if not polyd, don't set role monster resistances,
+       they are already handled by attrib.c code */
+    if (Upolyd) {
+        PROPSET(FIRE_RES, resists_fire(&youmonst));
+        PROPSET(COLD_RES, resists_cold(&youmonst));
+        PROPSET(SLEEP_RES, resists_sleep(&youmonst));
+        PROPSET(DISINT_RES, resists_disint(&youmonst));
+        PROPSET(SHOCK_RES, resists_elec(&youmonst));
+        PROPSET(POISON_RES, resists_poison(&youmonst));
+        PROPSET(ACID_RES, resists_acid(&youmonst));
+        PROPSET(STONE_RES, resists_ston(&youmonst));
+        PROPSET(PSYCHIC_RES, resists_psychic(&youmonst));
+        PROPSET(DRAIN_RES, resists_drain(racedat));
+        PROPSET(STUN_RES, resists_stun(racedat));
 
-    /* Vulnerablilties */
-    PROPSET(VULN_FIRE, vulnerable_to(&youmonst, AD_FIRE));
-    PROPSET(VULN_COLD, vulnerable_to(&youmonst, AD_COLD));
-    PROPSET(VULN_ELEC, vulnerable_to(&youmonst, AD_ELEC));
-    PROPSET(VULN_ACID, vulnerable_to(&youmonst, AD_ACID));
+        /* Vulnerablilties */
+        PROPSET(VULN_FIRE, vulnerable_to(&youmonst, AD_FIRE));
+        PROPSET(VULN_COLD, vulnerable_to(&youmonst, AD_COLD));
+        PROPSET(VULN_ELEC, vulnerable_to(&youmonst, AD_ELEC));
+        PROPSET(VULN_ACID, vulnerable_to(&youmonst, AD_ACID));
+    }
 
     PROPSET(ANTIMAGIC, resists_mgc(mdat));
     PROPSET(SICK_RES, ptr_resists_sick(mdat));
