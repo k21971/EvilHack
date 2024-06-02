@@ -207,9 +207,12 @@ long mask;
         EHunger |= mask;
     if (props & ITEM_EXCEL) {
         int which = A_CHA, old_attrib = ACURR(which);
-        /* borrowing this from Ring_on() as I may want
-           to add other attributes in the future */
-        ABON(which) += otmp->spe;
+        /* HoB and GoD adjust CHA in adj_abon() */
+        if (otmp->otyp != HELM_OF_BRILLIANCE
+            && otmp->otyp != GAUNTLETS_OF_DEXTERITY)
+            /* borrowing this from Ring_on() as I may want
+               to add other attributes in the future */
+            ABON(which) += otmp->spe;
         if (old_attrib != ACURR(which))
             otmp->oprops_known |= ITEM_EXCEL;
         set_moreluck();
@@ -255,9 +258,12 @@ long mask;
         EHunger &= ~mask;
     if (props & ITEM_EXCEL) {
         int which = A_CHA, old_attrib = ACURR(which);
-        /* borrowing this from Ring_off() as I may want
-           to add other attributes in the future */
-        ABON(which) -= otmp->spe;
+        /* HoB and GoD adjust CHA in adj_abon() */
+        if (otmp->otyp != HELM_OF_BRILLIANCE
+            && otmp->otyp != GAUNTLETS_OF_DEXTERITY)
+            /* borrowing this from Ring_off() as I may want
+               to add other attributes in the future */
+            ABON(which) -= otmp->spe;
         if (old_attrib != ACURR(which))
             otmp->oprops_known |= ITEM_EXCEL;
         otmp->oprops &= ~ITEM_EXCEL;
@@ -3710,6 +3716,17 @@ register schar delta;
             makeknown(uarmh->otyp);
             ABON(A_INT) += (delta);
             ABON(A_WIS) += (delta);
+        }
+        context.botl = 1;
+    }
+    if (otmp && (otmp->oprops & ITEM_EXCEL) && (otmp->owornmask & W_ARMOR)) {
+        if (delta) {
+            int which = A_CHA,
+                old_attrib = ACURR(which);
+            ABON(which) += (delta);
+            if (old_attrib != ACURR(which))
+                otmp->oprops_known |= ITEM_EXCEL;
+            set_moreluck();
         }
         context.botl = 1;
     }

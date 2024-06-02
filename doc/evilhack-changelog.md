@@ -3496,4 +3496,4 @@ The following changes to date are:
 - Draugr are properly vulnerable to fire
 - Fix: Infidel Draugr kept getting fire resistance back after
   save/reload
-
+- Fix: Enchanting armor of excellence didn't adjust charisma
