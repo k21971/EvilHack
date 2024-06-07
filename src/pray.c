@@ -1743,7 +1743,8 @@ dosacrifice()
 
         if (your_race(ptr)
             || (Race_if(PM_ELF) && is_drow(ptr))
-            || (Race_if(PM_DROW) && is_elf(ptr))) {
+            || (Race_if(PM_DROW) && is_elf(ptr))
+            || (Race_if(PM_DRAUGR) && otmp->zombie_corpse)) {
             if (is_demon(raceptr(&youmonst))) {
                 You("find the idea very satisfying.");
                 exercise(A_WIS, TRUE);

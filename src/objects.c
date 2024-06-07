@@ -729,9 +729,9 @@ OBJECT(OBJ("Amulet of Yendor", /* note: description == name */
     OBJECT(OBJ(name, desc),                                             \
            BITS(kn, 0, chg, 1, mgc, chg, 0, 0, 0, 0, 0, P_NONE, mat),   \
            0, TOOL_CLASS, prob, 0, wt, cost, 0, 0, 0, 0, wt, color)
-#define WEPTOOL(name,desc,kn,mgc,bi,prob,wt,cost,sdam,ldam,hitbon,sub,mat,clr) \
+#define WEPTOOL(name,desc,kn,mgc,bi,prob,wt,cost,sdam,ldam,hitbon,typ,sub,mat,clr) \
     OBJECT(OBJ(name, desc),                                             \
-           BITS(kn, 0, 1, 0, mgc, 1, 0, 0, bi, 0, hitbon, sub, mat),    \
+           BITS(kn, 0, 1, 0, mgc, 1, 0, 0, bi, 0, typ, sub, mat),    \
            0, TOOL_CLASS, prob, 0, wt, cost, sdam, ldam, hitbon, 0, wt, clr)
 /* containers */
 CONTAINER("large box",        None, 1, 0, 0, 40, 350,   8, WOOD, HI_WOOD),
@@ -813,11 +813,11 @@ TOOL("leather drum",      "drum", 0, 0, 0, 0,   4,  25,  25, LEATHER, HI_LEATHER
 TOOL("drum of earthquake","drum", 0, 0, 1, 1,   2,  25,  25, LEATHER, HI_LEATHER),
 /* tools useful as weapons */
 WEPTOOL("pick-axe", None,
-        1, 0, 0, 20, 100,  50,  6,  3, WHACK,  P_PICK_AXE, IRON, HI_METAL),
+        1, 0, 0, 20, 100,  50,  6,  3, 0, WHACK,  P_PICK_AXE, IRON, HI_METAL),
 WEPTOOL("grappling hook", "iron hook",
-        0, 0, 0,  5,  30,  50,  2,  6, WHACK,  P_FLAIL,    IRON, HI_METAL),
+        0, 0, 0,  5,  30,  50,  2,  6, 0, WHACK,  P_FLAIL,    IRON, HI_METAL),
 WEPTOOL("unicorn horn", None,
-        1, 1, 0,  0,  20, 100,  8, 10, PIERCE, P_UNICORN_HORN, BONE, CLR_WHITE),
+        1, 1, 0,  0,  20, 100,  8, 10, 1, PIERCE, P_UNICORN_HORN, BONE, CLR_WHITE),
         /* 3.4.1: unicorn horn left classified as "magic" */
 /* two unique tools;
  * not artifacts, despite the comment which used to be here

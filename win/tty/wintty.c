@@ -1173,13 +1173,32 @@ int role, gend, algn;
                 high_ch = 0;
         }
 
-        /* filtering: picking race, so choose by first letter, with
-           capital letter as unseen accelerator;
-           !filtering: resetting filter rather than picking, choose by
-           capital letter since lowercase role letters will be present */
-        add_menu(win, NO_GLYPH, &any,
-                 filtering ? this_ch : high_ch,
-                 filtering ? high_ch : 0,
+        /* modify some this_chs when filtering to avoid conflict with roles */
+        if (!filtering) {
+            if (!strcmp(races[i].noun, "human")) {
+                /* healer/Hobbit are taken. 'uman? */
+                this_ch = 'u';
+                high_ch = 0;
+            } else if (!strcmp(races[i].noun, "illithid")) {
+                /* infidel is taken */
+                this_ch = 'I';
+                high_ch = 0;
+            } else if (!strcmp(races[i].noun, "tortle")) {
+                /* tourist is taken */
+                this_ch = 'T';
+                high_ch = 0;
+            } else if (!strcmp(races[i].noun, "centaur")) {
+                /* cavefolk/Convict are taken. they have 4 legs? */
+                this_ch = '4';
+                high_ch = 0;
+            } else if (!strcmp(races[i].noun, "dwarf")) {
+                /* druid/Drow are taken. Urist? */
+                this_ch = 'U';
+                high_ch = 0;
+            }
+        }
+
+        add_menu(win, NO_GLYPH, &any, this_ch, high_ch,
                  ATR_NONE, races[i].noun,
                  (!filtering && !race_ok) ? MENU_SELECTED : MENU_UNSELECTED);
     }
@@ -1228,7 +1247,7 @@ int role, race, gend;
     anything any;
     boolean algn_ok;
     int i;
-    char this_ch;
+    char this_ch, alt_ch;
 
     any = zeroany;
     for (i = 0; i < ROLE_ALIGNS; i++) {
@@ -1243,10 +1262,12 @@ int role, race, gend;
         else
             any.a_string = aligns[i].adj;
         this_ch = *aligns[i].adj;
+        /* alternate characters to avoid conflict with races/roles */
+        alt_ch = (i == 0) ? '+' : (i == 1) ? '=' : '-';
         /* (see setup_racemenu for explanation of selector letters
            and setup_rolemenu for preselection) */
         add_menu(win, NO_GLYPH, &any,
-                 filtering ? this_ch : highc(this_ch),
+                 filtering ? this_ch : alt_ch,
                  filtering ? highc(this_ch) : 0,
                  ATR_NONE, aligns[i].adj,
                  (!filtering && !algn_ok) ? MENU_SELECTED : MENU_UNSELECTED);
