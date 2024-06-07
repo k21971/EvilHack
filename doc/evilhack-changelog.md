@@ -3497,3 +3497,4 @@ The following changes to date are:
 - Fix: Infidel Draugr kept getting fire resistance back after
   save/reload
 - Fix: Enchanting armor of excellence didn't adjust charisma
+- Fix: tty character selection filtering menu
