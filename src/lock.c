@@ -568,6 +568,12 @@ struct obj *container; /* container, for autounlock */
                     }
                 }
 
+                /* stethoscopes only work on safes */
+                if (picktyp == STETHOSCOPE && otmp->otyp != IRON_SAFE) {
+                    You("cannot open such a container with a stethoscope.");
+                    return PICKLOCK_LEARNED_SOMETHING;
+                }
+
                 /* crystal chest can only be opened by artifacts */
                 if (otmp->otyp == CRYSTAL_CHEST && !pick->oartifact) {
                     You_cant("%s %ssuch a container with a mundane %s.",
