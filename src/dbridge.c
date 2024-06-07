@@ -520,8 +520,7 @@ int xkill_flags, how;
             if (steed)
                 monkilled(steed,
                           mk_message(xkill_flags), mk_corpse(xkill_flags));
-        }
-        else { /* you caused it */
+        } else { /* you caused it */
             xkilled(etmp->emon, xkill_flags);
             if (steed)
                 xkilled(steed, xkill_flags);

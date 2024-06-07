@@ -570,7 +570,7 @@ struct obj *container; /* container, for autounlock */
 
                 /* stethoscopes only work on safes */
                 if (picktyp == STETHOSCOPE && otmp->otyp != IRON_SAFE) {
-                    You("cannot open such a container with a stethoscope.");
+                    You_cant("open such a container with a stethoscope.");
                     return PICKLOCK_LEARNED_SOMETHING;
                 }
 
