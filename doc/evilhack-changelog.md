@@ -3503,4 +3503,6 @@ The following changes to date are:
 - Fix: blunt weptools had +4 TH bonus
 - Count corpses left by zombies for draugr same-race sacrifice
 - Minor formatting tweaks to last PR
+- Fix: peaceful underline glyph not clearing for shopkeepers
+  when rile_shk() routine was called
 
