@@ -3501,3 +3501,4 @@ The following changes to date are:
 - Fix: drawbridges crush both rider and steed
 - Fix: stethoscopes shouldn't open chests
 - Fix: blunt weptools had +4 TH bonus
+- Count corpses left by zombies for draugr same-race sacrifice
