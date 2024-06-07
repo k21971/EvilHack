@@ -3498,3 +3498,4 @@ The following changes to date are:
   save/reload
 - Fix: Enchanting armor of excellence didn't adjust charisma
 - Fix: tty character selection filtering menu
+- Fix: drawbridges crush both rider and steed

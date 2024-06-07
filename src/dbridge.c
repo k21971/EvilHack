@@ -505,16 +505,27 @@ int xkill_flags, how;
     } else {
         int entitycnt;
 
+        struct monst *steed = 0;
+        if (has_erid(etmp->emon))
+            steed = ERID(etmp->emon)->mon_steed;
+
         killer.name[0] = 0;
 /* fake "digested to death" damage-type suppresses corpse */
 #define mk_message(dest) (((dest & XKILL_NOMSG) != 0) ? (char *) 0 : "")
 #define mk_corpse(dest) (((dest & XKILL_NOCORPSE) != 0) ? AD_DGST : AD_PHYS)
         /* if monsters are moving, one of them caused the destruction */
-        if (context.mon_moving)
+        if (context.mon_moving) {
             monkilled(etmp->emon,
                       mk_message(xkill_flags), mk_corpse(xkill_flags));
-        else /* you caused it */
+            if (steed)
+                monkilled(steed,
+                          mk_message(xkill_flags), mk_corpse(xkill_flags));
+        }
+        else { /* you caused it */
             xkilled(etmp->emon, xkill_flags);
+            if (steed)
+                xkilled(steed, xkill_flags);
+        }
         etmp->edata = (struct permonst *) 0;
 
         /* dead long worm handling */
