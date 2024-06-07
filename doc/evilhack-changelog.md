@@ -3500,3 +3500,4 @@ The following changes to date are:
 - Fix: tty character selection filtering menu
 - Fix: drawbridges crush both rider and steed
 - Fix: stethoscopes shouldn't open chests
+- Fix: blunt weptools had +4 TH bonus
