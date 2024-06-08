@@ -3508,4 +3508,6 @@ The following changes to date are:
 - Fix: bracers should not be a suitable target when applying
   a dwarvish bearded axe towards the player or a monster
 - Fix: crash in relation to tainted (drow poison) objects
+- Fix: elemental damage from the Hand of Vecna and other sources
+  was suppressing almost all damage if target resisted
 

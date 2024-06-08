@@ -1722,7 +1722,7 @@ int dieroll;
 
     /* wearing red dragon-scaled armor gives the wearer
        a slight damage boost */
-    if (uarm && Is_dragon_scaled_armor(uarm)
+    if (!destroyed && uarm && Is_dragon_scaled_armor(uarm)
         && Dragon_armor_to_scales(uarm) == RED_DRAGON_SCALES)
         tmp += rnd(6);
 
@@ -1736,48 +1736,45 @@ int dieroll;
 
     /* wielding The Sword of Kas against Vecna does
        triple damage. Has to be wielded in primary hand */
-    if (uwep && uwep->oartifact == ART_SWORD_OF_KAS
+    if (!destroyed && uwep
+        && uwep->oartifact == ART_SWORD_OF_KAS
         && mon && mdat == &mons[PM_VECNA])
         tmp *= 3;
 
     /* Even though the Sword of Kas is attuned to Vecna,
        it does extra harm to creatures that draw their
        power from him also */
-    if (uwep && uwep->oartifact == ART_SWORD_OF_KAS && mon
+    if (!destroyed && uwep
+        && uwep->oartifact == ART_SWORD_OF_KAS && mon
         && (mdat == &mons[PM_LICH] || mdat == &mons[PM_DEMILICH]
             || mdat == &mons[PM_MASTER_LICH] || mdat == &mons[PM_ARCH_LICH]
             || mdat == &mons[PM_ALHOON]))
         tmp *= 2;
 
     /* The Hand of Vecna imparts cold damage to attacks,
-       whether bare-handed or wielding a weapon */
+       whether bare-handed or wielding a weapon. Cold
+       damage feedback is placed further down */
     if (!destroyed && uarmg
         && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
-        if (!Blind)
-            pline("%s covers %s in frost!", The(xname(uarmg)),
-                  mon_nam(mon));
         if (resists_cold(mon) || defended(mon, AD_COLD)) {
             shieldeff(mon->mx, mon->my);
-            if (!Blind)
-                pline_The("frost doesn't chill %s!", mon_nam(mon));
             golemeffects(mon, AD_COLD, tmp);
-            tmp = 0;
         } else {
             (void) destroy_mitem(mon, POTION_CLASS, AD_COLD);
             tmp += rnd(5) + 7; /* 8-12 hit points of cold damage */
         }
-        hittxt = TRUE;
     }
 
     /* if lawful, trained in martial arts, and wearing the
        Gauntlets of Purity, get a damage bonus when attacking
        unarmed */
-    if (actually_unarmed && P_SKILL(P_MARTIAL_ARTS)
+    if (!destroyed && actually_unarmed && P_SKILL(P_MARTIAL_ARTS)
         && u.ualign.type == A_LAWFUL && martial_bonus()
         && uarmg && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY)
         tmp += rnd(4) + 2;
 
-    /* burning hands spell */
+    /* burning hands spell, fire damage feedback and usage
+       tracking is placed further down */
     if (!destroyed && u.umburn
         && hand_to_hand && actually_unarmed && !thievery) {
         int enchant_skill = ((P_SKILL(P_ENCHANTMENT_SPELL) >= P_EXPERT)
@@ -1785,20 +1782,11 @@ int dieroll;
                                ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
                                  ? 2 : 1);
 
-        nohandburn();
         if (resists_fire(mon) || defended(mon, AD_FIRE)
             || mon_underwater(mon)) {
             shieldeff(mon->mx, mon->my);
-            if (!Blind)
-                Your("%s don't burn %s!",
-                     makeplural(body_part(HAND)),
-                     mon_nam(mon));
             golemeffects(mon, AD_FIRE, tmp);
-            tmp = 0;
         } else {
-            You("burn %s with your %s!", mon_nam(mon),
-                 makeplural(body_part(HAND)));
-
             if (!rn2(4))
                 (void) destroy_mitem(mon, POTION_CLASS, AD_FIRE);
             if (!rn2(4))
@@ -1808,17 +1796,15 @@ int dieroll;
 
             if (completelyburns(mon->data) || is_wooden(mon->data)
                 || mon->data == &mons[PM_GREEN_SLIME]) {
-                if (!already_killed)
-                    pline("%s ignites and turns to ash!", Monnam(mon));
-                destroyed = TRUE; /* return FALSE; */
+                ; /* handled below */
             } else {
                 tmp += d(enchant_skill, 4);
             }
         }
-        hittxt = TRUE;
     }
 
-    /* shocking grasp spell */
+    /* shocking grasp spell, electric damage feedback
+       and usage tracking is placed further down */
     if (!destroyed && u.umshock
         && hand_to_hand && actually_unarmed && !thievery) {
         int enchant_skill = ((P_SKILL(P_ENCHANTMENT_SPELL) >= P_EXPERT)
@@ -1826,19 +1812,10 @@ int dieroll;
                                ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
                                  ? 2 : 1);
 
-        nohandshock();
         if (resists_elec(mon) || defended(mon, AD_ELEC)) {
             shieldeff(mon->mx, mon->my);
-            if (!Blind)
-                Your("%s don't shock %s!",
-                     makeplural(body_part(HAND)),
-                     mon_nam(mon));
             golemeffects(mon, AD_ELEC, tmp);
-            tmp = 0;
         } else {
-            You("shock %s with your %s!", mon_nam(mon),
-                 makeplural(body_part(HAND)));
-
             if (!rn2(4))
                 (void) destroy_mitem(mon, WAND_CLASS, AD_ELEC);
             if (!rn2(5))
@@ -1846,7 +1823,6 @@ int dieroll;
 
             tmp += d(enchant_skill, 6);
         }
-        hittxt = TRUE;
     }
 
     if (valid_weapon_attack) {
@@ -2118,6 +2094,59 @@ int dieroll;
         pline(fmt, whom);
     }
 
+    /* feedback when 'wearing' the Hand of Vecna, placed here
+       due to order of events */
+    if (!destroyed && uarmg
+        && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
+        if (!Blind)
+            pline("%s covers %s in frost!", The(xname(uarmg)),
+                  mon_nam(mon));
+        if (resists_cold(mon) || defended(mon, AD_COLD)) {
+            if (!Blind)
+                pline_The("frost doesn't chill %s!", mon_nam(mon));
+        }
+    }
+
+    /* burning hands spell feedback, placed here
+       due to order of events */
+    if (!destroyed && u.umburn
+        && hand_to_hand && actually_unarmed && !thievery) {
+        if (resists_fire(mon) || defended(mon, AD_FIRE)
+            || mon_underwater(mon)) {
+            if (!Blind)
+                Your("%s don't burn %s!",
+                     makeplural(body_part(HAND)),
+                     mon_nam(mon));
+        } else {
+            You("burn %s with your %s!", mon_nam(mon),
+                 makeplural(body_part(HAND)));
+
+            if (completelyburns(mon->data) || is_wooden(mon->data)
+                || mon->data == &mons[PM_GREEN_SLIME]) {
+                if (!already_killed)
+                    pline("%s ignites and turns to ash!", Monnam(mon));
+                destroyed = TRUE; /* return FALSE; */
+            }
+        }
+        nohandburn();
+    }
+
+    /* shocking grasp spell feedback, placed here
+       due to order of events */
+    if (!destroyed && u.umshock
+        && hand_to_hand && actually_unarmed && !thievery) {
+        if (resists_elec(mon) || defended(mon, AD_ELEC)) {
+            if (!Blind)
+                Your("%s don't shock %s!",
+                     makeplural(body_part(HAND)),
+                     mon_nam(mon));
+        } else {
+            You("shock %s with your %s!", mon_nam(mon),
+                 makeplural(body_part(HAND)));
+        }
+        nohandshock();
+    }
+
     /* Weapons have a chance to id after a certain number of kills with
        them. The more powerful a weapon, the lower this chance is. This
        way, there is uncertainty about when a weapon will ID, but spoiled
@@ -2222,13 +2251,15 @@ int dieroll;
 
 #if 0
     /* debug pline to verify damage dealt from whatever
-       object hits its target */
+       object or unarmed attack hits its target */
     if (wizard) {
         /* check that an obj exists (e.g. attacking with a potion,
            or a glass dagger, or something else that could get
            used up) */
-        if (obj)
-            pline("Damage from %s: %d.", simpleonames(obj), tmp);
+        if (obj || actually_unarmed)
+            pline("Damage from %s: %d.",
+                  obj ? simpleonames(obj)
+                      : makeplural(body_part(HAND)), tmp);
     }
 #endif
 
