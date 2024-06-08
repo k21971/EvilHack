@@ -2675,7 +2675,8 @@ struct monst *mtmp;
             /* the random test prevents axe-wielding
                monster from attempting shield removal every
                turn - shields are harder to disarm than weapons */
-            && uarms && !rn2(7) && obj == MON_WEP(mtmp)
+            && (uarms && !is_bracer(uarms))
+            && !rn2(7) && obj == MON_WEP(mtmp)
             /* hero's location must be known and adjacent */
             && mtmp->mux == u.ux && mtmp->muy == u.uy
             && distu(mtmp->mx, mtmp->my) <= 2
@@ -2849,7 +2850,8 @@ struct obj *start;
             /* the random test prevents axe-wielding
                monster from attempting shield removal every
                turn - shields are harder to disarm than weapons */
-            && uarms && !rn2(7) && obj == MON_WEP(mtmp)
+            && (uarms && !is_bracer(uarms))
+            && !rn2(7) && obj == MON_WEP(mtmp)
             /* hero's location must be known and adjacent */
             && mtmp->mux == u.ux && mtmp->muy == u.uy
             && distu(mtmp->mx, mtmp->my) <= 2
@@ -3333,7 +3335,7 @@ struct monst *mtmp;
             const char *hand;
             char the_shield[BUFSZ];
 
-            if (!obj)
+            if (!obj || is_bracer(obj))
                 break; /* shouldn't happen after find_misc() */
 
             Strcpy(the_shield, the(xname(obj)));

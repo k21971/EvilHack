@@ -3505,4 +3505,6 @@ The following changes to date are:
 - Minor formatting tweaks to last PR
 - Fix: peaceful underline glyph not clearing for shopkeepers
   when rile_shk() routine was called
+- Fix: bracers should not be a suitable target when applying
+  a dwarvish bearded axe towards the player or a monster
 

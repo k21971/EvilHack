@@ -3486,6 +3486,13 @@ struct obj *obj;
             const char *mon_hand;
             boolean gotit = proficient && (!Fumbling || !rn2(10));
 
+            if (is_bracer(otmp)) {
+                You("swing your axe towards %s.", mon_nam(mtmp));
+                pline("%s %s deflects your attack!",
+                      s_suffix(Monnam(mtmp)), xname(otmp));
+                return res; /* bracers are not a valid target */
+            }
+
             Strcpy(onambuf, cxname(otmp));
             if (gotit) {
                 mon_hand = mbodypart(mtmp, HAND);
