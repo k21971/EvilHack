@@ -2164,7 +2164,7 @@ int dieroll;
             obj->oprops_known |= ITEM_VENOM;
             update_inventory();
         }
-    } else if (taintsleep) {
+    } else if (taintsleep && !destroyed) {
         if (sleep_monst(mon, rn2(3) + 2, WEAPON_CLASS)) {
             pline("%s loses consciousness.", Monnam(mon));
             slept_monst(mon);
@@ -2182,8 +2182,10 @@ int dieroll;
         }
     }
 
-    if (DEADMONSTER(mon) && !ispotion && obj /* potion obj will have been freed by here */
-        && (obj == uwep || (u.twoweap && obj == uswapwep)) && issecespita
+    if (destroyed && !ispotion && obj /* potion obj will have been freed by here */
+        && (obj == uwep
+            || (u.twoweap && obj == uswapwep))
+        && issecespita
         && !nonliving(mdat) && u.uen < u.uenmax) {
         int energy = mon->m_lev + 1;
 
