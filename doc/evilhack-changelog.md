@@ -3510,4 +3510,5 @@ The following changes to date are:
 - Fix: crash in relation to tainted (drow poison) objects
 - Fix: elemental damage from the Hand of Vecna and other sources
   was suppressing almost all damage if target resisted
+- Fix: You feel feel completely chilled
 

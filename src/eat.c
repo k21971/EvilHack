@@ -990,7 +990,7 @@ register struct permonst *ptr;
                                                 : percentincrease));
             if ((HFire_resistance & TIMEOUT) == 100)
                 You_feel(Hallucination ? "like... so chill."
-                                       : "feel completely chilled.");
+                                       : "completely chilled.");
             else if (Race_if(PM_DRAUGR) && (HFire_resistance & TIMEOUT) >= 50)
                 ; /* no feedback */
             else
