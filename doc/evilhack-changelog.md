@@ -3511,4 +3511,6 @@ The following changes to date are:
 - Fix: elemental damage from the Hand of Vecna and other sources
   was suppressing almost all damage if target resisted
 - Fix: You feel feel completely chilled
+- Fix: players were keeping intrinsics gained from subsequent
+  polyform
 

@@ -299,7 +299,8 @@ struct monst *mtmp;
             rptr->mattk[1].aatyp = AT_MAGC;
             rptr->mattk[1].adtyp = AD_SPEL;
         }
-        mtmp->mintrinsics |= MR_FIRE;
+        if (rptr->mrace != MH_ZOMBIE)
+            mtmp->mintrinsics |= MR_FIRE;
         break;
     case PM_KNIGHT:
         /* nothing special based on role */

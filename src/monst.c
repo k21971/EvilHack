@@ -3953,7 +3953,7 @@ struct permonst _mons2[] = {
     MON("infidel", S_HUMAN, LVL(10, 12, 10, 2, A_NONE), (1),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
-        SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), MR_FIRE, 0,
+        SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN), 0, 0,
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE, 0,
         MH_HUMAN, 12, CLR_YELLOW),
