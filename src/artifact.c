@@ -974,13 +974,13 @@ long wp_mask;
                     context.warntype.obj |= spec_mh(obj);
                 }
             }
-            see_monsters();
         } else {
             if (on)
                 EWarning |= wp_mask;
             else
                 EWarning &= ~wp_mask;
         }
+        see_monsters();
     }
     if (spfx & SPFX_EREGEN) {
         if (on)

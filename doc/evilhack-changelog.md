@@ -3513,4 +3513,4 @@ The following changes to date are:
 - Fix: You feel feel completely chilled
 - Fix: players were keeping intrinsics gained from subsequent
   polyform
-
+- Fix: unwielding weapons of warning didn't clear warning symbols
