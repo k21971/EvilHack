@@ -2765,13 +2765,14 @@ role_init()
 
     /* Initialize urole and urace */
     urole = roles[flags.initrole];
-    if (u.uevent.uhand_of_elbereth == 4) { /* crowned as a demon */
+    urace = races[flags.initrace];
+    if (u.uevent.uhand_of_elbereth == 4
+        && !Race_if(PM_DRAUGR)) { /* crowned as a demon */
         urace = race_demon;
         /* mental faculties are not changed by demonization */
         urace.attrmax[A_INT] = races[flags.initrace].attrmax[A_INT];
         urace.attrmax[A_WIS] = races[flags.initrace].attrmax[A_WIS];
-    } else
-        urace = races[flags.initrace];
+    }
 
     /* kick it over to alternate-alignment role */
     if (alignmnt == A_CHAOTIC && Role_if(PM_KNIGHT)

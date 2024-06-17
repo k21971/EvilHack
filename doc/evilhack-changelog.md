@@ -3514,3 +3514,5 @@ The following changes to date are:
 - Fix: players were keeping intrinsics gained from subsequent
   polyform
 - Fix: unwielding weapons of warning didn't clear warning symbols
+- Fix: crowned Infidel Draugr would become demons after save/reload
+

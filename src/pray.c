@@ -942,8 +942,8 @@ gcrownu()
                 retouch_equipment(2); /* silver */
                 monstseesu(M_SEEN_FIRE | M_SEEN_POISON | M_SEEN_SLEEP);
             }
-            break;
         }
+        break;
     }
 
     if (objects[class_gift].oc_class == SPBOOK_CLASS) {
