@@ -2625,7 +2625,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     *dmgptr = ((2 * u.mh) + FATAL_DAMAGE_MODIFIER);
                 } else {
                     killer.format = NO_KILLER_PREFIX;
-                    Sprintf(killer.name, "incinerated by %s", xname(otmp));
+                    /* specifically name Sunsword */
+                    Sprintf(killer.name, "incinerated by Sunsword");
                     done(INCINERATED);
                 }
             } else
@@ -2747,7 +2748,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     *dmgptr = ((2 * u.mh) + FATAL_DAMAGE_MODIFIER);
                 } else {
                     killer.format = NO_KILLER_PREFIX;
-                    Sprintf(killer.name, "incinerated by %s", xname(otmp));
+                    /* specifically name the Hammer of the Gods */
+                    Sprintf(killer.name,
+                            "incinerated by the Hammer of the Gods");
                     done(INCINERATED);
                 }
             } else
