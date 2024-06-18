@@ -1312,7 +1312,10 @@ boolean wiz_cast;
                  * spelleffects() is organized means that aborting with
                  * "nevermind" is not an option.
                  */
-                pline_The("magical energy is released!");
+                if (otyp == SPE_PSIONIC_WAVE)
+                    pline_The("psionic energy is released!");
+                else
+                    pline_The("magical energy is released!");
             }
             if (!u.dx && !u.dy && !u.dz) {
                 if ((damage = zapyourself(pseudo, TRUE)) != 0) {

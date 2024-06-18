@@ -3518,4 +3518,6 @@ The following changes to date are:
 - Fix: closet trap engravings
 - Fix: grammar/death reason if the player is incinerated by Sunsword
   or the Hammer of the Gods
+- Fix: 'The magical energy is released!' with non-directional
+  psionic wave
 
