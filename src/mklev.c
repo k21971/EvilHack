@@ -583,10 +583,10 @@ static NEARDATA const char *trap_engravings[TRAPNUM] = {
     (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
     (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
     (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
-    /* 15..17: trap door, teleport, level-teleport */
-    "Vlad was here", "ad aerarium", "ad aerarium", (char *) 0, (char *) 0,
+    /* 16..18: trap door, teleport, level-teleport */
+    (char *) 0, "Vlad was here", "ad aerarium", "ad aerarium", (char *) 0,
     (char *) 0,      (char *) 0,    (char *) 0,    (char *) 0, (char *) 0,
-    (char *) 0,      (char *) 0,
+    (char *) 0,      (char *) 0,    (char *) 0,
 };
 
 STATIC_OVL void
