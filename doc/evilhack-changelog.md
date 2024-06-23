@@ -3520,4 +3520,5 @@ The following changes to date are:
   or the Hammer of the Gods
 - Fix: 'The magical energy is released!' with non-directional
   psionic wave
+- Fix: crowned centaur infidels should be able to train riding
 

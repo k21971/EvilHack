@@ -909,6 +909,13 @@ gcrownu()
             verbalize("Thou shalt be my vassal of suffering and terror!");
             livelog_printf(LL_DIVINEGIFT, "became the Emissary of Moloch");
             unrestrict_weapon_skill(P_TRIDENT);
+            /* unlock riding if restricted (e.g. centaur).
+               infidels can get to skilled, so don't just unrestrict it */
+            if (P_RESTRICTED(P_RIDING)) {
+                P_SKILL(P_RIDING) = P_UNSKILLED;
+                P_MAX_SKILL(P_RIDING) = P_SKILLED;
+                P_ADVANCE(P_RIDING) = 0;
+            }
             P_MAX_SKILL(P_TRIDENT) = P_EXPERT;
             if (Race_if(PM_DRAUGR)) {
                 in_hand = wielding_artifact(ART_ANGELSLAYER);
