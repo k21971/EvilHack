@@ -612,6 +612,7 @@ boolean resuming;
                     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                         boolean is_shkp = has_eshk(mtmp) && inhishop(mtmp);
                         boolean is_prst = has_epri(mtmp) && inhistemple(mtmp);
+                        boolean same_align = (sgn(mon_aligntyp(mtmp)) == u.ualign.type);
 
                         /* monster in question has to see you, not just
                            sense you, before it becomes hostile */
@@ -621,7 +622,8 @@ boolean resuming;
                         if (is_prst && p_coaligned(mtmp))
                             continue;
 
-                        if ((uarmg && uarmg->oartifact == ART_DRAGONBANE
+                        if ((((uarmg && uarmg->oartifact == ART_DRAGONBANE)
+                              || (Role_if(PM_KNIGHT) && !same_align))
                              && is_dragon(mtmp->data))
                             || (wielding_artifact(ART_STING)
                                 && (racial_orc(mtmp)
