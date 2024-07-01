@@ -440,7 +440,8 @@ struct obj {
 
 /* misc helpers, simple enough to be macros */
 #define is_flimsy(otmp) \
-    (otmp->material <= LEATHER || otmp->otyp == RUBBER_HOSE)
+    (otmp->material <= LEATHER || otmp->material == DRAGON_HIDE \
+     || otmp->otyp == RUBBER_HOSE)
 #define is_plural(o) \
     ((o)->quan != 1L                                                    \
      /* "the Eyes of the Overworld" are plural, but                     \

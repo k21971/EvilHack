@@ -3522,4 +3522,5 @@ The following changes to date are:
   psionic wave
 - Fix: crowned centaur infidels should be able to train riding
 - Tweak death reason when drinking from a forge
+- Add dragonhide material to is_flimsy() 
 
