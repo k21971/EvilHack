@@ -3528,4 +3528,6 @@ The following changes to date are:
 - Fix: noncorporeal monsters were affected by knockback
 - Fix: monster could go berserk if temporarily sleeping or paralyzed
 - Fix: consume_tin() bypassed is_edible()
+- Forcefighting a door or any type of tree while burning hands spell
+  is active can burn them down
 

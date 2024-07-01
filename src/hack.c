@@ -1953,6 +1953,63 @@ domove_core()
                 set_occupation(ma_break, "channeling your qi", 0);
             }
             return;
+        } else if ((IS_TREES(tmpr->typ) || IS_DOOR(tmpr->typ))
+                   && u.umburn
+                   && weapon_type(uwep) == P_BARE_HANDED_COMBAT) {
+            You("place your %s on %s...",
+                makeplural(body_part(HAND)), buf);
+            if (tmpr->typ == DOOR) {
+                if ((tmpr->doormask & D_TRAPPED) && In_sokoban(&u.uz)) {
+                    /* nothing happens - sokoban prize doors
+                       are special */
+                    pline("the door remains intact.");
+                } else {
+                    if (!Blind)
+                        pline("the door is consumed in flames!");
+                    else
+                        You("smell smoke.");
+                    tmpr->doormask = D_NODOOR;
+                    if (*in_rooms(x, y, SHOPBASE))
+                        add_damage(x, y, SHOP_DOOR_COST);
+                    pay_for_damage("burn away", FALSE);
+                    tmpr->typ = ROOM, tmpr->flags = 0;
+                    if (tmpr->typ == ROOM)
+                        newsym(x, y);
+                    if (!does_block(x, y, &levl[x][y]))
+                        unblock_point(x, y); /* vision:  can see through */
+                    feel_newsym(x, y);
+                }
+            } else if (tmpr->typ == TREE) {
+                if (!may_dig(x, y)) {
+                    /* nothing happens - it's petrified */
+                    pline("but it remains intact.");
+                } else {
+                    if (!Blind)
+                        pline("%s burns to a crisp!", buf);
+                    else
+                        You("smell smoke.");
+                    tmpr->typ = DEADTREE;
+                    if (tmpr->typ == DEADTREE)
+                        newsym(x, y);
+                }
+            } else if (tmpr->typ == DEADTREE) {
+                if (!may_dig(x, y)) {
+                    /* nothing happens - it's petrified */
+                    pline("but it remains intact.");
+                } else {
+                    if (!Blind)
+                        pline("%s burns to ashes!", buf);
+                    else
+                        You("smell smoke.");
+                    tmpr->typ = ROOM, tmpr->flags = 0;
+                    if (tmpr->typ == ROOM)
+                        newsym(x, y);
+                    if (!does_block(x, y, &levl[x][y]))
+                        unblock_point(x, y); /* vision:  can see through */
+                    feel_newsym(x, y);
+                }
+            }
+            return;
         } else {
             You("%s%s %s.",
                 !(boulder || solid) ? "" : !explo ? "harmlessly " : "futilely ",
