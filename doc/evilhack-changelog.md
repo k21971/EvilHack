@@ -3526,4 +3526,5 @@ The following changes to date are:
 - Fix: peaceful/tame monsters poly'd into a cross-aligned dragon
   (player is a knight) would stay tame
 - Fix: noncorporeal monsters were affected by knockback
+- Fix: monster could go berserk if temporarily sleeping or paralyzed
 
