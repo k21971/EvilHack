@@ -1193,7 +1193,7 @@ drinkforge()
 
     if (!likes_fire(youmonst.data)) {
         pline("Molten lava incinerates its way down your gullet...");
-        losehp(Upolyd ? u.mh : u.uhp, "trying to drink molten lava", KILLED_BY);
+        losehp(Upolyd ? u.mh : u.uhp, "drinking molten lava", KILLED_BY);
         return;
     }
     burn_away_slime();

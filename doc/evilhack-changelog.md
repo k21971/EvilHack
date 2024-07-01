@@ -3521,4 +3521,5 @@ The following changes to date are:
 - Fix: 'The magical energy is released!' with non-directional
   psionic wave
 - Fix: crowned centaur infidels should be able to train riding
+- Tweak death reason when drinking from a forge
 
