@@ -868,7 +868,8 @@ xchar x, y;
     if (!isok(x, y))
         return FALSE;
     /* redundant when called by mhurtle() */
-    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped)
+    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck
+        || mon->mtrapped || noncorporeal(mon->data))
         return FALSE;
     /*
      * TODO: Treat walls, doors, iron bars, etc. specially
@@ -975,6 +976,10 @@ boolean verbose;
         You_feel("a tug from the iron ball.");
         nomul(0);
         return;
+    } else if (Passes_walls) {
+        You("briefly wobble in place.");
+        nomul(0);
+        return;
     } else if (u.utrap) {
         You("are anchored by the %s.",
             u.utraptype == TT_WEB
@@ -1008,7 +1013,9 @@ boolean verbose;
     multi_reason = "moving through the air";
     nomovemsg = ""; /* it just happens */
     if (verbose)
-        You("%s in the opposite direction.", (range > 1 || !(Flying || Levitation)) ? "hurtle" : "float");
+        You("%s in the opposite direction.",
+            (range > 1 || !(Flying || Levitation)) ? "hurtle"
+                                                   : "float");
     /* if we're in the midst of shooting multiple projectiles, stop */
     endmultishot(TRUE);
     sokoban_guilt();
@@ -1040,7 +1047,8 @@ int dx, dy, range;
     /* Is the monster stuck or too heavy to push?
      * (very large monsters have too much inertia, even floaters and flyers)
      */
-    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped) {
+    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck
+        || mon->mtrapped || noncorporeal(mon->data)) {
         if (canseemon(mon))
             pline("%s doesn't budge!", Monnam(mon));
         return;
