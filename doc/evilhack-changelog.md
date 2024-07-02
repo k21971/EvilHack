@@ -3530,4 +3530,5 @@ The following changes to date are:
 - Fix: consume_tin() bypassed is_edible()
 - Forcefighting a door or any type of tree while burning hands spell
   is active can burn them down
+- Fix: using burning hands to burn down a tree or a door uses a charge
 

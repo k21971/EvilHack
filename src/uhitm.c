@@ -23,8 +23,6 @@ STATIC_DCL void NDECL(end_engulf);
 STATIC_DCL int FDECL(gulpum, (struct monst *, struct attack *));
 STATIC_DCL boolean FDECL(hmonas, (struct monst *, int, BOOLEAN_P));
 STATIC_DCL void FDECL(nohandglow, (struct monst *));
-STATIC_DCL void NDECL(nohandburn);
-STATIC_DCL void NDECL(nohandshock);
 STATIC_DCL boolean FDECL(shade_aware, (struct obj *));
 
 extern boolean notonhead; /* for long worms */
@@ -5309,7 +5307,7 @@ struct monst *mon;
     u.umconf--;
 }
 
-STATIC_OVL void
+void
 nohandburn()
 {
     char *hands = makeplural(body_part(HAND));
@@ -5330,7 +5328,7 @@ nohandburn()
     u.umburn--;
 }
 
-STATIC_OVL void
+void
 nohandshock()
 {
     char *hands = makeplural(body_part(HAND));

@@ -2009,6 +2009,7 @@ domove_core()
                     feel_newsym(x, y);
                 }
             }
+            nohandburn(); /* use up a charge */
             return;
         } else {
             You("%s%s %s.",
