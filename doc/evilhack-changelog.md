@@ -3531,4 +3531,5 @@ The following changes to date are:
 - Forcefighting a door or any type of tree while burning hands spell
   is active can burn them down
 - Fix: using burning hands to burn down a tree or a door uses a charge
+- Burning hands/shocking grasp spell status can be viewed in inventory
 

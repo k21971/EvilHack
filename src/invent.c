@@ -1805,9 +1805,11 @@ register const char *let, *word;
             else if (!strcmp(word, "write with"))
                 Sprintf(qbuf, "your %s", body_part(FINGERTIP));
             else if (!strcmp(word, "wield"))
-                Sprintf(qbuf, "your %s %s%s", uarmg ? "gloved" : "bare",
+                Sprintf(qbuf, "your %s %s%s%s%s", uarmg ? "gloved" : "bare",
                         makeplural(body_part(HAND)),
-                        !uwep ? " (wielded)" : "");
+                        !uwep ? " (wielded)" : "",
+                        u.umburn ? " (engulfed in flame)" : "",
+                        u.umshock ? " (energized)" : "");
             else if (!strcmp(word, "ready"))
                 Sprintf(qbuf, "empty quiver%s",
                         !uquiver ? " (nothing readied)" : "");
