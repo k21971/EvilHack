@@ -957,6 +957,8 @@ boolean wiz_cast;
 {
     int energy, damage, chance, n, intell;
     int otyp, skill, role_skill, res = 0;
+    int attack_skill = ((P_SKILL(P_ATTACK_SPELL) >= P_EXPERT)
+                        ? 3 : (P_SKILL(P_ATTACK_SPELL) == P_SKILLED) ? 2 : 1);
     boolean confused = (Confusion != 0);
     boolean physical_damage = FALSE;
     struct obj *pseudo, *otmp = (struct obj *) 0;
@@ -981,9 +983,10 @@ boolean wiz_cast;
      *  and strength requirements; it any of these change, update it too.
      */
     if (Role_if(PM_WIZARD) && spellid(spell) == SPE_FORCE_BOLT) {
-        /* wizards power use for force bolt is only
-           one point of power per cast */
-        energy = wiz_cast ? 0 : spellev(spell);
+        /* wizards power use for force bolt is only one point of power
+           per cast at basic attack spell skill, and scales incrementally
+           as attack spell skill increases */
+        energy = wiz_cast ? 0 : (spellev(spell) * attack_skill);
     } else {
         energy = wiz_cast ? 0 : (spellev(spell) * 5); /* 5 <= energy <= 35 */
     }
