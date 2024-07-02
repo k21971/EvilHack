@@ -3532,4 +3532,6 @@ The following changes to date are:
   is active can burn them down
 - Fix: using burning hands to burn down a tree or a door uses a charge
 - Burning hands/shocking grasp spell status can be viewed in inventory
+- Wand of probing or a stethoscpe used on oneself will show reflection
+  status (spell only)
 

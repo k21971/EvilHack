@@ -1241,6 +1241,8 @@ ustatusline()
         Strcat(info, ", concealed");
     if (Invis)
         Strcat(info, ", invisible");
+    if (HReflecting)
+        Strcat(info, ", reflecting");
     if (u.ustuck) {
         if (sticks(youmonst.data))
             Strcat(info, ", holding ");
