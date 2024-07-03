@@ -3535,4 +3535,6 @@ The following changes to date are:
 - Wand of probing or a stethoscope used on oneself will show reflection
   status (spell only)
 - Tweak power cost for wizards casting force bolt spell
+- Adjust feedback when hitting a water-based monster or one that is
+  underwater with burning hands spell
 

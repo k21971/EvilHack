@@ -2116,8 +2116,16 @@ int dieroll;
                      makeplural(body_part(HAND)),
                      mon_nam(mon));
         } else {
-            You("burn %s with your %s!", mon_nam(mon),
-                 makeplural(body_part(HAND)));
+            You("%s %s with your %s!",
+                can_vaporize(mon->data)
+                  ? "vaporize part of" : "burn",
+                mon_nam(mon), makeplural(body_part(HAND)));
+
+            if (!rn2(4) &&
+                (mon_underwater(mon) || can_vaporize(mon->data))) {
+                u.umburn = 0;
+                Your("%s are extinguished.", makeplural(body_part(HAND)));
+            }
 
             if (completelyburns(mon->data) || is_wooden(mon->data)
                 || mon->data == &mons[PM_GREEN_SLIME]) {
