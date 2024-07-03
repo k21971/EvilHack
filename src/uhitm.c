@@ -2685,6 +2685,11 @@ struct attack *mattk;
         other += 10;
     if (Confusion || Stunned) /* hard to do much anything if impaired */
         other += 20;
+    if (mdef->data == &mons[PM_ORACLE]) {
+        /* stealing from the Oracle will never succeed,
+           although the attempt is allowed [see AD_MAGM in passive()] */
+        other += 50;
+    }
 
     /* failure routine */
     if (!Upolyd
@@ -4676,19 +4681,25 @@ boolean wep_was_destroyed;
         break;
     case AD_MAGM:
         /* wrath of gods for attacking Oracle */
-        if (Antimagic) {
+        if (!uwep && thievery && mon->mpeaceful) {
+            pline_The("gods notice your deception!");
+            /* The Oracle notices too... */
+            setmangry(mon, FALSE);
+        }
+        You("are hit by magic missiles appearing from thin air!");
+
+        if (resists_mgc(youmonst.data)) { /* no damage */
             shieldeff(u.ux, u.uy);
-            You("are hit by magic missiles appearing from thin air!");
+            pline_The("missiles bounce off!");
+            monstseesu(M_SEEN_MAGR);
+            tmp = 0;
+        } else if (Antimagic) { /* half damage */
+            shieldeff(u.ux, u.uy);
             pline("Some missiles bounce off!");
             monstseesu(M_SEEN_MAGR);
             tmp = (tmp + 1) / 2;
             mdamageu(mon, tmp);
-        } else {
-            if (!uwep && thievery && mon->mpeaceful)
-                pline_The("gods notice your deception!");
-            /* The Oracle notices too... */
-            setmangry(mon, FALSE);
-            You("are hit by magic missiles appearing from thin air!");
+        } else { /* full damage */
             mdamageu(mon, tmp);
         }
         break;

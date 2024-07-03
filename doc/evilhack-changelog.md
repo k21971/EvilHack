@@ -3537,4 +3537,6 @@ The following changes to date are:
 - Tweak power cost for wizards casting force bolt spell
 - Adjust feedback when hitting a water-based monster or one that is
   underwater with burning hands spell
+- Fix: passive AD_MAGM damage when attacking the Oracle (player or
+  another monster)
 

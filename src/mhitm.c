@@ -3294,22 +3294,33 @@ struct obj *mwep;
         break;
     /* Grudge patch. */
     case AD_MAGM:
-      /* wrath of gods for attacking Oracle */
-        if (resists_magm(magr) || defended(magr, AD_MAGM)) {
-            tmp = (tmp + 1) / 2;
-            if (canseemon(magr)) {
-                shieldeff(magr->mx, magr->my);
-                pline(magr->data == &mons[PM_WOODCHUCK] ? "ZOT!" :
-                      "%s is hit by magic missiles appearing from thin air!",
-                      Monnam(magr));
-                pline("Some missiles bounce off!");
+        /* wrath of gods for attacking Oracle */
+        if (mhit) {
+            if (resists_mgc(magr->data)) {
+                tmp = 0;
+                if (canseemon(magr)) {
+                    shieldeff(magr->mx, magr->my);
+                    pline("%s is hit by magic missiles appearing from thin air!",
+                          Monnam(magr));
+                    pline_The("missiles bounce off!");
+                }
+            } else if (resists_magm(magr) || defended(magr, AD_MAGM)) {
+                tmp = (tmp + 1) / 2;
+                if (canseemon(magr)) {
+                    shieldeff(magr->mx, magr->my);
+                    pline(magr->data == &mons[PM_WOODCHUCK] ? "ZOT!" :
+                          "%s is hit by magic missiles appearing from thin air!",
+                          Monnam(magr));
+                    pline("Some missiles bounce off!");
+                }
+                goto assess_dmg;
+            } else {
+                if (canseemon(magr))
+                    pline(magr->data == &mons[PM_WOODCHUCK] ? "ZOT!" :
+                          "%s is hit by magic missiles appearing from thin air!",
+                          Monnam(magr));
+                goto assess_dmg;
             }
-        } else {
-            if (canseemon(magr))
-                pline(magr->data == &mons[PM_WOODCHUCK] ? "ZOT!" :
-                      "%s is hit by magic missiles appearing from thin air!",
-                      Monnam(magr));
-            goto assess_dmg;
         }
         break;
     case AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
