@@ -1040,7 +1040,7 @@ int retry;
         }
     }
 
-    if (drop_everything) {
+    if (drop_everything && !flags.autoall_menu) {
         /*
          * Dropping a burning potion of oil while levitating can cause
          * an explosion which might destroy some of hero's inventory,
@@ -1064,7 +1064,8 @@ int retry;
     } else {
         /* should coordinate with perm invent, maybe not show worn items */
         n = query_objlist("What would you like to drop?", &invent,
-                          (USE_INVLET | INVORDER_SORT), &pick_list, PICK_ANY,
+                          (USE_INVLET | INVORDER_SORT), &pick_list,
+                          drop_everything ? PICK_ALL : PICK_ANY,
                           all_categories ? allow_all : allow_category);
         if (n > 0) {
             /*
