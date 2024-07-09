@@ -134,6 +134,24 @@ struct obj *obj;
         if (obj->otyp == DWARVISH_MATTOCK)
             descr = "mattock";
         break;
+    case P_DAGGER:
+        if (obj->otyp == KNIFE)
+            descr = "knife";
+        if (obj->otyp == SCALPEL)
+            descr = "scalpel";
+        break;
+    case P_MACE:
+        if (obj->otyp == MORNING_STAR
+            || obj->otyp == ORCISH_MORNING_STAR)
+            descr = "morning star";
+        if (obj->otyp == ROD)
+            descr = "rod";
+        break;
+    case P_SABER:
+        if (obj->otyp == SCIMITAR
+            || obj->otyp == ORCISH_SCIMITAR)
+            descr = "scimitar";
+        break;
     default:
         break;
     }

@@ -3540,3 +3540,5 @@ The following changes to date are:
 - Fix: passive AD_MAGM damage when attacking the Oracle (player or
   another monster)
 - Fix: make autoall_menu apply to the 'D' drop menu as well as the loot menu
+- Fix: Your dagger also slips from your hand (but a knife was wielded)
+
