@@ -3541,4 +3541,5 @@ The following changes to date are:
   another monster)
 - Fix: make autoall_menu apply to the 'D' drop menu as well as the loot menu
 - Fix: Your dagger also slips from your hand (but a knife was wielded)
+- Fix: Giantslayer strength bonus not taken into account whilst twoweaponing 
 
