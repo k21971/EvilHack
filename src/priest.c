@@ -276,6 +276,16 @@ boolean sanctum; /* is it the seat of the high priest? */
         discard_minvent(priest);
         setup_mon_inventory(priest);
 
+        /* iff the priest is Drow, kill the light */
+        if (racial_drow(priest)) {
+            int x, y;
+
+            for (x = sroom->lx - 1; x <= sroom->hx + 1; x++)
+                for (y = sroom->ly - 1; y <= sroom->hy + 1; y++)
+                    levl[x][y].lit = 0;
+            sroom->rlit = 0;
+        }
+
         /* now his/her goodies... */
         if (sanctum && EPRI(priest)->shralign == A_NONE
             && on_level(&sanctum_level, &u.uz) && !Role_if(PM_INFIDEL)) {

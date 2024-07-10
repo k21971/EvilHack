@@ -778,6 +778,17 @@ int shp_indx;
     eshkp->billct = eshkp->visitct = 0;
     eshkp->bill_p = (struct bill_x *) 0;
     eshkp->customer[0] = '\0';
+
+    /* iff the shopkeeper is Drow, kill the light */
+    if (racial_drow(shk)) {
+        int x, y;
+
+        for (x = sroom->lx - 1; x <= sroom->hx + 1; x++)
+            for (y = sroom->ly - 1; y <= sroom->hy + 1; y++)
+                levl[x][y].lit = 0;
+        sroom->rlit = 0;
+    }
+
     mkmonmoney(shk, 1000L + 30L * (long) rnd(100)); /* initial capital */
     if (shp->shknms == shkrings)
         (void) mongets(shk, TOUCHSTONE);
