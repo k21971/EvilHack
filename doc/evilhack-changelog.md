@@ -3545,4 +3545,5 @@ The following changes to date are:
 - Drow shopkeepers/priests rooms are dark
 - Fix: force bolt spell and being engulfed
 - Follow up to last commit (force bolt and engulfed)
+- Fix: cursed Ogresmasher hitting oneself and knockback
 

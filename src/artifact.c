@@ -1789,9 +1789,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
      * is insufficient for its effects. Hurtle distance is used as an
      * additional check for its knockback behavior for MZ_MEDIUM and
      * smaller targets. Knockback rate is set here as well in rn2(rate).
+     * Knockback will not trigger if Ogresmasher is cursed.
      */
      int hurtle_distance = 0;
-     if (otmp->oartifact == ART_OGRESMASHER
+     if (otmp->oartifact == ART_OGRESMASHER && !otmp->cursed
          && mdef->data->msize < MZ_LARGE && !rn2(5))
          hurtle_distance = MZ_LARGE - mdef->data->msize;
 
@@ -2516,7 +2517,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 pline("The monstrous hammer crushes your skull!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form */
-            } else if (hurtle_distance) {
+            } else if (hurtle_distance
+                       && !(u.uswallow || unsolid(mdef->data))) {
                 if (youattack) {
                     You("smash %s backwards%s", mon_nam(mdef),
                         canseemon(mdef) ? exclam(4 * hurtle_distance) : ".");
