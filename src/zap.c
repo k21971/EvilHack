@@ -180,7 +180,8 @@ struct obj *otmp;
             if (otyp == SPE_FORCE_BOLT)
                 dmg = spell_damage_bonus(dmg);
             hit(zap_type_text, mtmp, exclam(dmg));
-            if (dmg > 20) {
+            if (dmg > 20
+                && !(u.uswallow || unsolid(mtmp->data))) {
                 last_hurtled = mtmp;
                 if (dmg < mtmp->mhp) {
                     pline_The("force of %s knocks %s back!",

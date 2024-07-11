@@ -868,8 +868,8 @@ xchar x, y;
     if (!isok(x, y))
         return FALSE;
     /* redundant when called by mhurtle() */
-    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck
-        || mon->mtrapped || noncorporeal(mon->data))
+    if (r_data(mon)->msize >= MZ_HUGE
+        || mon == u.ustuck || mon->mtrapped)
         return FALSE;
     /*
      * TODO: Treat walls, doors, iron bars, etc. specially
@@ -1047,8 +1047,8 @@ int dx, dy, range;
     /* Is the monster stuck or too heavy to push?
      * (very large monsters have too much inertia, even floaters and flyers)
      */
-    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck
-        || mon->mtrapped || noncorporeal(mon->data)) {
+    if (r_data(mon)->msize >= MZ_HUGE
+        || mon == u.ustuck || mon->mtrapped) {
         if (canseemon(mon))
             pline("%s doesn't budge!", Monnam(mon));
         return;

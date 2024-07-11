@@ -3543,4 +3543,5 @@ The following changes to date are:
 - Fix: Your dagger also slips from your hand (but a knife was wielded)
 - Fix: Giantslayer strength bonus not taken into account whilst twoweaponing 
 - Drow shopkeepers/priests rooms are dark
+- Fix: force bolt spell and being engulfed
 
