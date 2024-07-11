@@ -3544,4 +3544,5 @@ The following changes to date are:
 - Fix: Giantslayer strength bonus not taken into account whilst twoweaponing 
 - Drow shopkeepers/priests rooms are dark
 - Fix: force bolt spell and being engulfed
+- Follow up to last commit (force bolt and engulfed)
 

@@ -285,6 +285,7 @@ struct attack *mattk;
            dead monster in case the attacker kills themselves
            by some other means from the shield (material hatred) */
         if (!rn2(4) && blocker && (blocker == uarms)
+            && !(u.uswallow || unsolid(mdat))
             && !DEADMONSTER(mtmp)
             && blocker->oartifact == ART_ASHMAR) {
             pline("%s knocks %s away from you!",
@@ -302,6 +303,7 @@ struct attack *mattk;
         /* the artifact Armor of Retribution can do the same
            as Ashmar, just not as often */
         if (!rn2(7) && blocker && (blocker == uarm)
+            && !(u.uswallow || unsolid(mdat))
             && !DEADMONSTER(mtmp)
             && blocker->oartifact == ART_ARMOR_OF_RETRIBUTION) {
             pline_The("%s knocks %s away from you!",
