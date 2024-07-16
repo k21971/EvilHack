@@ -3548,4 +3548,5 @@ The following changes to date are:
 - Fix: cursed Ogresmasher hitting oneself and knockback
 - Fix: potential crash with dark elven objects falling down to the level below
 - Fix: various player monster attacks not damaging other monsters
+- Additional feedback when damaging monsters vulnerable to elemental damage
 

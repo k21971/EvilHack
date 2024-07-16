@@ -1791,10 +1791,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
      * smaller targets. Knockback rate is set here as well in rn2(rate).
      * Knockback will not trigger if Ogresmasher is cursed.
      */
-     int hurtle_distance = 0;
-     if (otmp->oartifact == ART_OGRESMASHER && !otmp->cursed
-         && mdef->data->msize < MZ_LARGE && !rn2(5))
-         hurtle_distance = MZ_LARGE - mdef->data->msize;
+    int hurtle_distance = 0;
+
+    if (otmp->oartifact == ART_OGRESMASHER && !otmp->cursed
+        && mdef->data->msize < MZ_LARGE && !rn2(5))
+        hurtle_distance = MZ_LARGE - mdef->data->msize;
 
     /* incorporeal monsters are immune to various
        types of damage */
@@ -1816,7 +1817,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_vaporize(mdef->data)
                                   ? "vaporizes part of"
-                                  : def_underwater ? "hits" : "burns",
+                                  : def_underwater
+                                      ? "hits"
+                                      : vulnerable_to(mdef, AD_FIRE)
+                                          ? "severely burns" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             } else if (otmp->oartifact == ART_XIUHCOATL) {
                 pline_The("flaming spear %s %s%c",
@@ -1824,7 +1828,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_vaporize(mdef->data)
                                   ? "vaporizes part of"
-                                  : def_underwater ? "hits" : "burns",
+                                  : def_underwater
+                                      ? "hits"
+                                      : vulnerable_to(mdef, AD_FIRE)
+                                          ? "severely burns" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             } else if (otmp->oartifact == ART_ANGELSLAYER) {
                 pline_The("infernal trident %s %s%c",
@@ -1832,7 +1839,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_vaporize(mdef->data)
                                   ? "vaporizes part of"
-                                  : "burns",
+                                  : vulnerable_to(mdef, AD_FIRE)
+                                      ? "severely burns" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             } else if ((otmp->oclass == WEAPON_CLASS
                         || is_weptool(otmp) || is_bullet(otmp)
@@ -1846,7 +1854,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_vaporize(mdef->data)
                                   ? "vaporizes part of"
-                                  : def_underwater ? "hits" : "burns",
+                                  : def_underwater
+                                      ? "hits"
+                                      : vulnerable_to(mdef, AD_FIRE)
+                                          ? "severely burns" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             }
         }
@@ -1912,7 +1923,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_freeze(mdef->data)
                                   ? "freezes part of"
-                                  : "freezes",
+                                  : vulnerable_to(mdef, AD_COLD)
+                                      ? "severely freezes" : "freezes",
                           hittee,  !spec_dbon_applies ? '.' : '!');
             } else if ((otmp->oclass == WEAPON_CLASS
                         || is_weptool(otmp) || is_bullet(otmp)
@@ -1926,7 +1938,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits"
                               : can_freeze(mdef->data)
                                   ? "freezes part of"
-                                  : "freezes",
+                                  : vulnerable_to(mdef, AD_COLD)
+                                      ? "severely freezes" : "freezes",
                           hittee, !spec_dbon_applies ? '.' : '!');
             }
         }
@@ -1970,7 +1983,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               : simpleonames(otmp),
                           !spec_dbon_applies
                               ? "hits"
-                              : rn2(2) ? "jolts" : "shocks",
+                              : vulnerable_to(mdef, AD_ELEC)
+                                  ? "severely shocks"
+                                  : rn2(2)
+                                      ? "jolts" : "shocks",
                           hittee, !spec_dbon_applies ? '.' : '!');
             }
         }
@@ -2131,7 +2147,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           ? "hits"
                           : can_corrode(mdef->data)
                               ? "eats away part of"
-                              : def_underwater ? "hits" : "burns",
+                              : def_underwater
+                                  ? "hits"
+                                  : vulnerable_to(mdef, AD_ACID)
+                                      ? "severely burns" : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
         }
         if (!def_underwater) {

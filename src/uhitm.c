@@ -2118,7 +2118,9 @@ int dieroll;
         } else {
             You("%s %s with your %s!",
                 can_vaporize(mon->data)
-                  ? "vaporize part of" : "burn",
+                  ? "vaporize part of"
+                  : vulnerable_to(mon, AD_FIRE)
+                    ? "severely burn" : "burn",
                 mon_nam(mon), makeplural(body_part(HAND)));
 
             if (!rn2(4) &&
@@ -2147,8 +2149,13 @@ int dieroll;
                      makeplural(body_part(HAND)),
                      mon_nam(mon));
         } else {
-            You("shock %s with your %s!", mon_nam(mon),
-                 makeplural(body_part(HAND)));
+            You("%s %s with your %s!",
+                vulnerable_to(mon, AD_ELEC)
+                  ? "severely shock"
+                  : rn2(2)
+                    ? "jolt" : "shock",
+                mon_nam(mon),
+                makeplural(body_part(HAND)));
         }
         nohandshock();
     }
