@@ -1521,6 +1521,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     }
     case AD_WERE:
     case AD_HEAL:
+    case AD_SAMU:
     case AD_CLOB:
     case AD_PHYS:
  physical:
