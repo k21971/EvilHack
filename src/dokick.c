@@ -1724,16 +1724,16 @@ boolean shop_floor_obj;
     if (otmp->owornmask)
         remove_worn_item(otmp, TRUE);
 
-    /* some things break rather than ship */
-    if (breaktest(otmp, cc.x, cc.y)) {
+    /* some things break rather than ship. we won't be able to tell if
+       drow items should break if the next level isn't generated. leave
+       breakage to obj_delivery() and accept the lack of feedback here. */
+    if (otmp->material != ADAMANTINE && breaktest(otmp, 0, 0)) {
         const char *result;
 
         if (otmp->material == GLASS || otmp->otyp == EXPENSIVE_CAMERA) {
             if (otmp->otyp == MIRROR)
                 change_luck(-2);
             result = "crash";
-        } else if (otmp->material == ADAMANTINE) {
-            result = "crumbling sound";
         } else {
             /* penalty for breaking eggs laid by you */
             if (otmp->otyp == EGG && otmp->spe && otmp->corpsenm >= LOW_PM)

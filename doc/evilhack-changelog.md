@@ -3546,4 +3546,5 @@ The following changes to date are:
 - Fix: force bolt spell and being engulfed
 - Follow up to last commit (force bolt and engulfed)
 - Fix: cursed Ogresmasher hitting oneself and knockback
+- Fix: potential crash with dark elven objects falling down to the level below
 
