@@ -3695,12 +3695,43 @@ boolean shk_buying;
         if (shk_buying)
             tmp /= 4;
     } else if (obj->oprops) {
-        int i, factor = 50, next = 2;
-        for (i = 0; i < MAX_ITEM_PROPS; i++)
+        int i, factor = 50L, next = 2L;
+
+        for (i = 0; i < MAX_ITEM_PROPS; i++) {
             if (obj->oprops & (1 << i))
-                factor *= next, next = (next == 2) ? 5 : 2;
+                factor *= next, next = (next == 2L)
+                  ? 5L : 2L;
+        }
         tmp += factor;
     }
+
+    /* object price is affected by its level of erosion,
+       or if made erodeproof. oeroded and eroded2 can stack,
+       so having an object that is rusted and corroded can
+       greatly decrease its value, both buying from and
+       selling to a shopkeeper */
+
+    if (obj->oerodeproof)
+        tmp *= 2L;
+
+    if (obj->oeroded) {
+        if (obj->oeroded == 3)
+            tmp /= 3L;
+        else if (obj->oeroded == 2)
+            tmp /= 2L;
+        else if (obj->oeroded == 1)
+            tmp -= (3L / 2L) + 1L;
+    }
+
+    if (obj->oeroded2) {
+        if (obj->oeroded2 == 3)
+            tmp /= 3L;
+        else if (obj->oeroded2 == 2)
+            tmp /= 2L;
+        else if (obj->oeroded2 == 1)
+            tmp -= (3L / 2L) + 1L;
+    }
+
     switch (obj->oclass) {
     case FOOD_CLASS:
         /* simpler hunger check, (2-4)*cost */
@@ -3719,7 +3750,7 @@ boolean shk_buying;
         break;
     case ARMOR_CLASS:
         if (Is_dragon_scaled_armor(obj))
-            tmp += ((3 * objects[obj->dragonscales].oc_cost) / 2L);
+            tmp += ((3L * objects[obj->dragonscales].oc_cost) / 2L);
         /* FALLTHRU */
     case WEAPON_CLASS:
         if (obj->spe > 0)

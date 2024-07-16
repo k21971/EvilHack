@@ -3549,4 +3549,5 @@ The following changes to date are:
 - Fix: potential crash with dark elven objects falling down to the level below
 - Fix: various player monster attacks not damaging other monsters
 - Additional feedback when damaging monsters vulnerable to elemental damage
+- Levels of erosion on an object can affect its price
 
