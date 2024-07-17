@@ -3550,4 +3550,5 @@ The following changes to date are:
 - Fix: various player monster attacks not damaging other monsters
 - Additional feedback when damaging monsters vulnerable to elemental damage
 - Levels of erosion on an object can affect its price
+- Show in inventory if the Bell of Opening can't be used (quest not complete)
 

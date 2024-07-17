@@ -742,6 +742,9 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         propnames(buf, obj->oprops, obj->oprops_known,
                   TRUE, !!strstri(buf, " of "));
 
+        if (typ == BELL_OF_OPENING && !u.uevent.qcompleted)
+            Strcat(buf, " (locked)");
+
         if (typ == FIGURINE && omndx != NON_PM) {
             char anbuf[10]; /* [4] would be enough: 'a','n',' ','\0' */
 
