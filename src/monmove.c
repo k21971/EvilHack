@@ -675,6 +675,9 @@ register struct monst *mtmp;
     if (is_gnome(mdat) && !is_undead(mdat)
         && m_canseeu(mtmp))
         m_respond(mtmp);
+    if (is_support(mdat) && !mtmp->mpeaceful
+        && rn2(2))
+        m_respond(mtmp);
     if (DEADMONSTER(mtmp))
         return 1; /* m_respond gaze can kill medusa */
 
@@ -1427,6 +1430,12 @@ register int after;
         /* ... unless they are currently berserk */
         if (mtmp->mberserk)
             appr = 1;
+
+        /* Support casters hang back */
+        if (is_support(mtmp->data) && !mtmp->mpeaceful
+            && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) < 4 * 4)
+            && ((u.uhpmax / u.uhp) < 4))
+            appr = -1;
 
         if (monsndx(ptr) == PM_AGENT && mon_has_amulet(mtmp))
             appr = -1; /* objective secured, retreat */

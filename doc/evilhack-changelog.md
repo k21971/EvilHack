@@ -3551,4 +3551,6 @@ The following changes to date are:
 - Additional feedback when damaging monsters vulnerable to elemental damage
 - Levels of erosion on an object can affect its price
 - Show in inventory if the Bell of Opening can't be used (quest not complete)
+- Various monsters that can spawn in groups will sometimes be lead by a stronger
+  leader
 

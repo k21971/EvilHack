@@ -1007,6 +1007,7 @@ struct permonst * pm;
     APPENDC(webmaker(pm), "spin webs");
     APPENDC(needspick(pm), "mine");
     APPENDC(is_berserker(pm), "go berserk");
+    APPENDC(is_support(pm), "supports allies")
     if (!needspick(pm))
         APPENDC(tunnels(pm), "dig");
     if (*buf) {

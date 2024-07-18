@@ -4710,6 +4710,8 @@ void
 m_respond(mtmp)
 struct monst *mtmp;
 {
+    struct monst *mon;
+
     if (mtmp->data->msound == MS_SHRIEK) {
         if (!Deaf) {
             pline("%s shrieks.", Monnam(mtmp));
@@ -4764,6 +4766,40 @@ struct monst *mtmp;
                     monflee(mtmp, d(2, 6) + 10, TRUE, TRUE);
                     break;
                 }
+            }
+        }
+    }
+    /* Support casters */
+    if (is_support(mtmp->data)) {
+        for (mon = fmon; mon; mon = mon->nmon) {
+            /* various conditions that prevent healing */
+            if (DEADMONSTER(mon)) /* target is dead */
+                continue;
+            if (mon == mtmp) /* target is caster */
+                continue;
+            if (!same_race(mtmp->data, mon->data)) /* target isn't same race */
+                continue;
+            if (!m_cansee(mtmp, mon->mx, mon->my)) /* target can't be seen */
+                continue;
+            if (mtmp->mpeaceful && !mon->mpeaceful) /* peaceful/not peaceful mismatch */
+                continue;
+            if (!mtmp->mpeaceful && mon->mpeaceful) /* peaceful/not peaceful mismatch */
+                continue;
+            if (mtmp->mcan || mtmp->mspec_used) /* caster is cancelled or out of spell power */
+                continue;
+            switch(monsndx(mtmp->data)) {
+            default:
+                if (mon->mhp < mon->mhpmax) {
+                    if (canseemon(mtmp))
+                        pline("%s casts a spell at %s.",
+                              Monnam(mtmp), mon_nam(mon));
+                    if (canseemon(mon))
+                        pline("%s looks better.", Monnam(mon));
+                    /* same as m_cure_self() */
+                    if ((mon->mhp += d(3, 6)) > mon->mhpmax)
+                        mon->mhp = mon->mhpmax;
+                }
+                break;
             }
         }
     }

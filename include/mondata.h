@@ -391,6 +391,11 @@
 #define is_rider(ptr) \
     ((ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_FAMINE] \
      || (ptr) == &mons[PM_PESTILENCE])
+#define is_support(ptr) \
+    ((ptr) == &mons[PM_GNOLL_CLERIC] || (ptr) == &mons[PM_KOBOLD_SHAMAN]       \
+     || (ptr) == &mons[PM_GOBLIN_SHAMAN] || (ptr) == &mons[PM_ORC_SHAMAN]      \
+     || (ptr) == &mons[PM_HILL_GIANT_SHAMAN] || (ptr) == &mons[PM_DROW_CLERIC] \
+     || (ptr) == &mons[PM_TORTLE_SHAMAN])
 #define is_placeholder(ptr) \
     ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT]         \
      || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN]      \

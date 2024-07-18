@@ -1284,6 +1284,7 @@ boolean ranged;
       || (!ranged && mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10))
       || (!ranged && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10))
       || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
+      || (is_support(mtmp->data) && mtmp2->mpeaceful)
       || ((mtmp->mhp * 4 < mtmp->mhpmax
            || mtmp2->data->msound == MS_GUARDIAN
            || mtmp2->data->msound == MS_LEADER)

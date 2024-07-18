@@ -80,6 +80,7 @@ int x, y, n, mmflags;
 {
     coord mm;
     register int cnt = rnd(n);
+    int support, leader;
     struct monst *mon;
 #if defined(__GNUC__) && (defined(HPUX) || defined(DGUX))
     /* There is an unresolved problem with several people finding that
@@ -118,6 +119,122 @@ int x, y, n, mmflags;
 
     mm.x = x;
     mm.y = y;
+
+    /* Create a support monster - these support casters
+       hang back and will heal the other monsters in
+       their group */
+    if (cnt >= 3) {
+        if (mtmp->data == &mons[PM_GOBLIN]) {
+            support = PM_GOBLIN_SHAMAN;
+            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+                mon = makemon(&mons[support],
+                              mm.x, mm.y, (mmflags | MM_NOGRP));
+                if (mon) {
+                    mon->mpeaceful = FALSE;
+                    mon->mavenge = 0;
+                    set_malign(mon);
+                    cnt--;
+                }
+            }
+        } else if (mtmp->data == &mons[PM_KOBOLD]) {
+            support = PM_KOBOLD_SHAMAN;
+            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+                mon = makemon(&mons[support],
+                              mm.x, mm.y, (mmflags | MM_NOGRP));
+                if (mon) {
+                    mon->mpeaceful = FALSE;
+                    mon->mavenge = 0;
+                    set_malign(mon);
+                    cnt--;
+                }
+            }
+        } else if (mtmp->data == &mons[PM_HILL_ORC]
+                   || mtmp->data == &mons[PM_MORDOR_ORC]
+                   || mtmp->data == &mons[PM_URUK_HAI]) {
+            support = PM_ORC_SHAMAN;
+            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+                mon = makemon(&mons[support],
+                              mm.x, mm.y, (mmflags | MM_NOGRP));
+                if (mon) {
+                    mon->mpeaceful = FALSE;
+                    mon->mavenge = 0;
+                    set_malign(mon);
+                    cnt--;
+                }
+            }
+        } else if (is_gnoll(mtmp->data)) {
+            support = PM_GNOLL_CLERIC;
+            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+                mon = makemon(&mons[support],
+                              mm.x, mm.y, (mmflags | MM_NOGRP));
+                if (mon) {
+                    mon->mpeaceful = FALSE;
+                    mon->mavenge = 0;
+                    set_malign(mon);
+                    cnt--;
+                }
+            }
+        } else if (is_drow(mtmp->data)) {
+            support = PM_DROW_CLERIC;
+            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+                mon = makemon(&mons[support],
+                              mm.x, mm.y, (mmflags | MM_NOGRP));
+                if (mon) {
+                    mon->mpeaceful = FALSE;
+                    mon->mavenge = 0;
+                    set_malign(mon);
+                    cnt--;
+                }
+            }
+        } else if (is_tortle(mtmp->data)) {
+            support = PM_TORTLE_SHAMAN;
+            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+                mon = makemon(&mons[support],
+                              mm.x, mm.y, (mmflags | MM_NOGRP));
+                if (mon) {
+                    mon->mpeaceful = FALSE;
+                    mon->mavenge = 0;
+                    set_malign(mon);
+                    cnt--;
+                }
+            }
+        } else if (is_giant(mtmp->data)) {
+            support = PM_HILL_GIANT_SHAMAN;
+            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+                mon = makemon(&mons[support],
+                              mm.x, mm.y, (mmflags | MM_NOGRP));
+                if (mon) {
+                    mon->mpeaceful = FALSE;
+                    mon->mavenge = 0;
+                    set_malign(mon);
+                    cnt--;
+                }
+            }
+        }
+    }
+
+    /* Create a group leader monster. Some monsters that
+       form in groups are excluded (example: giant rat to
+       enormous rat is too great of a jump in difficulty) */
+    if (cnt >= 3 && !peace_minded(mtmp)) {
+        leader = monsndx(mtmp->data);
+        if (little_to_big(leader) != NON_PM
+            && !(is_bat(mtmp->data)
+                 || is_rat(mtmp->data)
+                 || is_spider(mtmp->data)))
+            leader = little_to_big(leader);
+        if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+            mon = makemon(&mons[leader],
+                          mm.x, mm.y, (mmflags | MM_NOGRP));
+            if (mon) {
+                mon->mpeaceful = FALSE;
+                mon->mavenge = 0;
+                set_malign(mon);
+                cnt--;
+            }
+        }
+    }
+    /* Loop through and create the group */
     while (cnt--) {
         if (peace_minded(mtmp))
             continue;
