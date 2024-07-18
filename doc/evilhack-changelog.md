@@ -3554,4 +3554,5 @@ The following changes to date are:
 - Various monsters that can spawn in groups will sometimes be lead by a stronger
   leader
 - Some code formatting
+- Adamantine has a slightly sharper edge
 

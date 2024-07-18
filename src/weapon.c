@@ -470,11 +470,15 @@ struct monst *mon;
             if (objects[otmp->otyp].oc_dir & WHACK) {
                 tmp += 1;
             }
-        } else if (otmp->material == MITHRIL
-                   || otmp->material == ADAMANTINE) {
+        } else if (otmp->material == MITHRIL) {
             /* light and sharp */
             if (objects[otmp->otyp].oc_dir & (PIERCE | SLASH)) {
                 tmp += 2;
+            }
+        } else if (otmp->material == ADAMANTINE) {
+            /* also light and very sharp */
+            if (objects[otmp->otyp].oc_dir & (PIERCE | SLASH)) {
+                tmp += 3;
             }
         } else if (otmp->material == MINERAL) {
             /* stone is heavy */
