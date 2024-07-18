@@ -2071,8 +2071,7 @@ struct obj *obj;
             pline("%s to flesh!", Tobjnam(obj, "turn"));
             set_material(obj, FLESH);
             obj->owt = weight(obj);
-        }
-        else {
+        } else {
             res = 0;
         }
         break;

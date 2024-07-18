@@ -3536,124 +3536,124 @@ struct obj* obj;
 
     /* Cases for specific object types. */
     switch (otyp) {
-        /* Special exceptions to the whole randomized materials system - where
-         * we ALWAYS want an object to use its base material regardless of
-         * other cases in this function - go here.
-         * Return NULL so that init_obj_material and valid_obj_material both
-         * work properly. */
-        case BULLWHIP:
-        case WORM_TOOTH:
-        case CRYSKNIFE:
-        case STAFF_OF_DIVINATION:
-        case STAFF_OF_HEALING:
-        case STAFF_OF_HOLINESS:
-        case STAFF_OF_MATTER:
-        case STAFF_OF_ESCAPE:
-        case STAFF_OF_WAR:
-        case ASHWOOD_STAFF:
-        case GRAPPLING_HOOK:
-        case IRON_SAFE:
-        case CRYSTAL_CHEST:
-        case HIDDEN_CHEST:
-        case MAGIC_KEY:
-        case LEATHER_DRUM:
-        case DRUM_OF_EARTHQUAKE:
-        case LAND_MINE:
-        case BEARTRAP:
-        case TOWEL:
-        case BLINDFOLD:
-        case LEASH:
-        case SADDLE:
-        case TINNING_KIT:
-        case MUMMY_WRAPPING:
-        case OILSKIN_SACK:
-        case OILSKIN_CLOAK:
-        case AMULET_OF_YENDOR:
-        case FAKE_AMULET_OF_YENDOR:
-            return NULL;
-        /* Any other cases for specific object types go here. */
-        case SHIELD_OF_REFLECTION:
-        case BARDING_OF_REFLECTION:
-        case SHIELD_OF_LIGHT:
-        case SHIELD_OF_MOBILITY:
-            return shiny_materials;
-        case BOW:
-        case YUMI:
-        case BOOMERANG: /* wooden base, similar shape */
-            return bow_materials;
-        case ELVEN_HELM:
-        case ELVEN_BOOTS:
-            return elven_helm_boots_materials;
-        case DWARVISH_SPEAR:
-        case DWARVISH_SHORT_SWORD:
-        case DWARVISH_MATTOCK:
-        case DWARVISH_BEARDED_AXE:
-            return dwarvish_weapon_materials;
-        case ELVEN_SPEAR:
-        case ELVEN_DAGGER:
-        case ELVEN_SHORT_SWORD:
-        case ELVEN_BROADSWORD:
-        case ELVEN_LONG_SWORD:
-            return elven_weapon_materials;
-        case DARK_ELVEN_SPEAR:
-        case DARK_ELVEN_DAGGER:
-        case DARK_ELVEN_SHORT_SWORD:
-        case DARK_ELVEN_BROADSWORD:
-        case DARK_ELVEN_LONG_SWORD:
-        case DARK_ELVEN_MACE:
-        case DARK_ELVEN_HEAVY_MACE:
-        case DARK_ELVEN_BOW:
-        case DARK_ELVEN_ARROW:
-        case DARK_ELVEN_HAND_CROSSBOW:
-        case DARK_ELVEN_CROSSBOW_BOLT:
-            return drow_weapon_materials;
-        case DARK_ELVEN_HELM:
-        case DARK_ELVEN_CHAIN_MAIL:
-        case DARK_ELVEN_TUNIC:
-        case DARK_ELVEN_CLOAK:
-        case DARK_ELVEN_BRACERS:
-        case DARK_ELVEN_BOOTS:
-        case DARK_ELVEN_GLOVES:
-            return drow_materials;
-        case CHEST:
-        case LARGE_BOX:
-            return wood_materials;
-        case LOCK_PICK:
-        case TIN_OPENER:
-        case STETHOSCOPE:
-        case BARDING:
-        case SPIKED_BARDING:
-            return metal_materials;
-        case BELL:
-        case BUGLE:
-        case LANTERN:
-        case OIL_LAMP:
-        case MAGIC_LAMP:
-        case PEA_WHISTLE:
-        case MAGIC_WHISTLE:
-        case FLUTE:
-        case MAGIC_FLUTE:
-        case HARP:
-        case MAGIC_HARP:
-            return resonant_materials;
-        case SKELETON_KEY:
-        case TOOLED_HORN:
-        case FIRE_HORN:
-        case FROST_HORN:
-        case HORN_OF_PLENTY:
-            return horn_materials;
-        case SACK:
-        case BAG_OF_HOLDING:
-        case BAG_OF_TRICKS:
-            return portable_container_materials;
-        case ROD:
-            return rod_materials;
-        case SLING_BULLET:
-            return sling_bullet_materials;
-        case BRACERS:
-            return bracers_materials;
-        default:
-            break;
+    /* Special exceptions to the whole randomized materials system - where
+     * we ALWAYS want an object to use its base material regardless of
+     * other cases in this function - go here.
+     * Return NULL so that init_obj_material and valid_obj_material both
+     * work properly. */
+    case BULLWHIP:
+    case WORM_TOOTH:
+    case CRYSKNIFE:
+    case STAFF_OF_DIVINATION:
+    case STAFF_OF_HEALING:
+    case STAFF_OF_HOLINESS:
+    case STAFF_OF_MATTER:
+    case STAFF_OF_ESCAPE:
+    case STAFF_OF_WAR:
+    case ASHWOOD_STAFF:
+    case GRAPPLING_HOOK:
+    case IRON_SAFE:
+    case CRYSTAL_CHEST:
+    case HIDDEN_CHEST:
+    case MAGIC_KEY:
+    case LEATHER_DRUM:
+    case DRUM_OF_EARTHQUAKE:
+    case LAND_MINE:
+    case BEARTRAP:
+    case TOWEL:
+    case BLINDFOLD:
+    case LEASH:
+    case SADDLE:
+    case TINNING_KIT:
+    case MUMMY_WRAPPING:
+    case OILSKIN_SACK:
+    case OILSKIN_CLOAK:
+    case AMULET_OF_YENDOR:
+    case FAKE_AMULET_OF_YENDOR:
+        return NULL;
+    /* Any other cases for specific object types go here. */
+    case SHIELD_OF_REFLECTION:
+    case BARDING_OF_REFLECTION:
+    case SHIELD_OF_LIGHT:
+    case SHIELD_OF_MOBILITY:
+        return shiny_materials;
+    case BOW:
+    case YUMI:
+    case BOOMERANG: /* wooden base, similar shape */
+        return bow_materials;
+    case ELVEN_HELM:
+    case ELVEN_BOOTS:
+        return elven_helm_boots_materials;
+    case DWARVISH_SPEAR:
+    case DWARVISH_SHORT_SWORD:
+    case DWARVISH_MATTOCK:
+    case DWARVISH_BEARDED_AXE:
+        return dwarvish_weapon_materials;
+    case ELVEN_SPEAR:
+    case ELVEN_DAGGER:
+    case ELVEN_SHORT_SWORD:
+    case ELVEN_BROADSWORD:
+    case ELVEN_LONG_SWORD:
+        return elven_weapon_materials;
+    case DARK_ELVEN_SPEAR:
+    case DARK_ELVEN_DAGGER:
+    case DARK_ELVEN_SHORT_SWORD:
+    case DARK_ELVEN_BROADSWORD:
+    case DARK_ELVEN_LONG_SWORD:
+    case DARK_ELVEN_MACE:
+    case DARK_ELVEN_HEAVY_MACE:
+    case DARK_ELVEN_BOW:
+    case DARK_ELVEN_ARROW:
+    case DARK_ELVEN_HAND_CROSSBOW:
+    case DARK_ELVEN_CROSSBOW_BOLT:
+        return drow_weapon_materials;
+    case DARK_ELVEN_HELM:
+    case DARK_ELVEN_CHAIN_MAIL:
+    case DARK_ELVEN_TUNIC:
+    case DARK_ELVEN_CLOAK:
+    case DARK_ELVEN_BRACERS:
+    case DARK_ELVEN_BOOTS:
+    case DARK_ELVEN_GLOVES:
+        return drow_materials;
+    case CHEST:
+    case LARGE_BOX:
+        return wood_materials;
+    case LOCK_PICK:
+    case TIN_OPENER:
+    case STETHOSCOPE:
+    case BARDING:
+    case SPIKED_BARDING:
+        return metal_materials;
+    case BELL:
+    case BUGLE:
+    case LANTERN:
+    case OIL_LAMP:
+    case MAGIC_LAMP:
+    case PEA_WHISTLE:
+    case MAGIC_WHISTLE:
+    case FLUTE:
+    case MAGIC_FLUTE:
+    case HARP:
+    case MAGIC_HARP:
+        return resonant_materials;
+    case SKELETON_KEY:
+    case TOOLED_HORN:
+    case FIRE_HORN:
+    case FROST_HORN:
+    case HORN_OF_PLENTY:
+        return horn_materials;
+    case SACK:
+    case BAG_OF_HOLDING:
+    case BAG_OF_TRICKS:
+        return portable_container_materials;
+    case ROD:
+        return rod_materials;
+    case SLING_BULLET:
+        return sling_bullet_materials;
+    case BRACERS:
+        return bracers_materials;
+    default:
+        break;
     }
 
     /* Otherwise, select an appropriate list, or return NULL if no appropriate
