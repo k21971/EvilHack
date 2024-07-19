@@ -787,11 +787,12 @@ register struct obj *otmp;
                to make the potion more worth keeping around for players with
                the spell or with a unihorn; this is better than full healing
                in that it can restore all of them, not just half, and a
-               blessed potion restores them all at once */
+               blessed potion restores several (3-5) */
+            int num_levels = rn1(3, 3);
             if (otmp->otyp == POT_RESTORE_ABILITY && u.ulevel < u.ulevelmax) {
                 do {
                     pluslvl(FALSE);
-                } while (u.ulevel < u.ulevelmax && otmp->blessed);
+                } while (u.ulevel < u.ulevelmax && otmp->blessed && --num_levels);
             }
         }
         break;

@@ -3556,4 +3556,5 @@ The following changes to date are:
 - Some code formatting
 - Adamantine has a slightly sharper edge
 - Fix: different apostrophe in the in-game encyclopedia
+- Blessed restore ability only restores a few levels
 

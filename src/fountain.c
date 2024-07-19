@@ -831,6 +831,7 @@ drinkfountain()
     /* What happens when you drink from a fountain? */
     register boolean mgkftn = (levl[u.ux][u.uy].blessedftn == 1);
     register int fate = rnd(30);
+    struct obj *pseudo;
 
     if (Levitation) {
         floating_above("fountain");
@@ -838,23 +839,20 @@ drinkfountain()
     }
 
     if (mgkftn && u.uluck >= 0 && fate >= 10) {
-        int i, ii, littleluck = (u.uluck < 4);
+        int littleluck = (u.uluck < 4);
 
-        pline("Wow!  This makes you feel great!");
         /* blessed restore ability */
-        for (ii = 0; ii < A_MAX; ii++)
-            if (ABASE(ii) < AMAX(ii)) {
-                ABASE(ii) = AMAX(ii);
-                context.botl = 1;
-            }
+        pseudo = mksobj(POT_RESTORE_ABILITY, FALSE, FALSE);
+        pseudo->cursed = 0;
+        pseudo->blessed = 1;
+        peffects(pseudo);
+
         /* gain ability, blessed if "natural" luck is high */
-        i = rn2(A_MAX); /* start at a random attribute */
-        for (ii = 0; ii < A_MAX; ii++) {
-            if (adjattrib(i, 1, littleluck ? -1 : 0) && littleluck)
-                break;
-            if (++i >= A_MAX)
-                i = 0;
-        }
+        pseudo = mksobj(POT_GAIN_ABILITY, FALSE, FALSE);
+        pseudo->cursed = 0;
+        pseudo->blessed = !littleluck;
+        peffects(pseudo);
+
         display_nhwindow(WIN_MESSAGE, FALSE);
         pline("A wisp of vapor escapes the fountain...");
         exercise(A_WIS, TRUE);
