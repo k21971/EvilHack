@@ -3559,4 +3559,5 @@ The following changes to date are:
 - Fix: killing the apprentices found in the Wizard's Tower would anger
   your deity
 - Blessed restore ability only restores a few levels
+- Change some monster clerical spells to be cast at range
 

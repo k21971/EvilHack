@@ -925,7 +925,6 @@ int spellnum;
 
     switch (spellnum) {
     case CLC_SUMMON_MINION:
-
         if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
             coord bypos;
             if (!enexto(&bypos, mtmp->mx, mtmp->my, mtmp->data))
@@ -1165,6 +1164,7 @@ int spellnum;
         break;
     case CLC_VULN_YOU:
         dmg = rnd(4);
+
         pline("A %s film oozes over your %s!",
               Blind ? "slimy" : vulntext[dmg], body_part(SKIN));
         switch (dmg) {
@@ -1208,6 +1208,8 @@ int spellnum;
         }
         break;
     case CLC_OPEN_WOUNDS:
+        dmg = d((int) ((ml / 2) + 1), 6);
+
         if (Antimagic) {
             shieldeff(u.ux, u.uy);
             monstseesu(M_SEEN_MAGR);
@@ -1291,8 +1293,11 @@ int spellnum;
     } else if (adtyp == AD_CLRC) {
         switch (spellnum) {
         case CLC_INSECTS:
+        case CLC_OPEN_WOUNDS:
         case CLC_CURE_SELF:
         case CLC_PROTECTION:
+        case CLC_VULN_YOU:
+        case CLC_SUMMON_MINION:
         case CLC_CALL_UNDEAD:
             return TRUE;
         default:
@@ -1372,7 +1377,9 @@ int spellnum;
         if ((!haseyes(mdef->data) || mdef->mblinded)
             && spellnum == CLC_BLIND_YOU)
             return TRUE;
-        if (mtmp->mpeaceful && spellnum == CLC_CALL_UNDEAD)
+        if (mtmp->mpeaceful
+            && (spellnum == CLC_CALL_UNDEAD
+                || spellnum == CLC_SUMMON_MINION))
             return TRUE;
         /* only undead/demonic spell casters, chaotic/unaligned priests
            and quest nemesis can summon undead */
@@ -1408,6 +1415,8 @@ int spellnum;
         if (u.mh == u.mhmax && spellnum == CLC_CURE_SELF)
             return TRUE;
         if (spellnum == CLC_CALL_UNDEAD)
+            return TRUE;
+        if (spellnum == CLC_SUMMON_MINION)
             return TRUE;
     }
     return FALSE;
