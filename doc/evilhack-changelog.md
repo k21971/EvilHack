@@ -3556,4 +3556,6 @@ The following changes to date are:
 - Some code formatting
 - Adamantine has a slightly sharper edge
 - Fix: different apostrophe in the in-game encyclopedia
+- Fix: killing the apprentices found in the Wizard's Tower would anger
+  your deity
 

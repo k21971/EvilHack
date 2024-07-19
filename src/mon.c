@@ -4284,22 +4284,26 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
         if (!quest_status.killed_leader)
             adjalign((int) (ALIGNLIM / 4));
     } else if (mdat->msound == MS_GUARDIAN) { /* Bad */
-        if (u.ualign.type != A_NONE) {
-            if (canspotmon(mtmp))
-                You_feel("guilty.");
+        if (On_W_tower_level(&u.uz)) {
+            ; /* nothing bad happens */
+        } else {
+            if (u.ualign.type != A_NONE) {
+                if (canspotmon(mtmp))
+                    You_feel("guilty.");
+                else
+                    You("have a vague sense of guilt.");
+                adjalign(-(int) (ALIGNLIM / 8));
+            }
+            if (u.ualign.type == A_NONE)
+                ; /* Moloch's indifference */
             else
-                You("have a vague sense of guilt.");
-            adjalign(-(int) (ALIGNLIM / 8));
+                u.ugangr++;
+            change_luck(-4);
+            if (!Hallucination)
+                pline("That was probably a bad idea...");
+            else
+                pline("Whoopsie-daisy!");
         }
-        if (u.ualign.type == A_NONE)
-            ; /* Moloch's indifference */
-        else
-            u.ugangr++;
-        change_luck(-4);
-        if (!Hallucination)
-            pline("That was probably a bad idea...");
-        else
-            pline("Whoopsie-daisy!");
     } else if (mtmp->ispriest) {
         adjalign((p_coaligned(mtmp)) ? -2 : 2);
         /* cancel divine protection for killing your priest */
