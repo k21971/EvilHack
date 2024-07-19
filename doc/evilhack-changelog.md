@@ -3555,4 +3555,5 @@ The following changes to date are:
   leader
 - Some code formatting
 - Adamantine has a slightly sharper edge
+- Fix: different apostrophe in the in-game encyclopedia
 
