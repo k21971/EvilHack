@@ -253,7 +253,6 @@ int spellnum;
     case 7:
         if ((is_demon(mtmp->data)
              && mtmp->data != &mons[PM_LOLTH])
-            || mtmp->mtame || mtmp->mpeaceful
             || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
             || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])
             return CLC_VULN_YOU;
@@ -304,6 +303,7 @@ boolean foundyou;
      * attacking casts spells only a small portion of the time that an
      * attacking monster does.
      */
+
     if ((mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) && ml) {
         int cnt = 40;
 
@@ -401,6 +401,13 @@ boolean foundyou;
                                && (mtmp->mux != u.ux || mtmp->muy != u.uy))
                                   ? " at your displaced image"
                                   : " at you");
+        }
+    } else if (!Deaf && is_undirected_spell(mattk->adtyp, spellnum)) {
+        if (mtmp->mpeaceful
+            && mtmp->ispriest && inhistemple(mtmp)) {
+            ; /* cut down on the temple spam */
+        } else {
+            You_hear("something cast a spell!");
         }
     }
 
@@ -1162,12 +1169,12 @@ int spellnum;
     case CLC_CURE_SELF:
         dmg = m_cure_self(mtmp, dmg);
         break;
-    case CLC_VULN_YOU:
-        dmg = rnd(4);
+    case CLC_VULN_YOU: {
+        int i = rnd(4);
 
         pline("A %s film oozes over your %s!",
-              Blind ? "slimy" : vulntext[dmg], body_part(SKIN));
-        switch (dmg) {
+              Blind ? "slimy" : vulntext[i], body_part(SKIN));
+        switch (i) {
         case 1:
             if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
                 || mtmp->data == &mons[PM_ASMODEUS]
@@ -1206,7 +1213,9 @@ int spellnum;
         default:
             break;
         }
+        dmg = 0;
         break;
+    }
     case CLC_OPEN_WOUNDS:
         dmg = d((int) ((ml / 2) + 1), 6);
 
@@ -1228,8 +1237,6 @@ int spellnum;
         int natac = find_mac(mtmp) + mtmp->mprotection;
         int loglev = 0;
         int gain = 0;
-
-        dmg = 0;
 
         for (; ml > 0; ml /= 2)
             loglev++;
@@ -1255,6 +1262,8 @@ int spellnum;
             }
         }
         mtmp->mprotection += gain;
+
+        dmg = 0;
         break;
     }
     default:
@@ -1319,9 +1328,9 @@ int spellnum;
 
     if (adtyp == AD_SPEL) {
         /* aggravate monsters, etc. won't be cast by peaceful monsters */
-        if (mtmp->mpeaceful
-            && (spellnum == MGC_AGGRAVATION || spellnum == MGC_SUMMON_MONS
-                || spellnum == MGC_CLONE_WIZ))
+        if ((mtmp->mtame || mtmp->mpeaceful)
+            && (spellnum == MGC_AGGRAVATION
+                || spellnum == MGC_SUMMON_MONS || spellnum == MGC_CLONE_WIZ))
             return TRUE;
         /* haste self when already fast */
         if (mtmp->permspeed == MFAST && spellnum == MGC_HASTE_SELF)
@@ -1333,12 +1342,13 @@ int spellnum;
         if ((has_reflection(mtmp) || mon_reflects(mtmp, (char *) 0))
             && spellnum == MGC_REFLECTION)
             return TRUE;
-        if (mtmp->mpeaceful && !See_invisible && spellnum == MGC_DISAPPEAR)
+        if ((mtmp->mtame || mtmp->mpeaceful)
+            && !See_invisible && spellnum == MGC_DISAPPEAR)
             return TRUE;
         /* healing when already healed */
         if (mtmp->mhp == mtmp->mhpmax && spellnum == MGC_CURE_SELF)
             return TRUE;
-        /* don't summon monsters if it doesn't think you're around */
+        /* don't summon monsters if it doesn't think they're around */
         if ((!mtmp->iswiz || context.no_of_wizards > 1)
             && spellnum == MGC_CLONE_WIZ)
             return TRUE;
@@ -1347,8 +1357,8 @@ int spellnum;
             && spellnum == MGC_DESTRY_ARMR) {
             return TRUE;
         }
-        /* Don't waste time zapping resisted spells at the player,
-         * and don't blast ourselves with our own explosions */
+        /* Don't waste time zapping resisted spells at the target,
+         * and don't blast itself with its own explosions */
         if ((m_seenres(mtmp, M_SEEN_FIRE)
              || (distu(mtmp->mx, mtmp->my) < 3 && rn2(5)))
             && spellnum == MGC_FIRE_BOLT) {
@@ -1366,18 +1376,18 @@ int spellnum;
         }
         if ((spellnum == MGC_ICE_BOLT || spellnum == MGC_FIRE_BOLT
             || spellnum == MGC_ACID_BLAST || spellnum == MGC_CANCELLATION)
-            && mtmp->mpeaceful) {
+            && (mtmp->mtame || mtmp->mpeaceful)) {
             return TRUE;
         }
      } else if (adtyp == AD_CLRC) {
         /* healing when already healed */
         if (mtmp->mhp == mtmp->mhpmax && spellnum == CLC_CURE_SELF)
             return TRUE;
-        /* blindness spell on blinded player */
+        /* blindness spell on blinded target */
         if ((!haseyes(mdef->data) || mdef->mblinded)
             && spellnum == CLC_BLIND_YOU)
             return TRUE;
-        if (mtmp->mpeaceful
+        if ((mtmp->mtame || mtmp->mpeaceful)
             && (spellnum == CLC_CALL_UNDEAD
                 || spellnum == CLC_SUMMON_MINION))
             return TRUE;
@@ -1442,8 +1452,8 @@ int spellnum;
     if (adtyp == AD_SPEL) {
         /* aggravate monsters, etc. won't be cast by peaceful monsters */
         if (mtmp->mpeaceful
-            && (spellnum == MGC_AGGRAVATION || spellnum == MGC_SUMMON_MONS
-                || spellnum == MGC_CLONE_WIZ))
+            && (spellnum == MGC_AGGRAVATION
+                || spellnum == MGC_SUMMON_MONS || spellnum == MGC_CLONE_WIZ))
             return TRUE;
         /* haste self when already fast */
         if (mtmp->permspeed == MFAST && spellnum == MGC_HASTE_SELF)
@@ -1459,7 +1469,8 @@ int spellnum;
            same as when monsters drink potions of invisibility.  This doesn't
            really make a lot of sense, but lets the player avoid hitting
            peaceful monsters by mistake */
-        if (mtmp->mpeaceful && !See_invisible && spellnum == MGC_DISAPPEAR)
+        if (mtmp->mpeaceful
+            && !See_invisible && spellnum == MGC_DISAPPEAR)
             return TRUE;
         /* healing when already healed */
         if (mtmp->mhp == mtmp->mhpmax && spellnum == MGC_CURE_SELF)
@@ -1505,20 +1516,20 @@ int spellnum;
             return TRUE;
         }
     } else if (adtyp == AD_CLRC) {
-        /* summon insects/sticks to snakes won't be cast by peaceful monsters
-         */
-        if (mtmp->mpeaceful && spellnum == CLC_INSECTS)
-            return TRUE;
         /* healing when already healed */
         if (mtmp->mhp == mtmp->mhpmax && spellnum == CLC_CURE_SELF)
             return TRUE;
-        /* don't summon insects if it doesn't think you're around */
-        if (!mcouldseeu && spellnum == CLC_INSECTS)
+        /* don't cast certain spells if it doesn't think you're around,
+           or if peaceful */
+        if ((!mcouldseeu || mtmp->mpeaceful)
+            && (spellnum == CLC_INSECTS
+                || spellnum == CLC_SUMMON_MINION
+                || spellnum == CLC_CALL_UNDEAD
+                || spellnum == CLC_OPEN_WOUNDS
+                || spellnum == CLC_VULN_YOU))
             return TRUE;
         /* blindness spell on blinded player */
         if (Blinded && spellnum == CLC_BLIND_YOU)
-            return TRUE;
-        if (mtmp->mpeaceful && spellnum == CLC_CALL_UNDEAD)
             return TRUE;
         /* only undead/demonic spell casters, chaotic/unaligned priests
            and quest nemesis can summon undead */
@@ -1783,7 +1794,9 @@ struct attack *mattk;
                 ? (spellnum != MGC_AGGRAVATION
                     && spellnum != MGC_SUMMON_MONS)
                 /* clerical spells */
-                : (spellnum != CLC_INSECTS))) {
+                : (spellnum != CLC_INSECTS
+                   && spellnum != CLC_SUMMON_MINION
+                   && spellnum != CLC_CALL_UNDEAD))) {
             if (mattk->adtyp == AD_SPEL)
                 cast_wizard_spell(mtmp, dmg, spellnum);
             else
@@ -2084,6 +2097,7 @@ int spellnum;
             pline("%s %s a cancellation spell!", Monnam(mattk),
                   rn2(2) ? "evokes" : "conjures up");
         (void) cancel_monst(mtmp, (struct obj *) 0, FALSE, TRUE, FALSE);
+        dmg = 0;
         break;
     case MGC_REFLECTION:
         if (!mtmp || mtmp->mhp < 1) {
@@ -2094,6 +2108,7 @@ int spellnum;
             (void) cast_reflection(&youmonst);
         else
             (void) cast_reflection(mtmp);
+        dmg = 0;
         break;
     case MGC_ACID_BLAST:
         if (!mtmp || mtmp->mhp < 1) {
@@ -2586,17 +2601,18 @@ int spellnum;
             dmg = 0;
         }
         break;
-    case CLC_VULN_YOU:
+    case CLC_VULN_YOU: {
+        int i = rnd(4);
+
         if (!mtmp || mtmp->mhp < 1) {
             impossible("vulnerable spell with no mtmp");
             return;
         }
 
         if (yours || canseemon(mtmp)) {
-            dmg = rnd(4);
             pline("A %s film oozes over %s exterior!",
-                  Blind ? "slimy" : vulntext[dmg], mhis(mtmp));
-            switch (dmg) {
+                  Blind ? "slimy" : vulntext[i], mhis(mtmp));
+            switch (rnd(4)) {
             case 1:
                 if ((mtmp->data->mflags4 & M4_VULNERABLE_FIRE) != 0
                     || mtmp->vuln_fire)
@@ -2631,7 +2647,11 @@ int spellnum;
         }
         dmg = 0;
         break;
+    }
     case CLC_OPEN_WOUNDS:
+        dmg = d((int) (((yours ? mons[u.umonnum].mlevel
+                               : min(mtmp->m_lev, 50)) / 2) + 1), 6);
+
         if (!mtmp || mtmp->mhp < 1) {
             impossible("wound spell with no mtmp");
             return;
