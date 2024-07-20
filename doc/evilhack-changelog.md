@@ -3561,4 +3561,6 @@ The following changes to date are:
 - Blessed restore ability only restores a few levels
 - Change some monster clerical spells to be cast at range
 - Fix: corrections to last commit (monster clerical spells at range)
+- Wand of probing or a stethoscope used on oneself will show elemental
+  vulnerabilities
 

@@ -1253,6 +1253,15 @@ ustatusline()
         Strcat(info, ", invisible");
     if (HReflecting)
         Strcat(info, ", reflecting");
+    if (Vulnerable_fire
+        || (!Upolyd && Race_if(PM_DRAUGR)))
+        Strcat(info, ", vulnerable to fire");
+    if (Vulnerable_cold)
+        Strcat(info, ", vulnerable to cold");
+    if (Vulnerable_elec)
+        Strcat(info, ", vulnerable to electricity");
+    if (Vulnerable_acid)
+        Strcat(info, ", vulnerable to acid");
     if (u.ustuck) {
         if (sticks(youmonst.data))
             Strcat(info, ", holding ");
