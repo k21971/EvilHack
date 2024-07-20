@@ -3563,4 +3563,5 @@ The following changes to date are:
 - Fix: corrections to last commit (monster clerical spells at range)
 - Wand of probing or a stethoscope used on oneself will show elemental
   vulnerabilities
+- Tweak certain monsters and what they grow up into
 
