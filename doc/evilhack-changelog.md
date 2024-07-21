@@ -3565,4 +3565,5 @@ The following changes to date are:
   vulnerabilities
 - Tweak certain monsters and what they grow up into
 - Fix: multiple issues with mcastu.c
+- Fix: more fixes in mcastu.c
 

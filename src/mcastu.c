@@ -2075,7 +2075,8 @@ int spellnum;
 
         resisted =
             ((resist(mtmp, 0, 0, FALSE)
-              && rn2(mons[yours ? u.umonnum : mattk->mnum].mlevel) <= 12)
+              && rn2(mons[yours ? u.umonnum
+                                : mattk->mnum].mlevel) <= 12)
              || resists_magm(mtmp) || defended(mtmp, AD_MAGM));
         if (immune_death_magic(mtmp->data) || is_vampshifter(mtmp)) {
             if (yours || canseemon(mtmp))
@@ -2137,8 +2138,8 @@ int spellnum;
                   Monnam(mattk), mon_nam(mtmp));
 
         explode(mtmp->mx, mtmp->my, ZT_ACID,
-                d(((yours ? u.ulevel
-                          : mons[u.umonnum].mlevel) / 2) + 4, 8),
+                d(((mons[yours ? u.umonnum
+                               : mattk->mnum].mlevel) / 2) + 4, 8),
                 (yours ? 0 : MON_CASTBALL), EXPL_ACID);
 
         if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
@@ -2324,8 +2325,8 @@ int spellnum;
 
         explode(mtmp->mx, mtmp->my,
                 (spellnum == MGC_FIRE_BOLT) ? ZT_FIRE : ZT_COLD,
-                d(((yours ? u.ulevel
-                          : mons[u.umonnum].mlevel) / 5) + 1, 8),
+                d(((mons[yours ? u.umonnum
+                               : mattk->mnum].mlevel) / 5) + 1, 8),
                 (yours ? 0 : MON_CASTBALL),
                 (spellnum == MGC_FIRE_BOLT) ? EXPL_FIERY : EXPL_FROSTY);
 
@@ -2557,7 +2558,8 @@ int spellnum;
         } else {
             if (yours || canseemon(mtmp))
                 pline("%s is frozen in place!", Monnam(mtmp));
-            dmg = 4 + mons[u.umonnum].mlevel;
+            dmg = 4 + mons[yours ? u.umonnum
+                                 : mattk->mnum].mlevel;
             mtmp->mcanmove = 0;
             mtmp->mfrozen = dmg;
         }
