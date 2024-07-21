@@ -3121,6 +3121,13 @@ long mmflags;
     if (ptr == &mons[PM_SAINT_MICHAEL])
         mtmp->mhp = mtmp->mhpmax = 300 + rnd(50);
 
+    /* I like to use giant turtles as a test monster
+       for various things. Greatly increase their hit
+       points while in wizmode so I'm not constantly
+       spawning more every few turns */
+    if (wizard && ptr == &mons[PM_GIANT_TURTLE])
+        mtmp->mhp = mtmp->mhpmax = 9999;
+
     /* Here is where we match riding monsters with their mounts */
     if (!(mmflags & MM_REVIVE)) {
         switch (mndx) {

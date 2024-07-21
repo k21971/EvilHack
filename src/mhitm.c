@@ -777,6 +777,8 @@ register struct monst *magr, *mdef;
                 if (DEADMONSTER(magr))
                     res[i] |= MM_AGR_DIED;
             } else if (monnear(magr, mdef->mx, mdef->my)) {
+                /* FIXME: some monsters spells are designed to be cast
+                   at range... */
                 strike = castmm(magr, mdef, mattk);
 
                 if (strike)
