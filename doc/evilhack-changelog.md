@@ -3566,4 +3566,6 @@ The following changes to date are:
 - Tweak certain monsters and what they grow up into
 - Fix: multiple issues with mcastu.c
 - Fix: more fixes in mcastu.c
+- Allow monster spellcasters to cast their ranged spells at other
+  monsters from a distance
 

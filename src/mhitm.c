@@ -767,7 +767,13 @@ register struct monst *magr, *mdef;
             break;
         case AT_MAGC:
             if (!monnear(magr, mdef->mx, mdef->my)) {
-                strike = buzzmm(magr, mdef, mattk);
+                if (mattk->adtyp == AD_FIRE
+                    || mattk->adtyp == AD_COLD
+                    || mattk->adtyp == AD_ACID
+                    || mattk->adtyp == AD_MAGM)
+                    strike = buzzmm(magr, mdef, mattk);
+                else /* AD_SPEL and AD_CLRC */
+                    strike = castmm(magr, mdef, mattk);
 
                 /* We don't really know if we hit or not; pretend we did. */
                 if (strike)
@@ -777,8 +783,6 @@ register struct monst *magr, *mdef;
                 if (DEADMONSTER(magr))
                     res[i] |= MM_AGR_DIED;
             } else if (monnear(magr, mdef->mx, mdef->my)) {
-                /* FIXME: some monsters spells are designed to be cast
-                   at range... */
                 strike = castmm(magr, mdef, mattk);
 
                 if (strike)

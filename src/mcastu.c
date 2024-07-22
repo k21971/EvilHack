@@ -1317,6 +1317,17 @@ int spellnum;
     boolean evilpriest = (mtmp->ispriest && mon_aligntyp(mtmp) < A_NEUTRAL);
 
     if (adtyp == AD_SPEL) {
+        /* don't cast these spells at range vs other monsters */
+        if (distmin(mtmp->mx, mtmp->my, mdef->mx, mdef->my) > 1
+            && (spellnum == MGC_PSI_BOLT
+                || spellnum == MGC_STUN_YOU
+                || spellnum == MGC_WEAKEN_YOU
+                || spellnum == MGC_CURSE_ITEMS
+                || spellnum == MGC_AGGRAVATION
+                || spellnum == MGC_SUMMON_MONS
+                || spellnum == MGC_CLONE_WIZ
+                || spellnum == MGC_DEATH_TOUCH))
+            return TRUE;
         /* aggravate monsters, etc. won't be cast by peaceful monsters */
         if ((mtmp->mtame || mtmp->mpeaceful)
             && (spellnum == MGC_AGGRAVATION
@@ -1380,6 +1391,18 @@ int spellnum;
             return TRUE;
         }
      } else if (adtyp == AD_CLRC) {
+        /* don't cast these spells at range vs other monsters */
+        if (distmin(mtmp->mx, mtmp->my, mdef->mx, mdef->my) > 1
+            && (spellnum == CLC_CONFUSE_YOU
+                || spellnum == CLC_PARALYZE
+                || spellnum == CLC_BLIND_YOU
+                || spellnum == CLC_CURSE_ITEMS
+                || spellnum == CLC_LIGHTNING
+                || spellnum == CLC_FIRE_PILLAR
+                || spellnum == CLC_GEYSER
+                || spellnum == CLC_SUMMON_MINION
+                || spellnum == CLC_CALL_UNDEAD))
+            return TRUE;
         /* healing when already healed */
         if (mtmp->mhp == mtmp->mhpmax && spellnum == CLC_CURE_SELF)
             return TRUE;
