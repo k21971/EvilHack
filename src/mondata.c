@@ -1477,7 +1477,7 @@ enum on_fire_types attktype;
     case PM_SNOW_GOLEM:
     case PM_ABOMINABLE_SNOWMAN:
     case PM_FREEZING_SPHERE:
-        /* Melts and then boils away or evaporates. */    
+        /* Melts and then boils away or evaporates. */
         switch (attktype) {
         case ON_FIRE_DEAD:
             what = (mptr == &youmonst) ? "melt away" : "melts away";

@@ -122,8 +122,13 @@ int spellval;
 {
     int i;
 
-    /* for 3.4.3 and earlier, val greater than 22 selected the default spell
-     */
+    /* monster level needs to be [case value] + 1
+       in order to cast that level of spell
+       (e.g. a gnomish wizard will not spawn higher
+       than monster level 4; highest level spell
+       they can cast is MGC_STUN_YOU. Should it
+       reach monster level 5, MGC_DISAPPEAR then
+       becomes available to cast) */
     while (spellval > 24 && rn2(25))
         spellval = rn2(spellval);
 
@@ -217,8 +222,13 @@ choose_clerical_spell(mtmp, spellnum)
 struct monst* mtmp;
 int spellnum;
 {
-    /* for 3.4.3 and earlier, num greater than 13 selected the default spell
-     */
+    /* monster level needs to be [case value] + 1
+       in order to cast that level of spell
+       (e.g. a kobold shaman will not spawn higher
+       than monster level 3; highest level spell
+       they can cast is CLC_PROTECTION. Should it
+       reach monster level 4, CLC_CONFUSE_YOU then
+       becomes available to cast) */
     while (spellnum > 15 && rn2(16))
         spellnum = rn2(spellnum);
 
@@ -2685,7 +2695,9 @@ int spellnum;
         }
         break;
     case CLC_PROTECTION:
-        (void) cast_protection();
+        if (yours)
+            (void) cast_protection();
+        dmg = 0;
         break;
     default:
         impossible("ucastm: invalid clerical spell (%d)", spellnum);

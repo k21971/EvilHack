@@ -3568,4 +3568,6 @@ The following changes to date are:
 - Fix: more fixes in mcastu.c
 - Allow monster spellcasters to cast their ranged spells at other
   monsters from a distance
+- Pets can help the player other than fighting under certain
+  cirmcumstances
 

@@ -4791,6 +4791,8 @@ struct monst *mtmp;
                 continue;
             if (mtmp->mcan || mtmp->mspec_used) /* caster is cancelled or out of spell power */
                 continue;
+            if (mtmp->mconf || mtmp->mstun || mtmp->mfrozen) /* caster not incapacitated */
+                continue;
             switch(monsndx(mtmp->data)) {
             default:
                 if (mon->mhp < mon->mhpmax) {

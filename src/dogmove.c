@@ -1354,6 +1354,124 @@ int after; /* this is extra fast monster movement */
         /* maybe we tamed him while being swallowed --jgm */
         return 0;
 
+    /* Sometimes your pet can help you out in various ways */
+    if (!(mtmp->mconf || mtmp->mstun || mtmp->mfrozen)) {
+        /* heal you if hit points are 12.5% or less than max */
+        if (dmgtype(mtmp->data, AD_CLRC)
+            && !(mtmp->mcan || mtmp->mspec_used)
+            && (u.uhp < (u.uhpmax / 8))
+            && distu(mtmp->mx, mtmp->my) < 3) {
+            pline("%s casts a spell at you!", Monnam(mtmp));
+            You_feel("better.");
+            healup(d(3, 6), 0, FALSE, FALSE);
+            return 1;
+        }
+        /* protection if not already protected via spell */
+        if (!rn2(4) && dmgtype(mtmp->data, AD_CLRC)
+            && !(mtmp->mcan || mtmp->mspec_used)
+            && mtmp->m_lev >= 3 && !u.uspellprot
+            && distu(mtmp->mx, mtmp->my) < 3) {
+            pline("%s casts a spell at you!", Monnam(mtmp));
+            (void) cast_protection();
+            return 1;
+        }
+        /* reflection if not already reflecting */
+        if (!rn2(4) && dmgtype(mtmp->data, AD_SPEL)
+            && !(mtmp->mcan || mtmp->mspec_used)
+            && mtmp->m_lev >= 14 && !Reflecting
+            && distu(mtmp->mx, mtmp->my) < 3) {
+            pline("%s casts a spell at you!", Monnam(mtmp));
+            (void) cast_reflection(&youmonst);
+            return 1;
+        }
+        /* assist with various traps - pet generally has
+           to be strong, have limbs, and in most cases
+           be at least as large as you or larger */
+        if (!rn2(4) && u.utrap
+            && strongmonst(mtmp->data)
+            && !nolimbs(mtmp->data)
+            && distu(mtmp->mx, mtmp->my) < 3) {
+            if (u.utraptype == TT_PIT) {
+                if (mtmp->data->msize < youmonst.data->msize) {
+                    pline("%s tries to pull you out, but cannot get a firm grasp.",
+                          Monnam(mtmp));
+                    return 1;
+                } else {
+                    pline("%s pulls you out of the pit!",
+                          Monnam(mtmp));
+                    reset_utrap(FALSE);
+                    fill_pit(u.ux, u.uy);
+                    vision_full_recalc = 1;
+                }
+            } else if (u.utraptype == TT_BEARTRAP) {
+                if (mtmp->data->msize < youmonst.data->msize) {
+                    pline("%s tries to pull you free, but cannot get a firm grasp.",
+                          Monnam(mtmp));
+                    return 1;
+                } else {
+                    long side = rn2(3) ? LEFT_SIDE : RIGHT_SIDE;
+
+                    pline("%s rips you free of the bear trap!",
+                          Monnam(mtmp));
+                    reset_utrap(FALSE);
+                    losehp(Maybe_Half_Phys(rnd(10)),
+                           flags.female ? "being removed from a bear trap by her pet"
+                                        : "being removed from a bear trap by his pet",
+                           KILLED_BY);
+                    set_wounded_legs(side, rn1(1000, 500));
+                }
+            } else if (u.utraptype == TT_WEB) {
+                pline("%s tears the web apart, setting you free!",
+                      Monnam(mtmp));
+                reset_utrap(FALSE);
+                deltrap(t_at(u.ux, u.uy));
+                newsym(u.ux, u.uy);
+            }
+            return 1;
+        }
+        /* unslime */
+        if (dmgtype(mtmp->data, AD_FIRE)
+            && !mtmp->mcan && Slimed
+            && distu(mtmp->mx, mtmp->my) < 3) {
+            if (attacktype(mtmp->data, AT_BREA))
+                pline("%s breathes fire on you!",
+                      Monnam(mtmp));
+            else if (attacktype(mtmp->data, AT_GAZE)
+                     && !Blind && mtmp->mcansee)
+                pline("%s looks at you with a fiery gaze!",
+                      Monnam(mtmp));
+            pline("You're %s!", on_fire(&youmonst, ON_FIRE));
+            if (completelyburns(youmonst.data)) {
+                You("go up in flames!");
+                burn_away_slime();
+                rehumanize();
+                return 1;
+            } else if (how_resistant(FIRE_RES) == 100
+                       || Underwater) {
+                if (Underwater)
+                    pline_The("fire quickly fizzles out.");
+                else
+                    pline_The("fire doesn't feel hot!");
+                monstseesu(M_SEEN_FIRE);
+            } else {
+                losehp(resist_reduce(rnd(6), FIRE_RES),
+                       flags.female ? "being set on fire by her pet"
+                                    : "being set on fire by his pet",
+                       KILLED_BY);
+            }
+            if (!Underwater) {
+                if ((int) mtmp->m_lev > rn2(20))
+                    destroy_item(SCROLL_CLASS, AD_FIRE);
+                if ((int) mtmp->m_lev > rn2(20))
+                    destroy_item(POTION_CLASS, AD_FIRE);
+                if ((int) mtmp->m_lev > rn2(25))
+                    destroy_item(SPBOOK_CLASS, AD_FIRE);
+                burn_away_slime();
+            }
+            return 1;
+        }
+    }
+
     nix = omx; /* set before newdogpos */
     niy = omy;
     cursemsg[0] = FALSE; /* lint suppression */
