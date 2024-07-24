@@ -1354,8 +1354,11 @@ int after; /* this is extra fast monster movement */
         /* maybe we tamed him while being swallowed --jgm */
         return 0;
 
-    /* Sometimes your pet can help you out in various ways */
-    if (!(mtmp->mconf || mtmp->mstun || mtmp->mfrozen)) {
+    /* Sometimes your pet can help you out in various ways.
+       Amount of tameness is taken into consideration (have
+       to at least be domesticated) */
+    if (!(mtmp->mconf || mtmp->mstun || mtmp->mfrozen)
+        && mtmp->mtame >= 10) {
         /* heal you if hit points are 12.5% or less than max */
         if (dmgtype(mtmp->data, AD_CLRC)
             && !(mtmp->mcan || mtmp->mspec_used)
@@ -1389,7 +1392,7 @@ int after; /* this is extra fast monster movement */
            be at least as large as you or larger */
         if (!rn2(4) && u.utrap
             && strongmonst(mtmp->data)
-            && !nolimbs(mtmp->data)
+            && !nohands(mtmp->data) && !u.usteed
             && distu(mtmp->mx, mtmp->my) < 3) {
             if (u.utraptype == TT_PIT) {
                 if (mtmp->data->msize < youmonst.data->msize) {

@@ -3570,4 +3570,5 @@ The following changes to date are:
   monsters from a distance
 - Pets can help the player other than fighting under certain
   cirmcumstances
+- Fix: minor issues with pets acting as a helper
 
