@@ -3571,4 +3571,6 @@ The following changes to date are:
 - Pets can help the player other than fighting under certain
   cirmcumstances
 - Fix: minor issues with pets acting as a helper
+- Fix: handling mind flayer larva turning their hosts into mind flayers
+  when mind flayers have been genocided
 

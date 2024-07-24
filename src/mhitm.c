@@ -2500,9 +2500,10 @@ msickness:
                         tmp = 0;
                     } else {
                         if (canseemon(mdef)) {
-                            pline("%s wraps its tentacles around %s %s, attaching itself to its %s!",
+                            pline("%s wraps its tentacles around %s %s, attaching itself to %s %s!",
                                   Monnam(magr), s_suffix(mon_nam(mdef)),
-                                  mbodypart(mdef, HEAD), mbodypart(mdef, FACE));
+                                  mbodypart(mdef, HEAD), mhis(mdef),
+                                  mbodypart(mdef, FACE));
                             pline("%s burrows itself into %s brain!",
                                   Monnam(magr), s_suffix(the(mon_nam(mdef))));
                         }

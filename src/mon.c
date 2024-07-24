@@ -307,7 +307,17 @@ struct monst* mdef;
     if (couldspot && willspot) {
         /* only print if you can spot both the dying monster and the arising
          * mind flayer */
-        pline("%s transforms into a mind flayer!", Monnam(mdef));
+        if (mvitals[PM_MIND_FLAYER].mvflags & G_GENOD) {
+            /* mind flayers have been genocided */
+            if (canspotmon(mdef))
+                pline("As %s transforms into a mind flayer, %s dies!",
+                      mon_nam(mdef), mhe(mdef));
+            set_mon_data(mdef, mdat);
+            mondied(mdef);
+            return;
+        } else {
+            pline("%s transforms into a mind flayer!", Monnam(mdef));
+        }
     }
 
     if (newcham(mdef, &mons[PM_MIND_FLAYER], FALSE, FALSE)) {
