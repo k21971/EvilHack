@@ -3573,4 +3573,5 @@ The following changes to date are:
 - Fix: minor issues with pets acting as a helper
 - Fix: handling mind flayer larva turning their hosts into mind flayers
   when mind flayers have been genocided
+- Fix: mon vs. mon casting could place summons on dangerous terrain
 

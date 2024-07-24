@@ -938,7 +938,7 @@ int spellnum;
     case CLC_SUMMON_MINION:
         if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
             coord bypos;
-            if (!enexto(&bypos, mtmp->mx, mtmp->my, mtmp->data))
+            if (!enexto(&bypos, mtmp->mx, mtmp->my, &mons[PM_SNOW_GOLEM]))
                 break;
             minion = makemon(&mons[PM_SNOW_GOLEM], bypos.x, bypos.y,
                              MM_ANGRY);
@@ -1058,13 +1058,14 @@ int spellnum;
         if (quan < 3)
             quan = 3;
         for (i = 0; i <= quan; i++) {
-            if (!enexto(&bypos, mtmp->mux, mtmp->muy, mtmp->data))
-                break;
-            if ((pm = mkclass(let, 0)) != 0
-                && (mtmp2 = makemon(pm, bypos.x, bypos.y, MM_ANGRY)) != 0) {
-                success = TRUE;
-                mtmp2->msleeping = mtmp2->mpeaceful = mtmp2->mtame = 0;
-                set_malign(mtmp2);
+            if ((pm = mkclass(let, 0)) != 0) {
+                if (!enexto(&bypos, mtmp->mux, mtmp->muy, pm))
+                    break;
+                if ((mtmp2 = makemon(pm, bypos.x, bypos.y, MM_ANGRY)) != 0) {
+                    success = TRUE;
+                    mtmp2->msleeping = mtmp2->mpeaceful = mtmp2->mtame = 0;
+                    set_malign(mtmp2);
+                }
             }
         }
         newseen = monster_census(TRUE);
@@ -2527,19 +2528,20 @@ int spellnum;
         if (quan < 3) quan = 3;
             success = pm ? TRUE : FALSE;
         for (i = 0; i <= quan; i++) {
-            if (!enexto(&bypos, mtmp->mx, mtmp->my, mtmp->data))
-                break;
-            if ((pm = mkclass(let, 0)) != 0
-                && (mtmp2 = makemon(pm, bypos.x, bypos.y, NO_MM_FLAGS)) != 0) {
-                success = TRUE;
-                mtmp2->msleeping = 0;
-                if (yours || mattk->mtame)
-                    (void) tamedog(mtmp2, (struct obj *) 0);
-                else if (mattk->mpeaceful)
-                    mtmp2->mpeaceful = 1;
-                else
-                    mtmp2->mpeaceful = 0;
-                set_malign(mtmp2);
+            if ((pm = mkclass(let, 0)) != 0) {
+                if (!enexto(&bypos, mtmp->mx, mtmp->my, pm))
+                    break;
+                if ((mtmp2 = makemon(pm, bypos.x, bypos.y, NO_MM_FLAGS)) != 0) {
+                    success = TRUE;
+                    mtmp2->msleeping = 0;
+                    if (yours || mattk->mtame)
+                        (void) tamedog(mtmp2, (struct obj *) 0);
+                    else if (mattk->mpeaceful)
+                        mtmp2->mpeaceful = 1;
+                    else
+                        mtmp2->mpeaceful = 0;
+                    set_malign(mtmp2);
+                }
             }
         }
 
