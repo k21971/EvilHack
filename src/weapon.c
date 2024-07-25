@@ -221,8 +221,8 @@ botl_hitbonus()
     if (maybe_polyd(is_drow(youmonst.data),
                     Race_if(PM_DROW))) {
         if (spot_is_dark(u.ux, u.uy)) { /* spot is dark */
-            if (!uwep || is_drow_weapon(weapon)
-                || weapon->oartifact == ART_SHADOWBLADE)
+            if (!uwep || (uwep && is_drow_weapon(uwep))
+                || (uwep && uwep->oartifact == ART_SHADOWBLADE))
                 tmp += (u.ulevel / 3) + 2;
             else
                 tmp += 0;

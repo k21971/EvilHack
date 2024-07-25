@@ -3575,4 +3575,5 @@ The following changes to date are:
   when mind flayers have been genocided
 - Fix: mon vs. mon casting could place summons on dangerous terrain
 - Fix: pets moving onto newly summoned monsters
+- Fix: crash while attacking with drow weaponry
 
