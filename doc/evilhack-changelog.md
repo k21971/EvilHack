@@ -3577,4 +3577,5 @@ The following changes to date are:
 - Fix: pets moving onto newly summoned monsters
 - Fix: crash while attacking with drow weaponry
 - Remove trailing whitespaces from various files
+- Tweaks to altar sacrifice gifts
 

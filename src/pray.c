@@ -957,7 +957,7 @@ gcrownu()
         obj = mksobj(class_gift, TRUE, FALSE);
         if (!u.uconduct.literate && !known_spell(obj->otyp)) {
             if (force_learn_spell(obj->otyp))
-                pline("Divine knowledge of %s fills your mind!",
+                pline("Divine knowledge of the spell %s fills your mind!",
                       OBJ_NAME(objects[obj->otyp]));
             obfree(obj, (struct obj *) 0);
         } else {
@@ -1450,7 +1450,7 @@ aligntyp g_align;
                 if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                     && !known_spell(otmp->otyp)) {
                     if (force_learn_spell(otmp->otyp))
-                        pline("Divine knowledge of %s fills your mind!",
+                        pline("Divine knowledge of the spell %s fills your mind!",
                               OBJ_NAME(objects[otmp->otyp]));
                     obfree(otmp, (struct obj *) 0);
                 } else {
@@ -2236,13 +2236,16 @@ dosacrifice()
                the more artifacts the player wishes for, the lower
                the chances of receiving an artifact gift via sacrifice */
             int reg_gift_odds  = ((u.ualign.abuse == 0) ? 5 : 6) + (2 * u.ugifts);
-            int arti_gift_odds = ((u.ualign.abuse == 0) ? 9 : 10) + (2 * u.ugifts) + (2 * u.uconduct.wisharti);
-            boolean primary_casters, primary_casters_priest;
+            int arti_gift_odds = ((u.ualign.abuse == 0) ? 9 : 10) + (2 * u.ugifts)
+                                  + (2 * u.uconduct.wisharti);
+            boolean primary_casters,
+                    primary_casters_priest,
+                    primary_casters_wizard;
 
             /* Primary casting roles */
-            primary_casters = Role_if(PM_HEALER)
-                                      || Role_if(PM_WIZARD) || Role_if(PM_INFIDEL);
+            primary_casters = (Role_if(PM_HEALER) || Role_if(PM_INFIDEL));
             primary_casters_priest = Role_if(PM_PRIEST);
+            primary_casters_wizard = Role_if(PM_WIZARD);
 
             /* you were already in pretty good standing
              *
@@ -2271,31 +2274,95 @@ dosacrifice()
              * level 21: 70% chance level 23: 80% chance level 24: 90% chance
              * level 26 or greater: 100% chance
              */
+
+            /* TODO: these object/spellbook routines really should be made
+               into separate functions, as some of these are duplicated */
             if ((!awaiting_guaranteed_gift() || u.ulevel <= 2)
                 && rn2(10) >= (int) ((nchance * nchance) / 100)) {
                 if (u.uluck >= 0 && !rn2(reg_gift_odds)) {
                     int typ, ncount = 0;
-                    if (rn2(2)) { /* Making a weapon */
+
+                    if (rn2(100) >= 50) { /* Making a weapon */
                         do {
                             /* Don't give unicorn horns or anything the player's restricted in
                              * Lets also try to dish out suitable gear based on the player's role */
                             if (primary_casters) {
-                                typ = rn2(2) ? rnd_class(DAGGER, ATHAME) : rnd_class(MACE, FLAIL);
+                                typ = (rn2(100) >= 50) ? rnd_class(DAGGER, ATHAME)
+                                                       : rnd_class(MACE, FLAIL);
                             } else if (primary_casters_priest) {
                                 typ = rnd_class(MACE, FLAIL);
                             } else if (Role_if(PM_MONK)) {
                                 if (!u.uconduct.weaphit)
                                     typ = SHURIKEN;
                                 else
-                                    typ = rn2(4) ? rnd_class(QUARTERSTAFF, STAFF_OF_WAR)
-                                                 : BROADSWORD;
-                            } else {
+                                    typ = (rn2(100) >= 25)
+                                            ? rnd_class(QUARTERSTAFF, STAFF_OF_WAR)
+                                            : BROADSWORD;
+                            } else if (primary_casters_wizard) {
+                                if (!u.uconduct.weaphit) {
+                                    /* Making a spellbook */
+                                    int trycnt = u.ulevel + 1;
+
+                                    /* not yet known spells given preference over already known ones.
+                                       Also, try to grant a spell for which there is a skill slot */
+                                    otmp = mkobj(SPBOOK_CLASS, TRUE);
+
+                                    if (!otmp)
+                                        return 1;
+
+                                    while (--trycnt > 0) {
+                                        if (otmp->otyp != SPE_BLANK_PAPER) {
+                                            if (!known_spell(otmp->otyp)
+                                                && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
+                                                break; /* usable, but not yet known */
+                                        } else {
+                                            if ((!objects[SPE_BLANK_PAPER].oc_name_known
+                                                 || carrying(MAGIC_MARKER)) && u.uconduct.literate)
+                                                break;
+                                        }
+                                        otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_FREEZE_SPHERE);
+                                        set_material(otmp, objects[otmp->otyp].oc_material);
+                                    }
+
+                                    if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
+                                        && !known_spell(otmp->otyp)) {
+                                        if (force_learn_spell(otmp->otyp))
+                                            pline("Divine knowledge of the spell %s fills your mind!",
+                                                  OBJ_NAME(objects[otmp->otyp]));
+                                        obfree(otmp, (struct obj *) 0);
+                                    } else {
+                                        bless(otmp);
+                                        otmp->oeroded = otmp->oeroded2 = 0;
+                                        at_your_feet("A spellbook");
+                                        place_object(otmp, u.ux, u.uy);
+                                        newsym(u.ux, u.uy);
+                                    }
+                                    godvoice(u.ualign.type, "Use this gift skillfully!");
+                                    if (!otmp || is_magic(otmp))
+                                        u.ugifts++;
+                                    u.ublesscnt = rnz(300 + (50 * u.ugifts));
+                                    exercise(A_WIS, TRUE);
+                                    if (!Hallucination && !Blind) {
+                                        otmp->dknown = 1;
+                                        makeknown(otmp->otyp);
+                                    }
+                                    livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                                   "had %s given to %s by %s",
+                                                   an(xname(otmp)), uhim(), u_gname());
+                                    return 1;
+                                } else {
+                                    typ = (rn2(100) >= 50)
+                                            ? rnd_class(QUARTERSTAFF, STAFF_OF_WAR)
+                                            : rnd_class(DAGGER, ATHAME);
+                                }
+                            } else { /* remaining roles */
                                 typ = rnd_class(SPEAR, KATANA);
                             }
 
                             /* apply starting inventory subs - so we'll get racial gear if possible */
                             if (urace.malenum != PM_HUMAN) {
                                 int i;
+
                                 for (i = 0; inv_subs[i].race_pm != NON_PM; ++i) {
                                     if (inv_subs[i].race_pm == urace.malenum
                                         && typ == inv_subs[i].item_otyp) {
@@ -2323,7 +2390,8 @@ dosacrifice()
                             if (typ && !P_RESTRICTED(objects[typ].oc_skill))
                                 break;
                         } while (ncount++ < 1000);
-                    } else if ((primary_casters || primary_casters_priest)
+                    } else if ((primary_casters || primary_casters_priest
+                                || primary_casters_wizard)
                                && !Race_if(PM_DRAUGR) && !rn2(3)) {
                         /* Making a spellbook */
                         int trycnt = u.ulevel + 1;
@@ -2352,7 +2420,7 @@ dosacrifice()
                         if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                             && !known_spell(otmp->otyp)) {
                             if (force_learn_spell(otmp->otyp))
-                                pline("Divine knowledge of %s fills your mind!",
+                                pline("Divine knowledge of the spell %s fills your mind!",
                                       OBJ_NAME(objects[otmp->otyp]));
                             obfree(otmp, (struct obj *) 0);
                         } else {
@@ -2386,10 +2454,13 @@ dosacrifice()
                                                                            : rn2(6)) {
                             case 0:
                                 /* body armor (inc. shirts) */
-                                if (primary_casters || primary_casters_priest) {
-                                    typ = rn2(2) ? rnd_class(ARMOR, JACKET)
-                                                 : rn2(6) ? typ == STUDDED_ARMOR
-                                                          : typ == CRYSTAL_PLATE_MAIL;
+                                if (primary_casters || primary_casters_priest
+                                    || primary_casters_wizard) {
+                                    typ = (rn2(100) >= 50)
+                                            ? rnd_class(ARMOR, JACKET)
+                                            : (rn2(100) >= 16)
+                                                ? typ == STUDDED_ARMOR
+                                                : typ == CRYSTAL_PLATE_MAIL;
                                 } else {
                                     typ = rnd_class(PLATE_MAIL, T_SHIRT);
                                 }
@@ -2404,9 +2475,11 @@ dosacrifice()
                                 break;
                             case 2:
                                 /* boots */
-                                if (primary_casters || primary_casters_priest) {
-                                    typ = !rn2(3) ? typ == LOW_BOOTS
-                                                  : rnd_class(HIGH_BOOTS, LEVITATION_BOOTS);
+                                if (primary_casters || primary_casters_priest
+                                    || primary_casters_wizard) {
+                                    typ = (rn2(100) >= 66)
+                                            ? typ == LOW_BOOTS
+                                            : rnd_class(HIGH_BOOTS, LEVITATION_BOOTS);
                                 } else {
                                     typ = rnd_class(LOW_BOOTS, LEVITATION_BOOTS);
                                 }
@@ -2416,14 +2489,18 @@ dosacrifice()
                                 /* FALLTHRU */
                             case 3:
                                 /* shield */
-                                if (primary_casters || primary_casters_priest) {
+                                if (primary_casters || primary_casters_priest
+                                    || primary_casters_wizard) {
                                     if (Race_if(PM_DROW)) {
-                                        typ = rn2(8) ? typ == DARK_ELVEN_BRACERS
-                                                     : rn2(2) ? typ == SHIELD_OF_REFLECTION
-                                                              : typ == SHIELD_OF_MOBILITY;
+                                        typ = (rn2(100) >= 12)
+                                                ? typ == DARK_ELVEN_BRACERS
+                                                : (rn2(100) >= 50)
+                                                    ? typ == SHIELD_OF_REFLECTION
+                                                    : typ == SHIELD_OF_MOBILITY;
                                     } else {
-                                        typ = rn2(8) ? typ == SMALL_SHIELD
-                                                     : rnd_class(SHIELD_OF_REFLECTION, SHIELD_OF_MOBILITY);
+                                        typ = (rn2(100) >= 12)
+                                                ? typ == SMALL_SHIELD
+                                                : rnd_class(SHIELD_OF_REFLECTION, SHIELD_OF_MOBILITY);
                                     }
                                 } else {
                                     if (Race_if(PM_DROW))
@@ -2437,25 +2514,27 @@ dosacrifice()
                                 /* FALLTHRU */
                             case 4:
                                 /* gloves */
-                                if ((primary_casters || primary_casters_priest)) {
-                                    typ = rn2(3) ? typ == GLOVES
-                                                 : rnd_class(GAUNTLETS_OF_POWER,
-                                                             GAUNTLETS_OF_DEXTERITY);
+                                if (primary_casters || primary_casters_priest
+                                    || primary_casters_wizard) {
+                                    typ = (rn2(100) >= 33)
+                                            ? typ == GLOVES
+                                            : rnd_class(GAUNTLETS_OF_POWER, GAUNTLETS_OF_DEXTERITY);
                                 } else {
                                     typ = rnd_class(GLOVES, GAUNTLETS_OF_DEXTERITY);
                                 }
                                 break;
                             case 5:
                                 /* helm */
-                                if ((primary_casters || primary_casters_priest)) {
+                                if (primary_casters || primary_casters_priest
+                                    || primary_casters_wizard) {
                                     if (Role_if(PM_WIZARD)) {
-                                        typ = rn2(2) ? rnd_class(CORNUTHAUM, DARK_ELVEN_HELM)
-                                                     : rnd_class(HELM_OF_BRILLIANCE,
-                                                                 HELM_OF_TELEPATHY);
+                                        typ = (rn2(100) >= 50)
+                                                ? rnd_class(CORNUTHAUM, DARK_ELVEN_HELM)
+                                                : rnd_class(HELM_OF_BRILLIANCE, HELM_OF_TELEPATHY);
                                     } else {
-                                        typ = rn2(2) ? rnd_class(FEDORA, ELVEN_HELM)
-                                                     : rnd_class(HELM_OF_BRILLIANCE,
-                                                                 HELM_OF_TELEPATHY);
+                                        typ = (rn2(100) >= 50)
+                                                ? rnd_class(FEDORA, ELVEN_HELM)
+                                                : rnd_class(HELM_OF_BRILLIANCE, HELM_OF_TELEPATHY);
                                     }
                                 } else {
                                     typ = rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);
@@ -2523,7 +2602,7 @@ dosacrifice()
                         if (otmp) {
                             if (otmp->otyp == SHURIKEN)
                                 otmp->quan = (long) rn1(7, 14); /* 14-20 count */
-                            if (!rn2(8))
+                            if (!rn2((u.ualign.abuse == 0) ? 4 : 8))
                                 otmp = create_oprop(otmp, FALSE);
                             if (altaralign == A_NONE)
                                 curse(otmp);
