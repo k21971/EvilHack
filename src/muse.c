@@ -2116,7 +2116,7 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
             case WAN_STRIKING:
                 destroy_drawbridge(x, y);
             }
-        if (levl[x][y].typ == IRONBARS 
+        if (levl[x][y].typ == IRONBARS
             && !(levl[x][y].wall_info & W_NONDIGGABLE)
             && obj->otyp == WAN_STRIKING) {
             levl[x][y].typ = ROOM;

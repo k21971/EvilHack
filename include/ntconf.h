@@ -110,7 +110,7 @@ extern void FDECL(interject, (int));
 #endif
 /* extern int NDECL(getlock); */
 #endif
- 
+
 #ifdef _MSC_VER
 #if (_MSC_VER > 1000)
 /* Visual C 8 warning elimination */

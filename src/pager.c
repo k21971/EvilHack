@@ -60,7 +60,7 @@ const char *new_str;
 {
     static const char sep[] = " or ";
     size_t oldlen, space_left;
- 
+
     if (strstri(buf, new_str))
         return 0; /* already present */
 
@@ -71,7 +71,7 @@ const char *new_str;
                        (unsigned long) oldlen);
         return 0; /* no space available */
     }
- 
+
     /* some space available, but not necessarily enough for full append */
     space_left = BUFSZ - 1 - oldlen;  /* space remaining in buf */
     (void) strncat(buf, sep, space_left);

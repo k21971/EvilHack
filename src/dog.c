@@ -404,7 +404,7 @@ losedogs()
         mtmp2 = mtmp->nmon;
         if (mtmp->mux == u.uz.dnum
             && (mtmp->muy == u.uz.dlevel
-                || (mtmp->muy < u.uz.dlevel 
+                || (mtmp->muy < u.uz.dlevel
                     && mtmp->mtrack[0].x == MIGR_STALK))) {
             /* remove mtmp from migrating_mons list */
             if (mtmp == migrating_mons) {

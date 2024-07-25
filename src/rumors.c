@@ -512,7 +512,7 @@ int fd, mode;
     if (perform_bwrite(mode)) {
         bwrite(fd, (genericptr_t) &oracle_cnt, sizeof oracle_cnt);
         if (oracle_cnt)
-            bwrite(fd, (genericptr_t) oracle_loc, 
+            bwrite(fd, (genericptr_t) oracle_loc,
                     oracle_cnt * sizeof(long));
     }
     if (release_data(mode)) {

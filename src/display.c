@@ -2053,9 +2053,9 @@ static int bad_count[MAX_TYPE]; /* count of positions flagged as bad */
 static const char *type_names[MAX_TYPE] = {
     "STONE", "VWALL", "HWALL", "TLCORNER", "TRCORNER", "BLCORNER", "BRCORNER",
     "CROSSWALL", "TUWALL", "TDWALL", "TLWALL", "TRWALL", "DBWALL", "TREE",
-    "DEADTREE", "SDOOR", "SCORR", "POOL", "MOAT", "WATER", "DRAWBRIDGE_UP", 
+    "DEADTREE", "SDOOR", "SCORR", "POOL", "MOAT", "WATER", "DRAWBRIDGE_UP",
     "LAVAPOOL", "IRON_BARS", "DOOR", "CORR", "ROOM", "STAIRS", "LADDER", "FORGE",
-    "MAGIC_CHEST", "FOUNTAIN", "THRONE", "SINK", "GRAVE", "ALTAR", "ICE", 
+    "MAGIC_CHEST", "FOUNTAIN", "THRONE", "SINK", "GRAVE", "ALTAR", "ICE",
     "DRAWBRIDGE_DOWN", "AIR", "CLOUD", "PUDDLE", "SEWAGE"
 };
 
