@@ -3574,4 +3574,5 @@ The following changes to date are:
 - Fix: handling mind flayer larva turning their hosts into mind flayers
   when mind flayers have been genocided
 - Fix: mon vs. mon casting could place summons on dangerous terrain
+- Fix: pets moving onto newly summoned monsters
 

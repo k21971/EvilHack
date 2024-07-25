@@ -1778,8 +1778,10 @@ int after; /* this is extra fast monster movement */
                 }
             }
 
-            /* pet moved when attacking */
-            if (mtmp->mx != omx || mtmp->my != omy)
+            /* pet moved when attacking, or can no longer move where it planned
+               (e.g. a summon from a ranged spell occupies the target square) */
+            if (mtmp->mx != omx || mtmp->my != omy || !goodpos(nix, niy, mtmp, 0L))
+
                 return 0;
        }
     }
