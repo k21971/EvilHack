@@ -2403,11 +2403,21 @@ int FDECL((*fhito), (OBJ_P, OBJ_P));
 int tx, ty;
 schar zz;
 {
-    int hitanything = 0;
-    register struct obj *otmp, *next_obj;
+    struct obj *otmp, *next_obj;
+    boolean hidingunder, first;
+    int prevotyp, hitanything = 0;
+
+    if (!level.objects[tx][ty])
+        return 0;
+
+    /* if hiding underneath an object and zapping up or down, the top item
+       is either the only thing hit (up) or is skipped (down) */
+    hidingunder = (zz != 0 && u.uundetected && hides_under(youmonst.data));
+    first = TRUE;
 
     if (obj->otyp == SPE_FORCE_BOLT || obj->otyp == WAN_STRIKING) {
         struct trap *t = t_at(tx, ty);
+        struct obj *topofpile = level.objects[tx][ty];
 
         /* We can't settle for the default calling sequence of
            bhito(otmp) -> break_statue(otmp) -> activate_statue_trap(ox,oy)
@@ -2417,20 +2427,52 @@ schar zz;
         if (t && t->ttyp == STATUE_TRAP
             && activate_statue_trap(t, tx, ty, TRUE))
             learnwand(obj);
+        /* assume zapping up or down while hiding under the top item can
+           still activate the trap even if it's below (when zapping up)
+           or above (when zapping down) */
+        if (level.objects[tx][ty] != topofpile)
+            first = FALSE; /* top item was statue which activated */
     }
 
     poly_zapped = -1;
     for (otmp = level.objects[tx][ty]; otmp; otmp = next_obj) {
         next_obj = otmp->nexthere;
-        /* for zap downwards, don't hit object poly'd hero is hiding under */
-        if (zz > 0 && u.uundetected && otmp == level.objects[u.ux][u.uy]
-            && hides_under(youmonst.data))
+        if (hidingunder) {
+            if (first) {
+                first = FALSE; /* reset for next item */
+                if (zz > 0) /* down when hiding-under skips first item */
+                    continue;
+            } else {
+                /* !first */
+                if (zz < 0) /* up when hiding-under skips rest of pile */
+                    continue;
+            }
+        }
+        if (otmp->where != OBJ_FLOOR || otmp->ox != tx || otmp->oy != ty)
             continue;
-
         hitanything += (*fhito)(otmp, obj);
     }
+
     if (poly_zapped >= 0)
         create_polymon(level.objects[tx][ty], poly_zapped);
+
+    /* when boulders are present they're expected to be on top; with
+       multiple boulders it's possible for some to have been changed into
+       non-boulders (polymorph, stone-to-flesh) while ones beneath resist,
+       so re-stack pile if there are any non-boulders above boulders */
+    prevotyp = BOULDER;
+    for (otmp = level.objects[tx][ty]; otmp; otmp = otmp->nexthere) {
+        if (otmp->otyp == BOULDER && prevotyp != BOULDER) {
+            recreate_pile_at(tx, ty);
+            break;
+        }
+        prevotyp = otmp->otyp;
+    }
+
+    if (hidingunder) /* pile might have been destroyed or dispersed */
+        maybe_unhide_at(tx, ty);
+
+    fill_pit(tx, ty);
 
     return hitanything;
 }

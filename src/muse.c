@@ -3184,6 +3184,7 @@ struct monst *mtmp;
         remove_monster(mtmp->mx, mtmp->my);
         newsym(mtmp->mx, mtmp->my);
         place_monster(mtmp, trapx, trapy);
+        maybe_unhide_at(trapx, trapy);
         if (mtmp->wormno)
             worm_move(mtmp);
         newsym(trapx, trapy);

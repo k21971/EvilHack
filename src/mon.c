@@ -5203,12 +5203,22 @@ maybe_unhide_at(x, y)
 xchar x, y;
 {
     struct monst *mtmp;
+    boolean undetected = FALSE, trapped = FALSE;
 
-    if ((mtmp = m_at(x, y)) == 0
-        && (x == u.ux && y == u.uy))
+    if ((mtmp = m_at(x, y)) != (struct monst *) 0) {
+        undetected = mtmp->mundetected;
+        trapped = mtmp->mtrapped;
+    } else if (x == u.ux && y == u.uy) {
         mtmp = &youmonst;
-    if (mtmp && mtmp->mundetected
-        && ((hides_under(mtmp->data) && (!OBJ_AT(x, y) || mtmp->mtrapped))
+        undetected = u.uundetected;
+        trapped = u.utrap;
+    } else {
+        return;
+    }
+
+    if (undetected
+        && ((hides_under(mtmp->data)
+             && (!OBJ_AT(x, y) || trapped))
             || (mtmp->data->mlet == S_EEL && !is_damp_terrain(x, y))
             || (mtmp->data == &mons[PM_GIANT_LEECH] && !is_sewage(x, y))))
         (void) hideunder(mtmp);
