@@ -3579,4 +3579,5 @@ The following changes to date are:
 - Remove trailing whitespaces from various files
 - Tweaks to altar sacrifice gifts
 - Fix: various 'hiding under' bugs
+- Fix: antimatter vortex disentegration engulf attack
 

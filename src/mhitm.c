@@ -2385,6 +2385,12 @@ post_stone:
                 else
                     pline("%s consumes %s life force!",
                           Monnam(magr), s_suffix(mon_nam(mdef)));
+                /* in case a AT_ENGL AD_DETH attack is created */
+                if (m_at(mdef->mx, mdef->my) == magr) {
+                    remove_monster(mdef->mx, mdef->my);
+                    mdef->mhp = 1; /* it shouldn't be < 1, but make sure */
+                    place_monster(mdef, mdef->mx, mdef->my);
+                }
                 mdef->mhp = 0;
                 monkilled(mdef, (char *) 0, AD_DETH);
                 if (!DEADMONSTER(mdef))
@@ -2646,7 +2652,11 @@ msickness:
                 }
 
 #undef oresist_disintegration
-
+                if (m_at(mdef->mx, mdef->my) == magr) { /* see gulpmm() */
+                    remove_monster(mdef->mx, mdef->my);
+                    mdef->mhp = 1; /* it shouldn't be < 1, but make sure */
+                    place_monster(mdef, mdef->mx, mdef->my);
+                }
                 mdef->mhp = 0;
                 zombify = FALSE;
                 if (magr->uexp)
