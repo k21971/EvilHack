@@ -3581,4 +3581,5 @@ The following changes to date are:
 - Fix: various 'hiding under' bugs
 - Fix: antimatter vortex disentegration engulf attack
 - Fix: 'already have amulet?' impossible as Infidel
+- Fix: 'hiding monster stuck to you' impossible
 

@@ -829,8 +829,37 @@ register struct monst *mtmp;
         else /* see note about m_monnam() above */
             pline("Wait, %s!  That's a %s named %s!", m_monnam(mtmp),
                   youmonst.data->mname, plname);
-        if (sticky)
+        if (sticky) {
             u.ustuck = mtmp;
+            /* normally this happens later in mhitu, but we return before that */
+            if (mtmp->mundetected
+                && (hides_under(mdat) || mdat->mlet == S_EEL
+                    || mdat == &mons[PM_GIANT_LEECH])) {
+                mtmp->mundetected = 0;
+                if (!(Blind ? Blind_telepat : Unblind_telepat)) {
+                    struct obj *obj;
+                    const char *what;
+
+                    if ((obj = level.objects[mtmp->mx][mtmp->my]) != 0) {
+                        if (Blind && !obj->dknown)
+                            what = something;
+                        else if (is_pool(mtmp->mx, mtmp->my) && !Underwater)
+                            what = "the water";
+                        else if (is_puddle(mtmp->mx, mtmp->my))
+                            what = "the shallow water";
+                        else if (is_sewage(mtmp->mx, mtmp->my))
+                            what = "the raw sewage";
+                        else
+                            what = doname(obj);
+
+                        pline("%s was hidden under %s!", Amonnam(mtmp), what);
+                    }
+                    /* unhide attacking monster if hidden */
+                    maybe_unhide_at(mtmp->mx, mtmp->my);
+                    newsym(mtmp->mx, mtmp->my);
+                }
+            }
+        }
         youmonst.m_ap_type = M_AP_NOTHING;
         youmonst.mappearance = 0;
         newsym(u.ux, u.uy);
