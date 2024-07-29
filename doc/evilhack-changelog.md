@@ -3580,4 +3580,5 @@ The following changes to date are:
 - Tweaks to altar sacrifice gifts
 - Fix: various 'hiding under' bugs
 - Fix: antimatter vortex disentegration engulf attack
+- Fix: 'already have amulet?' impossible as Infidel
 

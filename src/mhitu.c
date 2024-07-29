@@ -770,7 +770,6 @@ register struct monst *mtmp;
                     pline("%s is almost hit by a falling piercer (you)!",
                           Monnam(mtmp));
             }
-
         } else {
             /* surface hider */
             if (!youseeit) {

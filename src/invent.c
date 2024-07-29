@@ -832,7 +832,7 @@ struct obj *obj;
     if (obj->oclass == COIN_CLASS) {
         context.botl = 1;
     } else if (obj->otyp == AMULET_OF_YENDOR) {
-        if (u.uhave.amulet)
+        if (u.uhave.amulet && !Role_if(PM_INFIDEL))
             impossible("already have amulet?");
         u.uhave.amulet = 1;
         /* Player will be able to discover if s/he has the real amulet */
