@@ -195,6 +195,7 @@ struct obj **obj_p;
     if (!otmp || otmp->otyp != glyphotyp) {
         /* this used to exclude STRANGE_OBJECT; now caller deals with it */
         otmp = mksobj(glyphotyp, FALSE, FALSE);
+        set_material(otmp, objects[otmp->otyp].oc_material);
         if (!otmp)
             return FALSE;
         fakeobj = TRUE;
