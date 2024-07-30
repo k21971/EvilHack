@@ -3258,8 +3258,10 @@ struct obj *mwep;
                 } else {
                     if (mdef->data == &mons[PM_ANTIMATTER_VORTEX] ? rn2(10) : rn2(20)) {
                         if (canseemon(magr))
-                            pline("%s hide partially disintegrates %s!",
-                                  s_suffix(Monnam(mdef)), mon_nam(magr));
+                            pline("%s %s partially disintegrates %s!",
+                                  s_suffix(Monnam(mdef)),
+                                  mdef->data == &mons[PM_ANTIMATTER_VORTEX]
+                                      ? "form" : "hide", mon_nam(magr));
                         tmp = rn2(6) + 1;
                         goto assess_dmg;
                     } else {

@@ -4540,8 +4540,9 @@ struct attack *mattk;
             } else {
                 if (youmonst.data == &mons[PM_ANTIMATTER_VORTEX] ? rn2(10) : rn2(20)) {
                     if (canseemon(mtmp))
-                        Your("hide partially disintegrates %s!",
-                             mon_nam(mtmp));
+                        Your("%s partially disintegrates %s!",
+                             youmonst.data == &mons[PM_ANTIMATTER_VORTEX]
+                                 ? "form" : "hide", mon_nam(mtmp));
                     tmp = rn2(6) + 1;
                     goto assess_dmg;
                 } else {
