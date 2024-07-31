@@ -3590,4 +3590,5 @@ The following changes to date are:
 - Revert 'Putting Magicbane into a bag of holding has a chance of
   causing the bag to explode'
 - Fix: filename in evilhack-cpp.yml, change checkout from v3 to v4
+- Switch status from beta to released
 
