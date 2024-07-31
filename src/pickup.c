@@ -2350,15 +2350,15 @@ mbag_explodes(obj, depthin)
 struct obj *obj;
 int depthin;
 {
-    /* these won't cause an explosion when they're empty/no enchantment */
-    if ((obj->otyp == WAN_CANCELLATION || obj->otyp == BAG_OF_TRICKS
-         || obj->oartifact == ART_MAGICBANE)
+    /* these won't cause an explosion when they're
+       empty/no enchantment */
+    if ((obj->otyp == WAN_CANCELLATION
+         || obj->otyp == BAG_OF_TRICKS)
         && obj->spe <= 0)
         return FALSE;
 
     /* odds: 1/1 (just scattered though, not gone) */
-    if (Is_mbag(obj) || obj->otyp == WAN_CANCELLATION
-        || (!rn2(3) && obj->oartifact == ART_MAGICBANE)) {
+    if (Is_mbag(obj) || obj->otyp == WAN_CANCELLATION) {
         return TRUE;
     } else if (Has_contents(obj)) {
         struct obj *otmp;

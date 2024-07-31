@@ -3587,4 +3587,6 @@ The following changes to date are:
 - Adjust feedback when spellcasting pets cast spells at the player
 - More adjustments to monster spellcasting
 - Tweak to excess pets becoming peaceful or hostile
+- Revert 'Putting Magicbane into a bag of holding has a chance of
+  causing the bag to explode'
 
