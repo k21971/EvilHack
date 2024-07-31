@@ -1339,7 +1339,8 @@ int spellnum;
                 || spellnum == MGC_CLONE_WIZ
                 || spellnum == MGC_DEATH_TOUCH))
             return TRUE;
-        /* aggravate monsters, etc. won't be cast by peaceful monsters */
+        /* aggravate monsters, monster summoning won't
+           be cast by tame or peaceful monsters */
         if ((mtmp->mtame || mtmp->mpeaceful)
             && (spellnum == MGC_AGGRAVATION
                 || spellnum == MGC_SUMMON_MONS
@@ -1421,8 +1422,11 @@ int spellnum;
         if ((!haseyes(mdef->data) || mdef->mblinded)
             && spellnum == CLC_BLIND_YOU)
             return TRUE;
+        /* monster summoning won't be cast by tame
+           or peaceful monsters */
         if ((mtmp->mtame || mtmp->mpeaceful)
             && (spellnum == CLC_CALL_UNDEAD
+                || spellnum == CLC_INSECTS
                 || spellnum == CLC_SUMMON_MINION))
             return TRUE;
         /* only undead/demonic spell casters, chaotic/unaligned priests
@@ -1442,8 +1446,15 @@ unsigned int adtyp;
 int spellnum;
 {
     if (adtyp == AD_SPEL) {
-        /* aggravate monsters, etc. won't be cast by peaceful monsters */
+        /* player != rodney */
         if (spellnum == MGC_CLONE_WIZ)
+            return TRUE;
+        /* if you're attacking, monster is
+           already aggravated */
+        if (spellnum == MGC_AGGRAVATION)
+            return TRUE;
+        /* no free pets */
+        if (spellnum == MGC_SUMMON_MONS)
             return TRUE;
         /* haste self when already fast */
         if (Fast && spellnum == MGC_HASTE_SELF)
@@ -1458,9 +1469,10 @@ int spellnum;
         /* healing when already healed */
         if (u.mh == u.mhmax && spellnum == CLC_CURE_SELF)
             return TRUE;
-        if (spellnum == CLC_CALL_UNDEAD)
-            return TRUE;
-        if (spellnum == CLC_SUMMON_MINION)
+        /* no free pets */
+        if (spellnum == CLC_CALL_UNDEAD
+            || spellnum == CLC_INSECTS
+            || spellnum == CLC_SUMMON_MINION)
             return TRUE;
     }
     return FALSE;
@@ -1484,7 +1496,8 @@ int spellnum;
     boolean evilpriest = (mtmp->ispriest && mon_aligntyp(mtmp) < A_NEUTRAL);
 
     if (adtyp == AD_SPEL) {
-        /* aggravate monsters, etc. won't be cast by peaceful monsters */
+        /* aggravate monsters, monster summoning won't
+           be cast by peaceful monsters */
         if (mtmp->mpeaceful
             && (spellnum == MGC_AGGRAVATION
                 || spellnum == MGC_SUMMON_MONS

@@ -3585,4 +3585,5 @@ The following changes to date are:
 - Fix: 'form' vs 'hide'
 - Fix: random amulet materials
 - Adjust feedback when spellcasting pets cast spells at the player
+- More adjustments to monster spellcasting
 
