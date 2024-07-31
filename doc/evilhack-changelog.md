@@ -3584,4 +3584,5 @@ The following changes to date are:
 - Fix: 'hiding monster stuck to you' impossible
 - Fix: 'form' vs 'hide'
 - Fix: random amulet materials
+- Adjust feedback when spellcasting pets cast spells at the player
 

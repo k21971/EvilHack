@@ -1364,8 +1364,12 @@ int after; /* this is extra fast monster movement */
             && !(mtmp->mcan || mtmp->mspec_used)
             && (u.uhp < (u.uhpmax / 8))
             && distu(mtmp->mx, mtmp->my) < 3) {
-            pline("%s casts a spell at you!", Monnam(mtmp));
-            You_feel("better.");
+            pline("%s casts a healing spell at you.",
+                  Monnam(mtmp));
+            if (Hallucination)
+                You_feel("groovy.");
+            else
+                You_feel("better.");
             healup(d(3, 6), 0, FALSE, FALSE);
             return 1;
         }
@@ -1374,7 +1378,8 @@ int after; /* this is extra fast monster movement */
             && !(mtmp->mcan || mtmp->mspec_used)
             && mtmp->m_lev >= 3 && !u.uspellprot
             && distu(mtmp->mx, mtmp->my) < 3) {
-            pline("%s casts a spell at you!", Monnam(mtmp));
+            pline("%s casts a protection spell at you.",
+                  Monnam(mtmp));
             (void) cast_protection();
             return 1;
         }
@@ -1383,7 +1388,8 @@ int after; /* this is extra fast monster movement */
             && !(mtmp->mcan || mtmp->mspec_used)
             && mtmp->m_lev >= 14 && !Reflecting
             && distu(mtmp->mx, mtmp->my) < 3) {
-            pline("%s casts a spell at you!", Monnam(mtmp));
+            pline("%s casts a reflection spell at you.",
+                  Monnam(mtmp));
             (void) cast_reflection(&youmonst);
             return 1;
         }
