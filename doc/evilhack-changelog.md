@@ -3586,4 +3586,5 @@ The following changes to date are:
 - Fix: random amulet materials
 - Adjust feedback when spellcasting pets cast spells at the player
 - More adjustments to monster spellcasting
+- Tweak to excess pets becoming peaceful or hostile
 

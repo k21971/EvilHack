@@ -376,7 +376,10 @@ boolean resuming;
                         }
                         if (weakdog && numdogs > ACURR(A_CHA) / 3) {
                             weakdog->mtame = 0;
-                            if (rn2(EDOG(weakdog)->abuse + 1))
+                            /* if former pet was abused, or just
+                               at random, become hostile */
+                            if (rn2(EDOG(weakdog)->abuse + 1)
+                                || !rn2(3))
                                 weakdog->mpeaceful = 0;
                             if (weakdog->mleashed)
                                 m_unleash(weakdog, TRUE);
