@@ -528,6 +528,7 @@ static const struct def_skill Skill_Dra_Con[] = {
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_THIEVERY, P_SKILLED },
     { P_SHIELD, P_BASIC },
+};
 static const struct def_skill Skill_D[] = {
     { P_DAGGER, P_BASIC },
     { P_SABER, P_EXPERT },

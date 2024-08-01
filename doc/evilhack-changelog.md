@@ -3601,4 +3601,5 @@ The following changes to date are:
 - New player role: Druid (initial commit)
 - Minor tweaks to Druid role
 - Set default Druid pet name if one isn't set in the player config
+- Fix: typo during druid cherry-pick
 
