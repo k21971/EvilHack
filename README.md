@@ -24,8 +24,9 @@ coming changes for future versions -
 https://github.com/k21971/EvilHack/blob/master/doc/evilhack-changelog.md
 
 More information regarding this variant can be accessed at the NetHackWiki -
-https://nethackwiki.com/wiki/EvilHack - or by visiting channels #evilhack
-or #hardfought on Libera IRC.
+https://nethackwiki.com/wiki/EvilHack. Have questions and want to interact
+with people in real time? Visit channels #evilhack or #hardfought on Libera
+IRC, or #evilhack on the Roguelikes Discord.
 
 ## Design Philosophy
 
@@ -45,7 +46,7 @@ In short:
 ## Installation
 
 Each OS type found under the `sys` folder has an installation guide for that
-particular operating system. Pre-compiled binaries (linux and windows) can be
+particular operating system. Pre-compiled binaries for windows OS can be
 found here - https://github.com/k21971/EvilHack/releases
 
 For Linux (TL;DR version):

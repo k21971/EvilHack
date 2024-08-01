@@ -3597,4 +3597,5 @@ The following changes to date are:
 
 - Latest merges from 'vanilla' NetHack 3.6.7 official release (as of May 11th, 2024)
 - Initial preparation for new version (0.9.0)
+- Update README.md
 
