@@ -320,8 +320,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,8,4,0
- PRODUCTVERSION 0,8,4,0
+ FILEVERSION 0,9,0,0
+ PRODUCTVERSION 0,9,0,0
  FILEFLAGSMASK 0x1fL
 #ifdef _DEBUG
  FILEFLAGS 0x9L
@@ -337,13 +337,13 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "EvilHack for Windows - Graphical Interface"
-            VALUE "FileVersion", "0.8.4"
+            VALUE "FileVersion", "0.9.0"
             VALUE "InternalName", "EvilHackW"
             VALUE "LegalCopyright", "Copyright (C) 2018 - 2024 by Keith Simpson - a NetHack 3.6.x variant, copyright (C) 1985 - 2024.  By Stichting Mathematisch Centrum and M. Stephenson.  See license for details."
             VALUE "OriginalFilename", "EvilHackW.exe"
             VALUE "PrivateBuild", "140606"
             VALUE "ProductName", "EvilHack"
-            VALUE "ProductVersion", "0.8.4"
+            VALUE "ProductVersion", "0.9.0"
         END
     END
     BLOCK "VarFileInfo"

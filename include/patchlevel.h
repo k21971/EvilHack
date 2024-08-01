@@ -5,11 +5,11 @@
 
 /* NetHack 3.6.x */
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 8
+#define VERSION_MINOR 9
 /*
  * PATCHLEVEL is updated for each release.
  */
-#define PATCHLEVEL 4
+#define PATCHLEVEL 0
 /*
  * Incrementing EDITLEVEL can be used to force invalidation of old bones
  * and save files.
@@ -39,7 +39,7 @@
  * to individual level files matter; changes to general game state don't)
  * but the extra complexity to support that is not worth the effort.]
  */
-/*#define VERSION_COMPATIBILITY 0x00080400L*/
+/*#define VERSION_COMPATIBILITY 0x00090000L*/
 
 /****************************************************************************/
 /* Version 3.6.x */
