@@ -1977,6 +1977,11 @@ int part;
                           "dorsal fin", "caudal fin", "scales", "blood",
                           "gill", "nostril", "stomach", "scales" };
 
+    if (!mon) {
+        impossible("body part of null monster");
+        return humanoid_parts[part];
+    }
+
     struct permonst *mptr = mon->data;
 
     /* some special cases */
