@@ -1285,8 +1285,7 @@ unsigned doname_flags;
     boolean ispoisoned = FALSE, istainted = FALSE,
             with_price = (doname_flags & DONAME_WITH_PRICE) != 0,
             vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0,
-            weightshown = FALSE,
-            isyours = carried(obj);
+            weightshown = FALSE;
     boolean known, dknown, cknown, bknown, lknown;
     long orig_opknwn = obj->oprops_known;
     int omndx = obj->corpsenm;
@@ -1295,9 +1294,11 @@ unsigned doname_flags;
                                 the start of prefix instead of the
                                 end (Strcat is used on the end) */
     register char *bp = xname(obj);
-    struct monst *owner = isyours ? &youmonst
-                                  : mcarried(obj) ? obj->ocarry
-                                                  : (struct monst *) 0;
+    /* in practice, if something is worn or wielded by a hand, it is
+       probably yours if it isn't specifically a monster's. there are
+       some cases where an object is temporarily freed from inventory
+       while still wielded, for instance */
+    struct monst *owner =  mcarried(obj) ? obj->ocarry : &youmonst;
 
     if (iflags.override_ID) {
         known = dknown = cknown = bknown = lknown = TRUE;
