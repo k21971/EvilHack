@@ -3603,4 +3603,5 @@ The following changes to date are:
 - Set default Druid pet name if one isn't set in the player config
 - Fix: typo during druid cherry-pick
 - Fix: crashes when naming wielded objects in some circumstances
+- Fix: prevent support monsters from spawning with groups of undead
 
