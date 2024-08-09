@@ -123,7 +123,7 @@ int x, y, n, mmflags;
     /* Create a support monster - these support casters
        hang back and will heal the other monsters in
        their group */
-    if (cnt >= 3) {
+    if (cnt >= 3 && !is_undead(mtmp->data)) {
         if (mtmp->data == &mons[PM_GOBLIN]) {
             support = PM_GOBLIN_SHAMAN;
             if (enexto(&mm, mm.x, mm.y, mtmp->data)) {

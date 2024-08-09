@@ -3592,4 +3592,5 @@ The following changes to date are:
 - Fix: filename in evilhack-cpp.yml, change checkout from v3 to v4
 - Switch status from beta to released
 - Fix: crashes when naming wielded objects in some circumstances
+- Fix: prevent support monsters from spawning with groups of undead
 
