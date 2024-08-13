@@ -697,11 +697,26 @@ register struct monst *mtmp;
             /* Let your steed retaliate */
             return !!(mattackm(u.usteed, mtmp) & MM_DEF_DIED);
         }
-        if (u.usteed->mtame >= 15) {
-            if (!acceptable_pet_target(u.usteed, mtmp, FALSE))
+        /* steed will attack on the players behalf without waiting
+           for the player or itself to be attacked first if the steed
+           is loyal or greater. mspec_used is utilized to prevent the
+           steed from getting an indefinite number of attacks on
+           multiple targets if each target is killed */
+        if (u.usteed->mtame >= 15 && u.usteed->mspec_used == 0) {
+            if (!acceptable_pet_target(u.usteed, mtmp, FALSE)) {
                 return 0;
-            else
-                return !!(mattackm(u.usteed, mtmp) & MM_DEF_DIED);
+            } else {
+                int steed_attack = mattackm(u.usteed, mtmp);
+
+                /* first target is killed */
+                if (steed_attack & MM_DEF_DIED) {
+                    /* stop attack against 2nd, 3rd, 4th, etc
+                       targets in the same round if they exist */
+                    u.usteed->mspec_used = 1;
+                    return 1;
+                }
+                return 0;
+            }
         }
     }
 
@@ -3212,7 +3227,7 @@ struct attack *mattk;
             You_hear("a hoarse croak nearby.");
         }
 
-        /* Set mspec->mused */
+        /* Set mspec->used */
         mtmp->mspec_used = mtmp->mspec_used + (rn2(6) + 5);
 
         if (mtmp->mcan || Deaf)
