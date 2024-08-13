@@ -3604,4 +3604,6 @@ The following changes to date are:
 - Fix: typo during druid cherry-pick
 - Fix: crashes when naming wielded objects in some circumstances
 - Fix: prevent support monsters from spawning with groups of undead
+- Fix: steeds that are loyal or greater (tameness) could get an
+  indefinite number of attacks per round vs multiple monsters
 

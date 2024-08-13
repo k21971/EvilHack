@@ -1499,8 +1499,9 @@ int after; /* this is extra fast monster movement */
         whappr = 0;
 
     appr = dog_goal(mtmp, (has_edog || summoned) ? edog
-                                                  : (struct edog *) 0,
-                                                    after, udist, whappr);
+                                                 : (struct edog *) 0,
+                    after, udist, whappr);
+
     if (appr == -2)
         return 0;
 
@@ -1548,18 +1549,20 @@ int after; /* this is extra fast monster movement */
         if (ret == 2)
             return 1; /* did something */
     } else if ((attacktype(mtmp->data, AT_BREA)
-        || attacktype(mtmp->data, AT_GAZE)
-        || attacktype(mtmp->data, AT_SPIT)
-        || (attacktype(mtmp->data, AT_MAGC)
-        && (((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp <= AD_SPC2)))
-            || (attacktype(mtmp->data, AT_WEAP)
-            && select_rwep(mtmp)))
-            && mtmp->mlstmv != monstermoves) {
+                || attacktype(mtmp->data, AT_GAZE)
+                || attacktype(mtmp->data, AT_SPIT)
+                || (attacktype(mtmp->data, AT_MAGC)
+                    && (((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp <= AD_SPC2)))
+                || (attacktype(mtmp->data, AT_WEAP)
+                    && select_rwep(mtmp)))
+               && mtmp->mlstmv != monstermoves) {
         struct monst *mon = mfind_target(mtmp);
+
         if (mon && (mon != &youmonst) &&
             acceptable_pet_target(mtmp, mon, TRUE)) {
             int res = (mon == &youmonst)
                        ? mattacku(mtmp) : mattackm(mtmp, mon);
+
             if (res & MM_AGR_DIED)
                 return 2; /* died */
             return 1; /* attacked */
@@ -1618,6 +1621,7 @@ int after; /* this is extra fast monster movement */
         if ((info[i] & ALLOW_M) && MON_AT(nx, ny)) {
             int mstatus;
             register struct monst *mtmp2 = m_at(nx, ny);
+
             if (!acceptable_pet_target(mtmp, mtmp2, FALSE))
                 continue;
 
