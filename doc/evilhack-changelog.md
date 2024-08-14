@@ -3596,4 +3596,6 @@ The following changes to date are:
 - Fix: steeds that are loyal or greater (tameness) could get an
   indefinite number of attacks per round vs multiple monsters
 - Fix: player took blame for monster using Grimtooth
+- Fix: monster would always take blame for explosions affecting
+  various objects
 
