@@ -885,7 +885,7 @@ boolean racialexception;
                 continue;
             break;
         case W_ARMS:
-            if (!is_shield(obj))
+            if (!(is_shield(obj) || is_bracer(obj)))
                 continue;
             break;
         case W_ARMG:
@@ -1321,8 +1321,9 @@ boolean polyspot;
         }
         if ((otmp = which_armor(mon, W_ARMS)) != 0) {
             if (vis)
-                pline("%s can no longer hold %s shield!", Monnam(mon),
-                      ppronoun);
+                pline("%s can no longer %s %s %s!",
+                      Monnam(mon), is_bracer(otmp) ? "wear" : "hold",
+                      ppronoun, is_bracer(otmp) ? "bracers" : "shield");
             else
                 You_hear("a clank.");
             if (polyspot)
