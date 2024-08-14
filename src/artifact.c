@@ -2202,13 +2202,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         boolean no_sick = youdefend ? Sick_resistance
                                     : (resists_sick(mdef)
                                        || defended(mdef, AD_DISE));
-
-        if (Role_if(PM_SAMURAI)) {
-            You("dishonorably use a diseased weapon!");
-            adjalign(-sgn(u.ualign.type));
-        } else if (u.ualign.type == A_LAWFUL && u.ualign.record > -10) {
-            You_feel("like an evil coward for using a diseased weapon.");
-            adjalign(Role_if(PM_KNIGHT) ? -10 : -1);
+        if (youattack) {
+            if (Role_if(PM_SAMURAI)) {
+                You("dishonorably use a diseased weapon!");
+                adjalign(-sgn(u.ualign.type));
+            } else if (u.ualign.type == A_LAWFUL && u.ualign.record > -10) {
+                You_feel("like an evil coward for using a diseased weapon.");
+                adjalign(Role_if(PM_KNIGHT) ? -10 : -1);
+            }
         }
         if (realizes_damage) {
             /* currently the only object that uses this
