@@ -1033,6 +1033,8 @@ int how;
 {
     int uhpmin;
 
+    ukiller = (struct monst *) 0;
+
     /* life-drain/level-loss to experience level 0 kills without actually
        reducing ulevel below 1, but include this for bulletproofing */
     if (u.ulevel < 1) {
