@@ -3595,4 +3595,5 @@ The following changes to date are:
 - Fix: prevent support monsters from spawning with groups of undead
 - Fix: steeds that are loyal or greater (tameness) could get an
   indefinite number of attacks per round vs multiple monsters
+- Fix: player took blame for monster using Grimtooth
 
