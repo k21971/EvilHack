@@ -3609,4 +3609,5 @@ The following changes to date are:
 - Fix: player took blame for monster using Grimtooth
 - Fix: monster would always take blame for explosions affecting
   various objects
+- Fix: feedback when having to drop a worn shield vs worn bracers
 
