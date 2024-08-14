@@ -365,7 +365,7 @@ int expltype;
                     (void) zap_over_floor((xchar) (i + x - 1),
                                           (xchar) (j + y - 1), type,
                                           &shopdamage, exploding_wand_typ,
-                                          MON_CASTBALL);
+                                          you_exploding ? FALSE : MON_CASTBALL);
 
                 mtmp = m_at(i + x - 1, j + y - 1);
                 if (!mtmp && i + x - 1 == u.ux && j + y - 1 == u.uy)
