@@ -3599,4 +3599,5 @@ The following changes to date are:
 - Fix: monster would always take blame for explosions affecting
   various objects
 - Fix: feedback when having to drop a worn shield vs worn bracers
+- Fix: Tortle archeologists could never throw Xiuhcoatl
 
