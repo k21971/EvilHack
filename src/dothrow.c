@@ -83,8 +83,10 @@ int shotlimit;
 
     if (!canletgo(obj, "throw"))
         return 0;
-    if ((obj->oartifact == ART_MJOLLNIR || obj->oartifact == ART_XIUHCOATL) && obj != uwep) {
-        pline("%s must be wielded before it can be thrown.", The(xname(obj)));
+    if ((obj->oartifact == ART_MJOLLNIR
+         || obj->oartifact == ART_XIUHCOATL) && obj != uwep) {
+        pline("%s must be wielded before it can be thrown.",
+              The(xname(obj)));
         return 0;
     }
     if ((obj->oartifact == ART_MJOLLNIR && ACURR(A_STR) < STR19(25))
@@ -92,8 +94,12 @@ int shotlimit;
         pline("It's too heavy.");
         return 1;
     }
+    /* Xiuhcoatl requires a certain level of dexterity to be thrown.
+       If the player is not an archeologist, a dexterity of 21 or
+       greater is required, otherwise a dexterity of 18 or greater
+       (or 10 or greater if a Tortle) is needed */
     if (obj->oartifact == ART_XIUHCOATL
-        && (ACURR(A_DEX) < 18
+        && (ACURR(A_DEX) < (Race_if(PM_TORTLE) ? 10 : 18)
             || (!Role_if(PM_ARCHEOLOGIST) && ACURR(A_DEX) < 21))) {
         pline("%s a deft hand.", Tobjnam(obj, "require"));
         return 1;
