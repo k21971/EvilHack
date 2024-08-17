@@ -3601,4 +3601,6 @@ The following changes to date are:
 - Fix: feedback when having to drop a worn shield vs worn bracers
 - Fix: Tortle archeologists could never throw Xiuhcoatl
 - Fix: Possible crash when saving bones after second death
+- Fix: digesting rings of fire/cold/shock/poison resistance would not
+  confer any resistance
 

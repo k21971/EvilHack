@@ -2339,6 +2339,56 @@ struct obj *otmp;
             }
             incr_resistance(&HSleep_resistance, 100);
             break;
+        case RIN_FIRE_RESISTANCE:
+            /* Due to their undead nature, Draugr only gain intrinsic
+               fire resistance a third as much as other races per source,
+               and is capped at 50% resistance (see how_resistant() in
+               potion.c) */
+            if ((HFire_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+                accessory_has_effect(otmp);
+                incr_resistance(&HFire_resistance,
+                                (Race_if(PM_DRAUGR) ? (50 / 3) : 50));
+                if ((HFire_resistance & TIMEOUT) == 100)
+                    You_feel(Hallucination ? "like... so chill."
+                                           : "completely chilled.");
+                else if (Race_if(PM_DRAUGR) && (HFire_resistance & TIMEOUT) >= 50)
+                    ; /* no feedback */
+                else
+                    You_feel("%s more chill.",
+                             Race_if(PM_DRAUGR) ? "considerably" : "much");
+            }
+            break;
+        case RIN_COLD_RESISTANCE:
+            if ((HCold_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+                accessory_has_effect(otmp);
+                incr_resistance(&HCold_resistance, 50);
+                if ((HCold_resistance & TIMEOUT) == 100)
+                    You_feel("full of hot air.");
+                else
+                    You_feel("much warmer.");
+            }
+            break;
+        case RIN_SHOCK_RESISTANCE:
+            if ((HShock_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+                accessory_has_effect(otmp);
+                incr_resistance(&HShock_resistance, 50);
+                if ((HShock_resistance & TIMEOUT) == 100)
+                    pline(Hallucination ? "You feel grounded in reality."
+                                        : "Your health feels completely amplified!");
+                else
+                    Your("health is much more amplified!");
+            }
+            break;
+        case RIN_POISON_RESISTANCE:
+            if ((HPoison_resistance & (TIMEOUT | FROMRACE | FROMEXPER)) < 100) {
+                accessory_has_effect(otmp);
+                incr_resistance(&HPoison_resistance, 50);
+                if ((HPoison_resistance & TIMEOUT) == 100)
+                    You_feel("completely healthy.");
+                else
+                    You_feel("much healthier.");
+            }
+            break;
         case AMULET_OF_CHANGE:
             accessory_has_effect(otmp);
             makeknown(typ);
