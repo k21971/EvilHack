@@ -3614,4 +3614,5 @@ The following changes to date are:
 - Fix: Possible crash when saving bones after second death
 - Fix: digesting rings of fire/cold/shock/poison resistance would not
   confer any resistance
+- Creation of a dedicated test monster
 

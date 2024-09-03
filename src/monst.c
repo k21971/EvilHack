@@ -4546,6 +4546,15 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_OMNIVORE, M2_NOPOLY | M2_PEACEFUL
             | M2_STRONG | M2_COLLECT | M2_MAGIC,
         M3_INFRAVISIBLE, 0, MH_HUMAN, 8, HI_DOMESTIC),
+    /* test monster, will not spawn normally, has 9999 hit points
+       when in wizard mode */
+    MON("test monster", S_DEMON, LVL(5, 12, 10, 0, 0), G_NOGEN,
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 2), ATTK(AT_MAGC, AD_ACID, 1, 2),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_ROAR, MZ_HUMAN), MR_ACID, 0,
+        M1_HUMANOID | M1_OMNIVORE, M2_NOPOLY | M2_HOSTILE
+            | M2_STRONG | M2_COLLECT,
+        M3_INFRAVISIBLE, 0, 0, 5, DRAGON_SILVER),
     /*
      * array terminator
      */
