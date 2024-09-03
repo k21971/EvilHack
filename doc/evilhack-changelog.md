@@ -3615,4 +3615,5 @@ The following changes to date are:
 - Fix: digesting rings of fire/cold/shock/poison resistance would not
   confer any resistance
 - Creation of a dedicated test monster
+- Fix: 'zaps you with a !'
 
