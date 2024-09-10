@@ -1346,7 +1346,7 @@ unsigned trflags;
 
     case SLP_GAS_TRAP:
         seetrap(trap);
-        if (how_resistant(SLEEP_RES) == 100 || breathless(youmonst.data)) {
+        if (how_resistant(SLEEP_RES) == 100 || Breathless_nomagic) {
             monstseesu(M_SEEN_SLEEP);
             You("are enveloped in a cloud of gas!");
         } else {

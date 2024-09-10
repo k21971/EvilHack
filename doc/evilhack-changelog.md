@@ -3616,4 +3616,5 @@ The following changes to date are:
   confer any resistance
 - Creation of a dedicated test monster
 - Fix: 'zaps you with a !'
+- Fix: Draugr players affected by various gases and vapors
 
