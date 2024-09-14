@@ -3619,4 +3619,5 @@ The following changes to date are:
 - Fix: Draugr players affected by various gases and vapors
 - Fix: dmonsfree error when killing a monster via armor blocking
   causing material sear damage
+- Fix: shopkeepers offering a negative value for items sold
 

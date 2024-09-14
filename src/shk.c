@@ -3762,6 +3762,12 @@ boolean shk_buying;
             tmp /= 2L;
         break;
     }
+
+    /* in case an objects value drops below zero
+       (erosion cases) */
+    if (tmp < 0L)
+        tmp = 0L;
+
     return tmp;
 }
 
