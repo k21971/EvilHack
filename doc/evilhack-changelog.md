@@ -3617,4 +3617,6 @@ The following changes to date are:
 - Creation of a dedicated test monster
 - Fix: 'zaps you with a !'
 - Fix: Draugr players affected by various gases and vapors
+- Fix: dmonsfree error when killing a monster via armor blocking
+  causing material sear damage
 

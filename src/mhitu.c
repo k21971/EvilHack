@@ -159,7 +159,6 @@ struct attack *mattk;
     if (target < roll) {
         /* get object responsible,
            work from the closest to the skin outwards */
-
         if (uarmu && !uarm && !uarmc
             && target <= roll) {
             /* Try undershirt */
@@ -167,49 +166,42 @@ struct attack *mattk;
             if (target > roll)
                 blocker = uarmu;
         }
-
         if (uarm && !uarmc && target <= roll) {
             /* Try body armour */
             target += armor_bonus(uarm);
             if (target > roll)
                 blocker = uarm;
         }
-
         if (uarmg && !rn2(10)) {
             /* Try gloves */
             target += armor_bonus(uarmg);
             if (target > roll)
                 blocker = uarmg;
         }
-
         if (uarmf && !rn2(10)) {
             /* Try boots */
             target += armor_bonus(uarmf);
             if (target > roll)
                 blocker = uarmf;
         }
-
         if (uarmh && !rn2(5)) {
             /* Try helm */
             target += armor_bonus(uarmh);
             if (target > roll)
                 blocker = uarmh;
         }
-
         if (uarmc && target <= roll) {
             /* Try cloak */
             target += armor_bonus(uarmc);
             if (target > roll)
                 blocker = uarmc;
         }
-
         if (uarms && target <= roll) {
             /* Try shield */
             target += armor_bonus(uarms);
             if (target > roll)
                 blocker = uarms;
         }
-
         if (target <= roll) {
             /* Try spell protection */
             target += u.uspellprot;
@@ -223,7 +215,7 @@ struct attack *mattk;
 
     if (could_seduce(mtmp, &youmonst, mattk) && !mtmp->mcan) {
         pline("%s pretends to be friendly.", Monnam(mtmp));
-    } else {
+    } else if (!DEADMONSTER(mtmp)) {
         if (!flags.verbose || (!nearmiss && !blocker)) {
             pline("%s misses.", Monnam(mtmp));
         } else if (nearmiss || !blocker) {
@@ -266,11 +258,16 @@ struct attack *mattk;
         if (blocker
             && (!MON_WEP(mtmp) && which_armor(mtmp, W_ARMG) == 0)
             && mon_hates_material(mtmp, blocker->material)) {
-            searmsg(&youmonst, mtmp, blocker, FALSE);
-            /* glancing blow */
-            mtmp->mhp -= rnd(sear_damage(blocker->material) / 2);
             if (DEADMONSTER(mtmp))
-                killed(mtmp);
+                already_killed = TRUE;
+            if (!already_killed) {
+                /* glancing blow, partial damage */
+                searmsg(&youmonst, mtmp, blocker, FALSE);
+                damage_mon(mtmp,
+                           rnd(sear_damage(blocker->material) / 2), AD_PHYS);
+                if (DEADMONSTER(mtmp))
+                    killed(mtmp);
+            }
         }
         /* train shield skill if the shield made a block */
         if (blocker == uarms)
@@ -286,7 +283,6 @@ struct attack *mattk;
            by some other means from the shield (material hatred) */
         if (!rn2(4) && blocker && (blocker == uarms)
             && !(u.uswallow || unsolid(mdat))
-            && !DEADMONSTER(mtmp)
             && blocker->oartifact == ART_ASHMAR) {
             pline("%s knocks %s away from you!",
                   artiname(uarms->oartifact), mon_nam(mtmp));
@@ -304,7 +300,6 @@ struct attack *mattk;
            as Ashmar, just not as often */
         if (!rn2(7) && blocker && (blocker == uarm)
             && !(u.uswallow || unsolid(mdat))
-            && !DEADMONSTER(mtmp)
             && blocker->oartifact == ART_ARMOR_OF_RETRIBUTION) {
             pline_The("%s knocks %s away from you!",
                       artiname(uarm->oartifact), mon_nam(mtmp));

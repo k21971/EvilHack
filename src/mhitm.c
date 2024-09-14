@@ -84,7 +84,6 @@ int target, roll;
     if (target < roll) {
         /* get object responsible,
            work from the closest to the skin outwards */
-
         /* Try undershirt */
         if (which_armor(mdef, W_ARMU)
             && (which_armor(mdef, W_ARM) == 0)
@@ -94,7 +93,6 @@ int target, roll;
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMU);
         }
-
         /* Try body armour */
         if (which_armor(mdef, W_ARM)
             && (which_armor(mdef, W_ARMC) == 0) && target <= roll) {
@@ -102,42 +100,36 @@ int target, roll;
             if (target > roll)
                 blocker = which_armor(mdef, W_ARM);
         }
-
         if (which_armor(mdef, W_ARMG) && !rn2(10)) {
             /* Try gloves */
             target += armor_bonus(which_armor(mdef, W_ARMG));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMG);
         }
-
         if (which_armor(mdef, W_ARMF) && !rn2(10)) {
             /* Try boots */
             target += armor_bonus(which_armor(mdef, W_ARMF));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMF);
         }
-
         if (which_armor(mdef, W_ARMH) && !rn2(5)) {
             /* Try helm */
             target += armor_bonus(which_armor(mdef, W_ARMH));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMH);
         }
-
         if (which_armor(mdef, W_ARMC) && target <= roll) {
             /* Try cloak */
             target += armor_bonus(which_armor(mdef, W_ARMC));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMC);
         }
-
         if (which_armor(mdef, W_ARMS) && target <= roll) {
             /* Try shield */
             target += armor_bonus(which_armor(mdef, W_ARMS));
             if (target > roll)
                 blocker = which_armor(mdef, W_ARMS);
         }
-
         if (which_armor(mdef, W_BARDING) && target <= roll) {
             /* Try barding (steeds) */
             target += armor_bonus(which_armor(mdef, W_BARDING));
@@ -256,7 +248,7 @@ register struct monst *mtmp;
     if (resist_conflict(mtmp))
         return 0;
     if ((mtmp->mtame || is_covetous(mtmp->data)) && !conflict)
-      	    return 0;
+        return 0;
 
     if (u.ustuck == mtmp) {
         /* perhaps we're holding it... */
@@ -277,7 +269,7 @@ register struct monst *mtmp;
         if (mon != mtmp && !DEADMONSTER(mon)) {
             if (monnear(mtmp, mon->mx, mon->my)) {
                 if (!conflict && !mm_aggression(mtmp, mon))
-               		  continue;
+                    continue;
                 if (!u.uswallow && (mtmp == u.ustuck)) {
                     if (!rn2(4)) {
                         pline("%s releases you!", Monnam(mtmp));
