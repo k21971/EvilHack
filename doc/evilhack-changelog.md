@@ -3620,4 +3620,6 @@ The following changes to date are:
 - Fix: dmonsfree error when killing a monster via armor blocking
   causing material sear damage
 - Fix: shopkeepers offering a negative value for items sold
+- Fix: some places where random traps could spawn on top of magic
+  chests
 

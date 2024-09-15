@@ -238,6 +238,12 @@ REGION:(68,07,72,12),lit,"temple"
 # Stairs
 STAIR:(02,18),up
 
+# Magic chest
+MAGIC_CHEST:(72,10)
+
+# Evil altar
+ALTAR:(70,10),noalign,shrine
+
 # Castle entrance
 DOOR:locked,(24,09)
 DOOR:locked,(24,10)
@@ -266,12 +272,6 @@ TRAP:"ice",random
 TRAP:"ice",random
 TRAP:"ice",random
 
-# Magic chest
-MAGIC_CHEST:(72,10)
-
-# Evil altar
-ALTAR:(70,10),noalign,shrine
- 
 # Objects and terrain
 OBJECT:'$',(29,09),quantity:2000
 OBJECT:'$',(29,10),quantity:2000

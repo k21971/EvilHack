@@ -39,9 +39,6 @@ BRANCH: (38, 00, 61, 20), (00, 00, 00, 00)
 $outside = selection: filter('.', fillrect(35, 00, 61, 20))
 LOOP [3d4] { MONSTER: 'd', rndcoord($outside) }
 [20%]: MONSTER: "black unicorn", rndcoord($outside)
-TRAP: random, rndcoord($outside)
-TRAP: random, rndcoord($outside)
-TRAP: random, rndcoord($outside)
 
 # The Hidden Temple is behind a secret door.
 # The altar is coaligned, but haunted,
@@ -102,6 +99,11 @@ OBJECT: random, (06, 16)
 OBJECT: random, (06, 17)
 OBJECT: "axe", (06, 18)
 OBJECT: random, (06, 19)
+
+# Traps
+TRAP: random, rndcoord($outside)
+TRAP: random, rndcoord($outside)
+TRAP: random, rndcoord($outside)
 
 #
 #  The "locate" level for the quest.
