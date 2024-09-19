@@ -3628,4 +3628,5 @@ The following changes to date are:
   a corpse
 - New material type - Bronze
 - Fix: assign bronze its proper color
+- Fix: change HI_COPPER to be CLR_ORANGE
 
