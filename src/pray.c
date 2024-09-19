@@ -2611,8 +2611,17 @@ dosacrifice()
                             otmp->spe = rn2(3) + 3; /* +3 to +5 */
                             maybe_erodeproof(otmp, 1);
                             otmp->oeroded = otmp->oeroded2 = 0;
-                            if (altaralign > A_CHAOTIC) /* lawful or neutral altar */
+                            if (altaralign > A_CHAOTIC
+                                && otmp->oclass == WEAPON_CLASS) { /* lawful or neutral altar */
                                 otmp->opoisoned = otmp->otainted = 0;
+                                if (otmp->oprops & ITEM_VENOM) {
+                                    otmp->oprops = 0L;
+                                    if (rn2(2))
+                                        otmp->oprops |= ITEM_FIRE;
+                                    else
+                                        otmp->oprops |= ITEM_FROST;
+                                }
+                            }
                             otmp->owt = weight(otmp);
                             at_your_feet(otmp->quan > 1L ? "Some objects"
                                                          : "An object");

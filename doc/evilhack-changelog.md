@@ -3622,4 +3622,6 @@ The following changes to date are:
 - Fix: shopkeepers offering a negative value for items sold
 - Fix: some places where random traps could spawn on top of magic
   chests
+- Fix: prevent lawful/neutral players from receiving an altar sacrifice
+  weapon gift with the venom object property
 
