@@ -24,15 +24,16 @@ enum obj_material_types {
     IRON        = 12, /* Fe */
     METAL       = 13, /* Stainless steel, Sn, &c. */
     COPPER      = 14, /* Cu - includes brass */
-    SILVER      = 15, /* Ag */
-    GOLD        = 16, /* Au */
-    PLATINUM    = 17, /* Pt */
-    MITHRIL     = 18,
-    ADAMANTINE  = 19,
-    PLASTIC     = 20,
-    GLASS       = 21,
-    GEMSTONE    = 22,
-    MINERAL     = 23,
+    BRONZE      = 15,
+    SILVER      = 16, /* Ag */
+    GOLD        = 17, /* Au */
+    PLATINUM    = 18, /* Pt */
+    MITHRIL     = 19,
+    ADAMANTINE  = 20,
+    PLASTIC     = 21,
+    GLASS       = 22,
+    GEMSTONE    = 23,
+    MINERAL     = 24,
     NUM_MATERIAL_TYPES
 };
 
@@ -97,6 +98,8 @@ struct objclass {
 #define is_crystal(otmp) (otmp->material == GEMSTONE)
 #define is_adamantine(otmp) (otmp->material == ADAMANTINE)
 #define is_spidersilk(otmp) (otmp->material == SPIDER_SILK)
+#define is_bronze(otmp) (otmp->material == BRONZE)
+
 #define is_metallic(otmp) \
     (otmp->material >= IRON && otmp->material <= ADAMANTINE)
 #define is_heavy_metallic(otmp) \
@@ -112,20 +115,21 @@ struct objclass {
 
 /* secondary damage: rot/acid/acid */
 #define is_corrodeable(otmp) \
-    (otmp->material == COPPER || otmp->material == IRON)
+    (otmp->material == COPPER || otmp->material == IRON \
+     || otmp->material == BRONZE)
 
 /* inherently fooproof */
 #define is_supermaterial(otmp) \
-    (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL  \
-     || otmp->material == GOLD || otmp->material == PLATINUM     \
-     || otmp->material == SILVER || otmp->material == MINERAL    \
-     || otmp->material == METAL || otmp->material == ADAMANTINE  \
+    (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL \
+     || otmp->material == GOLD || otmp->material == PLATINUM    \
+     || otmp->material == SILVER || otmp->material == MINERAL   \
+     || otmp->material == METAL || otmp->material == ADAMANTINE \
      || otmp->material == GEMSTONE)
 
 #define is_fixed(otmp) \
     (is_supermaterial(otmp) || otmp->oerodeproof)
 
-#define is_damageable(otmp)                                        \
+#define is_damageable(otmp) \
     (is_rustprone(otmp) || is_flammable(otmp) || is_rottable(otmp) \
      || is_corrodeable(otmp) || is_glass(otmp))
 

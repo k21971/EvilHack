@@ -3626,4 +3626,5 @@ The following changes to date are:
   weapon gift with the venom object property
 - Monsters summoned via the monster spell CLC_INSECTS will rarely leave
   a corpse
+- New material type - Bronze
 

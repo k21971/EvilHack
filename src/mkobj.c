@@ -1638,8 +1638,9 @@ const int matdensities[] = {
     25,  /* BONE */
     20,  /* DRAGON_HIDE */
     80,  /* IRON */
-    75,  /* METAL */
+    75,  /* METAL (Steel) */
     85,  /* COPPER */
+    80,  /* BRONZE */
     90,  /* SILVER */
     120, /* GOLD */
     120, /* PLATINUM */
@@ -1755,8 +1756,9 @@ const int matac[] = {
      5,  /* BONE */
      8,  /* DRAGON_HIDE */
      5,  /* IRON - de facto baseline for metal armor */
-     5,  /* METAL */
+     5,  /* METAL (Steel) */
      4,  /* COPPER */
+     5,  /* BRONZE */
      5,  /* SILVER */
      3,  /* GOLD */
      4,  /* PLATINUM */
@@ -3363,7 +3365,7 @@ struct obj *otmp2;
 static const struct icp metal_materials[] = {
     {600, 0}, /* default to base type, iron or steel */
     {100, METAL},
-    { 50, IRON},
+    { 50, BRONZE},
     { 50, BONE},
     { 50, WOOD},
     { 40, SILVER},
@@ -3379,10 +3381,11 @@ static const struct icp metal_materials[] = {
 static const struct icp wood_materials[] = {
     {800, WOOD},
     { 80, MINERAL},
-    { 40, IRON},
+    { 30, IRON},
     { 20, METAL},
     { 20, MITHRIL},
     { 20, BONE},
+    { 10, BRONZE},
     { 10, COPPER},
     { 10, SILVER}
 };
@@ -3432,8 +3435,9 @@ static const struct icp drow_materials[] = {
 
 /* for objects of orcish make - no mithril! */
 static const struct icp orcish_materials[] = {
-    {650, IRON},
-    {250, BONE},
+    {600, IRON},
+    {200, BONE},
+    {100, BRONZE},
     {100, MINERAL}
 };
 
@@ -3443,10 +3447,11 @@ static const struct icp shiny_materials[] = {
     {500, 0}, /* use base material */
     {200, SILVER},
     {150, GOLD},
-    { 50, MITHRIL},
     { 40, COPPER},
+    { 30, MITHRIL},
     { 30, METAL},
-    { 20, PLATINUM},
+    { 30, BRONZE},
+    { 10, PLATINUM},
     { 10, ADAMANTINE}
 };
 
@@ -3454,7 +3459,8 @@ static const struct icp shiny_materials[] = {
  * or metal.  Wood and glass in other lists precludes us from using those */
 static const struct icp resonant_materials[] = {
     {550, 0}, /* use base material */
-    {200, COPPER},
+    {100, COPPER},
+    {100, BRONZE},
     { 60, SILVER},
     { 50, IRON},
     { 50, METAL},
@@ -3465,8 +3471,9 @@ static const struct icp resonant_materials[] = {
 
 /* for horns, currently */
 static const struct icp horn_materials[] = {
-    {700, BONE},
+    {600, BONE},
     {100, COPPER},
+    {100, BRONZE},
     { 80, MITHRIL},
     { 50, WOOD},
     { 50, SILVER},
@@ -3512,8 +3519,9 @@ static const struct icp bow_materials[] = {
     {750, WOOD},
     { 70, IRON},
     { 70, BONE},
-    { 60, MITHRIL},
+    { 40, MITHRIL},
     { 20, COPPER},
+    { 20, BRONZE},
     { 20, SILVER},
     { 10, GOLD}
 };
@@ -3528,11 +3536,12 @@ static const struct icp rod_materials[] = {
 };
 
 static const struct icp sling_bullet_materials[] = {
-    {650, IRON},
+    {600, IRON},
     {150, METAL},
     {100, MITHRIL},
     { 50, SILVER},
-    { 30, COPPER},
+    { 40, COPPER},
+    { 40, BRONZE},
     { 10, GOLD},
     { 10, PLATINUM}
 };
@@ -3542,10 +3551,11 @@ static const struct icp bracers_materials[] = {
     {200, IRON},
     {100, BONE},
     { 50, MINERAL},
-    { 50, METAL},
-    { 30, MITHRIL},
+    { 40, METAL},
+    { 20, MITHRIL},
     { 20, SILVER},
     { 20, COPPER},
+    { 20, BRONZE},
     { 20, GOLD},
     { 10, DRAGON_HIDE}
 };
