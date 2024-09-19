@@ -3627,4 +3627,5 @@ The following changes to date are:
 - Monsters summoned via the monster spell CLC_INSECTS will rarely leave
   a corpse
 - New material type - Bronze
+- Fix: assign bronze its proper color
 
