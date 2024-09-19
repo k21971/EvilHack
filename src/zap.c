@@ -841,6 +841,8 @@ boolean adjacentok; /* False: at obj's spot only, True: nearby is allowed */
         mtmp2->mwither = 0;
         mtmp2->mdiseased = 0;
         mtmp2->msummoned = 0;
+        mtmp2->mberserk = 0;
+        mtmp2->minsects = 0;
         mtmp2->uexp = 0;
         /* when traits are for a shopeekper, dummy monster 'mtmp' won't
            have necessary eshk data for replmon() -> replshk() */

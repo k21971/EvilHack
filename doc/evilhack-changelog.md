@@ -3624,4 +3624,6 @@ The following changes to date are:
   chests
 - Fix: prevent lawful/neutral players from receiving an altar sacrifice
   weapon gift with the venom object property
+- Monsters summoned via the monster spell CLC_INSECTS will rarely leave
+  a corpse
 

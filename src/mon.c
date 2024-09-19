@@ -3742,6 +3742,11 @@ boolean was_swallowed; /* digestion */
     struct permonst *mdat = mon->data;
     int i, tmp;
 
+    /* insects/snakes/spiders brought about by the
+       monster spell CLC_INSECTS rarely leave a corpse */
+    if (rn2(50) && mon->minsects)
+        return FALSE;
+
     if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH
         || mdat == &mons[PM_ALHOON] || mdat == &mons[PM_KAS]) {
         if (cansee(mon->mx, mon->my) && !was_swallowed)

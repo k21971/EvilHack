@@ -177,7 +177,8 @@ struct monst {
     Bitfield(mstonebyu, 1);  /* you caused the monster to start stoning */
     Bitfield(mstone, 3);     /* monster is turning to stone */
     Bitfield(mberserk, 1);   /* monster is berserk */
-    /* 6 free bits */
+    Bitfield(minsects, 1);   /* monster summoned via CLC_INSECTS spell */
+    /* 5 free bits */
 
     uchar mwither;           /* withering; amount of turns left till recovery */
     uchar vuln_fire;         /* timeout of temp vulnerability to fire */

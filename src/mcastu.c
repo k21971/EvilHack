@@ -1064,6 +1064,7 @@ int spellnum;
                 if ((mtmp2 = makemon(pm, bypos.x, bypos.y, MM_ANGRY)) != 0) {
                     success = TRUE;
                     mtmp2->msleeping = mtmp2->mpeaceful = mtmp2->mtame = 0;
+                    mtmp2->minsects = 1;
                     set_malign(mtmp2);
                 }
             }
@@ -2547,6 +2548,7 @@ int spellnum;
                 if ((mtmp2 = makemon(pm, bypos.x, bypos.y, NO_MM_FLAGS)) != 0) {
                     success = TRUE;
                     mtmp2->msleeping = 0;
+                    mtmp2->minsects = 1;
                     if (yours || mattk->mtame)
                         (void) tamedog(mtmp2, (struct obj *) 0);
                     else if (mattk->mpeaceful)
