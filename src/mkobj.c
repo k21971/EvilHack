@@ -1638,7 +1638,7 @@ const int matdensities[] = {
     25,  /* BONE */
     20,  /* DRAGON_HIDE */
     80,  /* IRON */
-    75,  /* METAL (Steel) */
+    75,  /* STEEL */
     85,  /* COPPER */
     80,  /* BRONZE */
     90,  /* SILVER */
@@ -1756,7 +1756,7 @@ const int matac[] = {
      5,  /* BONE */
      8,  /* DRAGON_HIDE */
      5,  /* IRON - de facto baseline for metal armor */
-     5,  /* METAL (Steel) */
+     5,  /* STEEL */
      4,  /* COPPER */
      5,  /* BRONZE */
      5,  /* SILVER */
@@ -1784,9 +1784,9 @@ struct obj * obj;
     if (objects[obj->otyp].a_ac + diff < min_ac) {
         diff = min_ac - objects[obj->otyp].a_ac;
     }
-    /* force mithril, adamantine and metal to give unique extra +1 AC for barding */
+    /* force mithril, adamantine and steel to give unique extra +1 AC for barding */
     if (is_barding(obj)
-        && (obj->material == MITHRIL || obj->material == METAL
+        && (obj->material == MITHRIL || obj->material == STEEL
             || obj->material == ADAMANTINE))
          diff++;
     return diff;
@@ -3364,7 +3364,7 @@ struct obj *otmp2;
 /* for objects which are normally iron or steel */
 static const struct icp metal_materials[] = {
     {600, 0}, /* default to base type, iron or steel */
-    {100, METAL},
+    {100, STEEL},
     { 50, BRONZE},
     { 50, BONE},
     { 50, WOOD},
@@ -3382,7 +3382,7 @@ static const struct icp wood_materials[] = {
     {800, WOOD},
     { 80, MINERAL},
     { 30, IRON},
-    { 20, METAL},
+    { 20, STEEL},
     { 20, MITHRIL},
     { 20, BONE},
     { 10, BRONZE},
@@ -3409,7 +3409,7 @@ static const struct icp leather_materials[] = {
 /* for objects of dwarvish make */
 static const struct icp dwarvish_materials[] = {
     {600, IRON},
-    {200, METAL},
+    {200, STEEL},
     {150, MITHRIL},
     { 30, SILVER},
     { 10, GOLD},
@@ -3449,7 +3449,7 @@ static const struct icp shiny_materials[] = {
     {150, GOLD},
     { 40, COPPER},
     { 30, MITHRIL},
-    { 30, METAL},
+    { 30, STEEL},
     { 30, BRONZE},
     { 10, PLATINUM},
     { 10, ADAMANTINE}
@@ -3463,7 +3463,7 @@ static const struct icp resonant_materials[] = {
     {100, BRONZE},
     { 60, SILVER},
     { 50, IRON},
-    { 50, METAL},
+    { 50, STEEL},
     { 50, MITHRIL},
     { 30, GOLD},
     { 10, PLATINUM}
@@ -3496,7 +3496,7 @@ static const struct icp portable_container_materials[] = {
 
 static const struct icp dwarvish_weapon_materials[] = {
     {500, IRON},
-    {250, METAL},
+    {250, STEEL},
     {200, MITHRIL},
     { 48, GEMSTONE}, /* gemstone is very hard and very sharp */
     {  2, ADAMANTINE}
@@ -3537,7 +3537,7 @@ static const struct icp rod_materials[] = {
 
 static const struct icp sling_bullet_materials[] = {
     {600, IRON},
-    {150, METAL},
+    {150, STEEL},
     {100, MITHRIL},
     { 50, SILVER},
     { 40, COPPER},
@@ -3551,7 +3551,7 @@ static const struct icp bracers_materials[] = {
     {200, IRON},
     {100, BONE},
     { 50, MINERAL},
-    { 40, METAL},
+    { 40, STEEL},
     { 20, MITHRIL},
     { 20, SILVER},
     { 20, COPPER},
@@ -3707,7 +3707,7 @@ struct obj* obj;
         return shiny_materials;
     else if (obj->oclass == WEAPON_CLASS || obj->oclass == ARMOR_CLASS
              || obj->oclass == TOOL_CLASS) {
-        if (default_material == IRON || default_material == METAL)
+        if (default_material == IRON || default_material == STEEL)
             return metal_materials;
         else if (default_material == WOOD)
             return wood_materials;

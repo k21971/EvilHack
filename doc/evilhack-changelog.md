@@ -3632,4 +3632,5 @@ The following changes to date are:
 - Remove old, unused status code (curses)
 - Slight adjustment for extra slash/piece damage for steel and bronze
   weaponry
+- Rename METAL to STEEL
 

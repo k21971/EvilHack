@@ -1997,7 +1997,7 @@ register struct monst *mtmp;
             otmp->oprops = ITEM_SHOCK;
             curse(otmp);
             otmp->spe = rnd(3) + 2;
-            set_material(otmp, METAL);
+            set_material(otmp, STEEL);
             (void) mpickobj(mtmp, otmp);
             break;
         case PM_YEENOGHU:

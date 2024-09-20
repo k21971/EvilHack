@@ -169,9 +169,9 @@ WEAPON("orcish dagger", "crude dagger",
 WEAPON("dark elven dagger", "etched dagger",
        0, 1, 0, 0,  2,   8,  10,  5,  3, 2, P,   P_DAGGER, ADAMANTINE, CLR_BLACK),
 WEAPON("athame", None,
-       1, 1, 0, 0,  0,  10,   4,  4,  3, 2, S,   P_DAGGER, METAL, HI_METAL),
+       1, 1, 0, 0,  0,  10,   4,  4,  3, 2, S,   P_DAGGER, STEEL, HI_METAL),
 WEAPON("scalpel", None,
-       1, 1, 0, 0,  0,   5,   6,  3,  3, 2, S,   P_DAGGER, METAL, HI_METAL),
+       1, 1, 0, 0,  0,   5,   6,  3,  3, 2, S,   P_DAGGER, STEEL, HI_METAL),
 WEAPON("knife", None,
        1, 1, 0, 0, 20,   5,   4,  3,  2, 0, S, P_DAGGER, IRON, HI_METAL),
 WEAPON("stiletto", None,
@@ -231,11 +231,11 @@ WEAPON("two-handed sword", None,
                                                             IRON, HI_METAL),
         /* +2d6 large */
 WEAPON("katana", "samurai sword",
-       0, 0, 0, 0,  4,  40,  80, 10, 12, 1, S,   P_LONG_SWORD, METAL, HI_METAL),
+       0, 0, 0, 0,  4,  40,  80, 10, 12, 1, S,   P_LONG_SWORD, STEEL, HI_METAL),
 /* special swords set up for artifacts */
 WEAPON("tsurugi", "long samurai sword",
        0, 0, 0, 1,  0,  60, 500, 16,  8, 2, S,   P_TWO_HANDED_SWORD,
-                                                            METAL, HI_METAL),
+                                                            STEEL, HI_METAL),
         /* +2d6 large */
 WEAPON("runesword", "runed broadsword",
        0, 0, 0, 0,  0,  40, 300,  4,  6, 0, S,   P_BROAD_SWORD, IRON, CLR_BLACK),
@@ -255,7 +255,7 @@ WEAPON("spetum", "forked polearm",
 WEAPON("glaive", "single-edged polearm",
        0, 0, 0, 1,  8,  75,   6,  6, 10, 0, S,   P_POLEARMS, IRON, HI_METAL),
 WEAPON("lance", None,
-       1, 0, 0, 0,  4, 180,  10,  6,  8, 0, P,   P_LANCE, METAL, HI_METAL),
+       1, 0, 0, 0,  4, 180,  10,  6,  8, 0, P,   P_LANCE, STEEL, HI_METAL),
         /* +2d10 when jousting with lance as primary weapon */
 /* axe-type */
 WEAPON("halberd", "angled poleaxe",
@@ -366,9 +366,9 @@ BOW("crossbow", None,               1, 1, 45, 50,  40, 0, WOOD, P_CROSSBOW, HI_W
 
 /* armor ... */
         /* IRON denotes ferrous metals.
-         * METAL denotes stainless steel.
+         * STEEL denotes stainless steel.
          * Only IRON weapons and armor can rust.
-         * Only COPPER (including brass) corrodes.
+         * Only COPPER and BRONZE (including brass) corrodes.
          * Some creatures are vulnerable to SILVER.
          */
 #define ARMOR(name,desc,kn,mgc,blk,power,prob,delay,wt,  \
@@ -422,7 +422,7 @@ HELM("helm of brilliance", "etched helmet",
 HELM("helm of opposite alignment", "crested helmet",
      0, 1,           0,  6, 1, 50, 50,  9, 0, IRON, HI_METAL),
 HELM("helm of speed", "winged helmet",
-     0, 1,        FAST,  2, 1, 50, 50,  9, 0, METAL, HI_GOLD),
+     0, 1,        FAST,  2, 1, 50, 50,  9, 0, STEEL, HI_GOLD),
 HELM("helm of telepathy", "visored helmet",
      0, 1,     TELEPAT,  2, 1, 50, 50,  9, 0, IRON, HI_METAL),
 
@@ -549,7 +549,7 @@ SHIELD("shield of reflection", "polished shield",
 SHIELD("shield of light", "shiny shield",
        0, 1, 0,           0, 3, 0,  60, 400, 8, 0,  GOLD, CLR_YELLOW),
 SHIELD("shield of mobility", "slippery shield",
-       0, 1, 0, FREE_ACTION, 3, 0,  50, 300, 8, 0,  METAL, HI_METAL),
+       0, 1, 0, FREE_ACTION, 3, 0,  50, 300, 8, 0,  STEEL, HI_METAL),
 SHIELD("bracers", None,
        1, 0, 0,           0, 4, 0,  10,  10, 9, 0,  LEATHER, CLR_BROWN),
 SHIELD("dark elven bracers", "etched bracers",
@@ -658,14 +658,14 @@ RING("poison resistance", "pearl",
      POISON_RES,               1, 150, 1, 0,  4, BONE, CLR_WHITE),
 RING("fire resistance", "iron",
      FIRE_RES,                 1, 200, 1, 0,  5, IRON, HI_METAL),
-RING("cold resistance", "brass",
-     COLD_RES,                 1, 150, 1, 0,  4, COPPER, HI_COPPER),
+RING("cold resistance", "bronze",
+     COLD_RES,                 1, 150, 1, 0,  4, BRONZE, HI_COPPER),
 RING("shock resistance", "copper",
      SHOCK_RES,                1, 150, 1, 0,  3, COPPER, HI_COPPER),
 RING("free action", "twisted",
-     FREE_ACTION,              1, 200, 1, 0,  6, METAL, HI_METAL),
+     FREE_ACTION,              1, 200, 1, 0,  6, STEEL, HI_METAL),
 RING("slow digestion", "steel",
-     SLOW_DIGESTION,           1, 200, 1, 0,  8, METAL, HI_METAL),
+     SLOW_DIGESTION,           1, 200, 1, 0,  8, STEEL, HI_METAL),
 RING("teleportation", "silver",
      TELEPORT,                 1, 200, 1, 0,  3, SILVER, HI_SILVER),
 RING("teleport control", "gold",
@@ -675,9 +675,9 @@ RING("polymorph", "ivory",
 RING("polymorph control", "emerald",
      POLYMORPH_CONTROL,        1, 300, 1, 0,  8, GEMSTONE, CLR_BRIGHT_GREEN),
 RING("invisibility", "wire",
-     INVIS,                    1, 150, 1, 0,  5, METAL, HI_METAL),
+     INVIS,                    1, 150, 1, 0,  5, STEEL, HI_METAL),
 RING("see invisible", "engagement",
-     SEE_INVIS,                1, 150, 1, 0,  5, GOLD, HI_METAL),
+     SEE_INVIS,                1, 150, 1, 0,  5, GOLD, HI_GOLD),
 RING("protection from shape changers", "shiny",
      PROT_FROM_SHAPE_CHANGERS, 1, 100, 1, 0,  5, PLATINUM, CLR_BRIGHT_CYAN),
 /* placeholders for artifact rings; will not spawn randomly */
@@ -690,7 +690,7 @@ RING("lustrous", None,
 /* amulets ... - THE Amulet comes last because it is special */
 #define AMULET(name,desc,power,prob) \
     OBJECT(OBJ(name, desc),                                            \
-           BITS(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, P_NONE, METAL),        \
+           BITS(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, P_NONE, STEEL),        \
            power, AMULET_CLASS, prob, 0, 20, 150, 0, 0, 0, 0, 20, HI_METAL)
 AMULET("amulet of ESP",                "circular", TELEPAT, 120),
 AMULET("amulet of life saving",       "spherical", LIFESAVED, 75),
@@ -755,7 +755,7 @@ CONTAINER("bag of tricks",   "bag", 0, 1, 1, 20,  15, 100, CLOTH, HI_CLOTH),
 
 /* lock opening tools */
 TOOL("skeleton key",       "key", 0, 0, 0, 0,  80,   3,   10, BONE, CLR_WHITE),
-TOOL("lock pick",           None, 1, 0, 0, 0,  60,   4,   20, METAL, HI_METAL),
+TOOL("lock pick",           None, 1, 0, 0, 0,  60,   4,   20, STEEL, HI_METAL),
 TOOL("credit card",         None, 1, 0, 0, 0,  15,   1,   10, PLASTIC, CLR_WHITE),
 TOOL("magic key",   "ornate key", 0, 0, 1, 0,   0,   5, 1000, GEMSTONE, CLR_RED),
 /* light sources */
@@ -784,7 +784,7 @@ OBJECT(OBJ("barding of reflection", "polished barding"),
         BITS(0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, P_NONE, SILVER),
         0, TOOL_CLASS, 1, 0, 275, 600, 0, 0, 3, 0, 275, HI_SILVER),
 OBJECT(OBJ("runed barding", None),
-        BITS(1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, P_NONE, METAL),
+        BITS(1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, P_NONE, STEEL),
         0, TOOL_CLASS, 0, 0, 125, 900, 0, 0, 6, 0, 125, HI_METAL),
 TOOL("leash",               None, 1, 0, 0, 0,  65,  12,  20, LEATHER, HI_LEATHER),
 TOOL("stethoscope",         None, 1, 0, 0, 0,  25,   4,  75, IRON, HI_METAL),
@@ -798,8 +798,8 @@ TOOL("magic marker",    "marker", 0, 0, 1, 1,   0,   2,  50, PLASTIC, CLR_RED),
 TOOL("land mine",           None, 1, 0, 0, 0,   0, 300, 180, IRON, CLR_RED),
 TOOL("beartrap",            None, 1, 0, 0, 0,   0, 200,  60, IRON, HI_METAL),
 /* instruments */
-TOOL("pea whistle",    "whistle", 0, 0, 0, 0, 100,   3,  10, METAL, HI_METAL),
-TOOL("magic whistle",  "whistle", 0, 0, 1, 0,  30,   3,  10, METAL, HI_METAL),
+TOOL("pea whistle",    "whistle", 0, 0, 0, 0, 100,   3,  10, STEEL, HI_METAL),
+TOOL("magic whistle",  "whistle", 0, 0, 1, 0,  30,   3,  10, STEEL, HI_METAL),
 TOOL("flute",            "flute", 0, 0, 0, 0,   4,   5,  12, WOOD, HI_WOOD),
 TOOL("magic flute",      "flute", 0, 0, 1, 1,   2,   5,  36, WOOD, HI_WOOD),
 TOOL("tooled horn",       "horn", 0, 0, 0, 0,   5,  18,  15, BONE, CLR_WHITE),
@@ -898,7 +898,7 @@ FOOD("C-ration",              0,  1, 10, 0, VEGGY, 300, HI_ORGANIC),
 /* tins have type specified by obj->spe (+1 for spinach, other implies
    flesh; negative specifies preparation method {homemade,boiled,&c})
    and by obj->corpsenm (type of monster flesh) */
-FOOD("tin",                  75,  0, 10, 1, METAL,   0, HI_METAL),
+FOOD("tin",                  75,  0, 10, 1, STEEL,   0, HI_METAL),
 #undef FOOD
 
 /* potions ... */
@@ -1161,18 +1161,18 @@ WAND("wishing",          "pine",   2, 500, 1, NODIR, WOOD, HI_WOOD),
 WAND("nothing",           "oak",  75, 500, 0, IMMEDIATE, WOOD, HI_WOOD),
 WAND("striking",        "ebony", 225, 150, 1, IMMEDIATE, WOOD, HI_WOOD),
 WAND("make invisible", "marble", 135, 150, 1, IMMEDIATE, MINERAL, HI_MINERAL),
-WAND("slow monster",      "tin", 150, 150, 1, IMMEDIATE, METAL, HI_METAL),
-WAND("speed monster",   "brass", 150, 150, 1, IMMEDIATE, COPPER, HI_COPPER),
+WAND("slow monster",      "tin", 150, 150, 1, IMMEDIATE, STEEL, HI_METAL),
+WAND("speed monster",  "bronze", 150, 150, 1, IMMEDIATE, BRONZE, HI_COPPER),
 WAND("undead turning", "copper", 150, 150, 1, IMMEDIATE, COPPER, HI_COPPER),
 WAND("polymorph",      "silver", 135, 200, 1, IMMEDIATE, SILVER, HI_SILVER),
 WAND("cancellation", "platinum", 135, 200, 1, IMMEDIATE, PLATINUM, CLR_WHITE),
-WAND("teleportation", "iridium", 135, 200, 1, IMMEDIATE, METAL,
+WAND("teleportation", "iridium", 135, 200, 1, IMMEDIATE, STEEL,
                                                              CLR_BRIGHT_CYAN),
-WAND("opening",          "zinc",  75, 150, 1, IMMEDIATE, METAL, HI_METAL),
-WAND("locking",      "aluminum",  75, 150, 1, IMMEDIATE, METAL, HI_METAL),
-WAND("probing",       "uranium",  90, 150, 1, IMMEDIATE, METAL, HI_METAL),
+WAND("opening",          "zinc",  75, 150, 1, IMMEDIATE, STEEL, HI_METAL),
+WAND("locking",      "aluminum",  75, 150, 1, IMMEDIATE, STEEL, HI_METAL),
+WAND("probing",       "uranium",  90, 150, 1, IMMEDIATE, STEEL, HI_METAL),
 WAND("digging",          "iron", 165, 150, 1, RAY, IRON,  HI_METAL),
-WAND("magic missile",   "steel", 150, 150, 1, RAY, METAL, HI_METAL),
+WAND("magic missile",   "steel", 150, 150, 1, RAY, STEEL, HI_METAL),
 WAND("fire",        "hexagonal", 120, 175, 1, RAY, IRON,  HI_METAL),
 WAND("cold",            "short", 120, 175, 1, RAY, IRON,  HI_METAL),
 WAND("sleep",           "runed", 150, 175, 1, RAY, IRON,  HI_METAL),

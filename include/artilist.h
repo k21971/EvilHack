@@ -68,7 +68,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("Stormbringer", RUNESWORD,
       (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI), 0, 0,
       DRLI(5, 2), DFNS(AD_DRLI), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 8000L,
-      NO_COLOR, METAL),
+      NO_COLOR, STEEL),
     /*
      *      Mjollnir can be thrown when wielded if hero has 25 Strength
      *      (usually via gauntlets of power but possible with rings of
@@ -121,11 +121,11 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
 
     A("Frost Brand", SHORT_SWORD, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
       COLD(5, 0), DFNS(AD_COLD), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 3000L,
-      NO_COLOR, METAL),
+      NO_COLOR, STEEL),
 
     A("Fire Brand", SHORT_SWORD, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN), 0, 0,
       FIRE(5, 0), DFNS(AD_FIRE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 3000L,
-      NO_COLOR, METAL),
+      NO_COLOR, STEEL),
     /*      Let's flip the script a bit - Dragonbane is no longer a weapon,
      *      but a pair of magical gloves made from the scales of a long dead
      *      ancient dragon. The gloves afford much of the same special abilities
@@ -171,7 +171,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      */
     A("Vorpal Blade", LONG_SWORD, (SPFX_RESTR | SPFX_BEHEAD | SPFX_WARN | SPFX_DFLAGH),
       0, MH_JABBERWOCK, PHYS(5, 6), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 5000L,
-      NO_COLOR, METAL),
+      NO_COLOR, STEEL),
     /*
      *      Ah, never shall I forget the cry,
      *              or the shriek that shrieked he,
@@ -237,7 +237,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      */
     A("Luck Blade", BROADSWORD, (SPFX_RESTR | SPFX_LUCK), 0, 0,
       PHYS(5, 6), NO_DFNS, NO_CARY, 0, A_CHAOTIC, PM_CONVICT, NON_PM, 3000L,
-      NO_COLOR, METAL),
+      NO_COLOR, STEEL),
     /* The energy drain only works if the artifact kills its victim.
      * Also increases sacrifice value while wielded. */
     A("Secespita", KNIFE, (SPFX_RESTR | SPFX_ATTK), 0, 0,
@@ -329,7 +329,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK
        | SPFX_DEFN | SPFX_INTEL),
       0, 0, DISN(5, 12), DFNS(AD_DISN), NO_CARY, 0, A_NONE,
-      NON_PM, NON_PM, 25000L, NO_COLOR, METAL),
+      NON_PM, NON_PM, 25000L, NO_COLOR, STEEL),
     /* Glamdring, from the LotR series by J.R.R Tolkien. This was the
      * sword that was found along side Orcrist and Sting in a troll cave,
      * and was used by Gandalf thereafter. Like its brethren, this sword
@@ -417,7 +417,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_INTEL
        | SPFX_DEFN | SPFX_REFLECT), 0, 0,
       NO_ATTK, DFNS(AD_MAGM), NO_CARY, 0, A_NONE,
-      NON_PM, NON_PM, 50000L, NO_COLOR, METAL),
+      NON_PM, NON_PM, 50000L, NO_COLOR, STEEL),
     /* The Armor of Retribution is crystal plate mail that is created
        by forging two forged artifacts - the Sword of Annihilation and
        Ashmar. It inherits many of the abilities of both, while having
@@ -474,7 +474,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("The Sceptre of Might", ROD,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DALIGN), 0, 0, PHYS(5, 0),
       DFNS(AD_MAGM), NO_CARY, CONFLICT, A_LAWFUL, PM_CAVEMAN, NON_PM, 2500L,
-      NO_COLOR, METAL),
+      NO_COLOR, STEEL),
 
 #if 0 /* OBSOLETE */
     A("The Palantir of Westernesse", CRYSTAL_BALL,
@@ -509,7 +509,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("The Mitre of Holiness", HELM_OF_BRILLIANCE,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_DFLAGH | SPFX_INTEL | SPFX_PROTECT),
       0, MH_UNDEAD, NO_ATTK, NO_DFNS, CARY(AD_FIRE),
-      ENERGY_BOOST, A_LAWFUL, PM_PRIEST, NON_PM, 2000L, NO_COLOR, METAL),
+      ENERGY_BOOST, A_LAWFUL, PM_PRIEST, NON_PM, 2000L, NO_COLOR, STEEL),
 
     /* If playing a gnomish ranger, the player receives the 'Crossbow of Carl',
        otherwise rangers will receive the Longbow of Diana. Exact same properties

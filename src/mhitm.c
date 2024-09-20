@@ -637,7 +637,7 @@ register struct monst *magr, *mdef;
                 if ((mdef->data == &mons[PM_BLACK_PUDDING]
                      || mdef->data == &mons[PM_BROWN_PUDDING])
                     && (mwep && (material == IRON
-                                 || material == METAL))
+                                 || material == STEEL))
                     && mdef->mhp > 1 && !mdef->mcan) {
                     struct monst *mclone;
 

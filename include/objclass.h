@@ -22,7 +22,7 @@ enum obj_material_types {
     BONE        = 10,
     DRAGON_HIDE = 11, /* not leather! */
     IRON        = 12, /* Fe */
-    METAL       = 13, /* Stainless steel, Sn, &c. */
+    STEEL       = 13, /* Stainless steel, Sn, &c. */
     COPPER      = 14, /* Cu - includes brass */
     BRONZE      = 15,
     SILVER      = 16, /* Ag */
@@ -123,7 +123,7 @@ struct objclass {
     (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL \
      || otmp->material == GOLD || otmp->material == PLATINUM    \
      || otmp->material == SILVER || otmp->material == MINERAL   \
-     || otmp->material == METAL || otmp->material == ADAMANTINE \
+     || otmp->material == STEEL || otmp->material == ADAMANTINE \
      || otmp->material == GEMSTONE)
 
 #define is_fixed(otmp) \

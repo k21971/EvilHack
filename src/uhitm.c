@@ -1999,7 +1999,7 @@ int dieroll;
         && ((!ispotion /* potion obj will have been freed by here */
             && (obj->material == IRON
                 /* allow scalpel and tsurugi to split puddings */
-                || obj->material == METAL))
+                || obj->material == STEEL))
             /* but not bashing with darts, arrows or ya */
             && !(is_ammo(obj) || is_missile(obj)))
         && hand_to_hand) {
