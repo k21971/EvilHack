@@ -3633,4 +3633,5 @@ The following changes to date are:
 - Slight adjustment for extra slash/piece damage for steel and bronze
   weaponry
 - Rename METAL to STEEL
+- Fix: objects.txt (brass -> bronze)
 
