@@ -3630,4 +3630,6 @@ The following changes to date are:
 - Fix: assign bronze its proper color
 - Fix: change HI_COPPER to be CLR_ORANGE
 - Remove old, unused status code (curses)
+- Slight adjustment for extra slash/piece damage for steel and bronze
+  weaponry
 

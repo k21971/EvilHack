@@ -497,12 +497,18 @@ struct monst *mon;
             if (is_blade(otmp)) {
                 tmp -= 1;
             }
-        } else if (otmp->material == METAL) {
-            /* steel has roughly the same density as iron,
-               but is stronger and makes for a finer edge
-               on bladed weapons */
+        } else if (otmp->material == METAL
+                   || otmp->material == BRONZE) {
+            /* steel/bronze has roughly the same density as
+               iron, but both are stronger and can have a finer
+               edge on bladed weapons */
             if (objects[otmp->otyp].oc_dir & (PIERCE | SLASH)) {
                 tmp += 1;
+                /* technically steel can have a finer edge than bronze,
+                   but we don't want to get too crazy with damage bonuses
+                   here. Sometimes steel blades will get an extra bite */
+                if (!rn2(3) && otmp->material == METAL)
+                    tmp += 1;
             }
         }
     }
