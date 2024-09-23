@@ -3636,4 +3636,5 @@ The following changes to date are:
 - Fix: objects.txt (brass -> bronze)
 - Initial Druid quest text
 - Finish up Druid quest text, fix formatting
+- All demons/devils are now unaligned (evil)
 

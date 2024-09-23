@@ -5,7 +5,7 @@
 #	The "start" level for the quest.
 #
 #	Here you meet your (besieged) class leader,
-#       Elanee, and receive your quest assignment.
+#	Elanee, and receive your quest assignment.
 #
 MAZE: "Dru-strt",' '
 FLAGS: noteleport,hardfloor

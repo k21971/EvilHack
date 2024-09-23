@@ -1105,11 +1105,19 @@ struct monst *mon;
                     && oart->alignment != A_NONE
                     && (oart->alignment != u.ualign.type
                         || u.ualign.record < 0));
-    } else if (!is_covetous(mon->data) && !is_mplayer(mon->data)) {
-        badclass = self_willed && oart->role != NON_PM
-                   && oart != &artilist[ART_EXCALIBUR];
-        badalign = (oart->spfx & SPFX_RESTR) && oart->alignment != A_NONE
-                   && (oart->alignment != mon_aligntyp(mon));
+    } else if (!(is_covetous(mon->data)
+                 || is_mplayer(mon->data) || is_demon(mon->data))) {
+        badclass  = self_willed && oart->role != NON_PM
+                    && oart != &artilist[ART_EXCALIBUR];
+        badalign  = (oart->spfx & SPFX_RESTR) && oart->alignment != A_NONE
+                    && (oart->alignment != mon_aligntyp(mon));
+    } else if (is_demon(mon->data)) {
+        /* special case for demons as they are now all unaligned (evil).
+           Lawful/neutral artifacts are off-limits */
+        badclass  = self_willed && oart->role != NON_PM
+                    && oart != &artilist[ART_EXCALIBUR];
+        badalign  = (oart->spfx & SPFX_RESTR) && oart->alignment >= A_NEUTRAL
+                    && mon_aligntyp(mon) == A_NONE;
     } else { /* an M3_WANTSxxx monster or a fake player */
         /* special monsters trying to take the Amulet, invocation tools or
            quest item can touch anything except `spec_applies' artifacts */
