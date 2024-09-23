@@ -3634,4 +3634,6 @@ The following changes to date are:
   weaponry
 - Rename METAL to STEEL
 - Fix: objects.txt (brass -> bronze)
+- Initial Druid quest text
+- Finish up Druid quest text, fix formatting
 

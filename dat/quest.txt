@@ -1229,26 +1229,25 @@ to %d."
 #	Druid
 #
 %Cc Dru 00001
-As you pass through the portal %H welcomes you back,
-light and darkness dappled about its trees.  The
-distinctive smells arrest you -- rich foliage, pungent
-resins, earthy humus, sweet blossoms -- but there is
-also a hint of something new, an acrid sting that does
-not belong.
+As you pass through the portal %H welcomes
+you back, light and darkness dappled about its trees.
+The distinctive smells arrest you; rich foliage, pungent
+resins, earthy humus, sweet blossoms... but there is also a
+hint of something new, an acrid sting that does not belong.
 
 %l will reassure you!  Nothing happens here without
 %lj knowledge.
 %E [You return to %H and must find %l.]
 %Cp Dru 00002
-You return to %H but it is not as lush and vibrant as
-your last visit.  How rapidly are things getting worse?
+You return to %H but it is not as lush and vibrant
+as your last visit.  How rapidly are things getting worse?
 %E
 %Cp Dru 00003
 %H continues to struggle against %ns corruption.  You must
 help %l restore it!
 %E
 %Cp Dru 00005
-"Well met %p!  Our circle has missed your presence."
+"Well met %p!  Our Circle has missed your presence."
 %E
 %Cp Dru 00006
 "You have been away from the woods too long!  Do not forget
@@ -1268,7 +1267,7 @@ heart of our power!"
 "I know I left that menhir around here somewhere..."
 %E
 %Cp Dru 00011
-"Oak, ash, and thorn! Welcome %p!"
+"Oak, ash, and thorn!  Welcome %p!"
 %E
 %Cp Dru 00012
 "Your struggles have changed you, %p."
@@ -1281,11 +1280,11 @@ heart of our power!"
 %E
 %Cc Dru 00015
 %l, distracted, gives you a perfunctory greeting and gestures
-you closer. %lh lightly presses %lj fingertips over your heart.
+you closer.  %lH lightly presses %lj fingertips over your heart.
 
-"At last you return, %p.  You see that %ns influence is felt
-even here.  But you are still uncorrupted!  It will be your
-strength that casts %n and %nj undeath from %H.
+"At last you return, %p.  You see that %ns influence is
+felt even here.  But you are still uncorrupted!  It will be your
+strength that casts %n and %nj undead from %H.
 
 "Let me augur your readiness for this task.  We cannot afford
 for you to fail."
@@ -1295,23 +1294,23 @@ for you to fail."
 to rid us of %ns blight.  I shall augur your success."
 %E
 %Cp Dru 00017
-"%H hangs upon a thread. Are you finally prepared to face %n?"
+"%H hangs upon a thread.  Are you finally prepared to face %n?"
 %E
 %Cc Dru 00018
 "Alas, I was so sure, but you too have fallen to %ns corruption.
 
-"You are severed from our circle!  Be gone from here -- we will
+"You are severed from our Circle!  Be gone from here!  We will
 find some way to persevere without you.  You shame the sacred
 wood and all her beasts and bounty."
 %E [You are cast out of %H.]
 %Cc Dru 00019
 "Your heart is pure, %p, but your druidic bond is not yet deep
-enough to preserve you against %ns touch.  Seek a greater harmony
-with the natural world; it can be found even where you must fight
-in %Z.
+enough to preserve you against %ns touch.  Seek a greater
+harmony with the natural world; it can be found even where you
+must fight in %Z.
 
-"When you have progressed from %ra to %Ra, it is then I see you
-defeating %n."
+"When you have progressed from %ra to %Ra, it is then
+I see you defeating %n."
 %E [You must be an experienced %R to continue.]
 %Cc Dru 00020
 "While you are strong, you have endangered your druidic connection
@@ -1319,30 +1318,32 @@ to all living things.  You must restore yourself in %ds eyes before
 you confront %n!"
 %E [Return when you are suitably %a.]
 %Cc Dru 00021
-"%p, by leaf and branch, you are now ready to free us from %ns foul
-corruption of undeath!  Carry the strength of our circle in your
+"%p, by leaf and branch, you are now ready to free us from %ns
+foul corruption of undeath!  Carry the strength of our Circle in your
 heart and restore %H.
 
-"%n is not merely a witch, or a necromancer, but something I have
-never seen before. %nH twists and redirects the sacred life force
-of our beloved forest and its children into a mockery of undeath.
+"%n is not merely a witch, or a necromancer, but something
+I have never seen before.  %nH twists and redirects the sacred life
+force of our beloved forest and its children into a mockery of
+undeath.
 
 "I am confident that you can defeat %ni and restore nature's
 balance.  But beware!  %nH holds not only the cursed silver bell
-you require to recover the Amulet of Yendor, but %o.  Do not let
-%ni use their power against you!  Retrieve both the bell and %O
-after %nj defeat.
+you require to recover the Amulet of Yendor, but also stole from
+us %o.  Do not let %ni use their power
+against you!  Retrieve both the bell and %O after %nj defeat.
 
-"Journey through %H to %i.  Beware %ns minions, for they will
-try to thwart you at every pass.  The more delay, the more our
-strength ebbs and our enemy's grows.
+"Journey through %H to %i.  Beware %ns
+minions, for they will try to thwart you at every pass.  The more
+delay, the more our strength ebbs and our enemy's grows.
 
-"%hS defeat should restore %H!  If you can return with the bell
-I will attempt to remove its curse so you can carry it as a mark
-of your service to our circle."
+"%ns defeat should restore %H!  If you can return
+with the bell, I will attempt to remove its curse so you can carry
+it as a mark of your service to our Circle."
 %E [Find and defeat %n and retrieve %o from %ni.]
 %Cp Dru 00024
-"With %o we should be able to break the curse upon the silver bell."
+"With %o, we will be able to break the curse upon
+the silver bell."
 %E
 %Cp Dru 00025
 "Remember that all of the natural world is our charge."
@@ -1361,65 +1362,69 @@ it should.  To break the cycle is repugnant."
 "Even some of the evergreen leaves begin to fall."
 %E
 %Cp Dru 00030
-"Do not be dismayed by %i.  The power of our circle goes with you."
+"Do not be dismayed by %n.  The power of our Circle goes with you."
 %E
 %Cp Dru 00031
-"%n may offer you secret knowledge to turn you from your task --
-do not be taken in."
+"%n may offer you secret knowledge to turn you from your task.
+Do not be taken in!"
 %E
 %Cp Dru 00032
-"Remember %n can augur as well as I, so %nh will do anything in
+"Remember, %n can augur as well as I, so %nh will do anything in
 %nj power to stop you."
 %E
 %Cp Dru 00033
-"%n has been called Little Grandmother, but she nurtures only death."
+"%n has been called 'Little Grandmother', but she nurtures only death."
 %E
 %Cp Dru 00034
 "I feel the pain and fear of all the beasts of our wood."
 %E
 %Cc Dru 00035
-You don't know hot to process %i.  It is an alien and disturbing
-presence in the forest.  You are sure the path to %n lies through
-this fearsome place.
+You see %i off in the distance.  It is an alien
+and disturbing presence in the forest.  You are sure
+the path to %n lies through this fearsome place.
 %E [%i stands as an afront to your beloved forest.]
 %Cp Dru 00036
-Once again you stand uneasily before %i.
+Once again you see %i nearby.
 %E
 %Cc Dru 00040
-You know you have finally come to where %n lurks at the heart of
-%nj corruption.  You take heart that %l augured your victory, but
-can't dismiss a creeping dread at what has become of so much of
-the sacred woods.
+You know you have finally come to where %n lurks
+at the center of %nj corruption.  You take heart that %l
+augured your victory, but can't dismiss a creeping dread at
+what has become of so much of the sacred woods.
 
-And what is this?  You can sense something that must be %o
-reaching out to you from within %ns lair.
+And what is this?  You can sense something that must be
+%o, reaching out to you
+from within %ns lair.
 %E [You have found %n and must defeat her to take %o.]
 %Cp Dru 00041
-You can again feel the presence of %o beneath %ns corruption.
+You can again feel the presence of %o
+beneath %ns corruption.
 %E
 %Cc Dru 00050
 "I see that %l has sent %lj little pet.  Did %lh tell you, %p,
-that %lh read your victory in %lj tea leaves?  Heh heh heh.  It
-isn't too late for you to run back to your acorns and bunnies.  Or
-face me, and become my newest minion!"
+that %lh read your victory in %lj tea leaves?  Heh heh heh.  It isn't
+too late for you to run back to your acorns and bunnies.  Or face me,
+and become my newest minion!"
 %E ["I will defeat and enslave you, %p!"]
 %Cp Dru 00051
-"Too afraid to fight, %p, but too uncertain to run away?  You will
-feel neither fear or uncertainty once you serve me in undeath!"
+"Too afraid to fight, %p, but too uncertain to run away?
+You will feel neither fear or uncertainty once you serve me in undeath!"
 %E
 %Cp Dru 00052
-"You are tenacious, %p, but I am %n, and you will not be the first
-or the last druid to boil to bones in my soup!"
+"You are tenacious, %p, but I am %n, and you will not
+be the first or the last druid to boil to bones in my stew!"
 %E
 %Cp Dru 00053
-"Return %o to me now and I will allow a sliver of your will to survive
-in your undead servitude!"
+"Return %o to me now and I will allow a sliver
+of your will to survive in your undead servitude!"
 %E
 %Cp Dru 00060
-"No matter what form you take, I have a cauldron big enough for your corpse."
+"No matter what form you take, I have a cauldron big enough for your
+corpse."
 %E
 %Cp Dru 00061
-"Don't you think if I could be defeated, %l would have already dealt with me?"
+"Don't you think if I could be defeated, %l would have already
+dealt with me?"
 %E
 %Cp Dru 00062
 "What do you hope to accomplish?  I have mastered death!"
@@ -1431,7 +1436,7 @@ in your undead servitude!"
 "Come to Grandmother!"
 %E
 %Cp Dru 00065
-"You are far from the power of your circle here, %p.  Too far!"
+"You are far from the power of your Circle here, %p.  Too far!"
 %E
 %Cp Dru 00066
 "Ah, little %c.  If %l won't face me, why do you think you can?"
@@ -1447,63 +1452,69 @@ most of your current body."
 "I'm glad you have some meat on your bones!"
 %E
 %Cc Dru 00070
-As you pick up %o, you feel the traces of %ns corruption driven from
-your spirit.  With %O %l should be able to fully restore %H.
-%E [%o purifies you and awaits its return to %l.]
+As you pick up %o, you feel the traces of
+%ns corruption driven from your spirit.  With %O,
+%l should be able to fully restore %H.
+%E [%oC purifies you and awaits its return to %l.]
 %Cc Dru 00071
-As you pick up %o, you feel the traces of %ns corruption driven from
-your spirit.
-%E [%o purifies you.]
+As you pick up %o, you feel the traces of
+%ns corruption driven from your spirit.
+%E [%oC purifies you.]
 %Cc Dru 00080
 %n spits curses at you even as %nh collapses, defeated.  With a
-shudder and a burst of foul odors %nj body slumps into a fetid mass
+shudder and a burst of foul odors, %nj body slumps into a fetid mass
 of decay.  Around you, the whole forest seems to shiver in relief.
 %E [%n dies cursing you.]
 %Cc Dru 00081
-%l lightly skims %lj fingertips over %o.  They glitter under %nj
-touch.
+%l lightly skims %lj fingertips over %o.
+They glitter under %nj touch.
 
-"Thank you for defeating %n.  Our circle will now be able to drive %nj
+"Thank you for defeating %n.  Our Circle will now be able to drive %nj
 corruption from %H.  I can also break the curse on the silver bell,
 like so.  You will need it as you continue through %Z.
 
-"Take %O with you as well, %p.  Thanks to your service we will not need
-its powers here, but you may well find them useful on your own journey."
+"Take %O with you as well, %p.  Thanks to your service we will
+not need its powers here, but you may well find them useful on your
+own journey."
 %E [%l touches %o and allows you to take them with you.]
 %Cc Dru 00082
-%l lifts up %o in front of %li.  They glitter at %nj touch.
+%l lifts up %o in front of %li.
+They glitter at %nj touch.
 
-"With %n defeated our circle will be able to drive %nj corrupting
-influence from %H.  We will not need %O as much as you will in your
-trials to come.  I shall break the curse on the silver bell and you
-may carry both back into %Z."
+"With %n defeated our Circle will be able to drive %nj
+corrupting influence from %H.  We will not need
+%O as much as you will in your trials to come.  I shall break
+the curse on the silver bell and you may carry both back into
+%Z."
 %E [%l handles %o and asks you to take them with you.]
 %Cc Dru 00083
-%l rests %lj hand on %o.  They glitter under %nj touch.  %nH shakes
-her head sadly.
+%l rests %lj hand on %o.
+They glitter under %nj touch.  %nH shakes her head sadly.
 
-"You have defeated %n, %p, and your circle is greateful.  I can now
-lift the curse on the silver bell.  However, %o must remain here with
-me as I work to remove the corruption that has been laid over %H.
+"You have defeated %n, %p, and your Circle is grateful.
+I can now lift the curse on the silver bell.  However,
+%o must remain here with me as I work to
+remove the corruption that has been laid over %H.
 
 "You shall now return %o to me."
 %E ["%l asks you to forfeit %o."]
 %Cc Dru 00084
-"Your sacrifice does you great credit, %p.  %o will be a great aid to
-us here.  May %d watch over you as you continue your journey!"
+"Your sacrifice does you great credit, %p.
+%oC will be a great aid to us here.
+May %d watch over you as you continue your journey!"
 %E ["You give %o to %l."]
 %Cp Dru 00090
-"Your circle welcomes you again to %H, %p!  Isn't the transformation
-remarkable?  It won't be long until everything is restored.  How goes
-your quest for the Amulet?"
+"Your Circle welcomes you again to %H, %p!
+Isn't the transformation remarkable?  It won't be long until
+everything is restored.  How goes your quest for the Amulet?"
 %E
 %Cc Dru 00091
-"I see you have recovered the Amulet, %p!  I never doubted you would
-overcome Moloch's agents.
+"I see you have recovered the Amulet, %p!  I never doubted
+you would overcome Moloch's agents.
 
-"Remember your druidic training as you travel through the Elemental Planes
-to the Astral Plane in search of %ds altar.  Your circle will be with you
-in spirit!"
+"Remember your druidic training as you travel through the
+Elemental Planes to the Astral Plane in search of %ds
+altar.  Your Circle will be with you in spirit!"
 %E ["Take the Amulet to %ds altar on the Astral Plane."]
 #
 #	Healer

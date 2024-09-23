@@ -4,8 +4,8 @@
 #
 #	The "start" level for the quest.
 #
-#	Here you meet your (besieged) class leader, <insert name here>
-#	and receive your quest assignment.
+#	Here you meet your (besieged) class leader,
+#       Elanee, and receive your quest assignment.
 #
 MAZE: "Dru-strt",' '
 FLAGS: noteleport,hardfloor
@@ -25,12 +25,14 @@ REGION:(00,00,75,19),lit,"ordinary"
 STAIR:(01,01),down
 # Portal arrival point
 BRANCH:(04,04,04,04),(0,0,0,0)
+# Leader
+MONSTER:('@',"Elanee"),(02,02)
 
 #
 #	The "locate" level for the quest.
 #
-#	Here you have to find <thing>
-#	further towards your assigned quest.
+#	Here you have to find Baba Yaga's Hut
+#	to go further towards your assigned quest.
 #
 
 MAZE: "Dru-loca",' '
@@ -55,8 +57,8 @@ STAIR:(05,05),down
 #
 #	The "goal" level for the quest.
 #
-#	Here you meet <nemesis> your nemesis monster.  You have to
-#	defeat <nemesis> in combat to gain the artifact you have
+#	Here you meet Baba Yaga, your nemesis monster.  You have to
+#	defeat Baba Yaga in combat to gain the artifact you have
 #	been assigned to retrieve.
 #
 
@@ -76,6 +78,9 @@ ENDMAP
 REGION:(00,00,40,11),lit,"ordinary"
 # Stairs
 STAIR:(04,04),up
+# Nemesis
+MONSTER:('@',"Baba Yaga"),(02,02)
+OBJECT:('[',"runed bracers"),(02,02),blessed,0,name:"Bracers of the First Circle"
 
 #
 #	The "fill" levels for the quest.
