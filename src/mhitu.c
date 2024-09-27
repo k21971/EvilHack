@@ -847,10 +847,11 @@ register struct monst *mtmp;
                     || mdat == &mons[PM_GIANT_LEECH])) {
                 mtmp->mundetected = 0;
                 if (!(Blind ? Blind_telepat : Unblind_telepat)) {
-                    struct obj *obj;
+                    struct obj *obj = level.objects[mtmp->mx][mtmp->my];
                     const char *what;
+                    int concealment = concealed_spot(mtmp->mx, mtmp->my);
 
-                    if ((obj = level.objects[mtmp->mx][mtmp->my]) != 0) {
+                    if (concealment == 2) { /* object cover */
                         if (Blind && !obj->dknown)
                             what = something;
                         else if (is_pool(mtmp->mx, mtmp->my) && !Underwater)
@@ -861,9 +862,11 @@ register struct monst *mtmp;
                             what = "the raw sewage";
                         else
                             what = doname(obj);
-
-                        pline("%s was hidden under %s!", Amonnam(mtmp), what);
+                    } else if (concealment == 1) { /* terrain cover, no objects */
+                        what = explain_terrain(mtmp->mx, mtmp->my);
                     }
+                    pline("%s was hidden under %s%s!", Amonnam(mtmp),
+                          obj ? "" : "the ", what);
                     /* unhide attacking monster if hidden */
                     maybe_unhide_at(mtmp->mx, mtmp->my);
                     newsym(mtmp->mx, mtmp->my);
@@ -1422,10 +1425,11 @@ register struct attack *mattk;
                               || mdat == &mons[PM_GIANT_LEECH])) {
         mtmp->mundetected = 0;
         if (!(Blind ? Blind_telepat : Unblind_telepat)) {
-            struct obj *obj;
+            struct obj *obj = level.objects[mtmp->mx][mtmp->my];
             const char *what;
+            int concealment = concealed_spot(mtmp->mx, mtmp->my);
 
-            if ((obj = level.objects[mtmp->mx][mtmp->my]) != 0) {
+            if (concealment == 2) { /* object cover */
                 if (Blind && !obj->dknown)
                     what = something;
                 else if (is_pool(mtmp->mx, mtmp->my) && !Underwater)
@@ -1436,9 +1440,11 @@ register struct attack *mattk;
                     what = "the raw sewage";
                 else
                     what = doname(obj);
-
-                pline("%s was hidden under %s!", Amonnam(mtmp), what);
+            } else if (concealment == 1) { /* terrain cover, no objects */
+                what = explain_terrain(mtmp->mx, mtmp->my);
             }
+            pline("%s was hidden under %s%s!", Amonnam(mtmp),
+                  obj ? "" : "the ", what);
             newsym(mtmp->mx, mtmp->my);
         }
     }

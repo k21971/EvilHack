@@ -2084,10 +2084,12 @@ long timeout;
         struct monst *mtmp = m_at(x, y);
 
         /* a hiding monster may be exposed */
-        if (mtmp && !OBJ_AT(x, y) && mtmp->mundetected
+        if (mtmp && !concealed_spot(x, y) && mtmp->mundetected
             && hides_under(mtmp->data)) {
             mtmp->mundetected = 0;
-        } else if (x == u.ux && y == u.uy && u.uundetected && hides_under(youmonst.data))
+            maybe_unhide_at(x, y);
+        } else if (x == u.ux && y == u.uy && u.uundetected
+                   && hides_under(youmonst.data))
             (void) hideunder(&youmonst);
         newsym_force(x, y);
     } else if (in_invent)

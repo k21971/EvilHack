@@ -1105,7 +1105,11 @@ boolean silently;
         gy = rooms[EGD(grd)->vroom].ly + rn2(2);
         Sprintf(buf, "To Croesus: here's the gold recovered from %s the %s.",
                 plname, mons[u.umonster].mname);
-        make_grave(gx, gy, buf);
+        if (!in_fcorridor(grd, gx, gy)) {
+            /* don't place a grave in a temporary vault corridor
+               that will be removed in a bones file */
+            make_grave(gx, gy, buf);
+        }
     }
     for (coins = invent; coins; coins = nextcoins) {
         nextcoins = coins->nobj;

@@ -673,26 +673,33 @@ struct mkroom *croom; /* NULL == choose random room */
             continue;
 
         sroom->rtype = GARDEN;
+        for (pos.x = sroom->lx; pos.x <= sroom->hx; pos.x++) {
+            for (pos.y = sroom->ly; pos.y <= sroom->hy; pos.y++) {
+                if (levl[pos.x][pos.y].typ == ROOM)
+                    levl[pos.x][pos.y].typ = GRASS;
+            }
+        }
         maderoom = TRUE;
         level.flags.has_garden = 1;
 
         tried = 0;
-        i = rn1(5, 3);
+        i = rnd(2);
         while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
             struct permonst *pmon;
 
             if (!MON_AT(pos.x, pos.y) && (pmon = mkclass(S_NYMPH, 0))) {
                 struct monst *mtmp = makemon(pmon, pos.x,pos.y, NO_MM_FLAGS);
-                mtmp->msleeping = 1;
+                if (rn2(2))
+                    mtmp->msleeping = 1;
                 i--;
             }
         }
         tried = 0;
         i = rn1(3, 3);
         while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
-            if (levl[pos.x][pos.y].typ == ROOM && !MON_AT(pos.x, pos.y)
+            if (levl[pos.x][pos.y].typ == GRASS && !MON_AT(pos.x, pos.y)
                 && !nexttodoor(pos.x, pos.y)) {
-                if (rn2(3)) {
+                if (rn2(5)) {
                     levl[pos.x][pos.y].typ = TREE;
                 } else {
                     levl[pos.x][pos.y].typ = FOUNTAIN;
@@ -1153,6 +1160,9 @@ int sym;
     case S_tree:
         typ = TREE;
         break;
+    case S_deadtree:
+        typ = DEADTREE;
+        break;
     case S_room:
         typ = ROOM;
         break;
@@ -1194,6 +1204,9 @@ int sym;
         break;
     case S_ice:
         typ = ICE;
+        break;
+    case S_grass:
+        typ = GRASS;
         break;
     case S_lava:
         typ = LAVAPOOL;

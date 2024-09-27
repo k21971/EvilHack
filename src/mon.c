@@ -115,7 +115,7 @@ const char *msg;
         if (mtmp == u.ustuck)
             impossible("hiding monster stuck to you (%s)", msg);
         if (m_at(mtmp->mx, mtmp->my) == mtmp
-            && hides_under(mtmp->data) && !OBJ_AT(mtmp->mx, mtmp->my))
+            && hides_under(mtmp->data) && !concealed_spot(mtmp->mx, mtmp->my))
             impossible("mon hiding under nonexistent obj (%s)", msg);
         if (mtmp->data->mlet == S_EEL
             && !is_damp_terrain(mtmp->mx, mtmp->my) && !Is_waterlevel(&u.uz))
@@ -5178,7 +5178,8 @@ struct monst *mon;
     }
 }
 
-/* unwatched hiders may hide again; if so, returns True */
+/* unwatched hiders may hide again; if so, returns True.
+   only applies to is_hider monsters, *not* hides_under monsters. */
 STATIC_OVL boolean
 restrap(mtmp)
 register struct monst *mtmp;
@@ -5226,13 +5227,14 @@ xchar x, y;
 
     if (undetected
         && ((hides_under(mtmp->data)
-             && (!OBJ_AT(x, y) || trapped))
+             && (!concealed_spot(x, y) || trapped))
             || (mtmp->data->mlet == S_EEL && !is_damp_terrain(x, y))
             || (mtmp->data == &mons[PM_GIANT_LEECH] && !is_sewage(x, y))))
         (void) hideunder(mtmp);
 }
 
-/* monster/hero tries to hide under something at the current location */
+/* monster/hero tries to hide under something at the current location.
+   only applies to hides_under monsters, *not* is_hider monsters. */
 boolean
 hideunder(mtmp)
 struct monst *mtmp;
@@ -5252,15 +5254,22 @@ struct monst *mtmp;
                       && !Is_waterlevel(&u.uz));
     } else if (mtmp->data == &mons[PM_GIANT_LEECH]) {
         undetected = (is_sewage(x, y));
-    } else if (hides_under(mtmp->data) && OBJ_AT(x, y)) {
-        struct obj *otmp = level.objects[x][y];
+    } else if (hides_under(mtmp->data)) {
+        int concealment = concealed_spot(x, y);
 
-        /* most monsters won't hide under cockatrice corpse */
-        if (otmp->nexthere || otmp->otyp != CORPSE
-            || (mtmp == &youmonst ? Stone_resistance
-                                  : (resists_ston(mtmp) || defended(mtmp, AD_STON)))
-            || !touch_petrifies(&mons[otmp->corpsenm]))
+        if (concealment == 2) { /* object cover */
+            struct obj *otmp = level.objects[x][y];
+
+            /* most monsters won't hide under cockatrice corpse */
+            if (otmp->nexthere || otmp->otyp != CORPSE
+                || (mtmp == &youmonst ? Stone_resistance
+                                      : (resists_ston(mtmp)
+                                         || defended(mtmp, AD_STON)))
+                || !touch_petrifies(&mons[otmp->corpsenm]))
+                undetected = TRUE;
+        } else if (concealment == 1) { /* terrain cover, no objects */
             undetected = TRUE;
+        }
     }
 
     if (is_u)

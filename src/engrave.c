@@ -207,6 +207,8 @@ register int x, y;
         return hliquid("water");
     else if (IS_SEWAGE(levl[x][y].typ))
         return "raw sewage";
+    else if (IS_GRASS(levl[x][y].typ))
+        return "grass";
     else if ((IS_ROOM(lev->typ) && !Is_earthlevel(&u.uz))
              || IS_WALL(lev->typ) || IS_DOOR(lev->typ) || lev->typ == SDOOR)
         return "floor";
@@ -1388,7 +1390,9 @@ const char *str;
     char buf[BUFSZ];
 
     /* Can we put a grave here? */
-    if ((levl[x][y].typ != ROOM && levl[x][y].typ != GRAVE) || t_at(x, y))
+    if ((levl[x][y].typ != ROOM && levl[x][y].typ != CORR
+         && levl[x][y].typ != GRASS && levl[x][y].typ != GRAVE)
+        || t_at(x, y))
         return;
     /* Make the grave */
     levl[x][y].typ = GRAVE;

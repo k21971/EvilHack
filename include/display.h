@@ -242,6 +242,10 @@
                                     /* else U_AP_TYPE == M_AP_MONSTER */    \
                                     : monnum_to_glyph(youmonst.mappearance)))
 
+/* Get a string describing the terrain at (x, y) */
+#define explain_terrain(x, y) \
+    (defsyms[back_to_defsym((x), (y))].explanation)
+
 /*
  * A glyph is an abstraction that represents a _unique_ monster, object,
  * dungeon part, or effect.  The uniqueness is important.  For example,

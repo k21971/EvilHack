@@ -117,7 +117,7 @@ FILE *orig_yyin = NULL;
 		  map_cnt = 0;
 		  return MAP_ID;
 		}
-<MAPC>[-|}{+stwxABCISHUKPLWTF\\#. 0123456789]*\r?\n	{
+<MAPC>[-|}{+gstwxABCISHUKPLWTF\\#. 0123456789]*\r?\n	{
 		  int len = yyleng;
 		  savetoken(yytext);
 		  /* convert \r\n to \n */

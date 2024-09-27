@@ -256,7 +256,7 @@ coord *cc;
  * Bad if:
  *      pos is occupied OR
  *      pos is inside restricted region (lx,ly,hx,hy) OR
- *      NOT (pos is corridor and a maze level OR pos is a room OR pos is air)
+ *      NOT (pos is corridor and a maze level OR pos is a room, grass, or air)
  */
 boolean
 bad_location(x, y, lx, ly, hx, hy)
@@ -267,6 +267,7 @@ xchar lx, ly, hx, hy;
                       || within_bounded_area(x, y, lx, ly, hx, hy)
                       || !((levl[x][y].typ == CORR && level.flags.is_maze_lev)
                            || levl[x][y].typ == ROOM
+                           || levl[x][y].typ == GRASS
                            || levl[x][y].typ == AIR));
 }
 

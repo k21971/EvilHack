@@ -80,6 +80,7 @@ start: NHAccess
 	S_sewage: \042 
 	S_pool: \042
 	S_ice: \042
+	S_grass: \035
 	S_lava: \035
 	S_vodbridge: \035
 	S_hodbridge: \032
@@ -194,7 +195,6 @@ start: Blank
         S_falling_rock_trap: \032
         S_feline: \032
         S_fire_trap: \032
-        S_ice_trap: \032
         S_flashbeam: \032
         S_food: \032
         S_forge: \032
@@ -205,6 +205,7 @@ start: Blank
         S_giant: \032
         S_gnome: \032
         S_golem: \032
+        S_grass: \032
         S_grave: \032
         S_gremlin: \032
         S_hbeam: \032
@@ -217,6 +218,7 @@ start: Blank
         S_humanoid: \032
         S_hwall: \032
         S_ice: \032
+        S_ice_trap: \032
         S_imp: \032
         S_invisible: \032
         S_jabberwock: \032
@@ -357,7 +359,8 @@ start: IBMgraphics
 	S_puddle: \xf7			# meta-w, approx. equals
 	S_sewage: \xf7			# meta-w, approx. equals
 	S_pool: \xf7			# meta-w, approx. equals
-	S_ice: \xfa				# meta-z, centered dot
+	S_ice: \xfa			# meta-z, centered dot
+	S_grass: \xfa			# meta-z, centered dot
 	S_lava: \xf7			# meta-w, approx. equals
 	S_vodbridge: \xfa		# meta-z, centered dot
 	S_hodbridge: \xfa		# meta-z, centered dot
@@ -571,11 +574,12 @@ start: curses
 	S_ndoor: \xfe			# meta-z, centered dot
 	S_bars: \xfc			# meta-|, not-equals sign (was '#')
 	S_tree: \xe7			# meta-g, plus or minus sign
-        S_deadtree: \xe7                # meta-g, plus or minus sign
+	S_deadtree: \xe7                # meta-g, plus or minus sign
 	S_room: \xfe			# meta-z, centered dot
 	S_corr: \xe1			# meta-a, solid block
 	S_litcorr: \xe1			# meta-a, solid block
 	S_ice: \xfe			# meta-z, centered dot
+	S_grass: \xfe                   # meta-z, centered dot
 	S_vodbridge: \xfe		# meta-z, centered dot
 	S_hodbridge: \xfe		# meta-z, centered dot
 	S_vbeam: \xf8			# meta-3, vertical rule
@@ -614,7 +618,8 @@ start: DECgraphics
 	S_puddle: \xe0			# meta-\, diamond
 	S_sewage: \xe0			# meta-\, diamond
 	S_pool: \xe0			# meta-\, diamond
-	S_ice: \xfe				# meta-~, centered dot
+	S_ice: \xfe			# meta-~, centered dot
+	S_grass: \xfe                   # meta-~, centered dot
 	S_lava: \xe0			# meta-\, diamond
 	S_vodbridge: \xfe		# meta-~, centered dot
 	S_hodbridge: \xfe		# meta-~, centered dot

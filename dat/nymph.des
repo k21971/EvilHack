@@ -1,19 +1,17 @@
 # NetHack 3.6  nymph.des  $NHDT-Date: 1595116228 2020/07/18 23:50:28 $  $NHDT-Branch: master $:$NHDT-Revision: 1.9 $
 #
 # Nymph level (from UnNetHack, which came from Slash'EM)
-# Level is slightly modified from the original
+# Level is modified from the original
 #
 
 LEVEL: "nymph"
-ROOM: "ordinary", unlit, random, random, (12,7)
+ROOM: "garden", unlit, random, random, (12,07)
 {
-TERRAIN: random, 'T'
-TERRAIN: random, 'T'
-[30%]: TERRAIN: random, 'T'
-[30%]: TERRAIN: random, 'T'
-[30%]: TERRAIN: random, 'T'
-[30%]: TERRAIN: random, 'T'
-FOUNTAIN: random
+[30%]:TERRAIN: random, 'T'
+[30%]:TERRAIN: random, 'T'
+[30%]:TERRAIN: random, 'T'
+[30%]:TERRAIN: random, 'T'
+FOUNTAIN:random
 TRAP:"board",random
 TRAP:"board",random
 OBJECT:('(',"chest"),random
@@ -33,60 +31,79 @@ OBJECT:random, random
 OBJECT:random, random
 OBJECT:random, random
 OBJECT:random, random
-MONSTER: 'n', random, hostile
-MONSTER: 'n', random, hostile
-MONSTER: 'n', random, hostile
-MONSTER: 'n', random, hostile
-MONSTER: 'n', random, hostile
+MONSTER:'n', random, hostile
+MONSTER:'n', random, hostile
+MONSTER:'n', random, hostile
+IF [75%] {
+  IF [75%] {
+    MONSTER:('s',"centipede"), random, hostile
+  } ELSE {
+    MONSTER:('s',"scorpion"), random, hostile
+  }
+}
+# nymph queen
 MONSTER:('n',"Aphrodite"), random, hostile
 }
 
-ROOM: "ordinary", random, random, random, random
+# stairs up room
+ROOM: "garden", random, random, random, random
 {
-TERRAIN: random, 'T'
+STAIR:random, up
 TRAP:"board",random
-STAIR: random, up
 OBJECT:random,random
-MONSTER: 'n', random, hostile
 }
 
-ROOM: "ordinary", random, random, random, random
+# stairs down room
+ROOM: "garden", random, random, random, random
 {
-[30%]: TERRAIN: random, 'T'
-[30%]: TERRAIN: random, 'T'
+STAIR:random, down
 TRAP:"board",random
-TRAP: random, random
-STAIR: random, down
+TRAP:random, random
 OBJECT:random, random
-MONSTER: 'n', random, hostile
 }
 
-ROOM: "ordinary", random, random, random, random
-{
-[40%]: TERRAIN: random, 'T'
-[30%]: TERRAIN: random, 'T'
-TRAP:"board",random
-OBJECT:random, random
-OBJECT:random, random
-MONSTER: 'n', random, hostile
-}
-
-ROOM: "ordinary", random, random, random, random
-{
-[30%]: TERRAIN: random, 't'
-[30%]: TERRAIN: random, 'T'
-TRAP:"board",random
-TRAP: random, random
-OBJECT:random, random
-MONSTER: 'n', random, hostile
-}
-
-ROOM: "ordinary", random, random, random, random
+ROOM: "garden", random, random, random, random
 {
 TRAP:"board",random
 OBJECT:random, random
-TRAP: random, random
-MONSTER: 'n', random, hostile
+OBJECT:random, random
+IF [50%] {
+  IF [75%] {
+    MONSTER:('s',"centipede"), random, hostile
+  } ELSE {
+    MONSTER:('S',"snake"), random, hostile
+  }
+}
+}
+
+ROOM: "garden", random, random, random, random
+{
+TRAP:"board",random
+TRAP:random, random
+OBJECT:random, random
+IF [50%] {
+  IF [75%] {
+    MONSTER:('s',"centipede"), random, hostile
+  } ELSE {
+    MONSTER:('S',"pit viper"), random, hostile
+  }
+}
+
+}
+
+ROOM: "garden", random, random, random, random
+{
+TRAP:"board",random
+TRAP:random, random
+OBJECT:random, random
+IF [50%] {
+  IF [75%] {
+    MONSTER:('s',"centipede"), random, hostile
+  } ELSE {
+    MONSTER:('s',"scorpion"), random, hostile
+  }
+}
+
 }
 
 RANDOM_CORRIDORS

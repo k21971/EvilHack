@@ -168,7 +168,8 @@ int show;
      */
     if (!cansee(x, y) && !lev->waslit) {
         /* Floor spaces are dark if unlit.  Corridors are dark if unlit. */
-        if (lev->typ == ROOM && glyph == cmap_to_glyph(S_room))
+        if ((lev->typ == ROOM && glyph == cmap_to_glyph(S_room))
+            || (lev->typ == GRASS && glyph == cmap_to_glyph(S_grass)))
             glyph = cmap_to_glyph((flags.dark_room && iflags.use_color)
                                       ? (DARKROOMSYM)
                                       : S_stone);
@@ -327,8 +328,9 @@ register int x, y;
         map_background(x, y, 0);
 
         /* turn remembered dark room squares dark */
-        if (!lev->waslit && lev->glyph == cmap_to_glyph(S_room)
-            && lev->typ == ROOM)
+        if (!lev->waslit
+            && ((lev->glyph == cmap_to_glyph(S_room) && lev->typ == ROOM)
+                || (lev->glyph == cmap_to_glyph(S_grass) && lev->typ == GRASS)))
             lev->glyph = cmap_to_glyph(S_stone);
     } else {
         levl[x][y].glyph = cmap_to_glyph(S_stone); /* default val */
@@ -691,8 +693,9 @@ xchar x, y;
             if (lev->typ == CORR && lev->glyph == cmap_to_glyph(S_litcorr)
                 && !lev->waslit)
                 show_glyph(x, y, lev->glyph = cmap_to_glyph(S_corr));
-            else if (lev->typ == ROOM && flags.dark_room && iflags.use_color
-                     && lev->glyph == cmap_to_glyph(S_room))
+            else if (flags.dark_room && iflags.use_color
+                     && ((lev->typ == ROOM && lev->glyph == cmap_to_glyph(S_room))
+                         || (lev->typ == GRASS && lev->glyph == cmap_to_glyph(S_grass))))
                 show_glyph(x, y, lev->glyph = cmap_to_glyph(S_darkroom));
         }
     } else {
@@ -721,7 +724,8 @@ xchar x, y;
         }
 
         /* Floor spaces are dark if unlit.  Corridors are dark if unlit. */
-        if (lev->typ == ROOM && lev->glyph == cmap_to_glyph(S_room)
+        if (((lev->typ == ROOM && lev->glyph == cmap_to_glyph(S_room))
+             || (lev->typ == GRASS && lev->glyph == cmap_to_glyph(S_grass)))
             && (!lev->waslit || (flags.dark_room && iflags.use_color)))
             show_glyph(x, y, lev->glyph = cmap_to_glyph(
                                  flags.dark_room ? S_darkroom : S_stone));
@@ -850,7 +854,7 @@ register int x, y;
                     map_trap(ttmp, TRUE);
                 } else if (lev->typ == CORR) {
                     show_glyph(x, y, lev->glyph = cmap_to_glyph(S_corr));
-                } else if (lev->typ == ROOM) {
+                } else if (lev->typ == ROOM || lev->typ == GRASS) {
                     show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
                 } else {
                     map_background(x, y, TRUE);
@@ -910,7 +914,8 @@ register int x, y;
         } else if (!lev->waslit || (flags.dark_room && iflags.use_color)) {
             if (lev->glyph == cmap_to_glyph(S_litcorr) && lev->typ == CORR)
                 show_glyph(x, y, lev->glyph = cmap_to_glyph(S_corr));
-            else if (lev->glyph == cmap_to_glyph(S_room) && lev->typ == ROOM)
+            else if ((lev->glyph == cmap_to_glyph(S_room) && lev->typ == ROOM)
+                     || (lev->glyph == cmap_to_glyph(S_grass) && lev->typ == GRASS))
                 show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
             else
                 goto show_mem;
@@ -1767,6 +1772,13 @@ int
 back_to_glyph(x, y)
 xchar x, y;
 {
+    return cmap_to_glyph(back_to_defsym(x, y));
+}
+
+int
+back_to_defsym(x, y)
+xchar x, y;
+{
     int idx;
     struct rm *ptr = &(levl[x][y]);
 
@@ -1852,6 +1864,9 @@ xchar x, y;
     case ICE:
         idx = S_ice;
         break;
+    case GRASS:
+        idx = S_grass;
+        break;
     case AIR:
         idx = S_air;
         break;
@@ -1900,7 +1915,7 @@ xchar x, y;
         break;
     }
 
-    return cmap_to_glyph(idx);
+    return idx;
 }
 
 /*
@@ -1999,6 +2014,9 @@ xchar x, y;
         case ICE:
            idx = S_ice;
            break;
+        case GRASS:
+           idx = S_grass;
+           break;
         case AIR:
            idx = S_air;
            break;
@@ -2030,7 +2048,7 @@ xchar x, y;
             /* Floor spaces are dark if unlit.  Corridors are dark if unlit. */
             if (lev->typ == CORR && idx == S_litcorr)
                 idx = S_corr;
-            else if (idx == S_room)
+            else if (idx == S_room || idx == S_grass)
                 idx = (flags.dark_room && iflags.use_color)
                          ? DARKROOMSYM : S_stone;
         }
@@ -2055,7 +2073,7 @@ static const char *type_names[MAX_TYPE] = {
     "CROSSWALL", "TUWALL", "TDWALL", "TLWALL", "TRWALL", "DBWALL", "TREE",
     "DEADTREE", "SDOOR", "SCORR", "POOL", "MOAT", "WATER", "DRAWBRIDGE_UP",
     "LAVAPOOL", "IRON_BARS", "DOOR", "CORR", "ROOM", "STAIRS", "LADDER", "FORGE",
-    "MAGIC_CHEST", "FOUNTAIN", "THRONE", "SINK", "GRAVE", "ALTAR", "ICE",
+    "MAGIC_CHEST", "FOUNTAIN", "THRONE", "SINK", "GRAVE", "ALTAR", "ICE", "GRASS",
     "DRAWBRIDGE_DOWN", "AIR", "CLOUD", "PUDDLE", "SEWAGE"
 };
 

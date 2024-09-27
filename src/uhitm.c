@@ -185,22 +185,26 @@ struct obj *wep; /* uwep for attack(), null for kick_monster() */
         && (hides_under(mtmp->data) || mtmp->data->mlet == S_EEL
             || mtmp->data == &mons[PM_GIANT_LEECH])) {
         mtmp->mundetected = mtmp->msleeping = 0;
+        maybe_unhide_at(mtmp->mx, mtmp->my);
         newsym(mtmp->mx, mtmp->my);
         if (glyph_is_invisible(glyph)) {
             seemimic(mtmp);
             return FALSE;
         }
         if (!((Blind ? Blind_telepat : Unblind_telepat) || Detect_monsters)) {
-            struct obj *obj;
 
-            if (!Blind && Hallucination)
+            if (!Blind && Hallucination) {
                 pline("A %s %s appeared!",
                       mtmp->mtame ? "tame" : "wild", l_monnam(mtmp));
-            else if (Blind || (is_pool(mtmp->mx, mtmp->my) && !Underwater))
+            } else if (Blind || (is_damp_terrain(mtmp->mx, mtmp->my) && !Underwater)) {
                 pline("Wait!  There's a hidden monster there!");
-            else if ((obj = level.objects[mtmp->mx][mtmp->my]) != 0)
-                pline("Wait!  There's %s hiding under %s!",
-                      an(l_monnam(mtmp)), doname(obj));
+            } else if (concealed_spot(mtmp->mx, mtmp->my)) {
+                struct obj *obj = level.objects[mtmp->mx][mtmp->my];
+
+                pline("Wait!  There's %s hiding under %s%s!", an(l_monnam(mtmp)),
+                      obj ? "" : "the ",
+                      obj ? doname(obj) : explain_terrain(mtmp->mx, mtmp->my));
+            }
             return TRUE;
         }
     }

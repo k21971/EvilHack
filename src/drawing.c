@@ -177,11 +177,12 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '{', "fountain", C(CLR_BRIGHT_BLUE) },      /* fountain */
        { '}', "water", C(CLR_BLUE) },                /* pool */
        { '.', "ice", C(CLR_CYAN) },                  /* ice */
+       { '.', "grass", C(CLR_BRIGHT_GREEN) },        /* grass */
        { '}', "molten lava", C(CLR_RED) },           /* lava */
        { '.', "lowered drawbridge", C(CLR_BROWN) },  /* vodbridge */
-       { '.', "lowered drawbridge", C(CLR_BROWN) },  /* hodbridge */
+/*40*/ { '.', "lowered drawbridge", C(CLR_BROWN) },  /* hodbridge */
        { '#', "raised drawbridge", C(CLR_BROWN) },   /* vcdbridge */
-/*40*/ { '#', "raised drawbridge", C(CLR_BROWN) },   /* hcdbridge */
+       { '#', "raised drawbridge", C(CLR_BROWN) },   /* hcdbridge */
        { ' ', "air", C(CLR_CYAN) },                  /* open air */
        { '#', "cloud", C(CLR_GRAY) },                /* [part of] a cloud */
        { '}', "shallow water", C(CLR_CYAN) },        /* puddle */
@@ -189,9 +190,9 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '}', "water", C(CLR_BLUE) },                /* under water */
        { '^', "arrow trap", C(HI_METAL) },           /* trap */
        { '^', "bolt trap", C(HI_METAL) },            /* trap */
-       { '^', "dart trap", C(HI_METAL) },            /* trap */
+/*50*/ { '^', "dart trap", C(HI_METAL) },            /* trap */
        { '^', "falling rock trap", C(CLR_GRAY) },    /* trap */
-/*50*/ { '^', "squeaky board", C(CLR_BROWN) },       /* trap */
+       { '^', "squeaky board", C(CLR_BROWN) },       /* trap */
        { '^', "bear trap", C(HI_METAL) },            /* trap */
        { '^', "land mine", C(CLR_RED) },             /* trap */
        { '^', "rolling boulder trap", C(CLR_GRAY) }, /* trap */
@@ -199,9 +200,9 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '^', "rust trap", C(CLR_BLUE) },            /* trap */
        { '^', "fire trap", C(CLR_ORANGE) },          /* trap */
        { '^', "ice trap", C(CLR_BRIGHT_CYAN) },      /* trap */
-       { '^', "pit", C(CLR_BLACK) },                 /* trap */
+/*60*/ { '^', "pit", C(CLR_BLACK) },                 /* trap */
        { '^', "spiked pit", C(CLR_BLACK) },          /* trap */
-/*60*/ { '^', "hole", C(CLR_BROWN) },                /* trap */
+       { '^', "hole", C(CLR_BROWN) },                /* trap */
        { '^', "trap door", C(CLR_BROWN) },           /* trap */
        { '^', "teleportation trap", C(CLR_MAGENTA) },  /* trap */
        { '^', "level teleporter", C(CLR_MAGENTA) },    /* trap */
@@ -209,9 +210,9 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '"', "web", C(CLR_GRAY) },                    /* web */
        { '^', "statue trap", C(CLR_GRAY) },            /* trap */
        { '^', "magic trap", C(HI_ZAP) },               /* trap */
-       { '^', "anti-magic field", C(HI_ZAP) },         /* trap */
+/*70*/ { '^', "anti-magic field", C(HI_ZAP) },         /* trap */
        { '^', "polymorph trap", C(CLR_BRIGHT_GREEN) }, /* trap */
-/*70*/ { '^', "spear trap", C(CLR_BROWN) },            /* trap */
+       { '^', "spear trap", C(CLR_BROWN) },            /* trap */
        { '^', "magic beam trap", C(CLR_YELLOW) },      /* trap */
        { '~', "vibrating square", C(CLR_MAGENTA) },    /* "trap" */
        /* zap colors are changed by mapglyph() to match type of beam */
@@ -220,9 +221,9 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '\\', "", C(CLR_GRAY) },               /* lslant */
        { '/', "", C(CLR_GRAY) },                /* rslant */
        { '*', "", C(CLR_WHITE) },               /* dig beam */
-       { '!', "", C(CLR_WHITE) },               /* camera flash beam */
+/*80*/ { '!', "", C(CLR_WHITE) },               /* camera flash beam */
        { ')', "", C(HI_WOOD) },                 /* boomerang open left */
-/*80*/ { '(', "", C(HI_WOOD) },                 /* boomerang open right */
+       { '(', "", C(HI_WOOD) },                 /* boomerang open right */
        { '0', "", C(HI_ZAP) },                  /* 4 magic shield symbols */
        { '#', "", C(HI_ZAP) },
        { '@', "", C(HI_ZAP) },
@@ -231,9 +232,9 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '?', "valid position", C(CLR_BRIGHT_GREEN) }, /*  target position */
        /* swallow colors are changed by mapglyph() to match engulfing monst */
        { '/', "", C(CLR_GREEN) },         /* swallow top left      */
-       { '-', "", C(CLR_GREEN) },         /* swallow top center    */
+/*90*/ { '-', "", C(CLR_GREEN) },         /* swallow top center    */
        { '\\', "", C(CLR_GREEN) },        /* swallow top right     */
-/*90*/ { '|', "", C(CLR_GREEN) },         /* swallow middle left   */
+       { '|', "", C(CLR_GREEN) },         /* swallow middle left   */
        { '|', "", C(CLR_GREEN) },         /* swallow middle right  */
        { '\\', "", C(CLR_GREEN) },        /* swallow bottom left   */
        { '-', "", C(CLR_GREEN) },         /* swallow bottom center */
@@ -242,9 +243,9 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '/', "", C(CLR_ORANGE) },        /* explosion top left     */
        { '-', "", C(CLR_ORANGE) },        /* explosion top center   */
        { '\\', "", C(CLR_ORANGE) },       /* explosion top right    */
-       { '|', "", C(CLR_ORANGE) },        /* explosion middle left  */
+/*100*/{ '|', "", C(CLR_ORANGE) },        /* explosion middle left  */
        { ' ', "", C(CLR_ORANGE) },        /* explosion middle center*/
-/*100*/{ '|', "", C(CLR_ORANGE) },        /* explosion middle right */
+       { '|', "", C(CLR_ORANGE) },        /* explosion middle right */
        { '\\', "", C(CLR_ORANGE) },       /* explosion bottom left  */
        { '-', "", C(CLR_ORANGE) },        /* explosion bottom center*/
        { '/', "", C(CLR_ORANGE) },        /* explosion bottom right */
@@ -687,6 +688,7 @@ struct symparse loadsyms[] = {
     { SYM_PCHAR, S_fountain, "S_fountain" },
     { SYM_PCHAR, S_pool, "S_pool" },
     { SYM_PCHAR, S_ice, "S_ice" },
+    { SYM_PCHAR, S_grass, "S_grass" },
     { SYM_PCHAR, S_lava, "S_lava" },
     { SYM_PCHAR, S_vodbridge, "S_vodbridge" },
     { SYM_PCHAR, S_hodbridge, "S_hodbridge" },

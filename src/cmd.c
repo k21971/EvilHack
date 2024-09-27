@@ -1494,11 +1494,12 @@ static const char *levltyp[] = {
     "stone", "vertical wall", "horizontal wall", "top-left corner wall",
     "top-right corner wall", "bottom-left corner wall",
     "bottom-right corner wall", "cross wall", "tee-up wall", "tee-down wall",
-    "tee-left wall", "tee-right wall", "drawbridge wall", "tree",
+    "tee-left wall", "tee-right wall", "drawbridge wall", "tree", "dead tree",
     "secret door", "secret corridor", "pool", "moat", "water",
     "drawbridge up", "lava pool", "iron bars", "door", "corridor", "room",
     "stairs", "ladder", "forge", "magic chest", "fountain", "throne", "sink",
-    "grave", "altar", "ice", "drawbridge down", "air", "cloud", "puddle", "sewage",
+    "grave", "altar", "ice", "grass", "drawbridge down", "air", "cloud",
+    "puddle", "sewage",
     /* not a real terrain type, but used for undiggable stone
        by wiz_map_levltyp() */
     "unreachable/undiggable",
@@ -3696,6 +3697,8 @@ int msgflag;          /* for variant message phrasing */
 
             if (o)
                 Sprintf(bp, " underneath %s", ansimpleoname(o));
+            else if (concealed_spot(u.ux, u.uy))
+                Sprintf(bp, " under %s", explain_terrain(u.ux, u.uy));
         } else if (is_clinger(youmonst.data) || Flying) {
             /* Flying: 'lurker above' hides on ceiling but doesn't cling */
             Sprintf(bp, " on the %s", ceiling(u.ux, u.uy));

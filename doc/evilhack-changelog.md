@@ -3637,4 +3637,5 @@ The following changes to date are:
 - Initial Druid quest text
 - Finish up Druid quest text, fix formatting
 - All demons/devils are now unaligned (evil)
+- New terrain type - grass
 

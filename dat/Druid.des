@@ -11,12 +11,12 @@ MAZE: "Dru-strt",' '
 FLAGS: noteleport,hardfloor
 GEOMETRY:center,center
 MAP
-........................
-........................
-........................
-........................
-........................
-........................
+gggggggggggggggggggggggg
+gggggggggggggggggggggggg
+gggggggggggggggggggggggg
+gggggggggggggggggggggggg
+gggggggggggggggggggggggg
+gggggggggggggggggggggggg
 ENDMAP
 
 # Dungeon Description
@@ -91,8 +91,8 @@ OBJECT:('[',"runed bracers"),(02,02),blessed,0,name:"Bracers of the First Circle
 #	and goal levels.
 #
 
-MAZE: "Dru-fila" , 'P'
-INIT_MAP: mines, '.' , 'P' , false , true , lit , false
+MAZE: "Dru-fila" , 't'
+INIT_MAP: mines, '.' , 't' , false , true , lit , false
 NOMAP
 #
 STAIR: random, up
@@ -127,8 +127,8 @@ TRAP: random, random
 TRAP: random, random
 TRAP: random, random
 
-MAZE: "Dru-filb" , 'P'
-INIT_MAP: mines, '.' , 'P' , false , true , lit , false
+MAZE: "Dru-filb" , 't'
+INIT_MAP: mines, '.' , 't' , false , true , lit , false
 NOMAP
 #
 STAIR: random, up

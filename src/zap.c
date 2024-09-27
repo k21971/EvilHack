@@ -2194,9 +2194,9 @@ struct obj *obj, *otmp;
                 (void) boxlock(obj, otmp);
 
             if (obj_shudders(obj)) {
-                boolean cover = ((obj == level.objects[u.ux][u.uy])
+                boolean cover = (hides_under(youmonst.data)
                                  && u.uundetected
-                                 && hides_under(youmonst.data));
+                                 && (obj == level.objects[u.ux][u.uy]));
 
                 if (cansee(obj->ox, obj->oy))
                     learn_it = TRUE;
@@ -5616,6 +5616,7 @@ boolean moncast;
                 if ((mon = m_at(x, y)) != 0) {
                     if (is_swimmer(mon->data) && mon->mundetected) {
                         mon->mundetected = 0;
+                        maybe_unhide_at(x, y);
                     }
                 }
                 newsym(x, y);
@@ -5641,6 +5642,12 @@ boolean moncast;
                     unblock_point(x, y); /* vision:  can see through */
                 feel_newsym(x, y);
             }
+        } else if (IS_GRASS(lev->typ)) {
+            lev->typ = ROOM, lev->flags = 0;
+            if (see_it)
+                pline("The grass is burned away!");
+            if (lev->typ == ROOM)
+                newsym(x, y);
         }
         break; /* ZT_FIRE */
 

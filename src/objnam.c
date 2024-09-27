@@ -2100,7 +2100,8 @@ const char *str;
         /* single letter; might be used for named fruit */
         Strcpy(outbuf, index("aefhilmnosx", c0) ? "an " : "a ");
     } else if (!strncmpi(str, "the ", 4) || !strcmpi(str, "molten lava")
-               || !strcmpi(str, "iron bars") || !strcmpi(str, "ice")) {
+               || !strcmpi(str, "iron bars") || !strcmpi(str, "ice")
+               || !strcmpi(str, "grass")) {
         ; /* no article */
     } else {
         /* normal case is "an <vowel>" or "a <consonant>" */
@@ -4647,6 +4648,10 @@ struct obj *no_wish;
             lev->typ = TREE;
             pline("A tree.");
             block_point(x, y);
+            madeterrain = TRUE;
+        } else if (!BSTRCMPI(bp, p - 5, "grass")) {
+            lev->typ = GRASS;
+            pline("Some grass.");
             madeterrain = TRUE;
         } else if (!BSTRCMPI(bp, p - 4, "bars")) {
             lev->typ = IRONBARS;

@@ -1340,6 +1340,8 @@ char c;
         return (LAVAPOOL);
     case 'I':
         return (ICE);
+    case 'g':
+        return (GRASS);
     case 'W':
         return (WATER);
     case 'T':
