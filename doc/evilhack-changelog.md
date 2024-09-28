@@ -3640,4 +3640,6 @@ The following changes to date are:
 - New terrain type - grass
 - Fix: error C4703: potentially uninitialized local pointer variable
   'what' used (windows compile)
+- Fix: error: for tile 89 (numbered 89) of other.txt, found 'swallow
+  top left' while expecting 'cmap 89'
 
