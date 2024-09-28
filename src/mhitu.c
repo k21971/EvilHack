@@ -848,7 +848,7 @@ register struct monst *mtmp;
                 mtmp->mundetected = 0;
                 if (!(Blind ? Blind_telepat : Unblind_telepat)) {
                     struct obj *obj = level.objects[mtmp->mx][mtmp->my];
-                    const char *what;
+                    const char *what = something;
                     int concealment = concealed_spot(mtmp->mx, mtmp->my);
 
                     if (concealment == 2) { /* object cover */
@@ -1426,7 +1426,7 @@ register struct attack *mattk;
         mtmp->mundetected = 0;
         if (!(Blind ? Blind_telepat : Unblind_telepat)) {
             struct obj *obj = level.objects[mtmp->mx][mtmp->my];
-            const char *what;
+            const char *what = something;
             int concealment = concealed_spot(mtmp->mx, mtmp->my);
 
             if (concealment == 2) { /* object cover */

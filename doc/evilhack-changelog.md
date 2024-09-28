@@ -3638,4 +3638,6 @@ The following changes to date are:
 - Finish up Druid quest text, fix formatting
 - All demons/devils are now unaligned (evil)
 - New terrain type - grass
+- Fix: error C4703: potentially uninitialized local pointer variable
+  'what' used (windows compile)
 
