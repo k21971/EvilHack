@@ -264,10 +264,12 @@ xchar x, y;
 xchar lx, ly, hx, hy;
 {
     return (boolean) (occupied(x, y)
+                      || is_open_air(x, y)
                       || within_bounded_area(x, y, lx, ly, hx, hy)
                       || !((levl[x][y].typ == CORR && level.flags.is_maze_lev)
                            || levl[x][y].typ == ROOM
                            || levl[x][y].typ == GRASS
+                           || levl[x][y].typ == ICE
                            || levl[x][y].typ == AIR));
 }
 
@@ -361,7 +363,8 @@ d_level *lev;
         u_on_newpos(x, y);
         break;
     case LR_PORTAL:
-        mkportal(x, y, lev->dnum, lev->dlevel);
+        if (rtype != GARDEN)
+            mkportal(x, y, lev->dnum, lev->dlevel);
         break;
     case LR_DOWNSTAIR:
     case LR_UPSTAIR:

@@ -975,10 +975,10 @@ makelevel()
             mkroom(BARRACKS);
         else if (u_depth > 15 && !rn2(6))
             mkroom(SWAMP);
-        else if (u_depth > 16 && !rn2(8)
+        else if (u_depth > 15 && !rn2(8)
                  && !(mvitals[PM_COCKATRICE].mvflags & G_GONE))
             mkroom(COCKNEST);
-        else if (u_depth > 17 && !rn2(7)
+        else if (u_depth > 16 && !rn2(6)
                  && !(mvitals[PM_MIND_FLAYER_LARVA].mvflags & G_GONE))
             mkroom(NURSERY);
     }
@@ -1336,7 +1336,8 @@ coord *mp;
             croom = &rooms[rn2(nroom)];
 
         if (!somexyspace(croom, mp, 2)) {
-            if (!somexyspace(croom, mp, 0) && !In_hell(&u.uz))
+            if (!somexyspace(croom, mp, 0)
+                && !In_hell(&u.uz) && !Is_nymph(&u.uz))
                 impossible("Can't place branch!");
         }
     }

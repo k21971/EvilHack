@@ -71,6 +71,7 @@ E struct dgn_topology { /* special dungeon levels for speed */
     xchar d_mines_dnum, d_quest_dnum;
     d_level d_qstart_level, d_qlocate_level, d_nemesis_level;
     d_level d_knox_level;
+    d_level d_nymph_level;
     d_level d_mineend_level;
     d_level d_minetn_level;
     d_level d_sokoend_level;
@@ -106,6 +107,7 @@ E struct dgn_topology { /* special dungeon levels for speed */
 #define qlocate_level           (dungeon_topology.d_qlocate_level)
 #define nemesis_level           (dungeon_topology.d_nemesis_level)
 #define knox_level              (dungeon_topology.d_knox_level)
+#define nymph_level             (dungeon_topology.d_nymph_level)
 #define mineend_level           (dungeon_topology.d_mineend_level)
 #define minetn_level            (dungeon_topology.d_minetn_level)
 #define sokoend_level           (dungeon_topology.d_sokoend_level)

@@ -3642,4 +3642,5 @@ The following changes to date are:
   'what' used (windows compile)
 - Fix: error: for tile 89 (numbered 89) of other.txt, found 'swallow
   top left' while expecting 'cmap 89'
+- Fix: issues with portal placement on nymph level
 

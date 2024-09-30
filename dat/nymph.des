@@ -7,11 +7,11 @@
 LEVEL: "nymph"
 ROOM: "garden", unlit, random, random, (12,07)
 {
-[30%]:TERRAIN: random, 'T'
-[30%]:TERRAIN: random, 'T'
-[30%]:TERRAIN: random, 'T'
-[30%]:TERRAIN: random, 'T'
-FOUNTAIN:random
+[30%]:TERRAIN:random, 'T'
+[30%]:TERRAIN:random, 'T'
+[30%]:TERRAIN:random, 'T'
+[30%]:TERRAIN:random, 'T'
+FOUNTAIN:(06,03)
 TRAP:"board",random
 TRAP:"board",random
 OBJECT:('(',"chest"),random
@@ -62,6 +62,21 @@ TRAP:random, random
 OBJECT:random, random
 }
 
+# normal room, in case of branch portal/stairs placement
+ROOM: "ordinary", random, random, random, random
+{
+[30%]:TERRAIN:random, 'T'
+[30%]:TERRAIN:random, 'T'
+[30%]:TERRAIN:random, 'T'
+[30%]:TERRAIN:random, 'T'
+FOUNTAIN:random
+TRAP:"board",random
+TRAP:random, random
+OBJECT:random, random
+MONSTER:'n', random, hostile
+MONSTER:'n', random, hostile
+}
+
 ROOM: "garden", random, random, random, random
 {
 TRAP:"board",random
@@ -88,22 +103,6 @@ IF [50%] {
     MONSTER:('S',"pit viper"), random, hostile
   }
 }
-
-}
-
-ROOM: "garden", random, random, random, random
-{
-TRAP:"board",random
-TRAP:random, random
-OBJECT:random, random
-IF [50%] {
-  IF [75%] {
-    MONSTER:('s',"centipede"), random, hostile
-  } ELSE {
-    MONSTER:('s',"scorpion"), random, hostile
-  }
-}
-
 }
 
 RANDOM_CORRIDORS

@@ -2643,7 +2643,7 @@ static const char *const as_is[] = {
     "moose",   "ninja",     "sheep",     "ronin",     "roshi",
     "shito",   "tengu",     "ki-rin",    "Nazgul",    "gunyoki",
     "piranha", "samurai",   "shuriken",  "eldritch ki-rin",
-    "drow",    "undead", 0,
+    "drow",    "undead",    0,
     /* Note:  "fish" and "piranha" are collective plurals, suitable
        for "wiped out all <foo>".  For "3 <foo>", they should be
        "fishes" and "piranhas" instead.  We settle for collective
@@ -2680,9 +2680,9 @@ const char *const *alt_as_is; /* another set like as_is[] */
    if ((baselen > 5) && (!BSTRCMPI(basestr, endstring - 5, "craft")))
        return TRUE;
    /* avoid false hit on one_off[].plur == "lice" or .sing == "goose";
-       if more of these turn up, one_off[] entries will need to flagged
-       as to which are whole words and which are matchable as suffices
-       then matching in the loop below will end up becoming more complex */
+      if more of these turn up, one_off[] entries will need to flagged
+      as to which are whole words and which are matchable as suffices
+      then matching in the loop below will end up becoming more complex */
     if (!strcmpi(basestr, "slice")
         || !strcmpi(basestr, "mongoose")) {
         if (to_plural)

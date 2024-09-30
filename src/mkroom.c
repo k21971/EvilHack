@@ -167,7 +167,7 @@ mkshop()
                 mktemple();
                 return;
             }
-            if (*ep == 'n') {
+            if (*ep == 'n' || *ep == 'N') {
                 mkgarden((struct mkroom *) 0);
                 return;
             }
@@ -659,13 +659,12 @@ STATIC_OVL void
 mkgarden(croom)
 struct mkroom *croom; /* NULL == choose random room */
 {
-    register int tryct = 0;
     boolean maderoom = FALSE;
     coord pos;
-    register int i, tried;
+    int i, tried, tryct = 0;
 
     while ((tryct++ < 25) && !maderoom) {
-        register struct mkroom *sroom = croom ? croom : &rooms[rn2(nroom)];
+        struct mkroom *sroom = croom ? croom : &rooms[rn2(nroom)];
 
         if (sroom->hx < 0
             || (!croom && (sroom->rtype != OROOM || !sroom->rlit
@@ -673,32 +672,40 @@ struct mkroom *croom; /* NULL == choose random room */
             continue;
 
         sroom->rtype = GARDEN;
+        /* create grass */
         for (pos.x = sroom->lx; pos.x <= sroom->hx; pos.x++) {
             for (pos.y = sroom->ly; pos.y <= sroom->hy; pos.y++) {
-                if (levl[pos.x][pos.y].typ == ROOM)
+                if (levl[pos.x][pos.y].typ == ROOM
+                    && !t_at(pos.x, pos.y))
                     levl[pos.x][pos.y].typ = GRASS;
             }
         }
         maderoom = TRUE;
         level.flags.has_garden = 1;
 
+        /* create nymphs */
         tried = 0;
         i = rnd(2);
         while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
             struct permonst *pmon;
 
-            if (!MON_AT(pos.x, pos.y) && (pmon = mkclass(S_NYMPH, 0))) {
-                struct monst *mtmp = makemon(pmon, pos.x,pos.y, NO_MM_FLAGS);
+            if (!OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+                && !t_at(pos.x, pos.y) && (pmon = mkclass(S_NYMPH, 0))) {
+                struct monst *mtmp = makemon(pmon, pos.x, pos.y, NO_MM_FLAGS);
+
                 if (rn2(2))
                     mtmp->msleeping = 1;
                 i--;
             }
         }
+
+        /* create trees/fountains */
         tried = 0;
         i = rn1(3, 3);
         while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
-            if (levl[pos.x][pos.y].typ == GRASS && !MON_AT(pos.x, pos.y)
-                && !nexttodoor(pos.x, pos.y)) {
+            if (levl[pos.x][pos.y].typ == GRASS
+                && !OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+                && !t_at(pos.x, pos.y) && !nexttodoor(pos.x, pos.y)) {
                 if (rn2(5)) {
                     levl[pos.x][pos.y].typ = TREE;
                 } else {
@@ -725,8 +732,8 @@ mkswamp() /* Michiel Huisjes & Fred de Wilde */
 
         /* satisfied; make a swamp */
         sroom->rtype = SWAMP;
-        for (sx = sroom->lx; sx <= sroom->hx; sx++)
-            for (sy = sroom->ly; sy <= sroom->hy; sy++)
+        for (sx = sroom->lx; sx <= sroom->hx; sx++) {
+            for (sy = sroom->ly; sy <= sroom->hy; sy++) {
                 if (!OBJ_AT(sx, sy) && !MON_AT(sx, sy) && !t_at(sx, sy)
                     && !nexttodoor(sx, sy)) {
                     if ((sx + sy) % 2) {
@@ -734,10 +741,10 @@ mkswamp() /* Michiel Huisjes & Fred de Wilde */
                         if (!eelct || !rn2(4)) {
                             /* mkclass() won't do, as we might get kraken */
                             (void) makemon(rn2(5)
-                                              ? &mons[PM_GIANT_EEL]
-                                              : rn2(2)
-                                                 ? &mons[PM_PIRANHA]
-                                                 : &mons[PM_ELECTRIC_EEL],
+                                             ? &mons[PM_GIANT_EEL]
+                                             : rn2(2)
+                                               ? &mons[PM_PIRANHA]
+                                               : &mons[PM_ELECTRIC_EEL],
                                            sx, sy, NO_MM_FLAGS);
                             if (!rn2(50))
                                 (void) makemon(&mons[PM_SEA_DRAGON],
@@ -753,6 +760,8 @@ mkswamp() /* Michiel Huisjes & Fred de Wilde */
                                            sx, sy, NO_MM_FLAGS);
                     }
                 }
+            }
+        }
         level.flags.has_swamp = 1;
     }
 }

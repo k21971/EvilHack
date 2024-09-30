@@ -709,6 +709,7 @@ struct level_map {
                   { "hellc", &hellc_level },
                   { "knox", &knox_level },
                   { "medusa", &medusa_level },
+                  { "nymph", &nymph_level },
                   { "oracle", &oracle_level },
                   { "orcus", &orcus_level },
                   { "rogue", &rogue_level },
@@ -2397,10 +2398,11 @@ d_level *lev;
     }
 }
 
-#define INTEREST(feat)                                                   \
-    ((feat).nfount || (feat).nsink || (feat).nthrone || (feat).naltar    \
-     || (feat).ngrave || (feat).ntree || (feat).nshop || (feat).ntemple  \
-     || (feat).nforge || (feat).ndeadtree || (feat).nmagicchest)
+#define INTEREST(feat)                                                  \
+    ((feat).nfount || (feat).nsink || (feat).nthrone || (feat).naltar   \
+     || (feat).ngrave || (feat).ntree || (feat).nshop || (feat).ntemple \
+     || (feat).nforge || (feat).ndeadtree || (feat).ngrass              \
+     || (feat).nmagicchest)
   /* || (feat).water || (feat).ice || (feat).lava */
 
 /* returns true if this level has something interesting to print out */
@@ -2413,9 +2415,10 @@ mapseen *mptr;
     if (mptr->flags.unreachable || mptr->flags.forgot)
         return FALSE;
     /* level is of interest if it has an auto-generated annotation */
-    if (mptr->flags.oracle || mptr->flags.bigroom || mptr->flags.roguelevel
-        || mptr->flags.castle || mptr->flags.valley || mptr->flags.msanctum
-        || mptr->flags.quest_summons || mptr->flags.questing)
+    if (mptr->flags.oracle || mptr->flags.bigroom || mptr->flags.nymph
+        || mptr->flags.roguelevel || mptr->flags.castle || mptr->flags.valley
+        || mptr->flags.msanctum || mptr->flags.quest_summons
+        || mptr->flags.questing)
         return TRUE;
     /* when in Sokoban, list all sokoban levels visited; when not in it,
        list any visited Sokoban level which remains unsolved (will usually
@@ -2486,6 +2489,7 @@ recalc_mapseen()
         mptr->flags.bigroom = Is_bigroom(&u.uz);
     else if (mptr->flags.forgot)
         mptr->flags.bigroom = 0;
+    mptr->flags.nymph = Is_nymph(&u.uz);
     mptr->flags.roguelevel = Is_rogue_level(&u.uz);
     mptr->flags.oracle = 0; /* recalculated during room traversal below */
     mptr->flags.castletune = 0;
@@ -2597,6 +2601,11 @@ recalc_mapseen()
                 count = mptr->feat.ndeadtree + 1;
                 if (count <= 3)
                     mptr->feat.ndeadtree = count;
+                break;
+            case GRASS:
+                count = mptr->feat.ngrass + 1;
+                if (count <= 2)
+                    mptr->feat.ngrass = count;
                 break;
             case FOUNTAIN:
                 count = mptr->feat.nfount + 1;
@@ -2955,7 +2964,7 @@ char *outbuf;
     do {                                                                     \
         if (var)                                                             \
             Sprintf(eos(buf), "%s%s %s%s", COMMA, seen_string((var), (nam)), \
-                    (nam), plur(var));                                       \
+                    (nam), (var == mptr->feat.ngrass) ? "" : plur(var));     \
     } while (0)
 #define ADDTOBUF(nam, var)                           \
     do {                                             \
@@ -3066,6 +3075,7 @@ boolean printdun;
         ADDNTOBUF("grave", mptr->feat.ngrave);
         ADDNTOBUF("tree", mptr->feat.ntree);
         ADDNTOBUF("dead tree", mptr->feat.ndeadtree);
+        ADDNTOBUF("grass", mptr->feat.ngrass);
 #if 0
         ADDTOBUF("water", mptr->feat.water);
         ADDTOBUF("lava", mptr->feat.lava);
@@ -3088,6 +3098,8 @@ boolean printdun;
                 mptr->flags.sokosolved ? "Solved" : "Unsolved");
     } else if (mptr->flags.bigroom) {
         Sprintf(buf, "%sA very big room.", PREFIX);
+    } else if (mptr->flags.nymph) {
+        Sprintf(buf, "%sAphrodite's Garden.", PREFIX);
     } else if (mptr->flags.roguelevel) {
         Sprintf(buf, "%sA primitive area.", PREFIX);
     } else if (on_level(&mptr->lev, &qstart_level)) {
