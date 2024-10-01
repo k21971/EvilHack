@@ -209,6 +209,8 @@ register int x, y;
         return "raw sewage";
     else if (IS_GRASS(levl[x][y].typ))
         return "grass";
+    else if (IS_SAND(levl[x][y].typ))
+        return "sand";
     else if ((IS_ROOM(lev->typ) && !Is_earthlevel(&u.uz))
              || IS_WALL(lev->typ) || IS_DOOR(lev->typ) || lev->typ == SDOOR)
         return "floor";
@@ -587,7 +589,12 @@ doengrave()
     } else if (is_lava(u.ux, u.uy)) {
         You_cant("write on the %s!", surface(u.ux, u.uy));
         return 0;
-    } else if (is_damp_terrain(u.ux, u.uy) || IS_FOUNTAIN(levl[u.ux][u.uy].typ)) {
+    } else if (is_damp_terrain(u.ux, u.uy)
+               || IS_FOUNTAIN(levl[u.ux][u.uy].typ)) {
+        You_cant("write on the %s!", surface(u.ux, u.uy));
+        return 0;
+    } else if (IS_GRASS(levl[u.ux][u.uy].typ)
+               || IS_SAND(levl[u.ux][u.uy].typ)) {
         You_cant("write on the %s!", surface(u.ux, u.uy));
         return 0;
     }
@@ -1391,7 +1398,8 @@ const char *str;
 
     /* Can we put a grave here? */
     if ((levl[x][y].typ != ROOM && levl[x][y].typ != CORR
-         && levl[x][y].typ != GRASS && levl[x][y].typ != GRAVE)
+         && levl[x][y].typ != GRASS && levl[x][y].typ != SAND
+         && levl[x][y].typ != GRAVE)
         || t_at(x, y))
         return;
     /* Make the grave */

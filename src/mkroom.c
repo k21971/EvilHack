@@ -1217,6 +1217,9 @@ int sym;
     case S_grass:
         typ = GRASS;
         break;
+    case S_sand:
+        typ = SAND;
+        break;
     case S_lava:
         typ = LAVAPOOL;
         break;

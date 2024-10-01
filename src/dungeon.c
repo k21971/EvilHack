@@ -2402,7 +2402,7 @@ d_level *lev;
     ((feat).nfount || (feat).nsink || (feat).nthrone || (feat).naltar   \
      || (feat).ngrave || (feat).ntree || (feat).nshop || (feat).ntemple \
      || (feat).nforge || (feat).ndeadtree || (feat).ngrass              \
-     || (feat).nmagicchest)
+     || (feat).nsand  || (feat).nmagicchest)
   /* || (feat).water || (feat).ice || (feat).lava */
 
 /* returns true if this level has something interesting to print out */
@@ -2606,6 +2606,11 @@ recalc_mapseen()
                 count = mptr->feat.ngrass + 1;
                 if (count <= 2)
                     mptr->feat.ngrass = count;
+                break;
+            case SAND:
+                count = mptr->feat.nsand + 1;
+                if (count <= 2)
+                    mptr->feat.nsand = count;
                 break;
             case FOUNTAIN:
                 count = mptr->feat.nfount + 1;
@@ -2964,7 +2969,9 @@ char *outbuf;
     do {                                                                     \
         if (var)                                                             \
             Sprintf(eos(buf), "%s%s %s%s", COMMA, seen_string((var), (nam)), \
-                    (nam), (var == mptr->feat.ngrass) ? "" : plur(var));     \
+                    (nam),                                                   \
+                    (var == mptr->feat.ngrass || var == mptr->feat.nsand)    \
+                        ? "" : plur(var));                                   \
     } while (0)
 #define ADDTOBUF(nam, var)                           \
     do {                                             \
@@ -3076,6 +3083,7 @@ boolean printdun;
         ADDNTOBUF("tree", mptr->feat.ntree);
         ADDNTOBUF("dead tree", mptr->feat.ndeadtree);
         ADDNTOBUF("grass", mptr->feat.ngrass);
+        ADDNTOBUF("sand", mptr->feat.nsand);
 #if 0
         ADDTOBUF("water", mptr->feat.water);
         ADDTOBUF("lava", mptr->feat.lava);

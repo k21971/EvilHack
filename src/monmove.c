@@ -2149,6 +2149,7 @@ register int x, y;
         return 2;
     switch (levl[x][y].typ) {
     case GRASS:
+    case SAND:
     case SINK:
     case ALTAR:
     case THRONE:

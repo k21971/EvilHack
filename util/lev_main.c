@@ -1342,6 +1342,8 @@ char c;
         return (ICE);
     case 'g':
         return (GRASS);
+    case 'a':
+        return (SAND);
     case 'W':
         return (WATER);
     case 'T':

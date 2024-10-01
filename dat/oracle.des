@@ -23,11 +23,15 @@ ROOM: "delphi" , lit, (3,3), (center,center), (11,9) {
   TERRAIN:(00,04),'T'
   TERRAIN:(10,04),'T'
 
+  # Grass
+  REPLACE_TERRAIN:(0,0,10,8), '.', 'g', 100%
+
   SUBROOM: "ordinary" , lit , (4,3) , (3,3) {
     FOUNTAIN: (0, 1)
     FOUNTAIN: (1, 0)
     FOUNTAIN: (1, 2)
     FOUNTAIN: (2, 1)
+    REPLACE_TERRAIN:(0,0,2,2), '.', 'g', 100%
     MONSTER: ('@', "Oracle"), (1,1) {
         OBJECT: ('(', "eight ball"), uncursed, name:"Magic 8-Ball"
     }
@@ -103,6 +107,9 @@ ROOM: "delphi" , lit, (3,3), (center,center), (11,9) {
   FOUNTAIN:(8,1)
   FOUNTAIN:(2,7)
   FOUNTAIN:(8,7)
+
+  # Grass
+  REPLACE_TERRAIN:(0,0,10,8), '.', 'g', 100%
 
   # statues of the 4 elements - appropriately neutral
   $statuelocs = { (5,0),(5,8),(1,4),(9,4) }
@@ -212,6 +219,9 @@ ROOM: "delphi" , lit, (3,3), (center,center), (11,9) {
   TERRAIN:(03,06),'T'
   TERRAIN:(07,02),'T'
   TERRAIN:(07,06),'T'
+
+  # Grass
+  REPLACE_TERRAIN:(0,0,10,8), '.', 'g', 100%
 
   $statuelocs = { (0,0),(10,0),(0,8),(10,8) }
   SHUFFLE:$statuelocs

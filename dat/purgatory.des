@@ -144,26 +144,26 @@ GEOMETRY:left,center
 #         1         2         3         4         5         6         7    7
 #123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
-TT..PPPPP..TTTTTTTTTTTTTTTTT...TTTTTTTTTTTTTTTTT...TTT.TTTT.----------------
-T..T.PPPPP...TTTTTT..........TTTTTTTTTTT....................|..............|
-......PPP.......................................TTTTT......T|..............|
-TTT....PPP......TTT.....................P....TTTT.........TT|..............|
-..TT..PPPP....TTTT......TTTT...........PPP...............TT.......---------|
-.......PPPP...............TT............P................TT.......|........|
-..TT....PPPP......TT..............TTT........TT......T....T.......+........|
-.TTT....PPPPP.....T...............TTT.......TTT...................|........|
-.........PPPP..T..TPPPPPPPP........TT.........TTT......T..........+........|
-....T..T..PPP.TT.PPPPPPT.PPPPPP....T..............................|........|
-...........PPPPPPPPP........PPPPPPPP.......TT.....TT..............---------|
-..TT......PPPPPPP..............PPPPPPPPP.TTT.......TT.......|..............|
-T..TTT..PPPPP.........TTTTT.......PPPPPPPP.............TT...|..............|
-T......PPPPP.TT.....TTT...TTT.......T.PPPPPP...........TTT..|..............|
-.......PPPP..T.....TT.......TT.....TTT...PPPPPPPPP......T...----------------
-......PPPP........TT..........................PPPPPPP.........ttt........t..
-.....TTPPPP.......TT.................TTTTT........PPPPP..............TTT....
-......T.PPPP..TT...TT.......TT.....TTTTT............PPPP..............T....T
-T........PPPPTT.....TTT...TTT........TTTT....TTT......PPPPP...............TT
-T..TTTT...PPP...T.....TTTTT.............................PPPPPP....TTTTTTTTTT
+TTggPPPPPggTTTTTTTTTTTTTTTTTgggTTTTTTTTTTTTTTTTTgggTTTgTTTTg----------------
+TggTgPPPPPgggTTTTTTggggggggggTTTTTTTTTTTgggggggggggggggggggg|gggggggggggggg|
+ggggggPPPgggggggggggggggggggggggggggggggggggggggTTTTTggggggT|gggggggggggggg|
+TTTggggPPPggggggTTTgggggggggggggggggggggPggggTTTTgggggggggTT|gggggggggggggg|
+ggTTggPPPPggggTTTTggggggTTTTgggggggggggPPPgggggggggggggggTTggggggg---------|
+gggggggPPPPgggggggggggggggTTggggggggggggPggggggggggggggggTTggggggg|........|
+ggTTggggPPPPggggggTTggggggggggggggTTTggggggggTTggggggTggggTggggggg+........|
+gTTTggggPPPPPgggggTgggggggggggggggTTTgggggggTTTggggggggggggggggggg|........|
+gggggggggPPPPggTggTPPPPPPPPggggggggTTgggggggggTTTggggggTgggggggggg+........|
+ggggTggTggPPPgTTgPPPPPPTgPPPPPPggggTgggggggggggggggggggggggggggggg|........|
+gggggggggggPPPPPPPPPggggggggPPPPPPPPgggggggTTgggggTTgggggggggggggg---------|
+ggTTggggggPPPPPPPggggggggggggggPPPPPPPPPgTTTgggggggTTggggggg|gggggggggggggg|
+TggTTTggPPPPPgggggggggTTTTTgggggggPPPPPPPPgggggggggggggTTggg|gggggggggggggg|
+TggggggPPPPPgTTgggggTTTgggTTTgggggggTgPPPPPPgggggggggggTTTgg|gggggggggggggg|
+gggggggPPPPggTgggggTTgggggggTTgggggTTTgggPPPPPPPPPggggggTggg----------------
+ggggggPPPPggggggggTTggggggggggggggggggggggggggPPPPPPPgggggggggtttggggggggtgg
+gggggTTPPPPgggggggTTgggggggggggggggggTTTTTggggggggPPPPPggggggggggggggTTTgggg
+ggggggTgPPPPggTTgggTTgggggggTTgggggTTTTTggggggggggggPPPPggggggggggggggTggggT
+TggggggggPPPPTTgggggTTTgggTTTggggggggTTTTggggTTTggggggPPPPPgggggggggggggggTT
+TggTTTTgggPPPgggTgggggTTTTTgggggggggggggggggggggggggggggPPPPPPggggTTTTTTTTTT
 ENDMAP
 
 # Random monsters

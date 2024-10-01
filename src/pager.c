@@ -2153,6 +2153,7 @@ struct permonst **for_supplement;
                               || strcmp(x_str, "air") == 0
                               || strcmp(x_str, "land") == 0
                               || strcmp(x_str, "grass") == 0
+                              || strcmp(x_str, "sand") == 0
                               || strcmp(x_str, "shallow water") == 0
                               || strcmp(x_str, "sewage") == 0
                               || strcmp(x_str, "water") == 0);

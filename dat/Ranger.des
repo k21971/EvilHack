@@ -11,30 +11,31 @@
 MAZE: "Ran-strt",'.'
 FLAGS: noteleport,hardfloor,arboreal
 INIT_MAP:mines,'.','.',true,true,lit,false
-REPLACE_TERRAIN:(0,0,76,19),'.', 'T', 5%
+REPLACE_TERRAIN:(0,0,78,20),'.', 'g', 100%
+REPLACE_TERRAIN:(0,0,76,19),'g', 'T', 5%
 GEOMETRY:left,center
 #1234567890123456789012345678901234567890123456789012345678901234567890
 MAP
                                        xx
-   ...................................  x
-  ..                                 ..  
- ..  ...............F...............  .. 
- .  ..             .F.             ..  . 
- . ..  .............F.............  .. . 
- . .  ..                         ..  . . 
- . . ..  .......................  .. ... 
- . . .  ..                     ..  .     
- ... . ..  .|..................... ......
- FFF . .  ..S..................          
- ... . ..  .|.................  .... ... 
- . . .  ..                     ..  . . . 
- . . ..  .......................  .. . . 
- . .  ..                         ..  . . 
- . ..  .............F.............  .. . 
- .  ..             .F.             ..  . 
- ..  ...............F...............  .. 
-  ..                                 ..  
-   ...................................  x
+   ggggggggggggggggggggggggggggggggggg  x
+  gg                                 gg  
+ gg  gggggggggggggggFggggggggggggggg  gg 
+ g  gg             gFg             gg  g 
+ g gg  gggggggggggggFggggggggggggg  gg g 
+ g g  gg                         gg  g g 
+ g g gg  ggggggggggggggggggggggg  gg ggg 
+ g g g  gg                     gg  g     
+ ggg g gg  g|ggggggggggggggggggggg gggggg
+ FFF g g  ggSgggggggggggggggggg          
+ ggg g gg  g|ggggggggggggggggg  gggg ggg 
+ g g g  gg                     gg  g g g 
+ g g gg  ggggggggggggggggggggggg  gg g g 
+ g g  gg                         gg  g g 
+ g gg  gggggggggggggFggggggggggggg  gg g 
+ g  gg             gFg             gg  g 
+ gg  gggggggggggggggFggggggggggggggg  gg 
+  gg                                 gg  
+   ggggggggggggggggggggggggggggggggggg  x
                                        xx
 ENDMAP
 # Dungeon Description
@@ -315,7 +316,7 @@ WALLIFY
 #
 
 MAZE: "Ran-fila" , ' '
-INIT_MAP: mines, '.' , 'T', true, true, random, true
+INIT_MAP: mines, 'g' , 'T', true, true, random, true
 NOMAP
 #
 STAIR: random, up

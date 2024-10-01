@@ -3273,6 +3273,7 @@ lookaround()
 
             if (IS_ROCK(levl[x][y].typ) || levl[x][y].typ == ROOM
                 || levl[x][y].typ == GRASS || levl[x][y].typ == ICE
+                || levl[x][y].typ == SAND
                 || (IS_AIR(levl[x][y].typ) && !In_V_tower(&u.uz)
                     && !In_purgatory(&u.uz) && !In_icequeen_branch(&u.uz))) {
                 continue;

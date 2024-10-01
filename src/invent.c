@@ -3493,6 +3493,8 @@ char *buf;
         dfeature = "pool of raw sewage";
     else if (IS_GRASS(ltyp))
         cmap = S_grass; /* "grass" */
+    else if (IS_SAND(ltyp))
+        cmap = S_sand; /* "sand" */
     else if (IS_SINK(ltyp))
         cmap = S_sink; /* "sink" */
     else if (IS_FORGE(ltyp))

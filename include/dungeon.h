@@ -230,6 +230,7 @@ typedef struct mapseen {
         Bitfield(ntree, 2);
         Bitfield(ndeadtree, 2);
         Bitfield(ngrass, 2);
+        Bitfield(nsand, 2);
         Bitfield(water, 2);
         Bitfield(lava, 2);
 

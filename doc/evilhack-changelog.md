@@ -3643,4 +3643,5 @@ The following changes to date are:
 - Fix: error: for tile 89 (numbered 89) of other.txt, found 'swallow
   top left' while expecting 'cmap 89'
 - Fix: issues with portal placement on nymph level
+- New terrain type - sand, add grass and sand to various levels
 

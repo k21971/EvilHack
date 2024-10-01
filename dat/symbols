@@ -81,6 +81,7 @@ start: NHAccess
 	S_pool: \042
 	S_ice: \042
 	S_grass: \035
+	S_sand: \035
 	S_lava: \035
 	S_vodbridge: \035
 	S_hodbridge: \032
@@ -264,6 +265,7 @@ start: Blank
         S_rslant: \032
         S_rust_trap: \032
         S_rustmonst: \032
+        S_sand: \032
         S_scroll: \032
         S_sewage: \032
         S_sink: \032
@@ -361,6 +363,7 @@ start: IBMgraphics
 	S_pool: \xf7			# meta-w, approx. equals
 	S_ice: \xfa			# meta-z, centered dot
 	S_grass: \xfa			# meta-z, centered dot
+	S_sand: \xfa			# meta-z, centered dot
 	S_lava: \xf7			# meta-w, approx. equals
 	S_vodbridge: \xfa		# meta-z, centered dot
 	S_hodbridge: \xfa		# meta-z, centered dot
@@ -579,7 +582,8 @@ start: curses
 	S_corr: \xe1			# meta-a, solid block
 	S_litcorr: \xe1			# meta-a, solid block
 	S_ice: \xfe			# meta-z, centered dot
-	S_grass: \xfe                   # meta-z, centered dot
+	S_grass: \xfe			# meta-z, centered dot
+	S_sand: \xfe			# meta-z, centered dot
 	S_vodbridge: \xfe		# meta-z, centered dot
 	S_hodbridge: \xfe		# meta-z, centered dot
 	S_vbeam: \xf8			# meta-3, vertical rule
@@ -619,7 +623,8 @@ start: DECgraphics
 	S_sewage: \xe0			# meta-\, diamond
 	S_pool: \xe0			# meta-\, diamond
 	S_ice: \xfe			# meta-~, centered dot
-	S_grass: \xfe                   # meta-~, centered dot
+	S_grass: \xfe			# meta-~, centered dot
+	S_sand: \xfe			# meta-~, centered dot
 	S_lava: \xe0			# meta-\, diamond
 	S_vodbridge: \xfe		# meta-~, centered dot
 	S_hodbridge: \xfe		# meta-~, centered dot

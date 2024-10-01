@@ -2101,7 +2101,7 @@ const char *str;
         Strcpy(outbuf, index("aefhilmnosx", c0) ? "an " : "a ");
     } else if (!strncmpi(str, "the ", 4) || !strcmpi(str, "molten lava")
                || !strcmpi(str, "iron bars") || !strcmpi(str, "ice")
-               || !strcmpi(str, "grass")) {
+               || !strcmpi(str, "grass") || !strcmpi(str, "sand")) {
         ; /* no article */
     } else {
         /* normal case is "an <vowel>" or "a <consonant>" */
@@ -4652,6 +4652,10 @@ struct obj *no_wish;
         } else if (!BSTRCMPI(bp, p - 5, "grass")) {
             lev->typ = GRASS;
             pline("Some grass.");
+            madeterrain = TRUE;
+        } else if (!BSTRCMPI(bp, p - 4, "sand")) {
+            lev->typ = SAND;
+            pline("Some sand.");
             madeterrain = TRUE;
         } else if (!BSTRCMPI(bp, p - 4, "bars")) {
             lev->typ = IRONBARS;
