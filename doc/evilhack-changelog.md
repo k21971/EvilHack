@@ -3644,4 +3644,5 @@ The following changes to date are:
   top left' while expecting 'cmap 89'
 - Fix: issues with portal placement on nymph level
 - New terrain type - sand, add grass and sand to various levels
+- Fix: shield bash damage with large shields
 

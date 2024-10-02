@@ -5453,7 +5453,7 @@ struct obj *obj;
         if (obj->otyp == SMALL_SHIELD)
             tmp += rn2(3) + 1;
         else
-            tmp += rn2(6) + 2;
+            tmp += rnd(6) + 2;
 
         /* sprinkle on a bit more damage if
            shield skill is high enough */
