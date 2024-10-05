@@ -38,7 +38,7 @@ MONSTER:('@',"Elanee"),(02,02)
 MAZE: "Dru-loca",' '
 FLAGS: hardfloor
 #
-INIT_MAP: mines, '.' , 'P', true , true , lit , false
+INIT_MAP: mines, '.' , 't', true , true , lit , false
 GEOMETRY:center,center
 MAP
 ........................
@@ -52,7 +52,7 @@ ENDMAP
 REGION:(00,00,30,09),lit,"ordinary"
 # Stairs
 STAIR:(04,04),up
-STAIR:(05,05),down
+STAIR:(08,08),down
 
 #
 #	The "goal" level for the quest.
@@ -64,7 +64,7 @@ STAIR:(05,05),down
 
 MAZE: "Dru-goal", ' '
 #
-INIT_MAP: mines, '.' , 'P' , false , true , lit , false
+INIT_MAP: mines, '.' , 't' , false , true , lit , false
 GEOMETRY:center,center
 MAP
 ........................
@@ -94,79 +94,31 @@ OBJECT:('[',"runed bracers"),(02,02),blessed,0,name:"Bracers of the First Circle
 MAZE: "Dru-fila" , 't'
 INIT_MAP: mines, '.' , 't' , false , true , lit , false
 NOMAP
+# some vegetation is still alive
+REPLACE_TERRAIN:(0,0,78,20),'t','T', 25%
+REPLACE_TERRAIN:(0,0,78,20),'.','g', 25%
 #
 STAIR: random, up
 STAIR: random, down
 #
 OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
 #
-MONSTER: ('r', "rabid rat"), random
 MONSTER: ('r', "enormous rat"), random
-MONSTER: 'r', random,hostile
-MONSTER: 'r', random,hostile
-MONSTER: (';', "giant eel"), random
-MONSTER: (';', "giant eel"), random
-MONSTER: (';', "electric eel"), random
-MONSTER: 'D',random,hostile
-MONSTER: 'D',random,hostile
-MONSTER: 'D',random,hostile
-MONSTER: 'D',random,hostile
-MONSTER: 'S',random,hostile
-MONSTER: 'S',random,hostile
-MONSTER: 'S',random,hostile
 #
-TRAP: random, random
-TRAP: random, random
-TRAP: random, random
 TRAP: random, random
 
 MAZE: "Dru-filb" , 't'
 INIT_MAP: mines, '.' , 't' , false , true , lit , false
 NOMAP
+# very little vegetation is still alive
+REPLACE_TERRAIN:(0,0,78,20),'t','T', 2%
+REPLACE_TERRAIN:(0,0,78,20),'.','g', 5%
 #
 STAIR: random, up
 STAIR: random, down
 #
 OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
-OBJECT: random, random
 #
-MONSTER: ('r', "rabid rat"), random
-MONSTER: ('r', "rabid rat"), random
 MONSTER: ('r', "enormous rat"), random
-MONSTER: 'r', random,hostile
-MONSTER: 'r', random,hostile
-MONSTER: (';', "giant eel"), random
-MONSTER: (';', "giant eel"), random
-MONSTER: (';', "giant eel"), random
-MONSTER: (';', "giant eel"), random
-MONSTER: (';', "giant eel"), random
-MONSTER: (';', "electric eel"), random
-MONSTER: (';', "electric eel"), random
-MONSTER: 'D',random,hostile
-MONSTER: 'D',random,hostile
-MONSTER: 'D',random,hostile
-MONSTER: 'D',random,hostile
-MONSTER: 'S',random,hostile
-MONSTER: 'S',random,hostile
-MONSTER: 'S',random,hostile
 #
-TRAP: random, random
-TRAP: random, random
-TRAP: random, random
 TRAP: random, random
