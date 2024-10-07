@@ -3646,4 +3646,6 @@ The following changes to date are:
 - New terrain type - sand, add grass and sand to various levels
 - Fix: shield bash damage with large shields
 - Filler levels for Druid quest
+- Fix: monster stealing worn gold objects from other monsters (AD_SGLD)
+  not properly handled
 

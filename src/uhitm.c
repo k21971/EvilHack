@@ -3159,15 +3159,14 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         tmp = 0;
         break;
     case AD_SGLD:
-        /* This you as a leprechaun, so steal
+        /* This is you as a leprechaun, so steal
            real gold only, no lesser coins */
         mongold = findgold(mdef->minvent, FALSE);
         if (mongold) {
             if (mongold->otyp != GOLD_PIECE) {
                 /* stole a gold non-coin object */
                 (void) really_steal(mongold, mdef);
-            }
-            else if (merge_choice(invent, mongold) || inv_cnt(FALSE) < 52) {
+            } else if (merge_choice(invent, mongold) || inv_cnt(FALSE) < 52) {
                 Your("purse feels heavier.");
                 obj_extract_self(mongold);
                 addinv(mongold);

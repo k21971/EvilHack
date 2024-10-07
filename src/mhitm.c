@@ -2149,7 +2149,18 @@ post_stone:
                 pline("%s steals %s.", buf, distant_name(gold, yname));
             }
             obj_extract_self(gold);
-            add_to_minv(magr, gold);
+            if (gold->owornmask) {
+                mdef->misc_worn_check &= ~gold->owornmask;
+                if (gold->owornmask & W_WEP)
+                    mwepgone(mdef);
+                gold->owornmask = 0L;
+                update_mon_intrinsics(mdef, gold, FALSE, FALSE);
+                /* give monster a chance to wear other equipment on its next
+                   move instead of waiting until it picks something up */
+                check_gear_next_turn(mdef);
+            }
+            (void) add_to_minv(magr, gold);
+            possibly_unwield(mdef, FALSE);
             mdef->mstrategy &= ~STRAT_WAITFORU;
             if (!tele_restrict(magr)) {
                 boolean couldspot = canspotmon(magr);
