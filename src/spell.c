@@ -1985,7 +1985,7 @@ int spell;
      */
     int chance, splcaster, special, statused;
     int difficulty;
-    int skill;
+    int skill, skilltype = spell_skilltype(spellid(spell));
     int dex_adjust;
     boolean paladin_bonus, primary_casters, non_casters;
 
@@ -2017,7 +2017,7 @@ int spell;
         dex_adjust += 20;
 
     /* Knights don't get metal armor penalty for clerical spells */
-    paladin_bonus = Role_if(PM_KNIGHT) && spell_skilltype(spellid(spell)) == P_CLERIC_SPELL;
+    paladin_bonus = (Role_if(PM_KNIGHT) && skilltype == P_CLERIC_SPELL);
 
     /* Casting roles */
     primary_casters = (Role_if(PM_HEALER) || Role_if(PM_PRIEST)
@@ -2036,14 +2036,15 @@ int spell;
     if (uarms)
         splcaster += urole.spelshld;
 
-    if (uarmh && is_metallic(uarmh)
-        && uarmh->otyp != HELM_OF_BRILLIANCE && !paladin_bonus)
-        splcaster += uarmhbon;
-    if (uarmg && is_metallic(uarmg)
-        && uarmg->oartifact != ART_GAUNTLETS_OF_PURITY && !paladin_bonus)
-        splcaster += uarmgbon;
-    if (uarmf && is_metallic(uarmf) && !paladin_bonus)
-        splcaster += uarmfbon;
+    if (!paladin_bonus) {
+        if (uarmh && is_metallic(uarmh))
+            splcaster += uarmhbon;
+        if (uarmg && is_metallic(uarmg)
+            && uarmg->oartifact != ART_GAUNTLETS_OF_PURITY)
+            splcaster += uarmgbon;
+        if (uarmf && is_metallic(uarmf))
+            splcaster += uarmfbon;
+    }
 
     /* Infidels have a special penalty for wearing blessed armor. */
     if (Role_if(PM_INFIDEL)) {
@@ -2092,7 +2093,7 @@ int spell;
      * The difficulty is based on the hero's level and their skill level
      * in that spell type.
      */
-    skill = P_SKILL(spell_skilltype(spellid(spell)));
+    skill = P_SKILL(skilltype);
     skill = max(skill, P_UNSKILLED) - 1; /* unskilled => 0 */
     difficulty =
         (spellev(spell) - 1) * 4 - ((skill * 6) + (u.ulevel / 3) + 1);
@@ -2146,33 +2147,34 @@ int spell;
     /* For those classes that don't cast well, wielding one of these
      * special staves should be a significant help.
      */
-    if (uwep && uwep->otyp >= STAFF_OF_DIVINATION && uwep->otyp <= ASHWOOD_STAFF) {
+    if (uwep && uwep->otyp >= STAFF_OF_DIVINATION
+        && uwep->otyp <= ASHWOOD_STAFF) {
 #define STAFFBONUS 50
-        if (spell_skilltype(spellid(spell)) == P_CLERIC_SPELL
+        if (skilltype == P_CLERIC_SPELL
             && (uwep->otyp == STAFF_OF_HOLINESS
                 || uwep->otyp == ASHWOOD_STAFF))
             chance += STAFFBONUS;
-        if (spell_skilltype(spellid(spell)) == P_HEALING_SPELL
+        if (skilltype == P_HEALING_SPELL
             && (uwep->otyp == STAFF_OF_HEALING
                 || uwep->otyp == ASHWOOD_STAFF))
             chance += STAFFBONUS;
-        if (spell_skilltype(spellid(spell)) == P_DIVINATION_SPELL
+        if (skilltype == P_DIVINATION_SPELL
             && (uwep->otyp == STAFF_OF_DIVINATION
                 || uwep->otyp == ASHWOOD_STAFF))
             chance += STAFFBONUS;
-        if (spell_skilltype(spellid(spell)) == P_MATTER_SPELL
+        if (skilltype == P_MATTER_SPELL
             && (uwep->otyp == STAFF_OF_MATTER
                 || uwep->otyp == ASHWOOD_STAFF))
             chance += STAFFBONUS;
-        if (spell_skilltype(spellid(spell)) == P_ESCAPE_SPELL
+        if (skilltype == P_ESCAPE_SPELL
             && (uwep->otyp == STAFF_OF_ESCAPE
                 || uwep->otyp == ASHWOOD_STAFF))
             chance += STAFFBONUS;
-        if (spell_skilltype(spellid(spell)) == P_ATTACK_SPELL
+        if (skilltype == P_ATTACK_SPELL
             && (uwep->otyp == STAFF_OF_WAR
                 || uwep->otyp == ASHWOOD_STAFF))
             chance += STAFFBONUS;
-        if (spell_skilltype(spellid(spell)) == P_ENCHANTMENT_SPELL
+        if (skilltype == P_ENCHANTMENT_SPELL
             && uwep->otyp == ASHWOOD_STAFF)
             chance += STAFFBONUS;
 #undef STAFFBONUS

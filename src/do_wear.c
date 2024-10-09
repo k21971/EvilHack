@@ -597,6 +597,9 @@ Helmet_on(VOID_ARGS)
     case ORCISH_HELM:
     case HELM_OF_TELEPATHY:
         break;
+    case HELM_OF_CAUTION:
+        see_monsters();
+        break;
     case HELM_OF_BRILLIANCE:
         adj_abon(uarmh, uarmh->spe);
         break;
@@ -701,6 +704,7 @@ Helmet_off(VOID_ARGS)
             You_feel("yourself slow down%s.", Fast ? " a bit" : "");
         break;
     case HELM_OF_TELEPATHY:
+    case HELM_OF_CAUTION:
         /* need to update ability before calling see_monsters() */
         setworn((struct obj *) 0, W_ARMH);
         see_monsters();

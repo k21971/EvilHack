@@ -496,7 +496,7 @@ struct obj *obj;
             else if (rn2(2))
                 weapon = rn2(2) ? UNICORN_HORN : SCALPEL;
             if (rn2(4))
-                helm = rn2(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
+                helm = rnd_class(HELM_OF_BRILLIANCE, HELM_OF_TELEPATHY);
             if (rn2(2))
                 shield = STRANGE_OBJECT;
             break;
@@ -506,7 +506,7 @@ struct obj *obj;
             if (rn2(3))
                 cloak = CLOAK_OF_PROTECTION;
             if (rn2(4))
-                helm = rn2(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
+                helm = rnd_class(HELM_OF_BRILLIANCE, HELM_OF_TELEPATHY);
             if (rn2(2))
                 shield = STRANGE_OBJECT;
             break;
@@ -532,7 +532,7 @@ struct obj *obj;
             if (rn2(4))
                 cloak = ROBE;
             if (rn2(4))
-                helm = rn2(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
+                helm = rnd_class(HELM_OF_BRILLIANCE, HELM_OF_TELEPATHY);
             if (rn2(2))
                 shield = STRANGE_OBJECT;
             break;
@@ -563,7 +563,7 @@ struct obj *obj;
             if (rn2(2))
                 cloak = CLOAK_OF_MAGIC_RESISTANCE;
             if (rn2(4))
-                helm = HELM_OF_BRILLIANCE;
+                helm = rn2(3) ? CORNUTHAUM : HELM_OF_BRILLIANCE;
             shield = STRANGE_OBJECT;
             break;
         default:

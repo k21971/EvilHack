@@ -1233,7 +1233,7 @@ char *prefix;
         if (iscrys)
             Strcat(prefix, "fixed ");
         else if (is_glass(obj))
-            Strcat(prefix, "shatterproof ");
+            Strcat(prefix, "tempered ");
         else if (is_rustprone(obj))
             Strcat(prefix, "rustproof ");
         else if (is_corrodeable(obj))
@@ -3704,7 +3704,7 @@ struct obj *no_wish;
                    || !strncmpi(bp, "fixed ", l = 6)
                    || !strncmpi(bp, "fireproof ", l = 10)
                    || !strncmpi(bp, "rotproof ", l = 9)
-                   || !strncmpi(bp, "shatterproof ", l = 13)) {
+                   || !strncmpi(bp, "tempered ", l = 9)) {
             erodeproof = 1;
         } else if (!strncmpi(bp, "lit ", l = 4)
                    || !strncmpi(bp, "burning ", l = 8)) {
