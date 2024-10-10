@@ -3649,4 +3649,5 @@ The following changes to date are:
 - Fix: monster stealing worn gold objects from other monsters (AD_SGLD)
   not properly handled
 - New object - helm of caution, change 'shatterproof' to 'tempered'
+- Change the recipe for the forged artifact Ithilmar
 
