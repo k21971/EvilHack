@@ -369,7 +369,8 @@ boolean allow_detrimental;
 
     /* properties only added to weapons and armor */
     if (otmp->oclass != WEAPON_CLASS && !is_bullet(otmp)
-        && !is_weptool(otmp) && otmp->oclass != ARMOR_CLASS)
+        && !is_weptool(otmp) && !is_barding(otmp)
+        && otmp->oclass != ARMOR_CLASS)
         return otmp;
 
     /* it is possible to have an object spawn with more
@@ -393,8 +394,8 @@ boolean allow_detrimental;
             continue;
 
         if (is_launcher(otmp)
-            &&  (j & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK
-                      | ITEM_VENOM | ITEM_DRLI | ITEM_OILSKIN)))
+            && (j & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK
+                     | ITEM_VENOM | ITEM_DRLI | ITEM_OILSKIN)))
             continue;
 
         if ((is_ammo(otmp) || is_missile(otmp) || is_bullet(otmp))
@@ -422,13 +423,20 @@ boolean allow_detrimental;
             && (j & ITEM_ESP))
             continue;
 
+        if (is_barding(otmp)
+            && (j & (ITEM_OILSKIN | ITEM_EXCEL
+                     | ITEM_SEARCHING | ITEM_WARNING
+                     | ITEM_FUMBLING | ITEM_HUNGER)))
+            continue;
+
         otmp->oprops |= j;
     }
 
     /* Fix it up as necessary */
     if (otmp->oprops
         && (otmp->oclass == WEAPON_CLASS
-            || otmp->oclass == ARMOR_CLASS || is_bullet(otmp))
+            || otmp->oclass == ARMOR_CLASS
+            || is_bullet(otmp) || is_barding(otmp))
         && !(otmp->oprops & (ITEM_FUMBLING | ITEM_HUNGER))) {
         if (!rn2(8)) {
             blessorcurse(otmp, 8);

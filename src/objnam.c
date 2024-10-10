@@ -739,8 +739,12 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         else
             Strcat(buf, dn);
 
-        propnames(buf, obj->oprops, obj->oprops_known,
-                  TRUE, !!strstri(buf, " of "));
+        if (is_barding(obj))
+            propnames(buf, obj->oprops, obj->oprops_known,
+                      FALSE, FALSE);
+        else
+            propnames(buf, obj->oprops, obj->oprops_known,
+                      TRUE, !!strstri(buf, " of "));
 
         if (typ == BELL_OF_OPENING && !u.uevent.qcompleted)
             Strcat(buf, " (locked)");
@@ -5271,7 +5275,8 @@ struct obj *no_wish;
 
     /* object property restrictions */
     if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
-        || is_bullet(otmp) || otmp->oclass == ARMOR_CLASS) {
+        || is_bullet(otmp) || is_barding(otmp)
+        || otmp->oclass == ARMOR_CLASS) {
         if (objprops & ITEM_FROST)
             objprops &= ~(ITEM_FIRE | ITEM_DRLI
                           | ITEM_SHOCK | ITEM_VENOM);
@@ -5316,6 +5321,11 @@ struct obj *no_wish;
 
         if (is_helmet(otmp))
             objprops &= ~ITEM_ESP;
+
+        if (is_barding(otmp))
+            objprops &= ~(ITEM_OILSKIN | ITEM_EXCEL
+                          | ITEM_SEARCHING | ITEM_WARNING
+                          | ITEM_FUMBLING | ITEM_HUNGER);
 
         otmp->oprops |= objprops;
     }

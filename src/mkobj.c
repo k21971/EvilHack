@@ -1076,6 +1076,26 @@ boolean artif;
             case DRUM_OF_EARTHQUAKE:
                 otmp->spe = rn1(5, 4);
                 break;
+            case BARDING:
+            case SPIKED_BARDING:
+                if (!rn2(10)) {
+                    otmp->blessed = rn2(2);
+                    otmp->spe = rne(3);
+                } else
+                    blessorcurse(otmp, 10);
+                /* chance for an object property. barding of
+                   reflection is excluded because it is already
+                   magical */
+                if (!rn2(150))
+                    otmp = create_oprop(otmp, FALSE);
+                break;
+            case BARDING_OF_REFLECTION:
+                if (!rn2(10)) {
+                    otmp->blessed = rn2(2);
+                    otmp->spe = rne(3);
+                } else
+                    blessorcurse(otmp, 10);
+                break;
             }
             break;
         case AMULET_CLASS:
