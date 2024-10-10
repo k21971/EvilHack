@@ -1781,14 +1781,16 @@ struct obj * obj;
     /* don't allow the armor's base AC to go below 0...
      * or go below 1, if the armor is metallic */
     const int min_ac = is_metallic(obj) ? 1 : 0;
-    if (objects[obj->otyp].a_ac + diff < min_ac) {
+
+    if (objects[obj->otyp].a_ac + diff < min_ac)
         diff = min_ac - objects[obj->otyp].a_ac;
-    }
-    /* force mithril, adamantine and steel to give unique extra +1 AC for barding */
+
+    /* force mithril, adamantine, steel, and dragonhide to give unique extra
+       +1 AC for barding */
     if (is_barding(obj)
         && (obj->material == MITHRIL || obj->material == STEEL
-            || obj->material == ADAMANTINE))
-         diff++;
+            || obj->material == ADAMANTINE || obj->material == DRAGON_HIDE))
+        diff++;
     return diff;
 }
 
@@ -3560,6 +3562,23 @@ static const struct icp bracers_materials[] = {
     { 10, DRAGON_HIDE}
 };
 
+/* regular/spiked barding */
+static const struct icp barding_materials[] = {
+    {400, 0}, /* default to base type, iron or steel */
+    {165, STEEL},
+    {125, LEATHER},
+    { 50, BRONZE},
+    { 50, BONE},
+    { 50, WOOD},
+    { 40, SILVER},
+    { 40, COPPER},
+    { 20, GOLD},
+    { 20, PLATINUM},
+    { 15, MITHRIL},
+    { 15, ADAMANTINE},
+    { 10, DRAGON_HIDE}
+};
+
 /* Return the appropriate above list for a given object, or NULL if there isn't
  * an appropriate list. */
 const struct icp*
@@ -3657,8 +3676,6 @@ struct obj* obj;
     case LOCK_PICK:
     case TIN_OPENER:
     case STETHOSCOPE:
-    case BARDING:
-    case SPIKED_BARDING:
         return metal_materials;
     case BELL:
     case BUGLE:
@@ -3688,6 +3705,9 @@ struct obj* obj;
         return sling_bullet_materials;
     case BRACERS:
         return bracers_materials;
+    case BARDING:
+    case SPIKED_BARDING:
+        return barding_materials;
     default:
         break;
     }

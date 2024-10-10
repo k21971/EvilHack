@@ -3650,4 +3650,5 @@ The following changes to date are:
   not properly handled
 - New object - helm of caution, change 'shatterproof' to 'tempered'
 - Change the recipe for the forged artifact Ithilmar
+- Allow regular/spiked barding to be made out of leather or dragonhide
 
