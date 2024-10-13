@@ -3014,7 +3014,7 @@
                Options may be set in a number of ways.   Within  the  game,
           the `O' command allows you to view all options and change most of
           them.  You can also set options automatically by placing them  in
-          a  configuration file, or in the NETHACKOPTIONS environment vari-
+          a configuration file, or in the EVILHACKOPTIONS environment vari-
           able.  Some versions of NetHack also have front-end programs that
           allow  you  to  set  options before starting the game or a global
           configuration for system administrators.
@@ -3233,9 +3233,9 @@
 
 
 
-          9.3.  Using the NETHACKOPTIONS environment variable
+          9.3.  Using the EVILHACKOPTIONS environment variable
 
-               The NETHACKOPTIONS variable is  a  comma-separated  list  of
+               The EVILHACKOPTIONS variable is a  comma-separated  list  of
           initial  values for the various options.  Some can only be turned
           on or off.  You turn one of these on by adding the  name  of  the
           option  to  the list, and turn it off by typing a `!' or "no" be-
@@ -3261,23 +3261,23 @@
           is on, legacy is off, character name is set to "Blue Meanie", and
           named fruit is set to "lime", you would enter the command
 
-          % setenv NETHACKOPTIONS "color,\!leg,name:Blue Meanie,fruit:lime"
+          % setenv EVILHACKOPTIONS "color,\!leg,name:Blue Meanie,fruit:foo"
 
           in  csh  (note  the  need to escape the `!' since it's special to
           that shell), or the pair of commands
 
-          $ NETHACKOPTIONS="color,!leg,name:Blue Meanie,fruit:lime"
-          $ export NETHACKOPTIONS
+          $ EVILHACKOPTIONS="color,!leg,name:Blue Meanie,fruit:foo"
+          $ export EVILHACKOPTIONS
 
           in sh, ksh, or bash.
 
-               The NETHACKOPTIONS value is effectively the same as a single
+              The EVILHACKOPTIONS value is effectively the same as a single
           OPTIONS statement in a configuration file.  The "OPTIONS=" prefix
           is implied and comma separated options are processed  from  right
           to left.  Other types of configuration statements such as BIND or
           MSGTYPE are not allowed.
 
-               Instead of a comma-separated list of options, NETHACKOPTIONS
+              Instead of a comma-separated list of options, EVILHACKOPTIONS
           can  be  set to the full name of a configuration file you want to
           use.  If that full name doesn't start with a  slash,  precede  it
           with  `@' (at-sign) to let NetHack know that the rest is intended
@@ -4221,8 +4221,8 @@
             might  enable  or disable the availability of various other op-
             tions.  For multiple lines in a configuration file, that  would
             be  the  first non-comment line.  For a comma-separated list in
-            NETHACKOPTIONS or an OPTIONS line in a configuration file, that
-            would be the rightmost option in the list.
+            EVILHACKOPTIONS or an OPTIONS line in a configuration file, th-
+            at would be the rightmost option in the list.
 
           wizweight
             Augment object descriptions with their objects' weight (default

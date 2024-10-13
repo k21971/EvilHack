@@ -40,7 +40,7 @@ DESCRIPTION
        be  worth  a  lot  of  gold  when  brought to the exit.  There is a 10%
        penalty for getting yourself killed.
 
-       The environment variable NETHACKOPTIONS can be used to initialize  many
+       The environment variable EVILHACKOPTIONS can be used to initialize many
        run-time  options.   The  ?  command  provides  a  description of these
        options and syntax.  (The -dec and -ibm command line options are equiv-
        alent  to  the  decgraphics  and ibmgraphics run-time options described
@@ -208,11 +208,11 @@ ENVIRONMENT
        MAILREADER              Replacement for default reader
                                (probably /bin/mail or /usr/ucb/mail).
        NETHACKDIR or HACKDIR   Playground.
-       NETHACKOPTIONS          String predefining several NetHack
+       EVILHACKOPTIONS         String predefining several NetHack
                                options.
 
-       If  the same option is specified in both NETHACKOPTIONS and .evilhackrc,
-       the value assigned in NETHACKOPTIONS takes precedence.
+       If  the same option is specified in both EVILHACKOPTIONS and .evilhackrc,
+       the value assigned in EVILHACKOPTIONS takes precedence.
 
        SHOPTYPE and SPLEVTYPE can be used in debugging (wizard) mode.
        DEBUGFILES can be used if the program was built with 'DEBUG' enabled.

@@ -895,7 +895,7 @@ initoptions_finish()
 {
     nhsym sym = 0;
 #ifndef MAC
-    char *opts = getenv("NETHACKOPTIONS");
+    char *opts = getenv("EVILHACKOPTIONS");
 
     if (!opts)
         opts = getenv("HACKOPTIONS");
@@ -916,7 +916,7 @@ initoptions_finish()
             /* let the total length of options be long;
              * parseoptions() will check each individually
              */
-            config_error_init(FALSE, "NETHACKOPTIONS", FALSE);
+            config_error_init(FALSE, "EVILHACKOPTIONS", FALSE);
             (void) parseoptions(opts, TRUE, FALSE);
             config_error_done();
         }
@@ -1083,7 +1083,7 @@ const char *optname;
 #ifdef MICRO
     pline("\"%s\" settable only from %s.", optname, configfile);
 #else
-    pline("%s can be set only from NETHACKOPTIONS or %s.", optname,
+    pline("%s can be set only from EVILHACKOPTIONS or %s.", optname,
           configfile);
 #endif
 }
@@ -3768,7 +3768,7 @@ boolean tinitial, tfrom_file;
      * For user, making it be first in a config file is trivial, use
      * OPTIONS=windowtype:Foo
      * as the first non-comment line of the file.
-     * Making it first in NETHACKOPTIONS requires it to be at the _end_
+     * Making it first in EVILHACKOPTIONS requires it to be at the _end_
      * because comma-separated option strings are processed from right
      * to left.
      */
@@ -4606,7 +4606,7 @@ boolean dolist;
 #if defined(MICRO) || defined(MAC) || defined(WIN32)
 #define OPTIONS_HEADING "OPTIONS"
 #else
-#define OPTIONS_HEADING "NETHACKOPTIONS"
+#define OPTIONS_HEADING "EVILHACKOPTIONS"
 #endif
 
 static char fmtstr_doset[] = "%s%-15s [%s]   ";
@@ -6519,11 +6519,11 @@ static const char *opt_intro[] = {
 #define CONFIG_SLOT 3 /* fill in next value at run-time */
     (char *) 0,
 #if !defined(MICRO) && !defined(MAC)
-    "or use `NETHACKOPTIONS=\"<options>\"' in your environment",
+    "or use `EVILHACKOPTIONS=\"<options>\"' in your environment",
 #endif
     "(<options> is a list of options separated by commas)",
 #ifdef VMS
-    "-- for example, $ DEFINE NETHACKOPTIONS \"noautopickup,fruit:kumquat\"",
+    "-- for example, $ DEFINE EVILHACKOPTIONS \"noautopickup,fruit:kumquat\"",
 #endif
     "or press \"O\" while playing and use the menu.",
     "",
