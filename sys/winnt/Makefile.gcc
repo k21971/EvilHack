@@ -774,7 +774,7 @@ endif
 	$(subst /,\,if exist $(MSWSYS)/sysconf.template copy $(MSWSYS)/sysconf.template $(GAMEDIR))
 	$(subst /,\,if exist $(DAT)/symbols copy $(DAT)/symbols $(GAMEDIR)/symbols.template)
 	$(subst /,\,if exist $(DOC)/guidebook.txt copy $(DOC)/guidebook.txt $(GAMEDIR)/Guidebook.txt)
-	$(subst /,\,if exist $(DOC)/nethack.txt copy $(DOC)/nethack.txt $(GAMEDIR)/NetHack.txt)
+	$(subst /,\,if exist $(DOC)/evilhack.txt copy $(DOC)/evilhack.txt $(GAMEDIR)/EvilHack.txt)
 	$(subst /,\,if exist $(MSWSYS)/.evilhackrc.template copy $(MSWSYS)/.evilhackrc.template $(GAMEDIR))
 	$(subst /,\,-if not exist $(GAMEDIR)/record. echo.>$(GAMEDIR)/record.)
 #

@@ -716,7 +716,7 @@ $(O)install.tag: 	$(DAT)\data	$(DAT)\rumors	 $(DAT)\dungeon \
 	if exist $(MSWSYS)\sysconf.template copy $(MSWSYS)\sysconf.template $(GAMEDIR)
 	if exist $(DAT)\symbols copy $(DAT)\symbols $(GAMEDIR)\symbols.template
 	if exist $(DOC)\guidebook.txt copy $(DOC)\guidebook.txt $(GAMEDIR)\Guidebook.txt
-	if exist $(DOC)\nethack.txt copy $(DOC)\nethack.txt $(GAMEDIR)\NetHack.txt
+	if exist $(DOC)\evilhack.txt copy $(DOC)\evilhack.txt $(GAMEDIR)\EvilHack.txt
 	@if exist $(GAMEDIR)\NetHack.PDB echo NOTE: You may want to remove $(GAMEDIR:\=/)/NetHack.PDB to conserve space
 	@if exist $(GAMEDIR)\NetHackW.PDB echo NOTE: You may want to remove $(GAMEDIR:\=/)/NetHackW.PDB to conserve space
 	if exist $(MSWSYS)\.evilhackrc.template copy $(MSWSYS)\.evilhackrc.template $(GAMEDIR)

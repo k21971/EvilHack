@@ -69,7 +69,7 @@ NOTES
        will find them in the uncompressed form.
 
 SEE ALSO
-       nethack(6)
+       evilhack(6)
 
 BUGS
        recover makes no attempt to find out if a base name specifies a game in

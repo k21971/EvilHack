@@ -408,7 +408,7 @@ $(O)install.tag: 	$(DAT)\data	$(DAT)\rumors	 $(DAT)\dungeon \
 	copy $(U)recover.exe          $(GAMEDIR)
 	if exist $(DOC)\guideb*.txt copy $(DOC)\guideb*.txt $(GAMEDIR)
 	if exist $(DOC)\recover.txt copy $(DOC)\recover.txt $(GAMEDIR)
-	if exist $(DOC)\nethack.txt copy $(DOC)\nethack.txt $(GAMEDIR)
+	if exist $(DOC)\evilhack.txt copy $(DOC)\evilhack.txt $(GAMEDIR)
 	echo install done > $@
 
 $(O)sp_lev.tag: $(O)utility.tag $(SPLEVDES)

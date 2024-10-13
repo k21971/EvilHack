@@ -54,7 +54,7 @@ AUTHOR
        Kenneth Lorber
 
 SEE ALSO
-       nethack(6), tar(1)
+       evilhack(6), tar(1)
 
 BUGS
        Not  a  good  tar  emulation;  - does not mean stdin or stdout.  Should

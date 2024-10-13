@@ -58,7 +58,7 @@ I.C. Credits
 
 II. Using Amiga NetHack 3.4
     Run NetHack from the shell or from some tool that allows that,
-    ie. ToolManager.  See the NetHack.txt file for command line options
+    ie. ToolManager.  See the EvilHack.txt file for command line options
     and other usage.
 
 II.A. Sources of Information
@@ -76,7 +76,7 @@ II.B. The Amiga NetHack WorkBench Front End
 II.C. The Amiga NetHack CLI Front End
     Starting from 3.3.0 CLI Front end is not supported either.
 
-    Instead, use the main binary.  See NetHack.txt file for the standard Unix
+    Instead, use the main binary.  See EvilHack.txt file for the standard Unix
     flags for NetHack.  In addition to those flags, Amiga NetHack accepts
     the flags -l to force non-interlaced mode and -L to force interlaced mode.
 
@@ -152,7 +152,7 @@ III.B. File Location Table
 NetHack:
 	amii.hlp	Guidebook.txt	hack.font
 	license		NetHack		NetHack.cnf
-	NetHack.txt	nhdat		nhsdat
+	EvilHack.txt	nhdat		nhsdat
 	record		Recover		Recover.txt
 	logfile (optional, but useful)
 NetHack:hack

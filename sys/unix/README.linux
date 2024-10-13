@@ -35,7 +35,7 @@ In addition to data files for running the game, you will find other useful
 things in /usr/games/lib/nethackdir (such as a copy of this README :-).
 
 The general documentation Guidebook.txt and the processed man pages
-nethack.txt and recover.txt should provide an introduction to the game.
+evilhack.txt and recover.txt should provide an introduction to the game.
 
 The sample config file called dot.evilhackrc can be used by copying
 it to your home directory as .evilhackrc and modifying it to your liking.

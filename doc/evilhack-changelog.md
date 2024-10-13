@@ -3652,4 +3652,5 @@ The following changes to date are:
 - Change the recipe for the forged artifact Ithilmar
 - Allow regular/spiked barding to be made out of leather or dragonhide
 - Allow regular/spiked barding to have certain object properties
+- Rename nethack.6 and nethack.txt documents to "evilhack"
 

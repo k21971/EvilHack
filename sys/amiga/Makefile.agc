@@ -109,7 +109,7 @@ OBJSPEC = -o
 PNSPEC	= -o
 LNSPEC = -o
 CCLINK	= gcc -noixemul
-CLFLAGS = -O3 
+CLFLAGS = -O3
 INCLSPEC = -I
 DEFSPEC = -D
 IGNSPEC = -j
@@ -316,7 +316,7 @@ INSTDUNGEONFILES= $(NETHACK)NetHack.cnf $(INSTDUNGEONFILES1)
 INSTDATAFILES= \
 	$(NETHACK)license	$(NETHACK)logfile	$(NETHACK)record \
 	$(NETHACK)tomb.iff	$(NETHACK)amii.hlp 	$(NETHACK)Recover.txt \
-	$(NETHACK)GuideBook.txt	$(NETHACK)NetHack.txt	$(NETHACK)Install.ami \
+	$(NETHACK)GuideBook.txt	$(NETHACK)EvilHack.txt	$(NETHACK)Install.ami \
 #	$(NETHACK)HackWB.hlp	$(NETHACK)WBDefaults.def
 
 LIBFILES= \
@@ -940,8 +940,8 @@ $(NETHACK)Recover.txt: $(DOC)Recover.txt
 $(NETHACK)GuideBook.txt: $(DOC)GuideBook.txt
 	copy $(DOC)GuideBook.txt $@
 
-$(NETHACK)NetHack.txt: $(DOC)NetHack.txt
-	copy $(DOC)NetHack.txt $@
+$(NETHACK)EvilHack.txt: $(DOC)EvilHack.txt
+	copy $(DOC)EvilHack.txt $@
 
 $(NETHACK)Install.ami: $(AMI)Install.ami
 	copy $(AMI)Install.ami $@

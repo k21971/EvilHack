@@ -570,7 +570,7 @@ endif
 	if [ -f $(SSHR)/NetHack.cnf ]; then cp $(SSHR)/NetHack.cnf $(GAMEDIR); fi;
 	-touch $(GAMEDIR)/record
 	if [ -f ../sys/winnt/sysconf ]; then cp ../sys/winnt/sysconf $(GAMEDIR); fi;
-	if [ -f $(DOC)/nethack.txt ]; then cp $(DOC)/nethack.txt $(GAMEDIR); fi;
+	if [ -f $(DOC)/evilhack.txt ]; then cp $(DOC)/evilhack.txt $(GAMEDIR); fi;
 ifdef CWSDPMI
 	if [ -f $(CWSDPMI) ]; then cp $(CWSDPMI) $(GAMEDIR); fi;
 else

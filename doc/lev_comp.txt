@@ -570,7 +570,7 @@ AUTHOR
        Jean-Christophe Collet, David Cohrs.
 
 SEE ALSO
-       dgn_comp(6), nethack(6)
+       dgn_comp(6), evilhack(6)
 
 BUGS
        Probably infinite.  Most importantly,  still  needs  additional  bounds

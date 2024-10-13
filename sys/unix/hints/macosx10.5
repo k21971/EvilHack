@@ -252,7 +252,7 @@ build_package_root:
 	install -p src/nethack $(PKGROOT_UG)/bin
 	# XXX should this be called nethackrecover?
 	install -p util/recover $(PKGROOT_UG)/bin
-	install -p doc/nethack.6 $(PKGROOT_UG)/man/man6
+	install -p doc/evilhack.6 $(PKGROOT_UG)/man/man6
 	install -p doc/recover.6 $(PKGROOT_UG)/man/man6
 	install -p doc/Guidebook $(PKGROOT_UG)/doc
 	install -p dat/nhdat $(PKGROOT_UGLN)
@@ -276,7 +276,7 @@ else
 	rm -rf NetHackQt
 	mkdir -p NetHackQt/NetHackQt.app/nethackdir/save
 	mkdir NetHackQt/Documentation
-	cp doc/Guidebook.txt doc/nethack.txt doc/recover.txt NetHackQt/Documentation
+	cp doc/Guidebook.txt doc/evilhack.txt doc/recover.txt NetHackQt/Documentation
 
 	osacompile -o NetHackQt/NetHackQt.app/nethackdir/NetHackRecover.app \
 		 win/macosx/NetHackRecover.applescript
