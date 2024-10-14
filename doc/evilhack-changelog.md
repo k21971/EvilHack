@@ -3654,4 +3654,6 @@ The following changes to date are:
 - Allow regular/spiked barding to have certain object properties
 - Rename nethack.6 and nethack.txt documents to "evilhack"
 - Change environment variable for options to EVILHACKOPTIONS
+- The final portal exiting Purgatory will not function until Saint
+  Michael is killed
 

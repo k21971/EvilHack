@@ -723,6 +723,8 @@ struct level_map {
                   { "minetn", &minetn_level },
                   { "soko1", &sokoend_level },
                   { "soko4", &sokostart_level },
+                  { "purgatory-1", &purgend_level },
+                  { "purgatory-2", &purgstart_level },
                   { X_START, &qstart_level },
                   { X_LOCATE, &qlocate_level },
                   { X_GOAL, &nemesis_level },

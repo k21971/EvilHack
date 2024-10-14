@@ -1598,6 +1598,14 @@ boolean at_stairs, falling, portal;
         return;
     }
 
+    /* The final portal leaving Purgatory will not function until
+       its ruler is defeated */
+    if (on_level(&u.uz, &purgend_level)
+        && !u.uevent.umichael && portal) {
+        pline("Escape from Purgatory is blocked while Saint Michael still lives.");
+        return;
+    }
+
     /* Prevent the player from accessing either Mine Town or Mines' End
      * unless they have defeated the Goblin King. Using the stairs or
      * falling through a hole or trap door is blocked, but our hero can
