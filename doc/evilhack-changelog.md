@@ -3656,4 +3656,6 @@ The following changes to date are:
 - Change environment variable for options to EVILHACKOPTIONS
 - The final portal exiting Purgatory will not function until Saint
   Michael is killed
+- Fix: being engulfed using lit/unlit state of tile the player was
+  standing on when engulfed
 

@@ -36,7 +36,8 @@ extern char *viz_rmax;			/* max could see indices */
     ((viz_array[y][x] & TEMP_LIT) && !(viz_array[y][x] & TEMP_DARK))
 #define spot_is_dark(x, y) \
     (!(levl[x][y].lit || (viz_array[y][x] & TEMP_LIT)) \
-     || (viz_array[y][x] & TEMP_DARK))
+     || (viz_array[y][x] & TEMP_DARK) \
+     || (x == u.ux && y == u.uy && u.uswallow))
 
 /*
  *  The following assume the monster is not blind.
