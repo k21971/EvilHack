@@ -294,14 +294,16 @@ drinkfountain()
             dowaterdemon();
             break;
         case 24: /* Curse an item */ {
-            register struct obj *obj;
+            register struct obj *obj, *nextobj;
 
             pline("This water's no good!");
             morehungry(rn1(20, 11));
             exercise(A_CON, FALSE);
-            for (obj = invent; obj; obj = obj->nobj)
+            for (obj = invent; obj; obj = nextobj) {
+                nextobj = obj->nobj;
                 if (!rn2(5))
                     curse(obj);
+            }
             break;
         }
         case 25: /* See invisible */
