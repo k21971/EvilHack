@@ -562,7 +562,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
         damage = dmgval(otmp, mtmp);
         if (otmp->otyp == ACID_VENOM
             && (resists_acid(mtmp) || defended(mtmp, AD_ACID)))
-            damage = 0;
+            damage = 0; /* feedback handled further down */
 #if 0 /* can't use this because we don't have the attacker */
         if (is_orc(mtmp->data) && is_elf(?magr?))
             damage++;
@@ -650,9 +650,8 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                 damage = 0;
         }
 
-        if (!DEADMONSTER(mtmp)
-            && otmp->otyp == ACID_VENOM) { /* might already be dead (if petrified) */
-            damage_mon(mtmp, damage, AD_ACID);
+        if (!DEADMONSTER(mtmp)) { /* might already be dead (if petrified) */
+            mtmp->mhp -= damage;
             if (DEADMONSTER(mtmp)) {
                 if (vis || (verbose && !target))
                     pline("%s is %s!", Monnam(mtmp),

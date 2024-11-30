@@ -366,7 +366,8 @@ struct monst *mon;
     struct permonst *ptr = r_data(mon);
     boolean Is_weapon = (otmp->oclass == WEAPON_CLASS || is_weptool(otmp));
 
-    if (!ptr) ptr = &mons[NUMMONS];
+    if (!ptr)
+        ptr = &mons[NUMMONS];
 
     if (otyp == CREAM_PIE)
         return 0;
