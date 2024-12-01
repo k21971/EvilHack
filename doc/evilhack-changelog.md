@@ -3595,7 +3595,7 @@ The following changes to date are:
 
 ### Version 0.9.0
 
-- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of May 11th, 2024)
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of November 6th, 2024)
 - Initial preparation for new version (0.9.0)
 - Update README.md
 - New player role: Druid (initial commit)

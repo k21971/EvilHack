@@ -61,6 +61,12 @@ If you have problems, send us some email.
 
 nethack-bugs@nethack.org
 
+Prerequisite installations that are needed:
+    libncurses-dev
+    flex
+    bison
+    clang or gcc
+
 Recommended steps:
 
 1.  cd sys/unix
