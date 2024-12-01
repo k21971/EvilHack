@@ -3663,4 +3663,5 @@ The following changes to date are:
 - Update hints files with recent official NetHack updates
 - Do not generate dumplog if game was startscummed
 - Fix: 'Your shield crumbles away!' when actually wearing bracers
+- Fix: prevent sling bullets from forming inside solid rock
 
