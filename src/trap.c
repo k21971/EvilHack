@@ -1087,7 +1087,7 @@ register struct trap *trap;
 unsigned trflags;
 {
     register int ttype = trap->ttyp;
-    struct obj *otmp;
+    struct obj *otmp, *nextobj;
     struct monst *steed = u.usteed;
     boolean already_seen = trap->tseen,
             forcetrap = ((trflags & FORCETRAP) != 0
@@ -1390,11 +1390,13 @@ unsigned trflags;
             goto glovecheck;
         default:
             pline("%s you!", A_gush_of_water_hits);
-            for (otmp = invent; otmp; otmp = otmp->nobj)
+            for (otmp = invent; otmp; otmp = nextobj) {
+                nextobj = otmp->nobj;
                 if (otmp->lamplit && otmp != uwep
                     && otmp->otyp != MAGIC_LAMP
                     && (otmp != uswapwep || !u.twoweap))
                     (void) snuff_lit(otmp);
+            }
             if (uarmc)
                 (void) water_damage(uarmc, cloak_simple_name(uarmc),
                                     TRUE, u.ux, u.uy);
@@ -4550,13 +4552,14 @@ boolean *lostsome;
     int invc = inv_cnt(TRUE);
 
     while (near_capacity() > (Punished ? UNENCUMBERED : SLT_ENCUMBER)) {
-        register struct obj *obj, *otmp = (struct obj *) 0;
-        register int i;
+        struct obj *obj, *nextobj, *otmp = (struct obj *) 0;
+        int i;
 
         /* Pick a random object */
         if (invc > 0) {
             i = rn2(invc);
-            for (obj = invent; obj; obj = obj->nobj) {
+            for (obj = invent; obj; obj = nextobj) {
+                nextobj = obj->nobj;
                 /*
                  * Undroppables are: body armor, boots, gloves,
                  * amulets, and rings because of the time and effort
@@ -6477,7 +6480,7 @@ static const char lava_killer[] = "molten lava";
 boolean
 lava_effects()
 {
-    register struct obj *obj, *obj2;
+    struct obj *obj, *obj2, *nextobj;
     int dmg = resist_reduce(d(6, 6), FIRE_RES); /* only applicable for water walking */
     boolean usurvive, boil_away;
 
@@ -6506,10 +6509,12 @@ lava_effects()
      * emergency save file created before item destruction.
      */
     if (!usurvive)
-        for (obj = invent; obj; obj = obj->nobj)
+        for (obj = invent; obj; obj = nextobj) {
+            nextobj = obj->nobj;
             if (is_flammable(obj) && !obj->oerodeproof
                 && !obj_resists(obj, 0, 0)) /* for invocation items */
                 obj->in_use = 1;
+        }
 
     /* Check whether we should burn away boots *first* so we know whether to
      * make the player sink into the lava. Assumption: water walking only

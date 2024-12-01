@@ -2374,7 +2374,7 @@ boolean mon;     /* True: source comes from a monster's ability; False: magical 
 struct obj *obj; /* scroll, spellbook (for spell), or wand of light */
 xchar x, y;      /* coordinates for centering do_clear_area() */
 {
-    struct obj *otmp;
+    struct obj *otmp, *nextobj;
     struct monst *mtmp;
     boolean blessed_effect = (obj && obj->oclass == SCROLL_CLASS
                               && obj->blessed);
@@ -2391,7 +2391,8 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
          * if the player is in the area of affect.
          */
         if (!mon || (distu(x,y) <= 25 && clear_path(x, y, u.ux, u.uy))) {
-            for (otmp = invent; otmp; otmp = otmp->nobj) {
+            for (otmp = invent; otmp; otmp = nextobj) {
+                nextobj = otmp->nobj;
                 boolean lamp = (otmp->otyp == MAGIC_LAMP && otmp->cursed);
                 boolean staff = (otmp->oartifact == ART_STAFF_OF_THE_ARCHMAGI
                                  && !Upolyd && Race_if(PM_DROW));
@@ -2447,7 +2448,8 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
         if (blessed_effect) {
             /* might bless artifact lights; could put out cursed
                magic lamps (darkness) */
-            for (otmp = invent; otmp; otmp = otmp->nobj) {
+            for (otmp = invent; otmp; otmp = nextobj) {
+                nextobj = otmp->nobj;
                 boolean lamp = (otmp->otyp == MAGIC_LAMP && otmp->cursed);
                 boolean staff = (otmp->oartifact == ART_STAFF_OF_THE_ARCHMAGI
                                  && !Upolyd && Race_if(PM_DROW));

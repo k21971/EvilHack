@@ -3659,4 +3659,5 @@ The following changes to date are:
 - Fix: being engulfed using lit/unlit state of tile the player was
   standing on when engulfed
 - Fix: thrown/projectile damage monster vs monster
+- Fix: iterating invent
 

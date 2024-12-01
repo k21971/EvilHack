@@ -1349,7 +1349,7 @@ aligntyp g_align;
             context.botl = 1;
             break;
         case 4: {
-            register struct obj *otmp;
+            struct obj *otmp, *nextobj;
             int any = 0;
 
             if (Blind)
@@ -1357,7 +1357,8 @@ aligntyp g_align;
             else
                 You("are surrounded by %s aura.",
                     (g_align == A_NONE ? an(hcolor(NH_BLACK)) : an(hcolor(NH_LIGHT_BLUE))));
-            for (otmp = invent; otmp; otmp = otmp->nobj) {
+            for (otmp = invent; otmp; otmp = nextobj) {
+                nextobj = otmp->nobj;
                 if (otmp->cursed && g_align != A_NONE
                     && (otmp != uarmh /* [see worst_cursed_item()] */
                         || uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT)) {

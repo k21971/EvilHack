@@ -172,10 +172,11 @@ unsigned int stealmid; /* monster doing the stealing */
 STATIC_PTR int
 stealarm(VOID_ARGS)
 {
-    register struct monst *mtmp;
-    register struct obj *otmp;
+    struct monst *mtmp;
+    struct obj *otmp, *nextobj;
 
-    for (otmp = invent; otmp; otmp = otmp->nobj) {
+    for (otmp = invent; otmp; otmp = nextobj) {
+        nextobj = otmp->nobj;
         if (otmp->o_id == stealoid) {
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                 if (mtmp->m_id == stealmid) {

@@ -2079,15 +2079,17 @@ unsigned *resultflags;
             return 0;
         if (index(buf, 'i')) {
             char ailets[1+26+26+1+5+1]; /* $ + a-z + A-Z + # + slop + \0 */
-            struct obj *otmp;
+            struct obj *otmp, *nextobj;
 
             /* applicable inventory letters; if empty, show entire invent */
             ailets[0] = '\0';
             if (ofilter)
-                for (otmp = invent; otmp; otmp = otmp->nobj)
+                for (otmp = invent; otmp; otmp = nextobj) {
+                    nextobj = otmp->nobj;
                     /* index() check: limit overflow items to one '#' */
                     if ((*ofilter)(otmp) && !index(ailets, otmp->invlet))
                         (void) strkitten(ailets, otmp->invlet);
+                }
             if (display_inventory(ailets, TRUE) == '\033')
                 return 0;
         } else

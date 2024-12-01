@@ -2737,7 +2737,7 @@ struct attack *mattk;
     struct trap *t = t_at(u.ux, u.uy);
     int tmp = d((int) mattk->damn, (int) mattk->damd);
     int tim_tmp;
-    struct obj *otmp2;
+    struct obj *otmp2, *nextobj;
     int i;
     boolean physical_damage = FALSE;
     /* for tracking if this is the first engulf */
@@ -2833,8 +2833,10 @@ struct attack *mattk;
         /* u.uswldtim always set > 1 */
         u.uswldtim = (unsigned) ((tim_tmp < 2) ? 2 : tim_tmp);
         swallowed(1);
-        for (otmp2 = invent; otmp2; otmp2 = otmp2->nobj)
+        for (otmp2 = invent; otmp2; otmp2 = nextobj) {
+            nextobj = otmp2->nobj;
             (void) snuff_lit(otmp2);
+        }
     }
 
     if (mtmp != u.ustuck)

@@ -3027,15 +3027,17 @@ boolean ordinary;
         }
         /* invent is hit iff hero doesn't escape from a trap */
         if (!u.utrap || !openholdingtrap(&youmonst, &learn_it)) {
-            struct obj *otmp;
+            struct obj *otmp, *nextobj;
             boolean boxing = FALSE;
 
             /* unlock carried boxes */
-            for (otmp = invent; otmp; otmp = otmp->nobj)
+            for (otmp = invent; otmp; otmp = nextobj) {
+                nextobj = otmp->nobj;
                 if (Is_box(otmp)) {
                     (void) boxlock(otmp, obj);
                     boxing = TRUE;
                 }
+            }
             if (boxing)
                 update_inventory(); /* in case any box->lknown has changed */
 
