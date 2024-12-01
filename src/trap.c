@@ -115,7 +115,7 @@ struct monst *victim;
             return TRUE;
         case 2:
             item = hitting_u ? uarms : which_armor(victim, W_ARMS);
-            if (!burn_dmg(item, "shield"))
+            if (!burn_dmg(item, is_bracer(item) ? "bracers" : "shield"))
                 continue;
             break;
         case 3:
@@ -1372,7 +1372,7 @@ unsigned trflags;
             break;
         case 1:
             pline("%s your left %s!", A_gush_of_water_hits, body_part(ARM));
-            if (water_damage(uarms, "shield",
+            if (water_damage(uarms, is_bracer(uarms) ? "bracers" : "shield",
                              TRUE, u.ux, u.uy) != ER_NOTHING)
                 break;
             if (u.twoweap || (uwep && bimanual(uwep)))
@@ -2745,7 +2745,7 @@ register struct monst *mtmp;
             }
             break;
         case RUST_TRAP: {
-            struct obj *target;
+            struct obj *target, *nextobj;
 
             if (in_sight)
                 seetrap(trap);
@@ -2763,7 +2763,7 @@ register struct monst *mtmp;
                     pline("%s %s's left %s!", A_gush_of_water_hits,
                           mon_nam(mtmp), mbodypart(mtmp, ARM));
                 target = which_armor(mtmp, W_ARMS);
-                if (water_damage(target, "shield",
+                if (water_damage(target, is_bracer(target) ? "bracers" : "shield",
                                  TRUE, mtmp->mx, mtmp->my) != ER_NOTHING)
                     break;
                 target = MON_WEP(mtmp);
@@ -2785,10 +2785,12 @@ register struct monst *mtmp;
             default:
                 if (in_sight)
                     pline("%s %s!", A_gush_of_water_hits, mon_nam(mtmp));
-                for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
+                for (otmp = mtmp->minvent; otmp; otmp = nextobj) {
+                    nextobj = otmp->nobj;
                     if (otmp->lamplit && otmp->otyp != MAGIC_LAMP
                         && (otmp->owornmask & (W_WEP | W_SWAPWEP)) == 0)
                         (void) snuff_lit(otmp);
+                }
                 if ((target = which_armor(mtmp, W_ARMC)) != 0)
                     (void) water_damage(target, cloak_simple_name(target),
                                         TRUE, mtmp->mx, mtmp->my);

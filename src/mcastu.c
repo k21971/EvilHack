@@ -613,6 +613,7 @@ struct monst *mattk, *mdef;
             } else {
                 if (canseemon(mdef)) {
                     const char *action;
+
                     if (is_cloak(oatmp))
                         action = "crumbles and turns to dust";
                     else if (is_shirt(oatmp))
@@ -623,12 +624,13 @@ struct monst *mattk, *mdef;
                         action = "vanish";
                     else if (is_boots(oatmp))
                         action = "disintegrate";
-                    else if (is_shield(oatmp))
-                        action = "crumbles away";
+                    else if (is_shield(oatmp)) /* also handles bracers */
+                        action = is_bracer(oatmp) ? "crumble away"
+                                                  : "crumbles away";
                     else
                         action = "turns to dust";
-                    pline("%s %s %s!", s_suffix(Monnam(mdef)), xname(oatmp),
-                          action);
+                    pline("%s %s %s!", s_suffix(Monnam(mdef)),
+                          xname(oatmp), action);
                 }
                 m_useupall(mdef, oatmp);
             }

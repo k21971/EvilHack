@@ -3662,4 +3662,5 @@ The following changes to date are:
 - Fix: iterating invent
 - Update hints files with recent official NetHack updates
 - Do not generate dumplog if game was startscummed
+- Fix: 'Your shield crumbles away!' when actually wearing bracers
 

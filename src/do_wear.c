@@ -11,8 +11,8 @@ static NEARDATA const char c_armor[] = "armor", c_suit[] = "suit",
                            c_shirt[] = "shirt", c_cloak[] = "cloak",
                            c_gloves[] = "gloves", c_boots[] = "boots",
                            c_helmet[] = "helmet", c_shield[] = "shield",
-                           c_weapon[] = "weapon", c_sword[] = "sword",
-                           c_axe[] = "axe", c_that_[] = "that";
+                           c_bracers[] = "bracers", c_weapon[] = "weapon",
+                           c_sword[] = "sword", c_axe[] = "axe", c_that_[] = "that";
 
 static NEARDATA const long takeoff_order[] = {
     WORN_BLINDF, W_WEP,      WORN_SHIELD, WORN_GLOVES, LEFT_RING,
@@ -2231,8 +2231,8 @@ struct obj *otmp;
         } else if (is_cloak(otmp)) {
             what = cloak_simple_name(otmp);
             afternmv = Cloak_off;
-        } else if (is_shield(otmp)) {
-            what = c_shield;
+        } else if (is_shield(otmp)) { /* also handles bracers */
+            what = is_bracer(otmp) ? c_bracers : c_shield;
             afternmv = Shield_off;
         } else if (is_shirt(otmp)) {
             what = c_shirt;
@@ -2265,7 +2265,7 @@ struct obj *otmp;
          */
         if (is_cloak(otmp))
             (void) Cloak_off();
-        else if (is_shield(otmp))
+        else if (is_shield(otmp)) /* also handles bracers */
             (void) Shield_off();
         else if (is_helmet(otmp))
             (void) Helmet_off();
@@ -2374,10 +2374,10 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARMH;
-    } else if (is_shield(otmp)) {
+    } else if (is_shield(otmp)) { /* also handles bracers */
         if (uarms) {
             if (noisy)
-                already_wearing(an(c_shield));
+                already_wearing(is_bracer(otmp) ? c_bracers : an(c_shield));
             err++;
         } else if (uwep && !is_bracer(otmp) && bimanual(uwep)) {
             if (noisy)
@@ -3694,7 +3694,10 @@ register struct obj *atmp;
            destroyed */
         if (otmp->lamplit)
             end_burn(otmp, FALSE);
-        Your("shield crumbles away!");
+        if (is_bracer(otmp))
+            Your("bracers crumble away!");
+        else
+            Your("shield crumbles away!");
         (void) Shield_off();
         useup(otmp);
     } else if (u.usteed && (otmp = which_armor(u.usteed, W_BARDING))
