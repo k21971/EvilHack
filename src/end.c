@@ -1483,7 +1483,7 @@ int how;
     boolean taken;
     char pbuf[BUFSZ];
     winid endwin = WIN_ERR;
-    boolean bones_ok, have_windows = iflags.window_inited;
+    boolean bones_ok, have_windows = iflags.window_inited, startscummed;
     struct obj *corpse = (struct obj *) 0;
     time_t endtime;
     long umoney;
@@ -1518,7 +1518,11 @@ int how;
     iflags.at_night = night();
     iflags.at_midnight = midnight();
 
-    dump_open_log(endtime);
+    /* Don't produce a dumplog for scummed games */
+    startscummed = ((how == QUIT || how == ESCAPED) && moves <= 100L);
+
+    if (!startscummed)
+        dump_open_log(endtime);
     /* Sometimes you die on the first move.  Life's not fair.
      * On those rare occasions you get hosed immediately, go out
      * smiling... :-)  -3.
@@ -1619,7 +1623,8 @@ int how;
         if (strcmp(flags.end_disclose, "none"))
             disclose(how, taken);
 
-        dump_everything(how, endtime);
+        if (!startscummed)
+            dump_everything(how, endtime);
     }
 
     /* if pets will contribute to score, populate mydogs list now
@@ -1927,7 +1932,8 @@ int how;
     if (endwin != WIN_ERR)
         destroy_nhwindow(endwin);
 
-    dump_close_log();
+    if (!startscummed)
+        dump_close_log();
     /* "So when I die, the first thing I will see in Heaven is a
      * score list?" */
     if (have_windows && !iflags.toptenwin)

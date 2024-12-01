@@ -3661,4 +3661,5 @@ The following changes to date are:
 - Fix: thrown/projectile damage monster vs monster
 - Fix: iterating invent
 - Update hints files with recent official NetHack updates
+- Do not generate dumplog if game was startscummed
 
