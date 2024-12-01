@@ -3660,4 +3660,5 @@ The following changes to date are:
   standing on when engulfed
 - Fix: thrown/projectile damage monster vs monster
 - Fix: iterating invent
+- Update hints files with recent official NetHack updates
 
