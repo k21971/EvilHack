@@ -5602,7 +5602,7 @@ boolean moncast;
             if (see_it)
                 pline("Steam billows from the fountain.");
             rangemod -= 1;
-            dryup(x, y, type > 0);
+            dryup(x, y, moncast ? FALSE : TRUE);
         } else if (IS_PUDDLE(lev->typ) || IS_SEWAGE(lev->typ)) {
             if (see_it) {
                 if (IS_PUDDLE(lev->typ))
