@@ -1151,6 +1151,10 @@ int oldlevel, newlevel;
         if (prevabil != *(abil->ability)) /* it changed */
             postadjabil(abil->ability);
         abil++;
+
+        if (Role_if(PM_MONK) && newlevel >= 25 && Stoned)
+            make_stoned(0L, "You no longer seem to be petrifying.",
+                        0, (char *) 0);
     }
 
     /* don't lose infidel skill slots when crowning. probably good to have

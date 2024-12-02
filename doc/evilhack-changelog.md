@@ -3666,4 +3666,5 @@ The following changes to date are:
 - Fix: prevent sling bullets from forming inside solid rock
 - Fix: dmonsfree when an artifact's instakill ability triggers
   after the target was already killed from the initial hit
+- Fix: Monks and gaining stone resistance while being stoned
 
