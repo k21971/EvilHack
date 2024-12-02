@@ -3670,4 +3670,6 @@ The following changes to date are:
 - Fix: town guards not becoming angry when fountain is used up
 - Getting a wish from a water demon (fountain) immediately dries up
   the fountain
+- Fix: follow-up to 'town guards not becoming angry when fountain
+  is used up'
 
