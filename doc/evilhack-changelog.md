@@ -3668,4 +3668,6 @@ The following changes to date are:
   after the target was already killed from the initial hit
 - Fix: Monks and gaining stone resistance while being stoned
 - Fix: town guards not becoming angry when fountain is used up
+- Getting a wish from a water demon (fountain) immediately dries up
+  the fountain
 

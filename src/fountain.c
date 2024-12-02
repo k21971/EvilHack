@@ -71,8 +71,10 @@ dowaterdemon()
             if (rnd(100) > (80 + level_difficulty())) {
                 pline("Grateful for %s release, %s grants you a wish!",
                       mhis(mtmp), mhe(mtmp));
-                /* give a wish and discard the monster (mtmp set to null) */
+                /* give a wish and discard the monster (mtmp set to null)
+                   as well as the fountain */
                 mongrantswish(&mtmp);
+                dryup(u.ux, u.uy, TRUE);
             } else if (t_at(mtmp->mx, mtmp->my))
                 (void) mintrap(mtmp);
         }
