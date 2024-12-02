@@ -1900,12 +1900,16 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",
                         NO_KILLER_PREFIX);
                     } else {
-                        if (show_instakill)
-                            pline("%s ignites and turns to ash!", Monnam(mdef));
-                        if (youattack)
-                            xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-                        else
-                            monkilled(mdef, (char *) 0, AD_FIRE);
+                        /* guard against mdef being killed twice should
+                           it die before we reach this point */
+                        if (!DEADMONSTER(mdef)) {
+                            if (show_instakill)
+                                pline("%s ignites and turns to ash!", Monnam(mdef));
+                            if (youattack)
+                                xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                            else
+                                monkilled(mdef, (char *) 0, AD_FIRE);
+                        }
                     }
                 return TRUE;
             }
@@ -1920,12 +1924,16 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 losehp((Upolyd ? u.mh : u.uhp) + 1, "incinerated by Angelslayer",
                         NO_KILLER_PREFIX);
             } else {
-                if (show_instakill)
-                    pline("The infernal trident's eldritch flame consumes %s!", hittee);
-                if (youattack)
-                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-                else
-                    monkilled(mdef, (char *) 0, AD_FIRE);
+                /* guard against mdef being killed twice should
+                   it die before we reach this point */
+                if (!DEADMONSTER(mdef)) {
+                    if (show_instakill)
+                        pline("The infernal trident's eldritch flame consumes %s!", hittee);
+                    if (youattack)
+                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                    else
+                        monkilled(mdef, (char *) 0, AD_FIRE);
+                }
             }
             return TRUE;
         }
@@ -2237,18 +2245,24 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         }
 
         if (!rn2(10) && (elf || drow)) {
-            if (show_instakill)
-                pline("The cruel blade penetrates %s soft flesh, disemboweling %s!",
-                    youdefend ? "your" : s_suffix(mon_nam(mdef)),
-                    youdefend ? "you" : noit_mhim(mdef));
+            if (!DEADMONSTER(mdef)) {
+                if (show_instakill)
+                    pline("The cruel blade penetrates %s soft flesh, disemboweling %s!",
+                          youdefend ? "your" : s_suffix(mon_nam(mdef)),
+                          youdefend ? "you" : noit_mhim(mdef));
+            }
             if (youdefend) {
                 losehp((Upolyd ? u.mh : u.uhp) + 1, "disemboweled by Grimtooth",
                        NO_KILLER_PREFIX);
             } else { /* you or mon hit monster */
-                if (youattack) {
-                    xkilled(mdef, XKILL_NOMSG);
-                } else {
-                    monkilled(mdef, (char *) 0, AD_DISE);
+                /* guard against mdef being killed twice should
+                   it die before we reach this point */
+                if (!DEADMONSTER(mdef)) {
+                    if (youattack) {
+                        xkilled(mdef, XKILL_NOMSG);
+                    } else {
+                        monkilled(mdef, (char *) 0, AD_DISE);
+                    }
                 }
             }
             return TRUE;
@@ -2277,9 +2291,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                       : (resists_disint(mdef)
                                          || defended(mdef, AD_DISN));
         if (!rn2(12) && !resistant) {
-            /* instant disintegration. */
-            if (show_instakill)
-                pline_The("deadly blade disintegrates %s!", hittee);
+            /* instant disintegration */
+            if (!DEADMONSTER(mdef)) {
+                if (show_instakill)
+                    pline_The("deadly blade disintegrates %s!", hittee);
+            }
             if (youdefend) {
                 u.ugrave_arise = (NON_PM - 2); /* no corpse */
                 killer.format = NO_KILLER_PREFIX;
@@ -2299,7 +2315,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         }
                         mdef->mhp = mdef->mhpmax;
                     } else {
-                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                        if (!DEADMONSTER(mdef))
+                            xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                     }
                 } else {
                     if (is_rider(mdef->data)) {
@@ -2310,7 +2327,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         }
                         mdef->mhp = mdef->mhpmax;
                     } else {
-                        monkilled(mdef, (char *) 0, AD_DISN);
+                        if (!DEADMONSTER(mdef))
+                            monkilled(mdef, (char *) 0, AD_DISN);
                     }
                 }
             }
@@ -2448,12 +2466,16 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",
                         NO_KILLER_PREFIX);
                     } else {
-                        if (show_instakill)
-                            pline("%s ignites and turns to ash!", Monnam(mdef));
-                        if (youattack)
-                            xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-                        else
-                            monkilled(mdef, (char *) 0, AD_FIRE);
+                        /* guard against mdef being killed twice should
+                           it die before we reach this point */
+                        if (!DEADMONSTER(mdef)) {
+                            if (show_instakill)
+                                pline("%s ignites and turns to ash!", Monnam(mdef));
+                            if (youattack)
+                                xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                            else
+                                monkilled(mdef, (char *) 0, AD_FIRE);
+                        }
                     }
                 return TRUE;
             }

@@ -3664,4 +3664,6 @@ The following changes to date are:
 - Do not generate dumplog if game was startscummed
 - Fix: 'Your shield crumbles away!' when actually wearing bracers
 - Fix: prevent sling bullets from forming inside solid rock
+- Fix: dmonsfree when an artifact's instakill ability triggers
+  after the target was already killed from the initial hit
 

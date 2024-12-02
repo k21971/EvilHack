@@ -115,9 +115,9 @@ struct monst *victim;
             return TRUE;
         case 2:
             item = hitting_u ? uarms : which_armor(victim, W_ARMS);
-            if (!burn_dmg(item, is_bracer(item) ? "bracers" : "shield"))
-                continue;
-            break;
+            if (item)
+                (void) burn_dmg(item, is_bracer(item) ? "bracers" : "shield");
+            return TRUE;
         case 3:
             item = hitting_u ? uarmg : which_armor(victim, W_ARMG);
             if (!burn_dmg(item, "gloves"))
