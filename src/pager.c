@@ -717,7 +717,7 @@ static const char * attacktypes[] = {
     "bearhug",
     "spit",
     "engulf",
-    "breath",
+    "breathe",
     "explode",
     "explode on death",
     "gaze",
@@ -802,10 +802,12 @@ struct permonst * pm;
     int i, gen = pm->geno;
     int freq = (gen & G_FREQ);
     int pct = max(5, (int) (pm->cwt / 90));
+    int mon_align = sgn(pm->maligntyp);
     boolean uniq = !!(gen & G_UNIQ);
     boolean hell = !!(gen & G_HELL);
     boolean nohell = !!(gen & G_NOHELL);
     boolean nogen = !!(gen & G_NOGEN);
+    boolean iceq = is_iceq_only(pm);
     unsigned int mflag4 = pm->mflags4;
 
 #define ADDRESIST(condition, str) \
@@ -846,8 +848,14 @@ struct permonst * pm;
     MONPUTSTR("");
 
     /* Misc */
-    Sprintf(buf, "Difficulty %d, speed %d, base level %d, base AC %d, magic saving throw %d, weight %d.",
-            pm->difficulty, pm->mmove, pm->mlevel, pm->ac, pm->mr, pm->cwt);
+    Sprintf(buf, "Difficulty %d, speed %d, base level %d, base AC %d.",
+            pm->difficulty, pm->mmove, pm->mlevel, pm->ac);
+    MONPUTSTR(buf);
+    Sprintf(buf, "Magic saving throw %d, weight %d, alignment: %s.",
+            pm->mr, pm->cwt,
+            (mon_align == A_LAWFUL) ? "lawful"
+              : (mon_align == A_NEUTRAL) ? "neutral"
+                : (mon_align == A_CHAOTIC) ? "chaotic" : "unaligned (evil)");
     MONPUTSTR(buf);
 
     /* Generation */
@@ -860,6 +868,7 @@ struct permonst * pm;
                 hell ? "only appears in Gehennom" :
                 nohell ? "only appears outside Gehennom" :
                 nogen ? "only appears specially" :
+                iceq ? "only appears in the Ice Queen's realm" :
                 "appears in any branch",
                 (gen & G_SGROUP) ? " in groups" :
                 (gen & G_LGROUP) ? " in large groups" : "",
@@ -974,20 +983,25 @@ struct permonst * pm;
     APPENDC(acidic(pm), "acidic");
     APPENDC(poisonous(pm), "poisonous");
     APPENDC(regenerates(pm), "regenerating");
-    APPENDC(is_reviver(pm), "reviving");
     APPENDC(is_floater(pm), "floating");
     ADDRESIST(pm_resistance(pm, MR2_LEVITATE), "floating");
     APPENDC(pm_invisible(pm), "invisible");
     APPENDC(is_undead(pm), "undead");
     if (!is_undead(pm))
         APPENDC(nonliving(pm), "nonliving");
+    APPENDC(mindless(pm), "mindless");
     APPENDC(telepathic(pm), "telepathic");
     ADDRESIST(pm_resistance(pm, MR2_TELEPATHY), "telepathic");
     APPENDC(is_displaced(pm), "displaced");
     ADDRESIST(pm_resistance(pm, MR2_DISPLACED), "displaced");
+    APPENDC(strongmonst(pm), "strong");
     APPENDC(is_skittish(pm), "skittish");
     APPENDC(is_accurate(pm), "accurate");
     APPENDC(infravisible(pm), "infravisible");
+    APPENDC(carnivorous(pm), "carnivorous");
+    APPENDC(herbivorous(pm), "herbivorous");
+    APPENDC(metallivorous(pm), "metallivorous");
+    APPENDC(inediate(pm), "inediate");
     APPENDC((mflag4 & M4_VULNERABLE_FIRE) != 0, "vulnerable to fire");
     APPENDC((mflag4 & M4_VULNERABLE_COLD) != 0, "vulnerable to cold");
     APPENDC((mflag4 & M4_VULNERABLE_ELEC) != 0, "vulnerable to electricity");
@@ -999,6 +1013,7 @@ struct permonst * pm;
     }
 
     /* inherent abilities: "Monster can X." */
+    APPENDC(perceives(pm), "see invisible");
     APPENDC(hides_under(pm), "hide under objects");
     if (!hides_under(pm))
         APPENDC(is_hider(pm), "hide");
@@ -1011,10 +1026,13 @@ struct permonst * pm;
     APPENDC(is_jumper(pm), "jump");
     ADDRESIST(pm_resistance(pm, MR2_JUMPING), "jump");
     ADDRESIST(pm_resistance(pm, MR2_WATERWALK), "walk on water");
+    APPENDC(lays_eggs(pm), "lay eggs");
     APPENDC(webmaker(pm), "spin webs");
     APPENDC(needspick(pm), "mine");
     APPENDC(is_berserker(pm), "go berserk");
     APPENDC(is_support(pm), "supports allies")
+    APPENDC(can_flollop(pm), "flollop");
+    APPENDC(is_reviver(pm), "revive");
     if (!needspick(pm))
         APPENDC(tunnels(pm), "dig");
     if (*buf) {
@@ -1023,15 +1041,28 @@ struct permonst * pm;
         buf[0] = '\0';
     }
 
-    /* Full-line remarks. */
+    /* "Monster can't X." */
+    APPENDC(non_tameable(pm), "be tamed");
+    APPENDC(no_geno_vecna(pm), "be genocided until its leader is destroyed");
+    APPENDC(no_geno_vlad(pm), "be genocided until its leader is destroyed");
+    APPENDC(no_geno_talgath(pm), "be genocided until its leader is killed");
+    APPENDC(is_defeated(pm), "be killed");
+    APPENDC(hates_light(pm), "stand the light");
+    if (*buf) {
+        Sprintf(buf2, "Can't %s.", buf);
+        MONPUTSTR(buf2);
+        buf[0] = '\0';
+    }
+
+    /* Full-line remarks */
     if (touch_petrifies(pm))
         MONPUTSTR("Petrifies by touch.");
     if (infravision(pm))
         MONPUTSTR("Has infravision.");
     if (ultravision(pm))
         MONPUTSTR("Has ultravision.");
-    if (perceives(pm))
-        MONPUTSTR("Can see invisible.");
+    if (thick_skinned(pm))
+        MONPUTSTR("Has a thick hide.");
     if (control_teleport(pm))
         MONPUTSTR("Has teleport control.");
     if (your_race(pm))
