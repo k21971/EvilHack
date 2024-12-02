@@ -802,7 +802,7 @@ struct permonst * pm;
     int i, gen = pm->geno;
     int freq = (gen & G_FREQ);
     int pct = max(5, (int) (pm->cwt / 90));
-    int mon_align = sgn(pm->maligntyp);
+    int mon_align = (pm->maligntyp == -128) ? A_NONE : sgn(pm->maligntyp);
     boolean uniq = !!(gen & G_UNIQ);
     boolean hell = !!(gen & G_HELL);
     boolean nohell = !!(gen & G_NOHELL);

@@ -3673,4 +3673,5 @@ The following changes to date are:
 - Fix: follow-up to 'town guards not becoming angry when fountain
   is used up'
 - Additional info for monster lookup (pokedex)
+- Fix: monster alignment for monster lookup (pokedex)
 
