@@ -3674,4 +3674,5 @@ The following changes to date are:
   is used up'
 - Additional info for monster lookup (pokedex)
 - Fix: monster alignment for monster lookup (pokedex)
+- Grant poison resistance to Kathryn the Ice Queen
 
