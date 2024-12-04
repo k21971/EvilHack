@@ -3678,4 +3678,6 @@ The following changes to date are:
 - New monsters: Ent, Elder Ent, Petrified Ent
 - Fix: Drow monsters aren't supposed to be able to spin webs
 - Fix: a couple bugs from commit 61f44f6 (bracers)
+- Fix: Infidels would not receive second clue from the sanctum high
+  priest if a pet killed the quest leader
 

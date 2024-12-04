@@ -690,7 +690,7 @@ register struct monst *priest;
             /* "god"[3] == 0; "goddess"[3] != 0 */
             quest_status.godgend = !!align_gtitle(inf_align(3))[3];
             qt_pager(QT_MOLOCH_3);
-            if (quest_status.leader_is_dead) {
+            if (quest_status.killed_leader) {
                 u.ualignbase[A_ORIGINAL] = inf_align(2);
                 quest_status.godgend = !!align_gtitle(inf_align(2))[3];
                 qt_pager(QT_MOLOCH_4);
