@@ -221,7 +221,8 @@
      || (ptr)->mlet == S_UMBER || (ptr)->mlet == S_YETI        \
      || ((ptr)->mlet == S_DEMON && (ptr) != &mons[PM_INCUBUS]  \
          && (ptr) != &mons[PM_SUCCUBUS])                       \
-     || (ptr)->mlet == S_LIZARD || (ptr)->mlet == S_DOG)
+     || (ptr)->mlet == S_LIZARD || (ptr)->mlet == S_DOG        \
+     || (ptr)->mlet == S_ENT)
 #define has_claws_undead(ptr) \
     ((ptr)->mlet == S_MUMMY || (ptr)->mlet == S_ZOMBIE       \
      || (ptr)->mlet == S_WRAITH || (ptr)->mlet == S_VAMPIRE)
@@ -290,6 +291,7 @@
     ((ptr) == &mons[PM_MUMAK] || (ptr) == &mons[PM_MASTODON] \
      || (ptr) == &mons[PM_WOOLLY_MAMMOTH])
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
+#define is_ent(ptr) ((ptr)->mlet == S_ENT)
 #define is_ogre(ptr) (((ptr)->mhflags & MH_OGRE) != 0L)
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
 #define is_gnoll(ptr) (((ptr)->mhflags & MH_GNOLL) != 0L)
@@ -336,7 +338,8 @@
 #define extra_nasty(ptr) (((ptr)->mflags2 & M2_NASTY) != 0L)
 #define strongmonst(ptr) (((ptr)->mflags2 & M2_STRONG) != 0L)
 #define can_breathe(ptr) attacktype(ptr, AT_BREA)
-#define cantwield(ptr) (nohands(ptr) || verysmall(ptr) || Hidinshell)
+#define cantwield(ptr) \
+    (nohands(ptr) || verysmall(ptr) || Hidinshell || is_ent(ptr))
 /* Does this type of monster have multiple weapon attacks?  If so,
    hero poly'd into this form can use two-weapon combat.  It used
    to just check mattk[1] and assume mattk[0], which was suitable
@@ -574,6 +577,7 @@
      || (ptr)->mlet == S_FUNGUS || (ptr)->mlet == S_VORTEX          \
      || (ptr)->mlet == S_LIGHT                                      \
      || ((ptr)->mlet == S_ELEMENTAL && (ptr) != &mons[PM_STALKER])  \
+     || ((ptr)->mlet == S_ENT && (ptr) != &mons[PM_PETRIFIED_ENT])  \
      || ((ptr)->mlet == S_GOLEM && (ptr) != &mons[PM_FLESH_GOLEM]   \
          && (ptr) != &mons[PM_LEATHER_GOLEM]) || noncorporeal(ptr))
 #define vegetarian(ptr) \

@@ -699,6 +699,7 @@ unsigned corpseflags;
         free_mname(mtmp);
         break;
     case PM_STONE_GOLEM:
+    case PM_PETRIFIED_ENT:
         corpstatflags &= ~CORPSTAT_INIT;
         obj =
             mkcorpstat(STATUE, (struct monst *) 0, mdat, x, y, corpstatflags);
@@ -744,6 +745,11 @@ unsigned corpseflags;
             set_material(obj, PAPER);
         }
         free_mname(mtmp);
+        break;
+    case PM_ENT:
+    case PM_ELDER_ENT:
+        levl[x][y].typ = DEADTREE;
+        newsym(x, y);
         break;
     /* expired puddings will congeal into a large blob;
        like dragons, relies on the order remaining consistent */
@@ -4397,6 +4403,17 @@ struct monst *mtmp;
         if (canseemon(mtmp))
             pline("%s solidifies...", Monnam(mtmp));
         if (newcham(mtmp, &mons[PM_STONE_GOLEM], FALSE, FALSE)) {
+            if (canseemon(mtmp))
+                pline("Now it's %s.", an(mtmp->data->mname));
+        } else {
+            if (canseemon(mtmp))
+                pline("... and returns to normal.");
+        }
+    } else if (mtmp->data->mlet == S_ENT) {
+        /* it's an ent, and not a petrified ent */
+        if (canseemon(mtmp))
+            pline("%s solidifies...", Monnam(mtmp));
+        if (newcham(mtmp, &mons[PM_PETRIFIED_ENT], FALSE, FALSE)) {
             if (canseemon(mtmp))
                 pline("Now it's %s.", an(mtmp->data->mname));
         } else {

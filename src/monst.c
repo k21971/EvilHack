@@ -1987,7 +1987,7 @@ NEARDATA struct permonst mons[] = {
           NO_ATTK),
         SIZ(50, 30, MS_SILENT, MZ_SMALL), MR_COLD | MR_POISON,
         MR_COLD | MR_POISON, M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS
-                                 | M1_NOHEAD | M1_MINDLESS | M1_NOTAKE,
+            | M1_NOHEAD | M1_MINDLESS | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, 0, M4_VULNERABLE_FIRE, 0, 2, CLR_BROWN),
     MON("yellow mold", S_FUNGUS, LVL(1, 0, 9, 0, 0), (G_GENO | 2),
         A(ATTK(AT_NONE, AD_STUN, 0, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
@@ -2008,7 +2008,7 @@ NEARDATA struct permonst mons[] = {
           NO_ATTK),
         SIZ(50, 30, MS_SILENT, MZ_SMALL), MR_FIRE | MR_POISON,
         MR_FIRE | MR_POISON, M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS
-                                 | M1_NOHEAD | M1_MINDLESS | M1_NOTAKE,
+            | M1_NOHEAD | M1_MINDLESS | M1_NOTAKE,
         M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE, M4_VULNERABLE_COLD,
         0, 2, CLR_RED),
     MON("shrieker", S_FUNGUS, LVL(3, 1, 7, 0, 0), (G_GENO | 1),
@@ -3921,6 +3921,25 @@ struct permonst _mons2[] = {
         M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS
             | M1_OVIPAROUS | M1_CARNIVORE,
         M2_STRONG | M2_HOSTILE, 0, 0, 0, 15, CLR_BROWN),
+    MON("ent", S_ENT, LVL(10, 5, 0, 20, 0), (G_NOHELL | G_GENO | 1),
+        A(ATTK(AT_CLAW, AD_PHYS, 6, 6), ATTK(AT_CLAW, AD_CLOB, 6, 6),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(4500, 2000, MS_SILENT, MZ_LARGE), MR_SLEEP | MR_POISON, 0,
+        M1_THICK_HIDE, M2_STRONG | M2_ROCKTHROW,
+        M3_INFRAVISION, M4_VULNERABLE_FIRE, 0, 12, CLR_BRIGHT_GREEN),
+    MON("elder ent", S_ENT, LVL(14, 5, -2, 40, 0), (G_NOHELL | G_GENO | 1),
+        A(ATTK(AT_CLAW, AD_PHYS, 6, 8), ATTK(AT_CLAW, AD_CLOB, 6, 8),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(6000, 3000, MS_SILENT, MZ_HUGE), MR_SLEEP | MR_POISON, 0,
+        M1_THICK_HIDE, M2_STRONG | M2_ROCKTHROW | M2_LORD,
+        M3_INFRAVISION, M4_VULNERABLE_FIRE, 0, 16, CLR_BROWN),
+    MON("petrified ent", S_ENT, LVL(16, 4, -4, 50, 0), (G_NOHELL | G_GENO | 1),
+        A(ATTK(AT_CLAW, AD_PHYS, 6, 8), ATTK(AT_CLAW, AD_CLOB, 6, 8),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(7500, 4000, MS_SILENT, MZ_HUGE),
+        MR_SLEEP | MR_POISON | MR_STONE, 0,
+        M1_THICK_HIDE, M2_STRONG | M2_ROCKTHROW,
+        M3_INFRAVISION, 0, 0, 18, CLR_GRAY),
     /*
      * These MUST come before "long worm tail"
      * otherwise they will never randomly spawn.

@@ -1115,7 +1115,8 @@ break_armor()
             }
         }
     }
-    if (nohands(youmonst.data) || verysmall(youmonst.data)) {
+    if (nohands(youmonst.data) || verysmall(youmonst.data)
+        || is_ent(youmonst.data)) {
         if ((otmp = uarmg) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -1153,7 +1154,7 @@ break_armor()
     }
     if (nohands(youmonst.data) || verysmall(youmonst.data)
         || slithy(youmonst.data) || racial_centaur(&youmonst)
-        || racial_tortle(&youmonst)) {
+        || racial_tortle(&youmonst) || is_ent(youmonst.data)) {
         if ((otmp = uarmf) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -1977,7 +1978,12 @@ int part;
                           "pelvic fin", "anal fin", "pectoral fin", "finned",
                           "head", "peduncle", "played out", "gills",
                           "dorsal fin", "caudal fin", "scales", "blood",
-                          "gill", "nostril", "stomach", "scales" };
+                          "gill", "nostril", "stomach", "scales" },
+        *tree_parts[] = { "branch",    "eye",      "face",     "twig",
+                          "bud",       "tap root", "claw",     "clawed",
+                          "crown",     "root",     "addled",   "neck",
+                          "bole",      "bud",      "leaves",   "sap",
+                          "stomata",   "nose",     "interior", "bark" };
 
     if (!mon) {
         impossible("body part of null monster");
@@ -2071,6 +2077,8 @@ int part;
         return vortex_parts[part];
     if (mptr->mlet == S_FUNGUS)
         return fungus_parts[part];
+    if (mptr->mlet == S_ENT)
+        return tree_parts[part];
     if (humanoid(mptr))
         return humanoid_parts[part];
     return animal_parts[part];

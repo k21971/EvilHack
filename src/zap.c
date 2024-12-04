@@ -596,6 +596,17 @@ struct obj *otmp;
                 if (canseemon(mtmp))
                     pline("%s looks rather fleshy for a moment.", name);
             }
+        } else if (monsndx(mtmp->data) == PM_PETRIFIED_ENT) {
+            char *name = Monnam(mtmp);
+
+            /* turn into an ent */
+            if (newcham(mtmp, &mons[PM_ENT], FALSE, FALSE)) {
+                if (canseemon(mtmp))
+                    pline("%s turns to wood!", name);
+            } else {
+                if (canseemon(mtmp))
+                    pline("%s looks rather woody for a moment.", name);
+            }
         } else if (mtmp->mstone > 0) {
             mtmp->mstone = 0;
             mtmp->mcanmove = 1;
@@ -3090,6 +3101,10 @@ boolean ordinary;
         if (u.umonnum == PM_STONE_GOLEM) {
             learn_it = TRUE;
             (void) polymon(PM_FLESH_GOLEM);
+        }
+        if (u.umonnum == PM_PETRIFIED_ENT) {
+            learn_it = TRUE;
+            (void) polymon(PM_ENT);
         }
         if (Stoned) {
             learn_it = TRUE;

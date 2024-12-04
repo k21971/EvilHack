@@ -2509,7 +2509,9 @@ struct obj *otmp;
         return FALSE;
 
 #if 0   /* no poly_when_stoned() critter has theft capability */
-    if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM)) {
+    if (poly_when_stoned(youmonst.data)
+        && (polymon(PM_STONE_GOLEM)
+            || polymon(PM_PETRIFIED_ENT))) {
         display_nhwindow(WIN_MESSAGE, FALSE);   /* --More-- */
         return TRUE;
     }
@@ -4581,7 +4583,8 @@ boolean wep_was_destroyed;
                 || (protector == (W_ARMC | W_ARMG) && (!uarmc || !uarmg))) {
                 if (!Stone_resistance
                     && !(poly_when_stoned(youmonst.data)
-                         && polymon(PM_STONE_GOLEM))) {
+                         && (polymon(PM_STONE_GOLEM)
+                             || polymon(PM_PETRIFIED_ENT)))) {
                     done_in_by(mon, STONING); /* "You turn to stone..." */
                     return 2;
                 }

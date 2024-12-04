@@ -1184,7 +1184,8 @@ boolean hitsroof;
         case EGG:
             if (petrifier && !Stone_resistance
                 && !(poly_when_stoned(youmonst.data)
-                     && polymon(PM_STONE_GOLEM))) {
+                     && (polymon(PM_STONE_GOLEM)
+                         || polymon(PM_PETRIFIED_ENT)))) {
                 /* egg ends up "all over your face"; perhaps
                    visored helmet should still save you here */
                 if (uarmh)
@@ -1259,7 +1260,8 @@ boolean hitsroof;
             }
         } else if (petrifier && !Stone_resistance
                    && !(poly_when_stoned(youmonst.data)
-                        && polymon(PM_STONE_GOLEM))) {
+                        && (polymon(PM_STONE_GOLEM)
+                            || polymon(PM_PETRIFIED_ENT)))) {
  petrify:
             killer.format = KILLED_BY;
             Strcpy(killer.name, "elementary physics"); /* "what goes up..." */

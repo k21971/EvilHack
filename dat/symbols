@@ -183,6 +183,7 @@ start: Blank
         S_dragon: \032
         S_eel: \032
         S_elemental: \032
+        S_ent: \032
         S_explode1: \032
         S_explode2: \032
         S_explode3: \032
@@ -374,6 +375,8 @@ start: IBMgraphics
 	S_sw_mr: \xb3			# meta-3, vertical rule
 	S_explode4: \xb3		# meta-3, vertical rule
 	S_explode6: \xb3		# meta-3, vertical rule
+#	Monster symbols
+	S_ent: \xf1			# plus or minus symbol
 finish
 
 start: IBMGraphics_1
@@ -592,6 +595,8 @@ start: curses
 	S_sw_mr: \xf8			# meta-3, vertical rule
 	S_explode4: \xf8		# meta-3, vertical rule
 	S_explode6: \xf8		# meta-3, vertical rule
+#	Monster symbols
+	S_ent: \xe7			# meta-g, plus or minus sign
 finish
 
 start: DECgraphics
@@ -639,6 +644,8 @@ start: DECgraphics
 	S_explode4: \xf8		# meta-x, vertical rule
 	S_explode6: \xf8		# meta-x, vertical rule
 	S_explode8: \xf3		# meta-s, low horizontal line
+#	Monster symbols
+	S_ent: \xe7			# meta-g, plus or minus
 finish
 
 start: MACgraphics
@@ -669,6 +676,8 @@ start: MACgraphics
 	S_puddle: \xe0
 	S_sewage: \xe0
 	S_pool: \xe0
+#	Monster symbols
+	S_ent: \xf1			# plus or minus sign
 finish
 
 # symbols EOF

@@ -3675,4 +3675,5 @@ The following changes to date are:
 - Additional info for monster lookup (pokedex)
 - Fix: monster alignment for monster lookup (pokedex)
 - Grant poison resistance to Kathryn the Ice Queen
+- New monsters: Ent, Elder Ent, Petrified Ent
 

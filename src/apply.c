@@ -3297,7 +3297,8 @@ struct obj *obj;
                         && touch_petrifies(&mons[otmp->corpsenm]) && !uarmg
                         && !Stone_resistance
                         && !(poly_when_stoned(youmonst.data)
-                             && polymon(PM_STONE_GOLEM))) {
+                             && (polymon(PM_STONE_GOLEM)
+                                 || polymon(PM_PETRIFIED_ENT)))) {
                         char kbuf[BUFSZ];
 
                         Sprintf(kbuf, "%s corpse",
@@ -3560,7 +3561,8 @@ struct obj *obj;
                         && touch_petrifies(&mons[otmp->corpsenm]) && !uarmg
                         && !Stone_resistance
                         && !(poly_when_stoned(youmonst.data)
-                             && polymon(PM_STONE_GOLEM))) {
+                             && (polymon(PM_STONE_GOLEM)
+                                 || polymon(PM_PETRIFIED_ENT)))) {
                         char kbuf[BUFSZ];
 
                         Sprintf(kbuf, "%s corpse",

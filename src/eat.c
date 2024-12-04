@@ -750,7 +750,8 @@ register int pm;
     if (flesh_petrifies(&mons[pm])) {
         if (!Stone_resistance
             && !(poly_when_stoned(youmonst.data)
-                 && polymon(PM_STONE_GOLEM))) {
+                 && (polymon(PM_STONE_GOLEM)
+                     || polymon(PM_PETRIFIED_ENT)))) {
             Sprintf(killer.name, "tasting %s meat", mons[pm].mname);
             killer.format = KILLED_BY;
             You("turn to stone.");
@@ -2610,7 +2611,8 @@ struct obj *otmp;
         if (flesh_petrifies(&mons[otmp->corpsenm])) {
             if (!Stone_resistance
                 && !(poly_when_stoned(youmonst.data)
-                     && polymon(PM_STONE_GOLEM))) {
+                     && (polymon(PM_STONE_GOLEM)
+                         || polymon(PM_PETRIFIED_ENT)))) {
                 if (!Stoned) {
                     Sprintf(killer.name, "%s egg",
                             mons[otmp->corpsenm].mname);

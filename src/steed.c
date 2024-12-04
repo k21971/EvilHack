@@ -297,8 +297,11 @@ struct obj *otmp;
         char kbuf[BUFSZ];
 
         You("touch %s.", mon_nam(mtmp));
-        if (!(poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))) {
-            Sprintf(kbuf, "attempting to saddle %s", an(mtmp->data->mname));
+        if (!(poly_when_stoned(youmonst.data)
+              && (polymon(PM_STONE_GOLEM)
+                  || polymon(PM_PETRIFIED_ENT)))) {
+            Sprintf(kbuf, "attempting to saddle %s",
+                    an(mtmp->data->mname));
             instapetrify(kbuf);
         }
     }
@@ -440,8 +443,11 @@ struct obj *otmp;
         char kbuf[BUFSZ];
 
         You("touch %s.", mon_nam(mtmp));
-        if (!(poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))) {
-            Sprintf(kbuf, "attempting to put barding on %s", an(mtmp->data->mname));
+        if (!(poly_when_stoned(youmonst.data)
+              && (polymon(PM_STONE_GOLEM)
+                  || polymon(PM_PETRIFIED_ENT)))) {
+            Sprintf(kbuf, "attempting to put barding on %s",
+                    an(mtmp->data->mname));
             instapetrify(kbuf);
         }
     }

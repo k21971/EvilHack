@@ -1087,7 +1087,8 @@ register struct monst *mtmp;
                             && mattk->aatyp == AT_BITE && !mtmp->mcan) {
                             if (!Stoned && !Stone_resistance
                                 && !(poly_when_stoned(youmonst.data)
-                                && polymon(PM_STONE_GOLEM))) {
+                                && (polymon(PM_STONE_GOLEM)
+                                    || polymon(PM_PETRIFIED_ENT)))) {
                                 int kformat = KILLED_BY_AN;
                                 const char *kname = mtmp->data->mname;
 
@@ -1993,7 +1994,8 @@ register struct attack *mattk;
  do_stone:
                     if (!Stoned && !Stone_resistance
                         && !(poly_when_stoned(youmonst.data)
-                             && polymon(PM_STONE_GOLEM))) {
+                             && (polymon(PM_STONE_GOLEM)
+                                 || polymon(PM_PETRIFIED_ENT)))) {
                         int kformat = KILLED_BY_AN;
                         const char *kname = mtmp->data->mname;
 
@@ -3388,7 +3390,9 @@ struct attack *mattk;
             You("meet %s petrifying gaze!", s_suffix(mon_nam(mtmp)));
             stop_occupation();
             if (Stone_resistance
-                || (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))) {
+                || (poly_when_stoned(youmonst.data)
+                    && (polymon(PM_STONE_GOLEM)
+                        || polymon(PM_PETRIFIED_ENT)))) {
                 You("are unaffected by %s gaze.", s_suffix(mon_nam(mtmp)));
                 break;
             }

@@ -1662,7 +1662,6 @@ register struct monst *mtmp;
                                             : AMULET_OF_MAGIC_RESISTANCE);
         }
         break;
-
     case S_ANGEL:
         if (humanoid(ptr)) {
             /* create minion stuff; can't use mongets,
@@ -1722,7 +1721,6 @@ register struct monst *mtmp;
             }
         }
         break;
-
     case S_HUMANOID:
         if (is_hobbit(ptr) && !Ingtown) {
             switch (rn2(3)) {
@@ -1916,7 +1914,6 @@ register struct monst *mtmp;
         if (!rn2(4))
             m_initthrow(mtmp, DART, 12);
         break;
-
     case S_CENTAUR:
         if (rn2(2)) {
             (void) mongets(mtmp, (rn2(2) ? ARMOR : STUDDED_ARMOR));
@@ -1948,6 +1945,8 @@ register struct monst *mtmp;
                            (rn2(7) ? SPEAR : rn2(3) ? TRIDENT : STILETTO));
         if (mm == PM_FROST_SALAMANDER)
             (void) mongets(mtmp, (rn2(4) ? HALBERD : SPETUM));
+        break;
+    case S_ENT:
         break;
     case S_DEMON:
         switch (mm) {
@@ -2080,9 +2079,12 @@ register struct monst *mtmp;
         switch (rnd(14 - (2 * bias))) {
         case 1:
             if (!unique_corpstat(ptr)) {
-                if (strongmonst(ptr))
-                    (void) mongets(mtmp, BATTLE_AXE);
-                else {
+                if (strongmonst(ptr)) {
+                    if (is_ent(ptr))
+                        ;
+                    else
+                        (void) mongets(mtmp, BATTLE_AXE);
+                } else {
                     if (is_gnome(ptr) && Ingtown)
                         ;
                     else
@@ -2092,9 +2094,12 @@ register struct monst *mtmp;
             break;
         case 2:
             if (!unique_corpstat(ptr)) {
-                if (strongmonst(ptr))
-                    (void) mongets(mtmp, TWO_HANDED_SWORD);
-                else {
+                if (strongmonst(ptr)) {
+                    if (is_ent(ptr))
+                        ;
+                    else
+                        (void) mongets(mtmp, TWO_HANDED_SWORD);
+                } else {
                     if (is_gnome(ptr) && Ingtown) {
                         ;
                     } else {
@@ -2106,7 +2111,7 @@ register struct monst *mtmp;
             break;
         case 3:
             if (!unique_corpstat(ptr)) {
-                if (is_gnome(ptr) && Ingtown) {
+                if ((is_gnome(ptr) && Ingtown) || is_ent(ptr)) {
                     ;
                 } else {
                     (void) mongets(mtmp, BOW);
@@ -2116,9 +2121,12 @@ register struct monst *mtmp;
             break;
         case 4:
             if (!unique_corpstat(ptr)) {
-                if (strongmonst(ptr))
-                    (void) mongets(mtmp, LONG_SWORD);
-                else {
+                if (strongmonst(ptr)) {
+                    if (is_ent(ptr))
+                        ;
+                    else
+                        (void) mongets(mtmp, LONG_SWORD);
+                } else {
                     if (is_gnome(ptr) && Ingtown)
                         ;
                     else
@@ -2128,9 +2136,12 @@ register struct monst *mtmp;
             break;
         case 5:
             if (!unique_corpstat(ptr)) {
-                if (strongmonst(ptr))
-                    (void) mongets(mtmp, LUCERN_HAMMER);
-                else {
+                if (strongmonst(ptr)) {
+                    if (is_ent(ptr))
+                        ;
+                    else
+                        (void) mongets(mtmp, LUCERN_HAMMER);
+                } else {
                     if (is_gnome(ptr) && Ingtown)
                         ;
                     else
@@ -2159,6 +2170,8 @@ register struct monst *mtmp;
              || is_gnome(ptr))
             && Ingtown) {
             ; /* nothing */
+        } else if (is_ent(ptr)) {
+            ; /* also nothing */
         } else {
             (void) mongets(mtmp, rnd_offensive_item(mtmp));
         }
@@ -2614,12 +2627,17 @@ register struct monst *mtmp;
                 (void) mongets(mtmp, CORNUTHAUM);
         }
         break;
+    case S_ENT:
+        break;
     default:
         break;
     }
 
     /* ordinary soldiers rarely have access to magic (or gold :-) */
     if (ptr != &mons[PM_SOLDIER] && rn2(13))
+        return;
+
+    if (is_ent(ptr))
         return;
 
     if ((int) mtmp->m_lev > rn2(50))
@@ -4160,6 +4178,11 @@ register struct monst *mtmp;
         return TRUE;
     if (ptr->msound == MS_NEMESIS)
         return FALSE;
+
+    if (((Race_if(PM_ELF) && ual != A_NONE)
+         || Role_if(PM_DRUID) || Role_if(PM_RANGER))
+        && is_ent(ptr))
+        return TRUE;
 
     if (erac_race_peaceful(mtmp))
         return TRUE;

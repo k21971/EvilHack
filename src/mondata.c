@@ -87,9 +87,12 @@ boolean
 poly_when_stoned(ptr)
 struct permonst *ptr;
 {
-    /* non-stone golems turn into stone golems unless latter is genocided */
-    return (boolean) (is_golem(ptr) && ptr != &mons[PM_STONE_GOLEM]
-                      && !(mvitals[PM_STONE_GOLEM].mvflags & G_GENOD));
+    /* non-stone golems turn into stone golems unless latter is genocided,
+       same for ents <-> petrified ents */
+    return (boolean) ((is_golem(ptr) && ptr != &mons[PM_STONE_GOLEM]
+                       && !(mvitals[PM_STONE_GOLEM].mvflags & G_GENOD))
+                      || (is_ent(ptr) && ptr != &mons[PM_PETRIFIED_ENT]
+                          && !(mvitals[PM_PETRIFIED_ENT].mvflags & G_GENOD)));
     /* allow G_EXTINCT */
 }
 
@@ -1322,6 +1325,7 @@ static const short grownups[][2] = {
     { PM_KOP_SERGEANT, PM_KOP_LIEUTENANT },
     { PM_KOP_LIEUTENANT, PM_KOP_KAPTAIN },
     { PM_BABY_OWLBEAR, PM_OWLBEAR },
+    { PM_ENT, PM_ELDER_ENT },
     { NON_PM, NON_PM }
 };
 
@@ -1605,9 +1609,12 @@ int mndx;
     case PM_LEATHER_GOLEM:
         return LEATHER;
     case PM_WOOD_GOLEM:
+    case PM_ENT:
+    case PM_ELDER_ENT:
         return WOOD;
     case PM_CLAY_GOLEM:
     case PM_STONE_GOLEM:
+    case PM_PETRIFIED_ENT:
         return MINERAL;
     case PM_GLASS_GOLEM:
         return GLASS;
