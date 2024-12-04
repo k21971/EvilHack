@@ -3677,4 +3677,5 @@ The following changes to date are:
 - Grant poison resistance to Kathryn the Ice Queen
 - New monsters: Ent, Elder Ent, Petrified Ent
 - Fix: Drow monsters aren't supposed to be able to spin webs
+- Fix: a couple bugs from commit 61f44f6 (bracers)
 

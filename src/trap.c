@@ -1372,7 +1372,8 @@ unsigned trflags;
             break;
         case 1:
             pline("%s your left %s!", A_gush_of_water_hits, body_part(ARM));
-            if (water_damage(uarms, is_bracer(uarms) ? "bracers" : "shield",
+            if (water_damage(uarms,
+                             (uarms && is_bracer(uarms)) ? "bracers" : "shield",
                              TRUE, u.ux, u.uy) != ER_NOTHING)
                 break;
             if (u.twoweap || (uwep && bimanual(uwep)))
@@ -2763,7 +2764,9 @@ register struct monst *mtmp;
                     pline("%s %s's left %s!", A_gush_of_water_hits,
                           mon_nam(mtmp), mbodypart(mtmp, ARM));
                 target = which_armor(mtmp, W_ARMS);
-                if (water_damage(target, is_bracer(target) ? "bracers" : "shield",
+                if (water_damage(target,
+                                 (target && is_bracer(target))
+                                   ? "bracers" : "shield",
                                  TRUE, mtmp->mx, mtmp->my) != ER_NOTHING)
                     break;
                 target = MON_WEP(mtmp);
