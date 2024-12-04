@@ -368,7 +368,7 @@
 #define likes_gems(ptr) (((ptr)->mflags2 & M2_JEWELS) != 0L)
 #define likes_objs(ptr) (((ptr)->mflags2 & M2_COLLECT) != 0L || is_armed(ptr))
 #define likes_magic(ptr) (((ptr)->mflags2 & M2_MAGIC) != 0L)
-#define webmaker(ptr) (is_spider(ptr) || is_drow(ptr))
+#define webmaker(ptr) (is_spider(ptr))
 #define is_unicorn(ptr) ((ptr)->mlet == S_UNICORN && likes_gems(ptr))
 #define is_cavelizard(ptr) \
     ((ptr) == &mons[PM_CAVE_LIZARD] || (ptr) == &mons[PM_LARGE_CAVE_LIZARD])

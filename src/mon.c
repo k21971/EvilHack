@@ -2656,7 +2656,8 @@ long flag;
                             || !(is_flyer(mdat) || can_levitate(mon)))
                         && (ttmp->ttyp != WEB
                             || (!amorphous(mdat) && !webmaker(mdat)
-                                && !is_whirly(mdat) && !unsolid(mdat)))
+                                && !is_whirly(mdat) && !unsolid(mdat)
+                                && !racial_drow(mon)))
                         && (ttmp->ttyp != ANTI_MAGIC
                             || !(resists_magm(mon) || defended(mon, AD_MAGM)))) {
                         if (!(flag & ALLOW_TRAPS)) {

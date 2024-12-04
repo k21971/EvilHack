@@ -3676,4 +3676,5 @@ The following changes to date are:
 - Fix: monster alignment for monster lookup (pokedex)
 - Grant poison resistance to Kathryn the Ice Queen
 - New monsters: Ent, Elder Ent, Petrified Ent
+- Fix: Drow monsters aren't supposed to be able to spin webs
 

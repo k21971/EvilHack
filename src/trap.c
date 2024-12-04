@@ -3023,7 +3023,7 @@ register struct monst *mtmp;
             break;
         case WEB:
             /* Monster in a web. */
-            if (webmaker(mptr))
+            if (webmaker(mptr) || racial_drow(mtmp))
                 break;
             if (mu_maybe_destroy_web(mtmp, in_sight, trap))
                 break;
