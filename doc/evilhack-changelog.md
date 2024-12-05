@@ -3681,4 +3681,5 @@ The following changes to date are:
 - Fix: Infidels would not receive second clue from the sanctum high
   priest if a pet killed the quest leader
 - New monster: Satyr
+- Tweaks to the initial satyr commit
 
