@@ -292,6 +292,9 @@
      || (ptr) == &mons[PM_WOOLLY_MAMMOTH])
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
 #define is_ent(ptr) ((ptr)->mlet == S_ENT)
+#define is_satyr(ptr) ((ptr) == &mons[PM_SATYR])
+#define is_nymph(ptr) \
+    ((ptr)->mlet == S_NYMPH && !is_satyr(ptr))
 #define is_ogre(ptr) (((ptr)->mhflags & MH_OGRE) != 0L)
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
 #define is_gnoll(ptr) (((ptr)->mhflags & MH_GNOLL) != 0L)
@@ -444,7 +447,7 @@
 #define likes_purg(ptr) \
     ((ptr)->mlet == S_DRAGON || (ptr)->mlet == S_NYMPH                 \
      || (ptr)->mlet == S_UNICORN || (ptr)->mlet == S_CENTAUR           \
-     || (ptr)->mlet == S_JABBERWOCK || (ptr)->mlet == S_NYMPH          \
+     || (ptr)->mlet == S_JABBERWOCK || (ptr)->mlet == S_ENT            \
      || ((ptr) >= &mons[PM_ARCHEOLOGIST] && (ptr) <= &mons[PM_WIZARD]) \
      || (ptr) == &mons[PM_SPECTRE] || (ptr) == &mons[PM_GHOST])
 

@@ -245,7 +245,7 @@ boolean self;
     otmp->spe -= 1;
 }
 
-/* similar to mzapwand() but for magical horns (only instrument mons play) */
+/* similar to mzapwand() but for magical horns */
 STATIC_OVL void
 mplayhorn(mtmp, otmp, self)
 struct monst *mtmp;
@@ -410,7 +410,7 @@ boolean
 find_defensive(mtmp)
 struct monst *mtmp;
 {
-    struct obj *obj;
+    struct obj *obj, *nextobj;
     struct trap *t;
     int fraction, x = mtmp->mx, y = mtmp->my;
     boolean stuck = (mtmp == u.ustuck),
@@ -679,7 +679,8 @@ struct monst *mtmp;
 #define nomore(x)       if (m.has_defense == x) continue;
     /* selection could be improved by collecting all possibilities
        into an array and then picking one at random */
-    for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+    for (obj = mtmp->minvent; obj; obj = nextobj) {
+        nextobj = obj->nobj;
         /* don't always use the same selection pattern */
         if (m.has_defense && !rn2(3))
             break;
@@ -784,7 +785,7 @@ find_defensive_recurse(mtmp, start)
 struct monst *mtmp;
 struct obj *start;
 {
-    register struct obj *obj = 0;
+    struct obj *obj = 0, *nextobj;
     int x = mtmp->mx, y = mtmp->my;
     boolean stuck = (mtmp == u.ustuck);
 
@@ -793,7 +794,8 @@ struct obj *start;
         || t->ttyp == WEB || t->ttyp == BEAR_TRAP))
         t = 0; /* ok for monster to dig here */
 #define nomore(x)       if (m.has_defense == x) continue;
-    for (obj = start; obj; obj = obj->nobj) {
+    for (obj = start; obj; obj = nextobj) {
+        nextobj = obj->nobj;
         /* don't always use the same selection pattern */
         if (m.has_defense && !rn2(3))
             break;
@@ -1604,7 +1606,7 @@ struct obj *start;
 struct monst *target;
 boolean reflection_skip;
 {
-    register struct obj *obj;
+    struct obj *obj, *nextobj;
     struct obj *helmet = which_armor(mtmp, W_ARMH);
     struct obj *charge_scroll = (struct obj *) 0;
 
@@ -1614,7 +1616,8 @@ boolean reflection_skip;
                      || (charge_precedence((o)->otyp) \
                          > charge_precedence(m.tocharge->otyp))))
     /* this picks the last viable item rather than prioritizing choices */
-    for (obj = start; obj; obj = obj->nobj) {
+    for (obj = start; obj; obj = nextobj) {
+        nextobj = obj->nobj;
         if (Is_container(obj)) {
             (void) find_offensive_recurse(mtmp, obj->cobj, target,
                                           reflection_skip);
@@ -2390,7 +2393,7 @@ struct monst *mtmp;
                 }
             }
         }
-        return 2;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     } /* case MUSE_SCR_FIRE */
     case MUSE_CAMERA: {
         if (Hallucination)
@@ -2406,7 +2409,7 @@ struct monst *mtmp;
         lightdamage(otmp, TRUE, 5);
         m_using = FALSE;
         otmp->spe--;
-        return 1;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     } /* case MUSE_CAMERA */
     case MUSE_POT_PARALYSIS:
     case MUSE_POT_BLINDNESS:
@@ -2545,12 +2548,13 @@ struct monst *mtmp;
 #define MUSE_FIGURINE 12
 #define MUSE_DWARVISH_BEARDED_AXE_WEAPON 13
 #define MUSE_DWARVISH_BEARDED_AXE_SHIELD 14
+#define MUSE_PAN_FLUTE 15
 
 boolean
 find_misc(mtmp)
 struct monst *mtmp;
 {
-    register struct obj *obj;
+    struct obj *obj, *nextobj;
     struct permonst *mdat = mtmp->data;
     int x = mtmp->mx, y = mtmp->my;
     struct trap *t;
@@ -2562,8 +2566,8 @@ struct monst *mtmp;
 
     m.misc = (struct obj *) 0;
     m.has_misc = 0;
-    if (is_animal(mdat) || mindless(mdat))
-        return 0;
+    if (is_animal(mdat) || mindless(mdat) || nohands(mdat))
+        return FALSE;
     if (u.uswallow && stuck)
         return FALSE;
 
@@ -2581,11 +2585,11 @@ struct monst *mtmp;
                                    || passes_walls(mdat)),
             diag_ok = !NODIAG(pmidx);
 
-        for (xx = x - 1; xx <= x + 1; xx++)
-            for (yy = y - 1; yy <= y + 1; yy++)
+        for (xx = x - 1; xx <= x + 1; xx++) {
+            for (yy = y - 1; yy <= y + 1; yy++) {
                 if (isok(xx, yy) && (xx != u.ux || yy != u.uy)
                     && (diag_ok || xx == x || yy == y)
-                    && ((xx == x && yy == y) || !level.monsters[xx][yy]))
+                    && ((xx == x && yy == y) || !level.monsters[xx][yy])) {
                     if ((t = t_at(xx, yy)) != 0
                         && (ignore_boulders || !sobj_at(BOULDER, xx, yy))
                         && !onscary(xx, yy, mtmp)) {
@@ -2597,9 +2601,10 @@ struct monst *mtmp;
                             return TRUE;
                         }
                     }
+                }
+            }
+        }
     }
-    if (nohands(mdat))
-        return 0;
 
 #define nomore(x)       if (m.has_misc == (x)) continue
 #define pick_to_charge(o) \
@@ -2612,7 +2617,8 @@ struct monst *mtmp;
      * 'nomore()' is nearly worthless because it only screens checking
      * of duplicates when there is no alternate type in between them.
      */
-    for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+    for (obj = mtmp->minvent; obj; obj = nextobj) {
+        nextobj = obj->nobj;
         /* Monsters shouldn't recognize cursed items; this kludge is
            necessary to prevent serious problems though... */
         if (obj->otyp == POT_GAIN_LEVEL
@@ -2746,7 +2752,8 @@ struct monst *mtmp;
         if (obj->otyp == SCR_REMOVE_CURSE
             && !obj->cursed
             && mtmp->mnum != PM_INFIDEL) {
-            register struct obj *otmp;
+            struct obj *otmp;
+
             for (otmp = mtmp->minvent;
                  otmp; otmp = otmp->nobj) {
                 if (otmp->cursed
@@ -2757,6 +2764,12 @@ struct monst *mtmp;
                     m.has_misc = MUSE_SCR_REMOVE_CURSE;
                 }
             }
+        }
+        nomore(MUSE_PAN_FLUTE);
+        if (obj->otyp == PAN_FLUTE
+            && !mtmp->mpeaceful && !rn2(6)) {
+            m.misc = obj;
+            m.has_misc = MUSE_PAN_FLUTE;
         }
     }
     if (m.has_misc == 0 && m.tocharge && charge_scroll) {
@@ -2773,16 +2786,18 @@ find_misc_recurse(mtmp, start)
 struct monst *mtmp;
 struct obj *start;
 {
-    register struct obj *obj;
+    struct obj *obj, *nextobj;
     struct permonst *mdat = mtmp->data;
     struct obj *charge_scroll = (struct obj *) 0;
+
 #define nomore(x)       if (m.has_misc == (x)) continue;
 #define pick_to_charge(o) \
     (mcarried(o) && (!m.tocharge \
                      || (charge_precedence((o)->otyp) \
                          > charge_precedence(m.tocharge->otyp))))
 
-    for (obj = start; obj; obj = obj->nobj) {
+    for (obj = start; obj; obj = nextobj) {
+        nextobj = obj->nobj;
         if (Is_container(obj)) {
             (void) find_misc_recurse(mtmp, obj->cobj);
             continue;
@@ -2921,7 +2936,8 @@ struct obj *start;
         if (obj->otyp == SCR_REMOVE_CURSE
             && !obj->cursed
             && mtmp->mnum != PM_INFIDEL) {
-            register struct obj *otmp;
+            struct obj *otmp;
+
             for (otmp = mtmp->minvent;
                  otmp; otmp = otmp->nobj) {
                 if (otmp->cursed
@@ -2932,6 +2948,12 @@ struct obj *start;
                     m.has_misc = MUSE_SCR_REMOVE_CURSE;
                 }
             }
+        }
+        nomore(MUSE_PAN_FLUTE);
+        if (obj->otyp == PAN_FLUTE
+            && !mtmp->mpeaceful && !rn2(6)) {
+            m.misc = obj;
+            m.has_misc = MUSE_PAN_FLUTE;
         }
     }
     if (m.has_misc == 0 && m.tocharge && charge_scroll) {
@@ -3151,7 +3173,8 @@ struct monst *mtmp;
         }
 
         {
-            register struct obj *obj;
+            struct obj *obj;
+
             for (obj = mtmp->minvent; obj; obj = obj->nobj) {
                 /* gold isn't subject to cursing and blessing */
                 if (obj->oclass == COIN_CLASS)
@@ -3393,6 +3416,71 @@ struct monst *mtmp;
             return 1;
         }
         return 0;
+    case MUSE_PAN_FLUTE:
+        {
+            int chance = rnd(3);
+            int range = (couldsee(mtmp->mx, mtmp->my)
+                         && (dist2(mtmp->mx, mtmp->my,
+                                   mtmp->mux, mtmp->muy) <= 25));
+
+            if (Deaf) /* nothing happens */
+                return 0;
+
+            if (!vismon) {
+                if (!Deaf) {
+                    You_hear("a pan flute being played %s.",
+                             range ? "nearby" : "in the distance");
+                }
+            } else if (vismon) {
+                pline("%s plays its %s, producing %s melody.",
+                      Monnam(mtmp), xname(otmp),
+                      rn2(2) ? "a beautiful" : "an enchanting");
+                if (oseen)
+                    makeknown(otmp->otyp);
+            }
+            /* various effects */
+            if (!Deaf && uarmh && uarmh->otyp == TOQUE) {
+                if (!rn2(3)) /* not spammy */
+                    pline("Your %s protects your ears from the enchanting music.",
+                          helm_simple_name(uarmh));
+            } else if (is_nymph(youmonst.data)
+                       || is_satyr(youmonst.data)) {
+                if (!rn2(3)) /* not spammy */
+                    You("find the enchanting music pleasant, but are otherwise unaffected.");
+            } else {
+                switch (chance) {
+                case 1:
+                    if (how_resistant(SLEEP_RES) == 100) {
+                        monstseesu(M_SEEN_SLEEP);
+                        You("yawn.");
+                    } else {
+                        You_feel("very drowsy.");
+                        fall_asleep(-resist_reduce(rn2(5) + 2,
+                                    SLEEP_RES), TRUE);
+                    }
+                    break;
+                case 2:
+                    if (!Confusion) { /* won't stack */
+                        if (Hallucination)
+                            pline("Like... wow, man!");
+                        else
+                            pline("Huh, What?  Where am I?");
+                        make_confused((HConfusion & TIMEOUT)
+                                      + (long) (rn2(5) + 2), FALSE);
+                    }
+                    break;
+                case 3:
+                    if (!Stunned) { /* won't stack */
+                        make_stunned((HStun & TIMEOUT)
+                                     + (long) (rn2(5) + 2), TRUE);
+                        stop_occupation();
+                    }
+                    break;
+                }
+            }
+            return 2;
+        }
+        return 0;
     case 0:
         return 0; /* i.e. an exploded wand */
     default:
@@ -3553,6 +3641,8 @@ struct obj *obj;
                               && mon->data != &mons[PM_ELDRITCH_KI_RIN]);
         if (typ == FROST_HORN || typ == FIRE_HORN)
             return (obj->spe > 0 && can_blow(mon));
+        if (typ == PAN_FLUTE)
+            return (boolean) !is_satyr(mon->data);
         if (typ == SKELETON_KEY || typ == LOCK_PICK
             || typ == CREDIT_CARD || typ == MAGIC_KEY)
             return TRUE;

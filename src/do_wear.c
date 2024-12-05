@@ -2404,12 +2404,14 @@ boolean noisy;
             err++;
         } else if ((Upolyd && youmonst.data->mlet == S_CENTAUR)
                    || (Upolyd && youmonst.data == &mons[PM_DRIDER])
+                   || (Upolyd && youmonst.data == &mons[PM_SATYR])
                    || (!Upolyd && Race_if(PM_CENTAUR))) {
             /* break_armor() pushes boots off for centaurs,
                so don't let dowear() put them back on... */
             if (noisy)
                 Your("%s are not shaped correctly to wear %s.",
-                     (is_centaur(youmonst.data) ? "hooves" : "tarsi"),
+                     ((is_centaur(youmonst.data) || is_satyr(youmonst.data))
+                       ? "hooves" : "tarsi"),
                      c_boots); /* makeplural(body_part(FOOT)) yields
                                   "rear hooves" which sounds odd */
             err++;

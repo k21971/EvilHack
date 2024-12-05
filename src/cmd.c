@@ -719,7 +719,7 @@ domonability(VOID_ARGS)
         return dobreathe();
     else if (attacktype(youmonst.data, AT_SPIT))
         return dospit();
-    else if (youmonst.data->mlet == S_NYMPH)
+    else if (is_nymph(youmonst.data))
         return doremove();
     else if (attacktype(youmonst.data, AT_GAZE))
         return dogaze();

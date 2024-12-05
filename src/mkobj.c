@@ -3491,13 +3491,24 @@ static const struct icp resonant_materials[] = {
     { 10, PLATINUM}
 };
 
-/* for horns, currently */
+/* for horns  */
 static const struct icp horn_materials[] = {
     {600, BONE},
     {100, COPPER},
     {100, BRONZE},
     { 80, MITHRIL},
     { 50, WOOD},
+    { 50, SILVER},
+    { 20, GOLD}
+};
+
+/* for flutes  */
+static const struct icp flute_materials[] = {
+    {600, WOOD},
+    {100, BONE},
+    {100, BRONZE},
+    { 80, MITHRIL},
+    { 50, COPPER},
     { 50, SILVER},
     { 20, GOLD}
 };
@@ -3704,8 +3715,6 @@ struct obj* obj;
     case MAGIC_LAMP:
     case PEA_WHISTLE:
     case MAGIC_WHISTLE:
-    case FLUTE:
-    case MAGIC_FLUTE:
     case HARP:
     case MAGIC_HARP:
         return resonant_materials;
@@ -3715,6 +3724,10 @@ struct obj* obj;
     case FROST_HORN:
     case HORN_OF_PLENTY:
         return horn_materials;
+    case FLUTE:
+    case PAN_FLUTE:
+    case MAGIC_FLUTE:
+        return flute_materials;
     case SACK:
     case BAG_OF_HOLDING:
     case BAG_OF_TRICKS:

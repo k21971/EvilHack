@@ -1092,7 +1092,8 @@ struct obj *obj;
         if (vis)
             pline("%s confuses itself!", Monnam(mtmp));
         mtmp->mconf = 1;
-    } else if (monable && (mlet == S_NYMPH || mtmp->data == &mons[PM_SUCCUBUS]
+    } else if (monable && (is_nymph(mtmp->data)
+                           || mtmp->data == &mons[PM_SUCCUBUS]
                            || mtmp->data == &mons[PM_INCUBUS])) {
         boolean is_shkp = has_eshk(mtmp) && inhishop(mtmp);
         if (vis) {
@@ -1179,6 +1180,8 @@ struct obj **optr;
 #endif
         if (obj->cursed && !rn2(4)
             /* note: once any of them are gone, we stop all of them */
+            && !(mvitals[PM_SATYR].mvflags & G_GONE)
+            && !(mvitals[PM_ICE_NYMPH].mvflags & G_GONE)
             && !(mvitals[PM_WOOD_NYMPH].mvflags & G_GONE)
             && !(mvitals[PM_WATER_NYMPH].mvflags & G_GONE)
             && !(mvitals[PM_MOUNTAIN_NYMPH].mvflags & G_GONE)
@@ -4478,6 +4481,7 @@ doapply()
         use_unicorn_horn(obj);
         break;
     case FLUTE:
+    case PAN_FLUTE:
     case MAGIC_FLUTE:
     case TOOLED_HORN:
     case FROST_HORN:

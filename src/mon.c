@@ -2094,7 +2094,7 @@ register const char *str;
                     || (otmp3->oclass == COIN_CLASS
                         && likes_gold(mtmp->data))) {
                     if (otmp3->otyp == CORPSE
-                        && mtmp->data->mlet != S_NYMPH
+                        && !is_nymph(mtmp->data)
                         && !touch_petrifies(&mons[otmp3->corpsenm])
                         && otmp3->corpsenm != PM_LIZARD
                         && !acidic(&mons[otmp3->corpsenm]))
@@ -2136,7 +2136,8 @@ register const char *str;
         /* Nymphs take everything.  Most monsters don't pick up corpses. */
         if (!str ? searches_for_item(mtmp, otmp)
                  : !!(index(str, otmp->oclass))) {
-            if (otmp->otyp == CORPSE && mtmp->data->mlet != S_NYMPH
+            if (otmp->otyp == CORPSE
+                && !is_nymph(mtmp->data)
                 /* let a handful of corpse types thru to can_carry() */
                 && !touch_petrifies(&mons[otmp->corpsenm])
                 && otmp->corpsenm != PM_LIZARD

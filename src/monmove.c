@@ -321,7 +321,7 @@ register struct monst *mtmp;
      */
     if (couldsee(mtmp->mx, mtmp->my) && distu(mtmp->mx, mtmp->my) <= 100
         && (!Stealth || (mtmp->data == &mons[PM_ETTIN] && rn2(10)))
-        && (!(mtmp->data->mlet == S_NYMPH
+        && (!(is_nymph(mtmp->data)
               || mtmp->data == &mons[PM_JABBERWOCK]
               || mtmp->data == &mons[PM_VORPAL_JABBERWOCK]
               || mtmp->data->mlet == S_LEPRECHAUN) || !rn2(50))
@@ -1186,7 +1186,7 @@ struct obj *container;
         if (((likegold && otmp->oclass == COIN_CLASS)
               || (likeobjs && index(practical, otmp->oclass)
                   && (otmp->otyp != CORPSE
-                      || (mtmp->data->mlet == S_NYMPH
+                      || (is_nymph(mtmp->data)
                           && !is_rider(&mons[otmp->corpsenm]))))
              || (likemagic && index(magical, otmp->oclass))
              || (uses_items && searches_for_item(mtmp, otmp))
@@ -1560,7 +1560,7 @@ register int after;
                           || ((likegold && otmp->oclass == COIN_CLASS)
                           || (likeobjs && index(practical, otmp->oclass)
                               && (otmp->otyp != CORPSE
-                                  || (ptr->mlet == S_NYMPH
+                                  || (is_nymph(ptr)
                                       && !is_rider(&mons[otmp->corpsenm]))))
                         || (likemagic && index(magical, otmp->oclass))
                         || (uses_items && searches_for_item(mtmp, otmp))

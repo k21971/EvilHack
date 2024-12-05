@@ -1411,6 +1411,7 @@ short otyp;
             break;
         case BUGLE:
         case MAGIC_FLUTE:
+        case PAN_FLUTE:
         case FLUTE:
         case TOOLED_HORN:
         case FIRE_HORN:

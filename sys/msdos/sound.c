@@ -309,6 +309,7 @@ pc_speaker(struct obj *instr, char *tune)
     initspeaker();
     switch (instr->otyp) {
     case FLUTE:
+    case PAN_FLUTE:
     case MAGIC_FLUTE:
         octave = 5; /* up one octave */
         break;

@@ -869,7 +869,7 @@ int mntmp;
             pline(use_thec, monsterc, "use your breath weapon");
         if (attacktype(youmonst.data, AT_SPIT))
             pline(use_thec, monsterc, "spit venom");
-        if (youmonst.data->mlet == S_NYMPH)
+        if (is_nymph(youmonst.data))
             pline(use_thec, monsterc, "remove an iron ball");
         if (attacktype(youmonst.data, AT_GAZE))
             pline(use_thec, monsterc, "gaze at monsters");
@@ -1154,7 +1154,8 @@ break_armor()
     }
     if (nohands(youmonst.data) || verysmall(youmonst.data)
         || slithy(youmonst.data) || racial_centaur(&youmonst)
-        || racial_tortle(&youmonst) || is_ent(youmonst.data)) {
+        || racial_tortle(&youmonst) || is_ent(youmonst.data)
+        || is_satyr(youmonst.data)) {
         if ((otmp = uarmf) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -2079,6 +2080,8 @@ int part;
         return fungus_parts[part];
     if (mptr->mlet == S_ENT)
         return tree_parts[part];
+    if (is_satyr(mptr) && part == FOOT)
+        return "hoof";
     if (humanoid(mptr))
         return humanoid_parts[part];
     return animal_parts[part];

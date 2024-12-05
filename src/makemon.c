@@ -1948,6 +1948,15 @@ register struct monst *mtmp;
         break;
     case S_ENT:
         break;
+    case S_NYMPH:
+        if (is_satyr(ptr)) {
+            if (!rn2(4))
+                (void) mongets(mtmp,
+                               (rn2(3) ? ELVEN_SHORT_SWORD : ELVEN_SPEAR));
+            if (rn2(3))
+                (void) mongets(mtmp, ELVEN_DAGGER);
+        }
+        break;
     case S_DEMON:
         switch (mm) {
         case PM_HORNED_DEVIL:
@@ -2462,10 +2471,15 @@ register struct monst *mtmp;
         }
         break;
     case S_NYMPH:
-        if (!rn2(2))
-            (void) mongets(mtmp, MIRROR);
-        if (!rn2(2))
-            (void) mongets(mtmp, POT_OBJECT_DETECTION);
+        if (is_satyr(ptr)) {
+            if (rn2(5))
+                (void) mongets(mtmp, PAN_FLUTE);
+        } else {
+            if (!rn2(2))
+                (void) mongets(mtmp, MIRROR);
+            if (!rn2(2))
+                (void) mongets(mtmp, POT_OBJECT_DETECTION);
+        }
         break;
     case S_GIANT:
         if (ptr == &mons[PM_MINOTAUR] || ptr == &mons[PM_ELDER_MINOTAUR]) {
@@ -3274,8 +3288,10 @@ long mmflags;
         }
         break;
     case S_NYMPH:
-        if (rn2(5) && !u.uhave.amulet)
-            mtmp->msleeping = 1;
+        if (!is_satyr(ptr)) {
+            if (rn2(5) && !u.uhave.amulet)
+                mtmp->msleeping = 1;
+        }
         break;
     case S_ORC:
         if (Race_if(PM_ELF) || Race_if(PM_DROW))
