@@ -3682,4 +3682,6 @@ The following changes to date are:
   priest if a pet killed the quest leader
 - New monster: Satyr
 - Tweaks to the initial satyr commit
+- Fix: uncontrolled levelporting below the Valley of Dead while
+  Cerberus was still alive
 
