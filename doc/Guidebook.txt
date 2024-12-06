@@ -5275,6 +5275,7 @@
           D  S_dragon               (dragon)
           ;  S_eel                  (sea monster)
           E  S_elemental            (elemental)
+          #  S_ent                  (tree-like creature)
           /  S_explode1             (explosion top left)
           -  S_explode2             (explosion top center)
           \  S_explode3             (explosion top right)
@@ -5308,7 +5309,6 @@
           ^  S_hole                 (hole)
           @  S_human                (human or elf)
           h  S_humanoid             (humanoid)
-
 
 
           NetHack 3.6                                      February 3, 2023
@@ -5368,13 +5368,13 @@
           R  S_rustmonst            (rust monster or disenchanter)
           ?  S_scroll               (scroll)
           #  S_sink                 (sink)
+          z  S_skeleton             (skeleton)
           ^  S_sleeping_gas_trap    (sleeping gas trap)
           S  S_snake                (snake)
           s  S_spider               (arachnid or centipede)
           ^  S_spiked_pit           (spiked pit)
           ^  S_squeaky_board        (squeaky board)
           0  S_ss1                  (magic shield 1 of 4)
-          #  S_ss2                  (magic shield 2 of 4)
 
 
 
@@ -5388,6 +5388,7 @@
 
 
 
+          #  S_ss2                  (magic shield 2 of 4)
           @  S_ss3                  (magic shield 3 of 4)
           *  S_ss4                  (magic shield 4 of 4)
           ^  S_statue_trap          (statue trap)
@@ -5440,7 +5441,6 @@
           X  S_xorn                 (xorn)
           Y  S_yeti                 (apelike creature)
           Z  S_zombie               (zombie)
-          z  S_zruty                (zruty)
 
 
 

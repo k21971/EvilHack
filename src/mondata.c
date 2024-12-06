@@ -1601,6 +1601,7 @@ int mndx;
     case PM_WINGED_GARGOYLE:
     case PM_EARTH_ELEMENTAL:
         return MINERAL;
+    case PM_BONE_DEVIL:
     case PM_SKELETON:
     case PM_SKELETON_WARRIOR:
         return BONE;

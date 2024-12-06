@@ -1947,11 +1947,11 @@ MONSTER:('V',"vampire noble"),(36,17)
 # Watches the sanctum
 MONSTER:('h',"alhoon"),(24,09)
 # Randomly placed companions
-MONSTER:('!',"skeleton warrior"),random
-MONSTER:('!',"skeleton warrior"),random
-MONSTER:('!',"skeleton warrior"),random
-MONSTER:('!',"skeleton warrior"),random
-MONSTER:('!',"skeleton warrior"),random
+MONSTER:('z',"skeleton warrior"),random
+MONSTER:('z',"skeleton warrior"),random
+MONSTER:('z',"skeleton warrior"),random
+MONSTER:('z',"skeleton warrior"),random
+MONSTER:('z',"skeleton warrior"),random
 MONSTER:(' ',"shade"),random
 MONSTER:(' ',"shade"),random
 MONSTER:(' ',"shade"),random
@@ -2185,8 +2185,8 @@ IF [50%] {
   MONSTER:(' ',"shade"),random,hostile
   MONSTER:(' ',"shade"),random,hostile
 } ELSE {
-  MONSTER:('!',"skeleton warrior"),random,hostile
-  MONSTER:('!',"skeleton warrior"),random,hostile
+  MONSTER:('z',"skeleton warrior"),random,hostile
+  MONSTER:('z',"skeleton warrior"),random,hostile
 }
 
 IF [66%] {

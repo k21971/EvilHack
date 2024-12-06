@@ -330,7 +330,6 @@ start: Blank
         S_xorn: \032
         S_yeti: \032
         S_zombie: \032
-        S_zruty: \032
 finish
 
 start: IBMgraphics
@@ -378,7 +377,6 @@ start: IBMgraphics
 	S_explode6: \xb3		# meta-3, vertical rule
 #	Monster symbols
 	S_ent: \xf1			# plus or minus symbol
-	S_skeleton: \x9c		# pound symbol (currency)
 finish
 
 start: IBMGraphics_1
@@ -599,7 +597,6 @@ start: curses
 	S_explode6: \xf8		# meta-3, vertical rule
 #	Monster symbols
 	S_ent: \xe7			# meta-g, plus or minus sign
-	S_skeleton: \xfd		# pound sign (currency)
 finish
 
 start: DECgraphics
@@ -649,7 +646,6 @@ start: DECgraphics
 	S_explode8: \xf3		# meta-s, low horizontal line
 #	Monster symbols
 	S_ent: \xe7			# meta-g, plus or minus
-	S_skeleton: \xfd		# pound (currency)
 finish
 
 start: MACgraphics
@@ -682,7 +678,6 @@ start: MACgraphics
 	S_pool: \xe0
 #	Monster symbols
 	S_ent: \xf1			# plus or minus sign
-	S_skeleton: \x9c		# pound sign (currency)
 finish
 
 # symbols EOF

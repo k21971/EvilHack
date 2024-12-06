@@ -3685,4 +3685,5 @@ The following changes to date are:
 - Fix: uncontrolled levelporting below the Valley of Dead while
   Cerberus was still alive
 - New monster: Skeleton Warrior, repurpose existing Skeleton
+- Rearrange a couple monster symbols
 

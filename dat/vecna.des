@@ -316,8 +316,8 @@ MONSTER:('U',"shambling horror"),(03,08),hostile
 MONSTER:('h',"alhoon"),(57,13),asleep
 MONSTER:('L',"demilich"),(08,06),asleep
 MONSTER:('H',"elder minotaur"),(11,02),hostile
-MONSTER:('!',"skeleton warrior"),(17,13),hostile
-MONSTER:('!',"skeleton warrior"),(19,14),hostile
+MONSTER:('z',"skeleton warrior"),(17,13),hostile
+MONSTER:('z',"skeleton warrior"),(19,14),hostile
 # Liches
 MONSTER:('L',"master lich"),(39,02),asleep
 MONSTER:('L',"master lich"),(14,19),asleep

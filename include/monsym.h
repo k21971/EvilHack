@@ -37,7 +37,7 @@ enum mon_class_types {
     S_WORM       = 23, /* w */
     S_XAN        = 24, /* x */
     S_LIGHT      = 25, /* y: yellow light, black light */
-    S_ZRUTY      = 26, /* z */
+    S_SKELETON   = 26, /* z */
     S_ANGEL      = 27, /* A */
     S_BAT        = 28, /* B */
     S_CENTAUR    = 29, /* C */
@@ -71,12 +71,11 @@ enum mon_class_types {
     S_EEL        = 57, /* ; (fish) */
     S_LIZARD     = 58, /* : (reptiles) */
     S_ENT        = 59, /* # (tree-like) */
-    S_SKELETON   = 60, /* Z */
 
-    S_WORM_TAIL  = 61, /* ~ */
-    S_MIMIC_DEF  = 62, /* ] */
+    S_WORM_TAIL  = 60, /* ~ */
+    S_MIMIC_DEF  = 61, /* ] */
 
-    MAXMCLASSES  = 63  /* number of monster classes */
+    MAXMCLASSES  = 62  /* number of monster classes */
 };
 
 /*
@@ -109,7 +108,7 @@ enum mon_class_types {
 #define DEF_WORM        'w'
 #define DEF_XAN         'x'
 #define DEF_LIGHT       'y'
-#define DEF_ZRUTY       'z'
+#define DEF_SKELETON    'z'
 #define DEF_ANGEL       'A'
 #define DEF_BAT         'B'
 #define DEF_CENTAUR     'C'
@@ -142,7 +141,6 @@ enum mon_class_types {
 #define DEF_EEL         ';'
 #define DEF_LIZARD      ':'
 #define DEF_ENT         '#'
-#define DEF_SKELETON    '!'
 
 #define DEF_INVISIBLE   'I'
 #define DEF_WORM_TAIL   '~'
