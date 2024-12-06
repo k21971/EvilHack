@@ -3686,4 +3686,5 @@ The following changes to date are:
   Cerberus was still alive
 - New monster: Skeleton Warrior, repurpose existing Skeleton
 - Rearrange a couple monster symbols
+- Skeletons don't have a 'thick hide' exactly
 

@@ -1859,7 +1859,14 @@ unsigned trflags;
         } else if (Levitation || Flying) {
             pline("But it isn't long enough to reach you.");
         } else if (thick_skinned(youmonst.data)) {
-            pline("But it breaks off against your thick hide.");
+            pline("But it breaks off against your %s.",
+                  (is_dragon(youmonst.data) ? "scaly hide"
+                                         : (youmonst.data == &mons[PM_GIANT_TURTLE]
+                                            || is_tortle(youmonst.data))
+                                             ? "protective shell"
+                                             : is_bone_monster(youmonst.data)
+                                                 ? "bony structure"
+                                                 : "thick hide"));
             deltrap(trap);
             newsym(u.ux, u.uy);
         } else if (unsolid(youmonst.data)) {
@@ -1970,7 +1977,14 @@ struct obj *otmp;
             pline("But it isn't long enough to reach %s.", mon_nam(steed));
             break;
         } else if (thick_skinned(steed->data)) {
-            pline("But it breaks off against %s thick hide.", s_suffix(mon_nam(steed)));
+            pline("But it breaks off against %s %s.", s_suffix(mon_nam(steed)),
+                  (is_dragon(steed->data) ? "scaly hide"
+                                          : (steed->data == &mons[PM_GIANT_TURTLE]
+                                             || is_tortle(steed->data))
+                                              ? "protective shell"
+                                              : is_bone_monster(steed->data)
+                                                  ? "bony structure"
+                                                  : "thick hide"));
             deltrap(trap);
             newsym(steed->mx, steed->my);
         } else {

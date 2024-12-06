@@ -96,7 +96,9 @@ const char *name; /* if null, then format `*objp' */
                                                : (youmonst.data == &mons[PM_GIANT_TURTLE]
                                                   || Race_if(PM_TORTLE))
                                                    ? "protective shell"
-                                                   : "thick hide"),
+                                                   : is_bone_monster(youmonst.data)
+                                                       ? "bony structure"
+                                                       : "thick hide"),
                       (rn2(2) ? "blocks" : "deflects"), onm);
             } else if (uarms && rn2(2)) {
                 Your("%s %s %s.",

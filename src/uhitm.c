@@ -4002,7 +4002,9 @@ boolean wouldhavehit;
                                              : (mdef->data == &mons[PM_GIANT_TURTLE]
                                                 || is_tortle(mdef->data))
                                                  ? "protective shell"
-                                                 : "thick hide"),
+                                                 : is_bone_monster(mdef->data)
+                                                     ? "bony structure"
+                                                     : "thick hide"),
                       (rn2(2) ? "blocks" : "deflects"));
             else
                 You("%smiss %s.",

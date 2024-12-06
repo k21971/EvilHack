@@ -226,7 +226,9 @@ struct attack *mattk;
                                                : (youmonst.data == &mons[PM_GIANT_TURTLE]
                                                   || Race_if(PM_TORTLE))
                                                    ? "protective shell"
-                                                   : "thick hide"),
+                                                   : is_bone_monster(youmonst.data)
+                                                       ? "bony structure"
+                                                       : "thick hide"),
                       (rn2(2) ? "blocks" : "deflects"),
                       s_suffix(mon_nam(mtmp)));
             } else {
