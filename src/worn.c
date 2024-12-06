@@ -782,7 +782,7 @@ boolean creation;
      * and let skeletons wear their initial armor */
     if (mindless(mon->data)
         && (!creation || (mon->data->mlet != S_MUMMY
-                          && mon->data != &mons[PM_SKELETON])))
+                          && mon->data->mlet != S_SKELETON)))
         return;
 
     m_dowear_type(mon, W_AMUL, creation, FALSE);

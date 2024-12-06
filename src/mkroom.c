@@ -599,13 +599,15 @@ morguemon()
     }
 
     if (hd > 8 && i > 85)
-        return mkclass(S_VAMPIRE, 0);
+        return (rn2(5) ? mkclass(S_VAMPIRE, 0)
+                       : &mons[PM_SKELETON_WARRIOR]);
     if (In_vecna_branch(&u.uz) && hd > 8 && i > 80)
         return &mons[PM_SHADE];
 
     return ((i < 20) ? &mons[PM_GHOST]
                      : (i < v) ? &mons[PM_WRAITH]
-                               : mkclass(S_ZOMBIE, 0));
+                               : !rn2(5) ? &mons[PM_SKELETON]
+                                         : mkclass(S_ZOMBIE, 0));
 }
 
 struct permonst *

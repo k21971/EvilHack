@@ -1957,6 +1957,35 @@ register struct monst *mtmp;
                 (void) mongets(mtmp, ELVEN_DAGGER);
         }
         break;
+    case S_SKELETON:
+        if (mm == PM_SKELETON) {
+            if (rn2(2))
+                (void) mongets(mtmp, HELMET);
+            if (rn2(2)) {
+                if (rn2(4))
+                    (void) mongets(mtmp, rn2(3) ? ARMOR : STUDDED_ARMOR);
+                else
+                    (void) mongets(mtmp, RING_MAIL);
+            }
+            if (rn2(3)) {
+                if (rn2(4))
+                    (void) mongets(mtmp, rn2(3) ? SHORT_SWORD : BROADSWORD);
+                else
+                    (void) mongets(mtmp, rn1(BEC_DE_CORBIN - PARTISAN + 1, PARTISAN));
+            }
+        }
+        if (mm == PM_SKELETON_WARRIOR) {
+            if (rn2(2))
+                (void) mongets(mtmp, HELMET);
+            if (rn2(5)) {
+                if (rn2(4))
+                    (void) mongets(mtmp, rn2(3) ? CHAIN_MAIL : SPLINT_MAIL);
+                else
+                    (void) mongets(mtmp, BANDED_MAIL);
+            }
+            (void) mongets(mtmp, rn2(3) ? TWO_HANDED_SWORD : BATTLE_AXE);
+        }
+        break;
     case S_DEMON:
         switch (mm) {
         case PM_HORNED_DEVIL:

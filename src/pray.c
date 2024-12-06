@@ -2995,6 +2995,9 @@ doturn()
                 case S_MUMMY:
                     xlev += 2;
                     /*FALLTHRU*/
+                case S_SKELETON:
+                    xlev += 2;
+                    /*FALLTHRU*/
                 case S_ZOMBIE:
                     if (u.ulevel >= xlev && !resist(mtmp, '\0', 0, NOTELL)) {
                         if (u.ualign.type == A_CHAOTIC) {

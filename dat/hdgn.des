@@ -103,7 +103,7 @@ MONSTER:('e',"beholder"),$beholder[2]
 MONSTER:('e',"magical eye"),$beholder[3]
 MONSTER:('Z',"revenant"),random
 MONSTER:('Z',"revenant"),random
-MONSTER:('Z',"skeleton"),random
+MONSTER:('!',"skeleton warrior"),random
 
 # random corpses
 OBJECT:('%',"corpse"),$corpse[0],montype:"archeologist"

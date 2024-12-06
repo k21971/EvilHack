@@ -585,8 +585,8 @@ IF [50%] {
   MONSTER:(' ',"shade"),random,hostile
   MONSTER:(' ',"shade"),random,hostile
 } ELSE {
-  MONSTER:('Z',"skeleton"),random,hostile
-  MONSTER:('Z',"skeleton"),random,hostile
+  MONSTER:('!',"skeleton warrior"),random,hostile
+  MONSTER:('!',"skeleton warrior"),random,hostile
 }
 IF [66%] {
 # could be a snark now, so up the percentage a bit

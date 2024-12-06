@@ -2025,7 +2025,7 @@ int part;
         return "trunk";
     if (mptr == &mons[PM_SHARK] && part == HAIR)
         return "skin"; /* sharks don't have scales */
-    if (mptr == &mons[PM_SKELETON] && part == SKIN)
+    if (is_skeleton(mptr) && part == SKIN)
         return "bones"; /* skeletons don't have skin */
     if ((mptr == &mons[PM_JELLYFISH] || mptr == &mons[PM_KRAKEN])
         && (part == ARM || part == FINGER || part == HAND || part == FOOT

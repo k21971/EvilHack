@@ -550,6 +550,12 @@ struct monst *mon;
             bonus += rnd(2);
         if (is_axe(otmp) && is_wooden(ptr))
             bonus += rnd(4);
+        if (objects[otmp->otyp].oc_dir & (PIERCE | SLASH)
+            && is_bone_monster(ptr))
+            bonus -= rnd(5) + 3;
+        if (objects[otmp->otyp].oc_dir & WHACK
+            && is_bone_monster(ptr))
+            bonus += rnd(4);
         if (mon_hates_material(mon, otmp->material))
             bonus += rnd(sear_damage(otmp->material));
         if (artifact_light(otmp) && otmp->lamplit

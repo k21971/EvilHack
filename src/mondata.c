@@ -1602,6 +1602,7 @@ int mndx;
     case PM_EARTH_ELEMENTAL:
         return MINERAL;
     case PM_SKELETON:
+    case PM_SKELETON_WARRIOR:
         return BONE;
     case PM_PAPER_GOLEM:
         return PAPER;
@@ -1644,8 +1645,7 @@ const struct permonst *ptr;
         return TRUE;
     }
     if (ptr->mlet == S_MUMMY || ptr->mlet == S_VAMPIRE
-        || (ptr->mlet == S_ZOMBIE && ptr != &mons[PM_SKELETON])
-        || ptr == &mons[PM_FLESH_GOLEM]) {
+        || ptr->mlet == S_ZOMBIE || ptr == &mons[PM_FLESH_GOLEM]) {
         /* Exceptions: non-living monsters that do have flesh */
         return TRUE;
     }

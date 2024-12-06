@@ -184,6 +184,8 @@
      || is_animal(ptr))
 #define slithy(ptr) (((ptr)->mflags1 & M1_SLITHY) != 0L)
 #define is_wooden(ptr) ((ptr) == &mons[PM_WOOD_GOLEM])
+#define is_bone_monster(ptr) \
+    ((ptr) == &mons[PM_BONE_DEVIL] || is_skeleton(ptr))
 #define thick_skinned(ptr) (((ptr)->mflags1 & M1_THICK_HIDE) != 0L)
 #define hug_throttles(ptr) ((ptr) == &mons[PM_ROPE_GOLEM])
 #define slimeproof(ptr) \
@@ -225,7 +227,8 @@
      || (ptr)->mlet == S_ENT)
 #define has_claws_undead(ptr) \
     ((ptr)->mlet == S_MUMMY || (ptr)->mlet == S_ZOMBIE       \
-     || (ptr)->mlet == S_WRAITH || (ptr)->mlet == S_VAMPIRE)
+     || (ptr)->mlet == S_WRAITH || (ptr)->mlet == S_VAMPIRE  \
+     || (ptr)->mlet == S_SKELETON)
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
 #define can_sting(ptr) attacktype(ptr, AT_STNG)
 #define acidic(ptr) (((ptr)->mflags1 & M1_ACID) != 0L)
@@ -295,6 +298,7 @@
 #define is_satyr(ptr) ((ptr) == &mons[PM_SATYR])
 #define is_nymph(ptr) \
     ((ptr)->mlet == S_NYMPH && !is_satyr(ptr))
+#define is_skeleton(ptr) ((ptr)->mlet == S_SKELETON)
 #define is_ogre(ptr) (((ptr)->mhflags & MH_OGRE) != 0L)
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
 #define is_gnoll(ptr) (((ptr)->mhflags & MH_GNOLL) != 0L)
@@ -562,7 +566,7 @@
      && !r_verysmall(mon) && !is_shapeshifter((mon)->data)                   \
      && (mon)->mcanmove && !(mon)->msleeping && (mon)->cham == NON_PM        \
      && !unsolid((mon)->data) && !((mon)->mstrategy & STRAT_WAITFORU)        \
-     && !is_covetous((mon)->data))
+     && !is_covetous((mon)->data) && !is_skeleton((mon)->data))
 /* monster can be ridden by other monsters */
 #define mon_can_be_ridden(mon) \
     (can_saddle(mon) && !DEADMONSTER(mon) && !is_covetous((mon)->data)       \

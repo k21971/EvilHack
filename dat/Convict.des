@@ -334,7 +334,7 @@ MONSTER:('@',"inmate"),(06,05)
 MONSTER:(' ',"ghost"),(42,17),"Orzo the Inmate"
 [50%]: MONSTER:(' ',"ghost"),(40,18),"Fredgar the Inmate"
 [50%]: MONSTER:(' ',"ghost"),(06,12),"Rastilon the Inmate"
-MONSTER:('Z',"skeleton"),(28,15),awake
+MONSTER:('!',"skeleton warrior"),(28,15),awake
 # Bugs and snakes
 MONSTER:('S',"pit viper"),(06,17)
 MONSTER:('x',"xan"),random

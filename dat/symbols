@@ -270,6 +270,7 @@ start: Blank
         S_scroll: \032
         S_sewage: \032
         S_sink: \032
+        S_skeleton: \032
         S_sleeping_gas_trap: \032
         S_snake: \032
         S_spear_trap: \032
@@ -377,6 +378,7 @@ start: IBMgraphics
 	S_explode6: \xb3		# meta-3, vertical rule
 #	Monster symbols
 	S_ent: \xf1			# plus or minus symbol
+	S_skeleton: \x9c		# pound symbol (currency)
 finish
 
 start: IBMGraphics_1
@@ -597,6 +599,7 @@ start: curses
 	S_explode6: \xf8		# meta-3, vertical rule
 #	Monster symbols
 	S_ent: \xe7			# meta-g, plus or minus sign
+	S_skeleton: \xfd		# pound sign (currency)
 finish
 
 start: DECgraphics
@@ -646,6 +649,7 @@ start: DECgraphics
 	S_explode8: \xf3		# meta-s, low horizontal line
 #	Monster symbols
 	S_ent: \xe7			# meta-g, plus or minus
+	S_skeleton: \xfd		# pound (currency)
 finish
 
 start: MACgraphics
@@ -678,6 +682,7 @@ start: MACgraphics
 	S_pool: \xe0
 #	Monster symbols
 	S_ent: \xf1			# plus or minus sign
+	S_skeleton: \x9c		# pound sign (currency)
 finish
 
 # symbols EOF
