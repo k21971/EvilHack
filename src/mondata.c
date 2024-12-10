@@ -1623,6 +1623,8 @@ int mndx;
         return GLASS;
     case PM_IRON_GOLEM:
         return IRON;
+    case PM_ASSASSIN_VINE:
+        return VEGGY;
     default:
         return 0;
     }

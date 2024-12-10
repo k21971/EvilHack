@@ -1240,6 +1240,9 @@ register int after;
     }
     ptr = mtmp->data; /* mintrap() can change mtmp->data -dlc */
 
+    if (is_stationary(ptr)) /* doesn't move, but can still attack */
+        return 0;
+
     if (mtmp->ridden_by)
         return 0;
 

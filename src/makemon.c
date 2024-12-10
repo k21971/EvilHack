@@ -1947,6 +1947,7 @@ register struct monst *mtmp;
             (void) mongets(mtmp, (rn2(4) ? HALBERD : SPETUM));
         break;
     case S_ENT:
+    case S_PLANT:
         break;
     case S_NYMPH:
         if (is_satyr(ptr)) {
@@ -2118,7 +2119,7 @@ register struct monst *mtmp;
         case 1:
             if (!unique_corpstat(ptr)) {
                 if (strongmonst(ptr)) {
-                    if (is_ent(ptr))
+                    if (is_ent(ptr) || is_plant(ptr))
                         ;
                     else
                         (void) mongets(mtmp, BATTLE_AXE);
@@ -2133,7 +2134,7 @@ register struct monst *mtmp;
         case 2:
             if (!unique_corpstat(ptr)) {
                 if (strongmonst(ptr)) {
-                    if (is_ent(ptr))
+                    if (is_ent(ptr) || is_plant(ptr))
                         ;
                     else
                         (void) mongets(mtmp, TWO_HANDED_SWORD);
@@ -2149,7 +2150,8 @@ register struct monst *mtmp;
             break;
         case 3:
             if (!unique_corpstat(ptr)) {
-                if ((is_gnome(ptr) && Ingtown) || is_ent(ptr)) {
+                if ((is_gnome(ptr) && Ingtown) || is_ent(ptr)
+                    || is_plant(ptr)) {
                     ;
                 } else {
                     (void) mongets(mtmp, BOW);
@@ -2160,7 +2162,7 @@ register struct monst *mtmp;
         case 4:
             if (!unique_corpstat(ptr)) {
                 if (strongmonst(ptr)) {
-                    if (is_ent(ptr))
+                    if (is_ent(ptr) || is_plant(ptr))
                         ;
                     else
                         (void) mongets(mtmp, LONG_SWORD);
@@ -2175,7 +2177,7 @@ register struct monst *mtmp;
         case 5:
             if (!unique_corpstat(ptr)) {
                 if (strongmonst(ptr)) {
-                    if (is_ent(ptr))
+                    if (is_ent(ptr) || is_plant(ptr))
                         ;
                     else
                         (void) mongets(mtmp, LUCERN_HAMMER);
@@ -2208,7 +2210,7 @@ register struct monst *mtmp;
              || is_gnome(ptr))
             && Ingtown) {
             ; /* nothing */
-        } else if (is_ent(ptr)) {
+        } else if (is_ent(ptr) || is_plant(ptr)) {
             ; /* also nothing */
         } else {
             (void) mongets(mtmp, rnd_offensive_item(mtmp));
@@ -2671,6 +2673,7 @@ register struct monst *mtmp;
         }
         break;
     case S_ENT:
+    case S_PLANT:
         break;
     default:
         break;
@@ -2680,7 +2683,7 @@ register struct monst *mtmp;
     if (ptr != &mons[PM_SOLDIER] && rn2(13))
         return;
 
-    if (is_ent(ptr))
+    if (is_ent(ptr) || is_plant(ptr))
         return;
 
     if ((int) mtmp->m_lev > rn2(50))

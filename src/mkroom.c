@@ -685,6 +685,23 @@ struct mkroom *croom; /* NULL == choose random room */
         maderoom = TRUE;
         level.flags.has_garden = 1;
 
+        /* create trees/fountains */
+        tried = 0;
+        i = rn1(3, 3);
+        while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
+            if (levl[pos.x][pos.y].typ == GRASS
+                && !OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+                && !t_at(pos.x, pos.y) && !nexttodoor(pos.x, pos.y)) {
+                if (rn2(5)) {
+                    levl[pos.x][pos.y].typ = TREE;
+                } else {
+                    levl[pos.x][pos.y].typ = FOUNTAIN;
+                    level.flags.nfountains++;
+                }
+                i--;
+            }
+        }
+
         /* create nymphs */
         tried = 0;
         i = rnd(2);
@@ -701,19 +718,17 @@ struct mkroom *croom; /* NULL == choose random room */
             }
         }
 
-        /* create trees/fountains */
+        /* create plant-based monsters */
         tried = 0;
-        i = rn1(3, 3);
+        i = rnd(2);
         while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
-            if (levl[pos.x][pos.y].typ == GRASS
-                && !OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
-                && !t_at(pos.x, pos.y) && !nexttodoor(pos.x, pos.y)) {
-                if (rn2(5)) {
-                    levl[pos.x][pos.y].typ = TREE;
-                } else {
-                    levl[pos.x][pos.y].typ = FOUNTAIN;
-                    level.flags.nfountains++;
-                }
+            struct permonst *pmon;
+
+            if (!rn2(100) && !OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+                && !t_at(pos.x, pos.y) && (pmon = mkclass(S_PLANT, 0))) {
+                struct monst *mtmp = makemon(pmon, pos.x, pos.y, NO_MM_FLAGS);
+
+                mtmp->mpeaceful = 0;
                 i--;
             }
         }
@@ -756,9 +771,9 @@ mkswamp() /* Michiel Huisjes & Fred de Wilde */
                     } else {
                         levl[sx][sy].typ = PUDDLE;
                         if (!rn2(4)) /* swamps tend to be moldy and wet */
-                            (void) makemon(rn2(2)
-                                              ? mkclass(S_FUNGUS, 0)
-                                              : &mons[PM_GIANT_MOSQUITO],
+                            (void) makemon(!rn2(30) ? &mons[PM_ASSASSIN_VINE]
+                                                    : rn2(2) ? mkclass(S_FUNGUS, 0)
+                                                             : &mons[PM_GIANT_MOSQUITO],
                                            sx, sy, NO_MM_FLAGS);
                     }
                 }

@@ -3687,4 +3687,5 @@ The following changes to date are:
 - New monster: Skeleton Warrior, repurpose existing Skeleton
 - Rearrange a couple monster symbols
 - Skeletons don't have a 'thick hide' exactly
+- New monster: Assassin Vine
 

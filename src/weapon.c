@@ -541,15 +541,21 @@ struct monst *mon;
         int bonus = 0;
 
         if (otmp->blessed
-            && (is_undead(ptr) || is_demon(ptr) || is_vampshifter(mon)))
+            && (is_undead(ptr) || is_demon(ptr)
+                || is_vampshifter(mon)))
             bonus += rnd(4);
         if (otmp->cursed && is_angel(ptr))
             bonus += rnd(4);
         if (otmp->cursed && Role_if(PM_INFIDEL)
-            && (mon_aligntyp(mon) == A_LAWFUL || mon_aligntyp(mon) == A_NEUTRAL))
+            && (mon_aligntyp(mon) == A_LAWFUL
+                || mon_aligntyp(mon) == A_NEUTRAL))
             bonus += rnd(2);
-        if (is_axe(otmp) && is_wooden(ptr))
+        if (is_axe(otmp)
+            && (is_wooden(ptr) || is_plant(ptr)))
             bonus += rnd(4);
+        if (objects[otmp->otyp].oc_dir & WHACK
+            && (is_wooden(ptr) || is_plant(ptr)))
+            bonus -= rnd(3) + 3;
         if (objects[otmp->otyp].oc_dir & (PIERCE | SLASH)
             && is_bone_monster(ptr))
             bonus -= rnd(5) + 3;

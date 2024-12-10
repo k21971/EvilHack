@@ -1795,8 +1795,11 @@ int dieroll;
             if (!rn2(7))
                 (void) destroy_mitem(mon, SPBOOK_CLASS, AD_FIRE);
 
-            if (completelyburns(mon->data) || is_wooden(mon->data)
-                || mon->data == &mons[PM_GREEN_SLIME]) {
+            if (completelyburns(mon->data)
+                || mon->data == &mons[PM_WOOD_GOLEM]
+                || mon->data == &mons[PM_GREEN_SLIME]
+                || (mon->data == &mons[PM_ENT] && !rn2(8))
+                || (mon->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                 ; /* handled below */
             } else {
                 tmp += d(enchant_skill, 4);
@@ -2133,8 +2136,11 @@ int dieroll;
                 Your("%s are extinguished.", makeplural(body_part(HAND)));
             }
 
-            if (completelyburns(mon->data) || is_wooden(mon->data)
-                || mon->data == &mons[PM_GREEN_SLIME]) {
+            if (completelyburns(mon->data)
+                || mon->data == &mons[PM_WOOD_GOLEM]
+                || mon->data == &mons[PM_GREEN_SLIME]
+                || (mon->data == &mons[PM_ENT] && !rn2(8))
+                || (mon->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                 if (!already_killed)
                     pline("%s ignites and turns to ash!", Monnam(mon));
                 destroyed = TRUE; /* return FALSE; */

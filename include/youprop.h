@@ -102,17 +102,19 @@
 /* Intrinsics only */
 #define HSick_resistance u.uprops[SICK_RES].intrinsic
 #define ESick_resistance u.uprops[SICK_RES].extrinsic
-#define Sick_resistance (HSick_resistance || ESick_resistance           \
-                         || youmonst.data->mlet == S_FUNGUS             \
-                         || youmonst.data->mlet == S_ZOMBIE             \
-                         || youmonst.data->mlet == S_WRAITH             \
-                         || youmonst.data->mlet == S_VAMPIRE            \
-                         || youmonst.data->mlet == S_GHOST              \
-                         || youmonst.data->mlet == S_MUMMY              \
-                         || youmonst.data->mlet == S_LICH               \
-                         || youmonst.data->mlet == S_SKELETON           \
-                         || youmonst.data->mlet == S_ANGEL              \
-                         || youmonst.data->mlet == S_DEMON              \
+#define Sick_resistance (HSick_resistance || ESick_resistance            \
+                         || youmonst.data->mlet == S_FUNGUS              \
+                         || youmonst.data->mlet == S_ENT                 \
+                         || youmonst.data->mlet == S_PLANT               \
+                         || youmonst.data->mlet == S_ZOMBIE              \
+                         || youmonst.data->mlet == S_WRAITH              \
+                         || youmonst.data->mlet == S_VAMPIRE             \
+                         || youmonst.data->mlet == S_GHOST               \
+                         || youmonst.data->mlet == S_MUMMY               \
+                         || youmonst.data->mlet == S_LICH                \
+                         || youmonst.data->mlet == S_SKELETON            \
+                         || youmonst.data->mlet == S_ANGEL               \
+                         || youmonst.data->mlet == S_DEMON               \
                          || youmonst.data == &mons[PM_BABY_GREEN_DRAGON] \
                          || youmonst.data == &mons[PM_GREEN_DRAGON]      \
                          || defended(&youmonst, AD_DISE))

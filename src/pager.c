@@ -997,6 +997,7 @@ struct permonst * pm;
     APPENDC(strongmonst(pm), "strong");
     APPENDC(is_skittish(pm), "skittish");
     APPENDC(is_accurate(pm), "accurate");
+    APPENDC(is_stationary(pm), "stationary");
     APPENDC(infravisible(pm), "infravisible");
     APPENDC(carnivorous(pm), "carnivorous");
     APPENDC(herbivorous(pm), "herbivorous");

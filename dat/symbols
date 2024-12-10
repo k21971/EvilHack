@@ -250,6 +250,7 @@ start: Blank
         S_orc: \032
         S_piercer: \032
         S_pit: \032
+        S_plant: \032
         S_poisoncloud: \032
         S_polymorph_trap: \032
         S_pool: \032
@@ -377,6 +378,7 @@ start: IBMgraphics
 	S_explode6: \xb3		# meta-3, vertical rule
 #	Monster symbols
 	S_ent: \xf1			# plus or minus symbol
+	S_plant: \x9c			# pound symbol (currency)
 finish
 
 start: IBMGraphics_1
@@ -399,6 +401,9 @@ start: IBMGraphics_1
 	S_sw_mr: \xb3			# meta-3, vertical rule
 	S_explode4: \xb3		# meta-3, vertical rule
 	S_explode6: \xb3		# meta-3, vertical rule
+#	Monster symbols
+	S_ent: \xf1			# plus or minus symbol
+	S_plant: \x9c			# pound symbol (currency)
 finish
 
 start: IBMGraphics_2
@@ -425,6 +430,9 @@ start: IBMGraphics_2
 	S_sw_mr: \xb3			# meta-3, vertical rule
 	S_explode4: \xb3		# meta-3, vertical rule
 	S_explode6: \xb3		# meta-3, vertical rule
+#	Monster symbols
+	S_ent: \xf1			# plus or minus symbol
+	S_plant: \x9c			# pound symbol (currency)
 finish
 
 start: RogueIBM
@@ -597,6 +605,7 @@ start: curses
 	S_explode6: \xf8		# meta-3, vertical rule
 #	Monster symbols
 	S_ent: \xe7			# meta-g, plus or minus sign
+	S_plant: \xfd			# pound sign (currency)
 finish
 
 start: DECgraphics
@@ -646,6 +655,7 @@ start: DECgraphics
 	S_explode8: \xf3		# meta-s, low horizontal line
 #	Monster symbols
 	S_ent: \xe7			# meta-g, plus or minus
+	S_plant: \xfd			# pound (currency)
 finish
 
 start: MACgraphics
@@ -677,7 +687,8 @@ start: MACgraphics
 	S_sewage: \xe0
 	S_pool: \xe0
 #	Monster symbols
-	S_ent: \xf1			# plus or minus sign
+	S_ent: \xf1			# plus-or-minus
+	S_plant: \x9c			# pound symbol (currency)
 finish
 
 # symbols EOF

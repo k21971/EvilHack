@@ -1893,8 +1893,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             if (youdefend && Slimed)
                 burn_away_slime();
             /* NB: if youdefend, then mdef == &youmonst */
-            if (completelyburns(mdef->data) || is_wooden(mdef->data)
-                || mdef->data == &mons[PM_GREEN_SLIME]) {
+            if (completelyburns(mdef->data)
+                || mdef->data == &mons[PM_WOOD_GOLEM]
+                || mdef->data == &mons[PM_GREEN_SLIME]
+                || (mdef->data == &mons[PM_ENT] && !rn2(8))
+                || (mdef->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                     if (youdefend) {
                         You("ignite and turn to ash!");
                         losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",
@@ -2459,8 +2462,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             if (youdefend && Slimed)
                 burn_away_slime();
             /* NB: if youdefend, then mdef == &youmonst */
-            if (completelyburns(mdef->data) || is_wooden(mdef->data)
-                || mdef->data == &mons[PM_GREEN_SLIME]) {
+            if (completelyburns(mdef->data)
+                || mdef->data == &mons[PM_WOOD_GOLEM]
+                || mdef->data == &mons[PM_GREEN_SLIME]
+                || (mdef->data == &mons[PM_ENT] && !rn2(8))
+                || (mdef->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                     if (youdefend) {
                         You("ignite and turn to ash!");
                         losehp((Upolyd ? u.mh : u.uhp) + 1, "immolation",

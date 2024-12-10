@@ -78,6 +78,8 @@ struct attack *mattk;
         case AT_TUCH:
             if (mtmp->data == &mons[PM_GIANT_CENTIPEDE])
                 pline("%s coils its body around you!", Monnam(mtmp));
+            else if (mtmp->data == &mons[PM_ASSASSIN_VINE])
+                pline("%s lashes its thorny vines at you!", Monnam(mtmp));
             else
                 pfmt = "%s touches you!";
             break;
@@ -1128,7 +1130,8 @@ register struct monst *mtmp;
             break;
 
         case AT_HUGS: /* automatic if prev two attacks succeed */
-            if ((!ranged && i >= 2 && sum[i - 1] && sum[i - 2])
+            if ((!ranged && ((i >= 2 && sum[i - 1] && sum[i - 2])
+                             || is_stationary(mdat)))
                 || mtmp == u.ustuck)
                 sum[i] = hitmu(mtmp, mattk);
             break;
@@ -2020,8 +2023,12 @@ register struct attack *mattk;
         break;
     case AD_WRAP:
         if ((!mtmp->mcan || u.ustuck == mtmp) && !sticks(youmonst.data)) {
+            /* salamanders miss less ofen than most other monsters,
+               assassin vines rarely miss at all */
             if (!u.ustuck
-                && mtmp->data == &mons[PM_SALAMANDER] ? !rn2(6) : !rn2(8)) {
+                && mtmp->data == &mons[PM_ASSASSIN_VINE]
+                   ? rn2(5) : mtmp->data == &mons[PM_SALAMANDER]
+                       ? !rn2(6) : !rn2(8)) {
                 if (u_slip_free(mtmp, mattk)) {
                     dmg = 0;
                 } else {
@@ -2033,7 +2040,9 @@ register struct attack *mattk;
                               mtmp->data == &mons[PM_GIANT_CENTIPEDE]
                               ? "coils its body"
                                   : mtmp->data == &mons[PM_SALAMANDER]
-                                      ? "wraps its arms" : "swings itself");
+                                      ? "wraps its arms"
+                                          : mtmp->data == &mons[PM_ASSASSIN_VINE]
+                                              ? "winds itself" : "swings itself");
                     stop_occupation();
                     u.ustuck = mtmp;
                 }

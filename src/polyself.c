@@ -1981,10 +1981,15 @@ int part;
                           "dorsal fin", "caudal fin", "scales", "blood",
                           "gill", "nostril", "stomach", "scales" },
         *tree_parts[] = { "branch",    "eye",      "face",     "twig",
-                          "bud",       "tap root", "claw",     "clawed",
+                          "bud",       "taproot",  "claw",     "clawed",
                           "crown",     "root",     "addled",   "neck",
                           "bole",      "bud",      "leaves",   "sap",
-                          "stomata",   "nose",     "interior", "bark" };
+                          "stomata",   "nose",     "interior", "bark" },
+       *plant_parts[] = { "branch",     "visual area", "front",  "leaf",
+                          "leaftip",    "taproot",     "twig",   "twigged",
+                          "apical bud", "root",        "addled", "stem",
+                          "stem",       "root-tip",    "leaves", "sap",
+                          "stomata",    "stomata",     "xylem",  "epidermis" };
 
     if (!mon) {
         impossible("body part of null monster");
@@ -2080,6 +2085,8 @@ int part;
         return fungus_parts[part];
     if (mptr->mlet == S_ENT)
         return tree_parts[part];
+    if (mptr->mlet == S_PLANT)
+        return plant_parts[part];
     if (is_satyr(mptr) && part == FOOT)
         return "hoof";
     if (humanoid(mptr))

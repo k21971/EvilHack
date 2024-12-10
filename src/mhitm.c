@@ -898,6 +898,8 @@ int dieroll;
                     Sprintf(buf, "%s reaches out with its deadly touch towards", magr_name);
                 else if (magr->data == &mons[PM_GIANT_CENTIPEDE])
                     Sprintf(buf, "%s coils its body around", magr_name);
+                else if (magr->data == &mons[PM_ASSASSIN_VINE])
+                    Sprintf(buf, "%s lashes its thorny vines at", magr_name);
                 else
                     Sprintf(buf, "%s touches", magr_name);
                 break;

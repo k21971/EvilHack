@@ -1292,6 +1292,27 @@ mcalcdistress()
             continue;
         }
 
+        /* assassin vines will slowly grow and spread throughout the
+           level until the original vine is killed or at least drops
+           below two-thirds of its maximum hit points */
+        if (mtmp->data == &mons[PM_ASSASSIN_VINE]
+            && !mtmp->mcan && (mtmp->mhp >= ((mtmp->mhpmax * 2) / 3))
+            && !rn2(3) && !((monstermoves + mtmp->mnum) % 30)) {
+            struct monst *grow = (struct monst *) 0;
+            int grow_spotx = (mtmp->mx - 1) + rn2(3);
+            int grow_spoty = (mtmp->my - 1) + rn2(3);
+
+            if (goodpos(grow_spotx, grow_spoty, mtmp, 0L)) {
+                grow = makemon(mtmp->data, grow_spotx, grow_spoty,
+                               MM_ADJACENTOK | MM_NOCOUNTBIRTH | NO_MINVENT);
+                /* new growth will have one half to one third the
+                   hit points of the original vine */
+                if (grow)
+                    grow->mhp = (grow->mhp / (rn2(3) ? 2 : 3));
+            }
+            continue;
+        }
+
         /* possibly polymorph shapechangers and lycanthropes */
         if (mtmp->cham >= LOW_PM)
             decide_to_shapeshift(mtmp, (canspotmon(mtmp)

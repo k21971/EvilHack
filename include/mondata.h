@@ -49,6 +49,7 @@
 
 #define ptr_resists_sick(ptr) \
     ((ptr)->mlet == S_FUNGUS || nonliving(ptr)                                   \
+     || is_ent(ptr) || is_plant(ptr)                                             \
      || is_angel(ptr) || is_demon(ptr) || is_rider(ptr)                          \
      || (ptr) == &mons[PM_BABY_GREEN_DRAGON] || (ptr) == &mons[PM_GREEN_DRAGON]  \
      || (ptr) == &mons[PM_GIANT_LEECH] || (ptr) == &mons[PM_GIANT_COCKROACH]     \
@@ -183,7 +184,9 @@
     ((is_dragon(ptr) && (ptr) != &mons[PM_SEA_DRAGON]) \
      || is_animal(ptr))
 #define slithy(ptr) (((ptr)->mflags1 & M1_SLITHY) != 0L)
-#define is_wooden(ptr) ((ptr) == &mons[PM_WOOD_GOLEM])
+#define is_wooden(ptr) \
+    ((ptr) == &mons[PM_WOOD_GOLEM] || (ptr) == &mons[PM_ENT] \
+     || (ptr) == &mons[PM_ELDER_ENT])
 #define is_bone_monster(ptr) \
     ((ptr) == &mons[PM_BONE_DEVIL] || is_skeleton(ptr))
 #define thick_skinned(ptr) (((ptr)->mflags1 & M1_THICK_HIDE) != 0L)
@@ -294,6 +297,7 @@
      || (ptr) == &mons[PM_WOOLLY_MAMMOTH])
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
 #define is_ent(ptr) ((ptr)->mlet == S_ENT)
+#define is_plant(ptr) ((ptr)->mlet == S_PLANT)
 #define is_satyr(ptr) ((ptr) == &mons[PM_SATYR])
 #define is_nymph(ptr) \
     ((ptr)->mlet == S_NYMPH && !is_satyr(ptr))
@@ -389,6 +393,7 @@
     (((ptr)->mflags3 & M3_ACCURATE) \
      || ((ptr) == youmonst.data && !Upolyd && Race_if(PM_CENTAUR)))
 #define is_berserker(ptr) (((ptr)->mflags3 & M3_BERSERK))
+#define is_stationary(ptr) (((ptr)->mflags3 & M3_STATIONARY))
 #define infravision(ptr) (((ptr)->mflags3 & M3_INFRAVISION))
 #define infravisible(ptr) (((ptr)->mflags3 & M3_INFRAVISIBLE))
 #define ultravision(ptr) (((ptr)->mflags3 & M3_ULTRAVISION))
@@ -565,7 +570,8 @@
      && !r_verysmall(mon) && !is_shapeshifter((mon)->data)                   \
      && (mon)->mcanmove && !(mon)->msleeping && (mon)->cham == NON_PM        \
      && !unsolid((mon)->data) && !((mon)->mstrategy & STRAT_WAITFORU)        \
-     && !is_covetous((mon)->data) && !is_skeleton((mon)->data))
+     && !is_covetous((mon)->data) && !is_skeleton((mon)->data)               \
+     && !is_ent((mon)->data) && !is_plant((mon)->data))
 /* monster can be ridden by other monsters */
 #define mon_can_be_ridden(mon) \
     (can_saddle(mon) && !DEADMONSTER(mon) && !is_covetous((mon)->data)       \
@@ -581,7 +587,7 @@
 #define vegan(ptr) \
     ((ptr)->mlet == S_BLOB || (ptr)->mlet == S_JELLY                \
      || (ptr)->mlet == S_FUNGUS || (ptr)->mlet == S_VORTEX          \
-     || (ptr)->mlet == S_LIGHT                                      \
+     || (ptr)->mlet == S_LIGHT || (ptr)->mlet == S_PLANT            \
      || ((ptr)->mlet == S_ELEMENTAL && (ptr) != &mons[PM_STALKER])  \
      || ((ptr)->mlet == S_ENT && (ptr) != &mons[PM_PETRIFIED_ENT])  \
      || ((ptr)->mlet == S_GOLEM && (ptr) != &mons[PM_FLESH_GOLEM]   \
