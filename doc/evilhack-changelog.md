@@ -3688,4 +3688,5 @@ The following changes to date are:
 - Rearrange a couple monster symbols
 - Skeletons don't have a 'thick hide' exactly
 - New monster: Assassin Vine
+- Add encyclopedia entry for assassin vine
 
