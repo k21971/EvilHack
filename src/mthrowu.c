@@ -57,7 +57,7 @@ const char *name; /* if null, then format `*objp' */
     struct obj *obj = objp ? *objp : 0;
     const char *onm, *knm;
     int realac;
-    boolean is_acid, is_webbing;
+    boolean is_acid, is_webbing, is_needle;
     int kprefix = KILLED_BY_AN, dieroll;
     char onmbuf[BUFSZ], knmbuf[BUFSZ];
 
@@ -80,6 +80,7 @@ const char *name; /* if null, then format `*objp' */
             : an(name);
     is_acid = (obj && obj->otyp == ACID_VENOM);
     is_webbing = (obj && obj->otyp == BALL_OF_WEBBING);
+    is_needle = (obj && obj->otyp == BARBED_NEEDLE);
 
     realac = AC_VALUE(u.uac);
     if (realac + tlev <= (dieroll = rnd(20))) {
@@ -131,6 +132,9 @@ const char *name; /* if null, then format `*objp' */
         if (is_acid && Acid_resistance) {
             pline("It doesn't seem to hurt you.");
             monstseesu(M_SEEN_ACID);
+        } else if (is_needle && Poison_resistance) {
+            pline("It doesn't seem to affect you.");
+            monstseesu(M_SEEN_POISON);
         } else if (is_webbing && (is_pool_or_lava(u.ux, u.uy)
                                   || is_puddle(u.ux, u.uy)
                                   || is_sewage(u.ux, u.uy)
@@ -151,6 +155,8 @@ const char *name; /* if null, then format `*objp' */
             }
             if (is_acid)
                 pline("It burns!");
+            if (is_needle)
+                pline("Ow, that stings!");
             losehp(dam, knm, kprefix); /* acid damage */
             exercise(A_STR, FALSE);
         }
@@ -614,6 +620,21 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                 }
             }
         }
+        if (otmp->otyp == BARBED_NEEDLE) {
+            if (resists_poison(mtmp) || defended(mtmp, AD_DRCO)) {
+                if (vis)
+                    pline_The("poison doesn't seem to affect %s.",
+                              mon_nam(mtmp));
+            } else {
+                if (rn2(30)) {
+                    damage += rnd(6);
+                } else {
+                    if (vis)
+                        pline_The("poison was deadly...");
+                    damage = mtmp->mhp;
+                }
+            }
+        }
         if (!DEADMONSTER(mtmp)
             && mon_hates_material(mtmp, otmp->material)) {
             /* Extra damage is already handled in dmgval(). */
@@ -920,12 +941,16 @@ register boolean verbose;
                     dam *= 2;
                 hitu = thitu(hitv, dam, &singleobj, (char *) 0);
             }
-            if (hitu && singleobj->opoisoned && is_poisonable(singleobj)) {
+            if (hitu
+                && ((singleobj->opoisoned && is_poisonable(singleobj))
+                    || singleobj->otyp == BARBED_NEEDLE)) {
                 char onmbuf[BUFSZ], knmbuf[BUFSZ];
 
                 Strcpy(onmbuf, xname(singleobj));
                 Strcpy(knmbuf, killer_xname(singleobj));
-                poisoned(onmbuf, A_STR, knmbuf,
+                poisoned(onmbuf,
+                         singleobj->otyp == BARBED_NEEDLE ? A_CON : A_STR,
+                         knmbuf,
                          /* if damage triggered life-saving,
                             poison is limited to attrib loss */
                          (u.umortality > oldumort) ? 0 : 10, TRUE);
@@ -1125,7 +1150,8 @@ struct attack *mattk;
         if (!Deaf) {
             if (mtmp
                 && (mtmp->data == &mons[PM_SNOW_GOLEM]
-                    || mtmp->data->mlet == S_SPIDER))
+                    || mtmp->data->mlet == S_SPIDER
+                    || mtmp->data == &mons[PM_NEEDLE_BLIGHT]))
                 ;
             else
                 pline("A dry rattle comes from %s throat.",
@@ -1143,6 +1169,9 @@ struct attack *mattk;
         case AD_BLND:
         case AD_DRST:
             otmp = mksobj(BLINDING_VENOM, TRUE, FALSE);
+            break;
+        case AD_DRCO:
+            otmp = mksobj(BARBED_NEEDLE, TRUE, FALSE);
             break;
         case AD_ACID:
             otmp = mksobj(ACID_VENOM, TRUE, FALSE);
@@ -1164,6 +1193,8 @@ struct attack *mattk;
                     pline("%s throws a snowball!", Monnam(mtmp));
                 else if (mtmp && mtmp->data->mlet == S_SPIDER)
                     pline("%s shoots a ball of webbing!", Monnam(mtmp));
+                else if (mtmp && mtmp->data == &mons[PM_NEEDLE_BLIGHT])
+                    pline("%s fires a barbed needle!", Monnam(mtmp));
                 else
                     pline("%s spits venom!", Monnam(mtmp));
             }
@@ -1364,7 +1395,8 @@ struct attack *mattk;
         if (!Deaf) {
             if (mtmp
                 && (mtmp->data == &mons[PM_SNOW_GOLEM]
-                    || mtmp->data->mlet == S_SPIDER))
+                    || mtmp->data->mlet == S_SPIDER
+                    || mtmp->data == &mons[PM_NEEDLE_BLIGHT]))
                 ;
             else
                 pline("A dry rattle comes from %s throat.",
@@ -1382,6 +1414,9 @@ struct attack *mattk;
         case AD_BLND:
         case AD_DRST:
             otmp = mksobj(BLINDING_VENOM, TRUE, FALSE);
+            break;
+        case AD_DRCO:
+            otmp = mksobj(BARBED_NEEDLE, TRUE, FALSE);
             break;
         case AD_ACID:
             otmp = mksobj(ACID_VENOM, TRUE, FALSE);
@@ -1405,6 +1440,8 @@ struct attack *mattk;
                     pline("%s throws a snowball!", Monnam(mtmp));
                 else if (mtmp && mtmp->data->mlet == S_SPIDER)
                     pline("%s shoots a ball of webbing!", Monnam(mtmp));
+                else if (mtmp && mtmp->data == &mons[PM_NEEDLE_BLIGHT])
+                    pline("%s fires a barbed needle!", Monnam(mtmp));
                 else
                     pline("%s spits venom!", Monnam(mtmp));
             }

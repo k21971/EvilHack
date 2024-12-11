@@ -1115,6 +1115,7 @@ int dieroll;
     boolean iskas = FALSE;
     boolean issecespita = FALSE;
     boolean isvenom  = FALSE;
+    boolean isneedle = FALSE;
     boolean valid_weapon_attack = FALSE;
     boolean unarmed = !uwep && !uarm && !uarms;
     boolean actually_unarmed = !obj;
@@ -1213,6 +1214,8 @@ int dieroll;
             issecespita = TRUE;
         if (obj->oprops & ITEM_VENOM)
             isvenom = TRUE;
+        if (obj->otyp == BARBED_NEEDLE)
+            isneedle = TRUE;
         if (!(artifact_light(obj) && obj->lamplit))
             Strcpy(saved_oname, cxname(obj));
         else {
@@ -1662,6 +1665,22 @@ int dieroll;
                     hittxt = TRUE;
                     get_dmg_bonus = FALSE;
                     break;
+                case BARBED_NEEDLE: /* fired */
+                    if (resists_poison(mon) || defended(mon, AD_DRCO)) {
+                        Your("barbed needle hits %s harmlessly.", mon_nam(mon));
+                        tmp = 0;
+                    } else {
+                        Your("barbed needle stings %s!", mon_nam(mon));
+                        tmp = dmgval(obj, mon);
+                    }
+                    if (thrown)
+                        obfree(obj, (struct obj *) 0);
+                    else
+                        useup(obj);
+                    obj = (struct obj *) 0;
+                    hittxt = TRUE;
+                    get_dmg_bonus = FALSE;
+                    break;
                 case BALL_OF_WEBBING:
                     if (!t_at(mon->mx, mon->my)) {
                         struct trap *web = maketrap(mon->mx, mon->my, WEB);
@@ -1798,6 +1817,7 @@ int dieroll;
             if (completelyburns(mon->data)
                 || mon->data == &mons[PM_WOOD_GOLEM]
                 || mon->data == &mons[PM_GREEN_SLIME]
+                || (is_blight(mon->data) && !rn2(8))
                 || (mon->data == &mons[PM_ENT] && !rn2(8))
                 || (mon->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                 ; /* handled below */
@@ -1844,7 +1864,7 @@ int dieroll;
     }
 
     if (!ispotion && obj /* potion obj will have been freed by here */
-        && (ispoisoned || iskas || isvenom)) {
+        && (ispoisoned || iskas || isvenom || isneedle)) {
         int nopoison = (10 - (obj->owt / 10));
 
         if (nopoison < 2)
@@ -1857,7 +1877,7 @@ int dieroll;
             adjalign(Role_if(PM_KNIGHT) ? -3 : -1);
         }
         if (obj && !rn2(nopoison)
-            && !iskas && !isvenom) {
+            && !iskas && !isvenom && !isneedle) {
             /* remove poison now in case obj ends up in a bones file */
             obj->opoisoned = FALSE;
             /* defer "obj is no longer poisoned" until after hit message */
@@ -2139,6 +2159,7 @@ int dieroll;
             if (completelyburns(mon->data)
                 || mon->data == &mons[PM_WOOD_GOLEM]
                 || mon->data == &mons[PM_GREEN_SLIME]
+                || (is_blight(mon->data) && !rn2(8))
                 || (mon->data == &mons[PM_ENT] && !rn2(8))
                 || (mon->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                 if (!already_killed)
@@ -3043,7 +3064,8 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         }
         if (!Blind)
             pline("%s is %s!", Monnam(mdef),
-                  on_fire(mdef, mattk->aatyp == AT_HUGS ? ON_FIRE_HUG : ON_FIRE));
+                  on_fire(mdef, mattk->aatyp == AT_HUGS ? ON_FIRE_HUG
+                                                        : ON_FIRE));
         if (completelyburns(pd)) { /* paper golem or straw golem */
             if (!Blind)
                 pline("%s burns completely!", Monnam(mdef));
@@ -4004,13 +4026,15 @@ boolean wouldhavehit;
             if (thick_skinned(mdef->data) && !rn2(10))
                 pline("%s %s %s your attack.",
                       s_suffix(Monnam(mdef)),
-                      (is_dragon(mdef->data) ? "scaly hide"
-                                             : (mdef->data == &mons[PM_GIANT_TURTLE]
-                                                || is_tortle(mdef->data))
-                                                 ? "protective shell"
-                                                 : is_bone_monster(mdef->data)
-                                                     ? "bony structure"
-                                                     : "thick hide"),
+                      (is_dragon(mdef->data)
+                        ? "scaly hide"
+                        : (mdef->data == &mons[PM_GIANT_TURTLE]
+                           || is_tortle(mdef->data))
+                          ? "protective shell"
+                          : is_bone_monster(mdef->data)
+                            ? "bony structure"
+                            : has_bark(mdef->data)
+                              ? "rough bark" : "thick hide"),
                       (rn2(2) ? "blocks" : "deflects"));
             else
                 You("%smiss %s.",

@@ -748,6 +748,7 @@ unsigned corpseflags;
         break;
     case PM_ENT:
     case PM_ELDER_ENT:
+    case PM_TREE_BLIGHT:
         levl[x][y].typ = DEADTREE;
         newsym(x, y);
         break;

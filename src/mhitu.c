@@ -224,13 +224,15 @@ struct attack *mattk;
             if ((thick_skinned(youmonst.data) || (!Upolyd && Race_if(PM_TORTLE)))
                 && rn2(2)) {
                 Your("%s %s %s attack.",
-                     (is_dragon(youmonst.data) ? "scaly hide"
-                                               : (youmonst.data == &mons[PM_GIANT_TURTLE]
-                                                  || Race_if(PM_TORTLE))
-                                                   ? "protective shell"
-                                                   : is_bone_monster(youmonst.data)
-                                                       ? "bony structure"
-                                                       : "thick hide"),
+                     (is_dragon(youmonst.data)
+                       ? "scaly hide"
+                       : (youmonst.data == &mons[PM_GIANT_TURTLE]
+                          || Race_if(PM_TORTLE))
+                         ? "protective shell"
+                         : is_bone_monster(youmonst.data)
+                           ? "bony structure"
+                           : has_bark(youmonst.data)
+                             ? "rough bark" : "thick hide"),
                       (rn2(2) ? "blocks" : "deflects"),
                       s_suffix(mon_nam(mtmp)));
             } else {
@@ -1130,8 +1132,12 @@ register struct monst *mtmp;
             break;
 
         case AT_HUGS: /* automatic if prev two attacks succeed */
+            /* unless a special case is made, any AT_HUGS attack
+               will not trigger if it is 1st or 2nd in the chain
+               of attacks */
             if ((!ranged && ((i >= 2 && sum[i - 1] && sum[i - 2])
-                             || is_stationary(mdat)))
+                             || is_stationary(mdat)
+                             || mtmp->data == &mons[PM_TREE_BLIGHT]))
                 || mtmp == u.ustuck)
                 sum[i] = hitmu(mtmp, mattk);
             break;
@@ -1680,7 +1686,7 @@ register struct attack *mattk;
                 && !(uarms && uarms->oartifact == ART_ASHMAR)
                 && !(uarm && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION)
                 && (youmonst.data)->msize < MZ_HUGE
-                && !unsolid(youmonst.data) && !rn2(6)) {
+                && !unsolid(youmonst.data) && !u.ustuck && !rn2(6)) {
                 pline("%s knocks you %s with a %s %s!", Monnam(mtmp),
                       u.usteed ? "out of your saddle" : "back",
                       rn2(2) ? "forceful" : "powerful", rn2(2) ? "blow" : "strike");

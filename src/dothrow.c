@@ -2177,7 +2177,8 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
 
     } else if ((otyp == EGG || otyp == CREAM_PIE
                 || otyp == BLINDING_VENOM || otyp == ACID_VENOM
-                || otyp == SNOWBALL || otyp == BALL_OF_WEBBING)
+                || otyp == SNOWBALL || otyp == BALL_OF_WEBBING
+                || otyp == BARBED_NEEDLE)
                && (guaranteed_hit || ACURR(A_DEX) > rnd(25))) {
         (void) hmon(mon, obj, hmode, dieroll);
         return 1; /* hmon used it up */
@@ -2557,6 +2558,7 @@ xchar x, y;
     case BLINDING_VENOM:
     case SNOWBALL:
     case BALL_OF_WEBBING:
+    case BARBED_NEEDLE:
         return 1;
     default:
         return 0;
@@ -2605,6 +2607,9 @@ boolean in_view;
         break;
     case SNOWBALL:
         pline("Thwap!");
+        break;
+    case BARBED_NEEDLE:
+        pline("Thwack!");
         break;
     case DARK_ELVEN_SPEAR:
     case DARK_ELVEN_DAGGER:

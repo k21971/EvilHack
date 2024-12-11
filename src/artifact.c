@@ -1896,6 +1896,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             if (completelyburns(mdef->data)
                 || mdef->data == &mons[PM_WOOD_GOLEM]
                 || mdef->data == &mons[PM_GREEN_SLIME]
+                || (is_blight(mdef->data) && !rn2(8))
                 || (mdef->data == &mons[PM_ENT] && !rn2(8))
                 || (mdef->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                     if (youdefend) {
@@ -2465,6 +2466,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             if (completelyburns(mdef->data)
                 || mdef->data == &mons[PM_WOOD_GOLEM]
                 || mdef->data == &mons[PM_GREEN_SLIME]
+                || (is_blight(mdef->data) && !rn2(8))
                 || (mdef->data == &mons[PM_ENT] && !rn2(8))
                 || (mdef->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                     if (youdefend) {

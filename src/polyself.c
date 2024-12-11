@@ -1358,6 +1358,9 @@ dospit()
         default:
             impossible("bad attack type in dospit");
             /*FALLTHRU*/
+        case AD_DRCO:
+            otmp = mksobj(BARBED_NEEDLE, TRUE, FALSE);
+            break;
         case AD_ACID:
             otmp = mksobj(ACID_VENOM, TRUE, FALSE);
             break;

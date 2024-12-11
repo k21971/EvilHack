@@ -776,7 +776,8 @@ boolean creation;
      * are always intelligent, even if polymorphed).
      */
     if (r_verysmall(mon) || nohands(mon->data)
-        || is_animal(mon->data) || is_ent(mon->data))
+        || is_animal(mon->data) || is_ent(mon->data)
+        || is_plant(mon->data))
         return;
     /* give mummies a chance to wear their wrappings
      * and let skeletons wear their initial armor */

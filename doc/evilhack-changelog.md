@@ -3689,4 +3689,5 @@ The following changes to date are:
 - Skeletons don't have a 'thick hide' exactly
 - New monster: Assassin Vine
 - Add encyclopedia entry for assassin vine
+- New monsters: Twig Blight, Tree Blight, Needle Blight
 

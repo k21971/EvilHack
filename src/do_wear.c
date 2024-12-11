@@ -2319,7 +2319,7 @@ boolean noisy;
     /* this is the same check as for 'W' (dowear), but different message,
        in case we get here via 'P' (doputon) */
     if (verysmall(youmonst.data) || nohands(youmonst.data)
-        || is_ent(youmonst.data)) {
+        || is_ent(youmonst.data) || is_plant(youmonst.data)) {
         if (noisy)
             You("can't wear any armor in your current form.");
         return 0;
@@ -2787,7 +2787,8 @@ dowear()
     /* cantweararm() checks for suits of armor, not what we want here;
        verysmall() or nohands() checks for shields, gloves, etc... */
     if (verysmall(youmonst.data) || nohands(youmonst.data)
-        || Hidinshell || is_ent(youmonst.data)) {
+        || Hidinshell || is_ent(youmonst.data)
+        || is_plant(youmonst.data)) {
         pline("Don't even bother.");
         return 0;
     }

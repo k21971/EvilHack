@@ -77,7 +77,8 @@
      || dmgtype((ptr), AD_RBRE)) /* Tiamat */
 
 #define resists_drain(ptr) \
-    (is_undead(ptr) || is_demon(ptr) || is_were(ptr)            \
+    (is_undead(ptr) || is_demon(ptr)                            \
+     || is_were(ptr) || is_blight(ptr)                          \
      || (ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_CERBERUS] \
      || (ptr) == &mons[PM_BABY_SHADOW_DRAGON]                   \
      || (ptr) == &mons[PM_SHADOW_DRAGON]                        \
@@ -226,7 +227,8 @@
      || (ptr)->mlet == S_UMBER || (ptr)->mlet == S_YETI        \
      || ((ptr)->mlet == S_DEMON && (ptr) != &mons[PM_INCUBUS]  \
          && (ptr) != &mons[PM_SUCCUBUS])                       \
-     || (ptr)->mlet == S_LIZARD || (ptr)->mlet == S_DOG)
+     || (ptr)->mlet == S_LIZARD || (ptr)->mlet == S_DOG        \
+     || is_blight(ptr))
 #define has_claws_undead(ptr) \
     ((ptr)->mlet == S_MUMMY || (ptr)->mlet == S_ZOMBIE       \
      || (ptr)->mlet == S_WRAITH || (ptr)->mlet == S_VAMPIRE  \
@@ -288,6 +290,9 @@
      || (ptr) == &mons[PM_BABY_OWLBEAR]       \
      || (ptr) == &mons[PM_OWLBEAR]            \
      || (ptr) == &mons[PM_FELL_BEAST])
+#define has_bark(ptr) \
+    (is_blight(ptr) || (ptr) == &mons[PM_ENT] \
+     || (ptr) == &mons[PM_ELDER_ENT])
 #define is_rat(ptr) \
     ((ptr) == &mons[PM_SEWER_RAT] || (ptr) == &mons[PM_GIANT_RAT]       \
      || (ptr) == &mons[PM_RABID_RAT] || (ptr) == &mons[PM_ENORMOUS_RAT] \
@@ -299,6 +304,10 @@
 #define is_ent(ptr) ((ptr)->mlet == S_ENT)
 #define is_plant(ptr) ((ptr)->mlet == S_PLANT)
 #define is_satyr(ptr) ((ptr) == &mons[PM_SATYR])
+#define is_blight(ptr) \
+    ((ptr) == &mons[PM_TWIG_BLIGHT]       \
+     || (ptr) == &mons[PM_TREE_BLIGHT]    \
+     || (ptr) == &mons[PM_NEEDLE_BLIGHT])
 #define is_nymph(ptr) \
     ((ptr)->mlet == S_NYMPH && !is_satyr(ptr))
 #define is_skeleton(ptr) ((ptr)->mlet == S_SKELETON)
@@ -349,7 +358,8 @@
 #define strongmonst(ptr) (((ptr)->mflags2 & M2_STRONG) != 0L)
 #define can_breathe(ptr) attacktype(ptr, AT_BREA)
 #define cantwield(ptr) \
-    (nohands(ptr) || verysmall(ptr) || Hidinshell || is_ent(ptr))
+    (nohands(ptr) || verysmall(ptr)                 \
+     || Hidinshell || is_ent(ptr) || is_plant(ptr))
 /* Does this type of monster have multiple weapon attacks?  If so,
    hero poly'd into this form can use two-weapon combat.  It used
    to just check mattk[1] and assume mattk[0], which was suitable
@@ -447,7 +457,7 @@
      || (ptr) == &mons[PM_FROST_SALAMANDER] || (ptr) == &mons[PM_ICE_NYMPH]       \
      || (ptr) == &mons[PM_REVENANT] || (ptr) == &mons[PM_BABY_OWLBEAR]            \
      || (ptr) == &mons[PM_HUMAN_ZOMBIE] || (ptr) == &mons[PM_GIANT_ZOMBIE]        \
-     || (ptr) == &mons[PM_LICH])
+     || (ptr) == &mons[PM_LICH] || is_blight(ptr))
 /* Goblin Town branch defines */
 #define likes_gtown(ptr) \
     ((ptr)->mlet == S_ORC || (ptr)->mlet == S_KOBOLD || is_rat(ptr))

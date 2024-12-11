@@ -1327,6 +1327,7 @@ static const short grownups[][2] = {
     { PM_KOP_LIEUTENANT, PM_KOP_KAPTAIN },
     { PM_BABY_OWLBEAR, PM_OWLBEAR },
     { PM_ENT, PM_ELDER_ENT },
+    { PM_TWIG_BLIGHT, PM_TREE_BLIGHT },
     { NON_PM, NON_PM }
 };
 
@@ -1614,6 +1615,9 @@ int mndx;
     case PM_WOOD_GOLEM:
     case PM_ENT:
     case PM_ELDER_ENT:
+    case PM_TWIG_BLIGHT:
+    case PM_TREE_BLIGHT:
+    case PM_NEEDLE_BLIGHT:
         return WOOD;
     case PM_CLAY_GOLEM:
     case PM_STONE_GOLEM:
