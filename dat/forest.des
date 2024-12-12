@@ -46,7 +46,7 @@ OBJECT:random, random
 IF [30%] {
   MONSTER:'#', random
 }
-MONSTER:'{', random, hostile
+MONSTER:('{',"needle blight"), random, hostile
 }
 
 ROOM: "forest", random, random, random, random

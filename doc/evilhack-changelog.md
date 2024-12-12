@@ -3691,4 +3691,5 @@ The following changes to date are:
 - Add encyclopedia entry for assassin vine
 - New monsters: Twig Blight, Tree Blight, Needle Blight
 - New level and new special room (forest)
+- Tweak assassin vine generation on the new forest level
 

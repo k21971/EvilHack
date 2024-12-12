@@ -817,7 +817,7 @@ struct mkroom *croom; /* NULL == choose random room */
         tried = 0;
         i = rnd(2);
         while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
-            if (!rn2(100) && !OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+            if (!rn2(200) && !OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
                 && !t_at(pos.x, pos.y)) {
                 makemon(&mons[PM_ASSASSIN_VINE], pos.x, pos.y, NO_MM_FLAGS);
                 i--;
