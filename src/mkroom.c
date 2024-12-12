@@ -22,6 +22,7 @@ STATIC_DCL struct mkroom *FDECL(pick_room, (BOOLEAN_P));
 STATIC_DCL void NDECL(mkshop), FDECL(mkzoo, (int)), NDECL(mkswamp);
 STATIC_DCL void NDECL(mktemple);
 STATIC_DCL void FDECL(mkgarden, (struct mkroom *));
+STATIC_DCL void FDECL(mkforest, (struct mkroom *));
 STATIC_DCL coord *FDECL(shrine_pos, (int));
 STATIC_DCL struct permonst *NDECL(morguemon);
 STATIC_DCL struct permonst *NDECL(squadmon);
@@ -73,6 +74,9 @@ int roomtype;
             break;
         case GARDEN:
             mkgarden((struct mkroom *) 0);
+            break;
+        case FOREST:
+            mkforest((struct mkroom *) 0);
             break;
         case TEMPLE:
             mktemple();
@@ -169,6 +173,10 @@ mkshop()
             }
             if (*ep == 'n' || *ep == 'N') {
                 mkgarden((struct mkroom *) 0);
+                return;
+            }
+            if (*ep == 'j' || *ep == 'J') {
+                mkforest((struct mkroom *) 0);
                 return;
             }
             if (*ep == '}') {
@@ -315,6 +323,11 @@ struct mkroom *sroom;
     case GARDEN:
         mkgarden(sroom);
         /* mkgarden() sets flags and we don't want other fillings */
+        return;
+    case FOREST:
+        mkforest(sroom);
+        /* just as with mkgarden(), mkforest() sets flags and we
+           don't want other fillings */
         return;
     case COURT:
         if (level.flags.is_maze_lev) {
@@ -655,7 +668,7 @@ nurserymon()
 }
 
 /** Create a special room with trees, fountains and nymphs.
- * @author Pasi Kallinen
+ * @author Pasi Kallinen, modified by Keith Simpson
  */
 STATIC_OVL void
 mkgarden(croom)
@@ -729,6 +742,84 @@ struct mkroom *croom; /* NULL == choose random room */
                 struct monst *mtmp = makemon(pmon, pos.x, pos.y, NO_MM_FLAGS);
 
                 mtmp->mpeaceful = 0;
+                i--;
+            }
+        }
+    }
+}
+
+/** Create a special room with dead trees and plant-like creatures.
+ * @author Keith Simpson
+ */
+STATIC_OVL void
+mkforest(croom)
+struct mkroom *croom; /* NULL == choose random room */
+{
+    boolean maderoom = FALSE;
+    coord pos;
+    int i, tried, tryct = 0;
+
+    while ((tryct++ < 25) && !maderoom) {
+        struct mkroom *sroom = croom ? croom : &rooms[rn2(nroom)];
+
+        if (sroom->hx < 0
+            || (!croom && (sroom->rtype != OROOM || !sroom->rlit
+                           || has_upstairs(sroom) || has_dnstairs(sroom))))
+            continue;
+
+        sroom->rtype = FOREST;
+        /* create grass */
+        for (pos.x = sroom->lx; pos.x <= sroom->hx; pos.x++) {
+            for (pos.y = sroom->ly; pos.y <= sroom->hy; pos.y++) {
+                if (levl[pos.x][pos.y].typ == ROOM
+                    && !t_at(pos.x, pos.y))
+                    levl[pos.x][pos.y].typ = GRASS;
+            }
+        }
+        maderoom = TRUE;
+        level.flags.has_forest = 1;
+
+        /* create dead trees and shallow water */
+        tried = 0;
+        i = rn1(3, 3);
+        while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
+            if (levl[pos.x][pos.y].typ == GRASS
+                && !OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+                && !t_at(pos.x, pos.y) && !nexttodoor(pos.x, pos.y)) {
+                if (rn2(6)) {
+                    levl[pos.x][pos.y].typ = DEADTREE;
+                } else {
+                    levl[pos.x][pos.y].typ = PUDDLE;
+                }
+                i--;
+            }
+        }
+
+        /* create blights */
+        tried = 0;
+        i = rnd(2);
+        while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
+            if (!OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+                && !t_at(pos.x, pos.y)) {
+                if (rn2(4)) {
+                    if (rn2(3))
+                        makemon(&mons[PM_TWIG_BLIGHT], pos.x, pos.y, NO_MM_FLAGS);
+                    else
+                        makemon(&mons[PM_NEEDLE_BLIGHT], pos.x, pos.y, NO_MM_FLAGS);
+                } else {
+                    makemon(&mons[PM_TREE_BLIGHT], pos.x, pos.y, NO_MM_FLAGS);
+                }
+                i--;
+            }
+        }
+
+        /* create assassin vines */
+        tried = 0;
+        i = rnd(2);
+        while ((tried++ < 50) && (i >= 0) && somexy(sroom, &pos)) {
+            if (!rn2(100) && !OBJ_AT(pos.x, pos.y) && !MON_AT(pos.x, pos.y)
+                && !t_at(pos.x, pos.y)) {
+                makemon(&mons[PM_ASSASSIN_VINE], pos.x, pos.y, NO_MM_FLAGS);
                 i--;
             }
         }

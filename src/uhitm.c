@@ -1817,8 +1817,8 @@ int dieroll;
             if (completelyburns(mon->data)
                 || mon->data == &mons[PM_WOOD_GOLEM]
                 || mon->data == &mons[PM_GREEN_SLIME]
-                || (is_blight(mon->data) && !rn2(8))
-                || (mon->data == &mons[PM_ENT] && !rn2(8))
+                || (is_blight(mon->data) && !rn2(10))
+                || (mon->data == &mons[PM_ENT] && !rn2(10))
                 || (mon->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                 ; /* handled below */
             } else {
@@ -2159,8 +2159,8 @@ int dieroll;
             if (completelyburns(mon->data)
                 || mon->data == &mons[PM_WOOD_GOLEM]
                 || mon->data == &mons[PM_GREEN_SLIME]
-                || (is_blight(mon->data) && !rn2(8))
-                || (mon->data == &mons[PM_ENT] && !rn2(8))
+                || (is_blight(mon->data) && !rn2(10))
+                || (mon->data == &mons[PM_ENT] && !rn2(10))
                 || (mon->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                 if (!already_killed)
                     pline("%s ignites and turns to ash!", Monnam(mon));

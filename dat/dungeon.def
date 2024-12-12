@@ -27,6 +27,7 @@ RNDLEVEL:	"bigrm" "B" @ (10, 3) 40 10
 CHAINBRANCH:	"The Quest" "oracle" + (6, 2) portal
 BRANCH:		"Fort Ludios" @ (18, 4) portal
 LEVEL:		"nymph" "N" @ (8, 12) 45
+LEVEL:		"forest" "J" @ (12, 10) 40
 RNDLEVEL:	"medusa" "none" @ (-5, 4) 4
 LEVALIGN:	chaotic
 CHAINBRANCH:	"The Ice Queen's Realm" "medusa" + (-1, 0) portal

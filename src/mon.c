@@ -749,6 +749,7 @@ unsigned corpseflags;
     case PM_ENT:
     case PM_ELDER_ENT:
     case PM_TREE_BLIGHT:
+    case PM_GULTHIAS_TREE:
         levl[x][y].typ = DEADTREE;
         newsym(x, y);
         break;
@@ -1310,6 +1311,25 @@ mcalcdistress()
                    hit points of the original vine */
                 if (grow)
                     grow->mhp = (grow->mhp / (rn2(3) ? 2 : 3));
+            }
+            continue;
+        }
+
+        /* a gulthias tree will spawn twig or needle blights */
+        if (mtmp->data == &mons[PM_GULTHIAS_TREE]
+            && !mtmp->mcan && (mtmp->mhp >= ((mtmp->mhpmax * 2) / 3))
+            && !rn2(3) && !((monstermoves + mtmp->mnum) % 15)) {
+            int grow_spotx = (mtmp->mx - 1) + rn2(3);
+            int grow_spoty = (mtmp->my - 1) + rn2(3);
+
+            if (goodpos(grow_spotx, grow_spoty, mtmp, 0L)) {
+                if (rn2(6)) {
+                    makemon(&mons[PM_TWIG_BLIGHT], grow_spotx, grow_spoty,
+                            MM_ADJACENTOK | MM_NOCOUNTBIRTH | NO_MINVENT);
+                } else {
+                    makemon(&mons[PM_NEEDLE_BLIGHT], grow_spotx, grow_spoty,
+                            MM_ADJACENTOK | MM_NOCOUNTBIRTH | NO_MINVENT);
+                }
             }
             continue;
         }
@@ -2793,6 +2813,10 @@ struct monst *magr, *mdef;
        players for a chance at redemption */
     if (In_purgatory(&u.uz)
         && is_mplayer(ma) && md == &mons[PM_SPECTRE])
+        return ALLOW_M | ALLOW_TM;
+
+    /* Ents despise blights */
+    if (is_true_ent(ma) && is_blight(md))
         return ALLOW_M | ALLOW_TM;
 
     return 0;

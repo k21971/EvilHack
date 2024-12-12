@@ -2566,6 +2566,7 @@ boolean prefilled;
                                   x, y);
             break;
         case GARDEN:
+        case FOREST:
         case COURT:
         case ZOO:
         case BEEHIVE:
@@ -2590,6 +2591,9 @@ boolean prefilled;
         break;
     case GARDEN:
         level.flags.has_garden = TRUE;
+        break;
+    case FOREST:
+        level.flags.has_forest = TRUE;
         break;
     case COURT:
         level.flags.has_court = TRUE;

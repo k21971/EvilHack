@@ -365,7 +365,7 @@ d_level *lev;
         u_on_newpos(x, y);
         break;
     case LR_PORTAL:
-        if (rtype != GARDEN)
+        if (!(rtype == GARDEN || rtype == FOREST))
             mkportal(x, y, lev->dnum, lev->dlevel);
         break;
     case LR_DOWNSTAIR:

@@ -2979,6 +2979,12 @@ register boolean newlev;
             else
                 You("enter a beautiful garden.");
             break;
+        case FOREST:
+            if (Blind)
+                pline_The("air here smells musty.");
+            else
+                You("enter a dark, decaying forest.");
+            break;
         case SWAMP:
             pline("It %s rather %s down here.", Blind ? "feels" : "looks",
                   Blind ? "humid" : "muddy");
@@ -3059,6 +3065,9 @@ register boolean newlev;
                 case GARDEN:
                     level.flags.has_garden = 0;
                     break;
+                case FOREST:
+                    level.flags.has_forest = 0;
+                    break;
                 case SWAMP:
                     level.flags.has_swamp = 0;
                     break;
@@ -3087,7 +3096,9 @@ register boolean newlev;
                 for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                     if (DEADMONSTER(mtmp))
                         continue;
-                    if (!Stealth && !rn2(3))
+                    if (!Stealth && !rn2(3)
+                        && !is_plant(mtmp->data)
+                        && !is_ent(mtmp->data))
                         mtmp->msleeping = 0;
                 }
         }

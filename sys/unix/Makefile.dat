@@ -135,14 +135,15 @@ options:	../util/makedefs
 vaults.dat:	spec_levs
 
 spec_levs: ../util/lev_comp \
-	bigroom.des castle.des endgame.des gehennom.des goblintown.des \
-	hdgn.des icequeen.des knox.des medusa.des mines.des nymph.des \
-	oracle.des purgatory.des sokoban.des tower.des vecna.des \
-	yendor.des vaults.des
+	bigroom.des castle.des endgame.des forest.des gehennom.des \
+	goblintown.des hdgn.des icequeen.des knox.des medusa.des \
+	mines.des nymph.des oracle.des purgatory.des sokoban.des \
+	tower.des vecna.des yendor.des vaults.des
 	-rm -f vaults.dat
 	../util/lev_comp bigroom.des
 	../util/lev_comp castle.des
 	../util/lev_comp endgame.des
+	../util/lev_comp forest.des
 	../util/lev_comp gehennom.des
 	../util/lev_comp goblintown.des
 	../util/lev_comp hdgn.des

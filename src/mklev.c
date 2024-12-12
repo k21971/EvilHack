@@ -764,6 +764,7 @@ clear_level_structures()
     level.flags.has_temple = 0;
     level.flags.has_swamp = 0;
     level.flags.has_garden = 0;
+    level.flags.has_forest = 0;
     level.flags.noteleport = 0;
     level.flags.hardfloor = 0;
     level.flags.nommap = 0;
@@ -966,6 +967,8 @@ makelevel()
         else if (u_depth > 10 && !rn2(7)
                  && !(mvitals[PM_BABY_OWLBEAR].mvflags & G_GONE))
             mkroom(OWLBNEST);
+        else if (u_depth > 11 && !rn2(6))
+            mkroom(FOREST);
         else if (u_depth > 11 && !rn2(6))
             mkroom(MORGUE);
         else if (u_depth > 12 && !rn2(8) && antholemon())
@@ -1339,7 +1342,9 @@ coord *mp;
 
         if (!somexyspace(croom, mp, 2)) {
             if (!somexyspace(croom, mp, 0)
-                && !In_hell(&u.uz) && !Is_nymph(&u.uz))
+                && !In_hell(&u.uz)
+                && !Is_nymph(&u.uz)
+                && !Is_forest(&u.uz))
                 impossible("Can't place branch!");
         }
     }

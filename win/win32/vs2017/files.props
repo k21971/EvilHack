@@ -36,6 +36,7 @@
     <Desfiles Include = "convict.des"/>
     <Desfiles Include = "druid.des"/>
     <Desfiles Include = "endgame.des"/>
+    <Desfiles Include = "forest.des"/>
     <Desfiles Include = "gehennom.des"/>
     <Desfiles Include = "goblintown.des"/>
     <Desfiles Include = "hdgn.des"/>
@@ -81,6 +82,7 @@
     <Levfiles Include = "astral.lev"/>
     <Levfiles Include = "earth.lev"/>
     <Levfiles Include = "fire.lev"/>
+    <Levfiles Include = "forest.lev"/>
     <Levfiles Include = "water.lev"/>
     <Levfiles Include = "hella-1.lev"/>
     <Levfiles Include = "hella-2.lev"/>

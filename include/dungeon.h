@@ -133,6 +133,7 @@ typedef struct branch {
 #define Is_nemesis(x)         (Lcheck(x, &nemesis_level))
 #define Is_knox(x)            (Lcheck(x, &knox_level))
 #define Is_nymph(x)           (Lcheck(x, &nymph_level))
+#define Is_forest(x)          (Lcheck(x, &forest_level))
 #define Is_mineend_level(x)   (Lcheck(x, &mineend_level))
 #define Is_minetn_level(x)    (Lcheck(x, &minetn_level))
 #define Is_sokoend_level(x)   (Lcheck(x, &sokoend_level))
@@ -254,6 +255,7 @@ typedef struct mapseen {
         Bitfield(sokosolved, 1);
         Bitfield(bigroom, 1);
         Bitfield(nymph, 1);
+        Bitfield(forest, 1);
         Bitfield(castle, 1);
         Bitfield(castletune, 1); /* add tune hint to castle annotation */
 

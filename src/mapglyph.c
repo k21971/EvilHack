@@ -175,6 +175,8 @@ unsigned mgflags;
                 color = CLR_YELLOW;
             else if (getroomtype(x, y) == GARDEN)
                 color = CLR_GREEN;
+            else if (getroomtype(x, y) == FOREST)
+                color = CLR_BLACK;
             else if (getroomtype(x, y) == COCKNEST)
                 color = CLR_GREEN;
             else if (getroomtype(x, y) == ANTHOLE)

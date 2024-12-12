@@ -4481,7 +4481,13 @@ register struct monst *mtmp;
         } else {
             appear = S_deadtree;
         }
-
+    } else if (rt == FOREST) {
+        ap_type = M_AP_FURNITURE;
+        if (rn2(8)) {
+            appear = S_deadtree;
+        } else {
+            appear = S_tree;
+        }
     /*
      * We won't bother with beehives, morgues, barracks, throne rooms
      * since they shouldn't contain too many mimics anyway...

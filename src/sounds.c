@@ -81,12 +81,22 @@ dosounds()
     }
     if (level.flags.has_garden && !rn2(200)) {
         static const char *garden_msg[4] = {
-            "hear crickets chirping!",
-            "hear birds singing!",
-            "hear grass growing!",
-            "hear wind in the willows!",
+            "hear crickets chirping.",
+            "hear birds singing.",
+            "hear the grass growing!",
+            "hear the wind in the willows!",
         };
         You1(garden_msg[rn2(2) + 2 * hallu]);
+        return;
+    }
+    if (level.flags.has_forest && !rn2(200)) {
+        static const char *forest_msg[4] = {
+            "hear a distant, mournful howl.",
+            "hear rustling leaves.",
+            "hear the color purple!",
+            "hear a mattress flollop!",
+        };
+        You1(forest_msg[rn2(2) + 2 * hallu]);
         return;
     }
     if (level.flags.has_swamp && !rn2(200)) {

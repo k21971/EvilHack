@@ -1618,6 +1618,7 @@ int mndx;
     case PM_TWIG_BLIGHT:
     case PM_TREE_BLIGHT:
     case PM_NEEDLE_BLIGHT:
+    case PM_GULTHIAS_TREE:
         return WOOD;
     case PM_CLAY_GOLEM:
     case PM_STONE_GOLEM:

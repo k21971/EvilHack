@@ -187,7 +187,7 @@
 #define slithy(ptr) (((ptr)->mflags1 & M1_SLITHY) != 0L)
 #define is_wooden(ptr) \
     ((ptr) == &mons[PM_WOOD_GOLEM] || (ptr) == &mons[PM_ENT] \
-     || (ptr) == &mons[PM_ELDER_ENT])
+     || (ptr) == &mons[PM_ELDER_ENT] || is_blight(ptr))
 #define is_bone_monster(ptr) \
     ((ptr) == &mons[PM_BONE_DEVIL] || is_skeleton(ptr))
 #define thick_skinned(ptr) (((ptr)->mflags1 & M1_THICK_HIDE) != 0L)
@@ -304,10 +304,15 @@
 #define is_ent(ptr) ((ptr)->mlet == S_ENT)
 #define is_plant(ptr) ((ptr)->mlet == S_PLANT)
 #define is_satyr(ptr) ((ptr) == &mons[PM_SATYR])
+#define is_true_ent(ptr) \
+    ((ptr) == &mons[PM_ENT]               \
+     || (ptr) == &mons[PM_ELDER_ENT]      \
+     || (ptr) == &mons[PM_PETRIFIED_ENT])
 #define is_blight(ptr) \
     ((ptr) == &mons[PM_TWIG_BLIGHT]       \
      || (ptr) == &mons[PM_TREE_BLIGHT]    \
-     || (ptr) == &mons[PM_NEEDLE_BLIGHT])
+     || (ptr) == &mons[PM_NEEDLE_BLIGHT]  \
+     || (ptr) == &mons[PM_GULTHIAS_TREE])
 #define is_nymph(ptr) \
     ((ptr)->mlet == S_NYMPH && !is_satyr(ptr))
 #define is_skeleton(ptr) ((ptr)->mlet == S_SKELETON)
