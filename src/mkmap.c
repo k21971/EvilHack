@@ -572,11 +572,13 @@ boolean notpool;
         } else if (levl[cx][cy].typ == SEWAGE) {
             if (u.uz.dlevel >= 5) {
                 (void) makemon(rn2(3) ? &mons[PM_GIANT_LEECH]
-                                      : rn2(8) ? &mons[PM_GIANT_COCKROACH]
-                                               : &mons[PM_CROCODILE], cx, cy, NO_MM_FLAGS);
+                                      : rn2(3) ? &mons[PM_GIANT_COCKROACH]
+                                               : rn2(8) ? &mons[PM_CREEPING_MOUND]
+                                                        : &mons[PM_CROCODILE], cx, cy, NO_MM_FLAGS);
             } else {
                 (void) makemon(rn2(3) ? &mons[PM_GIANT_LEECH]
-                                      : &mons[PM_GIANT_COCKROACH], cx, cy, NO_MM_FLAGS);
+                                      : rn2(5) ? &mons[PM_GIANT_COCKROACH]
+                                               : &mons[PM_CREEPING_MOUND], cx, cy, NO_MM_FLAGS);
             }
             monstcount--;
         }

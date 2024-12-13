@@ -2131,7 +2131,7 @@ bury_you()
 
         u.uburied = TRUE;
         if (!Strangled && !Breathless)
-            Strangled = 6;
+            Strangled = 6L;
         under_ground(1);
     }
 }

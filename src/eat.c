@@ -109,6 +109,9 @@ register struct obj *obj;
     if (u.umonnum == PM_HONEY_BADGER && is_royaljelly(obj))
         return TRUE;
 
+    if (u.umonnum == PM_CREEPING_MOUND && all_food(obj))
+        return TRUE;
+
     /* return (boolean) !!index(comestibles, obj->oclass); */
     return (boolean) (obj->oclass == FOOD_CLASS);
 }

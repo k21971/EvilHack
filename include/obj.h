@@ -296,8 +296,9 @@ struct obj {
 #define is_gnomish_armor(otmp) (FALSE)
 
 #define spit_object(otmp) \
-    ((otmp)->otyp == ACID_VENOM || (otmp)->otyp == BLINDING_VENOM    \
-     || (otmp)->otyp == SNOWBALL || (otmp)->otyp == BALL_OF_WEBBING)
+    ((otmp)->otyp == ACID_VENOM || (otmp)->otyp == BLINDING_VENOM   \
+     || (otmp)->otyp == SNOWBALL || (otmp)->otyp == BALL_OF_WEBBING \
+     || (otmp)->otyp == BARBED_NEEDLE)
 
 /* Eggs and other food */
 #define MAX_EGG_HATCH_TIME 200 /* longest an egg can remain unhatched */
@@ -309,7 +310,7 @@ struct obj {
                     || dmgtype(&mons[(obj)->corpsenm], AD_POLY)))
 #define mlevelgain(obj) (ofood(obj) && (obj)->corpsenm == PM_WRAITH)
 #define mhealup(obj) (ofood(obj) && (obj)->corpsenm == PM_NURSE)
-#define is_royaljelly(o) (o->otyp == LUMP_OF_ROYAL_JELLY)
+#define is_royaljelly(o) ((o)->otyp == LUMP_OF_ROYAL_JELLY)
 #define Is_pudding(o) \
     (o->otyp == GLOB_OF_GRAY_OOZE || o->otyp == GLOB_OF_BROWN_PUDDING \
      || o->otyp == GLOB_OF_GREEN_SLIME || o->otyp == GLOB_OF_BLACK_PUDDING)
@@ -319,6 +320,8 @@ struct obj {
                     || (obj)->corpsenm == PM_HOBGOBLIN   \
                     || (obj)->corpsenm == PM_BAT         \
                     || (obj)->corpsenm == PM_GIANT_BAT))
+#define all_food(o) \
+    ((ofood(o) || (o)->oclass == FOOD_CLASS) && (o)->otyp != TIN)
 
 /* Containers */
 #define carried(o) ((o)->where == OBJ_INVENT)

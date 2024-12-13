@@ -3937,8 +3937,9 @@ struct permonst _mons2[] = {
         M1_SWIM | M1_AMPHIBIOUS | M1_ANIMAL | M1_THICK_HIDE | M1_NOHANDS
             | M1_OVIPAROUS | M1_CARNIVORE,
         M2_STRONG | M2_HOSTILE, 0, 0, 0, 15, CLR_BROWN),
-    /* tree/plant-like creatures */
-    /* S_ENT */
+    /*
+     * tree-like creatures
+     */
     MON("ent", S_ENT, LVL(10, 5, 0, 20, 0), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 6, 6), ATTK(AT_CLAW, AD_CLOB, 6, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
@@ -3981,7 +3982,19 @@ struct permonst _mons2[] = {
         M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_ROCKTHROW
             | M2_NEUTER | M2_PRINCE | M2_NASTY,
         M3_STATIONARY, M4_VULNERABLE_FIRE, 0, 23, HI_LORD),
-    /* S_PLANT */
+    /*
+     * plant-like creatures
+     */
+    MON("creeping mound", S_PLANT, LVL(6, 9, 0, 0, 0),
+        (G_NOHELL | G_GENO | 1),
+        A(ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_ENGL, AD_WRAP, 2, 6),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(800, 500, MS_SILENT, MZ_LARGE),
+        MR_SLEEP | MR_POISON | MR_COLD | MR_FIRE, 0,
+        M1_BREATHLESS | M1_NOEYES | M1_NOHEAD | M1_MINDLESS
+            | M1_NOTAKE | M1_OMNIVORE,
+        M2_WANDER | M2_HOSTILE | M2_STRONG | M2_NEUTER,
+        0, M4_VULNERABLE_ACID, 0, 7, CLR_YELLOW),
     MON("twig blight", S_PLANT, LVL(6, 10, 3, 15, -10),
         (G_NOHELL | G_SGROUP | G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_CLAW, AD_PHYS, 2, 4),

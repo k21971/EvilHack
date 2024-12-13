@@ -2024,6 +2024,12 @@ register int after;
                     return 2; /* it died */
             }
 
+            /* Maybe a creeping mound ate all the food */
+            if (ptr == &mons[PM_CREEPING_MOUND]) {
+                if (meatfood(mtmp) == 2)
+                    return 2; /* it died */
+            }
+
             /* Maybe Gollum had a snack */
             if (ptr == &mons[PM_GOLLUM]) {
                 if (gollum_eat(mtmp) == 2)

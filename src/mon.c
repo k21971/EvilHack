@@ -1874,6 +1874,112 @@ register struct monst *mtmp;
     return 0;
 }
 
+/* monster eats all the food */
+int
+meatfood(mtmp) /* for creeping mound */
+struct monst *mtmp;
+{
+    struct obj *otmp, *otmp2;
+    struct permonst *ptr, *original_ptr = mtmp->data;
+    int poly, grow, heal, eyes, count = 0, ecount = 0;
+    char buf[BUFSZ];
+
+    buf[0] = '\0';
+    /* If a pet, eating is handled separately, in dog.c */
+    if (mtmp->mtame)
+        return 0;
+
+    for (otmp = level.objects[mtmp->mx][mtmp->my]; otmp; otmp = otmp2) {
+        otmp2 = otmp->nexthere;
+
+        /* touch sensitive items */
+        if (otmp->otyp == CORPSE && is_rider(&mons[otmp->corpsenm])) {
+            /* Rider corpse isn't just inedible; can't engulf it either */
+            (void) revive_corpse(otmp);
+
+        /* untouchable (or inaccessible) items */
+        } else if ((otmp->otyp == CORPSE
+                    && touch_petrifies(&mons[otmp->corpsenm])
+                    && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))) {
+            /* do nothing--neither eaten nor engulfed */
+            continue;
+
+        /* inedible items -- engulf these */
+        } else if (((otmp->otyp == CORPSE || otmp->otyp == EGG
+                     || otmp->globby)
+                    && ((touch_petrifies(&mons[otmp->corpsenm])
+                         && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
+                        || (otmp->corpsenm == PM_GREEN_SLIME
+                            && !slimeproof(mtmp->data))))) {
+            /* engulf */
+            ++ecount;
+            if (ecount == 1)
+                Sprintf(buf, "%s engulfs %s.", Monnam(mtmp),
+                        distant_name(otmp, doname));
+            else if (ecount == 2)
+                Sprintf(buf, "%s engulfs several objects.", Monnam(mtmp));
+            obj_extract_self(otmp);
+            (void) mpickobj(mtmp, otmp); /* slurp */
+
+        /* lastly, edible items; yum! */
+        } else {
+            /* devour */
+            if (!all_food(otmp))
+                continue;
+            ++count;
+            if (cansee(mtmp->mx, mtmp->my)) {
+                if (flags.verbose)
+                    pline("%s eats %s!", Monnam(mtmp),
+                          distant_name(otmp, doname));
+            } else {
+                if (!Deaf && flags.verbose)
+                    You_hear("a slurping sound.");
+            }
+            /* Heal up to the object's weight in hp */
+            if (mtmp->mhp < mtmp->mhpmax) {
+                mtmp->mhp += objects[otmp->otyp].oc_weight;
+                if (mtmp->mhp > mtmp->mhpmax)
+                    mtmp->mhp = mtmp->mhpmax;
+            }
+            /* possibility of being turned to stone or into slime can't
+               reach here (don't touch for cockatrice corpse, engulf rather
+               than eat for tin, cockatrice egg, or glob of green slime) */
+            poly = polyfodder(otmp);
+            grow = mlevelgain(otmp);
+            heal = mhealup(otmp);
+            eyes = (otmp->otyp == CARROT);
+            delobj(otmp); /* munch */
+            ptr = mtmp->data;
+            if (poly) {
+                if (newcham(mtmp, (struct permonst *) 0, FALSE, FALSE))
+                    ptr = mtmp->data;
+            } else if (grow) {
+                ptr = grow_up(mtmp, (struct monst *) 0);
+            } else if (heal) {
+                mtmp->mhp = mtmp->mhpmax;
+            }
+            if ((eyes || heal) && !mtmp->mcansee)
+                mcureblindness(mtmp, canseemon(mtmp));
+            /* in case it polymorphed or died */
+            if (ptr != original_ptr)
+                return !ptr ? 2 : 1;
+        }
+
+        /* Engulf & devour is instant, so don't set meating */
+        if (mtmp->minvis)
+            newsym(mtmp->mx, mtmp->my);
+    }
+
+    if (ecount > 0) {
+        if (cansee(mtmp->mx, mtmp->my) && flags.verbose && buf[0])
+            pline1(buf);
+        else if (!Deaf && flags.verbose)
+            You_hear("%s slurping sound%s.",
+                     (ecount == 1) ? "a" : "several", plur(ecount));
+    }
+    return (count > 0 || ecount > 0) ? 1 : 0;
+}
+
 /* corpses Gollum will eat */
 int
 gollum_eat(mtmp)

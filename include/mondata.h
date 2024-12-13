@@ -462,7 +462,7 @@
      || (ptr) == &mons[PM_FROST_SALAMANDER] || (ptr) == &mons[PM_ICE_NYMPH]       \
      || (ptr) == &mons[PM_REVENANT] || (ptr) == &mons[PM_BABY_OWLBEAR]            \
      || (ptr) == &mons[PM_HUMAN_ZOMBIE] || (ptr) == &mons[PM_GIANT_ZOMBIE]        \
-     || (ptr) == &mons[PM_LICH] || is_blight(ptr))
+     || (ptr) == &mons[PM_LICH])
 /* Goblin Town branch defines */
 #define likes_gtown(ptr) \
     ((ptr)->mlet == S_ORC || (ptr)->mlet == S_KOBOLD || is_rat(ptr))
@@ -472,7 +472,8 @@
      || (ptr)->mlet == S_UNICORN || (ptr)->mlet == S_CENTAUR           \
      || (ptr)->mlet == S_JABBERWOCK || (ptr)->mlet == S_ENT            \
      || ((ptr) >= &mons[PM_ARCHEOLOGIST] && (ptr) <= &mons[PM_WIZARD]) \
-     || (ptr) == &mons[PM_SPECTRE] || (ptr) == &mons[PM_GHOST])
+     || (ptr) == &mons[PM_SPECTRE] || (ptr) == &mons[PM_GHOST]         \
+     || (ptr)->mlet == S_PLANT)
 
 /* macros for various monsters affected by specific types of damage */
 #define can_vaporize(ptr) \

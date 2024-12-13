@@ -348,10 +348,10 @@ MONSTER:'m',random
 MONSTER:'m',random
 MONSTER:(';',"jellyfish"),random
 MONSTER:(';',"jellyfish"),random
-MONSTER:('w',"giant leech"),(12,02)
+MONSTER:('{',"creeping mound"),(12,02)
 MONSTER:('w',"giant leech"),(13,06)
 MONSTER:('w',"giant leech"),(11,10)
-MONSTER:('w',"giant leech"),(16,14)
+MONSTER:('{',"creeping mound"),(16,14)
 MONSTER:('a',"giant cockroach"),random
 MONSTER:('a',"giant cockroach"),random
 MONSTER:('a',"giant cockroach"),random
@@ -1383,12 +1383,12 @@ MONSTER:(';',"shark"),random,hostile
 MONSTER:(';',"shark"),random,hostile
 MONSTER:(';',"shark"),random,hostile
 MONSTER:('w',"giant leech"),(01,09)
-MONSTER:('w',"giant leech"),(17,14)
+MONSTER:('{',"creeping mound"),(17,14)
 MONSTER:('w',"giant leech"),(18,06)
-MONSTER:('w',"giant leech"),(41,05)
+MONSTER:('{',"creeping mound"),(41,05)
 MONSTER:('w',"giant leech"),(41,12)
 MONSTER:('w',"giant leech"),(58,09)
-MONSTER:('w',"giant leech"),(59,04)
+MONSTER:('{',"creeping mound"),(59,04)
 MONSTER:('w',"giant leech"),(59,14)
 # a bit of loot
 OBJECT:'[',random

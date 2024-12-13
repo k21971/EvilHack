@@ -2940,8 +2940,8 @@ struct attack *mattk;
         } else if (!Strangled) {
             if (!old_uswallow)
                 pline("It's impossible to breathe in here!");
-            Strangled = 4; /* xNetHack sets this timer for 5, GruntHack had it for 3.
-                            * we'll meet in the middle. */
+            Strangled = 4L; /* xNetHack sets this timer for 5, GruntHack had it for 3.
+                             * we'll meet in the middle. */
             tmp = 0;
             /* Immediate timeout message: "You find it hard to breathe." */
         }
