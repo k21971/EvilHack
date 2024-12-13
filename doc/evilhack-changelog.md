@@ -3693,4 +3693,5 @@ The following changes to date are:
 - New level and new special room (forest)
 - Tweak assassin vine generation on the new forest level
 - New monster: Creeping Mound
+- New monsters: Grizzly Bear, Cave Bear
 

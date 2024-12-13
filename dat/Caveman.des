@@ -173,7 +173,7 @@ MONSTER:('o',"bugbear"),(34,07),hostile
 MONSTER:('o',"bugbear"),random,hostile
 MONSTER:('o',"bugbear"),random,hostile
 MONSTER:('o',"bugbear"),random,hostile
-MONSTER:('o',"bugbear"),random,hostile
+MONSTER:('q',"cave bear"),random,hostile
 MONSTER:'o',random,hostile
 MONSTER:'H',random,hostile
 MONSTER:('H',"hill giant"),(03,12),hostile
@@ -181,8 +181,8 @@ MONSTER:('H',"hill giant"),(20,17),hostile
 MONSTER:('H',"hill giant"),(35,08),hostile
 MONSTER:('H',"hill giant"),random,hostile
 MONSTER:('H',"hill giant"),random,hostile
-MONSTER:('H',"hill giant"),random,hostile
-MONSTER:('H',"hill giant"),random,hostile
+MONSTER:('q',"cave bear"),random,hostile
+MONSTER:('q',"cave bear"),random,hostile
 MONSTER:'H',random,hostile
 WALLIFY
 
@@ -296,7 +296,7 @@ MONSTER: ('o', "bugbear"), random, hostile
 MONSTER: ('o', "bugbear"), random, hostile
 MONSTER: ('o', "bugbear"), random, hostile
 MONSTER: ('o', "bugbear"), random, hostile
-MONSTER: ('o', "bugbear"), random, hostile
+MONSTER: ('q', "cave bear"), random, hostile
 MONSTER: 'o', random, hostile
 MONSTER: ('H', "hill giant"), random, hostile
 
@@ -328,7 +328,7 @@ TRAP: random, random
 MONSTER: ('o', "bugbear"), random, hostile
 MONSTER: ('o', "bugbear"), random, hostile
 MONSTER: ('o', "bugbear"), random, hostile
-MONSTER: ('o', "bugbear"), random, hostile
+MONSTER: ('q', "cave bear"), random, hostile
 MONSTER: 'o', random, hostile
 MONSTER: 'o', random, hostile
 MONSTER: ('H', "hill giant"), random, hostile

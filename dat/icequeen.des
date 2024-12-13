@@ -344,7 +344,7 @@ MONSTER:('&',"ice devil"),(70,12)
 # Main zoo augment
 MONSTER:('q',"mastodon"),(50,08)
 MONSTER:('T',"ice troll"),(50,09)
-MONSTER:('T',"ice troll"),(50,10)
+MONSTER:('q',"cave bear"),(50,10)
 MONSTER:('q',"woolly mammoth"),(50,11)
 
 # Mini-foyer

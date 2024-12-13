@@ -1328,6 +1328,7 @@ static const short grownups[][2] = {
     { PM_BABY_OWLBEAR, PM_OWLBEAR },
     { PM_ENT, PM_ELDER_ENT },
     { PM_TWIG_BLIGHT, PM_TREE_BLIGHT },
+    { PM_GRIZZLY_BEAR, PM_CAVE_BEAR },
     { NON_PM, NON_PM }
 };
 
@@ -1629,6 +1630,7 @@ int mndx;
     case PM_IRON_GOLEM:
         return IRON;
     case PM_ASSASSIN_VINE:
+    case PM_CREEPING_MOUND:
         return VEGGY;
     default:
         return 0;
