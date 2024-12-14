@@ -3696,4 +3696,5 @@ The following changes to date are:
 - New monsters: Grizzly Bear, Cave Bear
 - New monsters: Deer, Stag
 - Fix: Stags aren't meant to appear in groups
+- New monsters: Wolverine, Dire Wolverine
 

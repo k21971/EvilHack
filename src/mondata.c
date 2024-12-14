@@ -1330,6 +1330,7 @@ static const short grownups[][2] = {
     { PM_ENT, PM_ELDER_ENT },
     { PM_TWIG_BLIGHT, PM_TREE_BLIGHT },
     { PM_GRIZZLY_BEAR, PM_CAVE_BEAR },
+    { PM_WOLVERINE, PM_DIRE_WOLVERINE },
     { NON_PM, NON_PM }
 };
 

@@ -1117,6 +1117,22 @@ NEARDATA struct permonst mons[] = {
         M1_ANIMAL | M1_NOHANDS | M1_OMNIVORE | M1_TUNNEL | M1_THICK_HIDE,
         M2_HOSTILE | M2_STRONG, M3_INFRAVISIBLE,
         0, 0, 12, CLR_BLACK),
+    MON("wolverine", S_RODENT,
+        LVL(12, 12, 2, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_CLAW, AD_PHYS, 2, 8), ATTK(AT_CLAW, AD_PHYS, 2, 8),
+          ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(250, 150, MS_GROWL, MZ_SMALL), MR_COLD, 0,
+        M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE | M1_THICK_HIDE,
+        M2_HOSTILE | M2_STRONG | M2_STALK,
+        M3_INFRAVISIBLE | M3_BERSERK, 0, 0, 14, CLR_ORANGE),
+    MON("dire wolverine", S_RODENT,
+        LVL(16, 14, 0, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_CLAW, AD_PHYS, 3, 6), ATTK(AT_CLAW, AD_PHYS, 3, 6),
+          ATTK(AT_BITE, AD_PHYS, 2, 8), NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(500, 250, MS_GROWL, MZ_MEDIUM), MR_COLD, 0,
+        M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE | M1_THICK_HIDE,
+        M2_HOSTILE | M2_STRONG | M2_STALK,
+        M3_INFRAVISIBLE | M3_BERSERK, 0, 0, 17, CLR_ORANGE),
     /*
      * spiders & scorpions (keep webmaker() in sync if new critters are added)
      */
