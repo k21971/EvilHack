@@ -3695,4 +3695,5 @@ The following changes to date are:
 - New monster: Creeping Mound
 - New monsters: Grizzly Bear, Cave Bear
 - New monsters: Deer, Stag
+- Fix: Stags aren't meant to appear in groups
 
