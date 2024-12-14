@@ -4292,7 +4292,9 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                     verb = "kick";
                     break;
                 case AT_BUTT:
-                    verb = (has_trunk(youmonst.data)) ? "gore" : "head butt";
+                    verb = (has_trunk(youmonst.data)
+                            || num_horns(youmonst.data) > 0) ? "gore"
+                                                             : "head butt";
                     break;
                 case AT_BITE:
                     verb = (has_beak(youmonst.data)) ? "peck" : "bite";

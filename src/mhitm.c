@@ -892,8 +892,9 @@ int dieroll;
                 Sprintf(buf, "%s stings", magr_name);
                 break;
             case AT_BUTT:
-                Sprintf(buf, "%s %ss", magr_name, has_trunk(magr->data) ?
-                        "gore" : "butt");
+                Sprintf(buf, "%s %ss", magr_name,
+                        (has_trunk(magr->data)
+                         || num_horns(magr->data) > 0) ? "gore" : "butt");
                 break;
             case AT_TUCH:
                 if (magr->data == &mons[PM_DEATH])

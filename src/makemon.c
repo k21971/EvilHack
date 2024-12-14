@@ -217,20 +217,36 @@ int x, y, n, mmflags;
        form in groups are excluded (example: giant rat to
        enormous rat is too great of a jump in difficulty) */
     if (cnt >= 3 && !peace_minded(mtmp)) {
-        leader = monsndx(mtmp->data);
-        if (little_to_big(leader) != NON_PM
-            && !(is_bat(mtmp->data)
-                 || is_rat(mtmp->data)
-                 || is_spider(mtmp->data)))
-            leader = little_to_big(leader);
-        if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
-            mon = makemon(&mons[leader],
-                          mm.x, mm.y, (mmflags | MM_NOGRP));
-            if (mon) {
-                mon->mpeaceful = FALSE;
-                mon->mavenge = 0;
-                set_malign(mon);
-                cnt--;
+        /* deer don't grow up into stags, so special
+           handling is called for */
+        if (mtmp->data == &mons[PM_DEER]) {
+            leader = PM_STAG;
+            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+                mon = makemon(&mons[leader],
+                              mm.x, mm.y, (mmflags | MM_NOGRP));
+                if (mon) {
+                    mon->mpeaceful = FALSE;
+                    mon->mavenge = 0;
+                    set_malign(mon);
+                    cnt--;
+                }
+            }
+        } else {
+            leader = monsndx(mtmp->data);
+            if (little_to_big(leader) != NON_PM
+                && !(is_bat(mtmp->data)
+                     || is_rat(mtmp->data)
+                     || is_spider(mtmp->data)))
+                leader = little_to_big(leader);
+            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+                mon = makemon(&mons[leader],
+                              mm.x, mm.y, (mmflags | MM_NOGRP));
+                if (mon) {
+                    mon->mpeaceful = FALSE;
+                    mon->mavenge = 0;
+                    set_malign(mon);
+                    cnt--;
+                }
             }
         }
     }

@@ -3694,4 +3694,5 @@ The following changes to date are:
 - Tweak assassin vine generation on the new forest level
 - New monster: Creeping Mound
 - New monsters: Grizzly Bear, Cave Bear
+- New monsters: Deer, Stag
 
