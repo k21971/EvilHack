@@ -3698,4 +3698,5 @@ The following changes to date are:
 - Fix: Stags aren't meant to appear in groups
 - New monsters: Wolverine, Dire Wolverine
 - Setup defines for woodland creatures and beings
+- Add some of the newer monsters to has_claws()
 

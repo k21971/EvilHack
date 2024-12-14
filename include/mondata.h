@@ -214,21 +214,23 @@
      || (ptr) == &mons[PM_NEOTHELID] || (ptr) == &mons[PM_TORTLE_SHAMAN]          \
      || (ptr) == &mons[PM_DROW_MAGE] || (ptr) == &mons[PM_DROW_CLERIC])
 #define has_claws(ptr) \
-    (is_gnoll(ptr)                                             \
-     || (is_illithid(ptr)                                      \
-         && !((ptr) == &mons[PM_MIND_FLAYER_LARVA]             \
-              || (ptr) == &mons[PM_NEOTHELID]))                \
-     || (ptr)->mlet == S_COCKATRICE || (ptr)->mlet == S_FELINE \
-     || (ptr)->mlet == S_GREMLIN || (ptr)->mlet == S_IMP       \
-     || (ptr)->mlet == S_MIMIC || (ptr)->mlet == S_SPIDER      \
-     || (ptr)->mlet == S_ENT || (ptr)->mlet == S_BAT           \
-     || (ptr)->mlet == S_DRAGON || (ptr)->mlet == S_JABBERWOCK \
-     || (ptr)->mlet == S_RUSTMONST || (ptr)->mlet == S_TROLL   \
-     || (ptr)->mlet == S_UMBER || (ptr)->mlet == S_YETI        \
-     || ((ptr)->mlet == S_DEMON && (ptr) != &mons[PM_INCUBUS]  \
-         && (ptr) != &mons[PM_SUCCUBUS])                       \
-     || (ptr)->mlet == S_LIZARD || (ptr)->mlet == S_DOG        \
-     || is_blight(ptr))
+    (is_gnoll(ptr)                                                       \
+     || (is_illithid(ptr)                                                \
+         && !((ptr) == &mons[PM_MIND_FLAYER_LARVA]                       \
+              || (ptr) == &mons[PM_NEOTHELID]))                          \
+     || (ptr)->mlet == S_COCKATRICE || (ptr)->mlet == S_FELINE           \
+     || (ptr)->mlet == S_GREMLIN || (ptr)->mlet == S_IMP                 \
+     || (ptr)->mlet == S_MIMIC || (ptr)->mlet == S_SPIDER                \
+     || (ptr)->mlet == S_ENT || (ptr)->mlet == S_BAT                     \
+     || (ptr)->mlet == S_DRAGON || (ptr)->mlet == S_JABBERWOCK           \
+     || (ptr)->mlet == S_RUSTMONST || (ptr)->mlet == S_TROLL             \
+     || (ptr)->mlet == S_UMBER || (ptr)->mlet == S_YETI                  \
+     || ((ptr)->mlet == S_DEMON && (ptr) != &mons[PM_INCUBUS]            \
+         && (ptr) != &mons[PM_SUCCUBUS])                                 \
+     || (ptr)->mlet == S_LIZARD || (ptr)->mlet == S_DOG                  \
+     || is_blight(ptr) || (ptr) == &mons[PM_DIRE_WOLVERINE]              \
+     || (ptr) == &mons[PM_WOLVERINE] || (ptr) == &mons[PM_HONEY_BADGER]  \
+     || (ptr) == &mons[PM_GRIZZLY_BEAR] || (ptr) == &mons[PM_CAVE_BEAR])
 #define has_claws_undead(ptr) \
     ((ptr)->mlet == S_MUMMY || (ptr)->mlet == S_ZOMBIE       \
      || (ptr)->mlet == S_WRAITH || (ptr)->mlet == S_VAMPIRE  \
