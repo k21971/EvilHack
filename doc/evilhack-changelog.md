@@ -3700,4 +3700,5 @@ The following changes to date are:
 - Setup defines for woodland creatures and beings
 - Add some of the newer monsters to has_claws()
 - Fix: winter wolf/hell hound alignment
+- Fix: depreciation warning using 'cp -n' during compile
 
