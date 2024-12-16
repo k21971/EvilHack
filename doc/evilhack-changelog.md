@@ -3702,4 +3702,6 @@ The following changes to date are:
 - Fix: winter wolf/hell hound alignment
 - Fix: depreciation warning using 'cp -n' during compile
 - Wolverines are not affected by onscary()
+- Attempt to force github workflow to use gcc13 for linux
+  build
 

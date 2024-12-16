@@ -15,6 +15,12 @@ jobs:
       HINTS_FILE: linux-debug.gha
     steps:
     - uses: actions/checkout@v4
+    - name: use newer version of gcc
+      if: matrix.configurations.os == "ubuntu-latest"
+      run: |
+        sudo apt install gcc-13 g++-13
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 --slave /usr/bin/g++ g++ /usr/bin/g++-13 --slave /usr/bin/gcov gcov /usr/bin/gcov-13
+        sudo update-alternatives --set gcc /usr/bin/gcc-13
     - name: setup
       run: ./sys/unix/setup.sh sys/unix/hints/$HINTS_FILE
     - name: make all
