@@ -3701,4 +3701,5 @@ The following changes to date are:
 - Add some of the newer monsters to has_claws()
 - Fix: winter wolf/hell hound alignment
 - Fix: depreciation warning using 'cp -n' during compile
+- Wolverines are not affected by onscary()
 

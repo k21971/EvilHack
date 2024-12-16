@@ -207,13 +207,14 @@ struct monst *mtmp;
     /* creatures who are directly resistant to magical scaring:
      * Rodney, lawful minions, Angels, Archangels, the Riders,
      * Vecna, the Goblin King, monster players, demon lords and princes,
-     * honey badgers, shopkeepers inside their own shop, anything that
-     * is mindless, priests inside their own temple, the quest leaders
-     * and nemesis, neothelids, beholders, other unique creatures
+     * honey badgers, wolverines, shopkeepers inside their own shop,
+     * anything that is mindless, priests inside their own temple, the
+     * quest leaders and nemesis, neothelids, beholders, other unique creatures
      */
     if (mtmp->iswiz || is_lminion(mtmp) || mtmp->data == &mons[PM_ANGEL]
         || mtmp->data == &mons[PM_ARCHANGEL] || mtmp->data == &mons[PM_HONEY_BADGER]
         || mtmp->data == &mons[PM_BEHOLDER] || mtmp->data == &mons[PM_NEOTHELID]
+        || mtmp->data == &mons[PM_WOLVERINE] || mtmp->data == &mons[PM_DIRE_WOLVERINE]
         || mindless(mtmp->data) || is_mplayer(mtmp->data) || is_rider(mtmp->data)
         || mtmp->isvecna || mtmp->isvlad || mtmp->isgking || mtmp->istalgath
         || mtmp->data->mlet == S_HUMAN || unique_corpstat(mtmp->data)
@@ -245,7 +246,7 @@ struct monst *mtmp;
      * Creatures who don't (or can't) fear a written Elbereth:
      * all the above plus shopkeepers (even if poly'd into non-human),
      * vault guards (also even if poly'd), blind or peaceful monsters,
-     * humans and elves, honey badgers, and minotaurs.
+     * humans and elves, honey badgers, wolverines, and minotaurs.
      *
      * If the player isn't actually on the square OR the player's image
      * isn't displaced to the square, no protection is being granted.
