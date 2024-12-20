@@ -1974,6 +1974,17 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
         }
     }
 
+    if (obj->otyp == POT_BOOZE && is_satyr(mon->data)) {
+        if (mon->msleeping || ! mon->mcanmove) {
+            /* get hit/missed by potion as normal */
+            ;
+        } else {
+            pline("%s happily catches the bottle.", Monnam(mon));
+            mpickobj(mon, obj);
+            return 1;
+        }
+    }
+
     /* don't make game unwinnable if naive player throws artifact
        at leader... (kicked artifact is ok too; HMON_APPLIED could
        occur if quest artifact polearm or grapnel ever gets added) */

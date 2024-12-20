@@ -3711,4 +3711,5 @@ The following changes to date are:
 - Redo stats for grizzly bear/cave bear
 - Complete the Druid quest levels
 - Fix: monsters can wield two-handed weapons while wearing bracers
+- Satyrs enjoy booze
 
