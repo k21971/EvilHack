@@ -8,25 +8,101 @@
 #	Elanee, and receive your quest assignment.
 #
 MAZE: "Dru-strt",' '
-FLAGS: noteleport,hardfloor
-GEOMETRY:center,center
+FLAGS: noteleport,hardfloor,arboreal
+INIT_MAP:mines,'.','.',true,true,lit,false
+REPLACE_TERRAIN:(00,00,78,20),'.','g',100%
+REPLACE_TERRAIN:(00,00,78,20),'g','T',30%
+REPLACE_TERRAIN:(00,00,78,20),'T','t',10%
+GEOMETRY:right,center
+#         1         2         3         4         5         6         7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
-gggggggggggggggggggggggg
-gggggggggggggggggggggggg
-gggggggggggggggggggggggg
-gggggggggggggggggggggggg
-gggggggggggggggggggggggg
-gggggggggggggggggggggggg
+ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggggggggggggggggggggggggggggggggggggggggggggggTTTTTTTgggggggg
+ggggggggggggggggggggggggggggggggggggggggggggTTTTTTTTTTTgggggg
+gggggggggggggggggggggggggggggggggggggggggggTTgggggggggTTggggg
+ggggggggggggggggggggggggggggggggggggggggggTTgggggggggggTTgggg
+gggggggggggggggggggggggggggggggggggggggggTTgggggggggggggTTTTg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggTg
+gggggggggggggggggggggggggggggggggggggggggTTgggggggggggggTTTTg
+ggggggggggggggggggggggggggggggggggggggggggTTgggggggggggTTgggg
+gggggggggggggggggggggggggggggggggggggggggggTTgggggggggTTggggg
+ggggggggggggggggggggggggggggggggggggggggggggTTTTTTTTTTTgggggg
+ggggggggggggggggggggggggggggggggggggggggggggggTTTTTTTgggggggg
+ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 ENDMAP
-
 # Dungeon Description
-REGION:(00,00,75,19),lit,"ordinary"
+REGION:(00,00,60,20),lit,"ordinary"
 # Stairs
-STAIR:(01,01),down
+STAIR:(58,11),down
 # Portal arrival point
-BRANCH:(04,04,04,04),(0,0,0,0)
-# Leader
-MONSTER:('@',"Elanee"),(02,02)
+BRANCH:levregion(01,01,06,18),(00,00,60,20)
+TELEPORT_REGION:levregion(01,01,06,18),(00,00,60,20)
+# populate trees in REGION area
+REPLACE_TERRAIN:(00,00,39,20),'g','T',30%
+REPLACE_TERRAIN:(00,00,39,20),'T','t',10%
+REPLACE_TERRAIN:(40,00,60,05),'g','T',30%
+REPLACE_TERRAIN:(40,00,60,05),'T','t',10%
+REPLACE_TERRAIN:(40,17,60,20),'g','T',30%
+REPLACE_TERRAIN:(40,17,60,20),'T','t',10%
+# Elanee
+MONSTER:('@',"Elanee"),(53,11)
+# Magic chest
+MAGIC_CHEST:(56,11)
+# Guards for the audience chamber
+MONSTER:('@',"aspirant"),(43,10)
+MONSTER:('@',"aspirant"),(43,12)
+MONSTER:('@',"aspirant"),(45,08)
+MONSTER:('@',"aspirant"),(45,14)
+MONSTER:('@',"aspirant"),(53,08)
+MONSTER:('@',"aspirant"),(53,14)
+MONSTER:('@',"aspirant"),(55,10)
+MONSTER:('@',"aspirant"),(55,12)
+# Fountains
+FOUNTAIN:(49,09)
+FOUNTAIN:(49,13)
+# Traps
+TRAP:"pit",random
+TRAP:"pit",random
+TRAP:"spiked pit",random
+TRAP:"spiked pit",random
+# Monsters
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('{',"assassin vine"),random,hostile
+MONSTER:('{',"creeping mound"),random,hostile
+MONSTER:('{',"twig blight"),random,hostile
+MONSTER:('{',"twig blight"),random,hostile
+MONSTER:('{',"needle blight"),random,hostile
+MONSTER:('{',"needle blight"),random,hostile
+MONSTER:('#',"tree blight"),random,hostile
+MONSTER:('#',"tree blight"),random,hostile
+MONSTER:('u',"deer"),random
+MONSTER:('u',"deer"),random
+MONSTER:('u',"stag"),random
+MONSTER:'#',random
+
+# Non diggable walls
+NON_DIGGABLE:(41,06,59,16)
+
 
 #
 #	The "locate" level for the quest.
@@ -37,22 +113,95 @@ MONSTER:('@',"Elanee"),(02,02)
 
 MAZE: "Dru-loca",' '
 FLAGS: hardfloor
-#
-INIT_MAP: mines, '.' , 't', true , true , lit , false
-GEOMETRY:center,center
+INIT_MAP: mines,'.','.',true,true,lit,false
+REPLACE_TERRAIN:(00,00,78,20),'.','g',100%
+REPLACE_TERRAIN:(00,00,78,20),'g','t',25%
+REPLACE_TERRAIN:(00,00,78,20),'t','T',10%
+GEOMETRY:left,center
+#         1         2         3         4         5         6         7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
-........................
-........................
-........................
-........................
-........................
-........................
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggggg----S----gggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggg---.......---gggggggggggggggggggggggggggggggggggggggggggggggggggggg
+g---...-----...---gggggggggggggggggggggggggggggggggggggggggggggggggggg
+g|....|-...-|....|gggggggggggggggggggggggggggggggggggggggggggggggggggg
+g|....S.....S....|gggggggggggggggggggggggggggggggggggggggggggggggggggg
+g|....|-...-|....|gggggggggggggggggggggggggggggggggggggggggggggggggggg
+g---...-----...---gggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggg---.......---gggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggggg----S----gggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 ENDMAP
 # Dungeon Description
-REGION:(00,00,30,09),lit,"ordinary"
+REGION:(00,00,69,20),lit,"ordinary"
 # Stairs
-STAIR:(04,04),up
-STAIR:(08,08),down
+STAIR:(09,13),down
+STAIR:levregion(69,02,78,18),levregion(69,02,64,18),up
+# Branch info
+BRANCH:levregion(69,02,78,18),levregion(69,02,64,18)
+TELEPORT_REGION:levregion(69,02,78,18),levregion(69,02,64,18)
+# populate trees in REGION area
+REPLACE_TERRAIN:(19,00,69,20),'g','t',25%
+REPLACE_TERRAIN:(19,00,69,20),'t','T',10%
+REPLACE_TERRAIN:(00,00,19,08),'g','t',25%
+REPLACE_TERRAIN:(00,00,19,08),'t','T',10%
+REPLACE_TERRAIN:(00,18,19,20),'g','t',25%
+REPLACE_TERRAIN:(00,18,19,20),'t','T',10%
+# Objects
+OBJECT: random,random
+OBJECT: random,random
+OBJECT: random,random
+OBJECT: random,random
+# Traps
+TRAP:"pit",random
+TRAP:"pit",random
+TRAP:"spiked pit",random
+TRAP:"spiked pit",random
+TRAP:"bear",random
+TRAP:"bear",random
+# Monsters
+MONSTER:('q',"cave bear"),(04,13),hostile
+MONSTER:('r',"dire wolverine"),(14,13),hostile
+MONSTER:('{',"assassin vine"),(09,12),hostile
+MONSTER:('{',"assassin vine"),(09,14),hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('{',"creeping mound"),random,hostile
+MONSTER:('{',"creeping mound"),random,hostile
+MONSTER:('{',"twig blight"),random,hostile
+MONSTER:('{',"twig blight"),random,hostile
+MONSTER:('{',"needle blight"),random,hostile
+MONSTER:('#',"tree blight"),random,hostile
+MONSTER:('#',"tree blight"),random,hostile
+MONSTER:('#',"gulthias tree"),random,hostile
+MONSTER:'#',random
+
+# Non diggable walls
+NON_DIGGABLE:(02,09,17,17)
+
 
 #
 #	The "goal" level for the quest.
@@ -63,24 +212,48 @@ STAIR:(08,08),down
 #
 
 MAZE: "Dru-goal", ' '
-#
-INIT_MAP: mines, '.' , 't' , false , true , lit , false
+INIT_MAP: mines,'.','t',false,true,lit,false
+REPLACE_TERRAIN:(00,00,78,20),'.','g',100%
 GEOMETRY:center,center
+#         1         2         3         4         5         6         7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
-........................
-........................
-........................
-........................
-........................
-........................
+t...ttttttttttttt...t
+...tt...........tt...
+..tt.............tt..
+.....................
+..tt.............tt..
+...tt...........tt...
+t...ttttttttttttt...t
 ENDMAP
 # Dungeon Description
-REGION:(00,00,40,11),lit,"ordinary"
+REGION:(00,00,20,06),lit,"ordinary"
 # Stairs
-STAIR:(04,04),up
+STAIR:levregion(72,02,78,18),levregion(72,02,64,18),up
 # Nemesis
-MONSTER:('@',"Baba Yaga"),(02,02)
-OBJECT:('[',"runed bracers"),(02,02),blessed,0,name:"Bracers of the First Circle"
+MONSTER:('@',"Baba Yaga"),(10,03)
+OBJECT:('[',"runed bracers"),(10,03),blessed,0,name:"Bracers of the First Circle"
+# Traps
+TRAP:"spiked pit",(03,03)
+TRAP:"spiked pit",(17,03)
+# Monsters
+MONSTER:('z',"skeleton warrior"),(04,02),hostile
+MONSTER:('z',"skeleton warrior"),(04,04),hostile
+MONSTER:('z',"skeleton warrior"),(05,01),hostile
+MONSTER:('z',"skeleton warrior"),(05,05),hostile
+MONSTER:('z',"skeleton warrior"),(16,02),hostile
+MONSTER:('z',"skeleton warrior"),(16,04),hostile
+MONSTER:('z',"skeleton warrior"),(15,01),hostile
+MONSTER:('z',"skeleton warrior"),(15,05),hostile
+MONSTER:('{',"assassin vine"),(00,03),hostile
+MONSTER:('{',"assassin vine"),(20,03),hostile
+MONSTER:('#',"tree blight"),(10,01),hostile
+MONSTER:('#',"tree blight"),(10,05),hostile
+MONSTER:('#',"gulthias tree"),random,hostile
+
+# Non diggable walls
+NON_DIGGABLE:(00,00,20,06)
+
 
 #
 #	The "fill" levels for the quest.
@@ -92,33 +265,90 @@ OBJECT:('[',"runed bracers"),(02,02),blessed,0,name:"Bracers of the First Circle
 #
 
 MAZE: "Dru-fila" , 't'
-INIT_MAP: mines, '.' , 't' , false , true , lit , false
+INIT_MAP: mines,'.','t',false,true,lit,false
 NOMAP
-# some vegetation is still alive
-REPLACE_TERRAIN:(0,0,78,20),'t','T', 25%
-REPLACE_TERRAIN:(0,0,78,20),'.','g', 25%
-#
-STAIR: random, up
-STAIR: random, down
-#
-OBJECT: random, random
-#
-MONSTER: ('r', "enormous rat"), random
-#
-TRAP: random, random
+# some trees are still alive
+REPLACE_TERRAIN:(00,00,78,20),'t','T',25%
+REPLACE_TERRAIN:(00,00,78,20),'.','g',100%
+# Stairs
+STAIR: random,up
+STAIR: random,down
+# Objects
+OBJECT: random,random
+OBJECT: random,random
+OBJECT: random,random
+# Traps
+TRAP:"pit",random
+TRAP:"pit",random
+TRAP:"spiked pit",random
+TRAP:"spiked pit",random
+TRAP:"bear",random
+TRAP:"bear",random
+# Monsters
+MONSTER:('q',"grizzly bear"),random,hostile
+MONSTER:('r',"wolverine"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('{',"assassin vine"),random,hostile
+MONSTER:('{',"creeping mound"),random,hostile
+MONSTER:('{',"twig blight"),random,hostile
+MONSTER:('{',"twig blight"),random,hostile
+MONSTER:('{',"needle blight"),random,hostile
+MONSTER:('{',"needle blight"),random,hostile
+MONSTER:('#',"tree blight"),random,hostile
+MONSTER:'#',random
+
 
 MAZE: "Dru-filb" , 't'
-INIT_MAP: mines, '.' , 't' , false , true , lit , false
+INIT_MAP: mines,'.','t',false,true,lit,false
 NOMAP
-# very little vegetation is still alive
-REPLACE_TERRAIN:(0,0,78,20),'t','T', 2%
-REPLACE_TERRAIN:(0,0,78,20),'.','g', 5%
-#
-STAIR: random, up
-STAIR: random, down
-#
-OBJECT: random, random
-#
-MONSTER: ('r', "enormous rat"), random
-#
-TRAP: random, random
+# very little trees are still alive
+REPLACE_TERRAIN:(00,00,78,20),'t','T',2%
+REPLACE_TERRAIN:(00,00,78,20),'.','g',100%
+# Stairs
+STAIR: random,up
+STAIR: random,down
+# Objects
+OBJECT: random,random
+OBJECT: random,random
+OBJECT: random,random
+# Traps
+TRAP:"pit",random
+TRAP:"pit",random
+TRAP:"spiked pit",random
+TRAP:"spiked pit",random
+TRAP:"bear",random
+TRAP:"bear",random
+# Monsters
+MONSTER:('q',"cave bear"),random,hostile
+MONSTER:('r',"dire wolverine"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('z',"skeleton warrior"),random,hostile
+MONSTER:('{',"assassin vine"),random,hostile
+MONSTER:('{',"creeping mound"),random,hostile
+MONSTER:('{',"twig blight"),random,hostile
+MONSTER:('{',"twig blight"),random,hostile
+MONSTER:('{',"needle blight"),random,hostile
+MONSTER:('{',"needle blight"),random,hostile
+MONSTER:('#',"tree blight"),random,hostile
+MONSTER:'#',random

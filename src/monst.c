@@ -1496,7 +1496,7 @@ NEARDATA struct permonst mons[] = {
      * skeletons
      */
     MON("skeleton", S_SKELETON, LVL(4, 8, 4, 50, -3),
-        (G_GENO | G_SGROUP | G_NOCORPSE | 1),
+        (G_GENO | G_SGROUP | G_NOCORPSE | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(300, 5, MS_BONES, MZ_HUMAN),
@@ -4015,8 +4015,7 @@ struct permonst _mons2[] = {
         MR_SLEEP | MR_POISON | MR_STONE, 0,
         M1_THICK_HIDE, M2_STRONG | M2_ROCKTHROW,
         M3_INFRAVISION, 0, 0, 18, CLR_GRAY),
-    MON("gulthias tree", S_ENT, LVL(20, 10, -6, 50, -15),
-        (G_UNIQ | G_NOGEN | 1),
+    MON("gulthias tree", S_ENT, LVL(20, 10, -6, 50, -15), G_NOGEN,
         A(ATTK(AT_CLAW, AD_PHYS, 6, 8), ATTK(AT_CLAW, AD_PHYS, 6, 8),
           ATTK(AT_HUGS, AD_PHYS, 6, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(8000, 5000, MS_SILENT, MZ_GIGANTIC),

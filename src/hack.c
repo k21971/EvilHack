@@ -993,7 +993,9 @@ int mode;
         }
     }
     if (dx && dy && bad_rock(&youmonst, ux, y)
-        && bad_rock(&youmonst, x, uy)) {
+        && bad_rock(&youmonst, x, uy)
+        && !(Role_if(PM_DRUID) && IS_TREES(levl[ux][y].typ)
+             && IS_TREES(levl[x][uy].typ))) {
         /* Move at a diagonal. */
         switch (cant_squeeze_thru(&youmonst)) {
         case 3:

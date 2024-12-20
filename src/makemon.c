@@ -231,6 +231,25 @@ int x, y, n, mmflags;
                     cnt--;
                 }
             }
+        /* regular skeletons do not grow up into skeleton
+           warriors, the level difference between the two
+           is too great, so special handling is required
+           here as well. a skeleton warrior will only appear
+           with a group of regular skeletons if the player
+           is experience level 10 or greater */
+        } else if (mtmp->data == &mons[PM_SKELETON]
+                   && u.ulevel >= 10) {
+            leader = PM_SKELETON_WARRIOR;
+            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+                mon = makemon(&mons[leader],
+                              mm.x, mm.y, (mmflags | MM_NOGRP));
+                if (mon) {
+                    mon->mpeaceful = FALSE;
+                    mon->mavenge = 0;
+                    set_malign(mon);
+                    cnt--;
+                }
+            }
         } else {
             leader = monsndx(mtmp->data);
             if (little_to_big(leader) != NON_PM
@@ -1391,7 +1410,8 @@ register struct monst *mtmp;
                 w2 = KNIFE;
             if (w2)
                 (void) mongets(mtmp, w2);
-        } else if (racial_elf(mtmp) && !Ingtown) {
+        } else if (racial_elf(mtmp) && !Ingtown
+                   && mm != PM_ELANEE) {
             if (rn2(2))
                 (void) mongets(mtmp,
                  (rn2(2) && (mm == PM_GREY_ELF || mm == PM_ELVEN_NOBLE
@@ -1549,6 +1569,28 @@ register struct monst *mtmp;
         } else if (mm == PM_TWOFLOWER) {
             (void) mongets(mtmp, EXPENSIVE_CAMERA);
             (void) mongets(mtmp, HAWAIIAN_SHIRT);
+        } else if (mm == PM_ELANEE) {
+            struct obj* received;
+            int item = 0;
+
+            item = QUARTERSTAFF;
+            otmp = mksobj(item, FALSE, FALSE);
+            bless(otmp);
+            maybe_erodeproof(otmp, 1);
+            otmp->spe = rnd(2) + 1;
+            (void) mpickobj(mtmp, otmp);
+            received = m_carrying(mtmp, item);
+            if (received)
+                set_material(received, WOOD);
+
+            item = BRACERS;
+            (void) mongets(mtmp, item);
+            received = m_carrying(mtmp, item);
+            if (received)
+                set_material(received, LEATHER);
+
+            (void) mongets(mtmp, ELVEN_CLOAK);
+            (void) mongets(mtmp, ELVEN_BOOTS);
         } else if (mm == PM_MEDUSA) {
             (void) mongets(mtmp, ORCISH_BOW);
             /* 25 to 40 arrows */
@@ -1586,7 +1628,6 @@ register struct monst *mtmp;
             /* quest "guardians" */
             switch (mm) {
             case PM_STUDENT:
-            case PM_ASPIRANT:
             case PM_ATTENDANT:
             case PM_CULTIST:
             case PM_ABBOT:
@@ -1637,10 +1678,36 @@ register struct monst *mtmp;
                 (void) mongets(mtmp, CLUB);
                 (void) mongets(mtmp, ARMOR);
                 break;
+            case PM_ASPIRANT: {
+                struct obj* received;
+                int item = 0;
+
+                if (rn2(3))
+                    (void) mongets(mtmp, rn2(3) ? LOW_BOOTS : HIGH_BOOTS);
+                if (!rn2(3))
+                    (void) mongets(mtmp, CLOAK);
+                if (rn2(3))
+                    (void) mongets(mtmp, POT_HEALING);
+
+                item = rn2(3) ? QUARTERSTAFF : SCIMITAR;
+                (void) mongets(mtmp, item);
+                received = m_carrying(mtmp, item);
+                if (received && (item == QUARTERSTAFF))
+                    set_material(received, WOOD);
+
+                if (rn2(2)) {
+                    item = BRACERS;
+                    (void) mongets(mtmp, item);
+                    received = m_carrying(mtmp, item);
+                    if (received)
+                        set_material(received, LEATHER);
+                }
+                break;
+            }
             }
         } else if (mm == PM_CROESUS) {
             struct obj* received;
-            int item;
+            int item = 0;
 
             item = TWO_HANDED_SWORD;
             (void) mongets(mtmp, item);
@@ -1716,7 +1783,7 @@ register struct monst *mtmp;
             /* Saint Michael */
             if (is_prince(ptr)) {
                 struct obj* received;
-                int item;
+                int item = 0;
 
                 item = RUNESWORD;
                 otmp = mksobj(item, FALSE, FALSE);
@@ -2576,7 +2643,7 @@ register struct monst *mtmp;
     case S_ORC:
         if (ptr == &mons[PM_GOBLIN_KING]) {
             struct obj* received;
-            int item;
+            int item = 0;
 
             item = QUARTERSTAFF;
             (void) mongets(mtmp, item);

@@ -3709,4 +3709,5 @@ The following changes to date are:
 - Attempt #3 to force github workflow to use gcc13 for
   linux build
 - Redo stats for grizzly bear/cave bear
+- Complete the Druid quest levels
 
