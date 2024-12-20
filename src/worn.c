@@ -795,8 +795,7 @@ boolean creation;
     if (!cantweararm(mon) || r_data(mon)->msize == MZ_SMALL)
         m_dowear_type(mon, W_ARMC, creation, FALSE);
     m_dowear_type(mon, W_ARMH, creation, FALSE);
-    if (!mw || !bimanual(mw))
-        m_dowear_type(mon, W_ARMS, creation, FALSE);
+    m_dowear_type(mon, W_ARMS, creation, FALSE);
 
     /* Two ring per monster; ring takes up a "hand" slot */
     if (!(mw && bimanual(mw) && mw->cursed && mw->otyp != CORPSE)
@@ -889,6 +888,10 @@ boolean racialexception;
         case W_ARMS:
             if (!(is_shield(obj) || is_bracer(obj)))
                 continue;
+            /* no two-handed weapons with shields */
+            if (!is_bracer(obj))
+                if (MON_WEP(mon) && bimanual(MON_WEP(mon)))
+                    continue;
             break;
         case W_ARMG:
             if (!is_gloves(obj)
