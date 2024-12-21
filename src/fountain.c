@@ -303,6 +303,26 @@ register struct obj *obj;
         return;
     }
 
+    /* handle various object coatings */
+    if (obj->greased) {
+        obj->greased = 0;
+        if (!Blind)
+            pline_The("grease on %s burns away.",
+                      ysimple_name(obj));
+    }
+    if (obj->opoisoned) {
+        obj->opoisoned = 0;
+        if (!Blind)
+            pline_The("poisonous coating on %s boils away.",
+                      ysimple_name(obj));
+    }
+    if (obj->otainted) {
+        obj->otainted = 0;
+        if (!Blind)
+            pline_The("inky coating on %s boils away.",
+                      ysimple_name(obj));
+    }
+
 result:
     switch (rnd(30)) {
     case 6:
@@ -635,12 +655,12 @@ doforging(void)
             return 1;
         } else if (artitype) {
             /* success */
-            output = mk_particular_artifact(artitype);
-
             You("place %s, then %s inside the forge.",
                 the(xname(obj1)), the(xname(obj2)));
             pline("Raising your %s, you begin to forge the artifacts together...",
                   xname(uwep));
+
+            output = mk_particular_artifact(artitype);
 
             /* if objects are enchanted or have charges,
                carry that over, and use the greater of the two */
@@ -655,11 +675,12 @@ doforging(void)
             /* transfer curses and blessings from secondary object */
             output->cursed = obj2->cursed;
             output->blessed = obj2->blessed;
-            /* ensure the final product is not degraded or poisoned
-               in any way */
+            /* ensure the final product is not degraded or coated
+               with anything in any way */
             output->oeroded = output->oeroded2 = 0;
             output->opoisoned = 0;
             output->otainted = 0;
+            output->greased = 0;
 
             /* delete recipe objects - use delobj_core() directly
                to handle the Sword of Annihilation potentially
@@ -773,11 +794,12 @@ doforging(void)
             /* transfer curses and blessings from secondary object */
             output->cursed = obj2->cursed;
             output->blessed = obj2->blessed;
-            /* ensure the final product is not degraded or poisoned
-               in any way */
+            /* ensure the final product is not degraded or coated
+               with anything in any way */
             output->oeroded = output->oeroded2 = 0;
             output->opoisoned = 0;
             output->otainted = 0;
+            output->greased = 0;
 
             /* toss out old objects, add new one */
             if (obj1->otyp == recipe->typ1)

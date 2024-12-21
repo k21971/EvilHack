@@ -3716,4 +3716,5 @@ The following changes to date are:
 - Include satyr, chance of random nymphs on some of the Druid
   quest levels
 - Fix: memory leak from magic fountain effect
+- Fix: forges and objects coated in various substances
 
