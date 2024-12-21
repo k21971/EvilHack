@@ -3712,4 +3712,5 @@ The following changes to date are:
 - Complete the Druid quest levels
 - Fix: monsters can wield two-handed weapons while wearing bracers
 - Satyrs enjoy booze
+- Code formatting from last commit
 

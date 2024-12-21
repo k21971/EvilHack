@@ -2811,6 +2811,11 @@ struct obj *start;
 
         /* Monsters shouldn't recognize cursed items; this kludge is */
         /* necessary to prevent serious problems though... */
+        if (obj->otyp == POT_BOOZE
+            && is_satyr(mtmp->data)) {
+            m.misc = obj;
+            m.has_misc = MUSE_POT_BOOZE;
+        }
         if (obj->otyp == POT_GAIN_LEVEL
             && (!obj->cursed
                 || (!mtmp->isgd && !mtmp->isshk && !mtmp->ispriest))) {
@@ -3438,8 +3443,8 @@ struct monst *mtmp;
                              range ? "nearby" : "in the distance");
                 }
             } else if (vismon) {
-                pline("%s plays its %s, producing %s melody.",
-                      Monnam(mtmp), xname(otmp),
+                pline("%s plays %s %s, producing %s melody.",
+                      Monnam(mtmp), mhis(mtmp), xname(otmp),
                       rn2(2) ? "a beautiful" : "an enchanting");
                 if (oseen)
                     makeknown(otmp->otyp);
@@ -3488,28 +3493,29 @@ struct monst *mtmp;
         }
         return 0;
     case MUSE_POT_BOOZE:
-        {
-            mquaffmsg(mtmp, otmp);
+        mquaffmsg(mtmp, otmp);
+        if (vismon)
+            pline("%s looks confused.", Monnam(mtmp));
+        if (mtmp->mtame && mtmp->mtame < 20) {
+            mtmp->mtame++;
+        } else if (otmp->cursed) {
             if (vismon)
-                pline("%s looks confused.", Monnam(mtmp));
-            if (mtmp->mtame && mtmp->mtame < 20) {
-                mtmp->mtame++;
-            } else if (otmp->cursed) {
-                if (vismon)
-                    pline("He flies into a drunken rage!");
-                mtmp->mpeaceful = 0;
-                mtmp->mberserk = 1;
-            } else {
-                if (vismon)
-                    pline("He is sated.");
-                mtmp->mpeaceful = 1;
-            }
-            mtmp->mconf = 1;
-            m_useup(mtmp, otmp);
-            if (oseen)
-                makeknown(POT_BOOZE);
-            return 2;
+                pline("He flies into a drunken rage!");
+            mtmp->mpeaceful = 0;
+            mtmp->mberserk = 1;
+        } else {
+            if (vismon)
+                pline("He is sated.");
+            mtmp->mpeaceful = 1;
         }
+        mtmp->mconf = 1;
+        m_useup(mtmp, otmp);
+        if (oseen)
+            makeknown(POT_BOOZE);
+        /* refresh symbol when changing from hostile to
+           peaceful or vice versa */
+        newsym(mtmp->mx, mtmp->my);
+        return 2;
     case 0:
         return 0; /* i.e. an exploded wand */
     default:

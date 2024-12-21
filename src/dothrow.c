@@ -1975,7 +1975,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
     }
 
     if (obj->otyp == POT_BOOZE && is_satyr(mon->data)) {
-        if (mon->msleeping || ! mon->mcanmove) {
+        if (mon->msleeping || !mon->mcanmove) {
             /* get hit/missed by potion as normal */
             ;
         } else {
