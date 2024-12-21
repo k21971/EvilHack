@@ -3713,4 +3713,6 @@ The following changes to date are:
 - Fix: monsters can wield two-handed weapons while wearing bracers
 - Satyrs enjoy booze
 - Code formatting from last commit
+- Include satyr, chance of random nymphs on some of the Druid
+  quest levels
 

@@ -98,6 +98,7 @@ MONSTER:('#',"tree blight"),random,hostile
 MONSTER:('u',"deer"),random
 MONSTER:('u',"deer"),random
 MONSTER:('u',"stag"),random
+MONSTER:('n',"satyr"),random
 MONSTER:'#',random
 
 # Non diggable walls
@@ -307,6 +308,7 @@ MONSTER:('{',"needle blight"),random,hostile
 MONSTER:('{',"needle blight"),random,hostile
 MONSTER:('#',"tree blight"),random,hostile
 MONSTER:'#',random
+MONSTER:'n',random
 
 
 MAZE: "Dru-filb" , 't'
@@ -352,3 +354,5 @@ MONSTER:('{',"needle blight"),random,hostile
 MONSTER:('{',"needle blight"),random,hostile
 MONSTER:('#',"tree blight"),random,hostile
 MONSTER:'#',random
+MONSTER:'n',random
+
