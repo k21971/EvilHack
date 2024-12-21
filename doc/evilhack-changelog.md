@@ -3715,4 +3715,5 @@ The following changes to date are:
 - Code formatting from last commit
 - Include satyr, chance of random nymphs on some of the Druid
   quest levels
+- Fix: memory leak from magic fountain effect
 

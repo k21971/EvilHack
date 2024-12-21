@@ -848,12 +848,14 @@ drinkfountain()
         pseudo->cursed = 0;
         pseudo->blessed = 1;
         peffects(pseudo);
+        obfree(pseudo, (struct obj *) 0);
 
         /* gain ability, blessed if "natural" luck is high */
         pseudo = mksobj(POT_GAIN_ABILITY, FALSE, FALSE);
         pseudo->cursed = 0;
         pseudo->blessed = !littleluck;
         peffects(pseudo);
+        obfree(pseudo, (struct obj *) 0);
 
         display_nhwindow(WIN_MESSAGE, FALSE);
         pline("A wisp of vapor escapes the fountain...");
