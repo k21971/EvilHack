@@ -118,7 +118,6 @@ char *argv[];
         if (argcheck(argc, argv, ARG_SHOWPATHS) == 2) {
             deferred_showpaths = TRUE;
             deferred_showpaths_dir = (char *) 0;
-            return;
         }
         if (argcheck(argc, argv, ARG_DEBUG) == 1) {
             argc--;
@@ -812,8 +811,7 @@ const char *dir;
 #else
     nhUse(dir);
 #endif
-    reveal_paths();
-    
+    reveal_paths(0);
 }
 
 /* for command-line options that perform some immediate action and then
