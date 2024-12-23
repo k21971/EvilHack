@@ -1858,15 +1858,20 @@ unsigned trflags;
             (void) steedintrap(trap, (struct obj *) 0);
         } else if (Levitation || Flying) {
             pline("But it isn't long enough to reach you.");
-        } else if (thick_skinned(youmonst.data)) {
+        } else if (thick_skinned(youmonst.data)
+                   || (!Upolyd && Race_if(PM_TORTLE))
+                   || Barkskin || Stoneskin) {
             pline("But it breaks off against your %s.",
-                  (is_dragon(youmonst.data) ? "scaly hide"
-                                         : (youmonst.data == &mons[PM_GIANT_TURTLE]
-                                            || is_tortle(youmonst.data))
-                                             ? "protective shell"
-                                             : is_bone_monster(youmonst.data)
-                                                 ? "bony structure"
-                                                 : "thick hide"));
+                  (is_dragon(youmonst.data)
+                   ? "scaly hide"
+                   : (youmonst.data == &mons[PM_GIANT_TURTLE]
+                      || Race_if(PM_TORTLE))
+                     ? "protective shell"
+                     : is_bone_monster(youmonst.data)
+                       ? "bony structure"
+                       : (has_bark(youmonst.data) || Barkskin)
+                         ? "rough bark"
+                         : Stoneskin ? "stony hide" : "thick hide"));
             deltrap(trap);
             newsym(u.ux, u.uy);
         } else if (unsolid(youmonst.data)) {
@@ -1976,15 +1981,19 @@ struct obj *otmp;
         if (is_flyer(steed->data) || Levitation || Flying) {
             pline("But it isn't long enough to reach %s.", mon_nam(steed));
             break;
-        } else if (thick_skinned(steed->data)) {
+        } else if (thick_skinned(steed->data)
+                   || has_barkskin(steed) || has_stoneskin(steed)) {
             pline("But it breaks off against %s %s.", s_suffix(mon_nam(steed)),
-                  (is_dragon(steed->data) ? "scaly hide"
-                                          : (steed->data == &mons[PM_GIANT_TURTLE]
-                                             || is_tortle(steed->data))
-                                              ? "protective shell"
-                                              : is_bone_monster(steed->data)
-                                                  ? "bony structure"
-                                                  : "thick hide"));
+                  (is_dragon(steed->data)
+                   ? "scaly hide"
+                   : (steed->data == &mons[PM_GIANT_TURTLE]
+                      || is_tortle(steed->data))
+                     ? "protective shell"
+                     : is_bone_monster(steed->data)
+                       ? "bony structure"
+                       : (has_bark(youmonst.data) || Barkskin)
+                         ? "rough bark"
+                         : Stoneskin ? "stony hide" : "thick hide"));
             deltrap(trap);
             newsym(steed->mx, steed->my);
         } else {
@@ -3254,7 +3263,9 @@ register struct monst *mtmp;
                 if (in_sight)
                     pline("The spear isn't long enough to reach %s.",
                           mon_nam(spear_target));
-            } else if (thick_skinned(spear_target->data)) {
+            } else if (thick_skinned(spear_target->data)
+                       || has_barkskin(spear_target)
+                       || has_stoneskin(spear_target)) {
                 if (in_sight)
                     pline("But it breaks off against %s.",
                           mon_nam(spear_target));

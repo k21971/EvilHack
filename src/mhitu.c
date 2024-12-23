@@ -66,7 +66,8 @@ struct attack *mattk;
             break;
         case AT_KICK:
             pline("%s kicks%c", Monst_name,
-                  thick_skinned(youmonst.data) ? '.' : '!');
+                  (thick_skinned(youmonst.data)
+                   || Barkskin || Stoneskin) ? '.' : '!');
             break;
         case AT_STNG:
             pfmt = "%s stings!";
@@ -225,20 +226,24 @@ struct attack *mattk;
         if (!flags.verbose || (!nearmiss && !blocker)) {
             pline("%s misses.", Monnam(mtmp));
         } else if (nearmiss || !blocker) {
-            if ((thick_skinned(youmonst.data) || (!Upolyd && Race_if(PM_TORTLE)))
+            if ((thick_skinned(youmonst.data)
+                 || (!Upolyd && Race_if(PM_TORTLE))
+                 || Barkskin || Stoneskin)
                 && rn2(2)) {
                 Your("%s %s %s attack.",
                      (is_dragon(youmonst.data)
-                       ? "scaly hide"
-                       : (youmonst.data == &mons[PM_GIANT_TURTLE]
-                          || Race_if(PM_TORTLE))
-                         ? "protective shell"
-                         : is_bone_monster(youmonst.data)
-                           ? "bony structure"
-                           : has_bark(youmonst.data)
-                             ? "rough bark" : "thick hide"),
-                      (rn2(2) ? "blocks" : "deflects"),
-                      s_suffix(mon_nam(mtmp)));
+                      ? "scaly hide"
+                      : (youmonst.data == &mons[PM_GIANT_TURTLE]
+                         || Race_if(PM_TORTLE))
+                        ? "protective shell"
+                        : is_bone_monster(youmonst.data)
+                          ? "bony structure"
+                          : (has_bark(youmonst.data) || Barkskin)
+                            ? "rough bark"
+                            : Stoneskin
+                              ? "stony hide" : "thick hide"),
+                     (rn2(2) ? "blocks" : "deflects"),
+                     s_suffix(mon_nam(mtmp)));
             } else {
                 if (Race_if(PM_TORTLE)) {
                     pline("%s narrowly misses!", Monnam(mtmp));
@@ -267,7 +272,8 @@ struct attack *mattk;
            that deflected their attack */
         if (blocker
             && (!MON_WEP(mtmp) && which_armor(mtmp, W_ARMG) == 0)
-            && mon_hates_material(mtmp, blocker->material)) {
+            && mon_hates_material(mtmp, blocker->material)
+            && (!(has_barkskin(mtmp) || has_stoneskin(mtmp)))) {
             if (DEADMONSTER(mtmp))
                 already_killed = TRUE;
             if (!already_killed) {
@@ -1091,7 +1097,8 @@ register struct monst *mtmp;
                     }
                     if (tmp > (j = rnd(20 + i))) {
                         if (mattk->aatyp != AT_KICK
-                            || !thick_skinned(youmonst.data))
+                            || !thick_skinned(youmonst.data)
+                            || !Barkskin || !Stoneskin)
                             sum[i] = hitmu(mtmp, mattk);
                         if (mtmp->data == &mons[PM_MEDUSA]
                             && mattk->aatyp == AT_BITE && !mtmp->mcan) {
@@ -1472,10 +1479,13 @@ register struct attack *mattk;
 
     /* find rings of increase damage */
     {
-        struct obj *o;
-	for (o = mtmp->minvent; o; o = o->nobj)
-	     if (o->owornmask && o->otyp == RIN_INCREASE_DAMAGE)
-	         dmg += o->spe;
+        struct obj *o, *nextobj;
+
+        for (o = mtmp->minvent; o; o = nextobj) {
+            nextobj = o->nobj;
+            if (o->owornmask && o->otyp == RIN_INCREASE_DAMAGE)
+                dmg += o->spe;
+        }
     }
 
     /* elementals on their home plane hit very hard */
@@ -2564,8 +2574,8 @@ do_rust:
                 done(DECAPITATED);
             }
             dmg = 0;
-        }
-        else hitmsg(mtmp, mattk);
+        } else
+            hitmsg(mtmp, mattk);
         break;
     case AD_POLY:
         hitmsg(mtmp, mattk);
@@ -2720,6 +2730,35 @@ do_rust:
             /* else unlikely...
              * already at or below minimum threshold; do nothing */
             context.botl = 1;
+        }
+
+        /* adjust for various effects/conditions */
+        if (mattk->aatyp == AT_WEAP) {
+            struct obj *mwep, *nextobj;
+
+            for (mwep = mtmp->minvent; mwep; mwep = nextobj) {
+                nextobj = mwep->nobj;
+                if (MON_WEP(mtmp) && is_axe(mwep)
+                    && (is_wooden(youmonst.data)
+                        || is_plant(youmonst.data) || Barkskin)) {
+                    dmg += rnd(4);
+                } else if (MON_WEP(mtmp)
+                           && objects[mwep->otyp].oc_dir & WHACK
+                           && (is_wooden(youmonst.data)
+                               || is_plant(youmonst.data) || Barkskin)) {
+                    dmg -= rnd(3) + 3;
+                } else if (MON_WEP(mtmp)
+                           && objects[mwep->otyp].oc_dir & (PIERCE | SLASH)
+                           && (is_bone_monster(youmonst.data) || Stoneskin)) {
+                    dmg -= rnd(5) + 3;
+                } else if (MON_WEP(mtmp)
+                           && objects[mwep->otyp].oc_dir & WHACK
+                           && is_bone_monster(youmonst.data)) {
+                    dmg += rnd(4);
+                }
+                if (dmg < 1)
+                    dmg = 1;
+            }
         }
 
         mdamageu(mtmp, dmg);

@@ -90,13 +90,15 @@ enum prop_types {
     FAST              = 70,
     REFLECTING        = 71,
     FREE_ACTION       = 72,
-    FIXED_ABIL        = 73,
-    WITHERING         = 74,
-    LIFESAVED         = 75,
-    VULN_FIRE         = 76,
-    VULN_COLD         = 77,
-    VULN_ELEC         = 78,
-    VULN_ACID         = 79
+    BARKSKIN          = 73,
+    STONESKIN         = 74,
+    FIXED_ABIL        = 75,
+    WITHERING         = 76,
+    LIFESAVED         = 77,
+    VULN_FIRE         = 78,
+    VULN_COLD         = 79,
+    VULN_ELEC         = 80,
+    VULN_ACID         = 81
 };
 #define LAST_PROP (VULN_ACID)
 

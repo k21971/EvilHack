@@ -547,7 +547,7 @@ struct trobj tortleDruid[] = {
     { EUCALYPTUS_LEAF, 0, FOOD_CLASS, 1, 0 },
     { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
-    { SPE_DRUID_TEST, 0, SPBOOK_CLASS, 1, 1 },
+    { SPE_BARKSKIN, 0, SPBOOK_CLASS, 1, 1 },
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
@@ -814,7 +814,7 @@ unsigned short chance;
                            && mtmp->mnum == PM_WIZARD)
                        || (otyp == WAN_MAGIC_MISSILE
                            && mtmp->mnum == PM_WIZARD)
-                       || (otyp == SPE_DRUID_TEST
+                       || (otyp == SPE_BARKSKIN
                            && mtmp->mnum == PM_DRUID)
                        || (otyp == SPE_DRAIN_LIFE
                            && mtmp->mnum == PM_INFIDEL)

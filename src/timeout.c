@@ -104,6 +104,8 @@ const struct propname {
     { UNCHANGING, "unchanging" },
     { REFLECTING, "reflecting" },
     { FREE_ACTION, "free action" },
+    { BARKSKIN, "barkskin" },
+    { STONESKIN, "stoneskin" },
     { FIXED_ABIL, "fixed abilities" },
     { WITHERING, "withering away" },
     { LIFESAVED, "life will be saved" },
@@ -654,6 +656,9 @@ nh_timeout()
     if (HReflecting == 20 && !Blind)
         pline("The shimmering globe around you is starting to fade.");
 
+    if (HBarkskin == 20 || HStoneskin == 20)
+        Your("%s feels a bit softer.", mbodypart(&youmonst, SKIN));
+
     if (u.ugallop) {
         if (--u.ugallop == 0L && u.usteed)
             pline("%s stops galloping.", Monnam(u.usteed));
@@ -750,9 +755,19 @@ nh_timeout()
                 break;
             case REFLECTING:
                 if (!Blind)
-                    pline("The shimmering globe around you flickers and vanishes.");
+                    pline_The("shimmering globe around you flickers and vanishes.");
                 else
-                    pline("You don't feel very smooth anymore.");
+                    You("don't feel very smooth anymore.");
+                break;
+            case BARKSKIN:
+                Your("%s feels normal again.", mbodypart(&youmonst, SKIN));
+                find_ac();
+                break;
+            case STONESKIN:
+                /* lose stone resistance */
+                HStone_resistance &= ~I_SPECIAL;
+                Your("%s feels normal again.", mbodypart(&youmonst, SKIN));
+                find_ac();
                 break;
             /* all these need to make sure the external intrinsic isn't there too */
             case VULN_FIRE:

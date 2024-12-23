@@ -223,6 +223,8 @@ struct monst {
     int msicktime;         /* zombie sick timer */
     int mdiseasetime;      /* diseased timer */
     int mreflecttime;      /* timeout for monster reflection spell */
+    int mbarkskintime;     /* timeout for monster barkskin spell */
+    int mstoneskintime;    /* timeout for monster stoneskin spell */
     uchar mprotection;     /* monster protection spell */
     uchar mprottime;       /* timeout for monster protection spell */
     struct mon_former_rank former_rank; /* for monsters in bones */

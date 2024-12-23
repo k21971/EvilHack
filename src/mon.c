@@ -1294,6 +1294,25 @@ mcalcdistress()
             continue;
         }
 
+        if (has_barkskin(mtmp) && mtmp->mbarkskintime <= 1) {
+            if (canseemon(mtmp))
+                pline("%s %s returns to normal.",
+                      s_suffix(Monnam(mtmp)),
+                      mbodypart(mtmp, SKIN));
+            mtmp->mextrinsics &= ~(MR2_BARKSKIN);
+            continue;
+        }
+
+        if (has_stoneskin(mtmp) && mtmp->mstoneskintime <= 1) {
+            if (canseemon(mtmp))
+                pline("%s %s returns to normal.",
+                      s_suffix(Monnam(mtmp)),
+                      mbodypart(mtmp, SKIN));
+            /* stone resistance also goes away */
+            mtmp->mextrinsics &= ~(MR2_STONESKIN);
+            continue;
+        }
+
         /* assassin vines will slowly grow and spread throughout the
            level until the original vine is killed or at least drops
            below two-thirds of its maximum hit points */

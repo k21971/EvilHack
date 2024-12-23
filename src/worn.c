@@ -663,15 +663,16 @@ int
 find_mac(mon)
 register struct monst *mon;
 {
-    register struct obj *obj;
+    register struct obj *obj, *nextobj;
     int base = r_data(mon)->ac - mon->mprotection;
     int bonus, div, racial_bonus;
     long mwflags = mon->misc_worn_check;
 
-    for (obj = mon->minvent; obj; obj = obj->nobj) {
+    for (obj = mon->minvent; obj; obj = nextobj) {
+        nextobj = obj->nobj;
         if (obj->owornmask & mwflags
             && obj->otyp != RIN_INCREASE_DAMAGE
-	    && obj->otyp != RIN_INCREASE_ACCURACY) {
+            && obj->otyp != RIN_INCREASE_ACCURACY) {
             if (obj->otyp == AMULET_OF_GUARDING) {
                 base -= 2; /* fixed amount, not impacted by erosion */
             } else {
@@ -724,6 +725,13 @@ register struct monst *mon;
             }
         }
     }
+
+    /* other spell effects */
+    if (has_barkskin(mon))
+        base -= 5;
+
+    if (has_stoneskin(mon))
+        base -= 8;
 
     /* because base now uses r_data(mon)->ac instead of
        mon->data->ac, make sure racial shopkeepers retain

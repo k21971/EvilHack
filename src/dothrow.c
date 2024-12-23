@@ -691,7 +691,8 @@ int x, y;
         if (levl[x][y].typ == IRONBARS) {
             You("crash into some iron bars.");
             dmg = rnd(2 + *range);
-            if (Hate_material(IRON)) {
+            if (Hate_material(IRON)
+                && (!(Barkskin || Stoneskin))) {
                 pline("The iron hurts to touch!");
                 dmg += sear_damage(IRON);
             } else {
@@ -1693,7 +1694,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                         if (obj->oartifact)
                             (void) artifact_hit((struct monst *) 0, &youmonst,
                                                 obj, &dmg, 0);
-                        if (Hate_material(obj->material)) {
+                        if (Hate_material(obj->material)
+                            && (!(Barkskin || Stoneskin))) {
                             dmg += rnd(sear_damage(obj->material));
                             exercise(A_CON, FALSE);
                             searmsg(NULL, &youmonst, obj, TRUE);

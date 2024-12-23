@@ -252,7 +252,7 @@ struct obj *wep;
 
         if ((maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
              || maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW)))
-            && wep->material == IRON) {
+            && wep->material == IRON && (!(Barkskin || Stoneskin))) {
             /* Elves are averse to wielding cold iron */
             You("%s wielding cold iron.",
                 uarmg ? "have an uneasy feeling about"
@@ -262,7 +262,7 @@ struct obj *wep;
         }
 
         if (maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC))
-            && wep->material == MITHRIL) {
+            && wep->material == MITHRIL && (!(Barkskin || Stoneskin))) {
             /* Orcs are averse to wielding mithril */
             You("%s wielding mithril.",
                 uarmg ? "have a weird feeling about"

@@ -91,16 +91,20 @@ const char *name; /* if null, then format `*objp' */
             if (onm != onmbuf)
                 Strcpy(onmbuf, onm); /* [modifiable buffer for upstart()] */
             if ((thick_skinned(youmonst.data)
-                 || (!Upolyd && Race_if(PM_TORTLE))) && rn2(2)) {
+                 || (!Upolyd && Race_if(PM_TORTLE))
+                 || Barkskin || Stoneskin) && rn2(2)) {
                 Your("%s %s %s.",
-                     (is_dragon(youmonst.data) ? "scaly hide"
-                                               : (youmonst.data == &mons[PM_GIANT_TURTLE]
-                                                  || Race_if(PM_TORTLE))
-                                                   ? "protective shell"
-                                                   : is_bone_monster(youmonst.data)
-                                                       ? "bony structure"
-                                                       : "thick hide"),
-                      (rn2(2) ? "blocks" : "deflects"), onm);
+                     (is_dragon(youmonst.data)
+                      ? "scaly hide"
+                      : (youmonst.data == &mons[PM_GIANT_TURTLE]
+                         || Race_if(PM_TORTLE))
+                        ? "protective shell"
+                        : is_bone_monster(youmonst.data)
+                          ? "bony structure"
+                          : (has_bark(youmonst.data) || Barkskin)
+                            ? "rough bark"
+                            : Stoneskin ? "stony hide" : "thick hide"),
+                     (rn2(2) ? "blocks" : "deflects"), onm);
             } else if (uarms && rn2(2)) {
                 Your("%s %s %s.",
                      uarms->oartifact ? xname(uarms)

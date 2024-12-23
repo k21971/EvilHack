@@ -29,6 +29,9 @@ enum monster_generation monclock;
 boolean
 elf_can_regen()
 {
+    if (Barkskin || Stoneskin)
+        return 1; /* protects skin from adverse material effects */
+
     if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
         || maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))) {
         if (uwep && is_iron(uwep)
@@ -73,6 +76,9 @@ elf_can_regen()
 boolean
 orc_can_regen()
 {
+    if (Barkskin || Stoneskin)
+        return 1; /* protects skin from adverse material effects */
+
     if (maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC))) {
         if (uwep && is_mithril(uwep)
             && !is_quest_artifact(uwep) && !uarmg)

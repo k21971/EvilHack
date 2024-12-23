@@ -454,6 +454,14 @@
 
 #define Free_action u.uprops[FREE_ACTION].extrinsic /* [Tom] */
 
+#define HBarkskin u.uprops[BARKSKIN].intrinsic
+#define EBarkskin u.uprops[BARKSKIN].extrinsic
+#define Barkskin (HBarkskin || EBarkskin)
+
+#define HStoneskin u.uprops[STONESKIN].intrinsic
+#define EStoneskin u.uprops[STONESKIN].extrinsic
+#define Stoneskin (HStoneskin || EStoneskin)
+
 #define Fixed_abil u.uprops[FIXED_ABIL].extrinsic /* KMH */
 
 #define HLifesaved u.uprops[LIFESAVED].intrinsic /* Draugr race */

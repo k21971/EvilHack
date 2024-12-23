@@ -3514,7 +3514,8 @@ int final;
     if (Unchanging && Upolyd) /* !Upolyd handled above */
         you_can("not change from your current form", from_what(UNCHANGING));
     for (ltmp = 1; ltmp < NUM_MATERIAL_TYPES; ++ltmp) {
-        if (Hate_material(ltmp)) {
+        if (Hate_material(ltmp)
+            && (!(Barkskin || Stoneskin))) {
             Sprintf(buf, "harmed by %s", materialnm[ltmp]);
             you_are(buf, "");
         }
@@ -3531,6 +3532,10 @@ int final;
         you_have("reflection", from_what(REFLECTING));
     if (Free_action)
         you_have("free action", from_what(FREE_ACTION));
+    if (Barkskin)
+        you_have("bark for skin", from_what(BARKSKIN));
+    if (Stoneskin)
+        you_have("stone for skin", from_what(STONESKIN));
     if (Fixed_abil)
         you_have("fixed abilities", from_what(FIXED_ABIL));
     if (ELifesaved)

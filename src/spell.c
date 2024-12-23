@@ -718,9 +718,15 @@ int *spell_no;
             Sprintf(lets, "a-%c", 'a' + nspells - 1);
         else if (nspells == 27)
             Sprintf(lets, "a-zA");
-        /* this assumes that there are at most 52 spells... */
-        else
+        else if (nspells < 53)
             Sprintf(lets, "a-zA-%c", 'A' + nspells - 27);
+        else if (nspells == 53)
+            Sprintf(lets, "a-zA-Z0");
+        /* up to 62 different known spells maximum.
+           any more than this, and we'll need to include
+           special characters as menu selection choices */
+        else
+            Sprintf(lets, "a-zA-Z0-%c", '9' + nspells - 11);
 
         for (;;) {
             Sprintf(qbuf, "Cast which spell? [%s *?]", lets);
@@ -902,6 +908,80 @@ register struct monst *mdef;
                                       || mdef->data->msound == MS_NEMESIS
                                       || mdef->data->msound == MS_LEADER)
                                      ? 250 : 150);
+    }
+}
+
+void
+cast_barkskin(mdef)
+register struct monst *mdef;
+{
+    boolean youdefend = (mdef == &youmonst);
+    int skill = (P_SKILL(spell_skilltype(SPE_BARKSKIN)) == P_EXPERT
+                 ? 750 : P_SKILL(spell_skilltype(SPE_BARKSKIN)) == P_SKILLED
+                       ? 500 : P_SKILL(spell_skilltype(SPE_BARKSKIN)) == P_BASIC
+                             ? 250 : 100);
+
+    if (youdefend) {
+        if (Stoneskin) {
+            You_cant("cast Barkskin while Stoneskin is active.");
+            return;
+        } else if (HBarkskin) {
+            /* increases timeout only */
+            Your("%s feels a bit thicker.", mbodypart(&youmonst, SKIN));
+        } else {
+            Your("%s is covered in a thick layer of bark.", mbodypart(&youmonst, SKIN));
+        }
+        /* the higher the skill in evocation-based spells, the longer the effect */
+        incr_itimeout(&HBarkskin, rn1(10, HBarkskin ? (skill / 5) : skill));
+        find_ac(); /* adjust AC; dmg reduction handled in hitmu() */
+    } else if (!youdefend) {
+        if (canseemon(mdef))
+            pline("%s %s is covered in a thick layer of bark!",
+                  s_suffix(Monnam(mdef)), mbodypart(mdef, SKIN));
+        mdef->mextrinsics |= MR2_BARKSKIN;
+        mdef->mbarkskintime = rn1(10, (mdef->iswiz || is_prince(mdef->data)
+                                       || mdef->data->msound == MS_NEMESIS
+                                       || mdef->data->msound == MS_LEADER)
+                                      ? 250 : 150);
+    }
+}
+
+void
+cast_stoneskin(mdef)
+register struct monst *mdef;
+{
+    boolean youdefend = (mdef == &youmonst);
+    int skill = (P_SKILL(spell_skilltype(SPE_STONESKIN)) == P_EXPERT
+                 ? 750 : P_SKILL(spell_skilltype(SPE_STONESKIN)) == P_SKILLED
+                       ? 500 : P_SKILL(spell_skilltype(SPE_STONESKIN)) == P_BASIC
+                             ? 250 : 100);
+
+    if (youdefend) {
+        if (Barkskin) {
+            You_cant("cast Stoneskin while Barkskin is active.");
+            return;
+        } else if (HStoneskin) {
+            /* increases timeout only */
+            Your("%s feels a bit harder.", mbodypart(&youmonst, SKIN));
+        } else {
+            Your("%s hardens into stone.", mbodypart(&youmonst, SKIN));
+        }
+        /* become stone resistant */
+        HStone_resistance |= I_SPECIAL;
+
+        /* the higher the skill in evocation-based spells, the longer the effect */
+        incr_itimeout(&HStoneskin, rn1(10, HStoneskin ? (skill / 5) : skill));
+        find_ac(); /* adjust AC; dmg reduction handled in hitmu() */
+    } else if (!youdefend) {
+        if (canseemon(mdef))
+            pline("%s %s hardens into stone!",
+                  s_suffix(Monnam(mdef)), mbodypart(mdef, SKIN));
+        /* already stone resistant from resists_ston() */
+        mdef->mextrinsics |= MR2_STONESKIN;
+        mdef->mstoneskintime = rn1(10, (mdef->iswiz || is_prince(mdef->data)
+                                        || mdef->data->msound == MS_NEMESIS
+                                        || mdef->data->msound == MS_LEADER)
+                                       ? 250 : 150);
     }
 }
 
@@ -1444,8 +1524,13 @@ boolean wiz_cast;
         }
         break;
     case SPE_REFLECTION:
-    case SPE_DRUID_TEST:
         cast_reflection(&youmonst);
+        break;
+    case SPE_BARKSKIN:
+        cast_barkskin(&youmonst);
+        break;
+    case SPE_STONESKIN:
+        cast_stoneskin(&youmonst);
         break;
     case SPE_FLAME_SPHERE:
     case SPE_FREEZE_SPHERE:

@@ -3915,6 +3915,10 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
         if (!hatemat && !bane)
             return 1;
 
+        /* skin changing to bark or stone allows for safe handling */
+        if (Barkskin || Stoneskin)
+            return 1;
+
         /* another case where nothing should happen: hero is wearing gloves
            which protect them from directly touching a weapon of a material
            they hate or wearing boots that prevent them touching a kicked

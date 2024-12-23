@@ -1821,7 +1821,8 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
     }
     cobj->lknown = 1; /* floor container, so no need for update_inventory() */
 
-    if (Hate_material(cobj->material) && !uarmg) {
+    if (Hate_material(cobj->material) && !uarmg
+        && (!(Barkskin || Stoneskin))) {
         char kbuf[BUFSZ];
         pline("The %s %s %s!", materialnm[cobj->material],
               cobj->otyp == IRON_SAFE ? "safe door" : Is_box(cobj) ? "lid" : "container",

@@ -677,6 +677,18 @@ long nmv; /* number of moves */
         else
             mtmp->mreflecttime -= imv;
     }
+    if (mtmp->mbarkskintime) {
+        if (imv >= (int) mtmp->mbarkskintime)
+            mtmp->mbarkskintime = 1;
+        else
+            mtmp->mbarkskintime -= imv;
+    }
+    if (mtmp->mstoneskintime) {
+        if (imv >= (int) mtmp->mstoneskintime)
+            mtmp->mstoneskintime = 1;
+        else
+            mtmp->mstoneskintime -= imv;
+    }
 
     /* Withering monsters by rights ought to keep withering while off-level, but
      * it brings up a host of problems to have a monster die in this function

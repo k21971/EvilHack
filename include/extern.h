@@ -2596,6 +2596,8 @@ E const char *FDECL(spelltypemnemonic, (int));
 E int FDECL(spell_skilltype, (int));
 E void NDECL(cast_protection);
 E void FDECL(cast_reflection, (struct monst *));
+E void FDECL(cast_barkskin, (struct monst *));
+E void FDECL(cast_stoneskin, (struct monst *));
 E int FDECL(spelleffects, (int, BOOLEAN_P, BOOLEAN_P));
 E int FDECL(tport_spell, (int));
 E void NDECL(losespells);

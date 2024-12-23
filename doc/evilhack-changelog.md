@@ -3717,4 +3717,5 @@ The following changes to date are:
   quest levels
 - Fix: memory leak from magic fountain effect
 - Fix: forges and objects coated in various substances
+- New spells: barkskin and stoneskin
 

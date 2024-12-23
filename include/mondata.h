@@ -28,7 +28,8 @@
 #define resists_elec(mon) ((mon_resistancebits(mon) & MR_ELEC) != 0)
 #define resists_poison(mon) ((mon_resistancebits(mon) & MR_POISON) != 0)
 #define resists_acid(mon) ((mon_resistancebits(mon) & MR_ACID) != 0)
-#define resists_ston(mon) ((mon_resistancebits(mon) & MR_STONE) != 0)
+#define resists_ston(mon) \
+    ((mon_resistancebits(mon) & MR_STONE) != 0 || has_stoneskin(mon))
 #define resists_psychic(mon) ((mon_resistancebits(mon) & MR_PSYCHIC) != 0)
 
 #define has_telepathy(mon) \
@@ -46,6 +47,10 @@
     ((mon_resistancebits(mon) & MR2_LEVITATE) != 0)
 #define has_free_action(mon) \
     ((mon_resistancebits(mon) & MR2_FREE_ACTION) != 0)
+#define has_barkskin(mon) \
+    ((mon_resistancebits(mon) & MR2_BARKSKIN) != 0)
+#define has_stoneskin(mon) \
+    ((mon_resistancebits(mon) & MR2_STONESKIN) != 0)
 
 #define ptr_resists_sick(ptr) \
     ((ptr)->mlet == S_FUNGUS || nonliving(ptr)                                   \

@@ -235,7 +235,7 @@ const struct Role roles[] = {
       2,
       10,
       A_WIS,
-      SPE_DRUID_TEST,
+      SPE_BARKSKIN,
       -4 },
     { { "Healer", 0 },
       { { "Rhizotomist", 0 },

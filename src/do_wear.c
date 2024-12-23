@@ -2959,6 +2959,26 @@ find_ac()
         uac -= u.ublessed;
     uac -= u.uspellprot;
 
+    /* barkskin spell */
+    if (Barkskin) {
+        int bark_skill = (P_SKILL(spell_skilltype(SPE_BARKSKIN)) == P_EXPERT
+                          ? 10 : P_SKILL(spell_skilltype(SPE_BARKSKIN)) == P_SKILLED
+                               ? 8 : P_SKILL(spell_skilltype(SPE_BARKSKIN)) == P_BASIC
+                                   ? 5 : 1);
+
+        uac -= bark_skill;
+    }
+
+    /* stoneskin spell */
+    if (Stoneskin) {
+        int stone_skill = (P_SKILL(spell_skilltype(SPE_STONESKIN)) == P_EXPERT
+                           ? 15 : P_SKILL(spell_skilltype(SPE_STONESKIN)) == P_SKILLED
+                                ? 12 : P_SKILL(spell_skilltype(SPE_STONESKIN)) == P_BASIC
+                                     ? 8 : 3);
+
+        uac -= stone_skill;
+    }
+
     /* tortle hiding in its shell */
     if (Hidinshell)
         uac -= 40;

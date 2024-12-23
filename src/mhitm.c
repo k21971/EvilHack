@@ -175,7 +175,8 @@ int target, roll;
                that deflected their attack */
             if (blocker
                 && (!MON_WEP(magr) && which_armor(magr, W_ARMG) == 0)
-                && mon_hates_material(magr, blocker->material)) {
+                && mon_hates_material(magr, blocker->material)
+                && (!(has_barkskin(magr) || has_stoneskin(magr)))) {
                 searmsg(mdef, magr, blocker, FALSE);
                 /* glancing blow */
                 magr->mhp -= rnd(sear_damage(blocker->material) / 2);
@@ -188,18 +189,22 @@ int target, roll;
                 && (is_glass(blocker) || is_adamantine(blocker)))
                 break_glass_obj(blocker);
         } else {
-            if (thick_skinned(mdef->data) && !rn2(10)) {
+            if ((thick_skinned(mdef->data)
+                 || has_barkskin(mdef) || has_stoneskin(mdef))
+                && !rn2(10)) {
                 fmt = "%s %s %s";
                 Sprintf(buf, fmt, s_suffix(Monnam(mdef)),
                         (is_dragon(mdef->data)
-                          ? "scaly hide"
-                          : (mdef->data == &mons[PM_GIANT_TURTLE]
-                             || is_tortle(mdef->data))
-                            ? "protective shell"
-                            : is_bone_monster(mdef->data)
-                              ? "bony structure"
-                              : has_bark(mdef->data)
-                                ? "rough bark" : "thick hide"),
+                         ? "scaly hide"
+                         : (mdef->data == &mons[PM_GIANT_TURTLE]
+                            || is_tortle(mdef->data))
+                           ? "protective shell"
+                           : is_bone_monster(mdef->data)
+                             ? "bony structure"
+                             : (has_bark(mdef->data) || has_barkskin(mdef))
+                               ? "rough bark"
+                               : has_stoneskin(mdef)
+                                 ? "stony hide" : "thick hide"),
                         (rn2(2) ? "blocks" : "deflects"));
                 pline("%s %s attack.", buf, s_suffix(mon_nam_too(magr, mdef)));
             } else {
@@ -1538,7 +1543,9 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
 
         if (shade_miss(magr, mdef, mwep, FALSE, TRUE)) {
             tmp = 0;
-        } else if (mattk->aatyp == AT_KICK && thick_skinned(pd)) {
+        } else if (mattk->aatyp == AT_KICK
+                   && (thick_skinned(pd)
+                       || has_barkskin(mdef) || has_stoneskin(mdef))) {
             /* [no 'kicking boots' check needed; monsters with kick attacks
                can't wear boots and monsters that wear boots don't kick] */
             tmp = 0;

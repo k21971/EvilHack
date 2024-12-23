@@ -1946,7 +1946,8 @@ int dieroll;
         /* VERY small chance of stunning or confusing opponent if unarmed. */
         if (rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT)
             && !(u.uswallow || biggermonst(mdat)
-                 || thick_skinned(mdat) || unsolid(mdat))) {
+                 || thick_skinned(mdat) || has_barkskin(mon)
+                 || has_stoneskin(mon) || unsolid(mdat))) {
             if (rn2(2)) {
                 if (canspotmon(mon))
                     pline("%s %s from your powerful strike!", Monnam(mon),
@@ -3038,7 +3039,8 @@ int specialdmg; /* blessed and/or silver bonus against various things */
                    || mattk->aatyp == AT_CLAW
                    || mattk->aatyp == AT_TUCH
                    || mattk->aatyp == AT_HUGS) {
-            if (thick_skinned(pd))
+            if (thick_skinned(pd)
+                || has_barkskin(mdef) || has_stoneskin(mdef))
                 tmp = (mattk->aatyp == AT_KICK) ? 0 : (tmp + 1) / 2;
             /* add ring(s) of increase damage */
             if (u.udaminc > 0) {
@@ -4023,18 +4025,22 @@ boolean wouldhavehit;
             Your("pickpocketing attempt fails %s.",
                  rn2(2) ? "horribly" : "miserably");
         } else if (nearmiss || !blocker) {
-            if (thick_skinned(mdef->data) && !rn2(10))
+            if ((thick_skinned(mdef->data)
+                 || has_barkskin(mdef) || has_stoneskin(mdef))
+                && !rn2(10))
                 pline("%s %s %s your attack.",
                       s_suffix(Monnam(mdef)),
                       (is_dragon(mdef->data)
-                        ? "scaly hide"
-                        : (mdef->data == &mons[PM_GIANT_TURTLE]
-                           || is_tortle(mdef->data))
-                          ? "protective shell"
-                          : is_bone_monster(mdef->data)
-                            ? "bony structure"
-                            : has_bark(mdef->data)
-                              ? "rough bark" : "thick hide"),
+                       ? "scaly hide"
+                       : (mdef->data == &mons[PM_GIANT_TURTLE]
+                          || is_tortle(mdef->data))
+                         ? "protective shell"
+                         : is_bone_monster(mdef->data)
+                           ? "bony structure"
+                           : (has_bark(mdef->data) || has_barkskin(mdef))
+                             ? "rough bark"
+                             : has_stoneskin(mdef)
+                               ? "stone hide" : "thick hide"),
                       (rn2(2) ? "blocks" : "deflects"));
             else
                 You("%smiss %s.",
@@ -4048,7 +4054,8 @@ boolean wouldhavehit;
             /* called if player hates the material of the armor
                that deflected their attack */
             if (blocker && !uwep && !uarmg
-                && Hate_material(blocker->material)) {
+                && Hate_material(blocker->material)
+                && (!(has_barkskin(mdef) || has_stoneskin(mdef)))) {
                 searmsg(mdef, &youmonst, blocker, FALSE);
                 /* glancing blow */
                 losehp(rnd(sear_damage(blocker->material) / 2),

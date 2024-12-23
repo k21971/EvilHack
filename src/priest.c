@@ -1170,6 +1170,10 @@ struct monst *mtmp;
     /* monster spell 'reflection' only */
     if (has_reflection(mtmp))
         Strcat(info, ", reflecting");
+    if (has_barkskin(mtmp))
+        Strcat(info, ", has barkskin");
+    if (has_stoneskin(mtmp))
+        Strcat(info, ", has stoneskin");
     if (mtmp == u.ustuck)
         Strcat(info, sticks(youmonst.data) ? ", held by you"
                       : !u.uswallow ? ", holding you"

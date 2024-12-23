@@ -3357,6 +3357,20 @@ boolean youattack, allow_cancel_kill, self_cancel;
                     mdef->mextrinsics &= ~(MR2_REFLECTION);
                     mdef->mreflecttime = 0;
                 }
+                if (has_barkskin(mdef)) {
+                    if (canseemon(mdef))
+                        pline("%s %s returns to normal.",
+                              s_suffix(Monnam(mdef)), mbodypart(mdef, SKIN));
+                    mdef->mextrinsics &= ~(MR2_BARKSKIN);
+                    mdef->mbarkskintime = 0;
+                }
+                if (has_stoneskin(mdef)) {
+                    if (canseemon(mdef))
+                        pline("%s %s returns to normal.",
+                              s_suffix(Monnam(mdef)), mbodypart(mdef, SKIN));
+                    mdef->mextrinsics &= ~(MR2_STONESKIN);
+                    mdef->mstoneskintime = 0;
+                }
             }
         }
 
@@ -3438,6 +3452,20 @@ boolean youattack, allow_cancel_kill, self_cancel;
                               s_suffix(Monnam(mdef)));
                     mdef->mextrinsics &= ~(MR2_REFLECTION);
                     mdef->mreflecttime = 0;
+                }
+                if (has_barkskin(mdef)) {
+                    if (canseemon(mdef))
+                        pline("%s %s returns to normal.",
+                              s_suffix(Monnam(mdef)), mbodypart(mdef, SKIN));
+                    mdef->mextrinsics &= ~(MR2_BARKSKIN);
+                    mdef->mbarkskintime = 0;
+                }
+                if (has_stoneskin(mdef)) {
+                    if (canseemon(mdef))
+                        pline("%s %s returns to normal.",
+                              s_suffix(Monnam(mdef)), mbodypart(mdef, SKIN));
+                    mdef->mextrinsics &= ~(MR2_STONESKIN);
+                    mdef->mstoneskintime = 0;
                 }
             }
         }

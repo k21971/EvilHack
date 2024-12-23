@@ -57,7 +57,8 @@ boolean clumsy;
         dmg /= 2;
 
     /* kicking a dragon or an elephant will not harm it */
-    if (thick_skinned(mon->data))
+    if (thick_skinned(mon->data)
+        || has_barkskin(mon) || has_stoneskin(mon))
         dmg = 0;
 
     /* attacking a shade is normally useless */
@@ -277,6 +278,7 @@ xchar x, y;
         && mon->mcansee && !mon->mtrapped && !thick_skinned(mon->data)
         && mon->data->mlet != S_EEL && haseyes(mon->data) && mon->mcanmove
         && !mon->mstun && !mon->mconf && !mon->msleeping
+        && !has_barkskin(mon) && !has_stoneskin(mon)
         && mon->data->mmove >= 12) {
         if (!nohands(mon->data) && !rn2(martial() ? 10 : 3)) {
             pline("%s blocks your %skick.", Monnam(mon),
@@ -569,7 +571,8 @@ xchar x, y;
         }
     }
 
-    if (!uarmf && Hate_material(kickedobj->material)) {
+    if (!uarmf && Hate_material(kickedobj->material)
+        && (!(Barkskin || Stoneskin))) {
         searmsg(NULL, &youmonst, kickedobj, FALSE);
         losehp(rnd(sear_damage(kickedobj->material)),
                "kicking an adverse material", KILLED_BY);

@@ -518,7 +518,9 @@ struct monst *mon;
     if (tmp < 0)
         tmp = 0;
 
-    if (otmp->material <= LEATHER && thick_skinned(ptr))
+    if (otmp->material <= LEATHER
+        && (thick_skinned(ptr)
+            || has_barkskin(mon) || has_stoneskin(mon)))
         /* thick skinned/scaled creatures don't feel it */
         tmp = 0;
     if (noncorporeal(ptr) && !shade_glare(otmp))
@@ -551,18 +553,21 @@ struct monst *mon;
                 || mon_aligntyp(mon) == A_NEUTRAL))
             bonus += rnd(2);
         if (is_axe(otmp)
-            && (is_wooden(ptr) || is_plant(ptr)))
+            && (is_wooden(ptr) || is_plant(ptr)
+                || has_barkskin(mon)))
             bonus += rnd(4);
         if (objects[otmp->otyp].oc_dir & WHACK
-            && (is_wooden(ptr) || is_plant(ptr)))
+            && (is_wooden(ptr) || is_plant(ptr)
+                || has_barkskin(mon)))
             bonus -= rnd(3) + 3;
         if (objects[otmp->otyp].oc_dir & (PIERCE | SLASH)
-            && is_bone_monster(ptr))
+            && (is_bone_monster(ptr) || has_stoneskin(mon)))
             bonus -= rnd(5) + 3;
         if (objects[otmp->otyp].oc_dir & WHACK
             && is_bone_monster(ptr))
             bonus += rnd(4);
-        if (mon_hates_material(mon, otmp->material))
+        if (mon_hates_material(mon, otmp->material)
+            && (!(has_barkskin(mon) || has_stoneskin(mon))))
             bonus += rnd(sear_damage(otmp->material));
         if (artifact_light(otmp) && otmp->lamplit
             && (hates_light(r_data(mon))
@@ -673,7 +678,8 @@ struct obj **hated_obj; /* ptr to offending object, can be NULL if not wanted */
         try_body = TRUE;
     }
 
-    if (try_body && mon_hates_material(mdef, magr_material)) {
+    if (try_body && mon_hates_material(mdef, magr_material)
+        && (!(has_barkskin(mdef) || has_stoneskin(mdef)))) {
         bonus = sear_damage(magr_material);
         if (hated_obj)
             *hated_obj = (struct obj *) &zeroobj;
@@ -737,6 +743,14 @@ boolean minimal; /* print a shorter message leaving out obj details */
         return;
 
     if (!youdefend && !canspotmon(mdef))
+        return;
+
+    if (!youdefend
+        && (has_barkskin(mdef) || has_stoneskin(mdef)))
+        return;
+
+    if (youdefend
+        && (Barkskin || Stoneskin))
         return;
 
     if (obj == &zeroobj) {

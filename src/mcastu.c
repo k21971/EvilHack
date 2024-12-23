@@ -34,6 +34,8 @@ enum mcast_cleric_spells {
     CLC_OPEN_WOUNDS = 0,
     CLC_CURE_SELF,
     CLC_PROTECTION,
+    CLC_BARKSKIN,
+    CLC_STONESKIN,
     CLC_CONFUSE_YOU,
     CLC_PARALYZE,
     CLC_VULN_YOU,
@@ -271,7 +273,13 @@ int spellnum;
         else
             return CLC_INSECTS;
     case 6:
-        return CLC_BLIND_YOU;
+        if (!has_stoneskin(mtmp)
+            && (mtmp->data == &mons[PM_ELANEE]
+                || mtmp->data == &mons[PM_DRUID]
+                || mtmp->data == &mons[PM_ASPIRANT]))
+            return CLC_STONESKIN;
+        else
+            return CLC_BLIND_YOU;
     case 5:
         return CLC_VULN_YOU;
     case 4:
@@ -279,7 +287,13 @@ int spellnum;
     case 3:
         return CLC_CONFUSE_YOU;
     case 2:
-        return CLC_PROTECTION;
+        if (!has_barkskin(mtmp)
+            && (mtmp->data == &mons[PM_ELANEE]
+                || mtmp->data == &mons[PM_DRUID]
+                || mtmp->data == &mons[PM_ASPIRANT]))
+            return CLC_BARKSKIN;
+        else
+            return CLC_PROTECTION;
     case 1:
         return CLC_CURE_SELF;
     case 0:
@@ -1270,6 +1284,14 @@ int spellnum;
         dmg = 0;
         break;
     }
+    case CLC_BARKSKIN:
+        (void) cast_barkskin(mtmp);
+        dmg = 0;
+        break;
+    case CLC_STONESKIN:
+        (void) cast_stoneskin(mtmp);
+        dmg = 0;
+        break;
     default:
         impossible("mcastu: invalid clerical spell (%d)", spellnum);
         dmg = 0;
@@ -1309,6 +1331,8 @@ int spellnum;
         case CLC_OPEN_WOUNDS:
         case CLC_CURE_SELF:
         case CLC_PROTECTION:
+        case CLC_BARKSKIN:
+        case CLC_STONESKIN:
         case CLC_VULN_YOU:
         case CLC_SUMMON_MINION:
         case CLC_CALL_UNDEAD:
@@ -1432,11 +1456,30 @@ int spellnum;
                 || spellnum == CLC_INSECTS
                 || spellnum == CLC_SUMMON_MINION))
             return TRUE;
-        /* only undead/demonic spell casters, chaotic/unaligned priests
-           and quest nemesis can summon undead */
+        /* only undead/demonic spell casters, chaotic/unaligned
+           priests and quest nemesis can summon undead */
         if (spellnum == CLC_CALL_UNDEAD && !is_undead(mtmp->data)
             && !is_demon(mtmp->data) && !evilpriest
             && mtmp->data->msound != MS_NEMESIS)
+            return TRUE;
+        /* don't cast protection if already have barkskin
+           or stoneskin */
+        if ((has_barkskin(mtmp) || has_stoneskin(mtmp))
+            && spellnum == CLC_PROTECTION)
+            return TRUE;
+        /* don't cast barkskin or stoneskin if already have
+           protection */
+        if (mtmp->mprotection
+            && (spellnum == CLC_BARKSKIN
+                || spellnum == CLC_STONESKIN))
+            return TRUE;
+        /* don't cast barkskin if already have stoneskin
+           and vice versa */
+        if (has_barkskin(mtmp)
+            && spellnum == CLC_STONESKIN)
+            return TRUE;
+        if (has_stoneskin(mtmp)
+            && spellnum == CLC_BARKSKIN)
             return TRUE;
     }
     return FALSE;
@@ -1476,6 +1519,23 @@ int spellnum;
         if (spellnum == CLC_CALL_UNDEAD
             || spellnum == CLC_INSECTS
             || spellnum == CLC_SUMMON_MINION)
+            return TRUE;
+        /* don't cast protection if already have barkskin
+           or stoneskin */
+        if ((Barkskin || Stoneskin)
+            && spellnum == CLC_PROTECTION)
+            return TRUE;
+        /* don't cast barkskin or stoneskin if already have
+           protection */
+        if (u.uspellprot
+            && (spellnum == CLC_BARKSKIN
+                || spellnum == CLC_STONESKIN))
+            return TRUE;
+        /* don't cast barkskin if already have stoneskin
+           and vice versa */
+        if (Barkskin && spellnum == CLC_STONESKIN)
+            return TRUE;
+        if (Stoneskin && spellnum == CLC_BARKSKIN)
             return TRUE;
     }
     return FALSE;
@@ -1594,6 +1654,25 @@ int spellnum;
         if (spellnum == CLC_CALL_UNDEAD && !is_undead(mtmp->data)
             && !is_demon(mtmp->data) && !evilpriest
             && mtmp->data->msound != MS_NEMESIS)
+            return TRUE;
+        /* don't cast protection if already have barkskin
+           or stoneskin */
+        if ((has_barkskin(mtmp) || has_stoneskin(mtmp))
+            && spellnum == CLC_PROTECTION)
+            return TRUE;
+        /* don't cast barkskin or stoneskin if already have
+           protection */
+        if (mtmp->mprotection
+            && (spellnum == CLC_BARKSKIN
+                || spellnum == CLC_STONESKIN))
+            return TRUE;
+        /* don't cast barkskin if already have stoneskin
+           and vice versa */
+        if (has_barkskin(mtmp)
+            && spellnum == CLC_STONESKIN)
+            return TRUE;
+        if (has_stoneskin(mtmp)
+            && spellnum == CLC_BARKSKIN)
             return TRUE;
     }
     return FALSE;
@@ -2716,6 +2795,20 @@ int spellnum;
     case CLC_PROTECTION:
         if (yours)
             (void) cast_protection();
+        dmg = 0;
+        break;
+    case CLC_BARKSKIN:
+        if (yours)
+            (void) cast_barkskin(&youmonst);
+        else
+            (void) cast_barkskin(mattk);
+        dmg = 0;
+        break;
+    case CLC_STONESKIN:
+        if (yours)
+            (void) cast_stoneskin(&youmonst);
+        else
+            (void) cast_stoneskin(mattk);
         dmg = 0;
         break;
     default:
