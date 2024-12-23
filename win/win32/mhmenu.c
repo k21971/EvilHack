@@ -954,7 +954,7 @@ onMeasureItem(HWND hWnd, WPARAM wParam, LPARAM lParam)
         int map_y = 16;  /* leave it at the default size, unless
                            * we are actually showing the larger
                            * icons in the menu */
-        if (NHMENU_HAS_GLYPH(data->menui.menu.items[i])
+        if (NHMENU_HAS_GLYPH(data->menu.items[i])
             && !IS_MAP_ASCII(iflags.wc_map_mode)) {
             lpmis->itemHeight =
                 max(lpmis->itemHeight,
