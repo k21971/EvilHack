@@ -4047,13 +4047,14 @@ boolean wildcards;
 #endif
 #endif
 
+#define SYSCONFFILE "system configuration file"
+
 void
 reveal_paths(code)
 int code;
 {
     boolean skip_sysopt = FALSE;
-    const char *fqn, *nodumpreason,
-	  *sysconffile = "system configuration file";
+    const char *fqn, *nodumpreason;
 
     char buf[BUFSZ];
 #if defined(SYSCF) || !defined(UNIX) || defined(DLB)
@@ -4086,8 +4087,8 @@ int code;
 #else
     buf[0] = '\0';
 #endif
-    raw_printf("%s %s%s:",
-               s_suffix(gamename), sysconffile, buf);
+    raw_printf("%s %s%s:", s_suffix(gamename),
+               SYSCONFFILE, buf);
 #ifdef SYSCF_FILE
     filep = SYSCF_FILE;
 #else
@@ -4101,7 +4102,7 @@ int code;
     raw_printf("    \"%s\"", filep);
     if (code == 1) {
         raw_printf("NOTE: The %s above is missing or inaccessible!",
-                   sysconffile);
+                   SYSCONFFILE);
 	skip_sysopt = TRUE;
     }
 #else /* !SYSCF */
@@ -4184,8 +4185,10 @@ int code;
 #ifdef SYSCF
     if (!skip_sysopt) {
         fqn = sysopt.dumplogfile;
+	if (!fqn)
+	    nodumpreason = "DUMPLOGFILE is not set in " SYSCONFFILE;
     } else {
-        nodumpreason = "dumplogfile setting unavailable from missing sysconf";
+        nodumpreason = SYSCONFFILE " is missing; no DUMPLOGFILE setting";
     }
 #else  /* !SYSCF */
 #ifdef DUMPLOG_FILE
@@ -4198,7 +4201,7 @@ int code;
         buf[sizeof buf - sizeof "    \"\""] = '\0';
         raw_printf("    \"%s\"", buf);
     } else {
-        raw_printf("No end-of-game disclosure file (%s)", nodumpreason);
+        raw_printf("No end-of-game disclosure file (%s).", nodumpreason);
     }
 #endif /* ?DUMPLOG */
 
