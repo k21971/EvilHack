@@ -685,6 +685,10 @@ initoptions()
      */
 #endif
 #endif /* SYSCF */
+    /* Carry out options that got deferred from early_options */
+    if (deferred_showpaths)
+        do_deferred_showpaths(0);  /* does not return */
+
     initoptions_finish();
 }
 

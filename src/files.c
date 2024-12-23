@@ -3935,7 +3935,7 @@ assure_syscf_file()
         close(fd);
         return;
     }
-    if (gd.deferred_showpaths)
+    if (deferred_showpaths)
         do_deferred_showpaths(1);  /* does not return */
     raw_printf("Unable to open SYSCF_FILE.\n");
     exit(EXIT_FAILURE);
@@ -3944,17 +3944,20 @@ assure_syscf_file()
 #endif /* SYSCF_FILE */
 #endif /* SYSCF */
 
-ATTRNORETURN void
-do_deferred_showpaths(int code)
+void
+do_deferred_showpaths(code)
+int code;
 {
-    gd.deferred_showpaths = FALSE;
+    deferred_showpaths = FALSE;
     reveal_paths(code);
 
 #ifdef UNIX
-    after_opt_showpaths(gd.deferred_showpaths_dir);
+    after_opt_showpaths(deferred_showpaths_dir);
 #else
+#if !defined(WIN32)
 #ifdef CHDIR
-    chdirx(gd.deferred_showpaths_dir, 0);
+    chdirx(deferred_showpaths_dir, 0);
+#endif
 #endif
 #if defined(WIN32) || defined(MICRO) || defined(OS2)
     nethack_exit(EXIT_SUCCESS);

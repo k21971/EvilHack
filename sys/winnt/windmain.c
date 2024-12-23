@@ -24,7 +24,6 @@
 static void FDECL(process_options, (int argc, char **argv));
 static void NDECL(nhusage);
 static char *NDECL(get_executable_path);
-static void early_options(int argc, char **argv);
 char *FDECL(translate_path_variables, (const char *, char *));
 char *NDECL(exename);
 boolean NDECL(fakeconsole);
@@ -475,7 +474,7 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
     check_recordfile((char *) 0);
     iflags.windowtype_deferred = TRUE;
     copy_sysconf_content();
-    early_options(argc, argv);
+    process_options(argc, argv);
     initoptions();
 
     /* Now that sysconf has had a chance to set the TROUBLEPREFIX, don't
@@ -651,8 +650,8 @@ char *argv[];
             nethack_exit(EXIT_SUCCESS);
 
         if (argcheck(argc, argv, ARG_SHOWPATHS) == 2) {
-            gd.deferred_showpaths = TRUE;
-            /* gd.deferred_showpaths is not used by windows */
+            deferred_showpaths = TRUE;
+            /* deferred_showpaths is not used by windows */
             return;
         }
         if (argcheck(argc, argv, ARG_DEBUG) == 1) {
@@ -736,8 +735,8 @@ char *argv[];
 #endif
         case 'u':
             if (argv[0][2])
-                (void) strncpy(plname, argv[0] + 2, sizeof(plname) - 1);
-                               sizeof(svp.plname) - 1);
+                (void) strncpy(plname, argv[0] + 2,
+                               sizeof(plname) - 1);
             else if (argc > 1) {
                 argc--;
                 argv++;
