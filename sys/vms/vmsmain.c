@@ -67,6 +67,12 @@ char *argv[];
         dir = nh_getenv("HACKDIR");
 #endif
     if (argc > 1) {
+        if (argcheck(argc, argv, ARG_VERSION) == 2)
+            exit(EXIT_SUCCESS);
+
+        if (argcheck(argc, argv, ARG_SHOWPATHS) == 2) {
+            deferred_showpaths = TRUE;
+            return;
 #ifdef CHDIR
         if (!strncmp(argv[1], "-d", 2) && argv[1][2] != 'e') {
             /* avoid matching "-dec" for DECgraphics; since the man page

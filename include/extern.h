@@ -848,10 +848,11 @@ E void NDECL(really_close);
 #ifdef DEBUG
 E boolean FDECL(debugcore, (const char *, BOOLEAN_P));
 #endif
-E void NDECL(reveal_paths);
+E void FDECL(reveal_paths,(int));
 E boolean FDECL(read_tribute, (const char *, const char *, int,
                                char *, int, unsigned));
 E boolean FDECL(Death_quote, (char *, int));
+extern void FDECL(do_deferred_showpaths, (int));
 
 /* ### fountain.c ### */
 
@@ -2593,6 +2594,7 @@ E void FDECL(sethanguphandler, (void (*)(int)));
 E boolean NDECL(authorize_wizard_mode);
 E boolean FDECL(check_user_string, (char *));
 E char *NDECL(get_login_name);
+ATTRNORETURN extern void after_opt_showpaths(const char *) NORETURN;
 #endif /* UNIX */
 
 /* ### unixtty.c ### */

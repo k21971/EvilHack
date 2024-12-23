@@ -334,6 +334,8 @@ NEARDATA struct savefile_info sfrestinfo, sfsaveinfo = {
 #endif
 #if defined(ZEROCOMP)
         | SFI1_ZEROCOMP
+    FALSE, /* deferred_showpaths */
+    NULL,  /* deferred_showpaths_dir  */
 #endif
 #if defined(RLECOMP)
         | SFI1_RLECOMP
