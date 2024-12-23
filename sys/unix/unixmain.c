@@ -811,7 +811,7 @@ const char *dir;
 #else
     nhUse(dir);
 #endif
-    reveal_paths(0);
+    opt_terminate();
 }
 
 /* for command-line options that perform some immediate action and then
