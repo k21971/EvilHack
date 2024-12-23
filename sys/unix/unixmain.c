@@ -31,6 +31,7 @@ static void FDECL(chdirx, (const char *, BOOLEAN_P));
 #endif /* CHDIR */
 static boolean NDECL(whoami);
 static void FDECL(process_options, (int, char **));
+static void NDECL(opt_terminate);
 
 #ifdef _M_UNIX
 extern void NDECL(check_sco_console);
@@ -115,14 +116,9 @@ char *argv[];
             exit(EXIT_SUCCESS);
 
         if (argcheck(argc, argv, ARG_SHOWPATHS) == 2) {
-#ifdef CHDIR
-            chdirx((char *) 0, 0);
-#endif
-            iflags.initoptions_noterminate = TRUE;
-            initoptions();
-            iflags.initoptions_noterminate = FALSE;
-            reveal_paths();
-            exit(EXIT_SUCCESS);
+            deferred_showpaths = TRUE;
+            deferred_showpaths_dir = (char *) 0;
+            return;
         }
         if (argcheck(argc, argv, ARG_DEBUG) == 1) {
             argc--;
@@ -805,6 +801,29 @@ sys_random_seed()
         }
     }
     return seed;
+}
+
+void
+after_opt_showpaths(dir)
+const char *dir;
+{
+#ifdef CHDIR
+    chdirx((char *) 0, 0);
+#else
+    nhUse(dir);
+#endif
+    reveal_paths();
+    
+}
+
+/* for command-line options that perform some immediate action and then
+   terminate the program without starting play, like 'nethack --version'
+   or 'nethack -s Zelda'; do some cleanup before that termination */
+static void
+opt_terminate(void)
+{
+    nh_terminate(EXIT_SUCCESS);
+    /*NOTREACHED*/
 }
 
 /*unixmain.c*/
