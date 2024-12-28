@@ -4991,6 +4991,8 @@ struct monst *mtmp;
                 continue;
             if (mon == mtmp) /* target is caster */
                 continue;
+            if (is_undead(mon->data)) /* target is undead */
+                continue;
             if (!same_race(mtmp->data, mon->data)) /* target isn't same race */
                 continue;
             if (!m_cansee(mtmp, mon->mx, mon->my)) /* target can't be seen */
@@ -5001,7 +5003,7 @@ struct monst *mtmp;
                 continue;
             if (mtmp->mcan || mtmp->mspec_used) /* caster is cancelled or out of spell power */
                 continue;
-            if (mtmp->mconf || mtmp->mstun || mtmp->mfrozen) /* caster not incapacitated */
+            if (mtmp->mconf || mtmp->mstun || mtmp->mfrozen) /* caster is incapacitated */
                 continue;
             switch(monsndx(mtmp->data)) {
             default:
