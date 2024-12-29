@@ -3720,4 +3720,5 @@ The following changes to date are:
 - New spells: barkskin and stoneskin
 - Fix: support casters healing same race undead
 - New spell: entangle
+- Account for new bear monsters in various scenarios
 

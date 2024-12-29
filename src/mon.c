@@ -6544,6 +6544,8 @@ struct permonst *mdat;
         case PM_WEREWOLF:
         case PM_WEREDEMON:
         case PM_OWLBEAR:
+        case PM_CAVE_BEAR:
+        case PM_GRIZZLY_BEAR:
             You("detect an odor reminiscent of an animal's den.");
             msg_given = TRUE;
             break;

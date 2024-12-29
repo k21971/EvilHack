@@ -2003,7 +2003,9 @@ int part;
 
     /* some special cases */
     if (mptr->mlet == S_DOG || mptr->mlet == S_FELINE
-        || mptr->mlet == S_RODENT || mptr == &mons[PM_OWLBEAR]) {
+        || mptr->mlet == S_RODENT || mptr == &mons[PM_OWLBEAR]
+        || mptr == &mons[PM_CAVE_BEAR]
+        || mptr == &mons[PM_GRIZZLY_BEAR]) {
         switch (part) {
         case HAND:
             return "paw";

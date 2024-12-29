@@ -1336,7 +1336,8 @@ unsigned trflags;
             pline("%s bear trap closes on your %s!", A_Your[trap->madeby_u],
                   body_part(FOOT));
             set_wounded_legs(rn2(2) ? RIGHT_SIDE : LEFT_SIDE, rn1(10, 10));
-            if (u.umonnum == PM_OWLBEAR || u.umonnum == PM_BUGBEAR)
+            if (u.umonnum == PM_OWLBEAR || u.umonnum == PM_BUGBEAR
+                || u.umonnum == PM_GRIZZLY_BEAR || u.umonnum == PM_CAVE_BEAR)
                 You("howl in anger!");
             losehp(Maybe_Half_Phys(dmg), "bear trap", KILLED_BY_AN);
         }
@@ -2743,7 +2744,9 @@ register struct monst *mtmp;
                     seetrap(trap);
                 } else {
                     if (mptr == &mons[PM_OWLBEAR]
-                        || mptr == &mons[PM_BUGBEAR]) {
+                        || mptr == &mons[PM_BUGBEAR]
+                        || mptr == &mons[PM_CAVE_BEAR]
+                        || mptr == &mons[PM_GRIZZLY_BEAR]) {
                         if (!Deaf)
                             You_hear("the roaring of an angry bear!");
                     }
@@ -3057,6 +3060,8 @@ register struct monst *mtmp;
             switch (monsndx(mptr)) {
             case PM_OWLBEAR: /* Eric Backus */
             case PM_BUGBEAR:
+            case PM_CAVE_BEAR:
+            case PM_GRIZZLY_BEAR:
                 if (!in_sight) {
                     if (!Deaf)
                         You_hear("the roaring of a confused bear!");
