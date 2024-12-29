@@ -337,6 +337,9 @@ int x, y;
     if (mtmp->mleashed)
         Strcat(buf, ", leashed to you");
 
+    if (mtmp->mentangled && cansee(mtmp->mx, mtmp->my))
+        Strcat(buf, ", entangled");
+
     if (canseemon(mtmp) && !Blind) {
         if (accurate || program_state.gameover) {
             if (mtmp->misc_worn_check & W_ARMOR) {

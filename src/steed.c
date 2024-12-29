@@ -720,6 +720,12 @@ boolean force;      /* Quietly force this animal */
         return (FALSE);
     }
 
+    if (mtmp->mentangled) {
+        You_cant("mount %s while %s's entangled.", mon_nam(mtmp),
+                 mhe(mtmp));
+        return (FALSE);
+    }
+
     /* Knights will not decrease the tameness of their steed when
        mounting them. The same is true for any role whose steed is
        wearing Ithilmar (artifact barding) */

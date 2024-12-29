@@ -547,7 +547,7 @@ struct trobj tortleDruid[] = {
     { EUCALYPTUS_LEAF, 0, FOOD_CLASS, 1, 0 },
     { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
-    { SPE_BARKSKIN, 0, SPBOOK_CLASS, 1, 1 },
+    { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1 },
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
@@ -814,7 +814,7 @@ unsigned short chance;
                            && mtmp->mnum == PM_WIZARD)
                        || (otyp == WAN_MAGIC_MISSILE
                            && mtmp->mnum == PM_WIZARD)
-                       || (otyp == SPE_BARKSKIN
+                       || (otyp == SPE_ENTANGLE
                            && mtmp->mnum == PM_DRUID)
                        || (otyp == SPE_DRAIN_LIFE
                            && mtmp->mnum == PM_INFIDEL)
@@ -2821,6 +2821,7 @@ xchar x, y; /* clone's preferred location or 0 (near mon) */
 
     m2->mundetected = 0;
     m2->mtrapped = 0;
+    m2->mentangled = 0;
     m2->mcloned = 1;
     m2->minvent = (struct obj *) 0; /* objects don't clone */
     m2->mleashed = 0;

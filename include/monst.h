@@ -130,38 +130,39 @@ struct monst {
                                * implies one of M1_CONCEAL or M1_HIDE,
                                * but not mimic (that is, snake, spider,
                                * trapper, piercer, eel) */
-    Bitfield(mcansee, 1);   /* cansee 1, temp.blinded 0, blind 0 */
+    Bitfield(mcansee, 1);     /* cansee 1, temp.blinded 0, blind 0 */
 
-    Bitfield(mspeed, 2);    /* current speed */
-    Bitfield(permspeed, 2); /* intrinsic mspeed value */
-    Bitfield(mrevived, 1);  /* has been revived from the dead */
-    Bitfield(mcloned, 1);   /* has been cloned from another */
-    Bitfield(mavenge, 1);   /* did something to deserve retaliation */
-    Bitfield(mflee, 1);     /* fleeing */
+    Bitfield(mspeed, 2);     /* current speed */
+    Bitfield(permspeed, 2);  /* intrinsic mspeed value */
+    Bitfield(mrevived, 1);   /* has been revived from the dead */
+    Bitfield(mcloned, 1);    /* has been cloned from another */
+    Bitfield(mavenge, 1);    /* did something to deserve retaliation */
+    Bitfield(mflee, 1);      /* fleeing */
 
-    Bitfield(mfleetim, 7);  /* timeout for mflee */
-    Bitfield(msleeping, 1); /* asleep until woken */
+    Bitfield(mfleetim, 7);   /* timeout for mflee */
+    Bitfield(msleeping, 1);  /* asleep until woken */
 
-    Bitfield(mblinded, 7);  /* cansee 0, temp.blinded n, blind 0 */
-    Bitfield(mstun, 1);     /* stunned (off balance) */
+    Bitfield(mblinded, 7);   /* cansee 0, temp.blinded n, blind 0 */
+    Bitfield(mstun, 1);      /* stunned (off balance) */
 
     Bitfield(mfrozen, 7);
-    Bitfield(mcanmove, 1);  /* paralysis, similar to mblinded */
+    Bitfield(mcanmove, 1);   /* paralysis, similar to mblinded */
 
-    Bitfield(mconf, 1);     /* confused */
-    Bitfield(msick, 2);     /* monsters ill from zombies */
-    Bitfield(msickbyu, 1);  /* monsters ill from you as a zombie */
-    Bitfield(mdiseased, 1); /* monsters infected with disease */
-    Bitfield(mdiseabyu, 1); /* monsters infected by you */
-    Bitfield(mpeaceful, 1); /* does not attack unprovoked */
-    Bitfield(mtrapped, 1);  /* trapped in a pit, web or bear trap */
-    Bitfield(mleashed, 1);  /* monster is on a leash */
-    Bitfield(uexp, 1);      /* you get experience for its kills */
-    Bitfield(isshk, 1);     /* is shopkeeper */
-    Bitfield(isminion, 1);  /* is a minion */
-    Bitfield(isgd, 1);      /* is guard */
-    Bitfield(ispriest, 1);  /* is an aligned priest or high priest */
-    Bitfield(isqldr, 1);    /* is quest leader */
+    Bitfield(mconf, 1);      /* confused */
+    Bitfield(msick, 2);      /* monsters ill from zombies */
+    Bitfield(msickbyu, 1);   /* monsters ill from you as a zombie */
+    Bitfield(mdiseased, 1);  /* monsters infected with disease */
+    Bitfield(mdiseabyu, 1);  /* monsters infected by you */
+    Bitfield(mpeaceful, 1);  /* does not attack unprovoked */
+    Bitfield(mtrapped, 1);   /* trapped in a pit, web or bear trap */
+    Bitfield(mentangled, 1); /* entangled by a spell */
+    Bitfield(mleashed, 1);   /* monster is on a leash */
+    Bitfield(uexp, 1);       /* you get experience for its kills */
+    Bitfield(isshk, 1);      /* is shopkeeper */
+    Bitfield(isminion, 1);   /* is a minion */
+    Bitfield(isgd, 1);       /* is guard */
+    Bitfield(ispriest, 1);   /* is an aligned priest or high priest */
+    Bitfield(isqldr, 1);     /* is quest leader */
 
     Bitfield(iscerberus, 1); /* is Cerberus */
     Bitfield(isvecna, 1);    /* is Vecna */
@@ -178,7 +179,7 @@ struct monst {
     Bitfield(mstone, 3);     /* monster is turning to stone */
     Bitfield(mberserk, 1);   /* monster is berserk */
     Bitfield(minsects, 1);   /* monster summoned via CLC_INSECTS spell */
-    /* 5 free bits */
+    /* 4 free bits */
 
     uchar mwither;           /* withering; amount of turns left till recovery */
     uchar vuln_fire;         /* timeout of temp vulnerability to fire */
@@ -225,6 +226,7 @@ struct monst {
     int mreflecttime;      /* timeout for monster reflection spell */
     int mbarkskintime;     /* timeout for monster barkskin spell */
     int mstoneskintime;    /* timeout for monster stoneskin spell */
+    int mentangletime;     /* timeout for monster entangle spell */
     uchar mprotection;     /* monster protection spell */
     uchar mprottime;       /* timeout for monster protection spell */
     struct mon_former_rank former_rank; /* for monsters in bones */

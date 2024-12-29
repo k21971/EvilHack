@@ -606,6 +606,7 @@ register struct monst *mtmp;
         /* save its current description in case of polymorph */
         Strcpy(pnambuf, y_monnam(mtmp));
         mtmp->mtrapped = 0;
+        mtmp->mentangled = 0;
         remove_monster(mtmp->mx, mtmp->my);
         place_monster(mtmp, u.ux0, u.uy0);
         newsym(mtmp->mx, mtmp->my);

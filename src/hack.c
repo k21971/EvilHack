@@ -2200,6 +2200,11 @@ domove_core()
             You("stop.  %s can't move out of that trap.",
                 upstart(y_monnam(mtmp)));
             didnt_move = TRUE;
+        } else if ((mtmp->mpeaceful || mtmp->mtame)
+                   && (mtmp->mentangled || is_stationary(mtmp->data))) {
+            You("stop.  %s is unable to move.",
+                upstart(y_monnam(mtmp)));
+            didnt_move = TRUE;
         } else if (mtmp->mpeaceful
                    && (!goodpos(u.ux0, u.uy0, mtmp, 0)
                        || t_at(u.ux0, u.uy0) != NULL
@@ -2215,6 +2220,7 @@ domove_core()
             /* save its current description in case of polymorph */
             Strcpy(pnambuf, y_monnam(mtmp));
             mtmp->mtrapped = 0;
+            mtmp->mentangled = 0;
             remove_monster(x, y);
             place_monster(mtmp, u.ux0, u.uy0);
             newsym(x, y);

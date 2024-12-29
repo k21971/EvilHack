@@ -1159,6 +1159,8 @@ struct monst *mtmp;
         Strcat(info, ", scared");
     if (mtmp->mtrapped)
         Strcat(info, ", trapped");
+    if (mtmp->mentangled)
+        Strcat(info, ", entangled");
     if (mtmp->mspeed)
         Strcat(info, (mtmp->mspeed == MFAST) ? ", fast"
                       : (mtmp->mspeed == MSLOW) ? ", slow"

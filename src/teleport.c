@@ -1367,6 +1367,11 @@ register int x, y;
     /* trapped monster teleported away */
     if (mtmp->mtrapped && !mtmp->wormno)
         (void) mintrap(mtmp);
+
+    /* entanglement goes away (pulled away from plants
+       magically entangling mtmp) */
+    if (mtmp->mentangled)
+        mtmp->mentangled = 0;
 }
 
 /* place a monster at a random location, typically due to teleport */

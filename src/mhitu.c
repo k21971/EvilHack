@@ -926,7 +926,7 @@ register struct monst *mtmp;
         tmp += 4;
     if ((Invis && !mon_prop(mtmp, SEE_INVIS)) || !mtmp->mcansee)
         tmp -= 2;
-    if (mtmp->mtrapped)
+    if (mtmp->mtrapped || mtmp->mentangled)
         tmp -= 2;
     if ((has_erac(mtmp) && (ERAC(mtmp)->mflags3 & M3_ACCURATE))
         || is_accurate(mdat)) /* M3_ACCURATE monsters get a to-hit bonus */
@@ -2820,6 +2820,7 @@ struct attack *mattk;
             unplacebc(); /* ball&chain go away */
         remove_monster(omx, omy);
         mtmp->mtrapped = 0; /* no longer on old trap */
+        mtmp->mentangled = 0; /* no longer entangled */
         place_monster(mtmp, u.ux, u.uy);
         u.ustuck = mtmp;
         newsym(mtmp->mx, mtmp->my);

@@ -985,6 +985,55 @@ register struct monst *mdef;
     }
 }
 
+void
+cast_entangle(mdef)
+register struct monst *mdef;
+{
+    boolean youdefend = (mdef == &youmonst);
+    int grass = 0, total = 0;
+    int skill = (P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_EXPERT
+                 ? 5 : P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_SKILLED
+                     ? 4 : P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_BASIC
+                         ? 3 : 1);
+
+    if (levl[mdef->mx][mdef->my].typ == GRASS)
+        grass += 2;
+
+    total = skill + grass;
+
+    if (youdefend) {
+        /* TODO: currently only the player can do this to
+           themselves, so nomul() will suffice, but a more
+           robust solution should be created for this */
+        You("are entangled!");
+        if (u.usteed) {
+            newsym(u.usteed->mx, u.usteed->my);
+            dismount_steed(DISMOUNT_FELL);
+        }
+        nomul(-3);
+    } else if (!youdefend) {
+        if (mdef->mentangled) {
+            /* if already entangled, don't add to it */
+            if (canseemon(mdef))
+                pline("%s is already entangled!", Monnam(mdef));
+            return;
+        } else {
+            if (canseemon(mdef))
+                pline("%s is entangled!", Monnam(mdef));
+            mdef->mentangled = 1;
+            /* 3-6/8 turns at basic, 3-7/9 turns at skilled,
+               3-8/10 turns at expert. at unskilled/restricted,
+               1-4/6 turns */
+            mdef->mentangletime = rn1(4, total);
+            /* if spell skill is skilled or greater, chance to
+               temporarily slow mdef */
+            if (rn2(2) && levl[mdef->mx][mdef->my].typ == GRASS
+                && P_SKILL(spell_skilltype(SPE_ENTANGLE)) >= P_SKILLED)
+                mon_adjust_speed(mdef, -2, (struct obj *) 0);
+        }
+    }
+}
+
 /* attempting to cast a forgotten spell will cause disorientation */
 STATIC_OVL void
 spell_backfire(spell)
@@ -1376,6 +1425,7 @@ boolean wiz_cast;
     case SPE_DRAIN_LIFE:
     case SPE_STONE_TO_FLESH:
     case SPE_PSIONIC_WAVE:
+    case SPE_ENTANGLE:
         if (objects[otyp].oc_dir != NODIR) {
             if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING
                 || otyp == SPE_CRITICAL_HEALING || otyp == SPE_RESTORE_ABILITY) {

@@ -876,7 +876,8 @@ xchar x, y;
         return FALSE;
     /* redundant when called by mhurtle() */
     if (r_data(mon)->msize >= MZ_HUGE
-        || mon == u.ustuck || mon->mtrapped)
+        || mon == u.ustuck || mon->mtrapped
+        || mon->mentangled)
         return FALSE;
     /*
      * TODO: Treat walls, doors, iron bars, etc. specially
@@ -1055,7 +1056,8 @@ int dx, dy, range;
      * (very large monsters have too much inertia, even floaters and flyers)
      */
     if (r_data(mon)->msize >= MZ_HUGE
-        || mon == u.ustuck || mon->mtrapped) {
+        || mon == u.ustuck || mon->mtrapped
+        || mon->mentangled) {
         if (canseemon(mon))
             pline("%s doesn't budge!", Monnam(mon));
         return;

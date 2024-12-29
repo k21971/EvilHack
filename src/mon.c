@@ -1313,6 +1313,14 @@ mcalcdistress()
             continue;
         }
 
+        if (mtmp->mentangled && mtmp->mentangletime < 1) {
+            mtmp->mentangled = 0;
+            if (canseemon(mtmp))
+                pline("%s is no longer entangled.",
+                      Monnam(mtmp));
+            continue;
+        }
+
         /* assassin vines will slowly grow and spread throughout the
            level until the original vine is killed or at least drops
            below two-thirds of its maximum hit points */
@@ -3101,7 +3109,8 @@ struct monst *magr, /* monster that is currently deciding where to move */
         && !(magr->mx != mdef->mx && magr->my != mdef->my
              && NODIAG(monsndx(pd)))
         /* no displacing trapped monsters or multi-location longworms */
-        && !mdef->mtrapped && (!mdef->wormno || !count_wsegs(mdef))
+        && !mdef->mtrapped && !mdef->mentangled
+        && (!mdef->wormno || !count_wsegs(mdef))
         /* riders can move anything; others, same size or smaller only */
         && (is_rider(pa) || pa->msize >= pd->msize))
         return ALLOW_MDISP;
@@ -3226,6 +3235,7 @@ struct monst **monst_list; /* &migrating_mons or &mydogs or null */
 
     if (on_map) {
         mon->mtrapped = 0;
+        mon->mentangled = 0;
         if (mon->wormno)
             remove_worm(mon);
         else
@@ -3371,6 +3381,7 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
         m_unleash(mtmp, FALSE);
     /* to prevent an infinite relobj-flooreffects-hmon-killed loop */
     mtmp->mtrapped = 0;
+    mtmp->mentangled = 0;
     mtmp->mhp = 0; /* simplify some tests: force mhp to 0 */
     relobj(mtmp, 0, FALSE);
     if (onmap) {
@@ -4083,6 +4094,7 @@ struct monst *mdef;
         return;
 
     mdef->mtrapped = 0; /* (see m_detach) */
+    mdef->mentangled = 0;
 
     if ((int) mdef->data->msize > MZ_TINY
         || !rn2(2 + ((int) (mdef->data->geno & G_FREQ) > 2))) {

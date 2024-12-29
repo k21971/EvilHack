@@ -587,6 +587,8 @@ struct obj *obj;
                     mtmp->mtrapped = 0;
                     fill_pit(mtmp->mx, mtmp->my);
                 }
+                if (mtmp->mentangled)
+                    mtmp->mentangled = 0;
                 /* mimic must be revealed before we know whether it
                    actually moves because line-of-sight may change */
                 if (M_AP_TYPE(mtmp))

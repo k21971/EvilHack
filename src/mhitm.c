@@ -1067,6 +1067,10 @@ struct monst *magr, *mdef;
     if (mdef->mtrapped)
         return FALSE;
 
+    /* can't swallow entangled monsters */
+    if (mdef->mentangled)
+        return FALSE;
+
     /* can't swallow something if riding / being ridden */
     if (magr->ridden_by || mdef->ridden_by || has_erid(magr))
         return FALSE;

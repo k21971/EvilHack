@@ -295,6 +295,8 @@ boolean digest_meal;
         mon->mbarkskintime--;
     if (mon->mstoneskintime)
         mon->mstoneskintime--;
+    if (mon->mentangletime)
+        mon->mentangletime--;
     if (digest_meal) {
         if (mon->meating) {
             mon->meating--;
@@ -882,7 +884,9 @@ toofar:
         if (!(scared && mw_tmp && is_pick(mw_tmp))
             && !(mw_tmp && is_pole(mw_tmp))
             && mtmp->weapon_check == NEED_WEAPON
-            && !(mtmp->mtrapped && !nearby && select_rwep(mtmp))) {
+            && !((mtmp->mtrapped || mtmp->mentangled
+                  || is_stationary(mdat))
+                 && !nearby && select_rwep(mtmp))) {
             mtmp->weapon_check = NEED_HTH_WEAPON;
             if (mon_wield_item(mtmp) != 0)
                 return 0;
@@ -1245,7 +1249,8 @@ register int after;
     }
     ptr = mtmp->data; /* mintrap() can change mtmp->data -dlc */
 
-    if (is_stationary(ptr)) /* doesn't move, but can still attack */
+    /* doesn't move, but can still attack */
+    if (is_stationary(ptr) || mtmp->mentangled)
         return 0;
 
     if (mtmp->ridden_by)

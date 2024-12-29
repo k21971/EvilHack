@@ -70,7 +70,7 @@ struct trobj Druid[] = {
     { EUCALYPTUS_LEAF, 0, FOOD_CLASS, 1, 0 },
     { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
-    { SPE_BARKSKIN, 0, SPBOOK_CLASS, 1, 1 },
+    { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1 },
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
@@ -1754,7 +1754,7 @@ register struct trobj *origtrop;
                    || (otyp == SPE_FORCE_BOLT && Role_if(PM_WIZARD))
                    || (otyp == WAN_MAGIC_MISSILE && Role_if(PM_WIZARD))
                    /* same for druids */
-                   || (otyp == SPE_BARKSKIN && Role_if(PM_DRUID))
+                   || (otyp == SPE_ENTANGLE && Role_if(PM_DRUID))
                    /* and same for infidels */
                    || (otyp == SPE_DRAIN_LIFE && Role_if(PM_INFIDEL))
                    /* infidels already have auto-clairvoyance

@@ -689,6 +689,12 @@ long nmv; /* number of moves */
         else
             mtmp->mstoneskintime -= imv;
     }
+    if (mtmp->mentangletime) {
+        if (imv >= (int) mtmp->mentangletime)
+            mtmp->mentangletime = 1;
+        else
+            mtmp->mentangletime -= imv;
+    }
 
     /* Withering monsters by rights ought to keep withering while off-level, but
      * it brings up a host of problems to have a monster die in this function
@@ -798,6 +804,7 @@ boolean pets_only; /* true for ascension or final escape */
                unlike level change for steed, don't bother trying
                to achieve a normal trap escape first */
             mtmp->mtrapped = 0;
+            mtmp->mentangled = 0;
             mtmp->meating = 0;
             mtmp->msleeping = 0;
             mtmp->mfrozen = 0;
@@ -822,10 +829,13 @@ boolean pets_only; /* true for ascension or final escape */
                 mtmp->mtrapped = 0;       /* escape trap */
                 mtmp->meating = 0;        /* terminate eating */
                 mdrop_special_objs(mtmp); /* drop Amulet */
-            } else if (mtmp->meating || mtmp->mtrapped) {
+            } else if (mtmp->meating || mtmp->mtrapped
+                       || mtmp->mentangled) {
                 if (canseemon(mtmp))
                     pline("%s is still %s.", Monnam(mtmp),
-                          mtmp->meating ? "eating" : "trapped");
+                          mtmp->meating ? "eating"
+                                        : mtmp->mentangled ? "entangled"
+                                                           : "trapped");
                 stay_behind = TRUE;
             } else if (mon_has_amulet(mtmp)) {
                 if (canseemon(mtmp))

@@ -644,6 +644,9 @@ struct obj *otmp;
             }
         }
         break;
+    case SPE_ENTANGLE:
+        cast_entangle(mtmp);
+        break;
     case WAN_NOTHING:
         wake = FALSE;
         break;
@@ -854,6 +857,7 @@ boolean adjacentok; /* False: at obj's spot only, True: nearby is allowed */
         mtmp2->msummoned = 0;
         mtmp2->mberserk = 0;
         mtmp2->minsects = 0;
+        mtmp2->mentangled = 0;
         mtmp2->uexp = 0;
         /* when traits are for a shopeekper, dummy monster 'mtmp' won't
            have necessary eshk data for replmon() -> replshk() */
@@ -2395,6 +2399,7 @@ struct obj *obj, *otmp;
         case SPE_CURE_SICKNESS:
         case SPE_RESTORE_ABILITY:
         case SPE_PSIONIC_WAVE:
+        case SPE_ENTANGLE:
             res = 0;
             break;
         case SPE_STONE_TO_FLESH:
@@ -3132,6 +3137,9 @@ boolean ordinary;
         } while (didmerge);
         break;
     }
+    case SPE_ENTANGLE:
+        cast_entangle(&youmonst);
+        break;
     default:
         impossible("zapyourself: object %d used?", obj->otyp);
         break;
@@ -3259,6 +3267,7 @@ struct obj *obj; /* wand or spell */
     case SPE_DRAIN_LIFE:
     case WAN_OPENING:
     case SPE_KNOCK:
+    case SPE_ENTANGLE:
         (void) bhitm(u.usteed, obj);
         steedhit = TRUE;
         break;

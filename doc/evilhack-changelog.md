@@ -3719,4 +3719,5 @@ The following changes to date are:
 - Fix: forges and objects coated in various substances
 - New spells: barkskin and stoneskin
 - Fix: support casters healing same race undead
+- New spell: entangle
 

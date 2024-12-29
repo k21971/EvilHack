@@ -109,7 +109,8 @@ boolean clumsy;
     if (dmg > 0)
         damage_mon(mon, dmg, AD_PHYS);
     if (!DEADMONSTER(mon) && martial() && !r_bigmonst(mon) && !rn2(3)
-        && mon->mcanmove && mon != u.ustuck && !mon->mtrapped) {
+        && mon->mcanmove && mon != u.ustuck && !mon->mtrapped
+        && !mon->mentangled) {
         /* see if the monster has a place to move into */
         mdx = mon->mx + u.dx;
         mdy = mon->my + u.dy;
@@ -279,7 +280,7 @@ xchar x, y;
         && mon->data->mlet != S_EEL && haseyes(mon->data) && mon->mcanmove
         && !mon->mstun && !mon->mconf && !mon->msleeping
         && !has_barkskin(mon) && !has_stoneskin(mon)
-        && mon->data->mmove >= 12) {
+        && !mon->mentangled && mon->data->mmove >= 12) {
         if (!nohands(mon->data) && !rn2(martial() ? 10 : 3)) {
             pline("%s blocks your %skick.", Monnam(mon),
                   clumsy ? "clumsy " : "");
