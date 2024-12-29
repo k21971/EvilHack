@@ -3721,4 +3721,6 @@ The following changes to date are:
 - Fix: support casters healing same race undead
 - New spell: entangle
 - Account for new bear monsters in various scenarios
+- More spell skills for Druids, other roles gain evocation spell
+  skill
 
