@@ -1034,6 +1034,61 @@ register struct monst *mdef;
     }
 }
 
+void
+grow_grass(x, y, grasscnt)
+int x, y;
+genericptr_t grasscnt;
+{
+    struct trap *ttmp;
+
+    /* Grow grass only on regular terrain, weighted
+       towards spaces near the player */
+    if (rn2(1 + distmin(u.ux, u.uy, x, y))
+        || levl[x][y].typ != ROOM)
+        return;
+
+    /* Never grow grass if there's an immovable
+       trap here */
+    ttmp = t_at(x, y);
+    if (ttmp && !delfloortrap(ttmp))
+        return;
+
+    /* grow grass */
+    levl[x][y].typ = GRASS;
+    del_engr_at(x, y);
+    newsym(x, y);
+    (* (int*)grasscnt)++;
+}
+
+void
+cast_create_grass()
+{
+    int skill = (P_SKILL(spell_skilltype(SPE_CREATE_GRASS)) == P_EXPERT
+                 ? 4 : P_SKILL(spell_skilltype(SPE_CREATE_GRASS)) == P_SKILLED
+                     ? 2 : P_SKILL(spell_skilltype(SPE_CREATE_GRASS)) == P_BASIC
+                         ? 1 : 0);
+    int range = 1 + skill;
+    int madegrass = 0;
+
+    /* creates grass around the caster, including the tile
+       they are standing on if suitable. at basic skill,
+       grass will grow out to two tile spaces away from the
+       caster, skilled is three tile spaces out, expert is
+       five tile spaces. at unskilled/restricted, grass will
+       only grow one tile space out */
+    do_clear_area(u.ux, u.uy, range, grow_grass, &madegrass);
+
+    if (madegrass) {
+        if (Hallucination)
+            pline("Whoa... so much grass, dude!");
+        else
+            pline("Grass grows throughout the area!");
+    } else {
+        /* grass didn't grow anywhere */
+        pline_The("ground briefly stirs, but nothing else happens.");
+    }
+}
+
 /* attempting to cast a forgotten spell will cause disorientation */
 STATIC_OVL void
 spell_backfire(spell)
@@ -1581,6 +1636,9 @@ boolean wiz_cast;
         break;
     case SPE_STONESKIN:
         cast_stoneskin(&youmonst);
+        break;
+    case SPE_CREATE_GRASS:
+        cast_create_grass();
         break;
     case SPE_FLAME_SPHERE:
     case SPE_FREEZE_SPHERE:

@@ -1136,6 +1136,8 @@ SPELL("entangle",         "singed",
       P_EVOCATION_SPELL,   15,  1, 1, 1, IMMEDIATE, CLR_BRIGHT_BLUE),
 SPELL("barkskin",         "torn",
       P_EVOCATION_SPELL,   10,  2, 2, 1, NODIR, CLR_GREEN),
+SPELL("create grass",     "moldy",
+      P_EVOCATION_SPELL,   10,  3, 3, 1, NODIR, CLR_BLUE),
 SPELL("stoneskin",        "moth-eaten",
       P_EVOCATION_SPELL,    5,  3, 4, 1, NODIR, CLR_MAGENTA),
 /* books with fixed descriptions

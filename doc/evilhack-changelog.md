@@ -3725,4 +3725,5 @@ The following changes to date are:
   skill
 - Fix: switch 'its' for his/her in screamm()
 - Allow giants to be Druids
+- New spell: create grass
 

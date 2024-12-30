@@ -933,7 +933,9 @@ int wtcap;
                                  && !u.uachieve.amulet),
             drow_in_light = (maybe_polyd(is_drow(youmonst.data),
                                          Race_if(PM_DROW))
-                             && !spot_is_dark(u.ux, u.uy));
+                             && !spot_is_dark(u.ux, u.uy)),
+            druid_on_grass = (Role_if(PM_DRUID)
+                              && levl[u.ux][u.uy].typ == GRASS);
 
     /* periodically let our Infidel know why their hit
        points aren't regenerating if they don't have
@@ -972,16 +974,22 @@ int wtcap;
 
            Drow heal more slowly in the light (3x slower), Infidels
            won't heal at all without the Amulet of Yendor with them
-           (pre-idol imbuement). No one can regenerate hit points
-           while located in the Valley of the Dead, except for Draugr */
+           (pre-idol imbuement), Druids will heal slightly faster
+           while standing on vegetation (grass). No one can regenerate
+           hit points while located in the Valley of the Dead, except
+           for Draugr */
         if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
             && (encumbrance_ok || Regeneration)
             && (!Is_valley(&u.uz) || Race_if(PM_DRAUGR))
             && !infidel_no_amulet && !wielding_artifact(ART_WAND_OF_ORCUS)) {
             if (u.ulevel > 9) {
                 long rate = 3L;
+
                 if (drow_in_light)
                     rate *= LIT_DROW_HREGEN_MULTI;
+
+                if (druid_on_grass)
+                    rate -= 1L;
 
                 if (!(moves % rate)) {
                     int Con = (int) ACURR(A_CON);
@@ -996,8 +1004,12 @@ int wtcap;
                 }
             } else { /* u.ulevel <= 9 */
                 long rate = (long) ((MAXULEV + 12) / (u.ulevel + 2) + 1);
+
                 if (drow_in_light)
                     rate *= LIT_DROW_HREGEN_MULTI;
+
+                if (druid_on_grass)
+                    rate -= 1L;
 
                 if (!(moves % rate)) {
                     heal = 1;

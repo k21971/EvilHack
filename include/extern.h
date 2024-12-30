@@ -2599,6 +2599,8 @@ E void FDECL(cast_reflection, (struct monst *));
 E void FDECL(cast_barkskin, (struct monst *));
 E void FDECL(cast_stoneskin, (struct monst *));
 E void FDECL(cast_entangle, (struct monst *));
+E void FDECL(grow_grass, (int, int, genericptr_t));
+E void NDECL(cast_create_grass);
 E int FDECL(spelleffects, (int, BOOLEAN_P, BOOLEAN_P));
 E int FDECL(tport_spell, (int));
 E void NDECL(losespells);
