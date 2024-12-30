@@ -3723,4 +3723,5 @@ The following changes to date are:
 - Account for new bear monsters in various scenarios
 - More spell skills for Druids, other roles gain evocation spell
   skill
+- Fix: switch 'its' for his/her in screamm()
 

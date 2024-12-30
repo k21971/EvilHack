@@ -1043,7 +1043,8 @@ struct attack *mattk;
                 pline("%s reels from the noise!", Monnam(mdef));
         } else {
             if (canseemon(mdef))
-                pline("%s struggles to keep its balance.", Monnam(mdef));
+                pline("%s struggles to keep %s balance.",
+                      Monnam(mdef), mhis(mdef));
         }
     }
 
