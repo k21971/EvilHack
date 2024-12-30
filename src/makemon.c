@@ -444,6 +444,20 @@ struct trobj giantCave_man[] = {
     { 0, 0, 0, 0, 0 }
 };
 
+
+struct trobj giantDruid[] = {
+    { QUARTERSTAFF, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { BRACERS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HIGH_BOOTS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { EUCALYPTUS_LEAF, 0, FOOD_CLASS, 1, 0 },
+    { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
+    { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
+    { SACK, 0, TOOL_CLASS, 1, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+
 struct trobj giantMonk[] = {
     { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
     { HIGH_BOOTS, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -1050,6 +1064,8 @@ register struct monst *mtmp;
                 Druid[D_MAJOR].trotyp = SCIMITAR;
             if (racial_tortle(mtmp))
                 ini_mon_inv(mtmp, tortleDruid, 1);
+            else if (racial_giant(mtmp))
+                ini_mon_inv(mtmp, giantDruid, 1);
             else
                 ini_mon_inv(mtmp, Druid, 1);
             ini_mon_inv(mtmp, Lamp, 25);

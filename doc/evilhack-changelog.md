@@ -3724,4 +3724,5 @@ The following changes to date are:
 - More spell skills for Druids, other roles gain evocation spell
   skill
 - Fix: switch 'its' for his/her in screamm()
+- Allow giants to be Druids
 

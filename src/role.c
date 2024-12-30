@@ -220,7 +220,8 @@ const struct Role roles[] = {
       S_SKELETON,
       S_PLANT,
       ART_BRACERS_OF_THE_FIRST_CIRCL,
-      MH_HUMAN | MH_ELF | MH_HOBBIT | MH_CENTAUR | MH_TORTLE,
+      MH_HUMAN | MH_ELF | MH_HOBBIT | MH_CENTAUR | MH_TORTLE
+          | MH_GIANT,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 10, 7, 7, 15 },
