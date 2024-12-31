@@ -1034,6 +1034,17 @@ register struct monst *mdef;
     }
 }
 
+int
+cast_metal_to_wood(obj, by_you)
+struct obj *obj;
+boolean by_you;
+{
+    if (by_you)
+        return metal_to_wood(obj, TRUE);
+    else
+        return metal_to_wood(obj, FALSE);
+}
+
 void
 grow_grass(x, y, grasscnt)
 int x, y;
@@ -1481,6 +1492,7 @@ boolean wiz_cast;
     case SPE_STONE_TO_FLESH:
     case SPE_PSIONIC_WAVE:
     case SPE_ENTANGLE:
+    case SPE_CHANGE_METAL_TO_WOOD:
         if (objects[otyp].oc_dir != NODIR) {
             if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING
                 || otyp == SPE_CRITICAL_HEALING || otyp == SPE_RESTORE_ABILITY) {

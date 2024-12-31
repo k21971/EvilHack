@@ -3726,4 +3726,5 @@ The following changes to date are:
 - Fix: switch 'its' for his/her in screamm()
 - Allow giants to be Druids
 - New spell: create grass
+- New spell: change metal to wood
 

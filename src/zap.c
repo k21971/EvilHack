@@ -647,6 +647,21 @@ struct obj *otmp;
     case SPE_ENTANGLE:
         cast_entangle(mtmp);
         break;
+    case SPE_CHANGE_METAL_TO_WOOD:
+        if (monsndx(mtmp->data) == PM_IRON_GOLEM) {
+            char *name = Monnam(mtmp);
+
+            /* turn into wood golem */
+            if (newcham(mtmp, &mons[PM_WOOD_GOLEM], FALSE, FALSE)) {
+                if (canseemon(mtmp))
+                    pline("%s turns to wood!", name);
+            } else {
+                if (canseemon(mtmp))
+                    pline("%s looks rather woody for a moment.", name);
+            }
+        } else
+            wake = FALSE;
+        break;
     case WAN_NOTHING:
         wake = FALSE;
         break;
@@ -2176,11 +2191,12 @@ struct obj *obj, *otmp;
     }
 
     /*
-     * Some parts of this function expect the object to be on the floor
-     * obj->{ox,oy} to be valid.  The exception to this (so far) is
-     * for the STONE_TO_FLESH spell.
+     * Some parts of this function expect the object to be on the
+     * floor obj->{ox,oy} to be valid.  The exception to this are
+     * the STONE_TO_FLESH and CHANGE_METAL_TO_WOOD spells.
      */
-    if (!(obj->where == OBJ_FLOOR || otmp->otyp == SPE_STONE_TO_FLESH))
+    if (!(obj->where == OBJ_FLOOR || otmp->otyp == SPE_STONE_TO_FLESH
+          || otmp->otyp == SPE_CHANGE_METAL_TO_WOOD))
         impossible("bhito: obj is not floor or Stone To Flesh spell");
 
     if (obj == uball) {
@@ -2404,6 +2420,9 @@ struct obj *obj, *otmp;
             break;
         case SPE_STONE_TO_FLESH:
             res = stone_to_flesh_obj(obj);
+            break;
+        case SPE_CHANGE_METAL_TO_WOOD:
+            res = cast_metal_to_wood(obj, FALSE);
             break;
         default:
             impossible("What an interesting effect (%d)", otmp->otyp);
@@ -3140,6 +3159,18 @@ boolean ordinary;
     case SPE_ENTANGLE:
         cast_entangle(&youmonst);
         break;
+    case SPE_CHANGE_METAL_TO_WOOD: {
+        struct obj *otmp;
+
+        /* only change what caster is wielding */
+        if (uwep)
+            otmp = uwep;
+        else
+            otmp = (struct obj *) 0;
+
+        (int) cast_metal_to_wood(otmp, TRUE);
+        break;
+    }
     default:
         impossible("zapyourself: object %d used?", obj->otyp);
         break;
@@ -3268,6 +3299,7 @@ struct obj *obj; /* wand or spell */
     case WAN_OPENING:
     case SPE_KNOCK:
     case SPE_ENTANGLE:
+    case SPE_CHANGE_METAL_TO_WOOD:
         (void) bhitm(u.usteed, obj);
         steedhit = TRUE;
         break;

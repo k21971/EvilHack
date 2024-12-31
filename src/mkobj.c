@@ -3772,6 +3772,63 @@ struct obj* obj;
     return NULL;
 }
 
+boolean
+metal_to_wood(obj, by_you)
+struct obj* obj;
+boolean by_you;
+{
+    int origmat = obj->material;
+    int j = 0, newmat = WOOD;
+
+    /* artifacts, invocation items,
+       Amulet of Yendor are off-limits */
+    if (obj->oartifact || obj_resists(obj, 0, 0)) {
+        if (!Blind)
+            pline("%s %s violently glows for a moment, but resists transformation.",
+                  by_you ? "Your" : "The", simpleonames(obj));
+        return FALSE;
+    } else if (!is_metallic(obj) || (origmat == newmat)) {
+        /* no need to change the obj if it's already
+           made of wood, or if it's not metallic */
+        if (!Blind)
+            pline("%s %s glows briefly, but remains the same.",
+                  by_you ? "Your" : "The", simpleonames(obj));
+        return FALSE;
+    }
+
+    while (j < 200) {
+        if ((newmat != origmat)
+            && valid_obj_material(obj, newmat))
+            break;
+        j++;
+    }
+
+    /* make sure the original obj can be made into
+       wood. if not, retain original material */
+    if (valid_obj_material(obj, newmat)) {
+        set_material(obj, newmat);
+        if (!Blind)
+            pline("%s %s transforms into wood.",
+                  by_you ? "Your" : "The", simpleonames(obj));
+        newsym_force(bhitpos.x, bhitpos.y);
+    } else {
+        obj->material = objects[obj->otyp].oc_material;
+        if (!Blind)
+            pline("%s %s shimmers briefly, but remains the same.",
+                  by_you ? "Your" : "The", simpleonames(obj));
+    }
+
+    obj->owt = weight(obj);
+    if (origmat != obj->material) {
+        /* Charge for the cost of the object if unpaid.
+           Currently there is no need to check by_you
+           since monsters cannot use this function */
+        costly_alteration(obj, COST_DRAIN);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 /* Initialize the material field of an object, possibly randomizing it from the
  * above lists. */
 void
