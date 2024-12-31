@@ -2379,6 +2379,10 @@ int spell;
             && (uwep->otyp == STAFF_OF_WAR
                 || uwep->otyp == ASHWOOD_STAFF))
             chance += STAFFBONUS;
+        if (skilltype == P_EVOCATION_SPELL
+            && (uwep->otyp == STAFF_OF_EVOCATION
+                || uwep->otyp == ASHWOOD_STAFF))
+            chance += STAFFBONUS;
         if (skilltype == P_ENCHANTMENT_SPELL
             && uwep->otyp == ASHWOOD_STAFF)
             chance += STAFFBONUS;

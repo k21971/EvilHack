@@ -2297,7 +2297,7 @@ dosacrifice()
                                     typ = SHURIKEN;
                                 else
                                     typ = (rn2(100) >= 25)
-                                            ? rnd_class(QUARTERSTAFF, STAFF_OF_WAR)
+                                            ? rnd_class(QUARTERSTAFF, STAFF_OF_EVOCATION)
                                             : BROADSWORD;
                             } else if (primary_casters_wizard) {
                                 if (!u.uconduct.weaphit) {
@@ -2353,7 +2353,7 @@ dosacrifice()
                                     return 1;
                                 } else {
                                     typ = (rn2(100) >= 50)
-                                            ? rnd_class(QUARTERSTAFF, STAFF_OF_WAR)
+                                            ? rnd_class(QUARTERSTAFF, STAFF_OF_EVOCATION)
                                             : rnd_class(DAGGER, ATHAME);
                                 }
                             } else { /* remaining roles */

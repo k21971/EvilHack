@@ -230,7 +230,8 @@ struct obj {
 #define is_magical_staff(otmp) \
     (otmp->otyp == STAFF_OF_DIVINATION || otmp->otyp == STAFF_OF_HEALING \
      || otmp->otyp == STAFF_OF_HOLINESS || otmp->otyp == STAFF_OF_MATTER \
-     || otmp->otyp == STAFF_OF_ESCAPE || otmp->otyp == STAFF_OF_WAR)
+     || otmp->otyp == STAFF_OF_ESCAPE || otmp->otyp == STAFF_OF_WAR      \
+     || otmp->otyp == STAFF_OF_EVOCATION)
 
 #define is_wet_towel(o) ((o)->otyp == TOWEL && (o)->spe > 0)
 #define bimanual(otmp) \

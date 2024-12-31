@@ -3727,4 +3727,5 @@ The following changes to date are:
 - Allow giants to be Druids
 - New spell: create grass
 - New spell: change metal to wood
+- New object: staff of evocation
 
