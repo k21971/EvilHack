@@ -462,6 +462,10 @@ struct monst *mon;
     if (Is_weapon) {
         tmp += otmp->spe;
 
+        /* adjust for various roles */
+        if (Role_if(PM_DRUID) && otmp->material == WOOD)
+            tmp += 2;
+
         /* adjust for various materials */
         if (otmp->material == GLASS || otmp->material == GEMSTONE) {
             /* glass and gemstone are extremely sharp */

@@ -3012,6 +3012,21 @@ find_ac()
             tortle_ac -= 10;
     }
 
+    /* Druids get a slight AC bonus for wearing
+       wooden armor */
+    if (Role_if(PM_DRUID)) {
+        if (uarm && is_wood(uarm))   /* body armor */
+            uac -= 1;
+        if (uarmg && is_wood(uarmg)) /* gauntlets */
+            uac -= 1;
+        if (uarmh && is_wood(uarmh)) /* helmet */
+            uac -= 1;
+        if (uarmf && is_wood(uarmf)) /* boots */
+            uac -= 1;
+        if (uarms && is_wood(uarms)) /* shield */
+            uac -= 1;
+    }
+
     /* Dexterity affects your base AC */
     dex_adjust_ac = 0;
     if (ACURR(A_DEX) <= 6)

@@ -2422,6 +2422,23 @@ int spell;
         && Race_if(PM_ILLITHID))
         chance = 100;
 
+    /* Druids will always have 100% failure rate
+       if wearing any sort of metallic armor. checking
+       all armor types here even though some of these
+       currently can never be made of metal (cloaks,
+       shirts) to futureproof any changes */
+    if (Role_if(PM_DRUID)) {
+        if ((uarm && is_metallic(uarm))
+            || (uarmc && is_metallic(uarmc))
+            || (uarmh && is_metallic(uarmh))
+            || (uarms && is_metallic(uarms))
+            || (uarmg && is_metallic(uarmg))
+            || (uarmf && is_metallic(uarmf))
+            || (uarmu && is_metallic(uarmu))) {
+            chance = 0;
+        }
+    }
+
     return chance;
 }
 
