@@ -3730,4 +3730,5 @@ The following changes to date are:
 - New object: staff of evocation
 - Druids and bonuses/penalties vs certain materials
 - New function: nexttotree()
+- Update copyright year to 2025
 
