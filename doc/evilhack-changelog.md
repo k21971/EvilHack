@@ -3732,4 +3732,5 @@ The following changes to date are:
 - New function: nexttotree()
 - Update copyright year to 2025
 - Change 'Be seeing you' message on save
+- Fix: explosion causing a crash (mentangled)
 

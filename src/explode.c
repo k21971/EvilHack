@@ -875,7 +875,7 @@ struct obj *obj; /* only scatter this obj        */
         (void) hideunder(&youmonst);
     if (((mtmp = m_at(sx, sy)) != 0) && mtmp->mtrapped)
         mtmp->mtrapped = 0;
-    if (mtmp->mentangled)
+    if (((mtmp = m_at(sx, sy)) != 0) && mtmp->mentangled)
         mtmp->mentangled = 0;
     maybe_unhide_at(sx, sy);
     return total;
