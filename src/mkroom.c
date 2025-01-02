@@ -931,7 +931,7 @@ register int sx, sy;
     register int dx, dy;
     register struct rm *lev;
 
-    for (dx = -1; dx <= 1; dx++)
+    for (dx = -1; dx <= 1; dx++) {
         for (dy = -1; dy <= 1; dy++) {
             if (!isok(sx + dx, sy + dy))
                 continue;
@@ -939,6 +939,26 @@ register int sx, sy;
             if (IS_DOOR(lev->typ) || lev->typ == SDOOR)
                 return TRUE;
         }
+    }
+    return FALSE;
+}
+
+boolean
+nexttotree(sx, sy)
+register int sx, sy;
+{
+    register int dx, dy;
+    register struct rm *lev;
+
+    for (dx = -1; dx <= 1; dx++) {
+        for (dy = -1; dy <= 1; dy++) {
+            if (!isok(sx + dx, sy + dy))
+                continue;
+            lev = &levl[sx + dx][sy + dy];
+            if (IS_TREE(lev->typ))
+                return TRUE;
+        }
+    }
     return FALSE;
 }
 

@@ -934,8 +934,9 @@ int wtcap;
             drow_in_light = (maybe_polyd(is_drow(youmonst.data),
                                          Race_if(PM_DROW))
                              && !spot_is_dark(u.ux, u.uy)),
-            druid_on_grass = (Role_if(PM_DRUID)
-                              && levl[u.ux][u.uy].typ == GRASS);
+            druid_near_veg = (Role_if(PM_DRUID)
+                              && (levl[u.ux][u.uy].typ == GRASS
+                                  || nexttotree(u.ux, u.uy)));
 
     /* periodically let our Infidel know why their hit
        points aren't regenerating if they don't have
@@ -988,7 +989,7 @@ int wtcap;
                 if (drow_in_light)
                     rate *= LIT_DROW_HREGEN_MULTI;
 
-                if (druid_on_grass)
+                if (druid_near_veg)
                     rate -= 1L;
 
                 if (!(moves % rate)) {
@@ -1008,7 +1009,7 @@ int wtcap;
                 if (drow_in_light)
                     rate *= LIT_DROW_HREGEN_MULTI;
 
-                if (druid_on_grass)
+                if (druid_near_veg)
                     rate -= 1L;
 
                 if (!(moves % rate)) {

@@ -463,8 +463,14 @@ struct monst *mon;
         tmp += otmp->spe;
 
         /* adjust for various roles */
-        if (Role_if(PM_DRUID) && otmp->material == WOOD)
+        if (Role_if(PM_DRUID) && otmp->material == WOOD
+            && (levl[u.ux][u.uy].typ == GRASS
+                || nexttotree(u.ux, u.uy))) {
+            /* if a Druid's weapon is made of wood,
+               and they are standing on grass or near
+               a live tree, nature grants a dmg bonus */
             tmp += 2;
+        }
 
         /* adjust for various materials */
         if (otmp->material == GLASS || otmp->material == GEMSTONE) {

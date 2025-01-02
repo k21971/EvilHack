@@ -990,16 +990,19 @@ cast_entangle(mdef)
 register struct monst *mdef;
 {
     boolean youdefend = (mdef == &youmonst);
-    int grass = 0, total = 0;
+    int veg = 0, total = 0;
     int skill = (P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_EXPERT
                  ? 5 : P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_SKILLED
                      ? 4 : P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_BASIC
                          ? 3 : 1);
 
-    if (levl[mdef->mx][mdef->my].typ == GRASS)
-        grass += 2;
+    /* target standing on/near vegetation slightly
+       increases entanglement time */
+    if (levl[mdef->mx][mdef->my].typ == GRASS
+        || nexttotree(mdef->mx, mdef->my))
+        veg += 2;
 
-    total = skill + grass;
+    total = skill + veg;
 
     if (youdefend) {
         /* TODO: currently only the player can do this to
@@ -1025,9 +1028,12 @@ register struct monst *mdef;
                3-8/10 turns at expert. at unskilled/restricted,
                1-4/6 turns */
             mdef->mentangletime = rn1(4, total);
-            /* if spell skill is skilled or greater, chance to
-               temporarily slow mdef */
-            if (rn2(2) && levl[mdef->mx][mdef->my].typ == GRASS
+            /* if spell skill is skilled or greater and target
+               is on/near vegetation, chance to temporarily slow
+               mdef */
+            if (rn2(2)
+                && (levl[mdef->mx][mdef->my].typ == GRASS
+                    || nexttotree(mdef->mx, mdef->my))
                 && P_SKILL(spell_skilltype(SPE_ENTANGLE)) >= P_SKILLED)
                 mon_adjust_speed(mdef, -2, (struct obj *) 0);
         }

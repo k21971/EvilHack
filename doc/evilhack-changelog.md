@@ -3729,4 +3729,5 @@ The following changes to date are:
 - New spell: change metal to wood
 - New object: staff of evocation
 - Druids and bonuses/penalties vs certain materials
+- New function: nexttotree()
 
