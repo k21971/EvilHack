@@ -3731,4 +3731,5 @@ The following changes to date are:
 - Druids and bonuses/penalties vs certain materials
 - New function: nexttotree()
 - Update copyright year to 2025
+- Change 'Be seeing you' message on save
 

@@ -260,7 +260,7 @@ playwoRAMdisk()
     if (c == 'Y')
         c = 'y';
     if (c != 'y') {
-        settty("Be seeing you...\n");
+        settty("Well... bye.\n");
         nethack_exit(EXIT_SUCCESS);
     }
     set_lock_and_bones();

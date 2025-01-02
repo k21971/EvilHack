@@ -97,7 +97,7 @@ dosave()
             u.uhp = -1; /* universal game's over indicator */
             /* make sure they see the Saving message */
             display_nhwindow(WIN_MESSAGE, TRUE);
-            exit_nhwindows("Be seeing you...");
+            exit_nhwindows("Well... bye.");
             nh_terminate(EXIT_SUCCESS);
         } else
             (void) doredraw();

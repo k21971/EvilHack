@@ -64,7 +64,7 @@ ghack_save_game(GtkWidget *widget, int button)
         if (dosave0()) {
             /* make sure they see the Saving message */
             display_nhwindow(WIN_MESSAGE, TRUE);
-            gnome_exit_nhwindows("Be seeing you...");
+            gnome_exit_nhwindows("Well... bye.");
             clearlocks();
             gtk_exit(0);
         } else

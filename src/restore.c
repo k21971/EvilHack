@@ -862,7 +862,7 @@ xchar ltmp;
             return dorecover(fd);            /* 0 or 1 */
         }
 #endif /* ?AMIGA */
-        pline("Be seeing you...");
+        pline("Well... bye.");
         nh_terminate(EXIT_SUCCESS);
     }
 #endif /* MFLOPPY */
