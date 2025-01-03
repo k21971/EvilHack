@@ -3734,4 +3734,5 @@ The following changes to date are:
 - Change 'Be seeing you' message on save
 - Fix: explosion causing a crash (mentangled)
 - New spell: create trees
+- New spells: summon animal, summon elemental
 

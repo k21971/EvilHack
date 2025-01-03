@@ -569,6 +569,8 @@ E void FDECL(initedog, (struct monst *));
 E struct monst *FDECL(make_familiar,
                       (struct obj *, XCHAR_P, XCHAR_P, BOOLEAN_P));
 E struct monst *FDECL(make_helper, (int, XCHAR_P, XCHAR_P));
+E struct monst *FDECL(make_woodland_animal, (XCHAR_P, XCHAR_P));
+E struct monst *FDECL(make_elemental, (XCHAR_P, XCHAR_P));
 E struct monst *NDECL(makedog);
 E void NDECL(update_mlstmv);
 E void NDECL(losedogs);

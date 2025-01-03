@@ -382,6 +382,7 @@ boolean resuming;
                         }
                         if (weakdog && numdogs > ACURR(A_CHA) / 3) {
                             weakdog->mtame = 0;
+                            weakdog->uexp = 0;
                             /* if former pet was abused, or just
                                at random, become hostile */
                             if (rn2(EDOG(weakdog)->abuse + 1)

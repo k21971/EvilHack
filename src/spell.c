@@ -1746,6 +1746,12 @@ boolean wiz_cast;
             }
         }
         break;
+    case SPE_SUMMON_ANIMAL:
+        (void) make_woodland_animal(u.ux, u.uy);
+        break;
+    case SPE_SUMMON_ELEMENTAL:
+        (void) make_elemental(u.ux, u.uy);
+        break;
     default:
         impossible("Unknown spell %d attempted.", spell);
         obfree(pseudo, (struct obj *) 0);

@@ -6,6 +6,8 @@
 #include "hack.h"
 
 STATIC_DCL int NDECL(pet_type);
+STATIC_DCL int NDECL(woodland_animal);
+STATIC_DCL int NDECL(elemental);
 
 void
 newedog(mtmp)
@@ -64,6 +66,81 @@ pet_type()
         return  PM_LITTLE_DOG;
     else
         return  rn2(2) ? PM_KITTEN : PM_LITTLE_DOG;
+}
+
+STATIC_OVL int
+woodland_animal()
+{
+    if (P_SKILL(spell_skilltype(SPE_SUMMON_ANIMAL)) < P_BASIC) {
+        switch(rnd(5)) {
+        case 1:
+            return rn2(2) ? PM_GECKO : PM_NEWT;
+        case 2:
+            return rn2(2) ? PM_CENTIPEDE : PM_GARTER_SNAKE;
+        case 3:
+            return PM_FOX;
+        case 4:
+            return rn2(5) ? PM_BAT : PM_GIANT_BAT;
+        case 5:
+            return PM_GIANT_ANT;
+        }
+    } else if (P_SKILL(spell_skilltype(SPE_SUMMON_ANIMAL)) == P_BASIC) {
+        switch(rnd(5)) {
+        case 1:
+            return rn2(4) ? PM_WOODCHUCK : PM_ROTHE;
+        case 2:
+            return PM_SNAKE;
+        case 3:
+            return rn2(6) ? PM_DEER : PM_STAG;
+        case 4:
+            return PM_HAWK;
+        case 5:
+            return PM_LIZARD;
+        }
+    } else if (P_SKILL(spell_skilltype(SPE_SUMMON_ANIMAL)) == P_SKILLED) {
+        switch(rnd(5)) {
+        case 1:
+            return PM_GIANT_BEETLE;
+        case 2:
+            return rn2(5) ? PM_WINTER_WOLF_CUB : PM_WINTER_WOLF;
+        case 3:
+            return rn2(2) ? PM_LYNX : PM_WOLF;
+        case 4:
+            return PM_GRAY_UNICORN;
+        case 5:
+            return rn2(4) ? PM_LARGE_HAWK : PM_GIANT_HAWK;
+        }
+    } else if (P_SKILL(spell_skilltype(SPE_SUMMON_ANIMAL)) == P_EXPERT) {
+        switch(rnd(5)) {
+        case 1:
+            return PM_HONEY_BADGER;
+        case 2:
+            return rn2(5) ? PM_WOLVERINE : PM_DIRE_WOLVERINE;
+        case 3:
+            return rn2(5) ? PM_GRIZZLY_BEAR : PM_CAVE_BEAR;
+        case 4:
+            return PM_SABER_TOOTHED_TIGER;
+        case 5:
+            return rn2(5) ? PM_ENT : PM_ELDER_ENT;
+        }
+    }
+    return 0;
+}
+
+STATIC_OVL int
+elemental()
+{
+    switch(rnd(4)) {
+    case 1:
+        return PM_AIR_ELEMENTAL;
+    case 2:
+        return PM_WATER_ELEMENTAL;
+    case 3:
+        return PM_EARTH_ELEMENTAL;
+    case 4:
+        return PM_FIRE_ELEMENTAL;
+    }
+    return 0;
 }
 
 struct monst *
@@ -195,7 +272,9 @@ boolean quietly;
     return mtmp;
 }
 
-/* from Slash'EM */
+/* from Slash'EM
+   currently only used for flaming/freezing spheres
+   created by their respective spells */
 struct monst *
 make_helper(mnum, x, y)
 int mnum;
@@ -208,7 +287,8 @@ xchar x, y;
     do {
         pm = &mons[mnum];
         mtmp = makemon(pm, x, y,
-                       MM_EDOG | MM_IGNOREWATER | NO_MINVENT);
+                       MM_EDOG | MM_IGNOREWATER
+                           | MM_IGNORELAVA | MM_IGNOREAIR | NO_MINVENT);
     } while (!mtmp && --trycnt > 0);
 
     if (!mtmp)
@@ -220,11 +300,66 @@ xchar x, y;
     set_malign(mtmp); /* more alignment changes */
     newsym(mtmp->mx, mtmp->my);
 
-    /* must wield weapon immediately since pets will otherwise drop it */
-    if (mtmp->mtame && attacktype(mtmp->data, AT_WEAP)) {
-        mtmp->weapon_check = NEED_HTH_WEAPON;
-        (void) mon_wield_item(mtmp);
+    return mtmp;
+}
+
+struct monst *
+make_woodland_animal(x, y)
+xchar x, y;
+{
+    struct permonst *pm;
+    struct monst *mtmp = 0;
+    int trycnt = 100;
+
+    do {
+        pm = &mons[woodland_animal()];
+        mtmp = makemon(pm, x, y, MM_EDOG | NO_MINVENT);
+    } while (!mtmp && --trycnt > 0);
+
+    if (!mtmp)
+        return (struct monst *) 0; /* genocided */
+
+    initedog(mtmp);
+    u.uconduct.pets++;
+    mtmp->mtame = 15;
+    mtmp->msleeping = 0;
+    set_malign(mtmp); /* more alignment changes */
+    newsym(mtmp->mx, mtmp->my);
+
+    return mtmp;
+}
+
+struct monst *
+make_elemental(x, y)
+xchar x, y;
+{
+    struct permonst *pm;
+    struct monst *mtmp = 0;
+    int trycnt = 100;
+
+    do {
+        pm = &mons[elemental()];
+        mtmp = makemon(pm, x, y, MM_EDOG | NO_MINVENT);
+    } while (!mtmp && --trycnt > 0);
+
+    if (!mtmp)
+        return (struct monst *) 0; /* genocided */
+
+    initedog(mtmp);
+    u.uconduct.pets++;
+    mtmp->mtame = 15;
+    mtmp->msleeping = 0;
+    /* increase hit points based on spellcasting skill */
+    if (P_SKILL(spell_skilltype(SPE_SUMMON_ELEMENTAL)) == P_SKILLED) {
+        mtmp->mhpmax += mtmp->mhpmax / 2;
+        mtmp->mhp = mtmp->mhpmax;
+    } else if (P_SKILL(spell_skilltype(SPE_SUMMON_ELEMENTAL)) == P_EXPERT) {
+        mtmp->mhpmax += mtmp->mhpmax;
+        mtmp->mhp = mtmp->mhpmax;
     }
+    set_malign(mtmp); /* more alignment changes */
+    newsym(mtmp->mx, mtmp->my);
+
     return mtmp;
 }
 
