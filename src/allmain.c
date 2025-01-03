@@ -976,9 +976,9 @@ int wtcap;
            Drow heal more slowly in the light (3x slower), Infidels
            won't heal at all without the Amulet of Yendor with them
            (pre-idol imbuement), Druids will heal slightly faster
-           while standing on vegetation (grass). No one can regenerate
-           hit points while located in the Valley of the Dead, except
-           for Draugr */
+           while standing on or near vegetation (grass/trees). No one
+           can regenerate hit points while located in the Valley of the
+           Dead, except for Draugr */
         if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
             && (encumbrance_ok || Regeneration)
             && (!Is_valley(&u.uz) || Race_if(PM_DRAUGR))

@@ -3733,4 +3733,5 @@ The following changes to date are:
 - Update copyright year to 2025
 - Change 'Be seeing you' message on save
 - Fix: explosion causing a crash (mentangled)
+- New spell: create trees
 

@@ -1106,6 +1106,71 @@ cast_create_grass()
     }
 }
 
+void
+grow_tree(x, y, treecnt)
+int x, y;
+genericptr_t treecnt;
+{
+    struct trap *ttmp;
+
+    /* Never grow a tree on the player's space */
+    if (x == u.ux && y == u.uy)
+        return;
+
+    /* Grow a tree only on regular terrain or grass,
+       never on monsters, objects, or next to doors,
+       weighted towards spaces near the player.
+
+       Never next to other living trees as well. this
+       is done to limit their growth, mainly to prevent
+       a situation where the caster is suddenly trapped */
+    if (nexttodoor(x, y) || nexttotree(x, y)
+        || rn2(1 + distmin(u.ux, u.uy, x, y))
+        || OBJ_AT(x, y) || MON_AT(x, y)
+        || (levl[x][y].typ != ROOM && levl[x][y].typ != GRASS))
+        return;
+
+    /* Never grow a tree if there's an immovable
+       trap here */
+    ttmp = t_at(x, y);
+    if (ttmp && !delfloortrap(ttmp))
+        return;
+
+    /* grow a tree */
+    levl[x][y].typ = TREE;
+    del_engr_at(x, y);
+    newsym(x, y);
+    (* (int*)treecnt)++;
+}
+
+void
+cast_create_trees()
+{
+    int skill = (P_SKILL(spell_skilltype(SPE_CREATE_TREES)) == P_EXPERT
+                 ? 4 : P_SKILL(spell_skilltype(SPE_CREATE_TREES)) == P_SKILLED
+                     ? 2 : P_SKILL(spell_skilltype(SPE_CREATE_TREES)) == P_BASIC
+                         ? 1 : 0);
+    int range = 1 + skill;
+    int madetree = 0;
+
+    /* creates a tree around the caster. at basic skill,
+       a tree will grow out to two tile spaces away from the
+       caster, skilled is three tile spaces out, expert is
+       five tile spaces. at unskilled/restricted, a tree will
+       only grow one tile space out */
+    do_clear_area(u.ux, u.uy, range, grow_tree, &madetree);
+
+    if (madetree) {
+        if (Hallucination)
+            pline("Only you can prevent forest fires...");
+        else
+            pline("Trees grows throughout the area!");
+    } else {
+        /* grass didn't grow anywhere */
+        pline_The("ground briefly stirs, but nothing else happens.");
+    }
+}
+
 /* attempting to cast a forgotten spell will cause disorientation */
 STATIC_OVL void
 spell_backfire(spell)
@@ -1657,6 +1722,9 @@ boolean wiz_cast;
         break;
     case SPE_CREATE_GRASS:
         cast_create_grass();
+        break;
+    case SPE_CREATE_TREES:
+        cast_create_trees();
         break;
     case SPE_FLAME_SPHERE:
     case SPE_FREEZE_SPHERE:

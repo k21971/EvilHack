@@ -1144,6 +1144,8 @@ SPELL("stoneskin",        "moth-eaten",
       P_EVOCATION_SPELL,    5,  3, 4, 1, NODIR, CLR_MAGENTA),
 SPELL("change metal to wood", "faded",
       P_EVOCATION_SPELL,    5,  6, 5, 1, IMMEDIATE, CLR_WHITE),
+SPELL("create trees",     "smudged",
+      P_EVOCATION_SPELL,    5,  7, 5, 1, NODIR, CLR_BRIGHT_GREEN),
 /* books with fixed descriptions
  */
 SPELL("blank paper", "plain", P_NONE, 15, 0, 0, 0, 0, HI_PAPER),
