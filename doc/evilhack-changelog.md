@@ -3739,4 +3739,5 @@ The following changes to date are:
   will not interfere with spellcasting
 - Fix: wearing bracers would prevent Samurai from using
   their weapon-shattering blow
+- Change #wizspell to behave like #wizcast from NetHack 3.7
 

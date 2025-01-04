@@ -950,27 +950,31 @@ wiz_map(VOID_ARGS)
 STATIC_PTR int
 wiz_spell(VOID_ARGS)
 {
-    char buf[BUFSZ] = DUMMY;
-    int last_spbook, i;
+    winid win;
+    menu_item *selected;
+    anything any;
+    int i, n;
 
-    while (buf[0] == '\0' || buf[0] == '\033') {
-        getlin("Which spell to cast?", buf);
-        (void) mungspaces(buf);
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win);
+    any = zeroany;
+
+    for (i = 0; i < MAXSPELL; i++) {
+        n = (SPE_DIG + i);
+        if (n >= SPE_BLANK_PAPER)
+            break;
+        any.a_int = n;
+        add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                 OBJ_NAME(objects[n]), MENU_UNSELECTED);
     }
-
-    last_spbook = (SPBOOK_CLASS + 1 < MAXOCLASSES
-                   ? bases[SPBOOK_CLASS + 1] : NUM_OBJECTS) - 1;
-
-    for (i = bases[SPBOOK_CLASS]; i <= last_spbook; ++i) {
-        if (objects[i].oc_skill < P_FIRST_SPELL
-            || objects[i].oc_skill > P_LAST_SPELL)
-            continue;
-        if (!strcmpi(buf, OBJ_NAME(objects[i]))) {
-            /* pline("Casting [%d] %s", i, buf); */
-            return spelleffects(i, FALSE, TRUE);
-        }
+    end_menu(win, "Cast which spell?");
+    n = select_menu(win, PICK_ONE, &selected);
+    destroy_nhwindow(win);
+    if (n > 0) {
+        i = selected[0].item.a_int;
+        free((genericptr_t) selected);
+        return spelleffects(i, FALSE, TRUE);
     }
-    pline("There is no such spell.");
     return 0;
 }
 
