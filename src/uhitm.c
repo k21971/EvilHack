@@ -1296,7 +1296,8 @@ int dieroll;
                     hittxt = TRUE;
                 } else if (obj == uwep && obj->oclass == WEAPON_CLASS
                            && ((dieroll == 2 && (bimanual(obj) || (Race_if(PM_GIANT))
-                               || (Role_if(PM_SAMURAI) && obj->otyp == KATANA && !uarms))
+                               || (Role_if(PM_SAMURAI) && obj->otyp == KATANA
+                                   && (!uarms || is_bracer(uarms))))
                                    && ((wtype = uwep_skill_type()) != P_NONE
                                    && P_SKILL(wtype) >= P_SKILLED))
                                || (dieroll == 3 && (Race_if(PM_GIANT))

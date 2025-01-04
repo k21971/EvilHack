@@ -3737,4 +3737,6 @@ The following changes to date are:
 - New spells: summon animal, summon elemental
 - Bracers can be made of wood, Bracers of the First Circle
   will not interfere with spellcasting
+- Fix: wearing bracers would prevent Samurai from using
+  their weapon-shattering blow
 
