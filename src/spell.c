@@ -1045,6 +1045,9 @@ cast_metal_to_wood(obj, by_you)
 struct obj *obj;
 boolean by_you;
 {
+    if (!obj)
+        return 0;
+
     if (by_you)
         return metal_to_wood(obj, TRUE);
     else

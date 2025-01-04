@@ -3740,4 +3740,6 @@ The following changes to date are:
 - Fix: wearing bracers would prevent Samurai from using
   their weapon-shattering blow
 - Change #wizspell to behave like #wizcast from NetHack 3.7
+- Fix: crash when casting 'change metal to wood' with
+  nothing wielded
 

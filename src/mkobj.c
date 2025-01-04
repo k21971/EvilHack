@@ -3782,6 +3782,9 @@ boolean by_you;
     int origmat = obj->material;
     int j = 0, newmat = WOOD;
 
+    if (!obj)
+        return FALSE;
+
     /* artifacts, invocation items,
        Amulet of Yendor are off-limits */
     if (obj->oartifact || obj_resists(obj, 0, 0)) {
