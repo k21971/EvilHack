@@ -3735,4 +3735,6 @@ The following changes to date are:
 - Fix: explosion causing a crash (mentangled)
 - New spell: create trees
 - New spells: summon animal, summon elemental
+- Bracers can be made of wood, Bracers of the First Circle
+  will not interfere with spellcasting
 

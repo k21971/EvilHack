@@ -2273,6 +2273,8 @@ int spell;
     int skill, skilltype = spell_skilltype(spellid(spell));
     int dex_adjust;
     boolean paladin_bonus, primary_casters, non_casters;
+    boolean druid_bracers = (uarms
+                             && uarms->oartifact == ART_BRACERS_OF_THE_FIRST_CIRCL);
 
     /* Calculate intrinsic ability (splcaster) */
 
@@ -2318,7 +2320,7 @@ int spell;
                                                     : urole.spelarmr;
     else if (uarmc && uarmc->otyp == ROBE)
         splcaster -= urole.spelarmr;
-    if (uarms)
+    if (uarms && !druid_bracers)
         splcaster += urole.spelshld;
 
     if (!paladin_bonus) {
@@ -2411,12 +2413,15 @@ int spell;
      * player's role-specific spell.  Metallic shields still adversely
      * affect spellcasting, no matter how light they are.
      */
-    if (uarms && ((is_metallic(uarms) && !is_bracer(uarms))
-                  || (weight(uarms) > (int) objects[SMALL_SHIELD].oc_weight))) {
-        if (spellid(spell) == urole.spelspec) {
-            chance /= 2;
-        } else {
-            chance /= 4;
+    if (uarms) {
+        boolean shield_rules = ((is_metallic(uarms) && !is_bracer(uarms))
+                                || (weight(uarms) > (int) objects[SMALL_SHIELD].oc_weight));
+
+        if (shield_rules) {
+            if (spellid(spell) == urole.spelspec)
+                chance /= 2;
+            else
+                chance /= 4;
         }
     }
 

@@ -3581,10 +3581,11 @@ static const struct icp sling_bullet_materials[] = {
 
 static const struct icp bracers_materials[] = {
     {500, LEATHER},
-    {200, IRON},
+    {160, IRON},
     {100, BONE},
     { 50, MINERAL},
     { 40, STEEL},
+    { 40, WOOD},
     { 20, MITHRIL},
     { 20, SILVER},
     { 20, COPPER},
