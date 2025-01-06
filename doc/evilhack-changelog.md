@@ -3750,4 +3750,5 @@ The following changes to date are:
 - Allow Druids that have shapechanged to revert back to
   normal form at will
 - Druids that #shapechange retain worn armor, other changes
+- Additional conditions that can affect Druid #shapechange
 

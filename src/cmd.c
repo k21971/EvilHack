@@ -6813,12 +6813,18 @@ dodruidshapechange(VOID_ARGS)
              && (u.ushapechange == 0) && u.ulevel < 3)
         You("must first reach the rank of Ovate to use this ability.");
     else if (Upolyd && u.ushapechange)
-        rehumanize();
+        rehumanize(); /* manually revert back to original form */
     else if (u.ushapechange)
         You_cant("shapechange so soon.");
     else if ((Stunned || Confusion)
              && (u.ushapechange == 0))
         You_cant("shapechange while incapacitated.");
+    else if (u.uhunger < 50) /* weak */
+        You("are too weak from hunger to shapechange.");
+    else if (ACURR(A_STR) < 4)
+        You("lack the strength to shapechange.");
+    else if (u.ulycn >= LOW_PM)
+        You_cant("shapechange while infected with lycanthropy.");
     else
         druid_shapechange();
 
