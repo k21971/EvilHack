@@ -3743,4 +3743,6 @@ The following changes to date are:
 - Fix: crash when casting 'change metal to wood' with
   nothing wielded
 - Implement Druid's shapechanging ability
+- Alert Druid player at the start of a new game about
+  #shapechange
 

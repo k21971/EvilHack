@@ -1232,10 +1232,15 @@ boolean new_game; /* false => restoring an old game */
               Hello((struct monst *) 0), plname, buf);
 
     if (new_game) {
+        /* Races */
         if (Race_if(PM_TORTLE))
             pline("Use #monster to hide in your shell.");
         else if (Race_if(PM_DROW))
             pline("Use #monster to invoke an aura of darkness.");
+
+        /* Roles */
+        if (Role_if(PM_DRUID))
+            pline("Use #shapechange to change form.");
     }
 }
 
