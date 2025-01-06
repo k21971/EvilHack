@@ -621,6 +621,10 @@ sliparm(mon)
 struct monst *mon;
 {
     struct permonst *ptr = r_data(mon);
+
+    if (u.ushapechange)
+        return FALSE;
+
     return (boolean) (is_whirly(ptr) || ptr->msize <= MZ_SMALL
                       || noncorporeal(ptr));
 }
@@ -641,6 +645,9 @@ struct monst *mon;
         return TRUE;
 
     if (ptr == &mons[PM_DRIDER])
+        return FALSE;
+
+    if (u.ushapechange)
         return FALSE;
 
     return (boolean) (r_bigmonst(mon)

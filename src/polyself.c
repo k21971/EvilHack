@@ -439,6 +439,16 @@ druid_shapechange()
     start_menu(win);
     any = zeroany;
 
+    /* set timer for next allowed shapechange,
+       3600-4000 turns (this is an approximation
+       to Druids being able to shapechange three
+       times a day, ad&d rules)
+
+       this needs to be set before polymon() is
+       called due to other behavior while using
+       #shapechange */
+    u.ushapechange += rn1(400, 3600);
+
     if (Unchanging) {
         pline("You fail to transform!");
         return;
@@ -485,11 +495,6 @@ druid_shapechange()
         vision_reset();
         docrt();
     }
-    /* set timer for next allowed shapechange,
-       3600-4000 turns (this is an approximation
-       to Druids being able to shapechange three
-       times a day, ad&d rules) */
-    u.ushapechange += rn1(400, 3600);
 }
 
 void
@@ -1166,7 +1171,7 @@ break_armor()
             dropp(otmp);
         }
     }
-    if (has_horns(youmonst.data)) {
+    if (has_horns(youmonst.data) && !u.ushapechange) {
         if ((otmp = uarmh) != 0) {
             if (is_flimsy(otmp) && !donning(otmp)) {
                 char hornbuf[BUFSZ];
@@ -1185,8 +1190,8 @@ break_armor()
             }
         }
     }
-    if (nohands(youmonst.data) || verysmall(youmonst.data)
-        || is_ent(youmonst.data)) {
+    if ((nohands(youmonst.data) || verysmall(youmonst.data)
+         || is_ent(youmonst.data)) && !u.ushapechange) {
         if ((otmp = uarmg) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -1222,10 +1227,10 @@ break_armor()
             dropp(otmp);
         }
     }
-    if (nohands(youmonst.data) || verysmall(youmonst.data)
-        || slithy(youmonst.data) || racial_centaur(&youmonst)
-        || racial_tortle(&youmonst) || is_ent(youmonst.data)
-        || is_satyr(youmonst.data)) {
+    if ((nohands(youmonst.data) || verysmall(youmonst.data)
+         || slithy(youmonst.data) || racial_centaur(&youmonst)
+         || racial_tortle(&youmonst) || is_ent(youmonst.data)
+         || is_satyr(youmonst.data)) && !u.ushapechange) {
         if ((otmp = uarmf) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -1268,7 +1273,8 @@ int alone;
                 if (uwep->quan != 1L || u.twoweap)
                     which = makeplural(which);
 
-                You("find you must %s %s %s!", what,
+                You("find you must %s %s %s!",
+                    u.ushapechange ? "release" : what,
                     the_your[!!strncmp(which, "corpse", 6)], which);
             }
             /* if either uwep or wielded uswapwep is flagged as 'in_use'
@@ -1279,14 +1285,14 @@ int alone;
                 uswapwepgone();
                 if (otmp->in_use)
                     updateinv = FALSE;
-                else if (candropswapwep)
+                else if (candropswapwep && !u.ushapechange)
                     dropx(otmp);
             }
             otmp = uwep;
             uwepgone();
             if (otmp->in_use)
                 updateinv = FALSE;
-            else if (candropwep)
+            else if (candropwep  && !u.ushapechange)
                 dropx(otmp);
             /* [note: dropp vs dropx -- if heart of ahriman is wielded, we
                might be losing levitation by dropping it; but that won't

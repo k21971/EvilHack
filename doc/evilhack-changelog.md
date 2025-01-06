@@ -3749,4 +3749,5 @@ The following changes to date are:
 - Druids, elves are penalized for killing trees
 - Allow Druids that have shapechanged to revert back to
   normal form at will
+- Druids that #shapechange retain worn armor, other changes
 

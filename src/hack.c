@@ -3646,7 +3646,7 @@ weight_cap()
             youmonst.data->mmove = 10;
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
-        if (is_nymph(youmonst.data))
+        if (is_nymph(youmonst.data) || u.ushapechange)
             carrcap = maxcarrcap;
         else if (!youmonst.data->cwt)
             carrcap = (carrcap * (long) youmonst.data->msize) / MZ_HUMAN;
