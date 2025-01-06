@@ -6812,6 +6812,8 @@ dodruidshapechange(VOID_ARGS)
     else if (Role_if(PM_DRUID)
              && (u.ushapechange == 0) && u.ulevel < 3)
         You("must first reach the rank of Ovate to use this ability.");
+    else if (Upolyd && u.ushapechange)
+        rehumanize();
     else if (u.ushapechange)
         You_cant("shapechange so soon.");
     else if ((Stunned || Confusion)

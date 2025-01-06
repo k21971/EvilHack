@@ -3747,4 +3747,6 @@ The following changes to date are:
   #shapechange
 - Fix: only satyr's are supposed to play the pan flute
 - Druids, elves are penalized for killing trees
+- Allow Druids that have shapechanged to revert back to
+  normal form at will
 
