@@ -3742,4 +3742,5 @@ The following changes to date are:
 - Change #wizspell to behave like #wizcast from NetHack 3.7
 - Fix: crash when casting 'change metal to wood' with
   nothing wielded
+- Implement Druid's shapechanging ability
 

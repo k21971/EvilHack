@@ -248,8 +248,8 @@ struct monst {
     ((mon)->cham == PM_VAMPIRE || (mon)->cham == PM_VAMPIRE_NOBLE         \
      || (mon)->cham == PM_VAMPIRE_ROYAL || (mon)->cham == PM_VAMPIRE_MAGE \
      || (mon)->cham == PM_KAS || (mon)->cham == PM_VLAD_THE_IMPALER)
-#define is_changeling(mon)                                          \
-    ((mon)->cham == PM_CHAMELEON || (mon)->cham == PM_DOPPELGANGER  \
+#define is_changeling(mon) \
+    ((mon)->cham == PM_CHAMELEON || (mon)->cham == PM_DOPPELGANGER \
      || (mon)->cham == PM_SANDESTIN)
 
 /* monsters which cannot be displaced: priests, shopkeepers, vault guards,

@@ -640,6 +640,12 @@ nh_timeout()
     if (u.ucreamed)
         u.ucreamed--;
 
+    if (u.ushapechange)
+        u.ushapechange--;
+
+    if (u.ushapechange == 20)
+        You_feel("your shapechanging ability start to return.");
+
     /* Dissipate spell-based protection. */
     if (u.usptime) {
         if (--u.usptime == 0 && u.uspellprot) {

@@ -422,6 +422,76 @@ newman()
         selftouch(no_longer_petrify_resistant);
 }
 
+#define druid_form_A(mndx) (mons[mndx].mflags2 & M2_DRUID_FORM_A)
+#define druid_form_B(mndx) (mons[mndx].mflags2 & M2_DRUID_FORM_B)
+#define druid_form_C(mndx) (mons[mndx].mflags2 & M2_DRUID_FORM_C)
+
+void
+druid_shapechange()
+{
+    winid win;
+    menu_item *selected;
+    anything any;
+    int i, n;
+    boolean old_uwvis = (Underwater && See_underwater);
+
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win);
+    any = zeroany;
+
+    if (Unchanging) {
+        pline("You fail to transform!");
+        return;
+    }
+
+    if (Hidinshell)
+        toggleshell();
+
+    for (i = LOW_PM; i < NUMMONS; i++) {
+        n = (LOW_PM + i);
+        if (u.ulevel >= 10) {
+            if (!druid_form_A(n)
+                && !druid_form_B(n)
+                && !druid_form_C(n))
+                continue;
+        } else if (u.ulevel >= 6) {
+            if (!druid_form_A(n)
+                && !druid_form_B(n))
+                continue;
+        } else if (u.ulevel >= 3) {
+            if (!druid_form_A(n))
+                continue;
+        } else if (u.ulevel < 3) {
+            /* extra guard, otherwise potentially
+               all monsters become available */
+            continue;
+        }
+        if (n >= NUMMONS)
+            break;
+        any.a_int = n;
+        add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                 mons[n].mname, MENU_UNSELECTED);
+    }
+    end_menu(win, "Pick a form to change into.");
+    n = select_menu(win, PICK_ONE, &selected);
+    destroy_nhwindow(win);
+    if (n > 0) {
+        i = selected[0].item.a_int;
+        free((genericptr_t) selected);
+        polymon(i);
+    }
+
+    if (old_uwvis != (Underwater && See_underwater)) {
+        vision_reset();
+        docrt();
+    }
+    /* set timer for next allowed shapechange,
+       3600-4000 turns (this is an approximation
+       to Druids being able to shapechange three
+       times a day, ad&d rules) */
+    u.ushapechange += rn1(400, 3600);
+}
+
 void
 polyself(psflags)
 int psflags;

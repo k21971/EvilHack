@@ -133,6 +133,7 @@ extern int NDECL(doremoveimarkers);   /**/
 static int NDECL((*timed_occ_fn));
 
 STATIC_PTR int NDECL(doenshelling);
+STATIC_PTR int NDECL(dodruidshapechange);
 STATIC_PTR int NDECL(dosuspend_core);
 STATIC_PTR int NDECL(dosh_core);
 STATIC_PTR int NDECL(doherecmdmenu);
@@ -4152,6 +4153,8 @@ struct ext_func_tab extcmdlist[] = {
     { '^', "seetrap", "show the type of adjacent trap", doidtrap, IFBURIED },
     { WEAPON_SYM, "seeweapon", "show the weapon currently wielded",
             doprwep, IFBURIED },
+    { '\0', "shapechange", "druid's shapechanging ability",
+            dodruidshapechange, IFBURIED | AUTOCOMPLETE },
     { '!', "shell", "do a shell escape",
             dosh_core, IFBURIED | GENERALCMD
 #ifndef SHELL
@@ -6796,6 +6799,28 @@ doenshelling(VOID_ARGS)
     } else {
         return toggleshell();
     }
+}
+
+/* #shapechange command - change druid's form */
+STATIC_PTR int
+dodruidshapechange(VOID_ARGS)
+{
+    /* TODO: figure a way to set up this command
+       so it's not even an option for a non-druid */
+    if (!Role_if(PM_DRUID))
+        You("don't have access to this ability.");
+    else if (Role_if(PM_DRUID)
+             && (u.ushapechange == 0) && u.ulevel < 3)
+        You("must first reach the rank of Ovate to use this ability.");
+    else if (u.ushapechange)
+        You_cant("shapechange so soon.");
+    else if ((Stunned || Confusion)
+             && (u.ushapechange == 0))
+        You_cant("shapechange while incapacitated.");
+    else
+        druid_shapechange();
+
+    return 0;
 }
 
 /*
