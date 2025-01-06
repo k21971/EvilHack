@@ -5412,6 +5412,21 @@ boolean say; /* Announce out of sight hit/miss events if true */
                 pline("The tree withers and dies!");
                 newsym(sx, sy);
             }
+            if (type >= 0) {
+                if (Role_if(PM_DRUID)) {
+                    You_feel("very guilty.");
+                    adjalign(-15);
+                    change_luck(-7);
+                    /* deity becomes "very" angry */
+                    u.ugangr += 5;
+                } else if (Race_if(PM_ELF)) {
+                    /* Elves are also penalized, but
+                       not as severely */
+                    You_feel("guilty.");
+                    adjalign(-5);
+                    change_luck(-2);
+                }
+            }
             range = 0;
             break;
         }
@@ -5713,6 +5728,21 @@ boolean moncast;
             lev->typ = DEADTREE;
             if (lev->typ == DEADTREE)
                 newsym(x, y);
+            if (type >= 0) {
+                if (Role_if(PM_DRUID)) {
+                    You_feel("very guilty.");
+                    adjalign(-15);
+                    change_luck(-7);
+                    /* deity becomes "very" angry */
+                    u.ugangr += 5;
+                } else if (Race_if(PM_ELF)) {
+                    /* Elves are also penalized, but
+                       not as severely */
+                    You_feel("guilty.");
+                    adjalign(-5);
+                    change_luck(-2);
+                }
+            }
         } else if (lev->typ == DEADTREE) {
             if (!may_dig(x, y)) {
                 /* nothing happens - it's petrified */

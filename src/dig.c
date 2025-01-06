@@ -408,13 +408,29 @@ dig(VOID_ARGS)
                 }
             }
             if (IS_TREE(lev->typ)) {
-                digtxt = "You cut down the tree.";
+                /* Druids are penalized for cutting down
+                   live trees */
+                if (Role_if(PM_DRUID)) {
+                    digtxt = "You cut down the tree.  You feel very guilty.";
+                    adjalign(-15);
+                    change_luck(-7);
+                    /* deity becomes "very" angry */
+                    u.ugangr += 5;
+                } else if (Race_if(PM_ELF)) {
+                    /* Elves are also penalized, but
+                       not as severely */
+                    digtxt = "You cut down the tree.  You feel guilty.";
+                    adjalign(-5);
+                    change_luck(-2);
+                } else {
+                    digtxt = "You cut down the tree.";
+                }
                 lev->typ = ROOM, lev->flags = 0;
                 if (!rn2(5))
                     (void) rnd_treefruit_at(dpx, dpy);
             } else if (IS_DEADTREE(lev->typ)) {
                 /* no fruit for you */
-                digtxt = "You cut down the tree.";
+                digtxt = "You cut down the dead tree.";
                 lev->typ = ROOM, lev->flags = 0;
             } else {
                 digtxt = "You succeed in cutting away some rock.";
