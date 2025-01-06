@@ -2775,6 +2775,7 @@ struct monst *mtmp;
         }
         nomore(MUSE_PAN_FLUTE);
         if (obj->otyp == PAN_FLUTE
+            && is_satyr(mtmp->data)
             && !mtmp->mpeaceful && !rn2(5)) {
             m.misc = obj;
             m.has_misc = MUSE_PAN_FLUTE;
@@ -2964,6 +2965,7 @@ struct obj *start;
         }
         nomore(MUSE_PAN_FLUTE);
         if (obj->otyp == PAN_FLUTE
+            && is_satyr(mtmp->data)
             && !mtmp->mpeaceful && !rn2(5)) {
             m.misc = obj;
             m.has_misc = MUSE_PAN_FLUTE;

@@ -3745,4 +3745,5 @@ The following changes to date are:
 - Implement Druid's shapechanging ability
 - Alert Druid player at the start of a new game about
   #shapechange
+- Fix: only satyr's are supposed to play the pan flute
 
