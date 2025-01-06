@@ -1190,9 +1190,9 @@ break_armor()
             }
         }
     }
-    if ((nohands(youmonst.data) || verysmall(youmonst.data)
-         || is_ent(youmonst.data)) && !u.ushapechange) {
-        if ((otmp = uarmg) != 0) {
+    if (nohands(youmonst.data) || verysmall(youmonst.data)
+        || is_ent(youmonst.data)) {
+        if (!u.ushapechange && (otmp = uarmg) != 0) {
             if (donning(otmp))
                 cancel_don();
             /* Drop weapon along with gloves */
@@ -1210,15 +1210,23 @@ break_armor()
             }
         }
         if ((otmp = uarms) != 0) {
-            You("can no longer %s!",
-                is_bracer(uarms) ? "wear your bracers"
-                                 : "hold your shield");
-            if (otmp->lamplit)
-                end_burn(otmp, FALSE);
-            (void) Shield_off();
-            dropp(otmp);
+            if (u.ushapechange && !is_bracer(uarms))
+                You("can no longer hold your shield!");
+            else if (!u.ushapechange)
+                You("can no longer %s!",
+                    is_bracer(uarms) ? "wear your bracers"
+                                     : "hold your shield");
+            if (u.ushapechange && is_bracer(uarms)) {
+                ; /* do nothing */
+            } else {
+                if (otmp->lamplit)
+                    end_burn(otmp, FALSE);
+                (void) Shield_off();
+                if (!u.ushapechange)
+                    dropp(otmp);
+            }
         }
-        if ((otmp = uarmh) != 0) {
+        if (!u.ushapechange && (otmp = uarmh) != 0) {
             if (donning(otmp))
                 cancel_don();
             Your("%s falls to the %s!", helm_simple_name(otmp),
