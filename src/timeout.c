@@ -643,8 +643,14 @@ nh_timeout()
     if (u.ushapechange)
         u.ushapechange--;
 
+    /* Druids have a sense for when they can use #shapechange again */
     if (u.ushapechange == 20)
         You_feel("your shapechanging ability start to return.");
+
+    /* Druids have an innate sense of when they will lose their
+       current creature form and revert back to their original form */
+    if (Role_if(PM_DRUID) && u.mtimedone == 20)
+        You("are about to revert back to your original form.");
 
     /* Dissipate spell-based protection. */
     if (u.usptime) {

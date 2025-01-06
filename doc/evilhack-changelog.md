@@ -3751,4 +3751,6 @@ The following changes to date are:
   normal form at will
 - Druids that #shapechange retain worn armor, other changes
 - Additional conditions that can affect Druid #shapechange
+- Druids can sense when they are about to revert back to
+  their original form when polymorphed
 

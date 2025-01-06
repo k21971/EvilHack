@@ -488,7 +488,7 @@ druid_shapechange()
     if (n > 0) {
         i = selected[0].item.a_int;
         free((genericptr_t) selected);
-        polymon(i);
+        (void) polymon(i);
     }
 
     if (old_uwvis != (Underwater && See_underwater)) {
