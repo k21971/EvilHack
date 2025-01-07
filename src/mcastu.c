@@ -1346,7 +1346,7 @@ int spellnum;
 
 STATIC_DCL
 boolean
-mspell_would_be_useless(mtmp, mdef, adtyp, spellnum)
+mspell_would_be_useless(mtmp, mdef, adtyp, spellnum) /* mon vs mon */
 struct monst *mtmp;
 struct monst *mdef;
 unsigned int adtyp;
@@ -1429,6 +1429,10 @@ int spellnum;
                 || spellnum == MGC_CANCELLATION)) {
             return TRUE;
         }
+        /* don't canel target if they are already cancelled */
+        if (mdef->mcan && spellnum == MGC_CANCELLATION) {
+            return TRUE;
+        }
      } else if (adtyp == AD_CLRC) {
         /* don't cast these spells at range vs other monsters */
         if (distmin(mtmp->mx, mtmp->my, mdef->mx, mdef->my) > 1
@@ -1487,7 +1491,7 @@ int spellnum;
 
 STATIC_DCL
 boolean
-uspell_would_be_useless(adtyp, spellnum)
+uspell_would_be_useless(adtyp, spellnum) /* player casting as mon */
 unsigned int adtyp;
 int spellnum;
 {
@@ -1544,7 +1548,7 @@ int spellnum;
 /* Some spells are useless under some circumstances. */
 STATIC_DCL
 boolean
-spell_would_be_useless(mtmp, adtyp, spellnum)
+spell_would_be_useless(mtmp, adtyp, spellnum) /* mon vs player */
 struct monst *mtmp;
 unsigned int adtyp;
 int spellnum;
@@ -2260,11 +2264,13 @@ int spellnum;
         if (!mtmp || DEADMONSTER(mtmp))
             return;
 
-        if (yours)
+        if (yours) {
             You("douse %s in a torrent of acid!", mon_nam(mtmp));
-        else
-            pline("%s douses %s in a torrent of acid!",
-                  Monnam(mattk), mon_nam(mtmp));
+        } else {
+            if (canseemon(mattk))
+                pline("%s douses %s in a torrent of acid!",
+                      Monnam(mattk), mon_nam(mtmp));
+        }
 
         explode(mtmp->mx, mtmp->my, ZT_ACID,
                 d(((mons[yours ? u.umonnum
@@ -2371,7 +2377,8 @@ int spellnum;
 
         if (resist(mtmp, 0, 0, FALSE)) {
             shieldeff(mtmp->mx, mtmp->my);
-            pline("%s looks momentarily weakened.", Monnam(mtmp));
+            if (canseemon(mtmp))
+                pline("%s looks momentarily weakened.", Monnam(mtmp));
         } else {
             if (yours || canseemon(mtmp))
                 pline("%s suddenly seems weaker!", Monnam(mtmp));
@@ -2402,10 +2409,12 @@ int spellnum;
 
         if (resist(mtmp, 0, 0, FALSE)) {
             shieldeff(mtmp->mx, mtmp->my);
-            if (yours || canseemon(mtmp)
-                || resists_stun(mtmp->data) || defended(mtmp, AD_STUN)
-                || (MON_WEP(mtmp) && MON_WEP(mtmp)->oartifact == ART_TEMPEST))
-                pline("%s seems momentarily disoriented.", Monnam(mtmp));
+            if (yours || canseemon(mtmp)) {
+                if (resists_stun(mtmp->data) || defended(mtmp, AD_STUN)
+                    || (MON_WEP(mtmp)
+                        && MON_WEP(mtmp)->oartifact == ART_TEMPEST))
+                    pline("%s seems momentarily disoriented.", Monnam(mtmp));
+            }
         } else {
             if (yours || canseemon(mtmp)) {
                 if (mtmp->mstun)
@@ -2462,11 +2471,13 @@ int spellnum;
         if (spellnum == MGC_FIRE_BOLT
             && (resists_fire(mtmp) || defended(mtmp, AD_FIRE))) {
             shieldeff(mtmp->mx, mtmp->my);
-            pline("But %s seems unaffected by the fire.", mon_nam(mtmp));
+            if (canseemon(mtmp))
+                pline("But %s seems unaffected by the fire.", mon_nam(mtmp));
         } else if (spellnum == MGC_ICE_BOLT
             && (resists_cold(mtmp) || defended(mtmp, AD_COLD))) {
             shieldeff(mtmp->mx, mtmp->my);
-            pline("But %s seems unaffected by the cold.", mon_nam(mtmp));
+            if (canseemon(mtmp))
+                pline("But %s seems unaffected by the cold.", mon_nam(mtmp));
         }
         /* damage is handled by explode() */
         dmg = 0;
@@ -2670,6 +2681,7 @@ int spellnum;
             && haseyes(mtmp->data)) {
             if (!resists_blnd(mtmp)) {
                 int num_eyes = eyecount(mtmp->data);
+
                 if (yours || canseemon(mtmp))
                     pline("Scales cover %s %s!", s_suffix(mon_nam(mtmp)),
                           (num_eyes == 1) ? "eye" : "eyes");

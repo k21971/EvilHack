@@ -3770,4 +3770,5 @@ The following changes to date are:
 - Caveperson staying illiterate hit point boost revamp
 - Fix: check alive/dead status of demon boss when trying to
   teleport
+- Fix: It douses it in a torrent of acid!
 
