@@ -3771,4 +3771,5 @@ The following changes to date are:
 - Fix: check alive/dead status of demon boss when trying to
   teleport
 - Fix: It douses it in a torrent of acid!
+- Fix: livelogging when receiving a spellbook from your deity
 

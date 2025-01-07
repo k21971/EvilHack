@@ -957,7 +957,7 @@ gcrownu()
         obj = mksobj(class_gift, TRUE, FALSE);
         if (!u.uconduct.literate && !known_spell(obj->otyp)) {
             if (force_learn_spell(obj->otyp))
-                pline("Divine knowledge of the spell %s fills your mind!",
+                pline("Divine knowledge of the spell '%s' fills your mind!",
                       OBJ_NAME(objects[obj->otyp]));
             obfree(obj, (struct obj *) 0);
         } else {
@@ -1451,7 +1451,7 @@ aligntyp g_align;
                 if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                     && !known_spell(otmp->otyp)) {
                     if (force_learn_spell(otmp->otyp))
-                        pline("Divine knowledge of the spell %s fills your mind!",
+                        pline("Divine knowledge of the spell '%s' fills your mind!",
                               OBJ_NAME(objects[otmp->otyp]));
                     obfree(otmp, (struct obj *) 0);
                 } else {
@@ -2328,15 +2328,21 @@ dosacrifice()
                                     if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                                         && !known_spell(otmp->otyp)) {
                                         if (force_learn_spell(otmp->otyp))
-                                            pline("Divine knowledge of the spell %s fills your mind!",
+                                            pline("Divine knowledge of the spell '%s' fills your mind!",
                                                   OBJ_NAME(objects[otmp->otyp]));
                                         obfree(otmp, (struct obj *) 0);
+                                        livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                                       "had divine knowledge of the spell '%s' bestowed upon %s by %s",
+                                                       OBJ_NAME(objects[otmp->otyp]), uhim(), u_gname());
                                     } else {
                                         bless(otmp);
                                         otmp->oeroded = otmp->oeroded2 = 0;
                                         at_your_feet("A spellbook");
                                         place_object(otmp, u.ux, u.uy);
                                         newsym(u.ux, u.uy);
+                                        livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                                       "had %s given to %s by %s",
+                                                       an(xname(otmp)), uhim(), u_gname());
                                     }
                                     godvoice(u.ualign.type, "Use this gift skillfully!");
                                     if (!otmp || is_magic(otmp))
@@ -2347,9 +2353,6 @@ dosacrifice()
                                         otmp->dknown = 1;
                                         makeknown(otmp->otyp);
                                     }
-                                    livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
-                                                   "had %s given to %s by %s",
-                                                   an(xname(otmp)), uhim(), u_gname());
                                     return 1;
                                 } else {
                                     typ = (rn2(100) >= 50)
@@ -2421,15 +2424,21 @@ dosacrifice()
                         if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                             && !known_spell(otmp->otyp)) {
                             if (force_learn_spell(otmp->otyp))
-                                pline("Divine knowledge of the spell %s fills your mind!",
+                                pline("Divine knowledge of the spell '%s' fills your mind!",
                                       OBJ_NAME(objects[otmp->otyp]));
                             obfree(otmp, (struct obj *) 0);
+                            livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                           "had divine knowledge of the spell '%s' bestowed upon %s by %s",
+                                           OBJ_NAME(objects[otmp->otyp]), uhim(), u_gname());
                         } else {
                             bless(otmp);
                             otmp->oeroded = otmp->oeroded2 = 0;
                             at_your_feet("A spellbook");
                             place_object(otmp, u.ux, u.uy);
                             newsym(u.ux, u.uy);
+                            livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                           "had %s given to %s by %s",
+                                           an(xname(otmp)), uhim(), u_gname());
                         }
                         godvoice(u.ualign.type, "Use this gift skillfully!");
                         if (!otmp || is_magic(otmp))
@@ -2440,9 +2449,6 @@ dosacrifice()
                             otmp->dknown = 1;
                             makeknown(otmp->otyp);
                         }
-                        livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
-                                       "had %s given to %s by %s",
-                                       an(xname(otmp)), uhim(), u_gname());
                         return 1;
                     } else { /* Making armor */
                         do {
