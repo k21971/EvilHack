@@ -3646,7 +3646,9 @@ weight_cap()
             youmonst.data->mmove = 10;
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
-        if (is_nymph(youmonst.data) || u.ushapechange)
+        if (is_nymph(youmonst.data)
+            || (Role_if(PM_DRUID)
+                && all_druid_forms(monsndx(youmonst.data))))
             carrcap = maxcarrcap;
         else if (!youmonst.data->cwt)
             carrcap = (carrcap * (long) youmonst.data->msize) / MZ_HUMAN;

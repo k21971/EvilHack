@@ -622,7 +622,8 @@ struct monst *mon;
 {
     struct permonst *ptr = r_data(mon);
 
-    if (u.ushapechange)
+    if (Role_if(PM_DRUID)
+        && all_druid_forms(monsndx(youmonst.data)))
         return FALSE;
 
     return (boolean) (is_whirly(ptr) || ptr->msize <= MZ_SMALL
@@ -647,7 +648,8 @@ struct monst *mon;
     if (ptr == &mons[PM_DRIDER])
         return FALSE;
 
-    if (u.ushapechange)
+    if (Role_if(PM_DRUID)
+        && all_druid_forms(monsndx(youmonst.data)))
         return FALSE;
 
     return (boolean) (r_bigmonst(mon)

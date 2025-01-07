@@ -3754,4 +3754,5 @@ The following changes to date are:
 - Druids can sense when they are about to revert back to
   their original form when polymorphed
 - Shields won't merge into a Druids #shapechange form
+- Rework Druid shapechange form defines
 
