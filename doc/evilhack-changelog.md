@@ -3765,4 +3765,5 @@ The following changes to date are:
 - Adjust grass distribution on some of the Druid quest levels
 - Another case where a Druid or Elf is penalized for killing
   a tree
+- Redistribute spellbook spawn probabilities
 
