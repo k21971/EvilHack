@@ -3757,4 +3757,6 @@ The following changes to date are:
 - Rework Druid shapechange form defines
 - Druids become immune to nymphs seduction attacks at
   experience level 14
+- Unintelligent monsters could ignore a Druid that has
+  changed shape from a distance
 
