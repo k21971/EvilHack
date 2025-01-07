@@ -1993,6 +1993,19 @@ domove_core()
                     tmpr->typ = DEADTREE;
                     if (tmpr->typ == DEADTREE)
                         newsym(x, y);
+                    if (Role_if(PM_DRUID)) {
+                        You_feel("very guilty.");
+                        adjalign(-15);
+                        change_luck(-7);
+                        /* deity becomes "very" angry */
+                        u.ugangr += 5;
+                    } else if (Race_if(PM_ELF)) {
+                        /* Elves are also penalized, but
+                           not as severely */
+                        You_feel("guilty.");
+                        adjalign(-5);
+                        change_luck(-2);
+                    }
                 }
             } else if (tmpr->typ == DEADTREE) {
                 if (!may_dig(x, y)) {

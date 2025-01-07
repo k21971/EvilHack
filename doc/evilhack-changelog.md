@@ -3763,4 +3763,6 @@ The following changes to date are:
 - Present worn armor in inventory as (merged to your form)
   if activating #shapechange as a Druid
 - Adjust grass distribution on some of the Druid quest levels
+- Another case where a Druid or Elf is penalized for killing
+  a tree
 
