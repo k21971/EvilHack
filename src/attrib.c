@@ -1201,20 +1201,26 @@ newhp()
                 hp += rnd(urace.hpadv.hirnd);
         }
 
-        /* Cavemen get a tiny HP boost if they've remained illiterate,
-         * as well as a tiny wisdom boost.  The longer they remain
-         * illiterate, the bigger the HP boost gets (capped at d3)
-         */
-
+        /* Cavemen get a random HP boost if they've remained
+           illiterate conduct, as well as a tiny wisdom boost.
+           The longer they remain illiterate, the bigger the
+           HP boost gets */
         if (Role_if(PM_CAVEMAN)) {
             tempnum = 0;
             if (u.uconduct.literate < 1) {
-                if (u.ulevel < 4)
-                    tempnum += 1;
-                else if (u.ulevel < 8)
-                    tempnum += rnd(2);
-                else
-                    tempnum += rnd(3);
+                if (u.ulevel < 3) {
+                    /* 1st rank */
+                    tempnum += rn1(3, 2);
+                } else if (u.ulevel < 10) {
+                    /* 2nd and 3rd ranks */
+                    tempnum += rn1(4, 3);
+                } else if (u.ulevel < 18) {
+                    /* 4th and 5th ranks */
+                    tempnum += rn1(6, 3);
+                } else {
+                    /* 6th through 9th ranks */
+                    tempnum += rn1(8, 5);
+                }
                 exercise(A_WIS, TRUE);
             }
             hp += tempnum;

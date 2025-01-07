@@ -3767,4 +3767,5 @@ The following changes to date are:
   a tree
 - Redistribute spellbook spawn probabilities
 - Allow giant hawks to lay eggs, oviparous changes to ants
+- Caveperson staying illiterate hit point boost revamp
 
