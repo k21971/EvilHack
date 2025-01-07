@@ -3755,4 +3755,6 @@ The following changes to date are:
   their original form when polymorphed
 - Shields won't merge into a Druids #shapechange form
 - Rework Druid shapechange form defines
+- Druids become immune to nymphs seduction attacks at
+  experience level 14
 

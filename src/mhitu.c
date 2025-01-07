@@ -2158,6 +2158,11 @@ register struct attack *mattk;
     case AD_SITM: /* for now these are the same */
     case AD_SEDU: {
         int is_robber = (is_animal(mtmp->data) || is_rogue(mtmp->data));
+        boolean purity = (u.ualign.type == A_LAWFUL && uarmg
+                          && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY);
+        boolean druid_mystic = (Role_if(PM_DRUID) && u.ulevel >= 14
+                                && is_nymph(mtmp->data));
+
         if (is_robber) {
             hitmsg(mtmp, mattk);
             if (mtmp->mcan || Hidinshell)
@@ -2177,12 +2182,10 @@ register struct attack *mattk;
                 (void) rloc(mtmp, TRUE);
             return 3;
         } else if (mtmp->mcan || Hidinshell
-                   || (u.ualign.type == A_LAWFUL
-                       && uarmg && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY)) {
+                   || purity || druid_mystic) {
             if (!Blind)
                 pline("%s tries to %s you, but you seem %s.",
-                      mtmp->data == &mons[PM_GRAZ_ZT] ? Monnam(mtmp)
-                                                      : Adjmonnam(mtmp, "plain"),
+                      !mtmp->mcan ? Monnam(mtmp) : Adjmonnam(mtmp, "plain"),
                       flags.female ? "charm" : "seduce",
                       flags.female ? "unaffected" : "uninterested");
             if (rn2(3)) {
@@ -3962,6 +3965,8 @@ struct monst *mon;
     struct obj *ring, *nring;
     boolean fem = (mon->data == &mons[PM_SUCCUBUS]); /* otherwise incubus */
     boolean seewho, naked; /* True iff no armor */
+    boolean purity = (u.ualign.type == A_LAWFUL && uarmg
+                      && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY);
     int attr_tot, tried_gloves = 0;
     char qbuf[QBUFSZ], Who[QBUFSZ];
 
@@ -3970,9 +3975,7 @@ struct monst *mon;
               mhe(mon), mon->mcan ? "severe " : "");
         return 0;
     }
-    if (unconscious()
-        || (u.ualign.type == A_LAWFUL
-            && uarmg && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY)) {
+    if (unconscious() || purity) {
         pline("%s seems dismayed at your lack of response.", Monnam(mon));
         return 0;
     }
