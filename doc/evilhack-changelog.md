@@ -3759,4 +3759,5 @@ The following changes to date are:
   experience level 14
 - Unintelligent monsters could ignore a Druid that has
   changed shape from a distance
+- Add a fourth tier of monsters a Druid can shapechange into
 

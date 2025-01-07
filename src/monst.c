@@ -1127,7 +1127,7 @@ NEARDATA struct permonst mons[] = {
           ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(250, 150, MS_GROWL, MZ_SMALL), MR_COLD, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE | M1_THICK_HIDE,
-        M2_HOSTILE | M2_STRONG | M2_STALK,
+        M2_HOSTILE | M2_STRONG | M2_STALK | M2_DRUID_FORM_C,
         M3_INFRAVISIBLE | M3_BERSERK, 0, 0, 14, CLR_ORANGE),
     MON("dire wolverine", S_RODENT,
         LVL(16, 14, 0, 0, 0), (G_GENO | 1),
@@ -1135,7 +1135,7 @@ NEARDATA struct permonst mons[] = {
           ATTK(AT_BITE, AD_PHYS, 2, 8), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(500, 250, MS_GROWL, MZ_MEDIUM), MR_COLD, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE | M1_THICK_HIDE,
-        M2_HOSTILE | M2_STRONG | M2_STALK | M2_DRUID_FORM_C,
+        M2_HOSTILE | M2_STRONG | M2_STALK | M2_DRUID_FORM_D,
         M3_INFRAVISIBLE | M3_BERSERK, 0, 0, 17, CLR_ORANGE),
     /*
      * spiders & scorpions (keep webmaker() in sync if new critters are added)
@@ -1201,8 +1201,8 @@ NEARDATA struct permonst mons[] = {
         SIZ(600, 300, MS_SILENT, MZ_LARGE), MR_POISON, MR_POISON,
         M1_CONCEAL | M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_CARNIVORE
             | M1_THICK_HIDE,
-        M2_HOSTILE | M2_STRONG | M2_NASTY, M3_ACCURATE,
-        0, 0, 20, CLR_ORANGE),
+        M2_HOSTILE | M2_STRONG | M2_NASTY | M2_DRUID_FORM_D,
+        M3_ACCURATE, 0, 0, 20, CLR_ORANGE),
     /*
      * trappers, lurkers, &c
      */
@@ -1299,7 +1299,7 @@ NEARDATA struct permonst mons[] = {
         M1_ANIMAL | M1_NOHANDS | M1_FLY | M1_REGEN | M1_HERBIVORE
             | M1_OVIPAROUS,
         M2_NOPOLY | M2_NASTY | M2_WANDER | M2_DOMESTIC | M2_PEACEFUL
-            | M2_STRONG,
+            | M2_STRONG | M2_DRUID_FORM_D,
         M3_INFRAVISION | M3_INFRAVISIBLE, 0, 0, 20, CLR_WHITE),
     MON("greater pegasus", S_UNICORN, LVL(20, 24, -6, 90, 0), (G_NOGEN),
         A(ATTK(AT_KICK, AD_PHYS, 2, 8), ATTK(AT_KICK, AD_PHYS, 2, 8),
@@ -4023,7 +4023,7 @@ struct permonst _mons2[] = {
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(7500, 4000, MS_SILENT, MZ_HUGE),
         MR_SLEEP | MR_POISON | MR_STONE, 0,
-        M1_THICK_HIDE, M2_STRONG | M2_ROCKTHROW,
+        M1_THICK_HIDE, M2_STRONG | M2_ROCKTHROW | M2_DRUID_FORM_D,
         M3_INFRAVISION, 0, 0, 18, CLR_GRAY),
     MON("gulthias tree", S_ENT, LVL(20, 10, -6, 50, -15), G_NOGEN,
         A(ATTK(AT_CLAW, AD_PHYS, 6, 8), ATTK(AT_CLAW, AD_PHYS, 6, 8),

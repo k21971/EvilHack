@@ -690,10 +690,13 @@
     ((mons[mndx].mflags2 & M2_DRUID_FORM_B) != 0L)
 #define druid_form_C(mndx) \
     ((mons[mndx].mflags2 & M2_DRUID_FORM_C) != 0L)
+#define druid_form_D(mndx) \
+    ((mons[mndx].mflags2 & M2_DRUID_FORM_D) != 0L)
 
 #define all_druid_forms(mndx) \
     (((mons[mndx].mflags2 & M2_DRUID_FORM_A) != 0L)     \
      || ((mons[mndx].mflags2 & M2_DRUID_FORM_B) != 0L)  \
-     || ((mons[mndx].mflags2 & M2_DRUID_FORM_C) != 0L))
+     || ((mons[mndx].mflags2 & M2_DRUID_FORM_C) != 0L)  \
+     || ((mons[mndx].mflags2 & M2_DRUID_FORM_D) != 0L))
 
 #endif /* MONDATA_H */

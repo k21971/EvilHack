@@ -455,8 +455,13 @@ druid_shapechange()
 
     for (i = LOW_PM; i < NUMMONS; i++) {
         n = (LOW_PM + i);
-        if (u.ulevel >= 10) {
+        if (u.ulevel >= 15) {
             if (!all_druid_forms(n))
+                continue;
+        } else if (u.ulevel >= 10) {
+            if (!druid_form_A(n)
+                && !druid_form_B(n)
+                && !druid_form_C(n))
                 continue;
         } else if (u.ulevel >= 6) {
             if (!druid_form_A(n)

@@ -116,6 +116,7 @@
 #define M2_DRUID_FORM_A 0x00000002L /* monster a druid can shapechange into, first tier */
 #define M2_DRUID_FORM_B 0x00000004L /* monster a druid can shapechange into, second tier */
 #define M2_DRUID_FORM_C 0x00000008L /* monster a druid can shapechange into, third tier */
+#define M2_DRUID_FORM_D 0x00000010L /* monster a druid can shapechange into, fourth tier */
 #define M2_LORD 0x00000400L         /* is an overlord to its kind */
 #define M2_PRINCE 0x00000800L       /* is an overlord to its kind */
 #define M2_MINION 0x00001000L       /* is a minion of a deity */
