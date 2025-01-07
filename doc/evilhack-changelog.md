@@ -3762,4 +3762,5 @@ The following changes to date are:
 - Add a fourth tier of monsters a Druid can shapechange into
 - Present worn armor in inventory as (merged to your form)
   if activating #shapechange as a Druid
+- Adjust grass distribution on some of the Druid quest levels
 

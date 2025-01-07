@@ -214,7 +214,6 @@ NON_DIGGABLE:(02,09,17,17)
 
 MAZE: "Dru-goal", ' '
 INIT_MAP: mines,'.','t',false,true,lit,false
-REPLACE_TERRAIN:(00,00,78,20),'.','g',100%
 GEOMETRY:center,center
 #         1         2         3         4         5         6         7
 #123456789012345678901234567890123456789012345678901234567890123456789012345
@@ -268,9 +267,9 @@ NON_DIGGABLE:(00,00,20,06)
 MAZE: "Dru-fila" , 't'
 INIT_MAP: mines,'.','t',false,true,lit,false
 NOMAP
-# some trees are still alive
+# some trees/grass are still alive
 REPLACE_TERRAIN:(00,00,78,20),'t','T',25%
-REPLACE_TERRAIN:(00,00,78,20),'.','g',100%
+REPLACE_TERRAIN:(00,00,78,20),'.','g',30%
 # Stairs
 STAIR: random,up
 STAIR: random,down
@@ -314,9 +313,9 @@ MONSTER:'n',random
 MAZE: "Dru-filb" , 't'
 INIT_MAP: mines,'.','t',false,true,lit,false
 NOMAP
-# very little trees are still alive
+# very little trees or grass are still alive
 REPLACE_TERRAIN:(00,00,78,20),'t','T',2%
-REPLACE_TERRAIN:(00,00,78,20),'.','g',100%
+REPLACE_TERRAIN:(00,00,78,20),'.','g',10%
 # Stairs
 STAIR: random,up
 STAIR: random,down
