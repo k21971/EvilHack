@@ -1431,7 +1431,10 @@ unsigned doname_flags;
         if (obj->owornmask & W_AMUL)
             Strcat(bp, " (being worn)");
         break;
-    case ARMOR_CLASS:
+    case ARMOR_CLASS: {
+        boolean druid_form = (Role_if(PM_DRUID)
+                              && all_druid_forms(monsndx(youmonst.data)));
+
         if (obj->owornmask & W_ARMOR) {
             Strcat(bp, (obj == uskin) ? " (embedded in your skin)"
                        /* in case of perm_invent update while Wear/Takeoff
@@ -1439,8 +1442,9 @@ unsigned doname_flags;
                           because donning() returns True for both cases */
                        : doffing(obj) ? " (being doffed)"
                          : donning(obj) ? " (being donned)"
-                           : obj->otyp == MUMMIFIED_HAND ? " "
-                             : " (being worn)");
+                           : druid_form ? " (merged to your form)"
+                             : obj->otyp == MUMMIFIED_HAND ? " "
+                               : " (being worn)");
             /* slippery fingers is an intrinsic condition of the hero
                rather than extrinsic condition of objects, but gloves
                are described as slippery when hero has slippery fingers */
@@ -1465,7 +1469,8 @@ unsigned doname_flags;
             Strcat(prefix, scalebuf);
             releaseobuf(colorstr); /* don't consume an extra obuf */
         }
-        /*FALLTHRU*/
+    }
+    /*FALLTHRU*/
     case WEAPON_CLASS:
         if (ispoisoned)
             Strcat(prefix, "poisoned ");

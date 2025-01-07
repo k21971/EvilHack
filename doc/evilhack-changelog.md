@@ -3760,4 +3760,6 @@ The following changes to date are:
 - Unintelligent monsters could ignore a Druid that has
   changed shape from a distance
 - Add a fourth tier of monsters a Druid can shapechange into
+- Present worn armor in inventory as (merged to your form)
+  if activating #shapechange as a Druid
 
