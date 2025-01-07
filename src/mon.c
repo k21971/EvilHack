@@ -6226,10 +6226,12 @@ int mnum;
     mnum = little_to_big(mnum);
     /*
      * Queen bees lay killer bee eggs (usually), but killer bees don't
-     * grow into queen bees.  Ditto for [winged-]gargoyles.
+     * grow into queen bees.  Ditto for [winged-]gargoyles and giant
+     * ants <-> queen ants.
      */
     if (mnum == PM_KILLER_BEE || mnum == PM_GARGOYLE
-        || mnum == PM_GIANT_ANT
+        || mnum == PM_GIANT_ANT || mnum == PM_FIRE_ANT
+        || mnum == PM_SOLDIER_ANT
         || (lays_eggs(&mons[mnum])
             && (BREEDER_EGG
                 || (mnum != PM_QUEEN_BEE
@@ -6251,7 +6253,11 @@ boolean force_ordinary;
         else if (mnum == PM_WINGED_GARGOYLE)
             mnum = PM_GARGOYLE;
         else if (mnum == PM_QUEEN_ANT)
-            mnum = PM_GIANT_ANT;
+            mnum = rn2(5) ? PM_GIANT_ANT
+                          : rn2(3) ? PM_FIRE_ANT
+                                   : PM_SOLDIER_ANT;
+        else if (mnum == PM_GIANT_HAWK)
+            mnum = PM_HAWK;
         else if (mnum == PM_GIANT_CROCODILE)
             mnum = PM_CROCODILE; /* appearances only */
     }

@@ -3766,4 +3766,5 @@ The following changes to date are:
 - Another case where a Druid or Elf is penalized for killing
   a tree
 - Redistribute spellbook spawn probabilities
+- Allow giant hawks to lay eggs, oviparous changes to ants
 
