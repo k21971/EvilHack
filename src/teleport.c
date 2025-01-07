@@ -541,11 +541,15 @@ struct obj *scroll;
        teleportation most of the time */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (is_dlord(mtmp->data) && rn2(10)
-            && !wizard) {
+            && !DEADMONSTER(mtmp)
+            && (!wizard
+                || yn("A Demon Lord exists here.  Override?") != 'y')) {
             pline("Demonic forces prevent you from teleporting.");
             return TRUE;
         } else if (is_dprince(mtmp->data) && rn2(20)
-            && !wizard) {
+            && !DEADMONSTER(mtmp)
+            && (!wizard
+                || yn("A Demon Prince exists here.  Override?") != 'y')) {
             pline("Powerful demonic forces prevent you from teleporting.");
             return TRUE;
         }
@@ -852,12 +856,14 @@ level_tele()
     /* Being in the presence of demon lords/princes can negate
        level teleportation most of the time */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (is_dlord(mtmp->data) && rn2(10)
+        if (is_dlord(mtmp->data)
+            && !DEADMONSTER(mtmp) && rn2(10)
             && (!wizard
                 || yn("A Demon Lord exists here.  Override?") != 'y')) {
             pline("Demonic forces prevent you from teleporting.");
             return;
-        } else if (is_dprince(mtmp->data) && rn2(20)
+        } else if (is_dprince(mtmp->data)
+            && !DEADMONSTER(mtmp) && rn2(20)
             && (!wizard
                 || yn("A Demon Prince exists here.  Override?") != 'y')) {
             pline("Powerful demonic forces prevent you from teleporting.");

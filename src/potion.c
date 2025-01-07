@@ -1166,10 +1166,14 @@ register struct obj *otmp;
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                 /* order is important here, should a demon
                    prince summon a demon lord */
-                if (is_dlord(mtmp->data) && rn2(10)) {
+                if (is_dlord(mtmp->data) && rn2(10)
+                    && (!wizard
+                        || yn("A Demon Lord exists here.  Override?") != 'y')) {
                     pline("Demonic forces prevent you from rising up.");
                     goto no_rise;
-                } else if (is_dprince(mtmp->data) && rn2(20)) {
+                } else if (is_dprince(mtmp->data) && rn2(20)
+                    && (!wizard
+                        || yn("A Demon Prince exists here.  Override?") != 'y')) {
                     pline("Powerful demonic forces prevent you from rising up.");
                     goto no_rise;
                 }

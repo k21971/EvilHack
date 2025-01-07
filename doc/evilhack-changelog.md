@@ -3768,4 +3768,6 @@ The following changes to date are:
 - Redistribute spellbook spawn probabilities
 - Allow giant hawks to lay eggs, oviparous changes to ants
 - Caveperson staying illiterate hit point boost revamp
+- Fix: check alive/dead status of demon boss when trying to
+  teleport
 
