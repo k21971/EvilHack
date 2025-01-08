@@ -2240,11 +2240,13 @@ dosacrifice()
             int arti_gift_odds = ((u.ualign.abuse == 0) ? 9 : 10) + (2 * u.ugifts)
                                   + (2 * u.uconduct.wisharti);
             boolean primary_casters,
+                    primary_casters_druid,
                     primary_casters_priest,
                     primary_casters_wizard;
 
             /* Primary casting roles */
             primary_casters = (Role_if(PM_HEALER) || Role_if(PM_INFIDEL));
+            primary_casters_druid = Role_if(PM_DRUID);
             primary_casters_priest = Role_if(PM_PRIEST);
             primary_casters_wizard = Role_if(PM_WIZARD);
 
@@ -2292,6 +2294,12 @@ dosacrifice()
                                                        : rnd_class(MACE, FLAIL);
                             } else if (primary_casters_priest) {
                                 typ = rnd_class(MACE, FLAIL);
+                            } else if (primary_casters_druid) {
+                                typ = (rn2(100) >= 60)
+                                        ? rnd_class(MACE, FLAIL)
+                                        : !rn2(6)
+                                          ? rnd_class(DAGGER, ATHAME)
+                                          : rn2(3) ? SCIMITAR : SABER;
                             } else if (Role_if(PM_MONK)) {
                                 if (!u.uconduct.weaphit)
                                     typ = SHURIKEN;
@@ -2321,6 +2329,7 @@ dosacrifice()
                                                  || carrying(MAGIC_MARKER)) && u.uconduct.literate)
                                                 break;
                                         }
+                                        /* Druid/evocation spells purposely ommitted */
                                         otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_FREEZE_SPHERE);
                                         set_material(otmp, objects[otmp->otyp].oc_material);
                                     }
@@ -2395,7 +2404,7 @@ dosacrifice()
                                 break;
                         } while (ncount++ < 1000);
                     } else if ((primary_casters || primary_casters_priest
-                                || primary_casters_wizard)
+                                || primary_casters_wizard || primary_casters_druid)
                                && !Race_if(PM_DRAUGR) && !rn2(3)) {
                         /* Making a spellbook */
                         int trycnt = u.ulevel + 1;
@@ -2417,7 +2426,10 @@ dosacrifice()
                                      || carrying(MAGIC_MARKER)) && u.uconduct.literate)
                                     break;
                             }
-                            otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_FREEZE_SPHERE);
+                            if (primary_casters_druid)
+                                otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_SUMMON_ELEMENTAL);
+                            else
+                                otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_FREEZE_SPHERE);
                             set_material(otmp, objects[otmp->otyp].oc_material);
                         }
 
@@ -2462,12 +2474,12 @@ dosacrifice()
                             case 0:
                                 /* body armor (inc. shirts) */
                                 if (primary_casters || primary_casters_priest
-                                    || primary_casters_wizard) {
+                                    || primary_casters_wizard || primary_casters_druid) {
                                     typ = (rn2(100) >= 50)
                                             ? rnd_class(ARMOR, JACKET)
                                             : (rn2(100) >= 16)
-                                                ? typ == STUDDED_ARMOR
-                                                : typ == CRYSTAL_PLATE_MAIL;
+                                                ? STUDDED_ARMOR
+                                                : CRYSTAL_PLATE_MAIL;
                                 } else {
                                     typ = rnd_class(PLATE_MAIL, T_SHIRT);
                                 }
@@ -2483,9 +2495,9 @@ dosacrifice()
                             case 2:
                                 /* boots */
                                 if (primary_casters || primary_casters_priest
-                                    || primary_casters_wizard) {
+                                    || primary_casters_wizard || primary_casters_druid) {
                                     typ = (rn2(100) >= 66)
-                                            ? typ == LOW_BOOTS
+                                            ? LOW_BOOTS
                                             : rnd_class(HIGH_BOOTS, LEVITATION_BOOTS);
                                 } else {
                                     typ = rnd_class(LOW_BOOTS, LEVITATION_BOOTS);
@@ -2500,15 +2512,19 @@ dosacrifice()
                                     || primary_casters_wizard) {
                                     if (Race_if(PM_DROW)) {
                                         typ = (rn2(100) >= 12)
-                                                ? typ == DARK_ELVEN_BRACERS
+                                                ? DARK_ELVEN_BRACERS
                                                 : (rn2(100) >= 50)
-                                                    ? typ == SHIELD_OF_REFLECTION
-                                                    : typ == SHIELD_OF_MOBILITY;
+                                                    ? SHIELD_OF_REFLECTION
+                                                    : SHIELD_OF_MOBILITY;
                                     } else {
                                         typ = (rn2(100) >= 12)
-                                                ? typ == SMALL_SHIELD
+                                                ? SMALL_SHIELD
                                                 : rnd_class(SHIELD_OF_REFLECTION, SHIELD_OF_MOBILITY);
                                     }
+                                } else if (primary_casters_druid) {
+                                    typ = (rn2(100) >= 34)
+                                            ? BRACERS
+                                            : SMALL_SHIELD;
                                 } else {
                                     if (Race_if(PM_DROW))
                                         typ = rnd_class(SMALL_SHIELD, SHIELD_OF_REFLECTION);
@@ -2522,9 +2538,9 @@ dosacrifice()
                             case 4:
                                 /* gloves */
                                 if (primary_casters || primary_casters_priest
-                                    || primary_casters_wizard) {
+                                    || primary_casters_wizard || primary_casters_druid) {
                                     typ = (rn2(100) >= 33)
-                                            ? typ == GLOVES
+                                            ? GLOVES
                                             : rnd_class(GAUNTLETS_OF_POWER, GAUNTLETS_OF_DEXTERITY);
                                 } else {
                                     typ = rnd_class(GLOVES, GAUNTLETS_OF_DEXTERITY);
@@ -2533,7 +2549,7 @@ dosacrifice()
                             case 5:
                                 /* helm */
                                 if (primary_casters || primary_casters_priest
-                                    || primary_casters_wizard) {
+                                    || primary_casters_wizard || primary_casters_druid) {
                                     if (Role_if(PM_WIZARD)) {
                                         typ = (rn2(100) >= 50)
                                                 ? rnd_class(CORNUTHAUM, DARK_ELVEN_HELM)
@@ -2604,7 +2620,12 @@ dosacrifice()
                                     && is_helmet(otmp)
                                     && is_heavy_metallic(otmp))
                                 || (Role_if(PM_INFIDEL)
-                                    && otmp->material == SILVER))
+                                    && otmp->material == SILVER)
+                                || (Role_if(PM_DRUID)
+                                    && is_metallic(otmp)
+                                    && (is_helmet(otmp) || is_shield(otmp)
+                                        || is_bracer(otmp) || is_boots(otmp)
+                                        || is_gloves(otmp) || is_suit(otmp))))
                                && ncount++ < 500) {
                             obfree(otmp, (struct obj *) 0);
                             otmp = mksobj(typ, FALSE, FALSE);
