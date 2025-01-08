@@ -1354,6 +1354,7 @@ register int x, y;
     if (u.ustuck == mtmp) {
         if (u.uswallow) {
             u_on_newpos(mtmp->mx, mtmp->my);
+            check_special_room(FALSE);
             docrt();
         } else if (distu(mtmp->mx, mtmp->my) > 2) {
            unstuck(mtmp);

@@ -3356,6 +3356,19 @@ xchar x, y;
 
     offer = ltmp + cltmp;
 
+    /* you dropped something of your own - probably want to sell it */
+    rouse_shk(shkp, TRUE); /* wake up sleeping or paralyzed shk */
+    eshkp = ESHK(shkp);
+
+    if (ANGRY(shkp)) { /* they become shop-objects, no pay */
+        if (!Deaf && !muteshk(shkp))
+            verbalize("Thank you, scum!");
+        else
+            pline("%s smirks with satisfaction.", Shknam(shkp));
+        subfrombill(obj, shkp);
+        return;
+    }
+
     /* get one case out of the way: nothing to sell, and no gold */
     if (!(isgold || cgold)
         && ((offer + gltmp) == 0L || sell_how == SELL_DONTSELL)) {
@@ -3373,19 +3386,6 @@ xchar x, y;
         if (!unpaid && (sell_how != SELL_DONTSELL)
             && !special_stock(obj, shkp, FALSE))
             pline("%s seems uninterested.", Shknam(shkp));
-        return;
-    }
-
-    /* you dropped something of your own - probably want to sell it */
-    rouse_shk(shkp, TRUE); /* wake up sleeping or paralyzed shk */
-    eshkp = ESHK(shkp);
-
-    if (ANGRY(shkp)) { /* they become shop-objects, no pay */
-        if (!Deaf && !muteshk(shkp))
-            verbalize("Thank you, scum!");
-        else
-            pline("%s smirks with satisfaction.", Shknam(shkp));
-        subfrombill(obj, shkp);
         return;
     }
 
