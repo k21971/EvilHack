@@ -465,6 +465,7 @@ boolean notpool;
     while (count++ < 2000) {
       	int rnum = levl[cx][cy].roomno - ROOMOFFSET;
       	chance = 0;
+
         if (rnum >= 0 && rooms[rnum].rtype != OROOM)
             chance = 0;
         /* damp terrain replacing stairs currently isn't
@@ -483,11 +484,12 @@ boolean notpool;
         if (rn2(100) < chance && !t_at(cx, cy)) {
             if (notpool) {
                 levl[cx][cy].typ = SEWAGE;
-                levl[cx][cy].lit = 1;
       	    } else {
       	        levl[cx][cy].typ = !rn2(3) ? POOL
                                            : !rn2(3) ? PUDDLE : MOAT;
-                levl[cx][cy].lit = 1;
+                if (levl[cx][cy].typ == POOL
+                    || levl[cx][cy].typ == MOAT)
+                    levl[cx][cy].lit = 1;
             }
       	}
 
@@ -509,24 +511,24 @@ boolean notpool;
             dy = 0;
 
         switch (rn2(16)) {
-            default:
-                break;
-            case 1: dx--; dy--;
-                break;
-            case 2: dx++; dy--;
-                break;
-            case 3: dx--; dy++;
-                break;
-            case 4: dx++; dy++;
-                break;
-            case 5: dy--;
-                break;
-            case 6: dy++;
-                break;
-            case 7: dx--;
-                break;
-            case 8: dx++;
-                break;
+        default:
+            break;
+        case 1: dx--; dy--;
+            break;
+        case 2: dx++; dy--;
+            break;
+        case 3: dx--; dy++;
+            break;
+        case 4: dx++; dy++;
+            break;
+        case 5: dy--;
+            break;
+        case 6: dy++;
+            break;
+        case 7: dx--;
+            break;
+        case 8: dx++;
+            break;
       	}
 
         if (dx < -1)

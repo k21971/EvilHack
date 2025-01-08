@@ -3774,4 +3774,5 @@ The following changes to date are:
 - Fix: livelogging when receiving a spellbook from your deity
 - Add handling for Druid role and regular artifact gifts
 - Fix: unpaid_cost impossible under certain circumstances
+- Fix: sewage and shallow water tiles were lit in makeriver()
 
