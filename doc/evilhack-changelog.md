@@ -3776,4 +3776,6 @@ The following changes to date are:
 - Fix: unpaid_cost impossible under certain circumstances
 - Fix: sewage and shallow water tiles were lit in makeriver()
 - Some Druid tweaks, enhancements while changing form
+- New spell: power word kill, shift 'finger of death' from
+  attack spell to evocation spell
 

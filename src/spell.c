@@ -1755,6 +1755,143 @@ boolean wiz_cast;
     case SPE_SUMMON_ELEMENTAL:
         (void) make_elemental(u.ux, u.uy);
         break;
+    case SPE_POWER_WORD_KILL: {
+        char c, qbuf[QBUFSZ];
+        const char *prompt = "choose a monster to slay";
+        int ans;
+        int range_skill = (P_SKILL(spell_skilltype(SPE_POWER_WORD_KILL)) == P_EXPERT
+                           ? 17 : P_SKILL(spell_skilltype(SPE_POWER_WORD_KILL)) == P_SKILLED
+                                ? 7 : P_SKILL(spell_skilltype(SPE_POWER_WORD_KILL)) == P_BASIC
+                                    ? 2 : 0);
+        boolean save_verbose = flags.verbose;
+
+        /* range of power word kill spell (@ is center):
+           U = unskilled, B = basic, S = skilled, E = expert
+           ...........
+           ....EEE....
+           ..EEEEEEE..
+           ..ESSSSSE..
+           .EESBUBSEE.
+           .EESU@USEE.
+           .EESBUBSEE.
+           ..ESSSSSE..
+           ..EEEEEEE..
+           ....EEE....
+           ...........
+        */
+
+        cc.x = u.ux, cc.y = u.uy;
+        for (;;) {
+            You("utter a word of power...");
+            pline("%s:", prompt);
+
+            flags.verbose = FALSE;
+            ans = getpos(&cc, TRUE, "a monster");
+            flags.verbose = save_verbose;
+            if (ans < 0 || cc.x < 1)
+                break;
+
+            /* handle selecting your own location first */
+            mtmp = 0;
+            if (cc.x == u.ux && cc.y == u.uy) {
+                if (u.usteed) {
+                    Sprintf(qbuf, "Kill %.110s?", mon_nam(u.usteed));
+                    if ((c = ynq(qbuf)) == 'q')
+                        break;
+                    if (c == 'y')
+                        mtmp = u.usteed;
+                }
+                if (!mtmp) {
+                    Sprintf(qbuf, "%s?",
+                            Role_if(PM_SAMURAI) ? "Perform seppuku"
+                                                : "Commit suicide");
+                    if (paranoid_query(TRUE, qbuf)) {
+                        Sprintf(killer.name, "%s own word of power", uhis());
+                        killer.format = KILLED_BY;
+                        done(DIED);
+                    }
+                    break;
+                }
+            } else if (u.uswallow) {
+                mtmp = (distu(cc.x, cc.y) <= 2) ? u.ustuck : 0;
+            } else {
+                mtmp = m_at(cc.x, cc.y);
+            }
+
+            if (mtmp) {
+                if (distu(mtmp->mx, mtmp->my) > range_skill + 1) {
+                    pline("%s is out of range.", Monnam(mtmp));
+                    break;
+                }
+                if (distu(mtmp->mx, mtmp->my) <= range_skill + 1) {
+                    if (immune_death_magic(mtmp->data)) {
+                        shieldeff(mtmp->mx, mtmp->my);
+                        pline("%s is immune to your word of power!",
+                              Monnam(mtmp));
+                        break;
+                    } else if (mtmp->mhp <= 100) {
+                        /* assumes not resistant to death magic.
+                           monsters with 100 or less hit points - dead if
+                           they don't have magic resistance. If monster
+                           does have MR, they still take damage not to go
+                           below one hit point */
+                        if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
+                            shieldeff(mtmp->mx, mtmp->my);
+                            pline("%s %s in pain, but resists your deadly spell.",
+                                  Monnam(mtmp), makeplural(growl_sound(mtmp)));
+                            mtmp->mhp -= d(8, 6);
+                            if (mtmp->mhp < 1)
+                                mtmp->mhp = 1;
+                            break;
+                        } else {
+                            You("%s %s!",
+                                rn2(2) ? "annihilate" : "obliterate",
+                                mon_nam(mtmp));
+                            mtmp->mhp = 0;
+                            monkilled(mtmp, (char *) 0, AD_DETH);
+                            if (!DEADMONSTER(mtmp)) /* lifesaved */
+                                return 0;
+                            break;
+                        }
+                    } else { /* greater than 100 hit points */
+                        if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
+                            shieldeff(mtmp->mx, mtmp->my);
+                            pline("%s %s in pain, but resists your deadly spell.",
+                                  Monnam(mtmp), makeplural(growl_sound(mtmp)));
+                            mtmp->mhp -= d(8, 6);
+                            if (mtmp->mhp < 1)
+                                mtmp->mhp = 1;
+                            break;
+                        } else {
+                            /* if not magic resistant, but has over 100 hit
+                               points, max hit points and regular hit points
+                               take a significant hit, not to go below one
+                               hit point */
+                            if (!Deaf)
+                                pline("%s %s in %s!", Monnam(mtmp),
+                                      makeplural(growl_sound(mtmp)),
+                                      rn2(2) ? "agony" : "pain");
+                            else if (cansee(mtmp->mx, mtmp->my))
+                                pline("%s trembles in %s!", Monnam(mtmp),
+                                      rn2(2) ? "agony" : "pain");
+                            /* mhp will then still be less than this value */
+                            mtmp->mhpmax -= rn1(9, 4);
+                            if (mtmp->mhpmax < 1) /* protect against invalid value */
+                                mtmp->mhpmax = 1;
+                            mtmp->mhp /= 3;
+                            if (mtmp->mhp < 1)
+                                mtmp->mhp = 1;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                There("is no monster there.");
+                break;
+            }
+        }
+        break;
+    }
     default:
         impossible("Unknown spell %d attempted.", spell);
         obfree(pseudo, (struct obj *) 0);
