@@ -379,7 +379,7 @@ struct you {
 
     unsigned ucreamed;
     unsigned uswldtim;          /* time you have been swallowed */
-    unsigned ushapechange;      /* time between shapechanges (druid ability) */
+    unsigned uwildshape;        /* time between using wildshape (druid ability) */
 
     Bitfield(uswallow, 1);      /* true if swallowed */
     Bitfield(uinwater, 1);      /* if you're currently in water (only

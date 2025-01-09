@@ -683,7 +683,7 @@
 #define M_IN_WATER(ptr) \
     ((ptr)->mlet == S_EEL || amphibious(ptr) || is_swimmer(ptr))
 
-/* valid Druid #shapechange forms */
+/* valid Druid #wildshape forms */
 #define druid_form_A(mndx) \
     ((mons[mndx].mflags2 & M2_DRUID_FORM_A) != 0L)
 #define druid_form_B(mndx) \

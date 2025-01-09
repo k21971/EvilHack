@@ -640,12 +640,12 @@ nh_timeout()
     if (u.ucreamed)
         u.ucreamed--;
 
-    if (u.ushapechange)
-        u.ushapechange--;
+    if (u.uwildshape)
+        u.uwildshape--;
 
-    /* Druids have a sense for when they can use #shapechange again */
-    if (u.ushapechange == 20)
-        You_feel("your shapechanging ability start to return.");
+    /* Druids have a sense for when they can use #wildshape again */
+    if (u.uwildshape == 20)
+        You_feel("your wildshape ability start to return.");
 
     /* Druids have an innate sense of when they will lose their
        current creature form and revert back to their original form */

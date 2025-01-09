@@ -423,7 +423,7 @@ newman()
 }
 
 void
-druid_shapechange()
+druid_wildshape()
 {
     winid win;
     menu_item *selected;
@@ -435,15 +435,15 @@ druid_shapechange()
     start_menu(win);
     any = zeroany;
 
-    /* set timer for next allowed shapechange,
+    /* set timer for next allowed use of wildshape,
        3600-4000 turns (this is an approximation
-       to Druids being able to shapechange three
+       to Druids being able to use wildshape three
        times a day, ad&d rules)
 
        this needs to be set before polymon() is
        called due to other behavior while using
-       #shapechange */
-    u.ushapechange += rn1(400, 3600);
+       #wildshape */
+    u.uwildshape += rn1(401, 3600);
 
     if (Unchanging) {
         pline("You fail to transform!");
@@ -840,7 +840,11 @@ int mntmp;
         make_stoned(0L, "You turn to stone!", 0, (char *) 0);
     }
 
-    u.mtimedone = rn1(500, 500);
+    if (Role_if(PM_DRUID)
+        && all_druid_forms(monsndx(youmonst.data)))
+        u.mtimedone = rn1(501, 2500);
+    else
+        u.mtimedone = rn1(500, 500);
     u.umonnum = mntmp;
     set_uasmon();
 

@@ -368,6 +368,12 @@ int *attk_count, *role_roll_penalty;
     if (u.utrap)
         tmp -= 3;
 
+    /* Druids that #wildshape into one of their allowed forms
+       enjoy a bonus that scales as they level up */
+    if (!uwep && Role_if(PM_DRUID)
+        && all_druid_forms(monsndx(youmonst.data)))
+        tmp += (u.ulevel / 3) + 5;
+
     /* hitval applies if making a weapon attack while wielding a weapon;
        weapon_hit_bonus applies if doing a weapon attack even bare-handed
        or if kicking as martial artist */

@@ -3775,4 +3775,5 @@ The following changes to date are:
 - Add handling for Druid role and regular artifact gifts
 - Fix: unpaid_cost impossible under certain circumstances
 - Fix: sewage and shallow water tiles were lit in makeriver()
+- Some Druid tweaks, enhancements while changing form
 

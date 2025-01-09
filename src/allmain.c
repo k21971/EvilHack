@@ -1240,7 +1240,7 @@ boolean new_game; /* false => restoring an old game */
 
         /* Roles */
         if (Role_if(PM_DRUID))
-            pline("Use #shapechange to change form.");
+            pline("Use #wildshape to change form.");
     }
 }
 

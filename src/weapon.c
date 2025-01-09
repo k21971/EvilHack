@@ -246,6 +246,10 @@ botl_hitbonus()
     if (u.utrap)
         tmp -= 3;
 
+    if (!uwep && Role_if(PM_DRUID)
+        && all_druid_forms(monsndx(youmonst.data)))
+        tmp += (u.ulevel / 3) + 5;
+
     if (aatyp == AT_WEAP || aatyp == AT_CLAW) {
         if (weapon)
             tmp += base_hitbonus(uwep);
@@ -547,6 +551,12 @@ struct monst *mon;
                 tmp = 25; /* objects[].oc_wldam */
         }
     }
+
+    /* Druids that #wildshape into one of their allowed forms
+       enjoy a variable damage bonus */
+    if (!uwep && Role_if(PM_DRUID)
+        && all_druid_forms(monsndx(youmonst.data)))
+        tmp += rn1(5, 2); /* 2-6 hp of damage */
 
     /* Put weapon vs. monster type damage bonuses in below: */
     {

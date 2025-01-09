@@ -133,7 +133,7 @@ extern int NDECL(doremoveimarkers);   /**/
 static int NDECL((*timed_occ_fn));
 
 STATIC_PTR int NDECL(doenshelling);
-STATIC_PTR int NDECL(dodruidshapechange);
+STATIC_PTR int NDECL(dodruidwildshape);
 STATIC_PTR int NDECL(dosuspend_core);
 STATIC_PTR int NDECL(dosh_core);
 STATIC_PTR int NDECL(doherecmdmenu);
@@ -4153,8 +4153,6 @@ struct ext_func_tab extcmdlist[] = {
     { '^', "seetrap", "show the type of adjacent trap", doidtrap, IFBURIED },
     { WEAPON_SYM, "seeweapon", "show the weapon currently wielded",
             doprwep, IFBURIED },
-    { '\0', "shapechange", "druid's shapechanging ability",
-            dodruidshapechange, IFBURIED | AUTOCOMPLETE },
     { '!', "shell", "do a shell escape",
             dosh_core, IFBURIED | GENERALCMD
 #ifndef SHELL
@@ -4204,6 +4202,8 @@ struct ext_func_tab extcmdlist[] = {
     { '/', "whatis", "show what type of thing a symbol corresponds to",
             dowhatis, IFBURIED | GENERALCMD },
     { 'w', "wield", "wield (put in use) a weapon", dowield },
+    { '\0', "wildshape", "druid's shapechanging ability",
+            dodruidwildshape, IFBURIED | AUTOCOMPLETE },
     { M('w'), "wipe", "wipe off your face", dowipe, AUTOCOMPLETE },
 #ifdef DEBUG
     { C('b'), "wizbury", "bury objs under and around you",
@@ -6801,32 +6801,34 @@ doenshelling(VOID_ARGS)
     }
 }
 
-/* #shapechange command - change druid's form */
+/* #wildshape command - change druid's form */
 STATIC_PTR int
-dodruidshapechange(VOID_ARGS)
+dodruidwildshape(VOID_ARGS)
 {
     /* TODO: figure a way to set up this command
        so it's not even an option for a non-druid */
     if (!Role_if(PM_DRUID))
         You("don't have access to this ability.");
     else if (Role_if(PM_DRUID)
-             && (u.ushapechange == 0) && u.ulevel < 3)
+             && (u.uwildshape == 0) && u.ulevel < 3)
         You("must first reach the rank of Ovate to use this ability.");
-    else if (Upolyd && u.ushapechange)
+    else if (Upolyd && u.uwildshape)
         rehumanize(); /* manually revert back to original form */
-    else if (u.ushapechange)
-        You_cant("shapechange so soon.");
+    else if (u.uwildshape
+             && (!wizard
+                 || yn("You can't use wildshape so soon.  Override?") != 'y'))
+        You_cant("use wildshape so soon.");
     else if ((Stunned || Confusion)
-             && (u.ushapechange == 0))
-        You_cant("shapechange while incapacitated.");
+             && (u.uwildshape == 0))
+        You_cant("use wildshape while incapacitated.");
     else if (u.uhunger < 50) /* weak */
-        You("are too weak from hunger to shapechange.");
+        You("are too weak from hunger to use wildshape.");
     else if (ACURR(A_STR) < 4)
-        You("lack the strength to shapechange.");
+        You("lack the strength to use wildshape.");
     else if (u.ulycn >= LOW_PM)
-        You_cant("shapechange while infected with lycanthropy.");
+        You_cant("use wildshape while infected with lycanthropy.");
     else
-        druid_shapechange();
+        druid_wildshape();
 
     return 0;
 }

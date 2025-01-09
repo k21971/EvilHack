@@ -2121,7 +2121,7 @@ E void VDECL(config_error_add, (const char *, ...)) PRINTF_F(1, 2);
 E void NDECL(set_uasmon);
 E void NDECL(float_vs_flight);
 E void NDECL(change_sex);
-E void NDECL(druid_shapechange);
+E void NDECL(druid_wildshape);
 E void FDECL(polyself, (int));
 E int FDECL(polymon, (int));
 E void NDECL(rehumanize);

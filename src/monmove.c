@@ -1420,7 +1420,8 @@ register int after;
         if ((Hidinshell && (is_animal(ptr) || mindless(ptr) || !rn2(6))))
             appr = 0;
 
-        /* same for Druids that have shapechanged into their various forms */
+        /* same for Druids that have used wildshape to change into their
+           various forms */
         if (Role_if(PM_DRUID) && all_druid_forms(monsndx(youmonst.data))
             && (is_animal(ptr) || mindless(ptr) || !rn2(6)))
             appr = 0;
