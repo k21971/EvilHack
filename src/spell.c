@@ -1842,6 +1842,14 @@ boolean wiz_cast;
                             mtmp->mhp -= d(8, 6);
                             if (mtmp->mhp < 1)
                                 mtmp->mhp = 1;
+                            if (mtmp->mpeaceful || mtmp->mtame) {
+                                mtmp->mpeaceful = mtmp->mtame = 0;
+                                newsym(mtmp->mx, mtmp->my);
+                                if (u.ualign.type != A_NONE) {
+                                    You_feel("distraught.");
+                                    adjalign(-3);
+                                }
+                            }
                             break;
                         } else {
                             You("%s %s!",
@@ -1861,6 +1869,14 @@ boolean wiz_cast;
                             mtmp->mhp -= d(8, 6);
                             if (mtmp->mhp < 1)
                                 mtmp->mhp = 1;
+                            if (mtmp->mpeaceful || mtmp->mtame) {
+                                mtmp->mpeaceful = mtmp->mtame = 0;
+                                newsym(mtmp->mx, mtmp->my);
+                                if (u.ualign.type != A_NONE) {
+                                    You_feel("distraught.");
+                                    adjalign(-3);
+                                }
+                            }
                             break;
                         } else {
                             /* if not magic resistant, but has over 100 hit
@@ -1881,6 +1897,14 @@ boolean wiz_cast;
                             mtmp->mhp /= 3;
                             if (mtmp->mhp < 1)
                                 mtmp->mhp = 1;
+                            if (mtmp->mpeaceful || mtmp->mtame) {
+                                mtmp->mpeaceful = mtmp->mtame = 0;
+                                newsym(mtmp->mx, mtmp->my);
+                                if (u.ualign.type != A_NONE) {
+                                    You_feel("distraught.");
+                                    adjalign(-3);
+                                }
+                            }
                             break;
                         }
                     }

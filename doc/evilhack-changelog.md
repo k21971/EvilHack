@@ -3780,4 +3780,6 @@ The following changes to date are:
   attack spell to evocation spell
 - Fix: logic when invoking the Eye/Hand of Vecna, make its
   behavior be more inline with how death magic affects monsters
+- Peaceful and tame monsters not killed by the spell
+  'Power Word Kill' that take damage will become hostile
 
