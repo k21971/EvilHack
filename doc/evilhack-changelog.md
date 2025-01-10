@@ -3778,4 +3778,6 @@ The following changes to date are:
 - Some Druid tweaks, enhancements while changing form
 - New spell: power word kill, shift 'finger of death' from
   attack spell to evocation spell
+- Fix: logic when invoking the Eye/Hand of Vecna, make its
+  behavior be more inline with how death magic affects monsters
 

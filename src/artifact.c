@@ -3071,8 +3071,8 @@ STATIC_OVL int
 arti_invoke(obj)
 struct obj *obj;
 {
-    register const struct artifact *oart = get_artifact(obj);
-    register struct monst *mtmp;
+    const struct artifact *oart = get_artifact(obj);
+    struct monst *mtmp, *nextmon;
 
     if (!obj) {
         impossible("arti_invoke without obj");
@@ -3440,59 +3440,108 @@ struct obj *obj;
                     break;
                 }
 
-                for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                for (mtmp = fmon; mtmp; mtmp = nextmon) {
+                    nextmon = mtmp->nmon;
                     if (DEADMONSTER(mtmp))
                         continue;
-                    /* The eye is never blind ... */
-                    if ((obj->oartifact == ART_EYE_OF_VECNA ? couldsee(mtmp->mx, mtmp->my)
-                                                            : canspotmon(mtmp))
-                        && !immune_death_magic(mtmp->data)) {
-                        int tmp = 12;
 
-                        switch (rn2(20)) {
-                        case 19:
-                        case 18:
-                        case 17:
-                            if (!(resists_magm(mtmp) || defended(mtmp, AD_MAGM))
-                                && !resist(mtmp, 0, 0, 0)) {
-                                pline_The("%s annihilates %s!",
-                                          distant_name(obj, xname),
-                                          mon_nam(mtmp));
-                                mtmp->mhp = 0;
-                                monkilled(mtmp, (char *) 0, AD_DETH);
-                                if (!DEADMONSTER(mtmp))
-                                    return 0;
+                    if (obj->oartifact == ART_EYE_OF_VECNA
+                         ? couldsee(mtmp->mx, mtmp->my) /* The eye is never blind ... */
+                         : canspotmon(mtmp)) {
+                        if (immune_death_magic(mtmp->data)) {
+                            shieldeff(mtmp->mx, mtmp->my);
+                            pline("%s is not affected by %s.",
+                                  Monnam(mtmp), the(distant_name(obj, xname)));
+                        } else { /* not immune to death magic */
+                            switch (rn2(20)) {
+                            case 19:
+                            case 18:
+                            case 17:
+                            case 16:
+                            case 15:
+                                if (!(resists_magm(mtmp) || defended(mtmp, AD_MAGM))) {
+                                    pline_The("%s %s %s!",
+                                              distant_name(obj, xname),
+                                              rn2(2) ? "annihilates" : "obliterates",
+                                              mon_nam(mtmp));
+                                    mtmp->mhp = 0;
+                                    monkilled(mtmp, (char *) 0, AD_DETH);
+                                    if (!DEADMONSTER(mtmp)) /* lifesaved */
+                                        return 0;
+                                } else { /* MR or resists */
+                                    shieldeff(mtmp->mx, mtmp->my);
+                                    if (obj->oartifact == ART_EYE_OF_VECNA) {
+                                        pline("%s %s in pain, but resists %s deadly gaze.",
+                                              Monnam(mtmp), makeplural(growl_sound(mtmp)),
+                                              the(s_suffix(xname(obj))));
+                                    } else {
+                                        pline("%s %s in pain, but resists %s deadly aura.",
+                                              Monnam(mtmp), makeplural(growl_sound(mtmp)),
+                                              the(s_suffix(xname(obj))));
+                                    }
+                                    mtmp->mhp -= d(6, 4);
+                                    if (mtmp->mhp < 1)
+                                        mtmp->mhp = 1;
+                                    if (mtmp->mpeaceful || mtmp->mtame) {
+                                        mtmp->mpeaceful = mtmp->mtame = 0;
+                                        newsym(mtmp->mx, mtmp->my);
+                                        if (u.ualign.type != A_NONE) {
+                                            You_feel("distraught.");
+                                            adjalign(-3);
+                                        }
+                                    }
+                                }
+                                break;
+                            default: /* case 14 through case 0 */
+                                if (!(resists_magm(mtmp) || defended(mtmp, AD_MAGM))) {
+                                    if (!Deaf)
+                                        pline("%s %s in %s!", Monnam(mtmp),
+                                              makeplural(growl_sound(mtmp)),
+                                              rn2(2) ? "agony" : "pain");
+                                    else if (cansee(mtmp->mx, mtmp->my))
+                                        pline("%s trembles in %s!", Monnam(mtmp),
+                                        rn2(2) ? "agony" : "pain");
+                                    /* mhp will then still be less than this value */
+                                    mtmp->mhpmax -= rn1(9, 4);
+                                    if (mtmp->mhpmax < 1) /* protect against invalid value */
+                                        mtmp->mhpmax = 1;
+                                    mtmp->mhp /= 2;
+                                    if (mtmp->mhp < 1)
+                                        mtmp->mhp = 1;
+                                    if (mtmp->mpeaceful || mtmp->mtame) {
+                                        mtmp->mpeaceful = mtmp->mtame = 0;
+                                        newsym(mtmp->mx, mtmp->my);
+                                        if (u.ualign.type != A_NONE) {
+                                            You_feel("distraught.");
+                                            adjalign(-3);
+                                        }
+                                    }
+                                    break;
+                                } else { /* MR or resists */
+                                    shieldeff(mtmp->mx, mtmp->my);
+                                    if (obj->oartifact == ART_EYE_OF_VECNA) {
+                                        pline("%s %s in pain, but resists %s deadly gaze.",
+                                              Monnam(mtmp), makeplural(growl_sound(mtmp)),
+                                              the(s_suffix(xname(obj))));
+                                    } else {
+                                        pline("%s %s in pain, but resists %s deadly aura.",
+                                              Monnam(mtmp), makeplural(growl_sound(mtmp)),
+                                              the(s_suffix(xname(obj))));
+                                    }
+                                    mtmp->mhp -= d(4, 4);
+                                    if (mtmp->mhp < 1)
+                                        mtmp->mhp = 1;
+                                    if (mtmp->mpeaceful || mtmp->mtame) {
+                                        mtmp->mpeaceful = mtmp->mtame = 0;
+                                        newsym(mtmp->mx, mtmp->my);
+                                        if (u.ualign.type != A_NONE) {
+                                            You_feel("distraught.");
+                                            adjalign(-3);
+                                        }
+                                    }
+                                }
+                                break;
                             }
-                            break;
-                        default: /* case 16 through case 2 */
-                            if (!Deaf)
-                                pline("%s %s in %s!", Monnam(mtmp),
-                                      makeplural(growl_sound(mtmp)),
-                                      rn2(2) ? "agony" : "pain");
-                            else if (cansee(mtmp->mx, mtmp->my))
-                                pline("%s trembles in %s!", Monnam(mtmp),
-                                rn2(2) ? "agony" : "pain");
-                            /* mhp will then still be less than this value */
-                            mtmp->mhpmax -= rn2(tmp / 2 + 1);
-                            if (mtmp->mhpmax <= 0) /* protect against invalid value */
-                                mtmp->mhpmax = 1;
-                            mtmp->mhp /= 3;
-                            if (mtmp->mhp < 1)
-                                mtmp->mhp = 1;
-                            break;
-                        case 1:
-                        case 0:
-                            if (resists_magm(mtmp) || defended(mtmp, AD_MAGM))
-                                shieldeff(mtmp->mx, mtmp->my);
-                            if (obj->oartifact == ART_EYE_OF_VECNA) {
-                                pline("%s resists %s deadly gaze.",
-                                      Monnam(mtmp), the(s_suffix(xname(obj))));
-                            } else {
-                                pline("%s resists %s deadly aura.",
-                                      Monnam(mtmp), the(s_suffix(xname(obj))));
-                            }
-                            tmp = 0;
-                            break;
                         }
                     }
                 }
@@ -3507,7 +3556,11 @@ struct obj *obj;
                     adjalign(-3);
                 }
             }
-            change_luck(-3);
+            /* Infidels get a bit more leeway from Moloch */
+            if (u.ualign.type == A_NONE)
+                change_luck(-1);
+            else
+                change_luck(-3);
             exercise(A_WIS, FALSE);
             break;
         case COMMAND_UNDEAD:
