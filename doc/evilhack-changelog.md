@@ -3782,4 +3782,5 @@ The following changes to date are:
   behavior be more inline with how death magic affects monsters
 - Peaceful and tame monsters not killed by the spell
   'Power Word Kill' that take damage will become hostile
+- New forged artifact: Harbinger
 

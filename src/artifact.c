@@ -1428,11 +1428,15 @@ int tmp;
              || otmp->oartifact == ART_VORPAL_BLADE
              || (otmp->oartifact == ART_ANGELSLAYER
                  && !(yours ? is_demon(raceptr(&youmonst)) : is_demon(mon->data)))
+             || (otmp->oartifact == ART_HARBINGER
+                 && !(yours ? Acid_resistance
+                            : (resists_acid(mon) || defended(mon, AD_ACID))))
              || otmp->oartifact == ART_DRAMBORLEG)
-        /* Grimtooth, Vorpal Blade, Angelslayer, and Dramborleg have
-           SPFX settings to warn against elves, jabberwocks, angels,
-           and demons respectively, but we want its damage bonus to
-           apply to more targets, so bypass spec_applies() */
+        /* Grimtooth, Vorpal Blade, Angelslayer, Harbinger, and
+           Dramborleg have SPFX settings to warn against elves,
+           jabberwocks, angels, giants, and demons respectively,
+           but we want its damage bonus to apply to more targets,
+           so bypass spec_applies() */
         spec_dbon_applies = TRUE;
     else
         spec_dbon_applies = spec_applies(weap, mon);
@@ -2167,23 +2171,75 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         }
         return realizes_damage;
     }
-    /* Fifth basic attack - acid (for the new and improved Dirge... DIRGE) */
+    /* Fifth basic attack - acid */
     if (attacks(AD_ACID, otmp)) {
         if (realizes_damage) {
-            pline_The("acidic blade %s %s%c",
-                      !spec_dbon_applies
-                          ? "hits"
-                          : can_corrode(mdef->data)
-                              ? "eats away part of"
-                              : def_underwater
-                                  ? "hits"
-                                  : vulnerable_to(mdef, AD_ACID)
-                                      ? "severely burns" : "burns",
-                      hittee, !spec_dbon_applies ? '.' : '!');
+            if (otmp->oartifact == ART_DIRGE) {
+                pline_The("acidic blade %s %s%c",
+                          !spec_dbon_applies
+                              ? "hits"
+                              : can_corrode(mdef->data)
+                                  ? "eats away part of"
+                                  : def_underwater
+                                      ? "hits"
+                                      : vulnerable_to(mdef, AD_ACID)
+                                          ? "severely burns" : "burns",
+                          hittee, !spec_dbon_applies ? '.' : '!');
+            } else if (otmp->oartifact == ART_HARBINGER) {
+                pline_The("acidic aklys %s %s%c",
+                          !spec_dbon_applies
+                              ? "hits"
+                              : can_corrode(mdef->data)
+                                  ? "eats away part of"
+                                  : def_underwater
+                                      ? "hits"
+                                      : vulnerable_to(mdef, AD_ACID)
+                                          ? "severely burns" : "burns",
+                          hittee, !spec_dbon_applies ? '.' : '!');
+            }
         }
+
+        /* Harbinger has a chance of an explosive
+           surge on a successful hit, and can cause
+           additional acidic damage (area of effect) */
+        if (!rn2(5)
+            && spec_dbon_applies && otmp->oartifact == ART_HARBINGER)
+            explode(mdef->mx, mdef->my,
+                    (youattack ? ZT_BREATH(ZT_ACID)
+                               : -ZT_BREATH(ZT_ACID)), d(6, 6),
+                    (youattack ? 0 : MON_CASTBALL), EXPL_ACID);
+
         if (!def_underwater) {
             if (!rn2(5))
                 erode_armor(mdef, ERODE_CORRODE);
+        }
+
+        boolean giant = youdefend ? maybe_polyd(is_giant(youmonst.data),
+                                                Race_if(PM_GIANT))
+                                  : racial_giant(mdef);
+
+        if (!rn2(10) && giant) {
+            if (!DEADMONSTER(mdef)) {
+                if (show_instakill)
+                    pline("A massive surge of acid engulfs %s body, completely dissolving %s!",
+                          youdefend ? "your" : s_suffix(mon_nam(mdef)),
+                          youdefend ? "you" : noit_mhim(mdef));
+            }
+            if (youdefend) {
+                losehp((Upolyd ? u.mh : u.uhp) + 1, "dissolved by Harbinger",
+                       NO_KILLER_PREFIX);
+            } else { /* you or mon hit monster */
+                /* guard against mdef being killed twice should
+                   it die before we reach this point */
+                if (!DEADMONSTER(mdef)) {
+                    if (youattack) {
+                        xkilled(mdef, XKILL_NOMSG);
+                    } else {
+                        monkilled(mdef, (char *) 0, AD_DISE);
+                    }
+                }
+            }
+            return TRUE;
         }
         return realizes_damage;
     }

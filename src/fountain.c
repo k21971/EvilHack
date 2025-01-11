@@ -541,6 +541,7 @@ static const struct forge_arti {
     { ART_TEMPEST, ART_CLEAVER, ART_MJOLLNIR },
     { ART_DICHOTOMY, ART_FIRE_BRAND, ART_FROST_BRAND },
     { ART_ITHILMAR, ART_VORPAL_BLADE, ART_DRAMBORLEG },
+    { ART_HARBINGER, ART_GIANTSLAYER, ART_KEOLEWA },
     /* forged artifacts that require at least one other forged
        artifact to be created */
     { ART_ARMOR_OF_RETRIBUTION, ART_SWORD_OF_ANNIHILATION, ART_ASHMAR },

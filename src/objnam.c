@@ -5183,6 +5183,7 @@ struct obj *no_wish;
             case ART_ITHILMAR:
             case ART_ARMOR_OF_RETRIBUTION:
             case ART_DICHOTOMY:
+            case ART_HARBINGER:
                 pm = PM_SAMURAI;
                 break;
             default:

@@ -430,13 +430,23 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       0, 0, NO_ATTK, DFNS(AD_DISN), CARY(AD_ACID), 0, A_NONE,
       NON_PM, NON_PM, 60000L, NO_COLOR, DEFAULT_MAT),
     /* Dichotomy is a crystal runed broadsword that is created by forging
-       Fire Brand and Frost Brand together. It inhereits the damage types
+       Fire Brand and Frost Brand together. It inherits the damage types
        and protection from both (fire/cold) */
     A("Dichotomy", RUNESWORD,
       (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK
        | SPFX_DEFN), 0, 0,
-      FUSE(8, 0), DFNS(AD_FUSE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 15000L,
-      NO_COLOR, GEMSTONE),
+      FUSE(8, 0), DFNS(AD_FUSE), NO_CARY, 0, A_NONE,
+      NON_PM, NON_PM, 30000L, NO_COLOR, GEMSTONE),
+    /* Harbinger is a steel aklys that is created by forging Keolewa
+       and Giantslayer together. It inherits all of the special
+       properties of Giantslayer, but shock damage/protection is
+       change to acid damage/protection. In some cases it can cause
+       area of effect acid damage on a successful hit */
+    A("Harbinger", AKLYS,
+      (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_WARN
+       | SPFX_DFLAGH | SPFX_ATTK | SPFX_DEFN), 0, MH_GIANT,
+      ACID(8, 8), DFNS(AD_ACID), NO_CARY, 0, A_NONE,
+      NON_PM, NON_PM, 15000L, NO_COLOR, STEEL),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

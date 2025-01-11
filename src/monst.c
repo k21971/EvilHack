@@ -4708,7 +4708,7 @@ struct permonst _mons2[] = {
     MON("test monster", S_DEMON, LVL(5, 10, 10, 0, 0), G_NOGEN,
         A(ATTK(AT_WEAP, AD_PHYS, 1, 2), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
-        SIZ(WT_HUMAN, 400, MS_ROAR, MZ_HUMAN), MR_ACID, 0,
+        SIZ(WT_HUMAN, 400, MS_ROAR, MZ_HUMAN), 0, 0,
         M1_HUMANOID | M1_OMNIVORE, M2_NOPOLY | M2_HOSTILE
             | M2_STRONG | M2_COLLECT,
         M3_INFRAVISIBLE | M3_STATIONARY, 0, 0, 5, DRAGON_SILVER),

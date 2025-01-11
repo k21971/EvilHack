@@ -1269,6 +1269,7 @@ int x;
       if (tmp >= 125 || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
           || (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA)
           || wielding_artifact(ART_GIANTSLAYER)
+          || wielding_artifact(ART_HARBINGER)
           || wielding_artifact(ART_SWORD_OF_KAS))
             return (schar) 125;
         else
@@ -1342,6 +1343,7 @@ int attrindx;
         if ((uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
             || (uarmg && uarmg->oartifact == ART_HAND_OF_VECNA)
             || wielding_artifact(ART_GIANTSLAYER)
+            || wielding_artifact(ART_HARBINGER)
             || wielding_artifact(ART_SWORD_OF_KAS))
             lolimit = hilimit;
     } else if (attrindx == A_CON) {

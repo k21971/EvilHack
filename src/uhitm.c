@@ -1131,6 +1131,10 @@ int dieroll;
                             || (thrown == HMON_APPLIED && is_pole(uwep)));
     boolean is_rogue = (Role_if(PM_ROGUE) && !Upolyd);
     boolean wield_shadowblade = (uwep && uwep->oartifact == ART_SHADOWBLADE);
+    boolean mon_harbinger_wield = (MON_WEP(mon)
+                                   && MON_WEP(mon)->oartifact == ART_HARBINGER);
+    boolean mon_giantslayer_wield = (MON_WEP(mon)
+                                     && MON_WEP(mon)->oartifact == ART_GIANTSLAYER);
     int jousting = 0;
     int joustdmg;
     struct obj *hated_obj = NULL;
@@ -1946,8 +1950,10 @@ int dieroll;
             useup(obj);
             obj = 0;
         }
-        if (mhurtle_to_doom(mon, tmp, &mdat, TRUE))
-            already_killed = TRUE;
+        if (!(mon_harbinger_wield || mon_giantslayer_wield)) {
+            if (mhurtle_to_doom(mon, tmp, &mdat, TRUE))
+                already_killed = TRUE;
+        }
         hittxt = TRUE;
     } else if (unarmed && tmp > 1 && !thrown
                && actually_unarmed && !Upolyd && !thievery) {
@@ -1960,8 +1966,10 @@ int dieroll;
                 if (canspotmon(mon))
                     pline("%s %s from your powerful strike!", Monnam(mon),
                           makeplural(stagger(mdat, "stagger")));
-                if (mhurtle_to_doom(mon, tmp, &mdat, FALSE))
-                    already_killed = TRUE;
+                if (!(mon_harbinger_wield || mon_giantslayer_wield)) {
+                    if (mhurtle_to_doom(mon, tmp, &mdat, FALSE))
+                        already_killed = TRUE;
+                }
             } else if (!mindless(mon->data)) {
                 if (canspotmon(mon))
                     Your("forceful blow knocks %s senseless!", mon_nam(mon));
@@ -2947,8 +2955,8 @@ int specialdmg; /* blessed and/or silver bonus against various things */
     int armpro, tmp = d((int) mattk->damn, (int) mattk->damd);
     boolean negated;
     struct obj *mongold;
-    boolean mon_vorpal_wield  = (MON_WEP(mdef)
-                                 && MON_WEP(mdef)->oartifact == ART_VORPAL_BLADE);
+    boolean mon_vorpal_wield = (MON_WEP(mdef)
+                                && MON_WEP(mdef)->oartifact == ART_VORPAL_BLADE);
     boolean mon_tempest_wield = (MON_WEP(mdef)
                                  && MON_WEP(mdef)->oartifact == ART_TEMPEST);
 

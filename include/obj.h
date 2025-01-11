@@ -462,7 +462,8 @@ struct obj {
      || (obj)->oartifact == ART_MAGICBANE         \
      || (obj)->oartifact == ART_DRAGONBANE        \
      || (obj)->oartifact == ART_EYE_OF_VECNA      \
-     || (obj)->oartifact == ART_HAND_OF_VECNA)
+     || (obj)->oartifact == ART_HAND_OF_VECNA     \
+     || (obj)->oartifact == ART_KEOLEWA)
 #define is_magic(obj) \
     (((obj)->oprops & ITEM_PROP_MASK)   \
      || (objects[(obj)->otyp]).oc_magic \

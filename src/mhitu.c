@@ -1697,6 +1697,7 @@ register struct attack *mattk;
             }
             if (mattk->adtyp == AD_CLOB && dmg != 0
                 && !wielding_artifact(ART_GIANTSLAYER)
+                && !wielding_artifact(ART_HARBINGER)
                 && !(uarms && uarms->oartifact == ART_ASHMAR)
                 && !(uarm && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION)
                 && (youmonst.data)->msize < MZ_HUGE

@@ -647,6 +647,8 @@ boolean resuming;
                                     || racial_drow(mtmp)))
                             || (wielding_artifact(ART_GIANTSLAYER)
                                 && racial_giant(mtmp))
+                            || (wielding_artifact(ART_HARBINGER)
+                                && racial_giant(mtmp))
                             || (wielding_artifact(ART_TROLLSBANE)
                                 && is_troll(mtmp->data))
                             || (wielding_artifact(ART_OGRESMASHER)

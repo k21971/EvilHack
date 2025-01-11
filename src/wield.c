@@ -113,6 +113,11 @@ register struct obj *obj;
         context.botl = 1;
 
     if (uwep == obj
+        && ((uwep && uwep->oartifact == ART_HARBINGER)
+            || (olduwep && olduwep->oartifact == ART_HARBINGER)))
+        context.botl = 1;
+
+    if (uwep == obj
         && ((uwep && uwep->oartifact == ART_SWORD_OF_KAS)
             || (olduwep && olduwep->oartifact == ART_SWORD_OF_KAS)))
         context.botl = 1;
@@ -333,6 +338,10 @@ register struct obj *obj;
 
     if (uswapwep == obj
         && (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER))
+        context.botl = 1;
+
+    if (uswapwep == obj
+        && (u.twoweap && uswapwep->oartifact == ART_HARBINGER))
         context.botl = 1;
 
     if (uswapwep == obj

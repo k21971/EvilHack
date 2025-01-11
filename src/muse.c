@@ -1899,6 +1899,10 @@ register struct obj *otmp;
 {
     int tmp;
     boolean reveal_invis = FALSE, hits_you = (mtmp == &youmonst);
+    boolean mon_harbinger_wield = (MON_WEP(mtmp)
+                                   && MON_WEP(mtmp)->oartifact == ART_HARBINGER);
+    boolean mon_giantslayer_wield = (MON_WEP(mtmp)
+                                     && MON_WEP(mtmp)->oartifact == ART_GIANTSLAYER);
 
     if (!hits_you && otmp->otyp != WAN_UNDEAD_TURNING) {
         mtmp->msleeping = 0;
@@ -1923,9 +1927,12 @@ register struct obj *otmp;
                 if (Half_spell_damage)
                     tmp = (tmp + 1) / 2;
                 if (tmp > 16 && mcarried(otmp)
+                    && !wielding_artifact(ART_HARBINGER)
+                    && !wielding_artifact(ART_GIANTSLAYER)
                     && !(uarms && uarms->oartifact == ART_ASHMAR)
                     && !(uarm && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION)) {
                     struct monst *zapper = otmp->ocarry;
+
                     pline_The("force of the wand knocks you %s!",
                               u.usteed ? "out of your saddle" : "back");
                     last_hurtled = &youmonst;
@@ -1948,8 +1955,11 @@ register struct obj *otmp;
             (void) resist(mtmp, otmp->oclass, tmp, TELL);
             if (cansee(mtmp->mx, mtmp->my) && zap_oseen)
                 makeknown(WAN_STRIKING);
-            if (tmp > 16 && mcarried(otmp)) {
+            if (tmp > 16 && mcarried(otmp)
+                && !mon_harbinger_wield
+                && !mon_giantslayer_wield) {
                 struct monst *zapper = otmp->ocarry;
+
                 last_hurtled = mtmp;
                 if (tmp < mtmp->mhp) {
                     if (canseemon(mtmp))

@@ -2532,6 +2532,10 @@ int mode, final, attrindx;
             hide_innate_value = TRUE;
         if (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER && uswapwep->cursed)
             hide_innate_value = TRUE;
+        if (uwep && uwep->oartifact == ART_HARBINGER && uwep->cursed)
+            hide_innate_value = TRUE;
+        if (u.twoweap && uswapwep->oartifact == ART_HARBINGER && uswapwep->cursed)
+            hide_innate_value = TRUE;
         if (uwep && uwep->oartifact == ART_SWORD_OF_KAS && uwep->cursed)
             hide_innate_value = TRUE;
         if (u.twoweap && uswapwep->oartifact == ART_SWORD_OF_KAS && uswapwep->cursed)

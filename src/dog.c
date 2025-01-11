@@ -1337,7 +1337,8 @@ struct obj *obj;
         && (racial_elf(mtmp) || racial_drow(mtmp)))
         return FALSE;
 
-    if (wielding_artifact(ART_GIANTSLAYER)
+    if ((wielding_artifact(ART_GIANTSLAYER)
+         || wielding_artifact(ART_HARBINGER))
         && racial_giant(mtmp))
         return FALSE;
 

@@ -139,6 +139,10 @@ struct obj *otmp;
     struct permonst *mdat = mtmp->data;
     boolean disguised_mimic = (mtmp->data->mlet == S_MIMIC
                                && M_AP_TYPE(mtmp) != M_AP_NOTHING);
+    boolean mon_harbinger_wield = (MON_WEP(mtmp)
+                                   && MON_WEP(mtmp)->oartifact == ART_HARBINGER);
+    boolean mon_giantslayer_wield = (MON_WEP(mtmp)
+                                     && MON_WEP(mtmp)->oartifact == ART_GIANTSLAYER);
     int tohit_attack_skill = ((P_SKILL(P_ATTACK_SPELL) >= P_EXPERT)
                               ? 30 : (P_SKILL(P_ATTACK_SPELL) == P_SKILLED)
                                 ? 20 : (P_SKILL(P_ATTACK_SPELL) == P_BASIC) ? 10 : 8);
@@ -182,7 +186,9 @@ struct obj *otmp;
                 dmg = spell_damage_bonus(dmg);
             hit(zap_type_text, mtmp, exclam(dmg));
             if (dmg > 20
-                && !(u.uswallow || unsolid(mtmp->data))) {
+                && !(u.uswallow || unsolid(mtmp->data)
+                     || mon_harbinger_wield
+                     || mon_giantslayer_wield)) {
                 last_hurtled = mtmp;
                 if (dmg < mtmp->mhp) {
                     pline_The("force of %s knocks %s back!",
@@ -6373,6 +6379,9 @@ int osym, dmgtyp;
             && wielding_artifact(ART_DICHOTOMY))
             continue; /* dichotomy grants fire/cold resistance
                          to objects in open inventory */
+        if (dmgtyp == AD_ACID && wielding_artifact(ART_HARBINGER))
+            continue; /* harbinger grants acid resistance
+                         to objects in open inventory */
 
         /* if loss of this item might dump us onto a trap, hold off
            until later because potential recursive destroy_item() will
@@ -6439,6 +6448,10 @@ int osym, dmgtyp;
         if ((dmgtyp == AD_FIRE || dmgtyp == AD_COLD)
             && MON_WEP(mtmp) && MON_WEP(mtmp)->oartifact == ART_DICHOTOMY)
             continue; /* dichotomy grants fire/cold resistance
+                         to objects in open inventory */
+        if (dmgtyp == AD_ACID && MON_WEP(mtmp)
+            && MON_WEP(mtmp)->oartifact == ART_HARBINGER)
+            continue; /* harbinger grants acid resistance
                          to objects in open inventory */
         skip = 0;
         quan = 0L;

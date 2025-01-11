@@ -1299,10 +1299,14 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             ispoisoned = FALSE, istainted = FALSE;
     struct obj* hated_obj;
     long armask;
-    boolean mon_vorpal_wield  = (MON_WEP(mdef)
-                                 && MON_WEP(mdef)->oartifact == ART_VORPAL_BLADE);
+    boolean mon_vorpal_wield = (MON_WEP(mdef)
+                                && MON_WEP(mdef)->oartifact == ART_VORPAL_BLADE);
     boolean mon_tempest_wield = (MON_WEP(mdef)
                                  && MON_WEP(mdef)->oartifact == ART_TEMPEST);
+    boolean mon_harbinger_wield = (MON_WEP(mdef)
+                                   && MON_WEP(mdef)->oartifact == ART_HARBINGER);
+    boolean mon_giantslayer_wield = (MON_WEP(mdef)
+                                     && MON_WEP(mdef)->oartifact == ART_GIANTSLAYER);
 
     saved_oname[0] = '\0';
 
@@ -1672,6 +1676,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 tmp = mdef->mhp - 1;
         }
         if (mattk->adtyp == AD_CLOB && tmp > 0
+            && !mon_harbinger_wield
+            && !mon_giantslayer_wield
             && !unsolid(pd) && !rn2(6)) {
             if (tmp < mdef->mhp) {
                 if (vis && canseemon(mdef))
