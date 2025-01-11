@@ -3785,4 +3785,5 @@ The following changes to date are:
 - New forged artifact: Harbinger
 - Fix: kicking an iron safe could break fragile objects inside
 - Fix: oversight in rejectcasting() function
+- Altar sacrifice and receiving artifacts changes
 

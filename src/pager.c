@@ -597,7 +597,8 @@ char *buf, *monbuf;
         case S_altar:
             amsk = altarmask_at(x, y);
             algn = Amask2align(amsk & AM_MASK);
-            Sprintf(buf, "%s %saltar",
+            Sprintf(buf, "%s%s %saltar",
+                    levl[x][y].frac_altar ? "fractured " : "",
                     /* like endgame high priests, endgame high altars
                        are only recognizable when immediately adjacent */
                     (Is_astralevel(&u.uz) && distu(x, y) > 2)

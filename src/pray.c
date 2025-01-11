@@ -2281,7 +2281,8 @@ dosacrifice()
             /* TODO: these object/spellbook routines really should be made
                into separate functions, as some of these are duplicated */
             if ((!awaiting_guaranteed_gift() || u.ulevel <= 2)
-                && rn2(10) >= (int) ((nchance * nchance) / 100)) {
+                && (rn2(10) >= (int) ((nchance * nchance) / 100)
+                    || levl[u.ux][u.uy].frac_altar == 1)) {
                 if (u.uluck >= 0 && !rn2(reg_gift_odds)) {
                     int typ, ncount = 0;
 
@@ -2680,7 +2681,8 @@ dosacrifice()
                         }
                     }
                 }
-            } else if (u.uluck >= 0 && !rn2(arti_gift_odds)) {
+            } else if (u.uluck >= 0 && !rn2(arti_gift_odds)
+                       && levl[u.ux][u.uy].frac_altar == 0) {
                 otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy));
                 if (otmp) {
                     if (otmp->spe < 0)
@@ -2700,6 +2702,17 @@ dosacrifice()
                     u.ugifts++;
                     u.ublesscnt = rnz(300 + (50 * u.ugifts));
                     exercise(A_WIS, TRUE);
+                    /* altar has now been 'used up', sacrificing for
+                       artifact gifts cannot happen from this specific
+                       altar anymore.
+
+                       TODO: figure a way to exempt a roles' guaranteed
+                       sacrifice gift */
+                    levl[u.ux][u.uy].frac_altar = 1;
+                    if (!Blind)
+                        pline("A bolt of lightning from above strikes the altar, nearly splitting it in two!");
+                    else
+                        You("feel a surge of energy as the altar you're standing on shudders violently!");
 
                     /* make sure we can use this weapon */
                     unrestrict_weapon_skill(weapon_type(otmp));

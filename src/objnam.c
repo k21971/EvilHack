@@ -3,6 +3,8 @@
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* EvilHack dev comment - I really hate objnam.c */
+
 #include "hack.h"
 #include <ctype.h>
 #include <assert.h>
@@ -4640,7 +4642,12 @@ struct obj *no_wish;
             else /* -1 - A_CHAOTIC, 0 - A_NEUTRAL, 1 - A_LAWFUL */
                 al = !rn2(6) ? A_NONE : (rn2((int) A_LAWFUL + 2) - 1);
             lev->altarmask = Align2amask(al);
-            pline("%s altar.", An(align_str(al)));
+            /* TODO: allow fractured altars to be wished for
+               in wizmode. I really hate objnam.c */
+            if (lev->frac_altar)
+                pline("A fractured %s altar.", align_str(al));
+            else
+                pline("%s altar.", An(align_str(al)));
             madeterrain = TRUE;
         } else if (!BSTRCMPI(bp, p - 5, "grave")
                    || !BSTRCMPI(bp, p - 9, "headstone")) {
@@ -5006,17 +5013,20 @@ struct obj *no_wish;
         || non_wishable_artifact(otmp)
         || (Role_if(PM_RANGER) && ((Race_if(PM_GNOME) && otmp->oartifact == ART_LONGBOW_OF_DIANA)
                                    || (!Race_if(PM_GNOME) && otmp->oartifact == ART_CROSSBOW_OF_CARL)))
-        || (otmp->oartifact && rn2(u.uconduct.wisharti))) && !wizard) {
+        || (otmp->oartifact && rn2(u.uconduct.wisharti) > 2)) && !wizard) {
         artifact_exists(otmp, ONAME(otmp), FALSE);
         obfree(otmp, (struct obj *) 0);
         otmp = (struct obj *) &zeroobj;
+
         if (Hallucination)
             pline("Wish in one hand...");
         else
             pline("For a moment, you feel %s in your %s, but it disappears!",
                   something, makeplural(body_part(HAND)));
         return otmp;
-    } else if ((otmp->oartifact && rn2(u.uconduct.wisharti))
+    } else if (otmp->oartifact
+               && (rn2(u.uconduct.wisharti)
+                   || any_quest_artifact(otmp))
                && !(wizard && (program_state.wizkit_wishing
                                || yn("Deal with previous owner?") == 'n'))) {
         int pm = -1;
@@ -5030,6 +5040,7 @@ struct obj *no_wish;
         /* Wishing for a quest artifact may summon its rightful owner */
         if (any_quest_artifact(otmp)) {
             const struct Role *role = roles;
+
             while ((role->name.m) && (role->questarti != otmp->oartifact))
                 role++;
             if (role->name.m) {
@@ -5039,6 +5050,7 @@ struct obj *no_wish;
                 if (!((role->ldrnum == PM_MASTER_OF_THIEVES)
                       && Role_if(PM_TOURIST))) {
                     struct permonst* ldr;
+
                     pm = role->ldrnum;
                     /* remove flags that tag quest leaders as
                        peaceful or spawn them mediating */

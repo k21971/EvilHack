@@ -3505,7 +3505,8 @@ char *buf;
     else if (IS_MAGIC_CHEST(ltyp))
         cmap = S_magic_chest; /* "magic chest" */
     else if (IS_ALTAR(ltyp)) {
-        Sprintf(altbuf, "%saltar to %s (%s)",
+        Sprintf(altbuf, "%s%saltar to %s (%s)",
+                lev->frac_altar ? "fractured " : "",
                 ((lev->altarmask & AM_SHRINE)
                  && (Is_astralevel(&u.uz) || Is_sanctum(&u.uz)))
                     ? "high "

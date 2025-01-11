@@ -2228,6 +2228,7 @@ struct mkroom *croom;
 
     levl[x][y].typ = ALTAR;
     levl[x][y].altarmask = amask;
+    levl[x][y].frac_altar = 0;
 
     if (a->shrine < 0)
         a->shrine = rn2(2); /* handle random case */
