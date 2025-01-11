@@ -667,6 +667,9 @@ age_spells()
 STATIC_OVL boolean
 rejectcasting()
 {
+    boolean druid_form = (Role_if(PM_DRUID)
+                          && all_druid_forms(monsndx(youmonst.data)));
+
     /* rejections which take place before selecting a particular spell */
     if (Stunned) {
         You("are too impaired to cast a spell.");
@@ -674,16 +677,13 @@ rejectcasting()
     } else if (!can_chant(&youmonst)) {
         You("are unable to chant the incantation.");
         return TRUE;
-    } else if (!freehand()) {
-        /* Note: !freehand() occurs when weapon and shield (or two-handed
-         * weapon) are welded to hands, so "arms" probably doesn't need
-         * to be makeplural(bodypart(ARM)).
-         *
-         * But why isn't lack of free arms (for gesturing) an issue when
-         * poly'd hero has no limbs?
-         */
-        Your("arms are not free to cast!");
-        return TRUE;
+    } else if (!u_handsy()) {
+        /* Note: only Druids in their #wildshape forms can still
+           cast spells without having actual arms/hands */
+        if (druid_form)
+            return FALSE;
+        else
+            return TRUE;
     }
     return FALSE;
 }

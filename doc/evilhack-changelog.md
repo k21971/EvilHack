@@ -3784,4 +3784,5 @@ The following changes to date are:
   'Power Word Kill' that take damage will become hostile
 - New forged artifact: Harbinger
 - Fix: kicking an iron safe could break fragile objects inside
+- Fix: oversight in rejectcasting() function
 
