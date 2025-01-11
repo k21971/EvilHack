@@ -3783,4 +3783,5 @@ The following changes to date are:
 - Peaceful and tame monsters not killed by the spell
   'Power Word Kill' that take damage will become hostile
 - New forged artifact: Harbinger
+- Fix: kicking an iron safe could break fragile objects inside
 

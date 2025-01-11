@@ -663,10 +663,10 @@ xchar x, y;
 
         if (range < 2)
             pline("%s", kickedobj->otyp == IRON_SAFE ? "CLANG!" : "THUD!");
-        container_impact_dmg(kickedobj, x, y);
 	if (kickedobj->otyp == IRON_SAFE) {
 	    return 1;
 	}
+        container_impact_dmg(kickedobj, x, y);
         if (kickedobj->olocked) {
             if (kickedobj->otyp == CRYSTAL_CHEST) {
                 You("are unable to break open the lock of such a container.");
