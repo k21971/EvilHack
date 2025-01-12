@@ -3797,4 +3797,6 @@ The following changes to date are:
 - Highlight hidden stairs
 - Fix: windows binary compile error with highlighting hidden
   stairs
+- Adjust odds of receiving an artifact via altar sacrifice based
+  on experience level
 

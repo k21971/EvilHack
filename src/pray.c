@@ -2251,7 +2251,7 @@ dosacrifice()
                 }
             }
         } else {
-            int nchance = u.ulevel + 6;
+            int nchance = u.ulevel + 12;
             /* having never abused your alignment slightly increases
                the odds of receiving a gift from your deity.
                the more artifacts the player wishes for, the lower
@@ -2273,14 +2273,15 @@ dosacrifice()
             /* you were already in pretty good standing
              *
              * The player can gain an artifact;
-             * The chance goes down as the number of artifacts goes up.
+             * The chance goes down as the number of wishes for an artifact
+             * goes up.
              *
              * From SporkHack (heavily modified):
              * The player can also get handed just a plain old hunk of
              * weaponry or piece of armor, but it will be blessed, +3 to +5,
              * fire/rustproof, and if it's a weapon, it'll be in one of the
              * player's available skill slots. The lower level you are, the
-             * more likely it is that you'll get a hunk of ordinary junk
+             * more likely it is that you'll get a hunk of ordinary 'junk'
              * rather than an artifact.
              *
              * Note that no artifact is guaranteed; it's still subject to the
@@ -2292,15 +2293,16 @@ dosacrifice()
              * not receive a non-artifact item as a gift until you've gotten
              * your guaranteed artifact.
              *
-             * level  4: 10% chance level  9: 20% chance level 12: 30% chance
-             * level 14: 40% chance level 17: 50% chance level 19: 60% chance
-             * level 21: 70% chance level 23: 80% chance level 24: 90% chance
-             * level 26 or greater: 100% chance
+             * [revamped as of version 0.9.0]
+             * level  4: 20% chance level  6: 30% chance level  8: 40% chance
+             * level 11: 50% chance level 13: 60% chance level 15: 70% chance
+             * level 17: 80% chance level 18: 90% chance
+             * level 20 or greater: 100% chance
              */
 
             /* TODO: these object/spellbook routines really should be made
                into separate functions, as some of these are duplicated */
-            if ((!awaiting_guaranteed_gift() || u.ulevel <= 2)
+            if ((!awaiting_guaranteed_gift() || u.ulevel <= 3)
                 && (rn2(10) >= (int) ((nchance * nchance) / 100)
                     || levl[u.ux][u.uy].frac_altar == 1)) {
                 if (u.uluck >= 0 && !rn2(reg_gift_odds)) {
