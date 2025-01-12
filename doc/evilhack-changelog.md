@@ -3792,4 +3792,5 @@ The following changes to date are:
 - Fix: number of guaranteed artifacts from wishing
 - Make Druid's first sacrifice gift Werebane
 - Harbinger can eat through iron bars like Dirge
+- Change Werebane from a saber to a scimitar
 
