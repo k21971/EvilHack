@@ -146,7 +146,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NO_COLOR, SILVER),
 
     A("Werebane", SABER, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH), 0, MH_WERE,
-      PHYS(5, 0), DFNS(AD_WERE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 1500L,
+      PHYS(5, 0), DFNS(AD_WERE), NO_CARY, 0, A_NONE, PM_DRUID, NON_PM, 1500L,
       NO_COLOR, SILVER),
 
     A("Grayswandir", SABER, (SPFX_RESTR | SPFX_HALRES), 0, 0,
