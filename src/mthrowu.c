@@ -1677,9 +1677,12 @@ unsigned breakflags; /* breakage control */
             if (!nodissolve)
                 dissolve_bars(barsx, barsy);
         }
-    } else if (obj_type == LONG_SWORD && otmp->oartifact == ART_DIRGE) {
+    } else if ((obj_type == LONG_SWORD && otmp->oartifact == ART_DIRGE)
+               || (obj_type == AKLYS && otmp->oartifact == ART_HARBINGER)) {
         if (cansee(barsx, barsy) && !nodissolve)
-            pline_The("acidic blade slices right through the iron bars!");
+            pline_The("acidic %s right through the iron bars!",
+                      otmp->oartifact == ART_DIRGE ? "blade slices"
+                                                   : "aklys eats");
         else
             You_hear(Hallucination ? "a hot knife slice through butter!"
                                    : "a hissing noise.");

@@ -3791,4 +3791,5 @@ The following changes to date are:
 - Altars won't start to appear until dungeon level 3
 - Fix: number of guaranteed artifacts from wishing
 - Make Druid's first sacrifice gift Werebane
+- Harbinger can eat through iron bars like Dirge
 
