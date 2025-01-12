@@ -3788,4 +3788,5 @@ The following changes to date are:
 - Altar sacrifice and receiving artifacts changes
 - Tweaks to altar sacrifice and receiving artifacts changes
 - Reduce of number of altars on the mines' end 'orc temple' level
+- Altars won't start to appear until dungeon level 3
 

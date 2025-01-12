@@ -1037,7 +1037,7 @@ makelevel()
             mksink(croom);
         if (!rn2(40))
             mkforge(0, croom);
-        if (!rn2(60))
+        if (depth(&u.uz) > 2 && !rn2(60))
             mkaltar(croom);
         i = 80 - (depth(&u.uz) * 2);
         if (i < 2)
