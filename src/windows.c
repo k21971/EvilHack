@@ -1517,6 +1517,8 @@ unsigned special;
         hl |= HL_INVERSE;
     if ((special & MG_BW_LAVA) && iflags.use_inverse)
         hl |= HL_INVERSE;
+    if ((special & MG_STAIRS) && iflags.hilite_hidden_stairs)
+        hl |= HL_INVERSE;
     return hl;
 }
 

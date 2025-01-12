@@ -1342,6 +1342,15 @@ int color;
         xputs(hilites[color]);
 }
 
+void
+term_start_bgcolor(color)
+int color;
+{
+    char tmp[8];
+    Sprintf(tmp, "\033[%dm", ((color % 8) + 40));
+    xputs(tmp);
+}
+
 #endif /* TEXTCOLOR */
 
 #endif /* TTY_GRAPHICS && !NO_TERMS */

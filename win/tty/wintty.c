@@ -3480,6 +3480,11 @@ int bkglyph UNUSED;
         underline_on = TRUE;
     }
 
+    if ((special & MG_STAIRS) && iflags.hilite_hidden_stairs
+        && (window == NHW_MAP)) {
+        term_start_bgcolor(CLR_RED);
+    }
+
 #if defined(USE_TILES) && defined(MSDOS)
     if (iflags.grmode && iflags.tile_view)
         xputg(glyph, ch, special);

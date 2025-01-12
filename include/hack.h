@@ -86,6 +86,7 @@ enum dismount_types {
 #define MG_BW_LAVA  0x00080  /* 'black & white lava': highlight lava if it
                                  can't be distringuished from water by color */
 #define MG_PEACEFUL 0x00100  /* peaceful monster */
+#define MG_STAIRS   0x00200  /* hidden stairs */
 
 /* sellobj_state() states */
 #define SELL_NORMAL (0)

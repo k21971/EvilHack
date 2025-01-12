@@ -293,6 +293,8 @@ unsigned mgflags;
             obj_color(offset);
         if (offset != BOULDER && is_objpile(x,y))
             special |= MG_OBJPILE;
+        if (On_stairs(x,y))
+            special |= MG_STAIRS;
 	if (level.objects[x][y] && is_soko_prize_flag(level.objects[x][y])) {
 	    sokoban_prize_color();
 	}
@@ -315,6 +317,8 @@ unsigned mgflags;
         special |= MG_CORPSE;
         if (is_objpile(x,y))
             special |= MG_OBJPILE;
+        if (On_stairs(x,y))
+            special |= MG_STAIRS;
     } else if ((offset = (glyph - GLYPH_DETECT_OFF)) >= 0) { /* mon detect */
         idx = mons[offset].mlet + SYM_OFF_M;
         if (has_rogue_color)
