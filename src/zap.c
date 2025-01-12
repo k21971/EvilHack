@@ -276,14 +276,15 @@ struct obj *otmp;
         }
         break;
     case WAN_SPEED_MONSTER:
-        if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
+        if (!resist(mtmp, otmp->oclass, 0, NOTELL)
+            || mtmp->mtame) {
             if (disguised_mimic)
                 seemimic(mtmp);
             mon_adjust_speed(mtmp, 1, otmp);
             check_gear_next_turn(mtmp); /* might want speed boots */
         }
-        if (mtmp->mtame)
-            helpful_gesture = TRUE;
+        /* wake but don't anger a peaceful target */
+        helpful_gesture = TRUE;
         break;
     case WAN_UNDEAD_TURNING:
     case SPE_TURN_UNDEAD:
