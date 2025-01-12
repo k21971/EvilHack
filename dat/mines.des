@@ -1543,8 +1543,8 @@ OBJECT:('`',"statue"),(35,15),montype:"orc-captain",1
 OBJECT:('`',"statue"),(38,15),montype:"orc shaman",1
 OBJECT:('(',"iron safe"),(61,2)
 OBJECT:('(',"iron safe"),(63,2)
-ALTAR:(48,2),noalign,shrine
-ALTAR:(48,16),noalign,shrine
+OBJECT:('(',"chest"),trapped,(48,02)
+OBJECT:('(',"chest"),trapped,(48,16)
 ALTAR:(56,9),noalign,shrine
 # A hidden elven temple from the days of old before this
 # site had been overrun by orcs. Chance that some elves
