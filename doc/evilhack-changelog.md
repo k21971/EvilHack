@@ -3795,4 +3795,6 @@ The following changes to date are:
 - Change Werebane from a saber to a scimitar
 - Do not anger peacefuls if zapped with a wand of speed monster
 - Highlight hidden stairs
+- Fix: windows binary compile error with highlighting hidden
+  stairs
 
