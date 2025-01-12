@@ -5011,8 +5011,9 @@ struct obj *no_wish;
      */
     if ((is_quest_artifact(otmp)
         || non_wishable_artifact(otmp)
-        || (Role_if(PM_RANGER) && ((Race_if(PM_GNOME) && otmp->oartifact == ART_LONGBOW_OF_DIANA)
-                                   || (!Race_if(PM_GNOME) && otmp->oartifact == ART_CROSSBOW_OF_CARL)))
+        || (Role_if(PM_RANGER)
+            && ((Race_if(PM_GNOME) && otmp->oartifact == ART_LONGBOW_OF_DIANA)
+                || (!Race_if(PM_GNOME) && otmp->oartifact == ART_CROSSBOW_OF_CARL)))
         || (otmp->oartifact && rn2(u.uconduct.wisharti) > 2)) && !wizard) {
         artifact_exists(otmp, ONAME(otmp), FALSE);
         obfree(otmp, (struct obj *) 0);

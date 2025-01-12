@@ -1865,6 +1865,13 @@ dosacrifice()
                 maybe_erodeproof(uwep, 1);
                 exercise(A_WIS, TRUE);
                 u.uconduct.artitouch++;
+                /* sacrifice to obtain an artifact 'uses up'
+                   the altar */
+                levl[u.ux][u.uy].frac_altar = 1;
+                if (!Blind)
+                    pline("A bolt of lightning from above strikes the altar, nearly splitting it in two!");
+                else
+                    You("feel a surge of energy as the altar you're standing on shudders violently!");
                 livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
                                "had Dirge gifted to %s by the grace of %s",
                                uhim(), align_gname(u.ualign.type));
@@ -2105,6 +2112,11 @@ dosacrifice()
                     /* Beware, Conversion is costly */
                     change_luck(-3);
                     u.ublesscnt += 300;
+                    levl[u.ux][u.uy].frac_altar = 1;
+                    if (!Blind)
+                        pline("A bolt of lightning from above strikes the altar, nearly splitting it in two!");
+                    else
+                        You("feel a surge of energy as the altar you're standing on shudders violently!");
                 } else {
                     u.ugangr += 3;
                     adjalign(-5);
@@ -2154,6 +2166,14 @@ dosacrifice()
                         (3 * ALIGNLIM) / (temple_occupied(u.urooms)
                                           ? 12 : u.ulevel)) {
                         (void) summon_minion(altaralign, TRUE);
+                    }
+                    /* very small chance fracturing an altar after conversion */
+                    if (!rn2(100)) {
+                        levl[u.ux][u.uy].frac_altar = 1;
+                        if (!Blind)
+                            pline("A bolt of lightning from above strikes the altar, nearly splitting it in two!");
+                        else
+                            You("feel a surge of energy as the altar you're standing on shudders violently!");
                     }
                     /* anger priest; test handles bones files */
                     if ((pri = findpriest(temple_occupied(u.urooms)))

@@ -3786,4 +3786,5 @@ The following changes to date are:
 - Fix: kicking an iron safe could break fragile objects inside
 - Fix: oversight in rejectcasting() function
 - Altar sacrifice and receiving artifacts changes
+- Tweaks to altar sacrifice and receiving artifacts changes
 
