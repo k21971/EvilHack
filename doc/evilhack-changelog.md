@@ -3801,4 +3801,5 @@ The following changes to date are:
   on experience level
 - Changes to forging, new object: blacksmith hammer
 - Various player conditions can prevent successful forging
+- Fix: allow non-satyrs to use non--pan flutes
 

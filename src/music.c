@@ -803,7 +803,7 @@ struct obj *instr;
                && !can_blow(&youmonst)) {
         You("are incapable of playing %s.", the(distant_name(instr, xname)));
         return 0;
-    } else if (!is_satyr(youmonst.data)) {
+    } else if (instr->otyp == PAN_FLUTE && !is_satyr(youmonst.data)) {
         You("are incapable of playing %s.", the(distant_name(instr, xname)));
         return 0;
     }
