@@ -4479,6 +4479,17 @@ doapply()
     case FIGURINE:
         use_figurine(&obj);
         break;
+    case BLACKSMITH_HAMMER:
+        if (obj != uwep) {
+            if (!wield_tool(obj, "forge"))
+                return 0;
+            else
+                res = doforging();
+        } else {
+            /* already wielding */
+            res = doforging();
+        }
+        break;
     case UNICORN_HORN:
         use_unicorn_horn(obj);
         break;

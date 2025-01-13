@@ -88,9 +88,7 @@ MAGIC_CHEST:(74,03)
 # Various objects
 CONTAINER:('(',"chest"),(23,18) {
   OBJECT:('+',"novel"),uncursed,name:"The Blacksmith's Cookbook"
-  IF [65%] {
-    OBJECT:(')',"war hammer"),uncursed
-  }
+  OBJECT:('(',"blacksmith hammer")
   IF [50%] {
     OBJECT:('!',"acid"),uncursed
   }
@@ -276,9 +274,7 @@ MAGIC_CHEST:(32,08)
 # Various objects
 CONTAINER:('(',"chest"),(67,09) {
   OBJECT:('+',"novel"),uncursed,name:"The Blacksmith's Cookbook"
-  IF [65%] {
-    OBJECT:(')',"war hammer"),uncursed
-  }
+  OBJECT:('(',"blacksmith hammer")
   IF [50%] {
     OBJECT:('!',"acid"),uncursed
   }

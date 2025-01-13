@@ -1425,6 +1425,9 @@ short otyp;
         case MAGIC_HARP:
             subclass = "tonal instrument";
             break;
+        case BLACKSMITH_HAMMER:
+            subclass = "forging tool";
+            break;
         }
         Sprintf(buf, "%s%s.", (oc.oc_charged ? "chargeable " : ""), subclass);
         /* capitalize first letter of buf */

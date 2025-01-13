@@ -824,6 +824,22 @@ struct monst *mtmp;
             if (obj->spe > 5)
                 obj->spe = 5;
             break;
+        case BLACKSMITH_HAMMER:
+            if (is_cursed) {
+                stripspe(obj);
+            } else if (rechrg > 1) { /* previously recharged twice */
+                obj->recharged = 2; /* override increment done above */
+                pline1(nothing_happens);
+            } else if (is_blessed) {
+                obj->spe += rn1(5, 4); /* 4-8 charges */
+                p_glow2(obj, NH_BLUE);
+            } else {
+                obj->spe += rn1(3, 2); /* 2-4 charges */
+                p_glow1(obj);
+            }
+            if (obj->spe > 8)
+                obj->spe = 8;
+            break;
         case MAGIC_MARKER:
         case TINNING_KIT:
         case EXPENSIVE_CAMERA:

@@ -1059,6 +1059,10 @@ boolean artif;
             case BAG_OF_TRICKS:
                 otmp->spe = rnd(20);
                 break;
+            case BLACKSMITH_HAMMER:
+                otmp->spe = rn1(3, 2);
+                blessorcurse(otmp, 10);
+                break;
             case FIGURINE:
                 tryct = 0;
                 do
@@ -3656,6 +3660,7 @@ struct obj* obj;
     case OILSKIN_SACK:
     case OILSKIN_CLOAK:
     case RUNED_BRACERS:
+    case BLACKSMITH_HAMMER:
     case AMULET_OF_YENDOR:
     case FAKE_AMULET_OF_YENDOR:
         return NULL;

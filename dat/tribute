@@ -8747,11 +8747,11 @@ out these riches.  I just need to make it out of this place alive first...
 Chapter 1 of 10 - Getting Started
 
 1) Find a forge.
-2) Find a hammer, any will do.
-3) Find two gemstone or metallic objects from the recipe
-   chapters.
+2) Find a blacksmith hammer.
+3) Find two gemstone/mineral or metallic objects from
+   the recipe chapters.
 4) Put both of those objects into the forge whilst
-   wielding your hammer (#forge).
+   wielding your hammer (#forge or 'a'pply it).
 5) Start forging.  If successful, you'll forge a brand
    new object.
 
@@ -8932,6 +8932,9 @@ Chapter 10 of 10 - Artifacts
 Rumor has it that some artifacts can be forged together
 to make an even more powerful artifact.  Many say this
 is the stuff of fairy tales... but who knows?
+
+Your blacksmith hammer may need a bit of a magical charge
+to even attempt this endeavor.
 
   [The Blacksmith's Cookbook]
 %e passage

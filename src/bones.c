@@ -218,6 +218,10 @@ boolean restore;
                 /* magic key becomes a regular key */
                 otmp->otyp = SKELETON_KEY;
                 set_material(otmp, BONE);
+            } else if (otmp->otyp == BLACKSMITH_HAMMER) {
+                /* blacksmith hammer becomes a war hammer */
+                otmp->otyp = WAR_HAMMER;
+                set_material(otmp, IRON);
             } else if (otmp->otyp == AMULET_OF_YENDOR) {
                 /* no longer the real Amulet */
                 otmp->otyp = FAKE_AMULET_OF_YENDOR;

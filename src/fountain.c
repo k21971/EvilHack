@@ -550,7 +550,7 @@ static const struct forge_arti {
 
 
 int
-doforging(void)
+doforging()
 {
     const struct forge_recipe *recipe;
     const struct forge_arti *arti;
@@ -570,8 +570,8 @@ doforging(void)
     }
 
     /* next, the proper tool to do the job */
-    if ((uwep && !is_hammer(uwep)) || !uwep) {
-        pline("You'll need a hammer to forge successfully.");
+    if ((uwep && uwep->otyp != BLACKSMITH_HAMMER) || !uwep) {
+        pline("You'll need a blacksmith hammer to forge successfully.");
         return 0;
     }
 
@@ -635,6 +635,12 @@ doforging(void)
                && (is_drow_obj(obj1) || is_drow_obj(obj2))) {
         pline("Drowcraft must be performed under the cover of darkness.");
         return 0;
+    } else if ((obj1->oartifact || obj2->oartifact)
+               && uwep && uwep->otyp == BLACKSMITH_HAMMER
+               && uwep->spe <= 0) {
+        Your("%s requires a magical charge to forge artifacts.",
+             simpleonames(uwep));
+        return 0;
     }
 
     /* start the forging process */
@@ -693,6 +699,7 @@ doforging(void)
             output = addinv(output);
             output->owt = weight(output);
             You("have successfully forged %s.", doname(output));
+            uwep->spe --;
             u.uconduct.forgedarti++;
             livelog_printf(LL_ARTIFACT, "used a forge to create %s%s",
                            (output->oartifact == ART_GAUNTLETS_OF_PURITY
