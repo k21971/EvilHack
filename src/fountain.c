@@ -575,6 +575,18 @@ doforging()
         return 0;
     }
 
+    /* various player conditions can prevent successful forging */
+    if (Stunned || Confusion) {
+        You_cant("use the forge while incapacitated.");
+        return 0;
+    } else if (u.uhunger < 50) { /* weak */
+        You("are too weak from hunger to use the forge.");
+        return 0;
+    } else if (ACURR(A_STR) < 4) {
+        You("lack the strength to use the forge.");
+        return 0;
+    }
+
     /* setup the base object */
     obj1 = getobj(allowall, "use as a base");
     if (!obj1) {

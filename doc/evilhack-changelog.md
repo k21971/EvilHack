@@ -3800,4 +3800,5 @@ The following changes to date are:
 - Adjust odds of receiving an artifact via altar sacrifice based
   on experience level
 - Changes to forging, new object: blacksmith hammer
+- Various player conditions can prevent successful forging
 
