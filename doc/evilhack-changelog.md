@@ -3809,4 +3809,5 @@ The following changes to date are:
 - Prevent wishing for quality artifacts
 - Change enum labels for forged quality code
 - Various quality objects can be purposely forged
+- Prevent wishing for the Blacksmith hammer
 

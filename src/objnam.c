@@ -5002,6 +5002,20 @@ struct obj *no_wish;
     if (otmp->otyp == TIN && tvariety >= 0 && (rn2(4) || wizard))
         set_tin_variety(otmp, tvariety);
 
+    /* regular non-artifact objects that are off-limits
+       for wishing */
+    if (otmp->otyp == BLACKSMITH_HAMMER) {
+        obfree(otmp, (struct obj *) 0);
+        otmp = (struct obj *) &zeroobj;
+
+        if (Hallucination)
+            pline("Wish in one hand...");
+        else
+            pline("For a moment, you feel %s in your %s, but it disappears!",
+                  something, makeplural(body_part(HAND)));
+        return otmp;
+    }
+
     if (name) {
         const char *aname;
         short objtyp;
