@@ -1486,11 +1486,11 @@ unsigned doname_flags;
         if (known) {
             Strcat(prefix, sitoa(obj->spe));
             Strcat(prefix, " ");
-            if (obj->forged_qual == SUPERIOR)
+            if (obj->forged_qual == FQ_SUPERIOR)
                 Strcat(prefix, "superior ");
-            else if (obj->forged_qual == EXCEPTIONAL)
+            else if (obj->forged_qual == FQ_EXCEPTIONAL)
                 Strcat(prefix, "exceptional ");
-            else if (obj->forged_qual == INFERIOR)
+            else if (obj->forged_qual == FQ_INFERIOR)
                 Strcat(prefix, "inferior ");
         }
         break;
@@ -4959,11 +4959,11 @@ struct obj *no_wish;
     }
     /* set forge quality */
     if (isforged0)
-        otmp->forged_qual = INFERIOR;
+        otmp->forged_qual = FQ_INFERIOR;
     if (isforged1)
-        otmp->forged_qual = SUPERIOR;
+        otmp->forged_qual = FQ_SUPERIOR;
     if (isforged2)
-        otmp->forged_qual = EXCEPTIONAL;
+        otmp->forged_qual = FQ_EXCEPTIONAL;
     /* and [un]trapped */
     if (trapped) {
         if (Is_box(otmp) || typ == TIN)
@@ -5023,9 +5023,10 @@ struct obj *no_wish;
         otmp = oname(otmp, name);
         /* name==aname => wished for artifact (otmp->oartifact => got it) */
         if (otmp->oartifact || name == aname) {
-            if (!wizard) {
-                otmp->forged_qual = NORMAL;
-            }
+            /* prevent artifacts from being wished for with
+               quality bit applied, adjust this if we want
+               certain artifacts to have a forged quality bit */
+            otmp->forged_qual = FQ_NORMAL;
             otmp->quan = 1L;
             u.uconduct.wisharti++; /* KMH, conduct */
         }

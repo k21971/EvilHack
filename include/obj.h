@@ -28,10 +28,10 @@ struct oextra {
 };
 
 enum forgequality {
-    NORMAL      = 0,
-    INFERIOR    = 1,
-    SUPERIOR    = 2,
-    EXCEPTIONAL = 3
+    FQ_NORMAL      = 0,
+    FQ_INFERIOR    = 1,
+    FQ_SUPERIOR    = 2,
+    FQ_EXCEPTIONAL = 3
 };
 
 struct obj {

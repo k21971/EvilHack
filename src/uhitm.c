@@ -377,14 +377,14 @@ int *attk_count, *role_roll_penalty;
     /* higher quality weapons have a slightly greater
        chance to hit, inferior ones not so much */
     if (uwep) {
-        if (uwep->forged_qual == EXCEPTIONAL
+        if (uwep->forged_qual == FQ_EXCEPTIONAL
                 || (u.twoweap
-                    && uswapwep->forged_qual == EXCEPTIONAL)) {
+                    && uswapwep->forged_qual == FQ_EXCEPTIONAL)) {
             tmp += 1;
         }
-        if (uwep->forged_qual == INFERIOR
+        if (uwep->forged_qual == FQ_INFERIOR
                 || (u.twoweap
-                    && uswapwep->forged_qual == INFERIOR)) {
+                    && uswapwep->forged_qual == FQ_INFERIOR)) {
             tmp -= 2;
         }
     }

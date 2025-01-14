@@ -892,7 +892,7 @@ boolean artif;
         switch (let) {
         case WEAPON_CLASS:
             otmp->quan = is_multigen(otmp) ? (long) rn1(6, 6) : 1L;
-            otmp->forged_qual = NORMAL;
+            otmp->forged_qual = FQ_NORMAL;
             if (!rn2(11)) {
                 otmp->spe = rne(3);
                 otmp->blessed = rn2(2);
@@ -1137,7 +1137,7 @@ boolean artif;
             blessorcurse(otmp, 17);
             break;
         case ARMOR_CLASS:
-            otmp->forged_qual = NORMAL;
+            otmp->forged_qual = FQ_NORMAL;
             if (rn2(10)
                 && (otmp->otyp == FUMBLE_BOOTS
                     || otmp->otyp == LEVITATION_BOOTS

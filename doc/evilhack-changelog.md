@@ -3807,4 +3807,5 @@ The following changes to date are:
 - Rework forged armor/weapon code
 - Fix: poison/quality of known artifacts not shown
 - Prevent wishing for quality artifacts
+- Change enum labels for forged quality code
 

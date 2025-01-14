@@ -250,14 +250,14 @@ botl_hitbonus()
         && all_druid_forms(monsndx(youmonst.data)))
         tmp += (u.ulevel / 3) + 5;
     if (uwep) {
-        if (uwep->forged_qual == EXCEPTIONAL
+        if (uwep->forged_qual == FQ_EXCEPTIONAL
                 || (u.twoweap
-                    && uswapwep->forged_qual == EXCEPTIONAL)) {
+                    && uswapwep->forged_qual == FQ_EXCEPTIONAL)) {
             tmp += 1;
         }
-        if (uwep->forged_qual == INFERIOR
+        if (uwep->forged_qual == FQ_INFERIOR
                 || (u.twoweap
-                    && uswapwep->forged_qual == INFERIOR)) {
+                    && uswapwep->forged_qual == FQ_INFERIOR)) {
             tmp -= 2;
         }
     }
@@ -542,11 +542,11 @@ struct monst *mon;
 
     /* higher quality weapons can dish out a bit more damage,
        inferior ones not so much */
-    if (otmp->forged_qual == SUPERIOR)
+    if (otmp->forged_qual == FQ_SUPERIOR)
         tmp += 1;
-    else if (otmp->forged_qual == EXCEPTIONAL)
+    else if (otmp->forged_qual == FQ_EXCEPTIONAL)
         tmp += 2;
-    else if (otmp->forged_qual == INFERIOR)
+    else if (otmp->forged_qual == FQ_INFERIOR)
         tmp -= 2;
 
     /* negative modifiers mustn't produce negative damage */
