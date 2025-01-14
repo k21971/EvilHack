@@ -829,17 +829,16 @@ doforging()
                Superior or exceptional gear can be guaranteed,
                but at a cost */
             if (uwep && uwep->blessed) {
-                if (obj1->forged_qual == FQ_EXCEPTIONAL
-                    && obj2->forged_qual == FQ_EXCEPTIONAL) {
+                if (obj1->forged_qual == FQ_INFERIOR
+                    || obj2->forged_qual == FQ_INFERIOR) {
+                    /* if either object is inferior, the output
+                       will also be inferior */
+                } else if (obj1->forged_qual == FQ_EXCEPTIONAL
+                           && obj2->forged_qual == FQ_EXCEPTIONAL) {
                     /* if both objects are exceptional,
                        the forged object will also be
                        exceptional */
                     output->forged_qual = FQ_EXCEPTIONAL;
-                } else if (obj1->forged_qual == FQ_INFERIOR
-                           || obj2->forged_qual == FQ_INFERIOR) {
-                    /* if either object is inferior, the output
-                       will be also */
-                    output->forged_qual = FQ_INFERIOR;
                 } else if (obj1->forged_qual >= FQ_SUPERIOR
                            && obj2->forged_qual >= FQ_SUPERIOR) {
                     /* if both objects are at least of superior
@@ -847,18 +846,18 @@ doforging()
                        superior, or a small chance of exceptional */
                     output->forged_qual = (!rn2(10) ? FQ_EXCEPTIONAL
                                                     : FQ_SUPERIOR);
-                } else if ((obj1->forged_qual >= FQ_NORMAL && obj1->spe >= 5)
-                           && (obj2->forged_qual >= FQ_NORMAL && obj2->spe >= 5)) {
+                } else if (obj1->spe >= 5 && obj2->spe >= 5) {
                     /* recipe objs 1 & 2 need an enchantment
                        of 5 or greater to ensure an exceptional
-                       forged object, and not be inferior */
+                       forged object, and not be inferior
+                       (handled by first rule) */
                     output->forged_qual = FQ_EXCEPTIONAL;
                     output->spe = 0;
-                } else if ((obj1->forged_qual >= FQ_NORMAL && obj1->spe >= 3)
-                           && (obj2->forged_qual >= FQ_NORMAL && obj2->spe >= 3)) {
+                } else if (obj1->spe >= 3 && obj2->spe >= 3) {
                     /* recipe objs 1 & 2 need an enchantment
                        of 3 or greater to ensure a superior
-                       forged object, and not be inferior */
+                       forged object, and not be inferior
+                       (handled by first rule) */
                     output->forged_qual = FQ_SUPERIOR;
                     output->spe = 0;
                 } else {

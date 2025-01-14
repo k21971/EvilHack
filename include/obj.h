@@ -28,8 +28,8 @@ struct oextra {
 };
 
 enum forgequality {
-    FQ_INFERIOR    = 0,
-    FQ_NORMAL      = 1,
+    FQ_NORMAL      = 0, /* default value, all objects start out 'normal' quality */
+    FQ_INFERIOR    = 1,
     FQ_SUPERIOR    = 2,
     FQ_EXCEPTIONAL = 3
 };
