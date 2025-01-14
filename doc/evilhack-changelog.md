@@ -3808,4 +3808,5 @@ The following changes to date are:
 - Fix: poison/quality of known artifacts not shown
 - Prevent wishing for quality artifacts
 - Change enum labels for forged quality code
+- Various quality objects can be purposely forged
 
