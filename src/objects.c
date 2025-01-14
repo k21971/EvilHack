@@ -820,8 +820,9 @@ TOOL("can of grease", None,
      1, 0, 0, 1,  10,  15,  20, IRON, HI_METAL),
 TOOL("figurine", None, /* monster type specified by obj->corpsenm */
      1, 0, 1, 0,  25,  50,  80, MINERAL, HI_MINERAL),
-TOOL("blacksmith hammer", "runed hammer",
-     0, 0, 1, 1,   0,  30, 300, IRON, HI_METAL),
+OBJECT(OBJ("blacksmith hammer", "runed hammer"),
+       BITS(0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, P_NONE, IRON),
+       0, TOOL_CLASS, 0, 0, 30, 300, 0, 0, 0, 0, 30, HI_METAL),
 TOOL("magic marker", "marker",
      0, 0, 1, 1,   0,   2,  50, PLASTIC, CLR_RED),
 /* traps */

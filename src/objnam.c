@@ -4755,6 +4755,9 @@ struct obj *no_wish;
         case CHROMATIC_DRAGON_SCALES:
             typ = rnd_class(FIRST_DRAGON_SCALES, LAST_DRAGON_SCALES - 1);
             break;
+        case BLACKSMITH_HAMMER:
+            typ = WAR_HAMMER;
+            break;
         default:
             /* catch any other non-wishable objects (venom) */
             if (objects[typ].oc_nowish)
@@ -5001,20 +5004,6 @@ struct obj *no_wish;
     /* set tin variety */
     if (otmp->otyp == TIN && tvariety >= 0 && (rn2(4) || wizard))
         set_tin_variety(otmp, tvariety);
-
-    /* regular non-artifact objects that are off-limits
-       for wishing */
-    if (otmp->otyp == BLACKSMITH_HAMMER) {
-        obfree(otmp, (struct obj *) 0);
-        otmp = (struct obj *) &zeroobj;
-
-        if (Hallucination)
-            pline("Wish in one hand...");
-        else
-            pline("For a moment, you feel %s in your %s, but it disappears!",
-                  something, makeplural(body_part(HAND)));
-        return otmp;
-    }
 
     if (name) {
         const char *aname;

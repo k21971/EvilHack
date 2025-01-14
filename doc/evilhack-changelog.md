@@ -3812,4 +3812,5 @@ The following changes to date are:
 - Prevent wishing for the Blacksmith hammer
 - Fix: logic with purposely forging quality objects
 - Fix: more forged quality logic
+- Restructure how blacksmith hammer is made unwishable
 
