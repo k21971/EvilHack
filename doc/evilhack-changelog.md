@@ -3810,4 +3810,5 @@ The following changes to date are:
 - Change enum labels for forged quality code
 - Various quality objects can be purposely forged
 - Prevent wishing for the Blacksmith hammer
+- Fix: logic with purposely forging quality objects
 

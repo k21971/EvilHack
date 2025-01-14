@@ -847,18 +847,18 @@ doforging()
                        superior, or a small chance of exceptional */
                     output->forged_qual = (!rn2(10) ? FQ_EXCEPTIONAL
                                                     : FQ_SUPERIOR);
-                } else if ((obj1->forged_qual <= FQ_NORMAL && obj1->spe >= 5)
-                           && (obj2->forged_qual <= FQ_NORMAL && obj2->spe >= 5)) {
+                } else if ((obj1->forged_qual >= FQ_NORMAL && obj1->spe >= 5)
+                           && (obj2->forged_qual >= FQ_NORMAL && obj2->spe >= 5)) {
                     /* recipe objs 1 & 2 need an enchantment
-                       of 7 or greater to ensure an exceptional
-                       forged object */
+                       of 5 or greater to ensure an exceptional
+                       forged object, and not be inferior */
                     output->forged_qual = FQ_EXCEPTIONAL;
                     output->spe = 0;
-                } else if ((obj1->forged_qual <= FQ_NORMAL && obj1->spe >= 3)
-                           && (obj2->forged_qual <= FQ_NORMAL && obj2->spe >= 3)) {
+                } else if ((obj1->forged_qual >= FQ_NORMAL && obj1->spe >= 3)
+                           && (obj2->forged_qual >= FQ_NORMAL && obj2->spe >= 3)) {
                     /* recipe objs 1 & 2 need an enchantment
-                       of 5 or greater to ensure a superior
-                       forged object */
+                       of 3 or greater to ensure a superior
+                       forged object, and not be inferior */
                     output->forged_qual = FQ_SUPERIOR;
                     output->spe = 0;
                 } else {
@@ -867,7 +867,7 @@ doforging()
                         output->forged_qual = (!rn2(10) ? FQ_EXCEPTIONAL
                                                         : FQ_SUPERIOR);
                 }
-            } else if (uwep) { /* hammer is uncursed or cursed */
+            } else if (uwep && !uwep->blessed) { /* hammer is uncursed or cursed */
                 if (obj1->forged_qual == FQ_INFERIOR
                     || obj2->forged_qual == FQ_INFERIOR) {
                     /* if either object is inferior, the output
