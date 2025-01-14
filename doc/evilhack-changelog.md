@@ -3803,4 +3803,5 @@ The following changes to date are:
 - Various player conditions can prevent successful forging
 - Fix: allow non-satyrs to use non--pan flutes
 - Forged armor/weapon quality
+- Fix: crash when not wielding anything
 

@@ -249,16 +249,19 @@ botl_hitbonus()
     if (!uwep && Role_if(PM_DRUID)
         && all_druid_forms(monsndx(youmonst.data)))
         tmp += (u.ulevel / 3) + 5;
-
-    if (uwep->forged_qual == 1
-        || (u.twoweap && uswapwep->forged_qual == 1)) {
-        ; /* no change */
-    } else if (uwep->forged_qual == 2
-             || (u.twoweap && uswapwep->forged_qual == 2)) {
-        tmp += 1;
-    } else if (uwep->forged_qual < 0
-             || (u.twoweap && uswapwep->forged_qual < 0)) {
-        tmp -= 2;
+    if (uwep) {
+        if (uwep->forged_qual == 1
+            || (u.twoweap && uswapwep->forged_qual == 1)) {
+            ; /* no change */
+        }
+        if (uwep->forged_qual == 2
+                || (u.twoweap && uswapwep->forged_qual == 2)) {
+            tmp += 1;
+        }
+        if (uwep->forged_qual < 0
+                || (u.twoweap && uswapwep->forged_qual < 0)) {
+            tmp -= 2;
+        }
     }
 
     if (aatyp == AT_WEAP || aatyp == AT_CLAW) {
