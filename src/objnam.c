@@ -708,16 +708,6 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Sprintf(eos(buf), "%s amulet", dn);
         break;
     case WEAPON_CLASS:
-        if (known) {
-            if (obj->forged_qual) {
-                if (obj->forged_qual == SUPERIOR)
-                    Strcat(buf, "superior ");
-                else if (obj->forged_qual == EXCEPTIONAL)
-                    Strcat(buf, "exceptional ");
-                else if (obj->forged_qual == INFERIOR)
-                    Strcat(buf, "inferior ");
-            }
-        }
         if (is_poisonable(obj) && obj->opoisoned)
             Strcat(buf, "poisoned ");
         else if (is_poisonable(obj) && obj->otainted)
@@ -789,17 +779,6 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             && ((obj->oprops_known & ITEM_OILSKIN)
                 || dump_prop_flag))
             Strcat(buf, "oilskin ");
-
-        if (known) {
-            if (obj->forged_qual) {
-                if (obj->forged_qual == SUPERIOR)
-                    Strcat(buf, "superior ");
-                else if (obj->forged_qual == EXCEPTIONAL)
-                    Strcat(buf, "exceptional ");
-                else if (obj->forged_qual == INFERIOR)
-                    Strcat(buf, "inferior ");
-            }
-        }
 
         if ((obj->material != objects[typ].oc_material
              || force_material_name(typ)) && dknown) {
@@ -1310,7 +1289,6 @@ struct obj *obj;
 unsigned doname_flags;
 {
     boolean ispoisoned = FALSE, istainted = FALSE,
-            isforged0 = FALSE, isforged1 = FALSE, isforged2 = FALSE,
             with_price = (doname_flags & DONAME_WITH_PRICE) != 0,
             vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0,
             weightshown = FALSE;
@@ -1342,36 +1320,22 @@ unsigned doname_flags;
     /* When using xname, we want "poisoned arrow", and when using
      * doname, we want "poisoned +0 arrow".  This kludge is about the only
      * way to do it, at least until someone overhauls xname() and doname(),
-     * combining both into one function taking a parameter.
+     * combining both into one function taking a parameter. Known artifacts
+     * bypass the poisoned/tainted/etc additions, so it may be no characters
+     * have to be eaten.
      */
     /* must check opoisoned--someone can have a weirdly-named fruit */
-    if (!strncmp(bp, "poisoned ", 9) && obj->opoisoned) {
-        bp += 9;
+    if (obj->opoisoned) {
+        if (!strncmp(bp, "poisoned ", 9))
+            bp += 9;
         ispoisoned = TRUE;
     }
 
     /* same check for otainted */
-    if (!strncmp(bp, "tainted ", 8) && obj->otainted) {
-        bp += 8;
+    if (obj->otainted) {
+        if (!strncmp(bp, "tainted ", 8))
+            bp += 8;
         istainted = TRUE;
-    }
-
-    if (!strncmp(bp, "inferior ", 9)
-        && obj->forged_qual == INFERIOR) {
-        bp += 9;
-        isforged0 = TRUE;
-    }
-
-    if (!strncmp(bp, "superior ", 9)
-        && obj->forged_qual == SUPERIOR) {
-        bp += 9;
-        isforged1 = TRUE;
-    }
-
-    if (!strncmp(bp, "exceptional ", 12)
-        && obj->forged_qual == EXCEPTIONAL) {
-        bp += 12;
-        isforged2 = TRUE;
     }
 
     if (obj->quan != 1L) {
@@ -1522,11 +1486,11 @@ unsigned doname_flags;
         if (known) {
             Strcat(prefix, sitoa(obj->spe));
             Strcat(prefix, " ");
-            if (isforged1)
+            if (obj->forged_qual == SUPERIOR)
                 Strcat(prefix, "superior ");
-            else if (isforged2)
+            else if (obj->forged_qual == EXCEPTIONAL)
                 Strcat(prefix, "exceptional ");
-            else if (isforged0)
+            else if (obj->forged_qual == INFERIOR)
                 Strcat(prefix, "inferior ");
         }
         break;

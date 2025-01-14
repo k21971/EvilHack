@@ -3805,4 +3805,5 @@ The following changes to date are:
 - Forged armor/weapon quality
 - Fix: crash when not wielding anything
 - Rework forged armor/weapon code
+- Fix: poison/quality of known artifacts not shown
 
