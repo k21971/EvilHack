@@ -3804,4 +3804,5 @@ The following changes to date are:
 - Fix: allow non-satyrs to use non--pan flutes
 - Forged armor/weapon quality
 - Fix: crash when not wielding anything
+- Rework forged armor/weapon code
 

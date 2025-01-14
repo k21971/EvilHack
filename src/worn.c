@@ -1643,11 +1643,11 @@ struct obj *armor;
     /* add enchantment (could be negative) */
     bon += armor->spe;
     /* adjust for armor quality */
-    if (armor->forged_qual == 1)
+    if (armor->forged_qual == SUPERIOR)
         bon += 1;
-    else if (armor->forged_qual == 2)
+    else if (armor->forged_qual == EXCEPTIONAL)
         bon += 2;
-    else if (armor->forged_qual < 0)
+    else if (armor->forged_qual == INFERIOR)
         bon -= 2;
     /* add bonus for dragon-scaled armor, slightly more AC
        than dragon scales by themselves, as the scales harden

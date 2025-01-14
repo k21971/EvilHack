@@ -27,6 +27,13 @@ struct oextra {
     char *omailcmd;       /* response_cmd for mail deliver */
 };
 
+enum forgequality {
+    NORMAL      = 0,
+    INFERIOR    = 1,
+    SUPERIOR    = 2,
+    EXCEPTIONAL = 3
+};
+
 struct obj {
     struct obj *nobj;
     union vptrs v;
@@ -61,11 +68,6 @@ struct obj {
     long oprops_known; /* known item properties */
 
     xchar where;        /* where the object thinks it is */
-
-    schar forged_qual;  /* build quality of a forged object,
-                           0 is none/normal, positive values
-                           denote higher quality, negative
-                           values denote poor quality */
 #define OBJ_FREE 0      /* object not attached to anything */
 #define OBJ_FLOOR 1     /* object on floor */
 #define OBJ_CONTAINED 2 /* object in a container */
@@ -134,6 +136,7 @@ struct obj {
 #define dragonscales corpsenm /* dragon-scaled body armor
                                * (index into objects[], not mons[]) */
     int wep_kills;          /* tally number of kills a weapon has */
+    unsigned forged_qual;   /* build quality of a forged object (forgequality enum) */
     int spestudied;         /* tally # of times a spellbook has been studied */
     int newwarncnt;         /* tally how many monsters a glow warning artifact is currently warning of */
     unsigned oeaten;        /* nutrition left in food, if partly eaten */

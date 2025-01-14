@@ -710,11 +710,11 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     case WEAPON_CLASS:
         if (known) {
             if (obj->forged_qual) {
-                if (obj->forged_qual == 1)
+                if (obj->forged_qual == SUPERIOR)
                     Strcat(buf, "superior ");
-                else if (obj->forged_qual == 2)
+                else if (obj->forged_qual == EXCEPTIONAL)
                     Strcat(buf, "exceptional ");
-                else if (obj->forged_qual < 0)
+                else if (obj->forged_qual == INFERIOR)
                     Strcat(buf, "inferior ");
             }
         }
@@ -792,11 +792,11 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
 
         if (known) {
             if (obj->forged_qual) {
-                if (obj->forged_qual == 1)
+                if (obj->forged_qual == SUPERIOR)
                     Strcat(buf, "superior ");
-                else if (obj->forged_qual == 2)
+                else if (obj->forged_qual == EXCEPTIONAL)
                     Strcat(buf, "exceptional ");
-                else if (obj->forged_qual < 0)
+                else if (obj->forged_qual == INFERIOR)
                     Strcat(buf, "inferior ");
             }
         }
@@ -1356,17 +1356,20 @@ unsigned doname_flags;
         istainted = TRUE;
     }
 
-    if (!strncmp(bp, "inferior ", 9) && obj->forged_qual == 1) {
+    if (!strncmp(bp, "inferior ", 9)
+        && obj->forged_qual == INFERIOR) {
         bp += 9;
         isforged0 = TRUE;
     }
 
-    if (!strncmp(bp, "superior ", 9) && obj->forged_qual == 1) {
+    if (!strncmp(bp, "superior ", 9)
+        && obj->forged_qual == SUPERIOR) {
         bp += 9;
         isforged1 = TRUE;
     }
 
-    if (!strncmp(bp, "exceptional ", 12) && obj->forged_qual == 2) {
+    if (!strncmp(bp, "exceptional ", 12)
+        && obj->forged_qual == EXCEPTIONAL) {
         bp += 12;
         isforged2 = TRUE;
     }
@@ -4992,11 +4995,11 @@ struct obj *no_wish;
     }
     /* set forge quality */
     if (isforged0)
-        otmp->forged_qual = -1;
+        otmp->forged_qual = INFERIOR;
     if (isforged1)
-        otmp->forged_qual = 1;
+        otmp->forged_qual = SUPERIOR;
     if (isforged2)
-        otmp->forged_qual = 2;
+        otmp->forged_qual = EXCEPTIONAL;
     /* and [un]trapped */
     if (trapped) {
         if (Is_box(otmp) || typ == TIN)

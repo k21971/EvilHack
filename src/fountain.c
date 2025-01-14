@@ -827,10 +827,10 @@ doforging()
                be sub-par */
             if (uwep && uwep->blessed) {
                 if (!rn2(10))
-                    output->forged_qual = (!rn2(10) ? 2 : 1);
+                    output->forged_qual = (!rn2(10) ? EXCEPTIONAL : SUPERIOR);
             } else if (uwep && uwep->cursed) {
                 if (rn2(5))
-                    output->forged_qual = -1;
+                    output->forged_qual = INFERIOR;
             }
 
             /* toss out old objects, add new one */

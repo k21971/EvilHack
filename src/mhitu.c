@@ -2759,11 +2759,11 @@ do_rust:
                            && objects[mwep->otyp].oc_dir & WHACK
                            && is_bone_monster(youmonst.data)) {
                     dmg += rnd(4);
-                } else if (MON_WEP(mtmp) && mwep->forged_qual == 1) {
+                } else if (MON_WEP(mtmp) && mwep->forged_qual == SUPERIOR) {
                     dmg += 1;
-                } else if (MON_WEP(mtmp) && mwep->forged_qual == 2) {
+                } else if (MON_WEP(mtmp) && mwep->forged_qual == EXCEPTIONAL) {
                     dmg += 2;
-                } else if (MON_WEP(mtmp) && mwep->forged_qual < 0) {
+                } else if (MON_WEP(mtmp) && mwep->forged_qual == INFERIOR) {
                     dmg -= 2;
                 }
                 if (dmg < 1)
