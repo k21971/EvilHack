@@ -374,6 +374,19 @@ int *attk_count, *role_roll_penalty;
         && all_druid_forms(monsndx(youmonst.data)))
         tmp += (u.ulevel / 3) + 5;
 
+    /* higher quality weapons have a slightly greater
+       chance to hit, inferior ones not so much */
+    if (uwep->forged_qual == 1
+        || (u.twoweap && uswapwep->forged_qual == 1)) {
+        ; /* no change */
+    } else if (uwep->forged_qual == 2
+             || (u.twoweap && uswapwep->forged_qual == 2)) {
+        tmp += 1;
+    } else if (uwep->forged_qual < 0
+             || (u.twoweap && uswapwep->forged_qual < 0)) {
+        tmp -= 2;
+    }
+
     /* hitval applies if making a weapon attack while wielding a weapon;
        weapon_hit_bonus applies if doing a weapon attack even bare-handed
        or if kicking as martial artist */

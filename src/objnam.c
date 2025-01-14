@@ -708,6 +708,16 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Sprintf(eos(buf), "%s amulet", dn);
         break;
     case WEAPON_CLASS:
+        if (known) {
+            if (obj->forged_qual) {
+                if (obj->forged_qual == 1)
+                    Strcat(buf, "superior ");
+                else if (obj->forged_qual == 2)
+                    Strcat(buf, "exceptional ");
+                else if (obj->forged_qual < 0)
+                    Strcat(buf, "inferior ");
+            }
+        }
         if (is_poisonable(obj) && obj->opoisoned)
             Strcat(buf, "poisoned ");
         else if (is_poisonable(obj) && obj->otainted)
@@ -779,6 +789,17 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             && ((obj->oprops_known & ITEM_OILSKIN)
                 || dump_prop_flag))
             Strcat(buf, "oilskin ");
+
+        if (known) {
+            if (obj->forged_qual) {
+                if (obj->forged_qual == 1)
+                    Strcat(buf, "superior ");
+                else if (obj->forged_qual == 2)
+                    Strcat(buf, "exceptional ");
+                else if (obj->forged_qual < 0)
+                    Strcat(buf, "inferior ");
+            }
+        }
 
         if ((obj->material != objects[typ].oc_material
              || force_material_name(typ)) && dknown) {
@@ -1289,6 +1310,7 @@ struct obj *obj;
 unsigned doname_flags;
 {
     boolean ispoisoned = FALSE, istainted = FALSE,
+            isforged0 = FALSE, isforged1 = FALSE, isforged2 = FALSE,
             with_price = (doname_flags & DONAME_WITH_PRICE) != 0,
             vague_quan = (doname_flags & DONAME_VAGUE_QUAN) != 0,
             weightshown = FALSE;
@@ -1332,6 +1354,21 @@ unsigned doname_flags;
     if (!strncmp(bp, "tainted ", 8) && obj->otainted) {
         bp += 8;
         istainted = TRUE;
+    }
+
+    if (!strncmp(bp, "inferior ", 9) && obj->forged_qual == 1) {
+        bp += 9;
+        isforged0 = TRUE;
+    }
+
+    if (!strncmp(bp, "superior ", 9) && obj->forged_qual == 1) {
+        bp += 9;
+        isforged1 = TRUE;
+    }
+
+    if (!strncmp(bp, "exceptional ", 12) && obj->forged_qual == 2) {
+        bp += 12;
+        isforged2 = TRUE;
     }
 
     if (obj->quan != 1L) {
@@ -1482,6 +1519,12 @@ unsigned doname_flags;
         if (known) {
             Strcat(prefix, sitoa(obj->spe));
             Strcat(prefix, " ");
+            if (isforged1)
+                Strcat(prefix, "superior ");
+            else if (isforged2)
+                Strcat(prefix, "exceptional ");
+            else if (isforged0)
+                Strcat(prefix, "inferior ");
         }
         break;
     case TOOL_CLASS:
@@ -3608,7 +3651,7 @@ struct obj *no_wish;
     register struct obj *otmp;
     int cnt, spe, spesgn, typ, very, rechrg;
     int blessed, uncursed, iscursed, ispoisoned, istainted, isgreased;
-    int magical;
+    int magical, isforged0, isforged1, isforged2;
     int eroded, eroded2, erodeproof, locked, unlocked, broken;
     int halfeaten, mntmp, contents;
     int islit, unlabeled, ishistoric, isdiluted, trapped;
@@ -3644,7 +3687,8 @@ struct obj *no_wish;
     very = rechrg = blessed = uncursed = iscursed = magical =
         ispoisoned = istainted = isgreased = eroded = eroded2 =
         erodeproof = halfeaten = islit = unlabeled = ishistoric =
-        isdiluted = trapped = locked = unlocked = broken = 0;
+        isdiluted = trapped = locked = unlocked = broken =
+        isforged0 = isforged1 = isforged2 = 0;
     tvariety = RANDOM_TIN;
     mntmp = NON_PM;
 #define UNDEFINED 0
@@ -3728,6 +3772,12 @@ struct obj *no_wish;
                    || !strncmpi(bp, "unlabelled ", l = 11)
                    || !strncmpi(bp, "blank ", l = 6)) {
             unlabeled = 1;
+        } else if (!strncmpi(bp, "inferior ", l = 9)) {
+            isforged0 = 1;
+        } else if (!strncmpi(bp, "superior ", l = 9)) {
+            isforged1 = 1;
+        } else if (!strncmpi(bp, "exceptional ", l = 12)) {
+            isforged2 = 1;
         } else if (!strncmpi(bp, "poisoned ", l = 9)) {
             ispoisoned = 1;
         } else if (!strncmpi(bp, "tainted ", l = 8)) {
@@ -4940,6 +4990,13 @@ struct obj *no_wish;
         if (is_poisonable(otmp))
             otmp->otainted = (Luck >= 0);
     }
+    /* set forge quality */
+    if (isforged0)
+        otmp->forged_qual = -1;
+    if (isforged1)
+        otmp->forged_qual = 1;
+    if (isforged2)
+        otmp->forged_qual = 2;
     /* and [un]trapped */
     if (trapped) {
         if (Is_box(otmp) || typ == TIN)

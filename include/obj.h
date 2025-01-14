@@ -61,6 +61,11 @@ struct obj {
     long oprops_known; /* known item properties */
 
     xchar where;        /* where the object thinks it is */
+
+    schar forged_qual;  /* build quality of a forged object,
+                           0 is none/normal, positive values
+                           denote higher quality, negative
+                           values denote poor quality */
 #define OBJ_FREE 0      /* object not attached to anything */
 #define OBJ_FLOOR 1     /* object on floor */
 #define OBJ_CONTAINED 2 /* object in a container */

@@ -3802,4 +3802,5 @@ The following changes to date are:
 - Changes to forging, new object: blacksmith hammer
 - Various player conditions can prevent successful forging
 - Fix: allow non-satyrs to use non--pan flutes
+- Forged armor/weapon quality
 

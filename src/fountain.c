@@ -734,7 +734,7 @@ doforging()
             /* forging an artifact is too much stress for the forge */
             coolforge(u.ux, u.uy);
         }
-    } else {
+    } else { /* regular objects */
         for (recipe = fusions; recipe->result_typ; recipe++) {
             if ((obj1->otyp == recipe->typ1
                  && obj2->otyp == recipe->typ2
@@ -820,6 +820,18 @@ doforging()
             output->opoisoned = 0;
             output->otainted = 0;
             output->greased = 0;
+
+            /* if the blacksmith hammer is blessed, there
+               is a chance the armor or weapon forged is of a
+               higher quality, but if cursed, the quality could
+               be sub-par */
+            if (uwep && uwep->blessed) {
+                if (!rn2(10))
+                    output->forged_qual = (!rn2(10) ? 2 : 1);
+            } else if (uwep && uwep->cursed) {
+                if (rn2(5))
+                    output->forged_qual = -1;
+            }
 
             /* toss out old objects, add new one */
             if (obj1->otyp == recipe->typ1)
