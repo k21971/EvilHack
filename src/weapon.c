@@ -250,10 +250,6 @@ botl_hitbonus()
         && all_druid_forms(monsndx(youmonst.data)))
         tmp += (u.ulevel / 3) + 5;
     if (uwep) {
-        if (uwep->forged_qual == 1
-            || (u.twoweap && uswapwep->forged_qual == 1)) {
-            ; /* no change */
-        }
         if (uwep->forged_qual == 2
                 || (u.twoweap && uswapwep->forged_qual == 2)) {
             tmp += 1;
