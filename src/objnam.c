@@ -5023,6 +5023,9 @@ struct obj *no_wish;
         otmp = oname(otmp, name);
         /* name==aname => wished for artifact (otmp->oartifact => got it) */
         if (otmp->oartifact || name == aname) {
+            if (!wizard) {
+                otmp->forged_qual = NORMAL;
+            }
             otmp->quan = 1L;
             u.uconduct.wisharti++; /* KMH, conduct */
         }
