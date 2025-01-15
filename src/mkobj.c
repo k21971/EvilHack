@@ -266,7 +266,8 @@ struct obj *otmp;
     }
 }
 
-/* can object be generated with a certain level of quality? */
+/* can object be generated with a certain level of quality?
+   only if they can be forged */
 boolean
 may_generate_quality(otmp)
 struct obj *otmp;
@@ -275,13 +276,7 @@ struct obj *otmp;
     if (moves <= 1 && !in_mklev)
         return FALSE;
     /* only armor and weapons */
-    if (otmp->oclass == RING_CLASS || otmp->oclass == AMULET_CLASS
-        || otmp->oclass == TOOL_CLASS || otmp->oclass == FOOD_CLASS
-        || otmp->oclass == POTION_CLASS || otmp->oclass == SCROLL_CLASS
-        || otmp->oclass == SPBOOK_CLASS || otmp->oclass == WAND_CLASS
-        || otmp->oclass == COIN_CLASS || otmp->oclass == GEM_CLASS
-        || otmp->oclass == ROCK_CLASS || otmp->oclass == BALL_CLASS
-        || otmp->oclass == CHAIN_CLASS || otmp->oclass == VENOM_CLASS)
+    if (!(otmp->oclass == ARMOR_CLASS || otmp->oclass == WEAPON_CLASS))
         return FALSE;
     /* part of a monster's body and produced when it dies */
     if (otmp->otyp == WORM_TOOTH || otmp->otyp == UNICORN_HORN)
@@ -289,6 +284,13 @@ struct obj *otmp;
     /* artifacts cannot be generated with a quality bit */
     if (otmp->oartifact)
         return FALSE;
+    /* neither can magic items */
+    if (objects[otmp->otyp].oc_magic)
+        return FALSE;
+    /* only objects that can be forged */
+    if (!(is_metallic(otmp) || is_crystal(otmp)))
+        return FALSE;
+
     return TRUE;
 }
 
@@ -299,9 +301,9 @@ struct obj *otmp;
 {
     if (may_generate_quality(otmp)) {
         if (!rn2(80))
-            otmp->forged_qual = rn2(10) ? FQ_SUPERIOR
-                                        : rn2(2) ? FQ_EXCEPTIONAL
-                                                 : FQ_INFERIOR;
+            otmp->forged_qual = rn2(8) ? FQ_SUPERIOR
+                                       : rn2(2) ? FQ_EXCEPTIONAL
+                                                : FQ_INFERIOR;
     }
 }
 

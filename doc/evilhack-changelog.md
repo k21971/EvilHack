@@ -3817,4 +3817,5 @@ The following changes to date are:
   levels of quality
 - Object build quality affects its price
 - Object build quality vs breakage
+- Object quality random spawn/wishing rules
 

@@ -5323,6 +5323,25 @@ struct obj *no_wish;
             maybe_erodeproof(otmp, (Luck >= 0 || wizard));
     }
 
+    /* set quality */
+    if (otmp->forged_qual) {
+        /* only armor and weapons */
+        if (!(otmp->oclass == ARMOR_CLASS || otmp->oclass == WEAPON_CLASS))
+            return 0;
+        /* part of a monster's body and produced when it dies */
+        if (otmp->otyp == WORM_TOOTH || otmp->otyp == UNICORN_HORN)
+            return 0;
+        /* artifacts cannot be generated with a quality bit */
+        if (otmp->oartifact)
+            return 0;
+        /* neither can magic items */
+        if (objects[otmp->otyp].oc_magic)
+            return 0;
+        /* only objects that can be forged */
+        if (!(is_metallic(otmp) || is_crystal(otmp)))
+            return 0;
+    }
+
     /* object property restrictions */
     if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
         || is_bullet(otmp) || is_barding(otmp)
