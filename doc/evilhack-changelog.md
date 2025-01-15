@@ -3818,4 +3818,6 @@ The following changes to date are:
 - Object build quality affects its price
 - Object build quality vs breakage
 - Object quality random spawn/wishing rules
+- Knights and Samurai can tell an objects quality without
+  formally identifying it
 

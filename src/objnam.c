@@ -1483,7 +1483,8 @@ unsigned doname_flags;
         if (istainted)
             Strcat(prefix, "tainted ");
         add_erosion_words(obj, prefix);
-        if (known) {
+        if (known
+            || Role_if(PM_SAMURAI) || Role_if(PM_KNIGHT)) {
             Strcat(prefix, sitoa(obj->spe));
             Strcat(prefix, " ");
             if (obj->forged_qual == FQ_SUPERIOR)
