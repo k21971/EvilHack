@@ -1211,7 +1211,7 @@ OBJECT(OBJ("Book of the Dead", "papyrus"),
 
 /* wands ... */
 /* sum of all probabilty values equals 3000 - wands
-   of wishing are 3 times less likely to randomly spawn
+   of wishing are much less likely to randomly spawn
    versus all other kinds */
 #define WAND(name,typ,prob,cost,mgc,dir,metal,color) \
     OBJECT(OBJ(name, typ),                                              \
@@ -1222,7 +1222,7 @@ WAND("secret door detection",
                         "balsa", 150, 150, 1, NODIR, WOOD, HI_WOOD),
 WAND("enlightenment", "crystal",  58, 150, 1, NODIR, GLASS, HI_GLASS),
 WAND("create monster",  "maple", 135, 200, 1, NODIR, WOOD, HI_WOOD),
-WAND("wishing",          "pine",   2, 500, 1, NODIR, WOOD, HI_WOOD),
+WAND("wishing",          "pine",   1, 500, 1, NODIR, WOOD, HI_WOOD),
 WAND("nothing",           "oak",  75, 500, 0, IMMEDIATE, WOOD, HI_WOOD),
 WAND("striking",        "ebony", 225, 150, 1, IMMEDIATE, WOOD, HI_WOOD),
 WAND("make invisible", "marble", 135, 150, 1, IMMEDIATE, MINERAL, HI_MINERAL),
@@ -1241,7 +1241,7 @@ WAND("magic missile",   "steel", 150, 150, 1, RAY, STEEL, HI_METAL),
 WAND("fire",        "hexagonal", 120, 175, 1, RAY, IRON,  HI_METAL),
 WAND("cold",            "short", 120, 175, 1, RAY, IRON,  HI_METAL),
 WAND("sleep",           "runed", 150, 175, 1, RAY, IRON,  HI_METAL),
-WAND("death",            "long",  15, 500, 1, RAY, IRON,  HI_METAL),
+WAND("death",            "long",  16, 500, 1, RAY, IRON,  HI_METAL),
 WAND("lightning",      "curved", 120, 175, 1, RAY, IRON,  HI_METAL),
 /* extra descriptions, shuffled into use at start of new game */
 WAND(None,             "forked",  0, 150, 1, 0, WOOD, HI_WOOD),

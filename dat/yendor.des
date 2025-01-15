@@ -63,6 +63,7 @@ MONSTER:('d',"hell hound"),(55,09),asleep
 # The local treasure
 OBJECT:('+',"Book of the Dead"),(55,10)
 CONTAINER:('(',"crystal chest"),(55,09) {
+  OBJECT:('/',"wishing"),+1,recharged:1
   OBJECT:('!',"full healing")
   OBJECT:('!',"gain level")
   OBJECT:'?'

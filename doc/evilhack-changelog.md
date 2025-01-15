@@ -3820,4 +3820,5 @@ The following changes to date are:
 - Object quality random spawn/wishing rules
 - Knights and Samurai can tell an objects quality without
   formally identifying it
+- Spread out wand of wishing placement
 

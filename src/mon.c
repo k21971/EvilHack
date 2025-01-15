@@ -3674,13 +3674,15 @@ register struct monst *mtmp;
 
     /* special handling for Vecna and his artifacts */
     if (mtmp->isvecna) {
+        struct obj *otmp2;
+
         if (!Blind) {
             if (is_lava(mtmp->mx, mtmp->my)
                 || is_pool(mtmp->mx, mtmp->my))
-                pline("As the remnants of %s body vanish, you notice something sink into the %s...",
+                pline("As the remnants of %s body vanish, you notice some objects sink into the %s...",
                       s_suffix(mon_nam(mtmp)), surface(mtmp->mx, mtmp->my));
             else
-                pline("As the remnants of %s body vanish, you notice something was left behind...",
+                pline("As the remnants of %s body vanish, you notice some objects were left behind...",
                       s_suffix(mon_nam(mtmp)));
         }
         if (rn2(2)) {
@@ -3692,6 +3694,10 @@ register struct monst *mtmp;
         }
         curse(otmp);
         place_object(otmp, mtmp->mx, mtmp->my);
+        /* create wand of wishing */
+        otmp2 = mksobj(WAN_WISHING, TRUE, FALSE);
+        maybe_erodeproof(otmp2, 1);
+        place_object(otmp2, mtmp->mx, mtmp->my);
     }
 
     if (is_vampshifter(mtmp) || is_changeling(mtmp)) {

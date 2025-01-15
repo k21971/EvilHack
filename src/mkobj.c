@@ -1223,8 +1223,8 @@ boolean artif;
             }
             break;
         case WAND_CLASS:
-            /* castle wands of wishing are hard-coded to
-               not be charged (recharged:0) */
+            /* wands of wishing in .des files can be
+               hard-coded to not be charged (recharged:0) */
             if (otmp->otyp == WAN_WISHING) {
                 otmp->spe = rnd(3);
                 otmp->recharged = discover ? 0 : 1;

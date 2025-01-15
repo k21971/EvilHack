@@ -149,13 +149,13 @@ OBJECT:$object[3],(53,11)
 OBJECT:$object[3],(54,11)
 OBJECT:$object[3],(55,11)
 # THE WAND OF WISHING in 1 of the 4 towers
-IF [70%] {
+IF [50%] {
   CONTAINER:('(',"chest"),locked,not_trapped,$place[0] {
-  OBJECT:('/',"wishing"),recharged:0
+  OBJECT:('/',"wishing"),+2,recharged:1
   }
 } ELSE {
   CONTAINER:('(',"crystal chest"),not_trapped,$place[0] {
-  OBJECT:('/',"wishing"),recharged:0
+  OBJECT:('/',"wishing"),+2,recharged:1
   }
 }
 # THE NOT QUITE WANDS OF WISHING
@@ -426,13 +426,13 @@ OBJECT:$object[1],(10,15)
 OBJECT:$object[1],(11,15)
 
 # treasure room
-IF [70%] {
+IF [50%] {
   CONTAINER:('(',"chest"),locked,not_trapped,$place[0] {
-  OBJECT:('/',"wishing"),recharged:0
+  OBJECT:('/',"wishing"),+2,recharged:1
   }
 } ELSE {
   CONTAINER:('(',"crystal chest"),not_trapped,$place[0] {
-  OBJECT:('/',"wishing"),recharged:0
+  OBJECT:('/',"wishing"),+2,recharged:1
   }
 }
 # Prevent monsters from eating it. (@'s never eat objects)
@@ -691,13 +691,13 @@ MONSTER:('H',"fire giant"),(36,03),peaceful
 MONSTER:('j',"ochre jelly"),(43,01),asleep
 
 # treasure
-IF [70%] {
+IF [50%] {
   CONTAINER:('(',"chest"),locked,not_trapped,$place[0] {
-  OBJECT:('/',"wishing"),recharged:0
+  OBJECT:('/',"wishing"),+2,recharged:1
   }
 } ELSE {
   CONTAINER:('(',"crystal chest"),not_trapped,$place[0] {
-  OBJECT:('/',"wishing"),recharged:0
+  OBJECT:('/',"wishing"),+2,recharged:1
   }
 }
 ENGRAVING:$place[0],burn,"Elbereth"
