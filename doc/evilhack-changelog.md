@@ -3815,4 +3815,5 @@ The following changes to date are:
 - Restructure how blacksmith hammer is made unwishable
 - Allow armor and weapons to randomly spawn with various
   levels of quality
+- Object build quality affects its price
 

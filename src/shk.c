@@ -3733,6 +3733,18 @@ boolean shk_buying;
             tmp -= (3L / 2L) + 1L;
     }
 
+    /* object price can also be affected by the build
+       quality of said object, currently this only
+       affects armor and weaponry */
+    if (obj->forged_qual) {
+        if (obj->forged_qual == FQ_INFERIOR)
+            tmp /= 2L;
+        else if (obj->forged_qual == FQ_SUPERIOR)
+            tmp *= 2L;
+        else if (obj->forged_qual == FQ_EXCEPTIONAL)
+            tmp *= 3L;
+    }
+
     switch (obj->oclass) {
     case FOOD_CLASS:
         /* simpler hunger check, (2-4)*cost */
