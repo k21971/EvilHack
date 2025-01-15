@@ -7,6 +7,8 @@
 
 STATIC_DCL boolean FDECL(may_generate_eroded, (struct obj *));
 STATIC_DCL void FDECL(mkobj_erosions, (struct obj *));
+STATIC_DCL boolean FDECL(may_generate_quality, (struct obj *));
+STATIC_DCL void FDECL(mkobj_quality, (struct obj *));
 STATIC_DCL void FDECL(mkbox_cnts, (struct obj *));
 STATIC_DCL unsigned FDECL(nextoid, (struct obj *, struct obj *));
 STATIC_DCL void FDECL(obj_timer_checks, (struct obj *,
@@ -261,6 +263,45 @@ struct obj *otmp;
          * will generate greased */
         if (!rn2(1000))
             otmp->greased = 1;
+    }
+}
+
+/* can object be generated with a certain level of quality? */
+boolean
+may_generate_quality(otmp)
+struct obj *otmp;
+{
+    /* initial hero inventory */
+    if (moves <= 1 && !in_mklev)
+        return FALSE;
+    /* only armor and weapons */
+    if (otmp->oclass == RING_CLASS || otmp->oclass == AMULET_CLASS
+        || otmp->oclass == TOOL_CLASS || otmp->oclass == FOOD_CLASS
+        || otmp->oclass == POTION_CLASS || otmp->oclass == SCROLL_CLASS
+        || otmp->oclass == SPBOOK_CLASS || otmp->oclass == WAND_CLASS
+        || otmp->oclass == COIN_CLASS || otmp->oclass == GEM_CLASS
+        || otmp->oclass == ROCK_CLASS || otmp->oclass == BALL_CLASS
+        || otmp->oclass == CHAIN_CLASS || otmp->oclass == VENOM_CLASS)
+        return FALSE;
+    /* part of a monster's body and produced when it dies */
+    if (otmp->otyp == WORM_TOOTH || otmp->otyp == UNICORN_HORN)
+        return FALSE;
+    /* artifacts cannot be generated with a quality bit */
+    if (otmp->oartifact)
+        return FALSE;
+    return TRUE;
+}
+
+/* random chance of applying quality bit to object */
+void
+mkobj_quality(otmp)
+struct obj *otmp;
+{
+    if (may_generate_quality(otmp)) {
+        if (!rn2(80))
+            otmp->forged_qual = rn2(10) ? FQ_SUPERIOR
+                                        : rn2(2) ? FQ_EXCEPTIONAL
+                                                 : FQ_INFERIOR;
     }
 }
 
@@ -886,13 +927,13 @@ boolean artif;
     otmp->lknown = 0;
     otmp->cknown = 0;
     otmp->corpsenm = NON_PM;
+    otmp->forged_qual = FQ_NORMAL;
     init_obj_material(otmp);
 
     if (init) {
         switch (let) {
         case WEAPON_CLASS:
             otmp->quan = is_multigen(otmp) ? (long) rn1(6, 6) : 1L;
-            otmp->forged_qual = FQ_NORMAL;
             if (!rn2(11)) {
                 otmp->spe = rne(3);
                 otmp->blessed = rn2(2);
@@ -1137,7 +1178,6 @@ boolean artif;
             blessorcurse(otmp, 17);
             break;
         case ARMOR_CLASS:
-            otmp->forged_qual = FQ_NORMAL;
             if (rn2(10)
                 && (otmp->otyp == FUMBLE_BOOTS
                     || otmp->otyp == LEVITATION_BOOTS
@@ -1150,6 +1190,7 @@ boolean artif;
                 otmp->spe = rne(3);
             } else
                 blessorcurse(otmp, 10);
+
             if (artif && !rn2(40 + (5 * u.uconduct.wisharti)))
                 otmp = mk_artifact(otmp, (aligntyp) A_NONE);
             else if (!rn2(150))
@@ -1237,6 +1278,7 @@ boolean artif;
     }
 
     mkobj_erosions(otmp);
+    mkobj_quality(otmp);
 
     /* some things must get done (corpsenm, timers) even if init = 0 */
     switch ((otmp->oclass == POTION_CLASS && otmp->otyp != POT_OIL)

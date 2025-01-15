@@ -1977,6 +1977,11 @@ struct mkroom *croom;
         otmp->oeroded = otmp->oeroded2 = 0;
         maybe_erodeproof(otmp, 0);
     }
+    if (o->forged_qual) {
+        otmp->forged_qual = (o->forged_qual % 4);
+    } else {
+        otmp->forged_qual = 0; /* normal */
+    }
     if (o->recharged > -1)
         otmp->recharged = (o->recharged % 8);
     if (o->locked) {

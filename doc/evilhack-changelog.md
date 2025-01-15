@@ -3813,4 +3813,6 @@ The following changes to date are:
 - Fix: logic with purposely forging quality objects
 - Fix: more forged quality logic
 - Restructure how blacksmith hammer is made unwishable
+- Allow armor and weapons to randomly spawn with various
+  levels of quality
 
