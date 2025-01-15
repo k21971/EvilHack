@@ -291,7 +291,8 @@ struct attack *mattk;
         /* glass armor, or certain drow armor if in the presence
            of light, can potentially break if it deflects an attack */
         if (blocker
-            && (is_glass(blocker) || is_adamantine(blocker)))
+            && (is_glass(blocker) || is_adamantine(blocker)
+                || blocker->forged_qual == FQ_INFERIOR))
             break_glass_obj(blocker);
         /* the artifact shield Ashmar has a chance to knockback
            the attacker if it deflects an attack. Check for

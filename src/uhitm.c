@@ -1202,20 +1202,23 @@ int dieroll;
             && ((monwep = MON_WEP(mon)) != 0
                 && !is_flimsy(monwep)
                 && !is_mithril(monwep)
-                && !is_crystal(monwep))
+                && !is_crystal(monwep)
+                && monwep->forged_qual != FQ_EXCEPTIONAL
+                && (monwep->forged_qual != FQ_SUPERIOR && rn2(2)))
                 && !obj_resists(monwep,
-                        50 + 15 * (greatest_erosion(monwep)), 100)) {
+                        (monwep->forged_qual == FQ_INFERIOR ? 30 : 50)
+                        + 15 * (greatest_erosion(monwep)), 100)) {
             setmnotwielded(mon, monwep);
             mon->weapon_check = NEED_WEAPON;
             You("%s your qi.  %s from the force of your blow!",
-                  rn2(2) ? "channel" : "focus",
-                  Yobjnam2(monwep, (monwep->material == WOOD
-                                    || monwep->material == BONE)
-                           ? "splinter" : (monwep->material == PLATINUM
-                                           || monwep->material == GOLD
-                                           || monwep->material == SILVER
-                                           || monwep->material == COPPER)
-                           ? "break" : "shatter"));
+                rn2(2) ? "channel" : "focus",
+                Yobjnam2(monwep, (monwep->material == WOOD
+                                  || monwep->material == BONE)
+                         ? "splinter" : (monwep->material == PLATINUM
+                                         || monwep->material == GOLD
+                                         || monwep->material == SILVER
+                                         || monwep->material == COPPER)
+                         ? "break" : "shatter"));
             m_useupall(mon, monwep);
             /* If someone just shattered MY weapon, I'd flee! */
             if (!rn2(4))
@@ -1335,9 +1338,12 @@ int dieroll;
                                && !is_flimsy(monwep)
                                && !is_mithril(monwep) /* mithril is super-strong */
                                && !is_crystal(monwep) /* so are weapons made of gemstone */
+                               && monwep->forged_qual != FQ_EXCEPTIONAL
+                               && (monwep->forged_qual != FQ_SUPERIOR && rn2(2))
                                && !obj_resists(monwep,
-                                       50 + 15 * (greatest_erosion(obj)
-                                                  - greatest_erosion(monwep)), 100))) {
+                                       (monwep->forged_qual == FQ_INFERIOR ? 30 : 50)
+                                       + 15 * (greatest_erosion(obj)
+                                       - greatest_erosion(monwep)), 100))) {
                     /*
                      * 2.5% chance of shattering defender's weapon when
                      * using a two-handed weapon; less if uwep is rusted.
@@ -4095,7 +4101,8 @@ boolean wouldhavehit;
             /* glass armor, or certain drow armor if in the presence
                of light, can potentially break if it deflects an attack */
             if (blocker
-                && (is_glass(blocker) || is_adamantine(blocker)))
+                && (is_glass(blocker) || is_adamantine(blocker)
+                    || blocker->forged_qual == FQ_INFERIOR))
                 break_glass_obj(blocker);
         }
     } else

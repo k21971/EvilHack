@@ -3816,4 +3816,5 @@ The following changes to date are:
 - Allow armor and weapons to randomly spawn with various
   levels of quality
 - Object build quality affects its price
+- Object build quality vs breakage
 

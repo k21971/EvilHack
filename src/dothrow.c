@@ -2563,6 +2563,11 @@ xchar x, y;
         if (!is_drow_weapon(obj) || (rn2(8) < 3))
             return 1;
     }
+    /* armor and weapons of inferior quality can sometimes
+       fall apart with use */
+    if (obj->forged_qual == FQ_INFERIOR
+        && !obj->oartifact && (rn2(8) < 3))
+        return 1;
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     case EXPENSIVE_CAMERA:
     case POT_WATER: /* really, all potions */
@@ -2723,13 +2728,17 @@ struct obj* obj;
         obj->owornmask = 0L;
         if (cansee(obj->ox, obj->oy))
             pline("%s %s!", Yname2(obj),
-                  (obj->material == ADAMANTINE ? "crumbles into fragments"
-                                               : "breaks into pieces"));
+                  (obj->material == ADAMANTINE
+                   ? "crumbles into fragments"
+                   : obj->forged_qual == FQ_INFERIOR ? "falls apart"
+                                                     : "breaks into pieces"));
     } else {
         if (cansee(obj->ox, obj->oy))
             pline("One of %s %s!", yname(obj),
-                  (obj->material == ADAMANTINE ? "crumbles into fragments"
-                                               : "breaks into pieces"));
+                  (obj->material == ADAMANTINE
+                   ? "crumbles into fragments"
+                   : obj->forged_qual == FQ_INFERIOR ? "falls apart"
+                                                     : "breaks into pieces"));
         obj = splitobj(obj, 1L);
     }
     breakobj(obj, obj->ox, obj->oy, !context.mon_moving, TRUE);
