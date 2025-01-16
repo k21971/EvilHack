@@ -3821,4 +3821,5 @@ The following changes to date are:
 - Knights and Samurai can tell an objects quality without
   formally identifying it
 - Spread out wand of wishing placement
+- Add an encyclopedia entry for the artifact Harbinger
 
