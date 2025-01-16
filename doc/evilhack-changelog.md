@@ -3822,4 +3822,6 @@ The following changes to date are:
   formally identifying it
 - Spread out wand of wishing placement
 - Add an encyclopedia entry for the artifact Harbinger
+- Fix: make gaze disintegration attack consistient with
+  other sources of disintegration
 

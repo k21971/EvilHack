@@ -982,7 +982,7 @@ struct attack *uattk;
         /* suppress automatically if deadly and cannot be prevented with boots */
         && !((Race_if(PM_CENTAUR) || Race_if(PM_TORTLE))
              && ((touch_petrifies(mon->data) && !Stone_resistance)
-                 || (how_resistant(DISINT_RES) <= 49
+                 || (how_resistant(DISINT_RES) < 50
                      && (mon->data == &mons[PM_BLACK_DRAGON]
                          || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
         /* suppress manually via forcefight */
@@ -4240,7 +4240,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                     || (u.ulycn >= LOW_PM
                         && were_beastie(mon->mnum) == u.ulycn
                         && !Role_if(PM_CAVEMAN))
-                    || (how_resistant(DISINT_RES) <= 49
+                    || (how_resistant(DISINT_RES) < 50
                         && (mon->data == &mons[PM_BLACK_DRAGON]
                             || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
                 break;
@@ -4257,7 +4257,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                         && !Stone_resistance)
                     || is_rider(mon->data)
                     || mon->data == &mons[PM_GREEN_SLIME]
-                    || (how_resistant(DISINT_RES) <= 49
+                    || (how_resistant(DISINT_RES) < 50
                         && (mon->data == &mons[PM_BLACK_DRAGON]
                             || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
                 break;
@@ -4279,7 +4279,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
             if (!Upolyd && Race_if(PM_DEMON) && mattk->aatyp == AT_STNG
                 && (context.forcefight
                     || (touch_petrifies(mon->data) && !Stone_resistance)
-                    || (how_resistant(DISINT_RES) <= 49
+                    || (how_resistant(DISINT_RES) < 50
                         && (mon->data == &mons[PM_BLACK_DRAGON]
                             || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
                 break;

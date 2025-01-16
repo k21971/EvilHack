@@ -3726,7 +3726,7 @@ struct attack *mattk;
                 monstseesu(M_SEEN_DISINT);
                 stop_occupation();
                 break;
-            } else if (how_resistant(DISINT_RES) > 0) {
+            } else if (how_resistant(DISINT_RES) >= 50) {
                 You("aren't disintegrated, but that really hurts!");
                 dmg = resist_reduce(dmg, DISINT_RES);
                 if (ublindf
