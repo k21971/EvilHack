@@ -2594,9 +2594,12 @@ boolean in_view;
 
     to_pieces = "";
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
-    default: /* glass or crystal wand, or adamantine (drow objects) in light */
+    default:
+        /* glass or crystal wand, adamantine (drow objects)
+           in light, or inferior quality objects */
         if (!(obj->material == GLASS
-              || obj->material == ADAMANTINE))
+              || obj->material == ADAMANTINE
+              || obj->forged_qual == FQ_INFERIOR))
             impossible("breaking odd object?");
         /*FALLTHRU*/
     case LENSES:
@@ -2606,7 +2609,7 @@ boolean in_view;
         to_pieces = " into a thousand pieces";
     /*FALLTHRU*/
     case POT_WATER: /* really, all potions */
-        if (!in_view)
+        if (!in_view && !Deaf)
             You_hear("%s shatter!", something);
         else
             pline("%s shatter%s%s!", Doname2(obj),
@@ -2644,7 +2647,7 @@ boolean in_view;
     case DARK_ELVEN_CROSSBOW_BOLT:
     case DARK_ELVEN_BRACERS:
     case DARK_ELVEN_CHAIN_MAIL:
-        if (!in_view)
+        if (!in_view && !Deaf)
             You_hear("%s crumble apart!",
                      something);
         else
