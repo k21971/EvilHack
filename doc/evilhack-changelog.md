@@ -3825,4 +3825,5 @@ The following changes to date are:
 - Fix: make gaze disintegration attack consistient with
   other sources of disintegration
 - Fix: crash bug concerning inferior objects breaking
+- Allow barding to have quality properties
 

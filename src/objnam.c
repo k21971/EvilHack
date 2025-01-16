@@ -1483,10 +1483,12 @@ unsigned doname_flags;
         if (istainted)
             Strcat(prefix, "tainted ");
         add_erosion_words(obj, prefix);
-        if (known
-            || Role_if(PM_SAMURAI) || Role_if(PM_KNIGHT)) {
+        if (known) {
             Strcat(prefix, sitoa(obj->spe));
             Strcat(prefix, " ");
+        }
+        if (known
+            || Role_if(PM_SAMURAI) || Role_if(PM_KNIGHT)) {
             if (obj->forged_qual == FQ_SUPERIOR)
                 Strcat(prefix, "superior ");
             else if (obj->forged_qual == FQ_EXCEPTIONAL)
@@ -1500,6 +1502,16 @@ unsigned doname_flags;
         if (is_barding(obj) && known) {
             Strcat(prefix, sitoa(obj->spe));
             Strcat(prefix, " ");
+        }
+        if (is_barding(obj)
+            && (known || Role_if(PM_SAMURAI)
+                || Role_if(PM_KNIGHT))) {
+            if (obj->forged_qual == FQ_SUPERIOR)
+                Strcat(prefix, "superior ");
+            else if (obj->forged_qual == FQ_EXCEPTIONAL)
+                Strcat(prefix, "exceptional ");
+            else if (obj->forged_qual == FQ_INFERIOR)
+                Strcat(prefix, "inferior ");
         }
         if (obj->owornmask & (W_TOOL | W_SADDLE | W_BARDING)) { /* blindfold */
             Strcat(bp, " (being worn)");
@@ -5327,7 +5339,8 @@ struct obj *no_wish;
     /* set quality */
     if (otmp->forged_qual) {
         /* only armor and weapons */
-        if (!(otmp->oclass == ARMOR_CLASS || otmp->oclass == WEAPON_CLASS))
+        if (!(otmp->oclass == ARMOR_CLASS
+              || otmp->oclass == WEAPON_CLASS || is_barding(otmp)))
             return 0;
         /* part of a monster's body and produced when it dies */
         if (otmp->otyp == WORM_TOOTH || otmp->otyp == UNICORN_HORN)

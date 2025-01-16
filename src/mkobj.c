@@ -276,7 +276,8 @@ struct obj *otmp;
     if (moves <= 1 && !in_mklev)
         return FALSE;
     /* only armor and weapons */
-    if (!(otmp->oclass == ARMOR_CLASS || otmp->oclass == WEAPON_CLASS))
+    if (!(otmp->oclass == ARMOR_CLASS
+          || otmp->oclass == WEAPON_CLASS || is_barding(otmp)))
         return FALSE;
     /* part of a monster's body and produced when it dies */
     if (otmp->otyp == WORM_TOOTH || otmp->otyp == UNICORN_HORN)
