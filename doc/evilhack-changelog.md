@@ -3826,4 +3826,6 @@ The following changes to date are:
   other sources of disintegration
 - Fix: crash bug concerning inferior objects breaking
 - Allow barding to have quality properties
+- Change 'while attempting to cheat Death' line with something
+  more appropriate for a Draugr player dying
 
