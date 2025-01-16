@@ -5,16 +5,16 @@
 #include "hack.h"
 
 /* Monsters that might be ridden */
-static NEARDATA const char steeds[] = { S_QUADRUPED, S_UNICORN, S_ANGEL,
-                                        S_CENTAUR,   S_DRAGON,  S_JABBERWOCK,
-                                        S_DOG,       S_FELINE,  S_SPIDER,
-                                        S_LIZARD,    '\0' };
+static NEARDATA const char steeds[] = { S_QUADRUPED, S_UNICORN,  S_ANGEL,
+                                        S_CENTAUR,   S_DRAGON,   S_JABBERWOCK,
+                                        S_DOG,       S_FELINE,   S_SPIDER,
+                                        S_LIZARD,    S_SKELETON, '\0' };
 
 /* Monsters that might wear barding */
 static NEARDATA const char mbarding[] = { S_QUADRUPED, S_UNICORN,    S_ANGEL,
                                           S_DRAGON,    S_JABBERWOCK, S_DOG,
                                           S_FELINE,    S_SPIDER,     S_LIZARD,
-                                          '\0' };
+                                          S_SKELETON,  '\0' };
 
 STATIC_DCL boolean FDECL(landing_spot, (coord *, int, int));
 STATIC_DCL void FDECL(maybewakesteed, (struct monst *));
@@ -105,6 +105,11 @@ struct monst *rider;
         if (!(rider->data == &mons[PM_CAVEMAN]
               || rider->data == &mons[PM_CAVEWOMAN])
             && steed->data == &mons[PM_SABER_TOOTHED_TIGER])
+            continue;
+        if (!racial_zombie(rider)
+            && (steed->data == &mons[PM_SKELETAL_PONY]
+                || steed->data == &mons[PM_SKELETAL_HORSE]
+                || steed->data == &mons[PM_SKELETAL_WARHORSE]))
             continue;
         if (monnear(rider, steed->mx, steed->my) && mon_can_be_ridden(steed)
             && !steed->ridden_by) {
@@ -233,6 +238,10 @@ struct monst *mtmp;
             && !(ptr->mlet == S_LIZARD
                  && mtmp->mnum != PM_CAVE_LIZARD
                  && mtmp->mnum != PM_LARGE_CAVE_LIZARD)
+            && !(ptr->mlet == S_SKELETON
+                 && mtmp->mnum != PM_SKELETAL_PONY
+                 && mtmp->mnum != PM_SKELETAL_HORSE
+                 && mtmp->mnum != PM_SKELETAL_WARHORSE)
             && !(ptr->mlet == S_FELINE && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
 }
 
@@ -256,6 +265,10 @@ struct monst *mtmp;
             && !(ptr->mlet == S_LIZARD
                  && mtmp->mnum != PM_CAVE_LIZARD
                  && mtmp->mnum != PM_LARGE_CAVE_LIZARD)
+            && !(ptr->mlet == S_SKELETON
+                 && mtmp->mnum != PM_SKELETAL_PONY
+                 && mtmp->mnum != PM_SKELETAL_HORSE
+                 && mtmp->mnum != PM_SKELETAL_WARHORSE)
             && !(ptr->mlet == S_FELINE && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
 }
 
@@ -343,6 +356,25 @@ struct obj *otmp;
          || ptr == &mons[PM_LARGE_CAVE_LIZARD]) && !Race_if(PM_DROW)) {
         if (!Deaf)
             pline("%s hisses threateningly at you!", Monnam(mtmp));
+        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
+            && !rn2(3)) {
+            mtmp->mtame = mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my);
+        }
+        return 1;
+    }
+    if ((ptr == &mons[PM_SKELETAL_PONY]
+         || ptr == &mons[PM_SKELETAL_HORSE]
+         || ptr == &mons[PM_SKELETAL_WARHORSE]) && !Race_if(PM_DRAUGR)) {
+        if (!Deaf) {
+            pline("%s rattles noisily at you!", Monnam(mtmp));
+            if (!Race_if(PM_DRAUGR)) {
+                You("freeze for a moment.");
+                nomul(-2);
+                multi_reason = "scared by rattling";
+                nomovemsg = 0;
+            }
+        }
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
@@ -489,6 +521,25 @@ struct obj *otmp;
          || ptr == &mons[PM_LARGE_CAVE_LIZARD]) && !Race_if(PM_DROW)) {
         if (!Deaf)
             pline("%s hisses threateningly at you!", Monnam(mtmp));
+        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
+            && !rn2(3)) {
+            mtmp->mtame = mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my);
+        }
+        return 1;
+    }
+    if ((ptr == &mons[PM_SKELETAL_PONY]
+         || ptr == &mons[PM_SKELETAL_HORSE]
+         || ptr == &mons[PM_SKELETAL_WARHORSE]) && !Race_if(PM_DRAUGR)) {
+        if (!Deaf) {
+            pline("%s rattles noisily at you!", Monnam(mtmp));
+            if (!Race_if(PM_DRAUGR)) {
+                You("freeze for a moment.");
+                nomul(-2);
+                multi_reason = "scared by rattling";
+                nomovemsg = 0;
+            }
+        }
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;

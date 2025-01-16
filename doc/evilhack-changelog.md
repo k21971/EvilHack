@@ -3828,4 +3828,5 @@ The following changes to date are:
 - Allow barding to have quality properties
 - Change 'while attempting to cheat Death' line with something
   more appropriate for a Draugr player dying
+- Draugr race get undead monsters as pets
 

@@ -2369,7 +2369,8 @@ const struct def_skill *class_skill;
         P_SKILL(P_BARE_HANDED_COMBAT) = P_BASIC;
 
     /* Roles that start with a horse know how to ride it */
-    if (urole.petnum == PM_PONY)
+    if (urole.petnum == PM_PONY
+        || urole.petnum == PM_SKELETAL_PONY)
         P_SKILL(P_RIDING) = P_BASIC;
 
     /* Centaurs/tortles can never ride anything */

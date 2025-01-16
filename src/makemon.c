@@ -3354,6 +3354,9 @@ long mmflags;
                 if (racial_drow(mtmp))
                     rn2(3) ? mount_monster(mtmp, PM_CAVE_LIZARD)
                            : mount_monster(mtmp, PM_LARGE_CAVE_LIZARD);
+                else if (racial_zombie(mtmp))
+                    rn2(3) ? mount_monster(mtmp, PM_SKELETAL_HORSE)
+                           : mount_monster(mtmp, PM_SKELETAL_WARHORSE);
                 else
                     rn2(3) ? mount_monster(mtmp, PM_NIGHTMARE)
                            : mount_monster(mtmp, PM_CAUCHEMAR);

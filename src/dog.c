@@ -380,10 +380,12 @@ makedog()
     pettype = pet_type();
     if (pettype == PM_LITTLE_DOG) {
         petname = dogname;
-        /* hijack creation for drow race */
         if (Race_if(PM_DROW)) {
             petname = spidername;
             pettype = PM_LARGE_SPIDER;
+        } else if (Race_if(PM_DRAUGR)) {
+            petname = dogname;
+            pettype = PM_SMALL_SKELETAL_HOUND;
         }
     } else if (pettype == PM_PSEUDODRAGON) {
         petname = pseudoname;
@@ -395,6 +397,9 @@ makedog()
         if (Race_if(PM_DROW)) {
             petname = spidername;
             pettype = PM_LARGE_SPIDER;
+        } else if (Race_if(PM_DRAUGR)) {
+            petname = dogname;
+            pettype = PM_SMALL_SKELETAL_HOUND;
         }
     } else if (pettype == PM_LARGE_SPIDER) {
         petname = spidername;
@@ -404,7 +409,9 @@ makedog()
         petname = horsename;
         /* hijack creation for chaotic knights */
         if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)) {
-            if (!Race_if(PM_CENTAUR)) {
+            if (Race_if(PM_DRAUGR)) {
+                pettype = PM_SKELETAL_PONY;
+            } else if (!Race_if(PM_CENTAUR)) {
                 pettype = PM_LESSER_NIGHTMARE;
             } else {
                 petname = dogname;
@@ -413,10 +420,12 @@ makedog()
         }
     } else if (pettype == PM_KITTEN) {
         petname = catname;
-        /* hijack creation for drow race */
         if (Race_if(PM_DROW)) {
             petname = spidername;
             pettype = PM_LARGE_SPIDER;
+        } else if (Race_if(PM_DRAUGR)) {
+            petname = dogname;
+            pettype = PM_SMALL_SKELETAL_HOUND;
         }
     }
 
@@ -449,7 +458,8 @@ makedog()
 
     context.startingpet_mid = mtmp->m_id;
     /* Horses already wear a saddle */
-    if ((pettype == PM_PONY || pettype == PM_LESSER_NIGHTMARE)
+    if ((pettype == PM_PONY || pettype == PM_LESSER_NIGHTMARE
+         || pettype == PM_SKELETAL_PONY)
         && !!(otmp = mksobj(SADDLE, TRUE, FALSE))) {
         otmp->dknown = otmp->bknown = otmp->rknown = 1;
         put_saddle_on_mon(otmp, mtmp);
