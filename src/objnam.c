@@ -5253,7 +5253,7 @@ struct obj *no_wish;
                 pm = PM_PRIESTESS;
         }
 
-        mtmp = mk_mplayer(&mons[pm], u.ux, u.uy, TRUE, otmp);
+        mtmp = mk_mplayer(&mons[pm], u.ux, u.uy, TRUE);
         if (mtmp && !is_mplayer(mtmp->data))
             free_mname(mtmp);
         if (mtmp) {
@@ -5287,6 +5287,7 @@ struct obj *no_wish;
             else
                 mtmp->m_lev = rn1(3, 20);
             mtmp->mpeaceful = mtmp->msleeping = 0;
+            newsym(mtmp->mx, mtmp->my);
             m_dowear(mtmp, TRUE);
             mtmp->weapon_check = strategy;
             mon_wield_item(mtmp);

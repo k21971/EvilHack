@@ -3830,4 +3830,5 @@ The following changes to date are:
   more appropriate for a Draugr player dying
 - Draugr race get undead monsters as pets
 - Beginning Purgatory level tweaks
+- Revamp player monster spawning gear
 

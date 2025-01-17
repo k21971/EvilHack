@@ -962,7 +962,7 @@ register struct monst *mtmp;
         return;
 
     /* treat mplayers differently */
-    if (is_mplayer(ptr) && !In_endgame(&u.uz)) {
+    if (is_mplayer(ptr)) {
         if (mtmp->m_lev > 1) {
             if (mtmp->data == &mons[PM_MONK]) {
                 if (mtmp->m_lev > 10 || !rn2(15))
@@ -1196,30 +1196,46 @@ register struct monst *mtmp;
         /* other items all player monsters can receive at various exp levels */
         if (mtmp->m_lev > 10) {
             /* spawn with some type of portable container */
-            (void) mongets(mtmp, !rn2(5) ? SACK
-                                         : rn2(4) ? OILSKIN_SACK
-                                                  : rn2(7) ? BAG_OF_HOLDING
-                                                           : BAG_OF_TRICKS);
+            if (!(m_carrying(mtmp, SACK)
+                  || m_carrying(mtmp, OILSKIN_SACK)))
+                (void) mongets(mtmp, !rn2(5) ? SACK
+                                             : rn2(4) ? OILSKIN_SACK
+                                                      : rn2(7) ? BAG_OF_HOLDING
+                                                               : BAG_OF_TRICKS);
             for (; otmp; otmp = otmp->nobj) {
                 if (otmp->oclass == WEAPON_CLASS) {
                     if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
                         if (!rn2(100 + 10 * nartifact_exist()))
                             mk_artifact(otmp, sgn(mon_aligntyp(mtmp)));
-                        else if (!rn2(8))
+                        else if (!rn2(6))
                             create_oprop(otmp, FALSE);
                     }
                     if (!rn2(3) && is_drow_weapon(otmp)
                         && is_poisonable(otmp)) {
                         otmp->otainted = 1;
                     }
+                    if (!rn2(4))
+                        otmp->forged_qual = rn2(4) ? FQ_SUPERIOR
+                                                   : FQ_EXCEPTIONAL;
                 }
             }
         }
+
         if (mtmp->m_lev >= 20) {
             (void) mongets(mtmp, rn2(2) ? AMULET_OF_REFLECTION
                                         : rn2(4) ? AMULET_OF_MAGIC_RESISTANCE
                                                  : AMULET_OF_LIFE_SAVING);
             (void) mongets(mtmp, rnd_class(RIN_ADORNMENT, RIN_PROTECTION_FROM_SHAPE_CHAN));
+
+            quan = rn2(3) ? rn2(3) : rn2(16);
+            while (quan--)
+                (void) mongets(mtmp, rnd_class(DILITHIUM_CRYSTAL, JADE));
+            /* To get the gold "right" would mean a player can double his
+               gold supply by killing one mplayer.  Not good. */
+            mkmonmoney(mtmp, rn2(1000));
+            quan = rn2(10);
+            while (quan--)
+                (void) mpickobj(mtmp, mkobj(RANDOM_CLASS, FALSE));
 
             quan = rnd(3);
             while (quan--)
