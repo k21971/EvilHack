@@ -3831,4 +3831,6 @@ The following changes to date are:
 - Draugr race get undead monsters as pets
 - Beginning Purgatory level tweaks
 - Revamp player monster spawning gear
+- Remove hard-coded player monster spawns from the Knight quest
+  starting level
 

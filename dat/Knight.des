@@ -63,11 +63,11 @@ DOOR:closed,(45,12)
 MONSTER:('@',"King Arthur"),(09,07)
 # Magic chest
 MAGIC_CHEST:(07,07)
-# knight guards for the watchrooms
-MONSTER:('@',"knight"),(04,02),peaceful
-MONSTER:('@',"knight"),(04,13),peaceful
-MONSTER:('@',"knight"),(45,02),peaceful
-MONSTER:('@',"knight"),(45,13),peaceful
+# page guards for the watchrooms
+MONSTER:('@',"page"),(04,02),peaceful
+MONSTER:('@',"page"),(04,13),peaceful
+MONSTER:('@',"page"),(45,02),peaceful
+MONSTER:('@',"page"),(45,13),peaceful
 # page guards for the audience chamber
 MONSTER:('@',"page"),(16,06)
 MONSTER:('@',"page"),(18,06)
