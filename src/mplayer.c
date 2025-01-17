@@ -604,6 +604,11 @@ struct obj *obj;
             (void) mpickobj(mtmp, otmp);
         }
 
+        if (on_level(&purgstart_level, &u.uz) && rn2(2)) {
+            (void) mongets(mtmp, RIN_TELEPORT_CONTROL);
+            m_dowear(mtmp, FALSE);
+        }
+
         if (ascending) {
             if (!rn2(10))
                 (void) mongets(mtmp, rn2(3) ? LUCKSTONE : LOADSTONE);

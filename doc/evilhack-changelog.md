@@ -3829,4 +3829,5 @@ The following changes to date are:
 - Change 'while attempting to cheat Death' line with something
   more appropriate for a Draugr player dying
 - Draugr race get undead monsters as pets
+- Beginning Purgatory level tweaks
 

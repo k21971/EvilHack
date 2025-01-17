@@ -270,3 +270,7 @@ MONSTER:$monster[0],random
 MONSTER:$monster[1],random
 MONSTER:$monster[2],random
 MONSTER:$monster[3],random
+
+# None shall pass
+NON_DIGGABLE:(60,00,75,14)
+NON_PASSWALL:(60,00,75,14)
