@@ -540,12 +540,13 @@ struct monst *mtmp;
         && lined_up(mtmp)) { /* only lines up if distu range is within 5*5 */
         /* could use m_carrying(), then nxtobj() when matching wand
            is empty, but direct traversal is actually simpler here */
-        for (obj = mtmp->minvent; obj; obj = obj->nobj)
+        for (obj = mtmp->minvent; obj; obj = obj->nobj) {
             if (obj->otyp == WAN_UNDEAD_TURNING && obj->spe > 0) {
                 m.defensive = obj;
                 m.has_defense = MUSE_WAN_UNDEAD_TURNING;
                 return TRUE;
             }
+        }
     }
 
     fraction = u.ulevel < 10 ? 5 : u.ulevel < 14 ? 4 : 3;
@@ -1503,6 +1504,11 @@ struct obj *obj;
          */
         m.offensive = obj;
         m.has_offense = MUSE_WAN_UNDEAD_TURNING;
+    } else if (Race_if(PM_DRAUGR) || is_undead(youmonst.data)) {
+        /* player is Draugr race or poly'd into an undead
+           monster */
+        m.offensive = obj;
+        m.has_offense = MUSE_WAN_UNDEAD_TURNING;
     }
 }
 
@@ -1711,7 +1717,10 @@ boolean reflection_skip;
         }
 
         nomore(MUSE_WAN_UNDEAD_TURNING);
-        m_use_undead_turning(mtmp, obj);
+        {
+            m_use_undead_turning(mtmp, obj);
+            continue;
+        }
 
         nomore(MUSE_WAN_CANCELLATION);
         if (obj->otyp == WAN_CANCELLATION) {

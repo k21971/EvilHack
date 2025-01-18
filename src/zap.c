@@ -1293,9 +1293,11 @@ unturn_you()
     (void) unturn_dead(&youmonst); /* hit carried corpses and eggs */
 
     if (maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))) {
-        if (!(Stun_resistance || wielding_artifact(ART_TEMPEST)))
+        if (!(Stun_resistance || wielding_artifact(ART_TEMPEST))) {
             You_feel("frightened and %sstunned.", Stunned ? "even more " : "");
-        make_stunned((HStun & TIMEOUT) + (long) rnd(30), FALSE);
+            make_stunned((HStun & TIMEOUT) + (long) rnd(30), FALSE);
+        }
+        losehp(d(4, 4), "wand of undead turning", KILLED_BY_AN);
     } else {
         You("shudder in dread.");
     }
