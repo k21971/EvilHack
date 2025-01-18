@@ -3842,4 +3842,5 @@ The following changes to date are:
   of bone
 - Monsters will use a wand of undead turning directly against
   the player if they are Draugr or poly'd into an undead monster
+- Tweak to last commit (wand of undead turning vs player)
 

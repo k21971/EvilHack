@@ -4281,7 +4281,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
     mtmp->mhp = 0; /* caller will usually have already done this */
     if (!noconduct) /* KMH, conduct */
         if (!u.uconduct.killer++)
-            livelog_write_string (LL_CONDUCT,"killed for the first time");
+            livelog_write_string (LL_CONDUCT, "killed for the first time");
 
     if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
         && u.uachieve.defeat_icequeen)
