@@ -67,6 +67,8 @@
     (ptr_resists_sick((mon)->data)                                       \
      || (has_erac(mon) ? ptr_resists_sick(&mons[ERAC(mon)->rmnum]) : 0))
 
+#define resists_lycan(ptr) (is_undead(ptr))
+
 #define resists_stun(ptr) \
     ((ptr) == &mons[PM_BABY_SHIMMERING_DRAGON] \
      || (ptr) == &mons[PM_SHIMMERING_DRAGON])

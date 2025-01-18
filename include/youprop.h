@@ -58,29 +58,34 @@
 
 #define HStun_resistance u.uprops[STUN_RES].intrinsic
 #define EStun_resistance u.uprops[STUN_RES].extrinsic
-#define Stun_resistance (HStun_resistance || EStun_resistance                  \
-                         || youmonst.data == &mons[PM_SHIMMERING_DRAGON]       \
-                         || youmonst.data == &mons[PM_BABY_SHIMMERING_DRAGON])
+#define Stun_resistance \
+    (HStun_resistance || EStun_resistance                  \
+     || youmonst.data == &mons[PM_SHIMMERING_DRAGON]       \
+     || youmonst.data == &mons[PM_BABY_SHIMMERING_DRAGON])
 
 #define HVulnerable_fire u.uprops[VULN_FIRE].intrinsic
 #define EVulnerable_fire u.uprops[VULN_FIRE].extrinsic
-#define Vulnerable_fire (HVulnerable_fire || EVulnerable_fire \
-		         || vulnerable_to(&youmonst, AD_FIRE))
+#define Vulnerable_fire \
+    (HVulnerable_fire || EVulnerable_fire  \
+     || vulnerable_to(&youmonst, AD_FIRE))
 
 #define HVulnerable_cold u.uprops[VULN_COLD].intrinsic
 #define EVulnerable_cold u.uprops[VULN_COLD].extrinsic
-#define Vulnerable_cold (HVulnerable_cold || EVulnerable_cold \
-		         || vulnerable_to(&youmonst, AD_COLD))
+#define Vulnerable_cold \
+    (HVulnerable_cold || EVulnerable_cold  \
+     || vulnerable_to(&youmonst, AD_COLD))
 
 #define HVulnerable_elec u.uprops[VULN_ELEC].intrinsic
 #define EVulnerable_elec u.uprops[VULN_ELEC].extrinsic
-#define Vulnerable_elec (HVulnerable_elec || EVulnerable_elec \
-		         || vulnerable_to(&youmonst, AD_ELEC))
+#define Vulnerable_elec \
+    (HVulnerable_elec || EVulnerable_elec  \
+     || vulnerable_to(&youmonst, AD_ELEC))
 
 #define HVulnerable_acid u.uprops[VULN_ACID].intrinsic
 #define EVulnerable_acid u.uprops[VULN_ACID].extrinsic
-#define Vulnerable_acid	(HVulnerable_acid || EVulnerable_acid \
-		         || vulnerable_to(&youmonst, AD_ACID))
+#define Vulnerable_acid	\
+    (HVulnerable_acid || EVulnerable_acid  \
+     || vulnerable_to(&youmonst, AD_ACID))
 
 /* Hxxx due to FROMFORM only */
 #define HAntimagic u.uprops[ANTIMAGIC].intrinsic
@@ -99,25 +104,28 @@
 #define EDeath_resistance u.uprops[DEATH_RES].extrinsic
 #define Death_resistance (HDeath_resistance || EDeath_resistance)
 
+#define HLycan_resistance u.uprops[WERE_RES].intrinsic
+#define ELycan_resistance u.uprops[WERE_RES].extrinsic
+#define Lycan_resistance \
+    (HLycan_resistance || ELycan_resistance                                 \
+     || youmonst.data->mlet == S_LICH || youmonst.data->mlet == S_ZOMBIE    \
+     || youmonst.data->mlet == S_WRAITH || youmonst.data->mlet == S_VAMPIRE \
+     || youmonst.data->mlet == S_GHOST || youmonst.data->mlet == S_MUMMY    \
+     || youmonst.data->mlet == S_SKELETON || defended(&youmonst, AD_WERE))
+
 /* Intrinsics only */
 #define HSick_resistance u.uprops[SICK_RES].intrinsic
 #define ESick_resistance u.uprops[SICK_RES].extrinsic
-#define Sick_resistance (HSick_resistance || ESick_resistance            \
-                         || youmonst.data->mlet == S_FUNGUS              \
-                         || youmonst.data->mlet == S_ENT                 \
-                         || youmonst.data->mlet == S_PLANT               \
-                         || youmonst.data->mlet == S_ZOMBIE              \
-                         || youmonst.data->mlet == S_WRAITH              \
-                         || youmonst.data->mlet == S_VAMPIRE             \
-                         || youmonst.data->mlet == S_GHOST               \
-                         || youmonst.data->mlet == S_MUMMY               \
-                         || youmonst.data->mlet == S_LICH                \
-                         || youmonst.data->mlet == S_SKELETON            \
-                         || youmonst.data->mlet == S_ANGEL               \
-                         || youmonst.data->mlet == S_DEMON               \
-                         || youmonst.data == &mons[PM_BABY_GREEN_DRAGON] \
-                         || youmonst.data == &mons[PM_GREEN_DRAGON]      \
-                         || defended(&youmonst, AD_DISE))
+#define Sick_resistance \
+    (HSick_resistance || ESick_resistance                                        \
+     || youmonst.data->mlet == S_FUNGUS || youmonst.data->mlet == S_ENT          \
+     || youmonst.data->mlet == S_PLANT || youmonst.data->mlet == S_ZOMBIE        \
+     || youmonst.data->mlet == S_WRAITH || youmonst.data->mlet == S_VAMPIRE      \
+     || youmonst.data->mlet == S_GHOST || youmonst.data->mlet == S_MUMMY         \
+     || youmonst.data->mlet == S_LICH || youmonst.data->mlet == S_SKELETON       \
+     || youmonst.data->mlet == S_ANGEL || youmonst.data->mlet == S_DEMON         \
+     || youmonst.data == &mons[PM_BABY_GREEN_DRAGON]                             \
+     || youmonst.data == &mons[PM_GREEN_DRAGON] || defended(&youmonst, AD_DISE))
 
 #define Invulnerable u.uprops[INVULNERABLE].intrinsic /* [Tom] */
 
@@ -136,13 +144,13 @@
 #define Blindfolded \
     (ublindf && !(ublindf->otyp == LENSES || ublindf->otyp == GOGGLES))
 /* ...means blind because of a cover */
-#define Blind                                     \
+#define Blind \
     ((u.uroleplay.blind || Blinded || Blindfolded \
       || !haseyes(youmonst.data) || Hidinshell)   \
      && !(ublindf && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD))
 /* ...the Eyes operate even when you really are blind
     or don't have any eyes */
-#define Blindfolded_only                                             \
+#define Blindfolded_only \
     (Blindfolded && ublindf->oartifact != ART_EYES_OF_THE_OVERWORLD \
      && !u.uroleplay.blind && !Blinded && haseyes(youmonst.data))
 /* ...blind because of a blindfold, and *only* that */
@@ -161,8 +169,8 @@
 #define HHalluc_resistance u.uprops[HALLUC_RES].intrinsic
 #define EHalluc_resistance u.uprops[HALLUC_RES].extrinsic
 #define Halluc_resistance (HHalluc_resistance || EHalluc_resistance)
-#define Hallucination ((HHallucination && !Halluc_resistance) || \
-                       u.uroleplay.hallu)
+#define Hallucination \
+    ((HHallucination && !Halluc_resistance) || u.uroleplay.hallu)
 
 /* Timeout, plus a worn mask */
 #define HDeaf u.uprops[DEAF].intrinsic
@@ -288,7 +296,7 @@
 #define BLevitation u.uprops[LEVITATION].blocked
 #define Levitation ((HLevitation || ELevitation) && !BLevitation)
 /* Can't touch surface, can't go under water; overrides all others */
-#define Lev_at_will                                                    \
+#define Lev_at_will \
     (((HLevitation & I_SPECIAL) != 0L || (ELevitation & W_ARTI) != 0L) \
      && (HLevitation & ~(I_SPECIAL | TIMEOUT)) == 0L                   \
      && (ELevitation & ~W_ARTI) == 0L)
@@ -299,10 +307,10 @@
 /* BFlying has I_SPECIAL set if levitating or trapped in the floor or both,
    FROMOUTSIDE set if inside solid rock (or in water on Plane of Water) */
 #define BFlying u.uprops[FLYING].blocked
-#define Flying                                                             \
-    ((((EFlying || (HFlying & ~FROMFORM)                                   \
-       || (HFlying && !big_wings(raceptr(&youmonst))))                     \
-       || (u.usteed && is_flyer(u.usteed->data))) && !(BFlying & ~W_ARMOR))\
+#define Flying \
+    ((((EFlying || (HFlying & ~FROMFORM)                                    \
+       || (HFlying && !big_wings(raceptr(&youmonst))))                      \
+       || (u.usteed && is_flyer(u.usteed->data))) && !(BFlying & ~W_ARMOR)) \
      || (HFlying && !BFlying)) \
 /* May touch surface; does not override any others */
 
@@ -321,8 +329,8 @@
 #define HMagical_breathing u.uprops[MAGICAL_BREATHING].intrinsic
 #define EMagical_breathing u.uprops[MAGICAL_BREATHING].extrinsic
 #define Amphibious \
-    (HMagical_breathing || EMagical_breathing || amphibious(youmonst.data) \
-     || racial_tortle(&youmonst))
+    (HMagical_breathing || EMagical_breathing                  \
+     || amphibious(youmonst.data) || racial_tortle(&youmonst))
 /* Get wet, may go under surface */
 
 #define See_underwater \
@@ -444,8 +452,9 @@
 
 #define HReflecting u.uprops[REFLECTING].intrinsic
 #define EReflecting u.uprops[REFLECTING].extrinsic
-#define Reflecting (HReflecting || EReflecting \
-                    || (youmonst.data == &mons[PM_SILVER_DRAGON]))
+#define Reflecting \
+    (HReflecting || EReflecting                     \
+     || (youmonst.data == &mons[PM_SILVER_DRAGON]))
 
 #define HWithering u.uprops[WITHERING].intrinsic
 #define EWithering u.uprops[WITHERING].extrinsic

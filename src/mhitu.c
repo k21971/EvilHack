@@ -2130,7 +2130,8 @@ register struct attack *mattk;
     case AD_WERE:
         hitmsg(mtmp, mattk);
         if (uncancelled && !rn2(4) && u.ulycn == NON_PM
-            && !Protection_from_shape_changers && !defends(AD_WERE, uwep)) {
+            && !Protection_from_shape_changers
+            && !Lycan_resistance && !defended(&youmonst, AD_WERE)) {
             You_feel("feverish.");
             exercise(A_CON, FALSE);
             if (mdat == &mons[PM_RAT_KING])

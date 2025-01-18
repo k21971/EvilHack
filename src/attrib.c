@@ -174,6 +174,7 @@ static const struct innate {
                  { 1, &(HCold_resistance), "", "" },
                  { 1, &(HSleep_resistance), "", "" },
                  { 1, &(HPoison_resistance), "", "" },
+                 { 1, &(HLycan_resistance), "", "" },
                  { 1, &(HAggravate_monster), "", "" },
                  { 1, &(HLifesaved), "", "" }, /* only a random number of times */
                  { 0, 0, 0, 0 } },

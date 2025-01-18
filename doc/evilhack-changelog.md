@@ -3837,4 +3837,5 @@ The following changes to date are:
   to a mind flayer's psychic blast
 - Nurses will not heal the player if they are Draugr or poly'd
   into an undead monster
+- Draugr, undead monsters are immune to lycanthropy
 

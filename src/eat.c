@@ -1350,7 +1350,8 @@ int pm;
     } /* check_intrinsics */
 
     if (catch_lycanthropy >= LOW_PM) {
-        set_ulycn(catch_lycanthropy);
+        if (!Lycan_resistance)
+            set_ulycn(catch_lycanthropy);
         retouch_equipment(2);
     }
     return;
