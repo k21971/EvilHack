@@ -783,30 +783,33 @@ register struct monst *mtmp;
 
         if (canseemon(mtmp))
             pline("%s concentrates.", Monnam(mtmp));
-        if (distu(mtmp->mx, mtmp->my) > BOLT_LIM * BOLT_LIM) {
-            You("sense a faint wave of psychic energy.");
-            goto toofar;
-        }
-        pline("A wave of psychic energy pours over you!");
-        if (mtmp->mpeaceful
-            && (!Conflict || resist_conflict(mtmp))) {
-            pline("It feels quite soothing.");
-        } else if (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID))) {
-            Your("psionic abilities shield your brain.");
-        } else if (!u.uinvulnerable) {
-            register boolean m_sen = sensemon(mtmp);
+        if (!(mindless(youmonst.data) || Race_if(PM_DRAUGR))) {
+            if (distu(mtmp->mx, mtmp->my) > BOLT_LIM * BOLT_LIM) {
+                You("sense a faint wave of psychic energy.");
+                goto toofar;
+            }
+            pline("A wave of psychic energy pours over you!");
+            if (mtmp->mpeaceful
+                && (!Conflict || resist_conflict(mtmp))) {
+                pline("It feels quite soothing.");
+            } else if (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID))) {
+                Your("psionic abilities shield your brain.");
+            } else if (!u.uinvulnerable) {
+                register boolean m_sen = sensemon(mtmp);
 
-            if (m_sen || (Blind_telepat && rn2(2)) || !rn2(10)) {
-                int dmg;
-                pline("It locks on to your %s!",
-                      m_sen ? "telepathy" : Blind_telepat ? "latent telepathy"
+                if (m_sen || (Blind_telepat && rn2(2)) || !rn2(10)) {
+                    int dmg;
+                    pline("It locks on to your %s!",
+                          m_sen ? "telepathy" : Blind_telepat ? "latent telepathy"
                                                           : "mind");
-                dmg = rnd(15);
-                if (Half_spell_damage)
-                    dmg = (dmg + 1) / 2;
-                losehp(dmg, "psychic blast", KILLED_BY_AN);
+                    dmg = rnd(15);
+                    if (Half_spell_damage)
+                        dmg = (dmg + 1) / 2;
+                    losehp(dmg, "psychic blast", KILLED_BY_AN);
+                }
             }
         }
+
         for (m2 = fmon; m2; m2 = nmon) {
             nmon = m2->nmon;
             if (DEADMONSTER(m2))

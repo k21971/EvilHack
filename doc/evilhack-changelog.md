@@ -3833,4 +3833,6 @@ The following changes to date are:
 - Revamp player monster spawning gear
 - Remove hard-coded player monster spawns from the Knight quest
   starting level
+- Player Draugr or if poly'd into a mindless monster are immune
+  to a mind flayer's psychic blast
 
