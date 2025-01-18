@@ -2962,8 +2962,22 @@ boolean ordinary;
 
     case WAN_DEATH:
     case SPE_FINGER_OF_DEATH:
-        if (Death_resistance || immune_death_magic(youmonst.data)) {
+        if (is_undead(youmonst.data) || Race_if(PM_DRAUGR)) {
+            /* wand/spell of death acts like a potion of full healing
+               for the undead, especially whilst in the VotD */
             shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_DEATH);
+            if (Is_valley(&u.uz)) {
+                u.uhpmax += u.uhpmax / 6;
+                if (u.uhpmax > 200)
+                    u.uhpmax = 200;
+            }
+            u.uhp = u.uhpmax;
+            You_feel("restored.");
+            break;
+        } else if (Death_resistance || immune_death_magic(youmonst.data)) {
+            shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_DEATH);
             pline((obj->otyp == WAN_DEATH)
                       ? "The wand shoots an apparently harmless beam at you."
                       : nonliving(youmonst.data)
@@ -4598,6 +4612,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         if (abs(type) != ZT_BREATH(ZT_DEATH)) { /* death */
             tmp = d(4, 6);
             if (mon->data == &mons[PM_DEATH]) {
+                sho_shieldeff = TRUE;
                 mon->mhpmax += mon->mhpmax / 2;
                 if (mon->mhpmax > DEATH_PROOF)
                     mon->mhpmax = DEATH_PROOF;
@@ -4605,9 +4620,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 tmp = 0;
                 break;
             }
-            if (is_undead(mon->data)) {
+            if (is_undead(mon->data) || racial_zombie(mon)) {
                 /* wand of death acts like a potion of full healing
                    for the undead, especially whilst in the VotD */
+                sho_shieldeff = TRUE;
                 if (Is_valley(&u.uz)) {
                     mon->mhpmax += mon->mhpmax / 6;
                     if (mon->mhpmax > 200)
@@ -4884,9 +4900,23 @@ xchar sx, sy;
                 if (uarmu)
                     (void) destroy_arm(uarmu);
             }
+        } else if (is_undead(youmonst.data) || Race_if(PM_DRAUGR)) {
+            /* wand of death acts like a potion of full healing
+               for the undead, especially whilst in the VotD */
+            shieldeff(sx, sy);
+            monstseesu(M_SEEN_DEATH);
+            if (Is_valley(&u.uz)) {
+                u.uhpmax += u.uhpmax / 6;
+                if (u.uhpmax > 200)
+                    u.uhpmax = 200;
+            }
+            u.uhp = u.uhpmax;
+            You_feel("restored.");
+            break;
         } else if (Death_resistance
                    || immune_death_magic(youmonst.data)) {
             shieldeff(sx, sy);
+            monstseesu(M_SEEN_DEATH);
             You("seem unaffected.");
             break;
         } else if (Antimagic) {

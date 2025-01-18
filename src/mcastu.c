@@ -705,6 +705,8 @@ int spellnum;
     case MGC_DEATH_TOUCH:
         pline("Oh no, %s's using the touch of death!", mhe(mtmp));
         if (Death_resistance || immune_death_magic(youmonst.data)) {
+            shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_DEATH);
             You("%s.", nonliving(youmonst.data)
                 ? "seem no more dead than before"
                 : "are unaffected");
@@ -2212,6 +2214,7 @@ int spellnum;
                                 : mattk->mnum].mlevel) <= 12)
              || resists_magm(mtmp) || defended(mtmp, AD_MAGM));
         if (immune_death_magic(mtmp->data) || is_vampshifter(mtmp)) {
+            shieldeff(mtmp->mx, mtmp->my);
             if (yours || canseemon(mtmp))
                 pline("%s %s.", Monnam(mtmp),
                       nonliving(mtmp->data)

@@ -812,8 +812,9 @@ register struct obj *otmp;
         }
         unkn++;
         if (is_undead(youmonst.data) || is_demon(raceptr(&youmonst))
-            || u.ualign.type <= A_CHAOTIC) {
-            int dice = (u.ualign.type == A_NONE) ? 4 : 2;
+            || u.ualign.type <= A_CHAOTIC || Race_if(PM_DRAUGR)) {
+            int dice = ((u.ualign.type == A_NONE)
+                        || Race_if(PM_DRAUGR)) ? 4 : 2;
             if (otmp->blessed) {
                 pline("This burns like %s!", hliquid("acid"));
                 exercise(A_CON, FALSE);
@@ -1897,7 +1898,8 @@ int how;
             break;
         case POT_WATER:
             if (is_undead(mon->data) || is_demon(mon->data)
-                || is_were(mon->data) || is_vampshifter(mon)) {
+                || is_were(mon->data) || is_vampshifter(mon)
+                || racial_zombie(mon)) {
                 if (obj->blessed) {
                     pline("%s %s in pain!", Monnam(mon),
                           is_silent(mon->data) ? "writhes" : "shrieks");

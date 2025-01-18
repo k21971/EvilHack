@@ -2460,6 +2460,8 @@ do_rust:
             pline("%s reaches out with its deadly touch.", Monnam(mtmp));
         if (Death_resistance || immune_death_magic(youmonst.data)) {
             /* Still does normal damage */
+            shieldeff(u.ux, u.uy);
+            monstseesu(M_SEEN_DEATH);
             You("are unaffected by death magic.");
             break;
         }
@@ -3813,6 +3815,7 @@ struct attack *mattk;
             if (Death_resistance || immune_death_magic(youmonst.data)) {
                 /* Still does normal damage */
                 shieldeff(u.ux, u.uy);
+                monstseesu(M_SEEN_DEATH);
                 You("are unaffected by death magic.");
                 break;
             }

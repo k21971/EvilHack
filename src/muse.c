@@ -1633,7 +1633,9 @@ boolean reflection_skip;
         if (!reflection_skip) {
             nomore(MUSE_WAN_DEATH);
             if (obj->otyp == WAN_DEATH) {
-                if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_MAGR)
+                if (obj->spe > 0
+                    && !(m_seenres(mtmp, M_SEEN_MAGR)
+                         || m_seenres(mtmp, M_SEEN_DEATH))
                     && (!m_seenres(mtmp, M_SEEN_REFL)
                         || nonliving(mtmp->data)
                         || mtmp->data->msound == MS_LEADER)) {

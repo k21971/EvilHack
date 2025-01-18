@@ -3843,4 +3843,5 @@ The following changes to date are:
 - Monsters will use a wand of undead turning directly against
   the player if they are Draugr or poly'd into an undead monster
 - Tweak to last commit (wand of undead turning vs player)
+- Holy water, wands of death, and Draugr
 

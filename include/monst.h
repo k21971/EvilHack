@@ -111,6 +111,7 @@ struct monst {
 #define M_SEEN_POISON  0x0040
 #define M_SEEN_ACID    0x0080
 #define M_SEEN_REFL    0x0100
+#define M_SEEN_DEATH   0x0200
 
 #define m_seenres(mon, mask) ((mon)->seen_resistance & (mask))
 #define m_setseen(mon, mask) ((mon)->seen_resistance |= (mask))
