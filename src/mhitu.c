@@ -2320,8 +2320,14 @@ do_rust:
         break;
     case AD_HEAL:
         /* a cancelled nurse is just an ordinary monster,
-         * nurses don't heal those that cause petrification */
-        if (mtmp->mcan || (Upolyd && touch_petrifies(youmonst.data))) {
+         * nurses don't heal those that cause petrification,
+         * nor will they heal the undead */
+        if (mtmp->mcan || (Upolyd && touch_petrifies(youmonst.data))
+            || is_undead(youmonst.data) || Race_if(PM_DRAUGR)) {
+            if (is_undead(youmonst.data) || Race_if(PM_DRAUGR)) {
+                if (!Deaf && !(moves % 5))
+                    verbalize("I can't heal the undead... you're dead!");
+            }
             hitmsg(mtmp, mattk);
             break;
         }

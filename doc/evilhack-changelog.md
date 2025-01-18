@@ -3835,4 +3835,6 @@ The following changes to date are:
   starting level
 - Player Draugr or if poly'd into a mindless monster are immune
   to a mind flayer's psychic blast
+- Nurses will not heal the player if they are Draugr or poly'd
+  into an undead monster
 
