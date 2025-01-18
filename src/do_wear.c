@@ -3027,6 +3027,21 @@ find_ac()
             uac -= 1;
     }
 
+    /* Draugr race receive a slight AC bonus
+       for wearing bone armor */
+    if (Race_if(PM_DRAUGR)) {
+        if (uarm && is_bone(uarm))   /* body armor */
+            uac -= 1;
+        if (uarmg && is_bone(uarmg)) /* gauntlets */
+            uac -= 1;
+        if (uarmh && is_bone(uarmh)) /* helmet */
+            uac -= 1;
+        if (uarmf && is_bone(uarmf)) /* boots */
+            uac -= 1;
+        if (uarms && is_bone(uarms)) /* shield */
+            uac -= 1;
+    }
+
     /* Dexterity affects your base AC */
     dex_adjust_ac = 0;
     if (ACURR(A_DEX) <= 6)

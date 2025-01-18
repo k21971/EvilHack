@@ -665,7 +665,7 @@ register struct monst *mon;
 {
     register struct obj *obj, *nextobj;
     int base = r_data(mon)->ac - mon->mprotection;
-    int bonus, div, racial_bonus;
+    int bonus, div, race_role_bonus;
     long mwflags = mon->misc_worn_check;
 
     for (obj = mon->minvent; obj; obj = nextobj) {
@@ -679,9 +679,9 @@ register struct monst *mon;
                 /* since armor_bonus is positive, subtracting it increases AC */
                 base -= armor_bonus(obj);
             }
-            /* racial armor bonuses, separate from regular bonuses,
+            /* race and role armor bonuses, separate from regular bonuses,
                leaving drow gloves out of this on purpose */
-            racial_bonus = 1;
+            race_role_bonus = 1;
             if (which_armor(mon, W_ARM)) {
                 if ((racial_orc(mon)
                      && (obj->otyp == ORCISH_CHAIN_MAIL
@@ -690,29 +690,35 @@ register struct monst *mon;
                         && (obj->otyp == DARK_ELVEN_CHAIN_MAIL
                             || obj->otyp == DARK_ELVEN_TUNIC))
                     || (racial_elf(mon) && obj->otyp == ELVEN_CHAIN_MAIL)
-                    || (racial_dwarf(mon) && obj->otyp == DWARVISH_CHAIN_MAIL))
-                    base -= racial_bonus;
+                    || (racial_dwarf(mon) && obj->otyp == DWARVISH_CHAIN_MAIL)
+                    || (racial_zombie(mon) && is_bone(obj))
+                    || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
+                    base -= race_role_bonus;
             }
             if (which_armor(mon, W_ARMC)) {
                 if ((racial_orc(mon) && obj->otyp == ORCISH_CLOAK)
                     || (racial_elf(mon) && obj->otyp == ELVEN_CLOAK)
                     || (racial_drow(mon) && obj->otyp == DARK_ELVEN_CLOAK)
                     || (racial_dwarf(mon) && obj->otyp == DWARVISH_CLOAK))
-                    base -= racial_bonus;
+                    base -= race_role_bonus;
             }
             if (which_armor(mon, W_ARMH)) {
                 if ((racial_orc(mon) && obj->otyp == ORCISH_HELM)
                     || (racial_elf(mon) && obj->otyp == ELVEN_HELM)
                     || (racial_drow(mon) && obj->otyp == DARK_ELVEN_HELM)
-                    || (racial_dwarf(mon) && obj->otyp == DWARVISH_HELM))
-                    base -= racial_bonus;
+                    || (racial_dwarf(mon) && obj->otyp == DWARVISH_HELM)
+                    || (racial_zombie(mon) && is_bone(obj))
+                    || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
+                    base -= race_role_bonus;
             }
             if (which_armor(mon, W_ARMF)) {
                 if ((racial_orc(mon) && obj->otyp == ORCISH_BOOTS)
                     || (racial_elf(mon) && obj->otyp == ELVEN_BOOTS)
                     || (racial_drow(mon) && obj->otyp == DARK_ELVEN_BOOTS)
-                    || (racial_dwarf(mon) && obj->otyp == DWARVISH_BOOTS))
-                    base -= racial_bonus;
+                    || (racial_dwarf(mon) && obj->otyp == DWARVISH_BOOTS)
+                    || (racial_zombie(mon) && is_bone(obj))
+                    || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
+                    base -= race_role_bonus;
             }
             if (which_armor(mon, W_ARMS)) {
                 if ((racial_orc(mon)
@@ -720,8 +726,15 @@ register struct monst *mon;
                          || obj->otyp == URUK_HAI_SHIELD))
                     || (racial_elf(mon) && obj->otyp == ELVEN_SHIELD)
                     || (racial_drow(mon) && obj->otyp == DARK_ELVEN_BRACERS)
-                    || (racial_dwarf(mon) && obj->otyp == DWARVISH_ROUNDSHIELD))
-                    base -= racial_bonus;
+                    || (racial_dwarf(mon) && obj->otyp == DWARVISH_ROUNDSHIELD)
+                    || (racial_zombie(mon) && is_bone(obj))
+                    || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
+                    base -= race_role_bonus;
+            }
+            if (which_armor(mon, W_ARMG)) {
+                if ((racial_zombie(mon) && is_bone(obj))
+                    || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
+                    base -= race_role_bonus;
             }
         }
     }

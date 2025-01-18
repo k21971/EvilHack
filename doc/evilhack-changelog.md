@@ -3838,4 +3838,6 @@ The following changes to date are:
 - Nurses will not heal the player if they are Draugr or poly'd
   into an undead monster
 - Draugr, undead monsters are immune to lycanthropy
+- Draugr get a slight AC bonus when wearing armor pieces made
+  of bone
 
