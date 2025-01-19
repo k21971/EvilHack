@@ -737,6 +737,7 @@ E void NDECL(eatmupdate);
 E boolean FDECL(is_edible, (struct obj *));
 E void NDECL(init_uhunger);
 E int NDECL(Hear_again);
+E long FDECL(rot_amount, (struct obj *));
 E void NDECL(reset_eat);
 E int NDECL(doeat);
 E int FDECL(use_tin_opener, (struct obj *));

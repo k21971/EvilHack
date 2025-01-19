@@ -3844,4 +3844,5 @@ The following changes to date are:
   the player if they are Draugr or poly'd into an undead monster
 - Tweak to last commit (wand of undead turning vs player)
 - Holy water, wands of death, and Draugr
+- Revisiting what and how Draugr can eat
 

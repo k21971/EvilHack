@@ -1219,10 +1219,9 @@ char *prefix;
             Strcat(prefix, "thoroughly ");
             break;
         }
-        Strcat(prefix, is_rustprone(obj) ? "rusty " :
-               obj->oclass == FOOD_CLASS ? "rotten " : "burnt ");
+        Strcat(prefix, is_rustprone(obj) ? "rusty " : "burnt ");
     }
-    if (obj->oeroded2 && !iscrys && obj->oclass != FOOD_CLASS) {
+    if (obj->oeroded2 && !iscrys) {
         switch (obj->oeroded2) {
         case 2:
             Strcat(prefix, "very ");
@@ -1578,6 +1577,19 @@ unsigned doname_flags;
     case FOOD_CLASS:
         if (obj->oeaten)
             Strcat(prefix, "partly eaten ");
+        /* draugr automatically know how rotted a corpse is */
+        if (obj->otyp == CORPSE
+            && (!(obj->corpsenm == PM_LICHEN
+                  || obj->corpsenm == PM_LIZARD
+                  || obj->corpsenm == PM_DEATH
+                  || obj->corpsenm == PM_FAMINE
+                  || obj->corpsenm == PM_PESTILENCE))
+            && (!Upolyd && Race_if(PM_DRAUGR))) {
+            if (rot_amount(obj) > 5L)
+                Strcat(prefix, " very rancid ");
+            else if (rot_amount(obj) > 3L)
+                Strcat(prefix, " rancid ");
+        }
         add_erosion_words(obj, prefix);
         if (obj->otyp == CORPSE) {
             /* (quan == 1) => want corpse_xname() to supply article,
@@ -3738,7 +3750,6 @@ struct obj *no_wish;
                    || !strncmpi(bp, "corrodeproof ", l = 13)
                    || !strncmpi(bp, "fixed ", l = 6)
                    || !strncmpi(bp, "fireproof ", l = 10)
-                   || !strncmpi(bp, "rotproof ", l = 9)
                    || !strncmpi(bp, "tempered ", l = 9)) {
             erodeproof = 1;
         } else if (!strncmpi(bp, "lit ", l = 4)
@@ -3787,7 +3798,6 @@ struct obj *no_wish;
             very = 2;
         } else if (!strncmpi(bp, "rusty ", l = 6)
                    || !strncmpi(bp, "rusted ", l = 7)
-                   || !strncmpi(bp, "rotten ", l = 7)
                    || !strncmpi(bp, "burnt ", l = 6)
                    || !strncmpi(bp, "burned ", l = 7)) {
             eroded = 1 + very;
@@ -4045,6 +4055,7 @@ struct obj *no_wish;
                 goto typfnd;
             }
 
+            /* object properties */
             p = bp;
             while (p != 0) {
                 tmpp = strstri(p, " of ");

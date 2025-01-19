@@ -94,11 +94,14 @@ register struct obj *obj;
         && (youmonst.data != &mons[PM_RUST_MONSTER] || is_rustprone(obj)))
         return TRUE;
 
-    /* Ghouls/Draugr only eat non-veggy corpses or eggs (see dogfood()) */
+    /* Ghouls/Draugr only eat non-veggy corpses or eggs (see dogfood()),
+       Draugr can eat certain tins */
     if (u.umonnum == PM_GHOUL || (!Upolyd && Race_if(PM_DRAUGR)))
         return (boolean) ((obj->otyp == CORPSE
                            && !vegan(&mons[obj->corpsenm]))
-                          || (obj->otyp == EGG));
+                          || (obj->otyp == EGG)
+                          || ((!Upolyd && Race_if(PM_DRAUGR))
+                              && obj->otyp == TIN));
 
     if (u.umonnum == PM_GELATINOUS_CUBE && is_organic(obj)
         /* [g.cubes can eat containers and retain all contents
@@ -1526,7 +1529,6 @@ const char *mesg;
             tin = costly_tin(COST_OPEN);
             goto use_up_tin;
         }
-
         which = 0; /* 0=>plural, 1=>as-is, 2=>"the" prefix */
         if ((mnum == PM_COCKATRICE || mnum == PM_CHICKATRICE ||
              mnum == PM_BASILISK)
@@ -1556,6 +1558,26 @@ const char *mesg;
                 tin->dknown = tin->known = 1;
             tin = costly_tin(COST_OPEN);
             goto use_up_tin;
+        } else if (!Upolyd && Race_if(PM_DRAUGR)) {
+            if (vegan(&mons[tin->corpsenm])) {
+                You("cannot eat that!");
+                if (flags.verbose)
+                    You("discard the open tin.");
+                if (!Hallucination)
+                    tin->dknown = tin->known = 1;
+                tin = costly_tin(COST_OPEN);
+                goto use_up_tin;
+            } else if (r != ROTTEN_TIN) {
+                /* Draugr can eat certain tins, but only if they
+                   are rotted */
+                pline ("Ugh... this tin is too fresh!");
+                if (flags.verbose)
+                    You("discard the open tin.");
+                if (!Hallucination)
+                    tin->dknown = tin->known = 1;
+                tin = costly_tin(COST_OPEN);
+                goto use_up_tin;
+            }
         } else if (yn("Eat it?") == 'n') {
             if (flags.verbose)
                 You("discard the open tin.");
@@ -1571,6 +1593,9 @@ const char *mesg;
         context.victual.fullwarn = context.victual.eating =
             context.victual.doreset = FALSE;
 
+        if (tintxts[r].nut < 0
+            && !Upolyd && Race_if(PM_DRAUGR))
+            pline("Mmmm!");
         You("consume %s %s.", tintxts[r].txt, mons[mnum].mname);
 
         eating_conducts(&mons[mnum]);
@@ -1582,9 +1607,12 @@ const char *mesg;
         /* charge for one at pre-eating cost */
         tin = costly_tin(COST_OPEN);
 
-        if (tintxts[r].nut < 0) /* rotten */
-            make_vomiting((long) rn1(15, 10), FALSE);
-        else
+        if (tintxts[r].nut < 0) { /* rotten */
+            if (!Upolyd && Race_if(PM_DRAUGR))
+                lesshungry(100); /* Draugr get nutrition from rotted tins */
+            else
+                make_vomiting((long) rn1(15, 10), FALSE);
+        } else
             lesshungry(tintxts[r].nut);
 
         if (tintxts[r].greasy) {
@@ -1595,7 +1623,13 @@ const char *mesg;
         }
 
     } else { /* spinach... */
-        if (tin->cursed) {
+        if (!Upolyd && Race_if(PM_DRAUGR)) {
+            pline("It contains some inedible plant matter.");
+            if (flags.verbose)
+                You("discard the open tin.");
+            tin = costly_tin(COST_OPEN);
+            goto use_up_tin;
+        } else if (tin->cursed) {
             pline("It contains some decaying%s%s substance.",
                   Blind ? "" : " ", Blind ? "" : hcolor(NH_GREEN));
         } else {
@@ -1766,48 +1800,70 @@ STATIC_OVL int
 rottenfood(obj)
 struct obj *obj;
 {
-    pline("%s!  Rotten %s!",
-          (!Upolyd && Race_if(PM_DRAUGR)) ? "Mmmm" : "Blecch",
-          foodword(obj));
-    if (!Race_if(PM_DRAUGR)) {
-        if (!rn2(4)) {
-            if (Hallucination)
-                You_feel("rather trippy.");
-            else
-                You_feel("rather %s.", body_part(LIGHT_HEADED));
-            make_confused(HConfusion + d(2, 4), FALSE);
-        } else if (!rn2(4) && !Blind) {
-            pline("Everything suddenly goes dark.");
-            /* hero is not Blind, but Blinded timer might be nonzero if
-               blindness is being overridden by the Eyes of the Overworld */
-            make_blinded((Blinded & TIMEOUT) + (long) d(2, 10), FALSE);
-            if (!Blind)
-                Your1(vision_clears);
-        } else if (!rn2(3)) {
-            const char *what, *where;
-            int duration = rnd(10);
+    /* Draugr find rotted food 'delicious' */
+    if (!Upolyd && Race_if(PM_DRAUGR))
+        return 0;
 
-            if (!Blind)
-                what = "goes", where = "dark";
-            else if (Levitation || Is_airlevel(&u.uz) || Is_waterlevel(&u.uz))
-                what = "you lose control of", where = "yourself";
-            else
-                what = "you slap against the",
-                where = (u.usteed) ? "saddle" : surface(u.ux, u.uy);
-            pline_The("world spins and %s %s.", what, where);
-            if (!Levitation && !Flying && !u.usteed
-                && is_damp_terrain(u.ux, u.uy))
-                water_damage_chain(invent, FALSE, rnd(3), FALSE, u.ux, u.uy);
-            incr_itimeout(&HDeaf, duration);
-            context.botl = TRUE;
-            nomul(-duration);
-            multi_reason = "unconscious from rotten food";
-            nomovemsg = "You are conscious again.";
-            afternmv = Hear_again;
-            return 1;
-        }
+    pline("Blecch!  Rotten %s!", foodword(obj));
+    if (!rn2(4)) {
+        if (Hallucination)
+            You_feel("rather trippy.");
+        else
+            You_feel("rather %s.", body_part(LIGHT_HEADED));
+        make_confused(HConfusion + d(2, 4), FALSE);
+    } else if (!rn2(4) && !Blind) {
+        pline("Everything suddenly goes dark.");
+        /* hero is not Blind, but Blinded timer might be nonzero if
+           blindness is being overridden by the Eyes of the Overworld */
+        make_blinded((Blinded & TIMEOUT) + (long) d(2, 10), FALSE);
+        if (!Blind)
+            Your1(vision_clears);
+    } else if (!rn2(3)) {
+        const char *what, *where;
+        int duration = rnd(10);
+
+        if (!Blind)
+            what = "goes", where = "dark";
+        else if (Levitation || Is_airlevel(&u.uz) || Is_waterlevel(&u.uz))
+            what = "you lose control of", where = "yourself";
+        else
+            what = "you slap against the",
+            where = (u.usteed) ? "saddle" : surface(u.ux, u.uy);
+        pline_The("world spins and %s %s.", what, where);
+        if (!Levitation && !Flying && !u.usteed
+            && is_damp_terrain(u.ux, u.uy))
+            water_damage_chain(invent, FALSE, rnd(3), FALSE, u.ux, u.uy);
+        incr_itimeout(&HDeaf, duration);
+        context.botl = TRUE;
+        nomul(-duration);
+        multi_reason = "unconscious from rotten food";
+        nomovemsg = "You are conscious again.";
+        afternmv = Hear_again;
+        return 1;
     }
     return 0;
+}
+
+long
+rot_amount(otmp)
+struct obj *otmp;
+{
+    long age = peek_at_iced_corpse_age(otmp);
+    long rotted = 0L;
+
+    /* Draugr need to know when a corpse is rotted, and therefore
+       edible. Thus, all corpses rot at a consistent rate for them. */
+    rotted = (monstermoves - age) / (10L + (Race_if(PM_DRAUGR) ? 0 : rn2(20)));
+
+    if (otmp->cursed)
+        rotted += 2L;
+    else if (otmp->blessed)
+        rotted -= 2L;
+
+    if (otmp->oeroded > 0)
+        rotted += otmp->oeroded * 1L;
+
+    return rotted;
 }
 
 /* called when a corpse is selected as food */
@@ -1840,15 +1896,8 @@ struct obj *otmp;
         violated_vegetarian();
     }
 
-    if (!nonrotting_corpse(mnum)) {
-        long age = peek_at_iced_corpse_age(otmp);
-
-        rotted = (monstermoves - age) / (10L + rn2(20));
-        if (otmp->cursed)
-            rotted += 2L;
-        else if (otmp->blessed)
-            rotted -= 2L;
-    }
+    if (!nonrotting_corpse(mnum))
+        rotted = rot_amount(otmp);
 
     if ((mnum != PM_ACID_BLOB && !stoneable && !slimeable && rotted > 5L)
         || (otmp->zombie_corpse)) {
@@ -1859,49 +1908,67 @@ struct obj *otmp;
         else
             cannibal = maybe_cannibal(mnum, FALSE);
 
-        pline("%s - that %s was tainted%s!",
-              (!Upolyd && Race_if(PM_DRAUGR)) ? "Yum" : "Ulch",
-              (mons[mnum].mlet == S_FUNGUS) ? "fungoid vegetation"
-                  : glob ? "glob"
-                      : vegetarian(&mons[mnum]) ? "protoplasm"
-                          : "meat",
-              cannibal ? ", you cannibal" : "");
-        if (Sick_resistance && !otmp->zombie_corpse) {
-            pline("It doesn't seem at all sickening, though...");
-        } else if (!otmp->zombie_corpse) {
-            long sick_time;
+        if (!Upolyd && Race_if(PM_DRAUGR)) {
+            int rot_nut = mons[mnum].cwt >= 1500
+                            ? 300 : mons[mnum].cwt >= 1000
+                              ? 200 : mons[mnum].cwt >= 500
+                                ? 100 : mons[mnum].cwt >= 250
+                                  ? 50 : 10;
 
-            sick_time = (long) rn1(10, 10);
-            /* make sure new ill doesn't result in improvement */
-            if (Sick && (sick_time > Sick))
-                sick_time = (Sick > 1L) ? Sick - 1L : 1L;
-            make_sick(sick_time, corpse_xname(otmp, "rotted", CXN_NORMAL),
-                      TRUE, SICK_VOMITABLE);
-
-            pline("(It must have died too long ago to be safe to eat.)");
-        } else if (otmp->zombie_corpse) {
-            if (Sick_resistance) {
-                You_feel("an odd sensation for a brief moment, but it soon passes.");
-            } else {
+            pline("Mmmm...  tainted meat!");
+            /* this is super hacky, but so far it's been the only
+               way I've been able to figure out how to allow nutrition
+               for rotted corpses. nutrition values are a rough estimate
+               on how much nutrition (in my opinion) a *rotted* corpse
+               would give based on its weight (weight vs size varies
+               greatly in monst.c) */
+            lesshungry(rot_nut);
+            if (wizard) /* test pline */
+                pline("Nutrition gained: %d.", rot_nut);
+        } else {
+            pline("Ulch - that %s was tainted%s!",
+                  (mons[mnum].mlet == S_FUNGUS) ? "fungoid vegetation"
+                      : glob ? "glob"
+                          : vegetarian(&mons[mnum]) ? "protoplasm"
+                              : "meat",
+                  cannibal ? ", you cannibal" : "");
+            if (Sick_resistance && !otmp->zombie_corpse) {
+                pline("It doesn't seem at all sickening, though...");
+            } else if (!otmp->zombie_corpse) {
                 long sick_time;
 
                 sick_time = (long) rn1(10, 10);
                 /* make sure new ill doesn't result in improvement */
                 if (Sick && (sick_time > Sick))
                     sick_time = (Sick > 1L) ? Sick - 1L : 1L;
-                make_sick(sick_time, corpse_xname(otmp, "diseased", CXN_NORMAL),
-                          TRUE, SICK_ZOMBIE);
+                make_sick(sick_time, corpse_xname(otmp, "rotted", CXN_NORMAL),
+                          TRUE, SICK_VOMITABLE);
 
-                You_feel("a horrifying change starting within you.");
-                You("have an overwhelming urge to consume brains...");
+                pline("(It must have died too long ago to be safe to eat.)");
+            } else if (otmp->zombie_corpse) {
+                if (Sick_resistance) {
+                    You_feel("an odd sensation for a brief moment, but it soon passes.");
+                } else {
+                    long sick_time;
+
+                    sick_time = (long) rn1(10, 10);
+                    /* make sure new ill doesn't result in improvement */
+                    if (Sick && (sick_time > Sick))
+                        sick_time = (Sick > 1L) ? Sick - 1L : 1L;
+                    make_sick(sick_time, corpse_xname(otmp, "diseased", CXN_NORMAL),
+                              TRUE, SICK_ZOMBIE);
+
+                    You_feel("a horrifying change starting within you.");
+                    You("have an overwhelming urge to consume brains...");
+                }
             }
-        }
 
-        if (carried(otmp))
-            useup(otmp);
-        else
-            useupf(otmp, 1L);
-        return 2;
+            if (carried(otmp))
+                useup(otmp);
+            else
+                useupf(otmp, 1L);
+            return 2;
+        }
     } else if (acidic(&mons[mnum]) && !Acid_resistance) {
         tp++;
         You("have a very bad case of stomach acid.");   /* not body_part() */
@@ -1913,7 +1980,8 @@ struct obj *otmp;
               (!Upolyd && Race_if(PM_DRAUGR)) ? "Mmmm" : "Ecch");
         if (how_resistant(POISON_RES) < 100) {
             losestr(resist_reduce(rnd(4), POISON_RES));
-            losehp(resist_reduce(rnd(15), POISON_RES), !glob ? "poisonous corpse" : "poisonous glob",
+            losehp(resist_reduce(rnd(15), POISON_RES),
+                   !glob ? "poisonous corpse" : "poisonous glob",
                    KILLED_BY_AN);
         } else
             You("seem unaffected by the poison.");
@@ -1957,16 +2025,17 @@ struct obj *otmp;
         ; /* we've already delivered a message; don't add "it tastes okay" */
     } else {
         /* yummy is always False for omnivores, palatable always True */
-        boolean yummy = (vegan(&mons[mnum])
-                            ? (!carnivorous(youmonst.data)
-                               && herbivorous(youmonst.data))
-                            : (carnivorous(youmonst.data)
-                               && !herbivorous(youmonst.data))),
+        boolean yummy = ((vegan(&mons[mnum])
+                             ? (!carnivorous(youmonst.data)
+                                && herbivorous(youmonst.data))
+                             : (carnivorous(youmonst.data)
+                                && !herbivorous(youmonst.data)))
+                         || (!Upolyd && Race_if(PM_DRAUGR))),
             palatable = ((vegetarian(&mons[mnum])
                           ? herbivorous(youmonst.data)
                           : carnivorous(youmonst.data))
                          && rn2(10)
-                         && ((rotted < 1) ? TRUE : !rn2(rotted+1)));
+                         && ((rotted < 1) ? TRUE : !rn2(rotted + 1)));
         const char *pmxnam = food_xname(otmp, FALSE);
 
         if (!strncmpi(pmxnam, "the ", 4))
@@ -2735,6 +2804,19 @@ struct obj *otmp;
         else
             return 2;
     }
+    if (((cadaver && mnum != PM_ACID_BLOB && rotted > 5L)
+          || (cadaver && (otmp->zombie_corpse)))
+        && Sick_resistance) {
+        /* Tainted meat with Sick_resistance */
+        if (!(!Upolyd && Race_if(PM_DRAUGR))) {
+            Sprintf(buf, "%s like %s could be tainted!  %s",
+                    foodsmell, it_or_they, eat_it_anyway);
+            if (yn_function(buf, ynchars, 'n') == 'n')
+                return 1;
+            else
+                return 2;
+        }
+    }
     if (stoneorslime || otmp->oartifact == ART_EYE_OF_VECNA) {
         Sprintf(buf, "%s like %s could be something very dangerous!  %s",
                 foodsmell, it_or_they, eat_it_anyway);
@@ -2752,20 +2834,22 @@ struct obj *otmp;
         else
             return 2;
     }
-    if ((otmp->orotten || (cadaver && rotted > 3L))
-        && !Race_if(PM_DRAUGR)) {
+    if (otmp->orotten || (cadaver && rotted > 3L)) {
         /* Rotten */
-        Sprintf(buf, "%s like %s could be rotten!  %s",
-                foodsmell, it_or_they, eat_it_anyway);
-        if (yn_function(buf, ynchars, 'n') == 'n')
-            return 1;
-        else
-            return 2;
+        if (!(!Upolyd && Race_if(PM_DRAUGR))) {
+            Sprintf(buf, "%s like %s could be rotten!  %s",
+                    foodsmell, it_or_they, eat_it_anyway);
+            if (yn_function(buf, ynchars, 'n') == 'n')
+                return 1;
+            else
+                return 2;
+        }
     }
     if (cadaver && poisonous(&mons[mnum])
         && how_resistant(POISON_RES) < 100) {
         /* poisonous */
-        Sprintf(buf, "%s like %s might be poisonous!  %s",
+        Sprintf(buf, "%s%s like %s might be poisonous!  %s",
+                (!Upolyd && Race_if(PM_DRAUGR)) ? "Mmmm!  " : "",
                 foodsmell, it_or_they, eat_it_anyway);
         if (yn_function(buf, ynchars, 'n') == 'n')
             return 1;
@@ -2828,18 +2912,6 @@ struct obj *otmp;
         else
             return 2;
     }
-
-    if (((cadaver && mnum != PM_ACID_BLOB && rotted > 5L)
-          || (cadaver && (otmp->zombie_corpse)))
-        && Sick_resistance && !Race_if(PM_DRAUGR)) {
-        /* Tainted meat with Sick_resistance */
-        Sprintf(buf, "%s like %s could be tainted!  %s",
-                foodsmell, it_or_they, eat_it_anyway);
-        if (yn_function(buf, ynchars, 'n') == 'n')
-            return 1;
-        else
-            return 2;
-    }
     return 0;
 }
 
@@ -2888,6 +2960,12 @@ doeat()
      */
     if (!is_edible(otmp)) {
         You("cannot eat that!");
+        return 0;
+    } else if (otmp->otyp == CORPSE && (!Upolyd && Race_if(PM_DRAUGR))
+               && (((monstermoves - peek_at_iced_corpse_age(otmp)) / 10L) <= 3L
+                   && !nonrotting_corpse(otmp->corpsenm))) {
+        /* Draugr can eat corpses, but only if they are rotted */
+        pline ("Ugh... this corpse is too fresh!");
         return 0;
     } else if ((otmp->owornmask & (W_ARMOR | W_TOOL | W_AMUL | W_SADDLE))
                != 0) {
