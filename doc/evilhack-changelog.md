@@ -3847,4 +3847,5 @@ The following changes to date are:
 - Revisiting what and how Draugr can eat
 - Alternate ending to the Ice Queen branch if the player is a Draugr
 - Fix: racial shopkeepers receive appropriate racial gear
+- Allow vampires to use weapons
 
