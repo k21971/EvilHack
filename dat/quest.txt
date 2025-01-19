@@ -5016,6 +5016,14 @@ me in the first place.  Because you freed me, I will spare
 you %p, but only for a few moments.  Leave this place
 while you are still able to do so.
 %E [You have freed Kathryn the Enchantress from a terrible curse.]
+%Cc - 00202
+I suppose I should thank you for freeing me %p,
+but in good conscience, I cannot!  You are undead, and
+the very sight of you revolts me!  I will not tolerate
+such an abomination.  Because you freed me, I will spare
+you %p, but only for a few moments.  Leave this
+place while you are still able to do so.
+%E [You have freed Kathryn the Enchantress from a terrible curse.]
 #
 # Entering Vlad's tower (cavern level)
 #

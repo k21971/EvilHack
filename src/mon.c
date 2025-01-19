@@ -6733,6 +6733,14 @@ struct monst *mtmp;
             mtmp->mpeaceful = 0;
             newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
             paralyze_monst(mtmp, 100);
+        } else if ((!Upolyd && Race_if(PM_DRAUGR))
+                   || is_undead(youmonst.data)) {
+            /* as with Infidels, the enchantress will not tolerate
+               the undead */
+            com_pager(202);
+            mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
+            paralyze_monst(mtmp, 100);
         } else {
             com_pager(200);
         }

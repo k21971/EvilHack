@@ -3845,4 +3845,5 @@ The following changes to date are:
 - Tweak to last commit (wand of undead turning vs player)
 - Holy water, wands of death, and Draugr
 - Revisiting what and how Draugr can eat
+- Alternate ending to the Ice Queen branch if the player is a Draugr
 
