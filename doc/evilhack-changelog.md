@@ -3849,4 +3849,5 @@ The following changes to date are:
 - Fix: racial shopkeepers receive appropriate racial gear
 - Allow vampires to use weapons
 - Reformat code block handling monster spawn rates
+- Having really low intelligence prevents you from reading most things
 

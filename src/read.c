@@ -290,15 +290,33 @@ doread()
     boolean confused, nodisappear;
     const char *mesg;
     known = FALSE;
+    scroll = getobj(readable, "read");
+
+    if (!scroll)
+        return 0;
+
+    if (check_capacity((char *) 0))
+        return 0;
+
     if (Hidinshell) {
         You_cant("read anything while hiding in your shell.");
         return 0;
     }
-    if (check_capacity((char *) 0))
+    /* really low intelligence can prevent reading things.
+       exceptions to this rule are scrolls of mail (server
+       messages), hawaiian shirts (pattern, not text), and
+       the book of the dead (must have to win) */
+    if (ACURR(A_INT) < 6
+#ifdef MAIL
+        && scroll->otyp != SCR_MAIL
+#endif
+        && scroll->otyp != HAWAIIAN_SHIRT
+        && scroll->otyp != SPE_BOOK_OF_THE_DEAD) {
+        You_cant("seem to make out what all these %s on the %s mean.",
+                 rn2(2) ? "weird scribbles" : "confusing scratches",
+                 simple_typename(scroll->otyp));
         return 0;
-    scroll = getobj(readable, "read");
-    if (!scroll)
-        return 0;
+    }
 
     /* outrumor has its own blindness check */
     if (scroll->otyp == FORTUNE_COOKIE) {
