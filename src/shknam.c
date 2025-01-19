@@ -789,6 +789,38 @@ int shp_indx;
         sroom->rlit = 0;
     }
 
+    /* shopkeeper racial gear - keys, wands/potions
+       handled in makemon.c */
+    if (racial_orc(shk)) {
+        if (rn2(4))
+            (void) mongets(shk, ORCISH_HELM);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : ORCISH_SCIMITAR);
+    } else if (racial_elf(shk) || racial_hobbit(shk)) {
+        if (rn2(4))
+            (void) mongets(shk, ELVEN_HELM);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : ELVEN_BROADSWORD);
+    } else if (racial_drow(shk)) {
+        if (rn2(4))
+            (void) mongets(shk, DARK_ELVEN_HELM);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : DARK_ELVEN_BROADSWORD);
+    } else if (racial_dwarf(shk)) {
+        if (rn2(4))
+            (void) mongets(shk, DWARVISH_HELM);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : DWARVISH_SHORT_SWORD);
+    } else if (racial_tortle(shk)) {
+        if (rn2(4))
+            (void) mongets(shk, TOQUE);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : TRIDENT);
+    } else if (racial_illithid(shk)) {
+        if (rn2(4))
+            (void) mongets(shk, DARK_ELVEN_HELM);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : ATHAME);
+    } else {
+        if (rn2(4))
+            (void) mongets(shk, rn2(3) ? ELVEN_HELM : HELMET);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : BROADSWORD);
+    }
+
     mkmonmoney(shk, 1000L + 30L * (long) rnd(100)); /* initial capital */
     if (shp->shknms == shkrings)
         (void) mongets(shk, TOUCHSTONE);
@@ -804,6 +836,7 @@ int shp_indx;
             create_oprop(otmp, FALSE);
             bless(otmp);
             otmp->spe = rn2(4) + 1;
+            otmp->forged_qual = FQ_EXCEPTIONAL;
             maybe_erodeproof(otmp, 1);
             (void) mpickobj(shk, otmp);
         }
@@ -825,6 +858,7 @@ int shp_indx;
         if (otmp) {
             bless(otmp);
             otmp->spe = rn2(4);
+            otmp->forged_qual = FQ_SUPERIOR;
             maybe_erodeproof(otmp, 1);
             (void) mpickobj(shk, otmp);
         }
@@ -834,9 +868,10 @@ int shp_indx;
             maybe_erodeproof(otmp, 1);
             (void) mpickobj(shk, otmp);
         }
-        m_dowear(shk, TRUE);
-        mon_wield_item(shk);
     }
+    m_dowear(shk, TRUE);
+    mon_wield_item(shk);
+
     return sh;
 }
 

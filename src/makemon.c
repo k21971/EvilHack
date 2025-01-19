@@ -2538,10 +2538,8 @@ register struct monst *mtmp;
                     (void) mongets(mtmp, BUGLE);
             }
         } else if (ptr == &mons[PM_SHOPKEEPER]) {
+            /* racial specific gear handled in shknam.c */
             (void) mongets(mtmp, SKELETON_KEY);
-            if (rn2(4))
-                (void) mongets(mtmp, rn2(3) ? ELVEN_HELM : HELMET);
-            (void) mongets(mtmp, rn2(8) ? QUARTERSTAFF : BROADSWORD);
             switch (rn2(4)) {
             /* MAJOR fall through ... */
             case 0:

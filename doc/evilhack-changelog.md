@@ -3846,4 +3846,5 @@ The following changes to date are:
 - Holy water, wands of death, and Draugr
 - Revisiting what and how Draugr can eat
 - Alternate ending to the Ice Queen branch if the player is a Draugr
+- Fix: racial shopkeepers receive appropriate racial gear
 
