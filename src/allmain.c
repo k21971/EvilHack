@@ -264,25 +264,34 @@ boolean resuming;
                      * rate.  Maximal rate is 8x the normal rate.
                      */
                     monclock = MIN_MONGEN_RATE;
-                    /* performing the invocation gets the entire dungeon riled up */
                     if (u.uevent.invoked) {
+                        /* performing the invocation gets the entire
+                           dungeon riled up */
                         monclock = MAX_MONGEN_RATE;
                     } else {
+                        /* spawn rate slowly climbs after 30,000 turns */
                         past_clock = moves - timeout_start;
                         if (past_clock > 0)
-                            monclock = MIN_MONGEN_RATE * 30000 / (past_clock + 30000);
-                        if (monclock > MIN_MONGEN_RATE / 2 && (u.uevent.gehennom_entered
-                                                               || u.uevent.uhand_of_elbereth
-                                                               || ((quest_status.got_quest
-                                                                    || quest_status.got_thanks)
-                                                                   && u.ulevel < 14)))
-                            monclock = MIN_MONGEN_RATE / 2;
-                        if (monclock > MIN_MONGEN_RATE / 3 && u.uevent.hella_entered)
-                            monclock = MIN_MONGEN_RATE / 3;
-                        if (monclock > MIN_MONGEN_RATE / 4 && u.uevent.hellc_entered)
-                            monclock = MIN_MONGEN_RATE / 4;
-                        if (monclock > MIN_MONGEN_RATE / 6 && u.uevent.udemigod)
-                            monclock = MIN_MONGEN_RATE / 6;
+                            monclock = (MIN_MONGEN_RATE * 30000) / (past_clock + 30000);
+                        /* various events will double the normal spawn rate */
+                        if (monclock > (MIN_MONGEN_RATE / 2)) {
+                            if (u.uevent.gehennom_entered) /* entering gehennom */
+                                monclock = (MIN_MONGEN_RATE / 2);
+                            else if (u.uevent.uhand_of_elbereth) /* crowned */
+                                monclock = (MIN_MONGEN_RATE / 2);
+                            else if (u.ulevel < 14 /* accepting the quest early */
+                                     && (quest_status.got_quest || quest_status.got_thanks))
+                                monclock = (MIN_MONGEN_RATE / 2);
+                        }
+                        /* entering the first tier demon boss level */
+                        if (monclock > (MIN_MONGEN_RATE / 3) && u.uevent.hella_entered)
+                            monclock = (MIN_MONGEN_RATE / 3);
+                        /* entering the third tier demon boss level */
+                        if (monclock > (MIN_MONGEN_RATE / 4) && u.uevent.hellc_entered)
+                            monclock = (MIN_MONGEN_RATE / 4);
+                        /* killing the Wizard of Yendor for the first time */
+                        if (monclock > (MIN_MONGEN_RATE / 6) && u.uevent.udemigod)
+                            monclock = (MIN_MONGEN_RATE / 6);
                     }
                     /* make sure we don't fall off the bottom */
                     if (monclock < MAX_MONGEN_RATE)
