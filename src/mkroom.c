@@ -619,8 +619,8 @@ morguemon()
 
     return ((i < 20) ? &mons[PM_GHOST]
                      : (i < v) ? &mons[PM_WRAITH]
-                               : !rn2(5) ? &mons[PM_SKELETON]
-                                         : mkclass(S_ZOMBIE, 0));
+                               : rn2(5) ? mkclass(S_ZOMBIE, 0)
+                                        : mkclass(S_SKELETON, 0));
 }
 
 struct permonst *

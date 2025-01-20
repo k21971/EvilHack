@@ -3852,4 +3852,6 @@ The following changes to date are:
 - Having really low intelligence prevents you from reading most things
 - Revamp how luck affects to-hit
 - Updates to the Hidden Dungeon
+- Allow a bit more variety of skeleton monsters when a morgue is
+  created
 
