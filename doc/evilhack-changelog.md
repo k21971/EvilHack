@@ -3851,4 +3851,5 @@ The following changes to date are:
 - Reformat code block handling monster spawn rates
 - Having really low intelligence prevents you from reading most things
 - Revamp how luck affects to-hit
+- Updates to the Hidden Dungeon
 
