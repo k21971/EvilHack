@@ -3855,4 +3855,5 @@ The following changes to date are:
 - Allow a bit more variety of skeleton monsters when a morgue is
   created
 - Tal'Gath cannot be sensed via telepathy
+- Increase PREFIX value in objnam.c
 

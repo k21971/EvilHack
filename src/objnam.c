@@ -10,8 +10,8 @@
 #include <assert.h>
 
 /* "an uncursed greased magical shimmering-scaled thoroughly rusty
-    thoroughly corroded rustproof +0 [chain mail]" (95 characters) */
-#define PREFIX 100
+    thoroughly corroded rustproof +0 exceptional [chain mail]" (107 characters) */
+#define PREFIX 110
 #define SCHAR_LIM 127
 #define NUMOBUF 12
 
