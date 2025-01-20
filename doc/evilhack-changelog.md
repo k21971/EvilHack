@@ -3854,4 +3854,5 @@ The following changes to date are:
 - Updates to the Hidden Dungeon
 - Allow a bit more variety of skeleton monsters when a morgue is
   created
+- Tal'Gath cannot be sensed via telepathy
 

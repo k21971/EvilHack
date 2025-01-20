@@ -99,10 +99,10 @@ MONSTER:(':',"crocodile"),$sewer[8]
 MONSTER:(':',"giant crocodile"),$sewer[9]
 MONSTER:('T',"troll"),$sewer[10]
 MONSTER:('c',"basilisk"),$sewer[11]
-MONSTER:('e',"beholder"),$beholder[0]
-MONSTER:('e',"beholder"),$beholder[1]
-MONSTER:('e',"beholder"),$beholder[2]
-MONSTER:('e',"beholder"),$beholder[3]
+MONSTER:('e',"beholder"),$beholder[0],awake
+MONSTER:('e',"beholder"),$beholder[1],awake
+MONSTER:('e',"beholder"),$beholder[2],awake
+MONSTER:('e',"beholder"),$beholder[3],awake
 MONSTER:('e',"magical eye"),$beholder[4]
 MONSTER:('e',"magical eye"),$beholder[5]
 MONSTER:('Z',"revenant"),random

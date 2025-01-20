@@ -28,17 +28,19 @@
  * monsters that are hiding or mimicing other monsters.
  */
 #define tp_sensemon(mon) \
-    (/* The hero can always sense a monster IF:        */                   \
-     /* 1. The monster and player are both telepathic  */                   \
+    (/* The hero can always sense a monster IF:          */                 \
+     /* 1. The monster and player are both telepathic    */                 \
      (has_telepathy(mon) && (HTelepat || ETelepat)                          \
      /* (and the monster is not a high priest on astral) */                 \
       && !((mon)->mnum == PM_HIGH_PRIEST && Is_astralevel(&u.uz)))          \
-     /* OR 2. the monster has a brain to sense         */                   \
+     /* OR 2. the monster has a brain to sense           */                 \
       || (!mindless(mon->data)                                              \
-          /* AND 3a. hero is blind and telepathic      */                   \
+          /* (and the monster is not Tal'Gath)           */                 \
+          && !((mon)->mnum == PM_TAL_GATH)                                  \
+          /* AND 3a. hero is blind and telepathic        */                 \
           && ((Blind && Blind_telepat)                                      \
-          /* OR 3b. hero is using a telepathy inducing */                   \
-          /*        object and in range                */                   \
+          /* OR 3b. hero is using a telepathy inducing   */                 \
+          /*        object and in range                  */                 \
               || (Unblind_telepat                                           \
                   && (distu(mon->mx, mon->my) <= (BOLT_LIM * BOLT_LIM)))))) \
 
