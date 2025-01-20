@@ -278,8 +278,14 @@ int *attk_count, *role_roll_penalty;
     *role_roll_penalty = 0; /* default is `none' */
 
     /* luck still plays a role with to-hit calculations, but
-       it's toned down vs regular NetHack */
-    tmp = 1 + (Luck / 3) + abon() + find_mac(mtmp) + u.uhitinc
+       it's toned down vs regular NetHack
+
+       from xNetHack: a popular change is to add in Luck/3
+       instead of Luck; this keeps the same scale but shifts
+       the ranges down, so that Luck of +1 or -1 still has a
+       noticeable effect */
+    tmp = 1 + abon() + find_mac(mtmp) + u.uhitinc
+          + (sgn(Luck) * ((abs(Luck) + 2) / 3))
           + maybe_polyd(youmonst.data->mlevel,
                         (u.ulevel > 20 ? 10 + (u.ulevel / 2)
                                        : u.ulevel));

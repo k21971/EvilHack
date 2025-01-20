@@ -3850,4 +3850,5 @@ The following changes to date are:
 - Allow vampires to use weapons
 - Reformat code block handling monster spawn rates
 - Having really low intelligence prevents you from reading most things
+- Revamp how luck affects to-hit
 

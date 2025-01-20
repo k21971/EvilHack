@@ -193,7 +193,8 @@ botl_hitbonus()
     uchar aatyp = youmonst.data->mattk[0].aatyp;
     struct obj *weapon = uwep;
 
-    tmp = 1 + (Luck / 3) + abon() + u.uhitinc
+    tmp = 1 + abon() + u.uhitinc
+          + (sgn(Luck) * ((abs(Luck) + 2) / 3))
           + (int) maybe_polyd(youmonst.data->mlevel,
                               (u.ulevel > 20 ? 10 + (u.ulevel / 2)
                                              : u.ulevel));
