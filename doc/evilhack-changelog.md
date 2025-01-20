@@ -3856,4 +3856,5 @@ The following changes to date are:
   created
 - Tal'Gath cannot be sensed via telepathy
 - Increase PREFIX value in objnam.c
+- Blessed scroll of taming increases tameness of pets
 

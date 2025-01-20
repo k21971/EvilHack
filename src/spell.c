@@ -1617,11 +1617,11 @@ boolean wiz_cast;
     case SPE_DETECT_FOOD:
     case SPE_CAUSE_FEAR:
     case SPE_IDENTIFY:
+    case SPE_CHARM_MONSTER:
         /* high skill yields effect equivalent to blessed scroll */
         if (role_skill >= P_SKILLED)
             pseudo->blessed = 1;
     /*FALLTHRU*/
-    case SPE_CHARM_MONSTER:
     case SPE_MAGIC_MAPPING:
     case SPE_CREATE_MONSTER:
         (void) seffects(pseudo);

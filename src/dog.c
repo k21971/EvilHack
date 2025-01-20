@@ -1298,7 +1298,14 @@ tamedog(mtmp, obj)
 struct monst *mtmp;
 struct obj *obj;
 {
+    boolean blessed_scroll = FALSE;
     boolean same_align = (sgn(mon_aligntyp(mtmp)) == u.ualign.type);
+
+    if (obj && (obj->oclass == SCROLL_CLASS || obj->oclass == SPBOOK_CLASS)) {
+        blessed_scroll = obj->blessed ? TRUE : FALSE;
+        /* the rest of this routine assumes 'obj' represents food */
+        obj = (struct obj *) NULL;
+    }
 
     /* reduce timed sleep or paralysis, leaving mtmp->mcanmove as-is
        (note: if mtmp is donning armor, this will reduce its busy time) */
@@ -1474,11 +1481,17 @@ struct obj *obj;
             return FALSE;
     }
 
-    /* if already tame, taming magic might make it become tamer */
-    if (mtmp->mtame) {
-        /* maximum tameness is 20, only reachable via eating */
-        if (rnd(10) > mtmp->mtame)
+    /* maximum tameness is 20, only reachable via eating; if already tame but
+       less than 10, taming magic might make it become tamer; blessed scroll
+       or skilled spell raises low tameness by 2 or 3, uncursed by 0 or 1 */
+    if (mtmp->mtame && mtmp->mtame < 10) {
+        if (mtmp->mtame < rnd(10))
             mtmp->mtame++;
+        if (blessed_scroll) {
+            mtmp->mtame += 2;
+            if (mtmp->mtame > 10)
+                mtmp->mtame = 10;
+        }
         return FALSE; /* didn't just get tamed */
     }
     /* pacify angry shopkeeper but don't tame him/her/it/them */
@@ -1510,8 +1523,10 @@ struct obj *obj;
         separate_steed_and_rider(mtmp);
     }
     /* add the pet extension */
-    newedog(mtmp);
-    initedog(mtmp);
+    if (!has_edog(mtmp)) {
+        newedog(mtmp);
+        initedog(mtmp);
+    }
     u.uconduct.pets++;
 
     if (obj) { /* thrown food */

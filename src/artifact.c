@@ -3156,12 +3156,12 @@ struct obj *obj;
 
         switch (oart->inv_prop) {
         case TAMING: {
-            struct obj pseudo;
+            struct obj *pseudo;
 
-            pseudo =
-                zeroobj; /* neither cursed nor blessed, zero oextra too */
-            pseudo.otyp = SCR_TAMING;
-            (void) seffects(&pseudo);
+            pseudo = mksobj(SCR_TAMING, FALSE, FALSE);
+            pseudo->blessed = 1;
+            (void) seffects(pseudo);
+            obfree(pseudo, (struct obj *) 0);
             break;
         }
         case HEALING: {

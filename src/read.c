@@ -1049,11 +1049,11 @@ struct obj *sobj;
         if (was_peaceful && !mtmp->mpeaceful)
             return -1;
     } else {
-        if (mtmp->isshk)
-            make_happy_shk(mtmp, FALSE);
-        else if (!resist(mtmp, sobj->oclass, 0, NOTELL))
-            (void) tamedog(mtmp, (struct obj *) 0);
-        if ((!was_peaceful && mtmp->mpeaceful) || (!was_tame && mtmp->mtame))
+        /* for a shopkeeper, tamedog() will call make_happy_shk() but
+           not tame the target, so call it even if taming gets resisted */
+        if (!resist(mtmp, sobj->oclass, 0, NOTELL) || mtmp->isshk)
+            (void) tamedog(mtmp, sobj);
+        if ((!was_peaceful && mtmp->mpeaceful) || was_tame != mtmp->mtame)
             return 1;
     }
     return 0;
