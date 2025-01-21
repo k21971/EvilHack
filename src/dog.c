@@ -1055,10 +1055,13 @@ coord *cc;   /* optional destination coordinates */
     xchar xyflags;
     int num_segs = 0; /* count of worm segments */
 
-    /* Recursive call to levelport monster steeds. */
-    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->mon_steed) {
+    /* guard against migrating dead monster (null) */
+    if (DEADMONSTER(mtmp))
+        return;
+
+    /* Recursive call to levelport monster steeds */
+    if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->mon_steed)
         migrate_to_level(ERID(mtmp)->mon_steed, tolev, xyloc, cc);
-    }
 
     if (mtmp->isshk)
         set_residency(mtmp, TRUE);
@@ -1084,7 +1087,11 @@ coord *cc;   /* optional destination coordinates */
         mtmp->mtame--;
         m_unleash(mtmp, TRUE);
     }
-    relmon(mtmp, &migrating_mons); /* move it from map to migrating_mons */
+    if (mtmp->mentangled)
+        mtmp->mentangled = 0;
+    /* move it from map to migrating_mons */
+    relmon(mtmp, &migrating_mons); /* mtmp->mx,my retain their value */
+    mtmp->mstate |= MON_MIGRATING;
 
     new_lev.dnum = ledger_to_dnum((xchar) tolev);
     new_lev.dlevel = ledger_to_dlev((xchar) tolev);
@@ -1095,6 +1102,8 @@ coord *cc;   /* optional destination coordinates */
         xyflags |= 2;
     mtmp->wormno = num_segs;
     mtmp->mlstmv = monstermoves;
+    mtmp->mtrack[2].x = u.uz.dnum; /* migrating from this dungeon */
+    mtmp->mtrack[2].y = u.uz.dlevel; /* migrating from this dungeon level */
     mtmp->mtrack[1].x = cc ? cc->x : mtmp->mx;
     mtmp->mtrack[1].y = cc ? cc->y : mtmp->my;
     mtmp->mtrack[0].x = xyloc;
@@ -1104,6 +1113,11 @@ coord *cc;   /* optional destination coordinates */
     mtmp->mx = mtmp->my = 0; /* this implies migration */
     if (mtmp == context.polearm.hitmon)
         context.polearm.hitmon = (struct monst *) 0;
+
+    /* don't extinguish a mobile light; it still exists but has changed
+       from local (monst->mx > 0) to global (mx==0, not on this level) */
+    if (emits_light(mtmp->data))
+        vision_recalc(0);
 }
 
 /* return quality of food; the lower the better */

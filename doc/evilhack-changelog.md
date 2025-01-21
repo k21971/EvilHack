@@ -3866,4 +3866,5 @@ The following changes to date are:
   while having the Amulet of Yendor in inventory
 - Fix: fuzzer making a wish, returns NULL, causing a crash
 - Fix: give message when gaining strength via uncursed gain ability
+- Fix: panic "relmon: mon not in list"
 
