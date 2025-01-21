@@ -3861,4 +3861,5 @@ The following changes to date are:
 - Some tweaks and fixes to player monster gear
 - Fix: account for being polymorphed into an undead monster when
   using wand of death/finger of death spell on yourself 
+- Fix: impossible "hiding under nothing?"
 
