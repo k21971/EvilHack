@@ -3864,4 +3864,5 @@ The following changes to date are:
 - Fix: impossible "hiding under nothing?"
 - Fix: 'Program in disorder: rnd(0) attempted' when using #wizspell
   while having the Amulet of Yendor in inventory
+- Fix: fuzzer making a wish, returns NULL, causing a crash
 

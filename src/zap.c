@@ -6851,6 +6851,8 @@ boolean eight_ball;
          * random input string that corresponds to nothing. */
         buf[0] = '\0';
         otmp = readobjnam(buf, &nothing);
+        if (!otmp)
+            return; /* for safety; should never happen */
     } else if (!otmp) {
         pline("Nothing fitting that description exists in the game.");
         if (++tries < MAXWISHTRY)
