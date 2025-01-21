@@ -3859,4 +3859,6 @@ The following changes to date are:
 - Blessed scroll of taming increases tameness of pets
 - The spell 'stone to flesh' can affect armor and weapons
 - Some tweaks and fixes to player monster gear
+- Fix: account for being polymorphed into an undead monster when
+  using wand of death/finger of death spell on yourself 
 
