@@ -3862,4 +3862,6 @@ The following changes to date are:
 - Fix: account for being polymorphed into an undead monster when
   using wand of death/finger of death spell on yourself 
 - Fix: impossible "hiding under nothing?"
+- Fix: 'Program in disorder: rnd(0) attempted' when using #wizspell
+  while having the Amulet of Yendor in inventory
 

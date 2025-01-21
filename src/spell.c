@@ -1334,10 +1334,16 @@ boolean wiz_cast;
            Moloch's influence suppresses the spell power draining effect
            and allows the Infidel to realize their full potential */
         if ((Role_if(PM_INFIDEL) && u.uachieve.amulet)
-            || spellid(spell) == SPE_PSIONIC_WAVE)
+            || spellid(spell) == SPE_PSIONIC_WAVE) {
             ; /* nothing happens */
-        else
-            u.uen -= rnd(2 * energy);
+        } else {
+            /* hacky fix: add one here if in wizmode using #wizspell
+               so rnd(0) doesn't occur */
+            u.uen -= rnd((2 * energy) + (wiz_cast ? 1 : 0));
+            /* now add it back */
+            if (wiz_cast)
+                u.uen += 1;
+        }
         if (u.uen < 0)
             u.uen = 0;
         context.botl = 1;
