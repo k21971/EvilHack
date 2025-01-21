@@ -260,41 +260,52 @@ struct obj {
 #define any_quest_artifact(o) ((o)->oartifact >= ART_XIUHCOATL)
 
 /* Armor */
-#define is_shield(otmp)          \
+#define is_shield(otmp) \
     (otmp->oclass == ARMOR_CLASS \
      && objects[otmp->otyp].oc_armcat == ARM_SHIELD)
 #define is_helmet(otmp) \
-    (otmp->oclass == ARMOR_CLASS && objects[otmp->otyp].oc_armcat == ARM_HELM)
-#define is_boots(otmp)           \
+    (otmp->oclass == ARMOR_CLASS \
+     && objects[otmp->otyp].oc_armcat == ARM_HELM)
+#define is_boots(otmp) \
     (otmp->oclass == ARMOR_CLASS \
      && objects[otmp->otyp].oc_armcat == ARM_BOOTS)
-#define is_gloves(otmp)          \
+#define is_gloves(otmp) \
     (otmp->oclass == ARMOR_CLASS \
      && objects[otmp->otyp].oc_armcat == ARM_GLOVES)
-#define is_cloak(otmp)           \
+#define is_cloak(otmp) \
     (otmp->oclass == ARMOR_CLASS \
      && objects[otmp->otyp].oc_armcat == ARM_CLOAK)
-#define is_shirt(otmp)           \
+#define is_shirt(otmp) \
     (otmp->oclass == ARMOR_CLASS \
      && objects[otmp->otyp].oc_armcat == ARM_SHIRT)
 #define is_suit(otmp) \
-    (otmp->oclass == ARMOR_CLASS && objects[otmp->otyp].oc_armcat == ARM_SUIT)
+    (otmp->oclass == ARMOR_CLASS \
+     && objects[otmp->otyp].oc_armcat == ARM_SUIT)
 #define is_bracer(otmp) \
-    ((otmp)->otyp == BRACERS                                                 \
-     || (otmp)->otyp == DARK_ELVEN_BRACERS || (otmp)->otyp == RUNED_BRACERS)
+    ((otmp)->otyp == BRACERS               \
+     || (otmp)->otyp == DARK_ELVEN_BRACERS \
+     || (otmp)->otyp == RUNED_BRACERS)
 #define is_elven_armor(otmp) \
-    ((otmp)->otyp == ELVEN_HELM                                         \
-     || (otmp)->otyp == ELVEN_CHAIN_MAIL || (otmp)->otyp == ELVEN_CLOAK \
-     || (otmp)->otyp == ELVEN_SHIELD || (otmp)->otyp == ELVEN_BOOTS)
+    ((otmp)->otyp == ELVEN_HELM          \
+     || (otmp)->otyp == ELVEN_CHAIN_MAIL \
+     || (otmp)->otyp == ELVEN_CLOAK      \
+     || (otmp)->otyp == ELVEN_SHIELD     \
+     || (otmp)->otyp == ELVEN_BOOTS)
 #define is_drow_armor(otmp) \
-    ((otmp)->otyp == DARK_ELVEN_HELM || (otmp)->otyp == DARK_ELVEN_BOOTS          \
-     || (otmp)->otyp == DARK_ELVEN_CHAIN_MAIL || (otmp)->otyp == DARK_ELVEN_TUNIC \
-     || (otmp)->otyp == DARK_ELVEN_CLOAK || (otmp)->otyp == DARK_ELVEN_BRACERS    \
+    ((otmp)->otyp == DARK_ELVEN_HELM          \
+     || (otmp)->otyp == DARK_ELVEN_BOOTS      \
+     || (otmp)->otyp == DARK_ELVEN_CHAIN_MAIL \
+     || (otmp)->otyp == DARK_ELVEN_TUNIC      \
+     || (otmp)->otyp == DARK_ELVEN_CLOAK      \
+     || (otmp)->otyp == DARK_ELVEN_BRACERS    \
      || (otmp)->otyp == DARK_ELVEN_GLOVES)
 #define is_orcish_armor(otmp) \
-    ((otmp)->otyp == ORCISH_HELM || (otmp)->otyp == ORCISH_CHAIN_MAIL    \
-     || (otmp)->otyp == ORCISH_RING_MAIL || (otmp)->otyp == ORCISH_CLOAK \
-     || (otmp)->otyp == URUK_HAI_SHIELD || (otmp)->otyp == ORCISH_SHIELD \
+    ((otmp)->otyp == ORCISH_HELM          \
+     || (otmp)->otyp == ORCISH_CHAIN_MAIL \
+     || (otmp)->otyp == ORCISH_RING_MAIL  \
+     || (otmp)->otyp == ORCISH_CLOAK      \
+     || (otmp)->otyp == URUK_HAI_SHIELD   \
+     || (otmp)->otyp == ORCISH_SHIELD     \
      || (otmp)->otyp == ORCISH_BOOTS)
 #define is_dwarvish_armor(otmp) \
     ((otmp)->otyp == DWARVISH_HELM            \
@@ -304,9 +315,18 @@ struct obj {
      || (otmp)->otyp == DWARVISH_ROUNDSHIELD)
 #define is_gnomish_armor(otmp) (FALSE)
 
+#define is_meat_armor(otmp) \
+    ((otmp)->otyp == MEAT_SUIT      \
+     || (otmp)->otyp == MEAT_HELMET \
+     || (otmp)->otyp == MEAT_SHIELD \
+     || (otmp)->otyp == MEAT_GLOVES \
+     || (otmp)->otyp == MEAT_BOOTS)
+
 #define spit_object(otmp) \
-    ((otmp)->otyp == ACID_VENOM || (otmp)->otyp == BLINDING_VENOM   \
-     || (otmp)->otyp == SNOWBALL || (otmp)->otyp == BALL_OF_WEBBING \
+    ((otmp)->otyp == ACID_VENOM         \
+     || (otmp)->otyp == BLINDING_VENOM  \
+     || (otmp)->otyp == SNOWBALL        \
+     || (otmp)->otyp == BALL_OF_WEBBING \
      || (otmp)->otyp == BARBED_NEEDLE)
 
 /* Eggs and other food */

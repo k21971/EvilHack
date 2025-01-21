@@ -286,6 +286,7 @@ Boots_on(VOID_ARGS)
     case JUMPING_BOOTS:
     case KICKING_BOOTS:
     case ORCISH_BOOTS:
+    case MEAT_BOOTS:
         break;
     case WATER_WALKING_BOOTS:
         if (u.uinwater)
@@ -397,6 +398,7 @@ Boots_off(VOID_ARGS)
     case JUMPING_BOOTS:
     case KICKING_BOOTS:
     case ORCISH_BOOTS:
+    case MEAT_BOOTS:
         break;
     default:
         impossible(unknown_type, c_boots, otyp);
@@ -596,6 +598,7 @@ Helmet_on(VOID_ARGS)
     case DWARVISH_HELM:
     case ORCISH_HELM:
     case HELM_OF_TELEPATHY:
+    case MEAT_HELMET:
         break;
     case HELM_OF_CAUTION:
         see_monsters();
@@ -688,6 +691,7 @@ Helmet_off(VOID_ARGS)
     case DARK_ELVEN_HELM:
     case DWARVISH_HELM:
     case ORCISH_HELM:
+    case MEAT_HELMET:
         break;
     case DUNCE_CAP:
         context.botl = 1;
@@ -735,6 +739,7 @@ Gloves_on(VOID_ARGS)
     case GLOVES:
     case DARK_ELVEN_GLOVES:
     case GAUNTLETS:
+    case MEAT_GLOVES:
         break;
     case GAUNTLETS_OF_FUMBLING:
         if (!(HFumbling & ~TIMEOUT))
@@ -807,6 +812,7 @@ Gloves_off(VOID_ARGS)
     case DARK_ELVEN_GLOVES:
     case GAUNTLETS:
     case GAUNTLETS_OF_PROTECTION:
+    case MEAT_GLOVES:
         break;
     case GAUNTLETS_OF_FUMBLING:
         if (!(HFumbling & ~TIMEOUT))
@@ -873,6 +879,7 @@ Shield_on(VOID_ARGS)
     case SHIELD_OF_REFLECTION:
     case SHIELD_OF_LIGHT:
     case SHIELD_OF_MOBILITY:
+    case MEAT_SHIELD:
         break;
     default:
         impossible(unknown_type, c_shield, uarms->otyp);
@@ -911,6 +918,7 @@ Shield_off(VOID_ARGS)
     case SHIELD_OF_REFLECTION:
     case SHIELD_OF_LIGHT:
     case SHIELD_OF_MOBILITY:
+    case MEAT_SHIELD:
         break;
     default:
         impossible(unknown_type, c_shield, otmp->otyp);
@@ -2216,23 +2224,30 @@ struct obj *otmp;
     if (delay) {
         nomul(delay);
         multi_reason = "disrobing";
-        if (is_helmet(otmp)) {
+        if (is_helmet(otmp)
+            || otmp->otyp == MEAT_HELMET) {
             what = helm_simple_name(otmp);
             afternmv = Helmet_off;
-        } else if (is_gloves(otmp)) {
+        } else if (is_gloves(otmp)
+                   || otmp->otyp == MEAT_GLOVES) {
             what = gloves_simple_name(otmp);
             afternmv = Gloves_off;
-        } else if (is_boots(otmp)) {
+        } else if (is_boots(otmp)
+                   || otmp->otyp == MEAT_BOOTS) {
             what = c_boots;
             afternmv = Boots_off;
-        } else if (is_suit(otmp)) {
+        } else if (is_suit(otmp)
+                   || otmp->otyp == MEAT_SUIT) {
             what = suit_simple_name(otmp);
             afternmv = Armor_off;
         } else if (is_cloak(otmp)) {
             what = cloak_simple_name(otmp);
             afternmv = Cloak_off;
-        } else if (is_shield(otmp)) { /* also handles bracers */
-            what = is_bracer(otmp) ? c_bracers : c_shield;
+        } else if (is_shield(otmp)
+                   || otmp->otyp == MEAT_SHIELD) {
+            /* also handles bracers */
+            what = is_bracer(otmp) ? c_bracers
+                                   : c_shield;
             afternmv = Shield_off;
         } else if (is_shirt(otmp)) {
             what = c_shirt;
@@ -2265,17 +2280,22 @@ struct obj *otmp;
          */
         if (is_cloak(otmp))
             (void) Cloak_off();
-        else if (is_shield(otmp)) /* also handles bracers */
+        else if (is_shield(otmp) /* also handles bracers */
+                 || otmp->otyp == MEAT_SHIELD)
             (void) Shield_off();
-        else if (is_helmet(otmp))
+        else if (is_helmet(otmp)
+                 || otmp->otyp == MEAT_HELMET)
             (void) Helmet_off();
-        else if (is_gloves(otmp))
+        else if (is_gloves(otmp)
+                 || otmp->otyp == MEAT_GLOVES)
             (void) Gloves_off();
-        else if (is_boots(otmp))
+        else if (is_boots(otmp)
+                 || otmp->otyp == MEAT_BOOTS)
             (void) Boots_off();
         else if (is_shirt(otmp))
             (void) Shirt_off();
-        else if (is_suit(otmp))
+        else if (is_suit(otmp)
+                 || otmp->otyp == MEAT_SUIT)
             (void) Armor_off();
         else
             impossible("Taking off unknown armor (%d: %d), no delay",
@@ -2354,19 +2374,21 @@ boolean noisy;
         return 0;
     }
 
-    if (welded(uwep) && bimanual(uwep) && (is_suit(otmp) || is_shirt(otmp))) {
+    if (welded(uwep) && bimanual(uwep)
+        && (is_suit(otmp) || is_shirt(otmp))) {
         if (noisy)
             You("cannot do that while holding your %s.",
                 is_sword(uwep) ? c_sword : c_weapon);
         return 0;
     }
 
-    if (is_helmet(otmp)) {
+    if (is_helmet(otmp) || otmp->otyp == MEAT_HELMET) {
         if (uarmh) {
             if (noisy)
                 already_wearing(an(helm_simple_name(uarmh)));
             err++;
-        } else if (Upolyd && has_horns(youmonst.data) && !is_flimsy(otmp)) {
+        } else if (Upolyd && has_horns(youmonst.data)
+                   && !is_flimsy(otmp)) {
             /* (flimsy exception matches polyself handling) */
             if (noisy)
                 pline_The("%s won't fit over your horn%s.",
@@ -2375,10 +2397,12 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARMH;
-    } else if (is_shield(otmp)) { /* also handles bracers */
+    } else if (is_shield(otmp) || otmp->otyp == MEAT_SHIELD) {
+        /* also handles bracers */
         if (uarms) {
             if (noisy)
-                already_wearing(is_bracer(otmp) ? c_bracers : an(c_shield));
+                already_wearing(is_bracer(otmp) ? c_bracers
+                                                : an(c_shield));
             err++;
         } else if (uwep && !is_bracer(otmp) && bimanual(uwep)) {
             if (noisy)
@@ -2393,7 +2417,7 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARMS;
-    } else if (is_boots(otmp)) {
+    } else if (is_boots(otmp) || otmp->otyp == MEAT_BOOTS) {
         if (uarmf) {
             if (noisy)
                 already_wearing(c_boots);
@@ -2410,7 +2434,8 @@ boolean noisy;
                so don't let dowear() put them back on... */
             if (noisy)
                 Your("%s are not shaped correctly to wear %s.",
-                     ((is_centaur(youmonst.data) || is_satyr(youmonst.data))
+                     ((is_centaur(youmonst.data)
+                       || is_satyr(youmonst.data))
                        ? "hooves" : "tarsi"),
                      c_boots); /* makeplural(body_part(FOOT)) yields
                                   "rear hooves" which sounds odd */
@@ -2422,16 +2447,19 @@ boolean noisy;
                      makeplural(body_part(FOOT)), c_boots);
             err++;
         } else if (u.utrap
-                   && (u.utraptype == TT_BEARTRAP || u.utraptype == TT_INFLOOR
+                   && (u.utraptype == TT_BEARTRAP
+                       || u.utraptype == TT_INFLOOR
                        || u.utraptype == TT_LAVA
                        || u.utraptype == TT_BURIEDBALL)) {
             if (u.utraptype == TT_BEARTRAP) {
                 if (noisy)
                     Your("%s is trapped!", body_part(FOOT));
-            } else if (u.utraptype == TT_INFLOOR || u.utraptype == TT_LAVA) {
+            } else if (u.utraptype == TT_INFLOOR
+                       || u.utraptype == TT_LAVA) {
                 if (noisy)
                     Your("%s are stuck in the %s!",
-                         makeplural(body_part(FOOT)), surface(u.ux, u.uy));
+                         makeplural(body_part(FOOT)),
+                         surface(u.ux, u.uy));
             } else { /*TT_BURIEDBALL*/
                 if (noisy)
                     Your("%s is attached to the buried ball!",
@@ -2440,11 +2468,12 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARMF;
-    } else if (is_gloves(otmp)) {
+    } else if (is_gloves(otmp) || otmp->otyp == MEAT_GLOVES) {
         if (uarmg) {
             if (noisy) {
                 if (uarmg->otyp == MUMMIFIED_HAND)
-                    pline("%s resists being covered!", The(xname(uarmg)));
+                    pline("%s resists being covered!",
+                          The(xname(uarmg)));
                 else
                     already_wearing(c_gloves);
             }
@@ -2502,7 +2531,7 @@ boolean noisy;
             if (noisy)
                 pline_The("scales are just large enough to fit your body.");
         }
-    } else if (is_suit(otmp)) {
+    } else if (is_suit(otmp) || otmp->otyp == MEAT_SUIT) {
         if (uarmc) {
             if (noisy)
                 You("cannot wear armor over a %s.", cloak_simple_name(uarmc));
@@ -2570,7 +2599,7 @@ struct obj *obj;
         already_wearing(c_that_);
         return 0;
     }
-    armor = (obj->oclass == ARMOR_CLASS);
+    armor = (obj->oclass == ARMOR_CLASS || is_meat_armor(obj));
     ring = (obj->oclass == RING_CLASS || obj->otyp == MEAT_RING);
     eyewear = (obj->otyp == BLINDFOLD || obj->otyp == TOWEL
                || obj->otyp == LENSES || obj->otyp == GOGGLES);
@@ -3681,7 +3710,8 @@ register struct obj *atmp;
            destroyed */
         if (otmp->lamplit)
             end_burn(otmp, FALSE);
-        Your("%s crumbles and turns to dust!", cloak_simple_name(uarmc));
+        Your("%s crumbles and turns to dust!",
+             cloak_simple_name(uarmc));
         (void) Cloak_off();
         useup(otmp);
     } else if (DESTROY_ARM(uarm)) {
@@ -3697,7 +3727,8 @@ register struct obj *atmp;
                we've been told that it is destroyed */
             if (otmp->lamplit)
                 end_burn(otmp, FALSE);
-            Your("armor turns to dust and falls to the %s!", surface(u.ux, u.uy));
+            Your("armor turns to dust and falls to the %s!",
+                 surface(u.ux, u.uy));
             (void) Armor_gone();
             useup(otmp);
         }
@@ -3710,7 +3741,8 @@ register struct obj *atmp;
     } else if (DESTROY_ARM(uarmh)) {
         if (donning(otmp))
             cancel_don();
-        Your("%s turns to dust and is blown away!", helm_simple_name(uarmh));
+        Your("%s turns to dust and is blown away!",
+             helm_simple_name(uarmh));
         (void) Helmet_off();
         useup(otmp);
     } else if (DESTROY_ARM(uarmg)) {

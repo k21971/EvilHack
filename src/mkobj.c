@@ -1019,6 +1019,7 @@ boolean artif;
                                  + (otmp->otyp - GLOB_OF_GRAY_OOZE);
             } else {
                 if (otmp->otyp != CORPSE && otmp->otyp != MEAT_RING
+                    && otmp->otyp != STRIP_OF_BACON && !is_meat_armor(otmp)
                     && otmp->otyp != KELP_FROND && !rn2(6)) {
                     otmp->quan = 2L;
                 }
@@ -3178,7 +3179,8 @@ struct obj *obj;
            be wielded/alt-wielded/quivered, so tests on those are limited */
         what = 0;
         if (owornmask & W_ARMOR) {
-            if (obj->oclass != ARMOR_CLASS)
+            if (obj->oclass != ARMOR_CLASS
+                && !is_meat_armor(obj))
                 what = "armor";
             if (embedded && !Is_dragon_armor(obj))
                 what = "skin";

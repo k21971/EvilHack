@@ -243,6 +243,16 @@ struct obj *obj;
     case FOOD_CLASS:
         if (obj->otyp == MEAT_RING)
             res = W_RINGL | W_RINGR;
+        if (obj->otyp == MEAT_SUIT)
+            res = W_ARM;
+        if (obj->otyp == MEAT_HELMET)
+            res = W_ARMH;
+        if (obj->otyp == MEAT_SHIELD)
+            res = W_ARMS;
+        if (obj->otyp == MEAT_GLOVES)
+            res = W_ARMG;
+        if (obj->otyp == MEAT_BOOTS)
+            res = W_ARMF;
         break;
     case GEM_CLASS:
         res = W_QUIVER;

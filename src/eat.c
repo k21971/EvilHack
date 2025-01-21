@@ -2178,8 +2178,14 @@ struct obj *otmp;
         goto give_feedback;
     case MEATBALL:
     case MEAT_STICK:
+    case STRIP_OF_BACON:
     case HUGE_CHUNK_OF_MEAT:
     case MEAT_RING:
+    case MEAT_SUIT:
+    case MEAT_HELMET:
+    case MEAT_SHIELD:
+    case MEAT_GLOVES:
+    case MEAT_BOOTS:
         goto give_feedback;
     case EGG:
         /* eggs are severely harmful to gnomes, so it's going to hurt a lot -

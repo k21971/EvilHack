@@ -1176,6 +1176,12 @@ register struct obj *obj;
         case MEATBALL:
         case MEAT_RING:
         case MEAT_STICK:
+        case MEAT_SUIT:
+        case MEAT_HELMET:
+        case MEAT_SHIELD:
+        case MEAT_GLOVES:
+        case MEAT_BOOTS:
+        case STRIP_OF_BACON:
         case HUGE_CHUNK_OF_MEAT:
             return carni ? DOGFOOD : MANFOOD;
         case EGG:

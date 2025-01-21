@@ -1600,7 +1600,9 @@ register const char *let, *word;
              */
             else if (
                 (putting_on(word)
-                 && ((otmp->oclass == FOOD_CLASS && otmp->otyp != MEAT_RING)
+                 && ((otmp->oclass == FOOD_CLASS
+                      && otmp->otyp != MEAT_RING
+                      && !is_meat_armor(otmp))
                      || (otmp->oclass == TOOL_CLASS
                          && otyp != BLINDFOLD && otyp != TOWEL
                          && otyp != LENSES && otyp != GOGGLES)))
@@ -1927,7 +1929,7 @@ struct obj *otmp;
     s1 = s2 = s3 = 0;
     /* check for attempted use of accessory commands ('P','R') on armor
        and for corresponding armor commands ('W','T') on accessories */
-    if (ocls == ARMOR_CLASS) {
+    if (ocls == ARMOR_CLASS || is_meat_armor(otmp)) {
         if (!strcmp(word, "put on"))
             s1 = "W", s2 = "wear", s3 = "";
         else if (!strcmp(word, "remove"))
@@ -4497,7 +4499,8 @@ struct obj *obj;
 #else
     /* this used to check for things that *might* be worn or wielded,
        but that's not particularly interesting */
-    if (is_weptool(obj) || is_wet_towel(obj) || obj->otyp == MEAT_RING)
+    if (is_weptool(obj) || is_wet_towel(obj)
+        || obj->otyp == MEAT_RING || is_meat_armor(obj))
         return TRUE;
     return (boolean) (obj->oclass == WEAPON_CLASS
                       || obj->oclass == ARMOR_CLASS

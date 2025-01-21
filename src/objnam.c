@@ -875,6 +875,12 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                     actualn);
             break;
         }
+        if (obj->otyp == MEAT_BOOTS
+            || obj->otyp == MEAT_GLOVES) {
+            Strcat(buf, "pair of ");
+            Strcat(buf, actualn);
+            break;
+        }
 
         Strcat(buf, actualn);
         if (typ == TIN && known)
@@ -1574,7 +1580,10 @@ unsigned doname_flags;
             Strcat(prefix, " ");
         }
         break;
-    case FOOD_CLASS:
+    case FOOD_CLASS: {
+        boolean druid_form = (Role_if(PM_DRUID)
+                              && all_druid_forms(monsndx(youmonst.data)));
+
         if (obj->oeaten)
             Strcat(prefix, "partly eaten ");
         /* draugr automatically know how rotted a corpse is */
@@ -1617,7 +1626,19 @@ unsigned doname_flags;
         }
         if (obj->otyp == MEAT_RING)
             goto ring;
+        if ((obj == uarm && obj->otyp == MEAT_SUIT)
+            || (obj == uarmh && obj->otyp == MEAT_HELMET)
+            || (obj == uarms && obj->otyp == MEAT_SHIELD)
+            || (obj == uarmg && obj->otyp == MEAT_GLOVES)
+            || (obj == uarmf && obj->otyp == MEAT_BOOTS)) {
+            Strcat(bp, (obj == uskin) ? " (embedded in your skin)"
+                       : doffing(obj) ? " (being doffed)"
+                         : donning(obj) ? " (being donned)"
+                           : druid_form ? " (merged to your form)"
+                             : " (being worn)");
+        }
         break;
+    }
     case BALL_CLASS:
     case CHAIN_CLASS:
         add_erosion_words(obj, prefix);

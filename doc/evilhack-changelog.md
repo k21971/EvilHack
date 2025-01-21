@@ -3857,4 +3857,5 @@ The following changes to date are:
 - Tal'Gath cannot be sensed via telepathy
 - Increase PREFIX value in objnam.c
 - Blessed scroll of taming increases tameness of pets
+- The spell 'stone to flesh' can affect armor and weapons
 

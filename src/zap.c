@@ -2016,8 +2016,8 @@ struct obj *obj;
 
     if (obj->material != MINERAL && obj->material != GEMSTONE)
         return 0;
-    /* Heart of Ahriman usually resists; ordinary items rarely do */
-    if (obj_resists(obj, 2, 98))
+    /* Artifacts will resist; ordinary items rarely do */
+    if (obj_resists(obj, 2, 100))
         return 0;
 
     (void) get_obj_location(obj, &oox, &ooy, 0);
@@ -2111,9 +2111,33 @@ struct obj *obj;
         obj = poly_obj(obj, MEATBALL);
         smell = TRUE;
         break;
-    case ARMOR_CLASS:
+    case ARMOR_CLASS: /* various armor pieces */
+        if (is_suit(obj)
+            && obj->otyp != CRYSTAL_PLATE_MAIL) {
+            obj = poly_obj(obj, MEAT_SUIT);
+            smell = TRUE;
+        }
+        if (is_helmet(obj)) {
+            obj = poly_obj(obj, MEAT_HELMET);
+            smell = TRUE;
+        }
+        if (is_shield(obj)) { /* handles bracers */
+            obj = poly_obj(obj, MEAT_SHIELD);
+            smell = TRUE;
+        }
+        if (is_gloves(obj)) {
+            obj = poly_obj(obj, MEAT_GLOVES);
+            smell = TRUE;
+        }
+        if (is_boots(obj)) {
+            obj = poly_obj(obj, MEAT_BOOTS);
+            smell = TRUE;
+        }
+        break;
     case WEAPON_CLASS:
-        /* FALLTHRU */
+        obj = poly_obj(obj, STRIP_OF_BACON);
+        smell = TRUE;
+        break;
     default:
         if (valid_obj_material(obj, FLESH)) {
             pline("%s to flesh!", Tobjnam(obj, "turn"));
