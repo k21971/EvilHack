@@ -955,7 +955,7 @@ register struct monst *mtmp;
 {
     register struct permonst *ptr = mtmp->data;
     register int mm = monsndx(ptr);
-    struct obj *otmp = mtmp->minvent;
+    struct obj *otmp = mtmp->minvent, *nextobj;
     int bias, w1, w2, randwand, quan;
 
     if (Is_rogue_level(&u.uz))
@@ -1202,19 +1202,36 @@ register struct monst *mtmp;
                                              : rn2(4) ? OILSKIN_SACK
                                                       : rn2(7) ? BAG_OF_HOLDING
                                                                : BAG_OF_TRICKS);
-            for (; otmp; otmp = otmp->nobj) {
+            for (otmp = mtmp->minvent; otmp; otmp = nextobj) {
+                nextobj = otmp->nobj;
                 if (otmp->oclass == WEAPON_CLASS) {
                     if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
                         if (!rn2(100 + 10 * nartifact_exist()))
                             mk_artifact(otmp, sgn(mon_aligntyp(mtmp)));
-                        else if (!rn2(6))
+                        else if (!rn2(4)
+                                 && !objects[otmp->otyp].oc_magic)
                             create_oprop(otmp, FALSE);
                     }
                     if (!rn2(3) && is_drow_weapon(otmp)
                         && is_poisonable(otmp)) {
                         otmp->otainted = 1;
                     }
-                    if (!rn2(4))
+                    if (!rn2(4)
+                        && !otmp->oartifact
+                        && (is_metallic(otmp) || is_crystal(otmp)))
+                        otmp->forged_qual = rn2(4) ? FQ_SUPERIOR
+                                                   : FQ_EXCEPTIONAL;
+                }
+                if (otmp->oclass == ARMOR_CLASS) {
+                    if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
+                        if (!rn2(5)
+                            && (!(Is_dragon_scaled_armor(otmp)
+                                  || objects[otmp->otyp].oc_magic)))
+                            create_oprop(otmp, FALSE);
+                    }
+                    if (!rn2(5)
+                        && !otmp->oartifact
+                        && (is_metallic(otmp) || is_crystal(otmp)))
                         otmp->forged_qual = rn2(4) ? FQ_SUPERIOR
                                                    : FQ_EXCEPTIONAL;
                 }

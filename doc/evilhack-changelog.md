@@ -3858,4 +3858,5 @@ The following changes to date are:
 - Increase PREFIX value in objnam.c
 - Blessed scroll of taming increases tameness of pets
 - The spell 'stone to flesh' can affect armor and weapons
+- Some tweaks and fixes to player monster gear
 
