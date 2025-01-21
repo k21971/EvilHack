@@ -1347,7 +1347,7 @@ int pm;
 
         /* if something was chosen, give it now givit() might fail) */
         if (tmp == -1)
-            gainstr((struct obj *) 0, 0, TRUE);
+            gainstr((struct obj *) 0, 0, -1);
         else if (tmp > 0)
             givit(tmp, ptr);
     } /* check_intrinsics */
@@ -1669,7 +1669,7 @@ const char *mesg;
                   : !Fixed_abil ? "Popeye"
                   /* no gain, feel like another character from Popeye */
                   : (flags.female ? "Olive Oyl" : "Bluto"));
-        gainstr(tin, 0, FALSE);
+        gainstr(tin, 0, 1);
 
         tin = costly_tin(COST_OPEN);
         lesshungry(tin->blessed ? 600                   /* blessed */
@@ -2661,7 +2661,7 @@ struct obj *otmp;
         break;
     case LUMP_OF_ROYAL_JELLY:
         /* This stuff seems to be VERY healthy! */
-        gainstr(otmp, 1, TRUE);
+        gainstr(otmp, 1, -1);
         if (Upolyd) {
             u.mh += otmp->cursed ? -rnd(20) : rnd(20);
             if (u.mh > u.mhmax) {

@@ -270,10 +270,10 @@ int msgflg; /* positive => no message, zero => message, and */
 }
 
 boolean
-gainstr(otmp, incr, givemsg)
+gainstr(otmp, incr, msgflg)
 struct obj *otmp;
 int incr;
-boolean givemsg;
+int msgflg;
 {
     int num = incr;
 
@@ -292,7 +292,7 @@ boolean givemsg;
             num = STR18(100) - ABASE(A_STR);
     }
     return adjattrib(A_STR, (otmp && otmp->cursed) ? -num : num,
-                     givemsg ? -1 : 1);
+                     msgflg);
 }
 
 /* may kill you; cause may be poison or monster like 'a' */

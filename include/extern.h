@@ -121,7 +121,7 @@ E boolean FDECL(is_forged_artifact, (struct obj *));
 /* ### attrib.c ### */
 
 E boolean FDECL(adjattrib, (int, int, int));
-E boolean FDECL(gainstr, (struct obj *, int, BOOLEAN_P));
+E boolean FDECL(gainstr, (struct obj *, int, int));
 E void FDECL(losestr, (int));
 E void FDECL(poisontell, (int, BOOLEAN_P));
 E void FDECL(poisoned, (const char *, int, const char *, int, BOOLEAN_P));

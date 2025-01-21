@@ -1106,7 +1106,7 @@ register struct obj *otmp;
                    message on last attempt (except blessed potions) */
                 itmp = (otmp->blessed || ii == 1) ? 0 : -1;
                 if (i == A_STR) {
-                    if (gainstr(otmp, 1, (itmp == 0)) && !otmp->blessed)
+                    if (gainstr(otmp, 1, itmp) && !otmp->blessed)
                         break;
                 } else {
                     if (adjattrib(i, 1, itmp) && !otmp->blessed)
