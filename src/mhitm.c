@@ -1180,8 +1180,17 @@ register struct attack *mattk;
 	if (u.usteed && magr == u.usteed) {
 	    teleds(dx, dy, TELEDS_NO_FLAGS);
 	} else {
-            place_monster(magr, dx, dy);
-            newsym(dx, dy);
+            if (!goodpos(dx, dy, magr, MM_IGNOREWATER)) {
+                if (m_at(dx, dy) == magr) {
+                    remove_monster(dx, dy);
+                    newsym(dx, dy);
+                }
+                dx = ax, dy = ay; /* magr's spot at start of the attack */
+            }
+            if (m_at(dx, dy) != magr) {
+                place_monster(magr, dx, dy);
+                newsym(dx, dy);
+            }
         }
         /* aggressor moves to <dx, dy> and might encounter trouble there */
         if (minliquid(magr) || (t_at(dx, dy) && mintrap(magr) == 2))

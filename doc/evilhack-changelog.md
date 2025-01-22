@@ -3867,4 +3867,5 @@ The following changes to date are:
 - Fix: fuzzer making a wish, returns NULL, causing a crash
 - Fix: give message when gaining strength via uncursed gain ability
 - Fix: panic "relmon: mon not in list"
+- Fix: gulpmm "placing [mon] over itself"
 
