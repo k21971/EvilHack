@@ -430,6 +430,13 @@ druid_wildshape()
     menu_item *selected;
     anything any;
     int i, n;
+    int abuse = ((u.ualign.abuse == 0) ? -1000
+                 : ((u.ualign.abuse * -1) < 5) ? 100
+                   : ((u.ualign.abuse * -1) < 15) ? 200
+                     : ((u.ualign.abuse * -1) < 30) ? 500
+                       : ((u.ualign.abuse * -1) < 50) ? 1000
+                         : 2000);
+
     boolean old_uwvis = (Underwater && See_underwater);
 
     win = create_nhwindow(NHW_MENU);
@@ -439,12 +446,16 @@ druid_wildshape()
     /* set timer for next allowed use of wildshape,
        3600-4000 turns (this is an approximation
        to Druids being able to use wildshape three
-       times a day, ad&d rules)
+       times a day, ad&d rules). how alignment is
+       abused (or not abused) can affect the amount
+       of turns needed to wait between wildshape
+       uses.
 
        this needs to be set before polymon() is
        called due to other behavior while using
        #wildshape */
-    u.uwildshape += rn1(401, 3600);
+    u.uwildshape += rn1((u.ualign.abuse == 0) ? 201 : 401,
+                        (3600 + abuse));
 
     if (Unchanging) {
         pline("You fail to transform!");
@@ -841,11 +852,13 @@ int mntmp;
         make_stoned(0L, "You turn to stone!", 0, (char *) 0);
     }
 
-    if (Role_if(PM_DRUID)
-        && all_druid_forms(monsndx(youmonst.data)))
+    /* Druids can stay in their chosen polyform much longer
+       than other roles: 2500-3000 turns vs 500-999 turns */
+    if (Role_if(PM_DRUID))
         u.mtimedone = rn1(501, 2500);
     else
         u.mtimedone = rn1(500, 500);
+
     u.umonnum = mntmp;
     set_uasmon();
 

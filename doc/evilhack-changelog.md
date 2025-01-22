@@ -3869,4 +3869,5 @@ The following changes to date are:
 - Fix: panic "relmon: mon not in list"
 - Fix: gulpmm "placing [mon] over itself"
 - Tweaks to player monster gear and regular objects via altar sacrifice
+- Druids #wildshape cooldown between uses is tied to alignment abuse
 

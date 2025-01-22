@@ -3510,6 +3510,16 @@ int final;
             Sprintf(eos(buf), " (%d)", u.mtimedone);
         you_are(buf, "");
     }
+    if (Role_if(PM_DRUID) && u.ulevel >= 3) {
+        if (u.uwildshape == 0) {
+            Sprintf(buf, "able to use your wildshape ability");
+            you_are(buf, "");
+        } else { /* u.uwildshape is greater than 0 */
+            Sprintf(buf, "have %d turns remaining before using wildshape again",
+                    u.uwildshape);
+            enl_msg(You_, buf, buf, "", "");
+        }
+    }
     if (lays_eggs(youmonst.data) && flags.female) /* Upolyd */
         you_can("lay eggs", "");
     if (u.ulycn >= LOW_PM) {
