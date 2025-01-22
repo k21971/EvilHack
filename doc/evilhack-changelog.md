@@ -3868,4 +3868,5 @@ The following changes to date are:
 - Fix: give message when gaining strength via uncursed gain ability
 - Fix: panic "relmon: mon not in list"
 - Fix: gulpmm "placing [mon] over itself"
+- Tweaks to player monster gear and regular objects via altar sacrifice
 

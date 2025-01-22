@@ -2657,7 +2657,8 @@ dosacrifice()
                         if (otmp) {
                             if (otmp->otyp == SHURIKEN)
                                 otmp->quan = (long) rn1(7, 14); /* 14-20 count */
-                            if (!rn2((u.ualign.abuse == 0) ? 4 : 8))
+                            if (!rn2((u.ualign.abuse == 0) ? 4 : 8)
+                                && !objects[otmp->otyp].oc_magic)
                                 otmp = create_oprop(otmp, FALSE);
                             if (altaralign == A_NONE)
                                 curse(otmp);
@@ -2666,6 +2667,11 @@ dosacrifice()
                             otmp->spe = rn2(3) + 3; /* +3 to +5 */
                             maybe_erodeproof(otmp, 1);
                             otmp->oeroded = otmp->oeroded2 = 0;
+                            if (!rn2((u.ualign.abuse == 0) ? 4 : 8)
+                                && !objects[otmp->otyp].oc_magic
+                                && (is_metallic(otmp) || is_crystal(otmp)))
+                                otmp->forged_qual = rn2(4) ? FQ_SUPERIOR
+                                                           : FQ_EXCEPTIONAL;
                             if (altaralign > A_CHAOTIC
                                 && otmp->oclass == WEAPON_CLASS) { /* lawful or neutral altar */
                                 otmp->opoisoned = otmp->otainted = 0;

@@ -1218,6 +1218,7 @@ register struct monst *mtmp;
                     }
                     if (!rn2(4)
                         && !otmp->oartifact
+                        && !objects[otmp->otyp].oc_magic
                         && (is_metallic(otmp) || is_crystal(otmp)))
                         otmp->forged_qual = rn2(4) ? FQ_SUPERIOR
                                                    : FQ_EXCEPTIONAL;
@@ -1231,6 +1232,7 @@ register struct monst *mtmp;
                     }
                     if (!rn2(5)
                         && !otmp->oartifact
+                        && !objects[otmp->otyp].oc_magic
                         && (is_metallic(otmp) || is_crystal(otmp)))
                         otmp->forged_qual = rn2(4) ? FQ_SUPERIOR
                                                    : FQ_EXCEPTIONAL;
