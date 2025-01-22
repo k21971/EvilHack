@@ -1089,8 +1089,6 @@ STATIC_OVL void
 break_armor()
 {
     register struct obj *otmp;
-    boolean druid_forms = (Role_if(PM_DRUID)
-                           && all_druid_forms(monsndx(youmonst.data)));
 
     if (breakarm(&youmonst)) {
         if ((otmp = uarm) != 0) {
@@ -1190,7 +1188,7 @@ break_armor()
             dropp(otmp);
         }
     }
-    if (has_horns(youmonst.data) && !druid_forms) {
+    if (has_horns(youmonst.data) && !druid_form) {
         if ((otmp = uarmh) != 0) {
             if (is_flimsy(otmp) && !donning(otmp)) {
                 char hornbuf[BUFSZ];
@@ -1211,7 +1209,7 @@ break_armor()
     }
     if (nohands(youmonst.data) || verysmall(youmonst.data)
         || is_ent(youmonst.data)) {
-        if (!druid_forms && (otmp = uarmg) != 0) {
+        if (!druid_form && (otmp = uarmg) != 0) {
             if (donning(otmp))
                 cancel_don();
             /* Drop weapon along with gloves */
@@ -1229,23 +1227,23 @@ break_armor()
             }
         }
         if ((otmp = uarms) != 0) {
-            if (druid_forms && !is_bracer(uarms))
+            if (druid_form && !is_bracer(uarms))
                 You("can no longer hold your shield!");
-            else if (!druid_forms)
+            else if (!druid_form)
                 You("can no longer %s!",
                     is_bracer(uarms) ? "wear your bracers"
                                      : "hold your shield");
-            if (druid_forms && is_bracer(uarms)) {
+            if (druid_form && is_bracer(uarms)) {
                 ; /* do nothing */
             } else {
                 if (otmp->lamplit)
                     end_burn(otmp, FALSE);
                 (void) Shield_off();
-                if (!druid_forms)
+                if (!druid_form)
                     dropp(otmp);
             }
         }
-        if (!druid_forms && (otmp = uarmh) != 0) {
+        if (!druid_form && (otmp = uarmh) != 0) {
             if (donning(otmp))
                 cancel_don();
             Your("%s falls to the %s!", helm_simple_name(otmp),
@@ -1257,7 +1255,7 @@ break_armor()
     if ((nohands(youmonst.data) || verysmall(youmonst.data)
          || slithy(youmonst.data) || racial_centaur(&youmonst)
          || racial_tortle(&youmonst) || is_ent(youmonst.data)
-         || is_satyr(youmonst.data)) && !druid_forms) {
+         || is_satyr(youmonst.data)) && !druid_form) {
         if ((otmp = uarmf) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -1279,8 +1277,6 @@ int alone;
     struct obj *otmp;
     const char *what, *which, *whichtoo;
     boolean candropwep, candropswapwep, updateinv = TRUE;
-    boolean druid_forms = (Role_if(PM_DRUID)
-                           && all_druid_forms(monsndx(youmonst.data)));
 
     if (uwep) {
         /* !alone check below is currently superfluous but in the
@@ -1303,7 +1299,7 @@ int alone;
                     which = makeplural(which);
 
                 You("find you must %s %s %s!",
-                    druid_forms ? "release" : what,
+                    druid_form ? "release" : what,
                     the_your[!!strncmp(which, "corpse", 6)], which);
             }
             /* if either uwep or wielded uswapwep is flagged as 'in_use'
@@ -1314,14 +1310,14 @@ int alone;
                 uswapwepgone();
                 if (otmp->in_use)
                     updateinv = FALSE;
-                else if (candropswapwep && !druid_forms)
+                else if (candropswapwep && !druid_form)
                     dropx(otmp);
             }
             otmp = uwep;
             uwepgone();
             if (otmp->in_use)
                 updateinv = FALSE;
-            else if (candropwep  && !druid_forms)
+            else if (candropwep  && !druid_form)
                 dropx(otmp);
             /* [note: dropp vs dropx -- if heart of ahriman is wielded, we
                might be losing levitation by dropping it; but that won't

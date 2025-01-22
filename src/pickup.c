@@ -2826,13 +2826,13 @@ boolean more_containers;
 boolean
 u_handsy()
 {
-    boolean druid_form = (Role_if(PM_DRUID)
-                          && all_druid_forms(monsndx(youmonst.data)));
-
     if (nohands(youmonst.data)) {
-        if (!druid_form) /* suppress feedback while using #wildshape */
+        if (druid_form && !slithy(youmonst.data)) {
+            return TRUE;
+        } else {
             You("have no hands!"); /* not `body_part(HAND)' */
-        return FALSE;
+            return FALSE;
+        }
     } else if (!freehand()) {
         You("have no free %s.", body_part(HAND));
         return FALSE;

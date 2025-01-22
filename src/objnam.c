@@ -1442,10 +1442,7 @@ unsigned doname_flags;
         if (obj->owornmask & W_AMUL)
             Strcat(bp, " (being worn)");
         break;
-    case ARMOR_CLASS: {
-        boolean druid_form = (Role_if(PM_DRUID)
-                              && all_druid_forms(monsndx(youmonst.data)));
-
+    case ARMOR_CLASS:
         if (obj->owornmask & W_ARMOR) {
             Strcat(bp, (obj == uskin) ? " (embedded in your skin)"
                        /* in case of perm_invent update while Wear/Takeoff
@@ -1480,8 +1477,7 @@ unsigned doname_flags;
             Strcat(prefix, scalebuf);
             releaseobuf(colorstr); /* don't consume an extra obuf */
         }
-    }
-    /*FALLTHRU*/
+        /*FALLTHRU*/
     case WEAPON_CLASS:
         if (ispoisoned)
             Strcat(prefix, "poisoned ");
@@ -1580,10 +1576,7 @@ unsigned doname_flags;
             Strcat(prefix, " ");
         }
         break;
-    case FOOD_CLASS: {
-        boolean druid_form = (Role_if(PM_DRUID)
-                              && all_druid_forms(monsndx(youmonst.data)));
-
+    case FOOD_CLASS:
         if (obj->oeaten)
             Strcat(prefix, "partly eaten ");
         /* draugr automatically know how rotted a corpse is */
@@ -1638,7 +1631,6 @@ unsigned doname_flags;
                              : " (being worn)");
         }
         break;
-    }
     case BALL_CLASS:
     case CHAIN_CLASS:
         add_erosion_words(obj, prefix);

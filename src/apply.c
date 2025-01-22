@@ -4033,8 +4033,12 @@ struct obj *obj;
         return 0;
 
     if (nohands(youmonst.data)) {
-        You_cant("break %s without hands!", yname(obj));
-        return 0;
+        if (druid_form && !slithy(youmonst.data)) {
+            ;
+        } else {
+            You_cant("break %s without hands!", yname(obj));
+            return 0;
+        }
     } else if (!freehand()) {
         You_cant("break %s without your %s free!",
                  yname(obj), makeplural(body_part(HAND)));

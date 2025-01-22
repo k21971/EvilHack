@@ -115,7 +115,9 @@ picklock(VOID_ARGS)
         return ((xlock.usedtime = 0));
     }
 
-    if (xlock.usedtime++ >= 50 || nohands(youmonst.data)) {
+    if (xlock.usedtime++ >= 50
+        || (nohands(youmonst.data)
+            && !(druid_form && !slithy(youmonst.data)))) {
         You("give up your attempt at %s.", lock_action());
         exercise(A_DEX, TRUE); /* even if you don't succeed */
         return ((xlock.usedtime = 0));
@@ -415,7 +417,9 @@ struct obj *container; /* container, for autounlock */
     if (xlock.usedtime && picktyp == xlock.picktyp) {
         static char no_longer[] = "Unfortunately, you can no longer %s %s.";
 
-        if (nohands(youmonst.data) || !freehand()) {
+        if ((nohands(youmonst.data)
+             && !(druid_form && !slithy(youmonst.data)))
+            || !freehand()) {
             const char *what = (picktyp == LOCK_PICK) ? "pick" : "key";
 
             if (picktyp == CREDIT_CARD)
@@ -440,8 +444,12 @@ struct obj *container; /* container, for autounlock */
     }
 
     if (nohands(youmonst.data)) {
-        You_cant("hold %s -- you have no hands!", doname(pick));
-        return PICKLOCK_DID_NOTHING;
+        if (druid_form && !slithy(youmonst.data)) {
+            ;
+        } else {
+            You_cant("hold %s -- you have no hands!", doname(pick));
+            return PICKLOCK_DID_NOTHING;
+        }
     } else if (!freehand()) {
         You_cant("hold %s -- you have no %s free!",
                  doname(pick), makeplural(body_part(HAND)));
@@ -865,12 +873,16 @@ int x, y;
 {
     coord cc;
     register struct rm *door;
-    boolean portcullis;
     int res = 0;
+    boolean portcullis;
 
     if (nohands(youmonst.data)) {
-        You_cant("open anything -- you have no hands!");
-        return 0;
+        if (druid_form && !slithy(youmonst.data)) {
+            ;
+        } else {
+            You_cant("open anything -- you have no hands!");
+            return 0;
+        }
     }
 
     if (!freehand()) {
@@ -1020,12 +1032,16 @@ doclose()
 {
     register int x, y;
     register struct rm *door;
-    boolean portcullis;
     int res = 0;
+    boolean portcullis;
 
     if (nohands(youmonst.data)) {
-        You_cant("close anything -- you have no hands!");
-        return 0;
+        if (druid_form && !slithy(youmonst.data)) {
+            ;
+        } else {
+            You_cant("close anything -- you have no hands!");
+            return 0;
+        }
     }
 
     if (!freehand()) {

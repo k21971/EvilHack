@@ -105,8 +105,12 @@ register struct obj *pen;
     const char *typeword;
 
     if (nohands(youmonst.data)) {
-        You("need hands to be able to write!");
-        return 0;
+        if (druid_form && !slithy(youmonst.data)) {
+            ;
+        } else {
+            You("need hands to be able to write!");
+            return 0;
+        }
     } else if (!freehand()) {
         You("need a free %s to be able to write!",
             body_part(HAND));

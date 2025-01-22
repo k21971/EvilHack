@@ -4834,7 +4834,9 @@ dountrap()
         pline("You're too strained to do that.");
         return 0;
     }
-    if ((nohands(youmonst.data) && !webmaker(youmonst.data))
+    if (((nohands(youmonst.data)
+          && !(druid_form && !slithy(youmonst.data)))
+         && !webmaker(youmonst.data))
         || !youmonst.data->mmove) {
         pline("And just how do you expect to do that?");
         return 0;

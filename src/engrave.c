@@ -608,8 +608,12 @@ doengrave()
         return 0;
     }
     if (cantwield(youmonst.data)) {
-        You_cant("even hold anything!");
-        return 0;
+        if (druid_form && !slithy(youmonst.data)) {
+            ;
+        } else {
+           You_cant("even hold anything!");
+           return 0;
+        }
     }
     if (check_capacity((char *) 0))
         return 0;

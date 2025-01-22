@@ -1717,8 +1717,12 @@ struct obj *otmp;
         mesg = "You bite right into the metal tin...";
         tmp = 0;
     } else if (cantwield(youmonst.data)) { /* nohands || verysmall */
-        You("cannot handle the tin properly to open it.");
-        return;
+        if (druid_form && !slithy(youmonst.data)) {
+            ;
+        } else {
+            You("cannot handle the tin properly to open it.");
+            return;
+        }
     } else if (otmp->blessed) {
         /* 50/50 chance for immediate access vs 1 turn delay (unless
            wielding blessed tin opener which always yields immediate

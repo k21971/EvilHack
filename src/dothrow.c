@@ -312,8 +312,12 @@ int *shotlimit_p; /* (see dothrow()) */
         You("are physically incapable of throwing or shooting anything.");
         return FALSE;
     } else if (nohands(youmonst.data)) {
-        You_cant("throw or shoot without hands."); /* not body_part(HAND) */
-        return FALSE;
+        if (druid_form && !slithy(youmonst.data)) {
+            return TRUE;
+        } else {
+            You_cant("throw or shoot without hands."); /* not body_part(HAND) */
+            return FALSE;
+        }
     } else if (!freehand()) {
         You_cant("throw or shoot without free use of your %s.",
                  makeplural(body_part(HAND)));

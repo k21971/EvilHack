@@ -667,9 +667,6 @@ age_spells()
 STATIC_OVL boolean
 rejectcasting()
 {
-    boolean druid_form = (Role_if(PM_DRUID)
-                          && all_druid_forms(monsndx(youmonst.data)));
-
     /* rejections which take place before selecting a particular spell */
     if (Stunned) {
         You("are too impaired to cast a spell.");

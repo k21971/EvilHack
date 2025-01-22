@@ -452,4 +452,6 @@ struct you {
 
 #define Upolyd (u.umonnum != u.umonster)
 
+#define druid_form (Role_if(PM_DRUID) && all_druid_forms(monsndx(youmonst.data)))
+
 #endif /* YOU_H */
