@@ -3872,4 +3872,5 @@ The following changes to date are:
 - Druids #wildshape cooldown between uses is tied to alignment abuse
 - Allow Druids that are in one of their wildshape forms to manipulate
   objects and their surroundings
+- The spell 'create trees' can sometimes revitalize dead trees
 

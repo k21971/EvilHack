@@ -1123,12 +1123,23 @@ genericptr_t treecnt;
 
        Never next to other living trees as well. this
        is done to limit their growth, mainly to prevent
-       a situation where the caster is suddenly trapped */
-    if (nexttodoor(x, y) || nexttotree(x, y)
+       a situation where the caster is suddenly trapped
+
+       Sometimes the energy of the spell can be used to
+       potentially revive nearby dead trees if the
+       caster is skilled enough */
+    if (rn2(2) && levl[x][y].typ == DEADTREE
+        && P_SKILL(spell_skilltype(SPE_CREATE_TREES)) >= P_SKILLED) {
+        if (cansee(x, y))
+            You("revitalize a dead tree!");
+        if (!rn2(3) && Role_if(PM_DRUID))
+            adjalign(1); /* your deity sometimes takes notice */
+    } else if (nexttodoor(x, y) || nexttotree(x, y)
         || rn2(1 + distmin(u.ux, u.uy, x, y))
         || OBJ_AT(x, y) || MON_AT(x, y)
-        || (levl[x][y].typ != ROOM && levl[x][y].typ != GRASS))
+        || (levl[x][y].typ != ROOM && levl[x][y].typ != GRASS)) {
         return;
+    }
 
     /* Never grow a tree if there's an immovable
        trap here */
@@ -1164,9 +1175,9 @@ cast_create_trees()
         if (Hallucination)
             pline("Only you can prevent forest fires...");
         else
-            pline("Trees grows throughout the area!");
+            pline("Trees grow throughout the area!");
     } else {
-        /* grass didn't grow anywhere */
+        /* trees didn't grow anywhere */
         pline_The("ground briefly stirs, but nothing else happens.");
     }
 }
