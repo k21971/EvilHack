@@ -3877,4 +3877,5 @@ The following changes to date are:
 - Added a few more monsters to Druids wildshape ability
 - Fix: impossible "mon hiding under nonexistent obj (%s)"
   (burned grass)
+- Switch status from work in progress to beta (0.9.0)
 
