@@ -3875,4 +3875,6 @@ The following changes to date are:
 - The spell 'create trees' can sometimes revitalize dead trees
 - Add Druids to check_caitiff() routine
 - Added a few more monsters to Druids wildshape ability
+- Fix: impossible "mon hiding under nonexistent obj (%s)"
+  (burned grass)
 

@@ -5793,7 +5793,6 @@ boolean moncast;
                 if ((mon = m_at(x, y)) != 0) {
                     if (is_swimmer(mon->data) && mon->mundetected) {
                         mon->mundetected = 0;
-                        maybe_unhide_at(x, y);
                     }
                 }
                 newsym(x, y);
@@ -5838,8 +5837,17 @@ boolean moncast;
             lev->typ = ROOM, lev->flags = 0;
             if (see_it)
                 pline("The grass is burned away!");
-            if (lev->typ == ROOM)
+            if (lev->typ == ROOM) {
+                if ((mon = m_at(x, y)) != 0) {
+                    /* probably ought to do some hefty damage to any
+                       creature caught in burning grass;
+                       at a minimum, hiders are forced out of hiding */
+                    if (hides_under(mon->data) && mon->mundetected) {
+                        mon->mundetected = 0;
+                    }
+                }
                 newsym(x, y);
+            }
         }
         break; /* ZT_FIRE */
 
