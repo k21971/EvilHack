@@ -2203,12 +2203,68 @@ register struct obj *obj;
     }
 }
 
+/* potion alchemy combinations */
+const struct potion_alchemy potion_fusions[] = {
+    /* extra healing */
+    { POT_EXTRA_HEALING, POT_HEALING, POT_SPEED,               1 },
+    { POT_EXTRA_HEALING, POT_HEALING, POT_GAIN_LEVEL,          1 },
+    { POT_EXTRA_HEALING, POT_HEALING, POT_GAIN_ENERGY,         1 },
+    /* full healing */
+    { POT_FULL_HEALING,  POT_EXTRA_HEALING, POT_GAIN_LEVEL,    1 },
+    { POT_FULL_HEALING,  POT_EXTRA_HEALING, POT_GAIN_ENERGY,   1 },
+    /* gain ability */
+    { POT_GAIN_ABILITY,  POT_FULL_HEALING, POT_GAIN_LEVEL,     1 },
+    { POT_GAIN_ABILITY,  POT_FULL_HEALING, POT_GAIN_ENERGY,    1 },
+    /* see invisible */
+    { POT_SEE_INVISIBLE, POT_GAIN_ENERGY, POT_FRUIT_JUICE,     1 },
+    { POT_SEE_INVISIBLE, POT_GAIN_LEVEL, POT_FRUIT_JUICE,      1 },
+    /* booze */
+    { POT_BOOZE,         POT_FRUIT_JUICE, POT_ENLIGHTENMENT,   1 },
+    { POT_BOOZE,         POT_FRUIT_JUICE, POT_SPEED,           1 },
+    /* confusion */
+    { POT_CONFUSION,     POT_ENLIGHTENMENT, POT_BOOZE,         1 },
+    /* hallucination */
+    { POT_HALLUCINATION, POT_GAIN_ENERGY, POT_BOOZE,           1 },
+    { POT_HALLUCINATION, POT_GAIN_LEVEL, POT_BOOZE,            1 },
+    /* sickness */
+    { POT_SICKNESS,      POT_FRUIT_JUICE, POT_SICKNESS,        1 },
+    /* drow poison */
+    { POT_DROW_POISON,   POT_FRUIT_JUICE, POT_DROW_POISON,     1 },
+    /* water */
+    { POT_WATER,         POT_FULL_HEALING, POT_HALLUCINATION,  1 },
+    { POT_WATER,         POT_EXTRA_HEALING, POT_HALLUCINATION, 1 },
+    { POT_WATER,         POT_HEALING, POT_HALLUCINATION,       1 },
+    { POT_WATER,         POT_FULL_HEALING, POT_CONFUSION,      1 },
+    { POT_WATER,         POT_EXTRA_HEALING, POT_CONFUSION,     1 },
+    { POT_WATER,         POT_HEALING, POT_CONFUSION,           1 },
+    { POT_WATER,         POT_FULL_HEALING, POT_BLINDNESS,      1 },
+    { POT_WATER,         POT_EXTRA_HEALING, POT_BLINDNESS,     1 },
+    { POT_WATER,         POT_HEALING, POT_BLINDNESS,           1 },
+    { POT_WATER,         UNICORN_HORN, POT_HALLUCINATION,      0 },
+    { POT_WATER,         UNICORN_HORN, POT_CONFUSION,          0 },
+    { POT_WATER,         UNICORN_HORN, POT_BLINDNESS,          0 },
+    /* fruit juice */
+    { POT_FRUIT_JUICE,   POT_FULL_HEALING, POT_SICKNESS,       1 },
+    { POT_FRUIT_JUICE,   POT_EXTRA_HEALING, POT_SICKNESS,      1 },
+    { POT_FRUIT_JUICE,   POT_HEALING, POT_SICKNESS,            1 },
+    { POT_FRUIT_JUICE,   UNICORN_HORN, POT_SICKNESS,           0 },
+    { POT_FRUIT_JUICE,   AMETHYST, POT_BOOZE,                  0 },
+    /* multiple results/outcomes combinations */
+    { POT_BOOZE,         POT_GAIN_LEVEL, POT_CONFUSION,        3 },
+    { POT_BOOZE,         POT_GAIN_ENERGY, POT_CONFUSION,       3 },
+    { POT_ENLIGHTENMENT, POT_GAIN_LEVEL, POT_CONFUSION,        2 },
+    { POT_ENLIGHTENMENT, POT_GAIN_ENERGY, POT_CONFUSION,       2 },
+    { POT_GAIN_LEVEL,    POT_ENLIGHTENMENT, POT_LEVITATION,    3 },
+    { 0, 0, 0, 0 }
+};
+
 /* returns the potion type when o1 is dipped in o2 */
 STATIC_OVL short
 mixtype(o1, o2)
 register struct obj *o1, *o2;
 {
     int o1typ = o1->otyp, o2typ = o2->otyp;
+    const struct potion_alchemy *precipe;
 
     /* cut down on the number of cases below */
     if (o1->oclass == POTION_CLASS
@@ -2221,73 +2277,11 @@ register struct obj *o1, *o2;
         o2typ = o1->otyp;
     }
 
-    switch (o1typ) {
-    case POT_HEALING:
-        if (o2typ == POT_SPEED)
-            return POT_EXTRA_HEALING;
-        /*FALLTHRU*/
-    case POT_EXTRA_HEALING:
-    case POT_FULL_HEALING:
-        if (o2typ == POT_GAIN_LEVEL || o2typ == POT_GAIN_ENERGY)
-            return (o1typ == POT_HEALING) ? POT_EXTRA_HEALING
-                   : (o1typ == POT_EXTRA_HEALING) ? POT_FULL_HEALING
-                     : POT_GAIN_ABILITY;
-        /*FALLTHRU*/
-    case UNICORN_HORN:
-        switch (o2typ) {
-        case POT_SICKNESS:
-            return POT_FRUIT_JUICE;
-        case POT_HALLUCINATION:
-        case POT_BLINDNESS:
-        case POT_CONFUSION:
-            return POT_WATER;
+    for (precipe = potion_fusions; precipe->result_typ; precipe++) {
+        if ((o1typ == precipe->typ1 && o2typ == precipe->typ2)) {
+            if (precipe->chance == 1 || !rn2(precipe->chance))
+                return precipe->result_typ;
         }
-        break;
-    case AMETHYST: /* "a-methyst" == "not intoxicated" */
-        if (o2typ == POT_BOOZE)
-            return POT_FRUIT_JUICE;
-        break;
-    case POT_GAIN_LEVEL:
-    case POT_GAIN_ENERGY:
-        switch (o2typ) {
-        case POT_CONFUSION:
-            return (rn2(3) ? POT_BOOZE : POT_ENLIGHTENMENT);
-        case POT_HEALING:
-            return POT_EXTRA_HEALING;
-        case POT_EXTRA_HEALING:
-            return POT_FULL_HEALING;
-        case POT_FULL_HEALING:
-            return POT_GAIN_ABILITY;
-        case POT_FRUIT_JUICE:
-            return POT_SEE_INVISIBLE;
-        case POT_BOOZE:
-            return POT_HALLUCINATION;
-        }
-        break;
-    case POT_FRUIT_JUICE:
-        switch (o2typ) {
-        case POT_SICKNESS:
-            return POT_SICKNESS;
-        case POT_ENLIGHTENMENT:
-        case POT_SPEED:
-            return POT_BOOZE;
-        case POT_GAIN_LEVEL:
-        case POT_GAIN_ENERGY:
-            return POT_SEE_INVISIBLE;
-        }
-        break;
-    case POT_ENLIGHTENMENT:
-        switch (o2typ) {
-        case POT_LEVITATION:
-            if (rn2(3))
-                return POT_GAIN_LEVEL;
-            break;
-        case POT_FRUIT_JUICE:
-            return POT_BOOZE;
-        case POT_BOOZE:
-            return POT_CONFUSION;
-        }
-        break;
     }
 
     return STRANGE_OBJECT;

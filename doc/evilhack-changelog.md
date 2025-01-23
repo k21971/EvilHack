@@ -3878,4 +3878,5 @@ The following changes to date are:
 - Fix: impossible "mon hiding under nonexistent obj (%s)"
   (burned grass)
 - Switch status from work in progress to beta (0.9.0)
+- Show potion alchemy combinations in the pokedex
 

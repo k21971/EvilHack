@@ -1552,6 +1552,17 @@ short otyp;
         OBJPUTSTR(buf);
     }
 
+    /* TODO: prevent obj lookup from displaying with monster database entry
+     * (e.g. scroll of light gives "light" monster database) */
+
+    /* Full-line remarks */
+    if (oc.oc_merge) {
+        OBJPUTSTR("Merges with identical items.");
+    }
+    if (oc.oc_unique) {
+        OBJPUTSTR("Unique item.");
+    }
+
     /* forge recipes */
     const struct forge_recipe *recipe;
     boolean has_recipes = FALSE;
@@ -1571,15 +1582,28 @@ short otyp;
         }
     }
 
-    /* TODO: prevent obj lookup from displaying with monster database entry
-     * (e.g. scroll of light gives "light" monster database) */
+    /* potion alchemy */
+    const struct potion_alchemy *precipe;
+    boolean has_precipes = FALSE;
 
-    /* Full-line remarks */
-    if (oc.oc_merge) {
-        OBJPUTSTR("Merges with identical items.");
-    }
-    if (oc.oc_unique) {
-        OBJPUTSTR("Unique item.");
+    for (precipe = potion_fusions; precipe->result_typ; precipe++) {
+        if (otyp == precipe->typ1 || otyp == precipe->typ2
+            || otyp == precipe->result_typ) {
+            if (!has_precipes) {
+                OBJPUTSTR("");
+                OBJPUTSTR("Potion alchemy combinations (#dip):");
+                has_precipes = TRUE;
+            }
+            Sprintf(buf, "  %s + %s = %s%s",
+                    OBJ_NAME(objects[precipe->typ1]),
+                    OBJ_NAME(objects[precipe->typ2]),
+                    OBJ_NAME(objects[precipe->result_typ]),
+                    precipe->chance == 0
+                      ? " (always)" : precipe->chance == 1
+                        ? " (9/10 chance)" : precipe->chance == 2
+                          ? " (1/3 chance)" : " (3/5 chance)");
+            OBJPUTSTR(buf);
+        }
     }
 }
 
