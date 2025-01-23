@@ -262,6 +262,13 @@ struct monst *mtmp;
         /* attacking peaceful creatures is bad for the samurai's giri */
         You("dishonorably attack the innocent!");
         adjalign(-1);
+    } else if (Role_if(PM_DRUID) && mtmp->mpeaceful
+        && (is_woodland_creature(mtmp->data)
+            || is_woodland_being(mtmp->data)
+            || mtmp->data == &mons[PM_DRUID])) {
+        /* attacking peaceful woodland creatures is bad for Druids */
+        You("dare to attack your woodland brethren!");
+        adjalign(-1);
     }
 }
 
@@ -292,7 +299,9 @@ int *attk_count, *role_roll_penalty;
 
     /* some actions should occur only once during multiple attacks */
     if (!(*attk_count)++) {
-        /* knight's chivalry or samurai's giri */
+        /* knight's chivalry, samurai's giri,
+           or druid's affinity to woodland
+           creatures */
         check_caitiff(mtmp);
     }
 

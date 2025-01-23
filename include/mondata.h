@@ -344,8 +344,9 @@
 #define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
 #define is_dragon(ptr) (((ptr)->mhflags & MH_DRAGON) != 0L)
 #define is_pseudodragon(ptr) \
-    ((ptr) == &mons[PM_PSEUDODRAGON] \
-     || (ptr) == &mons[PM_ELDER_PSEUDODRAGON] || (ptr) == &mons[PM_ANCIENT_PSEUDODRAGON])
+    ((ptr) == &mons[PM_PSEUDODRAGON]             \
+     || (ptr) == &mons[PM_ELDER_PSEUDODRAGON]    \
+     || (ptr) == &mons[PM_ANCIENT_PSEUDODRAGON])
 #define is_angel(ptr) (((ptr)->mhflags & MH_ANGEL) != 0L)
 #define is_mercenary(ptr) (((ptr)->mflags2 & M2_MERC) != 0L)
 #define is_rogue(ptr) \
@@ -449,23 +450,29 @@
 
 /* woodland animals and plants */
 #define is_woodland_creature(ptr) \
-    (is_ent(ptr) || is_plant(ptr) || is_bird(ptr)                                 \
-     || is_pseudodragon(ptr) || is_unicorn(ptr)                                   \
-     || (ptr) == &mons[PM_LICHEN] || (ptr) == &mons[PM_FOX]                       \
-     || (ptr) == &mons[PM_WOLF] || (ptr) == &mons[PM_WINTER_WOLF_CUB]             \
-     || (ptr) == &mons[PM_WINTER_WOLF] || (ptr) == &mons[PM_LYNX]                 \
-     || (ptr) == &mons[PM_GRIZZLY_BEAR] || (ptr) == &mons[PM_CAVE_BEAR]           \
-     || (ptr) == &mons[PM_WOLVERINE] || (ptr) == &mons[PM_DIRE_WOLVERINE]         \
-     || (ptr) == &mons[PM_GIANT_BEETLE] || (ptr) == &mons[PM_SABER_TOOTHED_TIGER] \
-     || (ptr) == &mons[PM_WOODCHUCK] || (ptr) == &mons[PM_HONEY_BADGER]           \
-     || (ptr) == &mons[PM_DEER] || (ptr) == &mons[PM_STAG]                        \
-     || (ptr) == &mons[PM_GARTER_SNAKE] || (ptr) == &mons[PM_SNAKE]               \
-     || (ptr) == &mons[PM_NEWT] || (ptr) == &mons[PM_LIZARD])
+    (is_true_ent(ptr) || (is_plant(ptr) && !is_blight(ptr))                \
+     || is_bird(ptr) || is_pseudodragon(ptr)                               \
+     || is_unicorn(ptr) || is_cavelizard(ptr)                              \
+     || (ptr) == &mons[PM_LICHEN] || (ptr) == &mons[PM_FOX]                \
+     || (ptr) == &mons[PM_WOLF] || (ptr) == &mons[PM_WINTER_WOLF_CUB]      \
+     || (ptr) == &mons[PM_WINTER_WOLF] || (ptr) == &mons[PM_LYNX]          \
+     || (ptr) == &mons[PM_GRIZZLY_BEAR] || (ptr) == &mons[PM_CAVE_BEAR]    \
+     || (ptr) == &mons[PM_WOLVERINE] || (ptr) == &mons[PM_DIRE_WOLVERINE]  \
+     || (ptr) == &mons[PM_TIGER] || (ptr) == &mons[PM_SABER_TOOTHED_TIGER] \
+     || (ptr) == &mons[PM_WOODCHUCK] || (ptr) == &mons[PM_HONEY_BADGER]    \
+     || (ptr) == &mons[PM_DEER] || (ptr) == &mons[PM_STAG]                 \
+     || (ptr) == &mons[PM_GARTER_SNAKE] || (ptr) == &mons[PM_SNAKE]        \
+     || (ptr) == &mons[PM_NEWT] || (ptr) == &mons[PM_LIZARD]               \
+     || (ptr) == &mons[PM_GIANT_BEETLE] || (ptr) == &mons[PM_ROTHE]        \
+     || (ptr) == &mons[PM_CENTIPEDE] || (ptr) == &mons[PM_GIANT_CENTIPEDE] \
+     || (ptr) == &mons[PM_PEGASUS] || (ptr) == &mons[PM_GREATER_PEGASUS]   \
+     || (ptr) == &mons[PM_SNAKE] || (ptr) == &mons[PM_GARTER_SNAKE]        \
+     || (ptr) == &mons[PM_GIANT_ANACONDA])
 
 /* woodland beings */
 #define is_woodland_being(ptr) \
-    (is_nymph(ptr) || is_satyr(ptr) || is_hobbit(ptr) \
-     || is_elf(ptr) || is_centaur(ptr))
+    (is_nymph(ptr) || is_satyr(ptr)                       \
+     || is_hobbit(ptr) || is_elf(ptr) || is_centaur(ptr))
 
 /* Ice Queen branch defines */
 #define is_iceq_only(ptr) \

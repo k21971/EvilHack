@@ -77,8 +77,6 @@ boolean clumsy;
     if (M_AP_TYPE(mon))
         seemimic(mon);
 
-    check_caitiff(mon);
-
     /* squeeze some guilt feelings... */
     if (mon->mtame) {
         abuse_dog(mon);
@@ -166,6 +164,8 @@ xchar x, y;
 {
     boolean clumsy = FALSE;
     int i, j;
+
+    check_caitiff(mon);
 
     /* anger target even if wild miss will occur */
     setmangry(mon, TRUE);
