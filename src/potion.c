@@ -2240,20 +2240,23 @@ const struct potion_alchemy potion_fusions[] = {
     { POT_WATER,         POT_FULL_HEALING, POT_BLINDNESS,      1 },
     { POT_WATER,         POT_EXTRA_HEALING, POT_BLINDNESS,     1 },
     { POT_WATER,         POT_HEALING, POT_BLINDNESS,           1 },
-    { POT_WATER,         UNICORN_HORN, POT_HALLUCINATION,      0 },
-    { POT_WATER,         UNICORN_HORN, POT_CONFUSION,          0 },
-    { POT_WATER,         UNICORN_HORN, POT_BLINDNESS,          0 },
+    { POT_WATER,         UNICORN_HORN, POT_HALLUCINATION,      1 },
+    { POT_WATER,         UNICORN_HORN, POT_CONFUSION,          1 },
+    { POT_WATER,         UNICORN_HORN, POT_BLINDNESS,          1 },
     /* fruit juice */
     { POT_FRUIT_JUICE,   POT_FULL_HEALING, POT_SICKNESS,       1 },
     { POT_FRUIT_JUICE,   POT_EXTRA_HEALING, POT_SICKNESS,      1 },
     { POT_FRUIT_JUICE,   POT_HEALING, POT_SICKNESS,            1 },
-    { POT_FRUIT_JUICE,   UNICORN_HORN, POT_SICKNESS,           0 },
-    { POT_FRUIT_JUICE,   AMETHYST, POT_BOOZE,                  0 },
+    { POT_FRUIT_JUICE,   UNICORN_HORN, POT_SICKNESS,           1 },
+    { POT_FRUIT_JUICE,   UNICORN_HORN, POT_DROW_POISON,        1 },
+    { POT_FRUIT_JUICE,   AMETHYST, POT_BOOZE,                  1 },
     /* multiple results/outcomes combinations */
-    { POT_BOOZE,         POT_GAIN_LEVEL, POT_CONFUSION,        3 },
-    { POT_BOOZE,         POT_GAIN_ENERGY, POT_CONFUSION,       3 },
-    { POT_ENLIGHTENMENT, POT_GAIN_LEVEL, POT_CONFUSION,        2 },
-    { POT_ENLIGHTENMENT, POT_GAIN_ENERGY, POT_CONFUSION,       2 },
+    { POT_ENLIGHTENMENT, POT_GAIN_LEVEL, POT_CONFUSION,        3 },
+        /* if not enlightenment, then booze */
+    { POT_BOOZE,         POT_GAIN_LEVEL, POT_CONFUSION,        1 },
+    { POT_ENLIGHTENMENT, POT_GAIN_ENERGY, POT_CONFUSION,       3 },
+        /* if not enlightenment, then booze */
+    { POT_BOOZE,         POT_GAIN_ENERGY, POT_CONFUSION,       1 },
     { POT_GAIN_LEVEL,    POT_ENLIGHTENMENT, POT_LEVITATION,    3 },
     { 0, 0, 0, 0 }
 };

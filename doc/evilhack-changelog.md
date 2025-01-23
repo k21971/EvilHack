@@ -3879,4 +3879,6 @@ The following changes to date are:
   (burned grass)
 - Switch status from work in progress to beta (0.9.0)
 - Show potion alchemy combinations in the pokedex
+- Dipping a unicorn horn into a potion of drow poison will turn it into
+  a potion of fruit juice
 

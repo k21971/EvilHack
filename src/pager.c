@@ -1598,10 +1598,7 @@ short otyp;
                     OBJ_NAME(objects[precipe->typ1]),
                     OBJ_NAME(objects[precipe->typ2]),
                     OBJ_NAME(objects[precipe->result_typ]),
-                    precipe->chance == 0
-                      ? " (always)" : precipe->chance == 1
-                        ? " (9/10 chance)" : precipe->chance == 2
-                          ? " (1/3 chance)" : " (3/5 chance)");
+                    precipe->chance == 1 ? "" : " (1/3 chance)");
             OBJPUTSTR(buf);
         }
     }
