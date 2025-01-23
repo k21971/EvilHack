@@ -467,7 +467,7 @@
      || (ptr) == &mons[PM_CENTIPEDE] || (ptr) == &mons[PM_GIANT_CENTIPEDE] \
      || (ptr) == &mons[PM_PEGASUS] || (ptr) == &mons[PM_GREATER_PEGASUS]   \
      || (ptr) == &mons[PM_SNAKE] || (ptr) == &mons[PM_GARTER_SNAKE]        \
-     || (ptr) == &mons[PM_GIANT_ANACONDA])
+     || (ptr) == &mons[PM_COBRA] || (ptr) == &mons[PM_GIANT_ANACONDA])
 
 /* woodland beings */
 #define is_woodland_being(ptr) \
