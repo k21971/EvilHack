@@ -3886,4 +3886,6 @@ The following changes to date are:
 - Tweak the number of charges the Blacksmith hammer starts with and can
   be charged up to
 - Adjust sound flag for various monsters
+- Fix: grammar when deflecting a thrown projectile whle wearing a
+  shield or a pair of bracers
 

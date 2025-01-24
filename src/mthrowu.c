@@ -106,10 +106,11 @@ const char *name; /* if null, then format `*objp' */
                             : Stoneskin ? "stony hide" : "thick hide"),
                      (rn2(2) ? "blocks" : "deflects"), onm);
             } else if (uarms && rn2(2)) {
-                Your("%s %s %s.",
-                     uarms->oartifact ? xname(uarms)
-                                      : simple_typename(uarms->otyp),
-                     (rn2(2) ? "blocks" : "deflects"), onm);
+                boolean nameart = (uarms->oartifact && uarms->dknown);
+                pline("%s%s %s %s.", nameart ? "Your " : "",
+                      nameart ? xname(uarms)
+                              : Ysimple_name2(uarms),
+                      (rn2(2) ? "blocks" : "deflects"), onm);
                 use_skill(P_SHIELD, 1);
             } else {
                 pline("%s %s you.", upstart(onmbuf), vtense(onmbuf, "miss"));
