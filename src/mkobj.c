@@ -1106,7 +1106,7 @@ boolean artif;
                 otmp->spe = rnd(20);
                 break;
             case BLACKSMITH_HAMMER:
-                otmp->spe = rn1(3, 2);
+                otmp->spe = rn1(4, 2); /* 2-5 initial charges */
                 blessorcurse(otmp, 10);
                 break;
             case FIGURINE:

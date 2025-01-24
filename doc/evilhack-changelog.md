@@ -3883,4 +3883,6 @@ The following changes to date are:
   a potion of fruit juice
 - Fix: escaping out of #wildshape menu (not selecting anything) would
   still trigger the wildshape use timer
+- Tweak the number of charges the Blacksmith hammer starts with and can
+  be charged up to
 

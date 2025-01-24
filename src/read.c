@@ -849,14 +849,14 @@ struct monst *mtmp;
                 obj->recharged = 2; /* override increment done above */
                 pline1(nothing_happens);
             } else if (is_blessed) {
-                obj->spe += rn1(5, 4); /* 4-8 charges */
+                obj->spe += rn1(3, 3); /* 3-5 charges */
                 p_glow2(obj, NH_BLUE);
             } else {
-                obj->spe += rn1(3, 2); /* 2-4 charges */
+                obj->spe += rn1(3, 1); /* 1-3 charges */
                 p_glow1(obj);
             }
-            if (obj->spe > 8)
-                obj->spe = 8;
+            if (obj->spe > 5)
+                obj->spe = 5;
             break;
         case MAGIC_MARKER:
         case TINNING_KIT:
