@@ -935,9 +935,14 @@ register struct monst *mtmp;
             } else {
                 pline_msg = "talks about mining.";
             }
-        } else if (likes_magic(ptr))
+        } else if (likes_magic(ptr)) {
             pline_msg = "talks about spellcraft.";
-        else if (ptr->mlet == S_CENTAUR)
+        } else if (is_true_ent(ptr)) {
+            if (!rn2(100))
+                pline_msg = "asks if you've seen any entwives recently.";
+            else
+                pline_msg = "discusses the state of the forest.";
+        } else if (racial_centaur(mtmp))
             pline_msg = "discusses hunting.";
         else if (racial_gnome(mtmp)) {
             if (mtmp->mpeaceful && Ingtown) {

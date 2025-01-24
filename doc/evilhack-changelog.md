@@ -3885,4 +3885,5 @@ The following changes to date are:
   still trigger the wildshape use timer
 - Tweak the number of charges the Blacksmith hammer starts with and can
   be charged up to
+- Adjust sound flag for various monsters
 
