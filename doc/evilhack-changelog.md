@@ -3881,4 +3881,6 @@ The following changes to date are:
 - Show potion alchemy combinations in the pokedex
 - Dipping a unicorn horn into a potion of drow poison will turn it into
   a potion of fruit juice
+- Fix: escaping out of #wildshape menu (not selecting anything) would
+  still trigger the wildshape use timer
 

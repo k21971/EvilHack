@@ -443,20 +443,6 @@ druid_wildshape()
     start_menu(win);
     any = zeroany;
 
-    /* set timer for next allowed use of wildshape,
-       3600-4000 turns (this is an approximation
-       to Druids being able to use wildshape three
-       times a day, ad&d rules). how alignment is
-       abused (or not abused) can affect the amount
-       of turns needed to wait between wildshape
-       uses.
-
-       this needs to be set before polymon() is
-       called due to other behavior while using
-       #wildshape */
-    u.uwildshape += rn1((u.ualign.abuse == 0) ? 201 : 401,
-                        (3600 + abuse));
-
     if (Unchanging) {
         pline("You fail to transform!");
         return;
@@ -500,12 +486,22 @@ druid_wildshape()
         i = selected[0].item.a_int;
         free((genericptr_t) selected);
         (void) polymon(i);
+        /* set timer for next allowed use of wildshape,
+           3600-4000 turns (this is an approximation
+           to Druids being able to use wildshape three
+           times a day, ad&d rules). how alignment is
+           abused (or not abused) can affect the amount
+           of turns needed to wait between wildshape
+           uses */
+        u.uwildshape += rn1((u.ualign.abuse == 0) ? 201 : 401,
+                            (3600 + abuse));
     }
 
     if (old_uwvis != (Underwater && See_underwater)) {
         vision_reset();
         docrt();
     }
+    return;
 }
 
 void

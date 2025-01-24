@@ -6823,29 +6823,38 @@ dodruidwildshape(VOID_ARGS)
 {
     /* TODO: figure a way to set up this command
        so it's not even an option for a non-druid */
-    if (!Role_if(PM_DRUID))
+    if (!Role_if(PM_DRUID)) {
         You("don't have access to this ability.");
-    else if (Role_if(PM_DRUID)
-             && (u.uwildshape == 0) && u.ulevel < 3)
-        You("must first reach the rank of Ovate to use this ability.");
-    else if (Upolyd && u.uwildshape)
-        rehumanize(); /* manually revert back to original form */
-    else if (u.uwildshape
-             && (!wizard
-                 || yn("You can't use wildshape so soon.  Override?") != 'y'))
-        You_cant("use wildshape so soon.");
-    else if ((Stunned || Confusion)
-             && (u.uwildshape == 0))
-        You_cant("use wildshape while incapacitated.");
-    else if (u.uhunger < 50) /* weak */
-        You("are too weak from hunger to use wildshape.");
-    else if (ACURR(A_STR) < 4)
-        You("lack the strength to use wildshape.");
-    else if (u.ulycn >= LOW_PM)
-        You_cant("use wildshape while infected with lycanthropy.");
-    else
-        druid_wildshape();
-
+    } else { /* player is Druid */
+        if (u.ulevel < 3) {
+            You("must first reach the rank of Ovate to use this ability.");
+        } else if (Upolyd && u.uwildshape) {
+            rehumanize(); /* manually revert back to original form */
+        } else if (u.uwildshape
+                   && (!wizard
+                       || yn("You can't use wildshape so soon.  Override?") != 'y')) {
+            You_cant("use wildshape so soon.");
+        } else if ((Stunned || Confusion)
+                   && (u.uwildshape == 0)) {
+            You_cant("use wildshape while incapacitated.");
+        } else if (u.uhunger < 50) { /* weak */
+            You("are too weak from hunger to use wildshape.");
+        } else if (ACURR(A_STR) < 4) {
+            You("lack the strength to use wildshape.");
+        } else if (u.ulycn >= LOW_PM) {
+            You_cant("use wildshape while infected with lycanthropy.");
+        } else if ((uarm && is_metallic(uarm))
+                   || (uarmc && is_metallic(uarmc))
+                   || (uarmh && is_metallic(uarmh))
+                   || (uarms && is_metallic(uarms))
+                   || (uarmg && is_metallic(uarmg))
+                   || (uarmf && is_metallic(uarmf))
+                   || (uarmu && is_metallic(uarmu))) {
+            You_cant("use wildshape while wearing metallic armor.");
+        } else {
+            druid_wildshape();
+        }
+    }
     return 0;
 }
 
