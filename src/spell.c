@@ -1017,6 +1017,12 @@ register struct monst *mdef;
             if (canseemon(mdef))
                 pline("%s is already entangled!", Monnam(mdef));
             return;
+        } else if (is_whirly(mdef->data)
+                   || passes_walls(mdef->data)
+                   || unsolid(mdef->data)) {
+            if (canseemon(mdef))
+                Your("spell fails to entangle %s.", mon_nam(mdef));
+            return;
         } else {
             if (canseemon(mdef))
                 pline("%s is entangled!", Monnam(mdef));

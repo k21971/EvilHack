@@ -3888,4 +3888,6 @@ The following changes to date are:
 - Adjust sound flag for various monsters
 - Fix: grammar when deflecting a thrown projectile whle wearing a
   shield or a pair of bracers
+- Evocation spell 'entangle' will not work against unsolid, whirly,
+  or phasing monsters
 
