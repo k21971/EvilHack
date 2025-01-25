@@ -1282,9 +1282,35 @@ dochat()
         return 0;
     }
 
+    if (Role_if(PM_DRUID) && u.ulevel > 2
+        && is_woodland_creature(mtmp->data)) {
+        if (!mtmp->mtame) {
+            You("speak with the %s in its native tongue...",
+                l_monnam(mtmp));
+            if (rnl(20) < 2) {
+                pline("%s agrees to help you.",
+                      Monnam(mtmp));
+                (void) tamedog(mtmp, (struct obj *) 0);
+            } else {
+                if (rnl(10) < 5) {
+                    if (!mtmp->mpeaceful) {
+                        mtmp->mpeaceful = 1;
+                        set_malign(mtmp);
+                    }
+                    pline("%s enjoys the chat.",
+                          Monnam(mtmp));
+                } else {
+                    pline("%s ignores you.", Monnam(mtmp));
+                }
+            }
+            return 1;
+        }
+    }
+
+
     if ((Role_if(PM_CONVICT) && is_rat(mtmp->data))
         || (Race_if(PM_DRAUGR) && is_zombie(mtmp->data))) {
-        if (!mtmp->mpeaceful && !mtmp->mtame) {
+        if (!mtmp->mpeaceful) {
             if (Role_if(PM_CONVICT))
                 You("attempt to soothe the %s with chittering sounds...",
                     l_monnam(mtmp));

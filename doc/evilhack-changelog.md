@@ -3890,4 +3890,6 @@ The following changes to date are:
   shield or a pair of bracers
 - Evocation spell 'entangle' will not work against unsolid, whirly,
   or phasing monsters
+- Druids can chat with woodland creatures, possibly making them
+  peaceful or even tame
 
