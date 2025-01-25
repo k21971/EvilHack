@@ -65,7 +65,9 @@ struct attack *mattk;
                   "peck" : "bite");
             break;
         case AT_KICK:
-            pline("%s kicks%c", Monst_name,
+            pline("%s %s%c", Monst_name,
+                  is_quadruped(mtmp->data)
+                    ? "tramples you" : "kicks",
                   (thick_skinned(youmonst.data)
                    || Barkskin || Stoneskin) ? '.' : '!');
             break;

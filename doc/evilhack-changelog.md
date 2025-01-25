@@ -3892,4 +3892,6 @@ The following changes to date are:
   or phasing monsters
 - Druids can chat with woodland creatures, possibly making them
   peaceful or even tame
+- Fix: allow burning hands and shocking grasp spells to function
+  while polymorphed; monster attack/body part tweaks
 

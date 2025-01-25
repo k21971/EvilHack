@@ -310,6 +310,7 @@
 #define has_trunk(ptr) \
     ((ptr) == &mons[PM_MUMAK] || (ptr) == &mons[PM_MASTODON] \
      || (ptr) == &mons[PM_WOOLLY_MAMMOTH])
+#define is_quadruped(ptr) ((ptr)->mlet ==S_QUADRUPED)
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
 #define is_ent(ptr) ((ptr)->mlet == S_ENT)
 #define is_plant(ptr) ((ptr)->mlet == S_PLANT)

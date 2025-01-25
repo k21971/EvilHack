@@ -1415,7 +1415,8 @@ int dieroll;
                          && !Upolyd && Race_if(PM_DROW))
                     && mon_hates_light(mon))
                     lightobj = TRUE;
-                if ((u.usteed || Race_if(PM_CENTAUR)) && !thrown && tmp > 0
+                if ((u.usteed || (!Upolyd && Race_if(PM_CENTAUR)))
+                    && !thrown && tmp > 0
                     && weapon_type(obj) == P_LANCE && mon != u.ustuck) {
                     jousting = joust(mon, obj);
                     /* exercise skill even for minimal damage hits */
@@ -4349,7 +4350,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                     verb = "tentacles";
                     break;
                 case AT_KICK:
-                    verb = "kick";
+                    verb = is_quadruped(youmonst.data) ? "trample" : "kick";
                     break;
                 case AT_BUTT:
                     verb = (has_trunk(youmonst.data)
@@ -4383,6 +4384,101 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                             searmsg(&youmonst, mon, hated_obj, FALSE);
                     }
                     sum[i] = damageum(mon, mattk, specialdmg);
+                }
+                /* burning hands spell */
+                if (u.umburn && !DEADMONSTER(mon)
+                    && (mattk->aatyp == AT_CLAW
+                        || mattk->aatyp == AT_TUCH || mattk->aatyp == AT_KICK)) {
+                    int enchant_skill = ((P_SKILL(P_ENCHANTMENT_SPELL) >= P_EXPERT)
+                                         ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
+                                           ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
+                                             ? 2 : 1);
+                    int burning_hands = damage_mon(mon, d(enchant_skill, 4), AD_FIRE);
+
+                    if (resists_fire(mon) || defended(mon, AD_FIRE)
+                        || mon_underwater(mon)) {
+                        shieldeff(mon->mx, mon->my);
+                        golemeffects(mon, AD_FIRE, tmp);
+                        if (!Blind)
+                            Your("%s don't burn %s!",
+                                 is_bird(youmonst.data)
+                                   ? "claws" : makeplural(body_part(HAND)),
+                                 mon_nam(mon));
+                    } else {
+                        You("%s %s with your %s!",
+                            can_vaporize(mon->data)
+                              ? "vaporize part of"
+                              : vulnerable_to(mon, AD_FIRE)
+                                ? "severely burn" : "burn",
+                            mon_nam(mon),
+                            is_bird(youmonst.data)
+                              ? "claws" : makeplural(body_part(HAND)));
+
+                        if (!rn2(4) &&
+                            (mon_underwater(mon) || can_vaporize(mon->data))) {
+                            u.umburn = 0;
+                            Your("%s are extinguished.",
+                                 is_bird(youmonst.data)
+                                   ? "claws" : makeplural(body_part(HAND)));
+                        }
+
+                        if (!rn2(4))
+                            (void) destroy_mitem(mon, POTION_CLASS, AD_FIRE);
+                        if (!rn2(4))
+                            (void) destroy_mitem(mon, SCROLL_CLASS, AD_FIRE);
+                        if (!rn2(7))
+                            (void) destroy_mitem(mon, SPBOOK_CLASS, AD_FIRE);
+
+                        if (completelyburns(mon->data)
+                            || mon->data == &mons[PM_WOOD_GOLEM]
+                            || mon->data == &mons[PM_GREEN_SLIME]
+                            || (is_blight(mon->data) && !rn2(10))
+                            || (mon->data == &mons[PM_ENT] && !rn2(10))
+                            || (mon->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
+                            pline("%s ignites and turns to ash!", Monnam(mon));
+                            killed(mon);
+                        } else {
+                            sum[i] = damageum(mon, mattk, burning_hands);
+                        }
+                    }
+                    nohandburn();
+                }
+                /* shocking grasp spell */
+                if (u.umshock && !DEADMONSTER(mon)
+                    && (mattk->aatyp == AT_CLAW
+                        || mattk->aatyp == AT_TUCH || mattk->aatyp == AT_KICK)) {
+                    int enchant_skill = ((P_SKILL(P_ENCHANTMENT_SPELL) >= P_EXPERT)
+                                         ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
+                                           ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
+                                             ? 2 : 1);
+                    int shocking_grasp = damage_mon(mon, d(enchant_skill, 4), AD_ELEC);
+
+                    if (resists_elec(mon) || defended(mon, AD_ELEC)) {
+                        shieldeff(mon->mx, mon->my);
+                        golemeffects(mon, AD_ELEC, tmp);
+                        if (!Blind)
+                            Your("%s don't shock %s!",
+                                 is_bird(youmonst.data)
+                                   ? "claws" : makeplural(body_part(HAND)),
+                                 mon_nam(mon));
+                    } else {
+                        You("%s %s with your %s!",
+                            vulnerable_to(mon, AD_ELEC)
+                              ? "severely shock"
+                              : rn2(2)
+                                ? "jolt" : "shock",
+                            mon_nam(mon),
+                            is_bird(youmonst.data)
+                              ? "claws" : makeplural(body_part(HAND)));
+
+                        if (!rn2(4))
+                            (void) destroy_mitem(mon, WAND_CLASS, AD_ELEC);
+                        if (!rn2(5))
+                            (void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
+
+                        sum[i] = damageum(mon, mattk, shocking_grasp);
+                    }
+                    nohandshock();
                 }
             } else { /* !dhit */
                 missum(mon, tmp, dieroll, mattk, (tmp + armorpenalty > dieroll));
@@ -4518,7 +4614,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                  || youmonst.data->mlet == S_GNOME) && !weapon_used)
                 goto use_weapon;
             sum[i] = castum(mon, mattk);
-             		continue;
+            continue;
             /*FALLTHRU*/
 
         case AT_NONE:
@@ -5442,14 +5538,19 @@ nohandburn()
         return;
     if (u.umburn == 1) {
         if (Blind)
-            Your("%s no longer feel hot.", hands);
+            Your("%s no longer feel hot.",
+                 is_bird(youmonst.data) ? "claws" : hands);
         else
-            Your("%s stop burning %s.", hands, hcolor(NH_ORANGE));
+            Your("%s stop burning %s.",
+                 is_bird(youmonst.data) ? "claws" : hands,
+                 hcolor(NH_ORANGE));
     } else {
         if (Blind)
-            pline_The("burning sensation in your %s lessens.", hands);
+            pline_The("burning sensation in your %s lessens.",
+                      is_bird(youmonst.data) ? "claws" : hands);
         else
-            Your("%s no longer burn so brightly.", hands);
+            Your("%s no longer burn so brightly.",
+                 is_bird(youmonst.data) ? "claws" : hands);
     }
     u.umburn--;
 }
@@ -5463,14 +5564,19 @@ nohandshock()
         return;
     if (u.umshock == 1) {
         if (Blind)
-            Your("%s no longer feel energized.", hands);
+            Your("%s no longer feel energized.",
+                 is_bird(youmonst.data) ? "claws" : hands);
         else
-            Your("%s stop shimmering %s.", hands, hcolor(NH_BLUE));
+            Your("%s stop shimmering %s.",
+                 is_bird(youmonst.data) ? "claws" : hands,
+                 hcolor(NH_BLUE));
     } else {
         if (Blind)
-            pline_The("energetic sensation in your %s lessens.", hands);
+            pline_The("energetic sensation in your %s lessens.",
+                      is_bird(youmonst.data) ? "claws" : hands);
         else
-            Your("%s no longer shimmer so brightly.", hands);
+            Your("%s no longer shimmer so brightly.",
+                 is_bird(youmonst.data) ? "claws" : hands);
     }
     u.umshock--;
 }

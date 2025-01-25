@@ -4663,7 +4663,9 @@ drown()
             You("sink like %s.", Hallucination ? "the Titanic" : "a rock");
         if (u.umburn) {
             u.umburn = 0;
-            Your("%s are extinguished.", makeplural(body_part(HAND)));
+            Your("%s are extinguished.",
+                 is_bird(youmonst.data)
+                   ? "claws" : makeplural(body_part(HAND)));
         }
     }
 

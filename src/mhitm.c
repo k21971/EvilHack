@@ -887,11 +887,14 @@ int dieroll;
             Strcpy(magr_name, Monnam(magr));
             switch (mattk->aatyp) {
             case AT_BITE:
-		Sprintf(buf,"%s %ss", magr_name, has_beak(magr->data) ?
-                        "peck" : "bite");
+		Sprintf(buf,"%s %ss", magr_name,
+                        has_beak(magr->data)
+                           ? "peck" : "bite");
                 break;
             case AT_KICK:
-                Sprintf(buf, "%s kicks", magr_name);
+                Sprintf(buf, "%s %s", magr_name,
+                        is_quadruped(magr->data)
+                          ? "tramples" : "kicks");
                 break;
             case AT_STNG:
                 Sprintf(buf, "%s stings", magr_name);
