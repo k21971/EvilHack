@@ -30,7 +30,7 @@ STATIC_DCL uchar FDECL(abil_to_adtyp, (long *));
 STATIC_DCL int FDECL(glow_strength, (int));
 STATIC_DCL boolean FDECL(untouchable, (struct obj *, BOOLEAN_P));
 STATIC_DCL int FDECL(count_surround_traps, (int, int));
-staticfn void dispose_of_orig_obj(struct obj *);
+STATIC_DCL void dispose_of_orig_obj(struct obj *);
 
 /* The amount added to the victim's total hit points to insure that the
    victim will be killed even after damage bonus/penalty adjustments.
@@ -213,7 +213,7 @@ aligntyp alignment; /* target alignment, or A_NONE */
     return otmp;
 }
 
-staticfn void
+STATIC_OVL void
 dispose_of_orig_obj(struct obj *obj)
 {
     if (!obj)
