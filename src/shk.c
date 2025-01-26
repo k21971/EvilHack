@@ -2084,7 +2084,7 @@ int *nochrg; /* alternate return value: 1: no charge, 0: shop owned,        */
         && (shkp = shop_keeper(inside_shop(x, y))) != 0 && inhishop(shkp)) {
         for (top = obj; top->where == OBJ_CONTAINED; top = top->ocontainer)
             continue;
-        freespot = (top->where == OBJ_FLOOR
+        freespot = ((top->where == OBJ_FLOOR || top->where == OBJ_MINVENT)
                     && x == ESHK(shkp)->shk.x && y == ESHK(shkp)->shk.y);
         /* no_charge is only set for items on floor or carried by pet inside
          * shop proper; items on freespot are implicitly 'no charge' */

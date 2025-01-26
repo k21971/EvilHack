@@ -3894,4 +3894,5 @@ The following changes to date are:
   peaceful or even tame
 - Fix: allow burning hands and shocking grasp spells to function
   while polymorphed; monster attack/body part tweaks
+- Fix: charge to #loot pet inside shop standing on the free spot
 
