@@ -267,6 +267,7 @@ register boolean special;
                 otmp->oerodeproof = 1;
             else if (!rn2(2))
                 otmp->greased = 1;
+            /* mk_artifact() with otmp and A_NONE will never return NULL */
             if (special && rn2(2))
                 otmp = mk_artifact(otmp, A_NONE);
             /* usually increase stack size if stackable weapon */

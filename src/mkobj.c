@@ -1105,8 +1105,10 @@ boolean artif;
     }
 
     /* unique objects may have an associated artifact entry */
-    if (objects[otyp].oc_unique && !otmp->oartifact)
+    if (objects[otyp].oc_unique && !otmp->oartifact) {
+        /* mk_artifact() with otmp and A_NONE will never return NULL */
         otmp = mk_artifact(otmp, (aligntyp) A_NONE);
+    }
     otmp->owt = weight(otmp);
     return otmp;
 }

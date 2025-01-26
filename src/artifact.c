@@ -30,6 +30,7 @@ STATIC_DCL uchar FDECL(abil_to_adtyp, (long *));
 STATIC_DCL int FDECL(glow_strength, (int));
 STATIC_DCL boolean FDECL(untouchable, (struct obj *, BOOLEAN_P));
 STATIC_DCL int FDECL(count_surround_traps, (int, int));
+staticfn void dispose_of_orig_obj(struct obj *);
 
 /* The amount added to the victim's total hit points to insure that the
    victim will be killed even after damage bonus/penalty adjustments.
@@ -127,6 +128,7 @@ mk_artifact(otmp, alignment)
 struct obj *otmp;   /* existing object; ignored if alignment specified */
 aligntyp alignment; /* target alignment, or A_NONE */
 {
+    struct obj *artiobj;
     const struct artifact *a;
     int m, n, altn;
     boolean by_align = (alignment != A_NONE);
@@ -191,21 +193,34 @@ aligntyp alignment; /* target alignment, or A_NONE */
         m = eligible[rn2(n)]; /* [0..n-1] */
         a = &artilist[m];
 
-        /* make an appropriate object if necessary, then christen it */
-        if (by_align)
-            otmp = mksobj((int) a->otyp, TRUE, FALSE);
+        /* make an appropriate object, then christen it */
+        artiobj = mksobj((int) a->otyp, TRUE, FALSE);
 
-        if (otmp) {
-            otmp = oname(otmp, a->name);
-            otmp->oartifact = m;
-            artiexist[m] = TRUE;
-        }
+        artiobj = oname(artiobj, a->name);
+        artiobj->oartifact = m;
+        artiexist[m] = TRUE;
+        if (otmp)
+            dispose_of_orig_obj(otmp);
+        otmp = artiobj;
     } else {
         /* nothing appropriate could be found; return original object */
-        if (by_align)
-            otmp = 0; /* (there was no original object) */
+        if (by_align && otmp) {
+            /* (there shouldn't have been an original object) */
+            dispose_of_orig_obj(otmp);
+            otmp = 0;
+        }
     }
     return otmp;
+}
+
+void
+dispose_of_orig_obj(struct obj *obj)
+{
+    if (!obj)
+        return;
+
+    obj_extract_self(obj);
+    obfree(obj, (struct obj *) 0);
 }
 
 /*

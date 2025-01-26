@@ -1748,6 +1748,8 @@ dosacrifice()
             /* The chance goes down as the number of artifacts goes up */
             if (u.ulevel > 2 && u.uluck >= 0
                 && !rn2(10 + (2 * u.ugifts * nartifacts))) {
+                /* mk_artifact() with NULL obj and a_align() arg
+                   can return NULL */
                 otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy));
                 if (otmp) {
                     if (otmp->spe < 0)
