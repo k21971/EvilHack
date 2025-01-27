@@ -3905,4 +3905,5 @@ The following changes to date are:
 - Fix: rotten food showing as 'burnt'
 - Fix: limit how often a female Druid can lay eggs while using
   wildshape
+- Fix: charge to #loot pet inside shop standing on free spot II
 
