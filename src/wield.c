@@ -684,7 +684,12 @@ const char *verb; /* "rub",&c */
         return FALSE;
     }
     if (cantwield(youmonst.data)) {
-        You_cant("hold %s strongly enough.", more_than_1 ? "them" : "it");
+        if (druid_form)
+            You("aren't able to hold %s properly while in this form.",
+                yname(obj));
+        else
+            You_cant("hold %s strongly enough.",
+                     more_than_1 ? "them" : "it");
         return FALSE;
     }
     /* check shield */

@@ -3898,4 +3898,7 @@ The following changes to date are:
 - Fix: prevent armor that is 'merged to your body' from being
   stolen
 - Fix: rehumanizing a Druid while in wildshape via prayer
+- Fix: 'You can't hold is strongly enough' while using wildshape
+- Fix: give proper feedback on why certain objects can't be used
+  while in wildshape
 
