@@ -193,15 +193,19 @@ aligntyp alignment; /* target alignment, or A_NONE */
         m = eligible[rn2(n)]; /* [0..n-1] */
         a = &artilist[m];
 
-        /* make an appropriate object, then christen it */
-        artiobj = mksobj((int) a->otyp, TRUE, FALSE);
-
-        artiobj = oname(artiobj, a->name);
-        artiobj->oartifact = m;
-        artiexist[m] = TRUE;
-        if (otmp)
-            dispose_of_orig_obj(otmp);
-        otmp = artiobj;
+        /* make an appropriate object if necessary, then christen it */
+        if (by_align) {
+            artiobj = mksobj((int) a->otyp, TRUE, FALSE);
+            if (otmp) {
+                dispose_of_orig_obj(otmp);
+                otmp = artiobj;
+            }
+        }
+        if (otmp) {
+            otmp = oname(otmp, a->name);
+            otmp->oartifact = m;
+            artiexist[m] = TRUE;
+        }
     } else {
         /* nothing appropriate could be found; return original object */
         if (by_align && otmp) {
