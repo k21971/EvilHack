@@ -4122,7 +4122,7 @@ struct monst *mon;
     mayberem(mon, Who, uarmf, "boots");
     if (!tried_gloves)
         mayberem(mon, Who, uarmg, "gloves");
-    mayberem(mon, Who, uarms, "shield");
+    mayberem(mon, Who, uarms, is_bracer(uarms) ? "bracers" : "shield");
     mayberem(mon, Who, uarmh, helm_simple_name(uarmh));
     if (!uarmc && !uarm)
         mayberem(mon, Who, uarmu, "shirt");

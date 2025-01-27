@@ -21,7 +21,7 @@ register struct obj *otmp;
                 : (otmp == uarmf)
                       ? "boots"
                       : (otmp == uarms)
-                            ? "shield"
+                            ? (is_bracer(uarms) ? "bracers" : "shield")
                             : (otmp == uarmg)
                                   ? "gloves"
                                   : (otmp == uarmc)
@@ -369,10 +369,11 @@ char *objnambuf;
 
     /* greased objects are difficult to get a grip on, hence
        the odds that an attempt at stealing it may fail */
-    if (otmp && (otmp->greased || otmp->otyp == OILSKIN_CLOAK
-        || otmp->otyp == OILSKIN_SACK
-        || otmp->oartifact == ART_BAG_OF_THE_HESPERIDES
-        || (otmp->oprops & ITEM_OILSKIN))
+    if (otmp
+        && (otmp->greased || otmp->otyp == OILSKIN_CLOAK
+            || otmp->otyp == OILSKIN_SACK
+            || otmp->oartifact == ART_BAG_OF_THE_HESPERIDES
+            || (otmp->oprops & ITEM_OILSKIN))
         && (!otmp->cursed || rn2(4))) {
         pline("%s %s slip off of your %s %s!", s_suffix(Monnam(mtmp)),
               makeplural(mbodypart(mtmp, HAND)),
@@ -386,6 +387,16 @@ char *objnambuf;
             otmp->greased = 0;
             update_inventory();
         }
+        return 1; /* let them flee */
+    }
+
+    if (druid_form && otmp
+        && ((otmp == uarm) || (otmp == uarmc)
+            || (otmp == uarmu) || (otmp == uarmh)
+            || (otmp == uarmg) || (otmp == uarms)
+            || (otmp == uarmf))) {
+        pline("%s appears confused, being unable to remove %s.",
+              Monnam(mtmp), ysimple_name(otmp));
         return 1; /* let them flee */
     }
 

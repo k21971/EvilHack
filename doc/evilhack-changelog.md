@@ -3895,4 +3895,6 @@ The following changes to date are:
 - Fix: allow burning hands and shocking grasp spells to function
   while polymorphed; monster attack/body part tweaks
 - Fix: charge to #loot pet inside shop standing on the free spot
+- Fix: prevent armor that is 'merged to your body' from being
+  stolen
 
