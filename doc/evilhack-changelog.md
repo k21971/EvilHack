@@ -3897,4 +3897,5 @@ The following changes to date are:
 - Fix: charge to #loot pet inside shop standing on the free spot
 - Fix: prevent armor that is 'merged to your body' from being
   stolen
+- Fix: rehumanizing a Druid while in wildshape via prayer
 

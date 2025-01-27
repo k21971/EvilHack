@@ -482,7 +482,7 @@ int trouble;
             otmp = uwep;
             goto decurse;
         }
-        if (Upolyd && nohands(youmonst.data)) {
+        if (Upolyd && nohands(youmonst.data) && !druid_form) {
             if (!Unchanging) {
                 Your("shape becomes uncertain.");
                 rehumanize(); /* "You return to {normal} form." */
@@ -491,7 +491,8 @@ int trouble;
                 goto decurse;
             }
         }
-        if (nohands(youmonst.data) || !freehand())
+        if (!druid_form
+            && (nohands(youmonst.data) || !freehand()))
             impossible("fix_worst_trouble: couldn't cure hands.");
         break;
     case TROUBLE_CURSED_BLINDFOLD:
