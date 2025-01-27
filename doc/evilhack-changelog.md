@@ -3903,4 +3903,6 @@ The following changes to date are:
   while in wildshape
 - Remove race flag from Dramborleg
 - Fix: rotten food showing as 'burnt'
+- Fix: limit how often a female Druid can lay eggs while using
+  wildshape
 
