@@ -1225,9 +1225,10 @@ char *prefix;
             Strcat(prefix, "thoroughly ");
             break;
         }
-        Strcat(prefix, is_rustprone(obj) ? "rusty " : "burnt ");
+        Strcat(prefix, is_rustprone(obj) ? "rusty " :
+               obj->oclass == FOOD_CLASS ? "decayed " : "burnt ");
     }
-    if (obj->oeroded2 && !iscrys) {
+    if (obj->oeroded2 && !iscrys && obj->oclass != FOOD_CLASS) {
         switch (obj->oeroded2) {
         case 2:
             Strcat(prefix, "very ");
@@ -1249,6 +1250,8 @@ char *prefix;
             Strcat(prefix, "rustproof ");
         else if (is_corrodeable(obj))
             Strcat(prefix, "corrodeproof ");
+        else if (obj->oclass == FOOD_CLASS)
+            Strcat(prefix, "preserved ");
         else if (is_flammable(obj))
             Strcat(prefix, "fireproof ");
     }
@@ -3762,6 +3765,7 @@ struct obj *no_wish;
                    || !strncmpi(bp, "erodeproof ", l = 11)
                    || !strncmpi(bp, "corrodeproof ", l = 13)
                    || !strncmpi(bp, "fixed ", l = 6)
+                   || !strncmpi(bp, "preserved ", l = 10)
                    || !strncmpi(bp, "fireproof ", l = 10)
                    || !strncmpi(bp, "tempered ", l = 9)) {
             erodeproof = 1;
@@ -3811,6 +3815,7 @@ struct obj *no_wish;
             very = 2;
         } else if (!strncmpi(bp, "rusty ", l = 6)
                    || !strncmpi(bp, "rusted ", l = 7)
+                   || !strncmpi(bp, "decayed ", l = 8)
                    || !strncmpi(bp, "burnt ", l = 6)
                    || !strncmpi(bp, "burned ", l = 7)) {
             eroded = 1 + very;

@@ -3902,4 +3902,5 @@ The following changes to date are:
 - Fix: give proper feedback on why certain objects can't be used
   while in wildshape
 - Remove race flag from Dramborleg
+- Fix: rotten food showing as 'burnt'
 
