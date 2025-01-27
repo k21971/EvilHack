@@ -2281,7 +2281,8 @@ register struct obj *o1, *o2;
     }
 
     for (precipe = potion_fusions; precipe->result_typ; precipe++) {
-        if ((o1typ == precipe->typ1 && o2typ == precipe->typ2)) {
+        if ((o1typ == precipe->typ1 && o2typ == precipe->typ2)
+            || (o2typ == precipe->typ1 && o1typ == precipe->typ2)) {
             if (precipe->chance == 1 || !rn2(precipe->chance))
                 return precipe->result_typ;
         }

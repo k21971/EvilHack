@@ -3905,4 +3905,6 @@ The following changes to date are:
 - Fix: rotten food showing as 'burnt'
 - Fix: limit how often a female Druid can lay eggs while using
   wildshape
+- Fix: alchemy recipe was dependent on order of which potion was
+  dipped into another potion
 
