@@ -168,9 +168,7 @@ int show;
      */
     if (!cansee(x, y) && !lev->waslit) {
         /* Floor spaces are dark if unlit.  Corridors are dark if unlit. */
-        if ((lev->typ == ROOM && glyph == cmap_to_glyph(S_room))
-            || (lev->typ == GRASS && glyph == cmap_to_glyph(S_grass))
-            || (lev->typ == SAND && glyph == cmap_to_glyph(S_sand)))
+        if (lev->typ == ROOM && glyph == cmap_to_glyph(S_room))
             glyph = cmap_to_glyph((flags.dark_room && iflags.use_color)
                                       ? (DARKROOMSYM)
                                       : S_stone);
@@ -330,9 +328,7 @@ register int x, y;
 
         /* turn remembered dark room squares dark */
         if (!lev->waslit
-            && ((lev->glyph == cmap_to_glyph(S_room) && lev->typ == ROOM)
-                || (lev->glyph == cmap_to_glyph(S_grass) && lev->typ == GRASS)
-                || (lev->glyph == cmap_to_glyph(S_sand) && lev->typ == SAND)))
+            && (lev->glyph == cmap_to_glyph(S_room) && lev->typ == ROOM))
             lev->glyph = cmap_to_glyph(S_stone);
     } else {
         levl[x][y].glyph = cmap_to_glyph(S_stone); /* default val */
@@ -696,9 +692,7 @@ xchar x, y;
                 && !lev->waslit)
                 show_glyph(x, y, lev->glyph = cmap_to_glyph(S_corr));
             else if (flags.dark_room && iflags.use_color
-                     && ((lev->typ == ROOM && lev->glyph == cmap_to_glyph(S_room))
-                         || (lev->typ == GRASS && lev->glyph == cmap_to_glyph(S_grass))
-                         || (lev->typ == SAND && lev->glyph == cmap_to_glyph(S_sand))))
+                     && (lev->typ == ROOM && lev->glyph == cmap_to_glyph(S_room)))
                 show_glyph(x, y, lev->glyph = cmap_to_glyph(S_darkroom));
         }
     } else {
@@ -727,9 +721,7 @@ xchar x, y;
         }
 
         /* Floor spaces are dark if unlit.  Corridors are dark if unlit. */
-        if (((lev->typ == ROOM && lev->glyph == cmap_to_glyph(S_room))
-             || (lev->typ == GRASS && lev->glyph == cmap_to_glyph(S_grass))
-             || (lev->typ == SAND && lev->glyph == cmap_to_glyph(S_sand)))
+        if ((lev->typ == ROOM && lev->glyph == cmap_to_glyph(S_room))
             && (!lev->waslit || (flags.dark_room && iflags.use_color)))
             show_glyph(x, y, lev->glyph = cmap_to_glyph(
                                  flags.dark_room ? S_darkroom : S_stone));
@@ -858,8 +850,7 @@ register int x, y;
                     map_trap(ttmp, TRUE);
                 } else if (lev->typ == CORR) {
                     show_glyph(x, y, lev->glyph = cmap_to_glyph(S_corr));
-                } else if (lev->typ == ROOM
-                           || lev->typ == GRASS || lev->typ == SAND) {
+                } else if (lev->typ == ROOM) {
                     show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
                 } else {
                     map_background(x, y, TRUE);
@@ -919,9 +910,7 @@ register int x, y;
         } else if (!lev->waslit || (flags.dark_room && iflags.use_color)) {
             if (lev->glyph == cmap_to_glyph(S_litcorr) && lev->typ == CORR)
                 show_glyph(x, y, lev->glyph = cmap_to_glyph(S_corr));
-            else if ((lev->glyph == cmap_to_glyph(S_room) && lev->typ == ROOM)
-                     || (lev->glyph == cmap_to_glyph(S_grass) && lev->typ == GRASS)
-                     || (lev->glyph == cmap_to_glyph(S_sand) && lev->typ == SAND))
+            else if (lev->glyph == cmap_to_glyph(S_room) && lev->typ == ROOM)
                 show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
             else
                 goto show_mem;
@@ -2060,8 +2049,7 @@ xchar x, y;
             /* Floor spaces are dark if unlit.  Corridors are dark if unlit. */
             if (lev->typ == CORR && idx == S_litcorr)
                 idx = S_corr;
-            else if (idx == S_room
-                     || idx == S_grass || idx == S_sand)
+            else if (idx == S_room)
                 idx = (flags.dark_room && iflags.use_color)
                          ? DARKROOMSYM : S_stone;
         }

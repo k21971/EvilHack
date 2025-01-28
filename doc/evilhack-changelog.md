@@ -3913,4 +3913,5 @@ The following changes to date are:
 - Druids can receive the spellbook 'finger of death' as a crowning
   gift
 - Druids second spellbook set to be some type of evocation spell
+- Display unseen grass & sand normally
 
