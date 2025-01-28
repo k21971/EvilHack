@@ -3912,4 +3912,5 @@ The following changes to date are:
 - Fix: crash caused by seduce attack
 - Druids can receive the spellbook 'finger of death' as a crowning
   gift
+- Druids second spellbook set to be some type of evocation spell
 

@@ -453,7 +453,6 @@ struct trobj giantDruid[] = {
     { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
     { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1 },
-    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
@@ -562,7 +561,6 @@ struct trobj tortleDruid[] = {
     { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
     { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1 },
-    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
@@ -758,6 +756,7 @@ struct trobj Level10Kit2[] = {
 #define B_MINOR	        1 /* matched with axe or short sword */
 #define C_AMMO          2
 #define D_MAJOR         0 /* quarterstaff or scimitar */
+#define D_BOOK          2
 #define M_BOOK          2
 #define RAN_BOW	        1
 #define RAN_TWO_ARROWS  2
@@ -1060,6 +1059,14 @@ register struct monst *mtmp;
                 mongets(mtmp, GRAPPLING_HOOK);
             break;
         case PM_DRUID:
+            switch (rn2(90) / 30) {
+            case 0: Druid[D_BOOK].trotyp = SPE_BARKSKIN;
+                break;
+            case 1: Druid[D_BOOK].trotyp = SPE_CREATE_GRASS;
+                break;
+            case 2: Druid[D_BOOK].trotyp = SPE_SUMMON_ANIMAL;
+                break;
+            }
             if (rn2(100) >= 50)
                 Druid[D_MAJOR].trotyp = SCIMITAR;
             if (racial_tortle(mtmp))
@@ -1100,12 +1107,12 @@ register struct monst *mtmp;
             break;
         case PM_MONK:
             switch (rn2(90) / 30) {
-                case 0: Monk[M_BOOK].trotyp = SPE_HEALING;
-                    break;
-                case 1: Monk[M_BOOK].trotyp = SPE_PROTECTION;
-                    break;
-                case 2: Monk[M_BOOK].trotyp = SPE_SLEEP;
-                    break;
+            case 0: Monk[M_BOOK].trotyp = SPE_HEALING;
+                break;
+            case 1: Monk[M_BOOK].trotyp = SPE_PROTECTION;
+                break;
+            case 2: Monk[M_BOOK].trotyp = SPE_SLEEP;
+                break;
             }
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantMonk, 1);

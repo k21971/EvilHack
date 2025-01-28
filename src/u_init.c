@@ -64,6 +64,7 @@ struct trobj Convict[] = {
 };
 struct trobj Druid[] = {
 #define D_MAJOR 0 /* quarterstaff or scimitar */
+#define D_BOOK 2
     { QUARTERSTAFF, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { BRACERS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { CLOAK, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -71,7 +72,6 @@ struct trobj Druid[] = {
     { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
     { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1 },
-    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
@@ -1034,7 +1034,10 @@ u_init()
         u.ualignbase[A_CURRENT] = u.ualignbase[A_ORIGINAL]
             = u.ualign.type = A_CHAOTIC; /* Override racial alignment */
         break;
-    case PM_DRUID:
+    case PM_DRUID: {
+        static short D_spell[] = { SPE_BARKSKIN, SPE_CREATE_GRASS, SPE_SUMMON_ANIMAL };
+
+        Druid[D_BOOK].trotyp = D_spell[rn2(90) / 30]; /* [0..2] */
         if (rn2(100) >= 50)
             Druid[D_MAJOR].trotyp = SCIMITAR;
         ini_inv(Druid);
@@ -1043,6 +1046,7 @@ u_init()
         knows_object(SACK);
         skill_init(Skill_D);
         break;
+    }
     case PM_HEALER:
         u.umoney0 = rn1(1000, 1001);
         ini_inv(Healer);
