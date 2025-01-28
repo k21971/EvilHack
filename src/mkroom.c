@@ -436,7 +436,8 @@ struct mkroom *sroom;
                                         ? (sx == tx && sy == ty
                                            ? &mons[PM_HORNED_DEVIL]
                                            : &mons[PM_LEMURE])
-                                        : (struct permonst *) 0, sx, sy, MM_ASLEEP);
+                                        : (struct permonst *) 0,
+                                          sx, sy, MM_ASLEEP | MM_NOGRP);
             }
 
             if (mon) {
