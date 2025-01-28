@@ -234,7 +234,7 @@ in_trouble()
            otherwise "fix all troubles" would get stuck in a loop */
         if (welded(uwep))
             return TROUBLE_UNUSEABLE_HANDS;
-        if (Upolyd && nohands(youmonst.data)
+        if (Upolyd && nohands(youmonst.data) && !druid_form
             && (!Unchanging || ((otmp = unchanger()) != 0 && cursed(otmp, TRUE))))
             return TROUBLE_UNUSEABLE_HANDS;
     }
@@ -481,8 +481,7 @@ int trouble;
         if (welded(uwep)) {
             otmp = uwep;
             goto decurse;
-        }
-        if (Upolyd && nohands(youmonst.data) && !druid_form) {
+        } else if (Upolyd && nohands(youmonst.data) && !druid_form) {
             if (!Unchanging) {
                 Your("shape becomes uncertain.");
                 rehumanize(); /* "You return to {normal} form." */
@@ -490,10 +489,9 @@ int trouble;
                 /* otmp is an amulet of unchanging */
                 goto decurse;
             }
-        }
-        if (!druid_form
-            && (nohands(youmonst.data) || !freehand()))
+        } else {
             impossible("fix_worst_trouble: couldn't cure hands.");
+        }
         break;
     case TROUBLE_CURSED_BLINDFOLD:
         otmp = ublindf;
@@ -1211,14 +1209,15 @@ aligntyp g_align;
         case 4:
             do
                 fix_worst_trouble(trouble);
-            while ((trouble = in_trouble()) != 0);
+            /* allow more tries than there are troubles */
+            while ((trouble = in_trouble()) != 0 && ++tryct < 30);
             break;
 
         case 3:
             fix_worst_trouble(trouble);
         case 2:
-            /* arbitrary number of tries */
-            while ((trouble = in_trouble()) > 0 && (++tryct < 10))
+            /* allow more tries than there are major troubles */
+            while ((trouble = in_trouble()) > 0 && (++tryct < 20))
                 fix_worst_trouble(trouble);
             break;
 
