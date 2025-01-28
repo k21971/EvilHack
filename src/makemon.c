@@ -3042,18 +3042,7 @@ monmaxhp(ptr, m_lev)
 struct permonst *ptr;
 uchar m_lev; /* not just a struct mon because polyself code also uses this */
 {
-    if (druid_form) {
-        /* Druid assumes wildshape form, hit points/max hit points
-           either stays the same as if they did not change shape
-           (u.uhp/u.uhpmax), or becomes that of the monster they
-           wildshape into (u.mh/u.umhmax), whichever is greater */
-        int hpmax = d(m_lev, hd_size(ptr));
-
-        if (hpmax > u.uhpmax)
-            return hpmax;
-        else
-            return u.uhpmax;
-    } else if (is_golem(ptr)) {
+    if (is_golem(ptr)) {
         return golemhp(monsndx(ptr));
     } else if (is_rider(ptr)) {
         /* we want low HP, but a high mlevel so they can attack well

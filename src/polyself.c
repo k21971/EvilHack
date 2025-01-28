@@ -901,7 +901,20 @@ int mntmp;
      * "experience level of you as a monster" for a polymorphed character.
      */
     mlvl = (int) mons[mntmp].mlevel;
-    u.mhmax = u.mh = monmaxhp(&mons[mntmp], mlvl);
+    int monster_hp = monmaxhp(&mons[mntmp], mlvl);
+
+    if (druid_form) {
+        /* Druid assumes wildshape form, hit points/max hit points
+           either stays the same as if they did not change shape
+           (u.uhp/u.uhpmax), or becomes that of the monster they
+           wildshape into (u.mh/u.umhmax), whichever is greater */
+        if (monster_hp > u.uhpmax)
+            u.mhmax = u.mh = monster_hp;
+        else
+            u.mhmax = u.mh = u.uhpmax;
+    } else {
+        u.mhmax = u.mh = monster_hp;
+    }
 
     if ((u.ulevel < mlvl) && !druid_form) {
         /* Low level characters can't become high level monsters for long,

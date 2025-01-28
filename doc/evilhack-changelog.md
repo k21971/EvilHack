@@ -3914,4 +3914,5 @@ The following changes to date are:
   gift
 - Druids second spellbook set to be some type of evocation spell
 - Display unseen grass & sand normally
+- Fix: change how Druid wildshape hitpoints are calculated, take two
 
