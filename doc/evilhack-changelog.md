@@ -3910,4 +3910,6 @@ The following changes to date are:
 - Fix: charge to #loot pet inside shop standing on free spot II
 - Change how Druid wildshape hitpoints are calculated
 - Fix: crash caused by seduce attack
+- Druids can receive the spellbook 'finger of death' as a crowning
+  gift
 

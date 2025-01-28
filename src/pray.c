@@ -842,6 +842,10 @@ gcrownu()
                       && uwep->oartifact != ART_STORMBRINGER))
         && !carrying(SPE_POWER_WORD_KILL)) {
         class_gift = SPE_POWER_WORD_KILL;
+    } else if (Role_if(PM_DRUID)
+               && (!uwep || (uwep->oartifact != ART_VORPAL_BLADE))
+               && !carrying(SPE_FINGER_OF_DEATH)) {
+        class_gift = SPE_FINGER_OF_DEATH;
     } else if (Role_if(PM_MONK) && (!uwep || !uwep->oartifact)
                && !carrying(SPE_RESTORE_ABILITY)) {
         /* monks rarely wield a weapon */
@@ -859,7 +863,8 @@ gcrownu()
         verbalize("I crown thee...  The Hand of Elbereth!");
         learn_elbereth();
         livelog_printf(LL_DIVINEGIFT,
-                "was crowned \"The Hand of Elbereth\" by %s", u_gname());
+                       "was crowned \"The Hand of Elbereth\" by %s",
+                       u_gname());
         break;
     case A_NEUTRAL:
         u.uevent.uhand_of_elbereth = 2;
@@ -875,7 +880,7 @@ gcrownu()
         }
         verbalize("Thou shalt be my Envoy of Balance!");
         livelog_printf(LL_DIVINEGIFT, "became %s Envoy of Balance",
-                s_suffix(u_gname()));
+                       s_suffix(u_gname()));
         break;
     case A_CHAOTIC:
         u.uevent.uhand_of_elbereth = 3;
@@ -891,7 +896,8 @@ gcrownu()
         }
         if (Role_if(PM_PRIEST)) {
             verbalize("Thou art chosen to take lives for My Glory!");
-            livelog_printf(LL_DIVINEGIFT, "was chosen to take lives for the Glory of %s",
+            livelog_printf(LL_DIVINEGIFT,
+                           "was chosen to take lives for the Glory of %s",
                            u_gname());
 
         } else {
