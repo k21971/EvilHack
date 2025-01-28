@@ -903,8 +903,9 @@ int mntmp;
     mlvl = (int) mons[mntmp].mlevel;
     u.mhmax = u.mh = monmaxhp(&mons[mntmp], mlvl);
 
-    if (u.ulevel < mlvl) {
-        /* Low level characters can't become high level monsters for long */
+    if ((u.ulevel < mlvl) && !druid_form) {
+        /* Low level characters can't become high level monsters for long,
+           Druids using wildshape are the exception */
 #ifdef DUMB
         /* DRS/NS 2.2.6 messes up -- Peter Kendell */
         int mtd = u.mtimedone, ulv = u.ulevel;

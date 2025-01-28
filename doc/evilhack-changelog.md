@@ -3908,4 +3908,5 @@ The following changes to date are:
 - Fix: alchemy recipe was dependent on order of which potion was
   dipped into another potion
 - Fix: charge to #loot pet inside shop standing on free spot II
+- Change how Druid wildshape hitpoints are calculated
 
