@@ -449,9 +449,9 @@ unsigned roomno;
 #define N_P3_ITER 2 /* tune map smoothing via this value */
 
 STATIC_OVL void
-makeriver(x1, y1, x2, y2, notpool)
+makeriver(x1, y1, x2, y2, notpool, lit)
 int x1, y1, x2, y2;
-boolean notpool;
+boolean notpool, lit;
 {
     int cx, cy;
     int dx, dy;
@@ -484,12 +484,15 @@ boolean notpool;
         if (rn2(100) < chance && !t_at(cx, cy)) {
             if (notpool) {
                 levl[cx][cy].typ = SEWAGE;
+                levl[cx][cy].lit = lit;
       	    } else {
       	        levl[cx][cy].typ = !rn2(3) ? POOL
                                            : !rn2(3) ? PUDDLE : MOAT;
                 if (levl[cx][cy].typ == POOL
                     || levl[cx][cy].typ == MOAT)
                     levl[cx][cy].lit = 1;
+                else
+                    levl[cx][cy].lit = lit;
             }
       	}
 
@@ -588,16 +591,17 @@ boolean notpool;
 }
 
 STATIC_OVL void
-mkrivers()
+mkrivers(lit)
+boolean lit;
 {
     int nriv = rn2(3) + 1;
     boolean notpool = rn2(20) < depth(&u.uz);
 
     while (nriv--) {
         if (rn2(2))
-            makeriver(0, rn2(ROWNO), COLNO - 1, rn2(ROWNO), notpool);
+            makeriver(0, rn2(ROWNO), COLNO - 1, rn2(ROWNO), notpool, lit);
         else
-            makeriver(rn2(COLNO), 0, rn2(COLNO), ROWNO - 1, notpool);
+            makeriver(rn2(COLNO), 0, rn2(COLNO), ROWNO - 1, notpool, lit);
     }
 }
 
@@ -634,7 +638,7 @@ lev_init *init_lev;
     if (In_mines(&u.uz) && !In_hell(&u.uz)) {
         if (!Is_minetn_level(&u.uz) && !Is_branchlev(&u.uz)) {
             if (rn2(u.uz.dlevel + 1))
-                mkrivers();
+                mkrivers((boolean) lit);
         }
     }
 

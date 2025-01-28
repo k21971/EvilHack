@@ -3915,4 +3915,5 @@ The following changes to date are:
 - Druids second spellbook set to be some type of evocation spell
 - Display unseen grass & sand normally
 - Fix: change how Druid wildshape hitpoints are calculated, take two
+- Fix: light sewage and shallow pools on lit mines levels
 
