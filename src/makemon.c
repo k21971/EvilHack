@@ -329,6 +329,22 @@ struct trobj {
 #define UNDEF_BLESS 2
 #define CURSED 3
 
+#define B_MAJOR         0 /* two-handed sword or battle-axe  */
+#define B_MINOR         1 /* matched with axe or short sword */
+#define C_AMMO          2
+#define D_MAJOR         0 /* quarterstaff or scimitar */
+#define D_BOOK          7
+#define M_BOOK          2
+#define RAN_BOW         1
+#define RAN_TWO_ARROWS  2
+#define RAN_ZERO_ARROWS 3
+#define R_DAGGERS       1
+#define R_DEBOLTS       2
+#define S_ARROWS        3
+#define T_DARTS         0
+#define W_MULTSTART     2
+#define W_MULTEND       6
+
 extern struct trobj Archeologist[];
 extern struct trobj Barbarian[];
 extern struct trobj Cave_man[];
@@ -428,6 +444,8 @@ struct trobj Level20KitCentaur2[] = {
 
 /* Specialized structs for giant player monsters */
 struct trobj giantBarbarian[] = {
+#define B_MAJOR 0 /* two-handed sword or battle-axe  */
+#define B_MINOR 1 /* matched with axe or short sword */
     { TWO_HANDED_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { AXE, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -436,6 +454,7 @@ struct trobj giantBarbarian[] = {
 };
 
 struct trobj giantCave_man[] = {
+#define C_AMMO 2
     { CLUB, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { SLING, 2, WEAPON_CLASS, 1, UNDEF_BLESS },
     { FLINT, 0, GEM_CLASS, 15, UNDEF_BLESS }, /* trquan is overridden below */
@@ -446,18 +465,21 @@ struct trobj giantCave_man[] = {
 
 
 struct trobj giantDruid[] = {
+#define D_BOOK 7
     { QUARTERSTAFF, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
-    { BRACERS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { BRACERS, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { HIGH_BOOTS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { EUCALYPTUS_LEAF, 0, FOOD_CLASS, 1, 0 },
     { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
     { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
 
 struct trobj giantMonk[] = {
+#define M_BOOK 2
     { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
     { HIGH_BOOTS, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
@@ -482,6 +504,7 @@ struct trobj giantPriest[] = {
 };
 
 struct trobj giantSamurai[] = {
+#define S_ARROWS 3
     { KATANA, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { SHORT_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS }, /* wakizashi */
     { YUMI, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
@@ -491,6 +514,8 @@ struct trobj giantSamurai[] = {
 };
 
 struct trobj giantWizard[] = {
+#define W_MULTSTART 2
+#define W_MULTEND 6
     { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, UNDEF_BLESS },
     { WAN_MAGIC_MISSILE, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
@@ -546,6 +571,7 @@ struct trobj tortleArcheologist[] = {
 };
 
 struct trobj tortleBarbarian[] = {
+#define B_MINOR 1 /* matched with axe or short sword */
     { TRIDENT, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { AXE, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { TOQUE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -554,18 +580,21 @@ struct trobj tortleBarbarian[] = {
 };
 
 struct trobj tortleDruid[] = {
+#define D_BOOK 7
     { QUARTERSTAFF, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
-    { BRACERS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { BRACERS, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { TOQUE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { EUCALYPTUS_LEAF, 0, FOOD_CLASS, 1, 0 },
     { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
     { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
 
 struct trobj tortleMonk[] = {
+#define M_BOOK 2
     { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
     { TOQUE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
@@ -590,6 +619,7 @@ struct trobj tortlePriest[] = {
 };
 
 struct trobj tortleSamurai[] = {
+#define S_ARROWS 3
     { KATANA, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { SHORT_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS }, /* wakizashi */
     { YUMI, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
@@ -599,6 +629,7 @@ struct trobj tortleSamurai[] = {
 };
 
 struct trobj tortleTourist[] = {
+#define T_DARTS 0
     { DART, 2, WEAPON_CLASS, 25, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 10, 0 },
     { POT_EXTRA_HEALING, 0, POTION_CLASS, 2, UNDEF_BLESS },
@@ -610,7 +641,8 @@ struct trobj tortleTourist[] = {
 };
 
 struct trobj tortleWizard[] = {
-    { GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+#define W_MULTSTART 2
+#define W_MULTEND 6
     { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, UNDEF_BLESS },
     { WAN_MAGIC_MISSILE, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
@@ -619,6 +651,7 @@ struct trobj tortleWizard[] = {
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 3, UNDEF_BLESS },
     { SPE_FORCE_BOLT, 0, SPBOOK_CLASS, 1, 1 },
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
 
@@ -751,22 +784,6 @@ struct trobj Level10Kit2[] = {
     { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
-
-#define B_MAJOR	        0 /* two-handed sword or battle-axe  */
-#define B_MINOR	        1 /* matched with axe or short sword */
-#define C_AMMO          2
-#define D_MAJOR         0 /* quarterstaff or scimitar */
-#define D_BOOK          2
-#define M_BOOK          2
-#define RAN_BOW	        1
-#define RAN_TWO_ARROWS  2
-#define RAN_ZERO_ARROWS 3
-#define R_DAGGERS       1
-#define R_DEBOLTS       2
-#define S_ARROWS        3
-#define T_DARTS         0
-#define W_MULTSTART     2
-#define W_MULTEND       6
 
 struct inv_sub { short race_pm, item_otyp, subs_otyp; };
 extern struct inv_sub inv_subs[];
@@ -1058,15 +1075,10 @@ register struct monst *mtmp;
             if (!racial_drow(mtmp)) /* iron bad */
                 mongets(mtmp, GRAPPLING_HOOK);
             break;
-        case PM_DRUID:
-            switch (rn2(90) / 30) {
-            case 0: Druid[D_BOOK].trotyp = SPE_BARKSKIN;
-                break;
-            case 1: Druid[D_BOOK].trotyp = SPE_CREATE_GRASS;
-                break;
-            case 2: Druid[D_BOOK].trotyp = SPE_SUMMON_ANIMAL;
-                break;
-            }
+        case PM_DRUID: {
+            static short D_spell[] = { SPE_BARKSKIN, SPE_CREATE_GRASS, SPE_SUMMON_ANIMAL };
+
+            Druid[D_BOOK].trotyp = D_spell[rn2(90) / 30]; /* [0..2] */
             if (rn2(100) >= 50)
                 Druid[D_MAJOR].trotyp = SCIMITAR;
             if (racial_tortle(mtmp))
@@ -1078,6 +1090,7 @@ register struct monst *mtmp;
             ini_mon_inv(mtmp, Lamp, 25);
             mongets(mtmp, SKELETON_KEY);
             break;
+        }
         case PM_HEALER:
             mkmonmoney(mtmp, (long) rn1(1000, 1001));
             ini_mon_inv(mtmp, Healer, 1);
@@ -1105,15 +1118,10 @@ register struct monst *mtmp;
                 ini_mon_inv(mtmp, Knight, 1);
             mongets(mtmp, SKELETON_KEY);
             break;
-        case PM_MONK:
-            switch (rn2(90) / 30) {
-            case 0: Monk[M_BOOK].trotyp = SPE_HEALING;
-                break;
-            case 1: Monk[M_BOOK].trotyp = SPE_PROTECTION;
-                break;
-            case 2: Monk[M_BOOK].trotyp = SPE_SLEEP;
-                break;
-            }
+        case PM_MONK: {
+            static short M_spell[] = { SPE_HEALING, SPE_PROTECTION, SPE_CONFUSE_MONSTER };
+
+            Monk[M_BOOK].trotyp = M_spell[rn2(90) / 30]; /* [0..2] */
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantMonk, 1);
             else if (racial_tortle(mtmp))
@@ -1125,6 +1133,7 @@ register struct monst *mtmp;
             ini_mon_inv(mtmp, Lamp, 10);
             mongets(mtmp, SKELETON_KEY);
             break;
+        }
         case PM_PRIEST:
         case PM_PRIESTESS:
             mkmonmoney(mtmp, (long) rn1(10, 20));
@@ -4373,7 +4382,7 @@ register struct monst *mtmp;
 
     if (((Race_if(PM_ELF) && ual != A_NONE)
          || Role_if(PM_DRUID) || Role_if(PM_RANGER))
-        && is_ent(ptr))
+        && is_true_ent(ptr))
         return TRUE;
 
     if (erac_race_peaceful(mtmp))

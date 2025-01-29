@@ -3919,4 +3919,5 @@ The following changes to date are:
 - Fix: zoo monsters spawning in hallways
 - Fix: infinite loop when praying in handsless wildform
 - Changes to Druids wildshape use timer
+- Fix: Druids not starting with second armor piece
 

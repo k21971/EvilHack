@@ -64,14 +64,15 @@ struct trobj Convict[] = {
 };
 struct trobj Druid[] = {
 #define D_MAJOR 0 /* quarterstaff or scimitar */
-#define D_BOOK 2
+#define D_BOOK 7
     { QUARTERSTAFF, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
-    { BRACERS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { BRACERS, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { CLOAK, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { EUCALYPTUS_LEAF, 0, FOOD_CLASS, 1, 0 },
     { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
     { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
