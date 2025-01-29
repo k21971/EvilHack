@@ -1392,6 +1392,12 @@ rehumanize()
         }
     }
 
+    /* if a Druid dies while using wildshape,
+       extra turns are added to the cooldown
+       timer before they can use it again */
+    if (u.uwildshape && u.mh < 1)
+        u.uwildshape += 1000;
+
     if (emits_light(youmonst.data))
         del_light_source(LS_MONSTER, monst_to_any(&youmonst));
     polyman("return to %s form!", urace.adj);

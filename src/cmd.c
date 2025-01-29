@@ -2191,7 +2191,7 @@ int final;
     /* report alignment (bypass you_are() in order to omit ending period);
        adverb is used to distinguish between temporary change (helm of opp.
        alignment), permanent change (one-time conversion), and original */
-    Sprintf(buf, " %s%s%s, %son a mission for %s",
+    Sprintf(buf, " %s%s%s, %son a mission for %s,",
             You_, !final ? are : were,
             align_str(u.ualign.type),
             /* helm of opposite alignment (might hide conversion) */
@@ -2215,7 +2215,7 @@ int final;
     /* show the rest of this game's pantheon (finishes previous sentence)
        [appending "also Moloch" at the end would allow for straightforward
        trailing "and" on all three aligned entries but looks too verbose] */
-    Sprintf(buf, " who %s opposed by", !final ? "is" : "was");
+    Sprintf(buf, "   who %s opposed by", !final ? "is" : "was");
     if (u.ualign.type != A_LAWFUL)
         Sprintf(eos(buf), " %s (%s)%s", align_gname(A_LAWFUL),
                 align_str(A_LAWFUL),
@@ -6829,7 +6829,24 @@ dodruidwildshape(VOID_ARGS)
         if (u.ulevel < 3) {
             You("must first reach the rank of Ovate to use this ability.");
         } else if (Upolyd && u.uwildshape) {
-            rehumanize(); /* manually revert back to original form */
+            /* manually revert back to original form,
+               significantly reducing the cooldown timer.
+               the cost of leaving wildshape early is a
+               reduction of one-half of the original hit
+               points while in original form, not to go
+               below one.
+
+               Example: original form has 60(100) hit points.
+               wildshape is used, now have 100(100) hit
+               points in wildshape form. decide to manually
+               revert to original form early, now have 30(100)
+               hit points */
+            u.uhp -= (u.uhp / 2);
+            if (u.uhp < 1)
+                u.uhp = 1;
+            rehumanize();
+            if (u.uwildshape > 200)
+                u.uwildshape = 200;
         } else if (u.uwildshape
                    && (!wizard
                        || yn("You can't use wildshape so soon.  Override?") != 'y')) {

@@ -3918,4 +3918,5 @@ The following changes to date are:
 - Fix: light sewage and shallow pools on lit mines levels
 - Fix: zoo monsters spawning in hallways
 - Fix: infinite loop when praying in handsless wildform
+- Changes to Druids wildshape use timer
 
