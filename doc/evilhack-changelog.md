@@ -3920,4 +3920,5 @@ The following changes to date are:
 - Fix: infinite loop when praying in handsless wildform
 - Changes to Druids wildshape use timer
 - Fix: Druids not starting with second armor piece
+- Fix: various player monster gear for certain races
 

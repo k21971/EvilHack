@@ -1049,8 +1049,16 @@ register struct monst *mtmp;
             break;
         case PM_BARBARIAN:
             if (rn2(100) >= 50) {
-                Barbarian[B_MAJOR].trotyp = BATTLE_AXE;
-                Barbarian[B_MINOR].trotyp = SHORT_SWORD;
+                if (racial_giant(mtmp))
+                    giantBarbarian[B_MAJOR].trotyp = BATTLE_AXE;
+                else
+                    Barbarian[B_MAJOR].trotyp = BATTLE_AXE;
+                if (racial_giant(mtmp))
+                    giantBarbarian[B_MINOR].trotyp = SHORT_SWORD;
+                else if (racial_tortle(mtmp))
+                    tortleBarbarian[B_MINOR].trotyp = SHORT_SWORD;
+                else
+                    Barbarian[B_MINOR].trotyp = SHORT_SWORD;
             }
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantBarbarian, 1);
@@ -1063,7 +1071,10 @@ register struct monst *mtmp;
             break;
         case PM_CAVEMAN:
         case PM_CAVEWOMAN:
-            Cave_man[C_AMMO].trquan = rn1(11, 10); /* 10..20 */
+            if (racial_giant(mtmp))
+                giantCave_man[C_AMMO].trquan = rn1(11, 10);
+            else
+                Cave_man[C_AMMO].trquan = rn1(11, 10);
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantCave_man, 1);
             else
@@ -1078,9 +1089,20 @@ register struct monst *mtmp;
         case PM_DRUID: {
             static short D_spell[] = { SPE_BARKSKIN, SPE_CREATE_GRASS, SPE_SUMMON_ANIMAL };
 
-            Druid[D_BOOK].trotyp = D_spell[rn2(90) / 30]; /* [0..2] */
-            if (rn2(100) >= 50)
-                Druid[D_MAJOR].trotyp = SCIMITAR;
+            if (racial_tortle(mtmp))
+                tortleDruid[D_BOOK].trotyp = D_spell[rn2(90) / 30];
+            else if (racial_giant(mtmp))
+                giantDruid[D_BOOK].trotyp = D_spell[rn2(90) / 30];
+            else
+                Druid[D_BOOK].trotyp = D_spell[rn2(90) / 30];
+            if (rn2(100) >= 50) {
+                if (racial_tortle(mtmp))
+                    tortleDruid[D_MAJOR].trotyp = SCIMITAR;
+                else if (racial_giant(mtmp))
+                    giantDruid[D_MAJOR].trotyp = SCIMITAR;
+                else
+                    Druid[D_MAJOR].trotyp = SCIMITAR;
+            }
             if (racial_tortle(mtmp))
                 ini_mon_inv(mtmp, tortleDruid, 1);
             else if (racial_giant(mtmp))
@@ -1121,7 +1143,12 @@ register struct monst *mtmp;
         case PM_MONK: {
             static short M_spell[] = { SPE_HEALING, SPE_PROTECTION, SPE_CONFUSE_MONSTER };
 
-            Monk[M_BOOK].trotyp = M_spell[rn2(90) / 30]; /* [0..2] */
+            if (racial_giant(mtmp))
+                giantMonk[M_BOOK].trotyp = M_spell[rn2(90) / 30];
+            else if (racial_tortle(mtmp))
+                tortleMonk[M_BOOK].trotyp = M_spell[rn2(90) / 30];
+            else
+                Monk[M_BOOK].trotyp = M_spell[rn2(90) / 30];
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantMonk, 1);
             else if (racial_tortle(mtmp))
@@ -1166,7 +1193,12 @@ register struct monst *mtmp;
             ini_mon_inv(mtmp, Blindfold, 5);
             break;
         case PM_SAMURAI:
-            Samurai[S_ARROWS].trquan = rn1(20, 26);
+            if (racial_giant(mtmp))
+                giantSamurai[S_ARROWS].trquan = rn1(20, 26);
+            else if (racial_tortle(mtmp))
+                tortleSamurai[S_ARROWS].trquan = rn1(20, 26);
+            else
+                Samurai[S_ARROWS].trquan = rn1(20, 26);
             if (racial_giant(mtmp))
                 ini_mon_inv(mtmp, giantSamurai, 1);
             else if (racial_tortle(mtmp))
