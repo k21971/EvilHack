@@ -1621,6 +1621,12 @@ int mndx;
     case PM_BONE_DEVIL:
     case PM_SKELETON:
     case PM_SKELETON_WARRIOR:
+    case PM_SMALL_SKELETAL_HOUND:
+    case PM_SKELETAL_PONY:
+    case PM_SKELETAL_HOUND:
+    case PM_SKELETAL_HORSE:
+    case PM_LARGE_SKELETAL_HOUND:
+    case PM_SKELETAL_WARHORSE:
         return BONE;
     case PM_PAPER_GOLEM:
         return PAPER;
