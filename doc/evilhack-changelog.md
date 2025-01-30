@@ -3922,4 +3922,5 @@ The following changes to date are:
 - Fix: Druids not starting with second armor piece
 - Fix: various player monster gear for certain races
 - Add remaining skeletal monsters to monmaterial()
+- Fix: baby gold dragon duplicate in emits_light()
 
