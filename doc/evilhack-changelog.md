@@ -3923,4 +3923,5 @@ The following changes to date are:
 - Fix: various player monster gear for certain races
 - Add remaining skeletal monsters to monmaterial()
 - Fix: baby gold dragon duplicate in emits_light()
+- Fix: domestic undead pets wary of Draugr
 
