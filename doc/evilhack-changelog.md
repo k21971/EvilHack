@@ -3925,4 +3925,6 @@ The following changes to date are:
 - Fix: baby gold dragon duplicate in emits_light()
 - Fix: domestic undead pets wary of Draugr
 - Adjust random spawn odds for evocation spellbooks
+- Replace awful "You feel cold" message for freezing a door you can't
+  see
 
