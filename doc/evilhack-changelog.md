@@ -3924,4 +3924,5 @@ The following changes to date are:
 - Add remaining skeletal monsters to monmaterial()
 - Fix: baby gold dragon duplicate in emits_light()
 - Fix: domestic undead pets wary of Draugr
+- Adjust random spawn odds for evocation spellbooks
 
