@@ -746,12 +746,19 @@ unsigned corpseflags;
         }
         free_mname(mtmp);
         break;
+    /* only allow dead tree 'corpses' to form on certain
+       level tile types. we don't want to blank out stairs
+       or a ladder, etc */
     case PM_ENT:
     case PM_ELDER_ENT:
     case PM_TREE_BLIGHT:
     case PM_GULTHIAS_TREE:
-        levl[x][y].typ = DEADTREE;
+        if (levl[x][y].typ == ROOM
+            || levl[x][y].typ == GRASS
+            || levl[x][y].typ == SAND)
+            levl[x][y].typ = DEADTREE;
         newsym(x, y);
+        free_mname(mtmp);
         break;
     /* expired puddings will congeal into a large blob;
        like dragons, relies on the order remaining consistent */
