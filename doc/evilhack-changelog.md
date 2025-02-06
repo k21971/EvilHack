@@ -3931,4 +3931,5 @@ The following changes to date are:
 - Fix: digging out traps on no-dig levels
 - Place an altar in the quest levels where none were present
 - Fix: destroy armor feedback monster vs monster
+- Add a couple more monsters to non_tameable()
 

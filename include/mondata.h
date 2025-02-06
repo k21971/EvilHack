@@ -107,13 +107,15 @@
 #define immune_poisongas(ptr) ((ptr) == &mons[PM_HEZROU])
 
 #define non_tameable(ptr) \
-    (unique_corpstat(ptr) || ((ptr)->mflags3 & M3_WANTSARTI)                 \
-     || (ptr) == &mons[PM_BEHOLDER] || (ptr) == &mons[PM_FELL_BEAST]         \
-     || (ptr) == &mons[PM_MAGICAL_EYE] || (ptr) == &mons[PM_ELDER_MINOTAUR]  \
-     || (ptr) == &mons[PM_PALE_HORSE] || (ptr) == &mons[PM_WHITE_HORSE]      \
-     || (ptr) == &mons[PM_BLACK_HORSE] || (ptr) == &mons[PM_SNOW_GOLEM]      \
-     || (ptr) == &mons[PM_ALHOON] || (ptr) == &mons[PM_NEOTHELID]            \
-     || (ptr) == &mons[PM_SHAMBLING_HORROR] || (ptr) == &mons[PM_ARCHANGEL])
+    (unique_corpstat(ptr) || ((ptr)->mflags3 & M3_WANTSARTI)                    \
+     || (ptr) == &mons[PM_BEHOLDER] || (ptr) == &mons[PM_FELL_BEAST]            \
+     || (ptr) == &mons[PM_MAGICAL_EYE] || (ptr) == &mons[PM_ELDER_MINOTAUR]     \
+     || (ptr) == &mons[PM_PALE_HORSE] || (ptr) == &mons[PM_WHITE_HORSE]         \
+     || (ptr) == &mons[PM_BLACK_HORSE] || (ptr) == &mons[PM_SNOW_GOLEM]         \
+     || (ptr) == &mons[PM_ALHOON] || (ptr) == &mons[PM_NEOTHELID]               \
+     || (ptr) == &mons[PM_SHAMBLING_HORROR] || (ptr) == &mons[PM_ARCHANGEL]     \
+     || (ptr) == &mons[PM_CELESTIAL_DRAGON] || (ptr) == &mons[PM_GULTHIAS_TREE] \
+     || (ptr) == &mons[PM_BABY_CELESTIAL_DRAGON])
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
