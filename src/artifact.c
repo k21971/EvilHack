@@ -2214,11 +2214,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 erode_armor(mdef, ERODE_CORRODE);
         }
 
+        /* Harbinger inherits Giantslayer's chance to instakill
+           giants with a single blow */
         boolean giant = youdefend ? maybe_polyd(is_giant(youmonst.data),
                                                 Race_if(PM_GIANT))
                                   : racial_giant(mdef);
 
-        if (!rn2(10) && giant) {
+        if (!rn2(10) && giant && otmp->oartifact == ART_HARBINGER) {
             if (!DEADMONSTER(mdef)) {
                 if (show_instakill)
                     pline("A massive surge of acid engulfs %s body, completely dissolving %s!",

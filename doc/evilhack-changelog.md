@@ -3932,4 +3932,5 @@ The following changes to date are:
 - Place an altar in the quest levels where none were present
 - Fix: destroy armor feedback monster vs monster
 - Add a couple more monsters to non_tameable()
+- Fix: Dirge was using Harbinger's fatal blow vs giants
 
