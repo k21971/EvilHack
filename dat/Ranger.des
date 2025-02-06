@@ -52,6 +52,8 @@ MONSTER:('@',"Orion"),(20,10) {
 }
 # Magic chest
 MAGIC_CHEST:(18,10)
+# Altar
+ALTAR:(16,10),neutral,altar
 # Guards for the audience chamber
 MONSTER:('@',"hunter"),(19,09)
 MONSTER:('@',"hunter"),(20,09)

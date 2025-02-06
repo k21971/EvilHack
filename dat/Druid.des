@@ -57,6 +57,8 @@ REPLACE_TERRAIN:(40,17,60,20),'T','t',10%
 MONSTER:('@',"Elanee"),(53,11)
 # Magic chest
 MAGIC_CHEST:(56,11)
+# Altar
+ALTAR:(49,11),neutral,altar
 # Guards for the audience chamber
 MONSTER:('@',"aspirant"),(43,10)
 MONSTER:('@',"aspirant"),(43,12)

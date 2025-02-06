@@ -355,6 +355,8 @@ REGION:(60,17,71,18),lit,"shop"
 NON_DIGGABLE:(00,00,75,19)
 # Stairs
 STAIR:(70,08),up
+# Altar
+ALTAR:(02,01),chaos,altar
 # Doors
 DOOR:locked,(07,03)
 DOOR:locked,(02,06)

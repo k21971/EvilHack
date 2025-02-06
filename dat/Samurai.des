@@ -40,6 +40,8 @@ REGION:(18,03,26,07),lit,"throne",unfilled
 BRANCH:(62,12,70,17),(0,0,0,0)
 # Stairs
 STAIR:(29,04),down
+# Altar
+ALTAR:(22,05),law,altar
 # Doors
 DOOR:locked,(10,06)
 DOOR:locked,(10,07)

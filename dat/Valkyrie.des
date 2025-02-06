@@ -127,6 +127,8 @@ REGION:(00,00,39,12),lit,"ordinary"
 # Stairs
 STAIR:(48,14),up
 STAIR:(20,06),down
+# Altar
+ALTAR:(29,06),chaos,altar
 # Non diggable walls
 NON_DIGGABLE:(00,00,39,12)
 # Objects
@@ -178,7 +180,7 @@ MONSTER:('H',"fire giant"),random,hostile
 MONSTER:('H',"fire giant"),random,hostile
 MONSTER:('H',"fire giant"),random,hostile
 MONSTER:('H',"fire giant"),random,hostile
-MONSTER:('H',"fire giant"),random,hostile
+MONSTER:('H',"hill giant shaman"),(29,06),hostile
 MONSTER:'H',random,hostile
 
 #

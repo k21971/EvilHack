@@ -304,6 +304,8 @@ ENDMAP
 REGION:(00,00,75,20),lit,"ordinary"
 # Stairs
 STAIR:levregion(01,00,15,20),(01,18,04,20),up
+# Altar
+ALTAR:(02,16),random,altar
 # Doors
 # Non diggable walls
 NON_DIGGABLE:(00,00,75,20)

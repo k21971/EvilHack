@@ -3929,4 +3929,5 @@ The following changes to date are:
   see
 - Fix: only allow dead tree 'corpses' to form on room/grass/sand tiles
 - Fix: digging out traps on no-dig levels
+- Place an altar in the quest levels where none were present
 
