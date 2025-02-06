@@ -595,16 +595,16 @@ struct monst *mattk, *mdef;
                 if (!Blind)
                     pline("%s shines brightly.", The(xname(oatmp)));
                 pline("%s is immune to %s destructive magic.",
-                      The(xname(oatmp)),
-                      uattk ? "your" : s_suffix(mon_nam(mattk)));
+                      The(xname(oatmp)), uattk ? "your" : "the");
             }
-            return 0;
+            return 0; /* no effect */
         } else if (oatmp->otyp == CRYSTAL_PLATE_MAIL) {
-            if (udefend && !Blind)
-                pline("%s glimmers brightly.", Yname2(oatmp));
-            pline("%s is immune to %s destructive magic.",
-                      Yname2(oatmp),
-                      uattk ? "your" : s_suffix(mon_nam(mattk)));
+            if (udefend || canseemon(mdef)) {
+                if (!Blind)
+                    pline("%s glimmers brightly.", Yname2(oatmp));
+                pline("%s is immune to %s destructive magic.",
+                      Yname2(oatmp), uattk ? "your" : "the");
+            }
             return 0; /* no effect */
         } else if (oatmp->oerodeproof) {
             if (!udefend && !canseemon(mdef)) {
@@ -650,6 +650,7 @@ struct monst *mattk, *mdef;
             }
         } else {
             int erodetype;
+
             if (is_corrodeable(oatmp))
                 erodetype = ERODE_CORRODE;
             else if (is_flammable(oatmp))
@@ -2372,7 +2373,10 @@ int spellnum;
         if (!mtmp || DEADMONSTER(mtmp))
             return;
 
-        dmg = m_destroy_armor(mattk, mtmp);
+        if (yours)
+            dmg = m_destroy_armor(&youmonst, mtmp);
+        else
+            dmg = m_destroy_armor(mattk, mtmp);
         break;
     case MGC_WEAKEN_YOU: /* drain strength */
         if (!mtmp || DEADMONSTER(mtmp))
