@@ -218,13 +218,26 @@ int x, y;
             pline_The("%s splashes and subsides.", hliquid("water"));
         return FALSE;
     } else if ((IS_ROCK(levl[x][y].typ) && levl[x][y].typ != SDOOR
-                && (levl[x][y].wall_info & W_NONDIGGABLE) != 0)
-               || (ttmp
-                   && (undestroyable_trap(ttmp->ttyp)
-                       || (!Can_dig_down(&u.uz) && !levl[x][y].candig)))) {
+               && (levl[x][y].wall_info & W_NONDIGGABLE) != 0)) {
         if (verbose)
             pline_The("%s here is too hard to %s.", surface(x, y), verb);
         return FALSE;
+    } else if (ttmp && undestroyable_trap(ttmp->ttyp)) {
+        if (verbose)
+            pline_The("%s here is too hard to %s.", surface(x, y), verb);
+        return FALSE;
+    } else if (!Can_dig_down(&u.uz) && !levl[x][y].candig) {
+        if (ttmp) {
+            if (!is_hole(ttmp->ttyp) && !is_pit(ttmp->ttyp)) {
+                return TRUE;
+            } else {
+                if (verbose)
+                    pline_The("%s here is too hard to %s.", surface(x, y), verb);
+                return FALSE;
+            }
+        } else {
+            return TRUE;
+        }
     } else if (sobj_at(BOULDER, x, y)) {
         if (verbose)
             There("isn't enough room to %s here.", verb);
@@ -354,6 +367,18 @@ dig(VOID_ARGS)
                 deltrap(ttmp);
                 reset_utrap(TRUE); /* release from trap, maybe Lev or Fly */
             }
+            /* we haven't made any progress toward a pit yet */
+            context.digging.effort = 0;
+            return 0;
+        } else if (ttmp) {
+            /* remaining traps that made it past dig_check() */
+            const char *ttmpname = defsyms[trap_to_defsym(ttmp->ttyp)].explanation;
+
+            if (ispick)
+                You("destroy %s with %s.",
+                    ttmp->tseen ? the(ttmpname) : an(ttmpname),
+                    yobjnam(uwep, (const char *) 0));
+            deltrap(ttmp);
             /* we haven't made any progress toward a pit yet */
             context.digging.effort = 0;
             return 0;

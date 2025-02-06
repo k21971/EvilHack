@@ -3928,4 +3928,5 @@ The following changes to date are:
 - Replace awful "You feel cold" message for freezing a door you can't
   see
 - Fix: only allow dead tree 'corpses' to form on room/grass/sand tiles
+- Fix: digging out traps on no-dig levels
 
