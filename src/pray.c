@@ -878,6 +878,13 @@ gcrownu()
         livelog_printf(LL_DIVINEGIFT,
                        "was crowned \"The Hand of Elbereth\" by %s",
                        u_gname());
+        if (on_altar() && levl[u.ux][u.uy].frac_altar == 0) {
+            levl[u.ux][u.uy].frac_altar = 1;
+            if (!Blind)
+                pline("A bolt of lightning from above strikes the altar, nearly splitting it in two!");
+            else
+                You("feel a surge of energy as the altar you're standing on shudders violently!");
+        }
         break;
     case A_NEUTRAL:
         u.uevent.uhand_of_elbereth = 2;
@@ -894,6 +901,13 @@ gcrownu()
         verbalize("Thou shalt be my Envoy of Balance!");
         livelog_printf(LL_DIVINEGIFT, "became %s Envoy of Balance",
                        s_suffix(u_gname()));
+        if (on_altar() && levl[u.ux][u.uy].frac_altar == 0) {
+            levl[u.ux][u.uy].frac_altar = 1;
+            if (!Blind)
+                pline("A bolt of lightning from above strikes the altar, nearly splitting it in two!");
+            else
+                You("feel a surge of energy as the altar you're standing on shudders violently!");
+        }
         break;
     case A_CHAOTIC:
         u.uevent.uhand_of_elbereth = 3;
@@ -921,6 +935,13 @@ gcrownu()
             livelog_printf(LL_DIVINEGIFT, "was chosen to %s for the Glory of %s",
                            ((already_exists && !in_hand) || class_gift != STRANGE_OBJECT)
                            ? "take lives" : "steal souls", u_gname());
+        }
+        if (on_altar() && levl[u.ux][u.uy].frac_altar == 0) {
+            levl[u.ux][u.uy].frac_altar = 1;
+            if (!Blind)
+                pline("A bolt of lightning from above strikes the altar, nearly splitting it in two!");
+            else
+                You("feel a surge of energy as the altar you're standing on shudders violently!");
         }
         break;
     case A_NONE:
@@ -968,6 +989,13 @@ gcrownu()
                 newsym(u.ux, u.uy);
                 retouch_equipment(2); /* silver */
                 monstseesu(M_SEEN_FIRE | M_SEEN_POISON | M_SEEN_SLEEP);
+            }
+            if (on_altar() && levl[u.ux][u.uy].frac_altar == 0) {
+                levl[u.ux][u.uy].frac_altar = 1;
+                if (!Blind)
+                    pline("A bolt of lightning from above strikes the altar, nearly splitting it in two!");
+                else
+                    You("feel a surge of energy as the altar you're standing on shudders violently!");
             }
         }
         break;
@@ -1439,8 +1467,7 @@ aligntyp g_align;
         }
         case 7:
         case 8:
-            if (u.ualign.record >= PIOUS && !u.uevent.uhand_of_elbereth
-                && levl[u.ux][u.uy].frac_altar == 0) {
+            if (u.ualign.record >= PIOUS && !u.uevent.uhand_of_elbereth) {
                 gcrownu();
                 break;
             }

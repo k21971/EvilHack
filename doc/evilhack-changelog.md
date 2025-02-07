@@ -3935,4 +3935,5 @@ The following changes to date are:
 - Fix: Dirge was using Harbinger's fatal blow vs giants
 - Crowning can only occur on a non-fractured altar
 - Mistletoe can affect a Druids power regeneration (Part I)
+- Revamp of crowning and fractured altars
 
