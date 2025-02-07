@@ -3934,4 +3934,5 @@ The following changes to date are:
 - Add a couple more monsters to non_tameable()
 - Fix: Dirge was using Harbinger's fatal blow vs giants
 - Crowning can only occur on a non-fractured altar
+- Mistletoe can affect a Druids power regeneration (Part I)
 

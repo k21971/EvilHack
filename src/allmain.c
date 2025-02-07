@@ -474,6 +474,29 @@ boolean resuming;
                         && !spot_is_dark(u.ux, u.uy))
                         rate *= LIT_DROW_EREGEN_MULTI;
 
+                    /* Druids can have differing rates of energy
+                       regeneration depending on the amount of
+                       mistletoe (or lack thereof) in open inventory */
+                    {
+                        struct obj *mtoe = carrying(MISTLETOE);
+
+                        if (Role_if(PM_DRUID)) {
+                            if (mtoe && mtoe->quan >= 9) {
+                                /* double normal rate */
+                                rate /= 2L;
+                            } else if (mtoe && mtoe->quan >= 5) {
+                                /* roughly 1.3x normal rate */
+                                if (!(moves % 3))
+                                    rate /= 2L;
+                            /* one to four mistletoe in open inventory
+                               is normal energy regeneration */
+                            } else if (!mtoe) {
+                                /* no mistletoe: half normal rate */
+                                rate *= 2L;
+                            }
+                        }
+                    }
+
                     if (u.uen < u.uenmax
                         && ((wtcap < MOD_ENCUMBER
                              && (!(moves % rate)))

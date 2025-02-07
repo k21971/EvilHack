@@ -1216,17 +1216,21 @@ dokick()
         if (IS_TREE(maploc->typ)) {
             struct obj *treefruit;
 
+            You("%s %s.", Role_if(PM_DRUID) ? "gently nudge" : "kick",
+                Blind ? something : "the tree");
             /* nothing, fruit or trouble? 75:23.5:1.5% */
             if ((maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))
-                || maybe_polyd(is_centaur(youmonst.data), Race_if(PM_CENTAUR))) ? !rn2(3) : rn2(3)) {
+                || maybe_polyd(is_centaur(youmonst.data), Race_if(PM_CENTAUR)))
+                ? !rn2(3) : rn2(3)) {
                 if (!rn2(6) && !(mvitals[PM_KILLER_BEE].mvflags & G_GONE))
                     You_hear("a low buzzing."); /* a warning */
                 goto ouch;
             }
             if (rn2(15) && !(maploc->looted & TREE_LOOTED)
                 && (treefruit = rnd_treefruit_at(x, y))) {
-                long nfruit = 8L - rnl(7), nfall;
                 short frtype = treefruit->otyp;
+                long nfruit = (frtype == MISTLETOE ? 1 : 8L - rnl(7));
+                long nfall;
 
                 treefruit->quan = nfruit;
                 treefruit->owt = weight(treefruit);
@@ -1272,8 +1276,6 @@ dokick()
             goto ouch;
         }
         if (IS_DEADTREE(maploc->typ)) {
-            if (Levitation)
-                goto dumb;
             You("kick %s.", Blind ? something : "the dead tree");
             switch (!(maploc->looted & TREE_FLOCK) ? rn2(5) : rn2(4)) {
                 case 0:
@@ -1372,26 +1374,32 @@ dokick()
             if (!IS_STWALL(maploc->typ) && maploc->ladder == LA_DOWN)
                 goto dumb;
  ouch:
-            pline("Ouch!  That hurts!");
-            exercise(A_DEX, FALSE);
-            exercise(A_STR, FALSE);
-            if (isok(x, y)) {
-                if (Blind)
-                    feel_location(x, y); /* we know we hit it */
-                if (is_drawbridge_wall(x, y) >= 0) {
-                    pline_The("drawbridge is unaffected.");
-                    /* update maploc to refer to the drawbridge */
-                    (void) find_drawbridge(&x, &y);
-                    maploc = &levl[x][y];
+            if (IS_TREE(maploc->typ) && Role_if(PM_DRUID)) {
+                if (Is_airlevel(&u.uz) || Levitation)
+                    hurtle(-u.dx, -u.dy, rn1(2, 2), TRUE);
+                return 1;
+            } else {
+                pline("Ouch!  That hurts!");
+                exercise(A_DEX, FALSE);
+                exercise(A_STR, FALSE);
+                if (isok(x, y)) {
+                    if (Blind)
+                        feel_location(x, y); /* we know we hit it */
+                    if (is_drawbridge_wall(x, y) >= 0) {
+                        pline_The("drawbridge is unaffected.");
+                        /* update maploc to refer to the drawbridge */
+                        (void) find_drawbridge(&x, &y);
+                        maploc = &levl[x][y];
+                    }
                 }
+                if (!rn2(3))
+                    set_wounded_legs(RIGHT_SIDE, 5 + rnd(5));
+                dmg = rnd(ACURR(A_CON) > 15 ? 3 : 5);
+                losehp(Maybe_Half_Phys(dmg), kickstr(buf, kickobjnam), KILLED_BY);
+                if (Is_airlevel(&u.uz) || Levitation)
+                    hurtle(-u.dx, -u.dy, rn1(2, 4), TRUE); /* assume it's heavy */
+                return 1;
             }
-            if (!rn2(3))
-                set_wounded_legs(RIGHT_SIDE, 5 + rnd(5));
-            dmg = rnd(ACURR(A_CON) > 15 ? 3 : 5);
-            losehp(Maybe_Half_Phys(dmg), kickstr(buf, kickobjnam), KILLED_BY);
-            if (Is_airlevel(&u.uz) || Levitation)
-                hurtle(-u.dx, -u.dy, rn1(2, 4), TRUE); /* assume it's heavy */
-            return 1;
         }
         goto dumb;
     }
