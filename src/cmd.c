@@ -4243,6 +4243,8 @@ struct ext_func_tab extcmdlist[] = {
             wiz_makemap, IFBURIED | WIZMODECMD },
     { C('f'), "wizmap", "map the level",
             wiz_map, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
+    { '\0', "wizpious", "become pious",
+            wiz_pious, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { '\0', "wizrumorcheck", "verify rumor boundaries",
             wiz_rumor_check, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { '\0', "wizsmell", "smell monster",

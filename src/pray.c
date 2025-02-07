@@ -12,6 +12,7 @@ STATIC_DCL int NDECL(in_trouble);
 STATIC_DCL void FDECL(fix_worst_trouble, (int));
 STATIC_DCL void FDECL(angrygods, (ALIGNTYP_P));
 STATIC_DCL void FDECL(at_your_feet, (const char *));
+STATIC_DCL void NDECL(gpiousu);
 STATIC_DCL void NDECL(gcrownu);
 STATIC_DCL void FDECL(pleased, (ALIGNTYP_P));
 STATIC_DCL void FDECL(fry_by_god, (ALIGNTYP_P, BOOLEAN_P));
@@ -797,11 +798,25 @@ const char *str;
 }
 
 int
+wiz_pious()
+{
+    You("are now piously aligned.");
+    gpiousu();
+    return 0;
+}
+
+int
 wiz_crown()
 {
-    pline("Your crown, my %s.", flags.female ? "queen" : "king");
+    Your("crown, my %s.", flags.female ? "queen" : "king");
     gcrownu();
     return 0;
+}
+
+STATIC_OVL void
+gpiousu()
+{
+    u.ualign.record = 20;
 }
 
 STATIC_OVL void
@@ -1424,7 +1439,8 @@ aligntyp g_align;
         }
         case 7:
         case 8:
-            if (u.ualign.record >= PIOUS && !u.uevent.uhand_of_elbereth) {
+            if (u.ualign.record >= PIOUS && !u.uevent.uhand_of_elbereth
+                && levl[u.ux][u.uy].frac_altar == 0) {
                 gcrownu();
                 break;
             }

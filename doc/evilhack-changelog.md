@@ -3933,4 +3933,5 @@ The following changes to date are:
 - Fix: destroy armor feedback monster vs monster
 - Add a couple more monsters to non_tameable()
 - Fix: Dirge was using Harbinger's fatal blow vs giants
+- Crowning can only occur on a non-fractured altar
 
