@@ -3936,4 +3936,5 @@ The following changes to date are:
 - Crowning can only occur on a non-fractured altar
 - Mistletoe can affect a Druids power regeneration (Part I)
 - Revamp of crowning and fractured altars
+- Fix: burning multiple tiles of grass at once is spammy
 

@@ -5836,7 +5836,7 @@ boolean moncast;
         } else if (IS_GRASS(lev->typ)) {
             lev->typ = ROOM, lev->flags = 0;
             if (see_it)
-                pline("The grass is burned away!");
+                Norep("The grass is burned away!");
             if (lev->typ == ROOM) {
                 if ((mon = m_at(x, y)) != 0) {
                     /* probably ought to do some hefty damage to any
