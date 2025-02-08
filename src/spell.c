@@ -674,13 +674,22 @@ rejectcasting()
     } else if (!can_chant(&youmonst)) {
         You("are unable to chant the incantation.");
         return TRUE;
-    } else if (!u_handsy()) {
+    } else if (!freehand()) {
+        /* Note: !freehand() occurs when weapon and shield (or two-handed
+         * weapon) are welded to hands, so "arms" probably doesn't need
+         * to be makeplural(body_part(ARM)).
+         */
+        Your("arms are not free to cast!");
+        return TRUE;
+    } else if (nohands(youmonst.data)) {
         /* Note: only Druids in their #wildshape forms can still
            cast spells without having actual arms/hands */
-        if (druid_form)
+        if (druid_form) {
             return FALSE;
-        else
+        } else {
+            You("have no hands to cast!");
             return TRUE;
+        }
     }
     return FALSE;
 }

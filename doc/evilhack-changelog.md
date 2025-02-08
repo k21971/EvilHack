@@ -3938,4 +3938,6 @@ The following changes to date are:
 - Revamp of crowning and fractured altars
 - Fix: burning multiple tiles of grass at once is spammy
 - Revamp wildshape forms, experience level tiers
+- Fix: feedback when casting spells as a Druid, wildshaped into a
+  form with no hands/limbs
 
