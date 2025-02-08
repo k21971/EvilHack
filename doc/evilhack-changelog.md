@@ -3937,4 +3937,5 @@ The following changes to date are:
 - Mistletoe can affect a Druids power regeneration (Part I)
 - Revamp of crowning and fractured altars
 - Fix: burning multiple tiles of grass at once is spammy
+- Revamp wildshape forms, experience level tiers
 

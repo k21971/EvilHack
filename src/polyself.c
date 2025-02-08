@@ -453,15 +453,15 @@ druid_wildshape()
 
     for (i = LOW_PM; i < NUMMONS; i++) {
         n = (LOW_PM + i);
-        if (u.ulevel >= 15) {
+        if (u.ulevel >= 20) {
             if (!all_druid_forms(n))
                 continue;
-        } else if (u.ulevel >= 10) {
+        } else if (u.ulevel >= 14) {
             if (!druid_form_A(n)
                 && !druid_form_B(n)
                 && !druid_form_C(n))
                 continue;
-        } else if (u.ulevel >= 6) {
+        } else if (u.ulevel >= 8) {
             if (!druid_form_A(n)
                 && !druid_form_B(n))
                 continue;
