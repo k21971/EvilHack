@@ -1336,7 +1336,7 @@ struct attack *mattk;
                  for undiscovered oilskin cloak */
               (obj->greased || objects[obj->otyp].oc_name_known)
                   ? xname(obj)
-                  : cloak_simple_name(obj));
+                  : simpleonames(obj));
 
         if (obj->greased && !rn2(2)) {
             pline_The("grease wears off.");

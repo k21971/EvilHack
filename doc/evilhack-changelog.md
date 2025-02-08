@@ -3940,4 +3940,6 @@ The following changes to date are:
 - Revamp wildshape forms, experience level tiers
 - Fix: feedback when casting spells as a Druid, wildshaped into a
   form with no hands/limbs
+- Fix: incorrect feedback when a monster attempts to steal and the
+  objects being stolen have the oilskin object property
 

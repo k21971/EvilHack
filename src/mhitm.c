@@ -2265,7 +2265,7 @@ post_stone:
                           obj->greased ? "greased" : "slippery",
                           (obj->greased || objects[obj->otyp].oc_name_known)
                               ? xname(obj)
-                              : cloak_simple_name(obj));
+                              : simpleonames(obj));
                 }
                 if (obj->greased && !rn2(2)) {
                     if (vis && canseemon(mdef))
