@@ -3944,4 +3944,5 @@ The following changes to date are:
   objects being stolen have the oilskin object property
 - Fix: polymorphed into a monster that could jump, could only use
   chess knight's-move rules for valid spots to jump to
+- Revert commit f7066e4 (The Wand of Orcus is always known)
 

@@ -2200,7 +2200,6 @@ register struct monst *mtmp;
             otmp = oname(otmp, artiname(ART_WAND_OF_ORCUS));
             curse(otmp);
             otmp->spe = rnd(4) + 3;
-            fully_identify_obj(otmp);
             (void) mpickobj(mtmp, otmp);
             break;
         case PM_DISPATER:
