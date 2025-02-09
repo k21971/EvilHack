@@ -595,7 +595,8 @@ register struct monst *mtmp;
                 You("begin %s monsters with your %s %s.",
                     ing_suffix(Role_if(PM_MONK) ? "strike" :
                                thievery ? "rob" : "bash"),
-                    (uarmg && uarmg->oartifact != ART_HAND_OF_VECNA) ? "gloved" : "bare", /* Del Lamb */
+                    (uarmg && uarmg->oartifact != ART_HAND_OF_VECNA)
+                      ? "gloved" : "bare", /* Del Lamb */
                     makeplural(body_part(HAND)));
         }
     }
@@ -604,7 +605,8 @@ register struct monst *mtmp;
     u_wipe_engr(3);
 
     /* Is the "it died" check actually correct? */
-    if (mdat->mlet == S_LEPRECHAUN && !mtmp->mfrozen && !mtmp->msleeping
+    if (mdat->mlet == S_LEPRECHAUN
+        && !mtmp->mfrozen && !mtmp->msleeping
         && !mtmp->mconf && mtmp->mcansee && !rn2(7)
         && (m_move(mtmp, 0) == 2 /* it died */
             || mtmp->mx != u.ux + u.dx
@@ -2183,6 +2185,13 @@ int dieroll;
         if (resists_cold(mon) || defended(mon, AD_COLD)) {
             if (!Blind)
                 pline_The("frost doesn't chill %s!", mon_nam(mon));
+        } else {
+            /* explosive damage placed here due to order of events */
+            if (!rn2(8)) {
+                pline("A surge of frost flows through your mummified hand!");
+                explode(mon->mx, mon->my, ZT_BREATH(ZT_COLD),
+                        d((!uwep ? 4 : 2), 6), 0, EXPL_FROSTY);
+            }
         }
     }
 

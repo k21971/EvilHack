@@ -2203,11 +2203,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
            surge on a successful hit, and can cause
            additional acidic damage (area of effect) */
         if (!rn2(5)
-            && spec_dbon_applies && otmp->oartifact == ART_HARBINGER)
+            && spec_dbon_applies && otmp->oartifact == ART_HARBINGER) {
+            pline("A surge of acid flows through the aklys!");
             explode(mdef->mx, mdef->my,
                     (youattack ? ZT_BREATH(ZT_ACID)
                                : -ZT_BREATH(ZT_ACID)), d(6, 6),
                     (youattack ? 0 : MON_CASTBALL), EXPL_ACID);
+        }
 
         if (!def_underwater) {
             if (!rn2(5))
