@@ -3942,4 +3942,6 @@ The following changes to date are:
   form with no hands/limbs
 - Fix: incorrect feedback when a monster attempts to steal and the
   objects being stolen have the oilskin object property
+- Fix: polymorphed into a monster that could jump, could only use
+  chess knight's-move rules for valid spots to jump to
 
