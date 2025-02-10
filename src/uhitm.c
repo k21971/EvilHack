@@ -4272,7 +4272,8 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                             || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
                 break;
             /* never eat brains if engulfed */
-            if (mattk->aatyp == AT_TENT && u.uswallow)
+            if (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID))
+                && mattk->aatyp == AT_TENT && u.uswallow)
                 break;
             /*FALLTHRU*/
         case AT_BITE:
@@ -4290,7 +4291,8 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                             || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
                 break;
             /* never eat brains if engulfed */
-            if (mattk->aatyp == AT_BITE && u.uswallow)
+            if (maybe_polyd(is_zombie(youmonst.data), Race_if(PM_DRAUGR))
+                && mattk->aatyp == AT_BITE && u.uswallow)
                 break;
             if (maybe_polyd(is_zombie(youmonst.data), Race_if(PM_DRAUGR))
                 && mattk->aatyp == AT_BITE

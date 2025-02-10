@@ -3957,4 +3957,5 @@ The following changes to date are:
 - Fix: two rings made of bronze
 - Fix: contents of a metal container would be consumed along with the
   container if eaten by the player
+- Fix: all druid form bite attacks were suppressed when engulfed
 
