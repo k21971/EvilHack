@@ -3950,4 +3950,6 @@ The following changes to date are:
 - The Hand of Vecna has a chance to cause area of effect explosive
   cold damage
 - Health regeneration for Druids while in wildshape
+- Druids (giant) carrying boulders will automatically drop them when
+  wildshaped into a form that can't throw boulders
 

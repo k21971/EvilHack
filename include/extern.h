@@ -423,7 +423,6 @@ E int FDECL(warning_of, (struct monst *));
 /* ### do.c ### */
 
 #ifdef USE_TRAMPOLI
-E int FDECL(drop, (struct obj *));
 E int NDECL(wipeoff);
 #endif
 E int NDECL(dodrop);
@@ -431,6 +430,7 @@ E boolean FDECL(boulder_hits_pool, (struct obj *, int, int, BOOLEAN_P));
 E boolean FDECL(flooreffects, (struct obj *, int, int, const char *));
 E void FDECL(doaltarobj, (struct obj *));
 E boolean FDECL(canletgo, (struct obj *, const char *));
+E int FDECL(drop, (struct obj *));
 E void FDECL(dropx, (struct obj *));
 E void FDECL(dropy, (struct obj *));
 E void FDECL(dropz, (struct obj *, BOOLEAN_P));

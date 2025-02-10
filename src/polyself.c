@@ -934,6 +934,16 @@ int mntmp;
         skinback(FALSE);
     break_armor();
     drop_weapon(1);
+    /* druids in wildshape form will automatically
+       drop any carried boulder in inventory if they
+       change into a form that can't toss boulders */
+    if (druid_form) {
+        struct obj *bigrock = carrying(BOULDER);
+
+        if (bigrock && !throws_rocks(youmonst.data))
+            drop(bigrock);
+    }
+
     (void) hideunder(&youmonst);
 
     if (u.utrap && u.utraptype == TT_PIT) {
