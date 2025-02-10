@@ -4253,7 +4253,9 @@ boolean weapon_attacks; /* skip weapon attacks if false */
         case AT_TENT:
             /* don't eat brain if racial illithid and it would be particularly
                detrimental or you're force-fighting */
-            if (!Upolyd && Race_if(PM_ILLITHID) && mattk->aatyp == AT_TENT
+            if ((druid_form
+                 || maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID)))
+                && mattk->aatyp == AT_TENT
                 && (context.forcefight
                     || ((touch_petrifies(mon->data)
                          || mon->data == &mons[PM_MEDUSA])
@@ -4274,7 +4276,8 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 break;
             /*FALLTHRU*/
         case AT_BITE:
-            if (maybe_polyd(is_zombie(youmonst.data), Race_if(PM_DRAUGR))
+            if ((druid_form
+                 || maybe_polyd(is_zombie(youmonst.data), Race_if(PM_DRAUGR)))
                 && mattk->aatyp == AT_BITE
                 && (context.forcefight
                     || ((touch_petrifies(mon->data)
@@ -4301,7 +4304,8 @@ boolean weapon_attacks; /* skip weapon attacks if false */
             }
             /*FALLTHRU*/
         case AT_STNG:
-            if (!Upolyd && Race_if(PM_DEMON) && mattk->aatyp == AT_STNG
+            if ((druid_form || (!Upolyd && Race_if(PM_DEMON)))
+                && mattk->aatyp == AT_STNG
                 && (context.forcefight
                     || (touch_petrifies(mon->data) && !Stone_resistance)
                     || (how_resistant(DISINT_RES) < 50
@@ -4497,6 +4501,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
         case AT_HUGS: {
             int specialdmg;
             struct obj* hated_obj = NULL;
+
             boolean byhand = hug_throttles(&mons[u.umonnum]), /* rope golem */
                     unconcerned = (byhand && !can_be_strangled(mon));
 

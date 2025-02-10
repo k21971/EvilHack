@@ -3952,4 +3952,6 @@ The following changes to date are:
 - Health regeneration for Druids while in wildshape
 - Druids (giant) carrying boulders will automatically drop them when
   wildshaped into a form that can't throw boulders
+- Fix: prevent certain attacks from being used while wildshaped
+  verses certain monsters 
 
