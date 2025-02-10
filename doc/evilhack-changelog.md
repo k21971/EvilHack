@@ -3954,4 +3954,5 @@ The following changes to date are:
   wildshaped into a form that can't throw boulders
 - Fix: prevent certain attacks from being used while wildshaped
   verses certain monsters 
+- Fix: two rings made of bronze
 
