@@ -3659,8 +3659,42 @@ int corpsecheck; /* 0, no check, 1, corpses, 2, tinnable corpses */
         goto skipfloor;
 
     if (feeding && metallivorous(youmonst.data)) {
-        struct obj *gold;
+        struct obj *gold, *obj, *cont, *ncobj;
         struct trap *ttmp = t_at(u.ux, u.uy);
+        boolean metal_container
+            = ((obj = sobj_at(CHEST, u.ux, u.uy)) != 0
+               || (obj = sobj_at(LARGE_BOX, u.ux, u.uy)) != 0
+               || (obj = sobj_at(IRON_SAFE, u.ux, u.uy)) != 0);
+
+        if (metal_container
+            && is_metallic(obj) && Has_contents(obj)) {
+            char qsfx[QBUFSZ];
+            boolean one = (obj->quan == 1L);
+
+            Sprintf(qbuf, "There %s ", otense(obj, "are"));
+            Sprintf(qsfx, " here; %s %s?", verb, one ? "it" : "one");
+            (void) safe_qbuf(qbuf, qbuf, qsfx, obj, doname, ansimpleoname,
+                             one ? something : (const char *) "things");
+            if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y') {
+                if (!Blind)
+                    pline("Its contents fall out.");
+                for (cont = obj->cobj; cont; cont = ncobj) {
+                    ncobj = cont->nobj;
+                    obj_extract_self(cont);
+                    if (!flooreffects(cont, u.ux, u.uy, ""))
+                        place_object(cont, u.ux, u.uy);
+                }
+                setnotworn(obj);
+                if (carried(obj))
+                    update_inventory();
+                return obj;
+            } else if (c == 'n') {
+                /* force routine to stop checking contents */
+                goto skipfloor;
+            } else if (c == 'q') {
+                return (struct obj *) 0;
+            }
+        }
 
         if (ttmp && ttmp->tseen && ttmp->ttyp == BEAR_TRAP) {
             boolean u_in_beartrap = (u.utrap && u.utraptype == TT_BEARTRAP);
@@ -3698,10 +3732,10 @@ int corpsecheck; /* 0, no check, 1, corpses, 2, tinnable corpses */
     /* Is there some food (probably a heavy corpse) here on the ground? */
     for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere) {
         if (corpsecheck
-                ? (otmp->otyp == CORPSE
-                   && (corpsecheck == 1 || tinnable(otmp)))
-                : feeding ? (otmp->oclass != COIN_CLASS && is_edible(otmp))
-                          : otmp->oclass == FOOD_CLASS) {
+            ? (otmp->otyp == CORPSE
+               && (corpsecheck == 1 || tinnable(otmp)))
+            : feeding ? (otmp->oclass != COIN_CLASS && is_edible(otmp))
+                      : otmp->oclass == FOOD_CLASS) {
             char qsfx[QBUFSZ];
             boolean one = (otmp->quan == 1L);
 
@@ -3722,7 +3756,7 @@ int corpsecheck; /* 0, no check, 1, corpses, 2, tinnable corpses */
             (void) safe_qbuf(qbuf, qbuf, qsfx, otmp, doname, ansimpleoname,
                              one ? something : (const char *) "things");
             if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y')
-                return  otmp;
+                return otmp;
             else if (c == 'q')
                 return (struct obj *) 0;
         }

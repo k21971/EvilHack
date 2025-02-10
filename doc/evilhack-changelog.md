@@ -3955,4 +3955,6 @@ The following changes to date are:
 - Fix: prevent certain attacks from being used while wildshaped
   verses certain monsters 
 - Fix: two rings made of bronze
+- Fix: contents of a metal container would be consumed along with the
+  container if eaten by the player
 
