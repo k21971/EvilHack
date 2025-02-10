@@ -3949,4 +3949,5 @@ The following changes to date are:
   has never been abused
 - The Hand of Vecna has a chance to cause area of effect explosive
   cold damage
+- Health regeneration for Druids while in wildshape
 

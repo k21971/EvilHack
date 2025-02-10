@@ -992,7 +992,9 @@ int wtcap;
         } else if (u.mh < u.mhmax) {
             if ((!Is_valley(&u.uz) || is_undead(youmonst.data))
                 && !wielding_artifact(ART_WAND_OF_ORCUS)
-                && (Regeneration || (encumbrance_ok && !(moves % 20L))))
+                && (Regeneration
+                    || (encumbrance_ok
+                        && !(moves % (druid_form ? 9L : 20L)))))
                 heal = 1;
         }
         if (heal && !(Withering && heal > 0)) {
