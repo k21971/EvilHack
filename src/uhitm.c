@@ -2187,7 +2187,9 @@ int dieroll;
                 pline_The("frost doesn't chill %s!", mon_nam(mon));
         } else {
             /* explosive damage placed here due to order of events */
-            if (!rn2(8)) {
+            if (!rn2(8)
+                && !((uwep && uwep->oartifact)
+                     || (u.twoweap && uswapwep->oartifact))) {
                 pline("A surge of frost flows through your mummified hand!");
                 explode(mon->mx, mon->my, ZT_BREATH(ZT_COLD),
                         d((!uwep ? 4 : 2), 6), 0, EXPL_FROSTY);

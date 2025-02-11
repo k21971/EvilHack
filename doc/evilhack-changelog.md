@@ -3959,4 +3959,6 @@ The following changes to date are:
   container if eaten by the player
 - Fix: all druid form bite attacks were suppressed when engulfed
 - Player can eat grass if polymorphed into an herbivore
+- Fix: guard against dead monsters when various artifacts proc their
+  explosive effect
 

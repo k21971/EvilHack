@@ -2038,11 +2038,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
            electrical damage (area of effect) */
         if (!rn2(5)
             && spec_dbon_applies && otmp->oartifact == ART_TEMPEST) {
-            pline("A massive surge of energy courses through the halberd!");
-            explode(mdef->mx, mdef->my,
-                    (youattack ? ZT_BREATH(ZT_LIGHTNING)
-                               : -ZT_BREATH(ZT_LIGHTNING)), d(6, 6),
-                    (youattack ? 0 : MON_CASTBALL), EXPL_SHOCK);
+            if (!DEADMONSTER(mdef)) {
+                pline("A massive surge of energy courses through the halberd!");
+                explode(mdef->mx, mdef->my,
+                        (youattack ? ZT_BREATH(ZT_LIGHTNING)
+                                   : -ZT_BREATH(ZT_LIGHTNING)), d(6, 6),
+                        (youattack ? 0 : MON_CASTBALL), EXPL_SHOCK);
+            }
         }
 
         if (!rn2(5))
@@ -2204,11 +2206,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
            additional acidic damage (area of effect) */
         if (!rn2(5)
             && spec_dbon_applies && otmp->oartifact == ART_HARBINGER) {
-            pline("A surge of acid flows through the aklys!");
-            explode(mdef->mx, mdef->my,
-                    (youattack ? ZT_BREATH(ZT_ACID)
-                               : -ZT_BREATH(ZT_ACID)), d(6, 6),
-                    (youattack ? 0 : MON_CASTBALL), EXPL_ACID);
+            if (!DEADMONSTER(mdef)) {
+                pline("A surge of acid flows through the aklys!");
+                explode(mdef->mx, mdef->my,
+                        (youattack ? ZT_BREATH(ZT_ACID)
+                                   : -ZT_BREATH(ZT_ACID)), d(6, 6),
+                        (youattack ? 0 : MON_CASTBALL), EXPL_ACID);
+            }
         }
 
         if (!def_underwater) {
@@ -2494,7 +2498,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                and can cause additional elemental damage
                (area of effect) */
             if (!rn2(6) && spec_dbon_applies) {
-                if (rn2(2)) {
+                if (rn2(2) && !DEADMONSTER(mdef)) {
                     if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))) {
                         pline("A surge of flame flows through the blade!");
                         explode(mdef->mx, mdef->my,
