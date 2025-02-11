@@ -215,7 +215,7 @@ const struct Role roles[] = {
       PM_ELANEE,
       PM_ASPIRANT,
       PM_BABA_YAGA,
-      PM_SKELETON,
+      PM_WEREWOLF,
       PM_TREE_BLIGHT,
       S_SKELETON,
       S_PLANT,

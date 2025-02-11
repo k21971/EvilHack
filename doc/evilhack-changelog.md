@@ -3964,4 +3964,5 @@ The following changes to date are:
 - Druids can't remove worn (merged) armor while in wildshape
 - Fix: players eating grass
 - Fix: rothe's aren't omnivores
+- Werewolves are now a Druid nemesis monster
 

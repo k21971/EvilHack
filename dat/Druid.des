@@ -77,10 +77,10 @@ TRAP:"pit",random
 TRAP:"spiked pit",random
 TRAP:"spiked pit",random
 # Monsters
-MONSTER:('z',"skeleton"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
 MONSTER:('z',"skeleton"),random,hostile
 MONSTER:('z',"skeleton"),random,hostile
 MONSTER:('z',"skeleton"),random,hostile
@@ -178,10 +178,10 @@ MONSTER:('q',"cave bear"),(04,13),hostile
 MONSTER:('r',"dire wolverine"),(14,13),hostile
 MONSTER:('{',"assassin vine"),(09,12),hostile
 MONSTER:('{',"assassin vine"),(09,14),hostile
-MONSTER:('z',"skeleton"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
 MONSTER:('z',"skeleton"),random,hostile
 MONSTER:('z',"skeleton"),random,hostile
 MONSTER:('z',"skeleton"),random,hostile
@@ -252,6 +252,8 @@ MONSTER:('{',"assassin vine"),(20,03),hostile
 MONSTER:('#',"tree blight"),(10,01),hostile
 MONSTER:('#',"tree blight"),(10,05),hostile
 MONSTER:('#',"gulthias tree"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
 
 # Non diggable walls
 NON_DIGGABLE:(00,00,20,06)
@@ -289,10 +291,10 @@ TRAP:"bear",random
 # Monsters
 MONSTER:('q',"grizzly bear"),random,hostile
 MONSTER:('r',"wolverine"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
 MONSTER:('z',"skeleton"),random,hostile
 MONSTER:('z',"skeleton"),random,hostile
 MONSTER:('z',"skeleton"),random,hostile
@@ -335,10 +337,10 @@ TRAP:"bear",random
 # Monsters
 MONSTER:('q',"cave bear"),random,hostile
 MONSTER:('r',"dire wolverine"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
-MONSTER:('z',"skeleton"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
+MONSTER:('@',"werewolf"),random,hostile
 MONSTER:('z',"skeleton"),random,hostile
 MONSTER:('z',"skeleton"),random,hostile
 MONSTER:('z',"skeleton"),random,hostile
