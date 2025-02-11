@@ -3962,4 +3962,5 @@ The following changes to date are:
 - Fix: guard against dead monsters when various artifacts proc their
   explosive effect
 - Druids can't remove worn (merged) armor while in wildshape
+- Fix: players eating grass
 

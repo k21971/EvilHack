@@ -3661,7 +3661,7 @@ int corpsecheck; /* 0, no check, 1, corpses, 2, tinnable corpses */
     /* allow the player to eat grass if they are polymorphed
        into a herbivore */
     if (feeding && levl[u.ux][u.uy].typ == GRASS
-        && herbivorous(youmonst.data)) {
+        && Upolyd && can_eat_grass(youmonst.data)) {
         Sprintf(qbuf, "There is some grass here; eat it?");
         if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y') {
             levl[u.ux][u.uy].typ = ROOM;

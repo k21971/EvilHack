@@ -477,6 +477,16 @@
     (is_nymph(ptr) || is_satyr(ptr)                       \
      || is_hobbit(ptr) || is_elf(ptr) || is_centaur(ptr))
 
+#define can_eat_grass(ptr) \
+    (((ptr)->mlet == S_UNICORN && !is_undead(ptr)) \
+     || has_trunk(ptr) || (ptr) == &mons[PM_ROTHE] \
+     || (ptr) == &mons[PM_TITANOTHERE]             \
+     || (ptr) == &mons[PM_BALUCHITHERIUM]          \
+     || (ptr) == &mons[PM_WOODCHUCK]               \
+     || (ptr) == &mons[PM_GIANT_TURTLE]            \
+     || (ptr) == &mons[PM_CREEPING_MOUND]          \
+     || (ptr) == &mons[PM_GELATINOUS_CUBE])
+
 /* Ice Queen branch defines */
 #define is_iceq_only(ptr) \
     ((ptr) == &mons[PM_SNOW_GOLEM] || (ptr) == &mons[PM_WOOLLY_MAMMOTH]        \
