@@ -3963,4 +3963,5 @@ The following changes to date are:
   explosive effect
 - Druids can't remove worn (merged) armor while in wildshape
 - Fix: players eating grass
+- Fix: rothe's aren't omnivores
 
