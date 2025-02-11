@@ -2067,16 +2067,23 @@ STATIC_OVL int
 armor_or_accessory_off(obj)
 struct obj *obj;
 {
+    char why[QBUFSZ], what[QBUFSZ];
+    why[0] = what[0] = '\0';
+
     if (!(obj->owornmask & (W_ARMOR | W_ACCESSORY))) {
         You("are not wearing that.");
         return 0;
     }
+
+    if (druid_form && (obj->owornmask & W_ARMOR)) {
+        Strcpy(why, "; it's merged");
+        You_cant("take that off%s.", why);
+        return 0;
+    }
+
     if (obj == uskin
         || ((obj == uarm) && uarmc)
         || ((obj == uarmu) && (uarmc || uarm))) {
-        char why[QBUFSZ], what[QBUFSZ];
-
-        why[0] = what[0] = '\0';
         if (obj != uskin) {
             if (uarmc)
                 Strcat(what, cloak_simple_name(uarmc));

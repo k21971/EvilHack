@@ -3961,4 +3961,5 @@ The following changes to date are:
 - Player can eat grass if polymorphed into an herbivore
 - Fix: guard against dead monsters when various artifacts proc their
   explosive effect
+- Druids can't remove worn (merged) armor while in wildshape
 
