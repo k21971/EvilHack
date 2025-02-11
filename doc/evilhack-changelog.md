@@ -3958,4 +3958,5 @@ The following changes to date are:
 - Fix: contents of a metal container would be consumed along with the
   container if eaten by the player
 - Fix: all druid form bite attacks were suppressed when engulfed
+- Player can eat grass if polymorphed into an herbivore
 

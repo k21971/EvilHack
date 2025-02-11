@@ -3658,6 +3658,23 @@ int corpsecheck; /* 0, no check, 1, corpses, 2, tinnable corpses */
                 || (Flying && !Breathless))))
         goto skipfloor;
 
+    /* allow the player to eat grass if they are polymorphed
+       into a herbivore */
+    if (feeding && levl[u.ux][u.uy].typ == GRASS
+        && herbivorous(youmonst.data)) {
+        Sprintf(qbuf, "There is some grass here; eat it?");
+        if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y') {
+            levl[u.ux][u.uy].typ = ROOM;
+            pline("This grass tastes delicious!");
+            lesshungry(20);
+            return (struct obj *) 0;
+        } else if (c == 'n') {
+            goto skipfloor;
+        } else if (c == 'q') {
+            return (struct obj *) 0;
+        }
+    }
+
     if (feeding && metallivorous(youmonst.data)) {
         struct obj *gold, *obj, *cont, *ncobj;
         struct trap *ttmp = t_at(u.ux, u.uy);
