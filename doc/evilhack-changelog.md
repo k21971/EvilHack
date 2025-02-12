@@ -3967,4 +3967,5 @@ The following changes to date are:
 - Werewolves are now a Druid nemesis monster
 - The spells 'create grass' and 'create trees' will not work in the
   Valley of the Dead
+- Fix: dmonsfree with artifacts that cause explosive damage when thrown
 

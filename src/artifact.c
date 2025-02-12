@@ -2036,8 +2036,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         /* Tempest has a chance of a power surge on a
            successful hit, and can cause additional
            electrical damage (area of effect) */
-        if (!rn2(5)
-            && spec_dbon_applies && otmp->oartifact == ART_TEMPEST) {
+        if (!rn2(6)
+            && spec_dbon_applies && wielding_artifact(ART_TEMPEST)) {
             if (!DEADMONSTER(mdef)) {
                 pline("A massive surge of energy courses through the halberd!");
                 explode(mdef->mx, mdef->my,
@@ -2204,8 +2204,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         /* Harbinger has a chance of an explosive
            surge on a successful hit, and can cause
            additional acidic damage (area of effect) */
-        if (!rn2(5)
-            && spec_dbon_applies && otmp->oartifact == ART_HARBINGER) {
+        if (!rn2(6)
+            && spec_dbon_applies && wielding_artifact(ART_HARBINGER)) {
             if (!DEADMONSTER(mdef)) {
                 pline("A surge of acid flows through the aklys!");
                 explode(mdef->mx, mdef->my,
@@ -2497,20 +2497,25 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                a ball of fire or cold on a successful hit,
                and can cause additional elemental damage
                (area of effect) */
-            if (!rn2(6) && spec_dbon_applies) {
-                if (rn2(2) && !DEADMONSTER(mdef)) {
-                    if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))) {
-                        pline("A surge of flame flows through the blade!");
-                        explode(mdef->mx, mdef->my,
-                                (youattack ? ZT_BREATH(ZT_FIRE)
-                                           : -ZT_BREATH(ZT_FIRE)), d(4, 6),
-                                (youattack ? 0 : MON_CASTBALL), EXPL_FIERY);
-                    } else if (!(resists_cold(mdef) || defended(mdef, AD_COLD))) {
-                        pline("A surge of frost flows through the blade!");
-                        explode(mdef->mx, mdef->my,
-                                (youattack ? ZT_BREATH(ZT_COLD)
-                                           : -ZT_BREATH(ZT_COLD)), d(4, 6),
-                                (youattack ? 0 : MON_CASTBALL), EXPL_FROSTY);
+            if (!rn2(6)
+                && spec_dbon_applies && wielding_artifact(ART_DICHOTOMY)) {
+                if (!DEADMONSTER(mdef)) {
+                    if (rn2(2)) {
+                        if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))) {
+                            pline("A surge of flame flows through the blade!");
+                            explode(mdef->mx, mdef->my,
+                                    (youattack ? ZT_BREATH(ZT_FIRE)
+                                               : -ZT_BREATH(ZT_FIRE)), d(4, 6),
+                                    (youattack ? 0 : MON_CASTBALL), EXPL_FIERY);
+                        }
+                    } else {
+                        if (!(resists_cold(mdef) || defended(mdef, AD_COLD))) {
+                            pline("A surge of frost flows through the blade!");
+                            explode(mdef->mx, mdef->my,
+                                    (youattack ? ZT_BREATH(ZT_COLD)
+                                               : -ZT_BREATH(ZT_COLD)), d(4, 6),
+                                    (youattack ? 0 : MON_CASTBALL), EXPL_FROSTY);
+                        }
                     }
                 }
             }
