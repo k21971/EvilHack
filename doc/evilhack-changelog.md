@@ -3965,4 +3965,6 @@ The following changes to date are:
 - Fix: players eating grass
 - Fix: rothe's aren't omnivores
 - Werewolves are now a Druid nemesis monster
+- The spells 'create grass' and 'create trees' will not work in the
+  Valley of the Dead
 

@@ -1102,6 +1102,11 @@ cast_create_grass()
     int range = 1 + skill;
     int madegrass = 0;
 
+    if (Is_valley(&u.uz)) {
+        pline("Grass begins to grow, but quickly withers away and dies.");
+        return;
+    }
+
     /* creates grass around the caster, including the tile
        they are standing on if suitable. at basic skill,
        grass will grow out to two tile spaces away from the
@@ -1178,6 +1183,11 @@ cast_create_trees()
                          ? 1 : 0);
     int range = 1 + skill;
     int madetree = 0;
+
+    if (Is_valley(&u.uz)) {
+        pline("Saplings begin to form, but they quickly wither away and die.");
+        return;
+    }
 
     /* creates a tree around the caster. at basic skill,
        a tree will grow out to two tile spaces away from the
