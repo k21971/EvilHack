@@ -2152,7 +2152,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
                  * because they don't break easily. */
                 if (((obj->oclass == GEM_CLASS && objects[otyp].oc_tough)
                      || obj->otyp == FLINT || obj->otyp == SLING_BULLET)
-                    && rn2(2)) {
+                    && rn2(obj->otyp == SLING_BULLET ? 4 : 2)) {
                     broken = FALSE;
                 }
 
