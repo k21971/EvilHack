@@ -3052,15 +3052,15 @@ find_ac()
        wooden armor */
     if (Role_if(PM_DRUID)) {
         if (uarm && is_wood(uarm))   /* body armor */
-            uac -= 1;
+            uac -= 2;
         if (uarmg && is_wood(uarmg)) /* gauntlets */
-            uac -= 1;
+            uac -= 2;
         if (uarmh && is_wood(uarmh)) /* helmet */
-            uac -= 1;
+            uac -= 2;
         if (uarmf && is_wood(uarmf)) /* boots */
-            uac -= 1;
+            uac -= 2;
         if (uarms && is_wood(uarms)) /* shield */
-            uac -= 1;
+            uac -= 2;
     }
 
     /* Draugr race receive a slight AC bonus

@@ -3969,4 +3969,5 @@ The following changes to date are:
   Valley of the Dead
 - Fix: dmonsfree with artifacts that cause explosive damage when thrown
 - Fix: could not retame pets that had lost tameness
+- Slight adjustment to AC bonus for Druids wearing wooden armor
 
