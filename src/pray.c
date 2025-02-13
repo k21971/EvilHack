@@ -2308,6 +2308,14 @@ dosacrifice()
             int reg_gift_odds  = ((u.ualign.abuse == 0) ? 5 : 6) + (2 * u.ugifts);
             int arti_gift_odds = ((u.ualign.abuse == 0) ? 6 : 10) + (2 * u.ugifts)
                                   + (2 * u.uconduct.wisharti);
+            /* how much alignment has been abused can determine the
+               amount of enchantment on gifted weapons and armor */
+            int enchantment = ((u.ualign.abuse == 0) ? (rn2(3) + 3)                /* +3 to +5 */
+                               : ((u.ualign.abuse * -1) < 5) ? (rn2(2) + 2)        /* +2 to +3 */
+                                 : ((u.ualign.abuse * -1) < 15) ? (rn2(2) + 1)     /* +1 to +2 */
+                                   : ((u.ualign.abuse * -1) < 30) ? 0              /* +0 to +0 */
+                                     : ((u.ualign.abuse * -1) < 50) ? (rn2(2) - 1) /* +0 to -1 */
+                                       : (rn2(3) - 3));                            /* -1 to -3 */
             boolean primary_casters,
                     primary_casters_druid,
                     primary_casters_priest,
@@ -2709,11 +2717,13 @@ dosacrifice()
                             if (!rn2((u.ualign.abuse == 0) ? 4 : 8)
                                 && !objects[otmp->otyp].oc_magic)
                                 otmp = create_oprop(otmp, FALSE);
-                            if (altaralign == A_NONE)
+                            if (altaralign == A_NONE) {
                                 curse(otmp);
-                            else
-                                bless(otmp);
-                            otmp->spe = rn2(3) + 3; /* +3 to +5 */
+                            } else {
+                                if ((u.ualign.abuse * -1) < 30)
+                                    bless(otmp);
+                            }
+                            otmp->spe = enchantment;
                             maybe_erodeproof(otmp, 1);
                             otmp->oeroded = otmp->oeroded2 = 0;
                             if (!rn2((u.ualign.abuse == 0) ? 4 : 8)
@@ -2762,12 +2772,13 @@ dosacrifice()
                        && levl[u.ux][u.uy].frac_altar == 0) {
                 otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy));
                 if (otmp) {
-                    if (otmp->spe < 0)
-                        otmp->spe = 0;
-                    if (altaralign == A_NONE)
+                    if (altaralign == A_NONE) {
                         curse(otmp);
-                    else
-                        bless(otmp);
+                    } else {
+                        if ((u.ualign.abuse * -1) < 30)
+                            bless(otmp);
+                    }
+                    otmp->spe = enchantment;
                     maybe_erodeproof(otmp, 1);
                     otmp->oeroded = otmp->oeroded2 = 0;
                     if (altaralign > A_CHAOTIC) /* lawful or neutral altar */

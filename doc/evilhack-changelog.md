@@ -3971,4 +3971,6 @@ The following changes to date are:
 - Fix: could not retame pets that had lost tameness
 - Slight adjustment to AC bonus for Druids wearing wooden armor
 - Sling bullets won't break as often as other projectiles
+- Alignment abuse (or lack thereof) can affect enchantment and
+  beatitude of altar sacrifice gifts
 
