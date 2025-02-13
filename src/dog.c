@@ -1545,10 +1545,8 @@ struct obj *obj;
         separate_steed_and_rider(mtmp);
     }
     /* add the pet extension */
-    if (!has_edog(mtmp)) {
-        newedog(mtmp);
-        initedog(mtmp);
-    }
+    newedog(mtmp);
+    initedog(mtmp);
     u.uconduct.pets++;
 
     if (obj) { /* thrown food */

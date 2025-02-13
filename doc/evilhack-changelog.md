@@ -3968,4 +3968,5 @@ The following changes to date are:
 - The spells 'create grass' and 'create trees' will not work in the
   Valley of the Dead
 - Fix: dmonsfree with artifacts that cause explosive damage when thrown
+- Fix: could not retame pets that had lost tameness
 
