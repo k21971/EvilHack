@@ -486,6 +486,33 @@ struct obj *obj;
     return nutrit;
 }
 
+/* returns 0 if pet eats the grass, otherwise 1 */
+boolean
+m_eat_grass(mtmp)
+struct monst *mtmp;
+{
+    struct edog *edog = EDOG(mtmp);
+    struct rm *here;
+    int hungry;
+
+    here = &levl[mtmp->mx][mtmp->my];
+    hungry = (monstermoves > (edog->hungrytime + 20));
+
+    if (!IS_GRASS(here->typ))
+        return 1;
+
+    if (hungry && IS_GRASS(here->typ)
+        && can_eat_grass(mtmp->data)) {
+        here->typ = ROOM, here->flags = 0;
+        if (canseemon(mtmp) && flags.verbose)
+            pline("%s eats some grass.", Monnam(mtmp));
+    }
+    edog->hungrytime += 20; /* nutrition gain */
+    newsym(mtmp->mx, mtmp->my);
+
+    return 0;
+}
+
 /* returns 2 if pet dies, otherwise 1 */
 int
 dog_eat(mtmp, obj, x, y, devour)
@@ -1355,6 +1382,13 @@ int after; /* this is extra fast monster movement */
         /* maybe we tamed him while being swallowed --jgm */
         return 0;
 
+    if (monstermoves > (edog->hungrytime + 20)
+        && levl[mtmp->mx][mtmp->my].typ == GRASS
+        && can_eat_grass(mtmp->data)) {
+        m_eat_grass(mtmp);
+        return 1;
+    }
+
     /* Sometimes your pet can help you out in various ways.
        Amount of tameness is taken into consideration (have
        to at least be domesticated) */
@@ -1689,7 +1723,7 @@ int after; /* this is extra fast monster movement */
                     cursemsg[i] = TRUE;
                 } else if ((otyp = dogfood(mtmp, obj)) < MANFOOD
                            && (otyp < ACCFOOD
-                           || edog->hungrytime <= monstermoves)
+                               || edog->hungrytime <= monstermoves)
                            && edog->hungrytime < monstermoves + DOG_SATIATED) {
                     /* Note: our dog likes the food so much that he
                      * might eat it even when it conceals a cursed object */

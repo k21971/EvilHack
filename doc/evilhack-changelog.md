@@ -3973,4 +3973,5 @@ The following changes to date are:
 - Sling bullets won't break as often as other projectiles
 - Alignment abuse (or lack thereof) can affect enchantment and
   beatitude of altar sacrifice gifts
+- Allow pets that can eat grass, to eat grass when hungry
 
