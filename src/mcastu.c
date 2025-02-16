@@ -2329,7 +2329,7 @@ int spellnum;
                         (yours || mattk->mtame) ? MM_EDOG : NO_MM_FLAGS)) != 0) {
                         mpet->msleeping = 0;
                         if (yours || mattk->mtame)
-                            initedog(mpet);
+                            initedog(mpet, TRUE);
                         else if (mattk->mpeaceful)
                             mpet->mpeaceful = 1;
                         else

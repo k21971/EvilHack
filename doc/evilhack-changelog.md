@@ -3974,4 +3974,5 @@ The following changes to date are:
 - Alignment abuse (or lack thereof) can affect enchantment and
   beatitude of altar sacrifice gifts
 - Allow pets that can eat grass, to eat grass when hungry
+- Fix: keep tameness at or above its existing level
 

@@ -565,7 +565,7 @@ FDECL(inaccessible_equipment, (struct obj *, const char *, BOOLEAN_P));
 
 E void FDECL(newedog, (struct monst *));
 E void FDECL(free_edog, (struct monst *));
-E void FDECL(initedog, (struct monst *));
+E void FDECL(initedog, (struct monst *, BOOLEAN_P));
 E struct monst *FDECL(make_familiar,
                       (struct obj *, XCHAR_P, XCHAR_P, BOOLEAN_P));
 E struct monst *FDECL(make_helper, (int, XCHAR_P, XCHAR_P));

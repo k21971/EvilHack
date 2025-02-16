@@ -1861,8 +1861,10 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                         ++candidates;
                         res = maybe_tame(mtmp, sobj);
                         results += res;
-                        if (canspotmon(mtmp))
+                        if (canspotmon(mtmp)) {
                             vis_results += res;
+                            newsym(mtmp->mx, mtmp->my);
+                        }
                     }
                 }
         }

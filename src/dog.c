@@ -33,26 +33,32 @@ struct monst *mtmp;
 }
 
 void
-initedog(mtmp)
+initedog(mtmp, everything)
 register struct monst *mtmp;
+boolean everything;
 {
-    mtmp->mtame = is_domestic(mtmp->data) ? 10 : 5;
+    schar minimumtame = is_domestic(mtmp->data) ? 10 : 5;
+
+    mtmp->mtame = max(minimumtame, mtmp->mtame);
     mtmp->mpeaceful = 1;
     mtmp->mavenge = 0;
     set_malign(mtmp); /* recalc alignment now that it's tamed */
-    mtmp->mleashed = 0;
-    mtmp->meating = 0;
-    EDOG(mtmp)->droptime = 0;
-    EDOG(mtmp)->dropdist = 10000;
-    EDOG(mtmp)->apport = ACURR(A_CHA);
-    EDOG(mtmp)->whistletime = 0;
-    EDOG(mtmp)->hungrytime = 1000 + monstermoves;
-    EDOG(mtmp)->ogoal.x = -1; /* force error if used before set */
-    EDOG(mtmp)->ogoal.y = -1;
-    EDOG(mtmp)->abuse = 0;
-    EDOG(mtmp)->revivals = 0;
-    EDOG(mtmp)->mhpmax_penalty = 0;
-    EDOG(mtmp)->killed_by_u = 0;
+    if (everything) {
+        mtmp->mleashed = 0;
+        mtmp->meating = 0;
+        EDOG(mtmp)->droptime = 0;
+        EDOG(mtmp)->dropdist = 10000;
+        EDOG(mtmp)->apport = ACURR(A_CHA);
+        EDOG(mtmp)->whistletime = 0;
+        EDOG(mtmp)->hungrytime = 1000 + monstermoves;
+        EDOG(mtmp)->ogoal.x = -1; /* force error if used before set */
+        EDOG(mtmp)->ogoal.y = -1;
+        EDOG(mtmp)->abuse = 0;
+        EDOG(mtmp)->revivals = 0;
+        EDOG(mtmp)->mhpmax_penalty = 0;
+        EDOG(mtmp)->killed_by_u = 0;
+    }
+    u.uconduct.pets++;
 }
 
 STATIC_OVL int
@@ -218,8 +224,7 @@ boolean quietly;
     if (is_pool(mtmp->mx, mtmp->my) && minliquid(mtmp))
         return (struct monst *) 0;
 
-    initedog(mtmp);
-    u.uconduct.pets++;
+    initedog(mtmp, TRUE);
     mtmp->msleeping = 0;
     if (otmp) { /* figurine; resulting monster might not become a pet */
         chance = rn2(10); /* 0==tame, 1==peaceful, 2==hostile */
@@ -294,8 +299,7 @@ xchar x, y;
     if (!mtmp)
         return (struct monst *) 0; /* genocided */
 
-    initedog(mtmp);
-    u.uconduct.pets++;
+    initedog(mtmp, TRUE);
     mtmp->msleeping = 0;
     set_malign(mtmp); /* more alignment changes */
     newsym(mtmp->mx, mtmp->my);
@@ -319,8 +323,7 @@ xchar x, y;
     if (!mtmp)
         return (struct monst *) 0; /* genocided */
 
-    initedog(mtmp);
-    u.uconduct.pets++;
+    initedog(mtmp, TRUE);
     mtmp->mtame = 15;
     mtmp->msleeping = 0;
     set_malign(mtmp); /* more alignment changes */
@@ -345,8 +348,7 @@ xchar x, y;
     if (!mtmp)
         return (struct monst *) 0; /* genocided */
 
-    initedog(mtmp);
-    u.uconduct.pets++;
+    initedog(mtmp, TRUE);
     mtmp->mtame = 15;
     mtmp->msleeping = 0;
     /* increase hit points based on spellcasting skill */
@@ -374,8 +376,6 @@ makedog()
 
     if (preferred_pet == 'n')
         return ((struct monst *) 0);
-
-    u.uconduct.pets++;
 
     pettype = pet_type();
     if (pettype == PM_LITTLE_DOG) {
@@ -468,7 +468,7 @@ makedog()
     if (!petname_used++ && *petname)
         mtmp = christen_monst(mtmp, petname);
 
-    initedog(mtmp);
+    initedog(mtmp, TRUE);
     return  mtmp;
 }
 
@@ -1435,11 +1435,13 @@ struct obj *obj;
     /* worst case, at least it'll be peaceful. */
     mtmp->mpeaceful = 1;
     set_malign(mtmp);
+
     /* steeds follow their riders' direction */
     if (has_erid(mtmp)) {
         ERID(mtmp)->mon_steed->mpeaceful = 1;
         set_malign(ERID(mtmp)->mon_steed);
     }
+
     if (flags.moonphase == FULL_MOON && night() && rn2(6) && obj
         && mtmp->data->mlet == S_DOG)
         return FALSE;
@@ -1456,6 +1458,7 @@ struct obj *obj;
     /* If we cannot tame it, at least it's no longer afraid. */
     mtmp->mflee = 0;
     mtmp->mfleetim = 0;
+
     if (has_erid(mtmp)) {
         ERID(mtmp)->mon_steed->mflee = 0;
         ERID(mtmp)->mon_steed->mfleetim = 0;
@@ -1468,6 +1471,7 @@ struct obj *obj;
         else if (!(Upolyd && sticks(youmonst.data)))
             unstuck(mtmp);
     }
+
     if (has_erid(mtmp) && ERID(mtmp)->mon_steed == u.ustuck) {
         if (u.uswallow)
             expels(ERID(mtmp)->mon_steed, mtmp->data, TRUE);
@@ -1544,10 +1548,14 @@ struct obj *obj;
             pline("%s pats %s steed and clambers off.", Monnam(mtmp), mhis(mtmp));
         separate_steed_and_rider(mtmp);
     }
+
     /* add the pet extension */
-    newedog(mtmp);
-    initedog(mtmp);
-    u.uconduct.pets++;
+    if (!has_edog(mtmp)) {
+        newedog(mtmp);
+        initedog(mtmp, TRUE);
+    } else {
+        initedog(mtmp, FALSE);
+    }
 
     if (obj) { /* thrown food */
         /* defer eating until the edog extension has been set up */
