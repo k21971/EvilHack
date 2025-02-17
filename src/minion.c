@@ -263,7 +263,7 @@ register struct monst *mtmp;
     }
 
     /* Slight advantage given. */
-    if (is_dprince(mtmp->data) && mtmp->minvis) {
+    if (is_dlord(mtmp->data) && mtmp->minvis) {
         boolean wasunseen = !canspotmon(mtmp);
 
         mtmp->minvis = mtmp->perminvis = 0;
@@ -285,7 +285,7 @@ register struct monst *mtmp;
 
     cash = money_cnt(invent);
     demand = rn1(4000, 1000)
-           + (1000 * (1 - (sgn(u.ualign.type) == sgn(mon_aligntyp(mtmp)))));
+             + (1000 * (1 - (sgn(u.ualign.type) == sgn(mon_aligntyp(mtmp)))));
 
     if (!demand || multi < 0 || cash <= 0) { /* you have no gold or can't move */
         mtmp->mpeaceful = 0;
@@ -299,7 +299,7 @@ register struct monst *mtmp;
            mongone() gets rid of the monster; force combat anyway;
            also make it unmeetable if the player is Deaf, to simplify
            handling that case as player-won't-pay] */
-        if (mon_has_amulet(mtmp) || Deaf)
+        if (mon_has_amulet(mtmp) || Deaf || rn2(3))
             /* 125: 5*25 in case hero has maximum possible charisma */
             demand = money_cnt(invent) + (long) rn1(1000, 125);
 

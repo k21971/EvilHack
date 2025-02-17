@@ -3592,7 +3592,7 @@ long mmflags;
             set_apparxy(mtmp);
         }
     }
-    if (is_dprince(ptr) && ptr->msound == MS_BRIBE) {
+    if (is_dlord(ptr) && ptr->msound == MS_BRIBE) {
         mtmp->mpeaceful = mtmp->minvis = mtmp->perminvis = 1;
         mtmp->mavenge = 0;
         if (wielding_artifact(ART_EXCALIBUR)

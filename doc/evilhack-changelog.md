@@ -3975,4 +3975,5 @@ The following changes to date are:
   beatitude of altar sacrifice gifts
 - Allow pets that can eat grass, to eat grass when hungry
 - Fix: keep tameness at or above its existing level
+- Fix: demon bribery
 
