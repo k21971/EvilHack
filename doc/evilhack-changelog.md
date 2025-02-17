@@ -3976,4 +3976,5 @@ The following changes to date are:
 - Allow pets that can eat grass, to eat grass when hungry
 - Fix: keep tameness at or above its existing level
 - Fix: demon bribery
+- Fix: placeholder nymph in monst.c was not flagged as M2_NOPOLY
 
