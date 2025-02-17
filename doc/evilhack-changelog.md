@@ -3977,4 +3977,5 @@ The following changes to date are:
 - Fix: keep tameness at or above its existing level
 - Fix: demon bribery
 - Fix: placeholder nymph in monst.c was not flagged as M2_NOPOLY
+- Fix: covetous fixes
 

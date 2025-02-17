@@ -1315,21 +1315,29 @@ register int after;
 
     /* and the acquisitive monsters get special treatment */
     if (is_covetous(ptr)) {
+        int covetousattack;
+
         xchar tx = STRAT_GOALX(mtmp->mstrategy),
               ty = STRAT_GOALY(mtmp->mstrategy);
-        struct monst *intruder = m_at(tx, ty);
+        struct monst *intruder = isok(tx, ty) ? m_at(tx, ty) : NULL;
         /*
          * if there's a monster on the object or in possession of it,
          * attack it.
          */
-        if ((dist2(mtmp->mx, mtmp->my, tx, ty) < 2) && intruder
-            && (intruder != mtmp)) {
+        if (intruder && intruder != mtmp
+            /* this used to use 'dist2() < 2' which meant that intended
+               attack was disallowed if they were adjacent diagonally */
+            && dist2(mtmp->mx, mtmp->my, tx, ty) <= 2) {
+            bhitpos.x = tx, bhitpos.y = ty;
             notonhead = (intruder->mx != tx || intruder->my != ty);
-            if (mattackm(mtmp, intruder) == 2)
+            covetousattack = mattackm(mtmp, intruder);
+            /* this used to erroneously use '== 2' (MM_DEF_DIED) */
+            if (covetousattack & MM_AGR_DIED)
                 return 2;
             mmoved = 1;
-        } else
+        } else {
             mmoved = 0;
+        }
         goto postmov;
     }
 
@@ -1766,7 +1774,8 @@ register int after;
          * Pets get taken care of above and shouldn't reach this code.
          * Conflict gets handled even farther away (movemon()).
          */
-        if ((info[chi] & ALLOW_M) || (nix == mtmp->mux && niy == mtmp->muy)) {
+        if ((info[chi] & ALLOW_M) != 0
+            || (nix == mtmp->mux && niy == mtmp->muy)) {
             return m_move_aggress(mtmp, nix, niy);
         }
 
@@ -1777,13 +1786,13 @@ register int after;
             return 0;
         }
 
-        if ((info[chi] & ALLOW_MDISP)) {
+        if ((info[chi] & ALLOW_MDISP) != 0) {
             struct monst *mtmp2;
             int mstatus;
 
-            mtmp2 = m_at(nix, niy);
+            mtmp2 = m_at(nix, niy); /* ALLOW_MDISP implies m_at() is !Null */
             mstatus = mdisplacem(mtmp, mtmp2, FALSE);
-            if ((mstatus & MM_AGR_DIED) || (mstatus & MM_DEF_DIED))
+            if (mstatus & (MM_AGR_DIED | MM_DEF_DIED))
                 return 2;
             if (mstatus & MM_HIT)
                 return 1;
@@ -2141,22 +2150,29 @@ struct monst * mtmp;
 xchar x, y;
 {
     struct monst *mtmp2;
-    int mstatus;
+    int mstatus = 0;
 
     mtmp2 = m_at(x, y);
 
-    notonhead = mtmp2 && (x != mtmp2->mx || y != mtmp2->my);
-    /* note: mstatus returns 0 if mtmp2 is nonexistent */
-    mstatus = mattackm(mtmp, mtmp2);
+    if (mtmp2) {
+        bhitpos.x = x, bhitpos.y = y;
+        notonhead = (x != mtmp2->mx || y != mtmp2->my);
+        mstatus = mattackm(mtmp, mtmp2);
+    }
 
     if (mstatus & MM_AGR_DIED) /* aggressor died */
         return 2;
 
-    if ((mstatus & MM_HIT) && !(mstatus & MM_DEF_DIED) && rn2(4)
-        && mtmp2->movement >= NORMAL_SPEED) {
-        mtmp2->movement -= NORMAL_SPEED;
-        notonhead = 0;
+    if ((mstatus & (MM_HIT | MM_DEF_DIED)) == MM_HIT
+        && rn2(4) && mtmp2->movement > rn2(NORMAL_SPEED)) {
+        if (mtmp2->movement > NORMAL_SPEED)
+            mtmp2->movement -= NORMAL_SPEED;
+        else
+            mtmp2->movement = 0;
+        bhitpos.x = mtmp->mx, bhitpos.y = mtmp->my;
+        notonhead = FALSE;
         mstatus = mattackm(mtmp2, mtmp); /* return attack */
+        /* note: at this point, defender is the original (moving) aggressor */
         if (mstatus & MM_DEF_DIED)
             return 2;
     }
