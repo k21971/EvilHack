@@ -453,9 +453,8 @@
 
 /* woodland animals and plants */
 #define is_woodland_creature(ptr) \
-    (is_true_ent(ptr) || (is_plant(ptr) && !is_blight(ptr))                \
-     || is_bird(ptr) || is_pseudodragon(ptr)                               \
-     || is_unicorn(ptr) || is_cavelizard(ptr)                              \
+    ((is_plant(ptr) && !is_blight(ptr)) || is_bird(ptr)                    \
+     || is_pseudodragon(ptr) || is_unicorn(ptr) || is_cavelizard(ptr)      \
      || (ptr) == &mons[PM_LICHEN] || (ptr) == &mons[PM_FOX]                \
      || (ptr) == &mons[PM_WOLF] || (ptr) == &mons[PM_WINTER_WOLF_CUB]      \
      || (ptr) == &mons[PM_WINTER_WOLF] || (ptr) == &mons[PM_LYNX]          \
@@ -474,7 +473,7 @@
 
 /* woodland beings */
 #define is_woodland_being(ptr) \
-    (is_nymph(ptr) || is_satyr(ptr)                       \
+    (is_nymph(ptr) || is_satyr(ptr) || is_true_ent(ptr)   \
      || is_hobbit(ptr) || is_elf(ptr) || is_centaur(ptr))
 
 #define can_eat_grass(ptr) \

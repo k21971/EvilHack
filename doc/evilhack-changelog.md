@@ -3979,4 +3979,5 @@ The following changes to date are:
 - Fix: placeholder nymph in monst.c was not flagged as M2_NOPOLY
 - Fix: covetous fixes
 - Covetous monsters can assume normal movement when close to the player
+- Move ents from is_woodland_creature() to is_woodland_being()
 
