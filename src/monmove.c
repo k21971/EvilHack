@@ -91,9 +91,12 @@ struct monst *mtmp;
             && (is_rider(mtmp->data)
                 || (MON_WEP(mtmp) && is_pick(MON_WEP(mtmp)))
                 || (!mtmp->mspec_used
-                    && (mtmp->isshk
+                    && (is_dprince(mtmp->data)
+                        || is_dlord(mtmp->data)
+                        || mtmp->isshk
                         || mtmp->ispriest
                         || mtmp->isqldr
+                        || mtmp->data->msound == MS_NEMESIS
                         || mtmp->data == &mons[PM_ORACLE]))));
 }
 
@@ -125,8 +128,15 @@ xchar x, y;
                                          : "an incantation");
             }
         }
-        if (!is_rider(mtmp->data))
-            mtmp->mspec_used += rn1(20, 10);
+        /* TODO: create a new timer specifically for
+           breaking boulders, as mspec_used affects
+           monster spellcasting */
+        if (!is_rider(mtmp->data)) {
+            if (unique_corpstat(mtmp->data))
+                mtmp->mspec_used += rn1(4, 2);
+            else
+                mtmp->mspec_used += rn1(20, 10);
+        }
         if (cansee(x, y))
             pline_The("boulder falls apart.");
         fracture_rock(otmp);
@@ -1316,7 +1326,6 @@ register int after;
     /* and the acquisitive monsters get special treatment */
     if (is_covetous(ptr)) {
         int covetousattack;
-
         xchar tx = STRAT_GOALX(mtmp->mstrategy),
               ty = STRAT_GOALY(mtmp->mstrategy);
         struct monst *intruder = isok(tx, ty) ? m_at(tx, ty) : NULL;
@@ -1338,7 +1347,8 @@ register int after;
         } else {
             mmoved = 0;
         }
-        goto postmov;
+        if (distu(mtmp->mx, mtmp->my) > 8)
+            goto postmov;
     }
 
     /* and for the priest */

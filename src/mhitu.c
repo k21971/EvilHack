@@ -3318,7 +3318,7 @@ struct attack *mattk;
             You_hear("a hoarse croak nearby.");
         }
 
-        /* Set mspec->used */
+        /* Set mspec_used */
         mtmp->mspec_used = mtmp->mspec_used + (rn2(6) + 5);
 
         if (mtmp->mcan || Deaf)

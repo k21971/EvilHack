@@ -3032,7 +3032,7 @@ The following changes to date are:
 - Fix: curses mode - prevent spurious cursor updates
 - Fix: SET_TYPLIT if/else chain broken
 - Fix: whitespace in feedback (mcastu.c)
-- Fix: incorrect value used in determining mspec->used for monster
+- Fix: incorrect value used in determining mspec_used for monster
   spellcasting
 - Fix: ukiller can't be null if killer wants to go through player inventory
 - Fix: minor bugs while underwater and trying to fight monsters above water
@@ -3978,4 +3978,5 @@ The following changes to date are:
 - Fix: demon bribery
 - Fix: placeholder nymph in monst.c was not flagged as M2_NOPOLY
 - Fix: covetous fixes
+- Covetous monsters can assume normal movement when close to the player
 

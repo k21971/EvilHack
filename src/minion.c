@@ -290,6 +290,7 @@ register struct monst *mtmp;
     if (!demand || multi < 0 || cash <= 0) { /* you have no gold or can't move */
         mtmp->mpeaceful = 0;
         set_malign(mtmp);
+        newsym(mtmp->mx, mtmp->my); /* became hostile */
         return 0;
     } else {
         /* make sure that the demand is unmeetable if the monster
@@ -325,6 +326,7 @@ register struct monst *mtmp;
             pline("%s gets angry...", Amonnam(mtmp));
             mtmp->mpeaceful = 0;
             set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* became hostile */
             return 0;
         }
     }

@@ -445,6 +445,11 @@ register struct monst *mtmp;
         pline("%s looks around nervously.", Monnam(mtmp));
     }
 
+    /* once a covetous monster gets close enough, they will start
+       to move normally 95% of the time */
+    if (rn2(20) && distu(mtmp->mx, mtmp->my) <= 8)
+        return m_move(mtmp, 0);
+
     switch (strat) {
     case STRAT_HEAL: /* hide and recover */
         mx = mtmp->mx, my = mtmp->my;
