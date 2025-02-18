@@ -3980,4 +3980,6 @@ The following changes to date are:
 - Fix: covetous fixes
 - Covetous monsters can assume normal movement when close to the player
 - Move ents from is_woodland_creature() to is_woodland_being()
+- Allow the blacksmith hammer to be used to remove a heavy iron ball
+  chained to you
 

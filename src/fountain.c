@@ -282,11 +282,13 @@ register struct obj *obj;
     /* If punished and wielding a hammer, there's a good chance
      * you can use a forge to free yourself */
     if (Punished && obj->otyp == HEAVY_IRON_BALL) {
-        if ((uwep && !is_hammer(uwep)) || !uwep) { /* sometimes drop a hint */
+        boolean hammer = (is_hammer(uwep) || uwep->otyp == BLACKSMITH_HAMMER);
+
+        if ((uwep && !hammer) || !uwep) { /* sometimes drop a hint */
             if (!rn2(4))
                 pline("You'll need a hammer to be able to break the chain.");
             goto result;
-        } else if (uwep && is_hammer(uwep)) {
+        } else if (uwep && hammer) {
             You("place the ball and chain inside the forge.");
             pline("Raising your %s, you strike the chain...",
                   xname(uwep));
