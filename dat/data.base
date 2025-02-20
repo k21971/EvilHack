@@ -1770,7 +1770,11 @@ electric eel
 	This eel is known for its electrical organ which enables it
 	to paralyse creatures up to the size of a horse.
 	   [ Van Dale's Groot Woordenboek der Nederlandse Taal ]
-*elemental
+elemental
+air elemental
+earth elemental
+fire elemental
+water elemental
 	Elementals are manifestations of the basic nature of the
 	universe.  There are four known forms of elementals:  air, fire,
 	water, and earth.  Some mystics have postulated the necessity
@@ -5749,7 +5753,7 @@ javelin
 	fireman brake his neck!'  Why, that ain't a picture!
 		[ A Connecticut Yankee in King Arthur's Court,
 		    by Mark Twain ]
-*spellbook*
+*spellbook
 	The Book of Three lay closed on the table.  Taran had never
 	been allowed to read the volume for himself; now he was sure
 	it held more than Dallben chose to tell him.  In the sun-
@@ -5766,6 +5770,95 @@ javelin
 	hands," he advised.  "Otherwise, I shouldn't be surprised if
 	they blistered."
 		[ The Book of Three, by Lloyd Alexander ]
+spellbook of barkskin
+	This spell is a level two evocation spell.  When cast, the
+	casters skin is transformed into the bark of a tree,
+	providing a substantial bonus to the casters armor class.
+	How much protection is provided is dependent on how skilled
+	the caster is in evocation spells.  While active, this spell
+	makes the caster 'thick-skinned', and they are better able to
+	withstand attacks from blunt weapons, but are more susceptible
+	to damage from axe-wielding creatures.  The duration of this
+	spell is also dependent on how skilled the caster is in
+	evocation spells.  If the caster has an aversion to certain
+	materials, this spell will provide relief from touching objects
+	made of those materials while active.
+
+	This spell and the spell 'stoneskin' cannot be active at the
+	same time.
+spellbook of change metal to wood
+	This spell is a level five evocation spell.  If cast when
+	wielding a metallic object, that object's material will turn
+	into wood if wood is a valid material for that object.  Same
+	rules apply if cast on objects on the ground.  Casting this
+	spell at an iron golem will turn it into a wood golem.
+spellbook of create grass
+	This spell is a level three evocation spell.  When cast, small
+	patches of grass will grow around the caster.  How far out from
+	the caster grass will grow is dependent on how skilled they are
+	in evocation spells.  Grass can be used as a food source for
+	various herbivore pets, and Druids can benefit by standing on a
+	patch of grass.
+spellbook of create trees
+	This spell is a level five evocation spell.  When cast, a small
+	amount of trees will grow in various open spots around the
+	caster without blocking them in.  How far out from the caster
+	trees will grow is dependent on how skilled they are in
+	evocation spells.  If cast near a dead tree, and the caster is
+	skilled in evocation spells, there is a chance the dead tree
+	will be rejuvenated, and become a live tree.  Druids can benefit
+	by standing next to a live tree.
+spellbook of entangle
+	This spell is a level one evocation spell, and is also a Druids
+	special spell.  When cast at a monster, surrounding plant life
+	will hold the monster for a brief number of turns, which is
+	dependent on how skilled the caster is in evocation spells.
+	If the target of this spell is next to a live tree or standing
+	on grass, the duration of the spell is slightly increased.
+	The affected target can still function, such as cast spells,
+	or perform ranged attacks, but are otherwise immobile for the
+	duration of the spell.
+
+	The effects of this spell will not work against unsolid,
+	whirly, or phasing monsters.
+spellbook of finger of death
+	This spell is a level seven evocation spell.  When cast at a
+	monster, the ray produced will kill the target instantly,
+	unless the monster is resistant to death magic, has reflection,
+	or is already nonliving.  Monsters with magic resistance will
+	take damage instead of being killed outright.
+
+	If the caster of this spell targets themselves, they will die
+	instantly if not resistant to death magic or nonliving,
+	regardless of reflection or magic resistance.
+spellbook of stoneskin
+	This spell is a level four evocation spell.  When cast, the
+	casters skin is transformed into hardened stone, providing a
+	significant bonus to the casters armor class.  How much
+	protection is provided is dependent on how skilled the caster
+	is in evocation spells.  While active, this spell makes the
+	caster 'thick-skinned', they are better able to withstand
+	attacks from piercing or slashing weapons, and the caster is
+	also resistant to stoning effects.  The duration of this spell
+	is also dependent on how skilled the caster is in evocation
+	spells.  If the caster has an aversion to certain materials,
+	this spell will provide relief from touching objects made of
+	those materials while active.
+
+	This spell and the spell 'barkskin' cannot be active at the
+	same time.
+spellbook of summon animal
+	This spell is a level three evocation spell.  When cast, a
+	woodland animal is summoned to aid the caster.  The type and
+	strength/level of this woodland creature is dependent on how
+	skilled the caster is in evocation spells - the greater the
+	skill, the more powerful the woodland animal summoned.
+spellbook of summon elemental
+	This spell is a level six evocation spell.  When cast, a
+	random (fire/earth/air/water) elemental is summoned to aid
+	the caster.  The elemental summoned can have 1.5 to 2 times
+	the normal maximum hit points if the casters skill in evocation
+	spells is high enough.
 *spider
 	Eight legged creature capable of spinning webs to trap prey.
 		[]

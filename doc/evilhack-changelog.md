@@ -3982,4 +3982,5 @@ The following changes to date are:
 - Move ents from is_woodland_creature() to is_woodland_being()
 - Allow the blacksmith hammer to be used to remove a heavy iron ball
   chained to you
+- Add evocation spellbook descriptions to the in-game encyclopedia
 
