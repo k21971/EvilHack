@@ -127,7 +127,7 @@ woodland_animal()
         case 4:
             return PM_SABER_TOOTHED_TIGER;
         case 5:
-            return rn2(5) ? PM_ENT : PM_ELDER_ENT;
+            return rn2(6) ? PM_GIANT_CROCODILE : PM_PEGASUS;
         }
     }
     return 0;

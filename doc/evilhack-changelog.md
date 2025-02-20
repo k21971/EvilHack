@@ -3983,4 +3983,5 @@ The following changes to date are:
 - Allow the blacksmith hammer to be used to remove a heavy iron ball
   chained to you
 - Add evocation spellbook descriptions to the in-game encyclopedia
+- Remove ents from 'summon animal' spell
 
