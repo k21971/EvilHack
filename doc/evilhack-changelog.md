@@ -3984,4 +3984,5 @@ The following changes to date are:
   chained to you
 - Add evocation spellbook descriptions to the in-game encyclopedia
 - Remove ents from 'summon animal' spell
+- Add attack spellbook descriptions to the in-game encyclopedia
 

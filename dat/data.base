@@ -1918,10 +1918,10 @@ eye of the aethiopica
 	powers, it regenerates the energy of anyone who carries
 	it, allowing them to cast spells more often.  It also reduces
 	any spell damage to the person who carries it by half, and
-	protects from magic missiles.  Finally, when invoked it has
-	the power to instantly open a portal to any other area of the
-	dungeon, allowing its invoker to travel quickly between
-	areas.
+	is partially protected from magic missiles.  Finally, when
+	invoked it has the power to instantly open a portal to any other
+	area of the dungeon, allowing its invoker to travel quickly
+	between areas.
 # note:  The Eyes of the Overworld is the title of Jack Vance's sequel
 # to The Dying Earth and in it the 'Eyes' were separate "cusps" that
 # needed to be worn like contact lenses, one on each eyeball.  Wearing
@@ -4524,8 +4524,8 @@ pear
 *orb of detection
 	This Orb is a crystal ball of exceptional powers.  When
 	carried, it grants ESP, limits damage done by spells, and
-	protects the carrier from magic missiles.  When invoked it
-	allows the carrier to become invisible.
+	partially protects the carrier from magic missiles.  When
+	invoked it allows the carrier to become invisible.
 *orb of fate
 	Some say that Odin himself created this ancient crystal ball,
 	although others argue that Loki created it and forged Odin's
@@ -4724,9 +4724,9 @@ platinum yendorian express card
 	is rectangular in shape, very thin, and inscribed with
 	unreadable ancient runes.  When carried, it grants the one
 	who carries it ESP, and reduces all spell induced damage done to
-	the carrier by half.  It also protects from magic missile
-	attacks.  Finally, its power is such that when invoked, it
-	can charge other objects.
+	the carrier by half.  It also partially protects from magic
+	missile attacks.  Finally, its power is such that when invoked,
+	it can charge other objects.
 # playing style, rather vague topic but these quotes are too apt to pass up
 player
 play* style
@@ -5770,6 +5770,18 @@ javelin
 	hands," he advised.  "Otherwise, I shouldn't be surprised if
 	they blistered."
 		[ The Book of Three, by Lloyd Alexander ]
+spellbook of acid blast
+	This spell is a level six attack spell.  When cast as unskilled
+	or basic in attack spells, this spell creates a ray of acid
+	which explodes once it hits its target.  At skilled or greater,
+	the caster can pick a location to target the spell for area of
+	effect, or choose to cast a ray of acid.  If an area of effect
+	attack type is chosen, the target will be engulfed by a series
+	of acidic explosions that will move around the center of the
+	targeted monster/location.
+
+	Objects caught in the path of the ray or acidic explosions are
+	subject to acid damage if they are not resistant.
 spellbook of barkskin
 	This spell is a level two evocation spell.  When cast, the
 	casters skin is transformed into the bark of a tree,
@@ -5792,6 +5804,20 @@ spellbook of change metal to wood
 	into wood if wood is a valid material for that object.  Same
 	rules apply if cast on objects on the ground.  Casting this
 	spell at an iron golem will turn it into a wood golem.
+spellbook of cone of cold
+	This spell is a level four attack spell.  When cast as unskilled
+	or basic in attack spells, this spell creates a ray of frost
+	which explodes once it hits its target.  At skilled or greater,
+	the caster can pick a location to target the spell for area of
+	effect, or choose to cast a ray of frost.  If an area of effect
+	attack type is chosen, the target will be engulfed by a series
+	of icy explosions that will move around the center of the
+	targeted monster/location.  Pools of water in the path of the
+	ray or caught in the area of effect explosions will freeze into
+	solid ice.
+
+	Objects caught in the path of the ray or icy explosions are
+	subject to cold damage if they are not resistant.
 spellbook of create grass
 	This spell is a level three evocation spell.  When cast, small
 	patches of grass will grow around the caster.  How far out from
@@ -5808,6 +5834,19 @@ spellbook of create trees
 	skilled in evocation spells, there is a chance the dead tree
 	will be rejuvenated, and become a live tree.  Druids can benefit
 	by standing next to a live tree.
+spellbook of drain life
+	This is a level two attack spell.  When cast at a monster that
+	is not resistant to draining, one level is drained from it, as
+	well as a small amount of the monster's maximum hit points.
+	Normal damage is sustained also.
+
+	When cast at an object that has a positive enchantment, its
+	enchantment will be dropped by one if the object does not
+	resist, not to go below zero.
+
+	Casting this spell at yourself has the same effect as it does
+	when cast at a monster.  If your own experience level drops
+	below one, you will die.
 spellbook of entangle
 	This spell is a level one evocation spell, and is also a Druids
 	special spell.  When cast at a monster, surrounding plant life
@@ -5831,6 +5870,84 @@ spellbook of finger of death
 	If the caster of this spell targets themselves, they will die
 	instantly if not resistant to death magic or nonliving,
 	regardless of reflection or magic resistance.
+spellbook of fireball
+	This spell is a level four attack spell, and is also an Infidels
+	special spell.  When cast as unskilled or basic in attack
+	spells, this spell creates a ray of fire which explodes once it
+	hits its target.  At skilled or greater, the caster can pick a
+	location to target the spell for area of effect, or choose to
+	cast a ray of fire.  If an area of effect attack type is chosen,
+	the target will be engulfed by a series of firey explosions that
+	 will move around the center of the targeted monster/location.
+	Pools of water in the path of the ray or caught in the area of
+	effect explosions can potentially boil away.  Any ice caught in
+	the path or explosions will melt away.
+
+	Objects caught in the path of the ray or firey explosions are
+	subject to fire damage if they are not resistant.
+spellbook of force bolt
+	This is a level one attack spell.  When cast, an invisible beam
+	of force travels from the caster to its intended target (line
+	of sight).  Anything within the path of the beam is affected.
+	Monsters will take physical damage, and this damage scales with
+	the skill of the caster, as does the chance to land a hit.  If
+	enough damage occurs, the targeted monster can be knocked back
+	if not steadfast.
+
+	Fragile objects and several terrain features within the path of
+	a force bolt can be destroyed (potions, objects made of glass,
+	boulders, statues, doors, iron bars, etc). 
+spellbook of lightning
+	This spell is a level four attack spell.  When cast as unskilled
+	or basic in attack spells, this spell creates a bolt of
+	lightning which explodes once it hits its target.  At skilled or
+	greater, the caster can pick a location to target the spell for
+	area of effect, or choose to cast a bolt of lightning.  If an
+	area of effect attack type is chosen, the target will be
+	engulfed by a series of electrical explosions that will move
+	around the center of the targeted monster/location.
+
+	Objects caught in the path of the bolt or electrical explosions
+	are subject to shock damage if they are not resistant.
+spellbook of magic missile
+	This spell is a level two attack spell, and is also a Wizards
+	special spell.  When cast, a ray of magic missiles shoots from
+	the caster to its intended target, hitting any other monsters
+	in its path.  Damage inflicted is directly based on the
+	experience level of the caster.  Monsters with extrinsic magic
+	resistance will only take partial damage, and monsters with
+	reflection are unaffected, as are monsters that are inherently
+	magic resistant.
+
+	Knights in possession of the Magic Mirror of Merlin cause
+	double damage when casting this spell.  
+spellbook of poison blast
+	This spell is a level five attack spell.  When cast as unskilled
+	or basic in attack spells, this spell creates a ray of poison
+	that leaves a trail of noxious gas clouds as it travels to its
+	target.  At skilled or greater, the caster can pick a location
+	to target the spell for area of effect, or choose to cast a ray
+	of poison.  If an area of effect attack type is chosen, the
+	target will be engulfed by a series of poisonous explosions that
+	will move around the center of the targeted monster/location,
+	leaving several noxious gas clouds in its wake.
+
+	These gas clouds will linger; any being caught within these gas
+	clouds are subject to poison damage, and can choke and die from
+	the gas if not poison resistant.
+spellbook of power word kill
+	This spell is a level seven attack spell.  When cast, the caster
+	can choose one monster a certain distance away.  How far away
+	the caster can select their target is dependent on how skilled
+	they are in attack spells.  If the target is not resistant to
+	death magic - if they have 100 hit points or less, they are
+	instantly killed, otherwise they will lose two-thirds of their
+	total hit points, and have their maximum hit points decreased.
+	Targets that have full magic resistance will take a significant
+	amount of damage, not to drop below one.
+
+	If the caster casts this spell on themselves, they will die
+	instantly, regardless of what resistances they possess. 
 spellbook of stoneskin
 	This spell is a level four evocation spell.  When cast, the
 	casters skin is transformed into hardened stone, providing a
