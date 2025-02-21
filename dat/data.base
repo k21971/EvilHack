@@ -5834,6 +5834,26 @@ spellbook of create trees
 	skilled in evocation spells, there is a chance the dead tree
 	will be rejuvenated, and become a live tree.  Druids can benefit
 	by standing next to a live tree.
+spellbook of critical healing
+	This spell is a level six healing spell.  When cast at either
+	a monster or yourself, the target of the spell will be healed
+	for a substantial amount of hit points, and the amount can
+	scale based on how skilled the caster is in healing spells.
+	If skilled or greater, there's a 25% chance this spell will act
+	as if 'cure sickness' were cast on the target as well.
+
+	Casting this spell at Pestilence will cause damage rather than
+	heal it. 
+spellbook of cure blindness
+	This spell is a level two healing spell.  When cast, it cures
+	the caster of intrinsic blindness.
+spellbook of cure sickness
+	This spell is a level three healing spell, and is also a
+	Healer's special spell.  When cast at either a monster or
+	yourself, it will cure the target of any illness or disease.
+	If cast at any type of zombie, this spell will cause a small
+	amount of physical damage to them, which can scale based on how
+	skilled the caster is in healing spells.
 spellbook of drain life
 	This is a level two attack spell.  When cast at a monster that
 	is not resistant to draining, one level is drained from it, as
@@ -5848,18 +5868,26 @@ spellbook of drain life
 	when cast at a monster.  If your own experience level drops
 	below one, you will die.
 spellbook of entangle
-	This spell is a level one evocation spell, and is also a Druids
-	special spell.  When cast at a monster, surrounding plant life
-	will hold the monster for a brief number of turns, which is
-	dependent on how skilled the caster is in evocation spells.
-	If the target of this spell is next to a live tree or standing
-	on grass, the duration of the spell is slightly increased.
-	The affected target can still function, such as cast spells,
-	or perform ranged attacks, but are otherwise immobile for the
-	duration of the spell.
+	This spell is a level one evocation spell, and is also a
+	Druid's special spell.  When cast at a monster, surrounding
+	plant life will hold the monster for a brief number of turns,
+	which is dependent on how skilled the caster is in evocation
+	spells.  If the target of this spell is next to a live tree or
+	standing on grass, the duration of the spell is slightly
+	increased.  The affected target can still function, such as cast
+	spells, or perform ranged attacks, but are otherwise immobile
+	for the duration of the spell.
 
 	The effects of this spell will not work against unsolid,
 	whirly, or phasing monsters.
+spellbook of extra healing
+	This spell is a level three healing spell.  When cast at either
+	a monster or yourself, the target of the spell will be healed
+	for a significant amount of hit points, and the amount can
+	scale based on how skilled the caster is in healing spells.
+
+	Casting this spell at Pestilence will cause damage rather than
+	heal it.
 spellbook of finger of death
 	This spell is a level seven evocation spell.  When cast at a
 	monster, the ray produced will kill the target instantly,
@@ -5871,17 +5899,17 @@ spellbook of finger of death
 	instantly if not resistant to death magic or nonliving,
 	regardless of reflection or magic resistance.
 spellbook of fireball
-	This spell is a level four attack spell, and is also an Infidels
-	special spell.  When cast as unskilled or basic in attack
-	spells, this spell creates a ray of fire which explodes once it
-	hits its target.  At skilled or greater, the caster can pick a
-	location to target the spell for area of effect, or choose to
-	cast a ray of fire.  If an area of effect attack type is chosen,
-	the target will be engulfed by a series of firey explosions that
-	 will move around the center of the targeted monster/location.
-	Pools of water in the path of the ray or caught in the area of
-	effect explosions can potentially boil away.  Any ice caught in
-	the path or explosions will melt away.
+	This spell is a level four attack spell, and is also an
+	Infidel's special spell.  When cast as unskilled or basic in
+	attack spells, this spell creates a ray of fire which explodes
+	once it hits its target.  At skilled or greater, the caster can
+	pick a location to target the spell for area of effect, or
+	choose to cast a ray of fire.  If an area of effect attack type
+	is chosen, the target will be engulfed by a series of firey
+	explosions that will move around the center of the targeted
+	monster/location.  Pools of water in the path of the ray or
+	caught in the area of effect explosions can potentially boil
+	away.  Any ice caught in the path or explosions will melt away.
 
 	Objects caught in the path of the ray or firey explosions are
 	subject to fire damage if they are not resistant.
@@ -5896,7 +5924,15 @@ spellbook of force bolt
 
 	Fragile objects and several terrain features within the path of
 	a force bolt can be destroyed (potions, objects made of glass,
-	boulders, statues, doors, iron bars, etc). 
+	boulders, statues, doors, iron bars, etc).
+spellbook of healing
+	This spell is a level one healing spell.  When cast at either
+	a monster or yourself, the target of the spell will be healed
+	for a small amount of hit points, and the amount can scale
+	based on how skilled the caster is in healing spells.
+
+	Casting this spell at Pestilence will cause damage rather than
+	heal it.
 spellbook of lightning
 	This spell is a level four attack spell.  When cast as unskilled
 	or basic in attack spells, this spell creates a bolt of
@@ -5910,7 +5946,7 @@ spellbook of lightning
 	Objects caught in the path of the bolt or electrical explosions
 	are subject to shock damage if they are not resistant.
 spellbook of magic missile
-	This spell is a level two attack spell, and is also a Wizards
+	This spell is a level two attack spell, and is also a Wizard's
 	special spell.  When cast, a ray of magic missiles shoots from
 	the caster to its intended target, hitting any other monsters
 	in its path.  Damage inflicted is directly based on the
@@ -5947,7 +5983,16 @@ spellbook of power word kill
 	amount of damage, not to drop below one.
 
 	If the caster casts this spell on themselves, they will die
-	instantly, regardless of what resistances they possess. 
+	instantly, regardless of what resistances they possess.
+spellbook of restore ability
+	This spell is a level two healing spell, and is also a Monk's
+	special spell.  When cast at yourself, it will restore any lost
+	attribute points, picking one attribute at random.  If skilled
+	or greater in healing spells, all attributes will have their
+	lost points restored.
+
+	If cast at a monster that has been cancelled, this spell will
+	uncancel the target.
 spellbook of stoneskin
 	This spell is a level four evocation spell.  When cast, the
 	casters skin is transformed into hardened stone, providing a
@@ -5964,6 +6009,21 @@ spellbook of stoneskin
 
 	This spell and the spell 'barkskin' cannot be active at the
 	same time.
+spellbook of stone to flesh
+	This spell is a level three healing spell.  When cast at either
+	a monster or at yourself, it will halt any processes causing
+	the target to turn into stone.
+
+	Any objects made of mineral or gemstone that are in the path of
+	the spell, or in open inventory of the target, will turn into
+	meat (e.g. a boulder will turn into a huge chunk of meat, rings
+	into a meat ring, and so forth).
+
+	If this spell is cast at a statue of a monster, there is a good
+	chance the statue will reanimate into a living monster.
+
+	If this spell is cast at a stone golem, it will turn it into a
+	flesh golem. 
 spellbook of summon animal
 	This spell is a level three evocation spell.  When cast, a
 	woodland animal is summoned to aid the caster.  The type and

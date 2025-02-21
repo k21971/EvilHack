@@ -3985,4 +3985,5 @@ The following changes to date are:
 - Add evocation spellbook descriptions to the in-game encyclopedia
 - Remove ents from 'summon animal' spell
 - Add attack spellbook descriptions to the in-game encyclopedia
+- Add healing spellbook descriptions to the in-game encyclopedia
 
