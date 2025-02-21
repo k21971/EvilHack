@@ -3986,4 +3986,5 @@ The following changes to date are:
 - Remove ents from 'summon animal' spell
 - Add attack spellbook descriptions to the in-game encyclopedia
 - Add healing spellbook descriptions to the in-game encyclopedia
+- Revert commit 0f42eff (priest altar sacrifice artifact restrictions)
 
