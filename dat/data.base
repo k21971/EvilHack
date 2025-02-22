@@ -5818,6 +5818,12 @@ spellbook of cone of cold
 
 	Objects caught in the path of the ray or icy explosions are
 	subject to cold damage if they are not resistant.
+spellbook of create familiar
+	This spell is a level six clerical spell.  When cast, a monster
+	is created near the caster.  There is a one-third chance of the
+	spell creating an appropriate starting pet, or a two-thirds
+	chance of creating a random monster.  The created monster will
+	be tame if tameable, or will spawn peaceful otherwise.
 spellbook of create grass
 	This spell is a level three evocation spell.  When cast, small
 	patches of grass will grow around the caster.  How far out from
@@ -5825,6 +5831,13 @@ spellbook of create grass
 	in evocation spells.  Grass can be used as a food source for
 	various herbivore pets, and Druids can benefit by standing on a
 	patch of grass.
+spellbook of create monster
+	This spell is a level two clerical spell.  When cast, there is
+	a very high chance of a single monster being created, otherwise
+	two to five random monsters will spawn.  Monsters that can
+	appear in groups will count as a single monster.  Monsters
+	created will either be hostile or peaceful depending on your
+	race and/or alignment.
 spellbook of create trees
 	This spell is a level five evocation spell.  When cast, a small
 	amount of trees will grow in various open spots around the
@@ -5984,6 +5997,29 @@ spellbook of power word kill
 
 	If the caster casts this spell on themselves, they will die
 	instantly, regardless of what resistances they possess.
+spellbook of protection
+	This spell is a level one clerical spell.  When cast, the
+	casters AC is temporarily decreased.  The amount of AC
+	decreased is dependent on the casters experience level, the
+	amount of AC already gained from casting it, and the casters
+	existing AC.  The protection will wear off at a rate of one
+	point of AC every ten turns, or twenty turns if expert in
+	clerical spells.
+spellbook of remove curse
+	This spell is a level three clerical spell, and is also a
+	Priest's special spell.  When cast, if the caster is unskilled
+	or has basic skill in clerical spells, any cursed worn/wielded
+	gear, quivered projectiles, or loadstones in open inventory will
+	become uncursed.  If skilled or greater in clerical spells, all
+	cursed objects in open inventory will become uncursed.
+
+	If the caster is riding a steed, and their steed is wearing a
+	cursed saddle and/or barding, they will become uncursed once
+	this spell is cast.
+
+	Regardless of the casters skill when cast, if the caster is
+	punished (heavy iron ball attached with an iron chain), the iron
+	chain will be destroyed, unpunishing the caster.
 spellbook of restore ability
 	This spell is a level two healing spell, and is also a Monk's
 	special spell.  When cast at yourself, it will restore any lost
@@ -6036,6 +6072,15 @@ spellbook of summon elemental
 	the caster.  The elemental summoned can have 1.5 to 2 times
 	the normal maximum hit points if the casters skill in evocation
 	spells is high enough.
+spellbook of turn undead
+	This spell is a level six clerical spell.  When cast at an
+	undead monster, the beam created causes a small amount of
+	damage to the undead target, and will cause it to flee if they
+	fail a resistance check.  Casting this spell at the corpse of
+	a dead monster will revive it.
+
+	Knights in possession of the Magic Mirror of Merlin cause
+	double damage when casting this spell.
 *spider
 	Eight legged creature capable of spinning webs to trap prey.
 		[]
