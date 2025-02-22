@@ -3991,4 +3991,5 @@ The following changes to date are:
 - Don't penalize a priest's alignment if they try to use a bladed
   artifact weapon
 - Fix: Druid taking blame for pet killing a tree
+- Add divination spellbook descriptions to the in-game encyclopedia
 

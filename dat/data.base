@@ -5784,8 +5784,8 @@ spellbook of acid blast
 	subject to acid damage if they are not resistant.
 spellbook of barkskin
 	This spell is a level two evocation spell.  When cast, the
-	casters skin is transformed into the bark of a tree,
-	providing a substantial bonus to the casters armor class.
+	caster's skin is transformed into the bark of a tree,
+	providing a substantial bonus to the caster's armor class.
 	How much protection is provided is dependent on how skilled
 	the caster is in evocation spells.  While active, this spell
 	makes the caster 'thick-skinned', and they are better able to
@@ -5804,6 +5804,17 @@ spellbook of change metal to wood
 	into wood if wood is a valid material for that object.  Same
 	rules apply if cast on objects on the ground.  Casting this
 	spell at an iron golem will turn it into a wood golem.
+spellbook of clairvoyance
+	This is a level three divination spell, and is also a Samurai's
+	special spell.  When cast, this spell magically maps a 19x11
+	area centered on the caster's location.  If unskilled or basic
+	at casting divination spells, monsters will appear as an I, and
+	objects are shown with a generic description.  At skilled or
+	greater, monsters and objects are shown as if the caster can see
+	them directly.
+
+	This spell will not work if the caster is wearing a cornuthaum
+	and is not a Wizard.
 spellbook of cone of cold
 	This spell is a level four attack spell.  When cast as unskilled
 	or basic in attack spells, this spell creates a ray of frost
@@ -5867,6 +5878,41 @@ spellbook of cure sickness
 	If cast at any type of zombie, this spell will cause a small
 	amount of physical damage to them, which can scale based on how
 	skilled the caster is in healing spells.
+spellbook of detect food
+	This spell is a level one divination spell.  When cast, this
+	spell will reveal the location of all comestibles, whether on
+	the ground or within a monster's inventory.  If skilled or
+	greater in casting divination spells, the caster will also
+	acquire the food appraisal intrinsic, which will last until
+	the caster receives a warning about food they attempt to eat.
+
+	This is the only spell that does not cause hunger from
+	spellcasting.
+spellbook of detect monsters
+	This spell is a level two divination spell.  When cast, all
+	monsters currently on the caster's level are revealed, and the
+	caster can position their cursor over each to see exactly what
+	kind of monster it is.  At unskilled or basic skill in
+	divination spells, the effect of displaying monsters ends as
+	soon as the caster is finished using their cursor to identify
+	the monsters shown.  At skilled or higher, the effect stays
+	active for several turns, and the number of turns will stack
+	with each casting, up to 300 turns.
+spellbook of detect treasure
+	This spell is a level four divination spell, and is also a
+	Rogue's special spell.  When cast at unskilled or basic skill
+	in divination spells, the spell reveals the location and object
+	type of every item on the level.  At skilled or higher, it
+	additionally reveals the appearance of every object on the
+	ground and in open inventory, as if the caster had seen them
+	directly.
+
+	Regardless of skill, casting this spell exercises wisdom.
+spellbook of detect unseen
+	This spell is a level two divination spell.  When cast, all
+	secret doors and corridors, non-statue traps, portals, mimics,
+	and hidden/submerged/invisible monsters within an eight square
+	radius of the caster are revealed.
 spellbook of drain life
 	This is a level two attack spell.  When cast at a monster that
 	is not resistant to draining, one level is drained from it, as
@@ -5946,6 +5992,21 @@ spellbook of healing
 
 	Casting this spell at Pestilence will cause damage rather than
 	heal it.
+spellbook of identify
+	This spell is a level three divination spell.  When cast, if
+	unskilled or basic in casting divination spells, at least one
+	object in open inventory will be fully identified, with a very
+	small chance of identifying 2, 3, 4, or all objects in open
+	inventory.  If skilled or greater in divination spells, there
+	is an 80% chance of 1-4 objects in open inventory being
+	identified, and a 20% chance of identifying all objects.
+spellbook of light
+	This spell is a level one divination spell.  When cast, a
+	circular area within a five square radius around the caster's
+	position is permanently lit.
+
+	Any gremlins caught in the radius of this spell will suffer a
+	small amount of light damage.
 spellbook of lightning
 	This spell is a level four attack spell.  When cast as unskilled
 	or basic in attack spells, this spell creates a bolt of
@@ -5958,6 +6019,16 @@ spellbook of lightning
 
 	Objects caught in the path of the bolt or electrical explosions
 	are subject to shock damage if they are not resistant.
+spellbook of magic mapping
+	This spell is a level five divination spell, and is also an
+	Archeologist's special spell.  When cast, this spell will reveal
+	the entire map; all of the level's walls and corridors, and all
+	staircases are shown.  Secret passages are also revealed, but
+	secret doors are not.
+
+	This spell will also reveal the current location of the magic
+	portal on the Plane of Water if the caster has already formally
+	located the portal via non-magical means.
 spellbook of magic missile
 	This spell is a level two attack spell, and is also a Wizard's
 	special spell.  When cast, a ray of magic missiles shoots from
@@ -5999,9 +6070,9 @@ spellbook of power word kill
 	instantly, regardless of what resistances they possess.
 spellbook of protection
 	This spell is a level one clerical spell.  When cast, the
-	casters AC is temporarily decreased.  The amount of AC
-	decreased is dependent on the casters experience level, the
-	amount of AC already gained from casting it, and the casters
+	caster's AC is temporarily decreased.  The amount of AC
+	decreased is dependent on the caster's experience level, the
+	amount of AC already gained from casting it, and the caster's
 	existing AC.  The protection will wear off at a rate of one
 	point of AC every ten turns, or twenty turns if expert in
 	clerical spells.
@@ -6017,7 +6088,7 @@ spellbook of remove curse
 	cursed saddle and/or barding, they will become uncursed once
 	this spell is cast.
 
-	Regardless of the casters skill when cast, if the caster is
+	Regardless of the caster's skill when cast, if the caster is
 	punished (heavy iron ball attached with an iron chain), the iron
 	chain will be destroyed, unpunishing the caster.
 spellbook of restore ability
@@ -6031,8 +6102,8 @@ spellbook of restore ability
 	uncancel the target.
 spellbook of stoneskin
 	This spell is a level four evocation spell.  When cast, the
-	casters skin is transformed into hardened stone, providing a
-	significant bonus to the casters armor class.  How much
+	caster's skin is transformed into hardened stone, providing a
+	significant bonus to the caster's armor class.  How much
 	protection is provided is dependent on how skilled the caster
 	is in evocation spells.  While active, this spell makes the
 	caster 'thick-skinned', they are better able to withstand
@@ -6070,14 +6141,14 @@ spellbook of summon elemental
 	This spell is a level six evocation spell.  When cast, a
 	random (fire/earth/air/water) elemental is summoned to aid
 	the caster.  The elemental summoned can have 1.5 to 2 times
-	the normal maximum hit points if the casters skill in evocation
-	spells is high enough.
+	the normal maximum hit points if the caster's skill in
+	evocation spells is high enough.
 spellbook of turn undead
-	This spell is a level six clerical spell.  When cast at an
-	undead monster, the beam created causes a small amount of
-	damage to the undead target, and will cause it to flee if they
-	fail a resistance check.  Casting this spell at the corpse of
-	a dead monster will revive it.
+	This spell is a level six clerical spell, and is also a Knight's
+	special spell.  When cast at an undead monster, the beam created
+	causes a small amount of damage to the undead target, and will
+	cause it to flee if they fail a resistance check.  Casting this
+	spell at the corpse of a dead monster will revive it.
 
 	Knights in possession of the Magic Mirror of Merlin cause
 	double damage when casting this spell.
