@@ -3988,4 +3988,6 @@ The following changes to date are:
 - Add healing spellbook descriptions to the in-game encyclopedia
 - Revert commit 0f42eff (priest altar sacrifice artifact restrictions)
 - Add clerical spellbook descriptions to the in-game encyclopedia
+- Don't penalize a priest's alignment if they try to use a bladed
+  artifact weapon
 

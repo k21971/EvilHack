@@ -393,13 +393,13 @@ int *attk_count, *role_roll_penalty;
        chance to hit, inferior ones not so much */
     if (uwep) {
         if (uwep->forged_qual == FQ_EXCEPTIONAL
-                || (u.twoweap
-                    && uswapwep->forged_qual == FQ_EXCEPTIONAL)) {
+            || (u.twoweap
+                && uswapwep->forged_qual == FQ_EXCEPTIONAL)) {
             tmp += 1;
         }
         if (uwep->forged_qual == FQ_INFERIOR
-                || (u.twoweap
-                    && uswapwep->forged_qual == FQ_INFERIOR)) {
+            || (u.twoweap
+                && uswapwep->forged_qual == FQ_INFERIOR)) {
             tmp -= 2;
         }
     }
@@ -580,9 +580,19 @@ register struct monst *mtmp;
                   is_slash(uwep) ? "edged" : "piercing", ansimpleoname(uwep));
         exercise(A_WIS, FALSE);
         if (!rn2(10)) {
-            Your("behavior has displeased %s.",
-                 align_gname(u.ualign.type));
-            adjalign(-1);
+            if (!uwep->oartifact) {
+                /* priests can receive bladed weapons via altar
+                   sacrifice. don't punish them if they try to
+                   use them.
+
+                   TODO: create a bitfield in struct artifact to
+                   flag artifacts that are actually gifted, so we
+                   can check against that instead of making all
+                   artifacts ok to try and use */
+                Your("behavior has displeased %s.",
+                     align_gname(u.ualign.type));
+                adjalign(-1);
+            }
         }
     }
 

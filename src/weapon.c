@@ -250,15 +250,16 @@ botl_hitbonus()
     if (!uwep && Role_if(PM_DRUID)
         && all_druid_forms(monsndx(youmonst.data)))
         tmp += (u.ulevel / 3) + 5;
+
     if (uwep) {
         if (uwep->forged_qual == FQ_EXCEPTIONAL
-                || (u.twoweap
-                    && uswapwep->forged_qual == FQ_EXCEPTIONAL)) {
+            || (u.twoweap
+                && uswapwep->forged_qual == FQ_EXCEPTIONAL)) {
             tmp += 1;
         }
         if (uwep->forged_qual == FQ_INFERIOR
-                || (u.twoweap
-                    && uswapwep->forged_qual == FQ_INFERIOR)) {
+            || (u.twoweap
+                && uswapwep->forged_qual == FQ_INFERIOR)) {
             tmp -= 2;
         }
     }
@@ -2197,7 +2198,7 @@ struct obj *weapon;
         && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
         && (is_pierce(uwep) || is_slash(uwep) || is_ammo(uwep))) {
         /* feedback handled in attack() */
-        bonus = -30;
+        bonus = -40;
     }
     return bonus;
 }
