@@ -5311,7 +5311,8 @@ boolean say; /* Announce out of sight hit/miss events if true */
         bhitpos.x = sx, bhitpos.y = sy;
         /* Fireballs only damage when they explode */
         if (type != ZT_SPELL(ZT_FIRE)) {
-            range += zap_over_floor(sx, sy, type, &shopdamage, 0, FALSE);
+            range += zap_over_floor(sx, sy, type, &shopdamage, 0,
+                                    (type >= 0 ? FALSE : TRUE));
             /* zap with fire -> melt ice -> drown monster, so monster
                found and cached above might not be here any more */
             mon = m_at(sx, sy);
@@ -5723,6 +5724,8 @@ boolean moncast;
     boolean see_it = cansee(x, y), yourzap;
     int rangemod = 0, abstype = BASE_ZT(abs(type));
 
+    yourzap = (type >= 0 && !exploding_wand_typ && !moncast);
+
     if (type == PHYS_EXPL_TYPE) {
         /* this won't have any effect on the floor */
         return -1000; /* not a zap anyway, shouldn't matter */
@@ -5777,7 +5780,7 @@ boolean moncast;
             if (see_it)
                 pline("Steam billows from the fountain.");
             rangemod -= 1;
-            dryup(x, y, (moncast || type < 0) ? FALSE : TRUE);
+            dryup(x, y, yourzap ? TRUE : FALSE);
         } else if (IS_PUDDLE(lev->typ) || IS_SEWAGE(lev->typ)) {
             if (see_it) {
                 if (IS_PUDDLE(lev->typ))
@@ -5803,7 +5806,7 @@ boolean moncast;
             lev->typ = DEADTREE;
             if (lev->typ == DEADTREE)
                 newsym(x, y);
-            if (type >= 0) {
+            if (yourzap) {
                 if (Role_if(PM_DRUID)) {
                     You_feel("very guilty.");
                     adjalign(-15);
@@ -5956,8 +5959,8 @@ boolean moncast;
                     lev->typ = ROOM, lev->flags = 0;
                     if (see_it)
                         newsym(x, y);
-                    add_damage(x, y, (type >= 0) ? SHOP_BARS_COST : 0L);
-                    if (type >= 0)
+                    add_damage(x, y, yourzap ? SHOP_BARS_COST : 0L);
+                    if (yourzap)
                         *shopdamage = TRUE;
                 } else {
                     lev->typ = DOOR, lev->doormask = D_NODOOR;
@@ -5974,7 +5977,6 @@ boolean moncast;
 
     /* set up zap text for possible door feedback; for exploding wand, we
        want "the blast" rather than "your blast" even if hero caused it */
-    yourzap = (type >= 0 && !exploding_wand_typ && !moncast);
     zapverb = "blast"; /* breath attack or wand explosion */
     if (!exploding_wand_typ) {
         if (abs(type) < ZT_SPELL(0))
@@ -6072,7 +6074,7 @@ boolean moncast;
         }
         if (new_doormask >= 0) { /* door gets broken */
             if (*in_rooms(x, y, SHOPBASE)) {
-                if (type >= 0 && !moncast) {
+                if (yourzap) {
                     add_damage(x, y, SHOP_DOOR_COST);
                     *shopdamage = TRUE;
                 } else /* caused by monster */
@@ -6095,13 +6097,14 @@ boolean moncast;
     }
 
     if (OBJ_AT(x, y) && abstype == ZT_FIRE)
-        if (burn_floor_objects(x, y, FALSE, (type > 0 && !moncast)) && couldsee(x, y)) {
+        if (burn_floor_objects(x, y, FALSE, yourzap ? TRUE : FALSE)
+            && couldsee(x, y)) {
             newsym(x, y);
             You("%s of smoke.", !Blind ? "see a puff" : "smell a whiff");
         }
     if ((mon = m_at(x, y)) != 0) {
         wakeup(mon, FALSE);
-        if (type >= 0 && !moncast) {
+        if (yourzap) {
             setmangry(mon, TRUE);
             if (mon->ispriest && *in_rooms(mon->mx, mon->my, TEMPLE))
                 ghod_hitsu(mon);

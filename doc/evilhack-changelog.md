@@ -3990,4 +3990,5 @@ The following changes to date are:
 - Add clerical spellbook descriptions to the in-game encyclopedia
 - Don't penalize a priest's alignment if they try to use a bladed
   artifact weapon
+- Fix: Druid taking blame for pet killing a tree
 
