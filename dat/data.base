@@ -33,6 +33,7 @@ abbot
 # FIXME: "dragon scales, dragon scale mail" needs its own entry
 # FIXME too: "ac, armor class" also merits its own distinct entry
 ac
+~spellbook of repair armor
 armor*
 armour*
 *armor
@@ -1782,6 +1783,7 @@ water elemental
 	been encountered, at least on this plane of existence.
 ~human or other humanoid*
 ~elf ??m*
+~spellbook of haste self
 *elf*
 elven*
 	The Elves sat round the fire upon the grass or upon the sawn
@@ -2058,6 +2060,7 @@ fog* cloud
 	and then moves on.
 	     [ Fog, by Carl Sandburg ]
 # includes "food detection" and "detect food", which might not be the best
+~spellbook of detect food
 *food*
 	The little girl stood on tip-toe and picked one of the nicest
 	and biggest lunch-boxes, and then she sat down upon the ground
@@ -5628,6 +5631,7 @@ slasher
 	shall pay for this, and seven heads for the dog, who was a
 	better warrior than many a man."
 		[ Conan The Warrior, by Robert E Howard ]
+~spellbook of sleep
 *sleep
 	Sleep is a death; oh, make me try
 	By sleeping, what it is to die,

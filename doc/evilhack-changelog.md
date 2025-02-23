@@ -3995,4 +3995,6 @@ The following changes to date are:
 - Add matter spellbook descriptions to the in-game encyclopedia
 - Add enchantment spellbook descriptions to the in-game encyclopedia
 - Add escape spellbook descriptions to the in-game encyclopedia
+- Fix: a few spellbook entries to the in-game encyclopedia could not
+  be accessed
 
