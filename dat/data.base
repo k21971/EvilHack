@@ -6069,6 +6069,14 @@ spellbook of freeze sphere
 	is handled as if the caster were to blame.  Experience gained
 	from any monsters killed by the freezing sphere goes to the
 	caster.
+spellbook of haste self
+	This spell is a level three escape spell.  When cast, the
+	caster temporarily gains very fast speed movement, the
+	duration being determined by how skilled the caster is in
+	casting escape spells.  This spell can stack; every time this
+	spell is cast successfully, more turns of very fast speed are
+	added to the duration.  Using this spell exercises dexterity
+	when successfully cast, but will not heal wounded legs.
 spellbook of healing
 	This spell is a level one healing spell.  When cast at either
 	a monster or yourself, the target of the spell will be healed
@@ -6085,6 +6093,19 @@ spellbook of identify
 	inventory.  If skilled or greater in divination spells, there
 	is an 80% chance of 1-4 objects in open inventory being
 	identified, and a 20% chance of identifying all objects.
+spellbook of invisibility
+	This spell is a level three escape spell, and is also a Ranger's
+	special spell.  When cast, the caster will become temporarily
+	invisible for several turns.
+spellbook of jumping
+	This spell is a level two escape spell.  When cast, the caster
+	can jump to other tile spaces within a certain range, which is
+	directly determined by how skilled the caster is in escape
+	spells.  The caster must be able to see the spot they want to
+	jump to (cannot be blind), nor can the caster jump over monsters
+	(attemping to do so will anger them if peaceful).  Using this
+	spell consumes up to 25 points of nutrition in addition to the
+	normal amount used when casting spells.
 spellbook of knock
 	This spell is a level one matter spell.  When cast, the caster
 	fires a beam in the selected direction that will open/unlock
@@ -6098,6 +6119,12 @@ spellbook of knock
 	traps can free them.  If the caster is engulfed by a monster,
 	casting this spell at the engulfer will cause them to expel the
 	caster.
+spellbook of levitation
+	This spell is a level four escape spell.  When cast, the caster
+	is able to levitate temporarily.  How long the leviation effect
+	lasts is dependent on how skilled the caster is in casting
+	escape spells.  At skilled or higher, the caster is able to stop
+	levitating at will.
 spellbook of light
 	This spell is a level one divination spell.  When cast, a
 	circular area within a five square radius around the caster's
@@ -6303,6 +6330,17 @@ spellbook of summon elemental
 	the caster.  The elemental summoned can have 1.5 to 2 times
 	the normal maximum hit points if the caster's skill in
 	evocation spells is high enough.
+spellbook of teleport away
+	This spell is a level six escape spell, and is also a Convict's
+	special spell.  When cast at a monster or object on the floor,
+	it will teleport that monster or object to a random spot on the
+	current level (a monster with teleport control will teleport
+	right next to the caster).
+
+	If the caster uses this spell on themselves on a level that
+	allows teleportation, they will teleport to a random safe spot
+	on the current level.  If the caster has teleport control, they
+	can choose their location.
 spellbook of turn undead
 	This spell is a level six clerical spell, and is also a Knight's
 	special spell.  When cast at an undead monster, the beam created
