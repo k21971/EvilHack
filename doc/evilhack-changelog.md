@@ -3999,4 +3999,5 @@ The following changes to date are:
   be accessed
 - Fix: Druid in wildshape form looting a monster that is wearing armor
   would show '(merged to your form)' for their worn armor
+- Some more Caveperson role improvements
 

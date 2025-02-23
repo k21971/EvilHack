@@ -246,9 +246,11 @@ in_trouble()
      * minor troubles...
      * Cavepersons get another flavor kick: their god is
      * also a bit primitive, so they get a 10% chance of
-     * their god being asleep at the switch
+     * their god being asleep at the switch if they've
+     * abused their alignment
      */
-    if (!rn2(10) && Role_if(PM_CAVEMAN))
+    if (!rn2(10) && (u.ualign.abuse != 0)
+        && Role_if(PM_CAVEMAN))
         return 0;
     if (Punished || (u.utrap && u.utraptype == TT_BURIEDBALL))
         return TROUBLE_PUNISHED;
@@ -893,6 +895,16 @@ gcrownu()
             in_hand = wielding_artifact(ART_MJOLLNIR);
             already_exists =
                 exist_artifact(HEAVY_WAR_HAMMER, artiname(ART_MJOLLNIR));
+        } else if (Role_if(PM_CAVEMAN)) {
+            if (Race_if(PM_GIANT)) {
+                in_hand = wielding_artifact(ART_KEOLEWA);
+                already_exists =
+                    exist_artifact(CLUB, artiname(ART_KEOLEWA));
+            } else {
+                in_hand = wielding_artifact(ART_GIANTSLAYER);
+                already_exists =
+                    exist_artifact(SPEAR, artiname(ART_GIANTSLAYER));
+            }
         } else {
             in_hand = wielding_artifact(ART_VORPAL_BLADE);
             already_exists =
@@ -1027,7 +1039,7 @@ gcrownu()
         if (class_gift != STRANGE_OBJECT) {
             ; /* already got bonus above */
         } else if (obj && obj->otyp == LONG_SWORD && !obj->oartifact
-                   && !Role_if(PM_PRIEST)) {
+                   && !(Role_if(PM_PRIEST) || Role_if(PM_CAVEMAN))) {
             if (!Blind)
                 Your("sword shines brightly for a moment.");
             obj = oname(obj, artiname(ART_EXCALIBUR));
@@ -1044,21 +1056,47 @@ gcrownu()
                 u.ugifts++;
                 u.uconduct.artitouch++;
             }
+        } else if (Role_if(PM_CAVEMAN)) {
+            if (Race_if(PM_GIANT)) {
+                if (obj && obj->otyp == CLUB && !obj->oartifact) {
+                    if (!Blind)
+                        Your("club shines brightly for a moment.");
+                    obj = oname(obj, artiname(ART_KEOLEWA));
+                    if (obj && obj->oartifact == ART_KEOLEWA) {
+                        u.ugifts++;
+                        u.uconduct.artitouch++;
+                    }
+                }
+            } else {
+                if (obj && obj->otyp == SPEAR && !obj->oartifact) {
+                    if (!Blind)
+                        Your("spear shines brightly for a moment.");
+                    obj = oname(obj, artiname(ART_GIANTSLAYER));
+                    if (obj && obj->oartifact == ART_GIANTSLAYER) {
+                        u.ugifts++;
+                        u.uconduct.artitouch++;
+                    }
+                }
+            }
         }
         /* acquire Excalibur's skill regardless of weapon or gift
-           (non-priests only) */
-        if (!Role_if(PM_PRIEST))
+           (non-priests/non-cavepersons only) */
+        if (!(Role_if(PM_PRIEST) || Role_if(PM_CAVEMAN)))
             unrestrict_weapon_skill(P_LONG_SWORD);
         if (obj && obj->oartifact == ART_EXCALIBUR)
             discover_artifact(ART_EXCALIBUR);
         if (obj && obj->oartifact == ART_MJOLLNIR)
             discover_artifact(ART_MJOLLNIR);
+        if (obj && obj->oartifact == ART_KEOLEWA)
+            discover_artifact(ART_KEOLEWA);
+        if (obj && obj->oartifact == ART_GIANTSLAYER)
+            discover_artifact(ART_GIANTSLAYER);
         break;
     case A_NEUTRAL:
         if (class_gift != STRANGE_OBJECT) {
             ; /* already got bonus above */
         } else if (obj && in_hand) {
-            if (!Role_if(PM_PRIEST))
+            if (!(Role_if(PM_PRIEST) || Role_if(PM_CAVEMAN)))
                 Your("%s goes snicker-snack!", xname(obj));
             obj->dknown = TRUE;
         } else if (!already_exists) {
@@ -1067,6 +1105,18 @@ gcrownu()
                 obj = oname(obj, artiname(ART_MJOLLNIR));
                 obj->spe = 1;
                 at_your_feet("A hammer");
+            } else if (Role_if(PM_CAVEMAN)) {
+                if (Race_if(PM_GIANT)) {
+                    obj = mksobj(CLUB, FALSE, FALSE);
+                    obj = oname(obj, artiname(ART_KEOLEWA));
+                    obj->spe = 1;
+                    at_your_feet("A club");
+                } else {
+                    obj = mksobj(SPEAR, FALSE, FALSE);
+                    obj = oname(obj, artiname(ART_GIANTSLAYER));
+                    obj->spe = 1;
+                    at_your_feet("A spear");
+                }
             } else {
                 obj = mksobj(LONG_SWORD, FALSE, FALSE);
                 obj = oname(obj, artiname(ART_VORPAL_BLADE));
@@ -1076,13 +1126,18 @@ gcrownu()
             dropy(obj);
             u.ugifts++;
         }
-        /* acquire Vorpal Blade's skill regardless of weapon or gift */
-        if (!Role_if(PM_PRIEST))
+        /* acquire Vorpal Blade's skill regardless of weapon or gift
+           (non-priests/non-cavepersons only) */
+        if (!(Role_if(PM_PRIEST) || Role_if(PM_CAVEMAN)))
             unrestrict_weapon_skill(P_LONG_SWORD);
         if (obj && obj->oartifact == ART_VORPAL_BLADE)
             discover_artifact(ART_VORPAL_BLADE);
         if (obj && obj->oartifact == ART_MJOLLNIR)
             discover_artifact(ART_MJOLLNIR);
+        if (obj && obj->oartifact == ART_KEOLEWA)
+            discover_artifact(ART_KEOLEWA);
+        if (obj && obj->oartifact == ART_GIANTSLAYER)
+            discover_artifact(ART_GIANTSLAYER);
         break;
     case A_CHAOTIC: {
         char swordbuf[BUFSZ];
@@ -1275,8 +1330,11 @@ aligntyp g_align;
     /* note: can't get pat_on_head unless all troubles have just been
        fixed or there were no troubles to begin with; hallucination
        won't be in effect so special handling for it is superfluous.
-       Cavepersons are sometimes ignored by their god */
-    if (pat_on_head && (Role_if(PM_CAVEMAN) ? rn2(10) : 1))
+       Cavepersons are sometimes ignored by their god if they've
+       abused their alignment */
+    if (pat_on_head
+        && ((Role_if(PM_CAVEMAN)
+             && (u.ualign.abuse != 0)) ? rn2(10) : 1))
         switch (rn2((Luck + 6) >> 1)) {
         case 0:
             break;

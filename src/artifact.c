@@ -73,11 +73,18 @@ hack_artifacts()
     }
 
     if (Role_if(PM_PRIEST)) {
-        /* Demonbane should always be in the Priest's list of available toys
-         * even though this might look a little odd when it comes out Chaotic */
+        /* Demonbane should always be in the Priest's list of available
+           toys even though this might look a little odd when it comes
+           out Chaotic */
         artilist[ART_DEMONBANE].alignment = alignmnt;
         /* For crowning purposes */
         artilist[ART_MJOLLNIR].alignment = alignmnt;
+    }
+
+    if (Role_if(PM_CAVEMAN)) {
+        /* For crowning purposes */
+        artilist[ART_KEOLEWA].alignment = alignmnt;
+        artilist[ART_GIANTSLAYER].alignment = alignmnt;
     }
 
     /* Fix up the quest artifact */
