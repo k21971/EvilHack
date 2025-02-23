@@ -3997,4 +3997,6 @@ The following changes to date are:
 - Add escape spellbook descriptions to the in-game encyclopedia
 - Fix: a few spellbook entries to the in-game encyclopedia could not
   be accessed
+- Fix: Druid in wildshape form looting a monster that is wearing armor
+  would show '(merged to your form)' for their worn armor
 

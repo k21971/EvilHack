@@ -1453,7 +1453,8 @@ unsigned doname_flags;
                           because donning() returns True for both cases */
                        : doffing(obj) ? " (being doffed)"
                          : donning(obj) ? " (being donned)"
-                           : druid_form ? " (merged to your form)"
+                           : (druid_form && (owner == &youmonst))
+                               ? " (merged to your form)"
                              : obj->otyp == MUMMIFIED_HAND ? " "
                                : " (being worn)");
             /* slippery fingers is an intrinsic condition of the hero
