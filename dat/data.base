@@ -5798,6 +5798,27 @@ spellbook of barkskin
 
 	This spell and the spell 'stoneskin' cannot be active at the
 	same time.
+spellbook of burning hands
+	This spell is a level one enchantment spell.  When cast, it
+	engulfs the caster's hands in flame.  If unskilled or basic at
+	casting enchantment spells, the effect last for one successful
+	bare-handed melee hit (worn gloves/gauntlets count as
+	bare-handed).  If skilled or greater in enchantment spells, the
+	effect lasts for a few turns, and recasting the spell can stack,
+	giving up to twenty uses before the effect expires.  Hitting a
+	monster while burning hands is active will cause extra fire
+	damage to it if they are not fire resistant.  The amount of
+	damage given is directly related to how skilled the caster is in
+	enchantment spells.
+
+	The burning hands effect will not work unless the caster attacks
+	bare-handed (not wielding anything).  If the monster being
+	attacked is in water, the effect is nullified.  If the caster is
+	underwater, the effect is cancelled outright (hands are
+	extinguished).
+
+	This spell and the spell 'shocking grasp' cannot be active at
+	the same time.
 spellbook of cancellation
 	This spell is a level seven matter spell.  When cast, the caster
 	fires a beam in the selected direction.  Any objects in the path
@@ -5810,12 +5831,35 @@ spellbook of cancellation
 	all of their special attacks.  If the caster casts the spell at
 	themselves, every object in open inventory will be affected as
 	described.
+spellbook of cause fear
+	This spell is a level three enchantment spell.  When cast, the
+	effect of the spell will scare any monsters within line of sight
+	that can be scared and do not pass a monster magic resistance
+	check.  Scared monsters will flee from the caster.  A scared
+	monster that is fully healed has a 4% chance to recover per
+	turn.  This spell does not affect tame pets.
 spellbook of change metal to wood
 	This spell is a level five evocation spell.  If cast when
 	wielding a metallic object, that object's material will turn
 	into wood if wood is a valid material for that object.  Same
 	rules apply if cast on objects on the ground.  Casting this
 	spell at an iron golem will turn it into a wood golem.
+spellbook of charm monster
+	This spell is a level five enchantment spell.  When cast, the
+	spell has a chance to tame all adjacent monsters next to the
+	caster, dependent on passing their monster magic resistance
+	check.  The total number of monsters than can be tamed is based
+	on the caster's charisma attribute (charisma value / 3 = maximum
+	number of pets), with stronger monsters given preference over
+	weaker ones.  If more monsters are tamed than what is allowed,
+	the weakest monsters will either become peaceful or hostile.
+
+	This spell can also be used to pacify an angry shopkeeper
+	(monster MR check always passes).  Monsters that cannot be tamed
+	will at best be made peaceful, or are otherwise unaffected.  If
+	skilled or greater in enchantment spells, this spell can be used
+	to increase the tameness of already tame pets, not to exceed the
+	status of 'domesticated'.
 spellbook of clairvoyance
 	This is a level three divination spell, and is also a Samurai's
 	special spell.  When cast, this spell magically maps a 19x11
@@ -5841,6 +5885,15 @@ spellbook of cone of cold
 
 	Objects caught in the path of the ray or icy explosions are
 	subject to cold damage if they are not resistant.
+spellbook of confuse monster
+	This spell is a level one enchantment spell.  When cast, the
+	caster's hands will glow red; the effect will confuse the next
+	monster attacked in melee if they do not pass a monster magic
+	resistance check.  The effect will work whether bare-handed or
+	wielding a weapon.  If the caster is skilled or greater in
+	enchantment spells, the effect will last for several turns, and
+	recasting the spell can stack, giving up to forty uses before
+	the effect expires.
 spellbook of create familiar
 	This spell is a level six clerical spell.  When cast, a monster
 	is created near the caster.  There is a one-third chance of the
@@ -6173,6 +6226,40 @@ spellbook of restore ability
 
 	If cast at a monster that has been cancelled, this spell will
 	uncancel the target.
+spellbook of shocking grasp
+	This spell is a level two enchantment spell.  When cast, it
+	engulfs the caster's hands in electrical energy.  If unskilled
+	or basic at casting enchantment spells, the effect last for one
+	successful bare-handed melee hit (worn gloves/gauntlets count as
+	bare-handed).  If skilled or greater in enchantment spells, the
+	effect lasts for a few turns, and recasting the spell can stack,
+	giving up to twenty uses before the effect expires.  Hitting a
+	monster while shocking grasp is active will cause extra shock
+	damage to it if they are not shock resistant.  The amount of
+	damage given is directly related to how skilled the caster is in
+	enchantment spells.
+
+	The shocking grasp effect will not work unless the caster attacks
+	bare-handed (not wielding anything).
+
+	This spell and the spell 'burning hands' cannot be active at
+	the same time.
+spellbook of sleep
+	This spell is a level two enchantment spell.  When cast, the
+	target of the spell will be put to sleep (if not already sleep
+	resistant) for several turns, which is directly determined by
+	the caster's experience level.  Monsters have a chance to resist
+	this spell if they pass their monster magic resistance check.
+	This spell has no effect on already-sleeping or paralyzed
+	monsters.  Attacking a monster in melee affected by this spell
+	has a 10% chance of waking them up.
+spellbook of slow monster
+	This spell is a level two enchantment spell.  When cast at a
+	monster that does not pass its monster magic resistance check,
+	it will make them slow (2/3 of normal speed).  If the monster
+	is already fast, their speed is reduced to normal.  If the
+	caster targets themselves with this spell, any intrinsic speed
+	they had is removed.
 spellbook of stoneskin
 	This spell is a level four evocation spell.  When cast, the
 	caster's skin is transformed into hardened stone, providing a
