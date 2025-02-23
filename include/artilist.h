@@ -203,7 +203,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      Buffing this up a bit to give it more utility.
      */
     A("Keolewa", CLUB, (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN),
-      0, 0, ELEC(5, 8), DFNS(AD_ELEC), NO_CARY, 0, A_NEUTRAL,
+      0, 0, ELEC(5, 10), DFNS(AD_ELEC), NO_CARY, 0, A_NEUTRAL,
       PM_CAVEMAN, NON_PM, 2000L, NO_COLOR, DEFAULT_MAT),
     /*
      *      Dirge from SporkHack, but with a twist.
