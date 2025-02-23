@@ -5798,6 +5798,18 @@ spellbook of barkskin
 
 	This spell and the spell 'stoneskin' cannot be active at the
 	same time.
+spellbook of cancellation
+	This spell is a level seven matter spell.  When cast, the caster
+	fires a beam in the selected direction.  Any objects in the path
+	of the beam (on the ground, in the target's inventory) can be
+	cancelled; items will be uncursed and lose enchantment, scrolls
+	and most spellbooks will be blanked, most wands and magical
+	tools will lose their charges, and most potions will be turned
+	into water.  Monsters hit by the beam must pass their monster
+	magic resistance check. If that fails, they will lose most or
+	all of their special attacks.  If the caster casts the spell at
+	themselves, every object in open inventory will be affected as
+	described.
 spellbook of change metal to wood
 	This spell is a level five evocation spell.  If cast when
 	wielding a metallic object, that object's material will turn
@@ -5913,6 +5925,10 @@ spellbook of detect unseen
 	secret doors and corridors, non-statue traps, portals, mimics,
 	and hidden/submerged/invisible monsters within an eight square
 	radius of the caster are revealed.
+spellbook of dig
+	This spell is a level three matter spell.  When cast, the caster
+	fires a ray in the selected direction that digs through walls,
+	or can create holes in the floor.
 spellbook of drain life
 	This is a level two attack spell.  When cast at a monster that
 	is not resistant to draining, one level is drained from it, as
@@ -5972,6 +5988,14 @@ spellbook of fireball
 
 	Objects caught in the path of the ray or firey explosions are
 	subject to fire damage if they are not resistant.
+spellbook of flame sphere
+	This spell is a level two matter spell.  When cast, a single
+	tame flaming sphere monster is spawned, which will seek out
+	any nearby non-tame monsters to explode next to.  Unlike other
+	tane pets, any damage caused by the exploding flaming sphere
+	is handled as if the caster were to blame.  Experience gained
+	from any monsters killed by the flaming sphere goes to the
+	caster.
 spellbook of force bolt
 	This is a level one attack spell.  When cast, an invisible beam
 	of force travels from the caster to its intended target (line
@@ -5984,6 +6008,14 @@ spellbook of force bolt
 	Fragile objects and several terrain features within the path of
 	a force bolt can be destroyed (potions, objects made of glass,
 	boulders, statues, doors, iron bars, etc).
+spellbook of freeze sphere
+	This spell is a level two matter spell.  When cast, a single
+	tame freezing sphere monster is spawned, which will seek out
+	any nearby non-tame monsters to explode next to.  Unlike other
+	tane pets, any damage caused by the exploding freezing sphere
+	is handled as if the caster were to blame.  Experience gained
+	from any monsters killed by the freezing sphere goes to the
+	caster.
 spellbook of healing
 	This spell is a level one healing spell.  When cast at either
 	a monster or yourself, the target of the spell will be healed
@@ -6000,6 +6032,19 @@ spellbook of identify
 	inventory.  If skilled or greater in divination spells, there
 	is an 80% chance of 1-4 objects in open inventory being
 	identified, and a 20% chance of identifying all objects.
+spellbook of knock
+	This spell is a level one matter spell.  When cast, the caster
+	fires a beam in the selected direction that will open/unlock
+	any drawbridges or locked containers and doors that it makes
+	contact with, as well as revealing affected secret doors hidden
+	in a wall.  Casting this spell at containers with broken locks
+	and broken doors will repair them.  If the caster is punished
+	(heavy iron ball attached to the caster via an iron chain),
+	casting this spell at themselves will break the chain.  Using
+	this spell against themselves or a monster trapped in various
+	traps can free them.  If the caster is engulfed by a monster,
+	casting this spell at the engulfer will cause them to expel the
+	caster.
 spellbook of light
 	This spell is a level one divination spell.  When cast, a
 	circular area within a five square radius around the caster's
@@ -6055,6 +6100,19 @@ spellbook of poison blast
 	These gas clouds will linger; any being caught within these gas
 	clouds are subject to poison damage, and can choke and die from
 	the gas if not poison resistant.
+spellbook of polymorph
+	This spell is a level six matter spell.  When cast, the caster
+	fires a beam in the selected direction.  Any monsters within the
+	path of the beam that are not magic resistant will change into a
+	random monster.  If the caster uses this spell on themselves,
+	and they do not have the unchanging intrinsic, they will either
+	turn into a random monster, or will become a new version of
+	themselves, with changed hit points, experience level and
+	attributes.  Both monsters and the caster have a very small
+	chance to dying to 'system shock' if polymorphed.
+
+	Casting this spell at objects on the ground can polymorph them
+	into another object of the same object class.
 spellbook of power word kill
 	This spell is a level seven attack spell.  When cast, the caster
 	can choose one monster a certain distance away.  How far away
@@ -6076,6 +6134,13 @@ spellbook of protection
 	existing AC.  The protection will wear off at a rate of one
 	point of AC every ten turns, or twenty turns if expert in
 	clerical spells.
+spellbook of reflection
+	This spell is a level five matter spell.  When cast, a globe of
+	reflection surrounds the caster, and protects the caster the
+	same way as any other source of reflection.  The effect can last
+	for several hundred turns, and the duration is directly
+	dependent on how skilled the caster is in matter spells.
+	The duration of this spell can stack with repeated castings.
 spellbook of remove curse
 	This spell is a level three clerical spell, and is also a
 	Priest's special spell.  When cast, if the caster is unskilled
@@ -6091,6 +6156,14 @@ spellbook of remove curse
 	Regardless of the caster's skill when cast, if the caster is
 	punished (heavy iron ball attached with an iron chain), the iron
 	chain will be destroyed, unpunishing the caster.
+spellbook of repair armor
+	This spell is a level three matter spell, and is also a
+	Valkyrie's special spell.  When cast, if unskilled in casting
+	matter spells, one worn piece of armor is chosen at random,
+	while at basic skill or greater, the caster can choose which
+	worn piece of armor to repair.  The chosen piece of worn armor
+	will have one level of erosion repaired, up to fully repaired
+	(no erosion).
 spellbook of restore ability
 	This spell is a level two healing spell, and is also a Monk's
 	special spell.  When cast at yourself, it will restore any lost
@@ -6152,6 +6225,15 @@ spellbook of turn undead
 
 	Knights in possession of the Magic Mirror of Merlin cause
 	double damage when casting this spell.
+spellbook of wizard lock
+	This spell is a level two matter spell.  When cast, the caster
+	fires a beam in the selected direction that will close/lock any
+	drawbridges or unlocked containers and doors that it makes
+	contact with, as well as creating locked doors in doorways
+	within room walls.  This spell can also repair broken locks
+	on doors and containers, but it cannot repair a broken
+	drawbridge.  Casting this spell downward while over a hole will
+	convert it into a trap door.
 *spider
 	Eight legged creature capable of spinning webs to trap prey.
 		[]

@@ -3992,4 +3992,5 @@ The following changes to date are:
   artifact weapon
 - Fix: Druid taking blame for pet killing a tree
 - Add divination spellbook descriptions to the in-game encyclopedia
+- Add matter spellbook descriptions to the in-game encyclopedia
 
