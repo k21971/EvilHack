@@ -4003,4 +4003,6 @@ The following changes to date are:
 - Adjust the artifact Keolewa shock damage so it's better than a club
   with the lightning object property
 - Fix: Harbinger was not protecting worn armor from acid damage
+- Fix: wearing gloves with elemental object properties and elemental
+  damage
 

@@ -1821,7 +1821,7 @@ int dieroll;
 
     /* potential for gloves with an object property
        to do additional damage */
-    if (!destroyed && !rn2(3) && !uwep && uarmg
+    if (!destroyed && !rn2(3) && hand_to_hand && !uwep && uarmg
         && (uarmg->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK))) {
         artifact_hit(&youmonst, mon, uarmg, &tmp, dieroll);
         hittxt = TRUE;
@@ -1861,7 +1861,8 @@ int dieroll;
     /* if lawful, trained in martial arts, and wearing the
        Gauntlets of Purity, get a damage bonus when attacking
        unarmed */
-    if (!destroyed && actually_unarmed && P_SKILL(P_MARTIAL_ARTS)
+    if (!destroyed && hand_to_hand && actually_unarmed
+        && P_SKILL(P_MARTIAL_ARTS)
         && u.ualign.type == A_LAWFUL && martial_bonus()
         && uarmg && uarmg->oartifact == ART_GAUNTLETS_OF_PURITY)
         tmp += rnd(4) + 2;
