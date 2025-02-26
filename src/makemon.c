@@ -355,6 +355,7 @@ extern struct trobj Knight[];
 extern struct trobj Elven_Knight[];
 extern struct trobj Dwarvish_Knight[];
 extern struct trobj Orcish_Knight[];
+extern struct trobj Draugr_Knight[];
 extern struct trobj Monk[];
 extern struct trobj Draugr_Monk[];
 extern struct trobj Priest[];
@@ -1136,6 +1137,8 @@ register struct monst *mtmp;
                 ini_mon_inv(mtmp, Dwarvish_Knight, 1);
             else if (racial_orc(mtmp))
                 ini_mon_inv(mtmp, Orcish_Knight, 1);
+            else if (racial_zombie(mtmp))
+                ini_mon_inv(mtmp, Draugr_Knight, 1);
             else
                 ini_mon_inv(mtmp, Knight, 1);
             mongets(mtmp, SKELETON_KEY);

@@ -158,6 +158,16 @@ struct trobj Orcish_Knight[] = {
     { CARROT, 0, FOOD_CLASS, 10, 0 },
     { 0, 0, 0, 0, 0 }
 };
+struct trobj Draugr_Knight[] = {
+    { LONG_SWORD, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { LANCE, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+    { PLATE_MAIL, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { LARGE_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GAUNTLETS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+
 struct trobj Monk[] = {
 #define M_BOOK 2
     { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -1075,6 +1085,8 @@ u_init()
             ini_inv(Dwarvish_Knight);
         else if (Race_if(PM_ORC))
             ini_inv(Orcish_Knight);
+        else if (Race_if(PM_DRAUGR))
+            ini_inv(Draugr_Knight);
         else
             ini_inv(Knight);
         knows_class(WEAPON_CLASS);

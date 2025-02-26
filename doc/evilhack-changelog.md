@@ -4005,4 +4005,5 @@ The following changes to date are:
 - Fix: Harbinger was not protecting worn armor from acid damage
 - Fix: wearing gloves with elemental object properties and elemental
   damage
+- Draugr knights shouldn't start with apples and oranges
 
