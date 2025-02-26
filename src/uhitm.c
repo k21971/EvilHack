@@ -40,6 +40,18 @@ struct monst *mdef;
 int hurt;
 {
     struct obj *target;
+    boolean youdefend;
+
+    if (!mdef)
+        return;
+
+    youdefend = (mdef == &youmonst);
+
+    /* wielding Harbinger protects worn armor */
+    if (youdefend ? wielding_artifact(ART_HARBINGER)
+                  : (MON_WEP(mdef)
+                     && MON_WEP(mdef)->oartifact == ART_HARBINGER))
+        return;
 
     /* What the following code does: it keeps looping until it
      * finds a target for the rust monster.
