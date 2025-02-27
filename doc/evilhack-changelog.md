@@ -4006,4 +4006,5 @@ The following changes to date are:
 - Fix: wearing gloves with elemental object properties and elemental
   damage
 - Draugr knights shouldn't start with apples and oranges
+- Fix: chopping boulder at tree spot
 

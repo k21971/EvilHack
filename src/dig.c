@@ -144,27 +144,27 @@ dig_typ(otmp, x, y)
 struct obj *otmp;
 xchar x, y;
 {
-    boolean ispick;
+    int ltyp;
 
-    if (!otmp)
-        return DIGTYP_UNDIGGABLE;
-    ispick = is_pick(otmp);
-    if (!ispick && !is_axe(otmp))
+    if (!isok(x, y) || !otmp || (!is_pick(otmp) && !is_axe(otmp)))
         return DIGTYP_UNDIGGABLE;
 
-    return ((ispick && sobj_at(STATUE, x, y))
-               ? DIGTYP_STATUE
-               : (ispick && sobj_at(BOULDER, x, y))
-                  ? DIGTYP_BOULDER
-                  : closed_door(x, y)
-                     ? DIGTYP_DOOR
-                     : IS_TREES(levl[x][y].typ)
-                        ? (ispick ? DIGTYP_UNDIGGABLE : DIGTYP_TREE)
-                        : (ispick && IS_ROCK(levl[x][y].typ)
-                           && (!level.flags.arboreal
-                               || IS_WALL(levl[x][y].typ)))
-                           ? DIGTYP_ROCK
-                           : DIGTYP_UNDIGGABLE);
+    ltyp = levl[x][y].typ;
+    if (is_axe(otmp))
+        return closed_door(x, y) ? DIGTYP_DOOR
+               : IS_TREES(ltyp) ? DIGTYP_TREE /* axe vs tree */
+                 : DIGTYP_UNDIGGABLE;
+    /* assert(is_pick(otmp)); */
+    return (sobj_at(STATUE, x, y))
+           ? DIGTYP_STATUE
+           : (sobj_at(BOULDER, x, y))
+             ? DIGTYP_BOULDER
+             : closed_door(x, y) ? DIGTYP_DOOR
+               : IS_TREES(ltyp) ? DIGTYP_UNDIGGABLE /* pick vs tree */
+                 : (IS_ROCK(ltyp)
+                    && (!level.flags.arboreal || IS_WALL(ltyp)))
+                   ? DIGTYP_ROCK
+                   : DIGTYP_UNDIGGABLE;
 }
 
 boolean
@@ -399,20 +399,20 @@ dig(VOID_ARGS)
 
     if (context.digging.effort > 100) {
         const char *digtxt, *dmgtxt = (const char *) 0;
-        struct obj *obj;
+        struct obj *obj, *bobj;
         boolean shopedge = *in_rooms(dpx, dpy, SHOPBASE);
+        int digtyp = dig_typ(uwep, dpx, dpy);
 
-        if ((obj = sobj_at(STATUE, dpx, dpy)) != 0) {
+        if (digtyp == DIGTYP_STATUE
+            && (obj = sobj_at(STATUE, dpx, dpy)) != 0) {
             if (break_statue(obj))
                 digtxt = "The statue shatters.";
             else
                 /* it was a statue trap; break_statue()
-                 * printed a message and updated the screen
-                 */
+                 * printed a message and updated the screen */
                 digtxt = (char *) 0;
-        } else if ((obj = sobj_at(BOULDER, dpx, dpy)) != 0) {
-            struct obj *bobj;
-
+        } else if (digtyp == DIGTYP_BOULDER
+                   && (obj = sobj_at(BOULDER, dpx, dpy)) != 0) {
             fracture_rock(obj);
             if ((bobj = sobj_at(BOULDER, dpx, dpy)) != 0) {
                 /* another boulder here, restack it to the top */
@@ -432,31 +432,33 @@ dig(VOID_ARGS)
                     goto cleanup;
                 }
             }
-            if (IS_TREE(lev->typ)) {
-                /* Druids are penalized for cutting down
-                   live trees */
-                if (Role_if(PM_DRUID)) {
-                    digtxt = "You cut down the tree.  You feel very guilty.";
-                    adjalign(-15);
-                    change_luck(-7);
-                    /* deity becomes "very" angry */
-                    u.ugangr += 5;
-                } else if (Race_if(PM_ELF)) {
-                    /* Elves are also penalized, but
-                       not as severely */
-                    digtxt = "You cut down the tree.  You feel guilty.";
-                    adjalign(-5);
-                    change_luck(-2);
-                } else {
-                    digtxt = "You cut down the tree.";
+            if (digtyp == DIGTYP_TREE) {
+                if (IS_TREE(lev->typ)) {
+                    /* Druids are penalized for cutting down
+                       live trees */
+                    if (Role_if(PM_DRUID)) {
+                        digtxt = "You cut down the tree.  You feel very guilty.";
+                        adjalign(-15);
+                        change_luck(-7);
+                        /* deity becomes "very" angry */
+                        u.ugangr += 5;
+                    } else if (Race_if(PM_ELF)) {
+                        /* Elves are also penalized, but
+                           not as severely */
+                        digtxt = "You cut down the tree.  You feel guilty.";
+                        adjalign(-5);
+                        change_luck(-2);
+                    } else {
+                        digtxt = "You cut down the tree.";
+                    }
+                    lev->typ = ROOM, lev->flags = 0;
+                    if (!rn2(5))
+                        (void) rnd_treefruit_at(dpx, dpy);
+                } else if (IS_DEADTREE(lev->typ)) {
+                    /* no fruit for you */
+                    digtxt = "You cut down the dead tree.";
+                    lev->typ = ROOM, lev->flags = 0;
                 }
-                lev->typ = ROOM, lev->flags = 0;
-                if (!rn2(5))
-                    (void) rnd_treefruit_at(dpx, dpy);
-            } else if (IS_DEADTREE(lev->typ)) {
-                /* no fruit for you */
-                digtxt = "You cut down the dead tree.";
-                lev->typ = ROOM, lev->flags = 0;
             } else {
                 digtxt = "You succeed in cutting away some rock.";
                 lev->typ = CORR, lev->flags = 0;
