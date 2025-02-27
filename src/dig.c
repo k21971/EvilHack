@@ -398,7 +398,8 @@ dig(VOID_ARGS)
     }
 
     if (context.digging.effort > 100) {
-        const char *digtxt, *dmgtxt = (const char *) 0;
+        const char *digtxt = (const char *) 0,
+                   *dmgtxt = (const char *) 0;
         struct obj *obj, *bobj;
         boolean shopedge = *in_rooms(dpx, dpy, SHOPBASE);
         int digtyp = dig_typ(uwep, dpx, dpy);

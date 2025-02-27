@@ -4007,4 +4007,6 @@ The following changes to date are:
   damage
 - Draugr knights shouldn't start with apples and oranges
 - Fix: chopping boulder at tree spot
+- Fix: error C4703: potentially uninitialized local pointer variable
+  'digtxt' used (windows build)
 
