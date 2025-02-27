@@ -4009,4 +4009,6 @@ The following changes to date are:
 - Fix: chopping boulder at tree spot
 - Fix: error C4703: potentially uninitialized local pointer variable
   'digtxt' used (windows build)
+- Expert skill in wielded weapons that can be thrown/returned will
+  always return
 

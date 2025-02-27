@@ -1651,13 +1651,20 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
         /* Mjollnir and Xiuhcoatl must be wielded to be thrown--caller verifies this;
            aklys must be wielded as primary to return when thrown */
         if (iflags.returning_missile) { /* Mjollnir, Xiuhcoatl or aklys */
-            if (rn2(100)) {
+            boolean aklys_skill = (obj->otyp == AKLYS && P_SKILL(P_CLUB) >= P_EXPERT);
+            boolean spear_skill = (is_spear(obj) && P_SKILL(P_SPEAR) >= P_EXPERT);
+            boolean hammer_skill = (is_hammer(obj) && P_SKILL(P_HAMMER) >= P_EXPERT);
+
+            if (rn2(100) || aklys_skill
+                || spear_skill || hammer_skill) {
                 if (tethered_weapon)
                     tmp_at(DISP_END, BACKTRACK);
                 else
                     sho_obj_return_to_u(obj); /* display its flight */
 
-                if (!impaired && rn2(100)) {
+                if (!impaired
+                    && (rn2(100) || aklys_skill
+                        || spear_skill || hammer_skill)) {
                     if (range > 0)
                         pline("%s to your %s!", Tobjnam(obj, "return"),
                               body_part(HAND));
