@@ -2,18 +2,20 @@
 
 ### Version 0.1.0
 
-First version of EvilHack, which was forked off of NetHack 362-hdf as of October 20th, 2018.
-Commits from NetHack 3.6.2 beta (vanilla) will be incorporated on a regular basis so as to
-stay current with the 3.6.x codebase.
+First version of EvilHack, which was forked off of NetHack 362-hdf as of
+October 20th, 2018. Commits from NetHack 3.6.2 beta (vanilla) will be
+incorporated on a regular basis so as to stay current with the 3.6.x
+codebase.
 
-Version 0.1.0 of EvilHack is for the most part laying down the foundation for content from
-other sources to be added (primarily GruntHack and Sporkhack), and for new custom content to
-be created and implemented.
+Version 0.1.0 of EvilHack is for the most part laying down the
+foundation for content from other sources to be added (primarily
+GruntHack and Sporkhack), and for new custom content to be created and
+implemented.
 
 The following changes to date are:
 
-- Edits to config.h, patchlevel.h, allmain.src, sysconf, Makefiles and hints files to
-  differentiate EvilHack from NetHack
+- Edits to config.h, patchlevel.h, allmain.src, sysconf, Makefiles and
+  hints files to differentiate EvilHack from NetHack
 - adjust install script for EvilHack for use on public server
 - significant merges of latest 'vanilla' NetHack 3.6.2 code
 
@@ -22,7 +24,8 @@ The following changes to date are:
 
 - Latest merges from 'vanilla' NetHack 3.6.2 (as of January 1st, 2019)
 - Allow two-weaponing with an artifact weapon in each hand
-- Allow passive properties of an off-hand magical or artifact weapon to function
+- Allow passive properties of an off-hand magical or artifact weapon to
+  function
 - Artifact additions and changes (affects some quest artifacts)
 - Changes to the 'Knight' role
 - Import of SporkHack and GruntHack monsters (round one)
@@ -31,8 +34,8 @@ The following changes to date are:
 - Descriptive hit messages
 - Monster hit point generation modifications
 - Various monsters can ride steeds (from SpliceHack)
-- Removal of the mysterious force, nasties now spawn at upstairs while traveling up
-  with the Amulet
+- Removal of the mysterious force, nasties now spawn at upstairs while
+  traveling up with the Amulet
 - Enable displacement for shimmering dragons
 - Grudge Patch (by Nephi, modified)
 - Zombies (from GruntHack, modified)
@@ -54,7 +57,8 @@ The following changes to date are:
 - Reflection is only partial (from SporkHack, modified)
 - Conflict is based off players charisma score (from SporkHack)
 - Telepathy intrinsic changes (from SporkHack, modified)
-- Intelligent monsters can loot containers and put gear into carried bags (from GruntHack) 
+- Intelligent monsters can loot containers and put gear into carried
+  bags (from GruntHack) 
 - Tileset support
 - Tweaks to strength and two-weaponing damage/to-hit bonuses
 - Changes to blessed genocide scroll behavior (from SporkHack)
@@ -72,11 +76,12 @@ The following changes to date are:
 - Colored walls and floors patch
 - New intrinsic: Food Sense
 - Hobbit as a playable race
-- Centaurs as a playable race (adjusted armor choices for both player and monster)
+- Centaurs as a playable race (adjusted armor choices for both player
+  and monster)
 - All roles can train riding to basic
 - Changes to spell level difficulty
-- New spells (reflection, lightning, acid blast, poison blast, repair armor)
-  (from SporkHack and GruntHack)
+- New spells (reflection, lightning, acid blast, poison blast, repair
+  armor) (from SporkHack and GruntHack)
 - Dexterity affects your AC
 - Monks get some love
 - New wizard starting pet (pseudodragon)
@@ -107,36 +112,43 @@ The following changes to date are:
 
 - Latest merges from 'vanilla' NetHack 3.6.2 (as of April 6th, 2019)
 - Object Materials patch (from xNetHack)
-- Several tweaks and adjustments to various things to take the new object materials patch
-  into account
+- Several tweaks and adjustments to various things to take the new
+  object materials patch into account
 - New monsters: elven wizard, hobbit rogue
 - Add some flavor to the Magic 8-Ball
-- Magic markers no longer randomly generated, chance of one being found in Sokoban
-- Two-weaponing artifacts is back in, but with restrictions (lawful and chaotic don't play
-  nice together)
-- Artifact changes: Fire/Frost brand are now short swords, made of mithril
+- Magic markers no longer randomly generated, chance of one being found
+  in Sokoban
+- Two-weaponing artifacts is back in, but with restrictions (lawful and
+  chaotic don't play nice together)
+- Artifact changes: Fire/Frost brand are now short swords, made of
+  mithril
 - Spellbook weight determined by its level
 - Leprechauns will steal anything made of gold (from xNetHack)
 - Melee combat can wake up nearby monsters
 - Wish tracker (from SporkHack)
-- Intelligent monsters can use wands of wishing (from GruntHack/SpliceHack)
+- Intelligent monsters can use wands of wishing
+  (from GruntHack/SpliceHack)
 - Female counterparts to several monster lord/king types (lady/queen)
-- Racial soldiers: major change to soldier/sergeant/lieutenant/captain monsters, can be several
-  different humanoid races
-- Major mplayer overhaul: spellcasters can cast spells, rogues can steal, all mplayers can and
-  will steal the Amulet, kitted out with ascension-kit level gear appropriate for their level
-- Chest traps can now affect looting monsters the same way as the player is affected
+- Racial soldiers: major change to soldier/sergeant/lieutenant/captain
+  monsters, can be several different humanoid races
+- Major mplayer overhaul: spellcasters can cast spells, rogues can
+  steal, all mplayers can and will steal the Amulet, kitted out with
+  ascension-kit level gear appropriate for their level
+- Chest traps can now affect looting monsters the same way as the player
+  is affected
 - Monsters with low AC enjoy damage reduction much like the player does
-- Updated monsters using wands logic (offensively use wands of polymorph)
+- Updated monsters using wands logic (offensively use wands of
+  polymorph)
 - Monster can sacrifice the Amulet of Yendor
 - Much larger array of female names for female mplayers
 - Spellcasting monsters can cast 'stone to flesh' on themselves
 - Monster AI improvements (melee and object use)
 - Reduce how much luck affects to-hit
 - Additional monster spell tweaks
-- Monsters can recognize a resistance the player has, and can adjust attacks accordingly
-- Beholder tweaks and changes (stoning gaze is no longer instant, cannot be genocided,
-  are generated asleep 80% of the time)
+- Monsters can recognize a resistance the player has, and can adjust
+  attacks accordingly
+- Beholder tweaks and changes (stoning gaze is no longer instant, cannot
+  be genocided, are generated asleep 80% of the time)
 - Medusa revamp and overhaul: a more worthy opponent now
 - Magical eye now has a luck diminishing attack
 - Luck timeout is slowed instead of halted by luckstones
@@ -152,27 +164,31 @@ The following changes to date are:
 ### Version 0.2.1
 
 - Latest merges from 'vanilla' NetHack 3.6.2 (as of April 12th, 2019)
-- Significant changes to some of the gnomish mines towns (especially Orcish Town)
+- Significant changes to some of the gnomish mines towns (especially
+  Orcish Town)
 - Iron bars can be blown apart by wands of striking or force bolt spell
 - Booby-trapped doors actually explode and can cause fire damage
 - Several new traps added
 - Dipping for Excalibur livelogging got a much-needed refresh
-- The gnomish mines have rivers running through them (and 1 out of 100 times,
-  it's lava instead of water)
+- The gnomish mines have rivers running through them (and 1 out of 100
+  times, it's lava instead of water)
 - Default castle changes, new castles added to the rotation
 - New Fort Ludios maps
 - Changes and tweaks to the Valley of the Dead
-- Major Gehennom revamp (mines-style levels with lots of lava instead of random mazes)
-- All demon lords and princes have their own special level now in Gehennom. Yes, you have
-  to deal with Demogorgon
+- Major Gehennom revamp (mines-style levels with lots of lava instead of
+  random mazes)
+- All demon lords and princes have their own special level now in
+  Gehennom. Yes, you have to deal with Demogorgon
 - Special room generation/random 'vaults' added to the regular dungeon
 - New mines end map - Orc Temple (by Khor)
-- Several new livelogged events (killing another players' ghost, BoH exploding, sokoban
-  tweak, stealing from a shop)
-- Wands of light as well as casting the spell or reading a scroll of light has a 20% chance
-  of blinding any monsters within range that can see
+- Several new livelogged events (killing another players' ghost, BoH
+  exploding, sokoban tweak, stealing from a shop)
+- Wands of light as well as casting the spell or reading a scroll of
+  light has a 20% chance of blinding any monsters within range that can
+  see
 - Viewing monsters via farlook provides a bit more basic information
-- Players cannot successfully engrave Elbereth until they have learned it in-game (thank you Tangles)
+- Players cannot successfully engrave Elbereth until they have learned
+  it in-game (thank you Tangles)
 - Various bug fixes and code clean-up throughout
 
 
@@ -181,74 +197,91 @@ The following changes to date are:
 - Latest merges from 'vanilla' NetHack 3.6.2 (as of April 16th, 2019)
 - Zombie movement speed and corpse revival time adjusted
 - Significant changes to zombie claw/bite attack and zombie sickness
-- Peaceful monsters no longer get angry if damaged by a hostile monsters AoE spell
+- Peaceful monsters no longer get angry if damaged by a hostile monsters
+  AoE spell
 - Eating a zombie corpse infects you with their zombie sickness
-- Multitude of various fixes to player races, monster players, livelogging, tool use,
-  random vault room selection, rivers in the gnomish mines, and descriptive hit messages
+- Multitude of various fixes to player races, monster players,
+  livelogging, tool use, random vault room selection, rivers in the
+  gnomish mines, and descriptive hit messages
 
 
 ### Version 0.3.1
 
 - Latest merges from 'vanilla' NetHack 3.6.2 (as of May 5th, 2019)
-- Another major fix for mplayer monsters using the correct rank based on their role
-  (more of a kludge, but it works)
-- Fix racial shopkeeper pricing (mind flayers were only charging 3 zm for anything,
-  couple other tweaks)
-- Bribe amounts from demon lords/princes significantly increased to something much more realistic
-- New feature: player can view item weight in inventory (off by default, use OPTIONS=invweight
-  in rc config to turn on)
+- Another major fix for mplayer monsters using the correct rank based on
+  their role (more of a kludge, but it works)
+- Fix racial shopkeeper pricing (mind flayers were only charging 3 zm
+  for anything, couple other tweaks)
+- Bribe amounts from demon lords/princes significantly increased to
+  something much more realistic
+- New feature: player can view item weight in inventory (off by default,
+  use OPTIONS=invweight in rc config to turn on)
 - Fixes concerning eating magical eyes (confers luck)
 - Excalibur livelog tweaks
 - Player can cure extrinsic slow with a wand of speed monster
-- Fix: vibrating square maze was not loading, allowing the player to skip the invocation and
-  go straight to the sanctum
-- Fix: really odd pet eating behavior (disabled code section imported from GruntHack)
-- Fix: special instakill/heavy damage attacks from certain artifacts (was applying to 
-  all monsters and not their intended target race only)
-- Add demon lords/princes to the list of monsters who are not affected via magical scaring
-- Change the Barbarian quest artifact base ring type from stealth to free action
-- Magic traps can confer permanent see invisible (on/off) as well as invisibility
-- Medusa revamp, round two (based on player feedback and some of my own ideas)
-- New dungeon feature: forges - player interacts with them just like they would a fountain,
-  but instead of water, it's molten lava. See the 'forges' commit for what all it can do
+- Fix: vibrating square maze was not loading, allowing the player to
+  skip the invocation and go straight to the sanctum
+- Fix: really odd pet eating behavior (disabled code section imported
+  from GruntHack)
+- Fix: special instakill/heavy damage attacks from certain artifacts
+  (was applying to all monsters and not their intended target race only)
+- Add demon lords/princes to the list of monsters who are not affected
+  via magical scaring
+- Change the Barbarian quest artifact base ring type from stealth to
+  free action
+- Magic traps can confer permanent see invisible (on/off) as well as
+  invisibility
+- Medusa revamp, round two (based on player feedback and some of my own
+  ideas)
+- New dungeon feature: forges - player interacts with them just like
+  they would a fountain, but instead of water, it's molten lava. See the
+  'forges' commit for what all it can do
 - Fix: instakill from poison vs poison reistance percentage
-- Fix: 'turning into a zombie' status not showing when checking yourself via wand of probing
-  or a stethoscope
+- Fix: 'turning into a zombie' status not showing when checking yourself
+  via wand of probing or a stethoscope
 - Added more rumors (mostly true)
-- Fix: 2nd attack for GM monk so cockatrices don't instapetrify when wearing gloves
-- Fix: 'placing monster over another' and 'can't place branch' impossibe messages
-- Add inventory weight/carrying cap and number of slots left to inventory display
-- Fix: 'named object not in disco' when forgetting known objects (amnesia or brain eaten)
+- Fix: 2nd attack for GM monk so cockatrices don't instapetrify when
+  wearing gloves
+- Fix: 'placing monster over another' and 'can't place branch' impossibe
+  messages
+- Add inventory weight/carrying cap and number of slots left to
+  inventory display
+- Fix: 'named object not in disco' when forgetting known objects
+  (amnesia or brain eaten)
 - Tweak pseudodragon/elder pseudodragon behavior in regards to items
-- Fix: monsters using a bag of tricks would show as '<monster> reads a bag of tricks'
-- Fix: properly map steed ids when loading bones files to prevent panic()
+- Fix: monsters using a bag of tricks would show as '<monster> reads a
+  bag of tricks'
+- Fix: properly map steed ids when loading bones files to prevent
+  panic()
 - Fix: priests and shopkleepers stepping on zombies
 
 
 ### Version 0.3.2
 
-- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress' (as of August 31st, 2019)
+- Latest merges from 'vanilla' NetHack 3.6.3 'work-in-progress' (as of
+  August 31st, 2019)
 - Fix: correctly handle player and steed getting polymorphed on a trap
 - Change status lines' "End Game" behavior back to old method
 - Elder minotaurs will spawn with wands of digging
-- Fix: displaced monsters attacking non-displaced would behave as if the non-displaced
-  monster was the one with displacement
+- Fix: displaced monsters attacking non-displaced would behave as if the
+  non-displaced monster was the one with displacement
 - Tweaks to the Red Horse
 - Added a third tier to the wizard starting pet pseudodragon
-- New monsters: enormous rat, rodent of unusual size, rabid dog, jumping spider,
-  honey badger
+- New monsters: enormous rat, rodent of unusual size, rabid dog, jumping
+  spider, honey badger
 - Random dragonhide-based armor is a bit more rare to find
-- Fix: eating a tengu corpse gave the player teleportis and teleport control
-  immediately, first time
-- Proper feedback when trying to destroy iron bars with a wand of striking/spell
-  of force bolt and can't
-- Fix: adjusted behavior of spellcasting monsters using stone to flesh on themselves
-- Randomize the message received when the player dies and the attacking monster
-  starts to go through their possessions
+- Fix: eating a tengu corpse gave the player teleportis and teleport
+  control immediately, first time
+- Proper feedback when trying to destroy iron bars with a wand of
+  striking/spell of force bolt and can't
+- Fix: adjusted behavior of spellcasting monsters using stone to flesh
+  on themselves
+- Randomize the message received when the player dies and the attacking
+  monster starts to go through their possessions
 - Add feedback when zapping a wand of cancellation at a monster
 - New monster spell: MGC_CANCELLATION
-- Fix: monsters zapped by a wand of polymorph wielded by another monster would not
-  change form and/or die
+- Fix: monsters zapped by a wand of polymorph wielded by another monster
+  would not change form and/or die
 - Fix: The Ring of P'hul can now be wished for
 - Added an EvilHack splash screen for curses mode
 - Tweak castle-2 level
@@ -256,21 +289,24 @@ The following changes to date are:
 - Updated the item array for what monsters will wish for
 - Tweaks to spear traps
 - Adjust pet behavior is regards to zombie corpses
-- Record killing of unique monsters, other special monster types in the xlogfile
-  (primarily for the JunetHack tournament)
+- Record killing of unique monsters, other special monster types in the
+  xlogfile (primarily for the JunetHack tournament)
 - Twoweapon patch
 - Priests are penalized for using edged weapons
 - Most mplayers will spawn with a key or other unlocking tool
 - Fix: force bolt/wand of striking feedback when hitting iron bars
 - Room generation code clean up
 - Sokoban end revamp (round three)
-- Change livelogging of killing a players bones ghost to any creature they rise as
+- Change livelogging of killing a players bones ghost to any creature
+  they rise as
 - Shopkeeper race selection improvements
 - Minor zombie tweaks
-- Fix: temporary fix preventing segfault when splitting puddings and their corpses
-  are absorbed into another corpse
-- Adjustments to what players receive via altar sacrificing (regular items)
-- Fix: giant player race wasn't getting hungerless regeneration intrinsic
+- Fix: temporary fix preventing segfault when splitting puddings and
+  their corpses are absorbed into another corpse
+- Adjustments to what players receive via altar sacrificing (regular
+  items)
+- Fix: giant player race wasn't getting hungerless regeneration
+  intrinsic
 - Fix: a burnt partly eaten <corpse name here>
 - Nazgul and lichen tweaks
 - Fix: monsters engulfing other monsters off of their steeds
@@ -279,46 +315,65 @@ The following changes to date are:
 - Fix: handling of weapon damage based on material type
 - More Izchak tweaks
 - Specific livelog message for 'killing' Death
-- Fix: segfault when monster player has the Amulet of Yendor and the Wizard of Yendor appears
+- Fix: segfault when monster player has the Amulet of Yendor and the
+  Wizard of Yendor appears
 - Excalibur and Dirge never have a negative enchantment
-- Fix: Monk triggering 'hitting with a wielded weapon for first time' conduct when fighting
-  bare-handed but weapon was flagged as 'alternate weapon; not wielded'
+- Fix: Monk triggering 'hitting with a wielded weapon for first time'
+  conduct when fighting bare-handed but weapon was flagged as 'alternate
+  weapon; not wielded'
 - Change various objects base material from iron to generic metal
-- Fix: tame high-level spellcasting monster pets would still cast MGC_CANCELLATION at the hero
+- Fix: tame high-level spellcasting monster pets would still cast
+  MGC_CANCELLATION at the hero
 - Tweak starting gear if playing Giant race
 - More spell casting while wearing body armor revamps
-- Fix: Prevent intelligent monsters from unlocking an iron safe with keys/lock picks/credit cards
+- Fix: Prevent intelligent monsters from unlocking an iron safe with
+  keys/lock picks/credit cards
 - Fix: Boojum AD_TLPT attack wasn't teleporting the hero
-- Fix: change The Sword of Bheleu's base material from mithril to gemstone
-- Fix: Monks did not have weapon skill restriction lifted when receiving an artifact gift weapon
+- Fix: change The Sword of Bheleu's base material from mithril to
+  gemstone
+- Fix: Monks did not have weapon skill restriction lifted when receiving
+  an artifact gift weapon
 - Another Monk weapon skills revamp
-- Fix: being killed by an exploding forge was displaying the wrong 'killed by' message
+- Fix: being killed by an exploding forge was displaying the wrong
+  'killed by' message
 - Fix: livelog output when the player blows up their bag of holding
-- Fix: spear traps should not be able to reach the hero if they are flying
+- Fix: spear traps should not be able to reach the hero if they are
+  flying
 - Quest leaders nor nemesis can be frightened by magical means
-- Monsters that revive (trolls, zombies) will not revive if they lose their heads
+- Monsters that revive (trolls, zombies) will not revive if they lose
+  their heads
 - Fix: spear traps properly handle steeds
 - Added a random set of death messages from being killed by a spear trap
 - Artifact properties when in offhand and two-weaponing are active
 - Limit amount of times a wand of death can be recharged
-- Putting Magicbane into a bag of holding has a chance of causing the bag to explode
-- Wands of cancellation self-identify when the player observes their use and effects
+- Putting Magicbane into a bag of holding has a chance of causing the
+  bag to explode
+- Wands of cancellation self-identify when the player observes their use
+  and effects
 - Player can see colored flashes when dropping a container on an altar
 - Objects can be completely destroyed via rusting/rotting/corroding
-- Fix: broken 'killed by' format when the player dies due to eating a zombie corpse
-- Unique death messages when killed by a water elemental or gelatinous cube while engulfed
+- Fix: broken 'killed by' format when the player dies due to eating a
+  zombie corpse
+- Unique death messages when killed by a water elemental or gelatinous
+  cube while engulfed
 - Improved feedback when cancelling a monster
 - Hobbits can eat significantly more food before becoming satiated
 - Tweaks to Hobbit eating/hunger feedback
-- Fix: opening a trapped tin while in Sokoban would trip the doors at Sokoban End
-- Neutral aligned summon minion has small chance of producing something other than an elemental
-- Fix: Monsters that have an aversion to a certain material should never spawn with an object made of that material
-- Fix: disallow obtaining Excalibur or Dirge by using a helm of opposite alignment
+- Fix: opening a trapped tin while in Sokoban would trip the doors at
+  Sokoban End
+- Neutral aligned summon minion has small chance of producing something
+  other than an elemental
+- Fix: Monsters that have an aversion to a certain material should never
+  spawn with an object made of that material
+- Fix: disallow obtaining Excalibur or Dirge by using a helm of opposite
+  alignment
 - Magic lamps can be wished for
-- Fix: segfault when playing as priest and attacking a monster bare-handed
-- Several changes to dragon scales/scale mail secondary extrinsics (humanoid monsters wearing same armor have most
-  DSM extrinsics as do dragons themselves, BDSM can disintegrate you or certain inventory objects,
-  GDSM has a cancellation secondary extrinsic)
+- Fix: segfault when playing as priest and attacking a monster
+  bare-handed
+- Several changes to dragon scales/scale mail secondary extrinsics
+  (humanoid monsters wearing same armor have most DSM extrinsics as do
+  dragons themselves, BDSM can disintegrate you or certain inventory
+  objects, GDSM has a cancellation secondary extrinsic)
 - Fix: several issues regarding monster steeds
 - Medusa's stoning bite can be cancelled
 - Tame vampires no longer revert to fog/animal form
@@ -328,104 +383,135 @@ The following changes to date are:
 - Unique death messages when engulfed or digested
 - Elves (player and monster) have a true aversion to iron
 - Orcs (player and monster) have a true aversion to mithril
-- Additional logic to compel monsters in possession of the Amulet of Yendor to go sacrifice it if on the Astral Plane
+- Additional logic to compel monsters in possession of the Amulet of
+  Yendor to go sacrifice it if on the Astral Plane
 - Primary spellcasters can be gifted spellbooks via altar sacrificing
 - Allow Rogue's 'strike from behind' damage bonus while twoweaponing
-- Monsters will fire their ranged weapon at melee range if no other option exists
-- Player races elves and orcs will not received items from their deity made of a hated materail
+- Monsters will fire their ranged weapon at melee range if no other
+  option exists
+- Player races elves and orcs will not received items from their deity
+  made of a hated materail
 - Beholders will always show as a 5 via warning
 - Tame spellcasting pets should not summon nasties
-- Amulet of life saving will not work if the wearer is non-living (player and monster)
-- Skills flagged as > in the #enhance menu require just a bit more practice to advance
-- Small chance the game will continue if the player rises from the grave (undead)
+- Amulet of life saving will not work if the wearer is non-living
+  (player and monster)
+- Skills flagged as > in the #enhance menu require just a bit more
+  practice to advance
+- Small chance the game will continue if the player rises from the grave
+  (undead)
 - HTML dumplogs
-- Fooproofed items have a chance to resist being disintegrated if they come in contact with a black dragon,
-  any invocation item and the Amulet of Yendor are immune to being disintegrated
-- Mithril, bone and mineral materials can grant various levels of MC to elves/orcs
+- Fooproofed items have a chance to resist being disintegrated if they
+  come in contact with a black dragon, any invocation item and the
+  Amulet of Yendor are immune to being disintegrated
+- Mithril, bone and mineral materials can grant various levels of MC to
+  elves/orcs
 - Rogue new skill: Thievery
 - Monk new ability: break boulders or statues using martial arts
-- Add materials to list of helmet objects that can protect you from falling objects
+- Add materials to list of helmet objects that can protect you from
+  falling objects
 - Improvements to the 'Owned Artifact' patch
 - Fixes and tweaks to passive disintegration attack
-- Fix: Hobbit player race receiving 'this satiates your stomach' too early
+- Fix: Hobbit player race receiving 'this satiates your stomach' too
+  early
 - Fix: iron hook spawning with a different material other than iron
-- Monster spells cancellation, fire bolt and ice bolt require that their target is lined up
-- HTML dumplogs - adjust object/terrain colors, add font for windows users
-- Magical staves keep their base material when given to the player via altar sacrifice
+- Monster spells cancellation, fire bolt and ice bolt require that their
+  target is lined up
+- HTML dumplogs - adjust object/terrain colors, add font for windows
+  users
+- Magical staves keep their base material when given to the player via
+  altar sacrifice
 - Fix: a burnt partly eaten <corpse name here> (last time)
-- Fix: 'dealloc_obj: obj not free' crash when a bag of holding explodes with gold pieces inside of it
-- Fix: intelligent monsters going through locked containers when not seen
+- Fix: 'dealloc_obj: obj not free' crash when a bag of holding explodes
+  with gold pieces inside of it
+- Fix: intelligent monsters going through locked containers when not
+  seen
 - Fix: 'impossible: Can't place branch!' panic messages in Gehennom
-- Monster player tweaks and fixes (Monks finally spawn with gear, Knights steed randomized)
-- Fix: 'impossible - breaking non-equipped glass obj? Program in disorder!' when wielding
-  and attacking with a stack of glass weapons
-- Fix: game crash when last rustable/corrodible object in player inventory rusts/corrodes
-  away and is gone
+- Monster player tweaks and fixes (Monks finally spawn with gear,
+  Knights steed randomized)
+- Fix: 'impossible - breaking non-equipped glass obj? Program in
+  disorder!' when wielding and attacking with a stack of glass weapons
+- Fix: game crash when last rustable/corrodible object in player
+  inventory rusts/corrodes away and is gone
 - Player spell 'haste self' can cure slow effect
 - Improved feedback when a monster activates a figurine
-- Fix: restricted weapon penalty messages when using a different form of attack
+- Fix: restricted weapon penalty messages when using a different form of
+  attack
 - Tweak dfficultly level of goblin outriders / goblin-captains
 - Fix: Intelligent pet code issues
-- Player monsters or any covetous monsters will grudge any monster that has
-  the Amulet of Yendor
-- A mounted steed will attack hostiles on its own without having to be attacked first
-  if its tameness is high enough
+- Player monsters or any covetous monsters will grudge any monster that
+  has the Amulet of Yendor
+- A mounted steed will attack hostiles on its own without having to be
+  attacked first if its tameness is high enough
 - Player race orc can ride tame wargs
 
 
 ### Version 0.4.0
 
-- Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of December 1st, 2019)
+- Latest merges from 'vanilla' NetHack 3.6.3 'beta' (as of December 1st,
+  2019)
 - Amulet material fixes (by ogmobot)
 - Object properties patch
-- Adjust material frequency for items regularly made of iron/metal, orcish gear, dwarvish weapons
+- Adjust material frequency for items regularly made of iron/metal,
+  orcish gear, dwarvish weapons
 - New weapons/armor (orcish scimitar, orcish boots, regular gauntlets
-- Fix: crash due to various dragon scales/scale mail and Dragonbane passive attack
+- Fix: crash due to various dragon scales/scale mail and Dragonbane
+  passive attack
 - Healers gain sickness resistance intrinsic at experience level 15
-- Fix: inventory weight and available/total slots showing up as a menu selection
-- Fix: player races that hated a certain material would still be adversely affected while
-  twoweaponing and wearing gloves
+- Fix: inventory weight and available/total slots showing up as a menu
+  selection
+- Fix: player races that hated a certain material would still be
+  adversely affected while twoweaponing and wearing gloves
 - Dirge does proper acid damage to worn armor
 - Prevent monsters' starting gear from being a material they hate
-- Fix: not all cases were covered in regards to protecting the players (or monsters) head
-  for a hard helmet made of a hard material.
+- Fix: not all cases were covered in regards to protecting the players
+  (or monsters) head for a hard helmet made of a hard material.
 - Heavy objects falling on your head do more damage than normal
-- Glass helmets when worn can shatter if a heavy object falls on the players head
-- When polymorphed into forms that have certain attacks, don't use those attacks under
-  certain conditions
+- Glass helmets when worn can shatter if a heavy object falls on the
+  players head
+- When polymorphed into forms that have certain attacks, don't use those
+  attacks under certain conditions
 - New player race: Illithid
-- Fix: MR_PSYCHIC was not applied correctly for all monsters with the flag
+- Fix: MR_PSYCHIC was not applied correctly for all monsters with the
+  flag
 - Fix: panic when trying to wear orcish boots
 - Fix: the <weapon> welds itself to the hobbit rogue's claw!
 - Add tentacle brain-eating attack to Illithid player race
-- Make shimmering scales use toggle_stealth and toggle_displacement (by ogmobot)
-- Gold DSM shouldn't stop glowing if it hasn't yet been worn (by ogmobot)
+- Make shimmering scales use toggle_stealth and toggle_displacement
+  (by ogmobot)
+- Gold DSM shouldn't stop glowing if it hasn't yet been worn (by
+  ogmobot)
 - Adjust Illithid tentacle attack damage based on experience level
-- New race/role combinations (dwarf barbarian, samurai or wizard, giant wizard)
+- New race/role combinations (dwarf barbarian, samurai or wizard, giant
+  wizard)
 - New player role: Convict
 - Add Luck Blade to the array of chaotic artifacts
 - Allow the Iron Ball of Liberation to be wished for
 - Fix: cursed amulet of life saving could appear in bones file after use
 - Illithid player race fixes (by ogmobot)
 - Slight adjustments to mines' end 'Orc Temple'
-- Reduce amount of feedback received with fighting with a weapon that requires more practice
-  to train or is restricted
+- Reduce amount of feedback received with fighting with a weapon that
+  requires more practice to train or is restricted
 - High priest in the sanctum has a magic marker in inventory
 - Fix: various intelligent monster AI issues
-- Fix: monster steeds lagging behind one turn when it and its rider are teleported
+- Fix: monster steeds lagging behind one turn when it and its rider are
+  teleported
 - Fix: incorrect feedback when invisible monster rides a steed
 - Forge revamp
-- Fix: crash bug introduced from last commit (tame lava demon from forge-dipping)
-- Dropping a ring of polymorph down a sink has a chance of creating a forge
-- Forge tweaks - extra feedback when dipping and nothing of consequence happens,
-  slightly increased odds again of repairing damage to metal objects
+- Fix: crash bug introduced from last commit (tame lava demon from
+  forge-dipping)
+- Dropping a ring of polymorph down a sink has a chance of creating a
+  forge
+- Forge tweaks - extra feedback when dipping and nothing of consequence
+  happens, slightly increased odds again of repairing damage to metal
+  objects
 - Illithid race not allowed to play healer role
-- Create three levels of the Dark Knight's steed, the 'nightmare' (lesser nightmare,
-  nightmare, cauchemar)
+- Create three levels of the Dark Knight's steed, the 'nightmare'
+  (lesser nightmare, nightmare, cauchemar)
 - Adjust stats of all three levels of pseudodragon
 - Bugbear edit (now S_ORC as it should have been)
 - New vampire types
-- Fix: crash when trying to check steed of invisible monster (by ogmobot)
+- Fix: crash when trying to check steed of invisible monster (by
+  ogmobot)
 - Owlbear makeover
 - Lava demons like lava
 - Use set_material for Croesus' gear (by ogmobot)
@@ -435,7 +521,8 @@ The following changes to date are:
 - New object: gauntlets of protection
 - Readjust dwarvish/elven chain mail MC
 - The Eyes of the Overworld protect against several gaze attacks
-- Monks wearing body armor penalty actually means something (penalty is more severe)
+- Monks wearing body armor penalty actually means something (penalty is
+  more severe)
 - Player feedback for monks wearing/removing body armor
 - Artifact weapons used against black drgaons have much greater chance
   of not being disintegrated
@@ -455,14 +542,15 @@ The following changes to date are:
 - Mindless monsters are unaffected by any means of scaring
 - Fix: breaking a statue that had contents would not clear cobj
 - The Lady of the Lake wants your sword
-- Reverting back to wands of death can only be recharged once before exploding
+- Reverting back to wands of death can only be recharged once before
+  exploding
 - Hobbit rogues, human rogues always have gold on them
 - Croesus can move other monsters out of his way
 - Nazgul scream attack can potentially shatter glass objects
 - Sokoban end: walls that replace disppearing doors prevent phasing
-- Fix: if player has an object that is already ID'ed and that object is also
-  one of the sokoban prizes, don't show that sokoban prize object as
-  known until it's actually been picked up by the player.
+- Fix: if player has an object that is already ID'ed and that object is
+  also one of the sokoban prizes, don't show that sokoban prize object
+  as known until it's actually been picked up by the player.
 - Wand of death/finger of death spell is not completely negated by magic
 - Monsters with magic resistance are affected the same way as the player
   when hit by a wand of death/finger of death spell
@@ -482,13 +570,15 @@ The following changes to date are:
 - Tweak making friendlies angry when blinding them
 - Silencing compiler warnings
 - Fix: issues when Death attacks another monster
-- Add in missing code from GruntHack in regards to monsters charging wands
+- Add in missing code from GruntHack in regards to monsters charging
+  wands
 - Address some minor issues with spellcasting while wearing body armor
 - Fix: ogresmasher and trollsbane special attack was not working
 - Fix: don't need to wear a hat to wield Excalibur
 - Fix: Rotten food is no longer burnt
 - Added psionic resistance to enlightenment feedback
-- Better feedback when hitting a black dragon with something disintegration-proof
+- Better feedback when hitting a black dragon with something
+  disintegration-proof
 - Clean up function call to add_erosion_words
 - Ensure monsters with invisible steeds are mapped properly
 - Better feedback when looking at an invisible monster riding a steed
@@ -515,30 +605,38 @@ The following changes to date are:
 - Add some shambling horrors to the sanctum
 - Material damage for contact with monsters made of a hated material
 - Partial fix: attacking certain monsters with tentacle/bite attack
-- Blinding monsters with a wand/scroll/spell of light only happens at a close distance
-  to the player
+- Blinding monsters with a wand/scroll/spell of light only happens at a
+  close distance to the player
 - Naming/wishing for artifacts tweaks
-- Tweak hard material helmet deflection against attacks to the players head
+- Tweak hard material helmet deflection against attacks to the players
+  head
 - Lower the odds of receiving a wish from the magic 8-ball
 - Tweak chance appearance of special neutral minion
 - Fix: crash when monster hits another monster under certain conditions
 - Fix: HTML dumplog display errors
 - Fix: crash when removing starting t-shirt (object properties)
-- Monks do not utilize their extra attack at grand master martial arts skill
-  if wearing a shield
+- Monks do not utilize their extra attack at grand master martial arts
+  skill if wearing a shield
 - Floating eyes can regenerate hit points
 - Clean up some behavior and feedback when naming Sting or Orcrist
-- Fix: impossible when monster's armor or weapon erodes away when hero is blind
-- Fix: double-free or corruption crash (ball & chain erodes completely away)
-- Fix: panic 'explosion base type 8?' caused by monster spell 'acid blast'
-- Fix: Convicts aren't supposed to spawn with anything extra in inventory
-- Fix: proper feedback when eating zombie corpses while having sickness resistance
-- Monster steeds will spawn wearing a saddle if they are allowed to wear one
+- Fix: impossible when monster's armor or weapon erodes away when hero
+  is blind
+- Fix: double-free or corruption crash (ball & chain erodes completely
+  away)
+- Fix: panic 'explosion base type 8?' caused by monster spell 'acid
+  blast'
+- Fix: Convicts aren't supposed to spawn with anything extra in
+  inventory
+- Fix: proper feedback when eating zombie corpses while having sickness
+  resistance
+- Monster steeds will spawn wearing a saddle if they are allowed to wear
+  one
 
 
 ### Version 0.4.1
 
-- Latest merges from 'vanilla' NetHack 3.6.3 official release (as of December 17th, 2019)
+- Latest merges from 'vanilla' NetHack 3.6.3 official release (as of
+  December 17th, 2019)
 - Prep for version 0.4.1
 - Zombies can make other monsters ill, not just the player
 - Grimtooth now has a disease attack
@@ -546,41 +644,51 @@ The following changes to date are:
 - Comment correction in include/monst.h
 - New monster: queen ant
 - Salamanders can pull you into lava
-- Fix: white dragons gaining hit points each time its passive attack activated
+- Fix: white dragons gaining hit points each time its passive attack
+  activated
 - Fix: do passive attacks for green/red/white dragons the correct way
 - Adjust color of queen ant
 - Fix: shopkeepers can talk regardless of their race
-- Fix: mysterious force and teleporting with the Amulet of Yendor should be removed for
-  monsters as well as the hero
+- Fix: mysterious force and teleporting with the Amulet of Yendor should
+  be removed for monsters as well as the hero
 - Convict role starting striped shirt and heavy iron ball are fooproof
-- The heavy iron ball generated from reading a scroll of punishment will be rustproof
-  50% of the time
-- New dungeon features: shallow water and sewage, new monsters: giant cockroach, giant
-  leech, giant crocodile, new mines' end map: The Sewers of Waterdeep
-- Fix: some formatting issues and small errors with the shallow water patch
+- The heavy iron ball generated from reading a scroll of punishment will
+  be rustproof 50% of the time
+- New dungeon features: shallow water and sewage, new monsters: giant
+  cockroach, giant leech, giant crocodile, new mines' end map: The
+  Sewers of Waterdeep
+- Fix: some formatting issues and small errors with the shallow water
+  patch
 - Fix: text-based dumplog was not being generated
 - Readjust (down) lower-level zombies' spawn rate
-- Convict role starting iron chain needs to be rustproof along with the heavy iron ball
-- The iron chain generated with the heavy iron ball from reading a scroll of punishment
-  will also be rustproof 50% of the time
+- Convict role starting iron chain needs to be rustproof along with the
+  heavy iron ball
+- The iron chain generated with the heavy iron ball from reading a
+  scroll of punishment will also be rustproof 50% of the time
 - Fix: dipping cursed worn items into sewage
-- Fix: intelligent pet patch bug that made monsters with ranged attacks never approach
+- Fix: intelligent pet patch bug that made monsters with ranged attacks
+  never approach
 - Fix: rework Nazgul scream attack
 - Fix: monster spell 'stone to flesh' now uses mspec
 - Partial fix: heavy iron ball rusting away
 - Fix: priests using ammo as a melee weapon
 - Fix: objects spawning in unseen shallow pools
-- Fix: heavy iron ball rusting away while attached if being dragged on floor
+- Fix: heavy iron ball rusting away while attached if being dragged on
+  floor
 - Reorganization of server-side config and hints files
-- Cure sickness is now directional and can be used to cure monsters as well as yourself
+- Cure sickness is now directional and can be used to cure monsters as
+  well as yourself
 
 
 ### Version 0.4.2
 
-- Latest merges from 'vanilla' NetHack 3.6.5 official release (as of January 27th, 2020)
+- Latest merges from 'vanilla' NetHack 3.6.5 official release (as of
+  January 27th, 2020)
 - Prep for version 0.4.2
-- All types of healing potions, unicorn horns, and eucalyptus leaves can cure ill monsters 
-- Fix: prevent 'destroyed it' when livelogging destroying the ghost/undead of another player
+- All types of healing potions, unicorn horns, and eucalyptus leaves can
+  cure ill monsters 
+- Fix: prevent 'destroyed it' when livelogging destroying the
+  ghost/undead of another player
 - Tweak conditions for monsters drinking healing potions when ill
 - Fix: description/color issues with the spell 'acid blast'
 - AD_PSYC is not a ray type attack
@@ -589,56 +697,71 @@ The following changes to date are:
 - Fix: autotravel using _ will stop at shallow water and sewage
 - Update to the README file
 - Boulders have some weight if playing Giant race
-- Selecting 'Q' to quiver now counts boulders as an option when playing as Giant race
-- Naming Sting or Orcrist has a chance of summoning more than just angry elf
-- Fix: objects spawning in unseen shallow pools (again); certain traps and stairs will not
-  spawn in same space as shallow water or sewage
+- Selecting 'Q' to quiver now counts boulders as an option when playing
+  as Giant race
+- Naming Sting or Orcrist has a chance of summoning more than just angry
+  elf
+- Fix: objects spawning in unseen shallow pools (again); certain traps
+  and stairs will not spawn in same space as shallow water or sewage
 - Fix: non-placement of certain traps under shallow water or sewage
-- Fix: no for real this time - objects spawning in unseen shallow pools (yet again)
-- Fix: sometimes stairs not being generated on levels with lots of shallow water or sewage
+- Fix: no for real this time - objects spawning in unseen shallow pools
+  (yet again)
+- Fix: sometimes stairs not being generated on levels with lots of
+  shallow water or sewage
 - Tweaks to livelogging being killed by bones monster of another player
-- Fix: racial shopkeepers attacking peaceful pets, and getting 'you murderer!' when killing
-  a shopkeeper that has been turned into a zombie.
-- Another tweak to livelogging being killed by bones monster of another player
+- Fix: racial shopkeepers attacking peaceful pets, and getting 'you
+  murderer!' when killing a shopkeeper that has been turned into a
+  zombie.
+- Another tweak to livelogging being killed by bones monster of another
+  player
 - Adjust shopkeepers starting gear 
 - Partial fix/revert: game freezing on creation of minetn-1 or minetn-6
 - Fix: game freezing on creation of minetn-1 or minetn-6
 - Spear traps can form under shallow water or sewage
 - Fix: Illithid player race aren't supposed to get INT loss/amnesia
-- Settings correction for the convict quest artifact 'The Iron Ball of Liberation'
+- Settings correction for the convict quest artifact 'The Iron Ball of
+  Liberation'
 - Tweak livelogging of genocided monsters
 - Fix: killed by message when killed via certain monster spells
 - Fix: unicorn horns weren't one-handed
-- Fix: inventory weight header showing as selectable object in certain inventory windows
-- Slightly improve the odds of not getting the owner when wishing for an artifact
-- Adjust odds even more in favor of the player when wishing for an artifact, but the
-  owner will always be of an appropriate high level no matter what level the player is
-- Fix: getting 'the raw sewage boils away' when evaporating shallow pools
-- Fix: chest containing the wand of wishing on castle-3.lev would sometimes spawn as trapped
+- Fix: inventory weight header showing as selectable object in certain
+  inventory windows
+- Slightly improve the odds of not getting the owner when wishing for an
+  artifact
+- Adjust odds even more in favor of the player when wishing for an
+  artifact, but the owner will always be of an appropriate high level no
+  matter what level the player is
+- Fix: getting 'the raw sewage boils away' when evaporating shallow
+  pools
+- Fix: chest containing the wand of wishing on castle-3.lev would
+  sometimes spawn as trapped
 - Tweak mines' end level 'Orc Temple'
-- Adjust odds of random object spawning with some type of object property
+- Adjust odds of random object spawning with some type of object
+  property
 - Fix: player giants climbing down through trap doors/gaping holes
 - Fix: build errors when livelog and paniclog_fmt2 are not defined
-- Fix: wizmode wishing - if artifact owner would appear, ask if this is wanted
+- Fix: wizmode wishing - if artifact owner would appear, ask if this is
+  wanted
 - Fix: update_inventory() and the spell 'repair armor'
-- When invoking the Iron Ball of Liberation, the chain generated when it attaches itself
-  to the player is always rustproof
-- Fix: player could not phase through objects diagonally via invoking the Iron Ball of
-  Liberation if carrying a lot of objects in open inventory or if playing as a giant
+- When invoking the Iron Ball of Liberation, the chain generated when it
+  attaches itself to the player is always rustproof
+- Fix: player could not phase through objects diagonally via invoking
+  the Iron Ball of Liberation if carrying a lot of objects in open
+  inventory or if playing as a giant
 - Fix: "You can hear again" when deafness times out while permadeaf
 - Fix: permahallucination doesn't abuse wisdom
 - Fix: killed by 'the Rat King', not killed by 'Rat King'
 - Certain monsters can spawn in the Gnomish Mines' rivers
-- Fix: 'Do so? [y/n]' message when moving onto boulders in sokoban as a giant and that
-  level is already solved
+- Fix: 'Do so? [y/n]' message when moving onto boulders in sokoban as a
+  giant and that level is already solved
 - Fix: issues with monster spells fire bolt, ice bolt and acid blast
 - Fix: Giants aren't supposed to be stealthy. Ever.
 - Fix: player role Priest should not receive an edged crowning gift
-- Fix: displaying plural form of artifact names as a priest trying to use an edged
-  or piercing type artifact weapon
+- Fix: displaying plural form of artifact names as a priest trying to
+  use an edged or piercing type artifact weapon
 - Revert alignment level for crowning back to normal
-- Fix: player role Priest should not receive an edged artifact weapon via
-  altar sacrifice
+- Fix: player role Priest should not receive an edged artifact weapon
+  via altar sacrifice
 - Fix: boulder feedback as a giant moving into a boulder's location
 - Fix: more giant walking onto boulder feedback
 - Role selection filtering and fixes
@@ -646,46 +769,53 @@ The following changes to date are:
 - Adjust how a player could arise as a spectre
 - Door traps won't start to appear until dungeon level 13
 - Adjust monster generation rates
-- Fix: getting immune to sickness feedback from a monster attacking a gray fungus but
-  the player not viewing said monster
+- Fix: getting immune to sickness feedback from a monster attacking a
+  gray fungus but the player not viewing said monster
 - Fix: non-magical flutes and harps in src/objects.c
 - Fix: obtaining invisibility/see invisible from eating a stalker corpse
-- Fix: exploit with sentient_arise() and god destroying your undead form while unchanging
-  set no killer
-- Fix: no feedback when hitting an unseen monster with various artifact weapons or
-  weapons with offensive object properties
-- Adjust which monsters are sick resistant; move permonst drain resistance and
-  player-style-MR checks to macros
+- Fix: exploit with sentient_arise() and god destroying your undead form
+  while unchanging set no killer
+- Fix: no feedback when hitting an unseen monster with various artifact
+  weapons or weapons with offensive object properties
+- Adjust which monsters are sick resistant; move permonst drain
+  resistance and player-style-MR checks to macros
 - Fix: The Rat King shouldn't have the M2_PNAME flag
-- Fix: having both magic resistance and reflection together didn't stack against
-  death rays
+- Fix: having both magic resistance and reflection together didn't stack
+  against death rays
 - Elven boots shouldn't be made of a hard material
-- Fix: Orcs made sick by zombies weren't arising as zombies when they died
+- Fix: Orcs made sick by zombies weren't arising as zombies when they
+  died
 - Fix: another artifact wishing revamp
 - Being crowned has chance of getting sick resistance
-- Tweak monster generation rates again; player can see monster generation rates via
-  enlightenment
+- Tweak monster generation rates again; player can see monster
+  generation rates via enlightenment
 - Monks can break a monster's wielded weapon under certain conditions
-- Fix: monster wishes; djinn will sometimes use their wish on themselves if hostile
+- Fix: monster wishes; djinn will sometimes use their wish on themselves
+  if hostile
 - Fix: DYWYPI and items with object properties
-- Fix: magic missile causing half damage to target if the player had half spell damage
+- Fix: magic missile causing half damage to target if the player had
+  half spell damage
 - Fix: could hear zombie sounds when deaf
 - Tweak nutrition gained by Illithid tentacle attack
 - Fix: the sounds various monsters make when scared
 - Fix: couldn't name regular flutes or harps
-- Fix: 'You float gently to the floor' with intrinsic flying (Illithid) and taking off
-  an amulet of flying
+- Fix: 'You float gently to the floor' with intrinsic flying (Illithid)
+  and taking off an amulet of flying
 - Randomize how often Illithid player race uses tentacle attack
 - Add Lifestealer to the SPFX_EXCLUDE list
-- Adjust odds of random object spawning with some type of object property again
+- Adjust odds of random object spawning with some type of object
+  property again
 - Some changes to a few monsters, as well as nasties() and wizapp()
 - Non-artifact sacrifice gifts revamp
 - Fix: missing quest message for Convict role
-- Fix: count shallow water and sewage as a safe landing spot in goodpos()
-- Rogue thievery skill can be used on peaceful monsters without them knowing
+- Fix: count shallow water and sewage as a safe landing spot in
+  goodpos()
+- Rogue thievery skill can be used on peaceful monsters without them
+  knowing
 - Tweaks to M3_BERSERK
 - Fix: hunger levels and dexterity abuse for Hobbits
-- Fix: player gets credit for the kill if monster dies from Grimtooth's disease effect
+- Fix: player gets credit for the kill if monster dies from Grimtooth's
+  disease effect
 - Adjust chances of getting sick resistance when crowned
 - Fix: rounding formula apply after racial shopkeeper price adjustments
 - Fix: missing hit feedback from the Staff of Aesculapius
@@ -695,57 +825,65 @@ The following changes to date are:
 - Fix: Izchak isn't supposed to be immortal
 - Refer to objects made of gemstone as 'crystal'
 - Change Sunsword's base material from silver to gemstone
-- Fix: monsters with a disease-based attack wasn't having an effect on other monsters
-- Revamp feedback when attacking with/being hit by a weapon with offensive object
-  properties
+- Fix: monsters with a disease-based attack wasn't having an effect on
+  other monsters
+- Revamp feedback when attacking with/being hit by a weapon with
+  offensive object properties
 - Reset rogue's initial thievery skill back to basic level 
-- Healers guaranteed to have enough power to cast a level one spell at game start
-- Offering the Amulet of Yendor while wearing a helm of opposite alignment does not
-  always fool your deity
-- Fix: intelligent monsters that had no hands could open and loot containers
+- Healers guaranteed to have enough power to cast a level one spell at
+  game start
+- Offering the Amulet of Yendor while wearing a helm of opposite
+  alignment does not always fool your deity
+- Fix: intelligent monsters that had no hands could open and loot
+  containers
 - Remove riding skill for Centaurs
 - Certain monsters will move slower through sewage just like the player
-- Partial fix: obfree deleting worn obj (spellcasting monster casting stone to flesh on
-  itself while wearing a ring that could be affected)
+- Partial fix: obfree deleting worn obj (spellcasting monster casting
+  stone to flesh on itself while wearing a ring that could be affected)
 - Fix: player being blamed for monster spell drying up a fountain
 - Partial fix: active extrinsic from offhand weapon but not twoweaponing
 - Fix: active extrinsic from offhand weapon but not twoweaponing
-- Fix: monsters kept displacement extrinsic after removing a worn cloak of displacement
+- Fix: monsters kept displacement extrinsic after removing a worn cloak
+  of displacement
 - Fix: getting reflection from Dragonbane if wielded
 - Fix: placing defunct monster onto map, mstate:%lx, on Dlvl:%s
 
 
 ### Version 0.5.0
 
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of
+  March 7th, 2020)
 - Prep for version 0.5.0
 - Gehennom changes (round one) - area around the wizard towers
-- Gehennom changes (round two) - Cerberus guards the entrance to Gehennom
+- Gehennom changes (round two) - Cerberus guards the entrance to
+  Gehennom
 - Fix: shambling horrors stats persist across save/restore
-- Fix: throwing Grimtooth up in the air and having it hit the player caused a segfault
+- Fix: throwing Grimtooth up in the air and having it hit the player
+  caused a segfault
 - Bypassing Cerberus
 - Fix: giant wizard starting with a cloak of magic resistance
-- Fix: switch cloak of protection for gauntlets of protection (one of the sokoban prizes)
+- Fix: switch cloak of protection for gauntlets of protection (one of
+  the sokoban prizes)
 - Fix: jumping spiders getting stuck in webs
-- Fix: kicking or throwing a spellbook of force bolt or a wand of striking at iron bars
-  would destroy the iron bars
+- Fix: kicking or throwing a spellbook of force bolt or a wand of
+  striking at iron bars would destroy the iron bars
 - Death (rider) livelogging tweak
 - Another Izchak revamp
 - Fix: sokoban door exploit
-- Fix: monster wearing gear with extrinsic could negate same intrinsic once gear was
-  removed
+- Fix: monster wearing gear with extrinsic could negate same intrinsic
+  once gear was removed
 - Rogue tribute level disabled
 - Re-add Frontier Town (mines)
-- Partial fix: monsters switching back and forth between melee and ranged weapon in a
-  loop at a certain range
-- Fix: monsters hovering over an unlocked container they can't open that contains objects
-  they want
+- Partial fix: monsters switching back and forth between melee and
+  ranged weapon in a loop at a certain range
+- Fix: monsters hovering over an unlocked container they can't open that
+  contains objects they want
 - Fix: better handling of trapped tins in Sokoban
 - Wishing for a quest artifact brings its true rightful owner
 - Bows and crossbows are now two-handed weapons
 - Amulet of life saving does not fully heal the wearer
-- Using a wand of digging to escape being engulfed does not always drop the engulfer's
-  hit points down to one
+- Using a wand of digging to escape being engulfed does not always drop
+  the engulfer's hit points down to one
 - Hey shopkeeper, stop polymorphing yourself!
 - Increase odds to be pulled into water/lava
 - Clobber attack from various monsters
@@ -761,20 +899,23 @@ The following changes to date are:
 - Get rid of CREATE_AMMO2
 - Switch Magicbane from an athame to a quarterstaff
 - Fix: material damage messages after monster is already dead
-- Being in the presence of demon lords or princes negates self teleportation
+- Being in the presence of demon lords or princes negates self
+  teleportation
 - Gehennom changes (round three) - The Sanctum
-- Being in the presence of demon lords or princes negates the effects of drinking
-  a cursed potion of gain level
+- Being in the presence of demon lords or princes negates the effects of
+  drinking a cursed potion of gain level
 - Gehennom changes (round four) - Vlad's tower
 - Fix: address some issues found with Vlad's tower revamp
-- Fix: verbage when being killed by a salamander when it pulls you into lava
+- Fix: verbage when being killed by a salamander when it pulls you into
+  lava
 - Fix: prevent pets that aren't sick resistant from attacking gray fungi
 - Juiblex tweak
 - Fix: crash regarding booby-trapped doors
-- Prevent the Amulet of Yendor or any of the invocation items from being destroyed
-  if dropped in Vlad's cavern
+- Prevent the Amulet of Yendor or any of the invocation items from being
+  destroyed if dropped in Vlad's cavern
 - Sokoban prizes made of metal spawn made of a neutral material
-- Redo of the Amulet/invocation items handling if dropped in Vlad's cavern
+- Redo of the Amulet/invocation items handling if dropped in Vlad's
+  cavern
 - Fix: feedback from various monster spells
 - New monster: weredemon
 - Zruty tweak
@@ -784,7 +925,8 @@ The following changes to date are:
 - Fix: a proper tileset can now be created
 - Change .nethackrc to .evilhackrc
 - Tweak damage output when digging your way out of an engulfer
-- Fix: attempt to prevent monster steeds from disappearing when their rider dies
+- Fix: attempt to prevent monster steeds from disappearing when their
+  rider dies
 - Dilapidated armories
 - Fix: safety valve against candelabrum's age becoming 0
 - Fix: correct timing when attaching lit candles to the candelabrum
@@ -798,7 +940,8 @@ The following changes to date are:
 - Chance the Amulet of Yendor will teleport away if dropped
 - Adjust shopkeepers starting gear again
 - Major amnesia revamp
-- Monks receive a random extra kick attack using martial arts at Master level or higher
+- Monks receive a random extra kick attack using martial arts at Master
+  level or higher
 - New monsters: mind flayer larva and alhoon
 - Mind flayer larva won't infiltrate its own kind
 - Re-order monsters in src/monst.c for mkclass
@@ -809,14 +952,15 @@ The following changes to date are:
 - Healers can sense how injured a monster is
 - Fix: 'You slip the leash around your Fiesty's gnome mummy'
 - New branch: The Ice Queen's Realm
-- Fix: seeing feedback from monster vs monster AD_CLOB attacks when they weren't
-  visible
+- Fix: seeing feedback from monster vs monster AD_CLOB attacks when they
+  weren't visible
 - Fix: monsters shouldn't be able to unlock crystal chests
 - Fix: iron ball being deallocated when saving
 - Rewrite monster steed / monster rider handling (SpliceHack)
 - Tweaks to a few random vaults
 - Fix: various compile warnings (clang)
-- Fix: minor fix that allows mkstairs() to run prior to find_branch_room()
+- Fix: minor fix that allows mkstairs() to run prior to
+  find_branch_room()
 - Fix: small fixes regarding the Ice Queen's Realm branch
 - Some tweaks to the Ice Queen's Realm branch 
 - Adjust illithid race starting statistics
@@ -829,21 +973,27 @@ The following changes to date are:
 - Fix: three separate issues concerning mind flayer larva
 - Defeating the Ice Queen should not produce a 'You killed' message
 - Proper attack feedback from Koa/Ozzy
-- Some monsters should never randomly spawn in Gehennom; sea dragon tweak
+- Some monsters should never randomly spawn in Gehennom; sea dragon
+  tweak
 - Fix: fire traps appearing where they shouldn't
 - Fix: hobbit rogues shouldn't be lawful
-- Fix: displaced monster attacking the player by surprise if they are immobile
-- Fix: poisoned weapons other than projectiles were not flagged correctly
+- Fix: displaced monster attacking the player by surprise if they are
+  immobile
+- Fix: poisoned weapons other than projectiles were not flagged
+  correctly
 - Grimtooth is treated just as poisoned weapons are (player alignment)
 - Remove monster projectile range changes
-- Fix: crash when wielding a weapon as a priest and polymorphed into something else
-- Fix: check for and prevent multiple light sources on the same object/monster
+- Fix: crash when wielding a weapon as a priest and polymorphed into
+  something else
+- Fix: check for and prevent multiple light sources on the same
+  object/monster
 - Fix: proper checking deleted light sources
-- Fix: prevent monsters using close-quarters range attack from getting free
-  melee attack 
-- Reverse 'prevent monsters using close-quarters range attack from getting free
-  melee attack'
-- Fix: a couple issues with monsters casting spells against other monsters
+- Fix: prevent monsters using close-quarters range attack from getting
+  free melee attack 
+- Reverse 'prevent monsters using close-quarters range attack from
+  getting free melee attack'
+- Fix: a couple issues with monsters casting spells against other
+  monsters
 - Fix: don't show material on randomized types of armor if not known
 - Fix: monsters being knocked off their steeds
 - Update build files for other operating systems
@@ -852,83 +1002,96 @@ The following changes to date are:
 - Fix: self-induced error in sys/share/dgn_lex.c
 - Fix: missing comma in win/X11/winstat.c
 - Fix: missing define in win/X11/winstat.c
-- Potential fix: src\do_name.c(1328) : error C4703: potentially uninitialized local
-  pointer variable 'mtmp' used (windows/visual studio build)
+- Potential fix: src\do_name.c(1328) : error C4703: potentially
+  uninitialized local pointer variable 'mtmp' used (windows/visual
+  studio build)
 - Update travis.yml file
-- Potential fix: src\mthrowu.c(955 and 1177) : error C4703: potentially uninitialized
-  local pointer variable 'otmp' used (windows/visual studio build)
+- Potential fix: src\mthrowu.c(955 and 1177) : error C4703: potentially
+  uninitialized local pointer variable 'otmp' used (windows/visual
+  studio build)
 - Fix: uninitialized local variables/pointers in src/muse.c
   (windows/visual studio build)
 - Add missing travis-gcc.sh script (from NetHack 3.7)
 - Fix: missing separators in sys/winnt/Makefile.gcc
-- Fix: some errors during compile (windows/visual studio and mingw builds)
+- Fix: some errors during compile (windows/visual studio and mingw
+  builds)
 - Fix: self-induced error with sys/winnt/Makefile.*
 - Update travis.yml file
 - Fix: monsters not walking across shallow water/sewage
 - Tweak various files for windows/visual studio build (travis-ci)
-- More tweaks to various files for windows/visual studio build (travis-ci)
-- Rename windows build binaries and rc files to reflect variant name (tty)
+- More tweaks to various files for windows/visual studio build
+  (travis-ci)
+- Rename windows build binaries and rc files to reflect variant name
+  (tty)
 - Remove duplicate code block in makemon.c
 - Fix: pets not melee attacking peaceful targets
-- Fix: Sunsword should only destroy zombie corpses, not everything under S_ZOMBIE
-- Fix: rename .nethackrc.template to .evilhackrc.template (windows builds)
+- Fix: Sunsword should only destroy zombie corpses, not everything under
+  S_ZOMBIE
+- Fix: rename .nethackrc.template to .evilhackrc.template (windows
+  builds)
 - Fix: stethoscopes not unlocking an iron safe via apply
 - Tweak various settings in evilhackrc (windows builds)
-- Even more tweaks to various files for windows/visual studio build (windows builds)
+- Even more tweaks to various files for windows/visual studio build
+  (windows builds)
 - Edit default folder creation (windows builds)
 - Fix: can't chop down a dead tree on a no-dig level
 - More tweaks (windows builds)
 - Disable travis-ci compiling for windows-mingw
-- Partial fix: certain giant player race flags returning FALSE when entering bones
-  level of a non-giant race player
-- Hacky fix for remaining race flags for giant/centaur being wiped by restmonchn()
+- Partial fix: certain giant player race flags returning FALSE when
+  entering bones level of a non-giant race player
+- Hacky fix for remaining race flags for giant/centaur being wiped by
+  restmonchn()
 - Refactor shambling horror logic into its own function
 - Adjust odds of various events when dipping an object into a forge
 - Prevent the Ice Queen from leaving her realm via magical means
-- Fix: 'You die... The <foo> starts to ransack your possessions' while wearing
-  an amulet of life saving
+- Fix: 'You die... The <foo> starts to ransack your possessions' while
+  wearing an amulet of life saving
 - Fix: any monster could pick up a boulder if the player was giant race
-- Greatly reduce the chance of a kick missing if the player is skilled in
-  martial arts
+- Greatly reduce the chance of a kick missing if the player is skilled
+  in martial arts
 - Fix: various room/level generation improvements
 - Adjust amount of AC dragonhide provides
 - Fix: seeing 'It looks diseased' when defending monster is not in sight
 - Adjust loot in special room for the Mines' End 'sewers' level
-- Fix: Double hit messages (monsters wielding certain artifacts against other
-  monsters)
+- Fix: Double hit messages (monsters wielding certain artifacts against
+  other monsters)
 - Fix: racial shopkeepers not always giving same-race discounts
 - Fix: vulnerabilities and resistances while in monster form
-- Fix: reading scroll of magic detection blanking out locations of known non-magical
-  objects
+- Fix: reading scroll of magic detection blanking out locations of known
+  non-magical objects
 - Some adjustments and improvements to the Ice Queen's realm
 - Remove a bit of unnecessary code from the last commit 
 - Cursed wand backfire patch
-- Adjust odds of a wand of fire randomly appearing in a monster's inventory while
-  in the Ice Queen's realm
+- Adjust odds of a wand of fire randomly appearing in a monster's
+  inventory while in the Ice Queen's realm
 - Trees and dead trees are affected by fire
 - Fix: booby-trapped doors still exist after blowing up
-- Fix: slightly better fix for booby-trapped doors still exist after blowing up
+- Fix: slightly better fix for booby-trapped doors still exist after
+  blowing up
 - Fix: event feedback player shouldn't get if blind
 - Zombies will always be visible via warning
-- Fix: several artifact weapons that were supposed to do double damage were not
-- Artifact armor uses its artifact name when it blocks an attack instead of a
-  simple name
+- Fix: several artifact weapons that were supposed to do double damage
+  were not
+- Artifact armor uses its artifact name when it blocks an attack instead
+  of a simple name
 - Edit 'you enter an ice cave full of monsters!'
 - Fix: crash when summoning nasties
-- Fix: fire damage (Gehennom) and cold damage (Ice Queen branch) only occurs if
-  the player moves
-- Fix: handling of monster riders if polymorphed and still riding their steed
-- Levelporting and cursed potion of gain level effects in the Valley of the Dead
-  resume once Cerberus is defeated
+- Fix: fire damage (Gehennom) and cold damage (Ice Queen branch) only
+  occurs if the player moves
+- Fix: handling of monster riders if polymorphed and still riding their
+  steed
+- Levelporting and cursed potion of gain level effects in the Valley of
+  the Dead resume once Cerberus is defeated
 - Closing off one more Cerberus bypass
 - Fix: Kathryn the Enchantress cannot be killed
 - Specific chat feedback for Kathryn the Enchantress
-- Fix: segfault when ball & chain rusts completely away under certain circumstances
+- Fix: segfault when ball & chain rusts completely away under certain
+  circumstances
 - Fix: couple more issues regarding ball & chain
 - Fix: livelog - revise spelling to more correct but less aesthetically
   pleasing "mimicking"
-- Fix: resolve some issues with the Enchantress and both dogs still attacking once
-  the ice queen branch is completed
+- Fix: resolve some issues with the Enchantress and both dogs still
+  attacking once the ice queen branch is completed
 - Update the README file
 - Tweak damage bonus for using two-handed weapons, other code clean-up
 - Add some more t-shirt slogans
@@ -941,32 +1104,38 @@ The following changes to date are:
 - Fix: prevent the Red Horse from already being starved upon creation
 - Remove Luck Blade's intelligent flag
 - Fix: monsters switching back and forth between melee and ranged
-- Items with detrimental object properties should sometimes spawn cursed and have a
-  negative enchantment
-- Fix: 'You try to feel what is lying here on the water' when feeling sewage
+- Items with detrimental object properties should sometimes spawn cursed
+  and have a negative enchantment
+- Fix: 'You try to feel what is lying here on the water' when feeling
+  sewage
 - Fix: applying a stethoscope to an iron safe while adjacent to it
-- Fix: 'Chih Sung-tzu has forbidden you from using edged weapons such as wands of
-  slow monster!'
+- Fix: 'Chih Sung-tzu has forbidden you from using edged weapons such as
+  wands of slow monster!'
 - Fix: colored walls in special rooms not holding their color
-- Fix: bug with Medusa's gaze being reflected back and the player being blind
+- Fix: bug with Medusa's gaze being reflected back and the player being
+  blind
 - Adjust odds for Medusa to stone herself with her reflected gaze
 - Adjust material for various artifacts
 - Fix: prevent giants from cheating in Sokoban
 - Tweak to bringing in your own boulders to Sokoban
-- Redo what happens when giants bring boulders into Sokoban to drop/throw
+- Redo what happens when giants bring boulders into Sokoban to
+  drop/throw
 - Fix: zombified monsters kept their mextra structs
-- Fix: incorrect feedback when attacking via shift+f as rogue while twoweaponing
-- Fix: certain metallic shields did not incur a substantial casting penalty
-- Fix: being able to attack peacefuls with a weapon as a rogue using shift+f and
-  not making the peaceful monster angry
-- Earthquakes that can occur after the Wizard has been killed won't happen unless
-  the player has the Amulet of Yendor
-- Change earthquake event from having the Amulet to having performed the invocation
-- Fix: playing as giant race, polymorphing into another form and can still throw
-  boulders
+- Fix: incorrect feedback when attacking via shift+f as rogue while
+  twoweaponing
+- Fix: certain metallic shields did not incur a substantial casting
+  penalty
+- Fix: being able to attack peacefuls with a weapon as a rogue using
+  shift+f and not making the peaceful monster angry
+- Earthquakes that can occur after the Wizard has been killed won't
+  happen unless the player has the Amulet of Yendor
+- Change earthquake event from having the Amulet to having performed the
+  invocation
+- Fix: playing as giant race, polymorphing into another form and can
+  still throw boulders
 - Fix: make prayer timeouts longer in very long games
-- Monster steeds can use special attacks, and monsters will dynamically mount nearby
-  steeds
+- Monster steeds can use special attacks, and monsters will dynamically
+  mount nearby steeds
 - Allow player monsters to also randomly mount and ride a steed
 - Fix: scattered objects landing on water or lava without being affected
 - Fix: prevent monsters from mounting steeds they shouldn't
@@ -975,45 +1144,53 @@ The following changes to date are:
 - More adjustments to possible monster/steed combinations
 - A few more adjustments to possible monster/steed combinations
 - Adjust the price of steel (METAL)
-- Fix: tame chameleons able to shapeshift after being 'killed' after a save/reload
+- Fix: tame chameleons able to shapeshift after being 'killed' after a
+  save/reload
 - Adjust how often a monster could randomly mount a suitable steed
 - Fix: player could hit incorporeal monsters with their bare hands
 - Descriptive hit messages for player attacks
 - Fix: allow a bit of insanity for monster steed location
-- Fix: 'The <monster's> corpse falls away and disappears' for monsters that can't
-  leave a corpse
+- Fix: 'The <monster's> corpse falls away and disappears' for monsters
+  that can't leave a corpse
 - Adjust some of the monsters found in 'Zootown'
 - Fix: monster spell 'vulnerability' not working vs other monsters
-- Fix: quirk with cursed potions of gain level depositing the player on the
-  staircase going down
+- Fix: quirk with cursed potions of gain level depositing the player on
+  the staircase going down
 - Fix: heap corruption regarding objects eroding away completely
 - Record amount of gold in hero's possession in xlogfile
 - Fix: address some 'read/write after free' issues 
-- Fix: weird behavior with monster steed/rider pair and the rider is zombified
+- Fix: weird behavior with monster steed/rider pair and the rider is
+  zombified
 - Fix: minor inventory issues with player monster archeologists
 - Fix: typo in src/dothrow.c and the Crossbow of Carl
 - Fix: missing 'typ ==' in src/muse.c
 - Fix: incorrect value in water_damage() in src/mon.c
 - Fix: non-flying steeds falling to their death in Vlad's cavern 
 - Fix: monster rider/steed tweaks and fixes
-- Fix: peaceful spellcasters casting summon elemental/summon insects against player
-- Fix: impossible() when prison guard tries to initiate a bribe while carrying
-  no gold
+- Fix: peaceful spellcasters casting summon elemental/summon insects
+  against player
+- Fix: impossible() when prison guard tries to initiate a bribe while
+  carrying no gold
 - Fix: heavy iron ball and chain are always rustproof
 - Proper xlogfile death reason when decapitated via AD_BHED damage
 - Fix: 'read after free' with pets gaining intrinsics from corpses
 - Fix: some tweaks to 'read/write after free' issues
-- Minor tweak to livelog message for player losing their long sword via dipping in a
-  fountain
+- Minor tweak to livelog message for player losing their long sword via
+  dipping in a fountain
 - Tweak monster AI logic concerning wand use
-- Fix: "placing %s over %s at <%d,%d>, mstates:%lx %lx on %s?" panic in Fort Ludios
-- Proper xlogfile death reason when disintegrated by a black dragon's passive attack
-- Fix: metallic armor should always give at least one point of AC if unenchanted
-- Fix: "warning: address of array 'killer.name' will always evaluate to 'true'"
-- Fix: monsters killed while standing on shallow water or sewage weren't leaving
-  a corpse
+- Fix: "placing %s over %s at <%d,%d>, mstates:%lx %lx on %s?" panic in
+  Fort Ludios
+- Proper xlogfile death reason when disintegrated by a black dragon's
+  passive attack
+- Fix: metallic armor should always give at least one point of AC if
+  unenchanted
+- Fix: "warning: address of array 'killer.name' will always evaluate to
+  'true'"
+- Fix: monsters killed while standing on shallow water or sewage weren't
+  leaving a corpse
 - Wizmode wishing for 'puddle' creates shallow water terrain
-- Fix: "warning C4244: '=': conversion from 'int' to 'float', possible loss of data"
+- Fix: "warning C4244: '=': conversion from 'int' to 'float', possible
+  loss of data"
 - Tweak some xlogfile death messages
 - Fix: movement messages while standing still in shallow water or sewage
 - Fix: segfault when dropping objects with timers in Vlad's cavern
@@ -1021,17 +1198,22 @@ The following changes to date are:
 
 ### Version 0.6.0
 
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of
+  March 7th, 2020)
 - Fix: address skill issues of various roles
-- Fix: seeing feedback about an object disintegrating off of a black dragon's scales when
-  the event wasn't witnessed
-- Fix: death rays were killing monsters that should be immune to death magic
+- Fix: seeing feedback about an object disintegrating off of a black
+  dragon's scales when the event wasn't witnessed
+- Fix: death rays were killing monsters that should be immune to death
+  magic
 - Update include/patchlevel.h for version 0.6.0
 - Some racial shopkeeper tweaks
 - Fix: correct misspelling with Werebane extra damage feedback
-- Fix: The gnome lord's silver pick-axe shatters from the force of your blow!
-- Fix: beheading a troll that was wearing an amulet of life saving shouldn't cancel it
-- Fix: monsters leaving corpses after being disintegrated by black dragon's passive attack
+- Fix: The gnome lord's silver pick-axe shatters from the force of your
+  blow!
+- Fix: beheading a troll that was wearing an amulet of life saving
+  shouldn't cancel it
+- Fix: monsters leaving corpses after being disintegrated by black
+  dragon's passive attack
 - Fix: aged corpses placed inside an ice box show as 'burnt'
 - All spell staves are now properly magical
 - Various objects.c edits
@@ -1042,8 +1224,8 @@ The following changes to date are:
 - Add a couple monsters to the 'can never be tamed' list
 - Additions to which monsters resist_sick() and resist_drain()
 - Add M1_TPORT_CNTRL flag to the ice queen
-- Monsters that are M3_BERSERK should only 'howl with rage' when attacking and at
-  low health, not *just* low health
+- Monsters that are M3_BERSERK should only 'howl with rage' when
+  attacking and at low health, not *just* low health
 - Some forge adjustments
 - Cursed weapons get to-hit/damage bonuses to angelic beings
 - Fix: passive AD_DISE attack to properly use diseasemu()
@@ -1057,17 +1239,21 @@ The following changes to date are:
 - Show skill caps and percentage towards next level in #enhance
 - New player role: Infidel (by Tomsod)
 - Various fixes and tweaks to the Infidel role
-- Fix: illithids playing as Infidel weren't starting with their 'psionic wave' spell
+- Fix: illithids playing as Infidel weren't starting with their 'psionic
+  wave' spell
 - Realizing the Infidel role author's intent
-- Fix: a few more incorrect alignment type reporting, livelogging (Infidel role)
-- Fix: killed uniques livelogged as bogusmons if player was hallucinating
+- Fix: a few more incorrect alignment type reporting, livelogging
+  (Infidel role)
+- Fix: killed uniques livelogged as bogusmons if player was
+  hallucinating
 - Fix: three bugs with ghosts displaying as I incorrectly
 - Effects of praying/sacrificing as an Infidel
 - Crowned Infidels (demonic form) can never handle silver objects
 - Infidels can train trident weapon skill
 - A couple more minor Infidel tweaks
 - Show if inediate via enlightenment
-- Fix: Demonbane not suppressing demon gating when in offhand while twoweaponing
+- Fix: Demonbane not suppressing demon gating when in offhand while
+  twoweaponing
 - Fix: proper way of saving shambling horror data across save/restore
 - Fix: default engraving/epitaph/bogusmon corruption
 - Add amulet of guarding from NetHack 3.7.0
@@ -1082,7 +1268,8 @@ The following changes to date are:
 - Even more Infidel role changes
 - Reverting spell power drain for Infidels; minor altar sacrifice tweaks
 - Infidel ascension feedback correction, power regen tweak
-- New artifacts: Angelslayer, Bag of the Hesperides, Butcher, Wand of Orcus
+- New artifacts: Angelslayer, Bag of the Hesperides, Butcher, Wand of
+  Orcus
 - Fix: various issues from the previous new artifact commit
 - Fix: issues with centaur race and kicking
 - New monster: eldritch ki-rin
@@ -1096,22 +1283,28 @@ The following changes to date are:
 - Tiamat's stinger is supposed to be poisonous
 - Tiamat's engulf attack should be last in the attack chain
 - Descriptive miss messages (player vs monster, monster vs monster)
-- Fix: minor bug reporting amulet or idol in Infidel's possession upon death
+- Fix: minor bug reporting amulet or idol in Infidel's possession upon
+  death
 - Fix: suppress 'with the amulet' death messages for Infidels
-- Specific sacrifice offering being consumed message for unaligned altars
+- Specific sacrifice offering being consumed message for unaligned
+  altars
 - Player monster Infidel's weapon and armor should spawn cursed
 - Fix: monsters riding steeds and polymorph traps
 - Fix: several instances of incorrectly receiving visual feedback
 - Fix: prevent ice nymphs from spawning where they shouldn't
-- Fix: crowned infidel's stinger attack against monsters whose touch petrifies
+- Fix: crowned infidel's stinger attack against monsters whose touch
+  petrifies
 - Fix: incorrect crowned infidel title via enlightenment
-- Fix: crowned infidel's (demon form) and various silver object interactions
+- Fix: crowned infidel's (demon form) and various silver object
+  interactions
 - Show if immune to death magic via enlightenment
-- Fix: crowned infidel's wings stay confined under their body armor on save/restore
+- Fix: crowned infidel's wings stay confined under their body armor on
+  save/restore
 - Fix: trees spawning on stairs on the nymph level
 - Fix: add missing roles to appropriate casting type
 - Fix: infidels and spell casting bonuses/penalties
-- Fix: stop demon lords/princes from being so damn chatty to infidels they like
+- Fix: stop demon lords/princes from being so damn chatty to infidels
+  they like
 - Fix deaf & blind hero 'seeing' monster (artifact owner appearance)
 - Remove bit from a previous fix that does absolutely nothing
 - Don't push around stacks of boulders as one
@@ -1119,10 +1312,12 @@ The following changes to date are:
 - Make boulders weigh 8 aum EACH, not together, for giant PCs
 - Bit of formatting housekeeping
 - Fix: the Bag of the Hesperides was not granting MC1 when carried
-- Fix: giant samurai breaking out of their large armor when poly'd into a large form
+- Fix: giant samurai breaking out of their large armor when poly'd into
+  a large form
 - Make the Ice Queen not aggro on multihits
 - Some slight code improvements (ice queen branch)
-- Fix: your deity probably shouldn't gift the player a helm of opposite alignment
+- Fix: your deity probably shouldn't gift the player a helm of opposite
+  alignment
 - Fix: only demons can wield the Wand of Orcus
 - Fix: only transform a dead ice queen
 - Clear up a couple extra conditions on transformation
@@ -1131,61 +1326,72 @@ The following changes to date are:
 - Fix: make player monsters show the right rank titles
 - Code formatting tweaks
 - Fix: tame vampires no longer revert back to animal/fog form
-- Fix: proper handling of monster's weapon/gloves when attacking a black dragon
-- Fix: correct feedback when a monster dies due to wearing a cursed amulet of
-  life saving
+- Fix: proper handling of monster's weapon/gloves when attacking a black
+  dragon
+- Fix: correct feedback when a monster dies due to wearing a cursed
+  amulet of life saving
 - Fix: player monster infidel armor/weapon objects not truly cursed
 - Player monster infidels won't use scrolls of remove curse
 - Some tweaks to random vaults
 - Fix: huge/gigantic monsters 'squashing' tiny monsters in their way
 - Running and traveling no longer push boulders
-- Allow skilled attack spell casters to cast 'basic' level for various attack spells
+- Allow skilled attack spell casters to cast 'basic' level for various
+  attack spells
 - Fix: guardians could attack hostile quest leader
 - Conflict negates Elbereth and scare monster
 - Lifesaving livelog shows the would-be killer
 - Allow teleportation into unteleportable spots in wizard mode
 - Unify monnam calls for livelogs that should ignore hallucination
 - Fix: livelog for killing pet should happen even if pet is unnamed
-- Elven/orcish undead are unaffected by the materials their living counterparts hate
+- Elven/orcish undead are unaffected by the materials their living
+  counterparts hate
 - Fix: prevent potential segfault using a stethoscope to listen to eggs
 - Angel tweaks and adjustments
 - All demon lords/princes have at least a base speed of 12
-- Player monsters that spawn in the endgame use names from the topten list
+- Player monsters that spawn in the endgame use names from the topten
+  list
 - Fix: Gjallar not affecting various monsters predisposed to wait
-- Fix: proper handling of wielding a chickatrice/cockatrice corpse if worn gloves
-  erode away
+- Fix: proper handling of wielding a chickatrice/cockatrice corpse if
+  worn gloves erode away
 - Fix: 'Boyabai the dwarf lady swings his staff at the orc zombie'
 - Infidel player monsters can cast spells
 - Balrog adjustments
 - Increase starting pets survivability versus zombies
 - Object materials: fixes for material hatred (round one)
 - Object materials: fixes for material hatred (round two)
-- No, really. Wizards shouldn't receive plate mail as an altar sacrifice gift
+- No, really. Wizards shouldn't receive plate mail as an altar sacrifice
+  gift
 - Prevent monsters zero-turn equipping and equipping with player nearby
 - Fix: monsters using ranged weapon at melee range
 - Fix: possible 'glorkum' event
-- Fix: pets attacking peaceful quest guardians/leader with ranged attacks
+- Fix: pets attacking peaceful quest guardians/leader with ranged
+  attacks
 - Fix: the weredemon turns into a demon
-- Fix: monster wearing a cursed amulet of life saving wouldn't die from it if hero
-  was blind
+- Fix: monster wearing a cursed amulet of life saving wouldn't die from
+  it if hero was blind
 - Preparation for official version 0.6.0 release
 - Fix: sear messages for items made of non-hated material
 - Fix: material bonuses in dmgval applied to more than weapons
 - Fix: mind flayer types being zombified
 - Fix: you see here a cloth saddle
 - Tweak extra_pref()
-- Fix: prevent tools that spawn inside a dilapidated armory from having zero charges
+- Fix: prevent tools that spawn inside a dilapidated armory from having
+  zero charges
 - Fix: heap use after free (sp_lev.c)
 - Fix: killed by the the <foo>
-- Fix: Sokoban zoo entrance door could become sealed shut while retrieving the prize
+- Fix: Sokoban zoo entrance door could become sealed shut while
+  retrieving the prize
 - Fix: pet location inconsistency
-- Fix: containers made of non-flammable materials catching fire and burning up
+- Fix: containers made of non-flammable materials catching fire and
+  burning up
 - More tweaks to tool class object materials
-- Fix: prevent shape-changing pets from reverting back to their original form while
-  wearing a ring of protection from shape changers
-- Prevent the Mitre of Holiness from blocking an illithid's psionic attack
+- Fix: prevent shape-changing pets from reverting back to their original
+  form while wearing a ring of protection from shape changers
+- Prevent the Mitre of Holiness from blocking an illithid's psionic
+  attack
 - Fix: strength attribute abuse (giants)
-- Fix: champions/agents spawning when the player is not playing as an infidel
+- Fix: champions/agents spawning when the player is not playing as an
+  infidel
 - Fix: The elven king's ring of protection blocks the warg's attack
 - Fix: debug pline left in death-aversion livelog code
 - Fix: You crush the the ogre's skull!
@@ -1196,44 +1402,56 @@ The following changes to date are:
 - Fix: Butcher is supposed to be two-handed
 - Fix: 'Your wooden shield smoulders' with non-wooden shields
 - Remove multiple unnecessary instances of '#define a_align' 
-- Fix: random earthquakes caused after performing the invocation were making peaceful
-  monsters angry at the player
+- Fix: random earthquakes caused after performing the invocation were
+  making peaceful monsters angry at the player
 - Fix: Yeenoghu wasn't spawning with Butcher
 - Improvements to how healers can sense injuries
-- Fix: half spell damage stacking twice for player against magic missile attack
+- Fix: half spell damage stacking twice for player against magic missile
+  attack
 - Fix: possible to destroy the Amulet and the invocation items in sewage
 - Fix: looking at monsters wearing armor
 - Fix: giants could hit incorporeal monsters with anything
-- Fix: check_wings() function could sometimes cause crash on game restore
+- Fix: check_wings() function could sometimes cause crash on game
+  restore
 - Fix: prevent non-wishable artifacts from appearing in bones pile
 - Fix: missing ranks from enemy samurai during the samurai quest
 - Colored altars revamp (part 1?)
-- Fix: Angelslayer and the Tsurugi of Muramasa were conferring properties on carry
-  when it should have been on wield
+- Fix: Angelslayer and the Tsurugi of Muramasa were conferring
+  properties on carry when it should have been on wield
 - Fix: prevent vampire mages from spawning in Mines End catacombs
-- Fix: prevent master mind flayers or alhoons from spawning in the Gnomish Mines
+- Fix: prevent master mind flayers or alhoons from spawning in the
+  Gnomish Mines
 - Chance for a hobbit rogue to spawn with a lock pick
 - Fix: Genetic engineers dropping Schroedinger's cat box
-- Fix: Getting 'Your flail slips from your hand' as a Convict wielding a heavy iron ball
+- Fix: Getting 'Your flail slips from your hand' as a Convict wielding a
+  heavy iron ball
 - Prevent dog from getting stuck on 'treat' food
-- Fix: Convict wielding a heavy iron ball, showing as a flail via enlightenment
-- Fix: several cases in trap.c where the player could hear events while deaf
+- Fix: Convict wielding a heavy iron ball, showing as a flail via
+  enlightenment
+- Fix: several cases in trap.c where the player could hear events while
+  deaf
 - Prevent certain extraplanar beings from being diseased
-- Fix: altars changing from aligned to unaligned when a booby-trapped door exploded
+- Fix: altars changing from aligned to unaligned when a booby-trapped
+  door exploded
 
 
 ### Version 0.7.0
 
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of March 7th, 2020)
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of
+  March 7th, 2020)
 - Replace 'samurai' in the samurai quest with new monster - Ronin
 - New object property - Excellence
-- Fix: correctly handle how <foo> of excellence becomes known when worn/wielded
+- Fix: correctly handle how <foo> of excellence becomes known when
+  worn/wielded
 - More tweaks to 'excellence' object property
-- Adjust odds of artifact weapon and weapon with object property generation
-- Fix: proper handing of luck adjustment when removing <armor> of excellence
+- Adjust odds of artifact weapon and weapon with object property
+  generation
+- Fix: proper handing of luck adjustment when removing <armor> of
+  excellence
 - Minor formatting tweak in makewish()
 - Fix: timed clairvoyance, add 'quick_farsight' option
-- Fix: Oracle not defending itself against the player when being attacked
+- Fix: Oracle not defending itself against the player when being
+  attacked
 - Several changes to the Oracle
 - Ronin (samurai quest) spawn with basic kit
 - Wizard of Yendor buff
@@ -1243,12 +1461,15 @@ The following changes to date are:
 - Fix: crash on reloading game while wielding Grayswandir
 - Bit of code cleanup in mcalcdistress()
 - Fix: Sceptre of Might as 'heavy mace' in Caveman.des
-- Allow player as a giant to force-move onto a boulder without having to push it
-- Fix: Monks were getting their extra kick attack while riding on a steed
+- Allow player as a giant to force-move onto a boulder without having to
+  push it
+- Fix: Monks were getting their extra kick attack while riding on a
+  steed
 - New monster spell: reflection
-- Bring secondary effects of worn black dragon scales/scale mail inline with black
-  dragons
-- Fix: most armor special properties were still in effect if it eroded away
+- Bring secondary effects of worn black dragon scales/scale mail inline
+  with black dragons
+- Fix: most armor special properties were still in effect if it eroded
+  away
 - New monster spell: protection
 - Check bones data directly for deja vu messages
 - Copyright info update for 2021
@@ -1260,27 +1481,32 @@ The following changes to date are:
 - Remove mkpuddles() function
 - Prevent rust monsters from 'unfixing' fixed heavy iron ball/chain
 - Some object tweaks
-- Fix: monsters wearing gray dragon scales/scale mail passive attack happening
-  too often
+- Fix: monsters wearing gray dragon scales/scale mail passive attack
+  happening too often
 - Mind flayer larva nurseries to show up a bit sooner in the dungeon
-- Fix: some monsters that are resistant to fire were also flagged as vulnerable
-  to fire
+- Fix: some monsters that are resistant to fire were also flagged as
+  vulnerable to fire
 - Correction to chances for passive attack from BDSM (monster vs player)
 - Exploding Bag of the Hesperides
-- Fix: non-artifact weapons behaving as the Secespita artifact weapon if power
-  was not 100%
+- Fix: non-artifact weapons behaving as the Secespita artifact weapon if
+  power was not 100%
 - Fix: ensure that only zombie corpses confer zombie sickness when eaten
 - Fix: "It attacks the displaced image of it."
 - Fix: expelled hero kept suffocating when levelporting or branchporting
   out of the engulfer
 - Prevent monsters from using weapons made of a material they hate
-- Fix: The iron of your helm blocks your psionic attack.  The watchman gets angry!
-- Fix: various artifacts 'incinerating' a monster but they still left a corpse 
+- Fix: The iron of your helm blocks your psionic attack.  The watchman
+  gets angry!
+- Fix: various artifacts 'incinerating' a monster but they still left a
+  corpse 
 - Fix: 'glorkum' from appearing in player monsters inventory
-- Fix: black dragon/BDSM passive attacks disintegrating wrong armor pieces
-- Fix: naming an object will apply to the same type of object if it's one of the
-  undiscovered sokoban prizes, giving away what it is before it's been obtained
-- Fix: certain artifact attacks wouldn't kick in unless target monster was seen
+- Fix: black dragon/BDSM passive attacks disintegrating wrong armor
+  pieces
+- Fix: naming an object will apply to the same type of object if it's
+  one of the undiscovered sokoban prizes, giving away what it is before
+  it's been obtained
+- Fix: certain artifact attacks wouldn't kick in unless target monster
+  was seen
 - Fix: crash when monster threw glass weapon into iron bars
 - Changes to 'magical' item xname for Wizards
 - Fix: don't leak identity of soko prize tool
@@ -1290,23 +1516,27 @@ The following changes to date are:
 - Kathryn the Enchantress will still wave to you if hostile
 - Fix: the Oracle and Charon changed states not restored on save
 - Fix: better fix for crash when killing monster with a wielded potion
-- Fix: thrown/kicked objects hitting a black dragon would disintegrate 100%
-  of the time
-- Fix: check_wings() doesn't respect if an amulet of flying is being worn or not
-- Fix: Illithids can still use psionic blast if poly'd into a non-illithid form
-- Fix: actual proper fix for booby-trapped doors still existing after blowing up
-- Fix: Stormbringer wasn't doing its 'bloodthirsty' attack against tame/peaceful
-  targets while being dual-wielded in the offhand position 
+- Fix: thrown/kicked objects hitting a black dragon would disintegrate
+  100% of the time
+- Fix: check_wings() doesn't respect if an amulet of flying is being
+  worn or not
+- Fix: Illithids can still use psionic blast if poly'd into a
+  non-illithid form
+- Fix: actual proper fix for booby-trapped doors still existing after
+  blowing up
+- Fix: Stormbringer wasn't doing its 'bloodthirsty' attack against
+  tame/peaceful targets while being dual-wielded in the offhand position 
 - Fix: prevent 'impossible d(-1,250) attempted'
 - Fix: player taking damage from missed fire/ice bolt monster spell
 - Encyclopedia update: round one (monsters)
 - Encyclopedia update: round two (objects and miscellaneous)
-- Fix: The black dragon eats a black dragon corpse. The black dragon looks very
-  firm.
+- Fix: The black dragon eats a black dragon corpse. The black dragon
+  looks very firm.
 - Adjustments to throne wishes
 - Shallow water is a finite resource
 - Fix: rabid dog encyclopedia entry
-- Fix: containers made of iron would rust away and not drop their contents
+- Fix: containers made of iron would rust away and not drop their
+  contents
 - Redo encyclopedia entry for turtle
 - Fix: another case of 'placing steed onto map, mstate:0, on Dlvl:() ?'
 - Pseudodragons given a range of different sounds
@@ -1315,7 +1545,8 @@ The following changes to date are:
 - Fix: Oracle missing its artifact on the new oracle levels
 - Fix: Oracle stayed peaceful when the gods took notice of thievery
 - Fix: Cerberus was still susceptible to AD_BHED attack
-- Fix: instances where article was missing from the Bag of the Hesperides
+- Fix: instances where article was missing from the Bag of the
+  Hesperides
 - Create three tiers of homunculus, Infidel now has a pet that can grow
 - Slight changes to intrinsics gained via crowning for infidel role
 - Extra effects/consequences for wielding or wearing any of the 'banes 
@@ -1339,8 +1570,8 @@ The following changes to date are:
 - Fix: adjust ACCESSIBLE to accept shallow water and sewage tiles
 - Fix: wrong race with racial identifier for racial priests
 - Racial player monsters
-- Fix: make sure iflags.use_color is enabled when changing player monster
-  color
+- Fix: make sure iflags.use_color is enabled when changing player
+  monster color
 - Fix: prevent rangers from wishing for their other quest artifact
 - Fix: remove chokepoint final ranger quest level (centaurs)
 - Fix: random monster cannot spawn if unaligned (A_NONE)
@@ -1355,7 +1586,8 @@ The following changes to date are:
   timeouts
 - Fix: 'The skeleton's skin looks flaky'
 - Fix: another missing article with an artifact
-- Fix: 'Your pair of leather gloves looks completely burnt' printing twice
+- Fix: 'Your pair of leather gloves looks completely burnt' printing
+  twice
 - Fix: racial player monster fixup
 - Fix: clean-up a few warnings from the last PR
 - Fix: spelling error in README
@@ -1410,7 +1642,8 @@ The following changes to date are:
 - Fix: You start playing your Gjallar
 - The spotted jelly flollops!
 - Small chance a player monster's container is a bag of tricks
-- Suppress 'You appear to be only partially affected.  You aren't affected.'
+- Suppress 'You appear to be only partially affected.  You aren't
+  affected.'
 - Fix: DOORMAX exceeded issue / acid explode type
 - Fix: 'Swallower has no engulfing attack?' impossible
 - Fix: drawbridge stuck if water underneath were frozen by a monster via
@@ -1424,7 +1657,8 @@ The following changes to date are:
 - Fix: rearrange the logic of starting inventory adjustments
 - Demon boss/lair adjustments, new object
 - Minor tweaks to last commit (demon boss templates)
-- Fix: Dragonbane could still be disintegrated by attacking a black dragon
+- Fix: Dragonbane could still be disintegrated by attacking a black
+  dragon
 - Encyclopedia entries for newer monsters/objects
 - Tiamat has a chance to drop chromatic dragon scales upon death
 - Addition of a third tier 3 demon prince level
@@ -1440,7 +1674,8 @@ The following changes to date are:
   Queen's realm
 - New branch: Vecna's domain (part one)
 - More verbose message when entering Vlad's cavern for the first time
-- New branch: Vecna's domain (part two) - artifacts, Kas (unique monster)
+- New branch: Vecna's domain (part two) - artifacts, Kas (unique
+  monster)
 - Fix: Kas not flagged as a vampshifter, pets would eat the Eye of Vecna
 - Cover all the bases for lich/alhoon genocide prevention while Vecna
   exists, switch Vecna's gaze attack to a death gaze
@@ -1463,16 +1698,18 @@ The following changes to date are:
 - Fix: 'The goblin outrider is burned by your invisible vampire mage's
   pair of mithril tekko!'
 - Update level data on various platforms (Vecna branch).
-- Fix: segfault if killed by certain monsters that go through your possessions
+- Fix: segfault if killed by certain monsters that go through your
+  possessions
 - Fix: better grammar/object handling (priest attacking with forbidden
   weapons)
 - Redo vecna-3 map
 - Fix: Caveperson quest nemesis not spawning with the Bell of Opening
 - Some rumor tweaks
-- Fix: drain_weapon_skill() irregularities, tone down occurence of the same
+- Fix: drain_weapon_skill() irregularities, tone down occurence of the
+  same
 - The Sword of Kas adjustment
-- Small tweak to is_lord() gear enchantments, monsters receive racial bonus
-  for wearing aligned armor 
+- Small tweak to is_lord() gear enchantments, monsters receive racial
+  bonus for wearing aligned armor 
 - Fix: impossible/panic when monster dies to self-read scroll of earth
 - Don't allow the debug fuzzer to enter explore mode
 - Fix: segfault caused by thrown objects calling searmsg()
@@ -1489,18 +1726,18 @@ The following changes to date are:
 - Update version number in windows build files
 - Fix: water_damage_chain could wet some objects twice
 - Encyclopedia entries for Vecna, Kas, and associated artifacts
-- Abusing your alignment can cause your quest leader to ask you to return
-  the quest artifact
+- Abusing your alignment can cause your quest leader to ask you to
+  return the quest artifact
 - Fix: mon 457 doesn't like any materials for obj 269
 - Fix: incorrect MC calculation
-- Exclude fumble boots/gauntlets and dunce cap from regular item sacrifice
-  gift selection
+- Exclude fumble boots/gauntlets and dunce cap from regular item
+  sacrifice gift selection
 - Randomize odds of a river forming in the gnomish mines
 - Tweak Wizard of Yendor's kit
 - Give the player a chance to escape from a demon lord/prince using
   teleportation or cursed potions of gain level
-- Wizard quest leader/nemesis tweaks, MR2_TELEPATHY extrinsic for monsters
-  from worn objects
+- Wizard quest leader/nemesis tweaks, MR2_TELEPATHY extrinsic for
+  monsters from worn objects
 - The Dark One's familiar
 - Fix: The Grey-elf resists the death magic, but appears drained!
   The death ray hits the Grey-elf! 
@@ -1510,7 +1747,8 @@ The following changes to date are:
 - Fix: wish prompt
 - New command (^U) to remove remembered 'I' monster markers from the map
 - Rename EvilHack changelog extension to .md and update formatting
-- Add AUTOCOMPLETE to new 'remove remembered 'I' monster markers' command
+- Add AUTOCOMPLETE to new 'remove remembered 'I' monster markers'
+  command
 - Mind flayer larvae grudge humanoids it considers a suitable host, can
   become a mind flayer on successful brain burrow attack
 - Take greased/slippery head gear into consideration for mind flayer
@@ -1813,7 +2051,8 @@ The following changes to date are:
 - Fix: monsters riding steeds were not highlighted in curses mode
 - Adjust monster spawns in morgues in Vecna's domain
 - Fix: small issue with #loot(ing) pets in a shop
-- Fix: monsters unable to walk on water while wearing water walking boots
+- Fix: monsters unable to walk on water while wearing water walking
+  boots
 - Fix: a Centaur's kick is more powerful than other player races
 - Fix: minor incorrect spelling 
 - Fix: various curses color handling
@@ -1892,7 +2131,8 @@ The following changes to date are:
 
 ### Version 0.7.1
 
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of January 23rd, 2022)
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of
+  January 23rd, 2022)
 - Initial preparation for new version (0.7.1)
 - Centaurs can be knights
 - Revamp corpse revival via zombie death, zombie illness timer
@@ -1915,7 +2155,8 @@ The following changes to date are:
   from shock damage
 - Adjustment to last commit (monsters/gloves/rings)
 - Fix: monsters/pets ailments not always cured via eating certain foods 
-- Player can use a hammer and a forge to free themselves from ball & chain
+- Player can use a hammer and a forge to free themselves from ball &
+  chain
 - Attacking with a cursed weapon can sometimes do odd things
 - Add condition for hitting oneself with a cursed artifact weapon
 - Fix: chameleons stuck at never changing form again by selecting their
@@ -1929,7 +2170,8 @@ The following changes to date are:
 - Fix: holdovers from ini_inv in ini_mon_inv
 - Fix: minor error in this changelog
 - Fix: quest artifact effects linger after giving it up to quest leader
-- Fix: crash via draining a monster with wand of death to zero hit points
+- Fix: crash via draining a monster with wand of death to zero hit
+  points
 - Fix: quest leader wanting quest artifact back and it's thrown to them
 - Fix: player getting credit for monster dying to another monster's
   armor blocking their attack (hated material)
@@ -1956,17 +2198,20 @@ The following changes to date are:
 - Allow angel lord types to spawn with Demonbane again
 - Fix: crash caused by last commit (angel lords / Demonbane)
 - Fix: silence compiler warning in droppables()
-- Casting stone to flesh at a monster in the process of being stoned will
-  cure it
+- Casting stone to flesh at a monster in the process of being stoned
+  will cure it
 - Fix: zero out rooms[] in savelev()
 - Fix: corpses showing as rotten after being removed from an ice box
 - Allow player monster knights to be centaurs
-- Fix: prevent racial elf/orc grudge between the watch/priests/shopkeepers
+- Fix: prevent racial elf/orc grudge between the
+  watch/priests/shopkeepers
 - Fix: "You feel a malignant aura surround it." and 'it' isn't visible
 - Allow #wizgenesis to specify racial monsters
-- Adjust 'prevent racial elf/orc grudge between the watch/priests/shopkeepers'
+- Adjust 'prevent racial elf/orc grudge between the
+  watch/priests/shopkeepers'
 - Fix: recalc_mapseen vs rooms
-- Fix: clear any hold over slow-stoning timers on statues being reanimated
+- Fix: clear any hold over slow-stoning timers on statues being
+  reanimated
 - Fix: object stacking display bug in curses mode
 - Fix: spellcasting pets casting invisibility on themselves when player
   can't see invisible
@@ -1996,15 +2241,18 @@ The following changes to date are:
 - Fix: untrap steed sanity
 - Expand/simplify racial monster macro usage
 - Fix: croc corpse poly produces 'flesh low boots'
-- Adjust minimum distance a monster will cast fire/ice bolt or acid blast
+- Adjust minimum distance a monster will cast fire/ice bolt or acid
+  blast
 - Fix: 'could maneuver over it' vs 'maneuver over it' in Sokoban
 - Fix: cases where an artifact would be silently removed from the game
 - Fix: breaking wielded fragile item against iron bars
 - Weapon with poison object property will identify itself if it doesn't
   affect its target
 - Livelog quest completion
-- Fix: alignment penalty for killing summoned elves when naming Sting/Orcrist
-- Fix: better handling of what monsters can ride/what monsters can be ridden
+- Fix: alignment penalty for killing summoned elves when naming
+  Sting/Orcrist
+- Fix: better handling of what monsters can ride/what monsters can be
+  ridden
 - Fix: bad cast making sp_lev chameleon light source
 - Fix: various artifacts 'flickering no color'
 - Monsters can drink potions of restore ability to cure cancellation
@@ -2031,19 +2279,20 @@ The following changes to date are:
   shopkeepers for 10x the fair market price
 - Fix: incorrect monster display on gravestone when killed via
   suffocation while engulfed and hallucinating
-- Fix: Dragonbane passive damage to dragons not working if wearing dragon
-  scales or scale mail
+- Fix: Dragonbane passive damage to dragons not working if wearing
+  dragon scales or scale mail
 - Fix: gloves and hated container material
 - Fix: exploding acid spheres and damage
 - Additional bogusmons
 - Fix: Show proper artifact name when it resists being held second
 - Fix: unnecessary feedback when gaining an intrinsic from leveling up
   and the player already has that intrinsic
-- Fix: monsters not curing themselves of sickness/disease as they should,
-  other adjustments to muse.c
+- Fix: monsters not curing themselves of sickness/disease as they
+  should, other adjustments to muse.c
 - Some more formatting tweaks to muse.c, fix for reflection_skip 
 - Fix: unreachable return statement in dog.c
-- Another adjustment to max hit points the Wand of Orcus can decrease per hit
+- Another adjustment to max hit points the Wand of Orcus can decrease
+  per hit
 - Convict's starting ball/chain is fully identified across the board
 - Accurate tracking of how many doors seal after touching sokoban prize
 - Fix: heavy iron ball rusting while being held when walking through
@@ -2063,8 +2312,8 @@ The following changes to date are:
 - Fix: offhand bloodthirsty attacks (wielding Stormbringer and/or the
   Sword of Kas)
 - Fix: some perm_invent curses mode issues
-- Adjust alignment record penalty for Convict's killing 'always peaceful'
-  monsters that became hostile just from seeing the Convict
+- Adjust alignment record penalty for Convict's killing 'always
+  peaceful' monsters that became hostile just from seeing the Convict
 - Format cleanup in zap.c
 - Bit more formatting cleanup in zap.c
 - Blessed objects in inventory have a chance to resist being cancelled
@@ -2098,14 +2347,17 @@ The following changes to date are:
 
 ### Version 0.8.0
 
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of January 23rd, 2022)
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of
+  January 23rd, 2022)
 - Initial preparation for new version (0.8.0)
 - Fix: artifacts in wizkit.txt (wizard mode)
-- Fix: warning: unsigned conversion from ‘int’ to ‘unsigned char:5’ changes value from
-  ‘32’ to ‘0’ [-Woverflow] (ICED_MOAT)
+- Fix: warning: unsigned conversion from ‘int’ to ‘unsigned char:5’
+  changes value from ‘32’ to ‘0’ [-Woverflow] (ICED_MOAT)
 - Fix: correction to wizkit commit
-- Fix: shambling horror generating with different stats on bones file load
-- Allow magical traps to be affected by wands of cancellation when monsters zap them
+- Fix: shambling horror generating with different stats on bones file
+  load
+- Allow magical traps to be affected by wands of cancellation when
+  monsters zap them
 - Tweak to last commit (magical traps and cancellation)
 - Fix: heap-use-after-free error in mpickstuff()
 - Fix: heap-use-after-free error with passive_obj()
@@ -2119,18 +2371,21 @@ The following changes to date are:
 - Fix: unnecessary impossible() in restmonsteeds()
 - Fix: impossible placing 'monster' over 'monster' at 'location'
 - Some minor artifact tweaks and improvements
-- Fix: heap-use-after-free errors with stacked ammo that have object properties
+- Fix: heap-use-after-free errors with stacked ammo that have object
+  properties
 - Fix: ammo with object properties used against player (or mon vs mon) 
 - Fix: potential that branch stairs won't form in the gnomish mines
-- Fix: giants incurring luck penalty in sokoban after level was already solved
-- Fix: warning: variable 'permdmg' is used uninitialized whenever switch case is
-  taken [-Wsometimes-uninitialized]
+- Fix: giants incurring luck penalty in sokoban after level was already
+  solved
+- Fix: warning: variable 'permdmg' is used uninitialized whenever switch
+  case is taken [-Wsometimes-uninitialized]
 - Fix: better handling when trying to drink from a puddle or sewage
 - Fix: monster vs closed door messaging
 - Fix: cursed light vs worn light
 - Fix: tty map weirdness after 'full-screen' menu
 - Fix: return DOORMAX to proper value, level creation fixes
-- Fix: armor with 'excellence' object property adversely affecting charisma
+- Fix: armor with 'excellence' object property adversely affecting
+  charisma
 - Infidels cannot regenerate hit points without the Amulet of Yendor in
   their possesion (pre-imbued Idol of Moloch)
 - Fix: large box/chest spawning inside of another chest at Mines' End
@@ -2153,7 +2408,8 @@ The following changes to date are:
 - More tweaks to hurtling monsters/players
 - Oracle fully reset if oracle level is bones level
 - Fix: tweak to last commit
-- Wand of striking/force bolt spell has a chance to knock back its target
+- Wand of striking/force bolt spell has a chance to knock back its
+  target
 - Various spell handling tweaks
 - Huge monsters easily climb out of pits
 - Allow tipping container directly into another
@@ -2163,8 +2419,8 @@ The following changes to date are:
 - Monks will not receive melee weapons via altar sacrifice if following
   weaponless conduct
 - Fix: stack breakage issues
-- Wearing gray dragon scales/scale mail or being a gray dragon can resist
-  cancellation
+- Wearing gray dragon scales/scale mail or being a gray dragon can
+  resist cancellation
 - Adjust livelogging of altar sacrifice gifts
 - Fix: prevent monster hurtling outside map
 - Fix: various bug fixes (traps, monster engulfing trapped monster, etc)
@@ -2195,7 +2451,8 @@ The following changes to date are:
 - Fix: player monster samurai having giant-like attributes
 - Handle spiders, cockatrices in mbodypart
 - Invoking the Staff of Aesculapius cures withering
-- Implement new dragon armor system: DSM replaced by scaled armor (dtsund)
+- Implement new dragon armor system: DSM replaced by scaled armor
+  (dtsund)
 - Fix: a couple small issues with dtsund-DSM implementation
 - Some minor player monster armor tweaks
 - Tortle as a playable race
@@ -2216,8 +2473,8 @@ The following changes to date are:
 - Small tweak to thievery skill
 - Fix: player monster Infidel cursed weapons were welding to their hands
 - Tortles can't ride
-- Force tortle to emerge from its shell if hiding in it and is undergoing
-  polymorph
+- Force tortle to emerge from its shell if hiding in it and is
+  undergoing polymorph
 - Fix: don't pacify unique monsters when untrapping them from web
 - Handle some more cases when tortle is hiding in its shell
 - Handle even more cases when tortle is hiding in its shell
@@ -2226,8 +2483,8 @@ The following changes to date are:
 - Fix: warning: array subscript [0, 1] is outside array bounds
   of ‘const char * const[2]’ [-Warray-bounds]
 - New monsters - sea tortle, tortle shaman
-- Fix: polymorphing into a red dragon no matter what type of dragon scales
-  are being worn
+- Fix: polymorphing into a red dragon no matter what type of dragon
+  scales are being worn
 - Fix: crash when over-enchanting worn armor
 - Fix: add message for failed fountain monster detection
 - New branch: Goblin Town
@@ -2252,7 +2509,8 @@ The following changes to date are:
   of oil before the potion could explode
 - Fix: accessing freed memory after charging causes a ring to explode
 - Tortles are not affected by turbulence whilst swimming
-- Ensure tortles don't receive regular gear sacrifice gifts they can't use
+- Ensure tortles don't receive regular gear sacrifice gifts they can't
+  use
 - Tortles have a chance of spawning with an oilskin sack
 - Corrections to commit concerning sacrifice gifts and tortles
 - Make tortles immune to various attacks while in their shell
@@ -2286,7 +2544,8 @@ The following changes to date are:
 - More Goblin Town tweaks, defeating boss monster feedback
 - Fix: re-enable gnome's default #chat sound
 - Cursed wand of make invisible makes target visible
-- Remove non-Knight reflection restrictions for the Magic Mirror of Merlin
+- Remove non-Knight reflection restrictions for the Magic Mirror of
+  Merlin
 - Prevent covetous monsters from riding other monsters
 - Remove restriction of casting targeted/area of effect spells on
   the plane of water
@@ -2296,20 +2555,21 @@ The following changes to date are:
 - Fix: magic beam trap hit/miss feedback when target is unseen
 - Illithids now 'force learn' psionic wave instead of starting with a
   spellbook of it
-- Adjust blocked access to Mine Town/Mines' End while Goblin King is alive
+- Adjust blocked access to Mine Town/Mines' End while Goblin King is
+  alive
 - Fix: two-weapon paralysis
 - Fix: update to 'two-weapon paralysis' commit
 - Include tortle race in shopkeeper price adjustments
-- Add chance for doors on jail cells in Goblin Town; adjust odds for shop
-  and hammer spawning
+- Add chance for doors on jail cells in Goblin Town; adjust odds for
+  shop and hammer spawning
 - Enshelled tortle blocks stinging/crushing attacks
 - Change 'splash of acid' to 'torrent of acid'
 - Forge recipe improvements, slight recipe changes
 - Fix: saving versus ball & chain
 - Fix: a couple typos
 - Eating the Hand of Vecna is bad for you
-- Fix: the Hand of Vecna could disappear if the game is saved/reloaded after
-  attempting to over-enchant
+- Fix: the Hand of Vecna could disappear if the game is saved/reloaded
+  after attempting to over-enchant
 - Fix: 'qt_pager: message 90 not found. program in disorder!' during
   Rogue quest
 - Fix: suppress Monk's extra kick attack when engulfed
@@ -2335,8 +2595,10 @@ The following changes to date are:
 - Fix: failure restoring embedded dragon scales
 - Fix: end of game crash during bones creation under certain conditions
 - Fix: inconsistencies with illithids and psionic attack feedback
-- Fix: Hand of Vecna cold damage should only apply to hand-to-hand combat
-- Fix: nurse healing attack whilst 'wearing' nothing but the Hand of Vecna
+- Fix: Hand of Vecna cold damage should only apply to hand-to-hand
+  combat
+- Fix: nurse healing attack whilst 'wearing' nothing but the Hand of
+  Vecna
 - Switch heavy war hammer to regular war hammer (Goblin Town)
 - Fix: correct feedback trying to genocide liches via throne genocide
 - Fix: farlook information for monster steeds ridden by unseen rider 
@@ -2365,7 +2627,8 @@ The following changes to date are:
 - Allow intrinsic gain from pet's digestion attack
 - Fix: pushing boulders, ball & chain handling in Vlad's cavern
 - Fix: shallow water not drying up from objects being dropped into them
-- Fix: metalvores eating a metal container would also consume all contents
+- Fix: metalvores eating a metal container would also consume all
+  contents
 - Fix: run travel was not stopping at terrain/objects of interest
 - Fix: a couple more ball & chain in open air fixes
 - Fix: saving/freeing ball and chain
@@ -2399,7 +2662,8 @@ The following changes to date are:
 
 ### Version 0.8.1
 
-- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of January 23rd, 2022)
+- Latest merges from 'vanilla' NetHack 3.6.6 official release (as of
+  January 23rd, 2022)
 - Initial preparation for new version (0.8.1)
 - Fix: fire damage feedback
 - Retool berserkers
@@ -2407,14 +2671,16 @@ The following changes to date are:
 - Fix: compatability checking for development
 - Add missing wizard mode commands to guidebook
 - Fix: a couple minor issues with character creation
-- Unlock trident skill for tortles playing a role that normally wouldn't have it
+- Unlock trident skill for tortles playing a role that normally wouldn't
+  have it
 - Tortles, various monsters can move fast whilst underwater
 - Fix: tortles and breathing underwater
 - Fix: You are very fast from something
 - Fix: sections of wall being visible when they shouldn't yet
 - Fix: triggering knockback feedback on an already dead monster
 - Sickness countdown
-- Valkyries start with a spear instead of a long sword; Giantslayer changes
+- Valkyries start with a spear instead of a long sword; Giantslayer
+  changes
 - Grid bugs don't have hands
 - Pyrolisk, fire damage changes
 - Mimics and dead trees
@@ -2438,7 +2704,8 @@ The following changes to date are:
 - Fix: ammo damage from the Longbow of Diana/Crossbow of Carl
 - Fix: silence several compile warnings (clang)
 - Fix: corrections to last commit (silencing compile warnings w/ clang)
-- Fix: move check for starting L1 spellbook to include non-random spellbooks
+- Fix: move check for starting L1 spellbook to include non-random
+  spellbooks
 - Fix: lit status of worn light sources appearing twice in inventory
 - Fix: could not blind self with an expensive camera
 - Monsters can use rings/boots of levitation
@@ -2486,7 +2753,8 @@ The following changes to date are:
 - Fix: ghosts appearing as 'name' and not 'name's ghost'
 - Prevent renaming bones monsters of former heroes
 - Fix: use after free when thrown object is destroyed by passive attack
-- Fix: memory leak when selecting appropriate material for sacrifice gift
+- Fix: memory leak when selecting appropriate material for sacrifice
+  gift
 - Fix: memory leak when looting monster
 - Fix: two use-after-free issues revealed by asan
 - Fix: Minetown food shop doesn't convert to health food store for monks
@@ -2598,13 +2866,15 @@ The following changes to date are:
 - Fix: crash when wearing white dragon-scaled armor and no boots while
   100% fire resistant
 - Correct 'too many hooves' feedback
-- Fix: impossible 'mon_arrive: no corresponding portal?' when leaving Purgatory
+- Fix: impossible 'mon_arrive: no corresponding portal?' when leaving
+  Purgatory
 - Fix: unable to dig if wielding a cursed pick-axe/mattock
 - Another Goblin Town tweak
 - Fix: crowned Infidel that started as a centaur kept jump ability
 - Fix: make the Eye and Hand of Vecna immune to fire/lava damage
 - Fix: Dramborleg damage output
-- Fix: dead trees dropping fruit/petrified status, icequeen 2nd map tweaks
+- Fix: dead trees dropping fruit/petrified status, icequeen 2nd map
+  tweaks
 - Fix: placement of monster rider/steed when separated
 - Allow magic lamps to operate underwater
 - Tortles that start with a trident, the trident is rustproof
@@ -2619,9 +2889,10 @@ The following changes to date are:
 - Fix: dried up puddles would not unhide the monster hiding in it
 - Fix: placing antimatter vortex over itself after disintegrating
   a shapechanger
-- Fix: Sword of Annihilation's disintegration vs target and target's worn armor
-- Fix: Angelslayer's fire damage vs target, Sword of Annihilation's target
-  armor tweaks
+- Fix: Sword of Annihilation's disintegration vs target and target's
+  worn armor
+- Fix: Angelslayer's fire damage vs target, Sword of Annihilation's
+  target armor tweaks
 - Fix: the Sword of Annihilation could disintegrate pieces of armor that
   are inherently disintegration proof
 - Fix: instances where article was missing from the Gauntlets of Purity
@@ -2629,44 +2900,50 @@ The following changes to date are:
 - Fix: heap-use-after-free in munstone() function
 - Bourbon and Ozzy birthdays
 - Fix: monster spell 'Summon nasties'
-- Fix: missing a couple cases where Death_resistance should have been included
+- Fix: missing a couple cases where Death_resistance should have been
+  included
 - Blowing a whistle will identify it
 - Identity of the Riders hidden via farlook or 'More info about' prompt
-- Fix: thrown potions of polymorph by hostiles at hero that hit peacefuls
-  anger them
-- Fix: cure sickness being cast on a peaceful monster that wasn't sick would
-  anger it
+- Fix: thrown potions of polymorph by hostiles at hero that hit
+  peacefuls anger them
+- Fix: cure sickness being cast on a peaceful monster that wasn't sick
+  would anger it
 - Fix: queen ants were laying queen ant eggs
-- Fix: higher level tourist player monsters spawning with eggs that could
-  hatch S_ORC type monsters
+- Fix: higher level tourist player monsters spawning with eggs that
+  could hatch S_ORC type monsters
 - Fix: giant crocodiles and their eggs
 - Goblin King feedback if the player is wielding Orcrist or Glamdring
 - Fix: memory leak in oracle-3 map
-- Fix: mon_currwep not set to NULL if the monsters wielded weapon was made
-  of glass and it shattered
-- Fix: heap-use-after-free when projectiles rusted away on passive rust attack
+- Fix: mon_currwep not set to NULL if the monsters wielded weapon was
+  made of glass and it shattered
+- Fix: heap-use-after-free when projectiles rusted away on passive rust
+  attack
 - Fix: Grimtooth's instakill vs elves
 - Intelligent peacefuls avoid digging shop or temple walls
 - Fix: disarming swallowed hero
-- Fix: mkgate() was called every time the Amulet of Yendor was dropped and
-  picked back up while in the Sanctum
-- Fix: feedback when attacking with certain artifacts (Angelslayer, Grimtooth,
-  the Sword of Annihilation)
+- Fix: mkgate() was called every time the Amulet of Yendor was dropped
+  and picked back up while in the Sanctum
+- Fix: feedback when attacking with certain artifacts (Angelslayer,
+  Grimtooth, the Sword of Annihilation)
 - Fix: prevent Lucifer from escaping the Sanctum
 - Fix: domonability declared twice in extern.h
 - Fix: ancient subroom location bug
 - Fix: teleported water creature hiding in dry land
-- Reimplement damage bonus from worn gloves enchantment if fighting bare-handed
+- Reimplement damage bonus from worn gloves enchantment if fighting
+  bare-handed
 - Generate random eroded, erodeproof, or greased items
 - Fix: missing period
-- Reading a blessed scroll of amnesia allows option to reset accumulated skills 
+- Reading a blessed scroll of amnesia allows option to reset accumulated
+  skills 
 - Fix: prevent Valley of the Dead bones files
-- Fix: worn rings covered by worn gloves could do material damage to monsters
+- Fix: worn rings covered by worn gloves could do material damage to
+  monsters
 - Tweak to Valley of the Dead bones files
 - Fix: don't allow non-artifact sacrifice gifts to spawn with erosion
 - Prevent certain items from random erosion
 - Fix: monsters could jump into poly traps when trapped
-- Fix: suppress Hand of Vecna cold-based attack if target is already dead
+- Fix: suppress Hand of Vecna cold-based attack if target is already
+  dead
 - Update to 'monsters could jump into poly traps when trapped'
 - Fix: containers flagged as waterproof were not subject to water damage
 - Allow food appraisal intrinsic to warn against the Eye of Vecna
@@ -2680,7 +2957,8 @@ The following changes to date are:
 
 ### Version 0.8.2
 
-- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of February 24th, 2023)
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of
+  February 24th, 2023)
 - Initial preparation for new version (0.8.2)
 - Prevent bypassing demon boss lairs via level teleport
 - Tweak feedback if killing yourself from a cursed weapon
@@ -2707,61 +2985,72 @@ The following changes to date are:
 - Some descriptive miss messages for thrown/fired objects at the player
 - Fix: crash if attacking bare-handed and not wearing a shield if role
   has shield skill
-- Tortle shamans are telepathic and will grant telepathy intrinsic if eaten
+- Tortle shamans are telepathic and will grant telepathy intrinsic if
+  eaten
 - Gnomes hate eggs
 - Fix: some 'gnomes hate eggs' tweaks
 - Adjust Wizard of Yendor resurrecting back to normal odds
 - Regular eggs have a small chance to cancel gnomes
-- Mind flayer larva victims, if peaceful, will become hostile when turned
-  into a mind flayer
-- Fix: wrong deity was made upset if caught trying to ascend while wearing
-  a helm of opposite alignment
-- Fix: paranoid swim would kick in while phasing under certain conditions
+- Mind flayer larva victims, if peaceful, will become hostile when
+  turned into a mind flayer
+- Fix: wrong deity was made upset if caught trying to ascend while
+  wearing a helm of opposite alignment
+- Fix: paranoid swim would kick in while phasing under certain
+  conditions
 - Remove unnecessary code from in_hell_effects() and in_iceq_effects()
 - Fix: illithids receiving metallic helmets for sacrifice gifts
-- Tweak to last commit (illithids and metallic helmets as sacrifice gift)
+- Tweak to last commit (illithids and metallic helmets as sacrifice
+  gift)
 - Huge or gigantic monsters on a pool/lava tile will not be instakilled
   if a boulder fills up the pool/lava spot
 - Fix: engraving with a bladed weapon or magic marker would not update
   permanent inventory
-- Fix: objects created with an object property would sometimes be blessed
-  and cursed simultaneously
+- Fix: objects created with an object property would sometimes be
+  blessed and cursed simultaneously
 - Fix: corrections to separate_steed_and_rider() function
 - Fix: forged objects having an object property when they shouldn't
 - Fix: player poly'd into a centaur reported incorrect body parts
-- Fix: tweak to forged objects having an object property when they shouldn't
+- Fix: tweak to forged objects having an object property when they
+  shouldn't
 - Fix: multishot bonuses with various races
-- Fix: locking then unlocking the Sokoban closet doors prevents them from
-  being sealed
+- Fix: locking then unlocking the Sokoban closet doors prevents them
+  from being sealed
 - Fix: inconsistent attack behavior while submerged in water
 - Follow up to 'inconsistent attack behavior while submerged in water'
 - m_canseeu() allows seeing the player underwater
-- Being underwater (player or monster) provides protection against fire/acid
-  attacks
+- Being underwater (player or monster) provides protection against
+  fire/acid attacks
 - Fix: heap-use-after-free when tipping a container with a wand of
   cancellation into a bag of holding
-- Fix: worn chromatic dragon scales as a giant could be destroyed if poly'd
-  into a smaller monster and then revert back to giant form
-- Fix: Izchak keeps transforming back into angelic form after every death
+- Fix: worn chromatic dragon scales as a giant could be destroyed if
+  poly'd into a smaller monster and then revert back to giant form
+- Fix: Izchak keeps transforming back into angelic form after every
+  death
 - Fix: some follow-up to last commit (Izchak and angelic form)
-- Fix: zombie bite attack slipping off of a greased/oilskin helm feedback
+- Fix: zombie bite attack slipping off of a greased/oilskin helm
+  feedback
 - Fix: player monsters inheriting race flags from the player 
 - Fix: remove urace test from player race macros
-- Fix: prevent forging an object if neither base objects material is valid
+- Fix: prevent forging an object if neither base objects material is
+  valid
 - Fix: multiple objects in a stack highlighting
 - Fix: refactor and fix various bugs in artifact_hit() function
 - Fix: Giant race using a club damage bonus was applied to every weapon
 - Fix: armor losing fooproofing via a monsters 'destroy armor' spell was
   not updated in perm_invent (curses)
 - Fix: grammar when welcoming the player back to a saved game
-- Fix: help prevent inherently fixed objects from spawning eroded/corroded
+- Fix: help prevent inherently fixed objects from spawning
+  eroded/corroded
 - Make the archangel Saint Michael a unique monster
 - Fix: stealth and waking nearby monsters during combat
 - Fix: missing race from 'Dark Knight' template
-- Create new artifact flag and macro (SPFX_FORGED and is_forged_artifact())
+- Create new artifact flag and macro (SPFX_FORGED and
+  is_forged_artifact())
 - Gauntlets of Purity tweaks
-- Fix: more separate_steed_and_rider() tweaks, other monster/steed tweaks
-- Fix: fire/acid explosions not affecting various objects in open inventory
+- Fix: more separate_steed_and_rider() tweaks, other monster/steed
+  tweaks
+- Fix: fire/acid explosions not affecting various objects in open
+  inventory
 - Fix: Demonbane's instakill damage vs demons
 - Fix: monsters sonic attack subject to passive attacks from player
 - Fix: remove unnecessary check for Monk's random kick attack
@@ -2770,7 +3059,8 @@ The following changes to date are:
 - Fix: genociding all lich types and alhoons before destroying Vecna
 - Fix: some Hammer of the Gods tweaks and fixes
 - Some format cleanup in artifact.c
-- Fix: monsters stuck in a loop switching between melee and ranged weapon
+- Fix: monsters stuck in a loop switching between melee and ranged
+  weapon
 - Fix: monster steed being knocked back while being ridden
 - New forging artifact recipe - Tempest
 - Fix: missing window tiles for new explosion type/color
@@ -2791,7 +3081,8 @@ The following changes to date are:
 - Changes to 'a'pplying whips
 - Consolidate some fire_ and lava_damage() code, and make fiery items
   fireproof
-- Fix: two compile warnings, a bit of formatting cleanup from last commit
+- Fix: two compile warnings, a bit of formatting cleanup from last
+  commit
 - Monsters can utilize free action
 - Fix: objects being created with materials they shouldn't have
 - Restore Tourists skill in twoweaponing to 'skilled'
@@ -2871,21 +3162,23 @@ The following changes to date are:
 - Fix: webs in/on water
 - Allow monks with intrinsic water walking to enter into and stay in
   pools/moats
-- Fix: fix for the 'webs in/on water' patch, as it made the game unwinnable 
+- Fix: fix for the 'webs in/on water' patch, as it made the game
+  unwinnable 
 - Ogresmasher knockback
 - Fix: ogresmasher knockback monster vs player, some feedback formatting
 - Don't allow drow mummies/zombies to cast aura of darkness
 - Fix: zapping cancellation at magical trap
 - Fix: drow monsters using aura of darkness
 - Fix: drow and untrapping webs
-- Tempest when wielded grants shock resistance to items in open inventory
+- Tempest when wielded grants shock resistance to items in open
+  inventory
 - Drow and spellbooks of light
 - Fix: error in drowcraft forge recipes
 - Drow that pray shouldn't be surrounded by 'shimmering light'
-- Fix: stacked food objects, weight not updating for split object in curses
-  mode if eating was interrupted
-- Fix: Drow player was considered being in the light if in a lit room while
-  using a temporary source of darkness while blind
+- Fix: stacked food objects, weight not updating for split object in
+  curses mode if eating was interrupted
+- Fix: Drow player was considered being in the light if in a lit room
+  while using a temporary source of darkness while blind
 - Fix: hurtled monster logic
 - Fix: Drow players shouldn't start with lamps
 - Fix: restore aklys tether glyph to its original color
@@ -2900,8 +3193,8 @@ The following changes to date are:
 - Fix: quest leader dying by means other than by the player directly
 - Light haters, exploding yellow lights, and various objects that give
   off light
-- Fix: Angelslayer's chance of special attack worked with other fire-based
-  weapons
+- Fix: Angelslayer's chance of special attack worked with other
+  fire-based weapons
 - Fix: drow objects breaking based on incorrect position info
 - Fix: thrown fragile objects hitting monsters
 - Fix: program in disorder from last commit
@@ -2909,29 +3202,34 @@ The following changes to date are:
 - Include drow weapon damage bonuses to the pokedex
 - Cancelled potions of drow poison turn into fruit juice
 - Fix: more cases where certain objects shouldn't spawn eroded
-- Fix: some doors would spawn booby-trapped as early as dungeon level one
+- Fix: some doors would spawn booby-trapped as early as dungeon level
+  one
 - Fix: aura of darkness could snuff out/curse other sources of darkness;
   shadow dragon scales aura of darkness hurting light haters
-- Fix: revert commit 06c26ff, extra check for what can/can't spawn eroded
-- Fix: racial drow were unaffected by hates_light(), gremlins fleeing from
-  sources of darkness
+- Fix: revert commit 06c26ff, extra check for what can/can't spawn
+  eroded
+- Fix: racial drow were unaffected by hates_light(), gremlins fleeing
+  from sources of darkness
 - Fix: celestial dragon scales/dragon-scaled armor and flying
-- Fix: crash when throwing and hitting a monster with a cream pie or most
-  spit-based objects
+- Fix: crash when throwing and hitting a monster with a cream pie or
+  most spit-based objects
 - Fix: make elemental vulnerability more consistent
 - Fix: better fix for cream pie/spit object throwing
 - Adjust feedback when freezing a liquid underfoot while riding a steed
 - Fix: dismounting crash from last commit
 - Fix: proper handling of flying/clinging u.usteed from last commit
-- Fix: poisoned/tainted weapon stacks were merging with non-poisoned/tainted
+- Fix: poisoned/tainted weapon stacks were merging with
+  non-poisoned/tainted
 - Add phasing status to botl
 - Fix: crowned infidel in demonic form not resistant to death magic
 - Ranger artifacts will create ammo based on the race of the Ranger
 - Ranger quest artifact, if blessed, has a chance to produce ammo with
   an object property
-- Fix: livelogging when Kathryn the Ice Queen is defeated while hallucinating
+- Fix: livelogging when Kathryn the Ice Queen is defeated while
+  hallucinating
 - Crowned infidel receives sleep resistance
-- Fix: dragon-scaled armor that was lit would still shine after taken off
+- Fix: dragon-scaled armor that was lit would still shine after taken
+  off
 - Drow convict can safely handle the Iron Ball of Liberation
 - Convicts can use and train up thievery skill
 - Player race Gnomes will not start with eggs in inventory
@@ -2948,7 +3246,8 @@ The following changes to date are:
 - Fix: the Wizard of Yendor could be awakened prematurely on wizard1
   level
 - The Red Horse has a chance to spawn wearing barding
-- Fix: blanked spellbooks from reading not updating in permanent inventory
+- Fix: blanked spellbooks from reading not updating in permanent
+  inventory
 - Fix: various issues with monsters setting off container traps
 - Git info formatting in dumplog
 - Show spells known in the dumplog (text and html).
@@ -2960,37 +3259,40 @@ The following changes to date are:
 - Tweak to 'restore ability spell is now directional'
 - Phasing allows escape from being engulfed
 - Fix: carried glass objects always broke when used
-- Fix: invoking Shadowblade to cause fear could scare monsters it shouldn't
+- Fix: invoking Shadowblade to cause fear could scare monsters it
+  shouldn't
 - Fix: oilskin sacks/cloaks spawning with materials other than cloth
 - Fix: vampshifted Vlad in bones
 - Fix: separate monster from player when determining number of objects
   in inventory to cancel
-- Don't allow poisoned/tainted sacrifice gifts when using lawful or neutral
-  altars
+- Don't allow poisoned/tainted sacrifice gifts when using lawful or
+  neutral altars
 - Fix: being able to wish for more than one potion of drow poison
 - Fix: even more separate_steed_and_rider() fixes
-- Fix: wishing for a string with mismatched parens, that doesn't contain any
-  actual wish before them
+- Fix: wishing for a string with mismatched parens, that doesn't contain
+  any actual wish before them
 - Fix: material damage message firing after target was already killed
 - Fix: racial weapon selection flub for lieutenants
 - Fix: dialogue formatting with the Priest quest
-- Fix: double message when entering the lemure pits (hellc demon boss level) 
-- Fix: heap-use-after-free when long worms where slimed by a player poly'd
-  as green slime mid worm hit loop
-- Fix: heap-use-after-free caused by an exploding forge destroying the same
-  dipped object twice
+- Fix: double message when entering the lemure pits (hellc demon boss
+  level) 
+- Fix: heap-use-after-free when long worms where slimed by a player
+  poly'd as green slime mid worm hit loop
+- Fix: heap-use-after-free caused by an exploding forge destroying the
+  same dipped object twice
 - Fix: weapon material damage adjustments
 - Fix: memory leak in spitmm()
 - Fix: global-buffer-overflow when initializing drow characters
-- Monsters that spawn with spears have a chance to spawn with a stack of them
+- Monsters that spawn with spears have a chance to spawn with a stack of
+  them
 - Minor tweaks to receiving a spellbook via altar sacrifice
 - Make scrolls of blank paper and potions of water known
 - Allow knights to tame dragons of the same alignment
 - Spear trap tweaks, remove multiple random death messages
 - Cut down on feedback when melee attacking a green dragon and not being
   affected by its hide
-- Allow a worn not cursed amulet of life saving to save the player if they
-  fall in an 'open air' space
+- Allow a worn not cursed amulet of life saving to save the player if
+  they fall in an 'open air' space
 - Make Saint Michael a slightly tougher opponent
 - Fix: place trident skill initialization (Tortle) in correct location
 - Wearing the Armor of Retribution increases carry cap/max carry cap
@@ -3000,24 +3302,30 @@ The following changes to date are:
 - Cleaver multi-attack changes
 - Fix: bug with how pets consider intrinsic-granting corpses as treats
 - Fix: heap-use-after-free when attacking with an object that breaks
-- Fix: heap-use-after-free when a monster attacks with an object that breaks
-- Fix: explicitly state various materials so certain forge recipes will work
+- Fix: heap-use-after-free when a monster attacks with an object that
+  breaks
+- Fix: explicitly state various materials so certain forge recipes will
+  work
 - Fix: various fixes to polyself.c
 - Player monster racial settings refactor
-- Fix: brain fart in last commit (player monster racial settings refactor)
-- Fix: Drow were not preserving their special deities after a save/reload
-- Fix: monster attack that hurtles player caused monster to lose track of
-  the players' position
+- Fix: brain fart in last commit (player monster racial settings
+  refactor)
+- Fix: Drow were not preserving their special deities after a
+  save/reload
+- Fix: monster attack that hurtles player caused monster to lose track
+  of the players' position
 - Consolidate some race-specific functions in u_init.c
 - Greased objects have a chance to resist being stolen
-- Fix: certain spellbooks would have the wrong weight if received via prayer
-  or altar sacrifice
+- Fix: certain spellbooks would have the wrong weight if received via
+  prayer or altar sacrifice
 - Fix: material sear messages were being suppressed vs the player
 - Adjust some probabilities with grease wearing off during theft attempt
-- Include oilskin sacks and the like to have a chance to resist being stolen
+- Include oilskin sacks and the like to have a chance to resist being
+  stolen
 - Fix: morgues don't make corpses from races that don't leave a corpse
 - Wearing the Hand of Vecna prevents material damage from worn rings
-- Fix: crash when poisoned/tainted weapon breaks (monster attacking player)
+- Fix: crash when poisoned/tainted weapon breaks (monster attacking
+  player)
 - Fix: swimming underneath monsters while engulfed/grabbed/swallowed
 - Fix: boulder trap pathing could go out of bounds
 - Fix: crash when Bourbon or Ozzy were level drained below zero
@@ -3034,8 +3342,10 @@ The following changes to date are:
 - Fix: whitespace in feedback (mcastu.c)
 - Fix: incorrect value used in determining mspec_used for monster
   spellcasting
-- Fix: ukiller can't be null if killer wants to go through player inventory
-- Fix: minor bugs while underwater and trying to fight monsters above water
+- Fix: ukiller can't be null if killer wants to go through player
+  inventory
+- Fix: minor bugs while underwater and trying to fight monsters above
+  water
 - Prevent wishing for objects with an invalid material whilst fuzzing
 - Don't count non-magical sacrifice gifts towards total gifts received
 - Tweaks to thievery skill
@@ -3048,7 +3358,8 @@ The following changes to date are:
 
 ### Version 0.8.3
 
-- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of August 28th, 2023)
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of
+  August 28th, 2023)
 - Initial preparation for new version (0.8.3)
 - Allow self-targeting advanced spells when blind
 - Fix: Dexcellence
@@ -3085,8 +3396,8 @@ The following changes to date are:
   via race
 - Fix: release obufs used by sortloot
 - Fix: tweaks to objnam.c (dragon-scaled armor)
-- Fix: wearing dragon scales and reading an unidentified scroll of enchant
-  armor
+- Fix: wearing dragon scales and reading an unidentified scroll of
+  enchant armor
 - Fix: player objects destroyed via passive disintegration handling
 - Move the Wizard's Tower into its own branch
 - Fix: walls and doors were not being seen in the dark via ultravision
@@ -3096,7 +3407,8 @@ The following changes to date are:
 - Allow vorpal jabberwocks to be steeds
 - Make elf zombies and mummies color bright green
 - Fix: The Hammer of the Gods wasn't destroying zombie corpses
-- Fix: Drow to-hit bonuses and penalties actually in effect, various tweaks
+- Fix: Drow to-hit bonuses and penalties actually in effect, various
+  tweaks
 - Allow tortles to wear rigid gloves/helmets
 - The Rat King will sometimes spawn with a ring of teleport control
 - Vampire types cannot be genocided until Vlad the Impaler is destroyed
@@ -3104,18 +3416,21 @@ The following changes to date are:
 - Refactor tortle enshelling
 - Merge various skills
 - Track defeating Saint Michael
-- Fix: certain armor would disappear on save/reload under specific conditions
+- Fix: certain armor would disappear on save/reload under specific
+  conditions
 - Wizard of Yendor's tower overhaul
 - Fix: enshelling tortle feedback
-- Fix: throwing an attached ball & chain at a metalvore and it tries to catch
-  and eat it
-- Fix: objects embedded in wall in Croesus' throne room with one map variant
+- Fix: throwing an attached ball & chain at a metalvore and it tries to
+  catch and eat it
+- Fix: objects embedded in wall in Croesus' throne room with one map
+  variant
 - Fix: article for describing barding
 - Adjust some dragon-scaled secondary resistances/passive defenses
 - A couple more dragon-scaled secondary changes
 - Convert the named ring of invisibility found in Gollum's cave to an
   actual artifact
-- Fix: inconsistencies with slowing attacks and dragon scale passive attacks
+- Fix: inconsistencies with slowing attacks and dragon scale passive
+  attacks
 - Fix: blue-scaled armor prevents any form of slowing
 - Fix: Slowed monsters remain slowed
 - Water walking prevents sewage from slowing you
@@ -3134,8 +3449,8 @@ The following changes to date are:
 - Fix: warning: the comparison will always evaluate as ‘true’ for the
   address of ‘mons’ will never be NULL [-Waddress] (mhitu.c)
 - Fix: warning: the comparison will always evaluate as ‘true’ for the
-  pointer operand in ‘s + (sizetype)((long unsigned int)sidx * 128)’ must
-  not be NULL [-Waddress] (botl.c)
+  pointer operand in ‘s + (sizetype)((long unsigned int)sidx * 128)’
+  must not be NULL [-Waddress] (botl.c)
 - Change Convict quest artifact from an iron ball to a striped shirt
 - Tweaks to the new Convict quest artifact
 - Fix: close a couple loopholes where indestructible artifacts could be
@@ -3173,7 +3488,8 @@ The following changes to date are:
 - Tweak to Drow handling lit artifacts
 - Fix: armor-based artifacts could come with an object property
 - Fix: spawn rate behavior
-- Partial fix: monsters can loot bags on the ground that they can't carry
+- Partial fix: monsters can loot bags on the ground that they can't
+  carry
 - Lockable and monster-lootable magic chests
 - Tweaks and fixes to magic chests
 - Autounlocking and magic chests
@@ -3208,7 +3524,8 @@ The following changes to date are:
 - Fix: forging Drow objects
 - Improve #wizgenesis monster race parsing
 - Fix: zap/explosion types, overhaul
-- Allow being unpunished (ball & chain) if poly'd into monster with no limbs
+- Allow being unpunished (ball & chain) if poly'd into monster with no
+  limbs
 - Prevent waking up the Wizard of Yendor before actual encounter
 - Don't allow players to name objects they don't know the appearance of
 - Fix: undead don't grudge each other
@@ -3249,7 +3566,8 @@ The following changes to date are:
 - Fix: Summoned spheres stay indefinitely if abandoned
 - Fix: Player blamed for monster spells killing monsters
 - Fix: Display suffocation attacks differently from drowning
-- Fix: Weapons with the excellence property could grant a permanent luck bonus
+- Fix: Weapons with the excellence property could grant a permanent luck
+  bonus
 - Fix: mention locked/empty status of magic chest when walking on it
 - Sysconf tweaks
 - More sysconf tweaks
@@ -3269,12 +3587,12 @@ The following changes to date are:
 - Fix: boomerang sear damage
 - Don't allow supermaterials to be erodeproofed
 - Fix: gemstone is a supermaterial
-- Gloves and shields with certain object properties, if used offensively,
-  will cause extra damage based on the object property
+- Gloves and shields with certain object properties, if used
+  offensively, will cause extra damage based on the object property
 - Fix: lawful priests weren't receiving any kind of crowning gift
 - Fix: "You bash the orc shaman with your shield of mobility?"
-- Fix: monsters using a scroll of fire against the player and noticing they
-  have fire resistance
+- Fix: monsters using a scroll of fire against the player and noticing
+  they have fire resistance
 - Fix: demon lords/princes will follow you if you try to levelport past
   them on their home level
 - Hallucination potions can confuse monsters
@@ -3303,13 +3621,14 @@ The following changes to date are:
 - Fix: misspelling (Hidden Dungeon branch)
 - Fix: More theft attack damage tweaks
 - Fix: Allow repair of deteriorated supermaterials
-- Fix: killing quest leader won't flag the quest as complete if they were
-  killed while polymorphed
+- Fix: killing quest leader won't flag the quest as complete if they
+  were killed while polymorphed
 - Fix: Checking floor for tippables can stone you
 - Allow tipping into containers on the floor
 - Fix: players with intrinsic water walking and paranoid: swim enabled
   still being asked if they really want to enter water/lava
-- Fix: tweak to last commit (check for steeds if attempting to walk on lava)
+- Fix: tweak to last commit (check for steeds if attempting to walk on
+  lava)
 - Fix: don't allow tipping a floor container into itself
 - Zombie brain eating won't cause known spells/skill training loss
 - Update copyright year to 2024
@@ -3318,7 +3637,8 @@ The following changes to date are:
 
 ### Version 0.8.4
 
-- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of May 11th, 2024)
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of May
+  11th, 2024)
 - Initial preparation for new version (0.8.4)
 - Fix: prevent the Amulet of Yendor from being teleported whilst in the
   Sanctum
@@ -3327,7 +3647,8 @@ The following changes to date are:
 - Fix: don't allow tipping a floor container into itself II
 - Fix: confused enchanting dragon scales
 - Fix: update gold & green dragon sickness resistance
-- Fix: immolation when especially flammable monsters are hit with fiery weapons
+- Fix: immolation when especially flammable monsters are hit with fiery
+  weapons
 - Fix: messaging when hit by fiery weapons underwater
 - Fix: messaging when hit by Dichotomy
 - Fix: early returns from artifact_hit
@@ -3343,27 +3664,31 @@ The following changes to date are:
 - Fix: crash when examining discoveries with '`' in certain cases
 - Fix: allow spear traps to be disarmed
 - Fix: heap-use-after-free (bones)
-- Fix: follow up to crash when examining discoveries with '`' in certain cases
+- Fix: follow up to crash when examining discoveries with '`' in certain
+  cases
 - Adjust auto-recovery feedback
 - Fix: Amulets could burn your skin but then allow you to regenerate
 - Fix: Peaceful demon lords won't follow you across levels
 - Add regular bracers as a forge recipe
 - Ammo created by the Ranger quest artifact is fully identified
-- Hobbit rangers start with a crossbow instead of a bow, quest artifact is
-  the Crossbow of Carl
-- Fix: object property from wearing a t-shirt persisted if the t-shirt was
-  destoryed or fell off when polymorphing
+- Hobbit rangers start with a crossbow instead of a bow, quest artifact
+  is the Crossbow of Carl
+- Fix: object property from wearing a t-shirt persisted if the t-shirt
+  was destoryed or fell off when polymorphing
 - Fix: incorrect feedback when attempting to steal from a monster and
   the objects being stolen have the oilskin object property 
 - Fix: if the player blows up their bag of holding, make known the bag,
   and the object placed inside of it that made the bag blow up
 - Fix: Tiamat couldn't fly
 - Fix: disarming spear trap chances luck check was inverted
-- Carrying the Master Key of Thievery in open inventory improves thievery
-  chances
-- Fix: text in the Convict quest still referenced the Iron Ball of Liberation
-- Fix: same-race monsters could still spawn peaceful for Convicts and Infidels
-- Fix: unique monsters are not bound by maximum hit point value in grow_up()
+- Carrying the Master Key of Thievery in open inventory improves
+  thievery chances
+- Fix: text in the Convict quest still referenced the Iron Ball of
+  Liberation
+- Fix: same-race monsters could still spawn peaceful for Convicts and
+  Infidels
+- Fix: unique monsters are not bound by maximum hit point value in
+  grow_up()
 - Fix: Infidels couldn't drop cursed loadstones
 - Fix: misbehavior by #adjust
 - Fix: artifact rings have a fixed material
@@ -3373,15 +3698,18 @@ The following changes to date are:
 - Add object menu glyphs to inventory in curses mode
 - Fix: names of new ring types when type is known
 - Proper encyclopedia entries/lookup for the artifact rings
-- Fix: Convicts felt guilty when encountering the guard from a gold vault
+- Fix: Convicts felt guilty when encountering the guard from a gold
+  vault
 - Hobbit pickpockets are always hostile
 - Fix: monster casting summon minion against another monster
 - Fix: spec_applies didn't consider if target was underwater
 - Fix: monster priests shouldn't wield edged weapons either
-- Fix: reactivate offhand weapon intrinsics when catching a returning weapon
+- Fix: reactivate offhand weapon intrinsics when catching a returning
+  weapon
 - Fix: samurai splint mails were not always rustproof
 - Fix: prevent Nazgul from attacking undead hobbit types
-- Fix: Monks incurring to-hit penalty when wearing bracers (martial arts)
+- Fix: Monks incurring to-hit penalty when wearing bracers (martial
+  arts)
 - Fix: Kathryn the Enchantress and 'summon insects' spell
 - Revert Druid role
 - Re-add regular bracers, minor bug fixes from initial Druid commit
@@ -3539,20 +3867,25 @@ The following changes to date are:
   underwater with burning hands spell
 - Fix: passive AD_MAGM damage when attacking the Oracle (player or
   another monster)
-- Fix: make autoall_menu apply to the 'D' drop menu as well as the loot menu
+- Fix: make autoall_menu apply to the 'D' drop menu as well as the loot
+  menu
 - Fix: Your dagger also slips from your hand (but a knife was wielded)
-- Fix: Giantslayer strength bonus not taken into account whilst twoweaponing 
+- Fix: Giantslayer strength bonus not taken into account whilst
+  twoweaponing 
 - Drow shopkeepers/priests rooms are dark
 - Fix: force bolt spell and being engulfed
 - Follow up to last commit (force bolt and engulfed)
 - Fix: cursed Ogresmasher hitting oneself and knockback
-- Fix: potential crash with dark elven objects falling down to the level below
+- Fix: potential crash with dark elven objects falling down to the level
+  below
 - Fix: various player monster attacks not damaging other monsters
-- Additional feedback when damaging monsters vulnerable to elemental damage
+- Additional feedback when damaging monsters vulnerable to elemental
+  damage
 - Levels of erosion on an object can affect its price
-- Show in inventory if the Bell of Opening can't be used (quest not complete)
-- Various monsters that can spawn in groups will sometimes be lead by a stronger
-  leader
+- Show in inventory if the Bell of Opening can't be used (quest not
+  complete)
+- Various monsters that can spawn in groups will sometimes be lead by a
+  stronger leader
 - Some code formatting
 - Adamantine has a slightly sharper edge
 - Fix: different apostrophe in the in-game encyclopedia
@@ -3595,7 +3928,8 @@ The following changes to date are:
 
 ### Version 0.9.0
 
-- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of November 6th, 2024)
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of
+  November 6th, 2024)
 - Initial preparation for new version (0.9.0)
 - Update README.md
 - New player role: Druid (initial commit)
@@ -4012,4 +4346,5 @@ The following changes to date are:
 - Expert skill in wielded weapons that can be thrown/returned will
   always return
 - Deer/Stag can make sounds (MS_SQEEK)
+- Edit evilhack-changelog.md so no entries go past 72 characters per row
 
