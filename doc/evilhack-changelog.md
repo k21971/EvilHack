@@ -4011,4 +4011,5 @@ The following changes to date are:
   'digtxt' used (windows build)
 - Expert skill in wielded weapons that can be thrown/returned will
   always return
+- Deer/Stag can make sounds (MS_SQEEK)
 
