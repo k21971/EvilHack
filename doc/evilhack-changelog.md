@@ -4350,4 +4350,6 @@ The following changes to date are:
 - Fix: remove forge quality from artifacts obtained via crowning
 - Fix: 'your protective shell blocks [attack]' as a tortle and polyd
   into another monster
+- Fix: 'your legs cannot kick effectively' when polymorphed into any
+  type of cave lizard
 
