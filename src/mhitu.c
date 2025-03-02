@@ -236,7 +236,8 @@ struct attack *mattk;
                      (is_dragon(youmonst.data)
                       ? "scaly hide"
                       : (youmonst.data == &mons[PM_GIANT_TURTLE]
-                         || Race_if(PM_TORTLE))
+                         || (maybe_polyd(is_tortle(youmonst.data),
+                                         Race_if(PM_TORTLE))))
                         ? "protective shell"
                         : is_bone_monster(youmonst.data)
                           ? "bony structure"
@@ -247,7 +248,7 @@ struct attack *mattk;
                      (rn2(2) ? "blocks" : "deflects"),
                      s_suffix(mon_nam(mtmp)));
             } else {
-                if (Race_if(PM_TORTLE)) {
+                if (!Upolyd && Race_if(PM_TORTLE)) {
                     pline("%s narrowly misses!", Monnam(mtmp));
                 } else {
                     rn2(2) ? You("dodge %s attack!", s_suffix(mon_nam(mtmp)))

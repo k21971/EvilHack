@@ -4348,4 +4348,6 @@ The following changes to date are:
 - Deer/Stag can make sounds (MS_SQEEK)
 - Edit evilhack-changelog.md so no entries go past 72 characters per row
 - Fix: remove forge quality from artifacts obtained via crowning
+- Fix: 'your protective shell blocks [attack]' as a tortle and polyd
+  into another monster
 

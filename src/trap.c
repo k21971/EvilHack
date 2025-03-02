@@ -1866,7 +1866,8 @@ unsigned trflags;
                   (is_dragon(youmonst.data)
                    ? "scaly hide"
                    : (youmonst.data == &mons[PM_GIANT_TURTLE]
-                      || Race_if(PM_TORTLE))
+                      || (maybe_polyd(is_tortle(youmonst.data),
+                                      Race_if(PM_TORTLE))))
                      ? "protective shell"
                      : is_bone_monster(youmonst.data)
                        ? "bony structure"
