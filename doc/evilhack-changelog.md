@@ -4347,4 +4347,5 @@ The following changes to date are:
   always return
 - Deer/Stag can make sounds (MS_SQEEK)
 - Edit evilhack-changelog.md so no entries go past 72 characters per row
+- Fix: remove forge quality from artifacts obtained via crowning
 

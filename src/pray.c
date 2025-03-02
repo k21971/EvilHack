@@ -1217,8 +1217,9 @@ gcrownu()
             curse(obj);
         else
             bless(obj);
-        obj->oeroded = obj->oeroded2 = 0;
         maybe_erodeproof(obj, 1);
+        obj->oeroded = obj->oeroded2 = 0;
+        obj->forged_qual = FQ_NORMAL;
         obj->bknown = obj->rknown = 1; /* ok to skip set_bknown() */
         if (obj->spe < 1)
             obj->spe = 1;
@@ -2780,6 +2781,8 @@ dosacrifice()
                             } else {
                                 if ((u.ualign.abuse * -1) < 30)
                                     bless(otmp);
+                                else
+                                    otmp->blessed = otmp->cursed = 0;
                             }
                             otmp->spe = enchantment;
                             maybe_erodeproof(otmp, 1);
@@ -2835,10 +2838,13 @@ dosacrifice()
                     } else {
                         if ((u.ualign.abuse * -1) < 30)
                             bless(otmp);
+                        else
+                            otmp->blessed = otmp->cursed = 0;
                     }
                     otmp->spe = enchantment;
                     maybe_erodeproof(otmp, 1);
                     otmp->oeroded = otmp->oeroded2 = 0;
+                    otmp->forged_qual = FQ_NORMAL;
                     if (altaralign > A_CHAOTIC) /* lawful or neutral altar */
                         otmp->opoisoned = otmp->otainted = 0;
                     at_your_feet("An object");
