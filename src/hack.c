@@ -1879,7 +1879,15 @@ domove_core()
         || (glyph_is_invisible(levl[x][y].glyph) && !context.nopick)) {
         struct obj *boulder = 0;
         boolean explo = (Upolyd && attacktype(youmonst.data, AT_EXPL)),
-                solid = !accessible(x, y);
+                solid = !accessible(x, y),
+                burnhd = (u.umburn
+                          && weapon_type(uwep) == P_BARE_HANDED_COMBAT),
+                fire_wep = ((uwep && (uwep->oprops & ITEM_FIRE)
+                             && (uwep->oclass == WEAPON_CLASS
+                                 || is_weptool(uwep)))
+                            || wielding_artifact(ART_FIRE_BRAND)
+                            || wielding_artifact(ART_DICHOTOMY)
+                            || wielding_artifact(ART_ANGELSLAYER));
         int glyph = glyph_at(x, y); /* might be monster */
         char buf[BUFSZ];
 
@@ -1944,7 +1952,8 @@ domove_core()
         }
         if (((boulder = sobj_at(BOULDER, x, y)) != 0
             || (boulder = sobj_at(STATUE, x, y)) != 0)
-            && weapon_type(uwep) == P_BARE_HANDED_COMBAT && Role_if(PM_MONK)) {
+            && weapon_type(uwep) == P_BARE_HANDED_COMBAT
+            && Role_if(PM_MONK)) {
             if (P_SKILL(P_MARTIAL_ARTS) < P_SKILLED) {
                 You("lack the necessary training to focus your qi.");
             } else {
@@ -1956,18 +1965,21 @@ domove_core()
             }
             return;
         } else if ((IS_TREES(tmpr->typ) || IS_DOOR(tmpr->typ))
-                   && u.umburn
-                   && weapon_type(uwep) == P_BARE_HANDED_COMBAT) {
-            You("place your %s on %s...",
-                makeplural(body_part(HAND)), buf);
+                   && (burnhd || fire_wep)) {
+            if (burnhd)
+                You("place your %s on %s...",
+                    makeplural(body_part(HAND)), buf);
+            else
+                You("strike %s with %s...",
+                    buf, ysimple_name(uwep));
             if (tmpr->typ == DOOR) {
                 if ((tmpr->doormask & D_TRAPPED) && In_sokoban(&u.uz)) {
                     /* nothing happens - sokoban prize doors
                        are special */
-                    pline("the door remains intact.");
+                    pline_The("door remains intact.");
                 } else {
                     if (!Blind)
-                        pline("the door is consumed in flames!");
+                        pline_The("door is consumed in flames!");
                     else
                         You("smell smoke.");
                     tmpr->doormask = D_NODOOR;
@@ -1977,17 +1989,18 @@ domove_core()
                     tmpr->typ = ROOM, tmpr->flags = 0;
                     if (tmpr->typ == ROOM)
                         newsym(x, y);
+                    /* vision: can see through */
                     if (!does_block(x, y, &levl[x][y]))
-                        unblock_point(x, y); /* vision:  can see through */
+                        unblock_point(x, y);
                     feel_newsym(x, y);
                 }
             } else if (tmpr->typ == TREE) {
                 if (!may_dig(x, y)) {
                     /* nothing happens - it's petrified */
-                    pline("but it remains intact.");
+                    pline("But it remains intact.");
                 } else {
                     if (!Blind)
-                        pline("%s burns to a crisp!", buf);
+                        pline_The("tree burns to a crisp!");
                     else
                         You("smell smoke.");
                     tmpr->typ = DEADTREE;
@@ -2010,32 +2023,43 @@ domove_core()
             } else if (tmpr->typ == DEADTREE) {
                 if (!may_dig(x, y)) {
                     /* nothing happens - it's petrified */
-                    pline("but it remains intact.");
+                    pline("But it remains intact.");
                 } else {
                     if (!Blind)
-                        pline("%s burns to ashes!", buf);
+                        pline_The("dead tree burns to ashes!");
                     else
                         You("smell smoke.");
                     tmpr->typ = ROOM, tmpr->flags = 0;
                     if (tmpr->typ == ROOM)
                         newsym(x, y);
+                    /* vision: can see through */
                     if (!does_block(x, y, &levl[x][y]))
-                        unblock_point(x, y); /* vision:  can see through */
+                        unblock_point(x, y);
                     feel_newsym(x, y);
                 }
             }
-            nohandburn(); /* use up a charge */
+            if (burnhd)
+                nohandburn(); /* use up a charge */
+            if (fire_wep) {
+                if (uwep->oprops & ITEM_FIRE) {
+                    uwep->oprops_known |= ITEM_FIRE;
+                    update_inventory();
+                }
+            }
             return;
         } else {
             You("%s%s %s.",
-                !(boulder || solid) ? "" : !explo ? "harmlessly " : "futilely ",
+                !(boulder || solid) ? ""
+                                    : !explo ? "harmlessly "
+                                             : "futilely ",
                 explo ? "explode at" : "attack", buf);
 
             nomul(0);
             if (explo) {
                 struct attack *attk;
                 wake_nearby();
-                if ((attk = attacktype_fordmg(youmonst.data, AT_EXPL, AD_ANY)))
+                if ((attk = attacktype_fordmg(youmonst.data,
+                                              AT_EXPL, AD_ANY)))
                     explum((struct monst *) 0, attk);
                 u.mh = -1; /* dead in the current form */
                 Sprintf(killer.name, "blew %sself up", uhim());
@@ -2060,7 +2084,8 @@ domove_core()
 
         if (!u.utrap)
             reset_utrap(TRUE); /* might resume levitation or flight */
-        /* might not have escaped, or did escape but remain in same spot */
+        /* might not have escaped, or did escape but remain
+           in same spot */
         if (!moved)
             return;
     }
