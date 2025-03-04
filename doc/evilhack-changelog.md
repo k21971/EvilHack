@@ -4353,4 +4353,5 @@ The following changes to date are:
 - Fix: 'your legs cannot kick effectively' when polymorphed into any
   type of cave lizard
 - Allow flaming weapons to burn trees and doors (forcefight)
+- Fix: dmonsfree with artifacts that cause explosive damage
 

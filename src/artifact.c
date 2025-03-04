@@ -2043,13 +2043,15 @@ int dieroll; /* needed for Magicbane and vorpal blades */
            successful hit, and can cause additional
            electrical damage (area of effect) */
         if (!rn2(6)
-            && spec_dbon_applies && wielding_artifact(ART_TEMPEST)) {
+            && spec_dbon_applies && otmp->oartifact == ART_TEMPEST) {
             if (!DEADMONSTER(mdef)) {
-                pline("A massive surge of energy courses through the halberd!");
+                pline("A massive surge of energy courses through the %s!",
+                      simpleonames(otmp));
                 explode(mdef->mx, mdef->my,
                         (youattack ? ZT_BREATH(ZT_LIGHTNING)
                                    : -ZT_BREATH(ZT_LIGHTNING)), d(6, 6),
                         (youattack ? 0 : MON_CASTBALL), EXPL_SHOCK);
+                return TRUE;
             }
         }
 
@@ -2194,7 +2196,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                           ? "severely burns" : "burns",
                           hittee, !spec_dbon_applies ? '.' : '!');
             } else if (otmp->oartifact == ART_HARBINGER) {
-                pline_The("acidic aklys %s %s%c",
+                pline_The("acidic %s %s %s%c",
+                          simpleonames(otmp),
                           !spec_dbon_applies
                               ? "hits"
                               : can_corrode(mdef->data)
@@ -2211,13 +2214,15 @@ int dieroll; /* needed for Magicbane and vorpal blades */
            surge on a successful hit, and can cause
            additional acidic damage (area of effect) */
         if (!rn2(6)
-            && spec_dbon_applies && wielding_artifact(ART_HARBINGER)) {
+            && spec_dbon_applies && otmp->oartifact == ART_HARBINGER) {
             if (!DEADMONSTER(mdef)) {
-                pline("A surge of acid flows through the aklys!");
+                pline("A surge of acid flows through the %s!",
+                      simpleonames(otmp));
                 explode(mdef->mx, mdef->my,
                         (youattack ? ZT_BREATH(ZT_ACID)
                                    : -ZT_BREATH(ZT_ACID)), d(6, 6),
                         (youattack ? 0 : MON_CASTBALL), EXPL_ACID);
+                return TRUE;
             }
         }
 
@@ -2504,7 +2509,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                and can cause additional elemental damage
                (area of effect) */
             if (!rn2(6)
-                && spec_dbon_applies && wielding_artifact(ART_DICHOTOMY)) {
+                && spec_dbon_applies && otmp->oartifact == ART_DICHOTOMY) {
                 if (!DEADMONSTER(mdef)) {
                     if (rn2(2)) {
                         if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))) {
@@ -2513,6 +2518,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                     (youattack ? ZT_BREATH(ZT_FIRE)
                                                : -ZT_BREATH(ZT_FIRE)), d(4, 6),
                                     (youattack ? 0 : MON_CASTBALL), EXPL_FIERY);
+                            return TRUE;
                         }
                     } else {
                         if (!(resists_cold(mdef) || defended(mdef, AD_COLD))) {
@@ -2521,6 +2527,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                     (youattack ? ZT_BREATH(ZT_COLD)
                                                : -ZT_BREATH(ZT_COLD)), d(4, 6),
                                     (youattack ? 0 : MON_CASTBALL), EXPL_FROSTY);
+                            return TRUE;
                         }
                     }
                 }
