@@ -2241,13 +2241,12 @@ register const char *str;
                     || otmp->otyp == CRYSTAL_CHEST
                     || (otmp->otyp == HIDDEN_CHEST
                         && !m_carrying(mtmp, MAGIC_KEY))
-                        /* monsters don't think to use artifacts on either
-                           magic or crystal chests */
+                        /* monsters don't think to use artifacts on
+                           either magic or crystal chests */
                     || (!m_carrying(mtmp, SKELETON_KEY)
                         && !m_carrying(mtmp, LOCK_PICK)
                         && !m_carrying(mtmp, CREDIT_CARD)
-                        && !m_carrying(mtmp, MAGIC_KEY)))
-                    && !mtmp->iswiz && !is_rider(mtmp->data))
+                        && !m_carrying(mtmp, MAGIC_KEY))))
                     continue;
                 waslocked = TRUE;
             }

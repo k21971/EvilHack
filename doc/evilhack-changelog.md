@@ -4354,4 +4354,6 @@ The following changes to date are:
   type of cave lizard
 - Allow flaming weapons to burn trees and doors (forcefight)
 - Fix: dmonsfree with artifacts that cause explosive damage
+- Fix: the Riders/Wizard of Yendor should not be able to open any locked
+  container
 
