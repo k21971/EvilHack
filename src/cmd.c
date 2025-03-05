@@ -1022,10 +1022,9 @@ wiz_kill()
     int ans;
     char c, qbuf[QBUFSZ];
     const char *prompt = "Pick first monster to slay";
-    boolean save_verbose = flags.verbose;
-
-    if (iflags.debug_fuzzer)
-        return 0;
+    boolean save_verbose = flags.verbose,
+            save_autodescribe = iflags.autodescribe;
+    d_level uarehere = u.uz;
 
     cc.x = u.ux, cc.y = u.uy;
     for (;;) {
@@ -1033,8 +1032,10 @@ wiz_kill()
         prompt = "Next monster";
 
         flags.verbose = FALSE;
+        iflags.autodescribe = TRUE;
         ans = getpos(&cc, TRUE, "a monster");
         flags.verbose = save_verbose;
+        iflags.autodescribe = save_autodescribe;
         if (ans < 0 || cc.x < 1)
             break;
 
@@ -1063,14 +1064,21 @@ wiz_kill()
             mtmp = m_at(cc.x, cc.y);
         }
 
+        /* whether there's an unseen monster here or not, player will know
+           that there's no monster here after the kill or failed attempt;
+           let hero know too */
+        (void) unmap_invisible(cc.x, cc.y);
+
         if (mtmp) {
             /* we don't require that the monster be seen or sensed so
                we issue our own message in order to name it in case it
                isn't; note that if it triggers other kills, those might
                be referred to as "it" */
-            int tame = !!mtmp->mtame, seen = canspotmon(mtmp),
+            int tame = !!mtmp->mtame,
+                seen = (canspotmon(mtmp) || (u.uswallow && mtmp == u.ustuck)),
                 flgs = SUPPRESS_IT | SUPPRESS_HALLUCINATION
-                       | ((tame && has_mname(mtmp)) ? SUPPRESS_SADDLE : 0),
+                       | ((tame && has_mname(mtmp))
+                          ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0),
                 articl = tame ? ARTICLE_YOUR : seen ? ARTICLE_THE : ARTICLE_A;
             const char *adjs = tame ? (!seen ? "poor, unseen" : "poor")
                                     : (!seen ? "unseen" : (const char *) 0);
@@ -1093,12 +1101,23 @@ wiz_kill()
                 monkilled(mtmp, (char *) 0, AD_PHYS);
                 context.mon_moving = FALSE;
             }
+            /* end targetting loop if an engulfer dropped hero onto a level-
+               changing trap */
+            if (u.utotype || !on_level(&u.uz, &uarehere))
+                break;
         } else {
             There("is no monster there.");
             break;
         }
     }
-    return 0;
+    /* since #wizkill takes no game time, it is possible to kill something
+       in the main dungeon and immediately level teleport into the endgame
+       which will delete the main dungeon's level files; avoid triggering
+       impossible "dmonsfree: 0 removed doesn't match N pending" by forcing
+       dead monster cleanup; we don't track whether anything was actually
+       killed above--if nothing was, this will be benign */
+    dmonsfree();
+    return 0; /* no time elapses */
 }
 
 /* ^V command - level teleport */

@@ -1802,7 +1802,9 @@ boolean wiz_cast;
                            ? 17 : P_SKILL(spell_skilltype(SPE_POWER_WORD_KILL)) == P_SKILLED
                                 ? 7 : P_SKILL(spell_skilltype(SPE_POWER_WORD_KILL)) == P_BASIC
                                     ? 2 : 0);
-        boolean save_verbose = flags.verbose;
+        boolean save_verbose = flags.verbose,
+                save_autodescribe = iflags.autodescribe;
+        d_level uarehere = u.uz;
 
         /* range of power word kill spell (@ is center):
            U = unskilled, B = basic, S = skilled, E = expert
@@ -1825,8 +1827,10 @@ boolean wiz_cast;
             pline("%s:", prompt);
 
             flags.verbose = FALSE;
+            iflags.autodescribe = TRUE;
             ans = getpos(&cc, TRUE, "a monster");
             flags.verbose = save_verbose;
+            iflags.autodescribe = save_autodescribe;
             if (ans < 0 || cc.x < 1)
                 break;
 
@@ -1856,6 +1860,11 @@ boolean wiz_cast;
             } else {
                 mtmp = m_at(cc.x, cc.y);
             }
+
+            /* whether there's an unseen monster here or not, player will know
+               that there's no monster here after the kill or failed attempt;
+               let hero know too */
+            (void) unmap_invisible(cc.x, cc.y);
 
             if (mtmp) {
                 if (distu(mtmp->mx, mtmp->my) > range_skill + 1) {
@@ -1948,6 +1957,10 @@ boolean wiz_cast;
                         }
                     }
                 }
+                /* end targetting loop if an engulfer dropped hero onto a level-
+                   changing trap */
+                if (u.utotype || !on_level(&u.uz, &uarehere))
+                    break;
             } else {
                 There("is no monster there.");
                 break;

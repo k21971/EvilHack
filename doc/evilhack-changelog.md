@@ -4356,4 +4356,5 @@ The following changes to date are:
 - Fix: dmonsfree with artifacts that cause explosive damage
 - Fix: the Riders/Wizard of Yendor should not be able to open any locked
   container
+- Fix: wizkill command vs dmonsfree
 
