@@ -4357,4 +4357,6 @@ The following changes to date are:
 - Fix: the Riders/Wizard of Yendor should not be able to open any locked
   container
 - Fix: wizkill command vs dmonsfree
+- Fix: impossible "trying to break non-equipped glass obj?" when
+  attacking with certain objects
 

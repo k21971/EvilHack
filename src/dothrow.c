@@ -2670,9 +2670,9 @@ boolean in_view;
 
 /* Possibly destroy a glass object by its use in melee or thrown combat.
  * Return TRUE if destroyed.
- * Separate logic from breakobj because we are not unconditionally breaking the
- * object, and we also need to make sure it's removed from the inventory
- * properly. */
+ * Separate logic from breakobj because we are not unconditionally
+ * breaking the object, and we also need to make sure it's removed from
+ * the inventory properly. */
 boolean
 break_glass_obj(obj)
 struct obj* obj;
@@ -2683,6 +2683,15 @@ struct obj* obj;
     xchar x, y;
 
     if (!obj)
+        return FALSE;
+
+    /* guard against objects that can never break
+       or go 'splat!' */
+    if (!(obj->material == GLASS
+          || obj->material == FLESH
+          || obj->material == VEGGY
+          || obj->material == ADAMANTINE
+          || obj->forged_qual == FQ_INFERIOR))
         return FALSE;
 
     ucarried = carried(obj);
