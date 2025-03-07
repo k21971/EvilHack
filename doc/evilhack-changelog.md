@@ -4359,4 +4359,5 @@ The following changes to date are:
 - Fix: wizkill command vs dmonsfree
 - Fix: impossible "trying to break non-equipped glass obj?" when
   attacking with certain objects
+- Fix: grammar feedback when spells like barkskin or stoneskin wear off
 

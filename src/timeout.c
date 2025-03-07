@@ -667,10 +667,11 @@ nh_timeout()
 
     /* Give a small warning that spell-based reflection is running out. */
     if (HReflecting == 20 && !Blind)
-        pline("The shimmering globe around you is starting to fade.");
+        pline_The("shimmering globe around you is starting to fade.");
 
     if (HBarkskin == 20 || HStoneskin == 20)
-        Your("%s feels a bit softer.", mbodypart(&youmonst, SKIN));
+        pline_The("%s covering your %s starts to disappear.",
+                  HBarkskin ? "bark" : "stone", mbodypart(&youmonst, SKIN));
 
     if (u.ugallop) {
         if (--u.ugallop == 0L && u.usteed)
@@ -773,13 +774,15 @@ nh_timeout()
                     You("don't feel very smooth anymore.");
                 break;
             case BARKSKIN:
-                Your("%s feels normal again.", mbodypart(&youmonst, SKIN));
+                pline_The("bark covering your %s completely disappears.",
+                          mbodypart(&youmonst, SKIN));
                 find_ac();
                 break;
             case STONESKIN:
                 /* lose stone resistance */
                 HStone_resistance &= ~I_SPECIAL;
-                Your("%s feels normal again.", mbodypart(&youmonst, SKIN));
+                pline_The("stone covering your %s completely disappears.",
+                          mbodypart(&youmonst, SKIN));
                 find_ac();
                 break;
             /* all these need to make sure the external intrinsic isn't there too */

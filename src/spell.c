@@ -933,16 +933,18 @@ register struct monst *mdef;
             return;
         } else if (HBarkskin) {
             /* increases timeout only */
-            Your("%s feels a bit thicker.", mbodypart(&youmonst, SKIN));
+            pline_The("bark covering your %s feels a bit thicker.",
+                      mbodypart(&youmonst, SKIN));
         } else {
-            Your("%s is covered in a thick layer of bark.", mbodypart(&youmonst, SKIN));
+            pline("A thick layer of bark covers your %s.",
+                  mbodypart(&youmonst, SKIN));
         }
         /* the higher the skill in evocation-based spells, the longer the effect */
         incr_itimeout(&HBarkskin, rn1(10, HBarkskin ? (skill / 5) : skill));
         find_ac(); /* adjust AC; dmg reduction handled in hitmu() */
     } else if (!youdefend) {
         if (canseemon(mdef))
-            pline("%s %s is covered in a thick layer of bark!",
+            pline("A thick layer of bark covers %s %s!",
                   s_suffix(Monnam(mdef)), mbodypart(mdef, SKIN));
         mdef->mextrinsics |= MR2_BARKSKIN;
         mdef->mbarkskintime = rn1(10, (mdef->iswiz || is_prince(mdef->data)
@@ -968,9 +970,11 @@ register struct monst *mdef;
             return;
         } else if (HStoneskin) {
             /* increases timeout only */
-            Your("%s feels a bit harder.", mbodypart(&youmonst, SKIN));
+            pline_The("stone covering your %s feels a bit thicker.",
+                      mbodypart(&youmonst, SKIN));
         } else {
-            Your("%s hardens into stone.", mbodypart(&youmonst, SKIN));
+            pline("A thick layer of stone covers your %s.",
+                  mbodypart(&youmonst, SKIN));
         }
         /* become stone resistant */
         HStone_resistance |= I_SPECIAL;
@@ -980,7 +984,7 @@ register struct monst *mdef;
         find_ac(); /* adjust AC; dmg reduction handled in hitmu() */
     } else if (!youdefend) {
         if (canseemon(mdef))
-            pline("%s %s hardens into stone!",
+            pline("A thick layer of stone covers %s %s!",
                   s_suffix(Monnam(mdef)), mbodypart(mdef, SKIN));
         /* already stone resistant from resists_ston() */
         mdef->mextrinsics |= MR2_STONESKIN;
