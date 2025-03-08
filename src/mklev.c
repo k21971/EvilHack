@@ -1342,9 +1342,7 @@ coord *mp;
 
         if (!somexyspace(croom, mp, 2)) {
             if (!somexyspace(croom, mp, 0)
-                && !In_hell(&u.uz)
-                && !Is_nymph(&u.uz)
-                && !Is_forest(&u.uz))
+                && !In_hell(&u.uz))
                 impossible("Can't place branch!");
         }
     }
@@ -2227,6 +2225,8 @@ xchar x, y;
         return;
 
     if (!(u.uz.dnum == oracle_level.dnum      /* in main dungeon */
+          && u.uz.dnum == nymph_level.dnum    /* Aphrodite's garden */
+          && u.uz.dnum == forest_level.dnum   /* Desolate Forest */
           && !at_dgn_entrance("The Quest")    /* but not Quest's entry */
           && (u_depth = depth(&u.uz)) > 10    /* beneath 10 */
           && u_depth < depth(&medusa_level))) /* and above Medusa */

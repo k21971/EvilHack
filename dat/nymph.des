@@ -63,7 +63,7 @@ OBJECT:random, random
 }
 
 # normal room, in case of branch portal/stairs placement
-ROOM: "ordinary", random, random, random, random
+ROOM: "garden", random, random, random, random
 {
 [30%]:TERRAIN:random, 'T'
 [30%]:TERRAIN:random, 'T'

@@ -688,6 +688,9 @@ struct mkroom *croom; /* NULL == choose random room */
             continue;
 
         sroom->rtype = GARDEN;
+        maderoom = TRUE;
+        level.flags.has_garden = 1;
+
         /* create grass */
         for (pos.x = sroom->lx; pos.x <= sroom->hx; pos.x++) {
             for (pos.y = sroom->ly; pos.y <= sroom->hy; pos.y++) {
@@ -696,8 +699,6 @@ struct mkroom *croom; /* NULL == choose random room */
                     levl[pos.x][pos.y].typ = GRASS;
             }
         }
-        maderoom = TRUE;
-        level.flags.has_garden = 1;
 
         /* create trees/fountains */
         tried = 0;
@@ -769,6 +770,9 @@ struct mkroom *croom; /* NULL == choose random room */
             continue;
 
         sroom->rtype = FOREST;
+        maderoom = TRUE;
+        level.flags.has_forest = 1;
+
         /* create grass */
         for (pos.x = sroom->lx; pos.x <= sroom->hx; pos.x++) {
             for (pos.y = sroom->ly; pos.y <= sroom->hy; pos.y++) {
@@ -777,8 +781,6 @@ struct mkroom *croom; /* NULL == choose random room */
                     levl[pos.x][pos.y].typ = GRASS;
             }
         }
-        maderoom = TRUE;
-        level.flags.has_forest = 1;
 
         /* create dead trees and shallow water */
         tried = 0;
@@ -1068,26 +1070,41 @@ int xy_flags;
 {
     int tryct = 0;
     boolean isok;
+
     do {
         isok = TRUE;
         if (croom && !somexy(croom, pos))
             isok = FALSE;
         if ((xy_flags & 16))
             mazexy(pos);
-        if ((xy_flags & 1) && (IS_POOL(levl[pos->x][pos->y].typ)
-            || IS_FURNITURE(levl[pos->x][pos->y].typ)))
+        if ((xy_flags & 1)
+            && (IS_POOL(levl[pos->x][pos->y].typ)
+                || IS_FURNITURE(levl[pos->x][pos->y].typ)))
             isok = FALSE;
-        if (((xy_flags & 2) && (levl[pos->x][pos->y].typ != CORR))
-            || (levl[pos->x][pos->y].typ != ROOM))
+        if ((xy_flags & 2)
+            && ((levl[pos->x][pos->y].typ != CORR)
+                || (levl[pos->x][pos->y].typ != ROOM)
+                || (levl[pos->x][pos->y].typ != SAND)
+                || (levl[pos->x][pos->y].typ != GRASS)))
             isok = FALSE;
         if ((xy_flags & 4) && (sobj_at(BOULDER, pos->x, pos->y)))
             isok = FALSE;
         if ((xy_flags & 8) && bydoor(pos->x, pos->y))
             isok = FALSE;
     } while ((!isok || !SPACE_POS(levl[pos->x][pos->y].typ)
-             || occupied(pos->x, pos->y)) && (++tryct < 500));
-    if ((tryct < 500) && isok)
+              || !(levl[pos->x][pos->y].typ == ROOM
+                   || levl[pos->x][pos->y].typ == CORR
+                   || levl[pos->x][pos->y].typ == ICE
+                   || levl[pos->x][pos->y].typ == SAND
+                   || levl[pos->x][pos->y].typ == GRASS)
+              || occupied(pos->x, pos->y))
+             && (++tryct < 2000));
+
+    /* make tryct greater than the total number of possible
+       tile spaces on any given map */
+    if ((tryct < 2000) && isok)
         return TRUE;
+
     return FALSE;
 }
 
