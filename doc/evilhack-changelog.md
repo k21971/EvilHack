@@ -4363,4 +4363,6 @@ The following changes to date are:
 - Fix: portal to quest would sometimes not spawn if entry portal spawned
   on Aphrodite's Garden or the Desolate Forest levels
 - Fix: prevent boomerang going out of map
+- Fix: impossible "portal on top of portal??" when loading Gehennom
+  level with the portal to Vecna's domain
 

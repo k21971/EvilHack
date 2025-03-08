@@ -1078,7 +1078,7 @@ int xy_flags;
         if ((xy_flags & 16))
             mazexy(pos);
         if ((xy_flags & 1)
-            && (IS_POOL(levl[pos->x][pos->y].typ)
+            && (is_pool_or_lava(pos->x, pos->y)
                 || IS_FURNITURE(levl[pos->x][pos->y].typ)))
             isok = FALSE;
         if ((xy_flags & 2)

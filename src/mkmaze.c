@@ -365,7 +365,8 @@ d_level *lev;
         u_on_newpos(x, y);
         break;
     case LR_PORTAL:
-        mkportal(x, y, lev->dnum, lev->dlevel);
+        if (!occupied(x, y))
+            mkportal(x, y, lev->dnum, lev->dlevel);
         break;
     case LR_DOWNSTAIR:
     case LR_UPSTAIR:

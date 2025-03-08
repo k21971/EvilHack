@@ -1403,7 +1403,8 @@ xchar x, y; /* location */
     }
 
     if (br->type == BR_PORTAL) {
-        mkportal(x, y, dest->dnum, dest->dlevel);
+        if (!occupied(x, y))
+            mkportal(x, y, dest->dnum, dest->dlevel);
     } else if (make_stairs) {
         sstairs.sx = x;
         sstairs.sy = y;
@@ -1652,18 +1653,18 @@ coord *tm;
     if (kind == WEB) {
         i = rn2(4);
         switch (i) {
-            case 0:
-                (void) makemon(&mons[PM_JUMPING_SPIDER], m.x, m.y, NO_MM_FLAGS);
-                break;
-            case 1:
-                (void) makemon(&mons[PM_CAVE_SPIDER], m.x, m.y, NO_MM_FLAGS);
-                break;
-            case 2:
-                (void) makemon(&mons[PM_LARGE_SPIDER], m.x, m.y, NO_MM_FLAGS);
-                break;
-            default:
-                (void) makemon(&mons[PM_GIANT_SPIDER], m.x, m.y, NO_MM_FLAGS);
-                break;
+        case 0:
+            (void) makemon(&mons[PM_JUMPING_SPIDER], m.x, m.y, NO_MM_FLAGS);
+            break;
+        case 1:
+            (void) makemon(&mons[PM_CAVE_SPIDER], m.x, m.y, NO_MM_FLAGS);
+            break;
+        case 2:
+            (void) makemon(&mons[PM_LARGE_SPIDER], m.x, m.y, NO_MM_FLAGS);
+            break;
+        default:
+            (void) makemon(&mons[PM_GIANT_SPIDER], m.x, m.y, NO_MM_FLAGS);
+            break;
         }
     }
 
