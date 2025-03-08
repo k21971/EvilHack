@@ -4362,4 +4362,5 @@ The following changes to date are:
 - Fix: grammar feedback when spells like barkskin or stoneskin wear off
 - Fix: portal to quest would sometimes not spawn if entry portal spawned
   on Aphrodite's Garden or the Desolate Forest levels
+- Fix: prevent boomerang going out of map
 

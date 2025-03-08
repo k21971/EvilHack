@@ -4536,6 +4536,11 @@ int dx, dy;
         dy = ydir[i];
         bhitpos.x += dx;
         bhitpos.y += dy;
+        if (!isok(bhitpos.x, bhitpos.y)) {
+            bhitpos.x -= dx;
+            bhitpos.y -= dy;
+            break;
+        }
         if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
             m_respond(mtmp);
             tmp_at(DISP_END, 0);
