@@ -4367,4 +4367,5 @@ The following changes to date are:
   level with the portal to Vecna's domain
 - Change access to the treasure room in the Mines' End map 'The Sewers
   of Waterdeep'
+- Fix: addition of teleport regions to some of the Mines' End levels
 

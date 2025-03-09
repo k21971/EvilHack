@@ -1188,18 +1188,20 @@ IF [50%] {
 
 
 # Dungeon Description
-FORGE:(14,13)
 REGION:(23,03,48,06),lit,"ordinary"
 REGION:(21,06,22,06),lit,"ordinary"
 REGION:(14,04,14,04),unlit,"ordinary"
 REGION:(10,05,14,08),unlit,"ordinary"
 REGION:(10,09,11,09),unlit,"ordinary"
 REGION:(15,08,16,08),unlit,"ordinary"
+TELEPORT_REGION:(23,03,48,06),(0,0,0,0)
 # Secret doors
 DOOR:locked,(12,02)
 DOOR:locked,(11,06)
 # Stairs
 STAIR:(36,04),up
+# Forge
+FORGE:(14,13)
 # Non diggable walls
 NON_DIGGABLE:(00,00,52,17)
 NON_DIGGABLE:(53,00,74,00)
@@ -1447,6 +1449,7 @@ $stones = { (0,18),(0,12),(2,18),(12,14),(22,14),
             (16,16),(72,18),(52,14),(44,14) }
 SHUFFLE: $stones
 REGION:(0,0,75,19),lit,"ordinary"
+TELEPORT_REGION:(02,08,07,10),(0,0,0,0)
 NON_DIGGABLE:(0,0,75,19)
 STAIR:(1,9),up
 
@@ -1584,6 +1587,7 @@ TRAP:"board",random
 # Infested with all sorts of nasty filth critters
 #
 MAZE: "minend-5", ' '
+FLAGS:nommap
 MESSAGE: "You enter the sewers of the Gnomish Mines."
 MESSAGE: "The stench of fetid sewage is barely tolerable."
 GEOMETRY:center,center
@@ -1615,6 +1619,7 @@ $place = { (03,14),(70,03),(12,07) }
 SHUFFLE: $place
 
 REGION:(00,00,74,17),unlit,"ordinary"
+TELEPORT_REGION:(39,10,53,14),(0,0,0,0)
 # Secret doors
 DOOR:locked,(05,13)
 DOOR:locked,(15,13)
