@@ -4368,4 +4368,5 @@ The following changes to date are:
 - Change access to the treasure room in the Mines' End map 'The Sewers
   of Waterdeep'
 - Fix: addition of teleport regions to some of the Mines' End levels
+- Switch status from beta to released
 
