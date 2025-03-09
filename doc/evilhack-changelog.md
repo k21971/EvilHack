@@ -4365,4 +4365,6 @@ The following changes to date are:
 - Fix: prevent boomerang going out of map
 - Fix: impossible "portal on top of portal??" when loading Gehennom
   level with the portal to Vecna's domain
+- Change access to the treasure room in the Mines' End map 'The Sewers
+  of Waterdeep'
 

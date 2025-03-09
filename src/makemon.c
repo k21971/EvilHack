@@ -1707,8 +1707,6 @@ register struct monst *mtmp;
             (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, HIGH_BOOTS);
             (void) mongets(mtmp, CLOAK_OF_DISPLACEMENT);
-            if (rn2(3))
-                (void) mongets(mtmp, RIN_TELEPORT_CONTROL);
         } else if (mm == PM_CHARON) {
             (void) mongets(mtmp, WAN_OPENING);
             mkmonmoney(mtmp, (long) rn1(100, 100));

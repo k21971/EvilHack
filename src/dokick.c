@@ -900,12 +900,15 @@ dokick()
         default:
             break;
         }
-    } else if (rn2(2) && (IS_PUDDLE(levl[u.ux][u.uy].typ)
-               || IS_SEWAGE(levl[u.ux][u.uy].typ))
+    } else if (rn2(2)
+               && (IS_PUDDLE(levl[u.ux][u.uy].typ)
+                   || IS_SEWAGE(levl[u.ux][u.uy].typ))
                && !Levitation && !Flying && !Wwalking
                /* mud boots negate water resistance */
-               && (!uarmf || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4))) {
-        pline_The("water surrounding your %s hinders your ability to kick.",
+               && (!uarmf
+                   || strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4))) {
+        pline_The("%s surrounding your %s hinders your ability to kick.",
+                  IS_SEWAGE(levl[u.ux][u.uy].typ) ? "sewage" : "water",
                   makeplural(body_part(FOOT)));
         no_kick = TRUE;
     }

@@ -3706,6 +3706,12 @@ register struct monst *mtmp;
         place_object(otmp2, mtmp->mx, mtmp->my);
     }
 
+    /* special handling for the Rat King.
+       TODO: make a proper bitfield for this monster like
+       other unique monsters have, like mtmp->isratking */
+    if (mtmp->data == &mons[PM_RAT_KING])
+        mkgate2();
+
     if (is_vampshifter(mtmp) || is_changeling(mtmp)) {
         int mndx = mtmp->cham;
         int x = mtmp->mx, y = mtmp->my;

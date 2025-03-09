@@ -1578,6 +1578,7 @@ TRAP:"board",(71,06)
 TRAP:"spear",random
 TRAP:"board",random
 
+
 # Mine end level variant 5
 # "The Sewers of Waterdeep"
 # Infested with all sorts of nasty filth critters
@@ -1595,9 +1596,9 @@ MAP
 |  |sssssss|----------------|sssssss...sss|-------------------------|ss|  |
 |  |s.....sssssssssssssssssssss.........sssssssssSsssssssssssSssssssSss|  |
 |  |sssssss|---------s------|ssss.......ss|--s--s-------------s-----|ss|  |
-|  -----s---..ssss..|s|     |sssssssssssss| |s||s|..sssssssss|s|    ----  |
-|      |s| |..ssss..|s|     -------s---------s||sS..ssssssss\|s------     |
-|      |s| |..ssss..|s|           |s|sssssssss||s|..sssssssss|ssssss|     |
+|  -----s---.sssssss|s|     |sssssssssssss| |s||s|..sssssssss|s|    ----  |
+|      |s| |.sssssss|s|     -------s---------s||sS..ssssssss\|s------     |
+|      |s| |.sssssss|s|           |s|sssssssss||s|..sssssssss|ssssss|     |
 |      |s------------s------      |s|s----------s---------S--------s|     |
 |      |sssssssssssssssssss|-------s|s|sssssssssssssss|  |s|      |s|     |
 | ---- --------|sss....sssssssssssss|s|ssssssss......s|  |s|    ---S----  |
@@ -1628,15 +1629,13 @@ DOOR:locked,(67,11)
 STAIR:(48,12),up
 # Non diggable / non phase walls
 NON_DIGGABLE:(00,00,74,17)
-NON_PASSWALL:(00,00,74,17)
+NON_PASSWALL:(11,05,20,09)
+NON_PASSWALL:(49,05,61,09)
 # Niches
 # Note: $place[2] empty
 OBJECT:('*',"luckstone"),$place[0]
 OBJECT:('*',"loadstone"),$place[1]
 # Traps
-TRAP:"teleport",(05,04)
-TRAP:"teleport",(12,08)
-TRAP:"teleport",(68,13)
 TRAP:random,random
 TRAP:random,random
 TRAP:random,random
@@ -1645,8 +1644,11 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:"teleport",(19,06)
 # Objects
-CONTAINER:('(',"chest"),trapped,(19,06) {
+CONTAINER:('(',"chest"),trapped,(12,06) {
   OBJECT:'/'
   OBJECT:'+'
   OBJECT:('(',"magic key")
@@ -1682,7 +1684,7 @@ CONTAINER:('(',"chest"),trapped,(19,06) {
     }
   }
 }
-CONTAINER:('(',"crystal chest"),(19,08) {
+CONTAINER:('(',"crystal chest"),(12,08) {
   OBJECT:('*',"ruby")
   OBJECT:('*',"emerald")
   OBJECT:'/'
@@ -1692,7 +1694,7 @@ CONTAINER:('(',"crystal chest"),(19,08) {
   OBJECT:'+'
   OBJECT:'$',quantity:5000
 }
-CONTAINER:('(',"iron safe"),(19,07) {
+CONTAINER:('(',"iron safe"),(12,07) {
   OBJECT:('*',"diamond")
   OBJECT:('*',"dilithium crystal")
   OBJECT:'/'

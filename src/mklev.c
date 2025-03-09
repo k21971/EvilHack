@@ -2102,6 +2102,31 @@ mkgate()
     vision_full_recalc = 1;
 }
 
+void
+mkgate2()
+{
+    const int x = 23, y = 10;
+
+    /* don't do this if we're not at Mines' End */
+    if (!Is_mineend_level(&u.uz))
+        return;
+
+    /* create a locked door leading into the treasure room */
+    levl[x][y].typ = DOOR;
+    levl[x][y].doormask = D_LOCKED;
+    if (cansee(x, y))
+        newsym(x, y);
+
+    /* odds are the player won't be anywhere near this location
+       once they defeat the Rat King, but it is possible */
+    if (cansee (x, y))
+        pline("A door appears where the wall used to be.");
+    else if (!Deaf)
+        You_hear("the walls of the dungeon shift in a peculiar way.");
+
+    vision_full_recalc = 1;
+}
+
 /* Change level topology.  Boulders in the vicinity are eliminated.
  * Temporarily overrides vision in the name of a nice effect.
  */
