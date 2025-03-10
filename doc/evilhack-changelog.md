@@ -4370,3 +4370,10 @@ The following changes to date are:
 - Fix: addition of teleport regions to some of the Mines' End levels
 - Switch status from beta to released
 
+
+### Version 0.9.1
+
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of
+  November 6th, 2024)
+- Initial preparation for new version (0.9.1)
+

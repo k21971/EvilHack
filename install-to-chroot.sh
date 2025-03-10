@@ -18,9 +18,9 @@ COMPRESSBIN="/bin/gzip"
 NH_GIT="/home/build/EvilHack"
 NH_BRANCH="master"
 # HACKDIR from include/config.h; aka nethack subdir inside chroot
-NHSUBDIR="evilhack-0.9.0"
+NHSUBDIR="evilhack-0.9.1"
 # VAR_PLAYGROUND from include/unixconf.h
-NH_VAR_PLAYGROUND="/evilhack-0.9.0/var/"
+NH_VAR_PLAYGROUND="/evilhack-0.9.1/var/"
 # END OF CONFIG
 ##############################################################################
 
@@ -45,8 +45,8 @@ set -e
 umask 022
 
 echo "Creating inprogress and extrainfo directories"
-mkdir -p "$NAO_CHROOT/dgldir/inprogress-evil090"
-chown "$USRGRP" "$NAO_CHROOT/dgldir/inprogress-evil090"
+mkdir -p "$NAO_CHROOT/dgldir/inprogress-evil091"
+chown "$USRGRP" "$NAO_CHROOT/dgldir/inprogress-evil091"
 mkdir -p "$NAO_CHROOT/dgldir/extrainfo-evil"
 chown "$USRGRP" "$NAO_CHROOT/dgldir/extrainfo-evil"
 

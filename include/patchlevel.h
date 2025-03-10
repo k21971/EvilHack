@@ -9,7 +9,7 @@
 /*
  * PATCHLEVEL is updated for each release.
  */
-#define PATCHLEVEL 0
+#define PATCHLEVEL 1
 /*
  * Incrementing EDITLEVEL can be used to force invalidation of old bones
  * and save files.
@@ -39,7 +39,7 @@
  * to individual level files matter; changes to general game state don't)
  * but the extra complexity to support that is not worth the effort.]
  */
-/*#define VERSION_COMPATIBILITY 0x00090000L*/
+/*#define VERSION_COMPATIBILITY 0x00090100L*/
 
 /****************************************************************************/
 /* Version 3.6.x */
