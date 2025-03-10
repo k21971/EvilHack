@@ -3446,6 +3446,8 @@ int final;
                                           : from_what(MAGICAL_BREATHING));
     if (Passes_walls)
         you_can("walk through walls", from_what(PASSES_WALLS));
+    if (Passes_trees)
+        you_can("walk through trees", from_what(PASSES_TREES));
 
     /*** Physical attributes ***/
     if (Regeneration && elf_can_regen() && orc_can_regen())

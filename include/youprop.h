@@ -354,6 +354,10 @@
 #define EPasses_walls u.uprops[PASSES_WALLS].extrinsic
 #define Passes_walls (HPasses_walls || EPasses_walls)
 
+#define HPasses_trees u.uprops[PASSES_TREES].intrinsic
+#define EPasses_trees u.uprops[PASSES_TREES].extrinsic
+#define Passes_trees (HPasses_trees || EPasses_trees)
+
 /*** Physical attributes ***/
 #define HSlow_digestion u.uprops[SLOW_DIGESTION].intrinsic
 #define ESlow_digestion u.uprops[SLOW_DIGESTION].extrinsic

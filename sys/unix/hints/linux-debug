@@ -15,6 +15,7 @@
 
 # Default install path (assumes running at root)
 PREFIX=/usr
+GAME=evilhack
 HACKDIR=$(PREFIX)/games/lib/$(GAME)dir
 
 SHELLDIR = $(PREFIX)/games

@@ -11,6 +11,7 @@
 
 #PREFIX=/usr
 PREFIX=$(wildcard ~)/nh/install
+GAME=evilhack
 HACKDIR=$(PREFIX)/games/lib/$(GAME)dir
 SHELLDIR = $(PREFIX)/games
 INSTDIR=$(HACKDIR)

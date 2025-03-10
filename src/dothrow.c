@@ -670,7 +670,9 @@ int x, y;
     via_jumping = (EWwalking & I_SPECIAL) != 0L;
     stopping_short = (via_jumping && *range < 2);
 
-    if (!Passes_walls || !(may_pass = may_passwall(x, y))) {
+    if (!(Passes_walls && (may_pass = may_passwall(x, y)))
+        && !(IS_TREES(levl[x][y].typ)
+             && Passes_trees && (may_pass = may_passtree(x, y)))) {
         boolean odoor_diag = (IS_DOOR(levl[x][y].typ)
                               && (levl[x][y].doormask & D_ISOPEN)
                               && (u.ux - x) && (u.uy - y));
@@ -681,7 +683,7 @@ int x, y;
             if (odoor_diag)
                 You("hit the door edge!");
             pline("Ouch!");
-            if (IS_TREES(levl[x][y].typ))
+            if (IS_TREES(levl[x][y].typ) && !Passes_trees)
                 s = "bumping into a tree";
             else if (IS_ROCK(levl[x][y].typ))
                 s = "bumping into a wall";
@@ -689,7 +691,7 @@ int x, y;
                 s = "bumping into a door";
             dmg = rnd(2 + *range);
             losehp(Maybe_Half_Phys(dmg), s, KILLED_BY);
-            wake_nearto(x,y, 10);
+            wake_nearto(x, y, 10);
             return FALSE;
         }
         if (levl[x][y].typ == IRONBARS) {

@@ -45,7 +45,7 @@ static const struct innate {
   dru_abil[] = { { 1, &(HStealth), "", "" },
                  { 7, &(HSleep_resistance), "awake", "tired" },
                  { 10, &(HSearching), "perceptive", "unaware" },
-                 { 14, &(HWarning), "sensitive", "" },
+                 { 14, &(HPasses_trees), "less solid", "more solid" },
                  { 0, 0, 0, 0 } },
 
   hea_abil[] = { { 3, &(HPoison_resistance), "healthy", "" },

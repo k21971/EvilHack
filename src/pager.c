@@ -1503,6 +1503,7 @@ short otyp;
                     case FIXED_ABIL:
                     case MAGICAL_BREATHING:
                     case PASSES_WALLS:
+                    case PASSES_TREES:
                         confers = "Confers";
                         break;
                     default:

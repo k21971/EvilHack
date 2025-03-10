@@ -1723,6 +1723,8 @@ int x, y;
 
     if (Passes_walls)
         return TRUE;
+    if (IS_TREES(lev->typ) && Passes_trees)
+        return TRUE;
     if (IS_STWALL(lev->typ))
         return FALSE;
     if (lev->typ == IRONBARS)
@@ -1848,7 +1850,8 @@ get_valid_jump_position(x,y)
 int x,y;
 {
     return (isok(x, y)
-            && (ACCESSIBLE(levl[x][y].typ) || Passes_walls)
+            && (ACCESSIBLE(levl[x][y].typ) || Passes_walls
+                || (IS_TREES(levl[x][y].typ) && Passes_trees))
             && is_valid_jump_pos(x, y, jumping_is_magic, FALSE));
 }
 
@@ -2475,7 +2478,8 @@ boolean quietly;
         return FALSE;
     }
     if (IS_ROCK(levl[x][y].typ)
-        && !(passes_walls(&mons[obj->corpsenm]) && may_passwall(x, y))) {
+        && !((passes_walls(&mons[obj->corpsenm]) && may_passwall(x, y))
+             || (Passes_trees && may_passtree(x, y)))) {
         if (!quietly)
             You("cannot place a figurine in %s!",
                 IS_TREES(levl[x][y].typ) ? "a tree" : "solid rock");

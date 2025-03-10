@@ -94,6 +94,7 @@ const struct propname {
     { SWIMMING, "swimming" },
     { MAGICAL_BREATHING, "magical breathing" },
     { PASSES_WALLS, "phasing" },
+    { PASSES_TREES, "phasing (trees)" },
     { SLOW_DIGESTION, "slow digestion" },
     { HALF_SPDAM, "half spell damage" },
     { HALF_PHDAM, "half physical damage" },
@@ -176,14 +177,14 @@ stoned_dialogue()
 STATIC_OVL void
 phasing_dialogue()
 {
-    if (HPasses_walls == 15) {
+    if (HPasses_walls == 15 || HPasses_trees == 15) {
         if (!Hallucination) {
             Your("body is beginning to feel more solid.");
         } else {
             You_feel("more distant from the spirit world.");
         }
         stop_occupation();
-    } else if (HPasses_walls == 1) {
+    } else if (HPasses_walls == 1 || HPasses_trees == 1) {
         if (!Hallucination) {
             Your("body is solid again.");
         } else {

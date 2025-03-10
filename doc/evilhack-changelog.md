@@ -4377,4 +4377,5 @@ The following changes to date are:
   November 6th, 2024)
 - Initial preparation for new version (0.9.1)
 - Properly display fractured altars in dungeon overview
+- Druids can pass directly through trees
 
