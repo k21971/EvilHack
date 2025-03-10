@@ -11,6 +11,9 @@ NHSROOT=..
 
 MAKEDEFS = ../util/makedefs
 
+#STRIPBS=
+STRIPBS = ../util/stripbs
+
 # Which version do we want to build?  (XXX These are not used anywhere.)
 GUIDEBOOK = Guidebook		# regular ASCII file
 #GUIDEBOOK = Guidebook.ps	# PostScript file
@@ -19,22 +22,25 @@ GUIDEBOOK = Guidebook		# regular ASCII file
 # Some versions of col need -x to keep them from converting spaces to tabs;
 # some versions of col don't do the conversion by default and don't
 # recognize the option.  Sigh.
-COLCMD = col -bx
-#COLCMD = col -b
+#COLCMD ?= col -bx
+#COLCMD ?= col -b
+COLCMD ?= $(STRIPBS)
 
 # The command to use to generate a PostScript file
 # PSCMD = ditroff | psdit
 PSCMD = groff
 
-# Use the "cat" GUIDECMD if nroff and/or tbl and/or col are not installed
+#NROFF_SWITCHES = -c -tascii
+NROFF_SWITCHES = -c -Tascii -wall -Wtab -Wrange -Wel -Wscale
+
 # Not appropriate for creating Guidebook.txt.
 # GUIDECMD = cat Guidebook.txt
 #
 # Single page. Might need adjustment to .pl value
 # GUIDECMD= $(GUIDE_PREFORMAT) | perl -pe 's/^(.mt)$$/.pl 4720v\n.in 0\n.po 8\n.ll 64m\n$$1/' | nroff -c -Tascii | $(COLCMD)
 #
-GUIDECMD = $(GUIDE_PREFORMAT) | nroff -c -Tascii | $(COLCMD)
-ONEPAGECMD = $(ONEPAGE_PREFORMAT) | nroff -c -Tascii | $(COLCMD) \
+GUIDECMD = $(GUIDE_PREFORMAT) | nroff $(NROFF_SWITCHES) | $(COLCMD)
+ONEPAGECMD = $(ONEPAGE_PREFORMAT) | nroff $(NROFF_SWITCHES) | $(COLCMD) \
 	| sed -e '/EOF--EOF/,12345D'
 
 # Only generate output for the current configuration:
@@ -50,8 +56,8 @@ ONEPAGE_PREFORMAT = cat Gbk-1pg-pfx.mn Guidebook.mn Gbk-1pg-sfx.mn \
 	| $(NHGREP) | tbl tmac.n -
 
 # the basic guidebook
-Guidebook:	Guidebook.mn tmac.n tmac.nh
-	$(GUIDECMD) > Guidebook
+Guidebook:	Guidebook.mn tmac.n tmac.nh $(MAKEDEFS) $(STRIPBS)
+	-$(GUIDECMD) > Guidebook
 
 # Fancier output for those with ditroff, psdit and a PostScript printer.
 Guidebook.ps:	Guidebook.mn tmac.n tmac.nh
@@ -65,6 +71,10 @@ Guidebook.dvi:	Guidebook.tex
 	latex Guidebook.tex
 	latex Guidebook.tex
 
+../util/makedefs:
+	( cd .. ; $(MAKE) makedefs )
+../util/stripbs:
+	( cd .. ; $(MAKE) stripbs )
 
 GAME	= nethack
 MANDIR	= /usr/man/man6
