@@ -5215,7 +5215,7 @@ int otyp;
     if (fails < 2)
         return fails;
     You("disarm %s trap.", the_your[ttmp->madeby_u]);
-    cnv_trap_obj(otyp, 50 - rnl(50), ttmp, FALSE);
+    cnv_trap_obj(otyp, ttmp->madeby_u ? 10 : 50 - rnl(50), ttmp, FALSE);
     return 1;
 }
 

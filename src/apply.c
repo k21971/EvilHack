@@ -2932,7 +2932,7 @@ static const struct trap_recipe {
     short quan;
 } final[] = {
     /* trap type, components, component quantity */
-    { ARROW_TRAP, ARROW, 20 },
+    { ARROW_TRAP, ARROW, 10 },
     { 0, 0, 0 }
 };
 

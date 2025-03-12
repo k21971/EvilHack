@@ -4384,4 +4384,6 @@ The following changes to date are:
 - Debug hints files tweak
 - Fix: get rid of unneeded dispose_of_orig_obj() call
 - Fix: prevent segfault for non-existent trap
+- Disarming an arrow trap the player made will only yield the number of
+  arrows used to make it
 
