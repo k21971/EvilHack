@@ -1593,7 +1593,7 @@ dospinweb()
             deltrap(ttmp);
             newsym(x, y);
             return 1;
-        case TELEP_TRAP:
+        case TELEP_TRAP_SET:
         case LEVEL_TELEP:
         case MAGIC_PORTAL:
         case VIBRATING_SQUARE:
@@ -1614,25 +1614,25 @@ dospinweb()
             deltrap(ttmp);
             newsym(x, y);
             return 1;
-        case SPEAR_TRAP:
+        case SPEAR_TRAP_SET:
             You("spin a web, jamming the mechanism.");
             deltrap(ttmp);
             newsym(x, y);
             return 1;
-        case ARROW_TRAP:
-        case BOLT_TRAP:
-        case DART_TRAP:
+        case ARROW_TRAP_SET:
+        case BOLT_TRAP_SET:
+        case DART_TRAP_SET:
         case BEAR_TRAP:
         case ROCKTRAP:
-        case FIRE_TRAP:
-        case ICE_TRAP:
+        case FIRE_TRAP_SET:
+        case ICE_TRAP_SET:
         case LANDMINE:
-        case SLP_GAS_TRAP:
-        case RUST_TRAP:
-        case MAGIC_TRAP:
+        case SLP_GAS_TRAP_SET:
+        case RUST_TRAP_SET:
+        case MAGIC_TRAP_SET:
         case ANTI_MAGIC:
-        case POLY_TRAP:
-        case MAGIC_BEAM_TRAP:
+        case POLY_TRAP_SET:
+        case MAGIC_BEAM_TRAP_SET:
             You("have triggered a trap!");
             dotrap(ttmp, 0);
             return 1;

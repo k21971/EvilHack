@@ -259,7 +259,7 @@ moverock()
                         newsym(rx, ry);
                     return sobj_at(BOULDER, sx, sy) ? -1 : 0;
                 case LEVEL_TELEP:
-                case TELEP_TRAP: {
+                case TELEP_TRAP_SET: {
                     int newlev = 0; /* lint suppression */
                     d_level dest;
 
@@ -275,7 +275,7 @@ moverock()
                     else
                         You("push %s and suddenly it disappears!",
                             the(xname(otmp)));
-                    if (ttmp->ttyp == TELEP_TRAP) {
+                    if (ttmp->ttyp == TELEP_TRAP_SET) {
                         (void) rloco(otmp);
                     } else {
                         obj_extract_self(otmp);

@@ -55,47 +55,47 @@ extern struct trap *ftrap;
 
 /* unconditional traps */
 enum trap_types {
-    NO_TRAP      =  0,
-    ARROW_TRAP   =  1,
-    BOLT_TRAP    =  2,
-    DART_TRAP    =  3,
-    ROCKTRAP     =  4,
-    SQKY_BOARD   =  5,
-    BEAR_TRAP    =  6,
-    LANDMINE     =  7,
-    ROLLING_BOULDER_TRAP = 8,
-    SLP_GAS_TRAP =  9,
-    RUST_TRAP    = 10,
-    FIRE_TRAP    = 11,
-    ICE_TRAP     = 12,
-    PIT          = 13,
-    SPIKED_PIT   = 14,
-    HOLE         = 15,
-    TRAPDOOR     = 16,
-    TELEP_TRAP   = 17,
-    LEVEL_TELEP  = 18,
-    MAGIC_PORTAL = 19,
-    WEB          = 20,
-    STATUE_TRAP  = 21,
-    MAGIC_TRAP   = 22,
-    ANTI_MAGIC   = 23,
-    POLY_TRAP    = 24,
-    SPEAR_TRAP   = 25,
-    MAGIC_BEAM_TRAP  = 26,
-    VIBRATING_SQUARE = 27,
+    NO_TRAP              =  0,
+    ARROW_TRAP_SET       =  1,
+    BOLT_TRAP_SET        =  2,
+    DART_TRAP_SET        =  3,
+    ROCKTRAP             =  4,
+    SQKY_BOARD           =  5,
+    BEAR_TRAP            =  6,
+    LANDMINE             =  7,
+    ROLLING_BOULDER_TRAP =  8,
+    SLP_GAS_TRAP_SET     =  9,
+    RUST_TRAP_SET        = 10,
+    FIRE_TRAP_SET        = 11,
+    ICE_TRAP_SET         = 12,
+    PIT                  = 13,
+    SPIKED_PIT           = 14,
+    HOLE                 = 15,
+    TRAPDOOR             = 16,
+    TELEP_TRAP_SET       = 17,
+    LEVEL_TELEP          = 18,
+    MAGIC_PORTAL         = 19,
+    WEB                  = 20,
+    STATUE_TRAP          = 21,
+    MAGIC_TRAP_SET       = 22,
+    ANTI_MAGIC           = 23,
+    POLY_TRAP_SET        = 24,
+    SPEAR_TRAP_SET       = 25,
+    MAGIC_BEAM_TRAP_SET  = 26,
+    VIBRATING_SQUARE     = 27,
 
-    TRAPNUM      = 28
+    TRAPNUM              = 28
 };
 
 #define is_pit(ttyp) ((ttyp) == PIT || (ttyp) == SPIKED_PIT)
 #define is_hole(ttyp)  ((ttyp) == HOLE || (ttyp) == TRAPDOOR)
 #define undestroyable_trap(ttyp) ((ttyp) == MAGIC_PORTAL         \
                                   || (ttyp) == VIBRATING_SQUARE)
-#define is_magical_trap(ttyp) ((ttyp) == TELEP_TRAP          \
-                               || (ttyp) == LEVEL_TELEP      \
-                               || (ttyp) == MAGIC_TRAP       \
-                               || (ttyp) == ANTI_MAGIC       \
-                               || (ttyp) == POLY_TRAP        \
-                               || (ttyp) == MAGIC_BEAM_TRAP)
+#define is_magical_trap(ttyp) ((ttyp) == TELEP_TRAP_SET          \
+                               || (ttyp) == LEVEL_TELEP          \
+                               || (ttyp) == MAGIC_TRAP_SET       \
+                               || (ttyp) == ANTI_MAGIC           \
+                               || (ttyp) == POLY_TRAP_SET        \
+                               || (ttyp) == MAGIC_BEAM_TRAP_SET)
 
 #endif /* TRAP_H */

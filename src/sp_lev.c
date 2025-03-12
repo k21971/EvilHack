@@ -853,7 +853,7 @@ rndtrap()
                 rtrap = NO_TRAP;
             break;
         case LEVEL_TELEP:
-        case TELEP_TRAP:
+        case TELEP_TRAP_SET:
             if (level.flags.noteleport)
                 rtrap = NO_TRAP;
             break;

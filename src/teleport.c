@@ -729,7 +729,7 @@ boolean break_the_rules; /* True: wizard mode ^T */
     boolean trap_once = FALSE;
 
     trap = t_at(u.ux, u.uy);
-    if (trap && (!trap->tseen || trap->ttyp != TELEP_TRAP))
+    if (trap && (!trap->tseen || trap->ttyp != TELEP_TRAP_SET))
         trap = 0;
 
     if (trap) {

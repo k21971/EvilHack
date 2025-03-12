@@ -226,6 +226,7 @@ struct trobj Rogue[] = {
     { ARMOR, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { POT_SICKNESS, 0, POTION_CLASS, 1, 0 },
     { LOCK_PICK, 0, TOOL_CLASS, 1, 0 },
+    { TRAP_KIT, UNDEF_SPE, TOOL_CLASS, 1, UNDEF_BLESS },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
@@ -237,6 +238,7 @@ struct trobj Drow_Rogue[] = {
     { DARK_ELVEN_TUNIC, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { POT_DROW_POISON, 0, POTION_CLASS, 2, 0 },
     { LOCK_PICK, 0, TOOL_CLASS, 1, 0 },
+    { TRAP_KIT, UNDEF_SPE, TOOL_CLASS, 1, UNDEF_BLESS },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };

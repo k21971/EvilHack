@@ -708,7 +708,7 @@ make_niches()
 STATIC_OVL void
 makevtele()
 {
-    makeniche(TELEP_TRAP);
+    makeniche(TELEP_TRAP_SET);
 }
 
 /* clear out various globals that keep information on the current level.
@@ -1512,13 +1512,13 @@ coord *tm;
             kind = BEAR_TRAP;
             break; /* 0 */
         case 1:
-            kind = ARROW_TRAP;
+            kind = ARROW_TRAP_SET;
             break;
         case 2:
-            kind = BOLT_TRAP;
+            kind = BOLT_TRAP_SET;
             break;
         case 3:
-            kind = DART_TRAP;
+            kind = DART_TRAP_SET;
             break;
         case 4:
             kind = TRAPDOOR;
@@ -1527,18 +1527,18 @@ coord *tm;
             kind = PIT;
             break;
         case 6:
-            kind = SLP_GAS_TRAP;
+            kind = SLP_GAS_TRAP_SET;
             break;
         case 7:
-            kind = RUST_TRAP;
+            kind = RUST_TRAP_SET;
             break;
         }
     } else if (Inhell && !Iniceq && !rn2(5)) {
         /* bias the frequency of fire traps in Gehennom */
-        kind = FIRE_TRAP;
+        kind = FIRE_TRAP_SET;
     } else if (Iniceq && !rn2(3)) {
         /* same for ice traps in the Ice Queen branch */
-        kind = ICE_TRAP;
+        kind = ICE_TRAP_SET;
     } else {
         do {
             kind = rnd(TRAPNUM - 1);
@@ -1549,7 +1549,7 @@ coord *tm;
                 kind = NO_TRAP;
                 break;
             case ROLLING_BOULDER_TRAP:
-            case SLP_GAS_TRAP:
+            case SLP_GAS_TRAP_SET:
                 if (lvl < 2)
                     kind = NO_TRAP;
                 break;
@@ -1571,7 +1571,7 @@ coord *tm;
                            || is_sewage(tm->x, tm->y)))
                     kind = NO_TRAP;
                 break;
-            case SPEAR_TRAP:
+            case SPEAR_TRAP_SET:
                 if (lvl < 6)
                     kind = NO_TRAP;
                 break;
@@ -1583,26 +1583,26 @@ coord *tm;
                     kind = NO_TRAP;
                 break;
             case STATUE_TRAP:
-            case POLY_TRAP:
+            case POLY_TRAP_SET:
                 if (lvl < 8)
                     kind = NO_TRAP;
                 break;
-            case MAGIC_BEAM_TRAP:
+            case MAGIC_BEAM_TRAP_SET:
                 if (lvl < 12)
                     kind = NO_TRAP;
                 if (tm && (is_puddle(tm->x, tm->y)
                            || is_sewage(tm->x, tm->y)))
                     kind = NO_TRAP;
                 break;
-            case FIRE_TRAP:
+            case FIRE_TRAP_SET:
                 if (!Inhell)
                     kind = NO_TRAP;
                 break;
-            case ICE_TRAP:
+            case ICE_TRAP_SET:
                 if (!Iniceq)
                     kind = NO_TRAP;
                 break;
-            case TELEP_TRAP:
+            case TELEP_TRAP_SET:
                 if (level.flags.noteleport)
                     kind = NO_TRAP;
                 break;
@@ -1690,7 +1690,7 @@ coord *tm;
        Finally, pits are excluded because it's weird to see an item
        in a pit and yet not be able to identify that the pit is there. */
     if (kind != NO_TRAP && lvl <= (unsigned) rnd(4)
-        && kind != SQKY_BOARD && kind != RUST_TRAP
+        && kind != SQKY_BOARD && kind != RUST_TRAP_SET
         /* rolling boulder trap might not have a boulder if there was no
            viable path (such as when placed in the corner of a room), in
            which case tx,ty==launch.x,y; no boulder => no dead predecessor */
@@ -1706,26 +1706,26 @@ coord *tm;
         /* Not all trap types have special handling here; only the ones
            that kill in a specific way that's obvious after the fact. */
         switch (kind) {
-        case ARROW_TRAP:
+        case ARROW_TRAP_SET:
             otmp = mksobj(ARROW, TRUE, FALSE);
             otmp->opoisoned = 0;
             otmp->otainted = 0;
             /* don't adjust the quantity; maybe the trap shot multiple
                times, there was an untrapping attempt, etc... */
             break;
-        case BOLT_TRAP:
+        case BOLT_TRAP_SET:
             otmp = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
             otmp->opoisoned = 0;
             otmp->otainted = 0;
             break;
-        case DART_TRAP:
+        case DART_TRAP_SET:
             otmp = mksobj(DART, TRUE, FALSE);
             otmp->otainted = 0;
             break;
         case ROCKTRAP:
             otmp = mksobj(ROCK, TRUE, FALSE);
             break;
-        case SPEAR_TRAP:
+        case SPEAR_TRAP_SET:
             break;
         default:
             /* no item dropped by the trap */
@@ -1781,7 +1781,7 @@ coord *tm;
                generate elf corpses on sleeping gas traps unless a)
                we're on dlvl 2 (1 is impossible) and b) we pass a coin
                flip */
-            if (kind == SLP_GAS_TRAP && !(lvl <= 2 && rn2(2)))
+            if (kind == SLP_GAS_TRAP_SET && !(lvl <= 2 && rn2(2)))
                 victim_mnum = PM_HUMAN;
             break;
         case 1: case 2:
@@ -2181,7 +2181,7 @@ int dist;
         if (is_pool(x, y))
             break;
         lev->typ = ROOM;
-        ttmp = maketrap(x, y, FIRE_TRAP);
+        ttmp = maketrap(x, y, FIRE_TRAP_SET);
         if (ttmp)
             ttmp->tseen = TRUE;
         break;

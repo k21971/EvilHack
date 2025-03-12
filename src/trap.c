@@ -481,15 +481,14 @@ int x, y, typ;
         mongone(mtmp);
         break;
     }
-    case MAGIC_BEAM_TRAP: {
+    case MAGIC_BEAM_TRAP_SET: {
         int d, startdir = rn2(8);
-        int dist;
-        int lx, ly;
-        int ok = 0;
+        int dist, lx, ly, ok = 0;
+
         for (d = 0; ((d < 8) && !ok); d++) {
             for (dist = 1; ((dist < 8) && !ok); dist++) {
-                lx = x;
-                ly = y;
+                lx = x, ly = y;
+
                 switch ((startdir + d) % 8) {
                 case 0: lx += dist;
                     break;
@@ -1133,7 +1132,7 @@ unsigned trflags;
             && !conj_pit && !adj_pit
             && (!rn2(5) || (is_pit(ttype)
                             && is_clinger(youmonst.data)))) {
-                You("escape %s %s.", (ttype == ARROW_TRAP && !trap->madeby_u)
+                You("escape %s %s.", (ttype == ARROW_TRAP_SET && !trap->madeby_u)
                                      ? "an"
                                      : a_your[trap->madeby_u],
                 defsyms[trap_to_defsym(ttype)].explanation);
@@ -1150,7 +1149,7 @@ unsigned trflags;
     }
 
     switch (ttype) {
-    case ARROW_TRAP:
+    case ARROW_TRAP_SET:
         if (trap->once && trap->tseen && !rn2(15)) {
             if (!Deaf)
                 You_hear("a loud click!");
@@ -1177,7 +1176,7 @@ unsigned trflags;
         }
         break;
 
-    case BOLT_TRAP:
+    case BOLT_TRAP_SET:
         if (trap->once && trap->tseen && !rn2(15)) {
             if (!Deaf)
                 You_hear("a loud click!");
@@ -1204,7 +1203,7 @@ unsigned trflags;
         }
         break;
 
-    case MAGIC_BEAM_TRAP:
+    case MAGIC_BEAM_TRAP_SET:
         if (!Deaf)
             You_hear("a soft click.");
         trap->once = 1;
@@ -1221,7 +1220,7 @@ unsigned trflags;
         }
         break;
 
-    case DART_TRAP:
+    case DART_TRAP_SET:
         if (trap->once && trap->tseen && !rn2(15)) {
             if (!Deaf)
                 You_hear("a soft click.");
@@ -1345,7 +1344,7 @@ unsigned trflags;
         break;
     }
 
-    case SLP_GAS_TRAP:
+    case SLP_GAS_TRAP_SET:
         seetrap(trap);
         if (how_resistant(SLEEP_RES) == 100 || Breathless_nomagic) {
             monstseesu(M_SEEN_SLEEP);
@@ -1357,7 +1356,7 @@ unsigned trflags;
         (void) steedintrap(trap, (struct obj *) 0);
         break;
 
-    case RUST_TRAP:
+    case RUST_TRAP_SET:
         seetrap(trap);
 
         /* Unlike monsters, traps cannot aim their rust attacks at
@@ -1421,12 +1420,12 @@ unsigned trflags;
 
         break;
 
-    case FIRE_TRAP:
+    case FIRE_TRAP_SET:
         seetrap(trap);
         dofiretrap((struct obj *) 0);
         break;
 
-    case ICE_TRAP:
+    case ICE_TRAP_SET:
         seetrap(trap);
         doicetrap((struct obj *) 0);
         break;
@@ -1564,7 +1563,7 @@ unsigned trflags;
         fall_through(TRUE, (trflags & TOOKPLUNGE));
         break;
 
-    case TELEP_TRAP:
+    case TELEP_TRAP_SET:
         seetrap(trap);
         tele_trap(trap);
         break;
@@ -1666,7 +1665,7 @@ unsigned trflags;
         (void) activate_statue_trap(trap, u.ux, u.uy, FALSE);
         break;
 
-    case MAGIC_TRAP: /* A magic trap. */
+    case MAGIC_TRAP_SET: /* A magic trap. */
         seetrap(trap);
         if (!rn2(15)) {
             deltrap(trap);
@@ -1732,7 +1731,7 @@ unsigned trflags;
         }
         break;
 
-    case POLY_TRAP: {
+    case POLY_TRAP_SET: {
         char verbbuf[BUFSZ];
 
         seetrap(trap);
@@ -1846,7 +1845,7 @@ unsigned trflags;
         break;
     }
 
-    case SPEAR_TRAP:
+    case SPEAR_TRAP_SET:
         feeltrap(trap);
         if (u.usteed)
             pline("A spear shoots up from a hole in the ground at %s!",
@@ -1942,7 +1941,7 @@ struct obj *otmp;
     trapkilled = steedhit = FALSE;
 
     switch (tt) {
-    case ARROW_TRAP:
+    case ARROW_TRAP_SET:
         if (!otmp) {
             impossible("steed hit by non-existent arrow?");
             return 0;
@@ -1950,7 +1949,7 @@ struct obj *otmp;
         trapkilled = thitm(8, steed, otmp, 0, FALSE);
         steedhit = TRUE;
         break;
-    case BOLT_TRAP:
+    case BOLT_TRAP_SET:
         if (!otmp) {
             impossible("steed hit by non-existent crossbow bolt?");
             return 0;
@@ -1958,7 +1957,7 @@ struct obj *otmp;
         trapkilled = thitm(8, steed, otmp, 0, FALSE);
         steedhit = TRUE;
         break;
-    case DART_TRAP:
+    case DART_TRAP_SET:
         if (!otmp) {
             impossible("steed hit by non-existent dart?");
             return 0;
@@ -1966,7 +1965,7 @@ struct obj *otmp;
         trapkilled = thitm(7, steed, otmp, 0, FALSE);
         steedhit = TRUE;
         break;
-    case SLP_GAS_TRAP:
+    case SLP_GAS_TRAP_SET:
         if (!(resists_sleep(steed) || defended(steed, AD_SLEE))
             && !breathless(steed->data)
             && !steed->msleeping && steed->mcanmove) {
@@ -1976,7 +1975,7 @@ struct obj *otmp;
         }
         steedhit = TRUE;
         break;
-    case SPEAR_TRAP:
+    case SPEAR_TRAP_SET:
         pline("The spear stabs %s%s!",
               (is_flyer(steed->data) || Levitation || Flying) ? "at " : "",
               mon_nam(steed));
@@ -2016,7 +2015,7 @@ struct obj *otmp;
                                rnd((tt == PIT) ? 6 : 10), FALSE));
         steedhit = TRUE;
         break;
-    case POLY_TRAP:
+    case POLY_TRAP_SET:
         deltrap(trap);
         newsym(steed->mx, steed->my);
         if (!(resists_magm(steed) || defended(steed, AD_MAGM))
@@ -2314,7 +2313,7 @@ int style;
                     }
                     break;
                 case LEVEL_TELEP:
-                case TELEP_TRAP:
+                case TELEP_TRAP_SET:
                     if (cansee(bhitpos.x, bhitpos.y)) {
                         pline("Suddenly the rolling boulder disappears!");
                     } else {
@@ -2322,7 +2321,7 @@ int style;
                             You_hear("a rumbling stop abruptly.");
                     }
                     singleobj->otrapped = 0;
-                    if (t->ttyp == TELEP_TRAP)
+                    if (t->ttyp == TELEP_TRAP_SET)
                         (void) rloco(singleobj);
                     else {
                         int newlev = random_teleport_level();
@@ -2642,7 +2641,7 @@ register struct monst *mtmp;
         if (mtmp == u.usteed)
             in_sight = TRUE;
         switch (tt) {
-        case ARROW_TRAP:
+        case ARROW_TRAP_SET:
             if (trap->once && trap->tseen && !rn2(15)) {
                 if (in_sight && see_it)
                     pline("%s triggers a trap but nothing happens.",
@@ -2658,7 +2657,7 @@ register struct monst *mtmp;
             if (thitm(8, mtmp, otmp, 0, FALSE))
                 trapkilled = TRUE;
             break;
-        case BOLT_TRAP:
+        case BOLT_TRAP_SET:
             if (trap->once && trap->tseen && !rn2(15)) {
                 if (in_sight && see_it)
                     pline("%s triggers a trap but nothing happens.",
@@ -2674,7 +2673,7 @@ register struct monst *mtmp;
             if (thitm(8, mtmp, otmp, 0, FALSE))
                 trapkilled = TRUE;
             break;
-        case DART_TRAP:
+        case DART_TRAP_SET:
             if (trap->once && trap->tseen && !rn2(15)) {
                 if (in_sight && see_it)
                     pline("%s triggers a trap but nothing happens.",
@@ -2762,7 +2761,7 @@ register struct monst *mtmp;
             if (mtmp->mtrapped)
                 trapkilled = thitm(0, mtmp, (struct obj *) 0, d(2, 4), FALSE);
             break;
-        case SLP_GAS_TRAP:
+        case SLP_GAS_TRAP_SET:
             if (!(resists_sleep(mtmp) || defended(mtmp, AD_SLEE))
                 && !breathless(mptr) && !mtmp->msleeping
                 && mtmp->mcanmove) {
@@ -2772,7 +2771,7 @@ register struct monst *mtmp;
                 }
             }
             break;
-        case RUST_TRAP: {
+        case RUST_TRAP_SET: {
             struct obj *target, *nextobj;
 
             if (in_sight)
@@ -2847,8 +2846,8 @@ register struct monst *mtmp;
                 (void) split_mon(mtmp, (struct monst *) 0);
             }
             break;
-        } /* RUST_TRAP */
-        case FIRE_TRAP:
+        } /* RUST_TRAP_SET */
+        case FIRE_TRAP_SET:
         mfiretrap:
             if (is_puddle(mtmp->mx, mtmp->my)
                 || is_sewage(mtmp->mx, mtmp->my)) {
@@ -2933,7 +2932,7 @@ register struct monst *mtmp;
             if (see_it && t_at(mtmp->mx, mtmp->my))
                 seetrap(trap);
             break;
-        case ICE_TRAP:
+        case ICE_TRAP_SET:
             if (in_sight)
                 pline("A %s shoots up from the %s under %s!",
                       freezing_mist, surface(mtmp->mx, mtmp->my),
@@ -3048,7 +3047,7 @@ register struct monst *mtmp;
                 return mlev_res;
             break;
         }
-        case TELEP_TRAP:
+        case TELEP_TRAP_SET:
             mtele_trap(mtmp, trap, in_sight);
             break;
         case WEB:
@@ -3119,7 +3118,7 @@ register struct monst *mtmp;
             break;
         case STATUE_TRAP:
             break;
-        case MAGIC_TRAP:
+        case MAGIC_TRAP_SET:
             /* A magic trap.  Monsters usually immune. */
             if (!rn2(21))
                 goto mfiretrap;
@@ -3212,7 +3211,7 @@ register struct monst *mtmp;
                 nomovemsg = "The explosion awakens you!";
             }
             break;
-        case POLY_TRAP:
+        case POLY_TRAP_SET:
             if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
                 shieldeff(mtmp->mx, mtmp->my);
             } else if (!resist(mtmp, WAND_CLASS, 0, NOTELL)) {
@@ -3253,7 +3252,7 @@ register struct monst *mtmp;
                 }
             }
             break;
-        case SPEAR_TRAP:
+        case SPEAR_TRAP_SET:
             if (in_sight) {
                 seetrap(trap);
                 pline("A spear stabs up from a hole in the ground!");
@@ -3292,7 +3291,7 @@ register struct monst *mtmp;
                     pline("%s is skewered!", Monnam(spear_target));
             }
             break;
-        case MAGIC_BEAM_TRAP:
+        case MAGIC_BEAM_TRAP_SET:
             if (distu(trap->tx, trap->ty) < 4) {
                 if (!Deaf)
                     You_hear("a faint click.");
@@ -5446,13 +5445,13 @@ boolean force;
                     return disarm_landmine(ttmp);
                 case SQKY_BOARD:
                     return disarm_squeaky_board(ttmp);
-                case DART_TRAP:
+                case DART_TRAP_SET:
                     return disarm_shooting_trap(ttmp, DART);
-                case ARROW_TRAP:
+                case ARROW_TRAP_SET:
                     return disarm_shooting_trap(ttmp, ARROW);
-                case BOLT_TRAP:
+                case BOLT_TRAP_SET:
                     return disarm_shooting_trap(ttmp, CROSSBOW_BOLT);
-                case SPEAR_TRAP:
+                case SPEAR_TRAP_SET:
                     return disarm_spear_trap(ttmp);
                 case PIT:
                 case SPIKED_PIT:
@@ -6279,11 +6278,11 @@ register struct trap *ttmp;
 {
     /* some of these are arbitrary -dlc */
     if (ttmp && ((ttmp->ttyp == SQKY_BOARD) || (ttmp->ttyp == BEAR_TRAP)
-                 || (ttmp->ttyp == LANDMINE) || (ttmp->ttyp == FIRE_TRAP)
-                 || (ttmp->ttyp == ICE_TRAP) || is_pit(ttmp->ttyp)
+                 || (ttmp->ttyp == LANDMINE) || (ttmp->ttyp == FIRE_TRAP_SET)
+                 || (ttmp->ttyp == ICE_TRAP_SET) || is_pit(ttmp->ttyp)
                  || is_hole(ttmp->ttyp)
-                 || (ttmp->ttyp == TELEP_TRAP) || (ttmp->ttyp == LEVEL_TELEP)
-                 || (ttmp->ttyp == WEB) || (ttmp->ttyp == MAGIC_TRAP)
+                 || (ttmp->ttyp == TELEP_TRAP_SET) || (ttmp->ttyp == LEVEL_TELEP)
+                 || (ttmp->ttyp == WEB) || (ttmp->ttyp == MAGIC_TRAP_SET)
                  || (ttmp->ttyp == ANTI_MAGIC))) {
         register struct monst *mtmp;
 

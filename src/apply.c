@@ -24,6 +24,7 @@ STATIC_DCL void FDECL(light_cocktail, (struct obj **));
 STATIC_PTR void FDECL(display_jump_positions, (int));
 STATIC_DCL void FDECL(use_tinning_kit, (struct obj *));
 STATIC_DCL void FDECL(use_grease, (struct obj *));
+STATIC_DCL void FDECL(use_trap_kit, (struct obj *));
 STATIC_DCL void FDECL(use_trap, (struct obj *));
 STATIC_DCL void FDECL(apply_flint, (struct obj **));
 STATIC_DCL void FDECL(use_stone, (struct obj **));
@@ -2925,6 +2926,107 @@ reset_trapset()
     trapinfo.force_bungle = 0;
 }
 
+static const struct trap_recipe {
+    short result_typ;
+    short typ;
+    short quan;
+} final[] = {
+    /* trap type, components, component quantity */
+    { ARROW_TRAP, ARROW, 20 },
+    { 0, 0, 0 }
+};
+
+STATIC_OVL void
+use_trap_kit(obj)
+struct obj *obj; /* actual trap kit */
+{
+    const struct trap_recipe *recipe;
+    struct obj* otmp;   /* components needed to make a trap */
+    struct obj* output; /* final product (crafted trap) */
+    char allowall[2];
+    int trap_type = 0;
+
+    allowall[0] = ALL_CLASSES;
+    allowall[1] = '\0';
+
+    /* various player conditions can prevent successful crafting */
+    if (!u_handsy()) {
+        return;
+    } else if (Stunned || Confusion) {
+        You_cant("build a trap while incapacitated.");
+        return;
+    } else if (u.uhunger < 50) { /* weak */
+        You("are too weak from hunger to build a trap.");
+        return;
+    } else if (ACURR(A_DEX) < 4) {
+        You("lack the dexterity to build a trap.");
+        return;
+    }
+
+    /* trap kit requires 'charges' to function */
+    if (obj->spe <= 0) {
+        You("seem to be out of materials to build a trap.");
+        return;
+    }
+
+    /* setup the base components for the trap */
+    otmp = getobj(allowall, "use as a component");
+    if (!otmp) {
+        You("need a base component to build a trap.");
+        return;
+    }
+
+    /* start the build process */
+    for (recipe = final; recipe->result_typ; recipe++) {
+        if (otmp->otyp == recipe->typ
+            && otmp->quan >= recipe->quan) {
+            trap_type = recipe->result_typ;
+            break;
+        }
+    }
+
+    if (!trap_type) {
+        You("fail to build the trap.");
+        return;
+    } else if (trap_type) {
+        /* success */
+        output = mksobj(trap_type, TRUE, FALSE);
+        consume_obj_charge(obj, TRUE);
+    }
+
+    /* feedback for successful build */
+    pline("Using your %s, you craft %s to build %s.",
+          simpleonames(obj), yobjnam(otmp, (char *) 0),
+          doname(output));
+
+    /* ensure the final product is not degraded or coated
+       with anything in any way */
+    output->cursed = output->blessed = 0;
+    output->oeroded = output->oeroded2 = 0;
+    output->opoisoned = 0;
+    output->otainted = 0;
+    output->greased = 0;
+
+    /* toss out old objects, add new one */
+    if (otmp->otyp == recipe->typ)
+        otmp->quan -= recipe->quan;
+
+    /* recalculate weight of the recipe objects if
+       using a stack */
+    if (otmp->quan > 0)
+        otmp->owt = weight(otmp);
+
+    /* delete recipe objects if quantity reaches zero */
+    if (otmp->quan <= 0)
+        delobj(otmp);
+
+    /* trap is created */
+    output = addinv(output);
+    output->owt = weight(output);
+
+    update_inventory();
+}
+
 /* Place a landmine/bear trap.  Helge Hafting */
 STATIC_OVL void
 use_trap(otmp)
@@ -2970,7 +3072,9 @@ struct obj *otmp;
         reset_trapset();
         return;
     }
-    ttyp = (otmp->otyp == LAND_MINE) ? LANDMINE : BEAR_TRAP;
+    ttyp = (otmp->otyp == LAND_MINE) ? LANDMINE
+             : (otmp->otyp == BEARTRAP) ? BEAR_TRAP
+               : ARROW_TRAP_SET;
     if (otmp == trapinfo.tobj && u.ux == trapinfo.tx && u.uy == trapinfo.ty) {
         You("resume setting %s%s.", shk_your(buf, otmp),
             defsyms[trap_to_defsym(what_trap(ttyp, rn2))].explanation);
@@ -3007,6 +3111,7 @@ struct obj *otmp;
                     trapinfo.time_needed = 0;
                     trapinfo.force_bungle = TRUE;
                     break;
+                case ARROW_TRAP_SET:
                 case BEAR_TRAP: /* drop it without arming it */
                     reset_trapset();
                     You("drop %s!",
@@ -3045,7 +3150,9 @@ set_trap()
     if (--trapinfo.time_needed > 0)
         return 1; /* still busy */
 
-    ttyp = (otmp->otyp == LAND_MINE) ? LANDMINE : BEAR_TRAP;
+    ttyp = (otmp->otyp == LAND_MINE) ? LANDMINE
+             : (otmp->otyp == BEARTRAP) ? BEAR_TRAP
+               : ARROW_TRAP_SET;
     ttmp = maketrap(u.ux, u.uy, ttyp);
     if (ttmp) {
         ttmp->madeby_u = 1;
@@ -4402,6 +4509,9 @@ doapply()
     case DWARVISH_MATTOCK:
         res = use_pick_axe(obj);
         break;
+    case TRAP_KIT:
+        use_trap_kit(obj);
+        break;
     case TINNING_KIT:
         use_tinning_kit(obj);
         break;
@@ -4519,6 +4629,7 @@ doapply()
         break;
     case LAND_MINE:
     case BEARTRAP:
+    case ARROW_TRAP:
         use_trap(obj);
         break;
     case FLINT:

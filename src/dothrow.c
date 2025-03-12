@@ -847,8 +847,8 @@ int x, y;
         } else if (ttmp->ttyp == VIBRATING_SQUARE) {
             pline("The ground vibrates as you pass it.");
             dotrap(ttmp, 0); /* doesn't print messages */
-        } else if (ttmp->ttyp == FIRE_TRAP
-                   || ttmp->ttyp == ICE_TRAP) {
+        } else if (ttmp->ttyp == FIRE_TRAP_SET
+                   || ttmp->ttyp == ICE_TRAP_SET) {
             dotrap(ttmp, 0);
         } else if ((is_pit(ttmp->ttyp) || is_hole(ttmp->ttyp))
                    && Sokoban) {

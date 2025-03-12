@@ -4378,4 +4378,5 @@ The following changes to date are:
 - Initial preparation for new version (0.9.1)
 - Properly display fractured altars in dungeon overview
 - Druids can pass directly through trees
+- Crafting traps, part 1: initial implementation
 

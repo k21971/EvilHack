@@ -2817,7 +2817,7 @@ long flag;
                                    ttmp->ttyp);
                             continue;
                     }
-                    if ((ttmp->ttyp != RUST_TRAP
+                    if ((ttmp->ttyp != RUST_TRAP_SET
                          || mdat == &mons[PM_IRON_GOLEM])
                         && ttmp->ttyp != STATUE_TRAP
                         && ttmp->ttyp != VIBRATING_SQUARE
@@ -2825,16 +2825,16 @@ long flag;
                             || (!is_flyer(mdat) && !is_floater(mdat)
                                 && !is_clinger(mdat) && !can_levitate(mon))
                             || Sokoban)
-                        && (ttmp->ttyp != SLP_GAS_TRAP
+                        && (ttmp->ttyp != SLP_GAS_TRAP_SET
                             || !(resists_sleep(mon) || defended(mon, AD_SLEE)))
                         && (ttmp->ttyp != BEAR_TRAP
                             || (mdat->msize > MZ_SMALL && !amorphous(mdat)
                                 && !is_flyer(mdat) && !is_floater(mdat)
                                 && !is_whirly(mdat) && !unsolid(mdat)
                                 && !can_levitate(mon)))
-                        && (ttmp->ttyp != FIRE_TRAP
+                        && (ttmp->ttyp != FIRE_TRAP_SET
                             || !(resists_fire(mon) || defended(mon, AD_FIRE)))
-                       && (ttmp->ttyp != ICE_TRAP
+                       && (ttmp->ttyp != ICE_TRAP_SET
                             || !(resists_cold(mon) || defended(mon, AD_COLD)))
                         && (ttmp->ttyp != SQKY_BOARD
                             || !(is_flyer(mdat) || can_levitate(mon)))

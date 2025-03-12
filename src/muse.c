@@ -631,7 +631,7 @@ struct monst *mtmp;
                 trapy = yy;
                 m.has_defense = MUSE_TRAPDOOR;
                 break; /* no need to look at any other spots */
-            } else if (t->ttyp == TELEP_TRAP) {
+            } else if (t->ttyp == TELEP_TRAP_SET) {
                 trapx = xx;
                 trapy = yy;
                 m.has_defense = MUSE_TELEPORT_TRAP;
@@ -707,14 +707,14 @@ struct monst *mtmp;
         nomore(MUSE_WAN_TELEPORTATION_SELF);
         nomore(MUSE_WAN_TELEPORTATION);
         if (obj->otyp == WAN_TELEPORTATION && obj->spe > 0) {
-            /* use the TELEP_TRAP bit to determine if they know
+            /* use the TELEP_TRAP_SET bit to determine if they know
              * about noteleport on this level or not.  Avoids
              * ineffective re-use of teleportation.  This does
              * mean if the monster leaves the level, they'll know
              * about teleport traps.
              */
             if (!level.flags.noteleport
-                || !(mtmp->mtrapseen & (1 << (TELEP_TRAP - 1)))) {
+                || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1)))) {
                 m.defensive = obj;
                 m.has_defense = (mon_has_amulet(mtmp))
                                  ? MUSE_WAN_TELEPORTATION
@@ -728,7 +728,7 @@ struct monst *mtmp;
                                  && !mtmp->isgd && !mtmp->ispriest))) {
             /* see WAN_TELEPORTATION case above */
             if (!level.flags.noteleport
-                || !(mtmp->mtrapseen & (1 << (TELEP_TRAP - 1)))) {
+                || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1)))) {
                 m.defensive = obj;
                 m.has_defense = MUSE_SCR_TELEPORTATION;
             }
@@ -827,14 +827,14 @@ struct obj *start;
         nomore(MUSE_WAN_TELEPORTATION_SELF);
         nomore(MUSE_WAN_TELEPORTATION);
         if (obj->otyp == WAN_TELEPORTATION && obj->spe > 0) {
-            /* use the TELEP_TRAP bit to determine if they know
+            /* use the TELEP_TRAP_SET bit to determine if they know
              * about noteleport on this level or not.  Avoids
              * ineffective re-use of teleportation.  This does
              * mean if the monster leaves the level, they'll know
              * about teleport traps.
              */
             if (!level.flags.noteleport
-                || !(mtmp->mtrapseen & (1 << (TELEP_TRAP - 1)))) {
+                || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1)))) {
                 m.defensive = obj;
                 m.has_defense = (mon_has_amulet(mtmp))
                                  ? MUSE_WAN_TELEPORTATION
@@ -849,7 +849,7 @@ struct obj *start;
                 && !mtmp->isgd && !mtmp->ispriest))) {
             /* see WAN_TELEPORTATION case above */
             if (!level.flags.noteleport
-                || !(mtmp->mtrapseen & (1 << (TELEP_TRAP-1)))) {
+                || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1)))) {
                 m.defensive = obj;
                 m.has_defense = MUSE_SCR_TELEPORTATION;
             }
@@ -976,7 +976,7 @@ struct monst *mtmp;
                 makeknown(how);
             /* monster learns that teleportation isn't useful here */
             if (level.flags.noteleport)
-                mtmp->mtrapseen |= (1 << (TELEP_TRAP - 1));
+                mtmp->mtrapseen |= (1 << (TELEP_TRAP_SET - 1));
             return 2;
         }
         if (mon_has_amulet(mtmp) || On_W_tower_level(&u.uz)) {
@@ -1003,7 +1003,7 @@ struct monst *mtmp;
         mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
         /* monster learns that teleportation isn't useful here */
         if (level.flags.noteleport)
-            mtmp->mtrapseen |= (1 << (TELEP_TRAP - 1));
+            mtmp->mtrapseen |= (1 << (TELEP_TRAP_SET - 1));
         m_using = FALSE;
         return 2;
     case MUSE_SCR_TELEPORTATION: {
@@ -1764,7 +1764,7 @@ boolean reflection_skip;
                 && !Teleport_control
                 /* same hack as MUSE_WAN_TELEPORTATION_SELF */
                 && (!level.flags.noteleport
-                    || !(mtmp->mtrapseen & (1 << (TELEP_TRAP - 1))))
+                    || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1))))
                 /* do try to move hero to a more vulnerable spot */
                 && (onscary(u.ux, u.uy, mtmp)
                     || (u.ux == sstairs.sx && u.uy == sstairs.sy))) {
@@ -2618,7 +2618,7 @@ struct monst *mtmp;
                         && (ignore_boulders || !sobj_at(BOULDER, xx, yy))
                         && !onscary(xx, yy, mtmp)) {
                         /* use trap if it's the correct type */
-                        if (t->ttyp == POLY_TRAP) {
+                        if (t->ttyp == POLY_TRAP_SET) {
                             trapx = xx;
                             trapy = yy;
                             m.has_misc = MUSE_POLY_TRAP;
@@ -4153,7 +4153,7 @@ boolean by_you;
             if (cures_sliming(mon, obj))
                 return muse_unslime(mon, obj, (struct trap *) 0, by_you);
 
-        if (((t = t_at(mon->mx, mon->my)) == 0 || t->ttyp != FIRE_TRAP)
+        if (((t = t_at(mon->mx, mon->my)) == 0 || t->ttyp != FIRE_TRAP_SET)
             && mptr->mmove && !mon->mtrapped) {
             int xy[2][8], x, y, idx, ridx, nxy = 0;
 
@@ -4175,11 +4175,11 @@ boolean by_you;
                     xy[1][ridx] = y;
                 }
                 if ((t = t_at(xy[0][idx], xy[1][idx])) != 0
-                    && t->ttyp == FIRE_TRAP)
+                    && t->ttyp == FIRE_TRAP_SET)
                     break;
             }
         }
-        if (t && t->ttyp == FIRE_TRAP)
+        if (t && t->ttyp == FIRE_TRAP_SET)
             return muse_unslime(mon, (struct obj *) &zeroobj, t, by_you);
 
     } /* MUSE */
@@ -4227,7 +4227,7 @@ boolean by_you; /* true: if mon kills itself, hero gets credit/blame */
                       trap->tseen ? "the" : "a");
         }
         /* hack to avoid mintrap()'s chance of avoiding known trap */
-        mon->mtrapseen &= ~(1 << (FIRE_TRAP - 1));
+        mon->mtrapseen &= ~(1 << (FIRE_TRAP_SET - 1));
         mintrap(mon);
     } else if (otyp == STRANGE_OBJECT) {
         /* monster is using fire breath on self */

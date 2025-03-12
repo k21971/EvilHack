@@ -1097,6 +1097,9 @@ boolean artif;
                 otmp->spe = rnd(25);
                 blessorcurse(otmp, 10);
                 break;
+            case TRAP_KIT:
+                otmp->spe = rn1(21, 10);
+                break;
             case CRYSTAL_BALL:
                 otmp->spe = rnd(5);
                 blessorcurse(otmp, 2);
@@ -3704,7 +3707,9 @@ struct obj* obj;
     case BLINDFOLD:
     case LEASH:
     case SADDLE:
+    case TRAP_KIT:
     case TINNING_KIT:
+    case ARROW_TRAP:
     case MUMMY_WRAPPING:
     case OILSKIN_SACK:
     case OILSKIN_CLOAK:
