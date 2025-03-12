@@ -4383,4 +4383,5 @@ The following changes to date are:
   'output' used (windows build, crafting traps)
 - Debug hints files tweak
 - Fix: get rid of unneeded dispose_of_orig_obj() call
+- Fix: prevent segfault for non-existent trap
 

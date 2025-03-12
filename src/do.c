@@ -2306,12 +2306,16 @@ struct obj *corpse;
                     struct trap *ttmp;
 
                     ttmp = t_at(mtmp->mx, mtmp->my);
-                    ttmp->tseen = TRUE;
+                    if (ttmp)
+                        ttmp->tseen = TRUE;
                     pline("%s claws its way out of the ground!",
-                          Amonnam(mtmp));
+                          canspotmon(mtmp) ? Amonnam(mtmp) : Something);
                     newsym(mtmp->mx, mtmp->my);
-                } else if (distu(mtmp->mx, mtmp->my) < 5 * 5)
-                    You_hear("scratching noises.");
+                } else if (distu(mtmp->mx, mtmp->my) < 5 * 5) {
+                    if (!Deaf)
+                        You_hear("scratching noises.");
+                }
+                fill_pit(mtmp->mx, mtmp->my);
                 break;
             }
             /*FALLTHRU*/
