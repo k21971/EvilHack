@@ -4381,4 +4381,5 @@ The following changes to date are:
 - Crafting traps, part 1: initial implementation
 - Fix: error C4703: potentially uninitialized local pointer variable
   'output' used (windows build, crafting traps)
+- Debug hints files tweak
 
