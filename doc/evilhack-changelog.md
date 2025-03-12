@@ -4382,4 +4382,5 @@ The following changes to date are:
 - Fix: error C4703: potentially uninitialized local pointer variable
   'output' used (windows build, crafting traps)
 - Debug hints files tweak
+- Fix: get rid of unneeded dispose_of_orig_obj() call
 

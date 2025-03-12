@@ -312,9 +312,8 @@ aligntyp alignment; /* target alignment, or A_NONE */
     } else {
         /* nothing appropriate could be found; return original object */
         if (by_align && otmp) {
-            /* (there shouldn't have been an original object) */
-            dispose_of_orig_obj(otmp);
-            /* create regular object with an object property instead */
+            /* create regular object with an object property instead,
+               dispose_of_orig_obj() does not need to be called */
             otmp = create_oprop(otmp, FALSE);
         }
     }
