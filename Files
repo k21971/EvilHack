@@ -294,7 +294,7 @@ winnt.c               winos.h
 util:
 (files for all versions)
 dgn_main.c  dlb_main.c  lev_main.c  makedefs.c  mdgrep.h    mdgrep.pl
-panic.c     recover.c
+panic.c     recover.c   stripbs.c
 
 (lex/yacc input for special level and dungeon compilers)
 dgn_comp.l  dgn_comp.y  lev_comp.l  lev_comp.y

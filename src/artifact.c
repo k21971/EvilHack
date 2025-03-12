@@ -31,6 +31,7 @@ STATIC_DCL uchar FDECL(abil_to_adtyp, (long *));
 STATIC_DCL int FDECL(glow_strength, (int));
 STATIC_DCL boolean FDECL(untouchable, (struct obj *, BOOLEAN_P));
 STATIC_DCL int FDECL(count_surround_traps, (int, int));
+STATIC_DCL void dispose_of_orig_obj(struct obj *);
 
 /* The amount added to the victim's total hit points to insure that the
    victim will be killed even after damage bonus/penalty adjustments.
@@ -219,6 +220,7 @@ mk_artifact(otmp, alignment)
 struct obj *otmp;   /* existing object; ignored if alignment specified */
 aligntyp alignment; /* target alignment, or A_NONE */
 {
+    struct obj *artiobj;
     const struct artifact *a;
     int m, n, altn;
     boolean by_align = alignment != A_NONE || !otmp;
@@ -292,9 +294,13 @@ aligntyp alignment; /* target alignment, or A_NONE */
         a = &artilist[m];
 
         /* make an appropriate object if necessary, then christen it */
-        if (by_align)
-            otmp = mksobj((int) a->otyp, TRUE, FALSE);
-
+        if (by_align) {
+            artiobj = mksobj((int) a->otyp, TRUE, FALSE);
+            if (otmp) {
+                dispose_of_orig_obj(otmp);
+                otmp = artiobj;
+            }
+        }
         if (otmp) {
             /* prevent erosion from generating */
             otmp->oeroded = otmp->oeroded2 = 0;
@@ -304,7 +310,13 @@ aligntyp alignment; /* target alignment, or A_NONE */
             fix_artifact(otmp);
         }
     } else {
-        otmp = create_oprop(otmp, FALSE);
+        /* nothing appropriate could be found; return original object */
+        if (by_align && otmp) {
+            /* (there shouldn't have been an original object) */
+            dispose_of_orig_obj(otmp);
+            /* create regular object with an object property instead */
+            otmp = create_oprop(otmp, FALSE);
+        }
     }
     return otmp;
 }
@@ -459,6 +471,16 @@ boolean allow_detrimental;
         otmp->spe = -rne(3);
     }
     return otmp;
+}
+
+STATIC_OVL void
+dispose_of_orig_obj(struct obj *obj)
+{
+    if (!obj)
+        return;
+
+    obj_extract_self(obj);
+    obfree(obj, (struct obj *) 0);
 }
 
 /*

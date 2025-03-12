@@ -243,6 +243,11 @@ dofiles-nodlb:
 	-( cd $(INSTDIR) ; $(CHOWN) $(GAMEUID) $(DAT) ; \
 			$(CHGRP) $(GAMEGRP) $(DAT) ; \
 			chmod $(FILEPERM) $(DAT) )
+makedefs:
+	( cd util ; $(MAKE) makedefs )
+
+stripbs:
+	( cd util ; $(MAKE) stripbs )
 
 update: $(GAME) recover $(VARDAT) dungeon spec_levs
 #	(don't yank the old version out from under people who're playing it)

@@ -323,6 +323,9 @@ E NEARDATA struct c_color_names {
 #define NH_WHITE c_color_names.c_white
 #define NH_ORANGE c_color_names.c_orange
 
+E boolean deferred_showpaths;         /* decl.c */
+E char *deferred_showpaths_dir;       /* decl.c */
+
 /* The names of the colors used for gems, etc. */
 E const char *c_obj_colors[];
 

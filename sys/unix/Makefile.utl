@@ -357,6 +357,15 @@ dlb:	$(DLBOBJS)
 dlb_main.o: dlb_main.c $(CONFIG_H) ../include/dlb.h ../include/date.h
 	$(CC) $(CFLAGS) -c dlb_main.c
 
+#	dependencies for stripbs, an alternative filter utility to
+#	strip "character + backspace + character" out of the generated
+#	Guidebook, leaving only "character" in the final result.
+#
+stripbs:  stripbs.o
+	$(CC) $(LFLAGS) -o stripbs stripbs.o
+
+stripbs.o: stripbs.c
+	$(CC) $(CFLAGS) -c stripbs.c
 
 
 #	dependencies for tile utilities

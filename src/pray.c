@@ -2831,6 +2831,8 @@ dosacrifice()
                 }
             } else if (u.uluck >= 0 && !rn2(arti_gift_odds)
                        && levl[u.ux][u.uy].frac_altar == 0) {
+                /* mk_artifact() with NULL obj and a_align() arg
+                   can return NULL */
                 otmp = mk_artifact((struct obj *) 0, a_align(u.ux, u.uy));
                 if (otmp) {
                     if (altaralign == A_NONE) {

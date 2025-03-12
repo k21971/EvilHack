@@ -1008,23 +1008,18 @@ drinkfountain()
         case 23: /* Water demon */
             dowaterdemon();
             break;
-        case 24: { /* Maybe curse some items */
-            struct obj *obj, *nextobj;
-            int buc_changed = 0;
+        case 24: /* Curse an item */ {
+            register struct obj *obj, *nextobj;
 
             pline("This water's no good!");
             morehungry(rn1(20, 11));
             exercise(A_CON, FALSE);
-            /* this is more severe than rndcurse() */
             for (obj = invent; obj; obj = nextobj) {
                 nextobj = obj->nobj;
-                if (obj->oclass != COIN_CLASS && !obj->cursed && !rn2(5)) {
+                if (!rn2(5))
                     curse(obj);
-                    ++buc_changed;
-                }
             }
-            if (buc_changed)
-                update_inventory();
+            update_inventory();
             break;
         }
         case 25: /* See invisible */

@@ -318,6 +318,9 @@ const char *fqn_prefix_names[PREFIX_COUNT] = {
 };
 #endif
 
+boolean deferred_showpaths = FALSE;
+char *deferred_showpaths_dir = (char *) 0;
+
 NEARDATA struct savefile_info sfcap = {
 #ifdef NHSTDC
     0x00000000UL

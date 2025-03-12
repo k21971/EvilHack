@@ -474,6 +474,7 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
     check_recordfile((char *) 0);
     iflags.windowtype_deferred = TRUE;
     copy_sysconf_content();
+    process_options(argc, argv);
     initoptions();
 
     /* Now that sysconf has had a chance to set the TROUBLEPREFIX, don't
@@ -481,7 +482,6 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
     fqn_prefix_locked[TROUBLEPREFIX] = TRUE;
 
     copy_config_content();
-    process_options(argc, argv);
 
     /* did something earlier flag a need to exit without starting a game? */
     if (windows_startup_state > 0) {
@@ -645,19 +645,14 @@ char *argv[];
 {
     int i;
 
-    /*
-     * Process options.
-     */
     if (argc > 1) {
         if (argcheck(argc, argv, ARG_VERSION) == 2)
             nethack_exit(EXIT_SUCCESS);
 
         if (argcheck(argc, argv, ARG_SHOWPATHS) == 2) {
-            iflags.initoptions_noterminate = TRUE;
-            initoptions();
-            iflags.initoptions_noterminate = FALSE;
-            reveal_paths();
-            nethack_exit(EXIT_SUCCESS);
+            deferred_showpaths = TRUE;
+            /* deferred_showpaths is not used by windows */
+            return;
         }
         if (argcheck(argc, argv, ARG_DEBUG) == 1) {
             argc--;
@@ -673,7 +668,7 @@ char *argv[];
              */
             argc--;
             argv++;
-            const char * dir = argv[0] + 2;
+            const char *dir = argv[0] + 2;
             if (*dir == '=' || *dir == ':')
                 dir++;
             if (!*dir && argc > 1) {
@@ -740,7 +735,8 @@ char *argv[];
 #endif
         case 'u':
             if (argv[0][2])
-                (void) strncpy(plname, argv[0] + 2, sizeof(plname) - 1);
+                (void) strncpy(plname, argv[0] + 2,
+                               sizeof(plname) - 1);
             else if (argc > 1) {
                 argc--;
                 argv++;
