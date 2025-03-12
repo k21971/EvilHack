@@ -4379,4 +4379,6 @@ The following changes to date are:
 - Properly display fractured altars in dungeon overview
 - Druids can pass directly through trees
 - Crafting traps, part 1: initial implementation
+- Fix: error C4703: potentially uninitialized local pointer variable
+  'output' used (windows build, crafting traps)
 

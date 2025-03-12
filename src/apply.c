@@ -2991,40 +2991,42 @@ struct obj *obj; /* actual trap kit */
     } else if (trap_type) {
         /* success */
         output = mksobj(trap_type, TRUE, FALSE);
+
+        /* trap kit consumes a charge */
         consume_obj_charge(obj, TRUE);
+
+        /* feedback for successful build */
+        pline("Using your %s, you craft %s to build %s.",
+              simpleonames(obj), yobjnam(otmp, (char *) 0),
+              doname(output));
+
+        /* ensure the final product is not degraded or coated
+           with anything in any way */
+        output->cursed = output->blessed = 0;
+        output->oeroded = output->oeroded2 = 0;
+        output->opoisoned = 0;
+        output->otainted = 0;
+        output->greased = 0;
+
+        /* toss out old objects, add new one */
+        if (otmp->otyp == recipe->typ)
+            otmp->quan -= recipe->quan;
+
+        /* recalculate weight of the recipe objects if
+           using a stack */
+        if (otmp->quan > 0)
+            otmp->owt = weight(otmp);
+
+        /* delete recipe objects if quantity reaches zero */
+        if (otmp->quan <= 0)
+            delobj(otmp);
+
+        /* trap is created */
+        output = addinv(output);
+        output->owt = weight(output);
+
+        update_inventory();
     }
-
-    /* feedback for successful build */
-    pline("Using your %s, you craft %s to build %s.",
-          simpleonames(obj), yobjnam(otmp, (char *) 0),
-          doname(output));
-
-    /* ensure the final product is not degraded or coated
-       with anything in any way */
-    output->cursed = output->blessed = 0;
-    output->oeroded = output->oeroded2 = 0;
-    output->opoisoned = 0;
-    output->otainted = 0;
-    output->greased = 0;
-
-    /* toss out old objects, add new one */
-    if (otmp->otyp == recipe->typ)
-        otmp->quan -= recipe->quan;
-
-    /* recalculate weight of the recipe objects if
-       using a stack */
-    if (otmp->quan > 0)
-        otmp->owt = weight(otmp);
-
-    /* delete recipe objects if quantity reaches zero */
-    if (otmp->quan <= 0)
-        delobj(otmp);
-
-    /* trap is created */
-    output = addinv(output);
-    output->owt = weight(output);
-
-    update_inventory();
 }
 
 /* Place a landmine/bear trap.  Helge Hafting */
