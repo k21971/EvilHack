@@ -4386,4 +4386,5 @@ The following changes to date are:
 - Fix: prevent segfault for non-existent trap
 - Disarming an arrow trap the player made will only yield the number of
   arrows used to make it
+- Trap ammo overhaul (xNetHack)
 

@@ -11,7 +11,6 @@ STATIC_DCL boolean FDECL(keep_saddle_with_steedcorpse, (unsigned, struct obj *,
                                                         struct obj *));
 STATIC_DCL boolean FDECL(keep_barding_with_steedcorpse, (unsigned, struct obj *,
                                                          struct obj *));
-STATIC_DCL struct obj *FDECL(t_missile, (int, struct trap *));
 STATIC_DCL char *FDECL(trapnote, (struct trap *, BOOLEAN_P));
 STATIC_DCL int FDECL(steedintrap, (struct trap *, struct obj *));
 STATIC_DCL void FDECL(launch_drop_spot, (struct obj *, XCHAR_P, XCHAR_P));
@@ -30,7 +29,7 @@ STATIC_DCL int FDECL(disarm_holdingtrap, (struct trap *));
 STATIC_DCL int FDECL(disarm_landmine, (struct trap *));
 STATIC_DCL int FDECL(disarm_spear_trap, (struct trap *));
 STATIC_DCL int FDECL(disarm_squeaky_board, (struct trap *));
-STATIC_DCL int FDECL(disarm_shooting_trap, (struct trap *, int));
+STATIC_DCL int FDECL(disarm_shooting_trap, (struct trap *));
 STATIC_DCL void FDECL(clear_conjoined_pits, (struct trap *));
 STATIC_DCL boolean FDECL(adj_nonconjoined_pit, (struct trap *));
 STATIC_DCL int FDECL(try_lift, (struct monst *, struct trap *, int,
@@ -401,6 +400,7 @@ int x, y, typ;
     boolean oldplace;
     struct trap *ttmp;
     struct rm *lev = &levl[x][y];
+    struct obj *otmp;
     boolean was_ice = (lev->typ == ICE);
 
     if ((ttmp = t_at(x, y)) != 0) {
@@ -437,6 +437,7 @@ int x, y, typ;
     ttmp->once = 0;
     ttmp->tseen = (typ == HOLE); /* hide non-holes */
     ttmp->ttyp = typ;
+    set_trap_ammo(ttmp, (struct obj *) 0);
 
     switch (typ) {
     case SQKY_BOARD: {
@@ -458,7 +459,7 @@ int x, y, typ;
     }
     case STATUE_TRAP: { /* create a "living" statue */
         struct monst *mtmp;
-        struct obj *otmp, *statue;
+        struct obj *otmp2, *statue;
         struct permonst *mptr;
         int trycount = 10;
 
@@ -472,10 +473,10 @@ int x, y, typ;
         if (!mtmp)
             break; /* should never happen */
         while (mtmp->minvent) {
-            otmp = mtmp->minvent;
-            otmp->owornmask = 0;
-            obj_extract_self(otmp);
-            (void) add_to_container(statue, otmp);
+            otmp2 = mtmp->minvent;
+            otmp2->owornmask = 0;
+            obj_extract_self(otmp2);
+            (void) add_to_container(statue, otmp2);
         }
         statue->owt = weight(statue);
         mongone(mtmp);
@@ -566,6 +567,47 @@ int x, y, typ;
         if (was_ice && lev->typ != ICE)
             spot_stop_timers(x, y, MELT_ICE_AWAY);
         break;
+    case ROCKTRAP:
+        otmp = mksobj(ROCK, TRUE, FALSE);
+        /* TODO: Scale this with depth */
+        otmp->quan = 5 + rnd(10);
+        set_trap_ammo(ttmp, otmp);
+        break;
+    case DART_TRAP_SET:
+        otmp = mksobj(DART, TRUE, FALSE);
+        otmp->quan = 15 + rnd(20);
+        /* darts are poisoned 1/6 of the time */
+        otmp->opoisoned = !rn2(6);
+        otmp->otainted = 0;
+        set_trap_ammo(ttmp, otmp);
+        break;
+    case ARROW_TRAP_SET:
+        otmp = mksobj(ARROW, TRUE, FALSE);
+        otmp->quan = 15 + rnd(20);
+        /* arrows are not poisoned */
+        otmp->opoisoned = otmp->otainted = 0;
+        set_trap_ammo(ttmp, otmp);
+        break;
+    case BOLT_TRAP_SET:
+        otmp = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
+        otmp->quan = 15 + rnd(20);
+        /* bolts are not poisoned */
+        otmp->opoisoned = otmp->otainted = 0;
+        set_trap_ammo(ttmp, otmp);
+        break;
+    case SPEAR_TRAP_SET:
+        otmp = mksobj(SPEAR, TRUE, FALSE);
+        otmp->quan = 1;
+        /* spears are not poisoned */
+        otmp->opoisoned = otmp->otainted = 0;
+        set_trap_ammo(ttmp, otmp);
+        break;
+    case BEAR_TRAP:
+        set_trap_ammo(ttmp, mksobj(BEARTRAP, TRUE, FALSE));
+        break;
+    case LANDMINE:
+        set_trap_ammo(ttmp, mksobj(LAND_MINE, TRUE, FALSE));
+        break;
     }
 
     if (!oldplace) {
@@ -579,6 +621,41 @@ int x, y, typ;
             maybe_finish_sokoban();
     }
     return ttmp;
+}
+
+/* Assign obj to be the ammo of trap. Deletes any ammo currently in the
+   trap. obj can be set to NULL to delete the ammo without putting in
+   anything else */
+void
+set_trap_ammo(trap, obj)
+struct trap *trap;
+struct obj *obj;
+{
+    if (!trap) {
+        impossible("set_trap_ammo: null trap!");
+        return;
+    }
+
+    while (trap->ammo) {
+        struct obj* oldobj = trap->ammo;
+        extract_nobj(oldobj, &trap->ammo);
+        if (oldobj->oartifact) {
+            impossible("destroying artifact %d that was ammo of a trap",
+                       oldobj->oartifact);
+        }
+        obfree(oldobj, (struct obj *) 0);
+    }
+
+    if (!obj) {
+        trap->ammo = (struct obj *) 0;
+        return;
+    }
+
+    if (obj->where != OBJ_FREE)
+        panic("putting non-free object into trap");
+
+    obj->where = OBJ_INTRAP;
+    trap->ammo = obj;
 }
 
 void
@@ -1033,22 +1110,6 @@ struct trap *trap;
     return FALSE;
 }
 
-/* make a single arrow/dart/rock for a trap to shoot or drop */
-STATIC_OVL struct obj *
-t_missile(otyp, trap)
-int otyp;
-struct trap *trap;
-{
-    struct obj *otmp = mksobj(otyp, TRUE, FALSE);
-
-    otmp->quan = 1L;
-    otmp->owt = weight(otmp);
-    otmp->opoisoned = 0;
-    otmp->otainted = 0;
-    otmp->ox = trap->tx, otmp->oy = trap->ty;
-    return otmp;
-}
-
 void
 set_utrap(tim, typ)
 unsigned tim, typ;
@@ -1150,50 +1211,38 @@ unsigned trflags;
 
     switch (ttype) {
     case ARROW_TRAP_SET:
-        if (trap->once && trap->tseen && !rn2(15)) {
-            if (!Deaf)
-                You_hear("a loud click!");
-            deltrap(trap);
-            newsym(u.ux, u.uy);
-            break;
-        }
-        trap->once = 1;
-        seetrap(trap);
-        pline("An arrow shoots out at you!");
-        otmp = t_missile(ARROW, trap);
-        if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
-            ; /* nothing */
-        } else if (thitu(8, dmgval(otmp, &youmonst),
-                         &otmp, "arrow")) {
-            if (otmp)
-                obfree(otmp, (struct obj *) 0);
-        } else {
-            place_object(otmp, u.ux, u.uy);
-            if (!Blind)
-                otmp->dknown = 1;
-            stackobj(otmp);
-            newsym(u.ux, u.uy);
-        }
-        break;
-
     case BOLT_TRAP_SET:
-        if (trap->once && trap->tseen && !rn2(15)) {
+    case DART_TRAP_SET:
+        if (!trap->ammo) {
             if (!Deaf)
                 You_hear("a loud click!");
             deltrap(trap);
             newsym(u.ux, u.uy);
             break;
         }
-        trap->once = 1;
+        otmp = trap->ammo;
+        if (trap->ammo->quan > 1) {
+            otmp = splitobj(trap->ammo, 1);
+        }
+        extract_nobj(otmp, &trap->ammo);
         seetrap(trap);
-        pline("A crossbow bolt shoots out at you!");
-        otmp = t_missile(CROSSBOW_BOLT, trap);
+        pline("%s shoots out at you!", An(xname(otmp)));
+
+        oldumort = u.umortality;
         if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
             ; /* nothing */
         } else if (thitu(8, dmgval(otmp, &youmonst),
-                         &otmp, "crossbow bolt")) {
-            if (otmp)
+                         &otmp, (const char *) 0)) {
+            if (otmp) {
+                if (otmp->opoisoned)
+                    poisoned("dart", A_CON, OBJ_NAME(objects[otmp->otyp]),
+                             /* if damage triggered life-saving,
+                                poison is limited to attrib loss */
+                             (u.umortality > oldumort) ? 0 : 10, TRUE);
+                /* TODO: use hero-missile ammo breakage formula rather
+                   than unconditionally destroying otmp? */
                 obfree(otmp, (struct obj *) 0);
+            }
         } else {
             place_object(otmp, u.ux, u.uy);
             if (!Blind)
@@ -1220,44 +1269,8 @@ unsigned trflags;
         }
         break;
 
-    case DART_TRAP_SET:
-        if (trap->once && trap->tseen && !rn2(15)) {
-            if (!Deaf)
-                You_hear("a soft click.");
-            deltrap(trap);
-            newsym(u.ux, u.uy);
-            break;
-        }
-        trap->once = 1;
-        seetrap(trap);
-        pline("A little dart shoots out at you!");
-        otmp = t_missile(DART, trap);
-        if (!rn2(6))
-            otmp->opoisoned = 1;
-        oldumort = u.umortality;
-        if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
-            ; /* nothing */
-        } else if (thitu(7, dmgval(otmp, &youmonst),
-                         &otmp, "little dart")) {
-            if (otmp) {
-                if (otmp->opoisoned)
-                    poisoned("dart", A_CON, "little dart",
-                             /* if damage triggered life-saving,
-                                poison is limited to attrib loss */
-                             (u.umortality > oldumort) ? 0 : 10, TRUE);
-                obfree(otmp, (struct obj *) 0);
-            }
-        } else {
-            place_object(otmp, u.ux, u.uy);
-            if (!Blind)
-                otmp->dknown = 1;
-            stackobj(otmp);
-            newsym(u.ux, u.uy);
-        }
-        break;
-
     case ROCKTRAP:
-        if (trap->once && trap->tseen && !rn2(15)) {
+        if (!trap->ammo) {
             pline("A trap door in %s opens, but nothing falls out!",
                   the(ceiling(u.ux, u.uy)));
             deltrap(trap);
@@ -1265,9 +1278,12 @@ unsigned trflags;
         } else {
             int dmg = d(2, 6); /* should be std ROCK dmg? */
 
-            trap->once = 1;
+            otmp = trap->ammo;
+            if (trap->ammo->quan > 1) {
+                otmp = splitobj(trap->ammo, 1);
+            }
+            extract_nobj(otmp, &trap->ammo);
             feeltrap(trap);
-            otmp = t_missile(ROCK, trap);
             place_object(otmp, u.ux, u.uy);
 
             pline("A trap door in %s opens and %s falls on your %s!",
@@ -1873,7 +1889,7 @@ unsigned trflags;
                        : (has_bark(youmonst.data) || Barkskin)
                          ? "rough bark"
                          : Stoneskin ? "stony hide" : "thick hide"));
-            deltrap(trap);
+            deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
             newsym(u.ux, u.uy);
         } else if (unsolid(youmonst.data)) {
             pline("But it passes right through you!");
@@ -1942,27 +1958,13 @@ struct obj *otmp;
 
     switch (tt) {
     case ARROW_TRAP_SET:
-        if (!otmp) {
-            impossible("steed hit by non-existent arrow?");
-            return 0;
-        }
-        trapkilled = thitm(8, steed, otmp, 0, FALSE);
-        steedhit = TRUE;
-        break;
     case BOLT_TRAP_SET:
-        if (!otmp) {
-            impossible("steed hit by non-existent crossbow bolt?");
-            return 0;
-        }
-        trapkilled = thitm(8, steed, otmp, 0, FALSE);
-        steedhit = TRUE;
-        break;
     case DART_TRAP_SET:
         if (!otmp) {
-            impossible("steed hit by non-existent dart?");
+            impossible("steed hit by non-existent arrow/bolt/dart?");
             return 0;
         }
-        trapkilled = thitm(7, steed, otmp, 0, FALSE);
+        trapkilled = thitm(8, steed, otmp, 0, FALSE);
         steedhit = TRUE;
         break;
     case SLP_GAS_TRAP_SET:
@@ -1995,7 +1997,7 @@ struct obj *otmp;
                        : (has_bark(youmonst.data) || Barkskin)
                          ? "rough bark"
                          : Stoneskin ? "stony hide" : "thick hide"));
-            deltrap(trap);
+            deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
             newsym(steed->mx, steed->my);
         } else {
             trapkilled = (DEADMONSTER(steed)
@@ -2058,6 +2060,7 @@ struct trap *trap;
     schar old_typ, typ;
 
     old_typ = lev->typ;
+    set_trap_ammo(trap, (struct obj *) 0); /* useup the land mine obj */
     (void) scatter(x, y, 4,
                    MAY_DESTROY | MAY_HIT | MAY_FRACTURE | VIS_EFFECTS,
                    (struct obj *) 0);
@@ -2297,7 +2300,7 @@ int style;
                             cansee(bhitpos.x, bhitpos.y)
                                 ? " The rolling boulder triggers a land mine."
                                 : "");
-                        deltrap(t);
+                        deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
                         del_engr_at(bhitpos.x, bhitpos.y);
                         place_object(singleobj, bhitpos.x, bhitpos.y);
                         singleobj->otrapped = 0;
@@ -2579,7 +2582,7 @@ register struct monst *mtmp;
             if (trap->ttyp == BEAR_TRAP) {
                 if (canseemon(mtmp))
                     pline("%s eats a bear trap!", Monnam(mtmp));
-                deltrap(trap);
+                deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
                 mtmp->meating = 5;
                 mtmp->mtrapped = 0;
             } else if (trap->ttyp == SPIKED_PIT) {
@@ -2642,23 +2645,9 @@ register struct monst *mtmp;
             in_sight = TRUE;
         switch (tt) {
         case ARROW_TRAP_SET:
-            if (trap->once && trap->tseen && !rn2(15)) {
-                if (in_sight && see_it)
-                    pline("%s triggers a trap but nothing happens.",
-                          Monnam(mtmp));
-                deltrap(trap);
-                newsym(mtmp->mx, mtmp->my);
-                break;
-            }
-            trap->once = 1;
-            otmp = t_missile(ARROW, trap);
-            if (in_sight)
-                seetrap(trap);
-            if (thitm(8, mtmp, otmp, 0, FALSE))
-                trapkilled = TRUE;
-            break;
         case BOLT_TRAP_SET:
-            if (trap->once && trap->tseen && !rn2(15)) {
+        case DART_TRAP_SET:
+            if (!trap->ammo) {
                 if (in_sight && see_it)
                     pline("%s triggers a trap but nothing happens.",
                           Monnam(mtmp));
@@ -2666,33 +2655,17 @@ register struct monst *mtmp;
                 newsym(mtmp->mx, mtmp->my);
                 break;
             }
-            trap->once = 1;
-            otmp = t_missile(CROSSBOW_BOLT, trap);
+            otmp = trap->ammo;
+            if (trap->ammo->quan > 1)
+                otmp = splitobj(trap->ammo, 1);
+            extract_nobj(otmp, &trap->ammo);
             if (in_sight)
                 seetrap(trap);
             if (thitm(8, mtmp, otmp, 0, FALSE))
-                trapkilled = TRUE;
-            break;
-        case DART_TRAP_SET:
-            if (trap->once && trap->tseen && !rn2(15)) {
-                if (in_sight && see_it)
-                    pline("%s triggers a trap but nothing happens.",
-                          Monnam(mtmp));
-                deltrap(trap);
-                newsym(mtmp->mx, mtmp->my);
-                break;
-            }
-            trap->once = 1;
-            otmp = t_missile(DART, trap);
-            if (!rn2(6))
-                otmp->opoisoned = 1;
-            if (in_sight)
-                seetrap(trap);
-            if (thitm(7, mtmp, otmp, 0, FALSE))
                 trapkilled = TRUE;
             break;
         case ROCKTRAP:
-            if (trap->once && trap->tseen && !rn2(15)) {
+            if (!trap->ammo) {
                 if (in_sight && see_it)
                     pline(
                         "A trap door above %s opens, but nothing falls out!",
@@ -2701,8 +2674,11 @@ register struct monst *mtmp;
                 newsym(mtmp->mx, mtmp->my);
                 break;
             }
-            trap->once = 1;
-            otmp = t_missile(ROCK, trap);
+            otmp = trap->ammo;
+            if (trap->ammo->quan > 1) {
+                otmp = splitobj(trap->ammo, 1);
+            }
+            extract_nobj(otmp, &trap->ammo);
             if (in_sight)
                 seetrap(trap);
             if (thitm(0, mtmp, otmp, d(2, 6), FALSE))
@@ -3274,7 +3250,7 @@ register struct monst *mtmp;
                 if (in_sight)
                     pline("But it breaks off against %s.",
                           mon_nam(spear_target));
-                deltrap(trap);
+                deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
                 newsym(mtmp->mx, mtmp->my);
             } else if (unsolid(spear_target->data)) {
                 if (in_sight)
@@ -4885,42 +4861,6 @@ struct trap *ttmp;
     return rn2(chance);
 }
 
-/* Replace trap with object(s).  Helge Hafting */
-void
-cnv_trap_obj(otyp, cnt, ttmp, bury_it)
-int otyp;
-int cnt;
-struct trap *ttmp;
-boolean bury_it;
-{
-    struct obj *otmp = mksobj(otyp, TRUE, FALSE);
-    struct monst *mtmp;
-
-    otmp->quan = cnt;
-    otmp->owt = weight(otmp);
-    /* Only dart traps are capable of being poisonous */
-    if (otyp != DART) {
-        otmp->opoisoned = 0;
-        otmp->otainted = 0;
-    }
-    place_object(otmp, ttmp->tx, ttmp->ty);
-    if (bury_it) {
-        /* magical digging first disarms this trap, then will unearth it */
-        (void) bury_an_obj(otmp, (boolean *) 0);
-    } else {
-        /* Sell your own traps only... */
-        if (ttmp->madeby_u)
-            sellobj(otmp, ttmp->tx, ttmp->ty);
-        stackobj(otmp);
-    }
-    newsym(ttmp->tx, ttmp->ty);
-    if (u.utrap && ttmp->tx == u.ux && ttmp->ty == u.uy)
-        reset_utrap(TRUE);
-    if (((mtmp = m_at(ttmp->tx, ttmp->ty)) != 0) && mtmp->mtrapped)
-        mtmp->mtrapped = 0;
-    deltrap(ttmp);
-}
-
 /* while attempting to disarm an adjacent trap, we've fallen into it */
 STATIC_OVL void
 move_into_trap(ttmp)
@@ -5103,7 +5043,7 @@ struct trap *ttmp;
     } else {
         if (ttmp->ttyp == BEAR_TRAP) {
             You("disarm %s bear trap.", the_your[ttmp->madeby_u]);
-            cnv_trap_obj(BEARTRAP, 1, ttmp, FALSE);
+            deltrap_with_ammo(ttmp, DELTRAP_PLACE_AMMO);
         } else /* if (ttmp->ttyp == WEB) */ {
             You("succeed in removing %s web.", the_your[ttmp->madeby_u]);
             deltrap(ttmp);
@@ -5122,7 +5062,7 @@ struct trap *ttmp;
     if (fails < 2)
         return fails;
     You("disarm %s land mine.", the_your[ttmp->madeby_u]);
-    cnv_trap_obj(LAND_MINE, 1, ttmp, FALSE);
+    deltrap_with_ammo(ttmp, DELTRAP_PLACE_AMMO);
     return 1;
 }
 
@@ -5140,26 +5080,10 @@ struct trap *ttmp;
      * Chance: 14.3%   28.2%   42.1%   56.1%   70.0%
      */
     if (rnl(7) == 0) {
-        switch (rn2(5)) {
-        case 0:
-            cnv_trap_obj(SPEAR, 1, ttmp, FALSE);
-            break;
-        case 1:
-            cnv_trap_obj(ELVEN_SPEAR, 1, ttmp, FALSE);
-            break;
-        case 2:
-            cnv_trap_obj(ORCISH_SPEAR, 1, ttmp, FALSE);
-            break;
-        case 3:
-            cnv_trap_obj(DWARVISH_SPEAR, 1, ttmp, FALSE);
-            break;
-        case 4:
-            cnv_trap_obj(DARK_ELVEN_SPEAR, 1, ttmp, FALSE);
-            break;
-        }
+        deltrap_with_ammo(ttmp, DELTRAP_TAKE_AMMO);
     } else {
         pline_The("spear breaks!");
-        deltrap(ttmp);
+        deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
         newsym(u.ux + u.dx, u.uy + u.dy);
     }
     return 1;
@@ -5206,16 +5130,15 @@ struct trap *ttmp;
 
 /* removes traps that shoot arrows, darts, etc. */
 STATIC_OVL int
-disarm_shooting_trap(ttmp, otyp)
+disarm_shooting_trap(ttmp)
 struct trap *ttmp;
-int otyp;
 {
     int fails = try_disarm(ttmp, FALSE);
 
     if (fails < 2)
         return fails;
     You("disarm %s trap.", the_your[ttmp->madeby_u]);
-    cnv_trap_obj(otyp, ttmp->madeby_u ? 10 : 50 - rnl(50), ttmp, FALSE);
+    deltrap_with_ammo(ttmp, DELTRAP_TAKE_AMMO);
     return 1;
 }
 
@@ -5446,11 +5369,9 @@ boolean force;
                 case SQKY_BOARD:
                     return disarm_squeaky_board(ttmp);
                 case DART_TRAP_SET:
-                    return disarm_shooting_trap(ttmp, DART);
                 case ARROW_TRAP_SET:
-                    return disarm_shooting_trap(ttmp, ARROW);
                 case BOLT_TRAP_SET:
-                    return disarm_shooting_trap(ttmp, CROSSBOW_BOLT);
+                    return disarm_shooting_trap(ttmp);
                 case SPEAR_TRAP_SET:
                     return disarm_spear_trap(ttmp);
                 case PIT:
@@ -6132,6 +6053,15 @@ register struct trap *trap;
 {
     register struct trap *ttmp;
 
+    if (trap->ammo) {
+        impossible("deleting trap (%d) containing ammo (%d)?",
+                   trap->ttyp, trap->ammo->otyp);
+        /* deltrap (here) -> deltrap_with_ammo (destroys ammo)
+           -> deltrap */
+        deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
+        return;
+    }
+
     clear_conjoined_pits(trap);
     if (trap == ftrap) {
         ftrap = ftrap->ntrap;
@@ -6146,6 +6076,89 @@ register struct trap *trap;
     if (Sokoban && (trap->ttyp == PIT || trap->ttyp == HOLE))
         maybe_finish_sokoban();
     dealloc_trap(trap);
+}
+
+/* Delete a trap, but handle any ammo in it. The values for do_what are
+   the DELTRAP_*_AMMO constants. If called with a trap without ammo,
+   this should function like deltrap. If called with DELTRAP_RETURN_AMMO,
+   delete the trap but preserve the ammo as an object chain,
+   and return it. */
+struct obj *
+deltrap_with_ammo(trap, do_what)
+struct trap *trap;
+int do_what;
+{
+    struct obj *otmp = (struct obj *) 0;
+    struct obj *objchn = (struct obj *) 0;
+    xchar tx, ty;
+
+    if (!trap) {
+        impossible("deltrap_with_ammo: null trap!");
+        return NULL;
+    }
+
+    tx = trap->tx;
+    ty = trap->ty;
+    while (trap->ammo) {
+        otmp = trap->ammo;
+        extract_nobj(otmp, &trap->ammo);
+        if (objchn) {
+            otmp->nobj = objchn;
+        }
+        objchn = otmp;
+    }
+
+    if (do_what == DELTRAP_DESTROY_AMMO) {
+        set_trap_ammo(trap, (struct obj *) 0);
+    } else if (do_what != DELTRAP_RETURN_AMMO) {
+        struct obj *nobj;
+        otmp = objchn;
+
+        while (otmp) {
+            nobj = otmp->nobj;
+
+            switch (do_what) {
+            default:
+                impossible("Bad deltrap constant, placing ammo instead");
+                /* FALLTHRU */
+            case DELTRAP_PLACE_AMMO:
+                place_object(otmp, trap->tx, trap->ty);
+                /* Sell your own traps only... */
+                if (trap->madeby_u) {
+                    if (trap->ttyp == ARROW_TRAP_SET) {
+                        otmp->quan = 10;
+                        sellobj(otmp, trap->tx, trap->ty);
+                    }
+                }
+                otmp->owt = weight(otmp);
+                stackobj(otmp);
+                break;
+            case DELTRAP_BURY_AMMO:
+                place_object(otmp, trap->tx, trap->ty);
+                (void) bury_an_obj(otmp, NULL);
+                break;
+            case DELTRAP_TAKE_AMMO:
+                if (trap->madeby_u) {
+                    if (trap->ttyp == ARROW_TRAP_SET) {
+                        otmp->quan = 10;
+                        sellobj(otmp, trap->tx, trap->ty);
+                    }
+                }
+                otmp->owt = weight(otmp);
+                hold_another_object(otmp, "You remove, but drop, %s.",
+                                    doname(otmp), NULL);
+                break;
+            }
+            otmp = nobj;
+        }
+        objchn = NULL;
+    }
+    if (u.utrap && trap->tx == u.ux && trap->ty == u.uy)
+        reset_utrap(TRUE);
+    deltrap(trap);
+    newsym(tx, ty);
+
+    return objchn;
 }
 
 boolean
@@ -6277,12 +6290,17 @@ delfloortrap(ttmp)
 register struct trap *ttmp;
 {
     /* some of these are arbitrary -dlc */
-    if (ttmp && ((ttmp->ttyp == SQKY_BOARD) || (ttmp->ttyp == BEAR_TRAP)
-                 || (ttmp->ttyp == LANDMINE) || (ttmp->ttyp == FIRE_TRAP_SET)
-                 || (ttmp->ttyp == ICE_TRAP_SET) || is_pit(ttmp->ttyp)
+    if (ttmp && (is_pit(ttmp->ttyp)
                  || is_hole(ttmp->ttyp)
-                 || (ttmp->ttyp == TELEP_TRAP_SET) || (ttmp->ttyp == LEVEL_TELEP)
-                 || (ttmp->ttyp == WEB) || (ttmp->ttyp == MAGIC_TRAP_SET)
+                 || (ttmp->ttyp == SQKY_BOARD)
+                 || (ttmp->ttyp == BEAR_TRAP)
+                 || (ttmp->ttyp == LANDMINE)
+                 || (ttmp->ttyp == FIRE_TRAP_SET)
+                 || (ttmp->ttyp == ICE_TRAP_SET)
+                 || (ttmp->ttyp == TELEP_TRAP_SET)
+                 || (ttmp->ttyp == LEVEL_TELEP)
+                 || (ttmp->ttyp == WEB)
+                 || (ttmp->ttyp == MAGIC_TRAP_SET)
                  || (ttmp->ttyp == ANTI_MAGIC))) {
         register struct monst *mtmp;
 
@@ -6292,7 +6310,14 @@ register struct trap *ttmp;
         } else if ((mtmp = m_at(ttmp->tx, ttmp->ty)) != 0) {
             mtmp->mtrapped = 0;
         }
-        deltrap(ttmp);
+        /* For the two types of ammo-bearing floor traps (land mine and
+           bear trap), it's ambiguous whether this should destroy the
+           ammo or place it. Since this is currently only called during
+           gameplay (usually when this space gets flooded), assume
+           placing it; if this ever gets called in level generation or
+           something, it may result in the objects getting left around
+           the map where they shouldn't be */
+        deltrap_with_ammo(ttmp, DELTRAP_PLACE_AMMO);
         return TRUE;
     }
     return FALSE;
@@ -6754,11 +6779,16 @@ trap_ice_effects(xchar x, xchar y, boolean ice_is_melting)
     struct trap *ttmp = t_at(x, y);
 
     if (ttmp && ice_is_melting) {
+        struct monst *mtmp;
+
+        if (((mtmp = m_at(x, y)) != 0) && mtmp->mtrapped)
+            mtmp->mtrapped = 0;
         if (ttmp->ttyp == LANDMINE || ttmp->ttyp == BEAR_TRAP) {
             /* landmine or bear trap set on top of the ice falls
                into the water */
-            int otyp = (ttmp->ttyp == LANDMINE) ? LAND_MINE : BEARTRAP;
-            cnv_trap_obj(otyp, 1, ttmp, TRUE);
+            deltrap_with_ammo(ttmp, DELTRAP_PLACE_AMMO);
+        } else if (ttmp->ammo) { /* shouldn't really happen but... */
+            deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
         } else {
             deltrap(ttmp);
         }

@@ -3722,7 +3722,7 @@ int corpsecheck; /* 0, no check, 1, corpses, 2, tinnable corpses */
             Sprintf(qbuf, "There is a bear trap here (%s); eat it?",
                     u_in_beartrap ? "holding you" : "armed");
             if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y') {
-                deltrap(ttmp);
+                deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
                 if (u_in_beartrap)
                     reset_utrap(TRUE);
                 return mksobj(BEARTRAP, TRUE, FALSE);

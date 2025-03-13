@@ -30,6 +30,14 @@ struct trap {
                               when you untrap a monster.  It would be too
                               easy to make a monster peaceful if you could
                               set a trap for it and then untrap it. */
+    struct obj* ammo; /* object associated with this trap - darts for a dart
+                         trap, arrows for an arrow trap, a beartrap object for a
+                         bear trap.  This object does not physically exist in
+                         the game until some action creates it, such as the
+                         beartrap being untrapped, or one dart being fired.
+                         Not all types of traps will need this field - in fact,
+                         most don't. Only those which need to store persistent
+                         information about the associated object do. */
     union vlaunchinfo vl;
 #define launch_otyp vl.v_launch_otyp
 #define launch2 vl.v_launch2
@@ -97,5 +105,14 @@ enum trap_types {
                                || (ttyp) == ANTI_MAGIC           \
                                || (ttyp) == POLY_TRAP_SET        \
                                || (ttyp) == MAGIC_BEAM_TRAP_SET)
+
+/* Values for deltrap_with_ammo */
+enum deltrap_handle_ammo {
+    DELTRAP_RETURN_AMMO = 0, /* return ammo to caller; do nothing with it */
+    DELTRAP_DESTROY_AMMO,    /* delete ammo */
+    DELTRAP_PLACE_AMMO,      /* place ammo on ground where trap was */
+    DELTRAP_BURY_AMMO,       /* bury ammo under where trap was */
+    DELTRAP_TAKE_AMMO        /* put ammo into player's inventory */
+};
 
 #endif /* TRAP_H */

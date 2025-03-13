@@ -1702,37 +1702,31 @@ coord *tm;
            generate objects. */
         struct obj *otmp = NULL;
         int victim_mnum; /* race of the victim */
+        int quan = rnd(4); /* amount of ammo to dump */
 
         /* Not all trap types have special handling here; only the ones
            that kill in a specific way that's obvious after the fact. */
         switch (kind) {
         case ARROW_TRAP_SET:
-            otmp = mksobj(ARROW, TRUE, FALSE);
-            otmp->opoisoned = 0;
-            otmp->otainted = 0;
-            /* don't adjust the quantity; maybe the trap shot multiple
-               times, there was an untrapping attempt, etc... */
-            break;
         case BOLT_TRAP_SET:
-            otmp = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
-            otmp->opoisoned = 0;
-            otmp->otainted = 0;
-            break;
         case DART_TRAP_SET:
-            otmp = mksobj(DART, TRUE, FALSE);
-            otmp->otainted = 0;
-            break;
-        case ROCKTRAP:
-            otmp = mksobj(ROCK, TRUE, FALSE);
-            break;
         case SPEAR_TRAP_SET:
-            break;
+        case ROCKTRAP:
+            if (t->ammo) {
+                if (t->ammo->quan <= quan)
+                    t->ammo->quan = quan + 1;
+
+                otmp = splitobj(t->ammo, quan); /* this handles weights */
+                if (otmp) {
+                    extract_nobj(otmp, &t->ammo);
+                    place_object(otmp, m.x, m.y);
+                }
+            } else {
+                impossible("fresh trap %d without ammo?", t->ttyp);
+            }
         default:
             /* no item dropped by the trap */
             break;
-        }
-        if (otmp) {
-            place_object(otmp, m.x, m.y);
         }
 
         /* now otmp is reused for other items we're placing */
@@ -2152,7 +2146,7 @@ int dist;
 
     /* clear traps */
     if ((ttmp = t_at(x, y)) != 0)
-        deltrap(ttmp);
+        deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
 
     /* clear boulders; leave some rocks for non-{moat|trap} locations */
     make_rocks = (dist != 1 && dist != 4 && dist != 5) ? TRUE : FALSE;
