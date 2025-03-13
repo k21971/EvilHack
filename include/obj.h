@@ -77,7 +77,8 @@ struct obj {
 #define OBJ_BURIED 6    /* object buried */
 #define OBJ_ONBILL 7    /* object on shk bill */
 #define OBJ_SOMEWHERE 8 /* for magic chest */
-#define NOBJ_STATES 9
+#define OBJ_INTRAP 9    /* object is trap ammo */
+#define NOBJ_STATES 10
     xchar timed; /* # of fuses (timers) attached to this obj */
 
     Bitfield(cursed, 1);

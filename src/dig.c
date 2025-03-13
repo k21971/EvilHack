@@ -364,7 +364,7 @@ dig(VOID_ARGS)
             } else {
                 You("destroy the bear trap with %s.",
                     yobjnam(uwep, (const char *) 0));
-                deltrap(ttmp);
+                deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
                 reset_utrap(TRUE); /* release from trap, maybe Lev or Fly */
             }
             /* we haven't made any progress toward a pit yet */
@@ -378,7 +378,10 @@ dig(VOID_ARGS)
                 You("destroy %s with %s.",
                     ttmp->tseen ? the(ttmpname) : an(ttmpname),
                     yobjnam(uwep, (const char *) 0));
-            deltrap(ttmp);
+            if (ttmp->ammo)
+                deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
+            else
+                deltrap(ttmp);
             /* we haven't made any progress toward a pit yet */
             context.digging.effort = 0;
             return 0;
@@ -945,10 +948,13 @@ coord *cc;
         } else {
             /* magical digging disarms settable traps */
             if (by_magic && ttmp
-                && (ttmp->ttyp == LANDMINE || ttmp->ttyp == BEAR_TRAP)) {
-                int otyp = (ttmp->ttyp == LANDMINE) ? LAND_MINE : BEARTRAP;
+                && (ttmp->ttyp == LANDMINE || ttmp->ttyp == BEAR_TRAP
+                    || ttmp->ttyp == ARROW_TRAP_SET)) {
+
                 /* convert trap into buried object (deletes trap) */
-                cnv_trap_obj(otyp, 1, ttmp, TRUE);
+                deltrap_with_ammo(ttmp,
+                                  (ttmp->ttyp == LANDMINE
+                                   ? DELTRAP_BURY_AMMO : DELTRAP_PLACE_AMMO));
             }
             /* finally we get to make a hole */
             if (nohole || pit_only)
@@ -2349,7 +2355,7 @@ struct monst *mdef, *magr;
     } else { /* also includes case of no trap there in the first place */
         if (trap) {
             /* Silently delete whatever other sort of trap this is. */
-            deltrap(trap);
+            deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
         }
         /* Now we know there is no trap; create a pit. */
         if (canseexy)

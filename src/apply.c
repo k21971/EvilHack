@@ -3076,7 +3076,7 @@ struct obj *otmp;
     }
     ttyp = (otmp->otyp == LAND_MINE) ? LANDMINE
              : (otmp->otyp == BEARTRAP) ? BEAR_TRAP
-               : ARROW_TRAP_SET;
+               : (otmp->otyp == ARROW_TRAP) ? ARROW_TRAP_SET : 0;
     if (otmp == trapinfo.tobj && u.ux == trapinfo.tx && u.uy == trapinfo.ty) {
         You("resume setting %s%s.", shk_your(buf, otmp),
             defsyms[trap_to_defsym(what_trap(ttyp, rn2))].explanation);
@@ -3141,6 +3141,7 @@ set_trap()
     struct obj *otmp = trapinfo.tobj;
     struct trap *ttmp;
     int ttyp;
+    boolean obj_cursed = otmp->cursed;
 
     if (!otmp || !carried(otmp) || u.ux != trapinfo.tx
         || u.uy != trapinfo.ty) {
@@ -3154,18 +3155,27 @@ set_trap()
 
     ttyp = (otmp->otyp == LAND_MINE) ? LANDMINE
              : (otmp->otyp == BEARTRAP) ? BEAR_TRAP
-               : ARROW_TRAP_SET;
+               : (otmp->otyp == ARROW_TRAP) ? ARROW_TRAP_SET : 0;
     ttmp = maketrap(u.ux, u.uy, ttyp);
     if (ttmp) {
         ttmp->madeby_u = 1;
         feeltrap(ttmp);
+
+        /* Our object becomes the new ammo of the trap */
+        if (otmp->quan > 1) {
+            otmp = splitobj(otmp, 1);
+        }
+        freeinv(otmp);
+        if (ttyp == LANDMINE || ttyp == BEAR_TRAP)
+            set_trap_ammo(ttmp, otmp);
+
         if (*in_rooms(u.ux, u.uy, SHOPBASE)) {
             add_damage(u.ux, u.uy, 0L); /* schedule removal */
         }
         if (!trapinfo.force_bungle)
             You("finish arming %s.",
                 the(defsyms[trap_to_defsym(what_trap(ttyp, rn2))].explanation));
-        if (((otmp->cursed || Fumbling) && (rnl(10) > 5))
+        if (((obj_cursed || Fumbling) && (rnl(10) > 5))
             || trapinfo.force_bungle)
             dotrap(ttmp,
                    (unsigned) (trapinfo.force_bungle ? FORCEBUNGLE : 0));
@@ -3173,7 +3183,6 @@ set_trap()
         /* this shouldn't happen */
         Your("trap setting attempt fails.");
     }
-    useup(otmp);
     reset_trapset();
     return 0;
 }

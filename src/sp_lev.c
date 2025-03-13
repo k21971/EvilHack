@@ -3628,7 +3628,7 @@ struct sp_coder *coder;
 
     get_location_coord(&x, &y, DRY, coder->croom, OV_i(scoord));
     if ((badtrap = t_at(x, y)) != 0)
-        deltrap(badtrap);
+        deltrap_with_ammo(badtrap, DELTRAP_DESTROY_AMMO);
     mkstairs(x, y, (char) OV_i(up), coder->croom);
     SpLev_Map[x][y] = 1;
 

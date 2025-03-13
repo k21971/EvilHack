@@ -343,8 +343,11 @@ d_level *lev;
                It might still fail if there's a dungeon feature here. */
             struct trap *t = t_at(x, y);
 
-            if (t && !undestroyable_trap(t->ttyp))
-                deltrap(t);
+            if (t && !undestroyable_trap(t->ttyp)) {
+                if (((mtmp = m_at(x, y)) != 0) && mtmp->mtrapped)
+                    mtmp->mtrapped = 0;
+                deltrap_with_ammo(t, DELTRAP_DESTROY_AMMO);
+            }
             if (bad_location(x, y, nlx, nly, nhx, nhy))
                 return FALSE;
         }

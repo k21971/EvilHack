@@ -1281,6 +1281,11 @@ int mode;
         trap2 = trap->ntrap;
         if (perform_bwrite(mode))
             bwrite(fd, (genericptr_t) trap, sizeof *trap);
+        if (trap->ammo)
+            /* if perform_bwrite, this will save the ammo after the
+               trap; if release_data, this will free the ammo before
+               freeing the trap */
+            saveobjchn(fd, &trap->ammo, mode);
         if (release_data(mode))
             dealloc_trap(trap);
         trap = trap2;
