@@ -4374,7 +4374,7 @@ The following changes to date are:
 ### Version 0.9.1
 
 - Latest merges from 'vanilla' NetHack 3.6.7 official release (as of
-  March 11th, 2025)
+  March 12th, 2025)
 - Initial preparation for new version (0.9.1)
 - Properly display fractured altars in dungeon overview
 - Druids can pass directly through trees
