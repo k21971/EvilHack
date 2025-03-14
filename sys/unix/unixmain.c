@@ -31,7 +31,7 @@ static void FDECL(chdirx, (const char *, BOOLEAN_P));
 #endif /* CHDIR */
 static boolean NDECL(whoami);
 static void FDECL(process_options, (int, char **));
-static void NDECL(opt_terminate);
+static void NDECL(opt_terminate) NORETURN;
 
 #ifdef _M_UNIX
 extern void NDECL(check_sco_console);
@@ -809,7 +809,7 @@ sys_random_seed()
 
 void
 after_opt_showpaths(dir)
-const char *dir;
+const char *dir UNUSED;
 {
 #ifdef CHDIR
     chdirx((char *) 0, 0);
