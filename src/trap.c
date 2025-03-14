@@ -570,12 +570,14 @@ int x, y, typ;
     case ROCKTRAP:
         otmp = mksobj(ROCK, TRUE, FALSE);
         /* TODO: Scale this with depth */
-        otmp->quan = 5 + rnd(10);
+        otmp->quan = 5L + rnd(10);
+        otmp->owt = weight(otmp);
         set_trap_ammo(ttmp, otmp);
         break;
     case DART_TRAP_SET:
         otmp = mksobj(DART, TRUE, FALSE);
-        otmp->quan = 15 + rnd(20);
+        otmp->quan = 15L + rnd(20);
+        otmp->owt = weight(otmp);
         /* darts are poisoned 1/6 of the time */
         otmp->opoisoned = !rn2(6);
         otmp->otainted = 0;
@@ -583,21 +585,24 @@ int x, y, typ;
         break;
     case ARROW_TRAP_SET:
         otmp = mksobj(ARROW, TRUE, FALSE);
-        otmp->quan = 15 + rnd(20);
+        otmp->quan = 15L + rnd(20);
+        otmp->owt = weight(otmp);
         /* arrows are not poisoned */
         otmp->opoisoned = otmp->otainted = 0;
         set_trap_ammo(ttmp, otmp);
         break;
     case BOLT_TRAP_SET:
         otmp = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
-        otmp->quan = 15 + rnd(20);
+        otmp->quan = 15L + rnd(20);
+        otmp->owt = weight(otmp);
         /* bolts are not poisoned */
         otmp->opoisoned = otmp->otainted = 0;
         set_trap_ammo(ttmp, otmp);
         break;
     case SPEAR_TRAP_SET:
         otmp = mksobj(SPEAR, TRUE, FALSE);
-        otmp->quan = 1;
+        otmp->quan = 1L;
+        otmp->owt = weight(otmp);
         /* spears are not poisoned */
         otmp->opoisoned = otmp->otainted = 0;
         set_trap_ammo(ttmp, otmp);
@@ -1150,6 +1155,7 @@ unsigned trflags;
     struct obj *otmp, *nextobj;
     struct monst *steed = u.usteed;
     boolean already_seen = trap->tseen,
+            yours = trap->madeby_u,
             forcetrap = ((trflags & FORCETRAP) != 0
                          || (trflags & FAILEDUNTRAP) != 0),
             webmsgok = (trflags & NOWEBMSG) == 0,
@@ -1221,9 +1227,8 @@ unsigned trflags;
             break;
         }
         otmp = trap->ammo;
-        if (trap->ammo->quan > 1) {
+        if (trap->ammo->quan > 1L)
             otmp = splitobj(trap->ammo, 1);
-        }
         extract_nobj(otmp, &trap->ammo);
         seetrap(trap);
         pline("%s shoots out at you!", An(xname(otmp)));
@@ -1247,6 +1252,10 @@ unsigned trflags;
             place_object(otmp, u.ux, u.uy);
             if (!Blind)
                 otmp->dknown = 1;
+            if (yours) {
+                otmp->known = 0;
+                otmp->oclass = WEAPON_CLASS;
+            }
             stackobj(otmp);
             newsym(u.ux, u.uy);
         }
@@ -1279,9 +1288,8 @@ unsigned trflags;
             int dmg = d(2, 6); /* should be std ROCK dmg? */
 
             otmp = trap->ammo;
-            if (trap->ammo->quan > 1) {
+            if (trap->ammo->quan > 1L)
                 otmp = splitobj(trap->ammo, 1);
-            }
             extract_nobj(otmp, &trap->ammo);
             feeltrap(trap);
             place_object(otmp, u.ux, u.uy);
@@ -2656,7 +2664,7 @@ register struct monst *mtmp;
                 break;
             }
             otmp = trap->ammo;
-            if (trap->ammo->quan > 1)
+            if (trap->ammo->quan > 1L)
                 otmp = splitobj(trap->ammo, 1);
             extract_nobj(otmp, &trap->ammo);
             if (in_sight)
@@ -2675,9 +2683,8 @@ register struct monst *mtmp;
                 break;
             }
             otmp = trap->ammo;
-            if (trap->ammo->quan > 1) {
+            if (trap->ammo->quan > 1L)
                 otmp = splitobj(trap->ammo, 1);
-            }
             extract_nobj(otmp, &trap->ammo);
             if (in_sight)
                 seetrap(trap);
@@ -6126,11 +6133,11 @@ int do_what;
                 /* Sell your own traps only... */
                 if (trap->madeby_u) {
                     if (trap->ttyp == ARROW_TRAP_SET) {
-                        otmp->quan = 10;
+                        otmp->quan = otmp->quan;
+                        otmp->oclass = WEAPON_CLASS;
                         sellobj(otmp, trap->tx, trap->ty);
                     }
                 }
-                otmp->owt = weight(otmp);
                 stackobj(otmp);
                 break;
             case DELTRAP_BURY_AMMO:
@@ -6140,11 +6147,11 @@ int do_what;
             case DELTRAP_TAKE_AMMO:
                 if (trap->madeby_u) {
                     if (trap->ttyp == ARROW_TRAP_SET) {
-                        otmp->quan = 10;
-                        sellobj(otmp, trap->tx, trap->ty);
+                        otmp->quan = otmp->quan;
+                        otmp->known = 0;
+                        otmp->oclass = WEAPON_CLASS;
                     }
                 }
-                otmp->owt = weight(otmp);
                 hold_another_object(otmp, "You remove, but drop, %s.",
                                     doname(otmp), NULL);
                 break;

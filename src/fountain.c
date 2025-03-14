@@ -835,6 +835,7 @@ doforging()
                     || obj2->forged_qual == FQ_INFERIOR) {
                     /* if either object is inferior, the output
                        will also be inferior */
+                    output->forged_qual = FQ_INFERIOR;
                 } else if (obj1->forged_qual == FQ_EXCEPTIONAL
                            && obj2->forged_qual == FQ_EXCEPTIONAL) {
                     /* if both objects are exceptional,

@@ -3721,7 +3721,6 @@ struct obj* obj;
     case SADDLE:
     case TRAP_KIT:
     case TINNING_KIT:
-    case ARROW_TRAP:
     case MUMMY_WRAPPING:
     case OILSKIN_SACK:
     case OILSKIN_CLOAK:

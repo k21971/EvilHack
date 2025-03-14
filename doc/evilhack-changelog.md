@@ -4387,4 +4387,5 @@ The following changes to date are:
 - Disarming an arrow trap the player made will only yield the number of
   arrows used to make it
 - Trap ammo overhaul (xNetHack)
+- Crafting traps, part 2: fixes and enhancements
 

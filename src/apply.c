@@ -2978,6 +2978,15 @@ struct obj *obj; /* actual trap kit */
 
     /* start the build process */
     for (recipe = final; recipe->result_typ; recipe++) {
+        if (otmp->otyp != recipe->typ) {
+            pline_The("selected component is incorrect.");
+            break;
+        }
+        if (otmp->otyp == recipe->typ
+            && otmp->quan < recipe->quan) {
+            pline_The("component quantity is not enough.");
+            break;
+        }
         if (otmp->otyp == recipe->typ
             && otmp->quan >= recipe->quan) {
             trap_type = recipe->result_typ;
@@ -2995,18 +3004,40 @@ struct obj *obj; /* actual trap kit */
         /* trap kit consumes a charge */
         consume_obj_charge(obj, TRUE);
 
-        /* feedback for successful build */
-        pline("Using your %s, you craft %s to build %s.",
-              simpleonames(obj), yobjnam(otmp, (char *) 0),
-              doname(output));
+        /* try to take on the material from the component object */
+        if (valid_obj_material(output, otmp->material)) {
+            set_material(output, otmp->material);
+        } else {
+            /* material is invalid for the output object */
+            Your("component is made of an incorrect material (%s).",
+                 materialnm[otmp->material]);
+            You("fail to build the trap.");
+            delobj(output);
+            return;
+        }
 
-        /* ensure the final product is not degraded or coated
-           with anything in any way */
-        output->cursed = output->blessed = 0;
-        output->oeroded = output->oeroded2 = 0;
+        /* feedback for successful build */
+        pline("Using your %s, you craft %s%s to build %s.",
+              simpleonames(obj),
+              ((otmp->quan > recipe->quan) ? "some of " : ""),
+              yobjnam(otmp, (char *) 0), doname(output));
+
+        /* transfer BUC status of components used */
+        output->blessed = otmp->blessed;
+        output->cursed = otmp->cursed;
+
+        /* transfer any erosion levels */
+        output->oeroded = otmp->oeroded;
+        output->oeroded2 = otmp->oeroded2;
+
+        /* ensure the final product is not coated in any
+           substances, nor carrying over any additional
+           object properties */
         output->opoisoned = 0;
         output->otainted = 0;
         output->greased = 0;
+        output->oprops = 0L;
+        output->forged_qual = FQ_NORMAL;
 
         /* toss out old objects, add new one */
         if (otmp->otyp == recipe->typ)
@@ -3014,11 +3045,11 @@ struct obj *obj; /* actual trap kit */
 
         /* recalculate weight of the recipe objects if
            using a stack */
-        if (otmp->quan > 0)
+        if (otmp->quan > 0L)
             otmp->owt = weight(otmp);
 
         /* delete recipe objects if quantity reaches zero */
-        if (otmp->quan <= 0)
+        if (otmp->quan <= 0L)
             delobj(otmp);
 
         /* trap is created */
@@ -3142,6 +3173,7 @@ set_trap()
     struct trap *ttmp;
     int ttyp;
     boolean obj_cursed = otmp->cursed;
+    boolean mat = otmp->material;
 
     if (!otmp || !carried(otmp) || u.ux != trapinfo.tx
         || u.uy != trapinfo.ty) {
@@ -3162,12 +3194,18 @@ set_trap()
         feeltrap(ttmp);
 
         /* Our object becomes the new ammo of the trap */
-        if (otmp->quan > 1) {
+        if (otmp->quan > 1L) {
             otmp = splitobj(otmp, 1);
         }
+        if (ttmp->ttyp == ARROW_TRAP_SET) {
+            otmp->otyp = ARROW;
+            otmp->quan = 10L;
+            set_material(otmp, mat);
+            otmp->owt = weight(otmp);
+        }
+        setnotworn(otmp); /* in case trap was wielded when set */
         freeinv(otmp);
-        if (ttyp == LANDMINE || ttyp == BEAR_TRAP)
-            set_trap_ammo(ttmp, otmp);
+        set_trap_ammo(ttmp, otmp);
 
         if (*in_rooms(u.ux, u.uy, SHOPBASE)) {
             add_damage(u.ux, u.uy, 0L); /* schedule removal */
