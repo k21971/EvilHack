@@ -3030,13 +3030,15 @@ struct obj *obj; /* actual trap kit */
         output->oeroded = otmp->oeroded;
         output->oeroded2 = otmp->oeroded2;
 
+        /* transfer object properties */
+        output->oprops = otmp->oprops;
+
         /* ensure the final product is not coated in any
            substances, nor carrying over any additional
            object properties */
         output->opoisoned = 0;
         output->otainted = 0;
         output->greased = 0;
-        output->oprops = 0L;
         output->forged_qual = FQ_NORMAL;
 
         /* toss out old objects, add new one */
@@ -3174,6 +3176,7 @@ set_trap()
     int ttyp;
     boolean obj_cursed = otmp->cursed;
     boolean mat = otmp->material;
+    boolean prop = otmp->oprops;
 
     if (!otmp || !carried(otmp) || u.ux != trapinfo.tx
         || u.uy != trapinfo.ty) {
@@ -3200,6 +3203,7 @@ set_trap()
         if (ttmp->ttyp == ARROW_TRAP_SET) {
             otmp->otyp = ARROW;
             otmp->quan = 10L;
+            otmp->oprops = prop;
             set_material(otmp, mat);
             otmp->owt = weight(otmp);
         }

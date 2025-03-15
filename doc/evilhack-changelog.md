@@ -4388,4 +4388,5 @@ The following changes to date are:
   arrows used to make it
 - Trap ammo overhaul (xNetHack)
 - Crafting traps, part 2: fixes and enhancements
+- Allow object properties when crafting an arrow trap
 

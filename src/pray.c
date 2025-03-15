@@ -1197,7 +1197,7 @@ gcrownu()
              * can at least offer His own blessing? */
             obj = uwep;
             if (ok_wep(obj) && !obj->oartifact
-                && obj->quan == 1
+                && obj->quan == 1L
                 && (obj->oprops & ITEM_PROP_MASK) == 0L) {
                 Your("%s is wreathed in hellfire!",
                      simple_typename(obj->otyp));
