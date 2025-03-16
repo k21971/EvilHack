@@ -4369,4 +4369,6 @@ The following changes to date are:
   of Waterdeep'
 - Fix: addition of teleport regions to some of the Mines' End levels
 - Switch status from beta to released
+- Fix: dipping an attached heavy iron ball into a forge without having
+  a hammer wielded would cause a crash
 
