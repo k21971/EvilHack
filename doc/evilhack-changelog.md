@@ -4390,4 +4390,6 @@ The following changes to date are:
 - Crafting traps, part 2: fixes and enhancements
 - Allow object properties when crafting an arrow trap
 - Tileset color fixes
+- Fix: dipping an attached heavy iron ball into a forge without having
+  a hammer wielded would cause a crash
 
