@@ -4389,4 +4389,5 @@ The following changes to date are:
 - Trap ammo overhaul (xNetHack)
 - Crafting traps, part 2: fixes and enhancements
 - Allow object properties when crafting an arrow trap
+- Tileset color fixes
 
