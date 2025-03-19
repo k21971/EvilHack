@@ -2785,7 +2785,8 @@ dosacrifice()
                                     otmp->blessed = otmp->cursed = 0;
                             }
                             otmp->spe = enchantment;
-                            maybe_erodeproof(otmp, 1);
+                            if ((u.ualign.abuse * -1) < 30)
+                                maybe_erodeproof(otmp, 1);
                             otmp->oeroded = otmp->oeroded2 = 0;
                             if (!rn2((u.ualign.abuse == 0) ? 4 : 8)
                                 && !objects[otmp->otyp].oc_magic
@@ -2844,8 +2845,8 @@ dosacrifice()
                             otmp->blessed = otmp->cursed = 0;
                     }
                     otmp->spe = enchantment;
-                    maybe_erodeproof(otmp, 1);
-                    otmp->oeroded = otmp->oeroded2 = 0;
+                    if ((u.ualign.abuse * -1) < 30)
+                        maybe_erodeproof(otmp, 1);
                     otmp->forged_qual = FQ_NORMAL;
                     if (altaralign > A_CHAOTIC) /* lawful or neutral altar */
                         otmp->opoisoned = otmp->otainted = 0;

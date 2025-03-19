@@ -4374,7 +4374,7 @@ The following changes to date are:
 ### Version 0.9.1
 
 - Latest merges from 'vanilla' NetHack 3.6.7 official release (as of
-  March 12th, 2025)
+  March 19th, 2025)
 - Initial preparation for new version (0.9.1)
 - Properly display fractured altars in dungeon overview
 - Druids can pass directly through trees
@@ -4392,4 +4392,5 @@ The following changes to date are:
 - Tileset color fixes
 - Fix: dipping an attached heavy iron ball into a forge without having
   a hammer wielded would cause a crash
+- Some cleanup in artifact.c and tweaks after last NetHack 3.6.7 merge
 

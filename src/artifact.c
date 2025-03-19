@@ -214,7 +214,7 @@ int artinum;
    into an artifact of matching type, or returned as-is if that's not
    possible.
    For the 2nd case, caller should use ``obj = mk_artifact(obj, A_NONE);''
-   for the 1st, ``obj = mk_artifact((struct obj *)0, some_alignment);''.
+   for the 1st, ``obj = mk_artifact((struct obj *) 0, some_alignment);''.
  */
 struct obj *
 mk_artifact(otmp, alignment)
@@ -223,7 +223,7 @@ aligntyp alignment; /* target alignment, or A_NONE */
 {
     const struct artifact *a;
     int m, n, altn;
-    boolean by_align = alignment != A_NONE || !otmp;
+    boolean by_align = (alignment != A_NONE || !otmp);
     short o_typ = by_align ? 0 : otmp->otyp;
     boolean unique = !by_align && otmp && objects[o_typ].oc_unique;
     short eligible[NROFARTIFACTS];
@@ -4380,17 +4380,18 @@ awaiting_guaranteed_gift()
 {
     int m;
     struct artifact *a;
+
     for (m = 1, a = &artilist[m]; a->otyp; a++, m++) {
         if (artiexist[m])
             continue;
         if (a->spfx & SPFX_NOGEN)
             continue;
+
         /* uses the same criteria as mk_artifact */
         if (Role_if(a->role)
             && (a->alignment == u.ualign.type || a->alignment == A_NONE)
             && (a->race == NON_PM || !race_hostile(&mons[a->race]))
-            && (!(Race_if(PM_GIANT) && (a->mtype & MH_GIANT)))
-            && (!(Role_if(PM_PRIEST) && (is_slash(a) || is_pierce(a))))) {
+            && (!(Race_if(PM_GIANT) && (a->mtype & MH_GIANT)))) {
             return TRUE;
         }
     }
