@@ -6,6 +6,7 @@
 #include "hack.h"
 #include "artifact.h"
 #include "artilist.h"
+#include "assert.h"
 
 /*
  * Note:  both artilist[] and artiexist[] have a dummy element #0,
@@ -128,7 +129,6 @@ mk_artifact(otmp, alignment)
 struct obj *otmp;   /* existing object; ignored if alignment specified */
 aligntyp alignment; /* target alignment, or A_NONE */
 {
-    struct obj *artiobj;
     const struct artifact *a;
     int m, n, altn;
     boolean by_align = (alignment != A_NONE);
@@ -195,17 +195,23 @@ aligntyp alignment; /* target alignment, or A_NONE */
 
         /* make an appropriate object if necessary, then christen it */
         if (by_align) {
-            artiobj = mksobj((int) a->otyp, TRUE, FALSE);
-            if (otmp) {
+            struct obj *artiobj = mksobj((int) a->otyp, TRUE, FALSE);
+
+            /* nonnull value of 'otmp' is unexpected. Cope. */
+            if (otmp)  /* just in case; avoid orphaning */
                 dispose_of_orig_obj(otmp);
-                otmp = artiobj;
-            }
+            otmp = artiobj;
         }
-        if (otmp) {
-            otmp = oname(otmp, a->name);
-            otmp->oartifact = m;
-            artiexist[m] = TRUE;
-        }
+        /*
+         * otmp should be nonnull at this point:
+         * either the passed argument (if !by_align == A_NONE), or
+         * the result of mksobj() just above if by_align is an alignment. */
+        assert(otmp != 0);
+        /* prevent erosion from generating */
+        otmp->oeroded = otmp->oeroded2 = 0;
+        otmp = oname(otmp, a->name);
+        otmp->oartifact = m;  /* probably already set by this point, but */
+        artiexist[m] = 1;
     } else {
         /* nothing appropriate could be found; return original object */
         if (by_align && otmp) {
