@@ -4575,7 +4575,7 @@ struct monst *mon;
         }
         break;
     case 16: /* Monsters can wish for certain artifacts */
-        otmp = mk_artifact((struct obj *) 0, mon->malign);
+        otmp = mk_artifact((struct obj *) 0, mon_aligntyp(mon));
         if (otmp) {
             bless(otmp);
             maybe_erodeproof(otmp, 1);

@@ -4394,4 +4394,5 @@ The following changes to date are:
   a hammer wielded would cause a crash
 - Some cleanup in artifact.c and tweaks after last NetHack 3.6.7 merge
 - Fix: issue #181 (Convicts and killing hostile guards)
+- Fix: wrong alignment check with monsters wishing for an artifact
 
