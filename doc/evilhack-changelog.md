@@ -4372,4 +4372,5 @@ The following changes to date are:
 - Fix: dipping an attached heavy iron ball into a forge without having
   a hammer wielded would cause a crash
 - Fix: issue #181 (Convicts and killing hostile guards)
+- Fix: wrong alignment check with monsters wishing for an artifact
 
