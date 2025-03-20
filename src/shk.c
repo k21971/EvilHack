@@ -4611,8 +4611,12 @@ boolean cant_mollify;
         } else
             growl(shkp);
         hot_pursuit(shkp);
-        if (u.ualign.type != A_NONE)
+        /* Convicts and Infidels don't feel guilt over
+           damage to shops */
+        if (!(Role_if(PM_CONVICT) || u.ualign.type == A_NONE)) {
+            You_feel("guilty.");
             adjalign(-sgn(u.ualign.type));
+        }
     }
 }
 

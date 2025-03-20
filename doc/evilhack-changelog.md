@@ -4371,4 +4371,5 @@ The following changes to date are:
 - Switch status from beta to released
 - Fix: dipping an attached heavy iron ball into a forge without having
   a hammer wielded would cause a crash
+- Fix: issue #181 (Convicts and killing hostile guards)
 

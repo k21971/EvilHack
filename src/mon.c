@@ -4289,6 +4289,11 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
             nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
             noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0,
             indirect = (xkill_flags & XKILL_INDIRECT) != 0;
+    boolean not_con_inf = (!(u.ualign.type == A_NONE
+                             || (Role_if(PM_CONVICT)
+                                 && (mtmp->isgd || is_watch(mtmp->data)))));
+    boolean uni_same = (is_unicorn(mtmp->data)
+                        && sgn(u.ualign.type) == sgn(mtmp->data->maligntyp));
 
     mtmp->mhp = 0; /* caller will usually have already done this */
     if (!noconduct) /* KMH, conduct */
@@ -4453,20 +4458,25 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
      * to kill you.
      */
     if (((always_peaceful(mdat) && mtmp->malign <= 0)
-        || (mtmp->isshk && !is_zombie(mdat)))
-        && u.ualign.type != A_CHAOTIC
-        && u.ualign.type != A_NONE) {
-        HTelepat &= ~INTRINSIC;
-        change_luck(-2);
-        You("murderer!");
-        if (Blind && !Blind_telepat)
-            see_monsters(); /* Can't sense monsters any more. */
+        || (mtmp->isshk && !is_zombie(mdat)))) {
+        if (not_con_inf)
+            You_feel("guilty.");
+        /* only applicable if hero is lawful or neutral */
+        if (u.ualign.type > A_CHAOTIC) {
+            HTelepat &= ~INTRINSIC;
+            change_luck(-2);
+            You("murderer!");
+            if (Blind && !Blind_telepat)
+                see_monsters(); /* Can't sense monsters any more. */
+        }
     }
     if ((mtmp->mpeaceful && !rn2(2)) || mtmp->mtame)
         change_luck(-1);
-    if (is_unicorn(mdat) && u.ualign.type == mon_aligntyp(mtmp)) {
+    if (uni_same) {
+        /* this is super bad, don't do it. adjalign() handled
+           further down */
         change_luck(-5);
-        You_feel("remorseful...");
+        You_feel("guilty...");
     }
 
     /* give experience points */
@@ -4545,9 +4555,9 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
     } else if (mtmp->mtame) {
         if (u.ualign.type == A_NONE) {
             if (canspotmon(mtmp))
-                You_feel("guilty.");
+                You_feel("a bit remorseful.");
             else
-                You("have a vague sense of guilt.");
+                You("have a vague sense of remorse.");
             adjalign(-3); /* kinda bad, but it's how you roll */
         } else {
             if (canspotmon(mtmp))
@@ -4576,16 +4586,24 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
         }
     } else if (mtmp->mpeaceful) {
         if (u.ualign.type != A_NONE) {
-            if (canspotmon(mtmp))
-                You_feel("guilty.");
-            else
-                You("have a vague sense of guilt.");
-            adjalign(-5);
+            /* unicorn feedback handled before we reach this part of
+               the code */
+            if (!uni_same) {
+                if (canspotmon(mtmp))
+                    You_feel("guilty.");
+                else
+                    You("have a vague sense of guilt.");
+            }
+            adjalign(u.ualign.type > A_CHAOTIC ? -5 : -1);
         }
     }
 
-    /* malign was already adjusted for u.ualign.type and randomization */
-    adjalign(mtmp->malign);
+    /* malign was already adjusted for u.ualign.type and randomization.
+       This final adjalign() call is in addition to any prior adjalign()
+       adjustments in this block of code. Infidels, and Convicts in
+       certain scenarios don't feel this kind of guilt */
+    if (not_con_inf)
+        adjalign(mtmp->malign);
 
     if (mtmp->former_rank.mnum != NON_PM) {
         livelog_printf(LL_UMONST, "destroyed %s, %s former %s",
@@ -5112,7 +5130,8 @@ boolean via_attack;
 
     /* AIS: Should this be in both places, or just in wakeup()? */
     if (!(via_attack
-        && (Role_if(PM_ROGUE) && !uwep && context.forcefight && !Upolyd))) {
+          && (Role_if(PM_ROGUE) && !uwep
+              && context.forcefight && !Upolyd))) {
         struct permonst* oracle = &mons[PM_ORACLE];
         struct permonst* charon = &mons[PM_CHARON];
         mtmp->mstrategy &= ~STRAT_WAITMASK;
@@ -5122,11 +5141,12 @@ boolean via_attack;
             return;
         mtmp->mpeaceful = 0;
         newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
-        /* peacefuls always catch convicts stealing. but, convicts don't feel
-           guilty about it. (note there's still an alignment penalty for
-           *failing* to steal from a priest) in steal_it()) */
-        if (!(via_attack && (Role_if(PM_CONVICT)
-            && !uwep && context.forcefight && !Upolyd))) {
+        /* peacefuls always catch convicts stealing. but, convicts don't
+           feel guilty about it. (note there's still an alignment
+           penalty for failing to steal from a priest) in steal_it()) */
+        if (!(via_attack
+              && (Role_if(PM_CONVICT)
+                  && !uwep && context.forcefight && !Upolyd))) {
             if (mtmp->ispriest) {
                 if (p_coaligned(mtmp)) {
                     if (canspotmon(mtmp))
@@ -5144,7 +5164,8 @@ boolean via_attack;
                         You_feel("guilty.");
                     else
                         You("have a vague sense of guilt.");
-                    adjalign(-1); /* attacking peaceful monsters is bad */
+                    /* attacking peaceful monsters is bad */
+                    adjalign(u.ualign.type > A_CHAOTIC ? -5 : -1);
                 }
             }
         }
