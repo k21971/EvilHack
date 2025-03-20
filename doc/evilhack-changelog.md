@@ -4395,4 +4395,5 @@ The following changes to date are:
 - Some cleanup in artifact.c and tweaks after last NetHack 3.6.7 merge
 - Fix: issue #181 (Convicts and killing hostile guards)
 - Fix: wrong alignment check with monsters wishing for an artifact
+- Fix: Knights could jump like they were wearing jumping boots
 
