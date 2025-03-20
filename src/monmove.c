@@ -786,7 +786,6 @@ register struct monst *mtmp;
     /* the watch will look around and see if you are up to no good :-) */
     if (is_watch(mdat)) {
         watch_on_duty(mtmp);
-
     } else if ((is_mind_flayer(mdat) || mdat == &mons[PM_NEOTHELID])
                && !rn2(20)) {
         struct monst *m2, *nmon = (struct monst *) 0;
