@@ -4397,4 +4397,5 @@ The following changes to date are:
 - Fix: wrong alignment check with monsters wishing for an artifact
 - Fix: Knights could jump like they were wearing jumping boots
 - Fix: wrong feedback with 'You are already wearing' shield vs bracers
+- Fix: bears, deer were not meant to be ridden
 

@@ -94,6 +94,12 @@ struct monst *rider;
         if (nmon == rider)
             nmon = rider->nmon;
         /* criteria for an acceptable steed */
+        if (steed->data == &mons[PM_CAVE_BEAR]
+            || steed->data == &mons[PM_GRIZZLY_BEAR])
+            continue;
+        if (steed->data == &mons[PM_DEER]
+            || steed->data == &mons[PM_STAG])
+            continue;
         if (!is_drow(rider->data) && is_spider(steed->data))
             continue;
         if (!is_drow(rider->data)
@@ -111,8 +117,8 @@ struct monst *rider;
                 || steed->data == &mons[PM_SKELETAL_HORSE]
                 || steed->data == &mons[PM_SKELETAL_WARHORSE]))
             continue;
-        if (monnear(rider, steed->mx, steed->my) && mon_can_be_ridden(steed)
-            && !steed->ridden_by) {
+        if (monnear(rider, steed->mx, steed->my)
+            && mon_can_be_ridden(steed) && !steed->ridden_by) {
             break;
         }
     }
@@ -226,12 +232,36 @@ struct monst *mtmp;
     struct permonst *ptr = r_data(mtmp);
 
     return (index(steeds, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
-            && (!humanoid(ptr) || ptr->mlet == S_CENTAUR) && !amorphous(ptr)
-            && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr)
+            && (!humanoid(ptr) || ptr->mlet == S_CENTAUR)
+            && !amorphous(ptr) && !noncorporeal(ptr)
+            && !is_whirly(ptr) && !unsolid(ptr)
+            && !(ptr->mlet == S_QUADRUPED
+                 && mtmp->mnum != PM_ROTHE
+                 && mtmp->mnum != PM_LEOCROTTA
+                 && mtmp->mnum != PM_WUMPUS
+                 && mtmp->mnum != PM_MUMAK
+                 && mtmp->mnum != PM_TITANOTHERE
+                 && mtmp->mnum != PM_BALUCHITHERIUM
+                 && mtmp->mnum != PM_MASTODON
+                 && mtmp->mnum != PM_WOOLLY_MAMMOTH)
+            && !(ptr->mlet == S_UNICORN
+                 && mtmp->mnum != PM_PONY
+                 && mtmp->mnum != PM_HORSE
+                 && mtmp->mnum != PM_WARHORSE
+                 && mtmp->mnum != PM_LESSER_NIGHTMARE
+                 && mtmp->mnum != PM_NIGHTMARE
+                 && mtmp->mnum != PM_CAUCHEMAR
+                 && mtmp->mnum != PM_WHITE_UNICORN
+                 && mtmp->mnum != PM_GRAY_UNICORN
+                 && mtmp->mnum != PM_BLACK_UNICORN
+                 && mtmp->mnum != PM_PEGASUS
+                 && mtmp->mnum != PM_GREATER_PEGASUS
+                 && mtmp->mnum != PM_RED_HORSE)
             && !(ptr->mlet == S_JABBERWOCK
                  && mtmp->mnum != PM_JABBERWOCK
                  && mtmp->mnum != PM_VORPAL_JABBERWOCK)
-            && !(ptr->mlet == S_DOG && mtmp->mnum != PM_WARG)
+            && !(ptr->mlet == S_DOG
+                 && mtmp->mnum != PM_WARG)
             && !(ptr->mlet == S_SPIDER
                  && mtmp->mnum != PM_GIANT_SPIDER
                  && mtmp->mnum != PM_GARGANTUAN_SPIDER)
@@ -242,7 +272,8 @@ struct monst *mtmp;
                  && mtmp->mnum != PM_SKELETAL_PONY
                  && mtmp->mnum != PM_SKELETAL_HORSE
                  && mtmp->mnum != PM_SKELETAL_WARHORSE)
-            && !(ptr->mlet == S_FELINE && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
+            && !(ptr->mlet == S_FELINE
+                 && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
 }
 
 /* Can this monster wear barding? */
@@ -255,10 +286,33 @@ struct monst *mtmp;
     return (index(mbarding, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
             && !humanoid(ptr) && !amorphous(ptr)
             && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr)
+            && !(ptr->mlet == S_QUADRUPED
+                 && mtmp->mnum != PM_ROTHE
+                 && mtmp->mnum != PM_LEOCROTTA
+                 && mtmp->mnum != PM_WUMPUS
+                 && mtmp->mnum != PM_MUMAK
+                 && mtmp->mnum != PM_TITANOTHERE
+                 && mtmp->mnum != PM_BALUCHITHERIUM
+                 && mtmp->mnum != PM_MASTODON
+                 && mtmp->mnum != PM_WOOLLY_MAMMOTH)
+            && !(ptr->mlet == S_UNICORN
+                 && mtmp->mnum != PM_PONY
+                 && mtmp->mnum != PM_HORSE
+                 && mtmp->mnum != PM_WARHORSE
+                 && mtmp->mnum != PM_LESSER_NIGHTMARE
+                 && mtmp->mnum != PM_NIGHTMARE
+                 && mtmp->mnum != PM_CAUCHEMAR
+                 && mtmp->mnum != PM_WHITE_UNICORN
+                 && mtmp->mnum != PM_GRAY_UNICORN
+                 && mtmp->mnum != PM_BLACK_UNICORN
+                 && mtmp->mnum != PM_PEGASUS
+                 && mtmp->mnum != PM_GREATER_PEGASUS
+                 && mtmp->mnum != PM_RED_HORSE)
             && !(ptr->mlet == S_JABBERWOCK
                  && mtmp->mnum != PM_JABBERWOCK
                  && mtmp->mnum != PM_VORPAL_JABBERWOCK)
-            && !(ptr->mlet == S_DOG && mtmp->mnum != PM_WARG)
+            && !(ptr->mlet == S_DOG
+                 && mtmp->mnum != PM_WARG)
             && !(ptr->mlet == S_SPIDER
                  && mtmp->mnum != PM_GIANT_SPIDER
                  && mtmp->mnum != PM_GARGANTUAN_SPIDER)
@@ -269,7 +323,8 @@ struct monst *mtmp;
                  && mtmp->mnum != PM_SKELETAL_PONY
                  && mtmp->mnum != PM_SKELETAL_HORSE
                  && mtmp->mnum != PM_SKELETAL_WARHORSE)
-            && !(ptr->mlet == S_FELINE && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
+            && !(ptr->mlet == S_FELINE
+                 && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
 }
 
 int
