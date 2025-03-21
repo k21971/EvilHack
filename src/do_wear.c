@@ -2408,8 +2408,8 @@ boolean noisy;
         /* also handles bracers */
         if (uarms) {
             if (noisy)
-                already_wearing(is_bracer(otmp) ? c_bracers
-                                                : an(c_shield));
+                already_wearing(is_bracer(uarms) ? c_bracers
+                                                 : an(c_shield));
             err++;
         } else if (uwep && !is_bracer(otmp) && bimanual(uwep)) {
             if (noisy)

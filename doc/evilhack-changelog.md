@@ -4396,4 +4396,5 @@ The following changes to date are:
 - Fix: issue #181 (Convicts and killing hostile guards)
 - Fix: wrong alignment check with monsters wishing for an artifact
 - Fix: Knights could jump like they were wearing jumping boots
+- Fix: wrong feedback with 'You are already wearing' shield vs bracers
 
