@@ -3668,8 +3668,6 @@ int corpsecheck; /* 0, no check, 1, corpses, 2, tinnable corpses */
             pline("This grass tastes delicious!");
             lesshungry(20);
             return (struct obj *) 0;
-        } else if (c == 'n') {
-            goto skipfloor;
         } else if (c == 'q') {
             return (struct obj *) 0;
         }
