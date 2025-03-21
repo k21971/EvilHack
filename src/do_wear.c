@@ -1542,7 +1542,8 @@ register struct obj *obj;
     case RIN_STEALTH:
         if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))) {
             pline("This %s will not silence someone %s.",
-                  xname(obj), rn2(2) ? "as large as you" : "of your stature");
+                  xname(obj), rn2(2) ? "as large as you"
+                                     : "of your stature");
             EStealth &= ~W_RING;
         } else {
             toggle_stealth(obj, oldprop, TRUE);
@@ -1563,7 +1564,6 @@ register struct obj *obj;
         }
         break;
     case RIN_INVISIBILITY:
-    case RIN_LUSTROUS:
         if (!oldprop && !HInvis && !BInvis && !Blind) {
             learnring(obj, TRUE);
             newsym(u.ux, u.uy);
@@ -1578,6 +1578,21 @@ register struct obj *obj;
                 spoteffects(FALSE); /* for sinks */
         } else {
             float_vs_flight(); /* maybe toggle (BFlying & I_SPECIAL) */
+        }
+        break;
+    case RIN_LUSTROUS: /* grants invisibility and stealth */
+        if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))) {
+            pline_The("%s will not silence someone %s.",
+                      xname(obj), rn2(2) ? "as large as you"
+                                         : "of your stature");
+            EStealth &= ~W_RING;
+        } else {
+            toggle_stealth(obj, oldprop, TRUE);
+        }
+        if (!oldprop && !HInvis && !BInvis && !Blind) {
+            learnring(obj, TRUE);
+            newsym(u.ux, u.uy);
+            self_invis_message();
         }
         break;
     case RIN_GAIN_STRENGTH:
@@ -1677,7 +1692,6 @@ boolean gone;
         }
         break;
     case RIN_INVISIBILITY:
-    case RIN_LUSTROUS:
         if (!Invis && !BInvis && !Blind) {
             newsym(u.ux, u.uy);
             Your("body seems to unfade%s.",
@@ -1692,6 +1706,15 @@ boolean gone;
                 learnring(obj, TRUE);
         } else {
             float_vs_flight(); /* maybe toggle (BFlying & I_SPECIAL) */
+        }
+        break;
+    case RIN_LUSTROUS:
+        toggle_stealth(obj, (EStealth & ~mask), FALSE);
+        if (!Invis && !BInvis && !Blind) {
+            newsym(u.ux, u.uy);
+            Your("body seems to unfade%s.",
+                 See_invisible ? " completely" : "..");
+            learnring(obj, TRUE);
         }
         break;
     case RIN_GAIN_STRENGTH:

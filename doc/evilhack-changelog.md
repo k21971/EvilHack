@@ -4376,4 +4376,5 @@ The following changes to date are:
 - Fix: Knights could jump like they were wearing jumping boots
 - Fix: wrong feedback with 'You are already wearing' shield vs bracers
 - Fix: bears, deer were not meant to be ridden
+- Fix: 'moving silently' feedback not given when wearing the One Ring
 
