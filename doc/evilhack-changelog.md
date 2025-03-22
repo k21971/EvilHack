@@ -4379,4 +4379,5 @@ The following changes to date are:
 - Fix: 'moving silently' feedback not given when wearing the One Ring
 - Fix: if standing on grass, option to eat food/corpse on the ground was
   bypassed
+- Fix: improper handling of worn/wielded objects that break
 
