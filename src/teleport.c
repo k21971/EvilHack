@@ -559,7 +559,8 @@ struct obj *scroll;
         make_blinded(0L, FALSE);
 
     if (u.uhave.amulet || On_W_tower_level(&u.uz)
-        || (u.usteed && mon_has_amulet(u.usteed))) {
+        || (u.usteed && mon_has_amulet(u.usteed))
+        || (In_quest(&u.uz) && !quest_status.killed_nemesis)) {
         You_feel("disoriented for a moment.");
         if (!wizard || yn("Override?") != 'y')
             return FALSE;
@@ -848,10 +849,12 @@ level_tele()
     if ((u.uhave.amulet || In_endgame(&u.uz)
         || In_V_tower(&u.uz) || In_sokoban(&u.uz)
         || (Is_sanctum(&u.uz) && u.uachieve.amulet)
-        || In_purgatory(&u.uz))
-        && !wizard) {
+        || (u.usteed && mon_has_amulet(u.usteed))
+        || (In_quest(&u.uz) && !quest_status.killed_nemesis)
+        || In_purgatory(&u.uz))) {
         You_feel("very disoriented for a moment.");
-        return;
+        if (!wizard || yn("Override?") != 'y')
+            return;
     }
     /* Being in the presence of demon lords/princes can negate
        level teleportation most of the time */

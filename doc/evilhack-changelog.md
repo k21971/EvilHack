@@ -4404,4 +4404,6 @@ The following changes to date are:
 - Fix: improper handling of worn/wielded objects that break
 - Fix: Druids can't remove worn (merged) armor while in wildshape, take
   two
+- Prevent teleportation on the quest levels while the quest nemesis
+  still lives
 
