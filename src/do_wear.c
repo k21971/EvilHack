@@ -3643,6 +3643,9 @@ doddoremarm()
     } else if (Hidinshell) {
         You_cant("take off worn items while hiding in your shell.");
         return 0;
+    } else if (druid_form) {
+        You_cant("take off worn items while in wildshape.");
+        return 0;
     }
 
     add_valid_menu_class(0); /* reset */

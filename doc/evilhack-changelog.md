@@ -4402,4 +4402,6 @@ The following changes to date are:
 - Fix: if standing on grass, option to eat food/corpse on the ground was
   bypassed
 - Fix: improper handling of worn/wielded objects that break
+- Fix: Druids can't remove worn (merged) armor while in wildshape, take
+  two
 
