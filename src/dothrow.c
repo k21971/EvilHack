@@ -2724,14 +2724,43 @@ struct obj* obj;
     }
     if (ucarried) { /* hero's item */
         if (obj->quan == 1L) {
-            if (obj == uwep) {
-                unweapon = TRUE;
-            }
-            setworn(NULL, unwornmask);
+            /* weapon handling */
+            if (obj == uwep)
+                uwepgone();
+            if (u.twoweap && (obj == uswapwep))
+                uswapwepgone();
+            /* armor/accessory handling. some of these will
+               never be called currently (e.g. no such thing
+               as a glass cloak or t-shirt), but we'll cover
+               all the bases in case of future changes */
+            if (uarmf)
+                (void) Boots_off();
+            else if (uarmc)
+                (void) Cloak_off();
+            else if (uarmh)
+                (void) Helmet_off();
+            else if (uarmg)
+                (void) Gloves_off();
+            else if (uarms)
+                (void) Shield_off();
+            else if (uarmu)
+                (void) Shirt_off();
+            else if (uarm)
+                (void) Armor_gone();
+            else if (uamul)
+                (void) Amulet_off();
+            else if (uleft)
+                (void) Ring_gone(uleft);
+            else if (uright)
+                (void) Ring_gone(uright);
+            /* anything else not previously accounted for */
+            else
+                setworn((struct obj *) 0, unwornmask);
         }
         obj->ox = u.ux, obj->oy = u.uy;
     } else if (mcarried(obj)) { /* monster's item */
         struct monst *mon = obj->ocarry;
+
         if (obj->quan == 1L) {
             mon->misc_worn_check &= ~unwornmask;
             if (unwornmask & W_WEP) {
