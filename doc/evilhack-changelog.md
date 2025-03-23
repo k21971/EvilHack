@@ -4384,4 +4384,5 @@ The following changes to date are:
   two
 - Prevent teleportation on the quest levels while the quest nemesis
   still lives
+- Fix: missing 'iron' in static const struct icp metal_materials[]
 
