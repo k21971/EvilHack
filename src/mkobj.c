@@ -3454,7 +3454,8 @@ struct obj *otmp2;
 /* for objects which are normally iron or steel */
 static const struct icp metal_materials[] = {
     {600, 0}, /* default to base type, iron or steel */
-    {100, STEEL},
+    { 50, IRON},
+    { 50, STEEL},
     { 50, BRONZE},
     { 50, BONE},
     { 50, WOOD},
@@ -3665,8 +3666,9 @@ static const struct icp bracers_materials[] = {
 /* regular/spiked barding */
 static const struct icp barding_materials[] = {
     {400, 0}, /* default to base type, iron or steel */
-    {165, STEEL},
     {125, LEATHER},
+    {100, IRON},
+    { 65, STEEL},
     { 50, BRONZE},
     { 50, BONE},
     { 50, WOOD},
