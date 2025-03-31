@@ -4408,4 +4408,5 @@ The following changes to date are:
   still lives
 - Fix: missing 'iron' in static const struct icp metal_materials[]
 - Fix: twig blights to tree blights
+- Creeping mound minor changes
 

@@ -4106,11 +4106,11 @@ struct permonst _mons2[] = {
         A(ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_ENGL, AD_WRAP, 2, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(800, 500, MS_SILENT, MZ_LARGE),
-        MR_SLEEP | MR_POISON | MR_COLD | MR_FIRE, 0,
+        MR_SLEEP | MR_POISON | MR_COLD, 0,
         M1_BREATHLESS | M1_NOEYES | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE | M1_OMNIVORE,
         M2_WANDER | M2_HOSTILE | M2_STRONG | M2_NEUTER,
-        0, M4_VULNERABLE_ACID, 0, 7, CLR_YELLOW),
+        0, 0, 0, 7, CLR_YELLOW),
     MON("twig blight", S_PLANT, LVL(6, 10, 3, 15, -10),
         (G_NOHELL | G_SGROUP | G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_CLAW, AD_PHYS, 2, 4),
