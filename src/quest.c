@@ -277,6 +277,7 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
             const char *qa_name = artiname(urole.questarti),
                        *ldr_name = ldrname();
             char qbuf[BUFSZ];
+
             Sprintf(qbuf, "Forfeit %s to %s?", qa_name, ldr_name);
             /* quest leader decides they want the quest artifact */
             qt_pager(QT_WANTSIT);
@@ -405,7 +406,10 @@ chat_with_leader()
             if (is_quest_artifact(otmp))
                 break;
 
-        finish_quest(otmp);
+        if (!Qstat(pissed_off))
+            finish_quest(otmp);
+        else
+            verbalize("Your bones shall serve to warn others.");
 
     /* Rule 4: You haven't got the artifact yet. */
     } else if (Qstat(got_quest)) {
