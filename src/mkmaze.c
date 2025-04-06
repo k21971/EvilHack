@@ -555,7 +555,7 @@ fixup_special()
         for (tryct = rnd(4); tryct; tryct--) {
             x = somex(croom);
             y = somey(croom);
-            if (goodpos(x, y, (struct monst *) 0, 0)) {
+            if (goodpos(x, y, (struct monst *) 0, 0L)) {
                 otmp = mk_tt_object(STATUE, x, y);
                 while (otmp && (poly_when_stoned(&mons[otmp->corpsenm])
                                 || pm_resistance(&mons[otmp->corpsenm],

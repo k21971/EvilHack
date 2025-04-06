@@ -4389,4 +4389,5 @@ The following changes to date are:
 - Fix: prevent player from asking their quest leader to take the quest
   artifact multiple times
 - Fix: improper handling of worn/wielded objects that break, take two
+- goodpos() improvements (open air terrain)
 
