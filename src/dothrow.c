@@ -2731,29 +2731,26 @@ struct obj* obj;
                never be called currently (e.g. no such thing
                as a glass cloak or t-shirt), but we'll cover
                all the bases in case of future changes */
-            if (uarmf)
+            if (obj == uarmf)
                 (void) Boots_off();
-            else if (uarmc)
+            if (obj == uarmc)
                 (void) Cloak_off();
-            else if (uarmh)
+            if (obj == uarmh)
                 (void) Helmet_off();
-            else if (uarmg)
+            if (obj == uarmg)
                 (void) Gloves_off();
-            else if (uarms)
+            if (obj == uarms)
                 (void) Shield_off();
-            else if (uarmu)
+            if (obj == uarmu)
                 (void) Shirt_off();
-            else if (uarm)
+            if (obj == uarm)
                 (void) Armor_gone();
-            else if (uamul)
+            if (obj == uamul)
                 (void) Amulet_off();
-            else if (uleft)
+            if (obj == uleft)
                 (void) Ring_gone(uleft);
-            else if (uright)
+            if (obj == uright)
                 (void) Ring_gone(uright);
-            /* anything else not previously accounted for */
-            else
-                setworn((struct obj *) 0, unwornmask);
         }
         obj->ox = u.ux, obj->oy = u.uy;
     } else if (mcarried(obj)) { /* monster's item */
