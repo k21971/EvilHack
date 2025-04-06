@@ -3155,15 +3155,15 @@ unsigned gpflags;
 coord *cc;
 {
     int tryct = 0;
-    int nx,ny;
+    int nx, ny;
     boolean good;
 
     do {
         nx = rn1(COLNO - 3, 2);
         ny = rn2(ROWNO);
-        good = (!in_mklev && cansee(nx,ny)) ? FALSE
-                                            : goodpos(nx, ny, mon, gpflags);
-    } while ((++tryct < 50) && !good);
+        good = (!in_mklev && cansee(nx, ny)) ? FALSE
+                                             : goodpos(nx, ny, mon, gpflags);
+    } while ((++tryct < 500) && !good);
 
     if (!good) {
         /* else go through all map positions, twice, first round

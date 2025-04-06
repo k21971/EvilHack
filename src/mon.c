@@ -4937,7 +4937,7 @@ boolean move_other; /* make sure mtmp gets to x, y! so move m_at(x, y) */
 
     newx = x;
     newy = y;
-    if (!goodpos(newx, newy, mtmp, 0)) {
+    if (!goodpos(newx, newy, mtmp, 0L)) {
         /* Actually we have real problems if enexto ever fails.
          * Migrating_mons that need to be placed will cause
          * no end of trouble.

@@ -95,10 +95,13 @@ long gpflags;
             else
                 return (is_floater(mdat) || is_flyer(mdat)
                         || can_levitate(mtmp) || likes_lava(mdat));
+        } else if (is_open_air(x, y) && !ignoreair) {
+            if (mtmp == &youmonst)
+                return (Levitation || Flying);
+            else
+                return (is_flyer(mdat) || is_floater(mdat)
+                        || is_clinger(mdat) || can_levitate(mtmp));
         }
-        if (is_open_air(x, y) && !ignoreair)
-            return (is_flyer(mdat) || is_floater(mdat)
-                    || is_clinger(mdat) || can_levitate(mtmp));
         if (passes_walls(mdat) && may_passwall(x, y))
             return TRUE;
         if (amorphous(mdat) && closed_door(x, y))
@@ -293,7 +296,7 @@ boolean trapok;
         if (!trapok)
             return FALSE;
     }
-    if (!goodpos(x, y, &youmonst, 0))
+    if (!goodpos(x, y, &youmonst, 0L))
         return FALSE;
     if (!tele_jump_ok(u.ux, u.uy, x, y))
         return FALSE;
@@ -1268,7 +1271,7 @@ struct monst *mtmp;
 {
     register int xx, yy;
 
-    if (!goodpos(x, y, mtmp, 0))
+    if (!goodpos(x, y, mtmp, 0L))
         return FALSE;
     /*
      * Check for restricted areas present in some special levels.
@@ -1414,7 +1417,7 @@ boolean suppress_impossible;
         /* if the wiz teleports away to heal, try the up staircase,
            to block the player's escaping before he's healed
            (deliberately use `goodpos' rather than `rloc_pos_ok' here) */
-        if (goodpos(x, y, mtmp, 0))
+        if (goodpos(x, y, mtmp, 0L))
             goto found_xy;
     }
 
@@ -1423,14 +1426,14 @@ boolean suppress_impossible;
         x = rn1(COLNO - 3, 2);
         y = rn2(ROWNO);
         if ((trycount < 500) ? rloc_pos_ok(x, y, mtmp)
-                             : goodpos(x, y, mtmp, 0))
+                             : goodpos(x, y, mtmp, 0L))
             goto found_xy;
     } while (++trycount < 1000);
 
     /* last ditch attempt to find a good place */
     for (x = 2; x < COLNO - 1; x++)
         for (y = 0; y < ROWNO; y++)
-            if (goodpos(x, y, mtmp, 0))
+            if (goodpos(x, y, mtmp, 0L))
                 goto found_xy;
 
     /* level either full of monsters or somehow faulty */
@@ -1450,7 +1453,7 @@ struct monst *mtmp;
     struct mkroom *croom = search_special(VAULT);
     coord c;
 
-    if (croom && somexy(croom, &c) && goodpos(c.x, c.y, mtmp, 0)) {
+    if (croom && somexy(croom, &c) && goodpos(c.x, c.y, mtmp, 0L)) {
         rloc_to(mtmp, c.x, c.y);
         return;
     }
@@ -1635,7 +1638,7 @@ register struct obj *obj;
         ty = rn2(ROWNO);
         if (!--try_limit)
             break;
-    } while (!goodpos(tx, ty, (struct monst *) 0, 0)
+    } while (!goodpos(tx, ty, (struct monst *) 0, 0L)
              || (restricted_fall
                  && (!within_bounded_area(tx, ty, dndest.lx, dndest.ly,
                                           dndest.hx, dndest.hy)

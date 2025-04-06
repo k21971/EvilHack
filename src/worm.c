@@ -677,7 +677,7 @@ xchar x, y;
         /* pick a random direction from x, y and search for goodpos() */
         do {
             random_dir(ox, oy, &nx, &ny);
-        } while (!goodpos(nx, ny, worm, 0) && (tryct++ < 50));
+        } while (!goodpos(nx, ny, worm, 0L) && (tryct++ < 50));
 
         if (tryct < 50) {
             place_worm_seg(worm, nx, ny);

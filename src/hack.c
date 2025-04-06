@@ -94,7 +94,7 @@ const char *msg;
     /* this location might not be safe, if not, move revived monster */
     if (revived) {
         mtmp = m_at(x, y);
-        if (mtmp && !goodpos(x, y, mtmp, 0)
+        if (mtmp && !goodpos(x, y, mtmp, 0L)
             && enexto(&cc, x, y, mtmp->data)) {
             rloc_to(mtmp, cc.x, cc.y);
         }
@@ -2258,7 +2258,7 @@ domove_core()
                 upstart(y_monnam(mtmp)));
             didnt_move = TRUE;
         } else if (mtmp->mpeaceful
-                   && (!goodpos(u.ux0, u.uy0, mtmp, 0)
+                   && (!goodpos(u.ux0, u.uy0, mtmp, 0L)
                        || t_at(u.ux0, u.uy0) != NULL
                        || mundisplaceable(mtmp))) {
             /* displacing peaceful into unsafe or trapped space, or trying to
@@ -3488,7 +3488,7 @@ crawl_destination(x, y)
 int x, y;
 {
     /* is location ok in general? */
-    if (!goodpos(x, y, &youmonst, 0))
+    if (!goodpos(x, y, &youmonst, 0L))
         return FALSE;
 
     /* orthogonal movement is unrestricted when destination is ok */

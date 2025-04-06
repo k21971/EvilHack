@@ -1384,7 +1384,7 @@ struct engr *ep;
             return;
         tx = rn1(COLNO - 3, 2);
         ty = rn2(ROWNO);
-    } while (engr_at(tx, ty) || !goodpos(tx, ty, (struct monst *) 0, 0));
+    } while (engr_at(tx, ty) || !goodpos(tx, ty, (struct monst *) 0, 0L));
 
     ep->engr_x = tx;
     ep->engr_y = ty;
