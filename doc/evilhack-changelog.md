@@ -4390,4 +4390,5 @@ The following changes to date are:
   artifact multiple times
 - Fix: improper handling of worn/wielded objects that break, take two
 - goodpos() improvements (open air terrain)
+- Fix: starving re-tamed feral pet
 
