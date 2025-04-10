@@ -4391,4 +4391,6 @@ The following changes to date are:
 - Fix: improper handling of worn/wielded objects that break, take two
 - goodpos() improvements (open air terrain)
 - Fix: starving re-tamed feral pet
+- Fix: certain clinger monsters could still fall down a hole or
+  trap door
 
