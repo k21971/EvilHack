@@ -567,7 +567,7 @@ E void FDECL(newedog, (struct monst *));
 E void FDECL(free_edog, (struct monst *));
 E void FDECL(initedog, (struct monst *, BOOLEAN_P));
 E struct monst *FDECL(make_familiar,
-                      (struct obj *, XCHAR_P, XCHAR_P, BOOLEAN_P));
+                      (struct obj *, XCHAR_P, XCHAR_P, BOOLEAN_P, BOOLEAN_P));
 E struct monst *FDECL(make_helper, (int, XCHAR_P, XCHAR_P));
 E struct monst *FDECL(make_woodland_animal, (XCHAR_P, XCHAR_P));
 E struct monst *FDECL(make_elemental, (XCHAR_P, XCHAR_P));

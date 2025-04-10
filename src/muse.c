@@ -3072,14 +3072,16 @@ struct monst *mtmp;
         /* found an acceptable spot for the figurine to transform.
          * make_familiar will take care of the various checks for genocide,
          * extinction, etc, and print failure messages if appropriate. */
-        if (vismon)
+        if (vismon) {
             pline("%s activates a figurine, and it transforms!", Monnam(mtmp));
-        else
-            You_hear("a figurine being activated.");
+        } else {
+            if (!Deaf)
+                You_hear("a figurine being activated.");
+        }
         /* curse the figurine so that it will produce a hostile monster most
          * of the time */
         otmp->blessed = 0, otmp->cursed = 1;
-        (void) make_familiar(otmp, cc.x, cc.y, !vismon);
+        (void) make_familiar(otmp, cc.x, cc.y, !vismon, FALSE);
         m_useup(mtmp, otmp);
         return 2;
     }

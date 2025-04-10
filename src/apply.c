@@ -2355,7 +2355,7 @@ long timeout;
     }
 
     cansee_spot = cansee(cc.x, cc.y);
-    mtmp = make_familiar(figurine, cc.x, cc.y, TRUE);
+    mtmp = make_familiar(figurine, cc.x, cc.y, TRUE, TRUE);
     if (mtmp) {
         char and_vanish[BUFSZ];
         struct obj *mshelter = level.objects[mtmp->mx][mtmp->my];
@@ -2551,7 +2551,7 @@ struct obj **optr;
     } else
         You("%s and it %stransforms.", release_figurine,
             Blind ? "supposedly " : "");
-    (void) make_familiar(obj, cc.x, cc.y, FALSE);
+    (void) make_familiar(obj, cc.x, cc.y, FALSE, TRUE);
     if (idol) {
         obj->age = monstermoves + rnz(100);
         freeinv(obj);

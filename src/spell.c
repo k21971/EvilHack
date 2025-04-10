@@ -1688,7 +1688,7 @@ boolean wiz_cast;
         healup(0, 0, FALSE, TRUE);
         break;
     case SPE_CREATE_FAMILIAR:
-        (void) make_familiar((struct obj *) 0, u.ux, u.uy, FALSE);
+        (void) make_familiar((struct obj *) 0, u.ux, u.uy, FALSE, TRUE);
         break;
     case SPE_CLAIRVOYANCE:
         if (!BClairvoyant) {

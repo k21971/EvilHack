@@ -156,10 +156,11 @@ elemental()
 }
 
 struct monst *
-make_familiar(otmp, x, y, quietly)
+make_familiar(otmp, x, y, quietly, you)
 register struct obj *otmp;
 xchar x, y;
 boolean quietly;
+boolean you;
 {
     struct permonst *pm;
     struct monst *mtmp = 0;
@@ -244,6 +245,11 @@ boolean quietly;
            and various other creatures (see mondata.h) can't
            be tamed */
         if (non_tameable(mtmp->data))
+            chance = 2;
+
+        /* when adhering to petless conduct, if a monster activates
+           a figurine, it will always be hostile */
+        if (!(u.uconduct.pets && you))
             chance = 2;
 
         if (Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL

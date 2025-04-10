@@ -4414,4 +4414,6 @@ The following changes to date are:
 - Fix: improper handling of worn/wielded objects that break, take two
 - goodpos() improvements (open air terrain)
 - Fix: starving re-tamed feral pet
+- Monsters activating a figurine will always produce a hostile monster
+  if the player has adhered to petless conduct
 
