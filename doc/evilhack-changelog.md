@@ -4416,4 +4416,6 @@ The following changes to date are:
 - Fix: starving re-tamed feral pet
 - Monsters activating a figurine will always produce a hostile monster
   if the player has adhered to petless conduct
+- Fix: certain clinger monsters could still fall down a hole or
+  trap door
 

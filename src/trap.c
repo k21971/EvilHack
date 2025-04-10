@@ -2992,8 +2992,8 @@ register struct monst *mtmp;
                            defsyms[trap_to_defsym(tt)].explanation);
                 break; /* don't activate it after all */
             }
-            if (is_flyer(mptr) || is_floater(mptr) || can_levitate(mtmp)
-                || mptr == &mons[PM_WUMPUS]
+            if (is_flyer(mptr) || is_floater(mptr)
+                || can_levitate(mtmp) || is_clinger(mptr)
                 || (mtmp->wormno && count_wsegs(mtmp) > 5)
                 || mptr->msize >= MZ_HUGE) {
                 if (force_mintrap && !Sokoban) {
