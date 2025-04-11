@@ -1821,7 +1821,8 @@ int dieroll;
 
     /* potential for gloves with an object property
        to do additional damage */
-    if (!destroyed && !rn2(3) && hand_to_hand && !uwep && uarmg
+    if (!destroyed && !rn2(3)
+        && hand_to_hand && !uwep && !thievery && uarmg
         && (uarmg->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK))) {
         artifact_hit(&youmonst, mon, uarmg, &tmp, dieroll);
         hittxt = TRUE;
@@ -1847,7 +1848,7 @@ int dieroll;
     /* The Hand of Vecna imparts cold damage to attacks,
        whether bare-handed or wielding a weapon. Cold
        damage feedback is placed further down */
-    if (!destroyed && uarmg
+    if (!destroyed && uarmg && !thievery
         && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
         if (resists_cold(mon) || defended(mon, AD_COLD)) {
             shieldeff(mon->mx, mon->my);
@@ -2200,7 +2201,7 @@ int dieroll;
 
     /* feedback when 'wearing' the Hand of Vecna, placed here
        due to order of events */
-    if (!destroyed && uarmg
+    if (!destroyed && uarmg && !thievery
         && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
         if (!Blind)
             pline("%s covers %s in frost!", The(xname(uarmg)),
@@ -2333,7 +2334,7 @@ int dieroll;
     } else if (destroyed) { /* any function using tmp needs to be above this line */
         if (!already_killed)
             killed(mon); /* takes care of most messages */
-    } else if (u.umconf && hand_to_hand) {
+    } else if (u.umconf && hand_to_hand && !thievery) {
         nohandglow(mon);
         if (!mon->mconf && !resist(mon, SPBOOK_CLASS, 0, NOTELL)) {
             mon->mconf = 1;

@@ -4393,4 +4393,6 @@ The following changes to date are:
 - Fix: starving re-tamed feral pet
 - Fix: certain clinger monsters could still fall down a hole or
   trap door
+- Fix: effect damage from various objects/spells while using thievery
+  skill
 
