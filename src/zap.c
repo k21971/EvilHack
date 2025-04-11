@@ -876,10 +876,19 @@ boolean adjacentok; /* False: at obj's spot only, True: nearby is allowed */
         mtmp2->msick = 0;
         mtmp2->mwither = 0;
         mtmp2->mdiseased = 0;
+        mtmp2->vuln_fire = 0;
+        mtmp2->vuln_cold = 0;
+        mtmp2->vuln_elec = 0;
+        mtmp2->vuln_acid = 0;
         mtmp2->msummoned = 0;
         mtmp2->mberserk = 0;
         mtmp2->minsects = 0;
+        mtmp2->mprottime = 0;
+        mtmp2->mreflecttime = 0;
+        mtmp2->mbarkskintime = 0;
+        mtmp2->mstoneskintime = 0;
         mtmp2->mentangled = 0;
+        mtmp2->mbreakboulder = 0;
         mtmp2->uexp = 0;
         /* when traits are for a shopeekper, dummy monster 'mtmp' won't
            have necessary eshk data for replmon() -> replshk() */

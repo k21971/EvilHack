@@ -4420,4 +4420,5 @@ The following changes to date are:
   trap door
 - Fix: effect damage from various objects/spells while using thievery
   skill
+- Fix: monsters breaking boulders fixes
 

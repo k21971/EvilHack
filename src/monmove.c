@@ -90,12 +90,12 @@ struct monst *mtmp;
     return (!mtmp->mpeaceful
             && (is_rider(mtmp->data)
                 || (MON_WEP(mtmp) && is_pick(MON_WEP(mtmp)))
-                || (!mtmp->mspec_used
+                || (!mtmp->mbreakboulder
                     && (is_dprince(mtmp->data)
                         || is_dlord(mtmp->data)
                         || mtmp->isshk
                         || mtmp->ispriest
-                        || mtmp->isqldr
+                        || mtmp->data->msound == MS_LEADER
                         || mtmp->data->msound == MS_NEMESIS
                         || mtmp->data == &mons[PM_ORACLE]))));
 }
@@ -128,14 +128,11 @@ xchar x, y;
                                          : "an incantation");
             }
         }
-        /* TODO: create a new timer specifically for
-           breaking boulders, as mspec_used affects
-           monster spellcasting */
         if (!is_rider(mtmp->data)) {
             if (unique_corpstat(mtmp->data))
-                mtmp->mspec_used += rn1(4, 2);
+                mtmp->mbreakboulder += rn1(4, 2);
             else
-                mtmp->mspec_used += rn1(20, 10);
+                mtmp->mbreakboulder += rn1(20, 10);
         }
         if (cansee(x, y))
             pline_The("boulder falls apart.");
@@ -293,6 +290,8 @@ boolean digest_meal;
         mon->mhp++;
     if (mon->mspec_used)
         mon->mspec_used--;
+    if (mon->mbreakboulder)
+        mon->mbreakboulder--;
     if (mon->msummoned)
         mon->msummoned--;
     if (mon->msicktime)
