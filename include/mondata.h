@@ -134,7 +134,8 @@
      || (ptr) == &mons[PM_ARCHANGEL] || (ptr) == &mons[PM_ARCHON]    \
      || (ptr) == &mons[PM_LUCIFER])
 #define is_floater(ptr) \
-    ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
+    ((ptr)->mlet == S_EYE                               \
+     || (ptr)->mlet == S_LIGHT || (ptr)->mlet == S_ORB)
 /* clinger: piercers, mimics, wumpus -- generally don't fall down holes */
 #define is_clinger(ptr) (((ptr)->mflags1 & M1_CLING) != 0L)
 #define grounded(ptr) (!is_flyer(ptr) && !is_floater(ptr) && !is_clinger(ptr))
@@ -185,7 +186,8 @@
     ((ptr) == &mons[PM_FIRE_VORTEX] || (ptr) == &mons[PM_FLAMING_SPHERE]   \
      || (ptr) == &mons[PM_FIRE_ELEMENTAL] || (ptr) == &mons[PM_SALAMANDER] \
      || (ptr) == &mons[PM_LAVA_DEMON] || (ptr) == &mons[PM_LAVA_GREMLIN]   \
-     || (ptr) == &mons[PM_BALROG] || (ptr) == &mons[PM_MEPHISTOPHELES])
+     || (ptr) == &mons[PM_BALROG] || (ptr) == &mons[PM_MEPHISTOPHELES]     \
+     || (ptr) == &mons[PM_ORB_OF_FIRE])
 #define is_silent(ptr) ((ptr)->msound == MS_SILENT)
 #define unsolid(ptr) (((ptr)->mflags1 & M1_UNSOLID) != 0L)
 #define mindless(ptr) (((ptr)->mflags1 & M1_MINDLESS) != 0L)
@@ -571,6 +573,7 @@
 #define emits_light(ptr) \
     (((ptr)->mlet == S_LIGHT                          \
       || (ptr) == &mons[PM_FLAMING_SPHERE]            \
+      || (ptr) == &mons[PM_ORB_OF_FIRE]               \
       || (ptr) == &mons[PM_SHOCKING_SPHERE]           \
       || (ptr) == &mons[PM_FIRE_VORTEX])              \
          ? 1                                          \
@@ -597,7 +600,7 @@
 /* could probably add more */
 #define likes_fire(ptr) \
     ((ptr) == &mons[PM_FIRE_VORTEX] || (ptr) == &mons[PM_FLAMING_SPHERE] \
-     || likes_lava(ptr))
+     || (ptr) == &mons[PM_ORB_OF_FIRE] || likes_lava(ptr))
 
 #define likes_ice(ptr) \
     ((ptr) == &mons[PM_FROST_SALAMANDER])
@@ -618,7 +621,8 @@
      || (ptr) == &mons[PM_SHADOW_DRAGON])
 
 /* used to vary a few messages */
-#define weirdnonliving(ptr) (is_golem(ptr) || (ptr)->mlet == S_VORTEX)
+#define weirdnonliving(ptr) \
+    (is_golem(ptr) || (ptr)->mlet == S_VORTEX || (ptr)->mlet == S_ORB)
 #define nonliving(ptr) \
     (is_undead(ptr) || (ptr) == &mons[PM_MANES] || weirdnonliving(ptr))
 

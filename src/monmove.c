@@ -1426,8 +1426,8 @@ register int after;
 
         if (!mtmp->mcansee
             || (should_see && Invis && !mon_prop(mtmp, SEE_INVIS) && rn2(11))
-            || is_obj_mappear(&youmonst,STRANGE_OBJECT) || u.uundetected
-            || (is_obj_mappear(&youmonst,GOLD_PIECE) && !likes_gold(ptr))
+            || is_obj_mappear(&youmonst, STRANGE_OBJECT) || u.uundetected
+            || (is_obj_mappear(&youmonst, GOLD_PIECE) && !likes_gold(ptr))
             || (mtmp->mpeaceful && !mtmp->isshk) /* allow shks to follow */
             || ((monsndx(ptr) == PM_STALKER || ptr->mlet == S_BAT
                  || ptr->mlet == S_LIGHT) && !rn2(3)))

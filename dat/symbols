@@ -247,6 +247,7 @@ start: Blank
         S_ndoor: \032
         S_nymph: \032
         S_ogre: \032
+        S_orb: \032
         S_orc: \032
         S_piercer: \032
         S_pit: \032
@@ -379,6 +380,7 @@ start: IBMgraphics
 #	Monster symbols
 	S_ent: \xf1			# plus or minus symbol
 	S_plant: \x9c			# pound symbol (currency)
+	S_orb: \xf8			# degree symbol
 finish
 
 start: IBMGraphics_1
@@ -404,6 +406,7 @@ start: IBMGraphics_1
 #	Monster symbols
 	S_ent: \xf1			# plus or minus symbol
 	S_plant: \x9c			# pound symbol (currency)
+	S_orb: \xf8			# degree symbol
 finish
 
 start: IBMGraphics_2
@@ -433,6 +436,7 @@ start: IBMGraphics_2
 #	Monster symbols
 	S_ent: \xf1			# plus or minus symbol
 	S_plant: \x9c			# pound symbol (currency)
+	S_orb: \xf8			# degree symbol
 finish
 
 start: RogueIBM
@@ -606,6 +610,7 @@ start: curses
 #	Monster symbols
 	S_ent: \xe7			# meta-g, plus or minus sign
 	S_plant: \xfd			# pound sign (currency)
+	S_orb: \xe6			# degree sign
 finish
 
 start: DECgraphics
@@ -656,6 +661,7 @@ start: DECgraphics
 #	Monster symbols
 	S_ent: \xe7			# meta-g, plus or minus
 	S_plant: \xfd			# pound (currency)
+	S_orb: \xe6			# degree
 finish
 
 start: MACgraphics
@@ -689,6 +695,7 @@ start: MACgraphics
 #	Monster symbols
 	S_ent: \xf1			# plus-or-minus
 	S_plant: \x9c			# pound symbol (currency)
+	S_orb: \xf8			# degree symbol
 finish
 
 # symbols EOF

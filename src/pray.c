@@ -1553,7 +1553,7 @@ aligntyp g_align;
                              || carrying(MAGIC_MARKER)) && u.uconduct.literate)
                             break;
                     }
-                    otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_FREEZE_SPHERE);
+                    otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_ORB_OF_FROST);
                     set_material(otmp, objects[otmp->otyp].oc_material);
                 }
                 if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
@@ -2469,7 +2469,7 @@ dosacrifice()
                                                 break;
                                         }
                                         /* Druid/evocation spells purposely ommitted */
-                                        otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_FREEZE_SPHERE);
+                                        otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_ORB_OF_FROST);
                                         set_material(otmp, objects[otmp->otyp].oc_material);
                                     }
 
@@ -2568,7 +2568,7 @@ dosacrifice()
                             if (primary_casters_druid)
                                 otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_SUMMON_ELEMENTAL);
                             else
-                                otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_FREEZE_SPHERE);
+                                otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_ORB_OF_FROST);
                             set_material(otmp, objects[otmp->otyp].oc_material);
                         }
 

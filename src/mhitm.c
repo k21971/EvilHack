@@ -277,7 +277,7 @@ register struct monst *mtmp;
          */
         if (mon != mtmp && !DEADMONSTER(mon)) {
             if (monnear(mtmp, mon->mx, mon->my)) {
-                if (!conflict && !mm_aggression(mtmp, mon))
+                if (!(conflict && mm_aggression(mtmp, mon)))
                     continue;
                 if (!u.uswallow && (mtmp == u.ustuck)) {
                     if (!rn2(4)) {
@@ -1280,9 +1280,26 @@ struct attack *mattk;
         if (was_leashed)
             Your("leash falls slack.");
     }
-    /* KMH -- Player gets blame for flame/freezing sphere */
-    if (magr->msummoned && !(result & MM_DEF_DIED))
-        setmangry(mdef, TRUE);
+    /* Player can potentially get the blame for orbs of fire/frost */
+    if (magr->msummoned && !(result & MM_DEF_DIED)) {
+        if (P_SKILL(P_MATTER_SPELL) < P_BASIC) {
+            /* no skill, potential alignment record ding */
+            setmangry(mdef, TRUE);
+        } else {
+            if (mdef->mpeaceful) {
+                /* peaceful becomes hostile, but no alignment record ding */
+                mdef->mpeaceful = 0;
+                newsym(mdef->mx, mdef->my);
+                if (canspotmon(mdef)) {
+                    if (humanoid(mdef->data)
+                        || mdef->isshk || mdef->isgd)
+                        pline("%s gets agitated!", Monnam(mdef));
+                    else if (flags.verbose && !Deaf)
+                        growl(mdef);
+                }
+            }
+        }
+    }
     if (magr->mtame && !magr->msummoned) /* give this one even if it was visible */
         You(brief_feeling, "melancholy");
 

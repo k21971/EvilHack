@@ -1474,6 +1474,7 @@ enum on_fire_types attktype;
 
     switch (monsndx(mptr->data)) {
     case PM_FLAMING_SPHERE:
+    case PM_ORB_OF_FIRE:
     case PM_FIRE_VORTEX:
     case PM_FIRE_ELEMENTAL:
     case PM_SALAMANDER:
@@ -1502,6 +1503,7 @@ enum on_fire_types attktype;
     case PM_SNOW_GOLEM:
     case PM_ABOMINABLE_SNOWMAN:
     case PM_FREEZING_SPHERE:
+    case PM_ORB_OF_FROST:
         /* Melts and then boils away or evaporates. */
         switch (attktype) {
         case ON_FIRE_DEAD:

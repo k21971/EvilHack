@@ -72,11 +72,12 @@ enum mon_class_types {
     S_LIZARD     = 58, /* : (reptiles) */
     S_ENT        = 59, /* # (tree-like) */
     S_PLANT      = 60, /* { (plants, vines) */
+    S_ORB        = 61, /* 8 (summoned orbs) */
 
-    S_WORM_TAIL  = 61, /* ~ */
-    S_MIMIC_DEF  = 62, /* ] */
+    S_WORM_TAIL  = 62, /* ~ */
+    S_MIMIC_DEF  = 63, /* ] */
 
-    MAXMCLASSES  = 63  /* number of monster classes */
+    MAXMCLASSES  = 64  /* number of monster classes */
 };
 
 /*
@@ -143,6 +144,7 @@ enum mon_class_types {
 #define DEF_LIZARD      ':'
 #define DEF_ENT         '#'
 #define DEF_PLANT       '{'
+#define DEF_ORB         '8'
 
 #define DEF_INVISIBLE   'I'
 #define DEF_WORM_TAIL   '~'

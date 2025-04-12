@@ -1772,12 +1772,12 @@ boolean wiz_cast;
     case SPE_CREATE_TREES:
         cast_create_trees();
         break;
-    case SPE_FLAME_SPHERE:
-    case SPE_FREEZE_SPHERE:
+    case SPE_ORB_OF_FIRE:
+    case SPE_ORB_OF_FROST:
         You("conjure elemental energy...");
         for (n = 0; n < max(role_skill - 1, 1); n++) {
-            mtmp = make_helper((pseudo->otyp == SPE_FLAME_SPHERE) ?
-                               PM_FLAMING_SPHERE : PM_FREEZING_SPHERE, u.ux, u.uy);
+            mtmp = make_helper((pseudo->otyp == SPE_ORB_OF_FIRE) ?
+                               PM_ORB_OF_FIRE : PM_ORB_OF_FROST, u.ux, u.uy);
             if (!mtmp) {
                 pline("But it quickly fades away.");
                 break;

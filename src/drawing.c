@@ -119,6 +119,7 @@ const struct class_sym def_monsyms[MAXMCLASSES] = {
     { DEF_LIZARD, "", "lizard" },
     { DEF_ENT, "", "tree-like creature" },
     { DEF_PLANT, "", "plant-like creature" },
+    { DEF_ORB, "", "summoned orb" },
     { DEF_WORM_TAIL, "", "long worm tail" },
     { DEF_MIMIC_DEF, "", "mimic" },
 };
@@ -838,6 +839,7 @@ struct symparse loadsyms[] = {
     { SYM_MON, S_LIZARD + SYM_OFF_M, "S_lizard" },
     { SYM_MON, S_ENT + SYM_OFF_M, "S_ent" },
     { SYM_MON, S_PLANT + SYM_OFF_M, "S_plant" },
+    { SYM_MON, S_ORB + SYM_OFF_M, "S_orb" },
     { SYM_MON, S_WORM_TAIL + SYM_OFF_M, "S_worm_tail" },
     { SYM_MON, S_MIMIC_DEF + SYM_OFF_M, "S_mimic_def" },
     { SYM_OTH, SYM_BOULDER + SYM_OFF_X, "S_boulder" },

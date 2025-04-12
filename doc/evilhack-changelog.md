@@ -4421,4 +4421,5 @@ The following changes to date are:
 - Fix: effect damage from various objects/spells while using thievery
   skill
 - Fix: monsters breaking boulders fixes
+- Revamp the spells 'flame sphere' and 'freeze sphere'
 

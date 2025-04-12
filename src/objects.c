@@ -1192,11 +1192,11 @@ SPELL("burning hands",    "crinkled",
       P_ENCHANTMENT_SPELL, 20,  2, 1, 1, NODIR, CLR_RED),
 SPELL("shocking grasp",   "warped",
       P_ENCHANTMENT_SPELL, 15,  2, 2, 1, NODIR, CLR_BRIGHT_BLUE),
-/* from slash'em, create a tame critter which explodes when attacking,
-   damaging adjacent creatures--friend or foe--and dying in the process */
-SPELL("flame sphere",     "canvas",
+/* from slash'em (modified), create a tame critter which explodes when
+   attacking, damaging adjacent creatures and dying in the process */
+SPELL("orb of fire",      "canvas",
       P_MATTER_SPELL,      15,  2, 2, 1, NODIR, CLR_BROWN),
-SPELL("freeze sphere",    "hardcover",
+SPELL("orb of frost",     "hardcover",
       P_MATTER_SPELL,      15,  2, 2, 1, NODIR, CLR_BROWN),
 /* Druid spells, sans 'Finger of Death' (ray-based spells
    need to stay grouped together) */

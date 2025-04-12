@@ -6045,14 +6045,6 @@ spellbook of fireball
 
 	Objects caught in the path of the ray or firey explosions are
 	subject to fire damage if they are not resistant.
-spellbook of flame sphere
-	This spell is a level two matter spell.  When cast, a single
-	tame flaming sphere monster is spawned, which will seek out
-	any nearby non-tame monsters to explode next to.  Unlike other
-	tane pets, any damage caused by the exploding flaming sphere
-	is handled as if the caster were to blame.  Experience gained
-	from any monsters killed by the flaming sphere goes to the
-	caster.
 spellbook of force bolt
 	This is a level one attack spell.  When cast, an invisible beam
 	of force travels from the caster to its intended target (line
@@ -6065,14 +6057,6 @@ spellbook of force bolt
 	Fragile objects and several terrain features within the path of
 	a force bolt can be destroyed (potions, objects made of glass,
 	boulders, statues, doors, iron bars, etc).
-spellbook of freeze sphere
-	This spell is a level two matter spell.  When cast, a single
-	tame freezing sphere monster is spawned, which will seek out
-	any nearby non-tame monsters to explode next to.  Unlike other
-	tane pets, any damage caused by the exploding freezing sphere
-	is handled as if the caster were to blame.  Experience gained
-	from any monsters killed by the freezing sphere goes to the
-	caster.
 spellbook of haste self
 	This spell is a level three escape spell.  When cast, the
 	caster temporarily gains very fast speed movement, the
@@ -6170,6 +6154,20 @@ spellbook of magic missile
 
 	Knights in possession of the Magic Mirror of Merlin cause
 	double damage when casting this spell.  
+spellbook of orb of fire
+	This spell is a level two matter spell.  When cast, a single
+	'tame' orb of fire is spawned, which will seek out any nearby
+	non-tame monsters to explode next to.  Unlike other tame pets,
+	any damage caused by the exploding orb of fire is handled as if
+	the caster were to blame.  Experience gained from any monsters
+	killed by the orb of fire goes to the caster.
+spellbook of orb of frost
+	This spell is a level two matter spell.  When cast, a single
+	'tame' orb of frost is spawned, which will seek out any nearby
+	non-tame monsters to explode next to.  Unlike other tame pets,
+	any damage caused by the exploding orb of frost is handled as if
+	the caster were to blame.  Experience gained from any monsters
+	killed by the orb of frost goes to the caster.
 spellbook of poison blast
 	This spell is a level five attack spell.  When cast as unskilled
 	or basic in attack spells, this spell creates a ray of poison

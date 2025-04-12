@@ -416,7 +416,7 @@ NEARDATA struct permonst mons[] = {
         SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_COLD, MR_COLD,
         M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOHEAD | M1_MINDLESS
             | M1_NOTAKE,
-        M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE,
+        M2_HOSTILE | M2_NEUTER, 0,
         M4_VULNERABLE_FIRE, 0, 8, CLR_WHITE),
     MON("flaming sphere", S_EYE, LVL(6, 13, 4, 0, 0),
         (G_NOCORPSE | 2),
@@ -4141,6 +4141,25 @@ struct permonst _mons2[] = {
             | M1_MINDLESS | M1_NOTAKE,
         M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NEUTER,
         M3_STATIONARY, 0, 0, 12, CLR_BRIGHT_GREEN),
+    /* summoned orbs */
+    MON("orb of frost", S_ORB, LVL(6, 15, 10, 0, 0),
+        (G_NOGEN | G_NOCORPSE),
+        A(ATTK(AT_EXPL, AD_COLD, 4, 6), ATTK(AT_BOOM, AD_COLD, 4, 6), NO_ATTK,
+          NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_COLD, MR_COLD,
+        M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOEYES | M1_NOHEAD
+            | M1_MINDLESS | M1_NOTAKE,
+        M2_NOPOLY | M2_HOSTILE | M2_NEUTER, 0,
+        M4_VULNERABLE_FIRE, 0, 8, DRAGON_SILVER),
+    MON("orb of fire", S_ORB, LVL(6, 15, 10, 0, 0),
+        (G_NOGEN | G_NOCORPSE),
+        A(ATTK(AT_EXPL, AD_FIRE, 4, 6), ATTK(AT_BOOM, AD_FIRE, 4, 6), NO_ATTK,
+          NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(10, 10, MS_SILENT, MZ_SMALL), MR_FIRE, MR_FIRE,
+        M1_FLY | M1_BREATHLESS | M1_NOLIMBS | M1_NOEYES | M1_NOHEAD
+            | M1_MINDLESS | M1_NOTAKE,
+        M2_NOPOLY | M2_HOSTILE | M2_NEUTER, M3_INFRAVISIBLE,
+        M4_VULNERABLE_COLD, 0, 9, CLR_RED),
     /*
      * These MUST come before "long worm tail"
      * otherwise they will never randomly spawn.

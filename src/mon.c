@@ -2991,14 +2991,14 @@ struct monst *magr, /* monster that is currently deciding where to move */
     if (ma->msound == MS_SOLDIER && md->msound == MS_SOLDIER)
         return 0;
 
-    /* Priests which follow the same god are willing to set aside their petty
-     * racial differences in his/her name */
+    /* Priests which follow the same god are willing to set aside their
+     * petty racial differences in his/her name */
     if (ma->msound == MS_PRIEST && md->msound == MS_PRIEST
         && mon_aligntyp(magr) == mon_aligntyp(mdef))
         return 0;
 
-    /* minetown watch and resident shopkeepers/priests have an uneasy truce
-     * due to their shared goal of keeping the town running */
+    /* minetown watch and resident shopkeepers/priests have an uneasy
+     * truce due to their shared goal of keeping the town running */
     if (((ma->msound == MS_SELL || ma->msound == MS_PRIEST)
          && is_watch(md))
         || ((md->msound == MS_SELL || md->msound == MS_PRIEST)
@@ -3023,7 +3023,8 @@ struct monst *magr, /* monster that is currently deciding where to move */
         return ALLOW_M | ALLOW_TM;
 
     /* insect-eating bugs vs insects */
-    if (ma->mlet == S_SPIDER && (md->mlet == S_ANT || md->mlet == S_XAN))
+    if (ma->mlet == S_SPIDER
+        && (md->mlet == S_ANT || md->mlet == S_XAN))
         return ALLOW_M | ALLOW_TM;
 
     /* bats vs flying insects */
@@ -3093,7 +3094,8 @@ struct monst *magr, /* monster that is currently deciding where to move */
         return ALLOW_M | ALLOW_TM;
 
     /* now test all two-way aggressions both ways */
-    return (mm_2way_aggression(magr, mdef) | mm_2way_aggression(mdef, magr));
+    return (mm_2way_aggression(magr, mdef)
+            | mm_2way_aggression(mdef, magr));
 }
 
 /* Monster displacing another monster out of the way */
@@ -4294,11 +4296,13 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                                  && (mtmp->isgd || is_watch(mtmp->data)))));
     boolean uni_same = (is_unicorn(mtmp->data)
                         && sgn(u.ualign.type) == sgn(mtmp->data->maligntyp));
+    boolean orb = (mtmp->data->mlet == S_ORB);
 
     mtmp->mhp = 0; /* caller will usually have already done this */
-    if (!noconduct) /* KMH, conduct */
+    if (!noconduct) { /* KMH, conduct */
         if (!u.uconduct.killer++)
             livelog_write_string (LL_CONDUCT, "killed for the first time");
+    }
 
     if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
         && u.uachieve.defeat_icequeen)
@@ -4313,8 +4317,9 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
             !(wasinside || canspotmon(mtmp)) ? "it"
               : !mtmp->mtame ? mon_nam(mtmp)
                 : x_monnam(mtmp, namedpet ? ARTICLE_NONE : ARTICLE_THE,
-                           "poor", namedpet ? (SUPPRESS_SADDLE | SUPPRESS_BARDING)
-                                            : 0, FALSE));
+                           orb ? "conjured" : "poor",
+                           namedpet ? (SUPPRESS_SADDLE | SUPPRESS_BARDING)
+                                    : 0, FALSE));
     }
 
     if (mtmp->mtrapped && (t = t_at(x, y)) != 0
@@ -4553,7 +4558,9 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
         else if (u.ualign.type == A_NONE && mdat->maligntyp == A_LAWFUL)
             adjalign((int) (ALIGNLIM / 4)); /* Infidel-only BIG bonus */
     } else if (mtmp->mtame) {
-        if (u.ualign.type == A_NONE) {
+        if (orb) {
+            ; /* no effect */
+        } else if (u.ualign.type == A_NONE) {
             if (canspotmon(mtmp))
                 You_feel("a bit remorseful.");
             else
@@ -4568,7 +4575,9 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
         }
         /* your god is mighty displeased... */
         if (!Deaf) {
-            if (!Hallucination) {
+            if (orb) {
+                ; /* no effect */
+            } else if (!Hallucination) {
                 if (u.ualign.type == A_NONE)
                     You_hear("sinister laughter off in the distance...");
                 else
@@ -4579,10 +4588,14 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
         }
         if (!unique_corpstat(mdat)) {
             boolean mname = has_mname(mtmp);
-            livelog_printf(LL_KILLEDPET, "murdered %s%s%s faithful %s",
-                           mname ? MNAME(mtmp) : "",
-                           mname ? ", " : "",
-                           uhis(), mdat->mname);
+
+            if (orb)
+                ; /* no effect */
+            else
+                livelog_printf(LL_KILLEDPET, "murdered %s%s%s faithful %s",
+                               mname ? MNAME(mtmp) : "",
+                               mname ? ", " : "",
+                               uhis(), mdat->mname);
         }
     } else if (mtmp->mpeaceful) {
         if (u.ualign.type != A_NONE) {
@@ -5134,6 +5147,7 @@ boolean via_attack;
               && context.forcefight && !Upolyd))) {
         struct permonst* oracle = &mons[PM_ORACLE];
         struct permonst* charon = &mons[PM_CHARON];
+
         mtmp->mstrategy &= ~STRAT_WAITMASK;
         if (!mtmp->mpeaceful)
             return;
