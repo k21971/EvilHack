@@ -4422,4 +4422,6 @@ The following changes to date are:
   skill
 - Fix: monsters breaking boulders fixes
 - Revamp the spells 'flame sphere' and 'freeze sphere'
+- Fix: feedback regarding the Bell of Opening when the quest leader
+  demands return of the quest artifact
 

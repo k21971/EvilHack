@@ -310,8 +310,8 @@ that you resumed your expedition for the Amulet.
 %l looks intently at %o.
 
 "Well done, %p.  You have defeated %n and
-recovered %o, and we have lifted the curse from
-the silver bell.  Alas, I fear that %o shall
+recovered %o, and we are ready to lift the curse
+from the silver bell.  Alas, I fear that %o shall
 never be truly safe unless it is kept here with
 us at %H.
 
@@ -596,8 +596,8 @@ brought you here."
 %l gazes intently at %o, then back at you
 
 "Well done, %p.  You have defeated %n and
-recovered %o, and we have lifted the curse from
-the silver bell.  Alas, I fear that %o shall
+recovered %o, and we are ready to lift the curse
+from the silver bell.  Alas, I fear that %o shall
 never be truly safe unless it is kept here with
 us at %H.
 
@@ -874,8 +874,8 @@ Him look at you and say:
 
     You have it!  We saved now.  But me fear that Bad
     People still want to take it from us.  Me decide that
-    %o stay here with us in cave.  Curse gone from
-    silver bell, you take it.
+    %o stay here with us in cave.  Me ready to take
+    curse from silver bell, then you take it.
 
     You give %o to us now.
 %E ["%lC tells you to give him %o."]
@@ -1197,7 +1197,7 @@ of Yendor."
 with fondness.
 "Great job, %p.  You have defeated %n and
 recovered %o, and
-we have lifted the curse from the silver bell.
+we are ready to lift the curse from the silver bell.
 However, I fear that %o
 will never be truly safe unless it is kept here
 with us at %H.
@@ -1492,7 +1492,7 @@ the curse on the silver bell and you may carry both back into
 They glitter under %nj touch.  %nH shakes her head sadly.
 
 "You have defeated %n, %p, and your Circle is grateful.
-I can now lift the curse on the silver bell.  However,
+I am now ready to lift the curse on the silver bell.  However,
 %o must remain here with me as I work to
 remove the corruption that has been laid over %H.
 
@@ -1788,7 +1788,7 @@ through the magic portal which brought you here."
 %l looks intently at %o.
 
 "Well done, %p.  You have defeated %n and
-recovered %o, and we have lifted
+recovered %o, and we are ready to lift
 the curse from the silver bell.  Alas, I fear
 that %o shall never be truly
 safe unless it is kept here with us
@@ -2173,9 +2173,9 @@ the magic portal that brought you here."
 %lC stares intently at %o.
 
 "Impressive, %p.  You have defeated %n and
-recovered %oh, and we have restored the silver bell.
-However, I have lost confidence in you %p.  I will
-deliver %oh to %ds Sanctum myself.
+recovered %oh, and we can soon restore the silver
+bell.  However, I have lost confidence in you %p.
+I will deliver %oh to %ds Sanctum myself.
 
 %pC, give %oh to me, now!
 %E ["%lC demands that you forfeit %oh."]
@@ -2452,8 +2452,8 @@ return through the magic portal that brought thee here."
 %l gazes intently at %o.
 
 "Thou hast done well, %p.  Thou hast defeated
-%n and recovered %o, and We hast lifted the curse
-from the silver bell.  Alas, We fear that %o shall
+%n and recovered %o, and We can soon lift the
+curse from the silver bell.  Alas, We fear that %o shall
 ne'r be forsooth safe 'lest it is kept hither with
 Us at %H.
 
@@ -2727,8 +2727,8 @@ your return through the magic portal that brought you here."
 then returns his gaze to you.
 
 "Well done, %p.  You have defeated %n and
-recovered %o, and I have lifted the curse from
-the silver bell.  However, %d has
+recovered %o, and I am prepared to lift the
+curse from the silver bell.  However, %d has
 directed that %o shall be kept
 here with us at %H.
 
@@ -3005,7 +3005,7 @@ that brought you here."
 Congratulations.
 
 "Well done, %p.  You have defeated %n and recovered
-%o, and I have lifted the curse from
+%o, and I am ready to dispel the curse from
 the silver bell.  However, %d has directed that
 %o shall be kept here with us at %H.
 
@@ -3289,8 +3289,8 @@ through the magic portal that brought you here."
 %l inspects %o reverently.
 
 "Well done, %p.  You have defeated %n and
-recovered %o, and we have lifted the curse from
-the silver bell.  Alas, I fear that %o shall
+recovered %o, and we are ready to lift the curse
+from the silver bell.  Alas, I fear that %o shall
 never be truly safe unless it is kept here with
 us at %H.
 
@@ -3557,7 +3557,7 @@ he's about to take it from you.
 
 "Leave %o, you're not taking it with you.
 And go filch the Amulet before someone else beats you to it.
-The silver bell is uncursed now, so easy task for you, yeah?
+The silver bell isn't uncursed yet, so hand %o over, yeah?
 %Z are back the way you came, through the magic portal."
 %E [%lC demands you forfeit %o.]
 %Cc Rog 00084
@@ -3847,8 +3847,8 @@ so that you may achieve the destiny which awaits you."
 his gaze to you.
 
 "Well done, %p-san.  You have defeated %n and
-recovered %o, and I have lifted the curse from
-the silver bell.  Alas, the emperor has decreed
+recovered %o, and I am prepared to lift the curse
+from the silver bell.  Alas, the emperor has decreed
 that %o shall remain here with us at %H.
 
 %p-san, return %o to us now kudasai.
@@ -4128,7 +4128,7 @@ As he looks up from %o he says:
 
     "Well done, %p.  You have defeated %n and
     recovered %o, and we
-    have lifted the curse from the silver bell.
+    are ready to lift the curse from the silver bell.
     However, I fear that %o
     shall never be truly safe unless it is kept
     here with us at %H.
@@ -4402,8 +4402,8 @@ that brought you here."
 As you approach, %l rises and touches %o.
 
 "Outstanding, %p.  You have defeated %n and
-recovered %o, and I have lifted the curse from
-the silver bell.  Alas, I fear that %o shall
+recovered %o, and I am prepared to lift the curse
+from the silver bell.  Alas, I fear that %o shall
 never be truly safe unless it is kept here with
 us at %H.  Ragnarok must not
 come to pass.
@@ -4689,8 +4689,8 @@ through the magic portal which brought you here."
 looks at you and says:
 
 "Well done, %p.  You have defeated %n and
-recovered %o, and we have lifted the curse from
-the silver bell.  Alas, I fear that
+recovered %o, and we are ready to lift the curse
+from the silver bell.  Alas, I fear that
 %o shall never be truly safe unless
 it is kept here with us at %H.
 
