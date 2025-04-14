@@ -1719,10 +1719,7 @@ boolean reflection_skip;
         }
 
         nomore(MUSE_WAN_UNDEAD_TURNING);
-        {
-            m_use_undead_turning(mtmp, obj);
-            continue;
-        }
+        m_use_undead_turning(mtmp, obj);
 
         nomore(MUSE_WAN_CANCELLATION);
         if (obj->otyp == WAN_CANCELLATION) {
@@ -1895,7 +1892,7 @@ boolean reflection_skip;
         m.offensive = charge_scroll;
         m.has_offense = MUSE_SCR_CHARGING;
     }
-    return(boolean) !!m.has_offense;
+    return (boolean) !!m.has_offense;
 #undef nomore
 #undef pick_to_charge
 }
@@ -2473,7 +2470,7 @@ struct monst *mtmp;
             if (minvptr == otmp && otmp->lamplit)
                 end_burn(otmp, TRUE);
         }
-        return 2;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     }
     case MUSE_SCR_STINKING_CLOUD:
         mreadmsg(mtmp, otmp);
@@ -2482,7 +2479,7 @@ struct monst *mtmp;
         (void) create_gas_cloud(mtmp->mux, mtmp->muy, 3 + bcsign(otmp),
                                 8 + 4 * bcsign(otmp));
         m_useup(mtmp, otmp);
-        return 2;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     case 0:
         return 0; /* i.e. an exploded wand */
     default:
@@ -3001,7 +2998,7 @@ struct obj *start;
         m.has_misc = 0;
         return FALSE;
     }
-    return(boolean) !!m.has_misc;
+    return (boolean) !!m.has_misc;
 #undef nomore
 #undef pick_to_charge
 }
