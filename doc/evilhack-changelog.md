@@ -4424,4 +4424,5 @@ The following changes to date are:
 - Revamp the spells 'flame sphere' and 'freeze sphere'
 - Fix: feedback regarding the Bell of Opening when the quest leader
   demands return of the quest artifact
+- Fix: monsters stopped using potions offensively
 
