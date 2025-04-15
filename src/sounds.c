@@ -408,22 +408,31 @@ register struct monst *mtmp;
     switch (mtmp->data->msound) {
     case MS_MEW:
     case MS_HISS:
+    case MS_LIZARD:
+    case MS_PSEUDO:
         ret = "hiss";
         break;
     case MS_BARK:
     case MS_GROWL:
+    case MS_WCHUCK:
         ret = "growl";
         break;
+    case MS_GRUNT:
+        ret = "grunt";
+        break;
     case MS_ROAR:
+    case MS_TRUMPET:
         ret = "roar";
         break;
     case MS_BUZZ:
         ret = "buzz";
         break;
     case MS_SQEEK:
+    case MS_BAT:
         ret = "squeal";
         break;
     case MS_SQAWK:
+    case MS_RAPTOR:
         ret = "screech";
         break;
     case MS_NEIGH:
@@ -431,6 +440,9 @@ register struct monst *mtmp;
         break;
     case MS_WAIL:
         ret = "wail";
+        break;
+    case MS_BURBLE:
+        ret = "burble";
         break;
     case MS_SILENT:
         ret = "quiver";
@@ -486,17 +498,32 @@ register struct monst *mtmp;
         case MS_GROWL:
             yelp_verb = (!Deaf) ? "yelp" : "recoil";
             break;
+        case MS_GRUNT:
+            yelp_verb = (!Deaf) ? "grunt" : "thrash";
+            break;
         case MS_ROAR:
+        case MS_TRUMPET:
             yelp_verb = (!Deaf) ? "snarl" : "bluff";
             break;
         case MS_SQEEK:
+        case MS_BAT:
+        case MS_WCHUCK:
             yelp_verb = (!Deaf) ? "squeal" : "quiver";
             break;
         case MS_SQAWK:
+        case MS_RAPTOR:
             yelp_verb = (!Deaf) ? "screak" : "thrash";
+            break;
+        case MS_HISS:
+        case MS_LIZARD:
+        case MS_PSEUDO:
+            yelp_verb = (!Deaf) ? "hiss" : "recoil";
             break;
         case MS_WAIL:
             yelp_verb = (!Deaf) ? "wail" : "cringe";
+            break;
+        case MS_BURBLE:
+            yelp_verb = (!Deaf) ? "whiffle" : "gyre";
             break;
         }
     if (yelp_verb) {
@@ -529,7 +556,22 @@ register struct monst *mtmp;
         case MS_BARK:
             whimper_verb = "whine";
             break;
+        case MS_NEIGH:
+            whimper_verb = "whinny";
+            break;
+        case MS_TRUMPET:
+            whimper_verb = "trumpet";
+            break;
+        case MS_HISS:
+        case MS_LIZARD:
+        case MS_PSEUDO:
+            whimper_verb = "hiss";
+            break;
         case MS_SQEEK:
+        case MS_BAT:
+            whimper_verb = "squeal";
+            break;
+        case MS_BURBLE:
             whimper_verb = "squeal";
             break;
         }
@@ -734,10 +776,12 @@ register struct monst *mtmp;
             if (mtmp->mtame
                 && (mtmp->mconf || mtmp->mflee
                     || mtmp->mtrapped || mtmp->mentangled
-                    || moves > EDOG(mtmp)->hungrytime || mtmp->mtame < 5))
+                    || mtmp->mtame < 5))
                 pline_msg = "whines.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "whines hungrily.";
             else if (mtmp->mtame && EDOG(mtmp)->hungrytime > moves + 1000)
-                pline_msg = "yips.";
+                pline_msg = "yips contentedly.";
             else {
                 if (mtmp->data
                     != &mons[PM_DINGO]) /* dingos do not actually bark */
@@ -759,16 +803,98 @@ register struct monst *mtmp;
             else
                 pline_msg = "mews.";
             break;
-        }
-        /*FALLTHRU*/
+        } else
+            pline_msg = mtmp->mpeaceful ? "snarls." : "growls!";
+        break;
     case MS_GROWL:
-        pline_msg = mtmp->mpeaceful ? "snarls." : "growls!";
+        if (mtmp->mtame) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mentangled || mtmp->mtame < 5)
+                pline_msg = "snarls.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "makes a low rumble.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "rumbles contentedly.";
+            else
+                pline_msg = "rumbles.";
+            break;
+        } else
+            pline_msg = mtmp->mpeaceful ? "snarls." : "growls!";
         break;
     case MS_ROAR:
-        pline_msg = mtmp->mpeaceful ? "snarls." : "roars!";
+        if (mtmp->mtame) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mentangled || mtmp->mtame < 5)
+                pline_msg = "roars.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "huffs.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "exhales contentedly.";
+            else
+                pline_msg = "snorts.";
+            break;
+        } else
+            pline_msg = mtmp->mpeaceful ? "snarls." : "growls!";
+        break;
+    case MS_TRUMPET:
+        if (mtmp->mtame) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mentangled || mtmp->mtame < 5)
+                pline_msg = "trumpets.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "snorts hungrily.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "rumbles contentedly.";
+            else
+                pline_msg = "snorts.";
+            break;
+        } else
+            pline_msg = mtmp->mpeaceful ? "trumpets." : "trumpets!";
         break;
     case MS_SQEEK:
-        pline_msg = "squeaks.";
+        if (mtmp->mtame) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mentangled || mtmp->mtame < 5)
+                pline_msg = "hisses.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "squeals hungrily.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "bruxes contentedly."; /* chatters or grinds its teeth */
+            else
+                pline_msg = "chitters.";
+            break;
+        } else
+            pline_msg = mtmp->mpeaceful ? "squeaks." : "loudly squeaks!";
+        break;
+    case MS_BAT:
+        if (mtmp->mtame) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mentangled || mtmp->mtame < 5)
+                pline_msg = "screeches.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "clicks hungrily.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "clicks contentedly.";
+            else
+                pline_msg = "chirps.";
+            break;
+        } else
+            pline_msg = mtmp->mpeaceful ? "squeaks." : "screeches.";
+        break;
+    case MS_WCHUCK:
+        if (mtmp->mtame) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mentangled || mtmp->mtame < 5)
+                pline_msg = "squeals.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "whistles hungrily.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "chirps contentedly.";
+            else
+                pline_msg = "grunts.";
+            break;
+        } else
+            pline_msg = mtmp->mpeaceful ? "barks." : "growls!";
         break;
     case MS_SQAWK:
         if (ptr == &mons[PM_RAVEN] && !mtmp->mpeaceful)
@@ -776,8 +902,57 @@ register struct monst *mtmp;
         else
             pline_msg = "squawks.";
         break;
+    case MS_RAPTOR:
+        if (mtmp->mtame) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mentangled || mtmp->mtame < 5)
+                pline_msg = "screams frantically.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "whistles shrilly.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "chirps contentedly.";
+            else
+                pline_msg = "whistles.";
+            break;
+        } else
+            pline_msg = mtmp->mpeaceful ? "screams." : "screams!";
+        break;
     case MS_HISS:
-        if (mtmp->mtame && is_pseudodragon(ptr)) {
+        if (mtmp->mtame) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mentangled || mtmp->mtame < 5)
+                pline_msg = "hisses frantically.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "hisses hungrily.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "hisses contentedly.";
+            else
+                pline_msg = "softly hisses.";
+            break;
+        } else if (!mtmp->mpeaceful) {
+            pline_msg = "hisses!";
+        } else
+            return 0; /* no sound */
+        break;
+    case MS_LIZARD:
+        if (mtmp->mtame) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mentangled || mtmp->mtame < 5)
+                pline_msg = "hisses frantically.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "grunts hungrily.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "grunts contentedly.";
+            else
+                pline_msg = "grunts.";
+            break;
+        } else if (!mtmp->mpeaceful) {
+            pline_msg = "hisses!";
+        } else
+            return 0; /* no sound */
+        break;
+    case MS_PSEUDO:
+        if (mtmp->mtame) {
             if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
                 || mtmp->mentangled || mtmp->mtame < 5)
                 pline_msg = "snarls.";
@@ -787,6 +962,7 @@ register struct monst *mtmp;
                 pline_msg = "purrs.";
             else
                 pline_msg = "softly hisses.";
+            break;
         } else if (!mtmp->mpeaceful) {
             pline_msg = "hisses!";
         } else
@@ -796,15 +972,34 @@ register struct monst *mtmp;
         pline_msg = mtmp->mpeaceful ? "drones." : "buzzes angrily.";
         break;
     case MS_GRUNT:
-        pline_msg = "grunts.";
+        if (mtmp->mtame) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mentangled || mtmp->mtame < 5)
+                pline_msg = "grunts.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "jabbers hungrily.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "gabbles contentedly.";
+            else
+                pline_msg = "jabbers.";
+            break;
+        } else
+            pline_msg = mtmp->mpeaceful ? "grunts." : "grunts!";
         break;
     case MS_NEIGH:
-        if (mtmp->mtame < 5)
-            pline_msg = "neighs.";
-        else if (moves > EDOG(mtmp)->hungrytime)
-            pline_msg = "whinnies.";
-        else
-            pline_msg = "whickers.";
+        if (mtmp->mtame) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mentangled || mtmp->mtame < 5)
+                pline_msg = "neighs.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "whinnies.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "whickers contentedly.";
+            else
+                pline_msg = "whickers.";
+            break;
+        } else
+            pline_msg = mtmp->mpeaceful ? "neighs." : "neighs!";
         break;
     case MS_WAIL:
         pline_msg = "wails mournfully.";
@@ -813,7 +1008,19 @@ register struct monst *mtmp;
         pline_msg = "gurgles.";
         break;
     case MS_BURBLE:
-        pline_msg = "burbles.";
+        if (mtmp->mtame) {
+            if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped
+                || mtmp->mentangled || mtmp->mtame < 5)
+                pline_msg = "burbles frantically.";
+            else if (moves > EDOG(mtmp)->hungrytime)
+                pline_msg = "whiffles hungrily.";
+            else if (EDOG(mtmp)->hungrytime > moves + 1000)
+                pline_msg = "whiffles contentedly.";
+            else
+                pline_msg = "whiffles.";
+            break;
+        } else
+            pline_msg = mtmp->mpeaceful ? "burbles." : "burbles!";
         break;
     case MS_SHRIEK:
         pline_msg = "shrieks.";

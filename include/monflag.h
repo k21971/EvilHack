@@ -10,9 +10,9 @@
 #define MS_MEW 2        /* mews or hisses */
 #define MS_ROAR 3       /* roars */
 #define MS_GROWL 4      /* growls */
-#define MS_SQEEK 5      /* squeaks, as a rodent */
-#define MS_SQAWK 6      /* squawks, as a bird */
-#define MS_HISS 7       /* hisses */
+#define MS_SQEEK 5      /* squeaks, as a rodent (bats, woodchucks broken out) */
+#define MS_SQAWK 6      /* squawks, as a bird (raptors broken out) */
+#define MS_HISS 7       /* hisses (lizards, pseudodragons broken out) */
 #define MS_BUZZ 8       /* buzzes (killer bee) */
 #define MS_GRUNT 9      /* grunts (or speaks own language) */
 #define MS_NEIGH 10     /* neighs, as an equine */
@@ -46,6 +46,12 @@
 #define MS_SPELL 37     /* spellcaster not matching any of the above */
 #define MS_WERE 38      /* lycanthrope in human form */
 #define MS_BOAST 39     /* giants */
+#define MS_BAT 40       /* bats */
+#define MS_WCHUCK 41    /* woodchucks don't sound like rodents */
+#define MS_RAPTOR 42    /* birds of prey */
+#define MS_LIZARD 43    /* lizard (and turtle) hiss specialization */
+#define MS_PSEUDO 44    /* pseudodragon hiss specialization */
+#define MS_TRUMPET 45   /* trunk-based roar specialization */
 
 #define MR_FIRE 0x00000001L    /* resists fire */
 #define MR_COLD 0x00000002L    /* resists cold */

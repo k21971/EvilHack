@@ -4428,4 +4428,5 @@ The following changes to date are:
 - Player riding a steed can now feed their steed by throwing food down
   at them
 - Fix: feedback when monster hits an ice trap
+- Additional monsters sounds, more varied feedback when hungry or full
 

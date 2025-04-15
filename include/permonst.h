@@ -51,7 +51,7 @@ struct permonst {
     struct attack mattk[NATTK]; /* attacks matrix */
     unsigned short cwt,         /* weight of corpse */
         cnutrit;                /* its nutritional value */
-    uchar msound;               /* noise it makes (6 bits) */
+    uchar msound;               /* noise it makes */
     uchar msize;                /* physical size (3 bits) */
     unsigned long mresists;     /* resistances */
     uchar mconveys;             /* conveyed by eating */
