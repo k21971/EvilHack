@@ -4427,4 +4427,5 @@ The following changes to date are:
 - Fix: monsters stopped using potions offensively
 - Player riding a steed can now feed their steed by throwing food down
   at them
+- Fix: feedback when monster hits an ice trap
 
