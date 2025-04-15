@@ -4396,4 +4396,6 @@ The following changes to date are:
 - Fix: effect damage from various objects/spells while using thievery
   skill
 - Fix: monsters stopped using potions offensively
+- Player riding a steed can now feed their steed by throwing food down
+  at them
 
