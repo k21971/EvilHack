@@ -2949,7 +2949,7 @@ register struct monst *mtmp;
                         if (mtmp->mintrinsics & MR_COLD) {
                             mtmp->mintrinsics &= ~MR_COLD;
                             pline("%s momentarily %s.", Monnam(mtmp),
-                                  makeplural(locomotion(mtmp->data, "stumble")));
+                                  makeplural(stagger(mtmp->data, "stumble")));
                         }
                     } else {
                         pline("%s is uninjured.", Monnam(mtmp));
