@@ -1460,11 +1460,18 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             }
         } else if (u.dz < 0) {
             (void) toss_up(obj, rn2(5) && !Underwater);
-        } else if (u.dz > 0 && u.usteed && obj->oclass == POTION_CLASS
-                   && rn2(6)) {
-            /* alternative to prayer or wand of opening/spell of knock
-               for dealing with cursed saddle:  throw holy water > */
-            potionhit(u.usteed, obj, POTHIT_HERO_THROW);
+        } else if (u.dz > 0 && u.usteed) {
+            if (obj->oclass == POTION_CLASS && rn2(6)) {
+                /* alternative to prayer or wand of opening/spell of knock
+                   for dealing with cursed saddle:  throw holy water > */
+                potionhit(u.usteed, obj, POTHIT_HERO_THROW);
+            } else if (dogfood(u.usteed, obj) <= ACCFOOD) {
+                boolean obj_gone;
+
+                obj_gone = thitmonst(u.usteed, obj);
+                if (obj_gone)
+                    thrownobj = (struct obj *) 0;
+            }
         } else {
             hitfloor(obj, TRUE);
         }
@@ -2042,25 +2049,25 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
 
     dieroll = rnd(20);
 
-    if (mon->mtame && mon->mcanmove &&
-            (!is_animal(mon->data)) && (!mindless(mon->data)) &&
-            could_use_item(mon, obj, FALSE, FALSE)) {
-       if (could_use_item(mon, obj, TRUE, FALSE)) {
-           pline("%s catches %s.", Monnam(mon), the(xname(obj)));
-           obj_extract_self(obj);
-           (void) mpickobj(mon,obj);
-           if (attacktype(mon->data, AT_WEAP) &&
-               mon->weapon_check == NEED_WEAPON) {
-               mon->weapon_check = NEED_HTH_WEAPON;
-               (void) mon_wield_item(mon);
-           }
-           m_dowear(mon, FALSE);
-           newsym(mon->mx, mon->my);
-           return 1;
-       }
-       miss(xname(obj), mon);
-   } else if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
-        || obj->oclass == GEM_CLASS) {
+    if (mon->mtame && mon->mcanmove
+        && (!(is_animal(mon->data) || mindless(mon->data)))
+        && could_use_item(mon, obj, FALSE, FALSE)) {
+        if (could_use_item(mon, obj, TRUE, FALSE)) {
+            pline("%s catches %s.", Monnam(mon), the(xname(obj)));
+            obj_extract_self(obj);
+            (void) mpickobj(mon,obj);
+            if (attacktype(mon->data, AT_WEAP)
+                && mon->weapon_check == NEED_WEAPON) {
+                mon->weapon_check = NEED_HTH_WEAPON;
+                (void) mon_wield_item(mon);
+            }
+            m_dowear(mon, FALSE);
+            newsym(mon->mx, mon->my);
+            return 1;
+        }
+        miss(xname(obj), mon);
+    } else if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
+               || obj->oclass == GEM_CLASS) {
         if (hmode == HMON_KICKED) {
             /* throwing adjustments and weapon skill bonus don't apply */
             tmp -= (is_ammo(obj) ? 5 : 3);

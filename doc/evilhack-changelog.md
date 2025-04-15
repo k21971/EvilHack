@@ -4425,4 +4425,6 @@ The following changes to date are:
 - Fix: feedback regarding the Bell of Opening when the quest leader
   demands return of the quest artifact
 - Fix: monsters stopped using potions offensively
+- Player riding a steed can now feed their steed by throwing food down
+  at them
 
