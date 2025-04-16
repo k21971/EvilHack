@@ -4430,4 +4430,5 @@ The following changes to date are:
 - Fix: feedback when monster hits an ice trap
 - Additional monsters sounds, more varied feedback when hungry or full
 - Crafting traps, part 3: additional trap types (bolt/dart/spear)
+- Dig up to destroy a falling rock trap, not down
 

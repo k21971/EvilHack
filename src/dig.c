@@ -370,8 +370,10 @@ dig(VOID_ARGS)
             /* we haven't made any progress toward a pit yet */
             context.digging.effort = 0;
             return 0;
-        } else if (ttmp) {
-            /* remaining traps that made it past dig_check() */
+        } else if (ttmp && ttmp->ttyp != ROCKTRAP) {
+            /* remaining traps that made it past dig_check().
+               digging down while underneath a falling rock
+               trap will remove the rock trap and produce a pit */
             const char *ttmpname = defsyms[trap_to_defsym(ttmp->ttyp)].explanation;
 
             if (ispick)
@@ -774,7 +776,7 @@ int ttyp;
                 /*[don't we need special sokoban handling here?]*/
                 if (is_flyer(mtmp->data) || is_floater(mtmp->data)
                     || can_levitate(mtmp)
-                    || mtmp->data == &mons[PM_WUMPUS]
+                    || is_clinger(mtmp->data)
                     || (mtmp->wormno && count_wsegs(mtmp) > 5)
                     || mtmp->data->msize >= MZ_HUGE)
                     return;
@@ -1118,10 +1120,46 @@ struct obj *obj;
     } else if (Underwater) {
         pline("Turbulence torpedoes your %s attempts.", verbing);
     } else if (u.dz < 0) {
-        if (Levitation)
+        trap = t_at(u.ux, u.uy);
+        if (Levitation) {
             You("don't have enough leverage.");
-        else
+        } else if (trap && trap->ttyp == ROCKTRAP) {
+            const char *trapname = defsyms[trap_to_defsym(trap->ttyp)].explanation;
+
+            if (ispick) {
+                You("destroy %s with %s.",
+                    trap->tseen ? the(trapname) : an(trapname),
+                    yobjnam(uwep, (const char *) 0));
+                deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
+                /* we haven't made any progress toward a pit yet */
+                context.digging.effort = 0;
+            } else {
+                You("strike %s with your %s, but nothing else happens.",
+                    trap->tseen ? the(trapname) : an(trapname),
+                    simpleonames(obj));
+            }
+        } else if (Flying && !(trap && trap->ttyp == ROCKTRAP)) {
+            struct obj *otmp;
+            int dmg;
+
+            if (ispick) {
+                You("loosen a rock from the %s.", ceiling(u.ux, u.uy));
+                pline("It falls on your %s!", body_part(HEAD));
+                dmg = rnd((uarmh && is_hard(uarmh)) ? 2 : 6);
+                losehp(Maybe_Half_Phys(dmg), "falling rock", KILLED_BY_AN);
+                otmp = mksobj_at(ROCK, u.ux, u.uy, FALSE, FALSE);
+                if (otmp) {
+                    (void) xname(otmp); /* set dknown, maybe bknown */
+                    stackobj(otmp);
+                }
+                newsym(u.ux, u.uy);
+            } else {
+                You("strike the ceiling with your %s.",
+                    simpleonames(obj));
+            }
+        } else {
             You_cant("reach the %s.", ceiling(u.ux, u.uy));
+        }
     } else if (!u.dx && !u.dy && !u.dz) {
         char buf[BUFSZ];
         int dam;
