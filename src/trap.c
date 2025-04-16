@@ -6132,7 +6132,10 @@ int do_what;
                 place_object(otmp, trap->tx, trap->ty);
                 /* Sell your own traps only... */
                 if (trap->madeby_u) {
-                    if (trap->ttyp == ARROW_TRAP_SET) {
+                    if (trap->ttyp == ARROW_TRAP_SET
+                        || trap->ttyp == BOLT_TRAP_SET
+                        || trap->ttyp == DART_TRAP_SET
+                        || trap->ttyp == SPEAR_TRAP_SET) {
                         otmp->quan = otmp->quan;
                         otmp->oclass = WEAPON_CLASS;
                         sellobj(otmp, trap->tx, trap->ty);
@@ -6146,7 +6149,10 @@ int do_what;
                 break;
             case DELTRAP_TAKE_AMMO:
                 if (trap->madeby_u) {
-                    if (trap->ttyp == ARROW_TRAP_SET) {
+                    if (trap->ttyp == ARROW_TRAP_SET
+                        || trap->ttyp == BOLT_TRAP_SET
+                        || trap->ttyp == DART_TRAP_SET
+                        || trap->ttyp == SPEAR_TRAP_SET) {
                         otmp->quan = otmp->quan;
                         otmp->known = 0;
                         otmp->oclass = WEAPON_CLASS;

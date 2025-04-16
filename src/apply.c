@@ -2927,12 +2927,15 @@ reset_trapset()
 }
 
 static const struct trap_recipe {
-    short result_typ;
-    short typ;
-    short quan;
+    short result_typ; /* crafted trap */
+    short comp;       /* component used to make trap */
+    long quan;        /* component quantity */
 } final[] = {
     /* trap type, components, component quantity */
-    { ARROW_TRAP, ARROW, 10 },
+    { ARROW_TRAP, ARROW, 10L },
+    { BOLT_TRAP, CROSSBOW_BOLT, 10L },
+    { DART_TRAP, DART, 10L },
+    { SPEAR_TRAP, SPEAR, 1L },
     { 0, 0, 0 }
 };
 
@@ -2978,16 +2981,7 @@ struct obj *obj; /* actual trap kit */
 
     /* start the build process */
     for (recipe = final; recipe->result_typ; recipe++) {
-        if (otmp->otyp != recipe->typ) {
-            pline_The("selected component is incorrect.");
-            break;
-        }
-        if (otmp->otyp == recipe->typ
-            && otmp->quan < recipe->quan) {
-            pline_The("component quantity is not enough.");
-            break;
-        }
-        if (otmp->otyp == recipe->typ
+        if (otmp->otyp == recipe->comp
             && otmp->quan >= recipe->quan) {
             trap_type = recipe->result_typ;
             break;
@@ -2996,6 +2990,7 @@ struct obj *obj; /* actual trap kit */
 
     if (!trap_type) {
         You("fail to build the trap.");
+        pline("Check your component type and/or quantity.");
         return;
     } else if (trap_type) {
         /* success */
@@ -3042,7 +3037,7 @@ struct obj *obj; /* actual trap kit */
         output->forged_qual = FQ_NORMAL;
 
         /* toss out old objects, add new one */
-        if (otmp->otyp == recipe->typ)
+        if (otmp->otyp == recipe->comp)
             otmp->quan -= recipe->quan;
 
         /* recalculate weight of the recipe objects if
@@ -3109,7 +3104,10 @@ struct obj *otmp;
     }
     ttyp = (otmp->otyp == LAND_MINE) ? LANDMINE
              : (otmp->otyp == BEARTRAP) ? BEAR_TRAP
-               : (otmp->otyp == ARROW_TRAP) ? ARROW_TRAP_SET : 0;
+               : (otmp->otyp == ARROW_TRAP) ? ARROW_TRAP_SET
+                 : (otmp->otyp == BOLT_TRAP) ? BOLT_TRAP_SET
+                   : (otmp->otyp == DART_TRAP) ? DART_TRAP_SET
+                     : (otmp->otyp == SPEAR_TRAP) ? SPEAR_TRAP_SET : 0;
     if (otmp == trapinfo.tobj && u.ux == trapinfo.tx && u.uy == trapinfo.ty) {
         You("resume setting %s%s.", shk_your(buf, otmp),
             defsyms[trap_to_defsym(what_trap(ttyp, rn2))].explanation);
@@ -3147,6 +3145,9 @@ struct obj *otmp;
                     trapinfo.force_bungle = TRUE;
                     break;
                 case ARROW_TRAP_SET:
+                case BOLT_TRAP_SET:
+                case DART_TRAP_SET:
+                case SPEAR_TRAP_SET:
                 case BEAR_TRAP: /* drop it without arming it */
                     reset_trapset();
                     You("drop %s!",
@@ -3190,7 +3191,10 @@ set_trap()
 
     ttyp = (otmp->otyp == LAND_MINE) ? LANDMINE
              : (otmp->otyp == BEARTRAP) ? BEAR_TRAP
-               : (otmp->otyp == ARROW_TRAP) ? ARROW_TRAP_SET : 0;
+               : (otmp->otyp == ARROW_TRAP) ? ARROW_TRAP_SET
+                 : (otmp->otyp == BOLT_TRAP) ? BOLT_TRAP_SET
+                   : (otmp->otyp == DART_TRAP) ? DART_TRAP_SET
+                     : (otmp->otyp == SPEAR_TRAP) ? SPEAR_TRAP_SET : 0;
     ttmp = maketrap(u.ux, u.uy, ttyp);
     if (ttmp) {
         ttmp->madeby_u = 1;
@@ -3203,6 +3207,24 @@ set_trap()
         if (ttmp->ttyp == ARROW_TRAP_SET) {
             otmp->otyp = ARROW;
             otmp->quan = 10L;
+            otmp->oprops = prop;
+            set_material(otmp, mat);
+            otmp->owt = weight(otmp);
+        } else if (ttmp->ttyp == BOLT_TRAP_SET) {
+            otmp->otyp = CROSSBOW_BOLT;
+            otmp->quan = 10L;
+            otmp->oprops = prop;
+            set_material(otmp, mat);
+            otmp->owt = weight(otmp);
+        } else if (ttmp->ttyp == DART_TRAP_SET) {
+            otmp->otyp = DART;
+            otmp->quan = 10L;
+            otmp->oprops = prop;
+            set_material(otmp, mat);
+            otmp->owt = weight(otmp);
+        } else if (ttmp->ttyp == SPEAR_TRAP_SET) {
+            otmp->otyp = SPEAR;
+            otmp->quan = 1L;
             otmp->oprops = prop;
             set_material(otmp, mat);
             otmp->owt = weight(otmp);
@@ -4683,6 +4705,9 @@ doapply()
     case LAND_MINE:
     case BEARTRAP:
     case ARROW_TRAP:
+    case BOLT_TRAP:
+    case DART_TRAP:
+    case SPEAR_TRAP:
         use_trap(obj);
         break;
     case FLINT:

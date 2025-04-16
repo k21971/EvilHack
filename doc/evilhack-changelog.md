@@ -4429,4 +4429,5 @@ The following changes to date are:
   at them
 - Fix: feedback when monster hits an ice trap
 - Additional monsters sounds, more varied feedback when hungry or full
+- Crafting traps, part 3: additional trap types (bolt/dart/spear)
 

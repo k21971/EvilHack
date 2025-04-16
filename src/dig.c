@@ -949,7 +949,10 @@ coord *cc;
             /* magical digging disarms settable traps */
             if (by_magic && ttmp
                 && (ttmp->ttyp == LANDMINE || ttmp->ttyp == BEAR_TRAP
-                    || ttmp->ttyp == ARROW_TRAP_SET)) {
+                    || ttmp->ttyp == ARROW_TRAP_SET
+                    || ttmp->ttyp == BOLT_TRAP_SET
+                    || ttmp->ttyp == DART_TRAP_SET
+                    || ttmp->ttyp == SPEAR_TRAP_SET)) {
 
                 /* convert trap into buried object (deletes trap) */
                 deltrap_with_ammo(ttmp,
