@@ -3025,8 +3025,9 @@ struct obj *obj; /* actual trap kit */
         output->oeroded = otmp->oeroded;
         output->oeroded2 = otmp->oeroded2;
 
-        /* transfer object properties */
+        /* transfer object properties and enchantments */
         output->oprops = otmp->oprops;
+        output->spe = otmp->spe;
 
         /* ensure the final product is not coated in any
            substances, nor carrying over any additional
@@ -3178,6 +3179,7 @@ set_trap()
     boolean obj_cursed = otmp->cursed;
     boolean mat = otmp->material;
     boolean prop = otmp->oprops;
+    boolean enchant = otmp->spe;
 
     if (!otmp || !carried(otmp) || u.ux != trapinfo.tx
         || u.uy != trapinfo.ty) {
@@ -3207,24 +3209,28 @@ set_trap()
         if (ttmp->ttyp == ARROW_TRAP_SET) {
             otmp->otyp = ARROW;
             otmp->quan = 10L;
+            otmp->spe = enchant;
             otmp->oprops = prop;
             set_material(otmp, mat);
             otmp->owt = weight(otmp);
         } else if (ttmp->ttyp == BOLT_TRAP_SET) {
             otmp->otyp = CROSSBOW_BOLT;
             otmp->quan = 10L;
+            otmp->spe = enchant;
             otmp->oprops = prop;
             set_material(otmp, mat);
             otmp->owt = weight(otmp);
         } else if (ttmp->ttyp == DART_TRAP_SET) {
             otmp->otyp = DART;
             otmp->quan = 10L;
+            otmp->spe = enchant;
             otmp->oprops = prop;
             set_material(otmp, mat);
             otmp->owt = weight(otmp);
         } else if (ttmp->ttyp == SPEAR_TRAP_SET) {
             otmp->otyp = SPEAR;
             otmp->quan = 1L;
+            otmp->spe = enchant;
             otmp->oprops = prop;
             set_material(otmp, mat);
             otmp->owt = weight(otmp);

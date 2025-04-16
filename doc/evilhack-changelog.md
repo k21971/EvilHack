@@ -4432,4 +4432,5 @@ The following changes to date are:
 - Crafting traps, part 3: additional trap types (bolt/dart/spear)
 - Dig up to destroy a falling rock trap, not down
 - Digging down on a magical trap causes it to explode
+- Allow component enchantment for crafted ammo-based traps to carry over
 
