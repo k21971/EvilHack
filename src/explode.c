@@ -625,6 +625,10 @@ int expltype;
                 } else if (adtyp == AD_FIRE && olet == BURNING_OIL) {
                     killer.format = KILLED_BY_AN;
                     Sprintf(killer.name, "exploding fire bomb");
+                } else if (olet == TRAP_EXPLODE) {
+                     killer.format = NO_KILLER_PREFIX;
+                     Sprintf(killer.name, "caught %sself in a %s",
+                             uhim(), str);
                 } else if (type >= 0 && olet != SCROLL_CLASS) {
                     killer.format = NO_KILLER_PREFIX;
                     Sprintf(killer.name, "caught %sself in %s own %s", uhim(),

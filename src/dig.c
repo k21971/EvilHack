@@ -380,10 +380,20 @@ dig(VOID_ARGS)
                 You("destroy %s with %s.",
                     ttmp->tseen ? the(ttmpname) : an(ttmpname),
                     yobjnam(uwep, (const char *) 0));
-            if (ttmp->ammo)
+
+            if (ttmp->ammo) {
                 deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
-            else
+            } else if (is_magical_trap(ttmp->ttyp)) {
+                 pline("Boom!");
+                 explode(dpx, dpy, 0, 20 + d(3, 6),
+                         TRAP_EXPLODE, EXPL_MAGICAL);
+                 /* same distance as exploding land mine */
+                 wake_nearto(dpx, dpy, 400);
+                 deltrap(ttmp);
+            } else {
                 deltrap(ttmp);
+            }
+            newsym(dpx, dpy);
             /* we haven't made any progress toward a pit yet */
             context.digging.effort = 0;
             return 0;
@@ -1131,8 +1141,6 @@ struct obj *obj;
                     trap->tseen ? the(trapname) : an(trapname),
                     yobjnam(uwep, (const char *) 0));
                 deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
-                /* we haven't made any progress toward a pit yet */
-                context.digging.effort = 0;
             } else {
                 You("strike %s with your %s, but nothing else happens.",
                     trap->tseen ? the(trapname) : an(trapname),
