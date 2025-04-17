@@ -2926,11 +2926,7 @@ reset_trapset()
     trapinfo.force_bungle = 0;
 }
 
-static const struct trap_recipe {
-    short result_typ; /* crafted trap */
-    short comp;       /* component used to make trap */
-    long quan;        /* component quantity */
-} final[] = {
+const struct trap_recipe trap_fusions[] = {
     /* trap type, components, component quantity */
     { ARROW_TRAP, ARROW, 10L },
     { BOLT_TRAP, CROSSBOW_BOLT, 10L },
@@ -2982,7 +2978,7 @@ struct obj *obj; /* actual trap kit */
     }
 
     /* start the build process */
-    for (recipe = final; recipe->result_typ; recipe++) {
+    for (recipe = trap_fusions; recipe->result_typ; recipe++) {
         if (otmp->otyp == recipe->comp
             && otmp->quan >= recipe->quan) {
             trap_type = recipe->result_typ;

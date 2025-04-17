@@ -490,8 +490,8 @@ struct forge_recipe {
     short result_typ;
     short typ1;
     short typ2;
-    int quan_typ1;
-    int quan_typ2;
+    long quan_typ1;
+    long quan_typ2;
 };
 
 extern const struct forge_recipe fusions[]; /* array of forge recipes */
@@ -504,6 +504,14 @@ struct potion_alchemy {
 };
 
 extern const struct potion_alchemy potion_fusions[]; /* array of potion alchemy types */
+
+struct trap_recipe {
+    short result_typ;
+    short comp;
+    long quan;
+};
+
+extern const struct trap_recipe trap_fusions[]; /* array of trap recipes */
 
 /* indices for some special tin types */
 #define ROTTEN_TIN 0

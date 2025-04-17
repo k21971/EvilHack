@@ -1572,10 +1572,11 @@ short otyp;
         if (otyp == recipe->typ1 || otyp == recipe->typ2
             || otyp == recipe->result_typ) {
             if (!has_recipes) {
+                OBJPUTSTR("");
                 OBJPUTSTR("Forging recipes (#forge):");
                 has_recipes = TRUE;
             }
-            Sprintf(buf, "  %d %s + %d %s = %s", recipe->quan_typ1,
+            Sprintf(buf, "  %ld %s + %ld %s = %s", recipe->quan_typ1,
                     OBJ_NAME(objects[recipe->typ1]), recipe->quan_typ2,
                     OBJ_NAME(objects[recipe->typ2]),
                     OBJ_NAME(objects[recipe->result_typ]));
@@ -1600,6 +1601,24 @@ short otyp;
                     OBJ_NAME(objects[precipe->typ2]),
                     OBJ_NAME(objects[precipe->result_typ]),
                     precipe->chance == 1 ? "" : " (1/3 chance)");
+            OBJPUTSTR(buf);
+        }
+    }
+
+    /* crafting traps */
+    const struct trap_recipe *trecipe;
+    boolean has_trecipes = FALSE;
+
+    for (trecipe = trap_fusions; trecipe->result_typ; trecipe++) {
+        if (otyp == trecipe->comp || otyp == trecipe->result_typ) {
+            if (!has_trecipes) {
+                OBJPUTSTR("");
+                OBJPUTSTR("Trap crafting recipes (using trap kit):");
+                has_trecipes = TRUE;
+            }
+            Sprintf(buf, "  trap kit + %ld %s = %s", trecipe->quan,
+                    OBJ_NAME(objects[trecipe->comp]),
+                    OBJ_NAME(objects[trecipe->result_typ]));
             OBJPUTSTR(buf);
         }
     }

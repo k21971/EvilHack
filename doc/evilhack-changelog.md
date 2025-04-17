@@ -4434,4 +4434,5 @@ The following changes to date are:
 - Digging down on a magical trap causes it to explode
 - Allow component enchantment for crafted ammo-based traps to carry over
 - Crafting traps, part 4: beartraps and land mines
+- Show trap crafting recipes in object lookup (pokedex)
 
