@@ -42,7 +42,12 @@ CLANGGTEQ18 := $(shell expr `$(CC) -dumpversion | cut -f1 -d.` \>= 18)
 ifeq "$(CLANGGTEQ18)" "1"
 CFLAGS+=-Wno-deprecated-non-prototype
 endif
-endif  # clang-specific ends here
+# clang-specific ends here
+else
+# gcc-specific starts here
+CFLAGS+=-Wno-old-style-definition
+# gcc-specific here
+endif  # clang-specific or gcc-specific ends here
 
 
 LINK=$(CC)

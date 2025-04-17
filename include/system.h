@@ -60,7 +60,11 @@ typedef long off_t;
 #endif
 #ifndef SIG_RET_TYPE
 #if defined(NHSTDC) || defined(POSIX_TYPES) || defined(OS2) || defined(__DECC)
+#if defined(LINUX) && defined(__GNUC__)
+#define SIG_RET_TYPE __sighandler_t
+#else
 #define SIG_RET_TYPE void (*)()
+#endif
 #endif
 #endif
 #ifndef SIG_RET_TYPE
@@ -95,8 +99,10 @@ E int FDECL(srandom, (unsigned int));
 E long NDECL(lrand48);
 E void FDECL(srand48, (long));
 #else
+#ifndef LINUX
 E long lrand48();
 E void srand48();
+#endif
 #endif /* MACOSX */
 #endif /* BSD || ULTRIX || RANDOM */
 
@@ -351,6 +357,7 @@ E char *FDECL(memset, (char *, int, int));
 #endif /* TOS */
 #endif /* MICRO */
 
+#ifndef LINUX
 #if defined(BSD) && defined(ultrix) /* i.e., old versions of Ultrix */
 E void sleep();
 #endif
@@ -359,6 +366,7 @@ E unsigned sleep();
 #endif
 #if defined(HPUX)
 E unsigned int FDECL(sleep, (unsigned int));
+#endif
 #endif
 #ifdef VMS
 E int FDECL(sleep, (unsigned));
@@ -519,7 +527,11 @@ E char *FDECL(tgoto, (const char *, int, int));
 #else
 #if !(defined(HPUX) && defined(_POSIX_SOURCE))
 E int FDECL(tgetent, (char *, const char *));
+#if !(defined(LINUX) && defined(__GNUC__))
 E void FDECL(tputs, (const char *, int, int (*)()));
+#else
+E int tputs(const char *, int, int (*)(int));
+#endif
 #endif
 E int FDECL(tgetnum, (const char *));
 E int FDECL(tgetflag, (const char *));
