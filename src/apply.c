@@ -2936,6 +2936,8 @@ static const struct trap_recipe {
     { BOLT_TRAP, CROSSBOW_BOLT, 10L },
     { DART_TRAP, DART, 10L },
     { SPEAR_TRAP, SPEAR, 1L },
+    { BEARTRAP, GRAPPLING_HOOK, 1L },
+    { LAND_MINE, SLING_BULLET, 10L },
     { 0, 0, 0 }
 };
 

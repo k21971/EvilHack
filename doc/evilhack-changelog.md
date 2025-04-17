@@ -4433,4 +4433,5 @@ The following changes to date are:
 - Dig up to destroy a falling rock trap, not down
 - Digging down on a magical trap causes it to explode
 - Allow component enchantment for crafted ammo-based traps to carry over
+- Crafting traps, part 4: beartraps and land mines
 
