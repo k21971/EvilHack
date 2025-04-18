@@ -2954,6 +2954,8 @@ struct obj *obj; /* actual trap kit */
     struct obj* output; /* final product (crafted trap) */
     char allowall[2];
     int trap_type = 0;
+    boolean is_rogue = Role_if(PM_ROGUE);
+    boolean is_ranger = Role_if(PM_RANGER);
 
     allowall[0] = ALL_CLASSES;
     allowall[1] = '\0';
@@ -2964,11 +2966,19 @@ struct obj *obj; /* actual trap kit */
     } else if (Stunned || Confusion) {
         You_cant("build a trap while incapacitated.");
         return;
+    } else if (near_capacity() > SLT_ENCUMBER) {
+        You_cant("build a trap while encumbered.");
+        return;
     } else if (u.uhunger < 50) { /* weak */
         You("are too weak from hunger to build a trap.");
         return;
     } else if (ACURR(A_DEX) < 4) {
         You("lack the dexterity to build a trap.");
+        return;
+    } else if (rn2(21) > ACURR(A_DEX)
+               && !(is_rogue || is_ranger)) {
+        You("fail to use your trap kit correctly.");
+        consume_obj_charge(obj, TRUE); /* this uses up a charge */
         return;
     }
 
@@ -3102,6 +3112,8 @@ struct obj *otmp;
         what = "without a free hand";
     else if (Stunned)
         what = "while stunned";
+    else if (near_capacity() > SLT_ENCUMBER)
+        what = "while encumbered";
     else if (u.uswallow)
         what = is_swallower(u.ustuck->data) ? "while swallowed"
                                             : "while engulfed";
@@ -3223,6 +3235,12 @@ set_trap()
     boolean mat = otmp->material;
     boolean prop = otmp->oprops;
     boolean enchant = otmp->spe;
+    boolean is_rogue = Role_if(PM_ROGUE);
+    boolean is_ranger = Role_if(PM_RANGER);
+    boolean chance = (ACURR(A_DEX)
+                      + (is_rogue ? (u.ulevel * 5)
+                                  : is_ranger ? (u.ulevel * 2)
+                                              : u.ulevel));
 
     if (!otmp || !carried(otmp) || u.ux != trapinfo.tx
         || u.uy != trapinfo.ty) {
@@ -3249,7 +3267,7 @@ set_trap()
                                    : (otmp->otyp == POLYMORPH_TRAP) ? POLY_TRAP_SET
                                      : (otmp->otyp == MAGIC_BEAM_TRAP) ? MAGIC_BEAM_TRAP_SET : 0;
     ttmp = maketrap(u.ux, u.uy, ttyp);
-    if (ttmp) {
+    if (ttmp && (rnd(100) < chance)) {
         ttmp->madeby_u = 1;
         feeltrap(ttmp);
 
@@ -3306,8 +3324,16 @@ set_trap()
             dotrap(ttmp,
                    (unsigned) (trapinfo.force_bungle ? FORCEBUNGLE : 0));
     } else {
-        /* this shouldn't happen */
         Your("trap setting attempt fails.");
+        deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
+        /* if dexterity is less than 15, there's a chance
+           of breaking the trap altogether on a failed
+           attempt. The lower your dexterity, the greater
+           the chance of breaking the trap */
+        if (rn2(16) > ACURR(A_DEX)) {
+            Your("trap falls apart!");
+            delobj(otmp);
+        }
     }
     reset_trapset();
     return 0;

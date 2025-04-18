@@ -4437,4 +4437,5 @@ The following changes to date are:
 - Show trap crafting recipes in object lookup (pokedex)
 - Crafting traps, part 5: additional trap types (sleeping gas/fire/ice/
   teleportation/magic/anti-magic/polymorph/magic beam)
+- Crafting traps, part 6: successfully creating/setting traps odds
 
