@@ -39,7 +39,7 @@ STATIC_DCL int FDECL(help_monster_out, (struct monst *, struct trap *));
 STATIC_DCL void FDECL(join_adjacent_pits, (struct trap *));
 #endif
 STATIC_DCL boolean FDECL(thitm, (int, struct monst *, struct obj *, int,
-                                 BOOLEAN_P));
+                                 BOOLEAN_P, BOOLEAN_P));
 STATIC_DCL void NDECL(maybe_finish_sokoban);
 
 STATIC_VAR const char *const a_your[2] = { "a", "your" };
@@ -1353,7 +1353,8 @@ unsigned trflags;
         if (u.usteed) {
             pline("%s bear trap closes on %s %s!", A_Your[trap->madeby_u],
                   s_suffix(mon_nam(u.usteed)), mbodypart(u.usteed, FOOT));
-            if (thitm(0, u.usteed, (struct obj *) 0, dmg, FALSE))
+            if (thitm(0, u.usteed, (struct obj *) 0, dmg, FALSE,
+                      trap->madeby_u ? TRUE : FALSE))
                 reset_utrap(TRUE); /* steed died, hero not trapped */
         } else {
             pline("%s bear trap closes on your %s!", A_Your[trap->madeby_u],
@@ -1972,7 +1973,8 @@ struct obj *otmp;
             impossible("steed hit by non-existent arrow/bolt/dart?");
             return 0;
         }
-        trapkilled = thitm(8, steed, otmp, 0, FALSE);
+        trapkilled = thitm(8, steed, otmp, 0, FALSE,
+                           trap->madeby_u ? TRUE : FALSE);
         steedhit = TRUE;
         break;
     case SLP_GAS_TRAP_SET:
@@ -2010,19 +2012,22 @@ struct obj *otmp;
         } else {
             trapkilled = (DEADMONSTER(steed)
                           || thitm(0, steed, (struct obj*) 0,
-                                   (rnd(8) + 6), FALSE));
+                                   (rnd(8) + 6), FALSE,
+                                   trap->madeby_u ? TRUE : FALSE));
             steedhit = TRUE;
         }
         break;
     case LANDMINE:
-        trapkilled = thitm(0, steed, (struct obj *) 0, rnd(16), FALSE);
+        trapkilled = thitm(0, steed, (struct obj *) 0, rnd(16), FALSE,
+                           trap->madeby_u ? TRUE : FALSE);
         steedhit = TRUE;
         break;
     case PIT:
     case SPIKED_PIT:
         trapkilled = (DEADMONSTER(steed)
                       || thitm(0, steed, (struct obj *) 0,
-                               rnd((tt == PIT) ? 6 : 10), FALSE));
+                               rnd((tt == PIT) ? 6 : 10), FALSE,
+                               trap->madeby_u ? TRUE : FALSE));
         steedhit = TRUE;
         break;
     case POLY_TRAP_SET:
@@ -2669,7 +2674,8 @@ register struct monst *mtmp;
             extract_nobj(otmp, &trap->ammo);
             if (in_sight)
                 seetrap(trap);
-            if (thitm(8, mtmp, otmp, 0, FALSE))
+            if (thitm(8, mtmp, otmp, 0, FALSE,
+                      trap->madeby_u ? TRUE : FALSE))
                 trapkilled = TRUE;
             break;
         case ROCKTRAP:
@@ -2688,7 +2694,8 @@ register struct monst *mtmp;
             extract_nobj(otmp, &trap->ammo);
             if (in_sight)
                 seetrap(trap);
-            if (thitm(0, mtmp, otmp, d(2, 6), FALSE))
+            if (thitm(0, mtmp, otmp, d(2, 6), FALSE,
+                      trap->madeby_u ? TRUE : FALSE))
                 trapkilled = TRUE;
             break;
         case SQKY_BOARD:
@@ -2742,7 +2749,8 @@ register struct monst *mtmp;
                 }
             }
             if (mtmp->mtrapped)
-                trapkilled = thitm(0, mtmp, (struct obj *) 0, d(2, 4), FALSE);
+                trapkilled = thitm(0, mtmp, (struct obj *) 0, d(2, 4),
+                                   FALSE, trap->madeby_u ? TRUE : FALSE);
             break;
         case SLP_GAS_TRAP_SET:
             if (!(resists_sleep(mtmp) || defended(mtmp, AD_SLEE))
@@ -2850,7 +2858,8 @@ register struct monst *mtmp;
                         shieldeff(mtmp->mx, mtmp->my);
                         pline("%s is uninjured.", Monnam(mtmp));
                     }
-                } else if (thitm(0, mtmp, (struct obj *) 0, rnd(3), FALSE))
+                } else if (thitm(0, mtmp, (struct obj *) 0, rnd(3),
+                                 FALSE, trap->madeby_u ? TRUE : FALSE))
                            trapkilled = TRUE;
                 if (see_it)
                     seetrap(trap);
@@ -2895,7 +2904,8 @@ register struct monst *mtmp;
                 if (alt > num)
                     num = alt;
 
-                if (thitm(0, mtmp, (struct obj *) 0, num, immolate))
+                if (thitm(0, mtmp, (struct obj *) 0, num, immolate,
+                          trap->madeby_u ? TRUE : FALSE))
                     trapkilled = TRUE;
                 else
                     /* we know mhp is at least `num' below mhpmax,
@@ -2939,7 +2949,8 @@ register struct monst *mtmp;
                 }
             } else {
                 int num = d(4, 8);
-                if (thitm(0, mtmp, (struct obj *) 0, num, FALSE))
+                if (thitm(0, mtmp, (struct obj *) 0, num, FALSE,
+                          trap->madeby_u ? TRUE : FALSE))
                     trapkilled = TRUE;
                 else if (!rn2(2))
                     (void) destroy_mitem(mtmp, POTION_CLASS, AD_COLD);
@@ -2981,8 +2992,10 @@ register struct monst *mtmp;
                 seetrap(trap);
             }
             mselftouch(mtmp, "Falling, ", FALSE);
-            if (DEADMONSTER(mtmp) || thitm(0, mtmp, (struct obj *) 0,
-                                        rnd((tt == PIT) ? 6 : 10), FALSE))
+            if (DEADMONSTER(mtmp)
+                || thitm(0, mtmp, (struct obj *) 0,
+                         rnd((tt == PIT) ? 6 : 10), FALSE,
+                         trap->madeby_u ? TRUE : FALSE))
                 trapkilled = TRUE;
             break;
         case HOLE:
@@ -3199,7 +3212,8 @@ register struct monst *mtmp;
             /* explosion might have destroyed a drawbridge; don't
                dish out more damage if monster is already dead */
             if (DEADMONSTER(mtmp)
-                || thitm(0, mtmp, (struct obj *) 0, rnd(16), FALSE)) {
+                || thitm(0, mtmp, (struct obj *) 0, rnd(16), FALSE,
+                         trap->madeby_u ? TRUE : FALSE)) {
                 trapkilled = TRUE;
             } else {
                 /* monsters recursively fall into new pit */
@@ -3287,7 +3301,8 @@ register struct monst *mtmp;
             } else {
                 if ((DEADMONSTER(spear_target)
                      || thitm(0, spear_target, (struct obj *) 0,
-                              (rnd(8) + 6), FALSE))
+                              (rnd(8) + 6), FALSE,
+                              trap->madeby_u ? TRUE : FALSE))
                     /* only set trapkilled if original mtmp has died*/
                     && !isrider)
                     trapkilled = TRUE;
@@ -5940,7 +5955,8 @@ boolean disarm;
                     if (alt > num)
                         num = alt;
 
-                    if (!thitm(0, mon, (struct obj *) 0, num, immolate))
+                    if (!thitm(0, mon, (struct obj *) 0, num, immolate,
+                               FALSE))
                         mon->mhpmax -= rn2(num + 1);
                 }
 
@@ -6407,12 +6423,13 @@ int bodypart;
 /* Monster is hit by trap. */
 /* Note: doesn't work if both obj and d_override are null */
 STATIC_OVL boolean
-thitm(tlev, mon, obj, d_override, nocorpse)
+thitm(tlev, mon, obj, d_override, nocorpse, umade)
 int tlev;
 struct monst *mon;
 struct obj *obj;
 int d_override;
 boolean nocorpse;
+boolean umade;
 {
     int strike;
     boolean trapkilled = FALSE;
@@ -6451,7 +6468,10 @@ boolean nocorpse;
         if (DEADMONSTER(mon)) {
             int xx = mon->mx, yy = mon->my;
 
-            monkilled(mon, "", nocorpse ? -AD_RBRE : AD_PHYS);
+            if (umade) /* player gets the credit and experience */
+                mon_xkilled(mon, "", nocorpse ? -AD_RBRE : AD_PHYS);
+            else
+                monkilled(mon, "", nocorpse ? -AD_RBRE : AD_PHYS);
             if (DEADMONSTER(mon)) {
                 newsym(xx, yy);
                 trapkilled = TRUE;
