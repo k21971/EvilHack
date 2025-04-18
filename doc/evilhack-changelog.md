@@ -4435,4 +4435,6 @@ The following changes to date are:
 - Allow component enchantment for crafted ammo-based traps to carry over
 - Crafting traps, part 4: beartraps and land mines
 - Show trap crafting recipes in object lookup (pokedex)
+- Crafting traps, part 5: additional trap types (sleeping gas/fire/ice/
+  teleportation/magic/anti-magic/polymorph/magic beam)
 

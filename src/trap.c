@@ -3102,9 +3102,30 @@ register struct monst *mtmp;
         case STATUE_TRAP:
             break;
         case MAGIC_TRAP_SET:
-            /* A magic trap.  Monsters usually immune. */
-            if (!rn2(21))
-                goto mfiretrap;
+            /* A magic trap.  Monsters sometimes immune. */
+            if (rn2(2)) {
+                if (rn2(4)) {
+                    int magic_dmg = rnd(10);
+
+                    pline("%s is caught in a magical explosion!",
+                          Monnam(mtmp));
+                    if (in_sight)
+                        seetrap(trap);
+                    damage_mon(mtmp, magic_dmg, AD_MAGM);
+                    if (DEADMONSTER(mtmp))
+                        monkilled(mtmp,
+                                  in_sight
+                                      ? "magical explosion"
+                                      : (const char *) 0,
+                                  -AD_MAGM);
+                    if (DEADMONSTER(mtmp))
+                        trapkilled = TRUE;
+                    if (see_it)
+                        newsym(trap->tx, trap->ty);
+                } else {
+                    goto mfiretrap;
+                }
+            }
             break;
         case ANTI_MAGIC:
             /* similar to hero's case, more or less */

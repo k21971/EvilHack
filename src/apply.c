@@ -2934,6 +2934,14 @@ const struct trap_recipe trap_fusions[] = {
     { SPEAR_TRAP, SPEAR, 1L },
     { BEARTRAP, GRAPPLING_HOOK, 1L },
     { LAND_MINE, SLING_BULLET, 10L },
+    { SLEEPING_GAS_TRAP, WAN_SLEEP, 1L },
+    { FIRE_TRAP, WAN_FIRE, 1L },
+    { ICE_TRAP, WAN_COLD, 1L },
+    { TELEPORTATION_TRAP, WAN_TELEPORTATION, 1L },
+    { MAGIC_TRAP, POT_GAIN_ENERGY, 3L },
+    { ANTI_MAGIC_TRAP, WAN_CANCELLATION, 1L },
+    { POLYMORPH_TRAP, WAN_POLYMORPH, 1L },
+    { MAGIC_BEAM_TRAP, WAN_MAGIC_MISSILE, 1L },
     { 0, 0, 0 }
 };
 
@@ -2994,19 +3002,37 @@ struct obj *obj; /* actual trap kit */
         /* success */
         output = mksobj(trap_type, TRUE, FALSE);
 
-        /* trap kit consumes a charge */
-        consume_obj_charge(obj, TRUE);
-
         /* try to take on the material from the component object */
-        if (valid_obj_material(output, otmp->material)) {
-            set_material(output, otmp->material);
-        } else {
-            /* material is invalid for the output object */
-            Your("component is made of an incorrect material (%s).",
-                 materialnm[otmp->material]);
-            You("fail to build the trap.");
-            delobj(output);
-            return;
+        if (output->otyp == BEARTRAP || output->otyp == LAND_MINE
+            || output->otyp == ARROW_TRAP || output->otyp == BOLT_TRAP
+            || output->otyp == DART_TRAP || output->otyp == SPEAR_TRAP) {
+            if (valid_obj_material(output, otmp->material)) {
+                set_material(output, otmp->material);
+            } else {
+                /* material is invalid for the output object */
+                Your("component is made of an incorrect material (%s).",
+                     materialnm[otmp->material]);
+                You("fail to build the trap.");
+                delobj(output);
+                return;
+            }
+        }
+
+        /* trap recipes that require a wand as a component, the wand
+           must have a minimum number of charges */
+        if (output->otyp == SLEEPING_GAS_TRAP
+            || output->otyp == FIRE_TRAP
+            || output->otyp == ICE_TRAP
+            || output->otyp == TELEPORTATION_TRAP
+            || output->otyp == ANTI_MAGIC_TRAP
+            || output->otyp == POLYMORPH_TRAP
+            || output->otyp == MAGIC_BEAM_TRAP) {
+            if (otmp->spe < 6) {
+                Your("component does not have enough charges.");
+                You("fail to build the trap.");
+                delobj(output);
+                return;
+            }
         }
 
         /* feedback for successful build */
@@ -3014,6 +3040,9 @@ struct obj *obj; /* actual trap kit */
               simpleonames(obj),
               ((otmp->quan > recipe->quan) ? "some of " : ""),
               yobjnam(otmp, (char *) 0), doname(output));
+
+        /* trap kit consumes a charge */
+        consume_obj_charge(obj, TRUE);
 
         /* transfer BUC status of components used */
         output->blessed = otmp->blessed;
@@ -3106,7 +3135,15 @@ struct obj *otmp;
                : (otmp->otyp == ARROW_TRAP) ? ARROW_TRAP_SET
                  : (otmp->otyp == BOLT_TRAP) ? BOLT_TRAP_SET
                    : (otmp->otyp == DART_TRAP) ? DART_TRAP_SET
-                     : (otmp->otyp == SPEAR_TRAP) ? SPEAR_TRAP_SET : 0;
+                     : (otmp->otyp == SPEAR_TRAP) ? SPEAR_TRAP_SET
+                       : (otmp->otyp == SLEEPING_GAS_TRAP) ? SLP_GAS_TRAP_SET
+                         : (otmp->otyp == FIRE_TRAP) ? FIRE_TRAP_SET
+                           : (otmp->otyp == ICE_TRAP) ? ICE_TRAP_SET
+                             : (otmp->otyp == TELEPORTATION_TRAP) ? TELEP_TRAP_SET
+                               : (otmp->otyp == MAGIC_TRAP) ? MAGIC_TRAP_SET
+                                 : (otmp->otyp == ANTI_MAGIC_TRAP) ? ANTI_MAGIC
+                                   : (otmp->otyp == POLYMORPH_TRAP) ? POLY_TRAP_SET
+                                     : (otmp->otyp == MAGIC_BEAM_TRAP) ? MAGIC_BEAM_TRAP_SET : 0;
     if (otmp == trapinfo.tobj && u.ux == trapinfo.tx && u.uy == trapinfo.ty) {
         You("resume setting %s%s.", shk_your(buf, otmp),
             defsyms[trap_to_defsym(what_trap(ttyp, rn2))].explanation);
@@ -3147,6 +3184,14 @@ struct obj *otmp;
                 case BOLT_TRAP_SET:
                 case DART_TRAP_SET:
                 case SPEAR_TRAP_SET:
+                case SLP_GAS_TRAP_SET:
+                case FIRE_TRAP_SET:
+                case ICE_TRAP_SET:
+                case TELEP_TRAP_SET:
+                case MAGIC_TRAP_SET:
+                case ANTI_MAGIC:
+                case POLY_TRAP_SET:
+                case MAGIC_BEAM_TRAP_SET:
                 case BEAR_TRAP: /* drop it without arming it */
                     reset_trapset();
                     You("drop %s!",
@@ -3194,7 +3239,15 @@ set_trap()
                : (otmp->otyp == ARROW_TRAP) ? ARROW_TRAP_SET
                  : (otmp->otyp == BOLT_TRAP) ? BOLT_TRAP_SET
                    : (otmp->otyp == DART_TRAP) ? DART_TRAP_SET
-                     : (otmp->otyp == SPEAR_TRAP) ? SPEAR_TRAP_SET : 0;
+                     : (otmp->otyp == SPEAR_TRAP) ? SPEAR_TRAP_SET
+                       : (otmp->otyp == SLEEPING_GAS_TRAP) ? SLP_GAS_TRAP_SET
+                         : (otmp->otyp == FIRE_TRAP) ? FIRE_TRAP_SET
+                           : (otmp->otyp == ICE_TRAP) ? ICE_TRAP_SET
+                             : (otmp->otyp == TELEPORTATION_TRAP) ? TELEP_TRAP_SET
+                               : (otmp->otyp == MAGIC_TRAP) ? MAGIC_TRAP_SET
+                                 : (otmp->otyp == ANTI_MAGIC_TRAP) ? ANTI_MAGIC
+                                   : (otmp->otyp == POLYMORPH_TRAP) ? POLY_TRAP_SET
+                                     : (otmp->otyp == MAGIC_BEAM_TRAP) ? MAGIC_BEAM_TRAP_SET : 0;
     ttmp = maketrap(u.ux, u.uy, ttyp);
     if (ttmp) {
         ttmp->madeby_u = 1;
@@ -3232,6 +3285,11 @@ set_trap()
             otmp->oprops = prop;
             set_material(otmp, mat);
             otmp->owt = weight(otmp);
+        } else if (ttmp->ttyp == MAGIC_BEAM_TRAP_SET) {
+            /* wand of magic missile is the component to make
+               a magic beam trap; force beam to match the
+               component */
+            ttmp->launch_otyp = -ZT_SPELL(ZT_MAGIC_MISSILE);
         }
         setnotworn(otmp); /* in case trap was wielded when set */
         freeinv(otmp);
@@ -4712,6 +4770,14 @@ doapply()
     case BOLT_TRAP:
     case DART_TRAP:
     case SPEAR_TRAP:
+    case SLEEPING_GAS_TRAP:
+    case FIRE_TRAP:
+    case ICE_TRAP:
+    case TELEPORTATION_TRAP:
+    case MAGIC_TRAP:
+    case ANTI_MAGIC_TRAP:
+    case POLYMORPH_TRAP:
+    case MAGIC_BEAM_TRAP:
         use_trap(obj);
         break;
     case FLINT:

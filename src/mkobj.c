@@ -3717,6 +3717,14 @@ struct obj* obj;
     case DRUM_OF_EARTHQUAKE:
     case LAND_MINE:
     case BEARTRAP:
+    case SLEEPING_GAS_TRAP:
+    case FIRE_TRAP:
+    case ICE_TRAP:
+    case TELEPORTATION_TRAP:
+    case MAGIC_TRAP:
+    case ANTI_MAGIC_TRAP:
+    case POLYMORPH_TRAP:
+    case MAGIC_BEAM_TRAP:
     case TOWEL:
     case BLINDFOLD:
     case LEASH:

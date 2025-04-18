@@ -958,7 +958,7 @@ coord *cc;
                         "As you dig, the hole fills with %s!");
             retval = TRUE;
         } else {
-            /* magical digging disarms settable traps */
+            /* magical digging disarms resettable/ammo-based traps */
             if (by_magic && ttmp
                 && (ttmp->ttyp == LANDMINE || ttmp->ttyp == BEAR_TRAP
                     || ttmp->ttyp == ARROW_TRAP_SET
