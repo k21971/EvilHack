@@ -3237,10 +3237,10 @@ set_trap()
     boolean enchant = otmp->spe;
     boolean is_rogue = Role_if(PM_ROGUE);
     boolean is_ranger = Role_if(PM_RANGER);
-    boolean chance = (ACURR(A_DEX)
-                      + (is_rogue ? (u.ulevel * 5)
-                                  : is_ranger ? (u.ulevel * 2)
-                                              : u.ulevel));
+    int chance = (ACURR(A_DEX)
+                  + (is_rogue ? (u.ulevel * 5)
+                              : is_ranger ? (u.ulevel * 2)
+                                          : u.ulevel));
 
     if (!otmp || !carried(otmp) || u.ux != trapinfo.tx
         || u.uy != trapinfo.ty) {

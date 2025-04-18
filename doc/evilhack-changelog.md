@@ -4439,4 +4439,5 @@ The following changes to date are:
   teleportation/magic/anti-magic/polymorph/magic beam)
 - Crafting traps, part 6: successfully creating/setting traps odds
 - Player gets the credit for monsters killed in a trap they made
+- Fix: issue with trap setting success odds
 
