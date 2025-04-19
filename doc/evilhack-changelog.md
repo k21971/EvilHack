@@ -4445,4 +4445,5 @@ The following changes to date are:
 - Fix: player riding a steed can now feed their steed by throwing food
   down at them, take two
 - Fix: prevent shambling horrors from having M3_STATIONARY flag
+- Adjust pricing of crafted traps
 
