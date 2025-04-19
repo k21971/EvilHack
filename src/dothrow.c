@@ -1458,18 +1458,17 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             }
         } else if (u.dz < 0) {
             (void) toss_up(obj, rn2(5) && !Underwater);
-        } else if (u.dz > 0 && u.usteed) {
-            if (obj->oclass == POTION_CLASS && rn2(6)) {
-                /* alternative to prayer or wand of opening/spell of knock
-                   for dealing with cursed saddle:  throw holy water > */
-                potionhit(u.usteed, obj, POTHIT_HERO_THROW);
-            } else if (dogfood(u.usteed, obj) <= ACCFOOD) {
-                boolean obj_gone;
-
-                obj_gone = thitmonst(u.usteed, obj);
-                if (obj_gone)
-                    thrownobj = (struct obj *) 0;
-            }
+        } else if (u.dz > 0 && u.usteed && obj->oclass == POTION_CLASS
+                    && rn2(6)) {
+             /* alternative to prayer or wand of opening/spell of knock
+                for dealing with cursed saddle:  throw holy water > */
+             potionhit(u.usteed, obj, POTHIT_HERO_THROW);
+        } else if (u.dz > 0 && u.usteed
+                   && dogfood(u.usteed, obj) <= ACCFOOD) {
+            if (tamedog(u.usteed, obj)) /* handles food */
+                return;
+            else
+                hitfloor(obj, TRUE);
         } else {
             hitfloor(obj, TRUE);
         }

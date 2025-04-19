@@ -4401,4 +4401,6 @@ The following changes to date are:
 - Fix: feedback when monster hits an ice trap
 - Fix: monsters could loot locked containers without opening them if
   the container was being carried
+- Fix: player riding a steed can now feed their steed by throwing food
+  down at them, take two
 
