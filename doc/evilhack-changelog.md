@@ -4448,4 +4448,5 @@ The following changes to date are:
 - Adjust pricing of crafted traps
 - Fix: show correct recipe component identifier for crafted traps in
   object lookup (pokedex)
+- Recipe change for crafting a polymorph trap
 
