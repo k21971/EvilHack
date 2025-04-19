@@ -1649,11 +1649,12 @@ shambler_init()
 
     shambler->mflags3 = 0;
     for (i = 0; i < rnd(5); i++)
-        shambler->mflags3 |= (1 << rn2(16));    /* rn2() should equal the number of M3_ flags in
+        shambler->mflags3 |= (1 << rn2(18));    /* rn2() should equal the number of M3_ flags in
                                                  * include/monflag.h */
     shambler->mflags3 &= ~M3_WANTSALL;
     shambler->mflags3 &= ~M3_COVETOUS;          /* no covetous behavior */
     shambler->mflags3 &= ~M3_WAITMASK;          /* no waiting either */
+    shambler->mflags3 &= ~M3_STATIONARY;        /* no stuck in one spot */
 
     return;
 }
