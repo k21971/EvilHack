@@ -4440,4 +4440,6 @@ The following changes to date are:
 - Crafting traps, part 6: successfully creating/setting traps odds
 - Player gets the credit for monsters killed in a trap they made
 - Fix: issue with trap setting success odds
+- Fix: monsters could loot locked containers without opening them if
+  the container was being carried
 
