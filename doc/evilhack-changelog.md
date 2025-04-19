@@ -4446,4 +4446,6 @@ The following changes to date are:
   down at them, take two
 - Fix: prevent shambling horrors from having M3_STATIONARY flag
 - Adjust pricing of crafted traps
+- Fix: show correct recipe component identifier for crafted traps in
+  object lookup (pokedex)
 

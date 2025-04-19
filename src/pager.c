@@ -1616,7 +1616,10 @@ short otyp;
                 OBJPUTSTR("Trap crafting recipes (using trap kit):");
                 has_trecipes = TRUE;
             }
-            Sprintf(buf, "  trap kit + %ld %s = %s", trecipe->quan,
+            Sprintf(buf, "  trap kit + %ld %s%s = %s", trecipe->quan,
+                    (objects[trecipe->comp].oc_class == WAND_CLASS
+                     ? "wand of " : objects[trecipe->comp].oc_class == POTION_CLASS
+                       ? "potion of " : ""),
                     OBJ_NAME(objects[trecipe->comp]),
                     OBJ_NAME(objects[trecipe->result_typ]));
             OBJPUTSTR(buf);
