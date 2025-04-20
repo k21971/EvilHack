@@ -1499,13 +1499,15 @@ boolean wiz_cast;
     /* successful casting increases the amount of time the cast
        spell is known, intelligence determines how much extra time
        is added with each cast. a player with an intelligence of
-       18 will have 90-126 extra turns known added per cast; a player
-       with an intelligence of only 9 would see 45-63 extra turns known
+       18 will have 180-234 extra turns known added per cast; a player
+       with an intelligence of only 9 would see 90-117 extra turns known
        added per cast. the players intelligence must be greater than 6
        to be able to help remember spells as they're cast. cavepersons
-       are the one role that do not have this benefit */
+       are the one role that do not have this benefit. draugr race does
+       not need to be considered here, as that race can't cast spells
+       at all */
     if (!wiz_cast && !Role_if(PM_CAVEMAN) && ACURR(A_INT) > 6) {
-        spl_book[spell].sp_know += rn1(ACURR(A_INT) * 5, ACURR(A_INT) * 2);
+        spl_book[spell].sp_know += rn1(ACURR(A_INT) * 10, ACURR(A_INT) * 3);
         if (spl_book[spell].sp_know >= KEEN)
             spl_book[spell].sp_know = KEEN;
     }

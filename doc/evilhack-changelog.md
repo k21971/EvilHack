@@ -4449,4 +4449,5 @@ The following changes to date are:
 - Fix: show correct recipe component identifier for crafted traps in
   object lookup (pokedex)
 - Recipe change for crafting a polymorph trap
+- Revamp the amount of turns earned in remembering cast spells
 
