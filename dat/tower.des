@@ -349,56 +349,56 @@ REGION:(01,18,01,18),lit,"ordinary"
 REGION:(74,01,74,01),lit,"ordinary"
 ENGRAVING:(04,17), engrave, "Watch your step..."
 # Vampire nests
-MONSTER:('V',"vampire"),(64,00),asleep
-MONSTER:('V',"vampire"),(65,00),asleep
-MONSTER:('V',"vampire"),(63,01),asleep
-MONSTER:('V',"vampire"),(64,01),asleep
-MONSTER:('V',"vampire"),(65,01),asleep
-MONSTER:('V',"vampire"),(66,01),asleep
-MONSTER:('V',"vampire"),(62,02),asleep
-MONSTER:('V',"vampire"),(63,02),asleep
+MONSTER:('V',"vampire sovereign"),(64,00),asleep
+MONSTER:('V',"vampire sovereign"),(65,00),asleep
+MONSTER:('V',"vampire sovereign"),(63,01),asleep
+MONSTER:('V',"vampire sovereign"),(64,01),asleep
+MONSTER:('V',"vampire sovereign"),(65,01),asleep
+MONSTER:('V',"vampire sovereign"),(66,01),asleep
+MONSTER:('V',"vampire sovereign"),(62,02),asleep
+MONSTER:('V',"vampire sovereign"),(63,02),asleep
 MONSTER:('V',"vampire noble"),(64,02),asleep
 MONSTER:('V',"vampire noble"),(65,02),asleep
-MONSTER:('V',"vampire"),(66,02),asleep
-MONSTER:('V',"vampire"),(67,02),asleep
-MONSTER:('V',"vampire"),(63,03),asleep
-MONSTER:('V',"vampire"),(64,03),asleep
-MONSTER:('V',"vampire"),(65,03),asleep
-MONSTER:('V',"vampire"),(66,03),asleep
-MONSTER:('V',"vampire"),(64,04),asleep
-MONSTER:('V',"vampire"),(65,04),asleep
+MONSTER:('V',"vampire sovereign"),(66,02),asleep
+MONSTER:('V',"vampire sovereign"),(67,02),asleep
+MONSTER:('V',"vampire sovereign"),(63,03),asleep
+MONSTER:('V',"vampire sovereign"),(64,03),asleep
+MONSTER:('V',"vampire sovereign"),(65,03),asleep
+MONSTER:('V',"vampire sovereign"),(66,03),asleep
+MONSTER:('V',"vampire sovereign"),(64,04),asleep
+MONSTER:('V',"vampire sovereign"),(65,04),asleep
 
-MONSTER:('V',"vampire"),(67,03),asleep
-MONSTER:('V',"vampire"),(68,03),asleep
-MONSTER:('V',"vampire"),(66,04),asleep
-MONSTER:('V',"vampire"),(67,04),asleep
-MONSTER:('V',"vampire"),(68,04),asleep
-MONSTER:('V',"vampire"),(69,04),asleep
-MONSTER:('V',"vampire"),(65,05),asleep
-MONSTER:('V',"vampire"),(66,05),asleep
+MONSTER:('V',"vampire sovereign"),(67,03),asleep
+MONSTER:('V',"vampire sovereign"),(68,03),asleep
+MONSTER:('V',"vampire sovereign"),(66,04),asleep
+MONSTER:('V',"vampire sovereign"),(67,04),asleep
+MONSTER:('V',"vampire sovereign"),(68,04),asleep
+MONSTER:('V',"vampire sovereign"),(69,04),asleep
+MONSTER:('V',"vampire sovereign"),(65,05),asleep
+MONSTER:('V',"vampire sovereign"),(66,05),asleep
 MONSTER:('V',"vampire noble"),(67,05),asleep
 MONSTER:('V',"vampire noble"),(68,05),asleep
-MONSTER:('V',"vampire"),(69,05),asleep
-MONSTER:('V',"vampire"),(70,05),asleep
-MONSTER:('V',"vampire"),(66,06),asleep
-MONSTER:('V',"vampire"),(67,06),asleep
-MONSTER:('V',"vampire"),(68,06),asleep
-MONSTER:('V',"vampire"),(69,06),asleep
-MONSTER:('V',"vampire"),(67,07),asleep
-MONSTER:('V',"vampire"),(68,07),asleep
+MONSTER:('V',"vampire sovereign"),(69,05),asleep
+MONSTER:('V',"vampire sovereign"),(70,05),asleep
+MONSTER:('V',"vampire sovereign"),(66,06),asleep
+MONSTER:('V',"vampire sovereign"),(67,06),asleep
+MONSTER:('V',"vampire sovereign"),(68,06),asleep
+MONSTER:('V',"vampire sovereign"),(69,06),asleep
+MONSTER:('V',"vampire sovereign"),(67,07),asleep
+MONSTER:('V',"vampire sovereign"),(68,07),asleep
 
-MONSTER:('V',"vampire"),(70,06),asleep
-MONSTER:('V',"vampire"),(71,06),asleep
+MONSTER:('V',"vampire sovereign"),(70,06),asleep
+MONSTER:('V',"vampire sovereign"),(71,06),asleep
 MONSTER:('V',"vampire noble"),(72,06),asleep
 MONSTER:('V',"vampire noble"),(73,06),asleep
-MONSTER:('V',"vampire"),(74,06),asleep
-MONSTER:('V',"vampire"),(75,06),asleep
-MONSTER:('V',"vampire"),(69,07),asleep
-MONSTER:('V',"vampire"),(70,07),asleep
-MONSTER:('V',"vampire"),(71,07),asleep
-MONSTER:('V',"vampire"),(72,07),asleep
-MONSTER:('V',"vampire"),(73,07),asleep
-MONSTER:('V',"vampire"),(74,07),asleep
+MONSTER:('V',"vampire sovereign"),(74,06),asleep
+MONSTER:('V',"vampire sovereign"),(75,06),asleep
+MONSTER:('V',"vampire sovereign"),(69,07),asleep
+MONSTER:('V',"vampire sovereign"),(70,07),asleep
+MONSTER:('V',"vampire sovereign"),(71,07),asleep
+MONSTER:('V',"vampire sovereign"),(72,07),asleep
+MONSTER:('V',"vampire sovereign"),(73,07),asleep
+MONSTER:('V',"vampire sovereign"),(74,07),asleep
 
 # Demons
 MONSTER:('&',"nalfeshnee"),(21,05),hostile

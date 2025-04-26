@@ -1077,6 +1077,8 @@ struct permonst * pm;
             MONPUTSTR("May be eaten by vegans.");
         else if (vegetarian(pm))
             MONPUTSTR("May be eaten by vegetarians.");
+        else if (has_blood(pm))
+            MONPUTSTR("May be fed upon by vampires.");
     }
     if (emits_light(pm)) {
         if (pm == &mons[PM_SHADOW_DRAGON]

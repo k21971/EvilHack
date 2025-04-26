@@ -99,6 +99,7 @@ struct objclass {
 #define is_adamantine(otmp) (otmp->material == ADAMANTINE)
 #define is_spidersilk(otmp) (otmp->material == SPIDER_SILK)
 #define is_bronze(otmp) (otmp->material == BRONZE)
+#define is_silver(otmp) (otmp->material == SILVER)
 
 #define is_metallic(otmp) \
     (otmp->material >= IRON && otmp->material <= ADAMANTINE)

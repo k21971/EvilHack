@@ -970,7 +970,7 @@ struct obj *obj;
                     }
                     nomovemsg = 0; /* default, "you can move again" */
                 }
-            } else if (youmonst.data->mlet == S_VAMPIRE)
+            } else if (maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE)))
                 You("don't have a reflection.");
             else if (u.umonnum == PM_UMBER_HULK) {
                 pline("Huh?  That doesn't look like you!");
@@ -1039,7 +1039,7 @@ struct obj *obj;
             pline("%s is too far away to see %sself in the dark.",
                   Monnam(mtmp), mhim(mtmp));
         /* some monsters do special things */
-    } else if (mlet == S_VAMPIRE || mlet == S_GHOST || is_vampshifter(mtmp)) {
+    } else if (racial_vampire(mtmp) || mlet == S_GHOST || is_vampshifter(mtmp)) {
         if (vis)
             pline("%s doesn't have a reflection.", Monnam(mtmp));
     } else if (monable && mtmp->data == &mons[PM_MEDUSA]) {
@@ -2074,6 +2074,8 @@ struct obj *corpse;
 {
     if (corpse->oeaten)
         return 0;
+    if (corpse->odrained)
+        return 0;
     if (!mons[corpse->corpsenm].cnutrit)
         return 0;
     return 1;
@@ -2098,6 +2100,10 @@ struct obj *obj;
         return;
     if (corpse->oeaten) {
         You("cannot tin %s which is partly eaten.", something);
+        return;
+    }
+    if (corpse->odrained) {
+        You("cannot tin %s which is drained of its blood.", something);
         return;
     }
     if (touch_petrifies(&mons[corpse->corpsenm]) && !Stone_resistance
@@ -4308,6 +4314,8 @@ struct obj *obj;
 
     if (nohands(youmonst.data)) {
         if (druid_form && !slithy(youmonst.data)) {
+            ;
+        } else if (vampire_form && !is_whirly(youmonst.data)) {
             ;
         } else {
             You_cant("break %s without hands!", yname(obj));

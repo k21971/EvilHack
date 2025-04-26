@@ -1970,6 +1970,15 @@ register struct attack *mattk;
     case AD_DRLI:
         hitmsg(mtmp, mattk);
         if (uncancelled && !rn2(3) && !Drain_resistance) {
+            /* if vampire biting (and also a pet) */
+            if (racial_vampire(mtmp) && mattk->aatyp == AT_BITE
+                && has_blood(youmonst.data)) {
+                Your("blood is being drained!");
+                /* get 1/20th of full corpse value,
+                   therefore 4 bites == 1 drink */
+                if (mtmp->mtame && !mtmp->isminion)
+                    EDOG(mtmp)->hungrytime += ((int) ((youmonst.data)->cnutrit / 20) + 1);
+            }
             losexp("life drainage");
         }
         break;
@@ -2330,8 +2339,10 @@ do_rust:
          * nurses don't heal those that cause petrification,
          * nor will they heal the undead */
         if (mtmp->mcan || (Upolyd && touch_petrifies(youmonst.data))
-            || is_undead(youmonst.data) || Race_if(PM_DRAUGR)) {
-            if (is_undead(youmonst.data) || Race_if(PM_DRAUGR)) {
+            || is_undead(youmonst.data) || Race_if(PM_DRAUGR)
+            || Race_if(PM_VAMPIRE)) {
+            if (is_undead(youmonst.data) || Race_if(PM_DRAUGR)
+                || Race_if(PM_VAMPIRE)) {
                 if (!Deaf && !(moves % 5))
                     verbalize("I can't heal the undead... you're dead!");
             }
@@ -2606,6 +2617,7 @@ do_rust:
         uchar withertime = max(2, dmg);
         boolean no_effect =
             (nonliving(youmonst.data)
+             || racial_vampire(&youmonst)
              || racial_zombie(&youmonst) || !uncancelled);
         boolean lose_maxhp = (withertime >= 8 && !BWithering); /* if already withering */
         dmg = 0; /* doesn't deal immediate damage */

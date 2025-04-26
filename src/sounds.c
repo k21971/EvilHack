@@ -687,7 +687,7 @@ register struct monst *mtmp;
         /* vampire messages are varied by tameness, peacefulness, and time of
          * night */
         boolean isnight = night();
-        boolean kindred = (Upolyd && (u.umonnum == PM_VAMPIRE
+        boolean kindred = (Upolyd && (u.umonnum == PM_VAMPIRE_SOVEREIGN
                                       || u.umonnum == PM_VAMPIRE_NOBLE
                                       || u.umonnum == PM_VAMPIRE_ROYAL
                                       || u.umonnum == PM_VAMPIRE_MAGE));

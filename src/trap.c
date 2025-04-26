@@ -4856,7 +4856,8 @@ dountrap()
         return 0;
     }
     if (((nohands(youmonst.data)
-          && !(druid_form && !slithy(youmonst.data)))
+          && !(druid_form && !slithy(youmonst.data))
+          && !(vampire_form && !is_whirly(youmonst.data)))
          && !webmaker(youmonst.data))
         || !youmonst.data->mmove) {
         pline("And just how do you expect to do that?");

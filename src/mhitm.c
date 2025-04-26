@@ -2229,8 +2229,16 @@ post_stone:
         if (!cancelled && !rn2(3)
             && !(resists_drli(mdef) || defended(mdef, AD_DRLI))) {
             tmp = d(2, 6);
-            if (vis && canspotmon(mdef))
-                pline("%s suddenly seems weaker!", Monnam(mdef));
+            if (racial_vampire(magr) && mattk->aatyp == AT_BITE
+                && has_blood(pd)) {
+                if (vis && canspotmon(mdef)) {
+                    pline("%s blood is being drained!",
+                          s_suffix(Monnam(mdef)));
+                    pline("%s suddenly seems weaker!", Monnam(mdef));
+                }
+                if (magr->mtame && !magr->isminion)
+                    EDOG(magr)->hungrytime += ((int) ((mdef->data)->cnutrit / 20) + 1);
+            }
             mdef->mhpmax -= tmp;
             if (mdef->m_lev == 0)
                 tmp = mdef->mhp;
@@ -3034,10 +3042,12 @@ struct obj *mwep;
     boolean mon_tempest_wield = (MON_WEP(mdef)
                                  && MON_WEP(mdef)->oartifact == ART_TEMPEST);
     struct obj *passive_armor;
+
     if ((passive_armor = which_armor(mdef, W_ARM))) {
         if (mhit && !rn2(3)
             && Is_dragon_scaled_armor(passive_armor)) {
             int otyp = Dragon_armor_to_scales(passive_armor);
+
             switch (otyp) {
             case GREEN_DRAGON_SCALES:
                 if (resists_poison(magr) || defended(magr, AD_DRST))
@@ -3075,36 +3085,42 @@ struct obj *mwep;
                         || aatyp == AT_BITE || aatyp == AT_HUGS
                         || aatyp == AT_BUTT || aatyp == AT_STNG
                         || aatyp == AT_TENT) {
-                    /* if magr is wielding a weapon, that disintegrates first before
-                    the actual monster. Same if magr is wearing gloves or boots */
+                    /* if magr is wielding a weapon, that disintegrates
+                       first before the actual monster. Same if magr is
+                       wearing gloves or boots */
                     if (MON_WEP(magr) && !rn2(12)) {
                         if (canseemon(magr))
                             pline("%s %s is disintegrated!",
-                                s_suffix(Monnam(magr)), xname(MON_WEP(magr)));
+                                  s_suffix(Monnam(magr)),
+                                  xname(MON_WEP(magr)));
                         m_useup(magr, MON_WEP(magr));
                     } else if ((magr->misc_worn_check & W_ARMF)
-                            && aatyp == AT_KICK && !rn2(12)) {
+                               && aatyp == AT_KICK && !rn2(12)) {
                         if (canseemon(magr))
                             pline("%s %s are disintegrated!",
-                                s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMF)));
+                                  s_suffix(Monnam(magr)),
+                                  xname(which_armor(magr, W_ARMF)));
                         m_useup(magr, which_armor(magr, W_ARMF));
                     } else if ((magr->misc_worn_check & W_ARMG)
-                            && (aatyp == AT_WEAP || aatyp == AT_CLAW
-                                || aatyp == AT_TUCH)
-                            && !MON_WEP(magr) && !rn2(12)
-                            && !((which_armor(magr, W_ARMG))->oartifact == ART_DRAGONBANE)) {
+                               && (aatyp == AT_WEAP || aatyp == AT_CLAW
+                                   || aatyp == AT_TUCH)
+                               && !MON_WEP(magr) && !rn2(12)
+                               && !((which_armor(magr, W_ARMG))->oartifact == ART_DRAGONBANE)) {
                         if (canseemon(magr))
                             pline("%s %s are disintegrated!",
-                                s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMG)));
+                                  s_suffix(Monnam(magr)),
+                                  xname(which_armor(magr, W_ARMG)));
                         m_useup(magr, which_armor(magr, W_ARMG));
                     } else {
                         if (rn2(40)) {
                             if (canseemon(magr))
-                                pline("%s partially disintegrates!", Monnam(magr));
+                                pline("%s partially disintegrates!",
+                                      Monnam(magr));
                             magr->mhp -= rnd(4);
                         } else {
                             if (canseemon(magr))
-                                pline("%s is disintegrated completely!", Monnam(magr));
+                                pline("%s is disintegrated completely!",
+                                      Monnam(magr));
                             disint_mon_invent(magr);
                             if (is_rider(magr->data)) {
                                 if (canseemon(magr)) {
@@ -3141,7 +3157,8 @@ struct obj *mwep;
                 if (rn2(20)) {
                     if (!rn2(3)) {
                         if (canseemon(magr))
-                            pline("%s flinches from the cold!", Monnam(magr));
+                            pline("%s flinches from the cold!",
+                                  Monnam(magr));
                         damage_mon(magr, rnd(4), AD_COLD);
                     }
                 } else {
@@ -3202,7 +3219,8 @@ struct obj *mwep;
                 break;
             case GRAY_DRAGON_SCALES:
                 if (!rn2(6))
-                    (void) cancel_monst(magr, (struct obj *) 0, TRUE, TRUE, FALSE);
+                    (void) cancel_monst(magr, (struct obj *) 0, TRUE,
+                                        TRUE, FALSE);
                 break;
             default: /* all other types of armor, just pass on through */
                 break;
@@ -3218,12 +3236,14 @@ struct obj *mwep;
             if (!rn2(3) && is_dragon(magr->data)
                 && passive_armor->oartifact == ART_DRAGONBANE) {
                 if (canseemon(magr))
-                    pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(magr)));
+                    pline("Dragonbane sears %s scaly hide!",
+                          s_suffix(mon_nam(magr)));
                 magr->mhp -= rnd(6) + 2;
             }
             if (magr->mhp < 1) {
                 if (canseemon(magr))
-                    pline("Dragonbane's power overwhelms %s!", mon_nam(magr));
+                    pline("Dragonbane's power overwhelms %s!",
+                          mon_nam(magr));
                 pline("%s dies!", Monnam(magr));
                 monkilled(magr, "", AD_PHYS);
                 return (mdead | mhit | MM_AGR_DIED);
@@ -3292,8 +3312,9 @@ struct obj *mwep;
                        || aatyp == AT_BITE || aatyp == AT_HUGS
                        || aatyp == AT_BUTT || aatyp == AT_STNG
                        || aatyp == AT_TENT) {
-                /* if magr is wielding a weapon, that disintegrates first before
-                   the actual monster. Same if magr is wearing gloves or boots */
+                /* if magr is wielding a weapon, that disintegrates
+                   first before the actual monster. Same if magr is
+                   wearing gloves or boots */
                 if (MON_WEP(magr) && chance) {
                     if (canseemon(magr))
                         pline("%s %s is disintegrated!",
@@ -3303,7 +3324,8 @@ struct obj *mwep;
                            && aatyp == AT_KICK && chance) {
                     if (canseemon(magr))
                         pline("%s %s are disintegrated!",
-                              s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMF)));
+                              s_suffix(Monnam(magr)),
+                              xname(which_armor(magr, W_ARMF)));
                     m_useup(magr, which_armor(magr, W_ARMF));
                 } else if ((magr->misc_worn_check & W_ARMG)
                            && (aatyp == AT_WEAP || aatyp == AT_CLAW
@@ -3311,7 +3333,8 @@ struct obj *mwep;
                            && !MON_WEP(magr) && chance) {
                     if (canseemon(magr))
                         pline("%s %s are disintegrated!",
-                              s_suffix(Monnam(magr)), xname(which_armor(magr, W_ARMG)));
+                              s_suffix(Monnam(magr)),
+                              xname(which_armor(magr, W_ARMG)));
                     m_useup(magr, which_armor(magr, W_ARMG));
                 } else {
                     if (mdef->data == &mons[PM_ANTIMATTER_VORTEX] ? rn2(10) : rn2(20)) {

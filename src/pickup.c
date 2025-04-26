@@ -2829,6 +2829,8 @@ u_handsy()
     if (nohands(youmonst.data)) {
         if (druid_form && !slithy(youmonst.data)) {
             return TRUE;
+        } else if (vampire_form && !is_whirly(youmonst.data)) {
+            return TRUE;
         } else {
             You("have no hands!"); /* not `body_part(HAND)' */
             return FALSE;

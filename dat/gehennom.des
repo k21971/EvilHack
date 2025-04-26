@@ -1940,8 +1940,8 @@ MONSTER:('&',"Orcus"),(33,17),hostile
 MONSTER:('Z',"human zombie"),(32,17)
 MONSTER:(' ',"shade"),(32,16)
 MONSTER:(' ',"shade"),(32,18)
-MONSTER:('V',"vampire"),(35,18)
-MONSTER:('V',"vampire"),(35,16)
+MONSTER:('V',"vampire sovereign"),(35,18)
+MONSTER:('V',"vampire sovereign"),(35,16)
 MONSTER:('V',"vampire noble"),(36,16)
 MONSTER:('V',"vampire noble"),(36,17)
 # Watches the sanctum
@@ -1965,7 +1965,7 @@ MONSTER:('Z',"ettin zombie"),random
 MONSTER:('Z',"human zombie"),random
 MONSTER:('Z',"revenant"),random
 MONSTER:('Z',"revenant"),random
-MONSTER:('V',"vampire"),random
+MONSTER:('V',"vampire sovereign"),random
 MONSTER:('V',"vampire noble"),random
 MONSTER:('V',"vampire noble"),random
 MONSTER:('V',"vampire royal"),random

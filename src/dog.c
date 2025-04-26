@@ -398,6 +398,9 @@ makedog()
         } else if (Race_if(PM_DRAUGR)) {
             petname = dogname;
             pettype = PM_SMALL_SKELETAL_HOUND;
+        } else if (Race_if(PM_VAMPIRE)) {
+            petname = dogname;
+            pettype = PM_WOLF_CUB;
         }
     } else if (pettype == PM_PSEUDODRAGON) {
         petname = pseudoname;
@@ -405,13 +408,15 @@ makedog()
         petname = ratname;
     } else if (pettype == PM_LESSER_HOMUNCULUS) {
         petname = homunname;
-        /* hijack creation for drow race */
         if (Race_if(PM_DROW)) {
             petname = spidername;
             pettype = PM_LARGE_SPIDER;
         } else if (Race_if(PM_DRAUGR)) {
             petname = dogname;
             pettype = PM_SMALL_SKELETAL_HOUND;
+        } else if (Race_if(PM_VAMPIRE)) {
+            petname = dogname;
+            pettype = PM_WOLF_CUB;
         }
     } else if (pettype == PM_LARGE_SPIDER) {
         petname = spidername;
@@ -438,6 +443,9 @@ makedog()
         } else if (Race_if(PM_DRAUGR)) {
             petname = dogname;
             pettype = PM_SMALL_SKELETAL_HOUND;
+        } else if (Race_if(PM_VAMPIRE)) {
+            petname = dogname;
+            pettype = PM_WOLF_CUB;
         }
     }
 
@@ -1168,6 +1176,14 @@ register struct obj *obj;
             && (touch_petrifies(fptr) || obj->corpsenm == PM_MEDUSA)
             && !(resists_ston(mon) || defended(mon, AD_STON)))
             return POISON;
+
+        /* vampires drain the blood from fresh corpses */
+        if (is_vampire(mptr))
+            return (obj->otyp == CORPSE
+                    && has_blood(&mons[obj->corpsenm]) && !obj->oeaten
+                    && peek_at_iced_corpse_age(obj) + 5 >= monstermoves)
+                    ? DOGFOOD : TABU;
+
         if (!carni && !herbi)
             return obj->cursed ? UNDEF : APPORT;
 

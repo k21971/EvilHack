@@ -380,6 +380,7 @@ struct you {
     unsigned ucreamed;
     unsigned uswldtim;          /* time you have been swallowed */
     unsigned uwildshape;        /* time between using wildshape (druid ability) */
+    unsigned uvampireshape;     /* time between using shapechange (vampire ability) */
 
     Bitfield(uswallow, 1);      /* true if swallowed */
     Bitfield(uinwater, 1);      /* if you're currently in water (only
@@ -453,5 +454,6 @@ struct you {
 #define Upolyd (u.umonnum != u.umonster)
 
 #define druid_form (Role_if(PM_DRUID) && all_druid_forms(monsndx(youmonst.data)))
+#define vampire_form (Race_if(PM_VAMPIRE) && all_vampire_forms(monsndx(youmonst.data)))
 
 #endif /* YOU_H */

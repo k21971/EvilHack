@@ -1927,6 +1927,12 @@ boolean called;
         strsubst(buf, " noble", " lord");
     else if (is_prince(mtmp->data) && !mtmp->female)
         strsubst(buf, " royal", " king");
+    else if (mtmp->data == &mons[PM_VAMPIRE_SOVEREIGN]
+             && mtmp->female)
+        strsubst(buf, " sovereign", " baroness");
+    else if (mtmp->data == &mons[PM_VAMPIRE_SOVEREIGN]
+             && !mtmp->female)
+        strsubst(buf, " sovereign", " baron");
 
     if (name_at_start && (article == ARTICLE_YOUR || !has_adjectives)) {
         if (mdat == &mons[PM_WIZARD_OF_YENDOR]

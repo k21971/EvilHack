@@ -645,6 +645,9 @@ nh_timeout()
     if (u.uwildshape)
         u.uwildshape--;
 
+    if (u.uvampireshape)
+        u.uvampireshape--;
+
     /* Druids have a sense for when they can use #wildshape again */
     if (u.uwildshape == 20)
         You_feel("your wildshape ability start to return.");
@@ -652,6 +655,15 @@ nh_timeout()
     /* Druids have an innate sense of when they will lose their
        current creature form and revert back to their original form */
     if (Role_if(PM_DRUID) && u.mtimedone == 20)
+        You("are about to revert back to your original form.");
+
+    /* Vampires have a sense for when they can use #shapechange again */
+    if (u.uvampireshape == 20)
+        You_feel("your shapechanging ability start to return.");
+
+    /* Vampires have an innate sense of when they will lose their
+       current creature form and revert back to their original form */
+    if (Race_if(PM_VAMPIRE) && u.uvampireshape && u.mtimedone == 20)
         You("are about to revert back to your original form.");
 
     /* Dissipate spell-based protection. */

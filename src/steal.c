@@ -390,7 +390,7 @@ char *objnambuf;
         return 1; /* let them flee */
     }
 
-    if (druid_form && otmp
+    if ((druid_form || vampire_form) && otmp
         && ((otmp == uarm) || (otmp == uarmc)
             || (otmp == uarmu) || (otmp == uarmh)
             || (otmp == uarmg) || (otmp == uarms)

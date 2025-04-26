@@ -1924,9 +1924,10 @@ boolean at_stairs, falling, portal;
 #endif
             if (!Deaf)
                 You_hear("groans and moans everywhere.");
-            if (!Upolyd && Race_if(PM_DRAUGR)) {
-                ; /* Draugr that are not poly'd into another form
-                     can still regenerate hit points */
+            if ((!Upolyd && Race_if(PM_DRAUGR))
+                || (!Upolyd && Race_if(PM_VAMPIRE))) {
+                ; /* Draugr/Vampires that are not poly'd into another
+                     form can still regenerate hit points */
             } else {
                 You("feel unable to rest or recuperate here.");
             }

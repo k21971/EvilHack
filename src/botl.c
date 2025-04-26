@@ -2200,7 +2200,7 @@ boolean from_configfile;
     static const char *aligntxt[] = { "chaotic", "neutral", "lawful" };
     /* hu_stat[] from eat.c has trailing spaces which foul up comparisons */
     static const char *hutxt[] = { "Satiated", "", "Hungry", "Weak",
-                                   "Fainting", "Fainted", "Starved" };
+                                   "Frail", "Fainting", "Fainted", "Starved" };
 
     /* Examples:
         3.6.1:
@@ -3537,8 +3537,8 @@ choose_value:
             Strcpy(hilite.textmatch, aligntxt[rv]);
         } else if (fld == BL_HUNGER) {
             static const char *hutxt[] = { "Satiated", (char *) 0, "Hungry",
-                                           "Weak", "Fainting", "Fainted",
-                                           "Starved" };
+                                           "Weak", "Frail", "Fainting",
+                                           "Fainted", "Starved" };
             int rv = query_arrayvalue(qry_buf,
                                       hutxt,
                                       SATIATED, STARVED + 1);

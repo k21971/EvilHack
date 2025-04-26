@@ -107,6 +107,8 @@ register struct obj *pen;
     if (nohands(youmonst.data)) {
         if (druid_form && !slithy(youmonst.data)) {
             ;
+        } else if (vampire_form && !is_whirly(youmonst.data)) {
+            ;
         } else {
             You("need hands to be able to write!");
             return 0;

@@ -647,8 +647,8 @@ int how;
     else if (mptr == &mons[PM_VAMPIRE_MAGE] && Race_if(PM_HUMAN)
              && Role_if(PM_WIZARD))
         u.ugrave_arise = PM_VAMPIRE_MAGE;
-    else if (mptr->mlet == S_VAMPIRE && Race_if(PM_HUMAN))
-        u.ugrave_arise = PM_VAMPIRE;
+    else if (racial_vampire(mtmp) && Race_if(PM_HUMAN))
+        u.ugrave_arise = PM_VAMPIRE_SOVEREIGN;
     else if (mptr == &mons[PM_GHOUL])
         u.ugrave_arise = PM_GHOUL;
     else if (mptr == &mons[PM_NAZGUL])
@@ -1403,7 +1403,8 @@ int how;
         makeknown(AMULET_OF_LIFE_SAVING);
         Your("medallion %s!", !Blind ? "begins to glow" : "feels warm");
         if (uamul->cursed
-            || nonliving(youmonst.data) || racial_zombie(&youmonst)) {
+            || nonliving(youmonst.data) || racial_zombie(&youmonst)
+            || racial_vampire(&youmonst)) {
             Your("medallion %s!", !Blind ? "glows white-hot"
                                          : "sears your neck");
             if (!Deaf)

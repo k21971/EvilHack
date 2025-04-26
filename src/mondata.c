@@ -439,7 +439,7 @@ int material;
             if (ptr == &mons[PM_TENGU] || ptr == &mons[PM_LEPRECHAUN])
                 return FALSE;
         }
-        return (is_were(ptr) || ptr->mlet == S_VAMPIRE
+        return (is_were(ptr) || is_vampire(ptr)
                 || is_demon(ptr) || ptr == &mons[PM_SHADE]
                 || (ptr->mlet == S_IMP));
     } else if (material == IRON) {
@@ -622,8 +622,10 @@ struct monst *mon;
 {
     struct permonst *ptr = r_data(mon);
 
-    if (Role_if(PM_DRUID)
-        && all_druid_forms(monsndx(youmonst.data)))
+    if (druid_form)
+        return FALSE;
+
+    if (vampire_form)
         return FALSE;
 
     return (boolean) (is_whirly(ptr) || ptr->msize <= MZ_SMALL
@@ -648,8 +650,10 @@ struct monst *mon;
     if (ptr == &mons[PM_DRIDER])
         return FALSE;
 
-    if (Role_if(PM_DRUID)
-        && all_druid_forms(monsndx(youmonst.data)))
+    if (druid_form)
+        return FALSE;
+
+    if (vampire_form)
         return FALSE;
 
     return (boolean) (r_bigmonst(mon)
@@ -816,6 +820,8 @@ struct permonst *pm1, *pm2;
         return is_tortle(pm2);
     if (is_zombie(pm1))
         return is_zombie(pm2);
+    if (is_vampire(pm1))
+        return is_vampire(pm2);
     /* other creatures are less precise */
     if (is_giant(pm1))
         return is_giant(pm2); /* open to quibbling here */
@@ -930,9 +936,9 @@ unsigned mhflag;
         "human", "elf", "dwarf", "gnome",
         "orc", "giant", "hobbit", "centaur",
         "illithid", "tortle", "drow", "zombie",
+        "vampire", "demon",
         "undead",
         "lycanthrope",
-        "demon",
         "dragon",
         "angelic being",
         "ogre",
@@ -991,15 +997,19 @@ int *matchlen;
         Strcpy(s + 4, "ex");
     /* nobles and royalty */
     if (slen > 5 && (s = strstri(term - 5, " lady")) != 0)
-        Strcpy(term - 4, "noble");
+        Strcpy(term - 5, "noble");
     else if (slen > 5 && (s = strstri(term - 5, " lord")) != 0)
-        Strcpy(term - 4, "noble");
+        Strcpy(term - 5, "noble");
     else if (slen > 6 && (s = strstri(term - 6, " queen")) != 0
              && strncmpi(str, "kathryn ", 8))
         Strcpy(term - 5, "royal");
     else if (slen > 5 && (s = strstri(term - 5, " king")) != 0
              && strncmpi(str, "rat ", 4) && strncmpi(str, "goblin ", 7))
-        Strcpy(term - 4, "royal");
+        Strcpy(term - 5, "royal");
+    else if (slen > 9 && (s = strstri(term - 9, " baroness")) != 0)
+        Strcpy(term - 9, "sovereign");
+    else if (slen > 6 && (s = strstri(term - 6, " baron")) != 0)
+        Strcpy(term - 9, "sovereign");
     /* be careful with "ies"; "priest", "zombies" */
     else if (slen > 3 && !strcmpi(term - 3, "ies")
              && (slen < 7 || strcmpi(term - 7, "zombies")))
@@ -1251,6 +1261,7 @@ static const short grownups[][2] = {
     { PM_SMALL_SKELETAL_HOUND, PM_SKELETAL_HOUND },
     { PM_SKELETAL_HOUND, PM_LARGE_SKELETAL_HOUND },
     { PM_HELL_HOUND_PUP, PM_HELL_HOUND },
+    { PM_WOLF_CUB, PM_WOLF },
     { PM_WINTER_WOLF_CUB, PM_WINTER_WOLF },
     { PM_KITTEN, PM_HOUSECAT },
     { PM_HOUSECAT, PM_LARGE_CAT },
@@ -1292,7 +1303,7 @@ static const short grownups[][2] = {
     { PM_LICH, PM_DEMILICH },
     { PM_DEMILICH, PM_MASTER_LICH },
     { PM_MASTER_LICH, PM_ARCH_LICH },
-    { PM_VAMPIRE, PM_VAMPIRE_NOBLE },
+    { PM_VAMPIRE_SOVEREIGN, PM_VAMPIRE_NOBLE },
     { PM_VAMPIRE_NOBLE, PM_VAMPIRE_ROYAL },
     { PM_BAT, PM_GIANT_BAT },
     { PM_HAWK, PM_LARGE_HAWK },

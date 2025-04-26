@@ -179,6 +179,16 @@ static const struct innate {
                  { 1, &(HLifesaved), "", "" }, /* only a random number of times */
                  { 0, 0, 0, 0 } },
 
+  vam_abil[] = { { 1, &(HInfravision), "", "" },
+                 { 1, &(HSick_resistance), "", "" },
+                 { 1, &(HCold_resistance), "", "" },
+                 { 1, &(HSleep_resistance), "", "" },
+                 { 1, &(HPoison_resistance), "", "" },
+                 { 1, &(HLycan_resistance), "", "" },
+                 { 7, &(HFlying), "lighter than air", "gravity's pull" },
+                 { 12, &(HRegeneration), "resilient", "less resilient" },
+                 { 0, 0, 0, 0 } },
+
   hum_abil[] = { { 0, 0, 0, 0 } };
 
 STATIC_DCL void NDECL(exerper);
@@ -278,7 +288,8 @@ int msgflg;
     int num = incr;
 
     if ((!num) || ((Race_if(PM_GIANT) || Race_if(PM_CENTAUR)
-                    || Race_if(PM_TORTLE) || Race_if(PM_DRAUGR))
+                    || Race_if(PM_TORTLE) || Race_if(PM_DRAUGR)
+                    || Race_if(PM_VAMPIRE))
                    && (!(otmp && otmp->cursed)))) {
         if (ABASE(A_STR) < 18)
             num = (rn2(4) ? 1 : rnd(6));
@@ -560,7 +571,11 @@ exerper()
         debugpline0("exerper: Hunger checks");
         switch (hs) {
         case SATIATED:
-            exercise(A_DEX, FALSE);
+            if (!(maybe_polyd(is_zombie(youmonst.data),
+                              Race_if(PM_DRAUGR))
+                  || maybe_polyd(is_vampire(youmonst.data),
+                                 Race_if(PM_VAMPIRE))))
+                exercise(A_DEX, FALSE);
             if (Role_if(PM_MONK))
                 exercise(A_WIS, FALSE);
             break;
@@ -885,6 +900,9 @@ long frommask;
         case PM_DRAUGR:
             abil = dra_abil;
             break;
+        case PM_VAMPIRE:
+            abil = vam_abil;
+            break;
         case PM_HUMAN:
             abil = hum_abil;
             break;
@@ -1090,6 +1108,9 @@ int oldlevel, newlevel;
     case PM_DRAUGR:
         rabil = dra_abil;
         break;
+    case PM_VAMPIRE:
+        rabil = vam_abil;
+        break;
     case PM_DEMON:
         rabil = dem_abil;
         break;
@@ -1121,6 +1142,7 @@ int oldlevel, newlevel;
         }
         prevabil = *(abil->ability);
         if (!(Race_if(PM_GIANT) && (abil->ability == &HStealth))
+            && !(Race_if(PM_VAMPIRE) && (abil->ability == &HFire_resistance))
             && !(Race_if(PM_DRAUGR) && (abil->ability == &HFire_resistance))
             && !(Race_if(PM_DRAUGR) && (abil->ability == &HTelepat))) {
             if (oldlevel < abil->ulevel && newlevel >= abil->ulevel) {

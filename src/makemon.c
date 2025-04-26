@@ -358,6 +358,7 @@ extern struct trobj Orcish_Knight[];
 extern struct trobj Draugr_Knight[];
 extern struct trobj Monk[];
 extern struct trobj Draugr_Monk[];
+extern struct trobj Vampire_Monk[];
 extern struct trobj Priest[];
 extern struct trobj Ranger[];
 extern struct trobj Rogue[];
@@ -1158,6 +1159,8 @@ register struct monst *mtmp;
                 ini_mon_inv(mtmp, tortleMonk, 1);
             else if (racial_zombie(mtmp))
                 ini_mon_inv(mtmp, Draugr_Monk, 1);
+            else if (racial_vampire(mtmp))
+                ini_mon_inv(mtmp, Vampire_Monk, 1);
             else
                 ini_mon_inv(mtmp, Monk, 1);
             ini_mon_inv(mtmp, Lamp, 10);
@@ -2832,6 +2835,9 @@ register struct monst *mtmp;
         }
         break;
     case S_VAMPIRE:
+        if (rn2(2))
+            (void) mongets(mtmp, rn2(4) ? POT_BLOOD
+                                        : POT_VAMPIRE_BLOOD);
         if (ptr == &mons[PM_KAS]) {
             otmp = mksobj(TWO_HANDED_SWORD, FALSE, FALSE);
             otmp = oname(otmp, artiname(ART_SWORD_OF_KAS));
@@ -2843,6 +2849,9 @@ register struct monst *mtmp;
             (void) mongets(mtmp, GAUNTLETS);
             (void) mongets(mtmp, DWARVISH_BOOTS);
             (void) mongets(mtmp, RIN_SLOW_DIGESTION);
+            if (rn2(2))
+                (void) mongets(mtmp, rn2(4) ? POT_BLOOD
+                                            : POT_VAMPIRE_BLOOD);
         }
         break;
     case S_HUMANOID:
@@ -3544,8 +3553,14 @@ long mmflags;
         && (mcham = pm_to_cham(mndx)) != NON_PM) {
         /* this is a shapechanger after all */
         mtmp->cham = mcham;
-        /* Vlad and Kas stay in their normal shape so they can carry inventory */
+        /* Vlad and Kas stay in their normal shape so they can carry
+           inventory. All other vampires, 50/50 chance on whether
+           they spawn in normal shape or newcham shape */
         if (mndx != PM_VLAD_THE_IMPALER && mndx != PM_KAS
+            && (mndx != PM_VAMPIRE_MAGE || rn2(2))
+            && (mndx != PM_VAMPIRE_ROYAL || rn2(2))
+            && (mndx != PM_VAMPIRE_NOBLE || rn2(2))
+            && (mndx != PM_VAMPIRE_SOVEREIGN || rn2(2))
             /* Note:  shapechanger's initial form used to be chosen here
                with rndmonst(), yielding a monster which was appropriate
                to the level's difficulty but ignoring the changer's usual
@@ -4389,7 +4404,7 @@ register struct monst *mtmp;
        For crowned Infidels, the random check is bypassed. Followers of
        Lolth - if they are Drow, stay chaotic, and are at least fervently
        aligned, she will spawn peaceful. Undead (non-uniques) will be
-       peaceful towards Draugr more often than not */
+       peaceful towards Draugr/Vampires more often than not */
     if (always_hostile(ptr)) {
         if (Role_if(PM_INFIDEL) && is_demon(ptr)
             && (u.uevent.uhand_of_elbereth || rn2(2))) {
@@ -4398,7 +4413,8 @@ register struct monst *mtmp;
                    && u.ualign.record >= 9
                    && !Upolyd && Race_if(PM_DROW)) {
             return TRUE;
-        } else if (!Upolyd && Race_if(PM_DRAUGR)
+        } else if (((!Upolyd && Race_if(PM_DRAUGR))
+                    || (!Upolyd && Race_if(PM_VAMPIRE)))
                    && is_undead(ptr)
                    && !unique_corpstat(ptr) && rn2(3)) {
             return TRUE;

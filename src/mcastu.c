@@ -476,7 +476,7 @@ boolean foundyou;
             shieldeff(u.ux, u.uy);
             if (is_demon(mtmp->data)) {
                 if (Race_if(PM_DEMON) || Race_if(PM_DRAUGR)
-                    || nonliving(youmonst.data)) {
+                    || Race_if(PM_VAMPIRE) || nonliving(youmonst.data)) {
                     dmg = 0;
                 } else {
                     pline_The("hellish flames sear your soul!");
@@ -490,7 +490,7 @@ boolean foundyou;
         } else {
             if (is_demon(mtmp->data)
                 && !(Race_if(PM_DEMON) || Race_if(PM_DRAUGR)
-                     || nonliving(youmonst.data))) {
+                     || Race_if(PM_VAMPIRE) || nonliving(youmonst.data))) {
                 pline_The("hellish flames sear your soul!");
                 dmg = resist_reduce(dmg, FIRE_RES) * 2;
             } else {
@@ -1878,7 +1878,7 @@ struct attack *mattk;
             shieldeff(mdef->mx, mdef->my);
             if (is_demon(mtmp->data)) {
                 if (!(nonliving(mdef->data) || is_demon(mdef->data)
-                      || racial_zombie(mdef))) {
+                      || racial_zombie(mdef) || racial_vampire(mdef))) {
                     if (canseemon(mdef))
                         pline_The("hellish flames sear %s soul!",
                                   s_suffix(mon_nam(mdef)));
@@ -2091,7 +2091,7 @@ struct attack *mattk;
             shieldeff(mtmp->mx, mtmp->my);
             if (is_demon(youmonst.data)) {
                 if (!(nonliving(mtmp->data) || is_demon(mtmp->data)
-                      || racial_zombie(mtmp))) {
+                      || racial_zombie(mtmp) || racial_vampire(mtmp))) {
                     if (canseemon(mtmp))
                         pline_The("hellish flames sear %s soul!",
                                   s_suffix(mon_nam(mtmp)));

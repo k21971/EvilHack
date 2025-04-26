@@ -197,6 +197,15 @@ struct trobj Draugr_Monk[] = {
     { FORTUNE_COOKIE, 0, FOOD_CLASS, 3, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
+struct trobj Vampire_Monk[] = {
+#define M_BOOK 2
+    { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { ROBE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+    { POT_HEALING, 0, POTION_CLASS, 3, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 3, 0 },
+    { 0, 0, 0, 0, 0 }
+};
 struct trobj Priest[] = {
     { MACE, 1, WEAPON_CLASS, 1, 1 },
     { ROBE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -413,6 +422,9 @@ struct inv_sub {
     /* Draugr */
     { PM_DRAUGR, FOOD_RATION, EGG },
     { PM_DRAUGR, FORTUNE_COOKIE, EGG },
+    /* Vampires */
+    { PM_VAMPIRE, POT_SICKNESS, POT_BLOOD },
+    { PM_VAMPIRE, FOOD_RATION, POT_BLOOD },
     /* end */
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
@@ -1106,6 +1118,8 @@ u_init()
         Monk[M_BOOK].trotyp = M_spell[rn2(90) / 30]; /* [0..2] */
         if (Race_if(PM_DRAUGR))
             ini_inv(Draugr_Monk);
+        else if (Race_if(PM_VAMPIRE))
+            ini_inv(Vampire_Monk);
         else
             ini_inv(Monk);
         if (!rn2(4) && !Race_if(PM_DROW))
@@ -1283,17 +1297,20 @@ u_init()
             knows_object(gem);
         }
 
-        /* Giants know valuable gems from glass, and may recognize a few types of valuable gem */
+        /* Giants know valuable gems from glass, and may recognize
+           a few types of valuable gem */
         for (i = DILITHIUM_CRYSTAL; i <= LUCKSTONE; i++) {
-            if ((objects[i].oc_cost <= 1) || (rn2(100) < 5 + ACURR(A_INT)))
+            if ((objects[i].oc_cost <= 1)
+                || (rn2(100) < 5 + ACURR(A_INT)))
                 knows_object(i);
         }
         break;
     }
 
     case PM_HOBBIT:
-        /* Hobbits are always hungry; you'd be hard-pressed to come across one that didn't have
-         * something to snack on or at least a means to make more food */
+        /* Hobbits are always hungry; you'd be hard-pressed to come
+           across one that didn't have something to snack on or at least
+           a means to make more food */
         if (!Role_if(PM_CONVICT))
             ini_inv(Xtra_food);
         if (!Role_if(PM_ARCHEOLOGIST) && !Role_if(PM_CONVICT))
@@ -1397,6 +1414,21 @@ u_init()
     case PM_DRAUGR:
         if (!Role_if(PM_CONVICT))
             ini_inv(Dra_food);
+        if (!Role_if(PM_CONVICT)
+            && !Role_if(PM_INFIDEL)) {
+            /* same alignment penalty as the typical Convict */
+            adjalign(-20);
+            /* prevent automatic alignment abuse penalty */
+            u.ualign.abuse = 0;
+        }
+        break;
+
+    case PM_VAMPIRE:
+        knows_object(POT_BLOOD);
+        knows_object(POT_VAMPIRE_BLOOD);
+        /* Enable random generation of blood potions */
+        objects[POT_BLOOD].oc_prob = 20;
+        objects[POT_VAMPIRE_BLOOD].oc_prob = 5;
         if (!Role_if(PM_CONVICT)
             && !Role_if(PM_INFIDEL)) {
             /* same alignment penalty as the typical Convict */
@@ -1633,7 +1665,7 @@ shambler_init()
 
     shambler->mflags2 = M2_NOPOLY | M2_HOSTILE; /* Don't let the player be one of these yet */
     for (i = 0; i < rnd(17); i++)
-        shambler->mflags2 |= (1 << rn2(26));    /* rn2() should equal the number of M2_ flags in
+        shambler->mflags2 |= (1 << rn2(27));    /* rn2() should equal the number of M2_ flags in
                                                  * include/monflag.h */
     shambler->mflags2 &= ~M2_MERC;              /* no guards */
     shambler->mflags2 &= ~M2_PEACEFUL;          /* no peacefuls */
@@ -1646,6 +1678,7 @@ shambler_init()
     shambler->mflags2 &= ~M2_DRUID_FORM_B;      /* prevent druids from shapechanging into a shambler */
     shambler->mflags2 &= ~M2_DRUID_FORM_C;      /* prevent druids from shapechanging into a shambler */
     shambler->mflags2 &= ~M2_DRUID_FORM_D;      /* prevent druids from shapechanging into a shambler */
+    shambler->mflags2 &= ~M2_VAMPIRE_FORM;      /* prevent vampires from shapechanging into a shambler */
 
     shambler->mflags3 = 0;
     for (i = 0; i < rnd(5); i++)
@@ -1777,8 +1810,13 @@ register struct trobj *origtrop;
                    || otyp == WAN_NOTHING
                    /* gnomes hate eggs */
                    || (otyp == EGG && Race_if(PM_GNOME))
-                   /* orcs start with poison resistance */
-                   || (otyp == RIN_POISON_RESISTANCE && Race_if(PM_ORC))
+                   /* some races can eventually fly */
+                   || (otyp == RIN_LEVITATION
+                       && (Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE)))
+                   /* some races inherently have poison resistance */
+                   || (otyp == RIN_POISON_RESISTANCE
+                       && (Race_if(PM_ORC) || Race_if(PM_DRAUGR)
+                           || Race_if(PM_VAMPIRE)))
                    /* Monks don't use weapons */
                    || (otyp == SCR_ENCHANT_WEAPON && Role_if(PM_MONK))
                    /* wizard patch -- they already have one */
@@ -1802,17 +1840,25 @@ register struct trobj *origtrop;
                        && (objects[otyp].oc_level > (got_sp1 ? 3 : 1)
                            || restricted_spell_discipline(otyp)))
                    || otyp == SPE_NOVEL
-                   /* items that will be iron for elves (rings/wands perhaps)
-                    * that can't become copper */
-                   || (Race_if(PM_ELF) && objects[otyp].oc_material == IRON
+                   /* items that will be silver for vampires
+                      (rings/wands perhaps) that can't become iron */
+                   || (Race_if(PM_VAMPIRE)
+                       && objects[otyp].oc_material == SILVER
+                       && !valid_obj_material(obj, IRON))
+                   /* items that will be iron for elves
+                      (rings/wands perhaps) that can't become copper */
+                   || (Race_if(PM_ELF)
+                       && objects[otyp].oc_material == IRON
                        && !valid_obj_material(obj, COPPER))
-                   /* items that will be iron for drow (rings/wands perhaps)
-                    * that can't become adamantine */
-                   || (Race_if(PM_DROW) && objects[otyp].oc_material == IRON
+                   /* items that will be iron for drow
+                      (rings/wands perhaps) that can't become adamantine */
+                   || (Race_if(PM_DROW)
+                       && objects[otyp].oc_material == IRON
                        && !valid_obj_material(obj, ADAMANTINE))
-                   /* items that will be mithril for orcs (rings/wands perhaps)
-                    * that can't become iron */
-                   || (Race_if(PM_ORC) && objects[otyp].oc_material == MITHRIL
+                   /* items that will be mithril for orcs
+                      (rings/wands perhaps) that can't become iron */
+                   || (Race_if(PM_ORC)
+                       && objects[otyp].oc_material == MITHRIL
                        && !valid_obj_material(obj, IRON))) {
                 dealloc_obj(obj);
                 obj = mkobj(trop->trclass, FALSE);
@@ -1841,8 +1887,8 @@ register struct trobj *origtrop;
                 nocreate4 = otyp;
         }
 
-        /* Put post-creation object adjustments that don't depend on whether it
-         * was UNDEF_TYP or not after this */
+        /* Put post-creation object adjustments that don't depend on
+           whether it was UNDEF_TYP or not after this */
 
         /* Don't start with +0 or negative rings */
         if (objects[otyp].oc_charged && obj->spe <= 0)
@@ -1869,6 +1915,12 @@ register struct trobj *origtrop;
             && valid_obj_material(obj, IRON))
             set_material(obj, IRON);
 
+        /* Do the same for vampires and silver objects.
+           Currently not a concern, but may be in the future */
+        if (Race_if(PM_VAMPIRE) && obj->material == SILVER
+            && valid_obj_material(obj, IRON))
+            set_material(obj, IRON);
+
         if (urace.malenum != PM_HUMAN) {
             /* substitute race-specific items; this used to be in
                the 'if (otyp != UNDEF_TYP) { }' block above, but then
@@ -1882,11 +1934,12 @@ register struct trobj *origtrop;
                                 (trop->trotyp == UNDEF_TYP) ? "random " : "",
                                 OBJ_NAME(objects[otyp]));
                     otyp = obj->otyp = inv_subs[i].subs_otyp;
-                    /* This might have created a bad material combination, such
-                     * as a dagger (which was forced to be iron earlier) turning
-                     * into an elven dagger, but now remaining iron. Fix this up
-                     * here as well. */
+                    /* This might have created a bad material combination,
+                       such as a dagger (which was forced to be iron
+                       earlier) turning into an elven dagger, but now
+                       remaining iron. Fix this up here as well */
                     obj->material = objects[otyp].oc_material;
+                    obj->oclass = objects[obj->otyp].oc_class;
                     break;
                 }
         }

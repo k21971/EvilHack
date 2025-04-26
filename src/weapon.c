@@ -247,8 +247,10 @@ botl_hitbonus()
     if (u.utrap)
         tmp -= 3;
 
-    if (!uwep && Role_if(PM_DRUID)
-        && all_druid_forms(monsndx(youmonst.data)))
+    if (!uwep && druid_form)
+        tmp += (u.ulevel / 3) + 5;
+
+    if (!uwep && vampire_form)
         tmp += (u.ulevel / 3) + 5;
 
     if (uwep) {
@@ -577,8 +579,11 @@ struct monst *mon;
 
     /* Druids that #wildshape into one of their allowed forms
        enjoy a variable damage bonus */
-    if (!uwep && Role_if(PM_DRUID)
-        && all_druid_forms(monsndx(youmonst.data)))
+    if (!uwep && druid_form)
+        tmp += rn1(5, 2); /* 2-6 hp of damage */
+
+    /* same with Vampires that #shapechange */
+    if (!uwep && vampire_form)
         tmp += rn1(5, 2); /* 2-6 hp of damage */
 
     /* Put weapon vs. monster type damage bonuses in below: */

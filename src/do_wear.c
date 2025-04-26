@@ -2098,7 +2098,8 @@ struct obj *obj;
         return 0;
     }
 
-    if (druid_form && (obj->owornmask & W_ARMOR)) {
+    if ((druid_form || vampire_form)
+        && (obj->owornmask & W_ARMOR)) {
         Strcpy(why, "; it's merged");
         You_cant("take that off%s.", why);
         return 0;
@@ -3086,9 +3087,9 @@ find_ac()
             uac -= 2;
     }
 
-    /* Draugr race receive a slight AC bonus
+    /* Draugr/Vampire races receive a slight AC bonus
        for wearing bone armor */
-    if (Race_if(PM_DRAUGR)) {
+    if (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)) {
         if (uarm && is_bone(uarm))   /* body armor */
             uac -= 1;
         if (uarmg && is_bone(uarmg)) /* gauntlets */
@@ -3645,6 +3646,9 @@ doddoremarm()
         return 0;
     } else if (druid_form) {
         You_cant("take off worn items while in wildshape.");
+        return 0;
+    } else if (vampire_form) {
+        You_cant("take off worn items while shapechanged.");
         return 0;
     }
 

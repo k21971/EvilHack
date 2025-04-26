@@ -244,8 +244,8 @@
      || (ptr) == &mons[PM_WOLVERINE] || (ptr) == &mons[PM_HONEY_BADGER]  \
      || (ptr) == &mons[PM_GRIZZLY_BEAR] || (ptr) == &mons[PM_CAVE_BEAR])
 #define has_claws_undead(ptr) \
-    ((ptr)->mlet == S_MUMMY || (ptr)->mlet == S_ZOMBIE       \
-     || (ptr)->mlet == S_WRAITH || (ptr)->mlet == S_VAMPIRE  \
+    ((ptr)->mlet == S_MUMMY || (ptr)->mlet == S_ZOMBIE      \
+     || (ptr)->mlet == S_WRAITH || (ptr)->mlet == S_VAMPIRE \
      || (ptr)->mlet == S_SKELETON)
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
 #define can_sting(ptr) attacktype(ptr, AT_STNG)
@@ -288,6 +288,8 @@
 #define racial_drow(mon) mon_has_race(mon, MH_DROW)
 #define is_zombie(ptr) (((ptr)->mhflags & MH_ZOMBIE) != 0L)
 #define racial_zombie(mon) mon_has_race(mon, MH_ZOMBIE)
+#define is_vampire(ptr) (((ptr)->mhflags & MH_VAMPIRE) != 0L)
+#define racial_vampire(mon) mon_has_race(mon, MH_VAMPIRE)
 #define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
 #define racial_match(mon) mon_has_race(mon, urace.selfmask)
 #define is_bat(ptr) \
@@ -451,7 +453,8 @@
      || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_DEMON]  \
      || (ptr) == &mons[PM_DWARF] || (ptr) == &mons[PM_GNOME]    \
      || (ptr) == &mons[PM_ILLITHID] || (ptr) == &mons[PM_NYMPH] \
-     || (ptr) == &mons[PM_DROW] || (ptr) == &mons[PM_DRAUGR])
+     || (ptr) == &mons[PM_DROW] || (ptr) == &mons[PM_DRAUGR]    \
+     || (ptr) == &mons[PM_VAMPIRE])
 
 /* woodland animals and plants */
 #define is_woodland_creature(ptr) \
@@ -471,7 +474,8 @@
      || (ptr) == &mons[PM_CENTIPEDE] || (ptr) == &mons[PM_GIANT_CENTIPEDE] \
      || (ptr) == &mons[PM_PEGASUS] || (ptr) == &mons[PM_GREATER_PEGASUS]   \
      || (ptr) == &mons[PM_SNAKE] || (ptr) == &mons[PM_GARTER_SNAKE]        \
-     || (ptr) == &mons[PM_COBRA] || (ptr) == &mons[PM_GIANT_ANACONDA])
+     || (ptr) == &mons[PM_COBRA] || (ptr) == &mons[PM_GIANT_ANACONDA]      \
+     || (ptr) == &mons[PM_WOLF_CUB])
 
 /* woodland beings */
 #define is_woodland_being(ptr) \
@@ -498,7 +502,7 @@
      || (ptr) == &mons[PM_ABOMINABLE_SNOWMAN])
 #define likes_iceq(ptr) \
     ((ptr) == &mons[PM_SNOW_GOLEM] || (ptr) == &mons[PM_OWLBEAR]                  \
-     || (ptr) == &mons[PM_WOLF] || (ptr) == &mons[PM_WEREWOLF]                    \
+     || (ptr) == &mons[PM_WOLF] || (ptr) == &mons[PM_WOLF_CUB]                    \
      || (ptr) == &mons[PM_WINTER_WOLF_CUB] || (ptr) == &mons[PM_WINTER_WOLF]      \
      || (ptr) == &mons[PM_WARG] || (ptr) == &mons[PM_FREEZING_SPHERE]             \
      || (ptr) == &mons[PM_LYNX] || (ptr) == &mons[PM_BLUE_JELLY]                  \
@@ -514,7 +518,8 @@
      || (ptr) == &mons[PM_REVENANT] || (ptr) == &mons[PM_BABY_OWLBEAR]            \
      || (ptr) == &mons[PM_HUMAN_ZOMBIE] || (ptr) == &mons[PM_GIANT_ZOMBIE]        \
      || (ptr) == &mons[PM_LICH] || (ptr) == &mons[PM_CAVE_BEAR]                   \
-     || (ptr) == &mons[PM_WOLVERINE] || (ptr) == &mons[PM_DIRE_WOLVERINE])
+     || (ptr) == &mons[PM_WOLVERINE] || (ptr) == &mons[PM_DIRE_WOLVERINE]         \
+     || (ptr) == &mons[PM_WEREWOLF])
 /* Goblin Town branch defines */
 #define likes_gtown(ptr) \
     ((ptr)->mlet == S_ORC || (ptr)->mlet == S_KOBOLD || is_rat(ptr))
@@ -613,8 +618,6 @@
     ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER] \
      || (ptr) == &mons[PM_ALHOON])
 
-#define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE)
-
 #define hates_light(ptr) \
     ((ptr) == &mons[PM_GREMLIN] || is_drow(ptr) \
      || (ptr) == &mons[PM_BABY_SHADOW_DRAGON]   \
@@ -664,6 +667,9 @@
 #define vegetarian(ptr) \
     (vegan(ptr)         \
      || ((ptr)->mlet == S_PUDDING && (ptr) != &mons[PM_BLACK_PUDDING]))
+#define has_blood(ptr) \
+    (!vegetarian(ptr) && (!is_undead(ptr) || is_vampire(ptr))       \
+     && ((ptr)->mlet != S_GOLEM || (ptr) == &mons[PM_FLESH_GOLEM]))
 /* jello-like creatures */
 #define can_flollop(ptr) \
     ((ptr)->mlet == S_BLOB || (ptr)->mlet == S_JELLY \
@@ -683,7 +689,10 @@
          || (is_hawk(ptr) && Role_if(PM_DRUID))                              \
          || (((is_spider(ptr) && (ptr) != &mons[PM_DRIDER])                  \
              || is_cavelizard(ptr)) && Race_if(PM_DROW))                     \
-         || ((ptr) == &mons[PM_WARG] && Race_if(PM_ORC))                     \
+         || ((ptr) == &mons[PM_WARG]                                         \
+             && (Race_if(PM_ORC) || Race_if(PM_VAMPIRE)))                    \
+         || ((ptr) == &mons[PM_WOLF] && Race_if(PM_VAMPIRE))                 \
+         || ((ptr) == &mons[PM_WOLF_CUB] && Race_if(PM_VAMPIRE))             \
          || ((ptr) == &mons[PM_SABER_TOOTHED_TIGER] && Role_if(PM_CAVEMAN))) \
         && (obj)->oclass == FOOD_CLASS                                       \
         && ((ptr)->mlet != S_UNICORN                                         \
@@ -723,5 +732,8 @@
      || ((mons[mndx].mflags2 & M2_DRUID_FORM_B) != 0L)  \
      || ((mons[mndx].mflags2 & M2_DRUID_FORM_C) != 0L)  \
      || ((mons[mndx].mflags2 & M2_DRUID_FORM_D) != 0L))
+
+#define all_vampire_forms(mndx) \
+    ((mons[mndx].mflags2 & M2_VAMPIRE_FORM) != 0L)
 
 #endif /* MONDATA_H */

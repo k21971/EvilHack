@@ -235,8 +235,10 @@ in_trouble()
            otherwise "fix all troubles" would get stuck in a loop */
         if (welded(uwep))
             return TROUBLE_UNUSEABLE_HANDS;
-        if (Upolyd && nohands(youmonst.data) && !druid_form
-            && (!Unchanging || ((otmp = unchanger()) != 0 && cursed(otmp, TRUE))))
+        if (Upolyd && nohands(youmonst.data)
+            && !(druid_form || vampire_form)
+            && (!Unchanging
+                || ((otmp = unchanger()) != 0 && cursed(otmp, TRUE))))
             return TROUBLE_UNUSEABLE_HANDS;
     }
     if (Blindfolded && cursed(ublindf, TRUE))
@@ -484,7 +486,8 @@ int trouble;
         if (welded(uwep)) {
             otmp = uwep;
             goto decurse;
-        } else if (Upolyd && nohands(youmonst.data) && !druid_form) {
+        } else if (Upolyd && nohands(youmonst.data)
+                   && !(druid_form || vampire_form)) {
             if (!Unchanging) {
                 Your("shape becomes uncertain.");
                 rehumanize(); /* "You return to {normal} form." */

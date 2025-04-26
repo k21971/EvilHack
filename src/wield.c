@@ -684,7 +684,7 @@ const char *verb; /* "rub",&c */
         return FALSE;
     }
     if (cantwield(youmonst.data)) {
-        if (druid_form)
+        if (druid_form || vampire_form)
             You("aren't able to hold %s properly while in this form.",
                 yname(obj));
         else

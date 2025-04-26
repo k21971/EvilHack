@@ -682,9 +682,10 @@ rejectcasting()
         Your("arms are not free to cast!");
         return TRUE;
     } else if (nohands(youmonst.data)) {
-        /* Note: only Druids in their #wildshape forms can still
-           cast spells without having actual arms/hands */
-        if (druid_form) {
+        /* Note: only Druids in their #wildshape forms and vampires in
+           their #shapechange forms can still cast spells without having
+           actual arms/hands */
+        if (druid_form || vampire_form) {
             return FALSE;
         } else {
             You("have no hands to cast!");

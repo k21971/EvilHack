@@ -2163,6 +2163,8 @@ long *numerator, *denominator;
             *denominator = 2L;
         } else if (Race_if(PM_DRAUGR)) {
             *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
         }
     } else if (is_elf(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)
@@ -2176,6 +2178,8 @@ long *numerator, *denominator;
             *denominator = 5L;
         } else if (Race_if(PM_DRAUGR)) {
             *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
         }
     } else if (is_drow(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)
@@ -2189,6 +2193,8 @@ long *numerator, *denominator;
             *denominator = 5L;
         } else if (Race_if(PM_DRAUGR)) {
             *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
         }
     } else if (is_dwarf(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
@@ -2204,6 +2210,8 @@ long *numerator, *denominator;
             *denominator = 4L;
         } else if (Race_if(PM_DRAUGR)) {
             *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
         }
     } else if (is_orc(shkdat)) {
         if (Race_if(PM_ELF) || Race_if(PM_GNOME)
@@ -2220,6 +2228,8 @@ long *numerator, *denominator;
             *denominator = 3L;
         } else if (Race_if(PM_DRAUGR)) {
             *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
         }
     } else if (is_gnome(shkdat)) {
         if (ACURR(A_INT) <= 6) {
@@ -2252,6 +2262,8 @@ long *numerator, *denominator;
             *denominator = 4L;
         } else if (Race_if(PM_DRAUGR)) {
             *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
         }
     } else if (is_giant(shkdat)) {
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
@@ -2267,6 +2279,8 @@ long *numerator, *denominator;
             *denominator = 4L;
         } else if (Race_if(PM_DRAUGR)) {
             *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
         }
     } else if (shkdat == &mons[PM_NYMPH]) {
         if (ACURR(A_CHA) <= 6) {
@@ -2473,7 +2487,8 @@ boolean unpaid_only;
         if (usell) {
             if (saleable(shkp, otmp) && !otmp->unpaid
                 && otmp->oclass != BALL_CLASS
-                && !(otmp->oclass == FOOD_CLASS && otmp->oeaten)
+                && !(otmp->oclass == FOOD_CLASS
+                     && (otmp->oeaten || otmp->odrained))
                 && !(Is_candle(otmp)
                      && otmp->age < 20L * (long) objects[otmp->otyp].oc_cost))
                 price += set_cost(otmp, shkp);
@@ -2900,7 +2915,8 @@ boolean reset_nocharge;
     }
     /* perhaps we threw it away earlier */
     if (onbill(obj, shkp, FALSE)
-        || (obj->oclass == FOOD_CLASS && obj->oeaten))
+        || (obj->oclass == FOOD_CLASS
+            && (obj->oeaten || obj->odrained)))
         return FALSE;
     /* outer container might be marked no_charge but still have contents
        which should be charged for; clear no_charge when picking things up */
@@ -3033,7 +3049,7 @@ char *buf;
                                            "most renowned and sacred" };
 
     Strcat(buf, honored[rn2(SIZE(honored) - 1) + u.uevent.udemigod]);
-    if (is_vampire(youmonst.data))
+    if (maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE)))
         Strcat(buf, (flags.female) ? " dark lady" : " dark lord");
     else if (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF)))
         Strcat(buf, (flags.female) ? " hiril" : " hir");
@@ -3448,7 +3464,8 @@ xchar x, y;
 
     if ((!saleitem && !(container && cltmp > 0L)) || eshkp->billct == BILLSZ
         || obj->oclass == BALL_CLASS || obj->oclass == CHAIN_CLASS
-        || offer == 0L || (obj->oclass == FOOD_CLASS && obj->oeaten)
+        || offer == 0L || (obj->oclass == FOOD_CLASS
+                           && (obj->oeaten || obj->odrained))
         || (Is_candle(obj)
             && obj->age < 20L * (long) objects[obj->otyp].oc_cost)) {
         pline("%s seems uninterested%s.", Shknam(shkp),
@@ -3750,7 +3767,7 @@ boolean shk_buying;
         /* simpler hunger check, (2-4)*cost */
         if (u.uhs >= HUNGRY && !shk_buying)
             tmp *= (long) u.uhs;
-        if (obj->oeaten)
+        if (obj->oeaten || obj->odrained)
             tmp = 0L;
         break;
     case WAND_CLASS:
@@ -3760,6 +3777,13 @@ boolean shk_buying;
     case POTION_CLASS:
         if (obj->otyp == POT_WATER && !obj->blessed && !obj->cursed)
             tmp = 0L;
+        /* vampire hunger check, (2-4)*cost */
+        if (Race_if(PM_VAMPIRE)
+            && (obj->otyp == POT_BLOOD
+                || obj->otyp == POT_VAMPIRE_BLOOD)) {
+            if (u.uhs >= HUNGRY && !shk_buying)
+                tmp *= (long) u.uhs;
+        }
         break;
     case ARMOR_CLASS:
         if (Is_dragon_scaled_armor(obj))

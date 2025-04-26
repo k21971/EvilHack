@@ -123,6 +123,7 @@
 #define M2_DRUID_FORM_B 0x00000004L /* monster a druid can wildshape into, second tier */
 #define M2_DRUID_FORM_C 0x00000008L /* monster a druid can wildshape into, third tier */
 #define M2_DRUID_FORM_D 0x00000010L /* monster a druid can wildshape into, fourth tier */
+#define M2_VAMPIRE_FORM 0x00000020L /* monsters a vampire can shapechange into */
 #define M2_LORD 0x00000400L         /* is an overlord to its kind */
 #define M2_PRINCE 0x00000800L       /* is an overlord to its kind */
 #define M2_MINION 0x00001000L       /* is a minion of a deity */
@@ -186,33 +187,34 @@
 #define MZ_GIGANTIC 7      /* off the scale */
 
 /* Remember to update mon_race_name method when adding bits here */
-#define MH_HUMAN 0x00000001L
-#define MH_ELF 0x00000002L
-#define MH_DWARF 0x00000004L
-#define MH_GNOME 0x00000008L
-#define MH_ORC 0x00000010L
-#define MH_GIANT 0x00000020L
-#define MH_HOBBIT 0x00000040L
-#define MH_CENTAUR 0x00000080L
-#define MH_ILLITHID 0x00000100L
-#define MH_TORTLE 0x00000200L
-#define MH_DROW 0x00000400L
-#define MH_ZOMBIE 0x00000800L
-/* Flags below not used as a player race (demon has one exception) */
-#define MH_UNZOMBIE 0x00001000L
+#define MH_HUMAN      0x00000001L
+#define MH_ELF        0x00000002L
+#define MH_DWARF      0x00000004L
+#define MH_GNOME      0x00000008L
+#define MH_ORC        0x00000010L
+#define MH_GIANT      0x00000020L
+#define MH_HOBBIT     0x00000040L
+#define MH_CENTAUR    0x00000080L
+#define MH_ILLITHID   0x00000100L
+#define MH_TORTLE     0x00000200L
+#define MH_DROW       0x00000400L
+#define MH_ZOMBIE     0x00000800L
+#define MH_VAMPIRE    0x00001000L
+#define MH_DEMON      0x00002000L
+/* Flags below not used as a player race */
+#define MH_UNZOMBIE   0x00004000L
+#define MH_WERE       0x00008000L
+#define MH_DRAGON     0x00010000L
+#define MH_ANGEL      0x00020000L
+#define MH_OGRE       0x00040000L
+#define MH_TROLL      0x00080000L
+#define MH_GNOLL      0x00100000L
+#define MH_SPIDER     0x00200000L
+#define MH_JABBERWOCK 0x00400000L
+#define MH_WRAITH     0x00800000L
 #define MH_UNDEAD (MH_ZOMBIE | MH_UNZOMBIE)
-#define MH_WERE 0x00002000L
-#define MH_DEMON 0x00004000L
-#define MH_DRAGON 0x00008000L
-#define MH_ANGEL 0x00010000L
-#define MH_OGRE 0x00020000L
-#define MH_TROLL 0x00040000L
-#define MH_GNOLL 0x00080000L
-#define MH_SPIDER 0x00100000L
-#define MH_JABBERWOCK 0x00200000L
-#define MH_WRAITH 0x00400000L
 
-#define MH_ANY 0x80000000L
+#define MH_ANY        0x80000000L
 
 /* for mons[].geno (constant during game) */
 #define G_TALG 0x8000     /* can't be genocided until Tal'Gath is destroyed */

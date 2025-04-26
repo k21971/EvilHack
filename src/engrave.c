@@ -572,7 +572,8 @@ doengrave()
     maxelen = BUFSZ - 1;
     if (oep)
         oetype = oep->engr_type;
-    if (is_demon(raceptr(&youmonst)) || youmonst.data->mlet == S_VAMPIRE)
+    if (is_demon(raceptr(&youmonst))
+        || maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE)))
         type = ENGR_BLOOD;
 
     /* Can the adventurer engrave at all? */
@@ -609,6 +610,8 @@ doengrave()
     }
     if (cantwield(youmonst.data)) {
         if (druid_form && !slithy(youmonst.data)) {
+            ;
+        } else if (vampire_form && !is_whirly(youmonst.data)) {
             ;
         } else {
            You_cant("even hold anything!");

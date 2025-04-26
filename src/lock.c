@@ -117,7 +117,8 @@ picklock(VOID_ARGS)
 
     if (xlock.usedtime++ >= 50
         || (nohands(youmonst.data)
-            && !(druid_form && !slithy(youmonst.data)))) {
+            && !(druid_form && !slithy(youmonst.data))
+            && !(vampire_form && !is_whirly(youmonst.data)))) {
         You("give up your attempt at %s.", lock_action());
         exercise(A_DEX, TRUE); /* even if you don't succeed */
         return ((xlock.usedtime = 0));
@@ -418,7 +419,8 @@ struct obj *container; /* container, for autounlock */
         static char no_longer[] = "Unfortunately, you can no longer %s %s.";
 
         if ((nohands(youmonst.data)
-             && !(druid_form && !slithy(youmonst.data)))
+             && !(druid_form && !slithy(youmonst.data))
+             && !(vampire_form && !is_whirly(youmonst.data)))
             || !freehand()) {
             const char *what = (picktyp == LOCK_PICK) ? "pick" : "key";
 
@@ -445,6 +447,8 @@ struct obj *container; /* container, for autounlock */
 
     if (nohands(youmonst.data)) {
         if (druid_form && !slithy(youmonst.data)) {
+            ;
+        } else if (vampire_form && !is_whirly(youmonst.data)) {
             ;
         } else {
             You_cant("hold %s -- you have no hands!", doname(pick));
@@ -879,6 +883,8 @@ int x, y;
     if (nohands(youmonst.data)) {
         if (druid_form && !slithy(youmonst.data)) {
             ;
+        } else if (vampire_form && !is_whirly(youmonst.data)) {
+            ;
         } else {
             You_cant("open anything -- you have no hands!");
             return 0;
@@ -1037,6 +1043,8 @@ doclose()
 
     if (nohands(youmonst.data)) {
         if (druid_form && !slithy(youmonst.data)) {
+            ;
+        } else if (vampire_form && !is_whirly(youmonst.data)) {
             ;
         } else {
             You_cant("close anything -- you have no hands!");

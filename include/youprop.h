@@ -340,7 +340,8 @@
      || (ublindf && ublindf->otyp == GOGGLES))
 
 #define Breathless_nomagic \
-    (breathless(youmonst.data) || racial_zombie(&youmonst))
+    (breathless(youmonst.data) || racial_zombie(&youmonst) \
+     || racial_vampire(&youmonst))
 
 #define Breathless \
     (HMagical_breathing || EMagical_breathing || Breathless_nomagic)

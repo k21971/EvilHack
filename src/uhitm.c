@@ -397,8 +397,11 @@ int *attk_count, *role_roll_penalty;
 
     /* Druids that #wildshape into one of their allowed forms
        enjoy a bonus that scales as they level up */
-    if (!uwep && Role_if(PM_DRUID)
-        && all_druid_forms(monsndx(youmonst.data)))
+    if (!uwep && druid_form)
+        tmp += (u.ulevel / 3) + 5;
+
+    /* same with Vampires that #shapechange */
+    if (!uwep && vampire_form)
         tmp += (u.ulevel / 3) + 5;
 
     /* higher quality weapons have a slightly greater
@@ -1087,6 +1090,7 @@ struct attack *uattk;
         struct attack *attacks = mons[race].mattk;
 
         if (((Race_if(PM_ILLITHID) || Race_if(PM_DRAUGR)) && rn2(4))
+            || (Race_if(PM_VAMPIRE) && !rn2(3))
             || Race_if(PM_CENTAUR))
             return 0;
         for (i = 0; i < NATTK; i++) {
@@ -2146,6 +2150,7 @@ int dieroll;
                              || (Race_if(PM_DEMON) && !Upolyd)
                              || (Race_if(PM_TORTLE) && !Upolyd)
                              || (Race_if(PM_DRAUGR) && !Upolyd)
+                             || (Race_if(PM_VAMPIRE) && !Upolyd)
                              || (Race_if(PM_ILLITHID) && !Upolyd))) {
             You("claw %s%s", mon_nam(mon),
                 canseemon(mon) ? exclam(tmp) : ".");
@@ -3353,6 +3358,23 @@ int specialdmg; /* blessed and/or silver bonus against various things */
             && !(resists_drli(mdef) || defended(mdef, AD_DRLI))) {
             int xtmp = d(2, 6);
 
+            if (mdef->mhp < xtmp)
+                xtmp = mdef->mhp;
+            if (maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE))
+                && mattk->aatyp == AT_BITE) {
+                /* Don't execute the draining effect if we were not
+                   able to feed. Satiated is u.uhunger at 1000-1999;
+                   allow some satiation, but don't go overboard */
+                if (!has_blood(pd) || u.uhunger > 1250)
+                    break;
+                /* For the life of a creature is in the blood (Lev 17:11) */
+                if (flags.verbose)
+                    You("feed on its lifeblood.");
+                /* [ALI] Biting monsters does not count against
+                   eating conducts. The draining of life is
+                   considered to be primarily a non-physical effect */
+                lesshungry(xtmp * 6);
+            }
             if (canseemon(mdef))
                 pline("%s suddenly seems weaker!", Monnam(mdef));
             mdef->mhpmax -= xtmp;
@@ -4287,6 +4309,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                          || mon->data == &mons[PM_MEDUSA])
                         && !Stone_resistance)
                     || is_rider(mon->data)
+                    || noncorporeal(mon->data)
                     || mon->data == &mons[PM_GREEN_SLIME]
                     /* we don't need to worry about illithid-on-illithid
                        cannibalism since their minds are psionically shielded */
@@ -4303,14 +4326,16 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 break;
             /*FALLTHRU*/
         case AT_BITE:
-            if ((druid_form
-                 || maybe_polyd(is_zombie(youmonst.data), Race_if(PM_DRAUGR)))
+            if ((druid_form || vampire_form
+                 || maybe_polyd(is_zombie(youmonst.data), Race_if(PM_DRAUGR))
+                 || maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE)))
                 && mattk->aatyp == AT_BITE
                 && (context.forcefight
                     || ((touch_petrifies(mon->data)
                          || mon->data == &mons[PM_MEDUSA])
                         && !Stone_resistance)
                     || is_rider(mon->data)
+                    || noncorporeal(mon->data)
                     || mon->data == &mons[PM_GREEN_SLIME]
                     || (how_resistant(DISINT_RES) < 50
                         && (mon->data == &mons[PM_BLACK_DRAGON]
@@ -4336,6 +4361,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 && mattk->aatyp == AT_STNG
                 && (context.forcefight
                     || (touch_petrifies(mon->data) && !Stone_resistance)
+                    || noncorporeal(mon->data)
                     || (how_resistant(DISINT_RES) < 50
                         && (mon->data == &mons[PM_BLACK_DRAGON]
                             || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
@@ -4730,6 +4756,12 @@ boolean wep_was_destroyed;
     mattk = has_erac(mon) ? ERAC(mon)->mattk : ptr->mattk;
     boolean thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
                         && context.forcefight && !Upolyd);
+
+    if (maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE))
+        && aatyp == AT_BITE && mhit) {
+        if (bite_monster(mon))
+            return 2; /* lifesaved */
+    }
 
     for (i = 0;; i++) {
         if (i >= NATTK)

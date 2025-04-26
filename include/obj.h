@@ -113,21 +113,21 @@ struct obj {
 #define opoisoned ocoated1     /* object (weapon) is coated with poison */
 #define otainted ocoated2      /* object (weapon) is coated with drow poison */
 
-    Bitfield(recharged, 3); /* number of times it's been recharged */
-#define on_ice recharged    /* corpse on ice */
-    Bitfield(lamplit, 1);   /* a light-source -- can be lit */
-    Bitfield(globby, 1);    /* combines with like types on adjacent squares */
+    Bitfield(recharged, 3);  /* number of times it's been recharged */
+#define on_ice recharged     /* corpse on ice */
+    Bitfield(lamplit, 1);    /* a light-source -- can be lit */
+    Bitfield(globby, 1);     /* combines with like types on adjacent squares */
     Bitfield(greased, 1);    /* covered with grease */
     Bitfield(nomerge, 1);    /* set temporarily to prevent merging */
     Bitfield(was_thrown, 1); /* thrown by hero since last picked up */
+    Bitfield(odrained, 1);   /* corpse is drained of blood */
 
     Bitfield(material, 5); /* material this obj is made of */
     Bitfield(in_use, 1);   /* for magic items before useup items */
     Bitfield(bypass, 1);   /* mark this as an object to be skipped by bhito() */
     Bitfield(cknown, 1);   /* contents of container assumed to be known */
-
     Bitfield(lknown, 1);   /* locked/unlocked status is known */
-    /* 7 free bits */
+    /* 6 free bits */
 
     int corpsenm;         /* type of corpse is mons[corpsenm] */
 #define leashmon corpsenm /* gets m_id of attached pet */
@@ -341,6 +341,11 @@ struct obj {
 #define mlevelgain(obj) (ofood(obj) && (obj)->corpsenm == PM_WRAITH)
 #define mhealup(obj) (ofood(obj) && (obj)->corpsenm == PM_NURSE)
 #define is_royaljelly(o) ((o)->otyp == LUMP_OF_ROYAL_JELLY)
+/* the product of drain_level() is the amount of nutrition points
+   subtracted from a corpses base nutrition value (example: a jackal
+   corpse has 250 nutrition, a vampire feeding [draining blood] from
+   its corpse will receive 125 nutrition from it (250 / 2 = 125) */
+#define drain_level(corpse) (mons[(corpse)->corpsenm].cnutrit / 2)
 #define Is_pudding(o) \
     (o->otyp == GLOB_OF_GRAY_OOZE || o->otyp == GLOB_OF_BROWN_PUDDING \
      || o->otyp == GLOB_OF_GREEN_SLIME || o->otyp == GLOB_OF_BLACK_PUDDING)

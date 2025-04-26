@@ -959,6 +959,7 @@ boolean artif;
             break;
         case FOOD_CLASS:
             otmp->oeaten = 0;
+            otmp->odrained = 0;
             switch (otmp->otyp) {
             case CORPSE:
                 /* possibly overridden by mkcorpstat() */
@@ -2675,6 +2676,9 @@ struct obj *targetbox; /* if non-Null, container to tip into */
             if (objects[obj->otyp].oc_magic)
                 do {
                     obj->otyp = rnd_class(POT_BOOZE, POT_WATER);
+                    if (maybe_polyd(is_vampire(youmonst.data),
+                                    Race_if(PM_VAMPIRE)))
+                        obj->otyp = (rn2(5) ? POT_BLOOD : POT_VAMPIRE_BLOOD);
                 } while (obj->otyp == POT_SICKNESS);
             what = (obj->quan > 1L) ? "Some potions" : "A potion";
         } else {

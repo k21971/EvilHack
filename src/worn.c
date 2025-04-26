@@ -702,6 +702,7 @@ register struct monst *mon;
                     || (racial_elf(mon) && obj->otyp == ELVEN_CHAIN_MAIL)
                     || (racial_dwarf(mon) && obj->otyp == DWARVISH_CHAIN_MAIL)
                     || (racial_zombie(mon) && is_bone(obj))
+                    || (racial_vampire(mon) && is_bone(obj))
                     || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
                     base -= race_role_bonus;
             }
@@ -718,6 +719,7 @@ register struct monst *mon;
                     || (racial_drow(mon) && obj->otyp == DARK_ELVEN_HELM)
                     || (racial_dwarf(mon) && obj->otyp == DWARVISH_HELM)
                     || (racial_zombie(mon) && is_bone(obj))
+                    || (racial_vampire(mon) && is_bone(obj))
                     || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
                     base -= race_role_bonus;
             }
@@ -727,6 +729,7 @@ register struct monst *mon;
                     || (racial_drow(mon) && obj->otyp == DARK_ELVEN_BOOTS)
                     || (racial_dwarf(mon) && obj->otyp == DWARVISH_BOOTS)
                     || (racial_zombie(mon) && is_bone(obj))
+                    || (racial_vampire(mon) && is_bone(obj))
                     || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
                     base -= race_role_bonus;
             }
@@ -738,11 +741,13 @@ register struct monst *mon;
                     || (racial_drow(mon) && obj->otyp == DARK_ELVEN_BRACERS)
                     || (racial_dwarf(mon) && obj->otyp == DWARVISH_ROUNDSHIELD)
                     || (racial_zombie(mon) && is_bone(obj))
+                    || (racial_vampire(mon) && is_bone(obj))
                     || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
                     base -= race_role_bonus;
             }
             if (which_armor(mon, W_ARMG)) {
                 if ((racial_zombie(mon) && is_bone(obj))
+                    || (racial_vampire(mon) && is_bone(obj))
                     || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
                     base -= race_role_bonus;
             }

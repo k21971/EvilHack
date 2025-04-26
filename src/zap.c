@@ -1301,7 +1301,8 @@ unturn_you()
 {
     (void) unturn_dead(&youmonst); /* hit carried corpses and eggs */
 
-    if (maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))) {
+    if (maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))
+        || maybe_polyd(is_undead(youmonst.data), Race_if(PM_VAMPIRE))) {
         pline("%s!  This hurts!", rn2(2) ? "Argh" : "Uuungh");
 
         if (Stun_resistance || wielding_artifact(ART_TEMPEST))
@@ -1399,6 +1400,8 @@ register struct obj *obj;
                    whereas see invisible tastes like "enchanted" fruit
                    juice, it similarly cancels */
                 obj->otyp = POT_FRUIT_JUICE;
+            } else if (otyp == POT_VAMPIRE_BLOOD) {
+                obj->otyp = POT_BLOOD;
             } else {
                 obj->otyp = POT_WATER;
                 obj->odiluted = 0; /* same as any other water */
@@ -2995,7 +2998,8 @@ boolean ordinary;
 
     case WAN_DEATH:
     case SPE_FINGER_OF_DEATH:
-        if (is_undead(youmonst.data) || Race_if(PM_DRAUGR)) {
+        if (is_undead(youmonst.data)
+            || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)) {
             /* wand/spell of death acts like a potion of full healing
                for the undead, especially whilst in the VotD */
             shieldeff(u.ux, u.uy);
@@ -4667,7 +4671,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 tmp = 0;
                 break;
             }
-            if (is_undead(mon->data) || racial_zombie(mon)) {
+            if (is_undead(mon->data) || racial_zombie(mon)
+                || racial_vampire(mon)) {
                 /* wand of death acts like a potion of full healing
                    for the undead, especially whilst in the VotD */
                 sho_shieldeff = TRUE;
@@ -4947,7 +4952,8 @@ xchar sx, sy;
                 if (uarmu)
                     (void) destroy_arm(uarmu);
             }
-        } else if (is_undead(youmonst.data) || Race_if(PM_DRAUGR)) {
+        } else if (is_undead(youmonst.data)
+                   || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)) {
             /* wand of death acts like a potion of full healing
                for the undead, especially whilst in the VotD */
             shieldeff(sx, sy);

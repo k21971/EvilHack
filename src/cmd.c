@@ -134,6 +134,7 @@ static int NDECL((*timed_occ_fn));
 
 STATIC_PTR int NDECL(doenshelling);
 STATIC_PTR int NDECL(dodruidwildshape);
+STATIC_PTR int NDECL(dovampireshapechange);
 STATIC_PTR int NDECL(dosuspend_core);
 STATIC_PTR int NDECL(dosh_core);
 STATIC_PTR int NDECL(doherecmdmenu);
@@ -759,7 +760,7 @@ domonability(VOID_ARGS)
             pline("Unfortunately sound does not carry well through rock.");
         else
             aggravate();
-    } else if (youmonst.data->mlet == S_VAMPIRE)
+    } else if (is_vampire(youmonst.data))
         return dopoly();
     else if (Upolyd)
         pline("Any special ability you may have is purely reflexive.");
@@ -2893,9 +2894,20 @@ int final;
     mungspaces(buf);             /* strip trailing spaces */
     if (*buf) {
         *buf = lowc(*buf); /* override capitalization */
-        if (!strcmp(buf, "weak"))
-            Strcat(buf, " from severe hunger");
-        else if (!strncmp(buf, "faint", 5)) /* fainting, fainted */
+        if (!strcmp(buf, "weak")) {
+            if (racial_vampire(&youmonst))
+                Strcat(buf, " from severe thirst");
+            else
+                Strcat(buf, " from severe hunger");
+        } else if (!strcmp(buf, "frail")) {
+            /* vampire only, but with some future-proofing */
+            if (racial_vampire(&youmonst))
+                Strcat(buf, " from extreme thirst");
+            else
+                Strcat(buf, " from extreme hunger");
+        } else if (!strncmp(buf, "faint", 5)) /* fainting, fainted */
+            Strcat(buf, " due to starvation");
+        else if (!strcmp(buf, "starved")) /* vampire */
             Strcat(buf, " due to starvation");
         you_are(buf, "");
     }
@@ -3223,7 +3235,8 @@ int final;
     if (u.uedibility)
         you_can("recognize detrimental food", "");
     if (Vulnerable_fire
-        || (!Upolyd && Race_if(PM_DRAUGR)))
+        || (!Upolyd && Race_if(PM_DRAUGR))
+        || (!Upolyd && Race_if(PM_VAMPIRE)))
         you_are("vulnerable to fire", from_what(VULN_FIRE));
     if (Vulnerable_cold)
         you_are("vulnerable to cold", from_what(VULN_COLD));
@@ -3458,8 +3471,13 @@ int final;
         you_are("in direct contact with mithril", "");
     if (Slow_digestion)
         you_have("slower digestion", from_what(SLOW_DIGESTION));
-    if (inediate(raceptr(&youmonst)))
+    if (inediate(raceptr(&youmonst))
+        && !maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE)))
         you_can("survive without having to eat", "");
+    if (maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE))) {
+        Sprintf(buf, "must consume blood for survival");
+        enl_msg(You_, buf, buf, "", "");
+    }
     if (u.uhitinc)
         you_have(enlght_combatinc("to hit", u.uhitinc, final, buf), "");
     if (u.udaminc)
@@ -3538,6 +3556,16 @@ int final;
         } else { /* u.uwildshape is greater than 0 */
             Sprintf(buf, "have %d turns remaining before using wildshape again",
                     u.uwildshape);
+            enl_msg(You_, buf, buf, "", "");
+        }
+    }
+    if (Race_if(PM_VAMPIRE)) {
+        if (u.uvampireshape == 0) {
+            Sprintf(buf, "able to use your shapechange ability");
+            you_are(buf, "");
+        } else { /* u.uvampireshape is greater than 0 */
+            Sprintf(buf, "have %d turns remaining before shapechanging again",
+                    u.uvampireshape);
             enl_msg(You_, buf, buf, "", "");
         }
     }
@@ -4190,6 +4218,8 @@ struct ext_func_tab extcmdlist[] = {
     { '^', "seetrap", "show the type of adjacent trap", doidtrap, IFBURIED },
     { WEAPON_SYM, "seeweapon", "show the weapon currently wielded",
             doprwep, IFBURIED },
+    { '\0', "shapechange", "vampire's shapechanging ability",
+            dovampireshapechange, IFBURIED | AUTOCOMPLETE },
     { '!', "shell", "do a shell escape",
             dosh_core, IFBURIED | GENERALCMD
 #ifndef SHELL
@@ -6844,8 +6874,6 @@ doenshelling(VOID_ARGS)
 STATIC_PTR int
 dodruidwildshape(VOID_ARGS)
 {
-    /* TODO: figure a way to set up this command
-       so it's not even an option for a non-druid */
     if (!Role_if(PM_DRUID)) {
         You("don't have access to this ability.");
     } else { /* player is Druid */
@@ -6893,6 +6921,50 @@ dodruidwildshape(VOID_ARGS)
             You_cant("use wildshape while wearing metallic armor.");
         } else {
             druid_wildshape();
+        }
+    }
+    return 0;
+}
+
+/* #shapechange command - change vampire's form */
+STATIC_PTR int
+dovampireshapechange(VOID_ARGS)
+{
+    if (!Race_if(PM_VAMPIRE)) {
+        You("don't have access to this ability.");
+    } else { /* player is a Vampire */
+        if (Upolyd && u.uvampireshape) {
+            /* manually revert back to original form,
+               significantly reducing the cooldown timer.
+               the cost of leaving shapechange early is a
+               reduction of one-half of the original hit
+               points while in original form, not to go
+               below one.
+
+               Example: original form has 60(100) hit points.
+               shapechange is used, now have 100(100) hit
+               points in shapechange form. decide to manually
+               revert to original form early, now have 30(100)
+               hit points */
+            u.uhp -= (u.uhp / 2);
+            if (u.uhp < 1)
+                u.uhp = 1;
+            rehumanize();
+            if (u.uvampireshape > 200)
+                u.uvampireshape = 200;
+        } else if (u.uvampireshape
+                   && (!wizard
+                       || yn("You can't shapechange so soon.  Override?") != 'y')) {
+            You_cant("shapechange so soon.");
+        } else if ((Stunned || Confusion)
+                   && (u.uvampireshape == 0)) {
+            You_cant("use shapechange while incapacitated.");
+        } else if (u.uhunger < 50) { /* weak */
+            You("are too weak from hunger to shapechange.");
+        } else if (ACURR(A_STR) < 4) {
+            You("lack the strength to shapechange.");
+        } else {
+            vampire_shapechange();
         }
     }
     return 0;

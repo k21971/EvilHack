@@ -526,6 +526,7 @@ boolean devour;
     int nutrit, corpsenm;
     long oprice;
     char objnambuf[BUFSZ];
+    boolean vamp = is_vampire(mtmp->data);
 
     objnambuf[0] = '\0';
     if (edog->hungrytime < monstermoves)
@@ -552,6 +553,16 @@ boolean devour;
         if (nutrit > 1)
             nutrit = (nutrit * 3) / 4;
     }
+
+    /* vampire nutrition, half the amount of
+       dog_nutrition() vs eating an entire corpse */
+    if (vamp) {
+        mtmp->meating = (mtmp->meating / 4);
+        nutrit = (nutrit / 2);
+        if (wizard)
+            pline("Consumed nutrition: %d.", nutrit);
+    }
+
     edog->hungrytime += nutrit;
     mtmp->mconf = 0;
     if (edog->mhpmax_penalty) {
@@ -594,9 +605,11 @@ boolean devour;
                 pline("%s digs in.", noit_Monnam(mtmp));
             else
                 pline("%s %s %s.", noit_Monnam(mtmp),
-                      devour ? "devours" : "eats", distant_name(obj, doname));
+                      vamp ? "drains" : devour ? "devours" : "eats",
+                      distant_name(obj, doname));
         } else if (seeobj)
-            pline("It %s %s.", devour ? "devours" : "eats",
+            pline("It %s %s.",
+                  vamp ? "drains" : devour ? "devours" : "eats",
                   distant_name(obj, doname));
     }
     if (obj->unpaid) {
@@ -625,6 +638,23 @@ boolean devour;
             pline("%s spits %s out in disgust!", Monnam(mtmp),
                   distant_name(obj, doname));
         }
+    } else if (vamp) {
+        if (obj->quan > 1L) {
+            if (!carried(obj)) {
+                (void) splitobj(obj, 1L);
+            } else {
+                obj = splitobj(obj, obj->quan - 1L);
+                freeinv(obj);
+
+                if (inv_cnt(FALSE) >= 52 && !merge_choice(invent, obj))
+                    dropy(obj);
+                else
+                    obj = addinv(obj); /* unlikely but a merge is possible */
+            }
+        }
+        /* Take away blood nutrition */
+        obj->oeaten = drain_level(obj);
+        obj->odrained = 1;
     } else if (obj == uball) {
         unpunish();
         delobj(obj); /* we assume this can't be unpaid */
@@ -848,11 +878,12 @@ int udist;
             ) {
             int edible = dogfood(mtmp, obj);
 
-            if (!booldroppables && (edible <= CADAVER
-                /* starving pet is more aggressive about eating */
-                || (edog->mhpmax_penalty && edible == ACCFOOD))
+            if (!booldroppables
+                && (edible <= CADAVER
+                    /* starving pet is more aggressive about eating */
+                    || (edog->mhpmax_penalty && edible == ACCFOOD))
                 && could_reach_item(mtmp, obj->ox, obj->oy)) {
-		if (edog->hungrytime < monstermoves + DOG_SATIATED)
+                if (edog->hungrytime < monstermoves + DOG_SATIATED)
                     return dog_eat(mtmp, obj, omx, omy, FALSE);
             }
 

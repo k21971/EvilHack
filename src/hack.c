@@ -736,7 +736,8 @@ ma_break()
         prob -= 3;
     if (Race_if(PM_CENTAUR))
         prob -= 2;
-    if (Race_if(PM_TORTLE) || Race_if(PM_DRAUGR))
+    if (Race_if(PM_TORTLE)
+        || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
         prob -= 1;
     if (Race_if(PM_ELF) || Race_if(PM_DROW))
         prob += 1;
@@ -967,7 +968,7 @@ int mode;
                     return FALSE;
             } else {
                 if (mode == DO_MOVE) {
-                    if (amorphous(youmonst.data))
+                    if (amorphous(youmonst.data) && !vampire_form)
                         You(
    "try to ooze under the door, but can't squeeze your possessions through.");
                     if (flags.autoopen && !context.run && !Confusion
@@ -3698,11 +3699,15 @@ weight_cap()
         /* and draugr, but just movement speed here? */
         if (!Upolyd)
             youmonst.data->mmove = 10;
+    } else if (racial_vampire(&youmonst)) {
+        carrcap += 100;
+        maxcarrcap += 200;
+        if (!Upolyd)
+            youmonst.data->mmove = 15;
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
         if (is_nymph(youmonst.data)
-            || (Role_if(PM_DRUID)
-                && all_druid_forms(monsndx(youmonst.data))))
+            || druid_form || vampire_form)
             carrcap = maxcarrcap;
         else if (!youmonst.data->cwt)
             carrcap = (carrcap * (long) youmonst.data->msize) / MZ_HUMAN;

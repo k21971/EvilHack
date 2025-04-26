@@ -994,7 +994,8 @@ int wtcap;
                 && !wielding_artifact(ART_WAND_OF_ORCUS)
                 && (Regeneration
                     || (encumbrance_ok
-                        && !(moves % (druid_form ? 9L : 20L)))))
+                        && !(moves % ((druid_form
+                                       || vampire_form) ? 9L : 20L)))))
                 heal = 1;
         }
         if (heal && !(Withering && heal > 0)) {
@@ -1015,10 +1016,11 @@ int wtcap;
            (pre-idol imbuement), Druids will heal slightly faster
            while standing on or near vegetation (grass/trees). No one
            can regenerate hit points while located in the Valley of the
-           Dead, except for Draugr */
+           Dead, except for Draugr/Vampires */
         if (u.uhp < u.uhpmax && elf_can_regen() && orc_can_regen()
             && (encumbrance_ok || Regeneration)
-            && (!Is_valley(&u.uz) || Race_if(PM_DRAUGR))
+            && (!Is_valley(&u.uz)
+                || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
             && !infidel_no_amulet && !wielding_artifact(ART_WAND_OF_ORCUS)) {
             if (u.ulevel > 9) {
                 long rate = 3L;

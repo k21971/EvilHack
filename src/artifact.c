@@ -2629,7 +2629,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     if (atmp->spfx & (SPFX_DFLAGH | SPFX_DCLAS)) {
         j = !rn2(10); /* 10% chance of instakill for some artifacts */
         k = !rn2(20); /* 5% chance if same weapon is used against the player */
-        l = !rn2(5);  /* special chance of incineration (Draugr) */
+        l = !rn2(5);  /* special chance of incineration (Draugr/Vampire) */
 
         switch (otmp->oartifact) {
         case ART_WEREBANE:
@@ -2793,7 +2793,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     mongone(mdef);
                 }
             } else if (youdefend && l
-                       && maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))) {
+                       && (maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))
+                           || maybe_polyd(is_undead(youmonst.data), Race_if(PM_VAMPIRE)))) {
                 pline("The holy power of Sunsword incinerates your undead flesh!");
                 if (Upolyd) {
                     /* player returns to their original form */
@@ -2916,7 +2917,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form if poly'd */
             } else if (youdefend && l
-                       && maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))) {
+                       && (maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))
+                           || maybe_polyd(is_undead(youmonst.data), Race_if(PM_VAMPIRE)))) {
                 pline("The Hammer of the Gods incinerates your undead flesh!");
                 if (Upolyd) {
                     /* player returns to their original form */
@@ -4058,8 +4060,8 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
 {
     struct obj *obj = *objp;
 
-    /* allow hero (specifically, a crowned Infidel) in silver-hating form
-       to try to perform invocation ritual */
+    /* allow hero (specifically, vampires or a crowned Infidel)
+       in silver-hating form to try to perform invocation ritual */
     if (obj->otyp == BELL_OF_OPENING
         && invocation_pos(u.ux, u.uy) && !On_stairs(u.ux, u.uy)) {
         return 1;
@@ -4082,8 +4084,9 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
         /* another case where nothing should happen: hero is wearing gloves
            which protect them from directly touching a weapon of a material
            they hate or wearing boots that prevent them touching a kicked
-           object. demons will always get blasted, though. */
-        if (!bane && !(direct || is_demon(raceptr(&youmonst))))
+           object. demons and vampires will always get blasted, though. */
+        if (!bane && !(direct || is_demon(raceptr(&youmonst))
+                       || is_vampire(raceptr(&youmonst))))
             return 1;
 
         /* hero can't handle this object, but didn't get touch_artifact()'s
@@ -4097,7 +4100,8 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
         }
         /* damage is somewhat arbitrary: 1d10 magical for <foo>bane,
            half of the usual damage for materials */
-        if (hatemat && (direct || is_demon(raceptr(&youmonst))))
+        if (hatemat && (direct || is_demon(raceptr(&youmonst))
+                        || is_vampire(raceptr(&youmonst))))
             dmg += rnd(sear_damage(obj->material) / 2);
         if (bane)
             dmg += rnd(10);

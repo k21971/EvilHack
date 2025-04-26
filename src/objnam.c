@@ -1453,7 +1453,8 @@ unsigned doname_flags;
                           because donning() returns True for both cases */
                        : doffing(obj) ? " (being doffed)"
                          : donning(obj) ? " (being donned)"
-                           : (druid_form && (owner == &youmonst))
+                           : ((druid_form || vampire_form)
+                              && (owner == &youmonst))
                                ? " (merged to your form)"
                              : obj->otyp == MUMMIFIED_HAND ? " "
                                : " (being worn)");
@@ -1581,8 +1582,15 @@ unsigned doname_flags;
         }
         break;
     case FOOD_CLASS:
-        if (obj->oeaten)
+        if (obj->otyp == CORPSE && obj->odrained) {
+            if (wizard && obj->oeaten < drain_level(obj))
+                Strcat(prefix, "over-drained ");
+            else
+                Sprintf(prefix, "%sdrained ",
+                        (obj->oeaten > drain_level(obj)) ? "partly " : "");
+        } else if (obj->oeaten) {
             Strcat(prefix, "partly eaten ");
+        }
         /* draugr automatically know how rotted a corpse is */
         if (obj->otyp == CORPSE
             && (!(obj->corpsenm == PM_LICHEN
@@ -1631,7 +1639,7 @@ unsigned doname_flags;
             Strcat(bp, (obj == uskin) ? " (embedded in your skin)"
                        : doffing(obj) ? " (being doffed)"
                          : donning(obj) ? " (being donned)"
-                           : druid_form ? " (merged to your form)"
+                           : (druid_form || vampire_form) ? " (merged to your form)"
                              : " (being worn)");
         }
         break;
@@ -3570,6 +3578,7 @@ const char *str;
         "master key",    /* not the "master" rank */
         "ninja-to",      /* not the "ninja" rank */
         "magenta",       /* not the "mage" rank */
+        "vampire blood", /* not the "vampire" monster! */
     };
     int i;
     for (i = 0; i < SIZE(non_monster_strs); ++i) {
@@ -3660,9 +3669,9 @@ struct obj *no_wish;
     register struct obj *otmp;
     int cnt, spe, spesgn, typ, very, rechrg;
     int blessed, uncursed, iscursed, ispoisoned, istainted, isgreased;
-    int magical, isforged0, isforged1, isforged2;
+    int magical, isforged0, isforged1, isforged2, isdrained;
     int eroded, eroded2, erodeproof, locked, unlocked, broken;
-    int halfeaten, mntmp, contents;
+    int halfeaten, halfdrained, mntmp, contents;
     int islit, unlabeled, ishistoric, isdiluted, trapped;
     int material;
     int tmp, tinv, tvariety;
@@ -3697,7 +3706,7 @@ struct obj *no_wish;
         ispoisoned = istainted = isgreased = eroded = eroded2 =
         erodeproof = halfeaten = islit = unlabeled = ishistoric =
         isdiluted = trapped = locked = unlocked = broken =
-        isforged0 = isforged1 = isforged2 = 0;
+        isforged0 = isforged1 = isforged2 = isdrained = halfdrained = 0;
     tvariety = RANDOM_TIN;
     mntmp = NON_PM;
 #define UNDEFINED 0
@@ -3827,6 +3836,13 @@ struct obj *no_wish;
                    || !strncmpi(bp, "deteriorated ", l = 13)) {
             eroded2 = 1 + very;
             very = 0;
+        } else if (!strncmpi(bp, "partly drained ", l = 15)
+                   || !strncmpi(bp, "partially drained ", l = 18)) {
+            isdrained = 1;
+            halfdrained = 1;
+        } else if (!strncmpi(bp, "drained ", l = 8)) {
+            isdrained = 1;
+            halfdrained = 0;
         } else if (!strncmpi(bp, "partly eaten ", l = 13)
                    || !strncmpi(bp, "partially eaten ", l = 16)) {
             halfeaten = 1;
@@ -4193,11 +4209,12 @@ struct obj *no_wish;
     }
 
     /* Find corpse type w/o "of" (red dragon scales, yeti corpse) */
-    if (strncmpi(bp, "samurai sword", 13)   /* not the "samurai" monster! */
-        && strncmpi(bp, "wizard lock", 11)  /* not the "wizard" monster! */
-        && strncmpi(bp, "ninja-to", 8)      /* not the "ninja" rank */
-        && strncmpi(bp, "master key", 10)   /* not the "master" rank */
-        && strncmpi(bp, "magenta", 7)) {    /* not the "mage" rank */
+    if (strncmpi(bp, "samurai sword", 13)    /* not the "samurai" monster! */
+        && strncmpi(bp, "wizard lock", 11)   /* not the "wizard" monster! */
+        && strncmpi(bp, "ninja-to", 8)       /* not the "ninja" rank */
+        && strncmpi(bp, "master key", 10)    /* not the "master" rank */
+        && strncmpi(bp, "vampire blood", 13) /* not the "vampire" monster! */
+        && strncmpi(bp, "magenta", 7)) {     /* not the "mage" rank */
         if (mntmp < LOW_PM && strlen(bp) > 2
             && (mntmp = name_to_mon(bp, (int *) 0)) >= LOW_PM) {
             int mntmptoo, mntmplen; /* double check for rank title */
@@ -5451,6 +5468,20 @@ struct obj *no_wish;
             otmp->oeaten = objects[otmp->otyp].oc_nutrition;
         /* (do this adjustment before setting up object's weight) */
         consume_oeaten(otmp, 1);
+    }
+    if (isdrained && otmp->otyp == CORPSE
+        && mons[otmp->corpsenm].cnutrit) {
+        int amt;
+
+        otmp->odrained = 1;
+        amt = mons[otmp->corpsenm].cnutrit - drain_level(otmp);
+        if (halfdrained) {
+            amt /= 2;
+            if (amt == 0)
+                amt++;
+        }
+        /* (do this adjustment before setting up object's weight) */
+        consume_oeaten(otmp, -amt);
     }
     otmp->owt = weight(otmp);
     if (very && otmp->otyp == HEAVY_IRON_BALL)

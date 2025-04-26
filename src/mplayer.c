@@ -180,6 +180,22 @@ static const char *draugr_female_names[] = {
     0
 };
 
+static const char *vampire_male_names[] = {
+    "Antoine",      "Armand",      "Avicus",     "Azim",       "Daniel",
+    "David",        "Enkil",       "Eric",       "Khayman",    "Lestat",
+    "Louis",        "Mael",        "Magnus",     "Marius",     "Nicolas",
+    "Rhoshamandes", "Santiago"     "Santino",    "Seth",       "Teskhamen",
+    "Thorne",
+    0
+};
+
+static const char *vampire_female_names[] = {
+    "Akasha",       "Bianca",      "Claudia",    "Eudoxia",    "Gabrielle",
+    "Jessica",      "Madeleine",   "Maharet",    "Mekare",     "Merrick",
+    "Pandora",
+    0
+};
+
 struct mfnames {
     const char **male;
     const char **female;
@@ -198,7 +214,8 @@ static const struct mfnames namelists[] = {
     { illithid_male_names, illithid_female_names },
     { tortle_male_names, tortle_female_names },
     { drow_male_names, drow_female_names },
-    { draugr_male_names, draugr_female_names }
+    { draugr_male_names, draugr_female_names },
+    { vampire_male_names, vampire_female_names }
 };
 
 void
@@ -265,6 +282,9 @@ struct monst *mtmp;
         /* flags for all barbarians regardless of race */
         rptr->mflags3 |= M3_BERSERK;
         mtmp->mintrinsics |= MR_POISON;
+        /* vampire only */
+        if (rptr->mrace == MH_VAMPIRE)
+            rptr->mflags1 |= M1_FLY;
         break;
     case PM_CAVEMAN:
     case PM_CAVEWOMAN:
@@ -279,6 +299,10 @@ struct monst *mtmp;
     case PM_CONVICT:
         /* flags for all convicts regardless of race */
         mtmp->mintrinsics |= MR_POISON;
+        /* illithid/vampire only */
+        if (rptr->mrace == MH_ILLITHID
+            || rptr->mrace == MH_VAMPIRE)
+            rptr->mflags1 |= M1_FLY;
         break;
     case PM_DRUID:
         /* flags for all druids regardless of race */
@@ -304,11 +328,18 @@ struct monst *mtmp;
             rptr->mattk[1].aatyp = AT_MAGC;
             rptr->mattk[1].adtyp = AD_SPEL;
         }
-        if (rptr->mrace != MH_ZOMBIE)
+        /* illithid/vampire only */
+        if (rptr->mrace == MH_ILLITHID
+            || rptr->mrace == MH_VAMPIRE)
+            rptr->mflags1 |= M1_FLY;
+        /* all except draugr/vampire */
+        if (rptr->mrace != MH_ZOMBIE
+            || rptr->mrace != MH_VAMPIRE)
             mtmp->mintrinsics |= MR_FIRE;
         break;
     case PM_KNIGHT:
-        /* nothing special based on role */
+        if (rptr->mrace == MH_VAMPIRE)
+            rptr->mflags1 |= M1_FLY;
         break;
     case PM_MONK:
         /* flags for all monks regardless of race */
@@ -320,6 +351,9 @@ struct monst *mtmp;
         rptr->mattk[0].damd = rptr->mattk[1].damd = 8;
         rptr->mflags1 |= M1_SEE_INVIS;
         mtmp->mintrinsics |= (MR_POISON | MR_SLEEP);
+        /* vampire only */
+        if (rptr->mrace == MH_VAMPIRE)
+            rptr->mflags1 |= M1_FLY;
         break;
     case PM_PRIEST:
     case PM_PRIESTESS:
@@ -327,6 +361,9 @@ struct monst *mtmp;
         rptr->mattk[0].adtyp = AD_SAMU;
         rptr->mattk[1].aatyp = AT_MAGC;
         rptr->mattk[1].adtyp = AD_CLRC;
+        /* illithid only */
+        if (rptr->mrace == MH_ILLITHID)
+            rptr->mflags1 |= M1_FLY;
         break;
     case PM_RANGER:
         /* flags for all rangers regardless of race */
@@ -339,6 +376,9 @@ struct monst *mtmp;
         rptr->mattk[1].adtyp = AD_SITM;
         rptr->mattk[1].damn = rptr->mattk[1].damd = 0;
         rptr->mflags3 |= M3_ACCURATE;
+        /* vampire only */
+        if (rptr->mrace == MH_VAMPIRE)
+            rptr->mflags1 |= M1_FLY;
         break;
     case PM_SAMURAI:
         /* flags for all samurai regardless of race */
@@ -361,6 +401,10 @@ struct monst *mtmp;
         rptr->mattk[0].adtyp = AD_SAMU;
         rptr->mattk[1].aatyp = AT_MAGC;
         rptr->mattk[1].adtyp = AD_SPEL;
+        /* illithid/vampire only */
+        if (rptr->mrace == MH_ILLITHID
+            || rptr->mrace == MH_VAMPIRE)
+            rptr->mflags1 |= M1_FLY;
         break;
     default:
         break;

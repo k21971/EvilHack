@@ -415,7 +415,7 @@ int mndx;
     case PM_HOBBIT_MUMMY:
         mndx = PM_HOBBIT;
         break;
-    case PM_VAMPIRE:
+    case PM_VAMPIRE_SOVEREIGN:
     case PM_VAMPIRE_NOBLE:
     case PM_VAMPIRE_ROYAL:
     case PM_VAMPIRE_MAGE:
@@ -527,6 +527,8 @@ int mndx, mode;
                 mndx = PM_TORTLE;
             else if (is_zombie(ptr))
                 mndx = PM_DRAUGR;
+            else if (is_vampire(ptr))
+                mndx = PM_VAMPIRE;
         }
         break;
     }
@@ -628,7 +630,7 @@ unsigned corpseflags;
     case PM_LONG_WORM:
         (void) mksobj_at(WORM_TOOTH, x, y, TRUE, FALSE);
         goto default_1;
-    case PM_VAMPIRE:
+    case PM_VAMPIRE_SOVEREIGN:
     case PM_VAMPIRE_NOBLE:
     case PM_VAMPIRE_ROYAL:
     case PM_VAMPIRE_MAGE:
@@ -788,7 +790,7 @@ unsigned corpseflags;
             /* preserve the unique traits of some creatures */
             obj = mkcorpstat(CORPSE, KEEPTRAITS(mtmp) ? mtmp : 0,
                              mdat, x, y, corpstatflags);
-            if (racial_zombie(mtmp))
+            if (racial_zombie(mtmp) || racial_vampire(mtmp))
                 obj->age -= 100;
             if (burythem) {
                 boolean dealloc;
@@ -5620,7 +5622,7 @@ int shiftflags;
     int mndx;
     unsigned was_female = mon->female;
     boolean msg = FALSE, dochng = FALSE;
-    boolean tame_vamp = (mon->data->mlet == S_VAMPIRE && mon->mtame);
+    boolean tame_vamp = (is_vampire(mon->data) && mon->mtame);
 
     if ((shiftflags & SHIFT_MSG)
         || ((shiftflags & SHIFT_SEENMSG) && sensemon(mon)))
@@ -5645,9 +5647,9 @@ int shiftflags;
                 ptr = &mons[mon->cham];
                 dochng = TRUE;
             } else if (mon->data == &mons[PM_FOG_CLOUD]
-                     && mon->mhp == mon->mhpmax && !rn2(4)
-                     && (!canseemon(mon)
-                         || distu(mon->mx, mon->my) > BOLT_LIM * BOLT_LIM)) {
+                       && mon->mhp == mon->mhpmax && !rn2(4)
+                       && (!canseemon(mon)
+                           || distu(mon->mx, mon->my) > BOLT_LIM * BOLT_LIM)) {
                 /* if a fog cloud, maybe change to wolf or vampire bat;
                    those are more likely to take damage--at least when
                    tame--and then switch back to vampire; they'll also
@@ -5663,7 +5665,8 @@ int shiftflags;
                back to an animal/fog form */
             if (tame_vamp)
                 dochng = FALSE;
-            else if (mon->mhp >= 9 * mon->mhpmax / 10 && !rn2(6)
+            else if (mon->mhp >= (9 * mon->mhpmax) / 10
+                && !mon->msleeping && !rn2(6)
                 && (!canseemon(mon)
                     || distu(mon->mx, mon->my) > BOLT_LIM * BOLT_LIM))
                 dochng = TRUE; /* 'ptr' stays Null */
@@ -5715,7 +5718,7 @@ struct monst *mon;
             break;
         }
     /*FALLTHRU*/
-    case PM_VAMPIRE: /* any vampire can become fog or bat */
+    case PM_VAMPIRE_SOVEREIGN: /* any vampire can become fog or bat */
         mndx = (!rn2(4) && !uppercase_only) ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
         break;
     }
@@ -5785,7 +5788,7 @@ int *mndx_p, monclass;
     /* basic vampires can't become wolves; any can become fog or bat
        (we don't enforce upper-case only for rogue level here) */
     if (*mndx_p == PM_WOLF || *mndx_p == PM_WARG)
-        return (boolean) (mon->cham != PM_VAMPIRE);
+        return (boolean) (mon->cham != PM_VAMPIRE_SOVEREIGN);
     if (*mndx_p == PM_FOG_CLOUD || *mndx_p == PM_VAMPIRE_BAT)
         return TRUE;
 
@@ -5801,7 +5804,7 @@ int *mndx_p, monclass;
         *mndx_p = PM_FOG_CLOUD;
         break;
     case S_DOG:
-        if (mon->cham != PM_VAMPIRE) {
+        if (mon->cham != PM_VAMPIRE_SOVEREIGN) {
             *mndx_p = PM_WOLF;
             break;
         }
@@ -5854,7 +5857,7 @@ struct monst *mon;
     case PM_VAMPIRE_MAGE:
     case PM_VAMPIRE_ROYAL:
     case PM_VAMPIRE_NOBLE:
-    case PM_VAMPIRE:
+    case PM_VAMPIRE_SOVEREIGN:
         mndx = pickvampshape(mon);
         break;
     case NON_PM: /* ordinary */
@@ -6781,6 +6784,7 @@ struct monst *mtmp;
             newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
             paralyze_monst(mtmp, 100);
         } else if ((!Upolyd && Race_if(PM_DRAUGR))
+                   || (!Upolyd && Race_if(PM_VAMPIRE))
                    || is_undead(youmonst.data)) {
             /* as with Infidels, the enchantress will not tolerate
                the undead */
@@ -6835,7 +6839,7 @@ unsigned long permitted;
     const short mraces[] = { PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME,
                              PM_ORC, PM_GIANT, PM_HOBBIT, PM_CENTAUR,
                              PM_ILLITHID, PM_TORTLE, PM_DROW, PM_DRAUGR,
-                             0 };
+                             PM_VAMPIRE, 0 };
 
     for (i = 0; mraces[i]; i++) {
         if (permitted & mons[mraces[i]].mhflags
@@ -6907,7 +6911,7 @@ short mndx;
         break;
     case PM_BARBARIAN:
         permitted |= (MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR
-                      | MH_TORTLE | MH_ZOMBIE);
+                      | MH_TORTLE | MH_ZOMBIE | MH_VAMPIRE);
         break;
     case PM_CAVEMAN:
     case PM_CAVEWOMAN:
@@ -6916,7 +6920,7 @@ short mndx;
     case PM_CONVICT:
         permitted |=
             (MH_DWARF | MH_ORC | MH_GNOME | MH_HOBBIT | MH_ILLITHID
-             | MH_DROW | MH_ZOMBIE);
+             | MH_DROW | MH_ZOMBIE | MH_VAMPIRE);
         break;
     case PM_DRUID:
         permitted |=
@@ -6929,15 +6933,15 @@ short mndx;
         break;
     case PM_INFIDEL:
         permitted |= (MH_ELF | MH_GIANT | MH_ORC | MH_ILLITHID
-                      | MH_DROW | MH_ZOMBIE);
+                      | MH_DROW | MH_ZOMBIE | MH_VAMPIRE);
         break;
     case PM_KNIGHT:
         permitted |= (MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
-                      | MH_DROW | MH_ZOMBIE);
+                      | MH_DROW | MH_ZOMBIE | MH_VAMPIRE);
         break;
     case PM_MONK:
         permitted |= (MH_DWARF | MH_ELF | MH_GIANT | MH_CENTAUR
-                      | MH_TORTLE | MH_DROW | MH_ZOMBIE);
+                      | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE);
         break;
     case PM_PRIEST:
     case PM_PRIESTESS:
@@ -6951,7 +6955,7 @@ short mndx;
         break;
     case PM_ROGUE:
         permitted |= (MH_ELF | MH_HOBBIT | MH_ORC | MH_GNOME
-                      | MH_DROW | MH_ZOMBIE);
+                      | MH_DROW | MH_ZOMBIE | MH_VAMPIRE);
         break;
     case PM_SAMURAI:
         permitted |= (MH_DWARF | MH_GIANT | MH_TORTLE);
@@ -6965,7 +6969,7 @@ short mndx;
     case PM_WIZARD:
         permitted |=
           (MH_DWARF | MH_ELF | MH_GIANT | MH_GNOME | MH_HOBBIT
-           | MH_ORC | MH_ILLITHID | MH_TORTLE | MH_DROW);
+           | MH_ORC | MH_ILLITHID | MH_TORTLE | MH_DROW | MH_VAMPIRE);
         break;
     default:
         break;
@@ -7176,6 +7180,15 @@ short raceidx;
         rptr->mattk[2].aatyp = AT_BITE;
         rptr->mattk[2].adtyp = AD_DRIN;
         rptr->mattk[2].damn = 2;
+        rptr->mattk[2].damd = 1;
+        rptr->ralign = -3;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        break;
+    case PM_VAMPIRE:
+        rptr->mattk[2].aatyp = AT_BITE;
+        rptr->mattk[2].adtyp = AD_DRLI;
+        rptr->mattk[2].damn = 4;
         rptr->mattk[2].damd = 1;
         rptr->ralign = -3;
         if (mtmp->mnum == PM_INFIDEL)

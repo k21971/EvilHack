@@ -77,7 +77,8 @@ set_uasmon()
     PROPSET(DEATH_RES, immune_death_magic(racedat));
     PROPSET(WERE_RES, resists_lycan(mdat));
 
-    PROPSET(STUNNED, (mdat == &mons[PM_STALKER] || is_bat(mdat)));
+    PROPSET(STUNNED, (mdat == &mons[PM_STALKER]
+                      || (is_bat(mdat) && mdat != &mons[PM_VAMPIRE_BAT])));
     PROPSET(HALLUC_RES, dmgtype(mdat, AD_HALU));
     PROPSET(SEE_INVIS, perceives(mdat));
     PROPSET(TELEPAT, telepathic(mdat));
@@ -109,7 +110,8 @@ set_uasmon()
      * make a large set of monsters immune like
      * fungus, blobs, and jellies.
      * TODO: make is_vampshifter actually work for youmonst, and include that. */
-    if (nonliving(mdat) || racial_zombie(&youmonst))
+    if (nonliving(mdat) || racial_zombie(&youmonst)
+        || racial_vampire(&youmonst))
         BWithering |= FROMFORM;
     else
         BWithering &= ~FROMFORM;
@@ -506,6 +508,69 @@ druid_wildshape()
 }
 
 void
+vampire_shapechange()
+{
+    winid win;
+    menu_item *selected;
+    anything any;
+    int i, n;
+    int abuse = ((u.ualign.abuse == 0) ? -1000
+                 : ((u.ualign.abuse * -1) < 5) ? 100
+                   : ((u.ualign.abuse * -1) < 15) ? 200
+                     : ((u.ualign.abuse * -1) < 30) ? 500
+                       : ((u.ualign.abuse * -1) < 50) ? 1000
+                         : 2000);
+
+    boolean old_uwvis = (Underwater && See_underwater);
+
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win);
+    any = zeroany;
+
+    if (Unchanging) {
+        pline("You fail to transform!");
+        return;
+    }
+
+    for (i = LOW_PM; i < NUMMONS; i++) {
+        n = (LOW_PM + i);
+        if (u.ulevel >= 1) {
+            if (!all_vampire_forms(n))
+                continue;
+        } else {
+            /* extra guard, otherwise potentially
+               all monsters become available */
+            continue;
+        }
+        if (n >= NUMMONS)
+            break;
+        any.a_int = n;
+        add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                 mons[n].mname, MENU_UNSELECTED);
+    }
+    end_menu(win, "Pick a form to change into.");
+    n = select_menu(win, PICK_ONE, &selected);
+    destroy_nhwindow(win);
+    if (n > 0) {
+        i = selected[0].item.a_int;
+        free((genericptr_t) selected);
+        (void) polymon(i);
+        /* set timer for next allowed use of shapechange,
+           3600-4000 turns. how alignment is abused (or
+           not abused) can affect the amount of turns
+           needed to wait between shapechange uses */
+        u.uvampireshape += rn1((u.ualign.abuse == 0) ? 201 : 401,
+                               (3600 + abuse));
+    }
+
+    if (old_uwvis != (Underwater && See_underwater)) {
+        vision_reset();
+        docrt();
+    }
+    return;
+}
+
+void
 polyself(psflags)
 int psflags;
 {
@@ -517,7 +582,8 @@ int psflags;
              * will only allow declining to become dragon, won't allow turning
              * into arbitrary monster */
             draconian_only = (psflags == 4),
-            iswere = (u.ulycn >= LOW_PM), isvamp = is_vampire(youmonst.data),
+            iswere = (u.ulycn >= LOW_PM),
+            isvamp = maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE)),
             controllable_poly = Polymorph_control && !(Stunned || Unaware),
             yourrace, old_uwvis = (Underwater && See_underwater);
 
@@ -688,7 +754,8 @@ int psflags;
         } else if (isvamp) {
         do_vampyr:
             if (mntmp < LOW_PM || (mons[mntmp].geno & G_UNIQ))
-                mntmp = (youmonst.data != &mons[PM_VAMPIRE] && !rn2(10))
+                mntmp = (youmonst.data != &mons[PM_VAMPIRE_SOVEREIGN]
+                         && !rn2(10))
                             ? PM_WOLF
                             : !rn2(4) ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
             if (controllable_poly) {
@@ -904,11 +971,12 @@ int mntmp;
     mlvl = (int) mons[mntmp].mlevel;
     int monster_hp = monmaxhp(&mons[mntmp], mlvl);
 
-    if (druid_form) {
-        /* Druid assumes wildshape form, hit points/max hit points
-           either stays the same as if they did not change shape
-           (u.uhp/u.uhpmax), or becomes that of the monster they
-           wildshape into (u.mh/u.umhmax), whichever is greater */
+    if (druid_form || vampire_form) {
+        /* Druid assumes #wildshape form, or a vampire uses #shapechange;
+           hit points/max hit points either stays the same as if they
+           did not change shape (u.uhp/u.uhpmax), or becomes that of
+           the monster they #wildshape or #shapechange into (u.mh/u.umhmax),
+           whichever is greater */
         if (monster_hp > u.uhpmax)
             u.mhmax = u.mh = monster_hp;
         else
@@ -917,9 +985,10 @@ int mntmp;
         u.mhmax = u.mh = monster_hp;
     }
 
-    if ((u.ulevel < mlvl) && !druid_form) {
-        /* Low level characters can't become high level monsters for long,
-           Druids using wildshape are the exception */
+    if ((u.ulevel < mlvl) && !(druid_form || vampire_form)) {
+        /* Low level characters can't become high level monsters for
+           long, Druids using #wildshape and vampires using #shapechange
+           are the exception */
 #ifdef DUMB
         /* DRS/NS 2.2.6 messes up -- Peter Kendell */
         int mtd = u.mtimedone, ulv = u.ulevel;
@@ -1230,7 +1299,7 @@ break_armor()
     }
     if (nohands(youmonst.data) || verysmall(youmonst.data)
         || is_ent(youmonst.data)) {
-        if (!druid_form && (otmp = uarmg) != 0) {
+        if (!(druid_form || vampire_form) && (otmp = uarmg) != 0) {
             if (donning(otmp))
                 cancel_don();
             /* Drop weapon along with gloves */
@@ -1248,23 +1317,23 @@ break_armor()
             }
         }
         if ((otmp = uarms) != 0) {
-            if (druid_form && !is_bracer(uarms))
+            if ((druid_form || vampire_form) && !is_bracer(uarms))
                 You("can no longer hold your shield!");
-            else if (!druid_form)
+            else if (!(druid_form || vampire_form))
                 You("can no longer %s!",
                     is_bracer(uarms) ? "wear your bracers"
                                      : "hold your shield");
-            if (druid_form && is_bracer(uarms)) {
+            if ((druid_form || vampire_form) && is_bracer(uarms)) {
                 ; /* do nothing */
             } else {
                 if (otmp->lamplit)
                     end_burn(otmp, FALSE);
                 (void) Shield_off();
-                if (!druid_form)
+                if (!(druid_form || vampire_form))
                     dropp(otmp);
             }
         }
-        if (!druid_form && (otmp = uarmh) != 0) {
+        if (!(druid_form || vampire_form) && (otmp = uarmh) != 0) {
             if (donning(otmp))
                 cancel_don();
             Your("%s falls to the %s!", helm_simple_name(otmp),
@@ -1276,7 +1345,8 @@ break_armor()
     if ((nohands(youmonst.data) || verysmall(youmonst.data)
          || slithy(youmonst.data) || racial_centaur(&youmonst)
          || racial_tortle(&youmonst) || is_ent(youmonst.data)
-         || is_satyr(youmonst.data)) && !druid_form) {
+         || is_satyr(youmonst.data))
+        && !(druid_form || vampire_form)) {
         if ((otmp = uarmf) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -1320,7 +1390,7 @@ int alone;
                     which = makeplural(which);
 
                 You("find you must %s %s %s!",
-                    druid_form ? "release" : what,
+                    (druid_form || vampire_form) ? "release" : what,
                     the_your[!!strncmp(which, "corpse", 6)], which);
             }
             /* if either uwep or wielded uswapwep is flagged as 'in_use'
@@ -1331,14 +1401,15 @@ int alone;
                 uswapwepgone();
                 if (otmp->in_use)
                     updateinv = FALSE;
-                else if (candropswapwep && !druid_form)
+                else if (candropswapwep
+                         && !(druid_form || vampire_form))
                     dropx(otmp);
             }
             otmp = uwep;
             uwepgone();
             if (otmp->in_use)
                 updateinv = FALSE;
-            else if (candropwep  && !druid_form)
+            else if (candropwep && !(druid_form || vampire_form))
                 dropx(otmp);
             /* [note: dropp vs dropx -- if heart of ahriman is wielded, we
                might be losing levitation by dropping it; but that won't
@@ -1408,6 +1479,10 @@ rehumanize()
        timer before they can use it again */
     if (u.uwildshape && u.mh < 1)
         u.uwildshape += 1000;
+
+    /* same for vampires */
+    if (u.uvampireshape && u.mh < 1)
+        u.uvampireshape += 1000;
 
     if (emits_light(youmonst.data))
         del_light_source(LS_MONSTER, monst_to_any(&youmonst));
@@ -2155,7 +2230,8 @@ int part;
         && ((humanoid(mptr) && (has_claws(mptr) || has_claws_undead(mptr)))
             || (mon == &youmonst
                 && (Race_if(PM_DEMON) || Race_if(PM_ILLITHID)
-                    || Race_if(PM_TORTLE) || Race_if(PM_DRAUGR)))))
+                    || Race_if(PM_TORTLE) || Race_if(PM_DRAUGR)
+                    || Race_if(PM_VAMPIRE)))))
         return (part == HAND) ? "claw" : "clawed";
     if ((mptr == &mons[PM_MUMAK] || mptr == &mons[PM_MASTODON]
          || mptr == &mons[PM_WOOLLY_MAMMOTH])
@@ -2334,7 +2410,7 @@ polysense()
     case PM_PURPLE_WORM:
         warnidx = PM_SHRIEKER;
         break;
-    case PM_VAMPIRE:
+    case PM_VAMPIRE_SOVEREIGN:
     case PM_VAMPIRE_NOBLE:
     case PM_VAMPIRE_ROYAL:
     case PM_VAMPIRE_MAGE:

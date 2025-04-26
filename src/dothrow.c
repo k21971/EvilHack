@@ -314,6 +314,8 @@ int *shotlimit_p; /* (see dothrow()) */
     } else if (nohands(youmonst.data)) {
         if (druid_form && !slithy(youmonst.data)) {
             return TRUE;
+        } else if (vampire_form && !is_whirly(youmonst.data)) {
+            return TRUE;
         } else {
             You_cant("throw or shoot without hands."); /* not body_part(HAND) */
             return FALSE;

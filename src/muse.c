@@ -392,6 +392,7 @@ struct obj *otmp;
 #define MUSE_EUCALYPTUS_LEAF 22
 #define MUSE_WAN_UNDEAD_TURNING 24 /* also an offensive item */
 #define MUSE_POT_RESTORE_ABILITY 25
+#define MUSE_POT_VAMPIRE_BLOOD 26
 /*
 #define MUSE_INNATE_TPT 9999
  * We cannot use this.  Since monsters get unlimited teleportation, if they
@@ -424,6 +425,13 @@ struct monst *mtmp;
         if ((obj = m_carrying(mtmp, EUCALYPTUS_LEAF)) != 0) {
             m.defensive = obj;
             m.has_defense = MUSE_EUCALYPTUS_LEAF;
+            return TRUE;
+        }
+    }
+    if (racial_vampire(mtmp)) {
+        if ((obj = m_carrying(mtmp, POT_VAMPIRE_BLOOD)) != 0) {
+            m.defensive = obj;
+            m.has_defense = MUSE_POT_VAMPIRE_BLOOD;
             return TRUE;
         }
     }
@@ -775,6 +783,12 @@ struct monst *mtmp;
             if (obj->otyp == POT_HEALING) {
                 m.defensive = obj;
                 m.has_defense = MUSE_POT_HEALING;
+            }
+            nomore(MUSE_POT_VAMPIRE_BLOOD);
+            if (racial_vampire(mtmp)
+                && obj->otyp == POT_VAMPIRE_BLOOD) {
+                m.defensive = obj;
+                m.has_defense = MUSE_POT_VAMPIRE_BLOOD;
             }
         } else { /* Pestilence */
             nomore(MUSE_POT_FULL_HEALING);
@@ -1373,6 +1387,32 @@ struct monst *mtmp;
             makeknown(otmp->otyp);
         m_useup(mtmp, otmp);
         return 2;
+    case MUSE_POT_VAMPIRE_BLOOD:
+        mquaffmsg(mtmp, otmp);
+        if (otmp->blessed) {
+            /* acts mostly like a potion of full healing */
+            if (otmp->odiluted)
+                mtmp->mhp += (mtmp->mhpmax / 4);
+            else
+                mtmp->mhp = mtmp->mhpmax;
+            if (vismon)
+                pline("%s looks completely healed.", Monnam(mtmp));
+        } else if (otmp->cursed) {
+            if (vismon)
+                pline("%s discards the congealed blood in disgust.",
+                      Monnam(mtmp));
+        } else { /* uncursed, acts mostly like a potion of healing */
+            i = d(4, 4) / (otmp->odiluted ? 4 : 1);
+            mtmp->mhp += i;
+            if (mtmp->mhp > mtmp->mhpmax)
+                mtmp->mhp = ++mtmp->mhpmax;
+            if (vismon)
+                pline("%s looks better.", Monnam(mtmp));
+        }
+        if (oseen)
+            makeknown(POT_VAMPIRE_BLOOD);
+        m_useup(mtmp, otmp);
+        return 2;
     case MUSE_LIZARD_CORPSE:
         mon_consume_unstone(mtmp, otmp, FALSE, mtmp->mstone ? TRUE : FALSE);
         return 2;
@@ -1530,8 +1570,9 @@ struct obj *obj;
          */
         m.offensive = obj;
         m.has_offense = MUSE_WAN_UNDEAD_TURNING;
-    } else if (Race_if(PM_DRAUGR) || is_undead(youmonst.data)) {
-        /* player is Draugr race or poly'd into an undead
+    } else if (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)
+               || is_undead(youmonst.data)) {
+        /* player is Draugr/Vampire race or poly'd into an undead
            monster */
         m.offensive = obj;
         m.has_offense = MUSE_WAN_UNDEAD_TURNING;

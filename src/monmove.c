@@ -237,7 +237,7 @@ struct monst *mtmp;
 
     /* should this still be true for defiled/molochian altars? */
     if (IS_ALTAR(levl[x][y].typ)
-        && (mtmp->data->mlet == S_VAMPIRE || is_vampshifter(mtmp)))
+        && (racial_vampire(mtmp) || is_vampshifter(mtmp)))
         return TRUE;
 
     /* Conflicted monsters ignore scary things on the floor. */
@@ -1441,7 +1441,13 @@ register int after;
 
         /* same for Druids that have used wildshape to change into their
            various forms */
-        if (Role_if(PM_DRUID) && all_druid_forms(monsndx(youmonst.data))
+        if (druid_form
+            && (is_animal(ptr) || mindless(ptr) || !rn2(6)))
+            appr = 0;
+
+        /* same for Vampires that have shapechanged into their
+           various forms */
+        if (vampire_form
             && (is_animal(ptr) || mindless(ptr) || !rn2(6)))
             appr = 0;
 
@@ -2368,6 +2374,9 @@ stuff_prevents_passage(mtmp)
 struct monst *mtmp;
 {
     struct obj *chain, *obj;
+
+    if (vampire_form && is_whirly(youmonst.data))
+        return FALSE;
 
     if (mtmp == &youmonst) {
         chain = invent;
