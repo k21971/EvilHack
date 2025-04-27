@@ -1482,21 +1482,22 @@ no_rise:
                 } else if (!Unchanging) {
                     int successful_polymorph = FALSE;
 
-                    if (!rn2(3)) {
+                    if (!rn2(5)) {
                         if (otmp->blessed)
-                            successful_polymorph = polymon(PM_VAMPIRE_NOBLE);
+                            successful_polymorph = polymon(!rn2(4) ? PM_VAMPIRE_ROYAL
+                                                                   : PM_VAMPIRE_NOBLE);
                         else if (otmp->cursed)
                             successful_polymorph = polymon(PM_VAMPIRE_BAT);
                         else
                             successful_polymorph = polymon(PM_VAMPIRE_SOVEREIGN);
                         if (successful_polymorph)
-                            u.mtimedone = 0; /* "Permament" change */
+                            u.mtimedone = 3000;
                     } else {
                         int dmg;
 
                         pline("Ugh.  That was utterly disgusting.");
                         dmg = d(otmp->cursed ? 2 : 1, otmp->blessed ? 4 : 8)
-                                  / (otmp->odiluted ? 4 : 1);
+                                / (otmp->odiluted ? 4 : 1);
                         losehp(dmg, "potion of vampire blood", KILLED_BY_AN);
                         exercise(A_CON, FALSE);
                     }

@@ -4453,4 +4453,6 @@ The following changes to date are:
 - Vampire as a playable race
 - Fix: hunger condition states transitioning from vampire to non-vampire
   or vice versa
+- Non-vampire player turning into a vampire via potion of vampire blood
+  is not permanent
 
