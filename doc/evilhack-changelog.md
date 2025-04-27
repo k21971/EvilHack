@@ -4451,4 +4451,6 @@ The following changes to date are:
 - Recipe change for crafting a polymorph trap
 - Revamp the amount of turns earned in remembering cast spells
 - Vampire as a playable race
+- Fix: hunger condition states transitioning from vampire to non-vampire
+  or vice versa
 

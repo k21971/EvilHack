@@ -1487,6 +1487,18 @@ rehumanize()
     if (emits_light(youmonst.data))
         del_light_source(LS_MONSTER, monst_to_any(&youmonst));
     polyman("return to %s form!", urace.adj);
+    /* reset FROMHUNGER conditions in case player was polyd
+       as a vampire, starving, and reverted back to normal
+       form (livesaved or otherwise) */
+    if (Blinded & FROMHUNGER) {
+        Blinded &= ~FROMHUNGER;
+        toggle_blindness();
+    }
+    if (HSlow & FROMHUNGER)
+        HSlow &= ~FROMHUNGER;
+    if (HDeaf & FROMHUNGER)
+        HDeaf &= ~FROMHUNGER;
+
     break_armor();
     drop_weapon(1);
 

@@ -3616,7 +3616,7 @@ int num;
 
     debugpline1("lesshungry(%d)", num);
     u.uhunger += num;
-    if (u.uhunger >= (Race_if(PM_HOBBIT) ? 4000 : 2000)) {
+    if (u.uhunger >= ((!Upolyd && Race_if(PM_HOBBIT)) ? 4000 : 2000)) {
         if (!iseating || context.victual.canchoke) {
             if (iseating) {
                 choke(context.victual.piece);
@@ -3630,11 +3630,11 @@ int num;
         /* Have lesshungry() report when you're nearly full so all eating
          * warns when you're about to choke.
          */
-        if (u.uhunger >= (Race_if(PM_HOBBIT) ? 3500 : 1500)
+        if (u.uhunger >= ((!Upolyd && Race_if(PM_HOBBIT)) ? 3500 : 1500)
             && (!context.victual.eating
                 || (context.victual.eating && !context.victual.fullwarn))) {
             pline("%sou're having a hard time getting all of it down.",
-                  Race_if(PM_HOBBIT) ? "Amazingly, y" : "Y");
+                  (!Upolyd && Race_if(PM_HOBBIT)) ? "Amazingly, y" : "Y");
             nomovemsg = "You're finally finished.";
             if (!context.victual.eating) {
                 multi = -2;
@@ -3746,6 +3746,17 @@ boolean incr;
         /* u.uhunger is likely to be negative at this point */
         int uhunger_div_by_10 = sgn(u.uhunger) * ((abs(u.uhunger) + 5) / 10);
 
+        /* called in case player was a vampire while FRAIL,
+           and changes into something other than a vampire */
+        ATEMP(A_STR) = -1;
+        ATEMP(A_DEX) = 0;
+        ATEMP(A_CON) = 0;
+        ATEMP(A_INT) = 0;
+        ATEMP(A_WIS) = 0;
+        ATEMP(A_CHA) = 0;
+        if (HDeaf & FROMHUNGER)
+            HDeaf &= ~FROMHUNGER;
+
         if (is_fainted())
             newhs = FAINTED;
         if (u.uhs <= WEAK || rn2(20 - uhunger_div_by_10) >= 19) {
@@ -3784,13 +3795,50 @@ boolean incr;
 
     if (newhs != u.uhs) {
         if (!racial_vampire(&youmonst)) {
-            if (newhs >= WEAK && u.uhs < WEAK) {
+            /* typical conditions for non-vampires, also cover
+               vampires that either polyd into a non-vampire,
+               or non-vampire had polyd into a vampire and then
+               reverted back (FRAIL/STARVED especially) */
+            switch(newhs) {
+            case STARVED:
+                context.botl = 1;
+                bot();
+                You("die from starvation.");
+                killer.format = KILLED_BY;
+                Strcpy(killer.name, "starvation");
+                done(STARVING);
+                /* if we return, we lifesaved, and that calls newuhs */
+                return;
+            case FRAIL:
+                ATEMP(A_STR) = -1;
+                ATEMP(A_DEX) = 0;
+                ATEMP(A_CON) = 0;
+                ATEMP(A_INT) = 0;
+                ATEMP(A_WIS) = 0;
+                ATEMP(A_CHA) = 0;
+                if (Blinded & FROMHUNGER) {
+                    Blinded &= ~FROMHUNGER;
+                    toggle_blindness();
+                }
+                if (HSlow & FROMHUNGER)
+                    HSlow &= ~FROMHUNGER;
+                if (HDeaf & FROMHUNGER)
+                    HDeaf &= ~FROMHUNGER;
+                newhs = FAINTING;
+                break;
+            case WEAK:
                 /* this used to be losestr(1) which had the potential to
                    be fatal (still handled below) by reducing HP if it
                    tried to take base strength below minimum of 3 */
                 ATEMP(A_STR) = -1; /* temporary loss overrides Fixed_abil */
+                ATEMP(A_DEX) = 0;
+                ATEMP(A_CON) = 0;
+                ATEMP(A_INT) = 0;
+                ATEMP(A_WIS) = 0;
+                ATEMP(A_CHA) = 0;
                 /* defer context.botl status update until after hunger message */
-            } else if (newhs < WEAK && u.uhs >= WEAK) {
+                break;
+            default:
                 /* this used to be losestr(-1) which could be abused by
                    becoming weak while wearing ring of sustain ability,
                    removing ring, eating to 'restore' strength which boosted
@@ -3798,13 +3846,20 @@ boolean incr;
                    substituting "while polymorphed" for sustain ability and
                    "rehumanize" for ring removal might have done that too */
                 ATEMP(A_STR) = 0; /* repair of loss also overrides Fixed_abil */
+                ATEMP(A_DEX) = 0;
+                ATEMP(A_CON) = 0;
+                ATEMP(A_INT) = 0;
+                ATEMP(A_WIS) = 0;
+                ATEMP(A_CHA) = 0;
                 /* defer context.botl status update until after hunger message */
+                break;
             }
         } else { /* vampire */
             switch(newhs) {
             case STARVED:
-                /* not to go below 3 */
-                ATEMP(A_STR) = -20;
+                /* not to go below 3. the huge adjustment for strength
+                   is necessary because of 18/01 through 18/100 */
+                ATEMP(A_STR) = -120;
                 ATEMP(A_DEX) = -20;
                 ATEMP(A_CON) = -20;
                 ATEMP(A_INT) = -20;
@@ -3883,7 +3938,7 @@ boolean incr;
                 else
                     You((!incr) ? "now have a lesser case of the munchies."
                                 : "are getting the munchies.");
-            } else if (Race_if(PM_HOBBIT)) {
+            } else if (!Upolyd && Race_if(PM_HOBBIT)) {
                 You((!incr) ? "could use some supper."
                             : (u.uhunger < 145)
                                   ? "feel it's time for afternoon tea."
