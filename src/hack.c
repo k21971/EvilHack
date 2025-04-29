@@ -3619,6 +3619,40 @@ maybe_wail()
     }
 }
 
+/* show a message how much damage you received */
+void
+showdamage(dmg)
+int dmg;
+{
+    if (!iflags.showdamage || !dmg)
+        return;
+
+    if ((Upolyd ? u.mh : u.uhp) <= 0)
+        pline("(HP %i, killed)", -dmg);
+    else
+        pline("(HP %i, %i left)", -dmg, Upolyd ? u.mh : u.uhp);
+}
+
+/* show a message how much damage monster the player is
+   attacking received (wizmode only) */
+void
+showmondamage(mtmp, mondmg)
+struct monst *mtmp;
+int mondmg;
+{
+    if (!wizard)
+        return;
+
+    if (!iflags.showmondamage || !mondmg)
+        return;
+
+    if (mtmp->mhp <= 0)
+        pline("(MHP %i, %s)", -mondmg,
+              nonliving(mtmp->data) ? "destroyed" : "killed");
+    else
+        pline("(MHP %i, %i left)", -mondmg, mtmp->mhp);
+}
+
 void
 losehp(n, knam, k_format)
 register int n;
@@ -3627,6 +3661,7 @@ boolean k_format;
 {
     if (Upolyd) {
         u.mh -= n;
+        showdamage(n);
         if (u.mhmax < u.mh)
             u.mhmax = u.mh;
         context.botl = 1;
@@ -3638,6 +3673,7 @@ boolean k_format;
     }
 
     u.uhp -= n;
+    showdamage(n);
     if (u.uhp > u.uhpmax)
         u.uhpmax = u.uhp; /* perhaps n was negative */
     else

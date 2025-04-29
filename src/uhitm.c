@@ -2387,20 +2387,6 @@ int dieroll;
         print_mon_wounded(mon, saved_mhp);
     }
 
-#if 0
-    /* debug pline to verify damage dealt from whatever
-       object or unarmed attack hits its target */
-    if (wizard) {
-        /* check that an obj exists (e.g. attacking with a potion,
-           or a glass dagger, or something else that could get
-           used up) */
-        if (obj || actually_unarmed)
-            pline("Damage from %s: %d.",
-                  obj ? simpleonames(obj)
-                      : makeplural(body_part(HAND)), tmp);
-    }
-#endif
-
     return destroyed ? FALSE : TRUE;
 }
 

@@ -6468,6 +6468,7 @@ int type;
         amount = ((amount * 3) + 1) / 2;
 
     mon->mhp -= amount;
+    showmondamage(mon, amount);
     return (mon->mhp < 1);
 }
 

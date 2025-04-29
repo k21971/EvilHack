@@ -3610,9 +3610,15 @@ Control what parts of the score list you are shown at the end (for example
 Only the first letter of each category (\(oqt\(cq, \(oqa\(cq, or \(oqo\(cq)
 is necessary.
 Persistent.
+.lp showdamage
+Whenever your character takes damage, show a message of the damage taken,
+and the amount of hit points left.
 .lp showexp
 Show your accumulated experience points on bottom line (default off).
 Persistent.
+.lp showmondamage
+Whenever a monster you're attacking takes damage, show a message of the
+damage taken, and the amount of hit points left.  Debug mode only.
 .lp showrace
 Display yourself as the glyph for your race, rather than the glyph
 for your role (default off).  Note that this setting affects only

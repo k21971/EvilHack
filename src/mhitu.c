@@ -3929,10 +3929,12 @@ int n;
     context.botl = 1;
     if (Upolyd) {
         u.mh -= n;
+        showdamage(n);
         if (u.mh < 1)
             rehumanize();
     } else {
         u.uhp -= n;
+        showdamage(n);
         if (u.uhp < 1)
             done_in_by(mtmp, DIED);
     }
