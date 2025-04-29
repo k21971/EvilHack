@@ -8741,18 +8741,20 @@ out these riches.  I just need to make it out of this place alive first...
 # every recipe available that the player can
 # use to forge objects.
 #
-%title The Blacksmith's Cookbook (10)
+%title The Blacksmith's Cookbook (12)
 #
 %passage 1
-Chapter 1 of 10 - Getting Started
+Chapter 1 of 12 - Getting Started
 
 1) Find a forge.
 2) Find a blacksmith hammer.
-3) Find two gemstone/mineral or metallic objects from
-   the recipe chapters.
-4) Put both of those objects into the forge whilst
+3) Find the base and secondary objects from the recipe
+   chapters.
+4) Most recipe materials must be metallic in nature,
+   but there are a few exceptions to this rule.
+5) Put both of those objects into the forge whilst
    wielding your hammer (#forge or 'a'pply it).
-5) Start forging.  If successful, you'll forge a brand
+6) Start forging.  If successful, you'll forge a brand
    new object.
 
 Make sure your secondary object has the material and
@@ -8765,7 +8767,7 @@ Don't try to forge things you know you shouldn't.
 %e passage
 #
 %passage 2
-Chapter 2 of 10 - Weapons (part 1)
+Chapter 2 of 12 - Weapons (part 1)
 
 Forge 3 rocks / dart to create:  3 to 4 sling bullets
 Forge 2 darts / dagger to create:  3 to 4 shuriken
@@ -8792,7 +8794,7 @@ Forge 2 crossbow bolts / elven dagger to create:  elven short sword
 %e passage
 #
 %passage 3
-Chapter 3 of 10 - Weapons (part 2)
+Chapter 3 of 12 - Weapons (part 2)
 
 Forge 2 crossbow bolts / orcish dagger to create:  orcish short sword
 Forge short sword / dwarvish spear to create:  dwarvish short sword
@@ -8818,7 +8820,7 @@ Forge dagger / mace to create:  morning star
 %e passage
 #
 %passage 4
-Chapter 4 of 10 - Weapons (part 3)
+Chapter 4 of 12 - Weapons (part 3)
 
 Forge orcish dagger / mace to create:  orcish morning star
 Forge flail / mace to create:  war hammer
@@ -8844,7 +8846,7 @@ Forge war hammer / spear to create:  bec de corbin
 %e passage
 #
 %passage 5
-Chapter 5 of 10 - Armor (Helmets)
+Chapter 5 of 12 - Armor (Helmets)
 
 Forge dented pot / orcish dagger to create:  orcish helm
 Forge dwarvish short sword / helmet to create:  dwarvish helm
@@ -8855,7 +8857,7 @@ Forge dagger / dented pot to create:  helmet
 %e passage
 #
 %passage 6
-Chapter 6 of 10 - Armor (Body Armor)
+Chapter 6 of 12 - Armor (Body Armor)
 
 Forge chain mail / splint mail to create:  plate mail
 Forge 3 dilithium crystals / plate mail to create:  crystal plate mail
@@ -8874,7 +8876,7 @@ Forge orcish shield / orcish helm to create:  orcish ring mail
 %e passage
 #
 %passage 7
-Chapter 7 of 10 - Armor (Shields)
+Chapter 7 of 12 - Armor (Shields)
 
 Forge dagger / helmet to create:  small shield
 Forge elven dagger / small shield to create:  elven shield
@@ -8888,7 +8890,7 @@ Forge small shield / helmet to create:  bracers
 %e passage
 #
 %passage 8
-Chapter 8 of 10 - Armor (Boots, Gauntlets, Barding)
+Chapter 8 of 12 - Armor (Boots, Gauntlets, Barding)
 
 Forge mace / helmet to create:  gauntlets
 Forge dwarvish short sword / gauntlets to create:  dwarvish boots
@@ -8901,7 +8903,7 @@ Forge shield of reflection / barding to create:  barding of reflection
 %e passage
 #
 %passage 9
-Chapter 9 of 10 - Drowcraft (Weapons, Armor)
+Chapter 9 of 12 - Drowcraft (Weapons, Armor)
 
 Almost all dark elven objects are made of a very rare material
 known as adamantine.  Due to the nature of this alloy, it becomes
@@ -8927,7 +8929,45 @@ Forge dark elven dagger / dark elven mace to create:  dark elven bracers
 %e passage
 #
 %passage 10
-Chapter 10 of 10 - Artifacts
+Chapter 10 of 12 - Forge Quality (part 1)
+
+There can be differences in the quality of regular forged objects, and
+as the Blacksmith, you can determine the quality of your work.
+
+If the Blacksmith hammer is blessed:
+
+1) If both objects are of superior quality (or one is superior and the
+   other is exceptional), the output will be superior, with a chance to
+   be exceptional.
+2) If both objects are exceptional, the output will be exceptional.
+3) If either object is inferior, the output will be inferior.
+4) If both objects are of normal or lesser quality, but both have an
+   enchantment of at least +3, the output will be superior with an
+   enchantment of +0 (the magic of the enchantment is the cost).
+5) If both objects are of normal or lesser quality, but both have an
+   enchantment of at least +5, the output will be exceptional with an
+   enchantment of +0 (the magic of the enchantment is the cost).
+6) Random superior or exceptional forged pieces can still occur.
+
+  [The Blacksmith's Cookbook]
+%e passage
+#
+%passage 11
+Chapter 11 of 12 - Forge Quality (part 2)
+
+If the Blacksmith hammer is uncursed or cursed:
+
+1) If either object is inferior, the output will be inferior.
+2) If both objects have a negative enchantment, the output will be
+   inferior.
+3) Only if the hammer is cursed: there is an 80% chance the output
+   will be inferior.
+
+  [The Blacksmith's Cookbook]
+%e passage
+#
+%passage 12
+Chapter 12 of 12 - Artifacts
 
 Rumor has it that some artifacts can be forged together
 to make an even more powerful artifact.  Many say this

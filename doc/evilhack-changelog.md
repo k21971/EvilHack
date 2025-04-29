@@ -4455,4 +4455,5 @@ The following changes to date are:
   or vice versa
 - Non-vampire player turning into a vampire via potion of vampire blood
   is not permanent
+- Adjust certain feedback when forging; update The Blacksmith's Cookbook
 

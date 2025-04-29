@@ -598,7 +598,7 @@ doforging()
     } else if (!(is_metallic(obj1) || is_crystal(obj1)
                  || bypass_forging_rules(obj1))) {
         /* object should be gemstone or metallic */
-        pline_The("base object must be made of a mineral, gemstone, or something metallic.");
+        pline_The("base object is not a valid material.");
         return 0;
     }
 
@@ -610,7 +610,7 @@ doforging()
     } else if (!(is_metallic(obj2) || is_crystal(obj2)
                  || bypass_forging_rules(obj2))) {
         /* secondary object should also be gemstone or metallic */
-        pline_The("secondary object must be made of a mineral, gemstone, or something metallic.");
+        pline_The("secondary object is not a valid material.");
         return 0;
     }
 
