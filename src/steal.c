@@ -151,9 +151,10 @@ register struct monst *mtmp;
             else
                 setnotworn(ygold);
             Your("purse feels lighter.");
-        }
-        else {
-            pline("%s steals %s!", Monnam(mtmp), yname(ygold));
+        } else {
+            pline("%s steals %s!", Monnam(mtmp),
+                  ygold->oartifact ? bare_artifactname(ygold)
+                                   : yname(ygold));
             remove_worn_item(ygold, TRUE);
         }
         freeinv(ygold);

@@ -4465,4 +4465,5 @@ The following changes to date are:
   explosion' but never seeing that happen
 - Fix: underline_peacefuls in wrong spot (options)
 - Accessibility - showdamage, showmondamage options
+- Fix: 'The leprechaun steals One Ring!'
 
