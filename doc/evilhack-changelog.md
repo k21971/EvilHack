@@ -4458,4 +4458,5 @@ The following changes to date are:
 - Adjust certain feedback when forging; update The Blacksmith's Cookbook
 - Fix: Convicts and Infidels felt guilt when making angry shopkeepers
   happy again
+- Fix: proper handling of convict role/draugr race extended hunger
 

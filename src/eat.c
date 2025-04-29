@@ -3532,7 +3532,7 @@ gethungry()
             || maybe_polyd(is_vampire(youmonst.data),
                            Race_if(PM_VAMPIRE)))
         /* Convicts/Draugr can last twice as long at hungry and below */
-        && (!Role_if(PM_CONVICT) || !Race_if(PM_DRAUGR)
+        && (!(Role_if(PM_CONVICT) || Race_if(PM_DRAUGR))
             || (moves % 2) || (u.uhs < HUNGRY))
         && !Slow_digestion)
         u.uhunger--; /* ordinary food consumption */
