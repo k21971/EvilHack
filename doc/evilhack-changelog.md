@@ -4456,4 +4456,6 @@ The following changes to date are:
 - Non-vampire player turning into a vampire via potion of vampire blood
   is not permanent
 - Adjust certain feedback when forging; update The Blacksmith's Cookbook
+- Fix: Convicts and Infidels felt guilt when making angry shopkeepers
+  happy again
 

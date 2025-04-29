@@ -1177,7 +1177,11 @@ register boolean silentkops;
     pacify_shk(shkp);
     eshkp->following = 0;
     eshkp->robbed = 0L;
-    if (!Role_if(PM_ROGUE))
+
+    /* Convicts, Rogues, and Infidels do not feel
+       guilt when resolving issues with shopkeepers */
+    if (!(Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
+        && u.ualign.type != A_NONE)
         adjalign(sgn(u.ualign.type));
     if (!inhishop(shkp)) {
         char shk_nam[BUFSZ];
