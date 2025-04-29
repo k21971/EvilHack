@@ -163,7 +163,6 @@ static struct Bool_Opt {
     { "help", &flags.help, TRUE, SET_IN_GAME },
     { "herecmd_menu", &iflags.herecmd_menu, FALSE, SET_IN_GAME },
     { "hilite_pet", &iflags.wc_hilite_pet, FALSE, SET_IN_GAME }, /*WC*/
-    { "underline_peacefuls", &iflags.wc2_underline_peacefuls, FALSE, SET_IN_GAME }, /*WC2*/
     { "hilite_pile", &iflags.hilite_pile, FALSE, SET_IN_GAME },
     { "hilite_hidden_stairs", &iflags.hilite_hidden_stairs, FALSE, SET_IN_GAME}, /*WC*/
     { "hitpointbar", &iflags.wc2_hitpointbar, FALSE, SET_IN_GAME }, /*WC2*/
@@ -258,6 +257,7 @@ static struct Bool_Opt {
 #ifdef DEBUG
     { "travel_debug", &iflags.trav_debug, FALSE, SET_IN_WIZGAME }, /*hack.c*/
 #endif
+    { "underline_peacefuls", &iflags.wc2_underline_peacefuls, FALSE, SET_IN_GAME }, /*WC2*/
     { "use_darkgray", &iflags.wc2_darkgray, TRUE, SET_IN_FILE }, /*WC2*/
 #ifdef WIN32
     { "use_inverse", &iflags.wc_inverse, TRUE, SET_IN_GAME }, /*WC*/

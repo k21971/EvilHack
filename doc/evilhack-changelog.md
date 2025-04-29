@@ -4463,4 +4463,5 @@ The following changes to date are:
   polymorphed into a non-illithid type monster
 - Fix: getting feedback for a monster getting caught in a 'magical
   explosion' but never seeing that happen
+- Fix: underline_peacefuls in wrong spot (options)
 
