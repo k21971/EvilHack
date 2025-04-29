@@ -4461,4 +4461,6 @@ The following changes to date are:
 - Fix: proper handling of convict role/draugr race extended hunger
 - Fix: illithid race players could still use 'psionic wave' if
   polymorphed into a non-illithid type monster
+- Fix: getting feedback for a monster getting caught in a 'magical
+  explosion' but never seeing that happen
 
