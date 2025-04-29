@@ -1318,8 +1318,11 @@ boolean wiz_cast;
             u.uen = 0;
         context.botl = 1;
         return 1;
-    /* Infidel illithid became crowned and is no longer an illithid */
-    } else if (spellid(spell) == SPE_PSIONIC_WAVE && Race_if(PM_DEMON)) {
+    /* Illithid that polymorphs into something other than
+       another illithid-type monster doesn't have the brain
+       structure to utilize psionic abilities */
+    } else if (spellid(spell) == SPE_PSIONIC_WAVE
+               && !racial_illithid(&youmonst)) {
         You("lack the psychic ability to use this power.");
         return 1;
     } else if (spellknow(spell) <= KEEN / 200) { /* 100 turns left */

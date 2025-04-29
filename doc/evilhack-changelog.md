@@ -4459,4 +4459,6 @@ The following changes to date are:
 - Fix: Convicts and Infidels felt guilt when making angry shopkeepers
   happy again
 - Fix: proper handling of convict role/draugr race extended hunger
+- Fix: illithid race players could still use 'psionic wave' if
+  polymorphed into a non-illithid type monster
 
