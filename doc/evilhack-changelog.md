@@ -4471,4 +4471,6 @@ The following changes to date are:
 - Place forged quality bits into struct obj as defines
 - Ithilmar tweaks
 - Make vampire players aware of the #shapechange command at game start
+- Prevent monsters from riding another monster as a steed if the
+  potential steed isn't wearing a saddle
 

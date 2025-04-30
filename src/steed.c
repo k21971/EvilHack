@@ -42,8 +42,8 @@ int pm;
 {
     register struct monst *mount;
 
-    /* small hack here: make it in a random spot to avoid failures due to there
-       not being enough room. */
+    /* small hack here: make it in a random spot to avoid failures due
+       to there not being enough room. */
     mount = makemon(&mons[pm], 0, 0, MM_ADJACENTOK);
     if (!mount || is_covetous(mount->data)) {
         return;
@@ -62,19 +62,22 @@ int pm;
     /* rider over'rides' horse's natural inclinations */
     mount->mpeaceful = mtmp->mpeaceful;
 
-    /* monster steeds will sometimes come with a saddle */
-    if (!rn2(3) && can_saddle(mount) && !which_armor(mtmp, W_SADDLE)) {
+    /* monster steeds will come with a saddle */
+    if (can_saddle(mount) && !which_armor(mtmp, W_SADDLE)) {
         struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
+
         put_saddle_on_mon(otmp, mount);
     }
 
     /* if the monster steed has a saddle, there's a chance it's wearing
        barding also */
     if (!rn2(10) && which_armor(mount, W_SADDLE)) {
-        if (can_wear_barding(mount) && !which_armor(mtmp, W_BARDING)) {
+        if (can_wear_barding(mount)
+            && !which_armor(mtmp, W_BARDING)) {
             struct obj *otmp = mksobj(rn2(4) ? BARDING
                                              : rn2(3) ? SPIKED_BARDING
                                                       : BARDING_OF_REFLECTION, TRUE, FALSE);
+
             put_barding_on_mon(otmp, mount);
         }
     }
@@ -122,8 +125,13 @@ struct monst *rider;
             break;
         }
     }
+    /* not a steed? can't ride */
     if (!steed)
         return FALSE;
+    /* steed doesn't have a saddle? can't ride */
+    if (!which_armor(steed, W_SADDLE))
+        return FALSE;
+
     if (canseemon(rider)) {
         pline("%s clambers onto %s!", Monnam(rider),
               canseemon(steed) ?  mon_nam(steed) : "something");
