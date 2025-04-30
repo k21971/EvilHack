@@ -4470,4 +4470,5 @@ The following changes to date are:
   iron golem!'
 - Place forged quality bits into struct obj as defines
 - Ithilmar tweaks
+- Make vampire players aware of the #shapechange command at game start
 

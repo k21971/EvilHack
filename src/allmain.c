@@ -1275,6 +1275,8 @@ boolean new_game; /* false => restoring an old game */
             pline("Use #monster to hide in your shell.");
         else if (Race_if(PM_DROW))
             pline("Use #monster to invoke an aura of darkness.");
+        else if (Race_if(PM_VAMPIRE))
+            pline("Use #shapechange to change form.");
 
         /* Roles */
         if (Role_if(PM_DRUID))
