@@ -4466,4 +4466,6 @@ The following changes to date are:
 - Fix: underline_peacefuls in wrong spot (options)
 - Accessibility - showdamage, showmondamage options
 - Fix: 'The leprechaun steals One Ring!'
+- Fix: 'The iron golem is melting! The fire doesn't seem to burn the
+  iron golem!'
 

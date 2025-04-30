@@ -1530,7 +1530,6 @@ enum on_fire_types attktype;
         break;
     case PM_GLASS_GOLEM:
     case PM_GOLD_GOLEM:
-    case PM_IRON_GOLEM:
         /* Melts into a puddle. */
         switch (attktype) {
         case ON_FIRE_DEAD:
