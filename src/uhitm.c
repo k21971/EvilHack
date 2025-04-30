@@ -2551,6 +2551,8 @@ struct obj *obj;   /* weapon */
 {
     struct obj *barding;
     int skill_rating, joust_dieroll;
+    boolean ithilmar = ((barding = which_armor(u.usteed, W_BARDING)) != 0
+                        && barding->oartifact == ART_ITHILMAR);
 
     if (Fumbling || Stunned)
         return 0;
@@ -2567,13 +2569,14 @@ struct obj *obj;   /* weapon */
 
     /* odds to joust are expert:80%, skilled:60%, basic:40%, unskilled:20% */
     if ((joust_dieroll = rn2(5)) < skill_rating) {
-        if (!Race_if(PM_CENTAUR)) { /* centaurs can't ride a steed */
-            if ((barding = which_armor(u.usteed, W_BARDING)) != 0
-                && barding->oartifact == ART_ITHILMAR)
-                joust_dieroll = 5; /* lance never breaks */
-        }
-        if (joust_dieroll == 0 && rnl(50) == (50 - 1) && !unsolid(mon->data)
-            && !obj_resists(obj, 0, 100))
+        /* if your steed is wearing Ithilmar, there's a very
+           good chance of preserving your lance while jousting.
+           Centaurs are excluded because they are unable to
+           ride anything */
+        if (joust_dieroll == 0
+            && (ithilmar ? (!rn2(3) && rnl(500) == (500 - 1))
+                         : (rnl(50) == (50 - 1)))
+            && !unsolid(mon->data) && !obj_resists(obj, 0, 100))
             return -1; /* hit that breaks lance */
         return 1;      /* successful joust */
     }

@@ -4469,4 +4469,5 @@ The following changes to date are:
 - Fix: 'The iron golem is melting! The fire doesn't seem to burn the
   iron golem!'
 - Place forged quality bits into struct obj as defines
+- Ithilmar tweaks
 

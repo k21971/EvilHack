@@ -792,18 +792,19 @@ struct monst *mtmp;
 struct edog *edog;
 {
     struct obj *barding;
+    boolean ithilmar = ((barding = which_armor(mtmp, W_BARDING)) != 0
+                        && barding->oartifact == ART_ITHILMAR);
 
-    if (monstermoves > edog->hungrytime + 500) {
-        if ((barding = which_armor(mtmp, W_BARDING)) != 0
-            && barding->oartifact == ART_ITHILMAR) {
-            /* steeds wearing Ithilmar will never starve */
-            edog->hungrytime = monstermoves + 500;
-        } else if (!carnivorous(mtmp->data) && !herbivorous(mtmp->data)) {
+    /* steed wearing Ithilmar can last much longer before needing
+       another meal */
+    if (monstermoves > edog->hungrytime + (ithilmar ? 3500 : 500)) {
+        if (!carnivorous(mtmp->data) && !herbivorous(mtmp->data)) {
             edog->hungrytime = monstermoves + 500;
             /* but not too high; it might polymorph */
         } else if (!edog->mhpmax_penalty) {
             /* starving pets are limited in healing */
             int newmhpmax = mtmp->mhpmax / 3;
+
             mtmp->mconf = 1;
             edog->mhpmax_penalty = mtmp->mhpmax - newmhpmax;
             mtmp->mhpmax = newmhpmax;
