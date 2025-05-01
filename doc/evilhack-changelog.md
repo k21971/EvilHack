@@ -4473,4 +4473,6 @@ The following changes to date are:
 - Make vampire players aware of the #shapechange command at game start
 - Prevent monsters from riding another monster as a steed if the
   potential steed isn't wearing a saddle
+- Allow all monsters that can wear a saddle or barding to have a chance
+  to spawn wearing them
 

@@ -3676,16 +3676,16 @@ long mmflags;
     if (allow_minvent) {
         setup_mon_inventory(mtmp);
 
-        if (!rn2(100) && is_domestic(ptr)
-            && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)) {
+        if (!rn2(200) && can_saddle(mtmp)
+            && !which_armor(mtmp, W_SADDLE)) {
             struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
 
             put_saddle_on_mon(otmp, mtmp);
         }
         /* sometimes saddled monsters come barded */
         if (mtmp && which_armor(mtmp, W_SADDLE)) {
-            if (!rn2(100) && is_domestic(ptr)
-                && can_wear_barding(mtmp) && !which_armor(mtmp, W_BARDING)) {
+            if (!rn2(100) && can_wear_barding(mtmp)
+                && !which_armor(mtmp, W_BARDING)) {
                 struct obj *otmp = mksobj(rn2(4) ? BARDING
                                                  : rn2(3) ? SPIKED_BARDING
                                                           : BARDING_OF_REFLECTION, TRUE, FALSE);
