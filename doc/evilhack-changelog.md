@@ -4475,4 +4475,6 @@ The following changes to date are:
   potential steed isn't wearing a saddle
 - Allow all monsters that can wear a saddle or barding to have a chance
   to spawn wearing them
+- Fix: player races that have intrinsic flying could still fly when
+  polymorphed into a non-flying monster
 

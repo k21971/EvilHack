@@ -567,6 +567,12 @@ vampire_shapechange()
         vision_reset();
         docrt();
     }
+    if ((HFlying & FROMRACE) && !is_flyer(youmonst.data)) {
+        HFlying &= ~FROMRACE;
+        context.botl = TRUE;
+        You_feel("gravity's pull!");
+        spoteffects(TRUE);
+    }
     return;
 }
 
@@ -832,6 +838,12 @@ made_change:
     } else if (!old_wither && new_wither) {
         /* only happens with extrinsic withering */
         You("begin to wither away!");
+    }
+    if ((HFlying & FROMRACE) && !is_flyer(youmonst.data)) {
+        HFlying &= ~FROMRACE;
+        context.botl = TRUE;
+        You_feel("gravity's pull!");
+        spoteffects(TRUE);
     }
 }
 
@@ -1454,6 +1466,7 @@ void
 rehumanize()
 {
     boolean was_flying = (Flying != 0);
+    boolean was_not_flying = (HFlying == 0);
 
     /* You can't revert back while unchanging */
     if (Unchanging) {
@@ -1515,6 +1528,18 @@ rehumanize()
     context.botl = 1;
     vision_full_recalc = 1;
     (void) encumber_msg();
+    /* if orignal form had intrinsic flying, give it back.
+       current player races that can fly are illithids and
+       vampires (also crowned infidels [demon form], but how
+       they fly is a different method and is already covered),
+       but only when they reach a certain experience level,
+       so check against that */
+    if (was_not_flying
+        && ((Race_if(PM_ILLITHID) && u.ulevel >= 12)
+            || (Race_if(PM_VAMPIRE) && u.ulevel >= 7))) {
+        HFlying |= FROMRACE;
+        You_feel("lighter than air!");
+    }
     if (was_flying && !Flying && u.usteed)
         You("and %s return gently to the %s.",
             mon_nam(u.usteed), surface(u.ux, u.uy));
