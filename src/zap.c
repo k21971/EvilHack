@@ -241,7 +241,7 @@ struct obj *otmp;
                     dmg += rnd(6) + 2; /* 3-8 hit points extra damage */
                 }
 
-                damage_mon(mtmp, dmg, AD_PSYC);
+                damage_mon(mtmp, dmg, AD_PSYC, TRUE);
                 if (DEADMONSTER(mtmp)) {
                     killed(mtmp);
                 } else {
@@ -549,7 +549,7 @@ struct obj *otmp;
         } else if (racial_zombie(mtmp)) {
             if (!DEADMONSTER(mtmp)) {
                 dmg = d(sickness_skill, 8);
-                damage_mon(mtmp, dmg, AD_PHYS);
+                damage_mon(mtmp, dmg, AD_PHYS, TRUE);
                 if (canseemon(mtmp))
                     pline("%s shudders in agony!", Monnam(mtmp));
                 if (DEADMONSTER(mtmp))
@@ -638,7 +638,7 @@ struct obj *otmp;
             shieldeff(mtmp->mx, mtmp->my);
         } else if (!resist(mtmp, otmp->oclass, dmg, NOTELL)
                    && !DEADMONSTER(mtmp)) {
-            damage_mon(mtmp, dmg, AD_DRIN);
+            damage_mon(mtmp, dmg, AD_DRIN, TRUE);
             mtmp->mhpmax -= dmg;
             /* die if already level 0, regardless of hit points */
             if (DEADMONSTER(mtmp) || mtmp->mhpmax <= 0 || mtmp->m_lev < 1) {
@@ -6708,7 +6708,8 @@ int damage, tell;
 
     /* fake players always pass resistance test against Conflict
        (this doesn't guarantee that they're never affected by it) */
-    if (oclass == RING_CLASS && !damage && !tell && is_mplayer(mtmp->data))
+    if (oclass == RING_CLASS && !damage && !tell
+        && is_mplayer(mtmp->data))
         return 1;
 
     /* attack level */
@@ -6753,7 +6754,8 @@ int damage, tell;
 
     if (damage) {
         int saved_mhp = mtmp->mhp;
-        damage_mon(mtmp, damage, AD_RBRE);
+
+        damage_mon(mtmp, damage, AD_RBRE, m_using ? FALSE : TRUE);
         if (DEADMONSTER(mtmp)) {
             if (m_using)
                 monkilled(mtmp, "", AD_RBRE);

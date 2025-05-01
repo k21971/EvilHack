@@ -2086,7 +2086,7 @@ int dieroll;
         }
         hittxt = TRUE;
     } else if (!already_killed)
-        damage_mon(mon, tmp, AD_PHYS);
+        damage_mon(mon, tmp, AD_PHYS, TRUE);
     /* adjustments might have made tmp become less than what
        a level draining artifact has already done to max HP */
     if (mon->mhp > mon->mhpmax)
@@ -3367,7 +3367,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
             if (canseemon(mdef))
                 pline("%s suddenly seems weaker!", Monnam(mdef));
             mdef->mhpmax -= xtmp;
-            damage_mon(mdef, xtmp, AD_DRLI);
+            damage_mon(mdef, xtmp, AD_DRLI, TRUE);
             /* !m_lev: level 0 monster is killed regardless of hit points
                rather than drop to level -1 */
             if (DEADMONSTER(mdef) || !mdef->m_lev) {
@@ -3679,7 +3679,7 @@ do_rust:
     }
 
     mdef->mstrategy &= ~STRAT_WAITFORU; /* in case player is very fast */
-    damage_mon(mdef, tmp, mattk->adtyp);
+    damage_mon(mdef, tmp, mattk->adtyp, TRUE);
     if (DEADMONSTER(mdef)) {
         if (mdef->mtame && !cansee(mdef->mx, mdef->my)) {
             You_feel("embarrassed for a moment.");
@@ -4013,7 +4013,7 @@ register struct attack *mattk;
                 break;
             }
             end_engulf();
-            damage_mon(mdef, dam, mattk->adtyp);
+            damage_mon(mdef, dam, mattk->adtyp, TRUE);
             if (DEADMONSTER(mdef)) {
                 killed(mdef);
                 if (DEADMONSTER(mdef)) /* not lifesaved */
@@ -4449,7 +4449,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                                          ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
                                            ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
                                              ? 2 : 1);
-                    int burning_hands = damage_mon(mon, d(enchant_skill, 4), AD_FIRE);
+                    int burning_hands = damage_mon(mon, d(enchant_skill, 4), AD_FIRE, TRUE);
 
                     if (resists_fire(mon) || defended(mon, AD_FIRE)
                         || mon_underwater(mon)) {
@@ -4507,7 +4507,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                                          ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
                                            ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
                                              ? 2 : 1);
-                    int shocking_grasp = damage_mon(mon, d(enchant_skill, 4), AD_ELEC);
+                    int shocking_grasp = damage_mon(mon, d(enchant_skill, 4), AD_ELEC, TRUE);
 
                     if (resists_elec(mon) || defended(mon, AD_ELEC)) {
                         shieldeff(mon->mx, mon->my);
@@ -5690,7 +5690,7 @@ int dmg;
 {
     pline("%s %s!", Monnam(mon),
           (dmg > mon->mhp / 2) ? "wails in agony" : "cries out in pain");
-    damage_mon(mon, dmg, AD_BLND);
+    damage_mon(mon, dmg, AD_BLND, TRUE);
     wake_nearto(mon->mx, mon->my, 30);
     if (DEADMONSTER(mon)) {
         if (context.mon_moving)

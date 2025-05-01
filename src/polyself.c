@@ -1528,7 +1528,7 @@ rehumanize()
     context.botl = 1;
     vision_full_recalc = 1;
     (void) encumber_msg();
-    /* if orignal form had intrinsic flying, give it back.
+    /* if original form had intrinsic flying, give it back.
        current player races that can fly are illithids and
        vampires (also crowned infidels [demon form], but how
        they fly is a different method and is already covered),
@@ -1875,7 +1875,7 @@ dogaze()
                     if (lev > rn2(25))
                         (void) destroy_mitem(mtmp, SPBOOK_CLASS, AD_FIRE);
                     if (dmg)
-                        damage_mon(mtmp, dmg, AD_FIRE);
+                        damage_mon(mtmp, dmg, AD_FIRE, TRUE);
                     if (DEADMONSTER(mtmp))
                         killed(mtmp);
                 }
@@ -2105,7 +2105,7 @@ domindblast()
             You("lock in on %s %s.", s_suffix(mon_nam(mtmp)),
                 u_sen ? "telepathy"
                       : has_telepathy(mtmp) ? "latent telepathy" : "mind");
-            damage_mon(mtmp, rnd(15), AD_DRIN);
+            damage_mon(mtmp, rnd(15), AD_DRIN, TRUE);
             if (DEADMONSTER(mtmp))
                 killed(mtmp);
         }

@@ -105,7 +105,7 @@ boolean clumsy;
         searmsg(&youmonst, mon, hated_obj, TRUE);
     dmg += u.udaminc; /* add ring(s) of increase damage */
     if (dmg > 0)
-        damage_mon(mon, dmg, AD_PHYS);
+        damage_mon(mon, dmg, AD_PHYS, TRUE);
     if (!DEADMONSTER(mon) && martial() && !r_bigmonst(mon) && !rn2(3)
         && mon->mcanmove && mon != u.ustuck && !mon->mtrapped
         && !mon->mentangled) {

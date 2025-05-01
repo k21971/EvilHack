@@ -1767,7 +1767,7 @@ int how;
                       buf);
         }
         if (rn2(5) && mon->mhp > 1 && !hit_saddle && !hit_barding)
-            damage_mon(mon, 1, AD_PHYS);
+            damage_mon(mon, 1, AD_PHYS, your_fault ? TRUE : FALSE);
     }
 
     /* oil doesn't instantly evaporate; Neither does a saddle/barding hit */
@@ -2004,7 +2004,8 @@ int how;
                           is_silent(mon->data) ? "writhes" : "shrieks");
                     if (!is_silent(mon->data))
                         wake_nearto(tx, ty, mon->data->mlevel * 10);
-                    damage_mon(mon, d(2, 6), AD_ACID);
+                    damage_mon(mon, d(2, 6), AD_ACID,
+                               your_fault ? TRUE : FALSE);
                     /* should only be by you */
                     if (DEADMONSTER(mon))
                         killed(mon);
@@ -2027,7 +2028,8 @@ int how;
             } else if (mon->data == &mons[PM_IRON_GOLEM]) {
                 if (canseemon(mon))
                     pline("%s rusts.", Monnam(mon));
-                damage_mon(mon, d(1, 6), AD_PHYS);
+                damage_mon(mon, d(1, 6), AD_PHYS,
+                           your_fault ? TRUE : FALSE);
                 /* should only be by you */
                 if (DEADMONSTER(mon))
                     killed(mon);
@@ -2045,7 +2047,8 @@ int how;
                       is_silent(mon->data) ? "writhes" : "shrieks");
                 if (!is_silent(mon->data))
                     wake_nearto(tx, ty, mon->data->mlevel * 10);
-                damage_mon(mon, d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8), AD_ACID);
+                damage_mon(mon, d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8),
+                           AD_ACID, your_fault ? TRUE : FALSE);
                 if (DEADMONSTER(mon)) {
                     if (your_fault)
                         killed(mon);

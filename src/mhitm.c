@@ -2799,7 +2799,7 @@ msickness:
         return res;
     }
 
-    if (damage_mon(mdef, tmp, mattk->adtyp)) {
+    if (damage_mon(mdef, tmp, mattk->adtyp, FALSE)) {
         if (m_at(mdef->mx, mdef->my) == magr) { /* see gulpmm() */
             remove_monster(mdef->mx, mdef->my);
             mdef->mhp = 1; /* otherwise place_monster will complain */
@@ -3056,7 +3056,7 @@ struct obj *mwep;
                     if (!rn2(3)) {
                         if (canseemon(magr))
                             pline("%s staggers from the poison!", Monnam(magr));
-                        damage_mon(magr, rnd(4), AD_DRST);
+                        damage_mon(magr, rnd(4), AD_DRST, FALSE);
                     }
                 } else {
                     if (canseemon(magr))
@@ -3159,12 +3159,12 @@ struct obj *mwep;
                         if (canseemon(magr))
                             pline("%s flinches from the cold!",
                                   Monnam(magr));
-                        damage_mon(magr, rnd(4), AD_COLD);
+                        damage_mon(magr, rnd(4), AD_COLD, FALSE);
                     }
                 } else {
                     if (canseemon(magr))
                         pline("%s is frozen solid!", Monnam(magr));
-                    damage_mon(magr, d(6, 6), AD_COLD);
+                    damage_mon(magr, d(6, 6), AD_COLD, FALSE);
                 }
                 if (magr->mhp < 1) {
                     if (canseemon(magr))
@@ -3181,12 +3181,12 @@ struct obj *mwep;
                     if (!rn2(3)) {
                         if (canseemon(magr))
                             pline("%s is burned!", Monnam(magr));
-                        damage_mon(magr, rnd(4), AD_FIRE);
+                        damage_mon(magr, rnd(4), AD_FIRE, FALSE);
                     }
                 } else {
                     if (canseemon(magr))
                         pline("%s is severely burned!", Monnam(magr));
-                    damage_mon(magr, d(6, 6), AD_FIRE);
+                    damage_mon(magr, d(6, 6), AD_FIRE, FALSE);
                 }
                 if (magr->mhp < 1) {
                     if (canseemon(magr))
@@ -3203,12 +3203,12 @@ struct obj *mwep;
                     if (!rn2(3)) {
                         if (canseemon(magr))
                             pline("%s is seared!", Monnam(magr));
-                        damage_mon(magr, rnd(4), AD_ACID);
+                        damage_mon(magr, rnd(4), AD_ACID, FALSE);
                     }
                 } else {
                     if (canseemon(magr))
                         pline("%s is critically seared!", Monnam(magr));
-                    damage_mon(magr, d(6, 6), AD_ACID);
+                    damage_mon(magr, d(6, 6), AD_ACID, FALSE);
                 }
                 if (magr->mhp < 1) {
                     if (canseemon(magr))
@@ -3614,7 +3614,7 @@ struct obj *mwep;
         tmp = 0;
 
  assess_dmg:
-    if (damage_mon(magr, tmp, (int) mdattk[i].adtyp)) {
+    if (damage_mon(magr, tmp, (int) mdattk[i].adtyp, FALSE)) {
         zombify = FALSE;
         if (mdef->uexp)
             mon_xkilled(magr, "", (int) mdattk[i].adtyp);

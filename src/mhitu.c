@@ -283,7 +283,8 @@ struct attack *mattk;
                 /* glancing blow, partial damage */
                 searmsg(&youmonst, mtmp, blocker, FALSE);
                 damage_mon(mtmp,
-                           rnd(sear_damage(blocker->material) / 2), AD_PHYS);
+                           rnd(sear_damage(blocker->material) / 2),
+                           AD_PHYS, TRUE);
                 if (DEADMONSTER(mtmp))
                     killed(mtmp);
             }
@@ -311,7 +312,7 @@ struct attack *mattk;
             if (mhurtle_to_doom(mtmp, tmp, &mdat, TRUE))
                 already_killed = TRUE;
             if (!already_killed) {
-                damage_mon(mtmp, tmp, AD_PHYS);
+                damage_mon(mtmp, tmp, AD_PHYS, TRUE);
                 if (DEADMONSTER(mtmp))
                     killed(mtmp);
             }
@@ -328,7 +329,7 @@ struct attack *mattk;
             if (mhurtle_to_doom(mtmp, tmp, &mdat, TRUE))
                 already_killed = TRUE;
             if (!already_killed) {
-                damage_mon(mtmp, tmp, AD_PHYS);
+                damage_mon(mtmp, tmp, AD_PHYS, TRUE);
                 if (DEADMONSTER(mtmp))
                     killed(mtmp);
             }
@@ -795,7 +796,7 @@ register struct monst *mtmp;
                 if (3 + find_mac(mtmp) <= rnd(20)) {
                     pline("%s is hit by a falling piercer (you)!",
                           Monnam(mtmp));
-                    if (damage_mon(mtmp, d(3, 6), AD_PHYS))
+                    if (damage_mon(mtmp, d(3, 6), AD_PHYS, TRUE))
                         killed(mtmp);
                 } else
                     pline("%s is almost hit by a falling piercer (you)!",
@@ -4375,7 +4376,7 @@ struct attack *mattk;
                 if (!rn2(3)) {
                     if (canseemon(mtmp))
                         pline("%s staggers from the poison!", Monnam(mtmp));
-                    damage_mon(mtmp, rnd(4), AD_DRST);
+                    damage_mon(mtmp, rnd(4), AD_DRST, TRUE);
                 }
             } else {
                 if (canseemon(mtmp))
@@ -4479,12 +4480,12 @@ struct attack *mattk;
                 if (!rn2(3)) {
                     if (canseemon(mtmp))
                         pline("%s flinches from the cold!", Monnam(mtmp));
-                    damage_mon(mtmp, rnd(4), AD_COLD);
+                    damage_mon(mtmp, rnd(4), AD_COLD, TRUE);
                 }
             } else {
                 if (canseemon(mtmp))
                     pline("%s is frozen solid!", Monnam(mtmp));
-                damage_mon(mtmp, d(6, 6), AD_COLD);
+                damage_mon(mtmp, d(6, 6), AD_COLD, TRUE);
             }
             if (mtmp->mhp < 1) {
                 if (canseemon(mtmp))
@@ -4503,12 +4504,12 @@ struct attack *mattk;
                 if (!rn2(3)) {
                     if (canseemon(mtmp))
                         pline("%s is burned!", Monnam(mtmp));
-                    damage_mon(mtmp, rnd(4), AD_FIRE);
+                    damage_mon(mtmp, rnd(4), AD_FIRE, TRUE);
                 }
             } else {
                 if (canseemon(mtmp))
                     pline("%s is severely burned!", Monnam(mtmp));
-                damage_mon(mtmp, d(6, 6), AD_FIRE);
+                damage_mon(mtmp, d(6, 6), AD_FIRE, TRUE);
             }
             if (mtmp->mhp < 1) {
                 if (canseemon(mtmp))
@@ -4527,12 +4528,12 @@ struct attack *mattk;
                 if (!rn2(3)) {
                     if (canseemon(mtmp))
                         pline("%s is seared!", Monnam(mtmp));
-                    damage_mon(mtmp, rnd(4), AD_ACID);
+                    damage_mon(mtmp, rnd(4), AD_ACID, TRUE);
                 }
             } else {
                 if (canseemon(mtmp))
                     pline("%s is critically seared!", Monnam(mtmp));
-                damage_mon(mtmp, d(6, 6), AD_ACID);
+                damage_mon(mtmp, d(6, 6), AD_ACID, TRUE);
             }
             if (mtmp->mhp < 1) {
                 if (canseemon(mtmp))
@@ -4915,7 +4916,7 @@ struct attack *mattk;
         tmp = 0;
 
  assess_dmg:
-    if (damage_mon(mtmp, tmp, youmonst.data->mattk[i].adtyp)) {
+    if (damage_mon(mtmp, tmp, youmonst.data->mattk[i].adtyp, TRUE)) {
         pline("%s dies!", Monnam(mtmp));
         xkilled(mtmp, XKILL_NOMSG);
         if (!DEADMONSTER(mtmp))

@@ -3125,7 +3125,8 @@ register struct monst *mtmp;
                               Monnam(mtmp));
                         seetrap(trap);
                     }
-                    damage_mon(mtmp, magic_dmg, AD_MAGM);
+                    damage_mon(mtmp, magic_dmg, AD_MAGM,
+                               trap->madeby_u ? TRUE : FALSE);
                     if (DEADMONSTER(mtmp))
                         monkilled(mtmp,
                                   in_sight
@@ -3169,7 +3170,8 @@ register struct monst *mtmp;
 
                 if (in_sight)
                     seetrap(trap);
-                damage_mon(mtmp, dmgval2, AD_MAGM);
+                damage_mon(mtmp, dmgval2, AD_MAGM,
+                           trap->madeby_u ? TRUE : FALSE);
                 if (DEADMONSTER(mtmp))
                     monkilled(mtmp,
                               in_sight
@@ -5004,7 +5006,8 @@ boolean force_failure;
                 if (ttype == BEAR_TRAP) {
                     if (mtmp->mtame)
                         abuse_dog(mtmp);
-                    damage_mon(mtmp, rnd(4), AD_PHYS);
+                    damage_mon(mtmp, rnd(4), AD_PHYS,
+                               ttmp->madeby_u ? TRUE : FALSE);
                     if (DEADMONSTER(mtmp))
                         killed(mtmp);
                 } else if (ttype == WEB) {

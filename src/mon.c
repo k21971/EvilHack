@@ -892,7 +892,7 @@ register struct monst *mtmp;
 
         if (cansee(mtmp->mx, mtmp->my))
             pline("%s rusts.", Monnam(mtmp));
-        damage_mon(mtmp, dam, AD_PHYS); /* Not quite accurate but no resistance to rusting */
+        damage_mon(mtmp, dam, AD_PHYS, FALSE); /* Not quite accurate but no resistance to rusting */
         if (mtmp->mhpmax > dam)
             mtmp->mhpmax -= dam;
         if (DEADMONSTER(mtmp)) {
@@ -954,7 +954,7 @@ register struct monst *mtmp;
                 else
                     xkilled(mtmp, XKILL_NOMSG);
             } else {
-                damage_mon(mtmp, 1, AD_FIRE);
+                damage_mon(mtmp, 1, AD_FIRE, FALSE);
                 if (DEADMONSTER(mtmp)) {
                     if (cansee(mtmp->mx, mtmp->my))
                         pline("%s surrenders to the fire.", Monnam(mtmp));
@@ -1039,7 +1039,7 @@ register struct monst *mtmp;
             && !(is_puddle(mtmp->mx, mtmp->my) || is_sewage(mtmp->mx, mtmp->my))) {
             /* as mhp gets lower, the rate of further loss slows down */
             if (mtmp->mhp > 1 && rn2(mtmp->mhp) > rn2(8))
-                damage_mon(mtmp, 1, AD_PHYS);
+                damage_mon(mtmp, 1, AD_PHYS, FALSE);
             monflee(mtmp, 2, FALSE, FALSE);
         }
     }
@@ -4019,7 +4019,7 @@ boolean was_swallowed; /* digestion */
                 } else {
                     if (!Deaf)
                         You_hear("an explosion.");
-                    damage_mon(magr, tmp, AD_PHYS);
+                    damage_mon(magr, tmp, AD_PHYS, FALSE);
                     if (DEADMONSTER(magr))
                         mondied(magr);
                     if (DEADMONSTER(magr)) { /* maybe lifesaved */
@@ -6459,16 +6459,18 @@ int damtype, dam;
  * Returns whether mon should have died or not.
  */
 boolean
-damage_mon(mon, amount, type)
+damage_mon(mon, amount, type, by_you)
 struct monst* mon;
 int amount;
 int type;
+boolean by_you;
 {
     if (vulnerable_to(mon, type))
         amount = ((amount * 3) + 1) / 2;
 
     mon->mhp -= amount;
-    showmondamage(mon, amount);
+    if (by_you)
+        showmondamage(mon, amount);
     return (mon->mhp < 1);
 }
 

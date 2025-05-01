@@ -467,7 +467,7 @@ int expltype;
 
                 if (explmask[i][j] == 1) {
                     golemeffects(mtmp, (int) adtyp, dam + idamres);
-                    damage_mon(mtmp, idamnonres, adtyp);
+                    damage_mon(mtmp, idamnonres, adtyp, TRUE);
                 } else {
                     /* call resist with 0 and do damage manually so 1) we can
                      * get out the message before doing the damage, and 2) we
@@ -489,8 +489,8 @@ int expltype;
                     if (mon_underwater(mtmp)
                         && (adtyp == AD_FIRE || adtyp == AD_ACID))
                         mdam = rnd(3); /* physical damage only */
-                    damage_mon(mtmp, mdam, adtyp);
-                    damage_mon(mtmp, idamres + idamnonres, adtyp);
+                    damage_mon(mtmp, mdam, adtyp, TRUE);
+                    damage_mon(mtmp, idamres + idamnonres, adtyp, TRUE);
                 }
                 if (DEADMONSTER(mtmp)) {
                     int xkflg = ((adtyp == AD_FIRE

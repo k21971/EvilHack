@@ -231,7 +231,7 @@ struct obj *obj;
                         ? "nearby" : "in the distance");
         }
         m_useup(mon, obj);
-        damage_mon(mon, dam, AD_RBRE);
+        damage_mon(mon, dam, AD_RBRE, FALSE);
         if (DEADMONSTER(mon)) {
             monkilled(mon, "", AD_RBRE);
             return 1;
@@ -2468,7 +2468,7 @@ struct monst *mtmp;
                 if (dist2(mtmp2->mx, mtmp2->my, mtmp->mx, mtmp->my) < 3) {
                     if (resists_fire(mtmp2) || defended(mtmp2, AD_FIRE))
                         continue;
-                    damage_mon(mtmp2, num, AD_FIRE);
+                    damage_mon(mtmp2, num, AD_FIRE, FALSE);
                     if (resists_cold(mtmp2)) /* natural resistance */
                         mtmp2->mhp -= 3 * num;
                     if (DEADMONSTER(mtmp2)) {
@@ -4078,7 +4078,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
     /* obj is now gone */
 
     if (acid && !tinned && !(resists_acid(mon) || defended(mon, AD_ACID))) {
-        damage_mon(mon, rnd(15), AD_ACID);
+        damage_mon(mon, rnd(15), AD_ACID, FALSE);
         if (vis)
             pline("%s has a very bad case of stomach acid.", Monnam(mon));
         if (DEADMONSTER(mon)) {
