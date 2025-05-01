@@ -259,6 +259,34 @@ register struct obj *obj;
 
     burn_away_slime();
 
+    /* handle specific types of object destruction
+       via dipping into a forge. anything not handled
+       here is caught by lava_damage() */
+
+    /* dipping potions, bad */
+    if (obj->oclass == POTION_CLASS) {
+        destroy_one_item(obj, POTION_CLASS, AD_FIRE);
+        return;
+    }
+
+    /* scrolls */
+    if (obj->oclass == SCROLL_CLASS) {
+        destroy_one_item(obj, SCROLL_CLASS, AD_FIRE);
+        return;
+    }
+
+    /* spellbooks */
+    if (obj->oclass == SPBOOK_CLASS) {
+        destroy_one_item(obj, SPBOOK_CLASS, AD_FIRE);
+        return;
+    }
+
+    /* specifically for globs of green slime */
+    if (obj->otyp == GLOB_OF_GREEN_SLIME) {
+        destroy_one_item(obj, FOOD_CLASS, AD_FIRE);
+        return;
+    }
+
     /* Dipping something you're still wearing into a forge filled with
      * lava, probably not the smartest thing to do. This is gonna hurt.
      * Non-metallic objects are handled by lava_damage().

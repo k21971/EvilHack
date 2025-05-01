@@ -35,7 +35,6 @@ STATIC_DCL int FDECL(zap_hit, (int, int, BOOLEAN_P));
 STATIC_OVL void FDECL(disintegrate_mon, (struct monst *, int, const char *));
 STATIC_DCL void FDECL(backfire, (struct obj *));
 STATIC_DCL int FDECL(spell_hit_bonus, (int, BOOLEAN_P));
-STATIC_DCL void FDECL(destroy_one_item, (struct obj *, int, int));
 STATIC_DCL void FDECL(wishcmdassist, (int));
 
 #define is_hero_spell(type) ((type) >= MAX_ZT && (type) < (MAX_ZT * 2))
@@ -6233,7 +6232,7 @@ const char *const destroy_strings[][3] = {
 
 /* guts of destroy_item(), which ought to be called maybe_destroy_items();
    caller must decide whether obj is eligible */
-STATIC_OVL void
+void
 destroy_one_item(obj, osym, dmgtyp)
 struct obj *obj;
 int osym, dmgtyp;
@@ -6380,6 +6379,8 @@ int osym, dmgtyp;
             if (!rn2(3))
                 cnt++;
 
+        if (!cnt && IS_FORGE(levl[u.ux][u.uy].typ))
+            cnt = 1L; /* forge dipping, always at least one destroyed */
         if (!cnt)
             return;
         mult = (cnt == 1L)

@@ -3295,6 +3295,7 @@ E void FDECL(melt_ice_away, (ANY_P *, long));
 E int FDECL(zap_over_floor, (XCHAR_P, XCHAR_P, int, boolean *, SHORT_P, BOOLEAN_P));
 E void FDECL(fracture_rock, (struct obj *));
 E boolean FDECL(break_statue, (struct obj *));
+E void FDECL(destroy_one_item, (struct obj *, int, int));
 E void FDECL(destroy_item, (int, int));
 E int FDECL(destroy_mitem, (struct monst *, int, int));
 E int FDECL(resist, (struct monst *, CHAR_P, int, int));

@@ -4477,4 +4477,5 @@ The following changes to date are:
   to spawn wearing them
 - Fix: player races that have intrinsic flying could still fly when
   polymorphed into a non-flying monster
+- Fix: potions and forge dipping
 
