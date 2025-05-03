@@ -4479,4 +4479,6 @@ The following changes to date are:
   polymorphed into a non-flying monster
 - Fix: potions and forge dipping
 - Improvements to showmondamage()
+- Fix: monsters freezing in place at a distance if player was riding a
+  steed that was loyal or greater (tameness >= 15)
 

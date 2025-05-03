@@ -6,6 +6,8 @@
 #include "hack.h"
 #include "artifact.h"
 
+extern boolean notonhead;
+
 STATIC_VAR NEARDATA struct obj *mon_currwep = (struct obj *) 0;
 
 STATIC_DCL boolean FDECL(u_slip_free, (struct monst *, struct attack *));
@@ -694,7 +696,6 @@ register struct monst *mtmp;
         foundyou = 1;
         if (u.uinvulnerable)
             return 0; /* stomachs can't hurt you! */
-
     } else if (u.usteed) {
         if (mtmp == u.usteed)
             /* Your steed won't attack you */
@@ -704,35 +705,37 @@ register struct monst *mtmp;
             && distu(mtmp->mx, mtmp->my) <= 2) {
             /* Attack your steed instead */
             i = mattackm(mtmp, u.usteed);
-            if ((i & MM_AGR_DIED))
+            if ((i & MM_AGR_DIED) != 0)
                 return 1;
             /* make sure steed is still alive and within range */
-            if ((i & MM_DEF_DIED) || !u.usteed
+            if ((i & MM_DEF_DIED) != 0 || !u.usteed
                 || distu(mtmp->mx, mtmp->my) > 2)
                 return 0;
             /* Let your steed retaliate */
+            bhitpos.x = mtmp->mx, bhitpos.y = mtmp->my;
+            notonhead = FALSE;
             return !!(mattackm(u.usteed, mtmp) & MM_DEF_DIED);
         }
         /* steed will attack on the players behalf without waiting
            for the player or itself to be attacked first if the steed
-           is loyal or greater. mspec_used is utilized to prevent the
-           steed from getting an indefinite number of attacks on
-           multiple targets if each target is killed */
-        if (u.usteed->mtame >= 15 && u.usteed->mspec_used == 0) {
-            if (!acceptable_pet_target(u.usteed, mtmp, FALSE)) {
+           is loyal or greater. if the steed has a ranged attack, it
+           can utilize it apart from this routine */
+        if (u.usteed->mtame >= 15
+            && distu(mtmp->mx, mtmp->my) <= 2) {
+            /* steed attacks without provocation,
+               make sure it's actually alive */
+            i = mattackm(u.usteed, mtmp);
+            if ((i & MM_AGR_DIED) != 0 || !u.usteed)
+                return 1;
+            /* make sure monster is alive and is
+               within range (melee attack) */
+            if ((i & MM_DEF_DIED) != 0
+                || distu(mtmp->mx, mtmp->my) > 2)
                 return 0;
-            } else {
-                int steed_attack = mattackm(u.usteed, mtmp);
-
-                /* first target is killed */
-                if (steed_attack & MM_DEF_DIED) {
-                    /* stop attack against 2nd, 3rd, 4th, etc
-                       targets in the same round if they exist */
-                    u.usteed->mspec_used = 1;
-                    return 1;
-                }
-                return 0;
-            }
+            /* allow steed to attack */
+            bhitpos.x = mtmp->mx, bhitpos.y = mtmp->my;
+            notonhead = FALSE;
+            return !!(mattackm(u.usteed, mtmp) & MM_DEF_DIED);
         }
     }
 
