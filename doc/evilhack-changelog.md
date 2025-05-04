@@ -4481,4 +4481,5 @@ The following changes to date are:
 - Improvements to showmondamage()
 - Fix: monsters freezing in place at a distance if player was riding a
   steed that was loyal or greater (tameness >= 15)
+- Allow available skill slots to be shown outside of debug mode
 
