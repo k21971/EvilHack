@@ -4482,4 +4482,6 @@ The following changes to date are:
 - Fix: monsters freezing in place at a distance if player was riding a
   steed that was loyal or greater (tameness >= 15)
 - Allow available skill slots to be shown outside of debug mode
+- Monsters that spawn with steeds will not have a steed if their steed
+  has been genocided or made extinct
 

@@ -36,16 +36,20 @@ struct monst *mtmp;
     }
 }
 
+/* assign a steed to a monster as the monster spawns */
 void mount_monster(mtmp, pm)
-struct monst *mtmp;
-int pm;
+struct monst *mtmp; /* rider */
+int pm;             /* steed */
 {
     register struct monst *mount;
 
     /* small hack here: make it in a random spot to avoid failures due
        to there not being enough room. */
     mount = makemon(&mons[pm], 0, 0, MM_ADJACENTOK);
-    if (!mount || is_covetous(mount->data)) {
+    /* no steed (doesn't exist, genocided, extinct) or if for
+       some reason the steed is covetous - denied */
+    if (!mount || is_covetous(mount->data)
+        || (mvitals[monsndx(mount->data)].mvflags & (G_GENOD | G_EXTINCT))) {
         return;
     } else {
         remove_monster(mount->mx, mount->my);
@@ -59,7 +63,7 @@ int pm;
     ERID(mtmp)->mon_steed->my = mtmp->my;
     newsym(mtmp->mx, mtmp->my);
 
-    /* rider over'rides' horse's natural inclinations */
+    /* rider over'rides' steed's natural inclinations */
     mount->mpeaceful = mtmp->mpeaceful;
 
     /* monster steeds will come with a saddle */
