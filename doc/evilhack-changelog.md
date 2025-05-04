@@ -4484,4 +4484,5 @@ The following changes to date are:
 - Allow available skill slots to be shown outside of debug mode
 - Monsters that spawn with steeds will not have a steed if their steed
   has been genocided or made extinct
+- Pet behavior with various objects
 

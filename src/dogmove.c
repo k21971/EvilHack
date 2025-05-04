@@ -860,19 +860,28 @@ int udist;
      * Use udist+1 so steed won't cause divide by zero.
      */
     if (droppables(mtmp)) {
-        if (!rn2(udist + 1) || !rn2(edog->apport))
+        if (!rn2(udist + 1) || !rn2(edog->apport)) {
             if (rn2(10) < edog->apport) {
-                relobj(mtmp, (int) mtmp->minvis, TRUE);
+                /* intelligent pets won't drop objects over
+                   pools, lava, or open air */
+                if ((is_damp_terrain(omx, omy) || is_lava(omx, omy)
+                     || is_open_air(omx, omy))
+                    && !(is_animal(mtmp->data) || mindless(mtmp->data)))
+                    return 0;
+                else
+                    relobj(mtmp, (int) mtmp->minvis, TRUE);
                 if (edog->apport > 1)
                     edog->apport--;
                 edog->dropdist = udist; /* hpscdi!jon */
                 edog->droptime = monstermoves;
             }
+        }
         booldroppables = TRUE;
     } else {
         if ((obj = level.objects[omx][omy]) != 0
             && !index(nofetch, obj->oclass)
             && !is_soko_prize_flag(obj)
+            && obj->otyp != CRYSTAL_CHEST
 #ifdef MAIL
             && obj->otyp != SCR_MAIL
 #endif
