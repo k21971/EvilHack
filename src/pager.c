@@ -812,6 +812,7 @@ struct permonst * pm;
     boolean nohell = !!(gen & G_NOHELL);
     boolean nogen = !!(gen & G_NOGEN);
     boolean iceq = is_iceq_only(pm);
+    unsigned int mflag3 = pm->mflags3;
     unsigned int mflag4 = pm->mflags4;
 
 #define ADDRESIST(condition, str) \
@@ -1007,12 +1008,25 @@ struct permonst * pm;
     APPENDC(herbivorous(pm), "herbivorous");
     APPENDC(metallivorous(pm), "metallivorous");
     APPENDC(inediate(pm), "inediate");
+    APPENDC(is_covetous(pm), "covetous");
     APPENDC((mflag4 & M4_VULNERABLE_FIRE) != 0, "vulnerable to fire");
     APPENDC((mflag4 & M4_VULNERABLE_COLD) != 0, "vulnerable to cold");
     APPENDC((mflag4 & M4_VULNERABLE_ELEC) != 0, "vulnerable to electricity");
     APPENDC((mflag4 & M4_VULNERABLE_ACID) != 0, "vulnerable to acid");
     if (*buf) {
         Sprintf(buf2, "Is %s.", buf);
+        MONPUTSTR(buf2);
+        buf[0] = '\0';
+    }
+
+    /* "Monster wants X." */
+    APPENDC((mflag3 & M3_WANTSAMUL) != 0, "the Amulet of Yendor");
+    APPENDC((mflag3 & M3_WANTSBELL) != 0, "the Bell of Opening");
+    APPENDC((mflag3 & M3_WANTSBOOK) != 0, "the Book of the Dead");
+    APPENDC((mflag3 & M3_WANTSCAND) != 0, "the Candelabrum");
+    APPENDC((mflag3 & M3_WANTSARTI) != 0, "quest artifacts");
+    if (*buf) {
+        Sprintf(buf2, "Wants %s.", buf);
         MONPUTSTR(buf2);
         buf[0] = '\0';
     }

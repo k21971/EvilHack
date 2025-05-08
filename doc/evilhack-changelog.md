@@ -4489,4 +4489,6 @@ The following changes to date are:
   are not trapped
 - Learning a spell from reading a spellbook, or re-reading it to refresh
   your memory of an already learned spell will exercise intelligence
+- Covetous monsters are identified via the in-game encyclopedia
+  (pokedex)
 
