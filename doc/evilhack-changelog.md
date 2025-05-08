@@ -4487,4 +4487,6 @@ The following changes to date are:
 - Pet behavior with various objects
 - Fix: ensure chests that the Blacksmith hammer or magic keys spawn in
   are not trapped
+- Learning a spell from reading a spellbook, or re-reading it to refresh
+  your memory of an already learned spell will exercise intelligence
 

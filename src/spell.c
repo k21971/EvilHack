@@ -404,7 +404,7 @@ learn(VOID_ARGS)
                  spellknow(i) ? "keener" : "restored");
             incrnknow(i, 1);
             book->spestudied++;
-            exercise(A_WIS, TRUE); /* extra study */
+            exercise(A_INT, TRUE); /* extra study */
         }
         makeknown((int) booktype);
     } else { /* (spellid(i) == NO_SPELL) */
@@ -424,6 +424,7 @@ learn(VOID_ARGS)
             incrnknow(i, 1);
             book->spestudied++;
             You(i > 0 ? "add %s to your repertoire." : "learn %s.", splname);
+            exercise(A_INT, TRUE);
         }
         makeknown((int) booktype);
     }

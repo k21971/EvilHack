@@ -525,11 +525,11 @@ int i;
 boolean inc_or_dec;
 {
     debugpline0("Exercise:");
-    if (i == A_INT || i == A_CHA)
-        return; /* can't exercise these */
+    if (i == A_CHA)
+        return; /* can't exercise charisma */
 
     /* no physical exercise while polymorphed; the body's temporary */
-    if (Upolyd && i != A_WIS)
+    if (Upolyd && !(i == A_WIS || i == A_INT))
         return;
 
     if (abs(AEXE(i)) < AVAL) {
