@@ -4485,4 +4485,6 @@ The following changes to date are:
 - Monsters that spawn with steeds will not have a steed if their steed
   has been genocided or made extinct
 - Pet behavior with various objects
+- Fix: ensure chests that the Blacksmith hammer or magic keys spawn in
+  are not trapped
 

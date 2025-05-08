@@ -1083,7 +1083,7 @@ OBJECT:('*',"luckstone"),$place[5]
 
 # magic key is buried in a chest
 ENGRAVING:$place[6],engrave,"One-Eyed Sam was here"
-CONTAINER:('(', "chest"),$place[6],buried,locked {
+CONTAINER:('(', "chest"),$place[6],buried,not_trapped,locked {
   OBJECT:('(',"magic key")
 }
 
@@ -1232,7 +1232,7 @@ OBJECT:('!',"object detection"),(10,09)
 # Objects
 # magic key is buried in a chest
 ENGRAVING:$place[0],engrave,"Property of Croesus"
-CONTAINER:('(', "chest"),$place[0],buried,locked {
+CONTAINER:('(', "chest"),$place[0],buried,not_trapped,locked {
   OBJECT:('(',"magic key")
 }
 # The Treasure chamber...
@@ -1349,7 +1349,7 @@ WALLIFY
 # Objects
 # magic key is buried in a chest
 ENGRAVING:$key[0],engrave,"X"
-CONTAINER:('(', "chest"),$key[0],buried,locked {
+CONTAINER:('(', "chest"),$key[0],buried,not_trapped,locked {
   OBJECT:('(',"magic key")
 }
 
@@ -1507,7 +1507,7 @@ OBJECT:'*',$stones[7]
 
 # magic key is buried in a chest
 ENGRAVING:$stones[8],engrave,"Do not dig here"
-CONTAINER:('(', "chest"),$stones[8],buried,locked {
+CONTAINER:('(', "chest"),$stones[8],buried,not_trapped,locked {
   OBJECT:('(',"magic key")
 }
 

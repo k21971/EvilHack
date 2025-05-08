@@ -86,7 +86,7 @@ FORGE:(24,12)
 MAGIC_CHEST:(74,03)
 
 # Various objects
-CONTAINER:('(',"chest"),(23,18) {
+CONTAINER:('(',"chest"),not_trapped,(23,18) {
   OBJECT:('+',"novel"),uncursed,name:"The Blacksmith's Cookbook"
   OBJECT:('(',"blacksmith hammer")
   IF [50%] {
@@ -272,7 +272,7 @@ FORGE:(59,11)
 MAGIC_CHEST:(32,08)
 
 # Various objects
-CONTAINER:('(',"chest"),(67,09) {
+CONTAINER:('(',"chest"),not_trapped,(67,09) {
   OBJECT:('+',"novel"),uncursed,name:"The Blacksmith's Cookbook"
   OBJECT:('(',"blacksmith hammer")
   IF [50%] {
@@ -432,7 +432,7 @@ CONTAINER:('(',"chest"),(40,10) {
   OBJECT:'!'
 }
 
-CONTAINER:('(',"chest"),(64,15),locked {
+CONTAINER:('(',"chest"),not_trapped,locked,(64,15) {
   IF [35%] {
     OBJECT:('[',"elven chain mail")
   }
