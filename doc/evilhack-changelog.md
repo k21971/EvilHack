@@ -4491,4 +4491,6 @@ The following changes to date are:
   your memory of an already learned spell will exercise intelligence
 - Covetous monsters are identified via the in-game encyclopedia
   (pokedex)
+- Support/leader monsters that can spawn with groups of lesser monsters
+  will not spawn if extinct
 
