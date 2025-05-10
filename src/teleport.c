@@ -1555,9 +1555,11 @@ int in_sight;
                 get_level(&tolevel, depth(&u.uz) + 1);
             }
         } else if (tt == MAGIC_PORTAL) {
-            if (In_endgame(&u.uz) && (mon_has_amulet(mtmp)
-                                      || is_home_elemental(mtmp->data)
-                                      || rn2(7))) {
+            if ((In_endgame(&u.uz)
+                 && (mon_has_amulet(mtmp)
+                     || is_home_elemental(mtmp->data) || rn2(7)))
+                || (Is_sanctum(&u.uz) && mtmp->islucifer)
+                || (Is_purgend_level(&u.uz) && mtmp->ismichael)) {
                 if (in_sight && mtmp->data->mlet != S_ELEMENTAL) {
                     pline("%s seems to shimmer for a moment.", Monnam(mtmp));
                     seetrap(trap);

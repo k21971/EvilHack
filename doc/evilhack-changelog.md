@@ -4493,4 +4493,5 @@ The following changes to date are:
   (pokedex)
 - Support/leader monsters that can spawn with groups of lesser monsters
   will not spawn if extinct
+- Fix: Lucifer could activate the magic portal in the Sanctum
 
