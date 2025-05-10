@@ -4403,4 +4403,5 @@ The following changes to date are:
   the container was being carried
 - Fix: player riding a steed can now feed their steed by throwing food
   down at them, take two
+- Fix: Lucifer could activate the magic portal in the Sanctum
 
