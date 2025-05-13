@@ -1601,6 +1601,7 @@ boolean wiz_cast;
     case SPE_WIZARD_LOCK:
     case SPE_DIG:
     case SPE_TURN_UNDEAD:
+    case SPE_DISPEL_EVIL:
     case SPE_POLYMORPH:
     case SPE_TELEPORT_AWAY:
     case SPE_CANCELLATION:

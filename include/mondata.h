@@ -119,6 +119,7 @@
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
+#define is_evil(mon) (mon_aligntyp(mon) == A_NONE)
 #define is_jumper(ptr) \
     ((ptr) == &mons[PM_JUMPING_SPIDER] || (ptr) == &mons[PM_ZRUTY]           \
      || (ptr) == &mons[PM_GIANT_CENTIPEDE] || (ptr) == &mons[PM_CAVE_LIZARD] \

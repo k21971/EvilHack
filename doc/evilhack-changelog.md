@@ -4494,4 +4494,5 @@ The following changes to date are:
 - Support/leader monsters that can spawn with groups of lesser monsters
   will not spawn if extinct
 - Fix: Lucifer could activate the magic portal in the Sanctum
+- New spell: Dispel Evil, revamp clerical spell levels
 

@@ -153,6 +153,9 @@ struct obj *otmp;
                            ? 8 : (P_SKILL(P_HEALING_SPELL) == P_BASIC) ? 6 : 4);
     int sickness_skill = ((P_SKILL(P_HEALING_SPELL) >= P_EXPERT)
                           ? 3 : (P_SKILL(P_HEALING_SPELL) == P_SKILLED) ? 2 : 1);
+    int clerical_skill = ((P_SKILL(P_CLERIC_SPELL) >= P_EXPERT)
+                          ? 12 : (P_SKILL(P_CLERIC_SPELL) == P_SKILLED)
+                            ? 8 : (P_SKILL(P_CLERIC_SPELL) == P_BASIC) ? 6 : 4);
 
     if (u.uswallow && mtmp == u.ustuck)
         reveal_invis = FALSE;
@@ -293,7 +296,14 @@ struct obj *otmp;
         if (is_undead(mtmp->data) || is_vampshifter(mtmp)) {
             reveal_invis = TRUE;
             wake = TRUE;
-            dmg = rnd(8);
+            if (canseemon(mtmp))
+                pline("%s %s in %s!", Monnam(mtmp),
+                      rn2(2) ? "withers" : "shudders",
+                      rn2(2) ? "agony" : "pain");
+            if (otyp == SPE_TURN_UNDEAD)
+                dmg = d(2, clerical_skill);
+            else
+                dmg = rnd(8);
             if (dbldam)
                 dmg *= 2;
             if (otyp == SPE_TURN_UNDEAD)
@@ -302,6 +312,100 @@ struct obj *otmp;
             if (!resist(mtmp, otmp->oclass, dmg, NOTELL)) {
                 if (!DEADMONSTER(mtmp))
                     monflee(mtmp, 0, FALSE, TRUE);
+            }
+        }
+        break;
+    case SPE_DISPEL_EVIL:
+        wake = FALSE;
+        if (is_evil(mtmp)) {
+            reveal_invis = TRUE;
+            wake = TRUE;
+            if (u.ualign.type == A_NONE) {
+                You_feel("like a hypocrite.");
+                adjalign((u.ualign.record > 5) ? -5 : -rnd(5));
+            }
+            if (canseemon(mtmp))
+                pline("%s %s in %s!", Monnam(mtmp),
+                      rn2(2) ? "withers" : "shudders",
+                      rn2(2) ? "agony" : "pain");
+            dmg = d(4, clerical_skill);
+            if (dbldam)
+                dmg *= 2;
+            if (otyp == SPE_DISPEL_EVIL)
+                dmg = spell_damage_bonus(dmg);
+            if (!resist(mtmp, otmp->oclass, dmg, NOTELL)
+                && (P_SKILL(P_CLERIC_SPELL) >= P_SKILLED)
+                && u.ualign.type != A_NONE) {
+                /* if target monster does not resist and the caster
+                   is not evil and skilled/expert in clerical spells,
+                   small chance they can be killed outright, or
+                   'banished' to another level. otherwise flee */
+                if (!DEADMONSTER(mtmp)) {
+                    switch (rn2(20)) {
+                    case 19: {
+                        const char *Gname;
+                        Gname = halu_gname(u.ualign.type);
+
+                        if (canseemon(mtmp))
+                            pline_The("power of %s %s %s!",
+                                      Gname,
+                                      unique_corpstat(mtmp->data) ? "severely injures"
+                                                                  : "overwhelms",
+                                      mon_nam(mtmp));
+                        if (unique_corpstat(mtmp->data))
+                            dmg *= 2;
+                        else
+                            killed(mtmp);
+                        break;
+                    }
+                    case 18:
+                    case 17:
+                    case 16: {
+                        int nlev;
+                        d_level flev;
+
+                        if (mon_has_amulet(mtmp) || In_endgame(&u.uz)
+                            || ((Is_qstart(&u.uz) || Is_nemesis(&u.uz))
+                                && unique_corpstat(mtmp->data))
+                            || ((Is_wiz1_level(&u.uz) || Is_wiz2_level(&u.uz)
+                                 || Is_wiz3_level(&u.uz)) && mtmp->iswiz)
+                            || (Is_sanctum(&u.uz) && mtmp->islucifer)
+                            || ((Is_orcustown(&u.uz) || Is_hella_level(&u.uz)
+                                 || Is_hellb_level(&u.uz) || Is_hellc_level(&u.uz))
+                                && (is_dprince(mtmp->data) || is_dlord(mtmp->data)))) {
+                            if (canseemon(mtmp))
+                                pline("%s seems very disoriented for a moment.",
+                                      Monnam(mtmp));
+                            break;
+                        }
+
+                        nlev = random_teleport_level();
+                        if (nlev == depth(&u.uz)) {
+                            if (canseemon(mtmp))
+                                pline("%s shudders for a moment.", Monnam(mtmp));
+                            break;
+                        }
+                        if (Iniceq && mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
+                            if (canseemon(mtmp)) {
+                                pline("A powerful curse prevents %s from leaving this place!",
+                                      mon_nam(mtmp));
+                                verbalize("Nooooo!");
+                            }
+                            break;
+                        }
+                        if (canseemon(mtmp))
+                            You("banish %s!", mon_nam(mtmp));
+                        reveal_invis = FALSE;
+                        get_level(&flev, nlev);
+                        migrate_to_level(mtmp, ledger_no(&flev), MIGR_RANDOM,
+                                         (coord *) 0);
+                        break;
+                    }
+                    default: /* 15 through 0 */
+                        monflee(mtmp, 0, FALSE, TRUE);
+                        break;
+                    }
+                }
             }
         }
         break;
@@ -2464,6 +2568,7 @@ struct obj *obj, *otmp;
         case SPE_RESTORE_ABILITY:
         case SPE_PSIONIC_WAVE:
         case SPE_ENTANGLE:
+        case SPE_DISPEL_EVIL:
             res = 0;
             break;
         case SPE_STONE_TO_FLESH:
@@ -2741,6 +2846,9 @@ boolean ordinary;
                            ? 8 : (P_SKILL(P_HEALING_SPELL) == P_BASIC) ? 6 : 4);
     int sickness_skill = ((P_SKILL(P_HEALING_SPELL) >= P_EXPERT)
                           ? 3 : (P_SKILL(P_HEALING_SPELL) == P_SKILLED) ? 2 : 1);
+    int clerical_skill = ((P_SKILL(P_CLERIC_SPELL) >= P_EXPERT)
+                          ? 12 : (P_SKILL(P_CLERIC_SPELL) == P_SKILLED)
+                            ? 8 : (P_SKILL(P_CLERIC_SPELL) == P_BASIC) ? 6 : 4);
 
     switch (obj->otyp) {
     case WAN_STRIKING:
@@ -3042,6 +3150,14 @@ boolean ordinary;
     case SPE_TURN_UNDEAD:
         learn_it = TRUE;
         unturn_you();
+        break;
+    case SPE_DISPEL_EVIL:
+        learn_it = TRUE;
+        if (is_evil(&youmonst)) {
+            You("shudder in agony!");
+            damage = d(8, clerical_skill);
+            exercise(A_CON, FALSE);
+        }
         break;
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
