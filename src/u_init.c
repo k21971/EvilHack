@@ -64,7 +64,7 @@ struct trobj Convict[] = {
 };
 struct trobj Druid[] = {
 #define D_MAJOR 0 /* quarterstaff or scimitar */
-#define D_BOOK 7
+#define D_BOOK 8
     { QUARTERSTAFF, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { BRACERS, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { CLOAK, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -72,7 +72,8 @@ struct trobj Druid[] = {
     { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
     { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1 },
-    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
+    { SPE_CREATE_GRASS, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
@@ -185,7 +186,6 @@ struct trobj Monk[] = {
     { 0, 0, 0, 0, 0 }
 };
 struct trobj Draugr_Monk[] = {
-#define M_BOOK 2
     { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
     { ROBE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
@@ -201,6 +201,7 @@ struct trobj Vampire_Monk[] = {
 #define M_BOOK 2
     { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
     { ROBE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
     { POT_HEALING, 0, POTION_CLASS, 3, UNDEF_BLESS },
     { FOOD_RATION, 0, FOOD_CLASS, 3, 0 },
@@ -1060,9 +1061,12 @@ u_init()
             = u.ualign.type = A_CHAOTIC; /* Override racial alignment */
         break;
     case PM_DRUID: {
-        static short D_spell[] = { SPE_BARKSKIN, SPE_CREATE_GRASS, SPE_SUMMON_ANIMAL };
+        static short D_spell[] = {
+            SPE_BARKSKIN, SPE_SUMMON_ANIMAL, SPE_HEALING,
+            SPE_TURN_UNDEAD, SPE_CURE_SICKNESS
+        };
 
-        Druid[D_BOOK].trotyp = D_spell[rn2(90) / 30]; /* [0..2] */
+        Druid[D_BOOK].trotyp = D_spell[rn2(100) / 20]; /* [0..4] */
         if (rn2(100) >= 50)
             Druid[D_MAJOR].trotyp = SCIMITAR;
         ini_inv(Druid);
@@ -1113,9 +1117,14 @@ u_init()
             skill_init(Skill_K);
         break;
     case PM_MONK: {
-        static short M_spell[] = { SPE_HEALING, SPE_PROTECTION, SPE_CONFUSE_MONSTER };
+        static short M_spell[] = {
+            SPE_HEALING, SPE_PROTECTION, SPE_CONFUSE_MONSTER
+        };
 
-        Monk[M_BOOK].trotyp = M_spell[rn2(90) / 30]; /* [0..2] */
+        if (Race_if(PM_VAMPIRE))
+            Vampire_Monk[M_BOOK].trotyp = M_spell[rn2(90) / 30]; /* [0..2] */
+        else
+            Monk[M_BOOK].trotyp = M_spell[rn2(90) / 30]; /* [0..2] */
         if (Race_if(PM_DRAUGR))
             ini_inv(Draugr_Monk);
         else if (Race_if(PM_VAMPIRE))

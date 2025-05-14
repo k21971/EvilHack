@@ -353,7 +353,7 @@ struct trobj {
 #define B_MINOR         1 /* matched with axe or short sword */
 #define C_AMMO          2
 #define D_MAJOR         0 /* quarterstaff or scimitar */
-#define D_BOOK          7
+#define D_BOOK          8
 #define M_BOOK          2
 #define RAN_BOW         1
 #define RAN_TWO_ARROWS  2
@@ -487,7 +487,7 @@ struct trobj giantCave_man[] = {
 
 
 struct trobj giantDruid[] = {
-#define D_BOOK 7
+#define D_BOOK 8
     { QUARTERSTAFF, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { BRACERS, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { HIGH_BOOTS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -495,7 +495,8 @@ struct trobj giantDruid[] = {
     { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
     { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1 },
-    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
+    { SPE_CREATE_GRASS, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
@@ -602,7 +603,7 @@ struct trobj tortleBarbarian[] = {
 };
 
 struct trobj tortleDruid[] = {
-#define D_BOOK 7
+#define D_BOOK 8
     { QUARTERSTAFF, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { BRACERS, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { TOQUE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -610,7 +611,8 @@ struct trobj tortleDruid[] = {
     { MISTLETOE, 0, FOOD_CLASS, 1, 0 },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, UNDEF_BLESS },
     { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1 },
-    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
+    { SPE_CREATE_GRASS, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
 };
@@ -1109,14 +1111,17 @@ register struct monst *mtmp;
                 mongets(mtmp, GRAPPLING_HOOK);
             break;
         case PM_DRUID: {
-            static short D_spell[] = { SPE_BARKSKIN, SPE_CREATE_GRASS, SPE_SUMMON_ANIMAL };
+            static short D_spell[] = {
+                SPE_BARKSKIN, SPE_SUMMON_ANIMAL, SPE_HEALING,
+                SPE_TURN_UNDEAD, SPE_CURE_SICKNESS
+            };
 
             if (racial_tortle(mtmp))
-                tortleDruid[D_BOOK].trotyp = D_spell[rn2(90) / 30];
+                tortleDruid[D_BOOK].trotyp = D_spell[rn2(100) / 20];
             else if (racial_giant(mtmp))
-                giantDruid[D_BOOK].trotyp = D_spell[rn2(90) / 30];
+                giantDruid[D_BOOK].trotyp = D_spell[rn2(100) / 20];
             else
-                Druid[D_BOOK].trotyp = D_spell[rn2(90) / 30];
+                Druid[D_BOOK].trotyp = D_spell[rn2(100) / 20];
             if (rn2(100) >= 50) {
                 if (racial_tortle(mtmp))
                     tortleDruid[D_MAJOR].trotyp = SCIMITAR;
@@ -1165,7 +1170,9 @@ register struct monst *mtmp;
             mongets(mtmp, SKELETON_KEY);
             break;
         case PM_MONK: {
-            static short M_spell[] = { SPE_HEALING, SPE_PROTECTION, SPE_CONFUSE_MONSTER };
+            static short M_spell[] = {
+                SPE_HEALING, SPE_PROTECTION, SPE_CONFUSE_MONSTER
+            };
 
             if (racial_giant(mtmp))
                 giantMonk[M_BOOK].trotyp = M_spell[rn2(90) / 30];

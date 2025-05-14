@@ -4497,4 +4497,5 @@ The following changes to date are:
 - New spell: Dispel Evil, revamp clerical spell levels
 - Tweaks to the Druid spells entangle, create grass, create trees
 - Allow the spell 'create grass' to work in corridors
+- Druid starting spellbook changes
 
