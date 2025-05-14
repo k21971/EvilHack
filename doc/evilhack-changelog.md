@@ -4496,4 +4496,5 @@ The following changes to date are:
 - Fix: Lucifer could activate the magic portal in the Sanctum
 - New spell: Dispel Evil, revamp clerical spell levels
 - Tweaks to the Druid spells entangle, create grass, create trees
+- Allow the spell 'create grass' to work in corridors
 

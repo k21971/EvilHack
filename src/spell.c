@@ -1084,10 +1084,12 @@ genericptr_t grasscnt;
 {
     struct trap *ttmp;
 
-    /* Grow grass only on regular terrain, weighted
-       towards spaces near the player */
+    /* Grow grass only on regular terrain or
+       corridors, weighted towards spaces near
+       the player */
     if (rn2(1 + distmin(u.ux, u.uy, x, y))
-        || levl[x][y].typ != ROOM)
+        || (levl[x][y].typ != ROOM
+            && levl[x][y].typ != CORR))
         return;
 
     /* Never grow grass if there's an immovable
@@ -1168,7 +1170,8 @@ genericptr_t treecnt;
     } else if (nexttodoor(x, y) || nexttotree(x, y)
         || rn2(1 + distmin(u.ux, u.uy, x, y))
         || OBJ_AT(x, y) || MON_AT(x, y)
-        || (levl[x][y].typ != ROOM && levl[x][y].typ != GRASS)) {
+        || (levl[x][y].typ != ROOM
+            && levl[x][y].typ != GRASS)) {
         return;
     }
 
