@@ -1002,19 +1002,19 @@ cast_entangle(mdef)
 register struct monst *mdef;
 {
     boolean youdefend = (mdef == &youmonst);
-    int veg = 0, total = 0;
     int skill = (P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_EXPERT
                  ? 5 : P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_SKILLED
                      ? 4 : P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_BASIC
                          ? 3 : 1);
 
-    /* target standing on/near vegetation slightly
-       increases entanglement time */
-    if (levl[mdef->mx][mdef->my].typ == GRASS
-        || nexttotree(mdef->mx, mdef->my))
-        veg += 2;
-
-    total = skill + veg;
+    /* target needs to be standing on/near vegetation
+       for entanglement to work */
+    if (!(levl[mdef->mx][mdef->my].typ == GRASS
+          || nexttotree(mdef->mx, mdef->my))) {
+        pline("%s must be on or near vegetation to become entangled.",
+              youdefend ? "You" : Monnam(mdef));
+        return;
+    }
 
     if (youdefend) {
         /* TODO: currently only the player can do this to
@@ -1026,6 +1026,7 @@ register struct monst *mdef;
             dismount_steed(DISMOUNT_FELL);
         }
         nomul(-3);
+        return;
     } else if (!youdefend) {
         if (mdef->mentangled) {
             /* if already entangled, don't add to it */
@@ -1039,19 +1040,23 @@ register struct monst *mdef;
                 Your("spell fails to entangle %s.", mon_nam(mdef));
             return;
         } else {
-            if (canseemon(mdef))
+            if (canseemon(mdef)) {
+                if (nexttotree(mdef->mx, mdef->my))
+                    pline_The("%s from a nearby tree ensnare %s!",
+                              rn2(2) ? "branches" : "roots", mon_nam(mdef));
+                else if (levl[mdef->mx][mdef->my].typ == GRASS)
+                    pline_The("grass underneath %s twists and loops around %s %s!",
+                              mon_nam(mdef), mhis(mdef), makeplural(mbodypart(mdef, LEG)));
                 pline("%s is entangled!", Monnam(mdef));
+            }
             mdef->mentangled = 1;
-            /* 3-6/8 turns at basic, 3-7/9 turns at skilled,
-               3-8/10 turns at expert. at unskilled/restricted,
-               1-4/6 turns */
-            mdef->mentangletime = rn1(4, total);
-            /* if spell skill is skilled or greater and target
-               is on/near vegetation, chance to temporarily slow
-               mdef */
+            /* 3-8 turns at basic, 4-9 turns at skilled,
+               5-10 turns at expert. at unskilled/restricted,
+               1-6 turns */
+            mdef->mentangletime = rn1(6, skill);
+            /* if spell skill is skilled or greater, chance to
+               temporarily slow mdef */
             if (rn2(2)
-                && (levl[mdef->mx][mdef->my].typ == GRASS
-                    || nexttotree(mdef->mx, mdef->my))
                 && P_SKILL(spell_skilltype(SPE_ENTANGLE)) >= P_SKILLED)
                 mon_adjust_speed(mdef, -2, (struct obj *) 0);
         }
