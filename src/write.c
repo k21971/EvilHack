@@ -50,6 +50,7 @@ short otyp;
         return 20;
     case SCR_GENOCIDE:
         return 30;
+    case SCR_CONSECRATION:
     case SCR_BLANK_PAPER:
     default:
         impossible("You can't write such a weird scroll!");
@@ -222,7 +223,7 @@ found:
         You_cant("write that!");
         pline("It's obscene!");
         return 1;
-    } else if (i == SPE_BOOK_OF_THE_DEAD) {
+    } else if (i == SPE_BOOK_OF_THE_DEAD || i == SCR_CONSECRATION) {
         pline("No mere dungeon adventurer could write that.");
         return 1;
     } else if (by_descr && paper->oclass == SPBOOK_CLASS

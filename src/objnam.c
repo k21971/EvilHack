@@ -4818,6 +4818,9 @@ struct obj *no_wish;
         case BLACKSMITH_HAMMER:
             typ = WAR_HAMMER;
             break;
+        case SCR_CONSECRATION:
+            typ = SCR_BLANK_PAPER;
+            break;
         default:
             /* catch any other non-wishable objects (venom) */
             if (objects[typ].oc_nowish)

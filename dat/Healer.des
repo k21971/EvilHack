@@ -261,7 +261,11 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Random monsters.
-MONSTER:('H',"Cyclops"),(20,06),hostile
+MONSTER:('H',"Cyclops"),(20,06),hostile {
+  CONTAINER:('(',"sack") {
+    OBJECT:('?',"consecration")
+  }
+}
 MONSTER:('r',"rabid rat"),random
 MONSTER:('r',"rabid rat"),random
 MONSTER:('r',"rabid rat"),random

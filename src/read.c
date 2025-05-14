@@ -2177,6 +2177,34 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             return 1;
         known = TRUE;
         break;
+    case SCR_CONSECRATION:
+        known = TRUE;
+        if (In_endgame(&u.uz) || Is_sanctum(&u.uz)) {
+            You_cant("create an altar in this place.");
+            break;
+        }
+
+        aligntyp deity;
+
+        if (confused || sobj->cursed || In_hell(&u.uz))
+            deity = A_NONE;
+        else
+            deity = u.ualign.type;
+
+        if (levl[u.ux][u.uy].typ == ROOM
+            || levl[u.ux][u.uy].typ == SAND
+            || levl[u.ux][u.uy].typ == GRASS) {
+            levl[u.ux][u.uy].typ = ALTAR;
+            levl[u.ux][u.uy].altarmask = Align2amask(deity);
+            levl[u.ux][u.uy].frac_altar = 0;
+            if (!Blind)
+                pline("%s altar appears before you!",
+                      An(align_str(deity)));
+            newsym(u.ux, u.uy);
+        } else {
+            pline1(nothing_happens);
+        }
+        break;
     default:
         impossible("What weird effect is this? (%u)", otyp);
     }

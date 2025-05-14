@@ -323,7 +323,11 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Random monsters.
-MONSTER:('@',"Ashikaga Takauji"),(22,10)
+MONSTER:('@',"Ashikaga Takauji"),(22,10) {
+  CONTAINER:('(',"sack") {
+    OBJECT:('?',"consecration")
+  }
+}
 MONSTER:('@',"ronin"),random,hostile
 MONSTER:('@',"ronin"),random,hostile
 MONSTER:('@',"ronin"),random,hostile

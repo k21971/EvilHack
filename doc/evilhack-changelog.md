@@ -4503,4 +4503,5 @@ The following changes to date are:
 - Tweak Druid's third starting spellbook
 - Allow other types of arrows and spears to be used when crafting traps
 - Add trap kits to the in-game encyclopedia (pokedex)
+- New object: scroll of consecration
 

@@ -278,7 +278,11 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Random monsters.
-MONSTER:('@',"Thoth Amon"),(63,04),hostile
+MONSTER:('@',"Thoth Amon"),(63,04),hostile {
+  CONTAINER:('(',"sack") {
+    OBJECT:('?',"consecration")
+  }
+}
 MONSTER:('O',"ogre"),random,hostile
 MONSTER:('O',"ogre"),random,hostile
 MONSTER:('O',"ogre"),random,hostile

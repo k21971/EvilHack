@@ -257,7 +257,11 @@ OBJECT:('%',"corpse"),random,montype:"neanderthal"
 OBJECT:('%',"corpse"),random,montype:"neanderthal"
 OBJECT:('%',"corpse"),random,montype:"neanderthal"
 # monsters.
-MONSTER:('H',"Annam"),(23,10),asleep
+MONSTER:('H',"Annam"),(23,10),asleep {
+  CONTAINER:('(',"sack") {
+    OBJECT:('?',"consecration")
+  }
+}
 MONSTER:('F',"shrieker"),(26,13)
 MONSTER:('F',"shrieker"),(25,8)
 MONSTER:('F',"shrieker"),(45,11)

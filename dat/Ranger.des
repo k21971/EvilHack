@@ -277,7 +277,11 @@ DOOR:closed,(51,10)
 DOOR:locked,(53,08)
 DOOR:closed,(65,05)
 # Random monsters.
-MONSTER:('s',"Scorpius"),(37,10),hostile
+MONSTER:('s',"Scorpius"),(37,10),hostile {
+  CONTAINER:('(',"sack") {
+    OBJECT:('?',"consecration")
+  }
+}
 MONSTER:('C',"forest centaur"),(36,09),hostile
 MONSTER:('C',"forest centaur"),(36,10),hostile
 MONSTER:('C',"forest centaur"),(36,11),hostile

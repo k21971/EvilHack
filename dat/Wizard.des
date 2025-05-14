@@ -342,7 +342,11 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Random monsters.
-MONSTER:('h',"Dark One"),(16,11)
+MONSTER:('h',"Dark One"),(16,11) {
+  CONTAINER:('(',"sack") {
+    OBJECT:('?',"consecration")
+  }
+}
 MONSTER:('D',"elder pseudodragon"),(15,11),hostile
 MONSTER:'B',random,hostile
 MONSTER:'B',random,hostile

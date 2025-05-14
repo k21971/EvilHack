@@ -222,6 +222,11 @@ boolean restore;
                 /* blacksmith hammer becomes a war hammer */
                 otmp->otyp = WAR_HAMMER;
                 set_material(otmp, IRON);
+            } else if (otmp->otyp == SCR_CONSECRATION) {
+                /* scroll of consecration becomes a scroll
+                   of blank paper */
+                otmp->otyp = SCR_BLANK_PAPER;
+                curse(otmp);
             } else if (otmp->otyp == AMULET_OF_YENDOR) {
                 /* no longer the real Amulet */
                 otmp->otyp = FAKE_AMULET_OF_YENDOR;
