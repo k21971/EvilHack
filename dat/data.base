@@ -5899,7 +5899,7 @@ spellbook of confuse monster
 	recasting the spell can stack, giving up to forty uses before
 	the effect expires.
 spellbook of create familiar
-	This spell is a level six clerical spell.  When cast, a monster
+	This spell is a level three clerical spell.  When cast, a monster
 	is created near the caster.  There is a one-third chance of the
 	spell creating an appropriate starting pet, or a two-thirds
 	chance of creating a random monster.  The created monster will
@@ -5986,6 +5986,12 @@ spellbook of dig
 	This spell is a level three matter spell.  When cast, the caster
 	fires a ray in the selected direction that digs through walls,
 	or can create holes in the floor.
+spellbook of dispel evil
+	This spell is a level five clerical spell.  When cast at a
+	monster that is evil (unaligned), it will take damage dependeing
+	on how skilled the caster is in clerical spells.  A skilled or
+	expert caster can potentially frighten, banish, or even outright
+	destroy its target.
 spellbook of drain life
 	This is a level two attack spell.  When cast at a monster that
 	is not resistant to draining, one level is drained from it, as
@@ -6004,11 +6010,11 @@ spellbook of entangle
 	Druid's special spell.  When cast at a monster, surrounding
 	plant life will hold the monster for a brief number of turns,
 	which is dependent on how skilled the caster is in evocation
-	spells.  If the target of this spell is next to a live tree or
-	standing on grass, the duration of the spell is slightly
-	increased.  The affected target can still function, such as cast
-	spells, or perform ranged attacks, but are otherwise immobile
-	for the duration of the spell.
+	spells.  The target of this spell must be next to a live tree or
+	standing on grass for this spell to work.  The affected target
+	can still function, such as cast spells, or perform ranged
+	attacks, but are otherwise immobile for the duration of the
+	spell.
 
 	The effects of this spell will not work against unsolid,
 	whirly, or phasing monsters.
@@ -6344,7 +6350,7 @@ spellbook of teleport away
 	on the current level.  If the caster has teleport control, they
 	can choose their location.
 spellbook of turn undead
-	This spell is a level six clerical spell, and is also a Knight's
+	This spell is a level four clerical spell, and is also a Knight's
 	special spell.  When cast at an undead monster, the beam created
 	causes a small amount of damage to the undead target, and will
 	cause it to flee if they fail a resistance check.  Casting this

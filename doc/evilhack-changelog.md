@@ -4498,4 +4498,5 @@ The following changes to date are:
 - Tweaks to the Druid spells entangle, create grass, create trees
 - Allow the spell 'create grass' to work in corridors
 - Druid starting spellbook changes
-
+- Encyclopedia entry for the spell 'dispel evil', tweak some existing
+  spellbook entries
