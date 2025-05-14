@@ -4501,4 +4501,5 @@ The following changes to date are:
 - Encyclopedia entry for the spell 'dispel evil', tweak some existing
   spellbook entries
 - Tweak Druid's third starting spellbook
+- Allow other types of arrows and spears to be used when crafting traps
 

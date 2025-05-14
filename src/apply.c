@@ -2935,9 +2935,15 @@ reset_trapset()
 const struct trap_recipe trap_fusions[] = {
     /* trap type, components, component quantity */
     { ARROW_TRAP, ARROW, 10L },
+    { ARROW_TRAP, ELVEN_ARROW, 10L },
+    { ARROW_TRAP, ORCISH_ARROW, 10L },
+    { ARROW_TRAP, YA, 10L },
     { BOLT_TRAP, CROSSBOW_BOLT, 10L },
     { DART_TRAP, DART, 10L },
     { SPEAR_TRAP, SPEAR, 1L },
+    { SPEAR_TRAP, ELVEN_SPEAR, 1L },
+    { SPEAR_TRAP, ORCISH_SPEAR, 1L },
+    { SPEAR_TRAP, DWARVISH_SPEAR, 1L },
     { BEARTRAP, GRAPPLING_HOOK, 1L },
     { LAND_MINE, SLING_BULLET, 10L },
     { SLEEPING_GAS_TRAP, WAN_SLEEP, 1L },
