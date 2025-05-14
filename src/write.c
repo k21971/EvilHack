@@ -51,6 +51,7 @@ short otyp;
     case SCR_GENOCIDE:
         return 30;
     case SCR_CONSECRATION:
+        return 1000; /* can never be written */
     case SCR_BLANK_PAPER:
     default:
         impossible("You can't write such a weird scroll!");
