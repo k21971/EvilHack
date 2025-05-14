@@ -4500,3 +4500,5 @@ The following changes to date are:
 - Druid starting spellbook changes
 - Encyclopedia entry for the spell 'dispel evil', tweak some existing
   spellbook entries
+- Tweak Druid's third starting spellbook
+

@@ -1063,7 +1063,7 @@ u_init()
     case PM_DRUID: {
         static short D_spell[] = {
             SPE_BARKSKIN, SPE_SUMMON_ANIMAL, SPE_HEALING,
-            SPE_TURN_UNDEAD, SPE_CURE_SICKNESS
+            SPE_KNOCK, SPE_CURE_SICKNESS
         };
 
         Druid[D_BOOK].trotyp = D_spell[rn2(100) / 20]; /* [0..4] */

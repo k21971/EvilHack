@@ -1113,7 +1113,7 @@ register struct monst *mtmp;
         case PM_DRUID: {
             static short D_spell[] = {
                 SPE_BARKSKIN, SPE_SUMMON_ANIMAL, SPE_HEALING,
-                SPE_TURN_UNDEAD, SPE_CURE_SICKNESS
+                SPE_KNOCK, SPE_CURE_SICKNESS
             };
 
             if (racial_tortle(mtmp))
