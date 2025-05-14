@@ -4505,4 +4505,6 @@ The following changes to date are:
 - Add trap kits to the in-game encyclopedia (pokedex)
 - New object: scroll of consecration
 - Fix: impossible when looking up a scroll of consecration via pokedex
+- Fix: 'extract_from_minvent called on object not in minvent' and orbs
+  of fire/frost
 

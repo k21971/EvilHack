@@ -1094,7 +1094,7 @@ void
 mcalcdistress()
 {
     struct monst *mtmp;
-    struct obj *obj, *otmp;
+    struct obj *obj, *nextobj;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -1284,12 +1284,9 @@ mcalcdistress()
             if (canseemon(mtmp))
                 pline(Hallucination ? "%s folds in on itself!"
                                     : "%s winks out of existence.", Monnam(mtmp));
-            for (obj = mtmp->minvent; obj; obj = otmp) {
-                otmp = obj->nobj;
-                obj_extract_self(obj);
-                if (mtmp->mx) {
-                    mdrop_obj(mtmp, obj, FALSE);
-                }
+            for (obj = mtmp->minvent; obj; obj = nextobj) {
+                nextobj = obj->nobj;
+                mdrop_obj(mtmp, obj, FALSE);
             }
             mongone(mtmp);
             continue;
