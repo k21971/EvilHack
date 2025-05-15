@@ -139,6 +139,28 @@ init_uhunger()
         ATEMP(A_STR) = 0;
         (void) encumber_msg();
     }
+    if (Race_if(PM_VAMPIRE)) {
+        if (ATEMP(A_CON) < 0) {
+            ATEMP(A_CON) = 0;
+            (void) encumber_msg();
+        }
+        if (ATEMP(A_DEX) < 0)
+            ATEMP(A_DEX) = 0;
+        if (ATEMP(A_INT) < 0)
+            ATEMP(A_INT) = 0;
+        if (ATEMP(A_WIS) < 0)
+            ATEMP(A_WIS) = 0;
+        if (ATEMP(A_CHA) < 0)
+            ATEMP(A_CHA) = 0;
+        if (Blinded & FROMHUNGER) {
+            Blinded &= ~FROMHUNGER;
+            toggle_blindness();
+        }
+        if (HSlow & FROMHUNGER)
+            HSlow &= ~FROMHUNGER;
+        if (HDeaf & FROMHUNGER)
+            HDeaf &= ~FROMHUNGER;
+    }
 }
 
 /* tin types [SPINACH_TIN = -1, overrides corpsenm, nut==600] */

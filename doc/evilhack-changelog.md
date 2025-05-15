@@ -4511,4 +4511,6 @@ The following changes to date are:
 - Fix: infidels and luck penalty for killing a black unicorn
 - Fix: properly exit #wildshape or #shapechange routine if a selection
   wasn't made
+- Fix: weak/frail/starving vampire not having all bad conditions reset
+  via prayer
 
