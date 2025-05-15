@@ -4508,4 +4508,5 @@ The following changes to date are:
 - Fix: 'extract_from_minvent called on object not in minvent' and orbs
   of fire/frost
 - Switch status from work in progress to beta (0.9.1)
+- Fix: infidels and luck penalty for killing a black unicorn
 

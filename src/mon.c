@@ -4479,8 +4479,10 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
     if (uni_same) {
         /* this is super bad, don't do it. adjalign() handled
            further down */
-        change_luck(-5);
-        You_feel("guilty...");
+        if (u.ualign.type != A_NONE) {
+            change_luck(-5);
+            You_feel("guilty...");
+        }
     }
 
     /* give experience points */
