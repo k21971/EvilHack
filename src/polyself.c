@@ -498,6 +498,9 @@ druid_wildshape()
            uses */
         u.uwildshape += rn1((u.ualign.abuse == 0) ? 201 : 401,
                             (3600 + abuse));
+    } else {
+        /* player hit ESC/did not make a selection */
+        return;
     }
 
     if (old_uwvis != (Underwater && See_underwater)) {
@@ -561,6 +564,9 @@ vampire_shapechange()
            needed to wait between shapechange uses */
         u.uvampireshape += rn1((u.ualign.abuse == 0) ? 201 : 401,
                                (3600 + abuse));
+    } else {
+        /* player hit ESC/did not make a selection */
+        return;
     }
 
     if (old_uwvis != (Underwater && See_underwater)) {

@@ -4509,4 +4509,6 @@ The following changes to date are:
   of fire/frost
 - Switch status from work in progress to beta (0.9.1)
 - Fix: infidels and luck penalty for killing a black unicorn
+- Fix: properly exit #wildshape or #shapechange routine if a selection
+  wasn't made
 
