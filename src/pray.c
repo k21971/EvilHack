@@ -1833,8 +1833,8 @@ dosacrifice()
                     corpse_xname(otmp, (const char *) 0, CXN_ARTICLE),
                     a_gname());
 
-        /* you're handling this corpse, even if it was killed upon the altar
-         */
+        /* you're handling this corpse, even if it was killed
+           upon the altar */
         feel_cockatrice(otmp, TRUE);
         if (rider_corpse_revival(otmp, FALSE))
             return 1;
@@ -1863,6 +1863,7 @@ dosacrifice()
         if (your_race(ptr)
             || (Race_if(PM_ELF) && is_drow(ptr))
             || (Race_if(PM_DROW) && is_elf(ptr))
+            || (Race_if(PM_VAMPIRE) && is_human(ptr))
             || (Race_if(PM_DRAUGR) && otmp->zombie_corpse)) {
             if (is_demon(raceptr(&youmonst))) {
                 You("find the idea very satisfying.");

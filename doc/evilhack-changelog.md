@@ -4514,4 +4514,5 @@ The following changes to date are:
 - Fix: weak/frail/starving vampire not having all bad conditions reset
   via prayer
 - Fix: early-game crash caused by invalid magic chest call (floor obj)
+- Fix: count human corpses as same race sacrifice for vampires
 
