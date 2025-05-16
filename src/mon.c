@@ -2201,9 +2201,9 @@ mpickstuff(mtmp, str)
 register struct monst *mtmp;
 register const char *str;
 {
+    register struct obj *otmp, *otmp2, *otmp3, *otmp4;
     boolean waslocked = FALSE;
     boolean vismon;
-    register struct obj *otmp, *otmp2, *otmp3, *otmp4;
     int carryamt = 0;
 
     vismon = canseemon(mtmp);
@@ -2223,11 +2223,11 @@ register const char *str;
     if (IS_MAGIC_CHEST(levl[mtmp->mx][mtmp->my].typ)) {
         /* set temporarily to make the for loop smoother,
            too many continues to change it to a while nicely. */
-        mchest->nexthere = level.objects[mtmp->mx][mtmp->my];
         otmp = mchest;
     } else {
         otmp = level.objects[mtmp->mx][mtmp->my];
     }
+
     for (; otmp; otmp = otmp2) {
         otmp2 = otmp->nexthere;
         if (Is_box(otmp) || otmp->otyp == ICE_BOX
@@ -2264,7 +2264,6 @@ register const char *str;
                 }
                 otmp->olocked = 0;
                 (void) chest_trap(mtmp, otmp, FINGER, FALSE);
-                mchest->nexthere = (struct obj *) 0;
                 return TRUE;
             }
             for (otmp3 = otmp->cobj; otmp3; otmp3 = otmp4) {
@@ -2304,7 +2303,6 @@ register const char *str;
                     mloot_container(mtmp, otmp, vismon);
                     otmp->owt = weight(otmp);
                     newsym(mtmp->mx, mtmp->my);
-                    mchest->nexthere = (struct obj *) 0;
                     return TRUE;
                 }
             }
@@ -2351,11 +2349,9 @@ register const char *str;
             /* let them try and equip it on the next turn */
             check_gear_next_turn(mtmp);
             newsym(mtmp->mx, mtmp->my);
-            mchest->nexthere = (struct obj *) 0;
             return TRUE; /* pick only one object */
         }
     }
-    mchest->nexthere = (struct obj *) 0;
     return FALSE;
 }
 
