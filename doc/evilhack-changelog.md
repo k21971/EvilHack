@@ -4515,4 +4515,6 @@ The following changes to date are:
   via prayer
 - Fix: early-game crash caused by invalid magic chest call (floor obj)
 - Fix: count human corpses as same race sacrifice for vampires
+- Fix: proper feedback/livelogging when a monster sacrifies the Amulet
+  of Yendor
 

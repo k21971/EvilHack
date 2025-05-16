@@ -1652,40 +1652,62 @@ boolean
 moffer(mtmp)
 register struct monst *mtmp;
 {
-    register struct obj *otmp;
+    register struct obj *otmp, *nextobj;
+
     /* loop based on select_hwep */
-    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+    for (otmp = mtmp->minvent; otmp; otmp = nextobj) {
+        nextobj = otmp->nobj;
         if (otmp->otyp == AMULET_OF_YENDOR && In_endgame(&u.uz)
             && a_align(mtmp->mx, mtmp->my) == check_malign(mtmp)) {
-        pline("%s raises the Amulet of Yendor high above the altar!",
-              Monnam(mtmp));
-        /* game is now unwinnable... oops */
-        m_useup(mtmp, otmp);
-        livelog_printf(LL_ARTIFACT, "failed their quest! %s sacrificed the Amulet of Yendor, ascending!",
-                       Monnam(mtmp));
-        if (is_demon(mtmp->data) || mtmp->iswiz) {
-            pline("%s gains ultimate power, laughs fiendishly, and erases you from existence.",
-                  Monnam(mtmp));
-            Sprintf(killer.name, "%s wrath", s_suffix(mon_nam(mtmp)));
-            killer.format = KILLED_BY;
-            done(DIED);
-        } else {
-            pline("%s accepts the Amulet and gains dominion over the gods, and %s ascends to demigodhood!",
-                  a_gname_at(mtmp->mx, mtmp->my), mon_nam(mtmp));
-            if (Luck >= 10) {
-                pline("Luckily for you, %s does not smite you with their newfound power, and you are allowed to live.",
-                      mon_nam(mtmp));
-                pline("However, your quest ends here...");
-                done(ESCAPED);
-            } else {
-                pline("The Demigod of %s looks down upon you, and squashes you like the ant that you are.",
-                      a_gname_at(mtmp->mx, mtmp->my));
-                Sprintf(killer.name, "%s indifference", s_suffix(mon_nam(mtmp)));
+            if (canseemon(mtmp))
+                pline("%s raises the Amulet of Yendor high above the altar!",
+                      Monnam(mtmp));
+            else
+                You("sense a disturbance in the natural order of things.  The Amulet of Yendor has been sacrificed!");
+            /* game is now unwinnable... oops */
+            m_useup(mtmp, otmp);
+            livelog_printf(LL_ARTIFACT, "failed their quest! %s has sacrificed the Amulet of Yendor, ascending!",
+                           Amonnam(mtmp));
+            if (is_demon(mtmp->data) || mtmp->iswiz) {
+                if (canseemon(mtmp))
+                    pline("%s gains ultimate power, %s, and erases you from existence.",
+                          Monnam(mtmp), Deaf ? "smirks at you" : "laughs fiendishly");
+                else
+                    You("have been erased from existence.");
+                Sprintf(killer.name, "%s wrath",
+                        canseemon(mtmp) ? s_suffix(a_monnam(mtmp))
+                                        : "a monster's");
                 killer.format = KILLED_BY;
                 done(DIED);
+            } else {
+                if (canseemon(mtmp))
+                    pline("%s accepts the Amulet and gains dominion over the gods, and %s ascends to demigodhood!",
+                          a_gname_at(mtmp->mx, mtmp->my), mon_nam(mtmp));
+                else
+                    You("sense that %s has gained dominion over the gods as its vassal ascends to demigodhood.",
+                        a_gname_at(mtmp->mx, mtmp->my));
+                if (Luck >= 10) {
+                    if (canseemon(mtmp))
+                        pline("Luckily for you, %s does not smite you with their newfound power, and you are allowed to live.",
+                              mon_nam(mtmp));
+                    else
+                        pline("Somehow, you are allowed to live.");
+                    pline("However, your quest ends here...");
+                    done(ESCAPED);
+                } else {
+                    if (canseemon(mtmp))
+                        pline("The Demigod of %s looks down upon you, and squashes you like the ant that you are.",
+                              a_gname_at(mtmp->mx, mtmp->my));
+                    else
+                        You("are squashed like an insect!");
+                    Sprintf(killer.name, "%s indifference",
+                            canseemon(mtmp) ? s_suffix(a_monnam(mtmp))
+                                            : "a monster's");
+                    killer.format = KILLED_BY;
+                    done(DIED);
+                }
             }
-        }
-        return 3;
+            return 3;
         }
     }
     return 0;
