@@ -4519,4 +4519,6 @@ The following changes to date are:
   of Yendor
 - Fix: adding inventory to quest nemesis via .des file would override
   the Bell of Opening being present
+- Fix: don't allow vampires to receive objects made of silver via altar
+  sacrifice
 
