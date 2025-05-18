@@ -257,11 +257,7 @@ TRAP:"board",random
 TRAP:random,random
 TRAP:random,random
 # Random monsters.
-MONSTER:('H',"Lord Surtur"),(17,08) {
-  CONTAINER:('(',"sack") {
-    OBJECT:('?',"consecration")
-  }
-}
+MONSTER:('H',"Lord Surtur"),(17,08)
 MONSTER:('a',"fire ant"),random
 MONSTER:('a',"fire ant"),random
 MONSTER:('a',"fire ant"),random

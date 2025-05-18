@@ -226,11 +226,7 @@ xxxxxxxxxx........xxxxxxxxxx
 ENDMAP
 
 # The Paladin and her entourage.
-MONSTER: "Paladin", (13, 06) {
-  CONTAINER:('(',"sack") {
-    OBJECT:('?',"consecration")
-  }
-}
+MONSTER: "Paladin", (13, 06), hostile
 OBJECT: "figurine", name: "The Idol of Moloch", cursed, (13, 06)
 MONSTER: "templar", (13, 03), asleep
 MONSTER: "templar", (15, 04), asleep

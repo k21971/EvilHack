@@ -340,11 +340,7 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Random monsters.
-MONSTER:('@',"Master Assassin"),(38,10),hostile {
-  CONTAINER:('(',"sack") {
-    OBJECT:('?',"consecration")
-  }
-}
+MONSTER:('@',"Master Assassin"),(38,10),hostile
 MONSTER:('l',"leprechaun"),random,hostile
 MONSTER:('l',"leprechaun"),random,hostile
 MONSTER:('l',"leprechaun"),random,hostile

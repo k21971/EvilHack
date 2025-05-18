@@ -227,11 +227,7 @@ REGION:(00,00,25,10),unlit,"ordinary"
 # Stairs
 STAIR:(20,05),up
 # Master Kaen
-MONSTER:('@',"Master Kaen"),$place[0] {
-  CONTAINER:('(',"sack") {
-    OBJECT:('?',"consecration")
-  }
-}
+MONSTER:('@',"Master Kaen"),$place[0]
 ALTAR:$place[0],noalign,altar
 # Objects
 OBJECT:('(',"lenses"),$place[0],blessed,0,name:"The Eyes of the Overworld"

@@ -3265,7 +3265,7 @@ long mmflags;
     register struct monst *mtmp;
     struct monst fakemon;
     coord cc;
-    int mndx, mcham, ct, mitem;
+    int mndx, mcham, ct, mitem, mitem2, mitem3;
     boolean anymon = (!ptr);
     boolean byyou = (x == u.ux && y == u.uy);
     boolean allow_minvent = ((mmflags & NO_MINVENT) == 0);
@@ -3569,7 +3569,9 @@ long mmflags;
     if ((ct = emits_light(mtmp->data)) > 0)
         new_light_source(mtmp->mx, mtmp->my, ct, LS_MONSTER,
                          monst_to_any(mtmp));
-    mitem = 0; /* extra inventory item for this monster */
+    mitem  = 0; /* extra inventory item for this monster */
+    mitem2 = 0; /* 2nd extra inventory item for this monster */
+    mitem3 = 0; /* 3rd extra inventory item for this monster */
 
     if (mndx == PM_VLAD_THE_IMPALER) {
         mtmp->isvlad = TRUE;
@@ -3618,11 +3620,17 @@ long mmflags;
         mtmp->isqldr = TRUE;
     } else if (mndx == urole.neminum) {
         mitem = BELL_OF_OPENING;
+        mitem2 = SCR_CONSECRATION;
+        mitem3 = SACK;
     } else if (mndx == PM_PESTILENCE) {
         mitem = POT_SICKNESS;
     }
     if (mitem && allow_minvent)
         (void) mongets(mtmp, mitem);
+    if (mitem2 && allow_minvent)
+        (void) mongets(mtmp, mitem2);
+    if (mitem3 && allow_minvent)
+        (void) mongets(mtmp, mitem3);
 
     if (in_mklev) {
         if ((is_ndemon(ptr) || mndx == PM_WUMPUS

@@ -350,11 +350,7 @@ TRAP:"rolling boulder",(30,14)
 TRAP:"rolling boulder",(46,05)
 TRAP:"rolling boulder",(46,14)
 # Random monsters.
-MONSTER:('&',"Minion of Huhetotl"),$altar[0] {
-  CONTAINER:('(',"sack") {
-    OBJECT:('?',"consecration")
-  }
-}
+MONSTER:('&',"Minion of Huhetotl"),$altar[0]
 MONSTER:'S',random
 MONSTER:'S',random
 MONSTER:'S',random

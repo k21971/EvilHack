@@ -4517,4 +4517,6 @@ The following changes to date are:
 - Fix: count human corpses as same race sacrifice for vampires
 - Fix: proper feedback/livelogging when a monster sacrifies the Amulet
   of Yendor
+- Fix: adding inventory to quest nemesis via .des file would override
+  the Bell of Opening being present
 
