@@ -1583,11 +1583,13 @@ unsigned doname_flags;
         break;
     case FOOD_CLASS:
         if (obj->otyp == CORPSE && obj->odrained) {
-            if (wizard && obj->oeaten < drain_level(obj))
+            if (wizard && obj->oeaten < drain_level(obj)) {
                 Strcat(prefix, "over-drained ");
-            else
-                Sprintf(prefix, "%sdrained ",
-                        (obj->oeaten > drain_level(obj)) ? "partly " : "");
+            } else if (obj->oeaten > drain_level(obj)) {
+                Strcat(prefix, "partly drained ");
+            } else {
+                Strcat(prefix, "drained ");
+            }
         } else if (obj->oeaten) {
             Strcat(prefix, "partly eaten ");
         }

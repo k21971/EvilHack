@@ -4524,4 +4524,5 @@ The following changes to date are:
 - Fix: vampire trying to sacrifice a corpse on an altar, being asked to
   drain it instead
 - Fix: drain vs eat, take two
+- Fix: drained corpses in inventory not showing BUC/numerical status
 
