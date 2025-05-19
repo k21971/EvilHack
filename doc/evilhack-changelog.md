@@ -4525,4 +4525,5 @@ The following changes to date are:
   drain it instead
 - Fix: drain vs eat, take two
 - Fix: drained corpses in inventory not showing BUC/numerical status
+- Allow the artifact Xiuhcoatl to burn trees and doors via forcefight
 

@@ -1902,6 +1902,7 @@ domove_core()
                                  || is_weptool(uwep)))
                             || wielding_artifact(ART_FIRE_BRAND)
                             || wielding_artifact(ART_DICHOTOMY)
+                            || wielding_artifact(ART_XIUHCOATL)
                             || wielding_artifact(ART_ANGELSLAYER));
         int glyph = glyph_at(x, y); /* might be monster */
         char buf[BUFSZ];
