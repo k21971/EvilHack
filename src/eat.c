@@ -4056,8 +4056,9 @@ int corpsecheck; /* 0, no check, 1, corpses, 2, tinnable corpses */
     char c;
     boolean isvamp = (maybe_polyd(is_vampire(youmonst.data),
                                   Race_if(PM_VAMPIRE)));
-    boolean feeding = !strcmp(verb, "eat"),    /* corpsecheck==0 */
-        offering = !strcmp(verb, "sacrifice"); /* corpsecheck==1 */
+    boolean feeding = (isvamp ? !strcmp(verb, "drain")
+                              : !strcmp(verb, "eat")), /* corpsecheck==0 */
+           offering = !strcmp(verb, "sacrifice");      /* corpsecheck==1 */
 
     /* if we can't touch floor objects then use invent food only */
     if (iflags.menu_requested /* command was preceded by 'm' prefix */
@@ -4176,8 +4177,7 @@ int corpsecheck; /* 0, no check, 1, corpses, 2, tinnable corpses */
             /* "There is <an object> here; <verb> it?" or
                "There are <N objects> here; <verb> one?" */
             Sprintf(qbuf, "There %s ", otense(otmp, "are"));
-            Sprintf(qsfx, " here; %s %s?", isvamp ? "drain" : verb,
-                    one ? "it" : "one");
+            Sprintf(qsfx, " here; %s %s?", verb, one ? "it" : "one");
             (void) safe_qbuf(qbuf, qbuf, qsfx, otmp, doname, ansimpleoname,
                              one ? something : (const char *) "things");
             if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y')

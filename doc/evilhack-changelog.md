@@ -4521,4 +4521,6 @@ The following changes to date are:
   the Bell of Opening being present
 - Fix: don't allow vampires to receive objects made of silver via altar
   sacrifice
+- Fix: vampire trying to sacrifice a corpse on an altar, being asked to
+  drain it instead
 
