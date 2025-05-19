@@ -3105,7 +3105,7 @@ doeat()
         pline("If you can't breathe air, how can you consume solids?");
         return 0;
     }
-    if (!(otmp = floorfood("eat", 0)))
+    if (!(otmp = floorfood(isvamp ? "drain" : "eat", 0)))
         return 0;
     if (check_capacity((char *) 0))
         return 0;
