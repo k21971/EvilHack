@@ -292,6 +292,8 @@ d_level *lev;
         /*
          * if there are rooms and this a branch, let place_branch choose
          * the branch location (to avoid putting branches in corridors).
+         * if a branch portal ever needs to be placed on a pure-maze level
+         * where nroom will always equal zero, remove '&& nroom'.
          */
         if (rtype == LR_BRANCH && nroom) {
             place_branch(Is_branchlev(&u.uz), 0, 0);

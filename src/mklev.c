@@ -1341,9 +1341,17 @@ coord *mp;
             croom = &rooms[rn2(nroom)];
 
         if (!somexyspace(croom, mp, 2)) {
-            if (!somexyspace(croom, mp, 0)
-                && !In_hell(&u.uz))
-                impossible("Can't place branch!");
+            /* if the chosen room really has no free tile,
+               fallback to maze/corridor tile (such as the
+               branch portal to Vecna's domain in Gehennom
+               [no rooms at all], or if the level with the
+               portal to the quest is somehow filled) */
+            if (!somexyspace(croom, mp, 0)) {
+                mazexy(mp);
+                /* signal "no room" so caller knows it's a
+                   corridor placement */
+                croom = (struct mkroom *) 0;
+            }
         }
     }
     return croom;

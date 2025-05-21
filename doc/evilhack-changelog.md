@@ -4526,4 +4526,5 @@ The following changes to date are:
 - Fix: drain vs eat, take two
 - Fix: drained corpses in inventory not showing BUC/numerical status
 - Allow the artifact Xiuhcoatl to burn trees and doors via forcefight
+- Fix: impossible "Can't place branch!" on special levels
 
