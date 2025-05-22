@@ -1354,6 +1354,14 @@ coord *mp;
             }
         }
     }
+    /* sanity‐check: after both room‐and‐corridor attempts,
+       mp must land on either a room floor or a corridor,
+       otherwise call impossible */
+    if (!isok(mp->x, mp->y)
+        || (levl[mp->x][mp->y].typ != CORR
+            && !IS_ROOM(levl[mp->x][mp->y].typ)))
+        impossible("Can't place branch!");
+
     return croom;
 }
 

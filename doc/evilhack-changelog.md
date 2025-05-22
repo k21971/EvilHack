@@ -4527,4 +4527,5 @@ The following changes to date are:
 - Fix: drained corpses in inventory not showing BUC/numerical status
 - Allow the artifact Xiuhcoatl to burn trees and doors via forcefight
 - Fix: impossible "Can't place branch!" on special levels
+- Reimplement impossible check for placing branch portal
 
