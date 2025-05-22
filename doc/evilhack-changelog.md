@@ -4528,4 +4528,6 @@ The following changes to date are:
 - Allow the artifact Xiuhcoatl to burn trees and doors via forcefight
 - Fix: impossible "Can't place branch!" on special levels
 - Reimplement impossible check for placing branch portal
+- Fix: allow huge or larger monsters that are affected by a 'powerful
+  strike' to display the proper 'doesn't budge' feedback
 

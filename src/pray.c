@@ -3195,8 +3195,8 @@ doturn()
                     pline("Unfortunately, your voice falters.");
                 mtmp->mflee = 0;
                 mtmp->mfrozen = 0;
-		if (!mtmp->mstone || mtmp->mstone > 2)
-		    mtmp->mcanmove = 1;
+                if (!mtmp->mstone || mtmp->mstone > 2)
+                    mtmp->mcanmove = 1;
             } else if (!resist(mtmp, '\0', 0, TELL)) {
                 xlev = 6;
                 switch (mtmp->data->mlet) {

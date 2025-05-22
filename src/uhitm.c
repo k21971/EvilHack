@@ -2024,11 +2024,13 @@ int dieroll;
         hittxt = TRUE;
     } else if (unarmed && tmp > 1 && !thrown
                && actually_unarmed && !Upolyd && !thievery) {
-        /* VERY small chance of stunning or confusing opponent if unarmed. */
+        /* VERY small chance of stunning or confusing opponent if unarmed.
+           don't need to check for huge/gigantic monsters, as mhurtle()
+           already guards against them */
         if (rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT)
-            && !(u.uswallow || biggermonst(mdat)
-                 || thick_skinned(mdat) || has_barkskin(mon)
-                 || has_stoneskin(mon) || unsolid(mdat))) {
+            && !(u.uswallow || thick_skinned(mdat)
+                 || has_barkskin(mon) || has_stoneskin(mon)
+                 || unsolid(mdat))) {
             if (rn2(2)) {
                 if (canspotmon(mon))
                     pline("%s %s from your powerful strike!", Monnam(mon),
