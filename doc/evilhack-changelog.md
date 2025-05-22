@@ -4530,4 +4530,6 @@ The following changes to date are:
 - Reimplement impossible check for placing branch portal
 - Fix: allow huge or larger monsters that are affected by a 'powerful
   strike' to display the proper 'doesn't budge' feedback
+- Fix: prevent worm tail segment shrink when a long worm is
+  incapacitated
 

@@ -1842,9 +1842,13 @@ register int after;
             (void) rloc(mtmp, TRUE);
             return 1;
         }
-        /* for a long worm, shrink it (by discarding end of tail) when
-           it has failed to move */
-        if (mtmp->wormno)
+        /* for a long worm, shrink it (by discarding end of tail)
+           when it has failed to move (because a turn passed and it
+           didn't move, or a monster/terrain blocked its path - not
+           from being confused/stunned/trapped/etc) */
+        if (mtmp->wormno
+            && !(mtmp->mconf || mtmp->mstun || mtmp->mtrapped
+                 || mtmp->msleeping || mtmp->mentangled))
             worm_nomove(mtmp);
     }
  postmov:
