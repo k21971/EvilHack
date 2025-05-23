@@ -369,7 +369,7 @@ boolean quietly;
      */
     vis = (canspotmon(magr) && canspotmon(mdef));
 
-    if (touch_petrifies(pd)
+    if (!DEADMONSTER(magr) && touch_petrifies(pd)
         && !(resists_ston(magr) || defended(magr, AD_STON))) {
         if (which_armor(magr, W_ARMG) != 0) {
             if (poly_when_stoned(pa)) {
@@ -1339,8 +1339,9 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
 
     saved_oname[0] = '\0';
 
-    if ((touch_petrifies(pd) /* or flesh_petrifies() */
-         || (mattk->adtyp == AD_DGST && pd == &mons[PM_MEDUSA]))
+    if (!DEADMONSTER(magr)
+        && (touch_petrifies(pd) /* or flesh_petrifies() */
+            || (mattk->adtyp == AD_DGST && pd == &mons[PM_MEDUSA]))
         && !(resists_ston(magr) || defended(magr, AD_STON))) {
         long protector = attk_protection((int) mattk->aatyp),
              wornitems = magr->misc_worn_check;

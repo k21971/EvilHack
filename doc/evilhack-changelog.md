@@ -4532,4 +4532,5 @@ The following changes to date are:
   strike' to display the proper 'doesn't budge' feedback
 - Fix: prevent worm tail segment shrink when a long worm is
   incapacitated
+- Fix: stoned monster attacking after being stoned
 
