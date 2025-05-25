@@ -4451,7 +4451,6 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                                          ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
                                            ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
                                              ? 2 : 1);
-                    int burning_hands = damage_mon(mon, d(enchant_skill, 4), AD_FIRE, TRUE);
 
                     if (resists_fire(mon) || defended(mon, AD_FIRE)
                         || mon_underwater(mon)) {
@@ -4496,7 +4495,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                             pline("%s ignites and turns to ash!", Monnam(mon));
                             killed(mon);
                         } else {
-                            sum[i] = damageum(mon, mattk, burning_hands);
+                            damage_mon(mon, d(enchant_skill, 4), AD_FIRE, TRUE);
                         }
                     }
                     nohandburn();
@@ -4509,7 +4508,6 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                                          ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
                                            ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
                                              ? 2 : 1);
-                    int shocking_grasp = damage_mon(mon, d(enchant_skill, 4), AD_ELEC, TRUE);
 
                     if (resists_elec(mon) || defended(mon, AD_ELEC)) {
                         shieldeff(mon->mx, mon->my);
@@ -4534,7 +4532,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                         if (!rn2(5))
                             (void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
 
-                        sum[i] = damageum(mon, mattk, shocking_grasp);
+                        damage_mon(mon, d(enchant_skill, 4), AD_ELEC, TRUE);
                     }
                     nohandshock();
                 }

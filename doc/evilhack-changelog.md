@@ -4533,4 +4533,6 @@ The following changes to date are:
 - Fix: prevent worm tail segment shrink when a long worm is
   incapacitated
 - Fix: stoned monster attacking after being stoned
+- Fix: dmonsfree killing monster using burning hands/shocking grasp
+  while polymorphed
 
