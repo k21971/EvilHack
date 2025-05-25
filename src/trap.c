@@ -4687,7 +4687,7 @@ drown()
             u.umburn = 0;
             Your("%s are extinguished.",
                  is_bird(youmonst.data)
-                   ? "claws" : makeplural(body_part(HAND)));
+                   ? "talons" : makeplural(body_part(HAND)));
         }
     }
 

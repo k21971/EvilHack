@@ -4535,4 +4535,6 @@ The following changes to date are:
 - Fix: stoned monster attacking after being stoned
 - Fix: dmonsfree killing monster using burning hands/shocking grasp
   while polymorphed
+- Fix: player races with claws still showing 'claws' as attack feedback
+  when polymorphed
 

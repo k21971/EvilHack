@@ -4459,7 +4459,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                         if (!Blind)
                             Your("%s don't burn %s!",
                                  is_bird(youmonst.data)
-                                   ? "claws" : makeplural(body_part(HAND)),
+                                   ? "talons" : makeplural(body_part(HAND)),
                                  mon_nam(mon));
                     } else {
                         You("%s %s with your %s!",
@@ -4469,14 +4469,14 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                                 ? "severely burn" : "burn",
                             mon_nam(mon),
                             is_bird(youmonst.data)
-                              ? "claws" : makeplural(body_part(HAND)));
+                              ? "talons" : makeplural(body_part(HAND)));
 
                         if (!rn2(4) &&
                             (mon_underwater(mon) || can_vaporize(mon->data))) {
                             u.umburn = 0;
                             Your("%s are extinguished.",
                                  is_bird(youmonst.data)
-                                   ? "claws" : makeplural(body_part(HAND)));
+                                   ? "talons" : makeplural(body_part(HAND)));
                         }
 
                         if (!rn2(4))
@@ -4515,7 +4515,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                         if (!Blind)
                             Your("%s don't shock %s!",
                                  is_bird(youmonst.data)
-                                   ? "claws" : makeplural(body_part(HAND)),
+                                   ? "talons" : makeplural(body_part(HAND)),
                                  mon_nam(mon));
                     } else {
                         You("%s %s with your %s!",
@@ -4525,7 +4525,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                                 ? "jolt" : "shock",
                             mon_nam(mon),
                             is_bird(youmonst.data)
-                              ? "claws" : makeplural(body_part(HAND)));
+                              ? "talons" : makeplural(body_part(HAND)));
 
                         if (!rn2(4))
                             (void) destroy_mitem(mon, WAND_CLASS, AD_ELEC);
@@ -5602,18 +5602,18 @@ nohandburn()
     if (u.umburn == 1) {
         if (Blind)
             Your("%s no longer feel hot.",
-                 is_bird(youmonst.data) ? "claws" : hands);
+                 is_bird(youmonst.data) ? "talons" : hands);
         else
             Your("%s stop burning %s.",
-                 is_bird(youmonst.data) ? "claws" : hands,
+                 is_bird(youmonst.data) ? "talons" : hands,
                  hcolor(NH_ORANGE));
     } else {
         if (Blind)
             pline_The("burning sensation in your %s lessens.",
-                      is_bird(youmonst.data) ? "claws" : hands);
+                      is_bird(youmonst.data) ? "talons" : hands);
         else
             Your("%s no longer burn so brightly.",
-                 is_bird(youmonst.data) ? "claws" : hands);
+                 is_bird(youmonst.data) ? "talons" : hands);
     }
     u.umburn--;
 }
@@ -5628,18 +5628,18 @@ nohandshock()
     if (u.umshock == 1) {
         if (Blind)
             Your("%s no longer feel energized.",
-                 is_bird(youmonst.data) ? "claws" : hands);
+                 is_bird(youmonst.data) ? "talons" : hands);
         else
             Your("%s stop shimmering %s.",
-                 is_bird(youmonst.data) ? "claws" : hands,
+                 is_bird(youmonst.data) ? "talons" : hands,
                  hcolor(NH_BLUE));
     } else {
         if (Blind)
             pline_The("energetic sensation in your %s lessens.",
-                      is_bird(youmonst.data) ? "claws" : hands);
+                      is_bird(youmonst.data) ? "talons" : hands);
         else
             Your("%s no longer shimmer so brightly.",
-                 is_bird(youmonst.data) ? "claws" : hands);
+                 is_bird(youmonst.data) ? "talons" : hands);
     }
     u.umshock--;
 }

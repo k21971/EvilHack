@@ -2271,7 +2271,7 @@ int part;
     }
     if ((part == HAND || part == HANDED)
         && ((humanoid(mptr) && (has_claws(mptr) || has_claws_undead(mptr)))
-            || (mon == &youmonst
+            || (mon == &youmonst && !Upolyd
                 && (Race_if(PM_DEMON) || Race_if(PM_ILLITHID)
                     || Race_if(PM_TORTLE) || Race_if(PM_DRAUGR)
                     || Race_if(PM_VAMPIRE)))))

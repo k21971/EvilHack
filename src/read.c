@@ -1499,12 +1499,12 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         if (u.umshock) {
             Your("%s are already energized.",
                  is_bird(youmonst.data)
-                   ? "claws" : makeplural(body_part(HAND)));
+                   ? "talons" : makeplural(body_part(HAND)));
             break;
         } else if (u.uinwater) {
             Your("%s glow for a brief moment, then return to normal.",
                  is_bird(youmonst.data)
-                   ? "claws" : makeplural(body_part(HAND)));
+                   ? "talons" : makeplural(body_part(HAND)));
             break;
         } else if (confused) {
             /* can't cast spells when confused, but including this
@@ -1514,11 +1514,11 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                 if (Blind)
                     Your("%s feel warm.",
                          is_bird(youmonst.data)
-                           ? "claws" : makeplural(body_part(HAND)));
+                           ? "talons" : makeplural(body_part(HAND)));
                 else
                     Your("%s are engulfed in a %s flame.",
                          is_bird(youmonst.data)
-                           ? "claws" : makeplural(body_part(HAND)),
+                           ? "talons" : makeplural(body_part(HAND)),
                          hcolor(NH_PURPLE));
                 if (how_resistant(FIRE_RES) < 100)
                     losehp(1, "burning hands", KILLED_BY);
@@ -1536,23 +1536,23 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                 if (Blind)
                     Your("%s feel hot.",
                          is_bird(youmonst.data)
-                           ? "claws" : makeplural(body_part(HAND)));
+                           ? "talons" : makeplural(body_part(HAND)));
                 else
                     Your("%s are engulfed in a%s%s flame.",
                          is_bird(youmonst.data)
-                           ? "claws" : makeplural(body_part(HAND)),
+                           ? "talons" : makeplural(body_part(HAND)),
                          u.umburn ? " bright " : "n ", hcolor(NH_ORANGE));
                 u.umburn++;
             } else {
                 if (Blind)
                     Your("%s feel %s hot.",
                          is_bird(youmonst.data)
-                           ? "claws" : makeplural(body_part(HAND)),
+                           ? "talons" : makeplural(body_part(HAND)),
                          u.umburn ? "extremely" : "very");
                 else
                     Your("%s are engulfed in a %s %s flame.",
                          is_bird(youmonst.data)
-                           ? "claws" : makeplural(body_part(HAND)),
+                           ? "talons" : makeplural(body_part(HAND)),
                          u.umburn ? "searing" : "brilliant", hcolor(NH_ORANGE));
                 /* after a while, repeated uses become less effective */
                 if (u.umburn >= 20)
@@ -1567,7 +1567,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         if (u.umburn) {
             Your("%s are already engulfed in flame.",
                  is_bird(youmonst.data)
-                   ? "claws" : makeplural(body_part(HAND)));
+                   ? "talons" : makeplural(body_part(HAND)));
             break;
         } else if (confused) {
             /* can't cast spells when confused, but including this
@@ -1577,11 +1577,11 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                 if (Blind)
                     Your("%s feel numb.",
                          is_bird(youmonst.data)
-                           ? "claws" : makeplural(body_part(HAND)));
+                           ? "talons" : makeplural(body_part(HAND)));
                 else
                     Your("%s are surrounded by a %s aura.",
                          is_bird(youmonst.data)
-                           ? "claws" : makeplural(body_part(HAND)),
+                           ? "talons" : makeplural(body_part(HAND)),
                          hcolor(NH_PURPLE));
                 if (how_resistant(SHOCK_RES) < 100)
                     losehp(1, "shocking grasp", KILLED_BY);
@@ -1599,23 +1599,23 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                 if (Blind)
                     Your("%s feel energized.",
                          is_bird(youmonst.data)
-                           ? "claws" : makeplural(body_part(HAND)));
+                           ? "talons" : makeplural(body_part(HAND)));
                 else
                     Your("%s are surrounded by a %s%s aura.",
                          is_bird(youmonst.data)
-                           ? "claws" : makeplural(body_part(HAND)),
+                           ? "talons" : makeplural(body_part(HAND)),
                          u.umshock ? "bright " : "", hcolor(NH_BLUE));
                 u.umshock++;
             } else {
                 if (Blind)
                     Your("%s feel %s energized.",
                          is_bird(youmonst.data)
-                           ? "claws" : makeplural(body_part(HAND)),
+                           ? "talons" : makeplural(body_part(HAND)),
                          u.umshock ? "extremely" : "very");
                 else
                     Your("%s are surrounded by a%s %s aura.",
                          is_bird(youmonst.data)
-                           ? "claws" : makeplural(body_part(HAND)),
+                           ? "talons" : makeplural(body_part(HAND)),
                          u.umshock ? "n energetic" : " brilliant", hcolor(NH_BLUE));
                 /* after a while, repeated uses become less effective */
                 if (u.umshock >= 20)
