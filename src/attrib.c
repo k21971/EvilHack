@@ -558,15 +558,22 @@ exerper()
 {
     if (!(moves % 10)) {
         /* Hunger Checks */
-
+        unsigned hs;
         boolean hungerlvl = (u.uhunger > (Race_if(PM_HOBBIT) ? 3000 : 1000));
-        int hs = hungerlvl ? SATIATED : (u.uhunger > 150)
-                                            ? NOT_HUNGRY
-                                            : (u.uhunger > 50)
-                                                  ? HUNGRY
-                                                  : (u.uhunger > 0)
-                                                        ? WEAK
-                                                        : FAINTING;
+
+        if (!racial_vampire(&youmonst))
+            hs = hungerlvl
+                     ? SATIATED : (u.uhunger > 150)
+                         ? NOT_HUNGRY : (u.uhunger > 50)
+                             ? HUNGRY : (u.uhunger > 0)
+                                 ? WEAK : FAINTING;
+        else
+            hs = (u.uhunger > 1000)
+                     ? SATIATED : (u.uhunger > 150)
+                         ? NOT_HUNGRY : (u.uhunger > 50)
+                             ? HUNGRY : (u.uhunger > -100)
+                                 ? WEAK : (u.uhunger > -300)
+                                     ? FRAIL : STARVED;
 
         debugpline0("exerper: Hunger checks");
         switch (hs) {
@@ -589,6 +596,11 @@ exerper()
             break;
         case FAINTING:
         case FAINTED:
+            exercise(A_CON, FALSE);
+            break;
+        case FRAIL:
+        case STARVED:
+            exercise(A_STR, FALSE);
             exercise(A_CON, FALSE);
             break;
         }
