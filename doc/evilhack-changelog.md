@@ -4538,4 +4538,5 @@ The following changes to date are:
 - Fix: player races with claws still showing 'claws' as attack feedback
   when polymorphed
 - Fix: 'You feel smart!  You must have been (null).'
+- Fix: properly update inventory for drained corpses (curses mode)
 

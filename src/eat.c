@@ -3470,6 +3470,7 @@ doeat()
 
     if (!dont_start)
         start_eating(otmp, already_partly_eaten);
+    update_inventory();
     return 1;
 }
 
