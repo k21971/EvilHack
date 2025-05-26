@@ -390,13 +390,31 @@ E unsigned sleep();
 #endif
 #if defined(HPUX)
 E unsigned int FDECL(sleep, (unsigned int));
-#endif
+#endif /* HPUX */
+
+/* Darwin/macOS already declares sleep(unsigned) in <unistd.h>,
+   so skip ours */
+#if !defined(MACOS)
 #ifdef VMS
 E int FDECL(sleep, (unsigned));
 #endif
 
-E char *FDECL(getenv, (const char *));
-E char *getlogin();
+/* Old Ultrix / BSD stubs (no-arg style) – skip on macOS */
+#if defined(BSD) && defined(ULTRIX)
+E void sleep(void);
+#endif
+#if defined(ULTRIX) || defined(SYSV)
+E unsigned sleep(unsigned int);
+#endif
+#endif /* !MACOS */
+
+/* Darwin/macOS already declares getlogin(void) in <unistd.h>,
+   so skip ours */
+#if !defined(MACOS)
+E char *FDECL(getenv, (const char *)); /* leave getenv in place */
+E char *FDECL(getlogin, (void));
+#endif /* !MACOS */
+
 #if defined(HPUX) && !defined(_POSIX_SOURCE)
 E long NDECL(getuid);
 E long NDECL(getgid);

@@ -4544,4 +4544,5 @@ The following changes to date are:
   rehumanizing (curses mode)
 - Fix: allow compilation on newer distros of Arch linux (and possibly
   other modern distros as well)
+- Attempt to fix macOS build (github workflows) from last commit
 
