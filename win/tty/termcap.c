@@ -6,6 +6,8 @@
 #include "hack.h"
 
 #if defined(TTY_GRAPHICS) && !defined(NO_TERMS)
+#include <term.h>
+#undef clear_screen
 
 #include "wintty.h"
 #include "tcap.h"

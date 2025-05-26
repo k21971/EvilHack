@@ -10,6 +10,21 @@
 
 #define E extern
 
+/* On GNU C Library platforms the real headers already declare
+   srand48(long) and sleep(unsigned) */
+#ifdef __GLIBC__
+#define HAVE_SRAND48
+#define HAVE_SLEEP
+
+/* On glibc systems the real <term.h> already declares tputs()
+   with the correct (int putc(int)) signature */
+#ifndef HAVE_TPUTS
+#define HAVE_TPUTS
+#endif
+#endif /* __GLIBC__ */
+
+
+
 /* some old <sys/types.h> may not define off_t and size_t; if your system is
  * one of these, define them by hand below
  */
@@ -54,6 +69,16 @@ typedef long off_t;
  * impossible to get right automatically.
  * This is the type of signal handling functions.
  */
+
+/* On glibc-based systems, use the standard POSIX signature:
+   handler takes an int and returns void.  This prevents
+   the old no-arg fallbacks below from firing. */
+#ifdef __GLIBC__
+#ifndef SIG_RET_TYPE
+#define SIG_RET_TYPE void (*)(int)
+#endif
+#endif
+
 #if !defined(OS2) && (defined(_MSC_VER) || defined(__TURBOC__) \
                       || defined(__SC__) || defined(WIN32))
 #define SIG_RET_TYPE void(__cdecl *)(int)
@@ -94,9 +119,11 @@ E int FDECL(srandom, (unsigned int));
 #if defined(MACOSX)
 E long NDECL(lrand48);
 E void FDECL(srand48, (long));
-#else
+#else /* !MACOSX */
+# ifndef HAVE_SRAND48
 E long lrand48();
 E void srand48();
+#endif /* HAVE_SRAND48 */
 #endif /* MACOSX */
 #endif /* BSD || ULTRIX || RANDOM */
 
@@ -352,10 +379,14 @@ E char *FDECL(memset, (char *, int, int));
 #endif /* MICRO */
 
 #if defined(BSD) && defined(ultrix) /* i.e., old versions of Ultrix */
+#ifndef HAVE_SLEEP
 E void sleep();
+#endif /* HAVE_SLEEP */
 #endif
 #if defined(ULTRIX) || defined(SYSV)
+#ifndef HAVE_SLEEP
 E unsigned sleep();
+#endif /* HAVE_SLEEP */
 #endif
 #if defined(HPUX)
 E unsigned int FDECL(sleep, (unsigned int));
@@ -511,7 +542,11 @@ E int FDECL(vprintf, (const char *, va_list));
 
 #ifdef MICRO
 E int FDECL(tgetent, (const char *, const char *));
+#ifndef HAVE_TPUTS
+/* Legacy prototype; on glibc this will be skipped so that the real
+   int tputs(const char*, int, int(*)(int)) from <term.h> is used */
 E void FDECL(tputs, (const char *, int, int (*)()));
+#endif
 E int FDECL(tgetnum, (const char *));
 E int FDECL(tgetflag, (const char *));
 E char *FDECL(tgetstr, (const char *, char **));
@@ -519,7 +554,9 @@ E char *FDECL(tgoto, (const char *, int, int));
 #else
 #if !(defined(HPUX) && defined(_POSIX_SOURCE))
 E int FDECL(tgetent, (char *, const char *));
+#ifndef HAVE_TPUTS
 E void FDECL(tputs, (const char *, int, int (*)()));
+#endif /* HAVE_TPUTS */
 #endif
 E int FDECL(tgetnum, (const char *));
 E int FDECL(tgetflag, (const char *));

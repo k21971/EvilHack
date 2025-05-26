@@ -31,7 +31,7 @@ CFLAGS+=-DGCC_WARN -Wall -Wextra -Wformat
 CFLAGS+=-Wimplicit -Wreturn-type -Wunused -Wswitch -Wshadow -Wwrite-strings
 CFLAGS+=-pedantic -Wstringop-truncation -Wunused-result -Wunreachable-code
 CFLAGS+=-Wimplicit-function-declaration -Wimplicit-int
-CFLAGS+=-Wno-missing-field-initializers
+CFLAGS+=-Wno-missing-field-initializers -Wno-old-style-definition
 CFLAGS+=-Wno-format-overflow -Wno-stringop-overflow
 # Uncomment this is you plan on fuzzing with ASAN enabled
 #CFLAGS+=-fsanitize=address -fno-omit-frame-pointer

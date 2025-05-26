@@ -4542,4 +4542,6 @@ The following changes to date are:
 - Fix: account for vampire frail/starved status in exerper()
 - Fix: properly update inventory when polymorphing into a monster or
   rehumanizing (curses mode)
+- Fix: allow compilation on newer distros of Arch linux (and possibly
+  other modern distros as well)
 
