@@ -4549,4 +4549,5 @@ The following changes to date are:
 - Attempt #3 to fix macOS build (github workflows) from commit f26e898
 - Add detection of macOS and apply filters during compile
 - Apply filters to the correct hints file (macOS)
+- Silence one more warning during macOS build
 
