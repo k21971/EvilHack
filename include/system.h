@@ -558,6 +558,7 @@ E int FDECL(vprintf, (const char *, va_list));
 #endif /* NEED_VARARGS */
 #endif
 
+#if !defined(MACOSX)
 #ifdef MICRO
 E int FDECL(tgetent, (const char *, const char *));
 #ifndef HAVE_TPUTS
@@ -570,7 +571,7 @@ E int FDECL(tgetflag, (const char *));
 E char *FDECL(tgetstr, (const char *, char **));
 E char *FDECL(tgoto, (const char *, int, int));
 #else
-#if !((defined(HPUX) && defined(_POSIX_SOURCE)) || defined(MACOSX))
+#if !(defined(HPUX) && defined(_POSIX_SOURCE))
 E int FDECL(tgetent, (char *, const char *));
 #ifndef HAVE_TPUTS
 E void FDECL(tputs, (const char *, int, int (*)()));
@@ -581,6 +582,7 @@ E int FDECL(tgetflag, (const char *));
 E char *FDECL(tgetstr, (const char *, char **));
 E char *FDECL(tgoto, (const char *, int, int));
 #endif
+#endif /* !MACOSX */
 
 #if defined(ALLOC_C) || defined(MAKEDEFS_C)
 E genericptr_t FDECL(malloc, (size_t));
