@@ -43,12 +43,6 @@ CFLAGS+=-DLIVELOG_ENABLE
 CFLAGS+=-DDUMPLOG
 CFLAGS+=-DDUMPHTML
 
-# detection of macOS
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S), Darwin)
-CFLAGS+=-Wno-strict-prototypes -Wno-deprecated-non-prototype
-endif
-
 # detection of clang vs gcc
 CCISCLANG := $(shell echo `$(CC) --version` | grep clang)
 ifneq "$(CCISCLANG)" ""
