@@ -394,7 +394,7 @@ E unsigned int FDECL(sleep, (unsigned int));
 
 /* Darwin/macOS already declares sleep(unsigned) in <unistd.h>,
    so skip ours */
-#if !defined(MACOS)
+#if !defined(MACOSX)
 #ifdef VMS
 E int FDECL(sleep, (unsigned));
 #endif
@@ -406,14 +406,14 @@ E void sleep(void);
 #if defined(ULTRIX) || defined(SYSV)
 E unsigned sleep(unsigned int);
 #endif
-#endif /* !MACOS */
+#endif /* !MACOSX */
 
 /* Darwin/macOS already declares getlogin(void) in <unistd.h>,
    so skip ours */
-#if !defined(MACOS)
+#if !defined(MACOSX)
 E char *FDECL(getenv, (const char *)); /* leave getenv in place */
 E char *FDECL(getlogin, (void));
-#endif /* !MACOS */
+#endif /* !MACOSX */
 
 #if defined(HPUX) && !defined(_POSIX_SOURCE)
 E long NDECL(getuid);
@@ -570,7 +570,7 @@ E int FDECL(tgetflag, (const char *));
 E char *FDECL(tgetstr, (const char *, char **));
 E char *FDECL(tgoto, (const char *, int, int));
 #else
-#if !(defined(HPUX) && defined(_POSIX_SOURCE))
+#if !((defined(HPUX) && defined(_POSIX_SOURCE)) || defined(MACOSX))
 E int FDECL(tgetent, (char *, const char *));
 #ifndef HAVE_TPUTS
 E void FDECL(tputs, (const char *, int, int (*)()));
