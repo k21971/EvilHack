@@ -4540,4 +4540,6 @@ The following changes to date are:
 - Fix: 'You feel smart!  You must have been (null).'
 - Fix: properly update inventory for drained corpses (curses mode)
 - Fix: account for vampire frail/starved status in exerper()
+- Fix: properly update inventory when polymorphing into a monster or
+  rehumanizing (curses mode)
 

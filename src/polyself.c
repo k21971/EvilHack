@@ -1163,6 +1163,7 @@ int mntmp;
        flesh golem above, now gets transformed back into stone golem] */
     if (!uarmg)
         selftouch(no_longer_petrify_resistant);
+    update_inventory();
     return 1;
 }
 
@@ -1552,6 +1553,7 @@ rehumanize()
     retouch_equipment(2);
     if (!uarmg)
         selftouch(no_longer_petrify_resistant);
+    update_inventory();
 }
 
 int
