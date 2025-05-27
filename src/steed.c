@@ -406,7 +406,8 @@ struct obj *otmp;
         }
         return 1;
     }
-    if (ptr == &mons[PM_SABER_TOOTHED_TIGER] && !Role_if(PM_CAVEMAN)) {
+    if (ptr == &mons[PM_SABER_TOOTHED_TIGER]
+        && !Role_if(PM_CAVEMAN)) {
         if (!Deaf)
             pline("%s %s menacingly at you!", Monnam(mtmp),
                   rn2(2) ? "snarls" : "growls");
@@ -420,7 +421,8 @@ struct obj *otmp;
     if ((ptr == &mons[PM_GIANT_SPIDER]
          || ptr == &mons[PM_GARGANTUAN_SPIDER]
          || ptr == &mons[PM_CAVE_LIZARD]
-         || ptr == &mons[PM_LARGE_CAVE_LIZARD]) && !Race_if(PM_DROW)) {
+         || ptr == &mons[PM_LARGE_CAVE_LIZARD])
+        && !Race_if(PM_DROW)) {
         if (!Deaf)
             pline("%s hisses threateningly at you!", Monnam(mtmp));
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
@@ -432,10 +434,11 @@ struct obj *otmp;
     }
     if ((ptr == &mons[PM_SKELETAL_PONY]
          || ptr == &mons[PM_SKELETAL_HORSE]
-         || ptr == &mons[PM_SKELETAL_WARHORSE]) && !Race_if(PM_DRAUGR)) {
+         || ptr == &mons[PM_SKELETAL_WARHORSE])
+        && !(Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))) {
         if (!Deaf) {
             pline("%s rattles noisily at you!", Monnam(mtmp));
-            if (!Race_if(PM_DRAUGR)) {
+            if (!(Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))) {
                 You("freeze for a moment.");
                 nomul(-2);
                 multi_reason = "scared by rattling";
@@ -800,6 +803,63 @@ boolean force;      /* Quietly force this animal */
            to worm's head could trigger an impossible() in worm_cross()
            called from test_move(), so handle not-on-head before that */
         You("couldn't ride %s, let alone its tail.", a_monnam(mtmp));
+        return FALSE;
+    }
+    if (mtmp->data == &mons[PM_WARG] && !Race_if(PM_ORC)) {
+        if (!Deaf)
+            pline("%s %s menacingly at you!", Monnam(mtmp),
+                  rn2(2) ? "snarls" : "growls");
+        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
+            && !rn2(3)) {
+            mtmp->mtame = mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my);
+        }
+        return FALSE;
+    }
+    if (mtmp->data == &mons[PM_SABER_TOOTHED_TIGER]
+        && !Role_if(PM_CAVEMAN)) {
+        if (!Deaf)
+            pline("%s %s menacingly at you!", Monnam(mtmp),
+                  rn2(2) ? "snarls" : "growls");
+        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
+            && !rn2(3)) {
+            mtmp->mtame = mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my);
+        }
+        return FALSE;
+    }
+    if ((mtmp->data == &mons[PM_GIANT_SPIDER]
+         || mtmp->data == &mons[PM_GARGANTUAN_SPIDER]
+         || mtmp->data == &mons[PM_CAVE_LIZARD]
+         || mtmp->data == &mons[PM_LARGE_CAVE_LIZARD])
+        && !Race_if(PM_DROW)) {
+        if (!Deaf)
+            pline("%s hisses threateningly at you!", Monnam(mtmp));
+        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
+            && !rn2(3)) {
+            mtmp->mtame = mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my);
+        }
+        return FALSE;
+    }
+    if ((mtmp->data == &mons[PM_SKELETAL_PONY]
+         || mtmp->data == &mons[PM_SKELETAL_HORSE]
+         || mtmp->data == &mons[PM_SKELETAL_WARHORSE])
+        && !(Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))) {
+        if (!Deaf) {
+            pline("%s rattles noisily at you!", Monnam(mtmp));
+            if (!(Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))) {
+                You("freeze for a moment.");
+                nomul(-2);
+                multi_reason = "scared by rattling";
+                nomovemsg = 0;
+            }
+        }
+        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
+            && !rn2(3)) {
+            mtmp->mtame = mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my);
+        }
         return FALSE;
     }
     if (u.uswallow || u.ustuck || u.utrap || Punished
