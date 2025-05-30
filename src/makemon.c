@@ -126,7 +126,7 @@ int x, y, n, mmflags;
     if (cnt >= 3 && !is_undead(mtmp->data)) {
         if (mtmp->data == &mons[PM_GOBLIN]) {
             support = PM_GOBLIN_SHAMAN;
-            if (mvitals[support].mvflags & (G_GENOD | G_EXTINCT))
+            if (mvitals[support].mvflags & G_GONE)
                 return;
             if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
                 mon = makemon(&mons[support],
@@ -140,7 +140,7 @@ int x, y, n, mmflags;
             }
         } else if (mtmp->data == &mons[PM_KOBOLD]) {
             support = PM_KOBOLD_SHAMAN;
-            if (mvitals[support].mvflags & (G_GENOD | G_EXTINCT))
+            if (mvitals[support].mvflags & G_GONE)
                 return;
             if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
                 mon = makemon(&mons[support],
@@ -156,7 +156,7 @@ int x, y, n, mmflags;
                    || mtmp->data == &mons[PM_MORDOR_ORC]
                    || mtmp->data == &mons[PM_URUK_HAI]) {
             support = PM_ORC_SHAMAN;
-            if (mvitals[support].mvflags & (G_GENOD | G_EXTINCT))
+            if (mvitals[support].mvflags & G_GONE)
                 return;
             if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
                 mon = makemon(&mons[support],
@@ -170,7 +170,7 @@ int x, y, n, mmflags;
             }
         } else if (is_gnoll(mtmp->data)) {
             support = PM_GNOLL_CLERIC;
-            if (mvitals[support].mvflags & (G_GENOD | G_EXTINCT))
+            if (mvitals[support].mvflags & G_GONE)
                 return;
             if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
                 mon = makemon(&mons[support],
@@ -184,7 +184,7 @@ int x, y, n, mmflags;
             }
         } else if (is_drow(mtmp->data)) {
             support = PM_DROW_CLERIC;
-            if (mvitals[support].mvflags & (G_GENOD | G_EXTINCT))
+            if (mvitals[support].mvflags & G_GONE)
                 return;
             if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
                 mon = makemon(&mons[support],
@@ -198,7 +198,7 @@ int x, y, n, mmflags;
             }
         } else if (is_tortle(mtmp->data)) {
             support = PM_TORTLE_SHAMAN;
-            if (mvitals[support].mvflags & (G_GENOD | G_EXTINCT))
+            if (mvitals[support].mvflags & G_GONE)
                 return;
             if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
                 mon = makemon(&mons[support],
@@ -212,7 +212,7 @@ int x, y, n, mmflags;
             }
         } else if (is_giant(mtmp->data)) {
             support = PM_HILL_GIANT_SHAMAN;
-            if (mvitals[support].mvflags & (G_GENOD | G_EXTINCT))
+            if (mvitals[support].mvflags & G_GONE)
                 return;
             if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
                 mon = makemon(&mons[support],
@@ -235,7 +235,7 @@ int x, y, n, mmflags;
            handling is called for */
         if (mtmp->data == &mons[PM_DEER]) {
             leader = PM_STAG;
-            if (mvitals[leader].mvflags & (G_GENOD | G_EXTINCT))
+            if (mvitals[leader].mvflags & G_GONE)
                 return;
             if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
                 mon = makemon(&mons[leader],
@@ -256,7 +256,7 @@ int x, y, n, mmflags;
         } else if (mtmp->data == &mons[PM_SKELETON]
                    && u.ulevel >= 10) {
             leader = PM_SKELETON_WARRIOR;
-            if (mvitals[leader].mvflags & (G_GENOD | G_EXTINCT))
+            if (mvitals[leader].mvflags & G_GONE)
                 return;
             if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
                 mon = makemon(&mons[leader],
@@ -270,7 +270,7 @@ int x, y, n, mmflags;
             }
         } else {
             leader = monsndx(mtmp->data);
-            if (mvitals[leader].mvflags & (G_GENOD | G_EXTINCT))
+            if (mvitals[leader].mvflags & G_GONE)
                 return;
             if (little_to_big(leader) != NON_PM
                 && !(is_bat(mtmp->data)

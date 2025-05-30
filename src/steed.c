@@ -49,7 +49,10 @@ int pm;             /* steed */
     /* no steed (doesn't exist, genocided, extinct) or if for
        some reason the steed is covetous - denied */
     if (!mount || is_covetous(mount->data)
-        || (mvitals[monsndx(mount->data)].mvflags & (G_GENOD | G_EXTINCT))) {
+        || ((mvitals[monsndx(mount->data)].mvflags & G_GONE)
+            && !(mount->data == &mons[PM_PALE_HORSE]
+                 || mount->data == &mons[PM_WHITE_HORSE]
+                 || mount->data == &mons[PM_BLACK_HORSE]))) {
         return;
     } else {
         remove_monster(mount->mx, mount->my);
@@ -107,19 +110,21 @@ struct monst *rider;
         if (steed->data == &mons[PM_DEER]
             || steed->data == &mons[PM_STAG])
             continue;
-        if (!is_drow(rider->data) && is_spider(steed->data))
+        if (!racial_drow(rider) && is_spider(steed->data))
             continue;
-        if (!is_drow(rider->data)
+        if (!racial_drow(rider)
             && (steed->data == &mons[PM_CAVE_LIZARD]
                 || steed->data == &mons[PM_LARGE_CAVE_LIZARD]))
             continue;
-        if (!is_orc(rider->data) && steed->data == &mons[PM_WARG])
+        if (!racial_orc(rider)
+            && (steed->data == &mons[PM_WARG]
+                || steed->data == &mons[PM_WOLF]))
             continue;
         if (!(rider->data == &mons[PM_CAVEMAN]
               || rider->data == &mons[PM_CAVEWOMAN])
             && steed->data == &mons[PM_SABER_TOOTHED_TIGER])
             continue;
-        if (!racial_zombie(rider)
+        if (!(racial_zombie(rider) || racial_vampire(rider))
             && (steed->data == &mons[PM_SKELETAL_PONY]
                 || steed->data == &mons[PM_SKELETAL_HORSE]
                 || steed->data == &mons[PM_SKELETAL_WARHORSE]))
@@ -268,11 +273,15 @@ struct monst *mtmp;
                  && mtmp->mnum != PM_BLACK_UNICORN
                  && mtmp->mnum != PM_PEGASUS
                  && mtmp->mnum != PM_GREATER_PEGASUS
+                 && mtmp->mnum != PM_PALE_HORSE
+                 && mtmp->mnum != PM_BLACK_HORSE
+                 && mtmp->mnum != PM_WHITE_HORSE
                  && mtmp->mnum != PM_RED_HORSE)
             && !(ptr->mlet == S_JABBERWOCK
                  && mtmp->mnum != PM_JABBERWOCK
                  && mtmp->mnum != PM_VORPAL_JABBERWOCK)
             && !(ptr->mlet == S_DOG
+                 && mtmp->mnum != PM_WOLF
                  && mtmp->mnum != PM_WARG)
             && !(ptr->mlet == S_SPIDER
                  && mtmp->mnum != PM_GIANT_SPIDER
@@ -319,11 +328,15 @@ struct monst *mtmp;
                  && mtmp->mnum != PM_BLACK_UNICORN
                  && mtmp->mnum != PM_PEGASUS
                  && mtmp->mnum != PM_GREATER_PEGASUS
+                 && mtmp->mnum != PM_PALE_HORSE
+                 && mtmp->mnum != PM_BLACK_HORSE
+                 && mtmp->mnum != PM_WHITE_HORSE
                  && mtmp->mnum != PM_RED_HORSE)
             && !(ptr->mlet == S_JABBERWOCK
                  && mtmp->mnum != PM_JABBERWOCK
                  && mtmp->mnum != PM_VORPAL_JABBERWOCK)
             && !(ptr->mlet == S_DOG
+                 && mtmp->mnum != PM_WOLF
                  && mtmp->mnum != PM_WARG)
             && !(ptr->mlet == S_SPIDER
                  && mtmp->mnum != PM_GIANT_SPIDER
@@ -395,7 +408,8 @@ struct obj *otmp;
         pline("I think %s would mind.", mon_nam(mtmp));
         return 1;
     }
-    if (ptr == &mons[PM_WARG] && !Race_if(PM_ORC)) {
+    if ((ptr == &mons[PM_WARG] || ptr == &mons[PM_WOLF])
+        && !racial_orc(&youmonst)) {
         if (!Deaf)
             pline("%s %s menacingly at you!", Monnam(mtmp),
                   rn2(2) ? "snarls" : "growls");
@@ -422,7 +436,7 @@ struct obj *otmp;
          || ptr == &mons[PM_GARGANTUAN_SPIDER]
          || ptr == &mons[PM_CAVE_LIZARD]
          || ptr == &mons[PM_LARGE_CAVE_LIZARD])
-        && !Race_if(PM_DROW)) {
+        && !racial_drow(&youmonst)) {
         if (!Deaf)
             pline("%s hisses threateningly at you!", Monnam(mtmp));
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
@@ -435,10 +449,11 @@ struct obj *otmp;
     if ((ptr == &mons[PM_SKELETAL_PONY]
          || ptr == &mons[PM_SKELETAL_HORSE]
          || ptr == &mons[PM_SKELETAL_WARHORSE])
-        && !(Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))) {
+        && !(racial_zombie(&youmonst) || racial_vampire(&youmonst))) {
         if (!Deaf) {
             pline("%s rattles noisily at you!", Monnam(mtmp));
-            if (!(Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))) {
+            if (!(racial_zombie(&youmonst)
+                  || racial_vampire(&youmonst))) {
                 You("freeze for a moment.");
                 nomul(-2);
                 multi_reason = "scared by rattling";
@@ -563,7 +578,8 @@ struct obj *otmp;
         pline("I think %s would mind.", mon_nam(mtmp));
         return 1;
     }
-    if (ptr == &mons[PM_WARG] && !Race_if(PM_ORC)) {
+    if ((ptr == &mons[PM_WARG] || ptr == &mons[PM_WOLF])
+        && !racial_orc(&youmonst)) {
         if (!Deaf)
             pline("%s %s menacingly at you!", Monnam(mtmp),
                   rn2(2) ? "snarls" : "growls");
@@ -574,7 +590,8 @@ struct obj *otmp;
         }
         return 1;
     }
-    if (ptr == &mons[PM_SABER_TOOTHED_TIGER] && !Role_if(PM_CAVEMAN)) {
+    if (ptr == &mons[PM_SABER_TOOTHED_TIGER]
+        && !Role_if(PM_CAVEMAN)) {
         if (!Deaf)
             pline("%s %s menacingly at you!", Monnam(mtmp),
                   rn2(2) ? "snarls" : "growls");
@@ -588,7 +605,8 @@ struct obj *otmp;
     if ((ptr == &mons[PM_GIANT_SPIDER]
          || ptr == &mons[PM_GARGANTUAN_SPIDER]
          || ptr == &mons[PM_CAVE_LIZARD]
-         || ptr == &mons[PM_LARGE_CAVE_LIZARD]) && !Race_if(PM_DROW)) {
+         || ptr == &mons[PM_LARGE_CAVE_LIZARD])
+        && !racial_drow(&youmonst)) {
         if (!Deaf)
             pline("%s hisses threateningly at you!", Monnam(mtmp));
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
@@ -600,10 +618,12 @@ struct obj *otmp;
     }
     if ((ptr == &mons[PM_SKELETAL_PONY]
          || ptr == &mons[PM_SKELETAL_HORSE]
-         || ptr == &mons[PM_SKELETAL_WARHORSE]) && !Race_if(PM_DRAUGR)) {
+         || ptr == &mons[PM_SKELETAL_WARHORSE])
+        && !(racial_zombie(&youmonst) || racial_vampire(&youmonst))) {
         if (!Deaf) {
             pline("%s rattles noisily at you!", Monnam(mtmp));
-            if (!Race_if(PM_DRAUGR)) {
+            if (!(racial_zombie(&youmonst)
+                  || racial_vampire(&youmonst))) {
                 You("freeze for a moment.");
                 nomul(-2);
                 multi_reason = "scared by rattling";
@@ -805,7 +825,8 @@ boolean force;      /* Quietly force this animal */
         You("couldn't ride %s, let alone its tail.", a_monnam(mtmp));
         return FALSE;
     }
-    if (mtmp->data == &mons[PM_WARG] && !Race_if(PM_ORC)) {
+    if ((mtmp->data == &mons[PM_WARG] || mtmp->data == &mons[PM_WOLF])
+        && !racial_orc(&youmonst)) {
         if (!Deaf)
             pline("%s %s menacingly at you!", Monnam(mtmp),
                   rn2(2) ? "snarls" : "growls");
@@ -832,7 +853,7 @@ boolean force;      /* Quietly force this animal */
          || mtmp->data == &mons[PM_GARGANTUAN_SPIDER]
          || mtmp->data == &mons[PM_CAVE_LIZARD]
          || mtmp->data == &mons[PM_LARGE_CAVE_LIZARD])
-        && !Race_if(PM_DROW)) {
+        && !racial_drow(&youmonst)) {
         if (!Deaf)
             pline("%s hisses threateningly at you!", Monnam(mtmp));
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
@@ -845,10 +866,11 @@ boolean force;      /* Quietly force this animal */
     if ((mtmp->data == &mons[PM_SKELETAL_PONY]
          || mtmp->data == &mons[PM_SKELETAL_HORSE]
          || mtmp->data == &mons[PM_SKELETAL_WARHORSE])
-        && !(Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))) {
+        && !(racial_zombie(&youmonst) || racial_vampire(&youmonst))) {
         if (!Deaf) {
             pline("%s rattles noisily at you!", Monnam(mtmp));
-            if (!(Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))) {
+            if (!(racial_zombie(&youmonst)
+                  || racial_vampire(&youmonst))) {
                 You("freeze for a moment.");
                 nomul(-2);
                 multi_reason = "scared by rattling";

@@ -4551,4 +4551,5 @@ The following changes to date are:
 - Apply filters to the correct hints file (macOS)
 - Silence one more warning during macOS build
 - Fix: virtually any race/role could mount and ride restricted steeds
+- Fix: the Riders were not mounted on their steeds
 
