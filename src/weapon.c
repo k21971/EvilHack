@@ -1230,8 +1230,7 @@ struct obj *otmp;
       	    continue;
         if (wep && wep->otyp == hwep[i])
             break;
-        if (otmp->otyp == hwep[i]
-            && (dmgval(otmp, mdef) > (wep ? dmgval(wep, mdef) : 0))
+        if ((dmgval(otmp, mdef) > (wep ? dmgval(wep, mdef) : 0))
             && ((strong && !wearing_shield)
                 || !objects[otmp->otyp].oc_bimanual))
             return TRUE;
