@@ -1586,13 +1586,14 @@ boolean
 find_offensive(mtmp)
 struct monst *mtmp;
 {
+    struct monst *target = mfind_target(mtmp);
     boolean reflection_skip = FALSE;
 
-    struct monst *target = mfind_target(mtmp);
     if (target) {
         if (target == &youmonst)
-            reflection_skip = m_seenres(mtmp, M_SEEN_REFL) != 0
-                              || (monnear(mtmp, mtmp->mux, mtmp->muy) && !rn2(3));
+            reflection_skip = (m_seenres(mtmp, M_SEEN_REFL) != 0
+                               || (monnear(mtmp, mtmp->mux, mtmp->muy)
+                                   && !rn2(3)));
     } else {
         return FALSE; /* nothing to attack */
     }
@@ -1600,8 +1601,8 @@ struct monst *mtmp;
     m.offensive = (struct obj *) 0;
     m.tocharge = (struct obj *) 0;
     m.has_offense = 0;
-    if (mtmp->mpeaceful || is_animal(mtmp->data) || mindless(mtmp->data)
-        || nohands(mtmp->data))
+    if (mtmp->mpeaceful || is_animal(mtmp->data)
+        || mindless(mtmp->data) || nohands(mtmp->data))
         return FALSE;
     if (u.uswallow)
         return FALSE;

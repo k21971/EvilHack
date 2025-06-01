@@ -15,6 +15,7 @@ STATIC_DCL boolean FDECL(could_advance, (int));
 STATIC_DCL boolean FDECL(peaked_skill, (int));
 STATIC_DCL int FDECL(slots_required, (int));
 STATIC_DCL void FDECL(skill_advance, (int));
+STATIC_DCL struct monst *FDECL(mon_melee_target, (struct monst *));
 
 /* Categories whose names don't come from OBJ_NAME(objects[type])
  */
@@ -1149,35 +1150,90 @@ static const NEARDATA short hwep[] = {
     DAGGER, ORCISH_DAGGER, ATHAME, SCALPEL, KNIFE, WORM_TOOTH
 };
 
+STATIC_OVL struct monst *
+mon_melee_target(mtmp)
+struct monst *mtmp;
+{
+    struct monst *bestmon = NULL, *candidate;
+    int bestscore = -1000000, currscore;
+    int dx, dy;
+
+    for (dx = -1; dx <= 1; dx++) {
+        for (dy = -1; dy <= 1; dy++) {
+            if (!dx && !dy)
+                continue;
+            /* find_targ() traverses a straight line from (mx, my)
+               toward direction (dx, dy) up to range 7, and returns the
+               first monster 'candidate' that could be attacked.
+               invisible monsters are skipped if the attacker lacks
+               see‐invis */
+            candidate = find_targ(mtmp, dx, dy, 7);
+            if (!candidate)
+                continue;
+            /* is that candidate truly a legal melee foe? */
+            if (!acceptable_pet_target(mtmp, candidate, FALSE))
+                continue;
+            /* score how attractive that candidate is
+               (lower = less attractive) */
+            currscore = score_targ(mtmp, candidate);
+            if (currscore > bestscore) {
+                bestscore = currscore;
+                bestmon = candidate;
+            }
+        }
+    }
+
+    return bestmon;
+}
+
 boolean
 would_prefer_hwep(mtmp, otmp)
 struct monst *mtmp;
 struct obj *otmp;
 {
     struct obj *wep = select_hwep(mtmp);
-
+    struct monst *mdef; /* target under certain scenarios */
     int i = 0;
+    boolean strong = strongmonst(mtmp->data);
+    boolean wearing_shield = (mtmp->misc_worn_check & W_ARMS) != 0;
+
+    if (mtmp->mtame) {
+        mdef = mon_melee_target(mtmp);
+        if (!mdef)
+            mdef = &youmonst;
+    } else {
+        mdef = &youmonst;
+    }
 
     if (wep) {
        if (wep == otmp)
            return TRUE;
        if (wep->oartifact)
            return FALSE;
-       if (is_giant(mtmp->data) && wep->otyp == CLUB)
+       if (racial_giant(mtmp) && wep->otyp == CLUB)
            return FALSE;
-       if (is_giant(mtmp->data) && otmp->otyp == CLUB)
+       if (racial_giant(mtmp) && otmp->otyp == CLUB)
            return TRUE;
-   }
+    }
+
+    /* bracers don't really count as shields */
+    if (wearing_shield) {
+        for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+            if (otmp->owornmask && is_bracer(otmp))
+                wearing_shield = 0;
+        }
+    }
 
     for (i = 0; i < SIZE(hwep); i++) {
-      	if (hwep[i] == CORPSE && !(mtmp->misc_worn_check & W_ARMG))
+      	if (hwep[i] == CORPSE && !(mtmp->misc_worn_check & W_ARMG)
+            && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
       	    continue;
-
-        if (wep && wep->otyp == hwep[i]
-            && !(otmp->otyp == hwep[i]
-                 && dmgval(otmp, &youmonst) > dmgval(wep, &youmonst)))
-  	    return FALSE;
-        if (otmp->otyp == hwep[i])
+        if (wep && wep->otyp == hwep[i])
+            break;
+        if (otmp->otyp == hwep[i]
+            && (dmgval(otmp, mdef) > (wep ? dmgval(wep, mdef) : 0))
+            && ((strong && !wearing_shield)
+                || !objects[otmp->otyp].oc_bimanual))
             return TRUE;
     }
     return FALSE;
@@ -1189,9 +1245,18 @@ select_hwep(mtmp)
 struct monst *mtmp;
 {
     struct obj *otmp;
+    struct monst *mdef; /* target under certain scenarios */
     int i;
     boolean strong = strongmonst(mtmp->data);
     boolean wearing_shield = (mtmp->misc_worn_check & W_ARMS) != 0;
+
+    if (mtmp->mtame) {
+        mdef = mon_melee_target(mtmp);
+        if (!mdef)
+            mdef = &youmonst;
+    } else {
+        mdef = &youmonst;
+    }
 
     /* bracers don't really count as shields */
     if (wearing_shield) {
@@ -1210,7 +1275,19 @@ struct monst *mtmp;
             return otmp;
     }
 
-    if (is_giant(mtmp->data)) /* giants just love to use clubs */
+    /* prefer silver weapons when fighting demons/vampires */
+    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+        if (mon_hates_material(mtmp, SILVER))
+            continue;
+        if (otmp->oclass == WEAPON_CLASS && is_silver(otmp)
+            && (racial_vampire(mdef)
+                || is_demon(raceptr(mdef)))
+            && ((strong && !wearing_shield)
+                || !objects[otmp->otyp].oc_bimanual))
+            return otmp;
+    }
+
+    if (racial_giant(mtmp)) /* giants just love to use clubs */
         Oselect(CLUB);
 
     /* only strong monsters can wield big (esp. long) weapons */

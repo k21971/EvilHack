@@ -1254,7 +1254,7 @@ struct attack  *mattk;
          * if we're close by and they reflect, just jump the player */
         player_resists = m_seenres(mtmp, 1 << (typ - 1));
         if (player_resists
-            || (m_seenres(mtmp, M_SEEN_REFL)
+            || (m_seenres(mtmp, M_SEEN_REFL) != 0
                 && monnear(mtmp, mtmp->mux, mtmp->muy))) {
             return 1;
         }

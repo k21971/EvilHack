@@ -20,10 +20,8 @@ extern boolean FDECL(would_prefer_rwep, (struct monst *, struct obj *));
 STATIC_DCL boolean FDECL(dog_hunger, (struct monst *, struct edog *));
 STATIC_DCL int FDECL(dog_invent, (struct monst *, struct edog *, int));
 STATIC_DCL int FDECL(dog_goal, (struct monst *, struct edog *, int, int, int));
-STATIC_DCL struct monst *FDECL(find_targ, (struct monst *, int, int, int));
 STATIC_OVL int FDECL(find_friends, (struct monst *, struct monst *, int));
 STATIC_DCL struct monst *FDECL(best_target, (struct monst *));
-STATIC_DCL long FDECL(score_targ, (struct monst *, struct monst *));
 STATIC_DCL boolean FDECL(can_reach_location, (struct monst *, XCHAR_P,
                                               XCHAR_P, XCHAR_P, XCHAR_P));
 STATIC_DCL boolean FDECL(could_reach_item, (struct monst *, XCHAR_P, XCHAR_P));
@@ -303,9 +301,9 @@ struct monst *mon;
     pickaxe = unihorn = key = (struct obj *) 0;
     wep = MON_WEP(mon),
       hwep = attacktype(mon->data, AT_WEAP)
-        ? select_hwep(mon) : (struct obj *)0,
+        ? select_hwep(mon) : (struct obj *) 0,
           proj = attacktype(mon->data, AT_WEAP)
-            ? select_rwep(mon) : (struct obj *)0;
+            ? select_rwep(mon) : (struct obj *) 0;
 
     rwep = attacktype(mon->data, AT_WEAP) ? propellor : (struct obj *) &zeroobj;
 
@@ -1077,7 +1075,7 @@ int after, udist, whappr;
     return appr;
 }
 
-STATIC_OVL struct monst *
+struct monst *
 find_targ(mtmp, dx, dy, maxdist)
 register struct monst *mtmp;
 int dx, dy;
@@ -1166,7 +1164,7 @@ int    maxdist;
     return 0;
 }
 
-STATIC_OVL long
+long
 score_targ(mtmp, mtarg)
 struct monst *mtmp, *mtarg;
 {

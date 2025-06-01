@@ -4552,4 +4552,5 @@ The following changes to date are:
 - Silence one more warning during macOS build
 - Fix: virtually any race/role could mount and ride restricted steeds
 - Fix: the Riders were not mounted on their steeds
+- Monsters will prefer using silver weapons vs demons/vampires
 

@@ -587,6 +587,8 @@ E boolean FDECL(could_use_item, (struct monst*, struct obj*, BOOLEAN_P,
 
 /* ### dogmove.c ### */
 
+E struct monst *FDECL(find_targ, (struct monst *, int, int, int));
+E long FDECL(score_targ, (struct monst *, struct monst *));
 E boolean FDECL(acceptable_pet_target, (struct monst*, struct monst*, BOOLEAN_P));
 E struct obj *FDECL(droppables, (struct monst *));
 E int FDECL(dog_nutrition, (struct monst *, struct obj *));
