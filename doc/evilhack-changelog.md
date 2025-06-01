@@ -4554,4 +4554,6 @@ The following changes to date are:
 - Fix: the Riders were not mounted on their steeds
 - Monsters will prefer using silver weapons vs demons/vampires
 - Fix: chatting to a peaceful animal that uses MS_BARK sound
+- Fix: prevent monsters selecting ammo/missile type weapons when
+  choosing silver to melee demons/vampires
 

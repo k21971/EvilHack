@@ -1280,6 +1280,7 @@ struct monst *mtmp;
         if (mon_hates_material(mtmp, SILVER))
             continue;
         if (otmp->oclass == WEAPON_CLASS && is_silver(otmp)
+            && !(is_ammo(otmp) || is_missile(otmp))
             && (racial_vampire(mdef)
                 || is_demon(raceptr(mdef)))
             && ((strong && !wearing_shield)
