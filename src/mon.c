@@ -4286,9 +4286,9 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
             nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
             noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0,
             indirect = (xkill_flags & XKILL_INDIRECT) != 0;
-    boolean not_con_inf = (!(u.ualign.type == A_NONE
-                             || (Role_if(PM_CONVICT)
-                                 && (mtmp->isgd || is_watch(mtmp->data)))));
+    boolean not_con_inf = (!((u.ualign.type == A_NONE
+                              || Role_if(PM_CONVICT))
+                             && (mtmp->isgd || is_watch(mtmp->data))));
     boolean uni_same = (is_unicorn(mtmp->data)
                         && sgn(u.ualign.type) == sgn(mtmp->data->maligntyp));
     boolean orb = (mtmp->data->mlet == S_ORB);
@@ -4477,7 +4477,10 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
            further down */
         if (u.ualign.type != A_NONE) {
             change_luck(-5);
-            You_feel("guilty...");
+            if (canspotmon(mtmp))
+                You_feel("guilty...");
+            else
+                You("have a vague sense of profound guilt.");
         }
     }
 
@@ -4596,8 +4599,8 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
         }
     } else if (mtmp->mpeaceful) {
         if (u.ualign.type != A_NONE) {
-            /* unicorn feedback handled before we reach this part of
-               the code */
+            /* same alignment unicorn feedback handled before we reach
+               this part of the code */
             if (!uni_same) {
                 if (canspotmon(mtmp))
                     You_feel("guilty.");
@@ -4610,7 +4613,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
 
     /* malign was already adjusted for u.ualign.type and randomization.
        This final adjalign() call is in addition to any prior adjalign()
-       adjustments in this block of code. Infidels, and Convicts in
+       adjustments in this block of code. Infidels and Convicts in
        certain scenarios don't feel this kind of guilt */
     if (not_con_inf)
         adjalign(mtmp->malign);
