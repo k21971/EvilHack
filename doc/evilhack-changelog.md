@@ -4553,4 +4553,5 @@ The following changes to date are:
 - Fix: virtually any race/role could mount and ride restricted steeds
 - Fix: the Riders were not mounted on their steeds
 - Monsters will prefer using silver weapons vs demons/vampires
+- Fix: chatting to a peaceful animal that uses MS_BARK sound
 

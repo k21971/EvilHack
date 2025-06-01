@@ -778,7 +778,7 @@ register struct monst *mtmp;
                     || mtmp->mtrapped || mtmp->mentangled
                     || mtmp->mtame < 5))
                 pline_msg = "whines.";
-            else if (moves > EDOG(mtmp)->hungrytime)
+            else if (mtmp->mtame && moves > EDOG(mtmp)->hungrytime)
                 pline_msg = "whines hungrily.";
             else if (mtmp->mtame && EDOG(mtmp)->hungrytime > moves + 1000)
                 pline_msg = "yips contentedly.";
@@ -1514,7 +1514,6 @@ dochat()
         }
     }
 
-
     if ((Role_if(PM_CONVICT) && is_rat(mtmp->data))
         || (Race_if(PM_DRAUGR) && is_zombie(mtmp->data))) {
         if (!mtmp->mpeaceful) {
@@ -1542,6 +1541,7 @@ dochat()
             }
         }
     }
+
     return domonnoise(mtmp);
 }
 
