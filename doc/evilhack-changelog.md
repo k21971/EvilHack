@@ -4559,4 +4559,6 @@ The following changes to date are:
 - Fix: Infidels were not gaining alignment record points for kills
 - Fix: crash when giving a pet armor they can't wear
 - Fix: crash when giving a pet armor they can't wear, take two
+- Fix: 'You feel guilty' feedback when an Infidel would kill a
+  shopkeeper
 

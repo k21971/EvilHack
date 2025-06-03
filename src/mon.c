@@ -4288,7 +4288,8 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
             indirect = (xkill_flags & XKILL_INDIRECT) != 0;
     boolean not_con_inf = (!((u.ualign.type == A_NONE
                               || Role_if(PM_CONVICT))
-                             && (mtmp->isgd || is_watch(mtmp->data))));
+                             && (mtmp->isgd || mtmp->isshk
+                                 || is_watch(mtmp->data))));
     boolean uni_same = (is_unicorn(mtmp->data)
                         && sgn(u.ualign.type) == sgn(mtmp->data->maligntyp));
     boolean orb = (mtmp->data->mlet == S_ORB);
