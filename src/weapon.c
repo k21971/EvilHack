@@ -1191,11 +1191,17 @@ would_prefer_hwep(mtmp, otmp)
 struct monst *mtmp;
 struct obj *otmp;
 {
-    struct obj *wep = select_hwep(mtmp);
+    struct obj *wep;
+    struct obj *brac;
     struct monst *mdef; /* target under certain scenarios */
     int i = 0;
     boolean strong = strongmonst(mtmp->data);
     boolean wearing_shield = (mtmp->misc_worn_check & W_ARMS) != 0;
+
+    if (!otmp)
+        return FALSE;
+
+    wep = select_hwep(mtmp);
 
     if (mtmp->mtame) {
         mdef = mon_melee_target(mtmp);
@@ -1218,9 +1224,9 @@ struct obj *otmp;
 
     /* bracers don't really count as shields */
     if (wearing_shield) {
-        for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-            if (otmp->owornmask && is_bracer(otmp))
-                wearing_shield = 0;
+        for (brac = mtmp->minvent; brac; brac = brac->nobj) {
+            if (brac->owornmask && is_bracer(brac))
+                wearing_shield = FALSE;
         }
     }
 
@@ -1230,7 +1236,8 @@ struct obj *otmp;
       	    continue;
         if (wep && wep->otyp == hwep[i])
             break;
-        if ((dmgval(otmp, mdef) > (wep ? dmgval(wep, mdef) : 0))
+        if (otmp->otyp == hwep[i]
+            && (dmgval(otmp, mdef) > (wep ? dmgval(wep, mdef) : 0))
             && ((strong && !wearing_shield)
                 || !objects[otmp->otyp].oc_bimanual))
             return TRUE;

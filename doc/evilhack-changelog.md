@@ -4558,4 +4558,5 @@ The following changes to date are:
   choosing silver to melee demons/vampires
 - Fix: Infidels were not gaining alignment record points for kills
 - Fix: crash when giving a pet armor they can't wear
+- Fix: crash when giving a pet armor they can't wear, take two
 
