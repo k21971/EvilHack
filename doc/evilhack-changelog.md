@@ -4561,4 +4561,6 @@ The following changes to date are:
 - Fix: crash when giving a pet armor they can't wear, take two
 - Fix: 'You feel guilty' feedback when an Infidel would kill a
   shopkeeper
+- Fix: include a couple more places where maybe_unhide_at() should be
+  called
 

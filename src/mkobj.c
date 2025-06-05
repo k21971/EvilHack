@@ -3409,8 +3409,14 @@ struct obj **obj1, **obj2;
             }
             /* callers really ought to take care of this; glob melding is
                a bookkeeping issue rather than a display one */
-            if (ox && cansee(ox, oy))
-                newsym_force(ox, oy);
+            if (ox) {
+                if (cansee(ox, oy))
+                    newsym(ox, oy);
+                /* and this; a hides-under monster might be hiding under
+                   the glob that went away; if there's nothing else there
+                   to hide under, force it out of hiding */
+                maybe_unhide_at(ox, oy);
+            }
         }
     } else {
         impossible("obj_meld: not called with two actual objects");

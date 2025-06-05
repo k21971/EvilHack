@@ -1328,6 +1328,7 @@ struct monst *mtmp;
         place_monster(mtmp, trapx, trapy);
         if (mtmp->wormno)
             worm_move(mtmp);
+        maybe_unhide_at(mtmp->mx, mtmp->my);
         newsym(trapx, trapy);
 
         goto mon_tele;
