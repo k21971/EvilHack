@@ -1436,7 +1436,7 @@ movemon()
            off the map too; gd_move() decides whether the temporary
            corridor can be removed and guard discarded (via clearing
            mon->isgd flag so that dmonsfree() will get rid of mon) */
-        if (mtmp->isgd && !mtmp->mx) {
+        if (mtmp->isgd && !mtmp->mx && !(mtmp->mstate & MON_MIGRATING)) {
             /* parked at <0,0>; eventually isgd should get set to false */
             if (monstermoves > mtmp->mlstmv) {
                 (void) gd_move(mtmp);
@@ -1445,6 +1445,11 @@ movemon()
             continue;
         }
         if (DEADMONSTER(mtmp))
+            continue;
+
+        /* monster isn't on this map anymore */
+        if ((mtmp->mstate & (MON_DETACH | MON_MIGRATING
+                             | MON_LIMBO | MON_OFFMAP)) != 0)
             continue;
 
         /* Find a monster that we have not treated yet. */
@@ -6470,7 +6475,8 @@ boolean by_you;
     mon->mhp -= amount;
     if (by_you)
         showmondamage(mon, amount);
-    return (mon->mhp < 1);
+
+    return (DEADMONSTER(mon)) ? TRUE : FALSE;
 }
 
 boolean

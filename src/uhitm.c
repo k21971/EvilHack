@@ -4495,7 +4495,8 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                             pline("%s ignites and turns to ash!", Monnam(mon));
                             killed(mon);
                         } else {
-                            damage_mon(mon, d(enchant_skill, 4), AD_FIRE, TRUE);
+                            if (damage_mon(mon, d(enchant_skill, 4), AD_FIRE, TRUE))
+                                xkilled(mon, XKILL_GIVEMSG);
                         }
                     }
                     nohandburn();
@@ -4532,7 +4533,8 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                         if (!rn2(5))
                             (void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
 
-                        damage_mon(mon, d(enchant_skill, 4), AD_ELEC, TRUE);
+                        if (damage_mon(mon, d(enchant_skill, 4), AD_ELEC, TRUE))
+                            xkilled(mon, XKILL_GIVEMSG);
                     }
                     nohandshock();
                 }
