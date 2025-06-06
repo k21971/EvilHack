@@ -4564,4 +4564,5 @@ The following changes to date are:
 - Fix: include a couple more places where maybe_unhide_at() should be
   called
 - Fix: various 'dmonsfree' and 'map mon not in fmon list' crashes
+- Fix: mstate change from last commit
 

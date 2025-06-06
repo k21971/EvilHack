@@ -812,10 +812,6 @@ register struct monst *magr, *mdef;
         /* return if aggressor can no longer attack */
         if (helpless(magr))
             return res[i];
-        /* defender is no longer on the map */
-        if ((mdef->mstate & (MON_DETACH | MON_MIGRATING
-                             | MON_LIMBO | MON_OFFMAP)) != 0)
-            return res[i];
         if (res[i] & MM_HIT)
             struck = 1; /* at least one hit */
     }

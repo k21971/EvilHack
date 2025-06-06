@@ -1447,11 +1447,6 @@ movemon()
         if (DEADMONSTER(mtmp))
             continue;
 
-        /* monster isn't on this map anymore */
-        if ((mtmp->mstate & (MON_DETACH | MON_MIGRATING
-                             | MON_LIMBO | MON_OFFMAP)) != 0)
-            continue;
-
         /* Find a monster that we have not treated yet. */
         if (mtmp->movement < NORMAL_SPEED)
             continue;
