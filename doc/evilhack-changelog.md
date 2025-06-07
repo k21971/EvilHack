@@ -4565,4 +4565,6 @@ The following changes to date are:
   called
 - Fix: various 'dmonsfree' and 'map mon not in fmon list' crashes
 - Fix: mstate change from last commit
+- Fix: crash when shield is destroyed right before a shield bash attack
+  is triggered
 

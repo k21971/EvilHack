@@ -897,8 +897,6 @@ struct attack *uattk;
 {
     boolean malive = TRUE, wep_was_destroyed = FALSE;
     struct obj *wepbefore = uwep;
-    struct obj *wearshield = uarms;
-    struct obj *weararmor = uarm;
     int armorpenalty, attknum = 0, x = u.ux + u.dx, y = u.uy + u.dy,
                       tmp = find_roll_to_hit(mon, uattk->aatyp, uwep,
                                              &attknum, &armorpenalty);
@@ -996,10 +994,10 @@ struct attack *uattk;
         && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER
         && !(multi < 0 || u.umortality > oldumort
              || !malive || m_at(x, y) != mon)) {
-        if (wearshield && !is_bracer(uarms)) {
+        if (uarms && !is_bracer(uarms)) {
             if (!rn2(8))
                 pline("Your extra attack is ineffective while wearing %s.",
-                      an(xname(wearshield)));
+                      an(xname(uarms)));
         } else {
             tmp = find_roll_to_hit(mon, uattk->aatyp, uwep, &attknum,
                                    &armorpenalty);
@@ -1029,10 +1027,10 @@ struct attack *uattk;
                          || mon->data == &mons[PM_ANTIMATTER_VORTEX]))))
         /* suppress manually via forcefight */
         && !context.forcefight) {
-        if (weararmor) {
+        if (uarm) {
             if (!rn2(8))
                 pline("Your extra kick attack is ineffective while wearing %s.",
-                      xname(weararmor));
+                      xname(uarm));
         } else if (Wounded_legs) {
             /* note: taken from dokick.c */
             long wl = (EWounded_legs & BOTH_SIDES);
@@ -1061,21 +1059,21 @@ struct attack *uattk;
     /* random shield bash if wearing a shield and are skilled
        in using shields */
     if (bash_chance
-        && wearshield && !is_bracer(uarms)
+        && uarms && !is_bracer(uarms)
         && P_SKILL(P_SHIELD) >= P_BASIC
         && !(multi < 0 || u.umortality > oldumort
              || u.uinwater || !malive || m_at(x, y) != mon)
         /* suppress bashes with 'F' */
         && !context.forcefight) {
-        tmp = find_roll_to_hit(mon, uattk->aatyp, wearshield, &attknum,
+        tmp = find_roll_to_hit(mon, uattk->aatyp, uarms, &attknum,
                                &armorpenalty);
         dieroll = rnd(20);
         mhit = (tmp > dieroll || u.uswallow);
-        malive = known_hitum(mon, wearshield, &mhit, tmp, armorpenalty, uattk,
+        malive = known_hitum(mon, uarms, &mhit, tmp, armorpenalty, uattk,
                              dieroll);
         /* second passive counter-attack only occurs if second attack hits */
         if (mhit)
-            (void) passive(mon, wearshield, mhit, malive, AT_WEAP, FALSE);
+            (void) passive(mon, uarms, mhit, malive, AT_WEAP, FALSE);
     }
 
 
