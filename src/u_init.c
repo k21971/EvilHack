@@ -1645,10 +1645,10 @@ shambler_init()
         }
     }
 
-    shambler->msize = !rn2(6) ? MZ_GIGANTIC
-                              : rn2(MZ_HUGE);    /* any size */
-    shambler->cwt = 20;                          /* fortunately moot as it's flagged NOCORPSE */
-    shambler->cnutrit = 20;                      /* see above */
+    shambler->msize = !rn2(6) ? MZ_GIGANTIC      /* gigantic or... */
+                              : rn2(5);          /* tiny/small/medium/large/huge */
+    shambler->cwt = rnd(1000) * 4;               /* random weight (4 - 4000) */
+    shambler->cnutrit = 20;                      /* moot, does not leave a corpse */
     shambler->msound = rn2(MS_HUMANOID);         /* any but the specials */
     shambler->mresists = 0;
 
@@ -1671,14 +1671,19 @@ shambler_init()
     shambler->mflags1 &= ~M1_WALLWALK;          /* no wall-walkers */
     shambler->mflags1 &= ~M1_ACID;              /* will never leave a corpse */
     shambler->mflags1 &= ~M1_POIS;              /* same as above */
+    shambler->mflags1 &= ~M1_HIDE;              /* no hiding/mimicking */
+    shambler->mflags1 &= ~M1_CONCEAL;           /* same as above */
 
     shambler->mflags2 = M2_NOPOLY | M2_HOSTILE; /* Don't let the player be one of these yet */
+    shambler->mflags2 = M2_NEUTER;              /* always genderless */
     for (i = 0; i < rnd(17); i++)
         shambler->mflags2 |= (1 << rn2(27));    /* rn2() should equal the number of M2_ flags in
                                                  * include/monflag.h */
     shambler->mflags2 &= ~M2_MERC;              /* no guards */
     shambler->mflags2 &= ~M2_PEACEFUL;          /* no peacefuls */
     shambler->mflags2 &= ~M2_PNAME;             /* not a proper name */
+    shambler->mflags2 &= ~M2_MALE;              /* always genderless */
+    shambler->mflags2 &= ~M2_FEMALE;            /* same as above */
     shambler->mflags2 &= ~M2_SHAPESHIFTER;      /* no chameleon types */
     shambler->mflags2 &= ~M2_LORD;              /* isn't royalty */
     shambler->mflags2 &= ~M2_PRINCE;            /* still isn't royalty */

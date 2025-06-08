@@ -4567,4 +4567,5 @@ The following changes to date are:
 - Fix: mstate change from last commit
 - Fix: crash when shield is destroyed right before a shield bash attack
   is triggered
+- Shambling horror tweaks
 
