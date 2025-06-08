@@ -4569,4 +4569,5 @@ The following changes to date are:
   is triggered
 - Shambling horror tweaks
 - Add material hatred to the in-game pokedex
+- Fix: pet apport value
 
