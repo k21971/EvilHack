@@ -1009,6 +1009,9 @@ struct permonst * pm;
     APPENDC(metallivorous(pm), "metallivorous");
     APPENDC(inediate(pm), "inediate");
     APPENDC(is_covetous(pm), "covetous");
+    APPENDC(hates_material(pm, IRON), "harmed by iron")
+    APPENDC(hates_material(pm, MITHRIL), "harmed by mithril")
+    APPENDC(hates_material(pm, SILVER), "harmed by silver")
     APPENDC((mflag4 & M4_VULNERABLE_FIRE) != 0, "vulnerable to fire");
     APPENDC((mflag4 & M4_VULNERABLE_COLD) != 0, "vulnerable to cold");
     APPENDC((mflag4 & M4_VULNERABLE_ELEC) != 0, "vulnerable to electricity");

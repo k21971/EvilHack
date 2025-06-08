@@ -4568,4 +4568,5 @@ The following changes to date are:
 - Fix: crash when shield is destroyed right before a shield bash attack
   is triggered
 - Shambling horror tweaks
+- Add material hatred to the in-game pokedex
 
