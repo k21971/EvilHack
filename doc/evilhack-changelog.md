@@ -4575,4 +4575,6 @@ The following changes to date are:
   destroy the trap
 - Fix: put a level restriction on when a Vampire player can use
   #shapechange
+- Fix: potential use-after-free case (monster stepping on a magic trap
+  causing it to explode)
 

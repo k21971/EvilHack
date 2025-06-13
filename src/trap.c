@@ -3119,6 +3119,7 @@ register struct monst *mtmp;
             if (rn2(2)) {
                 if (rn2(4)) {
                     int magic_dmg = rnd(10);
+                    int mtx = trap->tx, mty = trap->ty;
 
                     deltrap(trap);
                     if (in_sight)
@@ -3135,7 +3136,7 @@ register struct monst *mtmp;
                     if (DEADMONSTER(mtmp))
                         trapkilled = TRUE;
                     if (see_it)
-                        newsym(trap->tx, trap->ty);
+                        newsym(mtx, mty);
                 } else {
                     goto mfiretrap;
                 }
