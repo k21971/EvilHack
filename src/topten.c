@@ -1590,7 +1590,7 @@ struct obj *otmp;
 
     /* don't make corpses from races that don't
        technically leave a corpse (crowned infidels) */
-    if (otmp->otyp == CORPSE && no_corpse(&mons[racendx]))
+    if (otmp->otyp == CORPSE && racendx >= LOW_PM && no_corpse(&mons[racendx]))
         return (struct obj *) 0;
 
     if (racendx > NON_PM) {

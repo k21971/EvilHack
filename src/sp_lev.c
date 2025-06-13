@@ -1752,7 +1752,9 @@ struct mkroom *croom;
                         && m_bad_boulder_spot(x, y)) {
                         int retrylimit = 10;
 
-                        remove_monster(x, y);
+                        /* only remove if x, y are valid coordinates */
+                        if (x >= 0 && y >= 0)
+                            remove_monster(x, y);
                         do {
                             x = m->x;
                             y = m->y;
