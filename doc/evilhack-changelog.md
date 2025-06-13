@@ -4581,4 +4581,5 @@ The following changes to date are:
 - Fix: clear mundetected flag when a polymorphed monster is stuck to
   the player
 - Fix: prevent array bounds violations in sp_lev.c and topten.c
+- Fix: prevent save corruption from unchecked file I/O
 

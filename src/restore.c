@@ -1333,8 +1333,8 @@ int fd;
 char *plbuf;
 {
     int pltmpsiz = 0;
-    (void) read(fd, (genericptr_t) &pltmpsiz, sizeof(pltmpsiz));
-    (void) read(fd, (genericptr_t) plbuf, pltmpsiz);
+    mread(fd, (genericptr_t) &pltmpsiz, sizeof(pltmpsiz));
+    mread(fd, (genericptr_t) plbuf, pltmpsiz);
     return;
 }
 

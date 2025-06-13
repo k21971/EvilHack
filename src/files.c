@@ -1128,7 +1128,7 @@ void
 save_savefile_name(fd)
 int fd;
 {
-    (void) write(fd, (genericptr_t) SAVEF, sizeof(SAVEF));
+    bwrite(fd, (genericptr_t) SAVEF, sizeof(SAVEF));
 }
 #endif
 
