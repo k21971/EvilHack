@@ -4578,4 +4578,6 @@ The following changes to date are:
 - Fix: potential use-after-free case (monster stepping on a magic trap
   causing it to explode)
 - Fix: Centaurs, jousting, and Ithilmar
+- Fix: clear mundetected flag when a polymorphed monster is stuck to
+  the player
 

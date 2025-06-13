@@ -6146,6 +6146,13 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
         separate_steed_and_rider(rider);
     }
 
+    /* clear mundetected if polymorphing monster is stuck to the player,
+       before checking hideunder */
+    if (u.ustuck == mtmp && mtmp->mundetected) {
+        mtmp->mundetected = 0;
+        newsym(mtmp->mx, mtmp->my);
+    }
+
     if (mtmp->mundetected)
         (void) hideunder(mtmp);
     if (u.ustuck == mtmp) {
