@@ -4573,4 +4573,6 @@ The following changes to date are:
 - Fix: null pointer dereference when monsters interact with magic chests
 - Fix: monster stepping on a magic trap causing it to explode did not
   destroy the trap
+- Fix: put a level restriction on when a Vampire player can use
+  #shapechange
 

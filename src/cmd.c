@@ -3559,7 +3559,7 @@ int final;
             enl_msg(You_, buf, buf, "", "");
         }
     }
-    if (Race_if(PM_VAMPIRE)) {
+    if (Race_if(PM_VAMPIRE) && u.ulevel >= 3) {
         if (u.uvampireshape == 0) {
             Sprintf(buf, "able to use your shapechange ability");
             you_are(buf, "");
@@ -6933,7 +6933,9 @@ dovampireshapechange(VOID_ARGS)
     if (!Race_if(PM_VAMPIRE)) {
         You("don't have access to this ability.");
     } else { /* player is a Vampire */
-        if (Upolyd && u.uvampireshape) {
+        if (u.ulevel < 3) {
+            You("must first reach experience level three to use this ability.");
+        } else if (Upolyd && u.uvampireshape) {
             /* manually revert back to original form,
                significantly reducing the cooldown timer.
                the cost of leaving shapechange early is a
