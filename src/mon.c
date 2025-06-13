@@ -2220,7 +2220,7 @@ register const char *str;
         || can_levitate(mtmp))
         return FALSE;
 
-    if (IS_MAGIC_CHEST(levl[mtmp->mx][mtmp->my].typ)) {
+    if (IS_MAGIC_CHEST(levl[mtmp->mx][mtmp->my].typ) && mchest) {
         /* set temporarily to make the for loop smoother,
            too many continues to change it to a while nicely. */
         otmp = mchest;

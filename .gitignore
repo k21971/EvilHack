@@ -62,3 +62,4 @@ Makefile.gcc-orig
 .DS_Store
 # misc
 dat/md*
+CLAUDE.md

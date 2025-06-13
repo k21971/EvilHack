@@ -1544,7 +1544,7 @@ register int after;
             lmx = max(1, omx - minr);
             lmy = max(0, omy - minr);
             otmp = fobj;
-            if (level.flags.nmagicchests) {
+            if (level.flags.nmagicchests && mchest) {
                 int mcx, mcy;
                 for (mcx = lmx; mcx <= oomx; ++mcx) {
                     for (mcy = lmy; mcy <= oomy; ++mcy) {
@@ -1632,16 +1632,20 @@ register int after;
                             gy = otmp->oy;
                             if (gx == omx && gy == omy) {
                                 mmoved = 3; /* actually unnecessary */
-                                mchest->ox = mchest->oy = 0;
-                                mchest->nobj = (struct obj *) 0;
+                                if (mchest) {
+                                    mchest->ox = mchest->oy = 0;
+                                    mchest->nobj = (struct obj *) 0;
+                                }
                                 goto postmov;
                             }
                         }
                     }
                 }
             }
-            mchest->ox = mchest->oy = 0;
-            mchest->nobj = (struct obj *) 0;
+            if (mchest) {
+                mchest->ox = mchest->oy = 0;
+                mchest->nobj = (struct obj *) 0;
+            }
         } else if (likegold) {
             /* don't try to pick up anything else, but use the same loop */
             uses_items = 0;
