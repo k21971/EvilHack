@@ -4571,4 +4571,6 @@ The following changes to date are:
 - Add material hatred to the in-game pokedex
 - Fix: pet apport value
 - Fix: null pointer dereference when monsters interact with magic chests
+- Fix: monster stepping on a magic trap causing it to explode did not
+  destroy the trap
 

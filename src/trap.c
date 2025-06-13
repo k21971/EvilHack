@@ -3120,11 +3120,10 @@ register struct monst *mtmp;
                 if (rn2(4)) {
                     int magic_dmg = rnd(10);
 
-                    if (in_sight) {
+                    deltrap(trap);
+                    if (in_sight)
                         pline("%s is caught in a magical explosion!",
                               Monnam(mtmp));
-                        seetrap(trap);
-                    }
                     damage_mon(mtmp, magic_dmg, AD_MAGM,
                                trap->madeby_u ? TRUE : FALSE);
                     if (DEADMONSTER(mtmp))
