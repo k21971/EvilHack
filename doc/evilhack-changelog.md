@@ -4577,4 +4577,5 @@ The following changes to date are:
   #shapechange
 - Fix: potential use-after-free case (monster stepping on a magic trap
   causing it to explode)
+- Fix: Centaurs, jousting, and Ithilmar
 

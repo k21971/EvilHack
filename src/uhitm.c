@@ -2551,7 +2551,8 @@ struct obj *obj;   /* weapon */
 {
     struct obj *barding;
     int skill_rating, joust_dieroll;
-    boolean ithilmar = ((barding = which_armor(u.usteed, W_BARDING)) != 0
+    boolean ithilmar = (u.usteed
+                        && (barding = which_armor(u.usteed, W_BARDING)) != 0
                         && barding->oartifact == ART_ITHILMAR);
 
     if (Fumbling || Stunned)
