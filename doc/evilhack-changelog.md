@@ -4582,4 +4582,5 @@ The following changes to date are:
   the player
 - Fix: prevent array bounds violations in sp_lev.c and topten.c
 - Fix: prevent save corruption from unchecked file I/O
+- Fix: initialize variables to prevent undefined behavior
 

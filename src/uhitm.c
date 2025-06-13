@@ -5708,7 +5708,7 @@ shield_dmg(obj, mon)
 struct monst *mon;
 struct obj *obj;
 {
-    int tmp;
+    int tmp = 0;
     if (uarms && P_SKILL(P_SHIELD) >= P_BASIC) {
         /* dmgval for shields is just one point,
            plus whatever material damage applies */

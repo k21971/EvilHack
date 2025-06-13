@@ -1340,7 +1340,7 @@ long wep_mask; /* used to re-equip returning boomerang */
 boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
 {
     register struct monst *mon;
-    int range, urange;
+    int range = 0, urange;
     boolean crossbowing, clear_thrownobj = FALSE,
             impaired = (Confusion || Stunned || Blind
                         || Hallucination || Fumbling),

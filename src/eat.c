@@ -1819,7 +1819,7 @@ start_tin(otmp)
 struct obj *otmp;
 {
     const char *mesg = 0;
-    register int tmp;
+    register int tmp = 0;
 
     if (metallivorous(youmonst.data)) {
         mesg = "You bite right into the metal tin...";

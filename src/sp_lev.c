@@ -3282,6 +3282,7 @@ struct sp_coder *coder;
     tmpobj.invis = 0;
     tmpobj.greased = 0;
     tmpobj.broken = 0;
+    tmpobj.forged_qual = 0;
     tmpobj.coord = SP_COORD_PACK_RANDOM(0);
 
     if (!OV_pop_i(containment))
