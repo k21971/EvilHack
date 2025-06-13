@@ -1556,8 +1556,10 @@ boolean uncomp;
             redirect(filename, RDBMODE, stdin, uncomp);
             redirect(cfn, WRBMODE, stdout, uncomp);
         }
-        (void) setgid(getgid());
-        (void) setuid(getuid());
+        if (setgid(getgid()) == -1 || setuid(getuid()) == -1) {
+            perror("Failed to drop privileges");
+            nh_terminate(EXIT_FAILURE);
+        }
         (void) execv(args[0], (char *const *) args);
         perror((char *) 0);
         (void) fprintf(stderr, "Exec to %scompress %s failed.\n",

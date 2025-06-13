@@ -423,7 +423,9 @@ linux_mapon()
 {
 #ifdef TTY_GRAPHICS
     if (WINDOWPORT("tty") && linux_flag_console) {
-        write(1, "\033(B", 3);
+        if (write(1, "\033(B", 3) == -1) {
+            /* ignore terminal escape sequence failures */
+        }
     }
 #endif
 }
@@ -433,7 +435,9 @@ linux_mapoff()
 {
 #ifdef TTY_GRAPHICS
     if (WINDOWPORT("tty") && linux_flag_console) {
-        write(1, "\033(U", 3);
+        if (write(1, "\033(U", 3) == -1) {
+            /* ignore terminal escape sequence failures */
+        }
     }
 #endif
 }

@@ -24,15 +24,17 @@ VARDIR = $(HACKDIR)/var
 
 POSTINSTALL=cp --update=none sys/unix/sysconf $(INSTDIR)/sysconf; $(CHOWN) $(GAMEUID) $(INSTDIR)/sysconf; $(CHGRP) $(GAMEGRP) $(INSTDIR)/sysconf; chmod $(VARFILEPERM) $(INSTDIR)/sysconf;
 
-CFLAGS=-g3 -O0 -I../include -DNOTPARMDECL -fno-common
+CFLAGS=-g3 -O2 -I../include -DNOTPARMDECL -fno-common
 CFLAGS+=-DDLB
 CFLAGS+=-DCOMPRESS=\"/bin/gzip\" -DCOMPRESS_EXTENSION=\".gz\"
 CFLAGS+=-DGCC_WARN -Wall -Wextra -Wformat
 CFLAGS+=-Wimplicit -Wreturn-type -Wunused -Wswitch -Wshadow -Wwrite-strings
-CFLAGS+=-pedantic -Wstringop-truncation -Wunused-result -Wunreachable-code
+CFLAGS+=-pedantic -Wunused-result -Wunreachable-code
 CFLAGS+=-Wimplicit-function-declaration -Wimplicit-int
 CFLAGS+=-Wno-missing-field-initializers -Wno-old-style-definition
 CFLAGS+=-Wno-format-overflow -Wno-stringop-overflow
+# Suppress string truncation warnings - these are intentional safety measures
+CFLAGS+=-Wno-stringop-truncation
 # Uncomment this is you plan on fuzzing with ASAN enabled
 #CFLAGS+=-fsanitize=address -fno-omit-frame-pointer
 CFLAGS+=-DSYSCF -DSYSCF_FILE=\"$(HACKDIR)/sysconf\" -DSECURE
@@ -50,6 +52,10 @@ CFLAGS+=-DDGAMELAUNCH
 CFLAGS+=-DLIVELOG_ENABLE
 CFLAGS+=-DDUMPLOG
 CFLAGS+=-DDUMPHTML
+
+# CPU-specific optimizations for my wizmode box [Intel Core i7-6770HQ (Skylake)]
+# do not uncomment this if your system does match (or at the very least edit it)
+#CFLAGS+=-march=skylake -mtune=skylake -ffast-math -funroll-loops -fprefetch-loop-arrays
 
 # detection of clang vs gcc
 CCISCLANG := $(shell echo `$(CC) --version` | grep clang)

@@ -320,10 +320,14 @@ int wt;
     linux_mapon();
 #endif
     if ((f = fork()) == 0) { /* child */
-        (void) setgid(getgid());
-        (void) setuid(getuid());
+        if (setgid(getgid()) == -1 || setuid(getuid()) == -1) {
+            perror("Failed to drop privileges");
+            nh_terminate(EXIT_FAILURE);
+        }
 #ifdef CHDIR
-        (void) chdir(getenv("HOME"));
+        if (chdir(getenv("HOME")) == -1) {
+            /* chdir failure is not critical, continue */
+        }
 #endif
         return 1;
     }

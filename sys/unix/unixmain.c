@@ -484,8 +484,10 @@ boolean wr;
 #endif
         ) {
 #ifdef SECURE
-        (void) setgid(getgid());
-        (void) setuid(getuid()); /* Ron Wessels */
+        if (setgid(getgid()) == -1 || setuid(getuid()) == -1) {
+            perror("Failed to drop privileges");
+            nh_terminate(EXIT_FAILURE);
+        }
 #endif
     } else {
         /* non-default data files is a sign that scores may not be

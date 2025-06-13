@@ -117,8 +117,10 @@ char *argv[];
         && strcmp(dir, HACKDIR)
 #endif
             ) {
-        (void) setgid(getgid());
-        (void) setuid(getuid());
+        if (setgid(getgid()) == -1 || setuid(getuid()) == -1) {
+            perror("Failed to drop privileges");
+            exit(EXIT_FAILURE);
+        }
     }
 #endif /* SECURE && !VMS */
 
