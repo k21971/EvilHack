@@ -845,23 +845,50 @@ struct obj *obj;
             mkgate();
         }
     } else if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
-        if (u.uhave.menorah)
-            impossible("already have candelabrum?");
-        u.uhave.menorah = 1;
+        if (u.uhave.menorah) {
+            if (wizard || iflags.debug_fuzzer) {
+                /* wizard mode/fuzzing - handle gracefully */
+                You("already have %s!  Creating a duplicate...",
+                    the(xname(obj)));
+            } else {
+                /* normal play - this shouldn't happen */
+                impossible("already have candelabrum?");
+            }
+        } else {
+            u.uhave.menorah = 1;
+        }
         if (!u.uachieve.menorah)
             livelog_write_string(LL_ACHIEVE, "acquired the Candelabrum of Invocation");
         u.uachieve.menorah = 1;
     } else if (obj->otyp == BELL_OF_OPENING) {
-        if (u.uhave.bell)
-            impossible("already have silver bell?");
-        u.uhave.bell = 1;
+        if (u.uhave.bell) {
+            if (wizard || iflags.debug_fuzzer) {
+                /* wizard mode/fuzzing - handle gracefully */
+                You("already have %s!  Creating a duplicate...",
+                    the(xname(obj)));
+            } else {
+                /* normal play - this shouldn't happen */
+                impossible("already have silver bell?");
+            }
+        } else {
+            u.uhave.bell = 1;
+        }
         if (!u.uachieve.bell)
             livelog_write_string(LL_ACHIEVE, "acquired the Bell of Opening");
         u.uachieve.bell = 1;
     } else if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
-        if (u.uhave.book)
-            impossible("already have the book?");
-        u.uhave.book = 1;
+        if (u.uhave.book) {
+            if (wizard || iflags.debug_fuzzer) {
+                /* wizard mode/fuzzing - handle gracefully */
+                You("already have %s!  Creating a duplicate...",
+                    the(xname(obj)));
+            } else {
+                /* normal play - this shouldn't happen */
+                impossible("already have the book?");
+            }
+        } else {
+            u.uhave.book = 1;
+        }
         if (!u.uachieve.book)
             livelog_write_string(LL_ACHIEVE, "acquired the Book of the Dead");
         u.uachieve.book = 1;
