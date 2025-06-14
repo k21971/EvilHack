@@ -4587,4 +4587,5 @@ The following changes to date are:
   approach
 - Fix: add error checking for fread in sys_random_seed
 - Fix: race condition crash in gaze attack system
+- Fuzzer randomly teleports between dungeon branches
 

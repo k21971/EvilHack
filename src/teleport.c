@@ -5,6 +5,8 @@
 
 #include "hack.h"
 
+extern int n_dgns; /* number of dungeons, from dungeon.c */
+
 STATIC_DCL boolean FDECL(tele_jump_ok, (int, int, int, int));
 STATIC_DCL boolean FDECL(teleok, (int, int, BOOLEAN_P));
 STATIC_DCL void NDECL(vault_tele);
@@ -847,8 +849,38 @@ level_tele()
     char buf[BUFSZ];
     boolean force_dest = FALSE;
 
-    if (iflags.debug_fuzzer)
-        goto random_levtport;
+    if (iflags.debug_fuzzer) {
+        /* NetHack 3.7 improvement: randomly choose a dungeon branch and
+           a level in that branch to level teleport to, instead of mostly
+           staying in the Dungeons of Doom.
+
+           Target all dungeons except Fort Ludios (6) and The Elemental
+           Planes (13) */
+        int safe_dungeons[] = { 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12 };
+        int num_safe = sizeof(safe_dungeons) / sizeof(safe_dungeons[0]);
+        int selected_dungeon = safe_dungeons[rn2(num_safe)];
+        int max_levels;
+
+        newlevel.dnum = selected_dungeon;
+        newlevel.dlevel = 1; /* safe default */
+
+        /* Ensure the selected dungeon is valid */
+        if (newlevel.dnum < n_dgns
+            && dungeons[newlevel.dnum].num_dunlevs > 0) {
+            max_levels = dunlevs_in_dungeon(&newlevel);
+            if (max_levels > 0) {
+                newlevel.dlevel = 1 + rn2(max_levels);
+            }
+        }
+
+        /* Final safety check */
+        if (newlevel.dlevel <= 0) {
+            newlevel.dlevel = 1;
+        }
+
+        schedule_goto(&newlevel, FALSE, FALSE, 0, (char *) 0, (char *) 0);
+        return;
+    }
     if ((u.uhave.amulet || In_endgame(&u.uz)
         || In_V_tower(&u.uz) || In_sokoban(&u.uz)
         || (Is_sanctum(&u.uz) && u.uachieve.amulet)
