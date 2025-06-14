@@ -4586,4 +4586,5 @@ The following changes to date are:
 - Fix: address remaining compilation warnings using -O2 with hybrid
   approach
 - Fix: add error checking for fread in sys_random_seed
+- Fix: race condition crash in gaze attack system
 

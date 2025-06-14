@@ -1803,10 +1803,22 @@ dogaze()
     char qbuf[QBUFSZ];
     int i;
     uchar adtyp = 0;
+    struct permonst *player_form;
+
+    /* Use u.umonnum as authoritative source for player's actual
+       form to prevent race conditions when youmonst.data is
+       temporarily reassigned (e.g., during inventory display in
+       display_minventory() [invent.c]) */
+    if (!Upolyd) {
+        You("can't use a gaze attack in your normal form.");
+        return 0;
+    }
+
+    player_form = &mons[u.umonnum];
 
     for (i = 0; i < NATTK; i++) {
-        if (youmonst.data->mattk[i].aatyp == AT_GAZE) {
-            adtyp = youmonst.data->mattk[i].adtyp;
+        if (player_form->mattk[i].aatyp == AT_GAZE) {
+            adtyp = player_form->mattk[i].adtyp;
             break;
         }
     }
