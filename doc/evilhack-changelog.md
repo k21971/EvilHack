@@ -4598,4 +4598,5 @@ The following changes to date are:
 - Fix: Guidebook warning during compilation (table wider than line
   length minus indentation) 
 - Fix: "don't have candelabrum?" while fuzzing
+- Fix: enhanced portal migration crash prevention
 

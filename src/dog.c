@@ -727,9 +727,20 @@ boolean with_you;
         if (t) {
             xlocale = t->tx, ylocale = t->ty;
             break;
-        } else {
+        } else if (iflags.debug_fuzzer && (xupstair || xdnstair)) {
+            /* debugfuzzer fallback: use stairs if available */
+            if (xupstair) {
+                xlocale = xupstair, ylocale = yupstair;
+            } else {
+                xlocale = xdnstair, ylocale = ydnstair;
+            }
+            break;
+        } else if (!(u.uevent.qexpelled
+                     && (Is_qstart(&u.uz0) || Is_qstart(&u.uz)))) {
+            /* Only show impossible for non-quest-expulsion cases */
             impossible("mon_arrive: no corresponding portal?");
-        } /*FALLTHRU*/
+        }
+        /*FALLTHRU*/
     default:
     case MIGR_RANDOM:
         xlocale = ylocale = 0;
