@@ -3147,8 +3147,13 @@ dmonsfree()
         freetmp = *mtmp;
 
         if (DEADMONSTER(freetmp)
-            && freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+            && freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
             icequeenrevive(freetmp);
+            /* Ice Queen revival restores HP, making DEADMONSTER() false,
+               so adjust purge counter to prevent accounting mismatch */
+            if (!DEADMONSTER(freetmp))
+                iflags.purge_monsters--;
+        }
 
         if (DEADMONSTER(freetmp) && !freetmp->isgd) {
             *mtmp = freetmp->nmon;
