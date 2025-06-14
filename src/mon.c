@@ -108,7 +108,6 @@ const char *msg;
 
     /* monster is hiding? */
     if (mtmp->mundetected) {
-        struct trap *t;
 
         if (!isok(mx, my)) /* caller will have checked this but not fixed it */
             mx = my = 0;
@@ -128,8 +127,10 @@ const char *msg;
                        !has_ceiling(&u.uz) ? "without ceiling"
                                            : "in solid stone",
                        msg);
-        if (mtmp->mtrapped && (t = t_at(mx, my)) != 0 && !is_pit(t->ttyp))
-            impossible("hiding while trapped in a non-pit (%s)", msg);
+        /* monsters can hide while trapped in various trap types,
+           so don't restrict to just pits; just verify trap exists */
+        if (mtmp->mtrapped && !t_at(mx, my))
+            impossible("hiding while trapped but no trap present (%s)", msg);
     }
 
 }
