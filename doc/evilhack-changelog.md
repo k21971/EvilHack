@@ -4592,4 +4592,5 @@ The following changes to date are:
 - Fix: "already have candelabrum?" while fuzzing
 - Fix: crash during quest expulsion portal deletion
 - Fix: "Couldn't place lregion type 6!" wiztower level 2
+- Fix: "No window slots!" crash in TTY interface (MAXWIN exhaustion)
 
