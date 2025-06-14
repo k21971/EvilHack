@@ -4597,4 +4597,5 @@ The following changes to date are:
 - Fix: Ice Queen revival accounting mismatch (dmonsfree crash)
 - Fix: Guidebook warning during compilation (table wider than line
   length minus indentation) 
+- Fix: "don't have candelabrum?" while fuzzing
 
