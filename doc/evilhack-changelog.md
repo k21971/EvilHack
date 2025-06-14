@@ -4588,4 +4588,5 @@ The following changes to date are:
 - Fix: add error checking for fread in sys_random_seed
 - Fix: race condition crash in gaze attack system
 - Fuzzer randomly teleports between dungeon branches
+- Fix: missing CLC_CALL_UNDEAD case in ucast_cleric_spell()
 

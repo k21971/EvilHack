@@ -2830,6 +2830,25 @@ int spellnum;
             (void) cast_stoneskin(mattk);
         dmg = 0;
         break;
+    case CLC_CALL_UNDEAD:
+        if (!yours) {
+            /* summon undead near the casting monster */
+            coord mm;
+            mm.x = mattk->mx;
+            mm.y = mattk->my;
+            if (canseemon(mattk))
+                pline("%s calls forth undead creatures from the grave!",
+                      Monnam(mattk));
+            mkundead(&mm, FALSE, NO_MINVENT);
+        } else { /* player casting */
+            coord mm;
+            mm.x = u.ux;
+            mm.y = u.uy;
+            pline("Undead creatures are called forth from the grave!");
+            mkundead(&mm, FALSE, NO_MINVENT);
+        }
+        dmg = 0;
+        break;
     default:
         impossible("ucastm: invalid clerical spell (%d)", spellnum);
         dmg = 0;
