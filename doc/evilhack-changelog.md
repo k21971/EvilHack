@@ -4595,4 +4595,6 @@ The following changes to date are:
 - Fix: "No window slots!" crash in TTY interface (MAXWIN exhaustion)
 - Fix: overly restrictive hiding monster sanity check (traps)
 - Fix: Ice Queen revival accounting mismatch (dmonsfree crash)
+- Fix: Guidebook warning during compilation (table wider than line
+  length minus indentation) 
 

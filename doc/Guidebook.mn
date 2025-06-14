@@ -4576,10 +4576,11 @@ control character.
 .\" to be too wide when generating plain text output.  Two spaces leaves
 .\" some room between the symbol character and name.)  Entries in first
 .\" column now use constant-width Roman font to approximate TeX tt font.
+.ll +30n
 .TS S
-center;
+;
 l s s
-l1fCR l1 l.
+lfCR l l.
 .\"TABLE_START
 NetHack Symbols
 \ \ 	Symbol Name	Description
@@ -4771,6 +4772,7 @@ Z	S_zombie	(zombie)
 \ 	S_hero_override	(hero if ACCESSIBILITY=1 is set)
 .\"TABLE_END  Do not delete this line.
 .TE
+.ll -30n
 .\" don't hyphenate file name across lines
 .hw sysconf
 .pg
