@@ -216,9 +216,31 @@ boolean seal;
 
     if (seal) { /* remove the portal to the quest - sealing it off */
         int reexpelled = u.uevent.qexpelled;
+        struct monst *mtmp;
+        int portal_migrants = 0;
 
         u.uevent.qexpelled = 1;
         remdun_mapseen(quest_dnum);
+
+        /* Check if any monsters are migrating to this level via portal */
+        for (mtmp = migrating_mons; mtmp; mtmp = mtmp->nmon) {
+            if ((mtmp->mtrack[0].x == MIGR_PORTAL)
+                && (mtmp->mux == u.uz.dnum
+                    || mtmp->mux == quest_dnum)) {
+                portal_migrants++;
+                /* Change migration type to approximate coordinates to
+                   prevent crash */
+                mtmp->mtrack[0].x = MIGR_APPROX_XY;
+                /* will be set to valid location on arrival */
+                mtmp->mtrack[0].y = 0;
+            }
+        }
+
+        if (portal_migrants && (wizard || iflags.debug_fuzzer)) {
+            pline("[%d monster%s migrating via portal, redirected to approximate location]",
+                  portal_migrants, portal_migrants == 1 ? " was" : "s were");
+        }
+
         /* Delete the near portal now; the far (main dungeon side)
            portal will be deleted as part of arrival on that level.
            If monster movement is in progress, any who haven't moved
