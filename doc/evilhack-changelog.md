@@ -4591,4 +4591,5 @@ The following changes to date are:
 - Fix: missing CLC_CALL_UNDEAD case in ucast_cleric_spell()
 - Fix: "already have candelabrum?" while fuzzing
 - Fix: crash during quest expulsion portal deletion
+- Fix: "Couldn't place lregion type 6!" wiztower level 2
 
