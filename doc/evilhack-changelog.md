@@ -4585,3 +4585,5 @@ The following changes to date are:
 - Fix: initialize variables to prevent undefined behavior
 - Fix: address remaining compilation warnings using -O2 with hybrid
   approach
+- Fix: add error checking for fread in sys_random_seed
+
