@@ -5516,7 +5516,10 @@ boolean say; /* Announce out of sight hit/miss events if true */
                     }
 
                     if (tmp == MAGIC_COOKIE) { /* disintegration */
-                        disintegrate_mon(mon, type, fltxt);
+                        /* Don't disintegrate already detached monsters */
+                        if (!DEADMONSTER(mon) && !(mon->mstate & MON_DETACH)) {
+                            disintegrate_mon(mon, type, fltxt);
+                        }
                     } else if (DEADMONSTER(mon)) {
                         if (type < 0) {
                             /* mon was already dead before this attack - don't kill again */
