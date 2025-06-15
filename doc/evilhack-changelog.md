@@ -4602,4 +4602,6 @@ The following changes to date are:
 - Fix: comprehensive double-detach prevention and defensive death
   processing
 - Fix: "Couldn't place lregion type %d!" minetown (minetn-1)
+- Fix: "m_detach: monster type %d at (%d,%d) is already detached?"
+  (monster spell 'acid blast')
 

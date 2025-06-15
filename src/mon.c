@@ -4209,6 +4209,13 @@ int how;
 {
     boolean be_sad = FALSE; /* true if unseen pet is killed */
 
+    /* Check if monster is already marked for death */
+    if (mdef->mstate & MON_DETACH) {
+        impossible("monkilled: monster type %d at (%d,%d) is already detached",
+                   monsndx(mdef->data), mdef->mx, mdef->my);
+        return;
+    }
+
     if ((mdef->wormno ? worm_known(mdef) : cansee(mdef->mx, mdef->my))
         && fltxt)
         pline("%s is %s%s%s!", Monnam(mdef),
@@ -4238,6 +4245,13 @@ const char *fltxt;
 int how;
 {
     boolean be_sad = FALSE; /* true if unseen pet is killed */
+
+    /* Check if monster is already marked for death */
+    if (mdef->mstate & MON_DETACH) {
+        impossible("mon_xkilled: monster type %d at (%d,%d) is already detached",
+                   monsndx(mdef->data), mdef->mx, mdef->my);
+        return;
+    }
 
     if ((mdef->wormno ? worm_known(mdef) : cansee(mdef->mx, mdef->my))
         && fltxt)
