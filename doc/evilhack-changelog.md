@@ -4607,4 +4607,5 @@ The following changes to date are:
 - Fix: remove overzealous external MON_DETACH checks causing accounting
   mismatches (dmonsfree)
 - Fix: monster vs monster combat double-detach prevention
+- Fix: monster spellcasting double-detach prevention
 

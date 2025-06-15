@@ -1971,7 +1971,7 @@ struct attack *mattk;
 
     if (dmg) {
         mdef->mhp -= dmg;
-        if (DEADMONSTER(mdef))
+        if (DEADMONSTER(mdef) && !(mdef->mstate & MON_DETACH))
             monkilled(mdef, "", mattk->adtyp);
     }
 
@@ -2158,7 +2158,7 @@ struct attack *mattk;
 
     if (dmg) {
         mtmp->mhp -= dmg;
-        if (DEADMONSTER(mtmp))
+        if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH))
             killed(mtmp);
     }
 
@@ -2222,11 +2222,12 @@ int spellnum;
                           ? "seems no more dead than before"
                           : "is unaffected");
         } else if (!resisted) {
-            mtmp->mhp = -1;
-            if (yours)
-                killed(mtmp);
-            else
-                monkilled(mtmp, "", AD_SPEL);
+            if (!(mtmp->mstate & MON_DETACH)) {
+                if (yours)
+                    killed(mtmp);
+                else
+                    monkilled(mtmp, "", AD_SPEL);
+            }
             return;
         } else {
             if (resisted)
@@ -2392,10 +2393,12 @@ int spellnum;
             /* monsters don't have strength, so drain max hp instead */
             mtmp->mhpmax -= dmg;
             if ((mtmp->mhp -= dmg) <= 0) {
-                if (yours)
-                    killed(mtmp);
-                else
-                    monkilled(mtmp, "", AD_SPEL);
+                if (!(mtmp->mstate & MON_DETACH)) {
+                    if (yours)
+                        killed(mtmp);
+                    else
+                        monkilled(mtmp, "", AD_SPEL);
+                }
             }
         }
         dmg = 0;
@@ -2510,7 +2513,7 @@ int spellnum;
 
     if (dmg) {
         mtmp->mhp -= dmg;
-        if (DEADMONSTER(mtmp)) {
+        if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH)) {
             if (yours)
                 killed(mtmp);
             else
@@ -2857,7 +2860,7 @@ int spellnum;
 
     if (dmg) {
         mtmp->mhp -= dmg;
-        if (DEADMONSTER(mtmp)) {
+        if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH)) {
             if (yours)
                 killed(mtmp);
             else
