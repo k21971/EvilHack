@@ -378,6 +378,20 @@ bc_order()
         if (obj == uball)
             return BCPOS_BALL;
     }
+    /* When punished by angry gods while standing on open air terrain,
+       the ball falls during flooreffects() in placebc_core(), removing
+       it from the floor. Then drop_ball() is called, and if the player
+       is blind, bc_order() gets called expecting the ball to still be
+       on the floor. Check if ball is actually present before complaining. */
+    for (obj = level.objects[uball->ox][uball->oy]; obj; obj = obj->nexthere) {
+        if (obj == uball || obj == uchain)
+            break;
+    }
+    if (!obj) {
+        /* Ball and chain aren't actually at the recorded location -
+           this happens when the ball falls through open air terrain */
+        return BCPOS_DIFFER;
+    }
     impossible("bc_order:  ball&chain not in same location!");
     return BCPOS_DIFFER;
 }
