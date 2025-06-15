@@ -231,7 +231,7 @@ ENDMAP
 # Dungeon Description
 REGION:(00,00,20,06),lit,"ordinary"
 # Stairs
-STAIR:levregion(72,02,78,18),levregion(72,02,64,18),up
+STAIR:levregion(72,02,78,18),levregion(64,02,72,18),up
 # Nemesis
 MONSTER:('@',"Baba Yaga"),(10,03),hostile
 OBJECT:('[',"runed bracers"),(10,03),blessed,0,name:"Bracers of the First Circle"

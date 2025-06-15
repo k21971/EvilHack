@@ -4612,4 +4612,5 @@ The following changes to date are:
 - Fix: systematic double-detach prevention across all damage sources
 - Fix: ball & chain positioning crash on open air terrain
 - Fix: dmonsfree accounting mismatch for special monster resurrections
+- Fix: Druid quest goal level generation constraint crash
 
