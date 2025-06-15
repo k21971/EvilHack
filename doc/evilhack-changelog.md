@@ -4606,4 +4606,5 @@ The following changes to date are:
   (monster spell 'acid blast')
 - Fix: remove overzealous external MON_DETACH checks causing accounting
   mismatches (dmonsfree)
+- Fix: monster vs monster combat double-detach prevention
 
