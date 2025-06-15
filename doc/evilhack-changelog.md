@@ -4608,4 +4608,5 @@ The following changes to date are:
   mismatches (dmonsfree)
 - Fix: monster vs monster combat double-detach prevention
 - Fix: monster spellcasting double-detach prevention
+- Fix: monster explode double-detach prevention
 
