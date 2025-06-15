@@ -4609,4 +4609,5 @@ The following changes to date are:
 - Fix: monster vs monster combat double-detach prevention
 - Fix: monster spellcasting double-detach prevention
 - Fix: monster explode double-detach prevention
+- Fix: systematic double-detach prevention across all damage sources
 

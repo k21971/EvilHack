@@ -3169,12 +3169,20 @@ dmonsfree()
     }
 
     if (count != iflags.purge_monsters) {
+        int living_count = 0;
+        struct monst *m;
+
+        /* Count living monsters for additional diagnostics */
+        for (m = fmon; m; m = m->nmon)
+            if (!DEADMONSTER(m))
+                living_count++;
+
         describe_level(buf);
         /* Enhanced diagnostic data for debugging accounting mismatch */
         impossible("dmonsfree: %d removed doesn't match %d pending on %s. "
-                   "Dead monsters found: %d, Current turn: %ld, Level depth: %d",
-                   count, iflags.purge_monsters, buf, count,
-                   moves, depth(&u.uz));
+                   "Turn: %ld, Depth: %d, Living monsters: %d",
+                   count, iflags.purge_monsters, buf,
+                   moves, depth(&u.uz), living_count);
     }
     iflags.purge_monsters = 0;
 }

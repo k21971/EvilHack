@@ -406,7 +406,7 @@ int force;
                         mselftouch(mtmp, "Falling, ", TRUE);
                         if (!DEADMONSTER(mtmp)) {
                             damage_mon(mtmp, rnd(m_already_trapped ? 4 : 6), AD_PHYS, TRUE);
-                            if (DEADMONSTER(mtmp)) {
+                            if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH)) {
                                 if (!cansee(x, y)) {
                                     pline("It is destroyed!");
                                 } else {

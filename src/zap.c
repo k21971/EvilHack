@@ -354,7 +354,7 @@ struct obj *otmp;
                                       mon_nam(mtmp));
                         if (unique_corpstat(mtmp->data))
                             dmg *= 2;
-                        else
+                        else if (!(mtmp->mstate & MON_DETACH))
                             killed(mtmp);
                         break;
                     }
@@ -656,7 +656,7 @@ struct obj *otmp;
                 damage_mon(mtmp, dmg, AD_PHYS, TRUE);
                 if (canseemon(mtmp))
                     pline("%s shudders in agony!", Monnam(mtmp));
-                if (DEADMONSTER(mtmp))
+                if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH))
                     killed(mtmp);
             }
         }

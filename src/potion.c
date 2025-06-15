@@ -2007,7 +2007,7 @@ int how;
                     damage_mon(mon, d(2, 6), AD_ACID,
                                your_fault ? TRUE : FALSE);
                     /* should only be by you */
-                    if (DEADMONSTER(mon))
+                    if (DEADMONSTER(mon) && !(mon->mstate & MON_DETACH))
                         killed(mon);
                     else if (is_were(mon->data) && !is_human(mon->data))
                         new_were(mon); /* revert to human */
@@ -2031,7 +2031,7 @@ int how;
                 damage_mon(mon, d(1, 6), AD_PHYS,
                            your_fault ? TRUE : FALSE);
                 /* should only be by you */
-                if (DEADMONSTER(mon))
+                if (DEADMONSTER(mon) && !(mon->mstate & MON_DETACH))
                     killed(mon);
             }
             break;
@@ -2049,7 +2049,7 @@ int how;
                     wake_nearto(tx, ty, mon->data->mlevel * 10);
                 damage_mon(mon, d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8),
                            AD_ACID, your_fault ? TRUE : FALSE);
-                if (DEADMONSTER(mon)) {
+                if (DEADMONSTER(mon) && !(mon->mstate & MON_DETACH)) {
                     if (your_fault)
                         killed(mon);
                     else
