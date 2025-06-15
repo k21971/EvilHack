@@ -4601,4 +4601,5 @@ The following changes to date are:
 - Fix: enhanced portal migration crash prevention
 - Fix: comprehensive double-detach prevention and defensive death
   processing
+- Fix: "Couldn't place lregion type %d!" minetown (minetn-1)
 

@@ -79,7 +79,7 @@ MAP
 ENDMAP
 
 # Don't let the player fall into his likely death
-TELEPORT_REGION:levregion(01,01,70,19),levregion(21,02,55,18),down
+TELEPORT_REGION:levregion(01,01,70,19),levregion(02,02,35,17),down
 REGION:(00,00,36,16),lit,"ordinary"
 STAIR:levregion(01,03,20,19),(00,00,36,15),up
 STAIR:levregion(61,03,75,19),(00,00,36,15),down
