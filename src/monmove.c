@@ -618,6 +618,11 @@ register struct monst *mtmp;
         if (mtmp->m_id % 3 < 1) {
             oldx = mtmp->mx; oldy = mtmp->my;
             mongone(mtmp);
+            /* mongone() called m_detach() which incremented purge counter.
+             * Since we're immediately replacing the Snark and won't return
+             * to process it in dmonsfree(), we need to decrement the counter
+             * to prevent accounting mismatch */
+            iflags.purge_monsters--;
             mdummy = makemon(&mons[PM_BOOJUM], oldx, oldy, NO_MM_FLAGS);
             /* If someone has managed to extinct boojum, this will
              * result in the monster just vanishing.  But this should

@@ -6265,8 +6265,11 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
         mtmp->mhp = mtmp->mhpmax;
     /* unlikely but not impossible; a 1HD creature with 1HP that changes
        into a 0HD creature will require this statement */
-    if (!mtmp->mhp)
-        mtmp->mhp = 1;
+    if (!mtmp->mhp) {
+        /* Don't resurrect monsters marked for death - prevents purge mismatch */
+        if (!(mtmp->mstate & MON_DETACH))
+            mtmp->mhp = 1;
+    }
 
     /* take on the new form... */
     set_mon_data(mtmp, mdat);
