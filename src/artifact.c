@@ -1941,7 +1941,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     } else {
                         /* guard against mdef being killed twice should
                            it die before we reach this point */
-                        if (!DEADMONSTER(mdef)) {
+                        if (!DEADMONSTER(mdef) && !(mdef->mstate & MON_DETACH)) {
                             if (show_instakill)
                                 pline("%s ignites and turns to ash!", Monnam(mdef));
                             if (youattack)
@@ -1965,7 +1965,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else {
                 /* guard against mdef being killed twice should
                    it die before we reach this point */
-                if (!DEADMONSTER(mdef)) {
+                if (!DEADMONSTER(mdef) && !(mdef->mstate & MON_DETACH)) {
                     if (show_instakill)
                         pline("The infernal trident's eldritch flame consumes %s!", hittee);
                     if (youattack)
@@ -2275,7 +2275,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else { /* you or mon hit monster */
                 /* guard against mdef being killed twice should
                    it die before we reach this point */
-                if (!DEADMONSTER(mdef)) {
+                if (!DEADMONSTER(mdef) && !(mdef->mstate & MON_DETACH)) {
                     if (youattack) {
                         xkilled(mdef, XKILL_NOMSG);
                     } else {
@@ -2361,7 +2361,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else { /* you or mon hit monster */
                 /* guard against mdef being killed twice should
                    it die before we reach this point */
-                if (!DEADMONSTER(mdef)) {
+                if (!DEADMONSTER(mdef) && !(mdef->mstate & MON_DETACH)) {
                     if (youattack) {
                         xkilled(mdef, XKILL_NOMSG);
                     } else {
@@ -2419,7 +2419,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         }
                         mdef->mhp = mdef->mhpmax;
                     } else {
-                        if (!DEADMONSTER(mdef))
+                        if (!DEADMONSTER(mdef) && !(mdef->mstate & MON_DETACH))
                             xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                     }
                 } else {
@@ -2583,7 +2583,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     } else {
                         /* guard against mdef being killed twice should
                            it die before we reach this point */
-                        if (!DEADMONSTER(mdef)) {
+                        if (!DEADMONSTER(mdef) && !(mdef->mstate & MON_DETACH)) {
                             if (show_instakill)
                                 pline("%s ignites and turns to ash!", Monnam(mdef));
                             if (youattack)
@@ -2716,7 +2716,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         case ART_TROLLSBANE:
             if (youattack && is_troll(mdef->data) && j) {
                 pline("As you strike %s, it bursts into flame!", mon_nam(mdef));
-                xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                if (!DEADMONSTER(mdef) && !(mdef->mstate & MON_DETACH))
+                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
             } else if (!youattack && !youdefend
                        && magr && is_troll(mdef->data) && j) {
                 if (show_instakill)
@@ -2776,7 +2777,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 } else {
                     pline("The consecrated blade flares brightly as it incinerates %s!",
                           mon_nam(mdef));
-                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                    if (!DEADMONSTER(mdef) && !(mdef->mstate & MON_DETACH))
+                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                 }
             } else if (!youattack && !youdefend
                        && magr && is_undead(mdef->data) && j) {
@@ -2881,7 +2883,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 } else {
                     pline("The divine hammer flares brightly as it incinerates %s!",
                           mon_nam(mdef));
-                    xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
+                    if (!DEADMONSTER(mdef) && !(mdef->mstate & MON_DETACH))
+                        xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                 }
             } else if (!youattack && !youdefend
                        && magr && is_demon(mdef->data) && j) {

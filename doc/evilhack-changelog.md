@@ -4599,4 +4599,6 @@ The following changes to date are:
   length minus indentation) 
 - Fix: "don't have candelabrum?" while fuzzing
 - Fix: enhanced portal migration crash prevention
+- Fix: comprehensive double-detach prevention and defensive death
+  processing
 

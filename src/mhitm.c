@@ -180,7 +180,7 @@ int target, roll;
                 searmsg(mdef, magr, blocker, FALSE);
                 /* glancing blow */
                 magr->mhp -= rnd(sear_damage(blocker->material) / 2);
-                if (DEADMONSTER(magr))
+                if (DEADMONSTER(magr) && !(magr->mstate & MON_DETACH))
                     monkilled(magr, "", AD_PHYS);
             }
             /* glass armor, or certain drow armor if in the presence
