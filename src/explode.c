@@ -517,9 +517,7 @@ int expltype;
                     } else {
                         if (xkflg)
                             adtyp = AD_RBRE; /* no corpse */
-                        if (!(mtmp->mstate & MON_DETACH)) {
-                            monkilled(mtmp, "", (int) adtyp);
-                        }
+                        monkilled(mtmp, "", (int) adtyp);
                     }
                 } else if (!context.mon_moving && olet != MON_CASTBALL) {
                     /* all affected monsters, even if mdef is set */
