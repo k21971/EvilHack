@@ -1227,19 +1227,21 @@ mcalcdistress()
                     && can_become_zombie(r_data(mtmp))) {
                     zombify = (zombie_form(r_data(mtmp)) != NON_PM);
                     mtmp->msick = 0;
-                    mtmp->mhp = -1;
-                    if (mtmp->msickbyu)
-                        xkilled(mtmp, XKILL_NOMSG);
-                    else
-                        mondied(mtmp);
+                    if (!(mtmp->mstate & MON_DETACH)) {
+                        if (mtmp->msickbyu)
+                            xkilled(mtmp, XKILL_NOMSG);
+                        else
+                            mondied(mtmp);
+                    }
                     zombify = FALSE; /* reset */
                 } else {
                     mtmp->msick = 0;
-                    mtmp->mhp = -1;
-                    if (mtmp->msickbyu)
-                        xkilled(mtmp, XKILL_NOMSG);
-                    else
-                        mondied(mtmp);
+                    if (!(mtmp->mstate & MON_DETACH)) {
+                        if (mtmp->msickbyu)
+                            xkilled(mtmp, XKILL_NOMSG);
+                        else
+                            mondied(mtmp);
+                    }
                 }
                 continue;
             }
@@ -1254,11 +1256,12 @@ mcalcdistress()
                     pline("%s dies from %s infection.",
                           Monnam(mtmp), noit_mhis(mtmp));
                 mtmp->mdiseased = 0;
-                mtmp->mhp = -1;
-                if (mtmp->mdiseabyu)
-                    xkilled(mtmp, XKILL_GIVEMSG);
-                else
-                    mondied(mtmp);
+                if (!(mtmp->mstate & MON_DETACH)) {
+                    if (mtmp->mdiseabyu)
+                        xkilled(mtmp, XKILL_GIVEMSG);
+                    else
+                        mondied(mtmp);
+                }
             }
             continue;
         }
@@ -1270,10 +1273,12 @@ mcalcdistress()
                 if (canspotmon(mtmp))
                     pline("%s withers away completely!", Monnam(mtmp));
 
-                if (mtmp->mwither_from_u)
-                    xkilled(mtmp, XKILL_NOCORPSE | XKILL_NOMSG);
-                else
-                    monkilled(mtmp, "", AD_WTHR);
+                if (!(mtmp->mstate & MON_DETACH)) {
+                    if (mtmp->mwither_from_u)
+                        xkilled(mtmp, XKILL_NOCORPSE | XKILL_NOMSG);
+                    else
+                        monkilled(mtmp, "", AD_WTHR);
+                }
                 continue;
             }
             mtmp->mwither--; /* one turn closer to recovery */
@@ -3134,6 +3139,34 @@ int x, y;
     return (boolean) (distance < 3);
 }
 
+/* Static buffers to track recent purge operations for debugging */
+#define MAX_PURGE_TRACK 10
+static struct purge_track {
+    char mname[32];
+    int x, y;
+    boolean increment;  /* TRUE = increment, FALSE = decrement */
+    const char *reason; /* reason for decrement */
+} purge_history[MAX_PURGE_TRACK];
+static int purge_idx = 0;
+
+/* Track purge counter changes for debugging */
+static void
+track_purge(mtmp, increment, reason)
+struct monst *mtmp;
+boolean increment;
+const char *reason;
+{
+    if (mtmp && mtmp->data) {
+        strncpy(purge_history[purge_idx].mname, mtmp->data->mname, 31);
+        purge_history[purge_idx].mname[31] = '\0';
+        purge_history[purge_idx].x = mtmp->mx;
+        purge_history[purge_idx].y = mtmp->my;
+        purge_history[purge_idx].increment = increment;
+        purge_history[purge_idx].reason = reason;
+        purge_idx = (purge_idx + 1) % MAX_PURGE_TRACK;
+    }
+}
+
 /* really free dead monsters */
 void
 dmonsfree()
@@ -3153,6 +3186,7 @@ dmonsfree()
                so adjust purge counter to prevent accounting mismatch */
             if (!DEADMONSTER(freetmp)) {
                 iflags.purge_monsters--;
+                track_purge(freetmp, FALSE, "Ice Queen revival");
             }
         }
 
@@ -3172,7 +3206,9 @@ dmonsfree()
         int living_count = 0;
         struct monst *m;
         char deadlist[BUFSZ];
+        char purgelog[BUFSZ];
         int deadcount = 0;
+        int i, entries;
 
         /* Count living monsters for additional diagnostics */
         for (m = fmon; m; m = m->nmon)
@@ -3196,12 +3232,34 @@ dmonsfree()
         if (deadcount > 5)
             Strcat(deadlist, "...");
 
+        /* Build purge history log */
+        purgelog[0] = '\0';
+        entries = 0;
+        for (i = 0; i < MAX_PURGE_TRACK && entries < 5; i++) {
+            int idx = (purge_idx - i - 1 + MAX_PURGE_TRACK) % MAX_PURGE_TRACK;
+            if (purge_history[idx].mname[0]) {
+                char entry[80];
+                Sprintf(entry, "%s%c%s(%d,%d)%s",
+                        entries ? "; " : "",
+                        purge_history[idx].increment ? '+' : '-',
+                        purge_history[idx].mname,
+                        purge_history[idx].x,
+                        purge_history[idx].y,
+                        purge_history[idx].reason ? ":" : "");
+                if (purge_history[idx].reason)
+                    Strcat(entry, purge_history[idx].reason);
+                if (strlen(purgelog) + strlen(entry) < BUFSZ - 10)
+                    Strcat(purgelog, entry);
+                entries++;
+            }
+        }
+
         describe_level(buf);
         /* Enhanced diagnostic data for debugging accounting mismatch */
-        impossible("dmonsfree: %d removed doesn't match %d pending on %s. "
-                   "Turn: %ld, Depth: %d, Living: %d, Dead: [%s]",
+        impossible("dmonsfree: %d removed != %d pending on %s. "
+                   "T:%ld D:%d Live:%d Dead:[%s] Purge:[%s]",
                    count, iflags.purge_monsters, buf,
-                   moves, depth(&u.uz), living_count, deadlist);
+                   moves, depth(&u.uz), living_count, deadlist, purgelog);
     }
     iflags.purge_monsters = 0;
 }
@@ -3462,6 +3520,7 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
     } else {
         mtmp->mstate |= MON_DETACH;
         iflags.purge_monsters++;
+        track_purge(mtmp, TRUE, (const char *) 0);
     }
 
     /* hero is thrown from his steed when it dies or gets genocided */
@@ -3623,6 +3682,7 @@ register struct monst *mtmp;
         if (mtmp->mstate & MON_DETACH) {
             iflags.purge_monsters--;
             mtmp->mstate &= ~MON_DETACH;
+            track_purge(mtmp, FALSE, "Lifesaved");
         }
         return;
     }
@@ -3659,6 +3719,7 @@ register struct monst *mtmp;
         if (mtmp->mstate & MON_DETACH) {
             iflags.purge_monsters--;
             mtmp->mstate &= ~MON_DETACH;
+            track_purge(mtmp, FALSE, "Izchak transformation");
         }
         return;
     }
@@ -3705,6 +3766,7 @@ register struct monst *mtmp;
         if (mtmp->mstate & MON_DETACH) {
             iflags.purge_monsters--;
             mtmp->mstate &= ~MON_DETACH;
+            track_purge(mtmp, FALSE, "Kathryn resurrection");
         }
         return;
     }
@@ -3739,6 +3801,7 @@ register struct monst *mtmp;
         if (mtmp->mstate & MON_DETACH) {
             iflags.purge_monsters--;
             mtmp->mstate &= ~MON_DETACH;
+            track_purge(mtmp, FALSE, "Bourbon/Ozzy submission");
         }
         return;
     }
@@ -3846,6 +3909,7 @@ register struct monst *mtmp;
             if (mtmp->mstate & MON_DETACH) {
                 iflags.purge_monsters--;
                 mtmp->mstate &= ~MON_DETACH;
+                track_purge(mtmp, FALSE, "Vampshifter/changeling revival");
             }
             return;
         }
@@ -4186,6 +4250,7 @@ struct monst *mdef;
         if (mdef->mstate & MON_DETACH) {
             iflags.purge_monsters--;
             mdef->mstate &= ~MON_DETACH;
+            track_purge(mdef, FALSE, "Lifesaved (monstone)");
         }
         return;
     }
