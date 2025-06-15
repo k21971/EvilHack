@@ -3635,6 +3635,12 @@ register struct monst *mtmp;
                 uunstick();
         }
         newsym(mtmp->mx, mtmp->my);
+        /* Izchak resurrection restores HP, making DEADMONSTER() false,
+           so adjust purge counter to prevent accounting mismatch */
+        if (mtmp->mstate & MON_DETACH) {
+            iflags.purge_monsters--;
+            mtmp->mstate &= ~MON_DETACH;
+        }
         return;
     }
     if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
@@ -3675,6 +3681,12 @@ register struct monst *mtmp;
             adjalign(-15);
         }
         change_luck(-15);
+        /* Kathryn resurrection restores HP, making DEADMONSTER() false,
+           so adjust purge counter to prevent accounting mismatch */
+        if (mtmp->mstate & MON_DETACH) {
+            iflags.purge_monsters--;
+            mtmp->mstate &= ~MON_DETACH;
+        }
         return;
     }
 
@@ -3703,6 +3715,12 @@ register struct monst *mtmp;
         }
         newsym(mtmp->mx, mtmp->my);
         rise_msg = TRUE;
+        /* Bourbon/Ozzy submission restores HP, making DEADMONSTER() false,
+           so adjust purge counter to prevent accounting mismatch */
+        if (mtmp->mstate & MON_DETACH) {
+            iflags.purge_monsters--;
+            mtmp->mstate &= ~MON_DETACH;
+        }
         return;
     }
 

@@ -4611,4 +4611,5 @@ The following changes to date are:
 - Fix: monster explode double-detach prevention
 - Fix: systematic double-detach prevention across all damage sources
 - Fix: ball & chain positioning crash on open air terrain
+- Fix: dmonsfree accounting mismatch for special monster resurrections
 
