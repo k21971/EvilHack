@@ -4618,5 +4618,4 @@ The following changes to date are:
   diagnostics
 - Fix: mcalcdistress dbl-detach prevention for sick/diseased/withering
   monsters, more dmonsfree diagnostic enhancements
-- Fix: disintegration beam double-detach race condition
 
