@@ -32,7 +32,7 @@ AAAAAAAAA|.....|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAA-------AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 ENDMAP
-TELEPORT_REGION:(06,09,07,10),(00,00,00,00)
+TELEPORT_REGION:(05,07,07,12),(00,00,00,00)
 # entire tower in a region, constrains monster migration
 REGION:(00,00,79,19),lit,"ordinary",unfilled
 
@@ -271,7 +271,7 @@ tTT............}}-----------F---F-------------F---F-----------}}.......TTt..
 ......TT....................................................................
 ............................TT..............................TTTT............
 ENDMAP
-TELEPORT_REGION:(00,00,02,02),(00,00,00,00)
+TELEPORT_REGION:(00,00,04,06),(00,00,00,00)
 REGION:(01,00,79,20),lit,"ordinary"
 # constrains monster migration
 REGION:(16,02,62,15),lit,"ordinary",unfilled

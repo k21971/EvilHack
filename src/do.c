@@ -2168,7 +2168,7 @@ const char *pre_msg, *post_msg;
         typmask |= 1;
     if (falling)
         typmask |= 2;
-    if (portal_flag)
+    if (portal_flag > 0)
         typmask |= 4;
     if (portal_flag < 0)
         typmask |= 0200; /* flag for portal removal */
