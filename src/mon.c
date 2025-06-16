@@ -3151,9 +3151,8 @@ dmonsfree()
             icequeenrevive(freetmp);
             /* Ice Queen revival restores HP, making DEADMONSTER() false,
                so adjust purge counter to prevent accounting mismatch */
-            if (!DEADMONSTER(freetmp)) {
+            if (!DEADMONSTER(freetmp))
                 iflags.purge_monsters--;
-            }
         }
 
         if (DEADMONSTER(freetmp) && !freetmp->isgd) {
@@ -3170,11 +3169,8 @@ dmonsfree()
 
     if (count != iflags.purge_monsters) {
         describe_level(buf);
-        /* Enhanced diagnostic data for debugging accounting mismatch */
-        impossible("dmonsfree: %d removed doesn't match %d pending on %s. "
-                   "Dead monsters found: %d, Current turn: %ld, Level depth: %d",
-                   count, iflags.purge_monsters, buf, count,
-                   moves, depth(&u.uz));
+        impossible("dmonsfree: %d removed doesn't match %d pending on %s",
+                   count, iflags.purge_monsters, buf);
     }
     iflags.purge_monsters = 0;
 }
@@ -3428,14 +3424,8 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
     if (In_endgame(&u.uz))
         mtmp->mstate |= MON_ENDGAME_FREE;
 
-    if ((mtmp->mstate & MON_DETACH) != 0) {
-        /* NetHack 3.7 defensive check - prevent double detach */
-        impossible("m_detach: monster type %d at (%d,%d) is already detached?",
-                   monsndx(mtmp->data), mtmp->mx, mtmp->my);
-    } else {
-        mtmp->mstate |= MON_DETACH;
-        iflags.purge_monsters++;
-    }
+    mtmp->mstate |= MON_DETACH;
+    iflags.purge_monsters++;
 
     /* hero is thrown from his steed when it dies or gets genocided */
     if (mtmp == u.usteed)
@@ -3590,15 +3580,8 @@ register struct monst *mtmp;
 
     mtmp->mhp = 0; /* in case caller hasn't done this */
     lifesaved_monster(mtmp);
-    if (!DEADMONSTER(mtmp)) {
-        /* Monster was lifesaved - adjust purge counter since m_detach
-           already incremented it but monster is now alive again */
-        if (mtmp->mstate & MON_DETACH) {
-            iflags.purge_monsters--;
-            mtmp->mstate &= ~MON_DETACH;
-        }
+    if (!DEADMONSTER(mtmp))
         return;
-    }
 
     /* someone or something decided to mess with Izchak. oops... */
     if (is_izchak(mtmp, TRUE) && racial_human(mtmp)) {
@@ -4128,15 +4111,8 @@ struct monst *mdef;
      */
     mdef->mhp = 0; /* in case caller hasn't done this */
     lifesaved_monster(mdef);
-    if (!DEADMONSTER(mdef)) {
-        /* Monster was lifesaved - adjust purge counter since m_detach
-           already incremented it but monster is now alive again */
-        if (mdef->mstate & MON_DETACH) {
-            iflags.purge_monsters--;
-            mdef->mstate &= ~MON_DETACH;
-        }
+    if (!DEADMONSTER(mdef))
         return;
-    }
 
     mdef->mtrapped = 0; /* (see m_detach) */
     mdef->mentangled = 0;
@@ -4323,13 +4299,6 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
     boolean uni_same = (is_unicorn(mtmp->data)
                         && sgn(u.ualign.type) == sgn(mtmp->data->maligntyp));
     boolean orb = (mtmp->data->mlet == S_ORB);
-
-    /* Defensive check - prevent killing already detached monsters */
-    if (mtmp->mstate & MON_DETACH) {
-        impossible("xkilled: monster type %d at (%d,%d) is already detached",
-                   monsndx(mtmp->data), x, y);
-        return;
-    }
 
     mtmp->mhp = 0; /* caller will usually have already done this */
     if (!noconduct) { /* KMH, conduct */

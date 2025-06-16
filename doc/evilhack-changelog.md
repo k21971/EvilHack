@@ -4599,8 +4599,6 @@ The following changes to date are:
   length minus indentation) 
 - Fix: "don't have candelabrum?" while fuzzing
 - Fix: enhanced portal migration crash prevention
-- Fix: comprehensive double-detach prevention and defensive death
-  processing
 - Fix: "Couldn't place lregion type %d!" minetown (minetn-1)
 - Fix: ball & chain positioning crash on open air terrain
 - Fix: Druid quest goal level generation constraint crash

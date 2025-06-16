@@ -287,7 +287,7 @@ struct attack *mattk;
                 damage_mon(mtmp,
                            rnd(sear_damage(blocker->material) / 2),
                            AD_PHYS, TRUE);
-                if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH))
+                if (DEADMONSTER(mtmp))
                     killed(mtmp);
             }
         }
@@ -315,7 +315,7 @@ struct attack *mattk;
                 already_killed = TRUE;
             if (!already_killed) {
                 damage_mon(mtmp, tmp, AD_PHYS, TRUE);
-                if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH))
+                if (DEADMONSTER(mtmp))
                     killed(mtmp);
             }
         }
@@ -332,7 +332,7 @@ struct attack *mattk;
                 already_killed = TRUE;
             if (!already_killed) {
                 damage_mon(mtmp, tmp, AD_PHYS, TRUE);
-                if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH))
+                if (DEADMONSTER(mtmp))
                     killed(mtmp);
             }
         }
@@ -4384,9 +4384,8 @@ struct attack *mattk;
             } else {
                 if (canseemon(mtmp))
                     pline("%s is fatally poisoned!", Monnam(mtmp));
-                if (!DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH)) {
-                    xkilled(mtmp, XKILL_NOMSG);
-                }
+                mtmp->mhp = -1;
+                xkilled(mtmp, XKILL_NOMSG);
                 if (!DEADMONSTER(mtmp))
                     return 1;
                 return 2;
@@ -4394,9 +4393,7 @@ struct attack *mattk;
             if (mtmp->mhp < 1) {
                 if (canseemon(mtmp))
                     pline("%s dies!", Monnam(mtmp));
-                if (!(mtmp->mstate & MON_DETACH)) {
-                    xkilled(mtmp, XKILL_NOMSG);
-                }
+                xkilled(mtmp, XKILL_NOMSG);
                 if (!DEADMONSTER(mtmp))
                     return 1;
                 return 2;
@@ -4457,9 +4454,7 @@ struct attack *mattk;
                             }
                             mtmp->mhp = mtmp->mhpmax;
                         } else {
-                            if (!(mtmp->mstate & MON_DETACH)) {
-                                xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
-                            }
+                            xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
                         }
                         if (!DEADMONSTER(mtmp))
                             return 1;
@@ -4470,9 +4465,7 @@ struct attack *mattk;
             if (mtmp->mhp < 1) {
                 if (canseemon(mtmp))
                     pline("%s dies!", Monnam(mtmp));
-                if (!(mtmp->mstate & MON_DETACH)) {
-                    xkilled(mtmp, XKILL_NOMSG);
-                }
+                xkilled(mtmp, XKILL_NOMSG);
                 if (!DEADMONSTER(mtmp))
                     return 1;
                 return 2;
@@ -4500,9 +4493,7 @@ struct attack *mattk;
             if (mtmp->mhp < 1) {
                 if (canseemon(mtmp))
                     pline("%s dies!", Monnam(mtmp));
-                if (!(mtmp->mstate & MON_DETACH)) {
-                    xkilled(mtmp, XKILL_NOMSG);
-                }
+                xkilled(mtmp, XKILL_NOMSG);
                 if (!DEADMONSTER(mtmp))
                     return 1;
                 return 2;
@@ -4526,9 +4517,7 @@ struct attack *mattk;
             if (mtmp->mhp < 1) {
                 if (canseemon(mtmp))
                     pline("%s dies!", Monnam(mtmp));
-                if (!(mtmp->mstate & MON_DETACH)) {
-                    xkilled(mtmp, XKILL_NOMSG);
-                }
+                xkilled(mtmp, XKILL_NOMSG);
                 if (!DEADMONSTER(mtmp))
                     return 1;
                 return 2;
@@ -4552,9 +4541,7 @@ struct attack *mattk;
             if (mtmp->mhp < 1) {
                 if (canseemon(mtmp))
                     pline("%s dies!", Monnam(mtmp));
-                if (!(mtmp->mstate & MON_DETACH)) {
-                    xkilled(mtmp, XKILL_NOMSG);
-                }
+                xkilled(mtmp, XKILL_NOMSG);
                 if (!DEADMONSTER(mtmp))
                     return 1;
                 return 2;
@@ -4584,9 +4571,7 @@ struct attack *mattk;
                 if (canseemon(mtmp))
                     pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
                 pline("%s dies!", Monnam(mtmp));
-                if (!(mtmp->mstate & MON_DETACH)) {
-                    xkilled(mtmp, XKILL_NOMSG);
-                }
+                xkilled(mtmp, XKILL_NOMSG);
                 if (!DEADMONSTER(mtmp))
                     return 1;
                 return 2;
@@ -4706,9 +4691,7 @@ struct attack *mattk;
                             }
                             mtmp->mhp = mtmp->mhpmax;
                         } else {
-                            if (!(mtmp->mstate & MON_DETACH)) {
-                                xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
-                            }
+                            xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
                         }
                         if (!DEADMONSTER(mtmp))
                             return 1;
@@ -4886,17 +4869,14 @@ struct attack *mattk;
                 tmp = 0;
                 break;
             }
-            if (rn2(20)) {
-                if (canseemon(mtmp))
+            if (canseemon(mtmp)) {
+                if (rn2(20)) {
                     pline("%s is poisoned!", Monnam(mtmp));
-            } else {
-                if (canseemon(mtmp))
-                    Your("poisonous hide was deadly...");
-                if (!DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH)) {
-                    xkilled(mtmp, XKILL_NOMSG);
-                    if (!DEADMONSTER(mtmp))
-                        return 1;
-                    return 2;
+                } else {
+                    if (canseemon(mtmp)) {
+                        Your("poisonous hide was deadly...");
+                        mtmp->mhp = -1;
+                    }
                 }
             }
             break;
@@ -4941,9 +4921,7 @@ struct attack *mattk;
  assess_dmg:
     if (damage_mon(mtmp, tmp, youmonst.data->mattk[i].adtyp, TRUE)) {
         pline("%s dies!", Monnam(mtmp));
-        if (!(mtmp->mstate & MON_DETACH)) {
-            xkilled(mtmp, XKILL_NOMSG);
-        }
+        xkilled(mtmp, XKILL_NOMSG);
         if (!DEADMONSTER(mtmp))
             return 1;
         return 2;

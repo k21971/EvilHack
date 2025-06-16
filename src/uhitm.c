@@ -5694,12 +5694,10 @@ int dmg;
     damage_mon(mon, dmg, AD_BLND, TRUE);
     wake_nearto(mon->mx, mon->my, 30);
     if (DEADMONSTER(mon)) {
-        if (!(mon->mstate & MON_DETACH)) {
-            if (context.mon_moving)
-                monkilled(mon, (char *) 0, AD_BLND);
-            else
-                killed(mon);
-        }
+        if (context.mon_moving)
+            monkilled(mon, (char *) 0, AD_BLND);
+        else
+            killed(mon);
     } else if (cansee(mon->mx, mon->my) && !canspotmon(mon)) {
         map_invisible(mon->mx, mon->my);
     }

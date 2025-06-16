@@ -5519,11 +5519,8 @@ boolean say; /* Announce out of sight hit/miss events if true */
                         disintegrate_mon(mon, type, fltxt);
                     } else if (DEADMONSTER(mon)) {
                         if (type < 0) {
-                            /* mon was already dead before this attack - don't kill again */
-                            if (!(mon->mstate & MON_DETACH)) {
-                                /* mon has just been killed by another monster */
-                                monkilled(mon, fltxt, AD_RBRE);
-                            }
+                            /* mon has just been killed by another monster */
+                            monkilled(mon, fltxt, AD_RBRE);
                         } else {
                             int xkflags = XKILL_GIVEMSG; /* killed(mon); */
 
