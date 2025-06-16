@@ -2121,15 +2121,7 @@ register struct attack *mattk;
                         pline("%s burrows itself into your brain!",
                               Monnam(mtmp));
                         Your("last thoughts fade away as your begin your transformation...");
-                        /* Check if larva is already marked for death before transformation */
-                        if (!(mtmp->mstate & MON_DETACH)) {
-                            mongone(mtmp); /* mind flayer larva just took over your body */
-                        } else {
-                            /* Larva was already marked for death, let
-                               normal death handling occur */
-                            dmg = 0;
-                            break;
-                        }
+                        mongone(mtmp); /* mind flayer larva just took over your body */
                         killer.format = NO_KILLER_PREFIX;
                         Sprintf(killer.name, "became a parasitic host to %s",
                                 an(mtmp->data->mname));

@@ -4621,5 +4621,4 @@ The following changes to date are:
 - Fix: disintegration beam double-detach race condition
 - Fix: Snark->Boojum transformation purge counter mismatch, newcham
   resurrection guard
-- Fix: mind flayer larva transformation double-detach race condition
 

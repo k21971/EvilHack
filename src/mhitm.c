@@ -2584,15 +2584,7 @@ msickness:
                             boolean tamer = magr->mtame;
                             if (!tamer && (mdef->mtame || mdef->mpeaceful))
                                 mdef->mtame = mdef->mpeaceful = 0;
-                            /* Check if larva is already marked for death before transformation */
-                            if (!(magr->mstate & MON_DETACH)) {
-                                mongone(magr); /* mind flayer larva transforms */
-                            } else {
-                                /* Larva was already marked for death, let
-                                   normal death handling occur instead of
-                                   transformation */
-                                return MM_HIT;
-                            }
+                            mongone(magr); /* mind flayer larva transforms */
                             become_flayer(mdef);
                             if (tamer)
                                 (void) tamedog(mdef, (struct obj *) 0);
