@@ -4619,6 +4619,4 @@ The following changes to date are:
 - Fix: mcalcdistress dbl-detach prevention for sick/diseased/withering
   monsters, more dmonsfree diagnostic enhancements
 - Fix: disintegration beam double-detach race condition
-- Fix: Snark->Boojum transformation purge counter mismatch, newcham
-  resurrection guard
 
