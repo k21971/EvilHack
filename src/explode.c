@@ -492,7 +492,7 @@ int expltype;
                     damage_mon(mtmp, mdam, adtyp, TRUE);
                     damage_mon(mtmp, idamres + idamnonres, adtyp, TRUE);
                 }
-                if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH)) {
+                if (DEADMONSTER(mtmp)) {
                     int xkflg = ((adtyp == AD_FIRE
                                   && completelyburns(mtmp->data))
                                  ? XKILL_NOCORPSE : 0);
