@@ -616,32 +616,25 @@ register struct monst *mtmp;
      */
     if (mtmp->mnum == PM_SNARK && distu(mtmp->mx, mtmp->my) <= 2) {
         if (mtmp->m_id % 3 < 1) {
-            /* Check if Snark is already marked for death before transformation */
-            if (!(mtmp->mstate & MON_DETACH)) {
-                oldx = mtmp->mx; oldy = mtmp->my;
-                mongone(mtmp);
-                /* mongone() called m_detach() which incremented purge counter.
-                 * Since we're immediately replacing the Snark and won't return
-                 * to process it in dmonsfree(), we need to decrement the counter
-                 * to prevent accounting mismatch */
-                iflags.purge_monsters--;
-                mdummy = makemon(&mons[PM_BOOJUM], oldx, oldy, NO_MM_FLAGS);
-                /* If someone has managed to extinct boojum, this will
-                 * result in the monster just vanishing.  But this should
-                 * be fairly difficult to do, since boojum only generate
-                 * from snarks at a rate of one snark, one boojum. */
-                if (mdummy) {
-                    mtmp = mdummy;
-                    if (canseemon(mtmp)) {
-                        pline("Oh, no, this Snark is a Boojum!");
-                    }
-                } else {
-                    return 0; /* mtmp just went away, we'd better bail out */
+            oldx = mtmp->mx; oldy = mtmp->my;
+            mongone(mtmp);
+            /* mongone() called m_detach() which incremented purge counter.
+             * Since we're immediately replacing the Snark and won't return
+             * to process it in dmonsfree(), we need to decrement the counter
+             * to prevent accounting mismatch */
+            iflags.purge_monsters--;
+            mdummy = makemon(&mons[PM_BOOJUM], oldx, oldy, NO_MM_FLAGS);
+            /* If someone has managed to extinct boojum, this will
+             * result in the monster just vanishing.  But this should
+             * be fairly difficult to do, since boojum only generate
+             * from snarks at a rate of one snark, one boojum. */
+            if (mdummy) {
+                mtmp = mdummy;
+                if (canseemon(mtmp)) {
+                    pline("Oh, no, this Snark is a Boojum!");
                 }
             } else {
-                /* Snark was already marked for death, let normal
-                   death handling occur instead of transformation */
-                return 0;
+                return 0; /* mtmp just went away, we'd better bail out */
             }
         }
     }
@@ -683,7 +676,6 @@ register struct monst *mtmp;
                   Monnam(mtmp), mhis(mtmp));
         /* no corpse or objects as both are now several thousand feet down */
         mongone(mtmp);
-        return 0; /* monster is gone either way */
     }
 
     /* some monsters teleport */

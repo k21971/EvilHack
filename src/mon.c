@@ -4198,25 +4198,17 @@ register struct monst *mdef;
 }
 
 /* monster disappears, not dies */
-boolean
+void
 mongone(mdef)
 struct monst *mdef;
 {
     struct monst *rider;
-
-    /* Defensive check - prevent double mongone on already detached monsters */
-    if (mdef->mstate & MON_DETACH) {
-        impossible("mongone: monster type %d at (%d,%d) is already detached",
-                   monsndx(mdef->data), mdef->mx, mdef->my);
-        return FALSE;
-    }
-
     mdef->mhp = 0; /* can skip some inventory bookkeeping */
 
     /* dead vault guard is actually kept at coordinate <0,0> until
        his temporary corridor to/from the vault has been removed */
     if (mdef->isgd && !grddead(mdef))
-        return TRUE; /* special case - guard not actually removed yet */
+        return;
     /* monster is thrown from its steed when it disappears */
     rider = get_mon_rider(mdef);
     if (rider)
@@ -4230,7 +4222,6 @@ struct monst *mdef;
     /* release rest of monster's inventory--it is removed from game */
     discard_minvent(mdef);
     m_detach(mdef, mdef->data);
-    return TRUE;
 }
 
 /* drop a statue or rock and remove monster */
