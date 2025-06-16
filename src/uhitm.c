@@ -4015,7 +4015,7 @@ register struct attack *mattk;
             }
             end_engulf();
             damage_mon(mdef, dam, mattk->adtyp, TRUE);
-            if (DEADMONSTER(mdef) && !(mdef->mstate & MON_DETACH)) {
+            if (DEADMONSTER(mdef)) {
                 killed(mdef);
                 if (DEADMONSTER(mdef)) /* not lifesaved */
                     return 2;

@@ -681,7 +681,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
 
         if (!DEADMONSTER(mtmp)) { /* might already be dead (if petrified) */
             mtmp->mhp -= damage;
-            if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH)) {
+            if (DEADMONSTER(mtmp)) {
                 if (vis || (verbose && !target))
                     pline("%s is %s!", Monnam(mtmp),
                           (nonliving(mtmp->data) || is_vampshifter(mtmp)

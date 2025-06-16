@@ -1896,7 +1896,7 @@ dogaze()
                         (void) destroy_mitem(mtmp, SPBOOK_CLASS, AD_FIRE);
                     if (dmg)
                         damage_mon(mtmp, dmg, AD_FIRE, TRUE);
-                    if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH))
+                    if (DEADMONSTER(mtmp))
                         killed(mtmp);
                 }
                 /* For consistency with passive() in uhitm.c, this only
@@ -2126,7 +2126,7 @@ domindblast()
                 u_sen ? "telepathy"
                       : has_telepathy(mtmp) ? "latent telepathy" : "mind");
             damage_mon(mtmp, rnd(15), AD_DRIN, TRUE);
-            if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH))
+            if (DEADMONSTER(mtmp))
                 killed(mtmp);
         }
     }

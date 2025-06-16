@@ -3127,7 +3127,7 @@ register struct monst *mtmp;
                               Monnam(mtmp));
                     damage_mon(mtmp, magic_dmg, AD_MAGM,
                                trap->madeby_u ? TRUE : FALSE);
-                    if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH))
+                    if (DEADMONSTER(mtmp))
                         monkilled(mtmp,
                                   in_sight
                                       ? "magical explosion"
@@ -3172,7 +3172,7 @@ register struct monst *mtmp;
                     seetrap(trap);
                 damage_mon(mtmp, dmgval2, AD_MAGM,
                            trap->madeby_u ? TRUE : FALSE);
-                if (DEADMONSTER(mtmp) && !(mtmp->mstate & MON_DETACH))
+                if (DEADMONSTER(mtmp))
                     monkilled(mtmp,
                               in_sight
                                   ? "compression from an anti-magic field"

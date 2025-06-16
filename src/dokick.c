@@ -127,7 +127,7 @@ boolean clumsy;
     }
 
     (void) passive(mon, uarmf, TRUE, !DEADMONSTER(mon), AT_KICK, FALSE);
-    if (DEADMONSTER(mon) && !trapkilled && !(mon->mstate & MON_DETACH))
+    if (DEADMONSTER(mon) && !trapkilled)
         killed(mon);
 
     /* may bring up a dialog, so put this after all messages */

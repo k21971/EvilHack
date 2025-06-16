@@ -232,7 +232,7 @@ struct obj *obj;
         }
         m_useup(mon, obj);
         damage_mon(mon, dam, AD_RBRE, FALSE);
-        if (DEADMONSTER(mon) && !(mon->mstate & MON_DETACH)) {
+        if (DEADMONSTER(mon)) {
             monkilled(mon, "", AD_RBRE);
             return 1;
         }
