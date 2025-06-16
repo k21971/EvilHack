@@ -4607,7 +4607,6 @@ The following changes to date are:
 - Fix: remove overzealous external MON_DETACH checks causing accounting
   mismatches (dmonsfree)
 - Fix: monster vs monster combat double-detach prevention
-- Fix: monster spellcasting double-detach prevention
 - Fix: ball & chain positioning crash on open air terrain
 - Fix: Druid quest goal level generation constraint crash
 
