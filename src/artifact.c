@@ -2723,7 +2723,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (show_instakill)
                     pline("As %s strikes %s, it bursts into flame!",
                           mon_nam(magr), mon_nam(mdef));
-                mongone(mdef);
+                if (!mongone(mdef)) {
+                    /* Already marked for death, apply fatal damage instead */
+                    *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                }
             } else if (youdefend && is_troll(youmonst.data) && k) {
                 You("burst into flame as you are hit!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
@@ -2792,7 +2795,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (show_instakill)
                         pline("The consecrated blade flares brightly as it incinerates %s!",
                               mon_nam(mdef));
-                    mongone(mdef);
+                    if (!mongone(mdef)) {
+                        /* Already marked for death, apply fatal damage instead */
+                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                    }
                 }
             } else if (youdefend && l
                        && (maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))
@@ -2912,7 +2918,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (show_instakill)
                         pline("The divine hammer flares brightly as it incinerates %s!",
                               mon_nam(mdef));
-                    mongone(mdef);
+                    if (!mongone(mdef)) {
+                        /* Already marked for death, apply fatal damage instead */
+                        *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
+                    }
                 }
             } else if (youdefend && k
                        && maybe_polyd(is_demon(youmonst.data), Race_if(PM_DEMON))) {

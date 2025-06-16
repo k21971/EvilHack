@@ -4622,4 +4622,6 @@ The following changes to date are:
 - Fix: Snark->Boojum transformation purge counter mismatch, newcham
   resurrection guard
 - Fix: mind flayer larva transformation double-detach race condition
+- Fix: consolidate mongone() MON_DETACH checks and additional
+  transformation cases
 

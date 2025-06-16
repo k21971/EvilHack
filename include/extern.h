@@ -1586,7 +1586,7 @@ E void NDECL(luciferdead);
 E void NDECL(michaeldead);
 E void FDECL(mondead, (struct monst *));
 E void FDECL(mondied, (struct monst *));
-E void FDECL(mongone, (struct monst *));
+E boolean FDECL(mongone, (struct monst *));
 E void FDECL(monstone, (struct monst *));
 E void FDECL(monkilled, (struct monst *, const char *, int));
 E void FDECL(mon_xkilled, (struct monst *, const char *, int));

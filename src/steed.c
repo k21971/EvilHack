@@ -217,7 +217,6 @@ struct monst *rider;
     /* place steed if rider dies and steed is still alive */
     if (!DEADMONSTER(steed) && DEADMONSTER(rider))
         place_monster(steed, steed->mx, steed->my);
-
     update_monster_region(rider);
     update_monster_region(steed);
     newsym(rider->mx, rider->my);
