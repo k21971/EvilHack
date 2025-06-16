@@ -288,6 +288,18 @@ d_level *lev;
     boolean oneshot;
     xchar x, y;
 
+    /* Validate search region coordinates */
+    if (lx > hx) {
+        xchar tmp = lx;
+        lx = hx;
+        hx = tmp;
+    }
+    if (ly > hy) {
+        xchar tmp = ly;
+        ly = hy;
+        hy = tmp;
+    }
+
     if (!lx) { /* default to whole level */
         /*
          * if there are rooms and this a branch, let place_branch choose
@@ -323,7 +335,8 @@ d_level *lev;
             if (put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, TRUE, lev))
                 return;
 
-    impossible("Couldn't place lregion type %d!", rtype);
+    impossible("Couldn't place lregion type %d in (%d,%d,%d,%d)!",
+               rtype, lx, ly, hx, hy);
 }
 
 STATIC_OVL boolean

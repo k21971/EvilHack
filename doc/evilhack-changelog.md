@@ -4601,4 +4601,5 @@ The following changes to date are:
 - Fix: "Couldn't place lregion type %d!" minetown (minetn-1)
 - Fix: ball & chain positioning crash on open air terrain
 - Fix: Druid quest goal level generation constraint crash
+- Fix: level generation crashes from overly constrained teleport regions
 

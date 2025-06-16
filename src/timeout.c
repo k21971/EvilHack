@@ -2524,7 +2524,7 @@ struct obj *obj;
     case OBJ_MINVENT:
         return mon_is_local(obj->ocarry);
     }
-    panic("obj_is_local");
+    panic("obj_is_local: unhandled object location %d", (int) obj->where);
     return FALSE;
 }
 

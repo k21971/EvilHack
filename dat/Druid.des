@@ -150,10 +150,10 @@ ENDMAP
 REGION:(00,00,69,20),lit,"ordinary"
 # Stairs
 STAIR:(09,13),down
-STAIR:levregion(69,02,78,18),levregion(69,02,64,18),up
+STAIR:levregion(69,02,78,18),levregion(64,02,69,18),up
 # Branch info
-BRANCH:levregion(69,02,78,18),levregion(69,02,64,18)
-TELEPORT_REGION:levregion(69,02,78,18),levregion(69,02,64,18)
+BRANCH:levregion(69,02,78,18),levregion(64,02,69,18)
+TELEPORT_REGION:levregion(69,02,78,18),levregion(64,02,69,18)
 # populate trees in REGION area
 REPLACE_TERRAIN:(19,00,69,20),'g','t',25%
 REPLACE_TERRAIN:(19,00,69,20),'t','T',10%

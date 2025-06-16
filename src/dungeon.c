@@ -1253,14 +1253,25 @@ int upflag;
      * place_lregion(xTELE) -> put_lregion_here(xTELE) -> u_on_newpos()
      * Unspecified region (.lx == 0) defaults to entire level.
      */
-    if (was_in_W_tower && On_W_tower_level(&u.uz))
+    if (was_in_W_tower && On_W_tower_level(&u.uz)) {
         /* Stay inside the Wizard's tower when feasible.
            We use the W Tower's exclusion region for the
            destination instead of its enclosing region.
            Note: up vs down doesn't matter in this case
            because both specify the same exclusion area. */
-        place_lregion(dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
+        xchar tlx = dndest.nlx, tly = dndest.nly;
+        xchar thx = dndest.nhx, thy = dndest.nhy;
+
+        /* If the exclusion region is too small or invalid,
+           fall back to using the main region */
+        if (tlx > thx || tly > thy ||
+            (thx - tlx + 1) * (thy - tly + 1) < 20) {
+            tlx = dndest.lx; tly = dndest.ly;
+            thx = dndest.hx; thy = dndest.hy;
+        }
+        place_lregion(tlx, tly, thx, thy,
                       0, 0, 0, 0, LR_DOWNTELE, (d_level *) 0);
+    }
     else if (up)
         place_lregion(updest.lx, updest.ly, updest.hx, updest.hy,
                       updest.nlx, updest.nly, updest.nhx, updest.nhy,
