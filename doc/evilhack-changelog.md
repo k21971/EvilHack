@@ -4624,5 +4624,4 @@ The following changes to date are:
 - Fix: mind flayer larva transformation double-detach race condition
 - Fix: consolidate mongone() MON_DETACH checks and additional
   transformation cases
-- Fix: zombie corpse revival purge counter accounting mismatch
 
