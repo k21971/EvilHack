@@ -2726,13 +2726,10 @@ msickness:
                 }
                 mdef->mhp = 0;
                 zombify = FALSE;
-                /* Prevent double-detach */
-                if (!(mdef->mstate & MON_DETACH)) {
-                    if (magr->uexp)
-                        mon_xkilled(mdef, (char *) 0, -AD_RBRE);
-                    else
-                        monkilled(mdef, (char *) 0, -AD_RBRE);
-                }
+                if (magr->uexp)
+                    mon_xkilled(mdef, (char *) 0, -AD_RBRE);
+                else
+                    monkilled(mdef, (char *) 0, -AD_RBRE);
                 tmp = 0;
                 if (DEADMONSTER(mdef))
                     res |= MM_DEF_DIED; /* not lifesaved */
@@ -2817,13 +2814,10 @@ msickness:
                  || mattk->aatyp == AT_CLAW
                  || mattk->aatyp == AT_BITE)
                 && zombie_form(r_data(mdef)) != NON_PM);
-        /* Prevent double-detach */
-        if (!(mdef->mstate & MON_DETACH)) {
-            if (magr->uexp)
-                mon_xkilled(mdef, "", (int) mattk->adtyp);
-            else
-                monkilled(mdef, "", (int) mattk->adtyp);
-        }
+        if (magr->uexp)
+            mon_xkilled(mdef, "", (int) mattk->adtyp);
+        else
+            monkilled(mdef, "", (int) mattk->adtyp);
         zombify = FALSE; /* reset */
         if (!DEADMONSTER(mdef))
             return res; /* mdef lifesaved */
@@ -2900,7 +2894,7 @@ int dmg;
             dmg += (mdef->mhpmax + 1) / 2;
             mdef->mhp -= dmg;
             dmg = 0;
-            if (DEADMONSTER(mdef) && !(mdef->mstate & MON_DETACH)) {
+            if (DEADMONSTER(mdef)) {
                 if (magr == &youmonst)
                     xkilled(mdef, XKILL_GIVEMSG | XKILL_NOCORPSE);
                 else
@@ -3623,13 +3617,10 @@ struct obj *mwep;
  assess_dmg:
     if (damage_mon(magr, tmp, (int) mdattk[i].adtyp, FALSE)) {
         zombify = FALSE;
-        /* Prevent double-detach */
-        if (!(magr->mstate & MON_DETACH)) {
-            if (mdef->uexp)
-                mon_xkilled(magr, "", (int) mdattk[i].adtyp);
-            else
-                monkilled(magr, "", (int) mdattk[i].adtyp);
-        }
+        if (mdef->uexp)
+            mon_xkilled(magr, "", (int) mdattk[i].adtyp);
+        else
+            monkilled(magr, "", (int) mdattk[i].adtyp);
         return (mdead | mhit | MM_AGR_DIED);
     }
     return (mdead | mhit);
