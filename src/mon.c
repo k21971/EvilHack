@@ -3171,37 +3171,18 @@ dmonsfree()
     if (count != iflags.purge_monsters) {
         int living_count = 0;
         struct monst *m;
-        char deadlist[BUFSZ];
-        int deadcount = 0;
 
         /* Count living monsters for additional diagnostics */
         for (m = fmon; m; m = m->nmon)
             if (!DEADMONSTER(m))
                 living_count++;
 
-        /* List the dead monsters that were actually removed */
-        deadlist[0] = '\0';
-        for (m = fmon; m && deadcount < 5; m = m->nmon) {
-            if (DEADMONSTER(m)) {
-                char mname[BUFSZ];
-                Sprintf(mname, "%s%s(%d,%d)",
-                        deadcount ? ", " : "",
-                        m->data ? m->data->mname : "unknown",
-                        m->mx, m->my);
-                if (strlen(deadlist) + strlen(mname) < BUFSZ - 10)
-                    Strcat(deadlist, mname);
-                deadcount++;
-            }
-        }
-        if (deadcount > 5)
-            Strcat(deadlist, "...");
-
         describe_level(buf);
         /* Enhanced diagnostic data for debugging accounting mismatch */
         impossible("dmonsfree: %d removed doesn't match %d pending on %s. "
-                   "Turn: %ld, Depth: %d, Living: %d, Dead: [%s]",
+                   "Turn: %ld, Depth: %d, Living monsters: %d",
                    count, iflags.purge_monsters, buf,
-                   moves, depth(&u.uz), living_count, deadlist);
+                   moves, depth(&u.uz), living_count);
     }
     iflags.purge_monsters = 0;
 }
@@ -3840,13 +3821,6 @@ register struct monst *mtmp;
                 rise_msg = TRUE;
             }
             newsym(x, y);
-            /* Vampshifter/changeling resurrection restores HP, making
-               DEADMONSTER() false, so adjust purge counter to prevent
-               accounting mismatch */
-            if (mtmp->mstate & MON_DETACH) {
-                iflags.purge_monsters--;
-                mtmp->mstate &= ~MON_DETACH;
-            }
             return;
         }
     }
