@@ -2628,6 +2628,17 @@ struct obj *obj;
     if (obj->timed)
         obj_stop_timers(obj);
 
+    /* If this is a zombie corpse that was going to rise, we need to adjust
+       the purge counter because the original monster was counted when it died
+       but will never be removed by dmonsfree since the zombie won't rise */
+    if (obj->otyp == CORPSE && obj->zombie_corpse
+        && obj_has_timer(obj, ZOMBIFY_MON)) {
+        /* This zombie corpse is being destroyed before it could rise.
+           Decrement purge counter since the original monster was counted
+           but won't be removed by dmonsfree */
+        iflags.purge_monsters--;
+    }
+
     /*
      * Free up any light sources attached to the object.
      *

@@ -1245,6 +1245,16 @@ boolean by_hero;
            the !by_hero case because caller might have already done so] */
     }
 
+    /* Zombie corpse revival accounting: When a zombie dies and creates a
+       zombie corpse that can revive, the original zombie was already counted
+       in iflags.purge_monsters. When the corpse revives into a new zombie,
+       we need to decrement the counter to maintain accurate accounting,
+       otherwise we'll have a mismatch between monsters marked for death
+       and those actually removed. */
+    if (corpse->zombie_corpse && mtmp && mtmp->data->mlet == S_ZOMBIE) {
+        iflags.purge_monsters--;
+    }
+
     /* handle recorporealization of an active ghost */
     if (has_omid(corpse)) {
         unsigned m_id;
