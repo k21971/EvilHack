@@ -2324,7 +2324,7 @@ int dieroll;
     }
     if (poiskilled) {
         pline_The("poison was deadly...");
-        if (!already_killed && !(mon->mstate & MON_DETACH))
+        if (!already_killed)
             xkilled(mon, XKILL_NOMSG);
         destroyed = TRUE; /* return FALSE; */
         if (obj && (obj->oprops & ITEM_VENOM)) {
@@ -2337,7 +2337,7 @@ int dieroll;
             slept_monst(mon);
         }
     } else if (destroyed) { /* any function using tmp needs to be above this line */
-        if (!already_killed && !(mon->mstate & MON_DETACH))
+        if (!already_killed)
             killed(mon); /* takes care of most messages */
     } else if (u.umconf && hand_to_hand && !thievery) {
         nohandglow(mon);

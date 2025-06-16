@@ -4613,5 +4613,4 @@ The following changes to date are:
 - Fix: ball & chain positioning crash on open air terrain
 - Fix: dmonsfree accounting mismatch for special monster resurrections
 - Fix: Druid quest goal level generation constraint crash
-- Fix: hmon_hitmon double-detach prevention in player attacks
 
