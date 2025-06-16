@@ -4616,6 +4616,4 @@ The following changes to date are:
 - Fix: hmon_hitmon double-detach prevention in player attacks
 - Fix: Vampshifter/changeling resurrection accounting, enhance dmonsfree
   diagnostics
-- Fix: mcalcdistress dbl-detach prevention for sick/diseased/withering
-  monsters, more dmonsfree diagnostic enhancements
 
