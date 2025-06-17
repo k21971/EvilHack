@@ -318,6 +318,23 @@ d_level *lev;
         hy = ROWNO - 1;
     }
 
+    /* Clamp search region to actual map bounds */
+    if (lx < 1)
+        lx = 1;
+    if (hx >= COLNO)
+        hx = COLNO - 1;
+    if (ly < 0)
+        ly = 0;
+    if (hy >= ROWNO)
+        hy = ROWNO - 1;
+
+    /* Ensure search region is valid */
+    if (lx > hx || ly > hy) {
+        impossible("Invalid lregion search area (%d,%d,%d,%d) for rtype %d",
+                   lx, ly, hx, hy, rtype);
+        return;
+    }
+
     /* first a probabilistic approach */
 
     oneshot = (lx == hx && ly == hy);
@@ -334,6 +351,17 @@ d_level *lev;
         for (y = ly; y <= hy; y++)
             if (put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, TRUE, lev))
                 return;
+
+    /* If we couldn't place the region, try relaxing the constraints
+     * This can happen with mines-style levels where much of the map
+     * is solid rock, making the specified regions too restrictive */
+    if (rtype == LR_UPSTAIR || rtype == LR_DOWNSTAIR) {
+        /* Try the whole map */
+        for (x = 1; x < COLNO - 1; x++)
+            for (y = 0; y < ROWNO - 1; y++)
+                if (put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, TRUE, lev))
+                    return;
+    }
 
     impossible("Couldn't place lregion type %d in (%d,%d,%d,%d)!",
                rtype, lx, ly, hx, hy);

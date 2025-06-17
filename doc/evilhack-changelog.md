@@ -4603,4 +4603,5 @@ The following changes to date are:
 - Fix: Druid quest goal level generation constraint crash
 - Fix: level generation crashes from overly constrained teleport regions
 - Fix: ceiling hider sanity check too strict for water and open air
+- Fix: lregion placement crash in hellfill mines-style levels
 
