@@ -4607,4 +4607,5 @@ The following changes to date are:
 - Fix: enhanced dmonsfree debugging and multiple monster death
   accounting issues
 - Add detailed debugging for bad monster weapon restore
+- Fix: prevent objects from having multiple weapon slot flags
 

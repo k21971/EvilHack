@@ -88,6 +88,14 @@ long mask;
                 }
                 *(wp->w_obj) = obj;
                 if (obj) {
+                    /* Clear conflicting worn masks before setting new one.
+                     * An object can't be in multiple weapon slots simultaneously:
+                     * W_WEP, W_SWAPWEP, and W_QUIVER are mutually exclusive.
+                     */
+                    if (wp->w_mask & W_WEAPONS) {
+                        /* If setting any weapon mask, clear all weapon masks first */
+                        obj->owornmask &= ~W_WEAPONS;
+                    }
                     obj->owornmask |= wp->w_mask;
                     /* Prevent getting/blocking intrinsics from wielding
                      * potions, through the quiver, etc.
