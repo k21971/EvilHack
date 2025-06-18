@@ -4606,4 +4606,5 @@ The following changes to date are:
 - Fix: lregion placement crash in hellfill mines-style levels
 - Fix: enhanced dmonsfree debugging and multiple monster death
   accounting issues
+- Add detailed debugging for bad monster weapon restore
 

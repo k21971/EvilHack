@@ -473,8 +473,31 @@ boolean ghostly;
             if (obj)
                 mtmp->mw = obj;
             else {
+                /* Enhanced debugging for weapon restore issues */
+                struct obj *weap;
+                int count = 0;
+                char buf[BUFSZ];
+
+                buf[0] = '\0';
+                /* List all objects in monster inventory for debugging */
+                for (weap = mtmp->minvent; weap && count < 5; weap = weap->nobj) {
+                    if (count > 0)
+                        Strcat(buf, ", ");
+                    Sprintf(eos(buf), "%s(0x%lx)",
+                            weap->quan > 1 ? doname(weap) : xname(weap),
+                            weap->owornmask);
+                    count++;
+                }
+                if (count == 0)
+                    Strcpy(buf, "empty inventory");
+                else if (mtmp->minvent && count == 5)
+                    Strcat(buf, "...");
+
                 MON_NOWEP(mtmp);
-                impossible("bad monster weapon restore");
+                impossible("bad monster weapon restore: %s [%s] inventory: %s",
+                           mon_nam(mtmp),
+                           mtmp->data ? mtmp->data->mname : "unknown",
+                           buf);
             }
         }
 
