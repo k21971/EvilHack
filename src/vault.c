@@ -147,7 +147,9 @@ struct monst *grd;
     /* it seems you left the corridor - let the guard disappear */
     if (clear_fcorr(grd, FALSE)) {
         grd->isgd = 0; /* dmonsfree() should delete this mon */
-        mongone(grd);
+        /* only mark for removal if not already dead and marked */
+        if (!(grd->mstate & MON_DETACH))
+            mongone(grd);
     }
 }
 
@@ -185,8 +187,16 @@ struct monst *grd;
         parkguard(grd);
         dispose = clear_fcorr(grd, TRUE);
     }
-    if (dispose)
+
+    if (dispose) {
         grd->isgd = 0; /* for dmonsfree() */
+    } else if (grd->mstate & MON_DETACH) {
+        /* Guard is dead but will be kept around with isgd set,
+           so it won't be freed by dmonsfree(). Since it's already
+           marked for purging, decrement the counter. */
+        iflags.purge_monsters--;
+        /* Note: Can't track in recent_detaches from here as it's in mon.c */
+    }
     return dispose;
 }
 

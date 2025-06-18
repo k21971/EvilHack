@@ -3140,6 +3140,14 @@ int x, y;
     return (boolean) (distance < 3);
 }
 
+/* Recent m_detach tracking for debugging */
+#define MAX_DETACH_TRACK 10
+static struct {
+    char mname[BUFSZ];
+    int x, y;
+} recent_detaches[MAX_DETACH_TRACK];
+static int detach_idx = 0;
+
 /* really free dead monsters */
 void
 dmonsfree()
@@ -3147,18 +3155,35 @@ dmonsfree()
     struct monst **mtmp, *freetmp, *ridertmp;
     int count = 0;
     char buf[QBUFSZ];
+    char freed_list[BUFSZ] = "";
 
     buf[0] = '\0';
     for (mtmp = &fmon; *mtmp;) {
         freetmp = *mtmp;
 
         if (DEADMONSTER(freetmp)
-            && freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
+            && freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
             icequeenrevive(freetmp);
+            /* Ice Queen transforms to Enchantress and is revived.
+               She was marked for purging but won't be freed, so
+               decrement the counter */
+            iflags.purge_monsters--;
+            /* Track this special case in recent_detaches with negative position */
+            Strcpy(recent_detaches[detach_idx].mname, "IceQueen->Enchantress");
+            recent_detaches[detach_idx].x = -1;
+            recent_detaches[detach_idx].y = -1;
+            detach_idx = (detach_idx + 1) % MAX_DETACH_TRACK;
+        }
 
         if (DEADMONSTER(freetmp) && !freetmp->isgd) {
             *mtmp = freetmp->nmon;
             freetmp->nmon = NULL;
+
+            /* Track what we're actually freeing for debugging */
+            if (count < 5 && freetmp->data) {  /* track first few */
+                Sprintf(eos(freed_list), " %s(%d,%d)",
+                        freetmp->data->mname, freetmp->mx, freetmp->my);
+            }
             if (!!(ridertmp = get_mon_rider(freetmp)))
                 separate_steed_and_rider(ridertmp);
             dealloc_monst(freetmp);
@@ -3169,9 +3194,94 @@ dmonsfree()
     }
 
     if (count != iflags.purge_monsters) {
+        char msgbuf[BUFSZ * 3];
+        int living_detached = 0, dead_not_freed = 0, dead_detached_not_freed = 0;
+        int total_mons = 0;
+        struct monst *mon;
+        char not_freed_list[BUFSZ] = "";
+
         describe_level(buf);
-        impossible("dmonsfree: %d removed doesn't match %d pending on %s",
-                   count, iflags.purge_monsters, buf);
+
+        /* Add game state context */
+        if (program_state.saving)
+            Strcat(buf, " [SAVING]");
+        if (program_state.restoring)
+            Strcat(buf, " [RESTORING]");
+        if (program_state.in_moveloop)
+            Strcat(buf, " [MOVELOOP]");
+        if (wizard && program_state.wizkit_wishing)
+            Strcat(buf, " [WIZKIT_WISHING]");
+
+        /* Count problematic monsters */
+        for (mon = fmon; mon; mon = mon->nmon) {
+            total_mons++;
+            if (!DEADMONSTER(mon) && (mon->mstate & MON_DETACH))
+                living_detached++;
+            if (DEADMONSTER(mon)) {
+                /* Dead monsters that won't be freed */
+                if (mon->isgd) {
+                    dead_not_freed++;
+                } else if (mon->mstate & MON_DETACH) {
+                    /* This is bad - dead with MON_DETACH but still in list */
+                    dead_detached_not_freed++;
+                    if (dead_detached_not_freed <= 3) {
+                        Sprintf(eos(not_freed_list), " %s(%d,%d)",
+                                mon->data ? mon->data->mname : "unknown",
+                                mon->mx, mon->my);
+                    }
+                }
+            }
+        }
+
+        /* Build detailed error message */
+        Sprintf(msgbuf, "dmonsfree: %d removed != %d pending on %s [%dmons]",
+                count, iflags.purge_monsters, buf, total_mons);
+        /* Show what was actually freed */
+        if (freed_list[0])
+            Sprintf(eos(msgbuf), " Freed:%s", freed_list);
+
+        /* Add diagnostic counts */
+        if (living_detached > 0)
+            Sprintf(eos(msgbuf), " [%d living with MON_DETACH!]", living_detached);
+        if (dead_not_freed > 0)
+            Sprintf(eos(msgbuf), " [%d dead vault guards]", dead_not_freed);
+        if (dead_detached_not_freed > 0) {
+            Sprintf(eos(msgbuf), " [%d DEAD+DETACHED NOT FREED!%s]",
+                    dead_detached_not_freed, not_freed_list);
+        }
+
+        /* Log first few problematic monsters */
+        if (living_detached > 0) {
+            int shown = 0;
+            Strcat(msgbuf, " Living+detached:");
+            for (mon = fmon; mon && shown < 3; mon = mon->nmon) {
+                if (!DEADMONSTER(mon) && (mon->mstate & MON_DETACH)) {
+                    Sprintf(eos(msgbuf), " %s(%d,%d)",
+                            mon->data->mname, mon->mx, mon->my);
+                    shown++;
+                }
+            }
+        }
+
+        /* Show recent m_detach calls */
+        if (recent_detaches[0].mname[0]) {  /* if we have any tracked */
+            int start = (detach_idx - 1 + MAX_DETACH_TRACK) % MAX_DETACH_TRACK;
+            int shown = 0, i, idx;
+
+            Strcat(msgbuf, " Recent:");
+            for (i = 0; i < MAX_DETACH_TRACK && shown < 5; i++) {
+                idx = (start - i + MAX_DETACH_TRACK) % MAX_DETACH_TRACK;
+                if (recent_detaches[idx].mname[0]) {
+                    Sprintf(eos(msgbuf), " %s(%d,%d)",
+                            recent_detaches[idx].mname,
+                            recent_detaches[idx].x,
+                            recent_detaches[idx].y);
+                    shown++;
+                }
+            }
+        }
+
+        impossible("%s", msgbuf);
     }
     iflags.purge_monsters = 0;
 }
@@ -3427,6 +3537,12 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
 
     mtmp->mstate |= MON_DETACH;
     iflags.purge_monsters++;
+
+    /* Track recent detaches for debugging */
+    Strcpy(recent_detaches[detach_idx].mname, mtmp->data->mname);
+    recent_detaches[detach_idx].x = mtmp->mx;
+    recent_detaches[detach_idx].y = mtmp->my;
+    detach_idx = (detach_idx + 1) % MAX_DETACH_TRACK;
 
     /* hero is thrown from his steed when it dies or gets genocided */
     if (mtmp == u.usteed)

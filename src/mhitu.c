@@ -2118,14 +2118,21 @@ register struct attack *mattk;
                         u.ustuck = 0;
                         dmg = 0;
                     } else {
-                        pline("%s burrows itself into your brain!",
-                              Monnam(mtmp));
-                        Your("last thoughts fade away as your begin your transformation...");
-                        mongone(mtmp); /* mind flayer larva just took over your body */
-                        killer.format = NO_KILLER_PREFIX;
-                        Sprintf(killer.name, "became a parasitic host to %s",
-                                an(mtmp->data->mname));
-                        done(DIED);
+                        /* A dying larva can't complete transformation */
+                        if (mtmp->mstate & MON_DETACH) {
+                            pline("%s shudders and loses its grip!", Monnam(mtmp));
+                            u.ustuck = 0;
+                            dmg = 0;
+                        } else {
+                            pline("%s burrows itself into your brain!",
+                                  Monnam(mtmp));
+                            Your("last thoughts fade away as your begin your transformation...");
+                            mongone(mtmp); /* mind flayer larva just took over your body */
+                            killer.format = NO_KILLER_PREFIX;
+                            Sprintf(killer.name, "became a parasitic host to %s",
+                                    an(mtmp->data->mname));
+                            done(DIED);
+                        }
                     }
                 }
             } else {

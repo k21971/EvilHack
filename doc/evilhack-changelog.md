@@ -4604,4 +4604,6 @@ The following changes to date are:
 - Fix: level generation crashes from overly constrained teleport regions
 - Fix: ceiling hider sanity check too strict for water and open air
 - Fix: lregion placement crash in hellfill mines-style levels
+- Fix: enhanced dmonsfree debugging and multiple monster death
+  accounting issues
 

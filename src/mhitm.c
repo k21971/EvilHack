@@ -2582,6 +2582,13 @@ msickness:
                         }
                         if (!mlifesaver(mdef)) {
                             boolean tamer = magr->mtame;
+                            /* A dying larva can't complete transformation */
+                            if (magr->mstate & MON_DETACH) {
+                                if (canseemon(magr))
+                                    pline("%s shudders and loses its grip!",
+                                          Monnam(magr));
+                                return MM_AGR_DIED;
+                            }
                             if (!tamer && (mdef->mtame || mdef->mpeaceful))
                                 mdef->mtame = mdef->mpeaceful = 0;
                             mongone(magr); /* mind flayer larva transforms */
