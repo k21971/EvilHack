@@ -75,6 +75,8 @@ STATIC_DCL void FDECL(dump_add_menu, (winid, int, const ANY_P *, CHAR_P,
 STATIC_DCL void FDECL(dump_end_menu, (winid, const char *));
 STATIC_DCL int FDECL(dump_select_menu, (winid, int, MENU_ITEM_P **));
 STATIC_DCL void FDECL(dump_putstr, (winid, int, const char *));
+STATIC_DCL void FDECL(dump_status_update, (int, genericptr_t, int, int, int,
+                                           unsigned long *));
 STATIC_DCL void NDECL(dump_headers);
 STATIC_DCL void NDECL(dump_footers);
 STATIC_DCL void FDECL(dump_set_color_attr, (int, int, BOOLEAN_P));
@@ -1802,7 +1804,7 @@ dump_render_status()
     return;
 }
 
-void
+STATIC_OVL void
 dump_status_update(fldidx, ptr, chg, percent, color, colormasks)
 int fldidx, percent, color;
 genericptr_t ptr;

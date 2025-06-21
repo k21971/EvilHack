@@ -4613,4 +4613,5 @@ The following changes to date are:
 - Fix: resolve all windows compiler warnings for cross-platform
   compatibility
 - Fix: one more window compilation warning
+- Fix: one more window compilation warning, take two
 
