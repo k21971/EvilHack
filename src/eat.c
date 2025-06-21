@@ -109,7 +109,7 @@ register struct obj *obj;
         return (boolean) (obj->otyp == CORPSE
                           && has_blood(&mons[obj->corpsenm])
                           && (!obj->odrained
-                              || obj->oeaten > drain_level(obj)));
+                              || obj->oeaten > (unsigned) drain_level(obj)));
 
     if (u.umonnum == PM_GELATINOUS_CUBE && is_organic(obj)
         /* [g.cubes can eat containers and retain all contents
@@ -2033,7 +2033,7 @@ struct obj *otmp;
     if (isvamp) {
         /* oeaten is set up by touchfood */
         if (otmp->odrained
-            ? otmp->oeaten <= drain_level(otmp)
+            ? otmp->oeaten <= (unsigned) drain_level(otmp)
             : otmp->oeaten < mons[otmp->corpsenm].cnutrit) {
             pline("There is no blood left in this corpse!");
             return 3;
@@ -2172,8 +2172,8 @@ struct obj *otmp;
         if (!retcode)
             consume_oeaten(otmp, 2); /* oeaten >>= 2 */
         if (retcode < 2 && otmp->odrained
-            && otmp->oeaten < drain_level(otmp)) {
-            otmp->oeaten = drain_level(otmp);
+            && otmp->oeaten < (unsigned) drain_level(otmp)) {
+            otmp->oeaten = (unsigned) drain_level(otmp);
         }
     } else if ((mnum == PM_COCKATRICE || mnum == PM_CHICKATRICE ||
                 mnum == PM_BASILISK)

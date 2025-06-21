@@ -4610,4 +4610,6 @@ The following changes to date are:
 - Fix: prevent objects from having multiple weapon slot flags
 - Fix: multiple monster attack and death handling issues
 - Fix: windows build error with enhanced debugging code (mon.c)
+- Fix: resolve all windows compiler warnings for cross-platform
+  compatibility
 

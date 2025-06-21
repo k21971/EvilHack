@@ -3245,7 +3245,7 @@ set_trap()
     int ttyp;
     boolean obj_cursed = otmp->cursed;
     boolean mat = otmp->material;
-    boolean prop = otmp->oprops;
+    boolean prop = (otmp->oprops != 0L);
     boolean enchant = otmp->spe;
     boolean is_rogue = Role_if(PM_ROGUE);
     boolean is_ranger = Role_if(PM_RANGER);

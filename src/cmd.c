@@ -1016,7 +1016,7 @@ wiz_detect(VOID_ARGS)
 /* the #wizkill command - pick targets and reduce them to 0HP;
    by default, the hero is credited/blamed */
 static int
-wiz_kill()
+wiz_kill(void)
 {
     struct monst *mtmp;
     coord cc;
@@ -2054,7 +2054,7 @@ fmt_elapsed_time(char *outbuf, int final)
     long etim = urealtime.realtime;
 
     if (!final)
-        etim += getnow() - urealtime.start_timing;
+        etim += (long) (getnow() - urealtime.start_timing);
     /* we could use localtime() to convert the value into a 'struct tm'
        to get date and time fields but this is simple and straightforward */
     eseconds = etim % 60L, etim /= 60L;

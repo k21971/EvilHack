@@ -4812,6 +4812,10 @@ const char *buffer UNUSED;
 void
 livelog_printf
 VA_DECL2(unsigned int, ll_type, const char *, fmt)
+    /* suppress "unused variable" warnings */
+    (void) ll_type;
+    (void) fmt;
+    (void) the_args;
 } /* would be matched in VA_END() but we don't need this */
 
 #endif /* LIVELOGFILE */

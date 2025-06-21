@@ -920,7 +920,7 @@ time_t when; /* date+time at end of game */
     putstr(0, ATR_HEADING, "Time information:");
     Sprintf(pbuf, " Play time: %s", iso8601_duration(urealtime.realtime));
     putstr(0, 0, pbuf);
-    Sprintf(pbuf, " Wallclock time: %s", iso8601_duration(getnow() - ubirthday));
+    Sprintf(pbuf, " Wallclock time: %s", iso8601_duration((long) (getnow() - ubirthday)));
     putstr(0, 0, pbuf);
     putstr(NHW_DUMPTXT, 0, "");
 

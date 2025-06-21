@@ -1583,9 +1583,9 @@ unsigned doname_flags;
         break;
     case FOOD_CLASS:
         if (obj->otyp == CORPSE && obj->odrained) {
-            if (wizard && obj->oeaten < drain_level(obj)) {
+            if (wizard && obj->oeaten < (unsigned) drain_level(obj)) {
                 Strcat(prefix, "over-drained ");
-            } else if (obj->oeaten > drain_level(obj)) {
+            } else if (obj->oeaten > (unsigned) drain_level(obj)) {
                 Strcat(prefix, "partly drained ");
             } else {
                 Strcat(prefix, "drained ");
@@ -5642,7 +5642,7 @@ struct obj *obj;
         Strcpy(buf, "bugged color");
         return buf;
     }
-    colorlen = endp - pm->mname;
+    colorlen = (int) (endp - pm->mname);
     strncpy(buf, pm->mname, colorlen);
     buf[colorlen] = '\0';
     return buf;

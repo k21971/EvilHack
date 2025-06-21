@@ -681,7 +681,7 @@ static NEARDATA int dpx, dpy; /* boulder being attacked */
 static NEARDATA int breakturns; /* concentration turn */
 
 STATIC_OVL int
-ma_break()
+ma_break(void)
 {
     struct obj *bobj, *obj;
     int prob;
