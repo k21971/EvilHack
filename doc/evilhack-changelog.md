@@ -4609,4 +4609,5 @@ The following changes to date are:
 - Add detailed debugging for bad monster weapon restore
 - Fix: prevent objects from having multiple weapon slot flags
 - Fix: multiple monster attack and death handling issues
+- Fix: windows build error with enhanced debugging code (mon.c)
 

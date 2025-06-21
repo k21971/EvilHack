@@ -3179,7 +3179,11 @@ dmonsfree()
             recent_detaches[detach_idx].y = -1;
             recent_detaches[detach_idx].hp = 0;
             recent_detaches[detach_idx].maxhp = 0;
+#ifdef __GNUC__
             recent_detaches[detach_idx].caller = __builtin_return_address(0);
+#else
+            recent_detaches[detach_idx].caller = NULL;  /* Not available on MSVC */
+#endif
             recent_detaches[detach_idx].turn = moves;
             detach_idx = (detach_idx + 1) % MAX_DETACH_TRACK;
         }
@@ -3597,7 +3601,11 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
     recent_detaches[detach_idx].y = mtmp->my;
     recent_detaches[detach_idx].hp = mtmp->mhp;
     recent_detaches[detach_idx].maxhp = mtmp->mhpmax;
+#ifdef __GNUC__
     recent_detaches[detach_idx].caller = __builtin_return_address(0);
+#else
+    recent_detaches[detach_idx].caller = NULL;  /* Not available on MSVC */
+#endif
     recent_detaches[detach_idx].turn = moves;
     recent_detaches[detach_idx].mon_addr = (void *)mtmp;
     recent_detaches[detach_idx].m_id = mtmp->m_id;
