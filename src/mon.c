@@ -3145,6 +3145,11 @@ int x, y;
 static struct {
     char mname[BUFSZ];
     int x, y;
+    int hp, maxhp;
+    void* caller;
+    long turn;
+    void* mon_addr;      /* Monster memory address for reuse detection */
+    unsigned int m_id;   /* Monster ID to distinguish individuals */
 } recent_detaches[MAX_DETACH_TRACK];
 static int detach_idx = 0;
 
@@ -3172,6 +3177,10 @@ dmonsfree()
             Strcpy(recent_detaches[detach_idx].mname, "IceQueen->Enchantress");
             recent_detaches[detach_idx].x = -1;
             recent_detaches[detach_idx].y = -1;
+            recent_detaches[detach_idx].hp = 0;
+            recent_detaches[detach_idx].maxhp = 0;
+            recent_detaches[detach_idx].caller = __builtin_return_address(0);
+            recent_detaches[detach_idx].turn = moves;
             detach_idx = (detach_idx + 1) % MAX_DETACH_TRACK;
         }
 
@@ -3535,13 +3544,64 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
     if (In_endgame(&u.uz))
         mtmp->mstate |= MON_ENDGAME_FREE;
 
+    /* Prevent double-detach - this is the root cause of many dmonsfree issues */
+    if (mtmp->mstate & MON_DETACH) {
+        int i;
+        char msgbuf[BUFSZ * 12];  /* Enough for header + 10 history entries */
+        char tmpbuf[BUFSZ];
+
+        /* Build complete debug message in one buffer */
+        Sprintf(msgbuf, "m_detach: monster already marked MON_DETACH: %s at (%d,%d)\n",
+                mtmp->data->mname, mtmp->mx, mtmp->my);
+        Sprintf(eos(msgbuf), "=== RECENT M_DETACH HISTORY ===\n");
+        Sprintf(eos(msgbuf), "Double m_detach detected at turn %ld\n", moves);
+        Sprintf(eos(msgbuf), "Monster: %s at (%d,%d) HP:%d/%d\n",
+                mtmp->data->mname, mtmp->mx, mtmp->my, mtmp->mhp, mtmp->mhpmax);
+
+        for (i = 0; i < MAX_DETACH_TRACK; i++) {
+            int idx = (detach_idx + i) % MAX_DETACH_TRACK;
+            if (recent_detaches[idx].mname[0]) {
+                Sprintf(tmpbuf, "[%d] %s at (%d,%d) HP:%d/%d addr:%p id:%u by %p turn:%ld",
+                        i + 1, recent_detaches[idx].mname,
+                        recent_detaches[idx].x, recent_detaches[idx].y,
+                        recent_detaches[idx].hp, recent_detaches[idx].maxhp,
+                        recent_detaches[idx].mon_addr, recent_detaches[idx].m_id,
+                        recent_detaches[idx].caller, recent_detaches[idx].turn);
+
+                /* Enhanced detection using both m_id and address */
+                if (recent_detaches[idx].m_id == mtmp->m_id) {
+                    Strcat(tmpbuf, " <-- SAME MONSTER ID!");
+                } else if (recent_detaches[idx].mon_addr == (void *)mtmp) {
+                    Strcat(tmpbuf, " <-- SAME ADDRESS (REUSED)!");
+                } else if (strcmp(recent_detaches[idx].mname, mtmp->data->mname) == 0 &&
+                           abs(recent_detaches[idx].x - mtmp->mx) <= 1 &&
+                           abs(recent_detaches[idx].y - mtmp->my) <= 1) {
+                    Strcat(tmpbuf, " <-- SIMILAR POSITION!");
+                }
+                Sprintf(eos(msgbuf), "%s\n", tmpbuf);
+            }
+        }
+        Strcat(msgbuf, "=== END M_DETACH HISTORY ===");
+
+        /* Output everything in one impossible() call */
+        impossible("%s", msgbuf);
+        return;
+    }
+
     mtmp->mstate |= MON_DETACH;
     iflags.purge_monsters++;
 
-    /* Track recent detaches for debugging */
+    /* Track recent detaches for debugging - include all info */
     Strcpy(recent_detaches[detach_idx].mname, mtmp->data->mname);
     recent_detaches[detach_idx].x = mtmp->mx;
     recent_detaches[detach_idx].y = mtmp->my;
+    recent_detaches[detach_idx].hp = mtmp->mhp;
+    recent_detaches[detach_idx].maxhp = mtmp->mhpmax;
+    recent_detaches[detach_idx].caller = __builtin_return_address(0);
+    recent_detaches[detach_idx].turn = moves;
+    recent_detaches[detach_idx].mon_addr = (void *)mtmp;
+    recent_detaches[detach_idx].m_id = mtmp->m_id;
+
     detach_idx = (detach_idx + 1) % MAX_DETACH_TRACK;
 
     /* hero is thrown from his steed when it dies or gets genocided */

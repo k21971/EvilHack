@@ -959,6 +959,7 @@ boolean adjacentok; /* False: at obj's spot only, True: nearby is allowed */
         mtmp2->mlstmv = mtmp->mlstmv;
         mtmp2->m_ap_type = mtmp->m_ap_type;
         /* set these ones explicitly */
+        mtmp2->mstate = 0; /* clear all state flags including MON_DETACH */
         mtmp2->mrevived = 1;
         mtmp2->mavenge = 0;
         mtmp2->meating = 0;

@@ -2595,8 +2595,11 @@ msickness:
                             become_flayer(mdef);
                             if (tamer)
                                 (void) tamedog(mdef, (struct obj *) 0);
-                            return (MM_DEF_DIED
-                                    | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+                            /* Don't call grow_up() on a monster that's
+                               been mongone()'d - it's already marked for
+                               removal. The larva is gone, having
+                               transformed into the host's new form */
+                            return MM_DEF_DIED | MM_AGR_DIED;
                         } else {
                             tmp = mdef->mhp;
                         }

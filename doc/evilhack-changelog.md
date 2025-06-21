@@ -4608,4 +4608,5 @@ The following changes to date are:
   accounting issues
 - Add detailed debugging for bad monster weapon restore
 - Fix: prevent objects from having multiple weapon slot flags
+- Fix: multiple monster attack and death handling issues
 

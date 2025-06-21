@@ -649,7 +649,8 @@ struct attack *alt_attk_buf;
 
 /*
  * mattacku: monster attacks you
- *      returns 1 if monster dies (e.g. "yellow light"), 0 otherwise
+ *      returns MM_AGR_DIED if monster dies (e.g. "yellow light"),
+ *      MM_HIT or MM_MISS otherwise
  *      Note: if you're displaced or invisible the monster might attack the
  *              wrong position...
  *      Assumption: it's attacking you or an empty square; if there's another
@@ -684,37 +685,37 @@ register struct monst *mtmp;
         nomul(0);
     if (DEADMONSTER(mtmp)
         || (Underwater && !mon_underwater(mtmp)))
-        return 0;
+        return MM_MISS;
 
     /* If swallowed, can only be affected by u.ustuck */
     if (u.uswallow) {
         if (mtmp != u.ustuck)
-            return 0;
+            return MM_MISS;
         u.ustuck->mux = u.ux;
         u.ustuck->muy = u.uy;
         range2 = 0;
         foundyou = 1;
         if (u.uinvulnerable)
-            return 0; /* stomachs can't hurt you! */
+            return MM_MISS; /* stomachs can't hurt you! */
     } else if (u.usteed) {
         if (mtmp == u.usteed)
             /* Your steed won't attack you */
-            return 0;
+            return MM_MISS;
         /* Orcs like to steal and eat horses and the like */
         if (!rn2(racial_orc(mtmp) ? 2 : 4)
             && distu(mtmp->mx, mtmp->my) <= 2) {
             /* Attack your steed instead */
             i = mattackm(mtmp, u.usteed);
             if ((i & MM_AGR_DIED) != 0)
-                return 1;
+                return MM_AGR_DIED;
             /* make sure steed is still alive and within range */
             if ((i & MM_DEF_DIED) != 0 || !u.usteed
                 || distu(mtmp->mx, mtmp->my) > 2)
-                return 0;
+                return MM_MISS;
             /* Let your steed retaliate */
             bhitpos.x = mtmp->mx, bhitpos.y = mtmp->my;
             notonhead = FALSE;
-            return !!(mattackm(u.usteed, mtmp) & MM_DEF_DIED);
+            return (mattackm(u.usteed, mtmp) & MM_DEF_DIED) ? MM_AGR_DIED : MM_HIT;
         }
         /* steed will attack on the players behalf without waiting
            for the player or itself to be attacked first if the steed
@@ -726,16 +727,16 @@ register struct monst *mtmp;
                make sure it's actually alive */
             i = mattackm(u.usteed, mtmp);
             if ((i & MM_AGR_DIED) != 0 || !u.usteed)
-                return 1;
+                return MM_AGR_DIED;
             /* make sure monster is alive and is
                within range (melee attack) */
             if ((i & MM_DEF_DIED) != 0
                 || distu(mtmp->mx, mtmp->my) > 2)
-                return 0;
+                return MM_MISS;
             /* allow steed to attack */
             bhitpos.x = mtmp->mx, bhitpos.y = mtmp->my;
             notonhead = FALSE;
-            return !!(mattackm(u.usteed, mtmp) & MM_DEF_DIED);
+            return (mattackm(u.usteed, mtmp) & MM_DEF_DIED) ? MM_AGR_DIED : MM_HIT;
         }
     }
 
@@ -771,7 +772,7 @@ register struct monst *mtmp;
                 place_monster(mtmp, mtmp->mx, mtmp->my); /* put back */
                 newsym(u.ux, u.uy); /* u.uundetected was toggled */
                 pline("%s draws back as you drop!", Monnam(mtmp));
-                return 0;
+                return MM_MISS;
             }
 
             /* put mtmp at hero's spot and move hero to <cc.x,.y> */
@@ -789,7 +790,7 @@ register struct monst *mtmp;
             newsym(u.ux, u.uy);
 
             if (youmonst.data->mlet != S_PIERCER)
-                return 0; /* lurkers don't attack */
+                return MM_MISS; /* lurkers don't attack */
 
             obj = which_armor(mtmp, WORN_HELMET);
             if (obj && is_metallic(obj)) {
@@ -851,7 +852,7 @@ register struct monst *mtmp;
             }
             newsym(u.ux, u.uy);
         }
-        return 0;
+        return MM_MISS;
     }
 
     /* hero might be a mimic, concealed via #monster */
@@ -903,7 +904,7 @@ register struct monst *mtmp;
         youmonst.m_ap_type = M_AP_NOTHING;
         youmonst.mappearance = 0;
         newsym(u.ux, u.uy);
-        return 0;
+        return MM_HIT;
     }
 
     /* non-mimic hero might be mimicking an object after eating m corpse */
@@ -927,7 +928,7 @@ register struct monst *mtmp;
                            : (const char *) "yourself");
             unmul(buf); /* immediately stop mimicking */
         }
-        return 0;
+        return MM_HIT;
     }
 
     /*  Work out the armor class differential   */
@@ -1038,7 +1039,7 @@ register struct monst *mtmp;
             else
                 You_feel("%s move nearby.", something);
         }
-        return 0;
+        return MM_MISS;
     }
 
     /* Unlike defensive stuff, don't let them use item _and_ attack. */
@@ -1046,7 +1047,7 @@ register struct monst *mtmp;
         int foo = use_offensive(mtmp);
 
         if (foo != 0)
-            return (foo == 1);
+            return (foo == 1) ? MM_HIT : MM_MISS;
     }
 
     firstfoundyou = foundyou;
@@ -1090,7 +1091,7 @@ register struct monst *mtmp;
                              || Wounded_legs || Stoned || Fumbling) && rn2(3)) {
                         You("nimbly %s %s bite!",
                             rn2(2) ? "dodge" : "evade", s_suffix(mon_nam(mtmp)));
-                        return 0; /* attack stops */
+                        return MM_MISS; /* attack stops */
                     }
                     if (mdat->msize <= MZ_LARGE && mattk->aatyp == AT_BITE
                         && Hidinshell) {
@@ -1126,7 +1127,7 @@ register struct monst *mtmp;
                                     kformat = KILLED_BY;
                                 }
                                 make_stoned(5L, (char *) 0, kformat, kname);
-                                return 1;
+                                return MM_HIT;
                             }
                         }
                     } else {
@@ -1140,7 +1141,7 @@ register struct monst *mtmp;
                            if the attacker has multiple attacks and they
                            died before their attack chain completed */
                         if (DEADMONSTER(mtmp))
-                            return 1;
+                            return MM_AGR_DIED;
                     }
                 } else {
                     /* note: wildmiss only expects cases where the hero is
@@ -1284,12 +1285,12 @@ register struct monst *mtmp;
             }
         }
         if (sum[i] == 2)
-            return 1; /* attacker dead */
+            return MM_AGR_DIED; /* attacker dead */
         if (sum[i] == 3)
             break; /* attacker teleported, no more attacks */
         /* sum[i] == 0: unsuccessful attack */
     }
-    return 0;
+    return MM_HIT; /* monster did attack */
 }
 
 boolean
@@ -2812,6 +2813,12 @@ do_rust:
 
         mdamageu(mtmp, dmg);
     }
+
+    /* If monster was marked for removal during attack processing
+       (e.g., mind flayer larva dying before completing transformation),
+       it's already dead - don't process passive defense */
+    if (mtmp->mstate & MON_DETACH)
+        return 2; /* attacker is dead */
 
     if (dmg)
         res = passiveum(olduasmon, mtmp, mattk);
@@ -4597,6 +4604,7 @@ struct attack *mattk;
     for (i = 0; !oldu_mattk; i++) {
         if (i >= NATTK)
             return 1;
+
         if (olduasmon->mattk[i].aatyp == AT_NONE
             || olduasmon->mattk[i].aatyp == AT_BOOM)
             oldu_mattk = &olduasmon->mattk[i];
