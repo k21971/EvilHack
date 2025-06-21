@@ -1804,8 +1804,9 @@ dump_render_status()
 
 void
 dump_status_update(fldidx, ptr, chg, percent, color, colormasks)
-int fldidx, chg UNUSED, percent, color;
+int fldidx, percent, color;
 genericptr_t ptr;
+int chg UNUSED;
 unsigned long *colormasks;
 {
     int attrmask;

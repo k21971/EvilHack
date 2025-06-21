@@ -4612,4 +4612,5 @@ The following changes to date are:
 - Fix: windows build error with enhanced debugging code (mon.c)
 - Fix: resolve all windows compiler warnings for cross-platform
   compatibility
+- Fix: one more window compilation warning
 
