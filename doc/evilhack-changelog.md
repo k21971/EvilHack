@@ -4614,4 +4614,6 @@ The following changes to date are:
   compatibility
 - Fix: one more window compilation warning
 - Fix: one more window compilation warning, take two
+- Fix: extend place_lregion() fallback to handle branch portals in
+  constrained regions
 

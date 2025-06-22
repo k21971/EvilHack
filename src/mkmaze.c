@@ -355,7 +355,8 @@ d_level *lev;
     /* If we couldn't place the region, try relaxing the constraints
      * This can happen with mines-style levels where much of the map
      * is solid rock, making the specified regions too restrictive */
-    if (rtype == LR_UPSTAIR || rtype == LR_DOWNSTAIR) {
+    if (rtype == LR_UPSTAIR || rtype == LR_DOWNSTAIR
+        || rtype == LR_PORTAL || rtype == LR_BRANCH) {
         /* Try the whole map */
         for (x = 1; x < COLNO - 1; x++)
             for (y = 0; y < ROWNO - 1; y++)
