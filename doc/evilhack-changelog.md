@@ -4618,4 +4618,5 @@ The following changes to date are:
   constrained regions
 - Add detailed debugging for bad monster weapon restore, take two
 - Fix: spinning a web over a spear trap
+- Fix: prevent infinite lifesaving loops during fuzzing
 

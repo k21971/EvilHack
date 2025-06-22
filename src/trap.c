@@ -4658,6 +4658,7 @@ drown()
     const char *pool_of_water;
     boolean inpool_ok = FALSE, crawl_ok;
     int i, x, y;
+    static int drown_death_attempts = 0;
 
     feel_newsym(u.ux, u.uy); /* in case Blind, map the water here */
     /* happily wading in the same contiguous pool */
@@ -4669,8 +4670,11 @@ drown()
         /* water effects on objects every now and then */
         if (!rn2(5))
             inpool_ok = TRUE;
-        else
+        else {
+            if (iflags.debug_fuzzer)
+                drown_death_attempts = 0;  /* reset counter - we're fine */
             return FALSE;
+        }
     }
 
     if (!u.uinwater) {
@@ -4712,6 +4716,8 @@ drown()
     }
 
     if (Amphibious || Swimming || Breathless) {
+        if (iflags.debug_fuzzer)
+            drown_death_attempts = 0;  /* reset counter - we can breathe/swim */
         if (Amphibious || Breathless) {
             if (flags.verbose)
                 pline("But you aren't drowning.");
@@ -4802,6 +4808,24 @@ crawl:
     }
     u.uinwater = 1;
     You("drown.");
+    if (iflags.debug_fuzzer) {
+        drown_death_attempts++;
+        /* Limit attempts to prevent infinite loops during fuzzing.
+         * After 2 failed attempts, grant temporary water breathing
+         * to allow escape. */
+        if (drown_death_attempts >= 2) {
+            pline("Your lungs adapt to the water!");
+            You("develop temporary gills!");
+            /* Grant 5 turns of magical breathing */
+            incr_itimeout(&HMagical_breathing, 5);
+            /* Reset counter and let hero survive */
+            drown_death_attempts = 0;
+            u.uinwater = 0;
+            You("find yourself able to breathe underwater!");
+            return FALSE;
+        }
+    }
+    /* Normal drowning loop - limited to 5 attempts in original code */
     for (i = 0; i < 5; i++) { /* arbitrary number of loops */
         /* killer format and name are reconstructed every iteration
            because lifesaving resets them */
@@ -4817,12 +4841,18 @@ crawl:
             break; /* successful life-save */
         /* nowhere safe to land; repeat drowning loop... */
         pline("You're still drowning.");
+        /* During fuzzing, we should have hit the limit above,
+         * but if not, break out anyway to prevent hangs */
+        if (iflags.debug_fuzzer)
+            break;
     }
     if (u.uinwater) {
         u.uinwater = 0;
         You("find yourself back %s.",
             Is_waterlevel(&u.uz) ? "in an air bubble" : "on land");
     }
+    if (iflags.debug_fuzzer)
+        drown_death_attempts = 0;  /* reset counter after escape */
     return TRUE;
 }
 
@@ -6610,6 +6640,7 @@ lava_effects()
     struct obj *obj, *obj2, *nextobj;
     int dmg = resist_reduce(d(6, 6), FIRE_RES); /* only applicable for water walking */
     boolean usurvive, boil_away;
+    static int lava_death_attempts = 0;
 
     /* possibly freeze lava */
     if (maybe_freeze_underfoot(&youmonst))
@@ -6621,8 +6652,11 @@ lava_effects()
     if (Upolyd && youmonst.data == &mons[PM_LAVA_GREMLIN])
         (void) split_mon(&youmonst, NULL);
 
-    if (likes_lava(youmonst.data))
+    if (likes_lava(youmonst.data)) {
+        if (iflags.debug_fuzzer)
+            lava_death_attempts = 0;  /* reset counter - we're fine */
         return FALSE;
+    }
 
     usurvive = how_resistant(FIRE_RES) == 100 || (Wwalking && dmg < u.uhp);
     /*
@@ -6660,6 +6694,8 @@ lava_effects()
         if (Wwalking) {
             pline_The("%s here burns you!", hliquid("lava"));
             if (usurvive) {
+                if (iflags.debug_fuzzer)
+                    lava_death_attempts = 0;  /* reset counter - we survived */
                 losehp(dmg, lava_killer, KILLED_BY); /* lava damage */
                 goto burn_stuff;
             }
@@ -6698,10 +6734,27 @@ lava_effects()
         iflags.in_lava_effects--;
 
         /* s/he died... */
+        if (iflags.debug_fuzzer) {
+            lava_death_attempts++;
+            /* Limit attempts to prevent infinite loops during fuzzing.
+             * After 2 failed attempts, grant temporary fire resistance
+             * and water walking to allow escape. */
+            if (lava_death_attempts >= 2) {
+                pline("The intense heat suddenly feels less threatening!");
+                You("develop a temporary resistance to the lava!");
+                /* Grant 5 turns of fire resistance and water walking */
+                incr_itimeout(&HFire_resistance, 5);
+                incr_itimeout(&HWwalking, 5);
+                /* Reset counter and let hero survive this time */
+                lava_death_attempts = 0;
+                u.uhp = 1;  /* minimal health */
+                return FALSE;
+            }
+        }
+        /* Normal death handling - during fuzzing, we limit attempts above,
+         * but during normal play this can loop indefinitely */
         for (;;) {
             u.uhp = -1;
-            /* killer format and name are reconstructed every iteration
-               because lifesaving resets them */
             killer.format = KILLED_BY;
             Strcpy(killer.name, lava_killer);
             You("%s...", on_fire(&youmonst, ON_FIRE_DEAD));
@@ -6710,6 +6763,10 @@ lava_effects()
                 break; /* successful life-save */
             /* nowhere safe to land; repeat burning loop */
             pline("You're still burning.");
+            /* During fuzzing, we should have hit the limit above,
+             * but if not, break out anyway to prevent hangs */
+            if (iflags.debug_fuzzer)
+                break;
         }
         You("find yourself back on solid %s.", surface(u.ux, u.uy));
         return TRUE;
@@ -6729,6 +6786,8 @@ lava_effects()
     }
 
 burn_stuff:
+    if (iflags.debug_fuzzer)
+        lava_death_attempts = 0;  /* reset counter - we survived */
     if (!wielding_artifact(ART_DICHOTOMY))
         fire_damage_chain(invent, FALSE, FALSE, u.ux, u.uy);
     return FALSE;
