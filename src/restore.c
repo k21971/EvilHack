@@ -475,29 +475,60 @@ boolean ghostly;
             else {
                 /* Enhanced debugging for weapon restore issues */
                 struct obj *weap;
-                int count = 0;
+                int count = 0, weapon_count = 0, wwep_count = 0;
                 char buf[BUFSZ];
+                char extra_info[BUFSZ];
+                char wwep_info[BUFSZ];
+                void *saved_mw = mtmp->mw; /* Save the invalid pointer for debugging */
 
                 buf[0] = '\0';
+                extra_info[0] = '\0';
+                wwep_info[0] = '\0';
                 /* List all objects in monster inventory for debugging */
-                for (weap = mtmp->minvent; weap && count < 5; weap = weap->nobj) {
+                for (weap = mtmp->minvent; weap && count < 15; weap = weap->nobj) {
                     if (count > 0)
                         Strcat(buf, ", ");
+                    /* Check if this object has ANY worn mask bits that could be W_WEP */
+                    if (weap->owornmask & W_WEP) {
+                        wwep_count++;
+                        if (wwep_info[0] != '\0')
+                            Strcat(wwep_info, ", ");
+                        Sprintf(eos(wwep_info), "%s[W_WEP!]",
+                                weap->quan > 1 ? doname(weap) : xname(weap));
+                    }
                     Sprintf(eos(buf), "%s(0x%lx)",
                             weap->quan > 1 ? doname(weap) : xname(weap),
                             weap->owornmask);
+                    /* Count weapon-class objects */
+                    if (weap->oclass == WEAPON_CLASS
+                        || weap->otyp == PICK_AXE
+                        || weap->otyp == UNICORN_HORN)
+                        weapon_count++;
                     count++;
                 }
                 if (count == 0)
                     Strcpy(buf, "empty inventory");
-                else if (mtmp->minvent && count == 5)
+                else if (mtmp->minvent && count == 15)
                     Strcat(buf, "...");
 
+                /* Gather additional debugging info */
+                Sprintf(extra_info, "saved_mw=%p, meating=%d, mtrapped=%d, "
+                        "mindless=%d, M2_COLLECT=%d, weapon_check=%d, "
+                        "mnum=%d, weapon_count=%d, total_items=%d, "
+                        "wwep_found=%d",
+                        saved_mw, mtmp->meating, mtmp->mtrapped,
+                        mindless(mtmp->data) ? 1 : 0,
+                        (mtmp->data->mflags2 & M2_COLLECT) ? 1 : 0,
+                        mtmp->weapon_check,
+                        monsndx(mtmp->data),
+                        weapon_count, count, wwep_count);
+
                 MON_NOWEP(mtmp);
-                impossible("bad monster weapon restore: %s [%s] inventory: %s",
+                impossible("bad monster weapon restore: %s [%s] inventory: %s | %s | W_WEP objects: %s",
                            mon_nam(mtmp),
                            mtmp->data ? mtmp->data->mname : "unknown",
-                           buf);
+                           buf, extra_info,
+                           wwep_info[0] ? wwep_info : "NONE");
             }
         }
 

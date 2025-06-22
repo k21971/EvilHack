@@ -4616,4 +4616,6 @@ The following changes to date are:
 - Fix: one more window compilation warning, take two
 - Fix: extend place_lregion() fallback to handle branch portals in
   constrained regions
+- Add detailed debugging for bad monster weapon restore, take two
+- Fix: spinning a web over a spear trap
 

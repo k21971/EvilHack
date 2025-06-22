@@ -601,6 +601,7 @@ register struct obj *otmp;
        and if it's eventually dropped in a shop, shk will claim it */
     if (!mtmp->mtame)
         otmp->no_charge = 0;
+
     /* Must do carrying effects on object prior to add_to_minv() */
     carry_obj_effects(otmp);
     /* add_to_minv() might free otmp [if merged with something else],

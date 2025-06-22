@@ -1736,7 +1736,7 @@ dospinweb()
             return 1;
         case SPEAR_TRAP_SET:
             You("spin a web, jamming the mechanism.");
-            deltrap(ttmp);
+            deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
             newsym(x, y);
             return 1;
         case ARROW_TRAP_SET:
