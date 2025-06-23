@@ -4619,4 +4619,5 @@ The following changes to date are:
 - Add detailed debugging for bad monster weapon restore, take two
 - Fix: spinning a web over a spear trap
 - Fix: prevent infinite lifesaving loops during fuzzing
+- Fix: prevent panic when returning through one-way branch portals
 

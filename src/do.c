@@ -1796,10 +1796,18 @@ boolean at_stairs, falling, portal;
                 && u.uz0.dlevel == ttrap->dst.dlevel)
                 break;
 
-        if (!ttrap)
-            panic("goto_level: no corresponding portal!");
-        seetrap(ttrap);
-        u_on_newpos(ttrap->tx, ttrap->ty);
+        if (!ttrap) {
+            /* No corresponding portal exists - this can happen with
+             * branch portals like Goblin Town that are one-way only.
+             * Place the player at a random location. */
+            if (!iflags.debug_fuzzer)
+                impossible("goto_level: no corresponding portal!");
+            u_on_rndspot(0);
+            You("materialize in a puff of smoke!");
+        } else {
+            seetrap(ttrap);
+            u_on_newpos(ttrap->tx, ttrap->ty);
+        }
     } else if (at_stairs && !In_endgame(&u.uz)) {
         if (up) {
             if (at_ladder)
