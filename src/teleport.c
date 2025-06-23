@@ -854,6 +854,23 @@ level_tele()
            a level in that branch to level teleport to, instead of mostly
            staying in the Dungeons of Doom.
 
+           Branch number/name:
+           -------------------
+           0  - The Dungeons of Doom (Main dungeon)
+           1  - Gehennom
+           2  - The Gnomish Mines
+           3  - Goblin Town
+           4  - The Quest
+           5  - Sokoban
+           6  - Fort Ludios (excluded - special 'floating branch')
+           7  - The Ice Queen's Realm
+           8  - The Hidden Dungeon
+           9  - Vecna's Domain
+           10 - Vlad's Tower
+           11 - Purgatory
+           12 - The Wizard's Tower
+           13 - The Elemental Planes (excluded - endgame)
+
            Target all dungeons except Fort Ludios (6) and The Elemental
            Planes (13) */
         int safe_dungeons[] = { 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12 };

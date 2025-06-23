@@ -4620,4 +4620,6 @@ The following changes to date are:
 - Fix: spinning a web over a spear trap
 - Fix: prevent infinite lifesaving loops during fuzzing
 - Fix: prevent panic when returning through one-way branch portals
+- Add additional comments to level_tele() function (fuzzing only,
+  commmit b4f4273)
 
