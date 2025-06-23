@@ -4624,4 +4624,6 @@ The following changes to date are:
   commmit b4f4273)
 - Fix: refactor passiveum() for consistency and correctness
 - Fix: refactor passivemm() to eliminate redundant death handling
+- Fix: more "Couldn't place lregion type %d in (%d,%d,%d,%d)!" issues
+  with Gehennom level hella-2
 

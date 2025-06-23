@@ -235,7 +235,9 @@ MONSTER:('&',"weredemon"),(64,03)
 #
 MAZE:"hella-1",' '
 FLAGS:hardfloor,shortsighted
-INIT_MAP:mines,'.','}',true,true,unlit,false
+TERRAIN: fillrect(00,00,78,20),('.',unlit)
+TERRAIN: filter(33%,fillrect(00,00,78,20)),('}',unlit)
+TERRAIN: filter(15%,fillrect(00,00,78,20)),('s',unlit)
 # guarantee at least one open spot to ensure successful stair placement
 GEOMETRY:left,bottom
 MAP
@@ -377,8 +379,10 @@ TRAP:"magic",random
 #
 MAZE:"hella-2",random
 FLAGS:hardfloor,shortsighted
+TERRAIN: fillrect(00,00,78,20),('.',lit)
+TERRAIN: filter(33%,fillrect(00,00,78,20)),('}',lit)
+TERRAIN: filter(15%,fillrect(00,00,78,20)),('s',lit)
 # First part
-INIT_MAP:mines,'.','}',false,true,lit,false
 GEOMETRY:half-left,center
 MAP
 -------FFFF------FF--
@@ -394,9 +398,9 @@ F..|..S.........|....
 |..S..........|.....|
 -------FFFF------FF--
 ENDMAP
-STAIR:levregion(01,00,12,20),levregion(12,01,70,16),up
-BRANCH:levregion(01,00,12,20),levregion(12,01,70,16)
-TELEPORT_REGION:levregion(01,00,12,20),levregion(12,01,70,16)
+STAIR:levregion(01,00,13,20),levregion(14,01,66,20),up
+BRANCH:levregion(01,00,13,20),levregion(14,01,66,20)
+TELEPORT_REGION:levregion(01,00,13,20),levregion(14,01,66,20)
 
 # Doors
 DOOR:closed,(04,03)
@@ -572,7 +576,9 @@ MONSTER:'V',random
 #
 MAZE:"hella-4",'W'
 FLAGS:hardfloor
-INIT_MAP:mines,'.','}',false,true,lit,false
+TERRAIN: fillrect(00,00,78,20),('.',lit)
+TERRAIN: filter(33%,fillrect(00,00,78,20)),('}',lit)
+TERRAIN: filter(15%,fillrect(00,00,78,20)),('w',lit)
 GEOMETRY:right, center
 MAP
 }}}}}}}}}}}}w.......T...........................w}}}}}}}}}}}
