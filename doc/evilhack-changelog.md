@@ -4623,4 +4623,5 @@ The following changes to date are:
 - Add additional comments to level_tele() function (fuzzing only,
   commmit b4f4273)
 - Fix: refactor passiveum() for consistency and correctness
+- Fix: refactor passivemm() to eliminate redundant death handling
 

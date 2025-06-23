@@ -3067,18 +3067,16 @@ struct obj *mwep;
                     if (!rn2(3)) {
                         if (canseemon(magr))
                             pline("%s staggers from the poison!", Monnam(magr));
-                        damage_mon(magr, rnd(4), AD_DRST, FALSE);
+                        if (damage_mon(magr, rnd(4), AD_DRST, FALSE)) {
+                            if (canseemon(magr))
+                                pline("%s dies!", Monnam(magr));
+                            monkilled(magr, "", AD_DRST);
+                            return (mdead | mhit | MM_AGR_DIED);
+                        }
                     }
                 } else {
                     if (canseemon(magr))
                         pline("%s is fatally poisoned!", Monnam(magr));
-                    magr->mhp = -1;
-                    monkilled(magr, "", AD_DRST);
-                    return (mdead | mhit | MM_AGR_DIED);
-                }
-                if (magr->mhp < 1) {
-                    if (canseemon(magr))
-                        pline("%s dies!", Monnam(magr));
                     monkilled(magr, "", AD_DRST);
                     return (mdead | mhit | MM_AGR_DIED);
                 }
@@ -3127,7 +3125,12 @@ struct obj *mwep;
                             if (canseemon(magr))
                                 pline("%s partially disintegrates!",
                                       Monnam(magr));
-                            magr->mhp -= rnd(4);
+                            if (damage_mon(magr, rnd(4), AD_DISN, FALSE)) {
+                                if (canseemon(magr))
+                                    pline("%s dies!", Monnam(magr));
+                                monkilled(magr, "", AD_DISN);
+                                return (mdead | mhit | MM_AGR_DIED);
+                            }
                         } else {
                             if (canseemon(magr))
                                 pline("%s is disintegrated completely!",
@@ -3150,12 +3153,6 @@ struct obj *mwep;
                         }
                     }
                 }
-                if (magr->mhp < 1) {
-                    if (canseemon(magr))
-                        pline("%s dies!", Monnam(magr));
-                    monkilled(magr, "", AD_DISN);
-                    return (mdead | mhit | MM_AGR_DIED);
-                }
                 break;
             case ORANGE_DRAGON_SCALES:
                 if (!rn2(3)) {
@@ -3170,18 +3167,22 @@ struct obj *mwep;
                         if (canseemon(magr))
                             pline("%s flinches from the cold!",
                                   Monnam(magr));
-                        damage_mon(magr, rnd(4), AD_COLD, FALSE);
+                        if (damage_mon(magr, rnd(4), AD_COLD, FALSE)) {
+                            if (canseemon(magr))
+                                pline("%s dies!", Monnam(magr));
+                            monkilled(magr, "", AD_COLD);
+                            return (mdead | mhit | MM_AGR_DIED);
+                        }
                     }
                 } else {
                     if (canseemon(magr))
                         pline("%s is frozen solid!", Monnam(magr));
-                    damage_mon(magr, d(6, 6), AD_COLD, FALSE);
-                }
-                if (magr->mhp < 1) {
-                    if (canseemon(magr))
-                        pline("%s dies!", Monnam(magr));
-                    monkilled(magr, "", AD_COLD);
-                    return (mdead | mhit | MM_AGR_DIED);
+                    if (damage_mon(magr, d(6, 6), AD_COLD, FALSE)) {
+                        if (canseemon(magr))
+                            pline("%s dies!", Monnam(magr));
+                        monkilled(magr, "", AD_COLD);
+                        return (mdead | mhit | MM_AGR_DIED);
+                    }
                 }
                 break;
             case RED_DRAGON_SCALES:
@@ -3192,18 +3193,22 @@ struct obj *mwep;
                     if (!rn2(3)) {
                         if (canseemon(magr))
                             pline("%s is burned!", Monnam(magr));
-                        damage_mon(magr, rnd(4), AD_FIRE, FALSE);
+                        if (damage_mon(magr, rnd(4), AD_FIRE, FALSE)) {
+                            if (canseemon(magr))
+                                pline("%s dies!", Monnam(magr));
+                            monkilled(magr, "", AD_FIRE);
+                            return (mdead | mhit | MM_AGR_DIED);
+                        }
                     }
                 } else {
                     if (canseemon(magr))
                         pline("%s is severely burned!", Monnam(magr));
-                    damage_mon(magr, d(6, 6), AD_FIRE, FALSE);
-                }
-                if (magr->mhp < 1) {
-                    if (canseemon(magr))
-                        pline("%s dies!", Monnam(magr));
-                    monkilled(magr, "", AD_FIRE);
-                    return (mdead | mhit | MM_AGR_DIED);
+                    if (damage_mon(magr, d(6, 6), AD_FIRE, FALSE)) {
+                        if (canseemon(magr))
+                            pline("%s dies!", Monnam(magr));
+                        monkilled(magr, "", AD_FIRE);
+                        return (mdead | mhit | MM_AGR_DIED);
+                    }
                 }
                 break;
             case YELLOW_DRAGON_SCALES:
@@ -3214,18 +3219,22 @@ struct obj *mwep;
                     if (!rn2(3)) {
                         if (canseemon(magr))
                             pline("%s is seared!", Monnam(magr));
-                        damage_mon(magr, rnd(4), AD_ACID, FALSE);
+                        if (damage_mon(magr, rnd(4), AD_ACID, FALSE)) {
+                            if (canseemon(magr))
+                                pline("%s dies!", Monnam(magr));
+                            monkilled(magr, "", AD_ACID);
+                            return (mdead | mhit | MM_AGR_DIED);
+                        }
                     }
                 } else {
                     if (canseemon(magr))
                         pline("%s is critically seared!", Monnam(magr));
-                    damage_mon(magr, d(6, 6), AD_ACID, FALSE);
-                }
-                if (magr->mhp < 1) {
-                    if (canseemon(magr))
-                        pline("%s dies!", Monnam(magr));
-                    monkilled(magr, "", AD_ACID);
-                    return (mdead | mhit | MM_AGR_DIED);
+                    if (damage_mon(magr, d(6, 6), AD_ACID, FALSE)) {
+                        if (canseemon(magr))
+                            pline("%s dies!", Monnam(magr));
+                        monkilled(magr, "", AD_ACID);
+                        return (mdead | mhit | MM_AGR_DIED);
+                    }
                 }
                 break;
             case GRAY_DRAGON_SCALES:
@@ -3249,15 +3258,14 @@ struct obj *mwep;
                 if (canseemon(magr))
                     pline("Dragonbane sears %s scaly hide!",
                           s_suffix(mon_nam(magr)));
-                magr->mhp -= rnd(6) + 2;
-            }
-            if (magr->mhp < 1) {
-                if (canseemon(magr))
-                    pline("Dragonbane's power overwhelms %s!",
-                          mon_nam(magr));
-                pline("%s dies!", Monnam(magr));
-                monkilled(magr, "", AD_PHYS);
-                return (mdead | mhit | MM_AGR_DIED);
+                if (damage_mon(magr, rnd(6) + 2, AD_PHYS, FALSE)) {
+                    if (canseemon(magr))
+                        pline("Dragonbane's power overwhelms %s!",
+                              mon_nam(magr));
+                    pline("%s dies!", Monnam(magr));
+                    monkilled(magr, "", AD_PHYS);
+                    return (mdead | mhit | MM_AGR_DIED);
+                }
             }
             break;
         default: /* all other types of armor, just pass on through */
