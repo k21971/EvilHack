@@ -4390,23 +4390,24 @@ struct attack *mattk;
             if (resists_poison(mtmp) || defended(mtmp, AD_DRST))
                 break;
             if (rn2(20)) {
+                /* Regular poison damage (95% chance) */
                 if (!rn2(3)) {
                     if (canseemon(mtmp))
                         pline("%s staggers from the poison!", Monnam(mtmp));
-                    damage_mon(mtmp, rnd(4), AD_DRST, TRUE);
+                    if (damage_mon(mtmp, rnd(4), AD_DRST, TRUE)) {
+                        /* damage_mon() killed the monster */
+                        if (canseemon(mtmp))
+                            pline("%s dies!", Monnam(mtmp));
+                        xkilled(mtmp, XKILL_NOMSG);
+                        if (!DEADMONSTER(mtmp))
+                            return 1;
+                        return 2;
+                    }
                 }
             } else {
+                /* Fatal poison (5% chance) */
                 if (canseemon(mtmp))
                     pline("%s is fatally poisoned!", Monnam(mtmp));
-                mtmp->mhp = -1;
-                xkilled(mtmp, XKILL_NOMSG);
-                if (!DEADMONSTER(mtmp))
-                    return 1;
-                return 2;
-            }
-            if (mtmp->mhp < 1) {
-                if (canseemon(mtmp))
-                    pline("%s dies!", Monnam(mtmp));
                 xkilled(mtmp, XKILL_NOMSG);
                 if (!DEADMONSTER(mtmp))
                     return 1;
@@ -4452,7 +4453,15 @@ struct attack *mattk;
                     if (rn2(40)) {
                         if (canseemon(mtmp))
                             pline("%s partially disintegrates!", Monnam(mtmp));
-                        mtmp->mhp -= rnd(4);
+                        if (damage_mon(mtmp, rnd(4), AD_DISN, TRUE)) {
+                            /* damage_mon() killed the monster */
+                            if (canseemon(mtmp))
+                                pline("%s dies!", Monnam(mtmp));
+                            xkilled(mtmp, XKILL_NOMSG);
+                            if (!DEADMONSTER(mtmp))
+                                return 1;
+                            return 2;
+                        }
                     } else {
                         if (canseemon(mtmp))
                             pline("%s is disintegrated completely!", Monnam(mtmp));
@@ -4476,14 +4485,6 @@ struct attack *mattk;
                     }
                 }
             }
-            if (mtmp->mhp < 1) {
-                if (canseemon(mtmp))
-                    pline("%s dies!", Monnam(mtmp));
-                xkilled(mtmp, XKILL_NOMSG);
-                if (!DEADMONSTER(mtmp))
-                    return 1;
-                return 2;
-            }
             break;
         case ORANGE_DRAGON_SCALES:
             if (!rn2(3)) {
@@ -4497,20 +4498,28 @@ struct attack *mattk;
                 if (!rn2(3)) {
                     if (canseemon(mtmp))
                         pline("%s flinches from the cold!", Monnam(mtmp));
-                    damage_mon(mtmp, rnd(4), AD_COLD, TRUE);
+                    if (damage_mon(mtmp, rnd(4), AD_COLD, TRUE)) {
+                        /* damage_mon() killed the monster */
+                        if (canseemon(mtmp))
+                            pline("%s dies!", Monnam(mtmp));
+                        xkilled(mtmp, XKILL_NOMSG);
+                        if (!DEADMONSTER(mtmp))
+                            return 1;
+                        return 2;
+                    }
                 }
             } else {
                 if (canseemon(mtmp))
                     pline("%s is frozen solid!", Monnam(mtmp));
-                damage_mon(mtmp, d(6, 6), AD_COLD, TRUE);
-            }
-            if (mtmp->mhp < 1) {
-                if (canseemon(mtmp))
-                    pline("%s dies!", Monnam(mtmp));
-                xkilled(mtmp, XKILL_NOMSG);
-                if (!DEADMONSTER(mtmp))
-                    return 1;
-                return 2;
+                if (damage_mon(mtmp, d(6, 6), AD_COLD, TRUE)) {
+                    /* damage_mon() killed the monster */
+                    if (canseemon(mtmp))
+                        pline("%s dies!", Monnam(mtmp));
+                    xkilled(mtmp, XKILL_NOMSG);
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
+                }
             }
             break;
         case RED_DRAGON_SCALES:
@@ -4521,20 +4530,28 @@ struct attack *mattk;
                 if (!rn2(3)) {
                     if (canseemon(mtmp))
                         pline("%s is burned!", Monnam(mtmp));
-                    damage_mon(mtmp, rnd(4), AD_FIRE, TRUE);
+                    if (damage_mon(mtmp, rnd(4), AD_FIRE, TRUE)) {
+                        /* damage_mon() killed the monster */
+                        if (canseemon(mtmp))
+                            pline("%s dies!", Monnam(mtmp));
+                        xkilled(mtmp, XKILL_NOMSG);
+                        if (!DEADMONSTER(mtmp))
+                            return 1;
+                        return 2;
+                    }
                 }
             } else {
                 if (canseemon(mtmp))
                     pline("%s is severely burned!", Monnam(mtmp));
-                damage_mon(mtmp, d(6, 6), AD_FIRE, TRUE);
-            }
-            if (mtmp->mhp < 1) {
-                if (canseemon(mtmp))
-                    pline("%s dies!", Monnam(mtmp));
-                xkilled(mtmp, XKILL_NOMSG);
-                if (!DEADMONSTER(mtmp))
-                    return 1;
-                return 2;
+                if (damage_mon(mtmp, d(6, 6), AD_FIRE, TRUE)) {
+                    /* damage_mon() killed the monster */
+                    if (canseemon(mtmp))
+                        pline("%s dies!", Monnam(mtmp));
+                    xkilled(mtmp, XKILL_NOMSG);
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
+                }
             }
             break;
         case YELLOW_DRAGON_SCALES:
@@ -4545,20 +4562,28 @@ struct attack *mattk;
                 if (!rn2(3)) {
                     if (canseemon(mtmp))
                         pline("%s is seared!", Monnam(mtmp));
-                    damage_mon(mtmp, rnd(4), AD_ACID, TRUE);
+                    if (damage_mon(mtmp, rnd(4), AD_ACID, TRUE)) {
+                        /* damage_mon() killed the monster */
+                        if (canseemon(mtmp))
+                            pline("%s dies!", Monnam(mtmp));
+                        xkilled(mtmp, XKILL_NOMSG);
+                        if (!DEADMONSTER(mtmp))
+                            return 1;
+                        return 2;
+                    }
                 }
             } else {
                 if (canseemon(mtmp))
                     pline("%s is critically seared!", Monnam(mtmp));
-                damage_mon(mtmp, d(6, 6), AD_ACID, TRUE);
-            }
-            if (mtmp->mhp < 1) {
-                if (canseemon(mtmp))
-                    pline("%s dies!", Monnam(mtmp));
-                xkilled(mtmp, XKILL_NOMSG);
-                if (!DEADMONSTER(mtmp))
-                    return 1;
-                return 2;
+                if (damage_mon(mtmp, d(6, 6), AD_ACID, TRUE)) {
+                    /* damage_mon() killed the monster */
+                    if (canseemon(mtmp))
+                        pline("%s dies!", Monnam(mtmp));
+                    xkilled(mtmp, XKILL_NOMSG);
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
+                }
             }
             break;
         case GRAY_DRAGON_SCALES:
@@ -4575,20 +4600,19 @@ struct attack *mattk;
         case GLOVES:
             if (!is_dragon(mtmp->data))
                 break;
-            if (!rn2(3) && is_dragon(mtmp->data)
-                && uarmg->oartifact == ART_DRAGONBANE) {
+            if (!rn2(3) && uarmg->oartifact == ART_DRAGONBANE) {
                 if (canseemon(mtmp))
                     pline("Dragonbane sears %s scaly hide!", s_suffix(mon_nam(mtmp)));
-                mtmp->mhp -= rnd(6) + 2;
-            }
-            if (mtmp->mhp < 1) {
-                if (canseemon(mtmp))
-                    pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
-                pline("%s dies!", Monnam(mtmp));
-                xkilled(mtmp, XKILL_NOMSG);
-                if (!DEADMONSTER(mtmp))
-                    return 1;
-                return 2;
+                if (damage_mon(mtmp, rnd(6) + 2, AD_PHYS, TRUE)) {
+                    /* damage_mon() killed the monster */
+                    if (canseemon(mtmp))
+                        pline("Dragonbane's power overwhelms %s!", mon_nam(mtmp));
+                    pline("%s dies!", Monnam(mtmp));
+                    xkilled(mtmp, XKILL_NOMSG);
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
+                }
             }
             break;
         default: /* all other types of armor, just pass on through */
@@ -4879,20 +4903,25 @@ struct attack *mattk;
             break;
         case AD_DRST:
             if (resists_poison(mtmp) || defended(mtmp, AD_DRST)) {
-                if (!rn2(5))
+                if (canseemon(mtmp) && !rn2(5))
                     pline("%s is unaffected by your poisonous hide.", Monnam(mtmp));
                 tmp = 0;
                 break;
             }
-            if (canseemon(mtmp)) {
-                if (rn2(20)) {
+            /* Poison effect happens regardless of visibility */
+            if (rn2(20)) {
+                /* Regular poison damage */
+                if (canseemon(mtmp))
                     pline("%s is poisoned!", Monnam(mtmp));
-                } else {
-                    if (canseemon(mtmp)) {
-                        Your("poisonous hide was deadly...");
-                        mtmp->mhp = -1;
-                    }
-                }
+                /* Let damage_mon() handle the actual damage at assess_dmg */
+            } else {
+                /* Deadly poison - instant death */
+                if (canseemon(mtmp))
+                    Your("poisonous hide was deadly...");
+                xkilled(mtmp, XKILL_NOMSG);
+                if (!DEADMONSTER(mtmp))
+                    return 1;
+                return 2;
             }
             break;
         case AD_SLOW:

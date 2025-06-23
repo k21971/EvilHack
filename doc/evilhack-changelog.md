@@ -4622,4 +4622,5 @@ The following changes to date are:
 - Fix: prevent panic when returning through one-way branch portals
 - Add additional comments to level_tele() function (fuzzing only,
   commmit b4f4273)
+- Fix: refactor passiveum() for consistency and correctness
 
