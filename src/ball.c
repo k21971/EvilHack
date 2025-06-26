@@ -1101,6 +1101,54 @@ bc_sanity_check()
                   || (uball->owornmask & ~(W_BALL | W_WEAPONS)) != 0L)) {
         otyp = uball->otyp;
         onam = safe_typename(otyp);
+        /* Enhanced debugging for ball & chain state mismatch */
+        if (freeball ^ freechain) {
+            char debugbuf[BUFSZ * 4];  /* Larger buffer for all info */
+            char chaininfo[BUFSZ];
+            const char *ball_where_str =
+                    uball->where == OBJ_FREE ? "FREE" :
+                    uball->where == OBJ_FLOOR ? "FLOOR" :
+                    uball->where == OBJ_INVENT ? "INVENT" :
+                    uball->where == OBJ_CONTAINED ? "CONTAINED" :
+                    uball->where == OBJ_MINVENT ? "MINVENT" :
+                    uball->where == OBJ_MIGRATING ? "MIGRATING" :
+                    uball->where == OBJ_BURIED ? "BURIED" :
+                    uball->where == OBJ_ONBILL ? "ONBILL" :
+                    uball->where == OBJ_SOMEWHERE ? "SOMEWHERE" :
+                    uball->where == OBJ_INTRAP ? "INTRAP" : "UNKNOWN";
+            if (uchain) {
+                const char *chain_where_str =
+                        uchain->where == OBJ_FREE ? "FREE" :
+                        uchain->where == OBJ_FLOOR ? "FLOOR" :
+                        uchain->where == OBJ_INVENT ? "INVENT" :
+                        uchain->where == OBJ_CONTAINED ? "CONTAINED" :
+                        uchain->where == OBJ_MINVENT ? "MINVENT" :
+                        uchain->where == OBJ_MIGRATING ? "MIGRATING" :
+                        uchain->where == OBJ_BURIED ? "BURIED" :
+                        uchain->where == OBJ_ONBILL ? "ONBILL" :
+                        uchain->where == OBJ_SOMEWHERE ? "SOMEWHERE" :
+                        uchain->where == OBJ_INTRAP ? "INTRAP" : "UNKNOWN";
+                Sprintf(chaininfo, " | CHAIN: where=%d(%s) otyp=%d pos=(%d,%d)",
+                        uchain->where, chain_where_str, uchain->otyp,
+                        uchain->ox, uchain->oy);
+            } else {
+                Strcpy(chaininfo, " | CHAIN: NULL");
+            }
+            Sprintf(debugbuf,
+                    "Ball/chain mismatch: BALL: where=%d(%s) otyp=%d pos=(%d,%d)%s"
+                    " | PLAYER: pos=(%d,%d) swallow=%d Punish=%d"
+                    " | CONTEXT: %s multi=%d level=%s"
+                    " | FLAGS: freeball=%d freechain=%d",
+                    uball->where, ball_where_str, otyp, uball->ox, uball->oy,
+                    chaininfo,
+                    u.ux, u.uy, u.uswallow, Punished,
+                    occtxt ? occtxt : "none", multi,
+                    Is_waterlevel(&u.uz) ? "Water" :
+                    Is_airlevel(&u.uz) ? "Air" : dungeons[u.uz.dnum].dname,
+                    freeball, freechain);
+            impossible("%s", debugbuf);
+            return;  /* Skip the generic message below */
+        }
         impossible("uball: type %d (%s), where %d, wornmask=0x%08lx",
                    otyp, onam, uball->where, uball->owornmask);
     }

@@ -4626,4 +4626,5 @@ The following changes to date are:
 - Fix: refactor passivemm() to eliminate redundant death handling
 - Fix: more "Couldn't place lregion type %d in (%d,%d,%d,%d)!" issues
   with Gehennom level hella-2
+- Add enhanced debugging for ball & chain state mismatches
 
