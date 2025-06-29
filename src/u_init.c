@@ -1674,11 +1674,14 @@ shambler_init()
     shambler->mflags1 &= ~M1_HIDE;              /* no hiding/mimicking */
     shambler->mflags1 &= ~M1_CONCEAL;           /* same as above */
 
-    shambler->mflags2 = M2_NOPOLY | M2_HOSTILE; /* Don't let the player be one of these yet */
-    shambler->mflags2 = M2_NEUTER;              /* always genderless */
+    shambler->mflags2 = 0;
     for (i = 0; i < rnd(17); i++)
         shambler->mflags2 |= (1 << rn2(27));    /* rn2() should equal the number of M2_ flags in
                                                  * include/monflag.h */
+    shambler->mflags2 |= M2_NOPOLY;             /* Don't let the player be one of these */
+    shambler->mflags2 |= M2_HOSTILE;            /* always hostile */
+    shambler->mflags2 |= M2_NEUTER;             /* always genderless */
+
     shambler->mflags2 &= ~M2_MERC;              /* no guards */
     shambler->mflags2 &= ~M2_PEACEFUL;          /* no peacefuls */
     shambler->mflags2 &= ~M2_PNAME;             /* not a proper name */
