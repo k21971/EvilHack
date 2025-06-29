@@ -4628,4 +4628,6 @@ The following changes to date are:
   with Gehennom level hella-2
 - Add enhanced debugging for ball & chain state mismatches
 - Fix: peaceful shambling horrors
+- Fix: handle all object location cases in obj_is_local() to prevent
+  panic
 

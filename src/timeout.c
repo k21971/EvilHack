@@ -2518,11 +2518,15 @@ struct obj *obj;
         return FALSE;
     case OBJ_FLOOR:
     case OBJ_BURIED:
+    case OBJ_ONBILL:
+    case OBJ_INTRAP:
         return TRUE;
     case OBJ_CONTAINED:
         return obj_is_local(obj->ocontainer);
     case OBJ_MINVENT:
         return mon_is_local(obj->ocarry);
+    case OBJ_FREE:
+        return FALSE;
     }
     panic("obj_is_local: unhandled object location %d", (int) obj->where);
     return FALSE;
