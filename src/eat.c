@@ -4107,8 +4107,10 @@ int corpsecheck; /* 0, no check, 1, corpses, 2, tinnable corpses */
                 for (cont = obj->cobj; cont; cont = ncobj) {
                     ncobj = cont->nobj;
                     obj_extract_self(cont);
-                    if (!flooreffects(cont, u.ux, u.uy, ""))
+                    if (!flooreffects(cont, u.ux, u.uy, "")) {
                         place_object(cont, u.ux, u.uy);
+                        stackobj(cont);
+                    }
                 }
                 setnotworn(obj);
                 if (carried(obj))

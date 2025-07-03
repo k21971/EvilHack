@@ -2716,13 +2716,37 @@ msickness:
                               Monnam(mdef));
                 }
 /* note: worn amulet of life saving must be preserved in order to operate */
-#define oresist_disintegration(obj)                                       \
+#define oresist_disintegration(obj) \
     (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
      || is_quest_artifact(obj) || obj == m_amulet)
 
                 for (otmp = mdef->minvent; otmp; otmp = otmp2) {
                     otmp2 = otmp->nobj;
                     if (!oresist_disintegration(otmp)) {
+                        /* If container has contents, check if any resist disintegration */
+                        if (Has_contents(otmp)) {
+                            struct obj *cobj, *cnext;
+                            boolean spilled = FALSE;
+
+                            for (cobj = otmp->cobj; cobj; cobj = cnext) {
+                                cnext = cobj->nobj;
+                                if (oresist_disintegration(cobj)) {
+                                    obj_extract_self(cobj);
+                                    if (otmp->otyp == ICE_BOX)
+                                        removed_from_icebox(cobj);
+                                    if (!flooreffects(cobj, mdef->mx, mdef->my, "")) {
+                                        place_object(cobj, mdef->mx, mdef->my);
+                                        stackobj(cobj);
+                                    }
+                                    if (!spilled && canseemon(mdef)) {
+                                        pline("%s contents spill out onto the %s.",
+                                              s_suffix(The(distant_name(otmp, xname))),
+                                              surface(mdef->mx, mdef->my));
+                                        spilled = TRUE;
+                                    }
+                                }
+                            }
+                        }
                         extract_from_minvent(mdef, otmp, TRUE, TRUE);
                         obfree(otmp, (struct obj *) 0);
                     }

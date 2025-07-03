@@ -1584,8 +1584,10 @@ struct obj *otmp;
         if (engulf_contents) {
             (void) mpickobj(mon, cobj);
         } else {
-            if (!flooreffects(cobj, x, y, ""))
+            if (!flooreffects(cobj, x, y, "")) {
                 place_object(cobj, x, y);
+                stackobj(cobj);
+            }
         }
     }
 }

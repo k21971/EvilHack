@@ -4630,4 +4630,6 @@ The following changes to date are:
 - Fix: peaceful shambling horrors
 - Fix: handle all object location cases in obj_is_local() to prevent
   panic
+- Fix: objects that were immune to or resisted disintegration and
+  containers
 
