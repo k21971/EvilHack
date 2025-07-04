@@ -2092,6 +2092,44 @@ int id;
             block_point(ox, oy);
     }
 
+    /* Handle light sources when polymorphing lit objects */
+    if (obj->lamplit) {
+        /* obj is about to be deleted; if it's lit, it has a light source
+           that needs to be handled */
+        if (obj_sheds_light(obj)) {
+            /* extinguish old light source (will be deleted with obj) */
+            end_burn(obj, FALSE);
+        }
+        /* decide if new object can be lit */
+        if (otmp && (otmp->otyp == MAGIC_LAMP || otmp->otyp == OIL_LAMP
+                     || otmp->otyp == LANTERN || Is_candle(otmp)
+                     || otmp->otyp == POT_OIL || artifact_light(otmp))) {
+            /* preserve lit state */
+            otmp->lamplit = 1;
+            /* light the new object */
+            if (otmp->otyp == MAGIC_LAMP) {
+                /* magic lamps don't burn */
+                begin_burn(otmp, FALSE);
+            } else if (otmp->otyp == OIL_LAMP || otmp->otyp == LANTERN) {
+                /* oil lamps and lanterns burn their fuel */
+                begin_burn(otmp, FALSE);
+            } else if (Is_candle(otmp)) {
+                /* candles burn down */
+                begin_burn(otmp, FALSE);
+            } else if (otmp->otyp == POT_OIL) {
+                /* oil potions can burn */
+                otmp->age = obj->age; /* preserve remaining fuel */
+                begin_burn(otmp, FALSE);
+            } else if (artifact_light(otmp)) {
+                /* artifact light sources don't burn */
+                begin_burn(otmp, FALSE);
+            }
+        } else {
+            /* new form can't be lit */
+            otmp->lamplit = 0;
+        }
+    }
+
     /* note: if otmp is gone, billing for it was handled by useup() */
     if (((otmp && !carried(otmp)) || obj->unpaid) && costly_spot(ox, oy)) {
         struct monst *shkp = shop_keeper(*in_rooms(ox, oy, SHOPBASE));

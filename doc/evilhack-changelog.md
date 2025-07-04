@@ -4638,4 +4638,5 @@ The following changes to date are:
 - Fix: prevent "extract_nobj: object lost" crash during multishot
   throwing
 - Fix: handle AT_SCRE (scream attack) in player attack code
+- Fix: properly handle light sources when polymorphing lit objects
 
