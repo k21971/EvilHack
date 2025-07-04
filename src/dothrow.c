@@ -287,6 +287,9 @@ int shotlimit;
             otmp = obj;
             if (otmp->owornmask)
                 remove_worn_item(otmp, FALSE);
+            /* obj will leave inventory and may be freed by throwit,
+             * don't leave a dangling pointer to it */
+            obj = (struct obj *) 0;
         }
         freeinv(otmp);
         throwit(otmp, wep_mask, twoweap);

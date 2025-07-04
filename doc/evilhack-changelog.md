@@ -4635,4 +4635,6 @@ The following changes to date are:
 - Fix: clear mundetected when monsters become stuck to player
 - Fix: remove temporary W_QUIVER clearing in dofire()
 - Fix: improve quiver prinv() to avoid both crash and verbosity
+- Fix: prevent "extract_nobj: object lost" crash during multishot
+  throwing
 
