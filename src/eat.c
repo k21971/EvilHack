@@ -1809,7 +1809,9 @@ opentin(VOID_ARGS)
     if (context.tin.usedtime < context.tin.reqtime)
         return 1; /* still busy */
 
-    consume_tin("You succeed in opening the tin.");
+    consume_tin(druid_form && cantwield(youmonst.data)
+                ? "You manage to open the tin despite your current form."
+                : "You succeed in opening the tin.");
     return 0;
 }
 
@@ -1826,9 +1828,9 @@ struct obj *otmp;
         tmp = 0;
     } else if (cantwield(youmonst.data)) { /* nohands || verysmall */
         if (druid_form && !slithy(youmonst.data)) {
-            ;
-        } else if (vampire_form && !is_whirly(youmonst.data)) {
-            ;
+            /* Druids in animal form can manipulate objects */
+            pline("It is not so easy to open this tin.");
+            tmp = rn1(3, 2);  /* 2-4 extra turns without hands */
         } else {
             You("cannot handle the tin properly to open it.");
             return;
