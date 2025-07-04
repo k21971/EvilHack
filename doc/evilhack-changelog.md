@@ -4639,4 +4639,5 @@ The following changes to date are:
   throwing
 - Fix: handle AT_SCRE (scream attack) in player attack code
 - Fix: properly handle light sources when polymorphing lit objects
+- Fix: prevent infinite lifesaving loops during fuzzing, take two
 

@@ -4816,13 +4816,13 @@ crawl:
         if (drown_death_attempts >= 2) {
             pline("Your lungs adapt to the water!");
             You("develop temporary gills!");
-            /* Grant 5 turns of magical breathing */
-            incr_itimeout(&HMagical_breathing, 5);
-            /* Reset counter and let hero survive */
+            /* Grant enough turns to escape (50 should be plenty) */
+            incr_itimeout(&HMagical_breathing, 50);
+            /* Reset counter since we've granted breathing */
             drown_death_attempts = 0;
-            u.uinwater = 0;
-            You("find yourself able to breathe underwater!");
-            return FALSE;
+            /* Don't set u.uinwater = 0 here - hero is still in water! */
+            /* The next call to drown() will detect Breathless and handle it properly */
+            return TRUE;  /* Return TRUE to indicate we handled the drowning */
         }
     }
     /* Normal drowning loop - limited to 5 attempts in original code */
@@ -6742,9 +6742,9 @@ lava_effects()
             if (lava_death_attempts >= 2) {
                 pline("The intense heat suddenly feels less threatening!");
                 You("develop a temporary resistance to the lava!");
-                /* Grant 5 turns of fire resistance and water walking */
-                incr_itimeout(&HFire_resistance, 5);
-                incr_itimeout(&HWwalking, 5);
+                /* Grant enough turns to escape (50 should be plenty) */
+                incr_itimeout(&HFire_resistance, 50);
+                incr_itimeout(&HWwalking, 50);
                 /* Reset counter and let hero survive this time */
                 lava_death_attempts = 0;
                 u.uhp = 1;  /* minimal health */
