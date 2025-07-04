@@ -1528,6 +1528,10 @@ register struct attack *mattk;
                     dmg = 0;
                 } else {
                     u.ustuck = mtmp;
+                    if (mtmp->mundetected) {
+                        mtmp->mundetected = 0;
+                        newsym(mtmp->mx, mtmp->my);
+                    }
                     if (has_trunk(mtmp->data))
                         pline("%s grasps you with its trunk!", Monnam(mtmp));
                     else if (mtmp->data == &mons[PM_NEOTHELID])
@@ -2060,8 +2064,13 @@ register struct attack *mattk;
         break;
     case AD_STCK:
         hitmsg(mtmp, mattk);
-        if (uncancelled && !u.ustuck && !sticks(youmonst.data))
+        if (uncancelled && !u.ustuck && !sticks(youmonst.data)) {
             u.ustuck = mtmp;
+            if (mtmp->mundetected) {
+                mtmp->mundetected = 0;
+                newsym(mtmp->mx, mtmp->my);
+            }
+        }
         break;
     case AD_WRAP:
         if ((!mtmp->mcan || u.ustuck == mtmp) && !sticks(youmonst.data)) {
@@ -2087,6 +2096,10 @@ register struct attack *mattk;
                                               ? "winds itself" : "swings itself");
                     stop_occupation();
                     u.ustuck = mtmp;
+                    if (mtmp->mundetected) {
+                        mtmp->mundetected = 0;
+                        newsym(mtmp->mx, mtmp->my);
+                    }
                 }
             } else if (u.ustuck == mtmp) {
                 boolean freeze = has_cold_feet(&youmonst);
@@ -2660,8 +2673,13 @@ do_rust:
         /* For some reason, the uhitm code calls this for any AT_HUGS attack,
          * but the mhitu code doesn't. */
         if (rn2(2)) {
-            if (mattk->aatyp == AT_HUGS)
+            if (mattk->aatyp == AT_HUGS) {
                 u.ustuck = mtmp;
+                if (mtmp->mundetected) {
+                    mtmp->mundetected = 0;
+                    newsym(mtmp->mx, mtmp->my);
+                }
+            }
             if (!mtmp->mcan) {
                 if (!create_pit_under(&youmonst, mtmp))
                     dmg = 0;
@@ -2879,6 +2897,9 @@ struct attack *mattk;
         mtmp->mentangled = 0; /* no longer entangled */
         place_monster(mtmp, u.ux, u.uy);
         u.ustuck = mtmp;
+        if (mtmp->mundetected) {
+            mtmp->mundetected = 0;
+        }
         newsym(mtmp->mx, mtmp->my);
         if (u.usteed) {
             char buf[BUFSZ];

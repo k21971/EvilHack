@@ -4632,4 +4632,5 @@ The following changes to date are:
   panic
 - Fix: objects that were immune to or resisted disintegration and
   containers
+- Fix: clear mundetected when monsters become stuck to player
 

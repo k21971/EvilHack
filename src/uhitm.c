@@ -165,8 +165,13 @@ struct obj *wep; /* uwep for attack(), null for kick_monster() */
         if (M_AP_TYPE(mtmp) && !Protection_from_shape_changers
             /* applied pole-arm attack is too far to get stuck */
             && distu(mtmp->mx, mtmp->my) <= 2) {
-            if (!u.ustuck && !mtmp->mflee && dmgtype(mtmp->data, AD_STCK))
+            if (!u.ustuck && !mtmp->mflee && dmgtype(mtmp->data, AD_STCK)) {
                 u.ustuck = mtmp;
+                if (mtmp->mundetected) {
+                    mtmp->mundetected = 0;
+                    newsym(mtmp->mx, mtmp->my);
+                }
+            }
         }
         /* #H7329 - if hero is on engraved "Elbereth", this will end up
          * assessing an alignment penalty and removing the engraving
@@ -5536,8 +5541,13 @@ struct monst *mtmp;
 {
     const char *fmt = "Wait!  That's %s!", *generic = "a monster", *what = 0;
 
-    if (!u.ustuck && !mtmp->mflee && dmgtype(mtmp->data, AD_STCK))
+    if (!u.ustuck && !mtmp->mflee && dmgtype(mtmp->data, AD_STCK)) {
         u.ustuck = mtmp;
+        if (mtmp->mundetected) {
+            mtmp->mundetected = 0;
+            newsym(mtmp->mx, mtmp->my);
+        }
+    }
 
     if (Blind) {
         if (!Blind_telepat)
