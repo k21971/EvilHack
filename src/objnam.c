@@ -1706,7 +1706,7 @@ unsigned doname_flags;
         }
     }
 
-    if (obj->owornmask & W_QUIVER) {
+    if (obj->owornmask & W_QUIVER && !iflags.suppress_worn) {
         switch (obj->oclass) {
         case WEAPON_CLASS:
             if (is_ammo(obj)) {

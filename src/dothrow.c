@@ -477,9 +477,9 @@ dofire()
         }
         /* give feedback if quiver has now been filled */
         if (uquiver) {
-            /* BUGFIX: Don't temporarily clear W_QUIVER during prinv().
-               This can cause crashes if game state changes during output. */
+            iflags.suppress_worn++;
             prinv("You ready:", uquiver, 0L);
+            iflags.suppress_worn--;
         }
     }
 

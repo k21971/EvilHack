@@ -4634,4 +4634,5 @@ The following changes to date are:
   containers
 - Fix: clear mundetected when monsters become stuck to player
 - Fix: remove temporary W_QUIVER clearing in dofire()
+- Fix: improve quiver prinv() to avoid both crash and verbosity
 
