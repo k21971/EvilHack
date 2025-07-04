@@ -4637,4 +4637,5 @@ The following changes to date are:
 - Fix: improve quiver prinv() to avoid both crash and verbosity
 - Fix: prevent "extract_nobj: object lost" crash during multishot
   throwing
+- Fix: handle AT_SCRE (scream attack) in player attack code
 

@@ -4691,6 +4691,14 @@ boolean weapon_attacks; /* skip weapon attacks if false */
             dhit = 0;
             break;
 
+        case AT_SCRE:
+            /* Scream attacks are currently for M2_NOPOLY monsters.
+               This case only occurs in wizard mode when bypassing
+               polymorph restrictions, so include AT_SCRE to prevent
+               an impossible, but have it do nothing */
+            dhit = 0;
+            break;
+
         default: /* Strange... */
             impossible("strange attack of yours (%d)", mattk->aatyp);
         }
