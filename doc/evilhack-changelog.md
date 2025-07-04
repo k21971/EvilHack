@@ -4633,4 +4633,5 @@ The following changes to date are:
 - Fix: objects that were immune to or resisted disintegration and
   containers
 - Fix: clear mundetected when monsters become stuck to player
+- Fix: remove temporary W_QUIVER clearing in dofire()
 

@@ -477,9 +477,9 @@ dofire()
         }
         /* give feedback if quiver has now been filled */
         if (uquiver) {
-            uquiver->owornmask &= ~W_QUIVER; /* less verbose */
+            /* BUGFIX: Don't temporarily clear W_QUIVER during prinv().
+               This can cause crashes if game state changes during output. */
             prinv("You ready:", uquiver, 0L);
-            uquiver->owornmask |= W_QUIVER;
         }
     }
 
