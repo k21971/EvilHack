@@ -6,6 +6,7 @@
 #include "hack.h"
 
 extern const char *const destroy_strings[][3]; /* from zap.c */
+extern void level_tele(void); /* from teleport.c */
 
 STATIC_DCL boolean FDECL(keep_saddle_with_steedcorpse, (unsigned, struct obj *,
                                                         struct obj *));
@@ -4814,19 +4815,16 @@ crawl:
          * After 2 failed attempts, grant temporary water breathing
          * to allow escape. */
         if (drown_death_attempts >= 2) {
-            pline("Your lungs adapt to the water!");
+            Your("lungs adapt to the water!");
             You("develop temporary gills!");
             /* Grant enough turns to escape (50 should be plenty) */
             incr_itimeout(&HMagical_breathing, 50);
             /* Reset counter since we've granted breathing */
             drown_death_attempts = 0;
-            /* Teleport hero to safety, just like lifesaving does */
-            if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT)) {
-                You("find yourself back on dry land!");
-                return TRUE;  /* Successfully escaped drowning */
-            }
-            /* If teleport failed, at least we have breathing now */
-            return FALSE;  /* Let normal underwater experience continue */
+            /* Level teleport hero to safety */
+            You("feel a powerful force pulling you away!");
+            level_tele();
+            return TRUE;  /* Successfully escaped drowning */
         }
     }
     /* Normal drowning loop - limited to 5 attempts in original code */

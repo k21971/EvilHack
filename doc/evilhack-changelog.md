@@ -4642,4 +4642,5 @@ The following changes to date are:
 - Fix: prevent infinite lifesaving loops during fuzzing, take two
 - Fix: (null) feedback when a Druid while using #wildshape opened a tin
 - Fix: prevent infinite lifesaving loops during fuzzing, take three
+- Fix: prevent infinite lifesaving loops during fuzzing, take four
 
