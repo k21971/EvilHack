@@ -4820,9 +4820,13 @@ crawl:
             incr_itimeout(&HMagical_breathing, 50);
             /* Reset counter since we've granted breathing */
             drown_death_attempts = 0;
-            /* Don't set u.uinwater = 0 here - hero is still in water! */
-            /* The next call to drown() will detect Breathless and handle it properly */
-            return TRUE;  /* Return TRUE to indicate we handled the drowning */
+            /* Teleport hero to safety, just like lifesaving does */
+            if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT)) {
+                You("find yourself back on dry land!");
+                return TRUE;  /* Successfully escaped drowning */
+            }
+            /* If teleport failed, at least we have breathing now */
+            return FALSE;  /* Let normal underwater experience continue */
         }
     }
     /* Normal drowning loop - limited to 5 attempts in original code */

@@ -4641,4 +4641,5 @@ The following changes to date are:
 - Fix: properly handle light sources when polymorphing lit objects
 - Fix: prevent infinite lifesaving loops during fuzzing, take two
 - Fix: (null) feedback when a Druid while using #wildshape opened a tin
+- Fix: prevent infinite lifesaving loops during fuzzing, take three
 
