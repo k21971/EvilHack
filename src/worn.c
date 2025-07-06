@@ -62,7 +62,10 @@ long mask;
             if (wp->w_mask & mask) {
                 oobj = *(wp->w_obj);
                 if (oobj && !(oobj->owornmask & wp->w_mask))
-                    impossible("Setworn: mask = %ld.", wp->w_mask);
+                    impossible("Setworn: mask = %ld (0x%lx), existing obj '%s' owornmask = 0x%lx",
+                               wp->w_mask, wp->w_mask, 
+                               oobj ? cxname(oobj) : "null", 
+                               oobj ? oobj->owornmask : 0L);
                 if (oobj && (oobj != obj)) {
                     if (u.twoweap && (oobj->owornmask & (W_WEP | W_SWAPWEP))) {
                         /* required to avoid incorrect untwoweapon() feedback */
