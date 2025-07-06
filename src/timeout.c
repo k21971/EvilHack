@@ -1787,8 +1787,9 @@ boolean already_lit;
                 }
             }
         } else {
-            impossible("begin burn: unexpected %s", xname(obj));
-            turns = obj->age;
+            impossible("begin burn: unexpected %s, otyp=%d, oclass=%d, lamplit=%d",
+                       xname(obj), obj->otyp, obj->oclass, obj->lamplit);
+            return;
         }
         break;
     }
