@@ -3171,10 +3171,11 @@ dmonsfree()
         if (DEADMONSTER(freetmp)
             && freetmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
             icequeenrevive(freetmp);
-            /* Ice Queen transforms to Enchantress and is revived.
-               She was marked for purging but won't be freed, so
-               decrement the counter */
-            iflags.purge_monsters--;
+            /* Ice Queen transforms to Enchantress and is revived,
+               only decrement purge counter if she was actually marked
+               for purging */
+            if (freetmp->mstate & MON_DETACH)
+                iflags.purge_monsters--;
             /* Track this special case in recent_detaches with negative position */
             Strcpy(recent_detaches[detach_idx].mname, "IceQueen->Enchantress");
             recent_detaches[detach_idx].x = -1;

@@ -4643,4 +4643,5 @@ The following changes to date are:
 - Fix: (null) feedback when a Druid while using #wildshape opened a tin
 - Fix: prevent infinite lifesaving loops during fuzzing, take three
 - Fix: prevent infinite lifesaving loops during fuzzing, take four
+- Fix: dmonsfree accounting mismatch when Ice Queen transforms
 
