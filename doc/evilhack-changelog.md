@@ -4652,4 +4652,6 @@ The following changes to date are:
 - Fix: prevent artifacts from having a forge quality bit set
 - Fix: address remaining cases where newsym() should be called when a
   monster transitions from peaceful to hostile or vice versa
+- Fix: extinct check for leader monsters for non-defined groups was
+  checking the group, not the leader
 

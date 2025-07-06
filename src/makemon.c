@@ -270,13 +270,13 @@ int x, y, n, mmflags;
             }
         } else {
             leader = monsndx(mtmp->data);
-            if (mvitals[leader].mvflags & G_GONE)
-                return;
             if (little_to_big(leader) != NON_PM
                 && !(is_bat(mtmp->data)
                      || is_rat(mtmp->data)
                      || is_spider(mtmp->data)))
                 leader = little_to_big(leader);
+            if (mvitals[leader].mvflags & G_GONE)
+                return;
             if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
                 mon = makemon(&mons[leader],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
