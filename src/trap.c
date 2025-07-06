@@ -6133,6 +6133,7 @@ deltrap(trap)
 register struct trap *trap;
 {
     register struct trap *ttmp;
+    struct monst *mtmp;
 
     if (trap->ammo) {
         impossible("deleting trap (%d) containing ammo (%d)?",
@@ -6141,6 +6142,11 @@ register struct trap *trap;
            -> deltrap */
         deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
         return;
+    }
+
+    /* check for trapped monster */
+    if ((mtmp = m_at(trap->tx, trap->ty)) != 0 && mtmp->mtrapped) {
+        mtmp->mtrapped = 0;
     }
 
     clear_conjoined_pits(trap);

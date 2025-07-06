@@ -4646,4 +4646,5 @@ The following changes to date are:
 - Fix: dmonsfree accounting mismatch when Ice Queen transforms
 - Enhance burn_object debugging and prevent message spam
 - Enhance setworn debugging for worn mask inconsistencies
+- Fix: clear monster trapped flag when deleting traps
 
