@@ -1651,7 +1651,13 @@ long timeout;
         break; /* case [otyp ==] candelabrum|tallow_candle|wax_candle */
 
     default:
-        impossible("burn_object: unexpected obj %s", xname(obj));
+        impossible("burn_object: unexpected obj %s, otyp=%d, lamplit=%d",
+                   xname(obj), obj->otyp, obj->lamplit);
+        /* Remove the timer to prevent repeated messages */
+        if (obj->lamplit) {
+            obj->lamplit = 0;
+            end_burn(obj, TRUE);
+        }
         break;
     }
     if (need_newsym)
