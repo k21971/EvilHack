@@ -4649,4 +4649,5 @@ The following changes to date are:
 - Fix: clear monster trapped flag when deleting traps
 - Fix: prevent unexpected objects from getting burn timers
 - Fix: peaceful shambling horrors, take two
+- Fix: prevent artifacts from having a forge quality bit set
 

@@ -309,6 +309,8 @@ aligntyp alignment; /* target alignment, or A_NONE */
         assert(otmp != 0);
         /* prevent erosion from generating */
         otmp->oeroded = otmp->oeroded2 = 0;
+        /* prevent 'superior/exceptional/inferior' artifacts */
+        otmp->forged_qual = 0;
         otmp = oname(otmp, a->name);
         otmp->oartifact = m;  /* probably already set by this point, but */
         artiexist[m] = 1;
