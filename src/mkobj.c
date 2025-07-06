@@ -2631,13 +2631,14 @@ struct obj *obj;
     /*
      * Free up any light sources attached to the object.
      *
-     * We may want to just call del_light_source() without any
-     * checks (requires a code change there).  Otherwise this
-     * list must track all objects that can have a light source
-     * attached to it (and also requires lamplit to be set).
+     * Always check for and remove light sources, even if obj_sheds_light()
+     * returns false. This prevents dangling light sources when objects
+     * have light sources attached but don't meet the criteria for
+     * obj_sheds_light() (e.g., lamplit flag cleared, object type changed).
+     * del_light_source() gracefully handles the case where no light
+     * source exists.
      */
-    if (obj_sheds_light(obj))
-        del_light_source(LS_OBJECT, obj_to_any(obj));
+    del_light_source(LS_OBJECT, obj_to_any(obj));
 
     if (obj == thrownobj)
         thrownobj = 0;
