@@ -4648,5 +4648,4 @@ The following changes to date are:
 - Enhance setworn debugging for worn mask inconsistencies
 - Fix: clear monster trapped flag when deleting traps
 - Fix: prevent unexpected objects from getting burn timers
-- Fix: prevent dangling light sources when deallocating objects
 
