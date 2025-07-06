@@ -4650,4 +4650,6 @@ The following changes to date are:
 - Fix: prevent unexpected objects from getting burn timers
 - Fix: peaceful shambling horrors, take two
 - Fix: prevent artifacts from having a forge quality bit set
+- Fix: address remaining cases where newsym() should be called when a
+  monster transitions from peaceful to hostile or vice versa
 

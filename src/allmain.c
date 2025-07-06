@@ -395,8 +395,10 @@ boolean resuming;
                             /* if former pet was abused, or just
                                at random, become hostile */
                             if (rn2(EDOG(weakdog)->abuse + 1)
-                                || !rn2(3))
+                                || !rn2(3)) {
                                 weakdog->mpeaceful = 0;
+                                newsym(weakdog->mx, weakdog->my); /* update display */
+                            }
                             if (weakdog->mleashed)
                                 m_unleash(weakdog, TRUE);
                         }
@@ -709,6 +711,7 @@ boolean resuming;
                             } else if (mtmp->mpeaceful || mtmp->mtame) {
                                 setmangry(mtmp, FALSE);
                                 mtmp->mpeaceful = mtmp->mtame = 0;
+                                newsym(mtmp->mx, mtmp->my); /* update display */
                                 if (mtmp->mleashed)
                                     m_unleash(mtmp, TRUE);
                                 if (u.usteed)

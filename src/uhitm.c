@@ -2839,6 +2839,7 @@ struct attack *mattk;
             if (mdef->mpeaceful) {
                 if (rnd(6) > P_SKILL(P_THIEVERY)) {
                     mdef->mpeaceful = 0;
+                    newsym(mdef->mx, mdef->my); /* update display */
                     if (mdef->ispriest) {
                         if (p_coaligned(mdef)) {
                             You_feel("guilty.");
@@ -2867,6 +2868,7 @@ struct attack *mattk;
                                 continue;
                             if (mon->data == q_guardian && mon->mpeaceful) {
                                 mon->mpeaceful = 0;
+                                newsym(mon->mx, mon->my); /* update display */
                                 if (canseemon(mon))
                                     ++got_mad;
                             }

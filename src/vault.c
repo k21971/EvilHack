@@ -265,6 +265,7 @@ struct monst *grd;
             if (canspotmon(grd)) /* see or sense via telepathy */
                 pline("%s becomes irate.", Monnam(grd));
             grd->mpeaceful = 0; /* bypass setmangry() */
+            newsym(grd->mx, grd->my); /* update display */
         }
         /* if arriving outside guard's temporary corridor, give the
            guard an extra move to deliver message(s) and to teleport
@@ -398,6 +399,7 @@ invault()
             return;
         guard->isgd = 1;
         guard->mpeaceful = 1;
+        newsym(guard->mx, guard->my); /* update display */
         set_malign(guard);
         EGD(guard)->gddone = 0;
         EGD(guard)->ogx = x;
@@ -814,6 +816,7 @@ register struct monst *grd;
                       (egrd->witness & GD_EATGOLD) ? "consume" : "destroy");
         egrd->witness = 0;
         grd->mpeaceful = 0;
+        newsym(grd->mx, grd->my); /* update display */
         return -1;
     }
 
@@ -836,6 +839,7 @@ register struct monst *grd;
                 levl[m][n].typ = egrd->fakecorr[0].ftyp;
                 newsym(m, n);
                 grd->mpeaceful = 0;
+                newsym(grd->mx, grd->my); /* update display */
                 return -1;
             }
             /* not fair to get mad when (s)he's fainted or paralyzed */
@@ -852,6 +856,7 @@ register struct monst *grd;
                 levl[m][n].typ = egrd->fakecorr[0].ftyp;
                 newsym(m, n);
                 grd->mpeaceful = 0;
+                newsym(grd->mx, grd->my); /* update display */
  letknow:
                 if (!cansee(grd->mx, grd->my) || !mon_visible(grd))
                     You_hear("%s.",
@@ -909,6 +914,7 @@ register struct monst *grd;
                     verbalize("So be it, rogue!");
                 }
                 grd->mpeaceful = 0;
+                newsym(grd->mx, grd->my); /* update display */
                 return -1;
             }
         }

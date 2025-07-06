@@ -503,6 +503,7 @@ struct monst *mtmp;
     if (Qstat(pissed_off)) {
         mtmp->mstrategy &= ~STRAT_WAITMASK;
 	mtmp->mpeaceful = 0;
+	newsym(mtmp->mx, mtmp->my); /* update display */
     }
 }
 
@@ -559,6 +560,7 @@ struct monst *mtmp;
         verbalize("I'm finally free!");
         mtmp->mstrategy &= ~STRAT_WAITMASK;
         mtmp->mpeaceful = 1;
+        newsym(mtmp->mx, mtmp->my); /* update display */
 
         /* Your god is happy... */
         adjalign(3);
@@ -579,6 +581,7 @@ register struct monst *mtmp;
 	if (Qstat(pissed_off)) {
 	    mtmp->mstrategy &= ~STRAT_WAITMASK;
 	    mtmp->mpeaceful = 0;
+	    newsym(mtmp->mx, mtmp->my); /* update display */
 	}
         return;
     }

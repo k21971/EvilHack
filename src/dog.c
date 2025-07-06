@@ -919,8 +919,10 @@ long nmv; /* number of moves */
             mtmp->mtame -= wilder; /* less tame */
         else if (mtmp->mtame > rn2(wilder))
             mtmp->mtame = 0; /* untame */
-        else
+        else {
             mtmp->mtame = mtmp->mpeaceful = 0; /* hostile! */
+            newsym(mtmp->mx, mtmp->my); /* update display */
+        }
     }
     /* check to see if it would have died as a pet; if so, go wild instead
      * of dying the next time we call dog_move()
@@ -930,8 +932,10 @@ long nmv; /* number of moves */
         struct edog *edog = EDOG(mtmp);
 
         if ((monstermoves > edog->hungrytime + 500 && mtmp->mhp < 3)
-            || (monstermoves > edog->hungrytime + 750))
+            || (monstermoves > edog->hungrytime + 750)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            newsym(mtmp->mx, mtmp->my); /* update display */
+        }
     }
 
     if (!mtmp->mtame && mtmp->mleashed) {
@@ -1655,6 +1659,7 @@ boolean was_dead;
         if (edog->abuse >= 0 && edog->abuse < 10)
             if (!rn2(edog->abuse + 1))
                 mtmp->mpeaceful = 1;
+        newsym(mtmp->mx, mtmp->my); /* update display */
         if (!quietly && cansee(mtmp->mx, mtmp->my)) {
             if (haseyes(youmonst.data)) {
                 if (haseyes(mtmp->data))
@@ -1713,8 +1718,10 @@ struct monst *mtmp;
         mtmp->mtame--;
 
     if (!mtmp->mtame
-        && (Aggravate_monster || Conflict || rn2(EDOG(mtmp)->abuse + 1)))
+        && (Aggravate_monster || Conflict || rn2(EDOG(mtmp)->abuse + 1))) {
         mtmp->mpeaceful = 0;
+        newsym(mtmp->mx, mtmp->my); /* update display */
+    }
 
     if (mtmp->mtame && !mtmp->isminion)
         EDOG(mtmp)->abuse++;

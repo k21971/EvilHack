@@ -596,6 +596,7 @@ scary_ghost(ghost)
 struct monst* ghost;
 {
     ghost->mpeaceful = 0;
+    newsym(ghost->mx, ghost->my); /* update display */
     set_malign(ghost);
     /* Draugr do not fear the undead. Or anything else for that matter */
     if (!maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))) {
