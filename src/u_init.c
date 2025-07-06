@@ -1676,12 +1676,8 @@ shambler_init()
 
     shambler->mflags2 = 0;
     for (i = 0; i < rnd(17); i++)
-        shambler->mflags2 |= (1 << rn2(27));    /* rn2() should equal the number of M2_ flags in
+        shambler->mflags2 |= (1 << rn2(32));    /* rn2() should equal the number of M2_ flags in
                                                  * include/monflag.h */
-    shambler->mflags2 |= M2_NOPOLY;             /* Don't let the player be one of these */
-    shambler->mflags2 |= M2_HOSTILE;            /* always hostile */
-    shambler->mflags2 |= M2_NEUTER;             /* always genderless */
-
     shambler->mflags2 &= ~M2_MERC;              /* no guards */
     shambler->mflags2 &= ~M2_PEACEFUL;          /* no peacefuls */
     shambler->mflags2 &= ~M2_PNAME;             /* not a proper name */
@@ -1696,6 +1692,10 @@ shambler_init()
     shambler->mflags2 &= ~M2_DRUID_FORM_C;      /* prevent druids from shapechanging into a shambler */
     shambler->mflags2 &= ~M2_DRUID_FORM_D;      /* prevent druids from shapechanging into a shambler */
     shambler->mflags2 &= ~M2_VAMPIRE_FORM;      /* prevent vampires from shapechanging into a shambler */
+
+    shambler->mflags2 |= M2_NOPOLY;             /* Don't let the player be one of these */
+    shambler->mflags2 |= M2_HOSTILE;            /* always hostile */
+    shambler->mflags2 |= M2_NEUTER;             /* always genderless */
 
     shambler->mflags3 = 0;
     for (i = 0; i < rnd(5); i++)
