@@ -94,13 +94,19 @@ struct obj *obj;
            containers that are empty or non-existent */
         if (!container || !Has_contents(container)
             || container->olocked) {
-            m.has_defense = m.has_offense = m.has_misc = 0;
+            m.has_defense = 0;
+            m.has_offense = 0;
+            m.has_misc = 0;
+            m.tocharge = (struct obj *) 0;
             return 0;
         }
 
         /* using a cursed bag of holding = bad */
         if (Is_mbag(container) && container->cursed) {
-            m.has_defense = m.has_offense = m.has_misc = 0;
+            m.has_defense = 0;
+            m.has_offense = 0;
+            m.has_misc = 0;
+            m.tocharge = (struct obj *) 0;
             return 0;
         }
 
@@ -1687,8 +1693,8 @@ boolean reflection_skip;
 
 #define nomore(x)       if (m.has_offense == x) continue;
 #define pick_to_charge(o) \
-    (mcarried(o) && (!m.tocharge \
-                     || (charge_precedence((o)->otyp) \
+    ((mcarried(o) || (o)->where == OBJ_CONTAINED) \
+     && (!m.tocharge || (charge_precedence((o)->otyp) \
                          > charge_precedence(m.tocharge->otyp))))
     /* this picks the last viable item rather than prioritizing choices */
     for (obj = start; obj; obj = nextobj) {
@@ -2337,6 +2343,18 @@ struct monst *mtmp;
             impossible("Attempting to charge nothing?");
             return 0;
         }
+        /* Extract charge object from container first if necessary */
+        if (m.tocharge->where == OBJ_CONTAINED) {
+            struct obj *container = m.tocharge->ocontainer;
+
+            obj_extract_self(m.tocharge);
+            if (canseemon(mtmp)) {
+                pline("%s removes %s from %s %s.", Monnam(mtmp),
+                      ansimpleoname(m.tocharge), mhis(mtmp),
+                      simpleonames(container));
+            }
+            (void) mpickobj(mtmp, m.tocharge);
+        }
         mreadmsg(mtmp, otmp);
         if (oseen)
             makeknown(otmp->otyp);
@@ -2698,8 +2716,8 @@ struct monst *mtmp;
 
 #define nomore(x)       if (m.has_misc == (x)) continue
 #define pick_to_charge(o) \
-    (mcarried(o) && (!m.tocharge \
-                     || (charge_precedence((o)->otyp) \
+    ((mcarried(o) || (o)->where == OBJ_CONTAINED) \
+     && (!m.tocharge || (charge_precedence((o)->otyp) \
                          > charge_precedence(m.tocharge->otyp))))
     /*
      * [bug?]  Choice of item is not prioritized; the last viable one
@@ -2888,8 +2906,8 @@ struct obj *start;
 
 #define nomore(x)       if (m.has_misc == (x)) continue;
 #define pick_to_charge(o) \
-    (mcarried(o) && (!m.tocharge \
-                     || (charge_precedence((o)->otyp) \
+    ((mcarried(o) || (o)->where == OBJ_CONTAINED) \
+     && (!m.tocharge || (charge_precedence((o)->otyp) \
                          > charge_precedence(m.tocharge->otyp))))
 
     for (obj = start; obj; obj = nextobj) {
@@ -3107,6 +3125,18 @@ struct monst *mtmp;
         if (!m.tocharge) {
             impossible("Attempting to charge nothing?");
             return 0;
+        }
+        /* Extract charge object from container first if necessary */
+        if (m.tocharge->where == OBJ_CONTAINED) {
+            struct obj *container = m.tocharge->ocontainer;
+
+            obj_extract_self(m.tocharge);
+            if (canseemon(mtmp)) {
+                pline("%s removes %s from %s %s.", Monnam(mtmp),
+                      ansimpleoname(m.tocharge), mhis(mtmp),
+                      simpleonames(container));
+            }
+            (void) mpickobj(mtmp, m.tocharge);
         }
         mreadmsg(mtmp, otmp);
         if (oseen)

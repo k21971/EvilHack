@@ -4658,4 +4658,5 @@ The following changes to date are:
 - Remove holdover AD_SAMU (amulet stealing) ability from Tiamat
 - Enhance monster position sanity check message
 - Enhance 'map mon at not in fmon list' debugging
+- Fix: monsters charging objects inside carried containers
 
