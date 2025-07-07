@@ -2098,7 +2098,7 @@ int id;
            that needs to be handled */
         if (obj_sheds_light(obj)) {
             /* extinguish old light source (will be deleted with obj) */
-            end_burn(obj, FALSE);
+            end_burn(obj, TRUE);
         }
         /* decide if new object can be lit */
         if (otmp && (otmp->otyp == MAGIC_LAMP || otmp->otyp == OIL_LAMP

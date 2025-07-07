@@ -4659,4 +4659,5 @@ The following changes to date are:
 - Enhance monster position sanity check message
 - Enhance 'map mon at not in fmon list' debugging
 - Fix: monsters charging objects inside carried containers
+- Fix: burn timer not removed when polymorphing lit objects
 
