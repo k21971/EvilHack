@@ -167,8 +167,11 @@ mon_sanity_check()
             continue;
         } else if (mtmp != (m = level.monsters[x][y])) {
             if (!m || m->ridden_by != mtmp->m_id)
-                impossible("mon (%s) at <%d,%d> is not there!",
-                           fmt_ptr((genericptr_t) mtmp), x, y);
+                impossible("mon (%s) at <%d,%d> is not there! [%s%s] map=%s",
+                           fmt_ptr((genericptr_t) mtmp), x, y,
+                           occupation ? "during " : "",
+                           occupation ? occtxt : "no occupation",
+                           m ? fmt_ptr((genericptr_t) m) : "empty");
         } else if (mtmp->wormno) {
             sanity_check_worm(mtmp);
         }
