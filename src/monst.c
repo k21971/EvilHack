@@ -3780,7 +3780,7 @@ struct permonst _mons2[] = {
     MON("Tiamat", S_DRAGON, LVL(103, 15, -8, 80, A_NONE),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_BREA, AD_RBRE, 6, 6), ATTK(AT_MAGC, AD_SPEL, 2, 4),
-          ATTK(AT_CLAW, AD_SAMU, 4, 6), ATTK(AT_BITE, AD_PHYS, 6, 6),
+          ATTK(AT_CLAW, AD_PHYS, 4, 6), ATTK(AT_BITE, AD_PHYS, 6, 6),
           ATTK(AT_BITE, AD_PHYS, 6, 6), ATTK(AT_STNG, AD_DRST, 2, 4)),
         SIZ(6000, 3000, MS_ROAR, MZ_GIGANTIC),
         MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT | MR_ELEC | MR_POISON

@@ -4655,4 +4655,5 @@ The following changes to date are:
 - Fix: extinct check for leader monsters for non-defined groups was
   checking the group, not the leader
 - Fix: prevent flying mounts from being slowed when flying over sewage
+- Remove holdover AD_SAMU (amulet stealing) ability from Tiamat
 
