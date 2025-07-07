@@ -184,8 +184,11 @@ mon_sanity_check()
                     if (m == mtmp)
                         break;
                 if (!m)
-                    impossible("map mon (%s) at <%d,%d> not in fmon list!",
-                               fmt_ptr((genericptr_t) mtmp), x, y);
+                    impossible("map mon (%s) at <%d,%d> not in fmon list! [%s%s] %s",
+                               fmt_ptr((genericptr_t) mtmp), x, y,
+                               occupation ? "during " : "",
+                               occupation ? occtxt : "no occupation",
+                               mtmp->data ? mons[mtmp->mnum].mname : "invalid mnum");
                 else if (mtmp == u.usteed)
                     impossible("steed (%s) is on the map at <%d,%d>!",
                                fmt_ptr((genericptr_t) mtmp), x, y);
