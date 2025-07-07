@@ -653,7 +653,8 @@ register struct monst *mtmp;
             || is_clinger(mdat) || is_swimmer(mdat)
             || passes_walls(mdat) || can_levitate(mtmp)
             || can_wwalk(mtmp) || defended(mtmp, AD_SLOW)
-            || resists_slow(r_data(mtmp))) {
+            || resists_slow(r_data(mtmp))
+            || ((mtmp == u.usteed) && Flying)) {
             mwalk_sewage = FALSE;
         } else {
             mon_adjust_speed(mtmp, -2, (struct obj *) 0);
