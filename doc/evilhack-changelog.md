@@ -4660,4 +4660,5 @@ The following changes to date are:
 - Enhance 'map mon at not in fmon list' debugging
 - Fix: monsters charging objects inside carried containers
 - Fix: burn timer not removed when polymorphing lit objects
+- Fix: clear mundetected when monsters become stuck to player, take two
 

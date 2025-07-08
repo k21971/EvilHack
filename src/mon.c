@@ -3340,8 +3340,14 @@ struct monst *mtmp, *mtmp2;
     }
     mtmp2->nmon = fmon;
     fmon = mtmp2;
-    if (u.ustuck == mtmp)
+    if (u.ustuck == mtmp) {
         u.ustuck = mtmp2;
+        /* a stuck monster can't be hidden */
+        if (mtmp2->mundetected) {
+            mtmp2->mundetected = 0;
+            newsym(mtmp2->mx, mtmp2->my);
+        }
+    }
     if (u.usteed == mtmp)
         u.usteed = mtmp2;
     if (mtmp2->isshk)
