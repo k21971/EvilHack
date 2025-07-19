@@ -2404,19 +2404,58 @@ int chg; /* recharging */
 
 void
 mwand_explode(mon, obj)
-register struct monst *mon;
-register struct obj *obj;
+struct monst *mon;
+struct obj *obj;
 {
+    int dmg, n, k;
+
     if (canseemon(mon))
         pline("%s %s vibrates violently and explodes!",
               s_suffix(Monnam(mon)), xname(obj));
     else if (!Deaf)
         You_hear("an explosion.");
-    mon->mhp -= rnd(2 * (mon->mhpmax + 1) / 3);
+
+    /* Use same damage calculation as player for fairness */
+    n = obj->spe + 2; /* 2 is the recharging adjustment */
+    if (n < 2)
+        n = 2;  /* arbitrary minimum */
+    /* size of damage dice - same as wand_explode() */
+    switch (obj->otyp) {
+    case WAN_WISHING:
+        k = 12;
+        break;
+    case WAN_CANCELLATION:
+    case WAN_DEATH:
+    case WAN_POLYMORPH:
+    case WAN_UNDEAD_TURNING:
+        k = 10;
+        break;
+    case WAN_COLD:
+    case WAN_FIRE:
+    case WAN_LIGHTNING:
+    case WAN_MAGIC_MISSILE:
+        k = 8;
+        break;
+    case WAN_NOTHING:
+        k = 4;
+        break;
+    default:
+        k = 6;
+        break;
+    }
+    dmg = d(n, k);
+    obj->in_use = TRUE;  /* protect object during destruction */
     m_useup(mon, obj);
-    if (mon->mhp <= 0) {
-    	if (canseemon(mon))
+
+    damage_mon(mon, dmg, AD_PHYS, FALSE);
+
+    /* Check if monster died */
+    if (DEADMONSTER(mon)) {
+        if (canseemon(mon))
             pline("%s is killed by the explosion!", Monnam(mon));
+        /* mondied() handles lifesaving internally - if the monster
+           had an amulet of life saving, it will be resurrected and
+           DEADMONSTER(mon) will return FALSE after mondied() returns */
         mondied(mon);
     }
 }

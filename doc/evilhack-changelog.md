@@ -4661,4 +4661,6 @@ The following changes to date are:
 - Fix: monsters charging objects inside carried containers
 - Fix: burn timer not removed when polymorphing lit objects
 - Fix: clear mundetected when monsters become stuck to player, take two
+- Fix: container weight calculations when a monster removes an object;
+  wand explosion monster/player parity 
 

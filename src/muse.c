@@ -124,6 +124,7 @@ struct obj *obj;
 
         /* remove obj from container */
         obj_extract_self(obj); /* reduces container's weight */
+        container->owt = weight(container);
 
         if (vis) {
             if (!nearby) /* not close by */
@@ -2348,6 +2349,7 @@ struct monst *mtmp;
             struct obj *container = m.tocharge->ocontainer;
 
             obj_extract_self(m.tocharge);
+            container->owt = weight(container);
             if (canseemon(mtmp)) {
                 pline("%s removes %s from %s %s.", Monnam(mtmp),
                       ansimpleoname(m.tocharge), mhis(mtmp),
@@ -3131,6 +3133,7 @@ struct monst *mtmp;
             struct obj *container = m.tocharge->ocontainer;
 
             obj_extract_self(m.tocharge);
+            container->owt = weight(container);
             if (canseemon(mtmp)) {
                 pline("%s removes %s from %s %s.", Monnam(mtmp),
                       ansimpleoname(m.tocharge), mhis(mtmp),
