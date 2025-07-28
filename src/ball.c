@@ -120,23 +120,45 @@ ballfall()
 STATIC_OVL void
 placebc_core()
 {
+    boolean chain_fell = FALSE, ball_fell = FALSE;
     if (!uchain || !uball) {
         impossible("Where are your ball and chain?");
         return;
     }
 
-    (void) flooreffects(uchain, u.ux, u.uy, ""); /* chain might rust */
+    /* Check if chain would fall through open air */
+    if (!flooreffects(uchain, u.ux, u.uy, "")) {
+        /* chain didn't fall, place it normally */
+        place_object(uchain, u.ux, u.uy);
+    } else {
+        chain_fell = TRUE;
+    }
 
     if (carried(uball)) { /* the ball is carried */
         u.bc_order = BCPOS_DIFFER;
     } else {
-        /* ball might rust -- already checked when carried */
-        (void) flooreffects(uball, u.ux, u.uy, "");
-        place_object(uball, u.ux, u.uy);
-        u.bc_order = BCPOS_CHAIN;
+        /* Check if ball would fall through open air */
+        if (!flooreffects(uball, u.ux, u.uy, "")) {
+            /* ball didn't fall, place it normally */
+            place_object(uball, u.ux, u.uy);
+            u.bc_order = BCPOS_CHAIN;
+        } else {
+            /* ball fell through open air */
+            ball_fell = TRUE;
+            u.bc_order = BCPOS_DIFFER;
+        }
     }
 
-    place_object(uchain, u.ux, u.uy);
+    /* If both ball and chain fell through open air, we have a problem
+       because the chain is already gone but Punished is still set.
+       This would cause bc_sanity_check to panic. */
+    if (chain_fell && ball_fell) {
+        /* Both objects fell - need to clean up punishment state.
+           Note: unpunish() expects both objects to still exist,
+           but they've already been deleted by flooreffects. */
+        uball = uchain = (struct obj *) 0;
+        u.bc_felt = 0;
+    }
 
     u.bglyph = u.cglyph = levl[u.ux][u.uy].glyph; /* pick up glyph */
 
