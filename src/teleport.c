@@ -1385,9 +1385,19 @@ register int x, y;
 {
     register int oldx = mtmp->mx, oldy = mtmp->my;
     boolean resident_shk = mtmp->isshk && inhishop(mtmp);
+    struct monst *othermon;
 
     if (x == mtmp->mx && y == mtmp->my && m_at(x, y) == mtmp)
         return; /* that was easy */
+
+    /* Check if destination is occupied by another monster */
+    if ((othermon = m_at(x, y)) != 0) {
+        /* Allow placing steed/rider on same spot */
+        if (!((has_erid(othermon) && ERID(othermon)->mon_steed == mtmp)
+              || (has_erid(mtmp) && ERID(mtmp)->mon_steed == othermon))) {
+            return; /* destination occupied, abort relocation */
+        }
+    }
 
     if (oldx) { /* "pick up" monster */
         if (mtmp->wormno) {

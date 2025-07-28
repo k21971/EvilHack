@@ -4669,4 +4669,5 @@ The following changes to date are:
 - Fix: clear mtrapped flag when relocating trapped monsters
 - Fix: clear monster weapon pointer when removing wielded items from
   monsters
+- Fix: prevent monster position desynchronization in rloc_to()
 
