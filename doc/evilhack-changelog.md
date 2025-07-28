@@ -4663,4 +4663,7 @@ The following changes to date are:
 - Fix: clear mundetected when monsters become stuck to player, take two
 - Fix: container weight calculations when a monster removes an object;
   wand explosion monster/player parity 
+- Fix: ball/chain sync crash on open air terrain
+- Fix: clear mundetected when monsters become stuck to player, take
+  three
 

@@ -3498,8 +3498,14 @@ do_rust:
         break;
     }
     case AD_STCK:
-        if (!negated && !sticks(pd))
+        if (!negated && !sticks(pd)) {
             u.ustuck = mdef; /* it's now stuck to you */
+            /* monster can't be hiding if stuck to the player */
+            if (mdef->mundetected) {
+                mdef->mundetected = 0;
+                newsym(mdef->mx, mdef->my);
+            }
+        }
         break;
     case AD_WRAP:
         if (!sticks(pd)) {
@@ -3519,6 +3525,11 @@ do_rust:
                                     ? "wrap your arms around" : "swing yourself around",
                             mon_nam(mdef));
                     u.ustuck = mdef;
+                    /* monster can't be hiding if stuck to the player */
+                    if (mdef->mundetected) {
+                        mdef->mundetected = 0;
+                        newsym(mdef->mx, mdef->my);
+                    }
                 }
             } else if (u.ustuck == mdef) {
                 /* Monsters don't wear amulets of magical breathing */
@@ -4628,6 +4639,11 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                     uunstick();
                 You("grab %s!", mon_nam(mon));
                 u.ustuck = mon;
+                /* monster can't be hiding if stuck to the player */
+                if (mon->mundetected) {
+                    mon->mundetected = 0;
+                    newsym(mon->mx, mon->my);
+                }
                 if (hated_obj && flags.verbose)
                     searmsg(&youmonst, mon, hated_obj, FALSE);
                 sum[i] = damageum(mon, mattk, specialdmg);
