@@ -4667,4 +4667,6 @@ The following changes to date are:
 - Fix: clear mundetected when monsters become stuck to player, take
   three
 - Fix: clear mtrapped flag when relocating trapped monsters
+- Fix: clear monster weapon pointer when removing wielded items from
+  monsters
 

@@ -2251,6 +2251,9 @@ boolean taking;
                     mtmp->mcanmove = 0;
                     if (otmp->lamplit && artifact_light(otmp))
                         end_burn(otmp, FALSE);
+                    /* if removing a weapon, clear the weapon pointer */
+                    if ((unwornmask & W_WEP) && MON_WEP(mtmp) == otmp)
+                        MON_NOWEP(mtmp);
                     otmp->owornmask = 0L;
                     /* normally extract_from_minvent handles this stuff, but
                      * since we are setting owornmask to 0 now we have to
