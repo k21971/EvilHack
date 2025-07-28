@@ -1427,8 +1427,10 @@ register int x, y;
         make_angry_shk(mtmp, oldx, oldy);
 
     /* trapped monster teleported away */
-    if (mtmp->mtrapped && !mtmp->wormno)
-        (void) mintrap(mtmp);
+    if (mtmp->mtrapped && !mtmp->wormno) {
+        mtmp->mtrapped = 0; /* no longer in old trap */
+        (void) mintrap(mtmp); /* check for new trap at destination */
+    }
 
     /* entanglement goes away (pulled away from plants
        magically entangling mtmp) */

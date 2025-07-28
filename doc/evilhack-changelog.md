@@ -4666,4 +4666,5 @@ The following changes to date are:
 - Fix: ball/chain sync crash on open air terrain
 - Fix: clear mundetected when monsters become stuck to player, take
   three
+- Fix: clear mtrapped flag when relocating trapped monsters
 
