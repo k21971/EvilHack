@@ -3115,8 +3115,6 @@ int specialdmg; /* blessed and/or silver bonus against various things */
  physical:
         if (noncorporeal(pd)) {
             tmp = 0;
-            if (!specialdmg)
-                impossible("bad shade attack function flow?");
         }
         tmp += specialdmg;
 
