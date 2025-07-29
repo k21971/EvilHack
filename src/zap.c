@@ -2019,9 +2019,9 @@ int id;
         if (otmp->quan > (long) rnd(4)
             && obj->material == MINERAL
             && otmp->material != MINERAL) {
+            set_material(otmp, MINERAL); /* fix material before changing type */
             otmp->otyp = ROCK; /* transmutation backfired */
             otmp->quan /= 2L;  /* some material has been lost */
-            set_material(otmp, MINERAL);
         }
         break;
     }

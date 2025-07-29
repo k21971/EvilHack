@@ -4041,6 +4041,7 @@ int material;
         else
             impossible("setting material of %s to invalid material %d",
                        OBJ_NAME(objects[otmp->otyp]), material);
+        return; /* don't set invalid material */
     }
 
     otmp->material = material;

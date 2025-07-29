@@ -4670,4 +4670,5 @@ The following changes to date are:
 - Fix: clear monster weapon pointer when removing wielded items from
   monsters
 - Fix: prevent monster position desynchronization in rloc_to()
+- Fix: prevent invalid material on rocks during polymorph transmutation
 
