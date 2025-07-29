@@ -4671,4 +4671,5 @@ The following changes to date are:
   monsters
 - Fix: prevent monster position desynchronization in rloc_to()
 - Fix: prevent invalid material on rocks during polymorph transmutation
+- Fix: prevent worn mask corruption when objects are destroyed
 

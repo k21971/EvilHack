@@ -326,6 +326,9 @@ int ef_flags;
                     }
                 }
             }
+            /* ensure worn pointers are cleared before clearing owornmask */
+            if (otmp->owornmask) /* wielded */
+                remove_worn_item(otmp, FALSE);
             setnotworn(otmp);
             if (carried(otmp))
                 useupall(otmp);
@@ -4151,6 +4154,8 @@ xchar x, y;
                     place_object(otmp, x, y);
             }
         }
+        if (obj->owornmask) /* wielded */
+            remove_worn_item(obj, FALSE);
         setnotworn(obj);
         delobj(obj);
         return TRUE;
@@ -4166,6 +4171,8 @@ xchar x, y;
         if (in_sight)
             pline("%s %s.", Yname2(obj),
                   destroy_strings[dindx][(obj->quan > 1L)]);
+        if (obj->owornmask) /* wielded */
+            remove_worn_item(obj, FALSE);
         setnotworn(obj);
         delobj(obj);
         return TRUE;
@@ -4174,6 +4181,8 @@ xchar x, y;
         if (in_sight)
             pline("%s %s.", Yname2(obj),
                   destroy_strings[dindx][(obj->quan > 1L)]);
+        if (obj->owornmask) /* wielded */
+            remove_worn_item(obj, FALSE);
         setnotworn(obj);
         delobj(obj);
         return TRUE;
@@ -4475,6 +4484,8 @@ xchar x, y;
                 else
                     acid_ctx.unk_boom++;
             }
+            if (obj->owornmask) /* wielded */
+                remove_worn_item(obj, FALSE);
             setnotworn(obj);
             delobj(obj);
             if (in_invent)
