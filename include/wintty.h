@@ -83,7 +83,7 @@ struct tty_status_fields {
 };
 #endif
 
-#define MAXWIN 50 /* maximum number of windows, cop-out */
+#define MAXWIN 20 /* maximum number of windows, cop-out */
 
 /* tty dependent window types */
 #ifdef NHW_BASE

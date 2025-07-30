@@ -448,6 +448,7 @@ druid_wildshape()
 
     if (Unchanging) {
         pline("You fail to transform!");
+        destroy_nhwindow(win);
         return;
     }
 
@@ -532,6 +533,7 @@ vampire_shapechange()
 
     if (Unchanging) {
         pline("You fail to transform!");
+        destroy_nhwindow(win);
         return;
     }
 
