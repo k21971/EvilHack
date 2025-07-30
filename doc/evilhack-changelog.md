@@ -4674,4 +4674,5 @@ The following changes to date are:
 - Fix: prevent worn mask corruption when objects are destroyed
 - Fix: remove incorrect shade attack flow check
 - Fix: prevent integer overflow crash in calc_capacity()
+- Fix: trapped without a trap
 

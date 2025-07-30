@@ -816,8 +816,8 @@ int ttyp;
 }
 
 /*
- * Called from dighole(), but also from do_break_wand()
- * in apply.c.
+ * Called from dighole(); also from do_break_wand() in apply.c
+ * and do_earthquake() in music.c.
  */
 void
 liquid_flow(x, y, typ, ttmp, fillmsg)
@@ -828,8 +828,18 @@ const char *fillmsg;
 {
     boolean u_spot = (x == u.ux && y == u.uy);
 
+    /* caller should have changed levl[x][y].typ to POOL, MOAT, or LAVA */
+    if (!is_pool_or_lava(x, y)) {
+        if (iflags.sanity_check) {
+            impossible("Insane liquid_flow(%d,%d,%s,%s).", x, y,
+                       ttmp ? "trap" : "no trap",
+                       fillmsg ? fillmsg : "no mesg");
+        }
+        return;
+    }
+
     if (ttmp)
-        (void) delfloortrap(ttmp);
+        (void) delfloortrap(ttmp); /* will untrap monster if one is here */
     /* if any objects were frozen here, they're released now */
     unearth_objs(x, y);
 

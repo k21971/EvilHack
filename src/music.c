@@ -374,6 +374,9 @@ int force;
                 if (filltype != ROOM) {
                     levl[x][y].typ = filltype; /* flags set via doormask */
                     liquid_flow(x, y, filltype, chasm, (char *) 0);
+                    /* liquid_flow() deletes trap, might kill mtmp */
+                    if ((chasm = t_at(x, y)) == 0)
+                        break; /* from switch, not loop */
                 }
 
                 mtmp = m_at(x, y); /* (redundant?) */
@@ -388,8 +391,8 @@ int force;
                     break; /* from switch, not loop */
                 }
 
-                /* We have to check whether monsters or player
-                   falls in a chasm... */
+                /* We have to check whether monsters or player falls into a
+                   new pit....  Note: if we get here, chasm is non-Null. */
                 if (mtmp) {
                     if (!is_flyer(mtmp->data) && !is_clinger(mtmp->data)) {
                         boolean m_already_trapped = mtmp->mtrapped;
