@@ -4,6 +4,7 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
+#include <limits.h>
 
 /* #define DEBUG */ /* uncomment for debugging */
 
@@ -3821,6 +3822,9 @@ int xtra_wt;
     if (wt <= 0)
         return UNENCUMBERED;
     if (wc <= 1)
+        return OVERLOADED;
+    /* Check for potential overflow when multiplying wt * 2 */
+    if (wt > INT_MAX / 2)
         return OVERLOADED;
     cap = (wt * 2 / wc) + 1;
     return min(cap, OVERLOADED);

@@ -4673,4 +4673,5 @@ The following changes to date are:
 - Fix: prevent invalid material on rocks during polymorph transmutation
 - Fix: prevent worn mask corruption when objects are destroyed
 - Fix: remove incorrect shade attack flow check
+- Fix: prevent integer overflow crash in calc_capacity()
 
