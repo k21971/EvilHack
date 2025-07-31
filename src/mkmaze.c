@@ -356,11 +356,12 @@ d_level *lev;
      * This can happen with mines-style levels where much of the map
      * is solid rock, making the specified regions too restrictive */
     if (rtype == LR_UPSTAIR || rtype == LR_DOWNSTAIR
-        || rtype == LR_PORTAL || rtype == LR_BRANCH) {
-        /* Try the whole map */
+        || rtype == LR_PORTAL || rtype == LR_BRANCH
+        || rtype == LR_TELE || rtype == LR_UPTELE || rtype == LR_DOWNTELE) {
+        /* Try the whole map without exclusion zones */
         for (x = 1; x < COLNO - 1; x++)
             for (y = 0; y < ROWNO - 1; y++)
-                if (put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, TRUE, lev))
+                if (put_lregion_here(x, y, 0, 0, 0, 0, rtype, TRUE, lev))
                     return;
     }
 

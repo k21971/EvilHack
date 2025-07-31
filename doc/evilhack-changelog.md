@@ -4676,4 +4676,5 @@ The following changes to date are:
 - Fix: prevent integer overflow crash in calc_capacity()
 - Fix: trapped without a trap
 - Fix: revert commit 290ad31, proper fix for "No window slots!" crash
+- Fix: level region placement failure on restrictive maps
 
