@@ -958,7 +958,15 @@ struct monst *mtmp;
         case MAGIC_HARP:
         case FROST_HORN:
         case FIRE_HORN:
-        case DRUM_OF_EARTHQUAKE:
+        case DRUM_OF_EARTHQUAKE: {
+            /* Save object name before modifying object, in case
+               the object becomes invalid during recharge process.
+               This prevents crashes when recharging objects extracted
+               from containers */
+            char objnamebuf[BUFSZ];
+            if (!yours)
+                Strcpy(objnamebuf, xname(obj));
+
             if (is_cursed) {
                 stripspe(obj);
             } else if (is_blessed) {
@@ -967,18 +975,31 @@ struct monst *mtmp;
                     obj->spe = 20;
                 if (yours)
                     p_glow2(obj, NH_BLUE);
-                else
-                    mp_glow2(mtmp, obj, NH_BLUE);
+                else {
+                    /* Use saved name to avoid potential crash from
+                       accessing invalid object pointer */
+                    if (canseemon(mtmp) && !Blind)
+                        pline("%s %s %s %s for a moment.",
+                              s_suffix(Monnam(mtmp)), objnamebuf,
+                              otense(obj, "glow"), hcolor(NH_BLUE));
+                }
             } else {
                 obj->spe += rnd(4);
                 if (obj->spe > 20)
                     obj->spe = 20;
                 if (yours)
                     p_glow1(obj);
-                else
-                    mp_glow1(mtmp, obj);
+                else {
+                    /* Use saved name to avoid potential crash from
+                       accessing invalid object pointer */
+                    if (canseemon(mtmp) && !Blind)
+                        pline("%s %s %s briefly.",
+                              s_suffix(Monnam(mtmp)), objnamebuf,
+                              otense(obj, "glow"));
+                }
             }
             break;
+        }
         default:
             goto not_chargable;
             /*NOTREACHED*/

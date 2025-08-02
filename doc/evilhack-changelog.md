@@ -4679,4 +4679,5 @@ The following changes to date are:
 - Fix: level region placement failure on restrictive maps
 - Fix: prevent use-after-free when monsters charge items from containers
 - Enhance 'trapped without a trap' debugging
+- Fix: prevent SIGSEGV when monsters charge items from recharge()
 
