@@ -102,8 +102,20 @@ const char *msg;
     if (mtmp->mtrapped) {
         if (mtmp->wormno) {
             /* TODO: how to check worm in trap? */
-        } else if (!t_at(mtmp->mx, mtmp->my))
-            impossible("trapped without a trap (%s)", msg);
+        } else if (!t_at(mtmp->mx, mtmp->my)) {
+            char buf[BUFSZ];
+            Sprintf(buf, "trapped without a trap (%s): %s at (%d,%d), "
+                    "mhp=%d/%d, movement=%d, data=%s, mlet='%c', "
+                    "mcan=%d, mconf=%d, mstun=%d, msleeping=%d, "
+                    "mfrozen=%d, mcanmove=%d, cham=%d, terrain=%d",
+                    msg, noit_mon_nam(mtmp), mtmp->mx, mtmp->my,
+                    mtmp->mhp, mtmp->mhpmax, mtmp->movement,
+                    mtmp->data->mname, mtmp->data->mlet,
+                    mtmp->mcan, mtmp->mconf, mtmp->mstun, mtmp->msleeping,
+                    mtmp->mfrozen, mtmp->mcanmove, mtmp->cham,
+                    levl[mtmp->mx][mtmp->my].typ);
+            impossible("%s", buf);
+        }
     }
 
     /* monster is hiding? */

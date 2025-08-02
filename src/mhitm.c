@@ -1159,7 +1159,7 @@ register struct attack *mattk;
     remove_monster(dx, dy);
     remove_monster(ax, ay);
     if (u.usteed && magr == u.usteed) {
-	teleds(dx, dy, TELEDS_NO_FLAGS);
+        teleds(dx, dy, TELEDS_NO_FLAGS);
     } else {
         place_monster(magr, dx, dy);
         newsym(ax, ay); /* erase old position */

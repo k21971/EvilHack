@@ -64,3 +64,4 @@ Makefile.gcc-orig
 dat/md*
 CLAUDE.md
 BUGFIXES_ARCHIVE.md
+CRASH_TRACKING.md
