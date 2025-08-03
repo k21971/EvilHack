@@ -1067,6 +1067,10 @@ struct monst *magr, *mdef;
         || (r_data(magr)->msize < r_data(mdef)->msize && !is_whirly(magr->data)))
         return FALSE;
 
+    /* trapped engulfers cannot engulf */
+    if (magr != &youmonst && magr->mtrapped)
+        return FALSE;
+
     /* can't swallow trapped monsters. TODO: could do some? */
     if (mdef->mtrapped)
         return FALSE;

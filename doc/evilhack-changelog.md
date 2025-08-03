@@ -4680,4 +4680,5 @@ The following changes to date are:
 - Fix: prevent use-after-free when monsters charge items from containers
 - Enhance 'trapped without a trap' debugging
 - Fix: prevent SIGSEGV when monsters charge items from recharge()
+- Fix: trapped without a trap, take two
 

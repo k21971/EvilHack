@@ -3051,8 +3051,10 @@ boolean ghostly;
     if (mvitals[mndx].born < 255 && tally
         && (!ghostly || (ghostly && result)))
         mvitals[mndx].born++;
+    /* TEMPORARY: Don't let nursery monsters go extinct for debugging */
     if ((int) mvitals[mndx].born >= lim && !(mons[mndx].geno & G_NOGEN)
-        && !(mvitals[mndx].mvflags & G_EXTINCT)) {
+        && !(mvitals[mndx].mvflags & G_EXTINCT)
+        && mndx != PM_NEOTHELID && mndx != PM_MIND_FLAYER_LARVA) {
         if (wizard) {
             debugpline1("Automatically extinguished %s.",
                         makeplural(mons[mndx].mname));

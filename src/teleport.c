@@ -873,7 +873,9 @@ level_tele()
 
            Target all dungeons except Fort Ludios (6) and The Elemental
            Planes (13) */
-        int safe_dungeons[] = { 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12 };
+        /*int safe_dungeons[] = { 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12 };*/
+        /* TEMPORARY: isolating fuzzer to regular dungeon */
+        int safe_dungeons[] = { 0 };
         int num_safe = sizeof(safe_dungeons) / sizeof(safe_dungeons[0]);
         int selected_dungeon = safe_dungeons[rn2(num_safe)];
         int max_levels;
@@ -1437,9 +1439,17 @@ register int x, y;
         make_angry_shk(mtmp, oldx, oldy);
 
     /* trapped monster teleported away */
-    if (mtmp->mtrapped && !mtmp->wormno) {
-        mtmp->mtrapped = 0; /* no longer in old trap */
-        (void) mintrap(mtmp); /* check for new trap at destination */
+    if (mtmp->mtrapped) {
+        /* Always clear the trapped status - the monster is no longer at
+           the old location */
+        mtmp->mtrapped = 0;
+
+        /* Only check for new traps for non-worm segments. Worm segments
+           should inherit trap status from their head, not fall into
+           traps independently */
+        if (!mtmp->wormno) {
+            (void) mintrap(mtmp); /* check for new trap at destination */
+        }
     }
 
     /* entanglement goes away (pulled away from plants
