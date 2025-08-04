@@ -873,9 +873,7 @@ level_tele()
 
            Target all dungeons except Fort Ludios (6) and The Elemental
            Planes (13) */
-        /*int safe_dungeons[] = { 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12 };*/
-        /* TEMPORARY: isolating fuzzer to regular dungeon */
-        int safe_dungeons[] = { 0 };
+        int safe_dungeons[] = { 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12 };
         int num_safe = sizeof(safe_dungeons) / sizeof(safe_dungeons[0]);
         int selected_dungeon = safe_dungeons[rn2(num_safe)];
         int max_levels;

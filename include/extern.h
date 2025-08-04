@@ -1546,7 +1546,7 @@ E void NDECL(mon_sanity_check);
 E int FDECL(m_poisongas_ok, (struct monst *));
 E boolean FDECL(zombie_maker, (struct monst *));
 E int FDECL(zombie_form, (struct permonst *));
-E void FDECL(become_flayer, (struct monst *));
+E int FDECL(become_flayer, (struct monst *, struct monst *));
 E int FDECL(undead_to_corpse, (int));
 E int FDECL(genus, (int, int));
 E int FDECL(pm_to_cham, (int));

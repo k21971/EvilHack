@@ -319,91 +319,106 @@ struct permonst *pm;
     return NON_PM;
 }
 
-void
-become_flayer(mdef)
-struct monst* mdef;
+int
+become_flayer(magr, mdef)
+struct monst* magr;  /* mind flayer larva */
+struct monst* mdef;  /* victim */
 {
-    struct permonst* mdat = mdef->data;
-    boolean willspot, couldspot = canspotmon(mdef);
-    mdef->data = &mons[PM_MIND_FLAYER];
-    willspot = canspotmon(mdef);
-    mdef->data = mdat;
+    boolean tamer = magr->mtame;
+    char victimname[PL_PSIZ];
+    int host_x = mdef->mx, host_y = mdef->my;
 
-    if (couldspot && willspot) {
-        /* only print if you can spot both the dying monster and the arising
-         * mind flayer */
-        if (mvitals[PM_MIND_FLAYER].mvflags & G_GENOD) {
-            /* mind flayers have been genocided */
-            if (canspotmon(mdef))
-                pline("As %s transforms into a mind flayer, %s dies!",
-                      mon_nam(mdef), mhe(mdef));
-            set_mon_data(mdef, mdat);
-            mondied(mdef);
-            return;
-        } else {
-            pline("%s transforms into a mind flayer!", Monnam(mdef));
-        }
+    /* A dying larva can't complete transformation */
+    if (magr->mstate & MON_DETACH) {
+        if (canseemon(magr))
+            pline("%s shudders and loses its grip!", Monnam(magr));
+        return MM_AGR_DIED;
     }
 
-    if (newcham(mdef, &mons[PM_MIND_FLAYER], FALSE, FALSE)) {
-        char name[PL_PSIZ];
-        /* off-chance Izchak succumbs to a mind flayer larva's physical attack */
-        if (is_izchak(mdef, TRUE) && racial_human(mdef)) {
-            pline("But wait!  %s transforms again into his true form!",
+    /* Special case: Izchak cannot be consumed */
+    if (is_izchak(mdef, TRUE) && racial_human(mdef)) {
+        if (canseemon(mdef)) {
+            pline("%s starts to transform into a mind flayer!",
                   Monnam(mdef));
-            newcham(mdef, &mons[PM_ARCHANGEL], FALSE, FALSE);
-
-            mdef->mcanmove = 1;
-            mdef->mfrozen = 0;
-            mdef->mstone = 0;
-            mdef->msick = 0;
-            mdef->mdiseased = 0;
-            mdef->mwither = 0;
-            mdef->mconf = 0;
-            mdef->mstun = 0;
-
-            free_erac(mdef);
-            mdef->mhp = mdef->mhpmax = 1500;
-            newsym(mdef->mx, mdef->my);
-            return;
+            pline("But wait!  %s transforms into his true form!",
+                  Monnam(mdef));
         }
-
-        /* don't continue if failed to turn into a mind flayer (extinct?) */
+        newcham(mdef, &mons[PM_ARCHANGEL], FALSE, FALSE);
         mdef->mcanmove = 1;
         mdef->mfrozen = 0;
-        set_malign(mdef);
-
-        /* clear other data structures tracking shk information */
-        if (mdef->isshk)
-            shkgone(mdef);
-
-        /* wipe all mextra structs (to prevent a compromised shk/priest/guard/etc
-         * from continuing to behave as what it used to be), then restore name
-         * if present */
-        name[0] = '\0';
-        if (has_eshk(mdef)) {
-            if (!Hallucination)
-                Strcpy(name, shkname(mdef));
-            free_eshk(mdef);
-        }
-        if (has_epri(mdef))
-            free_epri(mdef);
-        if (has_egd(mdef))
-            free_egd(mdef);
-
-        if (name[0] != '\0') {
-            christen_monst(mdef, name);
-        }
-        mdef->isshk = mdef->isminion = mdef->isgd = mdef->ispriest = 0;
-        /* if mdef->iswiz, leave that alone - the Wizard doesn't have any mextra
-         * structs and can handle being transformed into other monster types */
-
-        newsym(mdef->mx, mdef->my); /* cover bases */
-
-        /* The mhp is presumably the fraction of what it was before -
-         * less than zero. Set it to full. */
-        mdef->mhp = mdef->mhpmax;
+        mdef->mstone = 0;
+        mdef->msick = 0;
+        mdef->mdiseased = 0;
+        mdef->mwither = 0;
+        mdef->mconf = 0;
+        mdef->mstun = 0;
+        free_erac(mdef);
+        mdef->mhp = mdef->mhpmax = 1500;
+        newsym(mdef->mx, mdef->my);
+        /* Larva dies from the attempt */
+        mongone(magr);
+        return MM_AGR_DIED;
     }
+
+    /* Preserve victim's name if it had one */
+    victimname[0] = '\0';
+    if (has_mname(mdef) && !Hallucination) {
+        Strcpy(victimname, MNAME(mdef));
+    }
+
+    /* Host becomes a mind flayer - codewise the mind flayer larva does
+       the actual transformation, but thematically it's the host */
+    if (canseemon(mdef))
+        pline("%s transforms into a mind flayer!", Monnam(mdef));
+
+    mongone(mdef); /* remove the victim */
+
+    /* Check for genocided/extinct mind flayers */
+    if (mvitals[PM_MIND_FLAYER].mvflags & G_GONE) {
+        if (canseemon(magr))
+            pline("As %s transforms into a mind flayer, %s dies!",
+                  mon_nam(magr), mhe(magr));
+        mondied(magr);
+        return MM_AGR_DIED;
+    }
+
+    /* Transform the larva (aggressor) into a mind flayer */
+    if (newcham(magr, &mons[PM_MIND_FLAYER], FALSE, FALSE)) {
+        /* Give the mind flayer the victim's name */
+        if (victimname[0] != '\0') {
+            christen_monst(magr, victimname);
+        }
+
+        /* Clear status ailments from the larva */
+        magr->mcanmove = 1;
+        magr->mfrozen = 0;
+        magr->mstone = 0;
+        magr->msick = 0;
+        magr->mdiseased = 0;
+        magr->mwither = 0;
+        magr->mconf = 0;
+        magr->mstun = 0;
+
+        /* Preserve tame/peaceful status from larva */
+        if (!tamer && (mdef->mtame || mdef->mpeaceful))
+            magr->mtame = magr->mpeaceful = 0;
+        if (tamer)
+            (void) tamedog(magr, (struct obj *) 0);
+
+        /* Always place the new mind flayer at victim's location */
+        if (magr->mx != host_x || magr->my != host_y) {
+            int old_x = magr->mx, old_y = magr->my;
+            remove_monster(old_x, old_y);
+            place_monster(magr, host_x, host_y);
+            newsym(old_x, old_y);        /* update old position */
+            newsym(host_x, host_y);      /* update new position */
+        }
+
+        set_malign(magr);
+    }
+
+    /* Only the defender died - larva continues as mind flayer */
+    return MM_DEF_DIED;
 }
 
 /* convert the monster index of an undead to its living counterpart */

@@ -4681,4 +4681,5 @@ The following changes to date are:
 - Enhance 'trapped without a trap' debugging
 - Fix: prevent SIGSEGV when monsters charge items from recharge()
 - Fix: trapped without a trap, take two
+- Fix: mind flayer larva transformation race condition causing crashes
 

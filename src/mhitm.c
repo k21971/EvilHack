@@ -2585,25 +2585,8 @@ msickness:
                                   Monnam(magr), s_suffix(the(mon_nam(mdef))));
                         }
                         if (!mlifesaver(mdef)) {
-                            boolean tamer = magr->mtame;
-                            /* A dying larva can't complete transformation */
-                            if (magr->mstate & MON_DETACH) {
-                                if (canseemon(magr))
-                                    pline("%s shudders and loses its grip!",
-                                          Monnam(magr));
-                                return MM_AGR_DIED;
-                            }
-                            if (!tamer && (mdef->mtame || mdef->mpeaceful))
-                                mdef->mtame = mdef->mpeaceful = 0;
-                            mongone(magr); /* mind flayer larva transforms */
-                            become_flayer(mdef);
-                            if (tamer)
-                                (void) tamedog(mdef, (struct obj *) 0);
-                            /* Don't call grow_up() on a monster that's
-                               been mongone()'d - it's already marked for
-                               removal. The larva is gone, having
-                               transformed into the host's new form */
-                            return MM_DEF_DIED | MM_AGR_DIED;
+                            /* Mind flayer larva transforms by consuming the host */
+                            return become_flayer(magr, mdef);
                         } else {
                             tmp = mdef->mhp;
                         }

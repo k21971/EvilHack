@@ -981,8 +981,8 @@ makelevel()
         else if (u_depth > 15 && !rn2(8)
                  && !(mvitals[PM_COCKATRICE].mvflags & G_GONE))
             mkroom(COCKNEST);
-        /* TEMPORARY: Always spawn nurseries for debugging */
-        if (!(mvitals[PM_MIND_FLAYER_LARVA].mvflags & G_GONE))
+        else if (u_depth > 16 && !rn2(6)
+                 && !(mvitals[PM_MIND_FLAYER_LARVA].mvflags & G_GONE))
             mkroom(NURSERY);
     }
 
@@ -996,13 +996,6 @@ makelevel()
             continue;
 	if (!croom->needfill)
             continue;
-
-        /* TEMPORARY: Convert all regular rooms to nurseries for debugging */
-        if (croom->rtype == OROOM && !(mvitals[PM_MIND_FLAYER_LARVA].mvflags & G_GONE)) {
-            croom->rtype = NURSERY;
-            fill_zoo(croom);
-            continue;
-        }
 
         /* put a sleeping monster inside */
         /* Note: monster may be on the stairs. This cannot be

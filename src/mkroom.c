@@ -315,8 +315,7 @@ struct mkroom *sroom;
     register int sx, sy, i;
     int sh, tx = 0, ty = 0, goldlim = 0, type = sroom->rtype;
     int rmno = (int) ((sroom - rooms) + ROOMOFFSET);
-    /* TEMPORARY: Always make special nurseries for debugging */
-    boolean special_nursery = TRUE;
+    boolean special_nursery = !rn2(10);
     coord mm;
 
     sh = sroom->fdoor;
