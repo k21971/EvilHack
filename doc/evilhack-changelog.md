@@ -4682,4 +4682,6 @@ The following changes to date are:
 - Fix: prevent SIGSEGV when monsters charge items from recharge()
 - Fix: trapped without a trap, take two
 - Fix: mind flayer larva transformation race condition causing crashes
+- Fix: prevent SIGSEGV when monsters charge items from recharge() take
+  two
 

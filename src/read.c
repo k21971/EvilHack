@@ -25,8 +25,6 @@ STATIC_DCL char *FDECL(hawaiian_design, (struct obj *, char *));
 STATIC_DCL void FDECL(stripspe, (struct obj *));
 STATIC_DCL void FDECL(p_glow1, (struct obj *));
 STATIC_DCL void FDECL(p_glow2, (struct obj *, const char *));
-STATIC_DCL void FDECL(mp_glow1, (struct monst *, struct obj *));
-STATIC_DCL void FDECL(mp_glow2, (struct monst *, struct obj *, const char *));
 STATIC_DCL boolean FDECL(get_valid_stinking_cloud_pos, (int, int));
 STATIC_DCL boolean FDECL(is_valid_stinking_cloud_pos, (int, int, BOOLEAN_P));
 STATIC_PTR void FDECL(display_stinking_cloud_positions, (int));
@@ -641,28 +639,6 @@ register const char *color;
           Blind ? "" : " ", Blind ? "" : hcolor(color));
 }
 
-STATIC_OVL void
-mp_glow1(mtmp, otmp)
-register struct monst *mtmp;
-register struct obj *otmp;
-{
-    if (canseemon(mtmp) && !Blind)
-        pline("%s %s %s briefly.", s_suffix(Monnam(mtmp)), xname(otmp),
-              otense(otmp, "glow"));
-}
-
-STATIC_OVL void
-mp_glow2(mtmp, otmp, color)
-register struct monst *mtmp;
-register struct obj *otmp;
-register const char *color;
-{
-    if (canseemon(mtmp) && !Blind)
-        pline("%s %s %s %s for a moment.", s_suffix(Monnam(mtmp)),
-              xname(otmp), otense(otmp, "glow"),
-              hcolor(color));
-}
-
 /* Is the object chargeable?  For purposes of inventory display; it is
    possible to be able to charge things for which this returns FALSE. */
 boolean
@@ -693,6 +669,7 @@ int curse_bless;
 struct monst *mtmp;
 {
     register int n;
+
     boolean is_cursed, is_blessed;
     boolean yours = (mtmp == &youmonst);
 
@@ -700,9 +677,13 @@ struct monst *mtmp;
     is_blessed = curse_bless > 0;
 
     if (obj->oclass == WAND_CLASS) {
+        char wandnamebuf[BUFSZ];
         int lim = (obj->otyp == WAN_WISHING)
                       ? 3
                       : (objects[obj->otyp].oc_dir != NODIR) ? 8 : 15;
+
+        if (!yours)
+            Strcpy(wandnamebuf, xname(obj));
 
         /* undo any prior cancellation, even when is_cursed */
         if (obj->spe == -1)
@@ -759,10 +740,17 @@ struct monst *mtmp;
                 else
                     p_glow1(obj);
             } else {
-                if (obj->spe >= lim)
-                    mp_glow2(mtmp, obj, NH_BLUE);
-                else
-                    mp_glow1(mtmp, obj);
+                if (obj->spe >= lim) {
+                    if (canseemon(mtmp) && !Blind)
+                        pline("%s %s %s %s for a moment.",
+                              s_suffix(Monnam(mtmp)), wandnamebuf,
+                              otense(obj, "glow"), hcolor(NH_BLUE));
+                } else {
+                    if (canseemon(mtmp) && !Blind)
+                        pline("%s %s %s briefly.",
+                              s_suffix(Monnam(mtmp)), wandnamebuf,
+                              otense(obj, "glow"));
+                }
             }
 #if 0 /*[shop price doesn't vary by charge count]*/
             /* update shop bill to reflect new higher price */
