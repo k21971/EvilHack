@@ -4684,4 +4684,5 @@ The following changes to date are:
 - Fix: mind flayer larva transformation race condition causing crashes
 - Fix: prevent SIGSEGV when monsters charge items from recharge() take
   two
+- Fix: multiple issues with monster charging of items
 

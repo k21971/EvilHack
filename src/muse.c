@@ -2339,31 +2339,32 @@ struct monst *mtmp;
     }
 
     switch (m.has_offense) {
-    case MUSE_SCR_CHARGING: {
-        struct obj *obj_to_charge = m.tocharge;
-
-        if (!obj_to_charge) {
+    case MUSE_SCR_CHARGING:
+        if (!m.tocharge) {
             impossible("Attempting to charge nothing?");
             return 0;
         }
-        /* Extract charge object from container first if necessary */
-        if (obj_to_charge->where == OBJ_CONTAINED) {
-            struct obj *container = obj_to_charge->ocontainer;
+        /* Extract charge object from container first if necessary,
+           as objects must be in open inventory to be charged */
+        if (m.tocharge->where == OBJ_CONTAINED) {
+            struct obj *container = m.tocharge->ocontainer;
 
-            obj_extract_self(obj_to_charge);
-            container->owt = weight(container);
             if (canseemon(mtmp)) {
                 pline("%s removes %s from %s %s.", Monnam(mtmp),
-                      ansimpleoname(obj_to_charge), mhis(mtmp),
+                      ansimpleoname(m.tocharge), mhis(mtmp),
                       simpleonames(container));
             }
-            /* mpickobj() might merge and free obj_to_charge, so it could
-               become invalid. Save whether it was freed. */
-            if (mpickobj(mtmp, obj_to_charge)) {
-                /* Object was merged and freed - can't charge it anymore */
-                obj_to_charge = (struct obj *) 0;
-                m.tocharge = (struct obj *) 0;
-            }
+            obj_extract_self(m.tocharge);
+
+            /* Don't use mpickobj() here, it might merge and free the
+               object. Instead, add directly to monster's inventory */
+            m.tocharge->nobj = mtmp->minvent;
+            mtmp->minvent = m.tocharge;
+            m.tocharge->where = OBJ_MINVENT;
+            m.tocharge->ocarry = mtmp;
+
+            /* Update container weight after extraction */
+            container->owt = weight(container);
         }
         mreadmsg(mtmp, otmp);
         if (oseen)
@@ -2373,12 +2374,11 @@ struct monst *mtmp;
                 mtmp->mspec_used = 0;
             if (canseemon(mtmp))
                 pline("%s looks charged up!", Monnam(mtmp));
-        } else if (obj_to_charge) {
+        } else if (m.tocharge) {
             /* Only recharge if object still exists */
-            recharge(obj_to_charge, (otmp->cursed) ? -1 :
+            recharge(m.tocharge, (otmp->cursed) ? -1 :
                      (otmp->blessed) ? 1 : 0, mtmp);
         }
-    }
         m_useup(mtmp, otmp);
         m.tocharge = (struct obj *) 0; /* clear m.tocharge */
         return (DEADMONSTER(mtmp)) ? 1 : 2;
@@ -3133,31 +3133,33 @@ struct monst *mtmp;
     oseen = otmp && vismon;
 
     switch (m.has_misc) {
-    case MUSE_SCR_CHARGING: {
-        struct obj *obj_to_charge = m.tocharge;
-
-        if (!obj_to_charge) {
+    case MUSE_SCR_CHARGING:
+        if (!m.tocharge) {
             impossible("Attempting to charge nothing?");
             return 0;
         }
-        /* Extract charge object from container first if necessary */
-        if (obj_to_charge->where == OBJ_CONTAINED) {
-            struct obj *container = obj_to_charge->ocontainer;
 
-            obj_extract_self(obj_to_charge);
-            container->owt = weight(container);
+        /* Extract charge object from container first if necessary,
+           as objects must be in open inventory to be charged */
+        if (m.tocharge->where == OBJ_CONTAINED) {
+            struct obj *container = m.tocharge->ocontainer;
+
             if (canseemon(mtmp)) {
                 pline("%s removes %s from %s %s.", Monnam(mtmp),
-                      ansimpleoname(obj_to_charge), mhis(mtmp),
+                      ansimpleoname(m.tocharge), mhis(mtmp),
                       simpleonames(container));
             }
-            /* mpickobj() might merge and free obj_to_charge, so it could
-               become invalid. Save whether it was freed. */
-            if (mpickobj(mtmp, obj_to_charge)) {
-                /* Object was merged and freed - can't charge it anymore */
-                obj_to_charge = (struct obj *) 0;
-                m.tocharge = (struct obj *) 0;
-            }
+            obj_extract_self(m.tocharge);
+
+            /* Don't use mpickobj() here, it might merge and free the
+               object. Instead, add directly to monster's inventory */
+            m.tocharge->nobj = mtmp->minvent;
+            mtmp->minvent = m.tocharge;
+            m.tocharge->where = OBJ_MINVENT;
+            m.tocharge->ocarry = mtmp;
+
+            /* Update container weight after extraction */
+            container->owt = weight(container);
         }
         mreadmsg(mtmp, otmp);
         if (oseen)
@@ -3167,12 +3169,11 @@ struct monst *mtmp;
                 mtmp->mspec_used = 0;
             if (canseemon(mtmp))
                 pline("%s looks charged up!", Monnam(mtmp));
-        } else if (obj_to_charge) {
+        } else if (m.tocharge) {
             /* Only recharge if object still exists */
-            recharge(obj_to_charge, (otmp->cursed) ? -1 :
+            recharge(m.tocharge, (otmp->cursed) ? -1 :
                      (otmp->blessed) ? 1 : 0, mtmp);
         }
-    }
         m_useup(mtmp, otmp);
         m.tocharge = (struct obj *) 0; /* clear m.tocharge */
         return 2;
