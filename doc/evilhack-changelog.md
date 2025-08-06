@@ -4690,4 +4690,6 @@ The following changes to date are:
   punished
 - Fix: DESTROY_ARM macro side effects causing "extract_nobj: object
   lost" panic
+- Fix: burn_object panic when lit POT_OIL polymorphs to non-lightable
+  potion
 

@@ -2127,6 +2127,9 @@ int id;
         } else {
             /* new form can't be lit */
             otmp->lamplit = 0;
+            /* make absolutely sure no burn timer exists for non-lightable objects */
+            if (otmp->timed)
+                (void) stop_timer(BURN_OBJECT, obj_to_any(otmp));
         }
     }
 
