@@ -4782,7 +4782,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
             else
                 pline("Whoopsie-daisy!");
         }
-    } else if (mtmp->ispriest) {
+    } else if (mtmp->ispriest && mtmp != &museum) {
         adjalign((p_coaligned(mtmp)) ? -2 : 2);
         /* cancel divine protection for killing your priest */
         if (p_coaligned(mtmp))

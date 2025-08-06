@@ -4685,4 +4685,5 @@ The following changes to date are:
 - Fix: prevent SIGSEGV when monsters charge items from recharge() take
   two
 - Fix: multiple issues with monster charging of items
+- Fix: segfault when killing an aligned priest while engulfed
 
