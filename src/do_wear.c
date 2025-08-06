@@ -3735,11 +3735,10 @@ register struct obj *atmp;
     register struct obj *otmp;
 #define DESTROY_ARM(o)                            \
     ((otmp = (o)) != 0 && (!atmp || atmp == otmp) \
-             && (!obj_resists(otmp, 0, 90))       \
-         ? (otmp->in_use = TRUE)                  \
-         : FALSE)
+     && (!obj_resists(otmp, 0, 90)))
 
     if (DESTROY_ARM(uarmc)) {
+        otmp->in_use = TRUE;
         if (donning(otmp))
             cancel_don();
         /* for gold/chromatic DS, we don't want Cloak_off() to report
@@ -3757,6 +3756,7 @@ register struct obj *atmp;
             otmp->in_use = FALSE; /* nothing happens */
             return 0;
         } else {
+            otmp->in_use = TRUE;
             if (donning(otmp))
                 cancel_don();
             /* for gold/chromatic dragon-scaled armor, we don't want
@@ -3770,12 +3770,14 @@ register struct obj *atmp;
             useup(otmp);
         }
     } else if (DESTROY_ARM(uarmu)) {
+        otmp->in_use = TRUE;
         if (donning(otmp))
             cancel_don();
         Your("shirt crumbles into tiny threads and falls apart!");
         (void) Shirt_off();
         useup(otmp);
     } else if (DESTROY_ARM(uarmh)) {
+        otmp->in_use = TRUE;
         if (donning(otmp))
             cancel_don();
         Your("%s turns to dust and is blown away!",
@@ -3796,6 +3798,7 @@ register struct obj *atmp;
             otmp->in_use = FALSE; /* nothing happens */
             return 0;
         } else {
+            otmp->in_use = TRUE;
             if (donning(otmp))
                 cancel_don();
             Your("gloves vanish!");
@@ -3804,12 +3807,14 @@ register struct obj *atmp;
             selftouch("You");
         }
     } else if (DESTROY_ARM(uarmf)) {
+        otmp->in_use = TRUE;
         if (donning(otmp))
             cancel_don();
         Your("boots disintegrate!");
         (void) Boots_off();
         useup(otmp);
     } else if (DESTROY_ARM(uarms)) {
+        otmp->in_use = TRUE;
         if (donning(otmp))
             cancel_don();
         /* for a shield of light, we don't want Shield_off() to report

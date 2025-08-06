@@ -4688,4 +4688,6 @@ The following changes to date are:
 - Fix: segfault when killing an aligned priest while engulfed
 - Fix: ball/chain state mismatch when throwing iron ball upward while
   punished
+- Fix: DESTROY_ARM macro side effects causing "extract_nobj: object
+  lost" panic
 
