@@ -4686,4 +4686,6 @@ The following changes to date are:
   two
 - Fix: multiple issues with monster charging of items
 - Fix: segfault when killing an aligned priest while engulfed
+- Fix: ball/chain state mismatch when throwing iron ball upward while
+  punished
 

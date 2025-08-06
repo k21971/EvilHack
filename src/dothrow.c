@@ -1291,6 +1291,10 @@ boolean hitsroof;
             exercise(A_CON, FALSE);
         }
         if (is_open_air(bhitpos.x, bhitpos.y)) {
+            /* Special handling for iron ball - it needs to be placed
+               even on open air so it can pull the player down */
+            if (obj == uball)
+                hitfloor(obj, TRUE);  /* Place the ball properly */
             thrownobj = 0;
             losehp(dmg, "falling object", KILLED_BY_AN);
             return FALSE;
@@ -1465,6 +1469,14 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             }
         } else if (u.dz < 0) {
             (void) toss_up(obj, rn2(5) && !Underwater);
+            /* For the ball, toss_up()->hitfloor()->dropz() already
+               handled placement and drop_ball(). Don't process it again.
+               If the ball fell through open air, the normal game
+               mechanics in hack.c will handle pulling the player down */
+            if (obj == uball) {
+                clear_thrownobj = TRUE;
+                goto throwit_return;
+            }
         } else if (u.dz > 0 && u.usteed && obj->oclass == POTION_CLASS
                    && rn2(6)) {
             /* alternative to prayer or wand of opening/spell of knock
