@@ -4820,24 +4820,6 @@ crawl:
     }
     u.uinwater = 1;
     You("drown.");
-    if (iflags.debug_fuzzer) {
-        drown_death_attempts++;
-        /* Limit attempts to prevent infinite loops during fuzzing.
-         * After 2 failed attempts, grant temporary water breathing
-         * to allow escape. */
-        if (drown_death_attempts >= 2) {
-            Your("lungs adapt to the water!");
-            You("develop temporary gills!");
-            /* Grant enough turns to escape (50 should be plenty) */
-            incr_itimeout(&HMagical_breathing, 50);
-            /* Reset counter since we've granted breathing */
-            drown_death_attempts = 0;
-            /* Level teleport hero to safety */
-            You("feel a powerful force pulling you away!");
-            level_tele();
-            return TRUE;  /* Successfully escaped drowning */
-        }
-    }
     /* Normal drowning loop - limited to 5 attempts in original code */
     for (i = 0; i < 5; i++) { /* arbitrary number of loops */
         /* killer format and name are reconstructed every iteration
@@ -4854,10 +4836,27 @@ crawl:
             break; /* successful life-save */
         /* nowhere safe to land; repeat drowning loop... */
         pline("You're still drowning.");
-        /* During fuzzing, we should have hit the limit above,
-         * but if not, break out anyway to prevent hangs */
-        if (iflags.debug_fuzzer)
-            break;
+
+        /* Fuzzer protection: prevent infinite drowning loops */
+        if (iflags.debug_fuzzer) {
+            drown_death_attempts++;
+            /* After 2 drowning deaths with lifesaving, grant breathing and escape */
+            if (drown_death_attempts >= 2) {
+                Your("lungs adapt to the water!");
+                You("develop temporary gills!");
+                /* Grant enough turns to escape (50 should be plenty) */
+                incr_itimeout(&HMagical_breathing, 50);
+                /* Reset counter since we've granted breathing */
+                drown_death_attempts = 0;
+                /* Force teleport to safety */
+                if (!safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT)) {
+                    /* No safe spot on this level, level teleport instead */
+                    You("feel a powerful force pulling you away!");
+                    level_tele();
+                }
+                break; /* Exit the drowning loop */
+            }
+        }
     }
     if (u.uinwater) {
         u.uinwater = 0;
@@ -6564,9 +6563,13 @@ in_hell_effects()
 {
     int dmg = resist_reduce(d(1, 6), FIRE_RES);
     boolean usurvive, boil_away;
+    static int hell_death_attempts = 0;
 
-    if (likes_lava(youmonst.data))
+    if (likes_lava(youmonst.data)) {
+        if (iflags.debug_fuzzer)
+            hell_death_attempts = 0;  /* reset counter - we're fine */
         return FALSE;
+    }
 
     usurvive = how_resistant(FIRE_RES) == 100 || (dmg < u.uhp);
 
@@ -6580,11 +6583,38 @@ in_hell_effects()
                       rn2(2) ? "roasting" : "burning");
         if (usurvive) {
             losehp(dmg, in_hell_killer, KILLED_BY);
+            if (iflags.debug_fuzzer)
+                hell_death_attempts = 0;  /* reset counter - still alive */
             return FALSE;
         }
 
         if (wizard)
             usurvive = TRUE;
+
+        /* Fuzzer protection: prevent infinite hell loops */
+        if (iflags.debug_fuzzer) {
+            hell_death_attempts++;
+            /* After 2 failed attempts, grant temporary fire resistance
+             * and teleport to safety */
+            if (hell_death_attempts >= 2) {
+                Your("body rapidly adapts to the infernal heat!");
+                You("develop temporary fire resistance!");
+                /* Grant enough turns to escape (50 should be plenty) */
+                incr_itimeout(&HFire_resistance, 50);
+                /* Reset counter since we've granted resistance */
+                hell_death_attempts = 0;
+                /* Try to find a safe spot on this level first */
+                if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT)) {
+                    You("are magically transported to safety!");
+                    return FALSE;  /* Successfully escaped hell flames */
+                }
+                /* If no safe spot on this level, schedule level teleport */
+                You("feel a powerful force pulling you away!");
+                level_tele();
+                /* With fire resistance, we won't burn this turn */
+                return FALSE;  /* Continue turn with resistance */
+            }
+        }
 
         boil_away = (u.umonnum == PM_WATER_ELEMENTAL
                      || u.umonnum == PM_STEAM_VORTEX
@@ -6597,10 +6627,15 @@ in_hell_effects()
         Strcpy(killer.name, in_hell_killer);
         You("%s...", boil_away ? "boil away" : "are roasted alive");
         done(DIED);
+        /* Reset counter after successful escape from death */
+        if (iflags.debug_fuzzer)
+            hell_death_attempts = 0;
 
         return TRUE;
     }
 
+    if (iflags.debug_fuzzer)
+        hell_death_attempts = 0;  /* reset counter - we have full resistance */
     return FALSE;
 }
 
@@ -6613,9 +6648,13 @@ in_iceq_effects()
 {
     int dmg = resist_reduce(d(1, 6), COLD_RES);
     boolean usurvive, freeze_solid;
+    static int freezing_death_attempts = 0;
 
-    if (likes_iceq(youmonst.data))
+    if (likes_iceq(youmonst.data)) {
+        if (iflags.debug_fuzzer)
+            freezing_death_attempts = 0;  /* reset counter - we're fine */
         return FALSE;
+    }
 
     usurvive = how_resistant(COLD_RES) == 100 || (dmg < u.uhp);
 
@@ -6627,11 +6666,38 @@ in_iceq_effects()
             You("are freezing to death!");
         if (usurvive) {
             losehp(dmg, in_iceq_killer, KILLED_BY);
+            if (iflags.debug_fuzzer)
+                freezing_death_attempts = 0;  /* reset counter - still alive */
             return FALSE;
         }
 
         if (wizard)
             usurvive = TRUE;
+
+        /* Fuzzer protection: prevent infinite freezing loops */
+        if (iflags.debug_fuzzer) {
+            freezing_death_attempts++;
+            /* After 2 failed attempts, grant temporary cold resistance
+             * and teleport to safety */
+            if (freezing_death_attempts >= 2) {
+                Your("body rapidly adapts to the extreme cold!");
+                You("develop temporary cold resistance!");
+                /* Grant enough turns to escape (50 should be plenty) */
+                incr_itimeout(&HCold_resistance, 50);
+                /* Reset counter since we've granted resistance */
+                freezing_death_attempts = 0;
+                /* Try to find a safe spot on this level first */
+                if (safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT)) {
+                    You("are magically transported to safety!");
+                    return FALSE;  /* Successfully escaped freezing */
+                }
+                /* If no safe spot on this level, schedule level teleport */
+                You("feel a powerful force pulling you away!");
+                level_tele();
+                /* With cold resistance, we won't freeze this turn */
+                return FALSE;  /* Continue turn with resistance */
+            }
+        }
 
         freeze_solid = (u.umonnum == PM_WATER_ELEMENTAL
                         || u.umonnum == PM_STEAM_VORTEX
@@ -6644,10 +6710,15 @@ in_iceq_effects()
         Strcpy(killer.name, in_iceq_killer);
         You("%s...", freeze_solid ? "freeze solid" : "freeze to death");
         done(DIED);
+        /* Reset counter after successful escape from death */
+        if (iflags.debug_fuzzer)
+            freezing_death_attempts = 0;
 
         return TRUE;
     }
 
+    if (iflags.debug_fuzzer)
+        freezing_death_attempts = 0;  /* reset counter - we have full resistance */
     return FALSE;
 }
 

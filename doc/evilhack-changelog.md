@@ -4698,4 +4698,5 @@ The following changes to date are:
 - Fix: prevent crash when dropping items from monsters at invalid
   coordinates
 - Fix: worm mismanagement and enhanced debugging
+- Fix: prevent infinite lifesaving loops during fuzzing, take five
 
