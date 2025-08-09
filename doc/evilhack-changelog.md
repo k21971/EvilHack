@@ -4695,4 +4695,6 @@ The following changes to date are:
 - Fix: revert monster behavior removing items they want to charge from
   a carried container
 - Fix: clear monster weapon pointer when curing stoning via spell
+- Fix: prevent crash when dropping items from monsters at invalid
+  coordinates
 

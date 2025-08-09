@@ -784,6 +784,14 @@ boolean verbosely;
     long unwornmask = obj->owornmask;
 
     extract_from_minvent(mon, obj, FALSE, TRUE);
+
+    /* Don't try to drop objects at invalid coordinates (e.g., parked
+       vault guard at 0,0) */
+    if (!isok(omx, omy)) {
+        obfree(obj, (struct obj *) 0);
+        return;
+    }
+
     /* don't charge for an owned saddle on dead steed (provided
         that the hero is within the same shop at the time) */
     if (unwornmask && mon->mtame && (unwornmask & W_SADDLE) != 0L
