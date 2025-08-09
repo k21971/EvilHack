@@ -4034,6 +4034,9 @@ boolean by_you;
             onext = otmp->nobj;
             mon->misc_worn_check &= ~otmp->owornmask;
             update_mon_intrinsics(mon, otmp, FALSE, TRUE);
+            /* Clear weapon pointer if we're about to clear W_WEP */
+            if ((otmp->owornmask & W_WEP) && MON_WEP(mon) == otmp)
+                MON_NOWEP(mon);
             otmp->owornmask = 0L; /* obfree() expects this */
             (void) bhito(otmp, pseudo);
         }

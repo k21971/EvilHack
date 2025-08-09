@@ -4694,4 +4694,5 @@ The following changes to date are:
   potion
 - Fix: revert monster behavior removing items they want to charge from
   a carried container
+- Fix: clear monster weapon pointer when curing stoning via spell
 
