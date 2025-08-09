@@ -4692,4 +4692,6 @@ The following changes to date are:
   lost" panic
 - Fix: burn_object panic when lit POT_OIL polymorphs to non-lightable
   potion
+- Fix: revert monster behavior removing items they want to charge from
+  a carried container
 

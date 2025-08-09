@@ -79,6 +79,7 @@ struct obj *obj;
 
     if (!obj)
         return 0;
+
     vis = cansee(mon->mx, mon->my);
 
     /* some of this code comes from mloot_container()
@@ -1694,8 +1695,8 @@ boolean reflection_skip;
 
 #define nomore(x)       if (m.has_offense == x) continue;
 #define pick_to_charge(o) \
-    ((mcarried(o) || (o)->where == OBJ_CONTAINED) \
-     && (!m.tocharge || (charge_precedence((o)->otyp) \
+    (mcarried(o) && (!m.tocharge \
+                     || (charge_precedence((o)->otyp) \
                          > charge_precedence(m.tocharge->otyp))))
     /* this picks the last viable item rather than prioritizing choices */
     for (obj = start; obj; obj = nextobj) {
@@ -2344,28 +2345,7 @@ struct monst *mtmp;
             impossible("Attempting to charge nothing?");
             return 0;
         }
-        /* Extract charge object from container first if necessary,
-           as objects must be in open inventory to be charged */
-        if (m.tocharge->where == OBJ_CONTAINED) {
-            struct obj *container = m.tocharge->ocontainer;
 
-            if (canseemon(mtmp)) {
-                pline("%s removes %s from %s %s.", Monnam(mtmp),
-                      ansimpleoname(m.tocharge), mhis(mtmp),
-                      simpleonames(container));
-            }
-            obj_extract_self(m.tocharge);
-
-            /* Don't use mpickobj() here, it might merge and free the
-               object. Instead, add directly to monster's inventory */
-            m.tocharge->nobj = mtmp->minvent;
-            mtmp->minvent = m.tocharge;
-            m.tocharge->where = OBJ_MINVENT;
-            m.tocharge->ocarry = mtmp;
-
-            /* Update container weight after extraction */
-            container->owt = weight(container);
-        }
         mreadmsg(mtmp, otmp);
         if (oseen)
             makeknown(otmp->otyp);
@@ -2374,8 +2354,7 @@ struct monst *mtmp;
                 mtmp->mspec_used = 0;
             if (canseemon(mtmp))
                 pline("%s looks charged up!", Monnam(mtmp));
-        } else if (m.tocharge) {
-            /* Only recharge if object still exists */
+        } else {
             recharge(m.tocharge, (otmp->cursed) ? -1 :
                      (otmp->blessed) ? 1 : 0, mtmp);
         }
@@ -2918,8 +2897,8 @@ struct obj *start;
 
 #define nomore(x)       if (m.has_misc == (x)) continue;
 #define pick_to_charge(o) \
-    ((mcarried(o) || (o)->where == OBJ_CONTAINED) \
-     && (!m.tocharge || (charge_precedence((o)->otyp) \
+    (mcarried(o) && (!m.tocharge \
+                     || (charge_precedence((o)->otyp) \
                          > charge_precedence(m.tocharge->otyp))))
 
     for (obj = start; obj; obj = nextobj) {
@@ -3139,28 +3118,6 @@ struct monst *mtmp;
             return 0;
         }
 
-        /* Extract charge object from container first if necessary,
-           as objects must be in open inventory to be charged */
-        if (m.tocharge->where == OBJ_CONTAINED) {
-            struct obj *container = m.tocharge->ocontainer;
-
-            if (canseemon(mtmp)) {
-                pline("%s removes %s from %s %s.", Monnam(mtmp),
-                      ansimpleoname(m.tocharge), mhis(mtmp),
-                      simpleonames(container));
-            }
-            obj_extract_self(m.tocharge);
-
-            /* Don't use mpickobj() here, it might merge and free the
-               object. Instead, add directly to monster's inventory */
-            m.tocharge->nobj = mtmp->minvent;
-            mtmp->minvent = m.tocharge;
-            m.tocharge->where = OBJ_MINVENT;
-            m.tocharge->ocarry = mtmp;
-
-            /* Update container weight after extraction */
-            container->owt = weight(container);
-        }
         mreadmsg(mtmp, otmp);
         if (oseen)
             makeknown(otmp->otyp);
@@ -3169,8 +3126,7 @@ struct monst *mtmp;
                 mtmp->mspec_used = 0;
             if (canseemon(mtmp))
                 pline("%s looks charged up!", Monnam(mtmp));
-        } else if (m.tocharge) {
-            /* Only recharge if object still exists */
+        } else {
             recharge(m.tocharge, (otmp->cursed) ? -1 :
                      (otmp->blessed) ? 1 : 0, mtmp);
         }

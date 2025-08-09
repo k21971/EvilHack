@@ -3498,8 +3498,9 @@ boolean creation;
 {
     boolean putitems = FALSE;
     char buf[BUFSZ];
-    register struct obj *obj, *nobj, *bag = (struct obj *) 0;
+    struct obj *obj, *nobj, *bag = (struct obj *) 0;
     struct obj *wep = bag, *hwep = bag, *rwep = bag, *proj = bag;
+
     for (obj = mon->minvent; obj; obj = obj->nobj) {
         if (!Is_nonprize_container(obj)
             || obj->otyp == BAG_OF_TRICKS
@@ -3536,6 +3537,7 @@ boolean creation;
 
     for (obj = mon->minvent; obj; obj = nobj) {
         nobj = obj->nobj;
+        /* objects that won't or can't be stashed */
         if (obj == bag
             || obj->owornmask
             || obj == wep || obj == hwep || obj == rwep || obj == proj
@@ -3543,6 +3545,9 @@ boolean creation;
             || (mon->mtame && could_use_item(mon, obj, TRUE, TRUE))
             || (bag && Is_mbag(bag) && mbag_explodes(obj, 0))
             || (obj->otyp == LOADSTONE && obj->cursed)
+            || (obj->otyp == FIRE_HORN && obj->spe <= 0)
+            || (obj->otyp == FROST_HORN && obj->spe <= 0)
+            || (obj->oclass == WAND_CLASS && obj->spe <= 0)
             || (obj->otyp == AMULET_OF_YENDOR
                 || obj->otyp == FAKE_AMULET_OF_YENDOR
                 || obj->otyp == BELL_OF_OPENING
