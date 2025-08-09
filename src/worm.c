@@ -604,9 +604,19 @@ struct monst *worm;
     while (curr != wheads[worm->wormno]) {
         if (curr->wx) {
             if (!isok(curr->wx, curr->wy))
-                panic("worm seg not isok");
-            if (level.monsters[curr->wx][curr->wy] != worm)
+                panic("worm seg not isok <%d,%d>", curr->wx, curr->wy);
+            if (level.monsters[curr->wx][curr->wy] != worm) {
+                struct monst *mtmp = level.monsters[curr->wx][curr->wy];
+                impossible("worm seg <%d,%d>: expected worm %s, found %s",
+                           curr->wx, curr->wy,
+                           fmt_ptr((genericptr_t) worm),
+                           mtmp ? fmt_ptr((genericptr_t) mtmp) : "null");
+                if (mtmp)
+                    impossible("  found: %s at (%d,%d)",
+                               mtmp->data ? mtmp->data->mname : "unknown",
+                               mtmp->mx, mtmp->my);
                 panic("worm not at seg location");
+            }
         }
         curr = curr->nseg;
     }
@@ -663,6 +673,18 @@ xchar x, y;
         impossible("place_worm_tail_randomly: wormno is set without a tail!");
         return;
     }
+    if (wtails[wnum] == wheads[wnum]) {
+        /* single segment, co-located with worm so nothing to place */
+        if (curr->wx != worm->mx || curr->wy != worm->my)
+            impossible(
+        "place_worm_tail_randomly: tail segment at <%d,%d>, worm at <%d,%d>",
+                       curr->wx, curr->wy, worm->mx, worm->my);
+        return;
+    }
+    /* remove head segment from map in case we end up calling toss_wsegs();
+       if it doesn't get tossed, it will become the final tail segment and
+       get new coordinates */
+    wheads[wnum]->wx = wheads[wnum]->wy = 0;
 
     wheads[wnum] = new_tail = curr;
     curr = curr->nseg;
@@ -672,7 +694,7 @@ xchar x, y;
 
     while (curr) {
         xchar nx, ny;
-        char tryct = 0;
+        int tryct = 0;
 
         /* pick a random direction from x, y and search for goodpos() */
         do {
