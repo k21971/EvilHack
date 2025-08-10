@@ -4700,4 +4700,5 @@ The following changes to date are:
 - Fix: worm mismanagement and enhanced debugging
 - Fix: prevent infinite lifesaving loops during fuzzing, take five
 - Fix: monsters using scrolls of charging
+- Fix: worm mismanagement, take two
 

@@ -1406,6 +1406,13 @@ register int x, y;
             remove_monster(oldx, oldy);
             newsym(oldx, oldy); /* update old location */
         }
+    } else if (mtmp->wormno) {
+        /* Special case: worm with coordinates (0,0) may still have
+           segments on the map that need to be removed. This happens
+           when mnearto() displaces a worm with move_other=TRUE.
+           The segments were already zeroed by remove_worm() but
+           place_worm_tail_randomly() expects clean state */
+        remove_worm(mtmp);
     }
 
     memset(mtmp->mtrack, 0, sizeof mtmp->mtrack);
