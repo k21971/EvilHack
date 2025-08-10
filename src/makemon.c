@@ -3711,7 +3711,7 @@ long mmflags;
     if (allow_minvent) {
         setup_mon_inventory(mtmp);
 
-        if (!rn2(200) && can_saddle(mtmp)
+        if (!rn2(2000) && can_saddle(mtmp)
             && !which_armor(mtmp, W_SADDLE)) {
             struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
 

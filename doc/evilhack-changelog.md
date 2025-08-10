@@ -4701,4 +4701,5 @@ The following changes to date are:
 - Fix: prevent infinite lifesaving loops during fuzzing, take five
 - Fix: monsters using scrolls of charging
 - Fix: worm mismanagement, take two
+- Adjust odds of a saddle appearing on monsters that can be ridden
 
