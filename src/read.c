@@ -668,7 +668,7 @@ struct obj *obj;
 int curse_bless;
 struct monst *mtmp;
 {
-    register int n;
+    int n;
 
     boolean is_cursed, is_blessed;
     boolean yours = (mtmp == &youmonst);
@@ -947,11 +947,8 @@ struct monst *mtmp;
         case FROST_HORN:
         case FIRE_HORN:
         case DRUM_OF_EARTHQUAKE: {
-            /* Save object name before modifying object, in case
-               the object becomes invalid during recharge process.
-               This prevents crashes when recharging objects extracted
-               from containers */
             char objnamebuf[BUFSZ];
+
             if (!yours)
                 Strcpy(objnamebuf, xname(obj));
 
@@ -964,8 +961,6 @@ struct monst *mtmp;
                 if (yours)
                     p_glow2(obj, NH_BLUE);
                 else {
-                    /* Use saved name to avoid potential crash from
-                       accessing invalid object pointer */
                     if (canseemon(mtmp) && !Blind)
                         pline("%s %s %s %s for a moment.",
                               s_suffix(Monnam(mtmp)), objnamebuf,
@@ -1007,7 +1002,7 @@ struct monst *mtmp;
 void
 forget_traps()
 {
-    register struct trap *trap;
+    struct trap *trap;
 
     /* forget all traps (except the one the hero is in :-) */
     for (trap = ftrap; trap; trap = trap->ntrap)

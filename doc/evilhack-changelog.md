@@ -4699,4 +4699,5 @@ The following changes to date are:
   coordinates
 - Fix: worm mismanagement and enhanced debugging
 - Fix: prevent infinite lifesaving loops during fuzzing, take five
+- Fix: monsters using scrolls of charging
 

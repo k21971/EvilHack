@@ -3545,9 +3545,6 @@ boolean creation;
             || (mon->mtame && could_use_item(mon, obj, TRUE, TRUE))
             || (bag && Is_mbag(bag) && mbag_explodes(obj, 0))
             || (obj->otyp == LOADSTONE && obj->cursed)
-            || (obj->otyp == FIRE_HORN && obj->spe <= 0)
-            || (obj->otyp == FROST_HORN && obj->spe <= 0)
-            || (obj->oclass == WAND_CLASS && obj->spe <= 0)
             || (obj->otyp == AMULET_OF_YENDOR
                 || obj->otyp == FAKE_AMULET_OF_YENDOR
                 || obj->otyp == BELL_OF_OPENING

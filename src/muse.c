@@ -43,6 +43,7 @@ STATIC_DCL int FDECL(cures_sliming, (struct monst *, struct obj *));
 STATIC_DCL boolean FDECL(green_mon, (struct monst *));
 
 STATIC_DCL int FDECL(charge_precedence, (int));
+STATIC_DCL struct obj *FDECL(find_best_item_to_charge, (struct monst *));
 STATIC_DCL boolean FDECL(find_offensive_recurse, (struct monst *, struct obj *,
                                                   struct monst *, BOOLEAN_P));
 STATIC_DCL boolean FDECL(find_defensive_recurse, (struct monst *, struct obj *));
@@ -52,7 +53,7 @@ static struct musable {
     struct obj *offensive;
     struct obj *defensive;
     struct obj *misc;
-    struct obj *tocharge;
+    struct obj *tocharge; /* TODO: remove tocharge at next version change */
     int has_offense, has_defense, has_misc;
     /* =0, no capability; otherwise, different numbers.
      * If it's an object, the object is also set (it's 0 otherwise).
@@ -98,7 +99,6 @@ struct obj *obj;
             m.has_defense = 0;
             m.has_offense = 0;
             m.has_misc = 0;
-            m.tocharge = (struct obj *) 0;
             return 0;
         }
 
@@ -107,7 +107,6 @@ struct obj *obj;
             m.has_defense = 0;
             m.has_offense = 0;
             m.has_misc = 0;
-            m.tocharge = (struct obj *) 0;
             return 0;
         }
 
@@ -970,8 +969,57 @@ struct monst *mtmp;
     boolean vis, vismon, oseen;
     const char *Mnam;
 
+    /* Safety check: if the object isn't in the monster's inventory,
+       something went wrong (e.g., it was selected in a previous turn) */
+    if (otmp && otmp->where != OBJ_MINVENT) {
+        /* Try to find by type */
+        struct obj *o;
+        int otyp = m.defensive ? m.defensive->otyp : STRANGE_OBJECT;
+        otmp = NULL;
+
+        if (otyp != STRANGE_OBJECT) {
+            for (o = mtmp->minvent; o; o = o->nobj) {
+                if (o->otyp == otyp) {
+                    otmp = m.defensive = o;
+                    break;
+                }
+            }
+        }
+
+        if (!otmp) {
+            m.has_defense = 0;
+            m.defensive = 0;
+            return 0;
+        }
+    }
+
     if ((i = precheck(mtmp, otmp)) != 0)
         return i;
+
+    /* After precheck, otmp might have been merged/freed if it was extracted
+       from a container. We need to re-validate and potentially re-find it */
+    if (otmp && otmp->where != OBJ_MINVENT) {
+        /* Try to find by type */
+        struct obj *o;
+        int otyp = m.defensive ? m.defensive->otyp : STRANGE_OBJECT;
+        otmp = NULL;
+
+        if (otyp != STRANGE_OBJECT) {
+            for (o = mtmp->minvent; o; o = o->nobj) {
+                if (o->otyp == otyp) {
+                    otmp = m.defensive = o;
+                    break;
+                }
+            }
+        }
+
+        if (!otmp) {
+            m.has_defense = 0;
+            m.defensive = 0;
+            return 0;
+        }
+    }
+
     vis = cansee(mtmp->mx, mtmp->my);
     vismon = canseemon(mtmp);
     oseen = otmp && vismon;
@@ -1608,7 +1656,7 @@ struct monst *mtmp;
     }
 
     m.offensive = (struct obj *) 0;
-    m.tocharge = (struct obj *) 0;
+    m.tocharge = (struct obj *) 0; /* TODO: remove at next version change */
     m.has_offense = 0;
     if (mtmp->mpeaceful || is_animal(mtmp->data)
         || mindless(mtmp->data) || nohands(mtmp->data))
@@ -1682,6 +1730,85 @@ int otyp;
     return want;
 }
 
+/* Find the best chargeable item for a monster to charge with a scroll.
+   Called at the moment of use, not during selection, to avoid pointer
+   corruption issues. Returns NULL if nothing suitable to charge */
+STATIC_OVL struct obj *
+find_best_item_to_charge(mtmp)
+struct monst *mtmp;
+{
+    struct obj *obj, *best = (struct obj *) 0;
+    int best_priority = -1;
+
+    for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+        /* Only consider items that:
+           1) Can be recharged by scroll of charging
+           2) Monsters actually have interest in using (have MUSE_ defines) */
+        boolean rechargeable = FALSE;
+
+        if (obj->oclass == WAND_CLASS) {
+            /* Only wands monsters actually use */
+            switch (obj->otyp) {
+            case WAN_DEATH:
+            case WAN_SLEEP:
+            case WAN_FIRE:
+            case WAN_COLD:
+            case WAN_LIGHTNING:
+            case WAN_MAGIC_MISSILE:
+            case WAN_STRIKING:
+            case WAN_TELEPORTATION:
+            case WAN_CANCELLATION:
+            case WAN_POLYMORPH:
+            case WAN_SLOW_MONSTER:
+            case WAN_DIGGING:
+            case WAN_CREATE_MONSTER:
+            case WAN_UNDEAD_TURNING:
+            case WAN_MAKE_INVISIBLE:
+            case WAN_SPEED_MONSTER:
+            case WAN_WISHING:
+                rechargeable = TRUE;
+                break;
+            default:
+                rechargeable = FALSE;
+                break;
+            }
+        } else if (obj->oclass == TOOL_CLASS) {
+            /* Only tools monsters actually use */
+            switch (obj->otyp) {
+            case FROST_HORN:
+            case FIRE_HORN:
+            case EXPENSIVE_CAMERA:
+                rechargeable = TRUE;
+                break;
+            default:
+                rechargeable = FALSE;
+                break;
+            }
+        }
+
+        if (!rechargeable)
+            continue;
+
+        /* Skip if already has charges (we want empty items) */
+        if (obj->spe > 0)
+            continue;
+
+        /* Must be carried directly by monster */
+        if (!mcarried(obj))
+            continue;
+
+        /* Get priority of this item */
+        int priority = charge_precedence(obj->otyp);
+
+        if (priority > best_priority) {
+            best = obj;
+            best_priority = priority;
+        }
+    }
+
+    return best;
+}
+
 STATIC_OVL boolean
 find_offensive_recurse(mtmp, start, target, reflection_skip)
 struct monst *mtmp;
@@ -1691,13 +1818,8 @@ boolean reflection_skip;
 {
     struct obj *obj, *nextobj;
     struct obj *helmet = which_armor(mtmp, W_ARMH);
-    struct obj *charge_scroll = (struct obj *) 0;
 
 #define nomore(x)       if (m.has_offense == x) continue;
-#define pick_to_charge(o) \
-    (mcarried(o) && (!m.tocharge \
-                     || (charge_precedence((o)->otyp) \
-                         > charge_precedence(m.tocharge->otyp))))
     /* this picks the last viable item rather than prioritizing choices */
     for (obj = start; obj; obj = nextobj) {
         nextobj = obj->nobj;
@@ -1718,8 +1840,6 @@ boolean reflection_skip;
                         || mtmp->data->msound == MS_LEADER)) {
                     m.offensive = obj;
                     m.has_offense = MUSE_WAN_DEATH;
-                } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                    m.tocharge = obj;
                 }
                 continue;
             }
@@ -1728,8 +1848,6 @@ boolean reflection_skip;
                 if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_SLEEP)) {
                     m.offensive = obj;
                     m.has_offense = MUSE_WAN_SLEEP;
-                } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                    m.tocharge = obj;
                 }
                 continue;
             }
@@ -1738,8 +1856,6 @@ boolean reflection_skip;
                 if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_FIRE)) {
                     m.offensive = obj;
                     m.has_offense = MUSE_WAN_FIRE;
-                } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                    m.tocharge = obj;
                 }
                 continue;
             }
@@ -1748,8 +1864,6 @@ boolean reflection_skip;
                 if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_FIRE)) {
                     m.offensive = obj;
                     m.has_offense = MUSE_FIRE_HORN;
-                } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                    m.tocharge = obj;
                 }
                 continue;
             }
@@ -1758,8 +1872,6 @@ boolean reflection_skip;
                 if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_COLD)) {
                     m.offensive = obj;
                     m.has_offense = MUSE_WAN_COLD;
-                } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                    m.tocharge = obj;
                 }
                 continue;
             }
@@ -1768,8 +1880,6 @@ boolean reflection_skip;
                 if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_COLD)) {
                     m.offensive = obj;
                     m.has_offense = MUSE_FROST_HORN;
-                } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                    m.tocharge = obj;
                 }
                 continue;
             }
@@ -1778,8 +1888,6 @@ boolean reflection_skip;
                 if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_ELEC)) {
                     m.offensive = obj;
                     m.has_offense = MUSE_WAN_LIGHTNING;
-                } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                    m.tocharge = obj;
                 }
                 continue;
             }
@@ -1788,8 +1896,6 @@ boolean reflection_skip;
                 if (obj->spe > 0) {
                     m.offensive = obj;
                     m.has_offense = MUSE_WAN_MAGIC_MISSILE;
-                } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                    m.tocharge = obj;
                 }
                 continue;
             }
@@ -1803,8 +1909,6 @@ boolean reflection_skip;
             if (obj->spe > 0) {
                 m.offensive = obj;
                 m.has_offense = MUSE_WAN_CANCELLATION;
-            } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                m.tocharge = obj;
             }
             continue;
         }
@@ -1813,8 +1917,6 @@ boolean reflection_skip;
             if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_MAGR)) {
                 m.offensive = obj;
                 m.has_offense = MUSE_WAN_POLYMORPH;
-            } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                m.tocharge = obj;
             }
             continue;
         }
@@ -1823,8 +1925,6 @@ boolean reflection_skip;
             if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_MAGR)) {
                 m.offensive = obj;
                 m.has_offense = MUSE_WAN_STRIKING;
-            } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                m.tocharge = obj;
             }
             continue;
         }
@@ -1844,8 +1944,6 @@ boolean reflection_skip;
                     || (u.ux == sstairs.sx && u.uy == sstairs.sy))) {
                 m.offensive = obj;
                 m.has_offense = MUSE_WAN_TELEPORTATION;
-            } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                m.tocharge = obj;
             }
             continue;
         }
@@ -1858,14 +1956,13 @@ boolean reflection_skip;
             }
             continue;
         }
-        if (m.has_offense == MUSE_SCR_CHARGING && m.tocharge)
+        if (m.has_offense == MUSE_SCR_CHARGING)
             continue;
         if (obj->otyp == SCR_CHARGING) {
-            if (m.tocharge) {
+            /* Check if monster has anything to charge right now */
+            if (find_best_item_to_charge(mtmp)) {
                 m.offensive = obj;
                 m.has_offense = MUSE_SCR_CHARGING;
-            } else if (!charge_scroll) {
-                charge_scroll = obj;
             }
             continue;
         }
@@ -1965,13 +2062,8 @@ boolean reflection_skip;
             m.has_offense = MUSE_CAMERA;
         }
     }
-    if (m.has_offense == 0 && m.tocharge && charge_scroll) {
-        m.offensive = charge_scroll;
-        m.has_offense = MUSE_SCR_CHARGING;
-    }
     return (boolean) !!m.has_offense;
 #undef nomore
-#undef pick_to_charge
 }
 
 extern struct monst *last_hurtled;
@@ -2306,9 +2398,78 @@ struct monst *mtmp;
     boolean oseen;
     struct attack* mattk;
 
+    /* Safety check: if the object isn't in the monster's inventory,
+       something went wrong (e.g., it was merged after extraction) */
+    if (otmp && otmp->where != OBJ_MINVENT) {
+        /* For scrolls of charging that were in containers, try to find
+           the actual scroll in inventory (might have been merged) */
+        if (m.has_offense == MUSE_SCR_CHARGING) {
+            struct obj *o;
+            for (o = mtmp->minvent; o; o = o->nobj) {
+                if (o->otyp == SCR_CHARGING) {
+                    otmp = m.offensive = o;
+                    break;
+                }
+            }
+            /* If still not found, abort */
+            if (!otmp || otmp->where != OBJ_MINVENT) {
+                m.has_offense = 0;
+                m.offensive = 0;
+                return 0;
+            }
+        } else if (otmp->oclass != POTION_CLASS) {
+            /* Other non-potion items: just abort */
+            m.has_offense = 0;
+            m.offensive = 0;
+            return 0;
+        }
+    }
+
     /* offensive potions are not drunk, they're thrown */
     if (otmp->oclass != POTION_CLASS && (i = precheck(mtmp, otmp)) != 0)
         return i;
+
+    /* After precheck, otmp might have been merged/freed if it was extracted
+       from a container. We need to re-validate and potentially re-find it */
+    if (otmp && otmp->oclass != POTION_CLASS && otmp->where != OBJ_MINVENT) {
+        /* For scrolls of charging, try to find the actual scroll in inventory */
+        if (m.has_offense == MUSE_SCR_CHARGING) {
+            struct obj *o;
+            for (o = mtmp->minvent; o; o = o->nobj) {
+                if (o->otyp == SCR_CHARGING) {
+                    otmp = m.offensive = o;
+                    break;
+                }
+            }
+            /* If still not found, abort */
+            if (!otmp || otmp->where != OBJ_MINVENT) {
+                m.has_offense = 0;
+                m.offensive = 0;
+                return 0;
+            }
+        } else {
+            /* Other items: try to find by type */
+            struct obj *o;
+            int otyp = m.offensive ? m.offensive->otyp : STRANGE_OBJECT;
+            otmp = NULL;
+
+            if (otyp != STRANGE_OBJECT) {
+                for (o = mtmp->minvent; o; o = o->nobj) {
+                    if (o->otyp == otyp) {
+                        otmp = m.offensive = o;
+                        break;
+                    }
+                }
+            }
+
+            if (!otmp) {
+                m.has_offense = 0;
+                m.offensive = 0;
+                return 0;
+            }
+        }
+    }
+
     oseen = otmp && canseemon(mtmp);
 
     /* From SporkHack (modified): some monsters would be better served if they
@@ -2322,15 +2483,18 @@ struct monst *mtmp;
         maxdmg += mattk->damn * mattk->damd; /* total up the possible damage for just swinging */
     }
 
-    /* If the monsters' combined damage from a melee attack exceeds nine, or if
-       their wielded weapon is an artifact, use it if close enough. Exception
-       being certain wands that can incapacitate or can already do significant
-       damage. Because intelligent monsters know not to use a certain attack if
-       they've seen that the player is resistant to it, the monster will switch
-       offensive items appropriately */
+    /* If the monsters' combined damage from a melee attack exceeds nine,
+       or if their wielded weapon is an artifact, use it if close enough.
+       Exception being certain wands/horns that can incapacitate or can
+       already do significant damage. Because intelligent monsters know
+       not to use a certain attack if they've seen that the player is
+       resistant to it, the monster will switch offensive items
+       appropriately */
     if ((maxdmg > 9
         || (MON_WEP(mtmp) && MON_WEP(mtmp)->oartifact))
         && (monnear(mtmp, mtmp->mux, mtmp->muy)
+            && m.has_offense != MUSE_FIRE_HORN
+            && m.has_offense != MUSE_FROST_HORN
             && m.has_offense != MUSE_WAN_DEATH
             && m.has_offense != MUSE_WAN_SLEEP
             && m.has_offense != MUSE_WAN_FIRE
@@ -2340,9 +2504,14 @@ struct monst *mtmp;
     }
 
     switch (m.has_offense) {
-    case MUSE_SCR_CHARGING:
-        if (!m.tocharge) {
-            impossible("Attempting to charge nothing?");
+    case MUSE_SCR_CHARGING: {
+        /* Find what to charge at the moment of use, not during
+           selection. This avoids pointer corruption issues that occur
+           when storing the pointer across multiple turns */
+        struct obj *item_to_charge = find_best_item_to_charge(mtmp);
+
+        if (!item_to_charge) {
+            /* Nothing suitable to charge - don't use the scroll */
             return 0;
         }
 
@@ -2355,12 +2524,12 @@ struct monst *mtmp;
             if (canseemon(mtmp))
                 pline("%s looks charged up!", Monnam(mtmp));
         } else {
-            recharge(m.tocharge, (otmp->cursed) ? -1 :
+            recharge(item_to_charge, (otmp->cursed) ? -1 :
                      (otmp->blessed) ? 1 : 0, mtmp);
         }
         m_useup(mtmp, otmp);
-        m.tocharge = (struct obj *) 0; /* clear m.tocharge */
         return (DEADMONSTER(mtmp)) ? 1 : 2;
+    }
     case MUSE_WAN_DEATH:
     case MUSE_WAN_SLEEP:
     case MUSE_WAN_FIRE:
@@ -2655,7 +2824,6 @@ struct monst *mtmp;
     struct permonst *mdat = mtmp->data;
     int x = mtmp->mx, y = mtmp->my;
     struct trap *t;
-    struct obj *charge_scroll = (struct obj *) 0;
     int xx, yy, pmidx = NON_PM;
     boolean immobile = (mdat->mmove == 0);
     boolean stuck = (mtmp == u.ustuck);
@@ -2706,10 +2874,6 @@ struct monst *mtmp;
     }
 
 #define nomore(x)       if (m.has_misc == (x)) continue
-#define pick_to_charge(o) \
-    ((mcarried(o) || (o)->where == OBJ_CONTAINED) \
-     && (!m.tocharge || (charge_precedence((o)->otyp) \
-                         > charge_precedence(m.tocharge->otyp))))
     /*
      * [bug?]  Choice of item is not prioritized; the last viable one
      * in the monster's inventory will be chosen.
@@ -2741,8 +2905,6 @@ struct monst *mtmp;
             if (obj->spe > 0) {
                 m.misc = obj;
                 m.has_misc = MUSE_WAN_WISHING;
-            } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                m.tocharge = obj;
             }
             continue;
         }
@@ -2841,14 +3003,13 @@ struct monst *mtmp;
             m.misc = obj;
             m.has_misc = MUSE_POT_POLYMORPH;
         }
-        if (m.has_misc == MUSE_SCR_CHARGING && m.tocharge)
+        if (m.has_misc == MUSE_SCR_CHARGING)
             continue;
         if (obj->otyp == SCR_CHARGING) {
-            if (m.tocharge) {
+            /* Check if monster has anything to charge right now */
+            if (find_best_item_to_charge(mtmp)) {
                 m.misc = obj;
                 m.has_misc = MUSE_SCR_CHARGING;
-            } else if (!charge_scroll) {
-                charge_scroll = obj;
             }
             continue;
         }
@@ -2877,13 +3038,8 @@ struct monst *mtmp;
             m.has_misc = MUSE_PAN_FLUTE;
         }
     }
-    if (m.has_misc == 0 && m.tocharge && charge_scroll) {
-        m.misc = charge_scroll;
-        m.has_misc = MUSE_SCR_CHARGING;
-    }
     return find_misc_recurse(mtmp, mtmp->minvent);
 #undef nomore
-#undef pick_to_charge
 }
 
 STATIC_OVL boolean
@@ -2893,14 +3049,8 @@ struct obj *start;
 {
     struct obj *obj, *nextobj;
     struct permonst *mdat = mtmp->data;
-    struct obj *charge_scroll = (struct obj *) 0;
 
 #define nomore(x)       if (m.has_misc == (x)) continue;
-#define pick_to_charge(o) \
-    (mcarried(o) && (!m.tocharge \
-                     || (charge_precedence((o)->otyp) \
-                         > charge_precedence(m.tocharge->otyp))))
-
     for (obj = start; obj; obj = nextobj) {
         nextobj = obj->nobj;
         if (Is_container(obj)) {
@@ -2908,8 +3058,8 @@ struct obj *start;
             continue;
         }
 
-        /* Monsters shouldn't recognize cursed items; this kludge is */
-        /* necessary to prevent serious problems though... */
+        /* Monsters shouldn't recognize cursed items; this kludge is
+           necessary to prevent serious problems though... */
         if (obj->otyp == POT_BOOZE
             && is_satyr(mtmp->data)) {
             m.misc = obj;
@@ -2931,8 +3081,6 @@ struct obj *start;
             if (obj->spe > 0) {
                 m.misc = obj;
                 m.has_misc = MUSE_WAN_WISHING;
-            } else if (obj->spe < 1 && pick_to_charge(obj)) {
-                m.tocharge = obj;
             }
             continue;
         }
@@ -3031,14 +3179,13 @@ struct obj *start;
             m.misc = obj;
             m.has_misc = MUSE_POT_POLYMORPH;
         }
-        if (m.has_misc == MUSE_SCR_CHARGING && m.tocharge)
+        if (m.has_misc == MUSE_SCR_CHARGING)
             continue;
         if (obj->otyp == SCR_CHARGING) {
-            if (m.tocharge) {
+            /* Check if monster has anything to charge right now */
+            if (find_best_item_to_charge(mtmp)) {
                 m.misc = obj;
                 m.has_misc = MUSE_SCR_CHARGING;
-            } else if (!charge_scroll) {
-                charge_scroll = obj;
             }
             continue;
         }
@@ -3067,10 +3214,6 @@ struct obj *start;
             m.has_misc = MUSE_PAN_FLUTE;
         }
     }
-    if (m.has_misc == 0 && m.tocharge && charge_scroll) {
-        m.misc = charge_scroll;
-        m.has_misc = MUSE_SCR_CHARGING;
-    }
     if (mtmp->mfrozen) {
         m.misc = (struct obj *) 0;
         m.has_misc = 0;
@@ -3078,7 +3221,6 @@ struct obj *start;
     }
     return (boolean) !!m.has_misc;
 #undef nomore
-#undef pick_to_charge
 }
 
 /* type of monster to polymorph into; defaults to one suitable for the
@@ -3105,16 +3247,90 @@ struct monst *mtmp;
     char nambuf[BUFSZ];
     struct trap * tt;
 
+    /* Safety check: if the object isn't in the monster's inventory,
+       something went wrong (e.g., it was merged after extraction) */
+    if (otmp && otmp->where != OBJ_MINVENT) {
+        /* For scrolls of charging that were in containers, try to find
+           the actual scroll in inventory (might have been merged) */
+        if (m.has_misc == MUSE_SCR_CHARGING) {
+            struct obj *o;
+            for (o = mtmp->minvent; o; o = o->nobj) {
+                if (o->otyp == SCR_CHARGING) {
+                    otmp = m.misc = o;
+                    break;
+                }
+            }
+            /* If still not found, abort */
+            if (!otmp || otmp->where != OBJ_MINVENT) {
+                m.has_misc = 0;
+                m.misc = 0;
+                return 0;
+            }
+        } else {
+            /* Other items: just abort */
+            m.has_misc = 0;
+            m.misc = 0;
+            return 0;
+        }
+    }
+
     if ((i = precheck(mtmp, otmp)) != 0)
         return i;
+
+    /* After precheck, otmp might have been merged/freed if it was extracted
+       from a container. We need to re-validate and potentially re-find it */
+    if (otmp && otmp->where != OBJ_MINVENT) {
+        /* For scrolls of charging, try to find the actual scroll in inventory */
+        if (m.has_misc == MUSE_SCR_CHARGING) {
+            struct obj *o;
+            for (o = mtmp->minvent; o; o = o->nobj) {
+                if (o->otyp == SCR_CHARGING) {
+                    otmp = m.misc = o;
+                    break;
+                }
+            }
+            /* If still not found, abort */
+            if (!otmp || otmp->where != OBJ_MINVENT) {
+                m.has_misc = 0;
+                m.misc = 0;
+                return 0;
+            }
+        } else {
+            /* Other items: try to find by type */
+            struct obj *o;
+            int otyp = m.misc ? m.misc->otyp : STRANGE_OBJECT;
+            otmp = NULL;
+
+            if (otyp != STRANGE_OBJECT) {
+                for (o = mtmp->minvent; o; o = o->nobj) {
+                    if (o->otyp == otyp) {
+                        otmp = m.misc = o;
+                        break;
+                    }
+                }
+            }
+
+            if (!otmp) {
+                m.has_misc = 0;
+                m.misc = 0;
+                return 0;
+            }
+        }
+    }
+
     vis = cansee(mtmp->mx, mtmp->my);
     vismon = canseemon(mtmp);
     oseen = otmp && vismon;
 
     switch (m.has_misc) {
-    case MUSE_SCR_CHARGING:
-        if (!m.tocharge) {
-            impossible("Attempting to charge nothing?");
+    case MUSE_SCR_CHARGING: {
+        /* Find what to charge at the moment of use, not during selection.
+           This avoids pointer corruption issues that occur when storing
+           the pointer across multiple turns */
+        struct obj *item_to_charge = find_best_item_to_charge(mtmp);
+
+        if (!item_to_charge) {
+            /* Nothing suitable to charge - don't use the scroll */
             return 0;
         }
 
@@ -3127,12 +3343,12 @@ struct monst *mtmp;
             if (canseemon(mtmp))
                 pline("%s looks charged up!", Monnam(mtmp));
         } else {
-            recharge(m.tocharge, (otmp->cursed) ? -1 :
+            recharge(item_to_charge, (otmp->cursed) ? -1 :
                      (otmp->blessed) ? 1 : 0, mtmp);
         }
         m_useup(mtmp, otmp);
-        m.tocharge = (struct obj *) 0; /* clear m.tocharge */
         return 2;
+    }
     case MUSE_FIGURINE: {
         coord cc;
         int mndx = otmp->corpsenm;
