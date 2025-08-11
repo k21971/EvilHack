@@ -2560,6 +2560,8 @@ boolean tinitial, tfrom_file;
         /* sanity check */
         if (flags.sparkle < 0)
             flags.sparkle = SPARKLE_DFLT;
+        if (flags.sparkle > SPARKLE_DFLT)
+            flags.sparkle = SPARKLE_DFLT;
         return retval;
     }
 
