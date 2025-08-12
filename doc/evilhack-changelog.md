@@ -4704,4 +4704,5 @@ The following changes to date are:
 - Adjust odds of a saddle appearing on monsters that can be ridden
 - Fix: set hard upper limit for sparkle animation
 - Fix: prevent various player races from using bane artrifacts
+- Fix: gem to rock transmutation during polypiling
 

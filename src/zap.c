@@ -2017,10 +2017,14 @@ int id;
 
     case GEM_CLASS:
         if (otmp->quan > (long) rnd(4)
-            && obj->material == MINERAL
-            && otmp->material != MINERAL) {
-            set_material(otmp, MINERAL); /* fix material before changing type */
-            otmp->otyp = ROCK; /* transmutation backfired */
+            && otmp->otyp != ROCK
+            && otmp->otyp != LOADSTONE
+            && otmp->otyp != LUCKSTONE
+            && otmp->otyp != TOUCHSTONE
+            && otmp->otyp != FLINT) {
+            /* transmutation backfired - gem becomes rock */
+            otmp->otyp = ROCK;
+            set_material(otmp, MINERAL); /* rocks must be MINERAL material */
             otmp->quan /= 2L;  /* some material has been lost */
         }
         break;
