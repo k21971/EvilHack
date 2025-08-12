@@ -1247,19 +1247,49 @@ struct monst *mon;
         if (spec_applies(&atmp, mon))
             return TRUE;
     }
-    if (yours
-        && maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))
-        && (oart == &artilist[ART_SUNSWORD]
-            || oart == &artilist[ART_HAMMER_OF_THE_GODS])) {
-        if (!wizard || yn("Override?") != 'y')
+
+    /* player restrictions */
+    if (yours) {
+        if (maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))
+            && (oart == &artilist[ART_SUNSWORD]
+                || oart == &artilist[ART_HAMMER_OF_THE_GODS])) {
+            if (!wizard || yn("Override?") != 'y')
+                return TRUE;
+        } else if ((maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))
+                    || maybe_polyd(is_undead(youmonst.data), Race_if(PM_VAMPIRE)))
+            && (oart == &artilist[ART_SUNSWORD]
+                || oart == &artilist[ART_HAMMER_OF_THE_GODS]
+                || oart == &artilist[ART_MITRE_OF_HOLINESS])) {
+            if (!wizard || yn("Override?") != 'y')
+                return TRUE;
+        } else if (is_demon(raceptr(&youmonst))
+            && (oart == &artilist[ART_DEMONBANE]
+                || oart == &artilist[ART_HAMMER_OF_THE_GODS])) {
+            if (!wizard || yn("Override?") != 'y')
+                return TRUE;
+        }
+    }
+
+    /* not relevant currently, but cover the bases anyways */
+    if (!yours) {
+        if (racial_drow(mon)
+            && (oart == &artilist[ART_SUNSWORD]
+                || oart == &artilist[ART_HAMMER_OF_THE_GODS]
+                /* SotA does not accommodate monster drow */
+                || oart == &artilist[ART_STAFF_OF_THE_ARCHMAGI])) {
             return TRUE;
-    /* not relevant currently, since monster drow are all chaotic */
-    } else if (!yours && is_drow(mon->data)
-               && (oart == &artilist[ART_SUNSWORD]
-                   || oart == &artilist[ART_HAMMER_OF_THE_GODS]
-                   /* SotA does not accommodate monster drow */
-                   || oart == &artilist[ART_STAFF_OF_THE_ARCHMAGI]))
-        return TRUE;
+        } else if ((racial_zombie(mon) || racial_vampire(mon))
+            && (oart == &artilist[ART_SUNSWORD]
+                || oart == &artilist[ART_HAMMER_OF_THE_GODS]
+                || oart == &artilist[ART_MITRE_OF_HOLINESS])) {
+            return TRUE;
+        } else if (is_demon(mon->data)
+            && (oart == &artilist[ART_DEMONBANE]
+                || oart == &artilist[ART_HAMMER_OF_THE_GODS])) {
+            return TRUE;
+        }
+    }
+
     return FALSE;
 }
 
