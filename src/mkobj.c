@@ -580,8 +580,19 @@ long num;
     obj->nobj = otmp;
     /* Only set nexthere when on the floor, nexthere is also used */
     /* as a back pointer to the container object when contained. */
-    if (obj->where == OBJ_FLOOR)
+    if (obj->where == OBJ_FLOOR) {
+        otmp->nexthere = obj->nexthere;  /* preserve the chain */
         obj->nexthere = otmp;
+    }
+    /* Note: nexthere, ocontainer, and ocarry are in union.
+       For OBJ_CONTAINED: nexthere is actually ocontainer (keep it)
+       For OBJ_MINVENT: nexthere is actually ocarry (keep it)
+       For other locations: nexthere is garbage and should be cleared */
+    if (obj->where != OBJ_FLOOR && obj->where != OBJ_CONTAINED
+        && obj->where != OBJ_MINVENT) {
+        /* Only clear nexthere for truly unused cases */
+        otmp->nexthere = (struct obj *) 0;
+    }
     if (obj->unpaid)
         splitbill(obj, otmp);
     copy_oextra(otmp, obj);

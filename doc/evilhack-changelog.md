@@ -4705,4 +4705,5 @@ The following changes to date are:
 - Fix: set hard upper limit for sparkle animation
 - Fix: prevent various player races from using bane artrifacts
 - Fix: gem to rock transmutation during polypiling
+- Fix: splitobj() nexthere/union corruption causing crashes
 
