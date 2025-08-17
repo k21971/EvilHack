@@ -4708,4 +4708,5 @@ The following changes to date are:
 - Fix: splitobj() nexthere/union corruption causing crashes
 - Fix: object_from_map() vs Hallu
 - Fix: prevent undead races from receiving Sunsword via altar sacrifice
+- Fix: grave occupant is always hostile if its grave is disturbed
 
