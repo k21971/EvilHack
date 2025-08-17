@@ -4709,4 +4709,5 @@ The following changes to date are:
 - Fix: object_from_map() vs Hallu
 - Fix: prevent undead races from receiving Sunsword via altar sacrifice
 - Fix: grave occupant is always hostile if its grave is disturbed
+- Debug hints file tweak
 
