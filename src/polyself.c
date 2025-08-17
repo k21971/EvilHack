@@ -95,6 +95,12 @@ set_uasmon()
        show latent flight capability always blocked by levitation */
     /* this property also checks race instead of role */
     PROPSET(FLYING, (is_flyer(racedat) && !is_floater(racedat)));
+    /* preserve racial flying for races that gain it at certain levels
+       (illithids at level 12, vampires at level 7) */
+    if ((Race_if(PM_ILLITHID) && u.ulevel >= 12)
+        || (Race_if(PM_VAMPIRE) && u.ulevel >= 7)) {
+        HFlying |= FROMRACE;
+    }
     if (!program_state.restoring) /* if loading, defer wings check until we have a steed */
         check_wings(TRUE);
     PROPSET(SWIMMING, is_swimmer(mdat));
@@ -575,11 +581,18 @@ vampire_shapechange()
         vision_reset();
         docrt();
     }
+    /* only remove racial flying if we're polymorphed and the new form
+       can't fly, but preserve it for vampires that naturally gain
+       flying at level seven */
     if ((HFlying & FROMRACE) && !is_flyer(youmonst.data)) {
-        HFlying &= ~FROMRACE;
-        context.botl = TRUE;
-        You_feel("gravity's pull!");
-        spoteffects(TRUE);
+        /* Don't remove racial flying if we're in our natural form and
+           should have it */
+        if (!(Race_if(PM_VAMPIRE) && u.ulevel >= 7)) {
+            HFlying &= ~FROMRACE;
+            context.botl = TRUE;
+            You_feel("gravity's pull!");
+            spoteffects(TRUE);
+        }
     }
     return;
 }
@@ -847,11 +860,19 @@ made_change:
         /* only happens with extrinsic withering */
         You("begin to wither away!");
     }
+    /* only remove racial flying if we're polymorphed and the new form
+       can't fly, but preserve it for races that naturally gain flying
+       at certain levels */
     if ((HFlying & FROMRACE) && !is_flyer(youmonst.data)) {
-        HFlying &= ~FROMRACE;
-        context.botl = TRUE;
-        You_feel("gravity's pull!");
-        spoteffects(TRUE);
+        /* Don't remove racial flying if we're in our natural form and
+           should have it */
+        if (!((Race_if(PM_ILLITHID) && u.ulevel >= 12)
+              || (Race_if(PM_VAMPIRE) && u.ulevel >= 7))) {
+            HFlying &= ~FROMRACE;
+            context.botl = TRUE;
+            You_feel("gravity's pull!");
+            spoteffects(TRUE);
+        }
     }
 }
 

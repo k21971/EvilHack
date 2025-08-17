@@ -4712,4 +4712,6 @@ The following changes to date are:
 - Debug hints file tweak
 - Fix: prevent the spell 'change metal to wood' reverting objects back
   to their base material
+- Fix: prevent races that gain flying intrinsic from losing it when they
+  polymorph and stay in their original form
 
