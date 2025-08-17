@@ -3916,21 +3916,20 @@ boolean by_you;
         if (!Blind)
             pline("%s %s transforms into wood.",
                   by_you ? "Your" : "The", simpleonames(obj));
+        obj->owt = weight(obj);
+        if (origmat != obj->material) {
+            /* Charge for the cost of the object if unpaid.
+               Currently there is no need to check by_you
+               since monsters cannot use this function */
+            costly_alteration(obj, COST_DRAIN);
+        }
         newsym_force(bhitpos.x, bhitpos.y);
+        return TRUE;
     } else {
-        obj->material = objects[obj->otyp].oc_material;
         if (!Blind)
             pline("%s %s shimmers briefly, but remains the same.",
                   by_you ? "Your" : "The", simpleonames(obj));
-    }
-
-    obj->owt = weight(obj);
-    if (origmat != obj->material) {
-        /* Charge for the cost of the object if unpaid.
-           Currently there is no need to check by_you
-           since monsters cannot use this function */
-        costly_alteration(obj, COST_DRAIN);
-        return TRUE;
+        return FALSE;
     }
     return FALSE;
 }

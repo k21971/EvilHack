@@ -4710,4 +4710,6 @@ The following changes to date are:
 - Fix: prevent undead races from receiving Sunsword via altar sacrifice
 - Fix: grave occupant is always hostile if its grave is disturbed
 - Debug hints file tweak
+- Fix: prevent the spell 'change metal to wood' reverting objects back
+  to their base material
 
