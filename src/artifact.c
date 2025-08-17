@@ -256,8 +256,15 @@ aligntyp alignment; /* target alignment, or A_NONE */
         if ((a->alignment == alignment || a->alignment == A_NONE)
             /* avoid enemies' equipment */
             && (a->race == NON_PM || !race_hostile(&mons[a->race]))
+            /* handles orcs receiving Orcrist/Sting, elves/drow
+               receiving Grimtooth, demons (crowned infidel) somehow
+               receiving Demonbane */
             && !Hate_material(artifact_material(m))
-            && !(Race_if(PM_GIANT) && (a->mtype & MH_GIANT))) {
+            /* handles giants receiving Giantslayer */
+            && !(Race_if(PM_GIANT) && (a->mtype & MH_GIANT))
+            /* handles undead races receiving Sunsword */
+            && !((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                 && (a->mtype & MH_UNDEAD))) {
             /* when a role-specific first choice is available, use it */
             if (Role_if(a->role)) {
                 /* make this be the only possibility in the list */
