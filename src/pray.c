@@ -1901,10 +1901,14 @@ dosacrifice()
                 goto desecrate_high_altar;
             } else if (altaralign != A_CHAOTIC && altaralign != A_NONE) {
                 /* curse the lawful/neutral altar */
-                pline_The("altar is stained with %s blood.",
-                          (Race_if(PM_DROW) && is_elf(ptr))
-                            ? "elven" : (Race_if(PM_ELF) && is_drow(ptr))
-                              ? "dark elven" : urace.adj);
+                if (otmp->odrained)
+                    pline_The("bloodless %s corpse is consumed in flames!",
+                              urace.adj);
+                else
+                    pline_The("altar is stained with %s blood.",
+                              (Race_if(PM_DROW) && is_elf(ptr))
+                                ? "elven" : (Race_if(PM_ELF) && is_drow(ptr))
+                                  ? "dark elven" : urace.adj);
                 levl[u.ux][u.uy].altarmask = (u.ualign.type == A_NONE)
                                               ? AM_NONE : AM_CHAOTIC;
                 newsym(u.ux, u.uy); /* in case Invisible to self */
@@ -1922,9 +1926,12 @@ dosacrifice()
                 /* Human sacrifice on a chaotic or unaligned altar */
                 /* is equivalent to demon summoning */
                 if (altaralign == A_CHAOTIC && u.ualign.type != A_CHAOTIC) {
-                    pline(
-                    "The blood floods the altar, which vanishes in %s cloud!",
-                          an(hcolor(NH_BLACK)));
+                    if (otmp->odrained)
+                        pline_The("bloodless %s corpse vanishes in %s cloud!",
+                                  urace.adj, an(hcolor(NH_BLACK)));
+                    else
+                        pline_The("blood floods the altar, which vanishes in %s cloud!",
+                                  an(hcolor(NH_BLACK)));
                     levl[u.ux][u.uy].typ = ROOM;
                     levl[u.ux][u.uy].altarmask = 0;
                     newsym(u.ux, u.uy);
@@ -1934,9 +1941,16 @@ dosacrifice()
                         newsym_force(u.ux, u.uy);
                 } else {
                     /* either you're chaotic or altar is Moloch's or both */
-                    pline_The("blood covers the altar!");
+                    if (otmp->odrained)
+                        pline_The("bloodless %s corpse is consumed in flames!",
+                                  urace.adj);
+                    else
+                        pline_The("blood covers the altar!");
                     change_luck(altaralign == u.ualign.type ? 2 : -2);
-                    demonless_msg = "blood coagulates";
+                    if (otmp->odrained)
+                        demonless_msg = "ashes scatter";
+                    else
+                        demonless_msg = "blood coagulates";
                 }
                 if ((pm = ndemon(altaralign)) != NON_PM
                     && (dmon = makemon(&mons[pm], u.ux, u.uy, NO_MM_FLAGS))

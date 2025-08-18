@@ -4539,8 +4539,10 @@ struct obj *no_wish;
         char *fp;
         int l, cntf;
         int blessedf, iscursedf, uncursedf, halfeatenf;
+        int isdrainedf, halfdrainedf;
 
         blessedf = iscursedf = uncursedf = halfeatenf = 0;
+        isdrainedf = halfdrainedf = 0;
         cntf = 0;
 
         fp = fruitbuf;
@@ -4562,6 +4564,13 @@ struct obj *no_wish;
                 iscursedf = 1;
             } else if (!strncmpi(fp, "uncursed ", l = 9)) {
                 uncursedf = 1;
+            } else if (!strncmpi(fp, "partly drained ", l = 15)
+                       || !strncmpi(fp, "partially drained ", l = 18)) {
+                isdrainedf = 1;
+                halfdrainedf = 1;
+            } else if (!strncmpi(fp, "drained ", l = 8)) {
+                isdrainedf = 1;
+                halfdrainedf = 0;
             } else if (!strncmpi(fp, "partly eaten ", l = 13)
                        || !strncmpi(fp, "partially eaten ", l = 16)) {
                 halfeatenf = 1;
@@ -4586,6 +4595,8 @@ struct obj *no_wish;
                 iscursed = iscursedf;
                 uncursed = uncursedf;
                 halfeaten = halfeatenf;
+                isdrained = isdrainedf;
+                halfdrained = halfdrainedf;
                 /* adjust count if user explicitly asked for
                    singular amount (can't happen unless fruit
                    has been given an already pluralized name)

@@ -4716,4 +4716,6 @@ The following changes to date are:
   polymorph and stay in their original form
 - Don't allow Dichotomy to freeze/burn objects in inventory if it
   doesn't invoke that type of attack
+- Fix: proper feedback when sacrificing a drained corpse under certain
+  circumstances
 
