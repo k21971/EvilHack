@@ -4718,4 +4718,5 @@ The following changes to date are:
   doesn't invoke that type of attack
 - Fix: proper feedback when sacrificing a drained corpse under certain
   circumstances
+- Forged artifacts are always fooproof
 

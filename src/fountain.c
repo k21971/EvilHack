@@ -731,6 +731,7 @@ doforging()
             output->opoisoned = 0;
             output->otainted = 0;
             output->greased = 0;
+            maybe_erodeproof(output, 1);
 
             /* delete recipe objects - use delobj_core() directly
                to handle the Sword of Annihilation potentially
