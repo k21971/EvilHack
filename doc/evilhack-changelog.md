@@ -4714,4 +4714,6 @@ The following changes to date are:
   to their base material
 - Fix: prevent races that gain flying intrinsic from losing it when they
   polymorph and stay in their original form
+- Don't allow Dichotomy to freeze/burn objects in inventory if it
+  doesn't invoke that type of attack
 

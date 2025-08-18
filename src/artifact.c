@@ -2537,14 +2537,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     }
     /* Ninth basic attack, combines fire and cold together */
     if (attacks(AD_FUSE, otmp)) {
+        boolean no_burn = youdefend ? (Fire_resistance || Underwater)
+                                    : (resists_fire(mdef)
+                                       || defended(mdef, AD_FIRE)
+                                       || mon_underwater(mdef));
+        boolean no_freeze = youdefend ? Cold_resistance
+                                      : (resists_cold(mdef)
+                                         || defended(mdef, AD_COLD));
         if (realizes_damage) {
-            boolean no_burn = youdefend ? (Fire_resistance || Underwater)
-                                        : (resists_fire(mdef)
-                                           || defended(mdef, AD_FIRE)
-                                           || mon_underwater(mdef));
-            boolean no_freeze = youdefend ? Cold_resistance
-                                          : (resists_cold(mdef)
-                                             || defended(mdef, AD_COLD));
             if (no_freeze) {
                 pline_The("scintillating blade %s %s%c",
                           !spec_dbon_applies
@@ -2597,9 +2597,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 }
             }
         }
-        if (!rn2(4))
+        if (!rn2(4) && !no_freeze)
             (void) destroy_mitem(mdef, POTION_CLASS, AD_COLD);
-        if (!(youdefend ? Underwater : mon_underwater(mdef))) {
+        if (!(youdefend ? Underwater : mon_underwater(mdef))
+            && !no_burn) {
             if (!rn2(4))
                 (void) destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
             if (!rn2(4))
