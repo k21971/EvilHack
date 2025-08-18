@@ -4720,4 +4720,5 @@ The following changes to date are:
   circumstances
 - Forged artifacts are always fooproof
 - Staff of the Archmagi affiliation change
+- Fix: vampire leaders as wolves
 

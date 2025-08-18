@@ -1003,9 +1003,21 @@ register struct monst *mtmp;
                     pline("%s burns slightly.", Monnam(mtmp));
             }
             if (!DEADMONSTER(mtmp)) {
-                (void) fire_damage_chain(mtmp->minvent, FALSE, FALSE,
-                                         mtmp->mx, mtmp->my);
-                (void) rloc(mtmp, FALSE);
+                if (is_flyer(mtmp->data)
+                    || is_floater(mtmp->data)
+                    || can_levitate(mtmp)
+                    || (is_clinger(mtmp->data)
+                        && has_ceiling(&u.uz) && mtmp->mundetected)) {
+                    ; /* vampshifter in wolf form can revert to vampire lord
+                       * and become a flyer so not need to teleport */
+                } else if (likes_lava(mtmp->data)) {
+                    ; /* likes_lava case is hypothetical */
+                } else {
+                    (void) fire_damage_chain(mtmp->minvent, FALSE, FALSE,
+                                             mtmp->mx, mtmp->my);
+                    if (!rloc(mtmp, TRUE))
+                        deal_with_overcrowding(mtmp);
+                }
                 return 0;
             }
             return 1;
@@ -1065,10 +1077,19 @@ register struct monst *mtmp;
             else
                 xkilled(mtmp, XKILL_NOMSG);
             if (!DEADMONSTER(mtmp)) {
-                water_damage_chain(mtmp->minvent, FALSE, 0,
-                                   TRUE, mtmp->mx, mtmp->my);
-                if (!rloc(mtmp, TRUE))
-                    deal_with_overcrowding(mtmp);
+                if (is_flyer(mtmp->data)
+                    || is_floater(mtmp->data)
+                    || can_levitate(mtmp)
+                    || (is_clinger(mtmp->data)
+                        && has_ceiling(&u.uz) && mtmp->mundetected)) {
+                    ; /* vampshifter in wolf form can revert to vampire lord
+                       * and become a flyer so not need to teleport */
+                } else {
+                    water_damage_chain(mtmp->minvent, FALSE, 0,
+                                       TRUE, mtmp->mx, mtmp->my);
+                    if (!rloc(mtmp, TRUE))
+                        deal_with_overcrowding(mtmp);
+                }
                 return 0;
             }
             return 1;
@@ -5932,7 +5953,10 @@ struct monst *mon;
         wolfchance = 3;
     /*FALLTHRU*/
     case PM_VAMPIRE_NOBLE: /* vampire lords/ladies, Kas, or Vlad can become wolf */
-        if (!rn2(wolfchance) && !uppercase_only) {
+        if (!rn2(wolfchance) && !uppercase_only
+            /* don't pick a walking form if that would lead to immediate
+               drowning or immolation and reversion to vampire form */
+            && !is_pool_or_lava(mon->mx, mon->my)) {
             if (IS_AIR(levl[mon->mx][mon->my].typ))
                 mndx = (!rn2(4) && !uppercase_only) ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
             else
@@ -5942,7 +5966,10 @@ struct monst *mon;
     /*FALLTHRU*/
     case PM_VAMPIRE_ROYAL:
     case PM_VAMPIRE_MAGE: /* vampire kings/queens and mages can become a warg */
-        if (!rn2(wolfchance) && !uppercase_only) {
+        if (!rn2(wolfchance) && !uppercase_only
+            /* don't pick a walking form if that would lead to immediate
+               drowning or immolation and reversion to vampire form */
+            && !is_pool_or_lava(mon->mx, mon->my)) {
             if (IS_AIR(levl[mon->mx][mon->my].typ))
                 mndx = (!rn2(4) && !uppercase_only) ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
             else
