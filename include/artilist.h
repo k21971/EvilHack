@@ -348,8 +348,8 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("The Staff of the Archmagi", ASHWOOD_STAFF,
       (SPFX_NOGEN | SPFX_FORGED | SPFX_NOWISH | SPFX_RESTR | SPFX_ATTK
        | SPFX_DEFN | SPFX_INTEL),
-      SPFX_HSPDAM, 0, STUN(5, 8), DFNS(AD_MAGM), NO_CARY, PHASING, A_NEUTRAL,
-      NON_PM, NON_PM, 35000L, NO_COLOR, DEFAULT_MAT),
+      SPFX_HSPDAM, 0, STUN(5, 8), DFNS(AD_MAGM), NO_CARY, PHASING, A_NONE,
+      PM_WIZARD, NON_PM, 35000L, NO_COLOR, DEFAULT_MAT),
     /* Shadowblade is a chaotic aligned athame that is created by
        forging Stormbringer and Werebane together. Inherits
        Stormbringer's drain life attack and protection without its

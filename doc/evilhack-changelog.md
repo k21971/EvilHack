@@ -4719,4 +4719,5 @@ The following changes to date are:
 - Fix: proper feedback when sacrificing a drained corpse under certain
   circumstances
 - Forged artifacts are always fooproof
+- Staff of the Archmagi affiliation change
 
