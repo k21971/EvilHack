@@ -4721,4 +4721,6 @@ The following changes to date are:
 - Forged artifacts are always fooproof
 - Staff of the Archmagi affiliation change
 - Fix: vampire leaders as wolves
+- Fix: spellcasting monsters will gain experience killing other monsters
+  with their spell attacks
 
