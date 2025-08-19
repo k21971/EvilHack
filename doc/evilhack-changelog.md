@@ -4723,4 +4723,6 @@ The following changes to date are:
 - Fix: vampire leaders as wolves
 - Fix: spellcasting monsters will gain experience killing other monsters
   with their spell attacks
+- Fix: spellcasting monsters will gain experience killing other monsters
+  with their spell attacks, take two
 

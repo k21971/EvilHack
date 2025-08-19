@@ -2225,11 +2225,8 @@ int spellnum;
             mtmp->mhp = -1;
             if (yours)
                 killed(mtmp);
-            else {
+            else
                 monkilled(mtmp, "", AD_SPEL);
-                /* monster gains experience for the kill */
-                (void) grow_up(mattk, mtmp);
-            }
             return;
         } else {
             if (resisted)
@@ -2397,11 +2394,8 @@ int spellnum;
             if ((mtmp->mhp -= dmg) <= 0) {
                 if (yours)
                     killed(mtmp);
-                else {
+                else
                     monkilled(mtmp, "", AD_SPEL);
-                    /* monster gains experience for the kill */
-                    (void) grow_up(mattk, mtmp);
-                }
             }
         }
         dmg = 0;
@@ -2519,11 +2513,8 @@ int spellnum;
         if (DEADMONSTER(mtmp)) {
             if (yours)
                 killed(mtmp);
-            else {
+            else
                 monkilled(mtmp, "", AD_SPEL);
-                /* monster gains experience for the kill */
-                (void) grow_up(mattk, mtmp);
-            }
         }
     }
 }
@@ -2869,11 +2860,8 @@ int spellnum;
         if (DEADMONSTER(mtmp)) {
             if (yours)
                 killed(mtmp);
-            else {
+            else
                 monkilled(mtmp, "", AD_CLRC);
-                /* monster gains experience for the kill */
-                (void) grow_up(mattk, mtmp);
-            }
         }
     }
 }
