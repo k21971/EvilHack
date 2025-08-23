@@ -744,8 +744,12 @@ register struct monst *magr, *mdef;
                 /* We don't really know if we hit or not; pretend we did. */
                 if (strike)
                     res[i] |= MM_HIT;
-                if (DEADMONSTER(mdef))
+                if (DEADMONSTER(mdef)) {
                     res[i] = MM_DEF_DIED;
+                    /* monster gains experience for breath attack */
+                    if (!grow_up(magr, mdef))
+                        res[i] |= MM_AGR_DIED;
+                }
                 if (DEADMONSTER(magr))
                     res[i] |= MM_AGR_DIED;
             }
@@ -760,8 +764,12 @@ register struct monst *magr, *mdef;
                 /* We don't really know if we hit or not; pretend we did. */
                 if (strike)
                     res[i] |= MM_HIT;
-                if (DEADMONSTER(mdef))
+                if (DEADMONSTER(mdef)) {
                     res[i] = MM_DEF_DIED;
+                    /* monster gains experience for spit attack */
+                    if (!grow_up(magr, mdef))
+                        res[i] |= MM_AGR_DIED;
+                }
                 if (DEADMONSTER(magr))
                     res[i] |= MM_AGR_DIED;
             }

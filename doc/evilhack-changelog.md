@@ -4725,4 +4725,6 @@ The following changes to date are:
   with their spell attacks
 - Fix: spellcasting monsters will gain experience killing other monsters
   with their spell attacks, take two
+- Fix: monsters can gain experience killing other monsters with their
+  breath/spit attacks
 
