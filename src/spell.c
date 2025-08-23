@@ -1818,10 +1818,12 @@ boolean wiz_cast;
         char c, qbuf[QBUFSZ];
         const char *prompt = "choose a monster to slay";
         int ans;
-        int range_skill = (P_SKILL(spell_skilltype(SPE_POWER_WORD_KILL)) == P_EXPERT
-                           ? 17 : P_SKILL(spell_skilltype(SPE_POWER_WORD_KILL)) == P_SKILLED
-                                ? 7 : P_SKILL(spell_skilltype(SPE_POWER_WORD_KILL)) == P_BASIC
-                                    ? 2 : 0);
+        int damage_skill = ((P_SKILL(P_ATTACK_SPELL) >= P_EXPERT)
+                            ? 200 : (P_SKILL(P_ATTACK_SPELL) == P_SKILLED)
+                              ? 150 : (P_SKILL(P_ATTACK_SPELL) == P_BASIC) ? 100 : 50);
+        int range_skill = ((P_SKILL(P_ATTACK_SPELL) >= P_EXPERT)
+                           ? 17 : (P_SKILL(P_ATTACK_SPELL) == P_SKILLED)
+                             ? 7 : (P_SKILL(P_ATTACK_SPELL) == P_BASIC) ? 2 : 0);
         boolean save_verbose = flags.verbose,
                 save_autodescribe = iflags.autodescribe;
         d_level uarehere = u.uz;
@@ -1897,12 +1899,12 @@ boolean wiz_cast;
                         pline("%s is immune to your word of power!",
                               Monnam(mtmp));
                         break;
-                    } else if (mtmp->mhp <= 100) {
+                    } else if (mtmp->mhp <= damage_skill) {
                         /* assumes not resistant to death magic.
-                           monsters with 100 or less hit points - dead if
-                           they don't have magic resistance. If monster
-                           does have MR, they still take damage not to go
-                           below one hit point */
+                           monsters with less hit points as determined
+                           by damage_skill - dead if they don't have magic
+                           resistance. If monster does have MR, they still
+                           take damage not to go below one hit point */
                         if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
                             shieldeff(mtmp->mx, mtmp->my);
                             pline("%s %s in pain, but resists your deadly spell.",
@@ -1929,7 +1931,7 @@ boolean wiz_cast;
                                 return 0;
                             break;
                         }
-                    } else { /* greater than 100 hit points */
+                    } else { /* greater than damage_skill hit points */
                         if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
                             shieldeff(mtmp->mx, mtmp->my);
                             pline("%s %s in pain, but resists your deadly spell.",
@@ -1947,10 +1949,11 @@ boolean wiz_cast;
                             }
                             break;
                         } else {
-                            /* if not magic resistant, but has over 100 hit
-                               points, max hit points and regular hit points
-                               take a significant hit, not to go below one
-                               hit point */
+                            /* if not magic resistant, but has more hit
+                               points as determined by damage_skill, max
+                               hit points and regular hit points take a
+                               significant hit, not to go below one hit
+                               point */
                             if (!Deaf)
                                 pline("%s %s in %s!", Monnam(mtmp),
                                       makeplural(growl_sound(mtmp)),

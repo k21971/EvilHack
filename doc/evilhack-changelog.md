@@ -4727,4 +4727,6 @@ The following changes to date are:
   with their spell attacks, take two
 - Fix: monsters can gain experience killing other monsters with their
   breath/spit attacks
+- The spell 'power word kill' now scales with the casters skill in
+  attack spells
 
