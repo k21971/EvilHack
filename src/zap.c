@@ -1480,9 +1480,11 @@ register struct obj *obj;
         }
         switch (obj->oclass) {
         case SCROLL_CLASS:
-            costly_alteration(obj, COST_CANCEL);
-            obj->otyp = SCR_BLANK_PAPER;
-            obj->spe = 0;
+            if (otyp != SCR_CONSECRATION) {
+                costly_alteration(obj, COST_CANCEL);
+                obj->otyp = SCR_BLANK_PAPER;
+                obj->spe = 0;
+            }
             break;
         case SPBOOK_CLASS:
             if (otyp != SPE_CANCELLATION && otyp != SPE_NOVEL
@@ -6446,7 +6448,8 @@ int osym, dmgtyp;
     case AD_FIRE:
         xresist = (how_resistant(FIRE_RES) == 100 && obj->oclass != POTION_CLASS
                    && obj->otyp != GLOB_OF_GREEN_SLIME);
-        if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL)
+        if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL
+            || obj->otyp == SCR_CONSECRATION)
             skip++;
         if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
             skip++;
@@ -6755,7 +6758,8 @@ int osym, dmgtyp;
                 skip++;
             break;
         case AD_FIRE:
-            if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL)
+            if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL
+                || obj->otyp == SCR_CONSECRATION)
                 skip++;
             if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
                 skip++;

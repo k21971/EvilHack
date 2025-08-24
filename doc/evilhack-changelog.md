@@ -4734,4 +4734,5 @@ The following changes to date are:
 - Doorways without a door will show as dark if that tile space if unseen
   or flagged as being in darkness
 - Fix: monsters will not steal objects made of a material they hate
+- Changes to the scroll of consecration
 

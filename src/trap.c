@@ -4114,7 +4114,8 @@ xchar x, y;
         return FALSE;
 
     /* special BotD feedback - should it be the "dark red" message?*/
-    if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+    if (obj->otyp == SPE_BOOK_OF_THE_DEAD
+        || obj->otyp == SCR_CONSECRATION) {
         if (in_sight)
             pline("Smoke rises from %s.", the(xname(obj)));
         return FALSE;
@@ -4401,6 +4402,7 @@ xchar x, y;
         return ER_NOTHING;
     } else if (obj->oclass == SCROLL_CLASS) {
         if (obj->otyp == SCR_BLANK_PAPER
+            || obj->otyp == SCR_CONSECRATION
 #ifdef MAIL
             || obj->otyp == SCR_MAIL
 #endif
@@ -6807,14 +6809,19 @@ lava_effects()
         for (obj = invent; obj; obj = obj2) {
             obj2 = obj->nobj;
             /* above, we set in_use for objects which are to be destroyed */
-            if (obj->otyp == SPE_BOOK_OF_THE_DEAD && !Blind) {
-                if (usurvive)
-                    pline("%s glows a strange %s, but remains intact.",
-                          The(xname(obj)), hcolor("dark red"));
+            if (obj->otyp == SPE_BOOK_OF_THE_DEAD
+                || obj->otyp == SCR_CONSECRATION) {
+                if (usurvive) {
+                    if (!Blind)
+                        pline("%s glows a strange %s, but remains intact.",
+                              The(xname(obj)), hcolor("dark red"));
+                }
             } else if (obj->in_use) {
                 if (obj->owornmask) {
-                    if (usurvive)
-                        pline("%s into flame!", Yobjnam2(obj, "burst"));
+                    if (usurvive) {
+                        if (!Blind)
+                            pline("%s into flame!", Yobjnam2(obj, "burst"));
+                    }
                     remove_worn_item(obj, TRUE);
                 }
                 useupall(obj);
