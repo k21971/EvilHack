@@ -401,6 +401,9 @@ char *objnambuf;
         return 1; /* let them flee */
     }
 
+    if (otmp && mon_hates_material(mtmp, otmp->material))
+        goto cant_take;
+
     /* animals and rogues can't overcome curse stickiness nor unlock chains */
     if (monkey_business) {
         boolean ostuck;
@@ -426,11 +429,13 @@ char *objnambuf;
                 pline("%s takes one look at your decrepit %s and thinks better of it.",
                       Monnam(mtmp), body_part(HAND));
             } else {
-                pline("%s tries to %s %s%s but gives up.", Monnam(mtmp),
+                pline("%s tries to %s %s%s but %s.", Monnam(mtmp),
                       how[rn2(SIZE(how))],
                       (otmp->owornmask & W_ARMOR) ? "your " : "",
                       (otmp->owornmask & W_ARMOR) ? equipname(otmp)
-                                                  : yname(otmp));
+                                                  : yname(otmp),
+                      mon_hates_material(mtmp, otmp->material) ? "can't handle it"
+                                                               : "gives up");
             }
             /* the fewer items you have, the less likely the thief
                is going to stick around to try again (0) instead of
