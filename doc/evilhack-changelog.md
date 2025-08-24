@@ -4729,4 +4729,6 @@ The following changes to date are:
   breath/spit attacks
 - The spell 'power word kill' now scales with the casters skill in
   attack spells
+- Grass and sand behave just like room tiles do when unseen, blocked, or
+  in darkness
 

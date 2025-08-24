@@ -168,7 +168,9 @@ int show;
      */
     if (!cansee(x, y) && !lev->waslit) {
         /* Floor spaces are dark if unlit.  Corridors are dark if unlit. */
-        if (lev->typ == ROOM && glyph == cmap_to_glyph(S_room))
+        if ((lev->typ == ROOM && glyph == cmap_to_glyph(S_room))
+            || (lev->typ == SAND && glyph == cmap_to_glyph(S_sand))
+            || (lev->typ == GRASS && glyph == cmap_to_glyph(S_grass)))
             glyph = cmap_to_glyph((flags.dark_room && iflags.use_color)
                                       ? (DARKROOMSYM)
                                       : S_stone);
@@ -328,7 +330,9 @@ register int x, y;
 
         /* turn remembered dark room squares dark */
         if (!lev->waslit
-            && (lev->glyph == cmap_to_glyph(S_room) && lev->typ == ROOM))
+            && ((lev->glyph == cmap_to_glyph(S_room) && lev->typ == ROOM)
+                || (lev->glyph == cmap_to_glyph(S_sand) && lev->typ == SAND)
+                || (lev->glyph == cmap_to_glyph(S_grass) && lev->typ == GRASS)))
             lev->glyph = cmap_to_glyph(S_stone);
     } else {
         levl[x][y].glyph = cmap_to_glyph(S_stone); /* default val */
@@ -637,7 +641,8 @@ xchar x, y;
             map_object(boulder, 1);
         } else if (IS_DOOR(lev->typ)) {
             map_background(x, y, 1);
-        } else if (IS_ROOM(lev->typ) || IS_POOL(lev->typ)) {
+        } else if (IS_ROOM(lev->typ) || IS_POOL(lev->typ)
+                   || IS_SAND(lev->typ) || IS_GRASS(lev->typ)) {
             boolean do_room_glyph;
 
             /*
@@ -667,7 +672,8 @@ xchar x, y;
             do_room_glyph = FALSE;
             if (lev->glyph == objnum_to_glyph(BOULDER)
                 || glyph_is_invisible(lev->glyph)) {
-                if (lev->typ != ROOM && lev->seenv)
+                if (!(lev->typ == ROOM || lev->typ == SAND
+                      || lev->typ == GRASS) && lev->seenv)
                     map_background(x, y, 1);
                 else
                     do_room_glyph = TRUE;
@@ -692,7 +698,9 @@ xchar x, y;
                 && !lev->waslit)
                 show_glyph(x, y, lev->glyph = cmap_to_glyph(S_corr));
             else if (flags.dark_room && iflags.use_color
-                     && (lev->typ == ROOM && lev->glyph == cmap_to_glyph(S_room)))
+                     && ((lev->typ == ROOM && lev->glyph == cmap_to_glyph(S_room))
+                         || (lev->typ == SAND && lev->glyph == cmap_to_glyph(S_sand))
+                         || (lev->typ == GRASS && lev->glyph == cmap_to_glyph(S_grass))))
                 show_glyph(x, y, lev->glyph = cmap_to_glyph(S_darkroom));
         }
     } else {
@@ -721,7 +729,9 @@ xchar x, y;
         }
 
         /* Floor spaces are dark if unlit.  Corridors are dark if unlit. */
-        if ((lev->typ == ROOM && lev->glyph == cmap_to_glyph(S_room))
+        if (((lev->typ == ROOM && lev->glyph == cmap_to_glyph(S_room))
+             || (lev->typ == SAND && lev->glyph == cmap_to_glyph(S_sand))
+             || (lev->typ == GRASS && lev->glyph == cmap_to_glyph(S_grass)))
             && (!lev->waslit || (flags.dark_room && iflags.use_color)))
             show_glyph(x, y, lev->glyph = cmap_to_glyph(
                                  flags.dark_room ? S_darkroom : S_stone));
@@ -844,6 +854,7 @@ register int x, y;
             } else if (uv_cansee(x, y)) {
                 struct obj *otmp = vobj_at(x, y);
                 struct trap *ttmp = t_at(x, y);
+
                 if (otmp && !covers_objects(x, y)) {
                     map_object(otmp, TRUE);
                 } else if (ttmp && ttmp->tseen && !covers_traps(x, y)) {
@@ -851,6 +862,10 @@ register int x, y;
                 } else if (lev->typ == CORR) {
                     show_glyph(x, y, lev->glyph = cmap_to_glyph(S_corr));
                 } else if (lev->typ == ROOM) {
+                    show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
+                } else if (lev->typ == SAND) {
+                    show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
+                } else if (lev->typ == GRASS) {
                     show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
                 } else {
                     map_background(x, y, TRUE);
@@ -911,6 +926,10 @@ register int x, y;
             if (lev->glyph == cmap_to_glyph(S_litcorr) && lev->typ == CORR)
                 show_glyph(x, y, lev->glyph = cmap_to_glyph(S_corr));
             else if (lev->glyph == cmap_to_glyph(S_room) && lev->typ == ROOM)
+                show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
+            else if (lev->glyph == cmap_to_glyph(S_sand) && lev->typ == SAND)
+                show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
+            else if (lev->glyph == cmap_to_glyph(S_grass) && lev->typ == GRASS)
                 show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
             else
                 goto show_mem;
@@ -2050,6 +2069,12 @@ xchar x, y;
             if (lev->typ == CORR && idx == S_litcorr)
                 idx = S_corr;
             else if (idx == S_room)
+                idx = (flags.dark_room && iflags.use_color)
+                         ? DARKROOMSYM : S_stone;
+            else if (idx == S_sand)
+                idx = (flags.dark_room && iflags.use_color)
+                         ? DARKROOMSYM : S_stone;
+            else if (idx == S_grass)
                 idx = (flags.dark_room && iflags.use_color)
                          ? DARKROOMSYM : S_stone;
         }
