@@ -4731,4 +4731,6 @@ The following changes to date are:
   attack spells
 - Grass and sand behave just like room tiles do when unseen, blocked, or
   in darkness
+- Doorways without a door will show as dark if that tile space if unseen
+  or flagged as being in darkness
 
