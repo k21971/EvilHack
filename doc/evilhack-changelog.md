@@ -4737,4 +4737,5 @@ The following changes to date are:
 - Changes to the scroll of consecration
 - Changes to the scroll of consecration, take two
 - Replace instances of 'register struct' with 'struct'
+- Switch status from beta to released
 
