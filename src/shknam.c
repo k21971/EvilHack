@@ -897,7 +897,7 @@ int rmno, sh, sx,sy;
 void
 stock_room(shp_indx, sroom)
 int shp_indx;
-register struct mkroom *sroom;
+struct mkroom *sroom;
 {
     /*
      * Someday soon we'll dispatch on the shdist field of shclass to do

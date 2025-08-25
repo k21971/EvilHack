@@ -182,7 +182,7 @@ const char *
 surface(x, y)
 register int x, y;
 {
-    register struct rm *lev = &levl[x][y];
+    struct rm *lev = &levl[x][y];
 
     if (x == u.ux && y == u.uy && u.uswallow && is_swallower(u.ustuck->data))
         return "maw";
@@ -222,7 +222,7 @@ const char *
 ceiling(x, y)
 register int x, y;
 {
-    register struct rm *lev = &levl[x][y];
+    struct rm *lev = &levl[x][y];
     const char *what;
 
     /* other room types will no longer exist when we're interested --
@@ -257,7 +257,7 @@ struct engr *
 engr_at(x, y)
 xchar x, y;
 {
-    register struct engr *ep = head_engr;
+    struct engr *ep = head_engr;
 
     while (ep) {
         if (x == ep->engr_x && y == ep->engr_y)
@@ -280,7 +280,7 @@ const char *s;
 xchar x, y;
 boolean strict;
 {
-    register struct engr *ep = engr_at(x, y);
+    struct engr *ep = engr_at(x, y);
 
     if (ep && ep->engr_type != HEADSTONE && ep->engr_time <= moves) {
         return strict ? (fuzzymatch(ep->engr_txt, s, "", TRUE))
@@ -303,7 +303,7 @@ wipe_engr_at(x, y, cnt, magical)
 xchar x, y, cnt;
 boolean magical;
 {
-    register struct engr *ep = engr_at(x, y);
+    struct engr *ep = engr_at(x, y);
 
     /* Headstones are indelible */
     if (ep && ep->engr_type != HEADSTONE) {
@@ -326,7 +326,7 @@ void
 read_engr_at(x, y)
 int x, y;
 {
-    register struct engr *ep = engr_at(x, y);
+    struct engr *ep = engr_at(x, y);
     int sensed = 0;
 
     /* Sensing an engraving does not require sight,
@@ -482,7 +482,7 @@ void
 del_engr_at(x, y)
 int x, y;
 {
-    register struct engr *ep = engr_at(x, y);
+    struct engr *ep = engr_at(x, y);
 
     if (ep)
         del_engr(ep);
@@ -1355,12 +1355,12 @@ long *count, *size;
 
 void
 del_engr(ep)
-register struct engr *ep;
+struct engr *ep;
 {
     if (ep == head_engr) {
         head_engr = ep->nxt_engr;
     } else {
-        register struct engr *ept;
+        struct engr *ept;
 
         for (ept = head_engr; ept; ept = ept->nxt_engr)
             if (ept->nxt_engr == ep) {

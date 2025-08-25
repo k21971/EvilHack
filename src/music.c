@@ -60,7 +60,7 @@ void
 awaken_monsters(distance)
 int distance;
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
     register int distm;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -92,7 +92,7 @@ STATIC_OVL void
 put_monsters_to_sleep(distance)
 int distance;
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -115,7 +115,7 @@ STATIC_OVL void
 charm_snakes(distance)
 int distance;
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
     int could_see_mon, was_peaceful;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -150,7 +150,7 @@ STATIC_OVL void
 calm_nymphs(distance)
 int distance;
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -175,7 +175,7 @@ void
 awaken_soldiers(bugler)
 struct monst *bugler; /* monster that played instrument */
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
     int distance, distm;
 
     /* distance of affected non-soldier monsters to bugler */

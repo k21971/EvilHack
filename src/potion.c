@@ -605,7 +605,7 @@ ghost_from_bottle()
 int
 dodrink()
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     const char *potion_descr;
 
     if (Hidinshell) {
@@ -724,7 +724,7 @@ dodrink()
 
 int
 dopotion(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     int retval;
 
@@ -751,7 +751,7 @@ register struct obj *otmp;
 
 int
 peffects(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     register int i, ii, lim;
     struct monst *mtmp;
@@ -2106,7 +2106,7 @@ int how;
 /* vapors are inhaled or get in your eyes */
 void
 potionbreathe(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     int i, ii, isdone, kn = 0;
     boolean cureblind = FALSE;
@@ -2382,7 +2382,7 @@ const struct potion_alchemy potion_fusions[] = {
 /* returns the potion type when o1 is dipped in o2 */
 STATIC_OVL short
 mixtype(o1, o2)
-register struct obj *o1, *o2;
+struct obj *o1, *o2;
 {
     int o1typ = o1->otyp, o2typ = o2->otyp;
     const struct potion_alchemy *precipe;
@@ -2414,7 +2414,7 @@ int
 dodip()
 {
     static const char Dip_[] = "Dip ";
-    register struct obj *potion, *obj;
+    struct obj *potion, *obj;
     struct obj *singlepotion;
     uchar here;
     char allowall[2];

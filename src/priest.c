@@ -42,7 +42,7 @@ struct monst *mtmp;
  */
 int
 move_special(mtmp, in_his_shop, appr, uondoor, avoid, omx, omy, gx, gy)
-register struct monst *mtmp;
+struct monst *mtmp;
 boolean in_his_shop;
 schar appr;
 boolean uondoor, avoid;
@@ -173,7 +173,7 @@ register char *array;
 
 STATIC_OVL boolean
 histemple_at(priest, x, y)
-register struct monst *priest;
+struct monst *priest;
 register xchar x, y;
 {
     return (boolean) (priest && priest->ispriest
@@ -200,7 +200,7 @@ struct monst *priest;
  */
 int
 pri_move(priest)
-register struct monst *priest;
+struct monst *priest;
 {
     register xchar gx, gy, omx, omy;
     schar temple;
@@ -339,7 +339,7 @@ struct monst *mon;
  */
 char *
 priestname(mon, pname)
-register struct monst *mon;
+struct monst *mon;
 char *pname; /* caller-supplied output buffer */
 {
     boolean do_hallu = Hallucination,
@@ -422,7 +422,7 @@ struct monst *
 findpriest(roomno)
 char roomno;
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -628,7 +628,7 @@ struct monst *priest;
 
 void
 priest_talk(priest)
-register struct monst *priest;
+struct monst *priest;
 {
     boolean coaligned = p_coaligned(priest);
     boolean strayed = (u.ualign.record < 0);
@@ -767,12 +767,12 @@ register struct monst *priest;
 
 struct monst *
 mk_roamer(ptr, alignment, x, y, peaceful)
-register struct permonst *ptr;
+struct permonst *ptr;
 aligntyp alignment;
 xchar x, y;
 boolean peaceful;
 {
-    register struct monst *roamer;
+    struct monst *roamer;
     register boolean coaligned = (u.ualign.type == alignment);
 
 #if 0 /* this was due to permonst's pxlth field which is now gone */
@@ -811,7 +811,7 @@ boolean peaceful;
 
 void
 reset_hostility(roamer)
-register struct monst *roamer;
+struct monst *roamer;
 {
     if (!roamer->isminion)
         return;
@@ -832,7 +832,7 @@ struct monst *mon; /* if non-null, <mx,my> overrides <x,y> */
 xchar x, y;
 {
     register char roomno;
-    register struct monst *priest;
+    struct monst *priest;
 
     if (mon) {
         if (is_minion(mon->data) || is_rider(mon->data))
@@ -927,7 +927,7 @@ struct monst *priest;
 void
 angry_priest()
 {
-    register struct monst *priest;
+    struct monst *priest;
     struct rm *lev;
 
     if ((priest = findpriest(temple_occupied(u.urooms))) != 0) {
@@ -981,7 +981,7 @@ clearpriests()
 /* munge priest-specific structure when restoring -dlc */
 void
 restpriest(mtmp, ghostly)
-register struct monst *mtmp;
+struct monst *mtmp;
 boolean ghostly;
 {
     mtmp->data->msound = MS_PRIEST; /* racial priests */

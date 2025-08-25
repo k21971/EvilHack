@@ -37,7 +37,7 @@ extern const struct shclass shtypes[]; /* defined in shknam.c */
 
 STATIC_OVL boolean
 isbig(sroom)
-register struct mkroom *sroom;
+struct mkroom *sroom;
 {
     register int area = (sroom->hx - sroom->lx + 1)
                         * (sroom->hy - sroom->ly + 1);
@@ -110,7 +110,7 @@ int roomtype;
 STATIC_OVL void
 mkshop()
 {
-    register struct mkroom *sroom;
+    struct mkroom *sroom;
     int i = -1;
     char *ep = (char *) 0; /* (init == lint suppression) */
 
@@ -253,7 +253,7 @@ STATIC_OVL struct mkroom *
 pick_room(strict)
 register boolean strict;
 {
-    register struct mkroom *sroom;
+    struct mkroom *sroom;
     register int i = nroom;
 
     for (sroom = &rooms[rn2(nroom)]; i--; sroom++) {
@@ -278,7 +278,7 @@ STATIC_OVL void
 mkzoo(type)
 int type;
 {
-    register struct mkroom *sroom;
+    struct mkroom *sroom;
 
     if ((sroom = pick_room(FALSE)) != 0) {
         sroom->rtype = type;
@@ -835,7 +835,7 @@ struct mkroom *croom; /* NULL == choose random room */
 STATIC_OVL void
 mkswamp() /* Michiel Huisjes & Fred de Wilde */
 {
-    register struct mkroom *sroom;
+    struct mkroom *sroom;
     register int sx, sy, i, eelct = 0;
 
     for (i = 0; i < 5; i++) { /* turn up to 5 rooms swampy */
@@ -905,9 +905,9 @@ int roomno;
 STATIC_OVL void
 mktemple()
 {
-    register struct mkroom *sroom;
+    struct mkroom *sroom;
     coord *shrine_spot;
-    register struct rm *lev;
+    struct rm *lev;
 
     if (!(sroom = pick_room(TRUE)))
         return;
@@ -933,7 +933,7 @@ nexttodoor(sx, sy)
 register int sx, sy;
 {
     register int dx, dy;
-    register struct rm *lev;
+    struct rm *lev;
 
     for (dx = -1; dx <= 1; dx++) {
         for (dy = -1; dy <= 1; dy++) {
@@ -952,7 +952,7 @@ nexttotree(sx, sy)
 register int sx, sy;
 {
     register int dx, dy;
-    register struct rm *lev;
+    struct rm *lev;
 
     for (dx = -1; dx <= 1; dx++) {
         for (dy = -1; dy <= 1; dy++) {
@@ -968,7 +968,7 @@ register int sx, sy;
 
 boolean
 has_dnstairs(sroom)
-register struct mkroom *sroom;
+struct mkroom *sroom;
 {
     if (sroom == dnstairs_room)
         return TRUE;
@@ -979,7 +979,7 @@ register struct mkroom *sroom;
 
 boolean
 has_upstairs(sroom)
-register struct mkroom *sroom;
+struct mkroom *sroom;
 {
     if (sroom == upstairs_room)
         return TRUE;
@@ -990,14 +990,14 @@ register struct mkroom *sroom;
 
 int
 somex(croom)
-register struct mkroom *croom;
+struct mkroom *croom;
 {
     return rn1(croom->hx - croom->lx + 1, croom->lx);
 }
 
 int
 somey(croom)
-register struct mkroom *croom;
+struct mkroom *croom;
 {
     return rn1(croom->hy - croom->ly + 1, croom->ly);
 }
@@ -1118,7 +1118,7 @@ struct mkroom *
 search_special(type)
 schar type;
 {
-    register struct mkroom *croom;
+    struct mkroom *croom;
 
     for (croom = &rooms[0]; croom->hx >= 0; croom++)
         if ((type == ANY_TYPE && croom->rtype != OROOM)

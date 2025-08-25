@@ -14,7 +14,7 @@ STATIC_DCL const char *FDECL(equipname, (struct obj *));
 
 STATIC_OVL const char *
 equipname(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     return ((otmp == uarmu)
                 ? "shirt"
@@ -73,7 +73,7 @@ long lmoney;
 */
 struct obj *
 findgold(chain, only_coins)
-register struct obj *chain;
+struct obj *chain;
 boolean only_coins;
 {
     struct obj* gold = (struct obj *) 0;
@@ -98,10 +98,10 @@ boolean only_coins;
 */
 void
 stealgold(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct obj *fgold;
-    register struct obj *ygold;
+    struct obj *fgold;
+    struct obj *ygold;
     register long tmp;
     struct monst *who;
     const char *whose, *what;
@@ -571,8 +571,8 @@ char *objnambuf;
 /* Returns 1 if otmp is free'd, 0 otherwise. */
 int
 mpickobj(mtmp, otmp)
-register struct monst *mtmp;
-register struct obj *otmp;
+struct monst *mtmp;
+struct obj *otmp;
 {
     int freed_otmp;
     boolean snuff_otmp = FALSE;

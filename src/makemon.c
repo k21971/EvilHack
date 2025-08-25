@@ -319,7 +319,7 @@ m_initthrow(mtmp, otyp, oquan)
 struct monst *mtmp;
 int otyp, oquan;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     otmp = mksobj(otyp, TRUE, FALSE);
     otmp->quan = (long) rn1(oquan, 3);
@@ -816,13 +816,13 @@ extern int FDECL(isqrt, (int));
 
 STATIC_OVL void
 ini_mon_inv(mtmp, origtrop, chance)
-register struct monst *mtmp;
-register struct trobj *origtrop;
+struct monst *mtmp;
+struct trobj *origtrop;
 unsigned short chance;
 {
     struct obj *obj;
     struct trobj temptrop;
-    register struct trobj *trop = &temptrop;
+    struct trobj *trop = &temptrop;
     int otyp;
 
     memcpy(&temptrop, origtrop, sizeof(struct trobj));
@@ -991,9 +991,9 @@ unsigned short chance;
 
 STATIC_OVL void
 m_initweap(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct permonst *ptr = mtmp->data;
+    struct permonst *ptr = mtmp->data;
     register int mm = monsndx(ptr);
     struct obj *otmp = mtmp->minvent, *nextobj;
     int bias, w1, w2, randwand, quan;
@@ -2459,11 +2459,11 @@ struct monst *mtmp;
 
 STATIC_OVL void
 m_initinv(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     register int cnt;
-    register struct obj *otmp;
-    register struct permonst *ptr = mtmp->data;
+    struct obj *otmp;
+    struct permonst *ptr = mtmp->data;
 
     if (Is_rogue_level(&u.uz))
         return;
@@ -3258,11 +3258,11 @@ coord *cc;
  */
 struct monst *
 makemon(ptr, x, y, mmflags)
-register struct permonst *ptr;
+struct permonst *ptr;
 register int x, y;
 long mmflags;
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
     struct monst fakemon;
     coord cc;
     int mndx, mcham, ct, mitem, mitem2;
@@ -3816,7 +3816,7 @@ int mndx;
  */
 STATIC_OVL int
 align_shift(ptr)
-register struct permonst *ptr;
+struct permonst *ptr;
 {
     static NEARDATA long oldmoves = 0L; /* != 1, starting value of moves */
     static NEARDATA s_level *lev;
@@ -3851,7 +3851,7 @@ register struct permonst *ptr;
 struct permonst *
 rndmonst()
 {
-    register struct permonst *ptr;
+    struct permonst *ptr;
     register int mndx;
     int weight, totalweight, selected_mndx, zlevel, minmlev, maxmlev;
     boolean elemlevel, upper;
@@ -4092,7 +4092,7 @@ int class;
 /* adjust strength of monsters based on u.uz and u.ulevel */
 int
 adj_lev(ptr)
-register struct permonst *ptr;
+struct permonst *ptr;
 {
     int tmp, tmp2;
 
@@ -4259,10 +4259,10 @@ struct monst *mtmp, *victim;
 
 int
 mongets(mtmp, otyp)
-register struct monst *mtmp;
+struct monst *mtmp;
 int otyp;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     int tryct;
     int spe;
 
@@ -4419,9 +4419,9 @@ int type;
  */
 boolean
 peace_minded(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct permonst *ptr = mtmp->data;
+    struct permonst *ptr = mtmp->data;
     aligntyp mal = has_erac(mtmp) ? ERAC(mtmp)->ralign : ptr->maligntyp,
              ual = u.ualign.type;
 
@@ -4634,7 +4634,7 @@ static NEARDATA char syms[] = {
 
 void
 set_mimic_sym(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     int typ, roomno, rt;
     unsigned appear, ap_type;

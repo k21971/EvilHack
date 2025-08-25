@@ -87,10 +87,10 @@ newpw()
 /* return # of exp points for mtmp after nk killed */
 int
 experience(mtmp, nk)
-register struct monst *mtmp;
+struct monst *mtmp;
 register int nk;
 {
-    register struct permonst *ptr = mtmp->data;
+    struct permonst *ptr = mtmp->data;
     int i, tmp, tmp2;
 
     tmp = 1 + mtmp->m_lev * mtmp->m_lev;

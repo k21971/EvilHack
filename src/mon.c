@@ -609,10 +609,10 @@ int mndx;
  */
 STATIC_OVL struct obj *
 make_corpse(mtmp, corpseflags)
-register struct monst *mtmp;
+struct monst *mtmp;
 unsigned corpseflags;
 {
-    register struct permonst *mdat = mtmp->data;
+    struct permonst *mdat = mtmp->data;
     int num;
     struct obj *obj = (struct obj *) 0;
     struct obj *otmp = (struct obj *) 0;
@@ -874,7 +874,7 @@ unsigned corpseflags;
 /* check mtmp and water/lava/air for compatibility, 0 (survived), 1 (died) */
 int
 minliquid(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     boolean inpool, inlava, infountain, inshallow, inforge, inopenair;
 
@@ -1457,7 +1457,7 @@ mcalcdistress()
 int
 movemon()
 {
-    register struct monst *mtmp, *nmtmp;
+    struct monst *mtmp, *nmtmp;
     register boolean somebody_can_move = FALSE;
 
     /*
@@ -1659,9 +1659,9 @@ struct obj *otmp;
  */
 int
 meatmetal(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     struct permonst *ptr;
     int poly, grow, heal, mstone;
 
@@ -1884,9 +1884,9 @@ struct monst *mtmp;
 
 void
 mpickgold(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct obj *gold;
+    struct obj *gold;
     int mat_idx;
 
     if ((gold = g_at(mtmp->mx, mtmp->my)) != 0
@@ -1912,9 +1912,9 @@ register struct monst *mtmp;
 /* monster eats royal jelly */
 int
 meatjelly(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     struct permonst *ptr;
     int grow, heal, mstone;
 
@@ -2079,9 +2079,9 @@ struct monst *mtmp;
 /* corpses Gollum will eat */
 int
 gollum_eat(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     struct permonst *ptr;
     int grow, heal, mstone;
 
@@ -2261,10 +2261,10 @@ boolean vismon;
 
 boolean
 mpickstuff(mtmp, str)
-register struct monst *mtmp;
+struct monst *mtmp;
 register const char *str;
 {
-    register struct obj *otmp, *otmp2, *otmp3, *otmp4;
+    struct obj *otmp, *otmp2, *otmp3, *otmp4;
     boolean waslocked = FALSE;
     boolean vismon;
     int carryamt = 0;
@@ -2644,7 +2644,7 @@ long *info;  /* long info[9] */
 long flag;
 {
     struct permonst *mdat = mon->data;
-    register struct trap *ttmp;
+    struct trap *ttmp;
     xchar x, y, nx, ny;
     int cnt = 0;
     uchar ntyp;
@@ -3819,7 +3819,7 @@ michaeldead()
 
 void
 mondead(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     struct permonst *mptr;
     struct monst *rider;
@@ -4301,7 +4301,7 @@ boolean was_swallowed; /* digestion */
 /* drop (perhaps) a cadaver and remove monster */
 void
 mondied(mdef)
-register struct monst *mdef;
+struct monst *mdef;
 {
     mondead(mdef);
     if (!DEADMONSTER(mdef))
@@ -5181,7 +5181,7 @@ struct monst *mtmp;
  */
 int
 mnearto(mtmp, x, y, move_other)
-register struct monst *mtmp;
+struct monst *mtmp;
 xchar x, y;
 boolean move_other; /* make sure mtmp gets to x, y! so move m_at(x, y) */
 {
@@ -5550,7 +5550,7 @@ boolean via_attack;
 /* wake up a monster, possibly making it angry in the process */
 void
 wakeup(mtmp, via_attack)
-register struct monst *mtmp;
+struct monst *mtmp;
 boolean via_attack;
 {
     mtmp->msleeping = 0;
@@ -5605,7 +5605,7 @@ int x, y, distance;
 /* NOTE: we must check for mimicry before calling this routine */
 void
 seemimic(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     boolean is_blocker_appear = (is_lightblocker_mappear(mtmp));
 
@@ -5629,7 +5629,7 @@ register struct monst *mtmp;
 void
 rescham()
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
     int mcham;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -5655,7 +5655,7 @@ rescham()
 void
 restartcham()
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -5696,7 +5696,7 @@ struct monst *mon;
    only applies to is_hider monsters, *not* hides_under monsters. */
 STATIC_OVL boolean
 restrap(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     struct trap *t;
 
@@ -6506,7 +6506,7 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
      */
     /* former giants can't continue carrying boulders */
     if (mtmp->minvent && !racial_throws_rocks(mtmp)) {
-        register struct obj *otmp, *otmp2;
+        struct obj *otmp, *otmp2;
 
         for (otmp = mtmp->minvent; otmp; otmp = otmp2) {
             otmp2 = otmp->nobj;
@@ -6688,7 +6688,7 @@ kill_genocided_monsters()
 
 void
 golemeffects(mon, damtype, dam)
-register struct monst *mon;
+struct monst *mon;
 int damtype, dam;
 {
     int heal = 0, slow = 0;
@@ -7253,8 +7253,8 @@ apply_race(mtmp, raceidx)
 struct monst *mtmp;
 short raceidx;
 {
-    register struct erac *rptr;
-    register struct permonst *ptr = &mons[raceidx], *mptr = &mons[mtmp->mnum];
+    struct erac *rptr;
+    struct permonst *ptr = &mons[raceidx], *mptr = &mons[mtmp->mnum];
     boolean init = FALSE;
 
     if (!mtmp || mvitals[raceidx].mvflags & G_GONE)

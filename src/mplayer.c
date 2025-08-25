@@ -220,7 +220,7 @@ static const struct mfnames namelists[] = {
 
 void
 get_mplname(mtmp, nam)
-register struct monst *mtmp;
+struct monst *mtmp;
 char *nam;
 {
     char* ttname = get_rnd_tt_name(TRUE); /* record file */
@@ -416,11 +416,11 @@ struct monst *mtmp;
 
 struct monst *
 mk_mplayer(ptr, x, y, special)
-register struct permonst *ptr;
+struct permonst *ptr;
 xchar x, y;
 register boolean special;
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
     register boolean ascending = special && (In_endgame(&u.uz) || u.uhave.amulet);
     char nam[PL_PSIZ];
 
@@ -524,7 +524,7 @@ boolean special;
 
 void
 mplayer_talk(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     static const char
         *same_class_msg[3] = {

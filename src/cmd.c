@@ -1998,7 +1998,7 @@ STATIC_OVL boolean
 cause_known(propindx)
 int propindx; /* index of a property which can be conveyed by worn item */
 {
-    register struct obj *o;
+    struct obj *o;
     long mask = W_ARMOR | W_AMUL | W_RING | W_TOOL;
 
     /* simpler than from_what()/what_gives(); we don't attempt to
@@ -3149,7 +3149,7 @@ int final;
         " if surroundings permitted";
     int ltmp, armpro;
     char buf[BUFSZ];
-    register struct obj *otmp;
+    struct obj *otmp;
 
     /*\
      *  Attributes

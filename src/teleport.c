@@ -477,7 +477,7 @@ int teleds_flags;
 STATIC_OVL void
 vault_tele()
 {
-    register struct mkroom *croom = search_special(VAULT);
+    struct mkroom *croom = search_special(VAULT);
     coord c;
 
     if (croom && somexy(croom, &c) && teleok(c.x, c.y, FALSE)) {
@@ -489,10 +489,10 @@ vault_tele()
 
 boolean
 teleport_pet(mtmp, force_it)
-register struct monst *mtmp;
+struct monst *mtmp;
 boolean force_it;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     if (mtmp == u.usteed)
         return FALSE;
@@ -1229,7 +1229,7 @@ level_tele()
 
 void
 domagicportal(ttmp)
-register struct trap *ttmp;
+struct trap *ttmp;
 {
     struct d_level target_level;
 
@@ -1696,7 +1696,7 @@ int in_sight;
 /* place object randomly, returns False if it's gone (eg broken) */
 boolean
 rloco(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     register xchar tx, ty, otx, oty;
     boolean restricted_fall;

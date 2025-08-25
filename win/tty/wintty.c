@@ -288,7 +288,7 @@ winch_handler(sig_unused) /* signal handler is called with at least 1 arg */
 int sig_unused UNUSED;
 {
     int oldLI = LI, oldCO = CO, i;
-    register struct WinDesc *cw;
+    struct WinDesc *cw;
 
 #ifdef WINCHAIN
     {
@@ -1659,7 +1659,7 @@ tty_clear_nhwindow(window)
 winid window;
 {
     int i, j, m, n;
-    register struct WinDesc *cw = 0;
+    struct WinDesc *cw = 0;
 
     HUPSKIP();
     if (window == WIN_ERR || (cw = wins[window]) == (struct WinDesc *) 0)
@@ -1752,7 +1752,7 @@ long count;
 
 STATIC_OVL void
 dmore(cw, s)
-register struct WinDesc *cw;
+struct WinDesc *cw;
 const char *s; /* valid responses */
 {
     const char *prompt = cw->morestr ? cw->morestr : defmorestr;
@@ -2351,7 +2351,7 @@ tty_display_nhwindow(window, blocking)
 winid window;
 boolean blocking; /* with ttys, all windows are blocking */
 {
-    register struct WinDesc *cw = 0;
+    struct WinDesc *cw = 0;
     short s_maxcol;
 
     HUPSKIP();
@@ -2445,7 +2445,7 @@ void
 tty_dismiss_nhwindow(window)
 winid window;
 {
-    register struct WinDesc *cw = 0;
+    struct WinDesc *cw = 0;
 
     HUPSKIP();
     if (window == WIN_ERR || (cw = wins[window]) == (struct WinDesc *) 0)
@@ -2491,7 +2491,7 @@ void
 tty_destroy_nhwindow(window)
 winid window;
 {
-    register struct WinDesc *cw = 0;
+    struct WinDesc *cw = 0;
 
     if (window == WIN_ERR || (cw = wins[window]) == (struct WinDesc *) 0)
         panic(winpanicstr, window);
@@ -2615,7 +2615,7 @@ winid window;
 int x, y;
 char ch;
 {
-    register struct WinDesc *cw = 0;
+    struct WinDesc *cw = 0;
 
     HUPSKIP();
     if (window == WIN_ERR || (cw = wins[window]) == (struct WinDesc *) 0)
@@ -2679,7 +2679,7 @@ winid window;
 int attr;
 const char *str;
 {
-    register struct WinDesc *cw = 0;
+    struct WinDesc *cw = 0;
     register char *ob;
     register long i, n0;
 #ifndef STATUS_HILITES
@@ -2968,7 +2968,7 @@ int attr;                   /* attribute for string (like tty_putstr()) */
 const char *str;            /* menu string */
 boolean preselected;        /* item is marked as selected */
 {
-    register struct WinDesc *cw = 0;
+    struct WinDesc *cw = 0;
     tty_menu_item *item;
     const char *newstr;
     char buf[4 + BUFSZ];
@@ -3150,7 +3150,7 @@ winid window;
 int how;
 menu_item **menu_list;
 {
-    register struct WinDesc *cw = 0;
+    struct WinDesc *cw = 0;
     tty_menu_item *curr;
     menu_item *mi;
     int n, cancelled;
@@ -3265,7 +3265,7 @@ docorner(xmin, ymax)
 register int xmin, ymax;
 {
     register int y;
-    register struct WinDesc *cw = wins[WIN_MAP];
+    struct WinDesc *cw = wins[WIN_MAP];
 
     HUPSKIP();
 #if 0   /* this optimization is not valuable enough to justify

@@ -68,7 +68,7 @@ STATIC_DCL void FDECL(ucast_cleric_spell, (struct monst *, struct monst *, int, 
 
 boolean
 is_spellcaster(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     int i = 0;
     struct attack *mattk;
@@ -308,8 +308,8 @@ int spellnum;
  */
 int
 castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
-register struct monst *mtmp;
-register struct attack *mattk;
+struct monst *mtmp;
+struct attack *mattk;
 boolean thinks_it_foundyou;
 boolean foundyou;
 {
@@ -1693,8 +1693,8 @@ int spellnum;
 /* monster uses spell against player (ranged) */
 int
 buzzmu(mtmp, mattk)
-register struct monst *mtmp;
-register struct attack *mattk;
+struct monst *mtmp;
+struct attack *mattk;
 {
     boolean seecaster = (canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters);
 
@@ -1724,9 +1724,9 @@ register struct attack *mattk;
 /* monster uses spell against monster (ranged) */
 int
 buzzmm(mtmp, mdef, mattk)
-register struct monst *mtmp;
-register struct monst *mdef;
-register struct attack *mattk;
+struct monst *mtmp;
+struct monst *mdef;
+struct attack *mattk;
 {
     boolean seecaster = (canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters);
 
@@ -2293,7 +2293,7 @@ int spellnum;
         break;
     case MGC_SUMMON_MONS: {
         int count = 0;
-        register struct monst *mpet;
+        struct monst *mpet;
 
         if (!rn2(10) && Inhell) {
             if (yours)

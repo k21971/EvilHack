@@ -73,7 +73,7 @@ revive_nasty(x, y, msg)
 int x, y;
 const char *msg;
 {
-    register struct obj *otmp, *otmp2;
+    struct obj *otmp, *otmp2;
     struct monst *mtmp;
     coord cc;
     boolean revived = FALSE;
@@ -109,9 +109,9 @@ STATIC_OVL int
 moverock()
 {
     register xchar rx, ry, sx, sy;
-    register struct obj *otmp;
-    register struct trap *ttmp;
-    register struct monst *mtmp;
+    struct obj *otmp;
+    struct trap *ttmp;
+    struct monst *mtmp;
 
     sx = u.ux + u.dx, sy = u.uy + u.dy; /* boulder starting position */
 
@@ -580,7 +580,7 @@ xchar x, y;
 
 void
 movobj(obj, ox, oy)
-register struct obj *obj;
+struct obj *obj;
 register xchar ox, oy;
 {
     /* optimize by leaving on the fobj chain? */
@@ -596,7 +596,7 @@ static NEARDATA const char fell_on_sink[] = "fell onto a sink";
 STATIC_OVL void
 dosinkfall()
 {
-    register struct obj *obj;
+    struct obj *obj;
     int dmg;
     boolean lev_boots = (uarmf && uarmf->otyp == LEVITATION_BOOTS),
             innate_lev = ((HLevitation & (FROMOUTSIDE | FROMFORM)) != 0L),
@@ -889,8 +889,8 @@ int mode;
 {
     int x = ux + dx;
     int y = uy + dy;
-    register struct rm *tmpr = &levl[x][y];
-    register struct rm *ust;
+    struct rm *tmpr = &levl[x][y];
+    struct rm *ust;
 
     context.door_opened = FALSE;
     /*
@@ -1576,8 +1576,8 @@ domove()
 STATIC_OVL void
 domove_core()
 {
-    register struct monst *mtmp;
-    register struct rm *tmpr;
+    struct monst *mtmp;
+    struct rm *tmpr;
     register xchar x, y;
     struct trap *trap = NULL;
     int wtcap;
@@ -2856,7 +2856,7 @@ monstinroom(mdat, roomno)
 struct permonst *mdat;
 int roomno;
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -2876,7 +2876,7 @@ register int typewanted;
     static char buf[5];
     char rno, *ptr = &buf[4];
     int typefound, min_x, min_y, max_x, max_y_offset, step;
-    register struct rm *lev;
+    struct rm *lev;
 
 #define goodtype(rno) \
     (!typewanted                                                   \
@@ -2941,7 +2941,7 @@ in_town(x, y)
 register int x, y;
 {
     s_level *slev = Is_special(&u.uz);
-    register struct mkroom *sroom;
+    struct mkroom *sroom;
     boolean has_subrooms = FALSE;
 
     if (!slev || !slev->flags.town)
@@ -3007,7 +3007,7 @@ void
 check_special_room(newlev)
 register boolean newlev;
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
     char *ptr;
 
     move_update(newlev);
@@ -3231,7 +3231,7 @@ pickup_checks()
         }
     }
     if (!OBJ_AT(u.ux, u.uy)) {
-        register struct rm *lev = &levl[u.ux][u.uy];
+        struct rm *lev = &levl[u.ux][u.uy];
 
         if (IS_THRONE(lev->typ))
             pline("It must weigh%s a ton!", lev->looted ? " almost" : "");
@@ -3520,7 +3520,7 @@ int
 monster_nearby()
 {
     register int x, y;
-    register struct monst *mtmp;
+    struct monst *mtmp;
 
     /* Also see the similar check in dochugw() in monmove.c */
     for (x = u.ux - 1; x <= u.ux + 1; x++)
@@ -3793,7 +3793,7 @@ static int wc; /* current weight_cap(); valid after call to inv_weight() */
 int
 inv_weight()
 {
-    register struct obj *otmp = invent;
+    struct obj *otmp = invent;
     register int wt = 0;
 
     while (otmp) {
@@ -3862,7 +3862,7 @@ int
 inv_cnt(incl_gold)
 boolean incl_gold;
 {
-    register struct obj *otmp = invent;
+    struct obj *otmp = invent;
     register int ct = 0;
 
     while (otmp) {

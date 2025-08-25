@@ -601,11 +601,11 @@ boolean by_nexthere; /* T: traverse via obj->nexthere, F: via obj->nobj */
 
 void
 assigninvlet(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     boolean inuse[52];
     register int i;
-    register struct obj *obj;
+    struct obj *obj;
 
     /* there should be at most one of these in inventory... */
     if (otmp->oclass == COIN_CLASS) {
@@ -722,7 +722,7 @@ int
 merged(potmp, pobj)
 struct obj **potmp, **pobj;
 {
-    register struct obj *otmp = *potmp, *obj = *pobj;
+    struct obj *otmp = *potmp, *obj = *pobj;
 
     if (mergable(otmp, obj)) {
         /* Approximate age: we do it this way because if we were to
@@ -1147,7 +1147,7 @@ struct obj *obj;
 
 void
 useup(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     /* Note:  This works correctly for containers because they (containers)
        don't merge. */
@@ -1268,7 +1268,7 @@ struct obj *obj;
 /* remove an object from the hero's inventory */
 void
 freeinv(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     extract_nobj(obj, &invent);
     freeinv_core(obj);
@@ -1342,7 +1342,7 @@ sobj_at(otyp, x, y)
 int otyp;
 int x, y;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     for (otmp = level.objects[x][y]; otmp; otmp = otmp->nexthere)
         if (otmp->otyp == otyp)
@@ -1358,7 +1358,7 @@ struct obj *obj;
 int type;
 boolean by_nexthere;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     otmp = obj; /* start with the object after this one */
     do {
@@ -1374,7 +1374,7 @@ struct obj *
 carrying(type)
 register int type;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     for (otmp = invent; otmp; otmp = otmp->nobj)
         if (otmp->otyp == type)
@@ -1424,7 +1424,7 @@ long amount;
 boolean
 have_lizard()
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     for (otmp = invent; otmp; otmp = otmp->nobj)
         if (otmp->otyp == CORPSE && otmp->corpsenm == PM_LIZARD)
@@ -1436,7 +1436,7 @@ have_lizard()
 struct obj *
 u_have_novel()
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     for (otmp = invent; otmp; otmp = otmp->nobj)
         if (otmp->otyp == SPE_NOVEL)
@@ -1447,7 +1447,7 @@ u_have_novel()
 struct obj *
 o_on(id, objchn)
 unsigned int id;
-register struct obj *objchn;
+struct obj *objchn;
 {
     struct obj *temp;
 
@@ -1463,10 +1463,10 @@ register struct obj *objchn;
 
 boolean
 obj_here(obj, x, y)
-register struct obj *obj;
+struct obj *obj;
 int x, y;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     for (otmp = level.objects[x][y]; otmp; otmp = otmp->nexthere)
         if (obj == otmp)
@@ -1478,7 +1478,7 @@ struct obj *
 g_at(x, y)
 register int x, y;
 {
-    register struct obj *obj = level.objects[x][y];
+    struct obj *obj = level.objects[x][y];
 
     while (obj) {
         if (obj->oclass == COIN_CLASS)
@@ -1563,7 +1563,7 @@ struct obj *
 getobj(let, word)
 register const char *let, *word;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     register char ilet = 0;
     char buf[BUFSZ], qbuf[QBUFSZ];
     char lets[BUFSZ], altlets[BUFSZ], *ap;
@@ -3860,7 +3860,7 @@ struct obj *obj;
 /* returns TRUE if obj & otmp can be merged; used in invent.c and mkobj.c */
 boolean
 mergable(otmp, obj)
-register struct obj *otmp, *obj;
+struct obj *otmp, *obj;
 {
     int objnamelth = 0, otmpnamelth = 0;
 
@@ -4129,10 +4129,10 @@ doprinuse()
  */
 void
 useupf(obj, numused)
-register struct obj *obj;
+struct obj *obj;
 long numused;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     boolean at_u = (obj->ox == u.ux && obj->oy == u.uy);
 
     /* burn_floor_objects() keeps an object pointer that it tries to
@@ -4593,7 +4593,7 @@ struct obj *obj;
  */
 struct obj *
 display_minventory(mon, dflags, title)
-register struct monst *mon;
+struct monst *mon;
 int dflags;
 char *title;
 {
@@ -4644,7 +4644,7 @@ char *title;
  */
 struct obj *
 display_cinventory(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     struct obj *ret;
     char qbuf[QBUFSZ];

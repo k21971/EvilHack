@@ -84,7 +84,7 @@ STATIC_DCL int FDECL(ready_weapon, (struct obj *));
  */
 void
 setuwep(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     struct obj *olduwep = uwep;
 
@@ -291,7 +291,7 @@ struct obj *wep;
 
 void
 setuqwep(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     setworn(obj, W_QUIVER);
     /* no extra handling needed; this used to include a call to
@@ -301,7 +301,7 @@ register struct obj *obj;
 
 void
 setuswapwep(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     struct obj *olduswapwep = uswapwep;
 
@@ -386,7 +386,7 @@ static NEARDATA const char boulders[] = { /* (note: different from dothrow.c) */
 int
 dowield()
 {
-    register struct obj *wep, *oldwep;
+    struct obj *wep, *oldwep;
     int result;
 
     /* May we attempt this? */
@@ -437,7 +437,7 @@ dowield()
 int
 doswapweapon()
 {
-    register struct obj *oldwep, *oldswap;
+    struct obj *oldwep, *oldswap;
     int result = 0;
 
     /* May we attempt this? */
@@ -893,7 +893,7 @@ untwoweapon()
 
 int
 chwepon(otmp, amount)
-register struct obj *otmp;
+struct obj *otmp;
 register int amount;
 {
     const char *color = hcolor((amount < 0) ? NH_BLACK : NH_BLUE);
@@ -1039,7 +1039,7 @@ register int amount;
 
 int
 welded(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     if (obj && obj == uwep && will_weld_to_you(obj)) {
         set_bknown(obj, 1);
@@ -1050,7 +1050,7 @@ register struct obj *obj;
 
 void
 weldmsg(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     long savewornmask;
 

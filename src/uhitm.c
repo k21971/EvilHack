@@ -113,7 +113,7 @@ int hurt;
 /* FALSE means it's OK to attack */
 boolean
 attack_checks(mtmp, wep)
-register struct monst *mtmp;
+struct monst *mtmp;
 struct obj *wep; /* uwep for attack(), null for kick_monster() */
 {
     int glyph;
@@ -291,7 +291,7 @@ struct monst *mtmp;
 
 int
 find_roll_to_hit(mtmp, aatyp, weapon, attk_count, role_roll_penalty)
-register struct monst *mtmp;
+struct monst *mtmp;
 uchar aatyp;        /* usually AT_WEAP or AT_KICK */
 struct obj *weapon; /* uwep or uswapwep or NULL */
 int *attk_count, *role_roll_penalty;
@@ -464,9 +464,9 @@ int *attk_count, *role_roll_penalty;
    u.dx and u.dy must be set */
 boolean
 attack(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct permonst *mdat = mtmp->data;
+    struct permonst *mdat = mtmp->data;
     size_t maxweight;
     boolean thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
                         && context.forcefight && !Upolyd);
@@ -707,7 +707,7 @@ register struct monst *mtmp;
 /* really hit target monster; returns TRUE if it still lives */
 STATIC_OVL boolean
 known_hitum(mon, weapon, mhit, rollneeded, armorpenalty, uattk, dieroll)
-register struct monst *mon;
+struct monst *mon;
 struct obj *weapon;
 int *mhit;
 int rollneeded, armorpenalty; /* for monks */
@@ -3021,11 +3021,11 @@ struct monst *mdef;
 
 int
 damageum(mdef, mattk, specialdmg)
-register struct monst *mdef;
-register struct attack *mattk;
+struct monst *mdef;
+struct attack *mattk;
 int specialdmg; /* blessed and/or silver bonus against various things */
 {
-    register struct permonst *pd = mdef->data;
+    struct permonst *pd = mdef->data;
     int armpro, tmp = d((int) mattk->damn, (int) mattk->damd);
     boolean negated;
     struct obj *mongold;
@@ -3719,8 +3719,8 @@ do_rust:
  */
 int
 explum(mdef, mattk)
-register struct monst *mdef;
-register struct attack *mattk;
+struct monst *mdef;
+struct attack *mattk;
 {
     register int tmp = d((int) mattk->damn, (int) mattk->damd);
 
@@ -3804,8 +3804,8 @@ end_engulf()
 
 STATIC_OVL int
 gulpum(mdef, mattk)
-register struct monst *mdef;
-register struct attack *mattk;
+struct monst *mdef;
+struct attack *mattk;
 {
 #ifdef LINT /* static char msgbuf[BUFSZ]; */
     char msgbuf[BUFSZ];
@@ -4050,8 +4050,8 @@ register struct attack *mattk;
 
 void
 missum(mdef, target, roll, mattk, wouldhavehit)
-register struct monst *mdef;
-register struct attack *mattk;
+struct monst *mdef;
+struct attack *mattk;
 register int target;
 register int roll;
 boolean wouldhavehit;
@@ -4193,7 +4193,7 @@ boolean wouldhavehit;
 /* attack monster as a monster; returns True if mon survives */
 STATIC_OVL boolean
 hmonas(mon, as, weapon_attacks)
-register struct monst *mon;
+struct monst *mon;
 int as;
 boolean weapon_attacks; /* skip weapon attacks if false */
 {
@@ -4769,9 +4769,9 @@ int malive;
 uchar aatyp;
 boolean wep_was_destroyed;
 {
-    register struct permonst *ptr = mon->data;
+    struct permonst *ptr = mon->data;
     register int i, t, tmp;
-    register struct attack *mattk;
+    struct attack *mattk;
     mattk = has_erac(mon) ? ERAC(mon)->mattk : ptr->mattk;
     boolean thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
                         && context.forcefight && !Upolyd);

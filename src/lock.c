@@ -764,7 +764,7 @@ struct obj *container; /* container, for autounlock */
 int
 doforce()
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     register int c, picktyp;
     char qbuf[QBUFSZ];
 
@@ -876,7 +876,7 @@ doopen_indir(x, y)
 int x, y;
 {
     coord cc;
-    register struct rm *door;
+    struct rm *door;
     int res = 0;
     boolean portcullis;
 
@@ -1003,7 +1003,7 @@ obstructed(x, y, quietly)
 register int x, y;
 boolean quietly;
 {
-    register struct monst *mtmp = m_at(x, y);
+    struct monst *mtmp = m_at(x, y);
 
     if (mtmp && M_AP_TYPE(mtmp) != M_AP_FURNITURE) {
         if (M_AP_TYPE(mtmp) == M_AP_OBJECT)
@@ -1037,7 +1037,7 @@ int
 doclose()
 {
     register int x, y;
-    register struct rm *door;
+    struct rm *door;
     int res = 0;
     boolean portcullis;
 
@@ -1194,7 +1194,7 @@ doorlock(otmp, x, y)
 struct obj *otmp;
 int x, y;
 {
-    register struct rm *door = &levl[x][y];
+    struct rm *door = &levl[x][y];
     boolean res = TRUE;
     int loudness = 0;
     const char *msg = (const char *) 0;

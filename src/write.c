@@ -94,11 +94,11 @@ static NEARDATA const char write_on[] = { SCROLL_CLASS, SPBOOK_CLASS, 0 };
 /* write -- applying a magic marker */
 int
 dowrite(pen)
-register struct obj *pen;
+struct obj *pen;
 {
-    register struct obj *paper;
+    struct obj *paper;
     char namebuf[BUFSZ] = DUMMY, *nm, *bp;
-    register struct obj *new_obj;
+    struct obj *new_obj;
     int basecost, actualcost;
     int curseval;
     char qbuf[QBUFSZ];

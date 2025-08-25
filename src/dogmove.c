@@ -32,11 +32,11 @@ STATIC_DCL void FDECL(quickmimic, (struct monst *));
 */
 boolean
 is_better_armor(mtmp, otmp)
-register struct monst *mtmp;
-register struct obj *otmp;
+struct monst *mtmp;
+struct obj *otmp;
 {
-    register struct obj *obj;
-    register struct obj *best = (struct obj *) 0;
+    struct obj *obj;
+    struct obj *best = (struct obj *) 0;
 
     if (otmp->oclass != ARMOR_CLASS)
         return FALSE;
@@ -102,8 +102,8 @@ register struct obj *otmp;
 */
 boolean
 could_use_item(mtmp, otmp, check_if_better, stashing)
-register struct monst *mtmp;
-register struct obj *otmp;
+struct monst *mtmp;
+struct obj *otmp;
 boolean check_if_better, stashing;
 {
     boolean can_use =
@@ -206,7 +206,7 @@ boolean check_if_better, stashing;
         } else {
             /* Check whether the monster has an item like this already.
                Prevent hoarding of multiple, identical items. */
-            register struct obj *otmp2;
+            struct obj *otmp2;
             for (otmp2 = mtmp->minvent; otmp2; otmp2 = otmp2->nobj) {
                 if (otmp->o_id == otmp2->o_id)
                     continue;
@@ -514,12 +514,12 @@ struct monst *mtmp;
 /* returns 2 if pet dies, otherwise 1 */
 int
 dog_eat(mtmp, obj, x, y, devour)
-register struct monst *mtmp;
-register struct obj *obj; /* if unpaid, then thrown or kicked by hero */
+struct monst *mtmp;
+struct obj *obj; /* if unpaid, then thrown or kicked by hero */
 int x, y; /* dog's starting location, might be different from current */
 boolean devour;
 {
-    register struct edog *edog = EDOG(mtmp);
+    struct edog *edog = EDOG(mtmp);
     boolean poly, grow, heal, eyes, slimer, deadmimic, unstone, unsick, vis;
     int nutrit, corpsenm;
     long oprice;
@@ -839,8 +839,8 @@ struct edog *edog;
  */
 STATIC_OVL int
 dog_invent(mtmp, edog, udist)
-register struct monst *mtmp;
-register struct edog *edog;
+struct monst *mtmp;
+struct edog *edog;
 int udist;
 {
     register int omx, omy, carryamt = 0;
@@ -929,13 +929,13 @@ int udist;
    returns -1/0/1 (dog's desire to approach player) or -2 (abort move) */
 STATIC_OVL int
 dog_goal(mtmp, edog, after, udist, whappr)
-register struct monst *mtmp;
+struct monst *mtmp;
 struct edog *edog;
 int after, udist, whappr;
 {
     register int omx, omy;
     boolean in_masters_sight, dog_has_minvent;
-    register struct obj *obj;
+    struct obj *obj;
     xchar otyp;
     int appr;
 
@@ -1077,7 +1077,7 @@ int after, udist, whappr;
 
 struct monst *
 find_targ(mtmp, dx, dy, maxdist)
-register struct monst *mtmp;
+struct monst *mtmp;
 int dx, dy;
 int maxdist;
 {
@@ -1318,8 +1318,8 @@ struct monst *mtmp;   /* Pet */
 
 boolean
 acceptable_pet_target(mtmp, mtmp2, ranged)
-register struct monst *mtmp;  /* your pet */
-register struct monst *mtmp2; /* the potential target */
+struct monst *mtmp;  /* your pet */
+struct monst *mtmp2; /* the potential target */
 boolean ranged;
 {
     /* from xNetHack...
@@ -1368,13 +1368,13 @@ boolean ranged;
 /* return 0 (no move), 1 (move) or 2 (dead) */
 int
 dog_move(mtmp, after)
-register struct monst *mtmp;
+struct monst *mtmp;
 int after; /* this is extra fast monster movement */
 {
     int omx, omy; /* original mtmp position */
     int appr, whappr, udist;
     int i, j, k;
-    register struct edog *edog = EDOG(mtmp);
+    struct edog *edog = EDOG(mtmp);
     struct obj *obj = (struct obj *) 0;
     xchar otyp;
     boolean has_edog, cursemsg[9], summoned, do_eat = FALSE;
@@ -1693,7 +1693,7 @@ int after; /* this is extra fast monster movement */
 
         if ((info[i] & ALLOW_M) && MON_AT(nx, ny)) {
             int mstatus;
-            register struct monst *mtmp2 = m_at(nx, ny);
+            struct monst *mtmp2 = m_at(nx, ny);
 
             if (!acceptable_pet_target(mtmp, mtmp2, FALSE))
                 continue;
@@ -1722,7 +1722,7 @@ int after; /* this is extra fast monster movement */
         if ((info[i] & ALLOW_MDISP) && MON_AT(nx, ny)
             && better_with_displacing && !undesirable_disp(mtmp, nx, ny)) {
             int mstatus;
-            register struct monst *mtmp2 = m_at(nx, ny);
+            struct monst *mtmp2 = m_at(nx, ny);
 
             mstatus = mdisplacem(mtmp, mtmp2, FALSE); /* displace monster */
             if (mstatus & MM_DEF_DIED)

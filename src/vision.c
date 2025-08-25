@@ -176,7 +176,7 @@ vision_init()
 int
 does_block(x, y, lev)
 int x, y;
-register struct rm *lev;
+struct rm *lev;
 {
     struct obj *obj;
     struct monst *mon;
@@ -219,7 +219,7 @@ vision_reset()
 {
     int y;
     register int x, i, dig_left, block;
-    register struct rm *lev;
+    struct rm *lev;
 
     /* Start out with cs0 as our current array */
     viz_array = cs_rows0;
@@ -537,7 +537,7 @@ int control;
     int start, stop;   /* inner loop starting/stopping index */
     int dx, dy;        /* one step from a lit door or lit wall (see below) */
     register int col;  /* inner loop counter */
-    register struct rm *lev; /* pointer to current pos */
+    struct rm *lev; /* pointer to current pos */
     struct rm *flev; /* pointer to position in "front" of current pos */
     extern unsigned char seenv_matrix[3][3]; /* from display.c */
     static unsigned char colbump[COLNO + 1]; /* cols to bump sv */

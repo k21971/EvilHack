@@ -110,7 +110,7 @@ sort_rooms()
 
 STATIC_OVL void
 do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, rtype, special, is_room)
-register struct mkroom *croom;
+struct mkroom *croom;
 int lowx, lowy;
 register int hix, hiy;
 boolean lit;
@@ -192,7 +192,7 @@ boolean lit;
 schar rtype;
 boolean special;
 {
-    register struct mkroom *croom;
+    struct mkroom *croom;
 
     croom = &rooms[nroom];
     do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, rtype, special,
@@ -210,7 +210,7 @@ boolean lit;
 schar rtype;
 boolean special;
 {
-    register struct mkroom *croom;
+    struct mkroom *croom;
 
     croom = &subrooms[nsubroom];
     do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, rtype, special,
@@ -355,7 +355,7 @@ boolean nxcor;
 {
     coord cc, tt, org, dest;
     register xchar tx, ty, xx, yy;
-    register struct mkroom *croom, *troom;
+    struct mkroom *croom, *troom;
     register int dx, dy;
 
     croom = &rooms[a];
@@ -458,9 +458,9 @@ makecorridors()
 void
 add_door(x, y, aroom)
 register int x, y;
-register struct mkroom *aroom;
+struct mkroom *aroom;
 {
-    register struct mkroom *broom;
+    struct mkroom *broom;
     register int tmp;
     int i;
 
@@ -557,7 +557,7 @@ int type;
 
 STATIC_OVL boolean
 place_niche(aroom, dy, xx, yy)
-register struct mkroom *aroom;
+struct mkroom *aroom;
 int *dy, *xx, *yy;
 {
     coord dd;
@@ -593,7 +593,7 @@ STATIC_OVL void
 makeniche(trap_type)
 int trap_type;
 {
-    register struct mkroom *aroom;
+    struct mkroom *aroom;
     struct rm *rm;
     int vct = 8;
     int dy, xx, yy;
@@ -722,7 +722,7 @@ clear_level_structures()
     static struct rm zerorm = { cmap_to_glyph(S_stone),
                                 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     register int x, y;
-    register struct rm *lev;
+    struct rm *lev;
 
     /* note:  normally we'd start at x=1 because map column #0 isn't used
        (except for placing vault guard at <0,0> when removed from the map
@@ -795,7 +795,7 @@ clear_level_structures()
 STATIC_OVL void
 makelevel()
 {
-    register struct mkroom *croom, *troom;
+    struct mkroom *croom, *troom;
     register int tryct;
     register int i;
     struct monst *tmonst; /* always put a web with a spider */
@@ -1954,7 +1954,7 @@ struct mkroom *croom;
 {
     coord m;
     register int tryct = 0;
-    register struct obj *otmp;
+    struct obj *otmp;
     boolean dobell = !rn2(10);
 
     if (croom->rtype != OROOM)
@@ -2148,7 +2148,7 @@ int dist;
     struct trap *ttmp;
     struct obj *otmp;
     boolean make_rocks;
-    register struct rm *lev = &levl[x][y];
+    struct rm *lev = &levl[x][y];
     struct monst *mon;
 
     /* clip at existing map borders if necessary */

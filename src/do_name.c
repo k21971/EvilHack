@@ -1233,7 +1233,7 @@ STATIC_VAR int via_naming = 0;
 STATIC_OVL
 void
 do_oname(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     char *bufp, buf[BUFSZ], bufcpy[BUFSZ], qbuf[QBUFSZ];
     const char *aname;
@@ -1745,7 +1745,7 @@ struct monst *mtmp;
  */
 char *
 x_monnam(mtmp, article, adjective, suppress, called)
-register struct monst *mtmp;
+struct monst *mtmp;
 int article;
 /* ARTICLE_NONE, ARTICLE_THE, ARTICLE_A: obvious
  * ARTICLE_YOUR: "your" on pets, "the" on everything else

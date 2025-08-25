@@ -336,10 +336,10 @@ aligntyp alignment; /* target alignment, or A_NONE */
 /* Create an item with special properties, or grant the item those properties */
 struct obj *
 create_oprop(obj, allow_detrimental)
-register struct obj *obj;
+struct obj *obj;
 boolean allow_detrimental;
 {
-    register struct obj *otmp = obj;
+    struct obj *otmp = obj;
     int i, j;
 
     if (!otmp) {
@@ -852,7 +852,7 @@ long wp_mask;
     long *mask = 0;
     long *mask2 = 0;
     register const struct artifact *art, *oart = get_artifact(otmp);
-    register struct obj *obj;
+    struct obj *obj;
     register uchar dtyp;
     register long spfx;
 
@@ -4074,7 +4074,7 @@ struct obj *glower;
 void
 blind_glow_warnings(VOID_ARGS)
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     for (otmp = invent; otmp; otmp = otmp->nobj) {
         if (((otmp->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))

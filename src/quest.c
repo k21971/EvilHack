@@ -573,7 +573,7 @@ struct monst *mtmp;
 
 void
 quest_chat(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     if (mtmp->m_id == Qstat(leader_m_id)) {
         chat_with_leader();

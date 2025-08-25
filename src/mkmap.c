@@ -273,7 +273,7 @@ STATIC_OVL void
 join_map(bg_typ, fg_typ)
 schar bg_typ, fg_typ;
 {
-    register struct mkroom *croom, *croom2;
+    struct mkroom *croom, *croom2;
 
     register int i, j;
     int sx, sy;

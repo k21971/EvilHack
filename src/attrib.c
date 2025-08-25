@@ -453,7 +453,7 @@ int
 stone_luck(parameter)
 boolean parameter; /* So I can't think up of a good name.  So sue me. --KAA */
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     register long bonchance = 0;
 
     for (otmp = invent; otmp; otmp = otmp->nobj)
@@ -472,7 +472,7 @@ boolean parameter; /* So I can't think up of a good name.  So sue me. --KAA */
 boolean
 has_luckitem()
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     for (otmp = invent; otmp; otmp = otmp->nobj)
 	if (confers_luck(otmp)) return TRUE;

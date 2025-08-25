@@ -1014,7 +1014,7 @@ STATIC_OVL void
 savedamage(fd, mode)
 register int fd, mode;
 {
-    register struct damage *damageptr, *tmp_dam;
+    struct damage *damageptr, *tmp_dam;
     unsigned int xl = 0;
 
     damageptr = level.damagelist;
@@ -1111,7 +1111,7 @@ saveobjchn(fd, obj_p, mode)
 register int fd, mode;
 struct obj **obj_p;
 {
-    register struct obj *otmp = *obj_p;
+    struct obj *otmp = *obj_p;
     struct obj *otmp2;
     boolean is_invent = (otmp && otmp == invent);
     int minusone = -1;
@@ -1228,9 +1228,9 @@ struct monst *mtmp;
 STATIC_OVL void
 savemonchn(fd, mtmp, mode)
 register int fd, mode;
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct monst *mtmp2;
+    struct monst *mtmp2;
     int minusone = -1;
     struct permonst *monbegin = &mons[0];
 
@@ -1271,11 +1271,11 @@ register struct monst *mtmp;
 STATIC_OVL void
 savetrapchn(fd, trap, mode)
 int fd;
-register struct trap *trap;
+struct trap *trap;
 int mode;
 {
     static struct trap zerotrap;
-    register struct trap *trap2;
+    struct trap *trap2;
 
     while (trap) {
         trap2 = trap->ntrap;
@@ -1304,7 +1304,7 @@ savefruitchn(fd, mode)
 int fd, mode;
 {
     static struct fruit zerofruit;
-    register struct fruit *f2, *f1;
+    struct fruit *f2, *f1;
 
     f1 = ffruit;
     while (f1) {

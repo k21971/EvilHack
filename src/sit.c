@@ -35,7 +35,7 @@ int
 dosit()
 {
     static const char sit_message[] = "sit on the %s.";
-    register struct trap *trap = t_at(u.ux, u.uy);
+    struct trap *trap = t_at(u.ux, u.uy);
     register int typ = levl[u.ux][u.uy].typ;
 
     if (Hidinshell) {
@@ -72,7 +72,7 @@ dosit()
     if (OBJ_AT(u.ux, u.uy)
         /* ensure we're not standing on the precipice */
         && !(uteetering_at_seen_pit(trap) || uescaped_shaft(trap))) {
-        register struct obj *obj;
+        struct obj *obj;
 
         obj = level.objects[u.ux][u.uy];
         if (youmonst.data->mlet == S_DRAGON && obj->oclass == COIN_CLASS) {

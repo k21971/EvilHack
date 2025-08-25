@@ -284,7 +284,7 @@ char *buf;
 int
 doread()
 {
-    register struct obj *scroll;
+    struct obj *scroll;
     boolean confused, nodisappear;
     const char *mesg;
     known = FALSE;
@@ -609,7 +609,7 @@ doread()
 
 STATIC_OVL void
 stripspe(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     if (obj->blessed || obj->spe <= 0) {
         pline1(nothing_happens);
@@ -625,14 +625,14 @@ register struct obj *obj;
 
 STATIC_OVL void
 p_glow1(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     pline("%s briefly.", Yobjnam2(otmp, Blind ? "vibrate" : "glow"));
 }
 
 STATIC_OVL void
 p_glow2(otmp, color)
-register struct obj *otmp;
+struct obj *otmp;
 register const char *color;
 {
     pline("%s%s%s for a moment.", Yobjnam2(otmp, Blind ? "vibrate" : "glow"),
@@ -1666,7 +1666,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         break;
     case SCR_REMOVE_CURSE:
     case SPE_REMOVE_CURSE: {
-        register struct obj *obj;
+        struct obj *obj;
 
         You_feel(!Hallucination
                      ? (!confused ? "like someone is helping you."
@@ -2278,8 +2278,8 @@ drop_boulder_on_monster(x, y, confused, byu)
 int x, y;
 boolean confused, byu;
 {
-    register struct obj *otmp2;
-    register struct monst *mtmp;
+    struct obj *otmp2;
+    struct monst *mtmp;
 
     /* Make the object(s) */
     otmp2 = mksobj(confused ? ROCK : BOULDER, FALSE, FALSE);
@@ -2765,7 +2765,7 @@ do_class_genocide()
             else if (immunecnt || class == S_invisible)
                 You("aren't permitted to genocide such monsters.");
             else if (wizard && buf[0] == '*') {
-                register struct monst *mtmp, *mtmp2;
+                struct monst *mtmp, *mtmp2;
 
                 gonecnt = 0;
                 for (mtmp = fmon; mtmp; mtmp = mtmp2) {
@@ -2910,7 +2910,7 @@ int how;
     char buf[BUFSZ] = DUMMY;
     register int i, killplayer = 0;
     register int mndx;
-    register struct permonst *ptr;
+    struct permonst *ptr;
     const char *which;
 
     if (how & PLAYER) {

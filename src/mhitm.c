@@ -48,8 +48,8 @@ static const char *const mwep_none[] = {
 
 STATIC_OVL void
 noises(magr, mattk)
-register struct monst *magr;
-register struct attack *mattk;
+struct monst *magr;
+struct attack *mattk;
 {
     boolean farq = (distu(magr->mx, magr->my) > 15);
 
@@ -65,7 +65,7 @@ register struct attack *mattk;
 STATIC_OVL
 void
 missmm(magr, mdef, target, roll, mattk)
-register struct monst *magr, *mdef;
+struct monst *magr, *mdef;
 struct attack *mattk;
 int target, roll;
 {
@@ -74,7 +74,7 @@ int target, roll;
     char buf[BUFSZ];
     boolean showit = FALSE;
 
-    register struct obj *blocker = (struct obj *) 0;
+    struct obj *blocker = (struct obj *) 0;
 
     /* 2 values for blocker:
      * No blocker: (struct obj *) 0
@@ -233,9 +233,9 @@ int target, roll;
  /* have monsters fight each other */
 int
 fightm(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct monst *mon, *nmon;
+    struct monst *mon, *nmon;
     int result, has_u_swallowed;
     boolean conflict = Conflict && !resist(mtmp, RING_CLASS, 0, 0);
 #ifdef LINT
@@ -325,7 +325,7 @@ register struct monst *mtmp;
  */
 int
 mdisplacem(magr, mdef, quietly)
-register struct monst *magr, *mdef;
+struct monst *magr, *mdef;
 boolean quietly;
 {
     struct permonst *pa, *pd;
@@ -448,7 +448,7 @@ struct monst *mtmp;
  */
 int
 mattackm(magr, mdef)
-register struct monst *magr, *mdef;
+struct monst *magr, *mdef;
 {
     int i,          /* loop counter */
         tmp,        /* amour class difference */
@@ -841,7 +841,7 @@ register struct monst *magr, *mdef;
 /* Returns the result of mdamagem(). */
 STATIC_OVL int
 hitmm(magr, mdef, mattk, mwep, dieroll)
-register struct monst *magr, *mdef;
+struct monst *magr, *mdef;
 struct attack *mattk;
 struct obj *mwep;
 int dieroll;
@@ -991,7 +991,7 @@ int dieroll;
 /* Returns the same values as mdamagem(). */
 STATIC_OVL int
 gazemm(magr, mdef, mattk)
-register struct monst *magr, *mdef;
+struct monst *magr, *mdef;
 struct attack *mattk;
 {
     struct obj *otmp;
@@ -1048,7 +1048,7 @@ struct attack *mattk;
 /* Returns the same values as mdamagem() */
 STATIC_OVL int
 screamm(magr, mdef, mattk)
-register struct monst *magr, *mdef;
+struct monst *magr, *mdef;
 struct attack *mattk;
 {
     struct obj *otmp;
@@ -1122,8 +1122,8 @@ struct monst *magr, *mdef;
 /* Returns the same values as mattackm(). */
 STATIC_OVL int
 gulpmm(magr, mdef, mattk)
-register struct monst *magr, *mdef;
-register struct attack *mattk;
+struct monst *magr, *mdef;
+struct attack *mattk;
 {
     xchar ax, ay, dx, dy;
     int status;
@@ -3065,13 +3065,13 @@ struct obj *otemp;
  */
 STATIC_OVL int
 passivemm(magr, mdef, mhit, mdead, mwep, aatyp)
-register struct monst *magr, *mdef;
+struct monst *magr, *mdef;
 boolean mhit;
 int mdead, aatyp;
 struct obj *mwep;
 {
-    register struct permonst *mddat = mdef->data;
-    register struct permonst *madat = magr->data;
+    struct permonst *mddat = mdef->data;
+    struct permonst *madat = magr->data;
     char buf[BUFSZ];
     int i, tmp;
     struct attack *mdattk;

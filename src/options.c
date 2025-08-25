@@ -6640,7 +6640,7 @@ char *str;
 struct fruit *replace_fruit;
 {
     register int i;
-    register struct fruit *f;
+    struct fruit *f;
     int highest_fruit_id = 0, globpfx;
     char buf[PL_FSIZ], altname[PL_FSIZ];
     boolean user_specified = (str == pl_fruit);

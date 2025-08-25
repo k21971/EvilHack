@@ -381,7 +381,7 @@ deletedwithboulder:
 /* obj is an object dropped on an altar */
 void
 doaltarobj(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     if (Blind)
         return;
@@ -464,7 +464,7 @@ register struct obj *obj;
 
 STATIC_OVL void
 trycall(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     if (!objects[obj->otyp].oc_name_known && !objects[obj->otyp].oc_uname)
         docall(obj);
@@ -568,7 +568,7 @@ teleport_sink()
 /* obj is a ring being dropped over a kitchen sink */
 STATIC_OVL void
 dosinkring(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     struct obj *otmp, *otmp2;
     boolean ideed = TRUE;
@@ -775,7 +775,7 @@ const char *word;
 
 int
 drop(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     if (!obj)
         return 0;
@@ -845,7 +845,7 @@ register struct obj *obj;
    (eg ship_object() and dropy() -> sellobj() both produce output) */
 void
 dropx(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     /* Ensure update when we drop gold objects */
     if (obj->oclass == COIN_CLASS)

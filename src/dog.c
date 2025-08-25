@@ -34,7 +34,7 @@ struct monst *mtmp;
 
 void
 initedog(mtmp, everything)
-register struct monst *mtmp;
+struct monst *mtmp;
 boolean everything;
 {
     struct edog *edogp = EDOG(mtmp);
@@ -160,7 +160,7 @@ elemental()
 
 struct monst *
 make_familiar(otmp, x, y, quietly, you)
-register struct obj *otmp;
+struct obj *otmp;
 xchar x, y;
 boolean quietly;
 boolean you;
@@ -383,8 +383,8 @@ xchar x, y;
 struct monst *
 makedog()
 {
-    register struct monst *mtmp;
-    register struct obj *otmp;
+    struct monst *mtmp;
+    struct obj *otmp;
     const char *petname = 0;
     int pettype;
     static int petname_used = 0;
@@ -514,7 +514,7 @@ update_mlstmv()
 void
 losedogs()
 {
-    register struct monst *mtmp, *mtmp0, *mtmp2;
+    struct monst *mtmp, *mtmp0, *mtmp2;
     int dismissKops = 0;
     boolean stalked = 0;
 
@@ -974,8 +974,8 @@ void
 keepdogs(pets_only)
 boolean pets_only; /* true for ascension or final escape */
 {
-    register struct monst *mtmp, *mtmp2;
-    register struct obj *obj;
+    struct monst *mtmp, *mtmp2;
+    struct obj *obj;
     int num_segs;
     boolean stay_behind;
 
@@ -1089,7 +1089,7 @@ boolean pets_only; /* true for ascension or final escape */
 
 void
 migrate_to_level(mtmp, tolev, xyloc, cc)
-register struct monst *mtmp;
+struct monst *mtmp;
 xchar tolev; /* destination level */
 xchar xyloc; /* MIGR_xxx destination xy location: */
 coord *cc;   /* optional destination coordinates */
@@ -1169,7 +1169,7 @@ coord *cc;   /* optional destination coordinates */
 int
 dogfood(mon, obj)
 struct monst *mon;
-register struct obj *obj;
+struct obj *obj;
 {
     struct permonst *mptr = mon->data, *fptr = 0;
     boolean carni = carnivorous(mptr), herbi = herbivorous(mptr),

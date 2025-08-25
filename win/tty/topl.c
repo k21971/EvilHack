@@ -23,7 +23,7 @@ STATIC_DCL void FDECL(free_msghistory_snapshot, (BOOLEAN_P));
 int
 tty_doprev_message()
 {
-    register struct WinDesc *cw = wins[WIN_MESSAGE];
+    struct WinDesc *cw = wins[WIN_MESSAGE];
     winid prevmsg_win;
     int i;
 
@@ -168,7 +168,7 @@ const char *str;
 void
 remember_topl()
 {
-    register struct WinDesc *cw = wins[WIN_MESSAGE];
+    struct WinDesc *cw = wins[WIN_MESSAGE];
     int idx = cw->maxrow;
     unsigned len = strlen(toplines) + 1;
 
@@ -191,7 +191,7 @@ void
 addtopl(s)
 const char *s;
 {
-    register struct WinDesc *cw = wins[WIN_MESSAGE];
+    struct WinDesc *cw = wins[WIN_MESSAGE];
 
     tty_curs(BASE_WINDOW, cw->curx + 1, cw->cury);
     putsyms(s);
@@ -305,7 +305,7 @@ void
 topl_putsym(c)
 char c;
 {
-    register struct WinDesc *cw = wins[WIN_MESSAGE];
+    struct WinDesc *cw = wins[WIN_MESSAGE];
 
     if (cw == (struct WinDesc *) 0)
         panic("Putsym window MESSAGE nonexistent");

@@ -1096,7 +1096,7 @@ STATIC_OVL void
 get_valuables(list)
 struct obj *list; /* inventory or container contents */
 {
-    register struct obj *obj;
+    struct obj *obj;
     register int i;
 
     /* find amulets and gems, ignoring all artifacts */
@@ -1803,7 +1803,7 @@ int how;
     if (how == ESCAPED || how == ASCENDED) {
         struct monst *mtmp;
         struct obj *otmp;
-        register struct val_list *val;
+        struct val_list *val;
         register int i;
 
         for (val = valuables; val->list; val++)
@@ -1958,7 +1958,7 @@ container_contents(list, identified, all_containers, reportempty)
 struct obj *list;
 boolean identified, all_containers, reportempty;
 {
-    register struct obj *box, *obj;
+    struct obj *box, *obj;
     char buf[BUFSZ];
     boolean cat, dumping = iflags.in_dumplog;
 

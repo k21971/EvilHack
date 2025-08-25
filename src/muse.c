@@ -2071,8 +2071,8 @@ extern struct monst *last_hurtled;
 STATIC_PTR
 int
 mbhitm(mtmp, otmp)
-register struct monst *mtmp;
-register struct obj *otmp;
+struct monst *mtmp;
+struct obj *otmp;
 {
     int tmp;
     boolean reveal_invis = FALSE, hits_you = (mtmp == &youmonst);
@@ -2190,7 +2190,7 @@ register struct obj *otmp;
                it guard against involuntary polymorph attacks too... */
             shieldeff(mtmp->mx, mtmp->my);
         } else if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
-            register struct obj *obj;
+            struct obj *obj;
             /* dropped inventory shouldn't be hit by this zap */
             for (obj = mtmp->minvent; obj; obj = obj->nobj)
                 bypass_obj(obj);
@@ -2278,8 +2278,8 @@ int FDECL((*fhitm), (MONST_P, OBJ_P));
 int FDECL((*fhito), (OBJ_P, OBJ_P)); /* fns called when mon/obj hit */
 struct obj *obj;                     /* 2nd arg to fhitm/fhito */
 {
-    register struct monst *mtmp;
-    register struct obj *otmp;
+    struct monst *mtmp;
+    struct obj *otmp;
     register uchar typ;
     int ddx, ddy;
 
@@ -2333,7 +2333,7 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
         /* modified by GAN to hit all objects */
         if (fhito) {
             int hitanything = 0;
-            register struct obj *next_obj;
+            struct obj *next_obj;
 
             for (otmp = level.objects[bhitpos.x][bhitpos.y]; otmp;
                  otmp = next_obj) {

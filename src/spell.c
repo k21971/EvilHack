@@ -215,7 +215,7 @@ struct obj *book2;
     /* KMH -- Need ->known to avoid "_a_ Book of the Dead" */
     book2->known = 1;
     if (invocation_pos(u.ux, u.uy) && !On_stairs(u.ux, u.uy)) {
-        register struct obj *otmp;
+        struct obj *otmp;
         register boolean arti1_primed = FALSE, arti2_primed = FALSE,
                          arti_cursed = FALSE;
 
@@ -447,7 +447,7 @@ learn(VOID_ARGS)
 
 int
 study_book(spellbook)
-register struct obj *spellbook;
+struct obj *spellbook;
 {
     int booktype = spellbook->otyp;
     boolean confused = (Confusion != 0);
@@ -884,7 +884,7 @@ cast_protection()
 
 void
 cast_reflection(mdef)
-register struct monst *mdef;
+struct monst *mdef;
 {
     boolean youdefend = (mdef == &youmonst);
     int skill = (P_SKILL(spell_skilltype(SPE_REFLECTION)) == P_EXPERT
@@ -921,7 +921,7 @@ register struct monst *mdef;
 
 void
 cast_barkskin(mdef)
-register struct monst *mdef;
+struct monst *mdef;
 {
     boolean youdefend = (mdef == &youmonst);
     int skill = (P_SKILL(spell_skilltype(SPE_BARKSKIN)) == P_EXPERT
@@ -958,7 +958,7 @@ register struct monst *mdef;
 
 void
 cast_stoneskin(mdef)
-register struct monst *mdef;
+struct monst *mdef;
 {
     boolean youdefend = (mdef == &youmonst);
     int skill = (P_SKILL(spell_skilltype(SPE_STONESKIN)) == P_EXPERT
@@ -999,7 +999,7 @@ register struct monst *mdef;
 
 void
 cast_entangle(mdef)
-register struct monst *mdef;
+struct monst *mdef;
 {
     boolean youdefend = (mdef == &youmonst);
     int skill = (P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_EXPERT

@@ -142,7 +142,7 @@ xchar x, y;
 
 STATIC_OVL void
 watch_on_duty(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     int x, y;
 
@@ -181,7 +181,7 @@ register struct monst *mtmp;
 
 int
 dochugw(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     int x = mtmp->mx, y = mtmp->my;
     boolean already_saw_mon = !occupation ? 0 : canspotmon(mtmp);
@@ -321,7 +321,7 @@ boolean digest_meal;
  */
 STATIC_OVL int
 disturb(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     /*
      * + Ettins are hard to surprise.
@@ -493,7 +493,7 @@ boolean fleemsg;
 
 STATIC_OVL void
 distfleeck(mtmp, inrange, nearby, scared)
-register struct monst *mtmp;
+struct monst *mtmp;
 int *inrange, *nearby, *scared;
 {
     int seescaryx, seescaryy;
@@ -555,9 +555,9 @@ struct monst *mon;
  */
 int
 dochug(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct permonst *mdat;
+    struct permonst *mdat;
     register int tmp = 0;
     struct monst* mdummy;
     int inrange, nearby, scared, oldx, oldy;
@@ -1071,7 +1071,7 @@ static NEARDATA const char gem_class[] = { GEM_CLASS, 0 };
 
 boolean
 itsstuck(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     if (sticks(youmonst.data) && mtmp == u.ustuck && !u.uswallow) {
         pline("%s cannot escape from you!", Monnam(mtmp));
@@ -1227,7 +1227,7 @@ struct obj *container;
  */
 int
 m_move(mtmp, after)
-register struct monst *mtmp;
+struct monst *mtmp;
 register int after;
 {
     register int appr;
@@ -1524,7 +1524,7 @@ register int after;
 
     {
         register int minr = SQSRCHRADIUS; /* not too far away */
-        register struct obj *otmp;
+        struct obj *otmp;
         register int xx, yy;
         int oomx, oomy, lmx, lmy;
 
@@ -2261,7 +2261,7 @@ register int x, y;
 /* decide where the monster thinks you are standing */
 void
 set_apparxy(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     boolean notseen, gotu;
     register int disp, mx = mtmp->mux, my = mtmp->muy;

@@ -44,11 +44,11 @@ const struct worn {
 /* Updated to use the extrinsic and blocked fields. */
 void
 setworn(obj, mask)
-register struct obj *obj;
+struct obj *obj;
 long mask;
 {
     register const struct worn *wp;
-    register struct obj *oobj;
+    struct obj *oobj;
     register int p;
 
     if ((mask & I_SPECIAL) != 0 && (mask & (W_ARM | W_ARMC)) != 0) {
@@ -135,7 +135,7 @@ long mask;
 /* Updated to use the extrinsic and blocked fields. */
 void
 setnotworn(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     register const struct worn *wp;
     register int p;
@@ -682,9 +682,9 @@ boolean on, silently;
 
 int
 find_mac(mon)
-register struct monst *mon;
+struct monst *mon;
 {
-    register struct obj *obj, *nextobj;
+    struct obj *obj, *nextobj;
     int base = r_data(mon)->ac - mon->mprotection;
     int bonus, div, race_role_bonus;
     long mwflags = mon->misc_worn_check;
@@ -810,7 +810,7 @@ register struct monst *mon;
  */
 void
 m_dowear(mon, creation)
-register struct monst *mon;
+struct monst *mon;
 boolean creation;
 {
     struct obj *mw = MON_WEP(mon);
@@ -1125,7 +1125,7 @@ long flag;
             return 0;
         }
     } else {
-        register struct obj *obj;
+        struct obj *obj;
 
         for (obj = mon->minvent; obj; obj = obj->nobj)
             if (obj->owornmask & flag)
@@ -1277,7 +1277,7 @@ mon_break_armor(mon, polyspot)
 struct monst *mon;
 boolean polyspot;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     struct permonst *mdat = mon->data;
     boolean vis = cansee(mon->mx, mon->my);
     boolean handless_or_tiny = (nohands(mdat) || r_verysmall(mon));

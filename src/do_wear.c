@@ -169,7 +169,7 @@ boolean on;
 
 void
 oprops_on(otmp, mask)
-register struct obj *otmp;
+struct obj *otmp;
 long mask;
 {
     long props = otmp->oprops;
@@ -222,7 +222,7 @@ long mask;
 
 void
 oprops_off(otmp, mask)
-register struct obj *otmp;
+struct obj *otmp;
 long mask;
 {
     long props = otmp->oprops;
@@ -1499,7 +1499,7 @@ boolean observed;
 
 void
 Ring_on(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     long oldprop = u.uprops[objects[obj->otyp].oc_oprop].extrinsic;
     int old_attrib, which;
@@ -1639,7 +1639,7 @@ register struct obj *obj;
 
 STATIC_OVL void
 Ring_off_or_gone(obj, gone)
-register struct obj *obj;
+struct obj *obj;
 boolean gone;
 {
     long mask = (obj->owornmask & W_RING);
@@ -3154,7 +3154,7 @@ find_ac()
 void
 glibr()
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     int xfl = 0;
     boolean leftfall, rightfall, wastwoweap = FALSE;
     const char *otherwep = 0, *thiswep, *which, *hand;
@@ -3249,7 +3249,7 @@ struct obj *
 some_armor(victim)
 struct monst *victim;
 {
-    register struct obj *otmph, *otmp;
+    struct obj *otmph, *otmp;
 
     otmph = (victim == &youmonst) ? uarmc : which_armor(victim, W_ARMC);
     if (!otmph)
@@ -3323,7 +3323,7 @@ unchanger()
 STATIC_PTR
 int
 select_off(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     struct obj *why;
     char buf[BUFSZ];
@@ -3533,7 +3533,7 @@ int
 take_off(VOID_ARGS)
 {
     register int i;
-    register struct obj *otmp;
+    struct obj *otmp;
     struct takeoff_info *doff = &context.takeoff;
 
     if (doff->what) {
@@ -3730,9 +3730,9 @@ int retry;
 /* hit by destroy armor scroll/black dragon breath/monster spell */
 int
 destroy_arm(atmp)
-register struct obj *atmp;
+struct obj *atmp;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 #define DESTROY_ARM(o)                            \
     ((otmp = (o)) != 0 && (!atmp || atmp == otmp) \
      && (!obj_resists(otmp, 0, 90)))
@@ -3847,7 +3847,7 @@ register struct obj *atmp;
 
 void
 adj_abon(otmp, delta)
-register struct obj *otmp;
+struct obj *otmp;
 register schar delta;
 {
     if (uarmg && uarmg == otmp && otmp->otyp == GAUNTLETS_OF_DEXTERITY) {

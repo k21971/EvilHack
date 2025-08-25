@@ -315,8 +315,8 @@ xchar x, y;
  */
 boolean
 ghitm(mtmp, gold)
-register struct monst *mtmp;
-register struct obj *gold;
+struct monst *mtmp;
+struct obj *gold;
 {
     boolean msg_given = FALSE;
 
@@ -839,7 +839,7 @@ dokick()
     int x, y;
     int avrg_attrib;
     int dmg = 0, glyph, oldglyph = -1;
-    register struct monst *mtmp;
+    struct monst *mtmp;
     boolean no_kick = FALSE;
     char buf[BUFSZ], kickobjnam[BUFSZ];
 
@@ -1539,8 +1539,8 @@ xchar x, y;          /* location affected */
 xchar dlev;          /* if !0 send to dlev near player */
 {
     schar toloc;
-    register struct obj *obj, *obj2;
-    register struct monst *shkp;
+    struct obj *obj, *obj2;
+    struct monst *shkp;
     long oct, dct, price, debit, robbed;
     boolean angry, costly, isrock;
     coord cc;
@@ -1795,7 +1795,7 @@ void
 obj_delivery(near_hero)
 boolean near_hero;
 {
-    register struct obj *otmp, *otmp2;
+    struct obj *otmp, *otmp2;
     register int nx, ny;
     int where;
     boolean nobreak, noscatter;
@@ -1919,7 +1919,7 @@ unsigned long deliverflags;
 
 STATIC_OVL void
 otransit_msg(otmp, nodrop, chainthere, num)
-register struct obj *otmp;
+struct obj *otmp;
 boolean nodrop, chainthere;
 long num;
 {

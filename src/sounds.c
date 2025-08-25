@@ -25,7 +25,7 @@ int rmtyp;
 void
 dosounds()
 {
-    register struct mkroom *sroom;
+    struct mkroom *sroom;
     register int hallu, vx, vy;
 #if defined(AMIGA) && defined(AZTEC_C_WORKAROUND)
     int xx;
@@ -401,7 +401,7 @@ static const char *const h_sounds[] = {
 
 const char *
 growl_sound(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     const char *ret;
 
@@ -456,7 +456,7 @@ register struct monst *mtmp;
 /* the sounds of a seriously abused pet, including player attacking it */
 void
 growl(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     register const char *growl_verb = 0;
 
@@ -479,7 +479,7 @@ register struct monst *mtmp;
 /* the sounds of mistreated pets */
 void
 yelp(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     register const char *yelp_verb = 0;
 
@@ -537,7 +537,7 @@ register struct monst *mtmp;
 /* the sounds of distressed pets */
 void
 whimper(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     register const char *whimper_verb = 0;
 
@@ -586,7 +586,7 @@ register struct monst *mtmp;
 /* pet makes "I'm hungry" noises */
 void
 beg(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     if (mtmp->msleeping || !mtmp->mcanmove
         || !(carnivorous(mtmp->data) || herbivorous(mtmp->data)))
@@ -624,7 +624,7 @@ struct monst *mon;
 
 STATIC_OVL int
 domonnoise(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     char verbuf[BUFSZ];
     register const char *pline_msg = 0, /* Monnam(mtmp) will be prepended */

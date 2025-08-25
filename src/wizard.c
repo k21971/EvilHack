@@ -125,9 +125,9 @@ amulet()
 
 int
 mon_has_amulet(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
         if (otmp->otyp == AMULET_OF_YENDOR
@@ -139,9 +139,9 @@ register struct monst *mtmp;
 
 int
 mon_has_special(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
         if (otmp->otyp == AMULET_OF_YENDOR
@@ -192,10 +192,10 @@ register int mask;
  */
 STATIC_OVL boolean
 mon_has_arti(mtmp, otyp)
-register struct monst *mtmp;
+struct monst *mtmp;
 register short otyp;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
         if (otyp) {
@@ -209,10 +209,10 @@ register short otyp;
 
 STATIC_OVL struct monst *
 other_mon_has_arti(mtmp, otyp)
-register struct monst *mtmp;
+struct monst *mtmp;
 register short otyp;
 {
-    register struct monst *mtmp2;
+    struct monst *mtmp2;
 
     for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon)
         /* no need for !DEADMONSTER check here since they have no inventory */
@@ -227,7 +227,7 @@ STATIC_OVL struct obj *
 on_ground(otyp)
 register short otyp;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     for (otmp = fobj; otmp; otmp = otmp->nobj)
         if (otyp) {
@@ -262,11 +262,11 @@ register int mask;
 STATIC_OVL unsigned long
 target_on(mask, mtmp)
 register int mask;
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     register short otyp;
-    register struct obj *otmp;
-    register struct monst *mtmp2;
+    struct obj *otmp;
+    struct monst *mtmp2;
 
     if (!M_Wants(mask) && !is_mplayer(mtmp->data))
         return (unsigned long) STRAT_NONE;
@@ -309,7 +309,7 @@ register struct monst *mtmp;
 
 STATIC_OVL unsigned long
 strategy(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     unsigned long strat, dstrat;
 
@@ -414,7 +414,7 @@ xchar *sy;
 
 int
 tactics(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     unsigned long strat = strategy(mtmp);
     xchar sx = 0, sy = 0, mx, my;
@@ -593,7 +593,7 @@ struct monst *mon;
 void
 aggravate()
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
     boolean in_w_tower = In_W_tower(u.ux, u.uy, &u.uz);
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -618,7 +618,7 @@ aggravate()
 void
 clonewiz()
 {
-    register struct monst *mtmp2;
+    struct monst *mtmp2;
 
     if ((mtmp2 = makemon(&mons[PM_WIZARD_OF_YENDOR], u.ux, u.uy, MM_NOWAIT))
         != 0) {
@@ -680,7 +680,7 @@ nasty(summoner, centered_on_stairs)
 struct monst *summoner;
 BOOLEAN_P centered_on_stairs;
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
     register int i, j, tmp;
     int castalign = (summoner ? sgn(mon_aligntyp(summoner)) : 0);
     coord bypos;
@@ -957,7 +957,7 @@ const char *const random_gollum[] = {
 /* Insult or intimidate the player */
 void
 cuss(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     if (Deaf)
         return;
@@ -1058,7 +1058,7 @@ const char *const random_mplayer_idol[] = {
 /* Player monsters harass the player in Purgatory */
 void
 mplayer_purg_talk(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     if (Deaf)
         return;
@@ -1087,7 +1087,7 @@ const char *const random_arch_idol[] = {
 /* Saint Michael the Archangel */
 void
 archangel_purg_talk(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     if (Deaf)
         return;

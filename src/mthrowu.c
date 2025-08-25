@@ -176,7 +176,7 @@ const char *name; /* if null, then format `*objp' */
  */
 STATIC_OVL int
 drop_throw(obj, ohit, x, y)
-register struct obj *obj;
+struct obj *obj;
 boolean ohit;
 int x, y;
 {
@@ -411,7 +411,7 @@ struct monst *mtmp;
         /* find our mark and let him have it, if possible! */
         register int gx = STRAT_GOALX(mtmp->mstrategy),
                      gy = STRAT_GOALY(mtmp->mstrategy);
-        register struct monst *mtmp2 = m_at(gx, gy);
+        struct monst *mtmp2 = m_at(gx, gy);
 
         if (mtmp2 && mlined_up(mtmp, mtmp2, FALSE))
             return mtmp2;
@@ -1587,8 +1587,8 @@ int boulderhandling; /* 0=block, 1=ignore, 2=conditionally block */
 
 boolean
 mlined_up(mtmp, mdef, breath)	/* is mtmp in position to use ranged attack? */
-register struct monst *mtmp;
-register struct monst *mdef;
+struct monst *mtmp;
+struct monst *mdef;
 register boolean breath;
 {
     struct monst *mat;
@@ -1623,7 +1623,7 @@ register boolean breath;
 /* is mtmp in position to use ranged attack? */
 boolean
 lined_up(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     boolean ignore_boulders;
 
@@ -1645,7 +1645,7 @@ m_carrying(mtmp, type)
 struct monst *mtmp;
 int type;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
         if (otmp->otyp == type)

@@ -146,7 +146,7 @@ struct monst *victim;
  */
 int
 erode_obj(otmp, ostr, type, ef_flags)
-register struct obj *otmp;
+struct obj *otmp;
 const char *ostr;
 int type;
 int ef_flags;
@@ -367,7 +367,7 @@ int ef_flags;
  */
 boolean
 grease_protect(otmp, ostr, victim)
-register struct obj *otmp;
+struct obj *otmp;
 const char *ostr;
 struct monst *victim;
 {
@@ -1152,7 +1152,7 @@ boolean msg;
 
 void
 dotrap(trap, trflags)
-register struct trap *trap;
+struct trap *trap;
 unsigned trflags;
 {
     register int ttype = trap->ttyp;
@@ -2172,8 +2172,8 @@ short otyp;
 register int x1, y1, x2, y2;
 int style;
 {
-    register struct monst *mtmp;
-    register struct obj *otmp, *otmp2;
+    struct monst *mtmp;
+    struct obj *otmp, *otmp2;
     register int dx, dy;
     struct obj *singleobj;
     boolean used_up = FALSE;
@@ -2554,9 +2554,9 @@ schar dx, dy;
 
 int
 mintrap(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct trap *trap = t_at(mtmp->mx, mtmp->my);
+    struct trap *trap = t_at(mtmp->mx, mtmp->my);
     boolean trapkilled = FALSE;
     struct permonst *mptr = mtmp->data;
     struct obj *otmp;
@@ -3575,7 +3575,7 @@ int
 float_down(hmask, emask)
 long hmask, emask; /* might cancel timeout */
 {
-    register struct trap *trap = (struct trap *) 0;
+    struct trap *trap = (struct trap *) 0;
     d_level current_dungeon_level;
     boolean no_msg = FALSE;
 
@@ -5358,7 +5358,7 @@ int
 untrap(force)
 boolean force;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     register int x, y;
     int ch;
     struct trap *ttmp;
@@ -5786,12 +5786,12 @@ boolean *noticed; /* set to true iff hero notices the effect; */
    to the chest directly */
 boolean
 chest_trap(mon, obj, bodypart, disarm)
-register struct monst *mon;
-register struct obj *obj;
+struct monst *mon;
+struct obj *obj;
 register int bodypart;
 boolean disarm;
 {
-    register struct obj *otmp = obj, *otmp2;
+    struct obj *otmp = obj, *otmp2;
     boolean yours = (mon == &youmonst);
     char buf[80];
     const char *msg;
@@ -6130,7 +6130,7 @@ struct trap *
 t_at(x, y)
 register int x, y;
 {
-    register struct trap *trap = ftrap;
+    struct trap *trap = ftrap;
 
     while (trap) {
         if (trap->tx == x && trap->ty == y)
@@ -6142,9 +6142,9 @@ register int x, y;
 
 void
 deltrap(trap)
-register struct trap *trap;
+struct trap *trap;
 {
-    register struct trap *ttmp;
+    struct trap *ttmp;
     struct monst *mtmp;
 
     if (trap->ammo) {
@@ -6392,7 +6392,7 @@ struct trap *trap;
 /* Destroy a trap that emanates from the floor. */
 boolean
 delfloortrap(ttmp)
-register struct trap *ttmp;
+struct trap *ttmp;
 {
     /* some of these are arbitrary -dlc */
     if (ttmp && (is_pit(ttmp->ttyp)
@@ -6407,7 +6407,7 @@ register struct trap *ttmp;
                  || (ttmp->ttyp == WEB)
                  || (ttmp->ttyp == MAGIC_TRAP_SET)
                  || (ttmp->ttyp == ANTI_MAGIC))) {
-        register struct monst *mtmp;
+        struct monst *mtmp;
 
         if (ttmp->tx == u.ux && ttmp->ty == u.uy) {
             if (u.utraptype != TT_BURIEDBALL)

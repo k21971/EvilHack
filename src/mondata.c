@@ -430,7 +430,7 @@ int material;
  * type */
 boolean
 hates_material(ptr, material)
-register struct permonst *ptr;
+struct permonst *ptr;
 int material;
 {
     if (material == SILVER) {
@@ -555,7 +555,7 @@ struct monst *mon;
 /* returns True if monster can track well */
 boolean
 can_track(ptr)
-register struct permonst *ptr;
+struct permonst *ptr;
 {
     if (wielding_artifact(ART_EXCALIBUR))
         return TRUE;
@@ -565,7 +565,7 @@ register struct permonst *ptr;
 
 boolean
 mon_prop(mon, prop)
-register struct monst *mon;
+struct monst *mon;
 int prop;
 {
     struct obj *o;
@@ -665,7 +665,7 @@ struct monst *mon;
 /* creature sticks other creatures it hits */
 boolean
 sticks(ptr)
-register struct permonst *ptr;
+struct permonst *ptr;
 {
     return (boolean) (dmgtype(ptr, AD_STCK) || dmgtype(ptr, AD_WRAP)
                       || attacktype(ptr, AT_HUGS));
@@ -739,7 +739,7 @@ int dtyp;
    a passive defense */
 int
 max_passive_dmg(mdef, magr)
-register struct monst *mdef, *magr;
+struct monst *mdef, *magr;
 {
     int i, dmg = 0, multi2 = 0;
     uchar adtyp;
@@ -1212,7 +1212,7 @@ int *mndx_p;
 /* returns 3 values (0=male, 1=female, 2=none) */
 int
 gender(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     if (is_neuter(mtmp->data))
         return 2;
@@ -1223,7 +1223,7 @@ register struct monst *mtmp;
    This is the one we want to use when printing messages. */
 int
 pronoun_gender(mtmp, override_vis)
-register struct monst *mtmp;
+struct monst *mtmp;
 boolean override_vis; /* if True then 'no it' unless neuter */
 {
     if (!override_vis && !canspotmon(mtmp))

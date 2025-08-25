@@ -41,7 +41,7 @@ void mount_monster(mtmp, pm)
 struct monst *mtmp; /* rider */
 int pm;             /* steed */
 {
-    register struct monst *mount;
+    struct monst *mount;
 
     /* small hack here: make it in a random spot to avoid failures due
        to there not being enough room. */
@@ -93,7 +93,7 @@ int pm;             /* steed */
 boolean mount_up(rider)
 struct monst *rider;
 {
-    register struct monst *steed, *nmon;
+    struct monst *steed, *nmon;
 
     /* not acceptable as riders */
     if (!mon_can_ride(rider) || has_erid(rider))

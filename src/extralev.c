@@ -300,7 +300,7 @@ int x, y;
 void
 makerogueghost()
 {
-    register struct monst *ghost;
+    struct monst *ghost;
     struct obj *ghostobj;
     struct mkroom *croom;
     int x, y;

@@ -551,7 +551,7 @@ int how, which;
 void
 nh_timeout()
 {
-    register struct prop *upp;
+    struct prop *upp;
     struct kinfo *kptr;
     boolean was_flying;
     int sleeptime;

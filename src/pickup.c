@@ -105,7 +105,7 @@ boolean here;     /* flag for type of obj list linkage */
 int
 collect_obj_classes(ilets, otmp, here, filter, itemcount)
 char ilets[];
-register struct obj *otmp;
+struct obj *otmp;
 boolean here;
 boolean FDECL((*filter), (OBJ_P));
 int *itemcount;
@@ -306,7 +306,7 @@ STATIC_OVL void
 check_here(picked_some)
 boolean picked_some;
 {
-    register struct obj *obj;
+    struct obj *obj;
     register int ct = 0;
 
     /* count the objects here */
@@ -486,7 +486,7 @@ struct obj *obj;
 /* query_objlist callback: return TRUE if valid class and worn */
 boolean
 is_worn_by_type(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     return (is_worn(otmp) && allow_category(otmp)) ? TRUE : FALSE;
 }
@@ -2440,7 +2440,7 @@ boolean held;
 /* Returns: -1 to stop, 1 item was inserted, 0 item was not inserted. */
 STATIC_PTR int
 in_container(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     boolean floor_container = !carried(current_container);
     boolean was_unpaid = FALSE;
@@ -2620,9 +2620,9 @@ struct obj *obj;
 /* Returns: -1 to stop, 1 item was removed, 0 item was not removed. */
 STATIC_PTR int
 out_container(obj)
-register struct obj *obj;
+struct obj *obj;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     boolean is_gold = (obj->oclass == COIN_CLASS);
     int res, loadlev;
     long count;

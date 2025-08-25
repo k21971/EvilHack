@@ -1220,7 +1220,7 @@ struct obj *obj;
 STATIC_OVL void
 break_armor()
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     if (breakarm(&youmonst)) {
         if ((otmp = uarm) != 0) {
@@ -1821,7 +1821,7 @@ dosummon()
 int
 dogaze()
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
     int looked = 0;
     char qbuf[QBUFSZ];
     int i;

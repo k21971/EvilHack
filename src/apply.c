@@ -335,7 +335,7 @@ static const char hollow_str[] = "a hollow sound.  This must be a secret %s!";
    uses up the turn; this makes curse status have a tangible effect. */
 STATIC_OVL int
 use_stethoscope(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     struct monst *mtmp;
     struct rm *lev;
@@ -636,9 +636,9 @@ number_leashed()
 /* otmp is about to be destroyed or stolen */
 void
 o_unleash(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
         if (mtmp->m_id == (unsigned) otmp->leashmon)
@@ -649,10 +649,10 @@ register struct obj *otmp;
 /* mtmp is about to die, or become untame */
 void
 m_unleash(mtmp, feedback)
-register struct monst *mtmp;
+struct monst *mtmp;
 boolean feedback;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     if (feedback) {
         if (canseemon(mtmp))
@@ -672,8 +672,8 @@ boolean feedback;
 void
 unleash_all()
 {
-    register struct obj *otmp;
-    register struct monst *mtmp;
+    struct obj *otmp;
+    struct monst *mtmp;
 
     for (otmp = invent; otmp; otmp = otmp->nobj)
         if (otmp->otyp == LEASH)
@@ -818,8 +818,8 @@ struct monst *mtmp;
 boolean
 next_to_u()
 {
-    register struct monst *mtmp;
-    register struct obj *otmp;
+    struct monst *mtmp;
+    struct obj *otmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -851,8 +851,8 @@ void
 check_leash(x, y)
 register xchar x, y;
 {
-    register struct obj *otmp;
-    register struct monst *mtmp;
+    struct obj *otmp;
+    struct monst *mtmp;
 
     for (otmp = invent; otmp; otmp = otmp->nobj) {
         if (otmp->otyp != LEASH || otmp->leashmon == 0)
@@ -1153,7 +1153,7 @@ STATIC_OVL void
 use_bell(optr)
 struct obj **optr;
 {
-    register struct obj *obj = *optr;
+    struct obj *obj = *optr;
     struct monst *mtmp;
     boolean wakem = FALSE, learno = FALSE,
             ordinary = (obj->otyp != BELL_OF_OPENING || !obj->spe),
@@ -1298,7 +1298,7 @@ struct obj **optr;
 
 STATIC_OVL void
 use_candelabrum(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     const char *s = (obj->spe != 1) ? "candles" : "candle";
 
@@ -1362,8 +1362,8 @@ STATIC_OVL void
 use_candle(optr)
 struct obj **optr;
 {
-    register struct obj *obj = *optr;
-    register struct obj *otmp;
+    struct obj *obj = *optr;
+    struct obj *otmp;
     const char *s = (obj->quan != 1) ? "candles" : "candle";
     char qbuf[QBUFSZ], qsfx[QBUFSZ], *q;
     boolean was_lamplit;
@@ -2505,7 +2505,7 @@ void
 use_figurine(optr)
 struct obj **optr;
 {
-    register struct obj *obj = *optr;
+    struct obj *obj = *optr;
     boolean idol = obj->oartifact == ART_IDOL_OF_MOLOCH;
     xchar x, y;
     coord cc;
@@ -4303,7 +4303,7 @@ struct obj *obj;
 {
     static const char nothing_else_happens[] = "But nothing else happens...";
     register int i, x, y;
-    register struct monst *mon;
+    struct monst *mon;
     int dmg, damage;
     boolean affects_objects;
     boolean shop_damage = FALSE;
@@ -4559,7 +4559,7 @@ STATIC_OVL void
 setapplyclasses(class_list)
 char class_list[];
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     int otyp;
     boolean knowoil, knowtouchstone, knowflint,
             addpotions, addstones, addfood;

@@ -93,8 +93,8 @@ static NEARDATA long omoves;
 STATIC_OVL void
 find_lev_obj()
 {
-    register struct obj *fobjtmp = (struct obj *) 0;
-    register struct obj *otmp;
+    struct obj *fobjtmp = (struct obj *) 0;
+    struct obj *otmp;
     int x, y;
 
     for (x = 0; x < COLNO; x++)
@@ -128,7 +128,7 @@ void
 inven_inuse(quietly)
 boolean quietly;
 {
-    register struct obj *otmp, *otmp2;
+    struct obj *otmp, *otmp2;
 
     for (otmp = invent; otmp; otmp = otmp2) {
         otmp2 = otmp->nobj;
@@ -266,8 +266,8 @@ restobjchn(fd, ghostly, frozen)
 register int fd;
 boolean ghostly, frozen;
 {
-    register struct obj *otmp, *otmp2 = 0;
-    register struct obj *first = (struct obj *) 0;
+    struct obj *otmp, *otmp2 = 0;
+    struct obj *first = (struct obj *) 0;
     int buflen;
 
     while (1) {
@@ -422,8 +422,8 @@ restmonchn(fd, ghostly)
 register int fd;
 boolean ghostly;
 {
-    register struct monst *mtmp, *mtmp2 = 0;
-    register struct monst *first = (struct monst *) 0;
+    struct monst *mtmp, *mtmp2 = 0;
+    struct monst *first = (struct monst *) 0;
     int offset, buflen;
     struct permonst *monbegin;
 
@@ -555,7 +555,7 @@ STATIC_OVL struct fruit *
 loadfruitchn(fd)
 int fd;
 {
-    register struct fruit *flist, *fnext;
+    struct fruit *flist, *fnext;
 
     flist = 0;
     while (fnext = newfruit(), mread(fd, (genericptr_t) fnext, sizeof *fnext),
@@ -569,9 +569,9 @@ int fd;
 
 STATIC_OVL void
 freefruitchn(flist)
-register struct fruit *flist;
+struct fruit *flist;
 {
-    register struct fruit *fnext;
+    struct fruit *fnext;
 
     while (flist) {
         fnext = flist->nextf;
@@ -582,9 +582,9 @@ register struct fruit *flist;
 
 STATIC_OVL void
 ghostfruit(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
-    register struct fruit *oldf;
+    struct fruit *oldf;
 
     for (oldf = oldfruit; oldf; oldf = oldf->nextf)
         if (oldf->fid == otmp->spe)
@@ -796,8 +796,8 @@ STATIC_OVL void
 restmonsteeds(ghostly)
 boolean ghostly;
 {
-    register struct monst *mtmp;
-    register struct monst *mon;
+    struct monst *mtmp;
+    struct monst *mon;
     unsigned int steed_id;
 
     for (mon = fmon; mon; mon = mon->nmon) {
@@ -847,7 +847,7 @@ STATIC_OVL void
 restlevelstate(stuckid, steedid)
 unsigned int stuckid, steedid;
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
 
     if (stuckid) {
         for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
@@ -1157,8 +1157,8 @@ int fd, pid;
 xchar lev;
 boolean ghostly;
 {
-    register struct trap *trap;
-    register struct monst *mtmp;
+    struct trap *trap;
+    struct monst *mtmp;
     long elapsed;
     branch *br;
     int hpid;

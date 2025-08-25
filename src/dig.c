@@ -50,14 +50,14 @@ xchar x, y;
 int dist;
 boolean waslit, rockit;
 {
-    register struct rm *lev;
+    struct rm *lev;
 
     if (!isok(x, y))
         return;
     lev = &levl[x][y];
 
     if (rockit) {
-        register struct monst *mtmp;
+        struct monst *mtmp;
 
         if (IS_ROCK(lev->typ))
             return;
@@ -255,7 +255,7 @@ int x, y;
 STATIC_OVL int
 dig(VOID_ARGS)
 {
-    register struct rm *lev;
+    struct rm *lev;
     register xchar dpx = context.digging.pos.x, dpy = context.digging.pos.y;
     register boolean ispick = uwep && is_pick(uwep);
     const char *verb = (!uwep || is_pick(uwep)) ? "dig into" : "chop through";
@@ -517,7 +517,7 @@ dig(VOID_ARGS)
             pay_for_damage(dmgtxt, FALSE);
 
         if (Is_earthlevel(&u.uz) && !rn2(3)) {
-            register struct monst *mtmp;
+            struct monst *mtmp;
 
             switch (rn2(2)) {
             case 0:
@@ -617,7 +617,7 @@ struct monst *madeby;
 int ttyp;
 {
     struct obj *oldobjs, *newobjs;
-    register struct trap *ttmp;
+    struct trap *ttmp;
     char surface_type[BUFSZ];
     struct rm *lev = &levl[x][y];
     boolean shopdoor;
@@ -859,7 +859,7 @@ dighole(pit_only, by_magic, cc)
 boolean pit_only, by_magic;
 coord *cc;
 {
-    register struct trap *ttmp;
+    struct trap *ttmp;
     struct rm *lev;
     struct obj *boulder_here;
     schar typ, old_typ;
@@ -1129,7 +1129,7 @@ use_pick_axe2(obj)
 struct obj *obj;
 {
     register int rx, ry;
-    register struct rm *lev;
+    struct rm *lev;
     struct trap *trap, *trap_with_u;
     int dig_target;
     boolean ispick = is_pick(obj);
@@ -1401,9 +1401,9 @@ boolean zap;
 /* Return TRUE if monster died, FALSE otherwise.  Called from m_move(). */
 boolean
 mdig_tunnel(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct rm *here;
+    struct rm *here;
     int pile = rnd(12);
 
     here = &levl[mtmp->mx][mtmp->my];

@@ -1424,7 +1424,7 @@ unturn_you()
 /* cancel obj, possibly carried by you or a monster */
 void
 cancel_item(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     boolean u_ring = (obj == uleft || obj == uright);
     int otyp = obj->otyp;
@@ -1652,7 +1652,7 @@ polyuse(objhdr, mat, minwt)
 struct obj *objhdr;
 int mat, minwt;
 {
-    register struct obj *otmp, *otmp2;
+    struct obj *otmp, *otmp2;
 
     for (otmp = objhdr; minwt > 0 && otmp; otmp = otmp2) {
         otmp2 = otmp->nexthere;
@@ -2725,7 +2725,7 @@ schar zz;
  */
 int
 zappable(wand)
-register struct obj *wand;
+struct obj *wand;
 {
     int zap_it = 1;
     if (wand->spe < 0)
@@ -2746,7 +2746,7 @@ register struct obj *wand;
  */
 void
 zapnodir(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     boolean known = FALSE;
 
@@ -2825,7 +2825,7 @@ static NEARDATA const char zap_syms[] = { WAND_CLASS, 0 };
 int
 dozap()
 {
-    register struct obj *obj;
+    struct obj *obj;
     int damage;
 
     if (check_capacity((char *) 0))
@@ -3556,8 +3556,8 @@ struct obj *obj; /* wand or spell */
  */
 boolean
 cancel_monst(mdef, obj, youattack, allow_cancel_kill, self_cancel)
-register struct monst *mdef;
-register struct obj *obj;
+struct monst *mdef;
+struct obj *obj;
 boolean youattack, allow_cancel_kill, self_cancel;
 {
     boolean youdefend = (mdef == &youmonst);
@@ -4241,7 +4241,7 @@ const char *force; /* usually either "." or "!" */
 void
 miss(str, mtmp)
 register const char *str;
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     pline(
         "%s %s %s.", The(str), vtense(str, "miss"),
@@ -4763,7 +4763,7 @@ int dx, dy;
    to mon; note: caller is responsible for killing mon if damage is fatal */
 int
 zhitm(mon, type, nd, ootmp)
-register struct monst *mon;
+struct monst *mon;
 register int type, nd;
 struct obj **ootmp; /* to return worn armor for caller to disintegrate */
 {
@@ -6326,7 +6326,7 @@ boolean moncast;
 /* fractured by pick-axe or wand of striking */
 void
 fracture_rock(obj)
-register struct obj *obj; /* no texts here! */
+struct obj *obj; /* no texts here! */
 {
     xchar x, y;
     boolean by_you = !context.mon_moving;
@@ -6366,7 +6366,7 @@ register struct obj *obj; /* no texts here! */
 /* handle statue hit by striking/force bolt/pick-axe */
 boolean
 break_statue(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     /* [obj is assumed to be on floor, so no get_obj_location() needed] */
     struct trap *trap = t_at(obj->ox, obj->oy);
@@ -6619,7 +6619,7 @@ void
 destroy_item(osym, dmgtyp)
 int osym, dmgtyp;
 {
-    register struct obj *obj;
+    struct obj *obj;
     int i, deferral_indx = 0;
     /* 1+52+1: try to handle a full inventory; it doesn't matter if
       inventory actually has more, even if everything should be deferred */

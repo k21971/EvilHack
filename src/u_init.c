@@ -1781,12 +1781,12 @@ int otyp;
 
 STATIC_OVL void
 ini_inv(origtrop)
-register struct trobj *origtrop;
+struct trobj *origtrop;
 {
     struct obj *obj;
     int otyp, i;
     struct trobj temptrop;
-    register struct trobj *trop = &temptrop;
+    struct trobj *trop = &temptrop;
     boolean got_sp1 = FALSE; /* got a level 1 spellbook? */
 
     memcpy(&temptrop, origtrop, sizeof(struct trobj));

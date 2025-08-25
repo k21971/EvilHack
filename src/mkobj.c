@@ -399,7 +399,7 @@ mkbox_cnts(box)
 struct obj *box;
 {
     register int n;
-    register struct obj *otmp;
+    struct obj *otmp;
 
     box->cobj = (struct obj *) 0;
 
@@ -486,7 +486,7 @@ struct obj *box;
 int
 rndmonnum()
 {
-    register struct permonst *ptr;
+    struct permonst *ptr;
     register int i;
     unsigned short excludeflags;
 
@@ -790,9 +790,9 @@ struct obj *obj;
  */
 void
 bill_dummy_object(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
-    register struct obj *dummy;
+    struct obj *dummy;
     long cost = 0L;
 
     if (otmp->unpaid) {
@@ -1548,7 +1548,7 @@ int old_range;
 
 void
 bless(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     int old_light = 0;
 
@@ -1571,7 +1571,7 @@ register struct obj *otmp;
 
 void
 unbless(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     int old_light = 0;
 
@@ -1588,7 +1588,7 @@ register struct obj *otmp;
 
 void
 curse(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     unsigned already_cursed;
     int old_light = 0;
@@ -1628,7 +1628,7 @@ register struct obj *otmp;
 
 void
 uncurse(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     int old_light = 0;
 
@@ -1648,7 +1648,7 @@ register struct obj *otmp;
 
 void
 blessorcurse(otmp, chance)
-register struct obj *otmp;
+struct obj *otmp;
 register int chance;
 {
     if (otmp->blessed || otmp->cursed)
@@ -1666,7 +1666,7 @@ register int chance;
 
 int
 bcsign(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     return (!!otmp->blessed - !!otmp->cursed);
 }
@@ -1751,7 +1751,7 @@ const int matdensities[] = {
  */
 int
 weight(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     int wt = (int) objects[obj->otyp].oc_weight;
 
@@ -2122,7 +2122,7 @@ const char *nm;
 
 boolean
 is_flammable(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     int otyp = otmp->otyp;
     int omat = otmp->material;
@@ -2158,7 +2158,7 @@ register struct obj *otmp;
 
 boolean
 is_rottable(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     return (boolean) (otmp->material <= WOOD
                       && otmp->material != LIQUID
@@ -2174,10 +2174,10 @@ register struct obj *otmp;
 /* put the object at the given location */
 void
 place_object(otmp, x, y)
-register struct obj *otmp;
+struct obj *otmp;
 int x, y;
 {
-    register struct obj *otmp2 = level.objects[x][y];
+    struct obj *otmp2 = level.objects[x][y];
 
     if (!isok(x, y)) { /* validate location */
         void VDECL((*func), (const char *, ...)) PRINTF_F(1, 2);
@@ -2372,7 +2372,7 @@ int force; /* 0 = no force so do checks, <0 = force off, >0 force on */
 
 void
 remove_object(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     xchar x = otmp->ox;
     xchar y = otmp->oy;

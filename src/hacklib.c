@@ -1123,7 +1123,7 @@ char *buf;
 int
 phase_of_the_moon() /* 0-7, with 0: new, 4: full */
 {
-    register struct tm *lt = getlt();
+    struct tm *lt = getlt();
     register int epact, diy, goldn;
 
     diy = lt->tm_yday;
@@ -1138,7 +1138,7 @@ phase_of_the_moon() /* 0-7, with 0: new, 4: full */
 boolean
 friday_13th()
 {
-    register struct tm *lt = getlt();
+    struct tm *lt = getlt();
 
     /* tm_wday (day of week; 0==Sunday) == 5 => Friday */
     return (boolean) (lt->tm_wday == 5 && lt->tm_mday == 13);

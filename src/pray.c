@@ -296,7 +296,7 @@ in_trouble()
 STATIC_OVL struct obj *
 worst_cursed_item()
 {
-    register struct obj *otmp;
+    struct obj *otmp;
 
     /* Infidels are immune to curses, but a cursed luckstone is still bad */
     if (Role_if(PM_INFIDEL)) {
@@ -1608,7 +1608,7 @@ STATIC_OVL boolean
 water_prayer(bless_water)
 boolean bless_water;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     register long changed = 0;
     boolean other = FALSE, bc_known = !(Blind || Hallucination);
 
@@ -1635,7 +1635,7 @@ boolean bless_water;
 
 int
 check_malign(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     aligntyp mon_align = has_erac(mtmp) ? ERAC(mtmp)->ralign
                                         : mtmp->data->maligntyp;
@@ -1650,9 +1650,9 @@ register struct monst *mtmp;
 
 boolean
 moffer(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
-    register struct obj *otmp, *nextobj;
+    struct obj *otmp, *nextobj;
 
     /* loop based on select_hwep */
     for (otmp = mtmp->minvent; otmp; otmp = nextobj) {
@@ -1750,7 +1750,7 @@ aligntyp g_align;
 
 STATIC_OVL void
 consume_offering(otmp)
-register struct obj *otmp;
+struct obj *otmp;
 {
     if (Hallucination)
         switch (rn2(3)) {
@@ -1791,7 +1791,7 @@ dosacrifice()
 {
     static NEARDATA const char cloud_of_smoke[] =
         "A cloud of %s smoke surrounds you...";
-    register struct obj *otmp;
+    struct obj *otmp;
     int value = 0, pm;
     boolean highaltar;
     aligntyp altaralign = a_align(u.ux, u.uy);
@@ -3490,7 +3490,7 @@ STATIC_OVL boolean
 blocked_boulder(dx, dy)
 int dx, dy;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     int nx, ny;
     long count = 0L;
 

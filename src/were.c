@@ -7,7 +7,7 @@
 
 void
 were_change(mon)
-register struct monst *mon;
+struct monst *mon;
 {
     if (!is_were(mon->data))
         return;
@@ -107,7 +107,7 @@ int pm;
 
 void
 new_were(mon)
-register struct monst *mon;
+struct monst *mon;
 {
     register int pm;
 

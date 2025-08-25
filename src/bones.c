@@ -454,7 +454,7 @@ struct obj *obj;
 boolean
 can_make_bones()
 {
-    register struct trap *ttmp;
+    struct trap *ttmp;
 
     if (!flags.bones)
         return FALSE;
@@ -871,7 +871,7 @@ getbones()
             }
             trickery(errbuf);
         } else {
-            register struct monst *mtmp;
+            struct monst *mtmp;
 
             getlev(fd, 0, 0, TRUE);
 

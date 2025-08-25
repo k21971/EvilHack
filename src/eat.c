@@ -82,7 +82,7 @@ const char *hu_stat[] = { "Satiated",  "        ", "Hungry  ", "Weak    ",
  */
 boolean
 is_edible(obj)
-register struct obj *obj;
+struct obj *obj;
 {
     /* protect invocation tools but not Rider corpses (handled elsewhere)*/
     /* if (obj->oclass != FOOD_CLASS && obj_resists(obj, 0, 0)) */
@@ -951,7 +951,7 @@ fix_petrification()
 int
 intrinsic_possible(type, ptr)
 int type;
-register struct permonst *ptr;
+struct permonst *ptr;
 {
     int res = 0;
 
@@ -1065,7 +1065,7 @@ struct permonst *ptr;
 STATIC_OVL void
 givit(type, ptr)
 int type;
-register struct permonst *ptr;
+struct permonst *ptr;
 {
     const char *adj;
     long percentincrease;
@@ -4054,7 +4054,7 @@ floorfood(verb, corpsecheck)
 const char *verb;
 int corpsecheck; /* 0, no check, 1, corpses, 2, tinnable corpses */
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     char qbuf[QBUFSZ];
     char c;
     boolean isvamp = (maybe_polyd(is_vampire(youmonst.data),

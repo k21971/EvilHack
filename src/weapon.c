@@ -1375,7 +1375,7 @@ boolean polyspot;
  */
 int
 mon_wield_item(mon)
-register struct monst *mon;
+struct monst *mon;
 {
     struct obj *obj;
 
@@ -2508,8 +2508,8 @@ const struct def_skill *class_skill;
 
 void
 setmnotwielded(mon, obj)
-register struct monst *mon;
-register struct obj *obj;
+struct monst *mon;
+struct obj *obj;
 {
     if (!obj)
         return;

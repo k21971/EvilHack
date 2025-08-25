@@ -337,7 +337,7 @@ int *shotlimit_p; /* (see dothrow()) */
 int
 dothrow()
 {
-    register struct obj *obj;
+    struct obj *obj;
     int shotlimit;
 
     /*
@@ -1346,7 +1346,7 @@ struct obj *obj;
 long wep_mask; /* used to re-equip returning boomerang */
 boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
 {
-    register struct monst *mon;
+    struct monst *mon;
     int range = 0, urange;
     boolean crossbowing, clear_thrownobj = FALSE,
             impaired = (Confusion || Stunned || Blind
@@ -1921,8 +1921,8 @@ boolean maybe_wakeup;
  */
 int
 thitmonst(mon, obj)
-register struct monst *mon;
-register struct obj *obj; /* thrownobj or kickedobj or uwep */
+struct monst *mon;
+struct obj *obj; /* thrownobj or kickedobj or uwep */
 {
     struct monst *mtmp;
     struct permonst *bourbon = &mons[PM_BOURBON];
@@ -2321,8 +2321,8 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
 
 STATIC_OVL int
 gem_accept(mon, obj)
-register struct monst *mon;
-register struct obj *obj;
+struct monst *mon;
+struct obj *obj;
 {
     char buf[BUFSZ];
     boolean is_buddy = (sgn(mon_aligntyp(mon)) == u.ualign.type);
@@ -2826,7 +2826,7 @@ throw_gold(obj)
 struct obj *obj;
 {
     int range, odx, ody;
-    register struct monst *mon;
+    struct monst *mon;
 
     if (!u.dx && !u.dy && !u.dz) {
         You("cannot throw gold at yourself.");

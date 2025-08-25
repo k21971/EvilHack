@@ -217,7 +217,7 @@ int x, y;
 struct monst *
 findgd()
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -659,7 +659,7 @@ struct monst *grd;
 
 STATIC_OVL void
 gd_mv_monaway(grd, nx, ny)
-register struct monst *grd;
+struct monst *grd;
 int nx, ny;
 {
     if (MON_AT(nx, ny) && !(nx == grd->mx && ny == grd->my)) {
@@ -766,14 +766,14 @@ int goldx, goldy; /* <gold->ox, gold->oy> */
  */
 int
 gd_move(grd)
-register struct monst *grd;
+struct monst *grd;
 {
     int x, y, nx, ny, m, n;
     int dx, dy, gx = 0, gy = 0, fci;
     uchar typ;
     struct rm *crm;
     struct fakecorridor *fcp;
-    register struct egd *egrd = EGD(grd);
+    struct egd *egrd = EGD(grd);
     long umoney = 0L;
     boolean goldincorridor = FALSE, u_in_vault = FALSE, grd_in_vault = FALSE,
             disappear_msg_seen = FALSE, semi_dead = DEADMONSTER(grd),
@@ -1095,7 +1095,7 @@ void
 paygd(silently)
 boolean silently;
 {
-    register struct monst *grd = findgd();
+    struct monst *grd = findgd();
     long umoney = money_cnt(invent);
     struct obj *coins, *nextcoins;
     int gx, gy;

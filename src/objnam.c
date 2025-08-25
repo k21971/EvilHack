@@ -617,13 +617,13 @@ struct obj *obj;
 
 STATIC_OVL char *
 xname_flags(obj, cxn_flags)
-register struct obj *obj;
+struct obj *obj;
 unsigned cxn_flags; /* bitmask of CXN_xxx values */
 {
     register char *buf;
     char *obufp;
     register int typ = obj->otyp;
-    register struct objclass *ocl = &objects[typ];
+    struct objclass *ocl = &objects[typ];
     int nn = ocl->oc_name_known, omndx = obj->corpsenm;
     long orig_opknwn = obj->oprops_known;
     const char *actualn = OBJ_NAME(*ocl);
@@ -2142,7 +2142,7 @@ unsigned lenlimit;
  */
 const char *
 singular(otmp, func)
-register struct obj *otmp;
+struct obj *otmp;
 char *FDECL((*func), (OBJ_P));
 {
     long savequan;
@@ -3668,7 +3668,7 @@ struct obj *no_wish;
 {
     register char *p;
     register int i;
-    register struct obj *otmp;
+    struct obj *otmp;
     int cnt, spe, spesgn, typ, very, rechrg;
     int blessed, uncursed, iscursed, ispoisoned, istainted, isgreased;
     int magical, isforged0, isforged1, isforged2, isdrained;

@@ -228,7 +228,7 @@ register int show;
  */
 void
 map_trap(trap, show)
-register struct trap *trap;
+struct trap *trap;
 register int show;
 {
     register int x = trap->tx, y = trap->ty;
@@ -248,7 +248,7 @@ register int show;
  */
 void
 map_object(obj, show)
-register struct obj *obj;
+struct obj *obj;
 register int show;
 {
     register int x = obj->ox, y = obj->oy;
@@ -317,7 +317,7 @@ void
 unmap_object(x, y)
 register int x, y;
 {
-    register struct trap *trap;
+    struct trap *trap;
 
     if (!level.flags.hero_memory)
         return;
@@ -351,8 +351,8 @@ register int x, y;
  */
 #define _map_location(x, y, show) \
     {                                                                       \
-        register struct obj *obj;                                           \
-        register struct trap *trap;                                         \
+        struct obj *obj;                                                    \
+        struct trap *trap;                                                  \
                                                                             \
         if ((obj = vobj_at(x, y)) && !covers_objects(x, y))                 \
             map_object(obj, show);                                          \
@@ -408,7 +408,7 @@ int x, y, monglyph;
 STATIC_OVL void
 display_monster(x, y, mon, sightflags, worm_tail)
 register xchar x, y;        /* display position */
-register struct monst *mon; /* monster to display */
+struct monst *mon; /* monster to display */
 int sightflags;             /* 1 if the monster is physically seen;
                                2 if detected using Detect_monsters */
 xchar worm_tail;            /* mon is actually a worm tail */
@@ -528,7 +528,7 @@ xchar worm_tail;            /* mon is actually a worm tail */
  */
 STATIC_OVL void
 display_warning(mon)
-register struct monst *mon;
+struct monst *mon;
 {
     int x = mon->mx, y = mon->my;
     int glyph;
@@ -596,7 +596,7 @@ xchar x, y;
 {
     struct rm *lev;
     struct obj *boulder;
-    register struct monst *mon;
+    struct monst *mon;
 
     if (!isok(x, y))
         return;
@@ -767,8 +767,8 @@ void
 newsym(x, y)
 register int x, y;
 {
-    register struct monst *mon;
-    register struct rm *lev = &(levl[x][y]);
+    struct monst *mon;
+    struct rm *lev = &(levl[x][y]);
     register int see_it;
     register xchar worm_tail;
 
@@ -1350,8 +1350,8 @@ int mode;
 void
 see_monsters()
 {
-    register struct monst *mon;
-    register struct obj *otmp;
+    struct monst *mon;
+    struct obj *otmp;
     unsigned long raceflags;
 
     if (defer_see_monsters)
@@ -1407,7 +1407,7 @@ see_monsters()
 void
 set_mimic_blocking()
 {
-    register struct monst *mon;
+    struct monst *mon;
 
     for (mon = fmon; mon; mon = mon->nmon) {
         if (DEADMONSTER(mon))
@@ -1428,7 +1428,7 @@ set_mimic_blocking()
 void
 see_objects()
 {
-    register struct obj *obj;
+    struct obj *obj;
     for (obj = fobj; obj; obj = obj->nobj)
         if (vobj_at(obj->ox, obj->oy) == obj)
             newsym(obj->ox, obj->oy);
@@ -1470,7 +1470,7 @@ void
 docrt()
 {
     register int x, y;
-    register struct rm *lev;
+    struct rm *lev;
 
     if (!u.ux)
         return; /* display isn't ready yet */

@@ -170,7 +170,7 @@ o_in(obj, oclass)
 struct obj *obj;
 char oclass;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     struct obj *temp;
 
     if (obj->oclass == oclass)
@@ -200,7 +200,7 @@ o_material(obj, material)
 struct obj *obj;
 unsigned material;
 {
-    register struct obj *otmp;
+    struct obj *otmp;
     struct obj *temp;
 
     if (obj->material == material)
@@ -283,8 +283,8 @@ unsigned material;
 boolean magic;
 {
     int glyph;
-    register struct obj *otmp;
-    register struct monst *mtmp;
+    struct obj *otmp;
+    struct monst *mtmp;
 
     glyph = glyph_at(x, y);
     if (glyph_is_object(glyph)) {
@@ -369,10 +369,10 @@ boolean magic;
 /* look for gold, on the floor or in monsters' possession */
 int
 gold_detect(sobj)
-register struct obj *sobj;
+struct obj *sobj;
 {
-    register struct obj *obj;
-    register struct monst *mtmp;
+    struct obj *obj;
+    struct monst *mtmp;
     struct obj gold, *temp = 0;
     boolean stale, ugold = FALSE, steedgold = FALSE;
     int ter_typ = TER_DETECT | TER_OBJ;
@@ -524,10 +524,10 @@ register struct obj *sobj;
 /* returns 1 if nothing was detected, 0 if something was detected */
 int
 food_detect(sobj)
-register struct obj *sobj;
+struct obj *sobj;
 {
-    register struct obj *obj;
-    register struct monst *mtmp;
+    struct obj *obj;
+    struct monst *mtmp;
     register int ct = 0, ctu = 0;
     boolean confused = (Confusion || (sobj && sobj->cursed)), stale;
     char oclass = confused ? POTION_CLASS : FOOD_CLASS;
@@ -661,8 +661,8 @@ int class;            /* an object class, 0 for all */
                                   || detector->oclass == SPBOOK_CLASS)
                      && detector->blessed);
     int ct = 0, ctu = 0;
-    register struct obj *obj, *otmp = (struct obj *) 0;
-    register struct monst *mtmp;
+    struct obj *obj, *otmp = (struct obj *) 0;
+    struct monst *mtmp;
     int sym, boulder = 0, ter_typ = TER_DETECT | TER_OBJ;
 
     if (class < 0 || class >= MAXOCLASSES) {
@@ -865,10 +865,10 @@ int class;            /* an object class, 0 for all */
  */
 int
 monster_detect(otmp, mclass)
-register struct obj *otmp; /* detecting object (if any) */
+struct obj *otmp; /* detecting object (if any) */
 int mclass;                /* monster class, 0 for all */
 {
-    register struct monst *mtmp;
+    struct monst *mtmp;
     int mcnt = 0;
 
     /* Note: This used to just check fmon for a non-zero value
@@ -956,9 +956,9 @@ struct obj *detector;   /* object doing the detecting */
     int do_pknown = (detector && (detector->oclass == SCROLL_CLASS)
                      && detector->blessed);
     int ct = 0, ctu = 0;
-    register struct obj *obj;
+    struct obj *obj;
     struct obj otmp;
-    register struct monst *mtmp;
+    struct monst *mtmp;
     int uw = u.uinwater, ter_typ = TER_DETECT | TER_OBJ;
     boolean woken = FALSE;
 
@@ -1196,7 +1196,7 @@ int
 trap_detect(sobj)
 struct obj *sobj; /* null if crystal ball, *scroll if gold detection scroll */
 {
-    register struct trap *ttmp;
+    struct trap *ttmp;
     struct monst *mon;
     int door, glyph, tr, ter_typ = TER_DETECT | TER_TRP;
     int cursed_src = sobj && sobj->cursed;
@@ -1734,8 +1734,8 @@ findone(zx, zy, num)
 int zx, zy;
 genericptr_t num;
 {
-    register struct trap *ttmp;
-    register struct monst *mtmp;
+    struct trap *ttmp;
+    struct monst *mtmp;
 
     /*
      * This used to use if/else-if/else-if/else/end-if but that only
@@ -1791,8 +1791,8 @@ openone(zx, zy, num)
 int zx, zy;
 genericptr_t num;
 {
-    register struct trap *ttmp;
-    register struct obj *otmp;
+    struct trap *ttmp;
+    struct obj *otmp;
     int *num_p = (int *) num;
 
     if (OBJ_AT(zx, zy)) {
@@ -1992,8 +1992,8 @@ register int aflag; /* intrinsic autosearch vs explicit searching */
 #else
     register xchar x, y;
 #endif
-    register struct trap *trap;
-    register struct monst *mtmp;
+    struct trap *trap;
+    struct monst *mtmp;
 
     if (u.uswallow) {
         if (!aflag)
@@ -2096,8 +2096,8 @@ void
 sokoban_detect()
 {
     register int x, y;
-    register struct trap *ttmp;
-    register struct obj *obj;
+    struct trap *ttmp;
+    struct obj *obj;
 
     /* Map the background and boulders */
     for (x = 1; x < COLNO; x++)

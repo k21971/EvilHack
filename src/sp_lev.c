@@ -1077,7 +1077,7 @@ xchar *lowx, *ddx, *lowy, *ddy;
 boolean vault;
 {
     register int x, y, hix = *lowx + *ddx, hiy = *lowy + *ddy;
-    register struct rm *lev;
+    struct rm *lev;
     int xlim, ylim, ymax;
 
     xchar s_lowx, s_ddx, s_lowy, s_ddy;
@@ -2668,7 +2668,7 @@ region *tmpregion;
     register boolean litstate = tmpregion->rlit ? 1 : 0;
     register int hiy = tmpregion->y2;
     register int x, y;
-    register struct rm *lev;
+    struct rm *lev;
     int lowy = tmpregion->y1;
     int lowx = tmpregion->x1, hix = tmpregion->x2;
 
@@ -4765,7 +4765,7 @@ struct sp_coder *coder;
     static const char nhFunc[] = "spo_region";
     struct opvar *rtype, *rlit, *rflags, *area;
     xchar dx1, dy1, dx2, dy2;
-    register struct mkroom *troom;
+    struct mkroom *troom;
     boolean prefilled, room_not_needed, irregular, joined;
 
     if (!OV_pop_i(rflags) || !OV_pop_i(rtype) || !OV_pop_i(rlit)

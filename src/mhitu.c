@@ -659,7 +659,7 @@ struct attack *alt_attk_buf;
  */
 int
 mattacku(mtmp)
-register struct monst *mtmp;
+struct monst *mtmp;
 {
     struct attack *mattk, alt_attk;
     int i, j = 0, tmp, sum[NATTK];
@@ -1426,8 +1426,8 @@ struct monst *mon;
  */
 STATIC_OVL int
 hitmu(mtmp, mattk)
-register struct monst *mtmp;
-register struct attack *mattk;
+struct monst *mtmp;
+struct attack *mattk;
 {
     struct permonst *mdat = mtmp->data;
     int uncancelled, ptmp;

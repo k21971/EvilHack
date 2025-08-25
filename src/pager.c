@@ -2844,7 +2844,7 @@ doquickwhatis()
 int
 doidtrap()
 {
-    register struct trap *trap;
+    struct trap *trap;
     int x, y, tt, glyph;
 
     if (!getdir("^"))
