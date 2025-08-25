@@ -4735,4 +4735,5 @@ The following changes to date are:
   or flagged as being in darkness
 - Fix: monsters will not steal objects made of a material they hate
 - Changes to the scroll of consecration
+- Changes to the scroll of consecration, take two
 
