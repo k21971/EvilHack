@@ -1,4 +1,4 @@
-/* NetHack 3.6	botl.c	$NHDT-Date: 1573178085 2019/11/08 01:54:45 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.148 $ */
+/* NetHack 3.6	botl.c	$NHDT-Date: 1757734870 2025/09/12 19:41:10 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.149 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1970,6 +1970,13 @@ int arrmin, arrmax;
     start_menu(tmpwin);
 
     for (i = arrmin; i < arrmax; i++) {
+        /* 3.6.7+: manually cherry-picked from 3.7 commit
+           4e2494c8595fce30de9a028a6ac0e21197c30972;
+           when interactively setting a text match highlight
+           for hunger, skip Null placeholder for "not hungry" */
+        if (!arr[i])
+            continue;
+
         any = zeroany;
         any.a_int = i + adj;
         add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
