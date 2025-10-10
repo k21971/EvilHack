@@ -94,7 +94,7 @@ DEBUGINFO = Y
 #
 #  The version of the game this Makefile was designed for
 #NETHACK_VERSION="3.6.7"
-NETHACK_VERSION="0.9.1"
+NETHACK_VERSION="0.9.2"
 
 # A brief version for use in macros
 NHV=$(NETHACK_VERSION:.=)

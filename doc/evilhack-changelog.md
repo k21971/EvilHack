@@ -4739,3 +4739,10 @@ The following changes to date are:
 - Replace instances of 'register struct' with 'struct'
 - Switch status from beta to released
 
+
+### Version 0.9.2
+
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of
+  March 19th, 2025)
+- Initial preparation for new version (0.9.2)
+
