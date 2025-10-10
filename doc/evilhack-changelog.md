@@ -4745,4 +4745,5 @@ The following changes to date are:
 - Latest merges from 'vanilla' NetHack 3.6.7 official release (as of
   March 19th, 2025)
 - Initial preparation for new version (0.9.2)
+- Fix: migrations of covetous monsters
 

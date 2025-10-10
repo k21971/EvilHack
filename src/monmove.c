@@ -273,7 +273,6 @@ struct monst *mtmp;
                  || Inhell || In_endgame(&u.uz)));
 }
 
-
 /* regenerate lost hit points */
 void
 mon_regen(mon, digest_meal)
@@ -717,8 +716,13 @@ struct monst *mtmp;
 
     /* Monsters that want to acquire things */
     /* may teleport, so do it before inrange is set */
-    if (is_covetous(mdat))
-        (void) tactics(mtmp);
+    if (is_covetous(mdat)) {
+        int tactics_result = tactics(mtmp);
+        /* if tactics() returns 2 or 3, monster either died or migrated
+           to another level */
+        if (tactics_result >= 2)
+            return tactics_result;
+    }
 
     /* check distance and scariness of attacks */
     distfleeck(mtmp, &inrange, &nearby, &scared);
