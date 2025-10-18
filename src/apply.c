@@ -1479,8 +1479,12 @@ struct obj *obj;
             if (obj->otyp == MAGIC_LAMP
                 && (is_damp_terrain(x, y) || u.uswallow)) {
                 return FALSE;
-            } else if (obj->where == OBJ_MINVENT ? cansee(x, y) : !Blind) {
-                pline("%s %s out!", Yname2(obj), otense(obj, "go"));
+            } else {
+                /* Print message only if player can perceive it */
+                if (obj->where == OBJ_MINVENT ? cansee(x, y) : !Blind) {
+                    pline("%s %s out!", Yname2(obj), otense(obj, "go"));
+                }
+                /* Always extinguish, regardless of visibility */
                 end_burn(obj, TRUE);
                 return TRUE;
             }

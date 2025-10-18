@@ -4746,4 +4746,6 @@ The following changes to date are:
   March 19th, 2025)
 - Initial preparation for new version (0.9.2)
 - Fix: migrations of covetous monsters
+- Fix: placing lit objects into a container while blind would not
+  extinguish the object
 
