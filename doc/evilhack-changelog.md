@@ -4743,7 +4743,7 @@ The following changes to date are:
 ### Version 0.9.2
 
 - Latest merges from 'vanilla' NetHack 3.6.7 official release (as of
-  March 19th, 2025)
+  September 26th, 2025)
 - Initial preparation for new version (0.9.2)
 - Fix: migrations of covetous monsters
 - Fix: placing lit objects into a container while blind would not
