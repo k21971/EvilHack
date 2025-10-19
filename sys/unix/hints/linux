@@ -47,12 +47,17 @@ CFLAGS+=-DDUMPHTML
 #detection of clang vs gcc
 CCISCLANG := $(shell echo `$(CC) --version` | grep clang)
 ifneq "$(CCISCLANG)" ""
-# clang-specific follows
 CLANGGTEQ18 := $(shell expr `$(CC) -dumpversion | cut -f1 -d.` \>= 18)
 ifeq "$(CLANGGTEQ18)" "1"
+# clang-specific starts here
 CFLAGS+=-Wno-deprecated-non-prototype
 endif
-endif  # clang-specific ends here
+# clang-specific ends here
+else
+# gcc-specific starts here
+CFLAGS+=-Wno-old-style-definition -Wno-unused-result -Wno-format-overflow
+# gcc-specific ends here
+endif  # clang-specific or gcc-specific ends here
 
 LINK=$(CC)
 # Only needed for GLIBC stack trace:

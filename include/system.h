@@ -85,7 +85,11 @@ typedef long off_t;
 #endif
 #ifndef SIG_RET_TYPE
 #if defined(NHSTDC) || defined(POSIX_TYPES) || defined(OS2) || defined(__DECC)
+#if defined(LINUX) && defined(__GNUC__)
+#define SIG_RET_TYPE __sighandler_t
+#else
 #define SIG_RET_TYPE void (*)()
+#endif
 #endif
 #endif
 #ifndef SIG_RET_TYPE
@@ -119,11 +123,11 @@ E int FDECL(srandom, (unsigned int));
 #if defined(MACOSX)
 E long NDECL(lrand48);
 E void FDECL(srand48, (long));
-#else /* !MACOSX */
-# ifndef HAVE_SRAND48
+#else
+#ifndef LINUX
 E long lrand48();
 E void srand48();
-#endif /* HAVE_SRAND48 */
+#endif
 #endif /* MACOSX */
 #endif /* BSD || ULTRIX || RANDOM */
 
@@ -378,6 +382,7 @@ E char *FDECL(memset, (char *, int, int));
 #endif /* TOS */
 #endif /* MICRO */
 
+#ifndef LINUX
 #if defined(BSD) && defined(ultrix) /* i.e., old versions of Ultrix */
 #ifndef HAVE_SLEEP
 E void sleep();
