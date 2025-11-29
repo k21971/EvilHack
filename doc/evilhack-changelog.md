@@ -4748,4 +4748,5 @@ The following changes to date are:
 - Fix: migrations of covetous monsters
 - Fix: placing lit objects into a container while blind would not
   extinguish the object
+- Fix: dungeons overview and grass/sand/trees
 

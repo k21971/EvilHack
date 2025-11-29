@@ -2209,7 +2209,6 @@ const char *s;
     return mptr;
 }
 
-
 void
 rm_mapseen(ledger_num)
 int ledger_num;
@@ -2990,14 +2989,18 @@ char *outbuf;
 #endif
 #define COMMA (i++ > 0 ? ", " : PREFIX)
 /* "iterate" once; safe to use as ``if (cond) ADDTOBUF(); else whatever;'' */
-#define ADDNTOBUF(nam, var)                                                  \
+#define ADDNTOBUF_CORE(nam, var, is_mass)                                    \
     do {                                                                     \
         if (var)                                                             \
-            Sprintf(eos(buf), "%s%s %s%s", COMMA, seen_string((var), (nam)), \
+            Sprintf(eos(buf), "%s%s %s%s", COMMA,                            \
+                    /* mass nouns: use "some" even for 1, never "a/an" */    \
+                    ((is_mass) && (var) == 1)                                \
+                        ? "some" : seen_string((var), (nam)),                \
                     (nam),                                                   \
-                    (var == mptr->feat.ngrass || var == mptr->feat.nsand)    \
-                        ? "" : plur(var));                                   \
+                    (is_mass) ? "" : plur(var));                             \
     } while (0)
+#define ADDNTOBUF(nam, var) ADDNTOBUF_CORE(nam, var, FALSE)
+#define ADDNTOBUF_MASS(nam, var) ADDNTOBUF_CORE(nam, var, TRUE)
 #define ADDTOBUF(nam, var)                           \
     do {                                             \
         if (var)                                     \
@@ -3118,8 +3121,8 @@ boolean printdun;
         ADDNTOBUF("grave", mptr->feat.ngrave);
         ADDNTOBUF("tree", mptr->feat.ntree);
         ADDNTOBUF("dead tree", mptr->feat.ndeadtree);
-        ADDNTOBUF("grass", mptr->feat.ngrass);
-        ADDNTOBUF("sand", mptr->feat.nsand);
+        ADDNTOBUF_MASS("grass", mptr->feat.ngrass);
+        ADDNTOBUF_MASS("sand", mptr->feat.nsand);
 #if 0
         ADDTOBUF("water", mptr->feat.water);
         ADDTOBUF("lava", mptr->feat.lava);
