@@ -4760,4 +4760,5 @@ The following changes to date are:
 - Fix: horsename was overwriting homunname in options.c
 - Fix: make the #forge command consistent with applying the Blacksmith's
   hammer
+- Fix: statue traps creating wandering steeds for riding monsters
 

@@ -303,7 +303,7 @@ typedef struct sortloot_item Loot;
 #define MM_ASLEEP   0x002000L /* monsters should be generated asleep */
 #define MM_NOGRP    0x004000L /* suppress creation of monster groups */
 #define MM_ERID     0x008000L /* add erid structure */
-#define MM_REVIVE   0x010000L /* no riding */
+#define MM_NOSTEED  0x010000L /* don't create a steed for riding monsters */
 #define MM_MPLAYEROK 0x020000L /* allow mplayer creation */
 /* if more MM_ flag masks are added, skip or renumber the GP_ one(s) */
 #define GP_ALLOW_XY 0x040000L /* [actually used by enexto() to decide whether

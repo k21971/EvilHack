@@ -485,7 +485,6 @@ struct trobj giantCave_man[] = {
     { 0, 0, 0, 0, 0 }
 };
 
-
 struct trobj giantDruid[] = {
 #define D_BOOK 8
     { QUARTERSTAFF, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
@@ -693,7 +692,6 @@ struct trobj Level20KitTortle[] = {
     { 0, 0, 0, 0, 0 }
 };
 /* end tortle structs */
-
 
 /* Specialized structs for monk player monsters */
 struct trobj Level10KitMonk1[] = {
@@ -3437,7 +3435,7 @@ long mmflags;
         mtmp->mhp = mtmp->mhpmax = 9999;
 
     /* Here is where we match riding monsters with their mounts */
-    if (!(mmflags & MM_REVIVE)) {
+    if (!(mmflags & MM_NOSTEED)) {
         switch (mndx) {
         case PM_DEATH:
             mount_monster(mtmp, PM_PALE_HORSE);

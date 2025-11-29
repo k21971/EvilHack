@@ -916,7 +916,7 @@ boolean adjacentok; /* False: at obj's spot only, True: nearby is allowed */
 
         if (mtmp2->mhpmax > 0 || is_rider(mtmp2->data)) {
             mtmp = makemon(mtmp2->data, cc->x, cc->y,
-                           (NO_MINVENT | MM_NOWAIT | MM_NOCOUNTBIRTH | MM_REVIVE
+                           (NO_MINVENT | MM_NOWAIT | MM_NOCOUNTBIRTH | MM_NOSTEED
                             | (adjacentok ? MM_ADJACENTOK : 0)));
         }
         if (!mtmp) {
@@ -1167,7 +1167,7 @@ boolean by_hero;
     if (cant_revive(&montype, TRUE, corpse)) {
         /* make a zombie or doppelganger instead */
         /* note: montype has changed; mptr keeps old value for newcham() */
-        mtmp = makemon(&mons[montype], x, y, NO_MINVENT | MM_NOWAIT | MM_REVIVE);
+        mtmp = makemon(&mons[montype], x, y, NO_MINVENT | MM_NOWAIT | MM_NOSTEED);
         if (mtmp) {
             /* skip ghost handling */
             if (has_omid(corpse))
@@ -1190,7 +1190,7 @@ boolean by_hero;
             wary_dog(mtmp, TRUE);
     } else {
         /* make a new monster */
-        mtmp = makemon(mptr, x, y, NO_MINVENT | MM_NOWAIT | MM_NOCOUNTBIRTH | MM_REVIVE);
+        mtmp = makemon(mptr, x, y, NO_MINVENT | MM_NOWAIT | MM_NOCOUNTBIRTH | MM_NOSTEED);
     }
     if (!mtmp)
         return (struct monst *) 0;
@@ -2221,7 +2221,7 @@ struct obj *obj;
                 }
                 if (golem_xform)
                     ptr = &mons[PM_FLESH_GOLEM];
-                mon = makemon(ptr, oox, ooy, (NO_MINVENT | MM_REVIVE));
+                mon = makemon(ptr, oox, ooy, (NO_MINVENT | MM_NOSTEED));
                 if (mon) {
                     if (costly_spot(oox, ooy)
                         && (carried(obj) ? obj->unpaid : !obj->no_charge)) {

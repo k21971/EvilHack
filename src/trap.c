@@ -473,7 +473,10 @@ int x, y, typ;
                  && sgn(u.ualign.type) == sgn(mptr->maligntyp));
         statue = mkcorpstat(STATUE, (struct monst *) 0, mptr, x, y,
                             CORPSTAT_NONE);
-        mtmp = makemon(&mons[statue->corpsenm], 0, 0, MM_NOCOUNTBIRTH);
+        /* MM_NOSTEED prevents mount creation for riding monsters;
+           we only want the rider's inventory, not a wandering steed */
+        mtmp = makemon(&mons[statue->corpsenm], 0, 0,
+                       MM_NOCOUNTBIRTH | MM_NOSTEED);
         if (!mtmp)
             break; /* should never happen */
         while (mtmp->minvent) {
@@ -3919,7 +3922,6 @@ struct obj *box; /* at the moment only for floor traps */
     }
 }
 
-
 STATIC_OVL void
 domagictrap()
 {
@@ -4663,7 +4665,6 @@ boolean *lostsome;
     }
     return TRUE;
 }
-
 
 /*  return TRUE iff player relocated */
 boolean
@@ -6554,7 +6555,6 @@ unconscious()
                               || !strncmp(nomovemsg, "You regain con", 14)
                               || !strncmp(nomovemsg, "You are consci", 14))));
 }
-
 
 /* Derived from lava_effects(), hero can burn in Gehennom
    without adequate fire resistance */
