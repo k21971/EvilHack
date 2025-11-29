@@ -4756,4 +4756,5 @@ The following changes to date are:
 - Fix: Druids and Infidels missing from reduced damage exploding wand
   routine
 - Fix: 'creepy feeling' feedback when waking the Wizard of Yendor
+- Fix: rancid corpse status for Draugr (curses mode, perm_invent)
 

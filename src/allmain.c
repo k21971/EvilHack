@@ -409,6 +409,19 @@ boolean resuming;
                     nh_timeout();
                     run_regions();
 
+                    /* Draugr corpse sense: update perm_invent when corpse
+                       rot status changes */
+                    if (iflags.perm_invent && !Upolyd && Race_if(PM_DRAUGR)) {
+                        struct obj *otmp;
+
+                        for (otmp = invent; otmp; otmp = otmp->nobj) {
+                            if (otmp->otyp == CORPSE) {
+                                update_inventory();
+                                break;
+                            }
+                        }
+                    }
+
                     if (u.ublesscnt)
                         u.ublesscnt--;
                     if (flags.time && !context.run)
@@ -1498,7 +1511,6 @@ const char *opts;
     }
     if (strlen(opts) > BUFSZ / 2)
         return;
-
 
     /* strip leading and trailing white space */
     while (isspace((uchar) *opts))
