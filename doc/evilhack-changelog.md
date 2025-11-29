@@ -4749,4 +4749,6 @@ The following changes to date are:
 - Fix: placing lit objects into a container while blind would not
   extinguish the object
 - Fix: dungeons overview and grass/sand/trees
+- Enable wishing for fractured altars in wizmode
+- Fix: dungeon overview showing deity name for mixed-alignment altars
 

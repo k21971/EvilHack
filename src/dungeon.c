@@ -2661,19 +2661,17 @@ recalc_mapseen()
                         && (levl[x][y].seenv & SVALL) != SVALL)
                          ? MSA_NONE
                          : Amask2msa(levl[x][y].altarmask);
+                /* msalign is shared between regular and fractured altars;
+                   check if ANY altar has been seen yet, not just this type */
+                if (!mptr->feat.naltar && !mptr->feat.nfaltar)
+                    mptr->feat.msalign = atmp;
+                else if (mptr->feat.msalign != atmp)
+                    mptr->feat.msalign = MSA_NONE;
                 if (levl[x][y].frac_altar == 1) {
-                    if (!mptr->feat.nfaltar)
-                        mptr->feat.msalign = atmp;
-                    else if (mptr->feat.msalign != atmp)
-                        mptr->feat.msalign = MSA_NONE;
                     count = mptr->feat.nfaltar + 1;
                     if (count <= 3)
                         mptr->feat.nfaltar = count;
                 } else {
-                    if (!mptr->feat.naltar)
-                        mptr->feat.msalign = atmp;
-                    else if (mptr->feat.msalign != atmp)
-                        mptr->feat.msalign = MSA_NONE;
                     count = mptr->feat.naltar + 1;
                     if (count <= 3)
                         mptr->feat.naltar = count;
