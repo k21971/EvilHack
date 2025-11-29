@@ -79,10 +79,10 @@ struct attack *mattk;
         case AT_BUTT:
             pline("%s %s!", Monnam(mtmp),
                   has_trunk(mtmp->data) ? "gores you with its tusks"
-                                        : num_horns(mtmp->data) > 1
-                                          ? "gores you with its horns"
-                                          : num_horns(mtmp->data) == 1
-                                            ? "gores you with its horn" : "butts");
+                    : has_antlers(mtmp->data) ? "gores you with its antlers"
+                      : num_horns(mtmp->data) > 1 ? "gores you with its horns"
+                        : num_horns(mtmp->data) == 1 ? "gores you with its horn"
+                          : "butts");
             break;
         case AT_TUCH:
             if (mtmp->data == &mons[PM_GIANT_CENTIPEDE])

@@ -1326,7 +1326,8 @@ break_armor()
                 char hornbuf[BUFSZ];
 
                 /* Future possibilities: This could damage/destroy helmet */
-                Sprintf(hornbuf, "horn%s", plur(num_horns(youmonst.data)));
+                Sprintf(hornbuf, has_antlers(youmonst.data) ? "antler%s" : "horn%s",
+                        plur(num_horns(youmonst.data)));
                 Your("%s %s through %s.", hornbuf, vtense(hornbuf, "pierce"),
                      yname(otmp));
             } else {
