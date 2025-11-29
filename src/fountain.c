@@ -579,7 +579,6 @@ static const struct forge_arti {
     { 0, 0, 0 }
 };
 
-
 int
 doforging()
 {
@@ -605,6 +604,11 @@ doforging()
         pline("You'll need a blacksmith hammer to forge successfully.");
         return 0;
     }
+
+    /* using the hammer involves touching it; check for material hatred
+       (e.g., elf/drow with iron hammer) - same check as doapply() */
+    if (!retouch_object(&uwep, !uarmg, FALSE))
+        return 1; /* costs a turn */
 
     /* various player conditions can prevent successful forging */
     if (Stunned || Confusion) {
