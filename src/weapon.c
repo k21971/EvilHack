@@ -181,7 +181,6 @@ struct obj *otmp;
     return tmp;
 }
 
-
 /* calculate and display base to-hit on the botl; bits of
    find_roll_to_hit() and included here, minus calculations
    that include the actual target, as the display doesn't
@@ -648,6 +647,10 @@ struct monst *mon;
         if (tmp < 1)
             tmp = 1;
     }
+
+    /* certain bonuses can make tmp negative; clamp to 0 minimum */
+    if (tmp < 0)
+        tmp = 0;
 
     return tmp;
 }
