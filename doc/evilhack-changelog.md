@@ -4761,4 +4761,5 @@ The following changes to date are:
 - Fix: make the #forge command consistent with applying the Blacksmith's
   hammer
 - Fix: statue traps creating wandering steeds for riding monsters
+- Add many new EvilHack-specific rumors
 
