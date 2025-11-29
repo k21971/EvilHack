@@ -5963,7 +5963,7 @@ char *buf;
     else if (!strcmp(optname, "horsename"))
         Sprintf(buf, "%s", horsename[0] ? horsename : none);
     else if (!strcmp(optname, "homunname"))
-        Sprintf(buf, "%s", homunname[0] ? horsename : none);
+        Sprintf(buf, "%s", homunname[0] ? homunname : none);
     else if (!strcmp(optname, "map_mode")) {
         i = iflags.wc_map_mode;
         Sprintf(buf, "%s",

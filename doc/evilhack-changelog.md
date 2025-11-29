@@ -4757,4 +4757,5 @@ The following changes to date are:
   routine
 - Fix: rancid corpse status for Draugr (curses mode, perm_invent)
 - Fix: negative damage applied to monsters under certain conditions
+- Fix: horsename was overwriting homunname in options.c
 
