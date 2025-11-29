@@ -4751,4 +4751,5 @@ The following changes to date are:
 - Fix: dungeons overview and grass/sand/trees
 - Enable wishing for fractured altars in wizmode
 - Fix: dungeon overview showing deity name for mixed-alignment altars
+- Fix: forged artifact comment update
 
