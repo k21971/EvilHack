@@ -76,10 +76,12 @@ int expltype;
         case PM_PRIEST:
         case PM_MONK:
         case PM_WIZARD:
+        case PM_INFIDEL:
             damu /= 5;
             break;
         case PM_HEALER:
         case PM_KNIGHT:
+        case PM_DRUID:
             damu /= 2;
             break;
         default:

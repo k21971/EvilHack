@@ -4753,4 +4753,6 @@ The following changes to date are:
 - Fix: dungeon overview showing deity name for mixed-alignment altars
 - Fix: forged artifact comment update
 - Fix: stags have antlers, not horns
+- Fix: Druids and Infidels missing from reduced damage exploding wand
+  routine
 
