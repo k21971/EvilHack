@@ -116,9 +116,8 @@ amulet()
         if (mtmp->iswiz && mtmp->msleeping && !rn2(40)) {
             mtmp->msleeping = 0;
             if (distu(mtmp->mx, mtmp->my) > 2)
-                You("get the creepy feeling that somebody noticed your %s the Amulet.",
-                    (amu->oartifact == ART_IDOL_OF_MOLOCH && u.uachieve.amulet)
-                    ? "sacrificing" : "taking");
+                You(
+      "get the creepy feeling that somebody noticed your taking the Amulet.");
             return;
         }
     }
