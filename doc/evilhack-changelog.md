@@ -4767,4 +4767,6 @@ The following changes to date are:
   suppressed against monsters that were safe to attack
 - Fix: prevent pets from stashing the quest artifact if the quest has
   not yet been completed
+- Fix: forged artifacts had a small chance of being produced inferior,
+  superior or exceptional
 

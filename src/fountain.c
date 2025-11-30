@@ -736,6 +736,8 @@ doforging()
             output->otainted = 0;
             output->greased = 0;
             maybe_erodeproof(output, 1);
+            /* artifacts should never have a quality modifier */
+            output->forged_qual = FQ_NORMAL;
 
             /* delete recipe objects - use delobj_core() directly
                to handle the Sword of Annihilation potentially
