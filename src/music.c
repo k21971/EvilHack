@@ -488,6 +488,8 @@ int force;
                     pline_The("door collapses.");
                 if (*in_rooms(x, y, SHOPBASE))
                     add_damage(x, y, 0L);
+                else if (temple_at_boundary(x, y))
+                    add_damage(x, y, 0L);
                 break;
             }
         }

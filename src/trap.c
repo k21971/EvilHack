@@ -549,7 +549,10 @@ int x, y, typ;
         /*FALLTHRU*/
     case HOLE:
     case TRAPDOOR:
-        if (*in_rooms(x, y, SHOPBASE)
+        if ((*in_rooms(x, y, SHOPBASE)
+             || ((IS_DOOR(lev->typ) || IS_WALL(lev->typ))
+                 && temple_at_boundary(x, y))
+             || *in_rooms(x, y, TEMPLE))
             && (is_hole(typ) || IS_DOOR(lev->typ) || IS_WALL(lev->typ)))
             add_damage(x, y, /* schedule repair */
                        ((IS_DOOR(lev->typ) || IS_WALL(lev->typ))
@@ -5588,6 +5591,8 @@ boolean force;
                 newsym(x, y);
                 /* (probably ought to charge for this damage...) */
                 if (*in_rooms(x, y, SHOPBASE))
+                    add_damage(x, y, 0L);
+                else if (temple_at_boundary(x, y))
                     add_damage(x, y, 0L);
             } else {
                 You("disarm it!");

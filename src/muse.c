@@ -2364,10 +2364,11 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
                 if (doorlock(obj, bhitpos.x, bhitpos.y)) {
                     if (zap_oseen)
                         makeknown(obj->otyp);
-                    /* if a shop door gets broken, add it to
-                       the shk's fix list (no cost to player) */
+                    /* if a shop or temple door gets broken, add it to
+                       the repair list (no cost to player) */
                     if (levl[bhitpos.x][bhitpos.y].doormask == D_BROKEN
-                        && *in_rooms(bhitpos.x, bhitpos.y, SHOPBASE))
+                        && (*in_rooms(bhitpos.x, bhitpos.y, SHOPBASE)
+                            || temple_at_boundary(bhitpos.x, bhitpos.y)))
                         add_damage(bhitpos.x, bhitpos.y, 0L);
                 }
                 break;

@@ -417,6 +417,7 @@ dig(VOID_ARGS)
                    *dmgtxt = (const char *) 0;
         struct obj *obj, *bobj;
         boolean shopedge = *in_rooms(dpx, dpy, SHOPBASE);
+        boolean templeedge = *in_rooms(dpx, dpy, TEMPLE);
         int digtyp = dig_typ(uwep, dpx, dpy);
 
         if (digtyp == DIGTYP_STATUE
@@ -480,7 +481,7 @@ dig(VOID_ARGS)
                 lev->typ = CORR, lev->flags = 0;
             }
         } else if (IS_WALL(lev->typ)) {
-            if (shopedge) {
+            if (shopedge || templeedge) {
                 add_damage(dpx, dpy, SHOP_WALL_DMG);
                 dmgtxt = "damage";
             }
@@ -499,7 +500,7 @@ dig(VOID_ARGS)
                 lev->doormask = D_BROKEN;
         } else if (closed_door(dpx, dpy)) {
             digtxt = "You break through the door.";
-            if (shopedge) {
+            if (shopedge || temple_at_boundary(dpx, dpy)) {
                 add_damage(dpx, dpy, SHOP_DOOR_COST);
                 dmgtxt = "break";
             }
@@ -1338,6 +1339,8 @@ struct obj *obj;
             if (*u.ushops) {
                 shopdig(0);
                 add_damage(u.ux, u.uy, SHOP_PIT_COST);
+            } else if (*in_rooms(u.ux, u.uy, TEMPLE)) {
+                add_damage(u.ux, u.uy, 0L);
             }
         } else
             You("continue %s downward.", verbing);
@@ -1414,6 +1417,8 @@ struct monst *mtmp;
     if (closed_door(mtmp->mx, mtmp->my)) {
         if (*in_rooms(mtmp->mx, mtmp->my, SHOPBASE))
             add_damage(mtmp->mx, mtmp->my, 0L);
+        else if (temple_at_boundary(mtmp->mx, mtmp->my))
+            add_damage(mtmp->mx, mtmp->my, 0L);
         unblock_point(mtmp->mx, mtmp->my); /* vision */
         if (here->doormask & D_TRAPPED) {
             here->doormask = D_NODOOR;
@@ -1452,6 +1457,8 @@ struct monst *mtmp;
         if (flags.verbose && !rn2(5))
             You_hear("crashing rock.");
         if (*in_rooms(mtmp->mx, mtmp->my, SHOPBASE))
+            add_damage(mtmp->mx, mtmp->my, 0L);
+        else if (*in_rooms(mtmp->mx, mtmp->my, TEMPLE))
             add_damage(mtmp->mx, mtmp->my, 0L);
         if (level.flags.is_maze_lev) {
             here->typ = ROOM, here->flags = 0;
@@ -1656,6 +1663,8 @@ zap_dig()
             if (*in_rooms(zx, zy, SHOPBASE)) {
                 add_damage(zx, zy, SHOP_DOOR_COST);
                 shopdoor = TRUE;
+            } else if (*in_rooms(zx, zy, TEMPLE)) {
+                add_damage(zx, zy, 0L);
             }
             if (room->typ == SDOOR)
                 room->typ = DOOR; /* doormask set below */
@@ -1673,6 +1682,8 @@ zap_dig()
                     if (*in_rooms(zx, zy, SHOPBASE)) {
                         add_damage(zx, zy, SHOP_WALL_COST);
                         shopwall = TRUE;
+                    } else if (*in_rooms(zx, zy, TEMPLE)) {
+                        add_damage(zx, zy, 0L);
                     }
                     room->typ = ROOM, room->flags = 0;
                     unblock_point(zx, zy); /* vision */
@@ -1705,6 +1716,8 @@ zap_dig()
                 if (*in_rooms(zx, zy, SHOPBASE)) {
                     add_damage(zx, zy, SHOP_WALL_COST);
                     shopwall = TRUE;
+                } else if (*in_rooms(zx, zy, TEMPLE)) {
+                    add_damage(zx, zy, 0L);
                 }
                 watch_dig((struct monst *) 0, zx, zy, TRUE);
                 if (level.flags.is_cavernous_lev && !in_town(zx, zy)) {

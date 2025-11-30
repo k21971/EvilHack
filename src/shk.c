@@ -3853,18 +3853,50 @@ long cost;
 {
     struct damage *tmp_dam;
     char *shops;
+    char *temples;
+    boolean dominated_by_temple = FALSE;
 
     if (IS_DOOR(levl[x][y].typ)) {
         struct monst *mtmp;
+        int dx, dy;
 
-        /* Don't schedule for repair unless it's a real shop entrance */
+        /* Don't schedule for repair unless it's a real shop entrance
+           or temple entrance */
         for (shops = in_rooms(x, y, SHOPBASE); *shops; shops++)
             if ((mtmp = shop_keeper(*shops)) != 0
                 && x == ESHK(mtmp)->shd.x && y == ESHK(mtmp)->shd.y)
                 break;
-        if (!*shops)
-            return;
+        if (!*shops) {
+            /* Not a shop door - check for temple door by looking at
+               adjacent squares (doors are on room boundaries) */
+            for (dx = -1; dx <= 1; dx++) {
+                for (dy = -1; dy <= 1; dy++) {
+                    if (dx == 0 && dy == 0)
+                        continue;
+                    if (!isok(x + dx, y + dy))
+                        continue;
+                    temples = in_rooms(x + dx, y + dy, TEMPLE);
+                    if (*temples && findpriest(*temples)) {
+                        dominated_by_temple = TRUE;
+                        break;
+                    }
+                }
+                if (dominated_by_temple)
+                    break;
+            }
+            if (!dominated_by_temple)
+                return; /* neither shop nor temple door */
+        }
+    } else {
+        /* For non-door damage, check if in a temple */
+        temples = in_rooms(x, y, TEMPLE);
+        if (*temples && findpriest(*temples))
+            dominated_by_temple = TRUE;
     }
+
+    /* Temples don't track damage costs (no billing) */
+    if (dominated_by_temple)
+        cost = 0L;
     for (tmp_dam = level.damagelist; tmp_dam; tmp_dam = tmp_dam->next)
         if (tmp_dam->place.x == x && tmp_dam->place.y == y) {
             tmp_dam->cost += cost;
@@ -3902,7 +3934,8 @@ boolean croaked;
     struct damage *tmp_dam, *tmp2_dam;
     struct obj *shk_inv = shkp->minvent;
     boolean did_repair = FALSE, saw_door = FALSE, saw_floor = FALSE,
-            stop_picking = FALSE, doorway_trap = FALSE, skip_msg = FALSE;
+            saw_bars = FALSE, stop_picking = FALSE, doorway_trap = FALSE,
+            skip_msg = FALSE;
     int saw_walls = 0, saw_untrap = 0, feedback;
     char trapmsg[BUFSZ];
 
@@ -3950,6 +3983,8 @@ boolean croaked;
                            /* an existing door here implies trap removal */
                            && !(old_doormask & (D_ISOPEN | D_CLOSED))) {
                     saw_door = TRUE;
+                } else if (levl[x][y].typ == IRONBARS) {
+                    saw_bars = TRUE;
                 } else if (disposition == 3) { /* untrapped */
                     saw_untrap++;
                     if (IS_DOOR(levl[x][y].typ))
@@ -3980,7 +4015,7 @@ boolean croaked;
         pline("%s untraps %s.", Shknam(shkp), ansimpleoname(shk_inv));
         /* we've already reported this trap (and know it's the only one) */
         saw_untrap = 0;
-        skip_msg = !(saw_walls || saw_door || saw_floor);
+        skip_msg = !(saw_walls || saw_door || saw_bars || saw_floor);
     } else if (saw_untrap) {
         Sprintf(trapmsg, "%s trap%s",
                 (saw_untrap > 3) ? "several" : (saw_untrap > 1) ? "some"
@@ -3993,14 +4028,20 @@ boolean croaked;
 
     if (skip_msg) {
         ; /* already gave an untrap message which covered the only repair */
-    } else if (saw_walls) {
-        char wallbuf[BUFSZ];
+    } else if (saw_walls || saw_bars) {
+        /* walls and iron bars are "major" structural repairs */
+        if (saw_walls) {
+            char wallbuf[BUFSZ];
 
-        Sprintf(wallbuf, "section%s", plur(saw_walls));
-        pline("Suddenly, %s %s of wall %s up!",
-              (saw_walls == 1) ? "a" : (saw_walls <= 3) ? "some" : "several",
-              wallbuf, vtense(wallbuf, "close"));
-
+            Sprintf(wallbuf, "section%s", plur(saw_walls));
+            pline("Suddenly, %s %s of wall %s up!",
+                  (saw_walls == 1) ? "a" : (saw_walls <= 3) ? "some"
+                                                           : "several",
+                  wallbuf, vtense(wallbuf, "close"));
+        }
+        if (saw_bars)
+            pline("%s iron bars rematerialize!",
+                  saw_walls ? "The" : "Suddenly, the");
         if (saw_door)
             pline_The("shop door reappears!");
         if (saw_floor)
@@ -4474,6 +4515,7 @@ boolean cant_mollify;
     xchar x, y;
     boolean dugwall = (!strcmp(dmgstr, "dig into")    /* wand */
                        || !strcmp(dmgstr, "damage")); /* pick-axe */
+    boolean dugbars = FALSE;
     boolean animal, pursue;
     struct damage *tmp_dam, *appear_here = 0;
     long cost_of_damage = 0L;
@@ -4524,6 +4566,10 @@ boolean cant_mollify;
 
     if (!cost_of_damage || !shkp)
         return;
+
+    /* check if the damage was to iron bars */
+    if (appear_here && appear_here->typ == IRONBARS)
+        dugbars = TRUE;
 
     animal = (shkp->data->msound <= MS_ANIMAL);
     pursue = FALSE;
@@ -4593,20 +4639,22 @@ boolean cant_mollify;
         } else if (pursue || uinshp || !um_dist(x, y, 1)) {
             if (!Deaf)
                 verbalize("How dare you %s my %s?", dmgstr,
-                          dugwall ? "shop" : "door");
+                          dugwall ? "shop" : dugbars ? "iron bars" : "door");
             else
                 pline("%s is %s that you decided to %s %s %s!",
                       Shknam(shkp), angrytexts[rn2(SIZE(angrytexts))],
-                      dmgstr, noit_mhis(shkp), dugwall ? "shop" : "door");
+                      dmgstr, noit_mhis(shkp),
+                      dugwall ? "shop" : dugbars ? "iron bars" : "door");
         } else {
             if (!Deaf) {
                 pline("%s shouts:", Shknam(shkp));
                 verbalize("Who dared %s my %s?", dmgstr,
-                          dugwall ? "shop" : "door");
+                          dugwall ? "shop" : dugbars ? "iron bars" : "door");
             } else {
                 pline("%s is %s that someone decided to %s %s %s!",
                       Shknam(shkp), angrytexts[rn2(SIZE(angrytexts))],
-                      dmgstr, noit_mhis(shkp), dugwall ? "shop" : "door");
+                      dmgstr, noit_mhis(shkp),
+                      dugwall ? "shop" : dugbars ? "iron bars" : "door");
             }
         }
         hot_pursuit(shkp);

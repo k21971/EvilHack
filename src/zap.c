@@ -4326,7 +4326,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
     struct monst *mtmp, *result = (struct monst *) 0;
     struct obj *obj = *pobj;
     uchar typ;
-    boolean shopdoor = FALSE, point_blank = TRUE;
+    boolean shopdoor = FALSE, shopbars = FALSE, point_blank = TRUE;
     boolean in_skip = FALSE, allow_skip = FALSE;
     boolean tethered_weapon = FALSE;
     int skiprange_start = 0, skiprange_end = 0, skipcount = 0;
@@ -4383,6 +4383,13 @@ struct obj **pobj; /* object tossed/used, set to NULL
             && ((!(weapon == KICKED_WEAPON || weapon == THROWN_WEAPON)
                  && obj->otyp == SPE_FORCE_BOLT)
                 || (weapon == ZAPPED_WAND && obj->otyp == WAN_STRIKING))) {
+            /* add_damage before terrain change so original type is saved */
+            if (*in_rooms(bhitpos.x, bhitpos.y, SHOPBASE)) {
+                shopbars = TRUE;
+                add_damage(bhitpos.x, bhitpos.y, SHOP_BARS_COST);
+            } else if (temple_at_boundary(bhitpos.x, bhitpos.y)) {
+                add_damage(bhitpos.x, bhitpos.y, 0L);
+            }
             levl[bhitpos.x][bhitpos.y].typ = ROOM;
             if (cansee(bhitpos.x, bhitpos.y))
                 pline_The("iron bars are blown apart!");
@@ -4593,10 +4600,13 @@ struct obj **pobj; /* object tossed/used, set to NULL
                     if (cansee(bhitpos.x, bhitpos.y)
                         || (obj->otyp == WAN_STRIKING && !Deaf))
                         learnwand(obj);
-                    if (levl[bhitpos.x][bhitpos.y].doormask == D_BROKEN
-                        && *in_rooms(bhitpos.x, bhitpos.y, SHOPBASE)) {
-                        shopdoor = TRUE;
-                        add_damage(bhitpos.x, bhitpos.y, SHOP_DOOR_COST);
+                    if (levl[bhitpos.x][bhitpos.y].doormask == D_BROKEN) {
+                        if (*in_rooms(bhitpos.x, bhitpos.y, SHOPBASE)) {
+                            shopdoor = TRUE;
+                            add_damage(bhitpos.x, bhitpos.y, SHOP_DOOR_COST);
+                        } else if (temple_at_boundary(bhitpos.x, bhitpos.y)) {
+                            add_damage(bhitpos.x, bhitpos.y, 0L);
+                        }
                     }
                 }
                 break;
@@ -4659,6 +4669,8 @@ struct obj **pobj; /* object tossed/used, set to NULL
         tmp_at(DISP_END, 0);
 
     if (shopdoor)
+        pay_for_damage("destroy", FALSE);
+    if (shopbars)
         pay_for_damage("destroy", FALSE);
 
  bhit_done:
@@ -6162,14 +6174,20 @@ boolean moncast;
                 rangemod -= 3;
                 if (see_it)
                     Norep("The %s melt.", defsyms[S_bars].explanation);
+                /* add_damage before terrain change so original type is saved */
                 if (*in_rooms(x, y, SHOPBASE)) {
                     /* in case we ever have a shop bounded by bars */
+                    add_damage(x, y, yourzap ? SHOP_BARS_COST : 0L);
                     lev->typ = ROOM, lev->flags = 0;
                     if (see_it)
                         newsym(x, y);
-                    add_damage(x, y, yourzap ? SHOP_BARS_COST : 0L);
                     if (yourzap)
                         *shopdamage = TRUE;
+                } else if (temple_at_boundary(x, y)) {
+                    add_damage(x, y, 0L);
+                    lev->typ = ROOM, lev->flags = 0;
+                    if (see_it)
+                        newsym(x, y);
                 } else {
                     lev->typ = DOOR, lev->doormask = D_NODOOR;
                     if (see_it)
@@ -6287,6 +6305,8 @@ boolean moncast;
                     *shopdamage = TRUE;
                 } else /* caused by monster */
                     add_damage(x, y, 0L);
+            } else if (temple_at_boundary(x, y)) {
+                add_damage(x, y, 0L);
             }
             lev->doormask = new_doormask;
             unblock_point(x, y); /* vision */

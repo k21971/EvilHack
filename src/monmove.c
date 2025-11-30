@@ -1998,8 +1998,10 @@ register int after;
                                 You_hear("a door crash open.");
                         }
                     }
-                    /* if it's a shop door, schedule repair */
+                    /* if it's a shop or temple door, schedule repair */
                     if (*in_rooms(mtmp->mx, mtmp->my, SHOPBASE))
+                        add_damage(mtmp->mx, mtmp->my, 0L);
+                    else if (temple_at_boundary(mtmp->mx, mtmp->my))
                         add_damage(mtmp->mx, mtmp->my, 0L);
                 }
             } else if (levl[mtmp->mx][mtmp->my].typ == IRONBARS) {
@@ -2011,6 +2013,11 @@ register int after;
                          || mtmp->data == &mons[PM_SEA_DRAGON])) {
                     if (canseemon(mtmp))
                         pline("%s eats through the iron bars.", Monnam(mtmp));
+                    /* add_damage before terrain change so original type is saved */
+                    if (*in_rooms(mtmp->mx, mtmp->my, SHOPBASE))
+                        add_damage(mtmp->mx, mtmp->my, 0L);
+                    else if (temple_at_boundary(mtmp->mx, mtmp->my))
+                        add_damage(mtmp->mx, mtmp->my, 0L);
                     dissolve_bars(mtmp->mx, mtmp->my);
                     return 3;
                 } else if (flags.verbose && canseemon(mtmp))

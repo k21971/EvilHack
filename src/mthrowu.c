@@ -1676,8 +1676,14 @@ unsigned breakflags; /* breakage control */
             else
                 You_hear(Hallucination ? "angry snakes!"
                                        : "a hissing noise.");
-            if (!nodissolve)
+            if (!nodissolve) {
+                /* add_damage before terrain change so original type is saved */
+                if (*in_rooms(barsx, barsy, SHOPBASE))
+                    add_damage(barsx, barsy, your_fault ? SHOP_BARS_COST : 0L);
+                else if (temple_at_boundary(barsx, barsy))
+                    add_damage(barsx, barsy, 0L);
                 dissolve_bars(barsx, barsy);
+            }
         }
     } else if ((obj_type == LONG_SWORD && otmp->oartifact == ART_DIRGE)
                || (obj_type == AKLYS && otmp->oartifact == ART_HARBINGER)) {
@@ -1688,8 +1694,14 @@ unsigned breakflags; /* breakage control */
         else
             You_hear(Hallucination ? "a hot knife slice through butter!"
                                    : "a hissing noise.");
-        if (!nodissolve)
+        if (!nodissolve) {
+            /* add_damage before terrain change so original type is saved */
+            if (*in_rooms(barsx, barsy, SHOPBASE))
+                add_damage(barsx, barsy, your_fault ? SHOP_BARS_COST : 0L);
+            else if (temple_at_boundary(barsx, barsy))
+                add_damage(barsx, barsy, 0L);
             dissolve_bars(barsx, barsy);
+        }
     } else {
         if (!Deaf)
             pline("%s!", (obj_type == BOULDER || obj_type == HEAVY_IRON_BALL)

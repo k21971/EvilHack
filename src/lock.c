@@ -172,6 +172,8 @@ picklock(VOID_ARGS)
             unblock_point(u.ux + u.dx, u.uy + u.dy);
             if (*in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE))
                 add_damage(u.ux + u.dx, u.uy + u.dy, SHOP_DOOR_COST);
+            else if (temple_at_boundary(u.ux + u.dx, u.uy + u.dy))
+                add_damage(u.ux + u.dx, u.uy + u.dy, 0L);
             newsym(u.ux + u.dx, u.uy + u.dy);
         } else if (xlock.door->doormask & D_LOCKED)
             xlock.door->doormask = D_CLOSED;
@@ -986,6 +988,8 @@ int x, y;
             b_trapped("door", FINGER);
             if (*in_rooms(cc.x, cc.y, SHOPBASE))
                 add_damage(cc.x, cc.y, SHOP_DOOR_COST);
+            else if (temple_at_boundary(cc.x, cc.y))
+                add_damage(cc.x, cc.y, 0L);
         } else
             door->doormask = D_ISOPEN;
         feel_newsym(cc.x, cc.y); /* the hero knows she opened it */
@@ -1342,6 +1346,8 @@ int x, y;
         /* door was destroyed */
         wake_nearto(x, y, loudness);
         if (*in_rooms(x, y, SHOPBASE))
+            add_damage(x, y, 0L);
+        else if (temple_at_boundary(x, y))
             add_damage(x, y, 0L);
     }
 

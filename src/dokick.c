@@ -487,7 +487,6 @@ xchar x, y; /* coordinates where object was before the impact, not after */
     }
 }
 
-
 /* jacket around really_kick_object */
 STATIC_OVL int
 kick_object(x, y, kickobjnam)
@@ -1459,6 +1458,8 @@ dokick()
         if (shopdoor) {
             add_damage(x, y, SHOP_DOOR_COST);
             pay_for_damage("break", FALSE);
+        } else if (temple_at_boundary(x, y)) {
+            add_damage(x, y, 0L);
         }
         if (in_town(x, y))
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {

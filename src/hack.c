@@ -523,6 +523,8 @@ xchar x, y;
         if (*in_rooms(x, y, SHOPBASE)) {
             add_damage(x, y, SHOP_WALL_DMG);
             dmgtxt = "damage";
+        } else if (*in_rooms(x, y, TEMPLE)) {
+            add_damage(x, y, 0L);
         }
         digtxt = "chew a hole in the wall.";
         if (level.flags.is_maze_lev) {
@@ -538,6 +540,11 @@ xchar x, y;
         lev->typ = ROOM;
     } else if (lev->typ == IRONBARS) {
         digtxt = "eat through the bars.";
+        /* add_damage before terrain change so original type is saved */
+        if (*in_rooms(x, y, SHOPBASE))
+            add_damage(x, y, SHOP_BARS_COST);
+        else if (temple_at_boundary(x, y))
+            add_damage(x, y, 0L);
         dissolve_bars(x, y);
     } else if (lev->typ == SDOOR) {
         if (lev->doormask & D_TRAPPED) {
@@ -553,6 +560,8 @@ xchar x, y;
         if (*in_rooms(x, y, SHOPBASE)) {
             add_damage(x, y, SHOP_DOOR_COST);
             dmgtxt = "break";
+        } else if (temple_at_boundary(x, y)) {
+            add_damage(x, y, 0L);
         }
         if (lev->doormask & D_TRAPPED) {
             lev->doormask = D_NODOOR;
@@ -824,7 +833,6 @@ register xchar x, y;
     return (boolean) !(IS_TREES(levl[x][y].typ)
                        && (levl[x][y].wall_info & W_NONPASSWALL));
 }
-
 
 boolean
 bad_rock(mtmp, x, y)
@@ -2002,6 +2010,8 @@ domove_core()
                     tmpr->doormask = D_NODOOR;
                     if (*in_rooms(x, y, SHOPBASE))
                         add_damage(x, y, SHOP_DOOR_COST);
+                    else if (temple_at_boundary(x, y))
+                        add_damage(x, y, 0L);
                     pay_for_damage("burn away", FALSE);
                     tmpr->typ = ROOM, tmpr->flags = 0;
                     if (tmpr->typ == ROOM)

@@ -52,7 +52,6 @@ const char *warnings[] = {
 };
 #endif /* 0 */
 
-
 STATIC_OVL void
 sanity_check_single_mon(mtmp, chk_geno, msg)
 struct monst *mtmp;
@@ -1562,7 +1561,6 @@ movemon()
             if (hideunder(mtmp))
                 continue;
         }
-
 
         if ((is_mplayer(mtmp->data) && !rn2(16))
              || !rn2(300)) {
@@ -3606,6 +3604,8 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
 
     if (mtmp->isshk)
         shkgone(mtmp);
+    if (mtmp->ispriest && EPRI(mtmp))
+        temple_remove_damage(mtmp, TRUE);
     if (mtmp->wormno)
         wormgone(mtmp);
     if (In_endgame(&u.uz))
@@ -3680,8 +3680,6 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
         dismount_steed(DISMOUNT_GENERIC);
     return;
 }
-
-
 
 /* find the worn amulet of life saving which will save a monster */
 struct obj *
@@ -7153,7 +7151,6 @@ aligntyp algn;
 
     return m_chooserace(permitted);
 }
-
 
 short
 m_randrace(mndx)
