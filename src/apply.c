@@ -785,7 +785,7 @@ struct obj *obj;
         /* applying a leash which is currently in use */
         if (obj->leashmon != (int) mtmp->m_id) {
             pline("This leash is not attached to that creature.");
-        } else if (obj->cursed) {
+        } else if (obj->cursed && !Role_if(PM_INFIDEL)) {
             pline_The("leash would not come off!");
             set_bknown(obj, 1);
         } else {

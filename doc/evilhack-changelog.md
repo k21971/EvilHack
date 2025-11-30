@@ -4762,4 +4762,5 @@ The following changes to date are:
   hammer
 - Fix: statue traps creating wandering steeds for riding monsters
 - Add many new EvilHack-specific rumors
+- Fix: allow Infidels to drop a cursed leash that is in use
 
