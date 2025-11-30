@@ -4763,4 +4763,6 @@ The following changes to date are:
 - Fix: statue traps creating wandering steeds for riding monsters
 - Add many new EvilHack-specific rumors
 - Fix: allow Infidels to drop a cursed leash that is in use
+- Fix: forcefighting while using #wildshape or #shapechange was being
+  suppressed against monsters that were safe to attack
 

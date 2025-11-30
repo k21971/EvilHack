@@ -1081,7 +1081,6 @@ struct attack *uattk;
             (void) passive(mon, uarms, mhit, malive, AT_WEAP, FALSE);
     }
 
-
     /* Your race may grant extra attacks. Illithids don't use
      * their tentacle attack every turn, Centaurs are strong
      * enough to not need their extra kick attack */
@@ -4305,15 +4304,14 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                 goto use_weapon;
             /*FALLTHRU*/
         case AT_TENT:
-            /* don't eat brain if racial illithid and it would be particularly
-               detrimental or you're force-fighting */
+            /* don't eat brains if racial illithid and it would be
+               particularly detrimental */
             if ((druid_form
                  || maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID)))
                 && mattk->aatyp == AT_TENT
-                && (context.forcefight
-                    || ((touch_petrifies(mon->data)
-                         || mon->data == &mons[PM_MEDUSA])
-                        && !Stone_resistance)
+                && (((touch_petrifies(mon->data)
+                      || mon->data == &mons[PM_MEDUSA])
+                     && !Stone_resistance)
                     || is_rider(mon->data)
                     || noncorporeal(mon->data)
                     || mon->data == &mons[PM_GREEN_SLIME]
@@ -4336,10 +4334,9 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                  || maybe_polyd(is_zombie(youmonst.data), Race_if(PM_DRAUGR))
                  || maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE)))
                 && mattk->aatyp == AT_BITE
-                && (context.forcefight
-                    || ((touch_petrifies(mon->data)
-                         || mon->data == &mons[PM_MEDUSA])
-                        && !Stone_resistance)
+                && (((touch_petrifies(mon->data)
+                      || mon->data == &mons[PM_MEDUSA])
+                     && !Stone_resistance)
                     || is_rider(mon->data)
                     || noncorporeal(mon->data)
                     || mon->data == &mons[PM_GREEN_SLIME]
@@ -4365,8 +4362,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
         case AT_STNG:
             if ((druid_form || (!Upolyd && Race_if(PM_DEMON)))
                 && mattk->aatyp == AT_STNG
-                && (context.forcefight
-                    || (touch_petrifies(mon->data) && !Stone_resistance)
+                && ((touch_petrifies(mon->data) && !Stone_resistance)
                     || noncorporeal(mon->data)
                     || (how_resistant(DISINT_RES) < 50
                         && (mon->data == &mons[PM_BLACK_DRAGON]
