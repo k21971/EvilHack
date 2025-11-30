@@ -4772,4 +4772,5 @@ The following changes to date are:
 - Temple priests can now repair structural damage to their temples
 - Group consecutive identical messages and filter HP tracking in the
   dumplog
+- Fix: optimize pet limits to avoid excessive monster list scans
 
