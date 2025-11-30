@@ -3550,6 +3550,7 @@ boolean creation;
                 || obj->otyp == BELL_OF_OPENING
                 || obj->otyp == CANDELABRUM_OF_INVOCATION
                 || obj->otyp == SPE_BOOK_OF_THE_DEAD
+                || (is_quest_artifact(obj) && !u.uevent.qcompleted)
                 || obj->otyp == ICE_BOX || Is_box(obj)
                 || obj->otyp == BOULDER
                 || (obj->otyp == CORPSE && inediate(mon->data))

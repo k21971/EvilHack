@@ -4765,4 +4765,6 @@ The following changes to date are:
 - Fix: allow Infidels to drop a cursed leash that is in use
 - Fix: forcefighting while using #wildshape or #shapechange was being
   suppressed against monsters that were safe to attack
+- Fix: prevent pets from stashing the quest artifact if the quest has
+  not yet been completed
 
