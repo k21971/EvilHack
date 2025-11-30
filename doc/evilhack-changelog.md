@@ -4769,4 +4769,7 @@ The following changes to date are:
   not yet been completed
 - Fix: forged artifacts had a small chance of being produced inferior,
   superior or exceptional
+- Temple priests can now repair structural damage to their temples
+- Group consecutive identical messages and filter HP tracking in the
+  dumplog
 
