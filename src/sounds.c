@@ -1625,4 +1625,224 @@ const char *msg;
 
 #endif /* USER_SOUNDS */
 
+/* Give orders to a pet */
+int
+doorder()
+{
+    struct monst *mtmp;
+    coord cc;
+    char buf[BUFSZ];
+    int skill_level;
+    winid win;
+    menu_item *selected;
+    anything any;
+    int n;
+    boolean currently_set;
+
+    /* Cursor-based targeting */
+    cc.x = u.ux;
+    cc.y = u.uy;
+    if (getpos(&cc, FALSE, "the monster you want to issue orders to") < 0
+        || !isok(cc.x, cc.y))
+        return 0;
+
+    /* Check for steed if targeting self */
+    if (cc.x == u.ux && cc.y == u.uy) {
+        if (u.usteed) {
+            mtmp = u.usteed;
+        } else {
+            pline("You can't give orders to yourself.");
+            return 0;
+        }
+    } else {
+        mtmp = m_at(cc.x, cc.y);
+    }
+
+    if (!mtmp || !canspotmon(mtmp)) {
+        pline("There's no one there to command.");
+        return 0;
+    }
+
+    if (!mtmp->mtame) {
+        pline("%s is not your pet.", Monnam(mtmp));
+        return 0;
+    }
+
+    if (!has_edog(mtmp)) {
+        pline("%s doesn't respond to commands.", Monnam(mtmp));
+        return 0;
+    }
+
+    /* Pet must be alert to receive orders */
+    if (mtmp->msleeping) {
+        pline("%s is asleep.", Monnam(mtmp));
+        return 0;
+    }
+    if (mtmp->mstun) {
+        pline("%s is too stunned to understand.", Monnam(mtmp));
+        return 0;
+    }
+    if (mtmp->mconf) {
+        pline("%s is too confused to understand.", Monnam(mtmp));
+        return 0;
+    }
+
+    skill_level = P_SKILL(P_PET_HANDLING);
+
+    /* Low tameness means pet may ignore orders; skill improves success rate.
+     * Base rate: (tameness-1)/19, so tameness 1 = 0%, tameness 20 = 100%
+     * Skill bonuses: Unskilled +0%, Basic +10%, Skilled +20%, Expert +35%
+     *
+     * Tameness:   1     5    10    15    20
+     * Unskilled:  0%   21%   47%   74%  100%
+     * Basic:     11%   32%   58%   84%  100%
+     * Skilled:   21%   42%   68%   95%  100%
+     * Expert:    37%   58%   84%  100%  100%
+     */
+    {
+        int skill_bonus;
+        int effective_tameness;
+
+        switch (skill_level) {
+        case P_BASIC: /* +10% */
+            skill_bonus = 2;
+            break;
+        case P_SKILLED: /* +20% */
+            skill_bonus = 4;
+            break;
+        case P_EXPERT: /* +35% */
+            skill_bonus = 7;
+            break;
+        default: /* unskilled */
+            skill_bonus = 0;
+            break;
+        }
+        effective_tameness = (mtmp->mtame - 1) + skill_bonus;
+
+        if (effective_tameness < 19 && rn2(19) >= effective_tameness) {
+            pline("%s ignores you.", Monnam(mtmp));
+            return 1;  /* still uses a turn */
+        }
+    }
+
+    /* Build order menu */
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win);
+
+    /* Orders available to everyone (Unskilled) */
+    any = zeroany;
+    any.a_int = 1;
+    add_menu(win, NO_GLYPH, &any, 'b', 0, ATR_NONE,
+             "Belay orders (clear all)", MENU_UNSELECTED);
+
+    any.a_int = 2;
+    currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_STAY) != 0;
+    Sprintf(buf, "Stay on this level (toggle) [%s]",
+            currently_set ? "active" : "inactive");
+    add_menu(win, NO_GLYPH, &any, 's', 0, ATR_NONE, buf, MENU_UNSELECTED);
+
+    any.a_int = 3;
+    currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_AVOIDPEACE) != 0;
+    Sprintf(buf, "Avoid peacefuls (toggle) [%s]",
+            currently_set ? "active" : "inactive");
+    add_menu(win, NO_GLYPH, &any, 'p', 0, ATR_NONE, buf, MENU_UNSELECTED);
+
+    /* Orders requiring P_BASIC */
+    if (skill_level >= P_BASIC) {
+        any.a_int = 4;
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_NOAPPORT) != 0;
+        Sprintf(buf, "Don't pick up items (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, NO_GLYPH, &any, 'i', 0, ATR_NONE, buf, MENU_UNSELECTED);
+    }
+
+    /* Orders requiring P_SKILLED */
+    if (skill_level >= P_SKILLED) {
+        any.a_int = 5;
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_AGGRO) != 0;
+        Sprintf(buf, "Aggressive stance (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, NO_GLYPH, &any, 'o', 0, ATR_NONE, buf, MENU_UNSELECTED);
+
+        any.a_int = 6;
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_COWED) != 0;
+        Sprintf(buf, "Defensive stance (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, NO_GLYPH, &any, 'd', 0, ATR_NONE, buf, MENU_UNSELECTED);
+    }
+
+    Sprintf(buf, "What do you want %s to do?", mon_nam(mtmp));
+    end_menu(win, buf);
+
+    n = select_menu(win, PICK_ONE, &selected);
+    destroy_nhwindow(win);
+
+    if (n <= 0)
+        return 0;  /* cancelled */
+
+    /* Save old strategy to check if order actually changed anything */
+    long old_petstrat = EDOG(mtmp)->petstrat;
+
+    /* Process selection */
+    switch (selected[0].item.a_int) {
+    case 1: /* Belay orders */
+        EDOG(mtmp)->petstrat = 0L;
+       You("leave the actions of %s up to %s own discretion.",
+           mon_nam(mtmp), mhis(mtmp));
+        break;
+    case 2: /* Stay (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_STAY;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_STAY)
+            You("direct %s to stay on this level.", mon_nam(mtmp));
+        else
+            You("direct %s to follow you between levels.", mon_nam(mtmp));
+        break;
+    case 3: /* Avoid peacefuls (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_AVOIDPEACE;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_AVOIDPEACE)
+            You("direct %s to avoid peaceful creatures.", mon_nam(mtmp));
+        else
+            You("direct %s to attack peaceful creatures at will.",
+                mon_nam(mtmp));
+        break;
+    case 4: /* No apport (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_NOAPPORT;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_NOAPPORT)
+            You("direct %s to not pick up items.", mon_nam(mtmp));
+        else
+            You("direct %s to pick up items again.", mon_nam(mtmp));
+        break;
+    case 5: /* Aggressive (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_AGGRO;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_AGGRO) {
+            EDOG(mtmp)->petstrat &= ~PETSTRAT_COWED;
+            You("direct %s to assume an aggressive posture.",
+                mon_nam(mtmp));
+        } else {
+            You("direct %s to no longer be aggressive.",
+                mon_nam(mtmp));
+        }
+        break;
+    case 6: /* Defensive (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_COWED;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_COWED) {
+            EDOG(mtmp)->petstrat &= ~PETSTRAT_AGGRO;
+            You("direct %s to assume a more defensive posture.",
+                mon_nam(mtmp));
+        } else {
+            You("direct %s to no longer be defensive.",
+                mon_nam(mtmp));
+        }
+        break;
+    }
+
+    free((genericptr_t) selected);
+
+    /* Only train skill if the order actually changed the pet's behavior */
+    if (EDOG(mtmp)->petstrat != old_petstrat)
+        use_skill(P_PET_HANDLING, 1);
+
+    return 1;  /* action took a turn */
+}
+
 /*sounds.c*/

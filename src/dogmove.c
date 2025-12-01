@@ -875,7 +875,8 @@ int udist;
             }
         }
         booldroppables = TRUE;
-    } else {
+    } else if (!(edog->petstrat & PETSTRAT_NOAPPORT)) {
+        /* only pick up items if pet hasn't been ordered not to */
         if ((obj = level.objects[omx][omy]) != 0
             && !index(nofetch, obj->oclass)
             && !is_soko_prize_flag(obj)
@@ -1012,6 +1013,32 @@ int after, udist, whappr;
         }
     }
 
+    /* Aggressive pets actively pursue visible enemies */
+    if (edog && (edog->petstrat & PETSTRAT_AGGRO) && mtmp->mcansee) {
+        struct monst *enemy;
+        int best_dist = COLNO * COLNO;  /* large initial value */
+
+        for (enemy = fmon; enemy; enemy = enemy->nmon) {
+            if (DEADMONSTER(enemy))
+                continue;
+            if (enemy->mtame || enemy->mpeaceful)
+                continue;
+            /* Skip if pet is ordered to avoid peacefuls but enemy is peaceful */
+            if ((edog->petstrat & PETSTRAT_AVOIDPEACE) && enemy->mpeaceful)
+                continue;
+            /* Can the pet see this enemy? */
+            if (!m_cansee(mtmp, enemy->mx, enemy->my))
+                continue;
+            /* Is this enemy closer than the current best? */
+            if (dist2(omx, omy, enemy->mx, enemy->my) < best_dist) {
+                best_dist = dist2(omx, omy, enemy->mx, enemy->my);
+                gx = enemy->mx;
+                gy = enemy->my;
+                gtyp = APPORT;  /* treat as goal worth pursuing */
+            }
+        }
+    }
+
     /* follow player if appropriate */
     if (gtyp == UNDEF || (gtyp != DOGFOOD && gtyp != APPORT
                           && monstermoves < edog->hungrytime)) {
@@ -1034,6 +1061,11 @@ int after, udist, whappr;
                 }
     } else
         appr = 1; /* gtyp != UNDEF */
+
+    /* Defensive pets try to keep their distance */
+    if (edog && (edog->petstrat & PETSTRAT_COWED) && appr >= 0)
+        appr = -1;  /* prefer to move away, but ranged attacks still work */
+
     if (mtmp->mconf)
         appr = 0;
 
@@ -1334,6 +1366,22 @@ boolean ranged;
      */
     int balk = mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
     boolean grudge = FALSE;
+    boolean attack_peacefuls = TRUE; /* default behavior - pets attack peacefuls */
+    long petstrat = 0L;
+
+    /* Check pet strategy flags if this is a tame pet with edog */
+    if (mtmp->mtame && has_edog(mtmp)) {
+        petstrat = EDOG(mtmp)->petstrat;
+        /* Aggressive pets are more willing to attack higher level foes */
+        if (petstrat & PETSTRAT_AGGRO)
+            balk += 5;
+        /* Defensive pets are less willing to engage */
+        if (petstrat & PETSTRAT_COWED)
+            balk -= 5;
+        /* Check if pet is ordered to avoid peacefuls */
+        if (petstrat & PETSTRAT_AVOIDPEACE)
+            attack_peacefuls = FALSE;
+    }
 
     /* Grudges override level checks. */
     if ((mm_aggression(mtmp, mtmp2) & ALLOW_M)
@@ -1351,11 +1399,11 @@ boolean ranged;
       || (!ranged && mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10))
       || (!ranged && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10))
       || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
-      || (is_support(mtmp->data) && mtmp2->mpeaceful)
+      || (is_support(mtmp->data) && mtmp2->mpeaceful && !attack_peacefuls)
       || ((mtmp->mhp * 4 < mtmp->mhpmax
            || mtmp2->data->msound == MS_GUARDIAN
            || mtmp2->data->msound == MS_LEADER)
-          && mtmp2->mpeaceful && !grudge && !Conflict)
+          && mtmp2->mpeaceful && !grudge && !Conflict && !attack_peacefuls)
       || (!ranged && touch_petrifies(mtmp2->data)
           && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
       || (!ranged && mtmp2->data == &mons[PM_GRAY_FUNGUS]

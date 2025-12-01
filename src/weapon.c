@@ -35,6 +35,7 @@ STATIC_DCL struct monst *FDECL(mon_melee_target, (struct monst *));
 #define PN_ESCAPE_SPELL (-14)
 #define PN_MATTER_SPELL (-15)
 #define PN_EVOCATION_SPELL (-16)
+#define PN_PET_HANDLING (-17)
 
 STATIC_VAR NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     /* Weapon */
@@ -47,7 +48,7 @@ STATIC_VAR NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL,
     PN_MATTER_SPELL, PN_EVOCATION_SPELL,
     /* Other */
-    PN_BARE_HANDED, PN_TWO_WEAPONS, PN_SHIELD, PN_RIDING
+    PN_BARE_HANDED, PN_TWO_WEAPONS, PN_SHIELD, PN_RIDING, PN_PET_HANDLING
 };
 
 /* note: entry [0] isn't used */
@@ -56,7 +57,7 @@ STATIC_VAR NEARDATA const char *const odd_skill_names[] = {
     "two weapon combat", "shield", "riding", "polearms", "saber", "hammer",
     "whip", "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
-    "evocation spells",
+    "evocation spells", "pet handling",
 };
 /* indexed vis rogue/convict role ? 2 : is_martial() */
 STATIC_VAR NEARDATA const char *const barehands_or_martial[] = {
@@ -2474,6 +2475,10 @@ const struct def_skill *class_skill;
        already have a basic understanding of how to use them */
     if (Role_if(PM_KNIGHT) || Role_if(PM_VALKYRIE))
         P_SKILL(P_SHIELD) = P_BASIC;
+
+    /* Healers and Druids start with basic pet handling skill */
+    if (Role_if(PM_HEALER) || Role_if(PM_DRUID))
+        P_SKILL(P_PET_HANDLING) = P_BASIC;
 
     /* As a Tortle, if their role lists trident as a trainable
        skill, raise the max proficiency level by one. If

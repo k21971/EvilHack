@@ -1898,7 +1898,6 @@ int attr;
         putstr(en_win, attr, buf);
 }
 
-
 static void
 enlght_out(buf)
 const char *buf;
@@ -4173,6 +4172,8 @@ struct ext_func_tab extcmdlist[] = {
     { 'o', "open", "open a door", doopen },
     { 'O', "options", "show option settings, possibly change them",
             doset, IFBURIED | GENERALCMD },
+    { '\0', "order", "give orders to a pet",
+            doorder, IFBURIED | AUTOCOMPLETE },
     { C('o'), "overview", "show a summary of the explored dungeon",
             dooverview, IFBURIED | AUTOCOMPLETE },
     { '\0', "panic", "test panic routine (fatal to game)",
@@ -5199,7 +5200,6 @@ char *txt; /* sufficiently long buffer */
         Strcpy(txt, visctrl((char) c));
     return txt;
 }
-
 
 void
 parseautocomplete(autocomplete, condition)
@@ -6372,7 +6372,6 @@ boolean doit;
     return ch;
 }
 
-
 static NEARDATA int last_multi;
 
 /*
@@ -6576,7 +6575,6 @@ boolean historical; /* whether to include in message history: True => yes */
 
     return key;
 }
-
 
 STATIC_OVL char *
 parse()

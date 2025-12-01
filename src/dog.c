@@ -58,6 +58,7 @@ boolean everything;
         edogp->revivals = 0;
         edogp->mhpmax_penalty = 0;
         edogp->killed_by_u = 0;
+        edogp->petstrat = 0;
     } else {
         if (edogp->apport <= 0)
             edogp->apport = 1;
@@ -1018,6 +1019,12 @@ boolean pets_only; /* true for ascension or final escape */
                 mtmp->mtrapped = 0;       /* escape trap */
                 mtmp->meating = 0;        /* terminate eating */
                 mdrop_special_objs(mtmp); /* drop Amulet */
+            } else if (!pets_only && has_edog(mtmp)
+                       && (EDOG(mtmp)->petstrat & PETSTRAT_STAY)) {
+                /* pet ordered to stay on this level */
+                if (canseemon(mtmp))
+                    pline("%s stays behind.", Monnam(mtmp));
+                stay_behind = TRUE;
             } else if (mtmp->meating || mtmp->mtrapped
                        || mtmp->mentangled) {
                 if (canseemon(mtmp))

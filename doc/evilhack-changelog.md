@@ -4773,4 +4773,5 @@ The following changes to date are:
 - Group consecutive identical messages and filter HP tracking in the
   dumplog
 - Fix: optimize pet limits to avoid excessive monster list scans
+- Feature: #order command for giving behavioral orders to pets
 
