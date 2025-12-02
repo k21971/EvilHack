@@ -1732,28 +1732,28 @@ doorder()
     /* Orders available to everyone (Unskilled) */
     any = zeroany;
     any.a_int = 1;
-    add_menu(win, NO_GLYPH, &any, 'b', 0, ATR_NONE,
+    add_menu(win, NO_GLYPH, &any, 'a', 0, ATR_NONE,
              "Belay orders (clear all)", MENU_UNSELECTED);
 
     any.a_int = 2;
     currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_STAY) != 0;
     Sprintf(buf, "Stay on this level (toggle) [%s]",
             currently_set ? "active" : "inactive");
-    add_menu(win, NO_GLYPH, &any, 's', 0, ATR_NONE, buf, MENU_UNSELECTED);
+    add_menu(win, NO_GLYPH, &any, 'b', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
     any.a_int = 3;
-    currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_AVOIDPEACE) != 0;
-    Sprintf(buf, "Avoid peacefuls (toggle) [%s]",
+    currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_NOAPPORT) != 0;
+    Sprintf(buf, "Don't pick up items (toggle) [%s]",
             currently_set ? "active" : "inactive");
-    add_menu(win, NO_GLYPH, &any, 'p', 0, ATR_NONE, buf, MENU_UNSELECTED);
+    add_menu(win, NO_GLYPH, &any, 'c', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
     /* Orders requiring P_BASIC */
     if (skill_level >= P_BASIC) {
         any.a_int = 4;
-        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_NOAPPORT) != 0;
-        Sprintf(buf, "Don't pick up items (toggle) [%s]",
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_AVOIDPEACE) != 0;
+        Sprintf(buf, "Avoid peacefuls (toggle) [%s]",
                 currently_set ? "active" : "inactive");
-        add_menu(win, NO_GLYPH, &any, 'i', 0, ATR_NONE, buf, MENU_UNSELECTED);
+        add_menu(win, NO_GLYPH, &any, 'd', 0, ATR_NONE, buf, MENU_UNSELECTED);
     }
 
     /* Orders requiring P_SKILLED */
@@ -1762,13 +1762,13 @@ doorder()
         currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_AGGRO) != 0;
         Sprintf(buf, "Aggressive stance (toggle) [%s]",
                 currently_set ? "active" : "inactive");
-        add_menu(win, NO_GLYPH, &any, 'o', 0, ATR_NONE, buf, MENU_UNSELECTED);
+        add_menu(win, NO_GLYPH, &any, 'e', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
         any.a_int = 6;
         currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_COWED) != 0;
         Sprintf(buf, "Defensive stance (toggle) [%s]",
                 currently_set ? "active" : "inactive");
-        add_menu(win, NO_GLYPH, &any, 'd', 0, ATR_NONE, buf, MENU_UNSELECTED);
+        add_menu(win, NO_GLYPH, &any, 'f', 0, ATR_NONE, buf, MENU_UNSELECTED);
     }
 
     Sprintf(buf, "What do you want %s to do?", mon_nam(mtmp));
@@ -1797,20 +1797,20 @@ doorder()
         else
             You("direct %s to follow you between levels.", mon_nam(mtmp));
         break;
-    case 3: /* Avoid peacefuls (toggle) */
+    case 3: /* No apport (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_NOAPPORT;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_NOAPPORT)
+            You("direct %s to not pick up items.", mon_nam(mtmp));
+        else
+            You("direct %s to pick up items again.", mon_nam(mtmp));
+        break;
+    case 4: /* Avoid peacefuls (toggle) */
         EDOG(mtmp)->petstrat ^= PETSTRAT_AVOIDPEACE;
         if (EDOG(mtmp)->petstrat & PETSTRAT_AVOIDPEACE)
             You("direct %s to avoid peaceful creatures.", mon_nam(mtmp));
         else
             You("direct %s to attack peaceful creatures at will.",
                 mon_nam(mtmp));
-        break;
-    case 4: /* No apport (toggle) */
-        EDOG(mtmp)->petstrat ^= PETSTRAT_NOAPPORT;
-        if (EDOG(mtmp)->petstrat & PETSTRAT_NOAPPORT)
-            You("direct %s to not pick up items.", mon_nam(mtmp));
-        else
-            You("direct %s to pick up items again.", mon_nam(mtmp));
         break;
     case 5: /* Aggressive (toggle) */
         EDOG(mtmp)->petstrat ^= PETSTRAT_AGGRO;
