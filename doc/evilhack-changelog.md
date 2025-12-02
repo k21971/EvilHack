@@ -4775,4 +4775,5 @@ The following changes to date are:
 - Fix: optimize pet limits to avoid excessive monster list scans
 - Feature: #order command for giving behavioral orders to pets
 - Some tweaks to the #order command for pet handling
+- Expand #order command: give/take items, saddle/barding removal
 

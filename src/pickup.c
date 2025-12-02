@@ -45,7 +45,6 @@ STATIC_DCL char FDECL(in_or_out_menu, (const char *, struct obj *, BOOLEAN_P,
                                        BOOLEAN_P, BOOLEAN_P, BOOLEAN_P));
 STATIC_DCL boolean FDECL(able_to_loot, (int, int, BOOLEAN_P));
 STATIC_DCL boolean NDECL(reverse_loot);
-STATIC_DCL int FDECL (exchange_objects_with_mon, (struct monst *, BOOLEAN_P));
 STATIC_DCL boolean FDECL(mon_beside, (int, int));
 STATIC_DCL int FDECL(do_loot_cont, (struct obj **, int, int));
 STATIC_DCL void FDECL(tipcontainer, (struct obj *));
@@ -2104,7 +2103,7 @@ reverse_loot()
 /* Give or take items from mtmp.
  * Assumes the hero can see mtmp as a monster in its natural state.
  * Return the amount of time passed */
-STATIC_OVL int
+int
 exchange_objects_with_mon(mtmp, taking)
 struct monst *mtmp;
 boolean taking;
@@ -2321,10 +2320,15 @@ boolean *mon_interact;
 
         timepassed = pickup(count);
     }
-    if (mtmp && (mtmp->mtame || wizard) && canspotmon(mtmp)
+    if (mtmp && mtmp->mtame && canspotmon(mtmp)
         && !(mtmp->mundetected || mtmp->m_ap_type)) {
-        /* Possible future extension: using this to steal items from peaceful
-         * and hostile monsters. */
+        /* Pet give/take moved to #order command */
+        pline("Use the #order command to exchange items with your pet.");
+        return 0;
+    }
+    if (mtmp && wizard && !mtmp->mtame && canspotmon(mtmp)
+        && !(mtmp->mundetected || mtmp->m_ap_type)) {
+        /* Wizard mode: allow looting non-tame monsters */
         if (passed_info)
             *passed_info = 1;
         Sprintf(qbuf, "Do you want to take something from %s?", mon_nam(mtmp));
