@@ -4778,4 +4778,5 @@ The following changes to date are:
 - Expand #order command: give/take items, saddle/barding removal
 - Rename 'Fighting' skills to 'Miscellaneous' skills, better feedback
   when you're able to train up a skill
+- Knight skill level in pet handling bumped from skilled to expert
 
