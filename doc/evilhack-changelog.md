@@ -4776,4 +4776,6 @@ The following changes to date are:
 - Feature: #order command for giving behavioral orders to pets
 - Some tweaks to the #order command for pet handling
 - Expand #order command: give/take items, saddle/barding removal
+- Rename 'Fighting' skills to 'Miscellaneous' skills, better feedback
+  when you're able to train up a skill
 

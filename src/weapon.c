@@ -82,10 +82,13 @@ int skill;
 {
     You_feel("more confident in your %sskills.",
              (skill == P_NONE) ? ""
-                 : (skill <= P_LAST_WEAPON) ? "weapon "
-                     : (skill <= P_LAST_SPELL) ? "spell casting "
-                         : (skill == P_SHIELD) ? "defensive "
-                             : "fighting ");
+               : (skill <= P_LAST_WEAPON) ? "weapon "
+                 : (skill <= P_LAST_SPELL) ? "spell casting "
+                   : (skill == P_SHIELD) ? "defensive "
+                     : (skill == P_RIDING) ? "riding "
+                       : (skill == P_THIEVERY) ? "thievery "
+                         : (skill == P_PET_HANDLING) ? "pet handling "
+                           : "fighting ");
 }
 
 /* weapon's skill category name for use as generalized description of weapon;
@@ -1825,7 +1828,7 @@ static const struct skill_range {
     short first, last;
     const char *name;
 } skill_ranges[] = {
-    { P_FIRST_H_TO_H, P_LAST_H_TO_H, "Fighting Skills" },
+    { P_FIRST_H_TO_H, P_LAST_H_TO_H, "Miscellaneous Skills" },
     { P_FIRST_WEAPON, P_LAST_WEAPON, "Weapon Skills" },
     { P_FIRST_SPELL, P_LAST_SPELL, "Spellcasting Skills" },
 };
