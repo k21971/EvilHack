@@ -1767,6 +1767,19 @@ doorder()
         add_menu(win, NO_GLYPH, &any, 'j', 0, ATR_NONE, buf, MENU_UNSELECTED);
     }
 
+    /* Expert skill required for these advanced orders */
+    if (skill_level >= P_EXPERT) {
+        any.a_int = 11;
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_STATIONARY) != 0;
+        Sprintf(buf, "Stay here (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, NO_GLYPH, &any, 'k', 0, ATR_NONE, buf, MENU_UNSELECTED);
+
+        any.a_int = 12;
+        add_menu(win, NO_GLYPH, &any, 'l', 0, ATR_NONE,
+                 "Come to my location", MENU_UNSELECTED);
+    }
+
     Sprintf(buf, "What do you want %s to do?", mon_nam(mtmp));
     end_menu(win, buf);
 
@@ -1831,7 +1844,7 @@ doorder()
     case 1: /* Belay orders */
         EDOG(mtmp)->petstrat = 0L;
         You("leave the actions of %s up to %s own discretion.",
-            mon_nam(mtmp), mhis(mtmp));
+            mon_nam(mtmp), noit_mhis(mtmp));
         break;
     case 2: /* Stay (toggle) */
         EDOG(mtmp)->petstrat ^= PETSTRAT_STAY;
@@ -1928,6 +1941,20 @@ doorder()
             You("direct %s to no longer be defensive.",
                 mon_nam(mtmp));
         }
+        break;
+    case 11: /* Stay here (toggle) - mutually exclusive with Come */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_STATIONARY;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_STATIONARY) {
+            EDOG(mtmp)->petstrat &= ~PETSTRAT_COME;
+            You("direct %s to stay right there.", mon_nam(mtmp));
+        } else {
+            You("direct %s to move freely again.", mon_nam(mtmp));
+        }
+        break;
+    case 12: /* Come (one-shot) - mutually exclusive with Stay here */
+        EDOG(mtmp)->petstrat &= ~PETSTRAT_STATIONARY;
+        EDOG(mtmp)->petstrat |= PETSTRAT_COME;
+        You("call %s to your side.", mon_nam(mtmp));
         break;
     }
 

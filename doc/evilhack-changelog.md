@@ -4780,4 +4780,5 @@ The following changes to date are:
   when you're able to train up a skill
 - Knight skill level in pet handling bumped from skilled to expert
 - Player can't use the #order command if they are confused or stunned
+- Expand #order command again: stay here, come to my location
 

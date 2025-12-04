@@ -950,6 +950,15 @@ int after, udist, whappr;
     in_masters_sight = couldsee(omx, omy);
     dog_has_minvent = (droppables(mtmp) != 0);
 
+    /* Come command: beeline to player, ignore everything else */
+    if (edog && (edog->petstrat & PETSTRAT_COME)) {
+        gtyp = APPORT;
+        gx = u.ux;
+        gy = u.uy;
+        appr = 1;  /* always approach */
+        return appr;
+    }
+
     if (!edog || mtmp->mleashed) { /* he's not going anywhere... */
         gtyp = APPORT;
         gx = u.ux;
@@ -1469,7 +1478,16 @@ int after; /* this is extra fast monster movement */
         /* maybe we tamed him while being swallowed --jgm */
         return 0;
 
-    if (monstermoves > (edog->hungrytime + 20)
+    /* Pet ordered to come - check if arrived at player's side */
+    if (has_edog && (edog->petstrat & PETSTRAT_COME) && udist <= 2) {
+        edog->petstrat &= ~PETSTRAT_COME;
+        if (canseemon(mtmp))
+            pline("%s arrives at your side.", Monnam(mtmp));
+    }
+
+    /* Skip grass eating if coming to player */
+    if (!(edog->petstrat & PETSTRAT_COME)
+        && monstermoves > (edog->hungrytime + 20)
         && levl[mtmp->mx][mtmp->my].typ == GRASS
         && can_eat_grass(mtmp->data)) {
         m_eat_grass(mtmp);
@@ -1478,8 +1496,10 @@ int after; /* this is extra fast monster movement */
 
     /* Sometimes your pet can help you out in various ways.
        Amount of tameness is taken into consideration (have
-       to at least be domesticated) */
-    if (!(mtmp->mconf || mtmp->mstun || mtmp->mfrozen)
+       to at least be domesticated).
+       Skip these helpful actions if pet is ordered to come to player. */
+    if (!(edog->petstrat & PETSTRAT_COME)
+        && !(mtmp->mconf || mtmp->mstun || mtmp->mfrozen)
         && mtmp->mtame >= 10) {
         /* heal you if hit points are 12.5% or less than max */
         if (dmgtype(mtmp->data, AD_CLRC)
@@ -1609,11 +1629,14 @@ int after; /* this is extra fast monster movement */
     info[0] = 0;         /* ditto */
 
     if (has_edog || summoned) {
-        j = dog_invent(mtmp, edog, udist);
-        if (j == 2)
-            return 2; /* died */
-        else if (j == 1)
-            goto newdogpos; /* eating something */
+        /* Skip inventory eating if pet is ordered to come to player */
+        if (!(edog->petstrat & PETSTRAT_COME)) {
+            j = dog_invent(mtmp, edog, udist);
+            if (j == 2)
+                return 2; /* died */
+            else if (j == 1)
+                goto newdogpos; /* eating something */
+        }
 
         whappr = (monstermoves - edog->whistletime < 5);
     } else
@@ -1650,44 +1673,72 @@ int after; /* this is extra fast monster movement */
     /*
      * We haven't moved yet, so search for monsters to attack from a
      * distance and attack them if it's plausible.
+     * Skip all combat if pet is ordered to come to player.
      */
-    if (find_offensive(mtmp)) {
-        int ret = use_offensive(mtmp);
-        if (ret == 1)
-            return 2; /* died */
-        if (ret == 2)
-            return 1; /* did something */
-    } else if (find_defensive(mtmp)) {
-        int ret = use_defensive(mtmp);
-        if (ret == 1)
-            return 2; /* died */
-        if (ret == 2)
-            return 1; /* did something */
-    } else if (find_misc(mtmp)) {
-        int ret = use_misc(mtmp);
-        if (ret == 1)
-            return 2; /* died */
-        if (ret == 2)
-            return 1; /* did something */
-    } else if ((attacktype(mtmp->data, AT_BREA)
-                || attacktype(mtmp->data, AT_GAZE)
-                || attacktype(mtmp->data, AT_SPIT)
-                || (attacktype(mtmp->data, AT_MAGC)
-                    && (((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp <= AD_SPC2)))
-                || (attacktype(mtmp->data, AT_WEAP)
-                    && select_rwep(mtmp)))
-               && mtmp->mlstmv != monstermoves) {
-        struct monst *mon = mfind_target(mtmp);
-
-        if (mon && (mon != &youmonst) &&
-            acceptable_pet_target(mtmp, mon, TRUE)) {
-            int res = (mon == &youmonst)
-                       ? mattacku(mtmp) : mattackm(mtmp, mon);
-
-            if (res & MM_AGR_DIED)
+    if (!(edog->petstrat & PETSTRAT_COME)) {
+        if (find_offensive(mtmp)) {
+            int ret = use_offensive(mtmp);
+            if (ret == 1)
                 return 2; /* died */
-            return 1; /* attacked */
+            if (ret == 2)
+                return 1; /* did something */
+        } else if (find_defensive(mtmp)) {
+            int ret = use_defensive(mtmp);
+            if (ret == 1)
+                return 2; /* died */
+            if (ret == 2)
+                return 1; /* did something */
+        } else if (find_misc(mtmp)) {
+            int ret = use_misc(mtmp);
+            if (ret == 1)
+                return 2; /* died */
+            if (ret == 2)
+                return 1; /* did something */
+        } else if ((attacktype(mtmp->data, AT_BREA)
+                    || attacktype(mtmp->data, AT_GAZE)
+                    || attacktype(mtmp->data, AT_SPIT)
+                    || (attacktype(mtmp->data, AT_MAGC)
+                        && (((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp <= AD_SPC2)))
+                    || (attacktype(mtmp->data, AT_WEAP)
+                        && select_rwep(mtmp)))
+                   && mtmp->mlstmv != monstermoves) {
+            struct monst *mon = mfind_target(mtmp);
+
+            if (mon && (mon != &youmonst) &&
+                acceptable_pet_target(mtmp, mon, TRUE)) {
+                int res = (mon == &youmonst)
+                           ? mattacku(mtmp) : mattackm(mtmp, mon);
+
+                if (res & MM_AGR_DIED)
+                    return 2; /* died */
+                return 1; /* attacked */
+            }
         }
+    }
+
+    /* Pet ordered to stay in place - can still attack adjacent enemies
+     * but won't move. Check is here (after ranged attacks) so pet can
+     * still use breath weapons, spells, wands, and ranged weapons.
+     */
+    if (has_edog && (edog->petstrat & PETSTRAT_STATIONARY)) {
+        int nx, ny;
+        struct monst *mtmp2;
+
+        /* Check all adjacent squares for attackable enemies */
+        for (nx = omx - 1; nx <= omx + 1; nx++) {
+            for (ny = omy - 1; ny <= omy + 1; ny++) {
+                if (!isok(nx, ny) || (nx == omx && ny == omy))
+                    continue;
+                mtmp2 = m_at(nx, ny);
+                if (mtmp2 && acceptable_pet_target(mtmp, mtmp2, FALSE)) {
+                    int mstatus = mattackm(mtmp, mtmp2);
+                    if (mstatus & MM_AGR_DIED)
+                        return 2;
+                    return 0;  /* attacked, turn used */
+                }
+            }
+        }
+        return 0;  /* no enemy to attack, just stay put */
     }
 
     if (!nohands(mtmp->data) && !r_verysmall(mtmp)) {
@@ -1743,6 +1794,9 @@ int after; /* this is extra fast monster movement */
             int mstatus;
             struct monst *mtmp2 = m_at(nx, ny);
 
+            /* Skip attacking if pet is ordered to come to player */
+            if (edog->petstrat & PETSTRAT_COME)
+                continue;
             if (!acceptable_pet_target(mtmp, mtmp2, FALSE))
                 continue;
 
@@ -1804,7 +1858,8 @@ int after; /* this is extra fast monster movement */
 
         /* dog eschews cursed objects, but likes dog food */
         /* (minion isn't interested; `cursemsg' stays FALSE) */
-        if (has_edog || summoned)
+        /* Skip food detection if pet is ordered to come to player */
+        if ((has_edog || summoned) && !(edog->petstrat & PETSTRAT_COME))
             for (obj = level.objects[nx][ny]; obj; obj = obj->nexthere) {
                 if (obj->cursed) {
                     cursemsg[i] = TRUE;

@@ -151,6 +151,8 @@ struct emin {
 #define PETSTRAT_STAY       0x00000004L  /* Stay on current level, don't follow */
 #define PETSTRAT_NOAPPORT   0x00000008L  /* Don't pick up items */
 #define PETSTRAT_AVOIDPEACE 0x00000010L  /* Avoid attacking peaceful creatures */
+#define PETSTRAT_STATIONARY 0x00000020L  /* Stay at current position, don't move */
+#define PETSTRAT_COME       0x00000040L  /* Come to player, ignore everything */
 
 /*      various types of pet food, the lower the value, the better liked */
 enum dogfood_types {
