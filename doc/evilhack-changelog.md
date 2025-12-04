@@ -4779,4 +4779,5 @@ The following changes to date are:
 - Rename 'Fighting' skills to 'Miscellaneous' skills, better feedback
   when you're able to train up a skill
 - Knight skill level in pet handling bumped from skilled to expert
+- Player can't use the #order command if they are confused or stunned
 
