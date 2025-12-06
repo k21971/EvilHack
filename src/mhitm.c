@@ -2861,6 +2861,11 @@ msickness:
         else if (res == MM_AGR_DIED)
             return (MM_DEF_DIED | MM_AGR_DIED);
 
+        /* improve pet handling some of the time if we see pet
+           kill monsters */
+        if (!rn2(3) && magr->mtame && canseemon(magr))
+            use_skill(P_PET_HANDLING, 1);
+
         if (mattk->adtyp == AD_DGST) {
             /* various checks similar to dog_eat and meatobj.
              * after monkilled() to provide better message ordering */

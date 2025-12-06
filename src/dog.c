@@ -1555,6 +1555,8 @@ struct obj *obj;
                       !big_corpse ? "." : ", or vice versa!");
             } else if (cansee(mtmp->mx, mtmp->my))
                 pline("%s.", Tobjnam(obj, "stop"));
+            /* treats improve your ability to handle pets */
+            use_skill(P_PET_HANDLING, 1);
             /* dog_eat expects a floor object */
             place_object(obj, mtmp->mx, mtmp->my);
             (void) dog_eat(mtmp, obj, mtmp->mx, mtmp->my, FALSE);

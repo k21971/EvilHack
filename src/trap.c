@@ -5113,6 +5113,10 @@ struct monst *mtmp;
             adjalign(1);
             You_feel("that you did the right thing.");
         }
+        /* Helping a pet out of a trap improves your ability to
+           handle pets. */
+        if (mtmp->mtame)
+            use_skill(P_PET_HANDLING, 1);
     }
 }
 
