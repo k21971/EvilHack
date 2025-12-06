@@ -2275,7 +2275,10 @@ boolean taking;
             }
             if (maxquan < otmp->quan)
                 otmp = splitobj(otmp, maxquan);
-            extract_from_minvent(mtmp, otmp, TRUE, TRUE);
+            /* don't call update_mon_intrinsics again if already done above */
+            extract_from_minvent(mtmp, otmp,
+                !(unwornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE | W_BARDING)),
+                TRUE);
             if (costly_spot(mtmp->mx, mtmp->my))
                 addtobill(otmp, FALSE, FALSE, FALSE);
             otmp = hold_another_object(otmp, "You take, but drop, %s.",

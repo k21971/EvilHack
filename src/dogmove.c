@@ -1721,15 +1721,15 @@ int after; /* this is extra fast monster movement */
      * still use breath weapons, spells, wands, and ranged weapons.
      */
     if (has_edog && (edog->petstrat & PETSTRAT_STATIONARY)) {
-        int nx, ny;
+        int px, py;
         struct monst *mtmp2;
 
         /* Check all adjacent squares for attackable enemies */
-        for (nx = omx - 1; nx <= omx + 1; nx++) {
-            for (ny = omy - 1; ny <= omy + 1; ny++) {
-                if (!isok(nx, ny) || (nx == omx && ny == omy))
+        for (px = omx - 1; px <= omx + 1; px++) {
+            for (py = omy - 1; py <= omy + 1; py++) {
+                if (!isok(px, py) || (px == omx && py == omy))
                     continue;
-                mtmp2 = m_at(nx, ny);
+                mtmp2 = m_at(px, py);
                 if (mtmp2 && acceptable_pet_target(mtmp, mtmp2, FALSE)) {
                     int mstatus = mattackm(mtmp, mtmp2);
                     if (mstatus & MM_AGR_DIED)

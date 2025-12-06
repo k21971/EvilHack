@@ -4782,4 +4782,5 @@ The following changes to date are:
 - Player can't use the #order command if they are confused or stunned
 - Expand #order command again: stay here, come to my location
 - Additional ways players can train their pet handling skill
+- Fix: allow intelligent monsters to use amulets of flying
 

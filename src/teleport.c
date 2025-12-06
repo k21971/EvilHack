@@ -80,7 +80,8 @@ long gpflags;
                 return (is_swimmer(mdat)
                         || (!Is_waterlevel(&u.uz)
                             && (is_floater(mdat) || is_flyer(mdat)
-                                || is_clinger(mdat) || can_levitate(mtmp))));
+                                || is_clinger(mdat) || can_levitate(mtmp)
+                                || can_fly(mtmp))));
         } else if (mdat->mlet == S_EEL && rn2(13) && !ignorewater
                    && !is_puddle(x, y)) {
             return FALSE;
@@ -96,13 +97,15 @@ long gpflags;
                         || (Upolyd && likes_lava(youmonst.data)));
             else
                 return (is_floater(mdat) || is_flyer(mdat)
-                        || can_levitate(mtmp) || likes_lava(mdat));
+                        || can_levitate(mtmp) || can_fly(mtmp)
+                        || likes_lava(mdat));
         } else if (is_open_air(x, y) && !ignoreair) {
             if (mtmp == &youmonst)
                 return (Levitation || Flying);
             else
                 return (is_flyer(mdat) || is_floater(mdat)
-                        || is_clinger(mdat) || can_levitate(mtmp));
+                        || is_clinger(mdat) || can_levitate(mtmp)
+                        || can_fly(mtmp));
         }
         if (passes_walls(mdat) && may_passwall(x, y))
             return TRUE;

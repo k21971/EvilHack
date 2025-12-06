@@ -63,8 +63,8 @@ long mask;
                 oobj = *(wp->w_obj);
                 if (oobj && !(oobj->owornmask & wp->w_mask))
                     impossible("Setworn: mask = %ld (0x%lx), existing obj '%s' owornmask = 0x%lx",
-                               wp->w_mask, wp->w_mask, 
-                               oobj ? cxname(oobj) : "null", 
+                               wp->w_mask, wp->w_mask,
+                               oobj ? cxname(oobj) : "null",
                                oobj ? oobj->owornmask : 0L);
                 if (oobj && (oobj != obj)) {
                     if (u.twoweap && (oobj->owornmask & (W_WEP | W_SWAPWEP))) {
@@ -487,6 +487,11 @@ boolean on, silently;
         case FREE_ACTION:
             mon->mextrinsics |= MR2_FREE_ACTION;
             break;
+        case FLYING:
+            mon->mextrinsics |= MR2_FLY;
+            if (!unseen)
+                pline("%s starts to fly!", Monnam(mon));
+            break;
         /* properties handled elsewhere */
         case ANTIMAGIC:
         case REFLECTING:
@@ -497,9 +502,6 @@ boolean on, silently;
         case STEALTH:
         case HUNGER:
         case ADORNED:
-            break;
-        /* properties which should have an effect but aren't implemented */
-        case FLYING:
             break;
         /* properties which maybe should have an effect but don't */
         case FUMBLING:
@@ -555,6 +557,12 @@ boolean on, silently;
             break;
         case FREE_ACTION:
             mon->mextrinsics &= ~(MR2_FREE_ACTION);
+            break;
+        case FLYING:
+            mon->mextrinsics &= ~(MR2_FLY);
+            if (!unseen)
+                pline("%s lands on the %s.",
+                      Monnam(mon), surface(mon->mx, mon->my));
             break;
         case FIRE_RES:
         case COLD_RES:
@@ -900,6 +908,7 @@ boolean racialexception;
                     && obj->otyp != AMULET_OF_MAGIC_RESISTANCE
                     && obj->otyp != AMULET_OF_GUARDING
                     && obj->otyp != AMULET_OF_ESP
+                    && obj->otyp != AMULET_OF_FLYING
                     && obj->oartifact != ART_EYE_OF_THE_AETHIOPICA))
                 continue;
             /* for 'best' to be non-Null, it must be an amulet of guarding;

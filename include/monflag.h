@@ -79,6 +79,7 @@
 #define MR2_FREE_ACTION 0x00080000L /* has free action */
 #define MR2_BARKSKIN 0x00100000L    /* has barkskin */
 #define MR2_STONESKIN 0x00200000L   /* has stoneskin */
+#define MR2_FLY 0x00400000L         /* can fly (extrinsic) */
 
 #define M1_FLY 0x00000001L         /* can fly or float */
 #define M1_SWIM 0x00000002L        /* can traverse water */

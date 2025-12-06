@@ -51,6 +51,8 @@
     ((mon_resistancebits(mon) & MR2_BARKSKIN) != 0)
 #define has_stoneskin(mon) \
     ((mon_resistancebits(mon) & MR2_STONESKIN) != 0)
+#define can_fly(mon) \
+    ((mon_resistancebits(mon) & MR2_FLY) != 0)
 
 #define ptr_resists_sick(ptr) \
     ((ptr)->mlet == S_FUNGUS || nonliving(ptr)                                   \

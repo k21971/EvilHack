@@ -650,7 +650,7 @@ struct monst *mtmp;
     if (mwalk_sewage) {
         if (is_flyer(mdat) || is_floater(mdat)
             || is_clinger(mdat) || is_swimmer(mdat)
-            || passes_walls(mdat) || can_levitate(mtmp)
+            || passes_walls(mdat) || can_levitate(mtmp) || can_fly(mtmp)
             || can_wwalk(mtmp) || defended(mtmp, AD_SLOW)
             || resists_slow(r_data(mtmp))
             || ((mtmp == u.usteed) && Flying)) {
@@ -665,7 +665,8 @@ struct monst *mtmp;
     /* being in midair where gravity is still in effect can be lethal */
     if (is_open_air(mtmp->mx, mtmp->my)
         && !(is_flyer(mdat) || is_floater(mdat) || can_levitate(mtmp)
-             || is_clinger(mdat) || ((mtmp == u.usteed) && Flying))) {
+             || can_fly(mtmp) || is_clinger(mdat)
+             || ((mtmp == u.usteed) && Flying))) {
         if (canseemon(mtmp))
             pline("%s plummets several thousand feet to %s death.",
                   Monnam(mtmp), mhis(mtmp));
@@ -1597,7 +1598,8 @@ register int after;
                        is in effect */
                     if (is_open_air(xx, yy)
                         && !(is_flyer(ptr) || is_floater(ptr)
-                             || is_clinger(ptr) || can_levitate(mtmp)))
+                             || is_clinger(ptr) || can_levitate(mtmp)
+                             || can_fly(mtmp)))
                         continue;
 
                     /* ignore sokoban prizes */
@@ -2054,12 +2056,16 @@ register int after;
                 int pctload = (curr_mon_load(mtmp) * 100) / max_mon_load(mtmp);
 
                 /* look for gold or jewels nearby */
-                likegold = (likes_gold(ptr) && pctload < 95 && !can_levitate(mtmp));
-                likegems = (likes_gems(ptr) && pctload < 85 && !can_levitate(mtmp));
+                likegold = (likes_gold(ptr) && pctload < 95
+                            && !can_levitate(mtmp));
+                likegems = (likes_gems(ptr) && pctload < 85
+                            && !can_levitate(mtmp));
                 uses_items =
                     (!mindless(ptr) && !is_animal(ptr) && pctload < 75);
-                likeobjs = (likes_objs(ptr) && pctload < 75 && !can_levitate(mtmp));
-                likemagic = (likes_magic(ptr) && pctload < 85 && !can_levitate(mtmp));
+                likeobjs = (likes_objs(ptr) && pctload < 75
+                            && !can_levitate(mtmp));
+                likemagic = (likes_magic(ptr) && pctload < 85
+                             && !can_levitate(mtmp));
                 likerock = (racial_throws_rocks(mtmp) && pctload < 50 && !Sokoban
                             && !can_levitate(mtmp));
                 conceals = hides_under(ptr);

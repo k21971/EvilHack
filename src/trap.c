@@ -2977,7 +2977,7 @@ struct monst *mtmp;
         case SPIKED_PIT:
             fallverb = "falls";
             if (is_flyer(mptr) || is_floater(mptr) || can_levitate(mtmp)
-                || (mtmp->wormno && count_wsegs(mtmp) > 5)
+                || can_fly(mtmp) || (mtmp->wormno && count_wsegs(mtmp) > 5)
                 || is_clinger(mptr)) {
                 if (force_mintrap && !Sokoban) {
                     /* openfallingtrap; not inescapable here */
@@ -3016,7 +3016,7 @@ struct monst *mtmp;
                 break; /* don't activate it after all */
             }
             if (is_flyer(mptr) || is_floater(mptr)
-                || can_levitate(mtmp) || is_clinger(mptr)
+                || can_levitate(mtmp) || can_fly(mtmp) || is_clinger(mptr)
                 || (mtmp->wormno && count_wsegs(mtmp) > 5)
                 || mptr->msize >= MZ_HUGE) {
                 if (force_mintrap && !Sokoban) {
@@ -3353,7 +3353,7 @@ struct monst *mtmp;
                     if (nolimbs(mtmp->data)
                         || is_floater(mtmp->data)
                         || is_flyer(mtmp->data)
-                        || can_levitate(mtmp)) {
+                        || can_levitate(mtmp) || can_fly(mtmp)) {
                         /* just "beneath <mon>" */
                         Strcpy(buf, monnm);
                     } else {
