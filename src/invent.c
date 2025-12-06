@@ -3903,7 +3903,8 @@ struct obj *otmp, *obj;
         || obj->material != otmp->material || obj->greased != otmp->greased)
         return FALSE;
 
-    if ((obj->oclass == WEAPON_CLASS || obj->oclass == ARMOR_CLASS)
+    if ((obj->oclass == WEAPON_CLASS || obj->oclass == ARMOR_CLASS
+         || obj->oclass == FOOD_CLASS)
         && !is_supermaterial(obj)
         && (obj->oerodeproof != otmp->oerodeproof
             || obj->rknown != otmp->rknown))
@@ -3923,6 +3924,14 @@ struct obj *otmp, *obj;
     /* allow candle merging only if their ages are close */
     /* see begin_burn() for a reference for the magic "25" */
     if (Is_candle(obj) && obj->age / 25 != otmp->age / 25)
+        return FALSE;
+
+    /* corpses only merge if they have similar freshness (rot level);
+       rot_amount() uses (monstermoves - age) / 10 for Draugr, with
+       thresholds at 3 (rancid) and 5 (very rancid), so use 30-turn
+       buckets to keep corpses in the same rot category together */
+    if (obj->otyp == CORPSE
+        && (monstermoves - obj->age) / 30 != (monstermoves - otmp->age) / 30)
         return FALSE;
 
     /* burning potions of oil never merge */

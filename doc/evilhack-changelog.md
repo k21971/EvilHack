@@ -4783,4 +4783,5 @@ The following changes to date are:
 - Expand #order command again: stay here, come to my location
 - Additional ways players can train their pet handling skill
 - Fix: allow intelligent monsters to use amulets of flying
+- Fix: preserved food and rancid corpse merging bugs in mergable()
 
