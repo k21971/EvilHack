@@ -2842,7 +2842,7 @@ boolean pick;
         killer.format = NO_KILLER_PREFIX;
         done(DIED);
     }
-    if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ) && !Levitation) {
+    if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ) && !Levitation && mchest) {
         char *tmp = doname(mchest);
         if (!Blind)
             You("see here %s.", tmp);

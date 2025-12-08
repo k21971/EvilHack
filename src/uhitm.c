@@ -1360,7 +1360,7 @@ int dieroll;
                            && hand_to_hand) {
                     You("strike %s from behind!", mon_nam(mon));
                     if (u.twoweap)
-                        tmp += rnd(u.ulevel / 2) + 1;
+                        tmp += rnd(max(1, u.ulevel / 2)) + 1;
                     else
                         tmp += rnd(u.ulevel);
                     /* significant bonus if wielding Shadowblade in primary hand */

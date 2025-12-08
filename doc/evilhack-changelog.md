@@ -4785,4 +4785,6 @@ The following changes to date are:
 - Fix: allow intelligent monsters to use amulets of flying
 - Fix: preserved food and rancid corpse merging bugs in mergable()
 - Sacrifice gift deduplication (non-artifact gifts)
+- Fix: rogue backstab crash with dual-wielding at experience level 1,
+  mchest NULL check
 
