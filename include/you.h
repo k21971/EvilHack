@@ -428,6 +428,9 @@ struct you {
           ueninc[MAXULEV];   /* increases to uenmax for each level gain */
     int ugangr;              /* if the gods are angry at you */
     int ugifts;              /* number of artifacts bestowed */
+#define MAX_GIFT_HISTORY 50  /* track last N non-artifact sacrifice gifts */
+    short ugift_history[MAX_GIFT_HISTORY]; /* otyp values of recent gifts */
+    xchar ugift_hist_idx;    /* next write position (circular buffer) */
     int ublessed, ublesscnt; /* blessing/duration from #pray */
     long umoney0;
     long uspare1;

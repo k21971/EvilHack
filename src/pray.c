@@ -21,6 +21,8 @@ STATIC_DCL void FDECL(gods_upset, (ALIGNTYP_P));
 STATIC_DCL void FDECL(consume_offering, (struct obj *));
 STATIC_DCL boolean FDECL(water_prayer, (BOOLEAN_P));
 STATIC_DCL boolean FDECL(blocked_boulder, (int, int));
+STATIC_DCL boolean FDECL(gift_recently_given, (SHORT_P));
+STATIC_DCL void FDECL(record_gift, (SHORT_P));
 
 /* simplify a few tests */
 #define Cursed_obj(obj, typ) ((obj) && (obj)->otyp == (typ) && cursed(obj, TRUE))
@@ -92,7 +94,6 @@ static int p_type; /* (-2)-3: (-1)=really naughty, 3=really good */
 #define TROUBLE_STUNNED (-9)
 #define TROUBLE_CONFUSED (-10)
 #define TROUBLE_HALLUCINATION (-11)
-
 
 #define ugod_is_angry() (u.ualign.record < 0)
 #define on_altar() IS_ALTAR(levl[u.ux][u.uy].typ)
@@ -1783,6 +1784,28 @@ struct obj *otmp;
     exercise(A_WIS, TRUE);
 }
 
+/* Check if object type was recently given as a gift */
+STATIC_OVL boolean
+gift_recently_given(otyp)
+short otyp;
+{
+    int i;
+
+    for (i = 0; i < MAX_GIFT_HISTORY; i++)
+        if (u.ugift_history[i] == otyp)
+            return TRUE;
+    return FALSE;
+}
+
+/* Record a gift in the circular history buffer */
+STATIC_OVL void
+record_gift(otyp)
+short otyp;
+{
+    u.ugift_history[u.ugift_hist_idx] = otyp;
+    u.ugift_hist_idx = (u.ugift_hist_idx + 1) % MAX_GIFT_HISTORY;
+}
+
 struct inv_sub { short race_pm, item_otyp, subs_otyp; };
 extern struct inv_sub inv_subs[];
 
@@ -2501,17 +2524,22 @@ dosacrifice()
                                     while (--trycnt > 0) {
                                         if (otmp->otyp != SPE_BLANK_PAPER) {
                                             if (!known_spell(otmp->otyp)
-                                                && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
-                                                break; /* usable, but not yet known */
+                                                && !P_RESTRICTED(spell_skilltype(otmp->otyp))
+                                                && !gift_recently_given((short) otmp->otyp))
+                                                break; /* usable, not yet known, not recently gifted */
                                         } else {
                                             if ((!objects[SPE_BLANK_PAPER].oc_name_known
-                                                 || carrying(MAGIC_MARKER)) && u.uconduct.literate)
+                                                 || carrying(MAGIC_MARKER)) && u.uconduct.literate
+                                                && !gift_recently_given((short) otmp->otyp))
                                                 break;
                                         }
                                         /* Druid/evocation spells purposely ommitted */
                                         otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_ORB_OF_FROST);
                                         set_material(otmp, objects[otmp->otyp].oc_material);
                                     }
+
+                                    {
+                                    short gift_otyp = otmp->otyp; /* save before potential obfree */
 
                                     if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                                         && !known_spell(otmp->otyp)) {
@@ -2521,7 +2549,7 @@ dosacrifice()
                                         obfree(otmp, (struct obj *) 0);
                                         livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
                                                        "had divine knowledge of the spell '%s' bestowed upon %s by %s",
-                                                       OBJ_NAME(objects[otmp->otyp]), uhim(), u_gname());
+                                                       OBJ_NAME(objects[gift_otyp]), uhim(), u_gname());
                                     } else {
                                         bless(otmp);
                                         otmp->oeroded = otmp->oeroded2 = 0;
@@ -2541,7 +2569,9 @@ dosacrifice()
                                         otmp->dknown = 1;
                                         makeknown(otmp->otyp);
                                     }
+                                    record_gift(gift_otyp);
                                     return 1;
+                                    }
                                 } else {
                                     typ = (rn2(100) >= 50)
                                             ? rnd_class(QUARTERSTAFF, STAFF_OF_EVOCATION)
@@ -2579,9 +2609,14 @@ dosacrifice()
                             obfree(otmp, (struct obj *) 0);
                             otmp = (struct obj *) 0;
 
-                            if (typ && !P_RESTRICTED(objects[typ].oc_skill))
-                                break;
-                        } while (ncount++ < 1000);
+                            if (typ && !P_RESTRICTED(objects[typ].oc_skill)) {
+                                /* prefer novel gifts, but accept duplicates after many tries
+                                 * ncount tracks valid (non-restricted) weapon attempts only */
+                                ncount++;
+                                if (!gift_recently_given((short) typ) || ncount > 200)
+                                    break;
+                            }
+                        } while (ncount < 1000);
                     } else if ((primary_casters || primary_casters_priest
                                 || primary_casters_wizard || primary_casters_druid)
                                && !Race_if(PM_DRAUGR) && !rn2(3)) {
@@ -2598,11 +2633,13 @@ dosacrifice()
                         while (--trycnt > 0) {
                             if (otmp->otyp != SPE_BLANK_PAPER) {
                                 if (!known_spell(otmp->otyp)
-                                    && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
-                                    break; /* usable, but not yet known */
+                                    && !P_RESTRICTED(spell_skilltype(otmp->otyp))
+                                    && !gift_recently_given((short) otmp->otyp))
+                                    break; /* usable, not yet known, not recently gifted */
                             } else {
                                 if ((!objects[SPE_BLANK_PAPER].oc_name_known
-                                     || carrying(MAGIC_MARKER)) && u.uconduct.literate)
+                                     || carrying(MAGIC_MARKER)) && u.uconduct.literate
+                                    && !gift_recently_given((short) otmp->otyp))
                                     break;
                             }
                             if (primary_casters_druid)
@@ -2612,6 +2649,9 @@ dosacrifice()
                             set_material(otmp, objects[otmp->otyp].oc_material);
                         }
 
+                        {
+                        short gift_otyp = otmp->otyp; /* save before potential obfree */
+
                         if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                             && !known_spell(otmp->otyp)) {
                             if (force_learn_spell(otmp->otyp))
@@ -2620,7 +2660,7 @@ dosacrifice()
                             obfree(otmp, (struct obj *) 0);
                             livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
                                            "had divine knowledge of the spell '%s' bestowed upon %s by %s",
-                                           OBJ_NAME(objects[otmp->otyp]), uhim(), u_gname());
+                                           OBJ_NAME(objects[gift_otyp]), uhim(), u_gname());
                         } else {
                             bless(otmp);
                             otmp->oeroded = otmp->oeroded2 = 0;
@@ -2640,7 +2680,9 @@ dosacrifice()
                             otmp->dknown = 1;
                             makeknown(otmp->otyp);
                         }
+                        record_gift(gift_otyp);
                         return 1;
+                        }
                     } else { /* Making armor */
                         do {
                             /* even chance for each slot
@@ -2785,7 +2827,15 @@ dosacrifice()
                             obfree(otmp, (struct obj *) 0);
                             otmp = (struct obj *) 0;
 
-                        } while (ncount++ < 1000 && !typ);
+                            /* prefer novel gifts, but accept duplicates after many tries
+                             * ncount tracks valid (non-restricted) armor attempts only */
+                            if (typ) {
+                                ncount++;
+                                if (gift_recently_given((short) typ) && ncount <= 200)
+                                    typ = 0;
+                            }
+
+                        } while (ncount < 1000 && !typ);
                     }
 
                     if (typ) {
@@ -2868,6 +2918,7 @@ dosacrifice()
                             livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
                                            "had %s entrusted to %s by %s",
                                            doname(otmp), uhim(), u_gname());
+                            record_gift((short) otmp->otyp);
                             return 1;
                         }
                     }
