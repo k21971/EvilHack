@@ -468,8 +468,6 @@ struct monst *mtmp;
 {
     struct permonst *mdat = mtmp->data;
     size_t maxweight;
-    boolean thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
-                        && context.forcefight && !Upolyd);
 
     /* This section of code provides protection against accidentally
      * hitting peaceful (like '@') and tame (like 'd') monsters.
@@ -623,8 +621,7 @@ struct monst *mtmp;
                 You("begin bashing monsters with %s.", yname(uwep));
             else if (!cantwield(youmonst.data))
                 You("begin %s monsters with your %s %s.",
-                    ing_suffix(Role_if(PM_MONK) ? "strike" :
-                               thievery ? "rob" : "bash"),
+                    ing_suffix(Role_if(PM_MONK) ? "strike" : "bash"),
                     (uarmg && uarmg->oartifact != ART_HAND_OF_VECNA)
                       ? "gloved" : "bare", /* Del Lamb */
                     makeplural(body_part(HAND)));
@@ -1116,14 +1113,12 @@ int thrown; /* HMON_xxx (0 => hand-to-hand, other => ranged) */
 int dieroll;
 {
     boolean result, anger_guards;
-    boolean thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
-                        && context.forcefight && !Upolyd);
 
-    anger_guards = (mon->mpeaceful && !thievery
+    anger_guards = (mon->mpeaceful
                     && (mon->ispriest || mon->isshk || is_watch(mon->data)));
     result = hmon_hitmon(mon, obj, thrown, dieroll);
 
-    if (mon->ispriest && !rn2(2) && !thievery)
+    if (mon->ispriest && !rn2(2))
         ghod_hitsu(mon);
     if (anger_guards)
         (void) angry_guards(!!Deaf);
@@ -1178,7 +1173,6 @@ int dieroll;
             untaintmsg = FALSE;
     boolean ispotion = FALSE;
     boolean lightobj = FALSE;
-    boolean thievery = FALSE;
     boolean iskas = FALSE;
     boolean issecespita = FALSE;
     boolean isvenom  = FALSE;
@@ -1234,10 +1228,6 @@ int dieroll;
             else
                 tmp = rnd(2);
         }
-
-        /* establish conditions for various role's special thieving skill */
-        thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
-                    && context.forcefight && !Upolyd);
 
         /* monks have a chance to break their opponents wielded weapon
          * under certain conditions */
@@ -1828,7 +1818,7 @@ int dieroll;
     /* potential for gloves with an object property
        to do additional damage */
     if (!destroyed && !rn2(3)
-        && hand_to_hand && !uwep && !thievery && uarmg
+        && hand_to_hand && !uwep && uarmg
         && (uarmg->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK))) {
         artifact_hit(&youmonst, mon, uarmg, &tmp, dieroll);
         hittxt = TRUE;
@@ -1854,8 +1844,7 @@ int dieroll;
     /* The Hand of Vecna imparts cold damage to attacks,
        whether bare-handed or wielding a weapon. Cold
        damage feedback is placed further down */
-    if (!destroyed && uarmg && !thievery
-        && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
+    if (!destroyed && uarmg        && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
         if (resists_cold(mon) || defended(mon, AD_COLD)) {
             shieldeff(mon->mx, mon->my);
             golemeffects(mon, AD_COLD, tmp);
@@ -1877,7 +1866,7 @@ int dieroll;
     /* burning hands spell, fire damage feedback and usage
        tracking is placed further down */
     if (!destroyed && u.umburn
-        && hand_to_hand && actually_unarmed && !thievery) {
+        && hand_to_hand && actually_unarmed) {
         int enchant_skill = ((P_SKILL(P_ENCHANTMENT_SPELL) >= P_EXPERT)
                              ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
                                ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
@@ -1911,7 +1900,7 @@ int dieroll;
     /* shocking grasp spell, electric damage feedback
        and usage tracking is placed further down */
     if (!destroyed && u.umshock
-        && hand_to_hand && actually_unarmed && !thievery) {
+        && hand_to_hand && actually_unarmed) {
         int enchant_skill = ((P_SKILL(P_ENCHANTMENT_SPELL) >= P_EXPERT)
                              ? 4 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_SKILLED)
                                ? 3 : (P_SKILL(P_ENCHANTMENT_SPELL) == P_BASIC)
@@ -2025,7 +2014,7 @@ int dieroll;
         }
         hittxt = TRUE;
     } else if (unarmed && tmp > 1 && !thrown
-               && actually_unarmed && !Upolyd && !thievery) {
+               && actually_unarmed && !Upolyd) {
         /* VERY small chance of stunning or confusing opponent if unarmed.
            don't need to check for huge/gigantic monsters, as mhurtle()
            already guards against them */
@@ -2056,40 +2045,7 @@ int dieroll;
         }
     }
 
-    if (thievery) {
-        /* Izchak is off-limits */
-        if (mon->isshk
-            && !strcmp(shkname(mon), "Izchak")) {
-            You("find yourself unable to steal from %s.",
-                mon_nam(mon));
-            return 0;
-        }
-        /* pets are also off-limits, since #loot can be
-           used to give your pets as much as they can carry.
-           would be an easy way to abuse thievery and train
-           the skill without risk */
-        if (mon->mtame) {
-            You_cant("bring yourself to steal from %s.",
-                     mon_nam(mon));
-            return 0;
-        }
-        /* engulfed? ummm no */
-        if (u.uswallow) {
-            pline("What exactly were you planning on stealing?  Its stomach?");
-            return 0;
-        }
-        if (mon->minvent != 0) {
-            You("%s to %s %s.",
-                rn2(2) ? "try" : "attempt",
-                rn2(2) ? "steal from" : "pickpocket",
-                mon_nam(mon));
-            steal_it(mon, &youmonst.data->mattk[0]);
-        } else if (mon->minvent == 0) {
-            pline("%s has nothing for you to %s.",
-                  Monnam(mon), rn2(2) ? "steal" : "pickpocket");
-        }
-        hittxt = TRUE;
-    } else if (!already_killed)
+    if (!already_killed)
         damage_mon(mon, tmp, AD_PHYS, TRUE);
     /* adjustments might have made tmp become less than what
        a level draining artifact has already done to max HP */
@@ -2210,8 +2166,7 @@ int dieroll;
 
     /* feedback when 'wearing' the Hand of Vecna, placed here
        due to order of events */
-    if (!destroyed && uarmg && !thievery
-        && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
+    if (!destroyed && uarmg        && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
         if (!Blind)
             pline("%s covers %s in frost!", The(xname(uarmg)),
                   mon_nam(mon));
@@ -2233,7 +2188,7 @@ int dieroll;
     /* burning hands spell feedback, placed here
        due to order of events */
     if (!destroyed && u.umburn
-        && hand_to_hand && actually_unarmed && !thievery) {
+        && hand_to_hand && actually_unarmed) {
         if (resists_fire(mon) || defended(mon, AD_FIRE)
             || mon_underwater(mon)) {
             if (!Blind)
@@ -2271,7 +2226,7 @@ int dieroll;
     /* shocking grasp spell feedback, placed here
        due to order of events */
     if (!destroyed && u.umshock
-        && hand_to_hand && actually_unarmed && !thievery) {
+        && hand_to_hand && actually_unarmed) {
         if (resists_elec(mon) || defended(mon, AD_ELEC)) {
             if (!Blind)
                 Your("%s don't shock %s!",
@@ -2343,7 +2298,7 @@ int dieroll;
     } else if (destroyed) { /* any function using tmp needs to be above this line */
         if (!already_killed)
             killed(mon); /* takes care of most messages */
-    } else if (u.umconf && hand_to_hand && !thievery) {
+    } else if (u.umconf && hand_to_hand) {
         nohandglow(mon);
         if (!mon->mconf && !resist(mon, SPBOOK_CLASS, 0, NOTELL)) {
             mon->mconf = 1;
@@ -2980,6 +2935,92 @@ struct attack *mattk;
         if (rn2(3)) /* 66% chance in favor of the player */
             use_skill(P_THIEVERY, 1);
     }
+}
+
+/* #steal command - Rogue/Convict thievery via extended command
+ * Replaces the old forcefight-triggered thievery mechanic.
+ */
+int
+dosteal()
+{
+    coord cc;
+    struct monst *mtmp;
+
+    /* Role check */
+    if (!Role_if(PM_ROGUE) && !Role_if(PM_CONVICT)) {
+        You("don't have any thieving skills.");
+        return 0;
+    }
+
+    /* Polymorph check */
+    if (Upolyd) {
+        You_cant("steal anything in this form.");
+        return 0;
+    }
+
+    /* Bare hands check */
+    if (uwep) {
+        You("need your hands free to steal.");
+        return 0;
+    }
+
+    /* Engulfed check */
+    if (u.uswallow) {
+        pline("What exactly were you planning on stealing?  Its stomach?");
+        return 0;
+    }
+
+    /* Target selection */
+    cc.x = u.ux;
+    cc.y = u.uy;
+    if (getpos(&cc, FALSE, "the monster you want to steal from") < 0)
+        return 0;  /* Aborted - no turn cost */
+
+    if (!isok(cc.x, cc.y))
+        return 0;
+
+    mtmp = m_at(cc.x, cc.y);
+    if (!mtmp || !canspotmon(mtmp)) {
+        pline("There's no one there to steal from.");
+        return 0;
+    }
+
+    /* Adjacency check */
+    if (distu(cc.x, cc.y) > 2) {
+        pline("You're too far away to steal from %s.", mon_nam(mtmp));
+        return 0;
+    }
+
+    /* Izchak is off-limits */
+    if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak")) {
+        You("find yourself unable to steal from %s.", mon_nam(mtmp));
+        return 0;
+    }
+
+    /* Pets are off-limits */
+    if (mtmp->mtame) {
+        You_cant("bring yourself to steal from %s.", mon_nam(mtmp));
+        return 0;
+    }
+
+    /* Wrath of gods for attempting to steal from peaceful Oracle */
+    if (mtmp->mpeaceful && mtmp->data == &mons[PM_ORACLE]) {
+        pline_The("gods notice your deception!");
+        setmangry(mtmp, FALSE);
+    }
+
+    /* Attempt the theft */
+    if (mtmp->minvent) {
+        You("%s to %s %s.",
+            rn2(2) ? "try" : "attempt",
+            rn2(2) ? "steal from" : "pickpocket",
+            mon_nam(mtmp));
+        steal_it(mtmp, &youmonst.data->mattk[0]);
+    } else {
+        pline("%s has nothing for you to %s.",
+              Monnam(mtmp), rn2(2) ? "steal" : "pickpocket");
+    }
+    return 1;  /* Turn consumed */
 }
 
 /* Actual mechanics of stealing obj from mdef. This is now its own function
@@ -4057,8 +4098,6 @@ boolean wouldhavehit;
 {
     struct obj *blocker = (struct obj *) 0;
     boolean nearmiss = (target == roll);
-    boolean thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
-                        && context.forcefight && !Upolyd);
 
     /* 2 values for blocker:
      * No blocker: (struct obj *) 0
@@ -4136,10 +4175,7 @@ boolean wouldhavehit;
     if (could_seduce(&youmonst, mdef, mattk))
         You("pretend to be friendly to %s.", mon_nam(mdef));
     else if (canspotmon(mdef) && flags.verbose) {
-        if (!uwep && thievery) {
-            Your("pickpocketing attempt fails %s.",
-                 rn2(2) ? "horribly" : "miserably");
-        } else if (nearmiss || !blocker) {
+        if (nearmiss || !blocker) {
             if ((thick_skinned(mdef->data)
                  || has_barkskin(mdef) || has_stoneskin(mdef))
                 && !rn2(10))
@@ -4769,8 +4805,6 @@ boolean wep_was_destroyed;
     register int i, t, tmp;
     struct attack *mattk;
     mattk = has_erac(mon) ? ERAC(mon)->mattk : ptr->mattk;
-    boolean thievery = ((Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
-                        && context.forcefight && !Upolyd);
 
     if (maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE))
         && aatyp == AT_BITE && mhit) {
@@ -4972,12 +5006,6 @@ boolean wep_was_destroyed;
         }
         break;
     case AD_MAGM:
-        /* wrath of gods for attacking Oracle */
-        if (!uwep && thievery && mon->mpeaceful) {
-            pline_The("gods notice your deception!");
-            /* The Oracle notices too... */
-            setmangry(mon, FALSE);
-        }
         You("are hit by magic missiles appearing from thin air!");
 
         if (resists_mgc(youmonst.data)) { /* no damage */

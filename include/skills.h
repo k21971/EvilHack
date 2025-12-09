@@ -60,15 +60,15 @@ enum p_skills {
     /* Other types of combat */
     P_BARE_HANDED_COMBAT = 34, /* actually weaponless; gloves are ok */
     P_TWO_WEAPON_COMBAT  = 35, /* pair of weapons, one in each hand */
-    P_SHIELD             = 36, /* How well you use a shield */
-    P_RIDING             = 37, /* How well you control your steed */
-    P_PET_HANDLING       = 38, /* How well you command pets */
+    P_THIEVERY           = 36, /* Rogue/Convict stealing skill */
+    P_SHIELD             = 37, /* How well you use a shield */
+    P_RIDING             = 38, /* How well you control your steed */
+    P_PET_HANDLING       = 39, /* How well you command pets */
 
-    P_NUM_SKILLS         = 39
+    P_NUM_SKILLS         = 40
 };
 
 #define P_MARTIAL_ARTS P_BARE_HANDED_COMBAT /* Role distinguishes */
-#define P_THIEVERY P_BARE_HANDED_COMBAT
 
 #define P_FIRST_WEAPON P_DAGGER
 #define P_LAST_WEAPON P_UNICORN_HORN

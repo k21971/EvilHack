@@ -2859,6 +2859,7 @@ E void NDECL(nohandshock);
 E int FDECL(flash_hits_mon, (struct monst *, struct obj *));
 E void FDECL(light_hits_light_hater, (struct monst *, int));
 E int FDECL(shield_dmg, (struct obj *, struct monst *));
+E int NDECL(dosteal);
 
 /* ### unixmain.c ### */
 

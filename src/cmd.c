@@ -4230,6 +4230,8 @@ struct ext_func_tab extcmdlist[] = {
     { M('s'), "sit", "sit down", dosit, AUTOCOMPLETE },
     { '\0', "stats", "show memory statistics",
             wiz_show_stats, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
+    { '\0', "steal", "attempt to steal from a monster",
+            dosteal, AUTOCOMPLETE },
     { C('z'), "suspend", "suspend the game",
             dosuspend_core, IFBURIED | GENERALCMD
 #ifndef SUSPEND

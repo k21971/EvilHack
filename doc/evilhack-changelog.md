@@ -4787,4 +4787,5 @@ The following changes to date are:
 - Sacrifice gift deduplication (non-artifact gifts)
 - Fix: rogue backstab crash with dual-wielding at experience level 1,
   mchest NULL check
+- Separate thievery from forcefight, create #steal command
 

@@ -36,6 +36,7 @@ STATIC_DCL struct monst *FDECL(mon_melee_target, (struct monst *));
 #define PN_MATTER_SPELL (-15)
 #define PN_EVOCATION_SPELL (-16)
 #define PN_PET_HANDLING (-17)
+#define PN_THIEVERY (-18)
 
 STATIC_VAR NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     /* Weapon */
@@ -48,7 +49,8 @@ STATIC_VAR NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL,
     PN_MATTER_SPELL, PN_EVOCATION_SPELL,
     /* Other */
-    PN_BARE_HANDED, PN_TWO_WEAPONS, PN_SHIELD, PN_RIDING, PN_PET_HANDLING
+    PN_BARE_HANDED, PN_TWO_WEAPONS, PN_THIEVERY, PN_SHIELD, PN_RIDING,
+    PN_PET_HANDLING
 };
 
 /* note: entry [0] isn't used */
@@ -57,21 +59,19 @@ STATIC_VAR NEARDATA const char *const odd_skill_names[] = {
     "two weapon combat", "shield", "riding", "polearms", "saber", "hammer",
     "whip", "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
-    "evocation spells", "pet handling",
+    "evocation spells", "pet handling", "thievery",
 };
 /* indexed vis rogue/convict role ? 2 : is_martial() */
 STATIC_VAR NEARDATA const char *const barehands_or_martial[] = {
-    "bare handed combat", "martial arts", "thievery"
+    "bare handed combat", "martial arts"
 };
 
 #define P_NAME(type) \
-    ((skill_names_indices[type] > 0)                                              \
-         ? OBJ_NAME(objects[skill_names_indices[type]])                           \
-         : (type == P_BARE_HANDED_COMBAT)                                         \
-               ? barehands_or_martial[(Role_if(PM_ROGUE)                          \
-                                       || Role_if(PM_CONVICT)) ? 2                \
-                                                               : martial_bonus()] \
-                     : odd_skill_names[-skill_names_indices[type]])
+    ((skill_names_indices[type] > 0)                    \
+         ? OBJ_NAME(objects[skill_names_indices[type]]) \
+         : (type == P_BARE_HANDED_COMBAT)               \
+               ? barehands_or_martial[martial_bonus()]  \
+               : odd_skill_names[-skill_names_indices[type]])
 
 static NEARDATA const char kebabable[] = { S_XORN, S_DRAGON, S_JABBERWOCK,
                                            S_NAGA, S_GIANT,  '\0' };
