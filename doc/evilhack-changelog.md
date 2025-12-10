@@ -4788,4 +4788,5 @@ The following changes to date are:
 - Fix: rogue backstab crash with dual-wielding at experience level 1,
   mchest NULL check
 - Separate thievery from forcefight, create #steal command
+- Fix: refactor sacrifice gift system, fix prayer spellbook bugs
 

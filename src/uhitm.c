@@ -1844,7 +1844,8 @@ int dieroll;
     /* The Hand of Vecna imparts cold damage to attacks,
        whether bare-handed or wielding a weapon. Cold
        damage feedback is placed further down */
-    if (!destroyed && uarmg        && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
+    if (!destroyed && uarmg
+        && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
         if (resists_cold(mon) || defended(mon, AD_COLD)) {
             shieldeff(mon->mx, mon->my);
             golemeffects(mon, AD_COLD, tmp);
@@ -2166,7 +2167,8 @@ int dieroll;
 
     /* feedback when 'wearing' the Hand of Vecna, placed here
        due to order of events */
-    if (!destroyed && uarmg        && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
+    if (!destroyed && uarmg
+        && uarmg->oartifact == ART_HAND_OF_VECNA && hand_to_hand) {
         if (!Blind)
             pline("%s covers %s in frost!", The(xname(uarmg)),
                   mon_nam(mon));
@@ -2937,9 +2939,8 @@ struct attack *mattk;
     }
 }
 
-/* #steal command - Rogue/Convict thievery via extended command
- * Replaces the old forcefight-triggered thievery mechanic.
- */
+/* #steal command - Rogue/Convict thievery via extended command,
+   replaces the old forcefight-triggered thievery mechanic */
 int
 dosteal()
 {

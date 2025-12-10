@@ -19,10 +19,12 @@ STATIC_DCL void FDECL(fry_by_god, (ALIGNTYP_P, BOOLEAN_P));
 STATIC_DCL void FDECL(gods_angry, (ALIGNTYP_P));
 STATIC_DCL void FDECL(gods_upset, (ALIGNTYP_P));
 STATIC_DCL void FDECL(consume_offering, (struct obj *));
-STATIC_DCL boolean FDECL(water_prayer, (BOOLEAN_P));
-STATIC_DCL boolean FDECL(blocked_boulder, (int, int));
 STATIC_DCL boolean FDECL(gift_recently_given, (SHORT_P));
 STATIC_DCL void FDECL(record_gift, (SHORT_P));
+STATIC_DCL short FDECL(apply_racial_substitution, (SHORT_P));
+STATIC_DCL struct obj * FDECL(make_spellbook_gift, (SHORT_P));
+STATIC_DCL boolean FDECL(water_prayer, (BOOLEAN_P));
+STATIC_DCL boolean FDECL(blocked_boulder, (int, int));
 
 /* simplify a few tests */
 #define Cursed_obj(obj, typ) ((obj) && (obj)->otyp == (typ) && cursed(obj, TRUE))
@@ -1537,43 +1539,48 @@ aligntyp g_align;
             /*FALLTHRU*/
         case 6: {
             struct obj *otmp;
-            int trycnt = u.ulevel + 1;
+            short gift_otyp;
 
             /* cavepersons or those of the draugr race don't mess around
                with spells, so do nothing */
-            if (Role_if(PM_CAVEMAN) || Race_if(PM_DRAUGR)) {
+            if (Role_if(PM_CAVEMAN) || Race_if(PM_DRAUGR))
                 break;
+
+            /* not yet known spells given preference over already known ones.
+               also, try to grant a spell for which there is a skill slot.
+               Druids get access to druid-specific spells */
+            otmp = make_spellbook_gift(Role_if(PM_DRUID) ? SPE_SUMMON_ELEMENTAL
+                                                         : SPE_ORB_OF_FROST);
+            if (!otmp)
+                break;
+
+            gift_otyp = otmp->otyp; /* save before potential obfree */
+
+            if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
+                && !known_spell(otmp->otyp)) {
+                if (force_learn_spell(otmp->otyp))
+                    pline("Divine knowledge of the spell '%s' fills your mind!",
+                          OBJ_NAME(objects[otmp->otyp]));
+                obfree(otmp, (struct obj *) 0);
+                otmp = (struct obj *) 0;
+                livelog_printf(LL_DIVINEGIFT,
+                               "had divine knowledge of the spell '%s' bestowed upon %s by %s",
+                               OBJ_NAME(objects[gift_otyp]), uhim(), u_gname());
             } else {
-                /* not yet known spells given preference over already known ones.
-                   Also, try to grant a spell for which there is a skill slot */
-                otmp = mkobj(SPBOOK_CLASS, TRUE);
-                while (--trycnt > 0) {
-                    if (otmp->otyp != SPE_BLANK_PAPER) {
-                        if (!known_spell(otmp->otyp)
-                            && !P_RESTRICTED(spell_skilltype(otmp->otyp)))
-                            break; /* usable, but not yet known */
-                    } else {
-                        if ((!objects[SPE_BLANK_PAPER].oc_name_known
-                             || carrying(MAGIC_MARKER)) && u.uconduct.literate)
-                            break;
-                    }
-                    otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_ORB_OF_FROST);
-                    set_material(otmp, objects[otmp->otyp].oc_material);
-                }
-                if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
-                    && !known_spell(otmp->otyp)) {
-                    if (force_learn_spell(otmp->otyp))
-                        pline("Divine knowledge of the spell '%s' fills your mind!",
-                              OBJ_NAME(objects[otmp->otyp]));
-                    obfree(otmp, (struct obj *) 0);
-                } else {
-                    bless(otmp);
-                    otmp->oeroded = otmp->oeroded2 = 0;
-                    at_your_feet("A spellbook");
-                    place_object(otmp, u.ux, u.uy);
-                    newsym(u.ux, u.uy);
+                bless(otmp);
+                otmp->oeroded = otmp->oeroded2 = 0;
+                at_your_feet("A spellbook");
+                place_object(otmp, u.ux, u.uy);
+                newsym(u.ux, u.uy);
+                livelog_printf(LL_DIVINEGIFT,
+                               "had %s given to %s by %s",
+                               an(xname(otmp)), uhim(), u_gname());
+                if (!Hallucination && !Blind) {
+                    otmp->dknown = 1;
+                    makeknown(otmp->otyp);
                 }
             }
+            record_gift(gift_otyp);
             break;
         }
         default:
@@ -1808,6 +1815,58 @@ short otyp;
 
 struct inv_sub { short race_pm, item_otyp, subs_otyp; };
 extern struct inv_sub inv_subs[];
+
+/* Apply racial item substitutions (e.g., SPEAR -> DWARVISH_SPEAR for
+   dwarves). Returns substituted otyp, or original if no substitution
+   applies */
+STATIC_OVL short
+apply_racial_substitution(otyp)
+short otyp;
+{
+    int i;
+
+    if (urace.malenum == PM_HUMAN)
+        return otyp;
+
+    for (i = 0; inv_subs[i].race_pm != NON_PM; ++i) {
+        if (inv_subs[i].race_pm == urace.malenum
+            && otyp == inv_subs[i].item_otyp)
+            return inv_subs[i].subs_otyp;
+    }
+    return otyp;
+}
+
+/* Generate a divine spellbook gift for prayer rewards or sacrifice
+   gifts. max_spell: SPE_SUMMON_ELEMENTAL for druids, SPE_ORB_OF_FROST
+   otherwise. Returns object or NULL on failure */
+STATIC_OVL struct obj *
+make_spellbook_gift(max_spell)
+short max_spell;
+{
+    struct obj *otmp;
+    int trycnt = u.ulevel + 1;
+
+    otmp = mkobj(SPBOOK_CLASS, TRUE);
+    if (!otmp)
+        return (struct obj *) 0;
+
+    while (--trycnt > 0) {
+        if (otmp->otyp != SPE_BLANK_PAPER) {
+            if (!known_spell(otmp->otyp)
+                && !P_RESTRICTED(spell_skilltype(otmp->otyp))
+                && !gift_recently_given((short) otmp->otyp))
+                break; /* usable, not yet known, not recently gifted */
+        } else {
+            if ((!objects[SPE_BLANK_PAPER].oc_name_known
+                 || carrying(MAGIC_MARKER)) && u.uconduct.literate
+                && !gift_recently_given((short) otmp->otyp))
+                break;
+        }
+        otmp->otyp = rnd_class(bases[SPBOOK_CLASS], max_spell);
+        set_material(otmp, objects[otmp->otyp].oc_material);
+    }
+    return otmp;
+}
 
 int
 dosacrifice()
@@ -2441,13 +2500,16 @@ dosacrifice()
             boolean primary_casters,
                     primary_casters_druid,
                     primary_casters_priest,
-                    primary_casters_wizard;
+                    primary_casters_wizard,
+                    any_primary_caster;
 
             /* Primary casting roles */
             primary_casters = (Role_if(PM_HEALER) || Role_if(PM_INFIDEL));
             primary_casters_druid = Role_if(PM_DRUID);
             primary_casters_priest = Role_if(PM_PRIEST);
             primary_casters_wizard = Role_if(PM_WIZARD);
+            any_primary_caster = (primary_casters || primary_casters_druid
+                                  || primary_casters_priest || primary_casters_wizard);
 
             /* you were already in pretty good standing
              *
@@ -2470,7 +2532,8 @@ dosacrifice()
              *
              * If your role has a guaranteed first sacrifice gift, you will
              * not receive a non-artifact item as a gift until you've gotten
-             * your guaranteed artifact.
+             * your guaranteed artifact. You must be experience level 4 or
+             * greater to receive an artifact gift (guaranteed or not).
              *
              * [revamped as of version 0.9.0]
              * level  4: 20% chance level  6: 30% chance level  8: 40% chance
@@ -2479,8 +2542,6 @@ dosacrifice()
              * level 20 or greater: 100% chance
              */
 
-            /* TODO: these object/spellbook routines really should be made
-               into separate functions, as some of these are duplicated */
             if ((!awaiting_guaranteed_gift() || u.ulevel <= 3)
                 && (rn2(10) >= (int) ((nchance * nchance) / 100)
                     || levl[u.ux][u.uy].frac_altar == 1)) {
@@ -2512,34 +2573,15 @@ dosacrifice()
                             } else if (primary_casters_wizard) {
                                 if (!u.uconduct.weaphit) {
                                     /* Making a spellbook */
-                                    int trycnt = u.ulevel + 1;
+                                    short gift_otyp;
 
-                                    /* not yet known spells given preference over already known ones.
-                                       Also, try to grant a spell for which there is a skill slot */
-                                    otmp = mkobj(SPBOOK_CLASS, TRUE);
+                                    /* Druid/evocation spells purposely omitted */
+                                    otmp = make_spellbook_gift(SPE_ORB_OF_FROST);
 
                                     if (!otmp)
                                         return 1;
 
-                                    while (--trycnt > 0) {
-                                        if (otmp->otyp != SPE_BLANK_PAPER) {
-                                            if (!known_spell(otmp->otyp)
-                                                && !P_RESTRICTED(spell_skilltype(otmp->otyp))
-                                                && !gift_recently_given((short) otmp->otyp))
-                                                break; /* usable, not yet known, not recently gifted */
-                                        } else {
-                                            if ((!objects[SPE_BLANK_PAPER].oc_name_known
-                                                 || carrying(MAGIC_MARKER)) && u.uconduct.literate
-                                                && !gift_recently_given((short) otmp->otyp))
-                                                break;
-                                        }
-                                        /* Druid/evocation spells purposely ommitted */
-                                        otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_ORB_OF_FROST);
-                                        set_material(otmp, objects[otmp->otyp].oc_material);
-                                    }
-
-                                    {
-                                    short gift_otyp = otmp->otyp; /* save before potential obfree */
+                                    gift_otyp = otmp->otyp; /* save before potential obfree */
 
                                     if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                                         && !known_spell(otmp->otyp)) {
@@ -2547,6 +2589,7 @@ dosacrifice()
                                             pline("Divine knowledge of the spell '%s' fills your mind!",
                                                   OBJ_NAME(objects[otmp->otyp]));
                                         obfree(otmp, (struct obj *) 0);
+                                        otmp = (struct obj *) 0;
                                         livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
                                                        "had divine knowledge of the spell '%s' bestowed upon %s by %s",
                                                        OBJ_NAME(objects[gift_otyp]), uhim(), u_gname());
@@ -2559,19 +2602,18 @@ dosacrifice()
                                         livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
                                                        "had %s given to %s by %s",
                                                        an(xname(otmp)), uhim(), u_gname());
+                                        if (!Hallucination && !Blind) {
+                                            otmp->dknown = 1;
+                                            makeknown(otmp->otyp);
+                                        }
                                     }
                                     godvoice(u.ualign.type, "Use this gift skillfully!");
                                     if (!otmp || is_magic(otmp))
                                         u.ugifts++;
                                     u.ublesscnt = rnz(300 + (50 * u.ugifts));
                                     exercise(A_WIS, TRUE);
-                                    if (!Hallucination && !Blind) {
-                                        otmp->dknown = 1;
-                                        makeknown(otmp->otyp);
-                                    }
                                     record_gift(gift_otyp);
                                     return 1;
-                                    }
                                 } else {
                                     typ = (rn2(100) >= 50)
                                             ? rnd_class(QUARTERSTAFF, STAFF_OF_EVOCATION)
@@ -2582,17 +2624,7 @@ dosacrifice()
                             }
 
                             /* apply starting inventory subs - so we'll get racial gear if possible */
-                            if (urace.malenum != PM_HUMAN) {
-                                int i;
-
-                                for (i = 0; inv_subs[i].race_pm != NON_PM; ++i) {
-                                    if (inv_subs[i].race_pm == urace.malenum
-                                        && typ == inv_subs[i].item_otyp) {
-                                        typ = inv_subs[i].subs_otyp;
-                                        break;
-                                    }
-                                }
-                            }
+                            typ = apply_racial_substitution((short) typ);
 
                             /* The issue here is it blocks elves from getting basically
                              * anything, since most (non-elven) weapons are base mat iron...
@@ -2617,40 +2649,16 @@ dosacrifice()
                                     break;
                             }
                         } while (ncount < 1000);
-                    } else if ((primary_casters || primary_casters_priest
-                                || primary_casters_wizard || primary_casters_druid)
-                               && !Race_if(PM_DRAUGR) && !rn2(3)) {
+                    } else if (any_primary_caster && !Race_if(PM_DRAUGR) && !rn2(3)) {
                         /* Making a spellbook */
-                        int trycnt = u.ulevel + 1;
+                        short gift_otyp;
 
-                        /* not yet known spells given preference over already known ones.
-                           Also, try to grant a spell for which there is a skill slot */
-                        otmp = mkobj(SPBOOK_CLASS, TRUE);
-
+                        otmp = make_spellbook_gift(primary_casters_druid ? SPE_SUMMON_ELEMENTAL
+                                                                         : SPE_ORB_OF_FROST);
                         if (!otmp)
                             return 1;
 
-                        while (--trycnt > 0) {
-                            if (otmp->otyp != SPE_BLANK_PAPER) {
-                                if (!known_spell(otmp->otyp)
-                                    && !P_RESTRICTED(spell_skilltype(otmp->otyp))
-                                    && !gift_recently_given((short) otmp->otyp))
-                                    break; /* usable, not yet known, not recently gifted */
-                            } else {
-                                if ((!objects[SPE_BLANK_PAPER].oc_name_known
-                                     || carrying(MAGIC_MARKER)) && u.uconduct.literate
-                                    && !gift_recently_given((short) otmp->otyp))
-                                    break;
-                            }
-                            if (primary_casters_druid)
-                                otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_SUMMON_ELEMENTAL);
-                            else
-                                otmp->otyp = rnd_class(bases[SPBOOK_CLASS], SPE_ORB_OF_FROST);
-                            set_material(otmp, objects[otmp->otyp].oc_material);
-                        }
-
-                        {
-                        short gift_otyp = otmp->otyp; /* save before potential obfree */
+                        gift_otyp = otmp->otyp; /* save before potential obfree */
 
                         if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                             && !known_spell(otmp->otyp)) {
@@ -2658,6 +2666,7 @@ dosacrifice()
                                 pline("Divine knowledge of the spell '%s' fills your mind!",
                                       OBJ_NAME(objects[otmp->otyp]));
                             obfree(otmp, (struct obj *) 0);
+                            otmp = (struct obj *) 0;
                             livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
                                            "had divine knowledge of the spell '%s' bestowed upon %s by %s",
                                            OBJ_NAME(objects[gift_otyp]), uhim(), u_gname());
@@ -2670,19 +2679,18 @@ dosacrifice()
                             livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
                                            "had %s given to %s by %s",
                                            an(xname(otmp)), uhim(), u_gname());
+                            if (!Hallucination && !Blind) {
+                                otmp->dknown = 1;
+                                makeknown(otmp->otyp);
+                            }
                         }
                         godvoice(u.ualign.type, "Use this gift skillfully!");
                         if (!otmp || is_magic(otmp))
                             u.ugifts++;
                         u.ublesscnt = rnz(300 + (50 * u.ugifts));
                         exercise(A_WIS, TRUE);
-                        if (!Hallucination && !Blind) {
-                            otmp->dknown = 1;
-                            makeknown(otmp->otyp);
-                        }
                         record_gift(gift_otyp);
                         return 1;
-                        }
                     } else { /* Making armor */
                         do {
                             /* even chance for each slot
@@ -2694,8 +2702,7 @@ dosacrifice()
                                                                            : rn2(6)) {
                             case 0:
                                 /* body armor (inc. shirts) */
-                                if (primary_casters || primary_casters_priest
-                                    || primary_casters_wizard || primary_casters_druid) {
+                                if (any_primary_caster) {
                                     typ = (rn2(100) >= 50)
                                             ? rnd_class(ARMOR, JACKET)
                                             : (rn2(100) >= 16)
@@ -2715,8 +2722,7 @@ dosacrifice()
                                 break;
                             case 2:
                                 /* boots */
-                                if (primary_casters || primary_casters_priest
-                                    || primary_casters_wizard || primary_casters_druid) {
+                                if (any_primary_caster) {
                                     typ = (rn2(100) >= 66)
                                             ? LOW_BOOTS
                                             : rnd_class(HIGH_BOOTS, LEVITATION_BOOTS);
@@ -2758,8 +2764,7 @@ dosacrifice()
                                 /* FALLTHRU */
                             case 4:
                                 /* gloves */
-                                if (primary_casters || primary_casters_priest
-                                    || primary_casters_wizard || primary_casters_druid) {
+                                if (any_primary_caster) {
                                     typ = (rn2(100) >= 33)
                                             ? GLOVES
                                             : rnd_class(GAUNTLETS_OF_POWER, GAUNTLETS_OF_DEXTERITY);
@@ -2769,8 +2774,7 @@ dosacrifice()
                                 break;
                             case 5:
                                 /* helm */
-                                if (primary_casters || primary_casters_priest
-                                    || primary_casters_wizard || primary_casters_druid) {
+                                if (any_primary_caster) {
                                     if (Role_if(PM_WIZARD)) {
                                         typ = (rn2(100) >= 50)
                                                 ? rnd_class(CORNUTHAUM, DARK_ELVEN_HELM)
@@ -2793,20 +2797,8 @@ dosacrifice()
                                 break;
                             }
 
-                            /* Same as weapons, but not as badly obviously
-                             * apply starting inventory subs - so we'll get
-                             * racial gear if possible
-                             */
-                            if (urace.malenum != PM_HUMAN) {
-                                int i;
-                                for (i = 0; inv_subs[i].race_pm != NON_PM; ++i) {
-                                    if (inv_subs[i].race_pm == urace.malenum
-                                        && typ == inv_subs[i].item_otyp) {
-                                        typ = inv_subs[i].subs_otyp;
-                                        break;
-                                    }
-                                }
-                            }
+                            /* Same as weapons, apply racial gear substitutions */
+                            typ = apply_racial_substitution((short) typ);
 
                             /* if we have the WRONG object, then let's not do that */
                             otmp = mksobj(typ, FALSE, FALSE);
@@ -2923,7 +2915,7 @@ dosacrifice()
                         }
                     }
                 }
-            } else if (u.uluck >= 0 && !rn2(arti_gift_odds)
+            } else if (u.ulevel >= 4 && u.uluck >= 0 && !rn2(arti_gift_odds)
                        && levl[u.ux][u.uy].frac_altar == 0) {
                 /* mk_artifact() with NULL obj and a_align() arg
                    can return NULL */
