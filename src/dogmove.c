@@ -790,8 +790,14 @@ struct monst *mtmp;
 struct edog *edog;
 {
     struct obj *barding;
-    boolean ithilmar = ((barding = which_armor(mtmp, W_BARDING)) != 0
-                        && barding->oartifact == ART_ITHILMAR);
+    boolean ithilmar;
+
+    /* minions and other pets without edog don't starve */
+    if (!edog)
+        return FALSE;
+
+    ithilmar = ((barding = which_armor(mtmp, W_BARDING)) != 0
+                && barding->oartifact == ART_ITHILMAR);
 
     /* steed wearing Ithilmar can last much longer before needing
        another meal */
@@ -847,7 +853,7 @@ int udist;
     struct obj *obj, *otmp;
 
     boolean booldroppables = FALSE;
-    if (mtmp->msleeping || !mtmp->mcanmove)
+    if (!edog || mtmp->msleeping || !mtmp->mcanmove)
         return 0;
 
     omx = mtmp->mx;
@@ -1486,7 +1492,7 @@ int after; /* this is extra fast monster movement */
     }
 
     /* Skip grass eating if coming to player */
-    if (!(edog->petstrat & PETSTRAT_COME)
+    if (edog && !(edog->petstrat & PETSTRAT_COME)
         && monstermoves > (edog->hungrytime + 20)
         && levl[mtmp->mx][mtmp->my].typ == GRASS
         && can_eat_grass(mtmp->data)) {
@@ -1498,7 +1504,7 @@ int after; /* this is extra fast monster movement */
        Amount of tameness is taken into consideration (have
        to at least be domesticated).
        Skip these helpful actions if pet is ordered to come to player. */
-    if (!(edog->petstrat & PETSTRAT_COME)
+    if (edog && !(edog->petstrat & PETSTRAT_COME)
         && !(mtmp->mconf || mtmp->mstun || mtmp->mfrozen)
         && mtmp->mtame >= 10) {
         /* heal you if hit points are 12.5% or less than max */
@@ -1630,7 +1636,7 @@ int after; /* this is extra fast monster movement */
 
     if (has_edog || summoned) {
         /* Skip inventory eating if pet is ordered to come to player */
-        if (!(edog->petstrat & PETSTRAT_COME)) {
+        if (!edog || !(edog->petstrat & PETSTRAT_COME)) {
             j = dog_invent(mtmp, edog, udist);
             if (j == 2)
                 return 2; /* died */
@@ -1638,7 +1644,7 @@ int after; /* this is extra fast monster movement */
                 goto newdogpos; /* eating something */
         }
 
-        whappr = (monstermoves - edog->whistletime < 5);
+        whappr = edog ? (monstermoves - edog->whistletime < 5) : 0;
     } else
         whappr = 0;
 
@@ -1675,7 +1681,7 @@ int after; /* this is extra fast monster movement */
      * distance and attack them if it's plausible.
      * Skip all combat if pet is ordered to come to player.
      */
-    if (!(edog->petstrat & PETSTRAT_COME)) {
+    if (!edog || !(edog->petstrat & PETSTRAT_COME)) {
         if (find_offensive(mtmp)) {
             int ret = use_offensive(mtmp);
             if (ret == 1)
@@ -1795,7 +1801,7 @@ int after; /* this is extra fast monster movement */
             struct monst *mtmp2 = m_at(nx, ny);
 
             /* Skip attacking if pet is ordered to come to player */
-            if (edog->petstrat & PETSTRAT_COME)
+            if (edog && (edog->petstrat & PETSTRAT_COME))
                 continue;
             if (!acceptable_pet_target(mtmp, mtmp2, FALSE))
                 continue;
@@ -1859,7 +1865,7 @@ int after; /* this is extra fast monster movement */
         /* dog eschews cursed objects, but likes dog food */
         /* (minion isn't interested; `cursemsg' stays FALSE) */
         /* Skip food detection if pet is ordered to come to player */
-        if ((has_edog || summoned) && !(edog->petstrat & PETSTRAT_COME))
+        if (edog && !(edog->petstrat & PETSTRAT_COME))
             for (obj = level.objects[nx][ny]; obj; obj = obj->nexthere) {
                 if (obj->cursed) {
                     cursemsg[i] = TRUE;
