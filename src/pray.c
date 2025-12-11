@@ -1262,6 +1262,7 @@ aligntyp g_align;
     if (on_altar() && p_aligntyp != u.ualign.type) {
         You_feel("guilty.");
         adjalign(-1);
+        record_abuse_event(-1, ABUSE_WRONG_ALTAR);
         return;
     } else if (u.ualign.record < 2 && trouble <= 0)
         adjalign(1);
@@ -2062,6 +2063,7 @@ dosacrifice()
             if (u.ualign.type > A_CHAOTIC) {
                 You_feel("guilty.");
                 adjalign(-5);
+                record_abuse_event(-5, ABUSE_SAC_SAME_RACE);
                 u.ugangr += 3;
                 (void) adjattrib(A_WIS, -1, TRUE);
                 if (!mitre_inhell())
@@ -2118,6 +2120,7 @@ dosacrifice()
                  * not a real monster */
             pline("So this is how you repay loyalty?");
             adjalign(-3);
+            record_abuse_event(-3, ABUSE_SAC_PET);
             value = -1;
             HAggravate_monster |= FROMOUTSIDE;
         } else if (is_unicorn(ptr) && value /* fresh */) {
@@ -2189,6 +2192,7 @@ dosacrifice()
             destroy_arm(uarmh);
             change_luck(-5);
             adjalign(-5);
+            record_abuse_event(-5, ABUSE_DECEPTION);
             /* and forget about ever being able to pray.
              * at least the hero is able to continue and
              * perhaps redeem themselves */
@@ -2255,6 +2259,7 @@ dosacrifice()
                 /* And the opposing team picks you up and
                    carries you off on their shoulders */
                 adjalign(-99);
+                record_abuse_event(-99, ABUSE_AMULET_BETRAYAL);
                 pline("%s accepts your gift, and gains dominion over %s...",
                       a_gname(), u_gname());
                 pline("%s is enraged...", u_gname());
@@ -2294,6 +2299,7 @@ dosacrifice()
             change_luck(-3);
             if (u.ualign.type != A_NONE) {
                 adjalign(-1);
+                record_abuse_event(-1, ABUSE_DECEPTION);
                 u.ugangr += 3;
             }
             value = -3;
@@ -2350,6 +2356,7 @@ dosacrifice()
                 } else {
                     u.ugangr += 3;
                     adjalign(-5);
+                    record_abuse_event(-5, ABUSE_SAC_REJECTED);
                     pline("%s rejects your sacrifice!", a_gname());
                     godvoice(altaralign, "Suffer, infidel!");
                     change_luck(-5);

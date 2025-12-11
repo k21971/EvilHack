@@ -7,6 +7,64 @@
 
 typedef schar aligntyp; /* basic alignment type */
 
+/* Alignment abuse event types for tracking recent transgressions */
+enum abuse_type {
+    ABUSE_NONE = 0,
+    /* Combat */
+    ABUSE_ATTACK_HELPLESS,     /* Knight attacking helpless/sleeping */
+    ABUSE_ATTACK_PEACEFUL,     /* attacking peaceful creature */
+    ABUSE_ATTACK_WOODLAND,     /* Druid attacking woodland */
+    ABUSE_ATTACK_ELBERETH,     /* attacking while on Elbereth */
+    /* Killing */
+    ABUSE_KILL_PEACEFUL,       /* killing peaceful */
+    ABUSE_KILL_PET,            /* murdering pet */
+    ABUSE_KILL_PRIEST,         /* killing coaligned priest */
+    ABUSE_KILL_GUARDIAN,       /* killing quest guardian */
+    ABUSE_KILL_LEADER,         /* killing quest leader */
+    ABUSE_KILL_UNICORN,        /* killing same-aligned unicorn */
+    /* Dishonorable weapons */
+    ABUSE_USE_POISON,          /* poison weapon */
+    ABUSE_USE_DISEASE,         /* disease weapon */
+    /* Theft */
+    ABUSE_LYING,               /* lying to a guard */
+    ABUSE_SHOPLIFTING,         /* stealing from a shop */
+    ABUSE_VANDALISM,           /* damaging a shop */
+    ABUSE_PICKPOCKET,          /* caught pickpocketing */
+    /* Sacrifice */
+    ABUSE_SAC_PET,             /* sacrificing pet */
+    ABUSE_SAC_SAME_RACE,       /* same-race sacrifice */
+    /* Environmental */
+    ABUSE_GRAVE_ROB,           /* grave robbing */
+    ABUSE_DESTROY_TREE,        /* destroying a tree */
+    /* Conduct */
+    ABUSE_GLUTTONY,            /* Knight gluttony */
+    ABUSE_CANNIBALISM,         /* eating own kind */
+    ABUSE_GENOCIDE_HUMAN,      /* genociding humans */
+    /* Religious */
+    ABUSE_QUEST_BETRAYAL,      /* betraying quest leader */
+    ABUSE_COWARDICE,           /* Infidel Elbereth */
+    /* Mounting */
+    ABUSE_STEED_DEATH,         /* steed killed by hazard */
+    ABUSE_PET_PUSH,            /* pushing pet into hazard */
+    /* Spells */
+    ABUSE_SPELL_PEACEFUL,      /* spell turns peaceful hostile */
+    /* Artifact */
+    ABUSE_VECNA,               /* invoking Vecna artifact */
+    /* Role-specific */
+    ABUSE_FORBIDDEN_WEAPON,    /* Monk/Priest using wrong weapon */
+    ABUSE_INFIDEL_GOOD,        /* Infidel doing good deeds */
+    /* Prayer/Sacrifice */
+    ABUSE_WRONG_ALTAR,         /* praying at wrong altar */
+    ABUSE_DECEPTION,           /* trickery/fake Amulet */
+    ABUSE_AMULET_BETRAYAL,     /* offering Amulet to wrong deity */
+    ABUSE_SAC_REJECTED,        /* Amulet sacrifice rejected (Infidel) */
+    ABUSE_REFUSE_TITHE,        /* refusing temple contribution */
+    /* Archeologist */
+    ABUSE_HISTORIC_STATUE,     /* damaging historic statue */
+    /* Special NPCs */
+    ABUSE_ATTACK_ENCHANTRESS   /* attacking Kathryn the Enchantress */
+};
+
 typedef struct align { /* alignment & record */
     aligntyp type;
     int record;

@@ -976,8 +976,10 @@ struct monst *priest;
               Monnam(priest));
         if ((offer = bribe(priest)) == 0) {
             verbalize("Thou shalt regret thine action!");
-            if (coaligned)
+            if (coaligned) {
                 adjalign(-1);
+                record_abuse_event(-1, ABUSE_REFUSE_TITHE);
+            }
         } else if (offer < (u.ulevel * 200)) {
             if (money_cnt(invent) > (offer * 2L)) {
                 verbalize("Cheapskate.");

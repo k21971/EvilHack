@@ -4790,4 +4790,5 @@ The following changes to date are:
 - Separate thievery from forcefight, create #steal command
 - Fix: refactor sacrifice gift system, fix prayer spellbook bugs
 - Fix: NULL edog pointer crash in pet handling code
+- Feature: alignment abuse event history via #conduct
 

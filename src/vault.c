@@ -475,6 +475,7 @@ invault()
             && strncmpi(buf, plname, (int) strlen(plname)) != 0) {
             You_feel("guilty.");
             adjalign(-1); /* Liar! */
+            record_abuse_event(-1, ABUSE_LYING);
         }
 
         if (!strcmpi(buf, "Croesus") || !strcmpi(buf, "Kroisos")

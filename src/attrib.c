@@ -1421,6 +1421,111 @@ int n;
     }
 }
 
+/* Record alignment abuse event in circular buffer */
+void
+record_abuse_event(penalty, atype)
+int penalty;
+int atype;
+{
+    struct abuse_event *evt;
+
+    if (penalty >= 0) /* only record actual penalties */
+        return;
+
+    evt = &u.uabuse_history[u.uabuse_hist_idx];
+    evt->turn = monstermoves;
+    evt->abuse_type = (short) atype;
+    evt->penalty = (short) (-penalty); /* store as positive for display */
+    u.uabuse_hist_idx = (u.uabuse_hist_idx + 1) % MAX_ABUSE_HISTORY;
+}
+
+/* Get human-readable name for abuse type */
+const char *
+abuse_type_name(atype)
+int atype;
+{
+    switch (atype) {
+    case ABUSE_ATTACK_HELPLESS:
+        return "attacking a helpless creature";
+    case ABUSE_ATTACK_PEACEFUL:
+        return "attacking a peaceful creature";
+    case ABUSE_ATTACK_WOODLAND:
+        return "attacking a woodland creature";
+    case ABUSE_ATTACK_ELBERETH:
+        return "violating Elbereth truce";
+    case ABUSE_KILL_PEACEFUL:
+        return "killing a peaceful creature";
+    case ABUSE_KILL_PET:
+        return "murdering your pet";
+    case ABUSE_KILL_PRIEST:
+        return "killing a coaligned priest";
+    case ABUSE_KILL_GUARDIAN:
+        return "killing a quest guardian";
+    case ABUSE_KILL_LEADER:
+        return "killing your quest leader";
+    case ABUSE_KILL_UNICORN:
+        return "killing a same-aligned unicorn";
+    case ABUSE_USE_POISON:
+        return "using a poisoned weapon";
+    case ABUSE_USE_DISEASE:
+        return "using a diseased weapon";
+    case ABUSE_LYING:
+        return "lying to a guard";
+    case ABUSE_SHOPLIFTING:
+        return "shoplifting";
+    case ABUSE_VANDALISM:
+        return "vandalizing a shop";
+    case ABUSE_PICKPOCKET:
+        return "caught pickpocketing";
+    case ABUSE_SAC_PET:
+        return "sacrificing your pet";
+    case ABUSE_SAC_SAME_RACE:
+        return "same-race sacrifice";
+    case ABUSE_GRAVE_ROB:
+        return "grave robbing";
+    case ABUSE_DESTROY_TREE:
+        return "destroying a tree";
+    case ABUSE_GLUTTONY:
+        return "gluttony";
+    case ABUSE_CANNIBALISM:
+        return "cannibalism";
+    case ABUSE_GENOCIDE_HUMAN:
+        return "genociding humans";
+    case ABUSE_QUEST_BETRAYAL:
+        return "betraying your quest leader";
+    case ABUSE_COWARDICE:
+        return "cowardice before Moloch";
+    case ABUSE_STEED_DEATH:
+        return "steed dying from hazard";
+    case ABUSE_PET_PUSH:
+        return "pushing pet into hazard";
+    case ABUSE_SPELL_PEACEFUL:
+        return "hostile spell on peaceful";
+    case ABUSE_VECNA:
+        return "invoking Vecna's power";
+    case ABUSE_FORBIDDEN_WEAPON:
+        return "using a forbidden weapon";
+    case ABUSE_INFIDEL_GOOD:
+        return "doing good deeds";
+    case ABUSE_WRONG_ALTAR:
+        return "praying at wrong altar";
+    case ABUSE_DECEPTION:
+        return "attempted deception";
+    case ABUSE_AMULET_BETRAYAL:
+        return "offering Amulet to wrong deity";
+    case ABUSE_SAC_REJECTED:
+        return "rejected Amulet sacrifice";
+    case ABUSE_REFUSE_TITHE:
+        return "refusing temple contribution";
+    case ABUSE_HISTORIC_STATUE:
+        return "damaging a historic statue";
+    case ABUSE_ATTACK_ENCHANTRESS:
+        return "attacking the Enchantress";
+    default:
+        return "transgression";
+    }
+}
+
 /* change hero's alignment type, possibly losing use of artifacts */
 void
 uchangealign(newalign, reason)

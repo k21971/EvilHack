@@ -956,6 +956,7 @@ int *fail_reason;
         if (historic) {
             You_feel("guilty %s.", historic_statue_is_gone);
             adjalign(-1);
+            record_abuse_event(-1, ABUSE_HISTORIC_STATUE);
         }
     } else {
         if (historic && cansee(x, y))

@@ -1469,9 +1469,11 @@ no_rise:
                                  Role_if(PM_MONK) ? "especially " : "");
                         u.ugangr++;
                         adjalign(-15);
+                        record_abuse_event(-15, ABUSE_CANNIBALISM);
                     } else if (u.ualign.type == A_NEUTRAL) {
                         You_feel("guilty.");
                         adjalign(-3);
+                        record_abuse_event(-3, ABUSE_CANNIBALISM);
                     }
                     exercise(A_CON, FALSE);
                 }

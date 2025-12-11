@@ -2036,6 +2036,7 @@ domove_core()
                     if (Role_if(PM_DRUID)) {
                         You_feel("very guilty.");
                         adjalign(-15);
+                        record_abuse_event(-15, ABUSE_DESTROY_TREE);
                         change_luck(-7);
                         /* deity becomes "very" angry */
                         u.ugangr += 5;
@@ -2044,6 +2045,7 @@ domove_core()
                            not as severely */
                         You_feel("guilty.");
                         adjalign(-5);
+                        record_abuse_event(-5, ABUSE_DESTROY_TREE);
                         change_luck(-2);
                     }
                 }
@@ -2304,6 +2306,7 @@ domove_core()
                 abuse_dog(mtmp);
                 You_feel("guilty.");
                 adjalign(-3);
+                record_abuse_event(-3, ABUSE_PET_PUSH);
                 break;
             case 2:
                 /* drowned or died...
@@ -2332,10 +2335,13 @@ domove_core()
                 if (rn2(4)) {
                     You_feel("guilty about losing your pet like this.");
                     u.ugangr++;
-                    if (u.ualign.type == A_NONE)
+                    if (u.ualign.type == A_NONE) {
                         adjalign(-3);
-                    else
+                        record_abuse_event(-3, ABUSE_PET_PUSH);
+                    } else {
                         adjalign(-15);
+                        record_abuse_event(-15, ABUSE_PET_PUSH);
+                    }
                 }
                 break;
             default:

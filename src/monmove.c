@@ -530,6 +530,7 @@ int *inrange, *nearby, *scared;
             You_feel("like a coward.");
             context.coward = TRUE; /* once per move */
             adjalign(-5);
+            record_abuse_event(-5, ABUSE_COWARDICE);
         }
     } else
         *scared = 0;

@@ -2373,9 +2373,12 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             if (Role_if(PM_SAMURAI)) {
                 You("dishonorably use a diseased weapon!");
                 adjalign(-sgn(u.ualign.type));
+                record_abuse_event(-sgn(u.ualign.type), ABUSE_USE_DISEASE);
             } else if (u.ualign.type == A_LAWFUL && u.ualign.record > -10) {
+                int penalty = Role_if(PM_KNIGHT) ? -10 : -1;
                 You_feel("like an evil coward for using a diseased weapon.");
-                adjalign(Role_if(PM_KNIGHT) ? -10 : -1);
+                adjalign(penalty);
+                record_abuse_event(penalty, ABUSE_USE_DISEASE);
             }
         }
         if (realizes_damage) {
@@ -3637,6 +3640,7 @@ struct obj *obj;
                                         if (u.ualign.type != A_NONE) {
                                             You_feel("distraught.");
                                             adjalign(-3);
+                                            record_abuse_event(-3, ABUSE_SPELL_PEACEFUL);
                                         }
                                     }
                                 }
@@ -3663,6 +3667,7 @@ struct obj *obj;
                                         if (u.ualign.type != A_NONE) {
                                             You_feel("distraught.");
                                             adjalign(-3);
+                                            record_abuse_event(-3, ABUSE_SPELL_PEACEFUL);
                                         }
                                     }
                                     break;
@@ -3686,6 +3691,7 @@ struct obj *obj;
                                         if (u.ualign.type != A_NONE) {
                                             You_feel("distraught.");
                                             adjalign(-3);
+                                            record_abuse_event(-3, ABUSE_SPELL_PEACEFUL);
                                         }
                                     }
                                 }
@@ -3700,9 +3706,11 @@ struct obj *obj;
                 if (u.ualign.type == A_LAWFUL) {
                     You_feel("very guilty.");
                     adjalign(-7);
+                    record_abuse_event(-7, ABUSE_VECNA);
                 } else {
                     You_feel("guilty.");
                     adjalign(-3);
+                    record_abuse_event(-3, ABUSE_VECNA);
                 }
             }
             /* Infidels get a bit more leeway from Moloch */

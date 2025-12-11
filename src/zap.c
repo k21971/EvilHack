@@ -5713,6 +5713,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
                 if (Role_if(PM_DRUID)) {
                     You_feel("very guilty.");
                     adjalign(-15);
+                    record_abuse_event(-15, ABUSE_DESTROY_TREE);
                     change_luck(-7);
                     /* deity becomes "very" angry */
                     u.ugangr += 5;
@@ -5721,6 +5722,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
                        not as severely */
                     You_feel("guilty.");
                     adjalign(-5);
+                    record_abuse_event(-5, ABUSE_DESTROY_TREE);
                     change_luck(-2);
                 }
             }
@@ -6030,6 +6032,7 @@ boolean moncast;
                 if (Role_if(PM_DRUID)) {
                     You_feel("very guilty.");
                     adjalign(-15);
+                    record_abuse_event(-15, ABUSE_DESTROY_TREE);
                     change_luck(-7);
                     /* deity becomes "very" angry */
                     u.ugangr += 5;
@@ -6038,6 +6041,7 @@ boolean moncast;
                        not as severely */
                     You_feel("guilty.");
                     adjalign(-5);
+                    record_abuse_event(-5, ABUSE_DESTROY_TREE);
                     change_luck(-2);
                 }
             }
@@ -6404,6 +6408,7 @@ struct obj *obj;
     if (by_you && Role_if(PM_ARCHEOLOGIST) && (obj->spe & STATUE_HISTORIC)) {
         You_feel("guilty about damaging such a historic statue.");
         adjalign(-1);
+        record_abuse_event(-1, ABUSE_HISTORIC_STATUE);
     }
     obj->spe = 0;
     fracture_rock(obj);

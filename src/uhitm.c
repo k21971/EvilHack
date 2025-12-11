@@ -275,10 +275,12 @@ struct monst *mtmp;
             || (mtmp->mflee && !mtmp->mavenge))) {
         You("caitiff!");
         adjalign(-1);
+        record_abuse_event(-1, ABUSE_ATTACK_HELPLESS);
     } else if (Role_if(PM_SAMURAI) && mtmp->mpeaceful) {
         /* attacking peaceful creatures is bad for the samurai's giri */
         You("dishonorably attack the innocent!");
         adjalign(-1);
+        record_abuse_event(-1, ABUSE_ATTACK_PEACEFUL);
     } else if (Role_if(PM_DRUID) && mtmp->mpeaceful
         && (is_woodland_creature(mtmp->data)
             || is_woodland_being(mtmp->data)
@@ -286,6 +288,7 @@ struct monst *mtmp;
         /* attacking peaceful woodland creatures is bad for Druids */
         You("dare to attack your woodland brethren!");
         adjalign(-1);
+        record_abuse_event(-1, ABUSE_ATTACK_WOODLAND);
     }
 }
 
@@ -610,6 +613,7 @@ struct monst *mtmp;
                 Your("behavior has displeased %s.",
                      align_gname(u.ualign.type));
                 adjalign(-1);
+                record_abuse_event(-1, ABUSE_FORBIDDEN_WEAPON);
             }
         }
     }
@@ -1943,9 +1947,13 @@ int dieroll;
         if (Role_if(PM_SAMURAI)) {
             You("dishonorably use a poisoned weapon!");
             adjalign(-sgn(u.ualign.type));
+            record_abuse_event(-sgn(u.ualign.type), ABUSE_USE_POISON);
         } else if (u.ualign.type == A_LAWFUL && u.ualign.record > -10) {
+            int pen = Role_if(PM_KNIGHT) ? -3 : -1;
+
             You_feel("like an evil coward for using a poisoned weapon.");
-            adjalign(Role_if(PM_KNIGHT) ? -3 : -1);
+            adjalign(pen);
+            record_abuse_event(pen, ABUSE_USE_POISON);
         }
         if (obj && !rn2(nopoison)
             && !iskas && !isvenom && !isneedle) {
@@ -1971,9 +1979,13 @@ int dieroll;
         if (Role_if(PM_SAMURAI)) {
             You("dishonorably use a tainted weapon!");
             adjalign(-sgn(u.ualign.type));
+            record_abuse_event(-sgn(u.ualign.type), ABUSE_USE_POISON);
         } else if (u.ualign.type == A_LAWFUL && u.ualign.record > -10) {
+            int pen = Role_if(PM_KNIGHT) ? -3 : -1;
+
             You_feel("like an evil coward for using a tainted weapon.");
-            adjalign(Role_if(PM_KNIGHT) ? -3 : -1);
+            adjalign(pen);
+            record_abuse_event(pen, ABUSE_USE_POISON);
         }
         if (obj && !rn2(notaint)) {
             /* remove drow poison now in case obj ends up in a bones file */
@@ -2800,6 +2812,7 @@ struct attack *mattk;
                         if (p_coaligned(mdef)) {
                             You_feel("guilty.");
                             adjalign(-5); /* very bad */
+                            record_abuse_event(-5, ABUSE_PICKPOCKET);
                         } else {
                             adjalign(2);
                         }

@@ -515,6 +515,7 @@ struct monst *shkp;
         && u.ualign.type != A_NONE) { /* stealing is unlawful */
         You_feel("guilty.");
         adjalign(-sgn(u.ualign.type));
+        record_abuse_event(-sgn(u.ualign.type), ABUSE_SHOPLIFTING);
     }
 
     hot_pursuit(shkp);
@@ -4403,6 +4404,7 @@ register int fall;
         if (Role_if(PM_KNIGHT)) {
             You_feel("like a common thief.");
             adjalign(-sgn(u.ualign.type));
+            record_abuse_event(-sgn(u.ualign.type), ABUSE_VANDALISM);
         }
         return;
     }
@@ -4425,6 +4427,7 @@ register int fall;
         if (Role_if(PM_KNIGHT)) {
             You_feel("like a common thief.");
             adjalign(-sgn(u.ualign.type));
+            record_abuse_event(-sgn(u.ualign.type), ABUSE_VANDALISM);
         }
     } else if (!um_dist(shkp->mx, shkp->my, 5)
                && !shkp->msleeping && shkp->mcanmove
@@ -4692,6 +4695,7 @@ boolean cant_mollify;
         if (!(Role_if(PM_CONVICT) || u.ualign.type == A_NONE)) {
             You_feel("guilty.");
             adjalign(-sgn(u.ualign.type));
+            record_abuse_event(-sgn(u.ualign.type), ABUSE_VANDALISM);
         }
     }
 }

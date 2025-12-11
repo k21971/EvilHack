@@ -13,6 +13,14 @@
 #endif
 #include "skills.h"
 
+/* Alignment abuse event tracking */
+#define MAX_ABUSE_HISTORY 5
+struct abuse_event {
+    long turn;          /* monstermoves when event occurred */
+    short abuse_type;   /* enum abuse_type value */
+    short penalty;      /* alignment penalty (stored as positive) */
+};
+
 /*** Substructures ***/
 
 struct RoleName {
@@ -431,6 +439,8 @@ struct you {
 #define MAX_GIFT_HISTORY 50  /* track last N non-artifact sacrifice gifts */
     short ugift_history[MAX_GIFT_HISTORY]; /* otyp values of recent gifts */
     xchar ugift_hist_idx;    /* next write position (circular buffer) */
+    struct abuse_event uabuse_history[MAX_ABUSE_HISTORY]; /* last N abuse events */
+    xchar uabuse_hist_idx;   /* next write position (circular buffer) */
     int ublessed, ublesscnt; /* blessing/duration from #pray */
     long umoney0;
     long uspare1;

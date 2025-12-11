@@ -1267,6 +1267,7 @@ int reason; /* Player was thrown off etc. */
                         killed(mtmp);
                         You_feel("guilty.");
                         adjalign(-1);
+                        record_abuse_event(-1, ABUSE_STEED_DEATH);
                     }
                 } else if (is_lava(u.ux, u.uy)) {
                     pline("%s is pulled into the %s!", Monnam(mtmp),
@@ -1275,6 +1276,7 @@ int reason; /* Player was thrown off etc. */
                         killed(mtmp);
                         You_feel("guilty.");
                         adjalign(-1);
+                        record_abuse_event(-1, ABUSE_STEED_DEATH);
                     }
                 } else if (is_open_air(u.ux, u.uy)) {
                     pline("%s plummets several thousand feet to %s death.",
@@ -1283,6 +1285,7 @@ int reason; /* Player was thrown off etc. */
                     mongone(mtmp);
                     You_feel("guilty.");
                     adjalign(-1);
+                    record_abuse_event(-1, ABUSE_STEED_DEATH);
                 }
             }
             /* Steed dismounting consists of two steps: being moved to another
@@ -1331,6 +1334,7 @@ int reason; /* Player was thrown off etc. */
                 killed(mtmp);
                 You_feel("guilty.");
                 adjalign(-1);
+                record_abuse_event(-1, ABUSE_STEED_DEATH);
             } else {
                 /* other dismount: kill former steed with no penalty;
                    damage type is just "neither AD_DGST nor -AD_RBRE" */

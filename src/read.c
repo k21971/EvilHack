@@ -274,7 +274,6 @@ char *buf;
         "1027820",   /* O.J. Simpson */
     };
 
-
     msgidx = striped->o_id ^ (unsigned) ubirthday;
 
     Strcpy(buf, striped_msgs[msgidx % SIZE(striped_msgs)]);
@@ -3042,6 +3041,7 @@ int how;
                 if (u.ualign.type == A_LAWFUL)
                     You_feel("guilty.");
                 adjalign(-sgn(u.ualign.type));
+                record_abuse_event(-sgn(u.ualign.type), ABUSE_GENOCIDE_HUMAN);
             }
             if (is_demon(ptr))
                 adjalign(sgn(u.ualign.type));

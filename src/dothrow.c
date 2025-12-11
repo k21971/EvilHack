@@ -2149,6 +2149,7 @@ struct obj *obj; /* thrownobj or kickedobj or uwep */
                           rn2(2) ? "angers" : "displeases",
                           align_gname(u.ualign.type));
                     adjalign(-1);
+                    record_abuse_event(-1, ABUSE_FORBIDDEN_WEAPON);
                 }
                 exercise(A_WIS, FALSE);
             }

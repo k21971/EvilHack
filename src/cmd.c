@@ -4094,6 +4094,38 @@ int final;
         display_nhwindow(awin, TRUE);
         destroy_nhwindow(awin);
     }
+
+    /* Display last alignment abuse events */
+    if (u.ualign.abuse != 0) {
+        char buf[BUFSZ];
+        int i, count = 0, start;
+        struct abuse_event *evt;
+
+        /* Count valid entries */
+        for (i = 0; i < MAX_ABUSE_HISTORY; i++)
+            if (u.uabuse_history[i].turn > 0)
+                count++;
+
+        if (count > 0) {
+            putstr(en_win, ATR_HEADING, "Last alignment abuse events:");
+
+            /* Display in reverse chronological order */
+            start = (u.uabuse_hist_idx - 1 + MAX_ABUSE_HISTORY)
+                    % MAX_ABUSE_HISTORY;
+            for (i = 0; i < count && i < MAX_ABUSE_HISTORY; i++) {
+                int idx = (start - i + MAX_ABUSE_HISTORY) % MAX_ABUSE_HISTORY;
+
+                evt = &u.uabuse_history[idx];
+                if (evt->turn > 0) {
+                    Sprintf(buf, " Turn %ld: %s (-%d)",
+                            evt->turn,
+                            abuse_type_name(evt->abuse_type),
+                            evt->penalty);
+                    putstr(en_win, 0, buf);
+                }
+            }
+        }
+    }
 }
 
 /* ordered by command name */

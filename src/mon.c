@@ -3897,6 +3897,7 @@ struct monst *mtmp;
         } else {
             You_feel("very guilty.");
             adjalign(-15);
+            record_abuse_event(-15, ABUSE_ATTACK_ENCHANTRESS);
         }
         change_luck(-15);
         return;
@@ -4754,6 +4755,8 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
             else
                 You("have a vague sense of intense guilt.");
             adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
+            record_abuse_event(-(u.ualign.record + (int) ALIGNLIM / 2),
+                               ABUSE_KILL_LEADER);
         }
         if (u.ualign.type == A_NONE)
             ; /* Moloch's indifference */
@@ -4774,6 +4777,8 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
            is now bound to a different deity, they don't take
            kindly to one of their own being killed */
         adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
+        record_abuse_event(-(u.ualign.record + (int) ALIGNLIM / 2),
+                           ABUSE_KILL_LEADER);
         u.ugangr += 7; /* instantly become "extremely" angry */
         change_luck(-20);
         if (!Hallucination)
@@ -4793,6 +4798,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                 else
                     You("have a vague sense of guilt.");
                 adjalign(-(int) (ALIGNLIM / 8));
+                record_abuse_event(-(int) (ALIGNLIM / 8), ABUSE_KILL_GUARDIAN);
             }
             if (u.ualign.type == A_NONE)
                 ; /* Moloch's indifference */
@@ -4806,6 +4812,8 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
         }
     } else if (mtmp->ispriest && mtmp != &museum) {
         adjalign((p_coaligned(mtmp)) ? -2 : 2);
+        if (p_coaligned(mtmp))
+            record_abuse_event(-2, ABUSE_KILL_PRIEST);
         /* cancel divine protection for killing your priest */
         if (p_coaligned(mtmp))
             u.ublessed = 0;
@@ -4822,12 +4830,14 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
             else
                 You("have a vague sense of remorse.");
             adjalign(-3); /* kinda bad, but it's how you roll */
+            record_abuse_event(-3, ABUSE_KILL_PET);
         } else {
             if (canspotmon(mtmp))
                 You_feel("very guilty.");
             else
                 You("have a vague sense of intense guilt.");
             adjalign(-15); /* bad!! */
+            record_abuse_event(-15, ABUSE_KILL_PET);
         }
         /* your god is mighty displeased... */
         if (!Deaf) {
@@ -5424,18 +5434,22 @@ boolean via_attack;
                     else
                         You("have a vague sense of guilt.");
                     adjalign(-5); /* very bad */
+                    record_abuse_event(-5, ABUSE_KILL_PRIEST);
                 } else {
                     adjalign(2);
                 }
             } else {
                 /* Infidels and Convicts don't feel guilt from this */
                 if (!(u.ualign.type == A_NONE || Role_if(PM_CONVICT))) {
+                    int pen = u.ualign.type > A_CHAOTIC ? -5 : -1;
+
                     if (canspotmon(mtmp))
                         You_feel("guilty.");
                     else
                         You("have a vague sense of guilt.");
                     /* attacking peaceful monsters is bad */
-                    adjalign(u.ualign.type > A_CHAOTIC ? -5 : -1);
+                    adjalign(pen);
+                    record_abuse_event(pen, ABUSE_KILL_PEACEFUL);
                 }
             }
         }
@@ -5527,6 +5541,7 @@ boolean via_attack;
                                     else
                                         You("have a vague sense of guilt.");
                                     adjalign(-1);
+                                    record_abuse_event(-1, ABUSE_ATTACK_PEACEFUL);
                                 }
                                 if (!exclaimed)
                                     pline("%s gets angry!", Monnam(mon));
@@ -7070,6 +7085,7 @@ struct monst *mtmp;
     if (u.ualign.type == A_NONE) {
         You_feel("guilty.");
         adjalign(-2); /* doing good things as an agent of Moloch? pfft */
+        record_abuse_event(-2, ABUSE_INFIDEL_GOOD);
     } else {
         adjalign(2);
     }

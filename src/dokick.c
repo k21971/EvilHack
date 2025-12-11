@@ -1201,6 +1201,7 @@ dokick()
                 || ((u.ualign.type == A_LAWFUL) && (u.ualign.record > -10))) {
                 You_feel("guilty.");
                 adjalign(-sgn(u.ualign.type));
+                record_abuse_event(-sgn(u.ualign.type), ABUSE_GRAVE_ROB);
             }
             maploc->typ = ROOM;
             maploc->doormask = 0;

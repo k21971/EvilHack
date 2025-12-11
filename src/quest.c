@@ -345,6 +345,7 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                    quest won't be complete until the quest leader is defeated */
                 Qstat(pissed_off) = 1;
                 adjalign(-10); /* god less happy, much sad */
+                record_abuse_event(-10, ABUSE_QUEST_BETRAYAL);
                 if (u.ualign.type == A_NONE)
                     verbalize(
                       "I wouldn't expect anything less from a servant of Moloch.  However, I will not tolerate your insolence!");

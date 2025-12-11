@@ -283,6 +283,7 @@ struct obj *food;
             return;
     } else if (Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL) {
         adjalign(-2); /* gluttony is unchivalrous */
+        record_abuse_event(-2, ABUSE_GLUTTONY);
         You_feel("like a glutton!");
     }
 
@@ -1475,6 +1476,7 @@ violated_vegetarian()
         && !Race_if(PM_VAMPIRE)) {
         You_feel("guilty.");
         adjalign(-1);
+        record_abuse_event(-1, ABUSE_CANNIBALISM);
     }
     return;
 }

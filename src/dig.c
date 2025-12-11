@@ -456,6 +456,7 @@ dig(VOID_ARGS)
                     if (Role_if(PM_DRUID)) {
                         digtxt = "You cut down the tree.  You feel very guilty.";
                         adjalign(-15);
+                        record_abuse_event(-15, ABUSE_DESTROY_TREE);
                         change_luck(-7);
                         /* deity becomes "very" angry */
                         u.ugangr += 5;
@@ -464,6 +465,7 @@ dig(VOID_ARGS)
                            not as severely */
                         digtxt = "You cut down the tree.  You feel guilty.";
                         adjalign(-5);
+                        record_abuse_event(-5, ABUSE_DESTROY_TREE);
                         change_luck(-2);
                     } else {
                         digtxt = "You cut down the tree.";
@@ -1015,13 +1017,18 @@ coord *cc;
     /* Grave-robbing is frowned upon... */
     exercise(A_WIS, FALSE);
     if (Role_if(PM_ARCHEOLOGIST)) {
-        adjalign(-sgn(u.ualign.type) * 3);
+        int pen = -sgn(u.ualign.type) * 3;
+
+        adjalign(pen);
+        record_abuse_event(pen, ABUSE_GRAVE_ROB);
         You_feel("like a despicable grave-robber!");
     } else if (Role_if(PM_SAMURAI)) {
         adjalign(-sgn(u.ualign.type));
+        record_abuse_event(-sgn(u.ualign.type), ABUSE_GRAVE_ROB);
         You("disturb the honorable dead!");
     } else if ((u.ualign.type == A_LAWFUL) && (u.ualign.record > -10)) {
         adjalign(-sgn(u.ualign.type));
+        record_abuse_event(-sgn(u.ualign.type), ABUSE_GRAVE_ROB);
         You("have violated the sanctity of this grave!");
     }
 

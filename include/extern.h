@@ -143,6 +143,8 @@ E void FDECL(adjalign, (int));
 E int FDECL(is_innate, (int));
 E char *FDECL(from_what, (int));
 E void FDECL(uchangealign, (int, int));
+E void FDECL(record_abuse_event, (int, int));
+E const char *FDECL(abuse_type_name, (int));
 
 /* ### ball.c ### */
 
