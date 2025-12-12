@@ -4793,4 +4793,5 @@ The following changes to date are:
 - Feature: alignment abuse event history via #conduct
 - Fix: refactor mcastu.c - consolidate spell handlers, fix bugs, remove
   code duplication
+- Fix: bit of code cleanup in mcastu.c
 

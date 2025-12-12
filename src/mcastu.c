@@ -1688,13 +1688,13 @@ int dmg, spellnum;
                     || caster->data == &mons[PM_ASMODEUS]
                     || caster->data == &mons[PM_VECNA]) {
                     if (Vulnerable_cold)
-                        return;
+                        break;
                     incr_itimeout(&HVulnerable_cold, rnd(100) + 150);
                     You_feel("extremely chilly.");
                     break;
                 } else {
                     if (Vulnerable_fire)
-                        return;
+                        break;
                     incr_itimeout(&HVulnerable_fire, rnd(100) + 150);
                     You_feel("more inflammable.");
                     break;
@@ -1702,19 +1702,19 @@ int dmg, spellnum;
                 break;
             case 2:
                 if (Vulnerable_cold)
-                    return;
+                    break;
                 incr_itimeout(&HVulnerable_cold, rnd(100) + 150);
                 You_feel("extremely chilly.");
                 break;
             case 3:
                 if (Vulnerable_elec)
-                    return;
+                    break;
                 incr_itimeout(&HVulnerable_elec, rnd(100) + 150);
                 You_feel("overly conductive.");
                 break;
             case 4:
                 if (Vulnerable_acid)
-                    return;
+                    break;
                 incr_itimeout(&HVulnerable_acid, rnd(100) + 150);
                 You_feel("easily corrodable.");
                 break;
@@ -1731,28 +1731,28 @@ int dmg, spellnum;
                 case 1:
                     if ((target->data->mflags4 & M4_VULNERABLE_FIRE) != 0
                         || target->vuln_fire)
-                        return;
+                        break;
                     target->vuln_fire = rnd(100) + 150;
                     pline("%s is more inflammable.", Monnam(target));
                     break;
                 case 2:
                     if ((target->data->mflags4 & M4_VULNERABLE_COLD) != 0
                         || target->vuln_cold)
-                        return;
+                        break;
                     target->vuln_cold = rnd(100) + 150;
                     pline("%s is extremely chilly.", Monnam(target));
                     break;
                 case 3:
                     if ((target->data->mflags4 & M4_VULNERABLE_ELEC) != 0
                         || target->vuln_elec)
-                        return;
+                        break;
                     target->vuln_elec = rnd(100) + 150;
                     pline("%s is overly conductive.", Monnam(target));
                     break;
                 case 4:
                     if ((target->data->mflags4 & M4_VULNERABLE_ACID) != 0
                         || target->vuln_acid)
-                        return;
+                        break;
                     target->vuln_acid = rnd(100) + 150;
                     pline("%s is easily corrodable.", Monnam(target));
                     break;
@@ -1929,7 +1929,7 @@ int spellnum;
     boolean yours = (caster == &youmonst);
     boolean youdefend = (target == &youmonst);
     boolean evilpriest;
-    boolean mcouldseeu;
+    boolean mcouldseeu = FALSE;
     int dist;
 
     /* Calculate distance between caster and target */
