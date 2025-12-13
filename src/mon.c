@@ -3512,6 +3512,11 @@ struct monst *mtmp2, *mtmp1;
             newerac(mtmp2);
         *ERAC(mtmp2) = *ERAC(mtmp1);
     }
+    if (EMSP(mtmp1)) {
+        if (!EMSP(mtmp2))
+            newemsp(mtmp2);
+        *EMSP(mtmp2) = *EMSP(mtmp1);
+    }
     if (has_mcorpsenm(mtmp1))
         MCORPSENM(mtmp2) = MCORPSENM(mtmp1);
 }
@@ -3539,6 +3544,8 @@ struct monst *m;
             free((genericptr_t) x->erid);
         if (x->erac)
             free((genericptr_t) x->erac);
+        if (x->emsp)
+            free((genericptr_t) x->emsp);
         /* [no action needed for x->mcorpsenm] */
 
         free((genericptr_t) x);

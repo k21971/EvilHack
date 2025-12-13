@@ -26,7 +26,8 @@ enum mcast_mage_spells {
     MGC_CLONE_WIZ,
     MGC_CANCELLATION,
     MGC_REFLECTION,
-    MGC_DEATH_TOUCH
+    MGC_DEATH_TOUCH,
+    MGC_LEARNED_SPELL /* spell learned from spellbook */
 };
 
 /* monster cleric spells */
@@ -175,6 +176,13 @@ struct monst* mtmp;
 int spellval;
 {
     int i;
+
+    /* 1 in 4 chance to try a learned spell if monster knows any */
+    if (has_emsp(mtmp) && !rn2(4)) {
+        short learned = mchoose_learned_spell(mtmp);
+        if (learned != 0)
+            return MGC_LEARNED_SPELL;
+    }
 
     /* monster level needs to be [case value] + 1
        in order to cast that level of spell
@@ -1196,6 +1204,55 @@ int dmg, spellnum;
                       (dmg <= 5) ? "." : "!");
         }
         break;
+    case MGC_LEARNED_SPELL: {
+        /* Cast a spell learned from a spellbook */
+        short spell_otyp = mchoose_learned_spell(caster);
+
+        if (spell_otyp == 0) {
+            dmg = 0;
+            break; /* No castable spell available */
+        }
+
+        if (objects[spell_otyp].oc_class != SPBOOK_CLASS) {
+            impossible("MGC_LEARNED_SPELL: invalid spell otyp %d",
+                       spell_otyp);
+            dmg = 0;
+            break;
+        }
+
+        if (spell_otyp == SPE_FORCE_BOLT) {
+            /* Force bolt: IMMEDIATE attack spell using ray mechanics.
+               Like wand of striking, the bolt continues past the target
+               and can affect objects in its path (boulders, statues,
+               doors, fragile objects on the ground, etc). Requires line
+               of sight at range (just like other ranged attacks) */
+            int tx, ty;
+            if (youdefend) {
+                if (!lined_up(caster)) {
+                    dmg = 0;
+                    break; /* No clear line of sight */
+                }
+                tx = u.ux;
+                ty = u.uy;
+            } else if (target && !DEADMONSTER(target)) {
+                if (!mlined_up(caster, target, FALSE)) {
+                    dmg = 0;
+                    break; /* No clear line of sight */
+                }
+                tx = target->mx;
+                ty = target->my;
+            } else {
+                dmg = 0;
+                break;
+            }
+            mcast_force_bolt(caster, tx, ty);
+            dmg = 0; /* mbhitm handles all damage */
+        } else {
+            /* Unknown learned spell - shouldn't happen in POC */
+            dmg = 0;
+        }
+        break;
+    }
     default:
         impossible("do_wizard_spell: invalid magic spell (%d)", spellnum);
         dmg = 0;
@@ -2724,6 +2781,112 @@ struct attack *mattk;
     }
 
     return (ret);
+}
+
+/* Check if monster knows a specific spell */
+boolean
+mknows_spell(mtmp, otyp)
+struct monst *mtmp;
+int otyp;  /* spell object type */
+{
+    int i;
+
+    if (!has_emsp(mtmp))
+        return FALSE;
+    for (i = 0; i < MAXMONSPELL; i++) {
+        if (EMSP(mtmp)->msp_id[i] == otyp && EMSP(mtmp)->msp_know[i] > 0)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+/* Monster learns spell from spellbook; returns TRUE if learned */
+boolean
+mlearn_spell(mtmp, book)
+struct monst *mtmp;
+struct obj *book;
+{
+    int i;
+
+    if (!is_spellcaster(mtmp))
+        return FALSE;
+    if (mknows_spell(mtmp, book->otyp))
+        return FALSE; /* Already knows it */
+    if (book->spestudied >= MAX_SPELL_STUDY)
+        return FALSE; /* Book depleted */
+
+    /* Allocate emsp if needed */
+    if (!has_emsp(mtmp))
+        newemsp(mtmp);
+
+    /* Find empty slot */
+    for (i = 0; i < MAXMONSPELL; i++) {
+        if (EMSP(mtmp)->msp_id[i] == 0 || EMSP(mtmp)->msp_know[i] <= 0) {
+            EMSP(mtmp)->msp_id[i] = book->otyp;
+            EMSP(mtmp)->msp_know[i] = MSPELL_KEEN;
+            book->spestudied++;
+            return TRUE;
+        }
+    }
+    return FALSE; /* No room */
+}
+
+/* Get a random learned spell monster can cast; returns otyp or 0 */
+short
+mchoose_learned_spell(mtmp)
+struct monst *mtmp;
+{
+    short candidates[MAXMONSPELL];
+    int count = 0, i;
+    short spell_otyp;
+    int spell_level, required_mlev;
+
+    if (!has_emsp(mtmp))
+        return 0;
+
+    for (i = 0; i < MAXMONSPELL; i++) {
+        spell_otyp = EMSP(mtmp)->msp_id[i];
+        if (spell_otyp != 0 && EMSP(mtmp)->msp_know[i] > 0) {
+            /* Defensive bounds check for corrupted emsp data */
+            if (spell_otyp < SPE_FIREBALL || spell_otyp > SPE_BLANK_PAPER
+                || objects[spell_otyp].oc_class != SPBOOK_CLASS) {
+                impossible("mchoose_learned_spell: invalid otyp %d", spell_otyp);
+                EMSP(mtmp)->msp_id[i] = 0;  /* Clear corrupted entry */
+                continue;
+            }
+            /* Check if monster is high enough level to cast this spell.
+               Spell levels 1-7 map to required monster levels 3-21 */
+            spell_level = objects[spell_otyp].oc_level;
+            required_mlev = spell_level * 3;
+            if (mtmp->m_lev >= required_mlev)
+                candidates[count++] = spell_otyp;
+        }
+    }
+
+    if (count == 0)
+        return 0;
+    return candidates[rn2(count)];
+}
+
+/* Decay monster spell knowledge - call from moveloop */
+void
+mage_spells(mtmp)
+struct monst *mtmp;
+{
+    int i;
+    struct emsp *esp;
+
+    if (!has_emsp(mtmp))
+        return;
+
+    esp = EMSP(mtmp);
+    for (i = 0; i < MAXMONSPELL; i++) {
+        if (esp->msp_id[i] != 0 && esp->msp_know[i] > 0) {
+            esp->msp_know[i]--;
+            if (esp->msp_know[i] <= 0)
+                esp->msp_id[i] = 0; /* Forgot spell */
+        }
+    }
 }
 
 /*mcastu.c*/

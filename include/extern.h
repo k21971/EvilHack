@@ -1312,6 +1312,7 @@ E void FDECL(newmcorpsenm, (struct monst *));
 E void FDECL(freemcorpsenm, (struct monst *));
 E void FDECL(newerac, (struct monst *));
 E void FDECL(free_erac, (struct monst *));
+E void FDECL(newemsp, (struct monst *));
 E void FDECL(set_mimic_sym, (struct monst *));
 E int FDECL(mbirth_limit, (int));
 E void FDECL(mimic_hit_msg, (struct monst *, SHORT_P));
@@ -1336,6 +1337,10 @@ E int FDECL(buzzmu, (struct monst *, struct attack *));
 E int FDECL(buzzmm, (struct monst *, struct monst *, struct attack *));
 E int FDECL(castmm, (struct monst *, struct monst *, struct attack *));
 E int FDECL(castum, (struct monst *, struct attack *));
+E boolean FDECL(mknows_spell, (struct monst *, int));
+E boolean FDECL(mlearn_spell, (struct monst *, struct obj *));
+E short FDECL(mchoose_learned_spell, (struct monst *));
+E void FDECL(mage_spells, (struct monst *));
 
 /* ### mhitm.c ### */
 
@@ -1830,6 +1835,7 @@ E boolean FDECL(munstone, (struct monst *, BOOLEAN_P));
 E boolean FDECL(cures_stoning, (struct monst *, struct obj *, BOOLEAN_P));
 E boolean FDECL(munslime, (struct monst *, BOOLEAN_P));
 E void FDECL(mmake_wish, (struct monst *));
+E boolean FDECL(mcast_force_bolt, (struct monst *, int, int));
 
 /* ### music.c ### */
 

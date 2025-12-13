@@ -3178,6 +3178,7 @@ newmextra()
     mextra->edog = 0;
     mextra->erid = 0;
     mextra->erac = 0;
+    mextra->emsp = 0;
     mextra->mcorpsenm = NON_PM;
     return mextra;
 }
@@ -4620,6 +4621,19 @@ struct monst *mtmp;
     if (mtmp->mextra && ERAC(mtmp)) {
         free((genericptr_t) ERAC(mtmp));
         ERAC(mtmp) = (struct erac *) 0;
+    }
+}
+
+void
+newemsp(mtmp)
+struct monst *mtmp;
+{
+    if (!mtmp->mextra)
+        mtmp->mextra = newmextra();
+
+    if (!EMSP(mtmp)) {
+        EMSP(mtmp) = (struct emsp *) alloc(sizeof(struct emsp));
+        (void) memset((genericptr_t) EMSP(mtmp), 0, sizeof(struct emsp));
     }
 }
 

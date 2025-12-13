@@ -1217,7 +1217,10 @@ struct monst *mtmp;
         bwrite(fd, (genericptr_t) &buflen, sizeof(int));
         if (buflen > 0)
             bwrite(fd, (genericptr_t) ERAC(mtmp), buflen);
-
+        buflen = EMSP(mtmp) ? (int) sizeof (struct emsp) : 0;
+        bwrite(fd, (genericptr_t) &buflen, sizeof(int));
+        if (buflen > 0)
+            bwrite(fd, (genericptr_t) EMSP(mtmp), buflen);
 
         /* mcorpsenm is inline int rather than pointer to something,
            so doesn't need to be preceded by a length field */

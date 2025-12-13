@@ -2088,29 +2088,40 @@ struct obj *otmp;
     }
     switch (otmp->otyp) {
     case WAN_STRIKING:
+    case SPE_FORCE_BOLT:
         reveal_invis = TRUE;
         if (last_hurtled && mtmp == last_hurtled) {
             ; /* do nothing */
         } else if (hits_you) {
-            if (zap_oseen)
+            if (zap_oseen && otmp->otyp == WAN_STRIKING)
                 makeknown(WAN_STRIKING);
             if (Antimagic) {
                 shieldeff(u.ux, u.uy);
                 monstseesu(M_SEEN_MAGR);
                 pline("Boing!");
             } else if (rnd(20) < 10 + u.uac) {
-                pline_The("wand hits you!");
-                tmp = d(2, 12);
+                if (otmp->otyp == WAN_STRIKING)
+                    pline_The("wand hits you!");
+                else
+                    pline("The force bolt hits you!");
+                tmp = d(2, (otmp->otyp == WAN_STRIKING) ? 12 : 6);
+                /* Force bolt damage scales with caster level */
+                if (otmp->otyp == SPE_FORCE_BOLT && mcarried(otmp))
+                    tmp += otmp->ocarry->m_lev / 3;
                 if (Half_spell_damage)
                     tmp = (tmp + 1) / 2;
-                if (tmp > 16 && mcarried(otmp)
+                /* Knockback threshold: 16 for wand, 12 for spell */
+                if (tmp > (otmp->otyp == WAN_STRIKING ? 16 : 12)
+                    && mcarried(otmp)
                     && !wielding_artifact(ART_HARBINGER)
                     && !wielding_artifact(ART_GIANTSLAYER)
                     && !(uarms && uarms->oartifact == ART_ASHMAR)
                     && !(uarm && uarm->oartifact == ART_ARMOR_OF_RETRIBUTION)) {
                     struct monst *zapper = otmp->ocarry;
 
-                    pline_The("force of the wand knocks you %s!",
+                    pline_The("force of %s knocks you %s!",
+                              otmp->otyp == WAN_STRIKING ? "the wand"
+                                                         : "the spell",
                               u.usteed ? "out of your saddle" : "back");
                     last_hurtled = &youmonst;
                     hurtle(u.ux - zapper->mx, u.uy - zapper->my, 1, FALSE);
@@ -2118,21 +2129,32 @@ struct obj *otmp;
                     mtmp->mux = u.ux;
                     mtmp->muy = u.uy;
                 }
-                losehp(tmp, "wand", KILLED_BY_AN);
-            } else
-                pline_The("wand misses you.");
+                losehp(tmp, otmp->otyp == WAN_STRIKING ? "wand" : "force bolt",
+                       KILLED_BY_AN);
+            } else {
+                if (otmp->otyp == WAN_STRIKING)
+                    pline_The("wand misses you.");
+                else
+                    pline("The force bolt misses you.");
+            }
             stop_occupation();
             nomul(0);
         } else if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
             shieldeff(mtmp->mx, mtmp->my);
             pline("Boing!");
         } else if (rnd(20) < 10 + find_mac(mtmp)) {
-            tmp = d(2, 12);
-            hit("wand", mtmp, exclam(tmp));
+            tmp = d(2, (otmp->otyp == WAN_STRIKING) ? 12 : 6);
+            if (otmp->otyp == SPE_FORCE_BOLT && mcarried(otmp))
+                tmp += otmp->ocarry->m_lev / 3;
+            hit(otmp->otyp == WAN_STRIKING ? "wand" : "force bolt",
+                mtmp, exclam(tmp));
             (void) resist(mtmp, otmp->oclass, tmp, TELL);
-            if (cansee(mtmp->mx, mtmp->my) && zap_oseen)
+            if (cansee(mtmp->mx, mtmp->my) && zap_oseen
+                && otmp->otyp == WAN_STRIKING)
                 makeknown(WAN_STRIKING);
-            if (tmp > 16 && mcarried(otmp)
+            /* Knockback threshold: 16 for wand, 12 for spell */
+            if (tmp > (otmp->otyp == WAN_STRIKING ? 16 : 12)
+                && mcarried(otmp)
                 && !mon_harbinger_wield
                 && !mon_giantslayer_wield) {
                 struct monst *zapper = otmp->ocarry;
@@ -2140,7 +2162,9 @@ struct obj *otmp;
                 last_hurtled = mtmp;
                 if (tmp < mtmp->mhp) {
                     if (canseemon(mtmp))
-                        pline_The("force of the wand knocks %s back!",
+                        pline_The("force of %s knocks %s back!",
+                                  otmp->otyp == WAN_STRIKING ? "the wand"
+                                                             : "the spell",
                                   mon_nam(mtmp));
                     if (mtmp == u.usteed) {
                         newsym(u.usteed->mx, u.usteed->my);
@@ -2152,8 +2176,9 @@ struct obj *otmp;
                 }
             }
         } else {
-            miss("wand", mtmp);
-            if (cansee(mtmp->mx, mtmp->my) && zap_oseen)
+            miss(otmp->otyp == WAN_STRIKING ? "wand" : "force bolt", mtmp);
+            if (cansee(mtmp->mx, mtmp->my) && zap_oseen
+                && otmp->otyp == WAN_STRIKING)
                 makeknown(WAN_STRIKING);
         }
         break;
@@ -2304,11 +2329,12 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
         if (find_drawbridge(&x, &y))
             switch (obj->otyp) {
             case WAN_STRIKING:
+            case SPE_FORCE_BOLT:
                 destroy_drawbridge(x, y);
             }
         if (levl[x][y].typ == IRONBARS
             && !(levl[x][y].wall_info & W_NONDIGGABLE)
-            && obj->otyp == WAN_STRIKING) {
+            && (obj->otyp == WAN_STRIKING || obj->otyp == SPE_FORCE_BOLT)) {
             levl[x][y].typ = ROOM;
             if (cansee(x, y))
                 pline_The("iron bars are blown apart!");
@@ -2361,6 +2387,7 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
             case WAN_OPENING:
             case WAN_LOCKING:
             case WAN_STRIKING:
+            case SPE_FORCE_BOLT:
                 if (doorlock(obj, bhitpos.x, bhitpos.y)) {
                     if (zap_oseen)
                         makeknown(obj->otyp);
@@ -2816,6 +2843,42 @@ struct monst *mtmp;
 #define MUSE_DWARVISH_BEARDED_AXE_SHIELD 14
 #define MUSE_PAN_FLUTE 15
 #define MUSE_POT_BOOZE 16
+#define MUSE_SPELLBOOK 17
+
+/* Can monster learn spell from this book? */
+STATIC_OVL boolean
+mcan_learn_spell(mtmp, book)
+struct monst *mtmp;
+struct obj *book;
+{
+    if (!is_spellcaster(mtmp))
+        return FALSE;
+    if (mindless(mtmp->data))
+        return FALSE;
+    /* Monster state checks - can't read if impaired */
+    if (!mtmp->mcansee)  /* blind */
+        return FALSE;
+    if (mtmp->mstun || mtmp->mconf || mtmp->msleeping)
+        return FALSE;
+    /* Combat check - hostile monsters won't start reading if player is
+       very close. This prevents the exploit of throwing spellbooks at
+       monsters to distract them. Use 3 squares (dist2=9) - far enough
+       to prevent immediate distraction but allows normal reading */
+    if (!mtmp->mpeaceful
+        && dist2(mtmp->mx, mtmp->my, u.ux, u.uy) <= 9) /* 3 squares */
+        return FALSE;
+    /* Book checks */
+    if (book->cursed)
+        return FALSE; /* Dangerous */
+    if (mknows_spell(mtmp, book->otyp))
+        return FALSE; /* Already knows */
+    if (book->spestudied >= MAX_SPELL_STUDY)
+        return FALSE; /* Depleted */
+    /* POC: Only force bolt for now */
+    if (book->otyp != SPE_FORCE_BOLT)
+        return FALSE;
+    return TRUE;
+}
 
 boolean
 find_misc(mtmp)
@@ -2837,6 +2900,33 @@ struct monst *mtmp;
         return FALSE;
     if (u.uswallow && stuck)
         return FALSE;
+
+    /* If monster is in the middle of reading a spellbook, continue that
+       UNLESS hostile and player is adjacent (combat takes priority) */
+    if (has_emsp(mtmp) && EMSP(mtmp)->msp_reading != 0
+        && EMSP(mtmp)->msp_read_turns > 0) {
+        struct obj *book;
+
+        /* Hostile monsters stop reading when player is adjacent */
+        if (!mtmp->mpeaceful && dist2(x, y, u.ux, u.uy) <= 2) {
+            EMSP(mtmp)->msp_reading = 0;
+            EMSP(mtmp)->msp_read_turns = 0;
+            /* Fall through to normal action selection */
+        } else {
+            /* Find the book being read in monster's inventory */
+            for (book = mtmp->minvent; book; book = book->nobj) {
+                if (book->oclass == SPBOOK_CLASS
+                    && book->otyp == EMSP(mtmp)->msp_reading) {
+                    m.misc = book;
+                    m.has_misc = MUSE_SPELLBOOK;
+                    return TRUE;
+                }
+            }
+            /* Book not found - reading was interrupted */
+            EMSP(mtmp)->msp_reading = 0;
+            EMSP(mtmp)->msp_read_turns = 0;
+        }
+    }
 
     /* We arbitrarily limit to times when a player is nearby for the
      * same reason as Junior Pac-Man doesn't have energizers eaten until
@@ -3037,6 +3127,14 @@ struct monst *mtmp;
             && !mtmp->mpeaceful && !rn2(5)) {
             m.misc = obj;
             m.has_misc = MUSE_PAN_FLUTE;
+        }
+        nomore(MUSE_SPELLBOOK);
+        if (obj->oclass == SPBOOK_CLASS
+            && obj->otyp != SPE_BLANK_PAPER
+            && obj->otyp != SPE_BOOK_OF_THE_DEAD
+            && mcan_learn_spell(mtmp, obj)) {
+            m.misc = obj;
+            m.has_misc = MUSE_SPELLBOOK;
         }
     }
     return find_misc_recurse(mtmp, mtmp->minvent);
@@ -3836,6 +3934,96 @@ struct monst *mtmp;
            peaceful or vice versa */
         newsym(mtmp->mx, mtmp->my);
         return 2;
+    case MUSE_SPELLBOOK: {
+        int spell_level = objects[otmp->otyp].oc_level;
+        int spell_delay = objects[otmp->otyp].oc_delay;
+        int read_time;
+        struct emsp *esp;
+
+        /* Ensure monster has emsp for tracking reading state */
+        if (!has_emsp(mtmp))
+            newemsp(mtmp);
+        esp = EMSP(mtmp);
+
+        /* Check if monster is already reading this book */
+        if (esp->msp_reading == otmp->otyp && esp->msp_read_turns > 0) {
+            /* Continue reading - check for interruption */
+            if (!mtmp->mcansee || mtmp->mstun || mtmp->mconf
+                || mtmp->msleeping) {
+                /* Reading interrupted */
+                if (vis)
+                    pline("%s stops reading.", Monnam(mtmp));
+                esp->msp_reading = 0;
+                esp->msp_read_turns = 0;
+                return 2;
+            }
+
+            /* Decrement reading time */
+            esp->msp_read_turns--;
+
+            if (esp->msp_read_turns <= 0) {
+                /* Finished reading - learn the spell */
+                boolean success = mlearn_spell(mtmp, otmp);
+
+                esp->msp_reading = 0;
+                esp->msp_read_turns = 0;
+
+                if (success && vis)
+                    pline("%s finishes reading and looks more knowledgeable.",
+                          Monnam(mtmp));
+                else if (vis)
+                    pline("%s finishes reading.", Monnam(mtmp));
+
+                /* Book goes blank after too many reads */
+                if (otmp->spestudied >= MAX_SPELL_STUDY) {
+                    if (vis)
+                        pline("The spellbook fades.");
+                    otmp->otyp = SPE_BLANK_PAPER;
+                    set_material(otmp, PAPER);
+                }
+            }
+            /* Still reading, spent a turn */
+            return 2;
+        }
+
+        /* Start reading - calculate reading time based on spell level.
+           Formula matches player: level 1-2: delay, 3-4: (lev-1)*delay,
+           5-6: lev*delay, 7: 8*delay. Blessed books read faster */
+        switch (spell_level) {
+        case 1:
+        case 2:
+            read_time = spell_delay;
+            break;
+        case 3:
+        case 4:
+            read_time = (spell_level - 1) * spell_delay;
+            break;
+        case 5:
+        case 6:
+            read_time = spell_level * spell_delay;
+            break;
+        case 7:
+        default:
+            read_time = 8 * spell_delay;
+            break;
+        }
+
+        /* Blessed books are read faster */
+        if (otmp->blessed)
+            read_time = (read_time + 1) / 2;
+
+        /* Start reading */
+        esp->msp_reading = otmp->otyp;
+        esp->msp_read_turns = read_time;
+
+        if (vis)
+            pline("%s begins reading %s.", Monnam(mtmp),
+                  singular(otmp, doname));
+        else if (!Deaf)
+            You_hear("someone muttering a spell.");
+
+        return 2;
+    }
     case 0:
         return 0; /* i.e. an exploded wand */
     default:
@@ -4923,6 +5111,49 @@ struct monst *mon;
 
     if (wearable)
         check_gear_next_turn(mon);
+}
+
+/* Monster casts force bolt spell using ray mechanics (like wand of striking).
+ * This allows the bolt to continue past the primary target and hit objects
+ * like boulders, statues, iron bars, and drawbridges behind the target.
+ * tx, ty are the target coordinates; the bolt traces from caster toward target.
+ * Returns TRUE if something was affected, FALSE otherwise.
+ */
+boolean
+mcast_force_bolt(caster, tx, ty)
+struct monst *caster;
+int tx, ty;
+{
+    struct obj *pseudo;
+
+    /* Set direction from caster to target (tbx/tby are used by mbhit) */
+    tbx = tx - caster->mx;
+    tby = ty - caster->my;
+
+    /* Sanity check - can't cast at own location */
+    if (!tbx && !tby)
+        return FALSE;
+
+    /* Create a pseudo-object representing the force bolt spell */
+    pseudo = mksobj(SPE_FORCE_BOLT, FALSE, FALSE);
+    pseudo->blessed = pseudo->cursed = 0;
+    pseudo->quan = 20L; /* prevent useup from freeing it */
+    /* Set carrier so mbhitm can access caster level for damage scaling
+       and caster position for knockback direction */
+    pseudo->where = OBJ_MINVENT;
+    pseudo->ocarry = caster;
+
+    /* Trace the ray and affect targets along the path */
+    m_using = TRUE;
+    mbhit(caster, rn1(8, 6), mbhitm, bhito, pseudo);
+    m_using = FALSE;
+
+    /* Clean up the pseudo-object */
+    pseudo->where = OBJ_FREE; /* prevent obfree complaints */
+    pseudo->ocarry = (struct monst *) 0;
+    obfree(pseudo, (struct obj *) 0);
+
+    return TRUE;
 }
 
 /*muse.c*/

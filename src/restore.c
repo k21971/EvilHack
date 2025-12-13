@@ -405,11 +405,17 @@ struct monst *mtmp;
             newerid(mtmp);
             mread(fd, (genericptr_t) ERID(mtmp), sizeof(struct erid));
         }
-        /* edog - pet */
+        /* erac - racial characteristics */
         mread(fd, (genericptr_t) &buflen, sizeof(buflen));
         if (buflen > 0) {
             newerac(mtmp);
             mread(fd, (genericptr_t) ERAC(mtmp), sizeof(struct erac));
+        }
+        /* emsp - monster spell knowledge */
+        mread(fd, (genericptr_t) &buflen, sizeof(buflen));
+        if (buflen > 0) {
+            newemsp(mtmp);
+            mread(fd, (genericptr_t) EMSP(mtmp), sizeof(struct emsp));
         }
         /* mcorpsenm - obj->corpsenm for mimic posing as corpse or
            statue (inline int rather than pointer to something) */

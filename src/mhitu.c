@@ -1263,7 +1263,10 @@ struct monst *mtmp;
             }
             break;
         case AT_MAGC:
-            if (range2)
+            /* buzzmu() handles innate ray attacks (AD_FIRE, AD_COLD, etc);
+               castmu() handles AD_SPEL/AD_CLRC spell selection including
+               learned spells. Only use buzzmu() at range for ray types */
+            if (range2 && mattk->adtyp <= AD_SPC2)
                 sum[i] = buzzmu(mtmp, mattk);
             else
                 sum[i] = castmu(mtmp, mattk, TRUE, foundyou);

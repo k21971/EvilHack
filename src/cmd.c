@@ -4806,6 +4806,10 @@ boolean incl_wsegs;
             sz += (int) sizeof (struct edog);
         if (ERID(mtmp))
             sz += (int) sizeof (struct erid);
+        if (ERAC(mtmp))
+            sz += (int) sizeof (struct erac);
+        if (EMSP(mtmp))
+            sz += (int) sizeof (struct emsp);
         /* mextra->mcorpsenm doesn't point to more memory */
     }
     return sz;

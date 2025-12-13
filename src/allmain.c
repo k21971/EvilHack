@@ -640,6 +640,14 @@ boolean resuming;
                     do_storms();
                     gethungry();
                     age_spells();
+                    /* Decay monster spell knowledge every 10 turns */
+                    if (!(moves % 10)) {
+                        struct monst *mon;
+                        for (mon = fmon; mon; mon = mon->nmon) {
+                            if (!DEADMONSTER(mon) && has_emsp(mon))
+                                mage_spells(mon);
+                        }
+                    }
                     exerchk();
                     invault();
                     if (u.uhave.amulet)

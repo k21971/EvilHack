@@ -187,14 +187,25 @@ struct erid {
 
 /* racial characteristics */
 struct erac {
-    unsigned long mrace; /* equivalent to mhflags */
-    int r_id; /* index in races, used for races[r_id].adj */
-    short rmnum; /* index in mons, e.g. PM_HOBBIT */
-    aligntyp ralign; /* equivalent to maligntyp */
+    unsigned long mrace;        /* equivalent to mhflags */
+    int r_id;                   /* index in races, used for races[r_id].adj */
+    short rmnum;                /* index in mons, e.g. PM_HOBBIT */
+    aligntyp ralign;            /* equivalent to maligntyp */
     struct attack mattk[NATTK]; /* attacks matrix */
     unsigned long mflags1;
     unsigned long mflags2;
     unsigned long mflags3;
+};
+
+/* monster spell knowledge extension */
+#define MAXMONSPELL 8    /* max spells a monster can learn */
+#define MSPELL_KEEN 5000 /* spell retention (vs player's 20000) */
+
+struct emsp {
+    short msp_id[MAXMONSPELL]; /* spell otyp (0 = empty slot) */
+    int msp_know[MAXMONSPELL]; /* knowledge retention counter */
+    short msp_reading;         /* otyp of book being read (0 = not reading) */
+    short msp_read_turns;      /* turns remaining to finish reading */
 };
 
 /***
@@ -209,6 +220,7 @@ struct mextra {
     struct edog *edog;
     struct erid *erid;
     struct erac *erac;
+    struct emsp *emsp;
     int mcorpsenm; /* obj->corpsenm for mimic posing as statue or corpse,
                     * obj->spe (fruit index) for one posing as a slime mold,
                     * or an alignment mask for one posing as an altar */
@@ -222,6 +234,7 @@ struct mextra {
 #define EDOG(mon) ((mon)->mextra->edog)
 #define ERID(mon) ((mon)->mextra->erid)
 #define ERAC(mon) ((mon)->mextra->erac)
+#define EMSP(mon) ((mon)->mextra->emsp)
 #define MCORPSENM(mon) ((mon)->mextra->mcorpsenm)
 
 #define has_mname(mon) ((mon)->mextra && MNAME(mon))
@@ -232,6 +245,7 @@ struct mextra {
 #define has_edog(mon)  ((mon)->mextra && EDOG(mon))
 #define has_erid(mon)  ((mon)->mextra && ERID(mon))
 #define has_erac(mon) ((mon)->mextra && ERAC(mon))
+#define has_emsp(mon) ((mon)->mextra && EMSP(mon))
 #define has_mcorpsenm(mon) ((mon)->mextra && MCORPSENM(mon) != NON_PM)
 
 #endif /* MEXTRA_H */

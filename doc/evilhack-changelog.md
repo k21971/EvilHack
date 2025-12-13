@@ -4794,4 +4794,5 @@ The following changes to date are:
 - Fix: refactor mcastu.c - consolidate spell handlers, fix bugs, remove
   code duplication
 - Fix: bit of code cleanup in mcastu.c
+- Feature: spellcasting monsters can read player spellbooks
 
