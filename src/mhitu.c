@@ -1263,18 +1263,24 @@ struct monst *mtmp;
             }
             break;
         case AT_MAGC:
-            /* buzzmu() handles innate ray attacks (AD_FIRE, AD_COLD, etc);
+            /* buzzmu() handles innate ray attacks (AD_FIRE, AD_COLD, etc)
+               and has its own lined_up() LOS check.
                castmu() handles AD_SPEL/AD_CLRC spell selection including
-               learned spells. Only use buzzmu() at range for ray types */
+               learned spells. Only use buzzmu() at range for ray types.
+               For AD_SPEL/AD_CLRC at range, need LOS for directed spells;
+               if no LOS, only allow undirected spells (self-buffs, summons). */
             if (range2 && mattk->adtyp <= AD_SPC2)
                 sum[i] = buzzmu(mtmp, mattk);
+            else if (range2 && !lined_up(mtmp))
+                /* At range without LOS - only undirected spells */
+                sum[i] = castmu(mtmp, mattk, FALSE, FALSE);
             else
                 sum[i] = castmu(mtmp, mattk, TRUE, foundyou);
             break;
-	case AT_SCRE:
+        case AT_SCRE:
             if (ranged || !rn2(5)) /* sometimes right next to our hero */
                 sum[i] = screamu(mtmp, mattk);
-	    break;
+            break;
         default: /* no attack */
             break;
         }
