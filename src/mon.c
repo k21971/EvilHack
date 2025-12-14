@@ -6758,6 +6758,14 @@ boolean by_you;
         amount = ((amount * 3) + 1) / 2;
 
     mon->mhp -= amount;
+
+    /* Interrupt spellbook reading - being attacked breaks
+       concentration */
+    if (has_emsp(mon) && EMSP(mon)->msp_reading != 0) {
+        EMSP(mon)->msp_reading = 0;
+        EMSP(mon)->msp_read_turns = 0;
+    }
+
     if (by_you)
         showmondamage(mon, amount);
 

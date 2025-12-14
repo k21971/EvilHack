@@ -681,6 +681,11 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
 
         if (!DEADMONSTER(mtmp)) { /* might already be dead (if petrified) */
             mtmp->mhp -= damage;
+            /* Interrupt spellbook reading - being hit breaks concentration */
+            if (has_emsp(mtmp) && EMSP(mtmp)->msp_reading != 0) {
+                EMSP(mtmp)->msp_reading = 0;
+                EMSP(mtmp)->msp_read_turns = 0;
+            }
             if (DEADMONSTER(mtmp)) {
                 if (vis || (verbose && !target))
                     pline("%s is %s!", Monnam(mtmp),

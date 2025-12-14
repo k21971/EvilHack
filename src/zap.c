@@ -5015,6 +5015,11 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     debugpline3("zapped monster hp = %d (= %d - %d)", mon->mhp - tmp,
                 mon->mhp, tmp);
     mon->mhp -= tmp;
+    /* Interrupt spellbook reading - being zapped breaks concentration */
+    if (has_emsp(mon) && EMSP(mon)->msp_reading != 0) {
+        EMSP(mon)->msp_reading = 0;
+        EMSP(mon)->msp_read_turns = 0;
+    }
     return tmp;
 }
 

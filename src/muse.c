@@ -2897,14 +2897,7 @@ struct obj *book;
     /* Monster state checks - can't read if impaired */
     if (!mtmp->mcansee)  /* blind */
         return FALSE;
-    if (mtmp->mstun || mtmp->mconf || mtmp->msleeping)
-        return FALSE;
-    /* Combat check - hostile monsters won't start reading if player is
-       very close. This prevents the exploit of throwing spellbooks at
-       monsters to distract them. Use 3 squares (dist2=9) - far enough
-       to prevent immediate distraction but allows normal reading */
-    if (!mtmp->mpeaceful
-        && dist2(mtmp->mx, mtmp->my, u.ux, u.uy) <= 9) /* 3 squares */
+    if (mtmp->mstun || mtmp->mconf || helpless(mtmp))
         return FALSE;
     /* Book checks */
     if (book->cursed)
@@ -2946,8 +2939,8 @@ struct monst *mtmp;
         && EMSP(mtmp)->msp_read_turns > 0) {
         struct obj *book;
 
-        /* Hostile monsters stop reading when player is adjacent */
-        if (!mtmp->mpeaceful && dist2(x, y, u.ux, u.uy) <= 2) {
+        /* Hostile monsters stop reading when player is within 2 squares */
+        if (!mtmp->mpeaceful && dist2(x, y, u.ux, u.uy) <= 8) {
             EMSP(mtmp)->msp_reading = 0;
             EMSP(mtmp)->msp_read_turns = 0;
             /* Fall through to normal action selection */
