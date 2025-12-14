@@ -2933,30 +2933,46 @@ struct monst *mtmp;
     if (u.uswallow && stuck)
         return FALSE;
 
-    /* If monster is in the middle of reading a spellbook, continue that
-       UNLESS hostile and player is adjacent (combat takes priority) */
-    if (has_emsp(mtmp) && EMSP(mtmp)->msp_reading != 0
-        && EMSP(mtmp)->msp_read_turns > 0) {
+    /* Spellbook reading - checked before distance check since spellcasters
+       should read regardless of where they think the player is */
+    if (is_spellcaster(mtmp)) {
         struct obj *book;
 
-        /* Hostile monsters stop reading when player is within 2 squares */
-        if (!mtmp->mpeaceful && dist2(x, y, u.ux, u.uy) <= 8) {
-            EMSP(mtmp)->msp_reading = 0;
-            EMSP(mtmp)->msp_read_turns = 0;
-            /* Fall through to normal action selection */
-        } else {
-            /* Find the book being read in monster's inventory */
+        /* If mid-read, continue unless hostile and player is close */
+        if (has_emsp(mtmp) && EMSP(mtmp)->msp_reading != 0
+            && EMSP(mtmp)->msp_read_turns > 0) {
+            /* Hostile monsters stop reading when player is within 2 squares */
+            if (!mtmp->mpeaceful && dist2(x, y, u.ux, u.uy) <= 8) {
+                EMSP(mtmp)->msp_reading = 0;
+                EMSP(mtmp)->msp_read_turns = 0;
+                /* Fall through to find a new book or other action */
+            } else {
+                /* Find the book being read */
+                for (book = mtmp->minvent; book; book = book->nobj) {
+                    if (book->oclass == SPBOOK_CLASS
+                        && book->otyp == EMSP(mtmp)->msp_reading) {
+                        m.misc = book;
+                        m.has_misc = MUSE_SPELLBOOK;
+                        return TRUE;
+                    }
+                }
+                /* Book not found - must have been stolen/destroyed */
+                EMSP(mtmp)->msp_reading = 0;
+                EMSP(mtmp)->msp_read_turns = 0;
+            }
+        }
+
+        /* Find any learnable spellbook - but hostile monsters won't
+           start reading when player is within 2 squares */
+        if (mtmp->mpeaceful || dist2(x, y, u.ux, u.uy) > 8) {
             for (book = mtmp->minvent; book; book = book->nobj) {
                 if (book->oclass == SPBOOK_CLASS
-                    && book->otyp == EMSP(mtmp)->msp_reading) {
+                    && mcan_learn_spell(mtmp, book)) {
                     m.misc = book;
                     m.has_misc = MUSE_SPELLBOOK;
                     return TRUE;
                 }
             }
-            /* Book not found - reading was interrupted */
-            EMSP(mtmp)->msp_reading = 0;
-            EMSP(mtmp)->msp_read_turns = 0;
         }
     }
 
@@ -3159,14 +3175,6 @@ struct monst *mtmp;
             && !mtmp->mpeaceful && !rn2(5)) {
             m.misc = obj;
             m.has_misc = MUSE_PAN_FLUTE;
-        }
-        nomore(MUSE_SPELLBOOK);
-        if (obj->oclass == SPBOOK_CLASS
-            && obj->otyp != SPE_BLANK_PAPER
-            && obj->otyp != SPE_BOOK_OF_THE_DEAD
-            && mcan_learn_spell(mtmp, obj)) {
-            m.misc = obj;
-            m.has_misc = MUSE_SPELLBOOK;
         }
     }
     return find_misc_recurse(mtmp, mtmp->minvent);
