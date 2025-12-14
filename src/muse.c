@@ -2103,7 +2103,7 @@ struct obj *otmp;
                 if (otmp->otyp == WAN_STRIKING)
                     pline_The("wand hits you!");
                 else
-                    pline("The force bolt hits you!");
+                    pline_The("force bolt hits you!");
                 tmp = d(2, (otmp->otyp == WAN_STRIKING) ? 12 : 6);
                 /* Force bolt damage scales with caster level */
                 if (otmp->otyp == SPE_FORCE_BOLT && mcarried(otmp))
@@ -2135,7 +2135,7 @@ struct obj *otmp;
                 if (otmp->otyp == WAN_STRIKING)
                     pline_The("wand misses you.");
                 else
-                    pline("The force bolt misses you.");
+                    pline_The("force bolt misses you.");
             }
             stop_occupation();
             nomul(0);
@@ -2845,6 +2845,45 @@ struct monst *mtmp;
 #define MUSE_POT_BOOZE 16
 #define MUSE_SPELLBOOK 17
 
+/* Spells that monsters can learn from spellbooks.
+   Excludes: racial abilities (psionic wave), spells with existing monster
+   versions (haste, invisibility, protection, etc), divination (useless),
+   and redundant summoning spells */
+static const short learnable_spells[] = {
+    /* Attack (9) */
+    SPE_FORCE_BOLT, SPE_MAGIC_MISSILE, SPE_DRAIN_LIFE,
+    SPE_FIREBALL, SPE_CONE_OF_COLD, SPE_LIGHTNING,
+    SPE_POISON_BLAST, SPE_ACID_BLAST, SPE_POWER_WORD_KILL,
+    /* Healing (5) */
+    SPE_HEALING, SPE_CURE_BLINDNESS, SPE_CURE_SICKNESS,
+    SPE_EXTRA_HEALING, SPE_CRITICAL_HEALING,
+    /* Enchantment (6) */
+    SPE_BURNING_HANDS, SPE_CONFUSE_MONSTER, SPE_SLEEP,
+    SPE_SLOW_MONSTER, SPE_SHOCKING_GRASP, SPE_CHARM_MONSTER,
+    /* Cleric (3) */
+    SPE_REMOVE_CURSE, SPE_TURN_UNDEAD, SPE_DISPEL_EVIL,
+    /* Escape (3) */
+    SPE_JUMPING, SPE_LEVITATION, SPE_TELEPORT_AWAY,
+    /* Matter (4) */
+    SPE_KNOCK, SPE_DIG, SPE_REPAIR_ARMOR, SPE_POLYMORPH,
+    /* Evocation (2) */
+    SPE_ENTANGLE, SPE_FINGER_OF_DEATH,
+    0  /* sentinel */
+};
+
+/* Check if spell is in the learnable whitelist */
+STATIC_OVL boolean
+spell_is_learnable(otyp)
+short otyp;
+{
+    int i;
+    for (i = 0; learnable_spells[i] != 0; i++) {
+        if (learnable_spells[i] == otyp)
+            return TRUE;
+    }
+    return FALSE;
+}
+
 /* Can monster learn spell from this book? */
 STATIC_OVL boolean
 mcan_learn_spell(mtmp, book)
@@ -2874,8 +2913,8 @@ struct obj *book;
         return FALSE; /* Already knows */
     if (book->spestudied >= MAX_SPELL_STUDY)
         return FALSE; /* Depleted */
-    /* POC: Only force bolt for now */
-    if (book->otyp != SPE_FORCE_BOLT)
+    /* Check if spell is in the learnable whitelist */
+    if (!spell_is_learnable(book->otyp))
         return FALSE;
     return TRUE;
 }
@@ -3977,7 +4016,7 @@ struct monst *mtmp;
                 /* Book goes blank after too many reads */
                 if (otmp->spestudied >= MAX_SPELL_STUDY) {
                     if (vis)
-                        pline("The spellbook fades.");
+                        pline_The("spellbook fades.");
                     otmp->otyp = SPE_BLANK_PAPER;
                     set_material(otmp, PAPER);
                 }

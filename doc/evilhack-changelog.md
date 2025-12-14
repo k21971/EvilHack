@@ -4795,4 +4795,5 @@ The following changes to date are:
   code duplication
 - Fix: bit of code cleanup in mcastu.c
 - Feature: spellcasting monsters can read player spellbooks
+- Lay foundation for spellcasting monsters learning more player spells
 
