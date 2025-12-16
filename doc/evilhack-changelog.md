@@ -4799,4 +4799,5 @@ The following changes to date are:
 - Fix: ranged AD_SPEL/AD_CLRC spells require line-of-sight check
 - Fix: minor issues with monster spellbook reading
 - Fix: minor issues with monster spellbook reading, take two
+- Allow cleric-based monster spellcasters to cast learned player spells
 

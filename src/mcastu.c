@@ -47,7 +47,8 @@ enum mcast_cleric_spells {
     CLC_FIRE_PILLAR,
     CLC_GEYSER,
     CLC_SUMMON_MINION,
-    CLC_CALL_UNDEAD
+    CLC_CALL_UNDEAD,
+    CLC_LEARNED_SPELL /* spell learned from spellbook */
 };
 
 extern void you_aggravate(struct monst *);
@@ -60,6 +61,7 @@ STATIC_DCL int FDECL(choose_magic_spell, (struct monst *, int));
 STATIC_DCL int FDECL(choose_clerical_spell, (struct monst *, int));
 STATIC_DCL int FDECL(m_cure_self, (struct monst *, int));
 STATIC_DCL int FDECL(m_destroy_armor, (struct monst *, struct monst *));
+STATIC_DCL int FDECL(cast_learned_spell, (struct monst *, struct monst *));
 STATIC_DCL void FDECL(do_wizard_spell, (struct monst *, struct monst *, int, int));
 STATIC_DCL void FDECL(do_cleric_spell, (struct monst *, struct monst *, int, int));
 STATIC_DCL boolean FDECL(is_undirected_spell, (unsigned int, int));
@@ -260,6 +262,13 @@ choose_clerical_spell(mtmp, spellnum)
 struct monst* mtmp;
 int spellnum;
 {
+    /* 1 in 4 chance to try a learned spell if monster knows any */
+    if (has_emsp(mtmp) && !rn2(4)) {
+        short learned = mchoose_learned_spell(mtmp);
+        if (learned != 0)
+            return CLC_LEARNED_SPELL;
+    }
+
     /* monster level needs to be [case value] + 1
        in order to cast that level of spell
        (e.g. a kobold shaman will not spawn higher
@@ -701,17 +710,61 @@ struct monst *mattk, *mdef;
     return 0;
 }
 
-/* monster wizard and cleric spellcasting functions */
-/*
+/* Cast a spell learned from a spellbook.
+ * Returns 0 (damage is handled by the spell itself via mbhitm/etc).
+ * Used by both MGC_LEARNED_SPELL and CLC_LEARNED_SPELL cases */
+STATIC_OVL int
+cast_learned_spell(caster, target)
+struct monst *caster, *target;
+{
+    boolean youdefend = (target == &youmonst);
+    short spell_otyp = mchoose_learned_spell(caster);
+
+    if (spell_otyp == 0)
+        return 0; /* No castable spell available */
+
+    if (objects[spell_otyp].oc_class != SPBOOK_CLASS) {
+        impossible("cast_learned_spell: invalid spell otyp %d", spell_otyp);
+        return 0;
+    }
+
+    if (spell_otyp == SPE_FORCE_BOLT) {
+        /* Force bolt: IMMEDIATE attack spell using ray mechanics.
+           Like wand of striking, the bolt continues past the target
+           and can affect objects in its path (boulders, statues,
+           doors, fragile objects on the ground, etc). Requires line
+           of sight at range (just like other ranged attacks) */
+        int tx, ty;
+        if (youdefend) {
+            if (!lined_up(caster))
+                return 0; /* No clear line of sight */
+            tx = u.ux;
+            ty = u.uy;
+        } else if (target && !DEADMONSTER(target)) {
+            if (!mlined_up(caster, target, FALSE))
+                return 0; /* No clear line of sight */
+            tx = target->mx;
+            ty = target->my;
+        } else {
+            return 0;
+        }
+        mcast_force_bolt(caster, tx, ty);
+    }
+    /* else: unknown learned spell - only force bolt implemented */
+
+    return 0; /* spell handlers do their own damage */
+}
+
+/* monster wizard and cleric spellcasting functions
+
    Unified wizard spell handler for all caster/target combinations.
    caster: the monster (or &youmonst) casting the spell
    target: the monster (or &youmonst) being targeted
    dmg: base damage (0 means undirected/self-targeting spell)
    spellnum: which spell is being cast
 
-   If you modify this, be sure to change is_undirected_spell()
-   and spell_would_be_useless()
- */
+   If modified, be sure to change is_undirected_spell() and
+   spell_would_be_useless() */
 STATIC_OVL
 void
 do_wizard_spell(caster, target, dmg, spellnum)
@@ -1204,55 +1257,9 @@ int dmg, spellnum;
                       (dmg <= 5) ? "." : "!");
         }
         break;
-    case MGC_LEARNED_SPELL: {
-        /* Cast a spell learned from a spellbook */
-        short spell_otyp = mchoose_learned_spell(caster);
-
-        if (spell_otyp == 0) {
-            dmg = 0;
-            break; /* No castable spell available */
-        }
-
-        if (objects[spell_otyp].oc_class != SPBOOK_CLASS) {
-            impossible("MGC_LEARNED_SPELL: invalid spell otyp %d",
-                       spell_otyp);
-            dmg = 0;
-            break;
-        }
-
-        if (spell_otyp == SPE_FORCE_BOLT) {
-            /* Force bolt: IMMEDIATE attack spell using ray mechanics.
-               Like wand of striking, the bolt continues past the target
-               and can affect objects in its path (boulders, statues,
-               doors, fragile objects on the ground, etc). Requires line
-               of sight at range (just like other ranged attacks) */
-            int tx, ty;
-            if (youdefend) {
-                if (!lined_up(caster)) {
-                    dmg = 0;
-                    break; /* No clear line of sight */
-                }
-                tx = u.ux;
-                ty = u.uy;
-            } else if (target && !DEADMONSTER(target)) {
-                if (!mlined_up(caster, target, FALSE)) {
-                    dmg = 0;
-                    break; /* No clear line of sight */
-                }
-                tx = target->mx;
-                ty = target->my;
-            } else {
-                dmg = 0;
-                break;
-            }
-            mcast_force_bolt(caster, tx, ty);
-            dmg = 0; /* mbhitm handles all damage */
-        } else {
-            /* Unknown learned spell - shouldn't happen in POC */
-            dmg = 0;
-        }
+    case MGC_LEARNED_SPELL:
+        dmg = cast_learned_spell(caster, target);
         break;
-    }
     default:
         impossible("do_wizard_spell: invalid magic spell (%d)", spellnum);
         dmg = 0;
@@ -1907,6 +1914,9 @@ int dmg, spellnum;
         else
             (void) cast_stoneskin(caster);
         dmg = 0;
+        break;
+    case CLC_LEARNED_SPELL:
+        dmg = cast_learned_spell(caster, target);
         break;
     default:
         impossible("mcastu: invalid clerical spell (%d)", spellnum);
