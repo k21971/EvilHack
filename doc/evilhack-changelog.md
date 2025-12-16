@@ -4800,4 +4800,6 @@ The following changes to date are:
 - Fix: minor issues with monster spellbook reading
 - Fix: minor issues with monster spellbook reading, take two
 - Allow cleric-based monster spellcasters to cast learned player spells
+- Frequency of monsters casting learned spells based off of number of
+  player spells learned
 

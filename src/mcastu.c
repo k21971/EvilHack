@@ -68,6 +68,7 @@ STATIC_DCL boolean FDECL(is_undirected_spell, (unsigned int, int));
 STATIC_DCL boolean FDECL(do_spell_would_be_useless, (struct monst *,
                                                      struct monst *, unsigned int, int));
 STATIC_DCL boolean FDECL(uspell_would_be_useless, (unsigned int, int));
+STATIC_DCL int FDECL(mcount_castable_spells, (struct monst *));
 
 /* Choose a random bolt spell type for monster caster. Ice Queen always
    gets ice bolt. Returns spell number, or -1 if caller should use
@@ -177,13 +178,20 @@ choose_magic_spell(mtmp, spellval)
 struct monst* mtmp;
 int spellval;
 {
-    int i;
+    int i, spell_count, chance;
 
-    /* 1 in 4 chance to try a learned spell if monster knows any */
-    if (has_emsp(mtmp) && !rn2(4)) {
-        short learned = mchoose_learned_spell(mtmp);
-        if (learned != 0)
-            return MGC_LEARNED_SPELL;
+    /* Chance to try a learned spell scales with repertoire size:
+       15% base + 5% per castable spell, capped at 40% */
+    spell_count = mcount_castable_spells(mtmp);
+    if (spell_count > 0) {
+        chance = 15 + (spell_count * 5);
+        if (chance > 40)
+            chance = 40;
+        if (rn2(100) < chance) {
+            short learned = mchoose_learned_spell(mtmp);
+            if (learned != 0)
+                return MGC_LEARNED_SPELL;
+        }
     }
 
     /* monster level needs to be [case value] + 1
@@ -262,11 +270,20 @@ choose_clerical_spell(mtmp, spellnum)
 struct monst* mtmp;
 int spellnum;
 {
-    /* 1 in 4 chance to try a learned spell if monster knows any */
-    if (has_emsp(mtmp) && !rn2(4)) {
-        short learned = mchoose_learned_spell(mtmp);
-        if (learned != 0)
-            return CLC_LEARNED_SPELL;
+    int spell_count, chance;
+
+    /* Chance to try a learned spell scales with repertoire size:
+       15% base + 5% per castable spell, capped at 40% */
+    spell_count = mcount_castable_spells(mtmp);
+    if (spell_count > 0) {
+        chance = 15 + (spell_count * 5);
+        if (chance > 40)
+            chance = 40;
+        if (rn2(100) < chance) {
+            short learned = mchoose_learned_spell(mtmp);
+            if (learned != 0)
+                return CLC_LEARNED_SPELL;
+        }
     }
 
     /* monster level needs to be [case value] + 1
@@ -2839,6 +2856,35 @@ struct obj *book;
         }
     }
     return FALSE; /* No room */
+}
+
+/* Count how many learned spells the monster can cast at its current level */
+STATIC_OVL int
+mcount_castable_spells(mtmp)
+struct monst *mtmp;
+{
+    int count = 0, i;
+    short spell_otyp;
+    int spell_level, required_mlev;
+
+    if (!has_emsp(mtmp))
+        return 0;
+
+    for (i = 0; i < MAXMONSPELL; i++) {
+        spell_otyp = EMSP(mtmp)->msp_id[i];
+        if (spell_otyp != 0 && EMSP(mtmp)->msp_know[i] > 0) {
+            /* Skip invalid entries */
+            if (spell_otyp < SPE_FIREBALL || spell_otyp > SPE_BLANK_PAPER
+                || objects[spell_otyp].oc_class != SPBOOK_CLASS)
+                continue;
+            /* Check level requirement */
+            spell_level = objects[spell_otyp].oc_level;
+            required_mlev = spell_level * 3;
+            if (mtmp->m_lev >= required_mlev)
+                count++;
+        }
+    }
+    return count;
 }
 
 /* Get a random learned spell monster can cast; returns otyp or 0 */
