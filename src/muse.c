@@ -2854,9 +2854,8 @@ static const short learnable_spells[] = {
     SPE_FORCE_BOLT, SPE_MAGIC_MISSILE, SPE_DRAIN_LIFE,
     SPE_FIREBALL, SPE_CONE_OF_COLD, SPE_LIGHTNING,
     SPE_POISON_BLAST, SPE_ACID_BLAST, SPE_POWER_WORD_KILL,
-    /* Healing (5) */
-    SPE_HEALING, SPE_CURE_BLINDNESS, SPE_CURE_SICKNESS,
-    SPE_EXTRA_HEALING, SPE_CRITICAL_HEALING,
+    /* Healing (2) - monsters already have MGC_CURE_SELF/CLC_CURE_SELF */
+    SPE_CURE_BLINDNESS, SPE_CURE_SICKNESS,
     /* Enchantment (6) */
     SPE_BURNING_HANDS, SPE_CONFUSE_MONSTER, SPE_SLEEP,
     SPE_SLOW_MONSTER, SPE_SHOCKING_GRASP, SPE_CHARM_MONSTER,
@@ -3989,9 +3988,9 @@ struct monst *mtmp;
         if (esp->msp_reading == otmp->otyp && esp->msp_read_turns > 0) {
             /* Continue reading - check for interruption */
             if (!mtmp->mcansee || mtmp->mstun || mtmp->mconf
-                || mtmp->msleeping) {
+                || helpless(mtmp)) {
                 /* Reading interrupted */
-                if (vis)
+                if (vismon)
                     pline("%s stops reading.", Monnam(mtmp));
                 esp->msp_reading = 0;
                 esp->msp_read_turns = 0;
@@ -4008,15 +4007,17 @@ struct monst *mtmp;
                 esp->msp_reading = 0;
                 esp->msp_read_turns = 0;
 
-                if (success && vis)
-                    pline("%s finishes reading and looks more knowledgeable.",
-                          Monnam(mtmp));
-                else if (vis)
-                    pline("%s finishes reading.", Monnam(mtmp));
+                if (vismon) {
+                    if (success)
+                        pline("%s finishes reading and looks more knowledgeable.",
+                              Monnam(mtmp));
+                    else
+                        pline("%s finishes reading.", Monnam(mtmp));
+                }
 
                 /* Book goes blank after too many reads */
                 if (otmp->spestudied >= MAX_SPELL_STUDY) {
-                    if (vis)
+                    if (vismon)
                         pline_The("spellbook fades.");
                     otmp->otyp = SPE_BLANK_PAPER;
                     set_material(otmp, PAPER);
@@ -4056,11 +4057,9 @@ struct monst *mtmp;
         esp->msp_reading = otmp->otyp;
         esp->msp_read_turns = read_time;
 
-        if (vis)
+        if (vismon)
             pline("%s begins reading %s.", Monnam(mtmp),
                   singular(otmp, doname));
-        else if (!Deaf)
-            You_hear("someone muttering a spell.");
 
         return 2;
     }
@@ -5192,6 +5191,51 @@ int tx, ty;
     pseudo->where = OBJ_FREE; /* prevent obfree complaints */
     pseudo->ocarry = (struct monst *) 0;
     obfree(pseudo, (struct obj *) 0);
+
+    return TRUE;
+}
+
+/* Monster casts a ray spell (magic missile, fireball, cone of cold,
+   sleep, finger of death, lightning, poison blast, acid blast).
+   spell_otyp is the spell object type (SPE_MAGIC_MISSILE through
+   SPE_ACID_BLAST). Returns TRUE if cast successfully, FALSE otherwise */
+boolean
+mcast_ray_spell(caster, tx, ty, spell_otyp)
+struct monst *caster;
+int tx, ty;
+int spell_otyp;
+{
+    int dx, dy;
+    int nd; /* number of damage/effect dice */
+    int ztype;
+
+    /* Validate spell is in the ray spell range */
+    if (spell_otyp < SPE_MAGIC_MISSILE || spell_otyp > SPE_ACID_BLAST) {
+        impossible("mcast_ray_spell: invalid spell %d", spell_otyp);
+        return FALSE;
+    }
+
+    /* Calculate direction from caster to target */
+    dx = tx - caster->mx;
+    dy = ty - caster->my;
+
+    /* Sanity check - can't cast at own location */
+    if (!dx && !dy)
+        return FALSE;
+
+    /* Damage/effect dice: scale with caster level like player spell
+       Player uses (u.ulevel / 2) + 1 */
+    nd = (caster->m_lev / 2) + 1;
+    if (nd < 1)
+        nd = 1;
+
+    /* Calculate the ZT type from spell otyp
+       SPE_MAGIC_MISSILE maps to ZT_SPELL(0), SPE_FIREBALL to
+       ZT_SPELL(1), etc */
+    ztype = ZT_SPELL(spell_otyp - SPE_MAGIC_MISSILE);
+
+    /* Cast the ray - negative type indicates monster casting */
+    buzz(-ztype, nd, caster->mx, caster->my, sgn(dx), sgn(dy));
 
     return TRUE;
 }

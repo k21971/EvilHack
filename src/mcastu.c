@@ -766,8 +766,26 @@ struct monst *caster, *target;
             return 0;
         }
         mcast_force_bolt(caster, tx, ty);
+    } else if (spell_otyp >= SPE_MAGIC_MISSILE
+               && spell_otyp <= SPE_ACID_BLAST) {
+        /* Ray spells: magic missile, fireball, cone of cold, sleep,
+           finger of death, lightning, poison blast, acid blast */
+        int tx, ty;
+        if (youdefend) {
+            if (!lined_up(caster))
+                return 0; /* No clear line of sight */
+            tx = u.ux;
+            ty = u.uy;
+        } else if (target && !DEADMONSTER(target)) {
+            if (!mlined_up(caster, target, FALSE))
+                return 0; /* No clear line of sight */
+            tx = target->mx;
+            ty = target->my;
+        } else {
+            return 0;
+        }
+        mcast_ray_spell(caster, tx, ty, spell_otyp);
     }
-    /* else: unknown learned spell - only force bolt implemented */
 
     return 0; /* spell handlers do their own damage */
 }
@@ -2904,7 +2922,7 @@ struct monst *mtmp;
         spell_otyp = EMSP(mtmp)->msp_id[i];
         if (spell_otyp != 0 && EMSP(mtmp)->msp_know[i] > 0) {
             /* Defensive bounds check for corrupted emsp data */
-            if (spell_otyp < SPE_FIREBALL || spell_otyp > SPE_BLANK_PAPER
+            if (spell_otyp < SPE_DIG || spell_otyp > SPE_BLANK_PAPER
                 || objects[spell_otyp].oc_class != SPBOOK_CLASS) {
                 impossible("mchoose_learned_spell: invalid otyp %d", spell_otyp);
                 EMSP(mtmp)->msp_id[i] = 0;  /* Clear corrupted entry */

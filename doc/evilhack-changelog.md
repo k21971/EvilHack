@@ -4802,4 +4802,5 @@ The following changes to date are:
 - Allow cleric-based monster spellcasters to cast learned player spells
 - Frequency of monsters casting learned spells based off of number of
   player spells learned
+- Add all allowed ray-based spells for monster learned spellcasting
 
