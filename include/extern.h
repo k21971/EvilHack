@@ -1835,8 +1835,8 @@ E boolean FDECL(munstone, (struct monst *, BOOLEAN_P));
 E boolean FDECL(cures_stoning, (struct monst *, struct obj *, BOOLEAN_P));
 E boolean FDECL(munslime, (struct monst *, BOOLEAN_P));
 E void FDECL(mmake_wish, (struct monst *));
-E boolean FDECL(mcast_force_bolt, (struct monst *, int, int));
 E boolean FDECL(mcast_ray_spell, (struct monst *, int, int, int));
+E void FDECL(mcast_immediate_spell, (struct monst *, int, int, int));
 
 /* ### music.c ### */
 

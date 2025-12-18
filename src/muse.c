@@ -2182,11 +2182,11 @@ struct obj *otmp;
                 makeknown(WAN_STRIKING);
         }
         break;
-   /* disabled because find_offensive() never picks WAN_TELEPORTATION */
     case WAN_TELEPORTATION:
+    case SPE_TELEPORT_AWAY:
         if (hits_you) {
             tele();
-            if (zap_oseen)
+            if (zap_oseen && otmp->otyp == WAN_TELEPORTATION)
                 makeknown(WAN_TELEPORTATION);
         } else {
             /* for consistency with zap.c, don't identify */
@@ -2198,6 +2198,7 @@ struct obj *otmp;
         }
         break;
     case WAN_POLYMORPH:
+    case SPE_POLYMORPH:
         if (hits_you) {
             if (Antimagic) {
                 shieldeff(u.ux, u.uy);
@@ -2243,12 +2244,13 @@ struct obj *otmp;
     case SPE_CANCELLATION:
         (void) cancel_monst(mtmp, otmp, FALSE, TRUE, FALSE);
         break;
-    case WAN_UNDEAD_TURNING: {
+    case WAN_UNDEAD_TURNING:
+    case SPE_TURN_UNDEAD: {
         boolean learnit = FALSE;
 
         if (hits_you) {
             unturn_you();
-            learnit = zap_oseen;
+            learnit = zap_oseen && otmp->otyp == WAN_UNDEAD_TURNING;
         } else {
             boolean wake = FALSE;
 
@@ -2260,12 +2262,12 @@ struct obj *otmp;
                    make_corpse() will set obj->bypass on the new corpse
                    so that mbhito() will skip it instead of reviving it */
                 context.bypasses = TRUE; /* for make_corpse() */
-                (void) resist(mtmp, WAND_CLASS, rnd(8), NOTELL);
+                (void) resist(mtmp, otmp->oclass, rnd(8), NOTELL);
             }
             if (wake) {
                 if (!DEADMONSTER(mtmp))
                     wakeup(mtmp, FALSE);
-                learnit = zap_oseen;
+                learnit = zap_oseen && otmp->otyp == WAN_UNDEAD_TURNING;
             }
         }
         if (learnit)
@@ -2273,12 +2275,102 @@ struct obj *otmp;
         break;
     }
     case WAN_SLOW_MONSTER:
+    case SPE_SLOW_MONSTER:
         if (hits_you) {
             if (!Slow)
                 u_slow_down();
+        } else {
+            /* Monster target - slow them */
+            if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
+                mon_adjust_speed(mtmp, -1, otmp);
+                if (canseemon(mtmp))
+                    pline("%s slows down.", Monnam(mtmp));
+            }
         }
-        if (zap_oseen)
+        if (zap_oseen && otmp->otyp == WAN_SLOW_MONSTER)
             makeknown(WAN_SLOW_MONSTER);
+        break;
+    case SPE_DRAIN_LIFE: {
+        int dmg;
+
+        reveal_invis = TRUE;
+        if (hits_you) {
+            if (Drain_resistance) {
+                shieldeff(u.ux, u.uy);
+                You_feel("momentarily drained.");
+            } else {
+                losexp("life drainage");
+            }
+        } else {
+            dmg = monhp_per_lvl(mtmp);
+            if (mcarried(otmp))
+                dmg += otmp->ocarry->m_lev / 3;
+            if (resists_drli(mtmp) || defended(mtmp, AD_DRLI)) {
+                shieldeff(mtmp->mx, mtmp->my);
+            } else if (!resist(mtmp, otmp->oclass, dmg, NOTELL)
+                       && !DEADMONSTER(mtmp)) {
+                damage_mon(mtmp, dmg, AD_DRLI, TRUE);
+                mtmp->mhpmax -= dmg;
+                if (DEADMONSTER(mtmp) || mtmp->mhpmax <= 0 || mtmp->m_lev < 1) {
+                    monkilled(mtmp, "", AD_DRLI);
+                } else {
+                    mtmp->m_lev--;
+                    if (canseemon(mtmp))
+                        pline("%s suddenly seems weaker!", Monnam(mtmp));
+                }
+            }
+        }
+        break;
+    }
+    case SPE_DISPEL_EVIL:
+        reveal_invis = TRUE;
+        if (hits_you) {
+            /* Player is evil (Infidel) - take damage */
+            if (u.ualign.type == A_NONE) {
+                int dmg = d(4, 6);
+                if (mcarried(otmp))
+                    dmg += otmp->ocarry->m_lev / 3;
+                You("shudder in agony!");
+                losehp(dmg, "dispel evil", KILLED_BY);
+            }
+        } else if (is_evil(mtmp)) {
+            int dmg = d(4, 6);
+            if (mcarried(otmp))
+                dmg += otmp->ocarry->m_lev / 3;
+            if (!resist(mtmp, otmp->oclass, dmg, NOTELL)) {
+                damage_mon(mtmp, dmg, AD_MAGM, TRUE);
+                if (canseemon(mtmp))
+                    pline("%s %s in %s!", Monnam(mtmp),
+                          rn2(2) ? "withers" : "shudders",
+                          rn2(2) ? "agony" : "pain");
+                if (DEADMONSTER(mtmp)) {
+                    monkilled(mtmp, "", AD_MAGM);
+                } else {
+                    monflee(mtmp, 0, FALSE, TRUE);
+                }
+            }
+        }
+        break;
+    case SPE_CHARM_MONSTER:
+        /* For monsters: untame an adjacent pet */
+        reveal_invis = TRUE;
+        if (!hits_you && mtmp->mtame && mcarried(otmp)) {
+            struct monst *caster = otmp->ocarry;
+            if (monnear(caster, mtmp->mx, mtmp->my)) {
+                /* Untame the pet - free_edog also sets mtame = 0 */
+                if (has_edog(mtmp))
+                    free_edog(mtmp);
+                else
+                    mtmp->mtame = 0;
+                mtmp->mpeaceful = 0;
+                if (canseemon(mtmp))
+                    Your("%s turns against you!", l_monnam(mtmp));
+                newsym(mtmp->mx, mtmp->my);
+            }
+        }
+        break;
+    case SPE_ENTANGLE:
+        cast_entangle(mtmp);
         break;
     default:
         break;
@@ -2854,11 +2946,11 @@ static const short learnable_spells[] = {
     SPE_FORCE_BOLT, SPE_MAGIC_MISSILE, SPE_DRAIN_LIFE,
     SPE_FIREBALL, SPE_CONE_OF_COLD, SPE_LIGHTNING,
     SPE_POISON_BLAST, SPE_ACID_BLAST, SPE_POWER_WORD_KILL,
-    /* Healing (2) - monsters already have MGC_CURE_SELF/CLC_CURE_SELF */
+    /* Healing (2) */
     SPE_CURE_BLINDNESS, SPE_CURE_SICKNESS,
-    /* Enchantment (6) */
-    SPE_BURNING_HANDS, SPE_CONFUSE_MONSTER, SPE_SLEEP,
-    SPE_SLOW_MONSTER, SPE_SHOCKING_GRASP, SPE_CHARM_MONSTER,
+    /* Enchantment (5) */
+    SPE_BURNING_HANDS, SPE_SLEEP, SPE_SLOW_MONSTER,
+    SPE_SHOCKING_GRASP, SPE_CHARM_MONSTER,
     /* Cleric (3) */
     SPE_REMOVE_CURSE, SPE_TURN_UNDEAD, SPE_DISPEL_EVIL,
     /* Escape (3) */
@@ -2867,7 +2959,7 @@ static const short learnable_spells[] = {
     SPE_KNOCK, SPE_DIG, SPE_REPAIR_ARMOR, SPE_POLYMORPH,
     /* Evocation (2) */
     SPE_ENTANGLE, SPE_FINGER_OF_DEATH,
-    0  /* sentinel */
+    0 /* sentinel */
 };
 
 /* Check if spell is in the learnable whitelist */
@@ -5131,49 +5223,6 @@ struct monst *mon;
         check_gear_next_turn(mon);
 }
 
-/* Monster casts force bolt spell using ray mechanics (like wand of striking).
- * This allows the bolt to continue past the primary target and hit objects
- * like boulders, statues, iron bars, and drawbridges behind the target.
- * tx, ty are the target coordinates; the bolt traces from caster toward target.
- * Returns TRUE if something was affected, FALSE otherwise.
- */
-boolean
-mcast_force_bolt(caster, tx, ty)
-struct monst *caster;
-int tx, ty;
-{
-    struct obj *pseudo;
-
-    /* Set direction from caster to target (tbx/tby are used by mbhit) */
-    tbx = tx - caster->mx;
-    tby = ty - caster->my;
-
-    /* Sanity check - can't cast at own location */
-    if (!tbx && !tby)
-        return FALSE;
-
-    /* Create a pseudo-object representing the force bolt spell */
-    pseudo = mksobj(SPE_FORCE_BOLT, FALSE, FALSE);
-    pseudo->blessed = pseudo->cursed = 0;
-    pseudo->quan = 20L; /* prevent useup from freeing it */
-    /* Set carrier so mbhitm can access caster level for damage scaling
-       and caster position for knockback direction */
-    pseudo->where = OBJ_MINVENT;
-    pseudo->ocarry = caster;
-
-    /* Trace the ray and affect targets along the path */
-    m_using = TRUE;
-    mbhit(caster, rn1(8, 6), mbhitm, bhito, pseudo);
-    m_using = FALSE;
-
-    /* Clean up the pseudo-object */
-    pseudo->where = OBJ_FREE; /* prevent obfree complaints */
-    pseudo->ocarry = (struct monst *) 0;
-    obfree(pseudo, (struct obj *) 0);
-
-    return TRUE;
-}
-
 /* Monster casts a ray spell (magic missile, fireball, cone of cold,
    sleep, finger of death, lightning, poison blast, acid blast).
    spell_otyp is the spell object type (SPE_MAGIC_MISSILE through
@@ -5217,6 +5266,46 @@ int spell_otyp;
     buzz(-ztype, nd, caster->mx, caster->my, sgn(dx), sgn(dy));
 
     return TRUE;
+}
+
+/* Cast an IMMEDIATE spell using mbhit() ray tracing.
+   These spells (drain life, slow monster, teleport away, polymorph,
+   turn undead, entangle, dispel evil, charm monster) trace a line from
+   caster to target and affect things along the path */
+void
+mcast_immediate_spell(caster, tx, ty, spell_otyp)
+struct monst *caster;
+int tx, ty;
+int spell_otyp;
+{
+    struct obj *pseudo;
+
+    /* Set direction from caster to target (tbx/tby are used by mbhit) */
+    tbx = tx - caster->mx;
+    tby = ty - caster->my;
+
+    /* Sanity check - can't cast at own location */
+    if (!tbx && !tby)
+        return;
+
+    /* Create a pseudo-object representing the spell */
+    pseudo = mksobj(spell_otyp, FALSE, FALSE);
+    pseudo->blessed = pseudo->cursed = 0;
+    pseudo->quan = 20L; /* prevent useup from freeing it */
+    /* Set carrier so mbhitm can access caster level for damage scaling
+       and caster position for various effects */
+    pseudo->where = OBJ_MINVENT;
+    pseudo->ocarry = caster;
+
+    /* Trace the ray and affect targets along the path */
+    m_using = TRUE;
+    mbhit(caster, rn1(8, 6), mbhitm, bhito, pseudo);
+    m_using = FALSE;
+
+    /* Clean up the pseudo-object */
+    pseudo->where = OBJ_FREE; /* prevent obfree complaints */
+    pseudo->ocarry = (struct monst *) 0;
+    obfree(pseudo, (struct obj *) 0);
 }
 
 /*muse.c*/

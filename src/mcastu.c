@@ -745,28 +745,7 @@ struct monst *caster, *target;
         return 0;
     }
 
-    if (spell_otyp == SPE_FORCE_BOLT) {
-        /* Force bolt: IMMEDIATE attack spell using ray mechanics.
-           Like wand of striking, the bolt continues past the target
-           and can affect objects in its path (boulders, statues,
-           doors, fragile objects on the ground, etc). Requires line
-           of sight at range (just like other ranged attacks) */
-        int tx, ty;
-        if (youdefend) {
-            if (!lined_up(caster))
-                return 0; /* No clear line of sight */
-            tx = u.ux;
-            ty = u.uy;
-        } else if (target && !DEADMONSTER(target)) {
-            if (!mlined_up(caster, target, FALSE))
-                return 0; /* No clear line of sight */
-            tx = target->mx;
-            ty = target->my;
-        } else {
-            return 0;
-        }
-        mcast_force_bolt(caster, tx, ty);
-    } else if (spell_otyp >= SPE_MAGIC_MISSILE
+    if (spell_otyp >= SPE_MAGIC_MISSILE
                && spell_otyp <= SPE_ACID_BLAST) {
         /* Ray spells: magic missile, fireball, cone of cold, sleep,
            finger of death, lightning, poison blast, acid blast */
@@ -785,6 +764,31 @@ struct monst *caster, *target;
             return 0;
         }
         mcast_ray_spell(caster, tx, ty, spell_otyp);
+    } else if (spell_otyp == SPE_FORCE_BOLT
+               || spell_otyp == SPE_DRAIN_LIFE
+               || spell_otyp == SPE_SLOW_MONSTER
+               || spell_otyp == SPE_TURN_UNDEAD
+               || spell_otyp == SPE_TELEPORT_AWAY
+               || spell_otyp == SPE_POLYMORPH
+               || spell_otyp == SPE_ENTANGLE
+               || spell_otyp == SPE_DISPEL_EVIL
+               || spell_otyp == SPE_CHARM_MONSTER) {
+        /* IMMEDIATE spells - use mbhit() ray tracing */
+        int tx, ty;
+        if (youdefend) {
+            if (!lined_up(caster))
+                return 0; /* No clear line of sight */
+            tx = u.ux;
+            ty = u.uy;
+        } else if (target && !DEADMONSTER(target)) {
+            if (!mlined_up(caster, target, FALSE))
+                return 0; /* No clear line of sight */
+            tx = target->mx;
+            ty = target->my;
+        } else {
+            return 0;
+        }
+        mcast_immediate_spell(caster, tx, ty, spell_otyp);
     }
 
     return 0; /* spell handlers do their own damage */

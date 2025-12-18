@@ -4804,4 +4804,6 @@ The following changes to date are:
   player spells learned
 - Add all allowed ray-based spells for monster learned spellcasting
 - Change time taken for monsters reading spellbooks
+- Add several allowed immediate-based spells for monster learned
+  spellcasting
 
