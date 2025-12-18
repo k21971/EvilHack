@@ -4803,4 +4803,5 @@ The following changes to date are:
 - Frequency of monsters casting learned spells based off of number of
   player spells learned
 - Add all allowed ray-based spells for monster learned spellcasting
+- Change time taken for monsters reading spellbooks
 

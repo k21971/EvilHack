@@ -3975,7 +3975,6 @@ struct monst *mtmp;
         return 2;
     case MUSE_SPELLBOOK: {
         int spell_level = objects[otmp->otyp].oc_level;
-        int spell_delay = objects[otmp->otyp].oc_delay;
         int read_time;
         struct emsp *esp;
 
@@ -4027,29 +4026,9 @@ struct monst *mtmp;
             return 2;
         }
 
-        /* Start reading - calculate reading time based on spell level.
-           Formula matches player: level 1-2: delay, 3-4: (lev-1)*delay,
-           5-6: lev*delay, 7: 8*delay. Blessed books read faster */
-        switch (spell_level) {
-        case 1:
-        case 2:
-            read_time = spell_delay;
-            break;
-        case 3:
-        case 4:
-            read_time = (spell_level - 1) * spell_delay;
-            break;
-        case 5:
-        case 6:
-            read_time = spell_level * spell_delay;
-            break;
-        case 7:
-        default:
-            read_time = 8 * spell_delay;
-            break;
-        }
-
-        /* Blessed books are read faster */
+        /* Reading time: 3 turns per spell level,
+           blessed books are read in half the time */
+        read_time = 3 * spell_level;
         if (otmp->blessed)
             read_time = (read_time + 1) / 2;
 
