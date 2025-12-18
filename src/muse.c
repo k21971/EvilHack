@@ -3000,6 +3000,21 @@ struct obj *book;
     /* Check if spell is in the learnable whitelist */
     if (!spell_is_learnable(book->otyp))
         return FALSE;
+    /* Check if monster has room for another spell */
+    if (has_emsp(mtmp)) {
+        int i;
+        boolean has_room = FALSE;
+
+        for (i = 0; i < MAXMONSPELL; i++) {
+            if (EMSP(mtmp)->msp_id[i] == 0
+                || EMSP(mtmp)->msp_know[i] <= 0) {
+                has_room = TRUE;
+                break;
+            }
+        }
+        if (!has_room)
+            return FALSE; /* All spell slots occupied */
+    }
     return TRUE;
 }
 

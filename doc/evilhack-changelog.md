@@ -4806,4 +4806,6 @@ The following changes to date are:
 - Change time taken for monsters reading spellbooks
 - Add several allowed immediate-based spells for monster learned
   spellcasting
+- Fix: spellcasting monsters trying to learn more spells than the
+  maximum allowed
 
