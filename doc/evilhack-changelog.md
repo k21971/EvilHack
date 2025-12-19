@@ -4808,4 +4808,5 @@ The following changes to date are:
   spellcasting
 - Fix: spellcasting monsters trying to learn more spells than the
   maximum allowed
+- Fix: entangle spell properly entangles the player
 

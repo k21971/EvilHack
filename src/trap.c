@@ -3604,7 +3604,8 @@ long hmask, emask; /* might cancel timeout */
                   : (u.utraptype == TT_WEB) ? "web"
                       : (u.utraptype == TT_BURIEDBALL) ? "chain"
                           : (u.utraptype == TT_LAVA) ? "lava"
-                              : "ground"); /* TT_INFLOOR */
+                              : (u.utraptype == TT_ENTANGLED) ? "entangling vegetation"
+                                  : "ground"); /* TT_INFLOOR */
         (void) encumber_msg(); /* carrying capacity might have changed */
         return 0;
     }

@@ -1007,8 +1007,11 @@ boolean verbose;
                       ? hliquid("lava")
                       : u.utraptype == TT_INFLOOR
                             ? surface(u.ux, u.uy)
-                            : u.utraptype == TT_BURIEDBALL ? "buried ball"
-                                                           : "trap");
+                            : u.utraptype == TT_BURIEDBALL
+                                  ? "buried ball"
+                                  : u.utraptype == TT_ENTANGLED
+                                        ? "entangling vegetation"
+                                        : "trap");
         nomul(0);
         return;
     }

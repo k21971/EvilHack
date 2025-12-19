@@ -2798,6 +2798,8 @@ int final;
             Strcpy(predicament, "tethered to something buried");
         } else if (u.utraptype == TT_INFLOOR || u.utraptype == TT_LAVA) {
             Sprintf(predicament, "stuck in %s", the(surface(u.ux, u.uy)));
+        } else if (u.utraptype == TT_ENTANGLED) {
+            Strcpy(predicament, "entangled in vegetation");
         } else {
             Strcpy(predicament, "trapped");
             if ((t = t_at(u.ux, u.uy)) != 0)

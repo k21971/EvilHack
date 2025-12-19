@@ -321,7 +321,8 @@ enum utraptypes {
     TT_WEB        = 2,
     TT_LAVA       = 3,
     TT_INFLOOR    = 4,
-    TT_BURIEDBALL = 5
+    TT_BURIEDBALL = 5,
+    TT_ENTANGLED  = 6
 };
 
 /*** Information about the player ***/

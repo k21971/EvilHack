@@ -1516,6 +1516,19 @@ struct trap *desttrap; /* nonnull if another trap at <x,y> */
                 buried_ball_to_punishment();
         }
         break;
+    case TT_ENTANGLED:
+        if (flags.verbose) {
+            if (nexttotree(u.ux, u.uy))
+                predicament = "entangled by a tree";
+            else
+                predicament = "entangled by vegetation";
+            if (u.usteed)
+                Norep("%s is %s.", upstart(steedname), predicament);
+            else
+                Norep("You are %s.", predicament);
+        }
+        /* no escape by struggling */
+        break;
     default:
         impossible("trapmove: stuck in unknown trap? (%d)",
                    (int) u.utraptype);

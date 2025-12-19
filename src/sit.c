@@ -6,7 +6,6 @@
 #include "hack.h"
 #include "artifact.h"
 
-
 /* take away the hero's money */
 void
 take_gold()
@@ -112,7 +111,8 @@ dosit()
                 losehp(d(2, 10), "sitting in lava",
                        KILLED_BY); /* lava damage */
             } else if (u.utraptype == TT_INFLOOR
-                       || u.utraptype == TT_BURIEDBALL) {
+                       || u.utraptype == TT_BURIEDBALL
+                       || u.utraptype == TT_ENTANGLED) {
                 You_cant("maneuver to sit!");
                 u.utrap++;
             }

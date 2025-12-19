@@ -1009,23 +1009,43 @@ struct monst *mdef;
 
     /* target needs to be standing on/near vegetation
        for entanglement to work */
-    if (!(levl[mdef->mx][mdef->my].typ == GRASS
-          || nexttotree(mdef->mx, mdef->my))) {
-        pline("%s must be on or near vegetation to become entangled.",
-              youdefend ? "You" : Monnam(mdef));
-        return;
+    if (youdefend) {
+        if (!(levl[u.ux][u.uy].typ == GRASS
+              || nexttotree(u.ux, u.uy))) {
+            You("must be on or near vegetation to become entangled.");
+            return;
+        }
+    } else {
+        if (!(levl[mdef->mx][mdef->my].typ == GRASS
+              || nexttotree(mdef->mx, mdef->my))) {
+            pline("%s must be on or near vegetation to become entangled.",
+                  Monnam(mdef));
+            return;
+        }
     }
 
     if (youdefend) {
-        /* TODO: currently only the player can do this to
-           themselves, so nomul() will suffice, but a more
-           robust solution should be created for this */
+        if (u.utrap && u.utraptype == TT_ENTANGLED) {
+            You("are already entangled!");
+            return;
+        }
+        if (is_whirly(youmonst.data) || passes_walls(youmonst.data)
+            || unsolid(youmonst.data)) {
+            pline_The("spell fails to entangle you.");
+            return;
+        }
+        if (nexttotree(u.ux, u.uy))
+            pline_The("%s from a nearby tree ensnare you!",
+                      rn2(2) ? "branches" : "roots");
+        else if (levl[u.ux][u.uy].typ == GRASS)
+            pline_The("grass underneath you twists and loops around your %s!",
+                      makeplural(body_part(LEG)));
         You("are entangled!");
         if (u.usteed) {
             newsym(u.usteed->mx, u.usteed->my);
             dismount_steed(DISMOUNT_FELL);
         }
-        nomul(-3);
+        set_utrap(rn1(6, 3), TT_ENTANGLED); /* 3-8 turns */
         return;
     } else if (!youdefend) {
         if (mdef->mentangled) {
