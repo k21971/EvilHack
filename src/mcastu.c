@@ -250,7 +250,7 @@ int spellval;
         if (chance > 40)
             chance = 40;
         if (rn2(100) < chance) {
-            short learned = mchoose_learned_spell(mtmp);
+            short learned = mchoose_learned_spell(mtmp, 0, 0);
             if (learned != 0)
                 return MGC_LEARNED_SPELL;
         }
@@ -342,7 +342,7 @@ int spellnum;
         if (chance > 40)
             chance = 40;
         if (rn2(100) < chance) {
-            short learned = mchoose_learned_spell(mtmp);
+            short learned = mchoose_learned_spell(mtmp, 0, 0);
             if (learned != 0)
                 return CLC_LEARNED_SPELL;
         }
@@ -797,7 +797,22 @@ cast_learned_spell(caster, target)
 struct monst *caster, *target;
 {
     boolean youdefend = (target == &youmonst);
-    short spell_otyp = mchoose_learned_spell(caster);
+    int tx, ty;
+    short spell_otyp;
+
+    /* Determine target coordinates first, so we can filter spells
+       that require specific terrain (e.g., entangle needs vegetation) */
+    if (youdefend) {
+        tx = u.ux;
+        ty = u.uy;
+    } else if (target && !DEADMONSTER(target)) {
+        tx = target->mx;
+        ty = target->my;
+    } else {
+        return 0;
+    }
+
+    spell_otyp = mchoose_learned_spell(caster, tx, ty);
 
     if (spell_otyp == 0)
         return 0; /* No castable spell available */
@@ -811,19 +826,12 @@ struct monst *caster, *target;
                && spell_otyp <= SPE_ACID_BLAST) {
         /* Ray spells: magic missile, fireball, cone of cold, sleep,
            finger of death, lightning, poison blast, acid blast */
-        int tx, ty;
         if (youdefend) {
             if (!lined_up(caster))
                 return 0; /* No clear line of sight */
-            tx = u.ux;
-            ty = u.uy;
-        } else if (target && !DEADMONSTER(target)) {
+        } else {
             if (!mlined_up(caster, target, FALSE))
                 return 0; /* No clear line of sight */
-            tx = target->mx;
-            ty = target->my;
-        } else {
-            return 0;
         }
         mcast_ray_spell(caster, tx, ty, spell_otyp);
     } else if (spell_otyp == SPE_FORCE_BOLT
@@ -835,19 +843,12 @@ struct monst *caster, *target;
                || spell_otyp == SPE_ENTANGLE
                || spell_otyp == SPE_DISPEL_EVIL) {
         /* IMMEDIATE spells - use mbhit() ray tracing */
-        int tx, ty;
         if (youdefend) {
             if (!lined_up(caster))
                 return 0; /* No clear line of sight */
-            tx = u.ux;
-            ty = u.uy;
-        } else if (target && !DEADMONSTER(target)) {
+        } else {
             if (!mlined_up(caster, target, FALSE))
                 return 0; /* No clear line of sight */
-            tx = target->mx;
-            ty = target->my;
-        } else {
-            return 0;
         }
         mcast_immediate_spell(caster, tx, ty, spell_otyp);
     }
@@ -2986,10 +2987,14 @@ struct monst *mtmp;
     return count;
 }
 
-/* Get a random learned spell monster can cast; returns otyp or 0 */
+/* Get a random learned spell monster can cast; returns otyp or 0.
+   tx, ty are target coordinates for filtering spells that require
+   specific terrain (e.g., entangle needs vegetation). Pass (0,0) to
+   skip terrain filtering (used when just checking spell availability) */
 short
-mchoose_learned_spell(mtmp)
+mchoose_learned_spell(mtmp, tx, ty)
 struct monst *mtmp;
+int tx, ty;
 {
     short candidates[MAXMONSPELL];
     int count = 0, i;
@@ -3006,15 +3011,22 @@ struct monst *mtmp;
             if (spell_otyp < SPE_DIG || spell_otyp > SPE_BLANK_PAPER
                 || objects[spell_otyp].oc_class != SPBOOK_CLASS) {
                 impossible("mchoose_learned_spell: invalid otyp %d", spell_otyp);
-                EMSP(mtmp)->msp_id[i] = 0;  /* Clear corrupted entry */
+                EMSP(mtmp)->msp_id[i] = 0; /* Clear corrupted entry */
                 continue;
             }
             /* Check if monster is high enough level to cast this spell.
                Spell levels 1-7 map to required monster levels 3-21 */
             spell_level = objects[spell_otyp].oc_level;
             required_mlev = spell_level * 3;
-            if (mtmp->m_lev >= required_mlev)
-                candidates[count++] = spell_otyp;
+            if (mtmp->m_lev < required_mlev)
+                continue;
+            /* Entangle requires vegetation at target location.
+               Skip filtering if tx,ty are 0 (availability check only) */
+            if (spell_otyp == SPE_ENTANGLE && (tx || ty)) {
+                if (!(levl[tx][ty].typ == GRASS || nexttotree(tx, ty)))
+                    continue;
+            }
+            candidates[count++] = spell_otyp;
         }
     }
 

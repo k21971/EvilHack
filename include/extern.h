@@ -1339,7 +1339,7 @@ E int FDECL(castmm, (struct monst *, struct monst *, struct attack *));
 E int FDECL(castum, (struct monst *, struct attack *));
 E boolean FDECL(mknows_spell, (struct monst *, int));
 E boolean FDECL(mlearn_spell, (struct monst *, struct obj *));
-E short FDECL(mchoose_learned_spell, (struct monst *));
+E short FDECL(mchoose_learned_spell, (struct monst *, int, int));
 E void FDECL(mage_spells, (struct monst *));
 
 /* ### mhitm.c ### */

@@ -4811,4 +4811,5 @@ The following changes to date are:
 - Fix: entangle spell properly entangles the player
 - Fix: revamp how spellcasting monsters use the player spell charm
   monster
+- Fix: refactor mchoose_learned_spell() to accept coordinates
 
