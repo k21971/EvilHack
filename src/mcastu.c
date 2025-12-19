@@ -27,6 +27,7 @@ enum mcast_mage_spells {
     MGC_CANCELLATION,
     MGC_REFLECTION,
     MGC_DEATH_TOUCH,
+    MGC_UNTAME_PET, /* requires knowing SPE_CHARM_MONSTER */
     MGC_LEARNED_SPELL /* spell learned from spellbook */
 };
 
@@ -48,6 +49,7 @@ enum mcast_cleric_spells {
     CLC_GEYSER,
     CLC_SUMMON_MINION,
     CLC_CALL_UNDEAD,
+    CLC_UNTAME_PET, /* requires knowing SPE_CHARM_MONSTER */
     CLC_LEARNED_SPELL /* spell learned from spellbook */
 };
 
@@ -56,6 +58,8 @@ extern void you_aggravate(struct monst *);
 STATIC_DCL int FDECL(choose_bolt_spell, (struct monst *));
 STATIC_DCL boolean FDECL(has_eota, (struct monst *));
 STATIC_DCL boolean FDECL(is_boss_caster, (struct monst *));
+STATIC_DCL struct monst *FDECL(find_adjacent_pet, (struct monst *));
+STATIC_DCL void FDECL(do_untame_pet, (struct monst *, struct monst *));
 STATIC_DCL void FDECL(cursetxt, (struct monst *, BOOLEAN_P));
 STATIC_DCL int FDECL(choose_magic_spell, (struct monst *, int));
 STATIC_DCL int FDECL(choose_clerical_spell, (struct monst *, int));
@@ -120,6 +124,64 @@ struct monst *mtmp;
             || mtmp->data == &mons[PM_HIGH_PRIEST]
             || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
             || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]);
+}
+
+/* Returns a random adjacent tame monster, or NULL.
+   Used by MGC_UNTAME_PET/CLC_UNTAME_PET to find targets for charm
+   monster spell */
+STATIC_OVL struct monst *
+find_adjacent_pet(mtmp)
+struct monst *mtmp;
+{
+    struct monst *candidates[8];
+    int count = 0;
+    int dx, dy;
+
+    for (dx = -1; dx <= 1; dx++) {
+        for (dy = -1; dy <= 1; dy++) {
+            struct monst *m;
+            if (dx == 0 && dy == 0)
+                continue;
+            if (!isok(mtmp->mx + dx, mtmp->my + dy))
+                continue;
+            m = m_at(mtmp->mx + dx, mtmp->my + dy);
+            if (m && m->mtame)
+                candidates[count++] = m;
+        }
+    }
+    if (count == 0)
+        return (struct monst *) 0;
+    return candidates[rn2(count)];
+}
+
+/* Untame a pet, used by MGC_UNTAME_PET and CLC_UNTAME_PET.
+   If target is provided and tame, untame it; otherwise find random
+   adjacent pet */
+STATIC_OVL void
+do_untame_pet(caster, target)
+struct monst *caster;
+struct monst *target;
+{
+    struct monst *pet;
+
+    /* Use specific target if it's tame, otherwise find random
+       adjacent pet */
+    if (target && target->mtame)
+        pet = target;
+    else
+        pet = find_adjacent_pet(caster);
+
+    if (pet) {
+        /* Untame the pet - free_edog also sets mtame = 0 */
+        if (has_edog(pet))
+            free_edog(pet);
+        else
+            pet->mtame = 0;
+        pet->mpeaceful = 0;
+        if (canseemon(pet))
+            pline("%s turns against you!", Monnam(pet));
+        newsym(pet->mx, pet->my);
+    }
 }
 
 boolean
@@ -771,8 +833,7 @@ struct monst *caster, *target;
                || spell_otyp == SPE_TELEPORT_AWAY
                || spell_otyp == SPE_POLYMORPH
                || spell_otyp == SPE_ENTANGLE
-               || spell_otyp == SPE_DISPEL_EVIL
-               || spell_otyp == SPE_CHARM_MONSTER) {
+               || spell_otyp == SPE_DISPEL_EVIL) {
         /* IMMEDIATE spells - use mbhit() ray tracing */
         int tx, ty;
         if (youdefend) {
@@ -1295,6 +1356,10 @@ int dmg, spellnum;
                       can_flollop(target->data) ? "flollops" : "winces",
                       (dmg <= 5) ? "." : "!");
         }
+        break;
+    case MGC_UNTAME_PET:
+        do_untame_pet(caster, target);
+        dmg = 0;
         break;
     case MGC_LEARNED_SPELL:
         dmg = cast_learned_spell(caster, target);
@@ -1954,6 +2019,10 @@ int dmg, spellnum;
             (void) cast_stoneskin(caster);
         dmg = 0;
         break;
+    case CLC_UNTAME_PET:
+        do_untame_pet(caster, target);
+        dmg = 0;
+        break;
     case CLC_LEARNED_SPELL:
         dmg = cast_learned_spell(caster, target);
         break;
@@ -2459,6 +2528,14 @@ struct attack *mattk;
                                               mattk->adtyp, spellnum));
         if (cnt == 0)
             return 0;
+    }
+
+    /* If attacking a tame monster and we know charm monster, use untame spell */
+    if (mdef->mtame && mknows_spell(mtmp, SPE_CHARM_MONSTER)) {
+        if (mattk->adtyp == AD_SPEL)
+            spellnum = MGC_UNTAME_PET;
+        else if (mattk->adtyp == AD_CLRC)
+            spellnum = CLC_UNTAME_PET;
     }
 
     /* monster unable to cast spells? */

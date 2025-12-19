@@ -2351,24 +2351,6 @@ struct obj *otmp;
             }
         }
         break;
-    case SPE_CHARM_MONSTER:
-        /* For monsters: untame an adjacent pet */
-        reveal_invis = TRUE;
-        if (!hits_you && mtmp->mtame && mcarried(otmp)) {
-            struct monst *caster = otmp->ocarry;
-            if (monnear(caster, mtmp->mx, mtmp->my)) {
-                /* Untame the pet - free_edog also sets mtame = 0 */
-                if (has_edog(mtmp))
-                    free_edog(mtmp);
-                else
-                    mtmp->mtame = 0;
-                mtmp->mpeaceful = 0;
-                if (canseemon(mtmp))
-                    Your("%s turns against you!", l_monnam(mtmp));
-                newsym(mtmp->mx, mtmp->my);
-            }
-        }
-        break;
     case SPE_ENTANGLE:
         cast_entangle(mtmp);
         break;
@@ -5285,8 +5267,8 @@ int spell_otyp;
 
 /* Cast an IMMEDIATE spell using mbhit() ray tracing.
    These spells (drain life, slow monster, teleport away, polymorph,
-   turn undead, entangle, dispel evil, charm monster) trace a line from
-   caster to target and affect things along the path */
+   turn undead, entangle, dispel evil) trace a line from caster to
+   target and affect things along the path */
 void
 mcast_immediate_spell(caster, tx, ty, spell_otyp)
 struct monst *caster;
