@@ -855,7 +855,11 @@ struct monst *caster, *target;
         /* NODIR spell - no LOS check needed, directly targets enemy */
         mcast_nodir_spell(caster, target, spell_otyp);
     } else if (spell_otyp == SPE_CURE_BLINDNESS
-               || spell_otyp == SPE_CURE_SICKNESS) {
+               || spell_otyp == SPE_CURE_SICKNESS
+               || spell_otyp == SPE_REMOVE_CURSE
+               || spell_otyp == SPE_REPAIR_ARMOR
+               || spell_otyp == SPE_LEVITATION
+               || spell_otyp == SPE_JUMPING) {
         /* Self-targeting NODIR spells */
         mcast_nodir_spell(caster, caster, spell_otyp);
     }
@@ -2075,6 +2079,7 @@ int spellnum;
         case MGC_ICE_BOLT:
         case MGC_CANCELLATION:
         case MGC_REFLECTION:
+        case MGC_LEARNED_SPELL: /* self-buff or has own hit messages */
             return TRUE;
         default:
             break;
@@ -2090,6 +2095,7 @@ int spellnum;
         case CLC_VULN_YOU:
         case CLC_SUMMON_MINION:
         case CLC_CALL_UNDEAD:
+        case CLC_LEARNED_SPELL: /* self-buff or has own hit messages */
             return TRUE;
         default:
             break;
@@ -3011,13 +3017,26 @@ int tx, ty;
     if (!has_emsp(mtmp))
         return 0;
 
+    /* Priority: urgent self-cure spells are cast immediately if needed.
+       Cure sickness is level 3 (requires mlev 9), cure blindness is
+       level 2 (mlev 6) */
+    if ((mtmp->msick || mtmp->mdiseased || mtmp->mwither)
+        && mtmp->m_lev >= 9 && mknows_spell(mtmp, SPE_CURE_SICKNESS)) {
+        return SPE_CURE_SICKNESS;
+    }
+    if (mtmp->mblinded
+        && mtmp->m_lev >= 6 && mknows_spell(mtmp, SPE_CURE_BLINDNESS)) {
+        return SPE_CURE_BLINDNESS;
+    }
+
     for (i = 0; i < MAXMONSPELL; i++) {
         spell_otyp = EMSP(mtmp)->msp_id[i];
         if (spell_otyp != 0 && EMSP(mtmp)->msp_know[i] > 0) {
             /* Defensive bounds check for corrupted emsp data */
             if (spell_otyp < SPE_DIG || spell_otyp > SPE_BLANK_PAPER
                 || objects[spell_otyp].oc_class != SPBOOK_CLASS) {
-                impossible("mchoose_learned_spell: invalid otyp %d", spell_otyp);
+                impossible("mchoose_learned_spell: invalid otyp %d",
+                           spell_otyp);
                 EMSP(mtmp)->msp_id[i] = 0; /* Clear corrupted entry */
                 continue;
             }
@@ -3033,12 +3052,49 @@ int tx, ty;
                 if (!(levl[tx][ty].typ == GRASS || nexttotree(tx, ty)))
                     continue;
             }
-            /* Self-cure spells only useful when monster has the condition */
+            /* Self-cure spells already handled by priority check above */
             if (spell_otyp == SPE_CURE_BLINDNESS && !mtmp->mblinded)
                 continue;
             if (spell_otyp == SPE_CURE_SICKNESS
                 && !mtmp->msick && !mtmp->mdiseased && !mtmp->mwither)
                 continue;
+            /* Remove curse only useful if monster has cursed items to uncurse */
+            if (spell_otyp == SPE_REMOVE_CURSE) {
+                boolean has_cursed = FALSE;
+                struct obj *obj;
+                /* Infidels are immune to curses */
+                if (mtmp->mnum == PM_INFIDEL)
+                    continue;
+                for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+                    if (obj->cursed
+                        && (obj->owornmask || Is_mbag(obj)
+                            || obj->otyp == LOADSTONE)) {
+                        has_cursed = TRUE;
+                        break;
+                    }
+                }
+                if (!has_cursed)
+                    continue;
+            }
+            /* Repair armor only useful if monster has eroded armor */
+            if (spell_otyp == SPE_REPAIR_ARMOR) {
+                struct obj *arm = some_armor(mtmp);
+                if (!arm || greatest_erosion(arm) == 0)
+                    continue;
+            }
+            /* Levitation only useful if not already floating/flying */
+            if (spell_otyp == SPE_LEVITATION) {
+                if (is_floater(mtmp->data) || is_flyer(mtmp->data)
+                    || can_levitate(mtmp) || can_fly(mtmp))
+                    continue;
+            }
+            /* Jumping only useful if not already jumping/flying/levitating */
+            if (spell_otyp == SPE_JUMPING) {
+                if (is_jumper(mtmp->data) || can_jump(mtmp)
+                    || is_flyer(mtmp->data) || is_floater(mtmp->data)
+                    || can_levitate(mtmp) || can_fly(mtmp))
+                    continue;
+            }
             candidates[count++] = spell_otyp;
         }
     }

@@ -228,6 +228,8 @@ struct monst {
     int mbarkskintime;     /* timeout for monster barkskin spell */
     int mstoneskintime;    /* timeout for monster stoneskin spell */
     int mentangletime;     /* timeout for monster entangle spell */
+    int mlevitatetime;     /* timeout for monster levitation spell */
+    int mjumptime;         /* timeout for monster jumping spell */
     int mbreakboulder;     /* timeout for monster breaking a boulder */
     uchar mprotection;     /* monster protection spell */
     uchar mprottime;       /* timeout for monster protection spell */

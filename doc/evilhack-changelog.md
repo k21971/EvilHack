@@ -4814,4 +4814,5 @@ The following changes to date are:
 - Fix: refactor mchoose_learned_spell() to accept coordinates
 - Add some of the allowed NODIR-based spells for monster learned
   spellcasting
+- Add remaining NODIR-based spells for monster learned spellcasting
 

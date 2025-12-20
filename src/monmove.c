@@ -305,6 +305,10 @@ boolean digest_meal;
         mon->mstoneskintime--;
     if (mon->mentangletime)
         mon->mentangletime--;
+    if (mon->mlevitatetime)
+        mon->mlevitatetime--;
+    if (mon->mjumptime)
+        mon->mjumptime--;
     if (digest_meal) {
         if (mon->meating) {
             mon->meating--;

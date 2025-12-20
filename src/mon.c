@@ -1387,6 +1387,24 @@ mcalcdistress()
             continue;
         }
 
+        if (can_levitate(mtmp) && mtmp->mlevitatetime
+            && mtmp->mlevitatetime <= 1) {
+            mtmp->mextrinsics &= ~(MR2_LEVITATE);
+            mtmp->mlevitatetime = 0;
+            if (canseemon(mtmp))
+                pline("%s floats gently to the %s.",
+                      Monnam(mtmp), surface(mtmp->mx, mtmp->my));
+            continue;
+        }
+
+        if (can_jump(mtmp) && mtmp->mjumptime
+            && mtmp->mjumptime <= 1) {
+            mtmp->mextrinsics &= ~(MR2_JUMPING);
+            mtmp->mjumptime = 0;
+            /* No message - jumping expiration is silent */
+            continue;
+        }
+
         /* assassin vines will slowly grow and spread throughout the
            level until the original vine is killed or at least drops
            below two-thirds of its maximum hit points */

@@ -5444,6 +5444,62 @@ int spell_otyp;
             caster->mwither = 0;
         }
         break;
+    case SPE_REMOVE_CURSE: {
+        /* Self-targeting: uncurse worn items, loadstones, magic bags */
+        struct obj *obj;
+
+        if (canseemon(caster))
+            pline("%s chants a prayer...", Monnam(caster));
+
+        for (obj = caster->minvent; obj; obj = obj->nobj) {
+            /* gold isn't subject to cursing and blessing */
+            if (obj->oclass == COIN_CLASS)
+                continue;
+            if (obj->owornmask || Is_mbag(obj) || obj->otyp == LOADSTONE) {
+                if (caster->mconf)
+                    blessorcurse(obj, 2);
+                else
+                    uncurse(obj);
+            }
+        }
+        break;
+    }
+    case SPE_REPAIR_ARMOR: {
+        /* Self-targeting: repair one level of erosion on random armor */
+        struct obj *otmp = some_armor(caster);
+
+        if (otmp && greatest_erosion(otmp) > 0) {
+            if (canseemon(caster))
+                pline("%s %s glows faintly golden for a moment.",
+                      s_suffix(Monnam(caster)), xname(otmp));
+            if (otmp->oeroded > 0)
+                otmp->oeroded--;
+            if (otmp->oeroded2 > 0)
+                otmp->oeroded2--;
+        }
+        break;
+    }
+    case SPE_LEVITATION:
+        /* Self-targeting: grant temporary levitation */
+        if (!is_floater(caster->data) && !is_flyer(caster->data)
+            && !can_levitate(caster) && !can_fly(caster)) {
+            caster->mextrinsics |= MR2_LEVITATE;
+            caster->mlevitatetime = rn1(50, 50); /* 50-100 turns */
+            if (canseemon(caster))
+                pline("%s begins to float in the air!", Monnam(caster));
+        }
+        break;
+    case SPE_JUMPING:
+        /* Self-targeting: grant temporary jumping ability */
+        if (!is_jumper(caster->data) && !can_jump(caster)) {
+            caster->mextrinsics |= MR2_JUMPING;
+            caster->mjumptime = rn1(50, 50); /* 50-100 turns */
+            if (canseemon(caster))
+                pline("%s %s tense with magical energy.",
+                      s_suffix(Monnam(caster)),
+                      makeplural(mbodypart(caster, LEG)));
+        }
+        break;
     default:
         impossible("mcast_nodir_spell: unhandled spell %d", spell_otyp);
         return FALSE;
