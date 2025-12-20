@@ -4819,4 +4819,5 @@ The following changes to date are:
   spellcasting
 - Fix: various issues in mcastu.c
 - Fix: various issues in muse.c round one
+- Fix: various issues in muse.c round two
 

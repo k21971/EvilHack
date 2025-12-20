@@ -10,10 +10,10 @@
 
 boolean m_using = FALSE;
 
-/* Let monsters use magic items.  Arbitrary assumptions: Monsters only use
+/* Let monsters use magic items. Arbitrary assumptions: Monsters only use
  * scrolls when they can see, monsters know when wands have 0 charges,
  * monsters cannot recognize if items are cursed are not, monsters which
- * are confused don't know not to read scrolls, etc....
+ * are confused don't know not to read scrolls, etc...
  */
 
 STATIC_DCL int FDECL(precheck, (struct monst *, struct obj *));
@@ -24,7 +24,6 @@ STATIC_DCL void FDECL(mreadmsg, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(mquaffmsg, (struct monst *, struct obj *));
 STATIC_DCL boolean FDECL(m_use_healing, (struct monst *));
 STATIC_DCL boolean FDECL(linedup_chk_corpse, (int, int));
-STATIC_DCL void FDECL(m_use_undead_turning, (struct monst *, struct obj *));
 STATIC_PTR int FDECL(mbhitm, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(mbhit, (struct monst *, int,
                               int FDECL((*), (MONST_P, OBJ_P)),
@@ -43,23 +42,16 @@ STATIC_DCL int FDECL(cures_sliming, (struct monst *, struct obj *));
 STATIC_DCL boolean FDECL(green_mon, (struct monst *));
 STATIC_DCL void FDECL(monster_uncurse_items, (struct monst *, BOOLEAN_P));
 STATIC_DCL boolean FDECL(can_attempt_disarm, (struct monst *, struct obj *, int));
-
 STATIC_DCL int FDECL(charge_precedence, (int));
 STATIC_DCL struct obj *FDECL(find_best_item_to_charge, (struct monst *));
-STATIC_DCL boolean FDECL(find_offensive_recurse, (struct monst *, struct obj *,
-                                                  struct monst *, BOOLEAN_P));
-STATIC_DCL boolean FDECL(find_defensive_recurse, (struct monst *, struct obj *));
-STATIC_DCL boolean FDECL(find_misc_recurse, (struct monst *, struct obj *));
 
 static struct musable {
     struct obj *offensive;
     struct obj *defensive;
     struct obj *misc;
-    struct obj *tocharge; /* TODO: remove tocharge at next version change */
     int has_offense, has_defense, has_misc;
-    /* =0, no capability; otherwise, different numbers.
-     * If it's an object, the object is also set (it's 0 otherwise).
-     */
+    /* If 0, no capability; otherwise, different numbers.
+       If it's an object, the object is also set (it's 0 otherwise) */
 } m;
 static int trapx, trapy;
 static boolean zap_oseen; /* for wands which use mbhitm and are zapped at
@@ -67,12 +59,116 @@ static boolean zap_oseen; /* for wands which use mbhitm and are zapped at
                            * the function, but this is impossible since the
                            * function mbhitm has to be compatible with the
                            * normal zap routines, and those routines don't
-                           * remember who zapped the wand. */
+                           * remember who zapped the wand */
 
-/* Any preliminary checks which may result in the monster being unable to use
- * the item.  Returns 0 if nothing happened, 2 if the monster can't do
- * anything (i.e. it teleported) and 1 if it's dead.
- */
+/* Generic item finder framework */
+enum find_category {
+    FIND_DEFENSIVE = 0,
+    FIND_OFFENSIVE = 1,
+    FIND_MISC = 2
+};
+
+struct find_context {
+    struct monst *target;    /* offensive: who we're attacking */
+    boolean reflection_skip; /* offensive: skip reflectable items */
+    struct trap *t;          /* defensive: trap at monster's location */
+    boolean stuck;           /* defensive: stuck to player */
+    struct obj *helmet;      /* offensive: monster's helmet */
+};
+
+/* Callback returns MUSE_* type if item is usable, 0 otherwise */
+typedef int (*item_checker_fn)(struct monst *, struct obj *, int,
+                               struct find_context *);
+
+STATIC_DCL boolean FDECL(find_items_recurse, (struct monst *, struct obj *,
+                                              int, item_checker_fn,
+                                              struct find_context *));
+STATIC_DCL int FDECL(check_defensive_item, (struct monst *, struct obj *, int,
+                                            struct find_context *));
+STATIC_DCL int FDECL(check_offensive_item, (struct monst *, struct obj *, int,
+                                            struct find_context *));
+STATIC_DCL int FDECL(check_misc_item, (struct monst *, struct obj *, int,
+                                       struct find_context *));
+
+/* MUSE_* constants for defensive items */
+#define MUSE_SCR_TELEPORTATION 1
+#define MUSE_WAN_TELEPORTATION_SELF 2
+#define MUSE_POT_HEALING 3
+#define MUSE_POT_EXTRA_HEALING 4
+#define MUSE_WAN_DIGGING 5
+#define MUSE_TRAPDOOR 6
+#define MUSE_TELEPORT_TRAP 7
+#define MUSE_UPSTAIRS 8
+#define MUSE_DOWNSTAIRS 9
+#define MUSE_WAN_CREATE_MONSTER 10
+#define MUSE_SCR_CREATE_MONSTER 11
+#define MUSE_UP_LADDER 12
+#define MUSE_DN_LADDER 13
+#define MUSE_SSTAIRS 14
+#define MUSE_WAN_TELEPORTATION 15
+#define MUSE_BUGLE 16
+#define MUSE_UNICORN_HORN 17
+#define MUSE_POT_FULL_HEALING 18
+#define MUSE_LIZARD_CORPSE 19
+#define MUSE_ACID_BLOB_CORPSE 20
+#define MUSE_BAG_OF_TRICKS 21
+#define MUSE_EUCALYPTUS_LEAF 22
+#define MUSE_WAN_UNDEAD_TURNING 24 /* also an offensive item */
+#define MUSE_POT_RESTORE_ABILITY 25
+#define MUSE_POT_VAMPIRE_BLOOD 26
+#define MUSE_INNATE_TPT 9999
+
+/* MUSE_* constants for offensive items */
+#define MUSE_WAN_DEATH 1
+#define MUSE_WAN_SLEEP 2
+#define MUSE_WAN_FIRE 3
+#define MUSE_WAN_COLD 4
+#define MUSE_WAN_LIGHTNING 5
+#define MUSE_WAN_MAGIC_MISSILE 6
+#define MUSE_WAN_STRIKING 7
+#define MUSE_SCR_FIRE 8
+#define MUSE_POT_PARALYSIS 9
+#define MUSE_POT_BLINDNESS 10
+#define MUSE_POT_CONFUSION 11
+#define MUSE_FROST_HORN 12
+#define MUSE_FIRE_HORN 13
+#define MUSE_POT_ACID 14
+/* MUSE_WAN_TELEPORTATION 15 - defined above with defensive */
+#define MUSE_POT_SLEEPING 16
+#define MUSE_SCR_EARTH 17
+#define MUSE_WAN_CANCELLATION 18
+#define MUSE_SCR_CHARGING 19
+#define MUSE_SCR_STINKING_CLOUD 20
+#define MUSE_POT_POLYMORPH_THROW 21
+#define MUSE_POT_HALLUCINATION 22
+#define MUSE_WAN_POLYMORPH 23
+/* MUSE_WAN_UNDEAD_TURNING 24 - defined above with defensive */
+#define MUSE_POT_OIL 25
+#define MUSE_CAMERA 26
+#define MUSE_WAN_SLOW_MONSTER 27
+
+/* MUSE_* constants for misc items */
+#define MUSE_POT_GAIN_LEVEL 1
+#define MUSE_WAN_MAKE_INVISIBLE 2
+#define MUSE_POT_INVISIBILITY 3
+#define MUSE_POLY_TRAP 4
+#define MUSE_WAN_POLYMORPH_SELF 5
+#define MUSE_POT_SPEED 6
+#define MUSE_WAN_SPEED_MONSTER 7
+#define MUSE_BULLWHIP 8
+#define MUSE_POT_POLYMORPH 9
+#define MUSE_SCR_REMOVE_CURSE 10
+#define MUSE_WAN_WISHING 11
+#define MUSE_FIGURINE 12
+#define MUSE_DWARVISH_BEARDED_AXE_WEAPON 13
+#define MUSE_DWARVISH_BEARDED_AXE_SHIELD 14
+#define MUSE_PAN_FLUTE 15
+#define MUSE_POT_BOOZE 16
+#define MUSE_SPELLBOOK 17
+
+/* Any preliminary checks which may result in the monster being unable
+   to use the item. Returns 0 if nothing happened, 2 if the monster
+   can't do anything (i.e. it teleported) and 1 if it's dead */
 STATIC_OVL int
 precheck(mon, obj)
 struct monst *mon;
@@ -373,43 +469,6 @@ struct obj *otmp;
         You_hear("a chugging sound.");
 }
 
-/* Defines for various types of stuff.  The order in which monsters prefer
- * to use them is determined by the order of the code logic, not the
- * numerical order in which they are defined.
- */
-#define MUSE_SCR_TELEPORTATION 1
-#define MUSE_WAN_TELEPORTATION_SELF 2
-#define MUSE_POT_HEALING 3
-#define MUSE_POT_EXTRA_HEALING 4
-#define MUSE_WAN_DIGGING 5
-#define MUSE_TRAPDOOR 6
-#define MUSE_TELEPORT_TRAP 7
-#define MUSE_UPSTAIRS 8
-#define MUSE_DOWNSTAIRS 9
-#define MUSE_WAN_CREATE_MONSTER 10
-#define MUSE_SCR_CREATE_MONSTER 11
-#define MUSE_UP_LADDER 12
-#define MUSE_DN_LADDER 13
-#define MUSE_SSTAIRS 14
-#define MUSE_WAN_TELEPORTATION 15
-#define MUSE_BUGLE 16
-#define MUSE_UNICORN_HORN 17
-#define MUSE_POT_FULL_HEALING 18
-#define MUSE_LIZARD_CORPSE 19
-#define MUSE_ACID_BLOB_CORPSE 20
-#define MUSE_BAG_OF_TRICKS 21
-#define MUSE_EUCALYPTUS_LEAF 22
-#define MUSE_WAN_UNDEAD_TURNING 24 /* also an offensive item */
-#define MUSE_POT_RESTORE_ABILITY 25
-#define MUSE_POT_VAMPIRE_BLOOD 26
-/*
-#define MUSE_INNATE_TPT 9999
- * We cannot use this.  Since monsters get unlimited teleportation, if they
- * were allowed to teleport at will you could never catch them.  Instead,
- * assume they only teleport at random times, despite the inconsistency
- * that if you polymorph into one you teleport at will.
- */
-
 STATIC_OVL boolean
 m_use_healing(mtmp)
 struct monst *mtmp;
@@ -447,8 +506,8 @@ struct monst *mtmp;
     return FALSE;
 }
 
-/* Select a defensive item/action for a monster.  Returns TRUE iff one is
-   found. */
+/* Select a defensive item/action for a monster. Returns TRUE iff one is
+   found */
 boolean
 find_defensive(mtmp)
 struct monst *mtmp;
@@ -751,11 +810,10 @@ struct monst *mtmp;
         nomore(MUSE_WAN_TELEPORTATION);
         if (obj->otyp == WAN_TELEPORTATION && obj->spe > 0) {
             /* use the TELEP_TRAP_SET bit to determine if they know
-             * about noteleport on this level or not.  Avoids
-             * ineffective re-use of teleportation.  This does
+             * about noteleport on this level or not. Avoids
+             * ineffective re-use of teleportation. This does
              * mean if the monster leaves the level, they'll know
-             * about teleport traps.
-             */
+             * about teleport traps */
             if (!level.flags.noteleport
                 || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1)))) {
                 m.defensive = obj;
@@ -823,145 +881,505 @@ struct monst *mtmp;
         }
     }
 
-    return find_defensive_recurse(mtmp, mtmp->minvent);
+    /* Set up context for the generic finder callback */
+    {
+        struct find_context ctx;
+
+        ctx.stuck = (mtmp == u.ustuck);
+        ctx.t = t_at(x, y);
+        if (ctx.t && (ctx.t->ttyp == PIT || ctx.t->ttyp == SPIKED_PIT
+                      || ctx.t->ttyp == WEB || ctx.t->ttyp == BEAR_TRAP))
+            ctx.t = 0; /* ok for monster to dig here */
+        ctx.target = (struct monst *) 0;
+        ctx.reflection_skip = FALSE;
+        ctx.helmet = (struct obj *) 0;
+
+        return find_items_recurse(mtmp, mtmp->minvent, FIND_DEFENSIVE,
+                                  check_defensive_item, &ctx);
+    }
 
  botm:
     return (boolean) !!m.has_defense;
 #undef nomore
 }
 
-STATIC_OVL boolean
-find_defensive_recurse(mtmp, start)
+/* Callback for checking defensive items */
+STATIC_OVL int
+check_defensive_item(mtmp, obj, current_muse, ctx)
 struct monst *mtmp;
-struct obj *start;
+struct obj *obj;
+int current_muse;
+struct find_context *ctx;
 {
-    struct obj *obj = 0, *nextobj;
     int x = mtmp->mx, y = mtmp->my;
-    boolean stuck = (mtmp == u.ustuck);
 
-    struct trap *t = t_at(x, y);
-    if (t && (t->ttyp == PIT || t->ttyp == SPIKED_PIT
-        || t->ttyp == WEB || t->ttyp == BEAR_TRAP))
-        t = 0; /* ok for monster to dig here */
-#define nomore(x)       if (m.has_defense == x) continue;
-    for (obj = start; obj; obj = nextobj) {
-        nextobj = obj->nobj;
-        /* don't always use the same selection pattern */
-        if (m.has_defense && !rn2(3))
-            break;
+#define nomore(x) if (current_muse == (x)) return 0;
 
-        if (Is_container(obj) && obj->otyp != BAG_OF_TRICKS) {
-            (void) find_defensive_recurse(mtmp, obj->cobj);
-            continue;
-        }
+    nomore(MUSE_WAN_DIGGING);
+    if (obj->otyp == WAN_DIGGING && obj->spe > 0 && !ctx->stuck && !ctx->t
+        && !mtmp->isshk && !mtmp->isgd && !mtmp->ispriest
+        && !is_floater(mtmp->data)
+        && !can_levitate(mtmp)
+        && !Sokoban
+        && !(levl[x][y].wall_info & W_NONDIGGABLE)
+        && !(Is_botlevel(&u.uz) || In_endgame(&u.uz))
+        && !(is_ice(x, y) || is_pool(x, y) || is_lava(x, y))
+        && !(mtmp->data == &mons[PM_VLAD_THE_IMPALER]
+             && In_V_tower(&u.uz))) {
+        return MUSE_WAN_DIGGING;
+    }
 
-        nomore(MUSE_WAN_DIGGING);
-        if (m.has_defense == MUSE_WAN_DIGGING)
-            break;
-        if (obj->otyp == WAN_DIGGING && obj->spe > 0 && !stuck && !t
-            && !mtmp->isshk && !mtmp->isgd && !mtmp->ispriest
-            && !is_floater(mtmp->data)
-            && !can_levitate(mtmp)
-            /* monsters digging in Sokoban can ruin things */
-            && !Sokoban
-            /* digging wouldn't be effective; assume they know that */
-            && !(levl[x][y].wall_info & W_NONDIGGABLE)
-            && !(Is_botlevel(&u.uz) || In_endgame(&u.uz))
-            && !(is_ice(x, y) || is_pool(x, y) || is_lava(x, y))
-            && !(mtmp->data == &mons[PM_VLAD_THE_IMPALER]
-                 && In_V_tower(&u.uz))) {
-            m.defensive = obj;
-            m.has_defense = MUSE_WAN_DIGGING;
-        }
-        nomore(MUSE_WAN_TELEPORTATION_SELF);
-        nomore(MUSE_WAN_TELEPORTATION);
-        if (obj->otyp == WAN_TELEPORTATION && obj->spe > 0) {
-            /* use the TELEP_TRAP_SET bit to determine if they know
-             * about noteleport on this level or not.  Avoids
-             * ineffective re-use of teleportation.  This does
-             * mean if the monster leaves the level, they'll know
-             * about teleport traps.
-             */
-            if (!level.flags.noteleport
-                || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1)))) {
-                m.defensive = obj;
-                m.has_defense = (mon_has_amulet(mtmp))
-                                 ? MUSE_WAN_TELEPORTATION
-                                 : MUSE_WAN_TELEPORTATION_SELF;
-            }
-        }
-        nomore(MUSE_SCR_TELEPORTATION);
-        if (obj->otyp == SCR_TELEPORTATION && mtmp->mcansee
-            && haseyes(mtmp->data)
-            && (!obj->cursed
-                || (!(mtmp->isshk && inhishop(mtmp))
-                && !mtmp->isgd && !mtmp->ispriest))) {
-            /* see WAN_TELEPORTATION case above */
-            if (!level.flags.noteleport
-                || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1)))) {
-                m.defensive = obj;
-                m.has_defense = MUSE_SCR_TELEPORTATION;
-            }
-        }
-
-        if (mtmp->data != &mons[PM_PESTILENCE]) {
-            nomore(MUSE_POT_FULL_HEALING);
-            if (obj->otyp == POT_FULL_HEALING) {
-                m.defensive = obj;
-                m.has_defense = MUSE_POT_FULL_HEALING;
-            }
-            nomore(MUSE_POT_EXTRA_HEALING);
-            if (obj->otyp == POT_EXTRA_HEALING) {
-                m.defensive = obj;
-                m.has_defense = MUSE_POT_EXTRA_HEALING;
-            }
-            nomore(MUSE_POT_HEALING);
-            if (obj->otyp == POT_HEALING) {
-                m.defensive = obj;
-                m.has_defense = MUSE_POT_HEALING;
-            }
-        } else { /* Pestilence */
-            nomore(MUSE_POT_FULL_HEALING);
-            if (obj->otyp == POT_SICKNESS) {
-                m.defensive = obj;
-                m.has_defense = MUSE_POT_FULL_HEALING;
-            }
-        }
-        nomore(MUSE_EUCALYPTUS_LEAF);
-        if ((mtmp->msick || mtmp->mdiseased)
-            && obj->otyp == EUCALYPTUS_LEAF) {
-            m.defensive = obj;
-            m.has_defense = MUSE_EUCALYPTUS_LEAF;
-        }
-        nomore(MUSE_POT_RESTORE_ABILITY);
-        if (mtmp->mcan && obj->otyp == POT_RESTORE_ABILITY) {
-            m.defensive = obj;
-            m.has_defense = MUSE_POT_RESTORE_ABILITY;
-        }
-        nomore(MUSE_BAG_OF_TRICKS);
-        if (obj->otyp == BAG_OF_TRICKS && obj->spe > 0) {
-            m.defensive = obj;
-            m.has_defense = MUSE_BAG_OF_TRICKS;
-        }
-        nomore(MUSE_WAN_CREATE_MONSTER);
-        if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0) {
-            m.defensive = obj;
-            m.has_defense = MUSE_WAN_CREATE_MONSTER;
-        }
-        nomore(MUSE_SCR_CREATE_MONSTER);
-        if (obj->otyp == SCR_CREATE_MONSTER) {
-            m.defensive = obj;
-            m.has_defense = MUSE_SCR_CREATE_MONSTER;
+    nomore(MUSE_WAN_TELEPORTATION_SELF);
+    nomore(MUSE_WAN_TELEPORTATION);
+    if (obj->otyp == WAN_TELEPORTATION && obj->spe > 0) {
+        if (!level.flags.noteleport
+            || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1)))) {
+            return (mon_has_amulet(mtmp))
+                   ? MUSE_WAN_TELEPORTATION
+                   : MUSE_WAN_TELEPORTATION_SELF;
         }
     }
-    return(boolean) !!m.has_defense;
+
+    nomore(MUSE_SCR_TELEPORTATION);
+    if (obj->otyp == SCR_TELEPORTATION && mtmp->mcansee
+        && haseyes(mtmp->data)
+        && (!obj->cursed
+            || (!(mtmp->isshk && inhishop(mtmp))
+            && !mtmp->isgd && !mtmp->ispriest))) {
+        if (!level.flags.noteleport
+            || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1)))) {
+            return MUSE_SCR_TELEPORTATION;
+        }
+    }
+
+    if (mtmp->data != &mons[PM_PESTILENCE]) {
+        nomore(MUSE_POT_FULL_HEALING);
+        if (obj->otyp == POT_FULL_HEALING)
+            return MUSE_POT_FULL_HEALING;
+
+        nomore(MUSE_POT_EXTRA_HEALING);
+        if (obj->otyp == POT_EXTRA_HEALING)
+            return MUSE_POT_EXTRA_HEALING;
+
+        nomore(MUSE_POT_HEALING);
+        if (obj->otyp == POT_HEALING)
+            return MUSE_POT_HEALING;
+    } else { /* Pestilence */
+        nomore(MUSE_POT_FULL_HEALING);
+        if (obj->otyp == POT_SICKNESS)
+            return MUSE_POT_FULL_HEALING;
+    }
+
+    nomore(MUSE_EUCALYPTUS_LEAF);
+    if ((mtmp->msick || mtmp->mdiseased)
+        && obj->otyp == EUCALYPTUS_LEAF)
+        return MUSE_EUCALYPTUS_LEAF;
+
+    nomore(MUSE_POT_RESTORE_ABILITY);
+    if (mtmp->mcan && obj->otyp == POT_RESTORE_ABILITY)
+        return MUSE_POT_RESTORE_ABILITY;
+
+    nomore(MUSE_BAG_OF_TRICKS);
+    if (obj->otyp == BAG_OF_TRICKS && obj->spe > 0)
+        return MUSE_BAG_OF_TRICKS;
+
+    nomore(MUSE_WAN_CREATE_MONSTER);
+    if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0)
+        return MUSE_WAN_CREATE_MONSTER;
+
+    nomore(MUSE_SCR_CREATE_MONSTER);
+    if (obj->otyp == SCR_CREATE_MONSTER)
+        return MUSE_SCR_CREATE_MONSTER;
+
+    return 0;
 #undef nomore
 }
 
-/* Perform a defensive action for a monster.  Must be called immediately
- * after find_defensive().  Return values are 0: did something, 1: died,
- * 2: did something and can't attack again (i.e. teleported).
- */
+/* Callback for checking offensive items */
+STATIC_OVL int
+check_offensive_item(mtmp, obj, current_muse, ctx)
+struct monst *mtmp;
+struct obj *obj;
+int current_muse;
+struct find_context *ctx;
+{
+#define nomore(x) if (current_muse == (x)) return 0;
+
+    if (!ctx->reflection_skip) {
+        nomore(MUSE_WAN_DEATH);
+        if (obj->otyp == WAN_DEATH) {
+            if (obj->spe > 0
+                && !(m_seenres(mtmp, M_SEEN_MAGR)
+                     || m_seenres(mtmp, M_SEEN_DEATH))
+                && (!m_seenres(mtmp, M_SEEN_REFL)
+                    || nonliving(mtmp->data)
+                    || mtmp->data->msound == MS_LEADER)) {
+                return MUSE_WAN_DEATH;
+            }
+            return 0; /* continue equivalent */
+        }
+        nomore(MUSE_WAN_SLEEP);
+        if (obj->otyp == WAN_SLEEP && multi >= 0) {
+            if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_SLEEP))
+                return MUSE_WAN_SLEEP;
+            return 0;
+        }
+        nomore(MUSE_WAN_FIRE);
+        if (obj->otyp == WAN_FIRE) {
+            if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_FIRE))
+                return MUSE_WAN_FIRE;
+            return 0;
+        }
+        nomore(MUSE_FIRE_HORN);
+        if (obj->otyp == FIRE_HORN && can_blow(mtmp)) {
+            if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_FIRE))
+                return MUSE_FIRE_HORN;
+            return 0;
+        }
+        nomore(MUSE_WAN_COLD);
+        if (obj->otyp == WAN_COLD) {
+            if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_COLD))
+                return MUSE_WAN_COLD;
+            return 0;
+        }
+        nomore(MUSE_FROST_HORN);
+        if (obj->otyp == FROST_HORN && can_blow(mtmp)) {
+            if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_COLD))
+                return MUSE_FROST_HORN;
+            return 0;
+        }
+        nomore(MUSE_WAN_LIGHTNING);
+        if (obj->otyp == WAN_LIGHTNING) {
+            if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_ELEC))
+                return MUSE_WAN_LIGHTNING;
+            return 0;
+        }
+        nomore(MUSE_WAN_MAGIC_MISSILE);
+        if (obj->otyp == WAN_MAGIC_MISSILE) {
+            if (obj->spe > 0)
+                return MUSE_WAN_MAGIC_MISSILE;
+            return 0;
+        }
+    }
+
+    nomore(MUSE_WAN_UNDEAD_TURNING);
+    if (obj->otyp == WAN_UNDEAD_TURNING && obj->spe > 0) {
+        int ax = u.ux + sgn(mtmp->mux - mtmp->mx) * 3;
+        int ay = u.uy + sgn(mtmp->muy - mtmp->my) * 3;
+        int bx = mtmp->mx, by = mtmp->my;
+
+        if (carrying(CORPSE)
+            || linedup_callback(ax, ay, bx, by, linedup_chk_corpse)
+            || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)
+            || is_undead(youmonst.data)) {
+            return MUSE_WAN_UNDEAD_TURNING;
+        }
+    }
+
+    nomore(MUSE_WAN_CANCELLATION);
+    if (obj->otyp == WAN_CANCELLATION) {
+        if (obj->spe > 0)
+            return MUSE_WAN_CANCELLATION;
+        return 0;
+    }
+    nomore(MUSE_WAN_POLYMORPH);
+    if (obj->otyp == WAN_POLYMORPH) {
+        if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_MAGR))
+            return MUSE_WAN_POLYMORPH;
+        return 0;
+    }
+    nomore(MUSE_WAN_STRIKING);
+    if (obj->otyp == WAN_STRIKING) {
+        if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_MAGR))
+            return MUSE_WAN_STRIKING;
+        return 0;
+    }
+    nomore(MUSE_WAN_TELEPORTATION);
+    if (obj->otyp == WAN_TELEPORTATION) {
+        if (obj->spe > 0
+            && !Teleport_control
+            && (!level.flags.noteleport
+                || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1))))
+            && (onscary(u.ux, u.uy, mtmp)
+                || (u.ux == sstairs.sx && u.uy == sstairs.sy))) {
+            return MUSE_WAN_TELEPORTATION;
+        }
+        return 0;
+    }
+    nomore(MUSE_WAN_SLOW_MONSTER);
+    if (obj->otyp == WAN_SLOW_MONSTER) {
+        if (obj->spe > 0 && !Slow)
+            return MUSE_WAN_SLOW_MONSTER;
+        return 0;
+    }
+
+    if (current_muse == MUSE_SCR_CHARGING)
+        return 0;
+    if (obj->otyp == SCR_CHARGING) {
+        if (find_best_item_to_charge(mtmp))
+            return MUSE_SCR_CHARGING;
+        return 0;
+    }
+
+    nomore(MUSE_SCR_STINKING_CLOUD);
+    if (obj->otyp == SCR_STINKING_CLOUD && m_canseeu(mtmp)
+        && distu(mtmp->mx, mtmp->my) < 32
+        && !m_seenres(mtmp, M_SEEN_POISON))
+        return MUSE_SCR_STINKING_CLOUD;
+
+    nomore(MUSE_POT_HALLUCINATION);
+    if (obj->otyp == POT_HALLUCINATION && multi >= 0)
+        return MUSE_POT_HALLUCINATION;
+
+    nomore(MUSE_POT_POLYMORPH_THROW);
+    if (obj->otyp == POT_POLYMORPH && !m_seenres(mtmp, M_SEEN_MAGR))
+        return MUSE_POT_POLYMORPH_THROW;
+
+    nomore(MUSE_POT_PARALYSIS);
+    if (obj->otyp == POT_PARALYSIS && multi >= 0)
+        return MUSE_POT_PARALYSIS;
+
+    nomore(MUSE_POT_BLINDNESS);
+    if (obj->otyp == POT_BLINDNESS && !attacktype(mtmp->data, AT_GAZE))
+        return MUSE_POT_BLINDNESS;
+
+    nomore(MUSE_POT_CONFUSION);
+    if (obj->otyp == POT_CONFUSION)
+        return MUSE_POT_CONFUSION;
+
+    nomore(MUSE_POT_SLEEPING);
+    if (obj->otyp == POT_SLEEPING && !m_seenres(mtmp, M_SEEN_SLEEP))
+        return MUSE_POT_SLEEPING;
+
+    nomore(MUSE_POT_ACID);
+    if (obj->otyp == POT_ACID && !m_seenres(mtmp, M_SEEN_ACID))
+        return MUSE_POT_ACID;
+
+    nomore(MUSE_POT_OIL);
+    if (obj->otyp == POT_OIL
+        && !m_seenres(mtmp, M_SEEN_FIRE)
+        && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 2
+            || mtmp->mhp > 10
+            || resists_fire(mtmp)
+            || defended(mtmp, AD_FIRE)))
+        return MUSE_POT_OIL;
+
+    nomore(MUSE_SCR_EARTH);
+    if (obj->otyp == SCR_EARTH
+        && ((ctx->helmet && is_hard(ctx->helmet))
+            || mtmp->mconf || amorphous(mtmp->data)
+            || passes_walls(mtmp->data)
+            || noncorporeal(mtmp->data)
+            || unsolid(mtmp->data) || !rn2(10))
+        && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
+        && mtmp->mcansee && haseyes(mtmp->data)
+        && !Is_rogue_level(&u.uz)
+        && (!In_endgame(&u.uz) || Is_earthlevel(&u.uz)))
+        return MUSE_SCR_EARTH;
+
+    nomore(MUSE_SCR_FIRE);
+    if (obj->otyp == SCR_FIRE
+        && resists_fire(mtmp) && defended(mtmp, AD_FIRE)
+        && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
+        && mtmp->mcansee && haseyes(mtmp->data)
+        && !m_seenres(mtmp, M_SEEN_FIRE))
+        return MUSE_SCR_FIRE;
+
+    nomore(MUSE_CAMERA);
+    if (obj->otyp == EXPENSIVE_CAMERA
+        && (!Blind
+            || hates_light(youmonst.data)
+            || maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW)))
+        && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
+        && obj->spe > 0 && !rn2(6))
+        return MUSE_CAMERA;
+
+    return 0;
+#undef nomore
+}
+
+/* Callback for checking misc items */
+STATIC_OVL int
+check_misc_item(mtmp, obj, current_muse, ctx)
+struct monst *mtmp;
+struct obj *obj;
+int current_muse;
+struct find_context *ctx UNUSED;
+{
+    struct permonst *mdat = mtmp->data;
+
+#define nomore(x) if (current_muse == (x)) return 0;
+
+    /* Note: POT_BOOZE and POT_GAIN_LEVEL don't use nomore,
+       they can override */
+    if (obj->otyp == POT_BOOZE && is_satyr(mtmp->data))
+        return MUSE_POT_BOOZE;
+
+    if (obj->otyp == POT_GAIN_LEVEL
+        && (!obj->cursed
+            || (!mtmp->isgd && !mtmp->isshk && !mtmp->ispriest)))
+        return MUSE_POT_GAIN_LEVEL;
+
+    nomore(MUSE_FIGURINE);
+    if (obj->otyp == FIGURINE && !mtmp->mpeaceful)
+        return MUSE_FIGURINE;
+
+    nomore(MUSE_WAN_WISHING);
+    if (obj->otyp == WAN_WISHING) {
+        if (obj->spe > 0)
+            return MUSE_WAN_WISHING;
+        return 0;
+    }
+
+    /* Weapon disarm attempts */
+    nomore(MUSE_BULLWHIP);
+    if (obj->otyp == BULLWHIP && !rn2(5)
+        && can_attempt_disarm(mtmp, obj, 0))
+        return MUSE_BULLWHIP;
+
+    nomore(MUSE_DWARVISH_BEARDED_AXE_WEAPON);
+    if (obj->otyp == DWARVISH_BEARDED_AXE && !rn2(5)
+        && can_attempt_disarm(mtmp, obj, 0))
+        return MUSE_DWARVISH_BEARDED_AXE_WEAPON;
+
+    /* Shield disarm - harder than weapon disarm */
+    nomore(MUSE_DWARVISH_BEARDED_AXE_SHIELD);
+    if (obj->otyp == DWARVISH_BEARDED_AXE && !rn2(7)
+        && can_attempt_disarm(mtmp, obj, 1))
+        return MUSE_DWARVISH_BEARDED_AXE_SHIELD;
+
+    nomore(MUSE_WAN_MAKE_INVISIBLE);
+    if (obj->otyp == WAN_MAKE_INVISIBLE && !mtmp->minvis
+        && !mtmp->invis_blkd && (!mtmp->mpeaceful || See_invisible)
+        && (!attacktype(mtmp->data, AT_GAZE) || mtmp->mcan)) {
+        if (obj->spe > 0)
+            return MUSE_WAN_MAKE_INVISIBLE;
+    }
+
+    nomore(MUSE_POT_INVISIBILITY);
+    if (obj->otyp == POT_INVISIBILITY && !mtmp->minvis
+        && !mtmp->invis_blkd && (!mtmp->mpeaceful || See_invisible)
+        && (!attacktype(mtmp->data, AT_GAZE) || mtmp->mcan))
+        return MUSE_POT_INVISIBILITY;
+
+    nomore(MUSE_WAN_SPEED_MONSTER);
+    if (obj->otyp == WAN_SPEED_MONSTER
+        && mtmp->mspeed != MFAST && !mtmp->isgd) {
+        if (obj->spe > 0)
+            return MUSE_WAN_SPEED_MONSTER;
+    }
+
+    nomore(MUSE_POT_SPEED);
+    if (obj->otyp == POT_SPEED && mtmp->mspeed != MFAST && !mtmp->isgd)
+        return MUSE_POT_SPEED;
+
+    nomore(MUSE_WAN_POLYMORPH_SELF);
+    if (obj->otyp == WAN_POLYMORPH
+        && (mtmp->cham == NON_PM) && !mtmp->isshk
+        && mons[monsndx(mdat)].difficulty < 6) {
+        if (obj->spe > 0)
+            return MUSE_WAN_POLYMORPH_SELF;
+    }
+
+    nomore(MUSE_POT_POLYMORPH);
+    if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
+        && !mtmp->isshk && mons[monsndx(mdat)].difficulty < 6)
+        return MUSE_POT_POLYMORPH;
+
+    if (current_muse == MUSE_SCR_CHARGING)
+        return 0;
+    if (obj->otyp == SCR_CHARGING) {
+        if (find_best_item_to_charge(mtmp))
+            return MUSE_SCR_CHARGING;
+        return 0;
+    }
+
+    nomore(MUSE_SCR_REMOVE_CURSE);
+    if (obj->otyp == SCR_REMOVE_CURSE
+        && !obj->cursed
+        && mtmp->mnum != PM_INFIDEL) {
+        struct obj *otmp;
+
+        for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+            if (otmp->cursed
+                && (otmp->otyp == LOADSTONE
+                    || Is_mbag(otmp)
+                    || otmp->owornmask)) {
+                return MUSE_SCR_REMOVE_CURSE;
+            }
+        }
+    }
+
+    nomore(MUSE_PAN_FLUTE);
+    if (obj->otyp == PAN_FLUTE
+        && is_satyr(mtmp->data)
+        && !mtmp->mpeaceful && !rn2(5))
+        return MUSE_PAN_FLUTE;
+
+    return 0;
+#undef nomore
+}
+
+/* Generic item finder */
+STATIC_OVL boolean
+find_items_recurse(mtmp, start, cat, checker, ctx)
+struct monst *mtmp;
+struct obj *start;
+int cat; /* enum find_category */
+item_checker_fn checker;
+struct find_context *ctx;
+{
+    struct obj *obj, *nextobj;
+    int *has_ptr;
+    struct obj **item_ptr;
+    int result;
+
+    /* Set pointers based on category */
+    switch (cat) {
+    case FIND_DEFENSIVE:
+        has_ptr = &m.has_defense;
+        item_ptr = &m.defensive;
+        break;
+    case FIND_OFFENSIVE:
+        has_ptr = &m.has_offense;
+        item_ptr = &m.offensive;
+        break;
+    case FIND_MISC:
+        has_ptr = &m.has_misc;
+        item_ptr = &m.misc;
+        break;
+    default:
+        return FALSE;
+    }
+
+    for (obj = start; obj; obj = nextobj) {
+        nextobj = obj->nobj;
+
+        /* Early random break for defensive only */
+        if (cat == FIND_DEFENSIVE && *has_ptr && !rn2(3))
+            break;
+
+        /* Container recursion - exclude BAG_OF_TRICKS for defensive */
+        if (Is_container(obj) &&
+            (cat != FIND_DEFENSIVE || obj->otyp != BAG_OF_TRICKS)) {
+            (void) find_items_recurse(mtmp, obj->cobj, cat, checker, ctx);
+            continue;
+        }
+
+        /* Check this item via callback */
+        result = checker(mtmp, obj, *has_ptr, ctx);
+        if (result) {
+            *item_ptr = obj;
+            *has_ptr = result;
+        }
+    }
+
+    return (boolean) !!*has_ptr;
+}
+
+/* Perform a defensive action for a monster. Must be called immediately
+ * after find_defensive(). Return values are 0: did something, 1: died,
+ * 2: did something and can't attack again (i.e. teleported) */
 int
 use_defensive(mtmp)
 struct monst *mtmp;
@@ -971,9 +1389,9 @@ struct monst *mtmp;
     boolean vis, vismon, oseen;
     const char *Mnam;
 
-    /* Safety check: if the object isn't in the monster's inventory,
-       something went wrong (e.g., it was selected in a previous turn) */
-    if (otmp && otmp->where != OBJ_MINVENT) {
+    /* Safety check: if the object isn't in the monster's inventory
+       or a container they're carrying, something went wrong */
+    if (otmp && otmp->where != OBJ_MINVENT && otmp->where != OBJ_CONTAINED) {
         /* Try to find by type */
         struct obj *o;
         int otyp = m.defensive ? m.defensive->otyp : STRANGE_OBJECT;
@@ -1549,35 +1967,6 @@ struct monst *mtmp;
     return 0;
 }
 
-#define MUSE_WAN_DEATH 1
-#define MUSE_WAN_SLEEP 2
-#define MUSE_WAN_FIRE 3
-#define MUSE_WAN_COLD 4
-#define MUSE_WAN_LIGHTNING 5
-#define MUSE_WAN_MAGIC_MISSILE 6
-#define MUSE_WAN_STRIKING 7
-#define MUSE_SCR_FIRE 8
-#define MUSE_POT_PARALYSIS 9
-#define MUSE_POT_BLINDNESS 10
-#define MUSE_POT_CONFUSION 11
-#define MUSE_FROST_HORN 12
-#define MUSE_FIRE_HORN 13
-#define MUSE_POT_ACID 14
-#define MUSE_WAN_TELEPORTATION 15
-#define MUSE_POT_SLEEPING 16
-#define MUSE_SCR_EARTH 17
-#define MUSE_WAN_CANCELLATION 18
-#define MUSE_SCR_CHARGING 19
-#define MUSE_SCR_STINKING_CLOUD 20
-#define MUSE_POT_POLYMORPH_THROW 21
-#define MUSE_POT_HALLUCINATION 22
-#define MUSE_WAN_POLYMORPH 23
-/*#define MUSE_WAN_UNDEAD_TURNING 24*/ /* also a defensive item so don't
-                                        * redefine; nonconsecutive value is ok */
-#define MUSE_POT_OIL 25
-#define MUSE_CAMERA 26
-#define MUSE_WAN_SLOW_MONSTER 27
-
 static boolean
 linedup_chk_corpse(x, y)
 int x, y;
@@ -1585,62 +1974,8 @@ int x, y;
     return (sobj_at(CORPSE, x, y) != 0);
 }
 
-static void
-m_use_undead_turning(mtmp, obj)
-struct monst *mtmp;
-struct obj *obj;
-{
-    int ax = u.ux + sgn(mtmp->mux - mtmp->mx) * 3,
-        ay = u.uy + sgn(mtmp->muy - mtmp->my) * 3;
-    int bx = mtmp->mx, by = mtmp->my;
-
-    if (!(obj->otyp == WAN_UNDEAD_TURNING && obj->spe > 0))
-        return;
-
-    /* not necrophiliac(); unlike deciding whether to pick this
-       type of wand up, we aren't interested in corpses within
-       carried containers until they're moved into open inventory;
-       we don't check whether hero is poly'd into an undead--the
-       wand's turning effect is too weak to be a useful direct
-       attack--only whether hero is carrying at least one corpse */
-    if (carrying(CORPSE)) {
-        /*
-         * Hero is carrying one or more corpses but isn't wielding
-         * a cockatrice corpse (unless being hit by one won't do
-         * the monster much harm); otherwise we'd be using this wand
-         * as a defensive item with higher priority.
-         *
-         * Might be cockatrice intended as a weapon (or being denied
-         * to glove-wearing monsters for use as a weapon) or lizard
-         * intended as a cure or lichen intended as veggy food or
-         * sacrifice fodder being lugged to an altar.  Zapping with
-         * this will deprive hero of one from each stack although
-         * they might subsequently be recovered after killing again.
-         * In the sacrifice fodder case, it could even be to the
-         * player's advantage (fresher corpse if a new one gets
-         * dropped; player might not choose to spend a wand charge
-         * on that when/if hero acquires this wand).
-         */
-        m.offensive = obj;
-        m.has_offense = MUSE_WAN_UNDEAD_TURNING;
-    } else if (linedup_callback(ax, ay, bx, by, linedup_chk_corpse)) {
-        /* There's a corpse on the ground in a direct line from the
-         * monster to the hero, and up to 3 steps beyond.
-         */
-        m.offensive = obj;
-        m.has_offense = MUSE_WAN_UNDEAD_TURNING;
-    } else if (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)
-               || is_undead(youmonst.data)) {
-        /* player is Draugr/Vampire race or poly'd into an undead
-           monster */
-        m.offensive = obj;
-        m.has_offense = MUSE_WAN_UNDEAD_TURNING;
-    }
-}
-
-/* Select an offensive item/action for a monster.  Returns TRUE iff one is
- * found.
- */
+/* Select an offensive item/action for a monster. Returns TRUE iff one
+   is found */
 boolean
 find_offensive(mtmp)
 struct monst *mtmp;
@@ -1658,7 +1993,6 @@ struct monst *mtmp;
     }
 
     m.offensive = (struct obj *) 0;
-    m.tocharge = (struct obj *) 0; /* TODO: remove at next version change */
     m.has_offense = 0;
     if (mtmp->mpeaceful || is_animal(mtmp->data)
         || mindless(mtmp->data) || nohands(mtmp->data))
@@ -1675,8 +2009,19 @@ struct monst *mtmp;
     if (!lined_up(mtmp))
         return FALSE;
 
-    return find_offensive_recurse(mtmp, mtmp->minvent, target,
-                                  reflection_skip);
+    /* Set up context for the generic finder callback */
+    {
+        struct find_context ctx;
+
+        ctx.target = target;
+        ctx.reflection_skip = reflection_skip;
+        ctx.helmet = which_armor(mtmp, W_ARMH);
+        ctx.t = (struct trap *) 0;
+        ctx.stuck = FALSE;
+
+        return find_items_recurse(mtmp, mtmp->minvent, FIND_OFFENSIVE,
+                                  check_offensive_item, &ctx);
+    }
 }
 
 STATIC_OVL int
@@ -1809,263 +2154,6 @@ struct monst *mtmp;
     }
 
     return best;
-}
-
-STATIC_OVL boolean
-find_offensive_recurse(mtmp, start, target, reflection_skip)
-struct monst *mtmp;
-struct obj *start;
-struct monst *target;
-boolean reflection_skip;
-{
-    struct obj *obj, *nextobj;
-    struct obj *helmet = which_armor(mtmp, W_ARMH);
-
-#define nomore(x)       if (m.has_offense == x) continue;
-    /* this picks the last viable item rather than prioritizing choices */
-    for (obj = start; obj; obj = nextobj) {
-        nextobj = obj->nobj;
-        if (Is_container(obj)) {
-            (void) find_offensive_recurse(mtmp, obj->cobj, target,
-                                          reflection_skip);
-            continue;
-        }
-
-        if (!reflection_skip) {
-            nomore(MUSE_WAN_DEATH);
-            if (obj->otyp == WAN_DEATH) {
-                if (obj->spe > 0
-                    && !(m_seenres(mtmp, M_SEEN_MAGR)
-                         || m_seenres(mtmp, M_SEEN_DEATH))
-                    && (!m_seenres(mtmp, M_SEEN_REFL)
-                        || nonliving(mtmp->data)
-                        || mtmp->data->msound == MS_LEADER)) {
-                    m.offensive = obj;
-                    m.has_offense = MUSE_WAN_DEATH;
-                }
-                continue;
-            }
-            nomore(MUSE_WAN_SLEEP);
-            if (obj->otyp == WAN_SLEEP && multi >= 0) {
-                if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_SLEEP)) {
-                    m.offensive = obj;
-                    m.has_offense = MUSE_WAN_SLEEP;
-                }
-                continue;
-            }
-            nomore(MUSE_WAN_FIRE);
-            if (obj->otyp == WAN_FIRE) {
-                if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_FIRE)) {
-                    m.offensive = obj;
-                    m.has_offense = MUSE_WAN_FIRE;
-                }
-                continue;
-            }
-            nomore(MUSE_FIRE_HORN);
-            if (obj->otyp == FIRE_HORN && can_blow(mtmp)) {
-                if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_FIRE)) {
-                    m.offensive = obj;
-                    m.has_offense = MUSE_FIRE_HORN;
-                }
-                continue;
-            }
-            nomore(MUSE_WAN_COLD);
-            if (obj->otyp == WAN_COLD) {
-                if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_COLD)) {
-                    m.offensive = obj;
-                    m.has_offense = MUSE_WAN_COLD;
-                }
-                continue;
-            }
-            nomore(MUSE_FROST_HORN);
-            if (obj->otyp == FROST_HORN && can_blow(mtmp)) {
-                if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_COLD)) {
-                    m.offensive = obj;
-                    m.has_offense = MUSE_FROST_HORN;
-                }
-                continue;
-            }
-            nomore(MUSE_WAN_LIGHTNING);
-            if (obj->otyp == WAN_LIGHTNING) {
-                if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_ELEC)) {
-                    m.offensive = obj;
-                    m.has_offense = MUSE_WAN_LIGHTNING;
-                }
-                continue;
-            }
-            nomore(MUSE_WAN_MAGIC_MISSILE);
-            if (obj->otyp == WAN_MAGIC_MISSILE) {
-                if (obj->spe > 0) {
-                    m.offensive = obj;
-                    m.has_offense = MUSE_WAN_MAGIC_MISSILE;
-                }
-                continue;
-            }
-        }
-
-        nomore(MUSE_WAN_UNDEAD_TURNING);
-        m_use_undead_turning(mtmp, obj);
-
-        nomore(MUSE_WAN_CANCELLATION);
-        if (obj->otyp == WAN_CANCELLATION) {
-            if (obj->spe > 0) {
-                m.offensive = obj;
-                m.has_offense = MUSE_WAN_CANCELLATION;
-            }
-            continue;
-        }
-        nomore(MUSE_WAN_POLYMORPH);
-        if (obj->otyp == WAN_POLYMORPH) {
-            if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_MAGR)) {
-                m.offensive = obj;
-                m.has_offense = MUSE_WAN_POLYMORPH;
-            }
-            continue;
-        }
-        nomore(MUSE_WAN_STRIKING);
-        if (obj->otyp == WAN_STRIKING) {
-            if (obj->spe > 0 && !m_seenres(mtmp, M_SEEN_MAGR)) {
-                m.offensive = obj;
-                m.has_offense = MUSE_WAN_STRIKING;
-            }
-            continue;
-        }
-        /* use_offensive() has had some code to support wand of teleportation
-         * for a long time, but find_offensive() never selected one;
-         * re-enable it */
-        nomore(MUSE_WAN_TELEPORTATION);
-        if (obj->otyp == WAN_TELEPORTATION) {
-            if (obj->spe > 0
-                /* don't give controlled hero a free teleport */
-                && !Teleport_control
-                /* same hack as MUSE_WAN_TELEPORTATION_SELF */
-                && (!level.flags.noteleport
-                    || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1))))
-                /* do try to move hero to a more vulnerable spot */
-                && (onscary(u.ux, u.uy, mtmp)
-                    || (u.ux == sstairs.sx && u.uy == sstairs.sy))) {
-                m.offensive = obj;
-                m.has_offense = MUSE_WAN_TELEPORTATION;
-            }
-            continue;
-        }
-        nomore(MUSE_WAN_SLOW_MONSTER);
-        /* don't bother recharging this one */
-        if (obj->otyp == WAN_SLOW_MONSTER) {
-            if (obj->spe > 0 && !Slow) {
-                m.offensive = obj;
-                m.has_offense = MUSE_WAN_SLOW_MONSTER;
-            }
-            continue;
-        }
-        if (m.has_offense == MUSE_SCR_CHARGING)
-            continue;
-        if (obj->otyp == SCR_CHARGING) {
-            /* Check if monster has anything to charge right now */
-            if (find_best_item_to_charge(mtmp)) {
-                m.offensive = obj;
-                m.has_offense = MUSE_SCR_CHARGING;
-            }
-            continue;
-        }
-        nomore(MUSE_SCR_STINKING_CLOUD)
-        if (obj->otyp == SCR_STINKING_CLOUD && m_canseeu(mtmp)
-            && distu(mtmp->mx, mtmp->my) < 32
-            && !m_seenres(mtmp, M_SEEN_POISON)) {
-            m.offensive = obj;
-            m.has_offense = MUSE_SCR_STINKING_CLOUD;
-        }
-        nomore(MUSE_POT_HALLUCINATION);
-        if (obj->otyp == POT_HALLUCINATION && multi >= 0) {
-            m.offensive = obj;
-            m.has_offense = MUSE_POT_HALLUCINATION;
-        }
-        nomore(MUSE_POT_POLYMORPH_THROW);
-        if (obj->otyp == POT_POLYMORPH
-            && !m_seenres(mtmp, M_SEEN_MAGR)) {
-            m.offensive = obj;
-            m.has_offense = MUSE_POT_POLYMORPH_THROW;
-        }
-        nomore(MUSE_POT_PARALYSIS);
-        if (obj->otyp == POT_PARALYSIS && multi >= 0) {
-            m.offensive = obj;
-            m.has_offense = MUSE_POT_PARALYSIS;
-        }
-        nomore(MUSE_POT_BLINDNESS);
-        if (obj->otyp == POT_BLINDNESS && !attacktype(mtmp->data, AT_GAZE)) {
-            m.offensive = obj;
-            m.has_offense = MUSE_POT_BLINDNESS;
-        }
-        nomore(MUSE_POT_CONFUSION);
-        if (obj->otyp == POT_CONFUSION) {
-            m.offensive = obj;
-            m.has_offense = MUSE_POT_CONFUSION;
-        }
-        nomore(MUSE_POT_SLEEPING);
-        if (obj->otyp == POT_SLEEPING
-            && !m_seenres(mtmp, M_SEEN_SLEEP)) {
-            m.offensive = obj;
-            m.has_offense = MUSE_POT_SLEEPING;
-        }
-        nomore(MUSE_POT_ACID);
-        if (obj->otyp == POT_ACID
-            && !m_seenres(mtmp, M_SEEN_ACID)) {
-            m.offensive = obj;
-            m.has_offense = MUSE_POT_ACID;
-        }
-        nomore(MUSE_POT_OIL);
-        if (obj->otyp == POT_OIL
-            && !m_seenres(mtmp, M_SEEN_FIRE)
-            /* don't throw oil if point-blank AND mtmp is low on HP AND mtmp is
-             * not fire resistant */
-            && (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 2
-                || mtmp->mhp > 10
-                || resists_fire(mtmp)
-                || defended(mtmp, AD_FIRE))) {
-            m.offensive = obj;
-            m.has_offense = MUSE_POT_OIL;
-        }
-        /* we can safely put this scroll here since the locations that
-         * are in a 1 square radius are a subset of the locations that
-         * are in wand range
-         */
-        nomore(MUSE_SCR_EARTH);
-        if (obj->otyp == SCR_EARTH
-            && ((helmet && is_hard(helmet))
-                || mtmp->mconf || amorphous(mtmp->data)
-                || passes_walls(mtmp->data)
-                || noncorporeal(mtmp->data)
-                || unsolid(mtmp->data) || !rn2(10))
-                && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
-                && mtmp->mcansee && haseyes(mtmp->data)
-                && !Is_rogue_level(&u.uz)
-                && (!In_endgame(&u.uz) || Is_earthlevel(&u.uz))) {
-            m.offensive = obj;
-            m.has_offense = MUSE_SCR_EARTH;
-        }
-        nomore(MUSE_SCR_FIRE);
-        if (obj->otyp == SCR_FIRE
-            && resists_fire(mtmp) && defended(mtmp, AD_FIRE)
-            && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
-            && mtmp->mcansee && haseyes(mtmp->data)
-            && !m_seenres(mtmp, M_SEEN_FIRE)) {
-            m.offensive = obj;
-            m.has_offense = MUSE_SCR_FIRE;
-        }
-        nomore(MUSE_CAMERA);
-        if (obj->otyp == EXPENSIVE_CAMERA
-            && (!Blind
-                || hates_light(youmonst.data)
-                || maybe_polyd(is_drow(youmonst.data),
-                                       Race_if(PM_DROW)))
-            && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
-            && obj->spe > 0 && !rn2(6)) {
-            m.offensive = obj;
-            m.has_offense = MUSE_CAMERA;
-        }
-    }
-    return (boolean) !!m.has_offense;
-#undef nomore
 }
 
 extern struct monst *last_hurtled;
@@ -2502,9 +2590,9 @@ struct monst *mtmp;
     boolean oseen;
     struct attack* mattk;
 
-    /* Safety check: if the object isn't in the monster's inventory,
-       something went wrong (e.g., it was merged after extraction) */
-    if (otmp && otmp->where != OBJ_MINVENT) {
+    /* Safety check: if the object isn't in the monster's inventory
+       or a container they're carrying, something went wrong */
+    if (otmp && otmp->where != OBJ_MINVENT && otmp->where != OBJ_CONTAINED) {
         /* For scrolls of charging that were in containers, try to find
            the actual scroll in inventory (might have been merged) */
         if (m.has_offense == MUSE_SCR_CHARGING) {
@@ -2903,24 +2991,6 @@ struct monst *mtmp;
     return 0;
 }
 
-#define MUSE_POT_GAIN_LEVEL 1
-#define MUSE_WAN_MAKE_INVISIBLE 2
-#define MUSE_POT_INVISIBILITY 3
-#define MUSE_POLY_TRAP 4
-#define MUSE_WAN_POLYMORPH_SELF 5
-#define MUSE_POT_SPEED 6
-#define MUSE_WAN_SPEED_MONSTER 7
-#define MUSE_BULLWHIP 8
-#define MUSE_POT_POLYMORPH 9
-#define MUSE_SCR_REMOVE_CURSE 10
-#define MUSE_WAN_WISHING 11
-#define MUSE_FIGURINE 12
-#define MUSE_DWARVISH_BEARDED_AXE_WEAPON 13
-#define MUSE_DWARVISH_BEARDED_AXE_SHIELD 14
-#define MUSE_PAN_FLUTE 15
-#define MUSE_POT_BOOZE 16
-#define MUSE_SPELLBOOK 17
-
 /* Spells that monsters can learn from spellbooks.
    Excludes: racial abilities (psionic wave), spells with existing monster
    versions (haste, invisibility, protection, etc), divination (useless),
@@ -3021,6 +3091,9 @@ struct monst *mtmp;
     if (is_animal(mdat) || mindless(mdat) || nohands(mdat))
         return FALSE;
     if (u.uswallow && stuck)
+        return FALSE;
+    /* Helpless monsters can't use misc items - check early to skip scan */
+    if (helpless(mtmp))
         return FALSE;
 
     /* Spellbook reading - checked before distance check since spellcasters
@@ -3245,160 +3318,20 @@ struct monst *mtmp;
             m.has_misc = MUSE_PAN_FLUTE;
         }
     }
-    return find_misc_recurse(mtmp, mtmp->minvent);
-#undef nomore
-}
 
-STATIC_OVL boolean
-find_misc_recurse(mtmp, start)
-struct monst *mtmp;
-struct obj *start;
-{
-    struct obj *obj, *nextobj;
-    struct permonst *mdat = mtmp->data;
+    /* Set up context for the generic finder callback */
+    {
+        struct find_context ctx;
 
-#define nomore(x)       if (m.has_misc == (x)) continue;
-    for (obj = start; obj; obj = nextobj) {
-        nextobj = obj->nobj;
-        if (Is_container(obj)) {
-            (void) find_misc_recurse(mtmp, obj->cobj);
-            continue;
-        }
+        ctx.target = (struct monst *) 0;
+        ctx.reflection_skip = FALSE;
+        ctx.helmet = (struct obj *) 0;
+        ctx.t = (struct trap *) 0;
+        ctx.stuck = FALSE;
 
-        /* Monsters shouldn't recognize cursed items; this kludge is
-           necessary to prevent serious problems though... */
-        if (obj->otyp == POT_BOOZE
-            && is_satyr(mtmp->data)) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_BOOZE;
-        }
-        if (obj->otyp == POT_GAIN_LEVEL
-            && (!obj->cursed
-                || (!mtmp->isgd && !mtmp->isshk && !mtmp->ispriest))) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_GAIN_LEVEL;
-        }
-        nomore(MUSE_FIGURINE);
-        if (obj->otyp == FIGURINE && !mtmp->mpeaceful) {
-            m.misc = obj;
-            m.has_misc = MUSE_FIGURINE;
-        }
-        nomore(MUSE_WAN_WISHING);
-        if (obj->otyp == WAN_WISHING) {
-            if (obj->spe > 0) {
-                m.misc = obj;
-                m.has_misc = MUSE_WAN_WISHING;
-            }
-            continue;
-        }
-        /* Weapon disarm attempts - random test prevents trying every turn */
-        nomore(MUSE_BULLWHIP);
-        if (obj->otyp == BULLWHIP && !rn2(5)
-            && can_attempt_disarm(mtmp, obj, 0)) {
-            m.misc = obj;
-            m.has_misc = MUSE_BULLWHIP;
-        }
-        nomore(MUSE_DWARVISH_BEARDED_AXE_WEAPON);
-        if (obj->otyp == DWARVISH_BEARDED_AXE && !rn2(5)
-            && can_attempt_disarm(mtmp, obj, 0)) {
-            m.misc = obj;
-            m.has_misc = MUSE_DWARVISH_BEARDED_AXE_WEAPON;
-        }
-        /* Shield disarm - harder than weapon disarm (!rn2(7) vs !rn2(5)) */
-        nomore(MUSE_DWARVISH_BEARDED_AXE_SHIELD);
-        if (obj->otyp == DWARVISH_BEARDED_AXE && !rn2(7)
-            && can_attempt_disarm(mtmp, obj, 1)) {
-            m.misc = obj;
-            m.has_misc = MUSE_DWARVISH_BEARDED_AXE_SHIELD;
-        }
-        /* Note: peaceful/tame monsters won't make themselves
-         * invisible unless you can see them.  Not really right, but...
-         */
-        nomore(MUSE_WAN_MAKE_INVISIBLE);
-        if (obj->otyp == WAN_MAKE_INVISIBLE && !mtmp->minvis
-            && !mtmp->invis_blkd && (!mtmp->mpeaceful || See_invisible)
-            && (!attacktype(mtmp->data, AT_GAZE) || mtmp->mcan)) {
-            if (obj->spe > 0) {
-                m.misc = obj;
-                m.has_misc = MUSE_WAN_MAKE_INVISIBLE;
-            }
-        }
-        nomore(MUSE_POT_INVISIBILITY);
-        if (obj->otyp == POT_INVISIBILITY && !mtmp->minvis
-            && !mtmp->invis_blkd && (!mtmp->mpeaceful || See_invisible)
-            && (!attacktype(mtmp->data, AT_GAZE) || mtmp->mcan)) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_INVISIBILITY;
-        }
-        nomore(MUSE_WAN_SPEED_MONSTER);
-        if (obj->otyp == WAN_SPEED_MONSTER
-            && mtmp->mspeed != MFAST && !mtmp->isgd) {
-            if (obj->spe > 0) {
-                m.misc = obj;
-                m.has_misc = MUSE_WAN_SPEED_MONSTER;
-            }
-        }
-        nomore(MUSE_POT_SPEED);
-        if (obj->otyp == POT_SPEED && mtmp->mspeed != MFAST && !mtmp->isgd) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_SPEED;
-        }
-        nomore(MUSE_WAN_POLYMORPH_SELF);
-        if (obj->otyp == WAN_POLYMORPH
-            && (mtmp->cham == NON_PM) && !mtmp->isshk
-            && mons[monsndx(mdat)].difficulty < 6) {
-            if (obj->spe > 0) {
-                m.misc = obj;
-                m.has_misc = MUSE_WAN_POLYMORPH_SELF;
-            }
-        }
-        nomore(MUSE_POT_POLYMORPH);
-        if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
-            && !mtmp->isshk && mons[monsndx(mdat)].difficulty < 6) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_POLYMORPH;
-        }
-        if (m.has_misc == MUSE_SCR_CHARGING)
-            continue;
-        if (obj->otyp == SCR_CHARGING) {
-            /* Check if monster has anything to charge right now */
-            if (find_best_item_to_charge(mtmp)) {
-                m.misc = obj;
-                m.has_misc = MUSE_SCR_CHARGING;
-            }
-            continue;
-        }
-        nomore(MUSE_SCR_REMOVE_CURSE);
-        if (obj->otyp == SCR_REMOVE_CURSE
-            && !obj->cursed
-            && mtmp->mnum != PM_INFIDEL) {
-            struct obj *otmp;
-
-            for (otmp = mtmp->minvent;
-                 otmp; otmp = otmp->nobj) {
-                if (otmp->cursed
-                    && (otmp->otyp == LOADSTONE
-                        || Is_mbag(otmp)
-                        || otmp->owornmask)) {
-                    m.misc = obj;
-                    m.has_misc = MUSE_SCR_REMOVE_CURSE;
-                }
-            }
-        }
-        nomore(MUSE_PAN_FLUTE);
-        if (obj->otyp == PAN_FLUTE
-            && is_satyr(mtmp->data)
-            && !mtmp->mpeaceful && !rn2(5)) {
-            m.misc = obj;
-            m.has_misc = MUSE_PAN_FLUTE;
-        }
+        return find_items_recurse(mtmp, mtmp->minvent, FIND_MISC,
+                                  check_misc_item, &ctx);
     }
-    if (mtmp->mfrozen) {
-        m.misc = (struct obj *) 0;
-        m.has_misc = 0;
-        return FALSE;
-    }
-    return (boolean) !!m.has_misc;
 #undef nomore
 }
 
@@ -3426,9 +3359,9 @@ struct monst *mtmp;
     char nambuf[BUFSZ];
     struct trap * tt;
 
-    /* Safety check: if the object isn't in the monster's inventory,
-       something went wrong (e.g., it was merged after extraction) */
-    if (otmp && otmp->where != OBJ_MINVENT) {
+    /* Safety check: if the object isn't in the monster's inventory
+       or a container they're carrying, something went wrong */
+    if (otmp && otmp->where != OBJ_MINVENT && otmp->where != OBJ_CONTAINED) {
         /* For scrolls of charging that were in containers, try to find
            the actual scroll in inventory (might have been merged) */
         if (m.has_misc == MUSE_SCR_CHARGING) {
