@@ -4818,4 +4818,5 @@ The following changes to date are:
 - Add burning hands and shocking grasp spells for monster learned
   spellcasting
 - Fix: various issues in mcastu.c
+- Fix: various issues in muse.c round one
 

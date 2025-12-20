@@ -41,6 +41,8 @@ STATIC_DCL boolean FDECL(muse_unslime, (struct monst *, struct obj *,
                                         struct trap *, BOOLEAN_P));
 STATIC_DCL int FDECL(cures_sliming, (struct monst *, struct obj *));
 STATIC_DCL boolean FDECL(green_mon, (struct monst *));
+STATIC_DCL void FDECL(monster_uncurse_items, (struct monst *, BOOLEAN_P));
+STATIC_DCL boolean FDECL(can_attempt_disarm, (struct monst *, struct obj *, int));
 
 STATIC_DCL int FDECL(charge_precedence, (int));
 STATIC_DCL struct obj *FDECL(find_best_item_to_charge, (struct monst *));
@@ -3026,11 +3028,17 @@ struct monst *mtmp;
     if (is_spellcaster(mtmp)) {
         struct obj *book;
 
-        /* If mid-read, continue unless hostile and player is close */
+        /* If mid-read, continue unless impaired or hostile and player is close */
         if (has_emsp(mtmp) && EMSP(mtmp)->msp_reading != 0
             && EMSP(mtmp)->msp_read_turns > 0) {
+            /* Stop reading if monster becomes impaired */
+            if (!mtmp->mcansee || mtmp->mstun || mtmp->mconf
+                || helpless(mtmp)) {
+                EMSP(mtmp)->msp_reading = 0;
+                EMSP(mtmp)->msp_read_turns = 0;
+                /* Fall through to find other action */
             /* Hostile monsters stop reading when player is within 2 squares */
-            if (!mtmp->mpeaceful && dist2(x, y, u.ux, u.uy) <= 8) {
+            } else if (!mtmp->mpeaceful && dist2(x, y, u.ux, u.uy) <= 8) {
                 EMSP(mtmp)->msp_reading = 0;
                 EMSP(mtmp)->msp_read_turns = 0;
                 /* Fall through to find a new book or other action */
@@ -3135,51 +3143,23 @@ struct monst *mtmp;
             }
             continue;
         }
+        /* Weapon disarm attempts - random test prevents trying every turn */
         nomore(MUSE_BULLWHIP);
-        if (obj->otyp == BULLWHIP && !mtmp->mpeaceful
-            /* the random test prevents whip-wielding
-               monster from attempting disarm every turn */
-            && uwep && !rn2(5) && obj == MON_WEP(mtmp)
-            /* hero's location must be known and adjacent */
-            && mtmp->mux == u.ux && mtmp->muy == u.uy
-            && distu(mtmp->mx, mtmp->my) <= 2
-            /* don't bother if it can't work (this doesn't
-               prevent cursed weapons from being targetted) */
-            && !u.uswallow
-            && (canletgo(uwep, "")
-                || (u.twoweap && canletgo(uswapwep, "")))) {
+        if (obj->otyp == BULLWHIP && !rn2(5)
+            && can_attempt_disarm(mtmp, obj, 0)) {
             m.misc = obj;
             m.has_misc = MUSE_BULLWHIP;
         }
         nomore(MUSE_DWARVISH_BEARDED_AXE_WEAPON);
-        if (obj->otyp == DWARVISH_BEARDED_AXE
-            && !mtmp->mpeaceful
-            /* the random test prevents axe-wielding
-               monster from attempting disarm every turn */
-            && uwep && !rn2(5) && obj == MON_WEP(mtmp)
-            /* hero's location must be known and adjacent */
-            && mtmp->mux == u.ux && mtmp->muy == u.uy
-            && distu(mtmp->mx, mtmp->my) <= 2
-            /* don't bother if it can't work (this doesn't
-               prevent cursed weapons from being targetted) */
-            && !u.uswallow
-            && (canletgo(uwep, "")
-                || (u.twoweap && canletgo(uswapwep, "")))) {
+        if (obj->otyp == DWARVISH_BEARDED_AXE && !rn2(5)
+            && can_attempt_disarm(mtmp, obj, 0)) {
             m.misc = obj;
             m.has_misc = MUSE_DWARVISH_BEARDED_AXE_WEAPON;
         }
+        /* Shield disarm - harder than weapon disarm (!rn2(7) vs !rn2(5)) */
         nomore(MUSE_DWARVISH_BEARDED_AXE_SHIELD);
-        if (obj->otyp == DWARVISH_BEARDED_AXE
-            && !mtmp->mpeaceful
-            /* the random test prevents axe-wielding
-               monster from attempting shield removal every
-               turn - shields are harder to disarm than weapons */
-            && (uarms && !is_bracer(uarms))
-            && !rn2(7) && obj == MON_WEP(mtmp)
-            /* hero's location must be known and adjacent */
-            && mtmp->mux == u.ux && mtmp->muy == u.uy
-            && distu(mtmp->mx, mtmp->my) <= 2
-            && !u.uswallow) {
+        if (obj->otyp == DWARVISH_BEARDED_AXE && !rn2(7)
+            && can_attempt_disarm(mtmp, obj, 1)) {
             m.misc = obj;
             m.has_misc = MUSE_DWARVISH_BEARDED_AXE_SHIELD;
         }
@@ -3311,51 +3291,23 @@ struct obj *start;
             }
             continue;
         }
+        /* Weapon disarm attempts - random test prevents trying every turn */
         nomore(MUSE_BULLWHIP);
-        if (obj->otyp == BULLWHIP && !mtmp->mpeaceful
-            /* the random test prevents whip-wielding
-               monster from attempting disarm every turn */
-            && uwep && !rn2(5) && obj == MON_WEP(mtmp)
-            /* hero's location must be known and adjacent */
-            && mtmp->mux == u.ux && mtmp->muy == u.uy
-            && distu(mtmp->mx, mtmp->my) <= 2
-            /* don't bother if it can't work (this doesn't
-               prevent cursed weapons from being targetted) */
-            && !u.uswallow
-            && (canletgo(uwep, "")
-                || (u.twoweap && canletgo(uswapwep, "")))) {
+        if (obj->otyp == BULLWHIP && !rn2(5)
+            && can_attempt_disarm(mtmp, obj, 0)) {
             m.misc = obj;
             m.has_misc = MUSE_BULLWHIP;
         }
         nomore(MUSE_DWARVISH_BEARDED_AXE_WEAPON);
-        if (obj->otyp == DWARVISH_BEARDED_AXE
-            && !mtmp->mpeaceful
-            /* the random test prevents axe-wielding
-               monster from attempting disarm every turn */
-            && uwep && !rn2(5) && obj == MON_WEP(mtmp)
-            /* hero's location must be known and adjacent */
-            && mtmp->mux == u.ux && mtmp->muy == u.uy
-            && distu(mtmp->mx, mtmp->my) <= 2
-            /* don't bother if it can't work (this doesn't
-               prevent cursed weapons from being targetted) */
-            && !u.uswallow
-            && (canletgo(uwep, "")
-                || (u.twoweap && canletgo(uswapwep, "")))) {
+        if (obj->otyp == DWARVISH_BEARDED_AXE && !rn2(5)
+            && can_attempt_disarm(mtmp, obj, 0)) {
             m.misc = obj;
             m.has_misc = MUSE_DWARVISH_BEARDED_AXE_WEAPON;
         }
+        /* Shield disarm - harder than weapon disarm (!rn2(7) vs !rn2(5)) */
         nomore(MUSE_DWARVISH_BEARDED_AXE_SHIELD);
-        if (obj->otyp == DWARVISH_BEARDED_AXE
-            && !mtmp->mpeaceful
-            /* the random test prevents axe-wielding
-               monster from attempting shield removal every
-               turn - shields are harder to disarm than weapons */
-            && (uarms && !is_bracer(uarms))
-            && !rn2(7) && obj == MON_WEP(mtmp)
-            /* hero's location must be known and adjacent */
-            && mtmp->mux == u.ux && mtmp->muy == u.uy
-            && distu(mtmp->mx, mtmp->my) <= 2
-            && !u.uswallow) {
+        if (obj->otyp == DWARVISH_BEARDED_AXE && !rn2(7)
+            && can_attempt_disarm(mtmp, obj, 1)) {
             m.misc = obj;
             m.has_misc = MUSE_DWARVISH_BEARDED_AXE_SHIELD;
         }
@@ -3728,24 +3680,7 @@ struct monst *mtmp;
                 && !objects[SCR_REMOVE_CURSE].oc_uname)
                 docall(otmp);
         }
-
-        {
-            struct obj *obj;
-
-            for (obj = mtmp->minvent; obj; obj = obj->nobj) {
-                /* gold isn't subject to cursing and blessing */
-                if (obj->oclass == COIN_CLASS)
-                    continue;
-                if (obj->owornmask
-                    || Is_mbag(obj)
-                    || obj->otyp == LOADSTONE) {
-                    if (mtmp->mconf)
-                        blessorcurse(obj, 2);
-                    else
-                        uncurse(obj);
-                }
-            }
-        }
+        monster_uncurse_items(mtmp, mtmp->mconf);
         m_useup(mtmp, otmp);
         return 0;
     case MUSE_POLY_TRAP:
@@ -5305,6 +5240,59 @@ int spell_otyp;
     obfree(pseudo, (struct obj *) 0);
 }
 
+/* check if monster can attempt to disarm hero.
+   disarm_type: 0 = weapon disarm, 1 = shield disarm */
+STATIC_OVL boolean
+can_attempt_disarm(mtmp, obj, disarm_type)
+struct monst *mtmp;
+struct obj *obj;
+int disarm_type;
+{
+    /* Common checks for all disarm attempts */
+    if (mtmp->mpeaceful || obj != MON_WEP(mtmp))
+        return FALSE;
+    /* Hero's location must be known and adjacent */
+    if (mtmp->mux != u.ux || mtmp->muy != u.uy)
+        return FALSE;
+    if (distu(mtmp->mx, mtmp->my) > 2 || u.uswallow)
+        return FALSE;
+
+    if (disarm_type == 0) {
+        /* Weapon disarm - need hero to have a droppable weapon */
+        if (!uwep)
+            return FALSE;
+        if (!canletgo(uwep, "") && !(u.twoweap && canletgo(uswapwep, "")))
+            return FALSE;
+    } else {
+        /* Shield disarm - need hero to have a non-bracer shield */
+        if (!uarms || is_bracer(uarms))
+            return FALSE;
+    }
+    return TRUE;
+}
+
+/* uncurse worn items, loadstones, and magic bags.
+   Used by both SCR_REMOVE_CURSE and SPE_REMOVE_CURSE */
+STATIC_OVL void
+monster_uncurse_items(mtmp, confused)
+struct monst *mtmp;
+boolean confused;
+{
+    struct obj *obj;
+
+    for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+        /* gold isn't subject to cursing and blessing */
+        if (obj->oclass == COIN_CLASS)
+            continue;
+        if (obj->owornmask || Is_mbag(obj) || obj->otyp == LOADSTONE) {
+            if (confused)
+                blessorcurse(obj, 2);
+            else
+                uncurse(obj);
+        }
+    }
+}
+
 /* Monster casts a NODIR spell (power word kill, cure blindness,
    cure sickness, remove curse, jumping, levitation, repair armor).
    These spells don't require line of sight - they directly affect the
@@ -5447,26 +5435,12 @@ int spell_otyp;
             caster->mwither = 0;
         }
         break;
-    case SPE_REMOVE_CURSE: {
+    case SPE_REMOVE_CURSE:
         /* Self-targeting: uncurse worn items, loadstones, magic bags */
-        struct obj *obj;
-
         if (canseemon(caster) && !Deaf)
             pline("%s chants a prayer...", Monnam(caster));
-
-        for (obj = caster->minvent; obj; obj = obj->nobj) {
-            /* gold isn't subject to cursing and blessing */
-            if (obj->oclass == COIN_CLASS)
-                continue;
-            if (obj->owornmask || Is_mbag(obj) || obj->otyp == LOADSTONE) {
-                if (caster->mconf)
-                    blessorcurse(obj, 2);
-                else
-                    uncurse(obj);
-            }
-        }
+        monster_uncurse_items(caster, caster->mconf);
         break;
-    }
     case SPE_REPAIR_ARMOR: {
         /* Self-targeting: repair one level of erosion on random armor */
         struct obj *otmp = some_armor(caster);
