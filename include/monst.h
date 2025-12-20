@@ -230,6 +230,8 @@ struct monst {
     int mentangletime;     /* timeout for monster entangle spell */
     int mlevitatetime;     /* timeout for monster levitation spell */
     int mjumptime;         /* timeout for monster jumping spell */
+    uchar mburnhands;      /* burning hands spell charges */
+    uchar mshockgrasp;     /* shocking grasp spell charges */
     int mbreakboulder;     /* timeout for monster breaking a boulder */
     uchar mprotection;     /* monster protection spell */
     uchar mprottime;       /* timeout for monster protection spell */

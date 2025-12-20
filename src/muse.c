@@ -2937,8 +2937,8 @@ static const short learnable_spells[] = {
     SPE_REMOVE_CURSE, SPE_TURN_UNDEAD, SPE_DISPEL_EVIL,
     /* Escape (3) */
     SPE_JUMPING, SPE_LEVITATION, SPE_TELEPORT_AWAY,
-    /* Matter (3) */
-    SPE_DIG, SPE_REPAIR_ARMOR, SPE_POLYMORPH,
+    /* Matter (2) */
+    SPE_REPAIR_ARMOR, SPE_POLYMORPH,
     /* Evocation (2) */
     SPE_ENTANGLE, SPE_FINGER_OF_DEATH,
     0 /* sentinel */
@@ -5322,6 +5322,9 @@ int spell_otyp;
            100 HP = instant kill zone (player Basic skill default) */
         int threshold = 100;
 
+        if (canseemon(caster) && !Deaf)
+            pline("%s utters a word of power...", Monnam(caster));
+
         if (youdefend) {
             /* Casting at player */
             if (immune_death_magic(youmonst.data) || Death_resistance) {
@@ -5352,7 +5355,7 @@ int spell_otyp;
                     shieldeff(u.ux, u.uy);
                     if (Half_spell_damage)
                         dmg /= 2;
-                    You("feel weakened by the death magic!");
+                    You("tremble in pain, but resist the deadly spell!");
                     if (dmg >= u.uhp)
                         dmg = u.uhp - 1;
                     if (dmg > 0)
@@ -5448,7 +5451,7 @@ int spell_otyp;
         /* Self-targeting: uncurse worn items, loadstones, magic bags */
         struct obj *obj;
 
-        if (canseemon(caster))
+        if (canseemon(caster) && !Deaf)
             pline("%s chants a prayer...", Monnam(caster));
 
         for (obj = caster->minvent; obj; obj = obj->nobj) {
@@ -5498,6 +5501,32 @@ int spell_otyp;
                 pline("%s %s tense with magical energy.",
                       s_suffix(Monnam(caster)),
                       makeplural(mbodypart(caster, LEG)));
+        }
+        break;
+    case SPE_BURNING_HANDS:
+        /* Self-targeting: buff that adds fire damage to melee attacks */
+        if (!caster->mshockgrasp && !mon_underwater(caster)) {
+            caster->mburnhands += rn1(4, 2); /* 2-5 charges */
+            if (caster->mburnhands > 20)
+                caster->mburnhands = 20; /* cap at 20 */
+            if (canseemon(caster))
+                pline("%s %s are engulfed in %s flames!",
+                      s_suffix(Monnam(caster)),
+                      makeplural(mbodypart(caster, HAND)),
+                      hcolor(NH_ORANGE));
+        }
+        break;
+    case SPE_SHOCKING_GRASP:
+        /* Self-targeting: buff that adds shock damage to melee attacks */
+        if (!caster->mburnhands) {
+            caster->mshockgrasp += rn1(4, 2); /* 2-5 charges */
+            if (caster->mshockgrasp > 20)
+                caster->mshockgrasp = 20; /* cap at 20 */
+            if (canseemon(caster))
+                pline("%s %s are surrounded by a %s aura!",
+                      s_suffix(Monnam(caster)),
+                      makeplural(mbodypart(caster, HAND)),
+                      hcolor(NH_BLUE));
         }
         break;
     default:

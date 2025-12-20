@@ -859,7 +859,9 @@ struct monst *caster, *target;
                || spell_otyp == SPE_REMOVE_CURSE
                || spell_otyp == SPE_REPAIR_ARMOR
                || spell_otyp == SPE_LEVITATION
-               || spell_otyp == SPE_JUMPING) {
+               || spell_otyp == SPE_JUMPING
+               || spell_otyp == SPE_BURNING_HANDS
+               || spell_otyp == SPE_SHOCKING_GRASP) {
         /* Self-targeting NODIR spells */
         mcast_nodir_spell(caster, caster, spell_otyp);
     }
@@ -3093,6 +3095,35 @@ int tx, ty;
                 if (is_jumper(mtmp->data) || can_jump(mtmp)
                     || is_flyer(mtmp->data) || is_floater(mtmp->data)
                     || can_levitate(mtmp) || can_fly(mtmp))
+                    continue;
+            }
+            /* Burning hands / Shocking grasp: useless if monster has no
+               unarmed touch attacks (AT_CLAW, AT_TUCH, AT_WEAP) */
+            if (spell_otyp == SPE_BURNING_HANDS
+                || spell_otyp == SPE_SHOCKING_GRASP) {
+                boolean has_touch_attack = FALSE;
+                int j;
+
+                for (j = 0; j < NATTK; j++) {
+                    int at = mtmp->data->mattk[j].aatyp;
+                    if (at == AT_CLAW || at == AT_TUCH || at == AT_WEAP) {
+                        has_touch_attack = TRUE;
+                        break;
+                    }
+                }
+                if (!has_touch_attack)
+                    continue;
+            }
+            /* Burning hands: also useless if at cap, shocking grasp active,
+               or underwater */
+            if (spell_otyp == SPE_BURNING_HANDS) {
+                if (mtmp->mburnhands >= 20 || mtmp->mshockgrasp
+                    || mon_underwater(mtmp))
+                    continue;
+            }
+            /* Shocking grasp: also useless if at cap or burning hands active */
+            if (spell_otyp == SPE_SHOCKING_GRASP) {
+                if (mtmp->mshockgrasp >= 20 || mtmp->mburnhands)
                     continue;
             }
             candidates[count++] = spell_otyp;

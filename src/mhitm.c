@@ -2831,6 +2831,76 @@ msickness:
         break;
     }
 
+    /* burning hands spell - extra fire damage on unarmed touch attacks */
+    if (magr->mburnhands && !mwep && !DEADMONSTER(mdef)
+        && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
+            || mattk->aatyp == AT_WEAP)) {
+        int firedmg = rnd(6) + 2;
+
+        if (resists_fire(mdef) || defended(mdef, AD_FIRE)
+            || mon_underwater(mdef)) {
+            shieldeff(mdef->mx, mdef->my);
+            golemeffects(mdef, AD_FIRE, firedmg);
+            if (vis && canseemon(magr))
+                pline("%s %s don't burn %s!",
+                      s_suffix(Monnam(magr)),
+                      makeplural(mbodypart(magr, HAND)), mon_nam(mdef));
+        } else {
+            if (vis && canseemon(magr))
+                pline("%s %s %s with %s %s!",
+                      Monnam(magr),
+                      vulnerable_to(mdef, AD_FIRE) ? "severely burns"
+                          : can_vaporize(mdef->data) ? "vaporizes part of"
+                          : "burns",
+                      mon_nam(mdef), mhis(magr),
+                      makeplural(mbodypart(magr, HAND)));
+            tmp += firedmg;
+            if (!rn2(4))
+                (void) destroy_mitem(mdef, SCROLL_CLASS, AD_FIRE);
+            if (!rn2(4))
+                (void) destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
+            if (!rn2(7))
+                (void) destroy_mitem(mdef, SPBOOK_CLASS, AD_FIRE);
+        }
+        magr->mburnhands--;
+        if (!magr->mburnhands && canseemon(magr))
+            pline("%s %s stop burning.",
+                  s_suffix(Monnam(magr)), makeplural(mbodypart(magr, HAND)));
+    }
+
+    /* shocking grasp spell - extra shock damage on unarmed touch attacks */
+    if (magr->mshockgrasp && !mwep && !DEADMONSTER(mdef)
+        && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
+            || mattk->aatyp == AT_WEAP)) {
+        int elecdmg = rnd(6) + 2;
+
+        if (resists_elec(mdef) || defended(mdef, AD_ELEC)) {
+            shieldeff(mdef->mx, mdef->my);
+            golemeffects(mdef, AD_ELEC, elecdmg);
+            if (vis && canseemon(magr))
+                pline("%s %s don't shock %s!",
+                      s_suffix(Monnam(magr)),
+                      makeplural(mbodypart(magr, HAND)), mon_nam(mdef));
+        } else {
+            if (vis && canseemon(magr))
+                pline("%s %s %s with %s %s!",
+                      Monnam(magr),
+                      vulnerable_to(mdef, AD_ELEC) ? "severely shocks"
+                          : rn2(2) ? "jolts" : "shocks",
+                      mon_nam(mdef), mhis(magr),
+                      makeplural(mbodypart(magr, HAND)));
+            tmp += elecdmg;
+            if (!rn2(4))
+                (void) destroy_mitem(mdef, WAND_CLASS, AD_ELEC);
+            if (!rn2(5))
+                (void) destroy_mitem(mdef, RING_CLASS, AD_ELEC);
+        }
+        magr->mshockgrasp--;
+        if (!magr->mshockgrasp && canseemon(magr))
+            pline("%s %s stop crackling.",
+                  s_suffix(Monnam(magr)), makeplural(mbodypart(magr, HAND)));
+    }
+
     if (!tmp) {
         if (DEADMONSTER(mdef))
             res = MM_DEF_DIED;

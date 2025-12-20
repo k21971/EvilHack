@@ -4815,4 +4815,6 @@ The following changes to date are:
 - Add some of the allowed NODIR-based spells for monster learned
   spellcasting
 - Add remaining NODIR-based spells for monster learned spellcasting
+- Add burning hands and shocking grasp spells for monster learned
+  spellcasting
 

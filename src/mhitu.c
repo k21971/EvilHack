@@ -2759,6 +2759,72 @@ do_rust:
         exercise(A_CON, FALSE);
     }
 
+    /* burning hands spell - extra fire damage on unarmed touch attacks */
+    if (mtmp->mburnhands && !MON_WEP(mtmp)
+        && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
+            || mattk->aatyp == AT_WEAP)) {
+        int firedmg = rnd(6) + 2;
+
+        if (how_resistant(FIRE_RES) == 100) {
+            shieldeff(u.ux, u.uy);
+            pline("%s %s don't burn you!",
+                  s_suffix(Monnam(mtmp)), makeplural(mbodypart(mtmp, HAND)));
+        } else {
+            pline("%s %s you with %s %s!",
+                  Monnam(mtmp),
+                  vulnerable_to(&youmonst, AD_FIRE) ? "severely burns"
+                      : can_vaporize(youmonst.data) ? "vaporizes part of"
+                      : "burns",
+                  mhis(mtmp), makeplural(mbodypart(mtmp, HAND)));
+            firedmg = resist_reduce(firedmg, FIRE_RES);
+            if (Half_spell_damage)
+                firedmg /= 2;
+            dmg += firedmg;
+            if ((int) mtmp->m_lev > rn2(20))
+                destroy_item(SCROLL_CLASS, AD_FIRE);
+            if ((int) mtmp->m_lev > rn2(20))
+                destroy_item(POTION_CLASS, AD_FIRE);
+            if ((int) mtmp->m_lev > rn2(25))
+                destroy_item(SPBOOK_CLASS, AD_FIRE);
+            burn_away_slime();
+        }
+        mtmp->mburnhands--;
+        if (!mtmp->mburnhands && canseemon(mtmp))
+            pline("%s %s stop burning.",
+                  s_suffix(Monnam(mtmp)), makeplural(mbodypart(mtmp, HAND)));
+    }
+
+    /* shocking grasp spell - extra shock damage on unarmed touch attacks */
+    if (mtmp->mshockgrasp && !MON_WEP(mtmp)
+        && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
+            || mattk->aatyp == AT_WEAP)) {
+        int elecdmg = rnd(6) + 2;
+
+        if (how_resistant(SHOCK_RES) == 100) {
+            shieldeff(u.ux, u.uy);
+            pline("%s %s don't shock you!",
+                  s_suffix(Monnam(mtmp)), makeplural(mbodypart(mtmp, HAND)));
+        } else {
+            pline("%s %s you with %s %s!",
+                  Monnam(mtmp),
+                  vulnerable_to(&youmonst, AD_ELEC) ? "severely shocks"
+                      : rn2(2) ? "jolts" : "shocks",
+                  mhis(mtmp), makeplural(mbodypart(mtmp, HAND)));
+            elecdmg = resist_reduce(elecdmg, SHOCK_RES);
+            if (Half_spell_damage)
+                elecdmg /= 2;
+            dmg += elecdmg;
+            if ((int) mtmp->m_lev > rn2(20))
+                destroy_item(WAND_CLASS, AD_ELEC);
+            if ((int) mtmp->m_lev > rn2(20))
+                destroy_item(RING_CLASS, AD_ELEC);
+        }
+        mtmp->mshockgrasp--;
+        if (!mtmp->mshockgrasp && canseemon(mtmp))
+            pline("%s %s stop crackling.",
+                  s_suffix(Monnam(mtmp)), makeplural(mbodypart(mtmp, HAND)));
+    }
+
     if (dmg) {
         if (Half_physical_damage
             /* Mitre of Holiness */
