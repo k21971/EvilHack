@@ -2937,8 +2937,8 @@ static const short learnable_spells[] = {
     SPE_REMOVE_CURSE, SPE_TURN_UNDEAD, SPE_DISPEL_EVIL,
     /* Escape (3) */
     SPE_JUMPING, SPE_LEVITATION, SPE_TELEPORT_AWAY,
-    /* Matter (4) */
-    SPE_KNOCK, SPE_DIG, SPE_REPAIR_ARMOR, SPE_POLYMORPH,
+    /* Matter (3) */
+    SPE_DIG, SPE_REPAIR_ARMOR, SPE_POLYMORPH,
     /* Evocation (2) */
     SPE_ENTANGLE, SPE_FINGER_OF_DEATH,
     0 /* sentinel */
@@ -5303,6 +5303,152 @@ int spell_otyp;
     pseudo->where = OBJ_FREE; /* prevent obfree complaints */
     pseudo->ocarry = (struct monst *) 0;
     obfree(pseudo, (struct obj *) 0);
+}
+
+/* Monster casts a NODIR spell (power word kill, cure blindness,
+   cure sickness, remove curse, jumping, levitation, repair armor).
+   These spells don't require line of sight - they directly affect the
+   target. Returns TRUE if spell was cast, FALSE otherwise */
+boolean
+mcast_nodir_spell(caster, target, spell_otyp)
+struct monst *caster, *target;
+int spell_otyp;
+{
+    boolean youdefend = (target == &youmonst);
+
+    switch (spell_otyp) {
+    case SPE_POWER_WORD_KILL: {
+        /* Power word kill: HP threshold determines effect
+           100 HP = instant kill zone (player Basic skill default) */
+        int threshold = 100;
+
+        if (youdefend) {
+            /* Casting at player */
+            if (immune_death_magic(youmonst.data) || Death_resistance) {
+                shieldeff(u.ux, u.uy);
+                You("are immune to %s word of power!", l_monnam(caster));
+            } else if (u.uhp <= threshold) {
+                /* In kill range */
+                if (Antimagic) {
+                    int dmg = d(8, 6);
+                    shieldeff(u.ux, u.uy);
+                    if (Half_spell_damage)
+                        dmg /= 2;
+                    You("tremble in pain, but resist the deadly spell!");
+                    if (dmg >= u.uhp)
+                        dmg = u.uhp - 1;
+                    if (dmg > 0)
+                        losehp(dmg, "power word kill", KILLED_BY_AN);
+                } else {
+                    /* Instant death */
+                    killer.format = KILLED_BY_AN;
+                    Strcpy(killer.name, "power word kill");
+                    done(DIED);
+                }
+            } else {
+                /* Above threshold: weaken but don't kill */
+                if (Antimagic) {
+                    int dmg = d(8, 6);
+                    shieldeff(u.ux, u.uy);
+                    if (Half_spell_damage)
+                        dmg /= 2;
+                    You("feel weakened by the death magic!");
+                    if (dmg >= u.uhp)
+                        dmg = u.uhp - 1;
+                    if (dmg > 0)
+                        losehp(dmg, "power word kill", KILLED_BY_AN);
+                } else {
+                    You("tremble in agony, but resist the deadly spell!");
+                    u.uhpmax -= rn1(9, 4);
+                    if (u.uhpmax < 1)
+                        u.uhpmax = 1;
+                    u.uhp /= 3;
+                    if (u.uhp < 1)
+                        u.uhp = 1;
+                    context.botl = TRUE;
+                }
+            }
+        } else if (target && !DEADMONSTER(target)) {
+            /* Casting at monster */
+            if (immune_death_magic(target->data) || is_vampshifter(target)) {
+                shieldeff(target->mx, target->my);
+                if (canseemon(target))
+                    pline("%s is immune to %s word of power!",
+                          Monnam(target), l_monnam(caster));
+            } else if (target->mhp <= threshold) {
+                /* In kill range */
+                if (resists_magm(target) || defended(target, AD_MAGM)) {
+                    shieldeff(target->mx, target->my);
+                    if (canseemon(target))
+                        pline("%s %s in pain, but resists the deadly spell.",
+                              Monnam(target), makeplural(growl_sound(target)));
+                    target->mhp -= d(8, 6);
+                    if (target->mhp < 1)
+                        target->mhp = 1;
+                } else {
+                    if (canseemon(target))
+                        pline("%s is %s!", Monnam(target),
+                              rn2(2) ? "annihilated" : "obliterated");
+                    target->mhp = 0;
+                    monkilled(target, "", AD_DETH);
+                }
+            } else {
+                /* Above threshold: weaken but don't kill */
+                if (resists_magm(target) || defended(target, AD_MAGM)) {
+                    shieldeff(target->mx, target->my);
+                    if (canseemon(target))
+                        pline("%s %s in pain, but resists the deadly spell.",
+                              Monnam(target), makeplural(growl_sound(target)));
+                    target->mhp -= d(8, 6);
+                    if (target->mhp < 1)
+                        target->mhp = 1;
+                } else {
+                    if (canseemon(target))
+                        pline("%s trembles in %s!", Monnam(target),
+                              rn2(2) ? "agony" : "pain");
+                    target->mhpmax -= rn1(9, 4);
+                    if (target->mhpmax < 1)
+                        target->mhpmax = 1;
+                    target->mhp /= 3;
+                    if (target->mhp < 1)
+                        target->mhp = 1;
+                }
+            }
+        }
+        break;
+    }
+    case SPE_CURE_BLINDNESS:
+        /* Self-targeting: caster cures own blindness */
+        if (caster->mblinded) {
+            caster->mblinded = 0;
+            caster->mcansee = 1;
+            if (canseemon(caster))
+                pline("%s can see again.", Monnam(caster));
+        }
+        break;
+    case SPE_CURE_SICKNESS:
+        /* Self-targeting: caster cures own sickness/disease/withering */
+        if (caster->msick || caster->mdiseased || caster->mwither) {
+            if (canseemon(caster)) {
+                if (caster->msick || caster->mdiseased)
+                    pline("%s is no longer ill.", Monnam(caster));
+                if (caster->mwither)
+                    pline("%s is no longer withering away.", Monnam(caster));
+            }
+            caster->msick = 0;
+            caster->msickbyu = 0;
+            caster->mdiseased = 0;
+            caster->mdiseabyu = 0;
+            caster->msicktime = 0;
+            caster->mdiseasetime = 0;
+            caster->mwither = 0;
+        }
+        break;
+    default:
+        impossible("mcast_nodir_spell: unhandled spell %d", spell_otyp);
+        return FALSE;
+    }
+    return TRUE;
 }
 
 /*muse.c*/

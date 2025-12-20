@@ -851,6 +851,13 @@ struct monst *caster, *target;
                 return 0; /* No clear line of sight */
         }
         mcast_immediate_spell(caster, tx, ty, spell_otyp);
+    } else if (spell_otyp == SPE_POWER_WORD_KILL) {
+        /* NODIR spell - no LOS check needed, directly targets enemy */
+        mcast_nodir_spell(caster, target, spell_otyp);
+    } else if (spell_otyp == SPE_CURE_BLINDNESS
+               || spell_otyp == SPE_CURE_SICKNESS) {
+        /* Self-targeting NODIR spells */
+        mcast_nodir_spell(caster, caster, spell_otyp);
     }
 
     return 0; /* spell handlers do their own damage */
@@ -3026,6 +3033,12 @@ int tx, ty;
                 if (!(levl[tx][ty].typ == GRASS || nexttotree(tx, ty)))
                     continue;
             }
+            /* Self-cure spells only useful when monster has the condition */
+            if (spell_otyp == SPE_CURE_BLINDNESS && !mtmp->mblinded)
+                continue;
+            if (spell_otyp == SPE_CURE_SICKNESS
+                && !mtmp->msick && !mtmp->mdiseased && !mtmp->mwither)
+                continue;
             candidates[count++] = spell_otyp;
         }
     }
