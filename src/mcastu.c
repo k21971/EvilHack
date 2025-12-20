@@ -817,7 +817,9 @@ struct monst *caster, *target;
     if (spell_otyp == 0)
         return 0; /* No castable spell available */
 
-    if (objects[spell_otyp].oc_class != SPBOOK_CLASS) {
+    /* Bounds check before accessing objects array */
+    if (spell_otyp < SPE_DIG || spell_otyp > SPE_BLANK_PAPER
+        || objects[spell_otyp].oc_class != SPBOOK_CLASS) {
         impossible("cast_learned_spell: invalid spell otyp %d", spell_otyp);
         return 0;
     }
@@ -1694,12 +1696,8 @@ int dmg, spellnum;
             /* Player/monster casting at monster - tame/peaceful insects */
             if (!target || DEADMONSTER(target))
                 return;
-            if (target)
-                bypos.x = target->mx, bypos.y = target->my;
-            else if (yours)
-                bypos.x = u.ux, bypos.y = u.uy;
-            else
-                bypos.x = caster->mx, bypos.y = caster->my;
+            bypos.x = target->mx;
+            bypos.y = target->my;
 
             quan = (mons[u.umonnum].mlevel < 2) ? 1 :
                     rnd(mons[u.umonnum].mlevel / 2);
@@ -2124,13 +2122,23 @@ int spellnum;
     int dist;
 
     /* Calculate distance between caster and target */
-    if (yours) {
+    if (yours && youdefend) {
+        /* Player casting at self - distance is 0 */
+        dist = 0;
+    } else if (yours) {
+        /* Player casting at monster - need valid target */
+        if (!target || DEADMONSTER(target))
+            return TRUE; /* Can't cast at invalid target */
         dist = distmin(u.ux, u.uy, target->mx, target->my);
     } else if (youdefend) {
+        /* Monster casting at player */
         dist = distu(caster->mx, caster->my);
         /* Check if caster could see where player is */
         mcouldseeu = couldsee(caster->mx, caster->my);
     } else {
+        /* Monster casting at monster - need valid target */
+        if (!target || DEADMONSTER(target))
+            return TRUE; /* Can't cast at invalid target */
         dist = distmin(caster->mx, caster->my, target->mx, target->my);
     }
 
@@ -2989,7 +2997,7 @@ struct monst *mtmp;
         spell_otyp = EMSP(mtmp)->msp_id[i];
         if (spell_otyp != 0 && EMSP(mtmp)->msp_know[i] > 0) {
             /* Skip invalid entries */
-            if (spell_otyp < SPE_FIREBALL || spell_otyp > SPE_BLANK_PAPER
+            if (spell_otyp < SPE_DIG || spell_otyp > SPE_BLANK_PAPER
                 || objects[spell_otyp].oc_class != SPBOOK_CLASS)
                 continue;
             /* Check level requirement */

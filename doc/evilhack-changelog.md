@@ -4817,4 +4817,5 @@ The following changes to date are:
 - Add remaining NODIR-based spells for monster learned spellcasting
 - Add burning hands and shocking grasp spells for monster learned
   spellcasting
+- Fix: various issues in mcastu.c
 
