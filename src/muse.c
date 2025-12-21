@@ -527,6 +527,9 @@ struct monst *mtmp;
 
     if (is_animal(mtmp->data) || mindless(mtmp->data))
         return FALSE;
+    /* Only look for defensive items when player is relatively close.
+     * dist2 > 25 means ~5 tile spaces - tighter than find_misc
+     * (6 tile spaces) because defensive items are for urgent situations */
     if (dist2(x, y, mtmp->mux, mtmp->muy) > 25)
         return FALSE;
     if (u.uswallow && stuck)
@@ -563,25 +566,22 @@ struct monst *mtmp;
     if (mtmp->msick || mtmp->mdiseased) {
         for (obj = mtmp->minvent; obj; obj = obj->nobj) {
             if (!nohands(mtmp->data)) {
-                if (obj && obj->otyp == POT_HEALING && !obj->cursed)
-                    break;
-                if (obj && obj->otyp == POT_FULL_HEALING) {
+                /* Priority: full healing > extra healing > blessed healing */
+                if (obj->otyp == POT_FULL_HEALING) {
                     m.defensive = obj;
                     m.has_defense = MUSE_POT_FULL_HEALING;
                     return TRUE;
-                } else if (obj && obj->otyp == POT_EXTRA_HEALING
-                           && !obj->cursed) {
+                } else if (obj->otyp == POT_EXTRA_HEALING && !obj->cursed) {
                     m.defensive = obj;
                     m.has_defense = MUSE_POT_EXTRA_HEALING;
                     return TRUE;
-                } else if (obj && obj->otyp == POT_HEALING
-                           && obj->blessed) {
+                } else if (obj->otyp == POT_HEALING && obj->blessed) {
                     m.defensive = obj;
                     m.has_defense = MUSE_POT_HEALING;
                     return TRUE;
                 }
             }
-            if (obj && obj->otyp == EUCALYPTUS_LEAF) {
+            if (obj->otyp == EUCALYPTUS_LEAF) {
                 m.defensive = obj;
                 m.has_defense = MUSE_EUCALYPTUS_LEAF;
                 return TRUE;
@@ -1214,11 +1214,14 @@ struct find_context *ctx UNUSED;
 
 #define nomore(x) if (current_muse == (x)) return 0;
 
-    /* Note: POT_BOOZE and POT_GAIN_LEVEL don't use nomore,
-       they can override */
+    /* POT_BOOZE and POT_GAIN_LEVEL shouldn't override wand of wishing */
+    nomore(MUSE_POT_BOOZE);
+    nomore(MUSE_WAN_WISHING);
     if (obj->otyp == POT_BOOZE && is_satyr(mtmp->data))
         return MUSE_POT_BOOZE;
 
+    nomore(MUSE_POT_GAIN_LEVEL);
+    nomore(MUSE_WAN_WISHING);
     if (obj->otyp == POT_GAIN_LEVEL
         && (!obj->cursed
             || (!mtmp->isgd && !mtmp->isshk && !mtmp->ispriest)))
@@ -1363,7 +1366,12 @@ struct find_context *ctx;
         if (cat == FIND_DEFENSIVE && *has_ptr && !rn2(3))
             break;
 
-        /* Container recursion - exclude BAG_OF_TRICKS for defensive */
+        /* Container recursion.
+         * BAG_OF_TRICKS is excluded for FIND_DEFENSIVE because:
+         * 1) Is_container() returns TRUE for it (otyp range check)
+         * 2) But it has no real contents - reaching in spawns monsters
+         * 3) For defense, we want to USE the bag (MUSE_BAG_OF_TRICKS),
+         *    not recurse into nonexistent contents */
         if (Is_container(obj) &&
             (cat != FIND_DEFENSIVE || obj->otyp != BAG_OF_TRICKS)) {
             (void) find_items_recurse(mtmp, obj->cobj, cat, checker, ctx);
@@ -3117,7 +3125,6 @@ boolean
 find_misc(mtmp)
 struct monst *mtmp;
 {
-    struct obj *obj, *nextobj;
     struct permonst *mdat = mtmp->data;
     int x = mtmp->mx, y = mtmp->my;
     struct trap *t;
@@ -3186,10 +3193,11 @@ struct monst *mtmp;
         }
     }
 
-    /* We arbitrarily limit to times when a player is nearby for the
-     * same reason as Junior Pac-Man doesn't have energizers eaten until
-     * you can see them...
-     */
+    /* Limit misc item usage to when player is nearby - partly for game
+     * feel (like Junior Pac-Man energizers), partly for performance.
+     * dist2 > 36 means 6 tile spaces - looser than find_defensive
+     * (5 tile spaces) because misc items (polymorph, speed,
+     * invisibility) are less urgent */
     if (dist2(x, y, mtmp->mux, mtmp->muy) > 36)
         return FALSE;
 
@@ -3222,145 +3230,8 @@ struct monst *mtmp;
         }
     }
 
-#define nomore(x)       if (m.has_misc == (x)) continue
-    /*
-     * [bug?]  Choice of item is not prioritized; the last viable one
-     * in the monster's inventory will be chosen.
-     * 'nomore()' is nearly worthless because it only screens checking
-     * of duplicates when there is no alternate type in between them.
-     */
-    for (obj = mtmp->minvent; obj; obj = nextobj) {
-        nextobj = obj->nobj;
-        /* Monsters shouldn't recognize cursed items; this kludge is
-           necessary to prevent serious problems though... */
-        if (obj->otyp == POT_BOOZE
-            && is_satyr(mtmp->data)) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_BOOZE;
-        }
-        if (obj->otyp == POT_GAIN_LEVEL
-            && (!obj->cursed
-                || (!mtmp->isgd && !mtmp->isshk && !mtmp->ispriest))) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_GAIN_LEVEL;
-        }
-        nomore(MUSE_FIGURINE);
-        if (obj->otyp == FIGURINE && !mtmp->mpeaceful) {
-            m.misc = obj;
-            m.has_misc = MUSE_FIGURINE;
-        }
-        nomore(MUSE_WAN_WISHING);
-        if (obj->otyp == WAN_WISHING) {
-            if (obj->spe > 0) {
-                m.misc = obj;
-                m.has_misc = MUSE_WAN_WISHING;
-            }
-            continue;
-        }
-        /* Weapon disarm attempts - random test prevents trying every turn */
-        nomore(MUSE_BULLWHIP);
-        if (obj->otyp == BULLWHIP && !rn2(5)
-            && can_attempt_disarm(mtmp, obj, 0)) {
-            m.misc = obj;
-            m.has_misc = MUSE_BULLWHIP;
-        }
-        nomore(MUSE_DWARVISH_BEARDED_AXE_WEAPON);
-        if (obj->otyp == DWARVISH_BEARDED_AXE && !rn2(5)
-            && can_attempt_disarm(mtmp, obj, 0)) {
-            m.misc = obj;
-            m.has_misc = MUSE_DWARVISH_BEARDED_AXE_WEAPON;
-        }
-        /* Shield disarm - harder than weapon disarm (!rn2(7) vs !rn2(5)) */
-        nomore(MUSE_DWARVISH_BEARDED_AXE_SHIELD);
-        if (obj->otyp == DWARVISH_BEARDED_AXE && !rn2(7)
-            && can_attempt_disarm(mtmp, obj, 1)) {
-            m.misc = obj;
-            m.has_misc = MUSE_DWARVISH_BEARDED_AXE_SHIELD;
-        }
-        /* Note: peaceful/tame monsters won't make themselves
-         * invisible unless you can see them.  Not really right, but...
-         */
-        nomore(MUSE_WAN_MAKE_INVISIBLE);
-        if (obj->otyp == WAN_MAKE_INVISIBLE && !mtmp->minvis
-            && !mtmp->invis_blkd && (!mtmp->mpeaceful || See_invisible)
-            && (!attacktype(mtmp->data, AT_GAZE) || mtmp->mcan)) {
-            if (obj->spe > 0) {
-                m.misc = obj;
-                m.has_misc = MUSE_WAN_MAKE_INVISIBLE;
-            }
-        }
-        nomore(MUSE_POT_INVISIBILITY);
-        if (obj->otyp == POT_INVISIBILITY && !mtmp->minvis
-            && !mtmp->invis_blkd && (!mtmp->mpeaceful || See_invisible)
-            && (!attacktype(mtmp->data, AT_GAZE) || mtmp->mcan)) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_INVISIBILITY;
-        }
-        nomore(MUSE_WAN_SPEED_MONSTER);
-        if (obj->otyp == WAN_SPEED_MONSTER
-            && mtmp->mspeed != MFAST && !mtmp->isgd) {
-            if (obj->spe > 0) {
-                m.misc = obj;
-                m.has_misc = MUSE_WAN_SPEED_MONSTER;
-            }
-        }
-        nomore(MUSE_POT_SPEED);
-        if (obj->otyp == POT_SPEED && mtmp->mspeed != MFAST && !mtmp->isgd) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_SPEED;
-        }
-        nomore(MUSE_WAN_POLYMORPH_SELF);
-        if (obj->otyp == WAN_POLYMORPH
-            && (mtmp->cham == NON_PM) && !mtmp->isshk
-            && mons[monsndx(mdat)].difficulty < 6) {
-            if (obj->spe > 0) {
-                m.misc = obj;
-                m.has_misc = MUSE_WAN_POLYMORPH_SELF;
-            }
-        }
-        nomore(MUSE_POT_POLYMORPH);
-        if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
-            && !mtmp->isshk && mons[monsndx(mdat)].difficulty < 6) {
-            m.misc = obj;
-            m.has_misc = MUSE_POT_POLYMORPH;
-        }
-        if (m.has_misc == MUSE_SCR_CHARGING)
-            continue;
-        if (obj->otyp == SCR_CHARGING) {
-            /* Check if monster has anything to charge right now */
-            if (find_best_item_to_charge(mtmp)) {
-                m.misc = obj;
-                m.has_misc = MUSE_SCR_CHARGING;
-            }
-            continue;
-        }
-        nomore(MUSE_SCR_REMOVE_CURSE);
-        if (obj->otyp == SCR_REMOVE_CURSE
-            && !obj->cursed
-            && mtmp->mnum != PM_INFIDEL) {
-            struct obj *otmp;
-
-            for (otmp = mtmp->minvent;
-                 otmp; otmp = otmp->nobj) {
-                if (otmp->cursed
-                    && (otmp->otyp == LOADSTONE
-                        || Is_mbag(otmp)
-                        || otmp->owornmask)) {
-                    m.misc = obj;
-                    m.has_misc = MUSE_SCR_REMOVE_CURSE;
-                }
-            }
-        }
-        nomore(MUSE_PAN_FLUTE);
-        if (obj->otyp == PAN_FLUTE
-            && is_satyr(mtmp->data)
-            && !mtmp->mpeaceful && !rn2(5)) {
-            m.misc = obj;
-            m.has_misc = MUSE_PAN_FLUTE;
-        }
-    }
-
-    /* Set up context for the generic finder callback */
+    /* Use the generic finder callback for misc items.
+       This handles both direct inventory and container recursion */
     {
         struct find_context ctx;
 
@@ -3373,7 +3244,6 @@ struct monst *mtmp;
         return find_items_recurse(mtmp, mtmp->minvent, FIND_MISC,
                                   check_misc_item, &ctx);
     }
-#undef nomore
 }
 
 /* type of monster to polymorph into; defaults to one suitable for the
