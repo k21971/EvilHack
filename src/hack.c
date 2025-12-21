@@ -2287,7 +2287,14 @@ domove_core()
             didnt_move = TRUE;
         } else if (mtmp->mpeaceful
                    && (!goodpos(u.ux0, u.uy0, mtmp, 0L)
-                       || t_at(u.ux0, u.uy0) != NULL
+                       /* exception: web-immune monsters can swap onto webs */
+                       || ((trap = t_at(u.ux0, u.uy0)) != NULL
+                           && !(trap->ttyp == WEB
+                                && (webmaker(mtmp->data) || racial_drow(mtmp)
+                                    || amorphous(mtmp->data)
+                                    || is_whirly(mtmp->data)
+                                    || flaming(mtmp->data) || unsolid(mtmp->data)
+                                    || mtmp->data == &mons[PM_GELATINOUS_CUBE])))
                        || mundisplaceable(mtmp))) {
             /* displacing peaceful into unsafe or trapped space, or trying to
              * displace quest leader, Oracle, shopkeeper, or priest */

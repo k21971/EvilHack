@@ -4823,4 +4823,5 @@ The following changes to date are:
 - Add monster container item extraction for equipment/spellbooks/weapons
 - Fix: various issues in muse.c round three
 - If Drow, do not uncursed a lit cursed magic lamp via prayer
+- Allow displacing web-immune pets into web traps
 
