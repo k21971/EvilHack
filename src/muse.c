@@ -89,6 +89,10 @@ STATIC_DCL int FDECL(check_offensive_item, (struct monst *, struct obj *, int,
                                             struct find_context *));
 STATIC_DCL int FDECL(check_misc_item, (struct monst *, struct obj *, int,
                                        struct find_context *));
+STATIC_DCL struct obj *FDECL(find_spellbook_recurse, (struct monst *,
+                                                      struct obj *, int));
+STATIC_DCL boolean FDECL(spell_is_learnable, (SHORT_P));
+STATIC_DCL boolean FDECL(mcan_learn_spell, (struct monst *, struct obj *));
 
 /* MUSE_* constants for defensive items */
 #define MUSE_SCR_TELEPORTATION 1
@@ -3072,6 +3076,43 @@ struct obj *book;
     return TRUE;
 }
 
+/* Recursive helper to find a spellbook in inventory or containers.
+   If otyp is non-zero, find a book with that specific otyp (mid-read
+   check). If otyp is zero, find any learnable book using
+   mcan_learn_spell() */
+STATIC_OVL struct obj *
+find_spellbook_recurse(mtmp, start, otyp)
+struct monst *mtmp;
+struct obj *start;
+int otyp;
+{
+    struct obj *obj, *found;
+
+    for (obj = start; obj; obj = obj->nobj) {
+        /* Recurse into containers */
+        if (Is_container(obj) && obj->cobj) {
+            found = find_spellbook_recurse(mtmp, obj->cobj, otyp);
+            if (found)
+                return found;
+            continue;
+        }
+
+        if (obj->oclass != SPBOOK_CLASS)
+            continue;
+
+        if (otyp != 0) {
+            /* Looking for specific book type (mid-read continuation) */
+            if (obj->otyp == otyp)
+                return obj;
+        } else {
+            /* Looking for any learnable book */
+            if (mcan_learn_spell(mtmp, obj))
+                return obj;
+        }
+    }
+    return (struct obj *) 0;
+}
+
 boolean
 find_misc(mtmp)
 struct monst *mtmp;
@@ -3101,7 +3142,8 @@ struct monst *mtmp;
     if (is_spellcaster(mtmp)) {
         struct obj *book;
 
-        /* If mid-read, continue unless impaired or hostile and player is close */
+        /* If mid-read, continue unless impaired or hostile and player
+           is close */
         if (has_emsp(mtmp) && EMSP(mtmp)->msp_reading != 0
             && EMSP(mtmp)->msp_read_turns > 0) {
             /* Stop reading if monster becomes impaired */
@@ -3110,20 +3152,20 @@ struct monst *mtmp;
                 EMSP(mtmp)->msp_reading = 0;
                 EMSP(mtmp)->msp_read_turns = 0;
                 /* Fall through to find other action */
-            /* Hostile monsters stop reading when player is within 2 squares */
             } else if (!mtmp->mpeaceful && dist2(x, y, u.ux, u.uy) <= 8) {
+                /* Hostile monsters stop reading when player is within
+                   two tile spaces */
                 EMSP(mtmp)->msp_reading = 0;
                 EMSP(mtmp)->msp_read_turns = 0;
                 /* Fall through to find a new book or other action */
             } else {
-                /* Find the book being read */
-                for (book = mtmp->minvent; book; book = book->nobj) {
-                    if (book->oclass == SPBOOK_CLASS
-                        && book->otyp == EMSP(mtmp)->msp_reading) {
-                        m.misc = book;
-                        m.has_misc = MUSE_SPELLBOOK;
-                        return TRUE;
-                    }
+                /* Find the book being read (may be in a container) */
+                book = find_spellbook_recurse(mtmp, mtmp->minvent,
+                                              EMSP(mtmp)->msp_reading);
+                if (book) {
+                    m.misc = book;
+                    m.has_misc = MUSE_SPELLBOOK;
+                    return TRUE;
                 }
                 /* Book not found - must have been stolen/destroyed */
                 EMSP(mtmp)->msp_reading = 0;
@@ -3132,15 +3174,14 @@ struct monst *mtmp;
         }
 
         /* Find any learnable spellbook - but hostile monsters won't
-           start reading when player is within 2 squares */
+           start reading when player is within two tile spaces.
+           Also search containers */
         if (mtmp->mpeaceful || dist2(x, y, u.ux, u.uy) > 8) {
-            for (book = mtmp->minvent; book; book = book->nobj) {
-                if (book->oclass == SPBOOK_CLASS
-                    && mcan_learn_spell(mtmp, book)) {
-                    m.misc = book;
-                    m.has_misc = MUSE_SPELLBOOK;
-                    return TRUE;
-                }
+            book = find_spellbook_recurse(mtmp, mtmp->minvent, 0);
+            if (book) {
+                m.misc = book;
+                m.has_misc = MUSE_SPELLBOOK;
+                return TRUE;
             }
         }
     }

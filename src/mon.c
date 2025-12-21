@@ -7136,6 +7136,79 @@ struct monst *mon;
     mon->misc_worn_check |= I_SPECIAL;
 }
 
+/* Extract an object from a container that a monster is carrying.
+ * Returns: 0 = extraction failed (locked, cursed BoH, etc.)
+ *          1 = object was already in open inventory (no action needed)
+ *          2 = extraction succeeded (used monster's turn)
+ */
+int
+mon_container_extract(mon, obj)
+struct monst *mon;
+struct obj *obj;
+{
+    struct obj *container;
+    char contnr_nam[BUFSZ];
+    boolean vis, nearby;
+    int howfar;
+
+    if (!obj)
+        return 0;
+
+    /* Object already in open inventory - no extraction needed */
+    if (obj->where == OBJ_MINVENT)
+        return 1;
+
+    /* Object not in a container - shouldn't happen, but handle it */
+    if (obj->where != OBJ_CONTAINED)
+        return 0;
+
+    container = obj->ocontainer;
+
+    /* Prevent accessing locked containers, or containers that are
+       empty or non-existent */
+    if (!container || !Has_contents(container) || container->olocked)
+        return 0;
+
+    /* Using a cursed bag of holding = bad */
+    if (Is_mbag(container) && container->cursed)
+        return 0;
+
+    vis = cansee(mon->mx, mon->my);
+    howfar = distu(mon->mx, mon->my);
+    nearby = (howfar <= 7 * 7);
+    contnr_nam[0] = '\0';
+
+    /* Hero no longer knows container's contents even if [attempted]
+       removal is observed */
+    container->cknown = 0;
+    if (!*contnr_nam) {
+        /* xname sets dknown, distant_name doesn't */
+        Strcpy(contnr_nam, the(nearby ? xname(container)
+                                      : distant_name(container, xname)));
+    }
+
+    /* Remove obj from container */
+    obj_extract_self(obj); /* reduces container's weight */
+    container->owt = weight(container);
+
+    if (vis) {
+        if (!nearby) /* not close by */
+            Norep("%s rummages through %s.", Monnam(mon), contnr_nam);
+        else
+            pline("%s removes %s from %s.", Monnam(mon),
+                  ansimpleoname(obj), contnr_nam);
+    } else if (!Deaf && nearby) {
+        Norep("You hear something rummaging through %s.",
+              ansimpleoname(container));
+    }
+
+    if (container->otyp == ICE_BOX)
+        removed_from_icebox(obj); /* resume rotting for corpse */
+    (void) mpickobj(mon, obj);
+    check_gear_next_turn(mon);
+    return 2;
+}
+
 int
 pm_to_race(mndx)
 short mndx;

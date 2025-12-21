@@ -4820,4 +4820,5 @@ The following changes to date are:
 - Fix: various issues in mcastu.c
 - Fix: various issues in muse.c round one
 - Fix: various issues in muse.c round two
+- Add monster container item extraction for equipment/spellbooks/weapons
 

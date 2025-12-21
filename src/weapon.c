@@ -16,6 +16,13 @@ STATIC_DCL boolean FDECL(peaked_skill, (int));
 STATIC_DCL int FDECL(slots_required, (int));
 STATIC_DCL void FDECL(skill_advance, (int));
 STATIC_DCL struct monst *FDECL(mon_melee_target, (struct monst *));
+STATIC_DCL struct obj *FDECL(oselect_recurse, (struct monst *, struct obj *,
+                                               int, struct obj *));
+STATIC_DCL struct obj *FDECL(find_artifact_recurse, (struct monst *,
+                                                     struct obj *, boolean, boolean));
+STATIC_DCL struct obj *FDECL(find_silver_recurse, (struct monst *, struct obj *,
+                                                   struct monst *, boolean, boolean));
+STATIC_DCL struct obj *FDECL(find_gem_recurse, (struct monst *, struct obj *));
 
 /* Categories whose names don't come from OBJ_NAME(objects[type])
  */
@@ -907,14 +914,23 @@ STATIC_DCL struct obj *FDECL(oselect, (struct monst *, int));
     if ((otmp = oselect(mtmp, x)) != 0) \
         return otmp;
 
+/* Recursive helper to find weapon of type x, including in containers */
 STATIC_OVL struct obj *
-oselect(mtmp, x)
+oselect_recurse(mtmp, start, x, obest)
 struct monst *mtmp;
+struct obj *start;
 int x;
+struct obj *obest;
 {
-    struct obj *otmp, *obest = 0;
+    struct obj *otmp;
 
-    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+    for (otmp = start; otmp; otmp = otmp->nobj) {
+        /* Recurse into containers */
+        if (Is_container(otmp) && otmp->cobj) {
+            obest = oselect_recurse(mtmp, otmp->cobj, x, obest);
+            continue;
+        }
+
         if (otmp->otyp == x
             /* never select non-cockatrice corpses */
             && !((x == CORPSE || x == EGG)
@@ -926,11 +942,105 @@ int x;
                      && (is_pierce(otmp) || is_slash(otmp)
                          || (is_launcher(otmp) && !(otmp->otyp == SLING))))
             && (!otmp->oartifact || touch_artifact(otmp, mtmp))) {
-       	        if (!obest || dmgval(otmp, &youmonst) > dmgval(obest, &youmonst))
-                    obest = otmp;
+            if (!obest || dmgval(otmp, &youmonst) > dmgval(obest, &youmonst))
+                obest = otmp;
         }
     }
     return obest;
+}
+
+/* Recursive helper to find artifact weapon, including in containers */
+STATIC_OVL struct obj *
+find_artifact_recurse(mtmp, start, strong, wearing_shield)
+struct monst *mtmp;
+struct obj *start;
+boolean strong;
+boolean wearing_shield;
+{
+    struct obj *otmp, *found;
+
+    for (otmp = start; otmp; otmp = otmp->nobj) {
+        /* Recurse into containers */
+        if (Is_container(otmp) && otmp->cobj) {
+            found = find_artifact_recurse(mtmp, otmp->cobj, strong,
+                                          wearing_shield);
+            if (found)
+                return found;
+            continue;
+        }
+
+        if (otmp->oclass == WEAPON_CLASS && otmp->oartifact
+            && touch_artifact(otmp, mtmp)
+            && ((strong && !wearing_shield)
+                || !objects[otmp->otyp].oc_bimanual))
+            return otmp;
+    }
+    return (struct obj *) 0;
+}
+
+/* Recursive helper to find silver weapon, including in containers */
+STATIC_OVL struct obj *
+find_silver_recurse(mtmp, start, mdef, strong, wearing_shield)
+struct monst *mtmp;
+struct obj *start;
+struct monst *mdef;
+boolean strong;
+boolean wearing_shield;
+{
+    struct obj *otmp, *found;
+
+    for (otmp = start; otmp; otmp = otmp->nobj) {
+        /* Recurse into containers */
+        if (Is_container(otmp) && otmp->cobj) {
+            found = find_silver_recurse(mtmp, otmp->cobj, mdef, strong,
+                                        wearing_shield);
+            if (found)
+                return found;
+            continue;
+        }
+
+        if (mon_hates_material(mtmp, SILVER))
+            continue;
+        if (otmp->oclass == WEAPON_CLASS && is_silver(otmp)
+            && !(is_ammo(otmp) || is_missile(otmp))
+            && (racial_vampire(mdef) || is_demon(raceptr(mdef)))
+            && ((strong && !wearing_shield)
+                || !objects[otmp->otyp].oc_bimanual))
+            return otmp;
+    }
+    return (struct obj *) 0;
+}
+
+/* Recursive helper to find a gem for sling ammo, including in containers */
+STATIC_OVL struct obj *
+find_gem_recurse(mtmp, start)
+struct monst *mtmp;
+struct obj *start;
+{
+    struct obj *otmp, *found;
+
+    for (otmp = start; otmp; otmp = otmp->nobj) {
+        /* Recurse into containers */
+        if (Is_container(otmp) && otmp->cobj) {
+            found = find_gem_recurse(mtmp, otmp->cobj);
+            if (found)
+                return found;
+            continue;
+        }
+
+        if (otmp->oclass == GEM_CLASS
+            && (otmp->otyp != LOADSTONE || !otmp->cursed))
+            return otmp;
+    }
+    return (struct obj *) 0;
+}
+
+STATIC_OVL struct obj *
+oselect(mtmp, x)
+struct monst *mtmp;
+int x;
+{
+    return oselect_recurse(mtmp, mtmp->minvent, x, (struct obj *) 0);
 }
 
 /* TODO: have monsters use aklys' throw-and-return */
@@ -1063,12 +1173,11 @@ struct monst *mtmp;
            (shooting rocks is already handled via the rwep[] ordering) */
         if (rwep[i] == DART && !likes_gems(mtmp->data)
             && m_carrying(mtmp, SLING)) { /* propellor */
-            for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
-                if (otmp->oclass == GEM_CLASS
-                    && (otmp->otyp != LOADSTONE || !otmp->cursed)) {
-                    propellor = m_carrying(mtmp, SLING);
-                    return otmp;
-                }
+            otmp = find_gem_recurse(mtmp, mtmp->minvent);
+            if (otmp) {
+                propellor = m_carrying(mtmp, SLING);
+                return otmp;
+            }
         }
 
         /* KMH -- This belongs here so darts will work */
@@ -1279,27 +1388,15 @@ struct monst *mtmp;
         }
     }
 
-    /* prefer artifacts to everything else */
-    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-        if (otmp->oclass == WEAPON_CLASS && otmp->oartifact
-            && touch_artifact(otmp, mtmp)
-            && ((strong && !wearing_shield)
-                || !objects[otmp->otyp].oc_bimanual))
-            return otmp;
-    }
+    /* prefer artifacts to everything else (including in containers) */
+    otmp = find_artifact_recurse(mtmp, mtmp->minvent, strong, wearing_shield);
+    if (otmp)
+        return otmp;
 
-    /* prefer silver weapons when fighting demons/vampires */
-    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-        if (mon_hates_material(mtmp, SILVER))
-            continue;
-        if (otmp->oclass == WEAPON_CLASS && is_silver(otmp)
-            && !(is_ammo(otmp) || is_missile(otmp))
-            && (racial_vampire(mdef)
-                || is_demon(raceptr(mdef)))
-            && ((strong && !wearing_shield)
-                || !objects[otmp->otyp].oc_bimanual))
-            return otmp;
-    }
+    /* prefer silver weapons when fighting demons/vampires (including in containers) */
+    otmp = find_silver_recurse(mtmp, mtmp->minvent, mdef, strong, wearing_shield);
+    if (otmp)
+        return otmp;
 
     if (racial_giant(mtmp)) /* giants just love to use clubs */
         Oselect(CLUB);
@@ -1427,6 +1524,17 @@ struct monst *mon;
     }
     if (obj && obj != &zeroobj) {
         struct obj *mw_tmp = MON_WEP(mon);
+
+        /* If weapon is in a container, extract it first (uses turn) */
+        if (obj->where == OBJ_CONTAINED) {
+            int result = mon_container_extract(mon, obj);
+            if (result != 1) { /* 0=failed, 2=used turn for extraction */
+                /* Reset to NEED_WEAPON so combat code re-evaluates next turn */
+                mon->weapon_check = NEED_WEAPON;
+                return (result == 2) ? 1 : 0;
+            }
+            /* result==1 means already in inventory (shouldn't happen) */
+        }
 
         if (mw_tmp && mw_tmp->otyp == obj->otyp) {
             /* already wielding it */

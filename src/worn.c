@@ -8,6 +8,9 @@
 STATIC_DCL void FDECL(m_lose_armor, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(m_dowear_type,
                       (struct monst *, long, BOOLEAN_P, BOOLEAN_P));
+STATIC_DCL struct obj *FDECL(find_best_armor_recurse,
+                             (struct monst *, struct obj *,
+                              struct obj *, long, BOOLEAN_P));
 
 const struct worn {
     long w_mask;
@@ -869,34 +872,29 @@ boolean creation;
         m_dowear_type(mon, W_ARM, creation, RACE_EXCEPTION);
 }
 
-STATIC_OVL void
-m_dowear_type(mon, flag, creation, racialexception)
+/* Recursive helper to find the best wearable item, including in
+   containers. Returns the best item found, or NULL if nothing better
+   than 'best' */
+STATIC_OVL struct obj *
+find_best_armor_recurse(mon, start, best, flag, racialexception)
 struct monst *mon;
+struct obj *start;
+struct obj *best;
 long flag;
-boolean creation;
 boolean racialexception;
 {
-    struct obj *old, *best, *obj;
-    long oldmask = 0L;
-    int m_delay = 0;
-    int sawmon = canseemon(mon), sawloc = cansee(mon->mx, mon->my);
-    boolean autocurse;
-    char nambuf[BUFSZ];
+    struct obj *obj, *found;
 
-    if (mon->mfrozen)
-        return; /* probably putting previous item on */
+    for (obj = start; obj; obj = obj->nobj) {
+        /* Recurse into containers */
+        if (Is_container(obj) && obj->cobj) {
+            found = find_best_armor_recurse(mon, obj->cobj, best, flag,
+                                            racialexception);
+            if (found)
+                best = found;
+            continue;
+        }
 
-    /* Get a copy of monster's name before altering its visibility */
-    Strcpy(nambuf, See_invisible ? Monnam(mon) : mon_nam(mon));
-
-    old = which_armor(mon, flag);
-    if (old && old->cursed)
-        return;
-    if (old && flag == W_AMUL && old->otyp != AMULET_OF_GUARDING)
-        return; /* no amulet better than life-saving or reflection */
-    best = old;
-
-    for (obj = mon->minvent; obj; obj = obj->nobj) {
         if (mon_hates_material(mon, obj->material))
             continue;
 
@@ -911,13 +909,11 @@ boolean racialexception;
                     && obj->otyp != AMULET_OF_FLYING
                     && obj->oartifact != ART_EYE_OF_THE_AETHIOPICA))
                 continue;
-            /* for 'best' to be non-Null, it must be an amulet of guarding;
-               life-saving and reflection don't get here due to early return
-               and other amulets of guarding can't be any better */
+            /* Life-saving or reflection - use it immediately */
             if (!best || obj->otyp != AMULET_OF_GUARDING) {
                 best = obj;
                 if (best->otyp != AMULET_OF_GUARDING)
-                    goto outer_break; /* life-saving or reflection; use it */
+                    return best; /* life-saving or reflection; use it */
             }
             continue; /* skip post-switch armor handling */
         case W_ARMU:
@@ -931,28 +927,21 @@ boolean racialexception;
         case W_ARMH:
             if (!is_helmet(obj))
                 continue;
-            /* changing alignment is not implemented for monsters;
-               priests and minions could change alignment but wouldn't
-               want to, so they reject helms of opposite alignment */
             if (obj->otyp == HELM_OF_OPPOSITE_ALIGNMENT
                 && (mon->ispriest || mon->isminion))
                 continue;
-            /* (flimsy exception matches polyself handling) */
             if (has_horns(mon->data) && !is_flimsy(obj))
                 continue;
             break;
         case W_ARMS:
             if (!(is_shield(obj) || is_bracer(obj)))
                 continue;
-            /* no two-handed weapons with shields */
             if (!is_bracer(obj))
                 if (MON_WEP(mon) && bimanual(MON_WEP(mon)))
                     continue;
             break;
         case W_ARMG:
-            if (!is_gloves(obj)
-                /* monsters are too scared of the Hand of Vecna */
-                || obj->otyp == MUMMIFIED_HAND)
+            if (!is_gloves(obj) || obj->otyp == MUMMIFIED_HAND)
                 continue;
             break;
         case W_ARMF:
@@ -964,14 +953,12 @@ boolean racialexception;
                 continue;
             if (racialexception && (racial_exception(mon, obj) < 1))
                 continue;
-            /* monsters won't sacrifice flight for AC */
             if (big_wings(mon->data) && !Is_dragon_scales(obj)
                 && obj->otyp != JACKET)
                 continue;
             break;
         case W_RINGL:
         case W_RINGR:
-            /* Monsters can put on only the following rings. */
             if (obj->oclass != RING_CLASS
                 || (obj->otyp != RIN_INVISIBILITY
                     && obj->otyp != RIN_FIRE_RESISTANCE
@@ -997,20 +984,53 @@ boolean racialexception;
         }
         if (obj->owornmask)
             continue;
-        /* I'd like to define a VISIBLE_ARM_BONUS which doesn't assume the
-         * monster knows obj->spe, but if I did that, a monster would keep
-         * switching forever between two -2 caps since when it took off one
-         * it would forget spe and once again think the object is better
-         * than what it already has.
-         */
         if (best && (armor_bonus(best) + extra_pref(mon, best)
                      >= armor_bonus(obj) + extra_pref(mon, obj)))
             continue;
         best = obj;
     }
- outer_break:
+    return best;
+}
+
+STATIC_OVL void
+m_dowear_type(mon, flag, creation, racialexception)
+struct monst *mon;
+long flag;
+boolean creation;
+boolean racialexception;
+{
+    struct obj *old, *best;
+    long oldmask = 0L;
+    int m_delay = 0;
+    int sawmon = canseemon(mon), sawloc = cansee(mon->mx, mon->my);
+    boolean autocurse;
+    char nambuf[BUFSZ];
+
+    if (mon->mfrozen)
+        return; /* probably putting previous item on */
+
+    /* Get a copy of monster's name before altering its visibility */
+    Strcpy(nambuf, See_invisible ? Monnam(mon) : mon_nam(mon));
+
+    old = which_armor(mon, flag);
+    if (old && old->cursed)
+        return;
+    if (old && flag == W_AMUL && old->otyp != AMULET_OF_GUARDING)
+        return; /* no amulet better than life-saving or reflection */
+
+    /* Find best item, including those in containers */
+    best = find_best_armor_recurse(mon, mon->minvent, old, flag,
+                                   racialexception);
     if (!best || best == old)
         return;
+
+    /* If best item is in a container, extract it first (uses turn) */
+    if (best->where == OBJ_CONTAINED) {
+        int result = mon_container_extract(mon, best);
+        if (result != 1) /* 0=failed, 2=used turn for extraction */
+            return;
+        /* result==1 means item was already in inventory (shouldn't happen) */
+    }
 
     /* same auto-cursing behavior as for hero */
     autocurse = ((best->otyp == HELM_OF_OPPOSITE_ALIGNMENT
