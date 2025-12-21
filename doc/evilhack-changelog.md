@@ -4824,4 +4824,5 @@ The following changes to date are:
 - Fix: various issues in muse.c round three
 - If Drow, do not uncursed a lit cursed magic lamp via prayer
 - Allow displacing web-immune pets into web traps
+- Fix: tortle monsters aren't supposed to be able to wear boots
 

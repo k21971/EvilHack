@@ -863,8 +863,8 @@ boolean creation;
         m_dowear_type(mon, W_RINGR, creation, FALSE);
 
     m_dowear_type(mon, W_ARMG, creation, FALSE);
-    if (!slithy(mon->data) && r_data(mon)->mlet != S_CENTAUR
-        && mon->data != &mons[PM_DRIDER])
+    if (!slithy(mon->data) && !racial_centaur(mon)
+        && mon->data != &mons[PM_DRIDER] && !racial_tortle(mon))
         m_dowear_type(mon, W_ARMF, creation, FALSE);
     if (!cantweararm(mon))
         m_dowear_type(mon, W_ARM, creation, FALSE);
@@ -1426,7 +1426,8 @@ boolean polyspot;
             m_lose_armor(mon, otmp);
         }
     }
-    if (handless_or_tiny || slithy(mdat) || mdat->mlet == S_CENTAUR) {
+    if (handless_or_tiny || slithy(mdat) || racial_centaur(mon)
+        || racial_tortle(mon)) {
         if ((otmp = which_armor(mon, W_ARMF)) != 0) {
             if (vis) {
                 if (is_whirly(mon->data))
