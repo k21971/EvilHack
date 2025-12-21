@@ -1476,7 +1476,10 @@ aligntyp g_align;
                 nextobj = otmp->nobj;
                 if (otmp->cursed && g_align != A_NONE
                     && (otmp != uarmh /* [see worst_cursed_item()] */
-                        || uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT)) {
+                        || uarmh->otyp != HELM_OF_OPPOSITE_ALIGNMENT)
+                    /* Drow benefit from lit cursed magic lamps (darkness) */
+                    && !(Race_if(PM_DROW) && otmp->otyp == MAGIC_LAMP
+                         && otmp->lamplit)) {
                     if (!Blind) {
                         pline("%s %s.", Yobjnam2(otmp, "softly glow"),
                               hcolor(NH_AMBER));
