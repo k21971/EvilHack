@@ -1501,9 +1501,12 @@ struct obj *obj;
         return 30;
     if (obj_has_prop(obj, FAST)
         && mon->permspeed != MFAST)
+        return 25;
+    if (obj_has_prop(obj, FLYING)
+        && grounded(mon->data) && !can_fly(mon))
         return 20;
     if (obj_has_prop(obj, LEVITATION)
-        && grounded(mon->data))
+        && grounded(mon->data) && !can_levitate(mon))
         return 15;
     if (obj_has_prop(obj, JUMPING)
         && !can_jump(mon))
@@ -1590,11 +1593,12 @@ struct obj *obj;
         rc = dmgtype(youmonst.data, AD_DGST) ? 35 : 25;
         break;
     case RIN_LEVITATION:
-        rc = grounded(mon->data) ? 20 : 0;
+        rc = (grounded(mon->data) && !can_levitate(mon)) ? 20 : 0;
         break;
     case RIN_FREE_ACTION:
     case RIN_ANCIENT:
-        rc = 30;
+        if (!has_free_action(mon))
+            rc = 30;
         break;
     }
     old = which_armor(mon, W_RINGL);
