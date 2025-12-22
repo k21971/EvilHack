@@ -416,7 +416,7 @@ HELM("dwarvish helm", "hard hat",
      0, 0,           0,  6, 1, 40, 20,  8, 0, IRON, HI_METAL),
 HELM("dented pot", None,
      1, 0,           0,  2, 0, 10,  8,  9, 0, IRON, CLR_BLACK),
-HELM("helm of brilliance", "crystal helmet",
+HELM("helm of brilliance", "glass helmet",
      0, 1,           0,  3, 1, 40, 50,  9, 0, GLASS, CLR_WHITE),
 /* with shuffled appearances... */
 HELM("helmet", "plumed helmet",

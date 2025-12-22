@@ -4827,4 +4827,5 @@ The following changes to date are:
 - Fix: tortle monsters aren't supposed to be able to wear boots
 - Fix: monsters weren't recognizing certain existing extrinsics when
   evaluating items to wear
+- Fix: change description of helm of brilliance
 
