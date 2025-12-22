@@ -4828,4 +4828,5 @@ The following changes to date are:
 - Fix: monsters weren't recognizing certain existing extrinsics when
   evaluating items to wear
 - Fix: change description of helm of brilliance
+- Add artifacts to the in-game encyclopedia lookup (pokedex)
 

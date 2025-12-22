@@ -526,6 +526,44 @@ short *otyp;
     return (char *) 0;
 }
 
+/* Returns artifact index (1-NROFARTIFACTS) if name matches an artifact,
+   or 0 if no match. For use by the in-game encyclopedia lookup */
+int
+name_to_arti(name)
+const char *name;
+{
+    register const struct artifact *a;
+    register const char *aname;
+    int i;
+
+    if (!name || !*name)
+        return 0;
+
+    /* skip leading "the " */
+    if (!strncmpi(name, "the ", 4))
+        name += 4;
+
+    for (a = artilist + 1, i = 1; a->otyp; a++, i++) {
+        aname = a->name;
+        if (!strncmpi(aname, "the ", 4))
+            aname += 4;
+        if (!strcmpi(name, aname))
+            return i;
+    }
+    return 0;
+}
+
+/* Accessor for artilist entry by index (for pager.c / in-game
+   encyclopedia) */
+const struct artifact *
+get_artilist_entry(artinum)
+int artinum;
+{
+    if (artinum < 1 || artinum > NROFARTIFACTS)
+        return (const struct artifact *) 0;
+    return &artilist[artinum];
+}
+
 boolean
 exist_artifact(otyp, name)
 int otyp;

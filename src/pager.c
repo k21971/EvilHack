@@ -8,6 +8,7 @@
 
 #include "hack.h"
 #include "dlb.h"
+#include "artifact.h"
 
 STATIC_DCL boolean FDECL(is_swallow_sym, (int));
 STATIC_DCL int FDECL(append_str, (char *, const char *));
@@ -18,6 +19,9 @@ STATIC_DCL struct permonst *FDECL(lookat, (int, int, char *, char *));
 STATIC_DCL char *FDECL(hallucinatory_armor, (char *));
 STATIC_DCL void FDECL(add_mon_info, (winid, struct permonst *));
 STATIC_DCL void FDECL(add_obj_info, (winid, SHORT_P));
+STATIC_DCL void FDECL(add_arti_info, (winid, int));
+STATIC_DCL const char *FDECL(arti_adtyp_str, (int, BOOLEAN_P));
+STATIC_DCL const char *FDECL(arti_invprop_str, (int));
 STATIC_DCL void FDECL(look_all, (BOOLEAN_P,BOOLEAN_P));
 STATIC_DCL void FDECL(do_supplemental_info, (char *, struct permonst *,
                                              BOOLEAN_P));
@@ -1664,6 +1668,426 @@ short otyp;
     }
 }
 
+/* convert damage type to readable string. If 'defense' is TRUE, returns
+   the resistance name (e.g., "magic") rather than the attack name
+   (e.g., "magic missile") */
+STATIC_OVL const char *
+arti_adtyp_str(adtyp, defense)
+int adtyp;
+boolean defense;
+{
+    switch (adtyp) {
+    case AD_PHYS:
+        return "physical";
+    case AD_MAGM:
+        return defense ? "magic" : "magic missile";
+    case AD_FIRE:
+        return "fire";
+    case AD_COLD:
+        return "cold";
+    case AD_SLEE:
+        return "sleep";
+    case AD_DISN:
+        return "disintegration";
+    case AD_ELEC:
+        return "shock";
+    case AD_DRST:
+        return "poison";
+    case AD_ACID:
+        return "acid";
+    case AD_DRLI:
+        return "drain life";
+    case AD_STUN:
+        return "stun";
+    case AD_BLND:
+        return "blindness";
+    case AD_SLOW:
+        return "slow";
+    case AD_PLYS:
+        return defense ? "free action" : "paralysis";
+    case AD_DREN:
+        return "drain energy";
+    case AD_STON:
+        return "petrification";
+    case AD_DISE:
+        return "disease";
+    case AD_DETH:
+        return "death";
+    case AD_LOUD:
+        return "sonic";
+    case AD_WTHR:
+        return "wither";
+    case AD_FUSE:
+        return "fire and cold";
+    default:
+        return (const char *) 0;
+    }
+}
+
+/* convert invoke property to readable string */
+STATIC_OVL const char *
+arti_invprop_str(invprop)
+int invprop;
+{
+    switch (invprop) {
+    case TAMING:
+        return "taming";
+    case HEALING:
+        return "major healing";
+    case ENERGY_BOOST:
+        return "energy boost";
+    case UNTRAP:
+        return "detect and disarm traps";
+    case CHARGE_OBJ:
+        return "charging";
+    case LEV_TELE:
+        return "level teleport";
+    case CREATE_PORTAL:
+        return "branchporting";
+    case ENLIGHTENING:
+        return "enlightenment";
+    case CREATE_AMMO:
+        return "create ammunition";
+    case SHADOWBLADE:
+        return "cause fear / aura of darkness";
+    case PHASING:
+        return "phasing";
+    case CHANNEL:
+        return "convert altar / use figurine";
+    case DEATH_MAGIC:
+        return "death magic";
+    case COMMAND_UNDEAD:
+        return "command undead";
+    case CONFLICT:
+        return "conflict";
+    case LEVITATION:
+        return "levitation";
+    case INVIS:
+        return "invisibility";
+    case FIRE_RES:
+        return "fire resistance";
+    case COLD_RES:
+        return "cold resistance";
+    case SHOCK_RES:
+        return "shock resistance";
+    case ACID_RES:
+        return "acid resistance";
+    case POISON_RES:
+        return "poison resistance";
+    case SICK_RES:
+        return "sickness resistance";
+    case TELEPAT:
+        return "telepathy";
+    case WARNING:
+        return "warning";
+    default:
+        return (const char *) 0;
+    }
+}
+
+/* Helper macro: append to comma-separated list */
+#define ADDTOLIST(list, item) \
+    do { \
+        if ((list)[0]) \
+            Strcat((list), ", "); \
+        Strcat((list), (item)); \
+    } while (0)
+
+/* Add artifact-specific information to the lookup window */
+STATIC_OVL void
+add_arti_info(datawin, artinum)
+winid datawin;
+int artinum;
+{
+    const struct artifact *arti;
+    char buf[BUFSZ], buf2[BUFSZ], tmpbuf[BUFSZ];
+    const char *tmp;
+
+#define ARTIPUTSTR(str) putstr(datawin, ATR_NONE, str)
+
+    arti = get_artilist_entry(artinum);
+    if (!arti)
+        return;
+
+    /* Header */
+    Sprintf(buf, "~~~ Artifact: %s ~~~", arti->name);
+    putstr(datawin, ATR_BOLD, buf);
+    ARTIPUTSTR("");
+
+    /* Base type */
+    Sprintf(buf, "Base item: %s", OBJ_NAME(objects[arti->otyp]));
+    ARTIPUTSTR(buf);
+
+    /* Material - use artifact's material if specified, else base object's */
+    {
+        int mat = arti->material ? arti->material
+                                 : objects[arti->otyp].oc_material;
+        Sprintf(buf, "Material: %s", materialnm[mat]);
+        ARTIPUTSTR(buf);
+    }
+
+    /* Alignment */
+    Sprintf(buf, "Alignment: %s",
+            arti->alignment == A_LAWFUL ? "lawful" :
+            arti->alignment == A_NEUTRAL ? "neutral" :
+            arti->alignment == A_CHAOTIC ? "chaotic" : "unaligned");
+    ARTIPUTSTR(buf);
+
+    /* Role/Race restrictions */
+    if (arti->role != NON_PM || arti->race != NON_PM) {
+        buf2[0] = '\0';
+        if (arti->role != NON_PM) {
+            Strcat(buf2, mons[arti->role].mname);
+            if (arti->race != NON_PM)
+                Strcat(buf2, "/");
+        }
+        if (arti->race != NON_PM)
+            Strcat(buf2, mons[arti->race].mname);
+        Sprintf(buf, "Associated role/race: %s", buf2);
+        ARTIPUTSTR(buf);
+    }
+
+    /* Restrictions/flags - build comma-separated list */
+    buf2[0] = '\0';
+    if (arti->spfx & SPFX_RESTR)
+        ADDTOLIST(buf2, "cannot be #named");
+    if (arti->spfx & SPFX_NOWISH)
+        ADDTOLIST(buf2, "cannot be wished for");
+    if (arti->spfx & SPFX_NOGEN)
+        ADDTOLIST(buf2, "does not randomly spawn");
+    if (arti->spfx & SPFX_FORGED)
+        ADDTOLIST(buf2, "created via forging");
+    if (arti->spfx & SPFX_INTEL)
+        ADDTOLIST(buf2, "intelligent");
+    if (buf2[0]) {
+        Sprintf(buf, "Restrictions: %s", buf2);
+        ARTIPUTSTR(buf);
+    }
+
+    /* Attack properties - build comma-separated list */
+    if (arti->attk.adtyp != AD_PHYS || arti->attk.damn || arti->attk.damd) {
+        buf2[0] = '\0';
+        tmp = arti_adtyp_str(arti->attk.adtyp, FALSE);
+        /* damn = to-hit dice (1d[damn]), damd = damage dice (1d[damd])
+           damd == 0 means double damage (spec_dbon returns max(tmp,1)) */
+        if (arti->attk.damn) {
+            Sprintf(tmpbuf, "+1d%d to-hit", arti->attk.damn);
+            ADDTOLIST(buf2, tmpbuf);
+        }
+        if (arti->attk.damd) {
+            if (tmp && arti->attk.adtyp != AD_PHYS) {
+                Sprintf(tmpbuf, "+1d%d %s damage", arti->attk.damd, tmp);
+            } else {
+                Sprintf(tmpbuf, "+1d%d damage", arti->attk.damd);
+            }
+            ADDTOLIST(buf2, tmpbuf);
+        } else if (arti->attk.damn) {
+            /* damd == 0 with damn > 0 means double damage */
+            if (tmp && arti->attk.adtyp != AD_PHYS) {
+                Sprintf(tmpbuf, "double %s damage", tmp);
+            } else {
+                Strcpy(tmpbuf, "double damage");
+            }
+            ADDTOLIST(buf2, tmpbuf);
+        }
+        if (arti->spfx & SPFX_DRLI)
+            ADDTOLIST(buf2, "drains life");
+        if (arti->spfx & SPFX_BEHEAD)
+            ADDTOLIST(buf2, "beheading");
+        if (buf2[0]) {
+            Sprintf(buf, "Special attack: %s", buf2);
+            ARTIPUTSTR(buf);
+        }
+    }
+
+    /* Bonus vs monster types */
+    if (arti->spfx & SPFX_DBONUS) {
+        buf2[0] = '\0';
+        if (arti->spfx & SPFX_DCLAS) {
+            Sprintf(buf2, "class '%c'", (char) arti->mtype);
+        } else if (arti->spfx & SPFX_DFLAGH) {
+            if (arti->mtype & MH_UNDEAD)
+                ADDTOLIST(buf2, "undead");
+            if (arti->mtype & MH_DEMON)
+                ADDTOLIST(buf2, "demons");
+            if (arti->mtype & MH_DRAGON)
+                ADDTOLIST(buf2, "dragons");
+            if (arti->mtype & MH_GIANT)
+                ADDTOLIST(buf2, "giants");
+            if (arti->mtype & MH_ORC)
+                ADDTOLIST(buf2, "orcs");
+            if (arti->mtype & MH_TROLL)
+                ADDTOLIST(buf2, "trolls");
+            if (arti->mtype & MH_OGRE)
+                ADDTOLIST(buf2, "ogres");
+            if (arti->mtype & MH_ELF)
+                ADDTOLIST(buf2, "elves");
+            if (arti->mtype & MH_HUMAN)
+                ADDTOLIST(buf2, "humans");
+            if (arti->mtype & MH_WERE)
+                ADDTOLIST(buf2, "lycanthropes");
+            if (arti->mtype & MH_VAMPIRE)
+                ADDTOLIST(buf2, "vampires");
+            if (arti->mtype & MH_ANGEL)
+                ADDTOLIST(buf2, "angels");
+            if (arti->mtype & MH_JABBERWOCK)
+                ADDTOLIST(buf2, "jabberwocks");
+            if (arti->mtype & MH_SPIDER)
+                ADDTOLIST(buf2, "spiders");
+            if (arti->mtype & MH_DROW)
+                ADDTOLIST(buf2, "drow");
+            if (arti->mtype & MH_WRAITH)
+                ADDTOLIST(buf2, "wraiths");
+        } else if (arti->spfx & SPFX_DALIGN) {
+            Strcpy(buf2, "cross-aligned");
+        } else if (arti->spfx & SPFX_DMONS) {
+            Strcpy(buf2, mons[arti->mtype].mname);
+        }
+        if (buf2[0]) {
+            Sprintf(buf, "Damage bonus vs: %s", buf2);
+            ARTIPUTSTR(buf);
+        }
+    }
+
+    /* Defense/wielded properties - build comma-separated list */
+    buf2[0] = '\0';
+    if (arti->defn.adtyp) {
+        tmp = arti_adtyp_str(arti->defn.adtyp, TRUE);
+        if (tmp) {
+            Sprintf(tmpbuf, "%s resistance", tmp);
+            ADDTOLIST(buf2, tmpbuf);
+        }
+    }
+    if (arti->spfx & SPFX_ESP)
+        ADDTOLIST(buf2, "telepathy");
+    if (arti->spfx & SPFX_WARN) {
+        if (arti->spfx & SPFX_DFLAGH) {
+            /* Build "warns vs X, Y, Z" for specific monster types */
+            char warnbuf[BUFSZ];
+            warnbuf[0] = '\0';
+            if (arti->mtype & MH_UNDEAD)
+                ADDTOLIST(warnbuf, "undead");
+            if (arti->mtype & MH_DEMON)
+                ADDTOLIST(warnbuf, "demons");
+            if (arti->mtype & MH_DRAGON)
+                ADDTOLIST(warnbuf, "dragons");
+            if (arti->mtype & MH_GIANT)
+                ADDTOLIST(warnbuf, "giants");
+            if (arti->mtype & MH_ORC)
+                ADDTOLIST(warnbuf, "orcs");
+            if (arti->mtype & MH_TROLL)
+                ADDTOLIST(warnbuf, "trolls");
+            if (arti->mtype & MH_OGRE)
+                ADDTOLIST(warnbuf, "ogres");
+            if (arti->mtype & MH_ELF)
+                ADDTOLIST(warnbuf, "elves");
+            if (arti->mtype & MH_HUMAN)
+                ADDTOLIST(warnbuf, "humans");
+            if (arti->mtype & MH_WERE)
+                ADDTOLIST(warnbuf, "lycanthropes");
+            if (arti->mtype & MH_VAMPIRE)
+                ADDTOLIST(warnbuf, "vampires");
+            if (arti->mtype & MH_ANGEL)
+                ADDTOLIST(warnbuf, "angels");
+            if (arti->mtype & MH_JABBERWOCK)
+                ADDTOLIST(warnbuf, "jabberwocks");
+            if (arti->mtype & MH_SPIDER)
+                ADDTOLIST(warnbuf, "spiders");
+            if (arti->mtype & MH_DROW)
+                ADDTOLIST(warnbuf, "drow");
+            if (arti->mtype & MH_WRAITH)
+                ADDTOLIST(warnbuf, "wraiths");
+            if (warnbuf[0]) {
+                Sprintf(tmpbuf, "warns vs %s", warnbuf);
+                ADDTOLIST(buf2, tmpbuf);
+            } else {
+                ADDTOLIST(buf2, "warning");
+            }
+        } else {
+            ADDTOLIST(buf2, "warning");
+        }
+    }
+    if (arti->spfx & SPFX_SEEK)
+        ADDTOLIST(buf2, "automatic searching");
+    if (arti->spfx & SPFX_SEARCH)
+        ADDTOLIST(buf2, "enhanced searching");
+    if (arti->spfx & SPFX_HALRES)
+        ADDTOLIST(buf2, "hallucination resistance");
+    if (arti->spfx & SPFX_STLTH)
+        ADDTOLIST(buf2, "stealth");
+    if (arti->spfx & SPFX_REGEN)
+        ADDTOLIST(buf2, "regeneration");
+    if (arti->spfx & SPFX_EREGEN)
+        ADDTOLIST(buf2, "energy regeneration");
+    if (arti->spfx & SPFX_HSPDAM)
+        ADDTOLIST(buf2, "half spell damage");
+    if (arti->spfx & SPFX_HPHDAM)
+        ADDTOLIST(buf2, "half physical damage");
+    if (arti->spfx & SPFX_TCTRL)
+        ADDTOLIST(buf2, "teleport control");
+    if (arti->spfx & SPFX_LUCK)
+        ADDTOLIST(buf2, "luck");
+    if (arti->spfx & SPFX_XRAY)
+        ADDTOLIST(buf2, "x-ray vision");
+    if (arti->spfx & SPFX_REFLECT)
+        ADDTOLIST(buf2, "reflection");
+    if (arti->spfx & SPFX_PROTECT)
+        ADDTOLIST(buf2, "protection");
+    Sprintf(buf, "While wielded/worn: %s", buf2[0] ? buf2 : "(none)");
+    ARTIPUTSTR(buf);
+
+    /* Carry properties - build comma-separated list */
+    buf2[0] = '\0';
+    if (arti->cary.adtyp) {
+        tmp = arti_adtyp_str(arti->cary.adtyp, TRUE);
+        if (tmp) {
+            Sprintf(tmpbuf, "%s resistance", tmp);
+            ADDTOLIST(buf2, tmpbuf);
+        }
+    }
+    if (arti->cspfx & SPFX_ESP)
+        ADDTOLIST(buf2, "telepathy");
+    if (arti->cspfx & SPFX_WARN)
+        ADDTOLIST(buf2, "warning");
+    if (arti->cspfx & SPFX_SEEK)
+        ADDTOLIST(buf2, "automatic searching");
+    if (arti->cspfx & SPFX_SEARCH)
+        ADDTOLIST(buf2, "enhanced searching");
+    if (arti->cspfx & SPFX_HALRES)
+        ADDTOLIST(buf2, "hallucination resistance");
+    if (arti->cspfx & SPFX_STLTH)
+        ADDTOLIST(buf2, "stealth");
+    if (arti->cspfx & SPFX_REGEN)
+        ADDTOLIST(buf2, "regeneration");
+    if (arti->cspfx & SPFX_EREGEN)
+        ADDTOLIST(buf2, "energy regeneration");
+    if (arti->cspfx & SPFX_HSPDAM)
+        ADDTOLIST(buf2, "half spell damage");
+    if (arti->cspfx & SPFX_HPHDAM)
+        ADDTOLIST(buf2, "half physical damage");
+    if (arti->cspfx & SPFX_TCTRL)
+        ADDTOLIST(buf2, "teleport control");
+    if (arti->cspfx & SPFX_LUCK)
+        ADDTOLIST(buf2, "luck");
+    if (arti->cspfx & SPFX_XRAY)
+        ADDTOLIST(buf2, "x-ray vision");
+    if (arti->cspfx & SPFX_REFLECT)
+        ADDTOLIST(buf2, "reflection");
+    if (arti->cspfx & SPFX_PROTECT)
+        ADDTOLIST(buf2, "protection");
+    Sprintf(buf, "While carried: %s", buf2[0] ? buf2 : "(none)");
+    ARTIPUTSTR(buf);
+
+    /* Invoke property */
+    tmp = arti_invprop_str(arti->inv_prop);
+    Sprintf(buf, "When invoked: %s", tmp ? tmp : "(none)");
+    ARTIPUTSTR(buf);
+
+#undef ARTIPUTSTR
+}
+
+#undef ADDTOLIST
+
 /*
  * Look in the "data" file for more info.  Called if the user typed in the
  * whole name (user_typed_name == TRUE), or we've found a possible match
@@ -1687,6 +2111,7 @@ char *supplemental_name;
     unsigned long txt_offset = 0L;
     winid datawin = WIN_ERR;
     short otyp, mat;
+    int artinum = 0;
     boolean lookat_mon = (pm != (struct permonst *) 0);
 
     fp = dlb_fopen(DATAFILE, "r");
@@ -1951,11 +2376,23 @@ char *supplemental_name;
                 }
             }
 
-            /* object lookup: try to parse as an object, and try the material
-             * version of the string first */
-            otyp = name_to_otyp(dbase_str_with_material);
-            if (otyp == STRANGE_OBJECT) {
-                otyp = name_to_otyp(dbase_str);
+            /* artifact lookup: try to parse as an artifact name first */
+            artinum = name_to_arti(dbase_str);
+            if (artinum == 0)
+                artinum = name_to_arti(dbase_str_with_material);
+
+            /* object lookup: if artifact found, use its base type;
+             * otherwise try to parse as an object */
+            if (artinum > 0) {
+                const struct artifact *arti = get_artilist_entry(artinum);
+                if (arti)
+                    otyp = arti->otyp;
+                else
+                    otyp = STRANGE_OBJECT;
+            } else {
+                otyp = name_to_otyp(dbase_str_with_material);
+                if (otyp == STRANGE_OBJECT)
+                    otyp = name_to_otyp(dbase_str);
             }
 
             /* prompt for more info (if using whatis to navigate the map) */
@@ -2008,6 +2445,10 @@ char *supplemental_name;
                     if (!flags.lookup_data) {
                         ; /* do nothing, 'pokedex' is disabled */
                     } else if (do_obj_lookup) { /* object lookup info */
+                        if (artinum > 0) {
+                            add_arti_info(datawin, artinum);
+                            putstr(datawin, 0, "");
+                        }
                         add_obj_info(datawin, otyp);
                         putstr(datawin, 0, "");
                     /* secondary to object lookup because there are some
