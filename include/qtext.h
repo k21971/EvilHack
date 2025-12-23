@@ -5,8 +5,8 @@
 #ifndef QTEXT_H
 #define QTEXT_H
 
-#define N_HDR 19 /* Maximum number of categories */
-/* (i.e., num roles + 1) */
+#define N_HDR 20 /* Maximum number of categories */
+/* (i.e., num roles + 1 + Dark Knight variant) */
 #define LEN_HDR 3 /* Maximum length of a category name */
 
 struct qtmsg {

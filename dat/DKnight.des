@@ -1,0 +1,328 @@
+# EvilHack	DKnight.des
+#	Copyright (c) 2025 by the EvilHack development team
+# EvilHack may be freely redistributed.  See license for details.
+#
+#	The Dark Knight quest - alternate quest for chaotic Knights.
+#	This is a placeholder quest - theme and content to be designed.
+#
+#	The "start" level for the quest.
+#
+#	Here you meet your class leader and receive your quest assignment.
+#
+MAZE: "Dkn-strt",'.'
+FLAGS: noteleport,hardfloor
+INIT_MAP: mines, '.' , '.' , false , false , unlit , false
+GEOMETRY:center,center
+MAP
+..................................................
+.-----......................................-----.
+.|...|......................................|...|.
+.--|+-------------------++-------------------+|--.
+...|...................+..+...................|...
+...|.|-----------------|++|-----------------|.|...
+...|.|.................|..|.........|.......|.|...
+...|.|.................|..|.........|.......|.|...
+...|.|.................|..|.........+.......|.|...
+...|.|.................|..|.........|.......|.|...
+...|.|--------------------------------------|.|...
+...|..........................................|...
+.--|+----------------------------------------+|--.
+.|...|......................................|...|.
+.-----......................................-----.
+..................................................
+ENDMAP
+# Dungeon Description
+REGION:(00,00,49,15),unlit,"ordinary"
+REGION:(04,04,45,11),unlit,"ordinary"
+REGION:(06,06,22,09),unlit,"temple",unfilled
+# Chaotic altar in the dark temple
+ALTAR:(09,07),chaos,shrine
+# Portal arrival point
+BRANCH:(20,14,20,14),(0,0,0,0)
+# Stairs
+STAIR:(40,7),down
+# Doors
+# Outside Doors
+DOOR:locked,(24,03)
+DOOR:locked,(25,03)
+# Inside Doors
+DOOR:closed,(23,04)
+DOOR:closed,(26,04)
+DOOR:locked,(24,05)
+DOOR:locked,(25,05)
+DOOR:closed,(23,07)
+DOOR:closed,(26,07)
+DOOR:closed,(23,08)
+DOOR:closed,(26,08)
+DOOR:closed,(36,08)
+# Watchroom Doors
+DOOR:closed,(04,03)
+DOOR:closed,(45,03)
+DOOR:closed,(04,12)
+DOOR:closed,(45,12)
+# Quest Leader - demilich (placeholder)
+MONSTER:('L',"demilich"),(09,07)
+# Magic chest
+MAGIC_CHEST:(07,07)
+# Guardian wraiths for the watchrooms
+MONSTER:('W',"wraith"),(04,02),peaceful
+MONSTER:('W',"wraith"),(04,13),peaceful
+MONSTER:('W',"wraith"),(45,02),peaceful
+MONSTER:('W',"wraith"),(45,13),peaceful
+# Guardian wraiths for the audience chamber
+MONSTER:('W',"wraith"),(16,06)
+MONSTER:('W',"wraith"),(18,06)
+MONSTER:('W',"wraith"),(20,06)
+MONSTER:('W',"wraith"),(16,09)
+MONSTER:('W',"wraith"),(18,09)
+MONSTER:('W',"wraith"),(20,09)
+# Non diggable walls
+NON_DIGGABLE:(00,00,49,15)
+# Random traps
+TRAP:"magic",(24,04)
+TRAP:"magic",(25,04)
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+# Monsters on siege duty - wraiths and barrow wights
+MONSTER:('W',"wraith"),(14,00),hostile
+MONSTER:('W',"wraith"),(16,00),hostile
+MONSTER:('W',"wraith"),(18,00),hostile
+MONSTER:('W',"barrow wight"),(20,00),hostile
+MONSTER:('W',"barrow wight"),(22,00),hostile
+MONSTER:('W',"wraith"),(24,00),hostile
+MONSTER:('W',"wraith"),(26,00),hostile
+MONSTER:('W',"barrow wight"),(28,00),hostile
+MONSTER:('W',"barrow wight"),(30,00),hostile
+MONSTER:('W',"wraith"),(32,00),hostile
+MONSTER:('W',"wraith"),(34,00),hostile
+MONSTER:('W',"wraith"),(36,00),hostile
+
+#
+#	The "locate" level for the quest.
+#
+#	Here you have to find your way to the Blighted Moors.
+#
+
+MAZE: "Dkn-loca",' '
+FLAGS: hardfloor
+INIT_MAP: mines, '.' , '.' , false , true , unlit , false
+GEOMETRY:center,center
+MAP
+.........................................
+.........................................
+.........................................
+.........T...............................
+............T.......T....................
+.....T..........T........................
+..........T...........T..................
+.......T......T..........................
+..............T..........................
+.........T...............................
+.........................................
+.........................................
+ENDMAP
+# Dungeon Description
+REGION:(00,00,40,11),unlit,"ordinary"
+# Stairs
+STAIR:(38,0),up
+STAIR:(18,05),down
+# Objects
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+# Random traps
+TRAP:"anti magic",random
+TRAP:"anti magic",random
+TRAP:"anti magic",random
+TRAP:"anti magic",random
+TRAP:"anti magic",random
+TRAP:"spiked pit",random
+TRAP:"spiked pit",random
+# Random monsters - wraiths and barrow wights
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:'W',random,hostile
+MONSTER:'W',random,hostile
+
+#
+#	The "goal" level for the quest.
+#
+#	Here you meet the nemesis monster.  You have to defeat the nemesis
+#	in combat to gain the artifact you have been assigned to retrieve.
+#
+
+MAZE: "Dkn-goal", ' '
+GEOMETRY:center,center
+MAP
+..............................................................
+..............................................................
+..............................................................
+..............................................................
+..............................................................
+..............................................................
+..............................................................
+..............................................................
+..............................................................
+..............................................................
+..............................................................
+ENDMAP
+# Dungeon Description
+REGION:(00,00,61,10),unlit,"ordinary"
+# Stairs
+STAIR:(03,05),up
+# Non diggable walls
+NON_DIGGABLE:(00,00,61,10)
+# Objects - quest artifact
+OBJECT:('(',"mirror"),(30,05),blessed,0,name:"The Magic Mirror of Merlin"
+OBJECT:random,(28,03)
+OBJECT:random,(29,03)
+OBJECT:random,(30,03)
+OBJECT:random,(31,03)
+OBJECT:random,(32,03)
+OBJECT:random,(28,07)
+OBJECT:random,(29,07)
+OBJECT:random,(30,07)
+OBJECT:random,(31,07)
+OBJECT:random,(32,07)
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+# Random traps
+TRAP:"spiked pit",(13,05)
+TRAP:"spiked pit",(12,04)
+TRAP:"spiked pit",(12,06)
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+# Random monsters.
+# Quest nemesis - apprentice (placeholder)
+MONSTER:('@',"apprentice"),(30,05),hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"wraith"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:('W',"barrow wight"),random,hostile
+MONSTER:'W',random,hostile
+MONSTER:'W',random,hostile
+
+#
+#	The "fill" levels for the quest.
+#
+#	These levels are used to fill out any levels not occupied by specific
+#	levels as defined above. "fila" is the upper filler, between the
+#	start and locate levels, and "filb" the lower between the locate
+#	and goal levels.
+#
+
+MAZE: "Dkn-fila" , '.'
+INIT_MAP: mines, '.' , '.' , false , true , unlit , false
+NOMAP
+#
+STAIR: random, up
+STAIR: random, down
+#
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+#
+MONSTER: ('W', "wraith"), random, hostile
+MONSTER: ('W', "wraith"), random, hostile
+MONSTER: ('W', "wraith"), random, hostile
+MONSTER: ('W', "wraith"), random, hostile
+MONSTER: 'W', random, hostile
+MONSTER: ('W', "barrow wight"), random, hostile
+#
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+
+MAZE: "Dkn-filb" , '.'
+INIT_MAP: mines, '.' , '.' , false , true , unlit , false
+NOMAP
+#
+STAIR: random, up
+STAIR: random, down
+#
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+#
+MONSTER: ('W', "wraith"), random, hostile
+MONSTER: ('W', "wraith"), random, hostile
+MONSTER: ('W', "wraith"), random, hostile
+MONSTER: ('W', "wraith"), random, hostile
+MONSTER: 'W', random, hostile
+MONSTER: ('W', "barrow wight"), random, hostile
+MONSTER: ('W', "barrow wight"), random, hostile
+MONSTER: ('W', "barrow wight"), random, hostile
+#
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random
+TRAP: random, random

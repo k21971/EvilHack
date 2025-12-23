@@ -4831,4 +4831,5 @@ The following changes to date are:
 - Add artifacts to the in-game encyclopedia lookup (pokedex)
 - Forged artifacts display their forge recipe via the in-game
   encyclopedia lookup
+- Develop an alternate quest for Dark (chaotic) Knight, round one
 

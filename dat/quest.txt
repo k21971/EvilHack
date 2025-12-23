@@ -871,7 +871,6 @@ Go back though magic thing that brought you here."
 %lC see %o in your hands.
 Him look at you and say:
 
-
     You have it!  We saved now.  But me fear that Bad
     People still want to take it from us.  Me decide that
     %o stay here with us in cave.  Me ready to take
@@ -1162,7 +1161,7 @@ clarity in her eyes.
 
 "What have I done?  Those demons have been clouding my mind.
 Please forgive me, %p, although I know that I
-probably do not deserve it.  Take 
+probably do not deserve it.  Take
 %o back to %l
 with my blessing."
 
@@ -1181,7 +1180,7 @@ see that %o has already attuned
 itself to you.  The curse on the silver bell has also
 been lifted.  I offer both to you in hopes that
 they will aid in your quest to recover the Amulet
-of Yendor." 
+of Yendor."
 %E [%lC tells you to take %o.]
 %Cc Con 00082
 %l looks upon %o
@@ -1604,7 +1603,7 @@ quest while I still live."
 %Cc Hea 00019
 "Alas, %p, you are yet too inexperienced to deal with the rigors
 of such a task.  You must be able to draw on the knowledge of botany,
-alchemy and veterinary practices before I can send you on this quest 
+alchemy and veterinary practices before I can send you on this quest
 with good conscience.
 
 "Return when you wear %Ra's caduceus."
@@ -2473,6 +2472,238 @@ the Amulet to be sacrificed to %d in the Plane of the Astral.
 
 "Merlin hath counseled Us that thou must travel always upwards through
 the Planes of the Elements, to achieve this goal.
+
+"Go with %d, %p."
+%E [Take the Amulet to the Astral Plane and deliver it to %d.]
+#
+#	Dark Knight
+#
+# Alternate quest for chaotic Knights.
+# This is placeholder text - proper theme and narrative to be designed.
+#
+%Cc Dkn 00001
+[PLACEHOLDER] You materialize in the shadows of %H.  The dark fortress
+rises before you, its walls stained with age and corruption.  An aura of
+dread hangs over this place.
+%E [You arrive at %H.]
+%Cp Dkn 00002
+Once again you stand before %H.
+%E
+%Cp Dkn 00003
+Again, you stand before %H.  You sense that this
+may be the last time you appear before %l.
+%E
+%Cp Dkn 00005
+"[PLACEHOLDER] The shadows stir, %p.  You have returned."
+%E
+%Cp Dkn 00006
+"There is word that %n has been sighted in %i."
+%E
+%Cp Dkn 00007
+"You are our only hope now, %p."
+%E
+%Cp Dkn 00008
+"[PLACEHOLDER] %lC could have no better champion, %p."
+%E
+%Cp Dkn 00009
+"Many of our kin died when %n attacked."
+%E
+%Cp Dkn 00010
+"Greetings, %p.  The darkness welcomes you."
+%E
+%Cp Dkn 00011
+"So, %p, did you find %n in %i?"
+%E
+%Cp Dkn 00012
+"Have you proven yourself against %n?"
+%E
+%Cp Dkn 00013
+"[PLACEHOLDER] %lC could have no better champion, %p."
+%E
+%Cp Dkn 00014
+"Have you recovered %o?"
+%E
+%Cc Dkn 00015
+"[PLACEHOLDER] Ah, %p.  We have awaited your arrival.
+We are in dire need of your abilities.  But first, we must
+determine if you are prepared for this undertaking."
+%E [%lC checks whether you are ready for a great undertaking.]
+%Cp Dkn 00016
+"Welcome again, %p.  We hope you are ready now."
+%E
+%Cp Dkn 00017
+"Once again, you stand before us, %p.  Are you ready now?"
+%E
+%Cc Dkn 00018
+"[PLACEHOLDER] You disgrace this court with your impure presence.  We have been
+patient with you, but no more.  You are hereby stripped of your title
+and standing as %ca.  You are banished!  Begone from our sight!"
+%E [You are a disgrace as %ca.]
+%Cc Dkn 00019
+"[PLACEHOLDER] %p, you have done well to survive thus far,
+but you are not yet prepared for the demands of this task.
+%rA could never hope to defeat %n.
+
+"Journey forth from this place and sharpen your skills.  Return
+when you have attained the title of %R."
+%E [You are not prepared to face %n.  Return when you are %Ra.]
+%Cc Dkn 00020
+"[PLACEHOLDER] You have strayed from your chosen path, %p!
+Go from our presence and atone.  Only when you have
+regained your purpose may you return here."
+%E [Go and atone.  Return when you are truly %a.]
+%Cc Dkn 00021
+"[PLACEHOLDER] Ah, %p.  You are truly ready, as no %c before you has been.
+Hear now our words:
+
+"A great enemy has attacked %H.  In the battle,
+%n struck down our champion and stole %o.
+
+"We charge you with this task:
+
+"Go forth to %i.  From there, track down %n.  Destroy
+the enemy and return %o to us."
+%E [Pass through %i to reach %n.  Destroy %ni and return with %o.]
+%Cp Dkn 00024
+"Remember, you must return with %o."
+%E
+%Cp Dkn 00025
+"Remember, %p, follow the path of %d."
+%E
+%Cp Dkn 00026
+"Though %n is a mighty foe, we have confidence in your victory."
+%E
+%Cp Dkn 00027
+"Beware, for %n is surrounded by hordes of creatures."
+%E
+%Cp Dkn 00028
+"Great treasure is said to be hoarded in the lair of %n."
+%E
+%Cp Dkn 00029
+"If you possess %o, %p, %ns magic shall be thwarted."
+%E
+%Cp Dkn 00030
+"The approaches to %i are guarded, %p.  Go carefully."
+%E
+%Cp Dkn 00031
+"Return %o to us quickly, %p."
+%E
+%Cp Dkn 00032
+"Destroy %n, %p, else %H shall surely fall."
+%E
+%Cp Dkn 00033
+"Call upon %d when you are in need."
+%E
+%Cp Dkn 00034
+"To find %i, you must stay true to your purpose."
+%E
+%Cc Dkn 00035
+[PLACEHOLDER] You stand at the entrance to %i.  A sense of dread
+washes over you.  Strange energies seem to be focused here.
+%E [You have reached %i.]
+%Cp Dkn 00036
+Again, you stand at the entrance to %i.
+%E
+%Cc Dkn 00040
+[PLACEHOLDER] You exit the wasteland and %x before you a gaping
+entrance.  From within, you smell the stench of corruption.
+%E [You %x the entrance to %ns lair.]
+%Cp Dkn 00041
+Again, you stand at the entrance to %ns lair.
+%E
+%Cc Dkn 00050
+"[PLACEHOLDER] Another %c seeks death.  I shall enjoy this."
+%E [%nC taunts you.]
+%Cp Dkn 00051
+"Again, you challenge me, %r?  So be it.  You will die here."
+%E
+%Cp Dkn 00052
+"You are truly foolish, %r.  I shall dispatch you now."
+%E
+%Cp Dkn 00053
+"So, you dare touch my property!  I shall have that bauble back,
+%r.  You will die in agony!"
+%E
+%Cp Dkn 00060
+"A mere %r can never withstand me!"
+%E
+%Cp Dkn 00061
+"I shall kill you now!"
+%E
+%Cp Dkn 00062
+"Puny %c.  What manner of death do you wish?"
+%E
+%Cp Dkn 00063
+"First you, %p, then I shall feast upon %l."
+%E
+%Cp Dkn 00064
+"You have failed, %r.  Now you shall die."
+%E
+%Cp Dkn 00065
+"Die, %c.  You are nothing against my might."
+%E
+%Cp Dkn 00066
+"I shall crush you, %c."
+%E
+%Cp Dkn 00067
+"Your end draws near, %c."
+%E
+%Cp Dkn 00068
+"Your strength fades, %p.  The time of your death draws near."
+%E
+%Cp Dkn 00069
+"Call upon your precious %d, %p.  It shall not save you."
+%E
+%Cc Dkn 00070
+[PLACEHOLDER] As you pick up %o, you feel its protective fields
+form around your body.  Power courses through you.
+%E [You feel the magic of %o.]
+%Cc Dkn 00071
+[PLACEHOLDER] As you pick up %o, you feel its protective fields
+form around your body.  Power courses through you.
+%E [You feel the magic of %o.]
+%Cc Dkn 00080
+[PLACEHOLDER] As %n falls, %nh defiantly curses you:
+
+    "You have not won yet, %r.  I shall return!"
+
+%nJ body crumples to the ground.
+%E [%nC curses you as %nh dies.]
+%Cc Dkn 00081
+[PLACEHOLDER] As you approach %l, %lh nods approvingly:
+
+    "Well done!  You are truly the Champion of %H.
+
+    "You are now to be the guardian of %o.  You may have need of
+    its powers in your adventures.  Keep %o with you as you
+    search for the Amulet of Yendor."
+%E [%oC is yours now.  It will aid in your search for the Amulet.]
+%Cc Dkn 00082
+"[PLACEHOLDER] Careful, %p!  %oC is fragile.
+You are its keeper now, and the time has come to resume your search
+for the Amulet.  %Z await your return through the magic portal."
+%E [You are the keeper of %o.  Return to %Z and find the Amulet.]
+%Cc Dkn 00083
+%l gazes intently at %o.
+
+"[PLACEHOLDER] You have done well, %p.  You have defeated
+%n and recovered %o.  However, I fear that %o shall
+never be truly safe unless it is kept here at %H.
+
+Please %p, return %o to us now."
+%E ["%lC asks you to forfeit %o."]
+%Cc Dkn 00084
+"[PLACEHOLDER] Thank you %p for your sacrifice.  Rest assured, %d
+approves of your choice.  %o shall be safe with us."
+%E ["You give %o to %l."]
+%Cp Dkn 00090
+"Well met, %p.  How goes your search for the Amulet of Yendor?"
+%E
+%Cc Dkn 00091
+"[PLACEHOLDER] You have succeeded, %p!  Now you must take
+the Amulet to be sacrificed to %d on the Astral Plane.
+
+"You must travel upwards through the Planes of the Elements.
 
 "Go with %d, %p."
 %E [Take the Amulet to the Astral Plane and deliver it to %d.]
@@ -4317,7 +4548,7 @@ Once again, you stand in sight of %ns lair.
 %Cc Val 00050
 "So!  %lC has finally sent %ca to challenge me!
 
-"I thought that using %o would enable me to start Ragnarok, 
+"I thought that using %o would enable me to start Ragnarok,
 but I see that first I must kill you!  So come, little %s.
 Once I defeat you, I can at last begin the final battle with %d."
 %E ["%oC has shown me that I must kill you."]
@@ -4362,8 +4593,8 @@ Do you really think that one %c can stand against me?"
 "Your body I destroy now, your soul when my hordes overrun Valhalla!"
 %E
 %Cc Val 00070
-As you pick up %o, your mind is suddenly filled with images 
-of the final battle and what could come to pass should Ragnarok 
+As you pick up %o, your mind is suddenly filled with images
+of the final battle and what could come to pass should Ragnarok
 begin.  As you begin to control and channel your thoughts, you
 realize that you must return %o to %l immediately.
 %E [You must return %o to %l.]

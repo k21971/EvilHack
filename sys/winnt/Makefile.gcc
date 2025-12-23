@@ -794,11 +794,11 @@ $(O)sp_lev.tag: $(O)utility.tag $(DAT)/bigroom.des  $(DAT)/castle.des \
 	 $(DAT)/oracle.des     $(DAT)/purgatory.des $(DAT)/tower.des \
 	 $(DAT)/vaults.des     $(DAT)/vecna.des     $(DAT)/yendor.des \
 	 $(DAT)/arch.des       $(DAT)/barb.des      $(DAT)/caveman.des \
-	 $(DAT)/convict.des    $(DAT)/druid.des     $(DAT)/healer.des \
-	 $(DAT)/infidel.des    $(DAT)/knight.des    $(DAT)/monk.des \
-	 $(DAT)/priest.des     $(DAT)/ranger.des    $(DAT)/rogue.des \
-	 $(DAT)/samurai.des    $(DAT)/sokoban.des   $(DAT)/tourist.des \
-	 $(DAT)/valkyrie.des   $(DAT)/wizard.des
+	 $(DAT)/convict.des    $(DAT)/dknight.des   $(DAT)/druid.des \
+	 $(DAT)/healer.des     $(DAT)/infidel.des   $(DAT)/knight.des \
+	 $(DAT)/monk.des       $(DAT)/priest.des    $(DAT)/ranger.des \
+	 $(DAT)/rogue.des      $(DAT)/samurai.des   $(DAT)/sokoban.des \
+	 $(DAT)/tourist.des    $(DAT)/valkyrie.des  $(DAT)/wizard.des
 	$(subst /,\,$(U)levcomp $(DAT)/bigroom.des)
 	$(subst /,\,$(U)levcomp $(DAT)/castle.des)
 	$(subst /,\,$(U)levcomp $(DAT)/endgame.des)
@@ -822,6 +822,7 @@ $(O)sp_lev.tag: $(O)utility.tag $(DAT)/bigroom.des  $(DAT)/castle.des \
 	$(subst /,\,$(U)levcomp $(DAT)/barb.des)
 	$(subst /,\,$(U)levcomp $(DAT)/caveman.des)
 	$(subst /,\,$(U)levcomp $(DAT)/convict.des)
+	$(subst /,\,$(U)levcomp $(DAT)/dknight.des)
 	$(subst /,\,$(U)levcomp $(DAT)/druid.des)
 	$(subst /,\,$(U)levcomp $(DAT)/healer.des)
 	$(subst /,\,$(U)levcomp $(DAT)/infidel.des)

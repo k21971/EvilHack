@@ -731,7 +731,7 @@ const struct Role roles[] = {
     { { 0, 0 } }
 };
 
-/* Dark Knight */
+/* Dark Knight - alternate quest for chaotic Knights */
 const struct Role align_roles[] = {
     { { "Dark Knight", 0 },
       { { "Sniveler", 0 },
@@ -744,19 +744,19 @@ const struct Role align_roles[] = {
         { "Dark Baron", "Dark Baroness" },
         { "Dark Paladin", 0 } },
       "Lugh", "_Brigit", "Manannan Mac Lir", /* Celtic */
-      "Kni",
-      "Camelot Castle",
-      "the Isle of Glass",
+      "Dkn",
+      "the Shadowkeep",
+      "the Blighted Moors",
       PM_KNIGHT,
       NON_PM,
       PM_PONY,
-      PM_KING_ARTHUR,
-      PM_PAGE,
-      PM_IXOTH,
-      PM_QUASIT,
-      PM_OCHRE_JELLY,
-      S_IMP,
-      S_JELLY,
+      PM_DEMILICH,        /* placeholder quest leader */
+      PM_WRAITH,          /* placeholder guardian */
+      PM_APPRENTICE,      /* placeholder nemesis */
+      PM_WRAITH,
+      PM_BARROW_WIGHT,
+      S_WRAITH,
+      S_WRAITH,
       ART_MAGIC_MIRROR_OF_MERLIN,
       MH_HUMAN | MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
           | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
