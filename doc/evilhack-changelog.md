@@ -4829,4 +4829,6 @@ The following changes to date are:
   evaluating items to wear
 - Fix: change description of helm of brilliance
 - Add artifacts to the in-game encyclopedia lookup (pokedex)
+- Forged artifacts display their forge recipe via the in-game
+  encyclopedia lookup
 

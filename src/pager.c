@@ -1864,6 +1864,33 @@ int artinum;
         ARTIPUTSTR(buf);
     }
 
+    /* Forge recipe - for forged artifacts, show what ingredients are needed */
+    if (arti->spfx & SPFX_FORGED) {
+        int typ1, typ2, first_typ1 = 0, idx = 0;
+
+        /* Build recipe string, combining alternates that share first ingredient */
+        buf[0] = '\0';
+        while (get_forge_recipe(artinum, idx, &typ1, &typ2)) {
+            if (idx == 0) {
+                Sprintf(buf, "Forge recipe: %s + %s",
+                        artiname(typ1), artiname(typ2));
+                first_typ1 = typ1;
+            } else if (typ1 == first_typ1) {
+                /* same first ingredient, just append alternate second */
+                Sprintf(eos(buf), " or %s", artiname(typ2));
+            } else {
+                /* different first ingredient - print current and start new */
+                ARTIPUTSTR(buf);
+                Sprintf(buf, "Forge recipe: %s + %s",
+                        artiname(typ1), artiname(typ2));
+                first_typ1 = typ1;
+            }
+            idx++;
+        }
+        if (buf[0])
+            ARTIPUTSTR(buf);
+    }
+
     /* Attack properties - build comma-separated list */
     if (arti->attk.adtyp != AD_PHYS || arti->attk.damn || arti->attk.damd) {
         buf2[0] = '\0';

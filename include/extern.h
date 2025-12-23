@@ -955,6 +955,7 @@ E void FDECL(gush, (int, int, genericptr_t));
 E void FDECL(dryup, (XCHAR_P, XCHAR_P, BOOLEAN_P));
 E void FDECL(dipforge, (struct obj *));
 E int NDECL(doforging);
+E boolean FDECL(get_forge_recipe, (int, int, int *, int *));
 E void NDECL(drinkfountain);
 E void FDECL(dipfountain, (struct obj *));
 E void FDECL(breakforge, (int, int));

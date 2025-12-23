@@ -579,6 +579,32 @@ static const struct forge_arti {
     { 0, 0, 0 }
 };
 
+/* Get forge recipe for an artifact by index. Returns TRUE if recipe
+   found at given index. If found, sets *typ1 and *typ2 to the input
+   artifact indices. Use idx=0 for first recipe, idx=1 for second, etc.
+   Some artifacts (e.g. Sword of Annihilation) have multiple recipes */
+boolean
+get_forge_recipe(artinum, idx, typ1, typ2)
+int artinum;
+int idx;
+int *typ1, *typ2;
+{
+    const struct forge_arti *arti;
+    int count = 0;
+
+    for (arti = artifusions; arti->result_typ; arti++) {
+        if (arti->result_typ == artinum) {
+            if (count == idx) {
+                *typ1 = arti->typ1;
+                *typ2 = arti->typ2;
+                return TRUE;
+            }
+            count++;
+        }
+    }
+    return FALSE;
+}
+
 int
 doforging()
 {
