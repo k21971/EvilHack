@@ -4070,12 +4070,15 @@ struct obj *no_wish;
          * Find corpse type using "of" (figurine of an orc, tin of orc meat)
          * Don't check if it's a wand or spellbook.
          * (avoid "wand/finger of death" confusion).
-         * (also avoid "sword of kas" or "eye/hand of vecna" issues)
+         * (also avoid "sword of kas", "eye/hand of vecna", or
+         * "mirror of merlin" issues where "of <monster>" parsing
+         * would truncate the artifact name)
          */
         if (!strstri(sng, "wand ") && !strstri(sng, "spellbook ")
             && !strstri(sng, "potion ") && !strstri(sng, "finger ")
             && !strstri(sng, "eye ") && !strstri(sng, "hand ")
-            && !strstri(sng, "sword of kas")) {
+            && !strstri(sng, "sword of kas")
+            && !strstri(sng, "mirror of merlin")) {
             int l = 0, of = 4;
             char *tmpp;
 
@@ -5158,22 +5161,38 @@ struct obj *no_wish;
         if (any_quest_artifact(otmp)) {
             const struct Role *role = roles;
 
-            while ((role->name.m) && (role->questarti != otmp->oartifact))
-                role++;
-            if (role->name.m) {
-                /* Don't bring the Rogue's leader to fight a Tourist when he is also
-                 * the Tourist's quest nemesis.
-                 */
-                if (!((role->ldrnum == PM_MASTER_OF_THIEVES)
-                      && Role_if(PM_TOURIST))) {
-                    struct permonst* ldr;
+            /* The Magic Mirror of Merlin is shared by both Knights and
+               Dark Knights. Summon the opposing leader based on wisher's
+               alignment */
+            if (otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN) {
+                struct permonst* ldr;
 
-                    pm = role->ldrnum;
-                    /* remove flags that tag quest leaders as
-                       peaceful or spawn them mediating */
-                    ldr = &mons[pm];
-                    ldr->mflags2 &= ~(M2_PEACEFUL);
-                    ldr->mflags3 &= ~(M3_WAITMASK);
+                if (u.ualign.type == A_LAWFUL)
+                    pm = PM_MORGAN_LE_FAY; /* chaotic leader opposes */
+                else if (u.ualign.type == A_CHAOTIC)
+                    pm = PM_KING_ARTHUR;   /* lawful leader opposes */
+                else
+                    pm = rn2(2) ? PM_KING_ARTHUR : PM_MORGAN_LE_FAY;
+                ldr = &mons[pm];
+                ldr->mflags2 &= ~(M2_PEACEFUL);
+                ldr->mflags3 &= ~(M3_WAITMASK);
+            } else {
+                while ((role->name.m) && (role->questarti != otmp->oartifact))
+                    role++;
+                if (role->name.m) {
+                    /* Don't bring the Rogue's leader to fight a Tourist
+                       when he is also the Tourist's quest nemesis */
+                    if (!((role->ldrnum == PM_MASTER_OF_THIEVES)
+                          && Role_if(PM_TOURIST))) {
+                        struct permonst* ldr;
+
+                        pm = role->ldrnum;
+                        /* remove flags that tag quest leaders as
+                           peaceful or spawn them mediating */
+                        ldr = &mons[pm];
+                        ldr->mflags2 &= ~(M2_PEACEFUL);
+                        ldr->mflags3 &= ~(M3_WAITMASK);
+                    }
                 }
             }
         }

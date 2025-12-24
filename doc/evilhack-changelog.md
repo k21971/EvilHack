@@ -4835,4 +4835,6 @@ The following changes to date are:
 - Develop an alternate quest for Dark (chaotic) Knight, round two
 - Develop an alternate quest for Dark (chaotic) Knight, round three
 - Develop an alternate quest for Dark (chaotic) Knight, round four
+- Fix: special handling when wishing for the Magic Mirror of Merlin and
+  which owner shows up
 
