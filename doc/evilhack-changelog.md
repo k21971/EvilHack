@@ -4834,4 +4834,5 @@ The following changes to date are:
 - Develop an alternate quest for Dark (chaotic) Knight, round one
 - Develop an alternate quest for Dark (chaotic) Knight, round two
 - Develop an alternate quest for Dark (chaotic) Knight, round three
+- Develop an alternate quest for Dark (chaotic) Knight, round four
 

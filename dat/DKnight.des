@@ -1,9 +1,8 @@
-# EvilHack	DKnight.des
-#	Copyright (c) 2025 by the EvilHack development team
-# EvilHack may be freely redistributed.  See license for details.
+# NetHack 3.6 DKnight.des $NHDT-Date: 1766588246 2025/12/24 14:57:26 $  $NHDT-Branch: master $:$NHDT-Revision: 1.9 $
+#       Copyright (c) 2025 by Keith Simpson
+# NetHack may be freely redistributed.  See license for details.
 #
 #	The Dark Knight quest - alternate quest for chaotic Knights.
-#	This is a placeholder quest - theme and content to be designed.
 #
 #	The "start" level for the quest.
 #
@@ -11,123 +10,143 @@
 #
 MAZE: "Dkn-strt",'.'
 FLAGS: noteleport,hardfloor
-INIT_MAP: mines, '.' , '.' , false , false , unlit , false
+INIT_MAP: mines,'.','P',false,true,unlit,false
 GEOMETRY:center,center
+#         1         2         3
+#1234567890123456789012345678901234567
 MAP
-..................................................
-.-----......................................-----.
-.|...|......................................|...|.
-.--|+-------------------++-------------------+|--.
-...|...................+..+...................|...
-...|.|-----------------|++|-----------------|.|...
-...|.|.................|..|.........|.......|.|...
-...|.|.................|..|.........|.......|.|...
-...|.|.................|..|.........+.......|.|...
-...|.|.................|..|.........|.......|.|...
-...|.|--------------------------------------|.|...
-...|..........................................|...
-.--|+----------------------------------------+|--.
-.|...|......................................|...|.
-.-----......................................-----.
-..................................................
+................TT....................
+.--F--.T................TT......--F--.
+.F...F.......TT.............T...F...F.
+.--|+-------------++-------------+|--.
+..T|..............................|...
+...|-----------........-----------|T..
+T..|..........|........|..........|..T
+T..|....\.....+........+..........|...
+...|..........|........|..........|T..
+..T|-----------........-----------|T..
+...|..............................|...
+.--|+----------------------------+|--.
+.F...F.....T......T.............F...F.
+.--F--.TT.................T.....--F--.
+..............T...............T.......
+PPPPPPPPP.T..............TT..PPPPPPPPP
 ENDMAP
 # Dungeon Description
-REGION:(00,00,49,15),unlit,"ordinary"
-REGION:(04,04,45,11),unlit,"ordinary"
-REGION:(06,06,22,09),unlit,"temple",unfilled
-# Chaotic altar in the dark temple
-ALTAR:(09,07),chaos,shrine
+REGION:(00,00,37,15),unlit,"ordinary"
+REGION:(04,06,13,08),lit,"throne",unfilled
+# Chaotic altar
+ALTAR:(29,07),chaos,altar
 # Portal arrival point
-BRANCH:(20,14,20,14),(0,0,0,0)
+BRANCH:(18,15,18,15),(0,0,0,0)
 # Stairs
-STAIR:(40,7),down
+STAIR:(32,07),down
 # Doors
-# Outside Doors
-DOOR:locked,(24,03)
-DOOR:locked,(25,03)
-# Inside Doors
-DOOR:closed,(23,04)
-DOOR:closed,(26,04)
-DOOR:locked,(24,05)
-DOOR:locked,(25,05)
-DOOR:closed,(23,07)
-DOOR:closed,(26,07)
-DOOR:closed,(23,08)
-DOOR:closed,(26,08)
-DOOR:closed,(36,08)
-# Watchroom Doors
+# Castle entrance
+DOOR:locked,(18,03)
+DOOR:locked,(19,03)
+# Tower entry doors
 DOOR:closed,(04,03)
-DOOR:closed,(45,03)
-DOOR:closed,(04,12)
-DOOR:closed,(45,12)
+DOOR:closed,(33,03)
+DOOR:closed,(04,11)
+DOOR:closed,(33,11)
+# Chamber doors
+DOOR:closed,(14,07)
+DOOR:closed,(23,07)
 # Quest Leader
-MONSTER:('@',"Morgan le Fay"),(09,07)
+MONSTER:('@',"Morgan le Fay"),(08,07)
 # Magic chest
-MAGIC_CHEST:(07,07)
-# Guardian for the watchrooms
-MONSTER:('@',"page"),(04,02),peaceful
-MONSTER:('@',"page"),(04,13),peaceful
-MONSTER:('@',"page"),(45,02),peaceful
-MONSTER:('@',"page"),(45,13),peaceful
-# Guardian for the audience chamber
-MONSTER:('@',"page"),(16,06)
-MONSTER:('@',"page"),(18,06)
-MONSTER:('@',"page"),(20,06)
-MONSTER:('@',"page"),(16,09)
-MONSTER:('@',"page"),(18,09)
-MONSTER:('@',"page"),(20,09)
+MAGIC_CHEST:(06,07)
+# Corner tower guardians
+MONSTER:('@',"page"),(03,02),peaceful
+MONSTER:('@',"page"),(34,02),peaceful
+MONSTER:('@',"page"),(03,12),peaceful
+MONSTER:('@',"page"),(34,12),peaceful
+# Main chamber guardians
+MONSTER:('@',"page"),(16,07),peaceful
+MONSTER:('@',"page"),(21,07),peaceful
+# Throne room guardians
+MONSTER:('@',"page"),(06,06)
+MONSTER:('@',"page"),(08,06)
+MONSTER:('@',"page"),(06,08)
+MONSTER:('@',"page"),(08,08)
 # Non diggable walls
-NON_DIGGABLE:(00,00,49,15)
+NON_DIGGABLE:(00,00,37,15)
 # Random traps
-TRAP:"magic",(24,04)
-TRAP:"magic",(25,04)
 TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Monsters on siege duty
-MONSTER:('B',"hawk"),(14,00),hostile
-MONSTER:('B',"hawk"),(16,00),hostile
-MONSTER:('B',"hawk"),(18,00),hostile
-MONSTER:('d',"wolf"),(20,00),hostile
-MONSTER:('d',"wolf"),(22,00),hostile
-MONSTER:('B',"hawk"),(24,00),hostile
-MONSTER:('B',"hawk"),(26,00),hostile
-MONSTER:('d',"wolf"),(28,00),hostile
-MONSTER:('d',"wolf"),(30,00),hostile
-MONSTER:('B',"hawk"),(32,00),hostile
-MONSTER:('B',"hawk"),(34,00),hostile
-MONSTER:('B',"hawk"),(36,00),hostile
+MONSTER:('d',"wolf"),(14,01),hostile
+MONSTER:('B',"large hawk"),(16,01),hostile
+MONSTER:('d',"wolf"),(18,01),hostile
+MONSTER:('B',"hawk"),(20,01),hostile
+MONSTER:('d',"wolf"),(22,01),hostile
+MONSTER:('d',"wolf"),(14,13),hostile
+MONSTER:('B',"hawk"),(16,13),hostile
+MONSTER:('d',"wolf"),(18,13),hostile
+MONSTER:('B',"hawk"),(20,13),hostile
+MONSTER:('d',"wolf"),(22,13),hostile
+MONSTER:('B',"large hawk"),(01,06),hostile
+MONSTER:('u',"stag"),(01,08),hostile
+MONSTER:('B',"large hawk"),(36,06),hostile
+MONSTER:('q',"grizzly bear"),(36,08),hostile
 
 #
 #	The "locate" level for the quest.
 #
-#	Here you have to find your way to the Blighted Moors.
+#	Here you have to find ancient ruins to make your way to
+#	the Caledonia Forest.
 #
 
 MAZE: "Dkn-loca",' '
 FLAGS: hardfloor
-INIT_MAP: mines, '.' , '.' , false , true , unlit , false
+INIT_MAP: mines,'.','.',true,true,lit,false
+REPLACE_TERRAIN:(00,00,78,20),'.','g',100%
+REPLACE_TERRAIN:(00,00,78,20),'g','T',20%
+REPLACE_TERRAIN:(00,00,78,20),'T','t',3%
 GEOMETRY:center,center
+#         1         2         3         4         5         6         7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
-.........................................
-.........................................
-.........................................
-.........T...............................
-............T.......T....................
-.....T..........T........................
-..........T...........T..................
-.......T......T..........................
-..............T..........................
-.........T...............................
-.........................................
-.........................................
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggggg--....--.gggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggg---...tt.....gggggggggggggggggggggggggggggggggggggggggggggggggggggg
+g...t..--.t....-.-gggggggggggggggggggggggggggggggggggggggggggggggggggg
+g|.....-...-.....|gggggggggggggggggggggggggggggggggggggggggggggggggggg
+g|.t........|.t..|gggggggggggggggggggggggggggggggggggggggggggggggggggg
+g|....--....|.t...gggggggggggggggggggggggggggggggggggggggggggggggggggg
+g..-...-........--gggggggggggggggggggggggggggggggggggggggggggggggggggg
+ggg---...tt..---gggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggt.--..---gggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 ENDMAP
 # Dungeon Description
-REGION:(00,00,40,11),unlit,"ordinary"
+REGION:(00,00,69,20),lit,"ordinary"
 # Stairs
-STAIR:(38,0),up
-STAIR:(18,05),down
+STAIR:(09,13),down
+STAIR:levregion(69,02,78,18),levregion(64,02,69,18),up
+# Branch info
+BRANCH:levregion(69,02,78,18),levregion(64,02,69,18)
+TELEPORT_REGION:levregion(69,02,78,18),levregion(64,02,69,18)
+# populate trees in REGION area
+REPLACE_TERRAIN:(19,00,69,20),'g','T',20%
+REPLACE_TERRAIN:(19,00,69,20),'T','t',3%
+REPLACE_TERRAIN:(00,00,19,08),'g','T',20%
+REPLACE_TERRAIN:(00,00,19,08),'T','t',3%
+REPLACE_TERRAIN:(00,18,19,20),'g','T',20%
+REPLACE_TERRAIN:(00,18,19,20),'T','t',3%
 # Objects
 OBJECT:random,random
 OBJECT:random,random
@@ -138,20 +157,13 @@ OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
-OBJECT:random,random
 # Random traps
-TRAP:"anti magic",random
-TRAP:"anti magic",random
-TRAP:"anti magic",random
-TRAP:"anti magic",random
-TRAP:"anti magic",random
-TRAP:"spiked pit",random
-TRAP:"spiked pit",random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
 # Random monsters
 MONSTER:('B',"hawk"),random,hostile
 MONSTER:('B',"hawk"),random,hostile
@@ -160,11 +172,8 @@ MONSTER:('B',"hawk"),random,hostile
 MONSTER:('B',"hawk"),random,hostile
 MONSTER:('B',"hawk"),random,hostile
 MONSTER:('B',"hawk"),random,hostile
-MONSTER:('B',"hawk"),random,hostile
-MONSTER:('B',"hawk"),random,hostile
-MONSTER:('B',"hawk"),random,hostile
-MONSTER:('B',"hawk"),random,hostile
-MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"large hawk"),random,hostile
+MONSTER:('B',"large hawk"),random,hostile
 MONSTER:('d',"wolf"),random,hostile
 MONSTER:('d',"wolf"),random,hostile
 MONSTER:('d',"wolf"),random,hostile
@@ -173,8 +182,12 @@ MONSTER:('d',"wolf"),random,hostile
 MONSTER:('d',"wolf"),random,hostile
 MONSTER:('d',"wolf"),random,hostile
 MONSTER:('d',"wolf"),random,hostile
-MONSTER:'B',random,hostile
-MONSTER:'d',random,hostile
+MONSTER:'u',random,hostile
+MONSTER:'q',random,hostile
+
+# Non diggable walls
+NON_DIGGABLE:(02,09,17,17)
+
 
 #
 #	The "goal" level for the quest.
@@ -184,38 +197,31 @@ MONSTER:'d',random,hostile
 #
 
 MAZE: "Dkn-goal", ' '
+INIT_MAP: mines,'.','T',false,true,lit,false
 GEOMETRY:center,center
+#         1         2         3         4         5         6         7
+#123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
-..............................................................
-..............................................................
-..............................................................
-..............................................................
-..............................................................
-..............................................................
-..............................................................
-..............................................................
-..............................................................
-..............................................................
-..............................................................
+T...TTTTTT.TTTTTT...T
+...TT...........TT...
+..TT.............TT..
+..TT.............TT..
+..TT.............TT..
+...TT...........TT...
+T...TTTTTT.TTTTTT...T
 ENDMAP
 # Dungeon Description
-REGION:(00,00,61,10),unlit,"ordinary"
+REGION:(00,00,20,06),lit,"ordinary"
 # Stairs
-STAIR:(03,05),up
+STAIR:levregion(01,02,08,18),levregion(09,02,78,18),up
 # Non diggable walls
-NON_DIGGABLE:(00,00,61,10)
+NON_DIGGABLE:(00,00,20,06)
 # Objects - quest artifact
-OBJECT:('(',"mirror"),(30,05),blessed,0,name:"The Magic Mirror of Merlin"
-OBJECT:random,(28,03)
-OBJECT:random,(29,03)
-OBJECT:random,(30,03)
-OBJECT:random,(31,03)
-OBJECT:random,(32,03)
-OBJECT:random,(28,07)
-OBJECT:random,(29,07)
-OBJECT:random,(30,07)
-OBJECT:random,(31,07)
-OBJECT:random,(32,07)
+OBJECT:('(',"mirror"),(10,03),blessed,0,name:"The Magic Mirror of Merlin"
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random
@@ -232,7 +238,7 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Quest nemesis
-MONSTER:('@',"Merlin"),(30,05),hostile
+MONSTER:('@',"Merlin"),(10,03),hostile
 # Random monsters
 MONSTER:('B',"hawk"),random,hostile
 MONSTER:('B',"hawk"),random,hostile
@@ -240,22 +246,22 @@ MONSTER:('B',"hawk"),random,hostile
 MONSTER:('B',"hawk"),random,hostile
 MONSTER:('B',"hawk"),random,hostile
 MONSTER:('B',"hawk"),random,hostile
-MONSTER:('B',"hawk"),random,hostile
-MONSTER:('B',"hawk"),random,hostile
-MONSTER:('B',"hawk"),random,hostile
-MONSTER:('B',"hawk"),random,hostile
-MONSTER:('B',"hawk"),random,hostile
-MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"large hawk"),random,hostile
+MONSTER:('B',"large hawk"),random,hostile
+MONSTER:('B',"giant hawk"),random,hostile
+MONSTER:('B',"giant hawk"),random,hostile
 MONSTER:('d',"wolf"),random,hostile
 MONSTER:('d',"wolf"),random,hostile
 MONSTER:('d',"wolf"),random,hostile
 MONSTER:('d',"wolf"),random,hostile
 MONSTER:('d',"wolf"),random,hostile
 MONSTER:('d',"wolf"),random,hostile
-MONSTER:('d',"wolf"),random,hostile
-MONSTER:('d',"wolf"),random,hostile
-MONSTER:'B',random,hostile
-MONSTER:'d',random,hostile
+MONSTER:('r',"wolverine"),random,hostile
+MONSTER:('r',"wolverine"),random,hostile
+MONSTER:'u',random,hostile
+MONSTER:'q',random,hostile
+MONSTER:'u',random,hostile
+MONSTER:'q',random,hostile
 
 #
 #	The "fill" levels for the quest.
@@ -267,8 +273,10 @@ MONSTER:'d',random,hostile
 #
 
 MAZE: "Dkn-fila" , '.'
-INIT_MAP: mines, '.' , '.' , false , true , unlit , false
+INIT_MAP: mines,'.','T',false,true,lit,false
 NOMAP
+REPLACE_TERRAIN:(00,00,78,20),'.','g',100%
+REPLACE_TERRAIN:(00,00,78,20),'T','t',3%
 #
 STAIR: random, up
 STAIR: random, down
@@ -285,9 +293,11 @@ OBJECT: random, random
 MONSTER: ('B', "hawk"), random, hostile
 MONSTER: ('B', "hawk"), random, hostile
 MONSTER: ('B', "hawk"), random, hostile
-MONSTER: ('B', "hawk"), random, hostile
-MONSTER: 'd', random, hostile
+MONSTER: ('B', "large hawk"), random, hostile
 MONSTER: ('d', "wolf"), random, hostile
+MONSTER: ('d', "wolf"), random, hostile
+MONSTER:'u',random,hostile
+MONSTER:'q',random,hostile
 #
 TRAP: random, random
 TRAP: random, random
@@ -295,8 +305,10 @@ TRAP: random, random
 TRAP: random, random
 
 MAZE: "Dkn-filb" , '.'
-INIT_MAP: mines, '.' , '.' , false , true , unlit , false
+INIT_MAP: mines,'.','T',false,true,lit,false
 NOMAP
+REPLACE_TERRAIN:(00,00,78,20),'.','g',100%
+REPLACE_TERRAIN:(00,00,78,20),'T','t',3%
 #
 STAIR: random, up
 STAIR: random, down
@@ -315,12 +327,15 @@ OBJECT: random, random
 #
 MONSTER: ('B', "hawk"), random, hostile
 MONSTER: ('B', "hawk"), random, hostile
-MONSTER: ('B', "hawk"), random, hostile
-MONSTER: ('B', "hawk"), random, hostile
-MONSTER: 'd', random, hostile
+MONSTER: ('B', "large hawk"), random, hostile
+MONSTER: ('B', "giant hawk"), random, hostile
 MONSTER: ('d', "wolf"), random, hostile
 MONSTER: ('d', "wolf"), random, hostile
 MONSTER: ('d', "wolf"), random, hostile
+MONSTER:'u',random,hostile
+MONSTER:'q',random,hostile
+MONSTER:'u',random,hostile
+MONSTER:'q',random,hostile
 #
 TRAP: random, random
 TRAP: random, random

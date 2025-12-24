@@ -2697,18 +2697,16 @@ You return to the edge of %i.  The ancient forest looms before you, patient
 and eternal.  Somewhere within, %n waits.
 %E
 %Cc Dkn 00040
-You step into a clearing bathed in pale silver light, though the sun is
-nowhere to be seen.  In the center stands an ancient stone circle, and within
-it, a figure robed in white and silver, his staff held before him like a
-barrier.  The great wizard %n regards you with eyes that have seen
-ages pass.  There is no anger in his gaze - only sorrow, deep and abiding.
+You enter a realm of ancient forest, dense and wild.  Massive oaks tower
+overhead, their branches blocking out the sky.  A sense of powerful magic
+permeates the air - you are close to your quarry.
 
-"So she has sent a champion at last," he says quietly.  "I have been expecting
-this day for long enough."
-%E [You %x %ns sanctuary in the forest clearing.]
+Somewhere within this wilderness, %n has made his sanctuary.
+You must find your way through the forest to reach him.
+%E [You have entered %i, %ns forest sanctuary.]
 %Cp Dkn 00041
-You stand once more in the clearing where %n waits.  His staff glows softly,
-and his expression is one of infinite sadness.
+You return to the ancient forest.  The trees seem to watch your passage, and
+the weight of %ns magic presses upon you.  His sanctuary lies ahead.
 %E
 %Cc Dkn 00050
 %nC stands before you, his ancient eyes filled with sorrow rather than anger.
