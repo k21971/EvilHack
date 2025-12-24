@@ -2479,234 +2479,409 @@ the Planes of the Elements, to achieve this goal.
 #	Dark Knight
 #
 # Alternate quest for chaotic Knights.
-# This is placeholder text - proper theme and narrative to be designed.
+# Theme: Arthurian legend reversal - serve Morgan le Fay, defeat Merlin.
+# Morgan is morally ambiguous; Merlin is a tragic righteous defender.
 #
 %Cc Dkn 00001
-[PLACEHOLDER] You materialize in the shadows of %H.  The dark fortress
-rises before you, its walls stained with age and corruption.  An aura of
-dread hangs over this place.
-%E [You arrive at %H.]
+You step through the mists onto %H.  The sacred apple
+trees sway in an unfelt wind, their silver leaves whispering secrets in
+a tongue older than memory.  But something is wrong.  Hawks circle
+overhead - not natural birds, but creatures of malice, their cries sharp
+as broken glass.  In the distance, wolves howl, moving as one, as if
+guided by a single will.
+
+A Page rushes to meet you, fear plain on his face.  "Thank the old gods
+thou hast come!  %lC's sanctuary is besieged.  %n sends
+his creatures against us day and night.  We cannot hold much longer."
+
+The mists swirl around you.  Somewhere ahead, Morgan le Fay awaits.
+%E [%H is under siege by %ns creatures.]
 %Cp Dkn 00002
-Once again you stand before %H.
+You return to %H.  The siege seems no worse than before, but
+the defenders look weary.  Hawks circle overhead.  Wolves howl in the
+distance.
 %E
 %Cp Dkn 00003
-Again, you stand before %H.  You sense that this
-may be the last time you appear before %l.
+You stand again at %H.  The fortress endures, but you sense
+this respite may not last much longer.  Time grows short.
 %E
 %Cp Dkn 00005
-"[PLACEHOLDER] The shadows stir, %p.  You have returned."
+A young Page approaches you, dressed in armor of Avalon.  "Well met, stranger.
+Art thou here to aid our %lC?  These are dark times, and shadows gather."
 %E
 %Cp Dkn 00006
-"There is word that %n has been sighted in %i."
+A weathered Page eyes you carefully.  "Thou hast the look of a warrior about
+thee.  Dost thou seek audience with our Queen?  She is... occupied, but thy
+coming hath been foreseen."
 %E
 %Cp Dkn 00007
-"You are our only hope now, %p."
+A Page with scarred armor nods to you.  "Hail, %r.  Thou comest in
+an ill hour.  The hawks grow bold, and the wolves... the wolves do not
+act as beasts should.  Our Queen attends to matters of great import.
+Wouldst thou wait?"
 %E
 %Cp Dkn 00008
-"[PLACEHOLDER] %lC could have no better champion, %p."
+A Page bows stiffly.  "Our %lC doth expect thee.  Go, present thyself to her
+chambers.  But be warned - her mood is... complex these days."
 %E
 %Cp Dkn 00009
-"Many of our kin died when %n attacked."
+A Page barely looks at you.  "Another one.  Very well.  Thou shalt speak with
+our Queen soon enough.  If thou survives what she asks of thee, perhaps we
+shall meet again."
 %E
 %Cp Dkn 00010
-"Greetings, %p.  The darkness welcomes you."
+A young Page approaches you with obvious relief.  "Thou art the one!  Our %lC
+hath spoken of thee.  The quest is set - thou must succeed where others have
+failed."
 %E
 %Cp Dkn 00011
-"So, %p, did you find %n in %i?"
+A Page salutes you grimly.  "Thou dost undertake a dangerous task, %r.  But if
+any can succeed, perhaps it shall be thee.  Go with caution to %i."
 %E
 %Cp Dkn 00012
-"Have you proven yourself against %n?"
+A Page clasps your shoulder.  "Godspeed, champion.  Avalon rests its hopes upon
+thy shoulders.  %n must be defeated.  He hath wronged our Queen for long
+enough."
 %E
 %Cp Dkn 00013
-"[PLACEHOLDER] %lC could have no better champion, %p."
+A Page watches you with something like pity.  "Thou art bound to %lC now, for
+better or worse.  Complete thy quest, and perhaps thou shalt find peace."
 %E
 %Cp Dkn 00014
-"Have you recovered %o?"
+A Page lowers their voice.  "I would warn thee... but I am bound by oath to
+serve %lC.  Go.  Do what must be done.  But remember - %n was not always our
+enemy."
 %E
 %Cc Dkn 00015
-"[PLACEHOLDER] Ah, %p.  We have awaited your arrival.
-We are in dire need of your abilities.  But first, we must
-determine if you are prepared for this undertaking."
+%lC receives you in her chamber.  Candlelight flickers across
+walls draped in shadow.  She regards you with dark eyes that seem to
+pierce your very soul.
+
+    "So.  You have come at last.  I have been expecting you, %p.
+     You have the bearing of a true warrior - or perhaps the desperation
+     of a fool.  Either will serve my purposes.  But before you hear what
+     I require, I must know: are you ready?  Do you have the courage to
+     face what waits in %i?  Do not answer hastily.
+     Many have thought themselves prepared, and they are now dead."
+
+She studies you intently, waiting for your response.
 %E [%lC checks whether you are ready for a great undertaking.]
-%Cp Dkn 00016
-"Welcome again, %p.  We hope you are ready now."
-%E
-%Cp Dkn 00017
-"Once again, you stand before us, %p.  Are you ready now?"
-%E
+%Cc Dkn 00016
+%lC looks up from an ancient text, her expression unreadable.
+
+    "You return.  Good.  But you are not yet ready for what I ask.
+     Your skills remain untested.  Your resolve wavers like a candle flame.
+     Return when you have proven yourself worthy.  The hawks can wait, but
+     not forever."
+
+She dismisses you with a gesture.
+%E [You are not prepared to face %n.  Return when you are %Ra.]
+%Cc Dkn 00017
+%lC sets down her goblet slowly, her gaze cold as winter ice.
+
+    "Still you are not prepared.  What do you do with your time, %p?
+     Do you not understand the urgency of your task?  My enemies close in.
+     %iC awaits.  %n plots even now to strike
+     at me.  And yet you stand before me, still insufficient.  Prove
+     yourself, or do not waste my time."
+
+She turns away, dismissing you.
+%E [You are not prepared to face %n.  Return when you are %Ra.]
 %Cc Dkn 00018
-"[PLACEHOLDER] You disgrace this court with your impure presence.  We have been
-patient with you, but no more.  You are hereby stripped of your title
-and standing as %ca.  You are banished!  Begone from our sight!"
+%lC's voice cuts like a blade of ice.
+
+    "You have failed me, %p.  You have proven yourself a disgrace
+     to the order of Avalon.  Get out of my sight.  You are no champion
+     of mine.  Perhaps you should seek another master - one less
+     demanding than I."
+
+She gestures toward the door with contempt.
 %E [You are a disgrace as %ca.]
 %Cc Dkn 00019
-"[PLACEHOLDER] %p, you have done well to survive thus far,
-but you are not yet prepared for the demands of this task.
-%rA could never hope to defeat %n.
+%lC shakes her head, disappointed.
 
-"Journey forth from this place and sharpen your skills.  Return
-when you have attained the title of %R."
+    "No.  You lack the power required.  This quest is not for the
+     inexperienced.  Go.  Gain strength, learn your craft, and perhaps
+     one day you will be worthy.  But not now.  Not yet."
 %E [You are not prepared to face %n.  Return when you are %Ra.]
 %Cc Dkn 00020
-"[PLACEHOLDER] You have strayed from your chosen path, %p!
-Go from our presence and atone.  Only when you have
-regained your purpose may you return here."
+%lC's eyes narrow dangerously.
+
+    "Your alignment troubles me, %p.  I did not summon you here
+     to waste my time with those of uncertain conviction.  I need a
+     champion whose path is clear, whose darkness is uncompromising.
+     Come back when your soul reflects a truer purpose."
+
+She turns away from you.
 %E [Go and atone.  Return when you are truly %a.]
 %Cc Dkn 00021
-"[PLACEHOLDER] Ah, %p.  You are truly ready, as no %c before you has been.
-Hear now our words:
+%lC rises from her throne, years of bitter certainty written across her face.
 
-"A great enemy has attacked %H.  In the battle,
-%n struck down our champion and stole %o.
+    "You have been chosen, %p.  %n was once my teacher - the
+     greatest in all the realms.  He promised me power, promised me knowledge.
+     He gave me both, then took them away when Arthur needed a favored advisor
+     more than I needed his love.
 
-"We charge you with this task:
+    "I do not dwell on the past.  I move beyond it.  But some debts demand
+     payment, and %n's debt to me is ancient.
 
-"Go forth to %i.  From there, track down %n.  Destroy
-the enemy and return %o to us."
-%E [Pass through %i to reach %n.  Destroy %ni and return with %o.]
+    "%oC is mine by right - I helped in its creation,
+     though he never admits it.  With it, I will see clearly what must be
+     done in this world.  %n hides it from me in %i,
+     surrounded by his righteousness and his precious wards.
+
+    "Go to the forest.  Find him.  Bring me %o.
+     Retrieve also the silver bell - %n has cursed it, but I can
+     lift that curse.  Without it, you will never find the Amulet of Yendor.
+
+    "Do this, and you will have my favor forever.  Fail, and you will learn
+     why even Kings fear my name."
+
+She extends her hand.  Her grip is iron.
+%E [Reach %i and claim %o from %n.  Retrieve the cursed silver bell.]
 %Cp Dkn 00024
-"Remember, you must return with %o."
+%lC regards you coolly.  "Remember, %p - return with %o so that I may lift
+the curse from the silver bell."
 %E
 %Cp Dkn 00025
-"Remember, %p, follow the path of %d."
+%lC leans forward.  "The forest will test you.  But you are stronger than %n
+believes.  Show him."
 %E
 %Cp Dkn 00026
-"Though %n is a mighty foe, we have confidence in your victory."
+%lC smiles knowingly.  "He does not know you are coming.  Use that advantage
+well."
 %E
 %Cp Dkn 00027
-"Beware, for %n is surrounded by hordes of creatures."
+%lC's expression hardens.  "When you see him, remember - he is not the man I
+once loved.  That man died long ago."
 %E
 %Cp Dkn 00028
-"Great treasure is said to be hoarded in the lair of %n."
+%lC rises from her throne.  "The forest will try to turn you back.  But nothing
+is stronger than my will, %p.  Nothing."
 %E
 %Cp Dkn 00029
-"If you possess %o, %p, %ns magic shall be thwarted."
+%lC's eyes narrow.  "He will not come quietly.  %n is proud.  Make him
+understand that his time is finished."
 %E
 %Cp Dkn 00030
-"The approaches to %i are guarded, %p.  Go carefully."
+%lC studies you intently.  "Many have sought %o before you.  None succeeded.
+But you are different, %p.  You will not fail me."
 %E
 %Cp Dkn 00031
-"Return %o to us quickly, %p."
+%lC places a hand over her heart.  "%oC calls to me.  I can feel it hiding
+in %i, away from my reach.  But we will claim it."
 %E
 %Cp Dkn 00032
-"Destroy %n, %p, else %H shall surely fall."
+%lC grips your arm.  "Do not hesitate when you face him.  Hesitation is the
+weapon of the weak.  You are my chosen.  You will prevail."
 %E
 %Cp Dkn 00033
-"Call upon %d when you are in need."
+%lC turns away.  "When this is done, you will understand - power is not given.
+It is taken from those weak enough to let it slip away."
 %E
 %Cp Dkn 00034
-"To find %i, you must stay true to your purpose."
+%lC meets your gaze one last time.  "Go now.  Bring me what is mine.  If %n
+offers you mercy, remember - he showed me none."
 %E
 %Cc Dkn 00035
-[PLACEHOLDER] You stand at the entrance to %i.  A sense of dread
-washes over you.  Strange energies seem to be focused here.
+You stand at the edge of %i, a forest of immense antiquity.
+The trees are gnarled and twisted, their trunks thick as castle towers,
+their roots visible above the earth like the veins of some ancient creature.
+The air is heavy with power - old magic, primal and patient.  You sense a
+presence here, vast and watchful.  %n.  He knows you are coming.
+
+The forest waits.
 %E [You have reached %i.]
 %Cp Dkn 00036
-Again, you stand at the entrance to %i.
+You return to the edge of %i.  The ancient forest looms before you, patient
+and eternal.  Somewhere within, %n waits.
 %E
 %Cc Dkn 00040
-[PLACEHOLDER] You exit the wasteland and %x before you a gaping
-entrance.  From within, you smell the stench of corruption.
-%E [You %x the entrance to %ns lair.]
+You step into a clearing bathed in pale silver light, though the sun is
+nowhere to be seen.  In the center stands an ancient stone circle, and within
+it, a figure robed in white and silver, his staff held before him like a
+barrier.  The great wizard %n regards you with eyes that have seen
+ages pass.  There is no anger in his gaze - only sorrow, deep and abiding.
+
+"So she has sent a champion at last," he says quietly.  "I have been expecting
+this day for long enough."
+%E [You %x %ns sanctuary in the forest clearing.]
 %Cp Dkn 00041
-Again, you stand at the entrance to %ns lair.
+You stand once more in the clearing where %n waits.  His staff glows softly,
+and his expression is one of infinite sadness.
 %E
 %Cc Dkn 00050
-"[PLACEHOLDER] Another %c seeks death.  I shall enjoy this."
-%E [%nC taunts you.]
+%nC stands before you, his ancient eyes filled with sorrow rather than anger.
+
+    "So Morgan sends you at last.  I do not blame you - you are a tool, well-made
+     but unknowing.  Yet I must try.
+
+    "She tells you I betrayed her.  She is right, in her fashion.  I taught her
+     magic that could remake worlds.  But I learned too late what power does to
+     the human heart.
+
+    "When Arthur needed a guardian, I chose him over her.  Not from cruelty, but
+     from necessity.  She would have used %o to rule
+     all others.  Kingdoms would fall.  I could not allow that.
+
+    "She sees this as abandonment.  Perhaps it was.  But it was the lesser evil.
+     I accept the price I have paid.  I accept that you are here.
+
+    "I cannot ask you to turn back.  But remember this moment.  When she has
+     claimed what she sought, think on my words.  That is all I can offer."
+
+He raises his staff, and power crackles around him.
+%E [%nC offers you the truth, but will not yield the Mirror.]
 %Cp Dkn 00051
-"Again, you challenge me, %r?  So be it.  You will die here."
+"She poisons all she touches.  Do not be the next."
 %E
 %Cp Dkn 00052
-"You are truly foolish, %r.  I shall dispatch you now."
+"Then it must end here.  %oC shall not be taken while I breathe."
 %E
 %Cp Dkn 00053
-"So, you dare touch my property!  I shall have that bauble back,
-%r.  You will die in agony!"
+"You have claimed it.  Please - look into the Mirror.  There is still time."
 %E
 %Cp Dkn 00060
-"A mere %r can never withstand me!"
+"I faced dragons in ages past.  Now I face you.  How far we have fallen."
 %E
 %Cp Dkn 00061
-"I shall kill you now!"
+"Your courage serves a lie, %p.  But it does you credit."
 %E
 %Cp Dkn 00062
-"Puny %c.  What manner of death do you wish?"
+"She will destroy you as she sought to destroy me."
 %E
 %Cp Dkn 00063
-"First you, %p, then I shall feast upon %l."
+"How many champions has she sent before you?  How many still live?"
 %E
 %Cp Dkn 00064
-"You have failed, %r.  Now you shall die."
+"I fight to prevent her victory.  You fight because she commands it."
 %E
 %Cp Dkn 00065
-"Die, %c.  You are nothing against my might."
+"I would have been honored to teach you.  What a waste."
 %E
 %Cp Dkn 00066
-"I shall crush you, %c."
+"The Mirror was meant for wisdom, not conquest."
 %E
 %Cp Dkn 00067
-"Your end draws near, %c."
+"I have seen futures where you prosper.  In most, I see only darkness."
 %E
 %Cp Dkn 00068
-"Your strength fades, %p.  The time of your death draws near."
+"When I am dead, remember - you will pay the price for this day."
 %E
 %Cp Dkn 00069
-"Call upon your precious %d, %p.  It shall not save you."
+"I fall, she rises, and you are the instrument of that falling."
 %E
 %Cc Dkn 00070
-[PLACEHOLDER] As you pick up %o, you feel its protective fields
-form around your body.  Power courses through you.
+As you claim %o, you feel a surge of power flow through
+you.  The artifact pulses with ancient magic, and you suddenly understand
+- or think you understand - so much.  You can feel the currents of fate
+flowing around you, the threads of destiny woven into the tapestry of
+this world.  The Mirror shows you visions of other places, other times.
+
+And you understand, at last, what %n was trying to tell you.
+
+But it is too late for understanding.  Too late for doubt.  You have made
+your choice, and the path forward is set.
 %E [You feel the magic of %o.]
 %Cc Dkn 00071
-[PLACEHOLDER] As you pick up %o, you feel its protective fields
-form around your body.  Power courses through you.
+As you claim %o from the fallen wizard's chamber, the
+artifact pulses with ancient magic.  The same visions flood your mind as
+before - the same terrible understanding of power and consequence.
+
+In the distance, you hear %lC laughing.  The sound echoes
+through the forest like thunder.
+
+The Mirror is yours.  And she is coming.
 %E [You feel the magic of %o.]
 %Cc Dkn 00080
-[PLACEHOLDER] As %n falls, %nh defiantly curses you:
+%nC falls, his staff clattering to the ground.  His eyes remain open,
+clear and serene, looking upon you with infinite compassion.
 
-    "You have not won yet, %r.  I shall return!"
+    "It is done," he whispers.  "Go to her, %p.  Give her what
+     she desires.  And in the years to come, when you understand what you
+     have lost, when you comprehend the weight of what you have done -
+     remember that I forgave you in my final hour.  That is the only grace
+     I can offer you now."
 
-%nJ body crumples to the ground.
-%E [%nC curses you as %nh dies.]
+His eyes close.  The great wizard has fallen.
+%E [%nC forgives you as %nh dies.]
 %Cc Dkn 00081
-[PLACEHOLDER] As you approach %l, %lh nods approvingly:
+You return to %H bearing %o.
+When you present it to %lC, her joy is terrible to behold.
+She laughs - a sound like the breaking of bonds, like the shattering
+of ancient constraints.
 
-    "Well done!  You are truly the Champion of %H.
+    "At last!" she cries.  "At last, after centuries of waiting, it is
+     mine!  You have done well, %p.  Better than I dared hope.
+     The Mirror is returned to its true master, and with it, I shall
+     reshape this world according to my will.  None shall ever dismiss
+     %lC again.  None shall ever tell me I am not worthy."
 
-    "You are now to be the guardian of %o.  You may have need of
-    its powers in your adventures.  Keep %o with you as you
-    search for the Amulet of Yendor."
-%E [%oC is yours now.  It will aid in your search for the Amulet.]
+She holds the Mirror before her, gazing into its depths, and you see in
+her eyes a hunger that can never be satisfied.
+
+    "You have earned my favor, %r.  Keep it close.  Keep it
+     close always.  For there are few in this world I would not destroy
+     to defend what is now mine."
+
+There is something in her smile that makes your blood run cold.  But she
+has lifted the curse from the silver bell, and the Amulet awaits.
+%E [%oC is yours now.  The curse on the silver bell has been lifted.]
 %Cc Dkn 00082
-"[PLACEHOLDER] Careful, %p!  %oC is fragile.
-You are its keeper now, and the time has come to resume your search
-for the Amulet.  %Z await your return through the magic portal."
-%E [You are the keeper of %o.  Return to %Z and find the Amulet.]
+%lC sets down %o and regards you with an
+expression that might be gratitude, or might be calculation - it is
+difficult to tell.
+
+    "Do not think yourself safe now, %p, merely because you have
+     served me well.  I have found that champions, like all things, are
+     fragile.  Easily broken.  Easily replaced.  Serve me faithfully, and
+     you need not fear my displeasure.  But betray me, or disappoint me,
+     and you shall learn what I am truly capable of."
+
+She smiles, and the promise of violence in that smile is clear as day.
+But the curse on the silver bell has been lifted.  %Z await.
+%E [You are the keeper of %o.  The curse on the silver bell has been lifted.]
 %Cc Dkn 00083
-%l gazes intently at %o.
+%lC gazes intently at %o.
 
-"[PLACEHOLDER] You have done well, %p.  You have defeated
-%n and recovered %o.  However, I fear that %o shall
-never be truly safe unless it is kept here at %H.
+    "You have done well, %p.  You have defeated %n and
+     recovered %o.  However, I find myself tempted to ask
+     for the Mirror back.  Not because I doubt your loyalty, but because
+     I fear to trust anything to another's keeping.  The weight of such
+     power... it burns.  It consumes.
 
-Please %p, return %o to us now."
-%E ["%lC asks you to forfeit %o."]
+    "Please, %p, return %o to me now."
+%E [%lC asks you to forfeit %o.]
 %Cc Dkn 00084
-"[PLACEHOLDER] Thank you %p for your sacrifice.  Rest assured, %d
-approves of your choice.  %o shall be safe with us."
-%E ["You give %o to %l."]
+%lC accepts %o from your hands, her fingers
+brushing yours for a moment.  Her touch is ice-cold.
+
+    "Wise," she murmurs.  "To recognize that some burdens are too great for
+     lesser shoulders to bear.  I shall keep the Mirror where it will be safe.
+     In time, %p, you shall understand the gift you have given
+     me.  This artifact shall change everything."
+
+She cradles the Mirror like a mother with a newborn child, and turns away
+from you.
+%E [You give %o to %l.]
 %Cp Dkn 00090
 "Well met, %p.  How goes your search for the Amulet of Yendor?"
 %E
 %Cc Dkn 00091
-"[PLACEHOLDER] You have succeeded, %p!  Now you must take
-the Amulet to be sacrificed to %d on the Astral Plane.
+%lC regards the Amulet of Yendor in your possession with
+undisguised hunger.
 
-"You must travel upwards through the Planes of the Elements.
+    "You have done it, %p.  The Amulet is yours.  Now you must
+     take it to the Astral Plane and sacrifice it to %d.
 
-"Go with %d, %p."
-%E [Take the Amulet to the Astral Plane and deliver it to %d.]
+    "Travel upward through the Planes of the Elements.  Do not falter.
+     Do not fail.  When you stand before %d, remember
+     who made this possible.
+
+    "Go now.  Complete what you have begun."
+
+She turns away, already contemplating what comes next.
+%E [Take the Amulet to the Astral Plane and offer it to %d.]
 #
 #       Monk
 #
@@ -3760,7 +3935,7 @@ to use %o wisely.  For the sake of your guild
 
 You sit and wait for death to come for %n, and then you
 brace yourself for your next meeting with %l!
-%E [Before dying, %n tells you to use the %o wisely.]
+%E [Before dying, %n tells you to use %o wisely.]
 %Cc Rog 00081
 "Well, I'll be damned.  You got it.  I am proud of you, a fine %r
 you've turned out to be.
