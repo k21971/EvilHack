@@ -4832,4 +4832,5 @@ The following changes to date are:
 - Forged artifacts display their forge recipe via the in-game
   encyclopedia lookup
 - Develop an alternate quest for Dark (chaotic) Knight, round one
+- Develop an alternate quest for Dark (chaotic) Knight, round two
 

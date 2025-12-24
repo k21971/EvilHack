@@ -60,22 +60,22 @@ DOOR:closed,(04,03)
 DOOR:closed,(45,03)
 DOOR:closed,(04,12)
 DOOR:closed,(45,12)
-# Quest Leader - demilich (placeholder)
-MONSTER:('L',"demilich"),(09,07)
+# Quest Leader
+MONSTER:('@',"Morgan le Fay"),(09,07)
 # Magic chest
 MAGIC_CHEST:(07,07)
-# Guardian wraiths for the watchrooms
-MONSTER:('W',"wraith"),(04,02),peaceful
-MONSTER:('W',"wraith"),(04,13),peaceful
-MONSTER:('W',"wraith"),(45,02),peaceful
-MONSTER:('W',"wraith"),(45,13),peaceful
-# Guardian wraiths for the audience chamber
-MONSTER:('W',"wraith"),(16,06)
-MONSTER:('W',"wraith"),(18,06)
-MONSTER:('W',"wraith"),(20,06)
-MONSTER:('W',"wraith"),(16,09)
-MONSTER:('W',"wraith"),(18,09)
-MONSTER:('W',"wraith"),(20,09)
+# Guardian for the watchrooms
+MONSTER:('@',"page"),(04,02),peaceful
+MONSTER:('@',"page"),(04,13),peaceful
+MONSTER:('@',"page"),(45,02),peaceful
+MONSTER:('@',"page"),(45,13),peaceful
+# Guardian for the audience chamber
+MONSTER:('@',"page"),(16,06)
+MONSTER:('@',"page"),(18,06)
+MONSTER:('@',"page"),(20,06)
+MONSTER:('@',"page"),(16,09)
+MONSTER:('@',"page"),(18,09)
+MONSTER:('@',"page"),(20,09)
 # Non diggable walls
 NON_DIGGABLE:(00,00,49,15)
 # Random traps
@@ -85,19 +85,19 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 TRAP:random,random
-# Monsters on siege duty - wraiths and barrow wights
-MONSTER:('W',"wraith"),(14,00),hostile
-MONSTER:('W',"wraith"),(16,00),hostile
-MONSTER:('W',"wraith"),(18,00),hostile
-MONSTER:('W',"barrow wight"),(20,00),hostile
-MONSTER:('W',"barrow wight"),(22,00),hostile
-MONSTER:('W',"wraith"),(24,00),hostile
-MONSTER:('W',"wraith"),(26,00),hostile
-MONSTER:('W',"barrow wight"),(28,00),hostile
-MONSTER:('W',"barrow wight"),(30,00),hostile
-MONSTER:('W',"wraith"),(32,00),hostile
-MONSTER:('W',"wraith"),(34,00),hostile
-MONSTER:('W',"wraith"),(36,00),hostile
+# Monsters on siege duty
+MONSTER:('B',"hawk"),(14,00),hostile
+MONSTER:('B',"hawk"),(16,00),hostile
+MONSTER:('B',"hawk"),(18,00),hostile
+MONSTER:('d',"wolf"),(20,00),hostile
+MONSTER:('d',"wolf"),(22,00),hostile
+MONSTER:('B',"hawk"),(24,00),hostile
+MONSTER:('B',"hawk"),(26,00),hostile
+MONSTER:('d',"wolf"),(28,00),hostile
+MONSTER:('d',"wolf"),(30,00),hostile
+MONSTER:('B',"hawk"),(32,00),hostile
+MONSTER:('B',"hawk"),(34,00),hostile
+MONSTER:('B',"hawk"),(36,00),hostile
 
 #
 #	The "locate" level for the quest.
@@ -152,29 +152,29 @@ TRAP:"anti magic",random
 TRAP:"anti magic",random
 TRAP:"spiked pit",random
 TRAP:"spiked pit",random
-# Random monsters - wraiths and barrow wights
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:'W',random,hostile
-MONSTER:'W',random,hostile
+# Random monsters
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:'B',random,hostile
+MONSTER:'d',random,hostile
 
 #
 #	The "goal" level for the quest.
@@ -231,31 +231,31 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 TRAP:random,random
-# Random monsters.
-# Quest nemesis - apprentice (placeholder)
-MONSTER:('@',"apprentice"),(30,05),hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"wraith"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:('W',"barrow wight"),random,hostile
-MONSTER:'W',random,hostile
-MONSTER:'W',random,hostile
+# Quest nemesis
+MONSTER:('@',"Merlin"),(30,05),hostile
+# Random monsters
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('B',"hawk"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:('d',"wolf"),random,hostile
+MONSTER:'B',random,hostile
+MONSTER:'d',random,hostile
 
 #
 #	The "fill" levels for the quest.
@@ -282,12 +282,12 @@ OBJECT: random, random
 OBJECT: random, random
 OBJECT: random, random
 #
-MONSTER: ('W', "wraith"), random, hostile
-MONSTER: ('W', "wraith"), random, hostile
-MONSTER: ('W', "wraith"), random, hostile
-MONSTER: ('W', "wraith"), random, hostile
-MONSTER: 'W', random, hostile
-MONSTER: ('W', "barrow wight"), random, hostile
+MONSTER: ('B', "hawk"), random, hostile
+MONSTER: ('B', "hawk"), random, hostile
+MONSTER: ('B', "hawk"), random, hostile
+MONSTER: ('B', "hawk"), random, hostile
+MONSTER: 'd', random, hostile
+MONSTER: ('d', "wolf"), random, hostile
 #
 TRAP: random, random
 TRAP: random, random
@@ -313,14 +313,14 @@ OBJECT: random, random
 OBJECT: random, random
 OBJECT: random, random
 #
-MONSTER: ('W', "wraith"), random, hostile
-MONSTER: ('W', "wraith"), random, hostile
-MONSTER: ('W', "wraith"), random, hostile
-MONSTER: ('W', "wraith"), random, hostile
-MONSTER: 'W', random, hostile
-MONSTER: ('W', "barrow wight"), random, hostile
-MONSTER: ('W', "barrow wight"), random, hostile
-MONSTER: ('W', "barrow wight"), random, hostile
+MONSTER: ('B', "hawk"), random, hostile
+MONSTER: ('B', "hawk"), random, hostile
+MONSTER: ('B', "hawk"), random, hostile
+MONSTER: ('B', "hawk"), random, hostile
+MONSTER: 'd', random, hostile
+MONSTER: ('d', "wolf"), random, hostile
+MONSTER: ('d', "wolf"), random, hostile
+MONSTER: ('d', "wolf"), random, hostile
 #
 TRAP: random, random
 TRAP: random, random

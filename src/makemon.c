@@ -1689,6 +1689,24 @@ struct monst *mtmp;
             otmp->spe = rnd(4) + 1;
             (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, LARGE_SHIELD);
+        } else if (mm == PM_MORGAN_LE_FAY) {
+            otmp = mksobj(ATHAME, FALSE, FALSE);
+            otmp->spe = rnd(2) + 1;
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, CLOAK_OF_MAGIC_RESISTANCE);
+        } else if (mm == PM_MERLIN) {
+            /* If it has not yet been generated,
+               Merlin gets Magicbane */
+            otmp = mksobj(QUARTERSTAFF, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_MAGICBANE));
+            bless(otmp);
+            otmp->oeroded = otmp->oeroded2 = 0;
+            maybe_erodeproof(otmp, 1);
+            otmp->spe = rnd(2) + 1;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, ROBE);
+            (void) mongets(mtmp, CORNUTHAUM);
         } else if (mm == PM_NEFERET_THE_GREEN) {
             otmp = mksobj(QUARTERSTAFF, FALSE, FALSE);
             otmp->spe = rnd(2) + 1;
