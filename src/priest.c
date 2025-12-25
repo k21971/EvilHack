@@ -994,6 +994,36 @@ struct monst *priest;
                 adjalign(-1);
                 record_abuse_event(-1, ABUSE_REFUSE_TITHE);
             }
+        } else if (coaligned && offer >= 50000 && u.ualign.abuse < 0) {
+            /* Atonement for alignment abuse - 50k gold per tier reduction */
+            int tiers_paid = (int)(offer / 50000);
+            int tiers_reduced = 0;
+            int atonement_val = (u.ualign.abuse * -1);
+
+            while (tiers_paid > 0 && atonement_val > 0) {
+                /* Reduce to previous tier boundary */
+                if (atonement_val >= 50)
+                    atonement_val = 49; /* grave -> severe */
+                else if (atonement_val >= 30)
+                    atonement_val = 29; /* severe -> serious */
+                else if (atonement_val >= 15)
+                    atonement_val = 14; /* serious -> moderate */
+                else if (atonement_val >= 5)
+                    atonement_val = 4;  /* moderate -> slight */
+                else
+                    atonement_val = 0;  /* slight -> none */
+                tiers_paid--;
+                tiers_reduced++;
+            }
+            if (tiers_reduced > 0) {
+                u.ualign.abuse = -atonement_val;
+                if (atonement_val == 0)
+                    verbalize("Thy penance is accepted.  "
+                              "Thou art fully absolved of past transgressions.");
+                else
+                    verbalize("Thy penance is accepted.  "
+                              "The burden of thy transgressions is lightened.");
+            }
         } else if (offer < (u.ulevel * t1)) {
             if (money_cnt(invent) > (offer * 2L)) {
                 verbalize("Cheapskate.");

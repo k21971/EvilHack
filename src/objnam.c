@@ -4293,8 +4293,8 @@ struct obj *no_wish;
         || !BSTRCMPI(bp, p - 7, "zorkmid")
         || !strcmpi(bp, "gold") || !strcmpi(bp, "money")
         || !strcmpi(bp, "coin") || *bp == GOLD_SYM) {
-        if (cnt > 5000 && !wizard)
-            cnt = 5000;
+        if (cnt > 25000 && !wizard)
+            cnt = 25000;
         else if (cnt < 1)
             cnt = 1;
         otmp = mksobj(GOLD_PIECE, FALSE, FALSE);

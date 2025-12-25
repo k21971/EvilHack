@@ -4843,4 +4843,5 @@ The following changes to date are:
   if their alignment has been severely abused or worse
 - Alignment abuse has a bearing on how much gold temple priests require
   for their blessings
+- Alignment abuse atonement via temple priest donations
 
