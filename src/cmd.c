@@ -4122,10 +4122,16 @@ int final;
 
                 evt = &u.uabuse_history[idx];
                 if (evt->turn > 0) {
-                    Sprintf(buf, " Turn %ld: %s (-%d)",
-                            evt->turn,
-                            abuse_type_name(evt->abuse_type),
-                            evt->penalty);
+                    if (evt->abuse_type == ABUSE_ATONEMENT)
+                        Sprintf(buf, " Turn %ld: %s (+%d)",
+                                evt->turn,
+                                abuse_type_name(evt->abuse_type),
+                                evt->penalty);
+                    else
+                        Sprintf(buf, " Turn %ld: %s (-%d)",
+                                evt->turn,
+                                abuse_type_name(evt->abuse_type),
+                                evt->penalty);
                     putstr(en_win, 0, buf);
                 }
             }

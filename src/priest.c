@@ -998,7 +998,8 @@ struct monst *priest;
             /* Atonement for alignment abuse - 50k gold per tier reduction */
             int tiers_paid = (int)(offer / 50000);
             int tiers_reduced = 0;
-            int atonement_val = (u.ualign.abuse * -1);
+            int original_abuse = (u.ualign.abuse * -1);
+            int atonement_val = original_abuse;
 
             while (tiers_paid > 0 && atonement_val > 0) {
                 /* Reduce to previous tier boundary */
@@ -1016,7 +1017,10 @@ struct monst *priest;
                 tiers_reduced++;
             }
             if (tiers_reduced > 0) {
+                int abuse_reduced = original_abuse - atonement_val;
+
                 u.ualign.abuse = -atonement_val;
+                record_abuse_event(abuse_reduced, ABUSE_ATONEMENT);
                 if (atonement_val == 0)
                     verbalize("Thy penance is accepted.  "
                               "Thou art fully absolved of past transgressions.");

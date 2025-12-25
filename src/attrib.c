@@ -1422,7 +1422,9 @@ int n;
     }
 }
 
-/* Record alignment abuse event in circular buffer */
+/* Record alignment abuse event in circular buffer.
+   For abuse events, penalty is negative. For atonement,
+   penalty is positive (abuse points reduced) */
 void
 record_abuse_event(penalty, atype)
 int penalty;
@@ -1430,13 +1432,17 @@ int atype;
 {
     struct abuse_event *evt;
 
-    if (penalty >= 0) /* only record actual penalties */
+    /* Only record actual penalties, or atonement */
+    if (penalty >= 0 && atype != ABUSE_ATONEMENT)
         return;
 
     evt = &u.uabuse_history[u.uabuse_hist_idx];
     evt->turn = monstermoves;
     evt->abuse_type = (short) atype;
-    evt->penalty = (short) (-penalty); /* store as positive for display */
+    if (atype == ABUSE_ATONEMENT)
+        evt->penalty = (short) penalty; /* store as-is for atonement */
+    else
+        evt->penalty = (short) (-penalty); /* store as positive for display */
     u.uabuse_hist_idx = (u.uabuse_hist_idx + 1) % MAX_ABUSE_HISTORY;
 }
 
@@ -1522,6 +1528,8 @@ int atype;
         return "damaging a historic statue";
     case ABUSE_ATTACK_ENCHANTRESS:
         return "attacking the Enchantress";
+    case ABUSE_ATONEMENT:
+        return "atonement";
     default:
         return "transgression";
     }

@@ -62,7 +62,9 @@ enum abuse_type {
     /* Archeologist */
     ABUSE_HISTORIC_STATUE,     /* damaging historic statue */
     /* Special NPCs */
-    ABUSE_ATTACK_ENCHANTRESS   /* attacking Kathryn the Enchantress */
+    ABUSE_ATTACK_ENCHANTRESS,  /* attacking Kathryn the Enchantress */
+    /* Atonement (not abuse, but tracked in same history) */
+    ABUSE_ATONEMENT            /* atoned for past abuse via temple donation */
 };
 
 typedef struct align { /* alignment & record */

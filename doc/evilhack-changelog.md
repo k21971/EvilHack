@@ -4845,4 +4845,5 @@ The following changes to date are:
   for their blessings
 - Alignment abuse atonement via temple priest donations
 - Track alignment abuse permanently for conduct purposes
+- Track atonement in alignment event history
 
