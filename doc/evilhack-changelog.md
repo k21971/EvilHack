@@ -4846,4 +4846,5 @@ The following changes to date are:
 - Alignment abuse atonement via temple priest donations
 - Track alignment abuse permanently for conduct purposes
 - Track atonement in alignment event history
+- Fix: add missing wizmode commands to menu showing all wizmode options
 

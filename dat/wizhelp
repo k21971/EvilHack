@@ -20,10 +20,14 @@ Debug-Mode Quick Reference:
 #timeout        == look at timeout queue and hero's timed intrinsics
 #vanquished     == disclose counts of dead monsters sorted in various ways
 #vision         == show vision array
+#wizcrown       == trigger the crowning event
 #wizintrinsic   == set selected intrinsic timeouts
+#wizkill        == slay a monster
 #wizmakemap     == recreate the current dungeon level
+#wizpious       == set alignment record to piously aligned
 #wizrumorcheck  == validate first and last rumor for true and false set
 #wizsmell       == smell a monster
+#wiztelekinesis == hurtle a monster (telekinesis)
 #wizwhere       == show dungeon placement of all special levels
 #wmode          == show wall modes
 
