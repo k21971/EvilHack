@@ -4844,4 +4844,5 @@ The following changes to date are:
 - Alignment abuse has a bearing on how much gold temple priests require
   for their blessings
 - Alignment abuse atonement via temple priest donations
+- Track alignment abuse permanently for conduct purposes
 

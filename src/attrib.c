@@ -1413,6 +1413,7 @@ int n;
         }
         if (newabuse < u.ualign.abuse) {
             u.ualign.abuse = newabuse;
+            u.ever_abused = TRUE; /* for conduct tracking */
         }
     } else if (newalign > u.ualign.record) {
         u.ualign.record = newalign;

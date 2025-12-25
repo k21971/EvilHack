@@ -521,7 +521,7 @@ encode_extended_conducts()
     add_achieveX(buf, "deaf",                             u.uroleplay.deaf);
     add_achieveX(buf, "bonesless",                       !u.uroleplay.numbones);
     add_achieveX(buf, "never_died",                       u.umortality == 0);
-    add_achieveX(buf, "never_abused_alignment",           u.ualign.abuse == 0);
+    add_achieveX(buf, "never_abused_alignment",          !u.ever_abused);
     add_achieveX(buf, "never_forged_an_artifact",        !u.uconduct.forgedarti);
     add_achieveX(buf, "never_acquired_magic_resistance", !u.uconduct.antimagic);
     add_achieveX(buf, "never_acquired_reflection",       !u.uconduct.reflection);
@@ -596,7 +596,7 @@ encodeconduct()
         e |= 1L << 18;
     if (u.umortality == 0)
         e |= 1L << 19;
-    if (u.ualign.abuse == 0)
+    if (!u.ever_abused)
         e |= 1L << 20;
     if (!u.uconduct.forgedarti)
         e |= 1L << 21;

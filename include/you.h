@@ -414,6 +414,7 @@ struct you {
                    atemp,       /* used for temporary loss/gain */
                    atime;       /* used for loss/gain countdown */
     align ualign;               /* character alignment */
+    boolean ever_abused;        /* ever abused alignment (for conduct) */
 #define CONVERT    2
 #define A_ORIGINAL 1
 #define A_CURRENT  0
