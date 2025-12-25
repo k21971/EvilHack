@@ -3506,7 +3506,18 @@ boolean creation;
     boolean putitems = FALSE;
     char buf[BUFSZ];
     struct obj *obj, *nobj, *bag = (struct obj *) 0;
-    struct obj *wep = bag, *hwep = bag, *rwep = bag, *proj = bag;
+    struct obj *wep = (struct obj *) 0, *hwep = (struct obj *) 0;
+    struct obj *rwep = (struct obj *) 0, *proj = (struct obj *) 0;
+
+    /* Hard to use a bag without hands */
+    if (nohands(mon->data))
+        return 0;
+
+    /* Hostile monsters won't stop to stash items when player
+       is nearby */
+    if (!creation && !mon->mpeaceful
+        && dist2(mon->mx, mon->my, u.ux, u.uy) <= 8)
+        return 0;
 
     for (obj = mon->minvent; obj; obj = obj->nobj) {
         if (!Is_nonprize_container(obj)
@@ -3523,11 +3534,8 @@ boolean creation;
                 && (bag->otyp != OILSKIN_SACK
                     && bag->otyp != SACK))) {
             bag = obj;
-	}
+        }
     }
-
-    if (nohands(mon->data))
-        return 0;
 
     if (!bag && !creation)
         return 0;
@@ -3536,10 +3544,10 @@ boolean creation;
         Sprintf(buf, "%s %s", mhis(mon), xname(bag));
 
     if (attacktype(mon->data, AT_WEAP)) {
-	wep = MON_WEP(mon);
-        hwep = attacktype(mon->data, AT_WEAP) ? select_hwep(mon) : (struct obj *) 0,
-	proj = attacktype(mon->data, AT_WEAP) ? select_rwep(mon) : (struct obj *) 0,
-	rwep = attacktype(mon->data, AT_WEAP) ? propellor : (struct obj *) &zeroobj;
+        wep = MON_WEP(mon);
+        hwep = select_hwep(mon);
+        proj = select_rwep(mon);
+        rwep = propellor;
     }
 
     for (obj = mon->minvent; obj; obj = nobj) {
@@ -3578,10 +3586,7 @@ boolean creation;
             && !obj->invlet)
             continue;
 
-	if (!bag && !creation)
-            continue;
-
-	if (creation) {
+        if (creation) {
             /* exception: balrogs are generated with two weapons */
             if (mon->data == &mons[PM_BALROG]
                 && obj->otyp == BULLWHIP)

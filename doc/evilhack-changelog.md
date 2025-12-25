@@ -4837,4 +4837,6 @@ The following changes to date are:
 - Develop an alternate quest for Dark (chaotic) Knight, round four
 - Fix: special handling when wishing for the Magic Mirror of Merlin and
   which owner shows up
+- Prevent hostile monsters from stashing their inventory into a carried
+  container when the player is nearby
 
