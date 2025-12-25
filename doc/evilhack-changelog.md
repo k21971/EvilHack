@@ -4839,4 +4839,6 @@ The following changes to date are:
   which owner shows up
 - Prevent hostile monsters from stashing their inventory into a carried
   container when the player is nearby
+- Prevent players from receiving the Red Horse as a guardian on Astral
+  if their alignment has been severely abused or worse
 

@@ -1763,7 +1763,8 @@ gain_guardian_steed()
 
     Hear_again(); /* attempt to cure any deafness now (divine
                      message will be heard even if that fails) */
-    if (u.ualign.record > 8) { /* fervent */
+    if ((u.ualign.record > 8) && ((u.ualign.abuse * -1) < 30)) {
+        /* fervent and have not severely abused alignment */
         pline("A voice whispers:");
         /* Neither Centaurs, Giants, nor Tortles can ride horses. Awww... */
         verbalize(
