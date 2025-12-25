@@ -971,6 +971,20 @@ struct monst *priest;
         return;
     } else {
         long offer;
+        int abuse_val = (u.ualign.abuse * -1);
+        boolean dominated = (abuse_val >= 50); /* gravely abused */
+        int t1 = 200, t2 = 400, t3 = 600;      /* base thresholds */
+
+        /* alignment abuse increases priest service costs */
+        if (abuse_val >= 30) {
+            t1 = 400; t2 = 800; t3 = 1200; /* 2.0x */
+        } else if (abuse_val >= 15) {
+            t1 = 350; t2 = 700; t3 = 1050; /* 1.75x */
+        } else if (abuse_val >= 5) {
+            t1 = 300; t2 = 600; t3 = 900;  /* 1.5x */
+        } else if (abuse_val >= 1) {
+            t1 = 250; t2 = 500; t3 = 750;  /* 1.25x */
+        }
 
         pline("%s asks you for a contribution for the temple.",
               Monnam(priest));
@@ -980,7 +994,7 @@ struct monst *priest;
                 adjalign(-1);
                 record_abuse_event(-1, ABUSE_REFUSE_TITHE);
             }
-        } else if (offer < (u.ulevel * 200)) {
+        } else if (offer < (u.ulevel * t1)) {
             if (money_cnt(invent) > (offer * 2L)) {
                 verbalize("Cheapskate.");
             } else {
@@ -988,7 +1002,7 @@ struct monst *priest;
                 /* give player some token */
                 exercise(A_WIS, TRUE);
             }
-        } else if (offer < (u.ulevel * 400)) {
+        } else if (offer < (u.ulevel * t2)) {
             verbalize("Thou art indeed a pious individual.");
             if (money_cnt(invent) < (offer * 2L)) {
                 if (coaligned && u.ualign.record <= ALGN_SINNED)
@@ -996,7 +1010,8 @@ struct monst *priest;
                 verbalize("I bestow upon thee a blessing.");
                 incr_itimeout(&HClairvoyant, rn1(500, 500));
             }
-        } else if (offer < (u.ulevel * 600)
+        } else if (offer < (u.ulevel * t3)
+                   && !dominated
                    /* u.ublessed is only active when Protection is
                       enabled via something other than worn gear
                       (theft by gremlin clears the intrinsic but not
@@ -1011,6 +1026,10 @@ struct monst *priest;
                     u.ublessed = rn1(3, 2);
             } else
                 u.ublessed++;
+        } else if (offer < (u.ulevel * t3) && dominated) {
+            /* gravely abused - take gold but refuse protection */
+            verbalize("Thy transgressions are too grave.  "
+                      "No protection can I offer thee.");
         } else {
             verbalize("Thy selfless generosity is deeply appreciated.");
             if (money_cnt(invent) < (offer * 2L) && coaligned) {

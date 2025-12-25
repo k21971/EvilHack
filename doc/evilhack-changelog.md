@@ -4841,4 +4841,6 @@ The following changes to date are:
   container when the player is nearby
 - Prevent players from receiving the Red Horse as a guardian on Astral
   if their alignment has been severely abused or worse
+- Alignment abuse has a bearing on how much gold temple priests require
+  for their blessings
 
