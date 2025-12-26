@@ -4847,4 +4847,5 @@ The following changes to date are:
 - Track alignment abuse permanently for conduct purposes
 - Track atonement in alignment event history
 - Fix: add missing wizmode commands to menu showing all wizmode options
+- Fix: various issues with crafted trap system
 

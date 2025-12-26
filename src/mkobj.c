@@ -1703,7 +1703,6 @@ boolean fix; /* TRUE = proof it, FALSE = unproof it */
     return otmp->oerodeproof;
 }
 
-
 /* Relative weights of different materials.
  * This used to be an attempt at making them super realistic, with densities in
  * terms of their kg/m^3 and as close to real life as possible, but that just
@@ -3603,8 +3602,8 @@ static const struct icp flute_materials[] = {
     { 20, GOLD}
 };
 
-/* hacks for specific objects... not great because it's a lot of data, but it's
-   a relatively clean solution */
+/* hacks for specific objects... not great because it's a lot of data,
+   but it's a relatively clean solution */
 static const struct icp elven_helm_boots_materials[] = {
     {900, LEATHER},
     { 90, CLOTH},
@@ -3702,8 +3701,28 @@ static const struct icp barding_materials[] = {
     { 10, DRAGON_HIDE}
 };
 
-/* Return the appropriate above list for a given object, or NULL if there isn't
- * an appropriate list. */
+/* crafted traps material types - all 0 probability since traps
+   inherit material from ammo used to craft them, not random,
+   nor do unset traps spawn randomly */
+static const struct icp crafted_ammo_trap_materials[] = {
+    {   0, IRON},
+    {   0, STEEL},
+    {   0, BRONZE},
+    {   0, BONE},
+    {   0, WOOD},
+    {   0, SILVER},
+    {   0, COPPER},
+    {   0, MITHRIL},
+    {   0, GOLD},
+    {   0, GLASS},
+    {   0, MINERAL},
+    {   0, PLATINUM},
+    {   0, ADAMANTINE},
+    {1000, 0}  /* terminator - exhausts loop counter */
+};
+
+/* Return the appropriate above list for a given object, or NULL if
+   there isn't an appropriate list */
 const struct icp*
 material_list(obj)
 struct obj* obj;
@@ -3711,13 +3730,13 @@ struct obj* obj;
     unsigned short otyp = obj->otyp;
     int default_material = objects[otyp].oc_material;
 
-    /* Cases for specific object types. */
+    /* Cases for specific object types */
     switch (otyp) {
     /* Special exceptions to the whole randomized materials system - where
      * we ALWAYS want an object to use its base material regardless of
      * other cases in this function - go here.
      * Return NULL so that init_obj_material and valid_obj_material both
-     * work properly. */
+     * work properly */
     case BULLWHIP:
     case WORM_TOOTH:
     case CRYSKNIFE:
@@ -3760,7 +3779,7 @@ struct obj* obj;
     case AMULET_OF_YENDOR:
     case FAKE_AMULET_OF_YENDOR:
         return NULL;
-    /* Any other cases for specific object types go here. */
+    /* Any other cases for specific object types go here */
     case SHIELD_OF_REFLECTION:
     case BARDING_OF_REFLECTION:
     case SHIELD_OF_LIGHT:
@@ -3844,12 +3863,17 @@ struct obj* obj;
     case BARDING:
     case SPIKED_BARDING:
         return barding_materials;
+    case DART_TRAP:
+    case BOLT_TRAP:
+    case ARROW_TRAP:
+    case SPEAR_TRAP:
+        return crafted_ammo_trap_materials;
     default:
         break;
     }
 
-    /* Otherwise, select an appropriate list, or return NULL if no appropriate
-     * list exists. */
+    /* Otherwise, select an appropriate list, or return NULL if no
+       appropriate list exists */
     if (is_elven_obj(obj) && default_material != CLOTH)
         return elven_materials;
     else if (is_dwarvish_obj(obj) && default_material != CLOTH)
@@ -3934,16 +3958,16 @@ boolean by_you;
     return FALSE;
 }
 
-/* Initialize the material field of an object, possibly randomizing it from the
- * above lists. */
+/* Initialize the material field of an object, possibly randomizing it
+   from the above lists */
 void
 init_obj_material(obj)
 struct obj* obj;
 {
     const struct icp* materials = material_list(obj);
 
-    /* always set the material to its base, this is the default for objects
-     * which do not have a list */
+    /* always set the material to its base, this is the default for
+       objects which do not have a list */
     set_material(obj, objects[obj->otyp].oc_material);
 
     if (materials) {
@@ -3971,7 +3995,7 @@ struct obj* obj;
  * tool. This avoids having to create new lists for those specific items which
  * are basically the same as the regular list but excluding one or two
  * materials.
- * This should be treated as subsidiary to valid_obj_material. */
+ * This should be treated as subsidiary to valid_obj_material */
 static boolean
 invalid_obj_material(obj, mat)
 struct obj* obj;
@@ -3999,7 +4023,7 @@ int mat;
 }
 
 /* Return TRUE if mat is a valid material for a given object of obj's type
- * (whether a random object of this type could generate as that material). */
+ * (whether a random object of this type could generate as that material) */
 boolean
 valid_obj_material(obj, mat)
 struct obj* obj;
@@ -4010,8 +4034,8 @@ int mat;
         return TRUE;
     }
 
-    /* if it is what it's defined as in objects.c, always valid, don't bother
-     * with lists */
+    /* if it is what it's defined as in objects.c, always valid, don't
+       bother with lists */
     if (objects[obj->otyp].oc_material == mat) {
         return TRUE;
     } else {
@@ -4035,9 +4059,8 @@ int mat;
 }
 
 /* Change the object's material, and any properties derived from it.
- * This includes weight, and erosion/erodeproofing (i.e. materials which
- * can't corrode will not be generated corroded or corrode-proofed).
- */
+   This includes weight, and erosion/erodeproofing (i.e. materials which
+   can't corrode will not be generated corroded or corrode-proofed) */
 void
 set_material(otmp, material)
 struct obj* otmp;
@@ -4057,7 +4080,7 @@ int material;
     otmp->material = material;
     otmp->owt = weight(otmp);
 
-    /* oeroded bits are overloaded for e.g. potions. don't mess with them. */
+    /* oeroded bits are overloaded for e.g. potions. don't mess with them */
     if (!erosion_matters(otmp))
         return;
 

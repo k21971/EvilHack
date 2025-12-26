@@ -2941,13 +2941,16 @@ const struct trap_recipe trap_fusions[] = {
     { ARROW_TRAP, ARROW, 10L },
     { ARROW_TRAP, ELVEN_ARROW, 10L },
     { ARROW_TRAP, ORCISH_ARROW, 10L },
+    { ARROW_TRAP, DARK_ELVEN_ARROW, 10L },
     { ARROW_TRAP, YA, 10L },
     { BOLT_TRAP, CROSSBOW_BOLT, 10L },
+    { BOLT_TRAP, DARK_ELVEN_CROSSBOW_BOLT, 10L },
     { DART_TRAP, DART, 10L },
     { SPEAR_TRAP, SPEAR, 1L },
     { SPEAR_TRAP, ELVEN_SPEAR, 1L },
     { SPEAR_TRAP, ORCISH_SPEAR, 1L },
     { SPEAR_TRAP, DWARVISH_SPEAR, 1L },
+    { SPEAR_TRAP, DARK_ELVEN_SPEAR, 1L },
     { BEARTRAP, GRAPPLING_HOOK, 1L },
     { LAND_MINE, SLING_BULLET, 10L },
     { SLEEPING_GAS_TRAP, WAN_SLEEP, 1L },
@@ -3051,7 +3054,6 @@ struct obj *obj; /* actual trap kit */
             || output->otyp == ICE_TRAP
             || output->otyp == TELEPORTATION_TRAP
             || output->otyp == ANTI_MAGIC_TRAP
-            || output->otyp == POLYMORPH_TRAP
             || output->otyp == MAGIC_BEAM_TRAP) {
             if (otmp->spe < 6) {
                 Your("component does not have enough charges.");
@@ -3089,6 +3091,13 @@ struct obj *obj; /* actual trap kit */
         output->otainted = 0;
         output->greased = 0;
         output->forged_qual = FQ_NORMAL;
+
+        /* for ammo-based traps, store the original ammo type
+           so we can restore it when the trap is set */
+        if (output->otyp == ARROW_TRAP || output->otyp == BOLT_TRAP
+            || output->otyp == DART_TRAP || output->otyp == SPEAR_TRAP) {
+            output->trap_ammo_typ = recipe->comp;
+        }
 
         /* toss out old objects, add new one */
         if (otmp->otyp == recipe->comp)
@@ -3292,28 +3301,33 @@ set_trap()
             otmp = splitobj(otmp, 1);
         }
         if (ttmp->ttyp == ARROW_TRAP_SET) {
-            otmp->otyp = ARROW;
+            /* use stored ammo type, fallback to base if not set */
+            otmp->otyp = otmp->trap_ammo_typ ? otmp->trap_ammo_typ : ARROW;
+            ttmp->launch_otyp = otmp->otyp;
             otmp->quan = 10L;
             otmp->spe = enchant;
             otmp->oprops = prop;
             set_material(otmp, mat);
             otmp->owt = weight(otmp);
         } else if (ttmp->ttyp == BOLT_TRAP_SET) {
-            otmp->otyp = CROSSBOW_BOLT;
+            otmp->otyp = otmp->trap_ammo_typ ? otmp->trap_ammo_typ : CROSSBOW_BOLT;
+            ttmp->launch_otyp = otmp->otyp;
             otmp->quan = 10L;
             otmp->spe = enchant;
             otmp->oprops = prop;
             set_material(otmp, mat);
             otmp->owt = weight(otmp);
         } else if (ttmp->ttyp == DART_TRAP_SET) {
-            otmp->otyp = DART;
+            otmp->otyp = otmp->trap_ammo_typ ? otmp->trap_ammo_typ : DART;
+            ttmp->launch_otyp = otmp->otyp;
             otmp->quan = 10L;
             otmp->spe = enchant;
             otmp->oprops = prop;
             set_material(otmp, mat);
             otmp->owt = weight(otmp);
         } else if (ttmp->ttyp == SPEAR_TRAP_SET) {
-            otmp->otyp = SPEAR;
+            otmp->otyp = otmp->trap_ammo_typ ? otmp->trap_ammo_typ : SPEAR;
+            ttmp->launch_otyp = otmp->otyp;
             otmp->quan = 1L;
             otmp->spe = enchant;
             otmp->oprops = prop;

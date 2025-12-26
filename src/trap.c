@@ -3131,13 +3131,13 @@ struct monst *mtmp;
                 if (rn2(4)) {
                     int magic_dmg = rnd(10);
                     int mtx = trap->tx, mty = trap->ty;
+                    boolean madeby_player = trap->madeby_u;
 
                     deltrap(trap);
                     if (in_sight)
                         pline("%s is caught in a magical explosion!",
                               Monnam(mtmp));
-                    damage_mon(mtmp, magic_dmg, AD_MAGM,
-                               trap->madeby_u ? TRUE : FALSE);
+                    damage_mon(mtmp, magic_dmg, AD_MAGM, madeby_player);
                     if (DEADMONSTER(mtmp))
                         monkilled(mtmp,
                                   in_sight

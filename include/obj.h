@@ -135,6 +135,7 @@ struct obj {
 #define FQ_INFERIOR 1       /* forged obj quality is inferior */
 #define FQ_SUPERIOR 2       /* forged obj quality is superior */
 #define FQ_EXCEPTIONAL 3    /* forged obj quality is exceptional */
+    short trap_ammo_typ;    /* crafted traps: preserve original ammo otyp */
     int spestudied;         /* tally # of times a spellbook has been studied */
     int newwarncnt;         /* tally how many monsters a glow warning artifact is currently warning of */
     unsigned oeaten;        /* nutrition left in food, if partly eaten */
