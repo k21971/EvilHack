@@ -71,7 +71,6 @@ verbose        print more commentary during the game              [TRUE]
 whatis_menu    show menu when getting a map location              [FALSE]
 whatis_moveskip skip same glyphs when getting a map location      [FALSE]
 
-
 There are further boolean options controlled by compilation flags.
 
 Boolean option if INSURANCE was set at compile time:
@@ -113,7 +112,6 @@ Boolean option if TTY_TILES_ESCCODES was set at compile time (tty only):
 vt_tiledata    insert extra data escape code markers into output  [FALSE]
 
 Any Boolean option can be negated by prefixing it with a '!' or 'no'.
-
 
 Compound options are written as option_name:option_value.
 
@@ -169,6 +167,7 @@ paranoid_confirmation  space separated list    [paranoid_confirmation:pray]
               pray    -- y to confirm an attempt to pray; on by default
               Remove  -- always pick from inventory for 'R' and 'T' even when
                       wearing just one applicable item to remove or take off
+              swim    -- yes vs y to confirm walking into water or lava
 pickup_burden when you pick up an item that exceeds this encumbrance    [S]
               level (Unencumbered, Burdened, streSsed, straiNed, overTaxed,
               or overLoaded), you will be asked if you want to continue.
@@ -298,7 +297,6 @@ msg_window the type of message window to use:                      [single]
            full        -- Full window with all saved top line messages
            reverse     -- Same as full, but messages printed most-recent-first
            combination -- Two single messages, then as full
-
 
 Some sample options lists are:
 !autopickup,!tombstone,name:Gandalf,scores:own/3 top/2 around
