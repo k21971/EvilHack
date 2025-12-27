@@ -4851,4 +4851,6 @@ The following changes to date are:
 - Fix: add 'swim' to the list of paranoid options in dat/opthelp
 - Unique monsters cannot be instakilled via engulf/digestion attack
 - Fix: artifact_hit() code quality and monster experience gain
+- Odds of instakill disintegration vs unique monsters hit by the Sword
+  of Annihilation increased
 

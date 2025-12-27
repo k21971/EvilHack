@@ -2482,7 +2482,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         resistant = youdefend ? how_resistant(DISINT_RES) >= 50
                               : (resists_disint(mdef)
                                  || defended(mdef, AD_DISN));
-        if (!rn2(12) && !resistant) {
+        if (!resistant
+            && !rn2((!youdefend && (mdef->data->geno & G_UNIQ)) ? 100 : 12)) {
             /* instant disintegration */
             if (!DEADMONSTER(mdef)) {
                 if (show_instakill)
