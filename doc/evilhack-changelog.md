@@ -4857,4 +4857,5 @@ The following changes to date are:
 - More enhanced livelogging of unique monsters
 - Fix: regression from commit 0bc298b (Unique monsters cannot be
   instakilled via engulf/digestion attack)
+- Fix: enhanced livelogging output
 
