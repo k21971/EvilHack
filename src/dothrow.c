@@ -1059,12 +1059,26 @@ int dx, dy, range;
     coord mc, cc;
 
     wakeup(mon, !context.mon_moving);
-    /* At the very least, debilitate the monster */
-    mon->movement = 0;
-    if (!(resists_stun(mon->data) || defended(mon, AD_STUN)
-          || (MON_WEP(mon)
-              && MON_WEP(mon)->oartifact == ART_TEMPEST)))
-        mon->mstun = 1;
+    /* At the very least, debilitate the monster.
+       Unique monsters resist stun most of the time and only lose one
+       action instead of all accumulated movement, preventing indefinite
+       stun-locking via jousting */
+    if (unique_corpstat(mon->data)) {
+        mon->movement -= NORMAL_SPEED;
+        if (mon->movement < 0)
+            mon->movement = 0;
+        if (!rn2(5)
+            && !(resists_stun(mon->data) || defended(mon, AD_STUN)
+                 || (MON_WEP(mon)
+                     && MON_WEP(mon)->oartifact == ART_TEMPEST)))
+            mon->mstun = 1;
+    } else {
+        mon->movement = 0;
+        if (!(resists_stun(mon->data) || defended(mon, AD_STUN)
+              || (MON_WEP(mon)
+                  && MON_WEP(mon)->oartifact == ART_TEMPEST)))
+            mon->mstun = 1;
+    }
 
     /* Is the monster stuck or too heavy to push?
      * (very large monsters have too much inertia, even floaters and flyers)

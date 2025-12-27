@@ -4861,4 +4861,5 @@ The following changes to date are:
 - Fix: polymon() now handles light sources internally
 - Fix: NULL pointer checks for get_mon_rider()
 - Honey badgers prioritize royal jelly over the player
+- Unique monsters resist stun-locking from knockback
 
