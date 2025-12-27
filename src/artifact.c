@@ -1897,7 +1897,15 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     static const char you[] = "you";
     char hittee[BUFSZ];
     struct artifact *atmp;
+    struct obj *target;
     int j, k, l, permdmg = 0;
+    int hurtle_distance;
+    boolean def_underwater;
+    boolean angel;
+    boolean giant;
+    boolean elf, drow, no_sick;
+    boolean resistant;
+    boolean no_burn, no_freeze;
 
     Strcpy(hittee, youdefend ? you : mon_nam(mdef));
 
@@ -1919,7 +1927,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
      * smaller targets. Knockback rate is set here as well in rn2(rate).
      * Knockback will not trigger if Ogresmasher is cursed.
      */
-    int hurtle_distance = 0;
+    hurtle_distance = 0;
 
     if (otmp->oartifact == ART_OGRESMASHER && !otmp->cursed
         && mdef->data->msize < MZ_LARGE && !rn2(5))
@@ -1934,7 +1942,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                        /* feel the effect even if not seen */
                        || (youattack && mdef == u.ustuck));
 
-    boolean def_underwater = youdefend ? Underwater : mon_underwater(mdef);
+    def_underwater = youdefend ? Underwater : mon_underwater(mdef);
 
     /* the four basic attacks: fire, cold, shock and missiles */
     if (attacks(AD_FIRE, otmp)) {
@@ -2031,8 +2039,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             }
         }
 
-        boolean angel = youdefend ? is_angel(youmonst.data)
-                                  : is_angel(mdef->data);
+        angel = youdefend ? is_angel(youmonst.data)
+                         : is_angel(mdef->data);
 
         if (otmp->oartifact == ART_ANGELSLAYER && !rn2(10) && angel) {
             if (youdefend) {
@@ -2335,9 +2343,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 
         /* Harbinger inherits Giantslayer's chance to instakill
            giants with a single blow */
-        boolean giant = youdefend ? maybe_polyd(is_giant(youmonst.data),
-                                                Race_if(PM_GIANT))
-                                  : racial_giant(mdef);
+        giant = youdefend ? maybe_polyd(is_giant(youmonst.data),
+                                        Race_if(PM_GIANT))
+                          : racial_giant(mdef);
 
         if (!rn2(10) && giant && otmp->oartifact == ART_HARBINGER) {
             if (!DEADMONSTER(mdef)) {
@@ -2398,15 +2406,15 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     }
     /* Seventh basic attack - disease */
     if (attacks(AD_DISE, otmp)) {
-        boolean elf = youdefend ? maybe_polyd(is_elf(youmonst.data),
-                                              Race_if(PM_ELF))
-                                : racial_elf(mdef);
-        boolean drow = youdefend ? maybe_polyd(is_drow(youmonst.data),
-                                               Race_if(PM_DROW))
-                                 : racial_drow(mdef);
-        boolean no_sick = youdefend ? Sick_resistance
-                                    : (resists_sick(mdef)
-                                       || defended(mdef, AD_DISE));
+        elf = youdefend ? maybe_polyd(is_elf(youmonst.data),
+                                      Race_if(PM_ELF))
+                        : racial_elf(mdef);
+        drow = youdefend ? maybe_polyd(is_drow(youmonst.data),
+                                       Race_if(PM_DROW))
+                         : racial_drow(mdef);
+        no_sick = youdefend ? Sick_resistance
+                            : (resists_sick(mdef)
+                               || defended(mdef, AD_DISE));
         if (youattack) {
             if (Role_if(PM_SAMURAI)) {
                 You("dishonorably use a diseased weapon!");
@@ -2471,9 +2479,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     }
     /* Eighth basic attack - disintegration */
     if (attacks(AD_DISN, otmp)) {
-        boolean resistant = youdefend ? how_resistant(DISINT_RES) >= 50
-                                      : (resists_disint(mdef)
-                                         || defended(mdef, AD_DISN));
+        resistant = youdefend ? how_resistant(DISINT_RES) >= 50
+                              : (resists_disint(mdef)
+                                 || defended(mdef, AD_DISN));
         if (!rn2(12) && !resistant) {
             /* instant disintegration */
             if (!DEADMONSTER(mdef)) {
@@ -2527,7 +2535,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         }
 
         /* maybe disintegrate some armor */
-        struct obj *target = (struct obj *) 0;
+        target = (struct obj *) 0;
 
         if (youdefend) { /* hero's armor is targeted */
             if (uarms && !rn2(3)) {
@@ -2578,13 +2586,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     }
     /* Ninth basic attack, combines fire and cold together */
     if (attacks(AD_FUSE, otmp)) {
-        boolean no_burn = youdefend ? (Fire_resistance || Underwater)
-                                    : (resists_fire(mdef)
-                                       || defended(mdef, AD_FIRE)
-                                       || mon_underwater(mdef));
-        boolean no_freeze = youdefend ? Cold_resistance
-                                      : (resists_cold(mdef)
-                                         || defended(mdef, AD_COLD));
+        no_burn = youdefend ? (Fire_resistance || Underwater)
+                            : (resists_fire(mdef)
+                               || defended(mdef, AD_FIRE)
+                               || mon_underwater(mdef));
+        no_freeze = youdefend ? Cold_resistance
+                              : (resists_cold(mdef)
+                                 || defended(mdef, AD_COLD));
         if (realizes_damage) {
             if (no_freeze) {
                 pline_The("scintillating blade %s %s%c",
@@ -2680,11 +2688,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     }
 
     if (attacks(AD_STUN, otmp) && dieroll <= MB_MAX_DIEROLL) {
-        if (dieroll <= MB_MAX_DIEROLL)
-            /* Magicbane's special attacks (possibly modifies hittee[]) */
-            return Mb_hit(magr, mdef, otmp, dmgptr, dieroll, vis, hittee);
-        else
-            return FALSE;
+        /* Magicbane's special attacks (possibly modifies hittee[]) */
+        return Mb_hit(magr, mdef, otmp, dmgptr, dieroll, vis, hittee);
     }
 
     if (!spec_dbon_applies && !hurtle_distance) {
@@ -2803,6 +2808,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (show_instakill)
                     pline("As %s strikes %s, it bursts into flame!",
                           mon_nam(magr), mon_nam(mdef));
+                if (magr)
+                    (void) grow_up(magr, mdef);
                 mongone(mdef);
             } else if (youdefend && is_troll(youmonst.data) && k) {
                 You("burst into flame as you are hit!");
@@ -2871,6 +2878,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (show_instakill)
                         pline("The consecrated blade flares brightly as it incinerates %s!",
                               mon_nam(mdef));
+                    if (magr)
+                        (void) grow_up(magr, mdef);
                     mongone(mdef);
                 }
             } else if (youdefend && l
@@ -2990,6 +2999,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (show_instakill)
                         pline("The divine hammer flares brightly as it incinerates %s!",
                               mon_nam(mdef));
+                    if (magr)
+                        (void) grow_up(magr, mdef);
                     mongone(mdef);
                 }
             } else if (youdefend && k
@@ -3156,7 +3167,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 else if (otmp->oartifact == ART_SHADOWBLADE)
                     pline_The("shadowy blade draws the %s from %s!",
                               life, mon_nam(mdef));
-                /* 'thristy' weapons currently are not allowed
+                /* 'thirsty' weapons currently are not allowed
                  * but we'll cover that base here just in case
                  * they're added someday */
                 else if (otmp->oclass == WEAPON_CLASS
