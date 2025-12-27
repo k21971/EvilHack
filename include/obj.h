@@ -560,7 +560,12 @@ struct obj {
 #define POTHIT_MONST_THROW 2 /* thrown by a monster */
 #define POTHIT_OTHER_THROW 3 /* propelled by some other means [scatter()] */
 
-/* object properties */
+/* Object properties - magical properties that can spawn on
+   weapons/armor. Stored in obj->oprops; knowledge tracked in
+   obj->oprops_known. For weapons: damage properties add elemental
+   damage to attacks. For armor: damage properties provide elemental
+   resistance when worn. See create_oprop() in artifact.c for spawning
+   restrictions */
 #define ITEM_FIRE      0x00000001L /* fire damage or resistance */
 #define ITEM_FROST     0x00000002L /* frost damage or resistance */
 #define ITEM_SHOCK     0x00000004L /* shock damage or resistance */
@@ -577,6 +582,9 @@ struct obj {
 #define ITEM_MAGICAL   0x80000000L /* known to have magical properties */
 
 #define ITEM_PROP_MASK 0x00000FFFL /* all current properties */
+/* damage properties are mutually exclusive - only one per item */
+#define ITEM_DMG_PROPS (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK \
+                        | ITEM_VENOM | ITEM_DRLI)
 #define MAX_ITEM_PROPS 12
 
 /*

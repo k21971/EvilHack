@@ -333,7 +333,41 @@ aligntyp alignment; /* target alignment, or A_NONE */
     return otmp;
 }
 
-/* Create an item with special properties, or grant the item those properties */
+/* Enforce mutual exclusivity of damage properties.
+   Only one of FIRE/FROST/SHOCK/VENOM/DRLI can exist on an item.
+   Priority order: FROST > FIRE > SHOCK > VENOM > DRLI */
+long
+enforce_oprops_mutex(props)
+long props;
+{
+    if (props & ITEM_FROST)
+        props &= ~(ITEM_DMG_PROPS & ~ITEM_FROST);
+    else if (props & ITEM_FIRE)
+        props &= ~(ITEM_DMG_PROPS & ~ITEM_FIRE);
+    else if (props & ITEM_SHOCK)
+        props &= ~(ITEM_DMG_PROPS & ~ITEM_SHOCK);
+    else if (props & ITEM_VENOM)
+        props &= ~(ITEM_DMG_PROPS & ~ITEM_VENOM);
+    else if (props & ITEM_DRLI)
+        props &= ~(ITEM_DMG_PROPS & ~ITEM_DRLI);
+    return props;
+}
+
+/* Create an item with special properties, or grant the item those
+ * properties.
+ *
+ * Object property restrictions:
+ * - Weapons/weptools: No DRLI (would be Stormbringer-like, overpowered),
+ *   no OILSKIN (doesn't make sense), no FUMBLING/HUNGER (handled
+ *   differently)
+ * - Launchers (bows): No damage properties (damage comes from ammo)
+ * - Ammo/missiles: No utility properties (too transient to matter)
+ * - Helmets: No ESP (helm of telepathy already exists)
+ * - Barding: Limited properties (practical considerations)
+ * - Non-cloth: No OILSKIN (oilskin is inherently cloth-based)
+ * - Damage properties (FIRE/FROST/SHOCK/VENOM/DRLI) are mutually
+ *   exclusive
+ */
 struct obj *
 create_oprop(obj, allow_detrimental)
 struct obj *obj;
@@ -434,11 +468,8 @@ boolean allow_detrimental;
                      | ITEM_FUMBLING | ITEM_HUNGER)))
             continue;
 
-        if ((otmp->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK
-                             | ITEM_VENOM | ITEM_DRLI))
-            && (j & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK
-                     | ITEM_VENOM | ITEM_DRLI)))
-            continue; /* these are mutually exclusive */
+        if ((otmp->oprops & ITEM_DMG_PROPS) && (j & ITEM_DMG_PROPS))
+            continue; /* damage properties are mutually exclusive */
 
         if (otmp->material != CLOTH
             && (j & ITEM_OILSKIN))
@@ -765,10 +796,8 @@ struct obj *otmp;
     if ((weap = get_artifact(otmp)) != 0)
         return (boolean) (weap->attk.adtyp == adtyp);
 
-    if (weap && adtyp == AD_DREN)
-        return TRUE;
-
-    if (!weap && otmp->oprops
+    /* weap is NULL here; check for object properties on weapons/armor */
+    if (otmp->oprops
         && (otmp->oclass == WEAPON_CLASS
             || is_weptool(otmp) || is_bullet(otmp)
             || (uarms && otmp == uarms)

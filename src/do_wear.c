@@ -266,6 +266,10 @@ long mask;
             ABON(which) -= otmp->spe;
         if (old_attrib != ACURR(which))
             otmp->oprops_known |= ITEM_EXCEL;
+        /* Temporarily clear ITEM_EXCEL so confers_luck() won't count
+           this item during set_moreluck() - owornmask is still set at
+           this point. Safe because set_moreluck() has no side effects
+           that read oprops */
         otmp->oprops &= ~ITEM_EXCEL;
         set_moreluck();
         otmp->oprops |= ITEM_EXCEL;

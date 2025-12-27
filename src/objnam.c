@@ -4150,7 +4150,7 @@ struct obj *no_wish;
                     objpropcount++;
                 } else if ((!strncmpi((p + of), "telepathy", l = 9)
                             && strncmpi(bp, "helm", l = 4))
-                           || !strncmpi((p + 4), "ESP", l = 3)) {
+                           || !strncmpi((p + of), "ESP", l = 3)) {
                     if (!objpropcount || wizard)
                         objprops |= ITEM_ESP;
                     objpropcount++;
@@ -5452,21 +5452,8 @@ struct obj *no_wish;
     if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
         || is_bullet(otmp) || is_barding(otmp)
         || otmp->oclass == ARMOR_CLASS) {
-        if (objprops & ITEM_FROST)
-            objprops &= ~(ITEM_FIRE | ITEM_DRLI
-                          | ITEM_SHOCK | ITEM_VENOM);
-        else if (objprops & ITEM_FIRE)
-            objprops &= ~(ITEM_FROST | ITEM_DRLI
-                          | ITEM_SHOCK | ITEM_VENOM);
-        else if (objprops & ITEM_DRLI)
-            objprops &= ~(ITEM_FIRE | ITEM_FROST
-                          | ITEM_SHOCK | ITEM_VENOM);
-        else if (objprops & ITEM_SHOCK)
-            objprops &= ~(ITEM_FIRE | ITEM_FROST
-                          | ITEM_DRLI | ITEM_VENOM);
-        else if (objprops & ITEM_VENOM)
-            objprops &= ~(ITEM_FIRE | ITEM_FROST
-                          | ITEM_DRLI | ITEM_SHOCK);
+        /* damage properties are mutually exclusive */
+        objprops = enforce_oprops_mutex(objprops);
 
         if (objects[otmp->otyp].oc_unique || otmp->oartifact
             || Is_dragon_armor(otmp))

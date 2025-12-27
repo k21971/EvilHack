@@ -69,6 +69,7 @@ E short FDECL(artifact_material, (int));
 E struct obj *FDECL(mk_particular_artifact, (int));
 E struct obj *FDECL(mk_artifact, (struct obj *, ALIGNTYP_P));
 E struct obj *FDECL(create_oprop, (struct obj *, BOOLEAN_P));
+E long FDECL(enforce_oprops_mutex, (long));
 E const char *FDECL(artifact_name, (const char *, short *));
 E int FDECL(name_to_arti, (const char *));
 E const struct artifact *FDECL(get_artilist_entry, (int));
