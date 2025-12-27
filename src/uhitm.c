@@ -3946,22 +3946,12 @@ struct attack *mattk;
                     done(DIED);
                     return 0; /* lifesaved */
                 }
-                /* unique monsters are too significant to be digested
-                   instantly; they take some digestive damage but are
-                   expelled */
+                /* unique monsters are too significant to be digested;
+                   expelled immediately with no damage, like slow digestion */
                 if (unique_corpstat(pd)) {
-                    dam = d((int) mattk->damn, (int) mattk->damd);
-                    if (dam < 1)
-                        dam = 1;
                     You("hurriedly regurgitate the indigestible %s.",
                         m_monnam(mdef));
-                    if (dam)
-                        mdef->mhp -= dam;
                     end_engulf();
-                    if (DEADMONSTER(mdef)) {
-                        /* unique died from digestive damage (was wounded) */
-                        xkilled(mdef, XKILL_GIVEMSG);
-                    }
                     return 2;
                 }
 

@@ -1454,18 +1454,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             && (sbarding->otyp == SPIKED_BARDING
                 || sbarding->otyp == RUNED_BARDING))
             return (MM_HIT | MM_EXPELLED);
-        /* unique monsters are too significant to be digested instantly;
-           they take some digestive damage but are expelled */
-        if (unique_corpstat(pd)) {
-            tmp = d((int) mattk->damn, (int) mattk->damd);
-            if (tmp < 1)
-                tmp = 1;
-            if (damage_mon(mdef, tmp, mattk->adtyp, FALSE)) {
-                /* unique died from digestive damage anyway (was wounded) */
-                return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
-            }
+        /* unique monsters are too significant to be digested;
+           expelled immediately with no damage, like slow digestion */
+        if (unique_corpstat(pd))
             return (MM_HIT | MM_EXPELLED);
-        }
         /* eating a Rider or its corpse is fatal */
         if (is_rider(pd)) {
             if (vis && canseemon(magr))

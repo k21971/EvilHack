@@ -4855,4 +4855,6 @@ The following changes to date are:
   of Annihilation increased
 - Enhanced livelogging of unique monsters
 - More enhanced livelogging of unique monsters
+- Fix: regression from commit 0bc298b (Unique monsters cannot be
+  instakilled via engulf/digestion attack)
 
