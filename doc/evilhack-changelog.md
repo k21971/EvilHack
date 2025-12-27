@@ -4858,4 +4858,5 @@ The following changes to date are:
 - Fix: regression from commit 0bc298b (Unique monsters cannot be
   instakilled via engulf/digestion attack)
 - Fix: enhanced livelogging output
+- Fix: polymon() now handles light sources internally
 

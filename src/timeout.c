@@ -432,13 +432,11 @@ struct kinfo *kptr;
      * Despite lack of Unchanging, neither done() nor savelife() calls
      * rehumanize() if hero dies while polymorphed.
      * polymon() undoes the slime countdown's mimick-green-slime hack
-     * but does not perform polyself()'s light source bookkeeping.
+     * polymon() now handles light source bookkeeping internally.
      * No longer need to manually increment uconduct.polyselfs to reflect
      * [formerly implicit] change of form; polymon() takes care of that.
      * Temporarily ungenocide if necessary.
      */
-    if (emits_light(youmonst.data))
-        del_light_source(LS_MONSTER, monst_to_any(&youmonst));
     save_mvflags = mvitals[PM_GREEN_SLIME].mvflags;
     mvitals[PM_GREEN_SLIME].mvflags = save_mvflags & ~G_GENOD;
     /* become a green slime; also resets youmonst.m_ap_type+.mappearance */

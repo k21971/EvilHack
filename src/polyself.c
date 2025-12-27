@@ -796,8 +796,11 @@ int psflags;
            sex_change_ok left disabled here */
         if (mntmp == PM_HUMAN)
             newman(); /* werecritter */
-        else
+        else {
             (void) polymon(mntmp);
+            /* polymon() now handles light sources internally */
+            old_light = emits_light(youmonst.data);
+        }
         goto made_change; /* maybe not, but this is right anyway */
     }
 
@@ -829,6 +832,9 @@ int psflags;
         newman();
     } else {
         (void) polymon(mntmp);
+        /* polymon() now handles light sources internally, so update
+           old_light to prevent duplicate handling at made_change */
+        old_light = emits_light(youmonst.data);
     }
     sex_change_ok--; /* reset */
 
@@ -964,8 +970,27 @@ int mntmp;
     else
         u.mtimedone = rn1(500, 500);
 
-    u.umonnum = mntmp;
-    set_uasmon();
+    /* Handle light source transition around form change.
+       Must be done here, not at end of function, because selftouch()
+       can trigger recursive polymon() calls. */
+    {
+        int old_light = emits_light(youmonst.data);
+        int new_light;
+
+        u.umonnum = mntmp;
+        set_uasmon();
+
+        new_light = emits_light(youmonst.data);
+        if (old_light != new_light) {
+            if (old_light)
+                del_light_source(LS_MONSTER, monst_to_any(&youmonst));
+            if (new_light == 1)
+                ++new_light; /* otherwise it's undetectable */
+            if (new_light)
+                new_light_source(u.ux, u.uy, new_light, LS_MONSTER,
+                                 monst_to_any(&youmonst));
+        }
+    }
 
     /* New stats for monster, to last only as long as polymorphed.
      * Currently only strength gets changed.
