@@ -4849,4 +4849,5 @@ The following changes to date are:
 - Fix: add missing wizmode commands to menu showing all wizmode options
 - Fix: various issues with crafted trap system
 - Fix: add 'swim' to the list of paranoid options in dat/opthelp
+- Unique monsters cannot be instakilled via engulf/digestion attack
 
