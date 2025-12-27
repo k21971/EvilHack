@@ -1504,6 +1504,31 @@ register int after;
         }
     }
 
+    /* Honey badgers prioritize royal jelly over the player */
+    if (ptr == &mons[PM_HONEY_BADGER] && !mtmp->mpeaceful) {
+        struct obj *otmp;
+        int best_dist = COLNO * ROWNO; /* large number */
+        int jx = 0, jy = 0;
+
+        /* Scan entire level for royal jelly */
+        for (otmp = fobj; otmp; otmp = otmp->nobj) {
+            if (is_royaljelly(otmp)) {
+                int d = dist2(omx, omy, otmp->ox, otmp->oy);
+                if (d < best_dist) {
+                    best_dist = d;
+                    jx = otmp->ox;
+                    jy = otmp->oy;
+                }
+            }
+        }
+        /* If royal jelly found, override player-seeking goal */
+        if (jx && jy) {
+            gx = jx;
+            gy = jy;
+        }
+        /* Otherwise fall through to normal player-seeking */
+    }
+
     if ((!mtmp->mpeaceful || !rn2(10)) && (!Is_rogue_level(&u.uz))) {
         boolean in_line = (lined_up(mtmp)
                && (distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy)

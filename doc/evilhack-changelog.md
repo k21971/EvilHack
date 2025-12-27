@@ -4860,4 +4860,5 @@ The following changes to date are:
 - Fix: enhanced livelogging output
 - Fix: polymon() now handles light sources internally
 - Fix: NULL pointer checks for get_mon_rider()
+- Honey badgers prioritize royal jelly over the player
 
