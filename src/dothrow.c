@@ -1085,10 +1085,14 @@ int dx, dy, range;
         separate_steed_and_rider(mon);
     /* Is the monster being ridden? */
     } else if (mon->ridden_by) {
-        if (canseemon(mon))
-            pline("%s is knocked out from under %s rider!",
-                  Monnam(mon), mhis(mon));
-        separate_steed_and_rider(get_mon_rider(mon));
+        struct monst *rider = get_mon_rider(mon);
+
+        if (rider) {
+            if (canseemon(mon))
+                pline("%s is knocked out from under %s rider!",
+                      Monnam(mon), mhis(mon));
+            separate_steed_and_rider(rider);
+        }
     }
 
     /* Make sure dx and dy are [-1,0,1] */

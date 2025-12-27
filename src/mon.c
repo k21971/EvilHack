@@ -6500,11 +6500,17 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
     }
     if (mtmp->ridden_by && !mon_can_be_ridden(mtmp) && mtmp != u.usteed) {
         struct monst *rider = get_mon_rider(mtmp);
-        if (canseemon(rider)) {
-            pline("%s falls from %s mount as %s transforms!", Monnam(rider),
-                  mhis(rider), oldmhe);
+
+        if (rider) {
+            if (canseemon(rider)) {
+                pline("%s falls from %s mount as %s transforms!",
+                      Monnam(rider), mhis(rider), oldmhe);
+            }
+            separate_steed_and_rider(rider);
+        } else {
+            /* rider gone, clear stale flag */
+            mtmp->ridden_by = 0;
         }
-        separate_steed_and_rider(rider);
     }
 
     /* clear mundetected if polymorphing monster is stuck to the player,

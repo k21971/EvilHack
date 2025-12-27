@@ -1483,7 +1483,11 @@ boolean suppress_impossible;
     if (mtmp->ridden_by) {
         /* teleport rider along with steed */
         struct monst *rider = get_mon_rider(mtmp);
-        return rloc(rider, suppress_impossible);
+
+        if (rider)
+            return rloc(rider, suppress_impossible);
+        /* rider gone, clear stale flag and continue with steed teleport */
+        mtmp->ridden_by = 0;
     }
 
     if (mtmp->iswiz && mtmp->mx) { /* Wizard, not just arriving */

@@ -4859,4 +4859,5 @@ The following changes to date are:
   instakilled via engulf/digestion attack)
 - Fix: enhanced livelogging output
 - Fix: polymon() now handles light sources internally
+- Fix: NULL pointer checks for get_mon_rider()
 
