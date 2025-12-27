@@ -4854,4 +4854,5 @@ The following changes to date are:
 - Odds of instakill disintegration vs unique monsters hit by the Sword
   of Annihilation increased
 - Enhanced livelogging of unique monsters
+- More enhanced livelogging of unique monsters
 
