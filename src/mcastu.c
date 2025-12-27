@@ -960,8 +960,11 @@ int dmg, spellnum;
                 target->mhp = -1;
                 if (yours)
                     killed(target);
-                else
+                else {
+                    if (caster->mtame)
+                        set_pet_killer(caster);
                     monkilled(target, "", AD_SPEL);
+                }
                 return;
             } else {
                 shieldeff(target->mx, target->my);
@@ -1205,8 +1208,11 @@ int dmg, spellnum;
                 if ((target->mhp -= dmg) <= 0) {
                     if (yours)
                         killed(target);
-                    else
+                    else {
+                        if (caster->mtame)
+                            set_pet_killer(caster);
                         monkilled(target, "", AD_SPEL);
+                    }
                     return;
                 }
             }
@@ -1395,8 +1401,11 @@ int dmg, spellnum;
             if (DEADMONSTER(target)) {
                 if (yours)
                     killed(target);
-                else
+                else {
+                    if (caster->mtame)
+                        set_pet_killer(caster);
                     monkilled(target, "", AD_SPEL);
+                }
             }
         }
     }
@@ -2053,8 +2062,11 @@ int dmg, spellnum;
             if (DEADMONSTER(target)) {
                 if (yours)
                     killed(target);
-                else
+                else {
+                    if (caster->mtame)
+                        set_pet_killer(caster);
                     monkilled(target, "", AD_CLRC);
+                }
             }
         }
     }
@@ -2739,8 +2751,11 @@ struct attack *mattk;
 
     if (dmg) {
         mdef->mhp -= dmg;
-        if (DEADMONSTER(mdef))
+        if (DEADMONSTER(mdef)) {
+            if (mtmp->mtame)
+                set_pet_killer(mtmp);
             monkilled(mdef, "", mattk->adtyp);
+        }
     }
 
     return (ret);

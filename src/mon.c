@@ -12,7 +12,16 @@
 #include "mfndpos.h"
 #include <ctype.h>
 
-STATIC_VAR boolean rise_msg, disintegested;
+STATIC_VAR boolean rise_msg, disintegested, player_killed;
+STATIC_VAR struct monst *pet_killer; /* pet that killed monster, for livelog */
+
+/* Set the pet responsible for a kill (call before monkilled) */
+void
+set_pet_killer(mtmp)
+struct monst *mtmp;
+{
+    pet_killer = mtmp;
+}
 
 STATIC_DCL void FDECL(sanity_check_single_mon, (struct monst *, BOOLEAN_P,
                                                 const char *));
@@ -4138,37 +4147,89 @@ struct monst *mtmp;
     /* Medusa, Cerberus, Vecna, and Lucifer fall into two livelog
      * categories, we log one message flagged for both categories,
      * but only for the first kill. Subsequent kills are not an
-     * achievement.
-     */
+     * achievement. Achievement flags are always set for game state,
+     * but livelogs only written if player or their pet caused the kill */
     if (mtmp->data == &mons[PM_MEDUSA] && !u.uachieve.killed_medusa) {
         u.uachieve.killed_medusa = 1;
-        livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Medusa");
+        if (player_killed) {
+            if (pet_killer && pet_killer->mtame)
+                livelog_printf(LL_ACHIEVE | LL_UMONST, "%s's pet %s killed Medusa",
+                               plname, pet_killer->data->mname);
+            else
+                livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Medusa");
+        }
     } else if (mtmp->iscerberus && !u.uachieve.killed_cerberus) {
         u.uachieve.killed_cerberus = 1;
-        livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Cerberus");
+        if (player_killed) {
+            if (pet_killer && pet_killer->mtame)
+                livelog_printf(LL_ACHIEVE | LL_UMONST, "%s's pet %s killed Cerberus",
+                               plname, pet_killer->data->mname);
+            else
+                livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Cerberus");
+        }
     } else if (mtmp->isvecna && !u.uachieve.killed_vecna) {
         u.uachieve.killed_vecna = 1;
-        livelog_write_string(LL_ACHIEVE | LL_UMONST, "destroyed Vecna");
+        if (player_killed) {
+            if (pet_killer && pet_killer->mtame)
+                livelog_printf(LL_ACHIEVE | LL_UMONST, "%s's pet %s destroyed Vecna",
+                               plname, pet_killer->data->mname);
+            else
+                livelog_write_string(LL_ACHIEVE | LL_UMONST, "destroyed Vecna");
+        }
     } else if (mtmp->isvlad && !u.uachieve.killed_vlad) {
         u.uachieve.killed_vlad = 1;
-        livelog_write_string(LL_ACHIEVE | LL_UMONST, "destroyed Vlad the Impaler");
+        if (player_killed) {
+            if (pet_killer && pet_killer->mtame)
+                livelog_printf(LL_ACHIEVE | LL_UMONST, "%s's pet %s destroyed Vlad the Impaler",
+                               plname, pet_killer->data->mname);
+            else
+                livelog_write_string(LL_ACHIEVE | LL_UMONST, "destroyed Vlad the Impaler");
+        }
     } else if (mtmp->istalgath && !u.uachieve.killed_talgath) {
         u.uachieve.killed_talgath = 1;
-        livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Tal'Gath");
+        if (player_killed) {
+            if (pet_killer && pet_killer->mtame)
+                livelog_printf(LL_ACHIEVE | LL_UMONST, "%s's pet %s killed Tal'Gath",
+                               plname, pet_killer->data->mname);
+            else
+                livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Tal'Gath");
+        }
     } else if (mtmp->isgking && !u.uachieve.killed_gking) {
         u.uachieve.killed_gking = 1;
-        livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed the Goblin King");
+        if (player_killed) {
+            if (pet_killer && pet_killer->mtame)
+                livelog_printf(LL_ACHIEVE | LL_UMONST, "%s's pet %s killed the Goblin King",
+                               plname, pet_killer->data->mname);
+            else
+                livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed the Goblin King");
+        }
     } else if (mtmp->islucifer && !u.uachieve.killed_lucifer) {
         u.uachieve.killed_lucifer = 1;
-        livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Lucifer");
+        if (player_killed) {
+            if (pet_killer && pet_killer->mtame)
+                livelog_printf(LL_ACHIEVE | LL_UMONST, "%s's pet %s killed Lucifer",
+                               plname, pet_killer->data->mname);
+            else
+                livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Lucifer");
+        }
     } else if (mtmp->ismichael && !u.uachieve.killed_michael) {
         u.uachieve.killed_michael = 1;
-        livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Saint Michael");
-    } else if (mtmp->data == &mons[PM_DEATH]) {
+        if (player_killed) {
+            if (pet_killer && pet_killer->mtame)
+                livelog_printf(LL_ACHIEVE | LL_UMONST, "%s's pet %s killed Saint Michael",
+                               plname, pet_killer->data->mname);
+            else
+                livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Saint Michael");
+        }
+    } else if (mtmp->data == &mons[PM_DEATH] && player_killed) {
         switch (mvitals[tmp].died) {
         case 1:
-            livelog_printf(LL_UMONST, "put %s down for a little nap",
-                           livelog_mon_nam(mtmp));
+            if (pet_killer && pet_killer->mtame)
+                livelog_printf(LL_UMONST, "%s's pet %s put %s down for a little nap",
+                               plname, pet_killer->data->mname, livelog_mon_nam(mtmp));
+            else
+                livelog_printf(LL_UMONST, "put %s down for a little nap",
+                               livelog_mon_nam(mtmp));
             break;
         case 5:
         case 10:
@@ -4177,26 +4238,30 @@ struct monst *mtmp;
         case 150:
         case 200:
         case 250:
-            livelog_printf(LL_UMONST, "put %s down for a little nap (%d times)",
-                           livelog_mon_nam(mtmp), mvitals[tmp].died);
+            if (pet_killer && pet_killer->mtame)
+                livelog_printf(LL_UMONST, "%s's pet %s put %s down for a little nap (%d times)",
+                               plname, pet_killer->data->mname,
+                               livelog_mon_nam(mtmp), mvitals[tmp].died);
+            else
+                livelog_printf(LL_UMONST, "put %s down for a little nap (%d times)",
+                               livelog_mon_nam(mtmp), mvitals[tmp].died);
             break;
         default:
             /* don't spam the log every time */
             break;
         }
-    } else if (unique_corpstat(mtmp->data)) {
+    } else if (unique_corpstat(mtmp->data) && player_killed) {
+        const char *verb = nonliving(mtmp->data) ? "destroyed" : "killed";
+
         switch (mvitals[tmp].died) {
         case 1:
-            /* don't livelog your unique pet being killed
-             * by something else, it gives the impression you did it */
-            if (mtmp->data == &mons[PM_RED_HORSE] && mtmp->mtame) {
-                break;
-            } else {
-                livelog_printf(LL_UMONST, "%s %s",
-                               nonliving(mtmp->data) ? "destroyed" : "killed",
-                               livelog_mon_nam(mtmp));
-                break;
-            }
+            if (pet_killer && pet_killer->mtame)
+                livelog_printf(LL_UMONST, "%s's pet %s %s %s",
+                               plname, pet_killer->data->mname,
+                               verb, livelog_mon_nam(mtmp));
+            else
+                livelog_printf(LL_UMONST, "%s %s", verb, livelog_mon_nam(mtmp));
+            break;
         case 5:
         case 10:
         case 50:
@@ -4204,9 +4269,13 @@ struct monst *mtmp;
         case 150:
         case 200:
         case 250:
-            livelog_printf(LL_UMONST, "%s %s (%d times)",
-                           nonliving(mtmp->data) ? "destroyed" : "killed",
-                           livelog_mon_nam(mtmp), mvitals[tmp].died);
+            if (pet_killer && pet_killer->mtame)
+                livelog_printf(LL_UMONST, "%s's pet %s %s %s (%d times)",
+                               plname, pet_killer->data->mname,
+                               verb, livelog_mon_nam(mtmp), mvitals[tmp].died);
+            else
+                livelog_printf(LL_UMONST, "%s %s (%d times)",
+                               verb, livelog_mon_nam(mtmp), mvitals[tmp].died);
             break;
         default:
             /* don't spam the log every time */
@@ -4469,12 +4538,15 @@ int how;
         be_sad = (mdef->mtame != 0 && !mdef->msummoned);
 
     /* no corpses if digested, disintegrated or withered */
+    /* pet kills should be logged with attribution */
+    player_killed = (pet_killer && pet_killer->mtame) ? TRUE : FALSE;
     disintegested = (how == AD_DGST || how == -AD_RBRE
                      || how == AD_WTHR || how == AD_DISN);
     if (disintegested)
         mondead(mdef);
     else
         mondied(mdef);
+    pet_killer = (struct monst *) 0; /* reset */
 
     if (be_sad && DEADMONSTER(mdef))
         You("have a sad feeling for a moment, then it passes.");
@@ -4575,6 +4647,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                         && sgn(u.ualign.type) == sgn(mtmp->data->maligntyp));
     boolean orb = (mtmp->data->mlet == S_ORB);
 
+    player_killed = TRUE; /* for livelog attribution in mondead() */
     mtmp->mhp = 0; /* caller will usually have already done this */
     if (!noconduct) { /* KMH, conduct */
         if (!u.uconduct.killer++)
@@ -4635,6 +4708,8 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
     else
         mondead(mtmp);
     disintegested = FALSE; /* reset */
+    player_killed = FALSE; /* reset */
+    pet_killer = (struct monst *) 0; /* reset */
 
     if (!DEADMONSTER(mtmp)) { /* monster lifesaved */
         /* Cannot put the non-visible lifesaving message in

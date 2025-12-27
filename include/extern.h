@@ -1599,6 +1599,7 @@ E void FDECL(mondied, (struct monst *));
 E void FDECL(mongone, (struct monst *));
 E void FDECL(monstone, (struct monst *));
 E void FDECL(monkilled, (struct monst *, const char *, int));
+E void FDECL(set_pet_killer, (struct monst *));
 E void FDECL(mon_xkilled, (struct monst *, const char *, int));
 E void FDECL(unstuck, (struct monst *));
 E void FDECL(killed, (struct monst *));

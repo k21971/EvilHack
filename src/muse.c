@@ -2414,6 +2414,8 @@ struct obj *otmp;
                 damage_mon(mtmp, dmg, AD_DRLI, TRUE);
                 mtmp->mhpmax -= dmg;
                 if (DEADMONSTER(mtmp) || mtmp->mhpmax <= 0 || mtmp->m_lev < 1) {
+                    if (mcarried(otmp) && otmp->ocarry->mtame)
+                        set_pet_killer(otmp->ocarry);
                     monkilled(mtmp, "", AD_DRLI);
                 } else {
                     mtmp->m_lev--;
@@ -2446,6 +2448,8 @@ struct obj *otmp;
                           rn2(2) ? "withers" : "shudders",
                           rn2(2) ? "agony" : "pain");
                 if (DEADMONSTER(mtmp)) {
+                    if (mcarried(otmp) && otmp->ocarry->mtame)
+                        set_pet_killer(otmp->ocarry);
                     monkilled(mtmp, "", AD_MAGM);
                 } else {
                     monflee(mtmp, 0, FALSE, TRUE);
@@ -5225,6 +5229,8 @@ int spell_otyp;
                         pline("%s is %s!", Monnam(target),
                               rn2(2) ? "annihilated" : "obliterated");
                     target->mhp = 0;
+                    if (caster->mtame)
+                        set_pet_killer(caster);
                     monkilled(target, "", AD_DETH);
                 }
             } else {

@@ -2031,8 +2031,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                 pline("%s ignites and turns to ash!", Monnam(mdef));
                             if (youattack)
                                 xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-                            else
+                            else {
+                                if (magr->mtame)
+                                    set_pet_killer(magr);
                                 monkilled(mdef, (char *) 0, AD_FIRE);
+                            }
                         }
                     }
                 return TRUE;
@@ -2055,8 +2058,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         pline("The infernal trident's eldritch flame consumes %s!", hittee);
                     if (youattack)
                         xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-                    else
+                    else {
+                        if (magr->mtame)
+                            set_pet_killer(magr);
                         monkilled(mdef, (char *) 0, AD_FIRE);
+                    }
                 }
             }
             return TRUE;
@@ -2272,6 +2278,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               distant_name(otmp, xname),
                               s_suffix(mon_nam(mdef)));
                     mdef->mhp = 0;
+                    if (!youattack && magr->mtame)
+                        set_pet_killer(magr);
                     monkilled(mdef, (char *) 0, AD_DETH);
                     if (!DEADMONSTER(mdef))
                         return 0;
@@ -2364,6 +2372,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (youattack) {
                         xkilled(mdef, XKILL_NOMSG);
                     } else {
+                        if (magr->mtame)
+                            set_pet_killer(magr);
                         monkilled(mdef, (char *) 0, AD_DISE);
                     }
                 }
@@ -2453,6 +2463,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (youattack) {
                         xkilled(mdef, XKILL_NOMSG);
                     } else {
+                        if (magr->mtame)
+                            set_pet_killer(magr);
                         monkilled(mdef, (char *) 0, AD_DISE);
                     }
                 }
@@ -2520,8 +2532,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         }
                         mdef->mhp = mdef->mhpmax;
                     } else {
-                        if (!DEADMONSTER(mdef))
+                        if (!DEADMONSTER(mdef)) {
+                            if (magr->mtame)
+                                set_pet_killer(magr);
                             monkilled(mdef, (char *) 0, AD_DISN);
+                        }
                     }
                 }
             }
@@ -2678,8 +2693,11 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                 pline("%s ignites and turns to ash!", Monnam(mdef));
                             if (youattack)
                                 xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
-                            else
+                            else {
+                                if (magr->mtame)
+                                    set_pet_killer(magr);
                                 monkilled(mdef, (char *) 0, AD_FIRE);
+                            }
                         }
                     }
                 return TRUE;

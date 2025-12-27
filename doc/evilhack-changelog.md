@@ -4853,4 +4853,5 @@ The following changes to date are:
 - Fix: artifact_hit() code quality and monster experience gain
 - Odds of instakill disintegration vs unique monsters hit by the Sword
   of Annihilation increased
+- Enhanced livelogging of unique monsters
 

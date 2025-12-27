@@ -2491,6 +2491,8 @@ post_stone:
                     place_monster(mdef, mdef->mx, mdef->my);
                 }
                 mdef->mhp = 0;
+                if (magr->mtame)
+                    set_pet_killer(magr);
                 monkilled(mdef, (char *) 0, AD_DETH);
                 if (!DEADMONSTER(mdef))
                     return 0;
@@ -2777,8 +2779,11 @@ msickness:
                 zombify = FALSE;
                 if (magr->uexp)
                     mon_xkilled(mdef, (char *) 0, -AD_RBRE);
-                else
+                else {
+                    if (magr->mtame)
+                        set_pet_killer(magr);
                     monkilled(mdef, (char *) 0, -AD_RBRE);
+                }
                 tmp = 0;
                 if (DEADMONSTER(mdef))
                     res |= MM_DEF_DIED; /* not lifesaved */
@@ -2935,8 +2940,11 @@ msickness:
                 && zombie_form(r_data(mdef)) != NON_PM);
         if (magr->uexp)
             mon_xkilled(mdef, "", (int) mattk->adtyp);
-        else
+        else {
+            if (magr->mtame)
+                set_pet_killer(magr);
             monkilled(mdef, "", (int) mattk->adtyp);
+        }
         zombify = FALSE; /* reset */
         if (!DEADMONSTER(mdef))
             return res; /* mdef lifesaved */
@@ -3021,8 +3029,11 @@ int dmg;
             if (DEADMONSTER(mdef)) {
                 if (magr == &youmonst)
                     xkilled(mdef, XKILL_GIVEMSG | XKILL_NOCORPSE);
-                else
+                else {
+                    if (magr->mtame)
+                        set_pet_killer(magr);
                     monkilled(mdef, "", AD_RBRE);
+                }
             }
         } else if (newcham(mdef, (struct permonst *) 0, FALSE, FALSE)) {
             if (vis) { /* either seen or adjacent */
