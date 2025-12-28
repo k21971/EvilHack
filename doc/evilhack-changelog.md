@@ -4866,4 +4866,5 @@ The following changes to date are:
 - Fix: force bolt knockback not updating caster's player tracking
 - Fix: single-segment worm crash when displaced by mnearto()
 - Fix: sync all Guidebook.* documents
+- Fix: sync all Guidebook.* documents round two
 
