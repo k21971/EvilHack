@@ -4870,4 +4870,5 @@ The following changes to date are:
 - Fix: sync all Guidebook.* documents round three
 - Fix: sync all Guidebook.* documents round four
 - Fix: sync all Guidebook.* documents round five
+- Fix: in-game help files updated
 
