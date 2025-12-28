@@ -2952,7 +2952,7 @@ the configuration file for you using the default template file.
 
 %.lp ""
 On MS-DOS it is \mbox{``defaults.nh''} in the same folder as
-\mbox{{\it nethack.exe\/}}.\\
+\mbox{{\it evilhack.exe\/}}.\\
 
 %.lp ""
 Any line in the configuration file starting with `{\tt \#}' is treated as a comment.
@@ -2997,7 +2997,7 @@ Example:
 %.lp
 \item[\bb{HACKDIR}]
 Default location of files {\it NetHack\/} needs. On Windows HACKDIR
-defaults to the location of the {\it EvilHack.exe\/} or {\it NetHackw.exe\/} file
+defaults to the location of the {\it EvilHack.exe\/} or {\it EvilHackw.exe\/} file
 so setting HACKDIR to override that is not usually necessary or recommended.
 %.lp
 \item[\bb{LEVELDIR}]
@@ -3203,7 +3203,7 @@ Instead of a comma-separated list of options,
 EVILHACKOPTIONS can be set to the full name of a configuration file you
 want to use.
 If that full name doesn't start with a slash, precede it with `{\tt @}'
-(at-sign) to let NetHack know that the rest is intended as a file name.
+(at-sign) to let EvilHack know that the rest is intended as a file name.
 If it does start with `{\tt /}', the at-sign is optional.
 
 %.hn 2
@@ -4862,7 +4862,7 @@ For example, on some display systems a request for bold might yield
 blink or vice versa.
 On others, issuing an attribute request while another is already
 set up will replace the earlier attribute rather than combine with it.
-Since nethack issues attribute requests sequentially (at least with
+Since EvilHack issues attribute requests sequentially (at least with
 the {\it tty} interface) rather than all at once, the only way a
 situation like that can be controlled is to specify just one attribute.
 
@@ -5451,7 +5451,7 @@ all your gold, but if you swing and live, you might find more.
 If you just want to see what the current top players/games list is, you
 can type
 \begin{verbatim}
-    nethack -s all
+    evilhack -s all
 \end{verbatim}
 on most versions.
 

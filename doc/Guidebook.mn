@@ -2365,7 +2365,7 @@ A mail daemon may run up and deliver mail to you as a
 \fIscroll of mail\fP (on versions compiled with this feature).
 To use this feature on versions where NetHack mail delivery is triggered
 by electronic mail appearing in your system mailbox,
-you must let NetHack know where to look for new mail by setting
+you must let EvilHack know where to look for new mail by setting
 the \(lqMAIL\(rq environment variable to the file name of your mailbox.
 You may also want to set the \(lqMAILREADER\(rq environment
 variable to the file name of your favorite reader, so NetHack can shell to it
@@ -2729,7 +2729,7 @@ for system administrators.
 Using a configuration file
 .pg
 .\" hw: don't hyphenate file names
-.hw .evilhackrc defaults.nh nethack.exe nethackW.exe
+.hw .evilhackrc defaults.nh evilhack.exe evilhackW.exe
 The default name of the configuration file varies on different
 operating systems.
 .pg
@@ -2744,13 +2744,13 @@ On Windows, it is \(lq.evilhackrc\(rq in the folder
 \(lq\\%USERPROFILE%\\NetHack\\(rq.  The file may not exist,
 but it is a normal ASCII text file can can be created with any
 text editor.
-After running NetHack for the first time, you should find a default
+After running EvilHack for the first time, you should find a default
 template for the configuration file named \(lq.evilhackrc.template\(rq
 in \(lq\\%USERPROFILE%\\NetHack\\(rq.
-If you had not created the configuration file, NetHack will create
+If you had not created the configuration file, EvilHack will create
 the configuration file for you using the default template file.
 .pg
-On MS-DOS, it is \(lqdefaults.nh\(rq in the same folder as nethack.exe.
+On MS-DOS, it is \(lqdefaults.nh\(rq in the same folder as evilhack.exe.
 .pg
 Any line in the configuration file starting with \(oq#\(cq is treated
 as a comment.
@@ -2791,8 +2791,8 @@ OPTIONS=!legacy,autopickup,pickup_types:$\(dq=/!?+
 .ft
 .ed
 .lp HACKDIR
-Default location of files NetHack needs. On Windows HACKDIR
-defaults to the location of the EvilHack.exe or NetHackw.exe file
+Default location of files EvilHack needs. On Windows HACKDIR
+defaults to the location of the EvilHack.exe or EvilHackw.exe file
 so setting HACKDIR to override that is not usually necessary or recommended.
 .lp LEVELDIR
 The location that in-progress level files are stored. Defaults to HACKDIR,
@@ -2974,7 +2974,7 @@ Instead of a comma-separated list of options,
 EVILHACKOPTIONS can be set to the full name of a configuration file you
 want to use.
 If that full name doesn't start with a slash, precede it with \(oq\f(CR@\fP\(cq
-(at-sign) to let NetHack know that the rest is intended as a file name.
+(at-sign) to let EvilHack know that the rest is intended as a file name.
 If it does start with \(oq\f(CR/\fP\(cq, the at-sign is optional.
 .hn 2
 Customization options

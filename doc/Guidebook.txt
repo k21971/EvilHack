@@ -2950,7 +2950,7 @@
           Options may be set in a number of ways.  Within the game, the `O'
      command  allows  you to view all options and change most of them.  You
      can also set options automatically by placing them in a  configuration
-     file, or in the NETHACKOPTIONS environment variable.  Some versions of
+     file, or in the EVILHACKOPTIONS environment variable. Some versions of
      NetHack also have front-end programs that allow  you  to  set  options
      before starting the game or a global configuration for system adminis-
      trators.
@@ -2960,7 +2960,7 @@
           The default name of the configuration file  varies  on  different
      operating systems.
 
-          On  UNIX,  Linux,  and  Mac OS X it is ".nethackrc" in the user's
+          On UNIX,  Linux,  and Mac  OS X it is ".evilhackrc" in the user's
      home directory.  The file may not exist, but it is a normal ASCII text
 
 
@@ -2976,16 +2976,16 @@
 
      file and can be created with any text editor.
 
-          On   Windows,  it  is  ".nethackrc"  in  the  folder  "\%USERPRO-
+          On  Windows,  it  is  ".evilhackrc"  in  the  folder  "\%USERPRO-
      FILE%\NetHack\(rq.  The file may not exist, but it is a  normal  ASCII
      text  file  can  can  be  created with any text editor.  After running
      NetHack for the first time, you should find a default template for the
-     configuration   file   named   ".nethackrc.template"   in  "\%USERPRO-
+     configuration  file   named   ".evilhackrc.template"   in  "\%USERPRO-
      FILE%\NetHack\(rq.  If you had not  created  the  configuration  file,
      NetHack  will  create the configuration file for you using the default
      template file.
 
-          On MS-DOS, it is "defaults.nh" in the same folder as nethack.exe.
+         On MS-DOS, it is "defaults.nh" in the same folder as evilhack.exe.
 
           Any line in the configuration file starting with `#'  is  treated
      as a comment.  Empty lines are ignored.
@@ -3020,7 +3020,7 @@
 
      HACKDIR
        Default location of files NetHack needs. On Windows HACKDIR defaults
-       to the location of the NetHack.exe or NetHackw.exe file  so  setting
+       to the location of the EvilHack.exe or EvilHackw.exe file so setting
        HACKDIR to override that is not usually necessary or recommended.
 
      LEVELDIR
@@ -3190,9 +3190,9 @@
 
 
 
-     9.3.  Using the NETHACKOPTIONS environment variable
+     9.3.  Using the EVILHACKOPTIONS environment variable
 
-          The NETHACKOPTIONS variable is a comma-separated list of  initial
+          The EVILHACKOPTIONS variable is a comma-separated list of initial
      values  for  the  various options.  Some can only be turned on or off.
      You turn one of these on by adding the name of the option to the list,
      and  turn it off by typing a `!' or "no" before the name.  Others take
@@ -3205,23 +3205,23 @@
      on, legacy is off, character name is set to "Blue Meanie",  and  named
      fruit is set to "lime", you would enter the command
 
-     % setenv NETHACKOPTIONS "color,\!leg,name:Blue Meanie,fruit:lime"
+     % setenv EVILHACKOPTIONS "color,\!leg,name:Blue Meanie,fruit:lime"
 
      in  csh  (note  the  need to escape the `!' since it's special to that
      shell), or the pair of commands
 
-     $ NETHACKOPTIONS="color,!leg,name:Blue Meanie,fruit:lime"
-     $ export NETHACKOPTIONS
+     $ EVILHACKOPTIONS="color,!leg,name:Blue Meanie,fruit:lime"
+     $ export EVILHACKOPTIONS
 
      in sh, ksh, or bash.
 
-          The NETHACKOPTIONS value is effectively  the  same  as  a  single
+          The EVILHACKOPTIONS value is effectively the  same  as  a  single
      OPTIONS  statement  in a configuration file.  The "OPTIONS=" prefix is
      implied and comma separated options are processed from right to  left.
      Other  types  of  configuration statements such as BIND or MSGTYPE are
      not allowed.
 
-          Instead of a comma-separated list of options, NETHACKOPTIONS  can
+          Instead of a comma-separated list of options, EVILHACKOPTIONS can
      be  set  to the full name of a configuration file you want to use.  If
      that full name doesn't start with a slash, precede it  with  `@'  (at-
      sign)  to  let  NetHack know that the rest is intended as a file name.
@@ -4118,7 +4118,7 @@
        When  used,  it should be the first option set since its value might
        enable or disable the availability of various  other  options.   For
        multiple lines in a configuration file, that would be the first non-
-       comment line.  For a comma-separated list in  NETHACKOPTIONS  or  an
+       comment line.  For a comma-separated list in EVILHACKOPTIONS  or  an
        OPTIONS  line  in  a configuration file, that would be the rightmost
        option in the list.
 
