@@ -674,11 +674,11 @@ xchar x, y;
         return;
     }
     if (wtails[wnum] == wheads[wnum]) {
-        /* single segment, co-located with worm so nothing to place */
-        if (curr->wx != worm->mx || curr->wy != worm->my)
-            impossible(
-        "place_worm_tail_randomly: tail segment at <%d,%d>, worm at <%d,%d>",
-                       curr->wx, curr->wy, worm->mx, worm->my);
+        /* single segment, co-located with worm so nothing to place;
+           sync segment coordinates to match worm's new position
+           (may differ after remove_worm + place_monster) */
+        curr->wx = x;
+        curr->wy = y;
         return;
     }
     /* remove head segment from map in case we end up calling toss_wsegs();
