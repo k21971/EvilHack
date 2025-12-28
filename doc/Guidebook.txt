@@ -1315,6 +1315,14 @@
      #force
           Force a lock.  Autocompletes.  Default key is `M-f'.
 
+     #forge
+          Combine two objects at a forge to create a new object.  Autocom-
+          pletes.  Default key is `M-F'.
+
+     #genocided
+          List any monster types which have been genocided or become ex-
+          tinct.  Autocompletes.  Default key is `M-g'.
+
      #glance
           Show what type of thing a map symbol corresponds to.  Default key
           is `;'.
@@ -1427,6 +1435,10 @@
           regardless of  annotations.   Autocompletes.   Default  keys  are
           `^O', and `M-O'.
 
+     #order
+          Give orders to a pet.  Requires adjacency (or telepathy with both
+          you and your pet).  Autocompletes.
+
      #panic
           Test  the  panic routine.  Terminates the current game.  Autocom-
           pletes.  Debug mode only.
@@ -1502,6 +1514,10 @@
      #remove
           Remove an accessory (ring, amulet, etc).  Default key is `R'.
 
+     #removeimarkers
+          Remove remembered invisible monster markers (`I') from the  map.
+          Autocompletes.  Default key is `^U'.
+
      #ride
           Ride  (or  stop  riding)  a  saddled  creature.    Autocompletes.
           Default key is `M-R'.
@@ -1559,6 +1575,10 @@
      #seeweapon
           Show the weapon currently wielded.  Default key is `)'.
 
+     #shapechange
+          Vampire's shapechanging ability.  Change into bat, fog cloud,  or
+          wolf form, or back to normal.  Autocompletes.
+
      #shell
           Do a shell escape.  Default key is `!'.
 
@@ -1567,6 +1587,10 @@
 
      #stats
           Show memory usage statistics.  Autocompletes.  Debug mode only.
+
+     #steal
+          Attempt to steal from an adjacent monster.  Rogues  and  Convicts
+          only; must have bare hands.  Autocompletes.
 
      #suspend
           Suspend the game.  Default key is `^Z'.
@@ -1683,12 +1707,19 @@
      #wield
           Wield a weapon.  Default key is `w'.
 
+     #wildshape
+          Druid's shapechanging ability.  Change into  a  creature  form
+          based on experience level.  Autocompletes.
+
      #wipe
           Wipe off your face.  Autocompletes.  Default key is `M-w'.
 
      #wizbury
           Bury  objects  under  and around you.  Autocompletes.  Debug mode
           only.
+
+     #wizcrown
+          Become crowned.  Autocompletes.  Debug mode only.
 
      #wizdetect
           Search for hidden things (secret doors or traps  or  unseen  mon-
@@ -1707,19 +1738,37 @@
           Set one or more intrinsic attributes.  Autocompletes.  Debug mode
           only.
 
+     #wizkill
+          Remove monsters from play by just pointing at them.  By  default
+          the hero gets credit or blame for killing the targets.  Autocom-
+          pletes.  Debug mode only.
+
      #wizlevelport
           Teleport  to  another  level.   Autocompletes.   Debug mode only.
           Default key is `^V'.
 
+     #wizmakemap
+          Recreate the current level.  Autocompletes.  Debug mode only.
+
      #wizmap
           Map the level.  Autocompletes.  Debug mode only.  Default key  is
           `^F'.
+
+     #wizpious
+          Become pious.  Autocompletes.  Debug mode only.
 
      #wizrumorcheck
           Verify rumor boundaries.  Autocompletes.  Debug mode only.
 
      #wizsmell
           Smell monster.  Autocompletes.  Debug mode only.
+
+     #wizspell
+          Cast any spell by name without cost or failure as  an  expert.
+          Autocompletes.  Debug mode only.  Default key is `^S'.
+
+     #wiztelekinesis
+          Hurtle a monster across the map.  Autocompletes.  Debug mode only.
 
      #wizwhere
           Show  locations  of  special  levels.  Autocompletes.  Debug mode
@@ -1781,6 +1830,10 @@
      M-e  #enhance
 
      M-f  #force
+
+     M-F  #forge
+
+     M-g  #genocided
 
      M-i  #invoke
 

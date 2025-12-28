@@ -1205,6 +1205,10 @@ Default key is \(oqf\(cq.
 Force a lock.
 Autocompletes.
 Default key is \(oqM-f\(cq.
+.lp "#forge   "
+Combine two objects at a forge to create a new object.
+Autocompletes.
+Default key is \(oqM-F\(cq.
 .lp #genocided
 List any monster types which have been genocided or become extinct.
 Autocompletes.
@@ -1303,6 +1307,10 @@ If dungeon overview is chosen during end-of-game disclosure, every visited
 level will be included regardless of annotations.
 Autocompletes.
 Default keys are \(oq\(haO\(cq, and \(oqM-O\(cq.
+.lp "#order   "
+Give orders to a pet.
+Requires adjacency (or telepathy with both you and your pet).
+Autocompletes.
 .\" DON'T PANIC!
 .lp "#panic   "
 Test the panic routine.
@@ -1374,6 +1382,10 @@ is on.
 .lp "#remove  "
 Remove an accessory (ring, amulet, etc).
 Default key is \(oqR\(cq.
+.lp #removeimarkers
+Remove remembered invisible monster markers (\(oqI\(cq) from the map.
+Autocompletes.
+Default key is \(oq\(haU\(cq.
 .lp "#ride    "
 Ride (or stop riding) a saddled creature.
 Autocompletes.
@@ -1419,6 +1431,10 @@ Default key is \(oq\(ha\(cq. \" 'hat' (circumflex character)
 .lp #seeweapon
 Show the weapon currently wielded.
 Default key is \(oq)\(cq.
+.lp #shapechange
+Vampire's shapechanging ability.
+Change into bat, fog cloud, or wolf form, or back to normal.
+Autocompletes.
 .lp "#shell   "
 Do a shell escape.
 Default key is \(oq!\(cq.
@@ -1430,6 +1446,10 @@ Default key is \(oqM-s\(cq.
 Show memory usage statistics.
 Autocompletes.
 Debug mode only.
+.lp "#steal   "
+Attempt to steal from an adjacent monster.
+Rogues and Convicts only; must have bare hands.
+Autocompletes.
 .lp "#suspend "
 Suspend the game.
 Default key is \(oq\(haZ\(cq.
@@ -1527,6 +1547,10 @@ Default key is \(oq/\(cq.
 .lp "#wield   "
 Wield a weapon.
 Default key is \(oqw\(cq.
+.lp #wildshape
+Druid's shapechanging ability.
+Change into a creature form based on experience level.
+Autocompletes.
 .lp "#wipe    "
 Wipe off your face.
 Autocompletes.
@@ -1579,6 +1603,10 @@ Map the level.
 Autocompletes.
 Debug mode only.
 Default key is \(oq\(haF\(cq.
+.lp #wizpious
+Become pious.
+Autocompletes.
+Debug mode only.
 .lp #wizrumorcheck
 Verify rumor boundaries.
 Autocompletes.
@@ -1651,6 +1679,8 @@ option is enabled)
 #enhance
 .lp M-f
 #force
+.lp M-F
+#forge
 .lp M-g
 #genocided
 .lp M-i
