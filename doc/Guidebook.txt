@@ -9,13 +9,13 @@
 
 
                          A Guide to the Mazes of Menace
-                            (Guidebook for NetHack)
+                            (Guidebook for EvilHack)
 
 
                        Original version - Eric S. Raymond
-     (Edited and expanded for NetHack 3.6.7 by Mike Stephenson and others)
+     (Edited and expanded for EvilHack 0.9.2 by Keith Simpson and others)
 
-                                February 3, 2023
+                              December 29, 2025
 
 
 
@@ -60,13 +60,13 @@
      for the dungeon.  After several days of uneventful travel, you see the
 
 
-     NetHack Guidebook                                                    1
+     EvilHack Guidebook                                                    1
 
 
 
 
 
-     NetHack Guidebook                                                    2
+     EvilHack Guidebook                                                    2
 
 
 
@@ -77,7 +77,7 @@
 
      2.  What is going on here?
 
-          You  have  just begun a game of NetHack.  Your goal is to grab as
+          You  have  just begun a game of EvilHack.  Your goal is to grab as
      much treasure as you can, retrieve the Amulet of  Yendor,  and  escape
      the Mazes of Menace alive.
 
@@ -145,13 +145,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                    3
+     EvilHack Guidebook                                                    3
 
 
 
@@ -205,37 +205,37 @@
      have  seen  on  the  current dungeon level; as you explore more of the
      level, it appears on the screen in front of you.
 
-          When NetHack's ancestor rogue first appeared, its screen orienta-
+          When EvilHack's ancestor rogue first appeared, its screen orienta-
      tion  was  almost  unique  among  computer fantasy games.  Since then,
      screen orientation has become the  norm  rather  than  the  exception;
-     NetHack  continues  this  fine tradition.  Unlike text adventure games
+     EvilHack  continues  this  fine tradition.  Unlike text adventure games
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                    4
+     EvilHack Guidebook                                                    4
 
 
 
      that accept commands  in  pseudo-English  sentences  and  explain  the
-     results  in  words, NetHack commands are all one or two keystrokes and
+     results  in  words, EvilHack commands are all one or two keystrokes and
      the results are displayed graphically on the screen.  A minimum screen
      size  of  24  lines  by  80  columns  is recommended; if the screen is
      larger, only a 21x80 section will be used for the map.
 
-          NetHack can even be played by blind players, with the  assistance
+          EvilHack can even be played by blind players, with the  assistance
      of Braille readers or speech synthesisers.  Instructions for configur-
-     ing NetHack for the blind are included later in this document.
+     ing EvilHack for the blind are included later in this document.
 
-          NetHack generates a new dungeon every time you play it; even  the
+          EvilHack generates a new dungeon every time you play it; even  the
      authors still find it an entertaining and exciting game despite having
      won several times.
 
-          NetHack offers a variety of display options.  The options  avail-
+          EvilHack offers a variety of display options.  The options  avail-
      able to you will vary from port to port, depending on the capabilities
      of your  hardware  and  software,  and  whether  various  compile-time
      options were enabled when your executable was created.  The three pos-
@@ -250,10 +250,10 @@
      acters from the monochrome character display when referring to  things
      you might see on the screen during your game.
 
-          In  order  to  understand  what is going on in NetHack, first you
-     must understand what NetHack is doing with the  screen.   The  NetHack
+          In  order  to  understand  what is going on in EvilHack, first you
+     must understand what EvilHack is doing with the  screen.   The  EvilHack
      screen  replaces  the  "You  see  ..."  descriptions of text adventure
-     games.  Figure 1 is a sample of what a NetHack screen might look like.
+     games.  Figure 1 is a sample of what a EvilHack screen might look like.
      The way the screen looks for you depends on your platform.
 
 
@@ -277,13 +277,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                    5
+     EvilHack Guidebook                                                    5
 
 
 
@@ -343,13 +343,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                    6
+     EvilHack Guidebook                                                    6
 
 
 
@@ -409,13 +409,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                    7
+     EvilHack Guidebook                                                    7
 
 
 
@@ -475,13 +475,13 @@
           Hunger:  your  current  hunger  status.  Values are Satiated, Not
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                    8
+     EvilHack Guidebook                                                    8
 
 
 
@@ -512,7 +512,7 @@
 
           The top line of the screen is reserved for messages that describe
      things that are impossible  to  represent  visually.   If  you  see  a
-     "--More--"  on  the top line, this means that NetHack has another mes-
+     "--More--"  on  the top line, this means that EvilHack has another mes-
      sage to display on the screen, but  it  wants  to  make  certain  that
      you've  read  the  one that is there first.  To read the next message,
      just press the space bar.
@@ -541,13 +541,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                    9
+     EvilHack Guidebook                                                    9
 
 
 
@@ -607,13 +607,13 @@
      what any symbol represents with the `/' command (see the next  section
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   10
+     EvilHack Guidebook                                                   10
 
 
 
@@ -624,10 +624,10 @@
           Commands  can  be  initiated  by  typing one or two characters to
      which the command is bound to, or  typing  the  command  name  in  the
      extended commands entry.  Some commands, like "search", do not require
-     that any more information be collected  by  NetHack.   Other  commands
+     that any more information be collected  by  EvilHack.   Other  commands
      might  require  additional information, for example a direction, or an
      object to be used.  For those commands that require additional  infor-
-     mation, NetHack will present you with either a menu of choices or with
+     mation, EvilHack will present you with either a menu of choices or with
      a command line prompt requesting information.  Which you are presented
      with will depend chiefly on how you have set the menustyle option.
 
@@ -673,13 +673,13 @@
           will give a brief reminder about how it works.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   11
+     EvilHack Guidebook                                                   11
 
 
 
@@ -739,13 +739,13 @@
           "#loot"  to  remove a saddle), skip containers and go straight to
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   12
+     EvilHack Guidebook                                                   12
 
 
 
@@ -805,13 +805,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   13
+     EvilHack Guidebook                                                   13
 
 
 
@@ -871,13 +871,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   14
+     EvilHack Guidebook                                                   14
 
 
 
@@ -937,13 +937,13 @@
           which inventory item to  use  will  only  list  accessories,  but
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   15
+     EvilHack Guidebook                                                   15
 
 
 
@@ -1003,13 +1003,13 @@
           re-used.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   16
+     EvilHack Guidebook                                                   16
 
 
 
@@ -1069,13 +1069,13 @@
           exchange still takes place.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   17
+     EvilHack Guidebook                                                   17
 
 
 
@@ -1135,13 +1135,13 @@
      (R)UNIX is a registered trademark of The Open Group.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   18
+     EvilHack Guidebook                                                   18
 
 
 
@@ -1176,7 +1176,7 @@
 
 
 
-          As  you  can see, the authors of NetHack used up all the letters,
+          As  you  can see, the authors of EvilHack used up all the letters,
      so this is a way to introduce the less frequently used commands.  What
      extended  commands are available depends on what features the game was
      compiled with.
@@ -1201,13 +1201,13 @@
           inventory slot.  If it has a name assigned, other stacks with the
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   19
+     EvilHack Guidebook                                                   19
 
 
 
@@ -1267,13 +1267,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   20
+     EvilHack Guidebook                                                   20
 
 
 
@@ -1341,13 +1341,13 @@
           Show your inventory.  Default key is `i'.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   21
+     EvilHack Guidebook                                                   21
 
 
 
@@ -1407,13 +1407,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   22
+     EvilHack Guidebook                                                   22
 
 
 
@@ -1477,13 +1477,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   23
+     EvilHack Guidebook                                                   23
 
 
 
@@ -1547,13 +1547,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   24
+     EvilHack Guidebook                                                   24
 
 
 
@@ -1621,13 +1621,13 @@
           Look at the timeout queue.  Autocompletes.  Debug mode only.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   25
+     EvilHack Guidebook                                                   25
 
 
 
@@ -1668,7 +1668,7 @@
           List vanquished monsters.  Autocompletes.  Debug mode only.
 
      #version
-          Print compile time options for this version of NetHack.  Autocom-
+          Print compile time options for this version of EvilHack.  Autocom-
           pletes.  Default key is `M-v'.
 
      #versionshort
@@ -1687,13 +1687,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   26
+     EvilHack Guidebook                                                   26
 
 
 
@@ -1778,13 +1778,13 @@
           Wish for something.  Autocompletes.  Debug  mode  only.   Default
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   27
+     EvilHack Guidebook                                                   27
 
 
 
@@ -1806,11 +1806,11 @@
      "high"]  bit),  you  can invoke many extended commands by meta-ing the
      first letter of the command.
 
-          In NT, OS/2, PC and ST NetHack, the "Alt" key can be used in this
+          In NT, OS/2, PC and ST EvilHack, the "Alt" key can be used in this
      fashion;  on  the  Amiga, set the altmeta option to get this behavior.
      On other systems, if typing "Alt" plus another  key  transmits  a  two
      character  sequence consisting of an Escape followed by the other key,
-     you may set the altmeta option  to  have  NetHack  combine  them  into
+     you may set the altmeta option  to  have  EvilHack  combine  them  into
      meta+key.
 
      M-?  #? (not supported by all platforms)
@@ -1848,13 +1848,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   28
+     EvilHack Guidebook                                                   28
 
 
 
@@ -1914,13 +1914,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   29
+     EvilHack Guidebook                                                   29
 
 
 
@@ -1980,13 +1980,13 @@
      level,  it  will  be loaded from its file on disk and reactivated.  If
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   30
+     EvilHack Guidebook                                                   30
 
 
 
@@ -2046,13 +2046,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   31
+     EvilHack Guidebook                                                   31
 
 
 
@@ -2112,13 +2112,13 @@
      If you attempt to walk into it, you will try to fight it just  like  a
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   32
+     EvilHack Guidebook                                                   32
 
 
 
@@ -2178,13 +2178,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   33
+     EvilHack Guidebook                                                   33
 
 
 
@@ -2217,12 +2217,12 @@
      7.  Objects
 
           When  you  find something in the dungeon, it is common to want to
-     pick it up.  In NetHack, this is accomplished automatically by walking
+     pick it up.  In EvilHack, this is accomplished automatically by walking
      over  the  object  (unless  you  turn  off  the autopickup option (see
      below), or move with the `m' prefix (see above)), or manually by using
      the `,' command.
 
-          If  you're  carrying too many items, NetHack will tell you so and
+          If  you're  carrying too many items, EvilHack will tell you so and
      you won't be able to pick up anything more.  Otherwise,  it  will  add
      the object(s) to your pack and tell you what you just picked up.
 
@@ -2237,26 +2237,26 @@
      you'll either have to discard some of what you're carrying or collapse
      under its weight.
 
-          NetHack will tell you how badly you have loaded yourself.  If you
+          EvilHack will tell you how badly you have loaded yourself.  If you
      are   encumbered,   one  of  the  conditions  "Burdened",  "Stressed",
      "Strained", "Overtaxed" or "Overloaded" will be shown  on  the  bottom
      line status display.
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   34
+     EvilHack Guidebook                                                   34
 
 
 
           When  you  pick up an object, it is assigned an inventory letter.
      Many commands that operate on objects must ask you to find  out  which
-     object  you want to use.  When NetHack asks you to choose a particular
+     object  you want to use.  When EvilHack asks you to choose a particular
      object you are carrying, you are usually  presented  with  a  list  of
      inventory letters to choose from (see Commands, above).
 
@@ -2267,7 +2267,7 @@
      from game to game.
 
           When  you  use  one  of  these objects, if its effect is obvious,
-     NetHack will remember what  it  is  for  you.   If  its  effect  isn't
+     EvilHack will remember what  it  is  for  you.   If  its  effect  isn't
      extremely  obvious,  you will be asked what you want to call this type
      of object so you will recognize  it  later.   You  can  also  use  the
      "#name" command, for the same purpose at any time, to name all objects
@@ -2310,13 +2310,13 @@
      "uncursed" will be omitted as being redundant when enough other infor-
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   35
+     EvilHack Guidebook                                                   35
 
 
 
@@ -2376,19 +2376,19 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   36
+     EvilHack Guidebook                                                   36
 
 
 
           Those  of you in the audience who are AD&D players, be aware that
      each weapon which existed in AD&D does roughly the same damage to mon-
-     sters  in  NetHack.   Some  of  the  more obscure weapons (such as the
+     sters  in  EvilHack.   Some  of  the  more obscure weapons (such as the
      aklys, lucern hammer, and bec-de-corbin) are defined in an appendix to
      Unearthed Arcana, an AD&D supplement.
 
@@ -2412,7 +2412,7 @@
      to select your preferred "missile", then  using  the  `f'  command  to
      throw  it.  You'll be prompted for a direction as above, but you don't
      have to specify which item to throw each time you use `f'.   There  is
-     also  an  option, autoquiver, which has NetHack choose another item to
+     also  an  option, autoquiver, which has EvilHack choose another item to
      automatically fill your quiver (or quiver sack, or have at the  ready)
      when the inventory slot used for `Q' runs out.
 
@@ -2442,13 +2442,13 @@
      ticular types of weapons, and you'll be able to improve your skills as
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   37
+     EvilHack Guidebook                                                   37
 
 
 
@@ -2508,13 +2508,13 @@
      simply use `w' to wield the primary.  Lastly, if  neither  hand  holds
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   38
+     EvilHack Guidebook                                                   38
 
 
 
@@ -2540,7 +2540,7 @@
      tion than others.  Your armor class is a measure of  this  protection.
      Armor  class (AC) is measured as in AD&D, with 10 being the equivalent
      of no armor, and lower numbers meaning better  armor.   Each  suit  of
-     armor which exists in AD&D gives the same protection in NetHack.  Here
+     armor which exists in AD&D gives the same protection in EvilHack.  Here
      is an (incomplete) list of the armor classes provided by various suits
      of armor:
                            dragon scale mail         1
@@ -2574,13 +2574,13 @@
      one unit further to 4.  When you put on a piece of armor, you  immedi-
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   39
+     EvilHack Guidebook                                                   39
 
 
 
@@ -2632,25 +2632,25 @@
 
           A  mail  daemon may run up and deliver mail to you as a scroll of
      mail (on versions compiled with this feature).  To use this feature on
-     versions  where  NetHack mail delivery is triggered by electronic mail
-     appearing in your system mailbox, you must let NetHack know  where  to
+     versions  where  EvilHack mail delivery is triggered by electronic mail
+     appearing in your system mailbox, you must let EvilHack know  where  to
      look  for  new  mail by setting the "MAIL" environment variable to the
      file name of your mailbox.  You may also want to set the  "MAILREADER"
      environment  variable  to  the  file  name of your favorite reader, so
-     NetHack can shell to it when you read  the  scroll.   On  versions  of
+     EvilHack can shell to it when you read  the  scroll.   On  versions  of
 
 
-     NetHack 3.6.7                                         February 3, 2023
-
-
-
-
-
-     NetHack Guidebook                                                   40
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
-     NetHack  where  mail is randomly generated internal to the game, these
+
+
+     EvilHack Guidebook                                                   40
+
+
+
+     EvilHack  where  mail is randomly generated internal to the game, these
      environment variables are ignored.  You can disable the mail daemon by
      turning off the mail option.
 
@@ -2706,13 +2706,13 @@
      magic, unlike the usually fleeting effects of  potions,  scrolls,  and
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   41
+     EvilHack Guidebook                                                   41
 
 
 
@@ -2772,13 +2772,13 @@
      level, skill category, chance of failure when casting, and an estimate
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   42
+     EvilHack Guidebook                                                   42
 
 
 
@@ -2838,13 +2838,13 @@
      ally heavy.  It is rumored that some statues are not what they seem.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   43
+     EvilHack Guidebook                                                   43
 
 
 
@@ -2883,7 +2883,7 @@
 
      8.  Conduct
 
-          As  if winning NetHack were not difficult enough, certain players
+          As  if winning EvilHack were not difficult enough, certain players
      seek to challenge themselves by imposing restrictions on the way  they
      play  the  game.   The  game  automatically tracks some of these chal-
      lenges, which can be checked at any time with the #conduct command  or
@@ -2904,13 +2904,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   44
+     EvilHack Guidebook                                                   44
 
 
 
@@ -2970,17 +2970,17 @@
      with your hands and feet.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   45
+     EvilHack Guidebook                                                   45
 
 
 
-          In  NetHack,  a  pacifist refuses to cause the death of any other
+          In  EvilHack,  a  pacifist refuses to cause the death of any other
      monster (i.e. if you would get experience for the death).  This  is  a
      particularly  difficult  challenge,  although  it is still possible to
      gain experience by other means.
@@ -3014,8 +3014,8 @@
      9.  Options
 
           Due to variations in  personal  tastes  and  conceptions  of  how
-     NetHack  should do things, there are options you can set to change how
-     NetHack behaves.
+     EvilHack  should do things, there are options you can set to change how
+     EvilHack behaves.
 
      9.1.  Setting the options
 
@@ -3023,7 +3023,7 @@
      command  allows  you to view all options and change most of them.  You
      can also set options automatically by placing them in a  configuration
      file, or in the EVILHACKOPTIONS environment variable. Some versions of
-     NetHack also have front-end programs that allow  you  to  set  options
+     EvilHack also have front-end programs that allow  you  to  set  options
      before starting the game or a global configuration for system adminis-
      trators.
 
@@ -3036,25 +3036,25 @@
      home directory.  The file may not exist, but it is a normal ASCII text
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   46
+     EvilHack Guidebook                                                   46
 
 
 
      file and can be created with any text editor.
 
           On  Windows,  it  is  ".evilhackrc"  in  the  folder  "\%USERPRO-
-     FILE%\NetHack\(rq.  The file may not exist, but it is a  normal  ASCII
+     FILE%\EvilHack\(rq.  The file may not exist, but it is a  normal  ASCII
      text  file  can  can  be  created with any text editor.  After running
-     NetHack for the first time, you should find a default template for the
+     EvilHack for the first time, you should find a default template for the
      configuration  file   named   ".evilhackrc.template"   in  "\%USERPRO-
-     FILE%\NetHack\(rq.  If you had not  created  the  configuration  file,
-     NetHack  will  create the configuration file for you using the default
+     FILE%\EvilHack\(rq.  If you had not  created  the  configuration  file,
+     EvilHack  will  create the configuration file for you using the default
      template file.
 
          On MS-DOS, it is "defaults.nh" in the same folder as evilhack.exe.
@@ -3091,7 +3091,7 @@
             OPTIONS=!legacy,autopickup,pickup_types:$"=/!?+
 
      HACKDIR
-       Default location of files NetHack needs. On Windows HACKDIR defaults
+       Default location of files EvilHack needs. On Windows HACKDIR defaults
        to the location of the EvilHack.exe or EvilHackw.exe file so setting
        HACKDIR to override that is not usually necessary or recommended.
 
@@ -3102,13 +3102,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   47
+     EvilHack Guidebook                                                   47
 
 
 
@@ -3168,13 +3168,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   48
+     EvilHack Guidebook                                                   48
 
 
 
@@ -3200,7 +3200,7 @@
      SYMBOLS
        Override  one or more symbols in the symbol set used for all dungeon
        levels except for the  special  rogue  level.   See  the  "Modifying
-       NetHack Symbols" section.
+       EvilHack Symbols" section.
 
        Example:
 
@@ -3234,13 +3234,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   49
+     EvilHack Guidebook                                                   49
 
 
 
@@ -3296,17 +3296,17 @@
           Instead of a comma-separated list of options, EVILHACKOPTIONS can
      be  set  to the full name of a configuration file you want to use.  If
      that full name doesn't start with a slash, precede it  with  `@'  (at-
-     sign)  to  let  NetHack know that the rest is intended as a file name.
+     sign)  to  let  EvilHack know that the rest is intended as a file name.
      If it does start with `/', the at-sign is optional.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   50
+     EvilHack Guidebook                                                   50
 
 
 
@@ -3366,13 +3366,13 @@
        Allow saving and loading bones files (default true).  Persistent.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   51
+     EvilHack Guidebook                                                   51
 
 
 
@@ -3432,13 +3432,13 @@
        which lets you refine how it behaves.  Here are the valid prefixes:
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   52
+     EvilHack Guidebook                                                   52
 
 
 
@@ -3498,13 +3498,13 @@
        on).   If  this  is off, dropping an object shifts all the remaining
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   53
+     EvilHack Guidebook                                                   53
 
 
 
@@ -3517,9 +3517,9 @@
      fruit
        Name   a  fruit  after  something  you  enjoy  eating  (for  example
        "fruit:mango") (default "slime mold").  Basically a nostalgic whimsy
-       that  NetHack  uses from time to time.  You should set this to some-
+       that  EvilHack  uses from time to time.  You should set this to some-
        thing you find more appetizing than slime  mold.   Apples,  oranges,
-       pears,  bananas,  and  melons already exist in NetHack, so don't use
+       pears,  bananas,  and  melons already exist in EvilHack, so don't use
        those.
 
      gender
@@ -3564,13 +3564,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   54
+     EvilHack Guidebook                                                   54
 
 
 
@@ -3630,13 +3630,13 @@
        tional, combination, full, or partial.   Traditional  was  the  only
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   55
+     EvilHack Guidebook                                                   55
 
 
 
@@ -3696,13 +3696,13 @@
        mented by the Amiga, Gem and tty ports.  Default `<'.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   56
+     EvilHack Guidebook                                                   56
 
 
 
@@ -3759,16 +3759,16 @@
        mand.
 
      news
-       Read the NetHack news file, if present (default on).  Since the news
+       Read the EvilHack news file, if present (default on).  Since the news
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   57
+     EvilHack Guidebook                                                   57
 
 
 
@@ -3828,13 +3828,13 @@
        eating      - require "yes" rather than `y' to  confirm  whether  to
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   58
+     EvilHack Guidebook                                                   58
 
 
 
@@ -3894,13 +3894,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   59
+     EvilHack Guidebook                                                   59
 
 
 
@@ -3960,13 +3960,13 @@
        your role.  Normally only the first letter of the value is examined;
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   60
+     EvilHack Guidebook                                                   60
 
 
 
@@ -4026,13 +4026,13 @@
        the appearance of the display, not the  way  the  game  treats  you.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   61
+     EvilHack Guidebook                                                   61
 
 
 
@@ -4076,7 +4076,7 @@
        (default true).
 
      suppress_alert
-       This option may be set to a NetHack version level to suppress  alert
+       This option may be set to a EvilHack version level to suppress  alert
        notification  messages about feature changes for that and prior ver-
        sions (for example "suppress_alert:3.3.1").
 
@@ -4092,13 +4092,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   62
+     EvilHack Guidebook                                                   62
 
 
 
@@ -4113,9 +4113,9 @@
        Draw a tombstone graphic upon your death (default on).  Persistent.
 
      toptenwin
-       Put  the  ending  display  in  a NetHack window instead of on stdout
+       Put  the  ending  display  in  a EvilHack window instead of on stdout
        (default off).  Setting this option makes  the  score  list  visible
-       when a windowing version of NetHack is started without a parent win-
+       when a windowing version of EvilHack is started without a parent win-
        dow, but it no longer leaves the score list around after game end on
        a terminal or emulating window.
 
@@ -4158,13 +4158,13 @@
        you were last moving towards.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   63
+     EvilHack Guidebook                                                   63
 
 
 
@@ -4224,13 +4224,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   64
+     EvilHack Guidebook                                                   64
 
 
 
@@ -4239,64 +4239,64 @@
        right).
 
      ascii_map
-       If NetHack can, it should display an ascii character map if it can.
+       If EvilHack can, it should display an ascii character map if it can.
 
      color
-       If NetHack can, it should display color if it can for different mon-
+       If EvilHack can, it should display color if it can for different mon-
        sters, objects, and dungeon features.
 
      eight_bit_tty
-       If NetHack can, it should pass eight-bit character values (for exam-
+       If EvilHack can, it should pass eight-bit character values (for exam-
        ple,  specified with the traps option) straight through to your ter-
        minal (default off).
 
      font_map
-       if NetHack can, it should use a font by the chosen name for the  map
+       if EvilHack can, it should use a font by the chosen name for the  map
        window.
 
      font_menu
-       If  NetHack  can,  it  should use a font by the chosen name for menu
+       If  EvilHack  can,  it  should use a font by the chosen name for menu
        windows.
 
      font_message
-       If NetHack can, it should use a font by the chosen name for the mes-
+       If EvilHack can, it should use a font by the chosen name for the mes-
        sage window.
 
      font_status
-       If NetHack can, it should use a font by the chosen name for the sta-
+       If EvilHack can, it should use a font by the chosen name for the sta-
        tus window.
 
      font_text
-       If NetHack can, it should use a font by the  chosen  name  for  text
+       If EvilHack can, it should use a font by the  chosen  name  for  text
        windows.
 
      font_size_map
-       If NetHack can, it should use this size font for the map window.
+       If EvilHack can, it should use this size font for the map window.
 
      font_size_menu
-       If NetHack can, it should use this size font for menu windows.
+       If EvilHack can, it should use this size font for menu windows.
 
      font_size_message
-       If NetHack can, it should use this size font for the message window.
+       If EvilHack can, it should use this size font for the message window.
 
      font_size_status
-       If NetHack can, it should use this size font for the status window.
+       If EvilHack can, it should use this size font for the status window.
 
      font_size_text
-       If NetHack can, it should use this size font for text windows.
+       If EvilHack can, it should use this size font for text windows.
 
      fullscreen
-       If  NetHack  can,  it  should  try  and display on the entire screen
+       If  EvilHack  can,  it  should  try  and display on the entire screen
        rather than in a window.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   65
+     EvilHack Guidebook                                                   65
 
 
 
@@ -4306,35 +4306,35 @@
        only; default is on.
 
      large_font
-       If NetHack can, it should use a large font.
+       If EvilHack can, it should use a large font.
 
      map_mode
-       If NetHack can, it should display the map in the manner specified.
+       If EvilHack can, it should display the map in the manner specified.
 
      player_selection
-       If NetHack can, it should pop up dialog boxes, or  use  prompts  for
+       If EvilHack can, it should pop up dialog boxes, or  use  prompts  for
        character selection.
 
      popup_dialog
-       If NetHack can, it should pop up dialog boxes for input.
+       If EvilHack can, it should pop up dialog boxes for input.
 
      preload_tiles
-       If  NetHack  can, it should preload tiles into memory.  For example,
+       If  EvilHack  can, it should preload tiles into memory.  For example,
        in the protected mode MS-DOS version, control whether tiles get pre-
        loaded into RAM at the start of the game.  Doing so enhances perfor-
        mance of the tile graphics, but  uses  more  memory.  (default  on).
        Cannot be set with the `O' command.
 
      scroll_amount
-       If NetHack can, it should scroll the display by this number of cells
+       If EvilHack can, it should scroll the display by this number of cells
        when the hero reaches the scroll_margin.
 
      scroll_margin
-       If NetHack can, it should scroll the display when the hero or cursor
+       If EvilHack can, it should scroll the display when the hero or cursor
        is this number of cells away from the edge of the window.
 
      selectsaved
-       If NetHack can, it should display a menu of existing saved games for
+       If EvilHack can, it should display a menu of existing saved games for
        the player to choose from at game startup, if it can.  Not all ports
        support this option.
 
@@ -4343,7 +4343,7 @@
        this option.
 
      splash_screen
-       If NetHack can, it should display an opening splash screen  when  it
+       If EvilHack can, it should display an opening splash screen  when  it
        starts up (default yes).
 
      statuslines
@@ -4356,13 +4356,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   66
+     EvilHack Guidebook                                                   66
 
 
 
@@ -4373,7 +4373,7 @@
        current window size.
 
      tiled_map
-       If NetHack can, it should display a tiled map if it can.
+       If EvilHack can, it should display a tiled map if it can.
 
      tile_file
        Specify the name  of  an  alternative  tile  file  to  override  the
@@ -4389,11 +4389,11 @@
        Use bold black instead of blue for black glyphs (TTY only).
 
      use_inverse
-       If  NetHack  can,  it should display inverse when the game specifies
+       If  EvilHack  can,  it should display inverse when the game specifies
        it.
 
      vary_msgcount
-       If NetHack can, it should display this number of messages at a  time
+       If EvilHack can, it should display this number of messages at a  time
        in the message window.
 
      windowborders
@@ -4410,7 +4410,7 @@
        needed for align_status set to left or right.)
 
      windowcolors
-       If  NetHack  can, it should display windows with the specified fore-
+       If  EvilHack  can, it should display windows with the specified fore-
        ground/background colors. Windows GUI only. The format is
 
           OPTION=windowcolors:wintype foreground/background
@@ -4422,13 +4422,13 @@
      brightcyan, white, trueblack, gray, purple, silver,  maroon,  fuchsia,
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   67
+     EvilHack Guidebook                                                   67
 
 
 
@@ -4439,7 +4439,7 @@
      windowframe, windowtext).
 
      wraptext
-       If  NetHack can, it should wrap long lines of text if they don't fit
+       If  EvilHack can, it should wrap long lines of text if they don't fit
        in the visible area of the window.
 
      9.6.  Platform-specific Customization options
@@ -4448,7 +4448,7 @@
      forms or ports to customize and change the port behavior.
 
      altkeyhandling
-       Select  an  alternate  way  to  handle keystrokes (Win32 tty NetHack
+       Select  an  alternate  way  to  handle keystrokes (Win32 tty EvilHack
        only).  The name of the handling type is one  of  "default",  "ray",
        "340".
 
@@ -4458,7 +4458,7 @@
 
      altmeta
        On other (non-Amiga) systems where this option is available, it  can
-       be set to tell NetHack to convert a two character sequence beginning
+       be set to tell EvilHack to convert a two character sequence beginning
        with ESC  into  a  meta-shifted  version  of  the  second  character
        (default off).
 
@@ -4466,80 +4466,80 @@
        prompts.  Note that typing one or more  digits  as  a  count  prefix
        prior  to a command -- preceded by n if the number_pad option is set
        -- is also subject to this conversion, so attempting  to  abort  the
-       count by typing ESC will leave NetHack waiting for another character
+       count by typing ESC will leave EvilHack waiting for another character
        to complete the two character sequence.  Type a second ESC to finish
        cancelling such a count.  At other prompts a single ESC suffices.
 
      BIOS
        Use  BIOS calls to update the screen display quickly and to read the
        keyboard (allowing the use of arrow keys to move) on  machines  with
-       an IBM PC compatible BIOS ROM (default off, OS/2, PC, and ST NetHack
+       an IBM PC compatible BIOS ROM (default off, OS/2, PC, and ST EvilHack
        only).
 
      flush
-       (default off, Amiga NetHack only).
+       (default off, Amiga EvilHack only).
 
      MACgraphics
-       (default on, Mac NetHack only).
+       (default on, Mac EvilHack only).
 
      page_wait
-       (default on, Mac NetHack only).
+       (default on, Mac EvilHack only).
 
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   68
+     EvilHack Guidebook                                                   68
 
 
 
      rawio
        Force raw (non-cbreak) mode for faster output and  more  bulletproof
        input  (MS-DOS sometimes treats `^P' as a printer toggle without it)
-       (default off, OS/2, PC, and ST NetHack only).  Note:   DEC  Rainbows
+       (default off, OS/2, PC, and ST EvilHack only).  Note:   DEC  Rainbows
        hang if this is turned on.  Cannot be set with the `O' command.
 
      soundcard
-       (default on, PC NetHack only).  Cannot be set with the `O' command.
+       (default on, PC EvilHack only).  Cannot be set with the `O' command.
 
      subkeyvalue
-       (Win32  tty  NetHack  only).  May be used to alter the value of key-
-       strokes that the operating system returns to NetHack to help compen-
+       (Win32  tty  EvilHack  only).  May be used to alter the value of key-
+       strokes that the operating system returns to EvilHack to help compen-
        sate  for international keyboard issues.  OPTIONS=subkeyvalue:171/92
-       will return 92 to  NetHack,  if  171  was  originally  going  to  be
+       will return 92 to  EvilHack,  if  171  was  originally  going  to  be
        returned.   You  can use multiple subkeyvalue statements in the con-
        figuration file if needed.  Cannot be set with the `O' command.
 
      video
-       Set the video mode used (PC NetHack only).  Values are "autodetect",
+       Set the video mode used (PC EvilHack only).  Values are "autodetect",
        "default",  or "vga".  Setting "vga" (or "autodetect" with vga hard-
        ware present) will cause the game to display tiles.  Cannot  be  set
        with the `O' command.
 
      videocolors
        Set  the  color  palette  for  PC  systems  using  NO_TERMS (default
-       4-2-6-1-5-3-15-12-10-14-9-13-11, (PC NetHack only).   The  order  of
+       4-2-6-1-5-3-15-12-10-14-9-13-11, (PC EvilHack only).   The  order  of
        colors  is  red,  green,  brown,  blue, magenta, cyan, bright.white,
        bright.red, bright.green, yellow, bright.blue,  bright.magenta,  and
        bright.cyan.  Cannot be set with the `O' command.
 
      videoshades
        Set  the intensity level of the three gray scales available (default
-       dark normal light, PC NetHack only).  If the game display is  diffi-
+       dark normal light, PC EvilHack only).  If the game display is  diffi-
        cult  to  read, try adjusting these scales; if this does not correct
        the problem, try !color.  Cannot be set with the `O' command.
 
      9.7.  Regular Expressions
 
           Regular expressions are normally POSIX extended  regular  expres-
-     sions.  It  is  possible to compile NetHack without regular expression
+     sions.  It  is  possible to compile EvilHack without regular expression
      support on a platform where there is no  regular  expression  library.
-     While  this  is  not  true of any modern platform, if your NetHack was
+     While  this  is  not  true of any modern platform, if your EvilHack was
      built this way, patterns are instead glob patterns.  This  applies  to
      Autopickup exceptions, Message types, Menu colors, and User sounds.
 
@@ -4554,13 +4554,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   69
+     EvilHack Guidebook                                                   69
 
 
 
@@ -4620,13 +4620,13 @@
        The menu control or accelerator keys can also be rebound via OPTIONS
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   70
+     EvilHack Guidebook                                                   70
 
 
 
@@ -4686,13 +4686,13 @@
        doorway.  Default is `D'.
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   71
+     EvilHack Guidebook                                                   71
 
 
 
@@ -4752,13 +4752,13 @@
        When asked for a location, the key to go to your location.   Default
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   72
+     EvilHack Guidebook                                                   72
 
 
 
@@ -4818,13 +4818,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   73
+     EvilHack Guidebook                                                   73
 
 
 
@@ -4849,7 +4849,7 @@
        norep - show the message once, but not again if no other message  is
                shown in between.
 
-       Here's  an example of message types using NetHack's internal pattern
+       Here's  an example of message types using EvilHack's internal pattern
        matching facility:
 
             MSGTYPE=stop "You feel hungry."
@@ -4884,13 +4884,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   74
+     EvilHack Guidebook                                                   74
 
 
 
@@ -4903,7 +4903,7 @@
        inverse.   "Normal" is a synonym for "none".  Note that the platform
        used may interpret the attributes any way it wants.
 
-       Here's an example of menu colors using  NetHack's  internal  pattern
+       Here's an example of menu colors using  EvilHack's  internal  pattern
        matching facility:
 
             MENUCOLOR="* blessed *"=green
@@ -4950,19 +4950,19 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   75
+     EvilHack Guidebook                                                   75
 
 
 
      9.13.  Configuring Status Hilites
 
-          Your copy of NetHack may have  been  compiled  with  support  for
+          Your copy of EvilHack may have  been  compiled  with  support  for
      "Status  Hilites".  If so, you can customize your game display by set-
      ting thresholds to change the color or appearance  of  fields  in  the
      status display.
@@ -5006,7 +5006,7 @@
      systems  a  request for bold might yield blink or vice versa.  On oth-
      ers, issuing an attribute request while another is already set up will
      replace  the  earlier  attribute  rather  than combine with it.  Since
-     NetHack issues attribute requests sequentially (at least with the  tty
+     EvilHack issues attribute requests sequentially (at least with the  tty
      interface) rather than all at once, the only way a situation like that
      can be controlled is to specify just one attribute.
 
@@ -5016,13 +5016,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   76
+     EvilHack Guidebook                                                   76
 
 
 
@@ -5082,13 +5082,13 @@
             allowed and matches the special case of being exactly 1 experi-
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   77
+     EvilHack Guidebook                                                   77
 
 
 
@@ -5126,9 +5126,9 @@
           OPTION=hilite_status: condition/major/orange&inverse
           OPTION=hilite_status: condition/lev+fly/red&inverse
 
-     9.14.  Modifying NetHack Symbols
+     9.14.  Modifying EvilHack Symbols
 
-          NetHack can load entire symbol sets from the symbol file.
+          EvilHack can load entire symbol sets from the symbol file.
 
           The options that are used to select a particular symbol set  from
      the symbol file are:
@@ -5142,26 +5142,26 @@
 
           You can also override one or more symbols using the  SYMBOLS  and
      ROGUESYMBOLS  configuration  file  options.   Symbols are specified as
-     name:value pairs.  Note that NetHack escape-processes the value string
+     name:value pairs.  Note that EvilHack escape-processes the value string
      in  conventional C fashion.  This means that \ is a prefix to take the
      following character literally.  Thus \ needs to be represented as  \\.
      The  special  prefix  form  \m  switches on the meta bit in the symbol
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   78
+     EvilHack Guidebook                                                   78
 
 
 
      value, and the ^ prefix causes the following character to  be  treated
      as a control character.
 
-        NetHack Symbols
+        EvilHack Symbols
            Symbol Name            Description
         -----------------------------------------------------------------
            S_air                  (air)
@@ -5215,13 +5215,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   79
+     EvilHack Guidebook                                                   79
 
 
 
@@ -5285,13 +5285,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   80
+     EvilHack Guidebook                                                   80
 
 
 
@@ -5352,13 +5352,13 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   81
+     EvilHack Guidebook                                                   81
 
 
 
@@ -5400,10 +5400,10 @@
        is  only  used for boulders and not used at all if overridden by the
        more specific S_boulder.
 
-     9.15.  Configuring NetHack for Play by the Blind
+     9.15.  Configuring EvilHack for Play by the Blind
 
-          NetHack can be set up to use only standard ASCII  characters  for
-     making maps of the dungeons. This makes the MS-DOS versions of NetHack
+          EvilHack can be set up to use only standard ASCII  characters  for
+     making maps of the dungeons. This makes the MS-DOS versions of EvilHack
      completely accessible to the  blind  who  use  speech  and/or  Braille
      access technologies.  Players will require a good working knowledge of
      their screen-reader's review features, and will have to  know  how  to
@@ -5418,24 +5418,24 @@
      the row and column of your review cursor and the PC cursor.  These co-
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   82
+     EvilHack Guidebook                                                   82
 
 
 
      ordinates are often useful in giving players a  better  sense  of  the
      overall location of items on the screen.
 
-          NetHack  can  also  be compiled with support for sending the game
+          EvilHack  can  also  be compiled with support for sending the game
      messages to an external program, such as a text-to-speech synthesizer.
      If  the  "#version" extended command shows "external program as a mes-
-     sage handler", your NetHack has been  compiled  with  the  capability.
-     When  compiling  NetHack from source on Linux and other POSIX systems,
+     sage handler", your EvilHack has been  compiled  with  the  capability.
+     When  compiling  EvilHack from source on Linux and other POSIX systems,
      define MSGHANDLER to enable it.  To use the capability, set the  envi-
      ronment  variable  NETHACK_MSGHANDLER  to an executable, which will be
      executed with the game message as the program's only parameter.
@@ -5443,7 +5443,7 @@
           While it is not difficult  for  experienced  users  to  edit  the
      defaults.nh  file to accomplish this, novices may find this task some-
      what daunting.  Included within the "symbols"  file  of  all  official
-     distributions  of NetHack is a symset called NHAccess.  Selecting that
+     distributions  of EvilHack is a symset called NHAccess.  Selecting that
      symset in your configuration file will cause the game to run in a man-
      ner  accessible  to  the blind.  After you have gained some experience
      with the game and with editing files, you may want to  alter  settings
@@ -5484,13 +5484,13 @@
        When  targeting with cursor, describe the cursor position with coor-
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   83
+     EvilHack Guidebook                                                   83
 
 
 
@@ -5511,11 +5511,11 @@
 
      9.16.  Global Configuration for System Administrators
 
-          If NetHack is compiled with the SYSCF option, a  system  adminis-
+          If EvilHack is compiled with the SYSCF option, a  system  adminis-
      trator  should  set  up  a global configuration; this is a file in the
      same format  as  the  traditional  per-user  configuration  file  (see
      above).   This  file  should  be  named sysconf and placed in the same
-     directory as the other NetHack support files.  The options  recognized
+     directory as the other EvilHack support files.  The options  recognized
      in  this file are listed below.  Any option not set uses a compiled-in
      default (which may not be appropriate for your system).
 
@@ -5550,13 +5550,13 @@
        (used identification number) checking for save files (to verify that
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   84
+     EvilHack Guidebook                                                   84
 
 
 
@@ -5602,13 +5602,13 @@
 
      10.  Scoring
 
-          NetHack  maintains  a  list  of the top scores or scorers on your
+          EvilHack  maintains  a  list  of the top scores or scorers on your
      machine, depending on how it is set up.   In  the  latter  case,  each
      account  on  the  machine  can post only one non-winning score on this
      list.  If you score higher than someone else on this list,  or  better
      your  previous  score,  you will be inserted in the proper place under
      your current name.  How many scores are kept can also be set  up  when
-     NetHack is compiled.
+     EvilHack is compiled.
 
           Your  score is chiefly based upon how much experience you gained,
      how much loot you accumulated, how deep you explored, and how the game
@@ -5616,13 +5616,13 @@
      If, however, you get killed in the Mazes of  Menace,  the  guild  will
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   85
+     EvilHack Guidebook                                                   85
 
 
 
@@ -5633,11 +5633,11 @@
      all your gold, but if you swing and live, you might find more.
 
           If  you  just want to see what the current top players/games list
-     is, you can type nethack -s all on most versions.
+     is, you can type EvilHack -s all on most versions.
 
      11.  Explore mode
 
-          NetHack is an intricate and difficult game.  Novices might falter
+          EvilHack is an intricate and difficult game.  Novices might falter
      in fear, aware of their ignorance of the means to survive.  Well, fear
      not.  Your dungeon comes equipped with  an  "explore"  or  "discovery"
      mode  that  enables you to keep old save files and cheat death, at the
@@ -5677,18 +5677,18 @@
      Arnold.   Small  portions were adapted from Further Exploration of the
      Dungeons of Doom, by Ken Arromdee.
 
-          NetHack is the product of  literally  dozens  of  people's  work.
+          EvilHack is the product of  literally  dozens  of  people's  work.
      Main events in the course of the game development are described below:
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
 
 
-     NetHack Guidebook                                                   86
+     EvilHack Guidebook                                                   86
 
 
 
@@ -5748,7 +5748,7 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
@@ -5814,7 +5814,7 @@
      Timo Hakulinen, Kevin Hugo, Steve Linhart, Ken Lorber, Dean Luick, Pat
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
@@ -5880,7 +5880,7 @@
      than a decade. The NetHack Development Team slowly and quietly contin-
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
@@ -5946,7 +5946,7 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
@@ -5992,6 +5992,11 @@
           The official NetHack web site is  maintained  by  Ken  Lorber  at
      https://www.nethack.org/.
 
+          EvilHack (this variant) was initially  based  on  NetHack  3.6.2,
+     created  by Keith Simpson.  Development began on October 20, 2018, and
+     was first released to the public in April 2019. The GitHub  repository
+     for EvilHack can be found at .UR https://github.com/k21971/EvilHack/ .
+
      12.1.  Special Thanks
 
           On  behalf  of  the  NetHack  community, thank you very much once
@@ -6012,7 +6017,7 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
@@ -6078,7 +6083,7 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
@@ -6144,7 +6149,7 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 
@@ -6210,7 +6215,7 @@
 
 
 
-     NetHack 3.6.7                                         February 3, 2023
+     EvilHack 0.9.2                                         December 29, 2025
 
 
 

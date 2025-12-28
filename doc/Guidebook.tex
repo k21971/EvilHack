@@ -40,12 +40,12 @@
 
 %.mt
 \title{\LARGE A Guide to the Mazes of Menace:\\
-\Large Guidebook for {\it NetHack\/}}
+\Large Guidebook for {\it EvilHack\/}}
 
 %.au
 \author{Original version - Eric S. Raymond\\
-(Edited and expanded for 3.6 by Mike Stephenson and others)}
-\date{February 3, 2023}
+(Edited and expanded for EvilHack by Keith Simpson and others)}
+\date{December 29, 2025}
 
 \maketitle
 
@@ -103,7 +103,7 @@ dungeon\ldots
 \section{What is going on here?}
 
 %.pg
-You have just begun a game of {\it NetHack}.  Your goal is to grab as much
+You have just begun a game of {\it EvilHack}.  Your goal is to grab as much
 treasure as you can, retrieve the Amulet of Yendor, and escape the
 Mazes of Menace alive.
 
@@ -266,28 +266,28 @@ seen on the current dungeon level; as you explore more of the level,
 it appears on the screen in front of you.
 
 %.pg
-When {\it NetHack\/}'s ancestor {\it rogue\/} first appeared, its screen
+When {\it EvilHack\/}'s ancestor {\it rogue\/} first appeared, its screen
 orientation was almost unique among computer fantasy games.  Since
 then, screen orientation has become the norm rather than the
-exception; {\it NetHack\/} continues this fine tradition.  Unlike text
+exception; {\it EvilHack\/} continues this fine tradition.  Unlike text
 adventure games that accept commands in pseudo-English sentences and
-explain the results in words, {\it NetHack\/} commands are all one or two
+explain the results in words, {\it EvilHack\/} commands are all one or two
 keystrokes and the results are displayed graphically on the screen.  A
 minimum screen size of 24 lines by 80 columns is recommended; if the
 screen is larger, only a $21\times80$ section will be used for the map.
 
 %.pg
-{\it NetHack\/} can even be played by blind players, with the assistance of
+{\it EvilHack\/} can even be played by blind players, with the assistance of
 Braille readers or speech synthesisers.  Instructions for configuring
-{\it NetHack\/} for the blind are included later in this document.
+{\it EvilHack\/} for the blind are included later in this document.
 
 %.pg
-{\it NetHack\/} generates a new dungeon every time you play it; even the
+{\it EvilHack\/} generates a new dungeon every time you play it; even the
 authors still find it an entertaining and exciting game despite
 having won several times.
 
 %.pg
-{\it NetHack\/} offers a variety of display options.  The options available to
+{\it EvilHack\/} offers a variety of display options.  The options available to
 you will vary from port to port, depending on the capabilities of your
 hardware and software, and whether various compile-time options were
 enabled when your executable was created.  The three possible display
@@ -301,10 +301,10 @@ colors in the Guidebook, and because it is common to all ports, we will
 use the default ASCII characters from the monochrome character display
 when referring to things you might see on the screen during your game.
 %.pg
-In order to understand what is going on in {\it NetHack}, first you must
-understand what {\it NetHack\/} is doing with the screen.  The {\it NetHack\/}
+In order to understand what is going on in {\it EvilHack}, first you must
+understand what {\it EvilHack\/} is doing with the screen.  The {\it EvilHack\/}
 screen replaces the ``You see \ldots'' descriptions of text adventure games.
-Figure 1 is a sample of what a {\it NetHack\/} screen might look like.
+Figure 1 is a sample of what a {\it EvilHack\/} screen might look like.
 The way the screen looks for you depends on your platform.
 %.BR 2
 
@@ -469,7 +469,7 @@ all relevant status conditions.
 %.pg
 The top line of the screen is reserved for messages that describe
 things that are impossible to represent visually.  If you see a
-``{\tt --More--}'' on the top line, this means that {\it NetHack\/} has
+``{\tt --More--}'' on the top line, this means that {\it EvilHack\/} has
 another message to display on the screen, but it wants to make certain
 that you've read the one that is there first.  To read the next message,
 just press the space bar.
@@ -592,9 +592,9 @@ Commands can be initiated by typing one or two characters to which
 the command is bound to, or typing the command name in the extended
 commands entry.  Some commands,
 like ``{\tt search}'', do not require that any more information be collected
-by {\it NetHack\/}.  Other commands might require additional information, for
+by {\it EvilHack\/}.  Other commands might require additional information, for
 example a direction, or an object to be used.  For those commands that
-require additional information, {\it NetHack\/} will present you with either
+require additional information, {\it EvilHack\/} will present you with either
 a menu of choices, or with a command line prompt requesting information.
 Which you are presented with will depend chiefly on how you have set the
 `{\it menustyle\/}'
@@ -1144,7 +1144,7 @@ Escape to a shell.
 \item[\tb{\#}]
 Perform an extended command.\\
 %.lp ""
-As you can see, the authors of {\it NetHack\/}
+As you can see, the authors of {\it EvilHack\/}
 used up all the letters, so this is a way to introduce the less frequently
 used commands.
 What extended commands are available depends on what features
@@ -1580,7 +1580,7 @@ Autocompletes.
 Debug mode only.
 %.lp
 \item[\tb{\#version}]
-Print compile time options for this version of {\it NetHack\/}.
+Print compile time options for this version of {\it EvilHack\/}.
 Autocompletes. Default key is `{\tt M-v}'.
 %.lp
 \item[\tb{\#versionshort}]
@@ -1727,13 +1727,13 @@ Help menu:  get the list of available extended commands.
 with another key, modifies it by setting the `meta' [8th, or `high']
 bit), you can invoke many extended commands by meta-ing the first
 letter of the command.
-In {\it NT, OS/2, PC\/ {\rm and} ST NetHack},
+In {\it NT, OS/2, PC\/ {\rm and} ST EvilHack},
 the `Alt' key can be used in this fashion;
 on the {\it Amiga}, set the {\it altmeta\/} option to get this behavior.
 On other systems, if typing `Alt' plus another key transmits a
 two character sequence consisting of an {\tt Escape}
 followed by the other key, you may set the {\it altmeta\/}
-option to have {\it NetHack\/} combine them into meta\+key.
+option to have {\it EvilHack\/} combine them into meta\+key.
 \blist{}
 %.lp
 \item[\tb{M-?}]
@@ -2155,12 +2155,12 @@ location ordinarily wouldn't be seen any more.
 
 %.pg
 When you find something in the dungeon, it is common to want to pick
-it up.  In {\it NetHack}, this is accomplished automatically by walking over
+it up.  In {\it EvilHack}, this is accomplished automatically by walking over
 the object (unless you turn off the {\it autopickup\/}
 option (see below), or move with the `{\tt m}' prefix (see above)), or
 manually by using the `{\tt ,}' command.
 %.pg
-If you're carrying too many items, {\it NetHack\/} will tell you so and you
+If you're carrying too many items, {\it EvilHack\/} will tell you so and you
 won't be able to pick up anything more.  Otherwise, it will add the object(s)
 to your pack and tell you what you just picked up.
 %.pg
@@ -2175,7 +2175,7 @@ will get slower and you'll burn calories faster, requiring food more frequently
 to cope with it.  Eventually, you'll be so overloaded that you'll either have
 to discard some of what you're carrying or collapse under its weight.
 %.pg
-{\it NetHack\/} will tell you how badly you have loaded yourself.
+{\it EvilHack\/} will tell you how badly you have loaded yourself.
 If you are encumbered, one of the conditions
 ``{\it Burdened\/}'', ``{\it Stressed\/}'', ``{\it Strained\/}'',
 ``{\it Overtaxed\/}'' or ``{\it Overloaded\/}'' will be
@@ -2184,7 +2184,7 @@ shown on the bottom line status display.
 %.pg
 When you pick up an object, it is assigned an inventory letter.  Many
 commands that operate on objects must ask you to find out which object
-you want to use.  When {\it NetHack\/} asks you to choose a particular object
+you want to use.  When {\it EvilHack\/} asks you to choose a particular object
 you are carrying, you are usually presented with a list of inventory
 letters to choose from (see Commands, above).
 
@@ -2195,7 +2195,7 @@ type.  During a game, any two objects with the same description are
 the same type.  However, the descriptions will vary from game to game.
 
 %.pg
-When you use one of these objects, if its effect is obvious, {\it NetHack\/}
+When you use one of these objects, if its effect is obvious, {\it EvilHack\/}
 will remember what it is for you.  If its effect isn't extremely
 obvious, you will be asked what you want to call this type of object
 so you will recognize it later.  You can also use the ``{\tt \#name}''
@@ -2308,7 +2308,7 @@ other worn items.
 %.pg
 Those of you in the audience who are AD\&D players, be aware that each
 weapon which existed in AD\&D does roughly the same damage to monsters in
-{\it NetHack}.  Some of the more obscure weapons (such as the %
+{\it EvilHack}.  Some of the more obscure weapons (such as the %
 {\it aklys}, {\it lucern hammer}, and {\it bec-de-corbin\/}) are defined
 in an appendix to {\it Unearthed Arcana}, an AD\&D supplement.
 
@@ -2339,7 +2339,7 @@ throw it.  You'll be prompted for a direction as above, but you don't
 have to specify which item to throw each time you use `{\tt f}'.  There is
 also an option,
 {\it autoquiver},
-which has {\it NetHack\/} choose another item to automatically fill your
+which has {\it EvilHack\/} choose another item to automatically fill your
 quiver (or quiver sack, or have at the ready) when the inventory slot used
 for `{\tt Q}' runs out.
 
@@ -2467,7 +2467,7 @@ protection than others.  Your armor class is a measure of this
 protection.  Armor class (AC) is measured as in AD\&D, with 10 being
 the equivalent of no armor, and lower numbers meaning better armor.
 Each suit of armor which exists in AD\&D gives the same protection in
-{\it NetHack}.  Here is an (incomplete) list of the armor classes provided by
+{\it EvilHack}.  Here is an (incomplete) list of the armor classes provided by
 various suits of armor:
 
 \begin{center}
@@ -2559,14 +2559,14 @@ enchantment are difficult to identify without these.
 %.pg
 A mail daemon may run up and deliver mail to you as a %
 {\it scroll of mail} (on versions compiled with this feature).
-To use this feature on versions where {\it NetHack\/}
+To use this feature on versions where {\it EvilHack\/}
 mail delivery is triggered by electronic mail appearing in your system mailbox,
-you must let {\it NetHack\/} know where to look for new mail by setting the
+you must let {\it EvilHack\/} know where to look for new mail by setting the
 ``MAIL'' environment variable to the file name of your mailbox.
 You may also want to set the ``MAILREADER'' environment variable to the
-file name of your favorite reader, so {\it NetHack\/} can shell to it when you
+file name of your favorite reader, so {\it EvilHack\/} can shell to it when you
 read the scroll.
-On versions of {\it NetHack\/} where mail is randomly
+On versions of {\it EvilHack\/} where mail is randomly
 generated internal to the game, these environment variables are ignored.
 You can disable the mail daemon by turning off the
 {\it mail\/} option.
@@ -2822,7 +2822,7 @@ the top one of a pile.
 \section{Conduct}
 
 %.pg
-As if winning {\it NetHack\/} were not difficult enough, certain players
+As if winning {\it EvilHack\/} were not difficult enough, certain players
 seek to challenge themselves by imposing restrictions on the
 way they play the game.  The game automatically tracks some of
 these challenges, which can be checked at any time with the {\tt \#conduct}
@@ -2906,7 +2906,7 @@ fire, and kick weapons; use a wand, spell, or other type of item;
 or fight with your hands and feet.
 
 %.pg
-In {\it NetHack}, a pacifist refuses to cause the death of any other monster
+In {\it EvilHack}, a pacifist refuses to cause the death of any other monster
 (i.e. if you would get experience for the death).  This is a particularly
 difficult challenge, although it is still possible to gain experience
 by other means.
@@ -2943,8 +2943,8 @@ choose ``nothing'' if you want to decline.
 \section{Options}
 
 %.pg
-Due to variations in personal tastes and conceptions of how {\it NetHack\/}
-should do things, there are options you can set to change how {\it NetHack\/}
+Due to variations in personal tastes and conceptions of how {\it EvilHack\/}
+should do things, there are options you can set to change how {\it EvilHack\/}
 behaves.
 
 %.hn 2
@@ -2955,7 +2955,7 @@ Options may be set in a number of ways.  Within the game, the `{\tt O}'
 command allows you to view all options and change most of them.
 You can also set options automatically by placing them in a configuration
 file, or in the ``EVILHACKOPTIONS'' environment variable.
-Some versions of {\it NetHack\/} also have front-end programs that allow
+Some versions of {\it EvilHack\/} also have front-end programs that allow
 you to set options before starting the game or a global configuration
 for system administrators.
 
@@ -2973,13 +2973,13 @@ can be created with any text editor.\\
 
 %.lp ""
 On Windows, it is \mbox{``.evilhackrc''} in the folder
-\mbox{{``\%USERPROFILE\%\textbackslash NetHack\textbackslash''}}. The
+\mbox{{``\%USERPROFILE\%\textbackslash EvilHack\textbackslash''}}. The
 file may not exist, but it is a normal ASCII text file and can be created
 with any text editor.
-After runing {\it NetHack\/} for the first time, you should find a default
+After runing {\it EvilHack\/} for the first time, you should find a default
 template for ths configuration file named \mbox{``.evilhackrc.template''} in
-\mbox{{``\%USERPROFILE\%\textbackslash NetHack\textbackslash''}}.
-If you had not created the configuration file, {\it NetHack\/} will create
+\mbox{{``\%USERPROFILE\%\textbackslash EvilHack\textbackslash''}}.
+If you had not created the configuration file, {\it EvilHack\/} will create
 the configuration file for you using the default template file.
 
 %.lp ""
@@ -3028,7 +3028,7 @@ Example:
 
 %.lp
 \item[\bb{HACKDIR}]
-Default location of files {\it NetHack\/} needs. On Windows HACKDIR
+Default location of files {\it EvilHack\/} needs. On Windows HACKDIR
 defaults to the location of the {\it EvilHack.exe\/} or {\it EvilHackw.exe\/} file
 so setting HACKDIR to override that is not usually necessary or recommended.
 %.lp
@@ -3132,7 +3132,7 @@ See the ``Configuring User Sounds'' section.
 \item[\bb{SYMBOLS}]
 Override one or more symbols in the symbol set used for all dungeon
 levels except for the special rogue level.
-See the ``Modifying {\it NetHack\/} Symbols'' section.
+See the ``Modifying {\it EvilHack\/} Symbols'' section.
 %.pg
 
 %.lp ""
@@ -3442,9 +3442,9 @@ a text query with possible menu letters. Default is off.
 \item[\ib{fruit}]
 Name a fruit after something you enjoy eating (for example, ``{\tt fruit:mango}'')
 (default ``{\tt slime mold}''). Basically a nostalgic whimsy that
-{\it NetHack\/} uses from time to time.  You should set this to something you
+{\it EvilHack\/} uses from time to time.  You should set this to something you
 find more appetizing than slime mold.  Apples, oranges, pears, bananas, and
-melons already exist in {\it NetHack\/}, so don't use those.
+melons already exist in {\it EvilHack\/}, so don't use those.
 %.lp
 \item[\ib{gender}]
 Your starting gender ({\tt gender:male} or {\tt gender:female}).
@@ -3669,7 +3669,7 @@ automatically chosen.
 Cannot be set with the `{\tt O}' command.
 %.lp
 \item[\ib{news}]
-Read the {\it NetHack\/} news file, if present (default on).
+Read the {\it EvilHack\/} news file, if present (default on).
 Since the news is shown at the beginning of the game, there's no point
 in setting this with the `{\tt O}' command.
 %.lp
@@ -4001,7 +4001,7 @@ See ``{\it Configuring Status Hilites\/}'' for further information.
 Allow updates to the status lines at the bottom of the screen (default true).
 %.lp
 \item[\ib{suppress\verb+_+alert}]
-This option may be set to a {\it NetHack\/} version level to suppress
+This option may be set to a {\it EvilHack\/} version level to suppress
 alert notification messages about feature changes for that
 and prior versions (for example, ``{\tt suppress\verb+_+alert:3.3.1}'')
 %.lp
@@ -4024,9 +4024,9 @@ program.)  Persistent.
 Draw a tombstone graphic upon your death (default on).  Persistent.
 %.lp
 \item[\ib{toptenwin}]
-Put the ending display in a {\it NetHack\/} window instead of on stdout (default off).
+Put the ending display in a {\it EvilHack\/} window instead of on stdout (default off).
 Setting this option makes the score list visible when a windowing version
-of {\it NetHack\/} is started without a parent window, but it no longer leaves
+of {\it EvilHack\/} is started without a parent window, but it no longer leaves
 the score list around after game end on a terminal or emulating window.
 %.lp
 \item[\ib{travel}]
@@ -4152,10 +4152,10 @@ with the `{\tt O}' command.
  Where to align or place the status window (top, bottom, left, or right).
 %.lp
 \item[\ib{ascii\verb+_+map}]
-If {\it NetHack\/} can, it should display an ascii map.
+If {\it EvilHack\/} can, it should display an ascii map.
 %.lp
 \item[\ib{color}]
-If {\it NetHack\/} can, it should display color for different monsters,
+If {\it EvilHack\/} can, it should display color for different monsters,
 objects, and dungeon features.
 
 %.lp
@@ -4164,39 +4164,39 @@ Pass eight-bit character values (for example, specified with the
 {\it traps \/} option) straight through to your terminal (default off).
 %.lp
 \item[\ib{font\verb+_+map}]
-If {\it NetHack\/} can, it should use a font by the chosen name for the
+If {\it EvilHack\/} can, it should use a font by the chosen name for the
 map window.
 %.lp
 \item[\ib{font\verb+_+menu}]
-If {\it NetHack\/} can, it should use a font by the chosen name for menu
+If {\it EvilHack\/} can, it should use a font by the chosen name for menu
 windows.
 %.lp
 \item[\ib{font\verb+_+message}]
-If {\it NetHack\/} can, it should use a font by the chosen name for the message window.
+If {\it EvilHack\/} can, it should use a font by the chosen name for the message window.
 %.lp
 \item[\ib{font\verb+_+status}]
-If {\it NetHack\/} can, it should use a font by the chosen name for the status window.
+If {\it EvilHack\/} can, it should use a font by the chosen name for the status window.
 %.lp
 \item[\ib{font\verb+_+text}]
-If {\it NetHack\/} can, it should use a font by the chosen name for text windows.
+If {\it EvilHack\/} can, it should use a font by the chosen name for text windows.
 %.lp
 \item[\ib{font\verb+_+size\verb+_+map}]
-If {\it NetHack\/} can, it should use this size font for the map window.
+If {\it EvilHack\/} can, it should use this size font for the map window.
 %.lp
 \item[\ib{font\verb+_+size\verb+_+menu}]
-If {\it NetHack\/} can, it  should use this size font for menu windows.
+If {\it EvilHack\/} can, it  should use this size font for menu windows.
 %.lp
 \item[\ib{font\verb+_+size\verb+_+message}]
-If {\it NetHack\/} can, it should use this size font for the message window.
+If {\it EvilHack\/} can, it should use this size font for the message window.
 %.lp
 \item[\ib{font\verb+_+size\verb+_+status}]
-If {\it NetHack\/} can, it should use this size font for the status window.
+If {\it EvilHack\/} can, it should use this size font for the status window.
 %.lp
 \item[\ib{font\verb+_+size\verb+_+text}]
-If {\it NetHack\/} can, it should use this size font for text windows.
+If {\it EvilHack\/} can, it should use this size font for text windows.
 %.lp
 \item[\ib{fullscreen}]
-If {\it NetHack\/} can, it should try and display on the entire screen rather than in a window.
+If {\it EvilHack\/} can, it should try and display on the entire screen rather than in a window.
 %.lp
 \item[\ib{guicolor}]
 Use color text and/or highlighting attributes when displaying some
@@ -4204,42 +4204,42 @@ non-map data (such as menu selector letters).
 Curses interface only; default is on.
 %.lp
 \item[\ib{large\verb+_+font}]
-If {\it NetHack\/} can, it should use a large font.
+If {\it EvilHack\/} can, it should use a large font.
 %.lp
 \item[\ib{map\verb+_+mode}]
-If {\it NetHack\/} can, it should display the map in the manner specified.
+If {\it EvilHack\/} can, it should display the map in the manner specified.
 %.lp
 \item[\ib{player\verb+_+selection}]
-If {\it NetHack\/} can, it should pop up dialog boxes or use prompts for character selection.
+If {\it EvilHack\/} can, it should pop up dialog boxes or use prompts for character selection.
 %.lp
 \item[\ib{popup\verb+_+dialog}]
-If {\it NetHack\/} can, it should pop up dialog boxes for input.
+If {\it EvilHack\/} can, it should pop up dialog boxes for input.
 %.lp
 \item[\ib{preload\verb+_+tiles}]
-If {\it NetHack\/} can, it should preload tiles into memory.
+If {\it EvilHack\/} can, it should preload tiles into memory.
 For example, in the protected mode MS-DOS version, control whether tiles
 get pre-loaded into RAM at the start of the game.  Doing so
 enhances performance of the tile graphics, but uses more memory. (default on).
 Cannot be set with the `{\tt O}' command.
 %.lp
 \item[\ib{scroll\verb+_+amount}]
-If {\it NetHack\/} can, it should scroll the display by this number of cells
+If {\it EvilHack\/} can, it should scroll the display by this number of cells
 when the hero reaches the scroll\verb+_+margin.
 %.lp
 \item[\ib{scroll\verb+_+margin}]
-If {\it NetHack\/} can, it should scroll the display when the hero or cursor
+If {\it EvilHack\/} can, it should scroll the display when the hero or cursor
 is this number of cells away from the edge of the window.
 %.lp
 \item[\ib{selectsaved}]
-If {\it NetHack\/} can, it should display a menu of existing saved games for the player to
+If {\it EvilHack\/} can, it should display a menu of existing saved games for the player to
 choose from at game startup, if it can. Not all ports support this option.
 %.lp
 \item[\ib{softkeyboard}]
-If {\it NetHack\/} can, it should display an onscreen keyboard.
+If {\it EvilHack\/} can, it should display an onscreen keyboard.
 Handhelds are most likely to support this option.
 %.lp
 \item[\ib{splash\verb+_+screen}]
-If {\it NetHack\/} can, it should display an opening splash screen when
+If {\it EvilHack\/} can, it should display an opening splash screen when
 it starts up (default yes).
 %.lp
 \item[\ib{statuslines}]
@@ -4257,7 +4257,7 @@ for smaller sizes if they are too big.
 Default is the current window size.
 %.lp
 \item[\ib{tiled\verb+_+map}]
-If {\it NetHack\/} can, it should display a tiled map if it can.
+If {\it EvilHack\/} can, it should display a tiled map if it can.
 %.lp
 \item[\ib{tile\verb+_+file}]
 Specify the name of an alternative tile file to override the default.
@@ -4272,10 +4272,10 @@ Specify the preferred width of each tile in a tile capable port
 Use bold black instead of blue for black glyphs (TTY only).
 %.lp
 \item[\ib{use\verb+_+inverse}]
-If {\it NetHack\/} can, it should display inverse when the game specifies it.
+If {\it EvilHack\/} can, it should display inverse when the game specifies it.
 %.lp
 \item[\ib{vary\verb+_+msgcount}]
-If {\it NetHack\/} can, it should display this number of messages at a time
+If {\it EvilHack\/} can, it should display this number of messages at a time
 in the message window.
 %.lp
 \item[\ib{windowborders}]
@@ -4301,7 +4301,7 @@ A width of at least 110 columns (\verb&80+2+26+2&) is needed for
 set to {tt left} or {\tt right}.)
 %.lp
 \item[\ib{windowcolors}]
-If {\it NetHack\/} can, it should display windows with the specified
+If {\it EvilHack\/} can, it should display windows with the specified
 foreground/background colors. Windows GUI only. The format is
 \begin{verbatim}
     OPTION=windowcolors:wintype foreground/background
@@ -4323,7 +4323,7 @@ one of the named colors ({\it black}, {\it red}, {\it green}, {\it brown},
 
 %.lp
 \item[\ib{wraptext}]
-If {\it NetHack\/} can, it should wrap long lines of text if they don't fit
+If {\it EvilHack\/} can, it should wrap long lines of text if they don't fit
 in the visible area of the window.
 \elist
 
@@ -4337,7 +4337,7 @@ or ports to customize and change the port behavior.
 \blist{}
 %.lp
 \item[\ib{altkeyhandling}]
-Select an alternate way to handle keystrokes ({\it Win32 tty\/ NetHack\/} only).
+Select an alternate way to handle keystrokes ({\it Win32 tty\/ EvilHack\/} only).
 The name of the handling type is one of {\it default}, {\it ray}, {\it 340}
 %.lp
 \item[\ib{altmeta}]
@@ -4346,7 +4346,7 @@ functions as a meta-shift for that key (default on).
 %.lp
 \item[\ib{altmeta}]
 On other (non-Amiga) systems where this option is available, it can be
-set to tell {\it NetHack\/} to convert a two character sequence beginning with
+set to tell {\it EvilHack\/} to convert a two character sequence beginning with
 ESC into a meta-shifted version of the second character (default off).
 
 %.lp ""
@@ -4354,48 +4354,48 @@ This conversion is only done for commands, not for other input prompts.
 Note that typing one or more digits as a count prefix prior to a
 command---preceded by {\tt n} if the {\it number\verb+_+pad\/}
 option is set---is also subject to this conversion, so attempting to
-abort the count by typing ESC will leave {\it NetHack\/} waiting for another
+abort the count by typing ESC will leave {\it EvilHack\/} waiting for another
 character to complete the two character sequence.  Type a second ESC to
 finish cancelling such a count.  At other prompts a single ESC suffices.
 %.lp
 \item[\ib{BIOS}]
 Use BIOS calls to update the screen display quickly and to read the keyboard
 (allowing the use of arrow keys to move) on machines with an IBM PC
-compatible BIOS ROM (default off, {\it OS/2, PC\/ {\rm and} ST NetHack\/} only).
+compatible BIOS ROM (default off, {\it OS/2, PC\/ {\rm and} ST EvilHack\/} only).
 %.lp
 \item[\ib{flush}]
-(default off, {\it Amiga NetHack \/} only).
+(default off, {\it Amiga EvilHack \/} only).
 %.lp
 \item[\ib{Macgraphics}]
-(default on, {\it Mac NetHack \/} only).
+(default on, {\it Mac EvilHack \/} only).
 %.lp
 \item[\ib{page\verb+_+wait}]
-(default off, {\it Mac NetHack \/} only).
+(default off, {\it Mac EvilHack \/} only).
 %.lp
 \item[\ib{rawio}]
 Force raw (non-cbreak) mode for faster output and more
 bulletproof input (MS-DOS sometimes treats `{\tt \^{}P}' as a printer toggle
-without it) (default off, {\it OS/2, PC\/ {\rm and} ST NetHack\/} only).
+without it) (default off, {\it OS/2, PC\/ {\rm and} ST EvilHack\/} only).
 Note:  DEC Rainbows hang if this is turned on.
 Cannot be set with the `{\tt O}' command.
 %.lp
 \item[\ib{soundcard}]
-(default off, {\it PC NetHack \/} only).
+(default off, {\it PC EvilHack \/} only).
 Cannot be set with the `{\tt O}' command.
 %.lp
 \item[\ib{subkeyvalue}]
-({\it Win32 tty NetHack \/} only).
+({\it Win32 tty EvilHack \/} only).
 May be used to alter the value of keystrokes that the operating system
-returns to {\it NetHack\/} to help compensate for international keyboard
+returns to {\it EvilHack\/} to help compensate for international keyboard
 issues.
 OPTIONS=subkeyvalue:171/92
-will return 92 to {\it NetHack\/}, if 171 was originally going to be returned.
+will return 92 to {\it EvilHack\/}, if 171 was originally going to be returned.
 You can use multiple subkeyvalue statements in the configuration file
 if needed.
 Cannot be set with the `{\tt O}' command.
 %.lp
 \item[\ib{video}]
-Set the video mode used ({\it PC\/ NetHack\/} only).
+Set the video mode used ({\it PC\/ EvilHack\/} only).
 Values are {\it autodetect\/}, {\it default\/}, or {\it vga\/}.
 Setting {\it vga\/} (or {\it autodetect\/} with vga hardware present) will
 cause the game to display tiles.
@@ -4404,7 +4404,7 @@ Cannot be set with the `{\tt O}' command.
 \item[\ib{videocolors}]
 \begin{sloppypar}
 Set the color palette for PC systems using NO\verb+_+TERMS
-(default 4-2-6-1-5-3-15-12-10-14-9-13-11, {\it PC\/ NetHack\/} only).
+(default 4-2-6-1-5-3-15-12-10-14-9-13-11, {\it PC\/ EvilHack\/} only).
 The order of colors is red, green, brown, blue, magenta, cyan,
 bright.white, bright.red, bright.green, yellow, bright.blue,
 bright.magenta, and bright.cyan.
@@ -4413,7 +4413,7 @@ Cannot be set with the `{\tt O}' command.
 %.lp
 \item[\ib{videoshades}]
 Set the intensity level of the three gray scales available
-(default dark normal light, {\it PC\/ NetHack\/} only).
+(default dark normal light, {\it PC\/ EvilHack\/} only).
 If the game display is difficult to read, try adjusting these scales;
 if this does not correct the problem, try {\tt !color}.
 Cannot be set with the `{\tt O}' command.
@@ -4424,10 +4424,10 @@ Cannot be set with the `{\tt O}' command.
 
 %.pg
 Regular expressions are normally POSIX extended regular expressions. It is
-possible to compile {\it NetHack\/} without regular expression support on
+possible to compile {\it EvilHack\/} without regular expression support on
 a platform where
 there is no regular expression library. While this is not true of any modern
-platform, if your {\it NetHack\/} was built this way, patterns are instead glob
+platform, if your {\it EvilHack\/} was built this way, patterns are instead glob
 patterns. This applies to Autopickup exceptions, Message types, Menu colors,
 and User sounds.
 
@@ -4714,7 +4714,7 @@ the pattern to match. The pattern should be a regular expression.
 \elist
 
 %.lp ""
-Here's an example of message types using {\it NetHack's\/} internal
+Here's an example of message types using {\it EvilHack's\/} internal
 pattern matching facility:
 
 \begin{verbatim}
@@ -4782,7 +4782,7 @@ Note that the platform used may interpret the attributes any way it
 wants.
 
 %.lp ""
-Here's an example of menu colors using {\it NetHack's\/} internal
+Here's an example of menu colors using {\it EvilHack's\/} internal
 pattern matching facility:
 
 \begin{verbatim}
@@ -4847,7 +4847,7 @@ The pattern should be a regular expression.
 \subsection*{Configuring Status Hilites}
 
 %.pg
-Your copy of {\it NetHack\/} may have been compiled with support
+Your copy of {\it EvilHack\/} may have been compiled with support
 for {\it Status Hilites}.
 If so, you can customize your game display by setting thresholds to
 change the color or appearance of fields in the status display.
@@ -5016,10 +5016,10 @@ Example hilites:
 
 %.lp
 %.hn 2
-\subsection*{Modifying {\it NetHack\/} Symbols}
+\subsection*{Modifying {\it EvilHack\/} Symbols}
 
 %.pg
-{\it NetHack\/} can load entire symbol sets from the symbol file.
+{\it EvilHack\/} can load entire symbol sets from the symbol file.
 
 %.pg
 The options that are used to select a particular symbol set from the
@@ -5040,7 +5040,7 @@ on the rogue level.
 You can also override one or more symbols using the {\it SYMBOLS\/} and
 {\it ROGUESYMBOLS\/} configuration file options.
 Symbols are specified as {\it name:value\/} pairs.
-Note that {\it NetHack\/} escape-processes
+Note that {\it EvilHack\/} escape-processes
 the {\it value\/} string in conventional C fashion.
 This means that `\verb+\+' is a prefix to take the following character
 literally.
@@ -5053,7 +5053,7 @@ character.
 {
 \small
 \begin{longtable}{lll}
-\caption[]{NetHack Symbols}\\
+\caption[]{EvilHack Symbols}\\
 Default                      & Symbol Name                & Description\\
 \hline \hline
 \endhead
@@ -5263,11 +5263,11 @@ overridden by the more specific S\verb+_+boulder.
 
 %.pg
 %.hn 2
-\subsection*{Configuring {\it NetHack\/} for Play by the Blind}
+\subsection*{Configuring {\it EvilHack\/} for Play by the Blind}
 
 %.pg
-{\it NetHack\/} can be set up to use only standard ASCII characters for making
-maps of the dungeons. This makes the MS-DOS versions of {\it NetHack\/}
+{\it EvilHack\/} can be set up to use only standard ASCII characters for making
+maps of the dungeons. This makes the MS-DOS versions of {\it EvilHack\/}
 completely
 accessible to the blind who use speech and/or Braille access technologies.
 Players will require a good working knowledge of their screen-reader's
@@ -5283,11 +5283,11 @@ gives you the row and column of your review cursor and the PC cursor.
 These co-ordinates are often useful in giving players a better sense of the
 overall location of items on the screen.
 %.pg
-{\it NetHack\/} can also be compiled with support for sending the game messages
+{\it EvilHack\/} can also be compiled with support for sending the game messages
 to an external program, such as a text-to-speech synthesizer. If the
 ``{\tt \#version}'' extended command shows ``external program as a
-message handler'', your {\it NetHack\/}
-has been compiled with the capability. When compiling {\it NetHack\/}
+message handler'', your {\it EvilHack\/}
+has been compiled with the capability. When compiling {\it EvilHack\/}
 from source
 on Linux and other POSIX systems, define {\it MSGHANDLER\/} to enable it.
 To use
@@ -5297,7 +5297,7 @@ only parameter.
 %.pg
 While it is not difficult for experienced users to edit the {\it defaults.nh\/}
 file to accomplish this, novices may find this task somewhat daunting.
-Included within the symbol file of all official distributions of {\it NetHack\/}
+Included within the symbol file of all official distributions of {\it EvilHack\/}
 is a symset called {\it NHAccess\/}.  Selecting that symset in your
 configuration file will cause the game to run in a manner accessible
 to the blind. After you have gained some experience with the game
@@ -5361,12 +5361,12 @@ seen via the {\tt \#attributes} command.
 \subsection*{Global Configuration for System Administrators}
 
 %.pg
-If {\it NetHack\/} is compiled with the SYSCF option, a system administrator
+If {\it EvilHack\/} is compiled with the SYSCF option, a system administrator
 should set up a global configuration; this is a file in the
 same format as the traditional per-user configuration file (see above).
 
 This file should be named sysconf and placed in the same directory as
-the other {\it NetHack\/} support files.
+the other {\it EvilHack\/} support files.
 The options recognized in this file are listed below. Any option not
 set uses a compiled-in default (which may not be appropriate for your
 system).
@@ -5465,13 +5465,13 @@ if your game is compiled with DUMPLOG. Allows the following placeholders:
 \section{Scoring}
 
 %.pg
-{\it NetHack\/} maintains a list of the top scores or scorers on your machine,
+{\it EvilHack\/} maintains a list of the top scores or scorers on your machine,
 depending on how it is set up.  In the latter case, each account on
 the machine can post only one non-winning score on this list.  If
 you score higher than someone else on this list, or better your
 previous score, you will be inserted in the proper place under your
 current name.  How many scores are kept can also be set up when
-{\it NetHack\/} is compiled.
+{\it EvilHack\/} is compiled.
 
 %.pg
 Your score is chiefly based upon how much experience you gained, how
@@ -5496,7 +5496,7 @@ on most versions.
 \section{Explore mode}
 
 %.pg
-{\it NetHack\/} is an intricate and difficult game.  Novices might falter
+{\it EvilHack\/} is an intricate and difficult game.  Novices might falter
 in fear, aware of their ignorance of the means to survive.  Well, fear
 not.  Your dungeon comes equipped with an ``explore'' or ``discovery''
 mode that enables you to keep old save files and cheat death, at the
@@ -5553,7 +5553,7 @@ and Kenneth C. R. C. Arnold.  Small portions were adapted from
 {\it Further Exploration of the Dungeons of Doom}, by Ken Arromdee.
 
 %.pg
-{\it NetHack\/} is the product of literally dozens of people's work.
+{\it EvilHack\/} is the product of literally dozens of people's work.
 Main events in the course of the game development are described below:
 
 %.pg
@@ -5917,6 +5917,17 @@ some bug fixes.
 \medskip
 NetHack 3.6.7 was released in February 2023 containing a security fix and
 some bug fixes.
+
+%.pg
+\medskip
+{\it EvilHack\/} (this variant) was initially based on NetHack 3.6.2, created by
+{\it Keith Simpson}. Development began on October 20, 2018, and was first
+released to the public in April 2019. The GitHub repository for EvilHack
+can be found at {\catcode`\#=11
+\special{html:<a href="https://github.com/k21971/EvilHack/">}}
+https:{\tt /}{\tt /}github.com{\tt /}k21971{\tt /}EvilHack{\tt /}.
+{\catcode`\#=11
+\special{html:</a>}}
 
 %.pg
 \medskip
