@@ -4863,4 +4863,5 @@ The following changes to date are:
 - Honey badgers prioritize royal jelly over the player
 - Unique monsters resist stun-locking from knockback
 - Fix: object properties code cleanup and bug fixes
+- Fix: force bolt knockback not updating caster's player tracking
 
