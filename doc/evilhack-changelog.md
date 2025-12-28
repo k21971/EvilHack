@@ -4867,4 +4867,5 @@ The following changes to date are:
 - Fix: single-segment worm crash when displaced by mnearto()
 - Fix: sync all Guidebook.* documents
 - Fix: sync all Guidebook.* documents round two
+- Fix: sync all Guidebook.* documents round three
 
