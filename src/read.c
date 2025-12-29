@@ -2695,6 +2695,10 @@ do_class_genocide()
     int killed, candidates;
     char buf[BUFSZ] = DUMMY;
     boolean gameover = FALSE; /* true iff killed self */
+    /* Buffers for grouping genocide feedback messages.
+     * Use larger buffers since we may concatenate many monster names. */
+    char immune_buf[BUFSZ * 4], gone_buf[BUFSZ * 4], dark_buf[BUFSZ];
+    int immune_count, gone_count, dark_count;
 
     for (j = 0;; j++) {
         if (j >= 5) {
@@ -2783,6 +2787,8 @@ do_class_genocide()
         }
 
         killed = candidates = 0;
+        immune_buf[0] = gone_buf[0] = dark_buf[0] = '\0';
+        immune_count = gone_count = dark_count = 0;
         for (i = LOW_PM; i < NUMMONS; i++) {
             if (mons[i].mlet == class) {
                 char nam[BUFSZ];
@@ -2793,12 +2799,14 @@ do_class_genocide()
                  */
                 candidates++;
                 if (!u.uevent.uvecna && i == PM_ALHOON) {
-                    if (!gameover)
-                        pline("A dark magic prevents you from genociding alhoons.");
+                    if (dark_count++)
+                        Strcat(dark_buf, ", ");
+                    Strcat(dark_buf, "alhoons");
                     continue;
                 } else if (!u.uevent.utalgath && i == PM_BEHOLDER) {
-                    if (!gameover)
-                        pline("A dark magic prevents you from genociding beholders.");
+                    if (dark_count++)
+                        Strcat(dark_buf, ", ");
+                    Strcat(dark_buf, "beholders");
                     continue;
                 } else if (Your_Own_Role(i) || Your_Own_Race(i)
                     || ((mons[i].geno & G_GENO)
@@ -2852,9 +2860,10 @@ do_class_genocide()
                         }
                     }
                 } else if (mvitals[i].mvflags & G_GENOD) {
-                    if (!gameover)
-                        pline("All %s are already nonexistent.", nam);
-                } else if (!gameover) {
+                    if (gone_count++)
+                        Strcat(gone_buf, ", ");
+                    Strcat(gone_buf, nam);
+                } else {
                     /* suppress feedback about quest beings except
                        for those applicable to our own role */
                     if ((mons[i].msound != MS_LEADER
@@ -2870,6 +2879,7 @@ do_class_genocide()
                         && ((i != PM_TEMPLAR && i != PM_CHAMPION
                             && i != PM_AGENT) || Role_if(PM_INFIDEL))) {
                         boolean named, uniq;
+                        char mnam[BUFSZ];
 
                         named = type_is_pname(&mons[i]) ? TRUE : FALSE;
                         uniq = (mons[i].geno & G_UNIQ) ? TRUE : FALSE;
@@ -2877,12 +2887,25 @@ do_class_genocide()
                         if (i == PM_HIGH_PRIEST)
                             uniq = FALSE;
 
-                        You("aren't permitted to genocide %s%s.",
-                            (uniq && !named) ? "the " : "",
-                            (uniq || named) ? mons[i].mname : nam);
+                        Sprintf(mnam, "%s%s",
+                                (uniq && !named) ? "the " : "",
+                                (uniq || named) ? mons[i].mname : nam);
+                        if (immune_count++)
+                            Strcat(immune_buf, ", ");
+                        Strcat(immune_buf, mnam);
                     }
                 }
             }
+        }
+        /* Print grouped feedback messages */
+        if (!gameover) {
+            if (immune_count)
+                You("aren't permitted to genocide %s.", immune_buf);
+            if (dark_count)
+                pline("A dark magic prevents you from genociding %s.",
+                      dark_buf);
+            if (gone_count)
+                pline("Already nonexistent: %s.", gone_buf);
         }
         if (gameover || u.uhp == -1) {
             killer.format = KILLED_BY_AN;
