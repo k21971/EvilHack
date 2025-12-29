@@ -185,8 +185,8 @@ static const struct innate {
                  { 1, &(HSleep_resistance), "", "" },
                  { 1, &(HPoison_resistance), "", "" },
                  { 1, &(HLycan_resistance), "", "" },
-                 { 7, &(HFlying), "lighter than air", "gravity's pull" },
-                 { 12, &(HRegeneration), "resilient", "less resilient" },
+                 { 12, &(HFlying), "lighter than air", "gravity's pull" },
+                 { 20, &(HRegeneration), "resilient", "less resilient" },
                  { 0, 0, 0, 0 } },
 
   hum_abil[] = { { 0, 0, 0, 0 } };

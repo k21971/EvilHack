@@ -4873,4 +4873,6 @@ The following changes to date are:
 - Fix: in-game help files updated
 - Make blessed genocide function less spammy
 - Fix: hobbit/vampire/draugr polymorph consistency bugs
+- Change what level vampires gain intrinsic flying and hungerless
+  regeneration
 

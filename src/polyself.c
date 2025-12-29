@@ -96,9 +96,9 @@ set_uasmon()
     /* this property also checks race instead of role */
     PROPSET(FLYING, (is_flyer(racedat) && !is_floater(racedat)));
     /* preserve racial flying for races that gain it at certain levels
-       (illithids at level 12, vampires at level 7) */
-    if ((Race_if(PM_ILLITHID) && u.ulevel >= 12)
-        || (Race_if(PM_VAMPIRE) && u.ulevel >= 7)) {
+       (illithids and vampires at level 12) */
+    if ((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
+        && u.ulevel >= 12) {
         HFlying |= FROMRACE;
     }
     if (!program_state.restoring) /* if loading, defer wings check until we have a steed */
@@ -115,7 +115,8 @@ set_uasmon()
      * This could use is_fleshy(), but that would
      * make a large set of monsters immune like
      * fungus, blobs, and jellies.
-     * TODO: make is_vampshifter actually work for youmonst, and include that. */
+     * TODO: make is_vampshifter actually work for youmonst,
+       and include that */
     if (nonliving(mdat) || racial_zombie(&youmonst)
         || racial_vampire(&youmonst))
         BWithering |= FROMFORM;
@@ -583,11 +584,11 @@ vampire_shapechange()
     }
     /* only remove racial flying if we're polymorphed and the new form
        can't fly, but preserve it for vampires that naturally gain
-       flying at level seven */
+       flying at level twelve */
     if ((HFlying & FROMRACE) && !is_flyer(youmonst.data)) {
         /* Don't remove racial flying if we're in our natural form and
            should have it */
-        if (!(Race_if(PM_VAMPIRE) && u.ulevel >= 7)) {
+        if (!(Race_if(PM_VAMPIRE) && u.ulevel >= 12)) {
             HFlying &= ~FROMRACE;
             context.botl = TRUE;
             You_feel("gravity's pull!");
@@ -872,8 +873,8 @@ made_change:
     if ((HFlying & FROMRACE) && !is_flyer(youmonst.data)) {
         /* Don't remove racial flying if we're in our natural form and
            should have it */
-        if (!((Race_if(PM_ILLITHID) && u.ulevel >= 12)
-              || (Race_if(PM_VAMPIRE) && u.ulevel >= 7))) {
+        if (!((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
+              && u.ulevel >= 12)) {
             HFlying &= ~FROMRACE;
             context.botl = TRUE;
             You_feel("gravity's pull!");
@@ -1591,8 +1592,8 @@ rehumanize()
        but only when they reach a certain experience level,
        so check against that */
     if (was_not_flying
-        && ((Race_if(PM_ILLITHID) && u.ulevel >= 12)
-            || (Race_if(PM_VAMPIRE) && u.ulevel >= 7))) {
+        && ((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
+            && u.ulevel >= 12)) {
         HFlying |= FROMRACE;
         You_feel("lighter than air!");
     }
