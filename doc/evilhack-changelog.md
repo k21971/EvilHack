@@ -4876,4 +4876,5 @@ The following changes to date are:
 - Change what level vampires gain intrinsic flying and hungerless
   regeneration
 - Fix: panic "dealloc_obj with nobj" when fire destroys boots on lava
+- Fix: crash in rolling boulder trap with invalid launch coordinates
 

@@ -2189,9 +2189,12 @@ int style;
     int tmp;
     int delaycnt = 0;
 
-    otmp = sobj_at(otyp, x1, y1);
+    /* Validate coordinates before accessing level.objects array.
+       Rolling boulder trap launch coordinates are initialized to -1 as
+       a sentinel; if they're still invalid, treat as "no boulder" */
+    otmp = isok(x1, y1) ? sobj_at(otyp, x1, y1) : (struct obj *) 0;
     /* Try the other side too, for rolling boulder traps */
-    if (!otmp && otyp == BOULDER) {
+    if (!otmp && otyp == BOULDER && isok(x2, y2)) {
         otherside = TRUE;
         otmp = sobj_at(otyp, x2, y2);
     }
