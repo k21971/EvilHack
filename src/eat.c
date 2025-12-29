@@ -530,8 +530,7 @@ boolean message;
         } else if (!piece->odrained
                    || (maybe_polyd(is_vampire(youmonst.data),
                                    Race_if(PM_VAMPIRE)) && !rn2(5))) {
-            cpostfx(piece->corpsenm);
-        } else {
+            /* vampires draining corpses only get 20% chance of intrinsics */
             cpostfx(piece->corpsenm);
         }
     } else
@@ -2300,9 +2299,9 @@ struct obj *otmp;
                                        : "This food really hits the spot");
         /* 700-1+800 remains below 1500, the choking threshold which
            triggers "you're having a hard time getting it down" feedback */
-        else if (!Race_if(PM_HOBBIT) && u.uhunger < 700)
+        else if (!(!Upolyd && Race_if(PM_HOBBIT)) && u.uhunger < 700)
             pline("This satiates your %s!", body_part(STOMACH));
-        else if (Race_if(PM_HOBBIT) && u.uhunger >= 2200)
+        else if ((!Upolyd && Race_if(PM_HOBBIT)) && u.uhunger >= 2200)
             pline("Surprisingly, this satiates your %s!", body_part(STOMACH));
         /* [satiation message may be inaccurate if eating gets interrupted] */
         break;
@@ -3518,7 +3517,7 @@ STATIC_OVL int
 bite()
 {
     if (context.victual.canchoke
-        && u.uhunger >= (Race_if(PM_HOBBIT) ? 4000 : 2000)) {
+        && u.uhunger >= ((!Upolyd && Race_if(PM_HOBBIT)) ? 4000 : 2000)) {
         choke(context.victual.piece);
         return 1;
     }
@@ -3559,7 +3558,7 @@ gethungry()
             || maybe_polyd(is_vampire(youmonst.data),
                            Race_if(PM_VAMPIRE)))
         /* Convicts/Draugr can last twice as long at hungry and below */
-        && (!(Role_if(PM_CONVICT) || Race_if(PM_DRAUGR))
+        && (!(Role_if(PM_CONVICT) || (!Upolyd && Race_if(PM_DRAUGR)))
             || (moves % 2) || (u.uhs < HUNGRY))
         && !Slow_digestion)
         u.uhunger--; /* ordinary food consumption */
@@ -3669,7 +3668,9 @@ int num;
                 context.victual.fullwarn = TRUE;
                 if (context.victual.canchoke && context.victual.reqtime > 1) {
                     /* a one-gulp food will not survive a stop */
-                    if (!paranoid_query(ParanoidEating, "Continue eating?")) {
+                    if (!paranoid_query(ParanoidEating,
+                                        racial_vampire(&youmonst) ? "Continue draining?"
+                                                                  : "Continue eating?")) {
                         reset_eat();
                         nomovemsg = (char *) 0;
                     }
@@ -3720,7 +3721,7 @@ boolean incr;
        experience some serious adverse effects if they do
        not feed in a timely manner */
     if (!racial_vampire(&youmonst))
-        newhs = (h > (Race_if(PM_HOBBIT) ? 3000 : 1000))
+        newhs = (h > ((!Upolyd && Race_if(PM_HOBBIT)) ? 3000 : 1000))
                     ? SATIATED : (h > 150)
                         ? NOT_HUNGRY : (h > 50)
                             ? HUNGRY : (h > 0)

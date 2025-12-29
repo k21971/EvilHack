@@ -4872,4 +4872,5 @@ The following changes to date are:
 - Fix: sync all Guidebook.* documents round five
 - Fix: in-game help files updated
 - Make blessed genocide function less spammy
+- Fix: hobbit/vampire/draugr polymorph consistency bugs
 
