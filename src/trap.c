@@ -6745,6 +6745,11 @@ lava_effects()
     boolean usurvive, boil_away;
     static int lava_death_attempts = 0;
 
+    /* Prevent recursive lava_effects() calls from remove_worn_item() ->
+       Boots_off() -> spoteffects() -> lava_effects() (ported from 3.7) */
+    if (iflags.in_lava_effects)
+        return FALSE;
+
     /* possibly freeze lava */
     if (maybe_freeze_underfoot(&youmonst))
         return TRUE;

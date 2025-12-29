@@ -4875,4 +4875,5 @@ The following changes to date are:
 - Fix: hobbit/vampire/draugr polymorph consistency bugs
 - Change what level vampires gain intrinsic flying and hungerless
   regeneration
+- Fix: panic "dealloc_obj with nobj" when fire destroys boots on lava
 
