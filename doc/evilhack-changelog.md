@@ -4877,4 +4877,5 @@ The following changes to date are:
   regeneration
 - Fix: panic "dealloc_obj with nobj" when fire destroys boots on lava
 - Fix: crash in rolling boulder trap with invalid launch coordinates
+- Fix: crash in artifact_hit() when thrown object kills monster
 

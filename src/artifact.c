@@ -2061,7 +2061,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                             if (youattack)
                                 xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                             else {
-                                if (magr->mtame)
+                                if (magr && magr->mtame)
                                     set_pet_killer(magr);
                                 monkilled(mdef, (char *) 0, AD_FIRE);
                             }
@@ -2088,7 +2088,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (youattack)
                         xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                     else {
-                        if (magr->mtame)
+                        if (magr && magr->mtame)
                             set_pet_killer(magr);
                         monkilled(mdef, (char *) 0, AD_FIRE);
                     }
@@ -2307,7 +2307,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               distant_name(otmp, xname),
                               s_suffix(mon_nam(mdef)));
                     mdef->mhp = 0;
-                    if (!youattack && magr->mtame)
+                    if (!youattack && magr && magr->mtame)
                         set_pet_killer(magr);
                     monkilled(mdef, (char *) 0, AD_DETH);
                     if (!DEADMONSTER(mdef))
@@ -2401,7 +2401,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (youattack) {
                         xkilled(mdef, XKILL_NOMSG);
                     } else {
-                        if (magr->mtame)
+                        if (magr && magr->mtame)
                             set_pet_killer(magr);
                         monkilled(mdef, (char *) 0, AD_DISE);
                     }
@@ -2492,7 +2492,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (youattack) {
                         xkilled(mdef, XKILL_NOMSG);
                     } else {
-                        if (magr->mtame)
+                        if (magr && magr->mtame)
                             set_pet_killer(magr);
                         monkilled(mdef, (char *) 0, AD_DISE);
                     }
@@ -2562,7 +2562,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         mdef->mhp = mdef->mhpmax;
                     } else {
                         if (!DEADMONSTER(mdef)) {
-                            if (magr->mtame)
+                            if (magr && magr->mtame)
                                 set_pet_killer(magr);
                             monkilled(mdef, (char *) 0, AD_DISN);
                         }
@@ -2723,7 +2723,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                             if (youattack)
                                 xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                             else {
-                                if (magr->mtame)
+                                if (magr && magr->mtame)
                                     set_pet_killer(magr);
                                 monkilled(mdef, (char *) 0, AD_FIRE);
                             }
