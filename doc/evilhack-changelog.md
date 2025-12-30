@@ -4879,4 +4879,5 @@ The following changes to date are:
 - Fix: crash in rolling boulder trap with invalid launch coordinates
 - Fix: crash in artifact_hit() when thrown object kills monster
 - Fix: panic in setworn() when wielding quivered weapon
+- Show specific monsters for blessed genocide (livelogging)
 

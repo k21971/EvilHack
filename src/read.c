@@ -2691,14 +2691,16 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
 STATIC_OVL void
 do_class_genocide()
 {
-    int i, j, immunecnt, gonecnt, goodcnt, class, feel_dead = 0, ll_done = 0;
+    int i, j, immunecnt, gonecnt, goodcnt, class, feel_dead = 0;
     int killed, candidates;
     char buf[BUFSZ] = DUMMY;
     boolean gameover = FALSE; /* true iff killed self */
+    boolean first_geno;       /* is this the player's first genocide? */
     /* Buffers for grouping genocide feedback messages.
      * Use larger buffers since we may concatenate many monster names. */
     char immune_buf[BUFSZ * 4], gone_buf[BUFSZ * 4], dark_buf[BUFSZ];
-    int immune_count, gone_count, dark_count;
+    char killed_buf[BUFSZ * 2];  /* for livelog: list of genocided monsters */
+    int immune_count, gone_count, dark_count, killed_count;
 
     for (j = 0;; j++) {
         if (j >= 5) {
@@ -2787,8 +2789,9 @@ do_class_genocide()
         }
 
         killed = candidates = 0;
-        immune_buf[0] = gone_buf[0] = dark_buf[0] = '\0';
-        immune_count = gone_count = dark_count = 0;
+        immune_buf[0] = gone_buf[0] = dark_buf[0] = killed_buf[0] = '\0';
+        immune_count = gone_count = dark_count = killed_count = 0;
+        first_geno = !num_genocides();  /* check before loop sets flags */
         for (i = LOW_PM; i < NUMMONS; i++) {
             if (mons[i].mlet == class) {
                 char nam[BUFSZ];
@@ -2817,18 +2820,13 @@ do_class_genocide()
                      * to geno in the first place; we must get them all then.
                      * finally, we have to make sure the self-geno cases always happen.
                      */
-                    if (!ll_done++) {
-                        if (!num_genocides())
-                            livelog_printf(LL_CONDUCT | LL_GENOCIDE,
-                                           "performed %s first genocide (two random monsters from class %c)",
-                                           uhis(), def_monsyms[class].sym);
-                        else
-                            livelog_printf(LL_GENOCIDE, "genocided two random monsters from class %c",
-                                           def_monsyms[class].sym);
-                    }
                     if ((killed < 2 && (!rn2(goodcnt) || (killed + candidates > goodcnt - 2)))
                         || Your_Own_Role(i) || Your_Own_Race(i)) {
                         killed++;
+                        /* Track genocided monster names for livelog */
+                        if (killed_count++)
+                            Strcat(killed_buf, " and ");
+                        Strcat(killed_buf, nam);
                         mvitals[i].mvflags |= (G_GENOD | G_NOCORPSE);
                         kill_genocided_monsters();
                         update_inventory();	/* eggs & tins */
@@ -2896,6 +2894,15 @@ do_class_genocide()
                     }
                 }
             }
+        }
+        /* Log the genocide with specific monster names */
+        if (killed_count) {
+            if (first_geno)
+                livelog_printf(LL_CONDUCT | LL_GENOCIDE,
+                               "performed %s first genocide (%s)",
+                               uhis(), killed_buf);
+            else
+                livelog_printf(LL_GENOCIDE, "genocided %s", killed_buf);
         }
         /* Print grouped feedback messages */
         if (!gameover) {
