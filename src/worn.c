@@ -95,19 +95,25 @@ long mask;
                 *(wp->w_obj) = obj;
                 if (obj) {
                     /* Clear conflicting worn masks before setting new one.
-                     * An object can't be in multiple weapon slots simultaneously:
-                     * W_WEP, W_SWAPWEP, and W_QUIVER are mutually exclusive.
-                     */
+                       An object can't be in multiple weapon slots simultaneously:
+                       W_WEP, W_SWAPWEP, and W_QUIVER are mutually exclusive */
                     if (wp->w_mask & W_WEAPONS) {
+                        /* Clear other weapon slot pointers if obj is in them.
+                           We're about to clear all weapon masks from the object,
+                           so the other slots would become stale */
+                        if (obj == uwep && !(wp->w_mask & W_WEP))
+                            uwep = (struct obj *) 0;
+                        if (obj == uswapwep && !(wp->w_mask & W_SWAPWEP))
+                            uswapwep = (struct obj *) 0;
+                        if (obj == uquiver && !(wp->w_mask & W_QUIVER))
+                            uquiver = (struct obj *) 0;
                         /* If setting any weapon mask, clear all weapon masks first */
                         obj->owornmask &= ~W_WEAPONS;
                     }
                     obj->owornmask |= wp->w_mask;
                     /* Prevent getting/blocking intrinsics from wielding
-                     * potions, through the quiver, etc.
-                     * Allow weapon-tools, too.
-                     * wp_mask should be same as mask at this point.
-                     */
+                       potions, through the quiver, etc. Allow weapon-tools
+                       as well. wp_mask should be same as mask at this point */
                     if ((wp->w_mask & ~(W_SWAPWEP | W_QUIVER))
                         || (wp->w_mask & W_SWAPWEP && u.twoweap)) {
                         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
@@ -134,8 +140,8 @@ long mask;
     update_inventory();
 }
 
-/* called e.g. when obj is destroyed */
-/* Updated to use the extrinsic and blocked fields. */
+/* called e.g. when obj is destroyed.
+   Updated to use the extrinsic and blocked fields */
 void
 setnotworn(obj)
 struct obj *obj;
