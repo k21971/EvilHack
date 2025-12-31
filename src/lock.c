@@ -510,7 +510,8 @@ struct obj *container; /* container, for autounlock */
 
         count = 0;
         c = 'n'; /* in case there are no boxes here */
-        otmp = IS_MAGIC_CHEST(levl[cc.x][cc.y].typ) ? mchest : level.objects[cc.x][cc.y];
+        otmp = (IS_MAGIC_CHEST(levl[cc.x][cc.y].typ) && mchest)
+               ? mchest : level.objects[cc.x][cc.y];
         while (otmp) {
             /* autounlock on boxes: only the one that just informed you it was
              * locked. Don't include any other boxes which might be here. */

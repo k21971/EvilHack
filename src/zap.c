@@ -1021,7 +1021,7 @@ boolean adjacentok; /* False: at obj's spot only, True: nearby is allowed */
  *      OBJ_INVENT      if in hero's inventory; return 0.
  *      OBJ_FLOOR       if on the floor; return 0.
  *      OBJ_BURIED      if buried; return 0.
- *      OBJ_SOMEWHERE   if in magic chest; return 0.
+ *      OBJ_MCHEST      if in magic chest; return 0.
  *      OBJ_MINVENT     if in monster's inventory; return monster.
  * container_nesting is updated with the nesting depth of the containers
  * if applicable.
@@ -3898,7 +3898,7 @@ struct obj *obj; /* wand or spell */
                    && on_level(&u.uz, &qstart_level) && !ok_to_quest()) {
             pline_The("stairs seem to ripple momentarily.");
             disclose = TRUE;
-        } else if (IS_MAGIC_CHEST(levl[x][y].typ) && u.dz > 0) {
+        } else if (IS_MAGIC_CHEST(levl[x][y].typ) && u.dz > 0 && mchest) {
             disclose = boxlock(mchest, obj);
         }
         /* down will release you from bear trap or web */
@@ -3939,7 +3939,8 @@ struct obj *obj; /* wand or spell */
                 stackobj(otmp);
             }
             newsym(x, y);
-        } else if (!striking && IS_MAGIC_CHEST(levl[x][y].typ) && u.dz > 0) {
+        } else if (!striking && IS_MAGIC_CHEST(levl[x][y].typ) && u.dz > 0
+                   && mchest) {
             disclose = boxlock(mchest, obj);
         } else if (u.dz > 0 && ttmp) {
             if (!striking && closeholdingtrap(&youmonst, &disclose)) {
@@ -4459,7 +4460,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
                 learnwand(obj);
         }
 
-        if (weapon == ZAPPED_WAND && typ == MAGIC_CHEST) {
+        if (weapon == ZAPPED_WAND && typ == MAGIC_CHEST && mchest) {
             boolean learn_it = FALSE;
 
             switch (obj->otyp) {

@@ -5001,7 +5001,7 @@ wiz_show_stats()
               &total_obj_count, &total_obj_size);
     /* just showing mchest isn't very informative.
        mchest items are not counted as "contained" later */
-    obj_chain(win, "magic chest contents", mchest->cobj, FALSE,
+    obj_chain(win, "magic chest contents", mchest ? mchest->cobj : 0, FALSE,
               &total_obj_count, &total_obj_size);
     obj_chain(win, "billobjs", billobjs, FALSE,
               &total_obj_count, &total_obj_size);

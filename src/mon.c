@@ -2317,7 +2317,12 @@ register const char *str;
     }
 
     for (; otmp; otmp = otmp2) {
-        otmp2 = otmp->nexthere;
+        /* mchest->nexthere is invalid (union field unused for OBJ_MCHEST);
+           transition to floor objects after processing magic chest */
+        if (otmp == mchest)
+            otmp2 = level.objects[mtmp->mx][mtmp->my];
+        else
+            otmp2 = otmp->nexthere;
         if (Is_box(otmp) || otmp->otyp == ICE_BOX
             || (Is_allbag(otmp) && !can_carry(mtmp, otmp))) {
             if (nohands(mtmp->data) || r_verysmall(mtmp))

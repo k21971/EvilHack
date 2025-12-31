@@ -648,7 +648,7 @@ struct obj *obj;
     case OBJ_ONBILL:
     case OBJ_MIGRATING:
     case OBJ_BURIED:
-    case OBJ_SOMEWHERE:
+    case OBJ_MCHEST:
     default:
         return (struct obj *) 0;
     case OBJ_INVENT:
@@ -2415,7 +2415,7 @@ struct monst *mtmp;
  *      OBJ_MIGRATING   migrating chain
  *      OBJ_BURIED      level.buriedobjs chain
  *      OBJ_ONBILL      on billobjs chain
- *      OBJ_SOMEWHERE   magic chest
+ *      OBJ_MCHEST      magic chest
  *      OBJ_INTRAP      obj is in a trap as ammo (use extract_nobj instead)
  */
 void
@@ -2449,7 +2449,7 @@ struct obj *obj;
     case OBJ_ONBILL:
         extract_nobj(obj, &billobjs);
         break;
-    case OBJ_SOMEWHERE:
+    case OBJ_MCHEST:
         extract_nobj(obj, &mchest);
         break;
     case OBJ_INTRAP:
@@ -2796,7 +2796,7 @@ obj_sanity_check()
 
     objlist_sanity(invent, OBJ_INVENT, "invent sanity");
     objlist_sanity(migrating_objs, OBJ_MIGRATING, "migrating sanity");
-    objlist_sanity(mchest, OBJ_SOMEWHERE, "magic chest sanity");
+    objlist_sanity(mchest, OBJ_MCHEST, "magic chest sanity");
     objlist_sanity(level.buriedobjlist, OBJ_BURIED, "buried sanity");
     objlist_sanity(billobjs, OBJ_ONBILL, "bill sanity");
 

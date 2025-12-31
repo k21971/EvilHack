@@ -69,7 +69,7 @@ struct obj {
 #define OBJ_MIGRATING 5 /* object sent off to another level */
 #define OBJ_BURIED 6    /* object buried */
 #define OBJ_ONBILL 7    /* object on shk bill */
-#define OBJ_SOMEWHERE 8 /* for magic chest */
+#define OBJ_MCHEST 8    /* object in magic chest */
 #define OBJ_INTRAP 9    /* object is trap ammo */
 #define NOBJ_STATES 10
     xchar timed; /* # of fuses (timers) attached to this obj */

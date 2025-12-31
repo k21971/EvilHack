@@ -264,14 +264,20 @@ STATIC_OVL void
 maybe_map(obj)
 struct obj *obj;
 {
-    if (is_magic(obj))
+    if (is_magic(obj)) {
         map_object(obj, 1);
-    else if (Has_contents(obj))
-        for (struct obj *otmp = obj->cobj; otmp; otmp = otmp->nobj) {
+    }
+    /* also check contents; magic containers can hold magic items */
+    if (Has_contents(obj) && obj->otyp != CRYSTAL_CHEST) {
+        struct obj *otmp, *nobj;
+
+        for (otmp = obj->cobj; otmp; otmp = nobj) {
+            nobj = otmp->nobj; /* save before processing */
             otmp->ox = obj->ox;
             otmp->oy = obj->oy;
             maybe_map(otmp);
         }
+    }
 }
 
 /* Check whether the location has an outdated object displayed on it. */
@@ -702,10 +708,11 @@ int class;            /* an object class, 0 for all */
             do_dknown_of(obj, FALSE);
     }
 
-    for (x = 1; x < COLNO; ++x)
-        for (y = 0; y < ROWNO; ++y)
-            if (IS_MAGIC_CHEST(levl[x][y].typ))
-                for (obj = mchest->cobj; obj; obj = obj->nobj) {
+    for (x = 1; x < COLNO; ++x) {
+        for (y = 0; y < ROWNO; ++y) {
+            if (IS_MAGIC_CHEST(levl[x][y].typ) && mchest) {
+                for (obj = mchest->cobj; obj; obj = otmp) {
+                    otmp = obj->nobj; /* save before processing */
                     if (x == u.ux && y == u.uy)
                         ctu++;
                     else
@@ -713,6 +720,9 @@ int class;            /* an object class, 0 for all */
                     if (do_dknown)
                         do_dknown_of(obj, FALSE);
                 }
+            }
+        }
+    }
 
     for (obj = level.buriedobjlist; obj; obj = obj->nobj) {
         if (!class || o_in(obj, class)) {
@@ -956,7 +966,7 @@ struct obj *detector;   /* object doing the detecting */
     int do_pknown = (detector && (detector->oclass == SCROLL_CLASS)
                      && detector->blessed);
     int ct = 0, ctu = 0;
-    struct obj *obj;
+    struct obj *obj, *nobj;
     struct obj otmp;
     struct monst *mtmp;
     int uw = u.uinwater, ter_typ = TER_DETECT | TER_OBJ;
@@ -991,15 +1001,19 @@ struct obj *detector;   /* object doing the detecting */
             ct += do_mdetect(obj, do_pknown);
     }
 
-    for (x = 1; x < COLNO; ++x)
-        for (y = 0; y < ROWNO; ++y)
-            if (IS_MAGIC_CHEST(levl[x][y].typ))
-                for (obj = mchest->cobj; obj; obj = obj->nobj) {
+    for (x = 1; x < COLNO; ++x) {
+        for (y = 0; y < ROWNO; ++y) {
+            if (IS_MAGIC_CHEST(levl[x][y].typ) && mchest) {
+                for (obj = mchest->cobj; obj; obj = nobj) {
+                    nobj = obj->nobj; /* save before processing */
                     if (x == u.ux && y == u.uy)
                         ctu += do_mdetect(obj, do_pknown);
                     else
                         ct += do_mdetect(obj, do_pknown);
                 }
+            }
+        }
+    }
 
     for (obj = level.buriedobjlist; obj; obj = obj->nobj) {
         if (obj->ox == u.ux && obj->oy == u.uy)

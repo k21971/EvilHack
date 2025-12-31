@@ -643,8 +643,12 @@ char *buf, *monbuf;
                    Is_airlevel(&u.uz) ? "cloudy area" : "fog/vapor cloud");
             break;
         case S_magic_chest:
-            Strcpy(buf, releasep = doname(mchest));
-            maybereleaseobuf(releasep);
+            if (mchest) {
+                Strcpy(buf, releasep = doname(mchest));
+                maybereleaseobuf(releasep);
+            } else {
+                Strcpy(buf, "magic chest");
+            }
             break;
         case S_stone:
             if (!levl[x][y].seenv) {

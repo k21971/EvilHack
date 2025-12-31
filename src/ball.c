@@ -1136,7 +1136,7 @@ bc_sanity_check()
                     uball->where == OBJ_MIGRATING ? "MIGRATING" :
                     uball->where == OBJ_BURIED ? "BURIED" :
                     uball->where == OBJ_ONBILL ? "ONBILL" :
-                    uball->where == OBJ_SOMEWHERE ? "SOMEWHERE" :
+                    uball->where == OBJ_MCHEST ? "MCHEST" :
                     uball->where == OBJ_INTRAP ? "INTRAP" : "UNKNOWN";
             if (uchain) {
                 const char *chain_where_str =
@@ -1148,7 +1148,7 @@ bc_sanity_check()
                         uchain->where == OBJ_MIGRATING ? "MIGRATING" :
                         uchain->where == OBJ_BURIED ? "BURIED" :
                         uchain->where == OBJ_ONBILL ? "ONBILL" :
-                        uchain->where == OBJ_SOMEWHERE ? "SOMEWHERE" :
+                        uchain->where == OBJ_MCHEST ? "MCHEST" :
                         uchain->where == OBJ_INTRAP ? "INTRAP" : "UNKNOWN";
                 Sprintf(chaininfo, " | CHAIN: where=%d(%s) otyp=%d pos=(%d,%d)",
                         uchain->where, chain_where_str, uchain->otyp,

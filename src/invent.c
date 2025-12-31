@@ -3608,7 +3608,7 @@ char *buf;
 
     if (cmap >= 0)
         dfeature = defsyms[cmap].explanation;
-    if (cmap == S_magic_chest) {
+    if (cmap == S_magic_chest && mchest) {
         dfeature = doname(mchest); /* hack to show lock status */
         if (!strncmpi(dfeature, "an ", 3))
             dfeature += 3;
