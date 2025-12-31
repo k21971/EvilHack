@@ -2185,6 +2185,8 @@ long timeout;
         x = obj->ox;
         y = obj->oy;
     } else if (in_invent) {
+        boolean eating_this = (context.victual.piece == obj);
+
         if (flags.verbose) {
             char *cname = corpse_xname(obj, (const char *) 0, CXN_NO_PFX);
 
@@ -2194,12 +2196,21 @@ long timeout;
         if (obj == uwep) {
             uwepgone(); /* now bare handed */
             stop_occupation();
+            /* stop_occupation() may have called maybe_finished_meal()
+               which frees the corpse via done_eating() -> useup().
+               If so, the corpse has already been properly handled */
+            if (eating_this && !context.victual.piece)
+                return;
         } else if (obj == uswapwep) {
             uswapwepgone();
             stop_occupation();
+            if (eating_this && !context.victual.piece)
+                return;
         } else if (obj == uquiver) {
             uqwepgone();
             stop_occupation();
+            if (eating_this && !context.victual.piece)
+                return;
         }
     } else if (obj->where == OBJ_MINVENT && obj->owornmask) {
         if (obj == MON_WEP(obj->ocarry))

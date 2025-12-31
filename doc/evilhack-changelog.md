@@ -4881,4 +4881,5 @@ The following changes to date are:
 - Fix: panic in setworn() when wielding quivered weapon
 - Show specific monsters for blessed genocide (livelogging)
 - Fix: various magic chest issues
+- Fix: crash when wielded corpse rots while being eaten
 
