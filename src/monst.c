@@ -4595,7 +4595,7 @@ struct permonst _mons2[] = {
         M2_NOPOLY | M2_MALE | M2_PNAME | M2_HOSTILE | M2_STRONG | M2_NASTY
             | M2_STALK | M2_GREEDY | M2_JEWELS | M2_MAGIC,
         M3_WANTSARTI | M3_WAITFORU | M3_INFRAVISIBLE, 0, MH_DRAGON, 23, CLR_RED),
-    MON("Merlin", S_HUMAN, LVL(20, 15, 0, 30, 10),
+    MON("Merlin", S_HUMAN, LVL(20, 15, 0, 30, 0),
         (G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_CLAW, AD_SAMU, 1, 4),
           ATTK(AT_MAGC, AD_SPEL, 2, 8), ATTK(AT_MAGC, AD_CLRC, 2, 8),

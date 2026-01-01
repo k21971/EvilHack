@@ -147,6 +147,8 @@ REPLACE_TERRAIN:(00,00,19,08),'g','T',20%
 REPLACE_TERRAIN:(00,00,19,08),'T','t',3%
 REPLACE_TERRAIN:(00,18,19,20),'g','T',20%
 REPLACE_TERRAIN:(00,18,19,20),'T','t',3%
+# Altar
+ALTAR:(06,13),neutral,altar
 # Objects
 OBJECT:random,random
 OBJECT:random,random
