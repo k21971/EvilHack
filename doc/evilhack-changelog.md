@@ -4882,4 +4882,5 @@ The following changes to date are:
 - Show specific monsters for blessed genocide (livelogging)
 - Fix: various magic chest issues
 - Fix: crash when wielded corpse rots while being eaten
+- Switch status from work in progress to beta (0.9.2)
 
