@@ -2385,6 +2385,9 @@ struct obj *otmp;
         unblock_point(x, y); /* vision */
     if (otmp->timed)
         obj_timer_checks(otmp, x, y, 0);
+    /* if a monster was hiding under this object, it may need
+       to be revealed */
+    maybe_unhide_at(x, y);
 }
 
 /* throw away all of a monster's inventory */
