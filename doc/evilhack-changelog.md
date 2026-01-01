@@ -4883,4 +4883,5 @@ The following changes to date are:
 - Fix: various magic chest issues
 - Fix: crash when wielded corpse rots while being eaten
 - Switch status from work in progress to beta (0.9.2)
+- Update copyright year to 2026
 
