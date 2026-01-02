@@ -339,8 +339,15 @@ int ef_flags;
             obfree(otmp, (struct obj *) 0);
         } else {
             /* make sure any properties given by worn/wielded
-               objects are removed */
+               objects are removed.
+               Guard against recursive destruction: Boots_off() can call
+               spoteffects() -> lava_effects() -> fire_damage_chain() ->
+               fire_damage() -> erode_obj() on the same boots we're
+               currently destroying. The in_lava_effects guard at
+               lava_effects() entry will short-circuit that path */
+            iflags.in_lava_effects++;
             remove_worn_item(otmp, FALSE);
+            iflags.in_lava_effects--;
             setnotworn(otmp);
             delobj(otmp);
         }

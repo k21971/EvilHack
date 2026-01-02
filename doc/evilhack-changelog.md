@@ -4887,4 +4887,5 @@ The following changes to date are:
 - Fix: monster hiding under object not revealed when object picked up
 - Dark Knight quest tweaks
 - Fix: garbage message when entering shop with angry shopkeeper
+- Fix: recursive boots destruction crash from fire spell while in lava
 
