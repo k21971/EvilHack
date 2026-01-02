@@ -4886,4 +4886,5 @@ The following changes to date are:
 - Update copyright year to 2026
 - Fix: monster hiding under object not revealed when object picked up
 - Dark Knight quest tweaks
+- Fix: garbage message when entering shop with angry shopkeeper
 

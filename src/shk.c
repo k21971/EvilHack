@@ -626,7 +626,7 @@ char *enterstring;
         eshkp->pbanned = TRUE;
     }
 
-    rt = rooms[*enterstring - ROOMOFFSET].rtype;
+    rt = eshkp->shoptype;
 
     if (ANGRY(shkp)) {
         if (!Deaf && !muteshk(shkp))
