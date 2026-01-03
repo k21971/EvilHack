@@ -4895,4 +4895,5 @@ The following changes to date are:
 - Fix: dmonsfree panic from living monster with MON_DETACH
 - Fix: vampire/draugr starting with false "absolved" abuse conduct
   message
+- Knights start with basic skill in pet handling
 

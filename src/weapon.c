@@ -2587,8 +2587,10 @@ const struct def_skill *class_skill;
     if (Role_if(PM_KNIGHT) || Role_if(PM_VALKYRIE))
         P_SKILL(P_SHIELD) = P_BASIC;
 
-    /* Healers and Druids start with basic pet handling skill */
-    if (Role_if(PM_HEALER) || Role_if(PM_DRUID))
+    /* Healers, Druids and Knights start with basic pet handling
+       skill */
+    if (Role_if(PM_HEALER) || Role_if(PM_DRUID)
+        || Role_if(PM_KNIGHT))
         P_SKILL(P_PET_HANDLING) = P_BASIC;
 
     /* As a Tortle, if their role lists trident as a trainable
