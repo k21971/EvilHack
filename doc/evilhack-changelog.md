@@ -4891,4 +4891,5 @@ The following changes to date are:
 - Fix: alignment abuse history not recording all penalties for killing
   peacefuls
 - Fix: missing record_abuse_event() for Elbereth violation
+- Fix: no filtering of edible 'food' in inventory for vampires
 
