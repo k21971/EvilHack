@@ -3261,8 +3261,10 @@ dmonsfree()
             /* Ice Queen transforms to Enchantress and is revived,
                only decrement purge counter if she was actually marked
                for purging */
-            if (freetmp->mstate & MON_DETACH)
+            if (freetmp->mstate & MON_DETACH) {
                 iflags.purge_monsters--;
+                freetmp->mstate &= ~MON_DETACH; /* clear after revival */
+            }
             /* Track this special case in recent_detaches with negative position */
             Strcpy(recent_detaches[detach_idx].mname, "IceQueen->Enchantress");
             recent_detaches[detach_idx].x = -1;

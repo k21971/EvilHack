@@ -669,6 +669,9 @@ m_cure_self(mtmp, dmg)
 struct monst *mtmp;
 int dmg;
 {
+    /* Don't heal dead or detached monsters */
+    if (DEADMONSTER(mtmp) || (mtmp->mstate & MON_DETACH))
+        return 0;
     if (mtmp->mhp < mtmp->mhpmax) {
         if (canseemon(mtmp))
             pline("%s looks better.", Monnam(mtmp));

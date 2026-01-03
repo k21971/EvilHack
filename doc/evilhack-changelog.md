@@ -4892,4 +4892,5 @@ The following changes to date are:
   peacefuls
 - Fix: missing record_abuse_event() for Elbereth violation
 - Fix: no filtering of edible 'food' in inventory for vampires
+- Fix: dmonsfree panic from living monster with MON_DETACH
 
