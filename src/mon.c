@@ -5468,8 +5468,11 @@ boolean via_attack;
            given for this sort of thing. */
         /* reduce to 3 (average) when alignment is already very low */
         if (u.ualign.type != A_NONE) {
+            int pen = (u.ualign.record > 5) ? -5 : -rnd(5);
+
             You_feel("like a hypocrite.");
-            adjalign((u.ualign.record > 5) ? -5 : -rnd(5));
+            adjalign(pen);
+            record_abuse_event(pen, ABUSE_ATTACK_ELBERETH);
         } else
             You_feel("clever."); /* no alignment penalty */
 

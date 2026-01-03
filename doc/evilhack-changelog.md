@@ -4890,4 +4890,5 @@ The following changes to date are:
 - Fix: recursive boots destruction crash from fire spell while in lava
 - Fix: alignment abuse history not recording all penalties for killing
   peacefuls
+- Fix: missing record_abuse_event() for Elbereth violation
 
