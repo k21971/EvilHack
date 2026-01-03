@@ -1456,6 +1456,7 @@ u_init()
             adjalign(-20);
             /* prevent automatic alignment abuse penalty */
             u.ualign.abuse = 0;
+            u.ever_abused = FALSE;
         }
         break;
 
@@ -1471,6 +1472,7 @@ u_init()
             adjalign(-20);
             /* prevent automatic alignment abuse penalty */
             u.ualign.abuse = 0;
+            u.ever_abused = FALSE;
         }
         break;
 
