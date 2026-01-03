@@ -4888,4 +4888,6 @@ The following changes to date are:
 - Dark Knight quest tweaks
 - Fix: garbage message when entering shop with angry shopkeeper
 - Fix: recursive boots destruction crash from fire spell while in lava
+- Fix: alignment abuse history not recording all penalties for killing
+  peacefuls
 

@@ -4868,7 +4868,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
            kindly to one of their own being killed */
         adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
         record_abuse_event(-(u.ualign.record + (int) ALIGNLIM / 2),
-                           ABUSE_KILL_LEADER);
+                           ABUSE_KILL_DEITY);
         u.ugangr += 7; /* instantly become "extremely" angry */
         change_luck(-20);
         if (!Hallucination)
@@ -4964,6 +4964,8 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                     You("have a vague sense of guilt.");
             }
             adjalign(u.ualign.type > A_CHAOTIC ? -5 : -1);
+            record_abuse_event(u.ualign.type > A_CHAOTIC ? -5 : -1,
+                               ABUSE_KILL_PEACEFUL);
         }
     }
 
@@ -4971,8 +4973,11 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
        This final adjalign() call is in addition to any prior adjalign()
        adjustments in this block of code. Infidels and Convicts in
        certain scenarios don't feel this kind of guilt */
-    if (not_con_inf)
+    if (not_con_inf) {
         adjalign(mtmp->malign);
+        if (mtmp->malign < 0)
+            record_abuse_event(mtmp->malign, ABUSE_KILL_PEACEFUL_MALIGN);
+    }
 
     if (mtmp->former_rank.mnum != NON_PM) {
         livelog_printf(LL_UMONST, "destroyed %s, %s former %s",
@@ -5539,7 +5544,7 @@ boolean via_attack;
                         You("have a vague sense of guilt.");
                     /* attacking peaceful monsters is bad */
                     adjalign(pen);
-                    record_abuse_event(pen, ABUSE_KILL_PEACEFUL);
+                    record_abuse_event(pen, ABUSE_ATTACK_PEACEFUL);
                 }
             }
         }

@@ -1462,6 +1462,8 @@ int atype;
         return "violating Elbereth truce";
     case ABUSE_KILL_PEACEFUL:
         return "killing a peaceful creature";
+    case ABUSE_KILL_PEACEFUL_MALIGN:
+        return "add'l penalty, killing a peaceful creature";
     case ABUSE_KILL_PET:
         return "murdering your pet";
     case ABUSE_KILL_PRIEST:
@@ -1472,6 +1474,8 @@ int atype;
         return "killing your quest leader";
     case ABUSE_KILL_UNICORN:
         return "killing a same-aligned unicorn";
+    case ABUSE_KILL_DEITY:
+        return "killing your deity";
     case ABUSE_USE_POISON:
         return "using a poisoned weapon";
     case ABUSE_USE_DISEASE:
