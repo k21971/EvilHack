@@ -4896,4 +4896,5 @@ The following changes to date are:
 - Fix: vampire/draugr starting with false "absolved" abuse conduct
   message
 - Knights start with basic skill in pet handling
+- Fix: peaceful monsters casting offensive learned spells at player
 

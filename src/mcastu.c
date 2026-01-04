@@ -55,6 +55,13 @@ enum mcast_cleric_spells {
 
 extern void you_aggravate(struct monst *);
 
+/* Self-buff learned spells that can be cast through the undirected path */
+#define IS_SELFBUFF_SPELL(otyp) \
+    ((otyp) == SPE_CURE_BLINDNESS || (otyp) == SPE_CURE_SICKNESS \
+     || (otyp) == SPE_REMOVE_CURSE || (otyp) == SPE_REPAIR_ARMOR \
+     || (otyp) == SPE_LEVITATION || (otyp) == SPE_JUMPING \
+     || (otyp) == SPE_BURNING_HANDS || (otyp) == SPE_SHOCKING_GRASP)
+
 STATIC_DCL int FDECL(choose_bolt_spell, (struct monst *));
 STATIC_DCL boolean FDECL(has_eota, (struct monst *));
 STATIC_DCL boolean FDECL(is_boss_caster, (struct monst *));
@@ -68,7 +75,8 @@ STATIC_DCL int FDECL(m_destroy_armor, (struct monst *, struct monst *));
 STATIC_DCL int FDECL(cast_learned_spell, (struct monst *, struct monst *));
 STATIC_DCL void FDECL(do_wizard_spell, (struct monst *, struct monst *, int, int));
 STATIC_DCL void FDECL(do_cleric_spell, (struct monst *, struct monst *, int, int));
-STATIC_DCL boolean FDECL(is_undirected_spell, (unsigned int, int));
+STATIC_DCL boolean FDECL(mhas_useful_selfbuff_spell, (struct monst *));
+STATIC_DCL boolean FDECL(is_undirected_spell, (struct monst *, unsigned int, int));
 STATIC_DCL boolean FDECL(do_spell_would_be_useless, (struct monst *,
                                                      struct monst *, unsigned int, int));
 STATIC_DCL boolean FDECL(uspell_would_be_useless, (unsigned int, int));
@@ -250,7 +258,7 @@ int spellval;
         if (chance > 40)
             chance = 40;
         if (rn2(100) < chance) {
-            short learned = mchoose_learned_spell(mtmp, 0, 0);
+            short learned = mchoose_learned_spell(mtmp, 0, 0, FALSE);
             if (learned != 0)
                 return MGC_LEARNED_SPELL;
         }
@@ -342,7 +350,7 @@ int spellnum;
         if (chance > 40)
             chance = 40;
         if (rn2(100) < chance) {
-            short learned = mchoose_learned_spell(mtmp, 0, 0);
+            short learned = mchoose_learned_spell(mtmp, 0, 0, FALSE);
             if (learned != 0)
                 return CLC_LEARNED_SPELL;
         }
@@ -467,7 +475,7 @@ boolean foundyou;
                 spellnum = choose_clerical_spell(mtmp, spellnum);
             /* not trying to attack?  don't allow directed spells */
             if (!thinks_it_foundyou) {
-                if (!is_undirected_spell(mattk->adtyp, spellnum)
+                if (!is_undirected_spell(mtmp, mattk->adtyp, spellnum)
                     || do_spell_would_be_useless(mtmp, &youmonst,
                                                  mattk->adtyp, spellnum)) {
                     if (foundyou)
@@ -486,7 +494,7 @@ boolean foundyou;
 
     /* monster unable to cast spells? */
     if (mtmp->mcan || mtmp->mspec_used || !ml) {
-        cursetxt(mtmp, is_undirected_spell(mattk->adtyp, spellnum));
+        cursetxt(mtmp, is_undirected_spell(mtmp, mattk->adtyp, spellnum));
         return 0;
     }
 
@@ -510,7 +518,7 @@ boolean foundyou;
        wrong place?  If so, give a message, and return.  Do this *after*
        penalizing mspec_used. */
     if (!foundyou && thinks_it_foundyou
-        && !is_undirected_spell(mattk->adtyp, spellnum)) {
+        && !is_undirected_spell(mtmp, mattk->adtyp, spellnum)) {
         pline("%s casts a spell at %s!",
               seecaster ? Monnam(mtmp) : "Something",
               levl[mtmp->mux][mtmp->muy].typ == WATER ? "empty water"
@@ -525,14 +533,14 @@ boolean foundyou;
             pline_The("air crackles around %s.", mon_nam(mtmp));
         return 0;
     }
-    if (seecaster || !is_undirected_spell(mattk->adtyp, spellnum)) {
+    if (seecaster || !is_undirected_spell(mtmp, mattk->adtyp, spellnum)) {
         if (mtmp->mpeaceful
             && mtmp->ispriest && inhistemple(mtmp)) {
             ; /* cut down on the temple spam */
         } else {
             pline("%s casts a spell%s!",
                   seecaster ? Monnam(mtmp) : "Something",
-                  is_undirected_spell(mattk->adtyp, spellnum)
+                  is_undirected_spell(mtmp, mattk->adtyp, spellnum)
                       ? ""
                       : (Invis && !mon_prop(mtmp, SEE_INVIS)
                          && (mtmp->mux != u.ux || mtmp->muy != u.uy))
@@ -542,7 +550,7 @@ boolean foundyou;
                                   ? " at your displaced image"
                                   : " at you");
         }
-    } else if (!Deaf && is_undirected_spell(mattk->adtyp, spellnum)) {
+    } else if (!Deaf && is_undirected_spell(mtmp, mattk->adtyp, spellnum)) {
         if (mtmp->mpeaceful
             && mtmp->ispriest && inhistemple(mtmp)) {
             ; /* cut down on the temple spam */
@@ -800,6 +808,7 @@ cast_learned_spell(caster, target)
 struct monst *caster, *target;
 {
     boolean youdefend = (target == &youmonst);
+    boolean selfbuff_only;
     int tx, ty;
     short spell_otyp;
 
@@ -815,7 +824,18 @@ struct monst *caster, *target;
         return 0;
     }
 
-    spell_otyp = mchoose_learned_spell(caster, tx, ty);
+    /* Only restrict to self-buffs if:
+       - Caster is a monster (not player)
+       - Caster is peaceful
+       - Target is the player
+       This allows tame pets to attack hostile monsters with offensive
+       spells, while preventing peaceful spellcasters from attacking
+       the player */
+    selfbuff_only = (caster != &youmonst
+                     && caster->mpeaceful
+                     && youdefend);
+
+    spell_otyp = mchoose_learned_spell(caster, tx, ty, selfbuff_only);
 
     if (spell_otyp == 0)
         return 0; /* No castable spell available */
@@ -896,7 +916,7 @@ int dmg, spellnum;
                          || tp_sensemon(caster) || Detect_monsters);
     int ml = yours ? mons[u.umonnum].mlevel : min(caster->m_lev, 50);
 
-    if (dmg == 0 && !is_undirected_spell(AD_SPEL, spellnum)) {
+    if (dmg == 0 && !is_undirected_spell(caster, AD_SPEL, spellnum)) {
         impossible("cast directed wizard spell (%d) with dmg=0?", spellnum);
         return;
     }
@@ -1445,7 +1465,7 @@ int dmg, spellnum;
     struct monst *minion = (struct monst *) 0;
     coord mm;
 
-    if (dmg == 0 && !is_undirected_spell(AD_CLRC, spellnum)) {
+    if (dmg == 0 && !is_undirected_spell(caster, AD_CLRC, spellnum)) {
         impossible("cast directed cleric spell (%d) with dmg=0?", spellnum);
         return;
     }
@@ -2075,9 +2095,100 @@ int dmg, spellnum;
     }
 }
 
+/* Returns TRUE if monster knows any self-buff learned spell that would
+   be useful to cast right now. Used by is_undirected_spell() to
+   determine if learned spells can be cast through the undirected spell
+   path */
 STATIC_OVL
 boolean
-is_undirected_spell(adtyp, spellnum)
+mhas_useful_selfbuff_spell(mtmp)
+struct monst *mtmp;
+{
+    int i, j;
+    short spell_otyp;
+    int spell_lev, required_mlev;
+
+    if (!has_emsp(mtmp))
+        return FALSE;
+
+    for (i = 0; i < MAXMONSPELL; i++) {
+        spell_otyp = EMSP(mtmp)->msp_id[i];
+        if (spell_otyp == 0 || EMSP(mtmp)->msp_know[i] <= 0)
+            continue;
+
+        /* Only check self-buff spells */
+        if (!IS_SELFBUFF_SPELL(spell_otyp))
+            continue;
+
+        /* Check level requirement */
+        spell_lev = objects[spell_otyp].oc_level;
+        required_mlev = spell_lev * 3;
+        if (mtmp->m_lev < required_mlev)
+            continue;
+
+        /* Check usefulness of each self-buff spell */
+        if (spell_otyp == SPE_CURE_BLINDNESS) {
+            if (mtmp->mblinded)
+                return TRUE;
+        } else if (spell_otyp == SPE_CURE_SICKNESS) {
+            if (mtmp->msick || mtmp->mdiseased || mtmp->mwither)
+                return TRUE;
+        } else if (spell_otyp == SPE_REMOVE_CURSE) {
+            struct obj *obj;
+            /* Infidels are immune to curses */
+            if (mtmp->mnum == PM_INFIDEL)
+                continue;
+            for (obj = mtmp->minvent; obj; obj = obj->nobj) {
+                if (obj->cursed
+                    && (obj->owornmask || Is_mbag(obj)
+                        || obj->otyp == LOADSTONE))
+                    return TRUE;
+            }
+        } else if (spell_otyp == SPE_REPAIR_ARMOR) {
+            struct obj *arm = some_armor(mtmp);
+            if (arm && greatest_erosion(arm) > 0)
+                return TRUE;
+        } else if (spell_otyp == SPE_LEVITATION) {
+            if (!is_floater(mtmp->data) && !is_flyer(mtmp->data)
+                && !can_levitate(mtmp) && !can_fly(mtmp))
+                return TRUE;
+        } else if (spell_otyp == SPE_JUMPING) {
+            if (!is_jumper(mtmp->data) && !can_jump(mtmp)
+                && !is_flyer(mtmp->data) && !is_floater(mtmp->data)
+                && !can_levitate(mtmp) && !can_fly(mtmp))
+                return TRUE;
+        } else if (spell_otyp == SPE_BURNING_HANDS) {
+            boolean has_touch = FALSE;
+            for (j = 0; j < NATTK; j++) {
+                int at = mtmp->data->mattk[j].aatyp;
+                if (at == AT_CLAW || at == AT_TUCH || at == AT_WEAP) {
+                    has_touch = TRUE;
+                    break;
+                }
+            }
+            if (has_touch && mtmp->mburnhands < 20 && !mtmp->mshockgrasp
+                && !mon_underwater(mtmp))
+                return TRUE;
+        } else if (spell_otyp == SPE_SHOCKING_GRASP) {
+            boolean has_touch = FALSE;
+            for (j = 0; j < NATTK; j++) {
+                int at = mtmp->data->mattk[j].aatyp;
+                if (at == AT_CLAW || at == AT_TUCH || at == AT_WEAP) {
+                    has_touch = TRUE;
+                    break;
+                }
+            }
+            if (has_touch && mtmp->mshockgrasp < 20 && !mtmp->mburnhands)
+                return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+STATIC_OVL
+boolean
+is_undirected_spell(mtmp, adtyp, spellnum)
+struct monst *mtmp; /* can be NULL for non-learned spell checks */
 unsigned int adtyp;
 int spellnum;
 {
@@ -2094,8 +2205,10 @@ int spellnum;
         case MGC_ICE_BOLT:
         case MGC_CANCELLATION:
         case MGC_REFLECTION:
-        case MGC_LEARNED_SPELL: /* self-buff or has own hit messages */
             return TRUE;
+        case MGC_LEARNED_SPELL:
+            /* Only undirected if monster has useful self-buff learned spells */
+            return mtmp ? mhas_useful_selfbuff_spell(mtmp) : FALSE;
         default:
             break;
         }
@@ -2110,8 +2223,10 @@ int spellnum;
         case CLC_VULN_YOU:
         case CLC_SUMMON_MINION:
         case CLC_CALL_UNDEAD:
-        case CLC_LEARNED_SPELL: /* self-buff or has own hit messages */
             return TRUE;
+        case CLC_LEARNED_SPELL:
+            /* Only undirected if monster has useful self-buff learned spells */
+            return mtmp ? mhas_useful_selfbuff_spell(mtmp) : FALSE;
         default:
             break;
         }
@@ -2580,7 +2695,7 @@ struct attack *mattk;
     /* monster unable to cast spells? */
     if (mtmp->mcan || mtmp->mspec_used || !ml) {
         if (canseemon(mtmp)) {
-            if (is_undirected_spell(mattk->adtyp, spellnum))
+            if (is_undirected_spell(mtmp, mattk->adtyp, spellnum))
                 pline("%s points all around, then curses.",
                       Monnam(mtmp));
             else
@@ -2628,11 +2743,11 @@ struct attack *mattk;
     }
 
     if (seecaster && canseemon(mdef)
-        && !is_undirected_spell(mattk->adtyp, spellnum))
+        && !is_undirected_spell(mtmp, mattk->adtyp, spellnum))
         pline("%s casts a spell at %s!", Monnam(mtmp), mon_nam(mdef));
 
     if (seecaster
-        && is_undirected_spell(mattk->adtyp, spellnum))
+        && is_undirected_spell(mtmp, mattk->adtyp, spellnum))
         pline("%s casts a spell!", Monnam(mtmp));
 
     if (mattk->damd)
@@ -2720,7 +2835,7 @@ struct attack *mattk;
         /* aggravation is a special case;
          * it's undirected but should still target the
          * victim so as to aggravate you */
-        if (is_undirected_spell(mattk->adtyp, spellnum)
+        if (is_undirected_spell(mtmp, mattk->adtyp, spellnum)
             /* 'undirected-but-not-really' spells: */
             && (mattk->adtyp == AD_SPEL
                 /* magic spells */
@@ -2791,14 +2906,14 @@ struct attack *mattk;
                 spellnum = choose_clerical_spell(mtmp, spellnum);
             /* not trying to attack?  don't allow directed spells */
             if (!mtmp || mtmp->mhp < 1) {
-                if (is_undirected_spell(mattk->adtyp, spellnum)
+                if (is_undirected_spell((struct monst *) 0, mattk->adtyp, spellnum)
                     && !uspell_would_be_useless(mattk->adtyp, spellnum)) {
                 break;
             }
         }
 
     } while (--cnt > 0
-             && ((!mtmp && !is_undirected_spell(mattk->adtyp, spellnum))
+             && ((!mtmp && !is_undirected_spell((struct monst *) 0, mattk->adtyp, spellnum))
                  || uspell_would_be_useless(mattk->adtyp, spellnum)));
         if (cnt == 0) {
             You("have no spells to cast right now!");
@@ -2826,7 +2941,7 @@ struct attack *mattk;
         }
     }
 
-    directed = mtmp && !is_undirected_spell(mattk->adtyp, spellnum);
+    directed = mtmp && !is_undirected_spell((struct monst *) 0, mattk->adtyp, spellnum);
 
     /* unable to cast spells? */
     if (u.uen < ml) {
@@ -3033,9 +3148,10 @@ struct monst *mtmp;
    specific terrain (e.g., entangle needs vegetation). Pass (0,0) to
    skip terrain filtering (used when just checking spell availability) */
 short
-mchoose_learned_spell(mtmp, tx, ty)
+mchoose_learned_spell(mtmp, tx, ty, selfbuff_only)
 struct monst *mtmp;
 int tx, ty;
+boolean selfbuff_only; /* TRUE = only return self-buff spells */
 {
     short candidates[MAXMONSPELL];
     int count = 0, i;
@@ -3073,6 +3189,9 @@ int tx, ty;
             spell_level = objects[spell_otyp].oc_level;
             required_mlev = spell_level * 3;
             if (mtmp->m_lev < required_mlev)
+                continue;
+            /* If only self-buff spells wanted, skip offensive spells */
+            if (selfbuff_only && !IS_SELFBUFF_SPELL(spell_otyp))
                 continue;
             /* Entangle requires vegetation at target location.
                Skip filtering if tx,ty are 0 (availability check only) */
