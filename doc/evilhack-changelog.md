@@ -4897,4 +4897,6 @@ The following changes to date are:
   message
 - Knights start with basic skill in pet handling
 - Fix: peaceful monsters casting offensive learned spells at player
+- Fix: falling through trap door/hole bypassing Mine Town/Mines' End
+  block
 

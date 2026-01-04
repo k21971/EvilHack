@@ -773,8 +773,10 @@ unsigned ftflags;
         /* prevent falling past mine town if the Goblin King
            hasn't been defeated yet, eliminates awkward case
            of being stuck between mine town and mines' end */
-        if (In_mines(&u.uz) && !u.uevent.ugking)
+        if (In_mines(&u.uz) && !u.uevent.ugking) {
+            dtmp.dlevel = dunlev(&u.uz) + 1;
             dist = 1;
+        }
         if (dist > 1)
             You("fall down a %s%sshaft!", dist > 3 ? "very " : "",
                 dist > 2 ? "deep " : "");
