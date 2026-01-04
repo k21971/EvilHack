@@ -1625,6 +1625,42 @@ const char *msg;
 
 #endif /* USER_SOUNDS */
 
+/* Find the single commandable pet if exactly one exists.
+   Returns the pet if found, NULL if zero or multiple */
+STATIC_OVL struct monst *
+find_commandable_pet()
+{
+    struct monst *mtmp, *found = (struct monst *) 0;
+
+    /* Check steed first - always commandable if present */
+    if (u.usteed && u.usteed->mtame && has_edog(u.usteed)
+        && !u.usteed->msleeping && !u.usteed->mstun
+        && !u.usteed->mconf && !u.usteed->mfrozen) {
+        found = u.usteed;
+    }
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        if (DEADMONSTER(mtmp) || mtmp == u.usteed)
+            continue;
+        if (!mtmp->mtame || !has_edog(mtmp))
+            continue;
+        /* Pet must be alert */
+        if (mtmp->msleeping || mtmp->mstun
+            || mtmp->mconf || mtmp->mfrozen)
+            continue;
+        /* Must be able to communicate: visible, adjacent,
+           or two-way telepathy */
+        if (!canseemon(mtmp) && distu(mtmp->mx, mtmp->my) > 2
+            && !(has_telepathy(mtmp) && (HTelepat || ETelepat)))
+            continue;
+        /* Found a valid pet */
+        if (found)
+            return (struct monst *) 0; /* more than one */
+        found = mtmp;
+    }
+    return found;
+}
+
 /* Give orders to a pet */
 int
 doorder()
@@ -1645,62 +1681,70 @@ doorder()
         return 0;
     }
 
-    /* Cursor-based targeting */
-    cc.x = u.ux;
-    cc.y = u.uy;
-    if (getpos(&cc, FALSE, "the monster you want to issue orders to") < 0
-        || !isok(cc.x, cc.y))
-        return 0;
+    /* If exactly one commandable pet exists, auto-select it */
+    mtmp = find_commandable_pet();
+    if (mtmp) {
+        cc.x = (mtmp == u.usteed) ? u.ux : mtmp->mx;
+        cc.y = (mtmp == u.usteed) ? u.uy : mtmp->my;
+    } else {
+        /* Cursor-based targeting */
+        cc.x = u.ux;
+        cc.y = u.uy;
+        if (getpos(&cc, FALSE, "the monster you want to issue orders to") < 0
+            || !isok(cc.x, cc.y))
+            return 0;
+        mtmp = (struct monst *) 0; /* will be set below */
+    }
 
-    /* Check for steed if targeting self */
-    if (cc.x == u.ux && cc.y == u.uy) {
-        if (u.usteed) {
-            mtmp = u.usteed;
+    /* If not auto-selected, look up and validate the target */
+    if (!mtmp) {
+        /* Check for steed if targeting self */
+        if (cc.x == u.ux && cc.y == u.uy) {
+            if (u.usteed) {
+                mtmp = u.usteed;
+            } else {
+                You("can't give orders to yourself.");
+                return 0;
+            }
         } else {
-            pline("You can't give orders to yourself.");
+            mtmp = m_at(cc.x, cc.y);
+        }
+
+        if (!mtmp || !canspotmon(mtmp)) {
+            pline("There's no one there to command.");
             return 0;
         }
-    } else {
-        mtmp = m_at(cc.x, cc.y);
-    }
 
-    if (!mtmp || !canspotmon(mtmp)) {
-        pline("There's no one there to command.");
-        return 0;
-    }
+        /* ESP lets you sense monsters, but you need to actually see them,
+         * be adjacent, or have two-way telepathy to communicate orders.
+         * Two-way telepathy: both you and the pet have ESP */
+        if (!canseemon(mtmp) && distu(mtmp->mx, mtmp->my) > 2
+            && !(has_telepathy(mtmp) && (HTelepat || ETelepat))) {
+            You("sense %s, but are too far away to communicate.",
+                mon_nam(mtmp));
+            return 0;
+        }
 
-    /* ESP lets you sense monsters, but you need to actually see them,
-     * be adjacent, or have two-way telepathy to communicate orders.
-     * Two-way telepathy: both you and the pet have ESP. */
-    if (!canseemon(mtmp) && distu(mtmp->mx, mtmp->my) > 2
-        && !(has_telepathy(mtmp) && (HTelepat || ETelepat))) {
-        You("sense %s, but are too far away to communicate.",
-            mon_nam(mtmp));
-        return 0;
-    }
+        if (!mtmp->mtame) {
+            pline("%s is not your pet.", Monnam(mtmp));
+            return 0;
+        }
 
-    if (!mtmp->mtame) {
-        pline("%s is not your pet.", Monnam(mtmp));
-        return 0;
-    }
+        if (!has_edog(mtmp)) {
+            pline("%s doesn't respond to commands.", Monnam(mtmp));
+            return 0;
+        }
 
-    if (!has_edog(mtmp)) {
-        pline("%s doesn't respond to commands.", Monnam(mtmp));
-        return 0;
-    }
-
-    /* Pet must be alert to receive orders */
-    if (mtmp->msleeping) {
-        pline("%s is asleep.", Monnam(mtmp));
-        return 0;
-    }
-    if (mtmp->mstun) {
-        pline("%s is too stunned to understand.", Monnam(mtmp));
-        return 0;
-    }
-    if (mtmp->mconf) {
-        pline("%s is too confused to understand.", Monnam(mtmp));
-        return 0;
+        /* Pet must be alert to receive orders */
+        if (mtmp->msleeping) {
+            pline("%s is asleep.", Monnam(mtmp));
+            return 0;
+        }
+        /* Pet cannot be stunned/confused/paralyzed */
+        if (mtmp->mstun || mtmp->mconf || mtmp->mfrozen) {
+            pline("%s is incapacitated.", Monnam(mtmp));
+            return 0;
+        }
     }
 
     skill_level = P_SKILL(P_PET_HANDLING);
