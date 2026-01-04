@@ -3930,8 +3930,10 @@ struct obj *otmp, *obj;
     /* corpses only merge if they have similar freshness (rot level);
        rot_amount() uses (monstermoves - age) / 10 for Draugr, with
        thresholds at 3 (rancid) and 5 (very rancid), so use 30-turn
-       buckets to keep corpses in the same rot category together */
+       buckets to keep corpses in the same rot category together;
+       only enforce for Draugr/ghouls who can sense freshness */
     if (obj->otyp == CORPSE
+        && ((!Upolyd && Race_if(PM_DRAUGR)) || u.umonnum == PM_GHOUL)
         && (monstermoves - obj->age) / 30 != (monstermoves - otmp->age) / 30)
         return FALSE;
 

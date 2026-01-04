@@ -4904,4 +4904,5 @@ The following changes to date are:
 - Fix: vampire draining now grants intrinsics with same chance as eating
   a corpse
 - Pet order command auto-selects when only one commandable pet exists
+- Fix: corpse age-bucket stacking now only applies to Draugr/ghouls
 
