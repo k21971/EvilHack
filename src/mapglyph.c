@@ -260,6 +260,17 @@ unsigned mgflags;
         }
     } else if ((offset = (glyph - GLYPH_OBJ_OFF)) >= 0) { /* object */
         struct obj* otmp = vobj_at(x, y);
+
+        /* If no object at this location with matching type, check transient
+           objects. Items in flight (thrown/kicked) aren't at the display
+           location yet, but we need their material for proper coloring */
+        if (!otmp || otmp->otyp != offset) {
+            if (thrownobj && thrownobj->otyp == offset)
+                otmp = thrownobj;
+            else if (kickedobj && kickedobj->otyp == offset)
+                otmp = kickedobj;
+        }
+
         idx = objects[offset].oc_class + SYM_OFF_O;
         if (offset == BOULDER)
             idx = SYM_BOULDER + SYM_OFF_X;

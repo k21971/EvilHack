@@ -4905,4 +4905,6 @@ The following changes to date are:
   a corpse
 - Pet order command auto-selects when only one commandable pet exists
 - Fix: corpse age-bucket stacking now only applies to Draugr/ghouls
+- Fix: thrown/kicked objects with non-base materials now display correct
+  color in flight
 
