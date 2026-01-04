@@ -1728,55 +1728,67 @@ doorder()
     add_menu(win, NO_GLYPH, &any, 'c', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
     any.a_int = 4;
-    add_menu(win, NO_GLYPH, &any, 'd', 0, ATR_NONE,
-             "Remove saddle", MENU_UNSELECTED);
+    currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_NODROP) != 0;
+    Sprintf(buf, "Don't drop items (toggle) [%s]",
+            currently_set ? "active" : "inactive");
+    add_menu(win, NO_GLYPH, &any, 'd', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
     any.a_int = 5;
     add_menu(win, NO_GLYPH, &any, 'e', 0, ATR_NONE,
+             "Remove saddle", MENU_UNSELECTED);
+
+    any.a_int = 6;
+    add_menu(win, NO_GLYPH, &any, 'f', 0, ATR_NONE,
              "Remove barding", MENU_UNSELECTED);
 
     /* Orders requiring P_BASIC */
     if (skill_level >= P_BASIC) {
-        any.a_int = 6;
+        any.a_int = 7;
         currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_AVOIDPEACE) != 0;
         Sprintf(buf, "Avoid peacefuls (toggle) [%s]",
                 currently_set ? "active" : "inactive");
-        add_menu(win, NO_GLYPH, &any, 'f', 0, ATR_NONE, buf, MENU_UNSELECTED);
-
-        any.a_int = 7;
-        add_menu(win, NO_GLYPH, &any, 'g', 0, ATR_NONE,
-                 "Give items to pet", MENU_UNSELECTED);
+        add_menu(win, NO_GLYPH, &any, 'g', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
         any.a_int = 8;
         add_menu(win, NO_GLYPH, &any, 'h', 0, ATR_NONE,
+                 "Give items to pet", MENU_UNSELECTED);
+
+        any.a_int = 9;
+        add_menu(win, NO_GLYPH, &any, 'i', 0, ATR_NONE,
                  "Take items from pet", MENU_UNSELECTED);
     }
 
     /* Orders requiring P_SKILLED */
     if (skill_level >= P_SKILLED) {
-        any.a_int = 9;
+        any.a_int = 10;
         currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_AGGRO) != 0;
         Sprintf(buf, "Aggressive stance (toggle) [%s]",
                 currently_set ? "active" : "inactive");
-        add_menu(win, NO_GLYPH, &any, 'i', 0, ATR_NONE, buf, MENU_UNSELECTED);
+        add_menu(win, NO_GLYPH, &any, 'j', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
-        any.a_int = 10;
+        any.a_int = 11;
         currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_COWED) != 0;
         Sprintf(buf, "Defensive stance (toggle) [%s]",
-                currently_set ? "active" : "inactive");
-        add_menu(win, NO_GLYPH, &any, 'j', 0, ATR_NONE, buf, MENU_UNSELECTED);
-    }
-
-    /* Expert skill required for these advanced orders */
-    if (skill_level >= P_EXPERT) {
-        any.a_int = 11;
-        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_STATIONARY) != 0;
-        Sprintf(buf, "Stay here (toggle) [%s]",
                 currently_set ? "active" : "inactive");
         add_menu(win, NO_GLYPH, &any, 'k', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
         any.a_int = 12;
-        add_menu(win, NO_GLYPH, &any, 'l', 0, ATR_NONE,
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_IGNORETRAPS) != 0;
+        Sprintf(buf, "Ignore harmless traps (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, NO_GLYPH, &any, 'l', 0, ATR_NONE, buf, MENU_UNSELECTED);
+    }
+
+    /* Expert skill required for these advanced orders */
+    if (skill_level >= P_EXPERT) {
+        any.a_int = 13;
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_STATIONARY) != 0;
+        Sprintf(buf, "Stay here (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, NO_GLYPH, &any, 'm', 0, ATR_NONE, buf, MENU_UNSELECTED);
+
+        any.a_int = 14;
+        add_menu(win, NO_GLYPH, &any, 'n', 0, ATR_NONE,
                  "Come to my location", MENU_UNSELECTED);
     }
 
@@ -1792,13 +1804,15 @@ doorder()
     int choice = selected[0].item.a_int;
     free((genericptr_t) selected);
 
-    /* Commands that require tameness check (everything except belay and
-     * saddle removal). Low tameness means pet may ignore orders; skill
-     * improves success rate.
+    /* Commands that require tameness check (unless Master skill).
+     * Skip check for: belay (1), remove saddle (5), remove barding (6),
+     * give items (8 - physical handoff always succeeds at Basic+).
      * Base rate: (tameness-1)/19, so tameness 1 = 0%, tameness 20 = 100%
      * Skill bonuses: Unskilled +0%, Basic +10%, Skilled +20%, Expert +35%
+     * Master skill: all commands always succeed regardless of tameness
      */
-    if (choice != 1 && choice != 4 && choice != 5) {
+    if (choice != 1 && choice != 5 && choice != 6 && choice != 8
+        && skill_level != P_MASTER) {
         int skill_bonus;
         int effective_tameness;
 
@@ -1829,7 +1843,7 @@ doorder()
      * Note: when mounted, mtmp == u.usteed and shares player position,
      * so distu() will be 0 which passes the check.
      */
-    if (choice == 4 || choice == 5 || choice == 7 || choice == 8) {
+    if (choice == 5 || choice == 6 || choice == 8 || choice == 9) {
         if (distu(mtmp->mx, mtmp->my) > 2) {
             You("need to be next to %s to do that.", mon_nam(mtmp));
             return 0;
@@ -1860,7 +1874,15 @@ doorder()
         else
             You("direct %s to pick up items again.", mon_nam(mtmp));
         break;
-    case 4: /* Remove saddle - always succeeds */
+    case 4: /* No drop (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_NODROP;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_NODROP)
+            You("direct %s to hold onto %s items.", mon_nam(mtmp),
+                noit_mhis(mtmp));
+        else
+            You("direct %s to drop unwanted items.", mon_nam(mtmp));
+        break;
+    case 5: /* Remove saddle - always succeeds */
         {
             struct obj *otmp = which_armor(mtmp, W_SADDLE);
 
@@ -1883,7 +1905,7 @@ doorder()
             }
         }
         break;
-    case 5: /* Remove barding - always succeeds */
+    case 6: /* Remove barding - always succeeds */
         {
             struct obj *otmp = which_armor(mtmp, W_BARDING);
 
@@ -1906,7 +1928,7 @@ doorder()
             }
         }
         break;
-    case 6: /* Avoid peacefuls (toggle) */
+    case 7: /* Avoid peacefuls (toggle) */
         EDOG(mtmp)->petstrat ^= PETSTRAT_AVOIDPEACE;
         if (EDOG(mtmp)->petstrat & PETSTRAT_AVOIDPEACE)
             You("direct %s to avoid peaceful creatures.", mon_nam(mtmp));
@@ -1914,13 +1936,13 @@ doorder()
             You("direct %s to attack peaceful creatures at will.",
                 mon_nam(mtmp));
         break;
-    case 7: /* Give items to pet */
+    case 8: /* Give items to pet */
         (void) exchange_objects_with_mon(mtmp, FALSE);
         break;
-    case 8: /* Take items from pet */
+    case 9: /* Take items from pet */
         (void) exchange_objects_with_mon(mtmp, TRUE);
         break;
-    case 9: /* Aggressive (toggle) */
+    case 10: /* Aggressive (toggle) */
         EDOG(mtmp)->petstrat ^= PETSTRAT_AGGRO;
         if (EDOG(mtmp)->petstrat & PETSTRAT_AGGRO) {
             EDOG(mtmp)->petstrat &= ~PETSTRAT_COWED;
@@ -1931,7 +1953,7 @@ doorder()
                 mon_nam(mtmp));
         }
         break;
-    case 10: /* Defensive (toggle) */
+    case 11: /* Defensive (toggle) */
         EDOG(mtmp)->petstrat ^= PETSTRAT_COWED;
         if (EDOG(mtmp)->petstrat & PETSTRAT_COWED) {
             EDOG(mtmp)->petstrat &= ~PETSTRAT_AGGRO;
@@ -1942,7 +1964,14 @@ doorder()
                 mon_nam(mtmp));
         }
         break;
-    case 11: /* Stay here (toggle) - mutually exclusive with Come */
+    case 12: /* Ignore harmless traps (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_IGNORETRAPS;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_IGNORETRAPS)
+            You("direct %s to ignore harmless traps.", mon_nam(mtmp));
+        else
+            You("direct %s to avoid all traps.", mon_nam(mtmp));
+        break;
+    case 13: /* Stay here (toggle) - mutually exclusive with Come */
         EDOG(mtmp)->petstrat ^= PETSTRAT_STATIONARY;
         if (EDOG(mtmp)->petstrat & PETSTRAT_STATIONARY) {
             EDOG(mtmp)->petstrat &= ~PETSTRAT_COME;
@@ -1951,7 +1980,7 @@ doorder()
             You("direct %s to move freely again.", mon_nam(mtmp));
         }
         break;
-    case 12: /* Come (one-shot) - mutually exclusive with Stay here */
+    case 14: /* Come (one-shot) - mutually exclusive with Stay here */
         EDOG(mtmp)->petstrat &= ~PETSTRAT_STATIONARY;
         EDOG(mtmp)->petstrat |= PETSTRAT_COME;
         You("call %s to your side.", mon_nam(mtmp));

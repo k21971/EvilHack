@@ -860,10 +860,10 @@ int udist;
     omy = mtmp->my;
 
     /* If we are carrying something then we drop it (perhaps near @).
-     * Note: if apport == 1 then our behaviour is independent of udist.
-     * Use udist+1 so steed won't cause divide by zero.
-     */
-    if (droppables(mtmp)) {
+       Note: if apport == 1 then our behaviour is independent of udist.
+       Use udist+1 so steed won't cause divide by zero. Skip if pet has
+       been ordered not to drop items */
+    if (droppables(mtmp) && !(edog->petstrat & PETSTRAT_NODROP)) {
         if (!rn2(udist + 1) || !rn2(edog->apport)) {
             if (rn2(10) < edog->apport) {
                 /* intelligent pets won't drop objects over
@@ -1849,15 +1849,24 @@ int after; /* this is extra fast monster movement */
             struct trap *trap;
 
             if ((info[i] & ALLOW_TRAPS) && (trap = t_at(nx, ny))) {
-                if (mtmp->mleashed) {
-                    if (!Deaf)
-                        whimper(mtmp);
-                } else {
-                    /* 1/40 chance of stepping on it anyway, in case
-                     * it has to pass one to follow the player...
-                     */
-                    if (trap->tseen && rn2(40))
-                        continue;
+                /* Check if pet should ignore harmless traps */
+                boolean dominated = edog
+                    && (edog->petstrat & PETSTRAT_IGNORETRAPS)
+                    && (trap->ttyp == SQKY_BOARD
+                        || (trap->ttyp == RUST_TRAP_SET
+                            && mtmp->data != &mons[PM_IRON_GOLEM]));
+
+                if (!dominated) {
+                    if (mtmp->mleashed) {
+                        if (!Deaf)
+                            whimper(mtmp);
+                    } else {
+                        /* 1/40 chance of stepping on it anyway, in case
+                         * it has to pass one to follow the player...
+                         */
+                        if (trap->tseen && rn2(40))
+                            continue;
+                    }
                 }
             }
         }

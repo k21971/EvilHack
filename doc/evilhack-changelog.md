@@ -4899,4 +4899,5 @@ The following changes to date are:
 - Fix: peaceful monsters casting offensive learned spells at player
 - Fix: falling through trap door/hole bypassing Mine Town/Mines' End
   block
+- Pet handling skill enhancements and new commands
 
