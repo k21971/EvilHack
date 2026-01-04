@@ -4907,4 +4907,5 @@ The following changes to date are:
 - Fix: corpse age-bucket stacking now only applies to Draugr/ghouls
 - Fix: thrown/kicked objects with non-base materials now display correct
   color in flight
+- Add object menu glyphs to inventory in TTY mode
 

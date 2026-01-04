@@ -17,6 +17,7 @@ typedef struct tty_mi {
     long count;          /* user count */
     char *str;           /* description string (including accelerator) */
     int attr;            /* string attribute */
+    int glyph;           /* glyph to display with item */
     boolean selected;    /* TRUE if selected by user */
     char selector;       /* keyboard accelerator */
     char gselector;      /* group accelerator */

@@ -93,7 +93,8 @@ struct window_procs tty_procs = {
      | WC2_HILITE_STATUS | WC2_HITPOINTBAR | WC2_FLUSH_STATUS
      | WC2_RESET_STATUS
 #endif
-     | WC2_DARKGRAY | WC2_SUPPRESS_HIST | WC2_STATUSLINES | WC2_PEACEFUL),
+     | WC2_DARKGRAY | WC2_SUPPRESS_HIST | WC2_STATUSLINES | WC2_PEACEFUL
+     | WC2_MENU_GLYPHS),
 #ifdef TEXTCOLOR
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},   /* color availability */
 #else
@@ -257,7 +258,6 @@ int i, c, d;
 #define print_vt_code1(i)     print_vt_code((i), -1, -1)
 #define print_vt_code2(i,c)   print_vt_code((i), (c), -1)
 #define print_vt_code3(i,c,d) print_vt_code((i), (c), (d))
-
 
 /* clean up and quit */
 STATIC_OVL void
@@ -2019,6 +2019,27 @@ struct WinDesc *cw;
                          ttyDisplay->curx++,
 #endif
                          cp++, n++) {
+                        /* display glyph before item description */
+                        if (n == 4 && curr->glyph != NO_GLYPH
+                            && iflags.use_menu_glyphs
+                            && curr->identifier.a_void) {
+                            int glyph_sym, glyph_color;
+                            unsigned glyph_special;
+
+                            mapglyph(curr->glyph, &glyph_sym, &glyph_color,
+                                     &glyph_special, u.ux, u.uy, 0);
+#ifdef TEXTCOLOR
+                            if (glyph_color != NO_COLOR)
+                                term_start_color(glyph_color);
+#endif
+                            (void) putchar(glyph_sym);
+                            (void) putchar(' ');
+#ifdef TEXTCOLOR
+                            if (glyph_color != NO_COLOR)
+                                term_end_color();
+#endif
+                            ttyDisplay->curx += 2;
+                        }
                         if (n == attr_n && (color != NO_COLOR
                                             || attr != ATR_NONE))
                             toggle_menu_attr(TRUE, color, attr);
@@ -2960,7 +2981,7 @@ winid window;
 void
 tty_add_menu(window, glyph, identifier, ch, gch, attr, str, preselected)
 winid window;               /* window to use, must be of type NHW_MENU */
-int glyph UNUSED;           /* glyph to display with item (not used) */
+int glyph;                  /* glyph to display with item */
 const anything *identifier; /* what to return if selected */
 char ch;                    /* keyboard accelerator (0 = pick our own) */
 char gch;                   /* group accelerator (0 = no group) */
@@ -3005,6 +3026,7 @@ boolean preselected;        /* item is marked as selected */
     item->selector = ch;
     item->gselector = gch;
     item->attr = attr;
+    item->glyph = glyph;
     item->str = dupstr(newstr ? newstr : "");
 
     item->next = cw->mlist;
@@ -3100,6 +3122,10 @@ const char *prompt; /* prompt to for menu */
 
         /* cut off any lines that are too long */
         len = strlen(curr->str) + 2; /* extra space at beg & end */
+        /* account for glyph display */
+        if (curr->glyph != NO_GLYPH && iflags.use_menu_glyphs
+            && curr->identifier.a_void)
+            len += 2; /* glyph symbol + space */
         if (len > (int) ttyDisplay->cols) {
             curr->str[ttyDisplay->cols - 2] = 0;
             len = ttyDisplay->cols;
@@ -3663,7 +3689,6 @@ char *posbar;
 #endif
 }
 #endif /* POSITIONBAR */
-
 
 /*
  * +------------------+
