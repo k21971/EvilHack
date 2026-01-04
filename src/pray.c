@@ -2556,10 +2556,11 @@ dosacrifice()
                 && (rn2(10) >= (int) ((nchance * nchance) / 100)
                     || levl[u.ux][u.uy].frac_altar == 1)) {
                 if (u.uluck >= 0 && !rn2(reg_gift_odds)) {
-                    int typ, ncount = 0;
+                    int typ, ncount = 0, iter = 0;
 
                     if (rn2(100) >= 50) { /* Making a weapon */
                         do {
+                            iter++;
                             /* Don't give unicorn horns or anything the player's restricted in
                              * Lets also try to dish out suitable gear based on the player's role */
                             if (primary_casters) {
@@ -2658,7 +2659,9 @@ dosacrifice()
                                 if (!gift_recently_given((short) typ) || ncount > 200)
                                     break;
                             }
-                        } while (ncount < 1000);
+                            /* iter provides a safety limit in case all weapons are
+                               rejected by racial checks or skill restrictions */
+                        } while (ncount < 1000 && iter < 10000);
                     } else if (any_primary_caster && !Race_if(PM_DRAUGR) && !rn2(3)) {
                         /* Making a spellbook */
                         short gift_otyp;
@@ -2702,7 +2705,9 @@ dosacrifice()
                         record_gift(gift_otyp);
                         return 1;
                     } else { /* Making armor */
+                        iter = 0; /* reset safety counter for armor loop */
                         do {
+                            iter++;
                             /* even chance for each slot
                                giants and tortles are evenly distributed among armor
                                they can wear. monks and centaurs end up more likely
@@ -2836,8 +2841,9 @@ dosacrifice()
                                 if (gift_recently_given((short) typ) && ncount <= 200)
                                     typ = 0;
                             }
-
-                        } while (ncount < 1000 && !typ);
+                            /* iter provides a safety limit in case all armor is
+                               rejected by racial checks */
+                        } while (ncount < 1000 && !typ && iter < 10000);
                     }
 
                     if (typ) {

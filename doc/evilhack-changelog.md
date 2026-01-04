@@ -4900,4 +4900,5 @@ The following changes to date are:
 - Fix: falling through trap door/hole bypassing Mine Town/Mines' End
   block
 - Pet handling skill enhancements and new commands
+- Fix: infinite loop in sacrifice gift selection when all items rejected
 
