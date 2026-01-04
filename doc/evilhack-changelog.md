@@ -4901,4 +4901,6 @@ The following changes to date are:
   block
 - Pet handling skill enhancements and new commands
 - Fix: infinite loop in sacrifice gift selection when all items rejected
+- Fix: vampire draining now grants intrinsics with same chance as eating
+  a corpse
 

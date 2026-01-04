@@ -519,22 +519,23 @@ boolean message;
         if (message)
             pline1(nomovemsg);
         nomovemsg = 0;
-    } else if (message)
+    } else if (message) {
         You("finish %s %s.",
             piece->odrained ? "draining" : "eating",
             food_xname(piece, TRUE));
+    }
 
     if (piece->otyp == CORPSE || piece->globby) {
-        if (has_omonst(piece) && has_erac(OMONST(piece))) {
-            cpostfx(ERAC(OMONST(piece))->rmnum);
-        } else if (!piece->odrained
-                   || (maybe_polyd(is_vampire(youmonst.data),
-                                   Race_if(PM_VAMPIRE)) && !rn2(5))) {
-            /* vampires draining corpses only get 20% chance of intrinsics */
-            cpostfx(piece->corpsenm);
-        }
-    } else
+        /* Use racial base for racial template monsters (example: elven
+           soldier gives elven intrinsics), otherwise use the corpse's
+           monster type */
+        if (has_omonst(piece) && has_erac(OMONST(piece)))
+            cpostfx(ERAC(OMONST(piece))->rmnum); /* by race */
+        else
+            cpostfx(piece->corpsenm); /* by monstere type */
+    } else {
         fpostfx(piece);
+    }
 
     if (piece->odrained) {
         piece->in_use = FALSE;
