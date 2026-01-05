@@ -18,6 +18,7 @@ typedef struct tty_mi {
     char *str;           /* description string (including accelerator) */
     int attr;            /* string attribute */
     int glyph;           /* glyph to display with item */
+    schar material;      /* material for glyph color (0=use base) */
     boolean selected;    /* TRUE if selected by user */
     char selector;       /* keyboard accelerator */
     char gselector;      /* group accelerator */

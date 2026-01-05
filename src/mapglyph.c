@@ -523,4 +523,29 @@ const char *str;
     putstr(window, attr, decode_mixed(buf, str));
 }
 
+/* Return the display color for a given material type. Used by menu
+   display code to show objects in material-appropriate colors. Returns
+   NO_COLOR for invalid materials or if color is disabled */
+int
+material_color(mat)
+int mat;
+{
+#ifdef TEXTCOLOR
+    /* Must match order of enum obj_material_types in objclass.h:
+       0=unused, 1=LIQUID..24=MINERAL */
+    static const int materialclr[] = {
+        CLR_BLACK, HI_ORGANIC, CLR_WHITE, HI_ORGANIC, CLR_RED,
+        CLR_WHITE, HI_CLOTH, CLR_GRAY, HI_LEATHER, HI_WOOD,
+        CLR_WHITE, CLR_BLACK, HI_METAL, HI_METAL, HI_COPPER,
+        HI_COPPER, HI_SILVER, HI_GOLD, CLR_WHITE, HI_SILVER,
+        CLR_BLACK, CLR_WHITE, HI_GLASS, CLR_RED, CLR_GRAY
+    };
+    if (iflags.use_color && mat >= 0 && mat < SIZE(materialclr))
+        return materialclr[mat];
+#else
+    nhUse(mat);
+#endif
+    return NO_COLOR;
+}
+
 /*mapglyph.c*/

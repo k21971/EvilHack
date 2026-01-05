@@ -56,7 +56,7 @@ curses_update_inv(void)
 /* Adds an inventory item.  'y' is 1 rather than 0 for the first item. */
 void
 curses_add_inv(int y,
-               int glyph UNUSED,
+               int glyph,
                CHAR_P accelerator, attr_t attr, const char *str)
 {
     WINDOW *win = curses_get_nhwin(INV_WIN);
@@ -124,6 +124,10 @@ curses_add_inv(int y,
         int symbol = 0;
 
         mapglyph(glyph, &symbol, &glyph_color, &dummy, u.ux, u.uy, 0);
+        /* Override with material color if menuobj has non-base material */
+        if (menuobj
+            && menuobj->material != objects[menuobj->otyp].oc_material)
+            glyph_color = material_color(menuobj->material);
         curses_toggle_color_attr(win, glyph_color, A_NORMAL, ON);
         wprintw(win, "%c ", symbol);
         curses_toggle_color_attr(win, glyph_color, A_NORMAL, OFF);

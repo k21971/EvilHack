@@ -1329,6 +1329,7 @@ E boolean FDECL(usmellmon, (struct permonst *));
 /* ### mapglyph.c ### */
 
 E int FDECL(mapglyph, (int, int *, int *, unsigned *, int, int, unsigned));
+E int FDECL(material_color, (int));
 E char *FDECL(encglyph, (int));
 E char *FDECL(decode_mixed, (char *, const char *));
 E void FDECL(genl_putmixed, (winid, int, const char *));

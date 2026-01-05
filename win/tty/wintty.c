@@ -2029,6 +2029,9 @@ struct WinDesc *cw;
                             mapglyph(curr->glyph, &glyph_sym, &glyph_color,
                                      &glyph_special, u.ux, u.uy, 0);
 #ifdef TEXTCOLOR
+                            /* Override with material color if non-base */
+                            if (curr->material)
+                                glyph_color = material_color(curr->material);
                             if (glyph_color != NO_COLOR)
                                 term_start_color(glyph_color);
 #endif
@@ -3027,6 +3030,11 @@ boolean preselected;        /* item is marked as selected */
     item->gselector = gch;
     item->attr = attr;
     item->glyph = glyph;
+    /* Store material if object has non-base material for color display */
+    if (menuobj && menuobj->material != objects[menuobj->otyp].oc_material)
+        item->material = menuobj->material;
+    else
+        item->material = 0;
     item->str = dupstr(newstr ? newstr : "");
 
     item->next = cw->mlist;

@@ -940,12 +940,14 @@ boolean FDECL((*allow), (OBJ_P)); /* allow function */
                 }
 
                 any.a_obj = curr;
+                menuobj = curr; /* for material-based glyph coloring */
                 add_menu(win, obj_to_glyph(curr, rn2_on_display_rng), &any,
                          (qflags & USE_INVLET) ? curr->invlet
                            : (first && curr->oclass == COIN_CLASS) ? '$' : 0,
                          def_oc_syms[(int) objects[curr->otyp].oc_class].sym,
                          ATR_NONE, doname_with_price(curr),
                          how == PICK_ALL ? MENU_SELECTED : MENU_UNSELECTED);
+                menuobj = (struct obj *) 0;
                 first = FALSE;
             }
         }

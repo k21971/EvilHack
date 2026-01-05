@@ -167,7 +167,8 @@ NEARDATA struct obj
 NEARDATA struct obj
     *current_wand = 0,  /* wand currently zapped/applied */
     *thrownobj = 0,     /* object in flight due to throwing */
-    *kickedobj = 0;     /* object in flight due to kicking */
+    *kickedobj = 0,     /* object in flight due to kicking */
+    *menuobj = 0;       /* object being added to a menu */
 
 /* trap.c */
 NEARDATA int force_mintrap = 0;

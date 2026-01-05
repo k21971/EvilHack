@@ -53,12 +53,12 @@ int func(CHAR_P arg) { ... }
 
 /* Dialog windows for curses interface */
 
-
 /* Private declarations */
 
 typedef struct nhmi {
     winid wid;                  /* NetHack window id */
     int glyph;                  /* Menu glyphs */
+    schar material;             /* Material for glyph color (0=use base) */
     anything identifier;        /* Value returned if item selected */
     CHAR_P accelerator;         /* Character used to select item from menu */
     CHAR_P group_accel;         /* Group accelerator for menu item, if any */
@@ -118,7 +118,6 @@ static nhmenu *nhmenus = NULL;  /* NetHack menu array */
 #define MAX_ACCEL_PER_PAGE 52 /* 'a'..'z' + 'A'..'Z' */
 /* TODO?  limit per page should be ignored for perm_invent, which might
    have some '#' overflow entries and isn't used to select items */
-
 
 /* Get a line of text from the player, such as asking for a character name
    or a wish.  Note: EDIT_GETLIN not supported for popup prompting. */
@@ -195,7 +194,6 @@ curses_line_input_dialog(const char *prompt, char *answer, int buffer)
     curses_destroy_win(askwin);
     noecho();
 }
-
 
 /* Get a single character response from the player, such as a y/n prompt */
 
@@ -363,7 +361,6 @@ curses_character_input_dialog(const char *prompt, const char *choices,
     return answer;
 }
 
-
 /* Return an extended command from the user */
 
 int
@@ -506,7 +503,6 @@ curses_ext_cmd()
     return ret;
 }
 
-
 /* Initialize a menu from given NetHack winid */
 
 void
@@ -580,6 +576,7 @@ curs_new_menu_item(winid wid, const char *str)
     new_item = (nhmenu_item *) alloc((unsigned) sizeof (nhmenu_item));
     new_item->wid = wid;
     new_item->glyph = NO_GLYPH;
+    new_item->material = 0;
     new_item->identifier = zeroany;
     new_item->accelerator = '\0';
     new_item->group_accel = '\0';
@@ -616,6 +613,9 @@ curses_add_nhmenu_item(winid wid, int glyph, const ANY_P *identifier,
 
     new_item = curs_new_menu_item(wid, str);
     new_item->glyph = glyph;
+    /* Store material if object has non-base material for color display */
+    if (menuobj && menuobj->material != objects[menuobj->otyp].oc_material)
+        new_item->material = menuobj->material;
     new_item->identifier = *identifier;
     new_item->accelerator = accelerator;
     new_item->group_accel = group_accel;
@@ -722,7 +722,6 @@ curses_finalize_nhmenu(winid wid, const char *prompt)
     current_menu->prompt = curses_copy_of(prompt);
 }
 
-
 /* Display a nethack menu, and return a selection, if applicable */
 
 int
@@ -803,7 +802,6 @@ curses_display_nhmenu(winid wid, int how, MENU_ITEM_P ** _selected)
     return num_chosen;
 }
 
-
 boolean
 curses_menu_exists(winid wid)
 {
@@ -861,7 +859,6 @@ curses_del_menu(winid wid, boolean del_wid_too)
         curses_del_wid(wid);
 }
 
-
 /* return a pointer to the menu associated with the given NetHack winid */
 
 static nhmenu *
@@ -878,7 +875,6 @@ get_menu(winid wid)
 
     return NULL;                /* Not found */
 }
-
 
 static char
 menu_get_accel(boolean first)
@@ -903,7 +899,6 @@ menu_get_accel(boolean first)
 
     return ret;
 }
-
 
 /* Determine if menu will require multiple pages to display */
 
@@ -941,7 +936,6 @@ menu_is_multipage(nhmenu *menu, int width, int height)
     return (menu_item_ptr != NULL) ? TRUE : FALSE;
 }
 
-
 /* Determine which entries go on which page, and total number of pages */
 
 static void
@@ -954,7 +948,6 @@ menu_determine_pages(nhmenu *menu)
     int width = menu->width;
     int height = menu->height;
     int page_end = height;
-
 
     if (*menu->prompt) {
         curline += curses_num_lines(menu->prompt, width) + 1;
@@ -992,7 +985,6 @@ menu_determine_pages(nhmenu *menu)
 
     menu->num_pages = page_num;
 }
-
 
 /* Determine dimensions of menu window based on term size and entries */
 
@@ -1079,7 +1071,6 @@ menu_win_size(nhmenu *menu)
     menu->width = max(maxwidth, 25);
     menu->height = max(maxheight, 5);
 }
-
 
 /* Displays menu selections in the given window */
 
@@ -1174,6 +1165,9 @@ menu_display_page(nhmenu *menu, WINDOW * win, int page_num, char *selectors)
             unsigned special;  /*notused */
 
             mapglyph(menu_item_ptr->glyph, &curletter, &color, &special, 0, 0, 0);
+            /* Override with material color if non-base material */
+            if (menu_item_ptr->material)
+                color = material_color(menu_item_ptr->material);
             curses_toggle_color_attr(win, color, NONE, ON);
             mvwaddch(win, menu_item_ptr->line_num + 1, start_col, curletter);
             curses_toggle_color_attr(win, color, NONE, OFF);
@@ -1242,7 +1236,6 @@ menu_display_page(nhmenu *menu, WINDOW * win, int page_num, char *selectors)
     curses_toggle_color_attr(win, DIALOG_BORDER_COLOR, NONE, OFF);
     wrefresh(win);
 }
-
 
 static int
 menu_get_selections(WINDOW * win, nhmenu *menu, int how)
@@ -1460,7 +1453,6 @@ menu_get_selections(WINDOW * win, nhmenu *menu, int how)
     return num_selected;
 }
 
-
 /* Select, deselect, or toggle selected for the given menu entry.
    For search operations, the toggled entry might be on a different
    page than the one currently shown. */
@@ -1494,7 +1486,6 @@ menu_select_deselect(WINDOW *win, nhmenu_item *item,
     if (visible)
         wrefresh(win);
 }
-
 
 /* Perform the selected operation (select, unselect, invert selection)
 on the given menu page.  If menu_page is 0, then perform opetation on
@@ -1554,7 +1545,6 @@ menu_operation(WINDOW * win, nhmenu *menu, menu_op
     return current_page;
 }
 
-
 /* Set all menu items to unselected in menu */
 
 static void
@@ -1567,7 +1557,6 @@ menu_clear_selections(nhmenu *menu)
         menu_item_ptr = menu_item_ptr->next_item;
     }
 }
-
 
 /* Get the maximum height for a menu */
 

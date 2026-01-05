@@ -2925,9 +2925,11 @@ nextclass:
             else
                 any.a_char = ilet;
             formattedobj = doname(otmp);
+            menuobj = otmp; /* for material-based glyph coloring */
             add_menu(win, obj_to_glyph(otmp, rn2_on_display_rng), &any, ilet,
                      wizid ? def_oc_syms[(int) otmp->oclass].sym : 0,
                      ATR_NONE, formattedobj, MENU_UNSELECTED);
+            menuobj = (struct obj *) 0;
             /* doname() uses a static pool of obuf[] output buffers and
                we don't want inventory display to overwrite all of them,
                so when we've used one we release it for re-use */
@@ -3050,9 +3052,11 @@ char avoidlet;
                         classcount++;
                     }
                     any.a_char = ilet;
+                    menuobj = otmp; /* for material-based glyph coloring */
                     add_menu(win, obj_to_glyph(otmp, rn2_on_display_rng),
                              &any, ilet, 0, ATR_NONE,
                              doname(otmp), MENU_UNSELECTED);
+                    menuobj = (struct obj *) 0;
                 }
             }
             if (flags.sortpack && *++invlet)
