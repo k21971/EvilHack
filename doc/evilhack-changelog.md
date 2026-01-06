@@ -4909,4 +4909,5 @@ The following changes to date are:
   color in flight
 - Add object menu glyphs to inventory in TTY mode
 - Inventory menu glyphs now display material-based colors
+- Fix: acquiring Dirge and fractured altars
 

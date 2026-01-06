@@ -2082,6 +2082,7 @@ dosacrifice()
             /* create Dirge from player's longsword here if possible */
             if (u.ualign.type == A_CHAOTIC && Role_if(PM_KNIGHT)
                 && !u.ugangr && u.ualign.record > 0
+                && levl[u.ux][u.uy].frac_altar == 0
                 && uwep && (uwep->otyp == LONG_SWORD
                             || uwep->otyp == ELVEN_LONG_SWORD
                             || uwep->otyp == ORCISH_LONG_SWORD
