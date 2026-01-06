@@ -2000,6 +2000,10 @@ struct monst *mtmp;
             reflection_skip = (m_seenres(mtmp, M_SEEN_REFL) != 0
                                || (monnear(mtmp, mtmp->mux, mtmp->muy)
                                    && !rn2(3)));
+        /* Tame pets should respect acceptable_pet_target() */
+        if (mtmp->mtame && target != &youmonst
+            && !acceptable_pet_target(mtmp, target, TRUE))
+            return FALSE;
     } else {
         return FALSE; /* nothing to attack */
     }

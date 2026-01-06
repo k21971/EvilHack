@@ -4910,4 +4910,5 @@ The following changes to date are:
 - Add object menu glyphs to inventory in TTY mode
 - Inventory menu glyphs now display material-based colors
 - Fix: acquiring Dirge and fractured altars
+- Fix: "avoid peacefuls" pet order now properly enforced
 
