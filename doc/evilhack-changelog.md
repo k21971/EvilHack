@@ -4911,4 +4911,6 @@ The following changes to date are:
 - Inventory menu glyphs now display material-based colors
 - Fix: acquiring Dirge and fractured altars
 - Fix: "avoid peacefuls" pet order now properly enforced
+- Fix: restore some sections mistakenly removed from
+  acceptable_pet_target()
 

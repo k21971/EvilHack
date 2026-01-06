@@ -1384,6 +1384,7 @@ boolean ranged;
      *  below 25%:  prevented from attacking at all by a different case
      */
     int balk = mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
+    boolean grudge = FALSE;
     boolean attack_peacefuls = TRUE; /* default behavior - pets attack peacefuls */
     long petstrat = 0L;
 
@@ -1404,6 +1405,7 @@ boolean ranged;
     /* Grudges override level checks. */
     if ((mm_aggression(mtmp, mtmp2) & ALLOW_M)
         || mtmp->msummoned) {
+        grudge = TRUE;
         balk = mtmp2->m_lev + 1;
     }
 
@@ -1416,6 +1418,11 @@ boolean ranged;
       || (!ranged && mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10))
       || (!ranged && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10))
       || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
+      || (is_support(mtmp->data) && mtmp2->mpeaceful && !Conflict)
+      || ((mtmp->mhp * 4 < mtmp->mhpmax
+           || mtmp2->data->msound == MS_GUARDIAN
+           || mtmp2->data->msound == MS_LEADER)
+          && mtmp2->mpeaceful && !grudge && !Conflict)
       || (mtmp2->mpeaceful && !attack_peacefuls && !Conflict)
       || (!ranged && touch_petrifies(mtmp2->data)
           && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
