@@ -1014,6 +1014,7 @@ int after, udist, whappr;
                         gtyp = otyp;
                     }
                 } else if (gtyp == UNDEF && in_masters_sight
+                           && !(edog->petstrat & PETSTRAT_NOAPPORT)
                            && ((can_use = could_use_item(mtmp, obj, TRUE, FALSE))
                    	       || !dog_has_minvent)
                            && (!levl[omx][omy].lit || levl[u.ux][u.uy].lit)
