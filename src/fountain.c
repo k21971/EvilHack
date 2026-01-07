@@ -292,18 +292,18 @@ struct obj *obj;
      * Non-metallic objects are handled by lava_damage().
      */
     if (is_metallic(obj) && (obj->owornmask & (W_ARMOR | W_ACCESSORY))) {
-        if (how_resistant(FIRE_RES) < 100) {
+        if (how_resistant(FIRE_RES) == 100) {
+            /* immune to fire but still can't reforge worn items */
+            You("can't reforge something you're wearing.");
+        } else {
             You("dip your worn %s into the forge.  You burn yourself!",
                 xname(obj));
             if (!rn2(3))
                 You("may want to remove your %s first...",
                     xname(obj));
+            losehp(resist_reduce(d(1, 8), FIRE_RES),
+                   "dipping a worn object into a forge", KILLED_BY);
         }
-        if (how_resistant(FIRE_RES) == 100) {
-            You("can't reforge something you're wearing.");
-        }
-        losehp(resist_reduce(d(1, 8), FIRE_RES),
-               "dipping a worn object into a forge", KILLED_BY);
         return;
     }
 
@@ -376,7 +376,7 @@ result:
 
         /* TODO: perhaps our hero needs to wield some sort of tool to
            successfully reforge an object? */
-        if (is_metallic(obj) && Luck >= 0) {
+        if (Luck >= 0) {
             if (greatest_erosion(obj) > 0) {
                 if (!Blind)
                     You("successfully reforge your %s, repairing some of the damage.",
@@ -398,7 +398,7 @@ result:
         if (!is_metallic(obj))
             goto lava;
 
-        if (!obj->blessed && is_metallic(obj) && Luck > 5) {
+        if (!obj->blessed && Luck > 5) {
             bless(obj);
             if (!Blind) {
                 Your("%s glows blue for a moment.",
@@ -615,6 +615,7 @@ doforging()
     struct obj* output;
     char allowall[2];
     int objtype = 0, artitype = 0;
+    boolean swapped = FALSE; /* TRUE if obj2 matched typ1 and obj1 matched typ2 */
 
     allowall[0] = ALL_CLASSES;
     allowall[1] = '\0';
@@ -775,7 +776,7 @@ doforging()
             output = addinv(output);
             output->owt = weight(output);
             You("have successfully forged %s.", doname(output));
-            uwep->spe --;
+            uwep->spe--;
             u.uconduct.forgedarti++;
             livelog_printf(LL_ARTIFACT, "used a forge to create %s%s",
                            (output->oartifact == ART_GAUNTLETS_OF_PURITY
@@ -800,15 +801,22 @@ doforging()
         }
     } else { /* regular objects */
         for (recipe = fusions; recipe->result_typ; recipe++) {
-            if ((obj1->otyp == recipe->typ1
-                 && obj2->otyp == recipe->typ2
-                 && obj1->quan >= recipe->quan_typ1
-                 && obj2->quan >= recipe->quan_typ2)
-                || (obj2->otyp == recipe->typ1
-                    && obj1->otyp == recipe->typ2
-                    && obj2->quan >= recipe->quan_typ1
-                    && obj1->quan >= recipe->quan_typ2)) {
+            /* Check if obj1 matches typ1 and obj2 matches typ2 */
+            if (obj1->otyp == recipe->typ1
+                && obj2->otyp == recipe->typ2
+                && obj1->quan >= recipe->quan_typ1
+                && obj2->quan >= recipe->quan_typ2) {
                 objtype = recipe->result_typ;
+                swapped = FALSE;
+                break;
+            }
+            /* Check if obj2 matches typ1 and obj1 matches typ2 (swapped) */
+            if (obj2->otyp == recipe->typ1
+                && obj1->otyp == recipe->typ2
+                && obj2->quan >= recipe->quan_typ1
+                && obj1->quan >= recipe->quan_typ2) {
+                objtype = recipe->result_typ;
+                swapped = TRUE;
                 break;
             }
         }
@@ -850,12 +858,12 @@ doforging()
                 if (!is_barding(output))
                     output->oprops = obj2->oprops;
                 if (obj2->oprops_known)
-                    output->oprops_known |= output->oprops;
+                    output->oprops_known = output->oprops;
             } else if (obj1->oprops) {
                 if (!is_barding(output))
                     output->oprops = obj1->oprops;
                 if (obj1->oprops_known)
-                    output->oprops_known |= output->oprops;
+                    output->oprops_known = output->oprops;
             }
 
             /* if neither recipe object have an object property,
@@ -892,7 +900,7 @@ doforging()
 
                Superior or exceptional gear can be guaranteed,
                but at a cost */
-            if (uwep && uwep->blessed) {
+            if (uwep->blessed) {
                 if (obj1->forged_qual == FQ_INFERIOR
                     || obj2->forged_qual == FQ_INFERIOR) {
                     /* if either object is inferior, the output
@@ -931,7 +939,7 @@ doforging()
                         output->forged_qual = (!rn2(10) ? FQ_EXCEPTIONAL
                                                         : FQ_SUPERIOR);
                 }
-            } else if (uwep && !uwep->blessed) { /* hammer is uncursed or cursed */
+            } else { /* hammer is uncursed or cursed */
                 if (obj1->forged_qual == FQ_INFERIOR
                     || obj2->forged_qual == FQ_INFERIOR) {
                     /* if either object is inferior, the output
@@ -948,15 +956,15 @@ doforging()
                 }
             }
 
-            /* toss out old objects, add new one */
-            if (obj1->otyp == recipe->typ1)
+            /* toss out old objects, add new one; use swapped to
+               determine which object matched which recipe slot */
+            if (!swapped) {
                 obj1->quan -= recipe->quan_typ1;
-            if (obj2->otyp == recipe->typ1)
-                obj2->quan -= recipe->quan_typ1;
-            if (obj1->otyp == recipe->typ2)
-                obj1->quan -= recipe->quan_typ2;
-            if (obj2->otyp == recipe->typ2)
                 obj2->quan -= recipe->quan_typ2;
+            } else {
+                obj2->quan -= recipe->quan_typ1;
+                obj1->quan -= recipe->quan_typ2;
+            }
 
             /* recalculate weight of the recipe objects if
                using a stack */
@@ -971,16 +979,18 @@ doforging()
             if (obj2->quan <= 0)
                 delobj(obj2);
 
-            /* forged object is created */
-            output = addinv(output);
             /* prevent large stacks of ammo-type weapons from being
-               formed */
+               formed; cap quantity BEFORE addinv() to avoid destroying
+               items from a pre-existing stack if the output merges */
             if (output->quan > 3L) {
                 output->quan = 3L;
                 if (!rn2(4)) /* small chance of an extra */
                     output->quan += 1L;
             }
             output->owt = weight(output);
+
+            /* forged object is created */
+            output = addinv(output);
             You("have successfully forged %s.", doname(output));
             update_inventory();
             if (output->oprops) {

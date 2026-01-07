@@ -4915,4 +4915,5 @@ The following changes to date are:
   acceptable_pet_target()
 - Fix: pets with "don't pick up" order no longer seek items
 - Fix: monster spell range/adjacency requirements
+- Fix: multiple bugs in doforging() and dipforge()
 
