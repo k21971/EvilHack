@@ -4917,4 +4917,5 @@ The following changes to date are:
 - Fix: monster spell range/adjacency requirements
 - Fix: multiple bugs in doforging() and dipforge()
 - Fix: forge quality now works for recipes with gem/tool ingredients
+- Fix: 2nd altar in the Dark Knight quest branch
 

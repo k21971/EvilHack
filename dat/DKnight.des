@@ -35,8 +35,6 @@ ENDMAP
 # Dungeon Description
 REGION:(00,00,37,15),unlit,"ordinary"
 REGION:(04,06,13,08),lit,"throne",unfilled
-# Chaotic altar
-ALTAR:(29,07),chaos,altar
 # Portal arrival point
 BRANCH:(18,15,18,15),(0,0,0,0)
 # Stairs
@@ -147,8 +145,10 @@ REPLACE_TERRAIN:(00,00,19,08),'g','T',20%
 REPLACE_TERRAIN:(00,00,19,08),'T','t',3%
 REPLACE_TERRAIN:(00,18,19,20),'g','T',20%
 REPLACE_TERRAIN:(00,18,19,20),'T','t',3%
+# Temple region
+REGION:(02,12,11,14),lit,"temple"
 # Altar
-ALTAR:(06,13),neutral,altar
+ALTAR:(05,13),neutral,shrine
 # Objects
 OBJECT:random,random
 OBJECT:random,random
