@@ -2203,7 +2203,6 @@ int spellnum;
         case MGC_CURE_SELF:
         case MGC_FIRE_BOLT:
         case MGC_ICE_BOLT:
-        case MGC_CANCELLATION:
         case MGC_REFLECTION:
             return TRUE;
         case MGC_LEARNED_SPELL:
@@ -2304,8 +2303,7 @@ int spellnum;
             /* Monster-as-caster checks */
             /* don't cast these spells at range */
             if (dist > 1
-                && (spellnum == MGC_PSI_BOLT
-                    || spellnum == MGC_STUN_YOU
+                && (spellnum == MGC_STUN_YOU
                     || spellnum == MGC_WEAKEN_YOU
                     || spellnum == MGC_CURSE_ITEMS
                     || spellnum == MGC_AGGRAVATION
@@ -2460,14 +2458,11 @@ int spellnum;
         } else {
             /* Monster-as-caster checks */
             /* don't cast these spells at range */
-            if (!youdefend && dist > 1
+            if (dist > 1
                 && (spellnum == CLC_CONFUSE_YOU
                     || spellnum == CLC_PARALYZE
                     || spellnum == CLC_BLIND_YOU
                     || spellnum == CLC_CURSE_ITEMS
-                    || spellnum == CLC_LIGHTNING
-                    || spellnum == CLC_FIRE_PILLAR
-                    || spellnum == CLC_GEYSER
                     || spellnum == CLC_SUMMON_MINION
                     || spellnum == CLC_CALL_UNDEAD))
                 return TRUE;

@@ -4914,4 +4914,5 @@ The following changes to date are:
 - Fix: restore some sections mistakenly removed from
   acceptable_pet_target()
 - Fix: pets with "don't pick up" order no longer seek items
+- Fix: monster spell range/adjacency requirements
 
