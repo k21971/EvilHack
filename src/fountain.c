@@ -899,60 +899,84 @@ doforging()
                be sub-par.
 
                Superior or exceptional gear can be guaranteed,
-               but at a cost */
-            if (uwep->blessed) {
-                if (obj1->forged_qual == FQ_INFERIOR
-                    || obj2->forged_qual == FQ_INFERIOR) {
-                    /* if either object is inferior, the output
-                       will also be inferior */
-                    output->forged_qual = FQ_INFERIOR;
-                } else if (obj1->forged_qual == FQ_EXCEPTIONAL
-                           && obj2->forged_qual == FQ_EXCEPTIONAL) {
-                    /* if both objects are exceptional,
-                       the forged object will also be
-                       exceptional */
-                    output->forged_qual = FQ_EXCEPTIONAL;
-                } else if (obj1->forged_qual >= FQ_SUPERIOR
-                           && obj2->forged_qual >= FQ_SUPERIOR) {
-                    /* if both objects are at least of superior
-                       quality, the forged object will either be
-                       superior, or a small chance of exceptional */
-                    output->forged_qual = (!rn2(10) ? FQ_EXCEPTIONAL
-                                                    : FQ_SUPERIOR);
-                } else if (obj1->spe >= 5 && obj2->spe >= 5) {
-                    /* recipe objs 1 & 2 need an enchantment
-                       of 5 or greater to ensure an exceptional
-                       forged object, and not be inferior
-                       (handled by first rule) */
-                    output->forged_qual = FQ_EXCEPTIONAL;
-                    output->spe = 0;
-                } else if (obj1->spe >= 3 && obj2->spe >= 3) {
-                    /* recipe objs 1 & 2 need an enchantment
-                       of 3 or greater to ensure a superior
-                       forged object, and not be inferior
-                       (handled by first rule) */
-                    output->forged_qual = FQ_SUPERIOR;
-                    output->spe = 0;
-                } else {
-                    /* random */
-                    if (!rn2(10))
+               but at a cost.
+
+               Only weapons, armor, and barding can have forged quality.
+               Gems, tools, rocks etc are always FQ_NORMAL. For recipes
+               using such items (e.g. crystal plate mail = dilithium +
+               plate mail), only check quality/spe of the qualifying
+               ingredient so players can still achieve superior/exceptional */
+            {
+                boolean obj1_can_qual = (obj1->oclass == ARMOR_CLASS
+                                         || obj1->oclass == WEAPON_CLASS
+                                         || is_barding(obj1));
+                boolean obj2_can_qual = (obj2->oclass == ARMOR_CLASS
+                                         || obj2->oclass == WEAPON_CLASS
+                                         || is_barding(obj2));
+                int qual1 = obj1_can_qual ? obj1->forged_qual : FQ_NORMAL;
+                int qual2 = obj2_can_qual ? obj2->forged_qual : FQ_NORMAL;
+                int spe1 = obj1_can_qual ? obj1->spe : 0;
+                int spe2 = obj2_can_qual ? obj2->spe : 0;
+                /* for threshold checks: if object can't have quality,
+                   it doesn't block the other object's contribution */
+                boolean chk1 = obj1_can_qual;
+                boolean chk2 = obj2_can_qual;
+
+                if (uwep->blessed) {
+                    if ((chk1 && qual1 == FQ_INFERIOR)
+                        || (chk2 && qual2 == FQ_INFERIOR)) {
+                        /* if either qualifying object is inferior,
+                           the output will also be inferior */
+                        output->forged_qual = FQ_INFERIOR;
+                    } else if ((!chk1 || qual1 == FQ_EXCEPTIONAL)
+                               && (!chk2 || qual2 == FQ_EXCEPTIONAL)
+                               && (chk1 || chk2)) {
+                        /* if all qualifying objects are exceptional,
+                           the forged object will also be exceptional */
+                        output->forged_qual = FQ_EXCEPTIONAL;
+                    } else if ((!chk1 || qual1 >= FQ_SUPERIOR)
+                               && (!chk2 || qual2 >= FQ_SUPERIOR)
+                               && (chk1 || chk2)) {
+                        /* if all qualifying objects are at least superior,
+                           the forged object will be superior or exceptional */
                         output->forged_qual = (!rn2(10) ? FQ_EXCEPTIONAL
                                                         : FQ_SUPERIOR);
-                }
-            } else { /* hammer is uncursed or cursed */
-                if (obj1->forged_qual == FQ_INFERIOR
-                    || obj2->forged_qual == FQ_INFERIOR) {
-                    /* if either object is inferior, the output
-                       will be also */
-                    output->forged_qual = FQ_INFERIOR;
-                } else if (obj1->spe < 0 && obj2->spe < 0) {
-                    /* recipe objs 1 & 2 need an enchantment
-                       below zero to ensure an inferior
-                       forged object */
-                    output->forged_qual = FQ_INFERIOR;
-                } else {
-                    if (rn2(5) && uwep->cursed)
+                    } else if ((!chk1 || spe1 >= 5)
+                               && (!chk2 || spe2 >= 5)
+                               && (chk1 || chk2)) {
+                        /* qualifying objects need enchantment of 5+
+                           for exceptional output */
+                        output->forged_qual = FQ_EXCEPTIONAL;
+                        output->spe = 0;
+                    } else if ((!chk1 || spe1 >= 3)
+                               && (!chk2 || spe2 >= 3)
+                               && (chk1 || chk2)) {
+                        /* qualifying objects need enchantment of 3+
+                           for superior output */
+                        output->forged_qual = FQ_SUPERIOR;
+                        output->spe = 0;
+                    } else {
+                        /* random */
+                        if (!rn2(10))
+                            output->forged_qual = (!rn2(10) ? FQ_EXCEPTIONAL
+                                                            : FQ_SUPERIOR);
+                    }
+                } else { /* hammer is uncursed or cursed */
+                    if ((chk1 && qual1 == FQ_INFERIOR)
+                        || (chk2 && qual2 == FQ_INFERIOR)) {
+                        /* if either qualifying object is inferior,
+                           output will be also */
                         output->forged_qual = FQ_INFERIOR;
+                    } else if ((!chk1 || spe1 < 0)
+                               && (!chk2 || spe2 < 0)
+                               && (chk1 || chk2)) {
+                        /* qualifying objects with negative enchantment
+                           ensure inferior output */
+                        output->forged_qual = FQ_INFERIOR;
+                    } else {
+                        if (rn2(5) && uwep->cursed)
+                            output->forged_qual = FQ_INFERIOR;
+                    }
                 }
             }
 
