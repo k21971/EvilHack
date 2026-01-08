@@ -1075,10 +1075,6 @@ int after, udist, whappr;
     } else
         appr = 1; /* gtyp != UNDEF */
 
-    /* Defensive pets try to keep their distance */
-    if (edog && (edog->petstrat & PETSTRAT_COWED) && appr >= 0)
-        appr = -1;  /* prefer to move away, but ranged attacks still work */
-
     if (mtmp->mconf)
         appr = 0;
 
@@ -1389,15 +1385,14 @@ boolean ranged;
     boolean attack_peacefuls = TRUE; /* default behavior - pets attack peacefuls */
     long petstrat = 0L;
 
-    /* Check pet strategy flags if this is a tame pet with edog */
+    /* Check pet strategy flags if this is a tame pet with edog.
+       Note: Defensive pets (PETSTRAT_COWED) avoid melee via movement,
+       but are still willing to attack at range - no balk adjustment */
     if (mtmp->mtame && has_edog(mtmp)) {
         petstrat = EDOG(mtmp)->petstrat;
         /* Aggressive pets are more willing to attack higher level foes */
         if (petstrat & PETSTRAT_AGGRO)
             balk += 5;
-        /* Defensive pets are less willing to engage */
-        if (petstrat & PETSTRAT_COWED)
-            balk -= 5;
         /* Check if pet is ordered to avoid peacefuls */
         if (petstrat & PETSTRAT_AVOIDPEACE)
             attack_peacefuls = FALSE;
@@ -1450,10 +1445,11 @@ int after; /* this is extra fast monster movement */
     boolean better_with_displacing = FALSE;
     xchar nix, niy;      /* position mtmp is (considering) moving to */
     register int nx, ny; /* temporary coordinates */
-    xchar cnt, uncursedcnt, chcnt;
+    xchar cnt, uncursedcnt, chcnt, safecnt;
     int chi = -1, nidist, ndist;
     coord poss[9];
     long info[9], allowflags;
+    boolean defensive;
 #define GDIST(x, y) (dist2(x, y, gx, gy))
 
     /*
@@ -1782,6 +1778,41 @@ int after; /* this is extra fast monster movement */
         uncursedcnt++;
     }
 
+    /* Defensive pets try to avoid squares within 2 tiles of hostile
+       monsters. Count how many candidate squares are "safe" (not near
+       enemies) */
+    safecnt = 0;
+    defensive = (edog && (edog->petstrat & PETSTRAT_COWED));
+    if (defensive) {
+        for (i = 0; i < cnt; i++) {
+            int px, py;
+            boolean enemy_nearby = FALSE;
+
+            nx = poss[i].x;
+            ny = poss[i].y;
+            if (MON_AT(nx, ny) && !((info[i] & ALLOW_M) || info[i] & ALLOW_MDISP))
+                continue;
+            /* Check all squares within 2 tiles of this candidate position */
+            for (px = nx - 2; px <= nx + 2 && !enemy_nearby; px++) {
+                for (py = ny - 2; py <= ny + 2 && !enemy_nearby; py++) {
+                    struct monst *mtmp2;
+
+                    if (!isok(px, py) || (px == nx && py == ny))
+                        continue;
+                    mtmp2 = m_at(px, py);
+                    if (mtmp2 && !mtmp2->mtame && !mtmp2->mpeaceful
+                        && mtmp2->mcanmove && !mtmp2->msleeping
+                        && (!mtmp2->minvis || mon_prop(mtmp, SEE_INVIS))
+                        && !mtmp2->mundetected) {
+                        enemy_nearby = TRUE;
+                    }
+                }
+            }
+            if (!enemy_nearby)
+                safecnt++;
+        }
+    }
+
     better_with_displacing = should_displace(mtmp, poss, info, cnt, gx, gy);
 
     chcnt = 0;
@@ -1793,7 +1824,7 @@ int after; /* this is extra fast monster movement */
         ny = poss[i].y;
         cursemsg[i] = FALSE;
 
-        /* if leashed, we drag him along. */
+        /* if leashed, we drag him along */
         if (mtmp->mleashed && distu(nx, ny) > 4)
             continue;
 
@@ -1801,6 +1832,31 @@ int after; /* this is extra fast monster movement */
         if (!has_edog
             && (j = distu(nx, ny)) > 16 && j >= udist)
             continue;
+
+        /* Defensive pets avoid squares within 2 tiles of hostile
+           monsters if there are safe alternatives available */
+        if (defensive && safecnt > 0) {
+            int px, py;
+            boolean enemy_nearby = FALSE;
+
+            for (px = nx - 2; px <= nx + 2 && !enemy_nearby; px++) {
+                for (py = ny - 2; py <= ny + 2 && !enemy_nearby; py++) {
+                    struct monst *mtmp2;
+
+                    if (!isok(px, py) || (px == nx && py == ny))
+                        continue;
+                    mtmp2 = m_at(px, py);
+                    if (mtmp2 && !mtmp2->mtame && !mtmp2->mpeaceful
+                        && mtmp2->mcanmove && !mtmp2->msleeping
+                        && (!mtmp2->minvis || mon_prop(mtmp, SEE_INVIS))
+                        && !mtmp2->mundetected) {
+                        enemy_nearby = TRUE;
+                    }
+                }
+            }
+            if (enemy_nearby)
+                continue;
+        }
 
         if ((info[i] & ALLOW_M) && MON_AT(nx, ny)) {
             int mstatus;
@@ -1856,13 +1912,13 @@ int after; /* this is extra fast monster movement */
 
             if ((info[i] & ALLOW_TRAPS) && (trap = t_at(nx, ny))) {
                 /* Check if pet should ignore harmless traps */
-                boolean dominated = edog
+                boolean bypass_trap = edog
                     && (edog->petstrat & PETSTRAT_IGNORETRAPS)
                     && (trap->ttyp == SQKY_BOARD
                         || (trap->ttyp == RUST_TRAP_SET
                             && mtmp->data != &mons[PM_IRON_GOLEM]));
 
-                if (!dominated) {
+                if (!bypass_trap) {
                     if (mtmp->mleashed) {
                         if (!Deaf)
                             whimper(mtmp);
