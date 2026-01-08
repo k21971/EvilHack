@@ -1834,6 +1834,12 @@ doorder()
         any.a_int = 14;
         add_menu(win, NO_GLYPH, &any, 'n', 0, ATR_NONE,
                  "Come to my location", MENU_UNSELECTED);
+
+        any.a_int = 15;
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_NOATTACK) != 0;
+        Sprintf(buf, "Avoid all monsters (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, NO_GLYPH, &any, 'o', 0, ATR_NONE, buf, MENU_UNSELECTED);
     }
 
     Sprintf(buf, "What do you want %s to do?", mon_nam(mtmp));
@@ -1986,10 +1992,10 @@ doorder()
     case 9: /* Take items from pet */
         (void) exchange_objects_with_mon(mtmp, TRUE);
         break;
-    case 10: /* Aggressive (toggle) */
+    case 10: /* Aggressive (toggle) - mutually exclusive with Defensive/NoAttack */
         EDOG(mtmp)->petstrat ^= PETSTRAT_AGGRO;
         if (EDOG(mtmp)->petstrat & PETSTRAT_AGGRO) {
-            EDOG(mtmp)->petstrat &= ~PETSTRAT_COWED;
+            EDOG(mtmp)->petstrat &= ~(PETSTRAT_COWED | PETSTRAT_NOATTACK);
             You("direct %s to assume an aggressive posture.",
                 mon_nam(mtmp));
         } else {
@@ -1997,10 +2003,10 @@ doorder()
                 mon_nam(mtmp));
         }
         break;
-    case 11: /* Defensive (toggle) */
+    case 11: /* Defensive (toggle) - mutually exclusive with Aggressive/NoAttack */
         EDOG(mtmp)->petstrat ^= PETSTRAT_COWED;
         if (EDOG(mtmp)->petstrat & PETSTRAT_COWED) {
-            EDOG(mtmp)->petstrat &= ~PETSTRAT_AGGRO;
+            EDOG(mtmp)->petstrat &= ~(PETSTRAT_AGGRO | PETSTRAT_NOATTACK);
             You("direct %s to assume a more defensive posture.",
                 mon_nam(mtmp));
         } else {
@@ -2028,6 +2034,15 @@ doorder()
         EDOG(mtmp)->petstrat &= ~PETSTRAT_STATIONARY;
         EDOG(mtmp)->petstrat |= PETSTRAT_COME;
         You("call %s to your side.", mon_nam(mtmp));
+        break;
+    case 15: /* Avoid all monsters (toggle) - mutually exclusive with Aggressive/Defensive */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_NOATTACK;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_NOATTACK) {
+            EDOG(mtmp)->petstrat &= ~(PETSTRAT_AGGRO | PETSTRAT_COWED);
+            You("direct %s to avoid all monsters.", mon_nam(mtmp));
+        } else {
+            You("direct %s to engage monsters normally.", mon_nam(mtmp));
+        }
         break;
     }
 

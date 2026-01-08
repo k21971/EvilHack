@@ -155,6 +155,7 @@ struct emin {
 #define PETSTRAT_COME        0x00000040L /* Come to player, ignore everything */
 #define PETSTRAT_NODROP      0x00000080L /* Don't drop items */
 #define PETSTRAT_IGNORETRAPS 0x00000100L /* Ignore harmless traps (squeaky board, rust) */
+#define PETSTRAT_NOATTACK    0x00000200L /* Never attack anything, overrides grudges */
 
 /*      various types of pet food, the lower the value, the better liked */
 enum dogfood_types {

@@ -1995,6 +1995,12 @@ struct monst *mtmp;
     struct monst *target = mfind_target(mtmp);
     boolean reflection_skip = FALSE;
 
+    /* Pet ordered to avoid all monsters - skip all offensive items,
+       but Conflict overrides this order */
+    if (mtmp->mtame && has_edog(mtmp)
+        && (EDOG(mtmp)->petstrat & PETSTRAT_NOATTACK) && !Conflict)
+        return FALSE;
+
     if (target) {
         if (target == &youmonst)
             reflection_skip = (m_seenres(mtmp, M_SEEN_REFL) != 0

@@ -1390,6 +1390,10 @@ boolean ranged;
        but are still willing to attack at range - no balk adjustment */
     if (mtmp->mtame && has_edog(mtmp)) {
         petstrat = EDOG(mtmp)->petstrat;
+        /* Pet ordered to avoid all monsters - never attack, overrides
+           grudges, but Conflict overrides this order */
+        if ((petstrat & PETSTRAT_NOATTACK) && !Conflict)
+            return FALSE;
         /* Aggressive pets are more willing to attack higher level foes */
         if (petstrat & PETSTRAT_AGGRO)
             balk += 5;
@@ -2007,6 +2011,11 @@ int after; /* this is extra fast monster movement */
          * attack.
          */
         mtarg = best_target(mtmp);
+
+        /* Check if pet is allowed to attack this target */
+        if (mtarg && mtarg != &youmonst
+            && !acceptable_pet_target(mtmp, mtarg, TRUE))
+            mtarg = (struct monst *) 0;
 
         /* Hungry pets are unlikely to use breath/spit attacks */
         if (mtarg && (!hungry || !rn2(5))) {

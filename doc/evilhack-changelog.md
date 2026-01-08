@@ -4919,4 +4919,5 @@ The following changes to date are:
 - Fix: forge quality now works for recipes with gem/tool ingredients
 - Fix: 2nd altar in the Dark Knight quest branch
 - Fix: issues with pet command 'defensive stance'
+- Add 'Avoid all monsters' pet command (expert skill)
 
