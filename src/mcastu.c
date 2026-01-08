@@ -2261,7 +2261,7 @@ int spellnum;
         dist = distmin(u.ux, u.uy, target->mx, target->my);
     } else if (youdefend) {
         /* Monster casting at player */
-        dist = distu(caster->mx, caster->my);
+        dist = distmin(caster->mx, caster->my, u.ux, u.uy);
         /* Check if caster could see where player is */
         mcouldseeu = couldsee(caster->mx, caster->my);
     } else {

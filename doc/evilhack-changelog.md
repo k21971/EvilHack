@@ -4922,4 +4922,5 @@ The following changes to date are:
 - Add 'Avoid all monsters' pet command (expert skill)
 - Fix: pets now use offensive items (wands/potions/scrolls) against
   hostiles
+- Fix: monster melee spells blocked when diagonally adjacent to player
 
