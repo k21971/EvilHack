@@ -4920,4 +4920,6 @@ The following changes to date are:
 - Fix: 2nd altar in the Dark Knight quest branch
 - Fix: issues with pet command 'defensive stance'
 - Add 'Avoid all monsters' pet command (expert skill)
+- Fix: pets now use offensive items (wands/potions/scrolls) against
+  hostiles
 

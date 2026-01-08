@@ -2016,7 +2016,7 @@ struct monst *mtmp;
 
     m.offensive = (struct obj *) 0;
     m.has_offense = 0;
-    if (mtmp->mpeaceful || is_animal(mtmp->data)
+    if ((mtmp->mpeaceful && !mtmp->mtame) || is_animal(mtmp->data)
         || mindless(mtmp->data) || nohands(mtmp->data))
         return FALSE;
     if (u.uswallow)
@@ -2028,8 +2028,15 @@ struct monst *mtmp;
         && !uarms && !uarmg && !uarmc && !uarmf)
         return FALSE;
     /* all offensive items require orthogonal or diagonal targetting */
-    if (!lined_up(mtmp))
-        return FALSE;
+    if (target == &youmonst) {
+        if (!lined_up(mtmp))
+            return FALSE;
+    } else {
+        /* For monster targets, use mlined_up which checks alignment
+           with the target and avoids friendly fire */
+        if (!mlined_up(mtmp, target, FALSE))
+            return FALSE;
+    }
 
     /* Set up context for the generic finder callback */
     {
@@ -2919,9 +2926,10 @@ struct monst *mtmp;
              * a confused monster might forget to light it */
             begin_burn(otmp, FALSE);
         }
-        m_throw(mtmp, mtmp->mx, mtmp->my, sgn(mtmp->mux - mtmp->mx),
-                sgn(mtmp->muy - mtmp->my),
-                distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy), otmp, TRUE);
+        /* Use target coordinates (tbx/tby) from mfind_target() */
+        m_throw(mtmp, mtmp->mx, mtmp->my, sgn(tbx), sgn(tby),
+                distmin(mtmp->mx, mtmp->my, mtmp->mx + tbx, mtmp->my + tby),
+                otmp, TRUE);
         if (isoil) {
             /* Possible situation: monster lights and throws 1 of a stack of oil
              * point blank -> it explodes -> monster is caught in explosion ->
@@ -2941,8 +2949,9 @@ struct monst *mtmp;
         mreadmsg(mtmp, otmp);
         if (oseen)
             makeknown(otmp->otyp);
-        (void) create_gas_cloud(mtmp->mux, mtmp->muy, 3 + bcsign(otmp),
-                                8 + 4 * bcsign(otmp));
+        /* Use target coordinates (tbx/tby) from mfind_target() */
+        (void) create_gas_cloud(mtmp->mx + tbx, mtmp->my + tby,
+                                3 + bcsign(otmp), 8 + 4 * bcsign(otmp));
         m_useup(mtmp, otmp);
         return (DEADMONSTER(mtmp)) ? 1 : 2;
     case 0:
