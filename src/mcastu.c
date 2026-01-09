@@ -916,8 +916,15 @@ int dmg, spellnum;
                          || tp_sensemon(caster) || Detect_monsters);
     int ml = yours ? mons[u.umonnum].mlevel : min(caster->m_lev, 50);
 
-    if (dmg == 0 && !is_undirected_spell(caster, AD_SPEL, spellnum)) {
-        impossible("cast directed wizard spell (%d) with dmg=0?", spellnum);
+    /* MGC_LEARNED_SPELL is a meta-spell - the actual spell selection and
+       LOS checks happen inside cast_learned_spell(), which has its own
+       safety checks for offensive spells (returns 0 if no LOS). The
+       undirected check for learned spells is based on whether USEFUL
+       self-buffs exist, which can differ from whether ANY learned spell
+       exists, so we skip this check for learned spells */
+    if (dmg == 0 && spellnum != MGC_LEARNED_SPELL
+        && !is_undirected_spell(caster, AD_SPEL, spellnum)) {
+        impossible("cast directed wizard spell (%d) with dmg = 0?", spellnum);
         return;
     }
 
@@ -1465,8 +1472,15 @@ int dmg, spellnum;
     struct monst *minion = (struct monst *) 0;
     coord mm;
 
-    if (dmg == 0 && !is_undirected_spell(caster, AD_CLRC, spellnum)) {
-        impossible("cast directed cleric spell (%d) with dmg=0?", spellnum);
+    /* CLC_LEARNED_SPELL is a meta-spell - the actual spell selection and
+       LOS checks happen inside cast_learned_spell(), which has its own
+       safety checks for offensive spells (returns 0 if no LOS). The
+       undirected check for learned spells is based on whether USEFUL
+       self-buffs exist, which can differ from whether ANY learned spell
+       exists, so we skip this check for learned spells */
+    if (dmg == 0 && spellnum != CLC_LEARNED_SPELL
+        && !is_undirected_spell(caster, AD_CLRC, spellnum)) {
+        impossible("cast directed cleric spell (%d) with dmg = 0?", spellnum);
         return;
     }
 
