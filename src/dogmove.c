@@ -1385,6 +1385,10 @@ boolean ranged;
     boolean attack_peacefuls = TRUE; /* default behavior - pets attack peacefuls */
     long petstrat = 0L;
 
+    /* Pets should never attack other pets unless under Conflict */
+    if (mtmp2->mtame && !Conflict)
+        return FALSE;
+
     /* Check pet strategy flags if this is a tame pet with edog.
        Note: Defensive pets (PETSTRAT_COWED) avoid melee via movement,
        but are still willing to attack at range - no balk adjustment */
