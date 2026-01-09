@@ -61,5 +61,7 @@ Makefile.gcc-orig
 # Win32-specific ignores end
 .DS_Store
 # misc
+CLAUDE.md
 dat/md*
 .claude/
+doc/claude/

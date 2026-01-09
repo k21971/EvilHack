@@ -1856,12 +1856,13 @@ doorder()
 
     /* Commands that require tameness check (unless Master skill).
      * Skip check for: belay (1), remove saddle (5), remove barding (6),
-     * give items (8 - physical handoff always succeeds at Basic+).
+     * give items (8), take items (9) - physical handoffs always succeed
+     * at Basic+ since they require adjacency.
      * Base rate: (tameness-1)/19, so tameness 1 = 0%, tameness 20 = 100%
      * Skill bonuses: Unskilled +0%, Basic +10%, Skilled +20%, Expert +35%
      * Master skill: all commands always succeed regardless of tameness
      */
-    if (choice != 1 && choice != 5 && choice != 6 && choice != 8
+    if (choice != 1 && choice != 5 && choice != 6 && choice != 8 && choice != 9
         && skill_level != P_MASTER) {
         int skill_bonus;
         int effective_tameness;

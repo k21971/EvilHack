@@ -4923,4 +4923,5 @@ The following changes to date are:
 - Fix: pets now use offensive items (wands/potions/scrolls) against
   hostiles
 - Fix: monster melee spells blocked when diagonally adjacent to player
+- Pet command 'take items' no longer requires tameness check
 
