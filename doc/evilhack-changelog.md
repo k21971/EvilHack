@@ -4926,4 +4926,5 @@ The following changes to date are:
 - Pet command 'take items' no longer requires tameness check
 - Add colored status indicators to pet order menu
 - Fix: learned spell panic when monster doesn't know player location
+- Fix: potion double-free panic when polymorph triggers lava_effects()
 

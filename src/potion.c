@@ -745,7 +745,12 @@ struct obj *otmp;
         } else if (!objects[otmp->otyp].oc_uname)
             docall(otmp);
     }
-    useup(otmp);
+    /* potion may have been destroyed during peffects() -
+       e.g. polymorphing into an ice creature on lava triggers
+       lava_effects() which destroys items marked in_use (and
+       dopotion set in_use = TRUE before peffects) */
+    if (otmp->where == OBJ_INVENT)
+        useup(otmp);
     return 1;
 }
 
