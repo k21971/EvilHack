@@ -19,6 +19,7 @@ typedef struct tty_mi {
     int attr;            /* string attribute */
     int glyph;           /* glyph to display with item */
     schar material;      /* material for glyph color (0=use base) */
+    schar color;         /* programmatic text color (NO_COLOR=use default) */
     boolean selected;    /* TRUE if selected by user */
     char selector;       /* keyboard accelerator */
     char gselector;      /* group accelerator */

@@ -4924,4 +4924,5 @@ The following changes to date are:
   hostiles
 - Fix: monster melee spells blocked when diagonally adjacent to player
 - Pet command 'take items' no longer requires tameness check
+- Add colored status indicators to pet order menu
 

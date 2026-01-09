@@ -59,6 +59,7 @@ typedef struct nhmi {
     winid wid;                  /* NetHack window id */
     int glyph;                  /* Menu glyphs */
     schar material;             /* Material for glyph color (0=use base) */
+    schar color;                /* Programmatic text color (NO_COLOR=use default) */
     anything identifier;        /* Value returned if item selected */
     CHAR_P accelerator;         /* Character used to select item from menu */
     CHAR_P group_accel;         /* Group accelerator for menu item, if any */
@@ -616,6 +617,9 @@ curses_add_nhmenu_item(winid wid, int glyph, const ANY_P *identifier,
     /* Store material if object has non-base material for color display */
     if (menuobj && menuobj->material != objects[menuobj->otyp].oc_material)
         new_item->material = menuobj->material;
+    /* Store programmatic color if set, then reset global */
+    new_item->color = (schar) menuitemcolor;
+    menuitemcolor = NO_COLOR;
     new_item->identifier = *identifier;
     new_item->accelerator = accelerator;
     new_item->group_accel = group_accel;
@@ -1178,14 +1182,23 @@ menu_display_page(nhmenu *menu, WINDOW * win, int page_num, char *selectors)
         color = NONE;
         menu_color = iflags.use_menu_color
                      && get_menu_coloring(menu_item_ptr->str, &color, &attr);
+
+        /* bracket_color: programmatic color for text inside [] only */
+        int bracket_color = NO_COLOR;
+        if (!menu_color && menu_item_ptr->color != NO_COLOR)
+            bracket_color = menu_item_ptr->color;
+
         if (menu_color) {
             attr = curses_convert_attr(attr);
             if (color != NONE || attr != A_NORMAL)
                 curses_menu_color_attr(win, color, attr, ON);
         } else {
             attr = menu_item_ptr->attr;
-            if (color != NONE || attr != A_NORMAL)
+            /* Only use whole-line coloring if no bracket color */
+            if (bracket_color == NO_COLOR && color != NONE)
                 curses_toggle_color_attr(win, color, attr, ON);
+            else if (attr != A_NORMAL)
+                curses_toggle_color_attr(win, NONE, attr, ON);
         }
 
         num_lines = curses_num_lines(menu_item_ptr->str, entry_cols);
@@ -1193,16 +1206,52 @@ menu_display_page(nhmenu *menu, WINDOW * win, int page_num, char *selectors)
             if (menu_item_ptr->str && *menu_item_ptr->str) {
                 tmpstr = curses_break_str(menu_item_ptr->str,
                                           entry_cols, count + 1);
-                mvwprintw(win, menu_item_ptr->line_num + count + 1, start_col,
-                          "%s", tmpstr);
+                /* Handle bracket-only coloring by printing in parts */
+                if (bracket_color != NO_COLOR) {
+                    char *open_bracket = strchr(tmpstr, '[');
+                    char *close_bracket = open_bracket
+                                          ? strchr(open_bracket, ']') : NULL;
+                    if (open_bracket && close_bracket) {
+                        int col = start_col;
+                        /* Print text before '[' */
+                        *open_bracket = '\0';
+                        mvwprintw(win, menu_item_ptr->line_num + count + 1,
+                                  col, "%s", tmpstr);
+                        col += (int) strlen(tmpstr);
+                        /* Print '[' */
+                        mvwaddch(win, menu_item_ptr->line_num + count + 1,
+                                 col, '[');
+                        col++;
+                        /* Print text inside brackets with color */
+                        *close_bracket = '\0';
+                        curses_toggle_color_attr(win, bracket_color, NONE, ON);
+                        mvwprintw(win, menu_item_ptr->line_num + count + 1,
+                                  col, "%s", open_bracket + 1);
+                        curses_toggle_color_attr(win, bracket_color, NONE, OFF);
+                        col += (int) strlen(open_bracket + 1);
+                        /* Print ']' and text after */
+                        mvwprintw(win, menu_item_ptr->line_num + count + 1,
+                                  col, "]%s", close_bracket + 1);
+                    } else {
+                        /* No brackets found, print normally */
+                        mvwprintw(win, menu_item_ptr->line_num + count + 1,
+                                  start_col, "%s", tmpstr);
+                    }
+                } else {
+                    mvwprintw(win, menu_item_ptr->line_num + count + 1,
+                              start_col, "%s", tmpstr);
+                }
                 free(tmpstr);
             }
         }
-        if (color != NONE || attr != A_NORMAL) {
-            if (menu_color)
+        if (menu_color) {
+            if (color != NONE || attr != A_NORMAL)
                 curses_menu_color_attr(win, color, attr, OFF);
-            else
+        } else {
+            if (bracket_color == NO_COLOR && color != NONE)
                 curses_toggle_color_attr(win, color, attr, OFF);
+            else if (attr != A_NORMAL)
+                curses_toggle_color_attr(win, NONE, attr, OFF);
         }
 
         menu_item_ptr = menu_item_ptr->next_item;

@@ -169,6 +169,7 @@ NEARDATA struct obj
     *thrownobj = 0,     /* object in flight due to throwing */
     *kickedobj = 0,     /* object in flight due to kicking */
     *menuobj = 0;       /* object being added to a menu */
+NEARDATA int menuitemcolor = NO_COLOR; /* programmatic menu item color */
 
 /* trap.c */
 NEARDATA int force_mintrap = 0;

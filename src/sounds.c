@@ -1763,18 +1763,21 @@ doorder()
     currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_STAY) != 0;
     Sprintf(buf, "Stay on this level (toggle) [%s]",
             currently_set ? "active" : "inactive");
+    menuitemcolor = currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE;
     add_menu(win, NO_GLYPH, &any, 'b', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
     any.a_int = 3;
     currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_NOAPPORT) != 0;
     Sprintf(buf, "Don't pick up items (toggle) [%s]",
             currently_set ? "active" : "inactive");
+    menuitemcolor = currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE;
     add_menu(win, NO_GLYPH, &any, 'c', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
     any.a_int = 4;
     currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_NODROP) != 0;
     Sprintf(buf, "Don't drop items (toggle) [%s]",
             currently_set ? "active" : "inactive");
+    menuitemcolor = currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE;
     add_menu(win, NO_GLYPH, &any, 'd', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
     any.a_int = 5;
@@ -1791,6 +1794,7 @@ doorder()
         currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_AVOIDPEACE) != 0;
         Sprintf(buf, "Avoid peacefuls (toggle) [%s]",
                 currently_set ? "active" : "inactive");
+        menuitemcolor = currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE;
         add_menu(win, NO_GLYPH, &any, 'g', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
         any.a_int = 8;
@@ -1808,18 +1812,21 @@ doorder()
         currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_AGGRO) != 0;
         Sprintf(buf, "Aggressive stance (toggle) [%s]",
                 currently_set ? "active" : "inactive");
+        menuitemcolor = currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE;
         add_menu(win, NO_GLYPH, &any, 'j', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
         any.a_int = 11;
         currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_COWED) != 0;
         Sprintf(buf, "Defensive stance (toggle) [%s]",
                 currently_set ? "active" : "inactive");
+        menuitemcolor = currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE;
         add_menu(win, NO_GLYPH, &any, 'k', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
         any.a_int = 12;
         currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_IGNORETRAPS) != 0;
         Sprintf(buf, "Ignore harmless traps (toggle) [%s]",
                 currently_set ? "active" : "inactive");
+        menuitemcolor = currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE;
         add_menu(win, NO_GLYPH, &any, 'l', 0, ATR_NONE, buf, MENU_UNSELECTED);
     }
 
@@ -1829,6 +1836,7 @@ doorder()
         currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_STATIONARY) != 0;
         Sprintf(buf, "Stay here (toggle) [%s]",
                 currently_set ? "active" : "inactive");
+        menuitemcolor = currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE;
         add_menu(win, NO_GLYPH, &any, 'm', 0, ATR_NONE, buf, MENU_UNSELECTED);
 
         any.a_int = 14;
@@ -1839,6 +1847,7 @@ doorder()
         currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_NOATTACK) != 0;
         Sprintf(buf, "Avoid all monsters (toggle) [%s]",
                 currently_set ? "active" : "inactive");
+        menuitemcolor = currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE;
         add_menu(win, NO_GLYPH, &any, 'o', 0, ATR_NONE, buf, MENU_UNSELECTED);
     }
 

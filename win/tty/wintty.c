@@ -1987,9 +1987,17 @@ struct WinDesc *cw;
                     (void) putchar(' ');
                     ++ttyDisplay->curx;
 
+                    /* bracket_color: color only text within [] brackets */
+                    int bracket_color = NO_COLOR;
+                    boolean in_brackets = FALSE;
+
                     if (!iflags.use_menu_color
-                        || !get_menu_coloring(curr->str, &color, &attr))
+                        || !get_menu_coloring(curr->str, &color, &attr)) {
                         attr = curr->attr;
+                        /* Programmatic color applies only to bracketed text */
+                        if (curr->color != NO_COLOR)
+                            bracket_color = curr->color;
+                    }
 
                     /* which character to start attribute highlighting;
                        whole line for headers and such, after the selector
@@ -2043,19 +2051,44 @@ struct WinDesc *cw;
 #endif
                             ttyDisplay->curx += 2;
                         }
+                        boolean char_printed = FALSE;
+
+                        /* Start whole-line color/attr at attr_n */
                         if (n == attr_n && (color != NO_COLOR
                                             || attr != ATR_NONE))
                             toggle_menu_attr(TRUE, color, attr);
-                        if (n == 2
-                            && curr->identifier.a_void != 0
-                            && curr->selected) {
-                            if (curr->count == -1L)
-                                (void) putchar('+'); /* all selected */
-                            else
-                                (void) putchar('#'); /* count selected */
-                        } else
+                        /* Handle bracket-only coloring */
+#ifdef TEXTCOLOR
+                        if (bracket_color != NO_COLOR && *cp == '[') {
+                            in_brackets = TRUE;
                             (void) putchar(*cp);
+                            term_start_color(bracket_color);
+                            char_printed = TRUE;
+                        } else if (bracket_color != NO_COLOR && *cp == ']'
+                                   && in_brackets) {
+                            term_end_color();
+                            in_brackets = FALSE;
+                            (void) putchar(*cp);
+                            char_printed = TRUE;
+                        }
+#endif
+                        if (!char_printed) {
+                            if (n == 2
+                                && curr->identifier.a_void != 0
+                                && curr->selected) {
+                                if (curr->count == -1L)
+                                    (void) putchar('+'); /* all selected */
+                                else
+                                    (void) putchar('#'); /* count selected */
+                            } else
+                                (void) putchar(*cp);
+                        }
                     } /* for *cp */
+#ifdef TEXTCOLOR
+                    /* Safety: end bracket color if string ended mid-bracket */
+                    if (in_brackets)
+                        term_end_color();
+#endif
                     if (n > attr_n && (color != NO_COLOR || attr != ATR_NONE))
                         toggle_menu_attr(FALSE, color, attr);
                 } /* if npages > 0 */
@@ -3035,6 +3068,9 @@ boolean preselected;        /* item is marked as selected */
         item->material = menuobj->material;
     else
         item->material = 0;
+    /* Store programmatic color if set, then reset global */
+    item->color = (schar) menuitemcolor;
+    menuitemcolor = NO_COLOR;
     item->str = dupstr(newstr ? newstr : "");
 
     item->next = cw->mlist;

@@ -274,6 +274,7 @@ E NEARDATA struct obj *migrating_objs;
 E NEARDATA struct obj *mchest; /* magic chest */
 E NEARDATA struct obj *billobjs;
 E NEARDATA struct obj *current_wand, *thrownobj, *kickedobj, *menuobj;
+E NEARDATA int menuitemcolor; /* programmatic menu item color */
 
 E NEARDATA const struct obj zeroobj; /* for init; also, &zeroobj is used
                                       * as special value */
