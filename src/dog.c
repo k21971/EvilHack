@@ -1027,12 +1027,20 @@ boolean pets_only; /* true for ascension or final escape */
                 stay_behind = TRUE;
             } else if (mtmp->meating || mtmp->mtrapped
                        || mtmp->mentangled) {
-                if (canseemon(mtmp))
-                    pline("%s is still %s.", Monnam(mtmp),
-                          mtmp->meating ? "eating"
-                                        : mtmp->mentangled ? "entangled"
-                                                           : "trapped");
-                stay_behind = TRUE;
+                /* loyal pets (tameness 15+) will follow even while eating */
+                if (mtmp->meating && !mtmp->mtrapped && !mtmp->mentangled
+                    && mtmp->mtame >= 15) {
+                    if (canseemon(mtmp))
+                        pline("%s follows, still eating.", Monnam(mtmp));
+                    /* meating persists - continues eating on arrival */
+                } else {
+                    if (canseemon(mtmp))
+                        pline("%s is still %s.", Monnam(mtmp),
+                              mtmp->meating ? "eating"
+                                            : mtmp->mentangled ? "entangled"
+                                                               : "trapped");
+                    stay_behind = TRUE;
+                }
             } else if (mon_has_amulet(mtmp)) {
                 if (canseemon(mtmp))
                     pline("%s seems very disoriented for a moment.",

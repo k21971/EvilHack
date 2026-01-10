@@ -4930,4 +4930,6 @@ The following changes to date are:
 - Fix: pets no longer attack other pets via acceptable_pet_target()
 - Monsters will seek and retrieve fired/thrown projectiles when the
   opportunity arises
+- Loyal pets will follow the player up/down stairs and through portals
+  while still eating
 
