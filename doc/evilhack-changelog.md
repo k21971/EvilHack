@@ -4934,4 +4934,6 @@ The following changes to date are:
   while still eating
 - Forging the artifact Ithilmar will increase the skill cap for riding
   and pet handling
+- Fix: player being thrown from steed if another pet turns into a
+  monster that causes it to become hostile (bane scenario)
 

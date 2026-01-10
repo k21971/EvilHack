@@ -752,7 +752,7 @@ boolean resuming;
                                 newsym(mtmp->mx, mtmp->my); /* update display */
                                 if (mtmp->mleashed)
                                     m_unleash(mtmp, TRUE);
-                                if (u.usteed)
+                                if (u.usteed && mtmp == u.usteed)
                                     dismount_steed(DISMOUNT_THROWN);
                             }
                         }
