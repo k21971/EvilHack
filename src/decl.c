@@ -171,6 +171,11 @@ NEARDATA struct obj
     *menuobj = 0;       /* object being added to a menu */
 NEARDATA int menuitemcolor = NO_COLOR; /* programmatic menu item color */
 
+/* mon.c - pathfinding */
+NEARDATA short pathfind_dist[COLNO][ROWNO];
+NEARDATA long pathfind_turn = 0;
+NEARDATA xchar pathfind_px = 0, pathfind_py = 0;
+
 /* trap.c */
 NEARDATA int force_mintrap = 0;
 

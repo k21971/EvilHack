@@ -4938,4 +4938,5 @@ The following changes to date are:
   monster that causes it to become hostile (bane scenario)
 - Fix: monster 'destroy armor' spell, treat inherently 'fixed' items
   consistently as with erodeproof items
+- Add BFS pathfinding for intelligent monsters
 

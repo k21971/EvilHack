@@ -1893,6 +1893,9 @@ boolean at_stairs, falling, portal;
 
     initrack();
 
+    /* Invalidate pathfinding cache - new level, new distances */
+    pathfind_turn = 0;
+
     /* initial movement of bubbles just before vision_recalc */
     if (Is_waterlevel(&u.uz) || Is_airlevel(&u.uz))
         movebubbles();

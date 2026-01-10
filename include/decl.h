@@ -276,6 +276,11 @@ E NEARDATA struct obj *billobjs;
 E NEARDATA struct obj *current_wand, *thrownobj, *kickedobj, *menuobj;
 E NEARDATA int menuitemcolor; /* programmatic menu item color */
 
+/* Distance map for intelligent monster pathfinding */
+E NEARDATA short pathfind_dist[COLNO][ROWNO]; /* BFS distance from player */
+E NEARDATA long pathfind_turn;                /* turn when map was computed */
+E NEARDATA xchar pathfind_px, pathfind_py;    /* player pos when computed */
+
 E NEARDATA const struct obj zeroobj; /* for init; also, &zeroobj is used
                                       * as special value */
 

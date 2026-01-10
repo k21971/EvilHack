@@ -2970,9 +2970,131 @@ long flag;
     return cnt;
 }
 
-/* Part of mm_aggression that represents two-way aggression. To avoid having to
- * code each case twice, this function contains those cases that ought to
- * happen twice, and mm_aggression will call it twice. */
+/*
+ * Pathfinding for intelligent monsters using BFS distance map
+ */
+
+/* BFS queue for pathfinding - static to avoid stack allocation */
+static coord pf_queue[COLNO * ROWNO];
+static int pf_head, pf_tail;
+
+/* Check if terrain is passable for standard walking */
+STATIC_OVL boolean
+pathfind_passable(x, y)
+xchar x, y;
+{
+    int typ;
+
+    if (!isok(x, y))
+        return FALSE;
+
+    /* Boulders block most monsters */
+    if (sobj_at(BOULDER, x, y))
+        return FALSE;
+
+    typ = levl[x][y].typ;
+
+    /*
+     * Only ACCESSIBLE terrain is passable for pathfinding.
+     * This includes floor, corridors, open doors, etc.
+     * Closed/locked doors are treated as walls - not all monsters
+     * can open them, and those that can will do so when adjacent,
+     * causing the path to update on the next BFS recomputation.
+     */
+    return ACCESSIBLE(typ);
+}
+
+/* Compute distance map using BFS from player position. Sets
+   pathfind_dist[x][y] to shortest walking distance from player,
+   or PATHFIND_UNREACHABLE if no path exists */
+void
+compute_pathfind_map()
+{
+    int x, y, i;
+    coord c;
+    short dist;
+    xchar nx, ny;
+    static const schar dx[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
+    static const schar dy[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
+
+    /* Initialize all cells as unreachable */
+    for (x = 0; x < COLNO; x++)
+        for (y = 0; y < ROWNO; y++)
+            pathfind_dist[x][y] = PATHFIND_UNREACHABLE;
+
+    /* Player position = distance 0 */
+    pathfind_dist[u.ux][u.uy] = 0;
+
+    /* Initialize queue with player position */
+    pf_head = pf_tail = 0;
+    pf_queue[pf_tail].x = u.ux;
+    pf_queue[pf_tail].y = u.uy;
+    pf_tail++;
+
+    /* BFS flood fill */
+    while (pf_head != pf_tail) {
+        c = pf_queue[pf_head++];
+        dist = pathfind_dist[c.x][c.y];
+
+        /* Check all 8 neighbors */
+        for (i = 0; i < 8; i++) {
+            nx = c.x + dx[i];
+            ny = c.y + dy[i];
+
+            /* Skip invalid or already-visited cells */
+            if (!isok(nx, ny)
+                || pathfind_dist[nx][ny] != PATHFIND_UNREACHABLE)
+                continue;
+
+            /* Check if passable */
+            if (!pathfind_passable(nx, ny))
+                continue;
+
+            /* Diagonal squeeze check - can't cut through corners */
+            if (dx[i] && dy[i]) {
+                if (!pathfind_passable(c.x + dx[i], c.y)
+                    && !pathfind_passable(c.x, c.y + dy[i]))
+                    continue;
+            }
+
+            pathfind_dist[nx][ny] = dist + 1;
+            pf_queue[pf_tail].x = nx;
+            pf_queue[pf_tail].y = ny;
+            pf_tail++;
+        }
+    }
+
+    /* Record when and where map was computed */
+    pathfind_turn = moves;
+    pathfind_px = u.ux;
+    pathfind_py = u.uy;
+}
+
+/* Ensure pathfind map is current before use */
+void
+ensure_pathfind_map()
+{
+    /* Recompute if: never computed, player moved significantly, or stale */
+    if (pathfind_turn == 0
+        || dist2(u.ux, u.uy, pathfind_px, pathfind_py) > PATHFIND_STALE_DIST
+        || moves - pathfind_turn > PATHFIND_STALE_TURNS)
+        compute_pathfind_map();
+}
+
+/* Check if monster should use pathfinding. Returns TRUE for
+   intelligent, non-animal monsters */
+boolean
+mon_uses_pathfinding(mtmp)
+struct monst *mtmp;
+{
+    struct permonst *ptr = mtmp->data;
+
+    return !mindless(ptr) && !is_animal(ptr);
+}
+
+/* Part of mm_aggression that represents two-way aggression. To avoid
+   having to code each case twice, this function contains those cases
+   that ought to happen twice, and mm_aggression will call it twice */
 STATIC_OVL long
 mm_2way_aggression(magr, mdef)
 struct monst *magr, *mdef;
@@ -2980,10 +3102,10 @@ struct monst *magr, *mdef;
     struct permonst *ma = magr->data;
     struct permonst *md = mdef->data;
     /* Since the quest guardians are under siege, it makes sense to have
-       them fight hostiles.  (But we don't want the quest leader to be in
-       danger.)
-       NOTE: But don't let still-peaceful guardians fight hostile guardians if
-       the hero manages to annoy one of them! */
+       them fight hostiles (but we don't want the quest leader to be in
+       danger).
+       NOTE: But don't let still-peaceful guardians fight hostile
+       guardians if the hero manages to annoy one of them */
     if (ma->msound == MS_GUARDIAN && mdef->mpeaceful == FALSE
         && !(md->msound == MS_GUARDIAN || md->msound == MS_LEADER))
         return ALLOW_M | ALLOW_TM;

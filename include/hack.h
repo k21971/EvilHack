@@ -19,6 +19,11 @@
 #define MAX_CARR_CAP 1000 /* so that boulders can be heavier */
 #define DUMMY { 0 }       /* array initializer, letting [1..N-1] default */
 
+/* Monster pathfinding constants */
+#define PATHFIND_UNREACHABLE (-1) /* Cannot reach from player position */
+#define PATHFIND_STALE_DIST  9    /* Recompute if player moved dist2 > this */
+#define PATHFIND_STALE_TURNS 10   /* Recompute if older than this many turns */
+
 /* symbolic names for capacity levels */
 enum encumbrance_types {
     UNENCUMBERED = 0,
