@@ -4939,4 +4939,5 @@ The following changes to date are:
 - Fix: monster 'destroy armor' spell, treat inherently 'fixed' items
   consistently as with erodeproof items
 - Add BFS pathfinding for intelligent monsters
+- BFS pathfinding: boulder cache invalidation and wizard debug command
 

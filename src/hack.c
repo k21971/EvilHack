@@ -253,6 +253,7 @@ moverock()
                               surface(rx, ry));
                     deltrap(ttmp);
                     delobj(otmp);
+                    pathfind_turn = 0; /* invalidate pathfinding cache */
                     bury_objs(rx, ry);
                     levl[rx][ry].wall_info &= ~W_NONDIGGABLE;
                     levl[rx][ry].candig = 1;
@@ -333,6 +334,7 @@ moverock()
             if (glyph_is_invisible(levl[rx][ry].glyph))
                 unmap_object(rx, ry);
             movobj(otmp, rx, ry); /* does newsym(rx,ry) */
+            pathfind_turn = 0; /* invalidate pathfinding cache */
             if (Blind) {
                 feel_location(rx, ry);
                 feel_location(sx, sy);

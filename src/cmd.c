@@ -160,6 +160,7 @@ STATIC_PTR int NDECL(wiz_level_change);
 STATIC_PTR int NDECL(wiz_telekinesis);
 STATIC_PTR int NDECL(wiz_show_seenv);
 STATIC_PTR int NDECL(wiz_show_vision);
+STATIC_PTR int NDECL(wiz_show_pathfind);
 STATIC_PTR int NDECL(wiz_smell);
 STATIC_PTR int NDECL(wiz_show_wmodes);
 STATIC_DCL void NDECL(wiz_map_levltyp);
@@ -1301,6 +1302,58 @@ wiz_show_vision(VOID_ARGS)
             } else {
                 v = viz_array[y][x]; /* data access should be hidden */
                 row[x] = (v == 0) ? ' ' : ('0' + v);
+            }
+        }
+        /* remove trailing spaces */
+        for (x = COLNO - 1; x >= 1; x--)
+            if (row[x] != ' ')
+                break;
+        row[x + 1] = '\0';
+
+        putstr(win, 0, &row[1]);
+    }
+    display_nhwindow(win, TRUE);
+    destroy_nhwindow(win);
+    return 0;
+}
+
+/* #wizpathfind command - show BFS distance map for monster pathfinding */
+STATIC_PTR int
+wiz_show_pathfind(VOID_ARGS)
+{
+    winid win;
+    int x, y;
+    short d;
+    char row[COLNO + 1];
+
+    if (!wizard) {
+        pline(unavailcmd, visctrl((int) cmd_from_func(wiz_show_pathfind)));
+        return 0;
+    }
+
+    ensure_pathfind_map();
+
+    win = create_nhwindow(NHW_TEXT);
+    Sprintf(row, "Pathfind distance from player (computed turn %ld, now %ld)",
+            pathfind_turn, moves);
+    putstr(win, 0, row);
+    putstr(win, 0, "Legend: @=you 0-9=dist a-z=10-35 +=36+ space=unreachable");
+    putstr(win, 0, "");
+    for (y = 0; y < ROWNO; y++) {
+        for (x = 1; x < COLNO; x++) {
+            if (x == u.ux && y == u.uy) {
+                row[x] = '@';
+            } else {
+                d = pathfind_dist[x][y];
+                if (d == PATHFIND_UNREACHABLE) {
+                    row[x] = ' ';
+                } else if (d < 10) {
+                    row[x] = '0' + d;
+                } else if (d < 36) {
+                    row[x] = 'a' + (d - 10);
+                } else {
+                    row[x] = '+';
+                }
             }
         }
         /* remove trailing spaces */
@@ -4340,6 +4393,8 @@ struct ext_func_tab extcmdlist[] = {
             wiz_makemap, IFBURIED | WIZMODECMD },
     { C('f'), "wizmap", "map the level",
             wiz_map, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
+    { '\0', "wizpathfind", "show monster pathfinding distance map",
+            wiz_show_pathfind, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { '\0', "wizpious", "become pious",
             wiz_pious, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { '\0', "wizrumorcheck", "verify rumor boundaries",
