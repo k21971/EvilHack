@@ -4936,4 +4936,6 @@ The following changes to date are:
   and pet handling
 - Fix: player being thrown from steed if another pet turns into a
   monster that causes it to become hostile (bane scenario)
+- Fix: monster 'destroy armor' spell, treat inherently 'fixed' items
+  consistently as with erodeproof items
 

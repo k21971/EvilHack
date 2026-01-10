@@ -729,7 +729,17 @@ struct monst *mattk, *mdef;
                       Yname2(oatmp), uattk ? "your" : "the");
             }
             return 0; /* no effect */
+        /* TODO: supermaterials (materials that cannot erode by normal
+           means) should have their own bit set in struct obj so we
+           don't have to make a hacky fix for supermaterials and 'fixed'
+           materials behaving the same way (this will break saves) */
+        } else if (oatmp->oerodeproof && is_supermaterial(oatmp)) {
+            /* Supermaterial with oerodeproof set = marker from first
+               hit, clear the marker and allow full damage through */
+            oatmp->oerodeproof = 0;
         } else if (oatmp->oerodeproof) {
+            /* Real erodeproof - show message, remove protection,
+               absorb one hit */
             if (!udefend && !canseemon(mdef)) {
                 You("smell something strange.");
             } else if (!Blind) {
@@ -739,6 +749,18 @@ struct monst *mattk, *mdef;
             }
             maybe_erodeproof(oatmp, 0);
             erodelvl--;
+        } else if (is_supermaterial(oatmp) && greatest_erosion(oatmp) == 0) {
+            /* First hit on pristine supermaterial - absorb entire spell,
+               set oerodeproof as marker so next hit does full damage */
+            if (!udefend && !canseemon(mdef)) {
+                You("smell something strange.");
+            } else if (!Blind) {
+                pline("%s glows brown for a moment.", Yname2(oatmp));
+            } else {
+                pline("%s briefly emits an odd smell.", Yname2(oatmp));
+            }
+            oatmp->oerodeproof = 1;
+            erodelvl = 0;
         }
 
         if (greatest_erosion(oatmp) >= MAX_ERODE) {
