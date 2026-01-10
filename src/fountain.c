@@ -795,6 +795,14 @@ doforging()
                 unrestrict_weapon_skill(P_LONG_SWORD);
                 P_MAX_SKILL(P_LONG_SWORD) = P_BASIC;
             }
+            if (output->oartifact == ART_ITHILMAR) {
+                /* forging Ithilmar improves mounted combat mastery */
+                if (!P_RESTRICTED(P_RIDING)
+                    && P_MAX_SKILL(P_RIDING) < P_EXPERT)
+                    P_MAX_SKILL(P_RIDING)++;
+                if (P_MAX_SKILL(P_PET_HANDLING) < P_MASTER)
+                    P_MAX_SKILL(P_PET_HANDLING)++;
+            }
 
             /* forging an artifact is too much stress for the forge */
             coolforge(u.ux, u.uy);

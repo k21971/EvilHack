@@ -4932,4 +4932,6 @@ The following changes to date are:
   opportunity arises
 - Loyal pets will follow the player up/down stairs and through portals
   while still eating
+- Forging the artifact Ithilmar will increase the skill cap for riding
+  and pet handling
 
