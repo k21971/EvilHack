@@ -118,6 +118,8 @@ boolean check_if_better, stashing;
              && (!check_if_better
                  || would_prefer_hwep(mtmp, otmp)
                  || would_prefer_rwep(mtmp, otmp)))
+             /* ammo for any launcher monster has (pets pick up opportunistically) */
+             || mon_wants_ammo(mtmp, otmp)
              /* better armor */
              || (otmp->oclass == ARMOR_CLASS
                  && (!check_if_better || is_better_armor(mtmp, otmp)))
@@ -218,6 +220,10 @@ boolean check_if_better, stashing;
                         return FALSE;
                 }
                 if (otmp->otyp == otmp2->otyp) {
+                    /* Exception: ammo stacks, so more is always useful */
+                    if (is_ammo(otmp) || is_missile(otmp)
+                        || throwing_weapon(otmp))
+                        continue;
                     if (stashing)
                         goto hero_dupe_check;
                     return FALSE;
@@ -243,6 +249,9 @@ boolean check_if_better, stashing;
              * or drop it, only do so if the hero has one already, so as not
              * to steal an important item from the hero. */
 hero_dupe_check:
+            /* Ammo is always useful for pets - don't require hero to have it */
+            if (is_ammo(otmp) || is_missile(otmp) || throwing_weapon(otmp))
+                return TRUE;
             for (otmp2 = invent; otmp2; otmp2 = otmp2->nobj) {
                 if (cures_stoning(mtmp, otmp, FALSE)) {
                     /* don't take an item that cures stoning unless the hero

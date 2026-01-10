@@ -4928,4 +4928,6 @@ The following changes to date are:
 - Fix: learned spell panic when monster doesn't know player location
 - Fix: potion double-free panic when polymorph triggers lava_effects()
 - Fix: pets no longer attack other pets via acceptable_pet_target()
+- Monsters will seek and retrieve fired/thrown projectiles when the
+  opportunity arises
 

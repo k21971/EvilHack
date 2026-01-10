@@ -3096,6 +3096,8 @@ E int FDECL(special_dmgval, (struct monst *, struct monst *, long,
 E void FDECL(searmsg, (struct monst *, struct monst *, struct obj *,
                        BOOLEAN_P));
 E struct obj *FDECL(select_rwep, (struct monst *));
+E int FDECL(mon_needs_ammo, (struct monst *));
+E boolean FDECL(mon_wants_ammo, (struct monst *, struct obj *));
 E boolean FDECL(monmightthrowwep, (struct obj *));
 E struct obj *FDECL(select_hwep, (struct monst *));
 E void FDECL(possibly_unwield, (struct monst *, BOOLEAN_P));

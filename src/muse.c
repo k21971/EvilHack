@@ -4154,6 +4154,12 @@ struct obj *obj;
         if (typ == RIN_TELEPORT_CONTROL)
             return (!mon_prop(mon, TELEPORT_CONTROL));
         break;
+    case WEAPON_CLASS:
+    case GEM_CLASS:
+        /* Intelligent monsters seek ammo when out */
+        if (!nohands(mon->data) && mon_wants_ammo(mon, obj))
+            return TRUE;
+        break;
     default:
         break;
     }
