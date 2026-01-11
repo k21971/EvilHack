@@ -3091,6 +3091,83 @@ struct monst *mtmp;
     return !mindless(ptr) && !is_animal(ptr);
 }
 
+/* Compute escape pathfind map from a specific target position.
+   Used for Amulet carriers who need to reach stairs/portals. */
+void
+compute_escape_pathfind_map(target_x, target_y)
+xchar target_x, target_y;
+{
+    int i;
+    coord c;
+    short dist;
+    xchar nx, ny;
+    static const schar dx[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
+    static const schar dy[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
+
+    /* Initialize all cells as unreachable */
+    memset(escape_pathfind_dist, 0xFF, sizeof(escape_pathfind_dist));
+
+    /* Target position = distance 0 */
+    escape_pathfind_dist[target_x][target_y] = 0;
+
+    /* Initialize queue with target position */
+    pf_head = pf_tail = 0;
+    pf_queue[pf_tail].x = target_x;
+    pf_queue[pf_tail].y = target_y;
+    pf_tail++;
+
+    /* BFS flood fill */
+    while (pf_head != pf_tail) {
+        c = pf_queue[pf_head++];
+        dist = escape_pathfind_dist[c.x][c.y];
+
+        /* Check all 8 neighbors */
+        for (i = 0; i < 8; i++) {
+            nx = c.x + dx[i];
+            ny = c.y + dy[i];
+
+            /* Skip invalid or already-visited cells */
+            if (!isok(nx, ny)
+                || escape_pathfind_dist[nx][ny] != PATHFIND_UNREACHABLE)
+                continue;
+
+            /* Check if passable */
+            if (!pathfind_passable(nx, ny))
+                continue;
+
+            /* Diagonal squeeze check */
+            if (dx[i] && dy[i]) {
+                if (!pathfind_passable(c.x + dx[i], c.y)
+                    && !pathfind_passable(c.x, c.y + dy[i]))
+                    continue;
+            }
+
+            escape_pathfind_dist[nx][ny] = dist + 1;
+            pf_queue[pf_tail].x = nx;
+            pf_queue[pf_tail].y = ny;
+            pf_tail++;
+        }
+    }
+
+    /* Record when and where map was computed */
+    escape_pathfind_turn = moves;
+    escape_pathfind_tx = target_x;
+    escape_pathfind_ty = target_y;
+}
+
+/* Ensure escape pathfind map is current for given target */
+void
+ensure_escape_pathfind_map(target_x, target_y)
+xchar target_x, target_y;
+{
+    /* Recompute if: never computed, target changed, or stale */
+    if (escape_pathfind_turn == 0
+        || escape_pathfind_tx != target_x
+        || escape_pathfind_ty != target_y
+        || moves - escape_pathfind_turn > PATHFIND_STALE_TURNS)
+        compute_escape_pathfind_map(target_x, target_y);
+}
+
 /* Part of mm_aggression that represents two-way aggression. To avoid
    having to code each case twice, this function contains those cases
    that ought to happen twice, and mm_aggression will call it twice */
@@ -3170,6 +3247,12 @@ struct monst *magr, *mdef;
 
     /* Ents despise blights */
     if (is_true_ent(ma) && is_blight(md))
+        return ALLOW_M | ALLOW_TM;
+
+    /* covetous/player monsters will attack
+       whoever has the amulet  */
+    if ((is_covetous(ma) || is_mplayer(ma))
+        && mon_has_amulet(mdef))
         return ALLOW_M | ALLOW_TM;
 
     return 0;
@@ -3264,16 +3347,6 @@ struct monst *magr, /* monster that is currently deciding where to move */
         && m_canseeu(magr) && magr->mpeaceful == FALSE
         && distu(magr->mx, magr->my) <= 5
         && md->msize == MZ_TINY)
-        return ALLOW_M | ALLOW_TM;
-
-    /* covetous/player monsters will attack
-       whoever has the amulet  */
-    if ((is_covetous(ma) || is_mplayer(ma))
-        && mon_has_amulet(mdef))
-        return ALLOW_M | ALLOW_TM;
-
-    /* Endgame amulet theft / fleeing */
-    if (mon_has_amulet(magr) && In_endgame(&u.uz))
         return ALLOW_M | ALLOW_TM;
 
     /* mindflayer larvae need live humanoids as hosts

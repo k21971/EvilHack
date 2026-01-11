@@ -254,6 +254,7 @@ moverock()
                     deltrap(ttmp);
                     delobj(otmp);
                     pathfind_turn = 0; /* invalidate pathfinding cache */
+                    escape_pathfind_turn = 0;
                     bury_objs(rx, ry);
                     levl[rx][ry].wall_info &= ~W_NONDIGGABLE;
                     levl[rx][ry].candig = 1;
@@ -335,6 +336,7 @@ moverock()
                 unmap_object(rx, ry);
             movobj(otmp, rx, ry); /* does newsym(rx,ry) */
             pathfind_turn = 0; /* invalidate pathfinding cache */
+            escape_pathfind_turn = 0;
             if (Blind) {
                 feel_location(rx, ry);
                 feel_location(sx, sy);

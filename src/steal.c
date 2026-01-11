@@ -633,7 +633,9 @@ is_stealable_item(struct obj *obj, struct monst *mtmp)
     return FALSE;
 }
 
-/* called for AD_SAMU (the Wizard and quest nemeses) */
+/* called for AD_SAMU (the Wizard, quest nemeses, player monsters).
+   player monsters skip quest artifact check and go straight to
+   amulet/invocation objects */
 void
 stealamulet(mtmp)
 struct monst *mtmp;

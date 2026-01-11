@@ -656,8 +656,12 @@ struct monst *mtmp;
     }
 
     fraction = u.ulevel < 10 ? 5 : u.ulevel < 14 ? 4 : 3;
-    if (mtmp->mhp >= mtmp->mhpmax
-        || (mtmp->mhp >= 10 && mtmp->mhp * fraction >= mtmp->mhpmax))
+    /* Intelligent monsters with Amulet of Yendor skip HP check - they want
+       to escape regardless of health to sacrifice the Amulet */
+    if (!(mon_has_amulet(mtmp)
+          && !mindless(mtmp->data) && !is_animal(mtmp->data))
+        && (mtmp->mhp >= mtmp->mhpmax
+            || (mtmp->mhp >= 10 && mtmp->mhp * fraction >= mtmp->mhpmax)))
         return FALSE;
 
     if (mtmp->mpeaceful) {
@@ -1929,6 +1933,99 @@ struct monst *mtmp;
     }
     return 0;
 #undef m_flee
+}
+
+/* Check if monster with Amulet should escape via stairs/portal.
+   Called after monster movement to handle immediate escape.
+   Returns 2 if monster escaped (migrated), 0 otherwise */
+int
+mon_escape_with_amulet(mtmp)
+struct monst *mtmp;
+{
+    xchar x = mtmp->mx, y = mtmp->my;
+    boolean vismon = canseemon(mtmp);
+    struct trap *ttrap;
+
+    /* Only intelligent monsters understand the Amulet's significance */
+    if (!mon_has_amulet(mtmp) || mtmp->mpeaceful
+        || mindless(mtmp->data) || is_animal(mtmp->data))
+        return 0;
+
+    /* Check for stairs at monster's location */
+    if (levl[x][y].typ == STAIRS) {
+        /* On upstairs? */
+        if (x == xupstair && y == yupstair) {
+            if (vismon)
+                pline("%s escapes upstairs with the Amulet!", Monnam(mtmp));
+            migrate_to_level(mtmp, ledger_no(&u.uz) - 1, MIGR_STAIRS_DOWN,
+                             (coord *) 0);
+            newsym(x, y);
+            return 2;
+        }
+        /* On special stairs (e.g., dlvl 1 to Planes)? */
+        if (sstairs.sx && x == sstairs.sx && y == sstairs.sy) {
+            if (ledger_no(&u.uz) == 1) {
+                /* Escaping to the Planes! */
+                if (vismon)
+                    pline("%s escapes to the Planes with the Amulet!",
+                          Monnam(mtmp));
+                if (Role_if(PM_INFIDEL)) {
+                    /* Infidels need the Amulet to imbue the Idol at
+                       Moloch's altar in the Sanctum - losing it to
+                       the Planes is catastrophic and unrecoverable */
+                    livelog_printf(LL_ARTIFACT,
+                        "failed their quest! %s escaped to the Planes "
+                        "with the Amulet of Yendor", Monnam(mtmp));
+                    pline("The ground shakes violently!");
+                    You_hear("a voice boom from the depths below:");
+                    verbalize("FOOL!  You have let the Amulet slip "
+                              "through your fingers!");
+                    verbalize("It was to be MINE, and now it is lost "
+                              "to me forever!");
+                    pline("Moloch's fury consumes you utterly.");
+                    killer.format = KILLED_BY;
+                    Strcpy(killer.name, "Moloch's wrath");
+                    done(DIED);
+                    /* won't reach here */
+                }
+                u.uamulet_on_planes = 1;
+            } else {
+                if (vismon)
+                    pline("%s escapes %sstairs with the Amulet!",
+                          Monnam(mtmp), sstairs.up ? "up" : "down");
+            }
+            migrate_to_level(mtmp, ledger_no(&sstairs.tolev), MIGR_SSTAIRS,
+                             (coord *) 0);
+            newsym(x, y);
+            return 2;
+        }
+    }
+
+    /* Check for ladder */
+    if (levl[x][y].typ == LADDER) {
+        if (x == xupladder && y == yupladder) {
+            if (vismon)
+                pline("%s escapes up the ladder with the Amulet!",
+                      Monnam(mtmp));
+            migrate_to_level(mtmp, ledger_no(&u.uz) - 1, MIGR_LADDER_DOWN,
+                             (coord *) 0);
+            newsym(x, y);
+            return 2;
+        }
+    }
+
+    /* Check for magic portal (elemental planes) */
+    ttrap = t_at(x, y);
+    if (ttrap && ttrap->ttyp == MAGIC_PORTAL) {
+        if (vismon)
+            pline("%s enters the portal with the Amulet!", Monnam(mtmp));
+        migrate_to_level(mtmp, ledger_no(&ttrap->dst), MIGR_PORTAL,
+                         (coord *) 0);
+        newsym(x, y);
+        return 2;
+    }
+
+    return 0;
 }
 
 int

@@ -1582,6 +1582,8 @@ E int FDECL(mfndpos, (struct monst *, coord *, long *, long));
 E void NDECL(compute_pathfind_map);
 E void NDECL(ensure_pathfind_map);
 E boolean FDECL(mon_uses_pathfinding, (struct monst *));
+E void FDECL(compute_escape_pathfind_map, (XCHAR_P, XCHAR_P));
+E void FDECL(ensure_escape_pathfind_map, (XCHAR_P, XCHAR_P));
 E long FDECL(mm_aggression, (struct monst *, struct monst *));
 E boolean FDECL(monnear, (struct monst *, int, int));
 E void NDECL(dmonsfree);
@@ -1827,6 +1829,7 @@ E boolean FDECL(hits_bars, (struct obj **, int, int, int, int, int, int));
 
 E boolean FDECL(find_defensive, (struct monst *));
 E int FDECL(use_defensive, (struct monst *));
+E int FDECL(mon_escape_with_amulet, (struct monst *));
 E int FDECL(rnd_defensive_item, (struct monst *));
 E boolean FDECL(find_offensive, (struct monst *));
 #ifdef USE_TRAMPOLI

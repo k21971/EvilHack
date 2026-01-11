@@ -1202,7 +1202,8 @@ boolean at_stairs;
         /* KMH -- Upwards branches are okay if not level 1 */
         /* (Just make sure it doesn't go above depth 1) */
         if (!u.uz.dnum && u.uz.dlevel == 1
-            && !(u.uhave.amulet && u.uachieve.amulet))
+            && !(u.uhave.amulet && u.uachieve.amulet)
+            && !u.uamulet_on_planes)
             done(ESCAPED);
         else
             goto_level(&sstairs.tolev, at_stairs, FALSE, FALSE);

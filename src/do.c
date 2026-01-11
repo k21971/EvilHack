@@ -1523,8 +1523,8 @@ boolean at_stairs, falling, portal;
 	d_level newlev;
 	newlev.dnum = astral_level.dnum;
 	newlev.dlevel = dungeons[astral_level.dnum].entry_lev;
-        if (!u.uhave.amulet)
-            return;  /* must have the Amulet */
+        if (!u.uhave.amulet && !u.uamulet_on_planes)
+            return;  /* must have the Amulet (or be chasing it) */
         if (!wizard) {/* wizard ^V can bypass Earth level */
             assign_level(newlevel, &newlev); /* (redundant) */
             livelog_write_string(LL_ACHIEVE, "entered the Planes");
@@ -1895,6 +1895,7 @@ boolean at_stairs, falling, portal;
 
     /* Invalidate pathfinding cache - new level, new distances */
     pathfind_turn = 0;
+    escape_pathfind_turn = 0;
 
     /* initial movement of bubbles just before vision_recalc */
     if (Is_waterlevel(&u.uz) || Is_airlevel(&u.uz))

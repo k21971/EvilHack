@@ -2273,12 +2273,8 @@ struct attack *mattk;
            own role) or the Amulet or one of the invocation tools */
         if (Hidinshell)
             break;
-        if (!rn2(20)) {
+        if (!rn2(20))
             stealamulet(mtmp);
-            if (In_endgame(&u.uz) && mon_has_amulet(mtmp)) {
-                monflee(mtmp, rnd(100) + 100, FALSE, TRUE);
-            }
-        }
         break;
 
     case AD_TLPT:

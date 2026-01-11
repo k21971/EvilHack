@@ -836,6 +836,7 @@ struct obj *obj;
         if (u.uhave.amulet && !Role_if(PM_INFIDEL))
             impossible("already have amulet?");
         u.uhave.amulet = 1;
+        u.uamulet_on_planes = 0;
         /* Player will be able to discover if s/he has the real amulet */
         /* by monitoring the livelog - but only when it was picked up */
         /* for the first time */
@@ -897,8 +898,10 @@ struct obj *obj;
             if (u.uhave.questart)
                 impossible("already have quest artifact?");
             u.uhave.questart = 1;
-            if (Role_if(PM_INFIDEL) && u.uachieve.amulet)
+            if (Role_if(PM_INFIDEL) && u.uachieve.amulet) {
                 u.uhave.amulet = 1;
+                u.uamulet_on_planes = 0;
+            }
             artitouch(obj);
         }
         set_artifact_intrinsic(obj, 1, W_ART);

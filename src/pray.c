@@ -1645,21 +1645,6 @@ boolean bless_water;
     return (boolean) (changed > 0L);
 }
 
-int
-check_malign(mtmp)
-struct monst *mtmp;
-{
-    aligntyp mon_align = has_erac(mtmp) ? ERAC(mtmp)->ralign
-                                        : mtmp->data->maligntyp;
-    if (mon_align < 0) {
-        return A_CHAOTIC;
-    } else if (mon_align > 0) {
-        return A_LAWFUL;
-    } else {
-        return A_NEUTRAL;
-    }
-}
-
 boolean
 moffer(mtmp)
 struct monst *mtmp;
@@ -1670,7 +1655,8 @@ struct monst *mtmp;
     for (otmp = mtmp->minvent; otmp; otmp = nextobj) {
         nextobj = otmp->nobj;
         if (otmp->otyp == AMULET_OF_YENDOR && In_endgame(&u.uz)
-            && a_align(mtmp->mx, mtmp->my) == check_malign(mtmp)) {
+            && !mindless(mtmp->data) && !is_animal(mtmp->data)
+            && a_align(mtmp->mx, mtmp->my) == sgn(mon_aligntyp(mtmp))) {
             if (canseemon(mtmp))
                 pline("%s raises the Amulet of Yendor high above the altar!",
                       Monnam(mtmp));
@@ -2049,7 +2035,7 @@ dosacrifice()
                     else
                         dmon->mstrategy &= ~STRAT_APPEARMSG;
                     You("have summoned %s!", dbuf);
-                    if (sgn(u.ualign.type) == sgn(check_malign(dmon))) {
+                    if (sgn(u.ualign.type) == sgn(mon_aligntyp(dmon))) {
                         if (rn2(5))
                             dmon->mpeaceful = TRUE;
                         else
@@ -2237,6 +2223,7 @@ dosacrifice()
                         otmp->spe = 1;
                         if (otmp->where == OBJ_INVENT) {
                             u.uhave.amulet = 1;
+                            u.uamulet_on_planes = 0;
                             u.uachieve.amulet = 1;
                             mkgate();
                         }

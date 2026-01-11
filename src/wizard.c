@@ -281,7 +281,6 @@ struct monst *mtmp;
                  /* when seeking the Amulet or a quest artifact,
                     avoid targetting the Wizard or temple priests
                     (to protect Moloch's high priest) */
-                 && !is_mplayer(mtmp2->data)
                  && ((otyp != AMULET_OF_YENDOR && otyp != 0 )
                      || (!mtmp2->iswiz && !inhistemple(mtmp2))))
             return STRAT(STRAT_MONSTR, mtmp2->mx, mtmp2->my, mask);
@@ -289,20 +288,23 @@ struct monst *mtmp;
 
     /* Do we have the Amulet? Alrighty then... */
     if (Is_astralevel(&u.uz)) {
-	int targetx = u.ux, targety = u.uy;
-	aligntyp malign = sgn(mon_aligntyp(mtmp));
+        int targetx = u.ux, targety = u.uy;
+        aligntyp malign = sgn(mon_aligntyp(mtmp));
+        int x, y;
 
-	if (IS_ALTAR(levl[10][10].typ)
-            && a_align(10, 10) == malign)
-            targetx = 10, targety = 10;
-	else if (IS_ALTAR(levl[40][6].typ)
-                 && a_align(40, 6) == malign)
-            targetx = 40, targety = 6;
-	else if (IS_ALTAR(levl[70][10].typ)
-                 && a_align(70, 10) == malign)
-            targetx = 70, targety = 10;
-
-	return STRAT(STRAT_NONE, targetx, targety, mask);
+        /* Scan level for monster's aligned altar - alignments are shuffled
+           per game so we can't rely on hardcoded coordinates */
+        for (x = 1; x < COLNO; x++) {
+            for (y = 0; y < ROWNO; y++) {
+                if (IS_ALTAR(levl[x][y].typ) && a_align(x, y) == malign) {
+                    targetx = x;
+                    targety = y;
+                    goto found_altar;
+                }
+            }
+        }
+found_altar:
+        return STRAT(STRAT_NONE, targetx, targety, mask);
     }
     return (unsigned long) STRAT_NONE;
 }

@@ -176,6 +176,11 @@ NEARDATA short pathfind_dist[COLNO][ROWNO];
 NEARDATA long pathfind_turn = 0;
 NEARDATA xchar pathfind_px = 0, pathfind_py = 0;
 
+/* escape pathfinding for Amulet carriers */
+NEARDATA short escape_pathfind_dist[COLNO][ROWNO];
+NEARDATA long escape_pathfind_turn = 0;
+NEARDATA xchar escape_pathfind_tx = 0, escape_pathfind_ty = 0;
+
 /* trap.c */
 NEARDATA int force_mintrap = 0;
 

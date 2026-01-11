@@ -915,18 +915,20 @@ toofar:
         }
     }
 
-    /* Look for other monsters to fight (at a distance) */
-    if ((((attacktype(mtmp->data, AT_BREA)
-           || (attacktype(mtmp->data, AT_GAZE)
-               && mtmp->data != &mons[PM_MEDUSA])
-           || attacktype(mtmp->data, AT_SPIT)
-           || attacktype(mtmp->data, AT_SCRE)
-           || (attacktype(mtmp->data, AT_MAGC)
-               && ((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp
-                   <= AD_LOUD)))
-          && !mtmp->mspec_used)
-         || (attacktype(mtmp->data, AT_WEAP)
-             && select_rwep(mtmp) != 0) || find_offensive(mtmp))
+    /* Look for other monsters to fight (at a distance). Intelligent
+       monsters with Amulet of Yendor skip ranged attacks - escape */
+    if ((!mon_has_amulet(mtmp) || mindless(mdat) || is_animal(mdat))
+        && (((attacktype(mtmp->data, AT_BREA)
+              || (attacktype(mtmp->data, AT_GAZE)
+                  && mtmp->data != &mons[PM_MEDUSA])
+              || attacktype(mtmp->data, AT_SPIT)
+              || attacktype(mtmp->data, AT_SCRE)
+              || (attacktype(mtmp->data, AT_MAGC)
+                  && ((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp
+                      <= AD_LOUD)))
+             && !mtmp->mspec_used)
+            || (attacktype(mtmp->data, AT_WEAP)
+                && select_rwep(mtmp) != 0) || find_offensive(mtmp))
         && mtmp->mlstmv != monstermoves) {
         struct monst *mtmp2 = mfind_target(mtmp);
         /* the > value is important here - if it's not just right,
@@ -945,8 +947,9 @@ toofar:
         }
     }
 
-    /* check to see if we should stash something */
-    if (m_stash_items(mtmp, FALSE))
+    /* check to see if we should stash something, monsters with Amulet
+       skip stashing */
+    if (!mon_has_amulet(mtmp) && m_stash_items(mtmp, FALSE))
 	return 0;
 
     /* Now the actual movement phase */
@@ -959,7 +962,8 @@ toofar:
         || (mdat->mlet == S_LEPRECHAUN && !findgold(invent, FALSE)
             && (findgold(mtmp->minvent, FALSE) || rn2(2)))
         || (is_wanderer(mdat) && !rn2(4)) || (Conflict && !mtmp->iswiz)
-        || is_skittish(mdat) || (!mtmp->mcansee && !rn2(4)) || mtmp->mpeaceful) {
+        || is_skittish(mdat) || (!mtmp->mcansee && !rn2(4)) || mtmp->mpeaceful
+        || (mon_has_amulet(mtmp) && !mindless(mdat) && !is_animal(mdat))) {
         /* Possibly cast an undirected spell if not attacking you */
         /* note that most of the time castmu() will pick a directed
            spell and do nothing, so the monster moves normally */
@@ -1015,7 +1019,9 @@ toofar:
                 /* a monster that's digesting you can move at the
                  * same time -dlc
                  */
-                if (u.uswallow)
+                if (u.uswallow
+                    && (!mon_has_amulet(mtmp)
+                        || mindless(mdat) || is_animal(mdat)))
                     return mattacku(mtmp);
                 /* if confused grabber has wandered off, let go */
                 if (distu(mtmp->mx, mtmp->my) > 2)
@@ -1032,6 +1038,9 @@ toofar:
     if (tmp != 3 && (!mtmp->mpeaceful
                      || (Conflict && !resist_conflict(mtmp)))) {
         if (inrange && !scared && !noattacks(mdat)
+            /* intelligent monsters with the Amulet skip attacks, flee */
+            && (!mon_has_amulet(mtmp)
+                || mindless(mdat) || is_animal(mdat))
             /* [is this hp check really needed?] */
             && (Upolyd ? u.mh : u.uhp) > 0) {
             if (mattacku(mtmp))
@@ -1490,8 +1499,9 @@ register int after;
             && ((u.uhpmax / u.uhp) < 4))
             appr = -1;
 
-        if (monsndx(ptr) == PM_AGENT && mon_has_amulet(mtmp))
-            appr = -1; /* objective secured, retreat */
+        /* Any monster with the Amulet of Yendor flees to escape */
+        if (mon_has_amulet(mtmp))
+            appr = -1;
 
         if (!should_see && can_track(ptr)) {
             register coord *cp;
@@ -1529,7 +1539,51 @@ register int after;
         /* Otherwise fall through to normal player-seeking */
     }
 
-    if ((!mtmp->mpeaceful || !rn2(10)) && (!Is_rogue_level(&u.uz))) {
+    /* Intelligent monsters with Amulet of Yendor seek escape route.
+       In main dungeon: approach stairs to escape.
+       In endgame: approach portal (Astral altar handled by tactics()).
+       Mindless/animal monsters don't understand the Amulet's significance. */
+    if (mon_has_amulet(mtmp) && !mtmp->mpeaceful
+        && !mindless(ptr) && !is_animal(ptr)) {
+        int escape_x = 0, escape_y = 0;
+
+        if (!In_endgame(&u.uz)) {
+            /* In dungeon: seek upstairs to escape */
+            if (xupstair) {
+                escape_x = xupstair;
+                escape_y = yupstair;
+            } else if (xupladder) {
+                escape_x = xupladder;
+                escape_y = yupladder;
+            }
+            /* Fall back to special stairs (e.g. dlvl 1 to Planes) */
+            if (!escape_x && sstairs.sx) {
+                escape_x = sstairs.sx;
+                escape_y = sstairs.sy;
+            }
+        } else if (!Is_astralevel(&u.uz)) {
+            /* On elemental planes: seek magic portal to next plane */
+            struct trap *ttrap;
+            for (ttrap = ftrap; ttrap; ttrap = ttrap->ntrap) {
+                if (ttrap->ttyp == MAGIC_PORTAL) {
+                    escape_x = ttrap->tx;
+                    escape_y = ttrap->ty;
+                    break;
+                }
+            }
+        }
+        /* On Astral: altar-seeking handled by tactics() in wizard.c */
+
+        if (escape_x && escape_y) {
+            gx = escape_x;
+            gy = escape_y;
+            appr = 1; /* Approach escape route, override flee tendency */
+        }
+    }
+
+    if ((!mtmp->mpeaceful || !rn2(10)) && (!Is_rogue_level(&u.uz))
+        /* monsters with the Amulet don't stop to pick up objects */
+        && !mon_has_amulet(mtmp)) {
         boolean in_line = (lined_up(mtmp)
                && (distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy)
                    <= (racial_throws_rocks(&youmonst) ? 20 : ACURRSTR / 2 + 1)));
@@ -1537,8 +1591,7 @@ register int after;
         if (appr != 1 || !in_line) {
             /* Monsters in combat won't pick stuff up, avoiding the
              * situation where you toss arrows at it and it has nothing
-             * better to do than pick the arrows up.
-             */
+             * better to do than pick the arrows up */
             register int pctload =
                 (curr_mon_load(mtmp) * 100) / max_mon_load(mtmp);
 
@@ -1563,7 +1616,7 @@ register int after;
         register int xx, yy;
         int oomx, oomy, lmx, lmy;
 
-        /* cut down the search radius if it thinks character is closer. */
+        /* cut down the search radius if it thinks character is closer */
         if (distmin(mtmp->mux, mtmp->muy, omx, omy) < SQSRCHRADIUS
             && !mtmp->mpeaceful)
             minr--;
@@ -1690,7 +1743,8 @@ register int after;
             goto look_for_obj;
         }
 
-        if (minr < SQSRCHRADIUS && appr == -1) {
+        /* Don't override escape goal for Amulet carriers */
+        if (minr < SQSRCHRADIUS && appr == -1 && !mon_has_amulet(mtmp)) {
             if (distmin(omx, omy, mtmp->mux, mtmp->muy) <= 3) {
                 gx = mtmp->mux;
                 gy = mtmp->muy;
@@ -1765,10 +1819,21 @@ register int after;
         /* Check once if this monster uses pathfinding, and ensure map is
            current before the loop rather than checking every iteration */
         {
-            boolean use_pathfinding = (appr == 1 && mon_uses_pathfinding(mtmp));
+            /* Amulet carriers ALWAYS use escape pathfinding regardless
+               of appr, because they need to reach the escape target
+               (stairs/portal). Other intelligent monsters use player
+               pathfinding when approaching */
+            boolean use_escape_pf = (mon_has_amulet(mtmp)
+                                     && mon_uses_pathfinding(mtmp)
+                                     && gx && gy);
+            boolean use_pathfinding = (!use_escape_pf && appr == 1
+                                       && mon_uses_pathfinding(mtmp));
             short cur_pfdist = PATHFIND_UNREACHABLE;
 
-            if (use_pathfinding) {
+            if (use_escape_pf) {
+                ensure_escape_pathfind_map(gx, gy);
+                cur_pfdist = escape_pathfind_dist[nix][niy];
+            } else if (use_pathfinding) {
                 ensure_pathfind_map();
                 cur_pfdist = pathfind_dist[nix][niy];
             }
@@ -1790,14 +1855,12 @@ register int after;
                             goto nxti;
             }
 
-            /*
-             * Intelligent monsters use pathfinding when approaching
-             * player. The BFS distance map is computed from player's
-             * actual position, so following it will lead toward player
-             * even if monster has wrong coordinates for the goal.
-             */
-            if (use_pathfinding) {
-                short new_pfdist = pathfind_dist[nx][ny];
+            /* Intelligent monsters use pathfinding when approaching.
+               Regular monsters use BFS from player position. Amulet
+               carriers use BFS from escape target (stairs/portal) */
+            if (use_pathfinding || use_escape_pf) {
+                short new_pfdist = use_escape_pf ? escape_pathfind_dist[nx][ny]
+                                                 : pathfind_dist[nx][ny];
 
                 /*
                  * Pick the reachable adjacent square with minimum distance.
@@ -1964,6 +2027,16 @@ register int after;
             mtmp->mtrack[j] = mtmp->mtrack[j - 1];
         mtmp->mtrack[0].x = omx;
         mtmp->mtrack[0].y = omy;
+
+        /* Intelligent Amulet carriers immediately escape via stairs/portal.
+           Update old position display before potential early return. */
+        if (mon_has_amulet(mtmp) && !mindless(ptr) && !is_animal(ptr)) {
+            int escape = mon_escape_with_amulet(mtmp);
+            if (escape) {
+                newsym(omx, omy); /* clear monster from where it came from */
+                return escape;
+            }
+        }
     } else {
         if (is_unicorn(ptr) && rn2(2) && !tele_restrict(mtmp)) {
             (void) rloc(mtmp, TRUE);

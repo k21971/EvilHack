@@ -281,6 +281,11 @@ E NEARDATA short pathfind_dist[COLNO][ROWNO]; /* BFS distance from player */
 E NEARDATA long pathfind_turn;                /* turn when map was computed */
 E NEARDATA xchar pathfind_px, pathfind_py;    /* player pos when computed */
 
+/* Escape pathfinding for Amulet carriers - BFS from escape target */
+E NEARDATA short escape_pathfind_dist[COLNO][ROWNO];
+E NEARDATA long escape_pathfind_turn;
+E NEARDATA xchar escape_pathfind_tx, escape_pathfind_ty; /* target coords */
+
 E NEARDATA const struct obj zeroobj; /* for init; also, &zeroobj is used
                                       * as special value */
 

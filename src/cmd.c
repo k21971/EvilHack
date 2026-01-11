@@ -161,6 +161,7 @@ STATIC_PTR int NDECL(wiz_telekinesis);
 STATIC_PTR int NDECL(wiz_show_seenv);
 STATIC_PTR int NDECL(wiz_show_vision);
 STATIC_PTR int NDECL(wiz_show_pathfind);
+STATIC_PTR int NDECL(wiz_show_escape_pathfind);
 STATIC_PTR int NDECL(wiz_smell);
 STATIC_PTR int NDECL(wiz_show_wmodes);
 STATIC_DCL void NDECL(wiz_map_levltyp);
@@ -1337,7 +1338,7 @@ wiz_show_pathfind(VOID_ARGS)
     Sprintf(row, "Pathfind distance from player (computed turn %ld, now %ld)",
             pathfind_turn, moves);
     putstr(win, 0, row);
-    putstr(win, 0, "Legend: @=you 0-9=dist a-z=10-35 +=36+ space=unreachable");
+    putstr(win, 0, "Legend: @ = you | 0-9 = dist | a-z = 10-35 | + = 36+ | space = unreachable");
     putstr(win, 0, "");
     for (y = 0; y < ROWNO; y++) {
         for (x = 1; x < COLNO; x++) {
@@ -1345,6 +1346,91 @@ wiz_show_pathfind(VOID_ARGS)
                 row[x] = '@';
             } else {
                 d = pathfind_dist[x][y];
+                if (d == PATHFIND_UNREACHABLE) {
+                    row[x] = ' ';
+                } else if (d < 10) {
+                    row[x] = '0' + d;
+                } else if (d < 36) {
+                    row[x] = 'a' + (d - 10);
+                } else {
+                    row[x] = '+';
+                }
+            }
+        }
+        /* remove trailing spaces */
+        for (x = COLNO - 1; x >= 1; x--)
+            if (row[x] != ' ')
+                break;
+        row[x + 1] = '\0';
+
+        putstr(win, 0, &row[1]);
+    }
+    display_nhwindow(win, TRUE);
+    destroy_nhwindow(win);
+    return 0;
+}
+
+/* #wizescapepath command - show escape BFS distance map for Amulet carriers */
+STATIC_PTR int
+wiz_show_escape_pathfind(VOID_ARGS)
+{
+    winid win;
+    int x, y;
+    short d;
+    char row[COLNO + 1];
+    xchar tx, ty;
+
+    if (!wizard) {
+        pline(unavailcmd, visctrl((int) cmd_from_func(wiz_show_escape_pathfind)));
+        return 0;
+    }
+
+    /* Find escape target - same logic as monmove.c */
+    tx = ty = 0;
+    if (!In_endgame(&u.uz)) {
+        if (xupstair) {
+            tx = xupstair;
+            ty = yupstair;
+        } else if (xupladder) {
+            tx = xupladder;
+            ty = yupladder;
+        }
+        if (!tx && sstairs.sx) {
+            tx = sstairs.sx;
+            ty = sstairs.sy;
+        }
+    } else if (!Is_astralevel(&u.uz)) {
+        struct trap *ttrap;
+        for (ttrap = ftrap; ttrap; ttrap = ttrap->ntrap) {
+            if (ttrap->ttyp == MAGIC_PORTAL) {
+                tx = ttrap->tx;
+                ty = ttrap->ty;
+                break;
+            }
+        }
+    }
+
+    if (!tx || !ty) {
+        pline("No escape target found on this level.");
+        return 0;
+    }
+
+    ensure_escape_pathfind_map(tx, ty);
+
+    win = create_nhwindow(NHW_TEXT);
+    Sprintf(row, "Escape pathfind to (%d, %d) (computed turn %ld, now %ld)",
+            tx, ty, escape_pathfind_turn, moves);
+    putstr(win, 0, row);
+    putstr(win, 0, "Legend: < = target | @ = you | 0-9 = dist | a-z = 10-35 | + = 36+ | space = unreachable");
+    putstr(win, 0, "");
+    for (y = 0; y < ROWNO; y++) {
+        for (x = 1; x < COLNO; x++) {
+            if (x == tx && y == ty) {
+                row[x] = '<';
+            } else if (x == u.ux && y == u.uy) {
+                row[x] = '@';
+            } else {
+                d = escape_pathfind_dist[x][y];
                 if (d == PATHFIND_UNREACHABLE) {
                     row[x] = ' ';
                 } else if (d < 10) {
@@ -4379,6 +4465,8 @@ struct ext_func_tab extcmdlist[] = {
             wiz_crown, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { C('e'), "wizdetect", "reveal hidden things within a small radius",
             wiz_detect, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
+    { '\0', "wizescapepath", "show escape pathfinding distance map",
+            wiz_show_escape_pathfind, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { C('g'), "wizgenesis", "create a monster",
             wiz_genesis, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
     { C('i'), "wizidentify", "identify all items in inventory",

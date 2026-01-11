@@ -4943,4 +4943,5 @@ The following changes to date are:
 - Optimize BFS pathfinding code: eliminate gotos, reduce redundancy
 - Fix: MGC_DESTRY_ARMR castable at range (regression from mcastu.c
   refactor)
+- Intelligent monsters with Amulet of Yendor now properly flee to escape
 

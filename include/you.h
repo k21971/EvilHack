@@ -387,20 +387,20 @@ struct you {
     int ulycn;                  /* lycanthrope type */
 
     unsigned ucreamed;
-    unsigned uswldtim;          /* time you have been swallowed */
-    unsigned uwildshape;        /* time between using wildshape (druid ability) */
-    unsigned uvampireshape;     /* time between using shapechange (vampire ability) */
+    unsigned uswldtim;              /* time you have been swallowed */
+    unsigned uwildshape;            /* time between using wildshape (druid ability) */
+    unsigned uvampireshape;         /* time between using shapechange (vampire ability) */
 
-    Bitfield(uswallow, 1);      /* true if swallowed */
-    Bitfield(uinwater, 1);      /* if you're currently in water (only
-                                   underwater possible currently) */
-    Bitfield(uundetected, 1);   /* if you're a hiding monster/piercer */
-    Bitfield(mfemale, 1);       /* saved human value of flags.female */
-    Bitfield(uinvulnerable, 1); /* you're invulnerable (praying) */
-    Bitfield(uburied, 1);       /* you're buried */
-    Bitfield(uedibility, 1);    /* blessed food detect; sense unsafe food */
-    /* 1 free bit! */
-
+    Bitfield(uswallow, 1);          /* true if swallowed */
+    Bitfield(uinwater, 1);          /* if you're currently in water (only
+                                       underwater possible currently) */
+    Bitfield(uundetected, 1);       /* if you're a hiding monster/piercer */
+    Bitfield(mfemale, 1);           /* saved human value of flags.female */
+    Bitfield(uinvulnerable, 1);     /* you're invulnerable (praying) */
+    Bitfield(uburied, 1);           /* you're buried */
+    Bitfield(uedibility, 1);        /* blessed food detect; sense unsafe food */
+    Bitfield(uamulet_on_planes, 1); /* monster escaped to Planes with Amulet */
+    /* no free bits */
     unsigned udg_cnt;           /* how long you have been demigod */
     struct u_achieve uachieve;  /* achievements */
     struct u_event uevent;      /* certain events have happened */

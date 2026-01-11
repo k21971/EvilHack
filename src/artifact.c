@@ -3607,6 +3607,7 @@ struct obj *obj;
                         You_feel("strange energies envelop %s.",
                                  the(xname(obj)));
                         u.uhave.amulet = 1;
+                        u.uamulet_on_planes = 0;
                         break;
                     }
                     if (!Blind)

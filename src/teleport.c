@@ -1235,6 +1235,7 @@ domagicportal(ttmp)
 struct trap *ttmp;
 {
     struct d_level target_level;
+    struct monst *mtmp;
 
     if (u.utrap && u.utraptype == TT_BURIEDBALL)
         buried_ball_to_punishment();
@@ -1251,13 +1252,23 @@ struct trap *ttmp;
 
     You("activated a magic portal!");
 
-    /* prevent the poor shnook, whose amulet was stolen while in
+    /* prevent the poor soul, whose amulet was stolen while in
      * the endgame, from accidently triggering the portal to the
-     * next level, and thus losing the game
+     * next level, and thus losing the game (unless chasing it)
      */
     if (In_endgame(&u.uz) && !u.uhave.amulet) {
-        You_feel("dizzy for a moment, but nothing happens...");
-        return;
+        if (!u.uamulet_on_planes) {
+            You_feel("dizzy for a moment, but nothing happens...");
+            return;
+        }
+        /* Chasing - only allow if monster with Amulet already went
+           through */
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (!DEADMONSTER(mtmp) && mon_has_amulet(mtmp)) {
+                You("need to recover the Amulet before proceeding.");
+                return;
+            }
+        }
     }
 
     target_level = ttmp->dst;

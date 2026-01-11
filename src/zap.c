@@ -6374,8 +6374,10 @@ struct obj *obj; /* no texts here! */
     }
     if (by_you && obj->otyp == BOULDER)
         sokoban_guilt();
-    if (obj->otyp == BOULDER)
+    if (obj->otyp == BOULDER) {
         pathfind_turn = 0; /* invalidate pathfinding cache */
+        escape_pathfind_turn = 0;
+    }
 
     obj->otyp = ROCK;
     obj->oclass = GEM_CLASS;
