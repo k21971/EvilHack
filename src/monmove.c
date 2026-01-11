@@ -916,8 +916,10 @@ toofar:
     }
 
     /* Look for other monsters to fight (at a distance). Intelligent
-       monsters with Amulet of Yendor skip ranged attacks - escape */
-    if ((!mon_has_amulet(mtmp) || mindless(mdat) || is_animal(mdat))
+       monsters with Amulet of Yendor skip ranged attacks - escape.
+       Exception: priests in their temple guard the Amulet */
+    if ((!mon_has_amulet(mtmp) || mindless(mdat) || is_animal(mdat)
+         || (mtmp->ispriest && inhistemple(mtmp)))
         && (((attacktype(mtmp->data, AT_BREA)
               || (attacktype(mtmp->data, AT_GAZE)
                   && mtmp->data != &mons[PM_MEDUSA])
@@ -963,7 +965,8 @@ toofar:
             && (findgold(mtmp->minvent, FALSE) || rn2(2)))
         || (is_wanderer(mdat) && !rn2(4)) || (Conflict && !mtmp->iswiz)
         || is_skittish(mdat) || (!mtmp->mcansee && !rn2(4)) || mtmp->mpeaceful
-        || (mon_has_amulet(mtmp) && !mindless(mdat) && !is_animal(mdat))) {
+        || (mon_has_amulet(mtmp) && !mindless(mdat) && !is_animal(mdat)
+            && !(mtmp->ispriest && inhistemple(mtmp)))) {
         /* Possibly cast an undirected spell if not attacking you */
         /* note that most of the time castmu() will pick a directed
            spell and do nothing, so the monster moves normally */
@@ -1021,7 +1024,8 @@ toofar:
                  */
                 if (u.uswallow
                     && (!mon_has_amulet(mtmp)
-                        || mindless(mdat) || is_animal(mdat)))
+                        || mindless(mdat) || is_animal(mdat)
+                        || (mtmp->ispriest && inhistemple(mtmp))))
                     return mattacku(mtmp);
                 /* if confused grabber has wandered off, let go */
                 if (distu(mtmp->mx, mtmp->my) > 2)
@@ -1038,9 +1042,11 @@ toofar:
     if (tmp != 3 && (!mtmp->mpeaceful
                      || (Conflict && !resist_conflict(mtmp)))) {
         if (inrange && !scared && !noattacks(mdat)
-            /* intelligent monsters with the Amulet skip attacks, flee */
+            /* intelligent monsters with the Amulet skip attacks, flee.
+               Exception: priests in their temple guard the Amulet */
             && (!mon_has_amulet(mtmp)
-                || mindless(mdat) || is_animal(mdat))
+                || mindless(mdat) || is_animal(mdat)
+                || (mtmp->ispriest && inhistemple(mtmp)))
             /* [is this hp check really needed?] */
             && (Upolyd ? u.mh : u.uhp) > 0) {
             if (mattacku(mtmp))
@@ -1542,9 +1548,11 @@ register int after;
     /* Intelligent monsters with Amulet of Yendor seek escape route.
        In main dungeon: approach stairs to escape.
        In endgame: approach portal, or aligned altar on Astral.
-       Mindless/animal monsters don't understand the Amulet's significance. */
+       Mindless/animal monsters don't understand the Amulet's
+       significance */
     if (mon_has_amulet(mtmp) && !mtmp->mpeaceful
-        && !mindless(ptr) && !is_animal(ptr)) {
+        && !mindless(ptr) && !is_animal(ptr)
+        && !(mtmp->ispriest && inhistemple(mtmp))) {
         int escape_x = 0, escape_y = 0;
 
         if (!In_endgame(&u.uz)) {
@@ -2047,8 +2055,10 @@ found_altar:
         mtmp->mtrack[0].y = omy;
 
         /* Intelligent Amulet carriers immediately escape via stairs/portal.
-           Update old position display before potential early return. */
-        if (mon_has_amulet(mtmp) && !mindless(ptr) && !is_animal(ptr)) {
+           Exception: priests in their temple guard the Amulet.
+           Update old position display before potential early return */
+        if (mon_has_amulet(mtmp) && !mindless(ptr) && !is_animal(ptr)
+            && !(mtmp->ispriest && inhistemple(mtmp))) {
             int escape = mon_escape_with_amulet(mtmp);
             if (escape) {
                 newsym(omx, omy); /* clear monster from where it came from */

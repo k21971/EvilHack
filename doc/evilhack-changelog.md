@@ -4946,4 +4946,6 @@ The following changes to date are:
 - Intelligent monsters with Amulet of Yendor now properly flee to escape
 - Non-covetous monsters with Amulet of Yendor now seek the correct high
   altar on Astral
+- Prevent the high priest of Moloch in the Sanctum from wanting to
+  escape with the Amulet of Yendor
 

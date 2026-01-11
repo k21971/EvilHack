@@ -656,10 +656,12 @@ struct monst *mtmp;
     }
 
     fraction = u.ulevel < 10 ? 5 : u.ulevel < 14 ? 4 : 3;
-    /* Intelligent monsters with Amulet of Yendor skip HP check - they want
-       to escape regardless of health to sacrifice the Amulet */
+    /* Intelligent monsters with Amulet of Yendor skip HP check - they
+       want to escape regardless of health to sacrifice the Amulet.
+       Exception: priests in their temple guard the Amulet */
     if (!(mon_has_amulet(mtmp)
-          && !mindless(mtmp->data) && !is_animal(mtmp->data))
+          && !mindless(mtmp->data) && !is_animal(mtmp->data)
+          && !(mtmp->ispriest && inhistemple(mtmp)))
         && (mtmp->mhp >= mtmp->mhpmax
             || (mtmp->mhp >= 10 && mtmp->mhp * fraction >= mtmp->mhpmax)))
         return FALSE;
