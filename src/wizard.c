@@ -292,8 +292,8 @@ struct monst *mtmp;
         aligntyp malign = sgn(mon_aligntyp(mtmp));
         int x, y;
 
-        /* Scan level for monster's aligned altar - alignments are shuffled
-           per game so we can't rely on hardcoded coordinates */
+        /* Scan level for monster's aligned altar - alignments are
+           shuffled per game so we can't rely on hardcoded coordinates */
         for (x = 1; x < COLNO; x++) {
             for (y = 0; y < ROWNO; y++) {
                 if (IS_ALTAR(levl[x][y].typ) && a_align(x, y) == malign) {

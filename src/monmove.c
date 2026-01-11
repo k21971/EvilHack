@@ -1541,7 +1541,7 @@ register int after;
 
     /* Intelligent monsters with Amulet of Yendor seek escape route.
        In main dungeon: approach stairs to escape.
-       In endgame: approach portal (Astral altar handled by tactics()).
+       In endgame: approach portal, or aligned altar on Astral.
        Mindless/animal monsters don't understand the Amulet's significance. */
     if (mon_has_amulet(mtmp) && !mtmp->mpeaceful
         && !mindless(ptr) && !is_animal(ptr)) {
@@ -1571,8 +1571,26 @@ register int after;
                     break;
                 }
             }
+        } else {
+            /* On Astral: seek monster's aligned altar to sacrifice.
+               Covetous monsters use tactics(), but non-covetous
+               intelligent monsters need this fallback */
+            aligntyp malign = sgn(mon_aligntyp(mtmp));
+            int x, y;
+
+            for (x = 1; x < COLNO; x++) {
+                for (y = 0; y < ROWNO; y++) {
+                    if (IS_ALTAR(levl[x][y].typ)
+                        && a_align(x, y) == malign) {
+                        escape_x = x;
+                        escape_y = y;
+                        goto found_altar;
+                    }
+                }
+            }
+found_altar:
+            ; /* empty statement after label */
         }
-        /* On Astral: altar-seeking handled by tactics() in wizard.c */
 
         if (escape_x && escape_y) {
             gx = escape_x;

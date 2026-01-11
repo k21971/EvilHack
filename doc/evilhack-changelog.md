@@ -4944,4 +4944,6 @@ The following changes to date are:
 - Fix: MGC_DESTRY_ARMR castable at range (regression from mcastu.c
   refactor)
 - Intelligent monsters with Amulet of Yendor now properly flee to escape
+- Non-covetous monsters with Amulet of Yendor now seek the correct high
+  altar on Astral
 
