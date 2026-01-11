@@ -4941,4 +4941,6 @@ The following changes to date are:
 - Add BFS pathfinding for intelligent monsters
 - BFS pathfinding: boulder cache invalidation and wizard debug command
 - Optimize BFS pathfinding code: eliminate gotos, reduce redundancy
+- Fix: MGC_DESTRY_ARMR castable at range (regression from mcastu.c
+  refactor)
 

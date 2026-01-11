@@ -2341,6 +2341,7 @@ int spellnum;
             if (dist > 1
                 && (spellnum == MGC_STUN_YOU
                     || spellnum == MGC_WEAKEN_YOU
+                    || spellnum == MGC_DESTRY_ARMR
                     || spellnum == MGC_CURSE_ITEMS
                     || spellnum == MGC_AGGRAVATION
                     || spellnum == MGC_SUMMON_MONS
