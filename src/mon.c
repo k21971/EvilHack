@@ -3010,17 +3010,16 @@ xchar x, y;
 void
 compute_pathfind_map()
 {
-    int x, y, i;
+    int i;
     coord c;
     short dist;
     xchar nx, ny;
     static const schar dx[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
     static const schar dy[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
 
-    /* Initialize all cells as unreachable */
-    for (x = 0; x < COLNO; x++)
-        for (y = 0; y < ROWNO; y++)
-            pathfind_dist[x][y] = PATHFIND_UNREACHABLE;
+    /* Initialize all cells as unreachable.
+       PATHFIND_UNREACHABLE is -1; memset with 0xFF gives -1 for short */
+    memset(pathfind_dist, 0xFF, sizeof(pathfind_dist));
 
     /* Player position = distance 0 */
     pathfind_dist[u.ux][u.uy] = 0;

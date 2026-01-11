@@ -1761,6 +1761,18 @@ register int after;
         }
         better_with_displacing =
             should_displace(mtmp, poss, info, cnt, gx, gy);
+
+        /* Check once if this monster uses pathfinding, and ensure map is
+           current before the loop rather than checking every iteration */
+        {
+            boolean use_pathfinding = (appr == 1 && mon_uses_pathfinding(mtmp));
+            short cur_pfdist = PATHFIND_UNREACHABLE;
+
+            if (use_pathfinding) {
+                ensure_pathfind_map();
+                cur_pfdist = pathfind_dist[nix][niy];
+            }
+
         for (i = 0; i < cnt; i++) {
             if (avoid && (info[i] & NOTONL))
                 continue;
@@ -1784,13 +1796,8 @@ register int after;
              * actual position, so following it will lead toward player
              * even if monster has wrong coordinates for the goal.
              */
-            if (appr == 1 && mon_uses_pathfinding(mtmp)) {
-                short cur_pfdist, new_pfdist;
-                boolean dominated, in_mtrack;
-
-                ensure_pathfind_map();
-                cur_pfdist = pathfind_dist[nix][niy];
-                new_pfdist = pathfind_dist[nx][ny];
+            if (use_pathfinding) {
+                short new_pfdist = pathfind_dist[nx][ny];
 
                 /*
                  * Pick the reachable adjacent square with minimum distance.
@@ -1799,76 +1806,60 @@ register int after;
                  * - mmoved=2: only found mtrack squares so far (fallback)
                  * Non-mtrack squares always beat mtrack squares.
                  */
-                if (new_pfdist == PATHFIND_UNREACHABLE)
-                    goto pf_unreachable;
+                if (new_pfdist != PATHFIND_UNREACHABLE) {
+                    boolean in_mtrack = FALSE;
+                    boolean dominated, should_update = FALSE;
+                    int new_mmoved = mmoved;
 
-                /* Is this square in recent movement track? */
-                in_mtrack = FALSE;
-                mtrk = &mtmp->mtrack[0];
-                for (j = 0; j < jcnt; mtrk++, j++) {
-                    if (nx == mtrk->x && ny == mtrk->y) {
-                        in_mtrack = TRUE;
-                        break;
+                    /* Is this square in recent movement track? */
+                    mtrk = &mtmp->mtrack[0];
+                    for (j = 0; j < jcnt; mtrk++, j++) {
+                        if (nx == mtrk->x && ny == mtrk->y) {
+                            in_mtrack = TRUE;
+                            break;
+                        }
                     }
-                }
 
-                /* Is this worse than current best candidate? */
-                dominated = (cur_pfdist != PATHFIND_UNREACHABLE
-                             && new_pfdist > cur_pfdist);
+                    /* Is this worse than current best candidate? */
+                    dominated = (cur_pfdist != PATHFIND_UNREACHABLE
+                                 && new_pfdist > cur_pfdist);
 
-                if (in_mtrack) {
-                    /* mtrack square: only take if no non-mtrack option */
-                    if (mmoved != 1 && !dominated) {
-                        nix = nx;
-                        niy = ny;
-                        nidist = dist2(nx, ny, gx, gy);
-                        cur_pfdist = new_pfdist;
-                        chi = i;
-                        mmoved = 2;
-                    } else if (!mmoved) {
-                        /* First candidate, even if dominated */
-                        nix = nx;
-                        niy = ny;
-                        nidist = dist2(nx, ny, gx, gy);
-                        cur_pfdist = new_pfdist;
-                        chi = i;
-                        mmoved = 2;
+                    if (in_mtrack) {
+                        /* mtrack: take if first, or if no non-mtrack yet
+                           and not worse than current best */
+                        if (!mmoved || (mmoved == 2 && !dominated)) {
+                            should_update = TRUE;
+                            new_mmoved = 2;
+                        }
+                    } else {
+                        /* non-mtrack: always preferred over mtrack;
+                           take if replacing mtrack, first, or better */
+                        if (mmoved != 1 || !dominated) {
+                            should_update = TRUE;
+                            if (mmoved != 1)
+                                new_mmoved = 1;
+                        }
                     }
-                } else {
-                    /* Non-mtrack: always preferred over mtrack */
-                    if (mmoved != 1) {
-                        /* First non-mtrack or replacing mtrack */
-                        nix = nx;
-                        niy = ny;
-                        nidist = dist2(nx, ny, gx, gy);
-                        cur_pfdist = new_pfdist;
-                        chi = i;
-                        mmoved = 1;
-                    } else if (!dominated) {
-                        /* Better than previous non-mtrack */
-                        nix = nx;
-                        niy = ny;
-                        nidist = dist2(nx, ny, gx, gy);
-                        cur_pfdist = new_pfdist;
-                        chi = i;
-                    }
-                }
-                goto pf_done;
 
-            pf_unreachable:
-                if (!mmoved) {
-                    /* Fallback to greedy only if no reachable square found */
+                    if (should_update) {
+                        nix = nx;
+                        niy = ny;
+                        cur_pfdist = new_pfdist;
+                        chi = i;
+                        mmoved = new_mmoved;
+                    }
+                } else if (!mmoved) {
+                    /* Unreachable - fallback to greedy if no candidate yet */
                     nearer = ((ndist = dist2(nx, ny, gx, gy)) < nidist);
                     if (nearer) {
                         nix = nx;
                         niy = ny;
                         nidist = ndist;
+                        cur_pfdist = PATHFIND_UNREACHABLE;
                         chi = i;
                         mmoved = 1;
                     }
                 }
-            pf_done:
-                ;
             } else {
                 /* Original greedy behavior for non-intelligent or fleeing */
                 nearer = ((ndist = dist2(nx, ny, gx, gy)) < nidist);
@@ -1885,6 +1876,7 @@ register int after;
  nxti:
             ;
         }
+        } /* end use_pathfinding/cur_pfdist scope */
     }
 
     if (mmoved) {

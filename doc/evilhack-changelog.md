@@ -4940,4 +4940,5 @@ The following changes to date are:
   consistently as with erodeproof items
 - Add BFS pathfinding for intelligent monsters
 - BFS pathfinding: boulder cache invalidation and wizard debug command
+- Optimize BFS pathfinding code: eliminate gotos, reduce redundancy
 
