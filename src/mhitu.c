@@ -712,7 +712,10 @@ struct monst *mtmp;
             if ((i & MM_DEF_DIED) != 0 || !u.usteed
                 || distu(mtmp->mx, mtmp->my) > 2)
                 return MM_MISS;
-            /* Let your steed retaliate */
+            /* Let your steed retaliate (check acceptable_pet_target()
+               as a guard) */
+            if (!acceptable_pet_target(u.usteed, mtmp, FALSE))
+                return MM_MISS;
             bhitpos.x = mtmp->mx, bhitpos.y = mtmp->my;
             notonhead = FALSE;
             return (mattackm(u.usteed, mtmp) & MM_DEF_DIED) ? MM_AGR_DIED : MM_HIT;
@@ -722,7 +725,8 @@ struct monst *mtmp;
            is loyal or greater. if the steed has a ranged attack, it
            can utilize it apart from this routine */
         if (u.usteed->mtame >= 15
-            && distu(mtmp->mx, mtmp->my) <= 2) {
+            && distu(mtmp->mx, mtmp->my) <= 2
+            && acceptable_pet_target(u.usteed, mtmp, FALSE)) {
             /* steed attacks without provocation,
                make sure it's actually alive */
             i = mattackm(u.usteed, mtmp);

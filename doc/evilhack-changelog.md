@@ -4950,4 +4950,6 @@ The following changes to date are:
   escape with the Amulet of Yendor
 - Fix: open doorways left behind from a broken door now correctly
   display as dark when in darkness
+- Fix: regression from commit 307d399 (loyal+ steeds attacking monsters
+  they shouldn't while being ridden)
 
