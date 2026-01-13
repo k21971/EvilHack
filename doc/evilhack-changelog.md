@@ -4952,4 +4952,6 @@ The following changes to date are:
   display as dark when in darkness
 - Fix: regression from commit 307d399 (loyal+ steeds attacking monsters
   they shouldn't while being ridden)
+- Revert description for helm of brilliance back to 'crystal', change
+  material to match description
 
