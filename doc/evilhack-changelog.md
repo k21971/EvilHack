@@ -4948,4 +4948,6 @@ The following changes to date are:
   altar on Astral
 - Prevent the high priest of Moloch in the Sanctum from wanting to
   escape with the Amulet of Yendor
+- Fix: open doorways left behind from a broken door now correctly
+  display as dark when in darkness
 

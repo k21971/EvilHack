@@ -303,7 +303,6 @@ int x, y;
     return FALSE;
 }
 
-
 /*
  * unmap_object()
  *
@@ -563,7 +562,6 @@ struct monst *mon;
     return wl;
 }
 
-
 /*
  * feel_newsym()
  *
@@ -578,7 +576,6 @@ xchar x, y;
     else
         newsym(x, y);
 }
-
 
 /*
  * feel_location()
@@ -877,9 +874,11 @@ register int x, y;
                     show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
                 } else if (lev->typ == GRASS) {
                     show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
-                } else if (lev->typ == DOOR && !lev->doormask) {
+                } else if (lev->typ == DOOR
+                           && (!lev->doormask
+                               || (lev->doormask & D_BROKEN))) {
                     /* can't use cmap_to_glyph(S_ndoor) here because
-                       of map_background() */
+                       of map_background(); must match back_to_defsym() */
                     show_glyph(x, y, lev->glyph = cmap_to_glyph(DARKROOMSYM));
                 } else {
                     map_background(x, y, TRUE);
