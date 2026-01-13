@@ -722,7 +722,8 @@ struct monst *mtmp;
 
     /* Monsters that want to acquire things */
     /* may teleport, so do it before inrange is set */
-    if (is_covetous(mdat)) {
+    /* The Amulet prevents teleportation - skip covetous tactics */
+    if (is_covetous(mdat) && !mon_has_amulet(mtmp)) {
         int tactics_result = tactics(mtmp);
         /* if tactics() returns 2 or 3, monster either died or migrated
            to another level */
@@ -1348,7 +1349,8 @@ register int after;
     }
 
     /* and the acquisitive monsters get special treatment */
-    if (is_covetous(ptr)) {
+    /* Skip if holding Amulet - escaping is the priority */
+    if (is_covetous(ptr) && !mon_has_amulet(mtmp)) {
         int covetousattack;
         xchar tx = STRAT_GOALX(mtmp->mstrategy),
               ty = STRAT_GOALY(mtmp->mstrategy);

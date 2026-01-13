@@ -4954,4 +4954,6 @@ The following changes to date are:
   they shouldn't while being ridden)
 - Revert description for helm of brilliance back to 'crystal', change
   material to match description
+- Disable covetous behavior when covetous monsters have the Amulet of
+  Yendor in their possession
 
