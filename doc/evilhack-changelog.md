@@ -4958,4 +4958,6 @@ The following changes to date are:
   Yendor in their possession
 - Fix: sewage slow effect now purely position-based for players and
   monsters
+- Adjust grudge conditions when monsters have the Amulet of Yendor on
+  the Astral Plane
 

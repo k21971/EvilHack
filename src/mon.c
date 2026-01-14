@@ -3249,9 +3249,11 @@ struct monst *magr, *mdef;
     if (is_true_ent(ma) && is_blight(md))
         return ALLOW_M | ALLOW_TM;
 
-    /* covetous/player monsters will attack
-       whoever has the amulet  */
-    if ((is_covetous(ma) || is_mplayer(ma))
+    /* covetous monsters will attack whoever has the amulet;
+       player monsters and everyone on Astral attack if opposing alignment */
+    if ((is_covetous(ma)
+         || ((is_mplayer(ma) || Is_astralevel(&u.uz))
+             && sgn(ma->maligntyp) != sgn(md->maligntyp)))
         && mon_has_amulet(mdef))
         return ALLOW_M | ALLOW_TM;
 
