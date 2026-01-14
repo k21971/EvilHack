@@ -1607,7 +1607,6 @@ domove_core()
     struct trap *trap = NULL;
     int wtcap;
     boolean on_ice;
-    boolean walk_sewage;
     xchar chainx = 0, chainy = 0,
           ballx = 0, bally = 0;         /* ball&chain new positions */
     int bc_control = 0;                 /* control for ball&chain */
@@ -1678,26 +1677,10 @@ domove_core()
         if (!on_ice && (HFumbling & FROMOUTSIDE))
             HFumbling &= ~FROMOUTSIDE;
 
-        /* check walking through sewage */
-        walk_sewage = !Levitation && is_sewage(u.ux, u.uy);
-        if (walk_sewage) {
-            if (Flying || is_floater(youmonst.data)
-                || is_swimmer(youmonst.data)
-                || maybe_polyd(is_tortle(youmonst.data), Race_if(PM_TORTLE))
-                || is_clinger(youmonst.data) || is_whirly(youmonst.data)
-                || (uarm && Is_dragon_scaled_armor(uarm)
-                    && (Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES
-                        || Dragon_armor_to_scales(uarm) == BLUE_DRAGON_SCALES))
-                || Wwalking
-                || (uarmf && !strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4))) {
-                walk_sewage = FALSE;
-            } else {
-                HSlow |= FROMOUTSIDE;
-                HSlow &= ~TIMEOUT;
-                HSlow += 3; /* slowed on next move */
-            }
-        }
-        if (!walk_sewage && (HSlow & FROMOUTSIDE))
+        /* check walking through sewage - slow effect is purely position-based */
+        if (slowed_by_sewage())
+            HSlow |= FROMOUTSIDE;
+        else if (HSlow & FROMOUTSIDE)
             HSlow &= ~FROMOUTSIDE;
 
         x = u.ux + u.dx;
@@ -2558,6 +2541,26 @@ switch_terrain()
     }
     if ((!Levitation ^ was_levitating) || (!Flying ^ was_flying))
         context.botl = TRUE; /* update Lev/Fly status condition */
+}
+
+/* returns TRUE if player is in sewage and should be slowed;
+   handles all immunity checks for sewage movement penalty */
+boolean
+slowed_by_sewage()
+{
+    if (Levitation || !is_sewage(u.ux, u.uy))
+        return FALSE;
+    if (Flying || is_floater(youmonst.data)
+        || is_swimmer(youmonst.data)
+        || maybe_polyd(is_tortle(youmonst.data), Race_if(PM_TORTLE))
+        || is_clinger(youmonst.data) || is_whirly(youmonst.data)
+        || (uarm && Is_dragon_scaled_armor(uarm)
+            && (Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES
+                || Dragon_armor_to_scales(uarm) == BLUE_DRAGON_SCALES))
+        || Wwalking
+        || (uarmf && !strncmp(OBJ_DESCR(objects[uarmf->otyp]), "mud ", 4)))
+        return FALSE;
+    return TRUE;
 }
 
 /* extracted from spoteffects; called by spoteffects to check for entering or

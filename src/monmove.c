@@ -18,6 +18,7 @@ STATIC_DCL boolean FDECL(stuff_prevents_passage, (struct monst *));
 STATIC_DCL int FDECL(vamp_shift, (struct monst *, struct permonst *,
                                   BOOLEAN_P));
 STATIC_DCL boolean FDECL(likes_contents, (struct monst *, struct obj *));
+STATIC_DCL boolean FDECL(mon_slowed_by_sewage, (struct monst *));
 
 /* True if mtmp died */
 boolean
@@ -553,6 +554,26 @@ struct monst *mon;
     return -1;
 }
 
+/* returns TRUE if monster is in sewage and should be slowed;
+   handles all immunity checks for sewage movement penalty */
+STATIC_OVL boolean
+mon_slowed_by_sewage(mtmp)
+struct monst *mtmp;
+{
+    struct permonst *mdat = mtmp->data;
+
+    if (!is_sewage(mtmp->mx, mtmp->my))
+        return FALSE;
+    if (is_flyer(mdat) || is_floater(mdat)
+        || is_clinger(mdat) || is_swimmer(mdat)
+        || passes_walls(mdat) || can_levitate(mtmp) || can_fly(mtmp)
+        || can_wwalk(mtmp) || defended(mtmp, AD_SLOW)
+        || resists_slow(r_data(mtmp))
+        || ((mtmp == u.usteed) && Flying))
+        return FALSE;
+    return TRUE;
+}
+
 /* returns 1 if monster died moving, 0 otherwise */
 /* The whole dochugw/m_move/distfleeck/mfndpos section is serious spaghetti
  * code. --KAA
@@ -565,8 +586,6 @@ struct monst *mtmp;
     register int tmp = 0;
     struct monst* mdummy;
     int inrange, nearby, scared, oldx, oldy;
-
-    boolean mwalk_sewage = is_sewage(mtmp->mx, mtmp->my);
 
     /*  Pre-movement adjustments
      */
@@ -651,20 +670,10 @@ struct monst *mtmp;
         return 1; /* this is its move */
     }
 
-    /* some monsters are slowed down if wading through sewage */
-    if (mwalk_sewage) {
-        if (is_flyer(mdat) || is_floater(mdat)
-            || is_clinger(mdat) || is_swimmer(mdat)
-            || passes_walls(mdat) || can_levitate(mtmp) || can_fly(mtmp)
-            || can_wwalk(mtmp) || defended(mtmp, AD_SLOW)
-            || resists_slow(r_data(mtmp))
-            || ((mtmp == u.usteed) && Flying)) {
-            mwalk_sewage = FALSE;
-        } else {
-            mon_adjust_speed(mtmp, -2, (struct obj *) 0);
-        }
-    }
-    if (!mwalk_sewage)
+    /* sewage slow effect - purely position-based */
+    if (mon_slowed_by_sewage(mtmp))
+        mon_adjust_speed(mtmp, -2, (struct obj *) 0);
+    else
         mon_adjust_speed(mtmp, 3, (struct obj *) 0);
 
     /* being in midair where gravity is still in effect can be lethal */
@@ -995,8 +1004,14 @@ toofar:
         else
             tmp = 0;
         update_monsteed(mtmp);
-        if (tmp != 2)
+        /* update sewage slow after movement for next turn */
+        if (tmp != 2) {
+            if (mon_slowed_by_sewage(mtmp))
+                mon_adjust_speed(mtmp, -2, (struct obj *) 0);
+            else
+                mon_adjust_speed(mtmp, 3, (struct obj *) 0);
             distfleeck(mtmp, &inrange, &nearby, &scared); /* recalc */
+        }
 
         switch (tmp) { /* for pets, cases 0 and 3 are equivalent */
         case 0: /* no movement, but it can still attack you */

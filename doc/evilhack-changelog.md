@@ -4956,4 +4956,6 @@ The following changes to date are:
   material to match description
 - Disable covetous behavior when covetous monsters have the Amulet of
   Yendor in their possession
+- Fix: sewage slow effect now purely position-based for players and
+  monsters
 

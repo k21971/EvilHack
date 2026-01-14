@@ -426,6 +426,13 @@ boolean resuming;
                     nh_timeout();
                     run_regions();
 
+                    /* sewage slow effect: purely position-based, must be
+                       checked every turn even when standing still */
+                    if (slowed_by_sewage())
+                        HSlow |= FROMOUTSIDE;
+                    else if (HSlow & FROMOUTSIDE)
+                        HSlow &= ~FROMOUTSIDE;
+
                     /* Draugr corpse sense: update perm_invent when corpse
                        rot status changes */
                     if (iflags.perm_invent && !Upolyd && Race_if(PM_DRAUGR)) {

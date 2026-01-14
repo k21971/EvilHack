@@ -991,6 +991,7 @@ E boolean NDECL(overexertion);
 E void NDECL(invocation_message);
 E void NDECL(switch_terrain);
 E boolean FDECL(pooleffects, (BOOLEAN_P));
+E boolean NDECL(slowed_by_sewage);
 E void FDECL(spoteffects, (BOOLEAN_P));
 E char *FDECL(in_rooms, (XCHAR_P, XCHAR_P, int));
 E boolean FDECL(in_town, (int, int));
