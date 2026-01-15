@@ -4960,4 +4960,5 @@ The following changes to date are:
   monsters
 - Adjust grudge conditions when monsters have the Amulet of Yendor on
   the Astral Plane
+- Fix: add AC check and to-hit bonuses for player kicks vs monsters
 

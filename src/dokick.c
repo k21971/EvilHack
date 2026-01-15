@@ -61,13 +61,14 @@ boolean clumsy;
         || has_barkskin(mon) || has_stoneskin(mon))
         dmg = 0;
 
-    /* attacking a shade is normally useless */
-    if (noncorporeal(mon->data))
+    /* kicking a shade is normally useless under usual circumstances */
+    if (noncorporeal(mon->data) && !(uarmf && shade_glare(uarmf)))
         dmg = 0;
 
     specialdmg = special_dmgval(&youmonst, mon, W_ARMF, &hated_obj);
 
-    if (noncorporeal(mon->data) && !specialdmg) {
+    if (noncorporeal(mon->data) && !specialdmg
+        && !(uarmf && shade_glare(uarmf))) {
         pline_The("%s.", kick_passes_thru);
         /* doesn't exercise skill or abuse alignment or frighten pet,
            and shades have no passive counterattack */
@@ -269,6 +270,36 @@ xchar x, y;
         clumsy = TRUE;
     }
  doit:
+    /* check if kick hits based on monster's AC */
+    {
+        int kickdieroll, armorpenalty, attknum = 0;
+        int tmp = find_roll_to_hit(mon, AT_KICK, (struct obj *) 0, &attknum,
+                                   &armorpenalty);
+
+        /* kicking boots improve accuracy */
+        if (uarmf && uarmf->otyp == KICKING_BOOTS)
+            tmp += 3;
+        /* centaurs are natural kickers */
+        if (maybe_polyd(is_centaur(youmonst.data), Race_if(PM_CENTAUR)))
+            tmp += 2;
+        /* giants have powerful legs */
+        if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
+            tmp += 1;
+
+        /* clumsy kicks are less accurate */
+        if (clumsy)
+            tmp -= 2;
+
+        kickdieroll = rnd(20);
+
+        if (tmp <= kickdieroll) {
+            /* missed */
+            Your("kick misses %s.", mon_nam(mon));
+            (void) passive(mon, uarmf, FALSE, 1, AT_KICK, FALSE);
+            return;
+        }
+    }
+
     if (Role_if(PM_MONK) || Role_if(PM_SAMURAI))
         You("%s %s!", martial_arts_kick[rn2(SIZE(martial_arts_kick))],
             mon_nam(mon));
