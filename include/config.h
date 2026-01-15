@@ -603,7 +603,7 @@ typedef unsigned char uchar;
 #ifdef DUMPHTML
 
 #ifndef DUMPHTML_FILE
-#define DUMPHTML_FILE        "/tmp/nethack.%n.%d.html"
+#define DUMPHTML_FILE        "/tmp/evilhack.%n.%d.html"
 /* Placeholders as above
  * DUMPHTML_FILE is not used if SYSCF is defiined
  */

@@ -881,7 +881,6 @@ const char *string UNUSED;
 
 #endif /* HANGUPHANDLING */
 
-
 /****************************************************************************/
 /* genl backward compat stuff                                               */
 /****************************************************************************/
@@ -1274,7 +1273,7 @@ boolean fullsubs; /* True -> full substitution for file name, False ->
 #define BLNK_S "<i>"
 #define BLNK_E "</i>"
 #define SPAN_E "</span>"
-#define LINEBREAK "<br />"
+#define LINEBREAK "<br>"
 
 /** HTML putstr() handling **/
 
@@ -1369,7 +1368,7 @@ char c;
             fprintf(fp, "&#39;");
             break;
         case '\n':
-            fprintf(fp, "<br />\n");
+            fprintf(fp, "<br>\n");
             break;
         default:
             fprintf(fp, "%c", c);
@@ -1914,14 +1913,14 @@ dump_headers()
         return;
 
     fprintf(dumphtml_file, "<!DOCTYPE html>\n");
-    fprintf(dumphtml_file, "<head>\n");
-    fprintf(dumphtml_file, "<title>EvilHack %s (%s)</title>\n",  version_string(vers), plname);
-    fprintf(dumphtml_file, "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\n");
-    fprintf(dumphtml_file, "<meta name=\"generator\" content=\"EvilHack %s (%s)\" />\n", vers, plname);
-    fprintf(dumphtml_file, "<meta name=\"date\" content=\"%s\" />\n", iso8601);
-    fprintf(dumphtml_file, "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n");
-    fprintf(dumphtml_file, "<link href=\"https://cdn.jsdelivr.net/gh/maxwell-k/dejavu-sans-mono-web-font@2.37/index.css\" title=\"Default\" rel=\"stylesheet\" type=\"text/css\" media=\"all\" />\n");
-    fprintf(dumphtml_file, "<style type=\"text/css\">\n");
+    fprintf(dumphtml_file, "<html lang=\"en\">\n<head>\n");
+    fprintf(dumphtml_file, "<meta charset=\"utf-8\">\n");
+    fprintf(dumphtml_file, "<title>EvilHack %s (%s)</title>\n", version_string(vers), plname);
+    fprintf(dumphtml_file, "<meta name=\"generator\" content=\"EvilHack %s\">\n", vers);
+    fprintf(dumphtml_file, "<meta name=\"date\" content=\"%s\">\n", iso8601);
+    fprintf(dumphtml_file, "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
+    fprintf(dumphtml_file, "<link href=\"https://fonts.cdnfonts.com/css/dejavu-sans-mono\" rel=\"stylesheet\">\n");
+    fprintf(dumphtml_file, "<style>\n");
     dump_css();
     fprintf(dumphtml_file, "</style>\n</head>\n<body>\n");
 
