@@ -4962,4 +4962,5 @@ The following changes to date are:
   the Astral Plane
 - Fix: add AC check and to-hit bonuses for player kicks vs monsters
 - Modernize HTML dumplog output to HTML5 standards
+- Fix: support monster casters no range limit
 

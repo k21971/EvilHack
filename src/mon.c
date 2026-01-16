@@ -5617,6 +5617,9 @@ struct monst *mtmp;
                 continue;
             if (!m_cansee(mtmp, mon->mx, mon->my)) /* target can't be seen */
                 continue;
+            if (dist2(mtmp->mx, mtmp->my, mon->mx, mon->my)
+                > BOLT_LIM * BOLT_LIM) /* target is out of spell range */
+                continue;
             if (mtmp->mpeaceful && !mon->mpeaceful) /* peaceful/not peaceful mismatch */
                 continue;
             if (!mtmp->mpeaceful && mon->mpeaceful) /* peaceful/not peaceful mismatch */
