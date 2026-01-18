@@ -291,11 +291,7 @@ curses_character_input_dialog(const char *prompt, const char *choices,
 
     curs_set(1);
     while (1) {
-#ifdef PDCURSES
-        answer = wgetch(message_window);
-#else
-        answer = getch();
-#endif
+        answer = curses_getch();
         if (answer == ERR) {
             answer = def;
             break;
@@ -429,7 +425,7 @@ curses_ext_cmd()
 
         curs_set(1);
         wrefresh(extwin);
-        letter = getch();
+        letter = curses_getch();
         curs_set(0);
         prompt_width = (int) strlen(cur_choice);
         matches = 0;
@@ -1301,7 +1297,7 @@ menu_get_selections(WINDOW * win, nhmenu *menu, int how)
     menu_display_page(menu, win, curpage, selectors);
 
     while (!dismiss) {
-        curletter = getch();
+        curletter = curses_getch();
 
         if (curletter == ERR) {
             num_selected = -1;
@@ -1353,7 +1349,7 @@ menu_get_selections(WINDOW * win, nhmenu *menu, int how)
                 count = curses_get_count(curletter - '0');
                 touchwin(win);
                 refresh();
-                curletter = getch();
+                curletter = curses_getch();
                 if (count > 0) {
                     count_letter = curletter;
                 }

@@ -218,7 +218,7 @@ curses_block(boolean noscroll) /* noscroll - blocking because of msgtype
         curses_alert_main_borders(TRUE);
         wrefresh(win);
     }
-    while (iflags.msg_is_alert && (ret = wgetch(win) != '\t'));
+    while (iflags.msg_is_alert && (ret = curses_getch() != '\t'));
     curses_alert_main_borders(FALSE);
     wrefresh(win);
 
@@ -228,7 +228,7 @@ curses_block(boolean noscroll) /* noscroll - blocking because of msgtype
     oldcrsr = curs_set(1);
     do {
         if (iflags.msg_is_alert) break;
-        ret = wgetch(win);
+        ret = curses_getch();
         if (ret == ERR || ret == '\0')
             ret = '\n';
         /* msgtype=stop should require space/enter rather than any key,
@@ -255,7 +255,6 @@ curses_more()
     return curses_block(FALSE);
 }
 
-
 /* Clear the message window if one line; otherwise unhighlight old messages */
 
 void
@@ -281,7 +280,6 @@ curses_clear_unhighlight_message_window()
     }
     wmove(win, my, mx);
 }
-
 
 /* Reset message window cursor to starting position, and display most
    recent messages. */
@@ -327,7 +325,6 @@ curses_last_messages()
         box(win, 0, 0);
     wrefresh(win);
 }
-
 
 /* Initialize list for message history */
 
@@ -398,7 +395,6 @@ curses_prev_mesg()
         free((genericptr_t) selected);
     curses_del_wid(wid);
 }
-
 
 /* Display at the bottom of the message window without remembering the
    line for ^P recall.  Used for putstr(WIN_MESSAGE,ATR_NOHISTORY,text)
@@ -599,11 +595,7 @@ curses_message_win_getline(const char *prompt, char *answer, int buffer)
         curs_set(1);
         wrefresh(win);
         curses_got_input(); /* despite its name, before rather than after... */
-#ifdef PDCURSES
-        ch = wgetch(win);
-#else
-        ch = getch();
-#endif
+        ch = curses_getch();
         curs_set(0);
 
         if (erase_char && ch == (int) (uchar) erase_char) {
@@ -757,7 +749,6 @@ directional_scroll(winid wid, int nlines)
     wrefresh(win);
 }
 
-
 /* Add given line to message history */
 
 static void
@@ -812,7 +803,6 @@ mesg_add_line(const char *mline)
        become 'last_mesg', this update must be after head replacement */
     last_mesg->next_mesg = NULL; /* tail has no next_mesg */
 }
-
 
 /* Returns specified line from message history, or NULL if out of bounds */
 

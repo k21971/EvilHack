@@ -4963,4 +4963,5 @@ The following changes to date are:
 - Fix: add AC check and to-hit bonuses for player kicks vs monsters
 - Modernize HTML dumplog output to HTML5 standards
 - Fix: support monster casters no range limit
+- Add debug_fuzzer support to curses interface
 

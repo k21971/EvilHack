@@ -34,6 +34,16 @@ static int parse_escape_sequence(void);
 # define C(c)           (0x1f & (c))
 #endif
 
+/* Wrapper for getch() that supports debug_fuzzer mode.
+   Use this instead of raw getch() throughout curses code. */
+
+int
+curses_getch()
+{
+    if (iflags.debug_fuzzer)
+        return randomkey();
+    return getch();
+}
 
 /* Read a character of input from the user */
 
@@ -48,7 +58,7 @@ curses_read_char()
     /* cancel message suppression; all messages have had a chance to be read */
     curses_got_input();
 
-    ch = getch();
+    ch = curses_getch();
 #if defined(ALT_0) || defined(ALT_9) || defined(ALT_A) || defined(ALT_Z)
     tmpch = ch;
 #endif
@@ -184,7 +194,6 @@ curses_menu_color_attr(WINDOW *win, int color, int attr, int onoff)
     iflags.wc2_guicolor = save_guicolor;
 }
 
-
 /* clean up and quit - taken from tty port */
 
 void
@@ -194,7 +203,6 @@ curses_bail(const char *mesg)
     curses_exit_nhwindows(mesg);
     nh_terminate(EXIT_SUCCESS);
 }
-
 
 /* Return a winid for a new window of the given type */
 
@@ -239,7 +247,6 @@ curses_get_wid(int type)
     return ret;
 }
 
-
 /*
  * Allocate a copy of the given string.  If null, return a string of
  * zero length.
@@ -254,7 +261,6 @@ curses_copy_of(const char *s)
         s = "";
     return dupstr(s);
 }
-
 
 /* Determine the number of lines needed for a string for a dialog window
    of the given width */
@@ -291,7 +297,6 @@ curses_num_lines(const char *str, int width)
 
     return curline;
 }
-
 
 /* Break string into smaller lines to fit into a dialog window of the
 given width */
@@ -365,7 +370,6 @@ curses_break_str(const char *str, int width, int line_num)
     return retstr;
 }
 
-
 /* Return the remaining portion of a string after hacking-off line_num lines */
 
 char *
@@ -431,7 +435,6 @@ curses_str_remainder(const char *str, int width, int line_num)
     return retstr;
 }
 
-
 /* Determine if the given NetHack winid is a menu window */
 
 boolean
@@ -443,7 +446,6 @@ curses_is_menu(winid wid)
         return FALSE;
     }
 }
-
 
 /* Determine if the given NetHack winid is a text window */
 
@@ -577,7 +579,6 @@ curses_convert_glyph(int ch, int glyph)
     return ch;
 }
 
-
 /* Move text cursor to specified coordinates in the given NetHack window */
 
 void
@@ -654,7 +655,6 @@ curses_prehousekeeping()
     }
 }
 
-
 /* Perform actions that should be done every turn after nhgetch() */
 
 void
@@ -664,7 +664,6 @@ curses_posthousekeeping()
     /* curses_decrement_highlights(FALSE); */
     curses_clear_unhighlight_message_window();
 }
-
 
 void
 curses_view_file(const char *filename, boolean must_exist)
@@ -695,7 +694,6 @@ curses_view_file(const char *filename, boolean must_exist)
     curses_del_wid(wid);
 }
 
-
 void
 curses_rtrim(char *str)
 {
@@ -710,7 +708,6 @@ curses_rtrim(char *str)
     else
         *(++s) = '\0';
 }
-
 
 /* Read numbers until non-digit is encountered, and return number
 in int form. */
@@ -741,7 +738,6 @@ curses_get_count(int first_digit)
 
     return current_count;
 }
-
 
 /* Convert the given NetHack text attributes into the format curses
    understands, and return that format mask. */
@@ -780,7 +776,6 @@ curses_convert_attr(int attr)
 
     return curses_attr;
 }
-
 
 /* Map letter attributes from a string to bitmask.  Return mask on
    success (might be 0), or -1 if not found. */
@@ -1067,13 +1062,13 @@ parse_escape_sequence(void)
 
     timeout(10);
 
-    ret = getch();
+    ret = curses_getch();
 
     if (ret != ERR) {           /* Likely an escape sequence */
         if (((ret >= 'a') && (ret <= 'z')) || ((ret >= '0') && (ret <= '9'))) {
             ret |= 0x80;        /* Meta key support for most terminals */
         } else if (ret == 'O') {        /* Numeric keypad */
-            ret = getch();
+            ret = curses_getch();
             if ((ret != ERR) && (ret >= 112) && (ret <= 121)) {
                 ret = ret - 112 + '0';  /* Convert to number */
             } else {

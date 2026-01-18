@@ -208,7 +208,7 @@ curses_init_nhwindows(int *argcp UNUSED,
     PDC_set_title(window_title);
     PDC_set_blink(TRUE);        /* Only if the user asks for it! */
     timeout(1);
-    (void) getch();
+    (void) curses_getch();
     timeout(-1);
 #endif /* PDCURSES */
     getmaxyx(base_term, term_rows, term_cols);
@@ -240,7 +240,6 @@ curses_player_selection()
     curses_choose_character();
 }
 
-
 /* Ask the user for a player name. */
 void
 curses_askname()
@@ -261,7 +260,6 @@ curses_askname()
     plname[0] = '\0';
     curses_line_input_dialog("Who are you?", plname, PL_NSIZ);
 }
-
 
 /* Does window event processing (e.g. exposure events).
    A noop for the tty and X window-ports.
@@ -335,7 +333,6 @@ curses_suspend_nhwindows(const char *str UNUSED)
     endwin();
 }
 
-
 /* Restore the windows after being suspended. */
 void
 curses_resume_nhwindows()
@@ -362,7 +359,6 @@ curses_create_nhwindow(int type)
 
     return wid;
 }
-
 
 /* Clear the given window, when asked to. */
 void
@@ -415,7 +411,6 @@ curses_display_nhwindow(winid wid, BOOLEAN_P block)
         (void) curses_block(TRUE);
     }
 }
-
 
 /* Destroy will dismiss the window if the window has not
  * already been dismissed.
@@ -891,7 +886,6 @@ curses_get_ext_cmd()
 {
     return curses_ext_cmd();
 }
-
 
 /*
 number_pad(state)
