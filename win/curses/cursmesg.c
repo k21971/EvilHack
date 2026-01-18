@@ -7,6 +7,7 @@
 #include "hack.h"
 #include "wincurs.h"
 #include "cursmesg.h"
+#include "cursmisc.h"
 #include <ctype.h>
 
 /* defined in sys/<foo>/<foo>tty.c or cursmain.c as last resort;

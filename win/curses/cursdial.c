@@ -7,6 +7,7 @@
 #include "hack.h"
 #include "wincurs.h"
 #include "cursdial.h"
+#include "cursmisc.h"
 #include "func_tab.h"
 #include <ctype.h>
 

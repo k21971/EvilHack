@@ -4964,4 +4964,5 @@ The following changes to date are:
 - Modernize HTML dumplog output to HTML5 standards
 - Fix: support monster casters no range limit
 - Add debug_fuzzer support to curses interface
+- Fix: add missing cursmisc.h includes for curses_getch() declaration
 
