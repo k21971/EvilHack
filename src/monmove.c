@@ -1796,10 +1796,12 @@ found_altar:
         }
     }
 
-    /* don't tunnel if hostile and close enough to prefer a weapon */
+    /* don't tunnel if hostile and close enough to prefer a weapon,
+       unless the player is in terrain that requires digging to reach */
     if (can_tunnel && racial_needspick(mtmp)
         && ((!mtmp->mpeaceful || Conflict)
-            && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 8))
+            && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 8)
+        && accessible(mtmp->mux, mtmp->muy))
         can_tunnel = FALSE;
 
     nix = omx;
@@ -1869,8 +1871,12 @@ found_altar:
             boolean use_escape_pf = (mon_has_amulet(mtmp)
                                      && mon_uses_pathfinding(mtmp)
                                      && gx && gy);
+            /* Don't use pathfinding if target is in inaccessible terrain
+               (like rock) - the BFS can't find a path there, so greedy
+               movement works better for tunneling monsters */
             boolean use_pathfinding = (!use_escape_pf && appr == 1
-                                       && mon_uses_pathfinding(mtmp));
+                                       && mon_uses_pathfinding(mtmp)
+                                       && accessible(gx, gy));
             short cur_pfdist = PATHFIND_UNREACHABLE;
 
             if (use_escape_pf) {

@@ -3088,6 +3088,16 @@ struct monst *mtmp;
 {
     struct permonst *ptr = mtmp->data;
 
+    /* Phasing monsters don't need pathfinding, they can pass through
+       walls directly via greedy movement */
+    if (passes_walls(ptr))
+        return FALSE;
+
+    /* Innate tunnelers (rock moles, umber hulks) don't need
+       pathfinding - they can dig through any diggable terrain */
+    if (tunnels(ptr) && !needspick(ptr))
+        return FALSE;
+
     return !mindless(ptr) && !is_animal(ptr);
 }
 

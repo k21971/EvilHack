@@ -4965,4 +4965,5 @@ The following changes to date are:
 - Fix: support monster casters no range limit
 - Add debug_fuzzer support to curses interface
 - Fix: add missing cursmisc.h includes for curses_getch() declaration
+- Fix: various issues with pathfinding and digging/phasing monsters
 
