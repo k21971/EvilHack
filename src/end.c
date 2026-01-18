@@ -1791,7 +1791,9 @@ int how;
             /* precaution in case any late update_inventory() calls occur */
             iflags.perm_invent = 0;
         }
-        display_nhwindow(WIN_MESSAGE, TRUE);
+        /* don't block for a final --More-- prompt; all important messages
+           have already been seen through the disclosure prompts */
+        display_nhwindow(WIN_MESSAGE, FALSE);
         destroy_nhwindow(WIN_MAP),  WIN_MAP = WIN_ERR;
         if (WIN_STATUS != WIN_ERR)
             destroy_nhwindow(WIN_STATUS),  WIN_STATUS = WIN_ERR;

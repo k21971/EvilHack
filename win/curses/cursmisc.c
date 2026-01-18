@@ -291,7 +291,8 @@ curses_num_lines(const char *str, int width)
             tmpstr[count - (last_space + 1)] = substr[count];
         }
         tmpstr[count - (last_space + 1)] = '\0';
-        strcpy(substr, tmpstr);
+        /* Use memmove for explicit bounds safety */
+        memmove(substr, tmpstr, strlen(tmpstr) + 1);
         curline++;
     }
 
@@ -358,7 +359,8 @@ curses_break_str(const char *str, int width, int line_num)
             tmpstr[count - (last_space + 1)] = substr[count];
         }
         tmpstr[count - (last_space + 1)] = '\0';
-        strcpy(substr, tmpstr);
+        /* Use memmove for explicit bounds safety */
+        memmove(substr, tmpstr, strlen(tmpstr) + 1);
     }
 
     if (curline < line_num) {
@@ -423,7 +425,8 @@ curses_str_remainder(const char *str, int width, int line_num)
             tmpstr[count - (last_space + 1)] = substr[count];
         }
         tmpstr[count - (last_space + 1)] = '\0';
-        strcpy(substr, tmpstr);
+        /* Use memmove for explicit bounds safety */
+        memmove(substr, tmpstr, strlen(tmpstr) + 1);
     }
 
     if (curline < line_num) {

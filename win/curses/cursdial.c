@@ -1080,6 +1080,7 @@ menu_display_page(nhmenu *menu, WINDOW * win, int page_num, char *selectors)
 {
     nhmenu_item *menu_item_ptr;
     int count, curletter, entry_cols, start_col, num_lines;
+    int bracket_color;  /* programmatic color for text inside [] only */
     char *tmpstr;
     boolean first_accel = TRUE;
     int color = NO_COLOR, attr = A_NORMAL;
@@ -1180,8 +1181,7 @@ menu_display_page(nhmenu *menu, WINDOW * win, int page_num, char *selectors)
         menu_color = iflags.use_menu_color
                      && get_menu_coloring(menu_item_ptr->str, &color, &attr);
 
-        /* bracket_color: programmatic color for text inside [] only */
-        int bracket_color = NO_COLOR;
+        bracket_color = NO_COLOR;
         if (!menu_color && menu_item_ptr->color != NO_COLOR)
             bracket_color = menu_item_ptr->color;
 

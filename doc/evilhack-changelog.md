@@ -4966,4 +4966,5 @@ The following changes to date are:
 - Add debug_fuzzer support to curses interface
 - Fix: add missing cursmisc.h includes for curses_getch() declaration
 - Fix: various issues with pathfinding and digging/phasing monsters
+- Fix: minor curses interface issues and remove extra exit prompt
 

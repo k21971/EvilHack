@@ -143,7 +143,6 @@ curses_create_window(int width, int height, orient orientation)
     return win;
 }
 
-
 /* Erase and delete curses window, and refresh standard windows */
 
 void
@@ -155,8 +154,11 @@ curses_destroy_win(WINDOW *win)
     curses_refresh_nethack_windows();
 }
 
-
-/* Refresh nethack windows if they exist, or base window if not */
+/* Refresh nethack windows if they exist, or base window if not. Uses
+   touchwin() to force redraw - this is needed because this function is
+   called after overlay windows (menus, dialogs) are closed, and the
+   content underneath needs to be restored. While touchwin() has
+   overhead, it's necessary for correct display after overlays */
 
 void
 curses_refresh_nethack_windows()
@@ -193,7 +195,6 @@ curses_refresh_nethack_windows()
     }
 }
 
-
 /* Return curses window pointer for given NetHack winid */
 
 WINDOW *
@@ -207,7 +208,6 @@ curses_get_nhwin(winid wid)
 
     return nhwins[wid].curwin;
 }
-
 
 /* Add curses window pointer and window info to list for given NetHack winid */
 
@@ -266,7 +266,6 @@ curses_add_nhwin(winid wid, int height, int width, int y, int x,
     nhwins[wid].curwin = win;
 }
 
-
 /* Add wid to list of known window IDs */
 
 void
@@ -292,7 +291,6 @@ curses_add_wid(winid wid)
     }
 }
 
-
 /* refresh a curses window via given nethack winid */
 
 void
@@ -301,7 +299,6 @@ curses_refresh_nhwin(winid wid)
     wnoutrefresh(curses_get_nhwin(wid));
     doupdate();
 }
-
 
 /* Delete curses window via given NetHack winid and remove entry from list */
 
@@ -324,7 +321,6 @@ curses_del_nhwin(winid wid)
     nhwins[wid].curwin = NULL;
     nhwins[wid].nhwin = -1;
 }
-
 
 /* Delete wid from list of known window IDs */
 
@@ -408,7 +404,6 @@ curses_putch(winid wid, int x, int y, int ch, int color, int attr)
     /* wrefresh(mapwin); */
 }
 
-
 /* Get x, y coordinates of curses window on the physical terminal window */
 
 void
@@ -427,7 +422,6 @@ curses_get_window_xy(winid wid, int *x, int *y)
     *y = nhwins[wid].y;
 }
 
-
 /* Get usable width and height curses window on the physical terminal window */
 
 void
@@ -437,7 +431,6 @@ curses_get_window_size(winid wid, int *height, int *width)
     *width = nhwins[wid].width;
 }
 
-
 /* Determine if given window has a visible border */
 
 boolean
@@ -445,7 +438,6 @@ curses_window_has_border(winid wid)
 {
     return nhwins[wid].border;
 }
-
 
 /* Determine if window for given winid exists */
 
@@ -461,7 +453,6 @@ curses_window_exists(winid wid)
     return FALSE;
 }
 
-
 /* Return the orientation of the specified window */
 
 int
@@ -476,7 +467,6 @@ curses_get_window_orientation(winid wid)
 
     return nhwins[wid].orientation;
 }
-
 
 /* Output a line of text to specified NetHack window with given coordinates
    and text attributes */
@@ -522,7 +512,6 @@ curses_puts(winid wid, int attr, const char *text)
     }
 }
 
-
 /* Clear the contents of a window via the given NetHack winid */
 
 void
@@ -559,7 +548,6 @@ curses_alert_win_border(winid wid, boolean onoff)
     wnoutrefresh(win);
 }
 
-
 void
 curses_alert_main_borders(boolean onoff)
 {
@@ -581,7 +569,6 @@ is_main_window(winid wid)
     return FALSE;
 }
 
-
 /* Unconditionally write a single character to a window at the given
 coordinates without a refresh.  Currently only used for the map. */
 
@@ -596,7 +583,6 @@ write_char(WINDOW * win, int x, int y, nethack_char nch)
 #endif
     curses_toggle_color_attr(win, nch.color, nch.attr, OFF);
 }
-
 
 /* Draw the entire visible map onto the screen given the visible map
 boundaries */
@@ -684,7 +670,6 @@ curses_draw_map(int sx, int sy, int ex, int ey)
     }
 }
 
-
 /* Init map array to blanks */
 
 static void
@@ -700,7 +685,6 @@ clear_map()
         }
     }
 }
-
 
 /* Determine visible boundaries of map, and determine if it needs to be
 based on the location of the player. */
