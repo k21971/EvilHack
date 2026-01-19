@@ -127,7 +127,13 @@ boolean incl_helpless;
         kname = an(kname);
         /*FALLTHRU*/
     case KILLED_BY:
-        (void) strncat(buf, killed_by_prefix[how], siz - 1);
+        /* undead players are "destroyed by" not "killed by" */
+        if ((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+            && (how == DIED || how == GENOCIDED)) {
+            (void) strncat(buf, "destroyed by ", siz - 1);
+        } else {
+            (void) strncat(buf, killed_by_prefix[how], siz - 1);
+        }
         l = strlen(buf);
         buf += l, siz -= l;
         break;

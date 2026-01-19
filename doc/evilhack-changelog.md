@@ -4969,4 +4969,5 @@ The following changes to date are:
 - Fix: minor curses interface issues and remove extra exit prompt
 - Fix: light source orphaned when throwing lit object up while over open
   air
+- Undead player races use 'destroyed' instead of 'die' in death messages
 

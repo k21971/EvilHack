@@ -536,7 +536,9 @@ int how;
             mimicker = (M_AP_TYPE(mtmp) == M_AP_MONSTER),
             imitator = (mptr != champtr || mimicker);
 
-    You((how == STONING) ? "turn to stone..." : "die...");
+    You((how == STONING) ? "turn to stone..."
+        : (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)) ? "have been destroyed..."
+        : "die...");
     mark_synch(); /* flush buffered screen output */
     buf[0] = '\0';
     killer.format = KILLED_BY_AN;
@@ -1105,7 +1107,9 @@ int how;
     if ((Sick & TIMEOUT) == 1L) {
         make_sick(0L, (char *) 0, FALSE, SICK_ALL);
     }
-    nomovemsg = "You survived that attempt on your life.";
+    nomovemsg = (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                ? "You survived that attempt to destroy you."
+                : "You survived that attempt on your life.";
     context.move = 0;
 
     multi = -1; /* can't move again during the current turn */
@@ -1506,12 +1510,15 @@ int how;
 
     /* explore and wizard modes offer player the option to keep playing */
     if (!survive && (wizard || discover) && how <= GENOCIDED
-        && !paranoid_query(ParanoidDie, "Die?")) {
-        pline("OK, so you don't %s.",
-              (how == CHOKING) ? "choke"
-                : (how == DECAPITATED) ? "lose your head"
-                    : (how == STONING) ? "turn to stone"
-                        : "die");
+        && !paranoid_query(ParanoidDie,
+                           (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                           ? "Destroyed?" : "Die?")) {
+        pline("OK, so you %s.",
+              (how == CHOKING) ? "don't choke"
+                : (how == DECAPITATED) ? "don't lose your head"
+                    : (how == STONING) ? "don't turn to stone"
+                        : (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
+                            ? "aren't destroyed" : "don't die");
         iflags.last_msg = PLNMSG_OK_DONT_DIE;
         savelife(how);
         ukiller = (struct monst*) 0;
