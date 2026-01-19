@@ -1312,10 +1312,10 @@ boolean hitsroof;
             exercise(A_CON, FALSE);
         }
         if (is_open_air(bhitpos.x, bhitpos.y)) {
-            /* Special handling for iron ball - it needs to be placed
-               even on open air so it can pull the player down */
-            if (obj == uball)
-                hitfloor(obj, TRUE);  /* Place the ball properly */
+            /* All objects need hitfloor() to be properly handled.
+               For uball, this places it (for the pulling mechanic).
+               For other objects, flooreffects() destroys them */
+            hitfloor(obj, TRUE);
             thrownobj = 0;
             losehp(dmg, "falling object", KILLED_BY_AN);
             return FALSE;

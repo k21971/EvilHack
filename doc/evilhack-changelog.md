@@ -4967,4 +4967,6 @@ The following changes to date are:
 - Fix: add missing cursmisc.h includes for curses_getch() declaration
 - Fix: various issues with pathfinding and digging/phasing monsters
 - Fix: minor curses interface issues and remove extra exit prompt
+- Fix: light source orphaned when throwing lit object up while over open
+  air
 
