@@ -288,14 +288,14 @@ struct monst {
 
 /* Get the maximum difficulty monsters that can currently be
    generated, given the current level difficulty and the hero's
-   level. However, once the Wizard of Yendor has been killed,
-   all bets are off. */
+   level. However, once the Wizard of Yendor has been killed or
+   the invocation has been performed, all bets are off */
 #define monmax_difficulty(levdif) \
     (u.uevent.udemigod ? 256 : (((levdif) + u.ulevel) / 2))
 #define monmin_difficulty(levdif) ((levdif) / 6)
 
-/* Macros for whether a type of monster is too strong for a specific
-   level. */
+/* Macros for whether a type of monster is too strong for a
+   specific level */
 #define montoostrong(monindx, lev) (mons[monindx].difficulty > lev)
 #define montooweak(monindx, lev) (mons[monindx].difficulty < lev)
 

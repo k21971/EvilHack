@@ -4970,4 +4970,5 @@ The following changes to date are:
 - Fix: light source orphaned when throwing lit object up while over open
   air
 - Undead player races use 'destroyed' instead of 'die' in death messages
+- Fix: comment concerning unbound monster difficulty generation
 
