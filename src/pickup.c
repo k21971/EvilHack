@@ -3846,6 +3846,7 @@ boolean *cancelled;
     struct obj dummyobj, *otmp;
     boolean hands_available = TRUE, exclude_it;
     char qbuf[QBUFSZ];
+    char qsfx[QBUFSZ];
     char c;
 
 #if 0   /* [skip potential early return so that menu response is needed
@@ -3940,7 +3941,6 @@ boolean *cancelled;
             /* else pick-from-invent below */
         } else {
             if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ)) {
-                char qsfx[QBUFSZ];
                 Sprintf(qbuf, "There is ");
                 Sprintf(qsfx, " here; tip into it?");
                 (void) safe_qbuf(qbuf, qbuf, qsfx, mchest, doname,
@@ -3957,7 +3957,6 @@ boolean *cancelled;
                         && objects[otmp->otyp].oc_name_known))
                     continue;
 
-                char qsfx[QBUFSZ];
                 Sprintf(qbuf, "There is ");
                 Sprintf(qsfx, " here; tip into it?");
                 (void) safe_qbuf(qbuf, qbuf, qsfx, otmp, doname,

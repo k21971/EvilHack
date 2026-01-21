@@ -2214,6 +2214,7 @@ struct monst *mtmp;
 {
     struct obj *obj, *best = (struct obj *) 0;
     int best_priority = -1;
+    int priority;
 
     for (obj = mtmp->minvent; obj; obj = obj->nobj) {
         /* Only consider items that:
@@ -2273,7 +2274,7 @@ struct monst *mtmp;
             continue;
 
         /* Get priority of this item */
-        int priority = charge_precedence(obj->otyp);
+        priority = charge_precedence(obj->otyp);
 
         if (priority > best_priority) {
             best = obj;

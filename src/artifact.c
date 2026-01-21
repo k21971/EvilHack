@@ -1506,8 +1506,9 @@ int tmp;
 {
     register const struct artifact *weap = get_artifact(otmp);
     boolean yours = (mon == &youmonst);
-    spec_dbon_applies = FALSE;
     int dbon = 0, adtype;
+
+    spec_dbon_applies = FALSE;
 
     if (!weap && otmp->oprops
         && (otmp->oclass == WEAPON_CLASS

@@ -1341,7 +1341,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     char buf[BUFSZ];
     char saved_oname[BUFSZ];
     struct permonst *pa = magr->data, *pd = mdef->data;
-    int armpro, num,
+    int armpro, num, inv_tmp,
         tmp = d((int) mattk->damn, (int) mattk->damd),
         res = MM_MISS;
     boolean cancelled, lightobj = FALSE,
@@ -2278,7 +2278,7 @@ post_stone:
         if (magr->mcan)
             break;
         /* find an object to steal, non-cursed if magr is tame */
-        int inv_tmp = 0;
+        inv_tmp = 0;
         for (obj = mdef->minvent; obj; obj = obj->nobj) {
             if (!magr->mtame || !obj->cursed)
                 ++inv_tmp;
@@ -3165,11 +3165,12 @@ struct obj *mwep;
     char buf[BUFSZ];
     int i, tmp;
     struct attack *mdattk;
-    mdattk = has_erac(mdef) ? ERAC(mdef)->mattk : mddat->mattk;
-
-    boolean mon_tempest_wield = (MON_WEP(mdef)
-                                 && MON_WEP(mdef)->oartifact == ART_TEMPEST);
+    boolean mon_tempest_wield;
     struct obj *passive_armor;
+
+    mdattk = has_erac(mdef) ? ERAC(mdef)->mattk : mddat->mattk;
+    mon_tempest_wield = (MON_WEP(mdef)
+                         && MON_WEP(mdef)->oartifact == ART_TEMPEST);
 
     if ((passive_armor = which_armor(mdef, W_ARM))) {
         if (mhit && !rn2(3)

@@ -134,6 +134,7 @@ boolean resuming;
 #endif
     int moveamt = 0, wtcap = 0, change = 0;
     boolean monscanmove = FALSE;
+    struct obj *was_shield;
 
     /* don't make it obvious when monsters will start speeding up */
     int timeout_start = rnd(10000) + 25000;
@@ -895,7 +896,6 @@ boolean resuming;
             (void) Gloves_off();
             /* any wielded/worn objects are forced to drop,
                even if cursed */
-            struct obj *was_shield;
             if (u.twoweap) {
                 Your("%s and %s are forced from your %s!",
                      simpleonames(uwep), simpleonames(uswapwep),

@@ -4826,6 +4826,8 @@ boolean wep_was_destroyed;
     struct permonst *ptr = mon->data;
     register int i, t, tmp;
     struct attack *mattk;
+    struct obj *passive_armor;
+
     mattk = has_erac(mon) ? ERAC(mon)->mattk : ptr->mattk;
 
     if (maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE))
@@ -5236,7 +5238,6 @@ boolean wep_was_destroyed;
         }
     }
 
-    struct obj *passive_armor;
     /* Humanoid monsters wearing various dragon-scaled armor */
     if ((passive_armor = which_armor(mon, W_ARM))) {
         t = rnd(6) + 1;

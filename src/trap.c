@@ -2577,9 +2577,10 @@ struct monst *mtmp;
 {
     struct trap *trap = t_at(mtmp->mx, mtmp->my);
     boolean trapkilled = FALSE;
+    boolean isrider;
     struct permonst *mptr = mtmp->data;
     struct obj *otmp;
-    struct monst* mtmp2;
+    struct monst *mtmp2, *spear_target;
 
     if (!trap) {
         mtmp->mtrapped = 0;      /* perhaps teleported? */
@@ -3301,10 +3302,9 @@ struct monst *mtmp;
                 seetrap(trap);
                 pline("A spear stabs up from a hole in the ground!");
             }
-            boolean isrider = has_erid(mtmp);
+            isrider = has_erid(mtmp);
             /* spear hits steed if mtmp is riding one */
-            struct monst *spear_target = isrider ? ERID(mtmp)->mon_steed
-                                                 : mtmp;
+            spear_target = isrider ? ERID(mtmp)->mon_steed : mtmp;
             /* update steed position, if it exists, since it might die */
             spear_target->mx = mtmp->mx;
             spear_target->my = mtmp->my;

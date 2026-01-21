@@ -759,6 +759,7 @@ peffects(otmp)
 struct obj *otmp;
 {
     register int i, ii, lim;
+    int num_levels;
     struct monst *mtmp;
 
     switch (otmp->otyp) {
@@ -794,7 +795,7 @@ struct obj *otmp;
                the spell or with a unihorn; this is better than full healing
                in that it can restore all of them, not just half, and a
                blessed potion restores several (3-5) */
-            int num_levels = rn1(3, 3);
+            num_levels = rn1(3, 3);
             if (otmp->otyp == POT_RESTORE_ABILITY && u.ulevel < u.ulevelmax) {
                 do {
                     pluslvl(FALSE);

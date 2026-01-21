@@ -1117,6 +1117,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             scursed = sobj->cursed, already_known, old_erodeproof,
             new_erodeproof;
     struct obj *otmp = (struct obj *) 0;
+    aligntyp deity;
 
     if (objects[otyp].oc_magic)
         exercise(A_WIS, TRUE);                       /* just for trying */
@@ -2187,8 +2188,6 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             break;
         }
 
-        aligntyp deity;
-
         if (confused || sobj->cursed || In_hell(&u.uz))
             deity = A_NONE;
         else
@@ -2507,6 +2506,7 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
     struct monst *mtmp;
     boolean blessed_effect = (obj && obj->oclass == SCROLL_CLASS
                               && obj->blessed);
+    boolean lamp, staff, armor;
     char is_lit = 0; /* value is irrelevant but assign something anyway; its
                       * address is used as a 'not null' flag for set_lit() */
     boolean you = (x == u.ux && y == u.uy);
@@ -2522,11 +2522,11 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
         if (!mon || (distu(x,y) <= 25 && clear_path(x, y, u.ux, u.uy))) {
             for (otmp = invent; otmp; otmp = nextobj) {
                 nextobj = otmp->nobj;
-                boolean lamp = (otmp->otyp == MAGIC_LAMP && otmp->cursed);
-                boolean staff = (otmp->oartifact == ART_STAFF_OF_THE_ARCHMAGI
-                                 && !Upolyd && Race_if(PM_DROW));
-                boolean armor = (Is_dragon_armor(otmp)
-                                 && Dragon_armor_to_scales(otmp) == SHADOW_DRAGON_SCALES);
+                lamp = (otmp->otyp == MAGIC_LAMP && otmp->cursed);
+                staff = (otmp->oartifact == ART_STAFF_OF_THE_ARCHMAGI
+                         && !Upolyd && Race_if(PM_DROW));
+                armor = (Is_dragon_armor(otmp)
+                         && Dragon_armor_to_scales(otmp) == SHADOW_DRAGON_SCALES);
 
                 if (otmp->lamplit) {
                     if (lamp || staff || armor) {
@@ -2579,11 +2579,11 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
                magic lamps (darkness) */
             for (otmp = invent; otmp; otmp = nextobj) {
                 nextobj = otmp->nobj;
-                boolean lamp = (otmp->otyp == MAGIC_LAMP && otmp->cursed);
-                boolean staff = (otmp->oartifact == ART_STAFF_OF_THE_ARCHMAGI
-                                 && !Upolyd && Race_if(PM_DROW));
-                boolean armor = (Is_dragon_armor(otmp)
-                                 && Dragon_armor_to_scales(otmp) == SHADOW_DRAGON_SCALES);
+                lamp = (otmp->otyp == MAGIC_LAMP && otmp->cursed);
+                staff = (otmp->oartifact == ART_STAFF_OF_THE_ARCHMAGI
+                         && !Upolyd && Race_if(PM_DROW));
+                armor = (Is_dragon_armor(otmp)
+                         && Dragon_armor_to_scales(otmp) == SHADOW_DRAGON_SCALES);
 
                 if (otmp->lamplit && !mon) {
                     if (!artifact_light(otmp) && lamp) {
@@ -3305,7 +3305,7 @@ struct _create_particular_data *d;
 {
     char *bufp = str;
     char *tmpp;
-    int i;
+    int i, adjlen;
 
     d->monclass = MAXMCLASSES;
     d->which = urole.malenum; /* an arbitrary index into mons[] */
@@ -3369,7 +3369,6 @@ struct _create_particular_data *d;
     /* determine if a race was specified for the resulting mon */
     if (!strncmpi(bufp, "racial ", 7)) {
         bufp += 7;
-        int adjlen;
         for (i = 0; races[i].adj; i++) {
             adjlen = strlen(races[i].adj);
             if (!strncmpi(bufp, races[i].adj, adjlen)

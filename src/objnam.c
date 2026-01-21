@@ -3600,6 +3600,7 @@ const char * const str;
 int material;
 {
     int i;
+    short otyp;
     const char *matstr = materialnm[material];
     int matlen = strlen(matstr);
     /* is this the entire string? e.g. "gold" is actually a wish for zorkmids.
@@ -3639,7 +3640,6 @@ int material;
         }
     }
     /* does it match some artifact? e.g. "platinum yendorian express card" */
-    short otyp;
     if (artifact_name(str, &otyp)) {
         return TRUE;
     }

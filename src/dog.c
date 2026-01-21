@@ -170,6 +170,7 @@ boolean you;
     struct monst *mtmp = 0;
     int chance, trycnt = 100;
     boolean idol = otmp && otmp->oartifact == ART_IDOL_OF_MOLOCH;
+    boolean same_align;
 
     do {
         if (otmp) { /* figurine; otherwise spell */
@@ -239,7 +240,7 @@ boolean you;
     mtmp->msleeping = 0;
     if (otmp) { /* figurine; resulting monster might not become a pet */
         chance = rn2(10); /* 0==tame, 1==peaceful, 2==hostile */
-        boolean same_align = (sgn(mon_aligntyp(mtmp)) == u.ualign.type);
+        same_align = (sgn(mon_aligntyp(mtmp)) == u.ualign.type);
 
         if (chance > 2)
             chance = otmp->blessed ? 0 : !otmp->cursed ? 1 : 2;

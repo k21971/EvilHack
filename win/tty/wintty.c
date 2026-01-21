@@ -1904,7 +1904,8 @@ struct WinDesc *cw;
     tty_menu_item *page_start, *page_end, *curr;
     long count;
     int n, attr_n, curr_page, page_lines, resp_len;
-    boolean finished, counting, reset_count;
+    int bracket_color;
+    boolean finished, counting, reset_count, in_brackets, char_printed;
     char *cp, *rp, resp[QBUFSZ], gacc[QBUFSZ], *msave, *morestr, really_morc;
 #define MENU_EXPLICIT_CHOICE 0x7f /* pseudo menu manipulation char */
 
@@ -1988,8 +1989,8 @@ struct WinDesc *cw;
                     ++ttyDisplay->curx;
 
                     /* bracket_color: color only text within [] brackets */
-                    int bracket_color = NO_COLOR;
-                    boolean in_brackets = FALSE;
+                    bracket_color = NO_COLOR;
+                    in_brackets = FALSE;
 
                     if (!iflags.use_menu_color
                         || !get_menu_coloring(curr->str, &color, &attr)) {
@@ -2051,7 +2052,7 @@ struct WinDesc *cw;
 #endif
                             ttyDisplay->curx += 2;
                         }
-                        boolean char_printed = FALSE;
+                        char_printed = FALSE;
 
                         /* Start whole-line color/attr at attr_n */
                         if (n == attr_n && (color != NO_COLOR

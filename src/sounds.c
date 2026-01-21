@@ -1672,7 +1672,8 @@ doorder()
     winid win;
     menu_item *selected;
     anything any;
-    int n;
+    int n, choice;
+    long old_petstrat;
     boolean currently_set;
 
     /* Player can't be incapacitated */
@@ -1860,7 +1861,7 @@ doorder()
     if (n <= 0)
         return 0;  /* cancelled */
 
-    int choice = selected[0].item.a_int;
+    choice = selected[0].item.a_int;
     free((genericptr_t) selected);
 
     /* Commands that require tameness check (unless Master skill).
@@ -1911,7 +1912,7 @@ doorder()
     }
 
     /* Save old strategy to check if order actually changed anything */
-    long old_petstrat = EDOG(mtmp)->petstrat;
+    old_petstrat = EDOG(mtmp)->petstrat;
 
     /* Process selection */
     switch (choice) {

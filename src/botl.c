@@ -342,7 +342,6 @@ boolean female;
     return rank_of_role(lev, role, female);
 }
 
-
 const char *
 rank_of_role(lev, role, female)
 int lev;
@@ -466,6 +465,7 @@ long seconds;
 const char *
 botl_realtime(void)
 {
+    static char buf[BUFSZ] = { 0 };
     time_t currenttime;
 
     if (iflags.show_realtime == 'p') {
@@ -478,7 +478,6 @@ botl_realtime(void)
         return "";
     }
 
-    static char buf[BUFSZ] = { 0 };
     switch (iflags.realtime_format) {
     case 's':
         Sprintf(buf, "%ld", currenttime);
@@ -1606,7 +1605,6 @@ static struct fieldid_t {
 static const char threshold_value[] = "hilite_status threshold ",
                   is_out_of_range[] = " is out of range";
 
-
 /* field name to bottom line index */
 STATIC_OVL enum statusfields
 fldname_to_bl_indx(name)
@@ -2188,7 +2186,6 @@ struct hilite_s *hilite;
     blstats[1][fld].thresholds = blstats[0][fld].thresholds;
 }
 
-
 STATIC_OVL boolean
 parse_status_hl2(s, from_configfile)
 char (*s)[QBUFSZ];
@@ -2554,7 +2551,6 @@ unsigned long ul;
     boolean first = TRUE;
     const char *alias = (char *) 0;
 
-
     buf[0] = '\0';
     if (!ul)
         return buf;
@@ -2815,7 +2811,6 @@ char *buf;
     return (char *) 0;
 }
 
-
 struct _status_hilite_line_str {
     int id;
     int fld;
@@ -2998,7 +2993,6 @@ status_hilite_linestr_gather()
 
     status_hilite_linestr_gather_conditions();
 }
-
 
 STATIC_OVL char *
 status_hilite2str(hl)

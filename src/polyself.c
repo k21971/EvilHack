@@ -892,7 +892,7 @@ int mntmp;
     char buf[BUFSZ];
     boolean sticky = sticks(youmonst.data) && u.ustuck && !u.uswallow,
             was_blind = !!Blind, dochange = FALSE;
-    int mlvl;
+    int mlvl, monster_hp;
 
     if (mvitals[mntmp].mvflags & G_GENOD) { /* allow G_EXTINCT */
         You_feel("rather %s-ish.", mons[mntmp].mname);
@@ -1036,7 +1036,7 @@ int mntmp;
      * "experience level of you as a monster" for a polymorphed character.
      */
     mlvl = (int) mons[mntmp].mlevel;
-    int monster_hp = monmaxhp(&mons[mntmp], mlvl);
+    monster_hp = monmaxhp(&mons[mntmp], mlvl);
 
     if (druid_form || vampire_form) {
         /* Druid assumes #wildshape form, or a vampire uses #shapechange;
@@ -2219,6 +2219,7 @@ mbodypart(mon, part)
 struct monst *mon;
 int part;
 {
+    struct permonst *mptr;
     static NEARDATA const char
         *humanoid_parts[] = { "arm",       "eye",  "face",         "finger",
                               "fingertip", "foot", "hand",         "handed",
@@ -2309,7 +2310,7 @@ int part;
         return humanoid_parts[part];
     }
 
-    struct permonst *mptr = mon->data;
+    mptr = mon->data;
 
     /* some special cases */
     if (mptr->mlet == S_DOG || mptr->mlet == S_FELINE

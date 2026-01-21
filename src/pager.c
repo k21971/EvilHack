@@ -119,6 +119,7 @@ char *outbuf;
     int x = isyou ? u.ux : mon->mx, y = isyou ? u.uy : mon->my,
         glyph = (level.flags.hero_memory && !isyou) ? levl[x][y].glyph
                                                     : glyph_at(x, y);
+    int hidetyp;
 
     *outbuf = '\0';
     if (M_AP_TYPE(mon) == M_AP_FURNITURE
@@ -150,7 +151,7 @@ char *outbuf;
         Strcpy(outbuf, ", hiding");
         if (hides_under(mon->data)) {
             Strcat(outbuf, " under ");
-            int hidetyp = concealed_spot(x, y);
+            hidetyp = concealed_spot(x, y);
 
             if (hidetyp == 1) { /* hiding with terrain */
                 Strcat(outbuf, explain_terrain(x, y));
@@ -1200,6 +1201,12 @@ short otyp;
     const char* dir = (oc.oc_dir == NODIR ? "Non-directional"
                                           : (oc.oc_dir == IMMEDIATE ? "Beam"
                                                                     : "Ray"));
+    const struct forge_recipe *recipe;
+    boolean has_recipes;
+    const struct potion_alchemy *precipe;
+    boolean has_precipes;
+    const struct trap_recipe *trecipe;
+    boolean has_trecipes;
 
 #define OBJPUTSTR(str) putstr(datawin, ATR_NONE, str)
 #define ADDCLASSPROP(cond, str)          \
@@ -1610,8 +1617,7 @@ short otyp;
     }
 
     /* forge recipes */
-    const struct forge_recipe *recipe;
-    boolean has_recipes = FALSE;
+    has_recipes = FALSE;
 
     for (recipe = fusions; recipe->result_typ; recipe++) {
         if (otyp == recipe->typ1 || otyp == recipe->typ2
@@ -1630,8 +1636,7 @@ short otyp;
     }
 
     /* potion alchemy */
-    const struct potion_alchemy *precipe;
-    boolean has_precipes = FALSE;
+    has_precipes = FALSE;
 
     for (precipe = potion_fusions; precipe->result_typ; precipe++) {
         if (otyp == precipe->typ1 || otyp == precipe->typ2
@@ -1651,8 +1656,7 @@ short otyp;
     }
 
     /* crafting traps */
-    const struct trap_recipe *trecipe;
-    boolean has_trecipes = FALSE;
+    has_trecipes = FALSE;
 
     for (trecipe = trap_fusions; trecipe->result_typ; trecipe++) {
         if (otyp == trecipe->comp || otyp == trecipe->result_typ) {

@@ -978,6 +978,8 @@ Shirt_off(VOID_ARGS)
 void
 dragon_armor_handling(struct obj *otmp, boolean puton)
 {
+    boolean was_flying;
+
     /* as of first merging this behavior in from NetHack 3.7,
        this only happens on dragon-scaled body armor - NOT scales
        worn in the cloak slot. */
@@ -1113,7 +1115,7 @@ dragon_armor_handling(struct obj *otmp, boolean puton)
             ESleep_resistance  &= ~W_ARM;
             EShock_resistance  &= ~W_ARM;
 
-            boolean was_flying = !!Flying;
+            was_flying = !!Flying;
 
             /* remove armor 'early' to determine whether Flying changes */
             setworn((struct obj *) 0, W_ARM);
