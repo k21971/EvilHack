@@ -4982,4 +4982,6 @@ The following changes to date are:
   newest file additions
 - Fix: ensure .evilhackrc.template file is included with the uploaded
   artifacts for the Windows binary
+- Fix: ensure .evilhackrc.template file is included with the uploaded
+  artifacts for the Windows binary, take two
 

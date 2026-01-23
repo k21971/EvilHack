@@ -78,12 +78,16 @@ jobs:
         cd src
         nmake install
     - name: Copy evilhackrc template
-      run: cp ./sys/winnt/.evilhackrc.template ./binary/
+      shell: bash
+      run: |
+        cp -v ./sys/winnt/.evilhackrc.template ./binary/.evilhackrc.template
+        ls -la ./binary/
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: evilhack-windows
         path: binary/
+        include-hidden-files: true
         retention-days: 30
     - uses: thedoctor0/zip-release@0.7.6
       if: startsWith(github.ref, 'refs/tags/')
