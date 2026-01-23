@@ -2085,7 +2085,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                    it die before we reach this point */
                 if (!DEADMONSTER(mdef)) {
                     if (show_instakill)
-                        pline("The infernal trident's eldritch flame consumes %s!", hittee);
+                        pline_The("infernal trident's eldritch flame consumes %s!", hittee);
                     if (youattack)
                         xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                     else {
@@ -2152,10 +2152,10 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               : "!  Lightning strikes",
                           hittee, !spec_dbon_applies ? '.' : '!');
             } else if (otmp->oartifact == ART_TEMPEST) {
-                pline("The tumultuous polearm hits%s %s%c",
-                      !spec_dbon_applies
-                          ? ""
-                          : "!  Lightning strikes",
+                pline_The("tumultuous polearm hits%s %s%c",
+                          !spec_dbon_applies
+                              ? ""
+                              : "!  Lightning strikes",
                       hittee, !spec_dbon_applies ? '.' : '!');
             } else if ((otmp->oclass == WEAPON_CLASS
                         || is_weptool(otmp) || is_bullet(otmp)
@@ -2479,9 +2479,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if (!rn2(10) && (elf || drow)) {
             if (!DEADMONSTER(mdef)) {
                 if (show_instakill)
-                    pline("The cruel blade penetrates %s soft flesh, disemboweling %s!",
-                          youdefend ? "your" : s_suffix(mon_nam(mdef)),
-                          youdefend ? "you" : noit_mhim(mdef));
+                    pline_The("cruel blade penetrates %s soft flesh, disemboweling %s!",
+                              youdefend ? "your" : s_suffix(mon_nam(mdef)),
+                              youdefend ? "you" : noit_mhim(mdef));
             }
             if (youdefend) {
                 losehp((Upolyd ? u.mh : u.uhp) + 1, "disemboweled by Grimtooth",
@@ -2781,8 +2781,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           (otmp->oartifact == ART_WEREBANE ? "silver" : "shadowy"));
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
             } else if (youdefend && is_were(youmonst.data) && k) {
-                pline("The %s blade gravely burns you!",
-                      (otmp->oartifact == ART_WEREBANE ? "silver" : "shadowy"));
+                pline_The("%s blade gravely burns you!",
+                          (otmp->oartifact == ART_WEREBANE ? "silver" : "shadowy"));
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form */
             } else if (!(youdefend ? is_were(youmonst.data) : is_were(mdef->data))
@@ -2805,7 +2805,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
             } else if (youdefend && maybe_polyd(is_giant(youmonst.data),
                        Race_if(PM_GIANT)) && k) {
-                pline("The magical spear eviscerates you!");
+                pline_The("magical spear eviscerates you!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form if poly'd */
             } else
@@ -2822,7 +2822,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           Monnam(magr), s_suffix(mon_nam(mdef)));
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
             } else if (youdefend && is_ogre(youmonst.data) && k) {
-                pline("The monstrous hammer crushes your skull!");
+                pline_The("monstrous hammer crushes your skull!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form */
             } else if (hurtle_distance
@@ -2838,7 +2838,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     mhurtle(mdef, mdef->mx - magr->mx, mdef->my - magr->my,
                             hurtle_distance);
                 } else {
-                    pline("You are smashed backwards!");
+                    You("are smashed backwards!");
                     hurtle(u.ux - magr->mx, u.uy - magr->my, hurtle_distance, FALSE);
                     /* Update monster's knowledge of your position */
                     magr->mux = u.ux;
@@ -2906,27 +2906,27 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         case ART_SUNSWORD:
             if (youattack && is_undead(mdef->data) && j) {
                 if (mdef->isvecna || mdef->isvlad) {
-                    pline("The consecrated blade flares brightly, severely wounding %s!",
-                          mon_nam(mdef));
+                    pline_The("consecrated blade flares brightly, severely wounding %s!",
+                              mon_nam(mdef));
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
-                    pline("The consecrated blade flares brightly as it incinerates %s!",
-                          mon_nam(mdef));
+                    pline_The("consecrated blade flares brightly as it incinerates %s!",
+                              mon_nam(mdef));
                     xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                 }
             } else if (!youattack && !youdefend
                        && magr && is_undead(mdef->data) && j) {
                 if (mdef->isvecna || mdef->isvlad) {
                     if (show_instakill)
-                        pline("The consecrated blade flares brightly, severely wounding %s!",
-                              mon_nam(mdef));
+                        pline_The("consecrated blade flares brightly, severely wounding %s!",
+                                  mon_nam(mdef));
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
                     if (show_instakill)
-                        pline("The consecrated blade flares brightly as it incinerates %s!",
-                              mon_nam(mdef));
+                        pline_The("consecrated blade flares brightly as it incinerates %s!",
+                                  mon_nam(mdef));
                     if (magr)
                         (void) grow_up(magr, mdef);
                     mongone(mdef);
@@ -2934,7 +2934,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else if (youdefend && l
                        && (maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))
                            || maybe_polyd(is_undead(youmonst.data), Race_if(PM_VAMPIRE)))) {
-                pline("The holy power of Sunsword incinerates your undead flesh!");
+                pline_The("holy power of Sunsword incinerates your undead flesh!");
                 if (Upolyd) {
                     /* player returns to their original form */
                     *dmgptr = ((2 * u.mh) + FATAL_DAMAGE_MODIFIER);
@@ -2959,7 +2959,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           Monnam(magr), mon_nam(mdef));
                 *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
             } else if (youdefend && youmonst.data == &mons[PM_BALROG]) {
-                pline("The magical axe obliterates you!");
+                pline_The("magical axe obliterates you!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form */
             } else
@@ -2968,27 +2968,27 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         case ART_DEMONBANE:
             if (youattack && is_demon(mdef->data) && j) {
                 if (!is_ndemon(mdef->data)) {
-                    pline("The holy mace gravely wounds %s!",
-                          mon_nam(mdef));
+                    pline_The("holy mace gravely wounds %s!",
+                              mon_nam(mdef));
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
-                    pline("The holy mace shines brilliantly, destroying %s!",
-                          mon_nam(mdef));
+                    pline_The("holy mace shines brilliantly, destroying %s!",
+                              mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 }
             } else if (!youattack && !youdefend
                        && magr && is_demon(mdef->data) && j) {
                 if (!is_ndemon(mdef->data)) {
                     if (show_instakill)
-                        pline("The holy mace gravely wounds %s!",
-                              mon_nam(mdef));
+                        pline_The("holy mace gravely wounds %s!",
+                                  mon_nam(mdef));
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
                     if (show_instakill)
-                        pline("The holy mace shines brilliantly, destroying %s!",
-                              mon_nam(mdef));
+                        pline_The("holy mace shines brilliantly, destroying %s!",
+                                  mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 }
             } else if (youdefend && k
@@ -3002,65 +3002,65 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         case ART_HAMMER_OF_THE_GODS:
             if (youattack && is_demon(mdef->data) && j) {
                 if (!is_ndemon(mdef->data)) {
-                    pline("The divine hammer gravely wounds %s!",
-                          mon_nam(mdef));
+                    pline_The("divine hammer gravely wounds %s!",
+                              mon_nam(mdef));
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
-                    pline("The divine hammer shines brilliantly, destroying %s!",
-                          mon_nam(mdef));
+                    pline_The("divine hammer shines brilliantly, destroying %s!",
+                              mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 }
             } else if (youattack && is_undead(mdef->data) && j) {
                 if (mdef->isvecna || mdef->isvlad) {
-                    pline("The divine hammer flares brightly, severely wounding %s!",
-                          mon_nam(mdef));
+                    pline_The("divine hammer flares brightly, severely wounding %s!",
+                              mon_nam(mdef));
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
-                    pline("The divine hammer flares brightly as it incinerates %s!",
-                          mon_nam(mdef));
+                    pline_The("divine hammer flares brightly as it incinerates %s!",
+                              mon_nam(mdef));
                     xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE);
                 }
             } else if (!youattack && !youdefend
                        && magr && is_demon(mdef->data) && j) {
                 if (!is_ndemon(mdef->data)) {
                     if (show_instakill)
-                        pline("The divine hammer gravely wounds %s!",
-                              mon_nam(mdef));
+                        pline_The("divine hammer gravely wounds %s!",
+                                  mon_nam(mdef));
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
                     if (show_instakill)
-                        pline("The divine hammer shines brilliantly, destroying %s!",
-                              mon_nam(mdef));
+                        pline_The("divine hammer shines brilliantly, destroying %s!",
+                                  mon_nam(mdef));
                     *dmgptr = (2 * mdef->mhp + FATAL_DAMAGE_MODIFIER);
                 }
             } else if (!youattack && !youdefend
                        && magr && is_undead(mdef->data) && j) {
                 if (mdef->isvecna || mdef->isvlad) {
                     if (show_instakill)
-                        pline("The divine hammer flares brightly, severely wounding %s!",
-                              mon_nam(mdef));
+                        pline_The("divine hammer flares brightly, severely wounding %s!",
+                                  mon_nam(mdef));
                     *dmgptr *= 3;
                     return TRUE;
                 } else {
                     if (show_instakill)
-                        pline("The divine hammer flares brightly as it incinerates %s!",
-                              mon_nam(mdef));
+                        pline_The("divine hammer flares brightly as it incinerates %s!",
+                                  mon_nam(mdef));
                     if (magr)
                         (void) grow_up(magr, mdef);
                     mongone(mdef);
                 }
             } else if (youdefend && k
                        && maybe_polyd(is_demon(youmonst.data), Race_if(PM_DEMON))) {
-                pline("The Hammer of the Gods shines brilliantly, destroying you!");
+                pline_The("Hammer of the Gods shines brilliantly, destroying you!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form if poly'd */
             } else if (youdefend && l
                        && (maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))
                            || maybe_polyd(is_undead(youmonst.data), Race_if(PM_VAMPIRE)))) {
-                pline("The Hammer of the Gods incinerates your undead flesh!");
+                pline_The("Hammer of the Gods incinerates your undead flesh!");
                 if (Upolyd) {
                     /* player returns to their original form */
                     *dmgptr = ((2 * u.mh) + FATAL_DAMAGE_MODIFIER);

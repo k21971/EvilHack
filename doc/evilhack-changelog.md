@@ -4972,4 +4972,5 @@ The following changes to date are:
 - Undead player races use 'destroyed' instead of 'die' in death messages
 - Fix: comment concerning unbound monster difficulty generation
 - Fix: C89 violations - move mid-block declarations to function start
+- Fix: correct pline formatting (artifact.c)
 
