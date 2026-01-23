@@ -4977,4 +4977,5 @@ The following changes to date are:
 - Improve GitHub Actions workflow: artifacts, concurrency, dynamic
   versioning
 - Fix: zip-release version with github workflow
+- Fix: Linux path for artifacts upload (github workflow)
 

@@ -29,7 +29,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: evilhack-linux
-        path: ~/evilhackdir/
+        path: ~/nh/install/games/lib/evilhackdir/
         retention-days: 30
 
   mac-build:
