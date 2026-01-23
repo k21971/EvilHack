@@ -8,6 +8,10 @@ on:
   pull_request:
     branches: [ master ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   linux-build:
     runs-on: ubuntu-24.04
@@ -21,6 +25,12 @@ jobs:
       run: make all
     - name: make install
       run: make install
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: evilhack-linux
+        path: ~/evilhackdir/
+        retention-days: 30
 
   mac-build:
     runs-on: macos-latest
@@ -34,6 +44,12 @@ jobs:
       run: make all
     - name: make install
       run: make install
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: evilhack-macos
+        path: ~/evilhackdir/
+        retention-days: 30
 
   windows-build:
     runs-on: windows-latest
@@ -46,7 +62,6 @@ jobs:
         ADD_CURSES: Y
         PDCURSES_TOP: ../../pdcurses
         TRAVIS_COMPILER: 1
-        ZIP_NAME: evilhack-0.9.2.zip
     steps:
     - uses: actions/checkout@v4
       with:
@@ -62,18 +77,24 @@ jobs:
         cp ./sys/winnt/Makefile.msc ./Makefile
         cd src
         nmake install
-    - uses: thedoctor0/zip-release@master
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: evilhack-windows
+        path: binary/
+        retention-days: 30
+    - uses: thedoctor0/zip-release@0.4.16
       if: startsWith(github.ref, 'refs/tags/')
       with:
         type: 'zip'
         path: binary/
-        filename: evilhack-0.9.2.zip
+        filename: evilhack-${{ github.ref_name }}.zip
     - name: release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          evilhack-0.9.2.zip
+          evilhack-${{ github.ref_name }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

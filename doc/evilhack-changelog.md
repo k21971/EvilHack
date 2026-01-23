@@ -4974,4 +4974,6 @@ The following changes to date are:
 - Fix: C89 violations - move mid-block declarations to function start
 - Fix: correct pline formatting (artifact.c)
 - Remove obsolete 'register' keyword from variable declarations
+- Improve GitHub Actions workflow: artifacts, concurrency, dynamic
+  versioning
 
