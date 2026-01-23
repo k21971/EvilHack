@@ -4980,4 +4980,6 @@ The following changes to date are:
 - Fix: Linux path for artifacts upload (github workflow)
 - Update 'Files' and 'sys/mac/Files.r' files so they are up to date with
   newest file additions
+- Fix: ensure .evilhackrc.template file is included with the uploaded
+  artifacts for the Windows binary
 
