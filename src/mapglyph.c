@@ -82,7 +82,7 @@ int *ochar;
 unsigned *ospecial;
 unsigned mgflags;
 {
-    register int offset, idx;
+    int offset, idx;
     int color = NO_COLOR;
     nhsym ch;
     unsigned special = 0;

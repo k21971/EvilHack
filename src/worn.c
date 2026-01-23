@@ -50,9 +50,9 @@ setworn(obj, mask)
 struct obj *obj;
 long mask;
 {
-    register const struct worn *wp;
+    const struct worn *wp;
     struct obj *oobj;
-    register int p;
+    int p;
 
     if ((mask & I_SPECIAL) != 0 && (mask & (W_ARM | W_ARMC)) != 0) {
         /* restoring saved game; no properties are conferred via skin */
@@ -146,8 +146,8 @@ void
 setnotworn(obj)
 struct obj *obj;
 {
-    register const struct worn *wp;
-    register int p;
+    const struct worn *wp;
+    int p;
 
     if (!obj)
         return;

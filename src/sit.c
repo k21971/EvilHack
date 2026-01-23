@@ -35,7 +35,7 @@ dosit()
 {
     static const char sit_message[] = "sit on the %s.";
     struct trap *trap = t_at(u.ux, u.uy);
-    register int typ = levl[u.ux][u.uy].typ;
+    int typ = levl[u.ux][u.uy].typ;
 
     if (Hidinshell) {
         You_cant("sit while hiding in your shell.");

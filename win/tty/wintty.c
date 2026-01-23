@@ -1284,7 +1284,7 @@ void
 tty_askname()
 {
     static const char who_are_you[] = "Who are you? ";
-    register int c, ct, tryct = 0;
+    int c, ct, tryct = 0;
 
 #ifdef SELECTSAVED
     if (iflags.wc2_selectsaved && !iflags.renameinprogress)
@@ -2332,7 +2332,7 @@ struct WinDesc *cw;
 {
     int i, n, attr;
     boolean linestart;
-    register char *cp;
+    char *cp;
 
     for (n = 0, i = 0; i < cw->maxrow; i++) {
         HUPSKIP();
@@ -2569,7 +2569,7 @@ winid window;
 void
 tty_curs(window, x, y)
 winid window;
-register int x, y; /* not xchar: perhaps xchar is unsigned and
+int x, y; /* not xchar: perhaps xchar is unsigned and
                       curx-x would be unsigned as well */
 {
     struct WinDesc *cw = 0;
@@ -2738,11 +2738,11 @@ int attr;
 const char *str;
 {
     struct WinDesc *cw = 0;
-    register char *ob;
-    register long i, n0;
+    char *ob;
+    long i, n0;
 #ifndef STATUS_HILITES
-    register const char *nb;
-    register long j;
+    const char *nb;
+    long j;
 #endif
 
     HUPSKIP();
@@ -2916,7 +2916,7 @@ boolean complain;
 #ifdef DEF_PAGER /* this implies that UNIX is defined */
     {
         /* use external pager; this may give security problems */
-        register int fd = open(fname, 0);
+        int fd = open(fname, 0);
 
         if (fd < 0) {
             if (complain)
@@ -3333,9 +3333,9 @@ tty_wait_synch()
 
 void
 docorner(xmin, ymax)
-register int xmin, ymax;
+int xmin, ymax;
 {
-    register int y;
+    int y;
     struct WinDesc *cw = wins[WIN_MAP];
 
     HUPSKIP();
@@ -3407,7 +3407,7 @@ void
 g_putch(in_ch)
 int in_ch;
 {
-    register char ch = (char) in_ch;
+    char ch = (char) in_ch;
 
     HUPSKIP();
 #if defined(ASCIIGRAPH) && !defined(NO_TERMS)

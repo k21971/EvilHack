@@ -3776,7 +3776,7 @@ explum(mdef, mattk)
 struct monst *mdef;
 struct attack *mattk;
 {
-    register int tmp = d((int) mattk->damn, (int) mattk->damd);
+    int tmp = d((int) mattk->damn, (int) mattk->damd);
 
     if (!mdef)
         return 0;
@@ -3866,8 +3866,8 @@ struct attack *mattk;
 #else
     static char msgbuf[BUFSZ]; /* for nomovemsg */
 #endif
-    register int tmp;
-    register int dam = d((int) mattk->damn, (int) mattk->damd);
+    int tmp;
+    int dam = d((int) mattk->damn, (int) mattk->damd);
     boolean fatal_gulp;
     struct obj *otmp;
     struct permonst *pd = mdef->data;
@@ -4114,8 +4114,8 @@ void
 missum(mdef, target, roll, mattk, wouldhavehit)
 struct monst *mdef;
 struct attack *mattk;
-register int target;
-register int roll;
+int target;
+int roll;
 boolean wouldhavehit;
 {
     struct obj *blocker = (struct obj *) 0;
@@ -4824,7 +4824,7 @@ uchar aatyp;
 boolean wep_was_destroyed;
 {
     struct permonst *ptr = mon->data;
-    register int i, t, tmp;
+    int i, t, tmp;
     struct attack *mattk;
     struct obj *passive_armor;
 

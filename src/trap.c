@@ -1171,7 +1171,7 @@ dotrap(trap, trflags)
 struct trap *trap;
 unsigned trflags;
 {
-    register int ttype = trap->ttyp;
+    int ttype = trap->ttyp;
     struct obj *otmp, *nextobj;
     struct monst *steed = u.usteed;
     boolean already_seen = trap->tseen,
@@ -2185,12 +2185,12 @@ force_launch_placement()
 int
 launch_obj(otyp, x1, y1, x2, y2, style)
 short otyp;
-register int x1, y1, x2, y2;
+int x1, y1, x2, y2;
 int style;
 {
     struct monst *mtmp;
     struct obj *otmp, *otmp2;
-    register int dx, dy;
+    int dx, dy;
     struct obj *singleobj;
     boolean used_up = FALSE;
     boolean otherside = FALSE;
@@ -2484,7 +2484,7 @@ short otyp;
 long ocount;
 {
     struct obj *otmp;
-    register int tmp;
+    int tmp;
     schar dx, dy;
     int distance;
     coord cc;
@@ -2630,7 +2630,7 @@ struct monst *mtmp;
             }
         }
     } else {
-        register int tt = trap->ttyp;
+        int tt = trap->ttyp;
         boolean in_sight, tear_web, see_it,
             inescapable = force_mintrap || ((tt == HOLE || tt == PIT)
                                             && Sokoban && !trap->madeby_u);
@@ -3942,7 +3942,7 @@ struct obj *box; /* at the moment only for floor traps */
 STATIC_OVL void
 domagictrap()
 {
-    register int fate = rnd(20);
+    int fate = rnd(20);
 
     /* What happened to the poor sucker? */
 
@@ -5381,7 +5381,7 @@ untrap(force)
 boolean force;
 {
     struct obj *otmp;
-    register int x, y;
+    int x, y;
     int ch;
     struct trap *ttmp;
     struct monst *mtmp;
@@ -5812,7 +5812,7 @@ boolean
 chest_trap(mon, obj, bodypart, disarm)
 struct monst *mon;
 struct obj *obj;
-register int bodypart;
+int bodypart;
 boolean disarm;
 {
     struct obj *otmp = obj, *otmp2;
@@ -6152,7 +6152,7 @@ boolean disarm;
 
 struct trap *
 t_at(x, y)
-register int x, y;
+int x, y;
 {
     struct trap *trap = ftrap;
 

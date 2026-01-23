@@ -29,7 +29,7 @@ enum dig_types {
 STATIC_OVL boolean
 rm_waslit()
 {
-    register xchar x, y;
+    xchar x, y;
 
     if (levl[u.ux][u.uy].typ == ROOM && levl[u.ux][u.uy].waslit)
         return TRUE;
@@ -89,13 +89,13 @@ boolean waslit, rockit;
 
 STATIC_OVL void
 mkcavearea(rockit)
-register boolean rockit;
+boolean rockit;
 {
     int dist;
     xchar xmin = u.ux, xmax = u.ux;
     xchar ymin = u.uy, ymax = u.uy;
-    register xchar i;
-    register boolean waslit = rm_waslit();
+    xchar i;
+    boolean waslit = rm_waslit();
 
     if (rockit)
         pline("Crash!  The ceiling collapses around you!");
@@ -256,8 +256,8 @@ STATIC_OVL int
 dig(VOID_ARGS)
 {
     struct rm *lev;
-    register xchar dpx = context.digging.pos.x, dpy = context.digging.pos.y;
-    register boolean ispick = uwep && is_pick(uwep);
+    xchar dpx = context.digging.pos.x, dpy = context.digging.pos.y;
+    boolean ispick = uwep && is_pick(uwep);
     const char *verb = (!uwep || is_pick(uwep)) ? "dig into" : "chop through";
 
     lev = &levl[dpx][dpy];
@@ -583,7 +583,7 @@ fillholetyp(x, y, fill_if_any)
 int x, y;
 boolean fill_if_any; /* force filling if it exists at all */
 {
-    register int x1, y1;
+    int x1, y1;
     int lo_x = max(1, x - 1), hi_x = min(x + 1, COLNO - 1),
         lo_y = max(0, y - 1), hi_y = min(y + 1, ROWNO - 1);
     int pool_cnt = 0, moat_cnt = 0, lava_cnt = 0;
@@ -615,7 +615,7 @@ boolean fill_if_any; /* force filling if it exists at all */
 
 void
 digactualhole(x, y, madeby, ttyp)
-register int x, y;
+int x, y;
 struct monst *madeby;
 int ttyp;
 {
@@ -1137,7 +1137,7 @@ int
 use_pick_axe2(obj)
 struct obj *obj;
 {
-    register int rx, ry;
+    int rx, ry;
     struct rm *lev;
     struct trap *trap, *trap_with_u;
     int dig_target;

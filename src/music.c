@@ -61,7 +61,7 @@ awaken_monsters(distance)
 int distance;
 {
     struct monst *mtmp;
-    register int distm;
+    int distm;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -248,7 +248,7 @@ do_earthquake(force)
 int force;
 {
     static const char into_a_chasm[] = " into a chasm";
-    register int x, y;
+    int x, y;
     struct monst *mtmp;
     struct obj *otmp;
     struct trap *chasm, *trap_at_u = t_at(u.ux, u.uy);

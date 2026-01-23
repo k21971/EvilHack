@@ -309,7 +309,7 @@ int msgflg;
 /* may kill you; cause may be poison or monster like 'a' */
 void
 losestr(num)
-register int num;
+int num;
 {
     int ustr = ABASE(A_STR) - num;
 
@@ -440,7 +440,7 @@ boolean thrown_weapon; /* thrown weapons are less deadly */
 
 void
 change_luck(n)
-register schar n;
+schar n;
 {
     u.uluck += n;
     if (u.uluck < 0 && u.uluck < LUCKMIN)
@@ -454,7 +454,7 @@ stone_luck(parameter)
 boolean parameter; /* So I can't think up of a good name.  So sue me. --KAA */
 {
     struct obj *otmp;
-    register long bonchance = 0;
+    long bonchance = 0;
 
     for (otmp = invent; otmp; otmp = otmp->nobj)
         if (confers_luck(otmp)) {
@@ -739,9 +739,9 @@ exerchk()
 
 void
 init_attr(np)
-register int np;
+int np;
 {
-    register int i, x, tryct;
+    int i, x, tryct;
 
     for (i = 0; i < A_MAX; i++) {
         ABASE(i) = AMAX(i) = urole.attrbase[i];
@@ -800,7 +800,7 @@ register int np;
 void
 redist_attr()
 {
-    register int i, tmp;
+    int i, tmp;
 
     for (i = 0; i < A_MAX; i++) {
         if (i == A_INT || i == A_WIS)
@@ -1082,7 +1082,7 @@ void
 adjabil(oldlevel, newlevel)
 int oldlevel, newlevel;
 {
-    register const struct innate *abil, *rabil;
+    const struct innate *abil, *rabil;
     long prevabil, mask = FROMEXPER;
     /* don't give resistance messages when demon crowning.
      * they aren't given in normal crowning, and you can
@@ -1298,7 +1298,7 @@ schar
 acurr(x)
 int x;
 {
-    register int tmp = (u.abon.a[x] + u.atemp.a[x] + u.acurr.a[x]);
+    int tmp = (u.abon.a[x] + u.atemp.a[x] + u.acurr.a[x]);
 
     if (x == A_STR) {
       if (tmp >= 125 || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)
@@ -1351,7 +1351,7 @@ int x;
 schar
 acurrstr()
 {
-    register int str = ACURR(A_STR);
+    int str = ACURR(A_STR);
 
     if (str <= 18)
         return (schar) str;

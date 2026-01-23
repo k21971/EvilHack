@@ -1948,8 +1948,8 @@ struct obj *obj; /* thrownobj or kickedobj or uwep */
     struct monst *mtmp;
     struct permonst *bourbon = &mons[PM_BOURBON];
     struct permonst *ozzy = &mons[PM_OZZY];
-    register int tmp;     /* Base chance to hit */
-    register int disttmp; /* distance modifier */
+    int tmp;     /* Base chance to hit */
+    int disttmp; /* distance modifier */
     int otyp = obj->otyp, hmode;
     boolean guaranteed_hit = (u.uswallow && mon == u.ustuck);
     int dieroll;

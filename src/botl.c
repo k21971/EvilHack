@@ -53,8 +53,8 @@ char *
 do_statusline1()
 {
     static char newbot1[BUFSZ];
-    register char *nb;
-    register int i, j;
+    char *nb;
+    int i, j;
 
     Strcpy(newbot1, plname);
     if ('a' <= newbot1[0] && newbot1[0] <= 'z')
@@ -107,7 +107,7 @@ do_statusline2()
             experience (HD if poly'd, else Exp level and maybe Exp points),
             time (in moves), varying number of status conditions */
          dloc[QBUFSZ], hlth[QBUFSZ], expr[QBUFSZ], tmmv[QBUFSZ], cond[QBUFSZ];
-    register char *nb;
+    char *nb;
     unsigned dln, dx, hln, xln, tln, cln;
     int hp, hpmax, cap;
     long money;
@@ -298,7 +298,7 @@ int lev;
 short monnum;
 boolean female;
 {
-    register const struct Role *role;
+    const struct Role *role;
 
     /* Find the role */
     for (role = roles; role->name.m; role++)
@@ -319,7 +319,7 @@ int lev;
 struct monst *mtmp;
 boolean female;
 {
-    register const struct Role *role;
+    const struct Role *role;
     short monnum = mtmp->mnum;
 
     /* ronin in the samurai quest share same titles
@@ -348,7 +348,7 @@ int lev;
 const struct Role *role;
 boolean female;
 {
-    register int i;
+    int i;
 
     /* Find the rank */
     for (i = xlev_to_rank((int) lev); i >= 0; i--) {
@@ -377,7 +377,7 @@ title_to_mon(str, rank_indx, title_length)
 const char *str;
 int *rank_indx, *title_length;
 {
-    register int i, j;
+    int i, j;
 
     /* Loop through each of the roles */
     for (i = 0; roles[i].name.m; i++)
@@ -408,7 +408,7 @@ int *rank_indx, *title_length;
 void
 max_rank_sz()
 {
-    register int i, r, maxr = 0;
+    int i, r, maxr = 0;
     for (i = 0; i < 9; i++) {
         if (urole.rank[i].m && (r = strlen(urole.rank[i].m)) > maxr)
             maxr = r;
@@ -696,7 +696,7 @@ bot_via_windowport()
 {
     char buf[BUFSZ];
     const char *titl;
-    register char *nb;
+    char *nb;
     int i, idx, cap;
     long money;
 

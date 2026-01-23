@@ -375,7 +375,7 @@ boolean
 ranged_attk(mtmp)
 struct monst *mtmp;
 {
-    register int i, atyp;
+    int i, atyp;
     long atk_mask = (1L << AT_BREA) | (1L << AT_SPIT) | (1L << AT_GAZE);
     struct attack *mattk;
     mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk : mtmp->data->mattk;
@@ -916,7 +916,7 @@ int
 monsndx(ptr)
 struct permonst *ptr;
 {
-    register int i;
+    int i;
 
     i = (int) (ptr - &mons[0]);
     if (i < LOW_PM || i >= NUMMONS) {
@@ -975,9 +975,9 @@ int *matchlen;
      * This also permits plurals created by adding suffixes such as 's'
      * or 'es'.  Other plurals must still be handled explicitly.
      */
-    register int i;
-    register int mntmp = NON_PM;
-    register char *s, *str, *term;
+    int i;
+    int mntmp = NON_PM;
+    char *s, *str, *term;
     char buf[BUFSZ];
     int len, slen;
 
@@ -1078,7 +1078,7 @@ int *matchlen;
             /* end of list */
             { 0, NON_PM }
         };
-        register const struct alt_spl *namep;
+        const struct alt_spl *namep;
 
         for (namep = names; namep->name; namep++)
             if (!strncmpi(str, namep->name, (int) strlen(namep->name)))
@@ -1086,7 +1086,7 @@ int *matchlen;
     }
 
     for (len = 0, i = LOW_PM; i < NUMMONS; i++) {
-        register int m_i_len = (int) strlen(mons[i].mname);
+        int m_i_len = (int) strlen(mons[i].mname);
 
         if (m_i_len > len && !strncmpi(mons[i].mname, str, m_i_len)) {
             if (m_i_len == slen) {
@@ -1362,7 +1362,7 @@ int
 little_to_big(montype)
 int montype;
 {
-    register int i;
+    int i;
 
     for (i = 0; grownups[i][0] >= LOW_PM; i++)
         if (montype == grownups[i][0]) {
@@ -1376,7 +1376,7 @@ int
 big_to_little(montype)
 int montype;
 {
-    register int i;
+    int i;
 
     /* Exceptions, such as a monster type that is
        oviporous that spans more than two classes

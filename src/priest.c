@@ -70,10 +70,10 @@ struct monst *mtmp;
 boolean in_his_shop;
 schar appr;
 boolean uondoor, avoid;
-register xchar omx, omy, gx, gy;
+xchar omx, omy, gx, gy;
 {
-    register xchar nx, ny, nix, niy;
-    register schar i;
+    xchar nx, ny, nix, niy;
+    schar i;
     schar chcnt, cnt;
     coord poss[9];
     long info[9];
@@ -185,9 +185,9 @@ pick_move:
 
 char
 temple_occupied(array)
-register char *array;
+char *array;
 {
-    register char *ptr;
+    char *ptr;
 
     for (ptr = array; *ptr; ptr++)
         if (rooms[*ptr - ROOMOFFSET].rtype == TEMPLE)
@@ -198,7 +198,7 @@ register char *array;
 STATIC_OVL boolean
 histemple_at(priest, x, y)
 struct monst *priest;
-register xchar x, y;
+xchar x, y;
 {
     return (boolean) (priest && priest->ispriest
                       && (EPRI(priest)->shroom == *in_rooms(x, y, TEMPLE))
@@ -457,7 +457,7 @@ int
 pri_move(priest)
 struct monst *priest;
 {
-    register xchar gx, gy, omx, omy;
+    xchar gx, gy, omx, omy;
     schar temple;
     boolean avoid = TRUE;
 
@@ -1086,7 +1086,7 @@ xchar x, y;
 boolean peaceful;
 {
     struct monst *roamer;
-    register boolean coaligned = (u.ualign.type == alignment);
+    boolean coaligned = (u.ualign.type == alignment);
 
 #if 0 /* this was due to permonst's pxlth field which is now gone */
     if (ptr != &mons[PM_ALIGNED_PRIEST] && ptr != &mons[PM_ANGEL])
@@ -1144,7 +1144,7 @@ in_your_sanctuary(mon, x, y)
 struct monst *mon; /* if non-null, <mx,my> overrides <x,y> */
 xchar x, y;
 {
-    register char roomno;
+    char roomno;
     struct monst *priest;
 
     if (mon) {

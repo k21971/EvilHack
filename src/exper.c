@@ -88,7 +88,7 @@ newpw()
 int
 experience(mtmp, nk)
 struct monst *mtmp;
-register int nk;
+int nk;
 {
     struct permonst *ptr = mtmp->data;
     int i, tmp, tmp2;
@@ -174,7 +174,7 @@ register int nk;
 
 void
 more_experienced(exper, rexp)
-register int exper, rexp;
+int exper, rexp;
 {
     long oldexp = u.uexp,
          oldrexp = u.urexp,
@@ -215,7 +215,7 @@ void
 losexp(drainer)
 const char *drainer; /* cause of death, if drain should be fatal */
 {
-    register int num;
+    int num;
 
     /* override life-drain resistance when handling an explicit
        wizard mode request to reduce level; never fatal though */

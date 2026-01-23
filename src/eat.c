@@ -821,7 +821,7 @@ boolean allowmsg;
 
 STATIC_OVL void
 cprefx(pm)
-register int pm;
+int pm;
 {
     (void) maybe_cannibal(pm, TRUE);
     if (flesh_petrifies(&mons[pm])) {
@@ -1564,7 +1564,7 @@ set_tin_variety(obj, forcetype)
 struct obj *obj;
 int forcetype;
 {
-    register int r;
+    int r;
 
     if (forcetype == SPINACH_TIN
         || (forcetype == HEALTHY_TIN
@@ -1594,7 +1594,7 @@ tin_variety(obj, disp)
 struct obj *obj;
 boolean disp; /* we're just displaying so leave things alone */
 {
-    register int r;
+    int r;
 
     if (obj->spe == 1) {
         r = SPINACH_TIN;
@@ -1823,7 +1823,7 @@ start_tin(otmp)
 struct obj *otmp;
 {
     const char *mesg = 0;
-    register int tmp = 0;
+    int tmp = 0;
 
     if (metallivorous(youmonst.data)) {
         mesg = "You bite right into the metal tin...";

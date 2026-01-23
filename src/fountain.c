@@ -34,7 +34,7 @@ const char *what;
 STATIC_OVL void
 dowatersnakes()
 {
-    register int num = rn1(5, 2);
+    int num = rn1(5, 2);
     struct monst *mtmp;
 
     if (!(mvitals[PM_WATER_MOCCASIN].mvflags & G_GONE)) {
@@ -1042,8 +1042,8 @@ void
 drinkfountain()
 {
     /* What happens when you drink from a fountain? */
-    register boolean mgkftn = (levl[u.ux][u.uy].blessedftn == 1);
-    register int fate = rnd(30);
+    boolean mgkftn = (levl[u.ux][u.uy].blessedftn == 1);
+    int fate = rnd(30);
     struct obj *pseudo;
 
     if (Levitation) {

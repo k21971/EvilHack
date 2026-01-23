@@ -29,7 +29,7 @@ STATIC_OVL void
 init_map(bg_typ)
 schar bg_typ;
 {
-    register int i, j;
+    int i, j;
 
     for (i = 1; i < COLNO; i++)
         for (j = 0; j < ROWNO; j++)
@@ -40,7 +40,7 @@ STATIC_OVL void
 init_fill(bg_typ, fg_typ)
 schar bg_typ, fg_typ;
 {
-    register int i, j;
+    int i, j;
     long limit, count;
 
     limit = (WIDTH * HEIGHT * 2) / 5;
@@ -72,7 +72,7 @@ STATIC_OVL void
 pass_one(bg_typ, fg_typ)
 schar bg_typ, fg_typ;
 {
-    register int i, j;
+    int i, j;
     short count, dr;
 
     for (i = 2; i <= WIDTH; i++)
@@ -106,7 +106,7 @@ STATIC_OVL void
 pass_two(bg_typ, fg_typ)
 schar bg_typ, fg_typ;
 {
-    register int i, j;
+    int i, j;
     short count, dr;
 
     for (i = 2; i <= WIDTH; i++)
@@ -130,7 +130,7 @@ STATIC_OVL void
 pass_three(bg_typ, fg_typ)
 schar bg_typ, fg_typ;
 {
-    register int i, j;
+    int i, j;
     short count, dr;
 
     for (i = 2; i <= WIDTH; i++)
@@ -159,12 +159,12 @@ schar bg_typ, fg_typ;
 void
 flood_fill_rm(sx, sy, rmno, lit, anyroom)
 int sx;
-register int sy;
-register int rmno;
+int sy;
+int rmno;
 boolean lit;
 boolean anyroom;
 {
-    register int i;
+    int i;
     int nx;
     schar fg_typ = levl[sx][sy].typ;
 
@@ -186,7 +186,7 @@ boolean anyroom;
         levl[i][sy].lit = lit;
         if (anyroom) {
             /* add walls to room as well */
-            register int ii, jj;
+            int ii, jj;
             for (ii = (i == sx ? i - 1 : i); ii <= i + 1; ii++)
                 for (jj = sy - 1; jj <= sy + 1; jj++)
                     if (isok(ii, jj) && (IS_WALL(levl[ii][jj].typ)
@@ -275,7 +275,7 @@ schar bg_typ, fg_typ;
 {
     struct mkroom *croom, *croom2;
 
-    register int i, j;
+    int i, j;
     int sx, sy;
     coord sm, em;
 

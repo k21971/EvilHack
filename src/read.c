@@ -632,7 +632,7 @@ struct obj *otmp;
 STATIC_OVL void
 p_glow2(otmp, color)
 struct obj *otmp;
-register const char *color;
+const char *color;
 {
     pline("%s%s%s for a moment.", Yobjnam2(otmp, Blind ? "vibrate" : "glow"),
           Blind ? "" : " ", Blind ? "" : hcolor(color));
@@ -1143,7 +1143,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         break;
 #endif
     case SCR_ENCHANT_ARMOR: {
-        register schar s;
+        schar s;
         boolean special_armor;
         boolean same_color;
 
@@ -1998,7 +1998,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             break;
         }
         if (sblessed) {
-            register int x, y;
+            int x, y;
 
             for (x = 1; x < COLNO; x++)
                 for (y = 0; y < ROWNO; y++)
@@ -2113,7 +2113,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         /* TODO: handle steeds */
         if (!Is_rogue_level(&u.uz) && has_ceiling(&u.uz)
             && (!In_endgame(&u.uz) || Is_earthlevel(&u.uz))) {
-            register int x, y;
+            int x, y;
             int nboulders = 0;
 
             /* Identify the scroll */
@@ -2937,8 +2937,8 @@ int how;
 /* 5 (4 | 1) = normal genocide from throne */
 {
     char buf[BUFSZ] = DUMMY;
-    register int i, killplayer = 0;
-    register int mndx;
+    int i, killplayer = 0;
+    int mndx;
     struct permonst *ptr;
     const char *which;
 

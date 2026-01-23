@@ -625,7 +625,7 @@ clearlocks()
         eraseall(permbones, alllevels);
 #else
     {
-        register int x;
+        int x;
 
 #ifndef NO_SIGNAL
         (void) signal(SIGINT, SIG_IGN);

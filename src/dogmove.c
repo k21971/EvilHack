@@ -858,7 +858,7 @@ struct monst *mtmp;
 struct edog *edog;
 int udist;
 {
-    register int omx, omy, carryamt = 0;
+    int omx, omy, carryamt = 0;
     struct obj *obj, *otmp;
 
     boolean booldroppables = FALSE;
@@ -949,7 +949,7 @@ struct monst *mtmp;
 struct edog *edog;
 int after, udist, whappr;
 {
-    register int omx, omy;
+    int omx, omy;
     boolean in_masters_sight, dog_has_minvent;
     struct obj *obj;
     xchar otyp;
@@ -982,7 +982,7 @@ int after, udist, whappr;
 #define DDIST(x, y) (dist2(x, y, omx, omy))
 #define SQSRCHRADIUS 5
         int min_x, max_x, min_y, max_y;
-        register int nx, ny;
+        int nx, ny;
         boolean can_use = FALSE;
 
         gtyp = UNDEF; /* no goal as yet */
@@ -1089,7 +1089,7 @@ int after, udist, whappr;
 
 #define FARAWAY (COLNO + 2) /* position outside screen */
     if (gx == u.ux && gy == u.uy && !in_masters_sight) {
-        register coord *cp;
+        coord *cp;
 
         cp = gettrack(omx, omy);
         if (cp) {
@@ -1461,7 +1461,7 @@ int after; /* this is extra fast monster movement */
     boolean has_edog, cursemsg[9], summoned, do_eat = FALSE;
     boolean better_with_displacing = FALSE;
     xchar nix, niy;      /* position mtmp is (considering) moving to */
-    register int nx, ny; /* temporary coordinates */
+    int nx, ny; /* temporary coordinates */
     xchar cnt, uncursedcnt, chcnt, safecnt;
     int chi = -1, nidist, ndist;
     coord poss[9];

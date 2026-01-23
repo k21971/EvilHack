@@ -109,7 +109,7 @@ void
 new_were(mon)
 struct monst *mon;
 {
-    register int pm;
+    int pm;
 
     if (mon->data == &mons[PM_RAT_KING])
         return;

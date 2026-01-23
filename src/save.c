@@ -110,7 +110,7 @@ int
 dosave0()
 {
     const char *fq_save;
-    register int fd, ofd;
+    int fd, ofd;
     xchar ltmp;
     d_level uz_save;
     char whynot[BUFSZ];
@@ -305,7 +305,7 @@ dosave0()
 
 STATIC_OVL void
 savegamestate(fd, mode)
-register int fd, mode;
+int fd, mode;
 {
     unsigned long uid;
 
@@ -699,7 +699,7 @@ int fd;
 /* flush run and buffer */
 void
 bflush(fd)
-register int fd;
+int fd;
 {
     (*saveprocs.save_bflush)(fd);
     return;
@@ -709,7 +709,7 @@ void
 bwrite(fd, loc, num)
 int fd;
 genericptr_t loc;
-register unsigned num;
+unsigned num;
 {
     (*saveprocs.save_bwrite)(fd, loc, num);
     return;
@@ -766,9 +766,9 @@ int fd;
 
 STATIC_OVL void
 def_bwrite(fd, loc, num)
-register int fd;
-register genericptr_t loc;
-register unsigned num;
+int fd;
+genericptr_t loc;
+unsigned num;
 {
     boolean failed;
 
@@ -889,7 +889,7 @@ int fd;
 /* flush run and buffer */
 STATIC_OVL void
 zerocomp_bflush(fd)
-register int fd;
+int fd;
 {
     bwritefd = fd;
     if (outrunlength >= 0) { /* flush run */
@@ -917,9 +917,9 @@ STATIC_OVL void
 zerocomp_bwrite(fd, loc, num)
 int fd;
 genericptr_t loc;
-register unsigned num;
+unsigned num;
 {
-    register unsigned char *bp = (unsigned char *) loc;
+    unsigned char *bp = (unsigned char *) loc;
 
     if (!compressing) {
 #ifdef MFLOPPY
@@ -964,7 +964,7 @@ int fd;
 
 STATIC_OVL void
 savelevchn(fd, mode)
-register int fd, mode;
+int fd, mode;
 {
     s_level *tmplev, *tmplev2;
     int cnt = 0;
@@ -1012,7 +1012,7 @@ struct cemetery **cemeteryaddr;
 
 STATIC_OVL void
 savedamage(fd, mode)
-register int fd, mode;
+int fd, mode;
 {
     struct damage *damageptr, *tmp_dam;
     unsigned int xl = 0;
@@ -1108,7 +1108,7 @@ struct obj *otmp;
    handles release_data() for each object in the list */
 STATIC_OVL void
 saveobjchn(fd, obj_p, mode)
-register int fd, mode;
+int fd, mode;
 struct obj **obj_p;
 {
     struct obj *otmp = *obj_p;
@@ -1230,7 +1230,7 @@ struct monst *mtmp;
 
 STATIC_OVL void
 savemonchn(fd, mtmp, mode)
-register int fd, mode;
+int fd, mode;
 struct monst *mtmp;
 {
     struct monst *mtmp2;

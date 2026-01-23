@@ -538,8 +538,8 @@ artifact_name(name, otyp)
 const char *name;
 short *otyp;
 {
-    register const struct artifact *a;
-    register const char *aname;
+    const struct artifact *a;
+    const char *aname;
 
     if (!strncmpi(name, "the ", 4))
         name += 4;
@@ -563,8 +563,8 @@ int
 name_to_arti(name)
 const char *name;
 {
-    register const struct artifact *a;
-    register const char *aname;
+    const struct artifact *a;
+    const char *aname;
     int i;
 
     if (!name || !*name)
@@ -600,7 +600,7 @@ exist_artifact(otyp, name)
 int otyp;
 const char *name;
 {
-    register const struct artifact *a;
+    const struct artifact *a;
     boolean *arex;
 
     if (otyp && *name)
@@ -616,12 +616,12 @@ struct obj *otmp;
 const char *name;
 boolean mod;
 {
-    register const struct artifact *a;
+    const struct artifact *a;
 
     if (otmp && *name)
         for (a = artilist + 1; a->otyp; a++)
             if (a->otyp == otmp->otyp && !strcmp(a->name, name)) {
-                register int m = (int) (a - artilist);
+                int m = (int) (a - artilist);
                 otmp->oartifact = (char) (mod ? m : 0);
                 otmp->age = 0;
                 if (otmp->otyp == RIN_INCREASE_DAMAGE)
@@ -738,7 +738,7 @@ restrict_name(otmp, name)
 struct obj *otmp;
 const char *name;
 {
-    register const struct artifact *a;
+    const struct artifact *a;
     const char *aname, *odesc, *other;
     boolean sametype[NUM_OBJECTS];
     int i, lo, hi, otyp = otmp->otyp, ocls = objects[otyp].oc_class;
@@ -918,10 +918,10 @@ long wp_mask;
 {
     long *mask = 0;
     long *mask2 = 0;
-    register const struct artifact *art, *oart = get_artifact(otmp);
+    const struct artifact *art, *oart = get_artifact(otmp);
     struct obj *obj;
-    register uchar dtyp;
-    register long spfx;
+    uchar dtyp;
+    long spfx;
 
     if (!oart && !otmp->oprops)
         return;
@@ -1200,7 +1200,7 @@ touch_artifact(obj, mon)
 struct obj *obj;
 struct monst *mon;
 {
-    register const struct artifact *oart = get_artifact(obj);
+    const struct artifact *oart = get_artifact(obj);
     boolean badclass, badalign, self_willed, yours;
 
     touch_blasted = FALSE;
@@ -1292,7 +1292,7 @@ arti_immune(obj, dtyp)
 struct obj *obj;
 int dtyp;
 {
-    register const struct artifact *weap = get_artifact(obj);
+    const struct artifact *weap = get_artifact(obj);
 
     if (!weap)
         return FALSE;
@@ -1370,7 +1370,7 @@ struct monst *mon;
 /* decide whether an artifact's special attacks apply against mtmp */
 STATIC_OVL int
 spec_applies(weap, mtmp)
-register const struct artifact *weap;
+const struct artifact *weap;
 struct monst *mtmp;
 {
     struct permonst *ptr;
@@ -1504,7 +1504,7 @@ struct obj *otmp;
 struct monst *mon;
 int tmp;
 {
-    register const struct artifact *weap = get_artifact(otmp);
+    const struct artifact *weap = get_artifact(otmp);
     boolean yours = (mon == &youmonst);
     int dbon = 0, adtype;
 
@@ -3954,7 +3954,7 @@ void
 arti_speak(obj)
 struct obj *obj;
 {
-    register const struct artifact *oart = get_artifact(obj);
+    const struct artifact *oart = get_artifact(obj);
     const char *line;
     char buf[BUFSZ];
 

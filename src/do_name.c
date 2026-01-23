@@ -2003,7 +2003,7 @@ char *
 Monnam(mtmp)
 struct monst *mtmp;
 {
-    register char *bp = mon_nam(mtmp);
+    char *bp = mon_nam(mtmp);
 
     *bp = highc(*bp);
     return  bp;
@@ -2013,7 +2013,7 @@ char *
 noit_Monnam(mtmp)
 struct monst *mtmp;
 {
-    register char *bp = noit_mon_nam(mtmp);
+    char *bp = noit_mon_nam(mtmp);
 
     *bp = highc(*bp);
     return  bp;

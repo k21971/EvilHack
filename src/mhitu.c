@@ -3537,7 +3537,7 @@ struct attack *mattk;
 
     /* assumes that hero has to see monster's gaze in order to be
        affected, rather than monster just having to look at hero;
-       when hallucinating, hero's brain doesn't register what
+       when hallucinating, hero's brain doesn't what
        it's seeing correctly so the gaze is usually ineffective
        [this could be taken a lot farther and select a gaze effect
        appropriate to what's currently being displayed, giving

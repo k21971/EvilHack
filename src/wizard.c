@@ -168,7 +168,7 @@ struct monst *mtmp;
 
 STATIC_OVL short
 which_arti(mask)
-register int mask;
+int mask;
 {
     switch (mask) {
     case M3_WANTSAMUL:
@@ -193,7 +193,7 @@ register int mask;
 STATIC_OVL boolean
 mon_has_arti(mtmp, otyp)
 struct monst *mtmp;
-register short otyp;
+short otyp;
 {
     struct obj *otmp;
 
@@ -210,7 +210,7 @@ register short otyp;
 STATIC_OVL struct monst *
 other_mon_has_arti(mtmp, otyp)
 struct monst *mtmp;
-register short otyp;
+short otyp;
 {
     struct monst *mtmp2;
 
@@ -225,7 +225,7 @@ register short otyp;
 
 STATIC_OVL struct obj *
 on_ground(otyp)
-register short otyp;
+short otyp;
 {
     struct obj *otmp;
 
@@ -240,7 +240,7 @@ register short otyp;
 
 STATIC_OVL boolean
 you_have(mask)
-register int mask;
+int mask;
 {
     switch (mask) {
     case M3_WANTSAMUL:
@@ -261,10 +261,10 @@ register int mask;
 
 STATIC_OVL unsigned long
 target_on(mask, mtmp)
-register int mask;
+int mask;
 struct monst *mtmp;
 {
-    register short otyp;
+    short otyp;
     struct obj *otmp;
     struct monst *mtmp2;
 
@@ -683,7 +683,7 @@ struct monst *summoner;
 BOOLEAN_P centered_on_stairs;
 {
     struct monst *mtmp;
-    register int i, j, tmp;
+    int i, j, tmp;
     int castalign = (summoner ? sgn(mon_aligntyp(summoner)) : 0);
     coord bypos;
     int count, census, s_cls, m_cls;

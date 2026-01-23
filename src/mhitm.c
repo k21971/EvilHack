@@ -2127,7 +2127,7 @@ post_stone:
     case AD_BLND:
         tmp = 0;
         if (can_blnd(magr, mdef, mattk->aatyp, (struct obj *) 0)) {
-            register unsigned rnd_tmp;
+            unsigned rnd_tmp;
 
             if (mattk->aatyp == AT_GAZE) {
                 if (vis) {

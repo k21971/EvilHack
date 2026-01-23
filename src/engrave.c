@@ -180,7 +180,7 @@ boolean up, check_pit;
 
 const char *
 surface(x, y)
-register int x, y;
+int x, y;
 {
     struct rm *lev = &levl[x][y];
 
@@ -220,7 +220,7 @@ register int x, y;
 
 const char *
 ceiling(x, y)
-register int x, y;
+int x, y;
 {
     struct rm *lev = &levl[x][y];
     const char *what;
@@ -1026,7 +1026,7 @@ doengrave()
      * possible) by now.
      */
     if (oep) {
-        register char c = 'n';
+        char c = 'n';
 
         /* Give player the choice to add to engraving. */
         if (type == HEADSTONE) {

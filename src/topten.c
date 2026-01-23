@@ -724,7 +724,7 @@ time_t when;
     struct toptenentry *t0, *tprev;
     struct toptenentry *t1;
     FILE *rfile;
-    register int flg = 0;
+    int flg = 0;
     boolean t0_used;
 #ifdef LOGFILE
     FILE *lfile;
@@ -1016,7 +1016,7 @@ STATIC_OVL void
 outheader()
 {
     char linebuf[BUFSZ];
-    register char *bp;
+    char *bp;
 
     Strcpy(linebuf, " No  Points     Name");
     bp = eos(linebuf);
@@ -1252,7 +1252,7 @@ char **argv;
     struct toptenentry *t1;
     FILE *rfile;
     boolean match_found = FALSE;
-    register int i;
+    int i;
     char pbuf[BUFSZ];
     int uid = -1;
     const char *player0;

@@ -56,7 +56,7 @@ const genericptr vy;
     */
     return (vx == vy) ? 0 : -1;
 #else
-    register const struct mkroom *x, *y;
+    const struct mkroom *x, *y;
 
     x = (const struct mkroom *) vx;
     y = (const struct mkroom *) vy;
@@ -71,7 +71,7 @@ finddpos(cc, xl, yl, xh, yh)
 coord *cc;
 xchar xl, yl, xh, yh;
 {
-    register xchar x, y;
+    xchar x, y;
 
     x = rn1(xh - xl + 1, xl);
     y = rn1(yh - yl + 1, yl);
@@ -112,13 +112,13 @@ STATIC_OVL void
 do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, rtype, special, is_room)
 struct mkroom *croom;
 int lowx, lowy;
-register int hix, hiy;
+int hix, hiy;
 boolean lit;
 schar rtype;
 boolean special;
 boolean is_room;
 {
-    register int x, y;
+    int x, y;
     struct rm *lev;
 
     /* locations might bump level edges in wall-less rooms */
@@ -350,13 +350,13 @@ makerooms()
 
 STATIC_OVL void
 join(a, b, nxcor)
-register int a, b;
+int a, b;
 boolean nxcor;
 {
     coord cc, tt, org, dest;
-    register xchar tx, ty, xx, yy;
+    xchar tx, ty, xx, yy;
     struct mkroom *croom, *troom;
-    register int dx, dy;
+    int dx, dy;
 
     croom = &rooms[a];
     troom = &rooms[b];
@@ -457,11 +457,11 @@ makecorridors()
 
 void
 add_door(x, y, aroom)
-register int x, y;
+int x, y;
 struct mkroom *aroom;
 {
     struct mkroom *broom;
-    register int tmp;
+    int tmp;
     int i;
 
     if (aroom->doorct == 0)
@@ -490,7 +490,7 @@ struct mkroom *aroom;
 
 STATIC_OVL void
 dosdoor(x, y, aroom, type)
-register xchar x, y;
+xchar x, y;
 struct mkroom *aroom;
 int type;
 {
@@ -721,7 +721,7 @@ clear_level_structures()
 {
     static struct rm zerorm = { cmap_to_glyph(S_stone),
                                 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    register int x, y;
+    int x, y;
     struct rm *lev;
 
     /* note:  normally we'd start at x=1 because map column #0 isn't used
@@ -796,8 +796,8 @@ STATIC_OVL void
 makelevel()
 {
     struct mkroom *croom, *troom;
-    register int tryct;
-    register int i;
+    int tryct;
+    int i;
     struct monst *tmonst; /* always put a web with a spider */
     branch *branchp;
     int room_threshold, boxtype;
@@ -809,7 +809,7 @@ makelevel()
     clear_level_structures();
 
     {
-        register s_level *slev = Is_special(&u.uz);
+        s_level *slev = Is_special(&u.uz);
 
         /* check for special levels */
         if (slev && !Is_rogue_level(&u.uz)) {
@@ -940,7 +940,7 @@ makelevel()
     }
 
     {
-        register int u_depth = depth(&u.uz);
+        int u_depth = depth(&u.uz);
 
         if (wizard && nh_getenv("SHOPTYPE"))
             mkroom(SHOPBASE);
@@ -1264,7 +1264,7 @@ topologize(croom)
 struct mkroom *croom;
 #endif
 {
-    register int x, y, roomno = (int) ((croom - rooms) + ROOMOFFSET);
+    int x, y, roomno = (int) ((croom - rooms) + ROOMOFFSET);
     int lowx = croom->lx, lowy = croom->ly;
     int hix = croom->hx, hiy = croom->hy;
 #ifdef SPECIALIZATION
@@ -1443,9 +1443,9 @@ xchar x, y; /* location */
 
 boolean
 bydoor(x, y)
-register xchar x, y;
+xchar x, y;
 {
-    register int typ;
+    int typ;
 
     if (isok(x + 1, y)) {
         typ = levl[x + 1][y].typ;
@@ -1496,7 +1496,7 @@ struct mkroom *aroom;
 
 boolean
 occupied(x, y)
-register xchar x, y;
+xchar x, y;
 {
     return (boolean) (t_at(x, y) || IS_FURNITURE(levl[x][y].typ)
                       || is_lava(x, y) || is_pool(x, y)
@@ -1511,7 +1511,7 @@ int num, mazeflag;
 struct mkroom *croom;
 coord *tm;
 {
-    register int i, kind;
+    int i, kind;
     struct trap *t;
     unsigned lvl = level_difficulty();
     coord m;
@@ -1646,7 +1646,7 @@ coord *tm;
     if (tm) {
         m = *tm;
     } else {
-        register int tryct = 0;
+        int tryct = 0;
         boolean avoid_boulder = (is_pit(kind) || is_hole(kind));
 
         if (mazeflag)
@@ -1953,7 +1953,7 @@ mkgrave(croom)
 struct mkroom *croom;
 {
     coord m;
-    register int tryct = 0;
+    int tryct = 0;
     struct obj *otmp;
     boolean dobell = !rn2(10);
 
@@ -2016,7 +2016,7 @@ mkinvokearea()
     int dist;
     xchar xmin = inv_pos.x, xmax = inv_pos.x,
           ymin = inv_pos.y, ymax = inv_pos.y;
-    register xchar i;
+    xchar i;
 
     /* slightly odd if levitating, but not wrong */
     pline_The("floor shakes violently under you!");

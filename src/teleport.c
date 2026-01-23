@@ -138,7 +138,7 @@ long gpflags;
 boolean
 enexto(cc, xx, yy, mdat)
 coord *cc;
-register xchar xx, yy;
+xchar xx, yy;
 struct permonst *mdat;
 {
     return enexto_core(cc, xx, yy, mdat, NO_MM_FLAGS);
@@ -282,7 +282,7 @@ int x1, y1, x2, y2;
 
 STATIC_OVL boolean
 teleok(x, y, trapok)
-register int x, y;
+int x, y;
 boolean trapok;
 {
     if (!trapok) {
@@ -463,7 +463,7 @@ boolean
 safe_teleds(teleds_flags)
 int teleds_flags;
 {
-    register int nux, nuy, tcnt = 0;
+    int nux, nuy, tcnt = 0;
 
     do {
         nux = rnd(COLNO - 1);
@@ -846,7 +846,7 @@ level_tele()
 {
     static const char get_there_from[] = "get there from %s.";
     struct monst *mtmp;
-    register int newlev;
+    int newlev;
     d_level newlevel;
     const char *escape_by_flying = 0; /* when surviving dest of -N */
     char buf[BUFSZ];
@@ -1329,10 +1329,10 @@ unsigned trflags;
 /* check whether monster can arrive at location <x,y> via Tport (or fall) */
 boolean
 rloc_pos_ok(x, y, mtmp)
-register int x, y; /* coordinates of candidate location */
+int x, y; /* coordinates of candidate location */
 struct monst *mtmp;
 {
-    register int xx, yy;
+    int xx, yy;
 
     if (!goodpos(x, y, mtmp, 0L))
         return FALSE;
@@ -1395,9 +1395,9 @@ struct monst *mtmp;
 void
 rloc_to(mtmp, x, y)
 struct monst *mtmp;
-register int x, y;
+int x, y;
 {
-    register int oldx = mtmp->mx, oldy = mtmp->my;
+    int oldx = mtmp->mx, oldy = mtmp->my;
     boolean resident_shk = mtmp->isshk && inhishop(mtmp);
     struct monst *othermon;
 
@@ -1484,7 +1484,7 @@ rloc(mtmp, suppress_impossible)
 struct monst *mtmp; /* mx==0 implies migrating monster arrival */
 boolean suppress_impossible;
 {
-    register int x, y, trycount;
+    int x, y, trycount;
 
     if (mtmp == u.usteed) {
         tele();
@@ -1716,7 +1716,7 @@ boolean
 rloco(obj)
 struct obj *obj;
 {
-    register xchar tx, ty, otx, oty;
+    xchar tx, ty, otx, oty;
     boolean restricted_fall;
     int try_limit = 4000;
 

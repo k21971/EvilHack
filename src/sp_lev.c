@@ -636,7 +636,7 @@ set_wall_property(x1, y1, x2, y2, prop)
 xchar x1, y1, x2, y2;
 int prop;
 {
-    register xchar x, y;
+    xchar x, y;
     struct rm *lev;
 
     x1 = max(x1, 1);
@@ -913,7 +913,7 @@ struct mkroom *croom;
                 break;
         } while (++cpt < 100);
         if (cpt >= 100) {
-            register int xx, yy;
+            int xx, yy;
 
             /* last try */
             for (xx = 0; xx < sx; xx++)
@@ -946,10 +946,10 @@ found_it:
 
 STATIC_OVL boolean
 is_ok_location(x, y, humidity)
-register schar x, y;
-register int humidity;
+schar x, y;
+int humidity;
 {
-    register int typ;
+    int typ;
 
     if (Is_waterlevel(&u.uz))
         return TRUE; /* accept any spot */
@@ -1056,7 +1056,7 @@ struct mkroom *croom;
 packed_coord pos;
 {
     schar try_x, try_y;
-    register int trycnt = 0;
+    int trycnt = 0;
 
     get_location_coord(&try_x, &try_y, DRY, croom, pos);
     if (levl[try_x][try_y].typ != ROOM) {
@@ -1076,7 +1076,7 @@ check_room(lowx, ddx, lowy, ddy, vault)
 xchar *lowx, *ddx, *lowy, *ddy;
 boolean vault;
 {
-    register int x, y, hix = *lowx + *ddx, hiy = *lowy + *ddy;
+    int x, y, hix = *lowx + *ddx, hiy = *lowy + *ddy;
     struct rm *lev;
     int xlim, ylim, ymax;
 
@@ -1418,7 +1418,7 @@ struct mkroom *broom;
     }
 
     do {
-        register int dwall, dpos;
+        int dwall, dpos;
 
         dwall = dd->wall;
         if (dwall == -1) /* The wall is RANDOM */
@@ -2403,7 +2403,7 @@ schar ftyp, btyp;
 
         /* do we have to change direction ? */
         if (dy && dix > diy) {
-            register int ddx = (xx > tx) ? -1 : 1;
+            int ddx = (xx > tx) ? -1 : 1;
 
             crm = &levl[xx + ddx][yy];
             if (crm->typ == btyp || crm->typ == ftyp || crm->typ == SCORR) {
@@ -2412,7 +2412,7 @@ schar ftyp, btyp;
                 continue;
             }
         } else if (dx && diy > dix) {
-            register int ddy = (yy > ty) ? -1 : 1;
+            int ddy = (yy > ty) ? -1 : 1;
 
             crm = &levl[xx][yy + ddy];
             if (crm->typ == btyp || crm->typ == ftyp || crm->typ == SCORR) {
@@ -2665,9 +2665,9 @@ STATIC_OVL void
 light_region(tmpregion)
 region *tmpregion;
 {
-    register boolean litstate = tmpregion->rlit ? 1 : 0;
-    register int hiy = tmpregion->y2;
-    register int x, y;
+    boolean litstate = tmpregion->rlit ? 1 : 0;
+    int hiy = tmpregion->y2;
+    int x, y;
     struct rm *lev;
     int lowy = tmpregion->y1;
     int lowx = tmpregion->x1, hix = tmpregion->x2;
@@ -2730,7 +2730,7 @@ maze1xy(m, humidity)
 coord *m;
 int humidity;
 {
-    register int x, y, tryct = 2000;
+    int x, y, tryct = 2000;
     /* tryct:  normally it won't take more than ten or so tries due
        to the circumstances under which we'll be called, but the
        `humidity' screening might drastically change the chances */

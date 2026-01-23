@@ -604,7 +604,7 @@ assigninvlet(otmp)
 struct obj *otmp;
 {
     boolean inuse[52];
-    register int i;
+    int i;
     struct obj *obj;
 
     /* there should be at most one of these in inventory... */
@@ -1375,7 +1375,7 @@ boolean by_nexthere;
 
 struct obj *
 carrying(type)
-register int type;
+int type;
 {
     struct obj *otmp;
 
@@ -1479,7 +1479,7 @@ int x, y;
 
 struct obj *
 g_at(x, y)
-register int x, y;
+int x, y;
 {
     struct obj *obj = level.objects[x][y];
 
@@ -1494,10 +1494,10 @@ register int x, y;
 /* compact a string of inventory letters by dashing runs of letters */
 STATIC_OVL void
 compactify(buf)
-register char *buf;
+char *buf;
 {
-    register int i1 = 1, i2 = 1;
-    register char ilet, ilet1, ilet2;
+    int i1 = 1, i2 = 1;
+    char ilet, ilet1, ilet2;
 
     ilet2 = buf[0];
     ilet1 = buf[1];
@@ -1564,14 +1564,14 @@ const char *action;
  */
 struct obj *
 getobj(let, word)
-register const char *let, *word;
+const char *let, *word;
 {
     struct obj *otmp;
-    register char ilet = 0;
+    char ilet = 0;
     char buf[BUFSZ], qbuf[QBUFSZ];
     char lets[BUFSZ], altlets[BUFSZ], *ap;
-    register int foo = 0;
-    register char *bp = buf;
+    int foo = 0;
+    char *bp = buf;
     xchar allowcnt = 0; /* 0, 1 or 2 */
     boolean usegold = FALSE; /* can't use gold because its illegal */
     boolean allowall = FALSE;
@@ -1637,7 +1637,7 @@ register const char *let, *word;
         if (!*let || index(let, otmp->oclass)
             || (usegold && otmp->invlet == GOLD_SYM)
             || (useboulder && otmp->otyp == BOULDER)) {
-            register int otyp = otmp->otyp;
+            int otyp = otmp->otyp;
 
             bp[foo++] = otmp->invlet;
 /* clang-format off */
@@ -2271,7 +2271,7 @@ const char *olets, *word; /* olets is an Obj Class char array */
 int FDECL((*fn), (OBJ_P)), FDECL((*ckfn), (OBJ_P));
 {
     struct obj *otmp, *otmpo;
-    register char sym, ilet;
+    char sym, ilet;
     int cnt = 0, dud = 0, tmp;
     boolean takeoff, nodot, ident, take_out, put_in, first, ininv, bycat;
     char qbuf[QBUFSZ], qpfx[QBUFSZ];
@@ -2755,7 +2755,7 @@ free_pickinv_cache()
  */
 STATIC_OVL char
 display_pickinv(lets, xtra_choice, query, want_reply, out_cnt)
-register const char *lets;
+const char *lets;
 const char *xtra_choice; /* "fingers", pick hands rather than an object */
 const char *query;
 boolean want_reply;
@@ -3217,7 +3217,7 @@ dounpaid()
 {
     winid win;
     struct obj *otmp, *marker, *contnr;
-    register char ilet;
+    char ilet;
     char *invlet = flags.inv_order;
     int classcount, count, num_so_far;
     long cost, totcost;
@@ -4031,7 +4031,7 @@ int
 doprarm()
 {
     char lets[8];
-    register int ct = 0;
+    int ct = 0;
     /*
      * Note:  players sometimes get here by pressing a function key which
      * transmits ''ESC [ <something>'' rather than by pressing '[';
@@ -4069,7 +4069,7 @@ doprring()
         You("are not wearing any rings.");
     else {
         char lets[3];
-        register int ct = 0;
+        int ct = 0;
 
         if (uleft)
             lets[ct++] = obj_to_let(uleft);

@@ -583,7 +583,7 @@ dochug(mtmp)
 struct monst *mtmp;
 {
     struct permonst *mdat;
-    register int tmp = 0;
+    int tmp = 0;
     struct monst* mdummy;
     int inrange, nearby, scared, oldx, oldy;
 
@@ -824,7 +824,7 @@ struct monst *mtmp;
             } else if (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID))) {
                 Your("psionic abilities shield your brain.");
             } else if (!u.uinvulnerable) {
-                register boolean m_sen = sensemon(mtmp);
+                boolean m_sen = sensemon(mtmp);
 
                 if (m_sen || (Blind_telepat && rn2(2)) || !rn2(10)) {
                     int dmg;
@@ -1139,7 +1139,7 @@ xchar gx, gy;
     int shortest_with_displacing = -1;
     int shortest_without_displacing = -1;
     int count_without_displacing = 0;
-    register int i, nx, ny;
+    int i, nx, ny;
     int ndist;
 
     for (i = 0; i < cnt; i++) {
@@ -1269,9 +1269,9 @@ struct obj *container;
 int
 m_move(mtmp, after)
 struct monst *mtmp;
-register int after;
+int after;
 {
-    register int appr;
+    int appr;
     xchar gx, gy, nix, niy, chcnt;
     int chi; /* could be schar except for stupid Sun-2 compiler */
     boolean likegold = 0, likegems = 0, likeobjs = 0, likemagic = 0,
@@ -1527,7 +1527,7 @@ register int after;
             appr = -1;
 
         if (!should_see && can_track(ptr)) {
-            register coord *cp;
+            coord *cp;
 
             cp = gettrack(omx, omy);
             if (cp) {
@@ -1635,7 +1635,7 @@ found_altar:
             /* Monsters in combat won't pick stuff up, avoiding the
              * situation where you toss arrows at it and it has nothing
              * better to do than pick the arrows up */
-            register int pctload =
+            int pctload =
                 (curr_mon_load(mtmp) * 100) / max_mon_load(mtmp);
 
             /* look for gold or jewels nearby */
@@ -1654,9 +1654,9 @@ found_altar:
 #define SQSRCHRADIUS 5
 
     {
-        register int minr = SQSRCHRADIUS; /* not too far away */
+        int minr = SQSRCHRADIUS; /* not too far away */
         struct obj *otmp;
-        register int xx, yy;
+        int xx, yy;
         int oomx, oomy, lmx, lmy;
 
         /* cut down the search radius if it thinks character is closer */
@@ -1837,10 +1837,10 @@ found_altar:
     if (doorbuster)
         flag |= BUSTDOOR;
     {
-        register int i, j, nx, ny, nearer;
+        int i, j, nx, ny, nearer;
         int jcnt, cnt;
         int ndist, nidist;
-        register coord *mtrk;
+        coord *mtrk;
         coord poss[9];
 
         cnt = mfndpos(mtmp, poss, info, flag);
@@ -1992,7 +1992,7 @@ found_altar:
     }
 
     if (mmoved) {
-        register int j;
+        int j;
 
         if (mmoved == 1 && (u.ux != nix || u.uy != niy) && itsstuck(mtmp))
             return 3;
@@ -2467,7 +2467,7 @@ xchar x, y;
  */
 int
 concealed_spot(x, y)
-register int x, y;
+int x, y;
 {
     if (OBJ_AT(x, y))
         return 2;
@@ -2487,7 +2487,7 @@ register int x, y;
 
 void
 dissolve_bars(x, y)
-register int x, y;
+int x, y;
 {
     levl[x][y].typ = (Is_special(&u.uz) || *in_rooms(x, y, 0)) ? ROOM : CORR;
     levl[x][y].flags = 0;
@@ -2496,7 +2496,7 @@ register int x, y;
 
 boolean
 closed_door(x, y)
-register int x, y;
+int x, y;
 {
     return (boolean) (IS_DOOR(levl[x][y].typ)
                       && (levl[x][y].doormask & (D_LOCKED | D_CLOSED)));
@@ -2504,7 +2504,7 @@ register int x, y;
 
 boolean
 accessible(x, y)
-register int x, y;
+int x, y;
 {
     int levtyp = levl[x][y].typ;
 
@@ -2521,7 +2521,7 @@ set_apparxy(mtmp)
 struct monst *mtmp;
 {
     boolean notseen, gotu;
-    register int disp, mx = mtmp->mux, my = mtmp->muy;
+    int disp, mx = mtmp->mux, my = mtmp->muy;
     long umoney = money_cnt(invent);
 
     /*
@@ -2562,7 +2562,7 @@ struct monst *mtmp;
     gotu = notseen ? !rn2(3) : Displaced ? !rn2(4) : FALSE;
 
     if (!gotu) {
-        register int try_cnt = 0;
+        int try_cnt = 0;
 
         do {
             if (++try_cnt > 200)

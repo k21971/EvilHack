@@ -1150,7 +1150,7 @@ get_valuables(list)
 struct obj *list; /* inventory or container contents */
 {
     struct obj *obj;
-    register int i;
+    int i;
 
     /* find amulets and gems, ignoring all artifacts */
     for (obj = list; obj; obj = obj->nobj)
@@ -1190,7 +1190,7 @@ sort_valuables(list, size)
 struct valuable_data list[];
 int size; /* max value is less than 20 */
 {
-    register int i, j;
+    int i, j;
     struct valuable_data ltmp;
 
     /* move greater quantities to the front of the list */
@@ -1339,7 +1339,7 @@ done(how)
 int how;
 {
     boolean survive = FALSE;
-    register xchar x, y;
+    xchar x, y;
     x = u.ux + u.dx;
     y = u.uy + u.dy;
 
@@ -1862,7 +1862,7 @@ int how;
         struct monst *mtmp;
         struct obj *otmp;
         struct val_list *val;
-        register int i;
+        int i;
 
         for (val = valuables; val->list; val++)
             for (i = 0; i < val->size; i++) {
@@ -2275,7 +2275,7 @@ list_vanquished(defquery, ask)
 char defquery;
 boolean ask;
 {
-    register int i;
+    int i;
     int pfx, nkilled;
     unsigned ntypes, ni;
     long total_killed = 0L;
@@ -2440,7 +2440,7 @@ list_genocided(defquery, ask)
 char defquery;
 boolean ask;
 {
-    register int i;
+    int i;
     int ngenocided, nextinct;
     char c;
     winid klwin;

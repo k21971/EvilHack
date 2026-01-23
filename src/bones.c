@@ -818,8 +818,8 @@ struct obj *corpse;
 int
 getbones()
 {
-    register int fd;
-    register int ok;
+    int fd;
+    int ok;
     char c, *bonesid, oldbonesid[40]; /* was [10]; more should be safer */
 
     if (discover) /* save bones files for real games */

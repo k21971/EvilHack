@@ -39,7 +39,7 @@ STATIC_OVL boolean
 isbig(sroom)
 struct mkroom *sroom;
 {
-    register int area = (sroom->hx - sroom->lx + 1)
+    int area = (sroom->hx - sroom->lx + 1)
                         * (sroom->hy - sroom->ly + 1);
 
     return (boolean) (area > 20);
@@ -222,7 +222,7 @@ gottype:
     }
 
     if (i < 0) { /* shoptype not yet determined */
-        register int j;
+        int j;
 
         /* pick a shop type at random */
         for (j = rnd(100), i = 0; (j -= shtypes[i].prob) > 0; i++)
@@ -251,10 +251,10 @@ gottype:
 /* pick an unused room, preferably with only one door */
 STATIC_OVL struct mkroom *
 pick_room(strict)
-register boolean strict;
+boolean strict;
 {
     struct mkroom *sroom;
-    register int i = nroom;
+    int i = nroom;
 
     for (sroom = &rooms[rn2(nroom)]; i--; sroom++) {
         if (sroom == &rooms[nroom])
@@ -312,7 +312,7 @@ struct mkroom *sroom;
 {
     struct monst *mon;
     struct obj *oegg;
-    register int sx, sy, i;
+    int sx, sy, i;
     int sh, tx = 0, ty = 0, goldlim = 0, type = sroom->rtype;
     int rmno = (int) ((sroom - rooms) + ROOMOFFSET);
     boolean special_nursery = !rn2(10);
@@ -598,8 +598,8 @@ int mm_flags;
 STATIC_OVL struct permonst *
 morguemon()
 {
-    register int i = rn2(100), hd = rn2(level_difficulty());
-    register int v = In_vecna_branch(&u.uz) ? 22 : 40;
+    int i = rn2(100), hd = rn2(level_difficulty());
+    int v = In_vecna_branch(&u.uz) ? 22 : 40;
 
     if (hd > 10 && i < 10) {
         if (Inhell || In_endgame(&u.uz)) {
@@ -836,7 +836,7 @@ STATIC_OVL void
 mkswamp() /* Michiel Huisjes & Fred de Wilde */
 {
     struct mkroom *sroom;
-    register int sx, sy, i, eelct = 0;
+    int sx, sy, i, eelct = 0;
 
     for (i = 0; i < 5; i++) { /* turn up to 5 rooms swampy */
         sroom = &rooms[rn2(nroom)];
@@ -930,9 +930,9 @@ mktemple()
 
 boolean
 nexttodoor(sx, sy)
-register int sx, sy;
+int sx, sy;
 {
-    register int dx, dy;
+    int dx, dy;
     struct rm *lev;
 
     for (dx = -1; dx <= 1; dx++) {
@@ -949,9 +949,9 @@ register int sx, sy;
 
 boolean
 nexttotree(sx, sy)
-register int sx, sy;
+int sx, sy;
 {
-    register int dx, dy;
+    int dx, dy;
     struct rm *lev;
 
     for (dx = -1; dx <= 1; dx++) {

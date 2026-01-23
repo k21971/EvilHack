@@ -311,7 +311,7 @@ popch()
 char
 pgetchar() /* courtesy of aeb@cwi.nl */
 {
-    register int ch;
+    int ch;
 
     if (iflags.debug_fuzzer)
         return randomkey();
@@ -383,7 +383,7 @@ doextcmd(VOID_ARGS)
 int
 doextlist(VOID_ARGS)
 {
-    register const struct ext_func_tab *efp;
+    const struct ext_func_tab *efp;
     char buf[BUFSZ], searchbuf[BUFSZ], promptbuf[QBUFSZ];
     winid menuwin;
     anything any;
@@ -5399,7 +5399,7 @@ char *autocomplete;
 boolean condition;
 {
     struct ext_func_tab *efp;
-    register char *autoc;
+    char *autoc;
 
     /* break off first autocomplete from the rest; parse the rest */
     if ((autoc = index(autocomplete, ',')) != 0
@@ -5673,7 +5673,7 @@ int start,end;
 
 void
 rhack(cmd)
-register char *cmd;
+char *cmd;
 {
     int spkey;
     boolean prefix_seen, bad_command,
@@ -5866,7 +5866,7 @@ register char *cmd;
 
     /* handle all other commands */
     } else {
-        register const struct ext_func_tab *tlist;
+        const struct ext_func_tab *tlist;
         int res, NDECL((*func));
 
         /* current - use *cmd to directly index cmdlist array */
@@ -5917,7 +5917,7 @@ int
 xytod(x, y)
 schar x, y;
 {
-    register int dd;
+    int dd;
 
     for (dd = 0; dd < 8; dd++)
         if (x == xdir[dd] && y == ydir[dd])
@@ -5929,7 +5929,7 @@ schar x, y;
 void
 dtoxy(cc, dd)
 coord *cc;
-register int dd;
+int dd;
 {
     cc->x = xdir[dd];
     cc->y = ydir[dd];
@@ -5941,7 +5941,7 @@ int
 movecmd(sym)
 char sym;
 {
-    register const char *dp = index(Cmd.dirchars, sym);
+    const char *dp = index(Cmd.dirchars, sym);
 
     u.dz = 0;
     if (!dp || !*dp)
@@ -6265,7 +6265,7 @@ const char *msg;
 void
 confdir()
 {
-    register int x = NODIAG(u.umonnum) ? 2 * rn2(4) : rn2(8);
+    int x = NODIAG(u.umonnum) ? 2 * rn2(4) : rn2(8);
 
     u.dx = xdir[x];
     u.dy = ydir[x];
@@ -6288,7 +6288,7 @@ int dir;
 
 int
 isok(x, y)
-register int x, y;
+int x, y;
 {
     /* x corresponds to curx, so x==1 is the first column. Ach. %% */
     return x >= 1 && x <= COLNO - 1 && y >= 0 && y <= ROWNO - 1;
@@ -6776,7 +6776,7 @@ parse()
 #else
     static char in_line[COLNO];
 #endif
-    register int foo;
+    int foo;
 
     iflags.in_parse = TRUE;
     multi = 0;
@@ -6909,7 +6909,7 @@ end_of_input()
 char
 readchar()
 {
-    register int sym;
+    int sym;
     int x = u.ux, y = u.uy, mod = 0;
 
     if (iflags.debug_fuzzer)
@@ -6921,7 +6921,7 @@ readchar()
 
 #ifdef NR_OF_EOFS
     if (sym == EOF) {
-        register int cnt = NR_OF_EOFS;
+        int cnt = NR_OF_EOFS;
         /*
          * Some SYSV systems seem to return EOFs for various reasons
          * (?like when one hits break or for interrupted systemcalls?),

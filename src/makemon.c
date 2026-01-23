@@ -79,7 +79,7 @@ struct monst *mtmp;
 int x, y, n, mmflags;
 {
     coord mm;
-    register int cnt = rnd(n);
+    int cnt = rnd(n);
     int support, leader;
     struct monst *mon;
 #if defined(__GNUC__) && (defined(HPUX) || defined(DGUX))
@@ -992,7 +992,7 @@ m_initweap(mtmp)
 struct monst *mtmp;
 {
     struct permonst *ptr = mtmp->data;
-    register int mm = monsndx(ptr);
+    int mm = monsndx(ptr);
     struct obj *otmp = mtmp->minvent, *nextobj;
     int bias, w1, w2, randwand, quan;
 
@@ -2477,7 +2477,7 @@ STATIC_OVL void
 m_initinv(mtmp)
 struct monst *mtmp;
 {
-    register int cnt;
+    int cnt;
     struct obj *otmp;
     struct permonst *ptr = mtmp->data;
 
@@ -2490,7 +2490,7 @@ struct monst *mtmp;
     switch (ptr->mlet) {
     case S_HUMAN:
         if (is_mercenary(ptr) || monsndx(ptr) == PM_TEMPLAR) {
-            register int mac;
+            int mac;
 
             switch (monsndx(ptr)) {
             case PM_GUARD:
@@ -3276,7 +3276,7 @@ coord *cc;
 struct monst *
 makemon(ptr, x, y, mmflags)
 struct permonst *ptr;
-register int x, y;
+int x, y;
 long mmflags;
 {
     struct monst *mtmp;
@@ -3837,7 +3837,7 @@ struct permonst *ptr;
 {
     static NEARDATA long oldmoves = 0L; /* != 1, starting value of moves */
     static NEARDATA s_level *lev;
-    register int alshift;
+    int alshift;
     /* the only randomly generated A_NONE monster is the infidel; use a more
      * reasonable value for purposes of generation frequency */
     aligntyp ma = (ptr->maligntyp == A_NONE) ? -3 : ptr->maligntyp;
@@ -3869,7 +3869,7 @@ struct permonst *
 rndmonst()
 {
     struct permonst *ptr;
-    register int mndx;
+    int mndx;
     int weight, totalweight, selected_mndx, zlevel, minmlev, maxmlev;
     boolean elemlevel, upper;
 
@@ -4008,7 +4008,7 @@ char class;
 int spc;
 aligntyp atyp;
 {
-    register int first, last, num = 0;
+    int first, last, num = 0;
     int k, nums[SPECIAL_PM + 1]; /* +1: insurance for final return value */
     int maxmlev, mask = (G_NOGEN | G_UNIQ) & ~spc;
 
@@ -4084,7 +4084,7 @@ int
 mkclass_poly(class)
 int class;
 {
-    register int first, last, num = 0;
+    int first, last, num = 0;
 
     for (first = LOW_PM; first < SPECIAL_PM; first++)
         if (mons[first].mlet == class)

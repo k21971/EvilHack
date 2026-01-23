@@ -4242,7 +4242,7 @@ const char *force; /* usually either "." or "!" */
 
 void
 miss(str, mtmp)
-register const char *str;
+const char *str;
 struct monst *mtmp;
 {
     pline(
@@ -4318,7 +4318,7 @@ struct obj *otmp;
  */
 struct monst *
 bhit(ddx, ddy, range, weapon, fhitm, fhito, pobj)
-register int ddx, ddy, range;          /* direction and range */
+int ddx, ddy, range;          /* direction and range */
 enum bhit_call_types weapon;           /* defined in hack.h */
 int FDECL((*fhitm), (MONST_P, OBJ_P)), /* fns called when mon/obj hit */
     FDECL((*fhito), (OBJ_P, OBJ_P));
@@ -4694,7 +4694,7 @@ boomhit(obj, dx, dy)
 struct obj *obj;
 int dx, dy;
 {
-    register int i, ct;
+    int i, ct;
     int boom; /* showsym[] index  */
     struct monst *mtmp;
     boolean counterclockwise = TRUE; /* right-handed throw */
@@ -4778,11 +4778,11 @@ int dx, dy;
 int
 zhitm(mon, type, nd, ootmp)
 struct monst *mon;
-register int type, nd;
+int type, nd;
 struct obj **ootmp; /* to return worn armor for caller to disintegrate */
 {
-    register int tmp = 0;
-    register int abstype = BASE_ZT(abs(type));
+    int tmp = 0;
+    int abstype = BASE_ZT(abs(type));
     boolean sho_shieldeff = FALSE;
     boolean spellcaster = is_hero_spell(type); /* maybe get a bonus! */
     boolean mon_tempest_wield = (MON_WEP(mon)
@@ -4917,7 +4917,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             tmp = spell_damage_bonus(tmp);
         if (!resists_blnd(mon)
             && !(type > 0 && u.uswallow && mon == u.ustuck)) {
-            register unsigned rnd_tmp = rnd(50);
+            unsigned rnd_tmp = rnd(50);
             mon->mcansee = 0;
             if ((mon->mblinded + rnd_tmp) > 127)
                 mon->mblinded = 127;
@@ -5468,13 +5468,13 @@ int dx, dy;
  */
 void
 dobuzz(type, nd, sx, sy, dx, dy, say)
-register int type, nd;
-register xchar sx, sy;
-register int dx, dy;
+int type, nd;
+xchar sx, sy;
+int dx, dy;
 boolean say; /* Announce out of sight hit/miss events if true */
 {
     int range, abstype = BASE_ZT(abs(type));
-    register xchar lsx, lsy;
+    xchar lsx, lsy;
     struct monst *mon;
     coord save_bhitpos;
     boolean shopdamage = FALSE;
@@ -5488,7 +5488,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
 
     fltxt = flash_types[(type <= -33) ? abstype : abs(type)];
     if (u.uswallow) {
-        register int tmp;
+        int tmp;
 
         if (type < 0)
             return;

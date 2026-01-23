@@ -102,7 +102,7 @@ struct monst *mtmp;
 {
     struct obj *fgold;
     struct obj *ygold;
-    register long tmp;
+    long tmp;
     struct monst *who;
     const char *whose, *what;
 

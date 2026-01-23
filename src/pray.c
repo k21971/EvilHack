@@ -1621,7 +1621,7 @@ water_prayer(bless_water)
 boolean bless_water;
 {
     struct obj *otmp;
-    register long changed = 0;
+    long changed = 0;
     boolean other = FALSE, bc_known = !(Blind || Hallucination);
 
     for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere) {
@@ -3510,7 +3510,7 @@ int num; /* 1..3 */
 
 void
 altar_wrath(x, y)
-register int x, y;
+int x, y;
 {
     aligntyp altaralign = a_align(x, y);
 

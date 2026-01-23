@@ -109,8 +109,8 @@ boolean here;
 boolean FDECL((*filter), (OBJ_P));
 int *itemcount;
 {
-    register int iletct = 0;
-    register char c;
+    int iletct = 0;
+    char c;
 
     *itemcount = 0;
     ilets[iletct] = '\0'; /* terminate ilets so that index() will work */
@@ -306,7 +306,7 @@ check_here(picked_some)
 boolean picked_some;
 {
     struct obj *obj;
-    register int ct = 0;
+    int ct = 0;
 
     /* count the objects here */
     for (obj = level.objects[u.ux][u.uy]; obj; obj = obj->nexthere) {
@@ -1852,7 +1852,7 @@ int
 doloot()
 {
     struct obj *cobj, *nobj;
-    register int c = -1;
+    int c = -1;
     int timepassed = 0;
     coord cc;
     boolean underfoot = TRUE;

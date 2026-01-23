@@ -359,7 +359,7 @@ char oclass;
 unsigned material;
 boolean magic;
 {
-    register int zx, zy;
+    int zx, zy;
     boolean change_made = FALSE;
 
     for (zx = 1; zx < COLNO; zx++)
@@ -534,7 +534,7 @@ struct obj *sobj;
 {
     struct obj *obj;
     struct monst *mtmp;
-    register int ct = 0, ctu = 0;
+    int ct = 0, ctu = 0;
     boolean confused = (Confusion || (sobj && sobj->cursed)), stale;
     char oclass = confused ? POTION_CLASS : FOOD_CLASS;
     const char *what = confused ? something : "food";
@@ -660,7 +660,7 @@ object_detect(detector, class)
 struct obj *detector; /* object doing the detecting */
 int class;            /* an object class, 0 for all */
 {
-    register int x, y;
+    int x, y;
     char stuff[BUFSZ];
     int is_cursed = (detector && detector->cursed);
     int do_dknown = (detector && (detector->oclass == POTION_CLASS
@@ -960,7 +960,7 @@ int
 magic_detect(detector)
 struct obj *detector;   /* object doing the detecting */
 {
-    register int x, y;
+    int x, y;
     char stuff[BUFSZ];
     int is_cursed = (detector && detector->cursed);
     int do_pknown = (detector && (detector->oclass == SCROLL_CLASS)
@@ -1320,8 +1320,8 @@ const char *
 level_distance(where)
 d_level *where;
 {
-    register schar ll = depth(&u.uz) - depth(where);
-    register boolean indun = (u.uz.dnum == where->dnum);
+    schar ll = depth(&u.uz) - depth(where);
+    boolean indun = (u.uz.dnum == where->dnum);
 
     if (ll < 0) {
         if (ll < (-8 - rn2(3)))
@@ -1516,7 +1516,7 @@ struct obj **optr;
 
 STATIC_OVL void
 show_map_spot(x, y)
-register int x, y;
+int x, y;
 {
     struct rm *lev;
     struct trap *t;
@@ -1562,7 +1562,7 @@ register int x, y;
 void
 do_mapping()
 {
-    register int zx, zy;
+    int zx, zy;
     boolean unconstrained;
 
     unconstrained = unconstrain_map();
@@ -1586,7 +1586,7 @@ void
 do_vicinity_map(sobj)
 struct obj *sobj; /* scroll--actually fake spellbook--object */
 {
-    register int zx, zy;
+    int zx, zy;
     struct monst *mtmp;
     struct obj *otmp;
     long save_EDetect_mons;
@@ -1994,7 +1994,7 @@ boolean via_warning;
 
 int
 dosearch0(aflag)
-register int aflag; /* intrinsic autosearch vs explicit searching */
+int aflag; /* intrinsic autosearch vs explicit searching */
 {
 #ifdef GCC_BUG
     /* Some old versions of gcc seriously muck up nested loops.  If you get
@@ -2004,7 +2004,7 @@ register int aflag; /* intrinsic autosearch vs explicit searching */
      */
     volatile xchar x, y;
 #else
-    register xchar x, y;
+    xchar x, y;
 #endif
     struct trap *trap;
     struct monst *mtmp;
@@ -2109,7 +2109,7 @@ warnreveal()
 void
 sokoban_detect()
 {
-    register int x, y;
+    int x, y;
     struct trap *ttmp;
     struct obj *obj;
 

@@ -3543,7 +3543,7 @@ STATIC_PTR
 int
 take_off(VOID_ARGS)
 {
-    register int i;
+    int i;
     struct obj *otmp;
     struct takeoff_info *doff = &context.takeoff;
 
@@ -3859,7 +3859,7 @@ struct obj *atmp;
 void
 adj_abon(otmp, delta)
 struct obj *otmp;
-register schar delta;
+schar delta;
 {
     if (uarmg && uarmg == otmp && otmp->otyp == GAUNTLETS_OF_DEXTERITY) {
         if (delta) {

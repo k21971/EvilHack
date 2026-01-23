@@ -758,7 +758,7 @@ int
 peffects(otmp)
 struct obj *otmp;
 {
-    register int i, ii, lim;
+    int i, ii, lim;
     int num_levels;
     struct monst *mtmp;
 
@@ -1207,7 +1207,7 @@ struct obj *otmp;
                         goto_level(&newlev, FALSE, FALSE, FALSE);
                     }
                 } else {
-                    register int newlev = depth(&u.uz) - 1;
+                    int newlev = depth(&u.uz) - 1;
                     d_level newlevel;
 
                     get_level(&newlevel, newlev);
@@ -1527,7 +1527,7 @@ no_rise:
 void
 healup(nhp, nxtra, curesick, cureblind)
 int nhp, nxtra;
-register boolean curesick, cureblind;
+boolean curesick, cureblind;
 {
     if (nhp) {
         if (Upolyd) {

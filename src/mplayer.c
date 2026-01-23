@@ -418,10 +418,10 @@ struct monst *
 mk_mplayer(ptr, x, y, special)
 struct permonst *ptr;
 xchar x, y;
-register boolean special;
+boolean special;
 {
     struct monst *mtmp;
-    register boolean ascending = special && (In_endgame(&u.uz) || u.uhave.amulet);
+    boolean ascending = special && (In_endgame(&u.uz) || u.uhave.amulet);
     char nam[PL_PSIZ];
 
     if (!ptr)
@@ -493,7 +493,7 @@ register boolean special;
  */
 void
 create_mplayers(num, special)
-register int num;
+int num;
 boolean special;
 {
     int pm, x, y;

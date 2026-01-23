@@ -26,7 +26,7 @@ void
 dosounds()
 {
     struct mkroom *sroom;
-    register int hallu, vx, vy;
+    int hallu, vx, vy;
 #if defined(AMIGA) && defined(AZTEC_C_WORKAROUND)
     int xx;
 #endif
@@ -458,7 +458,7 @@ void
 growl(mtmp)
 struct monst *mtmp;
 {
-    register const char *growl_verb = 0;
+    const char *growl_verb = 0;
 
     if (mtmp->msleeping || !mtmp->mcanmove || !mtmp->data->msound)
         return;
@@ -481,7 +481,7 @@ void
 yelp(mtmp)
 struct monst *mtmp;
 {
-    register const char *yelp_verb = 0;
+    const char *yelp_verb = 0;
 
     if (mtmp->msleeping || !mtmp->mcanmove || !mtmp->data->msound)
         return;
@@ -539,7 +539,7 @@ void
 whimper(mtmp)
 struct monst *mtmp;
 {
-    register const char *whimper_verb = 0;
+    const char *whimper_verb = 0;
 
     if (mtmp->msleeping || !mtmp->mcanmove || !mtmp->data->msound)
         return;
@@ -627,7 +627,7 @@ domonnoise(mtmp)
 struct monst *mtmp;
 {
     char verbuf[BUFSZ];
-    register const char *pline_msg = 0, /* Monnam(mtmp) will be prepended */
+    const char *pline_msg = 0, /* Monnam(mtmp) will be prepended */
         *verbl_msg = 0,                 /* verbalize() */
         *verbl_msg_mcan = 0;            /* verbalize() if cancelled */
     struct permonst *ptr = mtmp->data;

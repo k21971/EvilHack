@@ -108,7 +108,7 @@ const char *msg;
 STATIC_OVL int
 moverock()
 {
-    register xchar rx, ry, sx, sy;
+    xchar rx, ry, sx, sy;
     struct obj *otmp;
     struct trap *ttmp;
     struct monst *mtmp;
@@ -594,7 +594,7 @@ xchar x, y;
 void
 movobj(obj, ox, oy)
 struct obj *obj;
-register xchar ox, oy;
+xchar ox, oy;
 {
     /* optimize by leaving on the fobj chain? */
     remove_object(obj);
@@ -814,7 +814,7 @@ ma_break(void)
 /* intended to be called only on ROCKs or TREEs */
 boolean
 may_dig(x, y)
-register xchar x, y;
+xchar x, y;
 {
     struct rm *lev = &levl[x][y];
 
@@ -824,7 +824,7 @@ register xchar x, y;
 
 boolean
 may_passwall(x, y)
-register xchar x, y;
+xchar x, y;
 {
     return (boolean) !(IS_STWALL(levl[x][y].typ)
                        && (levl[x][y].wall_info & W_NONPASSWALL));
@@ -832,7 +832,7 @@ register xchar x, y;
 
 boolean
 may_passtree(x, y)
-register xchar x, y;
+xchar x, y;
 {
     return (boolean) !(IS_TREES(levl[x][y].typ)
                        && (levl[x][y].wall_info & W_NONPASSWALL));
@@ -841,7 +841,7 @@ register xchar x, y;
 boolean
 bad_rock(mtmp, x, y)
 struct monst *mtmp;
-register xchar x, y;
+xchar x, y;
 {
     return (boolean) ((Sokoban && sobj_at(BOULDER, x, y))
                       || (IS_ROCK(levl[x][y].typ)
@@ -1544,7 +1544,7 @@ struct trap *desttrap; /* nonnull if another trap at <x,y> */
 /* force-fight a spider web with your weapon */
 STATIC_OVL boolean
 domove_fight_web(x, y)
-register xchar x, y;
+xchar x, y;
 {
     struct trap *trap = t_at(x, y);
 
@@ -1603,7 +1603,7 @@ domove_core()
 {
     struct monst *mtmp;
     struct rm *tmpr;
-    register xchar x, y;
+    xchar x, y;
     struct trap *trap = NULL;
     int wtcap;
     boolean on_ice;
@@ -1686,7 +1686,7 @@ domove_core()
         x = u.ux + u.dx;
         y = u.uy + u.dy;
         if (Stunned || (Confusion && !rn2(5))) {
-            register int tries = 0;
+            int tries = 0;
 
             do {
                 if (tries++ > 50) {
@@ -2913,8 +2913,8 @@ int roomno;
 
 char *
 in_rooms(x, y, typewanted)
-register xchar x, y;
-register int typewanted;
+xchar x, y;
+int typewanted;
 {
     static char buf[5];
     char rno, *ptr = &buf[4];
@@ -2981,7 +2981,7 @@ register int typewanted;
 /* is (x,y) in a town? */
 boolean
 in_town(x, y)
-register int x, y;
+int x, y;
 {
     s_level *slev = Is_special(&u.uz);
     struct mkroom *sroom;
@@ -3007,7 +3007,7 @@ register int x, y;
 
 STATIC_OVL void
 move_update(newlev)
-register boolean newlev;
+boolean newlev;
 {
     char *ptr1, *ptr2, *ptr3, *ptr4;
 
@@ -3048,7 +3048,7 @@ register boolean newlev;
 /* possibly deliver a one-time room entry message */
 void
 check_special_room(newlev)
-register boolean newlev;
+boolean newlev;
 {
     struct monst *mtmp;
     char *ptr;
@@ -3343,7 +3343,7 @@ dopickup(VOID_ARGS)
 void
 lookaround()
 {
-    register int x, y;
+    int x, y;
     int i, x0 = 0, y0 = 0, m0 = 1, i0 = 9;
     int corrct = 0, noturn = 0;
     struct monst *mtmp;
@@ -3562,7 +3562,7 @@ int x, y;
 int
 monster_nearby()
 {
-    register int x, y;
+    int x, y;
     struct monst *mtmp;
 
     /* Also see the similar check in dochugw() in monmove.c */
@@ -3584,7 +3584,7 @@ monster_nearby()
 
 void
 nomul(nval)
-register int nval;
+int nval;
 {
     if (multi < nval)
         return;              /* This is a bug fix by ab@unido */
@@ -3701,8 +3701,8 @@ int mondmg;
 
 void
 losehp(n, knam, k_format)
-register int n;
-register const char *knam;
+int n;
+const char *knam;
 boolean k_format;
 {
     if (Upolyd) {
@@ -3837,7 +3837,7 @@ int
 inv_weight()
 {
     struct obj *otmp = invent;
-    register int wt = 0;
+    int wt = 0;
 
     while (otmp) {
         if (otmp->oclass == COIN_CLASS)
@@ -3906,7 +3906,7 @@ inv_cnt(incl_gold)
 boolean incl_gold;
 {
     struct obj *otmp = invent;
-    register int ct = 0;
+    int ct = 0;
 
     while (otmp) {
         if (incl_gold || otmp->invlet != GOLD_SYM)

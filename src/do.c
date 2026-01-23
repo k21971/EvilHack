@@ -48,7 +48,7 @@ dodrop()
 boolean
 boulder_hits_pool(otmp, rx, ry, pushing)
 struct obj *otmp;
-register int rx, ry;
+int rx, ry;
 boolean pushing;
 {
     if (!otmp || otmp->otyp != BOULDER) {
@@ -1377,7 +1377,7 @@ d_level save_dlevel = { 0, 0 };
 STATIC_OVL int
 currentlevel_rewrite()
 {
-    register int fd;
+    int fd;
     char whynot[BUFSZ];
 
     /* since level change might be a bit slow, flush any buffered screen
@@ -1433,7 +1433,7 @@ save_currentstate()
 /*
 static boolean
 badspot(x, y)
-register xchar x, y;
+xchar x, y;
 {
     return (boolean) ((levl[x][y].typ != ROOM
                        && levl[x][y].typ != AIR
@@ -2480,8 +2480,8 @@ dowipe()
 
 void
 set_wounded_legs(side, timex)
-register long side;
-register int timex;
+long side;
+int timex;
 {
     /* KMH -- STEED
      * If you are riding, your steed gets the wounded legs instead.

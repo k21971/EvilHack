@@ -209,10 +209,10 @@ int show;
  */
 void
 map_background(x, y, show)
-register xchar x, y;
-register int show;
+xchar x, y;
+int show;
 {
-    register int glyph = back_to_glyph(x, y);
+    int glyph = back_to_glyph(x, y);
 
     if (level.flags.hero_memory)
         levl[x][y].glyph = glyph;
@@ -229,10 +229,10 @@ register int show;
 void
 map_trap(trap, show)
 struct trap *trap;
-register int show;
+int show;
 {
-    register int x = trap->tx, y = trap->ty;
-    register int glyph = trap_to_glyph(trap, newsym_rn2);
+    int x = trap->tx, y = trap->ty;
+    int glyph = trap_to_glyph(trap, newsym_rn2);
 
     if (level.flags.hero_memory)
         levl[x][y].glyph = glyph;
@@ -249,10 +249,10 @@ register int show;
 void
 map_object(obj, show)
 struct obj *obj;
-register int show;
+int show;
 {
-    register int x = obj->ox, y = obj->oy;
-    register int glyph = obj_to_glyph(obj, newsym_rn2);
+    int x = obj->ox, y = obj->oy;
+    int glyph = obj_to_glyph(obj, newsym_rn2);
 
     if (level.flags.hero_memory) {
         /* MRKR: While hallucinating, statues are seen as random monsters */
@@ -279,7 +279,7 @@ register int show;
  */
 void
 map_invisible(x, y)
-register xchar x, y;
+xchar x, y;
 {
     if (m_at(x, y) && has_erid(m_at(x, y))
         && mon_visible(ERID(m_at(x, y))->mon_steed))
@@ -314,7 +314,7 @@ int x, y;
  */
 void
 unmap_object(x, y)
-register int x, y;
+int x, y;
 {
     struct trap *trap;
 
@@ -406,7 +406,7 @@ int x, y, monglyph;
  */
 STATIC_OVL void
 display_monster(x, y, mon, sightflags, worm_tail)
-register xchar x, y;        /* display position */
+xchar x, y;        /* display position */
 struct monst *mon; /* monster to display */
 int sightflags;             /* 1 if the monster is physically seen;
                                2 if detected using Detect_monsters */
@@ -762,12 +762,12 @@ xchar x, y;
  */
 void
 newsym(x, y)
-register int x, y;
+int x, y;
 {
     struct monst *mon;
     struct rm *lev = &(levl[x][y]);
-    register int see_it;
-    register xchar worm_tail;
+    int see_it;
+    xchar worm_tail;
 
     if (in_mklev)
         return;
@@ -968,7 +968,7 @@ void
 shieldeff(x, y)
 xchar x, y;
 {
-    register int i, k;
+    int i, k;
 
     if (!flags.sparkle)
         return;
@@ -1078,7 +1078,7 @@ int x, y;
 
     case DISP_END:
         if (tglyph->style == DISP_BEAM || tglyph->style == DISP_ALL) {
-            register int i;
+            int i;
 
             /* Erase (reset) from source to end */
             for (i = 0; i < tglyph->sidx; i++)
@@ -1200,7 +1200,7 @@ int first;
         cls();
         bot();
     } else {
-        register int x, y;
+        int x, y;
 
         /* Clear old location */
         for (y = lasty - 1; y <= lasty + 1; y++)
@@ -1259,7 +1259,7 @@ int mode;
 {
     static xchar lastx, lasty;
     static boolean dela;
-    register int x, y;
+    int x, y;
 
     /* swallowing has a higher precedence than under water */
     if (Is_waterlevel(&u.uz) || u.uswallow)
@@ -1468,7 +1468,7 @@ doredraw()
 void
 docrt()
 {
-    register int x, y;
+    int x, y;
     struct rm *lev;
 
     if (!u.ux)
@@ -1570,7 +1570,7 @@ static char gbuf_stop[ROWNO];
  * for update. */
 void
 newsym_force(x, y)
-register int x, y;
+int x, y;
 {
     newsym(x,y);
     gbuf[y][x].new = 1;
@@ -1687,8 +1687,8 @@ static gbuf_entry nul_gbuf = { 0, cmap_to_glyph(S_stone) };
 void
 clear_glyph_buffer()
 {
-    register int x, y;
-    register gbuf_entry *gptr;
+    int x, y;
+    gbuf_entry *gptr;
 
     for (y = 0; y < ROWNO; y++) {
         gptr = &gbuf[y][0];
@@ -1706,7 +1706,7 @@ void
 row_refresh(start, stop, y)
 int start, stop, y;
 {
-    register int x;
+    int x;
 
     for (x = start; x <= stop; x++)
         if (gbuf[y][x].glyph != cmap_to_glyph(S_stone))
@@ -1741,7 +1741,7 @@ int cursor_on_u;
      */
     static int flushing = 0;
     static int delay_flushing = 0;
-    register int x, y;
+    int x, y;
 
     /* 3.7: don't update map, status, or perm_invent during save/restore */
     if (program_state.saving || program_state.restoring)
@@ -1760,7 +1760,7 @@ int cursor_on_u;
 #endif
 
     for (y = 0; y < ROWNO; y++) {
-        register gbuf_entry *gptr = &gbuf[y][x = gbuf_start[y]];
+        gbuf_entry *gptr = &gbuf[y][x = gbuf_start[y]];
 
         for (; x <= gbuf_stop[y]; gptr++, x++)
             if (gptr->new) {
@@ -1984,7 +1984,7 @@ int loc;
  */
 int
 zapdir_to_glyph(dx, dy, beam_type)
-register int dx, dy;
+int dx, dy;
 int beam_type;
 {
     if (beam_type >= NUM_ZAP) {
@@ -2494,7 +2494,7 @@ STATIC_OVL int
 wall_angle(lev)
 struct rm *lev;
 {
-    register unsigned int seenv = lev->seenv & 0xff;
+    unsigned int seenv = lev->seenv & 0xff;
     const int *row;
     int col, idx;
 

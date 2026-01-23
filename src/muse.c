@@ -2595,14 +2595,14 @@ struct obj *otmp;
 STATIC_OVL void
 mbhit(mon, range, fhitm, fhito, obj)
 struct monst *mon;  /* monster shooting the wand */
-register int range; /* direction and range */
+int range; /* direction and range */
 int FDECL((*fhitm), (MONST_P, OBJ_P));
 int FDECL((*fhito), (OBJ_P, OBJ_P)); /* fns called when mon/obj hit */
 struct obj *obj;                     /* 2nd arg to fhitm/fhito */
 {
     struct monst *mtmp;
     struct obj *otmp;
-    register uchar typ;
+    uchar typ;
     int ddx, ddy;
 
     bhitpos.x = mon->mx;
@@ -2893,7 +2893,7 @@ struct monst *mtmp;
         return 2;
     case MUSE_SCR_EARTH: {
         /* TODO: handle steeds */
-        register int x, y;
+        int x, y;
         /* don't use monster fields after killing it */
         boolean confused = (mtmp->mconf ? TRUE : FALSE);
         int mmx = mtmp->mx, mmy = mtmp->my;
@@ -3527,7 +3527,7 @@ struct monst *mtmp;
         mquaffmsg(mtmp, otmp);
         if (otmp->cursed) {
             if (Can_rise_up(mtmp->mx, mtmp->my, &u.uz)) {
-                register int tolev = depth(&u.uz) - 1;
+                int tolev = depth(&u.uz) - 1;
                 d_level tolevel;
 
                 get_level(&tolevel, tolev);

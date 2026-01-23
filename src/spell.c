@@ -216,7 +216,7 @@ struct obj *book2;
     book2->known = 1;
     if (invocation_pos(u.ux, u.uy) && !On_stairs(u.ux, u.uy)) {
         struct obj *otmp;
-        register boolean arti1_primed = FALSE, arti2_primed = FALSE,
+        boolean arti1_primed = FALSE, arti2_primed = FALSE,
                          arti_cursed = FALSE;
 
         if (book2->cursed) {

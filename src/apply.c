@@ -849,7 +849,7 @@ next_to_u()
 
 void
 check_leash(x, y)
-register xchar x, y;
+xchar x, y;
 {
     struct obj *otmp;
     struct monst *mtmp;
@@ -4320,7 +4320,7 @@ do_break_wand(obj)
 struct obj *obj;
 {
     static const char nothing_else_happens[] = "But nothing else happens...";
-    register int i, x, y;
+    int i, x, y;
     struct monst *mon;
     int dmg, damage;
     boolean affects_objects;
@@ -4626,7 +4626,7 @@ int
 doapply()
 {
     struct obj *obj;
-    register int res = 1;
+    int res = 1;
     char class_list[MAXOCLASSES + 2];
 
     if (check_capacity((char *) 0))

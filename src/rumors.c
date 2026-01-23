@@ -492,7 +492,7 @@ STATIC_OVL void
 init_oracles(fp)
 dlb *fp;
 {
-    register int i;
+    int i;
     char line[BUFSZ];
     int cnt = 0;
 

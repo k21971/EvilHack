@@ -248,10 +248,10 @@ more()
 
 void
 update_topl(bp)
-register const char *bp;
+const char *bp;
 {
-    register char *tl, *otl;
-    register int n0;
+    char *tl, *otl;
+    int n0;
     int notdied = 1;
     struct WinDesc *cw = wins[WIN_MESSAGE];
 
@@ -353,7 +353,7 @@ const char *str;
 
 STATIC_OVL void
 removetopl(n)
-register int n;
+int n;
 {
     /* assume addtopl() has been done, so ttyDisplay->toplin is already set */
     while (n-- > 0)
@@ -379,7 +379,7 @@ char def;
  *   be shown in the prompt to the user but will be acceptable as input.
  */
 {
-    register char q;
+    char q;
     char rtmp[40];
     boolean digit_ok, allow_num, preserve_case = FALSE;
     struct WinDesc *cw = wins[WIN_MESSAGE];

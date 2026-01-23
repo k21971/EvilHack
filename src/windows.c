@@ -241,7 +241,7 @@ static struct win_choices *
 win_choices_find(s)
 const char *s;
 {
-    register int i;
+    int i;
 
     for (i = 0; winchoices[i].procs; i++) {
         if (!strcmpi(s, winchoices[i].procs->name)) {
@@ -333,7 +333,7 @@ void
 addto_windowchain(s)
 const char *s;
 {
-    register int i;
+    int i;
 
     for (i = 0; winchoices[i].procs; i++) {
         if ('+' != winchoices[i].procs->name[0])
@@ -941,7 +941,7 @@ unsigned long *colormasks UNUSED;
 {
     char newbot1[MAXCO], newbot2[MAXCO];
     long cond, *condptr = (long *) ptr;
-    register int i;
+    int i;
     unsigned pass, lndelta;
     enum statusfields idx1, idx2, *fieldlist;
     char *nb, *text = (char *) ptr;

@@ -768,7 +768,7 @@ int
 doforce()
 {
     struct obj *otmp;
-    register int c, picktyp;
+    int c, picktyp;
     char qbuf[QBUFSZ];
 
     if (u.uswallow || Hidinshell) {
@@ -1005,7 +1005,7 @@ int x, y;
 
 STATIC_OVL boolean
 obstructed(x, y, quietly)
-register int x, y;
+int x, y;
 boolean quietly;
 {
     struct monst *mtmp = m_at(x, y);
@@ -1041,7 +1041,7 @@ boolean quietly;
 int
 doclose()
 {
-    register int x, y;
+    int x, y;
     struct rm *door;
     int res = 0;
     boolean portcullis;

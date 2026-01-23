@@ -1127,7 +1127,7 @@ dokick()
                 goto ouch;
         }
         if (IS_THRONE(maploc->typ)) {
-            register int i;
+            int i;
             if (Levitation)
                 goto dumb;
             if ((Luck < 0 || maploc->doormask) && !rn2(3)) {
@@ -1829,7 +1829,7 @@ obj_delivery(near_hero)
 boolean near_hero;
 {
     struct obj *otmp, *otmp2;
-    register int nx, ny;
+    int nx, ny;
     int where;
     boolean nobreak, noscatter;
 

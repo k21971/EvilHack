@@ -1484,7 +1484,7 @@ int
 movemon()
 {
     struct monst *mtmp, *nmtmp;
-    register boolean somebody_can_move = FALSE;
+    boolean somebody_can_move = FALSE;
 
     /*
      * Some of you may remember the former assertion here that
@@ -2287,7 +2287,7 @@ boolean vismon;
 boolean
 mpickstuff(mtmp, str)
 struct monst *mtmp;
-register const char *str;
+const char *str;
 {
     struct obj *otmp, *otmp2, *otmp3, *otmp4;
     boolean waslocked = FALSE;
@@ -5586,7 +5586,7 @@ struct monst *mtmp;
                      !rn2(3) ? "a low groaning" : "a low moaning");
     }
     if (mtmp->data == &mons[PM_MEDUSA]) {
-        register int i;
+        int i;
 
         for (i = 0; i < NATTK; i++)
             if (mtmp->data->mattk[i].aatyp == AT_GAZE) {

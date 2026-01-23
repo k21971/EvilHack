@@ -80,7 +80,7 @@ static char sccsid[] = "@(#)random.c	5.5 (Berkeley) 7/6/88";
  * generator is approximately deg*(2**deg - 1); thus doubling the amount of
  * state information has a vast influence on the period of the generator.
  * Note: the deg*(2**deg - 1) is an approximation only good for large deg,
- * when the period of the shift register is the dominant factor.  With deg
+ * when the period of the shift is the dominant factor.  With deg
  * equal to seven, the period is actually much longer than the 7*(2**7 - 1)
  * predicted by this formula.
  */
@@ -205,7 +205,7 @@ srandom(x)
 
 unsigned x;
 {
-    register int i;
+    int i;
 
     if (rand_type == TYPE_0) {
         state[0] = x;
@@ -244,7 +244,7 @@ unsigned seed;   /* seed for R. N. G. */
 char *arg_state; /* pointer to state array */
 int n;           /* # bytes of state info */
 {
-    register char *ostate = (char *) (&state[-1]);
+    char *ostate = (char *) (&state[-1]);
 
     if (rand_type == TYPE_0)
         state[-1] = rand_type;
@@ -310,9 +310,9 @@ setstate(arg_state)
 
 char *arg_state;
 {
-    register long *new_state = (long *) arg_state;
-    register int type = new_state[0] % MAX_TYPES;
-    register int rear = new_state[0] / MAX_TYPES;
+    long *new_state = (long *) arg_state;
+    int type = new_state[0] % MAX_TYPES;
+    int rear = new_state[0] / MAX_TYPES;
     char *ostate = (char *) (&state[-1]);
 
     if (rand_type == TYPE_0)

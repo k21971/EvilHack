@@ -380,7 +380,7 @@ init_symbols()
 void
 init_showsyms()
 {
-    register int i;
+    int i;
 
     for (i = 0; i < MAXPCHARS; i++)
         showsyms[i + SYM_OFF_P] = defsyms[i].sym;
@@ -398,7 +398,7 @@ init_showsyms()
 void
 init_ov_rogue_symbols()
 {
-    register int i;
+    int i;
 
     for (i = 0; i < SYM_MAX; i++)
         ov_rogue_syms[i] = (nhsym) 0;
@@ -407,7 +407,7 @@ init_ov_rogue_symbols()
 void
 init_ov_primary_symbols()
 {
-    register int i;
+    int i;
 
     for (i = 0; i < SYM_MAX; i++)
         ov_primary_syms[i] = (nhsym) 0;
@@ -443,7 +443,7 @@ int idx, which_set;
 void
 init_primary_symbols()
 {
-    register int i;
+    int i;
 
     for (i = 0; i < MAXPCHARS; i++)
         primary_syms[i + SYM_OFF_P] = defsyms[i].sym;
@@ -463,7 +463,7 @@ init_primary_symbols()
 void
 init_rogue_symbols()
 {
-    register int i;
+    int i;
 
     /* These are defaults that can get overwritten
        later by the roguesymbols option */
@@ -493,7 +493,7 @@ void
 assign_graphics(whichset)
 int whichset;
 {
-    register int i;
+    int i;
 
     switch (whichset) {
     case ROGUESET:
@@ -529,7 +529,7 @@ void
 switch_symbols(nondefault)
 int nondefault;
 {
-    register int i;
+    int i;
 
     if (nondefault) {
         for (i = 0; i < SYM_MAX; i++)

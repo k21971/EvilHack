@@ -1068,7 +1068,7 @@ boolean pets_only; /* true for ascension or final escape */
                 set_residency(mtmp, TRUE);
 
             if (mtmp->wormno) {
-                register int cnt;
+                int cnt;
                 /* NOTE: worm is truncated to # segs = max wormno size */
                 cnt = count_wsegs(mtmp);
                 num_segs = min(cnt, MAX_NUM_WORMS - 1);

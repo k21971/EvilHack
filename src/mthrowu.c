@@ -409,7 +409,7 @@ struct monst *mtmp;
 
     if (is_covetous(mtmp->data) && !mtmp->mtame) {
         /* find our mark and let him have it, if possible! */
-        register int gx = STRAT_GOALX(mtmp->mstrategy),
+        int gx = STRAT_GOALX(mtmp->mstrategy),
                      gy = STRAT_GOALY(mtmp->mstrategy);
         struct monst *mtmp2 = m_at(gx, gy);
 
@@ -771,7 +771,7 @@ m_throw(mon, x, y, dx, dy, range, obj, verbose)
 struct monst *mon;       /* launching monster */
 int x, y, dx, dy, range; /* launch point, direction, and range */
 struct obj *obj;         /* missile (or stack providing it) */
-register boolean verbose;
+boolean verbose;
 {
     struct monst *mtmp;
     struct obj *singleobj;
@@ -1107,7 +1107,7 @@ thrwmm(mtmp, mtarg)
 struct monst *mtmp, *mtarg;
 {
     struct obj *otmp, *mwep;
-    register xchar x, y;
+    xchar x, y;
     boolean ispole;
 
     /* Polearms won't be applied by monsters against other monsters */
@@ -1549,7 +1549,7 @@ boolean FDECL((*fnc), (int, int));
 
 boolean
 linedup(ax, ay, bx, by, boulderhandling)
-register xchar ax, ay, bx, by;
+xchar ax, ay, bx, by;
 int boulderhandling; /* 0=block, 1=ignore, 2=conditionally block */
 {
     int dx, dy, boulderspots;
@@ -1594,7 +1594,7 @@ boolean
 mlined_up(mtmp, mdef, breath)	/* is mtmp in position to use ranged attack? */
 struct monst *mtmp;
 struct monst *mdef;
-register boolean breath;
+boolean breath;
 {
     struct monst *mat;
     boolean lined_up = linedup(mdef->mx, mdef->my, mtmp->mx, mtmp->my, 0);

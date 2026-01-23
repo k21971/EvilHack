@@ -51,9 +51,9 @@ main(argc, argv)
 int argc;
 char *argv[];
 {
-    register int fd;
+    int fd;
 #ifdef CHDIR
-    register char *dir;
+    char *dir;
 #endif
     boolean exact_username;
     boolean resuming = FALSE; /* assume new game */
@@ -549,7 +549,7 @@ whoami()
      * somebody else's name.
      */
     if (!*plname) {
-        register const char *s;
+        const char *s;
 
         s = nh_getenv("USER");
         if (!s || !*s)

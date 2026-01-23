@@ -47,7 +47,7 @@ clear_fcorr(grd, forceshow)
 struct monst *grd;
 boolean forceshow;
 {
-    register int fcx, fcy, fcbeg;
+    int fcx, fcy, fcbeg;
     struct monst *mtmp;
     boolean sawcorridor = FALSE,
             silently = program_state.stopprint ? TRUE : FALSE;
@@ -205,7 +205,7 @@ in_fcorridor(grd, x, y)
 struct monst *grd;
 int x, y;
 {
-    register int fci;
+    int fci;
     struct egd *egrd = EGD(grd);
 
     for (fci = egrd->fcbeg; fci < egrd->fcend; fci++)
@@ -239,7 +239,7 @@ char
 vault_occupied(array)
 char *array;
 {
-    register char *ptr;
+    char *ptr;
 
     for (ptr = array; *ptr; ptr++)
         if (rooms[*ptr - ROOMOFFSET].rtype == VAULT)
@@ -280,7 +280,7 @@ find_guard_dest(guard, rx, ry)
 struct monst *guard;
 xchar *rx, *ry;
 {
-    register int x, y, dd, lx = 0, ly = 0;
+    int x, y, dd, lx = 0, ly = 0;
 
     for (dd = 2; (dd < ROWNO || dd < COLNO); dd++) {
         for (y = u.uy - dd; y <= u.uy + dd; ly = y, y++) {
@@ -333,7 +333,7 @@ invault()
     if (++u.uinvault % VAULT_GUARD_TIME == 0 && !guard) {
         /* if time ok and no guard now. */
         char buf[BUFSZ];
-        register int x, y, gx, gy;
+        int x, y, gx, gy;
         xchar rx, ry;
         long umoney;
 
@@ -369,7 +369,7 @@ invault()
             }
         }
         while (levl[x][y].typ == ROOM) {
-            register int dx, dy;
+            int dx, dy;
 
             dx = (gx > x) ? 1 : (gx < x) ? -1 : 0;
             dy = (gy > y) ? 1 : (gy < y) ? -1 : 0;

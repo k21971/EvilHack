@@ -88,8 +88,8 @@ pcmain(argc, argv)
 int argc;
 char *argv[];
 {
-    register int fd;
-    register char *dir;
+    int fd;
+    char *dir;
 #if defined(MSDOS)
     char *envp = NULL;
     char *sptr = NULL;

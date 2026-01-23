@@ -142,7 +142,7 @@ boolean quietly;
 
 STATIC_OVL void
 restlevchn(fd)
-register int fd;
+int fd;
 {
     int cnt;
     s_level *tmplev, *x;
@@ -263,7 +263,7 @@ struct obj *otmp;
 
 STATIC_OVL struct obj *
 restobjchn(fd, ghostly, frozen)
-register int fd;
+int fd;
 boolean ghostly, frozen;
 {
     struct obj *otmp, *otmp2 = 0;
@@ -425,7 +425,7 @@ struct monst *mtmp;
 
 STATIC_OVL struct monst *
 restmonchn(fd, ghostly)
-register int fd;
+int fd;
 boolean ghostly;
 {
     struct monst *mtmp, *mtmp2 = 0;
@@ -611,7 +611,7 @@ struct obj *otmp;
 STATIC_OVL
 boolean
 restgamestate(fd, stuckid, steedid)
-register int fd;
+int fd;
 unsigned int *stuckid, *steedid;
 {
     struct flag newgameflags;
@@ -934,9 +934,9 @@ xchar ltmp;
 
 int
 dorecover(fd)
-register int fd;
+int fd;
 {
-    unsigned int stuckid = 0, steedid = 0; /* not a register */
+    unsigned int stuckid = 0, steedid = 0; /* not a */
     xchar ltmp;
     int rtmp;
     struct obj *otmp;
@@ -1400,7 +1400,7 @@ char *plbuf;
 
 STATIC_OVL void
 restore_msghistory(fd)
-register int fd;
+int fd;
 {
     int msgsize, msgcount = 0;
     char msg[BUFSZ];
@@ -1592,9 +1592,9 @@ minit()
 
 void
 mread(fd, buf, len)
-register int fd;
-register genericptr_t buf;
-register unsigned int len;
+int fd;
+genericptr_t buf;
+unsigned int len;
 {
     (*restoreprocs.restore_mread)(fd, buf, len);
     return;
@@ -1770,9 +1770,9 @@ STATIC_OVL void
 zerocomp_mread(fd, buf, len)
 int fd;
 genericptr_t buf;
-register unsigned len;
+unsigned len;
 {
-    /*register int readlen = 0;*/
+    /*int readlen = 0;*/
     if (fd < 0)
         error("Restore error; mread attempting to read file %d.", fd);
     mreadfd = fd;
@@ -1781,7 +1781,7 @@ register unsigned len;
             inrunlength--;
             *(*((char **) &buf))++ = '\0';
         } else {
-            register short ch = zerocomp_mgetc();
+            short ch = zerocomp_mgetc();
             if (ch < 0) {
                 restoreprocs.mread_flags = -1;
                 return;
@@ -1803,11 +1803,11 @@ def_minit()
 
 STATIC_OVL void
 def_mread(fd, buf, len)
-register int fd;
-register genericptr_t buf;
-register unsigned int len;
+int fd;
+genericptr_t buf;
+unsigned int len;
 {
-    register int rlen;
+    int rlen;
 #if defined(BSD) || defined(ULTRIX)
 #define readLenType int
 #else /* e.g. SYSV, __TURBOC__ */

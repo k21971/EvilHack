@@ -703,7 +703,7 @@ unsigned int scflags;
 struct obj *obj; /* only scatter this obj        */
 {
     struct obj *otmp;
-    register int tmp;
+    int tmp;
     int farthest = 0;
     uchar typ;
     long qtmp;

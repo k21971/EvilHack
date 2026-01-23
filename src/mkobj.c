@@ -398,7 +398,7 @@ STATIC_OVL void
 mkbox_cnts(box)
 struct obj *box;
 {
-    register int n;
+    int n;
     struct obj *otmp;
 
     box->cobj = (struct obj *) 0;
@@ -445,7 +445,7 @@ struct obj *box;
                 (void) stop_timer(REVIVE_MON, obj_to_any(otmp));
             }
         } else {
-            register int tprob;
+            int tprob;
             const struct icp *iprobs = boxiprobs;
 
             for (tprob = rnd(100); (tprob -= iprobs->iprob) > 0; iprobs++)
@@ -487,7 +487,7 @@ int
 rndmonnum()
 {
     struct permonst *ptr;
-    register int i;
+    int i;
     unsigned short excludeflags;
 
     /* Plan A: get a level-appropriate common monster */
@@ -1649,7 +1649,7 @@ struct obj *otmp;
 void
 blessorcurse(otmp, chance)
 struct obj *otmp;
-register int chance;
+int chance;
 {
     if (otmp->blessed || otmp->cursed)
         return;
@@ -1768,7 +1768,7 @@ struct obj *obj;
         wt = obj->owt;
     if (Is_container(obj) || obj->otyp == STATUE) {
         struct obj *contents;
-        register int cwt = 0;
+        int cwt = 0;
 
         if (obj->otyp == STATUE && obj->corpsenm >= LOW_PM)
             wt = (int) obj->quan * ((int) mons[obj->corpsenm].cwt * 3 / 2);

@@ -894,7 +894,7 @@ untwoweapon()
 int
 chwepon(otmp, amount)
 struct obj *otmp;
-register int amount;
+int amount;
 {
     const char *color = hcolor((amount < 0) ? NH_BLACK : NH_BLUE);
     const char *xtime, *wepname = "";

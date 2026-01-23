@@ -71,10 +71,10 @@ STATIC_DCL const char *FDECL(Japanese_item_name, (int i));
 
 STATIC_OVL char *
 strprepend(s, pref)
-register char *s;
-register const char *pref;
+char *s;
+const char *pref;
 {
-    register int i = (int) strlen(pref);
+    int i = (int) strlen(pref);
 
     if (i > PREFIX) {
         impossible("PREFIX too short (for %d).", i);
@@ -167,7 +167,7 @@ dump_prop_off()
 
 char *
 obj_typename(otyp)
-register int otyp;
+int otyp;
 {
     char *buf = nextobuf();
     struct objclass *ocl = &objects[otyp];
@@ -480,8 +480,8 @@ boolean forward;
 STATIC_OVL
 void
 propnames(buf, props, props_known, weapon, has_of)
-register char *buf;
-register long props, props_known;
+char *buf;
+long props, props_known;
 boolean weapon;
 boolean has_of;
 {
@@ -620,9 +620,9 @@ xname_flags(obj, cxn_flags)
 struct obj *obj;
 unsigned cxn_flags; /* bitmask of CXN_xxx values */
 {
-    register char *buf;
+    char *buf;
     char *obufp;
-    register int typ = obj->otyp;
+    int typ = obj->otyp;
     struct objclass *ocl = &objects[typ];
     int nn = ocl->oc_name_known, omndx = obj->corpsenm;
     long orig_opknwn = obj->oprops_known;
@@ -1307,7 +1307,7 @@ unsigned doname_flags;
     char tmpbuf[PREFIX + 1]; /* for when we have to add something at
                                 the start of prefix instead of the
                                 end (Strcat is used on the end) */
-    register char *bp = xname(obj);
+    char *bp = xname(obj);
     /* in practice, if something is worn or wielded by a hand, it is
        probably yours if it isn't specifically a monster's. there are
        some cases where an object is temporarily freed from inventory
@@ -2245,7 +2245,7 @@ const char *str;
         insert_the = TRUE;
     } else {
         /* Probably a proper name, might not need an article */
-        register char *tmp, *named, *called;
+        char *tmp, *named, *called;
         int l;
 
         /* some objects have capitalized adjectives in their names */
@@ -2339,7 +2339,7 @@ Yobjnam2(obj, verb)
 struct obj *obj;
 const char *verb;
 {
-    register char *s = yobjnam(obj, verb);
+    char *s = yobjnam(obj, verb);
 
     *s = highc(*s);
     return s;
@@ -2580,8 +2580,8 @@ static const char *const special_subjs[] = {
 /* return form of the verb (input plural) for present tense 3rd person subj */
 char *
 vtense(subj, verb)
-register const char *subj;
-register const char *verb;
+const char *subj;
+const char *verb;
 {
     char *buf = nextobuf(), *bspot;
     int len, ltmp;
@@ -2856,7 +2856,7 @@ char *
 makeplural(oldstr)
 const char *oldstr;
 {
-    register char *spot;
+    char *spot;
     char lo_c, *str = nextobuf();
     const char *excess = (char *) 0;
     int len;
@@ -3035,7 +3035,7 @@ char *
 makesingular(oldstr)
 const char *oldstr;
 {
-    register char *p, *bp;
+    char *p, *bp;
     const char *excess = 0;
     char *str = nextobuf();
 
@@ -3429,7 +3429,7 @@ int xtra_prob; /* to force 0% random generation items to also be considered */
 {
     int i, n = 0;
     short validobjs[NUM_OBJECTS];
-    register const char *zn;
+    const char *zn;
     int prob, maxprob = 0;
 
     if (!name || !*name)
@@ -3663,11 +3663,11 @@ int material;
  */
 struct obj *
 readobjnam(bp, no_wish)
-register char *bp;
+char *bp;
 struct obj *no_wish;
 {
-    register char *p;
-    register int i;
+    char *p;
+    int i;
     struct obj *otmp;
     int cnt, spe, spesgn, typ, very, rechrg;
     int blessed, uncursed, iscursed, ispoisoned, istainted, isgreased;
@@ -3734,7 +3734,7 @@ struct obj *no_wish;
     Strcpy(fruitbuf, bp);
 
     for (;;) {
-        register int l;
+        int l;
 
         if (!bp || !*bp)
             goto any;
@@ -4328,7 +4328,7 @@ struct obj *no_wish;
         && strncmpi(bp, "glamdring", 9)
         && strncmpi(bp, "one ring", 8))
         for (i = 0; i < (int) (sizeof wrpsym); i++) {
-            register int j = strlen(wrp[i]);
+            int j = strlen(wrp[i]);
 
             /* check for "<class> [ of ] something" */
             if (!strncmpi(bp, wrp[i], j)) {
@@ -4450,7 +4450,7 @@ struct obj *no_wish;
     } else if (!strcmpi(bp, "looking glass")) {
         ; /* avoid false hit on "* glass" */
     } else if (!BSTRCMPI(bp, p - 6, " glass") || !strcmpi(bp, "glass")) {
-        register char *g = bp;
+        char *g = bp;
 
         /* treat "broken glass" as a non-existent item; since "broken" is
            also a chest/box prefix it might have been stripped off above */
@@ -4487,7 +4487,7 @@ struct obj *no_wish;
     /* check real names of gems first */
     if (!oclass && actualn) {
         for (i = bases[GEM_CLASS]; i <= LAST_GEM; i++) {
-            register const char *zn;
+            const char *zn;
 
             if ((zn = OBJ_NAME(objects[i])) != 0 && !strcmpi(actualn, zn)) {
                 typ = i;
