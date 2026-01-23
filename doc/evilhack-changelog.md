@@ -4976,4 +4976,5 @@ The following changes to date are:
 - Remove obsolete 'register' keyword from variable declarations
 - Improve GitHub Actions workflow: artifacts, concurrency, dynamic
   versioning
+- Fix: zip-release version with github workflow
 
