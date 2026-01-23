@@ -4978,4 +4978,6 @@ The following changes to date are:
   versioning
 - Fix: zip-release version with github workflow
 - Fix: Linux path for artifacts upload (github workflow)
+- Update 'Files' and 'sys/mac/Files.r' files so they are up to date with
+  newest file additions
 

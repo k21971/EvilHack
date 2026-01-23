@@ -31,17 +31,17 @@ prepare-commit-msg
 
 dat:
 (files for all versions)
-Arch.des        Barb.des       Caveman.des     Druid.des    GENFILES
-Healer.des      Infidel.des    Knight.des      Monk.des     Priest.des
-Ranger.des      Rogue.des      Samurai.des     Tourist.des  Valkyrie.des
-Wizard.des      bigroom.des    bogusmon.txt    castle.des   cmdhelp
-data.base       dungeon.def    endgame.des     engrave.txt  epitaph.txt
-forest.des      gehennom.des   goblintown.des  help         hh
-history         hdgn.des       icequeen.des    keyhelp      knox.des
-license         medusa.des     mines.des       nymph.des    opthelp
-oracle.des      oracles.txt    purgatory.des   quest.txt    rumors.fal
-rumors.tru      sokoban.des    symbols         tower.des    tribute
-vaults.des      vecna.des      wizhelp         yendor.des
+Arch.des      Barb.des    Caveman.des   Druid.des       DKnight.des
+GENFILES      Healer.des  Infidel.des   Knight.des      Monk.des
+Priest.des    Ranger.des  Rogue.des     Samurai.des     Tourist.des
+Valkyrie.des  Wizard.des  bigroom.des   bogusmon.txt    castle.des
+cmdhelp       data.base   dungeon.def   endgame.des     engrave.txt
+epitaph.txt   forest.des  gehennom.des  goblintown.des  help
+hh            history     hdgn.des      icequeen.des    keyhelp
+knox.des      license     medusa.des    mines.des       nymph.des
+opthelp       oracle.des  oracles.txt   purgatory.des   quest.txt
+rumors.fal    rumors.tru  sokoban.des   symbols         tower.des
+tribute       vaults.des  vecna.des     wizhelp         yendor.des
 
 doc:
 (files for all versions)
