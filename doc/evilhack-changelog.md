@@ -4985,4 +4985,6 @@ The following changes to date are:
 - Fix: ensure .evilhackrc.template file is included with the uploaded
   artifacts for the Windows binary, take two
 - Fix: Draugr as a Knight and pet handling skill
+- Fix: in-game encyclopedia (pokedex) showing incorrect description for
+  sling ammunition
 

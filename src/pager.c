@@ -1198,6 +1198,8 @@ short otyp;
     char buf[BUFSZ];
     char buf2[BUFSZ];
     boolean weptool = (olet == TOOL_CLASS && oc.oc_skill != P_NONE);
+    boolean gemammo = (olet == GEM_CLASS
+                       && (otyp == FLINT || otyp == SLING_BULLET || otyp == ROCK));
     const char* dir = (oc.oc_dir == NODIR ? "Non-directional"
                                           : (oc.oc_dir == IMMEDIATE ? "Beam"
                                                                     : "Ray"));
@@ -1220,7 +1222,7 @@ short otyp;
     OBJPUTSTR("");
 
     /* Object classes currently with no special messages here: amulets. */
-    if (olet == WEAPON_CLASS || weptool) {
+    if (olet == WEAPON_CLASS || weptool || gemammo) {
         const int skill = oc.oc_skill;
         const char* dmgtyp = "blunt";
         const char* sdambon = "";
@@ -1414,7 +1416,7 @@ short otyp;
             OBJPUTSTR("Is made of a hard material.");
         }
     }
-    if (olet == GEM_CLASS) {
+    if (olet == GEM_CLASS && !gemammo) {
         if (oc.oc_material == MINERAL) {
             OBJPUTSTR("Type of stone.");
         } else if (oc.oc_material == GLASS) {
