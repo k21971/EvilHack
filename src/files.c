@@ -235,7 +235,6 @@ STATIC_DCL boolean FDECL(copy_bytes, (int, int));
 STATIC_DCL int FDECL(open_levelfile_exclusively, (const char *, int, int));
 #endif
 
-
 static char *config_section_chosen = (char *) 0;
 static char *config_section_current = (char *) 0;
 
@@ -3240,7 +3239,6 @@ struct obj *obj;
     }
 }
 
-
 boolean
 proc_wizkit_line(buf)
 char *buf;
@@ -3852,9 +3850,18 @@ const char *reason; /* explanation */
         lfile = fopen_datafile(PANICLOG, "a", TROUBLEPREFIX);
         if (lfile) {
 #ifdef PANICLOG_FMT2
-            (void) fprintf(lfile, "%ld %s: %s %s\n",
-                           ubirthday, plname,
-                           /* ubirthday, (plname ? plname : "(none)"), */
+            char timebuf[32];
+            time_t now = getnow();
+            struct tm *lt = localtime(&now);
+
+            if (lt)
+                (void) strftime(timebuf, sizeof timebuf,
+                                "%Y-%m-%d %H:%M:%S", lt);
+            else
+                Strcpy(timebuf, "0000-00-00 00:00:00");
+
+            (void) fprintf(lfile, "%s %s: %s %s\n",
+                           timebuf, plname,
                            type, reason);
 #else
             char buf[BUFSZ];

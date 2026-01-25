@@ -4991,4 +4991,5 @@ The following changes to date are:
   occupied
 - Fix: grounded() checks missing extrinsic flying/levitation in various
   locations
+- Improve paniclog timestamp format (PANICLOG_FMT2)
 
