@@ -2148,7 +2148,8 @@ domove_core()
 
         if (!HLevitation && !ELevitation
             && ((!EFlying && !HFlying) || !!(BFlying & W_ARMOR))
-            && !(u.usteed && is_flyer(u.usteed->data)) && grounded(youmonst.data)
+            && !(u.usteed && (is_flyer(u.usteed->data) || can_fly(u.usteed)))
+            && grounded(youmonst.data)
             && !Stunned && !Confusion && levl[x][y].seenv
             && ((is_pool(x, y) && !is_pool(u.ux, u.uy))
                 || (is_lava(x, y) && !is_lava(u.ux, u.uy)))) {

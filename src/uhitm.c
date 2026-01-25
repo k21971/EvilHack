@@ -659,7 +659,7 @@ struct monst *mtmp;
 
     if (Underwater
         && !u.ustuck && !u.uswallow && !mtmp->minvis
-        && (!grounded(mtmp->data) || can_levitate(mtmp)
+        && (!grounded(mtmp->data) || can_fly(mtmp) || can_levitate(mtmp)
             || can_wwalk(mtmp))
         && is_pool(mtmp->mx, mtmp->my)) {
         char pnambuf[BUFSZ];

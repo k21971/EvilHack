@@ -4244,7 +4244,7 @@ struct obj *obj;
         if (typ == RIN_REGENERATION)
             return (!mon_prop(mon, REGENERATION));
         if (typ == RIN_LEVITATION)
-            return (grounded(mon->data));
+            return (grounded(mon->data) && !can_levitate(mon));
         if (typ == RIN_FREE_ACTION || typ == RIN_ANCIENT)
             return TRUE;
         if (typ == RIN_INVISIBILITY || typ == RIN_LUSTROUS)

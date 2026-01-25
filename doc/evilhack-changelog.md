@@ -4989,4 +4989,6 @@ The following changes to date are:
   sling ammunition
 - Fix: swimming underneath flying monster panics if previous position
   occupied
+- Fix: grounded() checks missing extrinsic flying/levitation in various
+  locations
 

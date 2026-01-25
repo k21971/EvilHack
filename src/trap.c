@@ -3558,7 +3558,7 @@ float_up()
         You("start to float in the air!");
     }
     if (u.usteed && !is_floater(u.usteed->data) && !is_flyer(u.usteed->data)
-        && !can_levitate(u.usteed)) {
+        && !can_fly(u.usteed) && !can_levitate(u.usteed)) {
         if (Lev_at_will) {
             pline("%s magically floats up!", Monnam(u.usteed));
         } else {
