@@ -663,12 +663,24 @@ struct monst *mtmp;
             || can_wwalk(mtmp))
         && is_pool(mtmp->mx, mtmp->my)) {
         char pnambuf[BUFSZ];
+        coord cc;
 
-        /* forecefighting monsters that are above water can
+        /* forcefighting monsters that are above water can
            cause issues, such as displacing the target onto
            the players position without moving the player */
         if (context.forcefight) {
             You("flail wildly.");
+            return FALSE;
+        }
+
+        /* Find a position for the displaced monster:
+           prefer player's previous position, fall back to nearby */
+        if (!m_at(u.ux0, u.uy0)) {
+            cc.x = u.ux0;
+            cc.y = u.uy0;
+        } else if (!enexto(&cc, mtmp->mx, mtmp->my, mtmp->data)) {
+            /* No room to displace the monster */
+            You_cant("maneuver around %s.", y_monnam(mtmp));
             return FALSE;
         }
 
@@ -677,9 +689,9 @@ struct monst *mtmp;
         mtmp->mtrapped = 0;
         mtmp->mentangled = 0;
         remove_monster(mtmp->mx, mtmp->my);
-        place_monster(mtmp, u.ux0, u.uy0);
+        place_monster(mtmp, cc.x, cc.y);
         newsym(mtmp->mx, mtmp->my);
-        newsym(u.ux0, u.uy0);
+        newsym(cc.x, cc.y);
 
         You("swim underneath %s.", pnambuf);
         return FALSE;

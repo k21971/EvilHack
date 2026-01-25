@@ -4987,4 +4987,6 @@ The following changes to date are:
 - Fix: Draugr as a Knight and pet handling skill
 - Fix: in-game encyclopedia (pokedex) showing incorrect description for
   sling ammunition
+- Fix: swimming underneath flying monster panics if previous position
+  occupied
 
