@@ -4992,4 +4992,5 @@ The following changes to date are:
 - Fix: grounded() checks missing extrinsic flying/levitation in various
   locations
 - Improve paniclog timestamp format (PANICLOG_FMT2)
+- Tweak linux-debug hints file for specific hardware
 

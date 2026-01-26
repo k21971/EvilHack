@@ -1,7 +1,7 @@
 #
 # NetHack 3.6  linux $NHDT-Date: 1432512814 2015/05/25 00:13:34 $  $NHDT-Branch: master $:$NHDT-Revision: 1.12 $
 # Copyright (c) Kenneth Lorber, Kensington, Maryland, 2007.
-# NetHack may be freely redistributed.  See license for details. 
+# NetHack may be freely redistributed.  See license for details.
 #
 #-PRE
 # Linux hints file
@@ -53,9 +53,9 @@ CFLAGS+=-DLIVELOG_ENABLE
 CFLAGS+=-DDUMPLOG
 CFLAGS+=-DDUMPHTML
 
-# CPU-specific optimizations for my wizmode box [Intel Core i7-6770HQ (Skylake)]
+# CPU-specific optimizations for my wizmode box [Intel Core i5-10500T (Comet Lake)]
 # do not uncomment this if your system does match (or at the very least edit it)
-#CFLAGS+=-march=skylake -mtune=skylake -ffast-math -funroll-loops -fprefetch-loop-arrays
+#CFLAGS+=-march=native -mtune=native -pipe -ffast-math -funroll-loops -fprefetch-loop-arrays
 
 # detection of clang vs gcc
 CCISCLANG := $(shell echo `$(CC) --version` | grep clang)
