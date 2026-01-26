@@ -4994,4 +4994,5 @@ The following changes to date are:
 - Improve paniclog timestamp format (PANICLOG_FMT2)
 - Tweak linux-debug hints file for specific hardware
 - Fix: become_flayer() panic when consuming mounted rider
+- Fix: begin_burn() panic when monster at (0,0) equips artifact light
 

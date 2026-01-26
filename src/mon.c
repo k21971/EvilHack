@@ -1569,8 +1569,10 @@ movemon()
         if (minliquid(mtmp))
             continue;
 
-        /* after losing equipment, try to put on replacement */
-        if (mtmp->misc_worn_check & I_SPECIAL) {
+        /* after losing equipment, try to put on replacement;
+           skip monsters parked at (0,0) since m_dowear_type() may call
+           begin_burn() which needs get_obj_location() to succeed */
+        if ((mtmp->misc_worn_check & I_SPECIAL) && mtmp->mx) {
             long oldworn;
 
             /* hostiles only try to equip things if they think hero isn't
