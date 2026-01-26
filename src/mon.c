@@ -416,6 +416,23 @@ struct monst* mdef;  /* victim */
         /* Always place the new mind flayer at victim's location */
         if (magr->mx != host_x || magr->my != host_y) {
             int old_x = magr->mx, old_y = magr->my;
+            struct monst *mon_steed = m_at(host_x, host_y);
+
+            /* If victim was a rider, their steed may now occupy the spot
+               after separate_steed_and_rider() was called in mongone() */
+            if (mon_steed) {
+                coord cc;
+
+                if (enexto(&cc, host_x, host_y, mon_steed->data)) {
+                    remove_monster(host_x, host_y);
+                    place_monster(mon_steed, cc.x, cc.y);
+                    newsym(cc.x, cc.y);
+                } else {
+                    /* No adjacent room; relocate steed elsewhere */
+                    (void) rloc(mon_steed, FALSE);
+                }
+            }
+
             remove_monster(old_x, old_y);
             place_monster(magr, host_x, host_y);
             newsym(old_x, old_y);        /* update old position */

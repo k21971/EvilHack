@@ -4993,4 +4993,5 @@ The following changes to date are:
   locations
 - Improve paniclog timestamp format (PANICLOG_FMT2)
 - Tweak linux-debug hints file for specific hardware
+- Fix: become_flayer() panic when consuming mounted rider
 
