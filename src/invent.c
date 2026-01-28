@@ -833,10 +833,19 @@ struct obj *obj;
     if (obj->oclass == COIN_CLASS) {
         context.botl = 1;
     } else if (obj->otyp == AMULET_OF_YENDOR) {
-        if (u.uhave.amulet && !Role_if(PM_INFIDEL))
-            impossible("already have amulet?");
-        u.uhave.amulet = 1;
-        u.uamulet_on_planes = 0;
+        if (u.uhave.amulet && !Role_if(PM_INFIDEL)) {
+            if (wizard || iflags.debug_fuzzer) {
+                /* wizard mode/fuzzing - handle gracefully */
+                You("already have %s!  Creating a duplicate...",
+                    the(xname(obj)));
+            } else {
+                /* normal play - this shouldn't happen */
+                impossible("already have amulet?");
+            }
+        } else {
+            u.uhave.amulet = 1;
+            u.uamulet_on_planes = 0;
+        }
         /* Player will be able to discover if s/he has the real amulet */
         /* by monitoring the livelog - but only when it was picked up */
         /* for the first time */
@@ -895,9 +904,18 @@ struct obj *obj;
         u.uachieve.book = 1;
     } else if (obj->oartifact) {
         if (is_quest_artifact(obj)) {
-            if (u.uhave.questart)
-                impossible("already have quest artifact?");
-            u.uhave.questart = 1;
+            if (u.uhave.questart) {
+                if (wizard || iflags.debug_fuzzer) {
+                    /* wizard mode/fuzzing - handle gracefully */
+                    You("already have %s!  Creating a duplicate...",
+                        the(xname(obj)));
+                } else {
+                    /* normal play - this shouldn't happen */
+                    impossible("already have quest artifact?");
+                }
+            } else {
+                u.uhave.questart = 1;
+            }
             if (Role_if(PM_INFIDEL) && u.uachieve.amulet) {
                 u.uhave.amulet = 1;
                 u.uamulet_on_planes = 0;
