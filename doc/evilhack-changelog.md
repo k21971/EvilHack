@@ -4997,4 +4997,5 @@ The following changes to date are:
 - Fix: begin_burn() panic when monster at (0,0) equips artifact light
 - Fix: addinv_core1() panic on duplicate Amulet/quest artifact in wizard
   mode
+- Fix: wormgone() orphaned segment cleanup
 

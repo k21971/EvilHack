@@ -265,6 +265,7 @@ wormgone(worm)
 struct monst *worm;
 {
     int wnum = worm->wormno;
+    int x, y;
 
     /*  if (!wnum) return;  bullet proofing */
 
@@ -276,6 +277,19 @@ struct monst *worm;
     toss_wsegs(wtails[wnum], TRUE);
 
     wheads[wnum] = wtails[wnum] = (struct wseg *) 0;
+
+    /* Paranoid cleanup: scan for orphaned segments that might have
+       been missed due to segment coordinate mismatches. This catches
+       cases where a segment's wx/wy was zeroed without calling
+       remove_monster(), leaving the segment on the map */
+    for (x = 1; x < COLNO; x++) {
+        for (y = 0; y < ROWNO; y++) {
+            if (level.monsters[x][y] == worm) {
+                level.monsters[x][y] = (struct monst *) 0;
+                newsym(x, y);
+            }
+        }
+    }
 }
 
 /*
