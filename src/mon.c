@@ -4122,7 +4122,7 @@ struct monst *mtmp;
             if (u.uswallow)
                 expels(mtmp, mtmp->data, FALSE);
             else
-                uunstick();
+                uunstick(sticks(youmonst.data));
         }
         newsym(mtmp->mx, mtmp->my);
         return;
@@ -4155,7 +4155,7 @@ struct monst *mtmp;
             if (u.uswallow)
                 expels(mtmp, mtmp->data, FALSE);
             else
-                uunstick();
+                uunstick(sticks(youmonst.data));
         }
         newsym(mtmp->mx, mtmp->my);
         if (u.ualign.type == A_NONE) {
@@ -4190,7 +4190,7 @@ struct monst *mtmp;
             if (u.uswallow)
                 expels(mtmp, mtmp->data, FALSE);
             else
-                uunstick();
+                uunstick(sticks(youmonst.data));
         }
         newsym(mtmp->mx, mtmp->my);
         rise_msg = TRUE;
@@ -4267,7 +4267,7 @@ struct monst *mtmp;
                 if (u.uswallow)
                     expels(mtmp, mtmp->data, FALSE);
                 else
-                    uunstick();
+                    uunstick(sticks(youmonst.data));
             }
             if (in_door) {
                 coord new_xy;
@@ -7363,7 +7363,7 @@ struct monst *mtmp;
         if (u.uswallow)
             expels(mtmp, mtmp->data, FALSE);
         else
-            uunstick();
+            uunstick(sticks(youmonst.data));
     }
     newsym(mtmp->mx, mtmp->my);
 

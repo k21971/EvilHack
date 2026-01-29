@@ -231,7 +231,7 @@ const char *fmt, *arg;
     u.uundetected = 0;
 
     if (sticky)
-        uunstick();
+        uunstick(TRUE);
     find_ac();
     if (was_mimicking) {
         if (multi < 0)
@@ -1094,10 +1094,14 @@ int mntmp;
     /* [note:  this 'sticky' handling is only sufficient for changing from
        grabber to engulfer or vice versa because engulfing by poly'd hero
        always ends immediately so won't be in effect during a polymorph] */
-    if (!sticky && !u.uswallow && u.ustuck && sticks(youmonst.data))
+    if (!sticky && !u.uswallow && u.ustuck
+        && (sticks(youmonst.data) || unsolid(youmonst.data))) {
+        /* wasn't holding onto u.ustuck but now capable of holding, or
+           became unsolid so holder can no longer hold on */
+        pline("%s loses its grip on you.", Monnam(u.ustuck));
         u.ustuck = 0;
-    else if (sticky && !sticks(youmonst.data))
-        uunstick();
+    } else if (sticky && !sticks(youmonst.data))
+        uunstick(TRUE);
 
     if (u.usteed) {
         if (touch_petrifies(u.usteed->data) && !Stone_resistance && rnl(3)) {
@@ -2184,13 +2188,17 @@ domindblast()
 }
 
 void
-uunstick()
+uunstick(player_was_holder)
+boolean player_was_holder;
 {
     if (!u.ustuck) {
         impossible("uunstick: no ustuck?");
         return;
     }
-    pline("%s is no longer in your clutches.", Monnam(u.ustuck));
+    if (player_was_holder)
+        pline("%s is no longer in your clutches.", Monnam(u.ustuck));
+    else
+        You("are no longer held by %s.", mon_nam(u.ustuck));
     u.ustuck = 0;
 }
 

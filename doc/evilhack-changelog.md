@@ -4998,4 +4998,5 @@ The following changes to date are:
 - Fix: addinv_core1() panic on duplicate Amulet/quest artifact in wizard
   mode
 - Fix: wormgone() orphaned segment cleanup
+- Fix: uunstick() message when a monster was holding the player
 

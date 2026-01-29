@@ -2173,7 +2173,7 @@ E int NDECL(dodarkness);
 E int NDECL(toggleshell);
 E int NDECL(dopoly);
 E int NDECL(domindblast);
-E void NDECL(uunstick);
+E void FDECL(uunstick, (BOOLEAN_P));
 E void FDECL(skinback, (BOOLEAN_P));
 E const char *FDECL(mbodypart, (struct monst *, int));
 E const char *FDECL(body_part, (int));

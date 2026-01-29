@@ -4642,7 +4642,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                    and may even be attacking a different monster now) */
                 if (byhand && uwep && u.ustuck
                     && !(sticks(u.ustuck->data) || u.uswallow))
-                    uunstick();
+                    uunstick(TRUE);
                 continue; /* not 'break'; bypass passive counter-attack */
             }
             /* automatic if prev two attacks succeed, or if
@@ -4700,7 +4700,7 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                    holding something else; yields feedback
                    "<u.ustuck> is no longer in your clutches" */
                 if (u.ustuck && u.ustuck != mon)
-                    uunstick();
+                    uunstick(TRUE);
                 You("grab %s!", mon_nam(mon));
                 u.ustuck = mon;
                 /* monster can't be hiding if stuck to the player */
