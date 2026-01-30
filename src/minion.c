@@ -395,8 +395,7 @@ count_hellb_gone()
 
 /* Check if demon lord should be protected from summoning.
  * Protects the last remaining demon lord from each tier
- * until the player enters that tier's lair level.
- */
+ * until the player enters that tier's lair level */
 STATIC_OVL boolean
 dlord_protected(pm)
 int pm;

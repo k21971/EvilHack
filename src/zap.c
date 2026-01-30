@@ -5816,7 +5816,8 @@ boolean say; /* Announce out of sight hit/miss events if true */
     bhitpos = save_bhitpos;
 }
 
-void
+/* Returns TRUE if a monster at (x,y) died from the terrain change */
+boolean
 melt_ice(x, y, msg)
 xchar x, y;
 const char *msg;
@@ -5869,10 +5870,12 @@ const char *msg;
         } while (is_pool(x, y) && (otmp = sobj_at(BOULDER, x, y)) != 0);
         newsym(x, y);
     }
-    if (x == u.ux && y == u.uy)
+    if (x == u.ux && y == u.uy) {
         spoteffects(TRUE); /* possibly drown, notice objects */
-    else if (is_pool(x, y) && (mtmp = m_at(x, y)) != 0)
-        (void) minliquid(mtmp);
+    } else if (is_pool(x, y) && (mtmp = m_at(x, y)) != 0) {
+        return minliquid(mtmp); /* returns 1 if monster died */
+    }
+    return FALSE;
 }
 
 #define MIN_ICE_TIME 50

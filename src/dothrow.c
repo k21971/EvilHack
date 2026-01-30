@@ -923,7 +923,7 @@ int x, y;
         if (Is_waterlevel(&u.uz) && levl[x][y].typ == WATER)
             return FALSE;
         res = mintrap(mon);
-        if (res == 1 || res == 2)
+        if (res == 1 || res == 2 || DEADMONSTER(mon))
             return FALSE;
         return TRUE;
     }

@@ -2944,8 +2944,9 @@ struct monst *mtmp;
             if (burn_floor_objects(mtmp->mx, mtmp->my, see_it, FALSE)
                 && !see_it && distu(mtmp->mx, mtmp->my) <= 3 * 3)
                 You("smell smoke.");
-            if (is_ice(mtmp->mx, mtmp->my))
-                melt_ice(mtmp->mx, mtmp->my, (char *) 0);
+            if (is_ice(mtmp->mx, mtmp->my)
+                && melt_ice(mtmp->mx, mtmp->my, (char *) 0))
+                trapkilled = TRUE; /* monster drowned when ice melted */
             if (see_it && t_at(mtmp->mx, mtmp->my))
                 seetrap(trap);
             break;
@@ -6042,8 +6043,9 @@ boolean disarm;
                 if (burn_floor_objects(mon->mx, mon->my, canseemon(mon), FALSE)
                     && !canseemon(mon) && distu(mon->mx, mon->my) <= 3 * 3)
                     You("smell smoke.");
-                if (is_ice(mon->mx, mon->my))
-                    melt_ice(mon->mx, mon->my, (char *) 0);
+                if (is_ice(mon->mx, mon->my)
+                    && melt_ice(mon->mx, mon->my, (char *) 0))
+                    return FALSE; /* monster drowned when ice melted */
             }
             break;
         case 8:
