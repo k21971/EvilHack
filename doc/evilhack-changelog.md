@@ -4999,4 +4999,6 @@ The following changes to date are:
   mode
 - Fix: wormgone() orphaned segment cleanup
 - Fix: uunstick() message when a monster was holding the player
+- Fix: prevent last demon lord in each tier from being summoned until
+  their lair is visited
 

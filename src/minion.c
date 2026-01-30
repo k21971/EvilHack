@@ -5,6 +5,10 @@
 
 #include "hack.h"
 
+STATIC_DCL int NDECL(count_hella_gone);
+STATIC_DCL int NDECL(count_hellb_gone);
+STATIC_DCL boolean FDECL(dlord_protected, (int));
+
 void
 newemin(mtmp)
 struct monst *mtmp;
@@ -365,6 +369,57 @@ struct monst *mtmp;
     return offer;
 }
 
+/* Count how many demon lords from tier 1 (hella) are gone */
+STATIC_OVL int
+count_hella_gone()
+{
+    int count = 0;
+    if (mvitals[PM_JUIBLEX].mvflags & G_GONE) count++;
+    if (mvitals[PM_BAALZEBUB].mvflags & G_GONE) count++;
+    if (mvitals[PM_GERYON].mvflags & G_GONE) count++;
+    if (mvitals[PM_BAPHOMET].mvflags & G_GONE) count++;
+    return count;
+}
+
+/* Count how many demon lords from tier 2 (hellb) are gone */
+STATIC_OVL int
+count_hellb_gone()
+{
+    int count = 0;
+    if (mvitals[PM_MEPHISTOPHELES].mvflags & G_GONE) count++;
+    if (mvitals[PM_YEENOGHU].mvflags & G_GONE) count++;
+    if (mvitals[PM_DISPATER].mvflags & G_GONE) count++;
+    if (mvitals[PM_LOLTH].mvflags & G_GONE) count++;
+    return count;
+}
+
+/* Check if demon lord should be protected from summoning.
+ * Protects the last remaining demon lord from each tier
+ * until the player enters that tier's lair level.
+ */
+STATIC_OVL boolean
+dlord_protected(pm)
+int pm;
+{
+    /* Tier 1: protect last remaining hella lord */
+    if ((pm == PM_JUIBLEX || pm == PM_BAALZEBUB
+         || pm == PM_GERYON || pm == PM_BAPHOMET)
+        && !u.uevent.hella_entered
+        && count_hella_gone() >= 3
+        && !(mvitals[pm].mvflags & G_GONE))
+        return TRUE;
+
+    /* Tier 2: protect last remaining hellb lord */
+    if ((pm == PM_MEPHISTOPHELES || pm == PM_YEENOGHU
+         || pm == PM_DISPATER || pm == PM_LOLTH)
+        && !u.uevent.hellb_entered
+        && count_hellb_gone() >= 3
+        && !(mvitals[pm].mvflags & G_GONE))
+        return TRUE;
+
+    return FALSE;
+}
+
 int
 dprince(atyp)
 aligntyp atyp;
@@ -392,6 +447,7 @@ aligntyp atyp;
     for (tryct = !In_endgame(&u.uz) ? 20 : 0; tryct > 0; --tryct) {
         pm = rn1(PM_MEPHISTOPHELES + 1 - PM_JUIBLEX, PM_JUIBLEX);
         if (!(mvitals[pm].mvflags & G_GONE)
+            && !dlord_protected(pm)
             && (atyp == A_NONE || sgn(mons[pm].maligntyp) == sgn(atyp)))
             return pm;
     }
