@@ -5369,6 +5369,20 @@ struct obj *no_wish;
                                  : (rn2(2) ? "hand over" : "give you"),
                           aname, rn2(2) ? "so easily" : "without a fight");
             }
+            /* Apply erosion properties before giving artifact to owner.
+             * The normal erosion code further down is skipped due to
+             * the early return below */
+            if (erosion_matters(otmp)) {
+                otmp->oeroded = otmp->oeroded2 = 0;
+                if (eroded && (is_flammable(otmp) || is_rustprone(otmp)))
+                    otmp->oeroded = eroded;
+                if (eroded2 && (is_corrodeable(otmp) || is_rottable(otmp)
+                                || is_glass(otmp) || is_supermaterial(otmp)))
+                    otmp->oeroded2 = eroded2;
+                if (erodeproof && (is_damageable(otmp) || otmp->otyp == CRYSKNIFE
+                                   || objects[otmp->otyp].oc_material == GLASS))
+                    maybe_erodeproof(otmp, (Luck >= 0 || wizard));
+            }
             (void) mpickobj(mtmp, otmp);
             if (otmp2)
                 (void) mpickobj(mtmp, otmp2);

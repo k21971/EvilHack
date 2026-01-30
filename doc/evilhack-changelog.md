@@ -5001,4 +5001,5 @@ The following changes to date are:
 - Fix: uunstick() message when a monster was holding the player
 - Fix: prevent last demon lord in each tier from being summoned until
   their lair is visited
+- Fix: quest artifact wish "fixed" property not applied
 
