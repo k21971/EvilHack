@@ -5003,5 +5003,5 @@ The following changes to date are:
   their lair is visited
 - Fix: quest artifact wish "fixed" property not applied
 - Fix: melt_ice() not reporting monster death to callers
-
+- Fix: break_glass_obj() panic when object state changes during combat
 

@@ -2751,7 +2751,9 @@ struct obj* obj;
         x = mon->mx;
         y = mon->my;
     } else {
-        impossible("trying to break non-equipped glass obj?");
+        /* Object has been moved, freed, or is no longer equipped.
+           This can happen when monster death processing occurs before
+           glass breakage checks. Gracefully skip breakage */
         return FALSE;
     }
 
@@ -2764,7 +2766,7 @@ struct obj* obj;
     /* remove its worn flags */
     unwornmask = obj->owornmask;
     if (!unwornmask) {
-        impossible("breaking non-equipped glass obj?");
+        /* Object is in inventory but not equipped */
         return FALSE;
     }
     if (ucarried) { /* hero's item */
