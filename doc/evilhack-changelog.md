@@ -5005,4 +5005,5 @@ The following changes to date are:
 - Fix: melt_ice() not reporting monster death to callers
 - Fix: break_glass_obj() panic when object state changes during combat
 - Fuzzer vs hightlight menus
+- Fix: set_bc() panic when ball thrown at retaliating monster
 

@@ -428,7 +428,7 @@ void
 set_bc(already_blind)
 int already_blind;
 {
-    int ball_on_floor = !carried(uball);
+    int ball_on_floor = (uball->where == OBJ_FLOOR);
 
     u.bc_order = bc_order(); /* get the order */
     u.bc_felt = ball_on_floor ? BC_BALL | BC_CHAIN : BC_CHAIN; /* felt */
@@ -578,13 +578,13 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
             remove_object(uchain);
             maybe_unhide_at(uchain->ox, uchain->oy);
             newsym_force(uchain->ox, uchain->oy);
-            if (!carried(uball)) {
+            if (uball->where == OBJ_FLOOR) {
                 remove_object(uball);
                 maybe_unhide_at(uball->ox, uball->oy);
                 newsym_force(uball->ox, uball->oy);
             }
         } else {
-            int on_floor = !carried(uball);
+            int on_floor = (uball->where == OBJ_FLOOR);
 
             if ((control & BC_CHAIN)
                 || (!control && u.bc_order == BCPOS_CHAIN)) {
@@ -604,7 +604,7 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
         }
     }
     /* dragging ball or chain through water */
-    if ((control & BC_BALL) && !carried(uball)
+    if ((control & BC_BALL) && uball->where == OBJ_FLOOR
         && is_damp_terrain(ballx, bally))
         water_damage(uball, (char *) 0, FALSE, ballx, bally);
     if ((control & BC_CHAIN) && is_damp_terrain(chainx, chainy))
