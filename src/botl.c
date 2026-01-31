@@ -3936,7 +3936,9 @@ shlmenu_redo:
     countall = status_hilite_linestr_countfield(BL_FLUSH);
     status_hilite_linestr_done();
 
-    if (redo)
+    /* fuzzer is unlikely to pick something useful within nested menus;
+       limit it to one try */
+    if (redo && !iflags.debug_fuzzer)
         goto shlmenu_redo;
 
     /* hilite_delta=='statushilites' does double duty:  it is the
