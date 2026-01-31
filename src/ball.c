@@ -433,7 +433,12 @@ int already_blind;
     u.bc_order = bc_order(); /* get the order */
     u.bc_felt = ball_on_floor ? BC_BALL | BC_CHAIN : BC_CHAIN; /* felt */
 
-    if (already_blind || u.uswallow) {
+    /* If ball is in flight (OBJ_FREE), don't do the extract/place dance.
+       This handles the case where something (like retaliation) causes
+       blindness while the ball is being thrown. The ball and chain must
+       stay in sync - if we place the chain but leave ball FREE, the
+       sanity check will panic on the mismatch */
+    if (already_blind || u.uswallow || uball->where == OBJ_FREE) {
         u.cglyph = u.bglyph = levl[u.ux][u.uy].glyph;
         return;
     }
@@ -584,7 +589,12 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
                 newsym_force(uball->ox, uball->oy);
             }
         } else {
-            int on_floor = (uball->where == OBJ_FLOOR);
+            /* Use !carried() here, not where == FLOOR. After extraction
+               in the 'before' phase, ball is FREE. We still need to
+               place it. The where == FLOOR check is only correct for
+               the extraction phase (to avoid removing a ball that's
+               already FREE/in-flight) */
+            int on_floor = !carried(uball);
 
             if ((control & BC_CHAIN)
                 || (!control && u.bc_order == BCPOS_CHAIN)) {

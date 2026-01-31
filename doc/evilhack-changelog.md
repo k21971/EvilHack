@@ -5006,4 +5006,5 @@ The following changes to date are:
 - Fix: break_glass_obj() panic when object state changes during combat
 - Fuzzer vs hightlight menus
 - Fix: set_bc() panic when ball thrown at retaliating monster
+- Fix: ball/chain state mismatch regressions from set_bc() fix
 
