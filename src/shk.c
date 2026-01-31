@@ -2064,6 +2064,12 @@ unsigned id;
             if ((obj = o_on(id, mon->minvent)) != 0)
                 return obj;
 
+    /* check objects in flight (thrown/kicked) */
+    if (thrownobj && thrownobj->o_id == id)
+        return thrownobj;
+    if (kickedobj && kickedobj->o_id == id)
+        return kickedobj;
+
     /* not found at all */
     return (struct obj *) 0;
 }
