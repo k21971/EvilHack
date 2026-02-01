@@ -6925,6 +6925,7 @@ void
 sink_into_lava()
 {
     static const char sink_deeper[] = "You sink deeper into the lava.";
+    static int sink_death_attempts = 0;  /* fuzzer infinite loop prevention */
 
     if (!u.utrap || u.utraptype != TT_LAVA) {
         ; /* do nothing; this usually won't happen but could after
@@ -6943,12 +6944,37 @@ sink_into_lava()
 
         u.utrap -= (1 << 8);
         if (u.utrap < (1 << 8)) {
+            /* Fuzzer protection: prevent infinite sinking loops */
+            if (iflags.debug_fuzzer) {
+                sink_death_attempts++;
+                /* After 2 failed attempts, grant temp resistance and escape */
+                if (sink_death_attempts >= 2) {
+                    pline_The("lava's heat suddenly feels less intense!");
+                    You("develop a temporary resistance!");
+                    /* Grant enough turns to escape */
+                    incr_itimeout(&HFire_resistance, 50);
+                    incr_itimeout(&HWwalking, 50);
+                    sink_death_attempts = 0;
+                    u.uhp = 1;
+                    reset_utrap(TRUE);
+                    /* Try to teleport to safety */
+                    if (!safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT)) {
+                        /* No safe spot on this level, level teleport */
+                        You("feel a powerful force pulling you away!");
+                        level_tele();
+                    }
+                    return;  /* Skip done(DISSOLVED) */
+                }
+            }
+
             killer.format = KILLED_BY;
             Strcpy(killer.name, "molten lava");
             You("sink below the surface and die.");
             burn_away_slime(); /* add insult to injury? */
             done(DISSOLVED);
             /* can only get here via life-saving; try to get away from lava */
+            if (iflags.debug_fuzzer)
+                sink_death_attempts = 0;  /* reset after life-save escape */
             reset_utrap(TRUE);
             /* levitation or flight have become unblocked, otherwise Tport */
             if (!Levitation && !Flying)
