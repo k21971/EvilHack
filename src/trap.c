@@ -6875,6 +6875,8 @@ lava_effects()
                 /* Reset counter and let hero survive this time */
                 lava_death_attempts = 0;
                 u.uhp = 1;  /* minimal health */
+                if (Upolyd)
+                    u.mh = 1;  /* also restore polymorphed form's HP */
                 return FALSE;
             }
         }
@@ -6956,6 +6958,8 @@ sink_into_lava()
                     incr_itimeout(&HWwalking, 50);
                     sink_death_attempts = 0;
                     u.uhp = 1;
+                    if (Upolyd)
+                        u.mh = 1;  /* also restore polymorphed form's HP */
                     reset_utrap(TRUE);
                     /* Try to teleport to safety */
                     if (!safe_teleds(TELEDS_ALLOW_DRAG | TELEDS_TELEPORT)) {

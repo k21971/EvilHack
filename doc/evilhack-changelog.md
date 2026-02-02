@@ -5009,4 +5009,5 @@ The following changes to date are:
 - Fix: ball/chain state mismatch regressions from set_bc() fix
 - Fix: find_oid() missing check for objects in flight
 - Fix: prevent infinite sink_into_lava() death loop during fuzzing
+- Fix: lava death loop for polymorphed players during fuzzing
 
