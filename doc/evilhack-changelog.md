@@ -5012,4 +5012,6 @@ The following changes to date are:
 - Fix: lava death loop for polymorphed players during fuzzing
 - Fix: validate vault guard vroom index before rooms[] access
 - Support monster pets will attack weakened peaceful monsters
+- Fix: use-after-free when eating heavy iron ball while punished on open
+  air terrain
 

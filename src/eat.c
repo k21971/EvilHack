@@ -2760,8 +2760,22 @@ eatspecial()
     if (otmp == uswapwep && otmp->quan == 1L)
         uswapwepgone();
 
-    if (otmp == uball)
-        unpunish();
+    if (otmp == uball) {
+        /* End punishment but consume the ball ourselves (don't let it
+           fall). This is similar to unpunish() but skips the open-air
+           flooreffects() since we're eating the ball, not dropping it */
+        struct obj *savechain = uchain;
+
+        /* chain goes away */
+        obj_extract_self(uchain);
+        maybe_unhide_at(uchain->ox, uchain->oy);
+        newsym(uchain->ox, uchain->oy);
+        setworn((struct obj *) 0, W_CHAIN);
+        dealloc_obj(savechain);
+        /* ball is no longer attached; fall through to consume it */
+        otmp->spe = 0;
+        setworn((struct obj *) 0, W_BALL);
+    }
     if (otmp == uchain)
         unpunish(); /* but no useup() */
     else if (carried(otmp))
