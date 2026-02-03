@@ -6654,10 +6654,6 @@ in_hell_effects()
         Strcpy(killer.name, in_hell_killer);
         You("%s...", boil_away ? "boil away" : "are roasted alive");
         done(DIED);
-        /* Reset counter after successful escape from death */
-        if (iflags.debug_fuzzer)
-            hell_death_attempts = 0;
-
         return TRUE;
     }
 
@@ -6737,10 +6733,6 @@ in_iceq_effects()
         Strcpy(killer.name, in_iceq_killer);
         You("%s...", freeze_solid ? "freeze solid" : "freeze to death");
         done(DIED);
-        /* Reset counter after successful escape from death */
-        if (iflags.debug_fuzzer)
-            freezing_death_attempts = 0;
-
         return TRUE;
     }
 
@@ -6941,8 +6933,11 @@ sink_into_lava()
            enough to become stuck in lava, but it can happen without
            resistance if water walking boots allow survival and then
            get burned up; u.utrap time will be quite short in that case */
-        if (how_resistant(FIRE_RES) < 100)
+        if (how_resistant(FIRE_RES) < 100) {
             u.uhp = (u.uhp + 2) / 3;
+            if (Upolyd)
+                u.mh = (u.mh + 2) / 3;
+        }
 
         u.utrap -= (1 << 8);
         if (u.utrap < (1 << 8)) {
@@ -6976,9 +6971,9 @@ sink_into_lava()
             You("sink below the surface and die.");
             burn_away_slime(); /* add insult to injury? */
             done(DISSOLVED);
-            /* can only get here via life-saving; try to get away from lava */
-            if (iflags.debug_fuzzer)
-                sink_death_attempts = 0;  /* reset after life-save escape */
+            /* can only get here via life-saving; try to get away from lava
+               (don't reset sink_death_attempts here - let it accumulate so
+               the fuzzer protection above can trigger after 2 attempts) */
             reset_utrap(TRUE);
             /* levitation or flight have become unblocked, otherwise Tport */
             if (!Levitation && !Flying)
