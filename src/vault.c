@@ -550,8 +550,20 @@ invault()
             EGD(guard)->fakecorr[0].ftyp = levl[x][y].typ;
         } else { /* the initial guard location is a dug door */
             int vlt = EGD(guard)->vroom;
-            xchar lowx = rooms[vlt].lx, hix = rooms[vlt].hx;
-            xchar lowy = rooms[vlt].ly, hiy = rooms[vlt].hy;
+            xchar lowx, hix, lowy, hiy;
+
+            /* Validate vault room - guard against corruption */
+            if (vlt < 0 || vlt >= nroom || rooms[vlt].hx <= 0) {
+                /* This shouldn't happen at guard creation,
+                   but handle gracefully */
+                mongone(guard);
+                return;
+            }
+
+            lowx = rooms[vlt].lx;
+            hix = rooms[vlt].hx;
+            lowy = rooms[vlt].ly;
+            hiy = rooms[vlt].hy;
 
             if (x == lowx - 1 && y == lowy - 1)
                 EGD(guard)->fakecorr[0].ftyp = TLCORNER;
@@ -581,6 +593,13 @@ int vroom;
 {
     xchar nx, ny;
 
+    /* Validate vault room before moving gold */
+    if (vroom < 0 || vroom >= nroom || rooms[vroom].hx <= 0) {
+        /* Invalid vault - just delete the gold rather than crash */
+        delobj(gold);
+        return;
+    }
+
     remove_object(gold);
     newsym(gold->ox, gold->oy);
     nx = rooms[vroom].lx + rn2(2);
@@ -597,13 +616,23 @@ struct monst *grd;
     int x, y, typ;
     int vlt = EGD(grd)->vroom;
     char tmp_viz;
-    xchar lox = rooms[vlt].lx - 1, hix = rooms[vlt].hx + 1,
-          loy = rooms[vlt].ly - 1, hiy = rooms[vlt].hy + 1;
+    xchar lox, hix, loy, hiy;
     struct monst *mon;
     struct obj *gold;
     struct trap *trap;
     boolean fixed = FALSE;
     boolean movedgold = FALSE;
+
+    /* Validate vault room index before use */
+    if (vlt < 0 || vlt >= nroom || rooms[vlt].hx <= 0) {
+        /* Vault room data is invalid - cannot repair walls */
+        return;
+    }
+
+    lox = rooms[vlt].lx - 1;
+    hix = rooms[vlt].hx + 1;
+    loy = rooms[vlt].ly - 1;
+    hiy = rooms[vlt].hy + 1;
 
     for (x = lox; x <= hix; x++)
         for (y = loy; y <= hiy; y++) {
@@ -1118,8 +1147,18 @@ boolean silently;
         mnexto(grd);
         if (!silently)
             pline("%s remits your gold to the vault.", Monnam(grd));
-        gx = rooms[EGD(grd)->vroom].lx + rn2(2);
-        gy = rooms[EGD(grd)->vroom].ly + rn2(2);
+        /* Validate vault room before placing gold */
+        {
+            int vlt = EGD(grd)->vroom;
+            if (vlt < 0 || vlt >= nroom || rooms[vlt].hx <= 0) {
+                /* Invalid vault - place gold at guard's position */
+                gx = grd->mx;
+                gy = grd->my;
+            } else {
+                gx = rooms[vlt].lx + rn2(2);
+                gy = rooms[vlt].ly + rn2(2);
+            }
+        }
         Sprintf(buf, "To Croesus: here's the gold recovered from %s the %s.",
                 plname, mons[u.umonster].mname);
         if (!in_fcorridor(grd, gx, gy)) {

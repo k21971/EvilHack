@@ -5010,4 +5010,5 @@ The following changes to date are:
 - Fix: find_oid() missing check for objects in flight
 - Fix: prevent infinite sink_into_lava() death loop during fuzzing
 - Fix: lava death loop for polymorphed players during fuzzing
+- Fix: validate vault guard vroom index before rooms[] access
 
