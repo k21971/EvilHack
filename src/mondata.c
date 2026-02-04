@@ -146,7 +146,8 @@ struct monst *mon;
     long slotmask;
 
     if (resists_drain(ptr) || is_vampshifter(mon)
-        || (mon == &youmonst && u.ulycn >= LOW_PM))
+        || (mon == &youmonst && u.ulycn >= LOW_PM)
+        || mon_has_race(mon, MH_UNDEAD | MH_DEMON | MH_WERE))
         return TRUE;
     armor = (mon == &youmonst) ? invent : mon->minvent;
     slotmask = W_ARMOR | W_ACCESSORY;

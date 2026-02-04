@@ -5024,4 +5024,5 @@ The following changes to date are:
 - Fix: use-after-free in dosit() when egg laid over open air
 - Fix: global-buffer-overflow in scatter() when object goes off-map
 - Fix: infinite death loop when polymorphed with 0 mhmax
+- Fix: player monster undead (draugr, vampires) could be life-drained
 
