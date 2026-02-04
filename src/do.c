@@ -860,16 +860,20 @@ struct obj *obj;
     dropy(obj);
 }
 
-/* dropy - put dropped object at destination; called from lots of places */
-void
+/* dropy - put dropped object at destination; called from lots of
+   places. Returns TRUE if object was destroyed (by flooreffects),
+   FALSE otherwise */
+boolean
 dropy(obj)
 struct obj *obj;
 {
-    dropz(obj, FALSE);
+    return dropz(obj, FALSE);
 }
 
-/* dropz - really put dropped object at its destination... */
-void
+/* dropz - really put dropped object at its destination...
+   Returns TRUE if object was destroyed (by flooreffects),
+   FALSE otherwise */
+boolean
 dropz(obj, with_impact)
 struct obj *obj;
 boolean with_impact;
@@ -882,7 +886,7 @@ boolean with_impact;
         setuswapwep((struct obj *) 0);
 
     if (!u.uswallow && flooreffects(obj, u.ux, u.uy, "drop"))
-        return;
+        return TRUE;
     /* uswallow check done by GAN 01/29/87 */
     if (u.uswallow) {
         boolean could_petrify = FALSE;
@@ -936,6 +940,7 @@ boolean with_impact;
             map_object(obj, 0);
         newsym(u.ux, u.uy); /* remap location under self */
     }
+    return FALSE;
 }
 
 /* things that must change when not held; recurse into containers.

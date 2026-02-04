@@ -362,8 +362,8 @@ dosit()
         set_corpsenm(uegg, egg_type_from_parent(u.umonnum, FALSE));
         uegg->known = uegg->dknown = 1;
         You("%s an egg.", eggs_in_water(youmonst.data) ? "spawn" : "lay");
-        dropy(uegg);
-        stackobj(uegg);
+        if (!dropy(uegg))
+            stackobj(uegg);
         morehungry((int) objects[EGG].oc_nutrition);
     } else {
         pline("Having fun sitting on the %s?", surface(u.ux, u.uy));
