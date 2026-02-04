@@ -5017,4 +5017,5 @@ The following changes to date are:
 - Fix: infinite death loops for polymorphed players in lava/hell/ice
 - Fix: use-after-free in monster item use functions
 - Fix: heap buffer overflow in tty_end_menu() menu string truncation
+- Fix: use-after-free in mintrap() LANDMINE case
 

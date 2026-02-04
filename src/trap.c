@@ -3209,7 +3209,9 @@ struct monst *mtmp;
                     newsym(trap->tx, trap->ty);
             }
             break;
-        case LANDMINE:
+        case LANDMINE: {
+            boolean youmade;
+
             if (rn2(3))
                 break; /* monsters usually don't set it off */
             if (is_flyer(mptr)) {
@@ -3236,12 +3238,13 @@ struct monst *mtmp;
             if (!in_sight && !Deaf)
                 pline("Kaablamm!  %s an explosion in the distance!",
                       "You hear");  /* Deaf-aware */
+            youmade = trap->madeby_u;
             blow_up_landmine(trap);
             /* explosion might have destroyed a drawbridge; don't
                dish out more damage if monster is already dead */
             if (DEADMONSTER(mtmp)
                 || thitm(0, mtmp, (struct obj *) 0, rnd(16), FALSE,
-                         trap->madeby_u ? TRUE : FALSE)) {
+                         youmade)) {
                 trapkilled = TRUE;
             } else {
                 /* monsters recursively fall into new pit */
@@ -3257,6 +3260,7 @@ struct monst *mtmp;
                 nomovemsg = "The explosion awakens you!";
             }
             break;
+        }
         case POLY_TRAP_SET:
             if (resists_magm(mtmp) || defended(mtmp, AD_MAGM)) {
                 shieldeff(mtmp->mx, mtmp->my);
