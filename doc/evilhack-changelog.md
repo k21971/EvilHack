@@ -5022,4 +5022,5 @@ The following changes to date are:
 - Fix: use-after-free in precheck() when object destroyed but returns 0
 - Fix: use-after-free in unpunish() when ball over open air
 - Fix: use-after-free in dosit() when egg laid over open air
+- Fix: global-buffer-overflow in scatter() when object goes off-map
 

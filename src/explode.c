@@ -807,46 +807,48 @@ struct obj *obj; /* only scatter this obj        */
                 thrownobj = stmp->obj; /* mainly in case it kills hero */
                 bhitpos.x = stmp->ox + stmp->dx;
                 bhitpos.y = stmp->oy + stmp->dy;
-                typ = levl[bhitpos.x][bhitpos.y].typ;
                 if (!isok(bhitpos.x, bhitpos.y)) {
                     bhitpos.x -= stmp->dx;
                     bhitpos.y -= stmp->dy;
                     stmp->stopped = TRUE;
-                } else if (!ZAP_POS(typ)
-                           || closed_door(bhitpos.x, bhitpos.y)) {
-                    bhitpos.x -= stmp->dx;
-                    bhitpos.y -= stmp->dy;
-                    stmp->stopped = TRUE;
-                } else if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
-                    if (scflags & MAY_HITMON) {
-                        stmp->range--;
-                        if (ohitmon(mtmp, stmp->obj, 1, FALSE)) {
-                            stmp->obj = (struct obj *) 0;
-                            stmp->stopped = TRUE;
-                        }
-                    }
-                } else if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
-                    if (scflags & MAY_HITYOU) {
-                        int hitvalu, hitu;
-
-                        if (multi)
-                            nomul(0);
-                        hitvalu = 8 + stmp->obj->spe;
-                        if (bigmonst(youmonst.data))
-                            hitvalu++;
-                        hitu = thitu(hitvalu, dmgval(stmp->obj, &youmonst),
-                                     &stmp->obj, (char *) 0);
-                        if (!stmp->obj)
-                            stmp->stopped = TRUE;
-                        if (hitu) {
-                            stmp->range -= 3;
-                            stop_occupation();
-                        }
-                    }
                 } else {
-                    if (scflags & VIS_EFFECTS) {
-                        /* tmp_at(bhitpos.x, bhitpos.y); */
-                        /* delay_output(); */
+                    typ = levl[bhitpos.x][bhitpos.y].typ;
+                    if (!ZAP_POS(typ)
+                        || closed_door(bhitpos.x, bhitpos.y)) {
+                        bhitpos.x -= stmp->dx;
+                        bhitpos.y -= stmp->dy;
+                        stmp->stopped = TRUE;
+                    } else if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
+                        if (scflags & MAY_HITMON) {
+                            stmp->range--;
+                            if (ohitmon(mtmp, stmp->obj, 1, FALSE)) {
+                                stmp->obj = (struct obj *) 0;
+                                stmp->stopped = TRUE;
+                            }
+                        }
+                    } else if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
+                        if (scflags & MAY_HITYOU) {
+                            int hitvalu, hitu;
+
+                            if (multi)
+                                nomul(0);
+                            hitvalu = 8 + stmp->obj->spe;
+                            if (bigmonst(youmonst.data))
+                                hitvalu++;
+                            hitu = thitu(hitvalu, dmgval(stmp->obj, &youmonst),
+                                         &stmp->obj, (char *) 0);
+                            if (!stmp->obj)
+                                stmp->stopped = TRUE;
+                            if (hitu) {
+                                stmp->range -= 3;
+                                stop_occupation();
+                            }
+                        }
+                    } else {
+                        if (scflags & VIS_EFFECTS) {
+                            /* tmp_at(bhitpos.x, bhitpos.y); */
+                            /* delay_output(); */
+                        }
                     }
                 }
                 stmp->ox = bhitpos.x;
