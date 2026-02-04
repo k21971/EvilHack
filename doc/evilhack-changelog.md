@@ -5015,4 +5015,5 @@ The following changes to date are:
 - Fix: use-after-free when eating heavy iron ball while punished on open
   air terrain
 - Fix: infinite death loops for polymorphed players in lava/hell/ice
+- Fix: use-after-free in monster item use functions
 

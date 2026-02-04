@@ -1404,6 +1404,10 @@ struct monst *mtmp;
 {
     int i, fleetim, how = 0;
     struct obj *otmp = m.defensive;
+    /* Save otyp before precheck() which can free the object via
+       mpickobj() merge; if that happens, m.defensive becomes a stale
+       pointer and we can't safely read its otyp field */
+    int saved_otyp = otmp ? otmp->otyp : STRANGE_OBJECT;
     boolean vis, vismon, oseen;
     const char *Mnam;
 
@@ -1437,14 +1441,13 @@ struct monst *mtmp;
     /* After precheck, otmp might have been merged/freed if it was extracted
        from a container. We need to re-validate and potentially re-find it */
     if (otmp && otmp->where != OBJ_MINVENT) {
-        /* Try to find by type */
+        /* Try to find by type - use saved_otyp since m.defensive may be stale */
         struct obj *o;
-        int otyp = m.defensive ? m.defensive->otyp : STRANGE_OBJECT;
         otmp = NULL;
 
-        if (otyp != STRANGE_OBJECT) {
+        if (saved_otyp != STRANGE_OBJECT) {
             for (o = mtmp->minvent; o; o = o->nobj) {
-                if (o->otyp == otyp) {
+                if (o->otyp == saved_otyp) {
                     otmp = m.defensive = o;
                     break;
                 }
@@ -2720,6 +2723,10 @@ struct monst *mtmp;
 {
     int i, maxdmg = 0;
     struct obj *otmp = m.offensive;
+    /* Save otyp before precheck() which can free the object via
+       mpickobj() merge; if that happens, m.offensive becomes a stale
+       pointer and we can't safely read its otyp field */
+    int saved_otyp = otmp ? otmp->otyp : STRANGE_OBJECT;
     boolean oseen;
     struct attack* mattk;
 
@@ -2773,14 +2780,14 @@ struct monst *mtmp;
                 return 0;
             }
         } else {
-            /* Other items: try to find by type */
+            /* Other items: try to find by type - use saved_otyp since
+               m.offensive may be stale after precheck/mpickobj merge */
             struct obj *o;
-            int otyp = m.offensive ? m.offensive->otyp : STRANGE_OBJECT;
             otmp = NULL;
 
-            if (otyp != STRANGE_OBJECT) {
+            if (saved_otyp != STRANGE_OBJECT) {
                 for (o = mtmp->minvent; o; o = o->nobj) {
-                    if (o->otyp == otyp) {
+                    if (o->otyp == saved_otyp) {
                         otmp = m.offensive = o;
                         break;
                     }
@@ -3389,6 +3396,10 @@ struct monst *mtmp;
 {
     int i;
     struct obj *otmp = m.misc;
+    /* Save otyp before precheck() which can free the object via
+       mpickobj() merge; if that happens, m.misc becomes a stale pointer
+       and we can't safely read its otyp field */
+    int saved_otyp = otmp ? otmp->otyp : STRANGE_OBJECT;
     boolean vis, vismon, oseen;
     char nambuf[BUFSZ];
     struct trap * tt;
@@ -3442,14 +3453,14 @@ struct monst *mtmp;
                 return 0;
             }
         } else {
-            /* Other items: try to find by type */
+            /* Other items: try to find by type - use saved_otyp since
+               m.misc may be stale after precheck/mpickobj merge */
             struct obj *o;
-            int otyp = m.misc ? m.misc->otyp : STRANGE_OBJECT;
             otmp = NULL;
 
-            if (otyp != STRANGE_OBJECT) {
+            if (saved_otyp != STRANGE_OBJECT) {
                 for (o = mtmp->minvent; o; o = o->nobj) {
-                    if (o->otyp == otyp) {
+                    if (o->otyp == saved_otyp) {
                         otmp = m.misc = o;
                         break;
                     }
