@@ -278,7 +278,7 @@ struct obj *obj;
                         }
                     }
                     if (has_free_action(mon))
-                        return 0;
+                        return 2; /* potion used up, don't use stale ptr */
                     paralyze_monst(mon, 3);
                 }
                 return 2;
@@ -347,6 +347,7 @@ struct obj *obj;
         }
         m.has_defense = m.has_offense = m.has_misc = 0;
         /* Only one needed to be set to 0 but the others are harmless */
+        return 2; /* wand destroyed, monster survived - don't use stale ptr */
     }
     return 0;
 }
@@ -3660,7 +3661,7 @@ struct monst *mtmp;
         }
         monster_uncurse_items(mtmp, mtmp->mconf);
         m_useup(mtmp, otmp);
-        return 0;
+        return 2;
     case MUSE_POLY_TRAP:
         tt = t_at(trapx, trapy);
         if (vismon) {

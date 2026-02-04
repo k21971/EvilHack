@@ -5019,4 +5019,5 @@ The following changes to date are:
 - Fix: heap buffer overflow in tty_end_menu() menu string truncation
 - Fix: use-after-free in mintrap() LANDMINE case
 - Fix: use-after-free in m_initweap() mk_artifact() call
+- Fix: use-after-free in precheck() when object destroyed but returns 0
 
