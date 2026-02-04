@@ -1097,8 +1097,12 @@ int how;
         u.uhpmax = uhpmin;
     u.uhp = min(u.uhpmax, (HLifesaved ? u.uhpmax : 150));
 
-    if (Upolyd) /* Unchanging, or death which bypasses losing hit points */
+    if (Upolyd) { /* Unchanging, or death which bypasses losing hit points */
+        int mhpmin = max(2 * (int) youmonst.data->mlevel, 10);
+        if (u.mhmax < mhpmin)
+            u.mhmax = mhpmin;
         u.mh = min(u.mhmax, 150);
+    }
 
     if (u.uhunger < 500 || how == CHOKING) {
         init_uhunger();
