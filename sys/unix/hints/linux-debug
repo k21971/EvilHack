@@ -36,7 +36,7 @@ CFLAGS+=-Wno-format-overflow -Wno-stringop-overflow
 # Suppress string truncation warnings - these are intentional safety measures
 CFLAGS+=-Wno-stringop-truncation
 # Uncomment this is you plan on fuzzing with ASAN enabled
-#CFLAGS+=-fsanitize=address -fno-omit-frame-pointer
+CFLAGS+=-fsanitize=address -fno-omit-frame-pointer
 CFLAGS+=-DSYSCF -DSYSCF_FILE=\"$(HACKDIR)/sysconf\" -DSECURE
 CFLAGS+=-DTIMED_DELAY
 CFLAGS+=-DHACKDIR=\"$(HACKDIR)\"
@@ -71,7 +71,7 @@ LINK=$(CC)
 # Only needed for GLIBC stack trace:
 LFLAGS=-rdynamic
 # Uncomment this is you plan on fuzzing with ASAN enabled
-#LFLAGS+=-fsanitize=address
+LFLAGS+=-fsanitize=address
 
 WINSRC = $(WINTTYSRC) $(WINCURSESSRC)
 WINOBJ = $(WINTTYOBJ) $(WINCURSESOBJ)

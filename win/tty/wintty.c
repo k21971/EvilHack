@@ -3108,7 +3108,7 @@ const char *prompt; /* prompt to for menu */
     struct WinDesc *cw = 0;
     tty_menu_item *curr;
     short len;
-    int lmax, n;
+    int lmax, n, overhead;
     char menu_ch;
 
     if (window == WIN_ERR || (cw = wins[window]) == (struct WinDesc *) 0
@@ -3166,13 +3166,18 @@ const char *prompt; /* prompt to for menu */
         }
 
         /* cut off any lines that are too long */
-        len = strlen(curr->str) + 2; /* extra space at beg & end */
+        overhead = 2; /* extra space at beg & end */
         /* account for glyph display */
         if (curr->glyph != NO_GLYPH && iflags.use_menu_glyphs
             && curr->identifier.a_void)
-            len += 2; /* glyph symbol + space */
+            overhead += 2; /* glyph symbol + space */
+        len = strlen(curr->str) + overhead;
         if (len > (int) ttyDisplay->cols) {
-            curr->str[ttyDisplay->cols - 2] = 0;
+            int max_str_len = ttyDisplay->cols - overhead;
+
+            /* only truncate if within buffer bounds */
+            if (max_str_len > 0 && max_str_len < (int) strlen(curr->str))
+                curr->str[max_str_len] = 0;
             len = ttyDisplay->cols;
         }
         if (len > cw->cols)
