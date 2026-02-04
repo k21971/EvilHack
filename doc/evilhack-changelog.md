@@ -5018,4 +5018,5 @@ The following changes to date are:
 - Fix: use-after-free in monster item use functions
 - Fix: heap buffer overflow in tty_end_menu() menu string truncation
 - Fix: use-after-free in mintrap() LANDMINE case
+- Fix: use-after-free in m_initweap() mk_artifact() call
 

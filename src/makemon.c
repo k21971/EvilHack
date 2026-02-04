@@ -1286,7 +1286,7 @@ struct monst *mtmp;
                 if (otmp->oclass == WEAPON_CLASS) {
                     if (mtmp->m_lev >= 20 || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
                         if (!rn2(100 + 10 * nartifact_exist()))
-                            mk_artifact(otmp, sgn(mon_aligntyp(mtmp)));
+                            otmp = mk_artifact(otmp, (aligntyp) A_NONE);
                         else if (!rn2(4)
                                  && !objects[otmp->otyp].oc_magic)
                             create_oprop(otmp, FALSE);
