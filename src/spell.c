@@ -1320,13 +1320,15 @@ boolean wiz_cast;
      *  Note: dotele() also calculates energy use and checks nutrition
      *  and strength requirements; it any of these change, update it too.
      */
-    if (Role_if(PM_WIZARD) && spellid(spell) == SPE_FORCE_BOLT) {
+    if (wiz_cast) {
+        energy = 0;
+    } else if (Role_if(PM_WIZARD) && spellid(spell) == SPE_FORCE_BOLT) {
         /* wizards power use for force bolt is only one point of power
            per cast at basic attack spell skill, and scales incrementally
            as attack spell skill increases */
-        energy = wiz_cast ? 0 : (spellev(spell) * attack_skill);
+        energy = spellev(spell) * attack_skill;
     } else {
-        energy = wiz_cast ? 0 : (spellev(spell) * 5); /* 5 <= energy <= 35 */
+        energy = spellev(spell) * 5; /* 5 <= energy <= 35 */
     }
 
     /*
@@ -1382,7 +1384,7 @@ boolean wiz_cast;
        in and no turn will be consumed; however, when it does kick in,
        the attempt may fail due to lack of energy after the draining, in
        which case a turn will be used up in addition to the energy loss */
-    if (u.uhave.amulet && u.uen >= energy) {
+    if (!wiz_cast && u.uhave.amulet && u.uen >= energy) {
         if ((Role_if(PM_INFIDEL) && u.uachieve.amulet)
             /* even though psychic abilities use spell power,
                they are not considered a spell, and therefore
@@ -1407,12 +1409,7 @@ boolean wiz_cast;
             || spellid(spell) == SPE_PSIONIC_WAVE) {
             ; /* nothing happens */
         } else {
-            /* hacky fix: add one here if in wizmode using #wizspell
-               so rnd(0) doesn't occur */
-            u.uen -= rnd((2 * energy) + (wiz_cast ? 1 : 0));
-            /* now add it back */
-            if (wiz_cast)
-                u.uen += 1;
+            u.uen -= rnd(2 * energy);
         }
         if (u.uen < 0)
             u.uen = 0;

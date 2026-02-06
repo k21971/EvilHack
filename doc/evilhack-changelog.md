@@ -5029,4 +5029,5 @@ The following changes to date are:
   occupation
 - Fix: infinite loop in curses alert TAB-wait loop
 - Fix: use-after-free in light source system via dealloc_obj()
+- Fix: global-buffer-overflow in spelleffects() via #wizspell command
 
