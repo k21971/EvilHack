@@ -3822,7 +3822,12 @@ struct obj *atmp;
         if (donning(otmp))
             cancel_don();
         Your("boots disintegrate!");
+        /* Prevent Boots_off() -> float_down() -> lava_effects() ->
+           fire_damage_chain() from destroying these boots before
+           useup(); matches guard used in lava_effects() itself */
+        iflags.in_lava_effects++;
         (void) Boots_off();
+        iflags.in_lava_effects--;
         useup(otmp);
     } else if (DESTROY_ARM(uarms)) {
         otmp->in_use = TRUE;
