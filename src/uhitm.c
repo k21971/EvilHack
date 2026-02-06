@@ -2312,6 +2312,10 @@ int dieroll;
         if (!already_killed)
             xkilled(mon, XKILL_NOMSG);
         destroyed = TRUE; /* return FALSE; */
+        /* thrown obj might be gone (swallowed hero's missile
+           added to engulfer's minvent, possibly merged) */
+        if (thrown && !thrownobj)
+            obj = (struct obj *) 0;
         if (obj && (obj->oprops & ITEM_VENOM)) {
             obj->oprops_known |= ITEM_VENOM;
             update_inventory();
@@ -2324,6 +2328,10 @@ int dieroll;
     } else if (destroyed) { /* any function using tmp needs to be above this line */
         if (!already_killed)
             killed(mon); /* takes care of most messages */
+        /* thrown obj might be gone (swallowed hero's missile
+           added to engulfer's minvent, possibly merged) */
+        if (thrown && !thrownobj)
+            obj = (struct obj *) 0;
     } else if (u.umconf && hand_to_hand) {
         nohandglow(mon);
         if (!mon->mconf && !resist(mon, SPBOOK_CLASS, 0, NOTELL)) {
@@ -2363,8 +2371,8 @@ int dieroll;
 
     /* glass breakage from the attack */
     break_glass_obj(some_armor(mon));
-    if (hand_to_hand ? break_glass_obj(obj)
-                     : hero_breaks(obj, mon->mx, mon->my, 0)) {
+    if (obj && (hand_to_hand ? break_glass_obj(obj)
+                             : hero_breaks(obj, mon->mx, mon->my, 0))) {
         obj = (struct obj *) 0;
     }
 
