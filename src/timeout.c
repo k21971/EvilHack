@@ -1653,7 +1653,6 @@ long timeout;
                    xname(obj), obj->otyp, obj->lamplit);
         /* Remove the timer to prevent repeated messages */
         if (obj->lamplit) {
-            obj->lamplit = 0;
             end_burn(obj, TRUE);
         }
         break;

@@ -2649,7 +2649,7 @@ struct obj *obj;
      * list must track all objects that can have a light source
      * attached to it (and also requires lamplit to be set).
      */
-    if (obj_sheds_light(obj))
+    if (obj->lamplit)
         del_light_source(LS_OBJECT, obj_to_any(obj));
 
     if (obj == thrownobj)

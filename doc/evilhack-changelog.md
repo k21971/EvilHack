@@ -5028,4 +5028,5 @@ The following changes to date are:
 - Fix: panic in set_trap() when maketrap() returns NULL during
   occupation
 - Fix: infinite loop in curses alert TAB-wait loop
+- Fix: use-after-free in light source system via dealloc_obj()
 
