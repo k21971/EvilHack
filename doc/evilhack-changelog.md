@@ -5025,4 +5025,6 @@ The following changes to date are:
 - Fix: global-buffer-overflow in scatter() when object goes off-map
 - Fix: infinite death loop when polymorphed with 0 mhmax
 - Fix: player monster undead (draugr, vampires) could be life-drained
+- Fix: panic in set_trap() when maketrap() returns NULL during
+  occupation
 

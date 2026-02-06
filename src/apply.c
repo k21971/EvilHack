@@ -3355,7 +3355,8 @@ set_trap()
                    (unsigned) (trapinfo.force_bungle ? FORCEBUNGLE : 0));
     } else {
         Your("trap setting attempt fails.");
-        deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
+        if (ttmp)
+            deltrap_with_ammo(ttmp, DELTRAP_DESTROY_AMMO);
         /* if dexterity is less than 15, there's a chance
            of breaking the trap altogether on a failed
            attempt. The lower your dexterity, the greater
