@@ -5027,4 +5027,5 @@ The following changes to date are:
 - Fix: player monster undead (draugr, vampires) could be life-drained
 - Fix: panic in set_trap() when maketrap() returns NULL during
   occupation
+- Fix: infinite loop in curses alert TAB-wait loop
 

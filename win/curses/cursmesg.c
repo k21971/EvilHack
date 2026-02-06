@@ -219,7 +219,11 @@ curses_block(boolean noscroll) /* noscroll - blocking because of msgtype
         curses_alert_main_borders(TRUE);
         wrefresh(win);
     }
-    while (iflags.msg_is_alert && (ret = curses_getch() != '\t'));
+    while (iflags.msg_is_alert) {
+        ret = curses_getch();
+        if (ret == ERR || ret == '\0' || ret == '\t')
+            break;
+    }
     curses_alert_main_borders(FALSE);
     wrefresh(win);
 
