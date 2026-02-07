@@ -5037,4 +5037,5 @@ The following changes to date are:
   explosion
 - Fix: make sure the Mitre of Holiness uses its base objects default
   material
+- Fix: encyclopedia lookup from inventory didn't show artifact info
 

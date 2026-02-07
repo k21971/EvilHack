@@ -2708,7 +2708,10 @@ ddoinv()
 
     for (invobj = invent; invobj != NULL; invobj = invobj->nobj) {
         if (invobj->invlet == invlet) {
-            strcpy(out_str, simple_typename(invobj->otyp));
+            if (invobj->oartifact)
+                strcpy(out_str, artiname((int) invobj->oartifact));
+            else
+                strcpy(out_str, simple_typename(invobj->otyp));
             break;
         }
     }
