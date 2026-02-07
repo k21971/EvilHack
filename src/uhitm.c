@@ -2316,6 +2316,12 @@ int dieroll;
            added to engulfer's minvent, possibly merged) */
         if (thrown && !thrownobj)
             obj = (struct obj *) 0;
+        /* melee weapon destroyed by death side-effects
+           (e.g. AT_BOOM explosion -> destroy_item()) */
+        if (!thrown && obj
+            && obj != uwep && !(u.twoweap && obj == uswapwep)
+            && obj != uarms)
+            obj = (struct obj *) 0;
         if (obj && (obj->oprops & ITEM_VENOM)) {
             obj->oprops_known |= ITEM_VENOM;
             update_inventory();
@@ -2331,6 +2337,12 @@ int dieroll;
         /* thrown obj might be gone (swallowed hero's missile
            added to engulfer's minvent, possibly merged) */
         if (thrown && !thrownobj)
+            obj = (struct obj *) 0;
+        /* melee weapon destroyed by death side-effects
+           (e.g. AT_BOOM explosion -> destroy_item()) */
+        if (!thrown && obj
+            && obj != uwep && !(u.twoweap && obj == uswapwep)
+            && obj != uarms)
             obj = (struct obj *) 0;
     } else if (u.umconf && hand_to_hand) {
         nohandglow(mon);

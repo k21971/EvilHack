@@ -5033,4 +5033,6 @@ The following changes to date are:
 - Fix: use-after-free in hmon_hitmon() when thrown object kills engulfer
 - Fix: use-after-free in destroy_arm() when levitation boots destroyed
   over lava
+- Fix: use-after-free in hmon_hitmon() when melee kill triggers AT_BOOM
+  explosion
 
