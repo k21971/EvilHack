@@ -5035,4 +5035,6 @@ The following changes to date are:
   over lava
 - Fix: use-after-free in hmon_hitmon() when melee kill triggers AT_BOOM
   explosion
+- Fix: make sure the Mitre of Holiness uses its base objects default
+  material
 

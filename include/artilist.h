@@ -519,7 +519,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("The Mitre of Holiness", HELM_OF_BRILLIANCE,
       (SPFX_NOGEN | SPFX_RESTR | SPFX_DFLAGH | SPFX_INTEL | SPFX_PROTECT),
       0, MH_UNDEAD, NO_ATTK, NO_DFNS, CARY(AD_FIRE),
-      ENERGY_BOOST, A_LAWFUL, PM_PRIEST, NON_PM, 2000L, NO_COLOR, GLASS),
+      ENERGY_BOOST, A_LAWFUL, PM_PRIEST, NON_PM, 2000L, NO_COLOR, DEFAULT_MAT),
 
     /* If playing a gnomish ranger, the player receives the 'Crossbow of Carl',
        otherwise rangers will receive the Longbow of Diana. Exact same properties
