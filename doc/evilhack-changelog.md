@@ -5038,4 +5038,5 @@ The following changes to date are:
 - Fix: make sure the Mitre of Holiness uses its base objects default
   material
 - Fix: encyclopedia lookup from inventory didn't show artifact info
+- Fix: various dungeon overview altar/temple display bugs
 

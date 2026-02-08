@@ -3087,30 +3087,51 @@ boolean printdun;
                 Sprintf(eos(buf), "%s%s", COMMA,
                         an(shop_string(mptr->feat.shoptype)));
         }
-        if (mptr->feat.naltar > 0) {
-            /* Temples + non-temple altars get munged into just "altars" */
-            if (mptr->feat.ntemple != mptr->feat.naltar)
-                ADDNTOBUF("altar", mptr->feat.naltar);
-            else
-                ADDNTOBUF("temple", mptr->feat.ntemple);
+        if (mptr->feat.naltar > 0 || mptr->feat.nfaltar > 0) {
+            unsigned total_altars = mptr->feat.naltar + mptr->feat.nfaltar;
+            boolean all_in_temples = (mptr->feat.ntemple > 0
+                                      && mptr->feat.ntemple >= total_altars);
+            /* show deity name based on altar's actual alignment,
+             * not just when it matches the player's alignment.
+             * msalign uses MSA_NONE for both A_NONE (Moloch) and
+             * mixed alignments, so with 2+ altars we can't
+             * distinguish "all Moloch" from "mixed" without
+             * adding another bitfield; use total_altars == 1 as
+             * a safe workaround for the Infidel/Moloch case */
+            aligntyp altar_align
+                = Amask2align(Msa2amask(mptr->feat.msalign));
+            boolean show_deity = (altar_align != A_NONE
+                                  || total_altars == 1);
 
-            /* only print out altar's god if they are all to your god
-             * For Infidels, only print Moloch if there's exactly one altar;
-             * this is a technical resriction (i.e. I'm too lazy to fix it) */
-            if (Amask2align(Msa2amask(mptr->feat.msalign)) == u.ualign.type
-                && (u.ualign.type != A_NONE || mptr->feat.naltar == 1))
-                Sprintf(eos(buf), " to %s", align_gname(u.ualign.type));
-        }
-        if (mptr->feat.nfaltar > 0) {
-            /* same for fractured altars */
-            if (mptr->feat.ntemple != mptr->feat.nfaltar)
-                ADDNTOBUF("fractured altar", mptr->feat.nfaltar);
-            else
-                ADDNTOBUF("temple", mptr->feat.ntemple);
+            /* Regular altars: show as "temple" if all altars are in
+             * temples, otherwise show as "altar" */
+            if (mptr->feat.naltar > 0) {
+                if (all_in_temples)
+                    ADDNTOBUF("temple", mptr->feat.naltar);
+                else
+                    ADDNTOBUF("altar", mptr->feat.naltar);
 
-            if (Amask2align(Msa2amask(mptr->feat.msalign)) == u.ualign.type
-                && (u.ualign.type != A_NONE || mptr->feat.nfaltar == 1))
-                Sprintf(eos(buf), " to %s", align_gname(u.ualign.type));
+                if (show_deity)
+                    Sprintf(eos(buf), " to %s",
+                            align_gname(altar_align));
+            }
+
+            /* Fractured altars: show as "temple (fractured)" if all
+             * altars are in temples, otherwise "fractured altar" */
+            if (mptr->feat.nfaltar > 0) {
+                if (all_in_temples) {
+                    ADDNTOBUF("temple", mptr->feat.nfaltar);
+                    if (show_deity)
+                        Sprintf(eos(buf), " to %s",
+                                align_gname(altar_align));
+                    Strcat(buf, " (fractured)");
+                } else {
+                    ADDNTOBUF("fractured altar", mptr->feat.nfaltar);
+                    if (show_deity)
+                        Sprintf(eos(buf), " to %s",
+                                align_gname(altar_align));
+                }
+            }
         }
         ADDNTOBUF("throne", mptr->feat.nthrone);
         ADDNTOBUF("forge", mptr->feat.nforge);
