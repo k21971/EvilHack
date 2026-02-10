@@ -213,9 +213,10 @@ int x, y;
                     mtmp = &youmonst;
                 if (mtmp && ohit)
                     presult = passive_obj(mtmp, obj, (struct attack *) 0);
-                if (presult != ER_DESTROYED)
+                if (presult != ER_DESTROYED) {
                     stackobj(obj);
-                retvalu = 0;
+                    retvalu = 0; /* obj still exists */
+                }
             }
         }
     } else {

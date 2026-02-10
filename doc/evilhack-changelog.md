@@ -5039,4 +5039,6 @@ The following changes to date are:
   material
 - Fix: encyclopedia lookup from inventory didn't show artifact info
 - Fix: various dungeon overview altar/temple display bugs
+- Fix: use-after-free in drop_throw() when passive_obj() disintegrates
+  launched object
 
