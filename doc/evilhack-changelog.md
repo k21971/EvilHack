@@ -5041,4 +5041,6 @@ The following changes to date are:
 - Fix: various dungeon overview altar/temple display bugs
 - Fix: use-after-free in drop_throw() when passive_obj() disintegrates
   launched object
+- Fix: use-after-free in in_container() when putting wand of
+  cancellation into bag of holding.
 

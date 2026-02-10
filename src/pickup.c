@@ -2581,17 +2581,21 @@ struct obj *obj;
         }
         do_boh_explosion(current_container, floor_container);
 
-        if (!floor_container)
-            useup(current_container);
-        else if (obj_here(current_container, u.ux, u.uy))
-            useupf(current_container, current_container->quan);
-        else
-            panic("in_container:  bag not found.");
+        {
+            boolean was_boh = BotH; /* save before destroying container */
 
-        if (BotH)
-            losehp(Maybe_Half_Phys(d(12, 12)), "exploding magical artifact bag", KILLED_BY_AN);
-        else
-            losehp(Maybe_Half_Phys(d(8, 10)), "exploding magical bag", KILLED_BY_AN);
+            if (!floor_container)
+                useup(current_container);
+            else if (obj_here(current_container, u.ux, u.uy))
+                useupf(current_container, current_container->quan);
+            else
+                panic("in_container:  bag not found.");
+
+            if (was_boh)
+                losehp(Maybe_Half_Phys(d(12, 12)), "exploding magical artifact bag", KILLED_BY_AN);
+            else
+                losehp(Maybe_Half_Phys(d(8, 10)), "exploding magical bag", KILLED_BY_AN);
+        }
 
         current_container = 0; /* baggone = TRUE; */
     }
