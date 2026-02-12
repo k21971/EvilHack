@@ -2856,6 +2856,8 @@ struct obj *obj;
         You("cannot throw gold at yourself.");
         return 0;
     }
+    if (obj->owornmask)
+        setworn((struct obj *) 0, obj->owornmask);
     freeinv(obj);
     if (u.uswallow) {
         pline(is_swallower(u.ustuck->data) ? "%s in the %s's entrails."

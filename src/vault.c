@@ -1170,6 +1170,8 @@ boolean silently;
     for (coins = invent; coins; coins = nextcoins) {
         nextcoins = coins->nobj;
         if (objects[coins->otyp].oc_class == COIN_CLASS) {
+            if (coins->owornmask)
+                setworn((struct obj *) 0, coins->owornmask);
             freeinv(coins);
             place_object(coins, gx, gy);
             stackobj(coins);

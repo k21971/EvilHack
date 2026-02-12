@@ -5043,4 +5043,6 @@ The following changes to date are:
   launched object
 - Fix: use-after-free in in_container() when putting wand of
   cancellation into bag of holding.
+- Fix: panic "obfree: deleting worn obj" when gold with worn mask is
+  removed from inventory
 

@@ -2056,6 +2056,11 @@ reverse_loot()
     if (!goldob)
         return FALSE;
 
+    /* gold may be quivered or wielded; must clear worn mask before
+       removing from inventory, otherwise obfree() panics on merge */
+    if (goldob->owornmask)
+        setworn((struct obj *) 0, goldob->owornmask);
+
     if (!IS_THRONE(levl[x][y].typ)) {
         dropx(goldob);
         /* the dropped gold might have fallen to lower level */
