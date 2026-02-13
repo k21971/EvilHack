@@ -5045,4 +5045,6 @@ The following changes to date are:
   cancellation into bag of holding.
 - Fix: panic "obfree: deleting worn obj" when gold with worn mask is
   removed from inventory
+- Sacrifice gifts: break streaks of same regular gift type (weapon vs
+  armor)
 

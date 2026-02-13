@@ -2545,8 +2545,38 @@ dosacrifice()
                     || levl[u.ux][u.uy].frac_altar == 1)) {
                 if (u.uluck >= 0 && !rn2(reg_gift_odds)) {
                     int typ, ncount = 0, iter = 0;
+                    boolean force_weapon = FALSE;
+                    boolean force_nonweapon = FALSE;
 
-                    if (rn2(100) >= 50) { /* Making a weapon */
+                    /* streak-breaking: if last 2 regular gifts were
+                       the same category, force the other category */
+                    {
+                        int pidx1 = (u.ugift_hist_idx - 1
+                                     + MAX_GIFT_HISTORY)
+                                    % MAX_GIFT_HISTORY;
+                        int pidx2 = (u.ugift_hist_idx - 2
+                                     + MAX_GIFT_HISTORY)
+                                    % MAX_GIFT_HISTORY;
+                        short g1 = u.ugift_history[pidx1];
+                        short g2 = u.ugift_history[pidx2];
+
+                        if (g1 != STRANGE_OBJECT
+                            && g2 != STRANGE_OBJECT) {
+                            boolean g1w = (objects[g1].oc_class
+                                           == WEAPON_CLASS);
+                            boolean g2w = (objects[g2].oc_class
+                                           == WEAPON_CLASS);
+
+                            if (g1w && g2w)
+                                force_nonweapon = TRUE;
+                            else if (!g1w && !g2w)
+                                force_weapon = TRUE;
+                        }
+                    }
+
+                    if (force_weapon
+                        || (!force_nonweapon
+                            && rn2(100) >= 50)) { /* Making a weapon */
                         do {
                             iter++;
                             /* Don't give unicorn horns or anything the player's restricted in
