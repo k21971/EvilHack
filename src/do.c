@@ -843,7 +843,7 @@ struct obj *obj;
 /* dropx - take dropped item out of inventory;
    called in several places - may produce output
    (eg ship_object() and dropy() -> sellobj() both produce output) */
-void
+boolean
 dropx(obj)
 struct obj *obj;
 {
@@ -853,11 +853,11 @@ struct obj *obj;
     freeinv(obj);
     if (!u.uswallow) {
         if (ship_object(obj, u.ux, u.uy, FALSE))
-            return;
+            return TRUE; /* obj shipped or destroyed */
         if (IS_ALTAR(levl[u.ux][u.uy].typ))
             doaltarobj(obj); /* set bknown */
     }
-    dropy(obj);
+    return dropy(obj);
 }
 
 /* dropy - put dropped object at destination; called from lots of

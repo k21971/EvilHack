@@ -23,14 +23,14 @@ STATIC_DCL void FDECL(use_lamp, (struct obj *));
 STATIC_DCL void FDECL(light_cocktail, (struct obj **));
 STATIC_PTR void FDECL(display_jump_positions, (int));
 STATIC_DCL void FDECL(use_tinning_kit, (struct obj *));
-STATIC_DCL void FDECL(use_grease, (struct obj *));
+STATIC_DCL void FDECL(use_grease, (struct obj **));
 STATIC_DCL void FDECL(use_trap_kit, (struct obj *));
 STATIC_DCL void FDECL(use_trap, (struct obj *));
 STATIC_DCL void FDECL(apply_flint, (struct obj **));
 STATIC_DCL void FDECL(use_stone, (struct obj **));
 STATIC_PTR int NDECL(set_trap); /* occupation callback */
-STATIC_DCL int FDECL(use_whip, (struct obj *));
-STATIC_DCL int FDECL(use_axe, (struct obj *));
+STATIC_DCL int FDECL(use_whip, (struct obj **));
+STATIC_DCL int FDECL(use_axe, (struct obj **));
 STATIC_PTR void FDECL(display_polearm_positions, (int));
 STATIC_DCL int FDECL(use_cream_pie, (struct obj *));
 STATIC_DCL int FDECL(use_grapple, (struct obj *));
@@ -2578,9 +2578,10 @@ struct obj **optr;
 static NEARDATA const char lubricables[] = { ALL_CLASSES, ALLOW_NONE, 0 };
 
 STATIC_OVL void
-use_grease(obj)
-struct obj *obj;
+use_grease(objp)
+struct obj **objp;
 {
+    struct obj *obj = *objp;
     struct obj *otmp;
 
     if (!u_handsy())
@@ -2589,7 +2590,8 @@ struct obj *obj;
     if (Glib) {
         pline("%s from your %s.", Tobjnam(obj, "slip"),
               fingers_or_gloves(FALSE));
-        dropx(obj);
+        if (dropx(obj))
+            *objp = (struct obj *) 0;
         return;
     }
 
@@ -2601,7 +2603,8 @@ struct obj *obj;
 
             pline("%s from your %s.", Tobjnam(obj, "slip"),
                   fingers_or_gloves(FALSE));
-            dropx(obj);
+            if (dropx(obj))
+                *objp = (struct obj *) 0;
             return;
         }
         otmp = getobj(lubricables, "grease");
@@ -3371,9 +3374,10 @@ set_trap()
 }
 
 STATIC_OVL int
-use_whip(obj)
-struct obj *obj;
+use_whip(objp)
+struct obj **objp;
 {
+    struct obj *obj = *objp;
     char buf[BUFSZ];
     struct monst *mtmp;
     struct obj *otmp;
@@ -3483,7 +3487,9 @@ struct obj *obj;
 
     } else if ((Fumbling || Glib) && !rn2(5)) {
         pline_The("bullwhip slips out of your %s.", body_part(HAND));
-        dropx(obj);
+        if (dropx(obj))
+            *objp = (struct obj *) 0;
+        return 1;
 
     } else if (u.utrap && u.utraptype == TT_PIT) {
         /*
@@ -3657,9 +3663,10 @@ struct obj *obj;
 }
 
 STATIC_OVL int
-use_axe(obj)
-struct obj *obj;
+use_axe(objp)
+struct obj **objp;
 {
+    struct obj *obj = *objp;
     char buf[BUFSZ];
     struct monst *mtmp;
     struct obj *otmp;
@@ -3735,7 +3742,9 @@ struct obj *obj;
 
     } else if ((Fumbling || Glib) && !rn2(5)) {
         pline_The("axe slips out of your %s.", body_part(HAND));
-        dropx(obj);
+        if (dropx(obj))
+            *objp = (struct obj *) 0;
+        return 1;
 
     } else if (u.utrap && u.utraptype == TT_PIT) {
         /*
@@ -4670,10 +4679,10 @@ doapply()
         res = use_cream_pie(obj);
         break;
     case BULLWHIP:
-        res = use_whip(obj);
+        res = use_whip(&obj);
         break;
     case DWARVISH_BEARDED_AXE:
-        res = use_axe(obj);
+        res = use_axe(&obj);
         break;
     case GRAPPLING_HOOK:
         res = use_grapple(obj);
@@ -4693,7 +4702,7 @@ doapply()
         (void) bagotricks(obj, FALSE, (int *) 0);
         break;
     case CAN_OF_GREASE:
-        use_grease(obj);
+        use_grease(&obj);
         break;
     case LOCK_PICK:
     case CREDIT_CARD:

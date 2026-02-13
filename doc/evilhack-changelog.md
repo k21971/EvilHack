@@ -5047,4 +5047,6 @@ The following changes to date are:
   removed from inventory
 - Sacrifice gifts: break streaks of same regular gift type (weapon vs
   armor)
+- Fix: use-after-free in doapply() when dropx() destroys object on open
+  air
 

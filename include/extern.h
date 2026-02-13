@@ -436,7 +436,7 @@ E boolean FDECL(flooreffects, (struct obj *, int, int, const char *));
 E void FDECL(doaltarobj, (struct obj *));
 E boolean FDECL(canletgo, (struct obj *, const char *));
 E int FDECL(drop, (struct obj *));
-E void FDECL(dropx, (struct obj *));
+E boolean FDECL(dropx, (struct obj *));
 E boolean FDECL(dropy, (struct obj *));
 E boolean FDECL(dropz, (struct obj *, BOOLEAN_P));
 E void FDECL(obj_no_longer_held, (struct obj *));
