@@ -727,9 +727,16 @@ dopotion(otmp)
 struct obj *otmp;
 {
     int retval;
+    boolean dkn;
+    short otyp;
 
     otmp->in_use = TRUE;
     nothing = unkn = 0;
+    /* Save before peffects() -- it can indirectly destroy the potion
+       (e.g. polymorph on lava triggers lava_effects() which frees
+       items marked in_use) */
+    dkn = otmp->dknown;
+    otyp = otmp->otyp;
     if ((retval = peffects(otmp)) >= 0)
         return retval;
 
@@ -738,19 +745,27 @@ struct obj *otmp;
         You("have a %s feeling for a moment, then it passes.",
             Hallucination ? "normal" : "peculiar");
     }
-    if (otmp->dknown && !objects[otmp->otyp].oc_name_known) {
-        if (!unkn) {
-            makeknown(otmp->otyp);
-            more_experienced(0, 10);
-        } else if (!objects[otmp->otyp].oc_uname)
-            docall(otmp);
-    }
     /* potion may have been destroyed during peffects() -
        e.g. polymorphing into an ice creature on lava triggers
        lava_effects() which destroys items marked in_use (and
        dopotion set in_use = TRUE before peffects) */
-    if (otmp->where == OBJ_INVENT)
-        useup(otmp);
+    if (otmp->where != OBJ_INVENT) {
+        /* use saved values for identification */
+        if (dkn && !objects[otyp].oc_name_known && !unkn) {
+            makeknown(otyp);
+            more_experienced(0, 10);
+        }
+        /* can't docall() without a valid object pointer */
+        return 1;
+    }
+    if (dkn && !objects[otyp].oc_name_known) {
+        if (!unkn) {
+            makeknown(otyp);
+            more_experienced(0, 10);
+        } else if (!objects[otyp].oc_uname)
+            docall(otmp);
+    }
+    useup(otmp);
     return 1;
 }
 

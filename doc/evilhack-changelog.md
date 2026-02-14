@@ -5049,4 +5049,6 @@ The following changes to date are:
   armor)
 - Fix: use-after-free in doapply() when dropx() destroys object on open
   air
+- Fix: use-after-free in dopotion() when peffects() destroys potion on
+  lava
 
