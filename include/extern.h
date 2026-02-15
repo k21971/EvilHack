@@ -1856,7 +1856,7 @@ E boolean FDECL(mcast_nodir_spell, (struct monst *, struct monst *, int));
 /* ### music.c ### */
 
 E void FDECL(awaken_monsters, (int));
-E void FDECL(do_earthquake, (int));
+E void FDECL(do_earthquake, (int, BOOLEAN_P));
 E void FDECL(awaken_soldiers, (struct monst *));
 E int FDECL(do_play_instrument, (struct obj *));
 

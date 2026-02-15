@@ -863,7 +863,7 @@ intervene()
     case 6:
         if (u.uevent.invoked) {
             pline_The("entire dungeon starts shaking around you!");
-            do_earthquake((MAXULEV - 1) / 3 + 1);
+            do_earthquake((MAXULEV - 1) / 3 + 1, FALSE);
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                 if (DEADMONSTER(mtmp))
                     continue;

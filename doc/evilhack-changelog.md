@@ -5053,4 +5053,6 @@ The following changes to date are:
   lava
 - Fix: several use-after-free and related bugs
 - Fix: monk meat-eating abuse incorrectly labeled as cannibalism
+- Fix: intervention earthquake should not blame player for monster
+  deaths
 

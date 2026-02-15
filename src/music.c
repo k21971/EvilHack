@@ -244,8 +244,9 @@ int distance;
  * That is:  create random chasms (pits).
  */
 void
-do_earthquake(force)
+do_earthquake(force, player_caused)
 int force;
+boolean player_caused;
 {
     static const char into_a_chasm[] = " into a chasm";
     int x, y;
@@ -410,18 +411,29 @@ int force;
                         if (!DEADMONSTER(mtmp)) {
                             damage_mon(mtmp, rnd(m_already_trapped ? 4 : 6), AD_PHYS, TRUE);
                             if (DEADMONSTER(mtmp)) {
-                                if (!cansee(x, y)) {
-                                    pline("It is destroyed!");
+                                if (!player_caused) {
+                                    if (cansee(x, y))
+                                        pline("%s is destroyed!",
+                                              Monnam(mtmp));
+                                    else
+                                        pline("It is destroyed!");
+                                    mondied(mtmp);
                                 } else {
-                                    You("destroy %s!",
-                                        mtmp->mtame
-                                         ? x_monnam(mtmp, ARTICLE_THE, "poor",
-                                                    has_mname(mtmp)
-                                                     ? (SUPPRESS_SADDLE | SUPPRESS_BARDING) : 0,
-                                                    FALSE)
-                                         : mon_nam(mtmp));
+                                    if (!cansee(x, y)) {
+                                        pline("It is destroyed!");
+                                    } else {
+                                        You("destroy %s!",
+                                            mtmp->mtame
+                                             ? x_monnam(mtmp, ARTICLE_THE,
+                                                   "poor",
+                                                   has_mname(mtmp)
+                                                    ? (SUPPRESS_SADDLE
+                                                       | SUPPRESS_BARDING)
+                                                    : 0, FALSE)
+                                             : mon_nam(mtmp));
+                                    }
+                                    xkilled(mtmp, XKILL_NOMSG);
                                 }
-                                xkilled(mtmp, XKILL_NOMSG);
                             }
                         }
                     }
@@ -748,7 +760,7 @@ struct obj *instr;
 
         You("produce a heavy, thunderous rolling!");
         pline_The("entire %s is shaking around you!", generic_lvl_desc());
-        do_earthquake((u.ulevel - 1) / 3 + 1);
+        do_earthquake((u.ulevel - 1) / 3 + 1, TRUE);
         for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
             if (DEADMONSTER(mtmp)
                 || mtmp->islucifer || mtmp->iswiz)
