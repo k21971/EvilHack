@@ -1480,7 +1480,7 @@ violated_vegetarian()
         && !Race_if(PM_VAMPIRE)) {
         You_feel("guilty.");
         adjalign(-1);
-        record_abuse_event(-1, ABUSE_CANNIBALISM);
+        record_abuse_event(-1, ABUSE_VEGETARIAN);
     }
     return;
 }

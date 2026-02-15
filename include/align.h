@@ -65,6 +65,8 @@ enum abuse_type {
     ABUSE_HISTORIC_STATUE,      /* damaging historic statue */
     /* Special NPCs */
     ABUSE_ATTACK_ENCHANTRESS,   /* attacking Kathryn the Enchantress */
+    /* Conduct (Monk) */
+    ABUSE_VEGETARIAN,           /* Monk eating meat */
     /* Atonement (not abuse, but tracked in same history) */
     ABUSE_ATONEMENT             /* atoned for past abuse via temple donation */
 };

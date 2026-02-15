@@ -1532,6 +1532,8 @@ int atype;
         return "damaging a historic statue";
     case ABUSE_ATTACK_ENCHANTRESS:
         return "attacking the Enchantress";
+    case ABUSE_VEGETARIAN:
+        return "violating vegetarian vow";
     case ABUSE_ATONEMENT:
         return "atonement";
     default:

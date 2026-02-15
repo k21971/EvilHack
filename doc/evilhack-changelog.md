@@ -5052,4 +5052,5 @@ The following changes to date are:
 - Fix: use-after-free in dopotion() when peffects() destroys potion on
   lava
 - Fix: several use-after-free and related bugs
+- Fix: monk meat-eating abuse incorrectly labeled as cannibalism
 
