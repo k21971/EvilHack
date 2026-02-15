@@ -905,25 +905,32 @@ boolean with_impact;
             }
             if (is_unpaid(obj))
                 (void) stolen_value(obj, u.ux, u.uy, TRUE, FALSE);
-            (void) mpickobj(u.ustuck, obj);
+            /* mpickobj returns 1 if obj merged with existing stack
+               (freeing obj); if so, we can't delobj it later */
+            if (mpickobj(u.ustuck, obj)) {
+                obj = (struct obj *) 0; /* merged and freed */
+            }
             if (is_swallower(u.ustuck->data)) {
                 if (could_poly || could_slime) {
                     (void) newcham(u.ustuck,
                                    could_poly ? (struct permonst *) 0
                                               : &mons[PM_GREEN_SLIME],
                                    FALSE, could_slime);
-                    delobj(obj); /* corpse is digested */
+                    if (obj)
+                        delobj(obj); /* corpse is digested */
                 } else if (could_petrify) {
                     minstapetrify(u.ustuck, TRUE);
                     /* Don't leave a cockatrice corpse in a statue */
-                    if (!u.uswallow)
+                    if (obj && !u.uswallow)
                         delobj(obj);
                 } else if (could_grow) {
                     (void) grow_up(u.ustuck, (struct monst *) 0);
-                    delobj(obj); /* corpse is digested */
+                    if (obj)
+                        delobj(obj); /* corpse is digested */
                 } else if (could_heal) {
                     u.ustuck->mhp = u.ustuck->mhpmax;
-                    delobj(obj); /* corpse is digested */
+                    if (obj)
+                        delobj(obj); /* corpse is digested */
                 }
             }
         }

@@ -653,15 +653,20 @@ boolean devour;
                 obj = splitobj(obj, obj->quan - 1L);
                 freeinv(obj);
 
-                if (inv_cnt(FALSE) >= 52 && !merge_choice(invent, obj))
-                    dropy(obj);
-                else
+                if (inv_cnt(FALSE) >= 52 && !merge_choice(invent, obj)) {
+                    if (dropy(obj)) {
+                        obj = (struct obj *) 0; /* destroyed */
+                    }
+                } else {
                     obj = addinv(obj); /* unlikely but a merge is possible */
+                }
             }
         }
         /* Take away blood nutrition */
-        obj->oeaten = drain_level(obj);
-        obj->odrained = 1;
+        if (obj) {
+            obj->oeaten = drain_level(obj);
+            obj->odrained = 1;
+        }
     } else if (obj == uball) {
         unpunish();
         delobj(obj); /* we assume this can't be unpaid */

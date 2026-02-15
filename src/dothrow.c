@@ -2159,6 +2159,12 @@ struct obj *obj; /* thrownobj or kickedobj or uwep */
                 if (mon->wormno)
                     cutworm(mon, bhitpos.x, bhitpos.y, chopper);
             }
+            /* if hero was swallowed and projectile killed the engulfer,
+               'obj' got added to engulfer's inventory and then dropped,
+               so we can't safely use that pointer anymore; it escapes
+               the chance to be used up here... */
+            if (wasthrown && !thrownobj)
+                return 1;
             /* Priests firing/throwing edged weapons is frowned upon by
                their deity */
             if (Role_if(PM_PRIEST) && (is_pierce(obj) || is_slash(obj))) {
@@ -2175,12 +2181,6 @@ struct obj *obj; /* thrownobj or kickedobj or uwep */
                 exercise(A_WIS, FALSE);
             }
             exercise(A_DEX, TRUE);
-            /* if hero was swallowed and projectile killed the engulfer,
-               'obj' got added to engulfer's inventory and then dropped,
-               so we can't safely use that pointer anymore; it escapes
-               the chance to be used up here... */
-            if (wasthrown && !thrownobj)
-                return 1;
 
             /* projectiles other than magic stones sometimes disappear
                when thrown; projectiles aren't among the types of weapon

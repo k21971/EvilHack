@@ -2947,8 +2947,10 @@ struct monst *mtmp;
     } /* case MUSE_SCR_EARTH */
     case MUSE_SCR_FIRE: {
         boolean vis = cansee(mtmp->mx, mtmp->my);
+        int scr_bcsign = bcsign(otmp);
 
         mreadmsg(mtmp, otmp);
+        m_useup(mtmp, otmp); /* otmp now gone */
         if (mtmp->mconf) {
             if (vis)
                 pline("Oh, what a pretty fire!");
@@ -2963,7 +2965,7 @@ struct monst *mtmp;
             (void) destroy_mitem(mtmp, SCROLL_CLASS, AD_FIRE);
             (void) destroy_mitem(mtmp, SPBOOK_CLASS, AD_FIRE);
             (void) destroy_mitem(mtmp, POTION_CLASS, AD_FIRE);
-            num = (2 * (rn1(3, 3) + 2 * bcsign(otmp)) + 1) / 3;
+            num = (2 * (rn1(3, 3) + 2 * scr_bcsign) + 1) / 3;
             if (how_resistant(FIRE_RES) == 100) {
                 You("are not harmed.");
                 monstseesu(M_SEEN_FIRE);

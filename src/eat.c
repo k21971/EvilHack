@@ -401,7 +401,11 @@ struct obj *otmp;
         freeinv(otmp);
         if (inv_cnt(FALSE) >= 52) {
             sellobj_state(SELL_DONTSELL);
-            dropy(otmp);
+            /* dropy() returns TRUE if obj destroyed */
+            if (dropy(otmp)) {
+                sellobj_state(SELL_NORMAL);
+                return (struct obj *) 0;
+            }
             sellobj_state(SELL_NORMAL);
         } else {
             otmp->nomerge = 1; /* used to prevent merge */
@@ -3199,9 +3203,11 @@ doeat()
                 if (otmp->owornmask)
                     remove_worn_item(otmp, FALSE);
                 freeinv(otmp);
-                dropy(otmp);
+                if (!dropy(otmp))
+                    stackobj(otmp);
+            } else {
+                stackobj(otmp);
             }
-            stackobj(otmp);
         }
         return 1;
     }
@@ -3321,8 +3327,9 @@ doeat()
             context.victual.canchoke = FALSE;
         context.victual.o_id = 0;
         context.victual.piece = touchfood(otmp);
-        if (context.victual.piece)
-            context.victual.o_id = context.victual.piece->o_id;
+        if (!context.victual.piece)
+            return 0; /* food destroyed */
+        context.victual.o_id = context.victual.piece->o_id;
         if (isvamp)
             You("resume draining %syour corpse.",
                 (context.victual.usedtime + 1 >= context.victual.reqtime)
@@ -3357,8 +3364,9 @@ doeat()
     already_partly_eaten = otmp->oeaten ? TRUE : FALSE;
     context.victual.o_id = 0;
     context.victual.piece = otmp = touchfood(otmp);
-    if (context.victual.piece)
-        context.victual.o_id = context.victual.piece->o_id;
+    if (!otmp)
+        return 0; /* food destroyed by lava/open air */
+    context.victual.o_id = otmp->o_id;
     context.victual.usedtime = 0;
 
     /* Now we need to calculate delay and nutritional info.

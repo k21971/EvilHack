@@ -3777,7 +3777,12 @@ struct obj *atmp;
                 end_burn(otmp, FALSE);
             Your("armor turns to dust and falls to the %s!",
                  surface(u.ux, u.uy));
+            /* Prevent Armor_gone() -> spoteffects() -> lava_effects()
+               -> fire_damage_chain() from destroying this armor before
+               useup(); matches guard used for boots */
+            iflags.in_lava_effects++;
             (void) Armor_gone();
+            iflags.in_lava_effects--;
             useup(otmp);
         }
     } else if (DESTROY_ARM(uarmu)) {

@@ -132,7 +132,7 @@ dosit()
         if (!rn2(10) && uarm)
             (void) water_damage(uarm, "armor", TRUE, u.ux, u.uy);
         if (!rn2(10) && uarmf && uarmf->otyp != WATER_WALKING_BOOTS)
-            (void) water_damage(uarm, "armor", TRUE, u.ux, u.uy);
+            (void) water_damage(uarmf, "boots", TRUE, u.ux, u.uy);
     } else if (IS_SINK(typ)) {
         You(sit_message, defsyms[S_sink].explanation);
         Your("%s gets wet.", humanoid(youmonst.data) ? "rump" : "underside");

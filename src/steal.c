@@ -613,7 +613,7 @@ struct obj *otmp;
        so we have to call it after doing the object checks */
     freed_otmp = add_to_minv(mtmp, otmp);
     /* and we had to defer this until object is in mtmp's inventory */
-    if (snuff_otmp)
+    if (snuff_otmp && !freed_otmp)
         end_burn(otmp, TRUE);
     return freed_otmp;
 }
@@ -789,6 +789,11 @@ boolean verbosely;
 {
     int omx = mon->mx, omy = mon->my;
     long unwornmask = obj->owornmask;
+    /* save fields that update_mon_intrinsics reads, in case
+       flooreffects() destroys the object on lava/open air */
+    int saved_otyp = obj->otyp;
+    int saved_oclass = obj->oclass;
+    long saved_oprops = obj->oprops;
 
     extract_from_minvent(mon, obj, FALSE, TRUE);
 
@@ -800,7 +805,7 @@ boolean verbosely;
     }
 
     /* don't charge for an owned saddle on dead steed (provided
-        that the hero is within the same shop at the time) */
+       that the hero is within the same shop at the time) */
     if (unwornmask && mon->mtame && (unwornmask & W_SADDLE) != 0L
         && !obj->unpaid && costly_spot(omx, omy)
         /* being at costly_spot guarantees lev->roomno is not 0 */
@@ -813,12 +818,30 @@ boolean verbosely;
     if (!flooreffects(obj, omx, omy, "fall")) {
         place_object(obj, omx, omy);
         stackobj(obj);
+        if (!DEADMONSTER(mon) && unwornmask)
+            update_mon_intrinsics(mon, obj, FALSE, TRUE);
+    } else if (!DEADMONSTER(mon) && unwornmask
+               && !(unwornmask & W_SADDLE)) {
+        /* Object destroyed on lava/open air. Still need to clear
+           extrinsics the monster got from wearing it (armor granting
+           flight/speed/resistances, barding with object properties,
+           etc). Pass a stack copy with the fields that
+           update_mon_intrinsics reads. Reflection and artifact
+           defense properties (barding of reflection, Ithilmar) are
+           checked dynamically via mon_reflects()/defended() against
+           worn items, so those were already lost at extraction */
+        struct obj dummy;
+
+        dummy = zeroobj;
+        dummy.otyp = saved_otyp;
+        dummy.oclass = saved_oclass;
+        dummy.oprops = saved_oprops;
+        update_mon_intrinsics(mon, &dummy, FALSE, TRUE);
     }
-    /* do this last, after placing obj on floor; removing steed's saddle
-       throws rider, possibly inflicting fatal damage and producing bones; this
-       is why we had to call extract_from_minvent() with do_intrinsics = FALSE */
-    if (!DEADMONSTER(mon) && unwornmask)
-        update_mon_intrinsics(mon, obj, FALSE, TRUE);
+    /* If flooreffects() destroyed a saddle, the steed must have been
+       flying over the hazard; dismount is moot since the saddle is
+       gone and the steed survives the terrain. Barding is handled
+       by the else-if above (W_BARDING != W_SADDLE) */
 }
 
 /* some monsters bypass the normal rules for moving between levels or

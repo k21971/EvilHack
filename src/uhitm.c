@@ -1538,10 +1538,15 @@ int dieroll;
                         /* potential for shield with an object property
                            to do additional damage */
                         if (!rn2(4)
-                            && (obj->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK)))
+                            && (obj->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK))) {
                             artifact_hit(&youmonst, mon, uarms, &tmp, dieroll);
+                            if (DEADMONSTER(mon)) {
+                                already_killed = TRUE;
+                                destroyed = TRUE;
+                            }
+                        }
                     }
-                    if (mon_hates_material(mon, obj->material)) {
+                    if (!destroyed && mon_hates_material(mon, obj->material)) {
                         /* dmgval() already added damage, but track hated_obj */
                         hated_obj = obj;
                     }
@@ -1837,6 +1842,10 @@ int dieroll;
         && hand_to_hand && !uwep && uarmg
         && (uarmg->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK))) {
         artifact_hit(&youmonst, mon, uarmg, &tmp, dieroll);
+        if (DEADMONSTER(mon)) {
+            already_killed = TRUE;
+            destroyed = TRUE;
+        }
         hittxt = TRUE;
     }
 

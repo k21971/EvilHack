@@ -1092,14 +1092,17 @@ const char *drop_fmt, *drop_arg, *hold_msg;
 
         if (!touch_artifact(obj, &youmonst)) {
             obj_extract_self(obj); /* remove it from the floor */
-            dropy(obj);            /* now put it back again :-) */
+            /* dropy() returns TRUE if obj destroyed */
+            if (dropy(obj))
+                return (struct obj *) 0;
             return obj;
         } else if (wasUpolyd && !Upolyd) {
             /* loose your grip if you revert your form */
             if (drop_fmt)
                 pline(drop_fmt, drop_arg);
             obj_extract_self(obj);
-            dropy(obj);
+            if (dropy(obj))
+                return (struct obj *) 0;
             return obj;
         }
         obj_extract_self(obj);

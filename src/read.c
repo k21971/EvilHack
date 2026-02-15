@@ -781,8 +781,12 @@ struct monst *mtmp;
                           otense(obj, "pulsate"), otense(obj,"explode"));
                 else
                     You_hear("an explosion.");
-                m_useup(mtmp, obj);
-                mtmp->mhp -= 3 * abs(obj->spe);
+                {
+                    int ring_dmg = 3 * abs(obj->spe);
+
+                    m_useup(mtmp, obj);
+                    mtmp->mhp -= ring_dmg;
+                }
                 if (mtmp->mhp <= 0) {
                     if (canseemon(mtmp))
                         pline("%s is killed by the explosion!",
