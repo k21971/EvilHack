@@ -8,7 +8,6 @@
 # This hints file provides a single-user tty build for Linux, specifically
 # for Ubuntu dapper.
 
-
 # Typical install path for normal user (non-root)
 #PREFIX=$(wildcard ~)
 #HACKDIR=$(PREFIX)/games/$(GAME)dir
@@ -20,7 +19,6 @@ HACKDIR=$(PREFIX)/games/lib/$(GAME)dir
 SHELLDIR = $(PREFIX)/games
 INSTDIR = $(HACKDIR)
 VARDIR = $(HACKDIR)/var
-
 
 POSTINSTALL=cp --update=none sys/unix/sysconf $(INSTDIR)/sysconf; $(CHOWN) $(GAMEUID) $(INSTDIR)/sysconf; $(CHGRP) $(GAMEGRP) $(INSTDIR)/sysconf; chmod $(VARFILEPERM) $(INSTDIR)/sysconf;
 
@@ -37,6 +35,8 @@ CFLAGS+=-Wno-format-overflow -Wno-stringop-overflow
 CFLAGS+=-Wno-stringop-truncation
 # Uncomment this is you plan on fuzzing with ASAN enabled
 CFLAGS+=-fsanitize=address -fno-omit-frame-pointer
+# Uncomment to enable UBSan (undefined behavior sanitizer)
+CFLAGS+=-fsanitize=undefined -fno-sanitize-recover=all
 CFLAGS+=-DSYSCF -DSYSCF_FILE=\"$(HACKDIR)/sysconf\" -DSECURE
 CFLAGS+=-DTIMED_DELAY
 CFLAGS+=-DHACKDIR=\"$(HACKDIR)\"
@@ -72,6 +72,8 @@ LINK=$(CC)
 LFLAGS=-rdynamic
 # Uncomment this is you plan on fuzzing with ASAN enabled
 LFLAGS+=-fsanitize=address
+# Uncomment to enable UBSan (undefined behavior sanitizer)
+LFLAGS+=-fsanitize=undefined
 
 WINSRC = $(WINTTYSRC) $(WINCURSESSRC)
 WINOBJ = $(WINTTYOBJ) $(WINCURSESOBJ)

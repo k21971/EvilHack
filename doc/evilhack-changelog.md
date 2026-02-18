@@ -5056,4 +5056,5 @@ The following changes to date are:
 - Fix: intervention earthquake should not blame player for monster
   deaths
 - Fix: use-after-free in potionhit() when thrown potion kills engulfer
+- Add UBSan (undefined behavior sanitizer) to debug build
 
