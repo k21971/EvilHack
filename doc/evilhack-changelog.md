@@ -5055,4 +5055,5 @@ The following changes to date are:
 - Fix: monk meat-eating abuse incorrectly labeled as cannibalism
 - Fix: intervention earthquake should not blame player for monster
   deaths
+- Fix: use-after-free in potionhit() when thrown potion kills engulfer
 

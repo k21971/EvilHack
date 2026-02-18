@@ -1736,7 +1736,8 @@ int how;
     struct obj *saddle = (struct obj *) 0;
     struct obj *barding = (struct obj *) 0;
     boolean hit_saddle = FALSE, hit_barding = FALSE,
-            your_fault = (how <= POTHIT_HERO_THROW);
+            your_fault = (how <= POTHIT_HERO_THROW),
+            was_thrownobj = (obj == thrownobj);
 
     if (isyou) {
         tx = u.ux, ty = u.uy;
@@ -2100,6 +2101,13 @@ int how;
                 mon->msleeping = 0;
         }
     }
+
+    /* If potion was thrownobj and killed the engulfer while hero was
+       swallowed, xkilled() added it to the dead monster's inventory
+       (via mpickobj) and cleared thrownobj.  The local obj pointer is
+       stale -- skip potionbreathe() and obfree() */
+    if (was_thrownobj && !thrownobj)
+        return;
 
     /* Note: potionbreathe() does its own docall() */
     if ((distance == 0 || (distance < 3 && !rn2((1 + ACURR(A_DEX)) / 2)))
