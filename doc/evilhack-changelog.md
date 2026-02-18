@@ -5057,4 +5057,5 @@ The following changes to date are:
   deaths
 - Fix: use-after-free in potionhit() when thrown potion kills engulfer
 - Add UBSan (undefined behavior sanitizer) to debug build
+- Fix: undefined behavior from signed left-shifts caught by UBSan
 

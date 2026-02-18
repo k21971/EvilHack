@@ -3410,7 +3410,7 @@ int final;
                 && has_glow_warning(otmp)) {
                 int i;
                 for (i = 0; i < 32; i++) {
-                    long raceflag = 1 << i;
+                    long raceflag = 1L << i;
                     /* Artifacts let you know they are responsible even in non-Wizard mode. */
                     if (has_glow_warning(otmp) & raceflag) {
                         /* skip zombie-specific message if all undead are warned of */

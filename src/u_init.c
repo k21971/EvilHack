@@ -1682,7 +1682,7 @@ shambler_init()
     shambler->mresists = 0;
 
     for (i = 0; i < rnd(6); i++)
-        shambler->mresists |= (1 << rn2(9));     /* physical resistances... */
+        shambler->mresists |= (1UL << rn2(9));   /* physical resistances... */
     for (i = 0; i < rnd(5); i++)
         shambler->mresists |= (0x200 << rn2(9)); /* 'different' resistances, even clumsy */
     shambler->mconveys = 0;                      /* flagged NOCORPSE */
@@ -1694,7 +1694,7 @@ shambler_init()
      */
     shambler->mflags1 = 0;
     for (i = 0; i < rnd(17); i++)
-        shambler->mflags1 |= (1 << rn2(33));    /* rn2() should equal the number of M1_ flags in
+        shambler->mflags1 |= (1UL << rn2(33));  /* rn2() should equal the number of M1_ flags in
                                                  * include/monflag.h */
     shambler->mflags1 &= ~M1_UNSOLID;           /* no ghosts */
     shambler->mflags1 &= ~M1_WALLWALK;          /* no wall-walkers */
@@ -1705,7 +1705,7 @@ shambler_init()
 
     shambler->mflags2 = 0;
     for (i = 0; i < rnd(17); i++)
-        shambler->mflags2 |= (1 << rn2(32));    /* rn2() should equal the number of M2_ flags in
+        shambler->mflags2 |= (1UL << rn2(32));  /* rn2() should equal the number of M2_ flags in
                                                  * include/monflag.h */
     shambler->mflags2 &= ~M2_MERC;              /* no guards */
     shambler->mflags2 &= ~M2_PEACEFUL;          /* no peacefuls */

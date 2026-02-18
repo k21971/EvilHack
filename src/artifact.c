@@ -1720,7 +1720,7 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
     result = FALSE; /* no message given yet */
     /* the most severe effects are less likely at higher enchantment */
     if (mb->spe >= 3)
-        scare_dieroll /= (1 << (mb->spe / 3));
+        scare_dieroll /= (1 << min(mb->spe / 3, 30));
     /* if target successfully resisted the artifact damage bonus,
        reduce overall likelihood of the assorted special effects */
     if (!spec_dbon_applies)
