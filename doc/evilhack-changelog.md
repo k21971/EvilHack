@@ -5059,4 +5059,6 @@ The following changes to date are:
 - Add UBSan (undefined behavior sanitizer) to debug build
 - Fix: undefined behavior from signed left-shifts caught by UBSan
 - Fix: out-of-bounds array access in passiveum() passive attack damage
+- Fix: out-of-bounds array access in baalz_fixup() during level
+  generation
 

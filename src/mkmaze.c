@@ -456,6 +456,9 @@ baalz_fixup()
             lastx = x;
         }
     bughack.inarea.x2 = ((lastx > bughack.inarea.x1) ? lastx : x) - 1;
+    /* if no nondiggable region was found, nothing to fixup */
+    if (bughack.inarea.x1 >= COLNO)
+        return;
     /* find low and high y for to-be-wallified portion of level */
     x = bughack.inarea.x1;
     for (lasty = y = 0; y < ROWNO; ++y)
@@ -1006,7 +1009,6 @@ int wallthick;
 
     }
 }
-
 
 void
 makemaz(s)
