@@ -2160,6 +2160,8 @@ struct WinDesc *cw;
         case '8':
         case '9':
             count = (count * 10L) + (long) (morc - '0');
+            if (count > LARGEST_INT)
+                count = LARGEST_INT;
             /*
              * It is debatable whether we should allow 0 to
              * start a count.  There is no difference if the

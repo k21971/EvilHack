@@ -5065,4 +5065,5 @@ The following changes to date are:
   generation
 - Fix: out-of-bounds array access in throw_gold() when throwing gold at
   map edge
+- Fix: signed integer overflow in tty menu item count accumulation
 
