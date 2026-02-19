@@ -4902,63 +4902,81 @@ struct sp_coder *coder;
     dir = OV_i(fdir);
 
     get_location_coord(&x, &y, ANY_LOC, coder->croom, OV_i(mcoord));
-    if (!isok(x, y))
-        return;
 
-    if (OV_i(ftyp) < 1) {
-        OV_i(ftyp) = level.flags.corrmaze ? CORR : ROOM;
-    }
+    if (isok(x, y)) {
+        if (OV_i(ftyp) < 1) {
+            OV_i(ftyp) = level.flags.corrmaze ? CORR : ROOM;
+        }
 
-    /* don't use move() - it doesn't use W_NORTH, etc. */
-    switch (dir) {
-    case W_NORTH:
-        --y;
-        break;
-    case W_SOUTH:
-        y++;
-        break;
-    case W_EAST:
-        x++;
-        break;
-    case W_WEST:
-        --x;
-        break;
-    default:
-        impossible("spo_mazewalk: Bad MAZEWALK direction");
-    }
-
-    if (!IS_DOOR(levl[x][y].typ)) {
-        levl[x][y].typ = OV_i(ftyp);
-        levl[x][y].flags = 0;
-    }
-
-    /*
-     * We must be sure that the parity of the coordinates for
-     * walkfrom() is odd.  But we must also take into account
-     * what direction was chosen.
-     */
-    if (!(x % 2)) {
-        if (dir == W_EAST)
-            x++;
-        else
-            x--;
-
-        /* no need for IS_DOOR check; out of map bounds */
-        levl[x][y].typ = OV_i(ftyp);
-        levl[x][y].flags = 0;
-    }
-
-    if (!(y % 2)) {
-        if (dir == W_SOUTH)
+        /* don't use move() - it doesn't use W_NORTH, etc. */
+        switch (dir) {
+        case W_NORTH:
+            --y;
+            break;
+        case W_SOUTH:
             y++;
-        else
-            y--;
+            break;
+        case W_EAST:
+            x++;
+            break;
+        case W_WEST:
+            --x;
+            break;
+        default:
+            impossible("spo_mazewalk: Bad MAZEWALK direction");
+        }
     }
 
-    walkfrom(x, y, OV_i(ftyp));
-    if (OV_i(fstocked))
-        fill_empty_maze();
+    /* direction step or parity adjustment can push coords out of
+       bounds (e.g. y=1, dir=N -> y=0 -> parity fix y-- -> y=-1) */
+    if (isok(x, y)) {
+        if (!IS_DOOR(levl[x][y].typ)) {
+            levl[x][y].typ = OV_i(ftyp);
+            levl[x][y].flags = 0;
+        }
 
+        /*
+         * We must be sure that the parity of the coordinates for
+         * walkfrom() is odd.  But we must also take into account
+         * what direction was chosen.
+         */
+        if (!(x % 2)) {
+            if (dir == W_EAST) {
+                x++;
+                if (!isok(x, y))
+                    x -= 2; /* reverse if out of bounds */
+            } else {
+                x--;
+                if (!isok(x, y))
+                    x += 2; /* reverse if out of bounds */
+            }
+
+            if (isok(x, y)) {
+                levl[x][y].typ = OV_i(ftyp);
+                levl[x][y].flags = 0;
+            }
+        }
+
+        if (!(y % 2)) {
+            if (dir == W_SOUTH) {
+                y++;
+                if (!isok(x, y))
+                    y -= 2; /* reverse if out of bounds */
+            } else {
+                y--;
+                if (!isok(x, y))
+                    y += 2; /* reverse if out of bounds */
+            }
+        }
+
+        /* safety net: if both adjustments somehow failed,
+           don't pass invalid coords to walkfrom */
+        if (isok(x, y)) {
+            walkfrom(x, y, OV_i(ftyp));
+            if (OV_i(fstocked))
+                fill_empty_maze();
+        }
+    }
     opvar_free(mcoord);
     opvar_free(fdir);
     opvar_free(fstocked);

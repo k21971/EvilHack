@@ -5061,4 +5061,6 @@ The following changes to date are:
 - Fix: out-of-bounds array access in passiveum() passive attack damage
 - Fix: out-of-bounds array access in baalz_fixup() during level
   generation
+- Fix: out-of-bounds array access in spo_mazewalk() during maze level
+  generation
 
