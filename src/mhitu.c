@@ -5079,7 +5079,7 @@ struct attack *mattk;
         tmp = 0;
 
  assess_dmg:
-    if (damage_mon(mtmp, tmp, youmonst.data->mattk[i].adtyp, TRUE)) {
+    if (damage_mon(mtmp, tmp, oldu_mattk->adtyp, TRUE)) {
         pline("%s dies!", Monnam(mtmp));
         xkilled(mtmp, XKILL_NOMSG);
         if (!DEADMONSTER(mtmp))

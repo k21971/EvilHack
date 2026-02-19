@@ -5058,4 +5058,5 @@ The following changes to date are:
 - Fix: use-after-free in potionhit() when thrown potion kills engulfer
 - Add UBSan (undefined behavior sanitizer) to debug build
 - Fix: undefined behavior from signed left-shifts caught by UBSan
+- Fix: out-of-bounds array access in passiveum() passive attack damage
 
