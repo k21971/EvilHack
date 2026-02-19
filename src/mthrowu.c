@@ -1579,7 +1579,8 @@ int boulderhandling; /* 0=block, 1=ignore, 2=conditionally block */
         do {
             /* <bx,by> is guaranteed to eventually converge with <ax,ay> */
             bx += dx, by += dy;
-            if (IS_ROCK(levl[bx][by].typ) || closed_door(bx, by))
+            if (!isok(bx, by)
+                || IS_ROCK(levl[bx][by].typ) || closed_door(bx, by))
                 return FALSE;
             if (sobj_at(BOULDER, bx, by))
                 ++boulderspots;

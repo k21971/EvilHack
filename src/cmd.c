@@ -6642,6 +6642,11 @@ int x, y, mod;
 
         /* directional commands */
 
+        if (!isok(u.ux + x, u.uy + y)) {
+            cmd[0] = cmd_from_func(donull);
+            return cmd;
+        }
+
         dir = xytod(x, y);
 
         if (!m_at(u.ux + x, u.uy + y)

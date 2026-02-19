@@ -5068,4 +5068,6 @@ The following changes to date are:
 - Fix: signed integer overflow in tty menu item count accumulation
 - Fix: out-of-bounds array access in really_kick_object() when kicking
   at map edge
+- Fix: out-of-bounds array accesses from various missing isok() guards
+  on levl[][]
 
