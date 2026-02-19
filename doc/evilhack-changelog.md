@@ -5066,4 +5066,6 @@ The following changes to date are:
 - Fix: out-of-bounds array access in throw_gold() when throwing gold at
   map edge
 - Fix: signed integer overflow in tty menu item count accumulation
+- Fix: out-of-bounds array access in really_kick_object() when kicking
+  at map edge
 
