@@ -152,7 +152,13 @@ boolean display_update;
 
         /* need to check curr->wx for genocided while migrating_mon */
         if (curr->wx) {
+#ifdef EXTRA_SANITY_CHECKS
+            in_worm_cleanup++;
+#endif
             remove_monster(curr->wx, curr->wy);
+#ifdef EXTRA_SANITY_CHECKS
+            in_worm_cleanup--;
+#endif
 
             /* update screen before deallocation */
             if (display_update)
@@ -390,7 +396,13 @@ boolean cuttier; /* hit is by wielded blade or axe or by thrown axe */
     new_worm = 0;
     new_wnum = (worm->m_lev >= 3 && !rn2(3)) ? get_wormno() : 0;
     if (new_wnum) {
+#ifdef EXTRA_SANITY_CHECKS
+        in_worm_cleanup++;
+#endif
         remove_monster(x, y); /* clone_mon puts new head here */
+#ifdef EXTRA_SANITY_CHECKS
+        in_worm_cleanup--;
+#endif
         /* clone_mon() will fail if enough long worms have been
            created to have them be marked as extinct or if the hit
            that cut the current one has dropped it down to 1 HP */
@@ -592,9 +604,15 @@ struct monst *worm, *oldworm;
         xchar y = curr->wy;
 
         if (oldworm) {
-            if (m_at(x,y) == oldworm)
+            if (m_at(x,y) == oldworm) {
+#ifdef EXTRA_SANITY_CHECKS
+                in_worm_cleanup++;
+#endif
                 remove_monster(x, y);
-            else
+#ifdef EXTRA_SANITY_CHECKS
+                in_worm_cleanup--;
+#endif
+            } else
                 impossible("placing worm seg <%i,%i> over another mon", x, y);
         }
         place_worm_seg(worm, x, y);
@@ -654,7 +672,13 @@ struct monst *worm;
 
     while (curr) {
         if (curr->wx) {
+#ifdef EXTRA_SANITY_CHECKS
+            in_worm_cleanup++;
+#endif
             remove_monster(curr->wx, curr->wy);
+#ifdef EXTRA_SANITY_CHECKS
+            in_worm_cleanup--;
+#endif
             newsym(curr->wx, curr->wy);
             curr->wx = 0;
         }

@@ -179,6 +179,10 @@ E NEARDATA struct sinfo {
 E boolean restoring;
 E boolean ransacked;
 
+#ifdef EXTRA_SANITY_CHECKS
+E int in_worm_cleanup; /* suppress worm seg check in remove_monster */
+#endif
+
 E const char quitchars[];
 E const char vowels[];
 E const char ynchars[];

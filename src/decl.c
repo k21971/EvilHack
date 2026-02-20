@@ -59,6 +59,10 @@ NEARDATA struct fruit *ffruit = (struct fruit *) 0;
 NEARDATA char tune[6] = DUMMY;
 NEARDATA boolean ransacked = 0;
 
+#ifdef EXTRA_SANITY_CHECKS
+int in_worm_cleanup = 0;
+#endif
+
 const char *occtxt = DUMMY;
 const char quitchars[] = " \r\n\033";
 const char vowels[] = "aeiouAEIOU";

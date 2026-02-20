@@ -37,6 +37,8 @@ CFLAGS+=-Wno-stringop-truncation
 CFLAGS+=-fsanitize=address -fno-omit-frame-pointer
 # Uncomment to enable UBSan (undefined behavior sanitizer)
 CFLAGS+=-fsanitize=undefined -fno-sanitize-recover=all
+# Extra sanity checks (place_monster/remove_monster assertions)
+CFLAGS+=-DEXTRA_SANITY_CHECKS
 CFLAGS+=-DSYSCF -DSYSCF_FILE=\"$(HACKDIR)/sysconf\" -DSECURE
 CFLAGS+=-DTIMED_DELAY
 CFLAGS+=-DHACKDIR=\"$(HACKDIR)\"

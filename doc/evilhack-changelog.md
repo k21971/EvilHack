@@ -5070,4 +5070,5 @@ The following changes to date are:
   at map edge
 - Fix: out-of-bounds array accesses from various missing isok() guards
   on levl[][]
+- Enable EXTRA_SANITY_CHECKS and add worm segment instrumentation
 

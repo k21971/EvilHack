@@ -270,7 +270,6 @@ enum screen_symbols {
                           || (i) == S_puddle || (i) == S_sewage)
 #define is_cmap_lava(i) ((i) == S_lava)
 
-
 struct symdef {
     uchar sym;
     const char *explanation;
@@ -686,10 +685,18 @@ extern dlevel_t level; /* structure describing the current level */
         level.monsters[x][y] = m;                               \
     } while(0)
 #define remove_monster(x, y) \
-    do {                                                \
-        if (!level.monsters[x][y])                      \
-            impossible("no monster to remove");         \
-        level.monsters[x][y] = (struct monst *) 0;      \
+    do {                                                            \
+        struct monst *_rm_mon = level.monsters[x][y];               \
+        if (!_rm_mon)                                               \
+            impossible("no monster to remove");                     \
+        else if (!in_worm_cleanup && _rm_mon->wormno               \
+                 && (_rm_mon->mx != (x) || _rm_mon->my != (y)))    \
+            impossible(                                             \
+                "remove_monster(%d,%d) clearing worm seg of %s "    \
+                "at (%d,%d)",                                       \
+                (x), (y), _rm_mon->data->mname,                    \
+                _rm_mon->mx, _rm_mon->my);                         \
+        level.monsters[x][y] = (struct monst *) 0;                 \
     } while(0)
 #else
 #define place_worm_seg(m, x, y) level.monsters[x][y] = m
