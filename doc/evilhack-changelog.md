@@ -5077,4 +5077,5 @@ The following changes to date are:
   reflection
 - Fix: druid diagonal tree squeeze required both corners to be trees
 - Fix: ridden steed was silently dropping quest artifact on level change
+- Switch status from beta to released
 
