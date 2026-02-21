@@ -24,7 +24,7 @@ WIZARDS=*
 # Only available if NetHack was compiled with DUMPLOG
 # Allows following placeholders:
 #   %% literal '%'
-#   %v version (eg. "0.9.2-0")
+#   %v version (eg. "0.9.3-0")
 #   %u game UID
 #   %t game start time, UNIX timestamp format
 #   %T current time, UNIX timestamp format
@@ -32,8 +32,8 @@ WIZARDS=*
 #   %D current time, YYYYMMDDhhmmss format
 #   %n player name
 #   %N first character of player name
-DUMPLOGFILE=nethack-%n-%d.log
-DUMPHTMLFILE=nethack-%n-%d.html
+DUMPLOGFILE=evilhack-%n-%d.log
+DUMPHTMLFILE=evilhack-%n-%d.html
 
 # Number of bones file pools.
 # The pool you belong to is determined at game start. You will

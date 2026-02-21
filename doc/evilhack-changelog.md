@@ -5079,3 +5079,10 @@ The following changes to date are:
 - Fix: ridden steed was silently dropping quest artifact on level change
 - Switch status from beta to released
 
+
+### Version 0.9.3
+
+- Latest merges from 'vanilla' NetHack 3.6.7 official release (as of
+  September 26th, 2025)
+- Initial preparation for new version (0.9.3)
+
