@@ -3886,7 +3886,8 @@ schar delta;
         }
         context.botl = 1;
     }
-    if (otmp && (otmp->oprops & ITEM_EXCEL) && (otmp->owornmask & W_ARMOR)) {
+    if (otmp && (otmp->oprops & ITEM_EXCEL) && (otmp->owornmask & W_ARMOR)
+        && carried(otmp)) {
         if (delta) {
             int which = A_CHA,
                 old_attrib = ACURR(which);

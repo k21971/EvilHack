@@ -5071,4 +5071,6 @@ The following changes to date are:
 - Fix: out-of-bounds array accesses from various missing isok() guards
   on levl[][]
 - Enable EXTRA_SANITY_CHECKS and add worm segment instrumentation
+- Fix: excellence property on monster armor incorrectly modifies player
+  charisma
 
