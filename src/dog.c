@@ -977,7 +977,7 @@ keepdogs(pets_only)
 boolean pets_only; /* true for ascension or final escape */
 {
     struct monst *mtmp, *mtmp2;
-    struct obj *obj;
+    struct obj *obj, *nobj;
     int num_segs;
     boolean stay_behind;
 
@@ -1017,9 +1017,23 @@ boolean pets_only; /* true for ascension or final escape */
                 (void) mintrap(mtmp); /* try to escape */
             if (mtmp == u.usteed) {
                 /* make sure steed is eligible to accompany hero */
-                mtmp->mtrapped = 0;       /* escape trap */
-                mtmp->meating = 0;        /* terminate eating */
-                mdrop_special_objs(mtmp); /* drop Amulet */
+                mtmp->mtrapped = 0; /* escape trap */
+                mtmp->meating = 0;  /* terminate eating */
+                /* Drop items with level-crossing restrictions
+                   that shouldn't travel between levels on a
+                   steed: the Amulet and invocation items.
+                   Unlike mdrop_special_objs(), do NOT drop the
+                   quest artifact or other artifacts - the hero
+                   is actively riding their mount and controls
+                   what it carries */
+                for (obj = mtmp->minvent; obj; obj = nobj) {
+                    nobj = obj->nobj;
+                    if (obj->otyp == AMULET_OF_YENDOR
+                        || obj->otyp == SPE_BOOK_OF_THE_DEAD
+                        || obj->otyp == CANDELABRUM_OF_INVOCATION
+                        || obj->otyp == BELL_OF_OPENING)
+                        mdrop_obj(mtmp, obj, TRUE);
+                }
             } else if (!pets_only && has_edog(mtmp)
                        && (EDOG(mtmp)->petstrat & PETSTRAT_STAY)) {
                 /* pet ordered to stay on this level */

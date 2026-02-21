@@ -5076,5 +5076,5 @@ The following changes to date are:
 - Fix: monsters carrying the Magic Mirror of Merlin did not get
   reflection
 - Fix: druid diagonal tree squeeze required both corners to be trees
-
+- Fix: ridden steed was silently dropping quest artifact on level change
 
