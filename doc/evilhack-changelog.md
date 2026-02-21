@@ -5073,4 +5073,6 @@ The following changes to date are:
 - Enable EXTRA_SANITY_CHECKS and add worm segment instrumentation
 - Fix: excellence property on monster armor incorrectly modifies player
   charisma
+- Fix: monsters carrying the Magic Mirror of Merlin did not get
+  reflection
 

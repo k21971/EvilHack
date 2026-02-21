@@ -44,6 +44,7 @@ STATIC_DCL void FDECL(monster_uncurse_items, (struct monst *, BOOLEAN_P));
 STATIC_DCL boolean FDECL(can_attempt_disarm, (struct monst *, struct obj *, int));
 STATIC_DCL int FDECL(charge_precedence, (int));
 STATIC_DCL struct obj *FDECL(find_best_item_to_charge, (struct monst *));
+STATIC_DCL struct obj *FDECL(m_carrying_arti_reflecting, (struct monst *));
 
 static struct musable {
     struct obj *offensive;
@@ -4281,6 +4282,22 @@ struct obj *obj;
     return FALSE;
 }
 
+/* Check if monster is carrying (not wearing/wielding) an artifact
+   that grants reflection via cspfx */
+STATIC_OVL struct obj *
+m_carrying_arti_reflecting(mon)
+struct monst *mon;
+{
+    struct obj *obj;
+
+    for (obj = mon->minvent; obj; obj = obj->nobj) {
+        if (obj->oartifact && !(obj->owornmask & ~W_ART)
+            && arti_reflects(obj))
+            return obj;
+    }
+    return (struct obj *) 0;
+}
+
 boolean
 mon_reflects(mon, str)
 struct monst *mon;
@@ -4321,6 +4338,13 @@ const char *str;
         /* due to wielded artifact weapon */
         if (str)
             pline(str, s_suffix(mon_nam(mon)), "weapon");
+        return TRUE;
+    } else if ((orefl = m_carrying_arti_reflecting(mon)) != 0) {
+        /* carried (not worn/wielded) artifact granting reflection,
+           e.g. the Magic Mirror of Merlin */
+        if (str)
+            pline(str, s_suffix(mon_nam(mon)),
+                  orefl->otyp == MIRROR ? "mirror" : "artifact");
         return TRUE;
     } else if ((orefl = which_armor(mon, W_AMUL))
                && orefl->otyp == AMULET_OF_REFLECTION) {
