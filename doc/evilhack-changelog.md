@@ -5085,4 +5085,5 @@ The following changes to date are:
 - Latest merges from 'vanilla' NetHack 3.6.7 official release (as of
   September 26th, 2025)
 - Initial preparation for new version (0.9.3)
+- Add missing curses_getch() forward declaration in wincurs.h
 
