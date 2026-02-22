@@ -60,6 +60,7 @@ enum abuse_type {
     ABUSE_DECEPTION,            /* trickery/fake Amulet */
     ABUSE_AMULET_BETRAYAL,      /* offering Amulet to wrong deity */
     ABUSE_SAC_REJECTED,         /* Amulet sacrifice rejected (Infidel) */
+    ABUSE_NEGLECT_OFFERING,     /* Infidel neglecting sacrifice to Moloch */
     ABUSE_REFUSE_TITHE,         /* refusing temple contribution */
     /* Archeologist */
     ABUSE_HISTORIC_STATUE,      /* damaging historic statue */

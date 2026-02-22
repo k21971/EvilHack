@@ -1526,6 +1526,8 @@ int atype;
         return "offering Amulet to wrong deity";
     case ABUSE_SAC_REJECTED:
         return "rejected Amulet sacrifice";
+    case ABUSE_NEGLECT_OFFERING:
+        return "neglecting sacrifice to Moloch";
     case ABUSE_REFUSE_TITHE:
         return "refusing temple contribution";
     case ABUSE_HISTORIC_STATUE:

@@ -571,6 +571,8 @@ boolean resuming;
                                    + 1000) >= 1000) {
                             if (!rn2(100) && u.ualign.record > -99) {
                                 adjalign(-1);
+                                record_abuse_event(-1,
+                                                   ABUSE_NEGLECT_OFFERING);
                                 /* give our infidel some feedback every
                                    once in a while */
                                 if (!rn2(5))

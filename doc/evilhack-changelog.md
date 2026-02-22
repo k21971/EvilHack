@@ -5086,4 +5086,5 @@ The following changes to date are:
   September 26th, 2025)
 - Initial preparation for new version (0.9.3)
 - Add missing curses_getch() forward declaration in wincurs.h
+- Fix: Infidel sacrifice neglect not tracked in #conduct abuse events
 
