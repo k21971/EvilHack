@@ -118,10 +118,11 @@ typedef int nhsym;
 
 /* A limit for some NetHack int variables.  It need not, and for comparable
  * scoring should not, depend on the actual limit on integers for a
- * particular machine, although it is set to the minimum required maximum
- * signed integer for C (2^15 -1).
+ * particular machine, although it was originally set to the minimum
+ * required maximum signed integer for C (2^15 -1).  Raised to 2^31 -1
+ * since all supported platforms now have 32-bit (or wider) int.
  */
-#define LARGEST_INT 32767
+#define LARGEST_INT 2147483647
 
 #include "coord.h"
 /*

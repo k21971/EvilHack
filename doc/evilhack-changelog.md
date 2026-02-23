@@ -5095,4 +5095,5 @@ The following changes to date are:
 - Fix: Windows/PDCurses build break from UTF-8 wide-char APIs
 - Add unicode.c to Windows, Xcode, and VMS build systems
 - Add UTF-8 boulder symbol and remove sysconf boulder override
+- Raise LARGEST_INT from 32767 to 2147483647
 

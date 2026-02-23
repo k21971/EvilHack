@@ -6794,7 +6794,7 @@ parse()
     if (!Cmd.num_pad || (foo = readchar()) == Cmd.spkeys[NHKF_COUNT]) {
         long tmpmulti = multi;
 
-        foo = get_count((char *) 0, '\0', LARGEST_INT, &tmpmulti, FALSE);
+        foo = get_count((char *) 0, '\0', 32767L, &tmpmulti, FALSE);
         last_multi = multi = tmpmulti;
     }
 #ifdef ALTMETA
