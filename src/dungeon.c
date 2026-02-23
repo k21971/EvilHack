@@ -2412,12 +2412,15 @@ d_level *lev;
     }
 }
 
-#define INTEREST(feat)                                                  \
-    ((feat).nfount || (feat).nsink || (feat).nthrone || (feat).naltar   \
-     || (feat).nfaltar || (feat).ngrave || (feat).ntree || (feat).nshop \
-     || (feat).ntemple || (feat).nforge || (feat).ndeadtree             \
+/* (feat).water, (feat).ice, and (feat).lava are
+   purposely excluded */
+#define INTEREST(feat) \
+    ((feat).nfount || (feat).nsink || (feat).nthrone          \
+     || (feat).altar[0] || (feat).altar[1] || (feat).altar[2] \
+     || (feat).altar[3] || (feat).altar[4]                    \
+     || (feat).ngrave || (feat).ntree || (feat).nshop         \
+     || (feat).nforge || (feat).ndeadtree                     \
      || (feat).ngrass || (feat).nsand  || (feat).nmagicchest)
-  /* || (feat).water || (feat).ice || (feat).lava */
 
 /* returns true if this level has something interesting to print out */
 STATIC_OVL boolean
@@ -2546,11 +2549,7 @@ recalc_mapseen()
                 count = mptr->feat.nshop + 1;
                 if (count <= 3)
                     mptr->feat.nshop = count;
-            } else if (rooms[i].rtype == TEMPLE) {
-                /* altar and temple alignment handled below */
-                count = mptr->feat.ntemple + 1;
-                if (count <= 3)
-                    mptr->feat.ntemple = count;
+            /* temple tracking handled per-altar in tile scan below */
             } else if (rooms[i].orig_rtype == DELPHI) {
                 mptr->flags.oracle = 1;
             }
@@ -2658,24 +2657,25 @@ recalc_mapseen()
                     mptr->feat.ngrave = count;
                 break;
             case ALTAR:
-                atmp = (Is_astralevel(&u.uz)
-                        && (levl[x][y].seenv & SVALL) != SVALL)
-                         ? MSA_NONE
-                         : Amask2msa(levl[x][y].altarmask);
-                /* msalign is shared between regular and fractured altars;
-                   check if ANY altar has been seen yet, not just this type */
-                if (!mptr->feat.naltar && !mptr->feat.nfaltar)
-                    mptr->feat.msalign = atmp;
-                else if (mptr->feat.msalign != atmp)
-                    mptr->feat.msalign = MSA_NONE;
-                if (levl[x][y].frac_altar == 1) {
-                    count = mptr->feat.nfaltar + 1;
-                    if (count <= 3)
-                        mptr->feat.nfaltar = count;
-                } else {
-                    count = mptr->feat.naltar + 1;
-                    if (count <= 3)
-                        mptr->feat.naltar = count;
+                if (Is_astralevel(&u.uz)
+                    && (levl[x][y].seenv & SVALL) != SVALL)
+                    atmp = MSA_UNKNOWN;
+                else
+                    atmp = Amask2msa(levl[x][y].altarmask);
+                {
+                    char *templs = in_rooms(x, y, TEMPLE);
+                    boolean in_temple = (*templs != '\0');
+                    int shift;
+
+                    if (in_temple)
+                        shift = levl[x][y].frac_altar
+                                ? ALTR_TEMPLF_SH
+                                : ALTR_TEMPLE_SH;
+                    else
+                        shift = levl[x][y].frac_altar
+                                ? ALTR_STANDF_SH
+                                : ALTR_STAND_SH;
+                    ALTR_INC(mptr->feat.altar[atmp], shift);
                 }
                 break;
             /*  An automatic annotation is added to the Castle and
@@ -3087,49 +3087,58 @@ boolean printdun;
                 Sprintf(eos(buf), "%s%s", COMMA,
                         an(shop_string(mptr->feat.shoptype)));
         }
-        if (mptr->feat.naltar > 0 || mptr->feat.nfaltar > 0) {
-            unsigned total_altars = mptr->feat.naltar + mptr->feat.nfaltar;
-            boolean all_in_temples = (mptr->feat.ntemple > 0
-                                      && mptr->feat.ntemple >= total_altars);
-            /* show deity name based on altar's actual alignment,
-             * not just when it matches the player's alignment.
-             * msalign uses MSA_NONE for both A_NONE (Moloch) and
-             * mixed alignments, so with 2+ altars we can't
-             * distinguish "all Moloch" from "mixed" without
-             * adding another bitfield; use total_altars == 1 as
-             * a safe workaround for the Infidel/Moloch case */
-            aligntyp altar_align
-                = Amask2align(Msa2amask(mptr->feat.msalign));
-            boolean show_deity = (altar_align != A_NONE
-                                  || total_altars == 1);
+        /* Temple altars -- per-alignment display */
+        {
+            int ai;
+            for (ai = 0; ai <= MSA_UNKNOWN; ai++) {
+                boolean is_unknown = (ai == MSA_UNKNOWN);
+                aligntyp al = is_unknown ? A_NONE
+                              : Amask2align(Msa2amask(ai));
+                int cnt;
 
-            /* Regular altars: show as "temple" if all altars are in
-             * temples, otherwise show as "altar" */
-            if (mptr->feat.naltar > 0) {
-                if (all_in_temples)
-                    ADDNTOBUF("temple", mptr->feat.naltar);
-                else
-                    ADDNTOBUF("altar", mptr->feat.naltar);
-
-                if (show_deity)
-                    Sprintf(eos(buf), " to %s",
-                            align_gname(altar_align));
-            }
-
-            /* Fractured altars: show as "temple (fractured)" if all
-             * altars are in temples, otherwise "fractured altar" */
-            if (mptr->feat.nfaltar > 0) {
-                if (all_in_temples) {
-                    ADDNTOBUF("temple", mptr->feat.nfaltar);
-                    if (show_deity)
+                cnt = ALTR_GET(mptr->feat.altar[ai],
+                               ALTR_TEMPLE_SH);
+                if (cnt) {
+                    ADDNTOBUF("temple", cnt);
+                    if (!is_unknown)
                         Sprintf(eos(buf), " to %s",
-                                align_gname(altar_align));
+                                align_gname(al));
+                }
+                cnt = ALTR_GET(mptr->feat.altar[ai],
+                               ALTR_TEMPLF_SH);
+                if (cnt) {
+                    ADDNTOBUF("temple", cnt);
+                    if (!is_unknown)
+                        Sprintf(eos(buf), " to %s",
+                                align_gname(al));
                     Strcat(buf, " (fractured)");
-                } else {
-                    ADDNTOBUF("fractured altar", mptr->feat.nfaltar);
-                    if (show_deity)
+                }
+            }
+        }
+        /* Standalone altars -- per-alignment display */
+        {
+            int ai;
+            for (ai = 0; ai <= MSA_UNKNOWN; ai++) {
+                boolean is_unknown = (ai == MSA_UNKNOWN);
+                aligntyp al = is_unknown ? A_NONE
+                              : Amask2align(Msa2amask(ai));
+                int cnt;
+
+                cnt = ALTR_GET(mptr->feat.altar[ai],
+                               ALTR_STAND_SH);
+                if (cnt) {
+                    ADDNTOBUF("altar", cnt);
+                    if (!is_unknown)
                         Sprintf(eos(buf), " to %s",
-                                align_gname(altar_align));
+                                align_gname(al));
+                }
+                cnt = ALTR_GET(mptr->feat.altar[ai],
+                               ALTR_STANDF_SH);
+                if (cnt) {
+                    ADDNTOBUF("fractured altar", cnt);
+                    if (!is_unknown)
+                        Sprintf(eos(buf), " to %s",
+                                align_gname(al));
                 }
             }
         }

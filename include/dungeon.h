@@ -213,6 +213,25 @@ struct linfo {
 #define MSA_LAWFUL 1
 #define MSA_NEUTRAL 2
 #define MSA_CHAOTIC 3
+#define MSA_UNKNOWN 4 /* Astral unseen altar */
+
+/* Per-alignment altar tracking for dungeon overview.
+ * mapseen_feat.altar[] is indexed by MSA value (0-3) or MSA_UNKNOWN (4).
+ * Each byte packs four 2-bit counts (max 3 each):
+ *   bits 0-1: non-fractured temple altar count
+ *   bits 2-3: fractured temple altar count
+ *   bits 4-5: non-fractured standalone altar count
+ *   bits 6-7: fractured standalone altar count
+ */
+#define ALTR_TEMPLE_SH  0
+#define ALTR_TEMPLF_SH  2
+#define ALTR_STAND_SH   4
+#define ALTR_STANDF_SH  6
+
+#define ALTR_GET(byte, shift)  (((byte) >> (shift)) & 3)
+#define ALTR_INC(byte, shift)  \
+    do { if (ALTR_GET(byte, shift) < 3) \
+        (byte) += (1 << (shift)); } while (0)
 
 /* what the player knows about a single dungeon level */
 /* initialized in mklev() */
@@ -226,8 +245,6 @@ typedef struct mapseen {
         Bitfield(nforge, 2);
         Bitfield(nfount, 2);
         Bitfield(nsink, 2);
-        Bitfield(naltar, 2);
-        Bitfield(nfaltar, 2);
         Bitfield(nthrone, 2);
 
         Bitfield(ngrave, 2);
@@ -241,12 +258,11 @@ typedef struct mapseen {
         Bitfield(ice, 2);
         /* calculated from rooms array */
         Bitfield(nshop, 2);
-        Bitfield(ntemple, 2);
-        /* altar alignment; MSA_NONE if there is more than one and
-           they aren't all the same */
-        Bitfield(msalign, 2);
 
         Bitfield(shoptype, 5);
+
+        /* per-alignment altar tracking; see ALTR_* macros */
+        unsigned char altar[5];
     } feat;
     struct mapseen_flags {
         Bitfield(unreachable, 1); /* can't get back to this level */
