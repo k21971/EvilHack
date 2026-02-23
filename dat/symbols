@@ -383,6 +383,8 @@ start: UTF8graphics
 	S_ent: U+03A8
 	S_plant: U+00A3
 	S_orb: U+00B0
+#	Other symbols
+	S_boulder: U+25CF
 finish
 
 start: IBMgraphics

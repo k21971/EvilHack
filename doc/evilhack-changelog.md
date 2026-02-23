@@ -5094,4 +5094,5 @@ The following changes to date are:
 - Fix: stale trap pointer in mintrap() fire trap after ice melts
 - Fix: Windows/PDCurses build break from UTF-8 wide-char APIs
 - Add unicode.c to Windows, Xcode, and VMS build systems
+- Add UTF-8 boulder symbol and remove sysconf boulder override
 
