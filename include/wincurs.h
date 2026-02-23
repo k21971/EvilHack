@@ -39,6 +39,10 @@ extern WINDOW *mapwin, *statuswin, *messagewin;    /* Main windows  */
 #define CURSES_DARK_GRAY    17
 #define MAP_SCROLLBARS
 
+/* Extended 256-color support */
+#define CURSES_BG_FLAG       0x100  /* marks bg-pair encoding, not xterm color */
+#define CURSES_EXT_PAIR_BASE 200    /* first curses pair for extended colors */
+
 #if !defined(A_LEFTLINE) && defined(A_LEFT)
 #define A_LEFTLINE A_LEFT
 #endif

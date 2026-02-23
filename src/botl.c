@@ -2430,8 +2430,12 @@ boolean from_configfile;
             else {
                 int c = match_str2clr(subfields[i]);
 
-                if (c >= CLR_MAX || coloridx != -1)
+                if (c >= CLR_EXT_MAX || coloridx != -1)
                     return FALSE;
+                /* defer: map extended colors to base 16 for
+                   status hilites (status line uses attr encoding) */
+                if (IS_EXT_COLOR(c))
+                    c = map_color_256to16(c);
                 coloridx = c;
             }
         }
@@ -2744,8 +2748,11 @@ int sidx;
             } else {
                 int k = match_str2clr(subfields[i]);
 
-                if (k >= CLR_MAX)
+                if (k >= CLR_EXT_MAX)
                     return FALSE;
+                /* defer: map extended colors to base 16 */
+                if (IS_EXT_COLOR(k))
+                    k = map_color_256to16(k);
                 coloridx = k;
             }
         }

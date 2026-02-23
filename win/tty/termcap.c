@@ -55,6 +55,7 @@ char NEARDATA *hilites[CLR_MAX]; /* terminal escapes for the various colors */
 #endif
 #endif
 
+static int term_colors = 0;  /* number of colors terminal supports */
 static char *KS = (char *) 0, *KE = (char *) 0; /* keypad sequences */
 static char nullstr[] = "";
 
@@ -156,6 +157,16 @@ int *wid, *hgt;
 #endif
         TE = VS = VE = nullstr;
 #ifdef TEXTCOLOR
+        {
+            const char *envterm = nh_getenv("TERM");
+            const char *cterm = nh_getenv("COLORTERM");
+
+            if ((envterm && strstr(envterm, "256color"))
+                || (cterm && (*cterm != '\0')))
+                term_colors = 256;
+            else
+                term_colors = 16;
+        }
         for (i = 0; i < CLR_MAX / 2; i++)
             if (i != CLR_BLACK) {
                 hilites[i | BRIGHT] = (char *) alloc(sizeof("\033[1;3%dm"));
@@ -887,6 +898,8 @@ init_hilite()
     int c, md_len;
     int colors = tgetnum("Co");
 
+    term_colors = colors;
+
     if (colors < 8 || (MD == NULL) || (strlen(MD) == 0)
         || ((setf = tgetstr("AF", (char **) 0)) == (char *) 0
             && (setf = tgetstr("Sf", (char **) 0)) == (char *) 0)) {
@@ -1340,16 +1353,34 @@ void
 term_start_color(color)
 int color;
 {
-    if (color < CLR_MAX)
+    if (color < CLR_MAX) {
         xputs(hilites[color]);
+    } else if (IS_EXT_COLOR(color)) {
+        if (term_colors >= 256) {
+            char buf[24];
+
+            Sprintf(buf, "\033[38;5;%dm", color);
+            xputs(buf);
+        } else {
+            int c16 = map_color_256to16(color);
+
+            if (c16 < CLR_MAX)
+                xputs(hilites[c16]);
+        }
+    }
 }
 
 void
 term_start_bgcolor(color)
 int color;
 {
-    char tmp[8];
-    Sprintf(tmp, "\033[%dm", ((color % 8) + 40));
+    char tmp[24];
+
+    if (IS_EXT_COLOR(color) && term_colors >= 256) {
+        Sprintf(tmp, "\033[48;5;%dm", color);
+    } else {
+        Sprintf(tmp, "\033[%dm", ((color % 8) + 40));
+    }
     xputs(tmp);
 }
 

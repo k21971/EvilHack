@@ -29,6 +29,10 @@
 #define CLR_WHITE 15
 #define CLR_MAX 16
 
+/* Extended 256-color support */
+#define CLR_EXT_MAX     256
+#define IS_EXT_COLOR(c) ((c) >= CLR_MAX && (c) < CLR_EXT_MAX)
+
 /* The "half-way" point for tty based color systems.  This is used in */
 /* the tty color setup code.  (IMHO, it should be removed - dean).    */
 #define BRIGHT 8

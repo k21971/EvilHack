@@ -358,6 +358,14 @@ curses_init_nhcolors()
             init_pair(16, COLOR_WHITE + 8, -1);
         }
     }
+
+        /* Extended 256-color pairs: xterm colors 16-255, default bg */
+        if (COLORS >= 256 && COLOR_PAIRS > 440) {
+            int j;
+
+            for (j = 16; j < 256; j++)
+                init_pair(CURSES_EXT_PAIR_BASE + (j - 16), j, -1);
+        }
 #endif
 }
 

@@ -94,7 +94,7 @@ struct window_procs tty_procs = {
      | WC2_RESET_STATUS
 #endif
      | WC2_DARKGRAY | WC2_SUPPRESS_HIST | WC2_STATUSLINES | WC2_PEACEFUL
-     | WC2_MENU_GLYPHS),
+     | WC2_MENU_GLYPHS | WC2_EXTCOLORS),
 #ifdef TEXTCOLOR
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},   /* color availability */
 #else

@@ -160,13 +160,15 @@ unsigned mgflags;
             if (In_W_tower(x, y, &u.uz))
                 color = CLR_MAGENTA;
             else if (In_tower(&u.uz)) /* Vlad's */
-                color = CLR_ORANGE;
+                color = has_color(166) ? 166 : CLR_ORANGE; /* rust */
             else if (In_sokoban(&u.uz))
                 color = CLR_CYAN;
-            else if (Is_valley(&u.uz) || In_hell(&u.uz))
+            else if (Is_valley(&u.uz))
                 color = CLR_BLACK;
+            else if (In_hell(&u.uz))
+                color = has_color(52) ? 52 : CLR_RED; /* dark maroon */
             else if (In_mines(&u.uz)) /* no in_rooms check */
-                color = CLR_BROWN;
+                color = has_color(94) ? 94 : CLR_BROWN; /* goldenrod */
             else if (Is_astralevel(&u.uz))
                 color = CLR_WHITE;
             else if (getroomtype(x, y) == DELPHI)
@@ -200,6 +202,24 @@ unsigned mgflags;
             if (In_hell(&u.uz) && !In_W_tower(x, y, &u.uz) && !Is_valley(&u.uz))
                 color = (Is_hella_level(&u.uz))
                          ? CLR_GREEN : CLR_ORANGE;
+            else
+                cmap_color(offset);
+
+        /* Extended 256-color terrain features */
+        } else if (iflags.use_color
+                   && (offset == S_pool || offset == S_water)) {
+            if (has_color(27))
+                color = 27;  /* deep blue */
+            else
+                cmap_color(offset);
+        } else if (iflags.use_color && offset == S_ice) {
+            if (has_color(159))
+                color = 159; /* pale cyan */
+            else
+                cmap_color(offset);
+        } else if (iflags.use_color && offset == S_lava) {
+            if (has_color(202))
+                color = 202; /* vivid orange-red */
             else
                 cmap_color(offset);
 #endif

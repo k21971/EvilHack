@@ -2854,6 +2854,12 @@ E void NDECL(sink_into_lava);
 E void NDECL(sokoban_guilt);
 E void FDECL(trap_ice_effects, (xchar x, xchar y, boolean ice_is_melting));
 
+/* ### extcolor.c ### */
+
+E void NDECL(init_extcolors);
+E int FDECL(map_color_256to16, (int));
+E unsigned long FDECL(extcolor_256_rgb, (int));
+
 /* ### unicode.c ### */
 
 E int FDECL(get_unicode_codepoint, (int));

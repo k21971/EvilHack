@@ -120,6 +120,23 @@ curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff)
 #ifdef TEXTCOLOR
     }
 
+    /* Background-pair encoding from curses_print_glyph hilites */
+    if (color & CURSES_BG_FLAG) {
+        curses_color = 17 + (color & ~CURSES_BG_FLAG);
+        goto apply_pair;
+    }
+
+    /* Extended 256-color */
+    if (IS_EXT_COLOR(color)) {
+        if (COLORS >= 256 && COLOR_PAIRS > 440) {
+            curses_color = CURSES_EXT_PAIR_BASE + (color - 16);
+        } else {
+            color = map_color_256to16(color);
+            curses_color = color + 1;
+        }
+        goto apply_pair;
+    }
+
     if (color == 0) {           /* make black fg visible */
 # ifdef USE_DARKGRAY
         if (iflags.wc2_darkgray) {
@@ -139,6 +156,8 @@ curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff)
         else if (curses_color > (17 + 16))
             curses_color -= 16;
     }
+
+ apply_pair:
     if (onoff == ON) {          /* Turn on color/attributes */
         if (color != NONE) {
             if ((((color > 7) && (color < 17)) ||

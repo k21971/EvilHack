@@ -746,6 +746,9 @@ initoptions_init()
 #endif
     int i;
 
+    /* populate 256->16 fallback table before color parsing */
+    init_extcolors();
+
     /* set up the command parsing */
     reset_commands(TRUE); /* init */
 
@@ -1474,7 +1477,7 @@ int
 match_str2clr(str)
 char *str;
 {
-    int i, c = CLR_MAX;
+    int i, c = CLR_EXT_MAX;
 
     /* allow "lightblue", "light blue", and "light-blue" to match "light blue"
        (also junk like "_l i-gh_t---b l u e" but we won't worry about that);
@@ -1488,9 +1491,9 @@ char *str;
     if (i == SIZE(colornames) && digit(*str))
         c = atoi(str);
 
-    if (c < 0 || c >= CLR_MAX) {
+    if (c < 0 || c >= CLR_EXT_MAX) {
         config_error_add("Unknown color '%.60s'", str);
-        c = CLR_MAX; /* "none of the above" */
+        c = CLR_EXT_MAX; /* "none of the above" */
     }
 
     return c;
@@ -1920,7 +1923,7 @@ char *tmpstr; /* never Null but could be empty */
         *amp = '\0';
 
     c = match_str2clr(tmps);
-    if (c >= CLR_MAX)
+    if (c >= CLR_EXT_MAX)
         return FALSE;
 
     if (amp) {

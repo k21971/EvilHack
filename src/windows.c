@@ -2320,8 +2320,17 @@ int
 has_color(color)
 int color;
 {
+    /* Extended 256 colors bypass the per-color arrays (which are only
+       CLR_MAX entries); they render via direct ANSI escapes or extended
+       curses pairs, so just check that color is enabled. */
+    if (IS_EXT_COLOR(color)) {
+        return (iflags.use_color && windowprocs.name
+                && (windowprocs.wincap & WC_COLOR));
+    }
     return (iflags.use_color && windowprocs.name
-            && (windowprocs.wincap & WC_COLOR) && windowprocs.has_color[color]
+            && (windowprocs.wincap & WC_COLOR)
+            && color >= 0 && color < CLR_MAX
+            && windowprocs.has_color[color]
 #ifdef TTY_GRAPHICS
 #if defined(TEXTCOLOR) && defined(TERMLIB) && !defined(NO_TERMS)
              && (hilites[color] != 0)

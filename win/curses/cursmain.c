@@ -54,7 +54,8 @@ struct window_procs curses_procs = {
 #endif
      | WC2_FLUSH_STATUS | WC2_TERM_SIZE
      | WC2_STATUSLINES | WC2_WINDOWBORDERS | WC2_PETATTR | WC2_GUICOLOR
-     | WC2_SUPPRESS_HIST | WC2_MENU_GLYPHS | WC2_PEACEFUL),
+     | WC2_SUPPRESS_HIST | WC2_MENU_GLYPHS | WC2_PEACEFUL
+     | WC2_EXTCOLORS),
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, /* color availability */
     curses_init_nhwindows,
     curses_player_selection,
@@ -709,12 +710,12 @@ curses_print_glyph(winid wid, XCHAR_P x, XCHAR_P y, int glyph,
     if (wid == NHW_MAP) {
         if ((special & MG_STAIRS) && iflags.hilite_hidden_stairs) {
             if (iflags.wc_color)
-                color = 16 + (color * 2);
+                color = CURSES_BG_FLAG | (color * 2);
             else
                 attr = A_REVERSE;
         } else if ((special & MG_OBJPILE) && iflags.hilite_pile) {
             if (iflags.wc_color)
-                color = 16 + (color * 2) + 1;
+                color = CURSES_BG_FLAG | (color * 2 + 1);
             else
                 attr = A_REVERSE;
         }
@@ -723,7 +724,7 @@ curses_print_glyph(winid wid, XCHAR_P x, XCHAR_P y, int glyph,
             if (iflags.use_inverse)
                 attr = A_REVERSE;
             else
-                color = 16 + (color * 2) + 1;
+                color = CURSES_BG_FLAG | (color * 2 + 1);
         }
         /* water and lava look the same except for color; when color is off,
            render lava in inverse video so that they look different */
