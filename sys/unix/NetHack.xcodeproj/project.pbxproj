@@ -159,6 +159,7 @@
 		31B8A46621A2820F0055BD01 /* dgn_comp.y in Sources */ = {isa = PBXBuildFile; fileRef = 31B8A46421A278AC0055BD01 /* dgn_comp.y */; };
 		31B8A46921A288770055BD01 /* dgn_comp.l in Sources */ = {isa = PBXBuildFile; fileRef = 31B8A46821A288770055BD01 /* dgn_comp.l */; };
 		54FCE8292223261F00F393C8 /* isaac64.c in Sources */ = {isa = PBXBuildFile; fileRef = 54FCE8282223261F00F393C8 /* isaac64.c */; };
+		AA00000126000002000000AA /* unicode.c in Sources */ = {isa = PBXBuildFile; fileRef = AA00000126000001000000AA /* unicode.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -596,6 +597,7 @@
 		31B8A46421A278AC0055BD01 /* dgn_comp.y */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; name = dgn_comp.y; path = ../../util/dgn_comp.y; sourceTree = "<group>"; };
 		31B8A46821A288770055BD01 /* dgn_comp.l */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.lex; name = dgn_comp.l; path = ../../util/dgn_comp.l; sourceTree = "<group>"; };
 		54FCE8282223261F00F393C8 /* isaac64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = isaac64.c; path = ../../src/isaac64.c; sourceTree = "<group>"; };
+		AA00000126000001000000AA /* unicode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = unicode.c; path = ../../src/unicode.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -771,6 +773,7 @@
 				31B8A32621A238010055BD01 /* trap.c */,
 				31B8A35921A238040055BD01 /* u_init.c */,
 				31B8A34721A238030055BD01 /* uhitm.c */,
+				AA00000126000001000000AA /* unicode.c */,
 				31B8A37321A238050055BD01 /* vault.c */,
 				31B8A32721A238010055BD01 /* version.c */,
 				31B8A3E721A23AB50055BD01 /* vis_tab.c */,
@@ -1900,6 +1903,7 @@
 				31B8A3C721A238060055BD01 /* monmove.c in Sources */,
 				31B8A3BF21A238060055BD01 /* u_init.c in Sources */,
 				31B8A3D921A238060055BD01 /* vault.c in Sources */,
+				AA00000126000002000000AA /* unicode.c in Sources */,
 				31B8A38F21A238060055BD01 /* spell.c in Sources */,
 				31B8A3B221A238060055BD01 /* pray.c in Sources */,
 				31B8A3A821A238060055BD01 /* weapon.c in Sources */,

@@ -158,8 +158,8 @@ HACKCSRC = allmain.c alloc.c apply.c artifact.c attrib.c ball.c bones.c \
 	   rumors.c save.c shk.c shknam.c sit.c sounds.c sp_lev.c spell.c \
 	   steal.c steed.c sys.c teleport.c timeout.c topten.c track.c \
 	   trap.c u_init.c \
-	   uhitm.c vault.c version.c vision.c weapon.c were.c wield.c \
-	   windows.c wizard.c worm.c worn.c write.c zap.c
+	   uhitm.c unicode.c vault.c version.c vision.c weapon.c were.c \
+	   wield.c windows.c wizard.c worm.c worn.c write.c zap.c
 
 # generated source files (tile.c is handled separately via WINxxxSRC)
 GENCSRC = vis_tab.c	#tile.c
@@ -203,9 +203,9 @@ HOBJ4 = mplayer.obj,mthrowu.obj,muse.obj,music.obj,o_init.obj,objnam.obj, \
 HOBJ5 = rect.obj,region.obj,restore.obj,rip.obj,rnd.obj,role.obj, \
 	rumors.obj,save.obj,shk.obj,shknam.obj,sit.obj,sounds.obj,sp_lev.obj, \
 	spell.obj,steal.obj,steed.obj,sys.obj,teleport.obj,timeout.obj, \
-	topten.obj, track.obj,trap.obj
-HOBJ6 = u_init.obj,uhitm.obj,vault.obj,vision.obj,vis_tab.obj,weapon.obj, \
-	were.obj,wield.obj,windows.obj,wizard.obj,worm.obj,worn.obj, \
+	topten.obj,track.obj,trap.obj
+HOBJ6 = u_init.obj,uhitm.obj,unicode.obj,vault.obj,vision.obj,vis_tab.obj, \
+	weapon.obj,were.obj,wield.obj,windows.obj,wizard.obj,worm.obj,worn.obj, \
 	write.obj,zap.obj,version.obj
 HOBJ  = $(FIRSTOBJ) $(SYSOBJ) $(WINOBJ) $(RANDOBJ) \
 	$(HOBJ1) $(HOBJ2) $(HOBJ3) $(HOBJ4) $(HOBJ5) $(HOBJ6)
@@ -520,6 +520,7 @@ track.obj :	track.c $(HACK_H)
 trap.obj :	trap.c $(HACK_H)
 u_init.obj :	u_init.c $(HACK_H)
 uhitm.obj :	uhitm.c $(HACK_H)
+unicode.obj :	unicode.c $(HACK_H)
 vault.obj :	vault.c $(HACK_H)
 version.obj :	version.c $(HACK_H) $(INC)dlb.h $(INC)date.h $(INC)patchlevel.h
 vision.obj :	vision.c $(HACK_H) $(INC)vis_tab.h

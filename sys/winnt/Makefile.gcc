@@ -83,11 +83,11 @@ TARGET_CPU=x86
 #
 # 4. Uncomment these and set them appropriately if you want to
 #    include curses port support alongside TTY support in your
-#    EvilHack.exe binary. 
+#    EvilHack.exe binary.
 #
-#    You'll have to set PDCURSES_H to the correct location of the 
+#    You'll have to set PDCURSES_H to the correct location of the
 #    PDCurses header (.h) files and PDCURSES_C to the location
-#    of your PDCurses C files which must already be resident on 
+#    of your PDCurses C files which must already be resident on
 #    your machine.
 #
 # ADD_CURSES=Y
@@ -287,14 +287,14 @@ PPMWRITERS     = $(O)ppmwrite.o $(O)alloc.o $(O)panic.o
 #
 
 VOBJ01 = $(O)allmain.o  $(O)alloc.o    $(O)apply.o    $(O)artifact.o
-VOBJ02 = $(O)attrib.o   $(O)ball.o     $(O)bones.o    $(O)botl.o    
-VOBJ03 = $(O)cmd.o      $(O)dbridge.o  $(O)decl.o     $(O)detect.o  
-VOBJ04 = $(O)dig.o      $(O)display.o  $(O)do.o       $(O)do_name.o 
-VOBJ05 = $(O)do_wear.o  $(O)dog.o      $(O)dogmove.o  $(O)dokick.o  
-VOBJ06 = $(O)dothrow.o  $(O)drawing.o  $(O)dungeon.o  $(O)eat.o     
-VOBJ07 = $(O)end.o      $(O)engrave.o  $(O)exper.o    $(O)explode.o 
-VOBJ08 = $(O)extralev.o $(O)files.o    $(O)fountain.o $(O)hack.o    
-VOBJ09 = $(O)hacklib.o  $(O)invent.o   $(O)light.o    $(O)lock.o    
+VOBJ02 = $(O)attrib.o   $(O)ball.o     $(O)bones.o    $(O)botl.o
+VOBJ03 = $(O)cmd.o      $(O)dbridge.o  $(O)decl.o     $(O)detect.o
+VOBJ04 = $(O)dig.o      $(O)display.o  $(O)do.o       $(O)do_name.o
+VOBJ05 = $(O)do_wear.o  $(O)dog.o      $(O)dogmove.o  $(O)dokick.o
+VOBJ06 = $(O)dothrow.o  $(O)drawing.o  $(O)dungeon.o  $(O)eat.o
+VOBJ07 = $(O)end.o      $(O)engrave.o  $(O)exper.o    $(O)explode.o
+VOBJ08 = $(O)extralev.o $(O)files.o    $(O)fountain.o $(O)hack.o
+VOBJ09 = $(O)hacklib.o  $(O)invent.o   $(O)light.o    $(O)lock.o
 VOBJ10 = $(O)mail.o     $(O)makemon.o  $(O)mapglyph.o $(O)isaac64.o
 VOBJ11 = $(O)mcastu.o   $(O)mhitm.o    $(O)mhitu.o    $(O)minion.o
 VOBJ12 = $(O)mklev.o    $(O)mkmap.o    $(O)mkmaze.o   $(O)mkobj.o
@@ -310,10 +310,10 @@ VOBJ21 = $(O)shk.o      $(O)shknam.o   $(O)sit.o      $(O)sounds.o
 VOBJ22 = $(O)sp_lev.o   $(O)spell.o    $(O)steal.o    $(O)steed.o
 VOBJ23 = $(O)sys.o      $(O)teleport.o $(O)timeout.o  $(O)topten.o
 VOBJ24 = $(O)track.o    $(O)trap.o     $(O)u_init.o   $(O)uhitm.o
-VOBJ25 = $(O)vault.o    $(O)vis_tab.o  $(O)vision.o   $(O)weapon.o
-VOBJ26 = $(O)were.o     $(O)wield.o    $(O)windows.o  $(O)wizard.o
-VOBJ27 = $(O)worm.o     $(O)worn.o     $(O)write.o    $(O)zap.o
-#VOBJ28 = $(O)win10.o
+VOBJ25 = $(O)unicode.o  $(O)vault.o    $(O)vis_tab.o  $(O)vision.o
+VOBJ26 = $(O)weapon.o   $(O)were.o     $(O)wield.o    $(O)windows.o
+VOBJ27 = $(O)wizard.o   $(O)worm.o     $(O)worn.o     $(O)write.o
+VOBJ28 = $(O)zap.o
 
 DLBOBJ = $(O)dlb.o
 
@@ -419,7 +419,7 @@ PDCLIB = $(O)pdcurses.a
 
 PDCINCL = -I$(PDCURSES_TOP) -I$(PDCSRC) -I$(PDCWINCON)
 else
-PDCLIB = 
+PDCLIB =
 endif
 
 #==========================================
@@ -1047,7 +1047,6 @@ $(MSWIN)/splash.bmp: $(U)uudecode.exe $(MSWIN)/splash.uu
 	$(subst /,\,copy splash.bmp $@)
 	del splash.bmp
 
-
 #==========================================
 # Level Compiler Stuff
 #==========================================
@@ -1125,14 +1124,12 @@ $(O)nhsizes2.o: $(CONFIG_H) nhsizes2.c
 # Create directory for holding object files
 #==========================================
 
-
 #==========================================
 # DLB utility and nhdat file creation
 #==========================================
 
 $(U)dlb_main.exe: $(DLBOBJ) $(O)dlb.o
 	$(link) $(LFLAGSU) -o$@ $(O)dlb_main.o $(O)dlb.o $(O)alloc.o $(O)panic.o
-
 
 $(O)dlb.o:   $(O)dlb_main.o $(O)alloc.o $(O)panic.o $(INCL)/dlb.h
 	$(cc) $(CFLAGS) -o$@ $(SRC)/dlb.c
@@ -1230,11 +1227,9 @@ $(U)gif2tx32.exe: $(GIFREADERS32) $(TEXT_IO32)
 	@echo Linking $@...
 	$(link) $(LFLAGSU) -o$@ $(GIFREADERS32) $(TEXT_IO32)
 
-
 $(U)txt2ppm.exe: $(PPMWRITERS) $(TEXT_IO)
 	@echo Linking $@...
 	$(link) $(LFLAGSU) -o$@ $(PPMWRITERS) $(TEXT_IO)
-
 
 $(TILEBMP16): $(TILEUTIL16) $(TILEFILES)
 	@echo Creating 16x16 binary tile files which may take some time
@@ -1474,7 +1469,6 @@ $(O)winnt.o: $(HACK_H) $(MSWSYS)/win32api.h $(MSWSYS)/winnt.c
 $(O)ntsound.o: $(HACK_H) $(MSWSYS)/ntsound.c
 	$(cc) $(CFLAGS)  -o$@ $(MSWSYS)/ntsound.c
 
-
 #if you aren't linking in the full gui then
 #include the following stub for proper linkage.
 
@@ -1496,7 +1490,7 @@ $(O)tile.o: $(SRC)/tile.c $(HACK_H)
 $(O)panic.o:  $(U)panic.c $(CONFIG_H)
 	$(cc) $(CFLAGS) -o$@ $(U)panic.c
 
-# 
+#
 # sys/share dependencies
 #
 
@@ -1505,7 +1499,7 @@ $(O)panic.o:  $(U)panic.c $(CONFIG_H)
 
 #
 # Other dependencies needed by some ports
-# 
+#
 
 ifeq "$(ADD_CURSES)" "Y"
 # curses window port dependencies
@@ -1562,7 +1556,7 @@ endif
 #	with -o$@
 #   * targets prefixed with $(O)
 #   * $(CC) changed to $(cc)
-# but otherwise untouched. 
+# but otherwise untouched.
 # That means that there is some irrelevant stuff
 # in here, but maintenance should be easier.
 #
@@ -1786,6 +1780,7 @@ $(O)track.o: track.c $(HACK_H)
 $(O)trap.o: trap.c $(HACK_H)
 $(O)u_init.o: u_init.c $(HACK_H)
 $(O)uhitm.o: uhitm.c $(HACK_H)
+$(O)unicode.o: unicode.c $(HACK_H)
 $(O)vault.o: vault.c $(HACK_H)
 $(O)version.o: version.c $(HACK_H) $(INCL)/date.h $(INCL)/patchlevel.h
 $(O)vision.o: vision.c $(HACK_H) $(INCL)/vis_tab.h

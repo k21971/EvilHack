@@ -5093,4 +5093,5 @@ The following changes to date are:
 - Fix: use-after-free in mintrap() when magic beam trap is on ice
 - Fix: stale trap pointer in mintrap() fire trap after ice melts
 - Fix: Windows/PDCurses build break from UTF-8 wide-char APIs
+- Add unicode.c to Windows, Xcode, and VMS build systems
 
