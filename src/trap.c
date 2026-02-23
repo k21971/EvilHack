@@ -3350,11 +3350,13 @@ struct monst *mtmp;
                 seetrap(trap);
             if (isok(trap->launch.x, trap->launch.y)
                 && IS_STWALL(levl[trap->launch.x][trap->launch.y].typ)) {
+                trap->once = 1; /* set before dobuzz; it may free
+                                   trap via melt_ice -> deltrap */
                 dobuzz(trap->launch_otyp, 8,
                        trap->launch.x, trap->launch.y,
                        sgn(trap->tx - trap->launch.x),
                        sgn(trap->ty - trap->launch.y), FALSE);
-                trap->once = 1;
+                /* trap may be freed; don't dereference */
                 if (DEADMONSTER(mtmp))
                     trapkilled = TRUE;
             } else {

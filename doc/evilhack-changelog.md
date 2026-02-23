@@ -5090,4 +5090,5 @@ The following changes to date are:
 - Proper per-alignment altar/temple tracking for dungeon overview
 - Fix: use-after-free in mapglyph() when entering the endgame
 - Add UTF-8 rendering support for TTY, curses, and dumplogs
+- Fix: use-after-free in mintrap() when magic beam trap is on ice
 
