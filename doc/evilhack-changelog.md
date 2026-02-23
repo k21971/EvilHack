@@ -5088,4 +5088,5 @@ The following changes to date are:
 - Add missing curses_getch() forward declaration in wincurs.h
 - Fix: Infidel sacrifice neglect not tracked in #conduct abuse events
 - Proper per-alignment altar/temple tracking for dungeon overview
+- Fix: use-after-free in mapglyph() when entering the endgame
 
