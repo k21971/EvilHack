@@ -2947,8 +2947,13 @@ struct monst *mtmp;
             if (is_ice(mtmp->mx, mtmp->my)
                 && melt_ice(mtmp->mx, mtmp->my, (char *) 0))
                 trapkilled = TRUE; /* monster drowned when ice melted */
-            if (see_it && t_at(mtmp->mx, mtmp->my))
-                seetrap(trap);
+            /* melt_ice may have freed trap via trap_ice_effects;
+               use fresh pointer from t_at() */
+            if (see_it) {
+                struct trap *t = t_at(mtmp->mx, mtmp->my);
+                if (t)
+                    seetrap(t);
+            }
             break;
         case ICE_TRAP_SET:
             if (in_sight)
