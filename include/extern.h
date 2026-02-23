@@ -656,6 +656,8 @@ E void NDECL(init_primary_symbols);
 E void NDECL(init_rogue_symbols);
 E void NDECL(init_ov_primary_symbols);
 E void NDECL(init_ov_rogue_symbols);
+E void NDECL(init_utf8_graphics);
+E nhsym FDECL(get_utf8_sym, (int));
 E void FDECL(clear_symsetentry, (int, BOOLEAN_P));
 E void FDECL(update_primary_symset, (struct symparse *, int));
 E void FDECL(update_rogue_symset, (struct symparse *, int));
@@ -2851,6 +2853,13 @@ E boolean NDECL(lava_effects);
 E void NDECL(sink_into_lava);
 E void NDECL(sokoban_guilt);
 E void FDECL(trap_ice_effects, (xchar x, xchar y, boolean ice_is_melting));
+
+/* ### unicode.c ### */
+
+E int FDECL(get_unicode_codepoint, (int));
+E void FDECL(pututf8char, (int));
+E int FDECL(utf8str_from_codepoint, (int, char *));
+E boolean NDECL(detect_utf8_terminal);
 
 /* ### u_init.c ### */
 

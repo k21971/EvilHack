@@ -2814,8 +2814,9 @@ char *origbuf;
 #endif /* SYSCF */
 
     } else if (match_varname(buf, "BOULDER", 3)) {
-        (void) get_uchars(bufp, &ov_primary_syms[SYM_BOULDER + SYM_OFF_X],
-                          TRUE, 1, "BOULDER");
+        uchar boulder_ch = (uchar) ov_primary_syms[SYM_BOULDER + SYM_OFF_X];
+        (void) get_uchars(bufp, &boulder_ch, TRUE, 1, "BOULDER");
+        ov_primary_syms[SYM_BOULDER + SYM_OFF_X] = boulder_ch;
     } else if (match_varname(buf, "MENUCOLOR", 9)) {
         if (!add_menu_coloring(bufp))
             retval = FALSE;

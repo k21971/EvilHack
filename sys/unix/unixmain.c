@@ -9,6 +9,7 @@
 #include "dlb.h"
 
 #include <ctype.h>
+#include <locale.h>
 #include <sys/stat.h>
 #include <signal.h>
 #include <pwd.h>
@@ -184,7 +185,10 @@ char *argv[];
 #ifdef __linux__
     check_linux_console();
 #endif
+    setlocale(LC_ALL, "");
     initoptions();
+    if (detect_utf8_terminal())
+        iflags.supports_utf8 = TRUE;
 #ifdef PANICTRACE
     ARGV0 = hname; /* save for possible stack trace */
 #ifndef NO_SIGNAL

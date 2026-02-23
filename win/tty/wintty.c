@@ -3414,34 +3414,46 @@ void
 g_putch(in_ch)
 int in_ch;
 {
-    char ch = (char) in_ch;
-
     HUPSKIP();
 #if defined(ASCIIGRAPH) && !defined(NO_TERMS)
-    if (SYMHANDLING(H_IBM)
-        /* for DECgraphics, lower-case letters with high bit set mean
-           switch character set and render with high bit clear;
-           user might want 8-bits for other characters */
+    if (iflags.supports_utf8) {
+        /* UTF-8 terminal: convert legacy graphics to Unicode */
+        int uc;
+
+        if (SYMHANDLING(H_UTF8)) {
+            uc = in_ch;  /* already a Unicode codepoint */
+        } else if (SYMHANDLING(H_IBM) && (in_ch & 0x80)) {
+            uc = get_unicode_codepoint(in_ch);
+        } else if (SYMHANDLING(H_DEC) && in_ch >= 0xE0) {
+            uc = get_unicode_codepoint(in_ch);
+        } else {
+            uc = in_ch;  /* plain ASCII */
+        }
+        pututf8char(uc);
+    } else if (SYMHANDLING(H_IBM)
         || (iflags.eight_bit_tty && (!SYMHANDLING(H_DEC)
                                      || (in_ch & 0x7f) < 0x60))) {
         /* IBM-compatible displays don't need other stuff */
-        (void) putchar(ch);
-    } else if (ch & 0x80) {
+        (void) putchar((char) in_ch);
+    } else if ((char) in_ch & 0x80) {
         if (!GFlag || HE_resets_AS) {
             graph_on();
             GFlag = TRUE;
         }
-        (void) putchar((ch ^ 0x80)); /* Strip 8th bit */
+        (void) putchar(((char) in_ch ^ 0x80)); /* Strip 8th bit */
     } else {
         if (GFlag) {
             graph_off();
             GFlag = FALSE;
         }
-        (void) putchar(ch);
+        (void) putchar((char) in_ch);
     }
 
 #else
-    (void) putchar(ch);
+    if (iflags.supports_utf8 && in_ch > 0x7F)
+        pututf8char(get_unicode_codepoint(in_ch));
+    else
+        (void) putchar((char) in_ch);
 
 #endif /* ASCIIGRAPH && !NO_TERMS */
 

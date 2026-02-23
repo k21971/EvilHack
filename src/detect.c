@@ -2217,10 +2217,12 @@ int default_glyph, which_subset;
 void
 dump_map()
 {
-    int x, y, glyph, skippedrows, lastnonblank;
+    int x, y, glyph, skippedrows;
     int subset = TER_MAP | TER_TRP | TER_OBJ | TER_MON;
     int default_glyph = cmap_to_glyph(level.flags.arboreal ? S_tree : S_stone);
-    char buf[BUFSZ];
+    /* COLNO * 4 covers worst case: every column is a 4-byte UTF-8 char */
+    char buf[COLNO * 4 + 1];
+    char *bp, *lastnonblank_p;
     boolean blankrow, toprow;
 
     /*
@@ -2234,7 +2236,8 @@ dump_map()
     toprow = TRUE;
     for (y = 0; y < ROWNO; y++) {
         blankrow = TRUE; /* assume blank until we discover otherwise */
-        lastnonblank = -1; /* buf[] index rather than map's x */
+        bp = buf;
+        lastnonblank_p = (char *) 0;
         for (x = 1; x < COLNO; x++) {
             int ch, color, sym;
             unsigned special;
@@ -2245,17 +2248,38 @@ dump_map()
 
 #ifdef DUMPHTML
             /* HTML map prints in a defined rectangle, so
-               just render every glyph - no skipping. */
+               just render every glyph - no skipping */
             html_dump_glyph(x, y, sym, ch, color, special);
 #endif
-            buf[x - 1] = ch;
-            if (ch != ' ') {
-                blankrow = FALSE;
-                lastnonblank = x - 1;
+            {
+                /* For text dumplog, use UTF-8 codepoints from the
+                   utf8_graphics[] table for terrain symbols.
+                   For non-terrain (monsters, objects), use the ch
+                   value from showsyms which may be a Unicode
+                   codepoint from the active symset */
+                nhsym uc = (sym < MAXPCHARS) ? get_utf8_sym(sym) : 0;
+
+                if (uc) {
+                    bp += utf8str_from_codepoint(uc, bp);
+                    blankrow = FALSE;
+                    lastnonblank_p = bp;
+                } else if (ch > 0x7F) {
+                    /* Non-ASCII from symset (e.g. monster class
+                       symbols like S_ent, S_orb, S_plant) */
+                    bp += utf8str_from_codepoint(ch, bp);
+                    blankrow = FALSE;
+                    lastnonblank_p = bp;
+                } else {
+                    *bp++ = (char) ch;
+                    if (ch != ' ') {
+                        blankrow = FALSE;
+                        lastnonblank_p = bp;
+                    }
+                }
             }
         }
-        if (!blankrow) {
-            buf[lastnonblank + 1] = '\0';
+        if (!blankrow && lastnonblank_p) {
+            *lastnonblank_p = '\0';
             if (toprow) {
                 skippedrows = 0;
                 toprow = FALSE;

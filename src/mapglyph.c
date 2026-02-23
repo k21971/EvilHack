@@ -452,7 +452,13 @@ const char *str;
                         else
                             break;
                     so = mapglyph(gv, &ch, &oc, &os, 0, 0, 0);
-                    *put++ = showsyms[so];
+                    if (iflags.supports_utf8 && showsyms[so] > 0x7F) {
+                        int uc = get_unicode_codepoint(showsyms[so]);
+
+                        put += utf8str_from_codepoint(uc, put);
+                    } else {
+                        *put++ = showsyms[so];
+                    }
                     /* 'str' is ready for the next loop iteration and '*str'
                        should not be copied at the end of this iteration */
                     continue;

@@ -87,9 +87,10 @@ typedef xchar boolean; /* 0 or 1 */
 #endif
 
 /*
- * type nhsym: loadable symbols go into this type
+ * type nhsym: loadable symbols go into this type,
+ * widened from uchar to int for UTF-8/Unicode codepoint support
  */
-typedef uchar nhsym;
+typedef int nhsym;
 
 #ifndef STRNCMPI
 #ifndef __SASC_60 /* SAS/C already shifts to stricmp */
@@ -390,6 +391,5 @@ struct savefile_info {
 #ifndef nethack_enter
 #define nethack_enter(argc, argv) ((void) 0)
 #endif
-
 
 #endif /* GLOBAL_H */

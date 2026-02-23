@@ -499,6 +499,7 @@ static struct Comp_Opt {
 #ifdef MAC_GRAPHICS_ENV
     { "Macgraphics", "load MACGraphics display symbols", 70, SET_IN_FILE },
 #endif
+    { "UTF8graphics", "load UTF8graphics display symbols", 70, SET_IN_FILE },
 #endif
     { (char *) 0, (char *) 0, 0, 0 }
 };
@@ -4248,6 +4249,49 @@ boolean tinitial, tfrom_file;
 #endif  /* ?(MAC_GRAPHICS_ENV && BACKWARD_COMPAT) */
     } /* "MACgraphics" */
 
+    fullname = "UTF8graphics";
+    if (match_optname(opts, fullname, 4, TRUE)) {
+#ifdef BACKWARD_COMPAT
+        const char *sym_name = fullname;
+        boolean badflag = FALSE;
+
+        if (duplicate)
+            complain_about_duplicate(opts, 1);
+        if (!negated) {
+            for (i = 0; i < NUM_GRAPHICS; ++i) {
+                if (symset[i].name) {
+                    badflag = TRUE;
+                } else {
+                    if (i == ROGUESET)
+                        sym_name = "UTF8graphics";
+                    symset[i].name = dupstr(sym_name);
+                    if (!read_sym_file(i)) {
+                        badflag = TRUE;
+                        clear_symsetentry(i, TRUE);
+                        break;
+                    }
+                }
+            }
+            if (badflag) {
+                config_error_add("Failure to load symbol set %s.",
+                                 sym_name);
+                return FALSE;
+            } else {
+                iflags.UTF8graphics = TRUE;
+                switch_symbols(TRUE);
+                if (!initial && Is_rogue_level(&u.uz))
+                    assign_graphics(ROGUESET);
+            }
+        }
+        return retval;
+#else
+        config_error_add(
+            "'%s' no longer supported; use 'symset:%s' instead",
+            fullname, fullname);
+        return FALSE;
+#endif
+    } /* "UTF8graphics" */
+
     /*
      * OK, if we still haven't recognized the option, check the boolean
      * options list.
@@ -6483,6 +6527,20 @@ const char *strval; /* up to 4*BUFSZ-1 long; only first few chars matter */
 {
     char buf[QBUFSZ], tmp[QBUFSZ]; /* to hold trucated copy of 'strval' */
 
+    /* U+NNNN hex codepoint for Unicode symbols */
+    if (strval[0] == 'U' && strval[1] == '+') {
+        const char *hex = "00112233445566778899aAbBcCdDeEfF";
+        const char *dp;
+        int cval = 0;
+        const char *cp = strval + 2;
+
+        while (*cp && (dp = index(hex, *cp)) != 0) {
+            cval = (cval * 16) + ((int) (dp - hex) / 2);
+            cp++;
+        }
+        return cval;
+    }
+
     buf[0] = '\0';
     if (!strval[0] || !strval[1]) { /* empty, or single character */
         /* if single char is space or tab, leave buf[0]=='\0' */
@@ -6518,7 +6576,7 @@ const char *strval; /* up to 4*BUFSZ-1 long; only first few chars matter */
         escapes(tmp, buf);
     }
 
-    return (int) *buf;
+    return (int) (uchar) *buf;
 }
 
 /* data for option_help() */

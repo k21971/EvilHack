@@ -12,6 +12,7 @@
 #endif
 #include "color.h"
 #include "wincurs.h"
+#include <locale.h>
 
 /* define this if not linking with <foo>tty.o|.obj for some reason */
 #ifdef CURSES_DEFINE_ERASE_CHAR
@@ -157,6 +158,7 @@ curses_init_nhwindows(int *argcp UNUSED,
 #ifdef XCURSES
     base_term = Xinitscr(*argcp, argv);
 #else
+    setlocale(LC_ALL, "");
     base_term = initscr();
 #endif
 #ifdef TEXTCOLOR

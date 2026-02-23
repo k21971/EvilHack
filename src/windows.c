@@ -1469,8 +1469,8 @@ boolean onoff;
 /** HTML Map **/
 
 /* Construct a symset for HTML line-drawing symbols.
-   dat/symbols can't be used here because nhsym is uchar,
-   and we require 16 bit values */
+   Uses Unicode codepoints as HTML numeric character references
+   (&#NNNN;) indexed by MAXPCHARS symbol offset */
 
 static int htmlsym[SYM_MAX] = DUMMY;
 
@@ -1479,28 +1479,51 @@ html_init_sym()
 {
     /* see https://html-css-js.com/html/character-codes/drawing/ */
 
-    /* Minimal set, based on IBMGraphics_1 set.
-       Add more as required. */
-    htmlsym[S_vwall] = 9474;
-    htmlsym[S_hwall] = 9472;
-    htmlsym[S_tlcorn] = 9484;
-    htmlsym[S_trcorn] = 9488;
-    htmlsym[S_blcorn] = 9492;
-    htmlsym[S_brcorn] = 9496;
-    htmlsym[S_crwall] = 9532;
-    htmlsym[S_tuwall] = 9524;
-    htmlsym[S_tdwall] = 9516;
-    htmlsym[S_tlwall] = 9508;
-    htmlsym[S_trwall] = 9500;
-    htmlsym[S_vbeam] = 9474;
-    htmlsym[S_hbeam] = 9472;
-    htmlsym[S_sw_ml] = 9474;
-    htmlsym[S_sw_mr] = 9474;
-    htmlsym[S_explode4] = 9474;
-    htmlsym[S_explode6] = 9474;
-    /* and some extras */
-    htmlsym[S_corr] = 9617;
-    htmlsym[S_litcorr] = 9618;
+    /* Walls and structural */
+    htmlsym[S_vwall] = 9474;        /* U+2502 BOX LIGHT VERTICAL */
+    htmlsym[S_hwall] = 9472;        /* U+2500 BOX LIGHT HORIZONTAL */
+    htmlsym[S_tlcorn] = 9484;       /* U+250C BOX LIGHT DOWN AND RIGHT */
+    htmlsym[S_trcorn] = 9488;       /* U+2510 BOX LIGHT DOWN AND LEFT */
+    htmlsym[S_blcorn] = 9492;       /* U+2514 BOX LIGHT UP AND RIGHT */
+    htmlsym[S_brcorn] = 9496;       /* U+2518 BOX LIGHT UP AND LEFT */
+    htmlsym[S_crwall] = 9532;       /* U+253C BOX LIGHT VERT AND HORIZ */
+    htmlsym[S_tuwall] = 9524;       /* U+2534 BOX LIGHT UP AND HORIZ */
+    htmlsym[S_tdwall] = 9516;       /* U+252C BOX LIGHT DOWN AND HORIZ */
+    htmlsym[S_tlwall] = 9508;       /* U+2524 BOX LIGHT VERT AND LEFT */
+    htmlsym[S_trwall] = 9500;       /* U+251C BOX LIGHT VERT AND RIGHT */
+    /* Doors */
+    htmlsym[S_ndoor] = 183;         /* U+00B7 MIDDLE DOT */
+    htmlsym[S_vodoor] = 9632;       /* U+25A0 BLACK SQUARE */
+    htmlsym[S_hodoor] = 9632;       /* U+25A0 BLACK SQUARE */
+    /* Features */
+    htmlsym[S_bars] = 8801;         /* U+2261 IDENTICAL TO */
+    htmlsym[S_tree] = 936;          /* U+03A8 GREEK CAPITAL LETTER PSI */
+    htmlsym[S_deadtree] = 936;      /* U+03A8 GREEK CAPITAL LETTER PSI */
+    htmlsym[S_altar] = 937;         /* U+03A9 GREEK CAPITAL LETTER OMEGA */
+    htmlsym[S_grave] = 8224;        /* U+2020 DAGGER */
+    htmlsym[S_room] = 183;          /* U+00B7 MIDDLE DOT */
+    htmlsym[S_corr] = 9617;         /* U+2591 LIGHT SHADE */
+    htmlsym[S_litcorr] = 9618;      /* U+2592 MEDIUM SHADE */
+    htmlsym[S_sink] = 8992;         /* U+2320 TOP HALF INTEGRAL */
+    htmlsym[S_forge] = 8992;        /* U+2320 TOP HALF INTEGRAL */
+    htmlsym[S_magic_chest] = 8962;  /* U+2302 HOUSE */
+    htmlsym[S_fountain] = 8992;     /* U+2320 TOP HALF INTEGRAL */
+    /* Liquids */
+    htmlsym[S_pool] = 8776;         /* U+2248 ALMOST EQUAL TO */
+    htmlsym[S_ice] = 183;           /* U+00B7 MIDDLE DOT */
+    htmlsym[S_grass] = 183;         /* U+00B7 MIDDLE DOT */
+    htmlsym[S_sand] = 183;          /* U+00B7 MIDDLE DOT */
+    htmlsym[S_lava] = 8776;         /* U+2248 ALMOST EQUAL TO */
+    htmlsym[S_puddle] = 8776;       /* U+2248 ALMOST EQUAL TO */
+    htmlsym[S_sewage] = 8776;       /* U+2248 ALMOST EQUAL TO */
+    htmlsym[S_water] = 8776;        /* U+2248 ALMOST EQUAL TO */
+    /* Beams and effects */
+    htmlsym[S_vbeam] = 9474;        /* U+2502 BOX LIGHT VERTICAL */
+    htmlsym[S_hbeam] = 9472;        /* U+2500 BOX LIGHT HORIZONTAL */
+    htmlsym[S_sw_ml] = 9474;        /* U+2502 BOX LIGHT VERTICAL */
+    htmlsym[S_sw_mr] = 9474;        /* U+2502 BOX LIGHT VERTICAL */
+    htmlsym[S_explode4] = 9474;     /* U+2502 BOX LIGHT VERTICAL */
+    htmlsym[S_explode6] = 9474;     /* U+2502 BOX LIGHT VERTICAL */
 }
 
 /* convert 'special' flags returned from mapglyph to
@@ -1547,6 +1570,8 @@ unsigned special;
     dump_set_color_attr(color, attr, TRUE);
     if (htmlsym[sym])
         fprintf(dumphtml_file, "&#%d;", htmlsym[sym]);
+    else if (ch > 0x7F)
+        fprintf(dumphtml_file, "&#%d;", ch);
     else
         html_dump_char(dumphtml_file, (char)ch);
     dump_set_color_attr(color, attr, FALSE);

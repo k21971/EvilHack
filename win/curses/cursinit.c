@@ -56,7 +56,6 @@ typedef struct nhrgb_type {
 
 */
 
-
 /* win* is size and placement of window to change, x/y/w/h is baseline
    which can decrease depending on alignment of win* in orientation.
    Negative minh/minw: as much as possible, but at least as much as
@@ -342,7 +341,6 @@ curses_init_nhcolors()
                 init_pair((hicolor ? 113 : 57) + i, clr_remap[i], COLOR_WHITE);
             }
         }
-
 
         if (COLORS >= 16) {
 # ifdef USE_DARKGRAY

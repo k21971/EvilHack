@@ -60,7 +60,6 @@ SYSOBJ = ioctl.o unixmain.o unixtty.o unixunix.o unixres.o recover.o
 #SYSSRC = ../sys/be/bemain.c ../sys/share/unixtty.c ../sys/share/ioctl.c
 #SYSOBJ = bemain.o unixtty.o ioctl.o
 
-
 # if you are using gcc as your compiler:
 #	uncomment the CC definition below if it's not in your environment
 #	if you get setcgtty() warnings during execution, you are feeding gcc
@@ -329,7 +328,7 @@ WINBELIB = -lbe
 #
 # libraries for curses port
 # link with ncurses
-WINCURSESLIB = -lncurses
+WINCURSESLIB = -lncursesw
 # link with pdcurses for SDL, installed in a separate directory
 #WINCURSESLIB = -L/usr/local/lib/pdcurses -lpdcurses -lSDL
 # same as above, for XCurses
@@ -378,7 +377,6 @@ GAME     = evilhack
 # with a reasonable random number generator
 # RANDOBJ = random.o
 RANDOBJ =
-
 
 # used by `make depend' to reconstruct this Makefile; you shouldn't need this
 AWK	= nawk
@@ -458,7 +456,7 @@ HACKCSRC = allmain.c alloc.c apply.c artifact.c attrib.c ball.c bones.c \
 	   priest.c quest.c questpgr.c read.c rect.c region.c restore.c \
 	   rip.c rnd.c role.c rumors.c save.c shk.c shknam.c sit.c sounds.c \
 	   sp_lev.c spell.c steal.c steed.c sys.c teleport.c timeout.c \
-	   topten.c track.c trap.c u_init.c \
+	   topten.c track.c trap.c u_init.c unicode.c \
 	   uhitm.c vault.c version.c vision.c weapon.c were.c wield.c \
 	   windows.c wizard.c worm.c worn.c write.c zap.c
 
@@ -489,7 +487,6 @@ VERSOURCES = $(HACKCSRC) $(SYSSRC) $(WINSRC) $(CHAINSRC) $(GENCSRC)
 
 # .c files for all versions using this Makefile (for lint and tags)
 CSOURCES = $(HACKCSRC) $(SYSCSRC) $(WINCSRC) $(CHAINSRC) $(GENCSRC)
-
 
 # all .h files except date.h, onames.h, pm.h, and vis_tab.h which would
 # cause dependency loops if run through "make depend"
@@ -526,6 +523,7 @@ HOBJ = $(FIRSTOBJ) allmain.o alloc.o apply.o artifact.o attrib.o ball.o \
 	role.o rumors.o save.o shk.o shknam.o sit.o sounds.o sp_lev.o spell.o \
 	sys.o \
 	steal.o steed.o teleport.o timeout.o topten.o track.o trap.o u_init.o \
+	unicode.o \
 	uhitm.o vault.o vision.o vis_tab.o weapon.o were.o wield.o windows.o \
 	wizard.o worm.o worn.o write.o zap.o \
 	$(REGEXOBJ) $(RANDOBJ) $(SYSOBJ) $(WINOBJ) $(HINTOBJ) version.o
@@ -587,7 +585,6 @@ DUMB.Setup:	../include/extern.h
 	@touch DUMB.Setup
 
 all:	$(GAME)
-
 
 #	dependencies for makedefs and its outputs, which the util
 #	Makefile is responsible for keeping up to date
@@ -680,7 +677,6 @@ tile.c: ../win/share/tilemap.c $(HACK_H)
 	-$(SHELL) ../sys/unix/gitinfo.sh $(GITINFO) #before 'makedefs -v'
 	../util/makedefs -v
 
-
 lint:
 # lint cannot have -p here because (i) capitals are meaningful:
 # [Ww]izard, (ii) identifiers may coincide in the first six places:
@@ -688,7 +684,6 @@ lint:
 # _flsbuf comes from <stdio.h>, a bug in the system libraries.
 	@echo lint -axbh -DLINT ...
 	@lint -axbh -I../include -DLINT $(CSOURCES) | sed '/_flsbuf/d'
-
 
 tags: $(CSOURCES)
 	@echo ctags -tw ...
@@ -704,7 +699,6 @@ spotless: clean
 	-rm -f ../include/date.h ../include/onames.h ../include/pm.h
 	-rm -f ../include/vis_tab.h vis_tab.c tile.c *.moc
 	-rm -f ../win/gnome/gn_rip.h
-
 
 depend: ../sys/unix/depend.awk \
 		$(SYSCSRC) $(WINCSRC) $(SYSCXXSRC) $(WINCXXSRC) \

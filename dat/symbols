@@ -77,7 +77,7 @@ start: NHAccess
 	S_forge: \126
 	S_fountain: \126
 	S_puddle: \042
-	S_sewage: \042 
+	S_sewage: \042
 	S_pool: \042
 	S_ice: \042
 	S_grass: \035
@@ -332,6 +332,57 @@ start: Blank
         S_xorn: \032
         S_yeti: \032
         S_zombie: \032
+finish
+
+start: UTF8graphics
+	Description: Unicode line-drawing characters
+	Handling: UTF8
+	S_vwall: U+2502
+	S_hwall: U+2500
+	S_tlcorn: U+250C
+	S_trcorn: U+2510
+	S_blcorn: U+2514
+	S_brcorn: U+2518
+	S_crwall: U+253C
+	S_tuwall: U+2534
+	S_tdwall: U+252C
+	S_tlwall: U+2524
+	S_trwall: U+251C
+	S_ndoor: U+00B7
+	S_vodoor: U+25A0
+	S_hodoor: U+25A0
+	S_bars: U+2261
+	S_tree: U+03A8
+	S_deadtree: U+03A8
+	S_altar: U+03A9
+	S_grave: U+2020
+	S_room: U+00B7
+	S_corr: U+2591
+	S_litcorr: U+2592
+	S_sink: U+2320
+	S_forge: U+2320
+	S_magic_chest: U+2302
+	S_fountain: U+2320
+	S_pool: U+2248
+	S_ice: U+00B7
+	S_grass: U+00B7
+	S_sand: U+00B7
+	S_lava: U+2248
+	S_vodbridge: U+00B7
+	S_hodbridge: U+00B7
+	S_puddle: U+2248
+	S_sewage: U+2248
+	S_water: U+2248
+	S_vbeam: U+2502
+	S_hbeam: U+2500
+	S_sw_ml: U+2502
+	S_sw_mr: U+2502
+	S_explode4: U+2502
+	S_explode6: U+2502
+#	Monster symbols
+	S_ent: U+03A8
+	S_plant: U+00A3
+	S_orb: U+00B0
 finish
 
 start: IBMgraphics

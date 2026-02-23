@@ -284,6 +284,126 @@ void NDECL((*cursesgraphics_mode_callback)) = 0;
 #endif
 
 /*
+ * Default Unicode codepoints for UTF8graphics symset.
+ * Entries with 0 mean "use the primary_syms default (ASCII)".
+ * Only terrain features that benefit from line-drawing are mapped.
+ */
+static nhsym utf8_graphics[MAXPCHARS] = {
+    0,      /* S_stone */
+    0x2502, /* S_vwall: BOX DRAWINGS LIGHT VERTICAL */
+    0x2500, /* S_hwall: BOX DRAWINGS LIGHT HORIZONTAL */
+    0x250C, /* S_tlcorn: BOX DRAWINGS LIGHT DOWN AND RIGHT */
+    0x2510, /* S_trcorn: BOX DRAWINGS LIGHT DOWN AND LEFT */
+    0x2514, /* S_blcorn: BOX DRAWINGS LIGHT UP AND RIGHT */
+    0x2518, /* S_brcorn: BOX DRAWINGS LIGHT UP AND LEFT */
+    0x253C, /* S_crwall: BOX DRAWINGS LIGHT VERT AND HORIZ */
+    0x2534, /* S_tuwall: BOX DRAWINGS LIGHT UP AND HORIZ */
+    0x252C, /* S_tdwall: BOX DRAWINGS LIGHT DOWN AND HORIZ */
+    0x2524, /* S_tlwall: BOX DRAWINGS LIGHT VERT AND LEFT */
+    0x251C, /* S_trwall: BOX DRAWINGS LIGHT VERT AND RIGHT */
+    0x00B7, /* S_ndoor: MIDDLE DOT */
+    0x25A0, /* S_vodoor: BLACK SQUARE */
+    0x25A0, /* S_hodoor: BLACK SQUARE */
+    0,      /* S_vcdoor */
+    0,      /* S_hcdoor */
+    0x2261, /* S_bars: IDENTICAL TO */
+    0x03A8, /* S_tree: GREEK CAPITAL LETTER PSI */
+    0x03A8, /* S_deadtree: GREEK CAPITAL LETTER PSI */
+    0x00B7, /* S_room: MIDDLE DOT */
+    0,      /* S_darkroom */
+    0x2591, /* S_corr: LIGHT SHADE */
+    0x2592, /* S_litcorr: MEDIUM SHADE */
+    0,      /* S_upstair */
+    0,      /* S_dnstair */
+    0,      /* S_upladder */
+    0,      /* S_dnladder */
+    0x03A9, /* S_altar: GREEK CAPITAL LETTER OMEGA */
+    0x2020, /* S_grave: DAGGER */
+    0,      /* S_throne */
+    0x2320, /* S_sink: TOP HALF INTEGRAL (same as fountain) */
+    0x2320, /* S_forge: TOP HALF INTEGRAL (same as fountain) */
+    0x2302, /* S_magic_chest: HOUSE */
+    0x2320, /* S_fountain: TOP HALF INTEGRAL */
+    0x2248, /* S_pool: ALMOST EQUAL TO */
+    0x00B7, /* S_ice: MIDDLE DOT */
+    0x00B7, /* S_grass: MIDDLE DOT */
+    0x00B7, /* S_sand: MIDDLE DOT */
+    0x2248, /* S_lava: ALMOST EQUAL TO */
+    0x00B7, /* S_vodbridge: MIDDLE DOT */
+    0x00B7, /* S_hodbridge: MIDDLE DOT */
+    0,      /* S_vcdbridge */
+    0,      /* S_hcdbridge */
+    0,      /* S_air */
+    0,      /* S_cloud */
+    0x2248, /* S_puddle: ALMOST EQUAL TO */
+    0x2248, /* S_sewage: ALMOST EQUAL TO */
+    0x2248, /* S_water: ALMOST EQUAL TO */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* traps (S_arrow_trap..S_ice_trap) */
+    0, 0, 0, 0, 0, 0, 0, 0,              /* traps (S_pit..S_web) */
+    0, 0, 0, 0, 0, 0, 0,                 /* traps (S_statue_trap..S_vibrating_sq) */
+    0x2502, /* S_vbeam: BOX DRAWINGS LIGHT VERTICAL */
+    0x2500, /* S_hbeam: BOX DRAWINGS LIGHT HORIZONTAL */
+    0,      /* S_lslant */
+    0,      /* S_rslant */
+    0,      /* S_digbeam */
+    0,      /* S_flashbeam */
+    0,      /* S_boomleft */
+    0,      /* S_boomright */
+    0, 0, 0, 0,          /* S_ss1..S_ss4 */
+    0,      /* S_poisoncloud */
+    0,      /* S_goodpos */
+    0,      /* S_sw_tl */
+    0,      /* S_sw_tc */
+    0,      /* S_sw_tr */
+    0x2502, /* S_sw_ml: BOX DRAWINGS LIGHT VERTICAL */
+    0x2502, /* S_sw_mr: BOX DRAWINGS LIGHT VERTICAL */
+    0,      /* S_sw_bl */
+    0,      /* S_sw_bc */
+    0,      /* S_sw_br */
+    0,      /* S_explode1 */
+    0,      /* S_explode2 */
+    0,      /* S_explode3 */
+    0x2502, /* S_explode4: BOX DRAWINGS LIGHT VERTICAL */
+    0,      /* S_explode5 */
+    0x2502, /* S_explode6: BOX DRAWINGS LIGHT VERTICAL */
+    0,      /* S_explode7 */
+    0,      /* S_explode8 */
+    0,      /* S_explode9 */
+};
+
+/*
+ * Return the Unicode codepoint for a given MAXPCHARS symbol index,
+ * or 0 if no UTF-8 mapping exists.  Used by dump_map() to produce
+ * UTF-8 dumplogs regardless of which symset is active.
+ */
+nhsym
+get_utf8_sym(idx)
+int idx;
+{
+    if (idx >= 0 && idx < MAXPCHARS)
+        return utf8_graphics[idx];
+    return 0;
+}
+
+/*
+ * Load UTF-8 default symbols into primary_syms[] for entries
+ * where utf8_graphics[] provides a nonzero codepoint and the
+ * user's symset file didn't already override that slot.
+ */
+void
+init_utf8_graphics()
+{
+    int i;
+
+    for (i = 0; i < MAXPCHARS; i++) {
+        if (utf8_graphics[i]
+            && primary_syms[i + SYM_OFF_P] == defsyms[i].sym
+            && !ov_primary_syms[i + SYM_OFF_P])
+            primary_syms[i + SYM_OFF_P] = utf8_graphics[i];
+    }
+}
+
+/*
  * Convert the given character to an object class.  If the character is not
  * recognized, then MAXOCLASSES is returned.  Used in detect.c, invent.c,
  * objnam.c, options.c, pickup.c, sp_lev.c, lev_main.c, and tilemap.c.
@@ -532,6 +652,10 @@ int nondefault;
     int i;
 
     if (nondefault) {
+        /* Fill in UTF8 defaults before copying to showsyms,
+           so entries not in the symset file get Unicode codepoints */
+        if (SYMHANDLING(H_UTF8))
+            init_utf8_graphics();
         for (i = 0; i < SYM_MAX; i++)
             showsyms[i] = ov_primary_syms[i] ? ov_primary_syms[i]
                                              : primary_syms[i];
@@ -626,6 +750,7 @@ const char *known_handling[] = {
     "DEC",     /* H_DEC  */
     "CURS",    /* H_CURS */
     "MAC",     /* H_MAC  -- pre-OSX MACgraphics */
+    "UTF8",    /* H_UTF8 */
     (const char *) 0,
 };
 

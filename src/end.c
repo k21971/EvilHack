@@ -926,7 +926,20 @@ time_t when; /* date+time at end of game */
     if (!iflags.in_dumplog)
         return;
 
-    init_symbols(); /* revert to default symbol set */
+    {
+        /* Save showsyms before init_symbols() resets them.
+           We need the active symset's symbols (including monster
+           class overrides like S_ent, S_orb, S_plant) for the
+           dumplog. init_symbols() clears everything to ASCII
+           defaults, so we restore afterward */
+        nhsym saved_showsyms[SYM_MAX];
+
+        (void) memcpy(saved_showsyms, showsyms,
+                      SYM_MAX * sizeof(nhsym));
+        init_symbols(); /* revert to default symbol set */
+        (void) memcpy(showsyms, saved_showsyms,
+                      SYM_MAX * sizeof(nhsym));
+    }
 
     /* one line version ID, which includes build date+time;
        it's conceivable that the game started with a different

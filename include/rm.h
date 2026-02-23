@@ -329,6 +329,7 @@ struct symsetentry {
 #define H_CURS    3
 #define H_MAC     4 /* obsolete; needed so that the listing of available
                      * symsets by 'O' can skip it for !MAC_GRAPHICS_ENV */
+#define H_UTF8    5
 
 extern const struct symdef defsyms[MAXPCHARS]; /* defaults */
 extern const struct symdef def_warnsyms[WARNCOUNT];
