@@ -1,6 +1,6 @@
 /* EvilHack unicode.c - UTF-8 encoding and CP437/DEC to Unicode translation */
 /* Copyright (c) Patric Mueller (UnNetHack), 2011. */
-/* Adapted for EvilHack by K. Stillwell, 2026. */
+/* Adapted for EvilHack by Keith Simpson, 2026. */
 /* EvilHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"

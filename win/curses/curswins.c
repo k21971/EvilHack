@@ -595,6 +595,7 @@ write_char(WINDOW * win, int x, int y, nethack_char nch)
             uc = 0; /* use mvwaddch below */
         }
 
+#ifndef PDCURSES
         if (uc > 0x7F) {
             /* Wide character output via ncursesw */
             attr_t attr;
@@ -607,7 +608,9 @@ write_char(WINDOW * win, int x, int y, nethack_char nch)
             wattr_get(win, &attr, &pair, NULL);
             setcchar(&cch, wch, attr, pair, NULL);
             mvwadd_wch(win, y, x, &cch);
-        } else {
+        } else
+#endif /* !PDCURSES */
+        {
             mvwaddch(win, y, x, uc ? uc : nch.ch);
         }
     } else {
