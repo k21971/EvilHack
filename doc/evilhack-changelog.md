@@ -5098,4 +5098,5 @@ The following changes to date are:
 - Raise LARGEST_INT from 32767 to 2147483647
 - Add 256-color support for TTY and curses interfaces (phase one)
 - Extend 256-color support to status hilites and menu colors (phase two)
+- Fix: condition hilite deletion didn't clear extended colors
 

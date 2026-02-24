@@ -2685,7 +2685,7 @@ int sidx;
          * each ailment we want in a particular color and/or
          * attribute, but we need to assign it to an array of
          * bitmasks indexed by the color chosen
-         *        (0 to (CLR_MAX - 1))
+         *        (0 to (CLR_EXT_MAX - 1))
          * and/or attributes chosen
          *        (HL_ATTCLR_DIM to (BL_ATTCLR_MAX - 1))
          * We still have to parse the colors and attributes out.
@@ -2712,13 +2712,13 @@ int sidx;
          *
          * We have the following additional array offsets to
          * use for storing the attributes beyond the end of
-         * the color indexes, all of which are less than CLR_MAX.
-         * HL_ATTCLR_DIM        = CLR_MAX
-         * HL_ATTCLR_BLINK      = CLR_MAX + 1
-         * HL_ATTCLR_ULINE      = CLR_MAX + 2
-         * HL_ATTCLR_INVERSE    = CLR_MAX + 3
-         * HL_ATTCLR_BOLD       = CLR_MAX + 4
-         * HL_ATTCLR_MAX        = CLR_MAX + 5 (this is past array boundary)
+         * the color indexes, all of which are less than CLR_EXT_MAX.
+         * HL_ATTCLR_DIM        = CLR_EXT_MAX
+         * HL_ATTCLR_BLINK      = CLR_EXT_MAX + 1
+         * HL_ATTCLR_ULINE      = CLR_EXT_MAX + 2
+         * HL_ATTCLR_INVERSE    = CLR_EXT_MAX + 3
+         * HL_ATTCLR_BOLD       = CLR_EXT_MAX + 4
+         * HL_ATTCLR_MAX        = CLR_EXT_MAX + 5 (this is past array boundary)
          *
          */
 
@@ -3698,7 +3698,7 @@ int id;
     if (hlstr->fld == BL_CONDITION) {
         int i;
 
-        for (i = 0; i < CLR_MAX; i++)
+        for (i = 0; i < CLR_EXT_MAX; i++)
             cond_hilites[i] &= ~hlstr->mask;
         cond_hilites[HL_ATTCLR_DIM] &= ~hlstr->mask;
         cond_hilites[HL_ATTCLR_BOLD] &= ~hlstr->mask;
