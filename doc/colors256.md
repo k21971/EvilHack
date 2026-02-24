@@ -6,8 +6,8 @@ hilites, and menu colors. Terminals must support 256-color mode
 16-255 to render. On older terminals, extended colors automatically
 fall back to the closest base-16 match.
 
-> **Hex swatches:** The `#RRGGBB` codes in each table render as colored
-> circles on GitHub. In other viewers they serve as exact RGB references.
+> **Hex codes:** The `#RRGGBB` values show the exact RGB for each color.
+> Paste any hex code into a color picker to preview it.
 
 ---
 

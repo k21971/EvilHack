@@ -5102,4 +5102,5 @@ The following changes to date are:
 - Add 256-color reference guide for player configuration
 - Document UTF-8 and 256-color support in Guidebook and help files
 - Add hex color swatches to 256-color reference guide
+- Fix: update color reference guide about GitHub color swatch rendering
 
