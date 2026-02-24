@@ -88,6 +88,8 @@ showscore      display your approximate accumulated score         [FALSE]
 
 Boolean options if TEXTCOLOR was set at compile time:
 color          use different colors for objects on screen [TRUE for micros]
+               On 256-color terminals, an extended palette is used
+               automatically for dungeon features.
 hilite_pet     display pets in a highlighted manner               [FALSE]
 hilite_pile    display item piles in a highlighted manner         [FALSE]
 

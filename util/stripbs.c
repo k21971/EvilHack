@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 		*prev = *cp;
 	    }
         } else {
-	    if (errno != EOF)
+	    if (ferror(stdin))
                 trouble = 1;
 	    if (*prev)
                 fputc(*prev, stdout);

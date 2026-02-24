@@ -3697,6 +3697,10 @@ and prior versions (for example \(lqsuppress_alert:3.3.1\(rq).
 This option may be used to select one of the named symbol sets found within
 \(lqsymbols\(rq to alter the symbols displayed on the screen.
 Use \(lqsymset:default\(rq to explicitly select the default symbols.
+Use \(lqsymset:UTF8graphics\(rq on UTF-8 terminals for Unicode line-drawing
+characters and symbols.
+When using IBMgraphics on a UTF-8 terminal, CP437 characters are
+automatically converted to their Unicode equivalents.
 .lp "time    "
 Show the elapsed game time in turns on bottom line (default off).
 Persistent.
@@ -3817,6 +3821,9 @@ If EvilHack can, it should display an ascii character map if it can.
 .lp color
 If EvilHack can, it should display color if it can for different monsters,
 objects, and dungeon features.
+On terminals that support 256 colors, EvilHack will automatically use an
+extended color palette for dungeon features such as Gehennom walls, the
+Gnomish Mines, water, ice, and lava.
 .lp eight_bit_tty
 If EvilHack can, it should pass eight-bit character values (for example,
 specified with the
@@ -4343,6 +4350,11 @@ Allowed colors are black, red, green, brown, blue, magenta, cyan, gray,
 orange, light-green, yellow, light-blue, light-magenta, light-cyan, and white.
 And \f(CRno-color\fP, the default foreground color, which isn't necessarily
 the same as any of the other colors.
+On 256-color terminals, you can also use numeric color values from 0 to 255.
+Extended colors automatically fall back to the nearest base color on
+terminals that don't support them.
+See the file \f(CRcolors256.md\fP in the documentation directory for
+the complete palette reference.
 .lp ""
 Allowed attributes are none, bold, dim, underline, blink, and inverse.
 \(lqNormal\(rq is a synonym for \(lqnone\(rq.
@@ -4356,6 +4368,7 @@ pattern matching facility:
 MENUCOLOR="* blessed *"=green
 MENUCOLOR="* cursed *"=red
 MENUCOLOR="* cursed *(being worn)"=red&underline
+MENUCOLOR="gold piece"=220
 .ei
 .ed
 .\" note backslash-quoted spaces to prevent line breaks within " word "
@@ -4433,6 +4446,9 @@ Allowed colors are black, red, green, brown, blue, magenta, cyan, gray,
 orange, light-green, yellow, light-blue, light-magenta, light-cyan, and white.
 And \(lqno-color\(rq, the default foreground color on the display, which
 is not necessarily the same as black or white or any of the other colors.
+You can also use numeric color values from 0 to 255 on 256-color terminals;
+extended colors automatically fall back to the nearest base color on
+terminals that don't support them.
 .pg
 Allowed attributes are none, bold, dim, underline, blink, and inverse.
 \(lqNormal\(rq is a synonym for \(lqnone\(rq; they should not be used in
@@ -4567,6 +4583,7 @@ OPTION=hilite_status: hitpoints/<66%/yellow&normal
 OPTION=hilite_status: hitpoints/<50%/orange&normal
 OPTION=hilite_status: hitpoints/<33%/red&bold
 OPTION=hilite_status: hitpoints/<15%/red&inverse
+OPTION=hilite_status: hitpoints/<25%/202
 OPTION=hilite_status: condition/major/orange&inverse
 OPTION=hilite_status: condition/lev+fly/red&inverse
 .ei
@@ -4584,6 +4601,18 @@ Set the name of the symbol set that you want to load.
 .lp roguesymset
 Set the name of the symbol set that you want to load for display
 on the rogue level.
+.pg
+EvilHack includes a \fBUTF8graphics\fP symbol set that uses Unicode
+line-drawing characters for walls, and special characters such as
+\(*Q (psi) for trees, \(*W (omega) for altars, and \(dg (dagger)
+for graves.
+To use it, add \(lqsymset:UTF8graphics\(rq to your configuration file.
+Your terminal must support UTF-8 encoding.
+.pg
+When using IBMgraphics on a UTF-8 terminal, EvilHack automatically
+converts CP437 characters to their Unicode equivalents, so IBM line
+drawing and special characters display correctly without switching
+to the UTF8graphics set.
 .pg
 You can also override one or more symbols using the SYMBOLS and
 ROGUESYMBOLS configuration file options.

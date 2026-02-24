@@ -4009,6 +4009,10 @@ and prior versions (for example, ``{\tt suppress\verb+_+alert:3.3.1}'')
 This option may be used to select one of the named symbol sets found within
 {\tt symbols} to alter the symbols displayed on the screen.
 Use ``{\tt symset:default}'' to explicitly select the default symbols.
+Use ``{\tt symset:UTF8graphics}'' on UTF-8 terminals for Unicode line-drawing
+characters and symbols.
+When using IBMgraphics on a UTF-8 terminal, CP437 characters are
+automatically converted to their Unicode equivalents.
 %.lp
 \item[\ib{time}]
 Show the elapsed game time in turns on bottom line (default off).  Persistent.
@@ -4157,6 +4161,9 @@ If {\it EvilHack\/} can, it should display an ascii map.
 \item[\ib{color}]
 If {\it EvilHack\/} can, it should display color for different monsters,
 objects, and dungeon features.
+On terminals that support 256 colors, {\it EvilHack\/} will automatically
+use an extended color palette for dungeon features such as Gehennom walls,
+the Gnomish Mines, water, ice, and lava.
 
 %.lp
 \item[\ib{eight\verb+_+bit\verb+_+tty}]
@@ -4773,6 +4780,11 @@ Allowed colors are {\it black}, {\it red}, {\it green}, {\it brown},
 {\it light-cyan}, and {\it white}.
 And {\it no-color}, the default foreground color, which isn't necessarily
 the same as any of the other colors.
+On 256-color terminals, you can also use numeric color values from 0 to 255.
+Extended colors automatically fall back to the nearest base color on
+terminals that don't support them.
+See the file {\tt colors256.md} in the documentation directory for
+the complete palette reference.
 
 %.lp ""
 Allowed attributes are {\it none}, {\it bold}, {\it dim}, {\it underline},
@@ -4789,6 +4801,7 @@ pattern matching facility:
     MENUCOLOR="* blessed *"=green
     MENUCOLOR="* cursed *"=red
     MENUCOLOR="* cursed *(being worn)"=red&underline
+    MENUCOLOR="gold piece"=220
 \end{verbatim}
 
 specifies that any menu line with ``~blessed~'' contained
@@ -4876,6 +4889,9 @@ Allowed colors are black, red, green, brown, blue, magenta, cyan, gray,
 orange, light-green, yellow, light-blue, light-magenta, light-cyan, and white.
 And {\it no-color}, the default foreground color on the display, which
 is not necessarily the same as black or white or any of the other colors.
+You can also use numeric color values from 0 to 255 on 256-color terminals;
+extended colors automatically fall back to the nearest base color on
+terminals that don't support them.
 
 Allowed attributes are none, bold, dim, underline, blink, and inverse.
 ``Normal'' is a synonym for ``none''; they should not be used in
@@ -5010,6 +5026,7 @@ Example hilites:
     OPTION=hilite_status: hitpoints/<50%/orange&normal
     OPTION=hilite_status: hitpoints/<33%/red&bold
     OPTION=hilite_status: hitpoints/<15%/red&inverse
+    OPTION=hilite_status: hitpoints/<25%/202
     OPTION=hilite_status: condition/major/orange&inverse
     OPTION=hilite_status: condition/lev+fly/red&inverse
 \end{verbatim}
@@ -5036,6 +5053,18 @@ Set the name of the symbol set that you want to load.
 Set the name of the symbol set that you want to load for display
 on the rogue level.
 \elist
+
+{\it EvilHack\/} includes a {\bf UTF8graphics} symbol set that uses Unicode
+line-drawing characters for walls, and special characters such as
+$\Psi$ (psi) for trees, $\Omega$ (omega) for altars, and
+\dag{} (dagger) for graves.
+To use it, add ``{\tt symset:UTF8graphics}'' to your configuration file.
+Your terminal must support UTF-8 encoding.
+
+When using IBMgraphics on a UTF-8 terminal, {\it EvilHack\/} automatically
+converts CP437 characters to their Unicode equivalents, so IBM line
+drawing and special characters display correctly without switching
+to the UTF8graphics set.
 
 You can also override one or more symbols using the {\it SYMBOLS\/} and
 {\it ROGUESYMBOLS\/} configuration file options.

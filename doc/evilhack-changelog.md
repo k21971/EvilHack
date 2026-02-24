@@ -5100,4 +5100,5 @@ The following changes to date are:
 - Extend 256-color support to status hilites and menu colors (phase two)
 - Fix: condition hilite deletion didn't clear extended colors
 - Add 256-color reference guide for player configuration
+- Document UTF-8 and 256-color support in Guidebook and help files
 
