@@ -40,18 +40,36 @@
 /* these can be configured */
 #define HI_OBJ CLR_MAGENTA
 #define HI_METAL CLR_CYAN
-#define HI_COPPER CLR_ORANGE
-#define HI_SILVER CLR_GRAY
-#define HI_GOLD CLR_YELLOW
-#define HI_LEATHER CLR_BROWN
-#define HI_CLOTH CLR_BROWN
 #define HI_ORGANIC CLR_BROWN
-#define HI_WOOD CLR_BROWN
 #define HI_PAPER CLR_WHITE
-#define HI_GLASS CLR_BRIGHT_CYAN
-#define HI_MINERAL CLR_GRAY
 #define DRAGON_SILVER CLR_BRIGHT_CYAN
 #define HI_ZAP CLR_BRIGHT_BLUE
+
+/* Per-material 256-color macros.
+   On 16-color terminals, mapglyph() falls back via map_color_256to16(). */
+#define HI_LIQUID      28  /* forest green */
+#define HI_WAX         229 /* lemon chiffon */
+#define HI_VEGGY       64  /* olive green */
+#define HI_FLESH       167 /* indian red */
+#define HI_CLOTH       137 /* burlywood */
+#define HI_SPIDER_SILK 251 /* light gray */
+#define HI_LEATHER     130 /* dark orange */
+#define HI_WOOD        94  /* dark goldenrod */
+#define HI_BONE        187 /* warm cream */
+#define HI_DRAGON_HIDE 101 /* dark khaki */
+#define HI_IRON        67  /* steel blue */
+#define HI_STEEL       246 /* dark silver */
+#define HI_COPPER      173 /* sandy brown */
+#define HI_BRONZE      136 /* dark goldenrod */
+#define HI_SILVER      249 /* silver */
+#define HI_GOLD        220 /* gold */
+#define HI_PLATINUM    255 /* near white */
+#define HI_MITHRIL     110 /* light steel blue */
+#define HI_ADAMANTINE  60  /* slate gray */
+#define HI_PLASTIC     253 /* very light gray */
+#define HI_GLASS       117 /* light blue */
+#define HI_GEMSTONE    162 /* deep pink */
+#define HI_MINERAL     245 /* gray */
 
 struct menucoloring {
     struct nhregex *match;

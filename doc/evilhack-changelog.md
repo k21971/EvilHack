@@ -5103,4 +5103,5 @@ The following changes to date are:
 - Document UTF-8 and 256-color support in Guidebook and help files
 - Add hex color swatches to 256-color reference guide
 - Fix: update color reference guide about GitHub color swatch rendering
+- Add per-material HI_* macros for 256-color support
 

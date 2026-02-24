@@ -310,15 +310,7 @@ unsigned mgflags;
 #ifdef TEXTCOLOR
         if (iflags.use_color && otmp && otmp->otyp == offset
             && otmp->material != objects[offset].oc_material) {
-            /* Externify this array if it's ever needed anywhere else. */
-            const int materialclr[] = {
-                CLR_BLACK, HI_ORGANIC, CLR_WHITE, HI_ORGANIC, CLR_RED,
-                CLR_WHITE, HI_CLOTH, CLR_GRAY, HI_LEATHER, HI_WOOD,
-                CLR_WHITE, CLR_BLACK, HI_METAL, HI_METAL, HI_COPPER,
-                HI_COPPER, HI_SILVER, HI_GOLD, CLR_WHITE, HI_SILVER,
-                CLR_BLACK, CLR_WHITE, HI_GLASS, CLR_RED, CLR_GRAY
-            };
-            color = materialclr[otmp->material];
+            color = material_color(otmp->material);
         } else
 #endif
             obj_color(offset);
@@ -418,10 +410,15 @@ unsigned mgflags;
 
     ch = showsyms[idx];
 #ifdef TEXTCOLOR
-    /* Turn off color if no color defined, or rogue level w/o PC graphics. */
-    if (!has_color(color) || (Is_rogue_level(&u.uz) && !has_rogue_color))
-#endif
+    /* Turn off color if no color defined, or rogue level w/o PC graphics.
+       For extended 256-colors, fall back to nearest base-16 color. */
+    if (Is_rogue_level(&u.uz) && !has_rogue_color)
         color = NO_COLOR;
+    else if (!has_color(color))
+        color = IS_EXT_COLOR(color) ? map_color_256to16(color) : NO_COLOR;
+#else
+    color = NO_COLOR;
+#endif
     *ochar = (int) ch;
     *ospecial = special;
     *ocolor = color;
@@ -550,24 +547,78 @@ const char *str;
 }
 
 /* Return the display color for a given material type. Used by menu
-   display code to show objects in material-appropriate colors. Returns
-   NO_COLOR for invalid materials or if color is disabled */
+   display code and map glyph rendering to show objects in
+   material-appropriate colors. On 256-color terminals, returns
+   extended palette colors; falls back to base-16 otherwise.
+   Returns NO_COLOR for invalid materials or if color is disabled */
 int
 material_color(mat)
 int mat;
 {
 #ifdef TEXTCOLOR
-    /* Must match order of enum obj_material_types in objclass.h:
-       0=unused, 1=LIQUID..24=MINERAL */
+    /* Base-16 fallback colors. Must match order of enum
+       obj_material_types in objclass.h: 0=unused, 1=LIQUID..24=MINERAL */
     static const int materialclr[] = {
-        CLR_BLACK, HI_ORGANIC, CLR_WHITE, HI_ORGANIC, CLR_RED,
-        CLR_WHITE, HI_CLOTH, CLR_GRAY, HI_LEATHER, HI_WOOD,
-        CLR_WHITE, CLR_BLACK, HI_METAL, HI_METAL, HI_COPPER,
-        HI_COPPER, HI_SILVER, HI_GOLD, CLR_WHITE, HI_SILVER,
-        CLR_BLACK, CLR_WHITE, HI_GLASS, CLR_RED, CLR_GRAY
+        CLR_BLACK,       /*  0: unused       */
+        CLR_BROWN,       /*  1: LIQUID       */
+        CLR_WHITE,       /*  2: WAX          */
+        CLR_BROWN,       /*  3: VEGGY        */
+        CLR_RED,         /*  4: FLESH        */
+        CLR_WHITE,       /*  5: PAPER        */
+        CLR_BROWN,       /*  6: CLOTH        */
+        CLR_GRAY,        /*  7: SPIDER_SILK  */
+        CLR_BROWN,       /*  8: LEATHER      */
+        CLR_BROWN,       /*  9: WOOD         */
+        CLR_WHITE,       /* 10: BONE         */
+        CLR_BLACK,       /* 11: DRAGON_HIDE  */
+        CLR_CYAN,        /* 12: IRON         */
+        CLR_CYAN,        /* 13: STEEL        */
+        CLR_ORANGE,      /* 14: COPPER       */
+        CLR_ORANGE,      /* 15: BRONZE       */
+        CLR_GRAY,        /* 16: SILVER       */
+        CLR_YELLOW,      /* 17: GOLD         */
+        CLR_WHITE,       /* 18: PLATINUM     */
+        CLR_GRAY,        /* 19: MITHRIL      */
+        CLR_BLACK,       /* 20: ADAMANTINE   */
+        CLR_WHITE,       /* 21: PLASTIC      */
+        CLR_BRIGHT_CYAN, /* 22: GLASS        */
+        CLR_RED,         /* 23: GEMSTONE     */
+        CLR_GRAY,        /* 24: MINERAL      */
     };
-    if (iflags.use_color && mat >= 0 && mat < SIZE(materialclr))
+    /* Extended 256-color alternatives. NO_COLOR = use base-16 above */
+    static const int materialclr_ext[] = {
+        NO_COLOR,       /*  0: unused       */
+        HI_LIQUID,      /*  1: LIQUID       */
+        HI_WAX,         /*  2: WAX          */
+        HI_VEGGY,       /*  3: VEGGY        */
+        HI_FLESH,       /*  4: FLESH        */
+        NO_COLOR,       /*  5: PAPER        */
+        HI_CLOTH,       /*  6: CLOTH        */
+        HI_SPIDER_SILK, /*  7: SPIDER_SILK  */
+        HI_LEATHER,     /*  8: LEATHER      */
+        HI_WOOD,        /*  9: WOOD         */
+        HI_BONE,        /* 10: BONE         */
+        HI_DRAGON_HIDE, /* 11: DRAGON_HIDE  */
+        HI_IRON,        /* 12: IRON         */
+        HI_STEEL,       /* 13: STEEL        */
+        HI_COPPER,      /* 14: COPPER       */
+        HI_BRONZE,      /* 15: BRONZE       */
+        HI_SILVER,      /* 16: SILVER       */
+        HI_GOLD,        /* 17: GOLD         */
+        HI_PLATINUM,    /* 18: PLATINUM     */
+        HI_MITHRIL,     /* 19: MITHRIL      */
+        HI_ADAMANTINE,  /* 20: ADAMANTINE   */
+        HI_PLASTIC,     /* 21: PLASTIC      */
+        HI_GLASS,       /* 22: GLASS        */
+        HI_GEMSTONE,    /* 23: GEMSTONE     */
+        HI_MINERAL,     /* 24: MINERAL      */
+    };
+    if (iflags.use_color && mat >= 0 && mat < SIZE(materialclr)) {
+        int ext = materialclr_ext[mat];
+        if (ext != NO_COLOR && has_color(ext))
+            return ext;
         return materialclr[mat];
+    }
 #else
     nhUse(mat);
 #endif
