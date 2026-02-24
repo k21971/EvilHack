@@ -92,13 +92,12 @@ enum relationships { NO_LTEQGT = -1,
 #define BL_TH_TEXTMATCH 104      /* threshold text value to match against */
 #define BL_TH_ALWAYS_HILITE 105  /* highlight regardless of value */
 
-
-#define HL_ATTCLR_DIM     CLR_MAX + 0
-#define HL_ATTCLR_BLINK   CLR_MAX + 1
-#define HL_ATTCLR_ULINE   CLR_MAX + 2
-#define HL_ATTCLR_INVERSE CLR_MAX + 3
-#define HL_ATTCLR_BOLD    CLR_MAX + 4
-#define BL_ATTCLR_MAX     CLR_MAX + 5
+#define HL_ATTCLR_DIM     CLR_EXT_MAX + 0
+#define HL_ATTCLR_BLINK   CLR_EXT_MAX + 1
+#define HL_ATTCLR_ULINE   CLR_EXT_MAX + 2
+#define HL_ATTCLR_INVERSE CLR_EXT_MAX + 3
+#define HL_ATTCLR_BOLD    CLR_EXT_MAX + 4
+#define BL_ATTCLR_MAX     CLR_EXT_MAX + 5
 
 enum hlattribs { HL_UNDEF   = 0x00,
                  HL_NONE    = 0x01,

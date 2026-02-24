@@ -2432,10 +2432,6 @@ boolean from_configfile;
 
                 if (c >= CLR_EXT_MAX || coloridx != -1)
                     return FALSE;
-                /* defer: map extended colors to base 16 for
-                   status hilites (status line uses attr encoding) */
-                if (IS_EXT_COLOR(c))
-                    c = map_color_256to16(c);
                 coloridx = c;
             }
         }
@@ -2750,9 +2746,6 @@ int sidx;
 
                 if (k >= CLR_EXT_MAX)
                     return FALSE;
-                /* defer: map extended colors to base 16 */
-                if (IS_EXT_COLOR(k))
-                    k = map_color_256to16(k);
                 coloridx = k;
             }
         }
@@ -2919,7 +2912,7 @@ status_hilite_linestr_gather_conditions()
         int atr = HL_NONE;
         int j;
 
-        for (j = 0; j < CLR_MAX; j++)
+        for (j = 0; j < CLR_EXT_MAX; j++)
             if (cond_hilites[j] & valid_conditions[i].bitmask) {
                 clr = j;
                 break;

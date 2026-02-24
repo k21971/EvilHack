@@ -1,5 +1,5 @@
 /* NetHack 3.6  extcolor.c  $NHDT-Date: 2026/02/23 $  $NHDT-Branch: master $ */
-/* Copyright (c) K. Szakats, 2026. */
+/* Copyright (c) Keith Simpson, 2026. */
 /* EvilHack may be freely redistributed.  See license for details. */
 
 /* Extended 256-color support: RGB palette, 256-to-16 fallback mapping,

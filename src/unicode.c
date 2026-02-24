@@ -1,3 +1,4 @@
+/* NetHack 3.6  unicode.c  $NHDT-Date: 2026/02/23 $  $NHDT-Branch: master $ */
 /* EvilHack unicode.c - UTF-8 encoding and CP437/DEC to Unicode translation */
 /* Copyright (c) Patric Mueller (UnNetHack), 2011. */
 /* Adapted for EvilHack by Keith Simpson, 2026. */

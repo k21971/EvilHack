@@ -1466,10 +1466,16 @@ clr2colorname(clr)
 int clr;
 {
     int i;
+    static char numbuf[8]; /* for extended colors */
 
     for (i = 0; i < SIZE(colornames); i++)
         if (colornames[i].name && colornames[i].color == clr)
             return colornames[i].name;
+    /* Extended colors: return numeric string */
+    if (clr >= 0 && clr < CLR_EXT_MAX) {
+        Sprintf(numbuf, "%d", clr);
+        return numbuf;
+    }
     return (char *) 0;
 }
 
@@ -1540,6 +1546,7 @@ const char *prompt;
     int i, pick_cnt;
     menu_item *picks = (menu_item *) 0;
 
+ choose_again:
     tmpwin = create_nhwindow(NHW_MENU);
     start_menu(tmpwin);
     any = zeroany;
@@ -1551,17 +1558,36 @@ const char *prompt;
                  (colornames[i].color == NO_COLOR) ? MENU_SELECTED
                                                    : MENU_UNSELECTED);
     }
+    any.a_int = SIZE(colornames) + 1;
+    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+             "custom color (0-255)", MENU_UNSELECTED);
     end_menu(tmpwin, (prompt && *prompt) ? prompt : "Pick a color");
     pick_cnt = select_menu(tmpwin, PICK_ONE, &picks);
     destroy_nhwindow(tmpwin);
     if (pick_cnt > 0) {
-        i = colornames[picks[0].item.a_int - 1].color;
         /* pick_cnt==2: explicitly picked something other than the
-           preselected entry */
-        if (pick_cnt == 2 && i == NO_COLOR)
-            i = colornames[picks[1].item.a_int - 1].color;
+           preselected entry; take the second pick */
+        if (pick_cnt == 2)
+            i = picks[1].item.a_int;
+        else
+            i = picks[0].item.a_int;
         free((genericptr_t) picks);
-        return i;
+        if (i == SIZE(colornames) + 1) {
+            /* custom color entry selected */
+            char buf[BUFSZ];
+            int c;
+
+            getlin("Enter color number (0-255):", buf);
+            if (buf[0] == '\033')
+                return -1;
+            c = match_str2clr(buf);
+            if (c >= CLR_EXT_MAX) {
+                pline("Invalid color number.");
+                goto choose_again;
+            }
+            return c;
+        }
+        return colornames[i - 1].color;
     } else if (pick_cnt == 0) {
         /* pick_cnt==0: explicitly picking preselected entry toggled it off */
         return NO_COLOR;

@@ -5097,4 +5097,5 @@ The following changes to date are:
 - Add UTF-8 boulder symbol and remove sysconf boulder override
 - Raise LARGEST_INT from 32767 to 2147483647
 - Add 256-color support for TTY and curses interfaces (phase one)
+- Extend 256-color support to status hilites and menu colors (phase two)
 

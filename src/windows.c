@@ -1636,7 +1636,7 @@ unsigned long *bmarray;
     int i;
 
     if (bm && bmarray)
-        for (i = 0; i < CLR_MAX; ++i) {
+        for (i = 0; i < CLR_EXT_MAX; ++i) {
             if ((bmarray[i] & bm) != 0)
                 return i;
         }
