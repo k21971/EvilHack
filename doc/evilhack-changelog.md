@@ -5099,4 +5099,5 @@ The following changes to date are:
 - Add 256-color support for TTY and curses interfaces (phase one)
 - Extend 256-color support to status hilites and menu colors (phase two)
 - Fix: condition hilite deletion didn't clear extended colors
+- Add 256-color reference guide for player configuration
 
