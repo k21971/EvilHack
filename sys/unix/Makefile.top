@@ -81,7 +81,7 @@ VARDAT = $(VARDATD) $(VARDATND)
 # The CSS file is required for HTML end-of-game dump logs.
 CSS = NHdump.css
 
-DATHELP = help hh cmdhelp keyhelp history opthelp wizhelp
+DATHELP = help hh cmdhelp keyhelp history opthelp wizhelp Guidebook
 
 SPEC_LEVS = bigrm-*.lev castle-?.lev hellfill.lev nymph.lev \
         forest.lev knox-?.lev medusa-?.lev minend-?.lev minefill.lev \
@@ -107,7 +107,8 @@ all:	$(GAME) recover Guidebook $(VARDAT) dungeon spec_levs check-dlb
 # to generate valid output
 
 Guidebook:
-	( cd doc ; $(MAKE) Guidebook )
+	( cd doc ; $(MAKE) Guidebook Guidebook.dat )
+	cp doc/Guidebook.dat dat/Guidebook
 
 manpages:
 	( cd doc ; $(MAKE) manpages )
@@ -295,7 +296,6 @@ install: rootcheck $(GAME) recover $(VARDAT) dungeon spec_levs
 	true; $(POSTINSTALL)
 # and a reminder
 	@echo You may also want to reinstall the man pages via the doc Makefile.
-
 
 # 'make clean' removes all the .o files, but leaves around all the executables
 # and compiled data files

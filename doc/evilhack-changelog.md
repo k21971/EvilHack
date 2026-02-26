@@ -5104,4 +5104,5 @@ The following changes to date are:
 - Add hex color swatches to 256-color reference guide
 - Fix: update color reference guide about GitHub color swatch rendering
 - Add per-material HI_* macros for 256-color support
+- Add in-game Guidebook and document forcefight uses
 

@@ -45,7 +45,6 @@ with_x11 = yes
 #debug = yes
 .END
 
-
 CC	= gcc		# GCC
 
 .IF $(format) == a.out
@@ -82,9 +81,6 @@ WINX11OBJ = $(WINX11OBJ01) $(WINX11OBJ02) $(WINX11OBJ03) $(WINX11OBJ04) \
 WINX11VARDAT=x11tiles pet_mark.xbm rip.xpm
 X11ECHO        = $(CMD) @echo
 .END
-
-
-
 
 MAKEB	= dmake
 CMD	= cmd /C
@@ -373,7 +369,6 @@ GUIDEBOO = Guidebook	# HPFS
 PATCHLEV = patchlevel	# - " -
 DATABASE = data.base	# - " -
 
-
 #
 #	If you have LaTeX and want to create the NetHack Guidebook in TeX
 #	device-independent file format, comment out the upper line and
@@ -512,7 +507,7 @@ DLBOBJS = $(OBJ)\dlb_main.o $(OBJ)\dlb.o $(OBJ)\alloc.o $(OBJ)\panic.o
 #
 
 DATHELP = \
- help hh cmdhelp history opthelp wizhelp
+ help hh cmdhelp history opthelp wizhelp Guidebook
 
 SPEC_LEVS = \
  asmodeus.lev baalz.lev    bigrm-1.lev  hellfill.lev \
@@ -555,7 +550,7 @@ VOBJ011 = $(OBJ)\allmain.o
 VOBJ012 = $(OBJ)\alloc.o
 VOBJ013 = $(OBJ)\apply.o
 VOBJ014 = $(OBJ)\artifact.o
-VOBJ021 = $(OBJ)\attrib.o 
+VOBJ021 = $(OBJ)\attrib.o
 VOBJ022 = $(OBJ)\ball.o
 VOBJ023 = $(OBJ)\bones.o
 VOBJ024 = $(OBJ)\botl.o
@@ -896,8 +891,6 @@ $(TEMP)\$(GAME).r : $(HOBJ) $(TEMP)\$(GAMEDEF)
 	$(X11ECHO) $(WINX11OBJ10) >> $@
 	$(X11ECHO) $(WINX11OBJ11) >> $@
 .END
-
-
 
 $(TEMP)\$(GAME).rsp : $(HOBJ) $(TEMP)\$(GAMEDEF)
 	$(ECHO) $(SYSOBJ) $(VOBJ01) +> $@
@@ -1380,7 +1373,6 @@ $(GAMEDIR)\soko1-1.lev : $(DAT)\sokoban.des $(TEMP)\lev_comp.exe
 	$(TEMP)\lev_comp $(DAT)\sokoban.des
 	$(CP) soko?-?.lev $(GAMEDIR)
 	$(RM) soko?-?.lev
-
 
 #	Quest dungeons
 

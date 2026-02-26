@@ -1108,7 +1108,7 @@ $(DAT)\porthelp: $(MSWSYS)\porthelp
 
 nhdat$(NHV):	$(U)dlb_main.exe $(DAT)\data $(DAT)\oracles $(OPTIONS_FILE) \
 	$(DAT)\quest.dat $(DAT)\vaults.dat $(DAT)\rumors $(DAT)\help $(DAT)\hh $(DAT)\cmdhelp \
-	$(DAT)\keyhelp $(DAT)\history $(DAT)\opthelp $(DAT)\wizhelp $(DAT)\dungeon $(DAT)\porthelp \
+	$(DAT)\keyhelp $(DAT)\history $(DAT)\opthelp $(DAT)\wizhelp $(DAT)\Guidebook $(DAT)\dungeon $(DAT)\porthelp \
 	$(DAT)\license $(DAT)\engrave $(DAT)\epitaph $(DAT)\bogusmon $(DAT)\tribute $(O)sp_lev.tag
 	cd $(DAT)
 	echo data >dlb.lst
@@ -1131,6 +1131,7 @@ nhdat$(NHV):	$(U)dlb_main.exe $(DAT)\data $(DAT)\oracles $(OPTIONS_FILE) \
 	echo history >>dlb.lst
 	echo opthelp >>dlb.lst
 	echo wizhelp >>dlb.lst
+	echo Guidebook >>dlb.lst
 	echo dungeon >>dlb.lst
 	echo license >>dlb.lst
 	for %%N in (*.lev) do echo %%N >>dlb.lst

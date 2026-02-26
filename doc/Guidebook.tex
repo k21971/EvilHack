@@ -319,8 +319,6 @@ The way the screen looks for you depends on your platform.
                 |....|    |.d......|
                 ------    -------|--
 
-
-
         Player the Rambler    St:12 Dx:7 Co:18 In:11 Wi:9 Ch:15 Neutral
         Dlvl:1 $:0 HP:9(12) Pw:3(3) AC:10 Exp:1/19 T:257 Weak
 \end{verbatim}
@@ -2060,6 +2058,17 @@ if the monster has moved, you will attack empty air.  If you guess
 that the monster has moved and you don't wish to fight, you can use the `m'
 command to move without fighting; likewise, if you don't remember a monster
 but want to try fighting anyway, you can use the `F' command.
+
+%.pg
+
+The `F' prefix also has other uses when interacting with
+dungeon features and terrain.
+Additionally, `F' suppresses automatic bonus attacks:
+Monks with Master or higher skill in martial arts will not perform
+random kick attacks, and characters wielding a shield at Basic or
+higher skill will not attempt shield bashes.
+This is useful against monsters with passive attacks that can
+damage or destroy your boots or shield.
 
 %.hn 2
 \subsection*{Your pet}
@@ -4687,7 +4696,6 @@ Default is~`{\tt 5}'.
 Prefix key to rush towards a direction. Default is~`{\tt g}'.
 \elist
 
-
 %.hn 2
 \subsection*{Configuring Message Types}
 
@@ -5463,12 +5471,12 @@ unique people for the score file
 %.lp
 \item[\ib{ACCESSIBILITY}]
 0 or 1 to disable or enable, respectively, the ability for players
-to set S\verb+_+pet\verb+_+override and S\verb+_+hero\verb+_+override 
+to set S\verb+_+pet\verb+_+override and S\verb+_+hero\verb+_+override
 symbols in their configuration file.
 %.lp
 \item[\ib{PORTABLE\verb+_+DEVICE\verb+_+PATHS}]
 0 or 1 Windows OS only, the game will look for all of its external
-files, and write to all of its output files in one place 
+files, and write to all of its output files in one place
 rather than at the standard locations.
 %.lp
 \item[\ib{DUMPLOGFILE}]

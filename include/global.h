@@ -41,6 +41,7 @@
 #define HISTORY "history"       /* file giving nethack's history */
 #define LICENSE "license"       /* file with license information */
 #define OPTIONFILE "opthelp"    /* file explaining runtime options */
+#define GUIDEBOOK "Guidebook"   /* the EvilHack Guidebook */
 #define OPTIONS_USED "options"  /* compile-time options, for #version */
 #define SYMBOLS "symbols"       /* replacement symbol sets */
 #define EPITAPHFILE "epitaph"   /* random epitaphs on graves */

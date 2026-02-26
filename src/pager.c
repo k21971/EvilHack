@@ -3760,6 +3760,12 @@ dispfile_debughelp(VOID_ARGS)
 }
 
 STATIC_OVL void
+dispfile_guidebook(VOID_ARGS)
+{
+    display_file(GUIDEBOOK, TRUE);
+}
+
+STATIC_OVL void
 hmenu_doextversion(VOID_ARGS)
 {
     (void) doextversion();
@@ -3814,6 +3820,7 @@ static struct {
     { dokeylist, "Full list of keyboard commands" },
     { hmenu_doextlist, "List of extended commands." },
     { domenucontrols, "List menu control keys" },
+    { dispfile_guidebook, "The EvilHack Guidebook." },
     { dispfile_license, "The EvilHack license." },
     { docontact, "Support information." },
 #ifdef PORT_HELP

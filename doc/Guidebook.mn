@@ -44,11 +44,11 @@
 .ds h0 EvilHack Guidebook
 .ds h1 \" empty
 .ds h2 %
-.ds vr EvilHack 0.9.2
+.ds vr EvilHack 0.9.3
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 December 29, 2025
+.ds f2 February 26, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -297,8 +297,6 @@ The bat bites!
     |....-#   |...B....+
     |....|    |.d......|
     ------    -------|--
-
-
 
 Player the Rambler   St:12 Dx:7 Co:18 In:11 Wi:9 Ch:15 Neutral
 Dlvl:1 $:993 HP:9(12) Pw:3(3) AC:10 Exp:1/19 T:752 Hungry Conf
@@ -1921,6 +1919,15 @@ If you guess that the monster has moved and you don't wish to fight,
 you can use the \(oqm\(cq command to move without fighting;
 likewise, if you don't remember a monster but want to try fighting anyway,
 you can use the \(oqF\(cq command.
+.pg
+The \(oqF\(cq prefix also has other uses when interacting with
+dungeon features and terrain.
+Additionally, \(oqF\(cq suppresses automatic bonus attacks:
+Monks with Master or higher skill in martial arts will not perform
+random kick attacks, and characters wielding a shield at Basic or
+higher skill will not attempt shield bashes.
+This is useful against monsters with passive attacks that can
+damage or destroy your boots or shield.
 .hn 2
 Your pet
 .pg
@@ -4997,7 +5004,7 @@ to identify unique people for the score file.
 MAX_STATUENAME_RANK\ =\ Maximum number of score file entries to use for
 random statue names (default is 10).
 .lp
-ACCESSIBILITY\ =\ 0 or 1 to disable or enable, respectively, the ability for players 
+ACCESSIBILITY\ =\ 0 or 1 to disable or enable, respectively, the ability for players
 to set S_pet_override and S_hero_override symbols in their configuration file.
 .lp
 PORTABLE_DEVICE_PATHS\ =\ 0 or 1 Windows OS only, the game will look

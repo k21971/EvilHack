@@ -27,6 +27,7 @@ _$*
 core
 evilhack
 vaults.dat
+dat/Guidebook
 *.diff
 *.log
 input.txt
