@@ -1106,6 +1106,9 @@ $(O)dlb_main.o: $(UTIL)\dlb_main.c $(INCL)\config.h $(INCL)\dlb.h
 $(DAT)\porthelp: $(MSWSYS)\porthelp
 	@copy $(MSWSYS)\porthelp $@ >nul
 
+$(DAT)\Guidebook: $(DOC)\Guidebook.txt
+	@copy $(DOC)\Guidebook.txt $@ >nul
+
 nhdat$(NHV):	$(U)dlb_main.exe $(DAT)\data $(DAT)\oracles $(OPTIONS_FILE) \
 	$(DAT)\quest.dat $(DAT)\vaults.dat $(DAT)\rumors $(DAT)\help $(DAT)\hh $(DAT)\cmdhelp \
 	$(DAT)\keyhelp $(DAT)\history $(DAT)\opthelp $(DAT)\wizhelp $(DAT)\Guidebook $(DAT)\dungeon $(DAT)\porthelp \

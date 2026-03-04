@@ -107,7 +107,7 @@ all:	$(GAME) recover Guidebook $(VARDAT) dungeon spec_levs check-dlb
 # to generate valid output
 
 Guidebook:
-	( cd doc ; $(MAKE) Guidebook Guidebook.dat )
+	( cd doc ; $(MAKE) Guidebook Guidebook.dat Guidebook.txt )
 	cp doc/Guidebook.dat dat/Guidebook
 
 manpages:
