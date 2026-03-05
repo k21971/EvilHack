@@ -5106,4 +5106,5 @@ The following changes to date are:
 - Add per-material HI_* macros for 256-color support
 - Add in-game Guidebook and document forcefight uses
 - Fix: Windows build failure due to missing dat\Guidebook
+- Revise HI_* material colors and update documentation
 

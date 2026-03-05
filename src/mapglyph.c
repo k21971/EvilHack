@@ -588,18 +588,18 @@ int mat;
     /* Extended 256-color alternatives. NO_COLOR = use base-16 above */
     static const int materialclr_ext[] = {
         NO_COLOR,       /*  0: unused       */
-        HI_LIQUID,      /*  1: LIQUID       */
+        NO_COLOR,       /*  1: LIQUID       */
         HI_WAX,         /*  2: WAX          */
         HI_VEGGY,       /*  3: VEGGY        */
         HI_FLESH,       /*  4: FLESH        */
         NO_COLOR,       /*  5: PAPER        */
         HI_CLOTH,       /*  6: CLOTH        */
         HI_SPIDER_SILK, /*  7: SPIDER_SILK  */
-        HI_LEATHER,     /*  8: LEATHER      */
+        NO_COLOR,       /*  8: LEATHER      */
         HI_WOOD,        /*  9: WOOD         */
         HI_BONE,        /* 10: BONE         */
         HI_DRAGON_HIDE, /* 11: DRAGON_HIDE  */
-        HI_IRON,        /* 12: IRON         */
+        NO_COLOR,       /* 12: IRON         */
         HI_STEEL,       /* 13: STEEL        */
         HI_COPPER,      /* 14: COPPER       */
         HI_BRONZE,      /* 15: BRONZE       */

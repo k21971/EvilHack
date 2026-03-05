@@ -15,24 +15,24 @@ fall back to the closest base-16 match.
 
 These are the original named colors. Use either the name or number.
 
-| # | Hex | Name | Aliases |
-|--:|------|------|--------|
-| 0 | `#555555` | black |  |
-| 1 | `#AA0000` | red |  |
-| 2 | `#00AA00` | green |  |
-| 3 | `#AA5500` | brown |  |
-| 4 | `#0000AA` | blue |  |
-| 5 | `#AA00AA` | magenta | purple |
-| 6 | `#00AAAA` | cyan |  |
-| 7 | `#AAAAAA` | gray | grey |
-| 8 | `#555555` | no color | transparent (also NO_COLOR) |
-| 9 | `#FF5555` | orange | light red, bright red |
-| 10 | `#55FF55` | light green | bright green |
-| 11 | `#FFFF55` | yellow |  |
-| 12 | `#5555FF` | light blue | bright blue |
-| 13 | `#FF55FF` | light magenta | light purple, bright magenta |
-| 14 | `#55FFFF` | light cyan | bright cyan |
-| 15 | `#FCFCFC` | white |  |
+| # | Hex | R | G | B | Name | Aliases |
+|--:|------|--:|--:|--:|------|--------|
+| 0 | `#555555` | 85 | 85 | 85 | black |  |
+| 1 | `#AA0000` | 170 | 0 | 0 | red |  |
+| 2 | `#00AA00` | 0 | 170 | 0 | green |  |
+| 3 | `#AA5500` | 170 | 85 | 0 | brown |  |
+| 4 | `#0000AA` | 0 | 0 | 170 | blue |  |
+| 5 | `#AA00AA` | 170 | 0 | 170 | magenta | purple |
+| 6 | `#00AAAA` | 0 | 170 | 170 | cyan |  |
+| 7 | `#AAAAAA` | 170 | 170 | 170 | gray | grey |
+| 8 | `#555555` | 85 | 85 | 85 | no color | transparent (also NO_COLOR) |
+| 9 | `#FF5555` | 255 | 85 | 85 | orange | light red, bright red |
+| 10 | `#55FF55` | 85 | 255 | 85 | light green | bright green |
+| 11 | `#FFFF55` | 255 | 255 | 85 | yellow |  |
+| 12 | `#5555FF` | 85 | 85 | 255 | light blue | bright blue |
+| 13 | `#FF55FF` | 255 | 85 | 255 | light magenta | light purple, bright magenta |
+| 14 | `#55FFFF` | 85 | 255 | 255 | light cyan | bright cyan |
+| 15 | `#FCFCFC` | 252 | 252 | 252 | white |  |
 
 ---
 
@@ -302,32 +302,32 @@ where R/G/B_level are 0-5, mapping to intensities above.
 
 24 shades from near-black to near-white, evenly spaced.
 
-| # | Hex | Intensity | Description |
-|--:|------|----------:|-------------|
-| 232 | `#080808` | 8 | near black |
-| 233 | `#121212` | 18 | very dark gray |
-| 234 | `#1C1C1C` | 28 | very dark gray |
-| 235 | `#262626` | 38 | very dark gray |
-| 236 | `#303030` | 48 | dark gray |
-| 237 | `#3A3A3A` | 58 | dark gray |
-| 238 | `#444444` | 68 | dark gray |
-| 239 | `#4E4E4E` | 78 | dim gray |
-| 240 | `#585858` | 88 | dim gray |
-| 241 | `#626262` | 98 | dim gray |
-| 242 | `#6C6C6C` | 108 | medium gray |
-| 243 | `#767676` | 118 | medium gray |
-| 244 | `#808080` | 128 | gray |
-| 245 | `#8A8A8A` | 138 | gray |
-| 246 | `#949494` | 148 | dark silver |
-| 247 | `#9E9E9E` | 158 | dark silver |
-| 248 | `#A8A8A8` | 168 | silver |
-| 249 | `#B2B2B2` | 178 | silver |
-| 250 | `#BCBCBC` | 188 | light gray |
-| 251 | `#C6C6C6` | 198 | light gray |
-| 252 | `#D0D0D0` | 208 | very light gray |
-| 253 | `#DADADA` | 218 | very light gray |
-| 254 | `#E4E4E4` | 228 | near white |
-| 255 | `#EEEEEE` | 238 | near white |
+| # | Hex | R | G | B | Description |
+|--:|------|--:|--:|--:|-------------|
+| 232 | `#080808` | 8 | 8 | 8 | near black |
+| 233 | `#121212` | 18 | 18 | 18 | very dark gray |
+| 234 | `#1C1C1C` | 28 | 28 | 28 | very dark gray |
+| 235 | `#262626` | 38 | 38 | 38 | very dark gray |
+| 236 | `#303030` | 48 | 48 | 48 | dark gray |
+| 237 | `#3A3A3A` | 58 | 58 | 58 | dark gray |
+| 238 | `#444444` | 68 | 68 | 68 | dark gray |
+| 239 | `#4E4E4E` | 78 | 78 | 78 | dim gray |
+| 240 | `#585858` | 88 | 88 | 88 | dim gray |
+| 241 | `#626262` | 98 | 98 | 98 | dim gray |
+| 242 | `#6C6C6C` | 108 | 108 | 108 | medium gray |
+| 243 | `#767676` | 118 | 118 | 118 | medium gray |
+| 244 | `#808080` | 128 | 128 | 128 | gray |
+| 245 | `#8A8A8A` | 138 | 138 | 138 | gray |
+| 246 | `#949494` | 148 | 148 | 148 | dark silver |
+| 247 | `#9E9E9E` | 158 | 158 | 158 | dark silver |
+| 248 | `#A8A8A8` | 168 | 168 | 168 | silver |
+| 249 | `#B2B2B2` | 178 | 178 | 178 | silver |
+| 250 | `#BCBCBC` | 188 | 188 | 188 | light gray |
+| 251 | `#C6C6C6` | 198 | 198 | 198 | light gray |
+| 252 | `#D0D0D0` | 208 | 208 | 208 | very light gray |
+| 253 | `#DADADA` | 218 | 218 | 218 | very light gray |
+| 254 | `#E4E4E4` | 228 | 228 | 228 | near white |
+| 255 | `#EEEEEE` | 238 | 238 | 238 | near white |
 
 ---
 
