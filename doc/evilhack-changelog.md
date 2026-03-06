@@ -5107,4 +5107,5 @@ The following changes to date are:
 - Add in-game Guidebook and document forcefight uses
 - Fix: Windows build failure due to missing dat\Guidebook
 - Revise HI_* material colors and update documentation
+- Finish material color changes
 
