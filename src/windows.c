@@ -2324,7 +2324,8 @@ int color;
        CLR_MAX entries); they render via direct ANSI escapes or extended
        curses pairs, so just check that color is enabled. */
     if (IS_EXT_COLOR(color)) {
-        return (iflags.use_color && windowprocs.name
+        return (iflags.use_color && iflags.use_256color
+                && windowprocs.name
                 && (windowprocs.wincap & WC_COLOR));
     }
     return (iflags.use_color && windowprocs.name

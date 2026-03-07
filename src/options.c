@@ -260,6 +260,7 @@ static struct Bool_Opt {
     { "travel_debug", &iflags.trav_debug, FALSE, SET_IN_WIZGAME }, /*hack.c*/
 #endif
     { "underline_peacefuls", &iflags.wc2_underline_peacefuls, FALSE, SET_IN_GAME }, /*WC2*/
+    { "use_256color", &iflags.use_256color, TRUE, SET_IN_GAME },
     { "use_darkgray", &iflags.wc2_darkgray, TRUE, SET_IN_FILE }, /*WC2*/
 #ifdef WIN32
     { "use_inverse", &iflags.wc_inverse, TRUE, SET_IN_GAME }, /*WC*/

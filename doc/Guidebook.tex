@@ -45,7 +45,7 @@
 %.au
 \author{Original version - Eric S. Raymond\\
 (Edited and expanded for EvilHack by Keith Simpson and others)}
-\date{December 29, 2025}
+\date{February 26, 2026}
 
 \maketitle
 
@@ -340,9 +340,9 @@ below):
 
 %.lp
 \blist{}
-\item[\bb{Rank}]
-Your character's name and professional ranking (based on the
-experience level, see below).
+\item[\bb{Title}]
+Your character's name and professional ranking (based on role and
+{\it experience level}, see below).
 %.lp
 \item[\bb{Strength}]
 A measure of your character's strength; one of your six basic
@@ -411,6 +411,7 @@ amount available.
 A measure of how effectively your armor stops blows from unfriendly
 creatures.  The lower this number is, the more effective the armor; it
 is quite possible to have negative armor class.
+See the {\it Armor\/} subsection of {\it Objects\/} for more information.
 %.lp
 \item[\bb{Experience}]
 Your current experience level and experience points.  As you
@@ -2985,8 +2986,8 @@ On Windows, it is \mbox{``.evilhackrc''} in the folder
 \mbox{{``\%USERPROFILE\%\textbackslash EvilHack\textbackslash''}}. The
 file may not exist, but it is a normal ASCII text file and can be created
 with any text editor.
-After runing {\it EvilHack\/} for the first time, you should find a default
-template for ths configuration file named \mbox{``.evilhackrc.template''} in
+After running {\it EvilHack\/} for the first time, you should find a default
+template for the configuration file named \mbox{``.evilhackrc.template''} in
 \mbox{{``\%USERPROFILE\%\textbackslash EvilHack\textbackslash''}}.
 If you had not created the configuration file, {\it EvilHack\/} will create
 the configuration file for you using the default template file.
@@ -4284,6 +4285,12 @@ Specify the preferred height of each tile in a tile capable port.
 \item[\ib{tile\verb+_+width}]
 Specify the preferred width of each tile in a tile capable port
 %.lp
+\item[\ib{use\verb+_+256color}]
+Use extended 256-color palette for materials and terrain features
+on terminals that support it.
+Disable this if colors appear wrong on your terminal.
+Default is on.
+%.lp
 \item[\ib{use\verb+_+darkgray}]
 Use bold black instead of blue for black glyphs (TTY only).
 %.lp
@@ -5054,7 +5061,6 @@ symbol file are:
 %.lp
 \item[\ib{symset}]
 Set the name of the symbol set that you want to load.
-{\it symbols\/}.
 
 %.lp
 \item[\ib{roguesymset}]
@@ -5121,8 +5127,9 @@ Default                      & Symbol Name                & Description\\
 \$ & S\verb+_+coin                    &	(pile of coins)\\
 \# & S\verb+_+corr                    &	(corridor)\\
 \verb@-@ & S\verb+_+crwall                  &	(wall)\\
-\verb@-@ & S\verb+_+darkroom                &	(dark room)\\
+\# & S\verb+_+darkroom                &	(dark room)\\
 \verb@^@ & S\verb+_+dart\verb+_+trap              &	(dart trap)\\
+\# & S\verb+_+deadtree                &	(dead tree)\\
 \verb@&@ & S\verb+_+demon                   &	(major demon)\\
 \verb@*@ & S\verb+_+digbeam                 &	(dig beam)\\
 \verb@>@ & S\verb+_+dnladder                &	(ladder down)\\
@@ -5203,6 +5210,7 @@ Default                      & Symbol Name                & Description\\
 \verb@}@ & S\verb+_+pool                    &	(water)\\
 \verb@!@ & S\verb+_+potion                  &	(potion)\\
 \verb@P@ & S\verb+_+pudding                 &	(pudding or ooze)\\
+\verb@}@ & S\verb+_+puddle                  &	(shallow water)\\
 \verb@q@ & S\verb+_+quadruped               &	(quadruped)\\
 \verb@Q@ & S\verb+_+quantmech               &	(quantum mechanic)\\
 \verb@=@ & S\verb+_+ring                    &	(ring)\\
@@ -5213,7 +5221,9 @@ Default                      & Symbol Name                & Description\\
 \verb@/@ & S\verb+_+rslant                  &	(wall)\\
 \verb@^@ & S\verb+_+rust\verb+_+trap              &	(rust trap)\\
 \verb@R@ & S\verb+_+rustmonst               &	(rust monster or disenchanter)\\
+\verb@.@ & S\verb+_+sand                    &	(sand)\\
 \verb@?@ & S\verb+_+scroll                  &	(scroll)\\
+\verb@}@ & S\verb+_+sewage                  &	(sewage)\\
 \# & S\verb+_+sink                    &	(sink)\\
 \verb@z@ & S\verb+_+skeleton               &	(skeleton)\\
 \verb@^@ & S\verb+_+sleeping\verb+_+gas\verb+_+trap     &	(sleeping gas trap)\\
@@ -5275,7 +5285,6 @@ Default                      & Symbol Name                & Description\\
 \verb@X@ & S\verb+_+xorn                    &	(xorn)\\
 \verb@Y@ & S\verb+_+yeti                    &	(apelike creature)\\
 \verb@Z@ & S\verb+_+zombie                  &	(zombie)\\
-\verb@z@ & S\verb+_+zruty                   &	(zruty)\\
 \verb@ @ & S\verb+_+pet\verb+_+override     &	(any pet if ACCESSIBILITY=1 is set)\\
 \verb@ @ & S\verb+_+hero\verb+_+override    &	(hero if ACCESSIBILITY=1 is set)
 \end{longtable}%
@@ -5429,14 +5438,14 @@ The syntax is the same as WIZARDS.
 Limit the maximum number of games that can be running at the same time.
 %.lp
 \item[\ib{SUPPORT}]
-A string explainign how to get local support (no default value).
+A string explaining how to get local support (no default value).
 %.lp
 \item[\ib{RECOVER}]
 A string explaining how to recover a game on this system (no default value).
 %.lp
 \item[\ib{SEDUCE}]
-0 or 1 to disable or enable, respectively, the SEDUCE option (see the source)
-for details on this function.
+0 or 1 to disable or enable, respectively, the SEDUCE option.
+When disabled, incubi and succubi behave like nymphs.
 %.lp
 \item[\ib{SERVERSEED}]
 A number that is added into the game's deterministic hash functions. Intended
@@ -5448,7 +5457,9 @@ Setting this to 1 will make the EXPLORERS, WIZARDS, and SHELLERS check
 for the player name instead of the user's login name.
 %.lp
 \item[\ib{CHECK\verb+_+SAVE\verb+_+UID}]
-0 or 1 to disable or enable, respectively, the UID checking for savefiles.
+0 or 1 to disable or enable, respectively, the UID
+(used identification number) checking for save files (to verify that the
+user who is restoring is the same one who saved).
 \elist
 
 %.pg
@@ -5468,6 +5479,10 @@ Minimum number of points to get an entry in the score file.
 \item[\ib{PERS\verb+_+IS\verb+_+UID}]
 0 or 1 to use user names or numeric userids, respectively, to identify
 unique people for the score file
+%.lp
+\item[\ib{MAX\verb+_+STATUENAME\verb+_+RANK}]
+Maximum number of score file entries to use for
+random statue names (default is 10).
 %.lp
 \item[\ib{ACCESSIBILITY}]
 0 or 1 to disable or enable, respectively, the ability for players
@@ -5957,21 +5972,21 @@ some bug fixes.
 
 %.pg
 \medskip
+\nd The official {\it NetHack\/} web site is maintained by {\it Ken Lorber} at
+{\catcode`\#=11
+\special{html:<a href="https://www.nethack.org/">}}
+https:{\tt /}{\tt /}www.nethack.org{\tt /}.
+{\catcode`\#=11
+\special{html:</a>}}
+
+%.pg
+\medskip
 {\it EvilHack\/} (this variant) was initially based on NetHack 3.6.2, created by
 {\it Keith Simpson}. Development began on October 20, 2018, and was first
 released to the public in April 2019. The GitHub repository for EvilHack
 can be found at {\catcode`\#=11
 \special{html:<a href="https://github.com/k21971/EvilHack/">}}
 https:{\tt /}{\tt /}github.com{\tt /}k21971{\tt /}EvilHack{\tt /}.
-{\catcode`\#=11
-\special{html:</a>}}
-
-%.pg
-\medskip
-\nd The official {\it NetHack\/} web site is maintained by {\it Ken Lorber} at
-{\catcode`\#=11
-\special{html:<a href="https://www.nethack.org/">}}
-https:{\tt /}{\tt /}www.nethack.org{\tt /}.
 {\catcode`\#=11
 \special{html:</a>}}
 

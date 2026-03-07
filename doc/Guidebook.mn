@@ -330,11 +330,6 @@ becomes longer than the width of the screen, you might not see all of
 it.  Here are explanations of what the various status items mean
 (though your configuration may not have all the status items listed
 below):
-.lp "Rank  "
-Your character's name and professional ranking (based on the
-experience level, see below).
-.pg
-Here are explanations of what the various status items mean:
 .lp "Title   "
 Your character's name and professional ranking (based on role and
 \fIexperience level\fP, see below).
@@ -3913,6 +3908,11 @@ Specify the name of an alternative tile file to override the default.
 Specify the preferred height of each tile in a tile capable port.
 .lp tile_width
 Specify the preferred width of each tile in a tile capable port
+.lp use_256color
+Use extended 256\-color palette for materials and terrain features
+on terminals that support it.
+Disable this if colors appear wrong on your terminal.
+Default is on.
 .lp use_darkgray
 Use bold black instead of blue for black glyphs (TTY only).
 .lp use_inverse

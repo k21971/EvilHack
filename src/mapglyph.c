@@ -27,7 +27,129 @@ static const int explcolors[] = {
 };
 
 #define zap_color(n) color = iflags.use_color ? zapcolors[n] : NO_COLOR
-#define cmap_color(n) color = iflags.use_color ? defsyms[n].color : NO_COLOR
+
+/* Base-16 fallback colors for defsyms[] entries that use 256-color.
+   NO_COLOR means the defsyms color is already base-16. */
+static const int cmap_color16[] = {
+/* 0  stone    */ NO_COLOR,
+/* 1  vwall    */ NO_COLOR,
+/* 2  hwall    */ NO_COLOR,
+/* 3  tlcorn   */ NO_COLOR,
+/* 4  trcorn   */ NO_COLOR,
+/* 5  blcorn   */ NO_COLOR,
+/* 6  brcorn   */ NO_COLOR,
+/* 7  crwall   */ NO_COLOR,
+/* 8  tuwall   */ NO_COLOR,
+/* 9  tdwall   */ NO_COLOR,
+/*10  tlwall   */ NO_COLOR,
+/*11  trwall   */ NO_COLOR,
+/*12  ndoor    */ NO_COLOR,
+/*13  vodoor   */ CLR_BROWN,        /* HI_WOOD (94) */
+/*14  hodoor   */ CLR_BROWN,        /* HI_WOOD (94) */
+/*15  vcdoor   */ CLR_BROWN,        /* HI_WOOD (94) */
+/*16  hcdoor   */ CLR_BROWN,        /* HI_WOOD (94) */
+/*17  bars     */ NO_COLOR,         /* HI_METAL = CLR_CYAN */
+/*18  tree     */ CLR_GREEN,        /* 28 */
+/*19  deadtree */ NO_COLOR,
+/*20  room     */ NO_COLOR,
+/*21  darkroom */ NO_COLOR,
+/*22  corr     */ NO_COLOR,
+/*23  litcorr  */ NO_COLOR,
+/*24  upstair  */ NO_COLOR,
+/*25  dnstair  */ NO_COLOR,
+/*26  upladder */ NO_COLOR,
+/*27  dnladder */ NO_COLOR,
+/*28  altar    */ NO_COLOR,
+/*29  grave    */ NO_COLOR,
+/*30  throne   */ CLR_YELLOW,       /* HI_GOLD (220) */
+/*31  sink     */ NO_COLOR,
+/*32  forge    */ CLR_ORANGE,       /* 202 */
+/*33  mchest   */ NO_COLOR,
+/*34  fountain */ NO_COLOR,
+/*35  pool     */ CLR_BLUE,         /* 21 */
+/*36  ice      */ CLR_CYAN,         /* 159 */
+/*37  grass    */ CLR_BRIGHT_GREEN, /* 118 */
+/*38  sand     */ CLR_YELLOW,       /* 227 */
+/*39  lava     */ CLR_RED,          /* 88 */
+/*40  vodbridge*/ CLR_BROWN,        /* HI_WOOD (94) */
+/*41  hodbridge*/ CLR_BROWN,        /* HI_WOOD (94) */
+/*42  vcdbridge*/ CLR_BROWN,        /* HI_WOOD (94) */
+/*43  hcdbridge*/ CLR_BROWN,        /* HI_WOOD (94) */
+/*44  air      */ NO_COLOR,
+/*45  cloud    */ NO_COLOR,
+/*46  puddle   */ CLR_CYAN,         /* 51 */
+/*47  sewage   */ CLR_GREEN,        /* 100 */
+/*48  water    */ CLR_BLUE,         /* 21 */
+/* traps 49-67: all base-16, no fallback needed */
+/*49*/ NO_COLOR, /*50*/ NO_COLOR, /*51*/ NO_COLOR,
+/*52*/ NO_COLOR, /*53*/ NO_COLOR, /*54*/ NO_COLOR,
+/*55*/ NO_COLOR, /*56*/ NO_COLOR, /*57*/ NO_COLOR,
+/*58*/ NO_COLOR, /*59*/ NO_COLOR, /*60*/ NO_COLOR,
+/*61*/ NO_COLOR, /*62*/ NO_COLOR, /*63*/ NO_COLOR,
+/*64*/ NO_COLOR, /*65*/ NO_COLOR, /*66*/ NO_COLOR,
+/*67*/ NO_COLOR,
+/*68  web      */ CLR_GRAY,         /* HI_SPIDER_SILK (253) */
+};
+
+/* Base-16 fallback for extended 256-color HI_* material colors used
+   in objects[].oc_color.  When the terminal can't render 256-color
+   (use_256color off), this returns the original intended game color
+   instead of the generic map_color_256to16() RGB-distance result. */
+static int
+obj_color_fallback(color)
+int color;
+{
+    switch (color) {
+    case HI_WAX:
+        return CLR_WHITE;
+    case HI_VEGGY:
+        return CLR_GREEN;
+    case HI_FLESH:
+    case HI_CLOTH:
+    case HI_WOOD:
+        return CLR_BROWN;
+    case HI_SPIDER_SILK:
+    case HI_SILVER:
+    case HI_MITHRIL:
+    case HI_MINERAL:
+        return CLR_GRAY;
+    case HI_BONE:
+    case HI_PLATINUM:
+        return CLR_WHITE;
+    case HI_DRAGON_HIDE:
+    case HI_ADAMANTINE:
+        return CLR_BLACK;
+    case HI_STEEL:
+        return CLR_CYAN;
+    case HI_COPPER:
+    case HI_BRONZE:
+        return CLR_ORANGE;
+    case HI_GOLD:
+        return CLR_YELLOW;
+    case HI_PLASTIC:
+    case HI_GLASS:
+        return CLR_BRIGHT_CYAN;
+    case HI_GEMSTONE:
+        return CLR_RED;
+    default:
+        return map_color_256to16(color);
+    }
+}
+
+#define cmap_color(n)                                                  \
+    do {                                                               \
+        if (!iflags.use_color) {                                       \
+            color = NO_COLOR;                                          \
+        } else {                                                       \
+            int _cc = defsyms[n].color;                                \
+            if (IS_EXT_COLOR(_cc) && !has_color(_cc)                   \
+                    && (n) < SIZE(cmap_color16)                        \
+                    && cmap_color16[n] != NO_COLOR)                    \
+                color = cmap_color16[n];                               \
+            else                                                       \
+                color = _cc;                                           \
+        }                                                              \
+    } while (0)
 #define obj_color(n) color = iflags.use_color ? objects[n].oc_color : NO_COLOR
 #if 0
 /* used to allow racial glyphs to retain the color of their base type,
@@ -296,7 +418,11 @@ unsigned mgflags;
             color = material_color(otmp->material);
         } else
 #endif
+        {
             obj_color(offset);
+            if (IS_EXT_COLOR(color) && !has_color(color))
+                color = obj_color_fallback(color);
+        }
         if (offset != BOULDER && is_objpile(x,y))
             special |= MG_OBJPILE;
         if (On_stairs(x,y))
