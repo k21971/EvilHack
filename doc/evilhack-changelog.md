@@ -5108,4 +5108,5 @@ The following changes to date are:
 - Fix: Windows build failure due to missing dat\Guidebook
 - Revise HI_* material colors and update documentation
 - Finish material color changes
+- Extend 256-color support to terrain features
 

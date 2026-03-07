@@ -156,12 +156,12 @@ const struct symdef defsyms[MAXPCHARS] = {
 /*10*/ { '|', "wall", C(CLR_GRAY) },                   /* tlwall */
        { '|', "wall", C(CLR_GRAY) },                   /* trwall */
        { '.', "doorway", C(CLR_GRAY) },                /* ndoor */
-       { '-', "open door", C(CLR_BROWN) },             /* vodoor */
-       { '|', "open door", C(CLR_BROWN) },             /* hodoor */
-       { '+', "closed door", C(CLR_BROWN) },           /* vcdoor */
-       { '+', "closed door", C(CLR_BROWN) },           /* hcdoor */
+       { '-', "open door", C(HI_WOOD) },               /* vodoor */
+       { '|', "open door", C(HI_WOOD) },               /* hodoor */
+       { '+', "closed door", C(HI_WOOD) },             /* vcdoor */
+       { '+', "closed door", C(HI_WOOD) },             /* hcdoor */
        { '#', "iron bars", C(HI_METAL) },              /* bars */
-       { '#', "tree", C(CLR_GREEN) },                  /* tree */
+       { '#', "tree", C(28) },                         /* tree */
        { '#', "dead tree", C(CLR_BLACK) },             /* dead tree */
 /*20*/ { '.', "floor of a room", C(CLR_GRAY) },        /* room */
        { '.', "dark part of a room", C(CLR_BLACK) },   /* dark room */
@@ -175,23 +175,23 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '|', "grave", C(CLR_WHITE) },                 /* grave */
 /*30*/ { '\\', "opulent throne", C(HI_GOLD) },         /* throne */
        { '{', "sink", C(CLR_WHITE) },                  /* sink */
-       { '{', "forge", C(CLR_ORANGE) },                /* forge */
+       { '{', "forge", C(202) },                       /* forge */
        { '(', "magic chest", C(CLR_BRIGHT_MAGENTA) },  /* magic chest */
        { '{', "fountain", C(CLR_BRIGHT_BLUE) },        /* fountain */
-       { '}', "water", C(CLR_BLUE) },                  /* pool */
-       { '.', "ice", C(CLR_CYAN) },                    /* ice */
-       { '.', "grass", C(CLR_BRIGHT_GREEN) },          /* grass */
-       { '.', "sand", C(CLR_YELLOW) },                 /* sand */
-       { '}', "molten lava", C(CLR_RED) },             /* lava */
-/*40*/ { '.', "lowered drawbridge", C(CLR_BROWN) },    /* vodbridge */
-       { '.', "lowered drawbridge", C(CLR_BROWN) },    /* hodbridge */
-       { '#', "raised drawbridge", C(CLR_BROWN) },     /* vcdbridge */
-       { '#', "raised drawbridge", C(CLR_BROWN) },     /* hcdbridge */
+       { '}', "water", C(21) },                        /* pool */
+       { '.', "ice", C(159) },                         /* ice */
+       { '.', "grass", C(118) },                       /* grass */
+       { '.', "sand", C(227) },                        /* sand */
+       { '}', "molten lava", C(88) },                  /* lava */
+/*40*/ { '.', "lowered drawbridge", C(HI_WOOD) },      /* vodbridge */
+       { '.', "lowered drawbridge", C(HI_WOOD) },      /* hodbridge */
+       { '#', "raised drawbridge", C(HI_WOOD) },       /* vcdbridge */
+       { '#', "raised drawbridge", C(HI_WOOD) },       /* hcdbridge */
        { ' ', "air", C(CLR_CYAN) },                    /* open air */
        { '#', "cloud", C(CLR_GRAY) },                  /* [part of] a cloud */
-       { '}', "shallow water", C(CLR_CYAN) },          /* puddle */
-       { '}', "sewage", C(CLR_GREEN) },                /* sewage */
-       { '}', "water", C(CLR_BLUE) },                  /* under water */
+       { '}', "shallow water", C(51) },                /* puddle */
+       { '}', "sewage", C(100) },                      /* sewage */
+       { '}', "water", C(21) },                        /* under water */
        { '^', "arrow trap", C(HI_METAL) },             /* trap */
 /*50*/ { '^', "bolt trap", C(HI_METAL) },              /* trap */
        { '^', "dart trap", C(HI_METAL) },              /* trap */
@@ -211,7 +211,7 @@ const struct symdef defsyms[MAXPCHARS] = {
        { '^', "teleportation trap", C(CLR_MAGENTA) },  /* trap */
        { '^', "level teleporter", C(CLR_MAGENTA) },    /* trap */
        { '^', "magic portal", C(CLR_BRIGHT_MAGENTA) }, /* trap */
-       { '"', "web", C(CLR_GRAY) },                    /* web */
+       { '"', "web", C(HI_SPIDER_SILK) },              /* web */
        { '^', "statue trap", C(CLR_GRAY) },            /* trap */
 /*70*/ { '^', "magic trap", C(HI_ZAP) },               /* trap */
        { '^', "anti-magic field", C(HI_ZAP) },         /* trap */

@@ -67,7 +67,7 @@
 #define HI_MITHRIL     110 /* light steel blue */
 #define HI_ADAMANTINE  236 /* dark gray */
 #define HI_PLASTIC     156 /* pale green */
-#define HI_GLASS       159 /* pale cyan */
+#define HI_GLASS       195 /* azure */
 #define HI_GEMSTONE    196 /* bright red */
 #define HI_MINERAL     244 /* gray */
 

@@ -168,7 +168,7 @@ unsigned mgflags;
             else if (In_hell(&u.uz))
                 color = has_color(52) ? 52 : CLR_RED; /* dark maroon */
             else if (In_mines(&u.uz)) /* no in_rooms check */
-                color = has_color(94) ? 94 : CLR_BROWN; /* goldenrod */
+                color = CLR_BROWN;
             else if (Is_astralevel(&u.uz))
                 color = CLR_WHITE;
             else if (getroomtype(x, y) == DELPHI)
@@ -205,23 +205,6 @@ unsigned mgflags;
             else
                 cmap_color(offset);
 
-        /* Extended 256-color terrain features */
-        } else if (iflags.use_color
-                   && (offset == S_pool || offset == S_water)) {
-            if (has_color(27))
-                color = 27;  /* deep blue */
-            else
-                cmap_color(offset);
-        } else if (iflags.use_color && offset == S_ice) {
-            if (has_color(159))
-                color = 159; /* pale cyan */
-            else
-                cmap_color(offset);
-        } else if (iflags.use_color && offset == S_lava) {
-            if (has_color(202))
-                color = 202; /* vivid orange-red */
-            else
-                cmap_color(offset);
 #endif
         /* try to provide a visible difference between water and lava
            if they use the same symbol and color is disabled */
