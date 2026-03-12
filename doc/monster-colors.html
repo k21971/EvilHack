@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EvilHack Monster Colors</title>
+<style>
+  body {
+    background: #000000;
+    color: #cccccc;
+    font-family: "Courier New", Consolas, monospace;
+    padding: 2em;
+    margin: 0;
+  }
+  h1, h2 {
+    color: #ffffff;
+    font-weight: normal;
+  }
+  h1 { font-size: 1.4em; }
+  h2 {
+    font-size: 1.1em;
+    margin-top: 2em;
+    border-bottom: 1px solid #444;
+    padding-bottom: 0.3em;
+  }
+  .summary {
+    color: #888888;
+    font-size: 0.85em;
+    margin-bottom: 2em;
+  }
+  .color-group {
+    margin-bottom: 2em;
+  }
+  .group-header {
+    font-size: 1.05em;
+    color: #ffffff;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #333;
+  }
+  .group-header .swatch {
+    font-size: 1.2em;
+    margin-right: 0.5em;
+  }
+  .group-header .count {
+    color: #666666;
+    font-size: 0.85em;
+    margin-left: 0.5em;
+  }
+  .group-header .hexval {
+    color: #555555;
+    font-size: 0.8em;
+    margin-left: 0.5em;
+  }
+  .monster-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+  .monster {
+    width: 280px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+  .monster .sym {
+    display: inline-block;
+    width: 1.5em;
+    text-align: center;
+    font-weight: bold;
+  }
+  .monster .name {
+    color: #cccccc;
+  }
+  /* Table of contents */
+  .toc {
+    margin: 1em 0 2em 0;
+  }
+  .toc a {
+    color: #888888;
+    text-decoration: none;
+    margin-right: 1.5em;
+    white-space: nowrap;
+  }
+  .toc a:hover {
+    color: #ffffff;
+  }
+  .toc .swatch {
+    font-size: 1.1em;
+    margin-right: 0.3em;
+  }
+</style>
+</head>
+<body>
+
+<h1>EvilHack Monster Colors</h1>
+<p class="summary">566 monsters in 35 color groups. Monsters shown with their in-game symbol in their assigned color. Generated from src/monst.c.</p>
+<div class="toc">
+  <a href="#clr-black"><span class="swatch" style="color:#555555">&#x2B24;</span>black (44)</a>
+  <a href="#clr-red"><span class="swatch" style="color:#AA0000">&#x2B24;</span>red (51)</a>
+  <a href="#clr-green"><span class="swatch" style="color:#00AA00">&#x2B24;</span>green (35)</a>
+  <a href="#clr-brown"><span class="swatch" style="color:#AA5500">&#x2B24;</span>brown (61)</a>
+  <a href="#hi-leather"><span class="swatch" style="color:#AA5500">&#x2B24;</span>HI_LEATHER (brown) (1)</a>
+  <a href="#clr-blue"><span class="swatch" style="color:#0000AA">&#x2B24;</span>blue (22)</a>
+  <a href="#clr-cyan"><span class="swatch" style="color:#00AAAA">&#x2B24;</span>cyan (27)</a>
+  <a href="#hi-metal"><span class="swatch" style="color:#00AAAA">&#x2B24;</span>HI_METAL (cyan) (3)</a>
+  <a href="#clr-gray"><span class="swatch" style="color:#AAAAAA">&#x2B24;</span>gray (43)</a>
+  <a href="#clr-orange"><span class="swatch" style="color:#FF5555">&#x2B24;</span>orange (13)</a>
+  <a href="#clr-bright-green"><span class="swatch" style="color:#55FF55">&#x2B24;</span>bright green (12)</a>
+  <a href="#clr-yellow"><span class="swatch" style="color:#FFFF55">&#x2B24;</span>yellow (24)</a>
+  <a href="#clr-bright-blue"><span class="swatch" style="color:#5555FF">&#x2B24;</span>bright blue (6)</a>
+  <a href="#hi-zap"><span class="swatch" style="color:#5555FF">&#x2B24;</span>HI_ZAP (bright blue) (12)</a>
+  <a href="#clr-bright-magenta"><span class="swatch" style="color:#FF55FF">&#x2B24;</span>bright magenta (12)</a>
+  <a href="#clr-bright-cyan"><span class="swatch" style="color:#55FFFF">&#x2B24;</span>bright cyan (1)</a>
+  <a href="#dragon-silver"><span class="swatch" style="color:#55FFFF">&#x2B24;</span>DRAGON_SILVER (bright cyan) (10)</a>
+  <a href="#clr-white"><span class="swatch" style="color:#FCFCFC">&#x2B24;</span>white (21)</a>
+  <a href="#hi-domestic"><span class="swatch" style="color:#FCFCFC">&#x2B24;</span>HI_DOMESTIC (white) (34)</a>
+  <a href="#hi-paper"><span class="swatch" style="color:#FCFCFC">&#x2B24;</span>HI_PAPER (white) (1)</a>
+  <a href="#hi-water"><span class="swatch" style="color:#005FFF">&#x2B24;</span>HI_WATER (256: deep sky blue) (6)</a>
+  <a href="#hi-tree"><span class="swatch" style="color:#5FD700">&#x2B24;</span>HI_TREE (256: chartreuse) (1)</a>
+  <a href="#hi-purple"><span class="swatch" style="color:#8700FF">&#x2B24;</span>HI_PURPLE (256: purple) (17)</a>
+  <a href="#hi-wood"><span class="swatch" style="color:#875F00">&#x2B24;</span>HI_WOOD (256: dark goldenrod) (2)</a>
+  <a href="#hi-plant"><span class="swatch" style="color:#87AF00">&#x2B24;</span>HI_PLANT (256: pale green) (1)</a>
+  <a href="#hi-copper"><span class="swatch" style="color:#D75F00">&#x2B24;</span>HI_COPPER (256: rust) (3)</a>
+  <a href="#hi-flesh"><span class="swatch" style="color:#D75F5F">&#x2B24;</span>HI_FLESH (256: indian red) (1)</a>
+  <a href="#hi-cloth"><span class="swatch" style="color:#D7AF87">&#x2B24;</span>HI_CLOTH (256: medium burlywood) (6)</a>
+  <a href="#hi-glass"><span class="swatch" style="color:#D7FFFF">&#x2B24;</span>HI_GLASS (256: azure) (2)</a>
+  <a href="#hi-orange"><span class="swatch" style="color:#FF8700">&#x2B24;</span>HI_ORANGE (256: dark orange) (6)</a>
+  <a href="#hi-gold"><span class="swatch" style="color:#FFD700">&#x2B24;</span>HI_GOLD (256: gold) (8)</a>
+  <a href="#hi-mplayer"><span class="swatch" style="color:#FFFF87">&#x2B24;</span>HI_MPLAYER (256: khaki) (18)</a>
+  <a href="#hi-bone"><span class="swatch" style="color:#FFFFD7">&#x2B24;</span>HI_BONE (256: cornsilk) (2)</a>
+  <a href="#hi-mineral"><span class="swatch" style="color:#808080">&#x2B24;</span>HI_MINERAL (256: gray) (5)</a>
+  <a href="#hi-lord"><span class="swatch" style="color:#AA00AA">&#x2B24;</span>HI_LORD (magenta) (55)</a>
+</div>
+
+<div class="color-group" id="clr-black">
+  <div class="group-header"><span class="swatch" style="color:#555555">&#x2B24;</span>black<span class="hexval">#555555</span><span class="count">(44 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#555555">@</span> <span class="name">agent</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">D</span> <span class="name">baby black dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">D</span> <span class="name">baby shadow dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">D</span> <span class="name">black dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">F</span> <span class="name">black fungus</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">u</span> <span class="name">Black Horse</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">y</span> <span class="name">black light</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">N</span> <span class="name">black naga</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">N</span> <span class="name">black naga hatchling</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">P</span> <span class="name">black pudding</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">u</span> <span class="name">black unicorn</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">Y</span> <span class="name">carnivorous ape</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">d</span> <span class="name">Cerberus</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">h</span> <span class="name">Dark One</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">s</span> <span class="name">drider</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">@</span> <span class="name">drow</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">@</span> <span class="name">drow cleric</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">@</span> <span class="name">drow mage</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">M</span> <span class="name">drow mummy</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">@</span> <span class="name">drow raider</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">@</span> <span class="name">drow warrior</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">Z</span> <span class="name">drow zombie</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">H</span> <span class="name">elder minotaur</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">A</span> <span class="name">eldritch ki-rin</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">Z</span> <span class="name">ghoul</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">a</span> <span class="name">giant beetle</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">w</span> <span class="name">giant leech</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">h</span> <span class="name">hobbit pickpocket</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">r</span> <span class="name">honey badger</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">@</span> <span class="name">inmate</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">V</span> <span class="name">Kas</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">@</span> <span class="name">Master Po</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">q</span> <span class="name">mastodon</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">f</span> <span class="name">panther</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">@</span> <span class="name">Rat King</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">B</span> <span class="name">raven</span></div>
+    <div class="monster"><span class="sym" style="color:#555555"> </span> <span class="name">shade</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">D</span> <span class="name">shadow dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">#</span> <span class="name">tree blight</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">o</span> <span class="name">Uruk-hai</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">B</span> <span class="name">vampire bat</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">d</span> <span class="name">warg</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">&amp;</span> <span class="name">weredemon</span></div>
+    <div class="monster"><span class="sym" style="color:#555555">W</span> <span class="name">wraith</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-red">
+  <div class="group-header"><span class="swatch" style="color:#AA0000">&#x2B24;</span>red<span class="hexval">#AA0000</span><span class="count">(51 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#AA0000">@</span> <span class="name">Archbishop of Moloch</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">D</span> <span class="name">baby red dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">&amp;</span> <span class="name">balrog</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">&amp;</span> <span class="name">barbed devil</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">C</span> <span class="name">centaur</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">L</span> <span class="name">demilich</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">&amp;</span> <span class="name">demon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">h</span> <span class="name">dwarf</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">M</span> <span class="name">dwarf mummy</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">Z</span> <span class="name">dwarf zombie</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">&amp;</span> <span class="name">erinys</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">a</span> <span class="name">fire ant</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">e</span> <span class="name">flaming sphere</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">d</span> <span class="name">fox</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">H</span> <span class="name">giant</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">B</span> <span class="name">giant bat</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">M</span> <span class="name">gnome mummy</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">d</span> <span class="name">hell hound</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">d</span> <span class="name">hell hound pup</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">i</span> <span class="name">imp</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">D</span> <span class="name">Ixoth</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">;</span> <span class="name">kraken</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">k</span> <span class="name">large kobold</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">m</span> <span class="name">large mimic</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">g</span> <span class="name">lava gremlin</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">q</span> <span class="name">leocrotta</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">i</span> <span class="name">manes</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">&amp;</span> <span class="name">marilith</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">&amp;</span> <span class="name">Minion of Huhetotl</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">h</span> <span class="name">mountain dwarf</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">&amp;</span> <span class="name">nalfeshnee</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">&amp;</span> <span class="name">Nalzok</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">O</span> <span class="name">ogre noble</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">8</span> <span class="name">orb of fire</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">o</span> <span class="name">orc</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">;</span> <span class="name">piranha</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">&amp;</span> <span class="name">pit fiend</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">c</span> <span class="name">pyrolisk</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">D</span> <span class="name">red dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">u</span> <span class="name">Red Horse</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">F</span> <span class="name">red mold</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">N</span> <span class="name">red naga</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">N</span> <span class="name">red naga hatchling</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">s</span> <span class="name">scorpion</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">@</span> <span class="name">sergeant</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">{</span> <span class="name">twig blight</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">V</span> <span class="name">vampire sovereign</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">S</span> <span class="name">water moccasin</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">d</span> <span class="name">weredemon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">@</span> <span class="name">werejackal</span></div>
+    <div class="monster"><span class="sym" style="color:#AA0000">x</span> <span class="name">xan</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-green">
+  <div class="group-header"><span class="swatch" style="color:#00AA00">&#x2B24;</span>green<span class="hexval">#00AA00</span><span class="count">(35 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#00AA00">b</span> <span class="name">acid blob</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">D</span> <span class="name">baby green dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">u</span> <span class="name">cauchemar</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">A</span> <span class="name">couatl</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">C</span> <span class="name">forest centaur</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">S</span> <span class="name">garter snake</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">:</span> <span class="name">gecko</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">Q</span> <span class="name">genetic engineer</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">a</span> <span class="name">giant cockroach</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">o</span> <span class="name">goblin shaman</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">i</span> <span class="name">greater homunculus</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">D</span> <span class="name">green dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">F</span> <span class="name">green mold</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">P</span> <span class="name">green slime</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">g</span> <span class="name">gremlin</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">N</span> <span class="name">guardian naga</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">N</span> <span class="name">guardian naga hatchling</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">&amp;</span> <span class="name">hezrou</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">h</span> <span class="name">hobbit</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">M</span> <span class="name">hobbit mummy</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">Z</span> <span class="name">hobbit zombie</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">i</span> <span class="name">homunculus</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">l</span> <span class="name">leprechaun</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">i</span> <span class="name">lesser homunculus</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">u</span> <span class="name">lesser nightmare</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">@</span> <span class="name">lieutenant</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">:</span> <span class="name">lizard</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">@</span> <span class="name">Neferet the Green</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">u</span> <span class="name">nightmare</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">j</span> <span class="name">spotted jelly</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">t</span> <span class="name">trapper</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">&amp;</span> <span class="name">vrock</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">@</span> <span class="name">watch captain</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">n</span> <span class="name">wood nymph</span></div>
+    <div class="monster"><span class="sym" style="color:#00AA00">@</span> <span class="name">Woodland-elf</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-brown">
+  <div class="group-header"><span class="swatch" style="color:#AA5500">&#x2B24;</span>brown<span class="hexval">#AA5500</span><span class="count">(61 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#AA5500">D</span> <span class="name">ancient pseudodragon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">Y</span> <span class="name">ape</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">:</span> <span class="name">baby crocodile</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">w</span> <span class="name">baby long worm</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">B</span> <span class="name">bat</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">e</span> <span class="name">beholder</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">d</span> <span class="name">Bourbon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">F</span> <span class="name">brown mold</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">P</span> <span class="name">brown pudding</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">:</span> <span class="name">chameleon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">c</span> <span class="name">chickatrice</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">:</span> <span class="name">crocodile</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">v</span> <span class="name">dust vortex</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">E</span> <span class="name">earth elemental</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">D</span> <span class="name">elder pseudodragon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">r</span> <span class="name">enormous rat</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">H</span> <span class="name">ettin</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">g</span> <span class="name">gargoyle</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">a</span> <span class="name">giant ant</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">:</span> <span class="name">giant crocodile</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">r</span> <span class="name">giant rat</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">h</span> <span class="name">gnoll</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">G</span> <span class="name">gnome</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">Z</span> <span class="name">gnome zombie</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">o</span> <span class="name">hobgoblin</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">&amp;</span> <span class="name">horned devil</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">u</span> <span class="name">horse</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">:</span> <span class="name">iguana</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">d</span> <span class="name">jackal</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">f</span> <span class="name">jaguar</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">d</span> <span class="name">Koa</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">k</span> <span class="name">kobold</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">M</span> <span class="name">kobold mummy</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">Z</span> <span class="name">kobold zombie</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">i</span> <span class="name">lemure</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">L</span> <span class="name">lich</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">w</span> <span class="name">long worm</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">?</span> <span class="name">long worm tail</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">H</span> <span class="name">minotaur</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">n</span> <span class="name">mountain nymph</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">j</span> <span class="name">ochre jelly</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">O</span> <span class="name">ogre</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">Y</span> <span class="name">owlbear</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">d</span> <span class="name">Ozzy</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">C</span> <span class="name">plains centaur</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">u</span> <span class="name">pony</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">D</span> <span class="name">pseudodragon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">r</span> <span class="name">rabid rat</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">G</span> <span class="name">rock gnome</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">r</span> <span class="name">rodent of unusual size</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">q</span> <span class="name">rothe</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">R</span> <span class="name">rust monster</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">r</span> <span class="name">sewer rat</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">m</span> <span class="name">small mimic</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">S</span> <span class="name">snake</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">T</span> <span class="name">troll</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">U</span> <span class="name">umber hulk</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">u</span> <span class="name">warhorse</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">r</span> <span class="name">wererat</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">@</span> <span class="name">wererat</span></div>
+    <div class="monster"><span class="sym" style="color:#AA5500">X</span> <span class="name">xorn</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-leather">
+  <div class="group-header"><span class="swatch" style="color:#AA5500">&#x2B24;</span>HI_LEATHER (brown)<span class="hexval">#AA5500</span><span class="count">(1 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#AA5500">&#39;</span> <span class="name">leather golem</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-blue">
+  <div class="group-header"><span class="swatch" style="color:#0000AA">&#x2B24;</span>blue<span class="hexval">#0000AA</span><span class="count">(22 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#0000AA">D</span> <span class="name">baby blue dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">D</span> <span class="name">blue dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">j</span> <span class="name">blue jelly</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">@</span> <span class="name">captain</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">S</span> <span class="name">cobra</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">R</span> <span class="name">disenchanter</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">f</span> <span class="name">displacer beast</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">h</span> <span class="name">dwarf noble</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">M</span> <span class="name">ettin mummy</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">Z</span> <span class="name">ettin zombie</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">e</span> <span class="name">floating eye</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">G</span> <span class="name">gnome noble</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">@</span> <span class="name">guard</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">K</span> <span class="name">Keystone Kop</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">o</span> <span class="name">Mordor orc</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">i</span> <span class="name">quasit</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">a</span> <span class="name">soldier ant</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">v</span> <span class="name">steam vortex</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">H</span> <span class="name">storm giant</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">@</span> <span class="name">templar</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">V</span> <span class="name">vampire noble</span></div>
+    <div class="monster"><span class="sym" style="color:#0000AA">E</span> <span class="name">water elemental</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-cyan">
+  <div class="group-header"><span class="swatch" style="color:#00AAAA">&#x2B24;</span>cyan<span class="hexval">#00AAAA</span><span class="count">(27 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#00AAAA">E</span> <span class="name">air elemental</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">D</span> <span class="name">baby shimmering dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">b</span> <span class="name">gelatinous cube</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">;</span> <span class="name">giant eel</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">M</span> <span class="name">giant mummy</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">Z</span> <span class="name">giant zombie</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">o</span> <span class="name">goblin outrider</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">H</span> <span class="name">hill giant</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">v</span> <span class="name">ice vortex</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">s</span> <span class="name">jumping spider</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">K</span> <span class="name">Kop Lieutenant</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">z</span> <span class="name">large skeletal hound</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">f</span> <span class="name">lynx</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">C</span> <span class="name">mountain centaur</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">n</span> <span class="name">nymph</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">Q</span> <span class="name">quantum mechanic</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">a</span> <span class="name">queen ant</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">T</span> <span class="name">rock troll</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">:</span> <span class="name">sea tortle</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">D</span> <span class="name">shimmering dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">z</span> <span class="name">skeletal hound</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">z</span> <span class="name">small skeletal hound</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">i</span> <span class="name">tengu</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">:</span> <span class="name">tortle</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">d</span> <span class="name">winter wolf</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">d</span> <span class="name">winter wolf cub</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">q</span> <span class="name">wumpus</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-metal">
+  <div class="group-header"><span class="swatch" style="color:#00AAAA">&#x2B24;</span>HI_METAL (cyan)<span class="hexval">#00AAAA</span><span class="count">(3 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#00AAAA">&#39;</span> <span class="name">iron golem</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">p</span> <span class="name">iron piercer</span></div>
+    <div class="monster"><span class="sym" style="color:#00AAAA">@</span> <span class="name">prison guard</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-gray">
+  <div class="group-header"><span class="swatch" style="color:#AAAAAA">&#x2B24;</span>gray<span class="hexval">#AAAAAA</span><span class="count">(43 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#AAAAAA">h</span> <span class="name">alhoon</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">D</span> <span class="name">baby gray dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">q</span> <span class="name">baluchitherium</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">W</span> <span class="name">barrow wight</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">:</span> <span class="name">cave lizard</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">s</span> <span class="name">cave spider</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">@</span> <span class="name">champion</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">H</span> <span class="name">Cyclops</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">v</span> <span class="name">fog cloud</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">e</span> <span class="name">gas spore</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA"> </span> <span class="name">ghost</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">o</span> <span class="name">goblin</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">h</span> <span class="name">Gollum</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">D</span> <span class="name">gray dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">F</span> <span class="name">gray fungus</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">P</span> <span class="name">gray ooze</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">u</span> <span class="name">gray unicorn</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">@</span> <span class="name">Grey-elf</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">M</span> <span class="name">human mummy</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">&amp;</span> <span class="name">incubus</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">:</span> <span class="name">large cave lizard</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">a</span> <span class="name">locust</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">t</span> <span class="name">lurker above</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">@</span> <span class="name">miner</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">Y</span> <span class="name">monkey</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">q</span> <span class="name">mumak</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">M</span> <span class="name">orc mummy</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">Z</span> <span class="name">orc zombie</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">u</span> <span class="name">Pale Horse</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">d</span> <span class="name">rabid dog</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">&amp;</span> <span class="name">sandestin</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">Y</span> <span class="name">sasquatch</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">;</span> <span class="name">shark</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">z</span> <span class="name">skeletal horse</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">z</span> <span class="name">skeletal pony</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">z</span> <span class="name">skeletal warhorse</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">@</span> <span class="name">soldier</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">&amp;</span> <span class="name">succubus</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">q</span> <span class="name">titanothere</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">@</span> <span class="name">watchman</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">d</span> <span class="name">werewolf</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">d</span> <span class="name">wolf</span></div>
+    <div class="monster"><span class="sym" style="color:#AAAAAA">d</span> <span class="name">wolf cub</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-orange">
+  <div class="group-header"><span class="swatch" style="color:#FF5555">&#x2B24;</span>orange<span class="hexval">#FF5555</span><span class="count">(13 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#FF5555">Y</span> <span class="name">baby owlbear</span></div>
+    <div class="monster"><span class="sym" style="color:#FF5555">o</span> <span class="name">bugbear</span></div>
+    <div class="monster"><span class="sym" style="color:#FF5555">u</span> <span class="name">deer</span></div>
+    <div class="monster"><span class="sym" style="color:#FF5555">s</span> <span class="name">giant centipede</span></div>
+    <div class="monster"><span class="sym" style="color:#FF5555">a</span> <span class="name">giant mosquito</span></div>
+    <div class="monster"><span class="sym" style="color:#FF5555">h</span> <span class="name">gnoll hunter</span></div>
+    <div class="monster"><span class="sym" style="color:#FF5555">Z</span> <span class="name">gnoll witherling</span></div>
+    <div class="monster"><span class="sym" style="color:#FF5555">J</span> <span class="name">jabberwock</span></div>
+    <div class="monster"><span class="sym" style="color:#FF5555">&amp;</span> <span class="name">lava demon</span></div>
+    <div class="monster"><span class="sym" style="color:#FF5555">:</span> <span class="name">salamander</span></div>
+    <div class="monster"><span class="sym" style="color:#FF5555">n</span> <span class="name">satyr</span></div>
+    <div class="monster"><span class="sym" style="color:#FF5555">@</span> <span class="name">werewolf</span></div>
+    <div class="monster"><span class="sym" style="color:#FF5555">r</span> <span class="name">wolverine</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-bright-green">
+  <div class="group-header"><span class="swatch" style="color:#55FF55">&#x2B24;</span>bright green<span class="hexval">#55FF55</span><span class="count">(12 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#55FF55">v</span> <span class="name">antimatter vortex</span></div>
+    <div class="monster"><span class="sym" style="color:#55FF55">c</span> <span class="name">basilisk</span></div>
+    <div class="monster"><span class="sym" style="color:#55FF55">@</span> <span class="name">Elanee</span></div>
+    <div class="monster"><span class="sym" style="color:#55FF55">@</span> <span class="name">elf</span></div>
+    <div class="monster"><span class="sym" style="color:#55FF55">M</span> <span class="name">elf mummy</span></div>
+    <div class="monster"><span class="sym" style="color:#55FF55">Z</span> <span class="name">elf zombie</span></div>
+    <div class="monster"><span class="sym" style="color:#55FF55">S</span> <span class="name">giant anaconda</span></div>
+    <div class="monster"><span class="sym" style="color:#55FF55">:</span> <span class="name">giant turtle</span></div>
+    <div class="monster"><span class="sym" style="color:#55FF55">@</span> <span class="name">Green-elf</span></div>
+    <div class="monster"><span class="sym" style="color:#55FF55">&amp;</span> <span class="name">Juiblex</span></div>
+    <div class="monster"><span class="sym" style="color:#55FF55">F</span> <span class="name">lichen</span></div>
+    <div class="monster"><span class="sym" style="color:#55FF55">@</span> <span class="name">Medusa</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-yellow">
+  <div class="group-header"><span class="swatch" style="color:#FFFF55">&#x2B24;</span>yellow<span class="hexval">#FFFF55</span><span class="count">(24 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#FFFF55">e</span> <span class="name">acid sphere</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">A</span> <span class="name">Aleax</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">D</span> <span class="name">baby yellow dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">J</span> <span class="name">boojum</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">s</span> <span class="name">centipede</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">c</span> <span class="name">cockatrice</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">{</span> <span class="name">creeping mound</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">d</span> <span class="name">dingo</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">&amp;</span> <span class="name">djinni</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">E</span> <span class="name">fire elemental</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">H</span> <span class="name">fire giant</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">v</span> <span class="name">fire vortex</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">h</span> <span class="name">flind</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">q</span> <span class="name">grizzly bear</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">o</span> <span class="name">hill orc</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">@</span> <span class="name">Kathryn the Enchantress</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">a</span> <span class="name">killer bee</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">:</span> <span class="name">newt</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">f</span> <span class="name">saber-toothed tiger</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">&#39;</span> <span class="name">straw golem</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">D</span> <span class="name">yellow dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">y</span> <span class="name">yellow light</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">F</span> <span class="name">yellow mold</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF55">Y</span> <span class="name">zruty</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-bright-blue">
+  <div class="group-header"><span class="swatch" style="color:#5555FF">&#x2B24;</span>bright blue<span class="hexval">#5555FF</span><span class="count">(6 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#5555FF">;</span> <span class="name">electric eel</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">@</span> <span class="name">elven noble</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">@</span> <span class="name">elven wizard</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">&amp;</span> <span class="name">mail daemon</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">Z</span> <span class="name">revenant</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF"> </span> <span class="name">spectre</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-zap">
+  <div class="group-header"><span class="swatch" style="color:#5555FF">&#x2B24;</span>HI_ZAP (bright blue)<span class="hexval">#5555FF</span><span class="count">(12 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#5555FF">D</span> <span class="name">baby sea dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">v</span> <span class="name">energy vortex</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">h</span> <span class="name">gnoll cleric</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">G</span> <span class="name">gnomish wizard</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">H</span> <span class="name">hill giant shaman</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">k</span> <span class="name">kobold shaman</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">@</span> <span class="name">Oracle</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">o</span> <span class="name">orc shaman</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">D</span> <span class="name">sea dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">e</span> <span class="name">shocking sphere</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">:</span> <span class="name">tortle shaman</span></div>
+    <div class="monster"><span class="sym" style="color:#5555FF">V</span> <span class="name">vampire mage</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-bright-magenta">
+  <div class="group-header"><span class="swatch" style="color:#FF55FF">&#x2B24;</span>bright magenta<span class="hexval">#FF55FF</span><span class="count">(12 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#FF55FF">D</span> <span class="name">baby celestial dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#FF55FF">D</span> <span class="name">celestial dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#FF55FF">o</span> <span class="name">Goblin King</span></div>
+    <div class="monster"><span class="sym" style="color:#FF55FF">h</span> <span class="name">illithid</span></div>
+    <div class="monster"><span class="sym" style="color:#FF55FF">h</span> <span class="name">master mind flayer</span></div>
+    <div class="monster"><span class="sym" style="color:#FF55FF">h</span> <span class="name">mind flayer</span></div>
+    <div class="monster"><span class="sym" style="color:#FF55FF">;</span> <span class="name">mind flayer larva</span></div>
+    <div class="monster"><span class="sym" style="color:#FF55FF">A</span> <span class="name">Saint Michael</span></div>
+    <div class="monster"><span class="sym" style="color:#FF55FF">e</span> <span class="name">Tal&#x27;Gath</span></div>
+    <div class="monster"><span class="sym" style="color:#FF55FF">L</span> <span class="name">Vecna</span></div>
+    <div class="monster"><span class="sym" style="color:#FF55FF">V</span> <span class="name">Vlad the Impaler</span></div>
+    <div class="monster"><span class="sym" style="color:#FF55FF">@</span> <span class="name">Wizard of Yendor</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-bright-cyan">
+  <div class="group-header"><span class="swatch" style="color:#55FFFF">&#x2B24;</span>bright cyan<span class="hexval">#55FFFF</span><span class="count">(1 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#55FFFF">&#39;</span> <span class="name">snow golem</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="dragon-silver">
+  <div class="group-header"><span class="swatch" style="color:#55FFFF">&#x2B24;</span>DRAGON_SILVER (bright cyan)<span class="hexval">#55FFFF</span><span class="count">(10 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#55FFFF">Y</span> <span class="name">Abominable Snowman</span></div>
+    <div class="monster"><span class="sym" style="color:#55FFFF">A</span> <span class="name">Archangel</span></div>
+    <div class="monster"><span class="sym" style="color:#55FFFF">D</span> <span class="name">baby silver dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#55FFFF">n</span> <span class="name">ice nymph</span></div>
+    <div class="monster"><span class="sym" style="color:#55FFFF">@</span> <span class="name">Kathryn the Ice Queen</span></div>
+    <div class="monster"><span class="sym" style="color:#55FFFF">8</span> <span class="name">orb of frost</span></div>
+    <div class="monster"><span class="sym" style="color:#55FFFF">U</span> <span class="name">shambling horror</span></div>
+    <div class="monster"><span class="sym" style="color:#55FFFF">D</span> <span class="name">silver dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#55FFFF">z</span> <span class="name">skeleton warrior</span></div>
+    <div class="monster"><span class="sym" style="color:#55FFFF">&amp;</span> <span class="name">test monster</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="clr-white">
+  <div class="group-header"><span class="swatch" style="color:#FCFCFC">&#x2B24;</span>white<span class="hexval">#FCFCFC</span><span class="count">(21 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">aligned priest</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">A</span> <span class="name">Angel</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">Arch Priest</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">D</span> <span class="name">baby white dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">Charon</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">e</span> <span class="name">freezing sphere</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">H</span> <span class="name">frost giant</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">:</span> <span class="name">frost salamander</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">o</span> <span class="name">goblin-captain</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">u</span> <span class="name">greater pegasus</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">high priest</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">&amp;</span> <span class="name">ice devil</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">T</span> <span class="name">ice troll</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">u</span> <span class="name">pegasus</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">b</span> <span class="name">quivering blob</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">J</span> <span class="name">snark</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">E</span> <span class="name">stalker</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">D</span> <span class="name">white dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">u</span> <span class="name">White Horse</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">u</span> <span class="name">white unicorn</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">Y</span> <span class="name">yeti</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-domestic">
+  <div class="group-header"><span class="swatch" style="color:#FCFCFC">&#x2B24;</span>HI_DOMESTIC (white)<span class="hexval">#FCFCFC</span><span class="count">(34 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">abbot</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">acolyte</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">apprentice</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">aspirant</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">attendant</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">chieftain</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">cultist</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">d</span> <span class="name">dog</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">doppelganger</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">Z</span> <span class="name">draugr</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">guide</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">High-elf</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">f</span> <span class="name">housecat</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">human</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">Z</span> <span class="name">human zombie</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">hunter</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">f</span> <span class="name">kitten</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">f</span> <span class="name">large cat</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">d</span> <span class="name">large dog</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">d</span> <span class="name">little dog</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">neanderthal</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">ninja</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">nurse</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">page</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">prisoner</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">Robert the Lifer</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">ronin</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">roshi</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">shopkeeper</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">student</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">thug</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">Twoflower</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">V</span> <span class="name">vampire</span></div>
+    <div class="monster"><span class="sym" style="color:#FCFCFC">@</span> <span class="name">warrior</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-paper">
+  <div class="group-header"><span class="swatch" style="color:#FCFCFC">&#x2B24;</span>HI_PAPER (white)<span class="hexval">#FCFCFC</span><span class="count">(1 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#FCFCFC">&#39;</span> <span class="name">paper golem</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-water">
+  <div class="group-header"><span class="swatch" style="color:#005FFF">&#x2B24;</span>HI_WATER (256: deep sky blue)<span class="hexval">#005FFF</span><span class="count">(6 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#005FFF">;</span> <span class="name">jellyfish</span></div>
+    <div class="monster"><span class="sym" style="color:#005FFF">K</span> <span class="name">Kop Sergeant</span></div>
+    <div class="monster"><span class="sym" style="color:#005FFF">S</span> <span class="name">pit viper</span></div>
+    <div class="monster"><span class="sym" style="color:#005FFF">&amp;</span> <span class="name">water demon</span></div>
+    <div class="monster"><span class="sym" style="color:#005FFF">n</span> <span class="name">water nymph</span></div>
+    <div class="monster"><span class="sym" style="color:#005FFF">T</span> <span class="name">water troll</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-tree">
+  <div class="group-header"><span class="swatch" style="color:#5FD700">&#x2B24;</span>HI_TREE (256: chartreuse)<span class="hexval">#5FD700</span><span class="count">(1 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#5FD700">#</span> <span class="name">ent</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-purple">
+  <div class="group-header"><span class="swatch" style="color:#8700FF">&#x2B24;</span>HI_PURPLE (256: purple)<span class="hexval">#8700FF</span><span class="count">(17 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#8700FF">w</span> <span class="name">baby purple worm</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">D</span> <span class="name">fell beast</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">s</span> <span class="name">gargantuan spider</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">m</span> <span class="name">giant mimic</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">s</span> <span class="name">giant spider</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">x</span> <span class="name">grid bug</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">s</span> <span class="name">large spider</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">e</span> <span class="name">magical eye</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">L</span> <span class="name">master lich</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">w</span> <span class="name">neothelid</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">T</span> <span class="name">Olog-hai</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">w</span> <span class="name">purple worm</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">S</span> <span class="name">python</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">F</span> <span class="name">shrieker</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">H</span> <span class="name">titan</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">F</span> <span class="name">violet fungus</span></div>
+    <div class="monster"><span class="sym" style="color:#8700FF">J</span> <span class="name">vorpal jabberwock</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-wood">
+  <div class="group-header"><span class="swatch" style="color:#875F00">&#x2B24;</span>HI_WOOD (256: dark goldenrod)<span class="hexval">#875F00</span><span class="count">(2 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#875F00">#</span> <span class="name">elder ent</span></div>
+    <div class="monster"><span class="sym" style="color:#875F00">&#39;</span> <span class="name">wood golem</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-plant">
+  <div class="group-header"><span class="swatch" style="color:#87AF00">&#x2B24;</span>HI_PLANT (256: pale green)<span class="hexval">#87AF00</span><span class="count">(1 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#87AF00">{</span> <span class="name">assassin vine</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-copper">
+  <div class="group-header"><span class="swatch" style="color:#D75F00">&#x2B24;</span>HI_COPPER (256: rust)<span class="hexval">#D75F00</span><span class="count">(3 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#D75F00">&#39;</span> <span class="name">clay golem</span></div>
+    <div class="monster"><span class="sym" style="color:#D75F00">u</span> <span class="name">stag</span></div>
+    <div class="monster"><span class="sym" style="color:#D75F00">d</span> <span class="name">werejackal</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-flesh">
+  <div class="group-header"><span class="swatch" style="color:#D75F5F">&#x2B24;</span>HI_FLESH (256: indian red)<span class="hexval">#D75F5F</span><span class="count">(1 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#D75F5F">&#39;</span> <span class="name">flesh golem</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-cloth">
+  <div class="group-header"><span class="swatch" style="color:#D7AF87">&#x2B24;</span>HI_CLOTH (256: medium burlywood)<span class="hexval">#D7AF87</span><span class="count">(6 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#D7AF87">d</span> <span class="name">coyote</span></div>
+    <div class="monster"><span class="sym" style="color:#D7AF87">B</span> <span class="name">giant hawk</span></div>
+    <div class="monster"><span class="sym" style="color:#D7AF87">B</span> <span class="name">hawk</span></div>
+    <div class="monster"><span class="sym" style="color:#D7AF87">B</span> <span class="name">large hawk</span></div>
+    <div class="monster"><span class="sym" style="color:#D7AF87">&#39;</span> <span class="name">rope golem</span></div>
+    <div class="monster"><span class="sym" style="color:#D7AF87">r</span> <span class="name">woodchuck</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-glass">
+  <div class="group-header"><span class="swatch" style="color:#D7FFFF">&#x2B24;</span>HI_GLASS (256: azure)<span class="hexval">#D7FFFF</span><span class="count">(2 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#D7FFFF">&#39;</span> <span class="name">glass golem</span></div>
+    <div class="monster"><span class="sym" style="color:#D7FFFF">p</span> <span class="name">glass piercer</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-orange">
+  <div class="group-header"><span class="swatch" style="color:#FF8700">&#x2B24;</span>HI_ORANGE (256: dark orange)<span class="hexval">#FF8700</span><span class="count">(6 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#FF8700">D</span> <span class="name">baby orange dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#FF8700">r</span> <span class="name">dire wolverine</span></div>
+    <div class="monster"><span class="sym" style="color:#FF8700">{</span> <span class="name">needle blight</span></div>
+    <div class="monster"><span class="sym" style="color:#FF8700">D</span> <span class="name">orange dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#FF8700">f</span> <span class="name">tiger</span></div>
+    <div class="monster"><span class="sym" style="color:#FF8700">q</span> <span class="name">woolly mammoth</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-gold">
+  <div class="group-header"><span class="swatch" style="color:#FFD700">&#x2B24;</span>HI_GOLD (256: gold)<span class="hexval">#FFD700</span><span class="count">(8 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#FFD700">D</span> <span class="name">baby gold dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#FFD700">q</span> <span class="name">cave bear</span></div>
+    <div class="monster"><span class="sym" style="color:#FFD700">D</span> <span class="name">gold dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#FFD700">&#39;</span> <span class="name">gold golem</span></div>
+    <div class="monster"><span class="sym" style="color:#FFD700">N</span> <span class="name">golden naga</span></div>
+    <div class="monster"><span class="sym" style="color:#FFD700">N</span> <span class="name">golden naga hatchling</span></div>
+    <div class="monster"><span class="sym" style="color:#FFD700">A</span> <span class="name">ki-rin</span></div>
+    <div class="monster"><span class="sym" style="color:#FFD700">@</span> <span class="name">Paladin</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-mplayer">
+  <div class="group-header"><span class="swatch" style="color:#FFFF87">&#x2B24;</span>HI_MPLAYER (256: khaki)<span class="hexval">#FFFF87</span><span class="count">(18 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">archeologist</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">barbarian</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">caveman</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">cavewoman</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">convict</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">druid</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">healer</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">infidel</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">knight</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">monk</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">priest</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">priestess</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">ranger</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">rogue</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">samurai</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">tourist</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">valkyrie</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFF87">@</span> <span class="name">wizard</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-bone">
+  <div class="group-header"><span class="swatch" style="color:#FFFFD7">&#x2B24;</span>HI_BONE (256: cornsilk)<span class="hexval">#FFFFD7</span><span class="count">(2 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#FFFFD7">&amp;</span> <span class="name">bone devil</span></div>
+    <div class="monster"><span class="sym" style="color:#FFFFD7">z</span> <span class="name">skeleton</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-mineral">
+  <div class="group-header"><span class="swatch" style="color:#808080">&#x2B24;</span>HI_MINERAL (256: gray)<span class="hexval">#808080</span><span class="count">(5 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#808080">#</span> <span class="name">petrified ent</span></div>
+    <div class="monster"><span class="sym" style="color:#808080">r</span> <span class="name">rock mole</span></div>
+    <div class="monster"><span class="sym" style="color:#808080">p</span> <span class="name">rock piercer</span></div>
+    <div class="monster"><span class="sym" style="color:#808080">H</span> <span class="name">stone giant</span></div>
+    <div class="monster"><span class="sym" style="color:#808080">&#39;</span> <span class="name">stone golem</span></div>
+  </div>
+</div>
+
+<div class="color-group" id="hi-lord">
+  <div class="group-header"><span class="swatch" style="color:#AA00AA">&#x2B24;</span>HI_LORD (magenta)<span class="hexval">#AA00AA</span><span class="count">(55 monsters)</span></div>
+  <div class="monster-list">
+    <div class="monster"><span class="sym" style="color:#AA00AA">H</span> <span class="name">Annam</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">n</span> <span class="name">Aphrodite</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">L</span> <span class="name">arch-lich</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">A</span> <span class="name">Archon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Ashikaga Takauji</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Asmodeus</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Baalzebub</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Baba Yaga</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Baphomet</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">D</span> <span class="name">chromatic dragon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Croesus</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Death</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Demogorgon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Dispater</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">h</span> <span class="name">dwarf royal</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Earendil</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">elven royal</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Elwing</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Famine</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Geryon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">G</span> <span class="name">gnome royal</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Graz&#x27;zt</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">#</span> <span class="name">gulthias tree</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Hippocrates</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">King Arthur</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">k</span> <span class="name">kobold noble</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">K</span> <span class="name">Kop Kaptain</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Lolth</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Lord Carnarvon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Lord Sato</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">H</span> <span class="name">Lord Surtur</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Lucifer</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Master Assassin</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Master Kaen</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Master of Thieves</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Mephistopheles</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Merlin</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Morgan le Fay</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">W</span> <span class="name">Nazgul</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Norn</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">O</span> <span class="name">ogre royal</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">o</span> <span class="name">orc-captain</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Orcus</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Orion</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Pelias</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Pestilence</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">a</span> <span class="name">queen bee</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">s</span> <span class="name">Scorpius</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Shaman Karnov</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Thoth Amon</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">D</span> <span class="name">Tiamat</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">V</span> <span class="name">vampire royal</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">@</span> <span class="name">Warden Arianna</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">g</span> <span class="name">winged gargoyle</span></div>
+    <div class="monster"><span class="sym" style="color:#AA00AA">&amp;</span> <span class="name">Yeenoghu</span></div>
+  </div>
+</div>
+
+</body>
+</html>

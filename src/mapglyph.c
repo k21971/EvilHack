@@ -136,6 +136,58 @@ int color;
     }
 }
 
+/* Base-16 fallback for extended 256-color values used in mons[].mcolor.
+   Handles monster-specific colors (HI_PURPLE, HI_ORANGE, etc.) and
+   material colors (HI_CLOTH, HI_MINERAL, etc.) reused for monsters.
+   Some monsters use material colors whose obj fallback doesn't match
+   the monster's original base-16 color; those are overridden by
+   monster index before falling through to the color-based switch. */
+static int
+mon_color_fallback(mndx, color)
+int mndx;
+int color;
+{
+    /* Per-monster overrides for material colors whose obj fallback
+       doesn't match the monster's original base-16 color */
+    switch (mndx) {
+    case PM_HAWK:
+    case PM_LARGE_HAWK:
+    case PM_GIANT_HAWK:
+        return CLR_YELLOW;      /* HI_CLOTH obj fallback is CLR_BROWN */
+    case PM_WEREJACKAL:
+    case PM_CLAY_GOLEM:
+        return CLR_BROWN;       /* HI_COPPER obj fallback is CLR_ORANGE */
+    case PM_FLESH_GOLEM:
+        return CLR_RED;         /* HI_FLESH obj fallback is CLR_BROWN */
+    case PM_GLASS_PIERCER:
+        return CLR_WHITE;       /* HI_GLASS obj fallback is CLR_BRIGHT_CYAN */
+    case PM_GLASS_GOLEM:
+        return CLR_CYAN;        /* HI_GLASS obj fallback is CLR_BRIGHT_CYAN */
+    case PM_BONE_DEVIL:
+        return CLR_GRAY;        /* HI_BONE obj fallback is CLR_WHITE */
+    default:
+        break;
+    }
+
+    /* Color-based fallback for monster-specific and material colors */
+    switch (color) {
+    case HI_MPLAYER:
+        return CLR_YELLOW;
+    case HI_ORANGE:
+        return CLR_ORANGE;
+    case HI_PURPLE:
+        return CLR_MAGENTA;
+    case HI_TREE:
+    case HI_PLANT:
+        return CLR_BRIGHT_GREEN;
+    case HI_WATER:
+        return CLR_BLUE;
+    default:
+        /* Material colors (HI_CLOTH, HI_MINERAL, etc.) */
+        return obj_color_fallback(color);
+    }
+}
+
 #define cmap_color(n)                                                  \
     do {                                                               \
         if (!iflags.use_color) {                                       \
@@ -163,9 +215,19 @@ int color;
       mon_color(n);                             \
 }
 #endif
-#define mon_color(n) color = iflags.use_color ? mons[n].mcolor : NO_COLOR
+#define mon_color(n)                                               \
+    do {                                                               \
+        color = iflags.use_color ? mons[n].mcolor : NO_COLOR;         \
+        if (IS_EXT_COLOR(color) && !has_color(color))                  \
+            color = mon_color_fallback(n, color);                      \
+    } while (0)
 #define invis_color(n) color = NO_COLOR
-#define pet_color(n) color = iflags.use_color ? mons[n].mcolor : NO_COLOR
+#define pet_color(n)                                                   \
+    do {                                                               \
+        color = iflags.use_color ? mons[n].mcolor : NO_COLOR;         \
+        if (IS_EXT_COLOR(color) && !has_color(color))                  \
+            color = mon_color_fallback(n, color);                      \
+    } while (0)
 #define warn_color(n) \
     color = iflags.use_color ? def_warnsyms[n].color : NO_COLOR
 #define explode_color(n) color = iflags.use_color ? explcolors[n] : NO_COLOR

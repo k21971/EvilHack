@@ -71,6 +71,15 @@
 #define HI_GEMSTONE    196 /* bright red */
 #define HI_MINERAL     244 /* gray */
 
+/* Monster-specific 256-color macros (used in monst.c mcolor field).
+   On 16-color terminals, mapglyph() falls back via mon_color_fallback(). */
+#define HI_MPLAYER  228 /* player monsters */
+#define HI_ORANGE   208 /* orange-furred/scaled */
+#define HI_PURPLE   93  /* purple creatures */
+#define HI_TREE     76  /* tree creatures */
+#define HI_PLANT    106 /* plants */
+#define HI_WATER    27  /* aquatic/blue */
+
 struct menucoloring {
     struct nhregex *match;
     char *origstr;

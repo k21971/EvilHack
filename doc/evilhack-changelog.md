@@ -5110,4 +5110,6 @@ The following changes to date are:
 - Finish material color changes
 - Extend 256-color support to terrain features
 - Make 256-colors an option, Guidebook sync/updates
+- Adjust several monster colors, add 256-color fallback for monster
+  colors
 
