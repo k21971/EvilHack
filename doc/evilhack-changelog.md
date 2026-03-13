@@ -5113,4 +5113,5 @@ The following changes to date are:
 - Adjust several monster colors, add 256-color fallback for monster
   colors
 - Fix: Windows TTY drops 256-colors to gray instead of falling back
+- Fix: Windows TTY inventory menu glyphs missing
 

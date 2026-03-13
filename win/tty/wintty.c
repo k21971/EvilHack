@@ -2044,13 +2044,15 @@ struct WinDesc *cw;
                             if (glyph_color != NO_COLOR)
                                 term_start_color(glyph_color);
 #endif
-                            (void) putchar(glyph_sym);
+                            g_putch(glyph_sym);
+                            end_glyphout();
+                            ttyDisplay->curx++;
                             (void) putchar(' ');
 #ifdef TEXTCOLOR
                             if (glyph_color != NO_COLOR)
                                 term_end_color();
 #endif
-                            ttyDisplay->curx += 2;
+                            ttyDisplay->curx++;
                         }
                         char_printed = FALSE;
 
