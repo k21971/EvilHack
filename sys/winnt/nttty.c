@@ -210,7 +210,6 @@ struct keyboard_handling_t {
 
 static INPUT_RECORD bogus_key;
 
-
 /* Console buffer flipping support */
 
 static void back_buffer_flip()
@@ -907,6 +906,10 @@ term_start_color(int color)
 #ifdef TEXTCOLOR
     if (color >= 0 && color < CLR_MAX) {
         console.current_nhcolor = color;
+    } else if (IS_EXT_COLOR(color)) {
+        /* Windows Console API only supports 16 colors.
+           Fall back to nearest base-16 equivalent. */
+        console.current_nhcolor = map_color_256to16(color);
     } else
 #endif
     console.current_nhcolor = NO_COLOR;
@@ -1044,7 +1047,6 @@ register char *op;
         return;
     key_overrides[idx] = val;
 }
-
 
 /* fatal error */
 /*VARARGS1*/
@@ -1784,7 +1786,6 @@ void nethack_enter_nttty()
 
     console.buffer_size = console.width * console.height;
 
-
     /* clear the entire console buffer */
     int size = console.origcsbi.dwSize.X * console.origcsbi.dwSize.Y;
     DWORD unused;
@@ -1901,7 +1902,6 @@ VA_DECL(const char *, fmt)
     VA_END();
     return;
 }
-
 
 /*
  *  Keyboard translation tables.
