@@ -18,7 +18,7 @@ jobs:
     env:
       HINTS_FILE: linux-debug.gha
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: setup
       run: ./sys/unix/setup.sh sys/unix/hints/$HINTS_FILE
     - name: make all
@@ -26,7 +26,7 @@ jobs:
     - name: make install
       run: make install
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: evilhack-linux
         path: ~/nh/install/games/lib/evilhackdir/
@@ -37,7 +37,7 @@ jobs:
     env:
       HINTS_FILE: macosx10.14
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: setup
       run: ./sys/unix/setup.sh sys/unix/hints/$HINTS_FILE
     - name: make all
@@ -45,7 +45,7 @@ jobs:
     - name: make install
       run: make install
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: evilhack-macos
         path: ~/evilhackdir/
@@ -63,7 +63,7 @@ jobs:
         PDCURSES_TOP: ../../pdcurses
         TRAVIS_COMPILER: 1
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         submodules: recursive
     - uses: ilammy/msvc-dev-cmd@v1 # enable visual c compiler / nmake
@@ -83,7 +83,7 @@ jobs:
         cp -v ./sys/winnt/.evilhackrc.template ./binary/.evilhackrc.template
         ls -la ./binary/
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: evilhack-windows
         path: binary/

@@ -5114,4 +5114,5 @@ The following changes to date are:
   colors
 - Fix: Windows TTY drops 256-colors to gray instead of falling back
 - Fix: Windows TTY inventory menu glyphs missing
+- Update GitHub Actions to Node.js 24 runtime
 
