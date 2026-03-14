@@ -5117,4 +5117,5 @@ The following changes to date are:
 - Update GitHub Actions to Node.js 24 runtime
 - Fix: Windows TTY 256-color fallback uses correct game-specific colors
 - Windows TTY true 256-color support via VT escape sequences
+- Update MSVC dev github action to TheMrMilchmann/setup-msvc-dev@v4
 
