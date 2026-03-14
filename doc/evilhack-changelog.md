@@ -5121,4 +5121,5 @@ The following changes to date are:
 - Fix: setup-msvc-dev requires explicit arch parameter
 - Fix: Curses 256-color works with limited COLOR_PAIRS (PDCurses)
 - Tweak a few more object colors
+- Guidebook: add custom races, fix unpaginated dead space
 

@@ -48,7 +48,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 February 26, 2026
+.ds f2 March 14, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -205,6 +205,27 @@ and easy to overcome at first sight, an experienced Wizard is a deadly foe.
 You may also choose the race of your character (within limits; most
 roles have restrictions on which races are eligible for them):
 .pg
+\fICentaurs\fP are a strong and proud race that have the upper body of a
+humanoid, and the lower body of a large horse.  They are adept at physical
+combat, especially with ranged weapons, and have the ability to jump great
+distances when the need arises.  They can wear all armor that other typical
+humanoid races can wear, except for boots.
+.pg
+\fIDraugr\fP are an undead race that are very similar to zombies but still
+have free will and can reason, unlike their undead zombie brethren.  Draugr
+are immune to things like poison, disease and death magic, and can revive
+a number of times before being permanently destroyed.  However, they are
+exteremely suscepible to fire, and are unable to learn or cast spells or
+obtain intrinsic telepathy due to their almost-but-not-quite mindless
+nature.
+.pg
+\fIDrow\fP (also known as 'dark elves') are a dark-skinned sub-race of Elves
+that shun the light whenever possible and prefer living underground.  They
+share many physical attributes with their elven cousins, including their
+aversion to iron.  Drow weapons and most armor are crafted out of a material
+known as adamantine, whose quality can rivial that of mithril, but becomes
+brittle in the light and can shatter with use unless shrouded in darkness.
+.pg
 \fIDwarves\fP are smaller than humans or elves, but are stocky and solid
 individuals.  Dwarves' most notable trait is their great expertise in mining
 and metalwork.  Dwarvish armor is said to be second in quality not even to the
@@ -214,19 +235,53 @@ mithril armor of the Elves.
 on will escape an Elf.  The quality of Elven craftsmanship often gives
 them an advantage in arms and armor.
 .pg
+\fIGiants\fP are humanoid in appearance, but are much larger.  Due to their
+size, they are unable to wear many armor types found within the dungeon.
+However, they can one-hand weapons that are two-handed for the other smaller
+races, and they can carry and toss boulders as if they were rocks.  Giants
+are a bit slower than other races, but their size and immense strength tend
+to make up for this shortcoming.
+.pg
 \fIGnomes\fP are smaller than but generally similar to dwarves.  Gnomes are
 known to be expert miners, and it is known that a secret underground mine
 complex built by this race exists within the Mazes of Menace, filled with
 both riches and danger.
 .pg
+\fIHobbits\fP (also known as Halflings) are one of the smallest humanoid
+races, roughly half the size of a typical human.  Very quick and robust,
+they excel at ranged weapon combat, especially with slings and small blades.
+Hobbits are known for their love of food; they can innately sense if food
+is safe to eat, and they can eat many times their weight before becoming
+satiated.
+.pg
 \fIHumans\fP are by far the most common race of the surface world, and
 are thus the norm to which other races are often compared.  Although
 they have no special abilities, they can succeed in any role.
+.pg
+\fIIllithids\fP are an ancient race that have natural psychic ability.
+They are extremely intelligent and make excellent spellcasters, but are
+one of the weakest races physically.  While Illithids can eat regular food,
+they prefer to use their tentacle-like mouth to feed on other creatures
+brains for sustenance.  Mind flayers are the wild cousins of the Illithid
+race.
 .pg
 \fIOrcs\fP are a cruel and barbaric race that hate every living thing
 (including other orcs).  Above all others, Orcs hate Elves with a passion
 unequalled, and will go out of their way to kill one at any opportunity.
 The armor and weapons fashioned by the Orcs are typically of inferior quality.
+.pg
+\fITortles\fP are a humanoid turtle race known for their strength and wisdom.
+Their natural shells provide excellent protection against physical attacks,
+but it also prevents them from wearing most types of armor.  They can also
+hide inside their shells for an extended period of time, making them nearly
+impervious to physical attacks.  Tortles are natural swimmers, and can
+survive underwater indefinitely unaided.
+.pg
+\fIVampires\fP are an extremely powerful undead race that enjoy immunity to
+a great deal of various attack types, but are susceptible to fire and have
+a severe aversion to silver.  Vampires do not eat regular food, but instead
+drian the blood from their victims to survive.  They also have the ability
+to shapechange into either a vampire bat, a warg, or a fog cloud at will.
 .hn 1
 What do all those things on the screen mean?
 .pg

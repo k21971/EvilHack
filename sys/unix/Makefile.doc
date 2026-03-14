@@ -110,8 +110,8 @@ DISTRIB = Guidebook.txt evilhack.txt lev_comp.txt dgn_comp.txt recover.txt \
 distrib: $(DISTRIB)
 	@echo "Plain text documentation is up to date."
 
-Guidebook.txt	: Guidebook.mn tmac.n tmac.nh
-	$(GUIDECMD) > Guidebook.txt
+Guidebook.txt	: Gbk-1pg-pfx.mn Gbk-1pg-sfx.mn Guidebook.mn tmac.n tmac.nh
+	$(ONEPAGECMD) > Guidebook.txt
 Guidebook.dat	: Gbk-1pg-pfx.mn Gbk-1pg-sfx.mn Guidebook.mn tmac.n tmac.nh
 	$(ONEPAGECMD) > Guidebook.dat
 

@@ -1,3 +1,4 @@
 .\" prefix to Guidebook.mn for 'roff version of Guidebook written as one page
 .
 .pl 12345v \" set page size of 12345 lines
+.nr 1P 1 \" one-page mode flag (checked by .BR in tmac.nh)
