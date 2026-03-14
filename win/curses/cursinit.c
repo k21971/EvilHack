@@ -359,12 +359,15 @@ curses_init_nhcolors()
         }
     }
 
-        /* Extended 256-color pairs: xterm colors 16-255, default bg */
-        if (COLORS >= 256 && COLOR_PAIRS > 440) {
-            int j;
-
-            for (j = 16; j < 256; j++)
-                init_pair(CURSES_EXT_PAIR_BASE + (j - 16), j, -1);
+        /* Extended 256-color pairs are allocated on demand in
+         * get_ext_color_pair() (cursmisc.c) to work with any
+         * COLOR_PAIRS value, including PDCurses (256 pairs). */
+        if (COLORS < 256) {
+            /* Curses library can't render 256 colors. Clear
+             * WC2_EXTCOLORS so has_color() returns FALSE for extended
+             * colors and game-specific fallbacks in mapglyph.c engage
+             * instead of generic RGB-distance mapping. */
+            windowprocs.wincap2 &= ~WC2_EXTCOLORS;
         }
 #endif
 }

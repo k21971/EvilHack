@@ -96,6 +96,31 @@ curses_read_char()
     return ch;
 }
 
+/* On-demand extended color pair allocation.
+ * Maps xterm colors 16-255 to curses pair numbers, allocating
+ * pairs lazily to fit within limited COLOR_PAIRS (e.g. PDCurses=256).
+ * With ~30 unique extended colors in EvilHack, this uses ~30 of the
+ * 127 pairs available after status hilite bg pairs (129-255). */
+static short ext_color_pair[240]; /* color-16 -> pair, 0=not yet */
+static int next_ext_pair = 0;     /* next available; 0=uninitialized */
+
+static int
+get_ext_color_pair(color)
+int color;
+{
+    int idx = color - 16;
+
+    if (next_ext_pair == 0) {
+        /* First call: start after status hilite bg pairs */
+        next_ext_pair = (COLORS >= 16) ? 129 : 65;
+    }
+    if (ext_color_pair[idx] == 0 && next_ext_pair < COLOR_PAIRS) {
+        init_pair(next_ext_pair, color, -1);
+        ext_color_pair[idx] = (short) next_ext_pair++;
+    }
+    return ext_color_pair[idx]; /* 0 if couldn't allocate */
+}
+
 /* Turn on or off the specified color and / or attribute */
 
 void
@@ -126,14 +151,16 @@ curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff)
         goto apply_pair;
     }
 
-    /* Extended 256-color */
+    /* Extended 256-color (on-demand pair allocation) */
     if (IS_EXT_COLOR(color)) {
-        if (COLORS >= 256 && COLOR_PAIRS > 440) {
-            curses_color = CURSES_EXT_PAIR_BASE + (color - 16);
-        } else {
-            color = map_color_256to16(color);
-            curses_color = color + 1;
+        if (COLORS >= 256) {
+            curses_color = get_ext_color_pair(color);
+            if (curses_color > 0)
+                goto apply_pair;
         }
+        /* Fallback: map to nearest base-16 color */
+        color = map_color_256to16(color);
+        curses_color = color + 1;
         goto apply_pair;
     }
 

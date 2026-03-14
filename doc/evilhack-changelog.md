@@ -5119,4 +5119,5 @@ The following changes to date are:
 - Windows TTY true 256-color support via VT escape sequences
 - Update MSVC dev github action to TheMrMilchmann/setup-msvc-dev@v4
 - Fix: setup-msvc-dev requires explicit arch parameter
+- Fix: Curses 256-color works with limited COLOR_PAIRS (PDCurses)
 
