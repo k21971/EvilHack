@@ -22,6 +22,11 @@
 #include <sys\types.h>
 #include <sys\stat.h>
 
+/* For 256-color support via VT/ANSI escape sequences (Windows 10 1511+) */
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
+
 extern boolean getreturn_enabled; /* from sys/share/pcsys.c */
 extern int redirect_stdout;
 
@@ -47,12 +52,22 @@ extern int redirect_stdout;
 
 typedef struct {
     WCHAR   character;
-    WORD    attribute;
+    WORD    attribute;    /* legacy 16-color attribute (for fallback path) */
+    short   nhcolor;      /* NetHack color: 0-15 base, 16-255 ext, -1 none */
+    short   nhattr;       /* packed: bit 0=bold, bit 1=inverse, bit 2=uline */
 } cell_t;
 
-cell_t clear_cell = { CONSOLE_CLEAR_CHARACTER, CONSOLE_CLEAR_ATTRIBUTE };
+/* nhattr bit flags for compact per-cell storage.
+ * These are NOT the ATR_* constants from wintype.h (which are array
+ * indices into console.current_nhattr[]). */
+#define NHATTR_BOLD    0x01
+#define NHATTR_INVERSE 0x02
+#define NHATTR_ULINE   0x04
+
+cell_t clear_cell = { CONSOLE_CLEAR_CHARACTER, CONSOLE_CLEAR_ATTRIBUTE,
+                       NO_COLOR, 0 };
 cell_t undefined_cell = { CONSOLE_UNDEFINED_CHARACTER,
-                          CONSOLE_UNDEFINED_ATTRIBUTE };
+                          CONSOLE_UNDEFINED_ATTRIBUTE, NO_COLOR, 0 };
 
 /*
  * The following WIN32 Console API routines are used in this file.
@@ -136,9 +151,12 @@ struct console_t {
     int width;
     int height;
     boolean has_unicode;
+    boolean has_vtmode;       /* VT/ANSI escape support (Win10 1511+) */
     int buffer_size;
     cell_t * front_buffer;
     cell_t * back_buffer;
+    WCHAR * vt_buffer;        /* VT escape sequence output buffer */
+    int vt_buffer_size;       /* allocated size of vt_buffer in WCHARs */
     WCHAR cpMap[256];
     boolean font_changed;
     CONSOLE_FONT_INFOEX original_font_info;
@@ -156,9 +174,12 @@ struct console_t {
     0,
     0,
     FALSE,
+    FALSE,
     0,
     NULL,
     NULL,
+    NULL,
+    0,
     { 0 },
     FALSE,
     { 0 },
@@ -169,6 +190,30 @@ static DWORD ccount, acount;
 #ifndef CLR_MAX
 #define CLR_MAX 16
 #endif
+
+/* Map NetHack base-16 colors to xterm-256 palette indices for VT mode.
+ * Most map 1:1, with two exceptions:
+ *   CLR_BLACK (0) -> 8 (dark gray, visible on black bg; "fix by Quietust")
+ *   NO_COLOR  (8) -> 7 (gray, matching legacy default text color)
+ */
+static const int nhcolor_to_vt256[CLR_MAX] = {
+     8, /*  0: CLR_BLACK         -> bright black (dark gray) */
+     1, /*  1: CLR_RED           */
+     2, /*  2: CLR_GREEN         */
+     3, /*  3: CLR_BROWN         */
+     4, /*  4: CLR_BLUE          */
+     5, /*  5: CLR_MAGENTA       */
+     6, /*  6: CLR_CYAN          */
+     7, /*  7: CLR_GRAY          */
+     7, /*  8: NO_COLOR          -> gray (default text) */
+     9, /*  9: CLR_ORANGE        */
+    10, /* 10: CLR_BRIGHT_GREEN  */
+    11, /* 11: CLR_YELLOW        */
+    12, /* 12: CLR_BRIGHT_BLUE   */
+    13, /* 13: CLR_BRIGHT_MAGENTA */
+    14, /* 14: CLR_BRIGHT_CYAN   */
+    15, /* 15: CLR_WHITE         */
+};
 
 int ttycolors[CLR_MAX];
 int ttycolors_inv[CLR_MAX];
@@ -212,6 +257,74 @@ static INPUT_RECORD bogus_key;
 
 /* Console buffer flipping support */
 
+/* VT escape sequence helpers for 256-color rendering */
+
+/* Append an ASCII string to a WCHAR buffer, return advanced pointer */
+static WCHAR *
+vt_append_str(vt, s)
+WCHAR *vt;
+const char *s;
+{
+    while (*s)
+        *vt++ = (WCHAR) *s++;
+    return vt;
+}
+
+/* Append a decimal integer to a WCHAR buffer, return advanced pointer.
+ * Values are small (0-255 for colors, 1-80 for coords). */
+static WCHAR *
+vt_append_int(vt, n)
+WCHAR *vt;
+int n;
+{
+    char tmp[12];
+    int len = 0;
+
+    if (n == 0) {
+        *vt++ = (WCHAR) '0';
+        return vt;
+    }
+    while (n > 0) {
+        tmp[len++] = '0' + (n % 10);
+        n /= 10;
+    }
+    while (len > 0)
+        *vt++ = (WCHAR) tmp[--len];
+    return vt;
+}
+
+/* Emit a complete SGR sequence for the given nhcolor and nhattr.
+ * Format: \033[0;{attrs};38;5;{color}m
+ * Always starts with reset (0) to avoid state accumulation. */
+static WCHAR *
+vt_emit_sgr(vt, nhcolor, nhattr)
+WCHAR *vt;
+int nhcolor;
+int nhattr;
+{
+    int vtcolor;
+
+    vt = vt_append_str(vt, "\033[0");
+    if (nhattr & NHATTR_BOLD)
+        vt = vt_append_str(vt, ";1");
+    if (nhattr & NHATTR_ULINE)
+        vt = vt_append_str(vt, ";4");
+    if (nhattr & NHATTR_INVERSE)
+        vt = vt_append_str(vt, ";7");
+    /* Map color to xterm-256 index */
+    if (nhcolor >= 0 && nhcolor < CLR_MAX) {
+        vtcolor = nhcolor_to_vt256[nhcolor];
+        vt = vt_append_str(vt, ";38;5;");
+        vt = vt_append_int(vt, vtcolor);
+    } else if (IS_EXT_COLOR(nhcolor)) {
+        vt = vt_append_str(vt, ";38;5;");
+        vt = vt_append_int(vt, nhcolor);
+    }
+    /* else: NO_COLOR outside 0-15 range, just reset (no fg color) */
+    *vt++ = (WCHAR) 'm';
+    return vt;
+}
+
 static void back_buffer_flip()
 {
     cell_t * back = console.back_buffer;
@@ -219,26 +332,79 @@ static void back_buffer_flip()
     COORD pos;
     DWORD unused;
 
-    for (pos.Y = 0; pos.Y < console.height; pos.Y++) {
-        for (pos.X = 0; pos.X < console.width; pos.X++) {
-            if (back->attribute != front->attribute) {
-                WriteConsoleOutputAttribute(console.hConOut, &back->attribute,
-                                            1, pos, &unused);
-                front->attribute = back->attribute;
-            }
-            if (back->character != front->character) {
-                if (console.has_unicode) {
-                    WriteConsoleOutputCharacterW(console.hConOut,
-                        &back->character, 1, pos, &unused);
-                } else {
-                    char ch = (char)back->character;
-                    WriteConsoleOutputCharacterA(console.hConOut, &ch, 1, pos,
-                                                    &unused);
+    if (console.has_vtmode) {
+        /* VT rendering path: build escape sequence buffer, flush once */
+        WCHAR *vt = console.vt_buffer;
+        int last_color = -999;
+        int last_attr = -999;
+        int last_row = -1;
+        int last_col = -1;
+
+        for (pos.Y = 0; pos.Y < console.height; pos.Y++) {
+            for (pos.X = 0; pos.X < console.width; pos.X++) {
+                /* Compare nhcolor + nhattr + character for VT mode */
+                if (back->nhcolor != front->nhcolor
+                    || back->nhattr != front->nhattr
+                    || back->character != front->character) {
+                    /* Cursor positioning (skip if consecutive) */
+                    if (pos.Y != last_row
+                        || pos.X != last_col + 1) {
+                        vt = vt_append_str(vt, "\033[");
+                        vt = vt_append_int(vt, pos.Y + 1);
+                        *vt++ = (WCHAR) ';';
+                        vt = vt_append_int(vt, pos.X + 1);
+                        *vt++ = (WCHAR) 'H';
+                    }
+                    /* Color/attribute change */
+                    if (back->nhcolor != last_color
+                        || back->nhattr != last_attr) {
+                        vt = vt_emit_sgr(vt, back->nhcolor,
+                                         back->nhattr);
+                        last_color = back->nhcolor;
+                        last_attr = back->nhattr;
+                    }
+                    /* Character */
+                    *vt++ = back->character;
+                    last_col = pos.X;
+                    last_row = pos.Y;
+                    *front = *back;
                 }
-                *front = *back;
+                back++;
+                front++;
             }
-            back++;
-            front++;
+        }
+        /* Flush VT buffer in a single call */
+        if (vt > console.vt_buffer) {
+            DWORD written;
+
+            WriteConsoleW(console.hConOut, console.vt_buffer,
+                          (DWORD)(vt - console.vt_buffer),
+                          &written, NULL);
+        }
+    } else {
+        /* Legacy rendering path: per-cell Win32 API calls */
+        for (pos.Y = 0; pos.Y < console.height; pos.Y++) {
+            for (pos.X = 0; pos.X < console.width; pos.X++) {
+                if (back->attribute != front->attribute) {
+                    WriteConsoleOutputAttribute(console.hConOut,
+                                                &back->attribute,
+                                                1, pos, &unused);
+                    front->attribute = back->attribute;
+                }
+                if (back->character != front->character) {
+                    if (console.has_unicode) {
+                        WriteConsoleOutputCharacterW(console.hConOut,
+                            &back->character, 1, pos, &unused);
+                    } else {
+                        char ch = (char)back->character;
+                        WriteConsoleOutputCharacterA(console.hConOut,
+                            &ch, 1, pos, &unused);
+                    }
+                    *front = *back;
+                }
+                back++;
+                front++;
+            }
         }
     }
 }
@@ -315,6 +481,17 @@ const char *s;
     if (s)
         raw_print(s);
     restore_original_console_font();
+    /* Restore VT mode: reset colors and disable VT processing */
+    if (console.has_vtmode) {
+        DWORD omode, written;
+
+        /* Reset terminal attributes to default */
+        WriteConsoleW(console.hConOut, L"\033[0m", 4, &written, NULL);
+        if (GetConsoleMode(console.hConOut, &omode)) {
+            SetConsoleMode(console.hConOut,
+                           omode & ~ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+        }
+    }
     if (orig_QuickEdit) {
         DWORD cmode;
 
@@ -582,6 +759,34 @@ const char *s;
     }
 }
 
+/* Compute legacy attribute and pack nhcolor/nhattr into a cell.
+ * Shared by xputc_core() and g_putch() to avoid duplication. */
+static void
+build_cell_attrs(cell, inverse)
+cell_t *cell;
+boolean inverse;
+{
+    int lookup_color = console.current_nhcolor;
+
+    if (lookup_color < 0 || lookup_color >= CLR_MAX)
+        lookup_color = map_color_256to16(lookup_color);
+    console.attr = inverse ?
+                    ttycolors_inv[lookup_color] :
+                    ttycolors[lookup_color];
+    if (console.current_nhattr[ATR_BOLD])
+        console.attr |= inverse ?
+                        BACKGROUND_INTENSITY : FOREGROUND_INTENSITY;
+    cell->attribute = console.attr;
+    cell->nhcolor = (short) console.current_nhcolor;
+    cell->nhattr = 0;
+    if (console.current_nhattr[ATR_BOLD])
+        cell->nhattr |= NHATTR_BOLD;
+    if (inverse)
+        cell->nhattr |= NHATTR_INVERSE;
+    if (console.current_nhattr[ATR_ULINE])
+        cell->nhattr |= NHATTR_ULINE;
+}
+
 /* xputc_core() and g_putch() are the only
  * two routines that actually place output
  * on the display.
@@ -615,14 +820,7 @@ char ch;
     default:
 
         inverse = (console.current_nhattr[ATR_INVERSE] && iflags.wc_inverse);
-        console.attr = (inverse) ?
-                        ttycolors_inv[console.current_nhcolor] :
-                        ttycolors[console.current_nhcolor];
-        if (console.current_nhattr[ATR_BOLD])
-                console.attr |= (inverse) ?
-                                BACKGROUND_INTENSITY : FOREGROUND_INTENSITY;
-
-        cell.attribute = console.attr;
+        build_cell_attrs(&cell, inverse);
         cell.character = (console.has_unicode ? console.cpMap[ch] : ch);
 
         buffer_write(console.back_buffer, &cell, console.cursor);
@@ -652,19 +850,12 @@ int in_ch;
 {
     boolean inverse = FALSE;
     unsigned char ch = (unsigned char) in_ch;
+    cell_t cell;
 
     set_console_cursor(ttyDisplay->curx, ttyDisplay->cury);
 
     inverse = (console.current_nhattr[ATR_INVERSE] && iflags.wc_inverse);
-    console.attr = (console.current_nhattr[ATR_INVERSE] && iflags.wc_inverse) ?
-                    ttycolors_inv[console.current_nhcolor] :
-                    ttycolors[console.current_nhcolor];
-    if (console.current_nhattr[ATR_BOLD])
-        console.attr |= (inverse) ? BACKGROUND_INTENSITY : FOREGROUND_INTENSITY;
-
-    cell_t cell;
-
-    cell.attribute = console.attr;
+    build_cell_attrs(&cell, inverse);
     cell.character = (console.has_unicode ? cp437[ch] : ch);
 
     buffer_write(console.back_buffer, &cell, console.cursor);
@@ -683,27 +874,39 @@ void
 raw_clear_screen()
 {
     if (WINDOWPORT("tty")) {
-        cell_t * back = console.back_buffer;
-        cell_t * front = console.front_buffer;
-        COORD pos;
-        DWORD unused;
+        if (console.has_vtmode) {
+            /* VT mode: invalidate front buffer and let flip redraw */
+            cell_t *front = console.front_buffer;
+            int i;
 
-        for (pos.Y = 0; pos.Y < console.height; pos.Y++) {
-            for (pos.X = 0; pos.X < console.width; pos.X++) {
-                 WriteConsoleOutputAttribute(console.hConOut, &back->attribute,
-                                             1, pos, &unused);
-                 front->attribute = back->attribute;
-                 if (console.has_unicode) {
-                     WriteConsoleOutputCharacterW(console.hConOut,
-                             &back->character, 1, pos, &unused);
-                 } else {
-                     char ch = (char)back->character;
-                     WriteConsoleOutputCharacterA(console.hConOut, &ch, 1, pos,
-                                                         &unused);
-                 }
-                 *front = *back;
-                 back++;
-                 front++;
+            for (i = 0; i < console.buffer_size; i++)
+                front[i] = undefined_cell;
+            back_buffer_flip();
+        } else {
+            /* Legacy path: write all cells unconditionally */
+            cell_t *back = console.back_buffer;
+            cell_t *front = console.front_buffer;
+            COORD pos;
+            DWORD unused;
+
+            for (pos.Y = 0; pos.Y < console.height; pos.Y++) {
+                for (pos.X = 0; pos.X < console.width; pos.X++) {
+                    WriteConsoleOutputAttribute(console.hConOut,
+                                                &back->attribute,
+                                                1, pos, &unused);
+                    front->attribute = back->attribute;
+                    if (console.has_unicode) {
+                        WriteConsoleOutputCharacterW(console.hConOut,
+                                &back->character, 1, pos, &unused);
+                    } else {
+                        char ch = (char)back->character;
+                        WriteConsoleOutputCharacterA(console.hConOut,
+                            &ch, 1, pos, &unused);
+                    }
+                    *front = *back;
+                    back++;
+                    front++;
+                }
             }
         }
     }
@@ -907,9 +1110,10 @@ term_start_color(int color)
     if (color >= 0 && color < CLR_MAX) {
         console.current_nhcolor = color;
     } else if (IS_EXT_COLOR(color)) {
-        /* Windows Console API only supports 16 colors.
-           Fall back to nearest base-16 equivalent. */
-        console.current_nhcolor = map_color_256to16(color);
+        if (console.has_vtmode)
+            console.current_nhcolor = color; /* keep full 256-color */
+        else
+            console.current_nhcolor = map_color_256to16(color);
     } else
 #endif
     console.current_nhcolor = NO_COLOR;
@@ -1827,6 +2031,31 @@ void nethack_enter_nttty()
 
     /* determine whether OS version has unicode support */
     console.has_unicode = ((GetVersion() & 0x80000000) == 0);
+
+    /* Try to enable VT processing for 256-color ANSI escape output.
+     * Supported on Windows 10 version 1511 (build 10586) and later.
+     * On older Windows, SetConsoleMode fails and we fall back to the
+     * legacy 16-color rendering path. */
+    {
+        DWORD omode;
+
+        if (GetConsoleMode(console.hConOut, &omode)
+            && SetConsoleMode(console.hConOut,
+                              omode | ENABLE_VIRTUAL_TERMINAL_PROCESSING)) {
+            console.has_vtmode = TRUE;
+            /* Allocate VT escape sequence output buffer.
+             * Worst case per cell: ~48 WCHARs (cursor + SGR + char) */
+            console.vt_buffer_size = console.buffer_size * 48;
+            console.vt_buffer = (WCHAR *)malloc(
+                console.vt_buffer_size * sizeof(WCHAR));
+        }
+    }
+    /* If VT mode unavailable, clear 256-color capability so
+     * has_color() returns FALSE for extended colors and the
+     * fallback system in mapglyph.c engages automatically. */
+    if (!console.has_vtmode) {
+        windowprocs.wincap2 &= ~WC2_EXTCOLORS;
+    }
 
     /* check the font before we capture the code page map */
     check_and_set_font();

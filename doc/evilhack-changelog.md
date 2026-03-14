@@ -5116,4 +5116,5 @@ The following changes to date are:
 - Fix: Windows TTY inventory menu glyphs missing
 - Update GitHub Actions to Node.js 24 runtime
 - Fix: Windows TTY 256-color fallback uses correct game-specific colors
+- Windows TTY true 256-color support via VT escape sequences
 
