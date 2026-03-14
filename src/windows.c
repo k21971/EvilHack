@@ -2326,7 +2326,7 @@ int color;
     if (IS_EXT_COLOR(color)) {
         return (iflags.use_color && iflags.use_256color
                 && windowprocs.name
-                && (windowprocs.wincap & WC_COLOR));
+                && (windowprocs.wincap2 & WC2_EXTCOLORS));
     }
     return (iflags.use_color && windowprocs.name
             && (windowprocs.wincap & WC_COLOR)
