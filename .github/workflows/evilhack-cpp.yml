@@ -67,6 +67,8 @@ jobs:
       with:
         submodules: recursive
     - uses: TheMrMilchmann/setup-msvc-dev@v4 # enable visual c compiler / nmake
+      with:
+        arch: x64
     - name: setup
       run: |
         choco install winflexbison
