@@ -5120,4 +5120,5 @@ The following changes to date are:
 - Update MSVC dev github action to TheMrMilchmann/setup-msvc-dev@v4
 - Fix: setup-msvc-dev requires explicit arch parameter
 - Fix: Curses 256-color works with limited COLOR_PAIRS (PDCurses)
+- Tweak a few more object colors
 
