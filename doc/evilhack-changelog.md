@@ -5122,4 +5122,5 @@ The following changes to date are:
 - Fix: Curses 256-color works with limited COLOR_PAIRS (PDCurses)
 - Tweak a few more object colors
 - Guidebook: add custom races, fix unpaginated dead space
+- Guidebook: update 256-color information
 

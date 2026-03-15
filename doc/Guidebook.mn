@@ -3879,8 +3879,8 @@ If EvilHack can, it should display an ascii character map if it can.
 If EvilHack can, it should display color if it can for different monsters,
 objects, and dungeon features.
 On terminals that support 256 colors, EvilHack will automatically use an
-extended color palette for dungeon features such as Gehennom walls, the
-Gnomish Mines, water, ice, and lava.
+extended color palette for dungeon features such as Gehennom walls, various
+monsters, and terrain such as water, ice, and lava.
 .lp eight_bit_tty
 If EvilHack can, it should pass eight-bit character values (for example,
 specified with the
@@ -3964,8 +3964,8 @@ Specify the preferred height of each tile in a tile capable port.
 .lp tile_width
 Specify the preferred width of each tile in a tile capable port
 .lp use_256color
-Use extended 256\-color palette for materials and terrain features
-on terminals that support it.
+Use extended 256\-color palette for materials, monsters and terrain
+features on terminals that support it.
 Disable this if colors appear wrong on your terminal.
 Default is on.
 .lp use_darkgray
