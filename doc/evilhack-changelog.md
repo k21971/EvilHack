@@ -5129,4 +5129,5 @@ The following changes to date are:
 - Fix: monster steed grab not released when rider flees
 - Fix: Infidel killing Oracle guilt after helm of opposite alignment
 - Monster dual-wielding: allow 2+ AT_WEAP monsters to wield two weapons
+- Fix: monster dual-wield message and activation issues
 

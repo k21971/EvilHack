@@ -1628,7 +1628,6 @@ struct monst *mon;
         setmnotwielded2(mon, MON_WEP2(mon));
 
     mon->mw2 = obj;
-    obj->owornmask = W_SWAPWEP;
 
     if (canseemon(mon)) {
         pline("%s wields %s in %s other %s.", Monnam(mon),
@@ -1649,6 +1648,7 @@ struct monst *mon;
                       : "in the distance");
     }
 
+    obj->owornmask = W_SWAPWEP;
     return 1;
 }
 
@@ -1800,6 +1800,9 @@ struct monst *mon;
         if (mw_tmp && mw_tmp->otyp == obj->otyp) {
             /* already wielding it */
             mon->weapon_check = NEED_WEAPON;
+            /* still try to wield secondary weapon if capable */
+            if (can_dual_wield(mon) && !MON_WEP2(mon))
+                return mon_wield_offhand(mon);
             return 0;
         }
         /* Actually, this isn't necessary--as soon as the monster
