@@ -457,6 +457,7 @@ struct monst *magr, *mdef;
         struck = 0, /* hit at least once */
         res[NATTK], /* results of all attacks */
         dieroll = 0,
+        weap_attk_idx = 0, /* which AT_WEAP attack (0=primary, 1+=off-hand) */
         saved_mhp = (mdef ? mdef->mhp : 0); /* for print_mon_wounded() */
     struct attack *mattk, alt_attk;
     struct obj *mwep;
@@ -557,15 +558,29 @@ struct monst *magr, *mdef;
                     res[i] = MM_DEF_DIED;
                 if (DEADMONSTER(magr))
                     res[i] |= MM_AGR_DIED;
+                weap_attk_idx++;
                 break;
             }
-            if (magr->weapon_check == NEED_WEAPON || !MON_WEP(magr)) {
-                magr->weapon_check = NEED_HTH_WEAPON;
-                if (mon_wield_item(magr) != 0)
-                    return 0;
+            if (weap_attk_idx == 0) {
+                /* first AT_WEAP: use primary weapon */
+                if (magr->weapon_check == NEED_WEAPON
+                    || !MON_WEP(magr)) {
+                    magr->weapon_check = NEED_HTH_WEAPON;
+                    if (mon_wield_item(magr) != 0)
+                        return 0;
+                }
+                possibly_unwield(magr, FALSE);
+                mwep = MON_WEP(magr);
+            } else {
+                /* 2nd+ AT_WEAP: use off-hand weapon with penalty */
+                mwep = MON_WEP2(magr);
+                if (mwep)
+                    tmp -= OFFHAND_PENALTY;
+                else
+                    mwep = MON_WEP(magr); /* fallback to primary */
             }
-            possibly_unwield(magr, FALSE);
-            if ((mwep = MON_WEP(magr)) != 0) {
+            weap_attk_idx++;
+            if (mwep) {
                 if (vis)
                     mswingsm(magr, mdef, mwep);
                 tmp += hitval(mwep, mdef);
@@ -946,7 +961,7 @@ int dieroll;
                     Sprintf(buf, "%s squeezes", magr_name);
                 break;
             case AT_WEAP:
-                if (!MON_WEP(magr)) { /* AT_WEAP but isn't wielding anything */
+                if (!mwep) { /* AT_WEAP but isn't wielding anything */
                     if (has_claws(r_data(magr)))
                         Sprintf(buf, "%s claws", magr_name);
                     else if (has_claws_undead(r_data(magr)))
@@ -954,13 +969,13 @@ int dieroll;
                     else
                         Sprintf(buf, "%s %ss", magr_name,
                                 mwep_none[rn2(SIZE(mwep_none))]);
-                } else if (is_pierce(MON_WEP(magr)))
+                } else if (is_pierce(mwep))
                     Sprintf(buf, "%s %ss", magr_name,
                             mwep_pierce[rn2(SIZE(mwep_pierce))]);
-                else if (is_slash(MON_WEP(magr)))
+                else if (is_slash(mwep))
                     Sprintf(buf, "%s %ss", magr_name,
                             mwep_slash[rn2(SIZE(mwep_slash))]);
-                else if (is_whack(MON_WEP(magr)))
+                else if (is_whack(mwep))
                     Sprintf(buf, "%s %ss", magr_name,
                             mwep_whack[rn2(SIZE(mwep_whack))]);
                 else
@@ -1269,8 +1284,10 @@ struct attack *mattk;
         if (mdef && mattk->adtyp == AD_ACID) {
             if (rn2(4))
                 erode_armor(mdef, ERODE_CORRODE);
-            if (rn2(2))
+            if (rn2(2)) {
                 acid_damage(MON_WEP(mdef));
+                acid_damage(MON_WEP2(mdef));
+            }
         }
         /* unconditionally set AGR_DIED here; lifesaving is accounted below */
         result = MM_AGR_DIED | (DEADMONSTER(mdef) ? MM_DEF_DIED : 0);
@@ -1897,8 +1914,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         if (!mon_underwater(mdef)) {
             if (!rn2(30))
                 erode_armor(mdef, ERODE_CORRODE);
-            if (!rn2(6))
+            if (!rn2(6)) {
                 acid_damage(MON_WEP(mdef));
+                acid_damage(MON_WEP2(mdef));
+            }
         }
         break;
     case AD_RUST:
@@ -2233,6 +2252,8 @@ post_stone:
                 mdef->misc_worn_check &= ~gold->owornmask;
                 if (gold->owornmask & W_WEP)
                     mwepgone(mdef);
+                if (gold->owornmask & W_SWAPWEP)
+                    mwep2gone(mdef);
                 gold->owornmask = 0L;
                 update_mon_intrinsics(mdef, gold, FALSE, FALSE);
                 /* give monster a chance to wear other equipment on its next
@@ -2333,6 +2354,8 @@ post_stone:
                 mdef->misc_worn_check &= ~obj->owornmask;
                 if (obj->owornmask & W_WEP)
                     mwepgone(mdef);
+                if (obj->owornmask & W_SWAPWEP)
+                    mwep2gone(mdef);
                 obj->owornmask = 0L;
                 update_mon_intrinsics(mdef, obj, FALSE, FALSE);
                 /* give monster a chance to wear other equipment on its next
@@ -3429,8 +3452,10 @@ struct obj *mwep;
         if (!mon_underwater(magr)) {
             if (!rn2(30))
                 erode_armor(magr, ERODE_CORRODE);
-            if (!rn2(6))
+            if (!rn2(6)) {
                 acid_damage(MON_WEP(magr));
+                acid_damage(MON_WEP2(magr));
+            }
         }
         goto assess_dmg;
     case AD_DISN: {

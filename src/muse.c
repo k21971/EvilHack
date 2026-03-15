@@ -4341,6 +4341,11 @@ const char *str;
         if (str)
             pline(str, s_suffix(mon_nam(mon)), "weapon");
         return TRUE;
+    } else if (arti_reflects(MON_WEP2(mon))) {
+        /* due to off-hand artifact weapon */
+        if (str)
+            pline(str, s_suffix(mon_nam(mon)), "other weapon");
+        return TRUE;
     } else if ((orefl = m_carrying_arti_reflecting(mon)) != 0) {
         /* carried (not worn/wielded) artifact granting reflection,
            e.g. the Magic Mirror of Merlin */
@@ -4497,6 +4502,8 @@ boolean by_you;
             /* Clear weapon pointer if we're about to clear W_WEP */
             if ((otmp->owornmask & W_WEP) && MON_WEP(mon) == otmp)
                 MON_NOWEP(mon);
+            if ((otmp->owornmask & W_SWAPWEP) && MON_WEP2(mon) == otmp)
+                MON_NOWEP2(mon);
             otmp->owornmask = 0L; /* obfree() expects this */
             (void) bhito(otmp, pseudo);
         }

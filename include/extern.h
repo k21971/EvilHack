@@ -3122,8 +3122,12 @@ E int FDECL(mon_needs_ammo, (struct monst *));
 E boolean FDECL(mon_wants_ammo, (struct monst *, struct obj *));
 E boolean FDECL(monmightthrowwep, (struct obj *));
 E struct obj *FDECL(select_hwep, (struct monst *));
+E struct obj *FDECL(select_offhand_hwep, (struct monst *));
+E boolean FDECL(can_dual_wield, (struct monst *));
+E int FDECL(mon_wield_offhand, (struct monst *));
 E void FDECL(possibly_unwield, (struct monst *, BOOLEAN_P));
 E void FDECL(mwepgone, (struct monst *));
+E void FDECL(mwep2gone, (struct monst *));
 E int FDECL(mon_wield_item, (struct monst *));
 E int NDECL(abon);
 E int NDECL(dbon);
@@ -3176,6 +3180,7 @@ E int FDECL(chwepon, (struct obj *, int));
 E int FDECL(welded, (struct obj *));
 E void FDECL(weldmsg, (struct obj *));
 E void FDECL(setmnotwielded, (struct monst *, struct obj *));
+E void FDECL(setmnotwielded2, (struct monst *, struct obj *));
 E boolean FDECL(mwelded, (struct obj *));
 
 /* ### windows.c ### */

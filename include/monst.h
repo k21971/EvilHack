@@ -217,6 +217,7 @@ struct monst {
 #define mstate mspare1     /* only for debug exam right now, not code flow */
     struct obj *minvent;   /* mon's inventory */
     struct obj *mw;        /* mon's weapon */
+    struct obj *mw2;       /* mon's secondary weapon (dual-wield) */
     long misc_worn_check;  /* mon's wornmask */
     xchar weapon_check;    /* flag for whether to try switching weapons */
 
@@ -247,6 +248,10 @@ struct monst {
 
 #define MON_WEP(mon) ((mon)->mw)
 #define MON_NOWEP(mon) ((mon)->mw = (struct obj *) 0)
+#define MON_WEP2(mon) ((mon)->mw2)
+#define MON_NOWEP2(mon) ((mon)->mw2 = (struct obj *) 0)
+
+#define OFFHAND_PENALTY 4 /* to-hit penalty for monster off-hand attacks */
 
 #define DEADMONSTER(mon) ((mon)->mhp < 1)
 #define is_starting_pet(mon) ((mon)->m_id == context.startingpet_mid)

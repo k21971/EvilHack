@@ -1675,8 +1675,10 @@ unsigned doname_flags;
         }
     }
     if (obj->owornmask & W_SWAPWEP) {
-        if (u.twoweap) {
-            Sprintf(eos(bp), " (wielded in other %s)", mbodypart(owner, HAND));
+        if (u.twoweap
+            || (owner != &youmonst && MON_WEP2(owner) == obj)) {
+            Sprintf(eos(bp), " (wielded in other %s)",
+                    mbodypart(owner, HAND));
         } else {
             Strcat(bp, " (alternate weapon; not wielded)");
         }
@@ -1685,7 +1687,8 @@ unsigned doname_flags;
     /* Various in-use light sources; overwrite trailing ')'. */
     if (!Blind
         && ((obj->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
-        || (u.twoweap && (obj->owornmask & W_SWAPWEP)))) {
+        || ((u.twoweap || (owner != &youmonst && MON_WEP2(owner)))
+            && (obj->owornmask & W_SWAPWEP)))) {
         /* Warning glow from in-use artifacts. */
         if (obj->lastwarncnt
             && strcmp(glow_color(obj->oartifact), "no color")) {

@@ -1526,6 +1526,132 @@ struct monst *mtmp;
     return (struct obj *) 0;
 }
 
+/* Can this monster fight with two weapons? */
+boolean
+can_dual_wield(mon)
+struct monst *mon;
+{
+    struct obj *shield, *mwep;
+
+    if (!could_twoweap(mon->data))
+        return FALSE;
+    if (mindless(mon->data) || is_animal(mon->data))
+        return FALSE;
+
+    mwep = MON_WEP(mon);
+    if (!mwep)
+        return FALSE;
+    /* can't dual-wield with a two-handed primary */
+    if ((mwep->oclass == WEAPON_CLASS || mwep->oclass == TOOL_CLASS)
+        && objects[mwep->otyp].oc_bimanual)
+        return FALSE;
+
+    /* non-bracer shields block dual-wield */
+    shield = which_armor(mon, W_ARMS);
+    if (shield && !is_bracer(shield))
+        return FALSE;
+
+    return TRUE;
+}
+
+/* Select a secondary hand-to-hand weapon for dual-wielding.
+   Similar to select_hwep() but skips primary weapon, requires
+   one-handed, and uses simpler scoring */
+struct obj *
+select_offhand_hwep(mon)
+struct monst *mon;
+{
+    struct obj *otmp, *best = (struct obj *) 0;
+    int best_val = 0, val;
+
+    for (otmp = mon->minvent; otmp; otmp = otmp->nobj) {
+        /* skip primary weapon */
+        if (otmp == MON_WEP(mon))
+            continue;
+        /* skip worn/wielded items (but allow current mw2) */
+        if (otmp->owornmask && otmp != MON_WEP2(mon))
+            continue;
+        /* must be a weapon or weapon-tool */
+        if (otmp->oclass == WEAPON_CLASS) {
+            /* ok */
+        } else if (is_weptool(otmp)) {
+            /* ok */
+        } else {
+            continue;
+        }
+        /* must be one-handed */
+        if (objects[otmp->otyp].oc_bimanual)
+            continue;
+        /* skip launchers */
+        if (is_launcher(otmp))
+            continue;
+        /* skip hated materials */
+        if (mon_hates_material(mon, otmp->material))
+            continue;
+
+        /* score: artifact bonus + enchantment + base damage */
+        val = objects[otmp->otyp].oc_wldam;
+        if (otmp->oartifact)
+            val += 10;
+        if (otmp->spe > 0)
+            val += otmp->spe;
+
+        if (val > best_val) {
+            best_val = val;
+            best = otmp;
+        }
+    }
+    return best;
+}
+
+/* Have a monster wield a secondary weapon for dual-wielding.
+   Returns 1 if the monster took time to do it, 0 if not */
+int
+mon_wield_offhand(mon)
+struct monst *mon;
+{
+    struct obj *obj;
+
+    if (!can_dual_wield(mon))
+        return 0;
+
+    obj = select_offhand_hwep(mon);
+    if (!obj)
+        return 0;
+
+    /* already wielding this one */
+    if (obj == MON_WEP2(mon))
+        return 0;
+
+    /* clear old secondary */
+    if (MON_WEP2(mon))
+        setmnotwielded2(mon, MON_WEP2(mon));
+
+    mon->mw2 = obj;
+    obj->owornmask = W_SWAPWEP;
+
+    if (canseemon(mon)) {
+        pline("%s wields %s in %s other %s.", Monnam(mon),
+              doname(obj), mhis(mon), mbodypart(mon, HAND));
+    }
+
+    /* handle artifact light */
+    if (artifact_light(obj) && !obj->lamplit) {
+        begin_burn(obj, FALSE);
+        if (canseemon(mon))
+            pline("%s %s in %s %s!", Tobjnam(obj, "shine"),
+                  arti_light_description(obj), s_suffix(mon_nam(mon)),
+                  mbodypart(mon, HAND));
+        else if (cansee(mon->mx, mon->my))
+            pline("Light begins shining %s.",
+                  (distu(mon->mx, mon->my) <= 5 * 5)
+                      ? "nearby"
+                      : "in the distance");
+    }
+
+    return 1;
+}
+
 /* Called after polymorphing a monster, robbing it, etc....  Monsters
  * otherwise never unwield stuff on their own.  Might print message.
  */
@@ -1537,14 +1663,14 @@ boolean polyspot;
     struct obj *obj, *mw_tmp;
 
     if (!(mw_tmp = MON_WEP(mon)))
-        return;
+        goto check_mw2; /* still need to validate secondary weapon */
     for (obj = mon->minvent; obj; obj = obj->nobj)
         if (obj == mw_tmp)
             break;
     if (!obj) { /* The weapon was stolen or destroyed */
         MON_NOWEP(mon);
         mon->weapon_check = NEED_WEAPON;
-        return;
+        goto check_mw2;
     }
     if (!attacktype(mon->data, AT_WEAP)) {
         setmnotwielded(mon, mw_tmp);
@@ -1561,7 +1687,7 @@ boolean polyspot;
             place_object(obj, mon->mx, mon->my);
             stackobj(obj);
         }
-        return;
+        goto check_mw2;
     }
     /* The remaining case where there is a change is where a monster
      * is polymorphed into a stronger/weaker monster with a different
@@ -1579,6 +1705,33 @@ boolean polyspot;
     if (!(mwelded(mw_tmp) && mon->data != &mons[PM_INFIDEL]
           && mon->weapon_check == NO_WEAPON_WANTED))
         mon->weapon_check = NEED_WEAPON;
+
+ check_mw2:
+    /* also check secondary weapon */
+    if ((mw_tmp = MON_WEP2(mon)) != 0) {
+        for (obj = mon->minvent; obj; obj = obj->nobj)
+            if (obj == mw_tmp)
+                break;
+        if (!obj) {
+            /* secondary weapon was stolen or destroyed */
+            MON_NOWEP2(mon);
+        } else if (!can_dual_wield(mon)) {
+            /* can no longer dual-wield (form change, etc.) */
+            setmnotwielded2(mon, mw_tmp);
+            obj_extract_self(obj);
+            if (cansee(mon->mx, mon->my)) {
+                pline("%s drops %s.", Monnam(mon),
+                      distant_name(obj, doname));
+                newsym(mon->mx, mon->my);
+            }
+            if (!flooreffects(obj, mon->mx, mon->my, "drop")) {
+                if (polyspot)
+                    bypass_obj(obj);
+                place_object(obj, mon->mx, mon->my);
+                stackobj(obj);
+            }
+        }
+    }
     return;
 }
 
@@ -1719,6 +1872,16 @@ struct monst *mon;
                           : "in the distance");
         }
         obj->owornmask = W_WEP;
+
+        /* if primary is two-handed, clear any secondary */
+        if ((obj->oclass == WEAPON_CLASS || obj->oclass == TOOL_CLASS)
+            && objects[obj->otyp].oc_bimanual && MON_WEP2(mon)) {
+            setmnotwielded2(mon, MON_WEP2(mon));
+        }
+        /* try to wield secondary weapon if capable */
+        if (can_dual_wield(mon) && !MON_WEP2(mon))
+            mon_wield_offhand(mon);
+
         return 1;
     }
     mon->weapon_check = NEED_WEAPON;
@@ -1734,6 +1897,19 @@ struct monst *mon;
 
     if (mwep) {
         setmnotwielded(mon, mwep);
+        mon->weapon_check = NEED_WEAPON;
+    }
+}
+
+/* force monster to stop wielding secondary weapon, if any */
+void
+mwep2gone(mon)
+struct monst *mon;
+{
+    struct obj *mwep2 = MON_WEP2(mon);
+
+    if (mwep2) {
+        setmnotwielded2(mon, mwep2);
         mon->weapon_check = NEED_WEAPON;
     }
 }
@@ -2752,6 +2928,25 @@ struct obj *obj;
     if (MON_WEP(mon) == obj)
         MON_NOWEP(mon);
     obj->owornmask &= ~W_WEP;
+}
+
+void
+setmnotwielded2(mon, obj)
+struct monst *mon;
+struct obj *obj;
+{
+    if (!obj)
+        return;
+    if (artifact_light(obj) && obj->lamplit) {
+        end_burn(obj, FALSE);
+        if (canseemon(mon))
+            pline("%s in %s %s %s shining.", The(xname(obj)),
+                  s_suffix(mon_nam(mon)), mbodypart(mon, HAND),
+                  otense(obj, "stop"));
+    }
+    if (MON_WEP2(mon) == obj)
+        MON_NOWEP2(mon);
+    obj->owornmask &= ~W_SWAPWEP;
 }
 
 /*weapon.c*/

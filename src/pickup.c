@@ -2260,6 +2260,9 @@ boolean taking;
                     /* if removing a weapon, clear the weapon pointer */
                     if ((unwornmask & W_WEP) && MON_WEP(mtmp) == otmp)
                         MON_NOWEP(mtmp);
+                    if ((unwornmask & W_SWAPWEP)
+                        && MON_WEP2(mtmp) == otmp)
+                        MON_NOWEP2(mtmp);
                     otmp->owornmask = 0L;
                     /* normally extract_from_minvent handles this stuff, but
                      * since we are setting owornmask to 0 now we have to

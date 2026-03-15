@@ -2215,6 +2215,8 @@ long timeout;
     } else if (obj->where == OBJ_MINVENT && obj->owornmask) {
         if (obj == MON_WEP(obj->ocarry))
             setmnotwielded(obj->ocarry, obj);
+        if (obj == MON_WEP2(obj->ocarry))
+            setmnotwielded2(obj->ocarry, obj);
     } else if (obj->where == OBJ_MIGRATING) {
         /* clear destination flag so that obfree()'s check for
            freeing a worn object doesn't get a false hit */

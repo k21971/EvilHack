@@ -2810,7 +2810,11 @@ struct obj* obj;
             if (unwornmask & W_WEP) {
                 setmnotwielded(mon, obj);
                 possibly_unwield(mon, FALSE);
-            } else if (unwornmask & W_ARMG) {
+            }
+            if (unwornmask & W_SWAPWEP) {
+                setmnotwielded2(mon, obj);
+            }
+            if (unwornmask & W_ARMG) {
                 mselftouch(mon, NULL, TRUE);
             }
             /* shouldn't really be needed but... */

@@ -184,6 +184,8 @@ struct monst *mon;
         slotmask |= W_WEP;
     if (is_you && u.twoweap)
         slotmask |= W_SWAPWEP;
+    if (!is_you && MON_WEP2(mon))
+        slotmask |= W_SWAPWEP;
     for (; o; o = o->nobj) {
         if (((o->owornmask & slotmask) != 0L
              && (obj_has_prop(o, ANTIMAGIC)
@@ -223,6 +225,8 @@ struct monst *mon;
         || (uwep && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))))
         slotmask |= W_WEP;
     if (is_you && u.twoweap)
+        slotmask |= W_SWAPWEP;
+    if (!is_you && MON_WEP2(mon))
         slotmask |= W_SWAPWEP;
     for (; o; o = o->nobj)
         if (((o->owornmask & slotmask) != 0L

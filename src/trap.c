@@ -2814,6 +2814,10 @@ struct monst *mtmp;
                 if (target && bimanual(target))
                     (void) water_damage(target, 0,
                                         TRUE, mtmp->mx, mtmp->my);
+                /* off-hand weapon is held in the left hand */
+                if (MON_WEP2(mtmp))
+                    (void) water_damage(MON_WEP2(mtmp), 0,
+                                        TRUE, mtmp->mx, mtmp->my);
             glovecheck:
                 target = which_armor(mtmp, W_ARMG);
                 (void) water_damage(target, "gauntlets",
@@ -2824,6 +2828,8 @@ struct monst *mtmp;
                     pline("%s %s's right %s!", A_gush_of_water_hits,
                           mon_nam(mtmp), mbodypart(mtmp, ARM));
                 (void) water_damage(MON_WEP(mtmp), 0,
+                                    TRUE, mtmp->mx, mtmp->my);
+                (void) water_damage(MON_WEP2(mtmp), 0,
                                     TRUE, mtmp->mx, mtmp->my);
                 goto glovecheck;
             default:
@@ -3509,8 +3515,10 @@ boolean byplayer;
         minstapetrify(mon, byplayer);
         /* if life-saved, might not be able to continue wielding */
         if (!DEADMONSTER(mon) && !which_armor(mon, W_ARMG)
-            && !(resists_ston(mon) || defended(mon, AD_STON)))
+            && !(resists_ston(mon) || defended(mon, AD_STON))) {
             mwepgone(mon);
+            mwep2gone(mon);
+        }
     }
 }
 

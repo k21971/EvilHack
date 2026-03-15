@@ -2973,6 +2973,8 @@ xchar x, y; /* clone's preferred location or 0 (near mon) */
     m2->mentangled = 0;
     m2->mcloned = 1;
     m2->minvent = (struct obj *) 0; /* objects don't clone */
+    m2->mw = (struct obj *) 0;
+    m2->mw2 = (struct obj *) 0;
     m2->mleashed = 0;
     /* Max HP the same, but current HP halved for both.  The caller
      * might want to override this by halving the max HP also.

@@ -110,7 +110,7 @@ struct attack *mattk;
             pfmt = "%s explodes!";
             break;
         case AT_WEAP:
-            if (!MON_WEP(mtmp)) { /* AT_WEAP but isn't wielding anything */
+            if (!mon_currwep) { /* AT_WEAP but isn't wielding anything */
                 if (has_claws(r_data(mtmp)))
                     pfmt = "%s claws you!";
                 else if (has_claws_undead(r_data(mtmp)))
@@ -118,13 +118,13 @@ struct attack *mattk;
                 else
                     pline("%s %ss you!", Monnam(mtmp),
                           mwep_none[rn2(SIZE(mwep_none))]);
-            } else if (is_pierce(MON_WEP(mtmp)))
+            } else if (is_pierce(mon_currwep))
                 pline("%s %ss you!", Monnam(mtmp),
                       mwep_pierce[rn2(SIZE(mwep_pierce))]);
-            else if (is_slash(MON_WEP(mtmp)))
+            else if (is_slash(mon_currwep))
                 pline("%s %ss you!", Monnam(mtmp),
                       mwep_slash[rn2(SIZE(mwep_slash))]);
-            else if (is_whack(MON_WEP(mtmp)))
+            else if (is_whack(mon_currwep))
                 pline("%s %ss you!", Monnam(mtmp),
                       mwep_whack[rn2(SIZE(mwep_whack))]);
             else
@@ -662,7 +662,7 @@ mattacku(mtmp)
 struct monst *mtmp;
 {
     struct attack *mattk, alt_attk;
-    int i, j = 0, tmp, sum[NATTK];
+    int i, j = 0, tmp, sum[NATTK], weap_attk_idx = 0;
     struct permonst *mdat = mtmp->data;
     /*
      * ranged: Is it near you?  Affects your actions.
@@ -1221,29 +1221,49 @@ struct monst *mtmp;
             if (range2) {
                 if (!Is_rogue_level(&u.uz))
                     thrwmu(mtmp);
+                weap_attk_idx++;
             } else {
                 int hittmp = 0;
 
-                /* Rare but not impossible.  Normally the monster
-                 * wields when 2 spaces away, but it can be
-                 * teleported or whatever....
-                 */
-                if ((mtmp->weapon_check == NEED_WEAPON || !MON_WEP(mtmp)
-                    || (is_launcher(MON_WEP(mtmp)) && !(MON_WEP(mtmp))->cursed))) {
-                    mtmp->weapon_check = NEED_HTH_WEAPON;
-                    /* mon_wield_item resets weapon_check as appropriate */
-                    if (mon_wield_item(mtmp) != 0)
-                        break;
-                }
-                if (!MON_WEP(mtmp) || is_launcher(MON_WEP(mtmp))) {
-                    /* implies we could not find a HTH weapon, try point blank
-                     * ranged attack */
-                    if (thrwmu(mtmp)) {
-                        break;
+                if (weap_attk_idx == 0) {
+                    /* first AT_WEAP: use primary weapon */
+                    /* Rare but not impossible.  Normally the monster
+                     * wields when 2 spaces away, but it can be
+                     * teleported or whatever....
+                     */
+                    if ((mtmp->weapon_check == NEED_WEAPON
+                        || !MON_WEP(mtmp)
+                        || (is_launcher(MON_WEP(mtmp))
+                            && !(MON_WEP(mtmp))->cursed))) {
+                        mtmp->weapon_check = NEED_HTH_WEAPON;
+                        /* mon_wield_item resets weapon_check
+                           as appropriate */
+                        if (mon_wield_item(mtmp) != 0) {
+                            weap_attk_idx++;
+                            break;
+                        }
                     }
-                }
-                if (foundyou) {
+                    if (!MON_WEP(mtmp)
+                        || is_launcher(MON_WEP(mtmp))) {
+                        /* implies we could not find a HTH weapon,
+                         * try point blank ranged attack */
+                        if (thrwmu(mtmp)) {
+                            weap_attk_idx++;
+                            break;
+                        }
+                    }
                     mon_currwep = MON_WEP(mtmp);
+                } else {
+                    /* 2nd+ AT_WEAP: use off-hand weapon */
+                    mon_currwep = MON_WEP2(mtmp);
+                    if (mon_currwep)
+                        tmp -= OFFHAND_PENALTY;
+                    else
+                        mon_currwep = MON_WEP(mtmp); /* fallback */
+                }
+                weap_attk_idx++;
+
+                if (foundyou) {
                     if (mon_currwep) {
                         hittmp = hitval(mon_currwep, &youmonst);
                         tmp += hittmp;
@@ -1692,7 +1712,7 @@ struct attack *mattk;
 
                 /* glass breakage from the attack */
                 break_glass_obj(some_armor(&youmonst));
-                if (break_glass_obj(MON_WEP(mtmp))) {
+                if (break_glass_obj(mon_currwep)) {
                     otmp = NULL;
                     mon_currwep = NULL;
                 }
@@ -4784,8 +4804,10 @@ struct attack *mattk;
         if (!Underwater) {
             if (!rn2(30))
                 erode_armor(mtmp, ERODE_CORRODE);
-            if (!rn2(6))
+            if (!rn2(6)) {
                 acid_damage(MON_WEP(mtmp));
+                acid_damage(MON_WEP2(mtmp));
+            }
         }
         goto assess_dmg;
     case AD_DISN: {

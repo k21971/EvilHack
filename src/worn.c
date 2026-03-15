@@ -1085,6 +1085,24 @@ boolean racialexception;
     }
     mon->misc_worn_check |= flag;
     best->owornmask |= flag;
+    /* equipping a non-bracer shield forces dropping secondary weapon */
+    if (flag == W_ARMS && !is_bracer(best) && MON_WEP2(mon)) {
+        struct obj *mw2 = MON_WEP2(mon);
+
+        setmnotwielded2(mon, mw2);
+        if (!creation) {
+            obj_extract_self(mw2);
+            if (cansee(mon->mx, mon->my)) {
+                pline("%s drops %s.", Monnam(mon),
+                      distant_name(mw2, doname));
+                newsym(mon->mx, mon->my);
+            }
+            if (!flooreffects(mw2, mon->mx, mon->my, "drop")) {
+                place_object(mw2, mon->mx, mon->my);
+                stackobj(mw2);
+            }
+        }
+    }
     if (autocurse)
         curse(best);
     if (artifact_light(best) && !best->lamplit) {
@@ -1696,6 +1714,8 @@ boolean silently; /* doesn't affect all possible messages, just
     obj_no_longer_held(obj);
     if (unwornmask & W_WEP)
         mwepgone(mon); /* unwields and sets weapon_check to NEED_WEAPON */
+    if (unwornmask & W_SWAPWEP)
+        mwep2gone(mon);
 }
 
 /* Return the armor bonus of a piece of armor: the amount by which it directly

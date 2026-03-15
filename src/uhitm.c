@@ -3859,8 +3859,10 @@ struct attack *mattk;
         if (mdef && mattk->adtyp == AD_ACID) {
             if (rn2(4))
                 erode_armor(mdef, ERODE_CORRODE);
-            if (rn2(2))
+            if (rn2(2)) {
                 acid_damage(MON_WEP(mdef));
+                acid_damage(MON_WEP2(mdef));
+            }
         }
         if (mdef && DEADMONSTER(mdef)) {
             /* Other monsters may have died too, but return 2 if the actual

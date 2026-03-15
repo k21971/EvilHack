@@ -948,6 +948,7 @@ boolean adjacentok; /* False: at obj's spot only, True: nearby is allowed */
         mtmp2->mux = mtmp->mux;
         mtmp2->muy = mtmp->muy;
         mtmp2->mw = mtmp->mw;
+        mtmp2->mw2 = mtmp->mw2;
         mtmp2->wormno = mtmp->wormno;
         mtmp2->misc_worn_check = mtmp->misc_worn_check;
         mtmp2->weapon_check = mtmp->weapon_check;
@@ -4944,8 +4945,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             break;
         }
         tmp = d(nd, 6);
-        if (!rn2(6))
+        if (!rn2(6)) {
             acid_damage(MON_WEP(mon));
+            acid_damage(MON_WEP2(mon));
+        }
         if (!rn2(6))
             erode_armor(mon, ERODE_CORRODE);
         break;
@@ -4965,8 +4968,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             tmp = mon->mhp + 1;
             break;
         }
-        if (!rn2(6))
+        if (!rn2(6)) {
             water_damage(MON_WEP(mon), 0, TRUE, mon->mx, mon->my);
+            water_damage(MON_WEP2(mon), 0, TRUE, mon->mx, mon->my);
+        }
         if (!rn2(6))
             erode_armor(mon, ERODE_RUST);
         break;

@@ -383,9 +383,13 @@ int x, y;
                         arm_ct > 4 ? "full " : arm_ct < 3 ? "some " : "",
                         base_ac > 9 ? "heavy " : base_ac < 6 ? "light " : "");
             }
-            if (MON_WEP(mtmp))
+            if (MON_WEP(mtmp)) {
                 Sprintf(eos(buf), ", wielding %s",
                         ansimpleoname(MON_WEP(mtmp)));
+                if (MON_WEP2(mtmp))
+                    Sprintf(eos(buf), " and %s",
+                            ansimpleoname(MON_WEP2(mtmp)));
+            }
         } else {
             if (rn2(3)) {
                 char harmor[BUFSZ];

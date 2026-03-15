@@ -537,6 +537,22 @@ boolean ghostly;
                            wwep_info[0] ? wwep_info : "NONE");
             }
         }
+        if (mtmp->mw2) {
+            struct obj *obj;
+
+            for (obj = mtmp->minvent; obj; obj = obj->nobj)
+                if (obj->owornmask & W_SWAPWEP)
+                    break;
+            if (obj)
+                mtmp->mw2 = obj;
+            else {
+                MON_NOWEP2(mtmp);
+                impossible(
+                    "bad monster secondary weapon restore: %s [%s]",
+                    mon_nam(mtmp),
+                    mtmp->data ? mtmp->data->mname : "unknown");
+            }
+        }
 
         if (mtmp->isshk)
             restshk(mtmp, ghostly);

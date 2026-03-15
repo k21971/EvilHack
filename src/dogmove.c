@@ -395,7 +395,7 @@ struct monst *mon;
             break;
         }
 
-        if (!obj->owornmask && obj != wep
+        if (!obj->owornmask && obj != wep && obj != MON_WEP2(mon)
             && (!intelligent
                 || (obj != rwep
                     && obj != proj && obj != hwep
