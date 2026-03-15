@@ -5125,4 +5125,5 @@ The following changes to date are:
 - Guidebook: update 256-color information
 - Fix: Barkskin/Stoneskin spells incorrectly bypass silver restriction
   for demons and vampires
+- Fix: Barkskin/Stoneskin sear damage not suppressed for player
 

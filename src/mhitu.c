@@ -1113,8 +1113,8 @@ struct monst *mtmp;
                     }
                     if (tmp > (j = rnd(20 + i))) {
                         if (mattk->aatyp != AT_KICK
-                            || !thick_skinned(youmonst.data)
-                            || !Barkskin || !Stoneskin)
+                            || (!thick_skinned(youmonst.data)
+                                && !Barkskin && !Stoneskin))
                             sum[i] = hitmu(mtmp, mattk);
                         if (mtmp->data == &mons[PM_MEDUSA]
                             && mattk->aatyp == AT_BITE && !mtmp->mcan) {

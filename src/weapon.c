@@ -626,7 +626,8 @@ struct monst *mon;
             && is_bone_monster(ptr))
             bonus += rnd(4);
         if (mon_hates_material(mon, otmp->material)
-            && (!(has_barkskin(mon) || has_stoneskin(mon))))
+            && (!(has_barkskin(mon) || has_stoneskin(mon)))
+            && !(mon == &youmonst && (Barkskin || Stoneskin)))
             bonus += rnd(sear_damage(otmp->material));
         if (artifact_light(otmp) && otmp->lamplit
             && (hates_light(r_data(mon))
@@ -742,7 +743,8 @@ struct obj **hated_obj; /* ptr to offending object, can be NULL if not wanted */
     }
 
     if (try_body && mon_hates_material(mdef, magr_material)
-        && (!(has_barkskin(mdef) || has_stoneskin(mdef)))) {
+        && (!(has_barkskin(mdef) || has_stoneskin(mdef)))
+        && !(mdef == &youmonst && (Barkskin || Stoneskin))) {
         bonus = sear_damage(magr_material);
         if (hated_obj)
             *hated_obj = (struct obj *) &zeroobj;
