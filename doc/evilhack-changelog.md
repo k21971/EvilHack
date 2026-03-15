@@ -5127,4 +5127,5 @@ The following changes to date are:
   for demons and vampires
 - Fix: Barkskin/Stoneskin sear damage not suppressed for player
 - Fix: monster steed grab not released when rider flees
+- Fix: Infidel killing Oracle guilt after helm of opposite alignment
 

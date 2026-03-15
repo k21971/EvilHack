@@ -5025,6 +5025,10 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
     newsym(x, y);
 
  cleanup:
+    /* recalculate malign based on current alignment; it may be stale
+       if the hero's alignment changed since the monster was created
+       (e.g. helm of opposite alignment) */
+    set_malign(mtmp);
     /* punish bad behaviour...
      * Change needed since there are racial shopkeepers now,
      * should also prevent triggering being a murderer on Astral
