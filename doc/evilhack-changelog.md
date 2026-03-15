@@ -5123,4 +5123,6 @@ The following changes to date are:
 - Tweak a few more object colors
 - Guidebook: add custom races, fix unpaginated dead space
 - Guidebook: update 256-color information
+- Fix: Barkskin/Stoneskin spells incorrectly bypass silver restriction
+  for demons and vampires
 

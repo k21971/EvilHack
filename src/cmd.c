@@ -3725,7 +3725,9 @@ int final;
         you_can("not change from your current form", from_what(UNCHANGING));
     for (ltmp = 1; ltmp < NUM_MATERIAL_TYPES; ++ltmp) {
         if (Hate_material(ltmp)
-            && (!(Barkskin || Stoneskin))) {
+            && (!(Barkskin || Stoneskin)
+                || is_demon(raceptr(&youmonst))
+                || is_vampire(raceptr(&youmonst)))) {
             Sprintf(buf, "harmed by %s", materialnm[ltmp]);
             you_are(buf, "");
         }

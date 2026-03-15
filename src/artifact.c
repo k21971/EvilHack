@@ -4224,8 +4224,12 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
         if (!hatemat && !bane)
             return 1;
 
-        /* skin changing to bark or stone allows for safe handling */
-        if (Barkskin || Stoneskin)
+        /* skin changing to bark or stone allows for safe handling,
+           similar to wearing gloves. demons and vampires will always
+           get blasted by silver, though. */
+        if ((Barkskin || Stoneskin)
+            && !bane && !(is_demon(raceptr(&youmonst))
+                          || is_vampire(raceptr(&youmonst))))
             return 1;
 
         /* another case where nothing should happen: hero is wearing gloves
