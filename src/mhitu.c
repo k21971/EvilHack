@@ -1165,7 +1165,7 @@ struct monst *mtmp;
             if ((!ranged && ((i >= 2 && sum[i - 1] && sum[i - 2])
                              || is_stationary(mdat)
                              || mtmp->data == &mons[PM_TREE_BLIGHT]))
-                || mtmp == u.ustuck)
+                || (mtmp == u.ustuck && !ranged))
                 sum[i] = hitmu(mtmp, mattk);
             break;
 

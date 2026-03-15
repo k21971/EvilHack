@@ -30,9 +30,19 @@ void update_monsteed(mtmp)
 struct monst *mtmp;
 {
     if (has_erid(mtmp)) {
-        ERID(mtmp)->mon_steed->mx = mtmp->mx;
-        ERID(mtmp)->mon_steed->my = mtmp->my;
-        ERID(mtmp)->mon_steed->mpeaceful = mtmp->mpeaceful;
+        struct monst *steed = ERID(mtmp)->mon_steed;
+
+        /* if steed has the player grabbed and rider is moving it
+           away, release the grab */
+        if (steed == u.ustuck && !u.uswallow
+            && !sticks(youmonst.data)
+            && distu(mtmp->mx, mtmp->my) > 2) {
+            unstuck(steed);
+            You("get released!");
+        }
+        steed->mx = mtmp->mx;
+        steed->my = mtmp->my;
+        steed->mpeaceful = mtmp->mpeaceful;
     }
 }
 

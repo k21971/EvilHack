@@ -5126,4 +5126,5 @@ The following changes to date are:
 - Fix: Barkskin/Stoneskin spells incorrectly bypass silver restriction
   for demons and vampires
 - Fix: Barkskin/Stoneskin sear damage not suppressed for player
+- Fix: monster steed grab not released when rider flees
 
