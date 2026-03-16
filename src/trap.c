@@ -2811,7 +2811,7 @@ struct monst *mtmp;
                                  TRUE, mtmp->mx, mtmp->my) != ER_NOTHING)
                     break;
                 target = MON_WEP(mtmp);
-                if (target && bimanual(target))
+                if (target && mon_bimanual(mtmp, target))
                     (void) water_damage(target, 0,
                                         TRUE, mtmp->mx, mtmp->my);
                 /* off-hand weapon is held in the left hand */

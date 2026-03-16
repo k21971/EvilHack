@@ -50,7 +50,7 @@ struct obj *otmp;
 
     if (is_shield(otmp)
         && (mtmp == &youmonst) ? (uwep && bimanual(uwep))
- 	    : (MON_WEP(mtmp) && bimanual(MON_WEP(mtmp))))
+ 	    : (MON_WEP(mtmp) && mon_bimanual(mtmp, MON_WEP(mtmp))))
         return FALSE;
 
     if (is_gloves(otmp) && nohands(mtmp->data))

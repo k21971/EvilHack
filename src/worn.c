@@ -862,7 +862,7 @@ boolean creation;
     m_dowear_type(mon, W_ARMS, creation, FALSE);
 
     /* Two ring per monster; ring takes up a "hand" slot */
-    if (!(mw && bimanual(mw) && mw->cursed && mw->otyp != CORPSE)
+    if (!(mw && mon_bimanual(mon, mw) && mw->cursed && mw->otyp != CORPSE)
 	&& !cursed_glove)
         m_dowear_type(mon, W_RINGL, creation, FALSE);
     if (!(mw && mw->cursed && mw->otyp != CORPSE) && !cursed_glove)
@@ -943,7 +943,7 @@ boolean racialexception;
             if (!(is_shield(obj) || is_bracer(obj)))
                 continue;
             if (!is_bracer(obj))
-                if (MON_WEP(mon) && bimanual(MON_WEP(mon)))
+                if (MON_WEP(mon) && mon_bimanual(mon, MON_WEP(mon)))
                     continue;
             break;
         case W_ARMG:

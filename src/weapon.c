@@ -974,7 +974,7 @@ boolean wearing_shield;
         if (otmp->oclass == WEAPON_CLASS && otmp->oartifact
             && touch_artifact(otmp, mtmp)
             && ((strong && !wearing_shield)
-                || !objects[otmp->otyp].oc_bimanual))
+                || !mon_bimanual(mtmp, otmp)))
             return otmp;
     }
     return (struct obj *) 0;
@@ -1007,7 +1007,7 @@ boolean wearing_shield;
             && !(is_ammo(otmp) || is_missile(otmp))
             && (racial_vampire(mdef) || is_demon(raceptr(mdef)))
             && ((strong && !wearing_shield)
-                || !objects[otmp->otyp].oc_bimanual))
+                || !mon_bimanual(mtmp, otmp)))
             return otmp;
     }
     return (struct obj *) 0;
@@ -1516,7 +1516,8 @@ struct monst *mtmp;
         if (hwep[i] == CORPSE && !(mtmp->misc_worn_check & W_ARMG)
             && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
             continue;
-        if (((strong && !wearing_shield) || !objects[hwep[i]].oc_bimanual)
+        if (((strong && !wearing_shield) || !objects[hwep[i]].oc_bimanual
+             || is_giant(mtmp->data))
             && (objects[hwep[i]].oc_material != SILVER
                 || !mon_hates_material(mtmp, otmp->material)))
             Oselect(hwep[i]);
@@ -1542,8 +1543,7 @@ struct monst *mon;
     if (!mwep)
         return FALSE;
     /* can't dual-wield with a two-handed primary */
-    if ((mwep->oclass == WEAPON_CLASS || mwep->oclass == TOOL_CLASS)
-        && objects[mwep->otyp].oc_bimanual)
+    if (mon_bimanual(mon, mwep))
         return FALSE;
 
     /* non-bracer shields block dual-wield */
@@ -1579,10 +1579,10 @@ struct monst *mon;
         } else {
             continue;
         }
-        /* must be one-handed */
-        if (objects[otmp->otyp].oc_bimanual)
+        /* must be one-handed (giants one-hand non-launchers) */
+        if (mon_bimanual(mon, otmp))
             continue;
-        /* skip launchers */
+        /* skip launchers (even one-handed ones) */
         if (is_launcher(otmp))
             continue;
         /* skip hated materials */
@@ -1816,7 +1816,7 @@ struct monst *mon;
                 char welded_buf[BUFSZ];
                 const char *mon_hand = mbodypart(mon, HAND);
 
-                if (bimanual(mw_tmp))
+                if (mon_bimanual(mon, mw_tmp))
                     mon_hand = makeplural(mon_hand);
                 Sprintf(welded_buf, "%s welded to %s %s",
                         otense(mw_tmp, "are"), mhis(mon), mon_hand);
@@ -1853,7 +1853,7 @@ struct monst *mon;
             if (newly_welded) {
                 const char *mon_hand = mbodypart(mon, HAND);
 
-                if (bimanual(obj))
+                if (mon_bimanual(mon, obj))
                     mon_hand = makeplural(mon_hand);
                 pline("%s %s to %s %s!", Tobjnam(obj, "weld"),
                       is_plural(obj) ? "themselves" : "itself",
@@ -1877,8 +1877,7 @@ struct monst *mon;
         obj->owornmask = W_WEP;
 
         /* if primary is two-handed, clear any secondary */
-        if ((obj->oclass == WEAPON_CLASS || obj->oclass == TOOL_CLASS)
-            && objects[obj->otyp].oc_bimanual && MON_WEP2(mon)) {
+        if (mon_bimanual(mon, obj) && MON_WEP2(mon)) {
             setmnotwielded2(mon, MON_WEP2(mon));
         }
         /* try to wield secondary weapon if capable */

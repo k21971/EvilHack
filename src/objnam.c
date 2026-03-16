@@ -1663,7 +1663,8 @@ unsigned doname_flags;
         } else {
             const char *hand_s = mbodypart(owner, HAND);
 
-            if (bimanual(obj))
+            if (owner == &youmonst ? bimanual(obj)
+                                   : mon_bimanual(owner, obj))
                 hand_s = makeplural(hand_s);
             /* note: Sting's glow message, if added, will insert text
                in front of "(weapon in hand)"'s closing paren */

@@ -5130,4 +5130,6 @@ The following changes to date are:
 - Fix: Infidel killing Oracle guilt after helm of opposite alignment
 - Monster dual-wielding: allow 2+ AT_WEAP monsters to wield two weapons
 - Fix: monster dual-wield message and activation issues
+- Fix: bimanual() is player-only, prevents monster giants one-handing
+  two-handed weapons
 

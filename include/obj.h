@@ -246,6 +246,12 @@ struct obj {
       || is_2h_launcher(otmp))                                        \
      && (otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS)  \
      && objects[otmp->otyp].oc_bimanual)
+/* monster-aware version of bimanual() */
+#define mon_bimanual(mon, otmp) \
+    ((!is_giant((mon)->data) || is_2h_launcher(otmp))                 \
+     && ((otmp)->oclass == WEAPON_CLASS                               \
+         || (otmp)->oclass == TOOL_CLASS)                             \
+     && objects[(otmp)->otyp].oc_bimanual)
 #define is_multigen(otmp)                           \
     (otmp->oclass == WEAPON_CLASS                   \
      && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \

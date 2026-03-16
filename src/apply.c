@@ -3561,7 +3561,7 @@ struct obj **objp;
             Strcpy(onambuf, cxname(otmp));
             if (gotit) {
                 mon_hand = mbodypart(mtmp, HAND);
-                if (bimanual(otmp))
+                if (mon_bimanual(mtmp, otmp))
                     mon_hand = makeplural(mon_hand);
             } else
                 mon_hand = 0; /* lint suppression */
@@ -3821,7 +3821,7 @@ struct obj **objp;
             Strcpy(onambuf, cxname(otmp));
             if (gotit) {
                 mon_hand = mbodypart(mtmp, HAND);
-                if (bimanual(otmp))
+                if (mon_bimanual(mtmp, otmp))
                     mon_hand = makeplural(mon_hand);
             } else
                 mon_hand = 0; /* lint suppression */
