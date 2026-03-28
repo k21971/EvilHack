@@ -482,6 +482,10 @@
 #define ELifesaved u.uprops[LIFESAVED].extrinsic
 #define Lifesaved (HLifesaved || ELifesaved)
 
+#define HTelekinesis u.uprops[TELEKINESIS].intrinsic
+#define ETelekinesis u.uprops[TELEKINESIS].extrinsic
+#define Telekinesis (HTelekinesis || ETelekinesis)
+
 /*
  * Some pseudo-properties.
  */

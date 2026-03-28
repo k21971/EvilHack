@@ -111,6 +111,7 @@ const struct propname {
     { FIXED_ABIL, "fixed abilities" },
     { WITHERING, "withering away" },
     { LIFESAVED, "life will be saved" },
+    { TELEKINESIS, "telekinetic" },
     {  0, 0 },
 };
 

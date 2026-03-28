@@ -263,7 +263,8 @@ They are extremely intelligent and make excellent spellcasters, but are
 one of the weakest races physically.  While Illithids can eat regular food,
 they prefer to use their tentacle-like mouth to feed on other creatures
 brains for sustenance.  Mind flayers are the wild cousins of the Illithid
-race.
+race.  Illithids also possess innate telekinetic ability, allowing them
+to push and pull objects and creatures with their mind.
 .pg
 \fIOrcs\fP are a cruel and barbaric race that hate every living thing
 (including other orcs).  Above all others, Orcs hate Elves with a passion
@@ -1510,6 +1511,10 @@ Default key is \(oqT\(cq.
 .lp #takeoffall
 Remove all armor.
 Default key is \(oqA\(cq.
+.lp #telekinesis
+Use telekinetic powers to push or pull an object or creature.
+Autocompletes.
+Default key is \(oq\(haK\(cq.
 .lp #teleport
 Teleport around the level.
 Default key is \(oq\(haT\(cq.

@@ -925,6 +925,13 @@ toofar:
         }
     }
 
+    /* Mind flayers may use telekinesis at range */
+    if (is_mind_flayer(mdat) && !mtmp->mspec_used
+        && mtmp->mlstmv != monstermoves && rn2(3)) {
+        if (m_dotelekinesis(mtmp))
+            return 0;
+    }
+
     /* Look for other monsters to fight (at a distance). Intelligent
        monsters with Amulet of Yendor skip ranged attacks - escape.
        Exception: priests in their temple guard the Amulet */

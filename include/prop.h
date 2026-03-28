@@ -100,9 +100,10 @@ enum prop_types {
     VULN_FIRE         = 80,
     VULN_COLD         = 81,
     VULN_ELEC         = 82,
-    VULN_ACID         = 83
+    VULN_ACID         = 83,
+    TELEKINESIS       = 84
 };
-#define LAST_PROP (VULN_ACID)
+#define LAST_PROP (TELEKINESIS)
 
 /*** Where the properties come from ***/
 /* Definitions were moved here from obj.h and you.h */

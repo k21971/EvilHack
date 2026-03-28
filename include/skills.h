@@ -64,8 +64,9 @@ enum p_skills {
     P_SHIELD             = 37, /* How well you use a shield */
     P_RIDING             = 38, /* How well you control your steed */
     P_PET_HANDLING       = 39, /* How well you command pets */
+    P_TELEKINESIS        = 40, /* Illithid telekinetic ability */
 
-    P_NUM_SKILLS         = 40
+    P_NUM_SKILLS         = 41
 };
 
 #define P_MARTIAL_ARTS P_BARE_HANDED_COMBAT /* Role distinguishes */
@@ -76,7 +77,7 @@ enum p_skills {
 #define P_FIRST_SPELL P_ATTACK_SPELL
 #define P_LAST_SPELL P_EVOCATION_SPELL
 
-#define P_LAST_H_TO_H P_PET_HANDLING
+#define P_LAST_H_TO_H P_TELEKINESIS
 #define P_FIRST_H_TO_H P_BARE_HANDED_COMBAT
 
 /* These roles qualify for a martial arts bonus */

@@ -2811,18 +2811,18 @@ dosacrifice()
                                     if (Role_if(PM_WIZARD)) {
                                         typ = (rn2(100) >= 50)
                                                 ? rnd_class(CORNUTHAUM, DARK_ELVEN_HELM)
-                                                : rnd_class(HELM_OF_BRILLIANCE, HELM_OF_TELEPATHY);
+                                                : rnd_class(HELM_OF_BRILLIANCE, HELM_OF_TELEKINESIS);
                                         if (typ == HELMET)
                                             typ = CORNUTHAUM;
                                     } else {
                                         typ = (rn2(100) >= 50)
                                                 ? rnd_class(FEDORA, ELVEN_HELM)
-                                                : rnd_class(HELM_OF_BRILLIANCE, HELM_OF_TELEPATHY);
+                                                : rnd_class(HELM_OF_BRILLIANCE, HELM_OF_TELEKINESIS);
                                         if (typ == HELMET)
                                             typ = TOQUE;
                                     }
                                 } else {
-                                    typ = rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);
+                                    typ = rnd_class(ELVEN_HELM, HELM_OF_TELEKINESIS);
                                 }
                                 break;
                             default:

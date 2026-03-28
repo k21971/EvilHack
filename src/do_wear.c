@@ -604,6 +604,13 @@ Helmet_on(VOID_ARGS)
     case HELM_OF_TELEPATHY:
     case MEAT_HELMET:
         break;
+    case HELM_OF_TELEKINESIS:
+        if (racial_illithid(&youmonst))
+            You_feel("your telekinetic powers intensify!");
+        else
+            You_feel("your mind expand with telekinetic power.");
+        makeknown(uarmh->otyp);
+        break;
     case HELM_OF_CAUTION:
         see_monsters();
         break;
@@ -717,6 +724,14 @@ Helmet_off(VOID_ARGS)
         setworn((struct obj *) 0, W_ARMH);
         see_monsters();
         return 0;
+    case HELM_OF_TELEKINESIS:
+        if (!context.takeoff.cancelled_don) {
+            if (racial_illithid(&youmonst))
+                You_feel("your telekinetic powers diminish.");
+            else
+                You_feel("the telekinetic power recede from your mind.");
+        }
+        break;
     case HELM_OF_BRILLIANCE:
         if (!context.takeoff.cancelled_don)
             adj_abon(uarmh, -uarmh->spe);

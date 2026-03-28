@@ -422,11 +422,13 @@ HELM("helmet", "plumed helmet",
 HELM("helm of caution", "etched helmet",
      0, 1,     WARNING,  3, 1, 50,  50,  9, 0, IRON, CLR_GREEN),
 HELM("helm of opposite alignment", "crested helmet",
-     0, 1,           0,  6, 1, 50,  50,  9, 0, IRON, HI_IRON),
+     0, 1,           0,  5, 1, 50,  50,  9, 0, IRON, HI_IRON),
 HELM("helm of speed", "winged helmet",
      0, 1,        FAST,  2, 1, 50,  50,  9, 0, STEEL, HI_GOLD),
 HELM("helm of telepathy", "visored helmet",
      0, 1,     TELEPAT,  2, 1, 50,  50,  9, 0, IRON, HI_IRON),
+HELM("helm of telekinesis", "spiked helmet",
+     0, 1, TELEKINESIS,  1, 1, 30, 100,  9, 0, ADAMANTINE, HI_ADAMANTINE),
 
 /* suits of armor */
 /*

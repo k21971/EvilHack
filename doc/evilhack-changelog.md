@@ -5132,4 +5132,5 @@ The following changes to date are:
 - Fix: monster dual-wield message and activation issues
 - Fix: bimanual() is player-only, prevents monster giants one-handing
   two-handed weapons
+- Telekinesis ability
 

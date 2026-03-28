@@ -4425,6 +4425,8 @@ struct ext_func_tab extcmdlist[] = {
     { 'x', "swap", "swap wielded and secondary weapons", doswapweapon },
     { 'T', "takeoff", "take off one piece of armor", dotakeoff },
     { 'A', "takeoffall", "remove all armor", doddoremarm },
+    { C('k'), "telekinesis", "use telekinetic powers",
+            dotelekinesis, AUTOCOMPLETE },
     { C('t'), "teleport", "teleport around the level", dotelecmd, IFBURIED },
     { '\0', "terrain", "show map without obstructions",
             doterrain, IFBURIED | AUTOCOMPLETE },

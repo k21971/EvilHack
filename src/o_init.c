@@ -185,8 +185,8 @@ int *lo_p, *hi_p; /* output: range that item belongs among */
 
     switch (ocls) {
     case ARMOR_CLASS:
-        if (otyp >= HELMET && otyp <= HELM_OF_TELEPATHY)
-            *lo_p = HELMET, *hi_p = HELM_OF_TELEPATHY;
+        if (otyp >= HELMET && otyp <= HELM_OF_TELEKINESIS)
+            *lo_p = HELMET, *hi_p = HELM_OF_TELEKINESIS;
         else if (otyp >= GLOVES && otyp <= GAUNTLETS_OF_FUMBLING)
             *lo_p = GLOVES, *hi_p = GAUNTLETS_OF_FUMBLING;
         else if (otyp >= CLOAK_OF_PROTECTION && otyp <= CLOAK_OF_DISPLACEMENT)

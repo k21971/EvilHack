@@ -44,6 +44,7 @@ STATIC_DCL struct obj *FDECL(find_gem_recurse, (struct monst *, struct obj *));
 #define PN_EVOCATION_SPELL (-16)
 #define PN_PET_HANDLING (-17)
 #define PN_THIEVERY (-18)
+#define PN_TELEKINESIS (-19)
 
 STATIC_VAR NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     /* Weapon */
@@ -57,7 +58,7 @@ STATIC_VAR NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     PN_MATTER_SPELL, PN_EVOCATION_SPELL,
     /* Other */
     PN_BARE_HANDED, PN_TWO_WEAPONS, PN_THIEVERY, PN_SHIELD, PN_RIDING,
-    PN_PET_HANDLING
+    PN_PET_HANDLING, PN_TELEKINESIS
 };
 
 /* note: entry [0] isn't used */
@@ -66,7 +67,7 @@ STATIC_VAR NEARDATA const char *const odd_skill_names[] = {
     "two weapon combat", "shield", "riding", "polearms", "saber", "hammer",
     "whip", "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
-    "evocation spells", "pet handling", "thievery",
+    "evocation spells", "pet handling", "thievery", "telekinesis",
 };
 /* indexed vis rogue/convict role ? 2 : is_martial() */
 STATIC_VAR NEARDATA const char *const barehands_or_martial[] = {
@@ -95,7 +96,8 @@ int skill;
                      : (skill == P_RIDING) ? "riding "
                        : (skill == P_THIEVERY) ? "thievery "
                          : (skill == P_PET_HANDLING) ? "pet handling "
-                           : "fighting ");
+                           : (skill == P_TELEKINESIS) ? "telekinetic "
+                             : "fighting ");
 }
 
 /* weapon's skill category name for use as generalized description of weapon;
@@ -2892,6 +2894,13 @@ const struct def_skill *class_skill;
             unrestrict_weapon_skill(P_TRIDENT);
             P_MAX_SKILL(P_TRIDENT) = P_BASIC;
         }
+    }
+
+    /* Illithids have innate telekinesis -- start untrained, must practice */
+    if (Race_if(PM_ILLITHID)) {
+        unrestrict_weapon_skill(P_TELEKINESIS);
+        P_SKILL(P_TELEKINESIS) = P_UNSKILLED;
+        P_MAX_SKILL(P_TELEKINESIS) = P_MASTER;
     }
 
     /*

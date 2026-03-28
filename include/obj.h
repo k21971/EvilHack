@@ -242,21 +242,22 @@ struct obj {
 
 #define is_wet_towel(o) ((o)->otyp == TOWEL && (o)->spe > 0)
 #define bimanual(otmp) \
-    ((!(maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))      \
-      || is_2h_launcher(otmp))                                        \
-     && (otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS)  \
-     && objects[otmp->otyp].oc_bimanual)
+    ((!(maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))) \
+      || is_2h_launcher(otmp))                                   \
+     && ((otmp)->oclass == WEAPON_CLASS                            \
+         || (otmp)->oclass == TOOL_CLASS)                          \
+     && objects[(otmp)->otyp].oc_bimanual)
 /* monster-aware version of bimanual() */
 #define mon_bimanual(mon, otmp) \
-    ((!is_giant((mon)->data) || is_2h_launcher(otmp))                 \
-     && ((otmp)->oclass == WEAPON_CLASS                               \
-         || (otmp)->oclass == TOOL_CLASS)                             \
+    ((!is_giant((mon)->data) || is_2h_launcher(otmp)) \
+     && ((otmp)->oclass == WEAPON_CLASS               \
+         || (otmp)->oclass == TOOL_CLASS)             \
      && objects[(otmp)->otyp].oc_bimanual)
-#define is_multigen(otmp)                           \
+#define is_multigen(otmp) \
     (otmp->oclass == WEAPON_CLASS                   \
      && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
      && objects[otmp->otyp].oc_skill <= -P_BOW)
-#define is_poisonable(otmp)       \
+#define is_poisonable(otmp) \
     (otmp->oclass == WEAPON_CLASS \
      && !is_launcher(otmp)        \
      && objects[otmp->otyp].oc_dir != WHACK)
