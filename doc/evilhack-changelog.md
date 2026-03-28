@@ -5136,4 +5136,5 @@ The following changes to date are:
 - Fix: add 'helm of telekinesis' to tileset
 - Add command hints for starting Illithids/polymorphing into a flayer
 - Fix: mw2 not cleared when secondary weapon promoted to primary
+- Fix: NULL mextra dereference in set_malign()
 
