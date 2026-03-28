@@ -5133,4 +5133,5 @@ The following changes to date are:
 - Fix: bimanual() is player-only, prevents monster giants one-handing
   two-handed weapons
 - Telekinesis ability
+- Fix: add 'helm of telekinesis' to tileset
 

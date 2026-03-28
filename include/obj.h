@@ -244,8 +244,8 @@ struct obj {
 #define bimanual(otmp) \
     ((!(maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))) \
       || is_2h_launcher(otmp))                                   \
-     && ((otmp)->oclass == WEAPON_CLASS                            \
-         || (otmp)->oclass == TOOL_CLASS)                          \
+     && ((otmp)->oclass == WEAPON_CLASS                          \
+         || (otmp)->oclass == TOOL_CLASS)                        \
      && objects[(otmp)->otyp].oc_bimanual)
 /* monster-aware version of bimanual() */
 #define mon_bimanual(mon, otmp) \
