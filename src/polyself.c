@@ -1138,8 +1138,10 @@ int mntmp;
             pline(use_thec, monsterc, "multiply in a forge");
         if (is_unicorn(youmonst.data))
             pline(use_thec, monsterc, "use your horn");
-        if (is_mind_flayer(youmonst.data))
+        if (is_mind_flayer(youmonst.data)) {
             pline(use_thec, monsterc, "emit a mental blast");
+            pline(use_thec, "telekinesis", "manipulate objects and monsters");
+        }
         if (youmonst.data->msound == MS_SHRIEK) /* worthless, actually */
             pline(use_thec, monsterc, "shriek");
         if (is_vampire(youmonst.data))

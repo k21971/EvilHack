@@ -5134,4 +5134,5 @@ The following changes to date are:
   two-handed weapons
 - Telekinesis ability
 - Fix: add 'helm of telekinesis' to tileset
+- Add command hints for starting Illithids/polymorphing into a flayer
 

@@ -1338,6 +1338,8 @@ boolean new_game; /* false => restoring an old game */
             pline("Use #monster to invoke an aura of darkness.");
         else if (Race_if(PM_VAMPIRE))
             pline("Use #shapechange to change form.");
+        else if (Race_if(PM_ILLITHID))
+            pline("Use #telekinesis to manipulate objects and monsters.");
 
         /* Roles */
         if (Role_if(PM_DRUID))
