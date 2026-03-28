@@ -5135,4 +5135,5 @@ The following changes to date are:
 - Telekinesis ability
 - Fix: add 'helm of telekinesis' to tileset
 - Add command hints for starting Illithids/polymorphing into a flayer
+- Fix: mw2 not cleared when secondary weapon promoted to primary
 

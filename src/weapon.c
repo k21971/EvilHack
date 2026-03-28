@@ -1839,6 +1839,9 @@ struct monst *mon;
         }
         mon->mw = obj; /* wield obj */
         setmnotwielded(mon, mw_tmp);
+        /* if promoting the secondary weapon to primary, clear mw2 */
+        if (obj == MON_WEP2(mon))
+            setmnotwielded2(mon, obj);
         mon->weapon_check = NEED_WEAPON;
         if (canseemon(mon)) {
             boolean newly_welded;
