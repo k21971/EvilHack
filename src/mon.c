@@ -7179,9 +7179,12 @@ short otyp;
     case M_AP_OBJECT:
         if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING
             || otyp == SPE_CRITICAL_HEALING) {
+            int color = objects[ap].oc_color;
+            if (color >= CLR_MAX)
+                color = obj_color_fallback(color);
             pline("%s seems a more vivid %s than before.",
                   The(simple_typename(ap)),
-                  c_obj_colors[objects[ap].oc_color]);
+                  c_obj_colors[color]);
         }
         break;
     }

@@ -2810,7 +2810,12 @@ struct obj **optr;
                 break;
             }
         }
-        streak_color = c_obj_colors[objects[obj->otyp].oc_color];
+        {
+            int color = objects[obj->otyp].oc_color;
+            if (color >= CLR_MAX)
+                color = obj_color_fallback(color);
+            streak_color = c_obj_colors[color];
+        }
         break; /* gem or ring */
 
     default:
@@ -2846,9 +2851,12 @@ struct obj **optr;
             /* Objects passing the is_flimsy() test will not
                scratch a stone.  They will leave streaks on
                non-touchstones and touchstones alike. */
-            if (is_flimsy(obj))
-                streak_color = c_obj_colors[objects[obj->otyp].oc_color];
-            else
+            if (is_flimsy(obj)) {
+                int color = objects[obj->otyp].oc_color;
+                if (color >= CLR_MAX)
+                    color = obj_color_fallback(color);
+                streak_color = c_obj_colors[color];
+            } else
                 do_scratch = (tstone->otyp != TOUCHSTONE);
             break;
         }

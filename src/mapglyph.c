@@ -95,7 +95,7 @@ static const int cmap_color16[] = {
    in objects[].oc_color.  When the terminal can't render 256-color
    (use_256color off), this returns the original intended game color
    instead of the generic map_color_256to16() RGB-distance result. */
-static int
+int
 obj_color_fallback(color)
 int color;
 {
