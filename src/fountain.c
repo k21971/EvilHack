@@ -700,7 +700,7 @@ STATIC_OVL boolean
 affix_success_roll(gem)
 struct obj *gem;
 {
-    int chance = 35; /* base ~1/3 */
+    int chance = 30; /* base */
     int tier = get_gem_enchant_bonus(gem->otyp);
 
     /* hammer blessing/curse */
@@ -1284,8 +1284,6 @@ doaffixgem()
             pline("%s is destroyed!", Yname2(weapon));
             useup(weapon);
         }
-        if (uwep)
-            uwep->spe--;
         return 1;
     }
 
@@ -1304,8 +1302,6 @@ doaffixgem()
         /* failure: gem shatters, does NOT identify the gem */
         pline("The %s shatters!", singular(gem, xname));
         useup(gem);
-        if (uwep)
-            uwep->spe--;
         return 1;
     }
 

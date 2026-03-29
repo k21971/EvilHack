@@ -5141,4 +5141,5 @@ The following changes to date are:
 - Affixing gemstones onto weapons using a forge
 - Fix: OOB write in obufs[] from long object names
 - Fix: OOB write in obufs[] from stacked suffix annotations
+- Gemstone affixing: only consume Blacksmith hammer charge on success
 
