@@ -942,6 +942,7 @@ boolean artif;
     otmp->cknown = 0;
     otmp->corpsenm = NON_PM;
     otmp->forged_qual = FQ_NORMAL;
+    otmp->affixed_gem = 0;
     init_obj_material(otmp);
 
     if (init) {

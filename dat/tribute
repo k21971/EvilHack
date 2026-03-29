@@ -8741,10 +8741,10 @@ out these riches.  I just need to make it out of this place alive first...
 # every recipe available that the player can
 # use to forge objects.
 #
-%title The Blacksmith's Cookbook (12)
+%title The Blacksmith's Cookbook (13)
 #
 %passage 1
-Chapter 1 of 12 - Getting Started
+Chapter 1 of 13 - Getting Started
 
 1) Find a forge.
 2) Find a blacksmith hammer.
@@ -8767,7 +8767,7 @@ Don't try to forge things you know you shouldn't.
 %e passage
 #
 %passage 2
-Chapter 2 of 12 - Weapons (part 1)
+Chapter 2 of 13 - Weapons (part 1)
 
 Forge 3 rocks / dart to create:  3 to 4 sling bullets
 Forge 2 darts / dagger to create:  3 to 4 shuriken
@@ -8794,7 +8794,7 @@ Forge 2 crossbow bolts / elven dagger to create:  elven short sword
 %e passage
 #
 %passage 3
-Chapter 3 of 12 - Weapons (part 2)
+Chapter 3 of 13 - Weapons (part 2)
 
 Forge 2 crossbow bolts / orcish dagger to create:  orcish short sword
 Forge short sword / dwarvish spear to create:  dwarvish short sword
@@ -8820,7 +8820,7 @@ Forge dagger / mace to create:  morning star
 %e passage
 #
 %passage 4
-Chapter 4 of 12 - Weapons (part 3)
+Chapter 4 of 13 - Weapons (part 3)
 
 Forge orcish dagger / mace to create:  orcish morning star
 Forge flail / mace to create:  war hammer
@@ -8846,7 +8846,7 @@ Forge war hammer / spear to create:  bec de corbin
 %e passage
 #
 %passage 5
-Chapter 5 of 12 - Armor (Helmets)
+Chapter 5 of 13 - Armor (Helmets)
 
 Forge dented pot / orcish dagger to create:  orcish helm
 Forge dwarvish short sword / helmet to create:  dwarvish helm
@@ -8857,7 +8857,7 @@ Forge dagger / dented pot to create:  helmet
 %e passage
 #
 %passage 6
-Chapter 6 of 12 - Armor (Body Armor)
+Chapter 6 of 13 - Armor (Body Armor)
 
 Forge chain mail / splint mail to create:  plate mail
 Forge 3 dilithium crystals / plate mail to create:  crystal plate mail
@@ -8876,7 +8876,7 @@ Forge orcish shield / orcish helm to create:  orcish ring mail
 %e passage
 #
 %passage 7
-Chapter 7 of 12 - Armor (Shields)
+Chapter 7 of 13 - Armor (Shields)
 
 Forge dagger / helmet to create:  small shield
 Forge elven dagger / small shield to create:  elven shield
@@ -8890,7 +8890,7 @@ Forge small shield / helmet to create:  bracers
 %e passage
 #
 %passage 8
-Chapter 8 of 12 - Armor (Boots, Gauntlets, Barding)
+Chapter 8 of 13 - Armor (Boots, Gauntlets, Barding)
 
 Forge mace / helmet to create:  gauntlets
 Forge dwarvish short sword / gauntlets to create:  dwarvish boots
@@ -8903,7 +8903,7 @@ Forge shield of reflection / barding to create:  barding of reflection
 %e passage
 #
 %passage 9
-Chapter 9 of 12 - Drowcraft (Weapons, Armor)
+Chapter 9 of 13 - Drowcraft (Weapons, Armor)
 
 Almost all dark elven objects are made of a very rare material
 known as adamantine.  Due to the nature of this alloy, it becomes
@@ -8929,7 +8929,7 @@ Forge dark elven dagger / dark elven mace to create:  dark elven bracers
 %e passage
 #
 %passage 10
-Chapter 10 of 12 - Forge Quality (part 1)
+Chapter 10 of 13 - Forge Quality (part 1)
 
 There can be differences in the quality of regular forged objects, and
 as the Blacksmith, you can determine the quality of your work.
@@ -8953,7 +8953,7 @@ If the Blacksmith hammer is blessed:
 %e passage
 #
 %passage 11
-Chapter 11 of 12 - Forge Quality (part 2)
+Chapter 11 of 13 - Forge Quality (part 2)
 
 If the Blacksmith hammer is uncursed or cursed:
 
@@ -8967,7 +8967,22 @@ If the Blacksmith hammer is uncursed or cursed:
 %e passage
 #
 %passage 12
-Chapter 12 of 12 - Artifacts
+Chapter 12 of 13 - Affixing Gemstones
+
+It's said that it is possible to affix various gemstones to your weapon.
+Many gemstones can allow increased enchantment of all sorts of weapons,
+while others can imbue your weapon with various magical properties.
+Make sure to have plenty of gemstones on-hand, as success is not
+guaranteed.
+
+Your blacksmith hammer will use up a charge with every attempt to affix
+a gemstone to your weapon... or so it's been said.
+
+  [The Blacksmith's Cookbook]
+%e passage
+#
+%passage 13
+Chapter 13 of 13 - Artifacts
 
 Rumor has it that some artifacts can be forged together
 to make an even more powerful artifact.  Many say this

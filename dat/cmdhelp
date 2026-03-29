@@ -204,7 +204,7 @@ M-C	Conduct: list voluntary challenges you have maintained
 M-d	Dip an object into something
 M-e	Enhance: check weapons skills, advance them if eligible
 M-f	Force a lock
-M-F	Forge: combine two objects to create a new object
+M-F	Forge: use a forge to combine objects or affix gemstones
 M-g	Genocided: list genocided and extinct monster types
 M-i	Invoke an object's special powers
 M-j	Jump to a nearby location

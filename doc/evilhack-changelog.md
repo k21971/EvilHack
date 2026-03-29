@@ -5138,4 +5138,5 @@ The following changes to date are:
 - Fix: mw2 not cleared when secondary weapon promoted to primary
 - Fix: NULL mextra dereference in set_malign()
 - Fix: OOB read in c_obj_colors[] with 256-color oc_color
+- Affixing gemstones onto weapons using a forge
 

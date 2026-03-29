@@ -136,6 +136,7 @@ struct obj {
 #define FQ_SUPERIOR 2       /* forged obj quality is superior */
 #define FQ_EXCEPTIONAL 3    /* forged obj quality is exceptional */
     short trap_ammo_typ;    /* crafted traps: preserve original ammo otyp */
+    short affixed_gem;      /* otyp of affixed gemstone, 0 = none */
     int spestudied;         /* tally # of times a spellbook has been studied */
     int newwarncnt;         /* tally how many monsters a glow warning artifact is currently warning of */
     unsigned oeaten;        /* nutrition left in food, if partly eaten */
@@ -162,6 +163,8 @@ struct obj {
 #define has_omonst(o) ((o)->oextra && OMONST(o))
 #define has_olong(o) ((o)->oextra && OLONG(o))
 #define has_omailcmd(o) ((o)->oextra && OMAILCMD(o))
+
+#define has_affixed_gem(o) ((o)->affixed_gem != 0)
 
 /* Weapons and weapon-tools */
 /* KMH -- now based on skill categories.  Formerly:

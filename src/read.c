@@ -1839,12 +1839,18 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             uwep->oerodeproof = new_erodeproof ? 1 : 0;
             break;
         }
+        {
+        int gem_bon = uwep ? gem_enchant_bonus(uwep) : 0;
+
         if (!chwepon(sobj, scursed ? -1
                              : !uwep ? 1
-                               : (uwep->spe >= 9) ? !rn2(uwep->spe)
-                                 : sblessed ? rnd(3 - uwep->spe / 3)
+                               : (uwep->spe >= 9 + gem_bon)
+                                   ? !rn2(uwep->spe)
+                                 : sblessed
+                                   ? rnd(3 - uwep->spe / (3 + gem_bon))
                                    : 1))
             sobj = 0; /* nothing enchanted: strange_feeling -> useup */
+        }
         break;
     case SCR_TAMING:
     case SPE_CHARM_MONSTER: {

@@ -12,6 +12,7 @@ STATIC_DCL void NDECL(dowaternymph);
 STATIC_DCL void NDECL(dolavademon);
 STATIC_PTR void FDECL(gush, (int, int, genericptr_t));
 STATIC_DCL void NDECL(dofindgem);
+STATIC_DCL boolean FDECL(affix_success_roll, (struct obj *));
 
 /* used when trying to dip in or drink from fountain or sink or pool while
    levitating above it, or when trying to move downwards in that state */
@@ -605,6 +606,133 @@ int *typ1, *typ2;
     return FALSE;
 }
 
+/* Gemstone affixing helper functions */
+
+/* Returns the enchantment bonus for an affixed gem (0-3).
+   Property gems return 0 (they grant oprops instead) */
+int
+get_gem_enchant_bonus(gem_otyp)
+int gem_otyp;
+{
+    if (!gem_otyp)
+        return 0;
+
+    /* property gems: no enchant bonus */
+    switch (gem_otyp) {
+    case DIAMOND:
+    case RUBY:
+    case SAPPHIRE:
+    case EMERALD:
+    case LUCKSTONE:
+        return 0;
+    }
+
+    /* premium tier */
+    if (gem_otyp == DILITHIUM_CRYSTAL)
+        return 3;
+
+    /* mid tier */
+    switch (gem_otyp) {
+    case BLACK_OPAL:
+    case JACINTH:
+    case TURQUOISE:
+    case CITRINE:
+    case AQUAMARINE:
+        return 2;
+    }
+
+    /* lower tier: all remaining valid gems */
+    if (gem_otyp >= DILITHIUM_CRYSTAL && gem_otyp <= LAST_GEM)
+        return 1;
+
+    return 0;
+}
+
+/* Returns the item property granted by an affixed gem, or 0 */
+long
+get_gem_property(gem_otyp)
+int gem_otyp;
+{
+    switch (gem_otyp) {
+    case DIAMOND:
+        return ITEM_SHOCK;
+    case RUBY:
+        return ITEM_FIRE;
+    case SAPPHIRE:
+        return ITEM_FROST;
+    case EMERALD:
+        return ITEM_VENOM;
+    case LUCKSTONE:
+        return ITEM_EXCEL;
+    }
+    return 0L;
+}
+
+/* Returns the enchantment bonus for an object's affixed gem */
+int
+gem_enchant_bonus(obj)
+struct obj *obj;
+{
+    if (!obj || !obj->affixed_gem)
+        return 0;
+    return get_gem_enchant_bonus(obj->affixed_gem);
+}
+
+/* Returns TRUE if the object is a valid gemstone for affixing.
+   Real gems (dilithium through jade) plus luckstone */
+boolean
+is_affix_gem(obj)
+struct obj *obj;
+{
+    if (!obj)
+        return FALSE;
+    if (obj->otyp >= DILITHIUM_CRYSTAL && obj->otyp <= LAST_GEM)
+        return TRUE;
+    if (obj->otyp == LUCKSTONE)
+        return TRUE;
+    return FALSE;
+}
+
+/* Success roll for affixing a gem to a weapon.
+   Base 35%, modified by hammer BUC, gem tier, identification,
+   player DEX and Luck. Clamped to 5-95% */
+STATIC_OVL boolean
+affix_success_roll(gem)
+struct obj *gem;
+{
+    int chance = 35; /* base ~1/3 */
+    int tier = get_gem_enchant_bonus(gem->otyp);
+
+    /* hammer blessing/curse */
+    if (uwep && uwep->blessed)
+        chance += 15;
+    if (uwep && uwep->cursed)
+        chance -= 15;
+
+    /* gem tier - harder gems are harder to work.
+       property gems (tier 0) and mid (tier 2): no modifier */
+    if (tier == 3)
+        chance -= 10; /* premium: harder */
+    else if (tier == 1)
+        chance += 10; /* lower: easier */
+
+    /* unidentified gem penalty */
+    if (!objects[gem->otyp].oc_name_known)
+        chance -= 20;
+
+    /* player attributes */
+    chance += (ACURR(A_DEX) - 10);
+    chance += Luck;
+
+    /* clamp 5-95% */
+    if (chance < 5)
+        chance = 5;
+    if (chance > 95)
+        chance = 95;
+
+    return (rn2(100) < chance);
+}
+
 int
 doforging()
 {
@@ -616,6 +744,10 @@ doforging()
     char allowall[2];
     int objtype = 0, artitype = 0;
     boolean swapped = FALSE; /* TRUE if obj2 matched typ1 and obj1 matched typ2 */
+    winid win;
+    anything any;
+    menu_item *selected;
+    int n;
 
     allowall[0] = ALL_CLASSES;
     allowall[1] = '\0';
@@ -631,6 +763,27 @@ doforging()
         pline("You'll need a blacksmith hammer to forge successfully.");
         return 0;
     }
+
+    /* ask what to do at the forge */
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win);
+    any = zeroany;
+    any.a_int = 1;
+    add_menu(win, NO_GLYPH, &any, 'a', 0, ATR_NONE,
+             "Combine two objects", MENU_UNSELECTED);
+    any.a_int = 2;
+    add_menu(win, NO_GLYPH, &any, 'b', 0, ATR_NONE,
+             "Affix gemstone to weapon", MENU_UNSELECTED);
+    end_menu(win, "What do you want to do at the forge?");
+    n = select_menu(win, PICK_ONE, &selected);
+    destroy_nhwindow(win);
+    if (n <= 0)
+        return 0;
+    if (selected[0].item.a_int == 2) {
+        free((genericptr_t) selected);
+        return doaffixgem();
+    }
+    free((genericptr_t) selected);
 
     /* using the hammer involves touching it; check for material hatred
        (e.g., elf/drow with iron hammer) - same check as doapply() */
@@ -874,6 +1027,19 @@ doforging()
                     output->oprops_known = output->oprops;
             }
 
+            /* if both recipe objects have gem-granted oprops,
+               randomly pick one instead of always taking secondary */
+            if (has_affixed_gem(obj1) && has_affixed_gem(obj2)) {
+                long prop1 = get_gem_property(obj1->affixed_gem);
+                long prop2 = get_gem_property(obj2->affixed_gem);
+
+                if (prop1 && prop2) {
+                    output->oprops &= ~(prop1 | prop2);
+                    output->oprops |= rn2(2) ? prop1 : prop2;
+                }
+            }
+            /* affixed_gem is already 0 on new mksobj() output */
+
             /* if neither recipe object have an object property,
                ensure that the newly forged object doesn't
                randomly have a property added at creation */
@@ -1035,6 +1201,130 @@ doforging()
         }
     }
 
+    return 1;
+}
+
+int
+doaffixgem()
+{
+    struct obj *weapon, *gem;
+    long prop;
+    char allowall[2];
+    char gemclass[2];
+
+    allowall[0] = ALL_CLASSES;
+    allowall[1] = '\0';
+    gemclass[0] = GEM_CLASS;
+    gemclass[1] = '\0';
+
+    /* preconditions - same as forging */
+    if (!IS_FORGE(levl[u.ux][u.uy].typ)) {
+        You("need a forge in order to affix a gemstone.");
+        return 0;
+    }
+    if ((uwep && uwep->otyp != BLACKSMITH_HAMMER) || !uwep) {
+        pline("You'll need a blacksmith hammer to affix a gemstone.");
+        return 0;
+    }
+    if (!retouch_object(&uwep, !uarmg, FALSE))
+        return 1; /* costs a turn */
+    if (Stunned || Confusion) {
+        You_cant("use the forge while incapacitated.");
+        return 0;
+    } else if (u.uhunger < 50) {
+        You("are too weak from hunger to use the forge.");
+        return 0;
+    } else if (ACURR(A_STR) < 4) {
+        You("lack the strength to use the forge.");
+        return 0;
+    }
+
+    /* select weapon */
+    weapon = getobj(allowall, "affix a gemstone to");
+    if (!weapon)
+        return 0;
+
+    /* validate weapon */
+    if (weapon->oclass != WEAPON_CLASS && !is_weptool(weapon)) {
+        pline("You can only affix gemstones to weapons.");
+        return 0;
+    }
+    if (is_launcher(weapon) || is_ammo(weapon) || is_missile(weapon)) {
+        pline("That type of weapon is unsuitable for gemstone affixing.");
+        return 0;
+    }
+    if (has_affixed_gem(weapon)) {
+        pline("%s already has a gemstone affixed.", Yname2(weapon));
+        return 0;
+    }
+    if (weapon->oartifact) {
+        pline("%s resists modification.", The(xname(weapon)));
+        return 0;
+    }
+
+    /* select gemstone */
+    gem = getobj(gemclass, "use");
+    if (!gem)
+        return 0;
+
+    /* must be GEM_CLASS */
+    if (gem->oclass != GEM_CLASS) {
+        pline("That is not a suitable gemstone for affixing.");
+        return 0;
+    }
+
+    /* worthless glass, gray stones (not luckstone), rocks, sling bullets,
+       cursed gems: always shatters, 1/3 chance destroys weapon */
+    if (!is_affix_gem(gem) || gem->cursed) {
+        pline("You carefully attempt to affix %s to %s...",
+              the(singular(gem, xname)), the(xname(weapon)));
+        pline("The %s shatters!", singular(gem, xname));
+        useup(gem);
+        if (!rn2(3)) {
+            pline("%s is destroyed!", Yname2(weapon));
+            useup(weapon);
+        }
+        if (uwep)
+            uwep->spe--;
+        return 1;
+    }
+
+    /* check for property conflict */
+    prop = get_gem_property(gem->otyp);
+    if (prop && (weapon->oprops & ITEM_PROP_MASK)) {
+        pline("%s already has a special property.", The(xname(weapon)));
+        return 0;
+    }
+
+    /* attempt roll */
+    pline("You carefully attempt to affix %s to %s...",
+          the(singular(gem, xname)), the(xname(weapon)));
+
+    if (!affix_success_roll(gem)) {
+        /* failure: gem shatters, does NOT identify the gem */
+        pline("The %s shatters!", singular(gem, xname));
+        useup(gem);
+        if (uwep)
+            uwep->spe--;
+        return 1;
+    }
+
+    /* success: identifies the gem */
+    makeknown(gem->otyp);
+    weapon->affixed_gem = gem->otyp;
+    if (prop) {
+        weapon->oprops |= prop;
+        weapon->oprops_known |= prop;
+    }
+    useup(gem);
+    if (uwep)
+        uwep->spe--;
+
+    pline("%s glows brilliantly from the newly affixed gemstone%s!",
+          Yname2(weapon),
+          prop ? " and pulses with power" : "");
+
+    update_inventory();
     return 1;
 }
 

@@ -1984,6 +1984,17 @@ struct mkroom *croom;
     } else {
         otmp->forged_qual = 0; /* normal */
     }
+    if (o->affixed_gem
+        && ((o->affixed_gem >= DILITHIUM_CRYSTAL
+             && o->affixed_gem <= LAST_GEM)
+            || o->affixed_gem == LUCKSTONE)) {
+        otmp->affixed_gem = o->affixed_gem;
+        {
+            long gem_prop = get_gem_property(o->affixed_gem);
+            if (gem_prop)
+                otmp->oprops |= gem_prop;
+        }
+    }
     if (o->recharged > -1)
         otmp->recharged = (o->recharged % 8);
     if (o->locked) {
@@ -3283,6 +3294,7 @@ struct sp_coder *coder;
     tmpobj.greased = 0;
     tmpobj.broken = 0;
     tmpobj.forged_qual = 0;
+    tmpobj.affixed_gem = 0;
     tmpobj.coord = SP_COORD_PACK_RANDOM(0);
 
     if (!OV_pop_i(containment))
@@ -3374,6 +3386,14 @@ struct sp_coder *coder;
             if (OV_typ(parm) != SPOVAR_COORD)
                 panic("no coord for obj?");
             tmpobj.coord = OV_i(parm);
+            break;
+        case SP_O_V_AFFIXED_GEM:
+            if (OV_typ(parm) == SPOVAR_INT)
+                tmpobj.affixed_gem = OV_i(parm);
+            break;
+        case SP_O_V_FORGED_QUAL:
+            if (OV_typ(parm) == SPOVAR_INT)
+                tmpobj.forged_qual = OV_i(parm);
             break;
         case SP_O_V_END:
             nparams = SP_O_V_END + 1;

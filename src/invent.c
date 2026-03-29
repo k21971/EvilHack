@@ -3920,7 +3920,8 @@ struct obj *otmp, *obj;
         || obj->no_charge != otmp->no_charge || obj->obroken != otmp->obroken
         || obj->otrapped != otmp->otrapped || obj->lamplit != otmp->lamplit
         || obj->ocoated1 != otmp->ocoated1 || obj->ocoated2 != otmp->ocoated2
-        || obj->forged_qual != otmp->forged_qual)
+        || obj->forged_qual != otmp->forged_qual
+        || obj->affixed_gem != otmp->affixed_gem)
         return FALSE;
 
     if (obj->oclass == FOOD_CLASS

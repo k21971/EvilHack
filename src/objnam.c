@@ -9,9 +9,11 @@
 #include <ctype.h>
 #include <assert.h>
 
-/* "an uncursed greased magical shimmering-scaled thoroughly rusty
-    thoroughly corroded rustproof +0 exceptional [chain mail]" (107 characters) */
-#define PREFIX 110
+/* PREFIX:
+   "an uncursed greased magical shimmering-scaled thoroughly rusty
+    thoroughly corroded rustproof +0 exceptional dilithium crystal-studded
+    adamantine dwarvish chain mail" (164 characters including spaces) */
+#define PREFIX 168
 #define SCHAR_LIM 127
 #define NUMOBUF 12
 
@@ -1501,6 +1503,12 @@ unsigned doname_flags;
                 Strcat(prefix, "exceptional ");
             else if (obj->forged_qual == FQ_INFERIOR)
                 Strcat(prefix, "inferior ");
+        }
+        if (has_affixed_gem(obj)
+            && obj->affixed_gem > 0 && obj->affixed_gem < NUM_OBJECTS
+            && (known || Role_if(PM_SAMURAI) || Role_if(PM_KNIGHT))) {
+            Sprintf(eos(prefix), "%s-studded ",
+                    OBJ_NAME(objects[obj->affixed_gem]));
         }
         break;
     case TOOL_CLASS:
@@ -3802,6 +3810,13 @@ struct obj *no_wish;
             isforged1 = 1;
         } else if (!strncmpi(bp, "exceptional ", l = 12)) {
             isforged2 = 1;
+        } else if ((p = strstri(bp, "-studded ")) != 0
+                   && p > bp && p < bp + 20
+                   && !memchr((genericptr_t) bp, ' ', p - bp)) {
+            /* strip "X-studded " prefix -- can't wish for gem-studded items.
+               require match near start of bp with no spaces before hyphen,
+               so we don't accidentally strip from object names */
+            l = (int) ((p + 9) - bp); /* 9 = strlen("-studded ") */
         } else if (!strncmpi(bp, "poisoned ", l = 9)) {
             ispoisoned = 1;
         } else if (!strncmpi(bp, "tainted ", l = 8)) {

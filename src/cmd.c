@@ -4314,7 +4314,7 @@ struct ext_func_tab extcmdlist[] = {
             enter_explore_mode, IFBURIED },
     { 'f', "fire", "fire ammunition from quiver", dofire },
     { M('f'), "force", "force a lock", doforce, AUTOCOMPLETE },
-    { M('F'), "forge", "combine two objects to create a new object",
+    { M('F'), "forge", "use a forge to combine objects or affix gemstones",
               doforging, AUTOCOMPLETE },
     { ';', "glance", "show what type of thing a map symbol corresponds to",
             doquickwhatis, IFBURIED | GENERALCMD },
@@ -6487,7 +6487,7 @@ boolean doit;
         add_herecmd_menuitem(win, dodip, buf);
     }
     if (IS_FORGE(typ)) {
-        Sprintf(buf, "Combine objects in the %s",
+        Sprintf(buf, "Use the %s",
                 defsyms[S_forge].explanation);
         add_herecmd_menuitem(win, doforging, buf);
     }

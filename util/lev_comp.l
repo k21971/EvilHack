@@ -226,6 +226,8 @@ not_trapped { savetoken(yytext); yylval.i=0; return TRAPPED_STATE; }
 recharged	ST_RET(RECHARGED_ID);
 invisible	ST_RET(INVIS_ID);
 greased		ST_RET(GREASED_ID);
+affixed_gem	ST_RET(AFFIXED_GEM_ID);
+forged_qual	ST_RET(FORGED_QUAL_ID);
 female		ST_RET(FEMALE_ID);
 cancelled	ST_RET(CANCELLED_ID);
 revived		ST_RET(REVIVED_ID);

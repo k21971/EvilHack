@@ -976,8 +976,12 @@ int amount;
             pline("%s %s.", Yobjnam2(uwep, "faintly glow"), color);
         return 1;
     }
-    /* there is a (soft) upper and lower limit to uwep->spe */
-    if (((uwep->spe > 5 && amount >= 0) || (uwep->spe < -5 && amount < 0))
+    /* there is a (soft) upper and lower limit to uwep->spe.
+       affixed gemstones can raise the safe limit */
+    {
+    int safe_limit = 5 + gem_enchant_bonus(uwep);
+    if (((uwep->spe > safe_limit && amount >= 0)
+         || (uwep->spe < -safe_limit && amount < 0))
         && rn2(3)) {
         if (uwep->oartifact == ART_SWORD_OF_ANNIHILATION) {
             if (!Blind)
@@ -997,6 +1001,7 @@ int amount;
         }
         return 1;
     }
+    } /* safe_limit block */
     if (!Blind) {
         xtime = (amount * amount == 1) ? "moment" : "while";
         pline("%s %s for a %s.",
@@ -1029,7 +1034,7 @@ int amount;
 
     /* an elven magic clue, cookie@keebler */
     /* elvenkind weapons vibrate warningly when enchanted beyond a limit */
-    if ((uwep->spe > 5)
+    if ((uwep->spe > 5 + gem_enchant_bonus(uwep))
         && (is_elven_weapon(uwep) || is_drow_weapon(uwep)
             || uwep->oartifact || !rn2(7)))
         pline("%s unexpectedly.", Yobjnam2(uwep, "suddenly vibrate"));

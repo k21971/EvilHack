@@ -965,6 +965,11 @@ E void FDECL(breakforge, (int, int));
 E void FDECL(blowupforge, (int, int));
 E void FDECL(coolforge, (int, int));
 E void NDECL(drinkforge);
+E int NDECL(doaffixgem);
+E int FDECL(get_gem_enchant_bonus, (int));
+E long FDECL(get_gem_property, (int));
+E int FDECL(gem_enchant_bonus, (struct obj *));
+E boolean FDECL(is_affix_gem, (struct obj *));
 E void FDECL(breaksink, (int, int));
 E void NDECL(drinksink);
 

@@ -189,6 +189,8 @@ enum sp_obj_var_flags {
     SP_O_V_GREASED,
     SP_O_V_BROKEN,
     SP_O_V_COORD,
+    SP_O_V_AFFIXED_GEM,
+    SP_O_V_FORGED_QUAL,
 
     SP_O_V_END
 };
@@ -382,7 +384,7 @@ typedef struct {
     short buried;
     short lit;
     short eroded, locked, trapped, recharged, invis, greased, broken,
-        forged_qual;
+        forged_qual, affixed_gem;
 } object;
 
 typedef struct {

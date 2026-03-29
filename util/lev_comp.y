@@ -102,7 +102,6 @@ struct forloopdef {
 static struct forloopdef forloop_list[MAX_NESTED_IFS];
 static short n_forloops = 0;
 
-
 sp_lev *splev = NULL;
 
 static struct opvar *if_list[MAX_NESTED_IFS];
@@ -129,7 +128,6 @@ int allow_break_statements = 0;
 struct lc_breakdef *break_list = NULL;
 
 extern struct lc_vardefs *vardefs; /* variable definitions */
-
 
 struct lc_vardefs *function_tmp_var_defs = NULL;
 extern struct lc_funcdefs *function_definitions;
@@ -188,7 +186,6 @@ extern char curr_token[512];
     } meth;
 }
 
-
 %token	<i> CHAR INTEGER BOOLEAN PERCENT SPERCENT
 %token	<i> MINUS_INTEGER PLUS_INTEGER
 %token	<i> MAZE_GRID_ID SOLID_FILL_ID MINES_ID ROGUELEV_ID
@@ -209,7 +206,7 @@ extern char curr_token[512];
 %token	<i> QUANTITY_ID BURIED_ID LOOP_ID
 %token	<i> FOR_ID TO_ID
 %token	<i> SWITCH_ID CASE_ID BREAK_ID DEFAULT_ID
-%token	<i> ERODED_ID TRAPPED_STATE RECHARGED_ID INVIS_ID GREASED_ID
+%token	<i> ERODED_ID TRAPPED_STATE RECHARGED_ID INVIS_ID GREASED_ID AFFIXED_GEM_ID FORGED_QUAL_ID
 %token	<i> FEMALE_ID CANCELLED_ID REVIVED_ID AVENGE_ID FLEEING_ID BLINDED_ID
 %token	<i> PARALYZED_ID STUNNED_ID CONFUSED_ID SEENTRAPS_ID DEAD_ID ALL_ID
 %token	<i> MONTYPE_ID
@@ -446,7 +443,6 @@ opt_fillchar	: /* nothing */
 		      $$ = what_map_char((char) $2);
 		  }
 		;
-
 
 walled		: BOOLEAN
 		| RANDOM_TYPE
@@ -979,7 +975,6 @@ switchstatement	: SWITCH_ID
 
 		      add_opcode(splev, SPO_POP, NULL); /* get rid of the value in stack */
 		      in_switch_statement--;
-
 
 		  }
 		;
@@ -1764,6 +1759,16 @@ object_info	: CURSE_TYPE
 		      add_opvars(splev, "ii", VA_PASS2(1, SP_O_V_GREASED));
 		      $$ = 0x2000;
 		  }
+		| AFFIXED_GEM_ID ':' integer_or_var
+		  {
+		      add_opvars(splev, "i", VA_PASS1(SP_O_V_AFFIXED_GEM));
+		      $$ = 0x8000;
+		  }
+		| FORGED_QUAL_ID ':' integer_or_var
+		  {
+		      add_opvars(splev, "i", VA_PASS1(SP_O_V_FORGED_QUAL));
+		      $$ = 0x10000;
+		  }
 		| coord_or_var
 		  {
 		      add_opvars(splev, "i", VA_PASS1(SP_O_V_COORD));
@@ -2177,7 +2182,6 @@ string_or_var	: STRING
 		  }
 		;
 
-
 integer_or_var	: math_expr_var
 		  {
 		      /* nothing */
@@ -2427,7 +2431,6 @@ encodeobj	: STRING
 		  }
 		;
 
-
 string_expr	: string_or_var                 { }
 		| string_expr '.' string_or_var
 		  {
@@ -2553,7 +2556,6 @@ func_call_param_part	: math_expr_var
 			      $$ = (int)'s';
 			  }
 			;
-
 
 func_call_param_list   	: func_call_param_part
 			  {
@@ -2785,7 +2787,6 @@ region		: '(' INTEGER ',' INTEGER ',' INTEGER ',' INTEGER ')'
 			$$.y2 = $8;
 		  }
 		;
-
 
 %%
 
