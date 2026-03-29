@@ -1253,6 +1253,11 @@ doaffixgem()
         pline("That type of weapon is unsuitable for gemstone affixing.");
         return 0;
     }
+    if (!(is_metallic(weapon) || is_crystal(weapon))) {
+        pline("%s is not a suitable material for forge work.",
+              Yname2(weapon));
+        return 0;
+    }
     if (has_affixed_gem(weapon)) {
         pline("%s already has a gemstone affixed.", Yname2(weapon));
         return 0;
