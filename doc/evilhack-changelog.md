@@ -5139,4 +5139,5 @@ The following changes to date are:
 - Fix: NULL mextra dereference in set_malign()
 - Fix: OOB read in c_obj_colors[] with 256-color oc_color
 - Affixing gemstones onto weapons using a forge
+- Fix: OOB write in obufs[] from long object names
 

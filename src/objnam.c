@@ -9,13 +9,20 @@
 #include <ctype.h>
 #include <assert.h>
 
-/* PREFIX:
-   "an uncursed greased magical shimmering-scaled thoroughly rusty
-    thoroughly corroded rustproof +0 exceptional dilithium crystal-studded
-    adamantine dwarvish chain mail" (164 characters including spaces) */
-#define PREFIX 168
+/* PREFIX: max length of the prefix string prepended by doname_base().
+   Prefix-only components (object name is separate, added by xname()):
+   "2147483647 uncursed greased poisoned tainted thoroughly rusty
+    thoroughly corroded rustproof +127 exceptional
+    dilithium crystal-studded " (135 characters worst case;
+    136 after just_an() "a "->"an " conversion) */
+#define PREFIX 148
 #define SCHAR_LIM 127
 #define NUMOBUF 12
+/* Reserve space in xname() for suffix annotations appended by
+   doname_base() (wear status, price, weight, etc.).  Without this,
+   long ONAMEs can fill the buffer and leave no room for suffixes,
+   causing a global-buffer-overflow in obufs[]. */
+#define SUFFIX_RESERVE 35
 
 STATIC_DCL char *FDECL(strprepend, (char *, const char *));
 STATIC_DCL short FDECL(rnd_otyp_by_wpnskill, (SCHAR_P));
@@ -1080,8 +1087,12 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     if (has_oname(obj) && dknown) {
         Strcat(buf, " named ");
  nameit:
-        (void) strncat(buf, ONAME(obj),
-                       BUFSZ - 1 - PREFIX - (unsigned) strlen(buf));
+        {
+            int avail = (int) (BUFSZ - 1 - PREFIX - SUFFIX_RESERVE)
+                      - (int) strlen(buf);
+            if (avail > 0)
+                (void) strncat(buf, ONAME(obj), avail);
+        }
     }
 
     if (!strncmpi(buf, "the ", 4))
@@ -1310,6 +1321,12 @@ unsigned doname_flags;
                                 the start of prefix instead of the
                                 end (Strcat is used on the end) */
     char *bp = xname(obj);
+    /* Safety: truncate if name is too long for suffix annotations */
+    {
+        int max_bp_len = BUFSZ - PREFIX - 1 - SUFFIX_RESERVE;
+        if ((int) strlen(bp) > max_bp_len)
+            bp[max_bp_len] = '\0';
+    }
     /* in practice, if something is worn or wielded by a hand, it is
        probably yours if it isn't specifically a monster's. there are
        some cases where an object is temporarily freed from inventory
