@@ -21,8 +21,11 @@
 /* Reserve space in xname() for suffix annotations appended by
    doname_base() (wear status, price, weight, etc.).  Without this,
    long ONAMEs can fill the buffer and leave no room for suffixes,
-   causing a global-buffer-overflow in obufs[]. */
+   causing a global-buffer-overflow in obufs[] */
 #define SUFFIX_RESERVE 35
+/* Check if bp has room for n more characters.
+   bp points PREFIX bytes into an obufs[BUFSZ] slot */
+#define BP_HAS_ROOM(bp, n) ((int) strlen(bp) + (n) <= BUFSZ - PREFIX - 1)
 
 STATIC_DCL char *FDECL(strprepend, (char *, const char *));
 STATIC_DCL short FDECL(rnd_otyp_by_wpnskill, (SCHAR_P));
@@ -1317,6 +1320,7 @@ unsigned doname_flags;
     long orig_opknwn = obj->oprops_known;
     int omndx = obj->corpsenm;
     char prefix[PREFIX], globbuf[QBUFSZ];
+    char suffbuf[80]; /* temp for formatted suffix annotations */
     char tmpbuf[PREFIX + 1]; /* for when we have to add something at
                                 the start of prefix instead of the
                                 end (Strcat is used on the end) */
@@ -1682,7 +1686,8 @@ unsigned doname_flags;
         break;
     }
 
-    if ((obj->owornmask & W_WEP) && !mrg_to_wielded) {
+    if ((obj->owornmask & W_WEP) && !mrg_to_wielded
+        && BP_HAS_ROOM(bp, 35)) {
         if (obj->quan != 1L) {
             Strcat(bp, " (wielded)");
         } else {
@@ -1700,7 +1705,7 @@ unsigned doname_flags;
                                                              : "", hand_s);
         }
     }
-    if (obj->owornmask & W_SWAPWEP) {
+    if ((obj->owornmask & W_SWAPWEP) && BP_HAS_ROOM(bp, 35)) {
         if (u.twoweap
             || (owner != &youmonst && MON_WEP2(owner) == obj)) {
             Sprintf(eos(bp), " (wielded in other %s)",
@@ -1711,7 +1716,7 @@ unsigned doname_flags;
     }
 
     /* Various in-use light sources; overwrite trailing ')'. */
-    if (!Blind
+    if (!Blind && BP_HAS_ROOM(bp, 30)
         && ((obj->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
         || ((u.twoweap || (owner != &youmonst && MON_WEP2(owner)))
             && (obj->owornmask & W_SWAPWEP)))) {
@@ -1735,7 +1740,8 @@ unsigned doname_flags;
         }
     }
 
-    if (obj->owornmask & W_QUIVER && !iflags.suppress_worn) {
+    if (obj->owornmask & W_QUIVER && !iflags.suppress_worn
+        && BP_HAS_ROOM(bp, 18)) {
         switch (obj->oclass) {
         case WEAPON_CLASS:
             if (is_ammo(obj)) {
@@ -1774,22 +1780,29 @@ unsigned doname_flags;
     } else if (is_unpaid(obj)) { /* in inventory or in container in invent */
         long quotedprice = unpaid_cost(obj, TRUE);
 
-        Sprintf(eos(bp), " (%s, %s%ld %s)",
+        Sprintf(suffbuf, " (%s, %s%ld %s)",
                 obj->unpaid ? "unpaid" : "contents",
                 globwt(obj, globbuf, &weightshown),
                 quotedprice, currency(quotedprice));
+        if (BP_HAS_ROOM(bp, (int) strlen(suffbuf)))
+            Strcat(bp, suffbuf);
     } else if (with_price) { /* on floor or in container on floor */
         int nochrg = 0;
         long price = get_cost_of_shop_item(obj, &nochrg);
 
-        if (price > 0L)
-            Sprintf(eos(bp), " (%s, %s%ld %s)",
+        if (price > 0L) {
+            Sprintf(suffbuf, " (%s, %s%ld %s)",
                     nochrg ? "contents" : "for sale",
                     globwt(obj, globbuf, &weightshown),
                     price, currency(price));
-        else if (nochrg > 0)
-            Sprintf(eos(bp), " (%sno charge)",
+            if (BP_HAS_ROOM(bp, (int) strlen(suffbuf)))
+                Strcat(bp, suffbuf);
+        } else if (nochrg > 0) {
+            Sprintf(suffbuf, " (%sno charge)",
                     globwt(obj, globbuf, &weightshown));
+            if (BP_HAS_ROOM(bp, (int) strlen(suffbuf)))
+                Strcat(bp, suffbuf);
+        }
     }
     if (!strncmp(prefix, "a ", 2)) {
         /* save current prefix, without "a "; might be empty */
@@ -1805,8 +1818,11 @@ unsigned doname_flags;
     if (iflags.invweight && (obj->where == OBJ_INVENT || wizard)) {
         /* wizard mode user has asked to see object weights;
            globs with shop pricing attached already include it */
-        if (!weightshown)
-            Sprintf(eos(bp), " (%u aum)", obj->owt);
+        if (!weightshown) {
+            Sprintf(suffbuf, " (%u aum)", obj->owt);
+            if (BP_HAS_ROOM(bp, (int) strlen(suffbuf)))
+                Strcat(bp, suffbuf);
+        }
     }
 
     bp = strprepend(bp, prefix);
