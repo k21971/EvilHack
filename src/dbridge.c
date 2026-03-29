@@ -31,7 +31,10 @@ STATIC_DCL void FDECL(e_died, (struct entity *, int, int));
 STATIC_DCL boolean FDECL(automiss, (struct entity *));
 STATIC_DCL boolean FDECL(e_missed, (struct entity *, BOOLEAN_P));
 STATIC_DCL boolean FDECL(e_jumps, (struct entity *));
-STATIC_DCL void FDECL(do_entity, (struct entity *));
+STATIC_DCL int FDECL(do_entity, (struct entity *));
+STATIC_DCL boolean FDECL(e_survives_unique,
+                         (struct entity *, BOOLEAN_P, const char *));
+STATIC_DCL void FDECL(maybe_destroy_drawbridge, (int, int, int, int));
 
 boolean
 is_damp_terrain(x, y)
@@ -539,6 +542,38 @@ int xkill_flags, how;
 }
 
 /*
+ * Unique monsters survive drawbridge crushing; takes half HP damage
+ * and is relocated.  Returns TRUE if the monster was unique and survived.
+ */
+STATIC_OVL boolean
+e_survives_unique(etmp, e_inview, hit_msg)
+struct entity *etmp;
+boolean e_inview;
+const char *hit_msg; /* format string with one %s for e_nam */
+{
+    struct monst *mtmp;
+
+    if (is_u(etmp) || !unique_corpstat(etmp->edata)
+        || etmp->edata == &mons[PM_LONG_WORM_TAIL])
+        return FALSE;
+
+    mtmp = etmp->emon;
+    if (e_inview)
+        pline(hit_msg, e_nam(etmp));
+    mtmp->mhp /= 2;
+    if (mtmp->mhp < 1)
+        mtmp->mhp = 1;
+    if (!rloc(mtmp, TRUE))
+        return FALSE; /* can't relocate; let normal handling proceed */
+    etmp->ex = mtmp->mx;
+    etmp->ey = mtmp->my;
+    if (e_inview || canseemon(mtmp))
+        pline("%s is thrown clear of the drawbridge!",
+              Monnam(mtmp));
+    return TRUE;
+}
+
+/*
  * These are never directly affected by a bridge or portcullis.
  */
 STATIC_OVL boolean
@@ -613,7 +648,7 @@ struct entity *etmp;
     return (tmp >= rnd(10)) ? TRUE : FALSE;
 }
 
-STATIC_OVL void
+STATIC_OVL int
 do_entity(etmp)
 struct entity *etmp;
 {
@@ -622,7 +657,7 @@ struct entity *etmp;
     struct rm *crm;
 
     if (!etmp->edata)
-        return;
+        return 0;
 
     e_inview = e_canseemon(etmp);
     oldx = etmp->ex;
@@ -637,7 +672,7 @@ struct entity *etmp;
                       e_nam(etmp));
         if (is_u(etmp))
             spoteffects(FALSE);
-        return;
+        return 0;
     }
     if (e_missed(etmp, FALSE)) {
         if (at_portcullis) {
@@ -646,7 +681,7 @@ struct entity *etmp;
             debugpline1("The drawbridge misses %s!", e_nam(etmp));
         }
         if (e_survives_at(etmp, oldx, oldy)) {
-            return;
+            return 0;
         } else {
             debugpline0("Mon can't survive here");
             if (at_portcullis)
@@ -656,17 +691,25 @@ struct entity *etmp;
         }
     } else {
         if (crm->typ == DRAWBRIDGE_DOWN) {
-            if (is_u(etmp)) {
-                killer.format = NO_KILLER_PREFIX;
-                Strcpy(killer.name,
-                       "crushed to death underneath a drawbridge");
-            }
-            pline("%s crushed underneath the drawbridge.",
-                  E_phrase(etmp, "are"));             /* no jump */
-            e_died(etmp,
-                   XKILL_NOCORPSE | (e_inview ? XKILL_GIVEMSG : XKILL_NOMSG),
-                   CRUSHING); /* no corpse */
-            return;       /* Note: Beyond this point, we know we're  */
+            if (e_survives_unique(etmp, e_inview,
+                "The drawbridge crushes %s!")) {
+                return -1;
+            } else {
+                int msize = etmp->edata->msize;
+
+                if (is_u(etmp)) {
+                    killer.format = NO_KILLER_PREFIX;
+                    Strcpy(killer.name,
+                           "crushed to death underneath a drawbridge");
+                }
+                pline("%s crushed underneath the drawbridge.",
+                      E_phrase(etmp, "are"));             /* no jump */
+                e_died(etmp,
+                       XKILL_NOCORPSE | (e_inview ? XKILL_GIVEMSG
+                                                  : XKILL_NOMSG),
+                       CRUSHING); /* no corpse */
+                return msize + 1;
+            }             /* Note: Beyond this point, we know we're  */
         }                 /* not at an opened drawbridge, since all  */
         must_jump = TRUE; /* *missable* creatures survive on the     */
     }                     /* square, and all the unmissed ones die.  */
@@ -676,17 +719,24 @@ struct entity *etmp;
                 relocates = TRUE;
                 debugpline0("Jump succeeds!");
             } else {
-                if (e_inview)
-                    pline("%s crushed by the falling portcullis!",
-                          E_phrase(etmp, "are"));
-                else if (!Deaf)
-                    You_hear("a crushing sound.");
-                e_died(etmp,
-                       XKILL_NOCORPSE | (e_inview ? XKILL_GIVEMSG
-                                                  : XKILL_NOMSG),
-                       CRUSHING);
-                /* no corpse */
-                return;
+                if (e_survives_unique(etmp, e_inview,
+                    "The portcullis crushes %s!")) {
+                    return -1;
+                } else {
+                    int msize = etmp->edata->msize;
+
+                    if (e_inview)
+                        pline("%s crushed by the falling portcullis!",
+                              E_phrase(etmp, "are"));
+                    else if (!Deaf)
+                        You_hear("a crushing sound.");
+                    e_died(etmp,
+                           XKILL_NOCORPSE | (e_inview ? XKILL_GIVEMSG
+                                                      : XKILL_NOMSG),
+                           CRUSHING);
+                    /* no corpse */
+                    return msize + 1;
+                }
             }
         } else { /* tries to jump off bridge to original square */
             relocates = !e_jumps(etmp);
@@ -736,7 +786,7 @@ struct entity *etmp;
 #ifdef D_DEBUG
                 wait_synch();
 #endif
-                return;
+                return 0;
             }
         }
     }
@@ -792,10 +842,17 @@ struct entity *etmp;
                       E_phrase(etmp, "disappear"));
         }
         if (!e_survives_at(etmp, etmp->ex, etmp->ey)) {
-            killer.format = KILLED_BY_AN;
-            Strcpy(killer.name, "closing drawbridge");
-            e_died(etmp, XKILL_NOMSG, CRUSHING);
-            return;
+            if (e_survives_unique(etmp, e_inview,
+                "The drawbridge crushes %s!")) {
+                return -1;
+            } else {
+                int msize = etmp->edata->msize;
+
+                killer.format = KILLED_BY_AN;
+                Strcpy(killer.name, "closing drawbridge");
+                e_died(etmp, XKILL_NOMSG, CRUSHING);
+                return msize + 1;
+            }
         }
         debugpline1("%s in here", E_phrase(etmp, "survive"));
     } else {
@@ -807,7 +864,7 @@ struct entity *etmp;
             if (e_inview && !is_flyer(etmp->edata)
                 && !is_floater(etmp->edata))
                 pline("%s from the bridge.", E_phrase(etmp, "fall"));
-            return;
+            return 0;
         }
         debugpline1("%s cannot survive on the drawbridge square",
                     E_phrase(etmp, NULL));
@@ -830,12 +887,36 @@ struct entity *etmp;
                is_pool(etmp->ex, etmp->ey) ? DROWNING
                  : is_lava(etmp->ex, etmp->ey) ? BURNING
                    : CRUSHING); /*no corpse*/
-        return;
+        return 0;
     }
+    return 0;
 }
 
 /* clear stale reason for death before returning */
 #define nokiller() (killer.name[0] = '\0', killer.format = 0)
+
+/*
+ * If a monster was crushed by a closing/opening drawbridge, the bridge
+ * may be destroyed.  Unique monsters always destroy the bridge; for
+ * others, the chance scales with monster size.
+ */
+STATIC_OVL void
+maybe_destroy_drawbridge(x, y, result1, result2)
+int x, y, result1, result2;
+{
+    int max_result;
+
+    if (result1 < 0 || result2 < 0) {
+        /* unique monster was crushed - always destroy */
+        destroy_drawbridge(x, y);
+        return;
+    }
+    max_result = max(result1, result2);
+    if (max_result > 0 && rn2(8) < max_result) {
+        /* size-based chance: msize+1 out of 8 */
+        destroy_drawbridge(x, y);
+    }
+}
 
 /*
  * Close the drawbridge located at x,y
@@ -847,6 +928,7 @@ int x, y;
     struct rm *lev1, *lev2;
     struct trap *t;
     int x2, y2;
+    int db_result1, db_result2;
 
     lev1 = &levl[x][y];
     if (lev1->typ != DRAWBRIDGE_DOWN)
@@ -854,6 +936,16 @@ int x, y;
     x2 = x;
     y2 = y;
     get_wall_for_db(&x2, &y2);
+    /* protected drawbridges won't operate if a monster is in the way */
+    if ((Is_valley(&u.uz) || Is_wiz1_level(&u.uz)
+         || Is_wiz3_level(&u.uz))
+        && (MON_AT(x, y) || MON_AT(x2, y2))) {
+        if (cansee(x, y) || cansee(x2, y2))
+            pline_The("drawbridge strains, but something is in the way.");
+        else
+            You_hear("gears grinding.");
+        return;
+    }
     if (cansee(x, y) || cansee(x2, y2))
         You_see("a drawbridge %s up!",
                 (((u.ux == x || u.uy == y) && !Underwater)
@@ -878,9 +970,16 @@ int x, y;
     lev2->wall_info = W_NONDIGGABLE;
     set_entity(x, y, &(occupants[0]));
     set_entity(x2, y2, &(occupants[1]));
-    do_entity(&(occupants[0]));          /* Do set_entity after first */
-    set_entity(x2, y2, &(occupants[1])); /* do_entity for worm tail */
-    do_entity(&(occupants[1]));
+    db_result1 = do_entity(&(occupants[0])); /* Do set_entity after first */
+    set_entity(x2, y2, &(occupants[1]));     /* do_entity for worm tail */
+    db_result2 = do_entity(&(occupants[1]));
+    /* crushing a monster may destroy the drawbridge */
+    maybe_destroy_drawbridge(x, y, db_result1, db_result2);
+    if (!IS_DRAWBRIDGE(levl[x][y].typ)) {
+        /* bridge was destroyed; cleanup already handled */
+        nokiller();
+        return;
+    }
     if (OBJ_AT(x, y) && !Deaf)
         You_hear("smashing and crushing.");
     (void) revive_nasty(x, y, (char *) 0);
@@ -909,6 +1008,7 @@ int x, y;
     struct rm *lev1, *lev2;
     struct trap *t;
     int x2, y2;
+    int db_result1, db_result2;
 
     lev1 = &levl[x][y];
     if (lev1->typ != DRAWBRIDGE_UP)
@@ -916,6 +1016,16 @@ int x, y;
     x2 = x;
     y2 = y;
     get_wall_for_db(&x2, &y2);
+    /* protected drawbridges won't operate if a monster is in the way */
+    if ((Is_valley(&u.uz) || Is_wiz1_level(&u.uz)
+         || Is_wiz3_level(&u.uz))
+        && (MON_AT(x, y) || MON_AT(x2, y2))) {
+        if (cansee(x, y) || cansee(x2, y2))
+            pline_The("drawbridge strains, but something is in the way.");
+        else
+            You_hear("gears grinding.");
+        return;
+    }
     if (cansee(x, y) || cansee(x2, y2))
         You_see("a drawbridge %s down!",
                 (distu(x2, y2) < distu(x, y)) ? "going" : "coming");
@@ -927,9 +1037,16 @@ int x, y;
     lev2->doormask = D_NODOOR;
     set_entity(x, y, &(occupants[0]));
     set_entity(x2, y2, &(occupants[1]));
-    do_entity(&(occupants[0]));          /* do set_entity after first */
-    set_entity(x2, y2, &(occupants[1])); /* do_entity for worm tails */
-    do_entity(&(occupants[1]));
+    db_result1 = do_entity(&(occupants[0])); /* do set_entity after first */
+    set_entity(x2, y2, &(occupants[1]));     /* do_entity for worm tails */
+    db_result2 = do_entity(&(occupants[1]));
+    /* crushing a monster may destroy the drawbridge */
+    maybe_destroy_drawbridge(x, y, db_result1, db_result2);
+    if (!IS_DRAWBRIDGE(levl[x][y].typ)) {
+        /* bridge was destroyed; cleanup already handled */
+        nokiller();
+        return;
+    }
     (void) revive_nasty(x, y, (char *) 0);
     delallobj(x, y);
     if ((t = t_at(x, y)) != 0)
@@ -1040,14 +1157,20 @@ int x, y;
     if (etmp2->edata) {
         e_inview = e_canseemon(etmp2);
         if (!automiss(etmp2)) {
-            if (e_inview)
-                pline("%s blown apart by flying debris.",
-                      E_phrase(etmp2, "are"));
-            killer.format = KILLED_BY_AN;
-            Strcpy(killer.name, "exploding drawbridge");
-            e_died(etmp2,
-                   XKILL_NOCORPSE | (e_inview ? XKILL_GIVEMSG : XKILL_NOMSG),
-                   CRUSHING); /*no corpse*/
+            if (e_survives_unique(etmp2, e_inview,
+                "Flying debris strikes %s!")) {
+                ; /* unique survived; bridge already being destroyed */
+            } else {
+                if (e_inview)
+                    pline("%s blown apart by flying debris.",
+                          E_phrase(etmp2, "are"));
+                killer.format = KILLED_BY_AN;
+                Strcpy(killer.name, "exploding drawbridge");
+                e_died(etmp2,
+                       XKILL_NOCORPSE | (e_inview ? XKILL_GIVEMSG
+                                                  : XKILL_NOMSG),
+                       CRUSHING); /*no corpse*/
+            }
         } /* nothing which is vulnerable can survive this */
     }
     set_entity(x, y, etmp1);
@@ -1060,6 +1183,9 @@ int x, y;
                 spoteffects(FALSE);
             else
                 (void) minliquid(etmp1->emon);
+        } else if (e_survives_unique(etmp1, e_inview,
+                   "A huge chunk of metal strikes %s!")) {
+            ; /* unique survived; bridge already being destroyed */
         } else {
             if (e_inview) {
                 if (!is_u(etmp1) && Hallucination)
@@ -1072,13 +1198,15 @@ int x, y;
                 if (!Deaf && !is_u(etmp1) && !is_pool(x, y)) {
                     You_hear("a crushing sound.");
                 } else {
-                    debugpline1("%s from shrapnel", E_phrase(etmp1, "die"));
+                    debugpline1("%s from shrapnel",
+                                E_phrase(etmp1, "die"));
                 }
             }
             killer.format = KILLED_BY_AN;
             Strcpy(killer.name, "collapsing drawbridge");
             e_died(etmp1,
-                   XKILL_NOCORPSE | (e_inview ? XKILL_GIVEMSG : XKILL_NOMSG),
+                   XKILL_NOCORPSE | (e_inview ? XKILL_GIVEMSG
+                                              : XKILL_NOMSG),
                    CRUSHING); /*no corpse*/
             if (levl[etmp1->ex][etmp1->ey].typ == MOAT)
                 do_entity(etmp1);

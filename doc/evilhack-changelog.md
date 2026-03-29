@@ -5145,4 +5145,5 @@ The following changes to date are:
 - Reject non-metallic weapons from gemstone affixing
 - Fix: panic in remove_worm() after hurtling a long worm
 - Fix: drawbridge relocation corrupts worm segments
+- Drawbridge crushing can now destroy the bridge
 
