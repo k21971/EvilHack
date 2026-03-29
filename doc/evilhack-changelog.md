@@ -5143,4 +5143,5 @@ The following changes to date are:
 - Fix: OOB write in obufs[] from stacked suffix annotations
 - Gemstone affixing: only consume Blacksmith hammer charge on success
 - Reject non-metallic weapons from gemstone affixing
+- Fix: panic in remove_worm() after hurtling a long worm
 

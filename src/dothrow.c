@@ -888,7 +888,7 @@ xchar x, y;
     /* redundant when called by mhurtle() */
     if (r_data(mon)->msize >= MZ_HUGE
         || mon == u.ustuck || mon->mtrapped
-        || mon->mentangled)
+        || mon->mentangled || mon->wormno)
         return FALSE;
     /*
      * TODO: Treat walls, doors, iron bars, etc. specially
@@ -1085,7 +1085,7 @@ int dx, dy, range;
      */
     if (r_data(mon)->msize >= MZ_HUGE
         || mon == u.ustuck || mon->mtrapped
-        || mon->mentangled) {
+        || mon->mentangled || mon->wormno) {
         if (canseemon(mon))
             pline("%s doesn't budge!", Monnam(mon));
         return;

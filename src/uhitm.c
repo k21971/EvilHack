@@ -2050,8 +2050,8 @@ int dieroll;
     } else if (unarmed && tmp > 1 && !thrown
                && actually_unarmed && !Upolyd) {
         /* VERY small chance of stunning or confusing opponent if unarmed.
-           don't need to check for huge/gigantic monsters, as mhurtle()
-           already guards against them */
+           don't need to check for huge/gigantic monsters or long worms,
+           as mhurtle() already guards against them */
         if (rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT)
             && !(u.uswallow || thick_skinned(mdat)
                  || has_barkskin(mon) || has_stoneskin(mon)
