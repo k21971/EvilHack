@@ -743,15 +743,32 @@ struct entity *etmp;
     if (relocates && !e_at(newx, newy)) { /* if e_at() entity = worm tail */
         debugpline1("Moving %s", e_nam(etmp));
         if (!is_u(etmp)) {
-            remove_monster(etmp->ex, etmp->ey);
-            place_monster(etmp->emon, newx, newy);
-            update_monster_region(etmp->emon);
+            if (etmp->emon->wormno
+                && etmp->edata == &mons[PM_LONG_WORM_TAIL]) {
+                /* Worm segment on drawbridge - don't relocate
+                   the head. Entity stays at current position;
+                   terrain survival check below handles the
+                   outcome (worm drowns in the moat) */
+            } else if (etmp->emon->wormno) {
+                /* Worm head on drawbridge - rloc_to properly
+                   handles remove_worm + place_monster +
+                   place_worm_tail_randomly */
+                rloc_to(etmp->emon, newx, newy);
+            } else {
+                remove_monster(etmp->ex, etmp->ey);
+                place_monster(etmp->emon, newx, newy);
+                update_monster_region(etmp->emon);
+            }
         } else {
             u.ux = newx;
             u.uy = newy;
         }
-        etmp->ex = newx;
-        etmp->ey = newy;
+        /* update entity position unless worm segment stayed put */
+        if (is_u(etmp) || !etmp->emon->wormno
+            || etmp->edata != &mons[PM_LONG_WORM_TAIL]) {
+            etmp->ex = newx;
+            etmp->ey = newy;
+        }
         e_inview = e_canseemon(etmp);
     }
     debugpline1("Final disposition of %s", e_nam(etmp));
