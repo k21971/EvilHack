@@ -5148,4 +5148,5 @@ The following changes to date are:
 - Drawbridge crushing can now destroy the bridge
 - Fix: use-after-free in doread() and dopotion() via lava_effects()
 - Fix: NULL dereference in armor callbacks after savelife()
+- Adjust drawbridge destruction odds by monster size
 

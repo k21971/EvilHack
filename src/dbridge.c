@@ -898,7 +898,8 @@ struct entity *etmp;
 /*
  * If a monster was crushed by a closing/opening drawbridge, the bridge
  * may be destroyed.  Unique monsters always destroy the bridge; for
- * others, the chance scales with monster size.
+ * others, the chance scales with monster size: tiny/small have no
+ * chance, medium 25%, large 50%, huge 75%, gigantic 100%.
  */
 STATIC_OVL void
 maybe_destroy_drawbridge(x, y, result1, result2)
@@ -912,8 +913,9 @@ int x, y, result1, result2;
         return;
     }
     max_result = max(result1, result2);
-    if (max_result > 0 && rn2(8) < max_result) {
-        /* size-based chance: msize+1 out of 8 */
+    /* max_result is msize+1: tiny=1, small=2, medium=3, large=4,
+       huge=5, gigantic=6.  Only medium+ can destroy the bridge */
+    if (max_result > 2 && rn2(4) < max_result - 2) {
         destroy_drawbridge(x, y);
     }
 }
