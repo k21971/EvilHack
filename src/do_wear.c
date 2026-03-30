@@ -280,8 +280,12 @@ long mask;
 int
 Boots_on(VOID_ARGS)
 {
-    long oldprop =
-        u.uprops[objects[uarmf->otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
+    long oldprop;
+
+    if (!uarmf)
+        return 0;
+
+    oldprop = u.uprops[objects[uarmf->otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
 
     switch (uarmf->otyp) {
     case LOW_BOOTS:
@@ -350,8 +354,15 @@ int
 Boots_off(VOID_ARGS)
 {
     struct obj *otmp = uarmf;
-    int otyp = otmp->otyp;
-    long oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
+    int otyp;
+    long oldprop;
+
+    if (!otmp) {
+        context.takeoff.mask &= ~W_ARMF;
+        return 0;
+    }
+    otyp = otmp->otyp;
+    oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
 
     oprops_off(uarmf, WORN_BOOTS);
 
@@ -414,9 +425,14 @@ Boots_off(VOID_ARGS)
 STATIC_PTR int
 Cloak_on(VOID_ARGS)
 {
-    int otyp = uarmc->otyp;
-    long oldprop =
-        u.uprops[objects[uarmc->otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
+    int otyp;
+    long oldprop;
+
+    if (!uarmc)
+        return 0;
+
+    otyp = uarmc->otyp;
+    oldprop = u.uprops[objects[uarmc->otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
 
     if (Is_dragon_scales(uarmc)
         && otyp != SHIMMERING_DRAGON_SCALES
@@ -504,9 +520,17 @@ int
 Cloak_off(VOID_ARGS)
 {
     struct obj *otmp = uarmc;
-    int otyp = otmp->otyp;
-    long oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
-    boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
+    int otyp;
+    long oldprop;
+    boolean was_arti_light;
+
+    if (!otmp) {
+        context.takeoff.mask &= ~W_ARMC;
+        return 0;
+    }
+    otyp = otmp->otyp;
+    oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
+    was_arti_light = otmp->lamplit && artifact_light(otmp);
 
     if (Is_dragon_scales(uarmc)
         && otyp != SHIMMERING_DRAGON_SCALES
@@ -589,8 +613,12 @@ STATIC_PTR
 int
 Helmet_on(VOID_ARGS)
 {
-    long oldprop =
-        u.uprops[objects[uarmh->otyp].oc_oprop].extrinsic & ~WORN_HELMET;
+    long oldprop;
+
+    if (!uarmh)
+        return 0;
+
+    oldprop = u.uprops[objects[uarmh->otyp].oc_oprop].extrinsic & ~WORN_HELMET;
 
     switch (uarmh->otyp) {
     case FEDORA:
@@ -689,6 +717,10 @@ Helmet_on(VOID_ARGS)
 int
 Helmet_off(VOID_ARGS)
 {
+    if (!uarmh) {
+        context.takeoff.mask &= ~W_ARMH;
+        return 0;
+    }
     oprops_off(uarmh, WORN_HELMET);
 
     context.takeoff.mask &= ~W_ARMH;
@@ -754,6 +786,9 @@ STATIC_PTR
 int
 Gloves_on(VOID_ARGS)
 {
+    if (!uarmg)
+        return 0;
+
     switch (uarmg->otyp) {
     case GLOVES:
     case DARK_ELVEN_GLOVES:
@@ -817,7 +852,13 @@ boolean voluntary; /* taking gloves off on purpose? */
 int
 Gloves_off(VOID_ARGS)
 {
-    boolean on_purpose = !context.mon_moving && !uarmg->in_use;
+    boolean on_purpose;
+
+    if (!uarmg) {
+        context.takeoff.mask &= ~W_ARMG;
+        return 0;
+    }
+    on_purpose = !context.mon_moving && !uarmg->in_use;
 
     oprops_off(uarmg, WORN_GLOVES);
 
@@ -881,6 +922,9 @@ Gloves_off(VOID_ARGS)
 STATIC_PTR int
 Shield_on(VOID_ARGS)
 {
+    if (!uarms)
+        return 0;
+
     /* no shield currently requires special handling when put on, but we
        keep this uncommented in case somebody adds a new one which does
        [reflection is handled by setting u.uprops[REFLECTING].extrinsic
@@ -915,10 +959,15 @@ int
 Shield_off(VOID_ARGS)
 {
     struct obj *otmp = uarms;
-    boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
+    boolean was_arti_light;
 
-    if (otmp)
-        oprops_off(otmp, WORN_SHIELD);
+    if (!otmp) {
+        context.takeoff.mask &= ~W_ARMS;
+        return 0;
+    }
+    was_arti_light = otmp->lamplit && artifact_light(otmp);
+
+    oprops_off(otmp, WORN_SHIELD);
     context.takeoff.mask &= ~W_ARMS;
     setworn((struct obj *) 0, W_ARMS);
 
@@ -950,6 +999,9 @@ Shield_off(VOID_ARGS)
 STATIC_PTR int
 Shirt_on(VOID_ARGS)
 {
+    if (!uarmu)
+        return 0;
+
     /* no shirt currently requires special handling when put on, but we
        keep this uncommented in case somebody adds a new one which does */
     switch (uarmu->otyp) {
@@ -970,6 +1022,10 @@ Shirt_on(VOID_ARGS)
 int
 Shirt_off(VOID_ARGS)
 {
+    if (!uarmu) {
+        context.takeoff.mask &= ~W_ARMU;
+        return 0;
+    }
     oprops_off(uarmu, WORN_SHIRT);
 
     context.takeoff.mask &= ~W_ARMU;

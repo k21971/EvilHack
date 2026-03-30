@@ -5147,4 +5147,5 @@ The following changes to date are:
 - Fix: drawbridge relocation corrupts worm segments
 - Drawbridge crushing can now destroy the bridge
 - Fix: use-after-free in doread() and dopotion() via lava_effects()
+- Fix: NULL dereference in armor callbacks after savelife()
 

@@ -1124,6 +1124,10 @@ int how;
     if ((Sick & TIMEOUT) == 1L) {
         make_sick(0L, (char *) 0, FALSE, SICK_ALL);
     }
+    /* cancel any pending armor don/doff action; savelife() overrides
+       multi and nomovemsg below, but afternmv would survive and fire
+       with a potentially-NULL armor slot when multi reaches zero */
+    cancel_don();
     nomovemsg = (Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
                 ? "You survived that attempt to destroy you."
                 : "You survived that attempt on your life.";
