@@ -5146,4 +5146,5 @@ The following changes to date are:
 - Fix: panic in remove_worm() after hurtling a long worm
 - Fix: drawbridge relocation corrupts worm segments
 - Drawbridge crushing can now destroy the bridge
+- Fix: use-after-free in doread() and dopotion() via lava_effects()
 

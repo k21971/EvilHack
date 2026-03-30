@@ -592,16 +592,34 @@ doread()
                       silently ? "misunderstand" : "mispronounce");
         }
     }
-    if (!seffects(scroll)) {
-        if (!objects[scroll->otyp].oc_name_known) {
-            if (known)
-                learnscroll(scroll);
-            else if (!objects[scroll->otyp].oc_uname)
-                docall(scroll);
+    /* Save before seffects() -- scroll may be freed by
+       lava_effects() if a scroll effect (e.g. teleportation)
+       places the player on lava (matches dopotion() pattern) */
+    {
+        short scroll_otyp = scroll->otyp;
+        unsigned scroll_oid = scroll->o_id;
+
+        if (!seffects(scroll)) {
+            /* verify scroll still exists; lava_effects() can
+               destroy items marked in_use when player lands
+               on lava and doesn't survive without life saving */
+            if (!o_on(scroll_oid, invent)) {
+                /* scroll was destroyed; use saved otyp */
+                if (!objects[scroll_otyp].oc_name_known && known)
+                    learnscrolltyp(scroll_otyp);
+                /* can't docall() without valid object pointer */
+                return 1;
+            }
+            if (!objects[scroll->otyp].oc_name_known) {
+                if (known)
+                    learnscroll(scroll);
+                else if (!objects[scroll->otyp].oc_uname)
+                    docall(scroll);
+            }
+            scroll->in_use = FALSE;
+            if (scroll->otyp != SCR_BLANK_PAPER)
+                useup(scroll);
         }
-        scroll->in_use = FALSE;
-        if (scroll->otyp != SCR_BLANK_PAPER)
-            useup(scroll);
     }
     return 1;
 }

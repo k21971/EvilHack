@@ -729,6 +729,7 @@ struct obj *otmp;
     int retval;
     boolean dkn;
     short otyp;
+    unsigned otmp_oid;
 
     otmp->in_use = TRUE;
     nothing = unkn = 0;
@@ -737,6 +738,7 @@ struct obj *otmp;
        items marked in_use) */
     dkn = otmp->dknown;
     otyp = otmp->otyp;
+    otmp_oid = otmp->o_id;
     if ((retval = peffects(otmp)) >= 0)
         return retval;
 
@@ -748,8 +750,9 @@ struct obj *otmp;
     /* potion may have been destroyed during peffects() -
        e.g. polymorphing into an ice creature on lava triggers
        lava_effects() which destroys items marked in_use (and
-       dopotion set in_use = TRUE before peffects) */
-    if (otmp->where != OBJ_INVENT) {
+       dopotion set in_use = TRUE before peffects); use o_on()
+       to safely check without dereferencing otmp */
+    if (!o_on(otmp_oid, invent)) {
         /* use saved values for identification */
         if (dkn && !objects[otyp].oc_name_known && !unkn) {
             makeknown(otyp);
