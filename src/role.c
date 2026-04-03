@@ -50,7 +50,8 @@ const struct Role roles[] = {
       S_SNAKE,
       S_MUMMY,
       ART_XIUHCOATL,
-      MH_HUMAN | MH_DWARF | MH_GNOME | MH_HOBBIT | MH_TORTLE,
+      MH_HUMAN | MH_DWARF | MH_GNOME | MH_HOBBIT
+          | MH_TORTLE | MH_AASIMAR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 10, 7, 7, 7 },
@@ -135,7 +136,7 @@ const struct Role roles[] = {
       S_HUMANOID,
       S_GIANT,
       ART_SCEPTRE_OF_MIGHT,
-      MH_HUMAN | MH_DWARF | MH_GNOME | MH_GIANT,
+      MH_HUMAN | MH_DWARF | MH_GNOME | MH_GIANT | MH_AASIMAR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 7, 7, 8, 6 },
@@ -350,7 +351,7 @@ const struct Role roles[] = {
       S_JELLY,
       ART_MAGIC_MIRROR_OF_MERLIN,
       MH_HUMAN | MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
-          | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+          | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 13, 7, 14, 8, 10, 17 },
@@ -393,7 +394,7 @@ const struct Role roles[] = {
       S_XORN,
       ART_EYES_OF_THE_OVERWORLD,
       MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR
-          | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+          | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
@@ -438,7 +439,7 @@ const struct Role roles[] = {
       ART_MITRE_OF_HOLINESS,
       MH_HUMAN | MH_ELF | MH_DWARF | MH_ORC | MH_GIANT
           | MH_HOBBIT | MH_CENTAUR | MH_ILLITHID
-          | MH_TORTLE | MH_DROW,
+          | MH_TORTLE | MH_DROW | MH_AASIMAR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
@@ -583,7 +584,7 @@ const struct Role roles[] = {
       S_DOG,
       S_ELEMENTAL,
       ART_TSURUGI_OF_MURAMASA,
-      MH_HUMAN | MH_DWARF | MH_GIANT | MH_TORTLE,
+      MH_HUMAN | MH_DWARF | MH_GIANT | MH_TORTLE | MH_AASIMAR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL,
       { 10, 8, 7, 10, 17, 6 },
       { 30, 10, 8, 30, 14, 8 },
@@ -666,7 +667,7 @@ const struct Role roles[] = {
       S_ANT,
       S_GIANT,
       ART_GJALLAR,
-      MH_HUMAN | MH_DWARF | MH_GIANT | MH_CENTAUR,
+      MH_HUMAN | MH_DWARF | MH_GIANT | MH_CENTAUR | MH_AASIMAR,
       ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 7, 7, 10, 7 },
@@ -759,7 +760,7 @@ const struct Role align_roles[] = {
       S_DOG,
       ART_MAGIC_MIRROR_OF_MERLIN,
       MH_HUMAN | MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
-          | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+          | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 13, 7, 14, 8, 10, 17 },
@@ -987,7 +988,7 @@ const struct Role draugr_roles[] = {
       S_DOG,
       ART_MAGIC_MIRROR_OF_MERLIN,
       MH_HUMAN | MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
-          | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+          | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 13, 7, 14, 8, 10, 17 },
@@ -1030,7 +1031,7 @@ const struct Role draugr_roles[] = {
       S_XORN,
       ART_EYES_OF_THE_OVERWORLD,
       MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR
-          | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+          | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
       ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
@@ -1227,7 +1228,8 @@ const struct Race races[] = {
         MH_ORC,
         0,
         MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
-            | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+            | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE
+            | MH_AASIMAR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(50), 16, 16, 18, 19, 16 },
@@ -1270,7 +1272,7 @@ const struct Race races[] = {
         PM_HOBBIT_ZOMBIE,
         MH_HOBBIT | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
         MH_HOBBIT,
-        MH_HOBBIT | MH_ELF | MH_TORTLE,
+        MH_HOBBIT | MH_ELF | MH_TORTLE | MH_AASIMAR,
         MH_ORC | MH_ILLITHID | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
@@ -1293,7 +1295,7 @@ const struct Race races[] = {
         MH_CENTAUR,
         MH_CENTAUR,
         MH_HUMAN | MH_DWARF | MH_GNOME | MH_ILLITHID
-            | MH_ZOMBIE | MH_VAMPIRE,
+            | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR19(20), 12, 14, 20, 18, 16 },
@@ -1316,7 +1318,7 @@ const struct Race races[] = {
         MH_ILLITHID,
         MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
             | MH_GIANT | MH_CENTAUR | MH_ORC | MH_TORTLE
-            | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+            | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { 10, 22, 22, 20, 12, 16 },
@@ -1337,7 +1339,7 @@ const struct Race races[] = {
         MH_TORTLE | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL
             | ROLE_NEUTRAL,
         MH_TORTLE,
-        MH_TORTLE | MH_HOBBIT,
+        MH_TORTLE | MH_HOBBIT | MH_AASIMAR,
         MH_ORC | MH_ILLITHID | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
@@ -1361,7 +1363,7 @@ const struct Race races[] = {
         MH_DROW,
         MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
             | MH_GIANT | MH_CENTAUR | MH_ORC | MH_TORTLE
-            | MH_ILLITHID | MH_ZOMBIE | MH_VAMPIRE,
+            | MH_ILLITHID | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { 18, 20, 20, 20, 16, 18 },
@@ -1383,7 +1385,7 @@ const struct Race races[] = {
         MH_ZOMBIE,
         MH_ZOMBIE,
         MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
-            | MH_GIANT | MH_CENTAUR | MH_ORC
+            | MH_GIANT | MH_CENTAUR | MH_ORC | MH_AASIMAR
             | MH_TORTLE | MH_DROW | MH_ILLITHID,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
@@ -1406,7 +1408,7 @@ const struct Race races[] = {
         MH_VAMPIRE,
         MH_VAMPIRE,
         MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
-            | MH_GIANT | MH_CENTAUR | MH_ORC
+            | MH_GIANT | MH_CENTAUR | MH_ORC | MH_AASIMAR
             | MH_TORTLE | MH_DROW | MH_ILLITHID,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
@@ -1414,6 +1416,27 @@ const struct Race races[] = {
         /* Init   Lower  Higher */
         { 2, 0, 0, 2, 1, 0 }, /* Hit points */
         { 2, 0, 2, 0, 3, 0 }  /* Energy */
+    },
+    {
+        "aasimar",
+        "aasimar",
+        "aasimar",
+        "Amr",
+        { 0, 0 },
+        PM_AASIMAR,
+        NON_PM,
+        NON_PM,
+        NON_PM,
+        MH_AASIMAR | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL,
+        MH_AASIMAR,
+        MH_AASIMAR | MH_TORTLE,
+        MH_ORC | MH_ILLITHID | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { STR19(20), 18, 20, 18, 18, 20 },
+        /* Init   Lower  Higher */
+        { 3, 2, 1, 3, 2, 1 }, /* Hit points */
+        { 2, 0, 2, 1, 3, 1 }  /* Energy */
     },
     /* Array terminator */
     { 0, 0, 0, 0 }
@@ -1434,7 +1457,7 @@ struct Race race_demon = {
     MH_DEMON,
     MH_DEMON,
     MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
-        | MH_GIANT | MH_CENTAUR | MH_ORC | MH_TORTLE
+        | MH_GIANT | MH_CENTAUR | MH_ORC | MH_TORTLE | MH_AASIMAR
         | MH_DROW | MH_ILLITHID | MH_ZOMBIE | MH_VAMPIRE,
     /*  Str    Int Wis Dex Con Cha */
     { 3, 3, 3, 3, 3, 3 },

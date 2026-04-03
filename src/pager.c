@@ -484,6 +484,7 @@ int x, y;
                                             : (mW & MH_ORC & mh) ? "orc"
                                               : (mW & MH_UNDEAD & mh) ? "the undead"
                                                 : (mW & MH_GIANT & mh) ? "giant"
+                                                  : (mW & MH_AASIMAR & mh) ? "aasimar"
                                         : (mW & MH_WERE & mh) ? "werecreature"
                                           : (mW & MH_DRAGON & mh) ? "dragon"
                                             : (mW & MH_OGRE & mh) ? "ogre"
@@ -2700,7 +2701,7 @@ struct permonst **for_supplement;
                        && cc.x == u.ux && cc.y == u.uy)
                     : (sym == def_monsyms[S_HUMAN].sym && !flags.showrace))
             && !(Race_if(PM_HUMAN) || Race_if(PM_ELF)
-                 || Race_if(PM_DROW)) && !Upolyd)
+                 || Race_if(PM_DROW) || Race_if(PM_AASIMAR)) && !Upolyd)
             found += append_str(out_str, "you"); /* tack on "or you" */
     }
 

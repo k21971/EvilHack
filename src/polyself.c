@@ -96,9 +96,13 @@ set_uasmon()
     /* this property also checks race instead of role */
     PROPSET(FLYING, (is_flyer(racedat) && !is_floater(racedat)));
     /* preserve racial flying for races that gain it at certain levels
-       (illithids and vampires at level 12) */
+       (illithids and vampires at level 12, aasimar at level 15) */
     if ((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
         && u.ulevel >= 12) {
+        HFlying |= FROMRACE;
+    }
+    if (Race_if(PM_AASIMAR) && u.ulevel >= 15
+        && u.ualign.abuse == 0) {
         HFlying |= FROMRACE;
     }
     if (!program_state.restoring) /* if loading, defer wings check until we have a steed */
@@ -874,7 +878,8 @@ made_change:
         /* Don't remove racial flying if we're in our natural form and
            should have it */
         if (!((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
-              && u.ulevel >= 12)) {
+              && u.ulevel >= 12)
+            && !(Race_if(PM_AASIMAR) && u.ulevel >= 15)) {
             HFlying &= ~FROMRACE;
             context.botl = TRUE;
             You_feel("gravity's pull!");
@@ -1592,14 +1597,16 @@ rehumanize()
     vision_full_recalc = 1;
     (void) encumber_msg();
     /* if original form had intrinsic flying, give it back.
-       current player races that can fly are illithids and
-       vampires (also crowned infidels [demon form], but how
-       they fly is a different method and is already covered),
-       but only when they reach a certain experience level,
-       so check against that */
+       current player races that can fly are illithids,
+       vampires, and aasimar (also crowned infidels [demon
+       form], but how they fly is a different method and is
+       already covered), but only when they reach a certain
+       experience level, so check against that */
     if (was_not_flying
-        && ((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
-            && u.ulevel >= 12)) {
+        && (((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
+             && u.ulevel >= 12)
+            || (Race_if(PM_AASIMAR) && u.ulevel >= 15
+                && u.ualign.abuse == 0))) {
         HFlying |= FROMRACE;
         You_feel("lighter than air!");
     }
@@ -2082,14 +2089,12 @@ dohide()
 int
 dodarkness()
 {
-    int energy = 0;
+    int energy = 10;
     const char *fail_invoke = 0;
-    boolean invoke_darkness = TRUE;
 
-    energy = 10;
     if (Confusion || Stunned)
         fail_invoke = "are unable";
-    if (u.uhunger <= 10)
+    else if (u.uhunger <= 10)
         fail_invoke = "are too weak from hunger";
     else if (ACURR(A_STR) < 4)
         fail_invoke = "lack the strength";
@@ -2099,17 +2104,45 @@ dodarkness()
     if (fail_invoke) {
         You("%s to invoke an aura of darkness.",
             fail_invoke);
-        invoke_darkness = FALSE;
         return 0;
     }
 
-    if (invoke_darkness) {
-        exercise(A_WIS, TRUE);
-        u.uen -= energy;
-        context.botl = 1;
-        You("invoke an aura of darkness.");
-        litroom(FALSE, TRUE, NULL, u.ux, u.uy);
+    exercise(A_WIS, TRUE);
+    u.uen -= energy;
+    context.botl = 1;
+    You("invoke an aura of darkness.");
+    litroom(FALSE, TRUE, NULL, u.ux, u.uy);
+
+    return 1;
+}
+
+int
+dolight()
+{
+    int energy = 10;
+    const char *fail_invoke = 0;
+
+    if (Confusion || Stunned)
+        fail_invoke = "are unable";
+    else if (u.uhunger <= 10)
+        fail_invoke = "are too weak from hunger";
+    else if (ACURR(A_STR) < 4)
+        fail_invoke = "lack the strength";
+    else if (energy > u.uen)
+        fail_invoke = "lack the energy";
+
+    if (fail_invoke) {
+        You("%s to invoke an aura of light.",
+            fail_invoke);
+        return 0;
     }
+
+    exercise(A_WIS, TRUE);
+    u.uen -= energy;
+    context.botl = 1;
+    You("invoke an aura of light.");
+    litroom(TRUE, TRUE, NULL, u.ux, u.uy);
+    lightdamage(NULL, FALSE, 5);
 
     return 1;
 }

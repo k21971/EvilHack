@@ -851,6 +851,14 @@ gcrownu()
 
         monstseesu(M_SEEN_FIRE | M_SEEN_COLD | M_SEEN_ELEC
                    | M_SEEN_SLEEP | M_SEEN_POISON);
+
+        /* Aasimar with unblemished alignment gain death resistance
+           when crowned — a reward for celestial purity.
+           Uses FROMRACE so it can be revoked/restored by abuse. */
+        if (Race_if(PM_AASIMAR) && u.ualign.abuse == 0) {
+            HDeath_resistance |= FROMRACE;
+            You("are blessed with the gift of immortality!");
+        }
     }
 
     godvoice(u.ualign.type, (char *) 0);

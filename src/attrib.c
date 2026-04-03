@@ -189,6 +189,15 @@ static const struct innate {
                  { 20, &(HRegeneration), "resilient", "less resilient" },
                  { 0, 0, 0, 0 } },
 
+  amr_abil[] = { { 1, &(HInfravision), "", "" },
+                 { 1, &(HSee_invisible), "", "" },
+                 { 1, &(HPoison_resistance), "", "" },
+                 { 4, &(HAntimagic), "resistant to magic", "vulnerable to magic" },
+                 { 7, &(HSleep_resistance), "awake", "tired" },
+                 { 12, &(HCold_resistance), "warm", "cooler" },
+                 { 20, &(HShock_resistance), "insulated", "conductive" },
+                 { 0, 0, 0, 0 } },
+
   hum_abil[] = { { 0, 0, 0, 0 } };
 
 STATIC_DCL void NDECL(exerper);
@@ -196,6 +205,12 @@ STATIC_DCL void FDECL(postadjabil, (long *));
 STATIC_DCL const struct innate *FDECL(role_abil, (int));
 STATIC_DCL const struct innate *FDECL(check_innate_abil, (long *, long));
 STATIC_DCL int FDECL(innately, (long *));
+STATIC_DCL long *FDECL(aasimar_pen_prop, (int));
+STATIC_DCL int FDECL(aasimar_pen_minlevel, (int));
+STATIC_DCL void FDECL(apply_aasimar_penalty, (int, BOOLEAN_P));
+STATIC_DCL int NDECL(abuse_tier);
+STATIC_DCL boolean NDECL(has_stat_drain_penalty);
+STATIC_DCL boolean FDECL(aasimar_ability_penalized, (long *));
 
 /* adjust an attribute; return TRUE if change is made, FALSE otherwise */
 boolean
@@ -289,7 +304,7 @@ int msgflg;
 
     if ((!num) || ((Race_if(PM_GIANT) || Race_if(PM_CENTAUR)
                     || Race_if(PM_TORTLE) || Race_if(PM_DRAUGR)
-                    || Race_if(PM_VAMPIRE))
+                    || Race_if(PM_VAMPIRE) || Race_if(PM_AASIMAR))
                    && (!(otmp && otmp->cursed)))) {
         if (ABASE(A_STR) < 18)
             num = (rn2(4) ? 1 : rnd(6));
@@ -795,6 +810,7 @@ int np;
         AMAX(i)--;
         np++;
     }
+
 }
 
 void
@@ -914,6 +930,9 @@ long frommask;
             break;
         case PM_VAMPIRE:
             abil = vam_abil;
+            break;
+        case PM_AASIMAR:
+            abil = amr_abil;
             break;
         case PM_HUMAN:
             abil = hum_abil;
@@ -1126,6 +1145,9 @@ int oldlevel, newlevel;
     case PM_DEMON:
         rabil = dem_abil;
         break;
+    case PM_AASIMAR:
+        rabil = amr_abil;
+        break;
     case PM_HUMAN:
         rabil = hum_abil;
         break;
@@ -1162,7 +1184,18 @@ int oldlevel, newlevel;
                  * via level loss, but can be lost by race change via
                  * infidel crowning. So, track separately from corpses.
                  */
+                /* Don't grant if aasimar abuse penalty is
+                   stripping this intrinsic */
+                if (mask == FROMRACE && Race_if(PM_AASIMAR)
+                    && aasimar_ability_penalized(abil->ability)) {
+                    abil++;
+                    continue;
+                }
                 *(abil->ability) |= mask;
+                /* no magic resistance conduct */
+                if (mask == FROMRACE
+                    && abil->ability == &HAntimagic)
+                    u.uconduct.antimagic++;
                 if (!(*(abil->ability) & INTRINSIC & ~HAVEPARTIAL & ~mask)
                     && (!(*(abil->ability) & HAVEPARTIAL & ~mask)
                         || (*(abil->ability) & TIMEOUT) < 100)
@@ -1172,7 +1205,8 @@ int oldlevel, newlevel;
                 }
             } else if (oldlevel >= abil->ulevel && newlevel < abil->ulevel) {
                 *(abil->ability) &= ~mask;
-                if (!(*(abil->ability) & INTRINSIC & ~HAVEPARTIAL)
+                if (prevabil != *(abil->ability)
+                    && !(*(abil->ability) & INTRINSIC & ~HAVEPARTIAL)
                     && (!(*(abil->ability) & HAVEPARTIAL)
                         || (*(abil->ability) & TIMEOUT) < 100)
                     && verbose) {
@@ -1201,6 +1235,10 @@ int oldlevel, newlevel;
         else
             lose_weapon_skill(oldlevel - newlevel);
     }
+
+    /* Re-evaluate aasimar abuse penalties after level change.
+       A newly gained intrinsic may need to be stripped if abused. */
+    aasimar_check_abuse();
 }
 
 int
@@ -1260,6 +1298,11 @@ newhp()
             }
             hp += tempnum;
         }
+
+        /* Aasimar divine vitality: bonus HP per level if
+           alignment is completely unblemished or fully atoned */
+        if (Race_if(PM_AASIMAR) && u.ualign.abuse == 0)
+            hp += rn1(4, 3);
 
         if (ACURR(A_CON) <= 3)
             conplus = -2;
@@ -1398,6 +1441,409 @@ int attrindx;
     return (curval == lolimit || curval == hilimit) ? TRUE : FALSE;
 }
 
+/*
+ * Aasimar alignment abuse penalties.
+ *
+ * Each abuse tier imposes one random penalty: either strip
+ * a positive racial intrinsic (FROMRACE) or impose a negative
+ * one. Penalties persist until atonement reduces abuse below
+ * that tier. If the pool is exhausted, stat max values are
+ * reduced by 3 (one STAT_DRAIN max per character).
+ *
+ * Penalty IDs packed 6 bits each in u.uaasimar_penalties:
+ * bits 0-5 = Slight, 6-11 = Moderate, 12-17 = Serious,
+ * 18-23 = Severe, 24-29 = Grave.
+ */
+#define AASIMAR_PEN_NONE       0
+#define AASIMAR_PEN_SEE_INVIS  1
+#define AASIMAR_PEN_ANTIMAGIC  2
+#define AASIMAR_PEN_COLD_RES   3
+#define AASIMAR_PEN_SLEEP_RES  4
+#define AASIMAR_PEN_POISON_RES 5
+#define AASIMAR_PEN_SHOCK_RES  6
+#define AASIMAR_PEN_HUNGER     7
+#define AASIMAR_PEN_AGGRAVATE  8
+#define AASIMAR_PEN_STAT_DRAIN 9
+#define NUM_AASIMAR_PENALTIES  10
+#define NUM_ABUSE_TIERS        5
+
+#define AASIMAR_PEN_TIER(tier) \
+    ((int)((u.uaasimar_penalties \
+            >> ((tier) * 6)) & 0x3FL))
+#define SET_AASIMAR_PEN_TIER(tier, val) \
+    (u.uaasimar_penalties = \
+        (u.uaasimar_penalties \
+         & ~(0x3FL << ((tier) * 6))) \
+        | ((long)(val) << ((tier) * 6)))
+
+/* TRUE if this is a positive intrinsic penalty */
+#define PEN_IS_POSITIVE(id) \
+    ((id) >= AASIMAR_PEN_SEE_INVIS \
+     && (id) <= AASIMAR_PEN_SHOCK_RES)
+
+/* Map penalty ID to the property pointer it affects.
+   Returns NULL for STAT_DRAIN (handled separately) */
+STATIC_OVL long *
+aasimar_pen_prop(pen_id)
+int pen_id;
+{
+    switch (pen_id) {
+    case AASIMAR_PEN_SEE_INVIS:
+        return &HSee_invisible;
+    case AASIMAR_PEN_ANTIMAGIC:
+        return &HAntimagic;
+    case AASIMAR_PEN_COLD_RES:
+        return &HCold_resistance;
+    case AASIMAR_PEN_SLEEP_RES:
+        return &HSleep_resistance;
+    case AASIMAR_PEN_POISON_RES:
+        return &HPoison_resistance;
+    case AASIMAR_PEN_SHOCK_RES:
+        return &HShock_resistance;
+    case AASIMAR_PEN_HUNGER:
+        return &HHunger;
+    case AASIMAR_PEN_AGGRAVATE:
+        return &HAggravate_monster;
+    default:
+        return (long *) 0;
+    }
+}
+
+/* Minimum player level for each positive intrinsic.
+   Negative intrinsics have no level requirement */
+STATIC_OVL int
+aasimar_pen_minlevel(pen_id)
+int pen_id;
+{
+    switch (pen_id) {
+    case AASIMAR_PEN_SEE_INVIS:
+        return 1;
+    case AASIMAR_PEN_POISON_RES:
+        return 1;
+    case AASIMAR_PEN_ANTIMAGIC:
+        return 4;
+    case AASIMAR_PEN_SLEEP_RES:
+        return 7;
+    case AASIMAR_PEN_COLD_RES:
+        return 12;
+    case AASIMAR_PEN_SHOCK_RES:
+        return 20;
+    default:
+        return 0;
+    }
+}
+
+/* Apply or remove one aasimar penalty.
+   apply=TRUE imposes, apply=FALSE reverses */
+STATIC_OVL void
+apply_aasimar_penalty(pen_id, apply)
+int pen_id;
+boolean apply;
+{
+    long *prop;
+    long prevval;
+    int i;
+
+    /* Stat drain -- no property pointer.
+       Use absolute values from race definition
+       so apply/reverse are idempotent */
+    if (pen_id == AASIMAR_PEN_STAT_DRAIN) {
+        boolean changed = FALSE;
+
+        if (apply) {
+            for (i = 0; i < A_MAX; i++) {
+                int orig = races[flags.initrace].attrmax[i];
+                int drained = orig - 3;
+
+                if (drained < 3)
+                    drained = 3;
+                if (urace.attrmax[i] != drained)
+                    changed = TRUE;
+                urace.attrmax[i] = drained;
+                if (ABASE(i) > ATTRMAX(i))
+                    ABASE(i) = ATTRMAX(i);
+                if (AMAX(i) > ATTRMAX(i))
+                    AMAX(i) = ATTRMAX(i);
+            }
+            if (changed && !Upolyd && !program_state.restoring)
+                You_feel("your divine potential diminishing!");
+        } else {
+            for (i = 0; i < A_MAX; i++) {
+                if (urace.attrmax[i]
+                    != races[flags.initrace].attrmax[i])
+                    changed = TRUE;
+                urace.attrmax[i] =
+                    races[flags.initrace].attrmax[i];
+            }
+            if (changed && !Upolyd)
+                You_feel("your divine potential restored!");
+        }
+        return;
+    }
+
+    prop = aasimar_pen_prop(pen_id);
+    if (!prop)
+        return;
+
+    prevval = *prop;
+
+    if (PEN_IS_POSITIVE(pen_id)) {
+        /* Strip FROMRACE to punish, restore to forgive */
+        if (apply) {
+            if (u.ulevel < aasimar_pen_minlevel(pen_id))
+                return;
+            *prop &= ~FROMRACE;
+            if (!Upolyd && prevval != *prop) {
+                switch (pen_id) {
+                case AASIMAR_PEN_SEE_INVIS:
+                    Your("eyesight feels diminished.");
+                    break;
+                case AASIMAR_PEN_ANTIMAGIC:
+                    You_feel("vulnerable to magic!");
+                    break;
+                case AASIMAR_PEN_COLD_RES:
+                    You_feel("cooler!");
+                    break;
+                case AASIMAR_PEN_SLEEP_RES:
+                    You_feel("tired!");
+                    break;
+                case AASIMAR_PEN_POISON_RES:
+                    You_feel("less hardy!");
+                    break;
+                case AASIMAR_PEN_SHOCK_RES:
+                    You_feel("conductive!");
+                    break;
+                }
+            }
+        } else {
+            if (u.ulevel < aasimar_pen_minlevel(pen_id))
+                return;
+            *prop |= FROMRACE;
+            if (!Upolyd && prevval != *prop) {
+                switch (pen_id) {
+                case AASIMAR_PEN_SEE_INVIS:
+                    You_feel("an odd sensation.");
+                    break;
+                case AASIMAR_PEN_ANTIMAGIC:
+                    You_feel("resistant to magic!");
+                    break;
+                case AASIMAR_PEN_COLD_RES:
+                    You_feel("warm!");
+                    break;
+                case AASIMAR_PEN_SLEEP_RES:
+                    You_feel("awake!");
+                    break;
+                case AASIMAR_PEN_POISON_RES:
+                    You_feel("hardy!");
+                    break;
+                case AASIMAR_PEN_SHOCK_RES:
+                    You_feel("insulated!");
+                    break;
+                }
+            }
+        }
+    } else {
+        /* Negative: set FROMRACE to punish */
+        if (apply) {
+            *prop |= FROMRACE;
+            if (!Upolyd && prevval != *prop) {
+                if (pen_id == AASIMAR_PEN_HUNGER)
+                    You_feel("ravenously hungry!");
+                else
+                    You_feel("that monsters are aware of your presence.");
+            }
+        } else {
+            *prop &= ~FROMRACE;
+            if (!Upolyd && prevval != *prop) {
+                if (pen_id == AASIMAR_PEN_HUNGER)
+                    You("no longer feel quite so hungry.");
+                else
+                    You_feel("that monsters are no longer aware of your presence.");
+            }
+        }
+    }
+
+    if (prevval != *prop)
+        postadjabil(prop);
+}
+
+/* Compute the abuse tier (0-4) from current abuse value.
+   Returns -1 if no abuse (all tiers reversed) */
+STATIC_OVL int
+abuse_tier()
+{
+    int val = -(u.ualign.abuse);
+
+    if (val <= 0)
+        return -1;
+    if (val < 5)
+        return 0;  /* slight */
+    if (val < 15)
+        return 1;  /* moderate */
+    if (val < 30)
+        return 2;  /* serious */
+    if (val < 50)
+        return 3;  /* severe */
+    return 4;       /* grave */
+}
+
+/* TRUE if any tier already has STAT_DRAIN assigned */
+STATIC_OVL boolean
+has_stat_drain_penalty()
+{
+    int t;
+
+    for (t = 0; t < NUM_ABUSE_TIERS; t++)
+        if (AASIMAR_PEN_TIER(t) == AASIMAR_PEN_STAT_DRAIN)
+            return TRUE;
+    return FALSE;
+}
+
+/* TRUE if the given property has an active aasimar
+   abuse penalty stripping it */
+STATIC_OVL boolean
+aasimar_ability_penalized(prop)
+long *prop;
+{
+    int t, pen_id;
+
+    if (!Race_if(PM_AASIMAR))
+        return FALSE;
+
+    for (t = 0; t < NUM_ABUSE_TIERS; t++) {
+        pen_id = AASIMAR_PEN_TIER(t);
+        if (pen_id != AASIMAR_PEN_NONE
+            && PEN_IS_POSITIVE(pen_id)
+            && aasimar_pen_prop(pen_id) == prop)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+/* Check aasimar abuse penalties. Called when abuse
+   changes (adjalign), atonement (priest.c), level
+   change (adjabil), and save restore (restore.c) */
+void
+aasimar_check_abuse()
+{
+    int current_tier, t, pen_id;
+    int eligible[AASIMAR_PEN_STAT_DRAIN]; /* IDs 1-8 */
+    int neligible, i, j;
+    boolean already_used;
+
+    if (!Race_if(PM_AASIMAR))
+        return;
+
+    current_tier = abuse_tier();
+
+    for (t = 0; t < NUM_ABUSE_TIERS; t++) {
+        if (t <= current_tier) {
+            if (AASIMAR_PEN_TIER(t)
+                == AASIMAR_PEN_NONE) {
+                /* New tier -- pick random penalty */
+                neligible = 0;
+                for (i = 1; i < AASIMAR_PEN_STAT_DRAIN; i++) {
+                    already_used = FALSE;
+                    for (j = 0; j < NUM_ABUSE_TIERS; j++) {
+                        if (j != t && AASIMAR_PEN_TIER(j) == i) {
+                            already_used = TRUE;
+                            break;
+                        }
+                    }
+                    if (already_used)
+                        continue;
+                    if (PEN_IS_POSITIVE(i)
+                        && u.ulevel < aasimar_pen_minlevel(i))
+                        continue;
+                    eligible[neligible++] = i;
+                }
+                if (neligible > 0) {
+                    pen_id = eligible[rn2(neligible)];
+                } else if (!has_stat_drain_penalty()) {
+                    pen_id = AASIMAR_PEN_STAT_DRAIN;
+                } else {
+                    /* Stat drain taken; pick a
+                       random negative intrinsic */
+                    pen_id = rn2(2)
+                        ? AASIMAR_PEN_HUNGER
+                        : AASIMAR_PEN_AGGRAVATE;
+                }
+                SET_AASIMAR_PEN_TIER(t, pen_id);
+                apply_aasimar_penalty(pen_id, TRUE);
+            } else {
+                /* Re-enforce existing penalty;
+                   adjabil or restore may have
+                   reset FROMRACE flags */
+                apply_aasimar_penalty(AASIMAR_PEN_TIER(t), TRUE);
+            }
+        } else {
+            /* Abuse below this tier -- reverse */
+            pen_id = AASIMAR_PEN_TIER(t);
+            if (pen_id != AASIMAR_PEN_NONE) {
+                apply_aasimar_penalty(pen_id, FALSE);
+                SET_AASIMAR_PEN_TIER(t, AASIMAR_PEN_NONE);
+            }
+        }
+    }
+
+    /* Death resistance from crowning: revoked on
+       abuse, restored on full atonement */
+    if (u.uevent.uhand_of_elbereth) {
+        if (u.ualign.abuse < 0
+            && (HDeath_resistance & FROMRACE)) {
+            HDeath_resistance &= ~FROMRACE;
+            if (!Upolyd)
+                You_feel("the gift of immortality slipping away!");
+        } else if (u.ualign.abuse == 0
+                   && !(HDeath_resistance & FROMRACE)) {
+            HDeath_resistance |= FROMRACE;
+            if (!Upolyd)
+                You_feel("the gift of immortality returning to you!");
+        }
+    }
+
+    /* Flying from clean alignment: level 15+ */
+    if (u.ulevel >= 15) {
+        if (u.ualign.abuse < 0
+            && (HFlying & FROMRACE)) {
+            HFlying &= ~FROMRACE;
+            if (!Upolyd)
+                You_feel("gravity's pull!");
+        } else if (u.ualign.abuse == 0
+                   && !(HFlying & FROMRACE)) {
+            HFlying |= FROMRACE;
+            if (!Upolyd)
+                You_feel("lighter than air!");
+        }
+    } else if (HFlying & FROMRACE) {
+        /* Lost enough levels: revoke */
+        HFlying &= ~FROMRACE;
+        if (!Upolyd)
+            You_feel("gravity's pull!");
+    }
+
+    /* Hungerless regeneration from clean alignment:
+       level 18+ (FROMRACE regen has no hunger cost) */
+    if (u.ulevel >= 18) {
+        if (u.ualign.abuse < 0
+            && (HRegeneration & FROMRACE)) {
+            HRegeneration &= ~FROMRACE;
+            if (!Upolyd)
+                You_feel("less resilient!");
+        } else if (u.ualign.abuse == 0
+                   && !(HRegeneration & FROMRACE)) {
+            HRegeneration |= FROMRACE;
+            if (!Upolyd)
+                You_feel("resilient!");
+        }
+    } else if (HRegeneration & FROMRACE) {
+        /* Lost enough levels: revoke */
+        HRegeneration &= ~FROMRACE;
+        if (!Upolyd)
+            You_feel("less resilient!");
+    }
+}
+
 /* avoid possible problems with alignment overflow, and provide a centralized
    location for any future alignment limits */
 void
@@ -1414,6 +1860,7 @@ int n;
         if (newabuse < u.ualign.abuse) {
             u.ualign.abuse = newabuse;
             u.ever_abused = TRUE; /* for conduct tracking */
+            aasimar_check_abuse();
         }
     } else if (newalign > u.ualign.record) {
         u.ualign.record = newalign;

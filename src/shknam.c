@@ -663,7 +663,7 @@ int shp_indx;
 	/* armors and weaponry are similar... */
     case ARMOR_CLASS:
     case WEAPON_CLASS:
-        switch (rnd(4)) {
+        switch (rnd(5)) {
         case 1:
             srace = PM_HUMAN;
             break;
@@ -676,10 +676,13 @@ int shp_indx;
         case 4:
             srace = PM_DWARF;
             break;
+        case 5:
+            srace = PM_AASIMAR;
+            break;
         }
         break;
     case FOOD_CLASS:
-        switch (rnd(3)) {
+        switch (rnd(4)) {
         case 1:
             srace = PM_DWARF;
             break;
@@ -689,6 +692,9 @@ int shp_indx;
         case 3:
             srace = PM_HUMAN;
             break;
+        case 4:
+            srace = PM_AASIMAR;
+            break;
         }
         break;
     case RING_CLASS:
@@ -697,7 +703,7 @@ int shp_indx;
     /* wands and potions also similar... */
     case WAND_CLASS:
     case POTION_CLASS:
-        switch (rnd(5)) {
+        switch (rnd(6)) {
         case 1:
             srace = PM_ELF;
             break;
@@ -712,6 +718,9 @@ int shp_indx;
             break;
         case 5:
             srace = PM_DROW;
+            break;
+        case 6:
+            srace = PM_AASIMAR;
             break;
         }
         break;
@@ -731,7 +740,7 @@ int shp_indx;
     /* and scrolls and books fall to spellcasters */
     case SCROLL_CLASS:
     case SPBOOK_CLASS:
-        switch (rnd(5)) {
+        switch (rnd(6)) {
         case 1:
             srace = PM_ILLITHID;
             break;
@@ -746,6 +755,9 @@ int shp_indx;
             break;
         case 5:
             srace = PM_DROW;
+            break;
+        case 6:
+            srace = PM_AASIMAR;
             break;
         }
         break;

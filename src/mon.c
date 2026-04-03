@@ -3227,7 +3227,8 @@ struct monst *magr, *mdef;
         return ALLOW_M | ALLOW_TM;
 
     /* angels vs demons */
-    if ((is_angel(ma) && ma != &mons[PM_ELDRITCH_KI_RIN])
+    if (((is_angel(ma) && ma != &mons[PM_ELDRITCH_KI_RIN])
+         || racial_aasimar(magr))
         && is_demon(md))
         return ALLOW_M | ALLOW_TM;
 
@@ -7548,7 +7549,7 @@ unsigned long permitted;
     const short mraces[] = { PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME,
                              PM_ORC, PM_GIANT, PM_HOBBIT, PM_CENTAUR,
                              PM_ILLITHID, PM_TORTLE, PM_DROW, PM_DRAUGR,
-                             PM_VAMPIRE, 0 };
+                             PM_VAMPIRE, PM_AASIMAR, 0 };
 
     for (i = 0; mraces[i]; i++) {
         if (permitted & mons[mraces[i]].mhflags
@@ -7580,7 +7581,7 @@ aligntyp algn;
              | MH_DROW);
         break;
     case A_LAWFUL:
-        permitted |= (MH_DWARF | MH_GIANT | MH_TORTLE);
+        permitted |= (MH_DWARF | MH_GIANT | MH_TORTLE | MH_AASIMAR);
         break;
     case A_NEUTRAL:
         permitted |=
@@ -7612,10 +7613,11 @@ short mndx;
     case PM_CAPTAIN:
     case PM_WATCH_CAPTAIN:
         permitted |= (MH_DWARF | MH_ELF | MH_GNOME | MH_GIANT
-                      | MH_DROW);
+                      | MH_DROW | MH_AASIMAR);
         break;
     case PM_ARCHEOLOGIST:
-        permitted |= (MH_DWARF | MH_GNOME | MH_HOBBIT | MH_TORTLE);
+        permitted |= (MH_DWARF | MH_GNOME | MH_HOBBIT | MH_TORTLE
+                      | MH_AASIMAR);
         break;
     case PM_BARBARIAN:
         permitted |= (MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR
@@ -7623,7 +7625,7 @@ short mndx;
         break;
     case PM_CAVEMAN:
     case PM_CAVEWOMAN:
-        permitted |= (MH_DWARF | MH_GNOME | MH_GIANT);
+        permitted |= (MH_DWARF | MH_GNOME | MH_GIANT | MH_AASIMAR);
         break;
     case PM_CONVICT:
         permitted |=
@@ -7645,17 +7647,18 @@ short mndx;
         break;
     case PM_KNIGHT:
         permitted |= (MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
-                      | MH_DROW | MH_ZOMBIE | MH_VAMPIRE);
+                      | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR);
         break;
     case PM_MONK:
         permitted |= (MH_DWARF | MH_ELF | MH_GIANT | MH_CENTAUR
-                      | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE);
+                      | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE
+                      | MH_AASIMAR);
         break;
     case PM_PRIEST:
     case PM_PRIESTESS:
         permitted |=
             (MH_DWARF | MH_ELF | MH_GIANT | MH_HOBBIT | MH_CENTAUR
-             | MH_ORC | MH_ILLITHID | MH_TORTLE | MH_DROW);
+             | MH_ORC | MH_ILLITHID | MH_TORTLE | MH_DROW | MH_AASIMAR);
         break;
     case PM_RANGER:
         permitted |= (MH_ELF | MH_GNOME | MH_HOBBIT | MH_CENTAUR
@@ -7666,13 +7669,13 @@ short mndx;
                       | MH_DROW | MH_ZOMBIE | MH_VAMPIRE);
         break;
     case PM_SAMURAI:
-        permitted |= (MH_DWARF | MH_GIANT | MH_TORTLE);
+        permitted |= (MH_DWARF | MH_GIANT | MH_TORTLE | MH_AASIMAR);
         break;
     case PM_TOURIST:
         permitted |= (MH_HOBBIT | MH_GNOME | MH_TORTLE);
         break;
     case PM_VALKYRIE:
-        permitted |= (MH_DWARF | MH_GIANT | MH_CENTAUR);
+        permitted |= (MH_DWARF | MH_GIANT | MH_CENTAUR | MH_AASIMAR);
         break;
     case PM_WIZARD:
         permitted |=
@@ -7901,6 +7904,9 @@ short raceidx;
         rptr->ralign = -3;
         if (mtmp->mnum == PM_INFIDEL)
             rptr->ralign = -128;
+        break;
+    case PM_AASIMAR:
+        rptr->ralign = 3;
         break;
     }
 }

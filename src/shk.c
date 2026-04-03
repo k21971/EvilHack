@@ -2176,6 +2176,9 @@ long *numerator, *denominator;
             *numerator = 20L;
         } else if (Race_if(PM_VAMPIRE)) {
             *numerator = 5L;
+        } else if (Race_if(PM_AASIMAR)) {
+            *numerator = 4L;
+            *denominator = 5L;
         }
     } else if (is_elf(shkdat)) {
         if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)
@@ -2223,6 +2226,9 @@ long *numerator, *denominator;
             *numerator = 20L;
         } else if (Race_if(PM_VAMPIRE)) {
             *numerator = 5L;
+        } else if (Race_if(PM_AASIMAR)) {
+            *numerator = 4L;
+            *denominator = 5L;
         }
     } else if (is_orc(shkdat)) {
         if (Race_if(PM_ELF) || Race_if(PM_GNOME)
@@ -2231,7 +2237,7 @@ long *numerator, *denominator;
         } else if (Race_if(PM_DWARF) || Race_if(PM_TORTLE)) {
             *numerator = 5L;
             *denominator = 3L;
-        } else if (Race_if(PM_HUMAN)) {
+        } else if (Race_if(PM_HUMAN) || Race_if(PM_AASIMAR)) {
             *numerator = 4L;
             *denominator = 3L;
         } else if (Race_if(PM_ORC)) {
@@ -2265,7 +2271,8 @@ long *numerator, *denominator;
     } else if (is_centaur(shkdat)) {
         if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
             || Race_if(PM_DWARF) || Race_if(PM_ORC)
-            || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)) {
+            || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)
+            || Race_if(PM_AASIMAR)) {
             *numerator = 3L;
             *denominator = 2L;
         } else if (Race_if(PM_CENTAUR)) {
@@ -2292,6 +2299,9 @@ long *numerator, *denominator;
             *numerator = 20L;
         } else if (Race_if(PM_VAMPIRE)) {
             *numerator = 5L;
+        } else if (Race_if(PM_AASIMAR)) {
+            *numerator = 4L;
+            *denominator = 5L;
         }
     } else if (shkdat == &mons[PM_NYMPH]) {
         if (ACURR(A_CHA) <= 6) {
@@ -2304,6 +2314,25 @@ long *numerator, *denominator;
         } else if (ACURR(A_CHA) < 18) {
             *numerator = 4L;
             *denominator = 3L;
+        }
+    } else if (is_aasimar(shkdat)) {
+        if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+            || Race_if(PM_ILLITHID) || Race_if(PM_ORC)
+            || Race_if(PM_HOBBIT) || Race_if(PM_TORTLE)
+            || Race_if(PM_GIANT)) {
+            *numerator = 4L;
+            *denominator = 3L;
+        } else if (Race_if(PM_DWARF) || Race_if(PM_ELF)
+                   || Race_if(PM_DROW)) {
+            *numerator = 3L;
+            *denominator = 2L;
+        } else if (Race_if(PM_AASIMAR)) {
+            *numerator = 3L;
+            *denominator = 4L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
         }
     } else {
         ; /* other monsters are possible (e.g. polyed shopkeeper); don't do any

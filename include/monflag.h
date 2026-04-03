@@ -201,18 +201,19 @@
 #define MH_DROW       0x00000400L
 #define MH_ZOMBIE     0x00000800L
 #define MH_VAMPIRE    0x00001000L
-#define MH_DEMON      0x00002000L
+#define MH_AASIMAR    0x00002000L
+#define MH_DEMON      0x00004000L
 /* Flags below not used as a player race */
-#define MH_UNZOMBIE   0x00004000L
-#define MH_WERE       0x00008000L
-#define MH_DRAGON     0x00010000L
-#define MH_ANGEL      0x00020000L
-#define MH_OGRE       0x00040000L
-#define MH_TROLL      0x00080000L
-#define MH_GNOLL      0x00100000L
-#define MH_SPIDER     0x00200000L
-#define MH_JABBERWOCK 0x00400000L
-#define MH_WRAITH     0x00800000L
+#define MH_UNZOMBIE   0x00008000L
+#define MH_WERE       0x00010000L
+#define MH_DRAGON     0x00020000L
+#define MH_ANGEL      0x00040000L
+#define MH_OGRE       0x00080000L
+#define MH_TROLL      0x00100000L
+#define MH_GNOLL      0x00200000L
+#define MH_SPIDER     0x00400000L
+#define MH_JABBERWOCK 0x00800000L
+#define MH_WRAITH     0x01000000L
 #define MH_UNDEAD (MH_ZOMBIE | MH_UNZOMBIE)
 
 #define MH_ANY        0x80000000L

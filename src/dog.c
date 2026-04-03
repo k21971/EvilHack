@@ -1357,7 +1357,8 @@ struct obj *obj;
                 || racial_giant(mon)
                 || racial_centaur(mon)
                 || racial_illithid(mon)
-                || racial_tortle(mon))
+                || racial_tortle(mon)
+                || racial_aasimar(mon))
                 return ACCFOOD;
             /*FALLTHRU*/
         default:
@@ -1490,7 +1491,7 @@ struct obj *obj;
 
     /* same for angels */
     if (wielding_artifact(ART_ANGELSLAYER)
-        && is_angel(mtmp->data))
+        && (is_angel(mtmp->data) || is_aasimar(mtmp->data)))
         return FALSE;
 
     if (wielding_artifact(ART_VORPAL_BLADE)

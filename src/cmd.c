@@ -739,6 +739,9 @@ domonability(VOID_ARGS)
     else if (maybe_polyd(is_drow(youmonst.data),
              Race_if(PM_DROW)))
         return dodarkness();
+    else if (maybe_polyd(is_aasimar(youmonst.data),
+             Race_if(PM_AASIMAR)))
+        return dolight();
     else if (is_mind_flayer(youmonst.data))
         return domindblast();
     else if (u.umonnum == PM_GREMLIN) {
@@ -3429,39 +3432,44 @@ int final;
         Sprintf(buf, "aware of the presence of %s",
                 ((context.warntype.polyd & (MH_HUMAN | MH_ELF))
                  == (MH_HUMAN | MH_ELF))
-                    ? "humans and elves"
-                    : ((context.warntype.polyd & (MH_ELF | MH_DROW))
-                       == (MH_ELF | MH_DROW))
-                          ? "elves and drow"
-                          : (context.warntype.polyd & MH_HUMAN)
-                              ? "humans"
-                              : (context.warntype.polyd & MH_ELF)
-                                  ? "elves"
-                                  : (context.warntype.polyd & MH_DROW)
-                                      ? "drow"
-                                      : (context.warntype.polyd & MH_ORC)
-                                          ? "orcs"
-                                          : (context.warntype.polyd & MH_UNDEAD)
-                                              ? "the undead"
-                                              : (context.warntype.polyd & MH_GIANT)
-                                                  ? "giants"
-                    : (context.warntype.polyd & MH_WERE)
-                        ? "werecreatures"
-                        : (context.warntype.polyd & MH_DRAGON)
-                            ? "dragons"
-                            : (context.warntype.polyd & MH_OGRE)
-                                ? "ogres"
-                                : (context.warntype.polyd & MH_TROLL)
-                                    ? "trolls"
-                                    : (context.warntype.polyd & MH_DEMON)
-                                        ? "demons"
-                                        : (context.warntype.polyd & MH_ANGEL)
-                                            ? "angels"
-                                            : (context.warntype.polyd & MH_JABBERWOCK)
-                                                ? "jabberwocks"
-                                                : (context.warntype.polyd & MH_WRAITH)
-                                                    ? "wraiths"
-                                                    : "certain monsters");
+                   ? "humans and elves"
+                   : ((context.warntype.polyd & (MH_ELF | MH_DROW))
+                      == (MH_ELF | MH_DROW))
+                        ? "elves and drow"
+                        : (context.warntype.polyd & MH_HUMAN)
+                            ? "humans"
+                            : (context.warntype.polyd & MH_ELF)
+                                ? "elves"
+                                : (context.warntype.polyd & MH_DROW)
+                                    ? "drow"
+                                    : (context.warntype.polyd & MH_ORC)
+                                        ? "orcs"
+                    : (context.warntype.polyd & MH_UNDEAD)
+                        ? "the undead"
+                        : (context.warntype.polyd & MH_GIANT)
+                            ? "giants"
+                            : (context.warntype.polyd & MH_WERE)
+                                ? "werecreatures"
+                                : (context.warntype.polyd & MH_DRAGON)
+                                    ? "dragons"
+                                    : (context.warntype.polyd & MH_OGRE)
+                                        ? "ogres"
+                    : (context.warntype.polyd & MH_TROLL)
+                        ? "trolls"
+                        : (context.warntype.polyd & MH_DEMON)
+                            ? "demons"
+                    : ((context.warntype.polyd & (MH_AASIMAR | MH_ANGEL))
+                       == (MH_AASIMAR | MH_ANGEL))
+                         ? "aasimar and angels"
+                         : (context.warntype.polyd & MH_ANGEL)
+                             ? "angels"
+                             : (context.warntype.polyd & MH_AASIMAR)
+                                 ? "aasimar"
+                                 : (context.warntype.polyd & MH_JABBERWOCK)
+                                     ? "jabberwocks"
+                                     : (context.warntype.polyd & MH_WRAITH)
+                                         ? "wraiths"
+                                         : "certain monsters");
         you_are(buf, "");
     }
     if (Warn_of_mon && context.warntype.speciesidx >= LOW_PM) {
@@ -4030,6 +4038,15 @@ int final;
     } else if ((u.ualign.abuse * -1) >= 50) {
         Sprintf(buf, "gravely abused your alignment");
         you_have_X(buf);
+    }
+
+    if (Race_if(PM_AASIMAR)) {
+        if (u.ualign.abuse == 0) {
+            enl_msg(You_, "gain", "gained",
+                    " bonus vitality from your celestial purity", "");
+        } else if (u.uaasimar_penalties != 0L) {
+            you_have_X("lost divine gifts due to alignment abuse");
+        }
     }
 
     ngenocided = num_genocides();

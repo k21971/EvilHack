@@ -3160,7 +3160,7 @@ struct permonst _mons2[] = {
         M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_COLLECT, 0,
         M4_VULNERABLE_FIRE, 0, 25, CLR_BRIGHT_CYAN),
     /*
-     * humans, including elves, drow, and were-critters
+     * humans, including elves, drow, aasimar, and were-critters
      */
     MON("human", S_HUMAN, LVL(0, 12, 10, 0, 0), G_NOGEN, /* for corpses */
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
@@ -3169,6 +3169,14 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_OMNIVORE,
         M2_NOPOLY | M2_STRONG | M2_COLLECT, M3_INFRAVISIBLE, 0,
         MH_HUMAN, 2, HI_DOMESTIC),
+    MON("aasimar", S_HUMAN, LVL(0, 12, 10, 5, 3), G_NOGEN, /* placeholder */
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(WT_HUMAN, 400, MS_HUMANOID, MZ_HUMAN),
+        MR_COLD | MR_ELEC | MR_SLEEP | MR_POISON, 0,
+        M1_HUMANOID | M1_OMNIVORE | M1_SEE_INVIS,
+        M2_NOPOLY | M2_STRONG | M2_COLLECT,
+        M3_INFRAVISION | M3_INFRAVISIBLE, 0, MH_AASIMAR, 2, HI_GOLD),
     MON("miner", S_HUMAN, LVL(2, 6, 10, 10, 4), (G_GENO | G_NOGEN),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),

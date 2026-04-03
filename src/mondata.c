@@ -827,6 +827,8 @@ struct permonst *pm1, *pm2;
         return is_zombie(pm2);
     if (is_vampire(pm1))
         return is_vampire(pm2);
+    if (is_aasimar(pm1))
+        return is_aasimar(pm2);
     /* other creatures are less precise */
     if (is_giant(pm1))
         return is_giant(pm2); /* open to quibbling here */
@@ -941,7 +943,7 @@ unsigned mhflag;
         "human", "elf", "dwarf", "gnome",
         "orc", "giant", "hobbit", "centaur",
         "illithid", "tortle", "drow", "zombie",
-        "vampire", "demon",
+        "vampire", "aasimar", "demonic being",
         "undead",
         "lycanthrope",
         "dragon",

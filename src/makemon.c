@@ -4488,6 +4488,13 @@ struct monst *mtmp;
     if (erac_race_hostile(mtmp))
         return FALSE;
 
+    /* Lawful angelic beings are peaceful to aasimar
+       who have not abused their alignment */
+    if (Race_if(PM_AASIMAR) && is_angel(ptr)
+        && !unique_corpstat(ptr)
+        && mal > 0 && u.ualign.abuse == 0)
+        return TRUE;
+
     /* monsters of same race as the player tend to be peaceful,
        followers of Moloch and Convicts are the exception */
     if (ual == A_NONE || Role_if(PM_CONVICT))

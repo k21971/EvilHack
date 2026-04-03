@@ -3788,6 +3788,9 @@ weight_cap()
         maxcarrcap += 200;
         if (!Upolyd)
             youmonst.data->mmove = 15;
+    } else if (racial_aasimar(&youmonst)) {
+        carrcap += 100;
+        maxcarrcap += 200;
     } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
         if (is_nymph(youmonst.data)

@@ -747,7 +747,8 @@ boolean resuming;
                             || (wielding_artifact(ART_DEMONBANE)
                                 && is_demon(mtmp->data))
                             || (wielding_artifact(ART_ANGELSLAYER)
-                                && is_angel(mtmp->data))
+                                && (is_angel(mtmp->data)
+                                    || is_aasimar(mtmp->data)))
                             || (wielding_artifact(ART_VORPAL_BLADE)
                                 && is_jabberwock(mtmp->data))
                             || (uleft && uleft->oartifact == ART_ONE_RING
@@ -1340,6 +1341,8 @@ boolean new_game; /* false => restoring an old game */
             pline("Use #shapechange to change form.");
         else if (Race_if(PM_ILLITHID))
             pline("Use #telekinesis to manipulate objects and monsters.");
+        else if (Race_if(PM_AASIMAR))
+            pline("Use #monster to invoke an aura of light.");
 
         /* Roles */
         if (Role_if(PM_DRUID))

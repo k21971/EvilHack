@@ -1932,8 +1932,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     int j, k, l, permdmg = 0;
     int hurtle_distance;
     boolean def_underwater;
-    boolean angel;
-    boolean giant;
+    boolean angel, aasimar, giant;
     boolean elf, drow, no_sick;
     boolean resistant;
     boolean no_burn, no_freeze;
@@ -2074,9 +2073,13 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         }
 
         angel = youdefend ? is_angel(youmonst.data)
-                         : is_angel(mdef->data);
+                          : is_angel(mdef->data);
+        aasimar = youdefend ? maybe_polyd(is_aasimar(youmonst.data),
+                                          Race_if(PM_AASIMAR))
+                            : racial_aasimar(mdef);
 
-        if (otmp->oartifact == ART_ANGELSLAYER && !rn2(10) && angel) {
+        if (otmp->oartifact == ART_ANGELSLAYER && !rn2(10)
+            && (angel || aasimar)) {
             if (youdefend) {
                 pline("Angelslayer's eldritch flame consumes %s!", hittee);
                 losehp((Upolyd ? u.mh : u.uhp) + 1, "incinerated by Angelslayer",

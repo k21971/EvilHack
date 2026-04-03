@@ -258,7 +258,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("Angelslayer", TRIDENT,
       (SPFX_RESTR | SPFX_ATTK | SPFX_SEARCH | SPFX_HSPDAM
        | SPFX_WARN | SPFX_DFLAGH), 0,
-      MH_ANGEL, FIRE(5, 10), NO_DFNS, NO_CARY, 0, A_NONE,
+      MH_ANGEL | MH_AASIMAR, FIRE(5, 10), NO_DFNS, NO_CARY, 0, A_NONE,
       NON_PM, NON_PM, 5000L, NO_COLOR, DEFAULT_MAT),
     /* Yeenoghu's infamous triple-headed flail, also known as 'Butcher'.
      * A massive weapon reputed to have been created from the thighbone and

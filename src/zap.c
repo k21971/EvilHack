@@ -3454,11 +3454,13 @@ int amt;          /* pseudo-damage used to determine blindness duration */
         pline("Ow, that light hurts%c", (dmg > 2 || u.mh <= 5) ? '!' : '.');
         /* [composing killer/reason is superfluous here; if fatal, cause
            of death will always be "killed while stuck in creature form"] */
-        if (obj->oclass == SCROLL_CLASS || obj->oclass == SPBOOK_CLASS)
+        if (obj && (obj->oclass == SCROLL_CLASS
+                    || obj->oclass == SPBOOK_CLASS))
             ordinary = FALSE; /* say blasted rather than zapped */
-        how = (obj->oclass != SPBOOK_CLASS)
-                  ? (const char *) ansimpleoname(obj)
-                  : "spell of light";
+        how = obj ? ((obj->oclass != SPBOOK_CLASS)
+                      ? (const char *) ansimpleoname(obj)
+                      : "spell of light")
+                  : "aura of light";
         Sprintf(buf, "%s %sself with %s", ordinary ? "zapped" : "blasted",
                 uhim(), how);
         /* might rehumanize(); could be fatal, but only for Unchanging */

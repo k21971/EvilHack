@@ -696,6 +696,7 @@ unsigned int *stuckid, *steedid;
 #endif
     mread(fd, (genericptr_t) &u, sizeof(struct you));
     role_init(); /* Reset the initial role, race, gender, and alignment */
+    aasimar_check_abuse(); /* Re-apply penalties after role_init resets urace */
 
 #define ReadTimebuf(foo)                   \
     mread(fd, (genericptr_t) timebuf, 14); \

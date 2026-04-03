@@ -1021,6 +1021,7 @@ struct monst *priest;
 
                 u.ualign.abuse = -atonement_val;
                 record_abuse_event(abuse_reduced, ABUSE_ATONEMENT);
+                aasimar_check_abuse();
                 if (atonement_val == 0)
                     verbalize("Thy penance is accepted.  "
                               "Thou art fully absolved of past transgressions.");

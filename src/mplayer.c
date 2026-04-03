@@ -196,6 +196,18 @@ static const char *vampire_female_names[] = {
     0
 };
 
+static const char *aasimar_male_names[] = {
+    "Afriel",       "Hochmael",    "Kakabel",    "Munkar",     "Nephilim",
+    "Ongkanon",     "Osmadiel",    "Rampel",     "Yefefiah",   "Zarall",
+    0
+};
+
+static const char *aasimar_female_names[] = {
+    "Aliyah",       "Azriel",      "Hanniah",    "Kasdeja",    "Lahabiel",
+    "Maroth",       "Mumiah",      "Nanael",     "Pesagniyah", "Sahaqiel",
+    0
+};
+
 struct mfnames {
     const char **male;
     const char **female;
@@ -215,7 +227,8 @@ static const struct mfnames namelists[] = {
     { tortle_male_names, tortle_female_names },
     { drow_male_names, drow_female_names },
     { draugr_male_names, draugr_female_names },
-    { vampire_male_names, vampire_female_names }
+    { vampire_male_names, vampire_female_names },
+    { aasimar_male_names, aasimar_female_names }
 };
 
 void

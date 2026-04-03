@@ -83,7 +83,7 @@
 #define resists_mgc(ptr) \
     (dmgtype((ptr), AD_MAGM) || (ptr) == &mons[PM_BABY_GRAY_DRAGON] \
      || (ptr) == &mons[PM_ARCHON] || (ptr) == &mons[PM_ARCHANGEL]   \
-     || dmgtype((ptr), AD_RBRE)) /* Tiamat */
+     || (ptr) == &mons[PM_AASIMAR] || dmgtype((ptr), AD_RBRE)) /* Tiamat */
 
 #define resists_drain(ptr) \
     (is_undead(ptr) || is_demon(ptr)                            \
@@ -294,6 +294,8 @@
 #define racial_zombie(mon) mon_has_race(mon, MH_ZOMBIE)
 #define is_vampire(ptr) (((ptr)->mhflags & MH_VAMPIRE) != 0L)
 #define racial_vampire(mon) mon_has_race(mon, MH_VAMPIRE)
+#define is_aasimar(ptr) (((ptr)->mhflags & MH_AASIMAR) != 0L)
+#define racial_aasimar(mon) mon_has_race(mon, MH_AASIMAR)
 #define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
 #define racial_match(mon) mon_has_race(mon, urace.selfmask)
 #define is_bat(ptr) \
@@ -457,8 +459,8 @@
      || (ptr) == &mons[PM_CENTAUR] || (ptr) == &mons[PM_DEMON]  \
      || (ptr) == &mons[PM_DWARF] || (ptr) == &mons[PM_GNOME]    \
      || (ptr) == &mons[PM_ILLITHID] || (ptr) == &mons[PM_NYMPH] \
-     || (ptr) == &mons[PM_DROW] || (ptr) == &mons[PM_DRAUGR]    \
-     || (ptr) == &mons[PM_VAMPIRE])
+     || (ptr) == &mons[PM_DROW] || (ptr) == &mons[PM_AASIMAR]   \
+     || (ptr) == &mons[PM_DRAUGR] || (ptr) == &mons[PM_VAMPIRE])
 
 /* woodland animals and plants */
 #define is_woodland_creature(ptr) \

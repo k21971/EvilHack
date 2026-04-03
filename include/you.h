@@ -445,7 +445,7 @@ struct you {
     xchar uabuse_hist_idx;   /* next write position (circular buffer) */
     int ublessed, ublesscnt; /* blessing/duration from #pray */
     long umoney0;
-    long uspare1;
+    long uaasimar_penalties; /* aasimar: penalty ID at each abuse tier */
     long uexp, urexp;
     long ucleansed;          /* to record moves when player was cleansed */
     long usleep;             /* sleeping; monstermove you last started */

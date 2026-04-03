@@ -326,7 +326,8 @@ struct monst *mon;
         tmp += 2;
 
     /* Cursed weapons used against angelic beings */
-    if (Is_weapon && otmp->cursed && is_angel(ptr))
+    if (Is_weapon && otmp->cursed
+        && (is_angel(ptr) || is_aasimar(ptr)))
         tmp += 2;
 
     /* Infidels get a slight bonus against lawful or
@@ -607,7 +608,8 @@ struct monst *mon;
             && (is_undead(ptr) || is_demon(ptr)
                 || is_vampshifter(mon)))
             bonus += rnd(4);
-        if (otmp->cursed && is_angel(ptr))
+        if (otmp->cursed
+            && (is_angel(ptr) || is_aasimar(ptr)))
             bonus += rnd(4);
         if (otmp->cursed && Role_if(PM_INFIDEL)
             && (mon_aligntyp(mon) == A_LAWFUL
