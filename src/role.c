@@ -1323,8 +1323,8 @@ const struct Race races[] = {
         { 3, 3, 3, 3, 3, 3 },
         { 10, 22, 22, 20, 12, 16 },
         /* Init   Lower  Higher */
-        { 2, 0, 1, 1, 1, 0 }, /* Hit points */
-        { 3, 0, 3, 0, 4, 0 }  /* Energy */
+        { 1, 0, 0, 1, 0, 1 }, /* Hit points */
+        { 3, 1, 3, 1, 4, 1 }  /* Energy */
     },
     {
         "tortle",

@@ -5150,4 +5150,5 @@ The following changes to date are:
 - Fix: NULL dereference in armor callbacks after savelife()
 - Adjust drawbridge destruction odds by monster size
 - New race: Aasimar
+- Adjust illithid race HP and energy advancement
 
