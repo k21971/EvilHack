@@ -5151,4 +5151,5 @@ The following changes to date are:
 - Adjust drawbridge destruction odds by monster size
 - New race: Aasimar
 - Adjust illithid race HP and energy advancement
+- Fix: signed integer overflow in weight() via wish
 

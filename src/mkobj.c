@@ -1754,6 +1754,7 @@ weight(obj)
 struct obj *obj;
 {
     int wt = (int) objects[obj->otyp].oc_weight;
+    long long_wt;
 
     /* Modify weight according to the relative densities of the two materials,
      * if they differ. */
@@ -1771,8 +1772,10 @@ struct obj *obj;
         struct obj *contents;
         int cwt = 0;
 
-        if (obj->otyp == STATUE && obj->corpsenm >= LOW_PM)
-            wt = (int) obj->quan * ((int) mons[obj->corpsenm].cwt * 3 / 2);
+        if (obj->otyp == STATUE && obj->corpsenm >= LOW_PM) {
+            long_wt = obj->quan * (long)(mons[obj->corpsenm].cwt * 3 / 2);
+            wt = (long_wt > LARGEST_INT) ? LARGEST_INT : (int) long_wt;
+        }
 
         for (contents = obj->cobj; contents; contents = contents->nobj)
             cwt += weight(contents);
@@ -1801,7 +1804,7 @@ struct obj *obj;
     }
     if (obj->otyp == CORPSE && obj->corpsenm >= LOW_PM) {
         int mnum = obj->corpsenm;
-        long long_wt;
+
         if (has_omonst(obj)) {
             struct monst *mtmp;
             mtmp = OMONST(obj);
@@ -1815,7 +1818,9 @@ struct obj *obj;
             wt = eaten_stat(wt, obj);
         return wt;
     } else if (obj->oclass == FOOD_CLASS && obj->oeaten) {
-        return eaten_stat((int) obj->quan * wt, obj);
+        long_wt = obj->quan * (long) wt;
+        return eaten_stat((long_wt > LARGEST_INT) ? LARGEST_INT
+                                                  : (int) long_wt, obj);
     } else if (obj->oclass == COIN_CLASS) {
         return (int) ((obj->quan + 50L) / 100L);
     } else if (obj->otyp == HEAVY_IRON_BALL && obj->owt != 0) {
@@ -1823,7 +1828,11 @@ struct obj *obj;
     } else if (obj->otyp == CANDELABRUM_OF_INVOCATION && obj->spe) {
         return wt + obj->spe * (int) objects[TALLOW_CANDLE].oc_weight;
     }
-    return (wt ? wt * (int) obj->quan : ((int) obj->quan + 1) >> 1);
+    if (wt) {
+        long_wt = (long) wt * obj->quan;
+        return (long_wt > LARGEST_INT) ? LARGEST_INT : (int) long_wt;
+    }
+    return (int) ((obj->quan + 1L) >> 1);
 }
 
 /* Relative defensiveness of various materials. The only thing that should ever

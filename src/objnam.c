@@ -3789,6 +3789,8 @@ struct obj *no_wish;
             ; /* just increment `bp' by `l' below */
         } else if (!cnt && digit(*bp) && strcmp(bp, "0")) {
             cnt = atoi(bp);
+            if (cnt > 10000)
+                cnt = 10000;
             while (digit(*bp))
                 bp++;
             while (*bp == ' ')
