@@ -3789,8 +3789,6 @@ struct obj *no_wish;
             ; /* just increment `bp' by `l' below */
         } else if (!cnt && digit(*bp) && strcmp(bp, "0")) {
             cnt = atoi(bp);
-            if (cnt > 10000)
-                cnt = 10000;
             while (digit(*bp))
                 bp++;
             while (*bp == ' ')
@@ -4932,6 +4930,8 @@ struct obj *no_wish;
     }
 
     /* if player specified a reasonable count, maybe honor it */
+    if (cnt > 10000)
+        cnt = 10000;
     if (cnt > 1 && objects[typ].oc_merge
         && (wizard || cnt < rnd(6) || (cnt <= 7 && Is_candle(otmp))
             || (cnt <= 20 && ((oclass == WEAPON_CLASS && is_ammo(otmp))
