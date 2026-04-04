@@ -2659,6 +2659,14 @@ boolean in_view;
               || obj->material == ADAMANTINE
               || obj->forged_qual == FQ_INFERIOR))
             impossible("breaking odd object?");
+        if (obj->forged_qual == FQ_INFERIOR) {
+            if (!in_view && !Deaf)
+                You_hear("something fall apart!");
+            else
+                pline("%s fall%s apart!",
+                      Doname2(obj), (obj->quan == 1L) ? "s" : "");
+            break;
+        }
         /*FALLTHRU*/
     case LENSES:
     case MIRROR:

@@ -5155,4 +5155,5 @@ The following changes to date are:
 - Fix: corpse created at (0,0) for parked vault guards
 - Allow atonement for alignment abuse at any priest's temple
 - Aasimar and helms of opposite alignment
+- Fix: inferior quality thrown objects use glass shatter message
 
