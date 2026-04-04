@@ -5154,4 +5154,5 @@ The following changes to date are:
 - Fix: signed integer overflow in weight() via wish
 - Fix: corpse created at (0,0) for parked vault guards
 - Allow atonement for alignment abuse at any priest's temple
+- Aasimar and helms of opposite alignment
 

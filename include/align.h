@@ -57,6 +57,7 @@ enum abuse_type {
     ABUSE_INFIDEL_GOOD,         /* Infidel doing good deeds */
     /* Prayer/Sacrifice */
     ABUSE_WRONG_ALTAR,          /* praying at wrong altar */
+    ABUSE_ALIGNMENT_HELM,       /* Aasimar wearing helm of opposite alignment */
     ABUSE_DECEPTION,            /* trickery/fake Amulet */
     ABUSE_AMULET_BETRAYAL,      /* offering Amulet to wrong deity */
     ABUSE_SAC_REJECTED,         /* Amulet sacrifice rejected (Infidel) */

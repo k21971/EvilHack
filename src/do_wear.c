@@ -661,6 +661,33 @@ Helmet_on(VOID_ARGS)
         }
         break;
     case HELM_OF_OPPOSITE_ALIGNMENT:
+        if (Race_if(PM_AASIMAR)) {
+            /* deity will not allow an Aasimar to change alignment;
+               no alignment change occurs, helm is destroyed */
+            struct obj *otmp = uarmh;
+            int dmg = d(2, 12);
+
+            verbalize("Thou shalt not forsake Me!");
+            otmp->known = 1;
+            makeknown(HELM_OF_OPPOSITE_ALIGNMENT);
+            pline("The %s explodes!", helm_simple_name(otmp));
+
+            /* destroy the helm — clear worn slot, then remove */
+            otmp->in_use = TRUE;
+            setworn((struct obj *) 0, W_ARMH);
+            useup(otmp);
+
+            /* the act offends your deity */
+            adjalign(-3);
+            record_abuse_event(-3, ABUSE_ALIGNMENT_HELM);
+
+            /* 2d12 physical damage and stun */
+            losehp(Maybe_Half_Phys(dmg),
+                   "an exploding helm of opposite alignment",
+                   KILLED_BY);
+            make_stunned((HStun & TIMEOUT) + (long) d(2, 4), TRUE);
+            break;
+        }
         uarmh->known = 1; /* do this here because uarmh could get cleared */
         /* changing alignment can toggle off active artifact properties,
            including levitation; uarmh could get dropped or destroyed here

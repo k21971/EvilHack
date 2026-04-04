@@ -1967,6 +1967,8 @@ int atype;
         return "doing good deeds";
     case ABUSE_WRONG_ALTAR:
         return "praying at wrong altar";
+    case ABUSE_ALIGNMENT_HELM:
+        return "donning a helm of opposite alignment";
     case ABUSE_DECEPTION:
         return "attempted deception";
     case ABUSE_AMULET_BETRAYAL:
