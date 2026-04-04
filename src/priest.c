@@ -994,9 +994,12 @@ struct monst *priest;
                 adjalign(-1);
                 record_abuse_event(-1, ABUSE_REFUSE_TITHE);
             }
-        } else if (coaligned && offer >= 50000 && u.ualign.abuse < 0) {
-            /* Atonement for alignment abuse - 50k gold per tier reduction */
-            int tiers_paid = (int)(offer / 50000);
+        } else if (offer >= (coaligned ? 25000L : 50000L)
+                   && u.ualign.abuse < 0) {
+            /* Atonement for alignment abuse - any priest can accept,
+               but co-aligned priests charge less per tier */
+            long atone_cost = coaligned ? 25000L : 50000L;
+            int tiers_paid = (int)(offer / atone_cost);
             int tiers_reduced = 0;
             int original_abuse = (u.ualign.abuse * -1);
             int atonement_val = original_abuse;
@@ -1022,12 +1025,25 @@ struct monst *priest;
                 u.ualign.abuse = -atonement_val;
                 record_abuse_event(abuse_reduced, ABUSE_ATONEMENT);
                 aasimar_check_abuse();
-                if (atonement_val == 0)
-                    verbalize("Thy penance is accepted.  "
-                              "Thou art fully absolved of past transgressions.");
-                else
-                    verbalize("Thy penance is accepted.  "
-                              "The burden of thy transgressions is lightened.");
+                if (coaligned) {
+                    if (atonement_val == 0)
+                        verbalize("Thy penance is accepted.  "
+                                  "Thou art fully absolved of past "
+                                  "transgressions.");
+                    else
+                        verbalize("Thy penance is accepted.  "
+                                  "The burden of thy transgressions "
+                                  "is lightened.");
+                } else {
+                    if (atonement_val == 0)
+                        verbalize("Even one not of my faith may "
+                                  "find redemption.  Thy penance "
+                                  "is accepted.");
+                    else
+                        verbalize("Thy gold speaks of sincere "
+                                  "contrition.  I shall intercede "
+                                  "on thy behalf.");
+                }
             }
         } else if (offer < (u.ulevel * t1)) {
             if (money_cnt(invent) > (offer * 2L)) {
