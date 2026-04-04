@@ -3594,7 +3594,7 @@ dmonsfree()
             }
         }
 
-        /* Show recent m_detach calls */
+        /* Show recent m_detach calls with m_id and turn */
         if (recent_detaches[0].mname[0]) {  /* if we have any tracked */
             int start = (detach_idx - 1 + MAX_DETACH_TRACK) % MAX_DETACH_TRACK;
             int shown = 0, i, idx;
@@ -3603,13 +3603,59 @@ dmonsfree()
             for (i = 0; i < MAX_DETACH_TRACK && shown < 5; i++) {
                 idx = (start - i + MAX_DETACH_TRACK) % MAX_DETACH_TRACK;
                 if (recent_detaches[idx].mname[0]) {
-                    Sprintf(eos(msgbuf), " %s(%d,%d)",
+                    Sprintf(eos(msgbuf), " %s(%d,%d)#%u@%ld",
                             recent_detaches[idx].mname,
                             recent_detaches[idx].x,
-                            recent_detaches[idx].y);
+                            recent_detaches[idx].y,
+                            recent_detaches[idx].m_id,
+                            recent_detaches[idx].turn);
                     shown++;
                 }
             }
+        }
+
+        /* Search other monster lists for the most recently
+           detached monster to diagnose where it ended up */
+        {
+            int ridx = (detach_idx - 1 + MAX_DETACH_TRACK)
+                       % MAX_DETACH_TRACK;
+            unsigned target_id = recent_detaches[ridx].m_id;
+            struct monst *found = (struct monst *) 0;
+            const char *where = (const char *) 0;
+
+            if (target_id) {
+                for (found = migrating_mons; found; found = found->nmon) {
+                    if (found->m_id == target_id) {
+                        where = "migrating";
+                        break;
+                    }
+                }
+                if (!found) {
+                    for (found = mydogs; found; found = found->nmon) {
+                        if (found->m_id == target_id) {
+                            where = "mydogs";
+                            break;
+                        }
+                    }
+                }
+                if (!found) {
+                    for (found = fmon; found; found = found->nmon) {
+                        if (found->m_id == target_id) {
+                            where = "fmon(missed)";
+                            break;
+                        }
+                    }
+                }
+            }
+            if (found)
+                Sprintf(eos(msgbuf),
+                        " [mid#%u FOUND on %s (%d,%d) hp=%d]",
+                        target_id, where, found->mx,
+                        found->my, found->mhp);
+            else if (target_id)
+                Sprintf(eos(msgbuf),
+                        " [mid#%u NOT FOUND any list]",
+                        target_id);
         }
 
         impossible("%s", msgbuf);
@@ -4983,33 +5029,53 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                 stackobj(otmp);
             }
         }
-        /* corpse--none if hero was inside the monster */
-        if (!wasinside && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
-            /* for kills by monsters credited to the hero (e.g. summoned
-             * exploding spheres), zombify will have been set already in
-             * mhitm.c where the information about the particular attacking
-             * monster, etc, was available; for actual kills by the hero we
-             * can figure it out here */
-            if (!indirect) {
-                zombify = (!thrownobj && !stoned && !uwep
-                           && zombie_maker(&youmonst)
-                           && zombie_form(r_data(mtmp)) != NON_PM);
+        /* mondead() may have moved a vault guard to (0,0) via
+           grddead() -> parkguard(); the corpse should be created at
+           the original death position, not at (0,0). Temporarily
+           restore original coordinates for corpse creation */
+        {
+            int save_mx = mtmp->mx, save_my = mtmp->my;
+
+            if (!isok(mtmp->mx, mtmp->my) && isok(x, y)) {
+                mtmp->mx = x;
+                mtmp->my = y;
             }
-            cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
-                                                   : CORPSTAT_NONE);
-            zombify = FALSE; /* reset */
-            if (burycorpse && cadaver && cansee(x, y) && !mtmp->minvis
-                && cadaver->where == OBJ_BURIED && !nomsg) {
-                pline("%s corpse ends up buried.", s_suffix(Monnam(mtmp)));
+            /* corpse--none if hero was inside the monster */
+            if (!wasinside
+                && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
+                /* for kills by monsters credited to the hero (e.g.
+                 * summoned exploding spheres), zombify will have been
+                 * set already in mhitm.c where the information about
+                 * the particular attacking monster, etc, was available;
+                 * for actual kills by the hero we can figure it out
+                 * here */
+                if (!indirect) {
+                    zombify = (!thrownobj && !stoned && !uwep
+                               && zombie_maker(&youmonst)
+                               && zombie_form(r_data(mtmp)) != NON_PM);
+                }
+                cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
+                                                       : CORPSTAT_NONE);
+                zombify = FALSE; /* reset */
+                if (burycorpse && cadaver && cansee(x, y) && !mtmp->minvis
+                    && cadaver->where == OBJ_BURIED && !nomsg) {
+                    pline("%s corpse ends up buried.",
+                          s_suffix(Monnam(mtmp)));
+                }
             }
-        }
-        if (wasinside && is_dragon(mtmp->data) && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
-            cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
-                                                   : CORPSTAT_NONE);
-            if (burycorpse && cadaver && cansee(x, y) && !mtmp->minvis
-                && cadaver->where == OBJ_BURIED && !nomsg) {
-                pline("%s corpse ends up buried.", s_suffix(Monnam(mtmp)));
+            if (wasinside && is_dragon(mtmp->data)
+                && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
+                cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
+                                                       : CORPSTAT_NONE);
+                if (burycorpse && cadaver && cansee(x, y)
+                    && !mtmp->minvis
+                    && cadaver->where == OBJ_BURIED && !nomsg) {
+                    pline("%s corpse ends up buried.",
+                          s_suffix(Monnam(mtmp)));
+                }
             }
+            mtmp->mx = save_mx;
+            mtmp->my = save_my;
         }
     }
 

@@ -5152,4 +5152,5 @@ The following changes to date are:
 - New race: Aasimar
 - Adjust illithid race HP and energy advancement
 - Fix: signed integer overflow in weight() via wish
+- Fix: corpse created at (0,0) for parked vault guards
 
