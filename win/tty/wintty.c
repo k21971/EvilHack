@@ -3520,7 +3520,7 @@ int glyph;
 int bkglyph UNUSED;
 {
     int ch;
-    boolean reverse_on = FALSE, underline_on = FALSE;
+    boolean reverse_on = FALSE, underline_on = FALSE, bgcolor_on = FALSE;
     int color;
     unsigned special;
 
@@ -3576,6 +3576,7 @@ int bkglyph UNUSED;
     if ((special & MG_STAIRS) && iflags.hilite_hidden_stairs
         && (window == NHW_MAP)) {
         term_start_bgcolor(CLR_RED);
+        bgcolor_on = TRUE;
     }
 
 #if defined(USE_TILES) && defined(MSDOS)
@@ -3597,6 +3598,13 @@ int bkglyph UNUSED;
             term_end_color();
             ttyDisplay->color = NO_COLOR;
         }
+#endif
+    }
+
+    if (bgcolor_on) {
+#ifdef TEXTCOLOR
+        term_end_color();
+        ttyDisplay->color = NO_COLOR;
 #endif
     }
 

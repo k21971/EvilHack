@@ -5162,4 +5162,6 @@ The following changes to date are:
 - Fix: moffer() death reason and livelog always identify the monster
 - Cap additional alignment penalty to prevent excessive stacking
 - Hobbit hunger thresholds: consistent 3x scaling, use racial_hobbit()
+- Fix: hilite_hidden_stairs - TTY bgcolor leak, Windows no-op, missing
+  statue check
 

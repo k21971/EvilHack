@@ -291,6 +291,8 @@ unsigned mgflags;
         special |= MG_STATUE;
         if (is_objpile(x,y))
             special |= MG_OBJPILE;
+        if (On_stairs(x,y))
+            special |= MG_STAIRS;
     } else if ((offset = (glyph - GLYPH_WARNING_OFF)) >= 0) { /* warn flash */
         idx = offset + SYM_OFF_W;
         if (has_rogue_color)

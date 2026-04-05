@@ -164,7 +164,7 @@ static struct Bool_Opt {
     { "herecmd_menu", &iflags.herecmd_menu, FALSE, SET_IN_GAME },
     { "hilite_pet", &iflags.wc_hilite_pet, FALSE, SET_IN_GAME }, /*WC*/
     { "hilite_pile", &iflags.hilite_pile, FALSE, SET_IN_GAME },
-    { "hilite_hidden_stairs", &iflags.hilite_hidden_stairs, FALSE, SET_IN_GAME}, /*WC*/
+    { "hilite_hidden_stairs", &iflags.hilite_hidden_stairs, FALSE, SET_IN_GAME },
     { "hitpointbar", &iflags.wc2_hitpointbar, FALSE, SET_IN_GAME }, /*WC2*/
 #ifndef MAC
     { "ignintr", &flags.ignintr, FALSE, SET_IN_GAME },

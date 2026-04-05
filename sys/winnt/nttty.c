@@ -55,6 +55,7 @@ typedef struct {
     WORD    attribute;    /* legacy 16-color attribute (for fallback path) */
     short   nhcolor;      /* NetHack color: 0-15 base, 16-255 ext, -1 none */
     short   nhattr;       /* packed: bit 0=bold, bit 1=inverse, bit 2=uline */
+    short   nhbgcolor;    /* background color, NO_COLOR if none */
 } cell_t;
 
 /* nhattr bit flags for compact per-cell storage.
@@ -65,9 +66,9 @@ typedef struct {
 #define NHATTR_ULINE   0x04
 
 cell_t clear_cell = { CONSOLE_CLEAR_CHARACTER, CONSOLE_CLEAR_ATTRIBUTE,
-                       NO_COLOR, 0 };
+                       NO_COLOR, 0, NO_COLOR };
 cell_t undefined_cell = { CONSOLE_UNDEFINED_CHARACTER,
-                          CONSOLE_UNDEFINED_ATTRIBUTE, NO_COLOR, 0 };
+                          CONSOLE_UNDEFINED_ATTRIBUTE, NO_COLOR, 0, NO_COLOR };
 
 /*
  * The following WIN32 Console API routines are used in this file.
@@ -143,6 +144,7 @@ struct console_t {
     WORD foreground;
     WORD attr;
     int current_nhcolor;
+    int current_nhbgcolor;
     int current_nhattr[ATR_INVERSE+1];
     COORD cursor;
     HANDLE hConOut;
@@ -165,6 +167,7 @@ struct console_t {
     0,
     (FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED),
     (FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED),
+    NO_COLOR,
     NO_COLOR,
     {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
     {0, 0},
@@ -293,14 +296,15 @@ int n;
     return vt;
 }
 
-/* Emit a complete SGR sequence for the given nhcolor and nhattr.
- * Format: \033[0;{attrs};38;5;{color}m
+/* Emit a complete SGR sequence for the given nhcolor, nhattr, and nhbgcolor.
+ * Format: \033[0;{attrs};38;5;{color};48;5;{bgcolor}m
  * Always starts with reset (0) to avoid state accumulation. */
 static WCHAR *
-vt_emit_sgr(vt, nhcolor, nhattr)
+vt_emit_sgr(vt, nhcolor, nhattr, nhbgcolor)
 WCHAR *vt;
 int nhcolor;
 int nhattr;
+int nhbgcolor;
 {
     int vtcolor;
 
@@ -311,7 +315,7 @@ int nhattr;
         vt = vt_append_str(vt, ";4");
     if (nhattr & NHATTR_INVERSE)
         vt = vt_append_str(vt, ";7");
-    /* Map color to xterm-256 index */
+    /* Map foreground color to xterm-256 index */
     if (nhcolor >= 0 && nhcolor < CLR_MAX) {
         vtcolor = nhcolor_to_vt256[nhcolor];
         vt = vt_append_str(vt, ";38;5;");
@@ -320,7 +324,15 @@ int nhattr;
         vt = vt_append_str(vt, ";38;5;");
         vt = vt_append_int(vt, nhcolor);
     }
-    /* else: NO_COLOR outside 0-15 range, just reset (no fg color) */
+    /* Map background color to xterm-256 index (NO_COLOR = no bg) */
+    if (nhbgcolor >= 0 && nhbgcolor < CLR_MAX && nhbgcolor != NO_COLOR) {
+        vtcolor = nhcolor_to_vt256[nhbgcolor];
+        vt = vt_append_str(vt, ";48;5;");
+        vt = vt_append_int(vt, vtcolor);
+    } else if (IS_EXT_COLOR(nhbgcolor)) {
+        vt = vt_append_str(vt, ";48;5;");
+        vt = vt_append_int(vt, nhbgcolor);
+    }
     *vt++ = (WCHAR) 'm';
     return vt;
 }
@@ -337,14 +349,16 @@ static void back_buffer_flip()
         WCHAR *vt = console.vt_buffer;
         int last_color = -999;
         int last_attr = -999;
+        int last_bgcolor = -999;
         int last_row = -1;
         int last_col = -1;
 
         for (pos.Y = 0; pos.Y < console.height; pos.Y++) {
             for (pos.X = 0; pos.X < console.width; pos.X++) {
-                /* Compare nhcolor + nhattr + character for VT mode */
+                /* Compare nhcolor + nhattr + nhbgcolor + character */
                 if (back->nhcolor != front->nhcolor
                     || back->nhattr != front->nhattr
+                    || back->nhbgcolor != front->nhbgcolor
                     || back->character != front->character) {
                     /* Cursor positioning (skip if consecutive) */
                     if (pos.Y != last_row
@@ -357,11 +371,14 @@ static void back_buffer_flip()
                     }
                     /* Color/attribute change */
                     if (back->nhcolor != last_color
-                        || back->nhattr != last_attr) {
+                        || back->nhattr != last_attr
+                        || back->nhbgcolor != last_bgcolor) {
                         vt = vt_emit_sgr(vt, back->nhcolor,
-                                         back->nhattr);
+                                         back->nhattr,
+                                         back->nhbgcolor);
                         last_color = back->nhcolor;
                         last_attr = back->nhattr;
+                        last_bgcolor = back->nhbgcolor;
                     }
                     /* Character */
                     *vt++ = back->character;
@@ -776,8 +793,20 @@ boolean inverse;
     if (console.current_nhattr[ATR_BOLD])
         console.attr |= inverse ?
                         BACKGROUND_INTENSITY : FOREGROUND_INTENSITY;
+    /* Apply explicit background color for legacy path */
+    if (console.current_nhbgcolor != NO_COLOR) {
+        int bgc = console.current_nhbgcolor;
+
+        if (bgc < 0 || bgc >= CLR_MAX)
+            bgc = map_color_256to16(bgc);
+        /* Clear existing background bits, apply new */
+        console.attr &= ~(BACKGROUND_RED | BACKGROUND_GREEN
+                          | BACKGROUND_BLUE | BACKGROUND_INTENSITY);
+        console.attr |= ttycolors_inv[bgc];
+    }
     cell->attribute = console.attr;
     cell->nhcolor = (short) console.current_nhcolor;
+    cell->nhbgcolor = (short) console.current_nhbgcolor;
     cell->nhattr = 0;
     if (console.current_nhattr[ATR_BOLD])
         cell->nhattr |= NHATTR_BOLD;
@@ -1122,8 +1151,7 @@ term_start_color(int color)
 void
 term_start_bgcolor(int color)
 {
-    nhUse(color);
-    /* empty */
+    console.current_nhbgcolor = color;
 }
 
 void
@@ -1134,6 +1162,7 @@ term_end_color(void)
 #endif
     console.attr = (console.foreground | console.background);
     console.current_nhcolor = NO_COLOR;
+    console.current_nhbgcolor = NO_COLOR;
 }
 
 void
@@ -2044,8 +2073,8 @@ void nethack_enter_nttty()
                               omode | ENABLE_VIRTUAL_TERMINAL_PROCESSING)) {
             console.has_vtmode = TRUE;
             /* Allocate VT escape sequence output buffer.
-             * Worst case per cell: ~48 WCHARs (cursor + SGR + char) */
-            console.vt_buffer_size = console.buffer_size * 48;
+             * Worst case per cell: ~58 WCHARs (cursor + SGR + bgcolor + char) */
+            console.vt_buffer_size = console.buffer_size * 58;
             console.vt_buffer = (WCHAR *)malloc(
                 console.vt_buffer_size * sizeof(WCHAR));
         }
