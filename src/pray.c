@@ -1672,8 +1672,9 @@ struct monst *mtmp;
                 You("sense a disturbance in the natural order of things.  The Amulet of Yendor has been sacrificed!");
             /* game is now unwinnable... oops */
             m_useup(mtmp, otmp);
-            livelog_printf(LL_ARTIFACT, "failed their quest! %s has sacrificed the Amulet of Yendor, ascending!",
-                           Amonnam(mtmp));
+            livelog_printf(LL_ARTIFACT, "failed their quest! %s has sacrificed the Amulet of Yendor, ascending",
+                           x_monnam(mtmp, ARTICLE_A, (char *) 0,
+                                    SUPPRESS_IT, TRUE));
             if (is_demon(mtmp->data) || mtmp->iswiz) {
                 if (canseemon(mtmp))
                     pline("%s gains ultimate power, %s, and erases you from existence.",
@@ -1681,8 +1682,8 @@ struct monst *mtmp;
                 else
                     You("have been erased from existence.");
                 Sprintf(killer.name, "%s wrath",
-                        canseemon(mtmp) ? s_suffix(a_monnam(mtmp))
-                                        : "a monster's");
+                        s_suffix(x_monnam(mtmp, ARTICLE_A, (char *) 0,
+                                          SUPPRESS_IT, FALSE)));
                 killer.format = KILLED_BY;
                 done(DIED);
             } else {
@@ -1707,8 +1708,8 @@ struct monst *mtmp;
                     else
                         You("are squashed like an insect!");
                     Sprintf(killer.name, "%s indifference",
-                            canseemon(mtmp) ? s_suffix(a_monnam(mtmp))
-                                            : "a monster's");
+                            s_suffix(x_monnam(mtmp, ARTICLE_A, (char *) 0,
+                                              SUPPRESS_IT, FALSE)));
                     killer.format = KILLED_BY;
                     done(DIED);
                 }
