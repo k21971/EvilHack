@@ -5161,4 +5161,5 @@ The following changes to date are:
 - Dropped Amulet of Yendor on Astral Plane will not teleport away
 - Fix: moffer() death reason and livelog always identify the monster
 - Cap additional alignment penalty to prevent excessive stacking
+- Hobbit hunger thresholds: consistent 3x scaling, use racial_hobbit()
 

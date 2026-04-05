@@ -5278,7 +5278,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
        adjustments in this block of code. Infidels and Convicts in
        certain scenarios don't feel this kind of guilt.
        Cap the additional malign penalty proportionally: no worse than
-       double the scenario-specific penalty, and never exceeding -15 */
+       triple the scenario-specific penalty, and never exceeding -15 */
     if (not_con_inf) {
         int mal = mtmp->malign;
 

@@ -2304,9 +2304,9 @@ struct obj *otmp;
                                        : "This food really hits the spot");
         /* 700-1+800 remains below 1500, the choking threshold which
            triggers "you're having a hard time getting it down" feedback */
-        else if (!(!Upolyd && Race_if(PM_HOBBIT)) && u.uhunger < 700)
+        else if (!racial_hobbit(&youmonst) && u.uhunger < 700)
             pline("This satiates your %s!", body_part(STOMACH));
-        else if ((!Upolyd && Race_if(PM_HOBBIT)) && u.uhunger >= 2200)
+        else if (racial_hobbit(&youmonst) && u.uhunger < 3700)
             pline("Surprisingly, this satiates your %s!", body_part(STOMACH));
         /* [satiation message may be inaccurate if eating gets interrupted] */
         break;
@@ -3540,7 +3540,7 @@ STATIC_OVL int
 bite()
 {
     if (context.victual.canchoke
-        && u.uhunger >= ((!Upolyd && Race_if(PM_HOBBIT)) ? 4000 : 2000)) {
+        && u.uhunger >= (racial_hobbit(&youmonst) ? 6000 : 2000)) {
         choke(context.victual.piece);
         return 1;
     }
@@ -3665,7 +3665,7 @@ int num;
 
     debugpline1("lesshungry(%d)", num);
     u.uhunger += num;
-    if (u.uhunger >= ((!Upolyd && Race_if(PM_HOBBIT)) ? 4000 : 2000)) {
+    if (u.uhunger >= (racial_hobbit(&youmonst) ? 6000 : 2000)) {
         if (!iseating || context.victual.canchoke) {
             if (iseating) {
                 choke(context.victual.piece);
@@ -3679,11 +3679,11 @@ int num;
         /* Have lesshungry() report when you're nearly full so all eating
          * warns when you're about to choke.
          */
-        if (u.uhunger >= ((!Upolyd && Race_if(PM_HOBBIT)) ? 3500 : 1500)
+        if (u.uhunger >= (racial_hobbit(&youmonst) ? 4500 : 1500)
             && (!context.victual.eating
                 || (context.victual.eating && !context.victual.fullwarn))) {
             pline("%sou're having a hard time getting all of it down.",
-                  (!Upolyd && Race_if(PM_HOBBIT)) ? "Amazingly, y" : "Y");
+                  racial_hobbit(&youmonst) ? "Amazingly, y" : "Y");
             nomovemsg = "You're finally finished.";
             if (!context.victual.eating) {
                 multi = -2;
@@ -3744,7 +3744,7 @@ boolean incr;
        experience some serious adverse effects if they do
        not feed in a timely manner */
     if (!racial_vampire(&youmonst))
-        newhs = (h > ((!Upolyd && Race_if(PM_HOBBIT)) ? 3000 : 1000))
+        newhs = (h > (racial_hobbit(&youmonst) ? 3000 : 1000))
                     ? SATIATED : (h > 150)
                         ? NOT_HUNGRY : (h > 50)
                             ? HUNGRY : (h > 0)
@@ -3989,7 +3989,7 @@ boolean incr;
                 else
                     You((!incr) ? "now have a lesser case of the munchies."
                                 : "are getting the munchies.");
-            } else if (!Upolyd && Race_if(PM_HOBBIT)) {
+            } else if (racial_hobbit(&youmonst)) {
                 You((!incr) ? "could use some supper."
                             : (u.uhunger < 145)
                                   ? "feel it's time for afternoon tea."
