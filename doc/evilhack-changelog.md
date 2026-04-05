@@ -5156,4 +5156,5 @@ The following changes to date are:
 - Allow atonement for alignment abuse at any priest's temple
 - Aasimar and helms of opposite alignment
 - Fix: inferior quality thrown objects use glass shatter message
+- Fix: use-after-free in mbhit() when wand destroyed mid-beam
 

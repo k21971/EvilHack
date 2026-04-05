@@ -2609,6 +2609,7 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
     struct obj *otmp;
     uchar typ;
     int ddx, ddy;
+    unsigned obj_id = obj->o_id;
 
     bhitpos.x = mon->mx;
     bhitpos.y = mon->my;
@@ -2672,6 +2673,12 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
             if (hitanything)
                 range--;
         }
+        /* Wand may have been destroyed by an explosion triggered
+           during fhito processing (e.g. polymorph system-shock
+           kills an AT_BOOM monster whose explosion calls
+           destroy_mitem on the zapper's WAND_CLASS inventory) */
+        if (DEADMONSTER(mon) || !o_on(obj_id, mon->minvent))
+            break;
         if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
             (*fhitm)(&youmonst, obj);
             range -= 3;
@@ -2681,6 +2688,9 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
             (*fhitm)(mtmp, obj);
             range -= 3;
         }
+        /* Same check after fhitm; protects obj->otyp reads below */
+        if (DEADMONSTER(mon) || !o_on(obj_id, mon->minvent))
+            break;
         typ = levl[bhitpos.x][bhitpos.y].typ;
         if (IS_DOOR(typ) || typ == SDOOR) {
             switch (obj->otyp) {
