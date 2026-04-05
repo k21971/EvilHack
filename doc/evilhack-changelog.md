@@ -5157,4 +5157,5 @@ The following changes to date are:
 - Aasimar and helms of opposite alignment
 - Fix: inferior quality thrown objects use glass shatter message
 - Fix: use-after-free in mbhit() when wand destroyed mid-beam
+- Fix: stale mux/muy causes wildmiss() panic after blindness cure
 

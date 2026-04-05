@@ -1062,6 +1062,14 @@ toofar:
 
     /* Now, attack the player if possible - one attack set per monst */
 
+    /* Refresh monster's perception of player location. set_apparxy()
+       was called at the start of dochug(), but monster state may have
+       changed since then (e.g. blindness cured by use_defensive()).
+       If the movement phase was skipped, m_move()'s internal
+       set_apparxy() call never ran, leaving mux/muy stale */
+    if (tmp != 3)
+        set_apparxy(mtmp);
+
     if (tmp != 3 && (!mtmp->mpeaceful
                      || (Conflict && !resist_conflict(mtmp)))) {
         if (inrange && !scared && !noattacks(mdat)
