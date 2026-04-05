@@ -5160,4 +5160,5 @@ The following changes to date are:
 - Fix: stale mux/muy causes wildmiss() panic after blindness cure
 - Dropped Amulet of Yendor on Astral Plane will not teleport away
 - Fix: moffer() death reason and livelog always identify the monster
+- Cap additional alignment penalty to prevent excessive stacking
 

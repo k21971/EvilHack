@@ -4892,7 +4892,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                   * XKILL_NOCONDUCT (maintain pacificst),
                   * or XKILL_INDIRECT (mtmp killed by summoned sphere) */
 {
-    int tmp, mndx, x = mtmp->mx, y = mtmp->my;
+    int tmp, mndx, x = mtmp->mx, y = mtmp->my, scenario_penalty = 0;
     struct monst museum = zeromonst;
     struct permonst *mdat;
     struct obj *otmp;
@@ -5185,8 +5185,9 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                     You_feel("guilty.");
                 else
                     You("have a vague sense of guilt.");
-                adjalign(-(int) (ALIGNLIM / 8));
-                record_abuse_event(-(int) (ALIGNLIM / 8), ABUSE_KILL_GUARDIAN);
+                scenario_penalty = -(int) (ALIGNLIM / 8);
+                adjalign(scenario_penalty);
+                record_abuse_event(scenario_penalty, ABUSE_KILL_GUARDIAN);
             }
             if (u.ualign.type == A_NONE)
                 ; /* Moloch's indifference */
@@ -5199,6 +5200,8 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                 pline("Whoopsie-daisy!");
         }
     } else if (mtmp->ispriest && mtmp != &museum) {
+        if (p_coaligned(mtmp))
+            scenario_penalty = -2;
         adjalign((p_coaligned(mtmp)) ? -2 : 2);
         if (p_coaligned(mtmp))
             record_abuse_event(-2, ABUSE_KILL_PRIEST);
@@ -5217,6 +5220,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                 You_feel("a bit remorseful.");
             else
                 You("have a vague sense of remorse.");
+            scenario_penalty = -3;
             adjalign(-3); /* kinda bad, but it's how you roll */
             record_abuse_event(-3, ABUSE_KILL_PET);
         } else {
@@ -5224,6 +5228,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                 You_feel("very guilty.");
             else
                 You("have a vague sense of intense guilt.");
+            scenario_penalty = -15;
             adjalign(-15); /* bad!! */
             record_abuse_event(-15, ABUSE_KILL_PET);
         }
@@ -5261,8 +5266,9 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                 else
                     You("have a vague sense of guilt.");
             }
-            adjalign(u.ualign.type > A_CHAOTIC ? -5 : -1);
-            record_abuse_event(u.ualign.type > A_CHAOTIC ? -5 : -1,
+            scenario_penalty = u.ualign.type > A_CHAOTIC ? -5 : -1;
+            adjalign(scenario_penalty);
+            record_abuse_event(scenario_penalty,
                                ABUSE_KILL_PEACEFUL);
         }
     }
@@ -5270,11 +5276,21 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
     /* malign was already adjusted for u.ualign.type and randomization.
        This final adjalign() call is in addition to any prior adjalign()
        adjustments in this block of code. Infidels and Convicts in
-       certain scenarios don't feel this kind of guilt */
+       certain scenarios don't feel this kind of guilt.
+       Cap the additional malign penalty proportionally: no worse than
+       double the scenario-specific penalty, and never exceeding -15 */
     if (not_con_inf) {
-        adjalign(mtmp->malign);
-        if (mtmp->malign < 0)
-            record_abuse_event(mtmp->malign, ABUSE_KILL_PEACEFUL_MALIGN);
+        int mal = mtmp->malign;
+
+        if (scenario_penalty < 0) {
+            int mal_cap = max(scenario_penalty * 3, -15);
+
+            if (mal < mal_cap)
+                mal = mal_cap;
+        }
+        adjalign(mal);
+        if (mal < 0)
+            record_abuse_event(mal, ABUSE_KILL_PEACEFUL_MALIGN);
     }
 
     if (mtmp->former_rank.mnum != NON_PM) {
