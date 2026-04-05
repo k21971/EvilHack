@@ -270,7 +270,8 @@ deletedwithboulder:
     } else if (obj->otyp == AMULET_OF_YENDOR
                && (obj->cursed ? rn2(3) : obj->blessed
                                ? !rn2(16) : !rn2(4))
-               && !(is_open_air(x, y) || Is_sanctum(&u.uz))) {
+               && !(is_open_air(x, y) || Is_sanctum(&u.uz)
+                    || Is_astralevel(&u.uz))) {
         /* prevent recursive call of teleportation through flooreffects */
         if (!obj->orecursive) {
             if (cansee(x, y))

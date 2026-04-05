@@ -5158,4 +5158,5 @@ The following changes to date are:
 - Fix: inferior quality thrown objects use glass shatter message
 - Fix: use-after-free in mbhit() when wand destroyed mid-beam
 - Fix: stale mux/muy causes wildmiss() panic after blindness cure
+- Dropped Amulet of Yendor on Astral Plane will not teleport away
 
