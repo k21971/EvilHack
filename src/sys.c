@@ -90,6 +90,7 @@ sys_early_init()
     sysopt.seduce = 1; /* if it's compiled in, default to on */
     sysopt_seduce_set(sysopt.seduce);
     sysopt.serverseed = 0;
+    sysopt.serverseed_file = (char *) 0;
     sysopt.accessibility = 0;
 #ifdef WIN32
     sysopt.portable_device_paths = 0;
@@ -128,6 +129,9 @@ sysopt_release()
         free((genericptr_t) sysopt.gdbpath), sysopt.gdbpath = (char *) 0;
     if (sysopt.greppath)
         free((genericptr_t) sysopt.greppath), sysopt.greppath = (char *) 0;
+    if (sysopt.serverseed_file)
+        free((genericptr_t) sysopt.serverseed_file),
+        sysopt.serverseed_file = (char *) 0;
 
     /* this one's last because it might be used in panic feedback, although
        none of the preceding ones are likely to trigger a controlled panic */

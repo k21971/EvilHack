@@ -35,6 +35,7 @@ struct sysopt {
     int check_plname; /* use plname for checking wizards/explorers/shellers */
     int bones_pools;
     int serverseed; /* added to ubirthday to prevent server dependence */
+    char *serverseed_file; /* path to file containing serverseed value */
 
     /* record file */
     int persmax;

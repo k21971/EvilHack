@@ -1,13 +1,12 @@
 #
 # NetHack 3.6  linux $NHDT-Date: 1432512814 2015/05/25 00:13:34 $  $NHDT-Branch: master $:$NHDT-Revision: 1.12 $
 # Copyright (c) Kenneth Lorber, Kensington, Maryland, 2007.
-# NetHack may be freely redistributed.  See license for details. 
+# NetHack may be freely redistributed.  See license for details.
 #
 #-PRE
 # Linux hints file
 # This hints file provides a single-user tty build for Linux, specifically
 # for Ubuntu dapper.
-
 
 # Typical install path for normal user (non-root)
 PREFIX=$(wildcard ~)
@@ -21,8 +20,7 @@ SHELLDIR = $(PREFIX)/games
 INSTDIR = $(HACKDIR)
 VARDIR = $(HACKDIR)/var
 
-
-POSTINSTALL=cp -n sys/unix/sysconf $(INSTDIR)/sysconf; $(CHOWN) $(GAMEUID) $(INSTDIR)/sysconf; $(CHGRP) $(GAMEGRP) $(INSTDIR)/sysconf; chmod $(VARFILEPERM) $(INSTDIR)/sysconf;
+POSTINSTALL=cp -n sys/unix/sysconf $(INSTDIR)/sysconf; $(CHOWN) $(GAMEUID) $(INSTDIR)/sysconf; $(CHGRP) $(GAMEGRP) $(INSTDIR)/sysconf; chmod $(VARFILEPERM) $(INSTDIR)/sysconf; cp dat/serverseed $(INSTDIR)/serverseed; $(CHOWN) $(GAMEUID) $(INSTDIR)/serverseed; $(CHGRP) $(GAMEGRP) $(INSTDIR)/serverseed; chmod $(VARFILEPERM) $(INSTDIR)/serverseed;
 
 CFLAGS=-g3 -O0 -I../include -DNOTPARMDECL -fno-common
 CFLAGS+=-DDLB

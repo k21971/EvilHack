@@ -28,6 +28,7 @@ core
 evilhack
 vaults.dat
 dat/Guidebook
+dat/serverseed
 *.diff
 *.log
 input.txt

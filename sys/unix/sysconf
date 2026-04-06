@@ -68,6 +68,11 @@ SUPPORT=Contact K2 or Tangles on Libera irc channel #hardfought
 # an arbitrary one, and don't disclose it to your players.
 SERVERSEED=100
 
+# Alternatively, set SERVERSEED_FILE to point to a file containing
+# a single positive integer (1-2147483647). The file is generated
+# during 'make all'. When set, this overrides SERVERSEED above.
+SERVERSEED_FILE=serverseed
+
 # Uncomment the next line to enable some accessibility features such
 # as S_hero_override and S_pet_override symbols for screen readers
 # in the user config file.

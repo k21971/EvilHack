@@ -731,6 +731,8 @@ initoptions()
      * lists of usernames into arrays with one name per element.
      */
 #endif
+    /* If SERVERSEED_FILE was configured, read the seed from file */
+    read_serverseed_file();
 #endif /* SYSCF */
     /* Carry out options that got deferred from early_options */
     if (deferred_showpaths)

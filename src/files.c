@@ -13,10 +13,10 @@
 #endif
 
 #ifdef WHEREIS_FILE
-#include <ctype.h> /* whereis-file tolower() */
-#ifdef UNIX
-#include <sys/stat.h> /* whereis-file chmod() */
+#include <ctype.h> /* tolower() */
 #endif
+#ifdef UNIX
+#include <sys/stat.h> /* chmod() - used by whereis, record, lock files */
 #endif
 
 #if (!defined(MAC) && !defined(O_WRONLY) && !defined(AZTEC_C)) \
@@ -2685,6 +2685,11 @@ char *origbuf;
         }
         sysopt.seduce = n;
         sysopt_seduce_set(sysopt.seduce);
+    } else if (src == SET_IN_SYS
+               && match_varname(buf, "SERVERSEED_FILE", 15)) {
+        if (sysopt.serverseed_file)
+            free((genericptr_t) sysopt.serverseed_file);
+        sysopt.serverseed_file = dupstr(bufp);
     } else if (match_varname(buf, "SERVERSEED", 10)) {
         n = atoi(bufp);
         sysopt.serverseed = n;
@@ -4154,6 +4159,38 @@ assure_syscf_file()
 }
 
 #endif /* SYSCF_FILE */
+
+/*
+ * If SERVERSEED_FILE is configured in sysconf, read the seed from
+ * that file. The file is generated during 'make all'.
+ */
+void
+read_serverseed_file()
+{
+    FILE *fp;
+    char buf[32];
+    const char *path = sysopt.serverseed_file;
+
+    if (!path || !*path)
+        return;
+
+    fp = fopen(path, "r");
+    if (fp) {
+        if (fgets(buf, (int) sizeof buf, fp)) {
+            long val;
+
+            val = atol(buf);
+            if (val > 0 && val <= 2147483647L)
+                sysopt.serverseed = (int) val;
+        }
+        (void) fclose(fp);
+        return;
+    }
+
+    raw_printf("SERVERSEED_FILE: cannot open %s: %s",
+               path, strerror(errno));
+}
+
 #endif /* SYSCF */
 
 void

@@ -42,6 +42,11 @@
 # Do NOT keep this default value of 100, choose an arbitrary one, and don't
 # disclose it to your players.
 #SERVERSEED=100
+#
+# Alternatively, set SERVERSEED_FILE to point to a file containing
+# a single positive integer (1-2147483647). The file is generated
+# during 'make all'. When set, this overrides SERVERSEED above.
+#SERVERSEED_FILE=SYS$SYSDEVICE:[EVILHACK]SERVERSEED.DAT
 
 # Uncomment to disable savefile UID checking.
 #CHECK_SAVE_UID=0
@@ -73,7 +78,7 @@
 # 0x10 - Life-saving
 # 0x20 - Break conduct - see also LLC_TURNS below.
 # 0x40 - Artifact obtained (#name Sting, dip for Excalibur)
-# 0x80 - Genocides 
+# 0x80 - Genocides
 # 0x8000 - Livelog debug msgs (currently only 'enter new level')
 # Enabled at compile time by defining LIVELOGFILE in config.h
 # LIVELOG=0xFF
@@ -98,7 +103,7 @@
 
 # Try to get more info in case of a program bug or crash.  Only used
 # if the program is built with the PANICTRACE compile-time option enabled.
-# By default PANICTRACE is enabled if (NH_DEVEL_STATUS != NH_STATUS_RELEASED), 
+# By default PANICTRACE is enabled if (NH_DEVEL_STATUS != NH_STATUS_RELEASED),
 # otherwise disabled.
 # (GDBPATH, GREPPATH, and PANICTRACE_LIBC aren't used on VMS.
 # PANICTRACE_GDB is repurposed, with nothing to do with 'gdb'.

@@ -99,7 +99,7 @@ DAT = $(DATNODLB) $(DATDLB)
 $(GAME):
 	( cd src ; $(MAKE) )
 
-all:	$(GAME) recover Guidebook $(VARDAT) dungeon spec_levs check-dlb
+all:	$(GAME) recover Guidebook $(VARDAT) dungeon spec_levs check-dlb serverseed
 	true; $(MOREALL)
 	@echo "Done."
 
@@ -148,6 +148,11 @@ spec_levs: dungeon
 dungeon: $(GAME)
 	( cd util ; $(MAKE) dgn_comp )
 	( cd dat ; $(MAKE) dungeon )
+
+serverseed:
+	@if [ ! -f dat/serverseed ]; then \
+		od -An -tu4 -N4 /dev/urandom | awk '{v=$$1%2147483647; if(v<1)v=1; print v}' > dat/serverseed; \
+	fi
 
 nhtiles.bmp: $(GAME)
 	( cd dat ; $(MAKE) nhtiles.bmp )
@@ -312,3 +317,4 @@ spotless::
 	( cd util ; $(MAKE) spotless )
 	( cd dat ; $(MAKE) spotless )
 	( cd doc ; $(MAKE) spotless )
+	-rm -f dat/serverseed

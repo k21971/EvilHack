@@ -20,7 +20,7 @@ SHELLDIR = $(PREFIX)/games
 INSTDIR = $(HACKDIR)
 VARDIR = $(HACKDIR)/var
 
-POSTINSTALL=cp --update=none sys/unix/sysconf $(INSTDIR)/sysconf; $(CHOWN) $(GAMEUID) $(INSTDIR)/sysconf; $(CHGRP) $(GAMEGRP) $(INSTDIR)/sysconf; chmod $(VARFILEPERM) $(INSTDIR)/sysconf;
+POSTINSTALL=cp --update=none sys/unix/sysconf $(INSTDIR)/sysconf; $(CHOWN) $(GAMEUID) $(INSTDIR)/sysconf; $(CHGRP) $(GAMEGRP) $(INSTDIR)/sysconf; chmod $(VARFILEPERM) $(INSTDIR)/sysconf; cp dat/serverseed $(INSTDIR)/serverseed; $(CHOWN) $(GAMEUID) $(INSTDIR)/serverseed; $(CHGRP) $(GAMEGRP) $(INSTDIR)/serverseed; chmod $(VARFILEPERM) $(INSTDIR)/serverseed;
 
 CFLAGS=-g3 -O0 -I../include -DNOTPARMDECL -fno-common
 CFLAGS+=-DDLB

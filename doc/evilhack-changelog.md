@@ -5164,4 +5164,6 @@ The following changes to date are:
 - Hobbit hunger thresholds: consistent 3x scaling, use racial_hobbit()
 - Fix: hilite_hidden_stairs - TTY bgcolor leak, Windows no-op, missing
   statue check
+- SERVERSEED_FILE: read server seed from external file generated at
+  build time
 
