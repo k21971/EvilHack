@@ -5166,4 +5166,6 @@ The following changes to date are:
   statue check
 - SERVERSEED_FILE: read server seed from external file generated at
   build time
+- Add several themed vault rooms ported from NetHack 3.7; fix vault
+  system bugs
 

@@ -130,28 +130,28 @@ ROOM:"rndvault", random, random, random, (5,5) {
     SWITCH [1d3] {
       CASE 1:
         TERRAIN:line (0,1),(4,1), $terr[0]
-	$hole = (2,1)
+        $hole = (2,1)
         BREAK
       CASE 2:
         TERRAIN:line (0,2),(4,2), $terr[0]
         BREAK
       CASE 3:
         TERRAIN:line (0,3),(4,3), $terr[0]
-	$hole = (2,3)
+        $hole = (2,3)
         BREAK
     }
   } ELSE {
     SWITCH [1d3] {
       CASE 1:
         TERRAIN:line (1,0),(1,4), $terr[0]
-	$hole = (1,2)
+        $hole = (1,2)
         BREAK
       CASE 2:
         TERRAIN:line (2,0),(2,4), $terr[0]
         BREAK
       CASE 3:
         TERRAIN:line (3,0),(3,4), $terr[0]
-	$hole = (3,2)
+        $hole = (3,2)
         BREAK
     }
   }
@@ -416,7 +416,6 @@ MAP
 ENDMAP
 REGION:(3,3,3,3),random,"rndvault",irregular { }
 
-
 # With a corner room (top right)
 LEVEL:"vlt-0021"
 FLAGS:rndvault
@@ -517,7 +516,7 @@ ROOM:"rndvault", random, random, random, random {
   }
 }
 
-# house of horros
+# house of horrors
 LEVEL:"vlt-0029"
 FLAGS:rndvault
 MINDEPTH:14
@@ -589,6 +588,259 @@ FLAGS:rndvault
 ROOM:"rndvault", random, random, random, random {
   SUBROOM:"ordinary", random, random, random {
     ROOMDOOR:random, random, random, random
+  }
+}
+
+# ghost of an adventurer
+LEVEL:"vlt-0034"
+FLAGS:rndvault
+MINDEPTH:5
+ROOM:"rndvault", random, random, random, random {
+  MONSTER:(' ',"ghost"),random,asleep
+  [65%]: OBJECT:(')',"dagger"), random, uncursed
+  [55%]: OBJECT:')', random, uncursed
+  [45%]: OBJECT:(')',"bow"), random, uncursed
+  [45%]: OBJECT:(')',"arrow"), random, uncursed, quantity:2d6
+  [65%]: OBJECT:'[', random, uncursed
+  [20%]: OBJECT:'=', random
+  [20%]: OBJECT:'?', random
+}
+
+# storeroom
+LEVEL:"vlt-0035"
+FLAGS:rndvault
+MINDEPTH:4
+ROOM:"rndvault", random, random, random, (5,5) {
+  LOOP [3d3] {
+    IF [25%] {
+      CONTAINER:('(', "chest"), random {
+        LOOP [1d3] {
+          OBJECT:random
+        }
+      }
+    } ELSE {
+      MONSTER:('m',"large mimic"),random,m_object "chest"
+    }
+  }
+}
+
+# teleportation hub
+LEVEL:"vlt-0036"
+FLAGS:rndvault
+MINDEPTH:10
+ROOM:"rndvault", random, random, random, random {
+  LOOP [1d3 + 2] {
+    TRAP:"teleport", random
+  }
+}
+
+# ice room
+LEVEL:"vlt-0037"
+FLAGS:rndvault
+MINDEPTH:3
+ROOM:"rndvault", random, random, random, random {
+  $fill = selection: floodfill(1,1)
+  TERRAIN:$fill, 'I'
+}
+
+# generic trap room
+LEVEL:"vlt-0038"
+FLAGS:rndvault
+MINDEPTH:6
+ROOM:"rndvault", random, random, random, random {
+  SWITCH [1d8] {
+    CASE 1:
+      LOOP [1d6 + 2] { TRAP:"arrow", random }
+      BREAK
+    CASE 2:
+      LOOP [1d6 + 2] { TRAP:"dart", random }
+      BREAK
+    CASE 3:
+      LOOP [1d6 + 2] { TRAP:"falling rock", random }
+      BREAK
+    CASE 4:
+      LOOP [1d6 + 2] { TRAP:"bear", random }
+      BREAK
+    CASE 5:
+      LOOP [1d6 + 2] { TRAP:"land mine", random }
+      BREAK
+    CASE 6:
+      LOOP [1d6 + 2] { TRAP:"sleep gas", random }
+      BREAK
+    CASE 7:
+      LOOP [1d6 + 2] { TRAP:"rust", random }
+      BREAK
+    CASE 8:
+      LOOP [1d6 + 2] { TRAP:"anti magic", random }
+      BREAK
+  }
+}
+
+# light source in the dark
+LEVEL:"vlt-0039"
+FLAGS:rndvault
+ROOM:"rndvault", unlit, random, random, random {
+  OBJECT:('(',"oil lamp"), random, lit
+}
+
+# Z-shaped
+LEVEL:"vlt-0040"
+FLAGS:rndvault
+GEOMETRY:random
+MAP
+xxx-----
+xxx|...|
+xxx|...|
+----...|
+|......|
+|......|
+|......|
+|...----
+|...|xxx
+|...|xxx
+-----xxx
+ENDMAP
+IF [80%] {
+  REGION:(5,5,5,5),random,"rndvault",irregular { }
+} ELSE {
+  REGION:(5,5,5,5),random,"ordinary",irregular { }
+}
+
+# Z-shaped, rot 1
+LEVEL:"vlt-0041"
+FLAGS:rndvault
+GEOMETRY:random
+MAP
+--------xxx
+|......|xxx
+|......|xxx
+|......----
+----......|
+xxx|......|
+xxx|......|
+xxx--------
+ENDMAP
+IF [80%] {
+  REGION:(2,2,2,2),random,"rndvault",irregular { }
+} ELSE {
+  REGION:(2,2,2,2),random,"ordinary",irregular { }
+}
+
+# pillars
+LEVEL:"vlt-0042"
+FLAGS:rndvault
+GEOMETRY:random
+MAP
+----------
+|........|
+|........|
+|........|
+|........|
+|........|
+|........|
+|........|
+|........|
+----------
+ENDMAP
+$terr = TERRAIN: { '-', 'L', 'P', 'T' }
+SHUFFLE: $terr
+TERRAIN:(2,2) & (3,2) & (6,2) & (7,2), $terr[0]
+TERRAIN:(2,3) & (3,3) & (6,3) & (7,3), $terr[0]
+TERRAIN:(2,6) & (3,6) & (6,6) & (7,6), $terr[0]
+TERRAIN:(2,7) & (3,7) & (6,7) & (7,7), $terr[0]
+IF [80%] {
+  REGION:(1,1,1,1),random,"rndvault",irregular { }
+} ELSE {
+  REGION:(1,1,1,1),random,"ordinary",irregular { }
+}
+
+# huge room with inner room
+LEVEL:"vlt-0043"
+FLAGS:rndvault
+ROOM:"rndvault", random, random, random, (11,8) {
+  IF [90%] {
+    SUBROOM:"ordinary", random, random, random {
+      ROOMDOOR:random, random, random, random
+      [50%]: ROOMDOOR:random, random, random, random
+    }
+  }
+}
+
+# twin businesses
+LEVEL:"vlt-0044"
+FLAGS:rndvault
+MINDEPTH:4
+ROOM:"rndvault", lit, random, random, (9,5) {
+  SUBROOM:"weapon shop", lit, (1,1), (3,3) {
+    ROOMDOOR:random, random, south|east, random
+  }
+  SUBROOM:"armor shop", lit, (5,1), (3,3) {
+    ROOMDOOR:random, random, south|west, random
+  }
+}
+
+# bazaar
+LEVEL:"vlt-0045"
+FLAGS:rndvault
+MINDEPTH:8
+ROOM:"rndvault", lit, random, random, (9,9) {
+  SWITCH [1d4] {
+    CASE 1:
+      SUBROOM:"weapon shop", lit, (0,0), (3,3) {
+        ROOMDOOR:random, random, south|east, random
+      }
+      SUBROOM:"armor shop", lit, (6,0), (3,3) {
+        ROOMDOOR:random, random, south|west, random
+      }
+      SUBROOM:"food shop", lit, (0,6), (3,3) {
+        ROOMDOOR:random, random, north|east, random
+      }
+      SUBROOM:"tool shop", lit, (6,6), (3,3) {
+        ROOMDOOR:random, random, north|west, random
+      }
+      BREAK
+    CASE 2:
+      SUBROOM:"scroll shop", lit, (0,0), (3,3) {
+        ROOMDOOR:random, random, south|east, random
+      }
+      SUBROOM:"potion shop", lit, (6,0), (3,3) {
+        ROOMDOOR:random, random, south|west, random
+      }
+      SUBROOM:"wand shop", lit, (0,6), (3,3) {
+        ROOMDOOR:random, random, north|east, random
+      }
+      SUBROOM:"book shop", lit, (6,6), (3,3) {
+        ROOMDOOR:random, random, north|west, random
+      }
+      BREAK
+    CASE 3:
+      SUBROOM:"armor shop", lit, (0,0), (3,3) {
+        ROOMDOOR:random, random, south|east, random
+      }
+      SUBROOM:"ring shop", lit, (6,0), (3,3) {
+        ROOMDOOR:random, random, south|west, random
+      }
+      SUBROOM:"weapon shop", lit, (0,6), (3,3) {
+        ROOMDOOR:random, random, north|east, random
+      }
+      SUBROOM:"scroll shop", lit, (6,6), (3,3) {
+        ROOMDOOR:random, random, north|west, random
+      }
+      BREAK
+    CASE 4:
+      SUBROOM:"tool shop", lit, (0,0), (3,3) {
+        ROOMDOOR:random, random, south|east, random
+      }
+      SUBROOM:"food shop", lit, (6,0), (3,3) {
+        ROOMDOOR:random, random, south|west, random
+      }
+      SUBROOM:"potion shop", lit, (0,6), (3,3) {
+        ROOMDOOR:random, random, north|east, random
+      }
+      SUBROOM:"armor shop", lit, (6,6), (3,3) {
+        ROOMDOOR:random, random, north|west, random
+      }
+      BREAK
   }
 }
 

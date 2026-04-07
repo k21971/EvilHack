@@ -812,11 +812,21 @@ fill_rooms()
     int tmpi, m;
 
     for (tmpi = 0; tmpi < nroom; tmpi++) {
-        if (rooms[tmpi].needfill)
+        if (rooms[tmpi].needfill) {
             fill_room(&rooms[tmpi], (rooms[tmpi].needfill == 2));
+            /* Clear needfill for special room types to prevent
+               double-fill when fill_rooms() is called again by
+               subsequent vault loads.  Preserve needfill for
+               OROOM/RNDVAULT so makelevel() can add random content. */
+            if (rooms[tmpi].rtype != OROOM
+                && rooms[tmpi].rtype != RNDVAULT)
+                rooms[tmpi].needfill = 0;
+        }
         for (m = 0; m < rooms[tmpi].nsubrooms; m++)
-            if (rooms[tmpi].sbrooms[m]->needfill)
+            if (rooms[tmpi].sbrooms[m]->needfill) {
                 fill_room(rooms[tmpi].sbrooms[m], FALSE);
+                rooms[tmpi].sbrooms[m]->needfill = 0;
+            }
     }
 }
 
@@ -1100,11 +1110,6 @@ chk:
     if (hix <= *lowx || hiy <= *lowy)
         return FALSE;
 
-    if (in_mk_rndvault &&
-        (s_lowx != *lowx) && (s_ddx != *ddx)
-        && (s_lowy != *lowy) && (s_ddy != *ddy))
-        return FALSE;
-
     /* check area around room (and make room smaller if necessary) */
     for (x = *lowx - xlim; x <= hix + xlim; x++) {
         if (x <= 0 || x >= COLNO)
@@ -1141,8 +1146,8 @@ chk:
     *ddy = hiy - *lowy;
 
     if (in_mk_rndvault
-        && (s_lowx != *lowx) && (s_ddx != *ddx)
-	&& (s_lowy != *lowy) && (s_ddy != *ddy))
+        && ((s_lowx != *lowx) || (s_ddx != *ddx)
+            || (s_lowy != *lowy) || (s_ddy != *ddy)))
         return FALSE;
 
     return TRUE;
@@ -5218,7 +5223,7 @@ redo_maploc:
 			if (levl[x][y].roomno != NO_ROOM)
                             isokp = FALSE;
 		    } else {
-			mptyp = (mpmap->vardata.str[(y - ystart) * xsize + (x - xstart + 1)] - 1);
+			mptyp = (mpmap->vardata.str[(y - ystart) * xsize + (x - xstart)] - 1);
 			if (mptyp >= MAX_TYPE)
                            continue;
 			if (isok(x, y)) {
@@ -6332,13 +6337,15 @@ const char *name;
             goto give_up;
         }
 
-    lvl = (sp_lev *) alloc(sizeof(sp_lev));
-    if (!lvl) panic("alloc sp_lev");
+        lvl = (sp_lev *) alloc(sizeof(sp_lev));
+        if (!lvl)
+            panic("alloc sp_lev");
         result = sp_level_loader(fd, lvl);
-    (void) dlb_fclose(fd);
-    if (in_mk_rndvault)
-        sp_lev_savecache(name, lvl);
-    if (result) result = sp_level_coder(lvl);
+        (void) dlb_fclose(fd);
+        if (in_mk_rndvault && result)
+            sp_lev_savecache(name, lvl);
+        if (result)
+            result = sp_level_coder(lvl);
         if (!in_mk_rndvault) {
             sp_level_free(lvl);
             Free(lvl);

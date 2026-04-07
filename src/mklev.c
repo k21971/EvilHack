@@ -230,7 +230,6 @@ struct _rndvault {
 
 struct _rndvault_gen {
     int n_vaults;
-    long total_freq;
     struct _rndvault *vaults;
 };
 
@@ -240,41 +239,42 @@ void
 rndvault_gen_load()
 {
     if (!rndvault_gen) {
-	dlb *fd;
-	char line[BUFSZ];
-	char fnamebuf[64];
-	long frq, mind;
-	fd = dlb_fopen("vaults.dat", "r");
+        dlb *fd;
+        char line[BUFSZ];
+        char fnamebuf[64];
+        long frq, mind;
+
+        fd = dlb_fopen("vaults.dat", "r");
         if (!fd)
             return;
 
-	rndvault_gen = (struct _rndvault_gen *) alloc(sizeof(struct _rndvault_gen));
-	if (!rndvault_gen)
+        rndvault_gen =
+            (struct _rndvault_gen *) alloc(sizeof(struct _rndvault_gen));
+        if (!rndvault_gen)
             goto bailout;
 
-	rndvault_gen->n_vaults = 0;
-	rndvault_gen->total_freq = 0;
-	rndvault_gen->vaults = NULL;
+        rndvault_gen->n_vaults = 0;
+        rndvault_gen->vaults = NULL;
 
-	while (dlb_fgets(line, sizeof line, fd)) {
-	    struct _rndvault *vlt = (struct _rndvault *) alloc(sizeof(struct _rndvault));
+        while (dlb_fgets(line, sizeof line, fd)) {
             char *tmpch = fnamebuf;
-	    fnamebuf[0] = '\0';
-	    if (sscanf(line, "%ld %ld %63s", &mind, &frq, tmpch) == 3) {
-		if (frq < 1)
+            fnamebuf[0] = '\0';
+            if (sscanf(line, "%ld %ld %59s", &mind, &frq, tmpch) == 3) {
+                struct _rndvault *vlt =
+                    (struct _rndvault *) alloc(sizeof(struct _rndvault));
+                if (frq < 1)
                     frq = 1;
-		vlt->freq = frq;
+                vlt->freq = frq;
                 vlt->mindepth = mind;
-		vlt->fname = strdup(fnamebuf);
-		vlt->next = rndvault_gen->vaults;
-		rndvault_gen->vaults = vlt;
-		rndvault_gen->n_vaults++;
-		rndvault_gen->total_freq += frq;
-	    }
-	}
+                vlt->fname = dupstr(fnamebuf);
+                vlt->next = rndvault_gen->vaults;
+                rndvault_gen->vaults = vlt;
+                rndvault_gen->n_vaults++;
+            }
+        }
 
     bailout:
-        (void)dlb_fclose(fd);
+        (void) dlb_fclose(fd);
     }
 }
 
@@ -298,13 +298,16 @@ rndvault_getname()
             }
             curr_vault_depth = cdepth;
         }
+        if (curr_total_freq <= 0)
+            return NULL;
         frq = rn2(curr_total_freq);
         tmp = rndvault_gen->vaults;
         while (tmp) {
-            if (cdepth >= tmp->mindepth)
+            if (cdepth >= tmp->mindepth) {
                 frq -= tmp->freq;
-            if (frq <= 0)
-                return tmp->fname ? tmp->fname : NULL;
+                if (frq < 0)
+                    return tmp->fname ? tmp->fname : NULL;
+            }
             tmp = tmp->next;
         }
 
@@ -329,21 +332,22 @@ makerooms()
             }
         } else {
             char protofile[64];
-	    char *fnam = rndvault_getname();
-	    if (fnam) {
-		Sprintf(protofile, "%s", fnam);
-		Strcat(protofile, LEV_EXT);
-		in_mk_rndvault = TRUE;
-		rndvault_failed = FALSE;
-		(void) load_special(protofile);
-		in_mk_rndvault = FALSE;
-		if (rndvault_failed)
+            char *fnam = rndvault_getname();
+
+            if (fnam) {
+                Sprintf(protofile, "%s", fnam);
+                Strcat(protofile, LEV_EXT);
+                in_mk_rndvault = TRUE;
+                rndvault_failed = FALSE;
+                (void) load_special(protofile);
+                in_mk_rndvault = FALSE;
+                if (rndvault_failed)
                     return;
-	    } else {
-		if (!create_room(-1, -1, -1, -1, -1, -1, OROOM, -1))
-		    return;
-	    }
-	}
+            } else {
+                if (!create_room(-1, -1, -1, -1, -1, -1, OROOM, -1))
+                    return;
+            }
+        }
     }
     return;
 }
