@@ -5168,4 +5168,5 @@ The following changes to date are:
   build time
 - Add several themed vault rooms ported from NetHack 3.7; fix vault
   system bugs
+- Add vlt-0034 through vlt-0045 level files to build manifests
 

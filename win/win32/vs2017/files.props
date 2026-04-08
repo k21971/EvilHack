@@ -61,7 +61,7 @@
     <Desfiles Include = "valkyrie.des"/>
     <Desfiles Include = "vaults.des"/>
     <Desfiles Include = "vecna.des"/>
-    <Desfiles Include = "wizard.des"/>	
+    <Desfiles Include = "wizard.des"/>
     <Desfiles Include = "yendor.des"/>
   </ItemGroup>
   <ItemGroup>
@@ -197,6 +197,18 @@
     <Levfiles Include = "vlt-0031.lev"/>
     <Levfiles Include = "vlt-0032.lev"/>
     <Levfiles Include = "vlt-0033.lev"/>
+    <Levfiles Include = "vlt-0034.lev"/>
+    <Levfiles Include = "vlt-0035.lev"/>
+    <Levfiles Include = "vlt-0036.lev"/>
+    <Levfiles Include = "vlt-0037.lev"/>
+    <Levfiles Include = "vlt-0038.lev"/>
+    <Levfiles Include = "vlt-0039.lev"/>
+    <Levfiles Include = "vlt-0040.lev"/>
+    <Levfiles Include = "vlt-0041.lev"/>
+    <Levfiles Include = "vlt-0042.lev"/>
+    <Levfiles Include = "vlt-0043.lev"/>
+    <Levfiles Include = "vlt-0044.lev"/>
+    <Levfiles Include = "vlt-0045.lev"/>
     <Levfiles Include = "wizportal.lev"/>
     <Levfiles Include = "wizard1.lev"/>
     <Levfiles Include = "wizard2.lev"/>

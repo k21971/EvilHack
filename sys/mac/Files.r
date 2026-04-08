@@ -2,7 +2,6 @@
 #include "date.h"
 #include "patchlevel.h"
 
-
 /* Carbon 'carb' resource
  * has been made obsolete by the 'plst' resource below.
  */
@@ -20,7 +19,6 @@
  */
 read 'plst' (0) "carbon.plist";
 
-
 /* Classic resources
  * These resources are used in MacOS 9.x and earlier.
  */
@@ -35,7 +33,6 @@ resource 'vers' (2, purgeable) {
 	VERSION_STRING,
 	"devteam@nethack.org"
 };
-
 
 /* Dungeon librarian files
  * File data and quest.dat have gotten too big to be put into resources!
@@ -188,11 +185,23 @@ read 'File' (1143,"vlt-0030.lev") "vlt-0030.lev";
 read 'File' (1144,"vlt-0031.lev") "vlt-0031.lev";
 read 'File' (1145,"vlt-0032.lev") "vlt-0032.lev";
 read 'File' (1146,"vlt-0033.lev") "vlt-0033.lev";
-read 'File' (1147,"water.lev") "water.lev";
-read 'File' (1148,"wizard1.lev") "wizard1.lev";
-read 'File' (1149,"wizard2.lev") "wizard2.lev";
-read 'File' (1150,"wizard3.lev") "wizard3.lev";
-read 'File' (1151,"wizportal.lev") "wizportal.lev";
+read 'File' (1147,"vlt-0034.lev") "vlt-0034.lev";
+read 'File' (1148,"vlt-0035.lev") "vlt-0035.lev";
+read 'File' (1149,"vlt-0036.lev") "vlt-0036.lev";
+read 'File' (1150,"vlt-0037.lev") "vlt-0037.lev";
+read 'File' (1151,"vlt-0038.lev") "vlt-0038.lev";
+read 'File' (1152,"vlt-0039.lev") "vlt-0039.lev";
+read 'File' (1153,"vlt-0040.lev") "vlt-0040.lev";
+read 'File' (1154,"vlt-0041.lev") "vlt-0041.lev";
+read 'File' (1155,"vlt-0042.lev") "vlt-0042.lev";
+read 'File' (1156,"vlt-0043.lev") "vlt-0043.lev";
+read 'File' (1157,"vlt-0044.lev") "vlt-0044.lev";
+read 'File' (1158,"vlt-0045.lev") "vlt-0045.lev";
+read 'File' (1159,"water.lev") "water.lev";
+read 'File' (1160,"wizard1.lev") "wizard1.lev";
+read 'File' (1161,"wizard2.lev") "wizard2.lev";
+read 'File' (1162,"wizard3.lev") "wizard3.lev";
+read 'File' (1163,"wizportal.lev") "wizportal.lev";
 read 'File' (1200,"Arc-fila.lev") "Arc-fila.lev";
 read 'File' (1201,"Arc-filb.lev") "Arc-filb.lev";
 read 'File' (1202,"Arc-goal.lev") "Arc-goal.lev";
@@ -426,11 +435,23 @@ read 'File' (1143,"vlt-0030.lev") ":lib:vlt-0030.lev";
 read 'File' (1144,"vlt-0031.lev") ":lib:vlt-0031.lev";
 read 'File' (1145,"vlt-0032.lev") ":lib:vlt-0032.lev";
 read 'File' (1146,"vlt-0033.lev") ":lib:vlt-0033.lev";
-read 'File' (1147,"water.lev") ":lib:water.lev";
-read 'File' (1148,"wizard1.lev") ":lib:wizard1.lev";
-read 'File' (1149,"wizard2.lev") ":lib:wizard2.lev";
-read 'File' (1150,"wizard3.lev") ":lib:wizard3.lev";
-read 'File' (1151,"wizportal.lev") ":lib:wizportal.lev";
+read 'File' (1147,"vlt-0034.lev") ":lib:vlt-0034.lev";
+read 'File' (1148,"vlt-0035.lev") ":lib:vlt-0035.lev";
+read 'File' (1149,"vlt-0036.lev") ":lib:vlt-0036.lev";
+read 'File' (1150,"vlt-0037.lev") ":lib:vlt-0037.lev";
+read 'File' (1151,"vlt-0038.lev") ":lib:vlt-0038.lev";
+read 'File' (1152,"vlt-0039.lev") ":lib:vlt-0039.lev";
+read 'File' (1153,"vlt-0040.lev") ":lib:vlt-0040.lev";
+read 'File' (1154,"vlt-0041.lev") ":lib:vlt-0041.lev";
+read 'File' (1155,"vlt-0042.lev") ":lib:vlt-0042.lev";
+read 'File' (1156,"vlt-0043.lev") ":lib:vlt-0043.lev";
+read 'File' (1157,"vlt-0044.lev") ":lib:vlt-0044.lev";
+read 'File' (1158,"vlt-0045.lev") ":lib:vlt-0045.lev";
+read 'File' (1159,"water.lev") ":lib:water.lev";
+read 'File' (1160,"wizard1.lev") ":lib:wizard1.lev";
+read 'File' (1161,"wizard2.lev") ":lib:wizard2.lev";
+read 'File' (1162,"wizard3.lev") ":lib:wizard3.lev";
+read 'File' (1163,"wizportal.lev") ":lib:wizportal.lev";
 read 'File' (1200,"Arc-fila.lev") ":lib:Arc-fila.lev";
 read 'File' (1201,"Arc-filb.lev") ":lib:Arc-filb.lev";
 read 'File' (1202,"Arc-goal.lev") ":lib:Arc-goal.lev";
