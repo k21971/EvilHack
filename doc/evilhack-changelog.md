@@ -5169,4 +5169,5 @@ The following changes to date are:
 - Add several themed vault rooms ported from NetHack 3.7; fix vault
   system bugs
 - Add vlt-0034 through vlt-0045 level files to build manifests
+- Convert tabs to spaces in mklev.c and sp_lev.c
 
