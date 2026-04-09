@@ -5172,4 +5172,5 @@ The following changes to date are:
 - Convert tabs to spaces in mklev.c and sp_lev.c
 - Fix: double "tainted"/"poisoned" prefix on magical weapons
 - Fix: artifacts spawning with non-NORMAL forging quality
+- Fix: rocks from fractured boulder autopicked up via pickup_thrown
 

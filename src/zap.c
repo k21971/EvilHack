@@ -6396,6 +6396,7 @@ struct obj *obj; /* no texts here! */
     obj->owt = weight(obj);
     obj->dknown = obj->bknown = obj->rknown = 0;
     obj->known = objects[obj->otyp].oc_uses_known ? 0 : 1;
+    obj->was_thrown = 0;
     dealloc_oextra(obj);
 
     if (obj->where == OBJ_FLOOR) {
