@@ -1982,7 +1982,10 @@ struct monst *mtmp;
                        the Planes is catastrophic and unrecoverable */
                     livelog_printf(LL_ARTIFACT,
                         "failed their quest! %s escaped to the Planes "
-                        "with the Amulet of Yendor", Monnam(mtmp));
+                        "with the Amulet of Yendor",
+                        upstart(x_monnam(mtmp, ARTICLE_THE,
+                                         (char *) 0, SUPPRESS_IT,
+                                         TRUE)));
                     pline("The ground shakes violently!");
                     You_hear("a voice boom from the depths below:");
                     verbalize("FOOL!  You have let the Amulet slip "

@@ -5173,4 +5173,6 @@ The following changes to date are:
 - Fix: double "tainted"/"poisoned" prefix on magical weapons
 - Fix: artifacts spawning with non-NORMAL forging quality
 - Fix: rocks from fractured boulder autopicked up via pickup_thrown
+- Fix: monster escaping with the Amulet of Yendor livelog always
+  identifies the monster (Infidel role)
 
