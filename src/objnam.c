@@ -689,6 +689,15 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     if (obj_is_pname(obj))
         goto nameit;
 
+    /* Poisoned/tainted must precede "magical" in buf so that
+       doname_base() can find and strip them from the start */
+    if (obj->oclass == WEAPON_CLASS && is_poisonable(obj)) {
+        if (obj->opoisoned)
+            Strcat(buf, "poisoned ");
+        else if (obj->otainted)
+            Strcat(buf, "tainted ");
+    }
+
     if (dknown && (obj->oprops_known & ITEM_MAGICAL)
         && (((obj->oprops && !(obj->oprops_known & ~ITEM_MAGICAL
                                || dump_prop_flag))
@@ -720,11 +729,6 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Sprintf(eos(buf), "%s amulet", dn);
         break;
     case WEAPON_CLASS:
-        if (is_poisonable(obj) && obj->opoisoned)
-            Strcat(buf, "poisoned ");
-        else if (is_poisonable(obj) && obj->otainted)
-            Strcat(buf, "tainted ");
-        /*FALLTHRU*/
     case VENOM_CLASS:
     case TOOL_CLASS:
         if (typ == LENSES)

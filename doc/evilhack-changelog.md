@@ -5170,4 +5170,5 @@ The following changes to date are:
   system bugs
 - Add vlt-0034 through vlt-0045 level files to build manifests
 - Convert tabs to spaces in mklev.c and sp_lev.c
+- Fix: double "tainted"/"poisoned" prefix on magical weapons
 
