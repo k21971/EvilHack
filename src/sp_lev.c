@@ -1984,20 +1984,23 @@ struct mkroom *croom;
         otmp->oeroded = otmp->oeroded2 = 0;
         maybe_erodeproof(otmp, 0);
     }
-    if (o->forged_qual) {
-        otmp->forged_qual = (o->forged_qual % 4);
-    } else {
-        otmp->forged_qual = 0; /* normal */
-    }
-    if (o->affixed_gem
-        && ((o->affixed_gem >= DILITHIUM_CRYSTAL
-             && o->affixed_gem <= LAST_GEM)
-            || o->affixed_gem == LUCKSTONE)) {
-        otmp->affixed_gem = o->affixed_gem;
-        {
-            long gem_prop = get_gem_property(o->affixed_gem);
-            if (gem_prop)
-                otmp->oprops |= gem_prop;
+    /* artifacts cannot have forging quality or affixed gems */
+    if (!otmp->oartifact) {
+        if (o->forged_qual) {
+            otmp->forged_qual = (o->forged_qual % 4);
+        } else {
+            otmp->forged_qual = 0; /* normal */
+        }
+        if (o->affixed_gem
+            && ((o->affixed_gem >= DILITHIUM_CRYSTAL
+                 && o->affixed_gem <= LAST_GEM)
+                || o->affixed_gem == LUCKSTONE)) {
+            otmp->affixed_gem = o->affixed_gem;
+            {
+                long gem_prop = get_gem_property(o->affixed_gem);
+                if (gem_prop)
+                    otmp->oprops |= gem_prop;
+            }
         }
     }
     if (o->recharged > -1)

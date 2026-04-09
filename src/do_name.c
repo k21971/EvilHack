@@ -1343,6 +1343,9 @@ const char *name;
         artifact_exists(obj, name, TRUE);
     if (obj->oartifact) {
         obj->oprops = obj->oprops_known = 0L;
+        /* artifacts cannot have forging quality or affixed gems */
+        obj->forged_qual = FQ_NORMAL;
+        obj->affixed_gem = 0;
         /* can't dual-wield with artifact as secondary weapon */
         if (obj == uswapwep)
             untwoweapon();
