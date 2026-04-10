@@ -5175,4 +5175,5 @@ The following changes to date are:
 - Fix: rocks from fractured boulder autopicked up via pickup_thrown
 - Fix: monster escaping with the Amulet of Yendor livelog always
   identifies the monster (Infidel role)
+- Fix: create_door panic and create_secret_door swapped wall checks
 

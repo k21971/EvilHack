@@ -1427,7 +1427,7 @@ struct mkroom *broom;
 
         dwall = dd->wall;
         if (dwall == -1) /* The wall is RANDOM */
-            dwall = 1 << rn2(4);
+            dwall = W_ANY;
 
         dpos = dd->pos;
 
@@ -1516,12 +1516,12 @@ xchar walls; /* any of W_NORTH | W_SOUTH | W_EAST | W_WEST (or W_ANY) */
             sy = croom->hy + 1;
             break;
         case 2: /* left */
-            if (!(walls & W_EAST))
+            if (!(walls & W_WEST))
                 continue;
             sx = croom->lx - 1;
             break;
         case 3: /* right */
-            if (!(walls & W_WEST))
+            if (!(walls & W_EAST))
                 continue;
             sx = croom->hx + 1;
             break;
