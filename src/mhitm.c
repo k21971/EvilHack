@@ -371,7 +371,7 @@ boolean quietly;
 
     if (!DEADMONSTER(magr) && touch_petrifies(pd)
         && !(resists_ston(magr) || defended(magr, AD_STON))) {
-        if (which_armor(magr, W_ARMG) != 0) {
+        if (which_armor(magr, W_ARMG) == 0) {
             if (poly_when_stoned(pa)) {
                 mon_to_stone(magr);
                 return MM_HIT; /* no damage during the polymorph */
@@ -1144,7 +1144,6 @@ struct attack *mattk;
     int status;
     char buf[BUFSZ];
     struct obj *obj, *otmp;
-    struct monst *msteed = NULL;
 
     if (!engulf_target(magr, mdef))
         return MM_MISS;
@@ -1200,9 +1199,6 @@ struct attack *mattk;
         newsym(ax, ay); /* erase old position */
     }
     newsym(dx, dy); /* update new position */
-
-    if (msteed != NULL)
-        place_monster(msteed, ax, ay);
 
     status = mdamagem(magr, mdef, mattk, (struct obj *) 0, 0, &otmp);
 
@@ -1326,6 +1322,7 @@ struct attack *mattk;
             if (mdef->mpeaceful) {
                 /* peaceful becomes hostile, but no alignment record ding */
                 mdef->mpeaceful = 0;
+                set_malign(mdef);
                 newsym(mdef->mx, mdef->my);
                 if (canspotmon(mdef)) {
                     if (humanoid(mdef->data)
@@ -1726,7 +1723,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                     mwep->otainted = FALSE;
                     if (vis && canseemon(magr))
                         pline("%s %s is no longer tainted.",
-                              s_suffix(Monnam(magr)), xname(MON_WEP(magr)));
+                              s_suffix(Monnam(magr)), xname(mwep));
                 }
                 if (DEADMONSTER(mdef))
                     return (MM_DEF_DIED
@@ -1867,7 +1864,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         tmp += destroy_mitem(mdef, WAND_CLASS, AD_LOUD);
         tmp += destroy_mitem(mdef, POTION_CLASS, AD_LOUD);
         if (pd == &mons[PM_GLASS_GOLEM]) {
-            pline("%s shatters into a million pieces!", Monnam(mdef));
+            if (vis && canseemon(mdef))
+                pline("%s shatters into a million pieces!", Monnam(mdef));
             mondied(mdef);
             if (mdef->mhp > 0)
                 return 0;
@@ -2282,6 +2280,8 @@ post_stone:
                     EDOG(magr)->hungrytime += ((int) ((mdef->data)->cnutrit / 20) + 1);
             }
             mdef->mhpmax -= tmp;
+            if (mdef->mhpmax < 1)
+                mdef->mhpmax = 1;
             if (mdef->m_lev == 0)
                 tmp = mdef->mhp;
             else
@@ -2765,6 +2765,7 @@ msickness:
                                     if (!flooreffects(cobj, mdef->mx, mdef->my, "")) {
                                         place_object(cobj, mdef->mx, mdef->my);
                                         stackobj(cobj);
+                                        newsym(mdef->mx, mdef->my);
                                     }
                                     if (!spilled && canseemon(mdef)) {
                                         pline("%s contents spill out onto the %s.",
@@ -3188,7 +3189,7 @@ struct obj *mwep;
     struct obj *passive_armor;
 
     mdattk = has_erac(mdef) ? ERAC(mdef)->mattk : mddat->mattk;
-    mon_tempest_wield = mon_wielding_artifact(mdef, ART_TEMPEST);
+    mon_tempest_wield = mon_wielding_artifact(magr, ART_TEMPEST);
 
     if ((passive_armor = which_armor(mdef, W_ARM))) {
         if (mhit && !rn2(3)
@@ -3221,8 +3222,8 @@ struct obj *mwep;
                 if (resists_disint(magr) || defended(magr, AD_DISN)) {
                     if (canseemon(magr) && !rn2(3)) {
                         shieldeff(magr->mx, magr->my);
-                        Your("armor does not appear to affect %s.",
-                            mon_nam(magr));
+                        pline("%s armor does not appear to affect %s.",
+                              s_suffix(Monnam(mdef)), mon_nam(magr));
                     }
                     break;
                 } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
@@ -3597,18 +3598,22 @@ struct obj *mwep;
         break;
     case AD_SLIM:
         if (mhit && !mdef->mcan && !rn2(3)) {
-            pline("Its slime splashes onto %s!", mon_nam(magr));
+            if (vis)
+                pline("Its slime splashes onto %s!", mon_nam(magr));
             if (flaming(magr->data)) {
-                pline_The("slime burns away!");
+                if (vis)
+                    pline_The("slime burns away!");
                 tmp = 0;
             } else if (slimeproof(magr->data)) {
-                pline("%s is unaffected.", Monnam(magr));
+                if (vis && canseemon(magr))
+                    pline("%s is unaffected.", Monnam(magr));
                 tmp = 0;
             } else if (!rn2(4) && !slimeproof(magr->data)) {
                 if (!munslime(magr, FALSE) && !DEADMONSTER(magr)) {
                     if (newcham(magr, &mons[PM_GREEN_SLIME], FALSE,
-                                (boolean) (vis && canseemon(magr))))
-                    magr->mstrategy &= ~STRAT_WAITFORU;
+                                (boolean) (vis && canseemon(magr)))) {
+                        magr->mstrategy &= ~STRAT_WAITFORU;
+                    }
                 }
                 /* munslime attempt could have been fatal,
                    potentially to multiple monsters (SCR_FIRE) */

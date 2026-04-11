@@ -5184,4 +5184,5 @@ The following changes to date are:
 - Fix: multiple issues in mhitu.c found via code review
 - Fix: monster offhand artifact properties not checked
 - Fix: displaced peaceful monster message when Underwater
+- Fix: multiple issues in mhitm.c found via code review
 
