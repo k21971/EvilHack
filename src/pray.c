@@ -604,6 +604,8 @@ int trouble;
         break;
     case TROUBLE_SADDLE:
         otmp = which_armor(u.usteed, W_SADDLE);
+        if (!otmp)
+            break;
         if (!Blind) {
             pline("%s %s.", Yobjnam2(otmp, "softly glow"), hcolor(NH_AMBER));
             set_bknown(otmp, 1);
@@ -1137,7 +1139,8 @@ gcrownu()
                 obj->spe = 1;
                 at_your_feet("A sword");
             }
-            dropy(obj);
+            if (dropy(obj))
+                obj = (struct obj *) 0;
             u.ugifts++;
         }
         /* acquire Vorpal Blade's skill regardless of weapon or gift
@@ -1175,7 +1178,8 @@ gcrownu()
                 obj->spe = 1;
                 at_your_feet(An(swordbuf));
             }
-            dropy(obj);
+            if (dropy(obj))
+                obj = (struct obj *) 0;
             u.ugifts++;
         }
         /* acquire Stormbringer's skill regardless of weapon or gift */
@@ -1201,7 +1205,8 @@ gcrownu()
                 obj = oname(obj, artiname(ART_ANGELSLAYER));
                 obj->spe = 1;
                 at_your_feet("A trident");
-                dropy(obj);
+                if (dropy(obj))
+                    obj = (struct obj *) 0;
                 u.ugifts++;
             }
             if (obj && obj->oartifact == ART_ANGELSLAYER)
@@ -1653,7 +1658,7 @@ boolean bless_water;
     return (boolean) (changed > 0L);
 }
 
-boolean
+int
 moffer(mtmp)
 struct monst *mtmp;
 {
@@ -2045,9 +2050,10 @@ dosacrifice()
                         dmon->mstrategy &= ~STRAT_APPEARMSG;
                     You("have summoned %s!", dbuf);
                     if (sgn(u.ualign.type) == sgn(mon_aligntyp(dmon))) {
-                        if (rn2(5))
+                        if (rn2(5)) {
                             dmon->mpeaceful = TRUE;
-                        else
+                            set_malign(dmon);
+                        } else
                             verbalize("Who dares summon me?");
                     }
                     You("are terrified, and unable to move.");
@@ -2935,6 +2941,7 @@ dosacrifice()
                             at_your_feet(otmp->quan > 1L ? "Some objects"
                                                          : "An object");
                             place_object(otmp, u.ux, u.uy);
+                            stackobj(otmp);
                             newsym(u.ux, u.uy);
                             if (altaralign == A_NONE)
                                 godvoice(u.ualign.type,
@@ -3239,7 +3246,6 @@ doturn()
     if (!u.uconduct.gnostic++)
         livelog_write_string(LL_CONDUCT, "rejected atheism by turning undead");
 
-    u.uconduct.gnostic++;
     Gname = halu_gname(u.ualign.type);
 
     /* [What about needing free hands (does #turn involve any gesturing)?] */
