@@ -5183,4 +5183,5 @@ The following changes to date are:
 - Fix: shopkeeper not repairing iron bars destroyed by monsters
 - Fix: multiple issues in mhitu.c found via code review
 - Fix: monster offhand artifact properties not checked
+- Fix: displaced peaceful monster message when Underwater
 

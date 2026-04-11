@@ -2302,7 +2302,12 @@ domove_core()
             newsym(x, y);
             newsym(u.ux0, u.uy0);
 
-            You("%s %s.", mtmp->mpeaceful ? "swap places with" : "frighten",
+            You("%s %s.",
+                (Underwater && is_pool(x, y)
+                 && (!grounded(mtmp->data) || can_fly(mtmp)
+                     || can_levitate(mtmp) || can_wwalk(mtmp)))
+                    ? "swim underneath"
+                    : mtmp->mpeaceful ? "swap places with" : "frighten",
                 pnambuf);
 
             /* check for displacing it into pools and traps */
