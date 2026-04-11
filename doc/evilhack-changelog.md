@@ -5187,4 +5187,5 @@ The following changes to date are:
 - Fix: multiple issues in mhitm.c found via code review
 - Fix: various bugs in artifact.c found via code review
 - Fix: multiple issues in mcastu.c found via code review
+- Fix: double m_detach panic when explode() kills spell target
 

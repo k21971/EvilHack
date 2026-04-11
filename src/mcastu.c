@@ -1096,8 +1096,10 @@ int dmg, spellnum;
             explode(target->mx, target->my, ZT_ACID,
                     d((ml / 2) + 4, 8),
                     yours ? 0 : MON_CASTBALL, EXPL_ACID);
-            if (DEADMONSTER(target))
+            if (DEADMONSTER(target)) {
+                dmg = 0;
                 break;
+            }
             if (resists_acid(target) || defended(target, AD_ACID)) {
                 shieldeff(target->mx, target->my);
                 if (canseemon(target))
@@ -1392,8 +1394,10 @@ int dmg, spellnum;
                     d((ml / 5) + 1, 8),
                     yours ? 0 : MON_CASTBALL,
                     (spellnum == MGC_FIRE_BOLT) ? EXPL_FIERY : EXPL_FROSTY);
-            if (DEADMONSTER(target))
+            if (DEADMONSTER(target)) {
+                dmg = 0;
                 break;
+            }
             if (spellnum == MGC_FIRE_BOLT
                 && (resists_fire(target) || defended(target, AD_FIRE))) {
                 shieldeff(target->mx, target->my);
