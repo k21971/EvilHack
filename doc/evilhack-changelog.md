@@ -5179,4 +5179,5 @@ The following changes to date are:
 - Add Guidebook entry for Aasimar race
 - Fix: various bugs in steedintrap() and mintrap()
 - Fix: various bugs in muse.c found via code review
+- Fix: multiple issues in uhitm.c found via code review
 

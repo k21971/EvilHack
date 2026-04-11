@@ -240,8 +240,10 @@ struct obj *wep; /* uwep for attack(), null for kick_monster() */
         /* Intelligent chaotic weapons (Stormbringer, The Sword of Kas) want blood */
         if (wep && (wep->oartifact == ART_STORMBRINGER
                     || wep->oartifact == ART_SWORD_OF_KAS
-                    || (u.twoweap && uswapwep->oartifact == ART_STORMBRINGER)
-                    || (u.twoweap && uswapwep->oartifact == ART_SWORD_OF_KAS))) {
+                    || (u.twoweap && uswapwep
+                        && uswapwep->oartifact == ART_STORMBRINGER)
+                    || (u.twoweap && uswapwep
+                        && uswapwep->oartifact == ART_SWORD_OF_KAS))) {
             override_confirmation = TRUE;
             return FALSE;
         }
@@ -416,12 +418,12 @@ int *attk_count, *role_roll_penalty;
        chance to hit, inferior ones not so much */
     if (uwep) {
         if (uwep->forged_qual == FQ_EXCEPTIONAL
-            || (u.twoweap
+            || (u.twoweap && uswapwep
                 && uswapwep->forged_qual == FQ_EXCEPTIONAL)) {
             tmp += 1;
         }
         if (uwep->forged_qual == FQ_INFERIOR
-            || (u.twoweap
+            || (u.twoweap && uswapwep
                 && uswapwep->forged_qual == FQ_INFERIOR)) {
             tmp -= 2;
         }
@@ -485,8 +487,10 @@ struct monst *mtmp;
     if (is_safepet(mtmp) && !context.forcefight) {
         if (!uwep || !(uwep->oartifact == ART_STORMBRINGER
                        || uwep->oartifact == ART_SWORD_OF_KAS
-                       || (u.twoweap && uswapwep->oartifact == ART_STORMBRINGER)
-                       || (u.twoweap && uswapwep->oartifact == ART_SWORD_OF_KAS))) {
+                       || (u.twoweap && uswapwep
+                           && uswapwep->oartifact == ART_STORMBRINGER)
+                       || (u.twoweap && uswapwep
+                           && uswapwep->oartifact == ART_SWORD_OF_KAS))) {
             /* There are some additional considerations: this won't work
              * if in a shop or Punished or you miss a random roll or
              * if you can walk thru walls and your pet cannot (KAA) or
@@ -688,10 +692,7 @@ struct monst *mtmp;
         Strcpy(pnambuf, y_monnam(mtmp));
         mtmp->mtrapped = 0;
         mtmp->mentangled = 0;
-        remove_monster(mtmp->mx, mtmp->my);
-        place_monster(mtmp, cc.x, cc.y);
-        newsym(mtmp->mx, mtmp->my);
-        newsym(cc.x, cc.y);
+        rloc_to(mtmp, cc.x, cc.y);
 
         You("swim underneath %s.", pnambuf);
         return FALSE;
@@ -1656,8 +1657,11 @@ int dieroll;
                             obj->spe = 0;
                             obj->known = obj->dknown = obj->bknown = 0;
                             obj->owt = weight(obj);
-                            if (thrown)
+                            if (thrown) {
                                 place_object(obj, mon->mx, mon->my);
+                                stackobj(obj);
+                                newsym(mon->mx, mon->my);
+                            }
                         } else if (obj->corpsenm == NON_PM && is_gnome(mdat)
                                    && !is_undead(mdat)) {
                             /* chicken eggs are deadly poison to gnomes */
@@ -2212,7 +2216,7 @@ int dieroll;
             /* explosive damage placed here due to order of events */
             if (!rn2(8)
                 && !((uwep && uwep->oartifact)
-                     || (u.twoweap && uswapwep->oartifact))) {
+                     || (u.twoweap && uswapwep && uswapwep->oartifact))) {
                 pline("A surge of frost flows through your mummified hand!");
                 explode(mon->mx, mon->my, ZT_BREATH(ZT_COLD),
                         d((!uwep ? 4 : 2), 6), 0, EXPL_FROSTY);
@@ -2288,7 +2292,7 @@ int dieroll;
         && !uwep->known) {
         uwep->wep_kills++;
         if (uwep->wep_kills > KILL_FAMILIARITY
-            && !rn2(max(2, uwep->spe) && !uwep->known)) {
+            && !rn2(max(2, uwep->spe))) {
             You("have become quite familiar with %s.",
                 yobjnam(uwep, (char *) 0));
             uwep->known = TRUE;
@@ -2848,6 +2852,7 @@ struct attack *mattk;
             if (mdef->mpeaceful) {
                 if (rnd(6) > P_SKILL(P_THIEVERY)) {
                     mdef->mpeaceful = 0;
+                    set_malign(mdef);
                     newsym(mdef->mx, mdef->my); /* update display */
                     if (mdef->ispriest) {
                         if (p_coaligned(mdef)) {
@@ -2878,6 +2883,7 @@ struct attack *mattk;
                                 continue;
                             if (mon->data == q_guardian && mon->mpeaceful) {
                                 mon->mpeaceful = 0;
+                                set_malign(mon);
                                 newsym(mon->mx, mon->my); /* update display */
                                 if (canseemon(mon))
                                     ++got_mad;
@@ -3833,8 +3839,7 @@ struct attack *mattk;
             if (!Deaf)
                 pline("%s cries out in pain!",
                       Monnam(mdef));
-            mdef->mhp -= rnd(5);
-            if (mdef->mhp <= 0)
+            if (damage_mon(mdef, rnd(5), AD_BLND, TRUE))
                 xkilled(mdef, XKILL_GIVEMSG);
             if (mdef && DEADMONSTER(mdef)) {
                 /* Other monsters may have died too, but return 2 if the actual
@@ -4606,9 +4611,14 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                             || (mon->data == &mons[PM_ELDER_ENT] && !rn2(12))) {
                             pline("%s ignites and turns to ash!", Monnam(mon));
                             killed(mon);
+                            if (DEADMONSTER(mon))
+                                sum[i] = 2;
                         } else {
-                            if (damage_mon(mon, d(enchant_skill, 4), AD_FIRE, TRUE))
+                            if (damage_mon(mon, d(enchant_skill, 4), AD_FIRE, TRUE)) {
                                 xkilled(mon, XKILL_GIVEMSG);
+                                if (DEADMONSTER(mon))
+                                    sum[i] = 2;
+                            }
                         }
                     }
                     nohandburn();
@@ -4645,8 +4655,11 @@ boolean weapon_attacks; /* skip weapon attacks if false */
                         if (!rn2(5))
                             (void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
 
-                        if (damage_mon(mon, d(enchant_skill, 4), AD_ELEC, TRUE))
+                        if (damage_mon(mon, d(enchant_skill, 4), AD_ELEC, TRUE)) {
                             xkilled(mon, XKILL_GIVEMSG);
+                            if (DEADMONSTER(mon))
+                                sum[i] = 2;
+                        }
                     }
                     nohandshock();
                 }
