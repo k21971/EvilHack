@@ -5176,4 +5176,5 @@ The following changes to date are:
 - Fix: monster escaping with the Amulet of Yendor livelog always
   identifies the monster (Infidel role)
 - Fix: create_door panic and create_secret_door swapped wall checks
+- Add Guidebook entry for Aasimar race
 

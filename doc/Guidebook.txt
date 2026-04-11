@@ -151,6 +151,15 @@
           You may also choose the race of your  character  (within  limits;
      most roles have restrictions on which races are eligible for them):
 
+          Aasimar  are  a  race  of  celestial heritage, descended from the
+     union of mortals and divine beings.  They are devoted to the cause  of
+     law  and righteousness, and their celestial nature grants them various
+     resistances and abilities as they grow in experience.  An Aasimar that
+     stays true to their faith may receive extraordinary divine gifts,  but
+     those  who stray from the path of righteousness will find their celes-
+     tial powers diminished or even stripped away entirely.   Aasimar  also
+     possess a natural aura of light that they can invoke at will.
+
           Centaurs  are a strong and proud race that have the upper body of
      a humanoid, and the lower body of a large horse.  They  are  adept  at
      physical  combat, especially with ranged weapons, and have the ability
