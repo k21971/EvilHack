@@ -121,8 +121,6 @@ STATIC_DCL boolean FDECL(mcan_learn_spell, (struct monst *, struct obj *));
 #define MUSE_WAN_UNDEAD_TURNING 24 /* also an offensive item */
 #define MUSE_POT_RESTORE_ABILITY 25
 #define MUSE_POT_VAMPIRE_BLOOD 26
-#define MUSE_INNATE_TPT 9999
-
 /* MUSE_* constants for offensive items */
 #define MUSE_WAN_DEATH 1
 #define MUSE_WAN_SLEEP 2
@@ -1191,7 +1189,7 @@ struct find_context *ctx;
 
     nomore(MUSE_SCR_FIRE);
     if (obj->otyp == SCR_FIRE
-        && resists_fire(mtmp) && defended(mtmp, AD_FIRE)
+        && (resists_fire(mtmp) || defended(mtmp, AD_FIRE))
         && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
         && mtmp->mcansee && haseyes(mtmp->data)
         && !m_seenres(mtmp, M_SEEN_FIRE))
@@ -2613,6 +2611,11 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
     uchar typ;
     int ddx, ddy;
     unsigned obj_id = obj->o_id;
+    /* Pseudo-objects (from mcast_immediate_spell) have ocarry set but
+       aren't linked into the monster's minvent chain.  They can't be
+       freed mid-beam (quan guards against useup), so the o_on safety
+       check doesn't apply to them. */
+    boolean obj_in_minvent = (o_on(obj_id, mon->minvent) != 0);
 
     bhitpos.x = mon->mx;
     bhitpos.y = mon->my;
@@ -2680,7 +2683,8 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
            during fhito processing (e.g. polymorph system-shock
            kills an AT_BOOM monster whose explosion calls
            destroy_mitem on the zapper's WAND_CLASS inventory) */
-        if (DEADMONSTER(mon) || !o_on(obj_id, mon->minvent))
+        if (DEADMONSTER(mon)
+            || (obj_in_minvent && !o_on(obj_id, mon->minvent)))
             break;
         if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
             (*fhitm)(&youmonst, obj);
@@ -2692,7 +2696,8 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
             range -= 3;
         }
         /* Same check after fhitm; protects obj->otyp reads below */
-        if (DEADMONSTER(mon) || !o_on(obj_id, mon->minvent))
+        if (DEADMONSTER(mon)
+            || (obj_in_minvent && !o_on(obj_id, mon->minvent)))
             break;
         typ = levl[bhitpos.x][bhitpos.y].typ;
         if (IS_DOOR(typ) || typ == SDOOR) {
@@ -2972,23 +2977,30 @@ struct monst *mtmp;
             struct monst *mtmp2;
             int num;
 
-            if (vis)
+            if (vis) {
                 pline_The("scroll erupts in a tower of flame!");
-            shieldeff(mtmp->mx, mtmp->my);
-            pline("%s is uninjured.", Monnam(mtmp));
+                shieldeff(mtmp->mx, mtmp->my);
+                pline("%s is uninjured.", Monnam(mtmp));
+            }
             (void) destroy_mitem(mtmp, SCROLL_CLASS, AD_FIRE);
             (void) destroy_mitem(mtmp, SPBOOK_CLASS, AD_FIRE);
             (void) destroy_mitem(mtmp, POTION_CLASS, AD_FIRE);
             num = (2 * (rn1(3, 3) + 2 * scr_bcsign) + 1) / 3;
+            burn_away_slime();
             if (how_resistant(FIRE_RES) == 100) {
                 You("are not harmed.");
                 monstseesu(M_SEEN_FIRE);
-            }
-            burn_away_slime();
-            if (Half_spell_damage)
-                num = (num + 1) / 2;
-            else
+            } else {
+                if (Half_spell_damage)
+                    num = (num + 1) / 2;
                 losehp(num, "scroll of fire", KILLED_BY_AN);
+            }
+            if (!rn2(3))
+                (void) destroy_item(SCROLL_CLASS, AD_FIRE);
+            if (!rn2(3))
+                (void) destroy_item(POTION_CLASS, AD_FIRE);
+            if (!rn2(5))
+                (void) destroy_item(SPBOOK_CLASS, AD_FIRE);
             for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
                 if (DEADMONSTER(mtmp2))
                     continue;
@@ -3755,6 +3767,8 @@ struct monst *mtmp;
                 pline("%s yanks %s from your %s!", Monnam(mtmp), the_weapon,
                       hand_buf);
                 place_object(obj, mtmp->mx, mtmp->my);
+                stackobj(obj);
+                newsym(mtmp->mx, mtmp->my);
                 break;
             case 2: /* onto floor beneath you */
                 pline("%s yanks %s to the %s!", Monnam(mtmp), the_weapon,
@@ -3825,6 +3839,8 @@ struct monst *mtmp;
                 pline("%s pulls %s from your %s!", Monnam(mtmp), the_weapon,
                       hand);
                 place_object(obj, mtmp->mx, mtmp->my);
+                stackobj(obj);
+                newsym(mtmp->mx, mtmp->my);
                 break;
             case 2: /* onto floor beneath you */
                 pline("%s pulls %s to the %s!", Monnam(mtmp), the_weapon,
@@ -3891,6 +3907,8 @@ struct monst *mtmp;
                 pline("%s pulls %s from your off%s!", Monnam(mtmp), the_shield,
                       hand);
                 place_object(obj, mtmp->mx, mtmp->my);
+                stackobj(obj);
+                newsym(mtmp->mx, mtmp->my);
                 break;
             case 2: /* onto floor beneath you */
                 pline("%s pulls %s to the %s!", Monnam(mtmp), the_shield,
@@ -3980,11 +3998,13 @@ struct monst *mtmp;
             if (vismon)
                 pline("He flies into a drunken rage!");
             mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             mtmp->mberserk = 1;
         } else {
             if (vismon)
                 pline("He is sated.");
             mtmp->mpeaceful = 1;
+            set_malign(mtmp);
         }
         mtmp->mconf = 1;
         m_useup(mtmp, otmp);

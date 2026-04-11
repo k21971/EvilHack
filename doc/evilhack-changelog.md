@@ -5178,4 +5178,5 @@ The following changes to date are:
 - Fix: create_door panic and create_secret_door swapped wall checks
 - Add Guidebook entry for Aasimar race
 - Fix: various bugs in steedintrap() and mintrap()
+- Fix: various bugs in muse.c found via code review
 
