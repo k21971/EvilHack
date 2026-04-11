@@ -33,8 +33,7 @@ struct monst *mtmp;
     }
     wake_nearto(mtmp->mx, mtmp->my, 7 * 7);
     if (!(resists_stun(mtmp->data) || defended(mtmp, AD_STUN)
-          || (MON_WEP(mtmp)
-              && MON_WEP(mtmp)->oartifact == ART_TEMPEST)))
+          || mon_wielding_artifact(mtmp, ART_TEMPEST)))
         mtmp->mstun = 1;
     damage_mon(mtmp, rnd(15), AD_PHYS, FALSE);
     if (DEADMONSTER(mtmp)) {
@@ -280,8 +279,7 @@ mon_regen(mon, digest_meal)
 struct monst *mon;
 boolean digest_meal;
 {
-    boolean mon_orcus_wield = (MON_WEP(mon)
-                               && MON_WEP(mon)->oartifact == ART_WAND_OF_ORCUS);
+    boolean mon_orcus_wield = mon_wielding_artifact(mon, ART_WAND_OF_ORCUS);
 
     if (mon->mhp < mon->mhpmax && !mon->mwither
         && (!mon_orcus_wield || is_dprince(mon->data))

@@ -116,6 +116,7 @@ E void NDECL(mkot_trap_warn);
 E boolean FDECL(is_roguish_key, (struct monst *, struct obj *));
 E struct obj *FDECL(has_roguish_key, (struct monst *));
 E boolean FDECL(wielding_artifact, (int));
+E boolean FDECL(mon_wielding_artifact, (struct monst *, int));
 E boolean NDECL(awaiting_guaranteed_gift);
 E int FDECL(arti_align, (int));
 E boolean FDECL(non_wishable_artifact, (struct obj *));

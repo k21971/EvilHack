@@ -1315,8 +1315,7 @@ int dmg, spellnum;
                 shieldeff(target->mx, target->my);
                 if (yours || canseemon(target)) {
                     if (resists_stun(target->data) || defended(target, AD_STUN)
-                        || (MON_WEP(target)
-                            && MON_WEP(target)->oartifact == ART_TEMPEST))
+                        || mon_wielding_artifact(target, ART_TEMPEST))
                         pline("%s seems momentarily disoriented.", Monnam(target));
                 }
             } else {

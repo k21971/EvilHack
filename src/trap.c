@@ -69,8 +69,7 @@ struct monst *victim;
 
     /* wielding Dichotomy protects worn armor */
     if (hitting_u ? wielding_artifact(ART_DICHOTOMY)
-                  : (MON_WEP(victim)
-                     && MON_WEP(victim)->oartifact == ART_DICHOTOMY))
+                  : mon_wielding_artifact(victim, ART_DICHOTOMY))
         return 0;
 
     /* burning damage may dry wet towel */
@@ -6159,8 +6158,7 @@ boolean disarm;
                     (HHallucination & TIMEOUT) + (long) rn1(5, 16), FALSE, 0L);
             } else {
                 if (!(resists_stun(mon->data) || defended(mon, AD_STUN)
-                      || (MON_WEP(mon)
-                          && MON_WEP(mon)->oartifact == ART_TEMPEST)))
+                      || mon_wielding_artifact(mon, ART_TEMPEST)))
                     mon->mstun = 1;
                 mon->mconf = 1;
                 if (canseemon(mon))

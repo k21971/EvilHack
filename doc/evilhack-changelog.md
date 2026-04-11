@@ -5182,4 +5182,5 @@ The following changes to date are:
 - Fix: multiple issues in uhitm.c found via code review
 - Fix: shopkeeper not repairing iron bars destroyed by monsters
 - Fix: multiple issues in mhitu.c found via code review
+- Fix: monster offhand artifact properties not checked
 

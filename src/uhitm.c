@@ -49,8 +49,7 @@ int hurt;
 
     /* wielding Harbinger protects worn armor */
     if (youdefend ? wielding_artifact(ART_HARBINGER)
-                  : (MON_WEP(mdef)
-                     && MON_WEP(mdef)->oartifact == ART_HARBINGER))
+                  : mon_wielding_artifact(mdef, ART_HARBINGER))
         return;
 
     /* What the following code does: it keeps looping until it
@@ -1202,10 +1201,8 @@ int dieroll;
                             || (thrown == HMON_APPLIED && is_pole(uwep)));
     boolean is_rogue = (Role_if(PM_ROGUE) && !Upolyd);
     boolean wield_shadowblade = (uwep && uwep->oartifact == ART_SHADOWBLADE);
-    boolean mon_harbinger_wield = (MON_WEP(mon)
-                                   && MON_WEP(mon)->oartifact == ART_HARBINGER);
-    boolean mon_giantslayer_wield = (MON_WEP(mon)
-                                     && MON_WEP(mon)->oartifact == ART_GIANTSLAYER);
+    boolean mon_harbinger_wield = mon_wielding_artifact(mon, ART_HARBINGER);
+    boolean mon_giantslayer_wield = mon_wielding_artifact(mon, ART_GIANTSLAYER);
     int jousting = 0;
     int joustdmg;
     struct obj *hated_obj = NULL;
@@ -2157,8 +2154,7 @@ int dieroll;
                 /* placing this here, because order of events */
                 if (!rn2(10) && P_SKILL(P_SHIELD) >= P_EXPERT
                     && (!(resists_stun(mon->data) || defended(mon, AD_STUN)
-                          || (MON_WEP(mon)
-                              && MON_WEP(mon)->oartifact == ART_TEMPEST)))) {
+                          || mon_wielding_artifact(mon, ART_TEMPEST)))) {
                     if (canspotmon(mon))
                         pline("%s %s from the force of your blow!",
                               Monnam(mon), makeplural(stagger(mdat, "stagger")));
@@ -3130,10 +3126,8 @@ int specialdmg; /* blessed and/or silver bonus against various things */
     int armpro, tmp = d((int) mattk->damn, (int) mattk->damd);
     boolean negated;
     struct obj *mongold;
-    boolean mon_vorpal_wield = (MON_WEP(mdef)
-                                && MON_WEP(mdef)->oartifact == ART_VORPAL_BLADE);
-    boolean mon_tempest_wield = (MON_WEP(mdef)
-                                 && MON_WEP(mdef)->oartifact == ART_TEMPEST);
+    boolean mon_vorpal_wield = mon_wielding_artifact(mdef, ART_VORPAL_BLADE);
+    boolean mon_tempest_wield = mon_wielding_artifact(mdef, ART_TEMPEST);
 
     armpro = magic_negation(mdef);
     /* since hero can't be cancelled, only defender's armor applies */

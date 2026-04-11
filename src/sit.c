@@ -456,13 +456,13 @@ struct monst *mtmp;
     boolean resists = resist(mtmp, 0, 0, FALSE),
             vis = couldsee(mtmp->mx, mtmp->my);
 
-    if (vis && MON_WEP(mtmp)
-        && (((MON_WEP(mtmp)->oartifact == ART_MAGICBANE) && rn2(20))
-             || ((MON_WEP(mtmp)->oartifact == ART_STAFF_OF_THE_ARCHMAGI)
-                 && rn2(30)))) {
-        You(mal_aura,
-            (MON_WEP(mtmp)->oartifact == ART_MAGICBANE)
-                ? "the magic-absorbing staff" : "the powerful staff");
+    if (vis && mon_wielding_artifact(mtmp, ART_MAGICBANE) && rn2(20)) {
+        You(mal_aura, "the magic-absorbing staff");
+        return;
+    }
+    if (vis && mon_wielding_artifact(mtmp, ART_STAFF_OF_THE_ARCHMAGI)
+        && rn2(30)) {
+        You(mal_aura, "the powerful staff");
         return;
     }
 

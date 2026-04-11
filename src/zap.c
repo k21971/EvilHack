@@ -138,10 +138,8 @@ struct obj *otmp;
     struct permonst *mdat = mtmp->data;
     boolean disguised_mimic = (mtmp->data->mlet == S_MIMIC
                                && M_AP_TYPE(mtmp) != M_AP_NOTHING);
-    boolean mon_harbinger_wield = (MON_WEP(mtmp)
-                                   && MON_WEP(mtmp)->oartifact == ART_HARBINGER);
-    boolean mon_giantslayer_wield = (MON_WEP(mtmp)
-                                     && MON_WEP(mtmp)->oartifact == ART_GIANTSLAYER);
+    boolean mon_harbinger_wield = mon_wielding_artifact(mtmp, ART_HARBINGER);
+    boolean mon_giantslayer_wield = mon_wielding_artifact(mtmp, ART_GIANTSLAYER);
     int tohit_attack_skill = ((P_SKILL(P_ATTACK_SPELL) >= P_EXPERT)
                               ? 30 : (P_SKILL(P_ATTACK_SPELL) == P_SKILLED)
                                 ? 20 : (P_SKILL(P_ATTACK_SPELL) == P_BASIC) ? 10 : 8);
@@ -4788,8 +4786,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     int abstype = BASE_ZT(abs(type));
     boolean sho_shieldeff = FALSE;
     boolean spellcaster = is_hero_spell(type); /* maybe get a bonus! */
-    boolean mon_tempest_wield = (MON_WEP(mon)
-                                 && MON_WEP(mon)->oartifact == ART_TEMPEST);
+    boolean mon_tempest_wield = mon_wielding_artifact(mon, ART_TEMPEST);
 
     *ootmp = (struct obj *) 0;
     switch (abstype) {
@@ -6780,16 +6777,16 @@ int osym, dmgtyp;
             continue; /* test only objs of type osym */
         if (obj->oartifact)
             continue; /* don't destroy artifacts */
-        if (dmgtyp == AD_ELEC && MON_WEP(mtmp)
-            && MON_WEP(mtmp)->oartifact == ART_TEMPEST)
+        if (dmgtyp == AD_ELEC
+            && mon_wielding_artifact(mtmp, ART_TEMPEST))
             continue; /* tempest grants shock resistance
                          to objects in open inventory */
         if ((dmgtyp == AD_FIRE || dmgtyp == AD_COLD)
-            && MON_WEP(mtmp) && MON_WEP(mtmp)->oartifact == ART_DICHOTOMY)
+            && mon_wielding_artifact(mtmp, ART_DICHOTOMY))
             continue; /* dichotomy grants fire/cold resistance
                          to objects in open inventory */
-        if (dmgtyp == AD_ACID && MON_WEP(mtmp)
-            && MON_WEP(mtmp)->oartifact == ART_HARBINGER)
+        if (dmgtyp == AD_ACID
+            && mon_wielding_artifact(mtmp, ART_HARBINGER))
             continue; /* harbinger grants acid resistance
                          to objects in open inventory */
         skip = 0;

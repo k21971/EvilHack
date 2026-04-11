@@ -1854,8 +1854,7 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
             make_stunned(((HStun & TIMEOUT) + 3L), FALSE);
         } else {
             if (!(resists_stun(mdef->data) || defended(mdef, AD_STUN)
-                  || (MON_WEP(mdef)
-                      && MON_WEP(mdef)->oartifact == ART_TEMPEST)))
+                  || mon_wielding_artifact(mdef, ART_TEMPEST)))
                 mdef->mstun = 1;
         }
         /* avoid extra stun message below if we used mb_verb["stun"] above */
@@ -4532,6 +4531,19 @@ int art;
 
     return ((uwep && uwep->oartifact == art)
             || (u.twoweap && uswapwep && uswapwep->oartifact == art));
+}
+
+/* monster equivalent of wielding_artifact() - checks both primary and offhand */
+boolean
+mon_wielding_artifact(mon, art)
+struct monst *mon;
+int art;
+{
+    if (!art || !mon)
+        return FALSE;
+
+    return ((MON_WEP(mon) && MON_WEP(mon)->oartifact == art)
+            || (MON_WEP2(mon) && MON_WEP2(mon)->oartifact == art));
 }
 
 boolean

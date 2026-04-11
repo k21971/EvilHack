@@ -709,8 +709,7 @@ struct obj *instr;
                     && instr->blessed && !rn2(5)) {
                     if (!mtmp->mstun) {
                         if (!(resists_stun(mtmp->data) || defended(mtmp, AD_STUN)
-                              || (MON_WEP(mtmp)
-                                  && MON_WEP(mtmp)->oartifact == ART_TEMPEST))) {
+                              || mon_wielding_artifact(mtmp, ART_TEMPEST))) {
                             pline("%s %s from the intense blast of sound!", Monnam(mtmp),
                                   makeplural(stagger(mtmp->data, "stagger")));
                             mtmp->mstun = 1;

@@ -2301,10 +2301,8 @@ struct obj *otmp;
 {
     int tmp;
     boolean reveal_invis = FALSE, hits_you = (mtmp == &youmonst);
-    boolean mon_harbinger_wield = (MON_WEP(mtmp)
-                                   && MON_WEP(mtmp)->oartifact == ART_HARBINGER);
-    boolean mon_giantslayer_wield = (MON_WEP(mtmp)
-                                     && MON_WEP(mtmp)->oartifact == ART_GIANTSLAYER);
+    boolean mon_harbinger_wield = mon_wielding_artifact(mtmp, ART_HARBINGER);
+    boolean mon_giantslayer_wield = mon_wielding_artifact(mtmp, ART_GIANTSLAYER);
 
     if (!hits_you && otmp->otyp != WAN_UNDEAD_TURNING) {
         mtmp->msleeping = 0;
@@ -2848,7 +2846,8 @@ struct monst *mtmp;
        resistant to it, the monster will switch offensive items
        appropriately */
     if ((maxdmg > 9
-        || (MON_WEP(mtmp) && MON_WEP(mtmp)->oartifact))
+        || (MON_WEP(mtmp) && MON_WEP(mtmp)->oartifact)
+        || (MON_WEP2(mtmp) && MON_WEP2(mtmp)->oartifact))
         && (monnear(mtmp, mtmp->mux, mtmp->muy)
             && m.has_offense != MUSE_FIRE_HORN
             && m.has_offense != MUSE_FROST_HORN

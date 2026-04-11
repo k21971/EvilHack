@@ -4528,8 +4528,7 @@ struct attack *mattk;
 {
     int i, tmp;
     struct attack *oldu_mattk = 0;
-    boolean mon_tempest_wield = (MON_WEP(mtmp)
-                                 && MON_WEP(mtmp)->oartifact == ART_TEMPEST);
+    boolean mon_tempest_wield = mon_wielding_artifact(mtmp, ART_TEMPEST);
 
     if (uarm && Is_dragon_scaled_armor(uarm) && !rn2(3)) {
         int otyp = Dragon_armor_to_scales(uarm);

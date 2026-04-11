@@ -1365,14 +1365,10 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             ispoisoned = FALSE, istainted = FALSE;
     struct obj* hated_obj;
     long armask;
-    boolean mon_vorpal_wield = (MON_WEP(mdef)
-                                && MON_WEP(mdef)->oartifact == ART_VORPAL_BLADE);
-    boolean mon_tempest_wield = (MON_WEP(mdef)
-                                 && MON_WEP(mdef)->oartifact == ART_TEMPEST);
-    boolean mon_harbinger_wield = (MON_WEP(mdef)
-                                   && MON_WEP(mdef)->oartifact == ART_HARBINGER);
-    boolean mon_giantslayer_wield = (MON_WEP(mdef)
-                                     && MON_WEP(mdef)->oartifact == ART_GIANTSLAYER);
+    boolean mon_vorpal_wield = mon_wielding_artifact(mdef, ART_VORPAL_BLADE);
+    boolean mon_tempest_wield = mon_wielding_artifact(mdef, ART_TEMPEST);
+    boolean mon_harbinger_wield = mon_wielding_artifact(mdef, ART_HARBINGER);
+    boolean mon_giantslayer_wield = mon_wielding_artifact(mdef, ART_GIANTSLAYER);
 
     saved_oname[0] = '\0';
 
@@ -3192,8 +3188,7 @@ struct obj *mwep;
     struct obj *passive_armor;
 
     mdattk = has_erac(mdef) ? ERAC(mdef)->mattk : mddat->mattk;
-    mon_tempest_wield = (MON_WEP(mdef)
-                         && MON_WEP(mdef)->oartifact == ART_TEMPEST);
+    mon_tempest_wield = mon_wielding_artifact(mdef, ART_TEMPEST);
 
     if ((passive_armor = which_armor(mdef, W_ARM))) {
         if (mhit && !rn2(3)
