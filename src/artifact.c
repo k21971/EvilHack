@@ -32,7 +32,7 @@ STATIC_DCL uchar FDECL(abil_to_adtyp, (long *));
 STATIC_DCL int FDECL(glow_strength, (int));
 STATIC_DCL boolean FDECL(untouchable, (struct obj *, BOOLEAN_P));
 STATIC_DCL int FDECL(count_surround_traps, (int, int));
-STATIC_DCL void dispose_of_orig_obj(struct obj *);
+STATIC_DCL void FDECL(dispose_of_orig_obj, (struct obj *));
 
 /* The amount added to the victim's total hit points to insure that the
    victim will be killed even after damage bonus/penalty adjustments.
@@ -194,6 +194,11 @@ int artinum;
     const struct artifact *a;
     struct obj *obj;
 
+    if (artinum <= 0 || artinum > NROFARTIFACTS) {
+        impossible("invalid artifact number %d to mk_particular_artifact",
+                   artinum);
+        return (struct obj *) 0;
+    }
     a = &artilist[artinum];
     obj = mksobj((int) a->otyp, TRUE, FALSE);
     if (obj && !artiexist[artinum]) {
@@ -518,7 +523,8 @@ boolean allow_detrimental;
 }
 
 STATIC_OVL void
-dispose_of_orig_obj(struct obj *obj)
+dispose_of_orig_obj(obj)
+struct obj *obj;
 {
     if (!obj)
         return;
@@ -941,7 +947,8 @@ long wp_mask;
         mask = &EShock_resistance;
     } else if (dtyp == AD_MAGM) {
         mask = &EAntimagic;
-        u.uconduct.antimagic++;
+        if (on)
+            u.uconduct.antimagic++;
     } else if (dtyp == AD_DISN) {
         mask = &EDisint_resistance;
     } else if (dtyp == AD_DRST) {
@@ -1922,7 +1929,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
        currently consistent with behavior of other instakill weapons,
        but not realizes_damage */
     boolean show_instakill = (youattack || youdefend || vis);
-    boolean realizes_damage;
+    boolean realizes_damage; /* player can see/feel the hit; gates messages only */
     const char *wepdesc;
     static const char you[] = "you";
     char hittee[BUFSZ];
@@ -2316,8 +2323,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     monkilled(mdef, (char *) 0, AD_DETH);
                     if (!DEADMONSTER(mdef))
                         return 0;
-                    return (MM_DEF_DIED
-                            | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
+                    return TRUE;
                 }
                 break;
             default: /* case 16 through case 0 */
@@ -2505,8 +2511,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             return TRUE;
         }
 
-        if (youdefend && !rn2(5)) {
-            diseasemu(mdef);
+        if (youdefend && magr && !rn2(5)) {
+            diseasemu(magr);
         } else if (!youdefend) {
             mdef->mdiseasetime = rnd(10) + 5;
             if (!no_sick && !rn2(5)) {
@@ -2514,7 +2520,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     pline("%s looks %s.", Monnam(mdef),
                           mdef->mdiseased ? "even worse" : "diseased");
                 mdef->mdiseased = 1;
-                if (wielding_artifact(ART_GRIMTOOTH))
+                if (otmp->oartifact == ART_GRIMTOOTH)
                     mdef->mdiseabyu = TRUE;
                 else
                     mdef->mdiseabyu = FALSE;
@@ -2665,32 +2671,31 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                               ? "hits" : "sears",
                           hittee,  !spec_dbon_applies ? '.' : '!');
             }
-
-            /* Dichotomy has a chance of exploding either
-               a ball of fire or cold on a successful hit,
-               and can cause additional elemental damage
-               (area of effect) */
-            if (!rn2(6)
-                && spec_dbon_applies && otmp->oartifact == ART_DICHOTOMY) {
-                if (!DEADMONSTER(mdef)) {
-                    if (rn2(2)) {
-                        if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))) {
-                            pline("A surge of flame flows through the blade!");
-                            explode(mdef->mx, mdef->my,
-                                    (youattack ? ZT_BREATH(ZT_FIRE)
-                                               : -ZT_BREATH(ZT_FIRE)), d(4, 6),
-                                    (youattack ? 0 : MON_CASTBALL), EXPL_FIERY);
-                            return TRUE;
-                        }
-                    } else {
-                        if (!(resists_cold(mdef) || defended(mdef, AD_COLD))) {
-                            pline("A surge of frost flows through the blade!");
-                            explode(mdef->mx, mdef->my,
-                                    (youattack ? ZT_BREATH(ZT_COLD)
-                                               : -ZT_BREATH(ZT_COLD)), d(4, 6),
-                                    (youattack ? 0 : MON_CASTBALL), EXPL_FROSTY);
-                            return TRUE;
-                        }
+        }
+        /* Dichotomy has a chance of exploding either
+           a ball of fire or cold on a successful hit,
+           and can cause additional elemental damage
+           (area of effect) */
+        if (!rn2(6)
+            && spec_dbon_applies && otmp->oartifact == ART_DICHOTOMY) {
+            if (!DEADMONSTER(mdef)) {
+                if (rn2(2)) {
+                    if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))) {
+                        pline("A surge of flame flows through the blade!");
+                        explode(mdef->mx, mdef->my,
+                                (youattack ? ZT_BREATH(ZT_FIRE)
+                                           : -ZT_BREATH(ZT_FIRE)), d(4, 6),
+                                (youattack ? 0 : MON_CASTBALL), EXPL_FIERY);
+                        return TRUE;
+                    }
+                } else {
+                    if (!(resists_cold(mdef) || defended(mdef, AD_COLD))) {
+                        pline("A surge of frost flows through the blade!");
+                        explode(mdef->mx, mdef->my,
+                                (youattack ? ZT_BREATH(ZT_COLD)
+                                           : -ZT_BREATH(ZT_COLD)), d(4, 6),
+                                (youattack ? 0 : MON_CASTBALL), EXPL_FROSTY);
+                        return TRUE;
                     }
                 }
             }
@@ -2828,9 +2833,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 pline_The("monstrous hammer crushes your skull!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
                 /* player returns to their original form */
-            } else if (hurtle_distance
-                       && !(u.uswallow || unsolid(mdef->data))) {
-                if (youattack) {
+            } else if (hurtle_distance && !unsolid(mdef->data)) {
+                if (youattack && !u.uswallow) {
                     You("smash %s backwards%s", mon_nam(mdef),
                         canseemon(mdef) ? exclam(4 * hurtle_distance) : ".");
                     mhurtle(mdef, u.dx, u.dy, hurtle_distance);
@@ -2840,7 +2844,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                         pline("%s smashes %s backwards!", Monnam(magr), mon_nam(mdef));
                     mhurtle(mdef, mdef->mx - magr->mx, mdef->my - magr->my,
                             hurtle_distance);
-                } else {
+                } else if (!u.uswallow) {
                     You("are smashed backwards!");
                     hurtle(u.ux - magr->mx, u.uy - magr->my, hurtle_distance, FALSE);
                     /* Update monster's knowledge of your position */
@@ -2860,8 +2864,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (show_instakill)
                     pline("As %s strikes %s, it bursts into flame!",
                           mon_nam(magr), mon_nam(mdef));
-                if (magr)
-                    (void) grow_up(magr, mdef);
                 mongone(mdef);
             } else if (youdefend && is_troll(youmonst.data) && k) {
                 You("burst into flame as you are hit!");
@@ -2930,8 +2932,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (show_instakill)
                         pline_The("consecrated blade flares brightly as it incinerates %s!",
                                   mon_nam(mdef));
-                    if (magr)
-                        (void) grow_up(magr, mdef);
                     mongone(mdef);
                 }
             } else if (youdefend && l
@@ -3051,8 +3051,6 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (show_instakill)
                         pline_The("divine hammer flares brightly as it incinerates %s!",
                                   mon_nam(mdef));
-                    if (magr)
-                        (void) grow_up(magr, mdef);
                     mongone(mdef);
                 }
             } else if (youdefend && k
@@ -3546,11 +3544,6 @@ struct obj *obj;
             int ct = 0;
 
             if (yn("Do you want to cast an aura of darkness?") == 'n') {
-                if (!Deaf && !ct)
-                    You_hear("%s laughter coming from %s!",
-                             rn2(2) ? "fiendish" : "maniacal",
-                             xname(obj));
-
                 for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                     if (DEADMONSTER(mtmp))
                         continue;
@@ -3563,6 +3556,10 @@ struct obj *obj;
                             ct++; /* pets don't laugh at you */
                     }
                 }
+                if (!Deaf && ct)
+                    You_hear("%s laughter coming from %s!",
+                             rn2(2) ? "fiendish" : "maniacal",
+                             xname(obj));
                 break;
             } else {
                 litroom(FALSE, FALSE, obj, u.ux, u.uy);
@@ -3721,7 +3718,7 @@ struct obj *obj;
                                     mtmp->mhp = 0;
                                     monkilled(mtmp, (char *) 0, AD_DETH);
                                     if (!DEADMONSTER(mtmp)) /* lifesaved */
-                                        return 0;
+                                        continue;
                                 } else { /* MR or resists */
                                     shieldeff(mtmp->mx, mtmp->my);
                                     if (obj->oartifact == ART_EYE_OF_VECNA) {
@@ -3738,6 +3735,7 @@ struct obj *obj;
                                         mtmp->mhp = 1;
                                     if (mtmp->mpeaceful || mtmp->mtame) {
                                         mtmp->mpeaceful = mtmp->mtame = 0;
+                                        set_malign(mtmp);
                                         newsym(mtmp->mx, mtmp->my);
                                         if (u.ualign.type != A_NONE) {
                                             You_feel("distraught.");
@@ -3765,6 +3763,7 @@ struct obj *obj;
                                         mtmp->mhp = 1;
                                     if (mtmp->mpeaceful || mtmp->mtame) {
                                         mtmp->mpeaceful = mtmp->mtame = 0;
+                                        set_malign(mtmp);
                                         newsym(mtmp->mx, mtmp->my);
                                         if (u.ualign.type != A_NONE) {
                                             You_feel("distraught.");
@@ -3789,6 +3788,7 @@ struct obj *obj;
                                         mtmp->mhp = 1;
                                     if (mtmp->mpeaceful || mtmp->mtame) {
                                         mtmp->mpeaceful = mtmp->mtame = 0;
+                                        set_malign(mtmp);
                                         newsym(mtmp->mx, mtmp->my);
                                         if (u.ualign.type != A_NONE) {
                                             You_feel("distraught.");
