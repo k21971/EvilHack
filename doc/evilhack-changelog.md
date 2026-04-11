@@ -5188,4 +5188,5 @@ The following changes to date are:
 - Fix: various bugs in artifact.c found via code review
 - Fix: multiple issues in mcastu.c found via code review
 - Fix: double m_detach panic when explode() kills spell target
+- Fix: multiple issues in mon.c found via code review
 

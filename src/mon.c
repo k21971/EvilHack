@@ -254,9 +254,12 @@ struct monst *mtmp;
     if ((mtmp == &youmonst)
         && (u.uinvulnerable || Breathless || Underwater))
         return M_POISONGAS_OK;
-    if ((resists_poison(mtmp) || defended(mtmp, AD_DRST) || (mtmp == &youmonst))
-        && Poison_resistance)
+    if (mtmp == &youmonst) {
+        if (Poison_resistance)
+            return M_POISONGAS_MINOR;
+    } else if (resists_poison(mtmp) || defended(mtmp, AD_DRST)) {
         return M_POISONGAS_MINOR;
+    }
     return M_POISONGAS_BAD;
 }
 
@@ -335,6 +338,8 @@ struct monst* mdef;  /* victim */
     boolean tamer = magr->mtame;
     char victimname[PL_PSIZ];
     int host_x = mdef->mx, host_y = mdef->my;
+    boolean mdef_tame = mdef->mtame;
+    boolean mdef_peaceful = mdef->mpeaceful;
 
     /* A dying larva can't complete transformation */
     if (magr->mstate & MON_DETACH) {
@@ -408,7 +413,7 @@ struct monst* mdef;  /* victim */
         magr->mstun = 0;
 
         /* Preserve tame/peaceful status from larva */
-        if (!tamer && (mdef->mtame || mdef->mpeaceful))
+        if (!tamer && (mdef_tame || mdef_peaceful))
             magr->mtame = magr->mpeaceful = 0;
         if (tamer)
             (void) tamedog(magr, (struct obj *) 0);
@@ -498,6 +503,7 @@ int mndx;
         break;
     case PM_GNOLL_WITHERLING:
         mndx = PM_GNOLL;
+        break;
     default:
         break;
     }
@@ -981,7 +987,7 @@ struct monst *mtmp;
         int dam = d(3, 12);
         if (canseemon(mtmp))
             pline("The water burns %s flesh!", s_suffix(mon_nam(mtmp)));
-        mtmp->mhp -= dam;
+        damage_mon(mtmp, dam, AD_PHYS, FALSE);
         if (mtmp->mhpmax > dam)
             mtmp->mhpmax -= (dam + 1) / 2;
         if (DEADMONSTER(mtmp)) {
@@ -4196,6 +4202,7 @@ struct monst *mtmp;
         mtmp->mconf = 0;
         mtmp->mstun = 0;
         mtmp->mpeaceful = 0;
+        set_malign(mtmp);
         mtmp->m_lev = 100;
         mtmp->mhp = mtmp->mhpmax = 7500;
         if (mtmp == u.ustuck) {
@@ -4232,6 +4239,7 @@ struct monst *mtmp;
         mtmp->mconf = 0;
         mtmp->mstun = 0;
         mtmp->mpeaceful = 1;
+        set_malign(mtmp);
         mtmp->mhp = mtmp->mhpmax = monmaxhp(mtmp->data, mtmp->m_lev);
         if (mtmp == u.ustuck) {
             if (u.uswallow)
@@ -4266,10 +4274,12 @@ struct monst *mtmp;
         }
         curse(otmp);
         place_object(otmp, mtmp->mx, mtmp->my);
+        stackobj(otmp);
         /* create wand of wishing */
         otmp2 = mksobj(WAN_WISHING, TRUE, FALSE);
         maybe_erodeproof(otmp2, 1);
         place_object(otmp2, mtmp->mx, mtmp->my);
+        stackobj(otmp2);
     }
 
     /* special handling for the Rat King.
@@ -5811,11 +5821,13 @@ boolean via_attack;
             if (mon->data == bourbon && mon->mpeaceful) {
                 mon->mstrategy &= ~STRAT_WAITMASK;
                 mon->mpeaceful = 0;
+                set_malign(mon);
                 growl(mon);
             }
             if (mon->data == ozzy && mon->mpeaceful) {
                 mon->mstrategy &= ~STRAT_WAITMASK;
                 mon->mpeaceful = 0;
+                set_malign(mon);
                 growl(mon);
             }
             newsym(mon->mx, mon->my); /* clear peaceful glyph */
@@ -5835,6 +5847,7 @@ boolean via_attack;
         if (mtmp->mtame)
             return;
         mtmp->mpeaceful = 0;
+        set_malign(mtmp);
         newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
         /* peacefuls always catch convicts stealing. but, convicts don't
            feel guilty about it. (note there's still an alignment
@@ -5892,6 +5905,7 @@ boolean via_attack;
                     continue;
                 if (mon->data == q_guardian && mon->mpeaceful) {
                     mon->mpeaceful = 0;
+                    set_malign(mon);
                     newsym(mon->mx, mon->my); /* clear peaceful glyph */
                     if (canseemon(mon))
                         ++got_mad;
@@ -5949,6 +5963,7 @@ boolean via_attack;
                                    perhaps reduce tameness? */
                             } else {
                                 mon->mpeaceful = 0;
+                                set_malign(mon);
                                 newsym(mon->mx, mon->my); /* clear peaceful glyph */
                                 if (u.ualign.type != A_NONE) {
                                     if (canspotmon(mon))
@@ -7209,6 +7224,7 @@ boolean silent;
                 mtmp->msleeping = mtmp->mfrozen = 0;
             }
             mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
         }
     }
@@ -7242,6 +7258,7 @@ pacify_guards()
             continue;
         if (is_watch(mtmp->data)) {
             mtmp->mpeaceful = 1;
+            set_malign(mtmp);
             newsym(mtmp->mx, mtmp->my); /* enable peaceful glyph */
         }
     }
@@ -7443,6 +7460,7 @@ struct monst *mtmp;
     mtmp->mstun = 0;
     mtmp->minvis = 0;
     mtmp->mpeaceful = 1;
+    set_malign(mtmp);
 
     if (kathryn_bday()) {
         mtmp->mhp = mtmp->mhpmax = 15000;
@@ -7485,6 +7503,7 @@ struct monst *mtmp;
             mon->mconf = 0;
             mon->mstun = 0;
             mon->mpeaceful = 1;
+            set_malign(mon);
             newsym(mon->mx, mon->my); /* enable peaceful glyph */
         }
     }
@@ -7499,6 +7518,7 @@ struct monst *mtmp;
                and get the hell out before the situation becomes dire */
             com_pager(201);
             mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
             paralyze_monst(mtmp, 100);
         } else if ((!Upolyd && Race_if(PM_DRAUGR))
@@ -7508,6 +7528,7 @@ struct monst *mtmp;
                the undead */
             com_pager(202);
             mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
             paralyze_monst(mtmp, 100);
         } else {
