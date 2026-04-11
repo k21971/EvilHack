@@ -186,6 +186,7 @@ struct monst *target;
         else
             pet->mtame = 0;
         pet->mpeaceful = 0;
+        set_malign(pet);
         if (canseemon(pet))
             pline("%s turns against you!", Monnam(pet));
         newsym(pet->mx, pet->my);
@@ -1048,14 +1049,15 @@ int dmg, spellnum;
             if (yours) {
                 You("%s a cancellation spell!",
                     rn2(2) ? "evoke" : "conjure up");
-            } else {
-                if (mlined_up(caster, target, FALSE)) {
-                    if (seecaster)
-                        pline("%s %s a cancellation spell!", Monnam(caster),
-                              rn2(2) ? "evokes" : "conjures up");
-                }
+                (void) cancel_monst(target, (struct obj *) 0,
+                                    FALSE, TRUE, FALSE);
+            } else if (mlined_up(caster, target, FALSE)) {
+                if (seecaster)
+                    pline("%s %s a cancellation spell!", Monnam(caster),
+                          rn2(2) ? "evokes" : "conjures up");
+                (void) cancel_monst(target, (struct obj *) 0,
+                                    FALSE, TRUE, FALSE);
             }
-            (void) cancel_monst(target, (struct obj *) 0, FALSE, TRUE, FALSE);
         }
         dmg = 0;
         break;
@@ -1094,6 +1096,8 @@ int dmg, spellnum;
             explode(target->mx, target->my, ZT_ACID,
                     d((ml / 2) + 4, 8),
                     yours ? 0 : MON_CASTBALL, EXPL_ACID);
+            if (DEADMONSTER(target))
+                break;
             if (resists_acid(target) || defended(target, AD_ACID)) {
                 shieldeff(target->mx, target->my);
                 if (canseemon(target))
@@ -1388,6 +1392,8 @@ int dmg, spellnum;
                     d((ml / 5) + 1, 8),
                     yours ? 0 : MON_CASTBALL,
                     (spellnum == MGC_FIRE_BOLT) ? EXPL_FIERY : EXPL_FROSTY);
+            if (DEADMONSTER(target))
+                break;
             if (spellnum == MGC_FIRE_BOLT
                 && (resists_fire(target) || defended(target, AD_FIRE))) {
                 shieldeff(target->mx, target->my);
@@ -1573,11 +1579,21 @@ int dmg, spellnum;
         } else {
             if (!target || DEADMONSTER(target))
                 return;
-            if (yours || canseemon(target))
-                pline("A sudden geyser slams into %s from nowhere!",
-                      mon_nam(target));
-            dmg = d(8, 6);
-            (void) erode_armor(target, ERODE_RUST);
+            if (caster->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+                || caster->data == &mons[PM_ASMODEUS]
+                || caster->data == &mons[PM_VECNA]) {
+                if (yours || canseemon(target))
+                    pline("An avalanche of ice and snow slams into %s from nowhere!",
+                          mon_nam(target));
+                dmg = d(8, 8);
+                destroy_mitem(target, POTION_CLASS, AD_COLD);
+            } else {
+                if (yours || canseemon(target))
+                    pline("A sudden geyser slams into %s from nowhere!",
+                          mon_nam(target));
+                dmg = d(8, 6);
+                (void) erode_armor(target, ERODE_RUST);
+            }
         }
         break;
     case CLC_FIRE_PILLAR:
@@ -1766,8 +1782,7 @@ int dmg, spellnum;
             bypos.x = target->mx;
             bypos.y = target->my;
 
-            quan = (mons[u.umonnum].mlevel < 2) ? 1 :
-                    rnd(mons[u.umonnum].mlevel / 2);
+            quan = (ml < 2) ? 1 : rnd((int) ml / 2);
             if (quan < 3)
                 quan = 3;
             success = pm ? TRUE : FALSE;
@@ -1971,41 +1986,44 @@ int dmg, spellnum;
         } else {
             if (!target || DEADMONSTER(target))
                 return;
-            if (yours || canseemon(target)) {
+            if (yours || canseemon(target))
                 pline("A %s film oozes over %s exterior!",
                       Blind ? "slimy" : vulntext[i], mhis(target));
-                switch (rnd(4)) {
-                case 1:
-                    if ((target->data->mflags4 & M4_VULNERABLE_FIRE) != 0
-                        || target->vuln_fire)
-                        break;
-                    target->vuln_fire = rnd(100) + 150;
+            switch (rnd(4)) {
+            case 1:
+                if ((target->data->mflags4 & M4_VULNERABLE_FIRE) != 0
+                    || target->vuln_fire)
+                    break;
+                target->vuln_fire = rnd(100) + 150;
+                if (yours || canseemon(target))
                     pline("%s is more inflammable.", Monnam(target));
+                break;
+            case 2:
+                if ((target->data->mflags4 & M4_VULNERABLE_COLD) != 0
+                    || target->vuln_cold)
                     break;
-                case 2:
-                    if ((target->data->mflags4 & M4_VULNERABLE_COLD) != 0
-                        || target->vuln_cold)
-                        break;
-                    target->vuln_cold = rnd(100) + 150;
+                target->vuln_cold = rnd(100) + 150;
+                if (yours || canseemon(target))
                     pline("%s is extremely chilly.", Monnam(target));
+                break;
+            case 3:
+                if ((target->data->mflags4 & M4_VULNERABLE_ELEC) != 0
+                    || target->vuln_elec)
                     break;
-                case 3:
-                    if ((target->data->mflags4 & M4_VULNERABLE_ELEC) != 0
-                        || target->vuln_elec)
-                        break;
-                    target->vuln_elec = rnd(100) + 150;
+                target->vuln_elec = rnd(100) + 150;
+                if (yours || canseemon(target))
                     pline("%s is overly conductive.", Monnam(target));
+                break;
+            case 4:
+                if ((target->data->mflags4 & M4_VULNERABLE_ACID) != 0
+                    || target->vuln_acid)
                     break;
-                case 4:
-                    if ((target->data->mflags4 & M4_VULNERABLE_ACID) != 0
-                        || target->vuln_acid)
-                        break;
-                    target->vuln_acid = rnd(100) + 150;
+                target->vuln_acid = rnd(100) + 150;
+                if (yours || canseemon(target))
                     pline("%s is easily corrodable.", Monnam(target));
-                    break;
-                default:
-                    break;
-                }
+                break;
+            default:
+                break;
             }
         }
         dmg = 0;
@@ -2062,22 +2080,22 @@ int dmg, spellnum;
 
             gain = loglev - caster->mprotection / (4 - min(3, (10 - natac) / 10));
 
+            /* Set mprottime when first gaining protection */
+            if (gain && !caster->mprotection) {
+                caster->mprottime = (caster->iswiz || is_prince(caster->data)
+                                     || caster->data->msound == MS_NEMESIS
+                                     || caster->data->msound == MS_LEADER)
+                                    ? 20 : 10;
+            }
             if (caster->mpeaceful && caster->ispriest && inhistemple(caster)) {
                 ; /* cut down on the temple spam */
-            } else {
-                if (gain && seecaster) {
-                    if (caster->mprotection) {
-                        pline_The("%s haze around %s becomes more dense.",
-                                  hcolor(NH_GOLDEN), mon_nam(caster));
-                    } else {
-                        caster->mprottime = (caster->iswiz || is_prince(caster->data)
-                                           || caster->data->msound == MS_NEMESIS
-                                           || caster->data->msound == MS_LEADER)
-                                           ? 20 : 10;
-                        pline_The("air around %s begins to shimmer with a %s haze.",
-                                  mon_nam(caster), hcolor(NH_GOLDEN));
-                    }
-                }
+            } else if (gain && seecaster) {
+                if (caster->mprotection)
+                    pline_The("%s haze around %s becomes more dense.",
+                              hcolor(NH_GOLDEN), mon_nam(caster));
+                else
+                    pline_The("air around %s begins to shimmer with a %s haze.",
+                              mon_nam(caster), hcolor(NH_GOLDEN));
             }
             caster->mprotection += gain;
         }
@@ -2579,12 +2597,12 @@ int spellnum;
         /* invisibility when already invisible */
         if ((HInvis & INTRINSIC) && spellnum == MGC_DISAPPEAR)
             return TRUE;
-        /* healing when already healed */
-        if (u.mh == u.mhmax && spellnum == MGC_CURE_SELF)
+        /* healing when not significantly hurt */
+        if ((u.mh * 4) > u.mhmax && spellnum == MGC_CURE_SELF)
             return TRUE;
     } else if (adtyp == AD_CLRC) {
-        /* healing when already healed */
-        if (u.mh == u.mhmax && spellnum == CLC_CURE_SELF)
+        /* healing when not significantly hurt */
+        if ((u.mh * 4) > u.mhmax && spellnum == CLC_CURE_SELF)
             return TRUE;
         /* no free pets */
         if (spellnum == CLC_CALL_UNDEAD
@@ -2790,19 +2808,19 @@ struct attack *mattk;
 
     switch (mattk->adtyp) {
     case AD_FIRE:
+        if (mon_underwater(mdef)) {
+            if (canseemon(mdef))
+                pline_The("flames are quenched by the water around %s.",
+                          mon_nam(mdef));
+            dmg = 0;
+            break;
+        }
         if (canseemon(mdef)) {
             if (is_demon(mtmp->data))
                 pline("%s is enveloped in hellfire!", Monnam(mdef));
-            else if (!mon_underwater(mdef))
+            else
                 pline("%s is enveloped in flames.", Monnam(mdef));
-            else {
-                pline("The flames are quenched by the water around %s.",
-                      mon_nam(mdef));
-                dmg = 0;
-                break;
-            }
         }
-
         if (resists_fire(mdef) || defended(mdef, AD_FIRE)) {
             shieldeff(mdef->mx, mdef->my);
             if (is_demon(mtmp->data)) {
@@ -2833,16 +2851,15 @@ struct attack *mattk;
         }
         break;
     case AD_ACID:
-        if (canseemon(mdef)) {
-            if (!mon_underwater(mdef))
-                pline("%s is covered in acid.", Monnam(mdef));
-            else {
-                pline("The acid dissipates harmlessly in the water around %s.",
-                      mon_nam(mdef));
-                dmg = 0;
-                break;
-            }
+        if (mon_underwater(mdef)) {
+            if (canseemon(mdef))
+                pline_The("acid dissipates harmlessly in the water around %s.",
+                          mon_nam(mdef));
+            dmg = 0;
+            break;
         }
+        if (canseemon(mdef))
+            pline("%s is covered in acid.", Monnam(mdef));
         if (resists_acid(mdef) || defended(mdef, AD_ACID)) {
             shieldeff(mdef->mx, mdef->my);
             if (canseemon(mdef))
@@ -3006,19 +3023,19 @@ struct attack *mattk;
 
     switch (mattk->adtyp) {
     case AD_FIRE:
+        if (mon_underwater(mtmp)) {
+            if (canseemon(mtmp))
+                pline_The("flames are quenched by the water around %s.",
+                          mon_nam(mtmp));
+            dmg = 0;
+            break;
+        }
         if (canseemon(mtmp)) {
             if (is_demon(youmonst.data))
                 pline("%s is enveloped in hellfire!", Monnam(mtmp));
-            else if (!mon_underwater(mtmp))
+            else
                 pline("%s is enveloped in flames.", Monnam(mtmp));
-            else {
-                pline("The flames are quenched by the water around %s.",
-                      mon_nam(mtmp));
-                dmg = 0;
-                break;
-            }
         }
-
         if (resists_fire(mtmp) || defended(mtmp, AD_FIRE)) {
             shieldeff(mtmp->mx, mtmp->my);
             if (is_demon(youmonst.data)) {
@@ -3049,16 +3066,15 @@ struct attack *mattk;
         }
         break;
     case AD_ACID:
-        if (canseemon(mtmp)) {
-            if (!mon_underwater(mtmp))
-                pline("%s is covered in acid.", Monnam(mtmp));
-            else {
-                pline("The acid dissipates harmlessly in the water around %s.",
-                      mon_nam(mtmp));
-                dmg = 0;
-                break;
-            }
+        if (mon_underwater(mtmp)) {
+            if (canseemon(mtmp))
+                pline_The("acid dissipates harmlessly in the water around %s.",
+                          mon_nam(mtmp));
+            dmg = 0;
+            break;
         }
+        if (canseemon(mtmp))
+            pline("%s is covered in acid.", Monnam(mtmp));
         if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
             shieldeff(mtmp->mx, mtmp->my);
             if (canseemon(mtmp))
