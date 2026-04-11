@@ -2009,9 +2009,11 @@ struct obj *otmp;
         break;
     case SPEAR_TRAP_SET:
         pline("The spear stabs %s%s!",
-              (is_flyer(steed->data) || Levitation || Flying) ? "at " : "",
+              (is_flyer(steed->data) || can_fly(steed)
+               || Levitation || Flying) ? "at " : "",
               mon_nam(steed));
-        if (is_flyer(steed->data) || Levitation || Flying) {
+        if (is_flyer(steed->data) || can_fly(steed)
+            || Levitation || Flying) {
             pline("But it isn't long enough to reach %s.", mon_nam(steed));
             break;
         } else if (thick_skinned(steed->data)
@@ -2024,9 +2026,10 @@ struct obj *otmp;
                      ? "protective shell"
                      : is_bone_monster(steed->data)
                        ? "bony structure"
-                       : (has_bark(youmonst.data) || Barkskin)
+                       : (has_bark(steed->data) || has_barkskin(steed))
                          ? "rough bark"
-                         : Stoneskin ? "stony hide" : "thick hide"));
+                         : has_stoneskin(steed)
+                           ? "stony hide" : "thick hide"));
             deltrap_with_ammo(trap, DELTRAP_DESTROY_AMMO);
             newsym(steed->mx, steed->my);
         } else {
@@ -2996,8 +2999,11 @@ struct monst *mtmp;
                 pline_The("water freezes!");
                 levl[mtmp->mx][mtmp->my].typ = ICE;
             }
-            if (see_it && t_at(mtmp->mx, mtmp->my))
-                seetrap(trap);
+            if (see_it) {
+                struct trap *t = t_at(mtmp->mx, mtmp->my);
+                if (t)
+                    seetrap(t);
+            }
             break;
         case PIT:
         case SPIKED_PIT:
