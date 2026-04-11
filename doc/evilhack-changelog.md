@@ -5180,4 +5180,5 @@ The following changes to date are:
 - Fix: various bugs in steedintrap() and mintrap()
 - Fix: various bugs in muse.c found via code review
 - Fix: multiple issues in uhitm.c found via code review
+- Fix: shopkeeper not repairing iron bars destroyed by monsters
 

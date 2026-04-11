@@ -2644,6 +2644,11 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
         if (levl[x][y].typ == IRONBARS
             && !(levl[x][y].wall_info & W_NONDIGGABLE)
             && (obj->otyp == WAN_STRIKING || obj->otyp == SPE_FORCE_BOLT)) {
+            /* add_damage before terrain change so original type is saved */
+            if (*in_rooms(x, y, SHOPBASE))
+                add_damage(x, y, 0L);
+            else if (temple_at_boundary(x, y))
+                add_damage(x, y, 0L);
             levl[x][y].typ = ROOM;
             if (cansee(x, y))
                 pline_The("iron bars are blown apart!");
