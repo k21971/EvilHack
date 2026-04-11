@@ -287,8 +287,10 @@ struct attack *mattk;
                 damage_mon(mtmp,
                            rnd(sear_damage(blocker->material) / 2),
                            AD_PHYS, TRUE);
-                if (DEADMONSTER(mtmp))
+                if (DEADMONSTER(mtmp)) {
                     killed(mtmp);
+                    already_killed = TRUE;
+                }
             }
         }
         /* train shield skill if the shield made a block */
@@ -304,7 +306,7 @@ struct attack *mattk;
            the attacker if it deflects an attack. Check for
            dead monster in case the attacker kills themselves
            by some other means from the shield (material hatred) */
-        if (!rn2(4) && blocker && (blocker == uarms)
+        if (!already_killed && !rn2(4) && blocker && (blocker == uarms)
             && !(u.uswallow || unsolid(mdat))
             && blocker->oartifact == ART_ASHMAR) {
             pline("%s knocks %s away from you!",
@@ -321,7 +323,7 @@ struct attack *mattk;
         }
         /* the artifact Armor of Retribution can do the same
            as Ashmar, just not as often */
-        if (!rn2(7) && blocker && (blocker == uarm)
+        if (!already_killed && !rn2(7) && blocker && (blocker == uarm)
             && !(u.uswallow || unsolid(mdat))
             && blocker->oartifact == ART_ARMOR_OF_RETRIBUTION) {
             pline_The("%s knocks %s away from you!",
@@ -381,14 +383,14 @@ struct attack *mattk;
         struct obj *mwep = (mtmp == &youmonst) ? uwep : MON_WEP(mtmp);
         /* "Foo's attack was poisoned." is pretty lame, but at least
            it's better than "sting" when not a stinging attack... */
-        return (!mwep || !mwep->opoisoned
-                || !mwep->otainted) ? "attack" : "weapon";
+        return (!mwep
+                || (!mwep->opoisoned && !mwep->otainted)) ? "attack" : "weapon";
     } else {
         return (mattk->aatyp == AT_TUCH) ? "contact"
-                  : (mattk->aatyp == AT_GAZE) ? "gaze"
-                       : (mattk->aatyp == AT_TENT) ? "snake bite" /* Medusa's hair-do */
-                            : (mattk->aatyp == AT_BITE) ? "bite"
-                                 : (mattk->aatyp == AT_CLAW) ? "scratch" : "sting";
+                : (mattk->aatyp == AT_GAZE) ? "gaze"
+                   : (mattk->aatyp == AT_TENT) ? "snake bite" /* Medusa's hair-do */
+                      : (mattk->aatyp == AT_BITE) ? "bite"
+                         : (mattk->aatyp == AT_CLAW) ? "scratch" : "sting";
     }
 }
 
@@ -1101,15 +1103,18 @@ struct monst *mtmp;
                         && Hidinshell) {
                         Your("protective shell blocks %s bite!",
                              s_suffix(mon_nam(mtmp)));
+                        return MM_MISS;
                     }
                     if (is_illithid(mdat) && mattk->aatyp == AT_TENT
                         && Hidinshell) {
                         Your("protective shell blocks %s tentacle attack!",
                              s_suffix(mon_nam(mtmp)));
+                        return MM_MISS;
                     }
                     if (mattk->aatyp == AT_STNG && Hidinshell) {
                         pline("%s stinger glances off of your protective shell!",
                               s_suffix(Monnam(mtmp)));
+                        return MM_MISS;
                     }
                     if (tmp > (j = rnd(20 + i))) {
                         if (mattk->aatyp != AT_KICK
@@ -1275,6 +1280,8 @@ struct monst *mtmp;
                         missmu(mtmp, tmp, j, mattk);
                         if (uarms && !rn2(3))
                             use_skill(P_SHIELD, 1);
+                        if (DEADMONSTER(mtmp))
+                            return MM_AGR_DIED;
                     }
                     /* KMH -- Don't accumulate to-hit bonuses */
                     if (mon_currwep)
@@ -1409,12 +1416,16 @@ struct monst *mon;
              * plus extra for elves*/
             if (((o->owornmask & (W_ARM | W_ARMC)) != 0)
                 && o->material == MITHRIL) {
-                armpro = max(armpro, ((Race_if(PM_ELF) && !Upolyd) ? 3 : 2));
+                armpro = max(armpro,
+                    ((is_you ? (Race_if(PM_ELF) && !Upolyd)
+                             : racial_elf(mon)) ? 3 : 2));
             }
             /* bone or stone armor grants MC to Orcs */
             else if (((o->owornmask & (W_ARM | W_ARMC)) != 0)
                 && (o->material == BONE || o->material == MINERAL)
-                && Race_if(PM_ORC) && !Upolyd && armpro < 3) {
+                && (is_you ? (Race_if(PM_ORC) && !Upolyd)
+                           : racial_orc(mon))
+                && armpro < 3) {
                 armpro = 3;
             }
             if (armpro > mc)
@@ -1472,7 +1483,8 @@ struct attack *mattk;
     struct obj* hated_obj;
     boolean lightobj = FALSE, ispoisoned = FALSE, istainted = FALSE;
     boolean vorpal_wield = ((uwep && uwep->oartifact == ART_VORPAL_BLADE)
-                            || (u.twoweap && uswapwep->oartifact == ART_VORPAL_BLADE));
+                            || (u.twoweap && uswapwep
+                                && uswapwep->oartifact == ART_VORPAL_BLADE));
 
     if (!canspotmon(mtmp) && mdat != &mons[PM_GHOST]) {
         /* Ghosts have an exception because if the hero can't spot it, their
@@ -2668,7 +2680,7 @@ do_rust:
             dmg = mon_poly(mtmp, &youmonst, dmg);
         break;
     case AD_WTHR: {
-        uchar withertime = max(2, dmg);
+        uchar withertime = (uchar) min(255, max(2, dmg));
         boolean no_effect =
             (nonliving(youmonst.data)
              || racial_vampire(&youmonst)
@@ -2699,6 +2711,7 @@ do_rust:
         break;
     }
     case AD_PITS:
+        hitmsg(mtmp, mattk);
         /* For some reason, the uhitm code calls this for any AT_HUGS attack,
          * but the mhitu code doesn't. */
         if (rn2(2)) {
@@ -2889,39 +2902,33 @@ do_rust:
             context.botl = 1;
         }
 
-        /* adjust for various effects/conditions */
-        if (mattk->aatyp == AT_WEAP) {
-            struct obj *mwep, *nextobj;
-
-            for (mwep = mtmp->minvent; mwep; mwep = nextobj) {
-                nextobj = mwep->nobj;
-                if (MON_WEP(mtmp) && is_axe(mwep)
-                    && (is_wooden(youmonst.data)
-                        || is_plant(youmonst.data) || Barkskin)) {
-                    dmg += rnd(4);
-                } else if (MON_WEP(mtmp)
-                           && objects[mwep->otyp].oc_dir & WHACK
-                           && (is_wooden(youmonst.data)
-                               || is_plant(youmonst.data) || Barkskin)) {
-                    dmg -= rnd(3) + 3;
-                } else if (MON_WEP(mtmp)
-                           && objects[mwep->otyp].oc_dir & (PIERCE | SLASH)
-                           && (is_bone_monster(youmonst.data) || Stoneskin)) {
-                    dmg -= rnd(5) + 3;
-                } else if (MON_WEP(mtmp)
-                           && objects[mwep->otyp].oc_dir & WHACK
-                           && is_bone_monster(youmonst.data)) {
-                    dmg += rnd(4);
-                } else if (MON_WEP(mtmp) && mwep->forged_qual == FQ_SUPERIOR) {
-                    dmg += 1;
-                } else if (MON_WEP(mtmp) && mwep->forged_qual == FQ_EXCEPTIONAL) {
-                    dmg += 2;
-                } else if (MON_WEP(mtmp) && mwep->forged_qual == FQ_INFERIOR) {
-                    dmg -= 2;
-                }
-                if (dmg < 1)
-                    dmg = 1;
+        /* adjust for various effects/conditions;
+           use mon_currwep (set by mattacku) to handle
+           both primary and offhand weapons correctly */
+        if (mattk->aatyp == AT_WEAP && mon_currwep) {
+            if (is_axe(mon_currwep)
+                && (is_wooden(youmonst.data)
+                    || is_plant(youmonst.data) || Barkskin)) {
+                dmg += rnd(4);
+            } else if ((objects[mon_currwep->otyp].oc_dir & WHACK)
+                       && (is_wooden(youmonst.data)
+                           || is_plant(youmonst.data) || Barkskin)) {
+                dmg -= rnd(3) + 3;
+            } else if ((objects[mon_currwep->otyp].oc_dir & (PIERCE | SLASH))
+                       && (is_bone_monster(youmonst.data) || Stoneskin)) {
+                dmg -= rnd(5) + 3;
+            } else if ((objects[mon_currwep->otyp].oc_dir & WHACK)
+                       && is_bone_monster(youmonst.data)) {
+                dmg += rnd(4);
+            } else if (mon_currwep->forged_qual == FQ_SUPERIOR) {
+                dmg += 1;
+            } else if (mon_currwep->forged_qual == FQ_EXCEPTIONAL) {
+                dmg += 2;
+            } else if (mon_currwep->forged_qual == FQ_INFERIOR) {
+                dmg -= 2;
             }
+            if (dmg < 1)
+                dmg = 1;
         }
 
         mdamageu(mtmp, dmg);
@@ -3063,7 +3070,7 @@ struct attack *mattk;
             tim_tmp += -u.uac + 10 + (ACURR(A_CON) / 3 - 1);
         } else {
             /* higher level attacker takes longer to eject hero */
-            tim_tmp = rnd((int) mtmp->m_lev + 10 / 2);
+            tim_tmp = rnd((int) mtmp->m_lev + (10 / 2));
         }
         /* u.uswldtim always set > 1 */
         u.uswldtim = (unsigned) ((tim_tmp < 2) ? 2 : tim_tmp);
@@ -3427,10 +3434,14 @@ boolean ufound;
         You("seem unaffected by it.");
         ugolemeffects((int) mattk->adtyp, tmp);
     }
-    if (kill_agr && !DEADMONSTER(mtmp))
-        mondead(mtmp);
-    wake_nearto(mtmp->mx, mtmp->my, 7 * 7);
-    return (!DEADMONSTER(mtmp)) ? 0 : 2;
+    {
+        int mx = mtmp->mx, my = mtmp->my;
+
+        if (kill_agr && !DEADMONSTER(mtmp))
+            mondead(mtmp);
+        wake_nearto(mx, my, 7 * 7);
+        return (!DEADMONSTER(mtmp)) ? 0 : 2;
+    }
 }
 
 /* monster uses a sonic-based attack against you */
@@ -4854,28 +4865,27 @@ struct attack *mattk;
                     tmp = rn2(6) + 1;
                     goto assess_dmg;
                 } else {
-                    if (canseemon(mtmp)) {
+                    if (canseemon(mtmp))
                         Your("deadly %s disintegrates %s!",
                              youmonst.data == &mons[PM_ANTIMATTER_VORTEX]
                                  ? "form" : "hide", mon_nam(mtmp));
-                        disint_mon_invent(mtmp);
-                        if (is_rider(mtmp->data)) {
-                            if (canseemon(mtmp)) {
-                                pline("%s body reintegrates before your %s!",
-                                      s_suffix(Monnam(mtmp)),
-                                      (eyecount(youmonst.data) == 1)
-                                         ? body_part(EYE)
-                                         : makeplural(body_part(EYE)));
-                                pline("%s resurrects!", Monnam(mtmp));
-                            }
-                            mtmp->mhp = mtmp->mhpmax;
-                        } else {
-                            xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
+                    disint_mon_invent(mtmp);
+                    if (is_rider(mtmp->data)) {
+                        if (canseemon(mtmp)) {
+                            pline("%s body reintegrates before your %s!",
+                                  s_suffix(Monnam(mtmp)),
+                                  (eyecount(youmonst.data) == 1)
+                                     ? body_part(EYE)
+                                     : makeplural(body_part(EYE)));
+                            pline("%s resurrects!", Monnam(mtmp));
                         }
-                        if (!DEADMONSTER(mtmp))
-                            return 1;
-                        return 2;
+                        mtmp->mhp = mtmp->mhpmax;
+                    } else {
+                        xkilled(mtmp, XKILL_NOMSG | XKILL_NOCORPSE);
                     }
+                    if (!DEADMONSTER(mtmp))
+                        return 1;
+                    return 2;
                 }
             }
         }

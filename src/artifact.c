@@ -4531,7 +4531,7 @@ int art;
         return FALSE;
 
     return ((uwep && uwep->oartifact == art)
-            || (u.twoweap && uswapwep->oartifact == art));
+            || (u.twoweap && uswapwep && uswapwep->oartifact == art));
 }
 
 boolean
