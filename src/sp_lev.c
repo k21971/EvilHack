@@ -849,6 +849,7 @@ STATIC_OVL int
 rndtrap()
 {
     int rtrap;
+    int tries = 0;
 
     do {
         rtrap = rnd(TRAPNUM - 1);
@@ -873,6 +874,10 @@ rndtrap()
                 rtrap = NO_TRAP;
             break;
         }
+        /* defensive: if every candidate gets filtered out we'd spin
+           forever; give up and return a plausible default */
+        if (++tries > 200)
+            return ARROW_TRAP;
     } while (rtrap == NO_TRAP);
     return rtrap;
 }
@@ -967,6 +972,9 @@ int humidity;
     /* TODO: Should perhaps check if wall is diggable/passwall? */
     if (humidity & ANY_LOC)
         return TRUE;
+
+    if (!isok(x, y))
+        return FALSE;
 
     if ((humidity & SOLID) && IS_ROCK(levl[x][y].typ))
         return TRUE;
@@ -1560,6 +1568,9 @@ struct mkroom *croom;
             return;
     }
 
+    if (!isok(x, y))
+        return;
+
     tm.x = x;
     tm.y = y;
 
@@ -1764,7 +1775,13 @@ struct mkroom *croom;
                             x = m->x;
                             y = m->y;
                             get_location(&x, &y, DRY, croom);
-                            if (MON_AT(x, y) && enexto(&cc, x, y, pm))
+                            /* use mtmp (already equipped via makemon)
+                               so worn levitation/fly items are seen by
+                               goodpos() - a bare permonst builds a
+                               zeroed fakemon with no extrinsics */
+                            if (MON_AT(x, y)
+                                && enexto_core_mon(&cc, x, y, mtmp,
+                                                   NO_MM_FLAGS))
                                 x = cc.x, y = cc.y;
                         } while (m_bad_boulder_spot(x, y)
                                  && --retrylimit > 0);
@@ -2039,7 +2056,11 @@ struct mkroom *croom;
                 ; /* ['otmp' remains on floor] */
             } else {
                 remove_object(otmp);
-                (void) mpickobj(invent_carrying_monster, otmp);
+                if (mpickobj(invent_carrying_monster, otmp)) {
+                    /* merged with an existing stack in minvent;
+                       otmp has been freed - nothing more to do */
+                    return;
+                }
             }
         } else {
             struct obj *cobj = container_obj[container_idx - 1];
@@ -2059,12 +2080,28 @@ struct mkroom *croom;
     }
     /* container */
     if (o->containment & SP_OBJ_CONTAINER) {
-        delete_contents(otmp);
-        if (container_idx < MAX_CONTAINMENT) {
-            container_obj[container_idx] = otmp;
-            container_idx++;
-        } else
-            impossible("create_object: too deeply nested containers.");
+        /* if this object was already placed INTO a container via
+           SP_OBJ_CONTENT above, otmp may have been reassigned by
+           add_to_container() when it merged with an existing
+           identical item. Treating a merged survivor as a new
+           empty container would let delete_contents() destroy its
+           siblings in the outer container, and would redirect
+           subsequent SP_OBJ_CONTENT specs into the wrong bag.
+           Skip the container-init step in that case */
+        if (!(o->containment & SP_OBJ_CONTENT)) {
+            delete_contents(otmp);
+            if (container_idx < MAX_CONTAINMENT) {
+                container_obj[container_idx] = otmp;
+                container_idx++;
+            } else {
+                impossible(
+                    "create_object: too deeply nested containers.");
+                /* best-effort: redirect subsequent CONTENT specs to
+                   this container so its intended contents don't
+                   spill into the parent */
+                container_obj[MAX_CONTAINMENT - 1] = otmp;
+            }
+        }
     }
 
     /* Medusa level special case: statues are petrified monsters, so they
@@ -3114,6 +3151,14 @@ struct sp_coder *coder;
     old_n = lev_message ? (strlen(lev_message) + 1) : 0;
     n = strlen(msg);
 
+    /* bound payload size; lev_message is shown as a level-entry pline,
+       anything larger than this is malformed input */
+    if (n > 8192 || old_n > 65536) {
+        impossible("spo_message: bogus message length");
+        opvar_free(op);
+        return;
+    }
+
     levmsg = (char *) alloc(old_n + n + 1);
     if (old_n)
         levmsg[old_n - 1] = '\n';
@@ -3658,10 +3703,12 @@ struct sp_coder *coder;
         return;
 
     get_location_coord(&x, &y, DRY, coder->croom, OV_i(scoord));
-    if ((badtrap = t_at(x, y)) != 0)
-        deltrap_with_ammo(badtrap, DELTRAP_DESTROY_AMMO);
-    mkstairs(x, y, (char) OV_i(up), coder->croom);
-    SpLev_Map[x][y] = 1;
+    if (isok(x, y)) {
+        if ((badtrap = t_at(x, y)) != 0)
+            deltrap_with_ammo(badtrap, DELTRAP_DESTROY_AMMO);
+        mkstairs(x, y, (char) OV_i(up), coder->croom);
+        SpLev_Map[x][y] = 1;
+    }
 
     opvar_free(scoord);
     opvar_free(up);
@@ -3680,16 +3727,18 @@ struct sp_coder *coder;
 
     get_location_coord(&x, &y, DRY, coder->croom, OV_i(lcoord));
 
-    levl[x][y].typ = LADDER;
-    SpLev_Map[x][y] = 1;
-    if (OV_i(up)) {
-        xupladder = x;
-        yupladder = y;
-        levl[x][y].ladder = LA_UP;
-    } else {
-        xdnladder = x;
-        ydnladder = y;
-        levl[x][y].ladder = LA_DOWN;
+    if (isok(x, y)) {
+        levl[x][y].typ = LADDER;
+        SpLev_Map[x][y] = 1;
+        if (OV_i(up)) {
+            xupladder = x;
+            yupladder = y;
+            levl[x][y].ladder = LA_UP;
+        } else {
+            xdnladder = x;
+            ydnladder = y;
+            levl[x][y].ladder = LA_DOWN;
+        }
     }
     opvar_free(lcoord);
     opvar_free(up);
@@ -4006,9 +4055,7 @@ int dir;
     int x, y;
     char tmp[COLNO][ROWNO];
 
-    if (ov->spovartyp != SPOVAR_SEL)
-        return;
-    if (!ov)
+    if (!ov || ov->spovartyp != SPOVAR_SEL)
         return;
 
     (void) memset(tmp, 0, sizeof tmp);
@@ -4767,7 +4814,7 @@ struct sp_coder *coder;
     }
     (void) memcpy(&lregions[num_lregions - 1], tmplregion,
                   sizeof(lev_region));
-    free(tmplregion);
+    Free(tmplregion);
 
     opvar_free(dx1);
     opvar_free(dy1);
@@ -4903,11 +4950,13 @@ struct sp_coder *coder;
         return;
 
     get_location_coord(&x, &y, DRY | WET | HOT, coder->croom, OV_i(dcoord));
-    if ((dopen = OV_i(db_open)) == -1)
-        dopen = !rn2(2);
-    if (!create_drawbridge(x, y, OV_i(dir), dopen ? TRUE : FALSE))
-        impossible("Cannot create drawbridge.");
-    SpLev_Map[x][y] = 1;
+    if (isok(x, y)) {
+        if ((dopen = OV_i(db_open)) == -1)
+            dopen = !rn2(2);
+        if (!create_drawbridge(x, y, OV_i(dir), dopen ? TRUE : FALSE))
+            impossible("Cannot create drawbridge.");
+        SpLev_Map[x][y] = 1;
+    }
 
     opvar_free(dcoord);
     opvar_free(db_open);
@@ -5121,6 +5170,16 @@ struct sp_coder *coder;
     if (!OV_pop_i(mpxs) || !OV_pop_i(mpys) || !OV_pop_s(mpmap)
         || !OV_pop_i(mpkeepr) || !OV_pop_i(mpzalign) || !OV_pop_c(mpa))
         return;
+
+    /* guard against truncated/corrupt map payload: later code
+       indexes vardata.str[(y-ystart) * xsize + (x-xstart)] with
+       no bounds check */
+    if (OV_i(mpxs) <= 0 || OV_i(mpys) <= 0
+        || (long) strlen(OV_s(mpmap))
+               < (long) OV_i(mpxs) * (long) OV_i(mpys)) {
+        impossible("spo_map: truncated or bogus map payload");
+        goto skipmap;
+    }
 
 redo_maploc:
     tmpmazepart.xsize = OV_i(mpxs);
