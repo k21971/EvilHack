@@ -5173,10 +5173,15 @@ struct sp_coder *coder;
 
     /* guard against truncated/corrupt map payload: later code
        indexes vardata.str[(y-ystart) * xsize + (x-xstart)] with
-       no bounds check */
-    if (OV_i(mpxs) <= 0 || OV_i(mpys) <= 0
-        || (long) strlen(OV_s(mpmap))
-               < (long) OV_i(mpxs) * (long) OV_i(mpys)) {
+       no bounds check. NOMAP_ID (MAZE without MAP block) legally
+       pushes xsize=0, ysize=0, map=NULL; the downstream
+       xsize<=1 && ysize<=1 branch substitutes full dungeon
+       dimensions and never indexes the string, so only validate
+       when the indexing path will run. */
+    if ((OV_i(mpxs) > 1 || OV_i(mpys) > 1)
+        && (OV_i(mpxs) <= 0 || OV_i(mpys) <= 0 || !OV_s(mpmap)
+            || (long) strlen(OV_s(mpmap))
+                   < (long) OV_i(mpxs) * (long) OV_i(mpys))) {
         impossible("spo_map: truncated or bogus map payload");
         goto skipmap;
     }

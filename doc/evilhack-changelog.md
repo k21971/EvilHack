@@ -5201,4 +5201,5 @@ The following changes to date are:
 - Revert: bhitm() gone flag for migrated/expelled monsters
 - Fix: multiple issues in steed.c found via code review
 - Fix: multiple issues in sp_lev.c found via code review
+- Fix: spo_map payload guard false-positive on NOMAP_ID maze levels
 
