@@ -129,7 +129,7 @@ struct obj *otmp;
 {
     boolean wake = TRUE; /* Most 'zaps' should wake monster */
     boolean reveal_invis = FALSE, learn_it = FALSE,
-            already_killed = FALSE, gone = FALSE;
+            already_killed = FALSE;
     boolean dbldam = Role_if(PM_KNIGHT) && u.uhave.questart;
     boolean skilled_spell, helpful_gesture = FALSE;
     int dmg, otyp = otmp->otyp;
@@ -272,7 +272,6 @@ struct obj *otmp;
                 You("disrupt %s!", mon_nam(mtmp));
                 pline("A huge hole opens up...");
                 expels(mtmp, mtmp->data, TRUE);
-                gone = TRUE;
             }
         }
         break;
@@ -398,7 +397,6 @@ struct obj *otmp;
                         get_level(&flev, nlev);
                         migrate_to_level(mtmp, ledger_no(&flev), MIGR_RANDOM,
                                          (coord *) 0);
-                        gone = TRUE;
                         break;
                     }
                     default: /* 15 through 0 */
@@ -558,7 +556,6 @@ struct obj *otmp;
                     pline("%s opens its mouth!", Monnam(mtmp));
             }
             expels(mtmp, mtmp->data, TRUE);
-            gone = TRUE;
             /* zap which hits steed will only release saddle if it
                doesn't hit a holding or falling trap; playability
                here overrides the more logical target ordering */
@@ -780,7 +777,7 @@ struct obj *otmp;
         impossible("What an interesting effect (%d)", otyp);
         break;
     }
-    if (!gone && wake) {
+    if (wake) {
         if (!DEADMONSTER(mtmp)) {
             wakeup(mtmp, helpful_gesture ? FALSE : TRUE);
             m_respond(mtmp);
@@ -793,7 +790,7 @@ struct obj *otmp;
      * reveal_invis will be false.  We can't use mtmp->mx, my since it
      * might be an invisible worm hit on the tail.
      */
-    if (!gone && reveal_invis) {
+    if (reveal_invis) {
         if (!DEADMONSTER(mtmp) && cansee(bhitpos.x, bhitpos.y)
             && !canspotmon(mtmp))
             map_invisible(bhitpos.x, bhitpos.y);
