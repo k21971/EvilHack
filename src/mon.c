@@ -5546,7 +5546,8 @@ struct monst *mtmp;
         return;
     }
 
-    if (!enexto(&mm, u.ux, u.uy, mtmp->data) || !isok(mm.x, mm.y)) {
+    if (!enexto_core_mon(&mm, u.ux, u.uy, mtmp, NO_MM_FLAGS)
+        || !isok(mm.x, mm.y)) {
         deal_with_overcrowding(mtmp);
         return;
     }
@@ -5587,7 +5588,7 @@ struct monst *mtmp;
     int tryct = 20;
 
     do {
-        if (!enexto(&mm, u.ux, u.uy, ptr))
+        if (!enexto_core_mon(&mm, u.ux, u.uy, mtmp, NO_MM_FLAGS))
             return;
         if (couldsee(mm.x, mm.y)
             /* don't move grid bugs diagonally */

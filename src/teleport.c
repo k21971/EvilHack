@@ -11,6 +11,8 @@ STATIC_DCL boolean FDECL(tele_jump_ok, (int, int, int, int));
 STATIC_DCL boolean FDECL(teleok, (int, int, BOOLEAN_P));
 STATIC_DCL void NDECL(vault_tele);
 STATIC_DCL void FDECL(mvault_tele, (struct monst *));
+STATIC_DCL boolean FDECL(enexto_core_full, (coord *, XCHAR_P, XCHAR_P,
+                                            struct monst *, unsigned));
 
 /* non-null when teleporting via having read this scroll */
 STATIC_VAR struct obj *telescroll = 0;
@@ -151,14 +153,8 @@ xchar xx, yy;
 struct permonst *mdat;
 unsigned entflags;
 {
-#define MAX_GOOD 15
-    coord good[MAX_GOOD], *good_ptr;
-    int x, y, range, i;
-    int xmin, xmax, ymin, ymax, rangemax;
     struct monst fakemon; /* dummy monster */
-    boolean allow_xx_yy = (boolean) ((entflags & GP_ALLOW_XY) != 0);
 
-    entflags &= ~GP_ALLOW_XY;
     if (!mdat) {
         debugpline0("enexto() called with null mdat");
         /* default to player's original monster type */
@@ -166,6 +162,38 @@ unsigned entflags;
     }
     fakemon = zeromonst;
     set_mon_data(&fakemon, mdat); /* set up for goodpos */
+    return enexto_core_full(cc, xx, yy, &fakemon, entflags);
+}
+
+/* variant of enexto_core() that honors the real monster's applied
+   extrinsics (e.g. a worn ring of levitation) when picking a
+   destination */
+boolean
+enexto_core_mon(cc, xx, yy, mtmp, entflags)
+coord *cc;
+xchar xx, yy;
+struct monst *mtmp;
+unsigned entflags;
+{
+    if (!mtmp)
+        return enexto_core(cc, xx, yy, (struct permonst *) 0, entflags);
+    return enexto_core_full(cc, xx, yy, mtmp, entflags);
+}
+
+STATIC_OVL boolean
+enexto_core_full(cc, xx, yy, mtmp, entflags)
+coord *cc;
+xchar xx, yy;
+struct monst *mtmp;
+unsigned entflags;
+{
+#define MAX_GOOD 15
+    coord good[MAX_GOOD], *good_ptr;
+    int x, y, range, i;
+    int xmin, xmax, ymin, ymax, rangemax;
+    boolean allow_xx_yy = (boolean) ((entflags & GP_ALLOW_XY) != 0);
+
+    entflags &= ~GP_ALLOW_XY;
 
     /* used to use 'if (range > ROWNO && range > COLNO) return FALSE' below,
        so effectively 'max(ROWNO, COLNO)' which performs useless iterations
@@ -187,14 +215,14 @@ unsigned entflags;
         ymax = min(ROWNO - 1, yy + range);
 
         for (x = xmin; x <= xmax; x++) {
-            if (goodpos(x, ymin, &fakemon, entflags)) {
+            if (goodpos(x, ymin, mtmp, entflags)) {
                 good_ptr->x = x;
                 good_ptr->y = ymin;
                 /* beware of accessing beyond segment boundaries.. */
                 if (good_ptr++ == &good[MAX_GOOD - 1])
                     goto full;
             }
-            if (goodpos(x, ymax, &fakemon, entflags)) {
+            if (goodpos(x, ymax, mtmp, entflags)) {
                 good_ptr->x = x;
                 good_ptr->y = ymax;
                 if (good_ptr++ == &good[MAX_GOOD - 1])
@@ -203,13 +231,13 @@ unsigned entflags;
         }
         /* 3.6.3: this used to use 'ymin+1' which left top row unchecked */
         for (y = ymin; y < ymax; y++) {
-            if (goodpos(xmin, y, &fakemon, entflags)) {
+            if (goodpos(xmin, y, mtmp, entflags)) {
                 good_ptr->x = xmin;
                 good_ptr->y = y;
                 if (good_ptr++ == &good[MAX_GOOD - 1])
                     goto full;
             }
-            if (goodpos(xmax, y, &fakemon, entflags)) {
+            if (goodpos(xmax, y, mtmp, entflags)) {
                 good_ptr->x = xmax;
                 good_ptr->y = y;
                 if (good_ptr++ == &good[MAX_GOOD - 1])
@@ -224,10 +252,11 @@ unsigned entflags;
            and left 'cc' uninitialized when returning False */
         cc->x = xx, cc->y = yy;
         /* if every spot other than <xx,yy> has failed, try <xx,yy> itself */
-        if (allow_xx_yy && goodpos(xx, yy, &fakemon, entflags)) {
+        if (allow_xx_yy && goodpos(xx, yy, mtmp, entflags)) {
             return TRUE; /* 'cc' is set */
         } else {
-            debugpline3("enexto(\"%s\",%d,%d) failed", mdat->mname, xx, yy);
+            debugpline3("enexto(\"%s\",%d,%d) failed",
+                        mtmp->data->mname, xx, yy);
             return FALSE;
         }
     }
