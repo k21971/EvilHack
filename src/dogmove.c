@@ -1794,7 +1794,7 @@ int after; /* this is extra fast monster movement */
     for (i = 0; i < cnt; i++) {
         nx = poss[i].x;
         ny = poss[i].y;
-        if (MON_AT(nx, ny) && !((info[i] & ALLOW_M) || info[i] & ALLOW_MDISP))
+        if (MON_AT(nx, ny) && !((info[i] & ALLOW_M) || (info[i] & ALLOW_MDISP)))
             continue;
         if (cursed_object_at(nx, ny))
             continue;
@@ -1813,7 +1813,7 @@ int after; /* this is extra fast monster movement */
 
             nx = poss[i].x;
             ny = poss[i].y;
-            if (MON_AT(nx, ny) && !((info[i] & ALLOW_M) || info[i] & ALLOW_MDISP))
+            if (MON_AT(nx, ny) && !((info[i] & ALLOW_M) || (info[i] & ALLOW_MDISP)))
                 continue;
             /* Check all squares within 2 tiles of this candidate position */
             for (px = nx - 2; px <= nx + 2 && !enemy_nearby; px++) {

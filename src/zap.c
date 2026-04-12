@@ -6845,7 +6845,7 @@ int osym, dmgtyp;
             case RING_CLASS:
                 if ((which_armor(mtmp, W_ARMG)
                      && !is_metallic(which_armor(mtmp, W_ARMG))
-                     && obj->owornmask & W_RING)
+                     && (obj->owornmask & W_RING))
                     || obj->otyp == RIN_SHOCK_RESISTANCE) {
                     skip++;
                     break;

@@ -2795,9 +2795,9 @@ long flag;
                             || dmgtype(mdat, AD_CORR)))))
                 continue;
             if (IS_DOOR(ntyp) && !(amorphous(mdat) || can_fog(mon))
-                && (((In_sokoban(&u.uz) && levl[nx][ny].doormask & D_TRAPPED))
-                || ((levl[nx][ny].doormask & D_CLOSED && !(flag & OPENDOOR))
-                || (levl[nx][ny].doormask & D_LOCKED && !(flag & UNLOCKDOOR))))
+                && (((In_sokoban(&u.uz) && (levl[nx][ny].doormask & D_TRAPPED)))
+                || (((levl[nx][ny].doormask & D_CLOSED) && !(flag & OPENDOOR))
+                || ((levl[nx][ny].doormask & D_LOCKED) && !(flag & UNLOCKDOOR))))
                 && !thrudoor)
                 continue;
             /* avoid poison gas? */
@@ -7121,7 +7121,7 @@ kill_genocided_monsters()
                      && (mvitals[mtmp->cham].mvflags & G_GENOD));
         if ((mvitals[mndx].mvflags & G_GENOD) || kill_cham
             || (has_erac(mtmp)
-                && mvitals[ERAC(mtmp)->rmnum].mvflags & G_GENOD)) {
+                && (mvitals[ERAC(mtmp)->rmnum].mvflags & G_GENOD))) {
             if (mtmp->cham >= LOW_PM && !kill_cham)
                 (void) newcham(mtmp, (struct permonst *) 0, FALSE, FALSE);
             else
@@ -7801,7 +7801,7 @@ short raceidx;
     struct permonst *ptr = &mons[raceidx], *mptr = &mons[mtmp->mnum];
     boolean init = FALSE;
 
-    if (!mtmp || mvitals[raceidx].mvflags & G_GONE)
+    if (!mtmp || (mvitals[raceidx].mvflags & G_GONE))
         return;
 
     if (raceidx == NON_PM) {

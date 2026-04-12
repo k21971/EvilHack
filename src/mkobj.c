@@ -2156,7 +2156,7 @@ struct obj *otmp;
     else if (attacks(AD_FIRE, otmp) || defends(AD_FIRE, otmp))
         return FALSE;
     /* weapons of fire are handled above; armor is not*/
-    else if (otmp->oprops && otmp->oprops & ITEM_FIRE)
+    else if (otmp->oprops && (otmp->oprops & ITEM_FIRE))
         return FALSE;
 
     if (otyp == SPE_BOOK_OF_THE_DEAD)

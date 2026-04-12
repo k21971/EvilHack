@@ -402,7 +402,7 @@
 #define throws_rocks(ptr) \
     ((((ptr)->mflags2 & M2_ROCKTHROW) != 0L))
 #define racial_throws_rocks(mon) \
-    ((has_erac(mon) && ERAC(mon)->mflags2 & M2_ROCKTHROW) \
+    ((has_erac(mon) && (ERAC(mon)->mflags2 & M2_ROCKTHROW)) \
      || throws_rocks((mon)->data) \
      || ((mon) == &youmonst && !Upolyd && Race_if(PM_GIANT)))
 #define type_is_pname(ptr) (((ptr)->mflags2 & M2_PNAME) != 0L)

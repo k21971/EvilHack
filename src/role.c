@@ -2734,7 +2734,7 @@ boolean preselect;
                 constrainer = "role";
         }
         if (c >= 0 && !constrainer
-            && !(r >= 0 && roles[r].allow & ROLE_NORACEALIGN)) {
+            && !(r >= 0 && (roles[r].allow & ROLE_NORACEALIGN))) {
             allowmask = races[c].allow & ROLE_ALIGNMASK;
             if (allowmask == AM_LAWFUL)
                 a = 0; /* aligns[lawful] */

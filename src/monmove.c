@@ -2196,7 +2196,7 @@ found_altar:
                         pline("%s %s under the door.", Monnam(mtmp),
                               (ptr == &mons[PM_FOG_CLOUD]
                                || ptr->mlet == S_LIGHT) ? "flows" : "oozes");
-                } else if (here->doormask & D_LOCKED && can_unlock) {
+                } else if ((here->doormask & D_LOCKED) && can_unlock) {
                     /* like the vampshift hack above, there are sequencing
                        issues when the monster is moved to the door's spot
                        first then door handling plus feedback comes after */

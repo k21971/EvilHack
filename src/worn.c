@@ -1558,32 +1558,32 @@ struct obj *obj;
                   || wielding_artifact(ART_XIUHCOATL)
                   || wielding_artifact(ART_ANGELSLAYER)
                   || wielding_artifact(ART_DICHOTOMY)
-                  || (u.twoweap && uswapwep->oprops & ITEM_FIRE)
-                  || (uwep && uwep->oprops & ITEM_FIRE)) ? 25 : 5;
+                  || (u.twoweap && (uswapwep->oprops & ITEM_FIRE))
+                  || (uwep && (uwep->oprops & ITEM_FIRE))) ? 25 : 5;
         break;
     case RIN_COLD_RESISTANCE:
         if (!(resists_cold(mon) || defended(mon, AD_COLD)))
             rc = (dmgtype(youmonst.data, AD_COLD)
                   || wielding_artifact(ART_FROST_BRAND)
                   || wielding_artifact(ART_DICHOTOMY)
-                  || (u.twoweap && uswapwep->oprops & ITEM_FROST)
-                  || (uwep && uwep->oprops & ITEM_FROST)) ? 25 : 5;
+                  || (u.twoweap && (uswapwep->oprops & ITEM_FROST))
+                  || (uwep && (uwep->oprops & ITEM_FROST))) ? 25 : 5;
         break;
     case RIN_POISON_RESISTANCE:
         if (!(resists_poison(mon) || defended(mon, AD_DRST)))
             rc = (dmgtype(youmonst.data, AD_DRST)
                   || dmgtype(youmonst.data, AD_DRCO)
                   || dmgtype(youmonst.data, AD_DRDX)
-                  || (u.twoweap && uswapwep->oprops & ITEM_VENOM)
-                  || (uwep && uwep->oprops & ITEM_VENOM)) ? 25 : 5;
+                  || (u.twoweap && (uswapwep->oprops & ITEM_VENOM))
+                  || (uwep && (uwep->oprops & ITEM_VENOM))) ? 25 : 5;
         break;
     case RIN_SHOCK_RESISTANCE:
         if (!(resists_elec(mon) || defended(mon, AD_ELEC)))
             rc = (dmgtype(youmonst.data, AD_ELEC)
                   || wielding_artifact(ART_MJOLLNIR)
                   || wielding_artifact(ART_KEOLEWA)
-                  || (u.twoweap && uswapwep->oprops & ITEM_SHOCK)
-                  || (uwep && uwep->oprops & ITEM_SHOCK)) ? 25 : 5;
+                  || (u.twoweap && (uswapwep->oprops & ITEM_SHOCK))
+                  || (uwep && (uwep->oprops & ITEM_SHOCK))) ? 25 : 5;
         break;
     case RIN_REGENERATION:
         rc = !mon_prop(mon, REGENERATION) ? 25 : 5;

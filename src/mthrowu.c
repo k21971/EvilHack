@@ -125,7 +125,7 @@ const char *name; /* if null, then format `*objp' */
             && (obj->oartifact ||
                 ((obj->oclass == WEAPON_CLASS
                   || is_weptool(obj) || is_bullet(obj))
-                 && obj->oprops & ITEM_PROP_MASK)))
+                 && (obj->oprops & ITEM_PROP_MASK))))
             (void) artifact_hit((struct monst *) 0, &youmonst, obj, &dam, 0);
         else if (Blind || !flags.verbose)
             You("are hit%s", exclam(dam));
@@ -651,7 +651,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
             && (otmp->oartifact
                 || ((otmp->oclass == WEAPON_CLASS
                      || is_weptool(otmp) || is_bullet(otmp))
-                    && otmp->oprops & ITEM_PROP_MASK))) {
+                    && (otmp->oprops & ITEM_PROP_MASK)))) {
             /* damage from objects with offensive object properties */
             (void) artifact_hit((struct monst *) 0, mtmp, otmp, &damage, 0);
         }
