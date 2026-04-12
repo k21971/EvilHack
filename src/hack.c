@@ -695,7 +695,7 @@ static NEARDATA int dpx, dpy; /* boulder being attacked */
 static NEARDATA int breakturns; /* concentration turn */
 
 STATIC_OVL int
-ma_break(void)
+ma_break(VOID_ARGS)
 {
     struct obj *bobj, *obj;
     int prob;
@@ -725,7 +725,7 @@ ma_break(void)
                 You("swing wildly, missing the boulder.");
             } else {
                You("slip, hitting your head against the boulder!");
-               losehp(d(1, 4), "face planting into a boulder.",
+               losehp(d(1, 4), "face planting into a boulder",
                       NO_KILLER_PREFIX);
             }
         } else if ((obj = sobj_at(STATUE, dpx, dpy)) != 0) {
@@ -733,7 +733,7 @@ ma_break(void)
                 You("swing wildly, missing the statue.");
             } else {
                You("slip, hitting your head against the statue!");
-               losehp(d(1, 4), "trying to headbutt a statue.",
+               losehp(d(1, 4), "trying to headbutt a statue",
                       NO_KILLER_PREFIX);
             }
         }
@@ -792,16 +792,18 @@ ma_break(void)
             /* another boulder here, restack it to the top */
             obj_extract_self(bobj);
             place_object(bobj, dpx, dpy);
+            stackobj(bobj);
+            newsym(dpx, dpy);
         }
         exercise(A_STR, TRUE);
         use_skill(P_MARTIAL_ARTS, 1);
     } else {
         if ((obj = sobj_at(BOULDER, dpx, dpy)) != 0) {
             pline("However, your qi is not focused enough to break the boulder.");
-            losehp(d(1, 6), "trying to split a boulder.", KILLED_BY);
+            losehp(d(1, 6), "trying to split a boulder", KILLED_BY);
         } else if ((obj = sobj_at(STATUE, dpx, dpy)) != 0) {
             pline("However, your qi is not focused enough to break the statue.");
-            losehp(d(1, 6), "trying to shatter a statue.", KILLED_BY);
+            losehp(d(1, 6), "trying to shatter a statue", KILLED_BY);
         }
         if (!rn2(5)) {
             You("need more training to reliably focus your qi.");
@@ -849,7 +851,8 @@ xchar x, y;
                               || !may_dig(x, y))
                           && !(passes_walls(mtmp->data) && may_passwall(x, y))
                           && !(IS_TREES(levl[x][y].typ)
-                               && Passes_trees && may_passtree(x, y))));
+                               && (mtmp == &youmonst && Passes_trees)
+                               && may_passtree(x, y))));
 }
 
 /* caller has already decided that it's a tight diagonal; check whether a
@@ -866,13 +869,17 @@ struct monst *mon;
     /* too big? */
     if (bigmonst(ptr)
         && !(amorphous(ptr) || is_whirly(ptr) || noncorporeal(ptr)
-             || slithy(ptr) || can_fog(mon) || Passes_walls))
+             || slithy(ptr) || can_fog(mon)
+             || (mon == &youmonst ? Passes_walls
+                                  : passes_walls(ptr))))
         return 1;
 
     /* lugging too much junk? */
     amt = (mon == &youmonst) ? inv_weight() + weight_cap()
                              : curr_mon_load(mon);
-    if (amt > 600 && !Passes_walls)
+
+    if (amt > 600
+        && !(mon == &youmonst ? Passes_walls : passes_walls(ptr)))
         return 2;
 
     /* Sokoban restriction applies to hero only */
@@ -1962,10 +1969,10 @@ domove_core()
                3.7: used to say "solid rock" for STONE, but that made it be
                different from unmapped walls outside of rooms (and was wrong
                on arboreal levels) */
-            if (levl[x][y].seenv && IS_MAGIC_CHEST(levl[x][y].typ))
+            if (levl[x][y].seenv && IS_MAGIC_CHEST(levl[x][y].typ)) {
                 Strcpy(buf, "thin air"); /* acts like a chest object would */
-            if (levl[x][y].seenv || IS_STWALL(levl[x][y].typ)
-                || levl[x][y].typ == SDOOR || levl[x][y].typ == SCORR) {
+            } else if (levl[x][y].seenv || IS_STWALL(levl[x][y].typ)
+                       || levl[x][y].typ == SDOOR || levl[x][y].typ == SCORR) {
                 glyph = back_to_glyph(x, y);
                 Strcpy(buf, the(defsyms[glyph_to_cmap(glyph)].explanation));
             } else {
@@ -2015,8 +2022,7 @@ domove_core()
                         add_damage(x, y, 0L);
                     pay_for_damage("burn away", FALSE);
                     tmpr->typ = ROOM, tmpr->flags = 0;
-                    if (tmpr->typ == ROOM)
-                        newsym(x, y);
+                    newsym(x, y);
                     /* vision: can see through */
                     if (!does_block(x, y, &levl[x][y]))
                         unblock_point(x, y);
@@ -2032,8 +2038,7 @@ domove_core()
                     else
                         You("smell smoke.");
                     tmpr->typ = DEADTREE;
-                    if (tmpr->typ == DEADTREE)
-                        newsym(x, y);
+                    newsym(x, y);
                     if (Role_if(PM_DRUID)) {
                         You_feel("very guilty.");
                         adjalign(-15);
@@ -2060,8 +2065,7 @@ domove_core()
                     else
                         You("smell smoke.");
                     tmpr->typ = ROOM, tmpr->flags = 0;
-                    if (tmpr->typ == ROOM)
-                        newsym(x, y);
+                    newsym(x, y);
                     /* vision: can see through */
                     if (!does_block(x, y, &levl[x][y]))
                         unblock_point(x, y);
@@ -2315,7 +2319,6 @@ domove_core()
             case 0:
                 break;
             case 1: /* trapped */
-            case 3: /* changed levels */
                 /* there's already been a trap message, reinforce it */
                 abuse_dog(mtmp);
                 You_feel("guilty.");
@@ -2371,9 +2374,11 @@ domove_core()
                 u.usteed->mx = u.ux, u.usteed->my = u.uy;
         }
 
-        mtmp->mundetected = 0;
-        if (mtmp->m_ap_type)
-            seemimic(mtmp);
+        if (!DEADMONSTER(mtmp)) {
+            mtmp->mundetected = 0;
+            if (mtmp->m_ap_type)
+                seemimic(mtmp);
+        }
     }
     /* tentative move above didn't handle CLIPPING, in case there was a
        monster in the way and the move attempt ended up being blocked;
@@ -2681,7 +2686,7 @@ boolean newspot;             /* true if called by spoteffects */
             if (!verysmall(youmonst.data) && !rn2(4))
                 wake_nearby();
 
-            if (Upolyd && youmonst.data  == &mons[PM_GREMLIN])
+            if (Upolyd && youmonst.data == &mons[PM_GREMLIN])
                 (void) split_mon(&youmonst, NULL);
             else if (youmonst.data == &mons[PM_IRON_GOLEM]
                      /* mud boots keep the feet dry */
@@ -2859,6 +2864,7 @@ boolean pick;
                 You("surprise %s!",
                     Blind && !sensemon(mtmp) ? something : a_monnam(mtmp));
                 mtmp->mpeaceful = 0;
+                set_malign(mtmp);
                 newsym(mtmp->mx, mtmp->my); /* update display */
             } else if (mtmp->mcanmove)
                 pline("%s attacks you by surprise!", Amonnam(mtmp));
@@ -3944,7 +3950,9 @@ struct obj *otmp;
 }
 
 void
-spot_checks(xchar x, xchar y, schar old_typ)
+spot_checks(x, y, old_typ)
+xchar x, y;
+schar old_typ;
 {
     schar new_typ = levl[x][y].typ;
     boolean db_ice_now = FALSE;

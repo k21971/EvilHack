@@ -1026,7 +1026,7 @@ E int NDECL(max_capacity);
 E boolean FDECL(check_capacity, (const char *));
 E int FDECL(inv_cnt, (BOOLEAN_P));
 E long FDECL(money_cnt, (struct obj *));
-E void FDECL(spot_checks, (xchar, xchar, schar));
+E void FDECL(spot_checks, (XCHAR_P, XCHAR_P, SCHAR_P));
 E void FDECL(disint_mon_invent, (struct monst *));
 
 /* ### hacklib.c ### */
