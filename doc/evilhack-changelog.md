@@ -5202,4 +5202,5 @@ The following changes to date are:
 - Fix: multiple issues in steed.c found via code review
 - Fix: multiple issues in sp_lev.c found via code review
 - Fix: spo_map payload guard false-positive on NOMAP_ID maze levels
+- Fix: multiple issues in explode.c found via code review
 

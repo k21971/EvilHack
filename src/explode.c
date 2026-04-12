@@ -41,6 +41,7 @@ int expltype;
     const char *str = (const char *) 0;
     int idamres, idamnonres;
     struct monst *mtmp, *mdef = 0;
+    unsigned mdef_id = 0, ustuck_id = 0;
     uchar adtyp;
     int explmask[3][3]; /* 0=normal explosion, 1=do shieldeff, 2=do nothing */
     boolean shopdamage = FALSE, generic = FALSE, physical_dmg = FALSE,
@@ -100,6 +101,10 @@ int expltype;
     if (expltype < 0) {
         /* hero gets credit/blame for killing this monster, not others */
         mdef = m_at(x, y);
+        /* save m_id so later iterations (and any recursive explode()
+           from m_respond / pet AI that may dmonsfree()) don't leave us
+           dereferencing a stale pointer */
+        mdef_id = mdef ? mdef->m_id : 0;
         expltype = -expltype;
     }
     /* if hero is engulfed and caused the explosion, only hero and
@@ -115,6 +120,7 @@ int expltype;
             grabbed = TRUE;
         grabxy.x = u.ustuck->mx;
         grabxy.y = u.ustuck->my;
+        ustuck_id = u.ustuck->m_id;
     } else
         grabxy.x = grabxy.y = 0; /* lint suppression */
     /* FIXME:
@@ -486,7 +492,8 @@ int expltype;
                     /* if grabber is reaching into hero's spot and
                        hero's spot is within explosion radius, grabber
                        gets hit by double damage */
-                    if (grabbed && mtmp == u.ustuck && distu(x, y) <= 2)
+                    if (grabbed && ustuck_id && mtmp->m_id == ustuck_id
+                        && distu(x, y) <= 2)
                         mdam *= 2;
                     if (mon_underwater(mtmp)
                         && (adtyp == AD_FIRE || adtyp == AD_ACID))
@@ -501,7 +508,7 @@ int expltype;
 
                     if (!context.mon_moving) {
                         xkilled(mtmp, XKILL_GIVEMSG | xkflg);
-                    } else if (mdef && mtmp == mdef) {
+                    } else if (mdef_id && mtmp->m_id == mdef_id) {
                         /* 'mdef' killed self trying to cure being turned
                          * into slime due to some action by the player.
                          * Hero gets the credit (experience) and most of
@@ -517,9 +524,13 @@ int expltype;
                                                                 : "killed");
                         xkilled(mtmp, XKILL_NOMSG | XKILL_NOCONDUCT | xkflg);
                     } else {
-                        if (xkflg)
-                            adtyp = AD_RBRE; /* no corpse */
-                        monkilled(mtmp, "", (int) adtyp);
+                        /* pass -AD_RBRE (negative) so monkilled()'s
+                           disintegested check fires and no corpse is
+                           left; adtyp itself must NOT be mutated --
+                           later iterations and the post-loop player
+                           block still read it */
+                        monkilled(mtmp, "",
+                                  xkflg ? -AD_RBRE : (int) adtyp);
                     }
                 } else if (!context.mon_moving && olet != MON_CASTBALL) {
                     /* all affected monsters, even if mdef is set */
@@ -564,7 +575,7 @@ int expltype;
             if (!Underwater) {
                 if (rn2(u.twoweap ? 2 : 3))
                     acid_damage(uwep);
-                if (u.twoweap && rn2(2))
+                if (u.twoweap && uswapwep && rn2(2))
                     acid_damage(uswapwep);
                 if (rn2(4))
                     erode_armor(&youmonst, ERODE_CORRODE);
@@ -600,10 +611,12 @@ int expltype;
             context.botl = 1;
         }
 
-	/* You resisted the damage, lets not keep that to ourselves */
-	if (uhurt == 1 && adtyp >= AD_MAGM && adtyp <= AD_ACID) {
-	    monstseesu(1 << (adtyp - 1));
-	}
+        /* You resisted the damage, lets not keep that to ourselves.
+           AD_MAGM..AD_ACID (1..8) map to M_SEEN_MAGR..M_SEEN_ACID
+           (bits 0..7); shift stays unsigned to match seen_resistance. */
+        if (uhurt == 1 && adtyp >= AD_MAGM && adtyp <= AD_ACID) {
+            monstseesu(1U << (adtyp - 1));
+        }
 
         if (u.uhp <= 0 || (Upolyd && u.mh <= 0)) {
             if (Upolyd) {
@@ -612,7 +625,7 @@ int expltype;
                 if (olet == MON_EXPLODE) {
                     if (generic) /* explosion was unseen; str=="explosion", */
                         ;        /* killer.name=="gas spore's explosion"    */
-                    else if (str != killer.name && str != hallu_buf)
+                    else if (str != hallu_buf)
                         Strcpy(killer.name, str);
                     killer.format = KILLED_BY_AN;
                 } else if (olet == MON_CASTBALL) {
@@ -763,8 +776,10 @@ struct obj *obj; /* only scatter this obj        */
                     pline("%s.", Tobjnam(otmp, "crumble"));
                 else
                     You_hear("stone crumbling.");
-                (void) break_statue(otmp);
-                place_object(otmp, sx, sy); /* put fragments on floor */
+                /* break_statue() returns FALSE if otmp was consumed
+                   via activate_statue_trap -> delobj() */
+                if (break_statue(otmp))
+                    place_object(otmp, sx, sy); /* fragments on floor */
             }
             newsym(sx, sy); /* in case it's beyond radius of 'farthest' */
             used_up = TRUE;
