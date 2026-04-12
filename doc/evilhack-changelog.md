@@ -5195,4 +5195,5 @@ The following changes to date are:
 - Parenthesize bitwise & in boolean contexts
 - Fix: multiple issues in worn.c found via code review
 - Fix: mnexto() ignored monster equipment-derived levitation/flying
+- Fix: multiple issues in pickup.c found via code review
 

@@ -3735,18 +3735,27 @@ struct obj *box; /* or bag */
 
         for (otmp = box->cobj; otmp; otmp = nobj) {
             nobj = otmp->nobj;
+
+            /* cursed bag of holding disintegration: check resist
+               BEFORE extracting, so a resisting item stays safely in
+               the source bag instead of orphaning in OBJ_FREE state */
+            if (cursed_mbag && is_boh_item_gone()) {
+                if (obj_resists(otmp, 0, 0)) {
+                    terse = FALSE;
+                    continue;
+                }
+                obj_extract_self(otmp);
+                loss += mbag_item_gone(held, otmp, FALSE);
+                /* abbreviated drop format is no longer appropriate */
+                terse = FALSE;
+                continue;
+            }
+
             obj_extract_self(otmp);
             otmp->ox = box->ox, otmp->oy = box->oy;
 
             if (box->otyp == ICE_BOX) {
                 removed_from_icebox(otmp); /* resume rotting for corpse */
-            } else if (cursed_mbag && is_boh_item_gone()) {
-                if (obj_resists(otmp, 0, 0))
-                    return;
-                loss += mbag_item_gone(held, otmp, FALSE);
-                /* abbreviated drop format is no longer appropriate */
-                terse = FALSE;
-                continue;
             }
             if (maybeshopgoods) {
                 addtobill(otmp, FALSE, FALSE, TRUE);
@@ -3762,6 +3771,11 @@ struct obj *box; /* or bag */
                     if (otmp->otyp == WAN_CANCELLATION
                         || otmp->otyp == BAG_OF_TRICKS)
                         makeknown(otmp->otyp);
+                    /* put otmp inside targetbox first so it participates
+                       in the explosion; matches in_container() which
+                       obfree()s the trigger item. Otherwise otmp would
+                       be orphaned in OBJ_FREE when targetbox is useup'd */
+                    (void) add_to_container(targetbox, otmp);
                     do_boh_explosion(targetbox, held);
                     nobj = 0; /* stop tipping; want loop to exit 'normally' */
 
@@ -3797,8 +3811,7 @@ struct obj *box; /* or bag */
                     pline("%s%c", doname(otmp), nobj ? ',' : '.');
                     iflags.last_msg = PLNMSG_OBJNAM_ONLY;
                 }
-                dropy(otmp);
-                if (iflags.last_msg != PLNMSG_OBJNAM_ONLY)
+                if (dropy(otmp) || iflags.last_msg != PLNMSG_OBJNAM_ONLY)
                     terse = FALSE; /* terse formatting has been interrupted */
             }
 
@@ -3817,30 +3830,6 @@ struct obj *box; /* or bag */
     if (held)
         update_inventory();
 }
-
-#if 0
-static int count_target_containers(struct obj *, struct obj *);
-
-/* returns number of containers in object chain; does not recurse into
-   containers; skips bags of tricks when they're known */
-static int
-count_target_containers(olist, excludo)
-struct obj *olist;   /* list of objects (invent) */
-struct obj *excludo; /* particular object to exclude if found in list */
-{
-    int ret = 0;
-
-    while (olist) {
-        if (olist != excludo && Is_container(olist)
-            /* include bag of tricks when not known to be such */
-            && (box->otyp != BAG_OF_TRICKS || !box->dknown
-                || !objects[box->otyp].oc_name_known))
-            ret++;
-        olist = olist->nobj;
-    }
-    return ret;
-}
-#endif /* #if 0 */
 
 /* ask user for a carried container where they want box to be emptied;
    cancelled is TRUE if user cancelled the menu pick; hands aren't required
@@ -4170,13 +4159,15 @@ del_soko_prizes()
                 You_hear("%s.",
                          rn2(2) ? "a distinct popping sound"
                                 : "a noise like a hundred thousand people saying 'foop'");
-            } else cnt++;
-                obfree(otmp, (struct obj *) 0);
+            } else {
+                cnt++;
+            }
+            obfree(otmp, (struct obj *) 0);
         }
     }
     /* check buried objs... do we need this? */
     for (otmp = level.buriedobjlist; otmp; otmp = onext) {
-	onext = otmp->nobj; /* otmp may be destroyed */
+        onext = otmp->nobj; /* otmp may be destroyed */
         if (is_soko_prize_flag(otmp)) {
             obj_extract_self(otmp);
             obfree(otmp, (struct obj *) 0);
