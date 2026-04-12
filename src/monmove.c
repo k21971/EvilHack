@@ -373,7 +373,8 @@ struct monst *mon;
      && ((uwep && uwep->lamplit && artifact_light(uwep)                     \
           && !(wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)                 \
                && !Upolyd && Race_if(PM_DROW)))                             \
-         || (u.twoweap && uswapwep->lamplit && artifact_light(uswapwep)     \
+         || (u.twoweap && uswapwep && uswapwep->lamplit                     \
+             && artifact_light(uswapwep)                                    \
              && !(wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)              \
                   && !Upolyd && Race_if(PM_DROW)))                          \
          || (uarm && uarm->lamplit && artifact_light(uarm)                  \
@@ -430,13 +431,21 @@ boolean fleemsg;
                     struct obj *litarmor;
                     struct obj *litshield;
                     litwep = (uwep && artifact_light(uwep)
-                              && uwep->lamplit) ? uwep : uswapwep;
+                              && uwep->lamplit)
+                             ? uwep
+                             : (uswapwep && artifact_light(uswapwep)
+                                && uswapwep->lamplit)
+                                 ? uswapwep
+                                 : (struct obj *) 0;
                     litarmor = uarm;
                     litshield = uarms;
 
                     pline("%s flees from the painful light of %s.",
                             Monnam(mtmp),
-                            (uarm && artifact_light(uarm) && uarm->lamplit)
+                            (uarm && artifact_light(uarm) && uarm->lamplit
+                             && !(Is_dragon_armor(uarm)
+                                  && Dragon_armor_to_scales(uarm)
+                                     == SHADOW_DRAGON_SCALES))
                                 ? yobjnam(litarmor, (char *) 0)
                                 : (uarms && artifact_light(uarms) && uarms->lamplit)
                                     ? yobjnam(litshield, (char *) 0)
@@ -646,6 +655,7 @@ struct monst *mtmp;
              * from snarks at a rate of one snark, one boojum. */
             if (mdummy) {
                 mtmp = mdummy;
+                mdat = mtmp->data; /* refresh cached permonst */
                 if (canseemon(mtmp)) {
                     pline("Oh, no, this Snark is a Boojum!");
                 }
@@ -684,6 +694,7 @@ struct monst *mtmp;
                   Monnam(mtmp), mhis(mtmp));
         /* no corpse or objects as both are now several thousand feet down */
         mongone(mtmp);
+        return 1;
     }
 
     /* some monsters teleport */
@@ -744,9 +755,11 @@ struct monst *mtmp;
     if (find_defensive(mtmp)) {
         if (use_defensive(mtmp) != 0)
             return 1;
+        mdat = mtmp->data; /* use_defensive may polymorph mtmp */
     } else if (find_misc(mtmp)) {
         if (use_misc(mtmp) != 0)
             return 1;
+        mdat = mtmp->data;
     }
 
     /* Demonic Blackmail! */
@@ -1307,9 +1320,10 @@ int after;
         int i = mintrap(mtmp);
 
         if (i >= 2) {
-            newsym(mtmp->mx, mtmp->my);
+            if (mtmp->mx)
+                newsym(mtmp->mx, mtmp->my);
             return 2;
-        } /* it died */
+        } /* it died or migrated */
         if (i == 1)
             return 0; /* still in trap, so didn't move */
     }
@@ -2139,6 +2153,8 @@ found_altar:
                 && IS_DOOR(levl[nix][niy].typ)
                 && ((levl[nix][niy].doormask & (D_LOCKED | D_CLOSED)) != 0)
                 && can_fog(mtmp)) {
+                /* vampshifters are never worms, so bare remove/place
+                   (rather than rloc_to) is safe here */
                 if (sawmon) {
                     remove_monster(nix, niy);
                     place_monster(mtmp, omx, omy);
