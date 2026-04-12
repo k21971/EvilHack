@@ -83,10 +83,10 @@ long mask;
                         p = armor_provides_extrinsic(oobj);
                         u.uprops[p].extrinsic =
                             u.uprops[p].extrinsic & ~wp->w_mask;
-                        if ((p = w_blocks(oobj, mask)) != 0)
+                        if ((p = w_blocks(oobj, wp->w_mask)) != 0)
                             u.uprops[p].blocked &= ~wp->w_mask;
                         if (oobj->oartifact || oobj->oprops)
-                            set_artifact_intrinsic(oobj, 0, mask);
+                            set_artifact_intrinsic(oobj, 0, wp->w_mask);
                     }
                     /* in case wearing or removal is in progress or removal
                        is pending (via 'A' command for multiple items) */
@@ -115,7 +115,7 @@ long mask;
                        potions, through the quiver, etc. Allow weapon-tools
                        as well. wp_mask should be same as mask at this point */
                     if ((wp->w_mask & ~(W_SWAPWEP | W_QUIVER))
-                        || (wp->w_mask & W_SWAPWEP && u.twoweap)) {
+                        || ((wp->w_mask & W_SWAPWEP) && u.twoweap)) {
                         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
                             || mask != W_WEP) {
                             p = armor_provides_extrinsic(obj);
@@ -356,7 +356,7 @@ struct obj *obj; /* item to make known if effect can be seen */
         if (otmp->owornmask && objects[otmp->otyp].oc_oprop == FAST)
             break;
         if (otmp->owornmask && Is_dragon_scaled_armor(otmp)
-            && Dragon_armor_to_scales(otmp))
+            && Dragon_armor_to_scales(otmp) == BLUE_DRAGON_SCALES)
             break;
     }
     if (otmp) /* speed boots/blue-scaled armor */
@@ -1552,38 +1552,54 @@ struct obj *obj;
     /* This list should match the list in m_dowear_type. */
     switch (obj->otyp) {
     case RIN_FIRE_RESISTANCE:
-        if (!(resists_fire(mon) || defended(mon, AD_FIRE)))
-            rc = (dmgtype(youmonst.data, AD_FIRE)
-                  || wielding_artifact(ART_FIRE_BRAND)
-                  || wielding_artifact(ART_XIUHCOATL)
-                  || wielding_artifact(ART_ANGELSLAYER)
-                  || wielding_artifact(ART_DICHOTOMY)
-                  || (u.twoweap && (uswapwep->oprops & ITEM_FIRE))
-                  || (uwep && (uwep->oprops & ITEM_FIRE))) ? 25 : 5;
+        if (!(resists_fire(mon) || defended(mon, AD_FIRE))) {
+            struct obj *mwep = MON_WEP(mon);
+            struct obj *mswap = MON_WEP2(mon);
+
+            rc = (dmgtype(mon->data, AD_FIRE)
+                  || mon_wielding_artifact(mon, ART_FIRE_BRAND)
+                  || mon_wielding_artifact(mon, ART_XIUHCOATL)
+                  || mon_wielding_artifact(mon, ART_ANGELSLAYER)
+                  || mon_wielding_artifact(mon, ART_DICHOTOMY)
+                  || (mwep && (mwep->oprops & ITEM_FIRE))
+                  || (mswap && (mswap->oprops & ITEM_FIRE))) ? 25 : 5;
+        }
         break;
     case RIN_COLD_RESISTANCE:
-        if (!(resists_cold(mon) || defended(mon, AD_COLD)))
-            rc = (dmgtype(youmonst.data, AD_COLD)
-                  || wielding_artifact(ART_FROST_BRAND)
-                  || wielding_artifact(ART_DICHOTOMY)
-                  || (u.twoweap && (uswapwep->oprops & ITEM_FROST))
-                  || (uwep && (uwep->oprops & ITEM_FROST))) ? 25 : 5;
+        if (!(resists_cold(mon) || defended(mon, AD_COLD))) {
+            struct obj *mwep = MON_WEP(mon);
+            struct obj *mswap = MON_WEP2(mon);
+
+            rc = (dmgtype(mon->data, AD_COLD)
+                  || mon_wielding_artifact(mon, ART_FROST_BRAND)
+                  || mon_wielding_artifact(mon, ART_DICHOTOMY)
+                  || (mwep && (mwep->oprops & ITEM_FROST))
+                  || (mswap && (mswap->oprops & ITEM_FROST))) ? 25 : 5;
+        }
         break;
     case RIN_POISON_RESISTANCE:
-        if (!(resists_poison(mon) || defended(mon, AD_DRST)))
-            rc = (dmgtype(youmonst.data, AD_DRST)
-                  || dmgtype(youmonst.data, AD_DRCO)
-                  || dmgtype(youmonst.data, AD_DRDX)
-                  || (u.twoweap && (uswapwep->oprops & ITEM_VENOM))
-                  || (uwep && (uwep->oprops & ITEM_VENOM))) ? 25 : 5;
+        if (!(resists_poison(mon) || defended(mon, AD_DRST))) {
+            struct obj *mwep = MON_WEP(mon);
+            struct obj *mswap = MON_WEP2(mon);
+
+            rc = (dmgtype(mon->data, AD_DRST)
+                  || dmgtype(mon->data, AD_DRCO)
+                  || dmgtype(mon->data, AD_DRDX)
+                  || (mwep && (mwep->oprops & ITEM_VENOM))
+                  || (mswap && (mswap->oprops & ITEM_VENOM))) ? 25 : 5;
+        }
         break;
     case RIN_SHOCK_RESISTANCE:
-        if (!(resists_elec(mon) || defended(mon, AD_ELEC)))
-            rc = (dmgtype(youmonst.data, AD_ELEC)
-                  || wielding_artifact(ART_MJOLLNIR)
-                  || wielding_artifact(ART_KEOLEWA)
-                  || (u.twoweap && (uswapwep->oprops & ITEM_SHOCK))
-                  || (uwep && (uwep->oprops & ITEM_SHOCK))) ? 25 : 5;
+        if (!(resists_elec(mon) || defended(mon, AD_ELEC))) {
+            struct obj *mwep = MON_WEP(mon);
+            struct obj *mswap = MON_WEP2(mon);
+
+            rc = (dmgtype(mon->data, AD_ELEC)
+                  || mon_wielding_artifact(mon, ART_MJOLLNIR)
+                  || mon_wielding_artifact(mon, ART_KEOLEWA)
+                  || (mwep && (mwep->oprops & ITEM_SHOCK))
+                  || (mswap && (mswap->oprops & ITEM_SHOCK))) ? 25 : 5;
+        }
         break;
     case RIN_REGENERATION:
         rc = !mon_prop(mon, REGENERATION) ? 25 : 5;
@@ -1615,10 +1631,11 @@ struct obj *obj;
             rc = mon_prop(mon, TELEPORT) ? 20 : 5;
         break;
     case RIN_SLOW_DIGESTION:
-        rc = dmgtype(youmonst.data, AD_DGST) ? 35 : 25;
+        rc = dmgtype(mon->data, AD_DGST) ? 35 : 25;
         break;
     case RIN_LEVITATION:
-        rc = (grounded(mon->data) && !can_levitate(mon)) ? 20 : 0;
+        rc = (grounded(mon->data) && !can_fly(mon)
+              && !can_levitate(mon)) ? 20 : 0;
         break;
     case RIN_FREE_ACTION:
     case RIN_ANCIENT:
