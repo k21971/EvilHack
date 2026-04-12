@@ -5191,4 +5191,5 @@ The following changes to date are:
 - Fix: multiple issues in mon.c found via code review
 - Fix: multiple issues in pray.c found via code review
 - Fix: multiple issues in hack.c found via code review
+- Fix: multiple issues in weapon.c found via code review
 

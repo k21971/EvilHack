@@ -23,6 +23,7 @@ STATIC_DCL struct obj *FDECL(find_artifact_recurse, (struct monst *,
 STATIC_DCL struct obj *FDECL(find_silver_recurse, (struct monst *, struct obj *,
                                                    struct monst *, boolean, boolean));
 STATIC_DCL struct obj *FDECL(find_gem_recurse, (struct monst *, struct obj *));
+STATIC_DCL int FDECL(skill_training_percent, (int));
 
 /* Categories whose names don't come from OBJ_NAME(objects[type])
  */
@@ -268,12 +269,12 @@ botl_hitbonus()
 
     if (uwep) {
         if (uwep->forged_qual == FQ_EXCEPTIONAL
-            || (u.twoweap
+            || (u.twoweap && uswapwep
                 && uswapwep->forged_qual == FQ_EXCEPTIONAL)) {
             tmp += 1;
         }
         if (uwep->forged_qual == FQ_INFERIOR
-            || (u.twoweap
+            || (u.twoweap && uswapwep
                 && uswapwep->forged_qual == FQ_INFERIOR)) {
             tmp -= 2;
         }
@@ -332,7 +333,7 @@ struct monst *mon;
 
     /* Infidels get a slight bonus against lawful or
        neutral monsters when using cursed weapons */
-    if (Is_weapon && otmp->cursed
+    if (!context.mon_moving && Is_weapon && otmp->cursed
         && Role_if(PM_INFIDEL) && (mon_aligntyp(mon) == A_LAWFUL
                                    || mon_aligntyp(mon) == A_NEUTRAL))
         tmp += 1;
@@ -354,7 +355,7 @@ struct monst *mon;
 
     /* Tortles receive a slight bonus to hit when using
        spears or tridents */
-    if (Race_if(PM_TORTLE)
+    if (!context.mon_moving && Race_if(PM_TORTLE)
         && (is_spear(otmp) || otmp->otyp == TRIDENT))
         tmp += 2;
 
@@ -497,7 +498,8 @@ struct monst *mon;
         tmp += otmp->spe;
 
         /* adjust for various roles */
-        if (Role_if(PM_DRUID) && otmp->material == WOOD
+        if (!context.mon_moving && Role_if(PM_DRUID)
+            && otmp->material == WOOD
             && (levl[u.ux][u.uy].typ == GRASS
                 || nexttotree(u.ux, u.uy))) {
             /* if a Druid's weapon is made of wood,
@@ -573,7 +575,8 @@ struct monst *mon;
 
     if (otmp->material <= LEATHER
         && (thick_skinned(ptr)
-            || has_barkskin(mon) || has_stoneskin(mon)))
+            || has_barkskin(mon) || has_stoneskin(mon)
+            || (mon == &youmonst && (Barkskin || Stoneskin))))
         /* thick skinned/scaled creatures don't feel it */
         tmp = 0;
     if (noncorporeal(ptr) && !shade_glare(otmp))
@@ -593,11 +596,11 @@ struct monst *mon;
 
     /* Druids that #wildshape into one of their allowed forms
        enjoy a variable damage bonus */
-    if (!uwep && druid_form)
+    if (!context.mon_moving && !uwep && druid_form)
         tmp += rn1(5, 2); /* 2-6 hp of damage */
 
     /* same with Vampires that #shapechange */
-    if (!uwep && vampire_form)
+    if (!context.mon_moving && !uwep && vampire_form)
         tmp += rn1(5, 2); /* 2-6 hp of damage */
 
     /* Put weapon vs. monster type damage bonuses in below: */
@@ -611,20 +614,23 @@ struct monst *mon;
         if (otmp->cursed
             && (is_angel(ptr) || is_aasimar(ptr)))
             bonus += rnd(4);
-        if (otmp->cursed && Role_if(PM_INFIDEL)
+        if (!context.mon_moving && otmp->cursed && Role_if(PM_INFIDEL)
             && (mon_aligntyp(mon) == A_LAWFUL
                 || mon_aligntyp(mon) == A_NEUTRAL))
             bonus += rnd(2);
         if (is_axe(otmp)
             && (is_wooden(ptr) || is_plant(ptr)
-                || has_barkskin(mon)))
+                || has_barkskin(mon)
+                || (mon == &youmonst && Barkskin)))
             bonus += rnd(4);
         if (objects[otmp->otyp].oc_dir & WHACK
             && (is_wooden(ptr) || is_plant(ptr)
-                || has_barkskin(mon)))
+                || has_barkskin(mon)
+                || (mon == &youmonst && Barkskin)))
             bonus -= rnd(3) + 3;
         if (objects[otmp->otyp].oc_dir & (PIERCE | SLASH)
-            && (is_bone_monster(ptr) || has_stoneskin(mon)))
+            && (is_bone_monster(ptr) || has_stoneskin(mon)
+                || (mon == &youmonst && Stoneskin)))
             bonus -= rnd(5) + 3;
         if (objects[otmp->otyp].oc_dir & WHACK
             && is_bone_monster(ptr))
@@ -635,8 +641,9 @@ struct monst *mon;
             bonus += rnd(sear_damage(otmp->material));
         if (artifact_light(otmp) && otmp->lamplit
             && (hates_light(r_data(mon))
-                || maybe_polyd(is_drow(youmonst.data),
-                                       Race_if(PM_DROW))))
+                || (mon == &youmonst
+                    && maybe_polyd(is_drow(youmonst.data),
+                                           Race_if(PM_DROW)))))
             bonus += rnd(8);
 
         /* if the weapon is going to get a double damage bonus, adjust
@@ -656,9 +663,9 @@ struct monst *mon;
            so always subtract erosion even for blunt weapons. */
         tmp -= greatest_erosion(otmp);
 
-	/* Low AC subtracts damage, just as it does with players */
-	if (mac < 0)
-	    tmp -= rnd(-mac);
+        /* Low AC subtracts damage, just as it does with players */
+        if (mac < 0)
+            tmp -= rnd(-mac);
 
         if (tmp < 1)
             tmp = 1;
@@ -1317,7 +1324,7 @@ struct monst *mtmp;
                 if (!propellor)
                     propellor = oselect(mtmp, DARK_ELVEN_HAND_CROSSBOW);
             }
-            if (!tmpprop)
+            if (tmpprop == &zeroobj)
                 tmpprop = propellor;
             if ((otmp = MON_WEP(mtmp)) && mwelded(otmp)
                 && mtmp->data != &mons[PM_INFIDEL] && otmp != propellor
@@ -1522,8 +1529,7 @@ struct monst *mtmp;
             continue;
         if (((strong && !wearing_shield) || !objects[hwep[i]].oc_bimanual
              || is_giant(mtmp->data))
-            && (objects[hwep[i]].oc_material != SILVER
-                || !mon_hates_material(mtmp, otmp->material)))
+            && !mon_hates_material(mtmp, objects[hwep[i]].oc_material))
             Oselect(hwep[i]);
     }
 
@@ -1595,7 +1601,7 @@ struct monst *mon;
 
         /* score: artifact bonus + enchantment + base damage */
         val = objects[otmp->otyp].oc_wldam;
-        if (otmp->oartifact)
+        if (otmp->oartifact && touch_artifact(otmp, mon))
             val += 10;
         if (otmp->spe > 0)
             val += otmp->spe;
@@ -2069,7 +2075,8 @@ boolean verbose;
  * returns 150% for this means it can be advanced to skilled and is 50% of the
  * way to expert. */
 static int
-skill_training_percent(int skill)
+skill_training_percent(skill)
+int skill;
 {
     int percent = 0;
     int i;
