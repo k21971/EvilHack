@@ -5199,4 +5199,5 @@ The following changes to date are:
 - Fix: multiple issues in monmove.c found via code review
 - Fix: multiple issues in zap.c found via code review
 - Revert: bhitm() gone flag for migrated/expelled monsters
+- Fix: multiple issues in steed.c found via code review
 

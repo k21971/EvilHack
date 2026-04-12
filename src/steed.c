@@ -43,6 +43,7 @@ struct monst *mtmp;
         steed->mx = mtmp->mx;
         steed->my = mtmp->my;
         steed->mpeaceful = mtmp->mpeaceful;
+        set_malign(steed);
     }
 }
 
@@ -78,6 +79,7 @@ int pm;             /* steed */
 
     /* rider over'rides' steed's natural inclinations */
     mount->mpeaceful = mtmp->mpeaceful;
+    set_malign(mount);
 
     /* monster steeds will come with a saddle */
     if (can_saddle(mount) && !which_armor(mtmp, W_SADDLE)) {
@@ -113,6 +115,8 @@ struct monst *rider;
         nmon = steed->nmon;
         if (nmon == rider)
             nmon = rider->nmon;
+        if (steed == rider)
+            continue;
         /* criteria for an acceptable steed */
         if (steed->data == &mons[PM_CAVE_BEAR]
             || steed->data == &mons[PM_GRIZZLY_BEAR])
@@ -211,13 +215,26 @@ struct monst *rider;
     /* handle rider if both rider and steed are alive */
     if (!DEADMONSTER(rider) && !DEADMONSTER(steed)) {
         xchar orig_x = rider->mx, orig_y = rider->my; /* cache riders position */
+        boolean rider_moved;
 
         /* move rider to an adjacent tile */
-        if (enexto(&cc, rider->mx, rider->my, rider->data))
+        if (enexto_core_mon(&cc, rider->mx, rider->my, rider, NO_MM_FLAGS)) {
             rloc_to(rider, cc.x, cc.y);
-        else /* evidently no room nearby; move rider elsewhere */
-            (void) rloc(rider, FALSE);
-        place_monster(steed, orig_x, orig_y);
+            rider_moved = TRUE;
+        } else {
+            /* evidently no room nearby; move rider elsewhere */
+            rider_moved = rloc(rider, FALSE);
+        }
+        if (rider_moved) {
+            place_monster(steed, orig_x, orig_y);
+        } else if (enexto_core_mon(&cc, orig_x, orig_y, steed,
+                                   NO_MM_FLAGS)) {
+            /* rider stuck at orig; find a different spot for steed */
+            place_monster(steed, cc.x, cc.y);
+        } else {
+            /* truly nowhere to put the steed - dismiss it */
+            mongone(steed);
+        }
     }
     /* place rider if steed dies and rider is still alive */
     if (!DEADMONSTER(rider) && DEADMONSTER(steed)) {
@@ -390,8 +407,7 @@ struct obj *otmp;
     }
 
     /* Is this a valid monster? */
-    if ((mtmp->misc_worn_check & W_SADDLE) != 0L
-        || which_armor(mtmp, W_SADDLE)) {
+    if (which_armor(mtmp, W_SADDLE)) {
         pline("%s doesn't need another one.", Monnam(mtmp));
         return 1;
     }
@@ -560,8 +576,7 @@ struct obj *otmp;
     }
 
     /* Is this a valid monster? */
-    if ((mtmp->misc_worn_check & W_BARDING) != 0L
-        || which_armor(mtmp, W_BARDING)) {
+    if (which_armor(mtmp, W_BARDING)) {
         pline("%s doesn't need another one.", Monnam(mtmp));
         return 1;
     }
@@ -1055,8 +1070,8 @@ kick_steed()
                 u.usteed->mfrozen -= 2;
             else {
                 u.usteed->mfrozen = 0;
-		if (!u.usteed->mstone || u.usteed->mstone > 2)
-		    u.usteed->mcanmove = 1;
+                if (!u.usteed->mstone || u.usteed->mstone > 2)
+                    u.usteed->mcanmove = 1;
             }
             if (u.usteed->msleeping || !u.usteed->mcanmove)
                 pline("%s stirs.", He);
@@ -1236,12 +1251,16 @@ int reason; /* Player was thrown off etc. */
         /* hero's spot has a monster in it; hero must have been plucked
            from saddle as engulfer moved into his spot--other dismounts
            shouldn't run into this situation; find nearest viable spot */
-        if (!enexto(&steedcc, u.ux, u.uy, mtmp->data)
+        if (!enexto_core_mon(&steedcc, u.ux, u.uy, mtmp, NO_MM_FLAGS)
             /* no spot? must have been engulfed by a lurker-above over
                water or lava; try requesting a location for a flyer */
-            && !enexto(&steedcc, u.ux, u.uy, &mons[PM_BAT]))
+            && !enexto(&steedcc, u.ux, u.uy, &mons[PM_BAT])
             /* still no spot; last resort is any spot within bounds */
-            (void) enexto(&steedcc, u.ux, u.uy, &mons[PM_GHOST]);
+            && !enexto(&steedcc, u.ux, u.uy, &mons[PM_GHOST])) {
+            /* nowhere at all to place the steed; dismiss it so the
+               !DEADMONSTER wrapper below skips placement safely */
+            mongone(mtmp);
+        }
     }
 
     if (!DEADMONSTER(mtmp)) {
@@ -1253,7 +1272,7 @@ int reason; /* Player was thrown off etc. */
            we want to make room for potential ghost, so move steed */
         if (reason == DISMOUNT_BONES) {
             /* move the steed to an adjacent square */
-            if (enexto(&cc, u.ux, u.uy, mtmp->data))
+            if (enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS))
                 rloc_to(mtmp, cc.x, cc.y);
             else /* evidently no room nearby; move steed elsewhere */
                 (void) rloc(mtmp, FALSE);
@@ -1331,7 +1350,7 @@ int reason; /* Player was thrown off etc. */
             }
 
         /* Couldn't move hero... try moving the steed. */
-        } else if (enexto(&cc, u.ux, u.uy, mtmp->data)) {
+        } else if (enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS)) {
             /* Keep player here, move the steed to cc */
             rloc_to(mtmp, cc.x, cc.y);
             /* Player stays put */
