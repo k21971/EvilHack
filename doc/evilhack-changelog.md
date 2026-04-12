@@ -5197,4 +5197,5 @@ The following changes to date are:
 - Fix: mnexto() ignored monster equipment-derived levitation/flying
 - Fix: multiple issues in pickup.c found via code review
 - Fix: multiple issues in monmove.c found via code review
+- Fix: multiple issues in zap.c found via code review
 

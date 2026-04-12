@@ -129,7 +129,7 @@ struct obj *otmp;
 {
     boolean wake = TRUE; /* Most 'zaps' should wake monster */
     boolean reveal_invis = FALSE, learn_it = FALSE,
-            already_killed = FALSE;
+            already_killed = FALSE, gone = FALSE;
     boolean dbldam = Role_if(PM_KNIGHT) && u.uhave.questart;
     boolean skilled_spell, helpful_gesture = FALSE;
     int dmg, otyp = otmp->otyp;
@@ -272,6 +272,7 @@ struct obj *otmp;
                 You("disrupt %s!", mon_nam(mtmp));
                 pline("A huge hole opens up...");
                 expels(mtmp, mtmp->data, TRUE);
+                gone = TRUE;
             }
         }
         break;
@@ -397,6 +398,7 @@ struct obj *otmp;
                         get_level(&flev, nlev);
                         migrate_to_level(mtmp, ledger_no(&flev), MIGR_RANDOM,
                                          (coord *) 0);
+                        gone = TRUE;
                         break;
                     }
                     default: /* 15 through 0 */
@@ -556,6 +558,7 @@ struct obj *otmp;
                     pline("%s opens its mouth!", Monnam(mtmp));
             }
             expels(mtmp, mtmp->data, TRUE);
+            gone = TRUE;
             /* zap which hits steed will only release saddle if it
                doesn't hit a holding or falling trap; playability
                here overrides the more logical target ordering */
@@ -777,7 +780,7 @@ struct obj *otmp;
         impossible("What an interesting effect (%d)", otyp);
         break;
     }
-    if (wake) {
+    if (!gone && wake) {
         if (!DEADMONSTER(mtmp)) {
             wakeup(mtmp, helpful_gesture ? FALSE : TRUE);
             m_respond(mtmp);
@@ -790,7 +793,7 @@ struct obj *otmp;
      * reveal_invis will be false.  We can't use mtmp->mx, my since it
      * might be an invisible worm hit on the tail.
      */
-    if (reveal_invis) {
+    if (!gone && reveal_invis) {
         if (!DEADMONSTER(mtmp) && cansee(bhitpos.x, bhitpos.y)
             && !canspotmon(mtmp))
             map_invisible(bhitpos.x, bhitpos.y);
@@ -1156,7 +1159,7 @@ boolean by_hero;
     if ((mons[montype].mlet == S_EEL
         && !(IS_POOL(levl[x][y].typ) || IS_PUDDLE(levl[x][y].typ)))
         || (mons[montype].mlet == S_TROLL
-            && wielding_artifact(ART_TROLLSBANE))) {
+            && by_hero && wielding_artifact(ART_TROLLSBANE))) {
         if (by_hero && cansee(x, y))
             pline("%s twitches feebly.",
                 upstart(corpse_xname(corpse, (const char *) 0, CXN_PFX_THE)));
@@ -2418,7 +2421,7 @@ struct obj *obj, *otmp;
                 break;
             }
             /* KMH, conduct */
-            if ((otmp->otyp != WAN_POLYMORPH || otmp->where == OBJ_INVENT) && (!u.uconduct.polypiles++))
+            if (!context.mon_moving && !u.uconduct.polypiles++)
                 livelog_printf(LL_CONDUCT, "polymorphed %s first object", uhis());
             /* any saved lock context will be dangerously obsolete */
             if (Is_box(obj))
@@ -3084,7 +3087,7 @@ boolean ordinary;
          */
         int msg = !Invis && !Blind && !BInvis;
 
-        if (BInvis && uarmc->otyp == MUMMY_WRAPPING) {
+        if (BInvis && uarmc && uarmc->otyp == MUMMY_WRAPPING) {
             /* A mummy wrapping absorbs it and protects you */
             You_feel("rather itchy under %s.", yname(uarmc));
             break;
@@ -3404,7 +3407,7 @@ boolean ordinary;
         else
             otmp = (struct obj *) 0;
 
-        (int) cast_metal_to_wood(otmp, TRUE);
+        (void) cast_metal_to_wood(otmp, TRUE);
         break;
     }
     default:
@@ -4566,7 +4569,9 @@ struct obj **pobj; /* object tossed/used, set to NULL
                    it causes massive problems if the
                    mount dies before the rider... */
 
-                if (obj->otyp == WAN_PROBING && has_erid(mtmp)) {
+                if (obj->otyp == WAN_PROBING
+                    && !DEADMONSTER(mtmp) && mtmp->mx
+                    && has_erid(mtmp)) {
                     (*fhitm)(ERID(mtmp)->mon_steed, obj);
                     range -= 1;
                 }
@@ -6028,20 +6033,17 @@ boolean moncast;
             }
             rangemod -= 3;
             lev->typ = ROOM, lev->flags = 0;
-            if (lev->typ == ROOM) {
-                if ((mon = m_at(x, y)) != 0) {
-                    if (is_swimmer(mon->data) && mon->mundetected) {
-                        mon->mundetected = 0;
-                    }
+            if ((mon = m_at(x, y)) != 0) {
+                if (is_swimmer(mon->data) && mon->mundetected) {
+                    mon->mundetected = 0;
                 }
-                newsym(x, y);
             }
+            newsym(x, y);
         } else if (lev->typ == TREE) {
             if (see_it)
                 pline("The tree burns to a crisp!");
             lev->typ = DEADTREE;
-            if (lev->typ == DEADTREE)
-                newsym(x, y);
+            newsym(x, y);
             if (yourzap) {
                 if (Role_if(PM_DRUID)) {
                     You_feel("very guilty.");
@@ -6068,8 +6070,7 @@ boolean moncast;
                     pline("The dead tree burns to ashes!");
                 rangemod -= 1000; /* stop */
                 lev->typ = ROOM, lev->flags = 0;
-                if (lev->typ == ROOM)
-                    newsym(x, y);
+                newsym(x, y);
                 if (!does_block(x, y, &levl[x][y]))
                     unblock_point(x, y); /* vision:  can see through */
                 feel_newsym(x, y);
@@ -6078,17 +6079,15 @@ boolean moncast;
             lev->typ = ROOM, lev->flags = 0;
             if (see_it)
                 Norep("The grass is burned away!");
-            if (lev->typ == ROOM) {
-                if ((mon = m_at(x, y)) != 0) {
-                    /* probably ought to do some hefty damage to any
-                       creature caught in burning grass;
-                       at a minimum, hiders are forced out of hiding */
-                    if (hides_under(mon->data) && mon->mundetected) {
-                        mon->mundetected = 0;
-                    }
+            if ((mon = m_at(x, y)) != 0) {
+                /* probably ought to do some hefty damage to any
+                   creature caught in burning grass;
+                   at a minimum, hiders are forced out of hiding */
+                if (hides_under(mon->data) && mon->mundetected) {
+                    mon->mundetected = 0;
                 }
-                newsym(x, y);
             }
+            newsym(x, y);
         }
         break; /* ZT_FIRE */
 
