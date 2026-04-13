@@ -3267,10 +3267,10 @@ set_trap()
     struct obj *otmp = trapinfo.tobj;
     struct trap *ttmp;
     int ttyp;
-    boolean obj_cursed = otmp->cursed;
-    boolean mat = otmp->material;
-    boolean prop = (otmp->oprops != 0L);
-    boolean enchant = otmp->spe;
+    boolean obj_cursed;
+    int mat;
+    long prop;
+    schar enchant;
     boolean is_rogue = Role_if(PM_ROGUE);
     boolean is_ranger = Role_if(PM_RANGER);
     int chance = (ACURR(A_DEX)
@@ -3284,6 +3284,11 @@ set_trap()
         reset_trapset();
         return 0;
     }
+
+    obj_cursed = otmp->cursed;
+    mat = otmp->material;
+    prop = otmp->oprops;
+    enchant = otmp->spe;
 
     if (--trapinfo.time_needed > 0)
         return 1; /* still busy */
@@ -3844,11 +3849,14 @@ struct obj **objp;
                 gotit = FALSE; /* can't pull it free */
             }
             if (gotit) {
+                boolean was_weapon = (otmp == MON_WEP(mtmp));
+                boolean was_shield = (otmp->owornmask & W_ARMS) != 0L;
+
                 obj_extract_self(otmp);
                 possibly_unwield(mtmp, FALSE);
-                if (otmp == MON_WEP(mtmp)) {
+                if (was_weapon) {
                     setmnotwielded(mtmp, otmp);
-                } else {
+                } else if (was_shield) {
                     mtmp->misc_worn_check &= ~W_ARMS;
                     update_mon_intrinsics(mtmp, otmp, FALSE, TRUE);
                     otmp->owornmask = 0;
@@ -4289,7 +4297,7 @@ struct obj *obj;
         notonhead = (bhitpos.x != mtmp->mx || bhitpos.y != mtmp->my);
         save_confirm = flags.confirm;
         if (r_verysmall(mtmp) && !rn2(4)
-            && enexto(&cc, u.ux, u.uy, (struct permonst *) 0)) {
+            && enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS)) {
             flags.confirm = FALSE;
             (void) attack_checks(mtmp, uwep);
             flags.confirm = save_confirm;
