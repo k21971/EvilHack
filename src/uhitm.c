@@ -681,7 +681,8 @@ struct monst *mtmp;
         if (!m_at(u.ux0, u.uy0)) {
             cc.x = u.ux0;
             cc.y = u.uy0;
-        } else if (!enexto(&cc, mtmp->mx, mtmp->my, mtmp->data)) {
+        } else if (!enexto_core_mon(&cc, mtmp->mx, mtmp->my, mtmp,
+                                    NO_MM_FLAGS)) {
             /* No room to displace the monster */
             You_cant("maneuver around %s.", y_monnam(mtmp));
             return FALSE;

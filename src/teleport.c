@@ -1900,7 +1900,7 @@ boolean give_feedback;
         unstuck(mtmp);
         (void) rloc(mtmp, TRUE);
     } else if (mon_prop(mtmp, TELEPORT_CONTROL) && rn2(13)
-               && enexto(&cc, u.ux, u.uy, mtmp->data))
+               && enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS))
         rloc_to(mtmp, cc.x, cc.y);
     else
         (void) rloc(mtmp, TRUE);

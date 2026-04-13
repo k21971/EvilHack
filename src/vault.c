@@ -731,7 +731,8 @@ int goldx, goldy; /* <gold->ox, gold->oy> */
                 /* pick an available spot nearest the hero and also try
                    to find the one meeting that criterium which is nearest
                    the guard's current location */
-                if (enexto(&newcc, goldx, goldy, grd->data)) {
+                if (enexto_core_mon(&newcc, goldx, goldy, grd,
+                                    NO_MM_FLAGS)) {
                     if ((newdelta = distu(newcc.x, newcc.y)) < bestdelta
                         || (newdelta == bestdelta
                             && dist2(newcc.x, newcc.y, guardx, guardy)

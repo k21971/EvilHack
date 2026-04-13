@@ -363,7 +363,7 @@ struct monst *oracle;
         cc.x = (rooms[ridx].lx + rooms[ridx].hx) / 2;
         cc.y = (rooms[ridx].ly + rooms[ridx].hy) / 2;
         if (goodpos(cc.x, cc.y, oracle, NO_MM_FLAGS)
-            || enexto(&cc, cc.x, cc.y, oracle->data)) {
+            || enexto_core_mon(&cc, cc.x, cc.y, oracle, NO_MM_FLAGS)) {
             rloc_to(oracle, cc.x, cc.y);
             o_ridx = levl[oracle->mx][oracle->my].roomno - ROOMOFFSET;
         }
@@ -568,7 +568,7 @@ struct obj *corpse;
             msteed = ERID(mtmp)->mon_steed;
             cc.x = msteed->mx;
             cc.y = msteed->my;
-            enexto(&cc, u.ux, u.uy, msteed->data);
+            (void) enexto_core_mon(&cc, u.ux, u.uy, msteed, NO_MM_FLAGS);
             if (!m_at(cc.x, cc.y)) {
                 place_monster(msteed, cc.x, cc.y);
             } else {

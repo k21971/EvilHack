@@ -5205,4 +5205,5 @@ The following changes to date are:
 - Fix: multiple issues in explode.c found via code review
 - Fix: various bugs in dogmove.c found via code review
 - Fix: multiple issues in apply.c found via code review
+- Fix: honor worn extrinsics at remaining enexto() placement sites
 

@@ -428,7 +428,8 @@ struct monst* mdef;  /* victim */
             if (mon_steed) {
                 coord cc;
 
-                if (enexto(&cc, host_x, host_y, mon_steed->data)) {
+                if (enexto_core_mon(&cc, host_x, host_y, mon_steed,
+                                    NO_MM_FLAGS)) {
                     remove_monster(host_x, host_y);
                     place_monster(mon_steed, cc.x, cc.y);
                     newsym(cc.x, cc.y);
@@ -5641,7 +5642,8 @@ boolean move_other; /* make sure mtmp gets to x, y! so move m_at(x, y) */
          * Migrating_mons that need to be placed will cause
          * no end of trouble.
          */
-        if (!enexto(&mm, newx, newy, mtmp->data) || !isok(mm.x, mm.y)) {
+        if (!enexto_core_mon(&mm, newx, newy, mtmp, NO_MM_FLAGS)
+            || !isok(mm.x, mm.y)) {
             if (othermon) {
                 /* othermon already had its mx, my set to 0 above
                  * and this would shortly cause a sanity check to fail
