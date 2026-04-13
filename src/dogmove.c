@@ -49,8 +49,9 @@ struct obj *otmp;
         return FALSE;
 
     if (is_shield(otmp)
-        && (mtmp == &youmonst) ? (uwep && bimanual(uwep))
- 	    : (MON_WEP(mtmp) && mon_bimanual(mtmp, MON_WEP(mtmp))))
+        && ((mtmp == &youmonst)
+               ? (uwep && bimanual(uwep))
+               : (MON_WEP(mtmp) && mon_bimanual(mtmp, MON_WEP(mtmp)))))
         return FALSE;
 
     if (is_gloves(otmp) && nohands(mtmp->data))
@@ -86,9 +87,9 @@ struct obj *otmp;
         if (!obj->owornmask)
             continue;
 
-       	if (best
-       	    && (armor_bonus(obj) + extra_pref(mtmp,obj)
-                >= armor_bonus(best) + extra_pref(mtmp, best)))
+       	if (!best
+       	    || (armor_bonus(obj) + extra_pref(mtmp, obj)
+                > armor_bonus(best) + extra_pref(mtmp, best)))
        	    best = obj;
     }
 
@@ -671,7 +672,8 @@ boolean devour;
         unpunish();
         delobj(obj); /* we assume this can't be unpaid */
     } else if (obj == uchain) {
-        unpunish();
+        unpunish(); /* frees the chain via dealloc_obj */
+        obj = NULL;
     } else {
         if (obj->unpaid) {
             /* edible item owned by shop has been thrown or kicked
@@ -699,6 +701,11 @@ boolean devour;
         struct permonst *ptr = slimer ? &mons[PM_GREEN_SLIME] : 0;
 
         (void) newcham(mtmp, ptr, FALSE, cansee(mtmp->mx, mtmp->my));
+        /* newcham() -> mselftouch() can petrify mtmp (e.g. poly
+           into a handless form while holding a cockatrice corpse);
+           the tail below would read freed memory */
+        if (DEADMONSTER(mtmp))
+            return 2;
     }
 
     if (unstone) {
@@ -1437,7 +1444,7 @@ boolean ranged;
       || (!ranged && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10))
       || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
       || (is_support(mtmp->data) && mtmp2->mpeaceful && !Conflict
-          && (mtmp2->mhpmax / mtmp2->mhp) < 4)
+          && mtmp2->mhp > 0 && (mtmp2->mhpmax / mtmp2->mhp) < 4)
       || ((mtmp->mhp * 4 < mtmp->mhpmax
            || mtmp2->data->msound == MS_GUARDIAN
            || mtmp2->data->msound == MS_LEADER)
@@ -1535,7 +1542,8 @@ int after; /* this is extra fast monster movement */
         /* heal you if hit points are 12.5% or less than max */
         if (dmgtype(mtmp->data, AD_CLRC)
             && !(mtmp->mcan || mtmp->mspec_used)
-            && (u.uhp < (u.uhpmax / 8))
+            && ((Upolyd ? u.mh : u.uhp)
+                < ((Upolyd ? u.mhmax : u.uhpmax) / 8))
             && distu(mtmp->mx, mtmp->my) < 3) {
             pline("%s casts a healing spell at you.",
                   Monnam(mtmp));
@@ -1544,6 +1552,9 @@ int after; /* this is extra fast monster movement */
             else
                 You_feel("better.");
             healup(d(3, 6), 0, FALSE, FALSE);
+            mtmp->mspec_used = 4 - mtmp->m_lev;
+            if (mtmp->mspec_used < 2)
+                mtmp->mspec_used = 2;
             return 1;
         }
         /* protection if not already protected via spell */
@@ -1554,6 +1565,9 @@ int after; /* this is extra fast monster movement */
             pline("%s casts a protection spell at you.",
                   Monnam(mtmp));
             (void) cast_protection();
+            mtmp->mspec_used = 4 - mtmp->m_lev;
+            if (mtmp->mspec_used < 2)
+                mtmp->mspec_used = 2;
             return 1;
         }
         /* reflection if not already reflecting */
@@ -1564,6 +1578,9 @@ int after; /* this is extra fast monster movement */
             pline("%s casts a reflection spell at you.",
                   Monnam(mtmp));
             (void) cast_reflection(&youmonst);
+            mtmp->mspec_used = 4 - mtmp->m_lev;
+            if (mtmp->mspec_used < 2)
+                mtmp->mspec_used = 2;
             return 1;
         }
         /* assist with various traps - pet generally has
@@ -1737,8 +1754,7 @@ int after; /* this is extra fast monster movement */
 
             if (mon && (mon != &youmonst) &&
                 acceptable_pet_target(mtmp, mon, TRUE)) {
-                int res = (mon == &youmonst)
-                           ? mattacku(mtmp) : mattackm(mtmp, mon);
+                int res = mattackm(mtmp, mon);
 
                 if (res & MM_AGR_DIED)
                     return 2; /* died */
@@ -2089,7 +2105,8 @@ int after; /* this is extra fast monster movement */
                       mhis(mtmp));
                 m_unleash(mtmp, FALSE);
             }
-            (void) mattacku(mtmp);
+            if (mattacku(mtmp))
+                return 2;
             return 0;
         }
         if (!m_in_out_region(mtmp, nix, niy))
@@ -2097,10 +2114,12 @@ int after; /* this is extra fast monster movement */
         if (m_digweapon_check(mtmp, nix,niy))
             return 0;
 
-        /* insert a worm_move() if worms ever begin to eat things */
+        /* insert a worm_move() if worms ever begin to eat things.
+           Use rloc_to() rather than bare remove/place: dog_eat's
+           newcham() can transform the pet into PM_LONG_WORM mid-turn,
+           so worm segment handling must be honored here */
         wasseen = canseemon(mtmp);
-        remove_monster(omx, omy);
-        place_monster(mtmp, nix, niy);
+        rloc_to(mtmp, nix, niy);
         if (cursemsg[chi] && (wasseen || canseemon(mtmp))) {
             /* describe top item of pile, not necessarily cursed item itself;
                don't use glyph_at() here--it would return the pet but we want
@@ -2154,10 +2173,7 @@ int after; /* this is extra fast monster movement */
  dognext:
         if (!m_in_out_region(mtmp, nix, niy))
             return 1;
-        remove_monster(mtmp->mx, mtmp->my);
-        place_monster(mtmp, cc.x, cc.y);
-        newsym(cc.x, cc.y);
-        set_apparxy(mtmp);
+        rloc_to(mtmp, cc.x, cc.y);
     }
     return 1;
 }
