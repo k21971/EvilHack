@@ -103,27 +103,27 @@ struct obj *obj;
                   ? "its aura of darkness" : "shining");
     }
     if (uwep == obj
-        && ((uwep && uwep->oartifact == ART_OGRESMASHER)
+        && ((obj && obj->oartifact == ART_OGRESMASHER)
             || (olduwep && olduwep->oartifact == ART_OGRESMASHER)))
         context.botl = 1;
 
     if (uwep == obj
-        && ((uwep && uwep->oartifact == ART_GIANTSLAYER)
+        && ((obj && obj->oartifact == ART_GIANTSLAYER)
             || (olduwep && olduwep->oartifact == ART_GIANTSLAYER)))
         context.botl = 1;
 
     if (uwep == obj
-        && ((uwep && uwep->oartifact == ART_HARBINGER)
+        && ((obj && obj->oartifact == ART_HARBINGER)
             || (olduwep && olduwep->oartifact == ART_HARBINGER)))
         context.botl = 1;
 
     if (uwep == obj
-        && ((uwep && uwep->oartifact == ART_SWORD_OF_KAS)
+        && ((obj && obj->oartifact == ART_SWORD_OF_KAS)
             || (olduwep && olduwep->oartifact == ART_SWORD_OF_KAS)))
         context.botl = 1;
 
-    if (uwep && uwep == obj && (uwep->oprops & ITEM_EXCEL)) {
-        uwep->oprops_known |= ITEM_EXCEL;
+    if (uwep == obj && obj && (obj->oprops & ITEM_EXCEL)) {
+        obj->oprops_known |= ITEM_EXCEL;
         set_moreluck();
         context.botl = 1;
         update_inventory();
@@ -137,8 +137,8 @@ struct obj *obj;
     }
 
     if (uwep == obj
-        && uwep && uwep->oartifact == ART_WAND_OF_ORCUS) {
-        curse(uwep);
+        && obj && obj->oartifact == ART_WAND_OF_ORCUS) {
+        curse(obj);
         update_inventory();
     }
 
@@ -304,9 +304,6 @@ setuswapwep(obj)
 struct obj *obj;
 {
     struct obj *olduswapwep = uswapwep;
-
-    if (u.twoweap && obj && (obj->oartifact || obj->oprops))
-        set_artifact_intrinsic(obj, 1, W_SWAPWEP);
 
     if (obj != uswapwep && artifact_light(uswapwep) && uswapwep->lamplit) {
         end_burn(uswapwep, FALSE);
@@ -729,6 +726,8 @@ const char *verb; /* "rub",&c */
     return TRUE;
 }
 
+/* Returns TRUE if two-weapon combat can be entered. Note: has side
+   effects, may drop uswapwep when Glib or uswapwep is cursed. */
 int
 can_twoweapon()
 {
@@ -793,7 +792,7 @@ drop_uswapwep()
     /* Avoid trashing makeplural's static buffer */
     Strcpy(str, makeplural(body_part(HAND)));
     pline("%s from your %s!", Yobjnam2(obj, "slip"), str);
-    dropx(obj);
+    (void) dropx(obj);
 }
 
 int
@@ -997,6 +996,10 @@ int amount;
             else
                 pline("%s.", Yobjnam2(uwep, "evaporate"));
 
+            /* evaporate message above subsumes "stops shining"; still
+               explicitly end the burn for parity with uwepgone() */
+            if (artifact_light(uwep) && uwep->lamplit)
+                end_burn(uwep, FALSE);
             useupall(uwep); /* let all of them disappear */
         }
         return 1;
