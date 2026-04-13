@@ -128,7 +128,7 @@ int x, y, n, mmflags;
             support = PM_GOBLIN_SHAMAN;
             if (mvitals[support].mvflags & G_GONE)
                 return;
-            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -142,7 +142,7 @@ int x, y, n, mmflags;
             support = PM_KOBOLD_SHAMAN;
             if (mvitals[support].mvflags & G_GONE)
                 return;
-            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -158,7 +158,7 @@ int x, y, n, mmflags;
             support = PM_ORC_SHAMAN;
             if (mvitals[support].mvflags & G_GONE)
                 return;
-            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -172,7 +172,7 @@ int x, y, n, mmflags;
             support = PM_GNOLL_CLERIC;
             if (mvitals[support].mvflags & G_GONE)
                 return;
-            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -186,7 +186,7 @@ int x, y, n, mmflags;
             support = PM_DROW_CLERIC;
             if (mvitals[support].mvflags & G_GONE)
                 return;
-            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -200,7 +200,7 @@ int x, y, n, mmflags;
             support = PM_TORTLE_SHAMAN;
             if (mvitals[support].mvflags & G_GONE)
                 return;
-            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -214,7 +214,7 @@ int x, y, n, mmflags;
             support = PM_HILL_GIANT_SHAMAN;
             if (mvitals[support].mvflags & G_GONE)
                 return;
-            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -237,7 +237,7 @@ int x, y, n, mmflags;
             leader = PM_STAG;
             if (mvitals[leader].mvflags & G_GONE)
                 return;
-            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+            if (enexto(&mm, mm.x, mm.y, &mons[leader])) {
                 mon = makemon(&mons[leader],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -258,7 +258,7 @@ int x, y, n, mmflags;
             leader = PM_SKELETON_WARRIOR;
             if (mvitals[leader].mvflags & G_GONE)
                 return;
-            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+            if (enexto(&mm, mm.x, mm.y, &mons[leader])) {
                 mon = makemon(&mons[leader],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -277,7 +277,7 @@ int x, y, n, mmflags;
                 leader = little_to_big(leader);
             if (mvitals[leader].mvflags & G_GONE)
                 return;
-            if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
+            if (enexto(&mm, mm.x, mm.y, &mons[leader])) {
                 mon = makemon(&mons[leader],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {

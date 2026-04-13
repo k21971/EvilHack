@@ -5206,4 +5206,5 @@ The following changes to date are:
 - Fix: various bugs in dogmove.c found via code review
 - Fix: multiple issues in apply.c found via code review
 - Fix: honor worn extrinsics at remaining enexto() placement sites
+- Fix: m_initgrp() placed support/leader spawns using leader's permonst
 
