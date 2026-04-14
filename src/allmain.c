@@ -17,7 +17,7 @@ STATIC_DCL void NDECL(do_positionbar);
 #endif
 STATIC_DCL void FDECL(regen_hp, (int));
 STATIC_DCL void FDECL(interrupt_multi, (const char *));
-STATIC_DCL void FDECL(debug_fields, (const char *));
+STATIC_DCL void FDECL(debug_fields, (char *));
 STATIC_DCL void NDECL(init_mchest);
 
 #ifdef EXTRAINFO_FN
@@ -371,12 +371,16 @@ boolean resuming;
                         int numdogs = 0;
                         int num_candidates = 0;
                         int limit = ACURR(A_CHA) / 3;
+                        /* cap: overflow is self-correcting across turns */
                         struct monst *candidates[50]; /* untameable pets (excludes steed) */
                         struct monst *curmon;
 
                         /* single pass: count all pets, collect untameable candidates */
                         for (curmon = fmon; curmon; curmon = curmon->nmon) {
-                            if (curmon->mtame && !curmon->msummoned) {
+                            /* skip minions: they carry emin rather than edog,
+                               so EDOG() below would NULL-deref */
+                            if (curmon->mtame && !curmon->msummoned
+                                && !curmon->isminion) {
                                 numdogs++;
                                 /* steed counts toward limit but is never untamed */
                                 if (curmon != u.usteed && num_candidates < 50)
@@ -413,6 +417,7 @@ boolean resuming;
                                at random, become hostile */
                             if (rn2(EDOG(weakdog)->abuse + 1) || !rn2(3)) {
                                 weakdog->mpeaceful = 0;
+                                set_malign(weakdog);
                                 newsym(weakdog->mx, weakdog->my);
                             }
                             if (weakdog->mleashed)
@@ -760,6 +765,9 @@ boolean resuming;
                             } else if (mtmp->mpeaceful || mtmp->mtame) {
                                 setmangry(mtmp, FALSE);
                                 mtmp->mpeaceful = mtmp->mtame = 0;
+                                /* setmangry early-returns if mtame was set,
+                                   so ensure malign resyncs */
+                                set_malign(mtmp);
                                 newsym(mtmp->mx, mtmp->my); /* update display */
                                 if (mtmp->mleashed)
                                     m_unleash(mtmp, TRUE);
@@ -856,22 +864,27 @@ boolean resuming;
             curs_on_u();
         }
 
-        if (elf_regen != elf_can_regen()) {
-            if (!Hallucination)
-                You_feel("%s.", (elf_regen) ? "itchy" : "relief");
-            else
-                You_feel("%s.", (elf_can_regen()) ? "magnetic"
-                                                  : "like... gnarly dude");
-            elf_regen = elf_can_regen();
-        }
+        {
+            boolean can_elf_now = elf_can_regen();
+            boolean can_orc_now = orc_can_regen();
 
-        if (orc_regen != orc_can_regen()) {
-            if (!Hallucination)
-                You_feel("%s.", (orc_regen) ? "tingly" : "relief");
-            else
-                You_feel("%s.", (orc_can_regen()) ? "non-magnetic"
-                                                  : "like... whoa");
-            orc_regen = orc_can_regen();
+            if (elf_regen != can_elf_now) {
+                if (!Hallucination)
+                    You_feel("%s.", (elf_regen) ? "itchy" : "relief");
+                else
+                    You_feel("%s.", can_elf_now ? "magnetic"
+                                                : "like... gnarly dude");
+                elf_regen = can_elf_now;
+            }
+
+            if (orc_regen != can_orc_now) {
+                if (!Hallucination)
+                    You_feel("%s.", (orc_regen) ? "tingly" : "relief");
+                else
+                    You_feel("%s.", can_orc_now ? "non-magnetic"
+                                                : "like... whoa");
+                orc_regen = can_orc_now;
+            }
         }
 
         /* If wielding the Wand of Orcus and it's been uncursed,
@@ -903,24 +916,28 @@ boolean resuming;
                 Your("%s and %s are forced from your %s!",
                      simpleonames(uwep), simpleonames(uswapwep),
                      makeplural(body_part(HAND)));
-                dropx(uswapwep);
-                dropx(uwep);
+                /* clear before dropx(): dropz() clears the uwep/uswapwep
+                   globals but never touches u.twoweap, leaving a stale
+                   u.twoweap=TRUE with both slots NULL */
+                u.twoweap = FALSE;
+                (void) dropx(uswapwep);
+                (void) dropx(uwep);
             } else if (uwep && (was_shield = uarms)) {
                 Your("%s and %s are forced from your %s!",
                      simpleonames(uwep), simpleonames(uarms),
                      makeplural(body_part(HAND)));
                 (void) Shield_off();
-                dropx(uwep);
-                dropx(was_shield);
+                (void) dropx(uwep);
+                (void) dropx(was_shield);
             } else if (!uwep && (was_shield = uarms)) {
                 Your("%s is forced from your %s!",
                      simpleonames(uarms), body_part(HAND));
                 (void) Shield_off();
-                dropx(was_shield);
+                (void) dropx(was_shield);
             } else if (uwep) {
                 Your("%s is forced from your %s!",
                      simpleonames(uwep), body_part(HAND));
-                dropx(uwep);
+                (void) dropx(uwep);
             }
         }
 
@@ -1485,7 +1502,7 @@ enum earlyarg e_arg;
     }
 
     if (match) {
-        const char *extended_opt = index(userea, ':');
+        char *extended_opt = index(userea, ':');
 
         if (!extended_opt)
             extended_opt = index(userea, '=');
@@ -1507,7 +1524,7 @@ enum earlyarg e_arg;
                     raw_printf(
                    "-%sversion can only be extended with -%sversion:paste.\n",
                                dashdash, dashdash);
-                    return TRUE;
+                    return 2;
                 }
             }
             early_version_info(insert_into_pastebuf);
@@ -1526,12 +1543,13 @@ enum earlyarg e_arg;
                 extended_opt++;
                 return windows_early_options(extended_opt);
             }
+            return 1;
         }
 #endif
         default:
             break;
         }
-    };
+    }
     return FALSE;
 }
 
@@ -1549,14 +1567,15 @@ enum earlyarg e_arg;
  */
 STATIC_OVL void
 debug_fields(opts)
-const char *opts;
+char *opts;
 {
     char *op;
     boolean negated = FALSE;
 
-    while ((op = index(opts, ',')) != 0) {
+    /* split on first comma and recurse on the remainder; after the
+       cut, opts has no further commas so this is effectively an 'if' */
+    if ((op = index(opts, ',')) != 0) {
         *op++ = 0;
-        /* recurse */
         debug_fields(op);
     }
     if (strlen(opts) > BUFSZ / 2)
@@ -1565,7 +1584,7 @@ const char *opts;
     /* strip leading and trailing white space */
     while (isspace((uchar) *opts))
         opts++;
-    op = eos((char *) opts);
+    op = eos(opts);
     while (--op >= opts && isspace((uchar) *op))
         *op = '\0';
 

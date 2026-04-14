@@ -5210,4 +5210,5 @@ The following changes to date are:
 - Fix: multiple issues in wield.c found via code review
 - Fix: use-after-free in hitmu() when rustm() destroys attacker's
   weapon
+- Fix: multiple issues in allmain.c found via code review
 
