@@ -278,6 +278,7 @@ int *once;
     if (IS_DOOR(tmp_dam->typ))
         levl[x][y].doormask = D_CLOSED;
 
+    (void) memset((genericptr_t) litter, 0, sizeof litter);
 #define NEED_UPDATE 1
 #define OPEN 2
 #define INTEMPLE 4
@@ -438,7 +439,7 @@ boolean croaked;
     if (saw_floor)
         pline("The floor is repaired!");
     if (saw_untrap && !saw_walls && !saw_door && !saw_bars && !saw_floor) {
-        if (cansee(EPRI(priest)->shrpos.x, EPRI(priest)->shrpos.y))
+        if (canseemon(priest))
             pline("%s removes a trap.", Monnam(priest));
     }
     if (!saw_walls && !saw_door && !saw_bars && !saw_floor && !saw_untrap) {
@@ -920,8 +921,8 @@ struct monst *priest;
             pline("%s breaks out of %s reverie!", Monnam(priest),
                   mhis(priest));
             priest->mfrozen = priest->msleeping = 0;
-	    if (!priest->mstone || priest->mstone > 2)
-		priest->mcanmove = 1;
+            if (!priest->mstone || priest->mstone > 2)
+                priest->mcanmove = 1;
         }
         priest->mpeaceful = 0;
         newsym(priest->mx, priest->my); /* clear peaceful glyph */

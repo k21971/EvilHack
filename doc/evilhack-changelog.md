@@ -5211,4 +5211,5 @@ The following changes to date are:
 - Fix: use-after-free in hitmu() when rustm() destroys attacker's
   weapon
 - Fix: multiple issues in allmain.c found via code review
+- Fix: multiple issues in priest.c found via code review
 
