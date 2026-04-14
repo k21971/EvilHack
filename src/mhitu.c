@@ -1751,7 +1751,23 @@ struct attack *mattk;
                     if (cloneu())
                         You("divide as %s hits you!", mon_nam(mtmp));
                 }
-                rustm(&youmonst, otmp); /* safe if otmp is NULL */
+                /* rustm() may obfree otmp via erode_obj(EF_DESTROY)
+                   when player's polyform is rust/corrode/decay/fire-
+                   aligned and the weapon is at MAX_ERODE; clear both
+                   the local and the file-static mon_currwep so the
+                   late damage-adjustment block does not read freed
+                   memory. Mirrors the break_glass_obj guard above */
+                if (otmp) {
+                    unsigned wep_id = otmp->o_id;
+
+                    rustm(&youmonst, otmp);
+                    if (!o_on(wep_id, mtmp->minvent)) {
+                        otmp = NULL;
+                        mon_currwep = NULL;
+                    }
+                } else {
+                    rustm(&youmonst, otmp); /* safe if otmp is NULL */
+                }
             } else if (mattk->aatyp != AT_TUCH || dmg != 0
                        || mtmp != u.ustuck) {
                 hitmsg(mtmp, mattk);

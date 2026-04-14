@@ -615,6 +615,11 @@ dowieldquiver()
 
  quivering:
     if (finish_splitting) {
+        /* splitobj() inserted newquiver next to its parent in the
+           invent chain (child inherits OBJ_INVENT from the parent),
+           so freeinv is required - addinv panics without OBJ_FREE.
+           Bracket with nomerge to force a fresh inventory letter
+           rather than re-merging into the parent stack */
         freeinv(newquiver);
         newquiver->nomerge = 1;
         addinv(newquiver);
