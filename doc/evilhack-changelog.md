@@ -5212,4 +5212,5 @@ The following changes to date are:
   weapon
 - Fix: multiple issues in allmain.c found via code review
 - Fix: multiple issues in priest.c found via code review
+- Fix: multiple issues in do_wear.c found via code review
 

@@ -41,7 +41,7 @@ STATIC_PTR int FDECL(armor_or_accessory_off, (struct obj *));
 STATIC_PTR int FDECL(accessory_or_armor_on, (struct obj *));
 STATIC_DCL void FDECL(already_wearing, (const char *));
 STATIC_DCL void FDECL(already_wearing2, (const char *, const char *));
-STATIC_DCL void FDECL(toggle_armor_light, (struct obj *, boolean));
+STATIC_DCL void FDECL(toggle_armor_light, (struct obj *, BOOLEAN_P));
 
 /* plural "fingers" or optionally "gloves" */
 const char *
@@ -1074,7 +1074,9 @@ Shirt_off(VOID_ARGS)
 
 /* handle extra abilities for hero wearing dragon-scaled armor */
 void
-dragon_armor_handling(struct obj *otmp, boolean puton)
+dragon_armor_handling(otmp, puton)
+struct obj *otmp;
+boolean puton;
 {
     boolean was_flying;
 
@@ -1497,6 +1499,11 @@ Amulet_off()
 {
     context.takeoff.mask &= ~W_AMUL;
 
+    if (!uamul) {
+        impossible("Amulet_off without uamul");
+        return;
+    }
+
     switch (uamul->otyp) {
     case AMULET_OF_ESP:
         /* need to update ability before calling see_monsters() */
@@ -1746,10 +1753,15 @@ Ring_off_or_gone(obj, gone)
 struct obj *obj;
 boolean gone;
 {
-    long mask = (obj->owornmask & W_RING);
+    long mask;
     int old_attrib, which;
     boolean observable;
 
+    if (!obj) {
+        impossible("Ring_off_or_gone without obj");
+        return;
+    }
+    mask = (obj->owornmask & W_RING);
     context.takeoff.mask &= ~mask;
     if (gone)
         setnotworn(obj);
@@ -1929,7 +1941,7 @@ struct obj *otmp;
         if (was_blind) {
             /* "still cannot see" makes no sense when removing lenses
                since they can't have been the cause of your blindness */
-            if (otmp->otyp != LENSES || otmp->otyp != GOGGLES)
+            if (otmp->otyp != LENSES && otmp->otyp != GOGGLES)
                 You("still cannot see.");
         } else {
             changed = TRUE; /* !was_blind */
@@ -3281,12 +3293,12 @@ glibr()
         if (leftfall) {
             otmp = uleft;
             Ring_off(uleft);
-            dropx(otmp);
+            (void) dropx(otmp);
         }
         if (rightfall) {
             otmp = uright;
             Ring_off(uright);
-            dropx(otmp);
+            (void) dropx(otmp);
         }
     }
 
@@ -3308,7 +3320,7 @@ glibr()
         wastwoweap = TRUE;
         setuswapwep((struct obj *) 0); /* clears u.twoweap */
         if (canletgo(otmp, ""))
-            dropx(otmp);
+            (void) dropx(otmp);
     }
     otmp = uwep;
     if (otmp && otmp->otyp != AKLYS
@@ -3350,7 +3362,7 @@ glibr()
         otmp->quan = savequan;
         setuwep((struct obj *) 0);
         if (canletgo(otmp, ""))
-            dropx(otmp);
+            (void) dropx(otmp);
     }
 }
 
@@ -3947,12 +3959,14 @@ struct obj *atmp;
             Your("shield crumbles away!");
         (void) Shield_off();
         useup(otmp);
-    } else if (u.usteed && (otmp = which_armor(u.usteed, W_BARDING))
+    } else if (u.usteed
+               && (otmp = which_armor(u.usteed, W_BARDING)) != 0
                /* don't use DESTROY_ARM for barding (at least for now) -- we
                 * want it to be an invalid target if atmp == 0, so that it can
                 * only be destroyed if specifically targeted */
-               && (otmp == atmp)
-               && !obj_resists(otmp, 0, 90) ? (otmp->in_use = TRUE) : FALSE) {
+               && otmp == atmp
+               && !obj_resists(otmp, 0, 90)) {
+        otmp->in_use = TRUE;
         pline("%s crumbles to pieces!", Yname2(otmp));
         m_useup(u.usteed, otmp);
     } else {
@@ -4064,7 +4078,9 @@ boolean only_if_known_cursed; /* ignore covering unless known to be cursed */
    unifies code for cloak, shield and body armor code paths since gold dragon
    scales are worn in cloak slot and gold-scaled armor is worn in armor slot */
 static void
-toggle_armor_light(struct obj *armor, boolean on)
+toggle_armor_light(armor, on)
+struct obj *armor;
+boolean on;
 {
     boolean shadow = (Is_dragon_armor(armor)
                       && Dragon_armor_to_scales(armor) == SHADOW_DRAGON_SCALES);

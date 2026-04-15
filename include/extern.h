@@ -531,7 +531,7 @@ E boolean FDECL(doffing, (struct obj *));
 E void FDECL(cancel_doff, (struct obj *, long));
 E void NDECL(cancel_don);
 E int FDECL(stop_donning, (struct obj *));
-E void FDECL(dragon_armor_handling, (struct obj *, boolean));
+E void FDECL(dragon_armor_handling, (struct obj *, BOOLEAN_P));
 E int NDECL(Armor_off);
 E int NDECL(Armor_gone);
 E void FDECL(check_wings, (BOOLEAN_P));
