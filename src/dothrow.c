@@ -504,17 +504,17 @@ boolean verbose;
     }
 }
 
-/* Object hits floor at hero's feet.
-   Called from drop(), throwit(), hold_another_object(). */
-void
+/* Object hits floor at hero's feet. Called from drop(),
+   throwit(), hold_another_object(). Returns TRUE if obj
+   was destroyed by flooreffects, FALSE otherwise */
+boolean
 hitfloor(obj, verbosely)
 struct obj *obj;
 boolean verbosely; /* usually True; False if caller has given drop message */
 {
-    if (IS_SOFT(levl[u.ux][u.uy].typ) || u.uinwater || u.uswallow) {
-        dropy(obj);
-        return;
-    }
+    if (IS_SOFT(levl[u.ux][u.uy].typ) || u.uinwater || u.uswallow)
+        return dropy(obj);
+
     if (IS_ALTAR(levl[u.ux][u.uy].typ))
         doaltarobj(obj);
     else if (verbosely)
@@ -522,10 +522,10 @@ boolean verbosely; /* usually True; False if caller has given drop message */
               surface(u.ux, u.uy));
 
     if (hero_breaks(obj, u.ux, u.uy, BRK_FROM_INV))
-        return;
+        return FALSE;
     if (ship_object(obj, u.ux, u.uy, FALSE))
-        return;
-    dropz(obj, TRUE);
+        return FALSE;
+    return dropz(obj, TRUE);
 }
 
 /*
@@ -1122,12 +1122,12 @@ int dx, dy, range;
     cc.x = mon->mx + (dx * range);
     cc.y = mon->my + (dy * range);
     (void) walk_path(&mc, &cc, mhurtle_step, (genericptr_t) mon);
-    if (!DEADMONSTER(mon)) {
-        if (t_at(mon->mx, mon->my))
-            (void) mintrap(mon);
-        else
-            (void) minliquid(mon);
-    }
+    /* trap and liquid can both apply on the same square (magic trap on
+       a moat, etc); mintrap may kill mon, so re-check DEADMONSTER */
+    if (!DEADMONSTER(mon) && t_at(mon->mx, mon->my))
+        (void) mintrap(mon);
+    if (!DEADMONSTER(mon))
+        (void) minliquid(mon);
     return;
 }
 
@@ -1255,7 +1255,10 @@ boolean hitsroof;
             artimsg = artifact_hit((struct monst *) 0, &youmonst, obj, &dmg,
                                    rn1(18, 2));
 
-        if (ammo_stack)
+        /* propagate identified oprops to the parent stack; skip if
+           ammo_stack aliases obj (single-item throw) to avoid a
+           redundant self-OR and guard against future free orderings */
+        if (ammo_stack && ammo_stack != obj)
             ammo_stack->oprops_known |= obj->oprops_known;
 
         if (!dmg) { /* probably wasn't a weapon; base damage on weight */
@@ -1299,8 +1302,13 @@ boolean hitsroof;
             killer.format = KILLED_BY;
             Strcpy(killer.name, "elementary physics"); /* "what goes up..." */
             You("turn to stone.");
-            if (obj)
-                dropy(obj); /* bypass most of hitfloor() */
+            if (obj) {
+                /* dropy() may destroy obj via flooreffects (lava, water,
+                   open air); returns TRUE if obj is gone so the
+                   return obj? value below reflects the real state */
+                if (dropy(obj))
+                    obj = (struct obj *) 0;
+            }
             thrownobj = 0;  /* now either gone or on floor */
             done(STONING);
             return obj ? TRUE : FALSE;
@@ -1313,12 +1321,14 @@ boolean hitsroof;
             /* All objects need hitfloor() to be properly handled.
                For uball, this places it (for the pulling mechanic).
                For other objects, flooreffects() destroys them */
-            hitfloor(obj, TRUE);
+            if (hitfloor(obj, TRUE))
+                obj = (struct obj *) 0;
             thrownobj = 0;
             losehp(dmg, "falling object", KILLED_BY_AN);
             return FALSE;
         }
-        hitfloor(obj, TRUE);
+        if (hitfloor(obj, TRUE))
+            obj = (struct obj *) 0;
         thrownobj = 0;
         losehp(dmg, "falling object", KILLED_BY_AN);
     }
@@ -1410,7 +1420,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                     (void) artifact_hit((struct monst *) 0, &youmonst, obj, &dmg,
                                         rn1(18, 2));
 
-                if (ammo_stack)
+                if (ammo_stack && ammo_stack != obj)
                     ammo_stack->oprops_known |= obj->oprops_known;
 
                 if (dmg > 0)
@@ -1475,12 +1485,17 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             if (obj->owornmask & W_QUIVER) /* in case addinv() autoquivered */
                 setuqwep((struct obj *) 0);
             setuwep(obj);
-            if (twoweap) {
+            /* uswapwep may have been destroyed since throw began;
+               only restore twoweap mode if swap weapon still exists */
+            if (twoweap && uswapwep) {
                 u.twoweap = 1;
                 setuswapwep(uswapwep);
                 update_inventory();
             }
-            if (artifact_light(obj) && !obj->lamplit) {
+            retouch_object(&obj, !uarmg, TRUE);
+            /* retouch_object may NULL obj (e.g. hero changed state
+               mid-flight and can no longer safely handle the artifact) */
+            if (obj && artifact_light(obj) && !obj->lamplit) {
                 begin_burn(obj, FALSE);
                 if (!Blind)
                     pline("%s to shine %s!", Tobjnam(obj, "begin"),
@@ -1503,10 +1518,15 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             potionhit(u.usteed, obj, POTHIT_HERO_THROW);
         } else if (u.dz > 0 && u.usteed
                    && dogfood(u.usteed, obj) <= ACCFOOD) {
-            if (tamedog(u.usteed, obj)) /* handles food */
-                return;
-            else
+            if (tamedog(u.usteed, obj)) {
+                /* tamedog() consumed the food, obj is now freed;
+                   must go through throwit_return: to clear thrownobj
+                   and iflags.returning_missile */
+                clear_thrownobj = TRUE;
+                goto throwit_return;
+            } else {
                 hitfloor(obj, TRUE);
+            }
         } else {
             hitfloor(obj, TRUE);
         }
@@ -1524,7 +1544,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             (void) encumber_msg();
             if (wep_mask && !(obj->owornmask & wep_mask)) {
                 setworn(obj, wep_mask);
-                if (twoweap) {
+                /* only restore twoweap if swap weapon still exists */
+                if (twoweap && uswapwep) {
                     u.twoweap = 1;
                     setuswapwep(uswapwep);
                     update_inventory();
@@ -1665,7 +1686,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
         (void) snuff_candle(obj);
         notonhead = (bhitpos.x != mon->mx || bhitpos.y != mon->my);
         obj_gone = thitmonst(mon, obj);
-        if (!obj_gone && ammo_stack)
+        if (!obj_gone && ammo_stack && ammo_stack != obj)
             ammo_stack->oprops_known |= obj->oprops_known;
         /* Monster may have been tamed; this frees old mon [obsolete] */
         mon = m_at(bhitpos.x, bhitpos.y);
@@ -1719,20 +1740,25 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                     if (obj->owornmask & W_QUIVER)
                         setuqwep((struct obj *) 0);
                     setuwep(obj);
-                    if (twoweap) {
+                    /* only restore twoweap if swap weapon still exists */
+                    if (twoweap && uswapwep) {
                         u.twoweap = 1;
                         setuswapwep(uswapwep);
                         update_inventory();
                     }
                     retouch_object(&obj, !uarmg, TRUE);
-                    if (artifact_light(obj) && !obj->lamplit) {
-                        begin_burn(obj, FALSE);
-                        if (!Blind)
-                            pline("%s to shine %s!", Tobjnam(obj, "begin"),
-                                  arti_light_description(obj));
+                    /* retouch_object may NULL obj */
+                    if (obj) {
+                        if (artifact_light(obj) && !obj->lamplit) {
+                            begin_burn(obj, FALSE);
+                            if (!Blind)
+                                pline("%s to shine %s!",
+                                      Tobjnam(obj, "begin"),
+                                      arti_light_description(obj));
+                        }
+                        if (cansee(bhitpos.x, bhitpos.y))
+                            newsym(bhitpos.x, bhitpos.y);
                     }
-                    if (cansee(bhitpos.x, bhitpos.y))
-                        newsym(bhitpos.x, bhitpos.y);
                 } else {
                     int dmg = rn2(2);
 
@@ -2806,6 +2832,12 @@ struct obj* obj;
                 (void) Ring_gone(uleft);
             if (obj == uright)
                 (void) Ring_gone(uright);
+            /* remove_worn_item variants above can end levitation and
+               drop the hero into lava/water/open air, which may destroy
+               obj via flooreffects. If obj is no longer carried,
+               abandon the break attempt */
+            if (!carried(obj))
+                return FALSE;
         }
         obj->ox = u.ux, obj->oy = u.uy;
     } else if (mcarried(obj)) { /* monster's item */
@@ -2829,6 +2861,15 @@ struct obj* obj;
         obj->ox = mon->mx, obj->oy = mon->my;
     } else {
         impossible("breaking glass obj not in inventory?");
+        return FALSE;
+    }
+
+    /* guard against carrier at (0,0) during parkguard/mondead transition;
+       breakobj -> newsym/maybe_unhide_at would otherwise touch invalid
+       coords */
+    if (!isok(obj->ox, obj->oy)) {
+        impossible("break_glass_obj: invalid coords (%d,%d)",
+                   obj->ox, obj->oy);
         return FALSE;
     }
 
