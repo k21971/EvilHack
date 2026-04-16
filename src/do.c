@@ -1456,7 +1456,7 @@ xchar x, y;
 */
 
 /* Make demon lords follow the player if they levelport below their lairs */
-void
+STATIC_OVL void
 dlords_stalk()
 {
     struct monst *mtmp, *mtmp2;
@@ -1467,7 +1467,6 @@ dlords_stalk()
             /* infidels can get peaceful dlords who won't hound them */
             && !mtmp->mpeaceful) {
             migrate_to_level(mtmp, ledger_no(&u.uz), MIGR_STALK, (coord *) 0);
-            mtmp->mstate |= MON_MIGRATING;
         }
     }
 }
@@ -1493,7 +1492,7 @@ struct monst *mtmp;
        it was already here.  Randomly move you to an adjacent spot
        or else the monster to any nearby location.  Prior to 3.3.0
        the latter was done unconditionally. */
-    if (!rn2(2) && enexto(&cc, u.ux, u.uy, youmonst.data)
+    if (!rn2(2) && enexto_core_mon(&cc, u.ux, u.uy, &youmonst, NO_MM_FLAGS)
         && distu(cc.x, cc.y) <= 2)
         u_on_newpos(cc.x, cc.y); /*[maybe give message here?]*/
     else
@@ -1533,9 +1532,9 @@ boolean at_stairs, falling, portal;
     if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel))
         newlevel->dlevel = dunlevs_in_dungeon(newlevel);
     if (newdungeon && In_endgame(newlevel)) { /* 1st Endgame Level !!! */
-	d_level newlev;
-	newlev.dnum = astral_level.dnum;
-	newlev.dlevel = dungeons[astral_level.dnum].entry_lev;
+        d_level newlev;
+        newlev.dnum = astral_level.dnum;
+        newlev.dlevel = dungeons[astral_level.dnum].entry_lev;
         if (!u.uhave.amulet && !u.uamulet_on_planes)
             return;  /* must have the Amulet (or be chasing it) */
         if (!wizard) {/* wizard ^V can bypass Earth level */
@@ -1726,9 +1725,9 @@ boolean at_stairs, falling, portal;
         for (l_idx = 0; l_idx < n_dgns; ++l_idx)
             remdun_mapseen(l_idx);
 
-	pline("Well done, mortal!");
-	pline("But now thou must face the final Test...");
-	pline("Prove thyself worthy or perish!");
+        pline("Well done, mortal!");
+        pline("But now thou must face the final Test...");
+        pline("Prove thyself worthy or perish!");
     }
 
     if (Is_rogue_level(newlevel) || Is_rogue_level(&u.uz))
@@ -2151,7 +2150,7 @@ boolean at_stairs, falling, portal;
     (void) pickup(1);
 
 #ifdef WHEREIS_FILE
-	touch_whereis();
+    touch_whereis();
 #endif
 }
 
@@ -2201,8 +2200,12 @@ const char *pre_msg, *post_msg;
     /* destination level */
     assign_level(&u.utolev, tolev);
 
+    if (dfr_pre_msg)
+        free((genericptr_t) dfr_pre_msg), dfr_pre_msg = 0;
     if (pre_msg)
         dfr_pre_msg = dupstr(pre_msg);
+    if (dfr_post_msg)
+        free((genericptr_t) dfr_post_msg), dfr_post_msg = 0;
     if (post_msg)
         dfr_post_msg = dupstr(post_msg);
 }
