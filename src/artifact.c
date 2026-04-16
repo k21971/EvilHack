@@ -2840,16 +2840,47 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     mhurtle(mdef, u.dx, u.dy, hurtle_distance);
                 } else if (!youattack && !youdefend) {
                     /* not an instakill, but currently behaves like one */
-                    if (show_instakill)
-                        pline("%s smashes %s backwards!", Monnam(magr), mon_nam(mdef));
-                    mhurtle(mdef, mdef->mx - magr->mx, mdef->my - magr->my,
-                            hurtle_distance);
+                    int kx, ky;
+
+                    if (magr) {
+                        kx = mdef->mx - magr->mx;
+                        ky = mdef->my - magr->my;
+                    } else {
+                        /* thrown projectile has no attacker; derive
+                           knockback direction from projectile's path */
+                        kx = mdef->mx - bhitpos.x;
+                        ky = mdef->my - bhitpos.y;
+                        if (!kx && !ky)
+                            return FALSE;
+                    }
+                    if (show_instakill) {
+                        if (magr)
+                            pline("%s smashes %s backwards!",
+                                  Monnam(magr), mon_nam(mdef));
+                        else
+                            pline("%s is smashed backwards!",
+                                  Monnam(mdef));
+                    }
+                    mhurtle(mdef, kx, ky, hurtle_distance);
                 } else if (!u.uswallow) {
+                    int kx, ky;
+
+                    if (magr) {
+                        kx = u.ux - magr->mx;
+                        ky = u.uy - magr->my;
+                    } else {
+                        kx = u.ux - bhitpos.x;
+                        ky = u.uy - bhitpos.y;
+                        if (!kx && !ky)
+                            return FALSE;
+                    }
                     You("are smashed backwards!");
-                    hurtle(u.ux - magr->mx, u.uy - magr->my, hurtle_distance, FALSE);
+                    hurtle(kx, ky, hurtle_distance, FALSE);
                     /* Update monster's knowledge of your position */
-                    magr->mux = u.ux;
-                    magr->muy = u.uy;
+                    if (magr) {
+                        magr->mux = u.ux;
+                        magr->muy = u.uy;
+                    }
                     return TRUE;
                 }
             } else

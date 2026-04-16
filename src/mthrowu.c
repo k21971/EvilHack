@@ -132,7 +132,7 @@ const char *name; /* if null, then format `*objp' */
         else
             You("are hit by %s%s", onm, exclam(dam));
 
-        if (ammo_stack)
+        if (ammo_stack && obj)
             ammo_stack->oprops_known |= obj->oprops_known;
 
         if (is_acid && Acid_resistance) {
@@ -305,7 +305,7 @@ struct obj *otmp, *mwep;
                 multishot++;
             /*FALLTHRU*/
         case PM_SAMURAI:
-            if (otmp->otyp == YA && mwep->otyp == YUMI)
+            if (otmp->otyp == YA && mwep && mwep->otyp == YUMI)
                 multishot++;
             break;
         default:
@@ -380,7 +380,8 @@ struct obj *otmp, *mwep;
            if mtmp gets killed (shot kills adjacent gas spore and
            triggers explosion, perhaps), inventory will be dropped
            and otmp might go away via merging into another stack */
-        if (DEADMONSTER(mtmp) && m_shot.i < m_shot.n)
+        if ((DEADMONSTER(mtmp) || (mtarg && DEADMONSTER(mtarg)))
+            && m_shot.i < m_shot.n)
             /* cancel pending shots (perhaps ought to give a message here
                since we gave one above about throwing/shooting N missiles) */
             break; /* endmultishot(FALSE); */
@@ -724,7 +725,11 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                 struct trap *web = maketrap(mtmp->mx, mtmp->my, WEB);
                 if (web) {
                     mintrap(mtmp);
-                    if (has_erid(mtmp) && mtmp->mtrapped) {
+                    /* web traps don't kill, but DEADMONSTER guard is
+                       cheap insurance in case mintrap() ever grows a
+                       lethal side effect on this path */
+                    if (!DEADMONSTER(mtmp)
+                        && has_erid(mtmp) && mtmp->mtrapped) {
                         if (canseemon(mtmp))
                             pline("%s falls off %s %s!",
                                   Monnam(mtmp), mhis(mtmp),
@@ -1136,15 +1141,23 @@ struct monst *mtmp, *mtarg;
         int chance = max(BOLT_LIM - distmin(x, y, mtarg->mx, mtarg->my), 1);
 
         if (!mtarg->mflee || !rn2(chance)) {
+            struct monst *saved_archer, *saved_target;
+
             if (ammo_and_launcher(otmp, mwep)
                 && dist2(mtmp->mx, mtmp->my, mtarg->mx, mtarg->my)
                    > PET_MISSILE_RANGE2)
                 return 0; /* Out of range */
-            /* Set target monster */
+            /* Save outer archer/target in case monshoot() ends up
+               calling back into another ranged attack (e.g. an
+               explosion or passive retaliation fires a shot of its
+               own) and clobbers the file-static pointers */
+            saved_archer = archer;
+            saved_target = target;
             target = mtarg;
             archer = mtmp;
             monshoot(mtmp, otmp, mwep); /* multishot shooting or throwing */
-            archer = target = (struct monst *) 0;
+            archer = saved_archer;
+            target = saved_target;
             nomul(0);
             return 1;
         }
@@ -1245,7 +1258,7 @@ struct attack  *mattk;
 {
     /* if new breath types are added, change AD_STUN to max type */
     int typ = (mattk->adtyp == AD_RBRE) ? rnd(AD_STUN) : mattk->adtyp ;
-    boolean player_resists = FALSE;
+    boolean target_resists = FALSE;
 
     if (mlined_up(mtmp, mtarg, TRUE)) {
         if (mtmp->mcan) {
@@ -1258,13 +1271,61 @@ struct attack  *mattk;
             return 0;
         }
 
-        /* if we've seen the actual resistance, don't bother, or
-         * if we're close by and they reflect, just jump the player */
-        player_resists = m_seenres(mtmp, 1 << (typ - 1));
-        if (player_resists
-            || (m_seenres(mtmp, M_SEEN_REFL) != 0
-                && monnear(mtmp, mtmp->mux, mtmp->muy))) {
-            return 1;
+        /* check the actual target's resistance/reflection for this
+           breath type; don't waste the attack if mtarg fully resists */
+        switch (typ) {
+        case AD_MAGM:
+            target_resists = (resists_magm(mtarg)
+                              || defended(mtarg, AD_MAGM));
+            break;
+        case AD_FIRE:
+            target_resists = (resists_fire(mtarg)
+                              || defended(mtarg, AD_FIRE));
+            break;
+        case AD_COLD:
+            target_resists = (resists_cold(mtarg)
+                              || defended(mtarg, AD_COLD));
+            break;
+        case AD_SLEE:
+            target_resists = (resists_sleep(mtarg)
+                              || defended(mtarg, AD_SLEE));
+            break;
+        case AD_DISN:
+            target_resists = (resists_disint(mtarg)
+                              || defended(mtarg, AD_DISN));
+            break;
+        case AD_ELEC:
+            target_resists = (resists_elec(mtarg)
+                              || defended(mtarg, AD_ELEC));
+            break;
+        case AD_DRST:
+            target_resists = (resists_poison(mtarg)
+                              || defended(mtarg, AD_DRST));
+            break;
+        case AD_ACID:
+            target_resists = (resists_acid(mtarg)
+                              || defended(mtarg, AD_ACID));
+            break;
+        case AD_WATR:
+            /* water breath is a physical attack; no mon resistance bit */
+            target_resists = FALSE;
+            break;
+        case AD_DRLI:
+            target_resists = (resists_drli(mtarg)
+                              || defended(mtarg, AD_DRLI));
+            break;
+        case AD_STUN:
+            target_resists = (resists_stun(mtarg->data)
+                              || defended(mtarg, AD_STUN));
+            break;
+        default:
+            target_resists = FALSE;
+            break;
+        }
+        if (target_resists
+            || (mon_reflects(mtarg, (char *) 0)
+                && monnear(mtmp, mtarg->mx, mtarg->my))) {
+            return 0;
         }
 
         if (!mtmp->mspec_used && rn2(3)) {
@@ -1291,6 +1352,8 @@ struct attack  *mattk;
             } else impossible("Breath weapon %d used", typ-1);
         } else
             return 0;
+    } else {
+        return 0; /* not lined up: no breath fired, no hit */
     }
     return 1;
 }
@@ -1508,6 +1571,8 @@ struct attack *mattk;
             } else
                 impossible("Breath weapon %d used", typ - 1);
         }
+    } else {
+        return 0; /* not lined up: no breath fired, no hit */
     }
     return 1;
 }
