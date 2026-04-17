@@ -5218,4 +5218,5 @@ The following changes to date are:
 - Fix: monster weapon selection
 - Fix: multiple issues in do.c found via code review
 - Fix: follow-up issues in mthrowu.c missed in prior code review
+- Monsters will rank and choose artifact weapons by effective damage
 

@@ -19,7 +19,9 @@ STATIC_DCL struct monst *FDECL(mon_melee_target, (struct monst *));
 STATIC_DCL struct obj *FDECL(oselect_recurse, (struct monst *, struct obj *,
                                                int, struct obj *));
 STATIC_DCL struct obj *FDECL(find_artifact_recurse, (struct monst *,
-                                                     struct obj *, boolean, boolean));
+                                                     struct obj *, struct monst *,
+                                                     boolean, boolean,
+                                                     struct obj *));
 STATIC_DCL struct obj *FDECL(find_silver_recurse, (struct monst *, struct obj *,
                                                    struct monst *, boolean, boolean));
 STATIC_DCL struct obj *FDECL(find_gem_recurse, (struct monst *, struct obj *));
@@ -962,33 +964,43 @@ struct obj *obest;
     return obest;
 }
 
-/* Recursive helper to find artifact weapon, including in containers */
+/* Recursive helper to find the best artifact weapon a monster can
+   wield, including those nested in containers. When more than one
+   candidate exists, score_artifact_weapon() ranks them by expected
+   per-hit damage against `mdef` and the highest scorer wins.
+   `best` carries the running best across recursion; pass NULL on
+   the initial call */
 STATIC_OVL struct obj *
-find_artifact_recurse(mtmp, start, strong, wearing_shield)
+find_artifact_recurse(mtmp, start, mdef, strong, wearing_shield, best)
 struct monst *mtmp;
 struct obj *start;
+struct monst *mdef;
 boolean strong;
 boolean wearing_shield;
+struct obj *best;
 {
-    struct obj *otmp, *found;
+    struct obj *otmp;
 
     for (otmp = start; otmp; otmp = otmp->nobj) {
         /* Recurse into containers */
         if (Is_container(otmp) && otmp->cobj) {
-            found = find_artifact_recurse(mtmp, otmp->cobj, strong,
-                                          wearing_shield);
-            if (found)
-                return found;
+            best = find_artifact_recurse(mtmp, otmp->cobj, mdef,
+                                         strong, wearing_shield, best);
             continue;
         }
 
         if (otmp->oclass == WEAPON_CLASS && otmp->oartifact
             && touch_artifact(otmp, mtmp)
+            && !mon_hates_material(mtmp, otmp->material)
             && ((strong && !wearing_shield)
-                || !mon_bimanual(mtmp, otmp)))
-            return otmp;
+                || !mon_bimanual(mtmp, otmp))) {
+            if (!best
+                || score_artifact_weapon(mtmp, otmp, mdef)
+                       > score_artifact_weapon(mtmp, best, mdef))
+                best = otmp;
+        }
     }
-    return (struct obj *) 0;
+    return best;
 }
 
 /* Recursive helper to find silver weapon, including in containers */
@@ -1514,8 +1526,12 @@ struct monst *mtmp;
         }
     }
 
-    /* prefer artifacts to everything else (including in containers) */
-    otmp = find_artifact_recurse(mtmp, mtmp->minvent, strong, wearing_shield);
+    /* prefer artifacts to everything else (including in containers);
+       when several artifacts are present, pick the highest-scoring
+       one against the chosen target */
+    otmp = find_artifact_recurse(mtmp, mtmp->minvent, mdef,
+                                 strong, wearing_shield,
+                                 (struct obj *) 0);
     if (otmp)
         return otmp;
 

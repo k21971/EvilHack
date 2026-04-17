@@ -1612,6 +1612,193 @@ int tmp;
     return 0;
 }
 
+/* Deterministic estimate of expected per-hit damage for an artifact
+   weapon against a target. Used by find_artifact_recurse() in
+   weapon.c to rank multiple artifacts in a monster's inventory.
+   Never calls rnd(); each rnd(N) term is replaced by the closed-form
+   mean (N+1)/2 so two evaluations of the same weapon always produce
+   the same score. The static spec_dbon_applies flag is intentionally
+   not touched */
+int
+score_artifact_weapon(magr, otmp, mdef)
+struct monst *magr UNUSED; /* attacker, reserved for future use */
+struct obj *otmp;
+struct monst *mdef;
+{
+    const struct artifact *weap;
+    int score = 0, base_dmg, dbon, hp, adtype;
+    boolean yours, applies = FALSE;
+
+    if (!otmp)
+        return 0;
+    if (!mdef)
+        mdef = &youmonst;
+    yours = (mdef == &youmonst);
+
+    /* base 1d(weapon damage), expected value (N+1)/2;
+       r_bigmonst() picks oc_wldam vs oc_wsdam to match dmgval() */
+    base_dmg = r_bigmonst(mdef)
+                   ? (objects[otmp->otyp].oc_wldam + 1) / 2
+                   : (objects[otmp->otyp].oc_wsdam + 1) / 2;
+    score += base_dmg;
+
+    /* enchantment, signed */
+    score += otmp->spe;
+
+    weap = get_artifact(otmp);
+    if (!weap)
+        return score;
+
+    /* mirror spec_dbon() gating without rnd() or side effects */
+    if (weap->attk.adtyp == AD_PHYS
+        && weap->attk.damn == 0 && weap->attk.damd == 0) {
+        applies = FALSE;
+    } else if (otmp->oartifact == ART_GRIMTOOTH) {
+        applies = !(yours ? Sick_resistance
+                          : (resists_sick(mdef)
+                             || defended(mdef, AD_DISE)));
+    } else if (otmp->oartifact == ART_VORPAL_BLADE
+               || otmp->oartifact == ART_DRAMBORLEG) {
+        applies = TRUE;
+    } else if (otmp->oartifact == ART_ANGELSLAYER) {
+        applies = !(yours ? is_demon(raceptr(&youmonst))
+                          : is_demon(mdef->data));
+    } else if (otmp->oartifact == ART_HARBINGER) {
+        applies = !(yours ? Acid_resistance
+                          : (resists_acid(mdef)
+                             || defended(mdef, AD_ACID)));
+    } else {
+        applies = spec_applies(weap, mdef);
+    }
+
+    if (applies) {
+        /* When damd is 0, spec_dbon() returns max(tmp, 1) where tmp
+           is the base weapon damage roll - i.e. it doubles the base
+           hit. Mirror that closed-form: use the avg base damage, not
+           just 1. This catches Sting, Orcrist, Glamdring, Sunsword,
+           Demonbane, Werebane, Trollsbane, Grayswandir, Giantslayer,
+           Ogresmasher, Frost/Fire Brand, Sword of Kas,
+           Hammer of the Gods, the Sceptre of Might, and the
+           Staff of Aesculapius */
+        dbon = weap->attk.damd
+                   ? (weap->attk.damd + 1) / 2
+                   : (base_dmg > 0 ? base_dmg : 1);
+        adtype = weap->attk.adtyp;
+        if (vulnerable_to(mdef, adtype))
+            dbon = ((3 * dbon) + 1) / 2;
+        /* Dichotomy doubles vs targets that resist neither
+           fire nor cold */
+        if (otmp->oartifact == ART_DICHOTOMY
+            && (yours
+                  ? (!(Fire_resistance || Underwater)
+                     && !Cold_resistance)
+                  : (!(resists_fire(mdef) || defended(mdef, AD_FIRE)
+                       || mon_underwater(mdef))
+                     && !(resists_cold(mdef)
+                          || defended(mdef, AD_COLD)))))
+            dbon = (2 * dbon) + 1;
+        /* Angelslayer's hellfire is halved by fire resistance */
+        if (otmp->oartifact == ART_ANGELSLAYER
+            && (yours ? Fire_resistance
+                      : (resists_fire(mdef)
+                         || defended(mdef, AD_FIRE))))
+            dbon = (dbon + 1) / 2;
+        score += dbon;
+
+        /* Per-artifact extras that aren't part of spec_dbon but
+           fire whenever spec_dbon would apply. Magicbane's Mb_hit
+           adds probe (always +1d4), plus 50% stun (+1d4) and rare
+           scare/cancel (+1d4 each); Tempest has a 1/6 chance of a
+           d(6,6) AOE lightning surge. Both reduce to roughly +4
+           expected per swing */
+        switch (otmp->oartifact) {
+        case ART_MAGICBANE:
+        case ART_BUTCHER:
+        case ART_STAFF_OF_THE_ARCHMAGI:
+            score += 4;
+            break;
+        case ART_TEMPEST:
+            score += 4; /* (1/6) * d(6,6) avg ~3.5 */
+            break;
+        default:
+            break;
+        }
+    }
+
+    /* save-or-die expected value, scaled by target HP */
+    hp = yours ? u.uhpmax : mdef->mhpmax;
+    if (hp < 1)
+        hp = 1;
+    switch (otmp->oartifact) {
+    case ART_VORPAL_BLADE:
+        if (has_head(mdef->data) && !noncorporeal(mdef->data)
+            && !amorphous(mdef->data))
+            score += hp / 20;
+        break;
+    case ART_TSURUGI_OF_MURAMASA:
+        score += hp / 20;
+        break;
+    case ART_WAND_OF_ORCUS:
+        if (!immune_death_magic(mdef->data))
+            score += (hp * 3) / 20;
+        break;
+    case ART_GIANTSLAYER:
+    case ART_HARBINGER:
+        if (is_giant(mdef->data))
+            score += hp / 10;
+        break;
+    case ART_ANGELSLAYER:
+        if (is_angel(mdef->data) || is_aasimar(mdef->data))
+            score += hp / 10;
+        break;
+    case ART_SWORD_OF_ANNIHILATION:
+        /* artifact_hit() instakills with 1/12 probability
+           against non-resistant non-uniques and 1/100 against
+           uniques */
+        if (!(yours
+                  ? Disint_resistance
+                  : (resists_disint(mdef)
+                     || defended(mdef, AD_DISN))))
+            score += hp / ((!yours && (mdef->data->geno & G_UNIQ))
+                               ? 100 : 12);
+        break;
+    default:
+        break;
+    }
+
+    /* expected level-drain damage for AD_DRLI artifacts */
+    if ((attacks(AD_DRLI, otmp) || spec_ability(otmp, SPFX_DRLI))
+        && !(yours ? Drain_resistance
+                   : (resists_drli(mdef)
+                      || defended(mdef, AD_DRLI)
+                      || nonliving(mdef->data))))
+        score += monhp_per_lvl(mdef);
+
+    /* expected searing damage when the target hates this weapon's
+       material (silver vs demons/vampires, iron vs elves, mithril
+       vs orcs, etc). Mirrors the dmgval() bonus in weapon.c
+       and uses the closed-form mean of rnd(sear_damage(mat)):
+       silver=10, iron/mithril=3, default=3 (rnd(6)/2 rounded) */
+    if (mon_hates_material(mdef, otmp->material)
+        && !(has_barkskin(mdef) || has_stoneskin(mdef))
+        && !(yours && (Barkskin || Stoneskin))) {
+        switch (otmp->material) {
+        case SILVER:
+            score += 10;
+            break;
+        case IRON:
+        case MITHRIL:
+            score += 3;
+            break;
+        default:
+            score += 3;
+            break;
+        }
+    }
+
+    return score;
+}
+
 /* add identified artifact to discoveries list */
 void
 discover_artifact(m)
