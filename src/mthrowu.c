@@ -312,16 +312,17 @@ struct obj *otmp, *mwep;
             break;
         }
         /* racial bonus */
-        if ((racial_elf(mtmp) && otmp->otyp == ELVEN_ARROW
-            && mwep->otyp == ELVEN_BOW)
-            || (racial_drow(mtmp) && otmp->otyp == DARK_ELVEN_ARROW
-                && mwep->otyp == DARK_ELVEN_BOW)
-            || (racial_orc(mtmp) && otmp->otyp == ORCISH_ARROW
-                && mwep->otyp == ORCISH_BOW)
-            || (racial_drow(mtmp) && otmp->otyp == DARK_ELVEN_CROSSBOW_BOLT
-                && mwep->otyp == DARK_ELVEN_HAND_CROSSBOW)
-            || (racial_gnome(mtmp) && otmp->otyp == CROSSBOW_BOLT
-                && mwep->otyp == CROSSBOW))
+        if (mwep
+            && ((racial_elf(mtmp) && otmp->otyp == ELVEN_ARROW
+                 && mwep->otyp == ELVEN_BOW)
+                || (racial_drow(mtmp) && otmp->otyp == DARK_ELVEN_ARROW
+                    && mwep->otyp == DARK_ELVEN_BOW)
+                || (racial_orc(mtmp) && otmp->otyp == ORCISH_ARROW
+                    && mwep->otyp == ORCISH_BOW)
+                || (racial_drow(mtmp) && otmp->otyp == DARK_ELVEN_CROSSBOW_BOLT
+                    && mwep->otyp == DARK_ELVEN_HAND_CROSSBOW)
+                || (racial_gnome(mtmp) && otmp->otyp == CROSSBOW_BOLT
+                    && mwep->otyp == CROSSBOW)))
             multishot++;
     }
 
@@ -1215,6 +1216,8 @@ struct attack *mattk;
             /*FALLTHRU*/
         }
         if (!rn2(BOLT_LIM - distmin(mtmp->mx, mtmp->my, mtarg->mx, mtarg->my))) {
+            struct monst *saved_target;
+
             if (canseemon(mtmp)) {
                 if (mtmp && mtmp->data == &mons[PM_SNOW_GOLEM])
                     pline("%s throws a snowball!", Monnam(mtmp));
@@ -1225,10 +1228,14 @@ struct attack *mattk;
                 else
                     pline("%s spits venom!", Monnam(mtmp));
             }
+            /* Save outer target in case m_throw() ends up reentering a
+               ranged path (e.g. passive retaliation from ohitmon) and
+               clobbers the file-static pointer */
+            saved_target = target;
             target = mtarg;
             m_throw(mtmp, mtmp->mx, mtmp->my, sgn(tbx), sgn(tby),
                     distmin(mtmp->mx, mtmp->my, mtarg->mx, mtarg->my), otmp, TRUE);
-            target = (struct monst *) 0;
+            target = saved_target;
             nomul(0);
 
             /* If this is a pet, it'll get hungry. Minions and
@@ -1570,6 +1577,8 @@ struct attack *mattk;
                     mtmp->mspec_used += rnd(20);
             } else
                 impossible("Breath weapon %d used", typ - 1);
+        } else {
+            return 0; /* breath on cooldown or suppressed: no hit */
         }
     } else {
         return 0; /* not lined up: no breath fired, no hit */
