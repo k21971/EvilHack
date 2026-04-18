@@ -8,6 +8,7 @@
 #include "hack.h"
 #include <ctype.h>
 #include <assert.h>
+#include <limits.h>
 
 /* PREFIX: max length of the prefix string prepended by doname_base().
    Prefix-only components (object name is separate, added by xname()):
@@ -22,7 +23,7 @@
    doname_base() (wear status, price, weight, etc.).  Without this,
    long ONAMEs can fill the buffer and leave no room for suffixes,
    causing a global-buffer-overflow in obufs[] */
-#define SUFFIX_RESERVE 35
+#define SUFFIX_RESERVE 50
 /* Check if bp has room for n more characters.
    bp points PREFIX bytes into an obufs[BUFSZ] slot */
 #define BP_HAS_ROOM(bp, n) ((int) strlen(bp) + (n) <= BUFSZ - PREFIX - 1)
@@ -503,89 +504,116 @@ boolean has_of;
     if (props & ITEM_FIRE) {
         if ((props_known & ITEM_FIRE)
             || dump_prop_flag) {
-            Strcat(buf, of),
-            Strcat(buf, weapon ? " fire" : " fire resistance"),
-            Strcpy(of, " and");
+            const char *sfx = weapon ? " fire" : " fire resistance";
+            if (BP_HAS_ROOM(buf, (int)(strlen(of) + strlen(sfx)))) {
+                Strcat(buf, of);
+                Strcat(buf, sfx);
+                Strcpy(of, " and");
+            }
         }
     }
     if (props & ITEM_FROST) {
         if ((props_known & ITEM_FROST)
             || dump_prop_flag) {
-            Strcat(buf, of),
-            Strcat(buf, weapon ? " frost" : " cold resistance"),
-            Strcpy(of, " and");
+            const char *sfx = weapon ? " frost" : " cold resistance";
+            if (BP_HAS_ROOM(buf, (int)(strlen(of) + strlen(sfx)))) {
+                Strcat(buf, of);
+                Strcat(buf, sfx);
+                Strcpy(of, " and");
+            }
         }
     }
     if (props & ITEM_DRLI) {
         if ((props_known & ITEM_DRLI)
             || dump_prop_flag) {
-            Strcat(buf, of),
-            Strcat(buf, weapon ? " decay" : " drain resistance"),
-            Strcpy(of, " and");
+            const char *sfx = weapon ? " decay" : " drain resistance";
+            if (BP_HAS_ROOM(buf, (int)(strlen(of) + strlen(sfx)))) {
+                Strcat(buf, of);
+                Strcat(buf, sfx);
+                Strcpy(of, " and");
+            }
         }
     }
     if (props & ITEM_SHOCK) {
         if ((props_known & ITEM_SHOCK)
             || dump_prop_flag) {
-            Strcat(buf, of),
-            Strcat(buf, weapon ? " lightning" : " shock resistance"),
-            Strcpy(of, " and");
+            const char *sfx = weapon ? " lightning" : " shock resistance";
+            if (BP_HAS_ROOM(buf, (int)(strlen(of) + strlen(sfx)))) {
+                Strcat(buf, of);
+                Strcat(buf, sfx);
+                Strcpy(of, " and");
+            }
         }
     }
     if (props & ITEM_VENOM) {
         if ((props_known & ITEM_VENOM)
             || dump_prop_flag) {
-            Strcat(buf, of),
-            Strcat(buf, weapon ? " venom" : " poison resistance"),
-            Strcpy(of, " and");
+            const char *sfx = weapon ? " venom" : " poison resistance";
+            if (BP_HAS_ROOM(buf, (int)(strlen(of) + strlen(sfx)))) {
+                Strcat(buf, of);
+                Strcat(buf, sfx);
+                Strcpy(of, " and");
+            }
         }
     }
     if (props & ITEM_ESP) {
         if ((props_known & ITEM_ESP)
             || dump_prop_flag) {
-            Strcat(buf, of),
-            Strcat(buf, " telepathy"),
-            Strcpy(of, " and");
+            if (BP_HAS_ROOM(buf, (int)(strlen(of) + strlen(" telepathy")))) {
+                Strcat(buf, of);
+                Strcat(buf, " telepathy");
+                Strcpy(of, " and");
+            }
         }
     }
     if (props & ITEM_SEARCHING) {
         if ((props_known & ITEM_SEARCHING)
             || dump_prop_flag) {
-            Strcat(buf, of),
-            Strcat(buf, " searching"),
-            Strcpy(of, " and");
+            if (BP_HAS_ROOM(buf, (int)(strlen(of) + strlen(" searching")))) {
+                Strcat(buf, of);
+                Strcat(buf, " searching");
+                Strcpy(of, " and");
+            }
         }
     }
     if (props & ITEM_WARNING) {
         if ((props_known & ITEM_WARNING)
             || dump_prop_flag) {
-            Strcat(buf, of),
-            Strcat(buf, " warning"),
-            Strcpy(of, " and");
+            if (BP_HAS_ROOM(buf, (int)(strlen(of) + strlen(" warning")))) {
+                Strcat(buf, of);
+                Strcat(buf, " warning");
+                Strcpy(of, " and");
+            }
         }
     }
     if (props & ITEM_FUMBLING) {
         if ((props_known & ITEM_FUMBLING)
             || dump_prop_flag) {
-            Strcat(buf, of),
-            Strcat(buf, " fumbling"),
-            Strcpy(of, " and");
+            if (BP_HAS_ROOM(buf, (int)(strlen(of) + strlen(" fumbling")))) {
+                Strcat(buf, of);
+                Strcat(buf, " fumbling");
+                Strcpy(of, " and");
+            }
         }
     }
     if (props & ITEM_HUNGER) {
         if ((props_known & ITEM_HUNGER)
             || dump_prop_flag) {
-            Strcat(buf, of),
-            Strcat(buf, " hunger"),
-            Strcpy(of, " and");
+            if (BP_HAS_ROOM(buf, (int)(strlen(of) + strlen(" hunger")))) {
+                Strcat(buf, of);
+                Strcat(buf, " hunger");
+                Strcpy(of, " and");
+            }
         }
     }
     if (props & ITEM_EXCEL) {
         if ((props_known & ITEM_EXCEL)
             || dump_prop_flag) {
-            Strcat(buf, of),
-            Strcat(buf, " excellence"),
-            Strcpy(of, " and");
+            if (BP_HAS_ROOM(buf, (int)(strlen(of) + strlen(" excellence")))) {
+                Strcat(buf, of);
+                Strcat(buf, " excellence");
+                Strcpy(of, " and");
+            }
         }
     }
 }
@@ -1329,17 +1357,18 @@ unsigned doname_flags;
                                 the start of prefix instead of the
                                 end (Strcat is used on the end) */
     char *bp = xname(obj);
+    /* in practice, if something is worn or wielded by a hand, it is
+       probably yours if it isn't specifically a monster's. there are
+       some cases where an object is temporarily freed from inventory
+       while still wielded, for instance */
+    struct monst *owner = mcarried(obj) ? obj->ocarry : &youmonst;
+
     /* Safety: truncate if name is too long for suffix annotations */
     {
         int max_bp_len = BUFSZ - PREFIX - 1 - SUFFIX_RESERVE;
         if ((int) strlen(bp) > max_bp_len)
             bp[max_bp_len] = '\0';
     }
-    /* in practice, if something is worn or wielded by a hand, it is
-       probably yours if it isn't specifically a monster's. there are
-       some cases where an object is temporarily freed from inventory
-       while still wielded, for instance */
-    struct monst *owner =  mcarried(obj) ? obj->ocarry : &youmonst;
 
     if (iflags.override_ID) {
         known = dknown = cknown = bknown = lknown = TRUE;
@@ -1981,13 +2010,19 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         Strcat(nambuf, mrace);
         Strcat(nambuf, mname);
     } else {
+        int avail = BUFSZ - PREFIX - 1 - (int) strlen(nambuf);
+
         /* adjective positioning depends upon format of monster name */
-        if (possessive) /* Medusa's cursed partly eaten corpse */
-            Sprintf(eos(nambuf), "%s%s %s", mrace, mname, adjective);
-        else /* cursed partly eaten troll corpse */
-            Sprintf(eos(nambuf), "%s %s%s", adjective, mrace, mname);
+        if (avail > 0) {
+            if (possessive) /* Medusa's cursed partly eaten corpse */
+                (void) snprintf(eos(nambuf), (size_t) avail,
+                                "%s%s %s", mrace, mname, adjective);
+            else /* cursed partly eaten troll corpse */
+                (void) snprintf(eos(nambuf), (size_t) avail,
+                                "%s %s%s", adjective, mrace, mname);
+        }
         /* in case adjective has a trailing space, squeeze it out */
-        mungspaces(nambuf);
+        (void) mungspaces(nambuf);
         /* doname() might include a count in the adjective argument;
            if so, don't prepend an article */
         if (digit(*adjective))
@@ -3951,6 +3986,9 @@ struct obj *no_wish;
             for (i = 1; i < NUM_MATERIAL_TYPES; i++) {
                 l = strlen(materialnm[i]);
                 if (l > 0 && !strncmpi(bp, materialnm[i], l)
+                    /* require a word boundary after the material name so
+                       that e.g. "silverfish" doesn't match "silver" */
+                    && (bp[l] == ' ' || bp[l] == '\0')
                     /* it LOOKS like a wish for a material...
                        but need to ensure that it's not just a wish for
                        something else that happens to have a prefix of a
@@ -4018,7 +4056,8 @@ struct obj *no_wish;
      */
     if (spe < 0) {
         spesgn = -1; /* cheaters get what they deserve */
-        spe = abs(spe);
+        /* avoid abs(INT_MIN) UB; SCHAR_LIM clamp below still applies */
+        spe = (spe == INT_MIN) ? SCHAR_LIM : -spe;
     }
     if (spe > SCHAR_LIM)
         spe = SCHAR_LIM;
@@ -4812,7 +4851,7 @@ struct obj *no_wish;
             make_grave(x, y, (char *) 0);
             pline("%s.", IS_GRAVE(lev->typ) ? "A grave"
                                             : "Can't place a grave here");
-            madeterrain = TRUE;
+            madeterrain = IS_GRAVE(lev->typ);
         } else if (!BSTRCMPI(bp, p - 9, "dead tree")) {
             lev->typ = DEADTREE;
             pline("A dead tree.");
@@ -5223,17 +5262,12 @@ struct obj *no_wish;
                Dark Knights. Summon the opposing leader based on wisher's
                alignment */
             if (otmp->oartifact == ART_MAGIC_MIRROR_OF_MERLIN) {
-                struct permonst* ldr;
-
                 if (u.ualign.type == A_LAWFUL)
                     pm = PM_MORGAN_LE_FAY; /* chaotic leader opposes */
                 else if (u.ualign.type == A_CHAOTIC)
                     pm = PM_KING_ARTHUR;   /* lawful leader opposes */
                 else
                     pm = rn2(2) ? PM_KING_ARTHUR : PM_MORGAN_LE_FAY;
-                ldr = &mons[pm];
-                ldr->mflags2 &= ~(M2_PEACEFUL);
-                ldr->mflags3 &= ~(M3_WAITMASK);
             } else {
                 while ((role->name.m) && (role->questarti != otmp->oartifact))
                     role++;
@@ -5242,14 +5276,7 @@ struct obj *no_wish;
                        when he is also the Tourist's quest nemesis */
                     if (!((role->ldrnum == PM_MASTER_OF_THIEVES)
                           && Role_if(PM_TOURIST))) {
-                        struct permonst* ldr;
-
                         pm = role->ldrnum;
-                        /* remove flags that tag quest leaders as
-                           peaceful or spawn them mediating */
-                        ldr = &mons[pm];
-                        ldr->mflags2 &= ~(M2_PEACEFUL);
-                        ldr->mflags3 &= ~(M3_WAITMASK);
                     }
                 }
             }
@@ -5450,6 +5477,9 @@ struct obj *no_wish;
             else
                 mtmp->m_lev = rn1(3, 20);
             mtmp->mpeaceful = mtmp->msleeping = 0;
+            /* hostile summoned owner engages immediately; don't
+               inherit the quest-leader waiting/meditating seed */
+            mtmp->mstrategy &= ~(STRAT_WAITMASK | STRAT_APPEARMSG);
             newsym(mtmp->mx, mtmp->my);
             m_dowear(mtmp, TRUE);
             mtmp->weapon_check = strategy;
@@ -5502,22 +5532,19 @@ struct obj *no_wish;
 
     /* set quality */
     if (otmp->forged_qual) {
-        /* only armor and weapons */
+        /* quality bits only apply to forgeable metal/crystal armor
+           or weapons; silently drop the bit if the player wished for
+           a modifier that can't apply to this object (e.g.
+           "superior ring of free action") rather than rejecting the
+           whole wish.  Matches the artifact silent-strip above */
         if (!(otmp->oclass == ARMOR_CLASS
-              || otmp->oclass == WEAPON_CLASS || is_barding(otmp)))
-            return 0;
-        /* part of a monster's body and produced when it dies */
-        if (otmp->otyp == WORM_TOOTH || otmp->otyp == UNICORN_HORN)
-            return 0;
-        /* artifacts cannot be generated with a quality bit */
-        if (otmp->oartifact)
-            return 0;
-        /* neither can magic items */
-        if (objects[otmp->otyp].oc_magic)
-            return 0;
-        /* only objects that can be forged */
-        if (!(is_metallic(otmp) || is_crystal(otmp)))
-            return 0;
+              || otmp->oclass == WEAPON_CLASS || is_barding(otmp))
+            || otmp->otyp == WORM_TOOTH
+            || otmp->otyp == UNICORN_HORN
+            || otmp->oartifact
+            || objects[otmp->otyp].oc_magic
+            || !(is_metallic(otmp) || is_crystal(otmp)))
+            otmp->forged_qual = FQ_NORMAL;
     }
 
     /* object property restrictions */
@@ -5719,12 +5746,13 @@ struct obj *obj;
 {
     char *buf = nextobuf();
     const struct permonst *pm;
-    const char* endp;
+    const char *endp;
     int colorlen;
 
     if (!obj) {
         impossible("dragon_scales_color: null obj");
-        return NULL;
+        Strcpy(buf, "bugged color");
+        return buf;
     }
     if (!Is_dragon_armor(obj)) {
         impossible("getting color of non-dragon-armor (otyp=%d, scales=%d)",
