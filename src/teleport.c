@@ -934,7 +934,8 @@ level_tele()
         || In_V_tower(&u.uz) || In_sokoban(&u.uz)
         || (Is_sanctum(&u.uz) && u.uachieve.amulet)
         || (u.usteed && mon_has_amulet(u.usteed))
-        || (In_quest(&u.uz) && !quest_status.killed_nemesis)
+        || (In_quest(&u.uz) && !quest_status.killed_nemesis
+            && !(Role_if(PM_ROGUE) && Is_nemesis(&u.uz)))
         || In_purgatory(&u.uz))) {
         You_feel("very disoriented for a moment.");
         if (!wizard || yn("Override?") != 'y')
