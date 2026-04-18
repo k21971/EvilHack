@@ -45,6 +45,9 @@ ballfall()
 {
     boolean gets_hit;
 
+    if (!uball || (carried(uball) && welded(uball)))
+        return;
+
     gets_hit = (((uball->ox != u.ux) || (uball->oy != u.uy))
                 && ((uwep == uball) ? FALSE : (boolean) rn2(5)));
     ballrelease(TRUE);
@@ -120,44 +123,29 @@ ballfall()
 STATIC_OVL void
 placebc_core()
 {
-    boolean chain_fell = FALSE, ball_fell = FALSE;
     if (!uchain || !uball) {
         impossible("Where are your ball and chain?");
         return;
     }
 
-    /* Check if chain would fall through open air */
-    if (!flooreffects(uchain, u.ux, u.uy, "")) {
-        /* chain didn't fall, place it normally */
+    /* flooreffects returns FALSE for uchain in every current open-air,
+       water, and lava path; erode_obj's EF_DESTROY branch excludes
+       uball and uchain. The chain therefore survives; we still get
+       floor-effect side effects (messaging, trap reveal) */
+    if (!flooreffects(uchain, u.ux, u.uy, ""))
         place_object(uchain, u.ux, u.uy);
-    } else {
-        chain_fell = TRUE;
-    }
+    else
+        impossible("placebc_core: uchain removed by flooreffects");
 
-    if (carried(uball)) { /* the ball is carried */
+    if (carried(uball)) {
         u.bc_order = BCPOS_DIFFER;
+    } else if (!flooreffects(uball, u.ux, u.uy, "")) {
+        place_object(uball, u.ux, u.uy);
+        u.bc_order = BCPOS_CHAIN;
     } else {
-        /* Check if ball would fall through open air */
-        if (!flooreffects(uball, u.ux, u.uy, "")) {
-            /* ball didn't fall, place it normally */
-            place_object(uball, u.ux, u.uy);
-            u.bc_order = BCPOS_CHAIN;
-        } else {
-            /* ball fell through open air */
-            ball_fell = TRUE;
-            u.bc_order = BCPOS_DIFFER;
-        }
-    }
-
-    /* If both ball and chain fell through open air, we have a problem
-       because the chain is already gone but Punished is still set.
-       This would cause bc_sanity_check to panic. */
-    if (chain_fell && ball_fell) {
-        /* Both objects fell - need to clean up punishment state.
-           Note: unpunish() expects both objects to still exist,
-           but they've already been deleted by flooreffects. */
-        uball = uchain = (struct obj *) 0;
-        u.bc_felt = 0;
+        /* open-air without Levitation: done(DIED) never returned.
+           open-air with Levitation: flooreffects returned FALSE above */
+        u.bc_order = BCPOS_DIFFER;
     }
 
     u.bglyph = u.cglyph = levl[u.ux][u.uy].glyph; /* pick up glyph */
@@ -404,17 +392,7 @@ bc_order()
        the ball falls during flooreffects() in placebc_core(), removing
        it from the floor. Then drop_ball() is called, and if the player
        is blind, bc_order() gets called expecting the ball to still be
-       on the floor. Check if ball is actually present before complaining. */
-    for (obj = level.objects[uball->ox][uball->oy]; obj; obj = obj->nexthere) {
-        if (obj == uball || obj == uchain)
-            break;
-    }
-    if (!obj) {
-        /* Ball and chain aren't actually at the recorded location -
-           this happens when the ball falls through open air terrain */
-        return BCPOS_DIFFER;
-    }
-    impossible("bc_order:  ball&chain not in same location!");
+       on the floor. Return BCPOS_DIFFER rather than panicking */
     return BCPOS_DIFFER;
 }
 
@@ -617,7 +595,8 @@ xchar ballx, bally, chainx, chainy; /* only matter !before */
     if ((control & BC_BALL) && uball->where == OBJ_FLOOR
         && is_damp_terrain(ballx, bally))
         water_damage(uball, (char *) 0, FALSE, ballx, bally);
-    if ((control & BC_CHAIN) && is_damp_terrain(chainx, chainy))
+    if ((control & BC_CHAIN) && uchain->where == OBJ_FLOOR
+        && is_damp_terrain(chainx, chainy))
         water_damage(uchain, (char *) 0, FALSE, chainx, chainy);
 }
 
@@ -971,11 +950,15 @@ xchar x, y;
             case TT_PIT:
                 pline(pullmsg, "pit");
                 break;
-            case TT_WEB:
+            case TT_WEB: {
+                struct trap *wtrap = t_at(u.ux, u.uy);
+
                 pline(pullmsg, "web");
                 pline_The("web is destroyed!");
-                deltrap(t_at(u.ux, u.uy));
+                if (wtrap)
+                    deltrap(wtrap);
                 break;
+            }
             case TT_LAVA:
                 pline(pullmsg, hliquid("lava"));
                 break;
@@ -1046,7 +1029,7 @@ litter()
                 You("drop %s and %s %s down the stairs with you.",
                     yname(otmp), (otmp->quan == 1L) ? "it" : "they",
                     otense(otmp, "fall"));
-                dropx(otmp);
+                (void) dropx(otmp);
                 encumber_msg(); /* drop[xyz]() probably ought to to this... */
             }
         }
