@@ -1903,6 +1903,8 @@ int atype;
         return "attacking a helpless creature";
     case ABUSE_ATTACK_PEACEFUL:
         return "attacking a peaceful creature";
+    case ABUSE_ANGER_PEACEFUL:
+        return "angering a peaceful creature";
     case ABUSE_ATTACK_WOODLAND:
         return "attacking a woodland creature";
     case ABUSE_ATTACK_ELBERETH:

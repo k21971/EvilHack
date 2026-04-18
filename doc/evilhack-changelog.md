@@ -5224,4 +5224,5 @@ The following changes to date are:
 - Allow gem affixing on erodeproofed monster body-part weapons
 - Fix: code cleanup in fountain.c
 - Rogue quest: escape options for goal and locate levels
+- Distinguish angering a peaceful creature from attacking one
 

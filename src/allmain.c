@@ -715,6 +715,10 @@ boolean resuming;
                            sense you, before it becomes hostile */
                         if (!(mtmp->mcansee && m_canseeu(mtmp)))
                             continue;
+                        /* mindless creatures don't register bane-aura
+                           threat; matches bystander cascade logic */
+                        if (mindless(mtmp->data))
+                            continue;
                         /* coaligned temple priests will stay civil */
                         if (is_prst && p_coaligned(mtmp))
                             continue;

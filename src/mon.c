@@ -5878,9 +5878,12 @@ boolean via_attack;
                         You_feel("guilty.");
                     else
                         You("have a vague sense of guilt.");
-                    /* attacking peaceful monsters is bad */
+                    /* attacking or merely angering peaceful monsters
+                       is bad; distinguish the two for the record */
                     adjalign(pen);
-                    record_abuse_event(pen, ABUSE_ATTACK_PEACEFUL);
+                    record_abuse_event(pen, via_attack
+                                                ? ABUSE_ATTACK_PEACEFUL
+                                                : ABUSE_ANGER_PEACEFUL);
                 }
             }
         }
@@ -5974,7 +5977,7 @@ boolean via_attack;
                                     else
                                         You("have a vague sense of guilt.");
                                     adjalign(-1);
-                                    record_abuse_event(-1, ABUSE_ATTACK_PEACEFUL);
+                                    record_abuse_event(-1, ABUSE_ANGER_PEACEFUL);
                                 }
                                 if (!exclaimed)
                                     pline("%s gets angry!", Monnam(mon));

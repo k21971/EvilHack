@@ -15,6 +15,8 @@ enum abuse_type {
     ABUSE_ATTACK_PEACEFUL,      /* attacking peaceful creature */
     ABUSE_ATTACK_WOODLAND,      /* Druid attacking woodland */
     ABUSE_ATTACK_ELBERETH,      /* attacking while on Elbereth */
+    /* Anger */
+    ABUSE_ANGER_PEACEFUL,       /* peaceful angered without direct attack */
     /* Killing */
     ABUSE_KILL_PEACEFUL,        /* killing peaceful */
     ABUSE_KILL_PEACEFUL_MALIGN, /* additional malign penalty for killing peaceful */
