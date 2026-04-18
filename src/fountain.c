@@ -175,8 +175,7 @@ genericptr_t poolcnt;
 
     if ((mtmp = m_at(x, y)) != 0)
         (void) minliquid(mtmp);
-    else
-        newsym(x, y);
+    newsym(x, y);
 }
 
 /* Find a gem in the sparkling waters. */
@@ -323,10 +322,10 @@ struct obj *obj;
             pline("Raising your %s, you strike the chain...",
                   xname(uwep));
             if ((!rn2((P_SKILL(P_HAMMER) < P_SKILLED) ? 8 : 2)
-                 || uchain->oeroded)
+                 || (uchain && uchain->oeroded))
                 && Luck >= 0) { /* training up hammer skill pays off */
-                pline("The %schain breaks free!",
-                      uchain->oeroded ? "rusted " : "");
+                pline_The("%schain breaks free!",
+                          (uchain && uchain->oeroded) ? "rusted " : "");
                 unpunish();
             } else {
                 pline("Clang!");
@@ -421,8 +420,8 @@ result:
             /* Avoid destroying the same item twice (lava_damage) */
             return;
         } else {
-           pline("Molten lava surges up and splashes all over you!");
-           losehp(resist_reduce(d(3, 8), FIRE_RES), "dipping into a forge", KILLED_BY);
+            pline("Molten lava surges up and splashes all over you!");
+            losehp(resist_reduce(d(3, 8), FIRE_RES), "dipping into a forge", KILLED_BY);
         }
         break;
     case 23:
@@ -887,7 +886,7 @@ doforging()
                the forging process fails */
             You("fail to combine these two objects.");
             return 1;
-        } else if (artitype) {
+        } else {
             /* success */
             You("place %s, then %s inside the forge.",
                 the(xname(obj1)), the(xname(obj2)));
@@ -986,7 +985,7 @@ doforging()
                the forging process fails */
             You("fail to combine these two objects.");
             return 1;
-        } else if (objtype) {
+        } else {
             /* success */
             output = mksobj(objtype, TRUE, FALSE);
 
@@ -1536,7 +1535,7 @@ struct obj *obj;
                 if (carried(obj))
                     useup(obj);
                 else
-                   delobj(obj);
+                    delobj(obj);
                 pline_The("fountain disappears!");
                 exercise(A_WIS, FALSE);
                 change_luck(-1);
@@ -1729,7 +1728,7 @@ drinkforge()
     burn_away_slime();
     switch(rn2(20)) {
     case 0:
-        pline("You drink some molten lava.  Mmmmm mmm!");
+        You("drink some molten lava.  Mmmmm mmm!");
         u.uhunger += rnd(50);
         break;
     case 1:
@@ -1743,7 +1742,7 @@ drinkforge()
             pline("But it settles down.");
         break;
     default:
-        pline("You take a sip of molten lava.");
+        You("take a sip of molten lava.");
         u.uhunger += rnd(5);
     }
 }

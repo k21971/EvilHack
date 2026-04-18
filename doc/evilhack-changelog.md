@@ -5222,4 +5222,5 @@ The following changes to date are:
 - Fix: remove polearms from hwep[] preference list
 - Fix: worm tooth/unicorn horn/crysknife could gain object properties
 - Allow gem affixing on erodeproofed monster body-part weapons
+- Fix: code cleanup in fountain.c
 
