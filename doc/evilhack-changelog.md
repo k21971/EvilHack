@@ -5220,4 +5220,5 @@ The following changes to date are:
 - Fix: follow-up issues in mthrowu.c missed in prior code review
 - Monsters will rank and choose artifact weapons by effective damage
 - Fix: remove polearms from hwep[] preference list
+- Fix: worm tooth/unicorn horn/crysknife could gain object properties
 

@@ -429,6 +429,12 @@ boolean allow_detrimental;
         return otmp;
     else if (objects[otmp->otyp].oc_unique)
         return otmp;
+    /* weapons made from monster body parts never get
+       object properties */
+    else if (otmp->otyp == WORM_TOOTH
+             || otmp->otyp == UNICORN_HORN
+             || otmp->otyp == CRYSKNIFE)
+        return otmp;
     /* already magical items obtain properties
      * a tenth as often */
     else if ((objects[otmp->otyp].oc_magic)
