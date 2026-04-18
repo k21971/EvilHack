@@ -5226,4 +5226,5 @@ The following changes to date are:
 - Rogue quest: escape options for goal and locate levels
 - Distinguish angering a peaceful creature from attacking one
 - Fix: perm_invent weight cap goes stale on mount/dismount
+- Fix: kick-path bugs in dokick.c and abuse_dog
 

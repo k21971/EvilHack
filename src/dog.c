@@ -1753,6 +1753,7 @@ struct monst *mtmp;
     if (!mtmp->mtame
         && (Aggravate_monster || Conflict || rn2(EDOG(mtmp)->abuse + 1))) {
         mtmp->mpeaceful = 0;
+        set_malign(mtmp);
         newsym(mtmp->mx, mtmp->my); /* update display */
     }
 

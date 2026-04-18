@@ -694,9 +694,9 @@ xchar x, y;
 
         if (range < 2)
             pline("%s", kickedobj->otyp == IRON_SAFE ? "CLANG!" : "THUD!");
-	if (kickedobj->otyp == IRON_SAFE) {
-	    return 1;
-	}
+        if (kickedobj->otyp == IRON_SAFE) {
+            return 1;
+        }
         container_impact_dmg(kickedobj, x, y);
         if (kickedobj->olocked) {
             if (kickedobj->otyp == CRYSTAL_CHEST) {
@@ -782,8 +782,10 @@ xchar x, y;
             return 1; /* alert shk caught it */
         notonhead = (mon->mx != bhitpos.x || mon->my != bhitpos.y);
         if (isgold ? ghitm(mon, kickedobj)      /* caught? */
-                   : thitmonst(mon, kickedobj)) /* hit && used up? */
+                   : thitmonst(mon, kickedobj)) { /* hit && used up? */
+            kickedobj = (struct obj *) 0;
             return 1;
+        }
     }
 
     /* kickedobj might be disint'd by a black D, or some such that
@@ -1336,9 +1338,9 @@ dokick()
 
                     mm.x = x;
                     mm.y = y;
-                    enexto(&mm, mm.x, mm.y, &mons[PM_RAVEN]);
-                    makemon(&mons[PM_RAVEN], mm.x, mm.y, MM_ANGRY);
-                    pline("You've attracted the tree's former occupant!");
+                    if (enexto(&mm, mm.x, mm.y, &mons[PM_RAVEN])
+                        && makemon(&mons[PM_RAVEN], mm.x, mm.y, MM_ANGRY))
+                        pline("You've attracted the tree's former occupant!");
                     maploc->looted |= TREE_FLOCK;
                     break;
                 }
