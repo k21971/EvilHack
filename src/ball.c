@@ -48,6 +48,11 @@ ballfall()
     if (!uball || (carried(uball) && welded(uball)))
         return;
 
+    /* The coord comparison is effectively always TRUE: callers run
+       u_on_rndspot() before ballfall(), so uball->ox/oy hold old-level
+       coords while u.ux/uy hold new-level coords. Real behavior: 20%
+       chance of a head-strike when the ball is not wielded. Matches
+       NetHack 3.7 behavior */
     gets_hit = (((uball->ox != u.ux) || (uball->oy != u.uy))
                 && ((uwep == uball) ? FALSE : (boolean) rn2(5)));
     ballrelease(TRUE);

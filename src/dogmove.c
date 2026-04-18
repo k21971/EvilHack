@@ -1620,10 +1620,13 @@ int after; /* this is extra fast monster movement */
                     set_wounded_legs(side, rn1(1000, 500));
                 }
             } else if (u.utraptype == TT_WEB) {
+                struct trap *wtrap = t_at(u.ux, u.uy);
+
                 pline("%s tears the web apart, setting you free!",
                       Monnam(mtmp));
                 reset_utrap(FALSE);
-                deltrap(t_at(u.ux, u.uy));
+                if (wtrap)
+                    deltrap(wtrap);
                 newsym(u.ux, u.uy);
             }
             return 1;

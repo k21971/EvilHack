@@ -2017,10 +2017,14 @@ int magic; /* 0=Physical, otherwise skill level */
             case TT_PIT:
                 You("leap from the pit!");
                 break;
-            case TT_WEB:
+            case TT_WEB: {
+                struct trap *wtrap = t_at(u.ux, u.uy);
+
                 You("tear the web apart as you pull yourself free!");
-                deltrap(t_at(u.ux, u.uy));
+                if (wtrap)
+                    deltrap(wtrap);
                 break;
+            }
             case TT_LAVA:
                 You("pull yourself above the %s!", hliquid("lava"));
                 reset_utrap(TRUE);

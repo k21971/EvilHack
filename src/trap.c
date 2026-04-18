@@ -299,16 +299,7 @@ int ef_flags;
         if (ef_flags & EF_PAY)
             costly_alteration(otmp, cost_type);
 
-        if (otmp == uball || otmp == uchain) {
-            boolean ball = (otmp == uball);
-            unpunish();
-            if (ball) {
-                if (carried(otmp))
-                    useupall(otmp);
-                else
-                    delobj(otmp);
-            }
-        } else if (Is_box(otmp)) {
+        if (Is_box(otmp)) {
             /* Container has rusted away - dump contents out */
             if (Has_contents(otmp)) {
                 if (uvictim || vismon || visobj)

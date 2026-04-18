@@ -5228,4 +5228,5 @@ The following changes to date are:
 - Fix: perm_invent weight cap goes stale on mount/dismount
 - Fix: kick-path bugs in dokick.c and abuse_dog
 - Fix: code cleanup in ball.c
+- Fix: ball.c review follow-ups in apply.c, dogmove.c, trap.c, ball.c
 
