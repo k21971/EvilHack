@@ -5230,4 +5230,5 @@ The following changes to date are:
 - Fix: code cleanup in ball.c
 - Fix: ball.c review follow-ups in apply.c, dogmove.c, trap.c, ball.c
 - Fix: objnam.c code review follow-ups
+- Fix: u_init.c issues via code review
 

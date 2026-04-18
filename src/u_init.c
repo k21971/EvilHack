@@ -1476,6 +1476,9 @@ u_init()
         }
         break;
 
+    case PM_AASIMAR:
+        break;
+
     default: /* impossible */
         break;
     }
@@ -1498,7 +1501,9 @@ u_init()
     if (Role_if(PM_MONK)) {
         struct obj *otmp;
         for (otmp = invent; otmp; otmp = otmp->nobj) {
-            if ((otmp->otyp == TIN) && (!vegetarian(&mons[otmp->corpsenm]))) {
+            /* spinach tins have corpsenm == NON_PM; avoid mons[-1] OOB */
+            if (otmp->otyp == TIN && otmp->corpsenm != NON_PM
+                && !vegetarian(&mons[otmp->corpsenm])) {
                 if (rn2(2)) {
                     otmp->spe = 1;
                     otmp->corpsenm = NON_PM;
@@ -1515,7 +1520,7 @@ u_init()
 
     /* Tortles that start with a trident get one that
        is rustproof (currently only barbarian role) */
-    if (Role_if(PM_BARBARIAN)) {
+    if (Role_if(PM_BARBARIAN) && Race_if(PM_TORTLE)) {
         struct obj *otmp;
         for (otmp = invent; otmp; otmp = otmp->nobj) {
             if (otmp->otyp == TRIDENT) {
@@ -1559,17 +1564,17 @@ u_init()
 }
 
 /* attack/damage structs for shambler_init() */
-int attk_melee_types [] =
+static const int attk_melee_types [] =
     { AT_CLAW, AT_BITE, AT_TUCH, AT_STNG, AT_WEAP };
 
-int attk_spec_types [] =
+static const int attk_spec_types [] =
     { AT_HUGS, AT_SPIT, AT_ENGL, AT_BREA, AT_GAZE,
       AT_MAGC, AT_KICK, AT_BUTT, AT_TENT
     };
 
-int damg_melee_types [] =
+static const int damg_melee_types [] =
     { AD_PHYS, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
-      AD_ELEC, AD_DRST, AD_ACID, AD_STUN, AD_SLOW,
+      AD_DRST, AD_ACID, AD_STUN, AD_SLOW,
       AD_PLYS, AD_DRLI, AD_DREN, AD_LEGS, AD_STCK,
       AD_SGLD, AD_SITM, AD_SEDU, AD_TLPT, AD_RUST,
       AD_CONF, AD_DRDX, AD_DRCO, AD_DRIN, AD_DISE,
@@ -1577,34 +1582,34 @@ int damg_melee_types [] =
       AD_POLY, AD_WTHR, AD_PITS, AD_WEBS
     };
 
-int damg_breath_types [] =
+static const int damg_breath_types [] =
     { AD_MAGM, AD_FIRE, AD_COLD, AD_SLEE, AD_ELEC,
       AD_DRST, AD_WATR, AD_ACID, AD_DRLI, AD_STUN
     };
 
-int damg_spit_types [] =
+static const int damg_spit_types [] =
     { AD_BLND, AD_ACID, AD_DRST };
 
-int damg_gaze_types [] =
+static const int damg_gaze_types [] =
     { AD_FIRE, AD_COLD, AD_SLEE, AD_STUN, AD_SLOW,
       AD_CNCL
     };
 
-int damg_engulf_types [] =
+static const int damg_engulf_types [] =
     { AD_PLYS, AD_DGST, AD_WRAP };
 
-int damg_magic_types [] =
+static const int damg_magic_types [] =
     { AD_SPEL, AD_CLRC, AD_MAGM, AD_FIRE, AD_COLD,
       AD_ACID
     };
 
-int damg_kick_types [] =
+static const int damg_kick_types [] =
     { AD_PHYS, AD_STUN, AD_LEGS, AD_ENCH, AD_CLOB };
 
-int damg_butt_types [] =
+static const int damg_butt_types [] =
     { AD_PHYS, AD_STUN, AD_CONF, AD_CLOB };
 
-int damg_tent_types [] =
+static const int damg_tent_types [] =
     { AD_PHYS, AD_DRST, AD_ACID, AD_STUN, AD_PLYS,
       AD_DRLI, AD_DREN, AD_CONF, AD_DRIN, AD_DISE,
       AD_HALU
@@ -1618,7 +1623,11 @@ shambler_init()
     struct attack* attkptr;
     int shambler_attacks;
 
-    /* what a horrible night to have a curse */
+    /* what a horrible night to have a curse...
+       Assumes shambler_init() is called exactly once per process
+       (allmain.c:shambler_init invocation). The `+=` on mlevel is
+       only correct under that assumption; if in-process restart is
+       ever added, cache base values before mutating */
     shambler->mlevel += rnd(15) - 3;    /* shuffle level */
     shambler->mmove = rn2(10) + 9;      /* slow to very fast */
     shambler->ac = rn2(31) - 20;        /* any AC */
@@ -1635,6 +1644,11 @@ shambler_init()
     }
 
     shambler_attacks = shambler_attacks + (rnd(9) / 3) - 1;
+    /* defensive clamp; current max is exactly NATTK, no behavior
+       change but guards against future widening of either seed
+       range walking us off mattk[] */
+    if (shambler_attacks > NATTK)
+        shambler_attacks = NATTK;
     for (; i < shambler_attacks; i++) {
         attkptr = &shambler->mattk[i];
         attkptr->aatyp = attk_spec_types[rn2(SIZE(attk_spec_types))];
@@ -1688,14 +1702,16 @@ shambler_init()
     shambler->mconveys = 0;                      /* flagged NOCORPSE */
 
     /*
-     * now time for the random flags.  this will likely produce
+     * now time for the random flags. this will likely produce
      * a number of complete trainwreck monsters at first, but
      * every so often something will dial up nasty stuff
      */
     shambler->mflags1 = 0;
     for (i = 0; i < rnd(17); i++)
-        shambler->mflags1 |= (1UL << rn2(33));  /* rn2() should equal the number of M1_ flags in
-                                                 * include/monflag.h */
+        shambler->mflags1 |= (1UL << rn2(32));  /* rolls a random bit position 0-31; M1_ uses
+                                                 * all 32 bits (bit 31 = M1_METALLIVORE). This
+                                                 * is a bit-count, not the count of named M1_
+                                                 * defines in include/monflag.h */
     shambler->mflags1 &= ~M1_UNSOLID;           /* no ghosts */
     shambler->mflags1 &= ~M1_WALLWALK;          /* no wall-walkers */
     shambler->mflags1 &= ~M1_ACID;              /* will never leave a corpse */
@@ -1705,8 +1721,11 @@ shambler_init()
 
     shambler->mflags2 = 0;
     for (i = 0; i < rnd(17); i++)
-        shambler->mflags2 |= (1UL << rn2(32));  /* rn2() should equal the number of M2_ flags in
-                                                 * include/monflag.h */
+        shambler->mflags2 |= (1UL << rn2(32));  /* rolls a random bit position 0-31; M2_ has
+                                                 * gaps at bits 6-9 and 15 (no-op when rolled)
+                                                 * but bit 31 is M2_MAGIC so all 32 positions
+                                                 * are needed. Bit-count, not named-define
+                                                 * count */
     shambler->mflags2 &= ~M2_MERC;              /* no guards */
     shambler->mflags2 &= ~M2_PEACEFUL;          /* no peacefuls */
     shambler->mflags2 &= ~M2_PNAME;             /* not a proper name */
@@ -1728,8 +1747,10 @@ shambler_init()
 
     shambler->mflags3 = 0;
     for (i = 0; i < rnd(5); i++)
-        shambler->mflags3 |= (1 << rn2(18));    /* rn2() should equal the number of M3_ flags in
-                                                 * include/monflag.h */
+        shambler->mflags3 |= (1 << rn2(16));    /* rolls a random bit position 0-15; mflags3 is
+                                                 * unsigned short so bits 16+ truncate away.
+                                                 * M3_ has a gap at bit 5 (no-op when rolled).
+                                                 * Bit-count, not named-define count */
     shambler->mflags3 &= ~M3_WANTSALL;
     shambler->mflags3 &= ~M3_COVETOUS;          /* no covetous behavior */
     shambler->mflags3 &= ~M3_WAITMASK;          /* no waiting either */
@@ -1829,6 +1850,7 @@ struct trobj *origtrop;
             static NEARDATA short nocreate2 = STRANGE_OBJECT;
             static NEARDATA short nocreate3 = STRANGE_OBJECT;
             static NEARDATA short nocreate4 = STRANGE_OBJECT;
+            int retries = 0;
             /*
              * For random objects, do not create certain overly powerful
              * items: wand of wishing, ring of levitation, or the
@@ -1909,12 +1931,18 @@ struct trobj *origtrop;
                 dealloc_obj(obj);
                 obj = mkobj(trop->trclass, FALSE);
                 otyp = obj->otyp;
+                /* safety net: pathological role/race combos could in
+                   principle exhaust the acceptable pool. Cap at 200
+                   tries (matches the mkobj.c TIN corpse-pick pattern)
+                   and fall through with whatever the last roll was */
+                if (++retries > 200)
+                    break;
             }
 
             /* Heavily relies on the fact that 1) we create wands
              * before rings, 2) that we create rings before
              * spellbooks, and that 3) not more than 1 object of a
-             * particular symbol is to be prohibited.  (For more
+             * particular symbol is to be prohibited. (For more
              * objects, we need more nocreate variables...)
              */
             switch (otyp) {
@@ -1983,8 +2011,10 @@ struct trobj *origtrop;
                     /* This might have created a bad material combination,
                        such as a dagger (which was forced to be iron
                        earlier) turning into an elven dagger, but now
-                       remaining iron. Fix this up here as well */
-                    obj->material = objects[otyp].oc_material;
+                       remaining iron. Fix this up via set_material() so
+                       stale oeroded/oeroded2 bits from the pre-sub
+                       material are cleared */
+                    set_material(obj, objects[otyp].oc_material);
                     obj->oclass = objects[obj->otyp].oc_class;
                     break;
                 }
@@ -2037,6 +2067,12 @@ struct trobj *origtrop;
             if (trop->trbless != UNDEF_BLESS)
                 obj->blessed = (trop->trbless == 1);
         }
+        /* Don't allow gear with object properties to be start scummed
+           for.  Must clear before setworn/setuwep below, since those
+           push oprops extrinsics into u.uprops[*].extrinsic and spfx
+           effects (ESearching/ETelepat/EWarning/...) that a later
+           clear would not undo. */
+        obj->oprops = obj->oprops_known = 0L;
         /* defined after setting otyp+quan + blessedness */
         obj->owt = weight(obj);
         obj = addinv(obj);
@@ -2091,10 +2127,6 @@ struct trobj *origtrop;
         /* First spellbook should be level 1 - did we get it? */
         if (obj->oclass == SPBOOK_CLASS && objects[obj->otyp].oc_level == 1)
             got_sp1 = TRUE;
-
-        /* Don't allow gear with object properties
-         * to be start scummed for */
-        obj->oprops = obj->oprops_known = 0L;
 
 #if !defined(PYRAMID_BUG) && !defined(MAC)
         if (--trop->trquan)
