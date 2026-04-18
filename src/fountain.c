@@ -1209,6 +1209,7 @@ doaffixgem()
 {
     struct obj *weapon, *gem;
     long prop;
+    boolean body_part;
     char allowall[2];
     char gemclass[2];
 
@@ -1246,15 +1247,23 @@ doaffixgem()
 
     /* validate weapon */
     if (weapon->oclass != WEAPON_CLASS && !is_weptool(weapon)) {
-        pline("You can only affix gemstones to weapons.");
+        You("can only affix gemstones to weapons.");
         return 0;
     }
     if (is_launcher(weapon) || is_ammo(weapon) || is_missile(weapon)) {
         pline("That type of weapon is unsuitable for gemstone affixing.");
         return 0;
     }
-    if (!(is_metallic(weapon) || is_crystal(weapon))) {
+    body_part = (weapon->otyp == WORM_TOOTH
+                 || weapon->otyp == CRYSKNIFE
+                 || weapon->otyp == UNICORN_HORN);
+    if (!(is_metallic(weapon) || is_crystal(weapon) || body_part)) {
         pline("%s is not a suitable material for forge work.",
+              Yname2(weapon));
+        return 0;
+    }
+    if (body_part && !weapon->oerodeproof) {
+        pline("%s is too fragile to withstand the forge's heat.",
               Yname2(weapon));
         return 0;
     }
@@ -1281,9 +1290,9 @@ doaffixgem()
     /* worthless glass, gray stones (not luckstone), rocks, sling bullets,
        cursed gems: always shatters, 1/3 chance destroys weapon */
     if (!is_affix_gem(gem) || gem->cursed) {
-        pline("You carefully attempt to affix %s to %s...",
-              the(singular(gem, xname)), the(xname(weapon)));
-        pline("The %s shatters!", singular(gem, xname));
+        You("carefully attempt to affix %s to %s...",
+            the(singular(gem, xname)), the(xname(weapon)));
+        pline_The("%s shatters!", singular(gem, xname));
         useup(gem);
         if (!rn2(3)) {
             pline("%s is destroyed!", Yname2(weapon));
@@ -1299,13 +1308,31 @@ doaffixgem()
         return 0;
     }
 
+    /* body-part weapons risk destruction from forge heat even when
+       erodeproofed: worm tooth 75%, crysknife/unicorn horn 30% */
+    if (body_part) {
+        int burn_chance = (weapon->otyp == WORM_TOOTH) ? 75 : 30;
+
+        You("carefully attempt to affix %s to %s...",
+            the(singular(gem, xname)), the(xname(weapon)));
+        if (rnd(100) <= burn_chance) {
+            pline_The("forge's intense heat consumes %s!",
+                      Yname2(weapon));
+            useup(gem);
+            useup(weapon);
+            return 1;
+        }
+        /* survived the heat - fall through to success roll */
+    }
+
     /* attempt roll */
-    pline("You carefully attempt to affix %s to %s...",
-          the(singular(gem, xname)), the(xname(weapon)));
+    if (!body_part)
+        You("carefully attempt to affix %s to %s...",
+            the(singular(gem, xname)), the(xname(weapon)));
 
     if (!affix_success_roll(gem)) {
         /* failure: gem shatters, does NOT identify the gem */
-        pline("The %s shatters!", singular(gem, xname));
+        pline_The("%s shatters!", singular(gem, xname));
         useup(gem);
         return 1;
     }
