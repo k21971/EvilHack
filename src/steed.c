@@ -1028,6 +1028,7 @@ boolean force;      /* Quietly force this animal */
     remove_monster(mtmp->mx, mtmp->my);
     teleds(mtmp->mx, mtmp->my, TELEDS_ALLOW_DRAG);
     context.botl = TRUE;
+    update_inventory();
     return TRUE;
 }
 
@@ -1397,6 +1398,7 @@ int reason; /* Player was thrown off etc. */
     /* polearms behave differently when not mounted */
     if (uwep && is_pole(uwep))
         unweapon = TRUE;
+    update_inventory();
     return;
 }
 

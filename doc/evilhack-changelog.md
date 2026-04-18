@@ -5225,4 +5225,5 @@ The following changes to date are:
 - Fix: code cleanup in fountain.c
 - Rogue quest: escape options for goal and locate levels
 - Distinguish angering a peaceful creature from attacking one
+- Fix: perm_invent weight cap goes stale on mount/dismount
 
