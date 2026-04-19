@@ -5233,4 +5233,5 @@ The following changes to date are:
 - Fix: u_init.c issues via code review
 - Fix: role-filter menu bugs and role.c code-review cleanups
 - Fix: save.c code review follow-ups
+- Fix: multiple issues is restore.c during code review
 

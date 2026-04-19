@@ -2395,7 +2395,7 @@ E void FDECL(getlev, (int, int, XCHAR_P, BOOLEAN_P));
 E void FDECL(restshambler, (int));
 E void FDECL(restoracle, (int));
 E void FDECL(restcharon, (int));
-E void FDECL(get_plname_from_file, (int, char *));
+E void FDECL(get_plname_from_file, (int, char *, unsigned));
 #ifdef SELECTSAVED
 E int FDECL(restore_menu, (winid));
 #endif

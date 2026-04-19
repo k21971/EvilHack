@@ -1251,7 +1251,7 @@ const char *filename;
     if ((fd = open_savefile()) >= 0) {
         if (validate(fd, filename) == 0) {
             char tplname[PL_NSIZ];
-            get_plname_from_file(fd, tplname);
+            get_plname_from_file(fd, tplname, PL_NSIZ);
             result = dupstr(tplname);
         }
         (void) nhclose(fd);

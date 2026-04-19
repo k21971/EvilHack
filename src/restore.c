@@ -130,13 +130,19 @@ boolean quietly;
 {
     struct obj *otmp, *otmp2;
 
-    for (otmp = invent; otmp; otmp = otmp2) {
+    otmp = invent;
+    while (otmp) {
         otmp2 = otmp->nobj;
         if (otmp->in_use) {
             if (!quietly)
                 pline("Finishing off %s...", xname(otmp));
             useup(otmp);
+            /* useup() may have merged or freed otmp2 during its work;
+               restart from the current head to stay on a live chain */
+            otmp = invent;
+            continue;
         }
+        otmp = otmp2;
     }
 }
 
@@ -145,21 +151,24 @@ restlevchn(fd)
 int fd;
 {
     int cnt;
-    s_level *tmplev, *x;
+    s_level *tmplev, *tail = (s_level *) 0;
 
     sp_levchn = (s_level *) 0;
     mread(fd, (genericptr_t) &cnt, sizeof(int));
+    /* corrupt save data could claim a huge cnt; real dungeons are tiny */
+    if (cnt < 0 || cnt > 256) {
+        impossible("restlevchn: bogus cnt %d", cnt);
+        return;
+    }
     for (; cnt > 0; cnt--) {
         tmplev = (s_level *) alloc(sizeof(s_level));
         mread(fd, (genericptr_t) tmplev, sizeof(s_level));
+        tmplev->next = (s_level *) 0;
         if (!sp_levchn)
             sp_levchn = tmplev;
-        else {
-            for (x = sp_levchn; x->next; x = x->next)
-                ;
-            x->next = tmplev;
-        }
-        tmplev->next = (s_level *) 0;
+        else
+            tail->next = tmplev;
+        tail = tmplev;
     }
 }
 
@@ -174,6 +183,11 @@ boolean ghostly;
     mread(fd, (genericptr_t) &counter, sizeof(counter));
     if (!counter)
         return;
+    /* sanity-cap corrupt save data that could demand billions of allocs */
+    if (counter < 0 || counter > MAXNROFROOMS * 8) {
+        impossible("restdamage: bogus counter %d", counter);
+        return;
+    }
     tmp_dam = (struct damage *) alloc(sizeof(struct damage));
     while (--counter >= 0) {
         char damaged_shops[5], *shp = (char *) 0;
@@ -226,6 +240,9 @@ struct obj *otmp;
         /* oname - object's name */
         mread(fd, (genericptr_t) &buflen, sizeof(buflen));
         if (buflen > 0) { /* includes terminating '\0' */
+            /* reject corrupt/malicious lengths before allocating */
+            if (buflen > BUFSZ)
+                panic("restobj: bogus oname length %d", buflen);
             new_oname(otmp, buflen);
             mread(fd, (genericptr_t) ONAME(otmp), buflen);
         }
@@ -240,20 +257,27 @@ struct obj *otmp;
         /* omid - monster id number, connecting corpse to ghost */
         mread(fd, (genericptr_t) &buflen, sizeof(buflen));
         if (buflen > 0) {
+            if (buflen != (int) sizeof(unsigned))
+                panic("restobj: bogus omid length %d", buflen);
             newomid(otmp);
             mread(fd, (genericptr_t) OMID(otmp), buflen);
         }
         /* olong - temporary gold */
         mread(fd, (genericptr_t) &buflen, sizeof(buflen));
         if (buflen > 0) {
+            if (buflen != (int) sizeof(long))
+                panic("restobj: bogus olong length %d", buflen);
             newolong(otmp);
             mread(fd, (genericptr_t) OLONG(otmp), buflen);
         }
         /* omailcmd - feedback mechanism for scroll of mail */
         mread(fd, (genericptr_t) &buflen, sizeof(buflen));
         if (buflen > 0) {
-            char *omailcmd = (char *) alloc(buflen);
+            char *omailcmd;
 
+            if (buflen > BUFSZ)
+                panic("restobj: bogus omailcmd length %d", buflen);
+            omailcmd = (char *) alloc(buflen);
             mread(fd, (genericptr_t) omailcmd, buflen);
             new_omailcmd(otmp, omailcmd);
             free((genericptr_t) omailcmd);
@@ -272,6 +296,11 @@ boolean ghostly, frozen;
 
     while (1) {
         mread(fd, (genericptr_t) &buflen, sizeof buflen);
+        /* bail out if mread reported a short/failed read (dorecover sets
+           mread_flags = 1 before inter-level restore); otherwise buflen
+           retains its prior value and we'd loop forever on garbage */
+        if (restoreprocs.mread_flags == -1)
+            break;
         if (buflen == -1)
             break;
 
@@ -326,8 +355,7 @@ boolean ghostly, frozen;
                 otmp->owt = weight(otmp);
             }
         }
-        if (otmp->bypass)
-            otmp->bypass = 0;
+        otmp->bypass = 0;
         if (!ghostly) {
             /* fix the pointers */
             if (otmp->o_id == context.victual.o_id)
@@ -433,11 +461,16 @@ boolean ghostly;
     int offset, buflen;
     struct permonst *monbegin;
 
-    /* get the original base address */
+    /* save side writes the prior process's &mons[0] here; we discard it
+       because mnum-based indexing into our own mons[] is self-sufficient */
     mread(fd, (genericptr_t)&monbegin, sizeof(monbegin));
+    (void) monbegin;
 
     while (1) {
         mread(fd, (genericptr_t) &buflen, sizeof(buflen));
+        /* bail on silent mread failure (see restobjchn) */
+        if (restoreprocs.mread_flags == -1)
+            break;
         if (buflen == -1)
             break;
 
@@ -454,10 +487,22 @@ boolean ghostly;
             mtmp->m_id = nid;
         }
         offset = mtmp->mnum;
+        /* validate index read from save file before indexing mons[] */
+        if (offset < LOW_PM || offset >= NUMMONS) {
+            impossible("restmonchn: bad mnum=%d", offset);
+            offset = PM_GRID_BUG;
+            mtmp->mnum = offset;
+        }
         mtmp->data = &mons[offset];
         if (ghostly) {
             int mndx = (mtmp->cham == NON_PM) ? monsndx(mtmp->data)
                                               : mtmp->cham;
+            /* same validation for cham before it's used as mons[] index */
+            if (mndx < LOW_PM || mndx >= NUMMONS) {
+                impossible("restmonchn: bad cham=%d", mtmp->cham);
+                mtmp->cham = NON_PM;
+                mndx = monsndx(mtmp->data);
+            }
             if (propagate(mndx, TRUE, ghostly) == 0) {
                 /* cookie to trigger purge in getbones() */
                 mtmp->mhpmax = DEFUNCT_MONSTER;
@@ -490,21 +535,36 @@ boolean ghostly;
                 buf[0] = '\0';
                 extra_info[0] = '\0';
                 wwep_info[0] = '\0';
-                /* List all objects in monster inventory for debugging */
+                /* List all objects in monster inventory for debugging.
+                   Each doname()/xname() can fill most of BUFSZ, so bound
+                   every append against the remaining space in buf[] and
+                   wwep_info[] before writing */
                 for (weap = mtmp->minvent; weap && count < 15; weap = weap->nobj) {
-                    if (count > 0)
+                    const char *nm = (weap->quan > 1) ? doname(weap)
+                                                      : xname(weap);
+                    size_t nmlen = strlen(nm);
+                    size_t room;
+
+                    /* separator for subsequent entries */
+                    if (count > 0) {
+                        if (strlen(buf) + 2 >= BUFSZ - 1)
+                            break;
                         Strcat(buf, ", ");
+                    }
                     /* Check if this object has ANY worn mask bits that could be W_WEP */
                     if (weap->owornmask & W_WEP) {
                         wwep_count++;
-                        if (wwep_info[0] != '\0')
+                        if (wwep_info[0] != '\0'
+                            && strlen(wwep_info) + 2 < BUFSZ - 1)
                             Strcat(wwep_info, ", ");
-                        Sprintf(eos(wwep_info), "%s[W_WEP!]",
-                                weap->quan > 1 ? doname(weap) : xname(weap));
+                        if (strlen(wwep_info) + nmlen + 10 < BUFSZ - 1)
+                            Sprintf(eos(wwep_info), "%s[W_WEP!]", nm);
                     }
-                    Sprintf(eos(buf), "%s(0x%lx)",
-                            weap->quan > 1 ? doname(weap) : xname(weap),
-                            weap->owornmask);
+                    /* 14 = max length of "(0x<hex>)" suffix on 64-bit mask */
+                    room = BUFSZ - 1 - strlen(buf);
+                    if (nmlen + 14 >= room)
+                        break;
+                    Sprintf(eos(buf), "%s(0x%lx)", nm, weap->owornmask);
                     /* Count weapon-class objects */
                     if (weap->oclass == WEAPON_CLASS
                         || weap->otyp == PICK_AXE
@@ -514,7 +574,8 @@ boolean ghostly;
                 }
                 if (count == 0)
                     Strcpy(buf, "empty inventory");
-                else if (mtmp->minvent && count == 15)
+                else if (mtmp->minvent && count == 15
+                         && strlen(buf) + 3 < BUFSZ - 1)
                     Strcat(buf, "...");
 
                 /* Gather additional debugging info */
@@ -580,12 +641,17 @@ int fd;
     struct fruit *flist, *fnext;
 
     flist = 0;
-    while (fnext = newfruit(), mread(fd, (genericptr_t) fnext, sizeof *fnext),
-           fnext->fid != 0) {
+    while (1) {
+        fnext = newfruit();
+        mread(fd, (genericptr_t) fnext, sizeof *fnext);
+        /* bail on mread failure so we don't spin forever on stale data */
+        if (restoreprocs.mread_flags == -1 || fnext->fid == 0) {
+            dealloc_fruit(fnext);
+            break;
+        }
         fnext->nextf = flist;
         flist = fnext;
     }
-    dealloc_fruit(fnext);
     return flist;
 }
 
@@ -653,7 +719,10 @@ unsigned int *stuckid, *steedid;
 
     newgamecontext = context; /* copy statically init'd context */
     mread(fd, (genericptr_t) &context, sizeof (struct context_info));
-    context.warntype.species = (context.warntype.speciesidx >= LOW_PM)
+    /* bound speciesidx to the real mons[] range; a corrupt save could
+       otherwise point species at garbage memory past the table */
+    context.warntype.species = (context.warntype.speciesidx >= LOW_PM
+                                && context.warntype.speciesidx < NUMMONS)
                                   ? &mons[context.warntype.speciesidx]
                                   : (struct permonst *) 0;
     /* context.victual.piece, .tin.tin, .spellbook.book, and .polearm.hitmon
@@ -770,15 +839,26 @@ unsigned int *stuckid, *steedid;
         if (otmp->owornmask)
             setworn(otmp, otmp->owornmask);
 
-    /* reset weapon so that player will get a reminder about "bashing"
-       during next fight when bare-handed or wielding an unconventional
-       item; for pick-axe, we aren't able to distinguish between having
-       applied or wielded it, so be conservative and assume the former */
-    otmp = uwep;   /* `uwep' usually init'd by setworn() in loop above */
-    uwep = 0;      /* clear it and have setuwep() reinit */
-    setuwep(otmp); /* (don't need any null check here) */
-    if (!uwep || uwep->otyp == PICK_AXE || uwep->otyp == GRAPPLING_HOOK)
+    /* Recompute `unweapon` directly from the restored uwep. Do NOT call
+       setuwep() here: setworn() above already populated uwep, owornmask,
+       extrinsics, artifact intrinsics, and conduct counters; re-entering
+       via setuwep() -> setworn() would double-grant them every restore
+       (u.uconduct.antimagic/reflection would increment per load, and
+       set_artifact_intrinsic would fire twice). Mirror setuwep()'s own
+       unweapon logic (wield.c) so the "bashing" reminder still prints
+       after restore, and keep the pick-axe/grappling-hook override */
+    if (uwep) {
+        unweapon = (uwep->oclass == WEAPON_CLASS)
+                       ? (is_launcher(uwep) || is_ammo(uwep)
+                          || is_missile(uwep)
+                          || (is_pole(uwep) && !u.usteed
+                              && !Race_if(PM_CENTAUR)))
+                       : (!is_weptool(uwep) && !is_wet_towel(uwep));
+        if (uwep->otyp == PICK_AXE || uwep->otyp == GRAPPLING_HOOK)
+            unweapon = TRUE;
+    } else {
         unweapon = TRUE;
+    }
 
     restore_dungeon(fd);
     restlevchn(fd);
@@ -788,6 +868,11 @@ unsigned int *stuckid, *steedid;
     mread(fd, (genericptr_t) spl_book, (MAXSPELL + 1) * sizeof (struct spell));
     restore_artifacts(fd);
     restore_oracles(fd);
+    /* u.ustuck / u.usteed just came out of mread(fd, &u, ...) as stale
+       pointers from the saving process; save.c only writes the trailing
+       id when they were non-null, so we use non-null-ness here as a
+       presence flag. If struct you layout or save ordering ever changes,
+       this convention must be preserved */
     if (u.ustuck)
         mread(fd, (genericptr_t) stuckid, sizeof *stuckid);
     if (u.usteed)
@@ -821,13 +906,16 @@ boolean ghostly;
 {
     struct monst *mtmp;
     struct monst *mon;
-    unsigned int steed_id;
+    /* initialize to 0 so a lookup_id_mapping miss can't feed stack
+       garbage into the m_id search below (0 matches no real monster) */
+    unsigned int steed_id = 0;
 
     for (mon = fmon; mon; mon = mon->nmon) {
         if (mon->mextra && ERID(mon)) {
             /* The steed id will change on loading a bones file */
             if (ghostly) {
-                lookup_id_mapping(ERID(mon)->mid, &steed_id);
+                if (!lookup_id_mapping(ERID(mon)->mid, &steed_id))
+                    steed_id = 0;
             } else {
                 steed_id = ERID(mon)->mid;
             }
@@ -959,7 +1047,7 @@ int fd;
     struct obj *otmp;
 
     program_state.restoring = 1;
-    get_plname_from_file(fd, plname);
+    get_plname_from_file(fd, plname, PL_NSIZ);
     getlev(fd, 0, (xchar) 0, FALSE);
     if (!restgamestate(fd, &stuckid, &steedid)) {
         display_nhwindow(WIN_MESSAGE, TRUE);
@@ -1042,7 +1130,7 @@ int fd;
     (void) lseek(fd, (off_t) 0, 0);
 #endif
     (void) validate(fd, (char *) 0); /* skip version and savefile info */
-    get_plname_from_file(fd, plname);
+    get_plname_from_file(fd, plname, PL_NSIZ);
 
     getlev(fd, 0, (xchar) 0, FALSE);
     (void) nhclose(fd);
@@ -1109,12 +1197,16 @@ int fd;
 struct cemetery **cemeteryaddr;
 {
     struct cemetery *bonesinfo, **bonesaddr;
-    int flag;
+    int flag, iterations = 0;
 
     mread(fd, (genericptr_t) &flag, sizeof flag);
     if (flag == 0) {
         bonesaddr = cemeteryaddr;
         do {
+            /* corrupt save could leave every next pointer non-null and
+               loop forever allocating; cap at a generous ceiling */
+            if (++iterations > 256)
+                panic("restcemetery: too many bones entries");
             bonesinfo = (struct cemetery *) alloc(sizeof *bonesinfo);
             mread(fd, (genericptr_t) bonesinfo, sizeof *bonesinfo);
             *bonesaddr = bonesinfo;
@@ -1141,6 +1233,9 @@ boolean rlecomp;
         i = 0;
         j = 0;
         len = 0;
+        /* len is uchar (0..255) and decrements every inner iteration;
+           outer while (j < COLNO) bounds total advancement, so even a
+           corrupt save can't loop forever here */
         while (i < ROWNO) {
             while (j < COLNO) {
                 if (len > 0) {
@@ -1252,9 +1347,15 @@ boolean ghostly;
 
     rest_worm(fd); /* restore worm information */
     ftrap = 0;
-    while (trap = newtrap(),
-           mread(fd, (genericptr_t) trap, sizeof(struct trap)),
-           trap->tx != 0) { /* need "!= 0" to work around DICE 3.0 bug */
+    while (1) {
+        trap = newtrap();
+        mread(fd, (genericptr_t) trap, sizeof(struct trap));
+        /* bail on mread failure or sentinel (trap->tx == 0); the "!= 0"
+           phrasing works around a DICE 3.0 compiler bug */
+        if (restoreprocs.mread_flags == -1 || trap->tx == 0) {
+            dealloc_trap(trap);
+            break;
+        }
         /* trap->ammo will either be NULL or a stale pointer from the
            previous game. We don't read the stale pointer, other than to
            see whether an object chain follows this trap */
@@ -1264,7 +1365,6 @@ boolean ghostly;
         trap->ntrap = ftrap;
         ftrap = trap;
     }
-    dealloc_trap(trap);
     fobj = restobjchn(fd, ghostly, FALSE);
     find_lev_obj();
     /* restobjchn()'s `frozen' argument probably ought to be a callback
@@ -1373,12 +1473,17 @@ boolean ghostly;
         clear_id_mapping();
 }
 
+/* The next three routines intentionally overwrite mons[] slots whose
+   stats are per-save (shambling horror's randomized attacks, named
+   oracle, charon's name/color). Use sizeof mons[0].mname directly so
+   we don't appear to rely on an uninitialized pointer */
+
 void
 restshambler(fd)
 int fd;
 {
-    struct permonst *monbegin;
-    int namesize = sizeof(monbegin->mname);
+    int namesize = sizeof mons[0].mname;
+
     /* Bring RNGesus' most abominable creation back to life */
     mread(fd, (genericptr_t) ((char *) &mons[PM_SHAMBLING_HORROR] + namesize),
           sizeof(struct permonst) - namesize);
@@ -1388,8 +1493,8 @@ void
 restoracle(fd)
 int fd;
 {
-    struct permonst *monbegin;
-    int namesize = sizeof(monbegin->mname);
+    int namesize = sizeof mons[0].mname;
+
     mread(fd, (genericptr_t) ((char *) &mons[PM_ORACLE] + namesize),
           sizeof(struct permonst) - namesize);
 }
@@ -1398,21 +1503,29 @@ void
 restcharon(fd)
 int fd;
 {
-    struct permonst *monbegin;
-    int namesize = sizeof(monbegin->mname);
+    int namesize = sizeof mons[0].mname;
+
     mread(fd, (genericptr_t) ((char *) &mons[PM_CHARON] + namesize),
           sizeof(struct permonst) - namesize);
 }
 
 void
-get_plname_from_file(fd, plbuf)
+get_plname_from_file(fd, plbuf, plbuf_sz)
 int fd;
 char *plbuf;
+unsigned plbuf_sz;
 {
     int pltmpsiz = 0;
+
     mread(fd, (genericptr_t) &pltmpsiz, sizeof(pltmpsiz));
+    /* validate size from save file before reading into caller's buffer;
+       util/recover.c has done this check for years, restore.c did not */
+    if (pltmpsiz <= 0 || (unsigned) pltmpsiz > plbuf_sz)
+        panic("get_plname_from_file: bad name size %d (max %u)",
+              pltmpsiz, plbuf_sz);
     mread(fd, (genericptr_t) plbuf, pltmpsiz);
-    return;
+    /* defensive NUL in case the saved string was already truncated */
+    plbuf[plbuf_sz - 1] = '\0';
 }
 
 STATIC_OVL void
@@ -1426,7 +1539,10 @@ int fd;
         mread(fd, (genericptr_t) &msgsize, sizeof(msgsize));
         if (msgsize == -1)
             break;
-        if (msgsize > (BUFSZ - 1))
+        /* reject negative sizes other than the -1 sentinel; left alone
+           they would wrap to huge unsigned on the mread(), and a
+           negative index would underwrite the buffer at msg[msgsize] */
+        if (msgsize < 0 || msgsize > (BUFSZ - 1))
             panic("restore_msghistory: msg too big (%d)", msgsize);
         mread(fd, (genericptr_t) msg, msgsize);
         msg[msgsize] = '\0';
@@ -1501,6 +1617,9 @@ unsigned gid, *nidp;
                 }
         }
 
+    /* function contract (see comment above) promises -1 on miss; callers
+       such as restmonsteeds() read *nidp unconditionally */
+    *nidp = (unsigned) -1;
     return FALSE;
 }
 
