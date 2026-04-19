@@ -276,6 +276,9 @@ dosave0()
             (void) nhclose(fd);
             (void) delete_savefile();
             HUP Strcpy(killer.name, whynot);
+            /* restore u.uz before done(TRICKED); it was zeroed above for
+               the level-copy loop and done() may return in wizard mode */
+            u.uz = uz_save;
             HUP done(TRICKED);
             goto done;
         }
@@ -318,7 +321,7 @@ int fd, mode;
     bwrite(fd, (genericptr_t) &context, sizeof context);
     bwrite(fd, (genericptr_t) &flags, sizeof flags);
 #ifdef SYSFLAGS
-    bwrite(fd, (genericptr_t) &sysflags, sysflags);
+    bwrite(fd, (genericptr_t) &sysflags, sizeof sysflags);
 #endif
     urealtime.finish_time = getnow();
     urealtime.realtime += (long) (urealtime.finish_time
@@ -342,7 +345,7 @@ int fd, mode;
     /* it's just the one object, but saveobj doesn't do everything needed */
     saveobjchn(fd, &mchest, mode);
 
-    /* save ball and chain if they happen to be in an unusal state */
+    /* save ball and chain if they happen to be in an unusual state */
     save_bc(fd, mode);
 
     saveobjchn(fd, &migrating_objs, mode); /* frees objs and sets to Null */
@@ -432,6 +435,7 @@ savestateinlock()
         if (hackpid != hpid) {
             Sprintf(whynot, "Level #0 pid (%d) doesn't match ours (%d)!",
                     hpid, hackpid);
+            (void) nhclose(fd);
             goto giveup;
         }
         (void) nhclose(fd);
@@ -1198,30 +1202,30 @@ struct monst *mtmp;
         if (buflen > 0)
             bwrite(fd, (genericptr_t) EPRI(mtmp), buflen);
         buflen = ESHK(mtmp) ? (int) sizeof (struct eshk) : 0;
-        bwrite(fd, (genericptr_t) &buflen, sizeof(int));
+        bwrite(fd, (genericptr_t) &buflen, sizeof buflen);
         if (buflen > 0)
             bwrite(fd, (genericptr_t) ESHK(mtmp), buflen);
         buflen = EMIN(mtmp) ? (int) sizeof (struct emin) : 0;
-        bwrite(fd, (genericptr_t) &buflen, sizeof(int));
+        bwrite(fd, (genericptr_t) &buflen, sizeof buflen);
         if (buflen > 0)
             bwrite(fd, (genericptr_t) EMIN(mtmp), buflen);
         buflen = EDOG(mtmp) ? (int) sizeof (struct edog) : 0;
-        bwrite(fd, (genericptr_t) &buflen, sizeof(int));
+        bwrite(fd, (genericptr_t) &buflen, sizeof buflen);
         if (buflen > 0)
             bwrite(fd, (genericptr_t) EDOG(mtmp), buflen);
         if (ERID(mtmp))
             buflen = sizeof(struct erid);
         else
             buflen = 0;
-        bwrite(fd, (genericptr_t) &buflen, sizeof(int));
+        bwrite(fd, (genericptr_t) &buflen, sizeof buflen);
         if (buflen > 0)
             bwrite(fd, (genericptr_t) ERID(mtmp), buflen);
         buflen = ERAC(mtmp) ? (int) sizeof (struct erac) : 0;
-        bwrite(fd, (genericptr_t) &buflen, sizeof(int));
+        bwrite(fd, (genericptr_t) &buflen, sizeof buflen);
         if (buflen > 0)
             bwrite(fd, (genericptr_t) ERAC(mtmp), buflen);
         buflen = EMSP(mtmp) ? (int) sizeof (struct emsp) : 0;
-        bwrite(fd, (genericptr_t) &buflen, sizeof(int));
+        bwrite(fd, (genericptr_t) &buflen, sizeof buflen);
         if (buflen > 0)
             bwrite(fd, (genericptr_t) EMSP(mtmp), buflen);
 
@@ -1245,12 +1249,6 @@ struct monst *mtmp;
 
     while (mtmp) {
         mtmp2 = mtmp->nmon;
-        #if 0
-        /* this simply eliminates the mount entirely */
-        if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->mon_steed) {
-            ERID(mtmp)->mon_steed = (struct monst *) 0;
-        }
-        #endif
         if (perform_bwrite(mode)) {
             mtmp->mnum = monsndx(mtmp->data);
             if (mtmp->ispriest)
