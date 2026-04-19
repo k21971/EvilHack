@@ -7180,8 +7180,9 @@ int damtype, dam;
     }
 }
 
-/* Damages mon by amount of type; handles vulnerabilities.
- * Returns whether mon should have died or not.
+/* Damages mon by amount of type; handles vulnerabilities,
+ * monster spellbook reading interuption, and half physical
+ * damage. Returns whether mon should have died or not.
  */
 boolean
 damage_mon(mon, amount, type, by_you)
@@ -7194,10 +7195,11 @@ boolean by_you;
         amount = ((amount * 3) + 1) / 2;
 
     /* monster equivalent of Half_physical_damage; gated on AD_PHYS so
-       elemental/spell adtypes aren't affected here. A few raw
-       mon->mhp -= sites (mthrowu, trap, system-shock) bypass this
-       chokepoint; those remain a known gap and are candidates for a
-       follow-up conversion to damage_mon(AD_PHYS, ...) */
+       elemental/spell adtypes aren't affected here. The remaining
+       raw mon->mhp -= sites are deliberate exceptions: the long-worm
+       shrink attrition, the withering per-turn tick, the cloning
+       HP-pool split, and zhitm() which inlines its own vulnerability
+       and HSPDAM so it can return the applied damage amount. */
     if (type == AD_PHYS && amount > 0
         && mon_arti_has_spfx(mon, SPFX_HPHDAM))
         amount = (amount + 1) / 2;
@@ -7215,6 +7217,40 @@ boolean by_you;
         showmondamage(mon, amount);
 
     return (DEADMONSTER(mon)) ? TRUE : FALSE;
+}
+
+/* Like damage_mon() but clamps mhp to 1 so mon cannot die from the
+   hit; returns FALSE always. Used for "resists the spell but still
+   takes a sting" branches (Word of Power, Finger of Death, Eye of
+   Vecna MR-resist paths) so they share the central vuln/HPHDAM/
+   EMSP-clear logic without crossing into a killing blow */
+boolean
+damage_mon_nonlethal(mon, amount, type, by_you)
+struct monst* mon;
+int amount;
+int type;
+boolean by_you;
+{
+    if (vulnerable_to(mon, type))
+        amount = ((amount * 3) + 1) / 2;
+
+    if (type == AD_PHYS && amount > 0
+        && mon_arti_has_spfx(mon, SPFX_HPHDAM))
+        amount = (amount + 1) / 2;
+
+    mon->mhp -= amount;
+    if (mon->mhp < 1)
+        mon->mhp = 1;
+
+    if (has_emsp(mon) && EMSP(mon)->msp_reading != 0) {
+        EMSP(mon)->msp_reading = 0;
+        EMSP(mon)->msp_read_turns = 0;
+    }
+
+    if (by_you)
+        showmondamage(mon, amount);
+
+    return FALSE;
 }
 
 boolean

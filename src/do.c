@@ -214,10 +214,11 @@ const char *verb;
                        dropped by a scroll of earth read by a monster */
                     if (context.mon_moving) {
                         /* normally we'd use ohitmon() but it can call
-                           drop_throw() which calls flooreffects() */
+                           drop_throw() which calls flooreffects();
+                           damage_mon() applies SPFX_HPHDAM halving
+                           centrally for AD_PHYS */
                         damage = dmgval(obj, mtmp);
-                        mtmp->mhp -= damage;
-                        if (DEADMONSTER(mtmp)) {
+                        if (damage_mon(mtmp, damage, AD_PHYS, FALSE)) {
                             if (canspotmon(mtmp))
                                 pline("%s is %s!", Monnam(mtmp),
                                       (nonliving(mtmp->data)

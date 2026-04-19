@@ -3014,8 +3014,9 @@ struct monst *mtmp;
                     if (resists_fire(mtmp2) || defended(mtmp2, AD_FIRE))
                         continue;
                     damage_mon(mtmp2, num, AD_FIRE, FALSE);
-                    if (resists_cold(mtmp2)) /* natural resistance */
-                        mtmp2->mhp -= 3 * num;
+                    /* cold-resistant creatures take extra fire damage */
+                    if (resists_cold(mtmp2))
+                        damage_mon(mtmp2, 3 * num, AD_FIRE, FALSE);
                     if (DEADMONSTER(mtmp2)) {
                         mondied(mtmp2);
                         break;
@@ -5430,9 +5431,7 @@ int spell_otyp;
                     if (canseemon(target))
                         pline("%s %s in pain, but resists the deadly spell.",
                               Monnam(target), makeplural(growl_sound(target)));
-                    target->mhp -= d(8, 6);
-                    if (target->mhp < 1)
-                        target->mhp = 1;
+                    (void) damage_mon_nonlethal(target, d(8, 6), AD_DETH, FALSE);
                 } else {
                     if (canseemon(target))
                         pline("%s is %s!", Monnam(target),
@@ -5449,9 +5448,7 @@ int spell_otyp;
                     if (canseemon(target))
                         pline("%s %s in pain, but resists the deadly spell.",
                               Monnam(target), makeplural(growl_sound(target)));
-                    target->mhp -= d(8, 6);
-                    if (target->mhp < 1)
-                        target->mhp = 1;
+                    (void) damage_mon_nonlethal(target, d(8, 6), AD_DETH, FALSE);
                 } else {
                     if (canseemon(target))
                         pline("%s trembles in %s!", Monnam(target),

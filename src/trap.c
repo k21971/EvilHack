@@ -5975,8 +5975,7 @@ boolean disarm;
                 int dmg = rnd(15);
                 if (!rn2(10))
                     dmg = mon->mhp;
-                mon->mhp -= dmg;
-                if (mon->mhp <= 0) {
+                if (damage_mon(mon, dmg, AD_DRST, FALSE)) {
                     if (canseemon(mon))
                         pline("%s is killed!", Monnam(mon));
                     mondied(mon);
@@ -6000,8 +5999,7 @@ boolean disarm;
 
                     if (!rn2(10))
                         dmg = mon->mhp;
-                    mon->mhp -= dmg;
-                    if (mon->mhp <= 0) {
+                    if (damage_mon(mon, dmg, AD_DRST, FALSE)) {
                         if (canseemon(mon))
                             pline("%s is killed!", Monnam(mon));
                         mondied(mon);
@@ -6097,8 +6095,7 @@ boolean disarm;
                 (void) destroy_mitem(mon, RING_CLASS, AD_ELEC);
                 (void) destroy_mitem(mon, WAND_CLASS, AD_ELEC);
                 if (!(resists_elec(mon) || defended(mon, AD_ELEC))) {
-                    mon->mhp -= d(4, 4);
-                    if (mon->mhp <= 0) {
+                    if (damage_mon(mon, d(4, 4), AD_ELEC, FALSE)) {
                         if (canseemon(mon))
                             pline("%s is killed!", Monnam(mon));
                         mondied(mon);

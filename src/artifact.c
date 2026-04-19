@@ -3981,9 +3981,7 @@ struct obj *obj;
                                               Monnam(mtmp), makeplural(growl_sound(mtmp)),
                                               the(s_suffix(xname(obj))));
                                     }
-                                    mtmp->mhp -= d(6, 4);
-                                    if (mtmp->mhp < 1)
-                                        mtmp->mhp = 1;
+                                    (void) damage_mon_nonlethal(mtmp, d(6, 4), AD_DETH, TRUE);
                                     if (mtmp->mpeaceful || mtmp->mtame) {
                                         mtmp->mpeaceful = mtmp->mtame = 0;
                                         set_malign(mtmp);
@@ -4034,9 +4032,7 @@ struct obj *obj;
                                               Monnam(mtmp), makeplural(growl_sound(mtmp)),
                                               the(s_suffix(xname(obj))));
                                     }
-                                    mtmp->mhp -= d(4, 4);
-                                    if (mtmp->mhp < 1)
-                                        mtmp->mhp = 1;
+                                    (void) damage_mon_nonlethal(mtmp, d(4, 4), AD_DETH, TRUE);
                                     if (mtmp->mpeaceful || mtmp->mtame) {
                                         mtmp->mpeaceful = mtmp->mtame = 0;
                                         set_malign(mtmp);

@@ -1263,7 +1263,7 @@ int dmg, spellnum;
                     dmg = (dmg + 1) / 2;
                 /* monsters don't have strength, so drain max hp instead */
                 target->mhpmax -= dmg;
-                if ((target->mhp -= dmg) <= 0) {
+                if (damage_mon(target, dmg, AD_SPEL, yours)) {
                     if (yours)
                         killed(target);
                     else {
@@ -1464,16 +1464,13 @@ int dmg, spellnum;
     if (dmg) {
         if (youdefend)
             mdamageu(caster, dmg);
-        else {
-            target->mhp -= dmg;
-            if (DEADMONSTER(target)) {
-                if (yours)
-                    killed(target);
-                else {
-                    if (caster->mtame)
-                        set_pet_killer(caster);
-                    monkilled(target, "", AD_SPEL);
-                }
+        else if (damage_mon(target, dmg, AD_SPEL, yours)) {
+            if (yours)
+                killed(target);
+            else {
+                if (caster->mtame)
+                    set_pet_killer(caster);
+                monkilled(target, "", AD_SPEL);
             }
         }
     }
@@ -2155,16 +2152,13 @@ int dmg, spellnum;
     if (dmg) {
         if (youdefend) {
             mdamageu(caster, dmg);
-        } else {
-            target->mhp -= dmg;
-            if (DEADMONSTER(target)) {
-                if (yours)
-                    killed(target);
-                else {
-                    if (caster->mtame)
-                        set_pet_killer(caster);
-                    monkilled(target, "", AD_CLRC);
-                }
+        } else if (damage_mon(target, dmg, AD_CLRC, yours)) {
+            if (yours)
+                killed(target);
+            else {
+                if (caster->mtame)
+                    set_pet_killer(caster);
+                monkilled(target, "", AD_CLRC);
             }
         }
     }
@@ -2939,8 +2933,7 @@ struct attack *mattk;
     }
 
     if (dmg) {
-        mdef->mhp -= dmg;
-        if (DEADMONSTER(mdef)) {
+        if (damage_mon(mdef, dmg, mattk->adtyp, FALSE)) {
             if (mtmp->mtame)
                 set_pet_killer(mtmp);
             monkilled(mdef, "", mattk->adtyp);
@@ -3130,8 +3123,7 @@ struct attack *mattk;
     if (dmg) {
         if (mon_arti_has_spfx(mtmp, SPFX_HSPDAM))
             dmg = (dmg + 1) / 2;
-        mtmp->mhp -= dmg;
-        if (DEADMONSTER(mtmp))
+        if (damage_mon(mtmp, dmg, AD_SPEL, TRUE))
             killed(mtmp);
     }
 

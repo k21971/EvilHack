@@ -178,9 +178,12 @@ int target, roll;
                 && mon_hates_material(magr, blocker->material)
                 && (!(has_barkskin(magr) || has_stoneskin(magr)))) {
                 searmsg(mdef, magr, blocker, FALSE);
-                /* glancing blow */
-                magr->mhp -= rnd(sear_damage(blocker->material) / 2);
-                if (DEADMONSTER(magr))
+                /* glancing blow; damage_mon() applies SPFX_HPHDAM
+                   halving centrally for AD_PHYS, matching the
+                   hero-symmetric site at mhitu.c */
+                if (damage_mon(magr,
+                               rnd(sear_damage(blocker->material) / 2),
+                               AD_PHYS, FALSE))
                     monkilled(magr, "", AD_PHYS);
             }
             /* glass armor, or certain drow armor if in the presence
@@ -3040,9 +3043,7 @@ int dmg;
                 pline("%s shudders!", Before);
 
             dmg += (mdef->mhpmax + 1) / 2;
-            mdef->mhp -= dmg;
-            dmg = 0;
-            if (DEADMONSTER(mdef)) {
+            if (damage_mon(mdef, dmg, AD_RBRE, (magr == &youmonst))) {
                 if (magr == &youmonst)
                     xkilled(mdef, XKILL_GIVEMSG | XKILL_NOCORPSE);
                 else {
@@ -3051,6 +3052,7 @@ int dmg;
                     monkilled(mdef, "", AD_RBRE);
                 }
             }
+            dmg = 0;
         } else if (newcham(mdef, (struct permonst *) 0, FALSE, FALSE)) {
             if (vis) { /* either seen or adjacent */
                 boolean was_seen = !!strcmpi("It", Before),

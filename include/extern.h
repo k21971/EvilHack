@@ -1662,6 +1662,7 @@ E void NDECL(pacify_guards);
 E void FDECL(decide_to_shapeshift, (struct monst *, int));
 E boolean FDECL(vamp_stone, (struct monst *));
 E boolean FDECL(damage_mon, (struct monst*, int, int, BOOLEAN_P));
+E boolean FDECL(damage_mon_nonlethal, (struct monst*, int, int, BOOLEAN_P));
 E void FDECL(check_gear_next_turn, (struct monst *));
 E int FDECL(mon_container_extract, (struct monst *, struct obj *));
 E int FDECL(pm_to_race, (SHORT_P));

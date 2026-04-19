@@ -181,8 +181,7 @@ int dx, dy, range;
                     && !resists_ston(mtmp)) {
                     minstapetrify(mtmp, TRUE);
                 } else {
-                    mtmp->mhp -= dmg;
-                    if (DEADMONSTER(mtmp))
+                    if (damage_mon(mtmp, dmg, AD_PHYS, TRUE))
                         xkilled(mtmp, XKILL_GIVEMSG);
                     else
                         wakeup(mtmp, TRUE);
@@ -292,8 +291,7 @@ int hdx, hdy;
     dmg = rnd(6);
     if (canspotmon(mtmp))
         pline("%s slams into the %s!", Monnam(mtmp), what);
-    mtmp->mhp -= dmg;
-    if (DEADMONSTER(mtmp)) {
+    if (damage_mon(mtmp, dmg, AD_PHYS, TRUE)) {
         if (canseemon(mtmp))
             pline("%s is killed!", Monnam(mtmp));
         xkilled(mtmp, XKILL_NOMSG);
@@ -669,8 +667,7 @@ int dx, dy, range;
                     && !resists_ston(target)) {
                     minstapetrify(target, TRUE);
                 } else {
-                    target->mhp -= dmg;
-                    if (DEADMONSTER(target))
+                    if (damage_mon(target, dmg, AD_PHYS, FALSE))
                         mondied(target);
                     else
                         wakeup(target, TRUE);

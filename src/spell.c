@@ -1926,9 +1926,7 @@ boolean wiz_cast;
                             shieldeff(mtmp->mx, mtmp->my);
                             pline("%s %s in pain, but resists your deadly spell.",
                                   Monnam(mtmp), makeplural(growl_sound(mtmp)));
-                            mtmp->mhp -= d(8, 6);
-                            if (mtmp->mhp < 1)
-                                mtmp->mhp = 1;
+                            (void) damage_mon_nonlethal(mtmp, d(8, 6), AD_DETH, TRUE);
                             if (mtmp->mpeaceful || mtmp->mtame) {
                                 mtmp->mpeaceful = mtmp->mtame = 0;
                                 newsym(mtmp->mx, mtmp->my);
@@ -1954,9 +1952,7 @@ boolean wiz_cast;
                             shieldeff(mtmp->mx, mtmp->my);
                             pline("%s %s in pain, but resists your deadly spell.",
                                   Monnam(mtmp), makeplural(growl_sound(mtmp)));
-                            mtmp->mhp -= d(8, 6);
-                            if (mtmp->mhp < 1)
-                                mtmp->mhp = 1;
+                            (void) damage_mon_nonlethal(mtmp, d(8, 6), AD_DETH, TRUE);
                             if (mtmp->mpeaceful || mtmp->mtame) {
                                 mtmp->mpeaceful = mtmp->mtame = 0;
                                 newsym(mtmp->mx, mtmp->my);

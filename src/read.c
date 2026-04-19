@@ -803,13 +803,15 @@ struct monst *mtmp;
                     int ring_dmg = 3 * abs(obj->spe);
 
                     m_useup(mtmp, obj);
-                    mtmp->mhp -= ring_dmg;
-                }
-                if (mtmp->mhp <= 0) {
-                    if (canseemon(mtmp))
-                        pline("%s is killed by the explosion!",
-                              Monnam(mtmp));
-                    mondied(mtmp);
+                    /* SPFX_HPHDAM halving handled centrally in
+                       damage_mon() for AD_PHYS, mirroring
+                       Maybe_Half_Phys() on the hero branch above */
+                    if (damage_mon(mtmp, ring_dmg, AD_PHYS, FALSE)) {
+                        if (canseemon(mtmp))
+                            pline("%s is killed by the explosion!",
+                                  Monnam(mtmp));
+                        mondied(mtmp);
+                    }
                 }
            }
         } else {
