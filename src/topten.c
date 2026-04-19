@@ -130,9 +130,11 @@ boolean incl_helpless;
         /* undead players are "destroyed by" not "killed by" */
         if ((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
             && (how == DIED || how == GENOCIDED)) {
-            (void) strncat(buf, "destroyed by ", siz - 1);
+            (void) strncat(buf, "destroyed by ",
+                           siz - strlen(buf) - 1);
         } else {
-            (void) strncat(buf, killed_by_prefix[how], siz - 1);
+            (void) strncat(buf, killed_by_prefix[how],
+                           siz - strlen(buf) - 1);
         }
         l = strlen(buf);
         buf += l, siz -= l;
@@ -443,7 +445,7 @@ boolean condition;
 static char *
 encode_extended_achievements()
 {
-    static char buf[30*40];
+    static char buf[60*40];
 
     buf[0] = '\0';
     /* the original 12 xlogfile achievements */
@@ -503,7 +505,7 @@ encode_extended_achievements()
 static char *
 encode_extended_conducts()
 {
-    static char buf[350]; /* XXX: Expand this when adding new conducts */
+    static char buf[30*40]; /* XXX: Expand this when adding new conducts */
 
     buf[0] = '\0';
     add_achieveX(buf, "foodless",                        !u.uconduct.food);
@@ -675,21 +677,26 @@ encodeachieve()
 
 #endif /* XLOGFILE */
 
-static char _killed_uniques[640];
+static char _killed_uniques[NUMMONS * 32];
 static char*
 killed_uniques(void)
 {
     int i, len;
+    size_t cap = sizeof _killed_uniques;
     _killed_uniques[0] = '\0';
 
     for (i = LOW_PM; i < NUMMONS; i++) {
-	if ((mons[i].geno & G_UNIQ) && mvitals[i].died) {
-    	    if (i == PM_LONG_WORM_TAIL)
+        if ((mons[i].geno & G_UNIQ) && mvitals[i].died) {
+            if (i == PM_LONG_WORM_TAIL)
                 continue;
-	    if (i == PM_HIGH_PRIEST)
+            if (i == PM_HIGH_PRIEST)
                 continue;
-	    Sprintf(eos(_killed_uniques), "%s,", mons[i].mname);
-	}
+            /* +2: one for the comma, one for the NUL terminator */
+            if (strlen(_killed_uniques) + strlen(mons[i].mname) + 2
+                >= cap)
+                break; /* buffer full; drop remaining entries */
+            Sprintf(eos(_killed_uniques), "%s,", mons[i].mname);
+        }
     }
 
     if ((len = strlen(_killed_uniques))) {
@@ -1148,7 +1155,8 @@ boolean so;
     while (lngr >= hppos) {
         for (bp = eos(linebuf); !(*bp == ' ' && (bp - linebuf < hppos)); bp--)
             ;
-        /* special case: word is too long, wrap in the middle */
+        /* special case: word is too long, wrap in the middle;
+           15 == width of the rank-and-points prefix " %10ld  " */
         if (linebuf + 15 >= bp)
             bp = linebuf + hppos - 1;
         /* special case: if about to wrap in the middle of maximum
@@ -1186,11 +1194,9 @@ boolean so;
 
     if (so) {
         bp = eos(linebuf);
-        if (so >= COLNO)
-            so = COLNO - 1;
-        while (bp < linebuf + so)
+        while (bp < linebuf + (COLNO - 1))
             *bp++ = ' ';
-        *bp = 0;
+        *bp = '\0';
         topten_print_bold(linebuf);
     } else
         topten_print(linebuf);
@@ -1219,11 +1225,21 @@ int uid;
         if (players[i][0] == '-' && index("pr", players[i][1])
             && players[i][2] == 0 && i + 1 < playerct) {
             const char *arg = players[i + 1];
-            if ((players[i][1] == 'p'
-                 && str2role(arg) == str2role(t1->plrole))
-                || (players[i][1] == 'r'
-                    && str2race(arg) == str2race(t1->plrace)))
-                return 1;
+            int r1, r2;
+
+            /* str2role/str2race return ROLE_NONE (-1) on failure; two
+               invalid codes must not compare equal. */
+            if (players[i][1] == 'p') {
+                r1 = str2role(arg);
+                r2 = str2role(t1->plrole);
+                if (r1 >= 0 && r1 == r2)
+                    return 1;
+            } else {
+                r1 = str2race(arg);
+                r2 = str2race(t1->plrace);
+                if (r1 >= 0 && r1 == r2)
+                    return 1;
+            }
             i++;
         } else if (strcmp(players[i], "all") == 0
                    || strncmp(t1->name, players[i], NAMSZ) == 0
@@ -1601,9 +1617,13 @@ struct obj *otmp;
 
     if (racendx > NON_PM) {
         mtmp = makemon(&mons[classndx], 0, 0, MM_NOCOUNTBIRTH);
-        apply_race(mtmp, racendx);
-        otmp = save_mtraits(otmp, mtmp);
-        mongone(mtmp);
+        /* makemon can fail (no good position, genocided race);
+           only apply_race() guards against NULL internally */
+        if (mtmp) {
+            apply_race(mtmp, racendx);
+            otmp = save_mtraits(otmp, mtmp);
+            mongone(mtmp);
+        }
     }
 
     return otmp;

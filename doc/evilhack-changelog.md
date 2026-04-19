@@ -5238,4 +5238,5 @@ The following changes to date are:
 - Fix: multiple issues in bones.c during via review
 - Extend SPFX_HPHDAM/HSPDAM/PROTECT/EREGEN benefits to monsters
 - Route raw mon->mhp -= sites through damage_mon()
+- Fix: multiple issues in topten.c during code review
 
