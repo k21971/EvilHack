@@ -774,21 +774,33 @@ set_whereisfile()
     char *p = (char *) strstr(whereis_file, "%n");
 
     if (p) {
-        int new_whereis_len = strlen(whereis_file) + strlen(plname) - 2; /* %n */
-        char *new_whereis_fn = (char *) alloc((unsigned) (new_whereis_len + 1));
-        char *q = new_whereis_fn;
+        char playerbuf[PL_NSIZ + 4];
+        char tail[sizeof whereis_file];
+        size_t prefix_len = (size_t) (p - whereis_file);
+        size_t tail_len, room;
 
-        strncpy(q, whereis_file, p-whereis_file);
-        q += p - whereis_file;
-        strncpy(q, plname, strlen(plname) + 1);
-        regularize(q);
-        q[strlen(plname)] = '\0';
-        q += strlen(q);
-        p += 2;   /* skip "%n" */
-        strncpy(q, p, strlen(p));
-        new_whereis_fn[new_whereis_len] = '\0';
-        Sprintf(whereis_file, "%s", new_whereis_fn);
-        free(new_whereis_fn); /* clean up the pointer */
+        if (prefix_len >= sizeof whereis_file)
+            return; /* malformed; bail out rather than overflow */
+
+        /* regularize() may rewrite characters but does not change
+           length, so the stack buffer just needs to hold plname */
+        (void) strncpy(playerbuf, plname, sizeof playerbuf - 1);
+        playerbuf[sizeof playerbuf - 1] = '\0';
+        regularize(playerbuf);
+
+        /* stash the portion beyond "%n" before we overwrite it */
+        tail_len = strlen(p + 2);
+        if (tail_len >= sizeof tail)
+            tail_len = sizeof tail - 1;
+        (void) memcpy(tail, p + 2, tail_len);
+        tail[tail_len] = '\0';
+
+        /* rebuild: prefix + regularized plname + tail, truncated to fit */
+        whereis_file[prefix_len] = '\0';
+        room = sizeof whereis_file - 1 - prefix_len;
+        (void) strncat(whereis_file, playerbuf, room);
+        room = sizeof whereis_file - 1 - strlen(whereis_file);
+        (void) strncat(whereis_file, tail, room);
     }
 }
 
@@ -798,11 +810,11 @@ write_whereis(playing)
 boolean playing; /**< True if game is running.  */
 {
     FILE* fp;
-    char whereis_work[511];
+    char whereis_work[512];
 
     if (strstr(whereis_file, "%n"))
         set_whereisfile();
-    Sprintf(whereis_work,
+    (void) snprintf(whereis_work, sizeof whereis_work,
             "player=%s:depth=%d:dnum=%d:dname=%s:hp=%d:maxhp=%d:turns=%ld:score=%ld:role=%s:race=%s:gender=%s:align=%s:conduct=0x%lx:amulet=%d:ascended=%d:playing=%d\n",
             plname,
             depth(&u.uz),
@@ -1495,30 +1507,37 @@ boolean uncomp;
     }
 
     args[0] = COMPRESS;
-    if (uncomp)
-        args[++i] = "-d"; /* uncompress */
-#ifdef COMPRESS_OPTIONS
+    /* leave one slot reserved for the trailing NULL terminator */
     {
-        /* we can't guarantee there's only one additional option, sigh */
-        char *opt;
-        boolean inword = FALSE;
+        const int args_max = (int) (sizeof args / sizeof args[0]) - 1;
 
-        Strcpy(opts, COMPRESS_OPTIONS);
-        opt = opts;
-        while (*opt) {
-            if ((*opt == ' ') || (*opt == '\t')) {
-                if (inword) {
-                    *opt = '\0';
-                    inword = FALSE;
+        if (uncomp && i + 1 < args_max)
+            args[++i] = "-d"; /* uncompress */
+#ifdef COMPRESS_OPTIONS
+        {
+            /* we can't guarantee there's only one additional option, sigh */
+            char *opt;
+            boolean inword = FALSE;
+
+            Strcpy(opts, COMPRESS_OPTIONS);
+            opt = opts;
+            while (*opt) {
+                if ((*opt == ' ') || (*opt == '\t')) {
+                    if (inword) {
+                        *opt = '\0';
+                        inword = FALSE;
+                    }
+                } else if (!inword) {
+                    if (i + 1 >= args_max)
+                        break; /* reserve room for NULL terminator */
+                    args[++i] = opt;
+                    inword = TRUE;
                 }
-            } else if (!inword) {
-                args[++i] = opt;
-                inword = TRUE;
+                opt++;
             }
-            opt++;
         }
-    }
 #endif
+    }
     args[++i] = (char *) 0;
 
 #ifdef TTY_GRAPHICS
@@ -1785,8 +1804,9 @@ boolean uncomp;
         /* Copy from the compressed to the uncompressed file */
 
         while (1) {
-            len = gzread(compressedfile, buf, sizeof(buf));
-            if (len == (unsigned) -1) {
+            int gzrc = gzread(compressedfile, buf, sizeof(buf));
+
+            if (gzrc < 0) {
                 pline("Failure reading compressed file");
                 pline("Can't uncompress %s.", filename);
                 fclose(uncompressedfile);
@@ -1794,6 +1814,7 @@ boolean uncomp;
                 (void) unlink(filename);
                 return;
             }
+            len = (unsigned) gzrc;
             if (len == 0)
                 break; /* End of file */
 
@@ -2581,30 +2602,39 @@ char *origbuf;
 #endif
 
         (void) strncpy(SAVEP, bufp, SAVESIZE - 1);
+        SAVEP[SAVESIZE - 1] = '\0';
         append_slash(SAVEP);
 #endif /* MICRO */
 #endif /*NOCWD_ASSUMPTIONS*/
 
     } else if (match_varname(buf, "NAME", 4)) {
         (void) strncpy(plname, bufp, PL_NSIZ - 1);
+        plname[PL_NSIZ - 1] = '\0';
     } else if (match_varname(buf, "ROLE", 4)
                || match_varname(buf, "CHARACTER", 4)) {
         if ((len = str2role(bufp)) >= 0)
             flags.initrole = len;
     } else if (match_varname(buf, "DOGNAME", 3)) {
         (void) strncpy(dogname, bufp, PL_PSIZ - 1);
+        dogname[PL_PSIZ - 1] = '\0';
     } else if (match_varname(buf, "CATNAME", 3)) {
         (void) strncpy(catname, bufp, PL_PSIZ - 1);
+        catname[PL_PSIZ - 1] = '\0';
     } else if (match_varname(buf, "RATNAME", 3)) {
         (void) strncpy(ratname, bufp, PL_PSIZ - 1);
+        ratname[PL_PSIZ - 1] = '\0';
     } else if (match_varname(buf, "PSEUDONAME", 6)) {
         (void) strncpy(pseudoname, bufp, PL_PSIZ - 1);
+        pseudoname[PL_PSIZ - 1] = '\0';
     } else if (match_varname(buf, "HOMUNNAME", 5)) {
         (void) strncpy(homunname, bufp, PL_PSIZ - 1);
+        homunname[PL_PSIZ - 1] = '\0';
     } else if (match_varname(buf, "SPIDERNAME", 6)) {
         (void) strncpy(spidername, bufp, PL_PSIZ - 1);
+        spidername[PL_PSIZ - 1] = '\0';
     } else if (match_varname(buf, "HAWKNAME", 4)) {
         (void) strncpy(hawkname, bufp, PL_PSIZ - 1);
+        hawkname[PL_PSIZ - 1] = '\0';
 
 #ifdef SYSCF
     } else if (src == SET_IN_SYS && match_varname(buf, "WIZARDS", 7)) {
@@ -2848,6 +2878,7 @@ char *origbuf;
         switch_symbols(TRUE);
     } else if (match_varname(buf, "WIZKIT", 6)) {
         (void) strncpy(wizkit, bufp, WIZKIT_MAX - 1);
+        wizkit[WIZKIT_MAX - 1] = '\0';
 #ifdef AMIGA
     } else if (match_varname(buf, "FONT", 4)) {
         char *t;
@@ -2859,6 +2890,7 @@ char *origbuf;
         }
     } else if (match_varname(buf, "PATH", 4)) {
         (void) strncpy(PATH, bufp, PATHLEN - 1);
+        PATH[PATHLEN - 1] = '\0';
     } else if (match_varname(buf, "DEPTH", 5)) {
         extern int amii_numcolors;
         int val = atoi(bufp);
@@ -2869,10 +2901,11 @@ char *origbuf;
         int i, val;
         char *t;
 
-        for (i = 0, t = strtok(bufp, ",/"); t != (char *) 0;
-             i < 20 && (t = strtok((char *) 0, ",/")), ++i) {
-            sscanf(t, "%d", &val);
-            sysflags.amii_dripens[i] = val;
+        for (i = 0, t = strtok(bufp, ",/");
+             t != (char *) 0 && i < 20;
+             t = strtok((char *) 0, ",/"), ++i) {
+            if (sscanf(t, "%d", &val) == 1)
+                sysflags.amii_dripens[i] = val;
         }
 #endif
     } else if (match_varname(buf, "SCREENMODE", 10)) {
@@ -3157,8 +3190,10 @@ fopen_wizkit_file()
     char *envp;
 
     envp = nh_getenv("WIZKIT");
-    if (envp && *envp)
+    if (envp && *envp) {
         (void) strncpy(wizkit, envp, WIZKIT_MAX - 1);
+        wizkit[WIZKIT_MAX - 1] = '\0';
+    }
     if (!wizkit[0])
         return (FILE *) 0;
 
@@ -3331,10 +3366,15 @@ boolean FDECL((*proc), (char *));
                 boolean ignoreline = FALSE;
                 boolean oldline = FALSE;
 
-                /* line continuation (trailing '\') */
-                morelines = (--ep >= inbuf && *ep == '\\');
-                if (morelines)
-                    *ep = '\0';
+                /* line continuation (trailing '\'); decrement the
+                   pointer only after verifying it is still within
+                   inbuf to avoid forming an out-of-bounds pointer */
+                if (ep > inbuf && ep[-1] == '\\') {
+                    morelines = TRUE;
+                    *--ep = '\0';
+                } else {
+                    morelines = FALSE;
+                }
 
                 /* trim off spaces at end of line */
                 while (ep >= inbuf
@@ -3592,11 +3632,16 @@ int which_set;
             case 2:
                 /* handler type identified */
                 tmpsp = lastsp; /* most recent symset */
-                for (i = 0; known_handling[i]; ++i)
-                    if (!strcmpi(known_handling[i], bufp)) {
-                        tmpsp->handling = i;
-                        break; /* for loop */
+                /* tmpsp is NULL if this directive appears before any
+                   symset entry has been opened with case 0 */
+                if (tmpsp) {
+                    for (i = 0; known_handling[i]; ++i) {
+                        if (!strcmpi(known_handling[i], bufp)) {
+                            tmpsp->handling = i;
+                            break; /* for loop */
+                        }
                     }
+                }
                 break;
             case 3:
                 /* description:something */
@@ -3607,17 +3652,19 @@ int which_set;
             case 5:
                 /* restrictions: xxxx*/
                 tmpsp = lastsp; /* most recent symset */
-                for (i = 0; known_restrictions[i]; ++i) {
-                    if (!strcmpi(known_restrictions[i], bufp)) {
-                        switch (i) {
-                        case 0:
-                            tmpsp->primary = 1;
-                            break;
-                        case 1:
-                            tmpsp->rogue = 1;
-                            break;
+                if (tmpsp) {
+                    for (i = 0; known_restrictions[i]; ++i) {
+                        if (!strcmpi(known_restrictions[i], bufp)) {
+                            switch (i) {
+                            case 0:
+                                tmpsp->primary = 1;
+                                break;
+                            case 1:
+                                tmpsp->rogue = 1;
+                                break;
+                            }
+                            break; /* for loop */
                         }
-                        break; /* while loop */
                     }
                 }
                 break;
@@ -3815,7 +3862,7 @@ const char *dir UNUSED_if_not_OS2_CODEVIEW;
 #else
         fd = open(fq_record, O_CREAT | O_RDWR, S_IREAD | S_IWRITE);
 #endif
-        if (fd <= 0) {
+        if (fd < 0) {
             raw_printf("Warning: cannot write record '%s'", tmp);
             wait_synch();
         } else {
@@ -4064,7 +4111,16 @@ recover_savefile()
             if (lfd >= 0) {
                 /* any or all of these may not exist */
                 levc = (xchar) lev;
-                write(sfd, (genericptr_t) &levc, sizeof(levc));
+                if (write(sfd, (genericptr_t) &levc, sizeof levc)
+                    != sizeof levc) {
+                    raw_printf(
+                      "\nError writing %s; recovery failed (level header).\n",
+                      SAVEF);
+                    (void) nhclose(lfd);
+                    (void) nhclose(sfd);
+                    delete_savefile();
+                    return FALSE;
+                }
                 if (!copy_bytes(lfd, sfd)) {
                     (void) nhclose(lfd);
                     (void) nhclose(sfd);
@@ -4106,7 +4162,9 @@ int ifd, ofd;
 
     do {
         nfrom = read(ifd, buf, BUFSIZ);
-        nto = write(ofd, buf, nfrom);
+        if (nfrom < 0)
+            return FALSE; /* read error; don't feed -1 to write() */
+        nto = write(ofd, buf, (size_t) nfrom);
         if (nto != nfrom)
             return FALSE;
     } while (nfrom == BUFSIZ);
@@ -4818,7 +4876,9 @@ const char *buffer;
                      LLOG_SEP,
                      moves,
                      LLOG_SEP,
-                     urealtime.realtime + (getnow() - urealtime.start_timing), LLOG_SEP,
+                     (long) (urealtime.realtime
+                             + (getnow() - urealtime.start_timing)),
+                     LLOG_SEP,
                      (long) ubirthday,
                      LLOG_SEP,
                      (long) time(NULL),
