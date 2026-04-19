@@ -1244,30 +1244,35 @@ unsigned trflags;
         pline("%s shoots out at you!", An(xname(otmp)));
 
         oldumort = u.umortality;
-        if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
-            ; /* nothing */
-        } else if (thitu(8, dmgval(otmp, &youmonst),
-                         &otmp, (const char *) 0)) {
-            if (otmp) {
-                if (otmp->opoisoned)
-                    poisoned("dart", A_CON, OBJ_NAME(objects[otmp->otyp]),
-                             /* if damage triggered life-saving,
-                                poison is limited to attrib loss */
-                             (u.umortality > oldumort) ? 0 : 10, TRUE);
-                /* TODO: use hero-missile ammo breakage formula rather
-                   than unconditionally destroying otmp? */
-                obfree(otmp, (struct obj *) 0);
+        {
+            int dam = dmgval(otmp, &youmonst);
+
+            if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
+                ; /* nothing */
+            } else if (thitu(8, Maybe_Half_Phys(dam),
+                             &otmp, (const char *) 0)) {
+                if (otmp) {
+                    if (otmp->opoisoned)
+                        poisoned("dart", A_CON,
+                                 OBJ_NAME(objects[otmp->otyp]),
+                                 /* if damage triggered life-saving,
+                                    poison is limited to attrib loss */
+                                 (u.umortality > oldumort) ? 0 : 10, TRUE);
+                    /* TODO: use hero-missile ammo breakage formula
+                       rather than unconditionally destroying otmp? */
+                    obfree(otmp, (struct obj *) 0);
+                }
+            } else {
+                place_object(otmp, u.ux, u.uy);
+                if (!Blind)
+                    otmp->dknown = 1;
+                if (yours) {
+                    otmp->known = 0;
+                    otmp->oclass = WEAPON_CLASS;
+                }
+                stackobj(otmp);
+                newsym(u.ux, u.uy);
             }
-        } else {
-            place_object(otmp, u.ux, u.uy);
-            if (!Blind)
-                otmp->dknown = 1;
-            if (yours) {
-                otmp->known = 0;
-                otmp->oclass = WEAPON_CLASS;
-            }
-            stackobj(otmp);
-            newsym(u.ux, u.uy);
         }
         break;
 
@@ -2306,9 +2311,11 @@ int style;
                 break;
             }
         } else if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
+            int dam = dmgval(singleobj, &youmonst);
+
             if (multi)
                 nomul(0);
-            if (thitu(9 + singleobj->spe, dmgval(singleobj, &youmonst),
+            if (thitu(9 + singleobj->spe, Maybe_Half_Phys(dam),
                       &singleobj, (char *) 0))
                 stop_occupation();
         }
@@ -5944,8 +5951,10 @@ boolean disarm;
                     }
                 }
             } else {
-                mon->mhp -= d(6, 6);
-                if (mon->mhp <= 0) {
+                /* damage_mon() applies the SPFX_HPHDAM halving centrally
+                   for AD_PHYS, mirroring Maybe_Half_Phys() on the hero
+                   branch above */
+                if (damage_mon(mon, d(6, 6), AD_PHYS, yours)) {
                     if (canseemon(mon))
                         pline("%s is killed by the explosion!", Monnam(mon));
                     mondied(mon);
@@ -6559,7 +6568,10 @@ boolean umade;
                 searmsg(NULL, mon, obj, TRUE);
             }
         }
-        mon->mhp -= dam;
+        /* damage_mon() applies the SPFX_HPHDAM halving centrally for
+           AD_PHYS, mirroring Maybe_Half_Phys() on the hero-defender
+           path through thitu() in launch_obj */
+        (void) damage_mon(mon, dam, AD_PHYS, umade);
         if (DEADMONSTER(mon)) {
             int xx = mon->mx, yy = mon->my;
 

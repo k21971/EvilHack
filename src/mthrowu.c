@@ -683,12 +683,10 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
         }
 
         if (!DEADMONSTER(mtmp)) { /* might already be dead (if petrified) */
-            mtmp->mhp -= damage;
-            /* Interrupt spellbook reading - being hit breaks concentration */
-            if (has_emsp(mtmp) && EMSP(mtmp)->msp_reading != 0) {
-                EMSP(mtmp)->msp_reading = 0;
-                EMSP(mtmp)->msp_read_turns = 0;
-            }
+            /* damage_mon() applies the SPFX_HPHDAM halving centrally
+               (mirroring Maybe_Half_Phys on the hero thitu() path) and
+               handles the spellbook-reading interrupt */
+            (void) damage_mon(mtmp, damage, AD_PHYS, FALSE);
             if (DEADMONSTER(mtmp)) {
                 if (vis || (verbose && !target))
                     pline("%s is %s!", Monnam(mtmp),
@@ -959,7 +957,8 @@ boolean verbose;
                 if ((maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
                     && MON_WEP(mon) && MON_WEP(mon)->otyp == SLING)
                     dam *= 2;
-                hitu = thitu(hitv, dam, &singleobj, (char *) 0);
+                hitu = thitu(hitv, Maybe_Half_Phys(dam),
+                             &singleobj, (char *) 0);
             }
             if (hitu
                 && ((singleobj->opoisoned && is_poisonable(singleobj))
@@ -1443,7 +1442,7 @@ struct monst *mtmp;
         if (dam < 1)
             dam = 1;
 
-        (void) thitu(hitv, dam, &otmp, (char *) 0);
+        (void) thitu(hitv, Maybe_Half_Phys(dam), &otmp, (char *) 0);
         stop_occupation();
         return TRUE;
     }

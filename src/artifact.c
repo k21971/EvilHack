@@ -720,6 +720,33 @@ struct obj *obj;
     return FALSE;
 }
 
+/* True if mon has an artifact conferring spfx_flag: wielded/worn items
+   contribute their spfx bits, merely carried items contribute cspfx
+   bits -- generalizes the arti_reflects() pattern. Pass &youmonst to
+   check the hero's inventory */
+boolean
+mon_arti_has_spfx(mon, spfx_flag)
+struct monst *mon;
+unsigned long spfx_flag;
+{
+    struct obj *obj;
+    const struct artifact *arti;
+
+    for (obj = (mon == &youmonst) ? invent : mon->minvent;
+         obj; obj = obj->nobj) {
+        if (!obj->oartifact)
+            continue;
+        arti = get_artifact(obj);
+        if (!arti)
+            continue;
+        if ((obj->owornmask & ~W_ART) && (arti->spfx & spfx_flag))
+            return TRUE;
+        if (arti->cspfx & spfx_flag)
+            return TRUE;
+    }
+    return FALSE;
+}
+
 /* decide whether this obj is effective when attacking against shades
  * or any incorporeal monster */
 boolean

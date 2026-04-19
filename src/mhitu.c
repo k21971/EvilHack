@@ -1437,6 +1437,17 @@ struct monst *mon;
         if (is_you || gotprot)
             continue;
 
+        /* monsters have no EProtection bitmap, so re-derive it here
+           from the same per-item Protection sources that set_worn()
+           feeds into EProtection for the hero: worn accessories with
+           oc_oprop == PROTECTION (ring of protection, amulet of
+           guarding) and SPFX_PROTECT-bearing artifacts (wielded/worn
+           via spfx, merely carried via cspfx) */
+        if ((o->owornmask & (W_ARMOR | W_ACCESSORY)) != 0L
+            && objects[o->otyp].oc_oprop == PROTECTION) {
+            gotprot = TRUE;
+            continue;
+        }
         /* omit W_SWAPWEP+W_QUIVER; W_ART+W_ARTI handled by protects() */
         wearmask = W_ARMOR | W_ACCESSORY;
         if (o->oclass == WEAPON_CLASS || is_weptool(o))

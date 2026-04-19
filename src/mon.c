@@ -9,6 +9,7 @@
 #endif
 
 #include "hack.h"
+#include "artifact.h"
 #include "mfndpos.h"
 #include <ctype.h>
 
@@ -7191,6 +7192,15 @@ boolean by_you;
 {
     if (vulnerable_to(mon, type))
         amount = ((amount * 3) + 1) / 2;
+
+    /* monster equivalent of Half_physical_damage; gated on AD_PHYS so
+       elemental/spell adtypes aren't affected here. A few raw
+       mon->mhp -= sites (mthrowu, trap, system-shock) bypass this
+       chokepoint; those remain a known gap and are candidates for a
+       follow-up conversion to damage_mon(AD_PHYS, ...) */
+    if (type == AD_PHYS && amount > 0
+        && mon_arti_has_spfx(mon, SPFX_HPHDAM))
+        amount = (amount + 1) / 2;
 
     mon->mhp -= amount;
 

@@ -4,6 +4,7 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
+#include "artifact.h"
 #include "mextra.h"
 
 extern void demonpet();
@@ -63,7 +64,7 @@ extern void you_aggravate(struct monst *);
      || (otyp) == SPE_BURNING_HANDS || (otyp) == SPE_SHOCKING_GRASP)
 
 STATIC_DCL int FDECL(choose_bolt_spell, (struct monst *));
-STATIC_DCL boolean FDECL(has_eota, (struct monst *));
+STATIC_DCL boolean FDECL(mon_has_eregen_artifact, (struct monst *));
 STATIC_DCL boolean FDECL(is_boss_caster, (struct monst *));
 STATIC_DCL struct monst *FDECL(find_adjacent_pet, (struct monst *));
 STATIC_DCL void FDECL(do_untame_pet, (struct monst *, struct monst *));
@@ -103,19 +104,15 @@ struct monst *mtmp;
     }
 }
 
-/* Check if monster has Eye of the Aethiopica in inventory.
-   EotA allows unlimited spellcasting (mspec_used = 0) */
+/* True if mtmp has any artifact conferring SPFX_EREGEN (energy
+   regeneration). Such an artifact allows unlimited spellcasting
+   (mspec_used = 0). Generalizes an earlier Eye-of-the-Aethiopica-
+   specific check so any SPFX_EREGEN-bearing artifact works */
 STATIC_OVL boolean
-has_eota(mtmp)
+mon_has_eregen_artifact(mtmp)
 struct monst *mtmp;
 {
-    struct obj *obj;
-
-    for (obj = mtmp->minvent; obj; obj = obj->nobj) {
-        if (obj->oartifact == ART_EYE_OF_THE_AETHIOPICA)
-            return TRUE;
-    }
-    return FALSE;
+    return mon_arti_has_spfx(mtmp, SPFX_EREGEN);
 }
 
 /* Check if monster is a boss-type spellcaster that gets mspec bonuses.
@@ -510,8 +507,9 @@ boolean foundyou;
         if (rn2(2) && is_boss_caster(mtmp))
             mtmp->mspec_used = 0;
 
-        /* Having the EotA in inventory drops mspec to 0 */
-        if (has_eota(mtmp))
+        /* any SPFX_EREGEN artifact (e.g. Eye of the Aethiopica) drops
+           mspec to 0, granting effectively unlimited spellcasting */
+        if (mon_has_eregen_artifact(mtmp))
             mtmp->mspec_used = 0;
     }
 
@@ -1261,6 +1259,8 @@ int dmg, spellnum;
             } else {
                 if (yours || canseemon(target))
                     pline("%s suddenly seems weaker!", Monnam(target));
+                if (mon_arti_has_spfx(target, SPFX_HSPDAM))
+                    dmg = (dmg + 1) / 2;
                 /* monsters don't have strength, so drain max hp instead */
                 target->mhpmax -= dmg;
                 if ((target->mhp -= dmg) <= 0) {
@@ -1434,6 +1434,10 @@ int dmg, spellnum;
                 shieldeff(target->mx, target->my);
                 dmg = (dmg + 1) / 2;
             }
+            /* monster equivalent of the castmu pre-halving that
+               Half_spell_damage gives the hero for spell damage */
+            if (mon_arti_has_spfx(target, SPFX_HSPDAM))
+                dmg = (dmg + 1) / 2;
             if (yours || canseemon(target))
                 pline("%s %s%s", Monnam(target),
                       can_flollop(target->data) ? "flollops" : "winces",
@@ -1453,7 +1457,10 @@ int dmg, spellnum;
         break;
     }
 
-    /* Apply remaining damage */
+    /* Apply remaining damage. HSPDAM/HPHDAM halving (where appropriate)
+       is handled at the per-case level to match the player-side rules,
+       since some wizard spells deal physical rather than spell damage
+       and a few don't honor Half_spell_damage at all */
     if (dmg) {
         if (youdefend)
             mdamageu(caster, dmg);
@@ -1598,6 +1605,10 @@ int dmg, spellnum;
                 dmg = d(8, 6);
                 (void) erode_armor(target, ERODE_RUST);
             }
+            /* geyser/avalanche is physical (force/water) not spell;
+               mirror the Half_physical_damage halving the hero gets */
+            if (dmg > 0 && mon_arti_has_spfx(target, SPFX_HPHDAM))
+                dmg = (dmg + 1) / 2;
         }
         break;
     case CLC_FIRE_PILLAR:
@@ -1628,6 +1639,8 @@ int dmg, spellnum;
                 dmg = 0;
             } else
                 dmg = d(8, 6);
+            if (dmg > 0 && mon_arti_has_spfx(target, SPFX_HSPDAM))
+                dmg = (dmg + 1) / 2;
             (void) burnarmor(target);
             destroy_mitem(target, SCROLL_CLASS, AD_FIRE);
             destroy_mitem(target, POTION_CLASS, AD_FIRE);
@@ -1676,6 +1689,8 @@ int dmg, spellnum;
                     break;
             } else
                 dmg = d(8, 6);
+            if (dmg > 0 && mon_arti_has_spfx(target, SPFX_HSPDAM))
+                dmg = (dmg + 1) / 2;
             destroy_mitem(target, WAND_CLASS, AD_ELEC);
             destroy_mitem(target, RING_CLASS, AD_ELEC);
         }
@@ -2133,7 +2148,10 @@ int dmg, spellnum;
         break;
     }
 
-    /* Apply damage */
+    /* Apply damage. HSPDAM/HPHDAM halving is handled at the per-case
+       level here too: CLC_GEYSER is physical, CLC_OPEN_WOUNDS doesn't
+       honor Half_spell_damage for the hero, and the remaining dmg-
+       producing cleric spells halve inline before breaking */
     if (dmg) {
         if (youdefend) {
             mdamageu(caster, dmg);
@@ -2784,8 +2802,9 @@ struct attack *mattk;
                      || mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]))
             mtmp->mspec_used = 0;
 
-        /* Having the EotA in inventory drops mspec to 0 */
-        if (has_eota(mtmp))
+        /* any SPFX_EREGEN artifact (e.g. Eye of the Aethiopica) drops
+           mspec to 0, granting effectively unlimited spellcasting */
+        if (mon_has_eregen_artifact(mtmp))
             mtmp->mspec_used = 0;
     }
 
@@ -3109,6 +3128,8 @@ struct attack *mattk;
     }
 
     if (dmg) {
+        if (mon_arti_has_spfx(mtmp, SPFX_HSPDAM))
+            dmg = (dmg + 1) / 2;
         mtmp->mhp -= dmg;
         if (DEADMONSTER(mtmp))
             killed(mtmp);

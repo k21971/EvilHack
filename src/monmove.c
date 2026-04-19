@@ -864,9 +864,13 @@ struct monst *mtmp;
                 continue;
             if ((has_telepathy(m2) && (rn2(2) || m2->mblinded))
                 || !rn2(10)) {
+                int dmg = rnd(15);
+
                 if (cansee(m2->mx, m2->my))
                     pline("It locks on to %s.", mon_nam(m2));
-                damage_mon(m2, rnd(15), AD_DRIN, FALSE);
+                if (mon_arti_has_spfx(m2, SPFX_HSPDAM))
+                    dmg = (dmg + 1) / 2;
+                damage_mon(m2, dmg, AD_DRIN, FALSE);
                 if (DEADMONSTER(m2))
                     monkilled(m2, "", AD_DRIN);
                 else

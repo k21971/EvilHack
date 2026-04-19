@@ -3,6 +3,7 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
+#include "artifact.h"
 
 /* Note: Arrays are column first, while the screen is row first */
 static int explosion[3][3] = { { S_explode1, S_explode4, S_explode7 },
@@ -845,12 +846,14 @@ struct obj *obj; /* only scatter this obj        */
                         if (scflags & MAY_HITYOU) {
                             int hitvalu, hitu;
 
+                            int dam = dmgval(stmp->obj, &youmonst);
+
                             if (multi)
                                 nomul(0);
                             hitvalu = 8 + stmp->obj->spe;
                             if (bigmonst(youmonst.data))
                                 hitvalu++;
-                            hitu = thitu(hitvalu, dmgval(stmp->obj, &youmonst),
+                            hitu = thitu(hitvalu, Maybe_Half_Phys(dam),
                                          &stmp->obj, (char *) 0);
                             if (!stmp->obj)
                                 stmp->stopped = TRUE;

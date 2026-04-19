@@ -81,6 +81,7 @@ E boolean FDECL(spec_ability, (struct obj *, unsigned long));
 E int FDECL(has_glow_warning, (struct obj *));
 E boolean FDECL(confers_luck, (struct obj *));
 E boolean FDECL(arti_reflects, (struct obj *));
+E boolean FDECL(mon_arti_has_spfx, (struct monst *, unsigned long));
 E boolean FDECL(shade_glare, (struct obj *));
 E boolean FDECL(restrict_name, (struct obj *, const char *));
 E boolean FDECL(attacks, (int, struct obj *));

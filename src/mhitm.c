@@ -2883,6 +2883,8 @@ msickness:
                           : "burns",
                       mon_nam(mdef), mhis(magr),
                       makeplural(mbodypart(magr, HAND)));
+            if (mon_arti_has_spfx(mdef, SPFX_HSPDAM))
+                firedmg = (firedmg + 1) / 2;
             tmp += firedmg;
             if (!rn2(4))
                 (void) destroy_mitem(mdef, SCROLL_CLASS, AD_FIRE);
@@ -2918,6 +2920,8 @@ msickness:
                           : rn2(2) ? "jolts" : "shocks",
                       mon_nam(mdef), mhis(magr),
                       makeplural(mbodypart(magr, HAND)));
+            if (mon_arti_has_spfx(mdef, SPFX_HSPDAM))
+                elecdmg = (elecdmg + 1) / 2;
             tmp += elecdmg;
             if (!rn2(4))
                 (void) destroy_mitem(mdef, WAND_CLASS, AD_ELEC);

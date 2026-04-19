@@ -5236,4 +5236,5 @@ The following changes to date are:
 - Fix: multiple issues is restore.c during code review
 - Fix: multiple issues in files.c during code review
 - Fix: multiple issues in bones.c during via review
+- Extend SPFX_HPHDAM/HSPDAM/PROTECT/EREGEN benefits to monsters
 

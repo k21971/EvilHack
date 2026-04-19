@@ -4748,8 +4748,10 @@ int dx, dy;
         }
         if (bhitpos.x == u.ux && bhitpos.y == u.uy) { /* ct == 9 */
             if (Fumbling || rn2(20) >= ACURR(A_DEX)) {
+                int dam = dmgval(obj, &youmonst);
+
                 /* we hit ourselves */
-                (void) thitu(10 + obj->spe, dmgval(obj, &youmonst), &obj,
+                (void) thitu(10 + obj->spe, Maybe_Half_Phys(dam), &obj,
                              "boomerang");
                 endmultishot(TRUE);
                 break;
@@ -5020,6 +5022,12 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
        damage_mon() wouldn't tell us if tmp is increased. */
     if (vulnerable_to(mon, abstype + 1))
         tmp = ((3 * tmp) + 1) / 2;
+    /* monster equivalent of Half_spell_damage for wands and spells;
+       breath attacks (type < 0) do full damage, matching the
+       player-side rule applied in zap_hit()/losehp() */
+    if (tmp > 0 && type >= 0
+        && mon_arti_has_spfx(mon, SPFX_HSPDAM))
+        tmp = (tmp + 1) / 2;
     debugpline3("zapped monster hp = %d (= %d - %d)", mon->mhp - tmp,
                 mon->mhp, tmp);
     mon->mhp -= tmp;
@@ -6974,7 +6982,18 @@ int damage, tell;
     else if (dlev < 1)
         dlev = is_mplayer(mtmp->data) ? u.ulevel : 1;
 
-    resisted = rn2(100 + alev - dlev) < mtmp->data->mr;
+    {
+        /* Every level of MC the monster would have as a player (from
+           worn armor a_can, ring of protection, amulet of guarding,
+           SPFX_PROTECT artifacts, or innate priest/minion grace) adds
+           +20 to its effective mr%. Clamp to 100 so stacked sources
+           never overflow */
+        int eff_mr = mtmp->data->mr + magic_negation(mtmp) * 20;
+
+        if (eff_mr > 100)
+            eff_mr = 100;
+        resisted = rn2(100 + alev - dlev) < eff_mr;
+    }
     if (resisted) {
         if (tell) {
             shieldeff(mtmp->mx, mtmp->my);
@@ -6982,6 +7001,13 @@ int damage, tell;
         }
         damage = (damage + 1) / 2;
     }
+
+    /* monster equivalent of Half_spell_damage; resist() is only called
+       for magical/spell damage (wand zaps, spell effects, artifact
+       magical effects -- breath attacks bypass resist() and go through
+       zhitm directly) so no adtyp gate is needed here */
+    if (damage > 0 && mon_arti_has_spfx(mtmp, SPFX_HSPDAM))
+        damage = (damage + 1) / 2;
 
     if (damage) {
         int saved_mhp = mtmp->mhp;
