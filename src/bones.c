@@ -115,6 +115,11 @@ boolean restore;
                                    && tended_shop(&rooms[*p - ROOMOFFSET]));
             }
         } else { /* saving */
+            /* Note: when called from the fmon save loop, an artifact
+               may be re-processed if non_wishable_artifact moves it
+               to a later monster in the chain, so every branch below
+               must be idempotent */
+
             /* do not zero out o_ids for ghost levels anymore */
 
             if (objects[otmp->otyp].oc_uses_known)
@@ -292,7 +297,7 @@ int x, y;
 {
     struct obj *otmp;
 
-    u.twoweap = 0; /* ensure curse() won't cause swapwep to drop twice */
+    u.twoweap = FALSE; /* ensure curse() won't cause swapwep to drop twice */
     while ((otmp = invent) != 0) {
         obj_extract_self(otmp);
         /* when turning into green slime, all gear remains held;
@@ -340,7 +345,9 @@ struct monst *oracle;
 
     oracle->mpeaceful = 1;
     oracle->movement = oracle->minvis = 0;
-    o_ridx = levl[oracle->mx][oracle->my].roomno - ROOMOFFSET;
+    o_ridx = isok(oracle->mx, oracle->my)
+                 ? levl[oracle->mx][oracle->my].roomno - ROOMOFFSET
+                 : -1;
     if (o_ridx >= 0 && rooms[o_ridx].rtype == DELPHI
         && (oracle->mx == (rooms[o_ridx].lx + rooms[o_ridx].hx) / 2)
         && (oracle->my == (rooms[o_ridx].ly + rooms[o_ridx].hy) / 2))
@@ -365,7 +372,9 @@ struct monst *oracle;
         if (goodpos(cc.x, cc.y, oracle, NO_MM_FLAGS)
             || enexto_core_mon(&cc, cc.x, cc.y, oracle, NO_MM_FLAGS)) {
             rloc_to(oracle, cc.x, cc.y);
-            o_ridx = levl[oracle->mx][oracle->my].roomno - ROOMOFFSET;
+            o_ridx = isok(oracle->mx, oracle->my)
+                         ? levl[oracle->mx][oracle->my].roomno - ROOMOFFSET
+                         : -1;
         }
         /* [if her room is already full, she might end up outside;
            that's ok, next hero just won't get any welcome message,
@@ -401,6 +410,8 @@ struct obj *obj;
     case ART_HAND_OF_VECNA:
     case ART_SWORD_OF_KAS:
     default:
+        /* these are not allowed in bones; most are handled
+           by find_owner_on_level instead */
         return FALSE;
         break;
     }
@@ -561,6 +572,7 @@ struct obj *corpse;
             mongone(mtmp);
             if (mtmp == ukiller)
                 ukiller = (struct monst *) 0;
+            continue; /* don't inspect erid on a detached monster */
         }
 
         /* monster steeds tend to wander off */
@@ -568,8 +580,13 @@ struct obj *corpse;
             msteed = ERID(mtmp)->mon_steed;
             cc.x = msteed->mx;
             cc.y = msteed->my;
-            (void) enexto_core_mon(&cc, u.ux, u.uy, msteed, NO_MM_FLAGS);
-            if (!m_at(cc.x, cc.y)) {
+            /* anchor on the rider, not the hero; act on the return
+               value so we don't silently place the steed on the
+               fallback square (which would be the hero's tile when
+               anchored on u.ux,u.uy) */
+            if (enexto_core_mon(&cc, mtmp->mx, mtmp->my, msteed,
+                                NO_MM_FLAGS)
+                && !m_at(cc.x, cc.y)) {
                 place_monster(msteed, cc.x, cc.y);
             } else {
                 mongone(msteed);
@@ -585,7 +602,7 @@ struct obj *corpse;
      * them as existing (using goodfruit())
      */
     for (f = ffruit; f; f = f->nextf)
-        f->fid = -f->fid;
+        f->fid = -f->fid; /* relies on fid being short (int promotion) */
 
     /* dispose of your possessions, usually cursed */
     if (u.ugrave_arise == (NON_PM - 1)) {
@@ -599,10 +616,14 @@ struct obj *corpse;
                            : urace.malenum;
             struct monst *rmon = makemon(&mons[u.umonnum], 0, 0,
                                          MM_NOCOUNTBIRTH);
-            apply_race(rmon, rnum);
-            christen_monst(rmon, plname);
-            otmp = save_mtraits(otmp, rmon);
-            mongone(rmon);
+            /* makemon can fail (no good position, genocided race);
+               only apply_race() guards against NULL internally */
+            if (rmon) {
+                apply_race(rmon, rnum);
+                christen_monst(rmon, plname);
+                otmp = save_mtraits(otmp, rmon);
+                mongone(rmon);
+            }
         }
 
         drop_upon_death((struct monst *) 0, otmp, u.ux, u.uy);
@@ -646,6 +667,12 @@ struct obj *corpse;
 
             for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp2) {
                 otmp2 = otmp->nexthere; /* mpickobj might free otmp */
+                /* leave the hero's corpse on the floor so the newly
+                   created ghost remains linked to it via obj_attach_mid;
+                   otherwise the corpse ends up locked inside ukiller's
+                   inventory */
+                if (otmp == corpse)
+                    continue;
                 if (!rn2(8) || find_owner_on_level(otmp) == ukiller
                     || (greedy && rn2(2) && (otmp->oartifact || Is_dragon_armor(otmp)
                         || otmp->otyp == AMULET_OF_LIFE_SAVING || Is_allbag(otmp)
@@ -684,7 +711,7 @@ struct obj *corpse;
         in_mklev = FALSE;
         if (!mtmp) { /* arise-type might have been genocided */
             drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
-            u.ugrave_arise = NON_PM; /* in case caller cares */
+            u.ugrave_arise = NON_PM;
             return;
         }
         mtmp = christen_monst(mtmp, plname);
@@ -737,9 +764,18 @@ struct obj *corpse;
 
     /* Attach bones info to the current level before saving. */
     newbones = (struct cemetery *) alloc(sizeof *newbones);
-    /* entries are '\0' terminated but have fixed length allocations,
-       so pre-fill with spaces to initialize any excess room */
-    (void) memset((genericptr_t) newbones, ' ', sizeof *newbones);
+    /* zero the whole struct first so the `next' pointer and other
+       non-char fields aren't filled with 0x20 bytes (UB under UBSan);
+       entries are '\0' terminated but have fixed length allocations,
+       so pre-fill each char field with spaces to initialize any
+       excess room */
+    (void) memset((genericptr_t) newbones, 0, sizeof *newbones);
+    (void) memset((genericptr_t) newbones->who, ' ',
+                  sizeof newbones->who);
+    (void) memset((genericptr_t) newbones->how, ' ',
+                  sizeof newbones->how);
+    (void) memset((genericptr_t) newbones->when, ' ',
+                  sizeof newbones->when);
     /* format name+role,&c, death reason, and date+time;
        gender and alignment reflect final values rather than what the
        character started out as, same as topten and logfile entries */
@@ -820,7 +856,7 @@ getbones()
 {
     int fd;
     int ok;
-    char c, *bonesid, oldbonesid[40]; /* was [10]; more should be safer */
+    char c, *bonesid, oldbonesid[40]; /* length validated via c from file */
 
     if (discover) /* save bones files for real games */
         return 0;
@@ -851,52 +887,68 @@ getbones()
             }
         }
         mread(fd, (genericptr_t) &c, sizeof c); /* length incl. '\0' */
-        mread(fd, (genericptr_t) oldbonesid, (unsigned) c); /* DD.nnn */
-        if (strcmp(bonesid, oldbonesid) != 0
-            /* from 3.3.0 through 3.6.0, bones in the quest branch stored
-               a bogus bonesid in the file; 3.6.1 fixed that, but for
-               3.6.0 bones to remain compatible, we need an extra test;
-               once compatibility with 3.6.x goes away, this can too
-               (we don't try to make this conditional upon the value of
-               VERSION_COMPATIBILITY because then we'd need patchlevel.h) */
-            && (strlen(bonesid) <= 2
-                || strcmp(bonesid + 2, oldbonesid) != 0)) {
+        /* validate length before feeding it to mread as a byte count;
+           a corrupt/malicious bones file could otherwise overflow the
+           fixed oldbonesid[] buffer */
+        if (c < 1 || (unsigned) c > sizeof oldbonesid) {
             char errbuf[BUFSZ];
 
-            Sprintf(errbuf, "This is bones level '%s', not '%s'!", oldbonesid,
-                    bonesid);
+            Sprintf(errbuf, "Bones file has bogus bonesid length %d!",
+                    (int) c);
             if (wizard) {
                 pline1(errbuf);
                 ok = FALSE; /* won't die of trickery */
             }
             trickery(errbuf);
         } else {
-            struct monst *mtmp;
+            mread(fd, (genericptr_t) oldbonesid, (unsigned) c); /* DD.nnn */
+            if (strcmp(bonesid, oldbonesid) != 0
+                /* from 3.3.0 through 3.6.0, bones in the quest branch stored
+                   a bogus bonesid in the file; 3.6.1 fixed that, but for
+                   3.6.0 bones to remain compatible, we need an extra test;
+                   once compatibility with 3.6.x goes away, this can too
+                   (we don't try to make this conditional upon the value of
+                   VERSION_COMPATIBILITY because then we'd need patchlevel.h) */
+                && (strlen(bonesid) <= 2
+                    || strcmp(bonesid + 2, oldbonesid) != 0)) {
+                char errbuf[BUFSZ];
 
-            getlev(fd, 0, 0, TRUE);
+                Sprintf(errbuf, "This is bones level '%s', not '%s'!",
+                        oldbonesid, bonesid);
+                if (wizard) {
+                    pline1(errbuf);
+                    ok = FALSE; /* won't die of trickery */
+                }
+                trickery(errbuf);
+            } else {
+                struct monst *mtmp;
 
-            /* Note that getlev() now keeps tabs on unique
-             * monsters such as demon lords, and tracks the
-             * birth counts of all species just as makemon()
-             * does.  If a bones monster is extinct or has been
-             * subject to genocide, their mhpmax will be
-             * set to the magic DEFUNCT_MONSTER cookie value.
-             */
-            for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-                if (has_mname(mtmp))
-                    sanitize_name(MNAME(mtmp));
-                if (mtmp->mhpmax == DEFUNCT_MONSTER) {
-                    if (wizard) {
-                        debugpline1("Removing defunct monster %s from bones.",
-                                    mtmp->data->mname);
-                    }
-                    mongone(mtmp);
-                } else
-                    /* to correctly reset named artifacts on the level */
-                    resetobjs(mtmp->minvent, TRUE);
+                getlev(fd, 0, 0, TRUE);
+
+                /* Note that getlev() now keeps tabs on unique
+                 * monsters such as demon lords, and tracks the
+                 * birth counts of all species just as makemon()
+                 * does.  If a bones monster is extinct or has been
+                 * subject to genocide, their mhpmax will be
+                 * set to the magic DEFUNCT_MONSTER cookie value.
+                 */
+                for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                    if (has_mname(mtmp))
+                        sanitize_name(MNAME(mtmp));
+                    if (mtmp->mhpmax == DEFUNCT_MONSTER) {
+                        if (wizard) {
+                            debugpline1(
+                                "Removing defunct monster %s from bones.",
+                                mtmp->data->mname);
+                        }
+                        mongone(mtmp);
+                    } else
+                        /* to correctly reset named artifacts on the level */
+                        resetobjs(mtmp->minvent, TRUE);
+                }
+                resetobjs(fobj, TRUE);
+                resetobjs(level.buriedobjlist, TRUE);
             }
-            resetobjs(fobj, TRUE);
-            resetobjs(level.buriedobjlist, TRUE);
         }
     }
     (void) nhclose(fd);

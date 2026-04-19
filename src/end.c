@@ -1741,10 +1741,14 @@ int how;
             if (rnum > NON_PM) {
                 struct monst *mtmp = makemon(&mons[mnum], 0, 0,
                                              MM_NOCOUNTBIRTH);
-                apply_race(mtmp, rnum);
-                christen_monst(mtmp, plname);
-                corpse = save_mtraits(corpse, mtmp);
-                mongone(mtmp);
+                /* makemon can fail (no good position, genocided race);
+                   only apply_race() guards against NULL internally */
+                if (mtmp) {
+                    apply_race(mtmp, rnum);
+                    christen_monst(mtmp, plname);
+                    corpse = save_mtraits(corpse, mtmp);
+                    mongone(mtmp);
+                }
             }
         }
         Sprintf(pbuf, "%s, ", plname);
