@@ -5231,4 +5231,5 @@ The following changes to date are:
 - Fix: ball.c review follow-ups in apply.c, dogmove.c, trap.c, ball.c
 - Fix: objnam.c code review follow-ups
 - Fix: u_init.c issues via code review
+- Fix: role-filter menu bugs and role.c code-review cleanups
 

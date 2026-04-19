@@ -1174,7 +1174,8 @@ int role, gend, algn;
                 high_ch = 0;
         }
 
-        /* modify some this_chs when filtering to avoid conflict with roles */
+        /* modify some this_chs in the filter-reset menu, where roles,
+           races, and genders share one accelerator namespace */
         if (!filtering) {
             if (!strcmp(races[i].noun, "human")) {
                 /* healer/Hobbit are taken. 'uman? */
@@ -1195,6 +1196,14 @@ int role, gend, algn;
             } else if (!strcmp(races[i].noun, "dwarf")) {
                 /* druid/Drow are taken. Urist? */
                 this_ch = 'U';
+                high_ch = 0;
+            } else if (!strcmp(races[i].noun, "vampire")) {
+                /* Valkyrie is taken */
+                this_ch = 'V';
+                high_ch = 0;
+            } else if (!strcmp(races[i].noun, "aasimar")) {
+                /* Archeologist is taken */
+                this_ch = 'A';
                 high_ch = 0;
             }
         }
