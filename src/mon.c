@@ -7850,10 +7850,10 @@ struct monst *mtmp;
 short raceidx;
 {
     struct erac *rptr;
-    struct permonst *ptr = &mons[raceidx], *mptr = &mons[mtmp->mnum];
+    struct permonst *ptr, *mptr;
     boolean init = FALSE;
 
-    if (!mtmp || (mvitals[raceidx].mvflags & G_GONE))
+    if (!mtmp)
         return;
 
     if (raceidx == NON_PM) {
@@ -7862,6 +7862,12 @@ short raceidx;
             free_erac(mtmp);
         return;
     }
+
+    if (mvitals[raceidx].mvflags & G_GONE)
+        return;
+
+    ptr = &mons[raceidx];
+    mptr = &mons[mtmp->mnum];
 
     if (!has_erac(mtmp)) {
         newerac(mtmp);

@@ -3461,7 +3461,7 @@ long mmflags;
     /* set player monsters rank/title, race flags, and any
        appropriate flags that go along with their race */
     if (is_mplayer(ptr))
-        init_mplayer_erac(mtmp);
+        init_mplayer_erac(mtmp, (mmflags & MM_NONAME) ? TRUE : FALSE);
     else if (is_mercenary(ptr) && ptr != &mons[PM_GUARD])
         apply_race(mtmp, m_randrace(mndx));
 

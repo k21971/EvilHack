@@ -184,7 +184,7 @@ static const char *vampire_male_names[] = {
     "Antoine",      "Armand",      "Avicus",     "Azim",       "Daniel",
     "David",        "Enkil",       "Eric",       "Khayman",    "Lestat",
     "Louis",        "Mael",        "Magnus",     "Marius",     "Nicolas",
-    "Rhoshamandes", "Santiago"     "Santino",    "Seth",       "Teskhamen",
+    "Rhoshamandes", "Santiago",    "Santino",    "Seth",       "Teskhamen",
     "Thorne",
     0
 };
@@ -240,7 +240,8 @@ char *nam;
     const char **mp_names;
     int r_id = 0, ncnt;
 
-    if (has_erac(mtmp) && ERAC(mtmp)->r_id >= 0)
+    if (has_erac(mtmp) && ERAC(mtmp)->r_id >= 0
+        && ERAC(mtmp)->r_id < SIZE(namelists))
         r_id = ERAC(mtmp)->r_id;
 
     mp_names = mtmp->female ? namelists[r_id].female : namelists[r_id].male;
@@ -248,16 +249,17 @@ char *nam;
     for (ncnt = 0; mp_names[ncnt]; ncnt++)
         ; /* count the number of names in the list */
 
-    Strcpy(nam, (In_endgame(&u.uz) && ttname != 0)
-           ? ttname : mp_names[rn2(ncnt)]);
-    Strcat(nam, " the ");
-    Strcat(nam, rank_of_mplayer((int) mtmp->m_lev, mtmp,
-                                (boolean) mtmp->female));
+    (void) snprintf(nam, PL_PSIZ, "%s the %s",
+                    (In_endgame(&u.uz) && ttname != 0)
+                        ? ttname : mp_names[rn2(ncnt)],
+                    rank_of_mplayer((int) mtmp->m_lev, mtmp,
+                                    (boolean) mtmp->female));
 }
 
 void
-init_mplayer_erac(mtmp)
+init_mplayer_erac(mtmp, noname)
 struct monst *mtmp;
+boolean noname;
 {
     char nam[PL_PSIZ];
     int race;
@@ -284,7 +286,8 @@ struct monst *mtmp;
     rptr->mattk[1].damd = 6;
 
     race = m_randrace(mndx);
-    apply_race(mtmp, race);
+    if (race != NON_PM)
+        apply_race(mtmp, race);
 
     switch (mndx) {
     case PM_ARCHEOLOGIST:
@@ -423,8 +426,10 @@ struct monst *mtmp;
         break;
     }
 
-    get_mplname(mtmp, nam);
-    mtmp = christen_monst(mtmp, nam);
+    if (!noname) {
+        get_mplname(mtmp, nam);
+        mtmp = christen_monst(mtmp, nam);
+    }
 }
 
 struct monst *
@@ -443,7 +448,7 @@ boolean special;
     if (MON_AT(x, y))
         (void) rloc(m_at(x, y), FALSE); /* insurance */
 
-    if ((mtmp = makemon(ptr, x, y, MM_MPLAYEROK)) != 0) {
+    if ((mtmp = makemon(ptr, x, y, MM_MPLAYEROK | MM_NONAME)) != 0) {
         mtmp->m_lev = (special ? (ascending ? rn1(16, 15)
                                             : min(30, u.ulevel + rn1(4, 4)))
                                : rnd(16));
@@ -474,20 +479,26 @@ boolean special;
                 int i, ring;
 
                 for (i = 0; i < 2 && (rn2(2) || monsndx(ptr) == PM_WIZARD); i++) {
-                    do ring = !rn2(9) ? RIN_INVISIBILITY :
-                              !rn2(8) ? RIN_TELEPORT_CONTROL :
-                              !rn2(7) ? RIN_FIRE_RESISTANCE :
-                              !rn2(6) ? RIN_COLD_RESISTANCE :
-                              !rn2(5) ? RIN_SHOCK_RESISTANCE :
-                              !rn2(4) ? RIN_POISON_RESISTANCE :
-                              !rn2(3) ? RIN_INCREASE_ACCURACY :
-                              !rn2(2) ? RIN_INCREASE_DAMAGE :
-                                        RIN_PROTECTION;
-                    while ((resists_poison(mtmp) && ring == RIN_POISON_RESISTANCE)
-                        || (resists_elec(mtmp) && ring == RIN_SHOCK_RESISTANCE)
-                        || (resists_fire(mtmp) && ring == RIN_FIRE_RESISTANCE)
-                        || (resists_cold(mtmp) && ring == RIN_COLD_RESISTANCE)
-                        || (mtmp->minvis && ring == RIN_INVISIBILITY));
+                    int tryct = 0;
+
+                    do {
+                        ring = !rn2(9) ? RIN_INVISIBILITY :
+                               !rn2(8) ? RIN_TELEPORT_CONTROL :
+                               !rn2(7) ? RIN_FIRE_RESISTANCE :
+                               !rn2(6) ? RIN_COLD_RESISTANCE :
+                               !rn2(5) ? RIN_SHOCK_RESISTANCE :
+                               !rn2(4) ? RIN_POISON_RESISTANCE :
+                               !rn2(3) ? RIN_INCREASE_ACCURACY :
+                               !rn2(2) ? RIN_INCREASE_DAMAGE :
+                                         RIN_PROTECTION;
+                    } while (((resists_poison(mtmp) && ring == RIN_POISON_RESISTANCE)
+                           || (resists_elec(mtmp) && ring == RIN_SHOCK_RESISTANCE)
+                           || (resists_fire(mtmp) && ring == RIN_FIRE_RESISTANCE)
+                           || (resists_cold(mtmp) && ring == RIN_COLD_RESISTANCE)
+                           || (mtmp->minvis && ring == RIN_INVISIBILITY))
+                             && tryct++ <= 500);
+                    if (tryct > 500)
+                        ring = RIN_PROTECTION;
                     (void) mongets(mtmp, ring);
                 }
                 m_dowear(mtmp, TRUE);
@@ -555,7 +566,8 @@ struct monst *mtmp;
         return; /* will drop to humanoid talk */
 
     pline("Talk? -- %s", (mtmp->data == &mons[urole.malenum]
-                          || mtmp->data == &mons[urole.femalenum])
+                          || (urole.femalenum != NON_PM
+                              && mtmp->data == &mons[urole.femalenum]))
                              ? same_class_msg[rn2(3)]
                              : other_class_msg[rn2(3)]);
 }
