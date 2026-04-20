@@ -618,7 +618,9 @@ int how;
     ukiller = mtmp;
     if (!Lifesaved && ukiller) {
         if (u.uswallow) {
-            if (ukiller == u.ustuck && is_swallower(u.ustuck->data))
+            if (u.ustuck && ukiller == u.ustuck
+                && !DEADMONSTER(ukiller)
+                && is_swallower(u.ustuck->data))
                 pline("%s emits a satisfied belch.", Monnam(ukiller));
         } else if (is_rummager(ukiller->data)) {
             if (!DEADMONSTER(ukiller))
@@ -1407,9 +1409,11 @@ int how;
             killer.format = 0;
             return;
         }
-    } else
-    if (how == ASCENDED || (!killer.name[0] && how == GENOCIDED))
+    } else if (how == ASCENDED
+               || (!killer.name[0] && how == GENOCIDED)) {
         killer.format = NO_KILLER_PREFIX;
+    }
+
     /* Avoid killed by "a" burning or "a" starvation */
     if (!killer.name[0] && (how == STARVING || how == BURNING))
         killer.format = KILLED_BY;
@@ -1476,7 +1480,7 @@ int how;
         pline("But wait...");
         makeknown(AMULET_OF_LIFE_SAVING);
         Your("medallion %s!", !Blind ? "begins to glow" : "feels warm");
-        if (uamul->cursed
+        if ((uamul && uamul->cursed)
             || nonliving(youmonst.data) || racial_zombie(&youmonst)
             || racial_vampire(&youmonst)) {
             Your("medallion %s!", !Blind ? "glows white-hot"
@@ -1486,7 +1490,7 @@ int how;
             Your("medallion turns to ash!");
             u.uhp = 0;
             context.botl = 1;
-            if (uamul->cursed)
+            if (uamul && uamul->cursed)
                 pline("It appears your luck has run out...");
             else
                 pline("It appears you have no life to save...");
@@ -1526,8 +1530,19 @@ int how;
 
     /* maybe give the player a second chance if they were killed by the
      * appropriate monster */
-    if (sentient_arise(how))
+    if (sentient_arise(how)) {
+        /* sentient_arise transformed the hero into their graverise form
+           without running savelife()'s cleanup; clear killer state so a
+           subsequent death isn't mis-attributed, and release the hero
+           from any swallower since the old body is gone */
+        killer.name[0] = '\0';
+        killer.format = 0;
+        ukiller = (struct monst *) 0;
+        if (u.uswallow)
+            expels(u.ustuck, u.ustuck->data, TRUE);
+        cancel_don(); /* new form's armor layout may differ */
         return;
+    }
 
     /* explore and wizard modes offer player the option to keep playing */
     if (!survive && (wizard || discover) && how <= GENOCIDED
@@ -1542,7 +1557,7 @@ int how;
                             ? "aren't destroyed" : "don't die");
         iflags.last_msg = PLNMSG_OK_DONT_DIE;
         savelife(how);
-        ukiller = (struct monst*) 0;
+        /* ukiller already cleared by savelife() */
         survive = TRUE;
     }
 
@@ -1568,6 +1583,14 @@ int how;
     time_t endtime;
     long umoney;
     long tmp;
+
+    /* bounded append to killer.name; drop suffix on overflow rather
+       than producing a torn, half-written string */
+#define KILLER_APPEND(s) do {                                    \
+        size_t have_ = strlen(killer.name);                      \
+        if (have_ + sizeof(s) <= sizeof killer.name)             \
+            Strcat(killer.name, (s));                            \
+    } while (0)
 
     /*
      *  The game is now over...
@@ -1785,7 +1808,7 @@ int how;
                         : (u.urexp / 2L);
                 nowrap_add(u.urexp, tmp);
             } else {
-                Strcat(killer.name, " (in dishonor)");
+                KILLER_APPEND(" (in dishonor)");
             }
         }
     }
@@ -1851,15 +1874,15 @@ int how;
 #endif
     if (u.uhave.amulet) {
         if (Role_if(PM_INFIDEL) && u.uachieve.amulet) /* ascends with the Idol of Moloch */
-            Strcat(killer.name, " (with the Idol)");
+            KILLER_APPEND(" (with the Idol)");
         /* lets not spam the xlogfile with a bunch of 'with the amulet' deaths */
         else if (!Role_if(PM_INFIDEL))
-            Strcat(killer.name, " (with the Amulet)");
+            KILLER_APPEND(" (with the Amulet)");
     } else if (how == ESCAPED) {
         if (Is_astralevel(&u.uz)) /* offered Amulet to wrong deity */
-            Strcat(killer.name, " (in celestial disgrace)");
+            KILLER_APPEND(" (in celestial disgrace)");
         else if (carrying(FAKE_AMULET_OF_YENDOR))
-            Strcat(killer.name, " (with a fake Amulet)");
+            KILLER_APPEND(" (with a fake Amulet)");
         /* don't bother counting to see whether it should be plural */
     }
 
@@ -1914,7 +1937,15 @@ int how;
         Strcpy(pbuf, "You");
         if (mtmp || Schroedingers_cat) {
             while (mtmp) {
-                Sprintf(eos(pbuf), " and %s", mon_nam(mtmp));
+                const char *nm = mon_nam(mtmp);
+
+                /* flush-and-continue if next append would overflow;
+                   5 == strlen(" and ") */
+                if (strlen(pbuf) + 5 + strlen(nm) + 1 >= sizeof pbuf) {
+                    dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
+                    pbuf[0] = '\0';
+                }
+                Sprintf(eos(pbuf), " and %s", nm);
                 if (mtmp->mtame)
                     nowrap_add(u.urexp, mtmp->mhp);
                 mtmp = mtmp->nmon;
@@ -1922,11 +1953,16 @@ int how;
             /* [it might be more robust to create a housecat and add it to
                mydogs; it doesn't have to be placed on the map for that] */
             if (Schroedingers_cat) {
+                static const char scat[] = " and Schroedinger's cat";
                 int mhp, m_lev = adj_lev(&mons[PM_HOUSECAT]);
 
                 mhp = d(m_lev, 8);
                 nowrap_add(u.urexp, mhp);
-                Strcat(eos(pbuf), " and Schroedinger's cat");
+                if (strlen(pbuf) + sizeof scat >= sizeof pbuf) {
+                    dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
+                    pbuf[0] = '\0';
+                }
+                Strcat(pbuf, scat);
             }
             dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
             pbuf[0] = '\0';
@@ -2034,6 +2070,7 @@ int how;
     }
     livelog_dump_url(LL_DUMP_ALL|(how == ASCENDED ? LL_DUMP_ASC : 0));
     nh_terminate(EXIT_SUCCESS);
+#undef KILLER_APPEND
 }
 
 void
@@ -2354,7 +2391,7 @@ boolean ask;
             qsort((genericptr_t) mindx, ntypes, sizeof *mindx, vanqsort_cmp);
             for (ni = 0; ni < ntypes; ni++) {
                 i = mindx[ni];
-                nkilled = mvitals[i].died;
+                nkilled = (int) mvitals[i].died;
                 mlet = mons[i].mlet;
                 if (class_header && mlet != prev_mlet) {
                     Strcpy(buf, def_monsyms[(int) mlet].explain);
@@ -2394,13 +2431,18 @@ boolean ask;
                                 makeplural(mons[i].mname));
                 }
                 /* number of leading spaces to match 3 digit prefix */
-                pfx = !strncmpi(buf, "the ", 3) ? 0
+                pfx = !strncmpi(buf, "the ", 4) ? 0
                       : !strncmpi(buf, "an ", 3) ? 1
                         : !strncmpi(buf, "a ", 2) ? 2
                           : !digit(buf[2]) ? 4 : 0;
                 if (class_header)
                     ++pfx;
-                Sprintf(buftoo, "%*s%s", pfx, "", buf);
+                if (strlen(buf) + (size_t) pfx + 1 < sizeof buftoo) {
+                    Sprintf(buftoo, "%*s%s", pfx, "", buf);
+                } else {
+                    (void) strncpy(buftoo, buf, sizeof buftoo - 1);
+                    buftoo[sizeof buftoo - 1] = '\0';
+                }
                 putstr(klwin, 0, buftoo);
             }
             /*
@@ -2613,11 +2655,16 @@ save_killers(fd, mode)
 int fd;
 int mode;
 {
-    struct kinfo *kptr;
+    struct kinfo *kptr, tmp_k;
 
     if (perform_bwrite(mode)) {
         for (kptr = &killer; kptr != (struct kinfo *) 0; kptr = kptr->next) {
-            bwrite(fd, (genericptr_t) kptr, sizeof (struct kinfo));
+            tmp_k = *kptr;
+            /* write a sanitized boolean in place of the live pointer;
+               restore_killers treats non-NULL as "has next record" */
+            tmp_k.next = kptr->next ? (struct kinfo *) 1L
+                                    : (struct kinfo *) 0;
+            bwrite(fd, (genericptr_t) &tmp_k, sizeof (struct kinfo));
         }
     }
     if (release_data(mode)) {
@@ -2634,13 +2681,26 @@ restore_killers(fd)
 int fd;
 {
     struct kinfo *kptr;
+    int count = 0;
+#define KINFO_RESTORE_MAX 64 /* defensive cap on delayed-killer chain */
 
-    for (kptr = &killer; kptr != (struct kinfo *) 0; kptr = kptr->next) {
+    for (kptr = &killer; kptr != (struct kinfo *) 0;
+         kptr = kptr->next) {
         mread(fd, (genericptr_t) kptr, sizeof (struct kinfo));
+        if (++count > KINFO_RESTORE_MAX) {
+            impossible("restore_killers: chain exceeds %d entries",
+                       KINFO_RESTORE_MAX);
+            kptr->next = (struct kinfo *) 0;
+            break;
+        }
         if (kptr->next) {
             kptr->next = (struct kinfo *) alloc(sizeof (struct kinfo));
+            /* initialize so an interrupted restore leaves a sane
+               tail rather than uninitialized pointer bits */
+            kptr->next->next = (struct kinfo *) 0;
         }
     }
+#undef KINFO_RESTORE_MAX
 }
 
 static int

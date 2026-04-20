@@ -5239,4 +5239,5 @@ The following changes to date are:
 - Extend SPFX_HPHDAM/HSPDAM/PROTECT/EREGEN benefits to monsters
 - Route raw mon->mhp -= sites through damage_mon()
 - Fix: multiple issues in topten.c during code review
+- Fix: various issues in end.c during code review
 
