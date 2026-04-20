@@ -126,9 +126,8 @@ int x, y, n, mmflags;
     if (cnt >= 3 && !is_undead(mtmp->data)) {
         if (mtmp->data == &mons[PM_GOBLIN]) {
             support = PM_GOBLIN_SHAMAN;
-            if (mvitals[support].mvflags & G_GONE)
-                return;
-            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
+            if (!(mvitals[support].mvflags & G_GONE)
+                && enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -140,9 +139,8 @@ int x, y, n, mmflags;
             }
         } else if (mtmp->data == &mons[PM_KOBOLD]) {
             support = PM_KOBOLD_SHAMAN;
-            if (mvitals[support].mvflags & G_GONE)
-                return;
-            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
+            if (!(mvitals[support].mvflags & G_GONE)
+                && enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -156,9 +154,8 @@ int x, y, n, mmflags;
                    || mtmp->data == &mons[PM_MORDOR_ORC]
                    || mtmp->data == &mons[PM_URUK_HAI]) {
             support = PM_ORC_SHAMAN;
-            if (mvitals[support].mvflags & G_GONE)
-                return;
-            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
+            if (!(mvitals[support].mvflags & G_GONE)
+                && enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -170,9 +167,8 @@ int x, y, n, mmflags;
             }
         } else if (is_gnoll(mtmp->data)) {
             support = PM_GNOLL_CLERIC;
-            if (mvitals[support].mvflags & G_GONE)
-                return;
-            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
+            if (!(mvitals[support].mvflags & G_GONE)
+                && enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -184,9 +180,8 @@ int x, y, n, mmflags;
             }
         } else if (is_drow(mtmp->data)) {
             support = PM_DROW_CLERIC;
-            if (mvitals[support].mvflags & G_GONE)
-                return;
-            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
+            if (!(mvitals[support].mvflags & G_GONE)
+                && enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -198,9 +193,8 @@ int x, y, n, mmflags;
             }
         } else if (is_tortle(mtmp->data)) {
             support = PM_TORTLE_SHAMAN;
-            if (mvitals[support].mvflags & G_GONE)
-                return;
-            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
+            if (!(mvitals[support].mvflags & G_GONE)
+                && enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -212,9 +206,8 @@ int x, y, n, mmflags;
             }
         } else if (is_giant(mtmp->data)) {
             support = PM_HILL_GIANT_SHAMAN;
-            if (mvitals[support].mvflags & G_GONE)
-                return;
-            if (enexto(&mm, mm.x, mm.y, &mons[support])) {
+            if (!(mvitals[support].mvflags & G_GONE)
+                && enexto(&mm, mm.x, mm.y, &mons[support])) {
                 mon = makemon(&mons[support],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -235,9 +228,8 @@ int x, y, n, mmflags;
            handling is called for */
         if (mtmp->data == &mons[PM_DEER]) {
             leader = PM_STAG;
-            if (mvitals[leader].mvflags & G_GONE)
-                return;
-            if (enexto(&mm, mm.x, mm.y, &mons[leader])) {
+            if (!(mvitals[leader].mvflags & G_GONE)
+                && enexto(&mm, mm.x, mm.y, &mons[leader])) {
                 mon = makemon(&mons[leader],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -256,9 +248,8 @@ int x, y, n, mmflags;
         } else if (mtmp->data == &mons[PM_SKELETON]
                    && u.ulevel >= 10) {
             leader = PM_SKELETON_WARRIOR;
-            if (mvitals[leader].mvflags & G_GONE)
-                return;
-            if (enexto(&mm, mm.x, mm.y, &mons[leader])) {
+            if (!(mvitals[leader].mvflags & G_GONE)
+                && enexto(&mm, mm.x, mm.y, &mons[leader])) {
                 mon = makemon(&mons[leader],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -275,9 +266,8 @@ int x, y, n, mmflags;
                      || is_rat(mtmp->data)
                      || is_spider(mtmp->data)))
                 leader = little_to_big(leader);
-            if (mvitals[leader].mvflags & G_GONE)
-                return;
-            if (enexto(&mm, mm.x, mm.y, &mons[leader])) {
+            if (!(mvitals[leader].mvflags & G_GONE)
+                && enexto(&mm, mm.x, mm.y, &mons[leader])) {
                 mon = makemon(&mons[leader],
                               mm.x, mm.y, (mmflags | MM_NOGRP));
                 if (mon) {
@@ -812,6 +802,14 @@ extern struct inv_sub inv_subs[];
 
 extern int FDECL(isqrt, (int));
 
+/* File-scope so they retain within-call uniqueness, but reset at
+   the top of ini_mon_inv() so state doesn't leak between mplayer
+   creations in the same game session (NH 3.7 u_init.c parity) */
+static NEARDATA short nocreate = STRANGE_OBJECT;
+static NEARDATA short nocreate2 = STRANGE_OBJECT;
+static NEARDATA short nocreate3 = STRANGE_OBJECT;
+static NEARDATA short nocreate4 = STRANGE_OBJECT;
+
 STATIC_OVL void
 ini_mon_inv(mtmp, origtrop, chance)
 struct monst *mtmp;
@@ -823,6 +821,8 @@ unsigned short chance;
     struct trobj *trop = &temptrop;
     int otyp;
 
+    nocreate = nocreate2 = nocreate3 = nocreate4 = STRANGE_OBJECT;
+
     memcpy(&temptrop, origtrop, sizeof(struct trobj));
 
     while (origtrop->trclass) {
@@ -831,10 +831,6 @@ unsigned short chance;
             if (otyp != UNDEF_TYP) {
                 obj = mksobj(otyp, TRUE, FALSE);
             } else { /* UNDEF_TYP */
-                static NEARDATA short nocreate = STRANGE_OBJECT;
-                static NEARDATA short nocreate2 = STRANGE_OBJECT;
-                static NEARDATA short nocreate3 = STRANGE_OBJECT;
-                static NEARDATA short nocreate4 = STRANGE_OBJECT;
                 /*
                  * For random objects, do not create certain overly powerful
                  * items: wand of wishing, ring of levitation, or the
@@ -1478,9 +1474,9 @@ struct monst *mtmp;
                         m_initthrow(mtmp, CROSSBOW_BOLT, 30);
                     }
 
-                do {
-                    randwand = rn2(7);
-                } while (randwand > 5 && rn2(14));
+                    do {
+                        randwand = rn2(7);
+                    } while (randwand > 5 && rn2(14));
                     switch (randwand) {
                     case 1:
                         randwand = WAN_MAGIC_MISSILE;
@@ -2012,8 +2008,10 @@ struct monst *mtmp;
         } else if (mm == PM_MINER) {
             (void) mongets(mtmp, PICK_AXE);
             otmp = mksobj(LANTERN, TRUE, FALSE);
-            (void) mpickobj(mtmp, otmp);
-            begin_burn(otmp, FALSE);
+            /* mpickobj returns 1 if otmp was merged/freed; only
+               touch otmp when it survives the call intact */
+            if (!mpickobj(mtmp, otmp))
+                begin_burn(otmp, FALSE);
         } else if (mm == PM_ALHOON && !rn2(3)) {
             otmp = mksobj(rn2(3) ? ATHAME : QUARTERSTAFF, TRUE,
                           rn2(13) ? FALSE : TRUE);
@@ -2424,8 +2422,10 @@ struct monst *mtmp;
     }
 
     /* Drow mercenary types have a higher chance of
-       their weapons being coated in drow poison */
-    for (; otmp; otmp = otmp->nobj) {
+       their weapons being coated in drow poison.
+       Restart from minvent: most racial branches add weapons
+       via mongets() which prepends without updating local otmp */
+    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
         if (otmp->oclass == WEAPON_CLASS) {
             if (!rn2(3) && is_drow_weapon(otmp)
                 && is_poisonable(otmp))
@@ -2971,16 +2971,58 @@ xchar x, y; /* clone's preferred location or 0 (near mon) */
 
     m2->mundetected = 0;
     m2->mtrapped = 0;
-    m2->mentangled = 0;
     m2->mcloned = 1;
     m2->minvent = (struct obj *) 0; /* objects don't clone */
     m2->mw = (struct obj *) 0;
     m2->mw2 = (struct obj *) 0;
     m2->mleashed = 0;
-    /* Max HP the same, but current HP halved for both.  The caller
+    /* Defensive: long-worm callers must allocate a new wormno
+       via get_wormno()/initworm() after clone_mon returns, else
+       both monsters would walk the same wtails[] chain */
+    m2->wormno = 0;
+    /* Clones start fresh: clear all transient state that wouldn't
+       have a coherent decrement path on the clone (the timer-tick
+       loop in mon.c only processes one monster per turn, so any
+       inherited timeout would be permanent on the clone). Mirrors
+       the polymorph reset list in zap.c poly_obj/newcham path */
+    m2->mcansee = 1;
+    m2->mblinded = 0;
+    m2->mstun = 0;
+    m2->mconf = 0;
+    m2->msick = 0;
+    m2->msicktime = 0;
+    m2->mwither = 0;
+    m2->mdiseased = 0;
+    m2->mdiseasetime = 0;
+    m2->mentangled = 0;
+    m2->mentangletime = 0;
+    m2->mberserk = 0;
+    m2->minsects = 0;
+    m2->uexp = 0;
+    /* Elemental vulnerability debuffs (cast by monsters via spells) -
+       each is a uchar timer; without reset they'd never decrement */
+    m2->vuln_fire = 0;
+    m2->vuln_cold = 0;
+    m2->vuln_elec = 0;
+    m2->vuln_acid = 0;
+    /* Active state / summons / protection */
+    m2->msummoned = 0;
+    m2->mprotection = 0;
+    m2->mprottime = 0;
+    m2->mbreakboulder = 0;
+    /* Item- and spell-conferred extrinsics (Reflection, Barkskin,
+       Stoneskin, Levitate, Jumping) plus their per-effect timeouts */
+    m2->mextrinsics = 0L;
+    m2->mreflecttime = 0;
+    m2->mbarkskintime = 0;
+    m2->mstoneskintime = 0;
+    m2->mlevitatetime = 0;
+    m2->mjumptime = 0;
+    /* Max HP the same, but current HP halved for both. The caller
      * might want to override this by halving the max HP also.
      * When current HP is odd, the original keeps the extra point.
-     * We know original has more than 1 HP, so both end up with at least 1.
+     * We know original has more than 1 HP, so both end up with at
+     * least 1.
      */
     m2->mhpmax = mon->mhpmax;
     m2->mhp = mon->mhp / 2;
@@ -3410,7 +3452,7 @@ long mmflags;
         mtmp->mtrapseen = (1L << (TRAPDOOR - 1));
     /* quest leader and nemesis both know about all trap types */
     if (ptr->msound == MS_LEADER || ptr->msound == MS_NEMESIS)
-        mtmp->mtrapseen = ~0;
+        mtmp->mtrapseen = ~0L;
 
     place_monster(mtmp, x, y);
     mtmp->mcansee = mtmp->mcanmove = TRUE;
@@ -3733,7 +3775,7 @@ long mmflags;
             put_saddle_on_mon(otmp, mtmp);
         }
         /* sometimes saddled monsters come barded */
-        if (mtmp && which_armor(mtmp, W_SADDLE)) {
+        if (which_armor(mtmp, W_SADDLE)) {
             if (!rn2(100) && can_wear_barding(mtmp)
                 && !which_armor(mtmp, W_BARDING)) {
                 struct obj *otmp = mksobj(rn2(4) ? BARDING
@@ -4127,10 +4169,10 @@ struct permonst *ptr;
     }
 
     if (is_mplayer(ptr)) {
-	tmp = rn1(5, u.ulevel - 2);
-	if (tmp < 1) tmp = 1;
-	if (tmp > 30) tmp = 30;
-	return tmp;
+        tmp = rn1(5, u.ulevel - 2);
+        if (tmp < 1) tmp = 1;
+        if (tmp > 30) tmp = 30;
+        return tmp;
     }
 
     if ((tmp = ptr->mlevel) > 49)
@@ -4686,6 +4728,9 @@ struct monst *mtmp;
         return;
     mx = mtmp->mx;
     my = mtmp->my;
+    /* defensive: caller must place monster before invoking us */
+    if (!isok(mx, my))
+        return;
     typ = levl[mx][my].typ;
     /* only valid for INSIDE of room */
     roomno = levl[mx][my].roomno - ROOMOFFSET;

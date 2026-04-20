@@ -347,7 +347,7 @@ struct monst *mtmp;
             rptr->mflags1 |= M1_FLY;
         /* all except draugr/vampire */
         if (rptr->mrace != MH_ZOMBIE
-            || rptr->mrace != MH_VAMPIRE)
+            && rptr->mrace != MH_VAMPIRE)
             mtmp->mintrinsics |= MR_FIRE;
         break;
     case PM_KNIGHT:
