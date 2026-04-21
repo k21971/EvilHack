@@ -4274,7 +4274,8 @@ struct obj *obj;
                               && (!(resists_ston(mon) || defended(mon, AD_STON))
                                   && cures_stoning(mon, obj, TRUE)));
         if (typ == EGG)
-            return (boolean) touch_petrifies(&mons[obj->corpsenm]);
+            return (boolean) (obj->corpsenm != NON_PM
+                              && touch_petrifies(&mons[obj->corpsenm]));
         if (is_royaljelly(obj) && mon->data == &mons[PM_HONEY_BADGER])
             return TRUE;
         break;
@@ -4880,9 +4881,12 @@ boolean by_you; /* true: if mon kills itself, hero gets credit/blame */
         if (otyp != STRANGE_OBJECT)
             makeknown(otyp);
     }
-    /* use up monster's next move */
-    mon->movement -= NORMAL_SPEED;
-    mon->mlstmv = monstermoves;
+    /* use up monster's next move (if mintrap didn't kill it via
+       FIRE_TRAP_SET) */
+    if (!DEADMONSTER(mon)) {
+        mon->movement -= NORMAL_SPEED;
+        mon->mlstmv = monstermoves;
+    }
     return res;
 }
 

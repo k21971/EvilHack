@@ -1778,7 +1778,11 @@ int dieroll;
                         struct trap *web = maketrap(mon->mx, mon->my, WEB);
                         if (web) {
                             mintrap(mon);
-                            if (has_erid(mon) && mon->mtrapped) {
+                            /* web traps don't kill, but DEADMONSTER guard
+                               is cheap insurance in case mintrap() ever
+                               grows a lethal side effect on this path */
+                            if (!DEADMONSTER(mon)
+                                && has_erid(mon) && mon->mtrapped) {
                                 if (canseemon(mon))
                                     pline("%s falls off %s %s!",
                                           Monnam(mon), mhis(mon),
@@ -3777,7 +3781,11 @@ do_rust:
             struct trap *web = maketrap(mdef->mx, mdef->my, WEB);
             if (web) {
                 mintrap(mdef);
-                if (has_erid(mdef) && mdef->mtrapped) {
+                /* web traps don't kill, but DEADMONSTER guard is
+                   cheap insurance in case mintrap() ever grows a
+                   lethal side effect on this path */
+                if (!DEADMONSTER(mdef)
+                    && has_erid(mdef) && mdef->mtrapped) {
                     if (canseemon(mdef))
                         pline("%s falls off %s %s!",
                               Monnam(mdef), mhis(mdef), l_monnam(ERID(mdef)->mon_steed));

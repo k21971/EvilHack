@@ -1498,6 +1498,8 @@ int x, y;
            traps independently */
         if (!mtmp->wormno) {
             (void) mintrap(mtmp); /* check for new trap at destination */
+            if (DEADMONSTER(mtmp))
+                return; /* trap killed mtmp; rest of rloc_to is UAF */
         }
     }
 

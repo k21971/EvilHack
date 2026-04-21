@@ -1673,7 +1673,10 @@ const char *mesg;
             tin = costly_tin(COST_OPEN);
             goto use_up_tin;
         } else if (!Upolyd && Race_if(PM_DRAUGR)) {
-            if (vegan(&mons[tin->corpsenm])) {
+            /* spinach/empty tins have corpsenm == NON_PM; they are
+               vegan by construction and Draugrs can't eat them either */
+            if (tin->corpsenm == NON_PM
+                || vegan(&mons[tin->corpsenm])) {
                 You("cannot eat that!");
                 if (flags.verbose)
                     You("discard the open tin.");

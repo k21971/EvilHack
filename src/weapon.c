@@ -947,9 +947,12 @@ struct obj *obest;
         }
 
         if (otmp->otyp == x
-            /* never select non-cockatrice corpses */
+            /* never select non-cockatrice corpses/eggs; generic
+               eggs (corpsenm == NON_PM) can't petrify, skip them
+               too, and avoid reading &mons[-1] as UB */
             && !((x == CORPSE || x == EGG)
-                 && !touch_petrifies(&mons[otmp->corpsenm]))
+                 && (otmp->corpsenm == NON_PM
+                     || !touch_petrifies(&mons[otmp->corpsenm])))
             /* never select a weapon made of a hated material */
             && !mon_hates_material(mtmp, otmp->material)
             && !(is_priest(mtmp->data)

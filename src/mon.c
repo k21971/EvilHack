@@ -1852,10 +1852,13 @@ struct monst *mtmp;
                    || (otmp->otyp == AMULET_OF_STRANGULATION
                        || otmp->otyp == RIN_SLOW_DIGESTION)
                    /* cockatrice corpses handled above; this
-                      touch_petrifies() check catches eggs */
+                      touch_petrifies() check catches eggs.
+                      Generic eggs (corpsenm == NON_PM) can't
+                      petrify, guard to avoid &mons[-1] UB */
                    || ((otmp->otyp == CORPSE || otmp->otyp == EGG
                         || otmp->globby)
-                       && ((touch_petrifies(&mons[otmp->corpsenm])
+                       && ((otmp->corpsenm != NON_PM
+                            && touch_petrifies(&mons[otmp->corpsenm])
                             && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
                            || (otmp->corpsenm == PM_GREEN_SLIME
                                && !slimeproof(mtmp->data))))) {
@@ -2052,10 +2055,13 @@ struct monst *mtmp;
             /* do nothing--neither eaten nor engulfed */
             continue;
 
-        /* inedible items -- engulf these */
+        /* inedible items -- engulf these. Generic eggs
+           (corpsenm == NON_PM) can't petrify, guard to avoid
+           &mons[-1] UB */
         } else if (((otmp->otyp == CORPSE || otmp->otyp == EGG
                      || otmp->globby)
-                    && ((touch_petrifies(&mons[otmp->corpsenm])
+                    && ((otmp->corpsenm != NON_PM
+                         && touch_petrifies(&mons[otmp->corpsenm])
                          && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
                         || (otmp->corpsenm == PM_GREEN_SLIME
                             && !slimeproof(mtmp->data))))) {
