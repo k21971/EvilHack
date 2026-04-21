@@ -5243,4 +5243,5 @@ The following changes to date are:
 - Fix: multiple issues in makemon.c during code review
 - Fix: multiple issues in mplayer.c via code review
 - Fix: multiple issues in dog.c via code review
+- Fix: NULL mksobj() return could crash put_saddle/barding_on_mon
 

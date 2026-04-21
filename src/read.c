@@ -3511,14 +3511,16 @@ struct _create_particular_data *d;
         if (d->saddled && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)) {
             struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
 
-            put_saddle_on_mon(otmp, mtmp);
+            if (otmp)
+                put_saddle_on_mon(otmp, mtmp);
         }
         if (d->barded && can_wear_barding(mtmp) && !which_armor(mtmp, W_BARDING)) {
             struct obj *otmp = mksobj(rn2(4) ? BARDING
                                              : rn2(3) ? SPIKED_BARDING
                                                       : BARDING_OF_REFLECTION, TRUE, FALSE);
 
-            put_barding_on_mon(otmp, mtmp);
+            if (otmp)
+                put_barding_on_mon(otmp, mtmp);
         }
         if (d->invisible) {
             mon_set_minvis(mtmp);

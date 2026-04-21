@@ -85,7 +85,8 @@ int pm;             /* steed */
     if (can_saddle(mount) && !which_armor(mtmp, W_SADDLE)) {
         struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
 
-        put_saddle_on_mon(otmp, mount);
+        if (otmp)
+            put_saddle_on_mon(otmp, mount);
     }
 
     /* if the monster steed has a saddle, there's a chance it's wearing
@@ -97,7 +98,8 @@ int pm;             /* steed */
                                              : rn2(3) ? SPIKED_BARDING
                                                       : BARDING_OF_REFLECTION, TRUE, FALSE);
 
-            put_barding_on_mon(otmp, mount);
+            if (otmp)
+                put_barding_on_mon(otmp, mount);
         }
     }
 }
@@ -722,6 +724,8 @@ put_saddle_on_mon(saddle, mtmp)
 struct obj *saddle;
 struct monst *mtmp;
 {
+    if (!saddle) /* defense-in-depth against mksobj() NULL return */
+        return;
     if (!can_saddle(mtmp) || which_armor(mtmp, W_SADDLE))
         return;
     if (mpickobj(mtmp, saddle))
@@ -737,6 +741,8 @@ put_barding_on_mon(barding, mtmp)
 struct obj *barding;
 struct monst *mtmp;
 {
+    if (!barding) /* defense-in-depth against mksobj() NULL return */
+        return;
     if (!can_wear_barding(mtmp) || which_armor(mtmp, W_BARDING))
         return;
     if (mpickobj(mtmp, barding))

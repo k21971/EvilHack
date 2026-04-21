@@ -3772,7 +3772,8 @@ long mmflags;
             && !which_armor(mtmp, W_SADDLE)) {
             struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
 
-            put_saddle_on_mon(otmp, mtmp);
+            if (otmp)
+                put_saddle_on_mon(otmp, mtmp);
         }
         /* sometimes saddled monsters come barded */
         if (which_armor(mtmp, W_SADDLE)) {
@@ -3782,7 +3783,8 @@ long mmflags;
                                                  : rn2(3) ? SPIKED_BARDING
                                                           : BARDING_OF_REFLECTION, TRUE, FALSE);
 
-                put_barding_on_mon(otmp, mtmp);
+                if (otmp)
+                    put_barding_on_mon(otmp, mtmp);
             }
         }
     } else {
