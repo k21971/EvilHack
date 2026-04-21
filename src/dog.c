@@ -180,7 +180,12 @@ boolean you;
                 if (mndx == NON_PM) /* just in case */
                     continue;
             }
-
+            /* guard against corrupted save / bones / future caller
+               feeding an out-of-range PM before indexing mons[] */
+            if (mndx < LOW_PM || mndx >= NUMMONS) {
+                impossible("make_familiar: bad corpsenm %d", mndx);
+                break; /* mtmp is null */
+            }
             pm = &mons[mndx];
             /* activating a figurine provides one way to exceed the
                maximum number of the target critter created--unless
@@ -718,8 +723,11 @@ boolean with_you;
                that we know that the current endgame levels always
                build upwards and never have any exclusion subregion
                inside their TELEPORT_REGION settings. */
-            xlocale = rn1(updest.hx - updest.lx + 1, updest.lx);
-            ylocale = rn1(updest.hy - updest.ly + 1, updest.ly);
+            int xspan = max(1, updest.hx - updest.lx + 1);
+            int yspan = max(1, updest.hy - updest.ly + 1);
+
+            xlocale = rn1(xspan, updest.lx);
+            ylocale = rn1(yspan, updest.ly);
             break;
         }
         /* find the arrival portal */
@@ -781,6 +789,8 @@ boolean with_you;
     } /* moved a bit */
 
     mtmp->mx = 0; /*(already is 0)*/
+    /* my holds up/down + W-tower encoding during the migration window,
+       consumed by m_into_limbo() if placement fails below */
     mtmp->my = xyflags;
     if (xlocale)
         failed_to_place = !mnearto(mtmp, xlocale, ylocale, FALSE);
@@ -955,6 +965,8 @@ long nmv; /* number of moves */
             if (otmp->otyp == AMULET_OF_YENDOR
                 || otmp->otyp == FAKE_AMULET_OF_YENDOR) {
                 obj_extract_self(otmp);
+                /* mpickobj() may merge otmp into a stack and free it;
+                   the break below ensures otmp is not touched after */
                 (void) mpickobj(mtmp, otmp);
                 break;
             }
@@ -1013,8 +1025,13 @@ boolean pets_only; /* true for ascension or final escape */
             /* monster won't follow if it hasn't noticed you yet */
             && !(mtmp->mstrategy & STRAT_WAITFORU)) {
             stay_behind = FALSE;
-            if (mtmp->mtrapped)
+            if (mtmp->mtrapped) {
                 (void) mintrap(mtmp); /* try to escape */
+                /* fire/polymorph/land-mine traps can kill a low-HP pet;
+                   don't drag a dead mtmp through to relmon() below */
+                if (DEADMONSTER(mtmp))
+                    continue;
+            }
             if (mtmp == u.usteed) {
                 /* make sure steed is eligible to accompany hero */
                 mtmp->mtrapped = 0; /* escape trap */
@@ -1213,7 +1230,11 @@ struct obj *obj;
 
     switch (obj->oclass) {
     case FOOD_CLASS:
-        if (obj->otyp == CORPSE || obj->otyp == TIN || obj->otyp == EGG)
+        /* spinach/empty tins and random-fallback tins carry corpsenm==NON_PM;
+           &mons[-1] is OOB. fptr stays NULL for those and downstream checks
+           tolerate it (macro-guarded pointer compares / short-circuit) */
+        if ((obj->otyp == CORPSE || obj->otyp == TIN || obj->otyp == EGG)
+            && obj->corpsenm != NON_PM)
             fptr = &mons[obj->corpsenm];
 
         if (obj->otyp == CORPSE && is_rider(fptr))
@@ -1751,7 +1772,8 @@ struct monst *mtmp;
         mtmp->mtame--;
 
     if (!mtmp->mtame
-        && (Aggravate_monster || Conflict || rn2(EDOG(mtmp)->abuse + 1))) {
+        && (Aggravate_monster || Conflict
+            || (!mtmp->isminion && rn2(EDOG(mtmp)->abuse + 1)))) {
         mtmp->mpeaceful = 0;
         set_malign(mtmp);
         newsym(mtmp->mx, mtmp->my); /* update display */
@@ -1813,24 +1835,28 @@ gain_guardian_steed()
             EDOG(mtmp)->hungrytime = 1000 + monstermoves;
             mtmp->mstrategy &= ~STRAT_APPEARMSG;
             if (!Blind)
-                pline("The Red Horse appears near you.");
+                pline_The("Red Horse appears near you.");
             else
                 You_feel("the presence of the Red Horse near you.");
             /* make it strong enough vs. endgame foes */
             mtmp->mhp = mtmp->mhpmax =
                 d((int) mtmp->m_lev, 10) + 30 + rnd(30);
-            otmp = mksobj(SADDLE, TRUE, FALSE);
-            put_saddle_on_mon(otmp, mtmp);
-            bless(otmp);
-            otmp->dknown = otmp->bknown = otmp->rknown = 1;
+            if ((otmp = mksobj(SADDLE, TRUE, FALSE)) != 0) {
+                put_saddle_on_mon(otmp, mtmp);
+                bless(otmp);
+                otmp->dknown = otmp->bknown = otmp->rknown = 1;
+            }
             /* chance of wearing barding */
             if (!rn2(3)) {
                 struct obj *otmp2 = mksobj(rn2(2) ? SPIKED_BARDING
-                                                  : BARDING_OF_REFLECTION, TRUE, FALSE);
+                                                  : BARDING_OF_REFLECTION,
+                                           TRUE, FALSE);
 
-                put_barding_on_mon(otmp2, mtmp);
-                bless(otmp2);
-                otmp2->dknown = otmp2->bknown = otmp2->rknown = 1;
+                if (otmp2) {
+                    put_barding_on_mon(otmp2, mtmp);
+                    bless(otmp2);
+                    otmp2->dknown = otmp2->bknown = otmp2->rknown = 1;
+                }
             }
         }
     }
