@@ -5078,10 +5078,6 @@ struct obj *no_wish;
                     mntmp = genus(mntmp, 1);
                 set_corpsenm(otmp, mntmp);
             }
-            if (zombo && zombie_form(&mons[mntmp])) {
-                (void) start_timer(rn1(5, 10), TIMER_OBJECT,
-                                   ZOMBIFY_MON, obj_to_any(otmp));
-            }
             break;
         case EGG:
             mntmp = can_be_hatched(mntmp);
@@ -5103,6 +5099,16 @@ struct obj *no_wish;
             otmp->spe = ishistoric ? STATUE_HISTORIC : 0;
             break;
         }
+    }
+
+    /* "zombifying" applies even when the wish lacked a valid
+       species; gate on otmp->corpsenm (mksobj guarantees it is
+       a real PM) so the timer matches what zombify_mon() will
+       look up on fire */
+    if (zombo && typ == CORPSE
+        && zombie_form(&mons[otmp->corpsenm])) {
+        (void) start_timer(rn1(5, 10), TIMER_OBJECT,
+                           ZOMBIFY_MON, obj_to_any(otmp));
     }
 
     /* set blessed/cursed -- setting the fields directly is safe

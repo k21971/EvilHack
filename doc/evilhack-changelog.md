@@ -5245,4 +5245,5 @@ The following changes to date are:
 - Fix: multiple issues in dog.c via code review
 - Fix: NULL mksobj() return could crash put_saddle/barding_on_mon
 - Fix: mons[NON_PM] undefined behavior and mintrap-kill use-after-free
+- Fix: zombifying wish modifier mismatched corpse species
 
