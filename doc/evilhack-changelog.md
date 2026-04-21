@@ -5246,4 +5246,5 @@ The following changes to date are:
 - Fix: NULL mksobj() return could crash put_saddle/barding_on_mon
 - Fix: mons[NON_PM] undefined behavior and mintrap-kill use-after-free
 - Fix: zombifying wish modifier mismatched corpse species
+- Fix: multiple issues in mklev.c via code review
 

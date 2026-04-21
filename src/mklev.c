@@ -147,6 +147,7 @@ boolean is_room;
     croom->ly = lowy;
     croom->hy = hiy;
     croom->rtype = rtype;
+    croom->orig_rtype = rtype;
     croom->doorct = 0;
     /* if we're not making a vault, doorindex will still be 0
      * if we are, we'll have problems adding niches to the previous room
@@ -155,8 +156,19 @@ boolean is_room;
     croom->fdoor = doorindex;
     croom->irregular = FALSE;
 
+    /* natural rooms default to filled and joined; sp_lev rewrites
+       these as needed via build_room()/REGION processing */
+    croom->needfill = 1;
+    croom->needjoining = 1;
+    croom->resident = (struct monst *) 0;
+
     croom->nsubrooms = 0;
-    croom->sbrooms[0] = (struct mkroom *) 0;
+    {
+        int sbi;
+
+        for (sbi = 0; sbi < MAX_SUBROOMS; sbi++)
+            croom->sbrooms[sbi] = (struct mkroom *) 0;
+    }
     if (!special) {
         for (x = lowx - 1; x <= hix + 1; x++)
             for (y = lowy - 1; y <= hiy + 1; y += (hiy - lowy + 2)) {
@@ -178,10 +190,10 @@ boolean is_room;
             levl[hix + 1][lowy - 1].typ = TRCORNER;
             levl[lowx - 1][hiy + 1].typ = BLCORNER;
             levl[hix + 1][hiy + 1].typ = BRCORNER;
-            wallification(lowx - 1, lowy - 1, hix + 1, hiy + 1);
-        } else { /* a subroom */
-            wallification(lowx - 1, lowy - 1, hix + 1, hiy + 1);
         }
+        /* subrooms share the parent's corners, so only full rooms set
+           TLCORNER/etc. above; wallification runs either way */
+        wallification(lowx - 1, lowy - 1, hix + 1, hiy + 1);
     }
 }
 
@@ -248,11 +260,9 @@ rndvault_gen_load()
         if (!fd)
             return;
 
+        /* alloc() panics on OOM, so the pointer here is non-NULL */
         rndvault_gen =
             (struct _rndvault_gen *) alloc(sizeof(struct _rndvault_gen));
-        if (!rndvault_gen)
-            goto bailout;
-
         rndvault_gen->n_vaults = 0;
         rndvault_gen->vaults = NULL;
 
@@ -273,7 +283,6 @@ rndvault_gen_load()
             }
         }
 
-    bailout:
         (void) dlb_fclose(fd);
     }
 }
@@ -331,7 +340,7 @@ makerooms()
                 rooms[nroom].hx = -1;
             }
         } else {
-            char protofile[64];
+            char protofile[BUFSZ];
             char *fnam = rndvault_getname();
 
             if (fnam) {
@@ -403,7 +412,11 @@ boolean nxcor;
     yy = cc.y;
     tx = tt.x - dx;
     ty = tt.y - dy;
-    if (nxcor && levl[xx + dx][yy + dy].typ)
+    /* finddpos may land cc on an edge coord (e.g. ly-1 == 0) whose
+       neighbor in the corridor direction is off-map; guard before
+       deref */
+    if (nxcor
+        && (!isok(xx + dx, yy + dy) || levl[xx + dx][yy + dy].typ))
         return;
     if (okdoor(xx, yy) || !nxcor)
         dodoor(xx, yy, croom);
@@ -603,6 +616,9 @@ int trap_type;
     int dy, xx, yy;
     struct trap *ttmp;
 
+    if (!nroom)
+        return;
+
     if (doorindex < DOORMAX) {
         while (vct--) {
             aroom = &rooms[rn2(nroom)];
@@ -781,6 +797,13 @@ clear_level_structures()
     level.flags.wizard_bones = 0;
     level.flags.corrmaze = 0;
 
+    /* fully reset rooms[] and (via the same backing store) subrooms[]
+       so that sp_lev-only fields (needfill, needjoining, orig_rtype,
+       resident, sbrooms[]) do not carry over from the previous level.
+       Stale .resident in particular is a UAF risk: the prior level's
+       monsters have been freed by now, and shop_keeper() reads this
+       pointer to find the resident shopkeeper. */
+    (void) memset((genericptr_t) rooms, 0, sizeof rooms);
     nroom = 0;
     rooms[0].hx = -1;
     nsubroom = 0;
@@ -826,11 +849,16 @@ makelevel()
             makemaz("minefill");
             return;
         } else if (In_quest(&u.uz)) {
-            char fillname[9];
+            char fillname[16];
             s_level *loc_lev;
 
             Sprintf(fillname, "%s-loca", urole.filecode);
             loc_lev = find_level(fillname);
+            /* find_level() returns NULL when the named proto isn't
+               in sp_levchn; without this guard loc_lev->dlevel.dlevel
+               would segfault on any role whose -loca level is missing */
+            if (!loc_lev)
+                panic("find_level failed for quest filler: %s", fillname);
 
             Sprintf(fillname, "%s-fil", urole.filecode);
             Strcat(fillname,
@@ -877,30 +905,30 @@ makelevel()
         croom = &rooms[rn2(nroom)];
     } while (!croom->needjoining && ++tryct < 500);
     if (!Is_botlevel(&u.uz)) {
+        /* if somexyspace failed, pos is effectively undefined;
+           fall back to an unconstrained room-interior coord */
         if (!somexyspace(croom, &pos, 0)) {
-            if (!is_damp_terrain(pos.x, pos.y)) {
-                pos.x = somex(croom);
-                pos.y = somey(croom);
-            }
+            pos.x = somex(croom);
+            pos.y = somey(croom);
         }
         mkstairs(pos.x, pos.y, 0, croom); /* down */
     }
     if (nroom > 1) {
         troom = croom;
         tryct = 0;
+        /* pick from every room; the while loop rejects troom so we
+           don't need the rn2(nroom - 1) bias. With nroom == 2 and
+           troom at index 0, rn2(nroom - 1) always returned 0,
+           retried the tryct out, and colocated both stairs */
         do {
-            croom = &rooms[rn2(nroom - 1)];
+            croom = &rooms[rn2(nroom)];
         } while ((!croom->needjoining || (croom == troom)) && ++tryct < 500);
     }
 
     if (u.uz.dlevel != 1) {
         if (!somexyspace(croom, &pos, 0)) {
-            if (!somexy(croom, &pos)) {
-                if (!is_damp_terrain(pos.x, pos.y)) {
-                    pos.x = somex(croom);
-                    pos.y = somey(croom);
-                }
-            }
+            pos.x = somex(croom);
+            pos.y = somey(croom);
         }
         mkstairs(pos.x, pos.y, 1, croom); /* up */
     }
@@ -1017,7 +1045,12 @@ makelevel()
             }
         }
 
-        if (level.flags.has_beehive == 1) {
+        /* pick a fresh pos inside the beehive room; the previous block
+           only populates pos on the amulet/non-rn2(3) path, so reading
+           pos here unconditionally would read uninitialized or
+           previous-iteration coords */
+        if (level.flags.has_beehive == 1
+            && somexyspace(croom, &pos, 0)) {
             if (!occupied(pos.x, pos.y) && rn2(5))
                 (void) makemon(&mons[PM_HONEY_BADGER], pos.x, pos.y, NO_MM_FLAGS);
         }
@@ -1274,7 +1307,7 @@ struct mkroom *croom;
 #ifdef SPECIALIZATION
     schar rtype = croom->rtype;
 #endif
-    int subindex, nsubrooms = croom->nsubrooms;
+    int subindex, nsubs = croom->nsubrooms;
 
     /* skip the room if already done; i.e. a shop handled out of order */
     /* also skip if this is non-rectangular (it _must_ be done already) */
@@ -1315,7 +1348,7 @@ struct mkroom *croom;
             }
     }
     /* subrooms */
-    for (subindex = 0; subindex < nsubrooms; subindex++)
+    for (subindex = 0; subindex < nsubs; subindex++)
 #ifdef SPECIALIZATION
         topologize(croom->sbrooms[subindex], (boolean) (rtype != OROOM));
 #else
@@ -1358,13 +1391,16 @@ coord *mp;
             }
         }
     }
-    /* sanity‐check: after both room‐and‐corridor attempts,
+    /* sanity-check: after both room-and-corridor attempts,
        mp must land on either a room floor or a corridor,
-       otherwise call impossible */
+       otherwise call impossible. On failure, plant a sentinel
+       coord so the caller's levl[] writes can be skipped */
     if (!isok(mp->x, mp->y)
         || (levl[mp->x][mp->y].typ != CORR
-            && !IS_ROOM(levl[mp->x][mp->y].typ)))
+            && !IS_ROOM(levl[mp->x][mp->y].typ))) {
         impossible("Can't place branch!");
+        mp->x = mp->y = 0;
+    }
 
     return croom;
 }
@@ -1422,14 +1458,16 @@ xchar x, y; /* location */
         dest = &br->end1;
     }
 
+    /* find_branch_room() may have failed to land mp on a valid tile;
+       it signals this by zeroing m, so guard the levl[] writes here */
     if (br->type == BR_PORTAL) {
-        if (!occupied(x, y))
+        if (isok(x, y) && !occupied(x, y))
             mkportal(x, y, dest->dnum, dest->dlevel);
-    } else if (make_stairs) {
+    } else if (make_stairs && isok(x, y)) {
         sstairs.sx = x;
         sstairs.sy = y;
-        sstairs.up =
-            (char) on_level(&br->end1, &u.uz) ? br->end1_up : !br->end1_up;
+        sstairs.up = on_level(&br->end1, &u.uz) ? br->end1_up
+                                                : !br->end1_up;
         assign_level(&sstairs.tolev, dest);
         sstairs_room = br_room;
 
@@ -1502,6 +1540,9 @@ boolean
 occupied(x, y)
 xchar x, y;
 {
+    if (!isok(x, y))
+        return TRUE;
+
     return (boolean) (t_at(x, y) || IS_FURNITURE(levl[x][y].typ)
                       || is_lava(x, y) || is_pool(x, y)
                       || invocation_pos(x, y));
@@ -1744,6 +1785,7 @@ coord *tm;
             } else {
                 impossible("fresh trap %d without ammo?", t->ttyp);
             }
+            break;
         default:
             /* no item dropped by the trap */
             break;
@@ -1883,9 +1925,13 @@ struct mkroom *croom;
 {
     coord m;
 
-    if (mazeflag)
-        (void) somexyspace(NULL, &m, 16);
-    else if (!somexyspace(croom, &m, 8))
+    if (mazeflag) {
+        /* if mazexy can't produce a room/corr tile in 2000 tries, m
+           holds the last rejected coord; writing FOUNTAIN over it
+           would clobber a wall/door/trap, so bail out instead */
+        if (!somexyspace(NULL, &m, 16))
+            return;
+    } else if (!somexyspace(croom, &m, 8))
         return;
 
     /* Put a fountain at m.x, m.y */
@@ -1904,9 +1950,10 @@ struct mkroom *croom;
 {
     coord m;
 
-    if (mazeflag)
-        (void) somexyspace(NULL, &m, 16);
-    else if (!somexyspace(croom, &m, 8))
+    if (mazeflag) {
+        if (!somexyspace(NULL, &m, 16))
+            return;
+    } else if (!somexyspace(croom, &m, 8))
         return;
 
     /* Put a forge at m.x, m.y */
@@ -2108,7 +2155,7 @@ mkgate()
     /* we know the exact location of the stairs leading
        back up, no need to setup a for loop to find them */
     xupstair = 0; /* remove stairs mask */
-    if ((levl[a][b].typ = STAIRS))
+    if (levl[a][b].typ == STAIRS)
         levl[a][b].typ = ROOM;
     if (cansee(a, b))
         newsym(a, b);
@@ -2152,7 +2199,7 @@ int dist;
     struct trap *ttmp;
     struct obj *otmp;
     boolean make_rocks;
-    struct rm *lev = &levl[x][y];
+    struct rm *lev;
     struct monst *mon;
 
     /* clip at existing map borders if necessary */
@@ -2163,6 +2210,10 @@ int dist;
             panic("mkinvpos: <%d,%d> (%d) off map edge!", x, y, dist);
         return;
     }
+    /* form the levl[] pointer only after the bounds check; taking
+       the address of an out-of-range array element is UB (UBSan
+       -fsanitize=pointer-overflow) even before any deref */
+    lev = &levl[x][y];
 
     /* clear traps */
     if ((ttmp = t_at(x, y)) != 0)

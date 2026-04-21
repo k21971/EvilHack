@@ -1081,11 +1081,12 @@ int xy_flags;
             && (is_pool_or_lava(pos->x, pos->y)
                 || IS_FURNITURE(levl[pos->x][pos->y].typ)))
             isok = FALSE;
+        /* reject if the tile isn't one of the allowed floor types */
         if ((xy_flags & 2)
-            && ((levl[pos->x][pos->y].typ != CORR)
-                || (levl[pos->x][pos->y].typ != ROOM)
-                || (levl[pos->x][pos->y].typ != SAND)
-                || (levl[pos->x][pos->y].typ != GRASS)))
+            && levl[pos->x][pos->y].typ != CORR
+            && levl[pos->x][pos->y].typ != ROOM
+            && levl[pos->x][pos->y].typ != SAND
+            && levl[pos->x][pos->y].typ != GRASS)
             isok = FALSE;
         if ((xy_flags & 4) && (sobj_at(BOULDER, pos->x, pos->y)))
             isok = FALSE;
