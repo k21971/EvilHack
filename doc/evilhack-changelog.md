@@ -5247,4 +5247,5 @@ The following changes to date are:
 - Fix: mons[NON_PM] undefined behavior and mintrap-kill use-after-free
 - Fix: zombifying wish modifier mismatched corpse species
 - Fix: multiple issues in mklev.c via code review
+- Fix: plain natural OROOMs should not be filled by makelevel()
 

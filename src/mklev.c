@@ -156,10 +156,11 @@ boolean is_room;
     croom->fdoor = doorindex;
     croom->irregular = FALSE;
 
-    /* natural rooms default to filled and joined; sp_lev rewrites
-       these as needed via build_room()/REGION processing */
-    croom->needfill = 1;
-    croom->needjoining = 1;
+    /* sp_lev-only fields: leave needfill at 0 (FILL_NONE) so plain
+       natural OROOMs stay empty by design. sp_lev's REGION handler
+       and rndvault path set needfill=1 for rooms that should be
+       filled; mkshop/mkzoo/etc. stock their special rooms inline.
+       needjoining is set only for non-special rooms below */
     croom->resident = (struct monst *) 0;
 
     croom->nsubrooms = 0;
@@ -170,6 +171,7 @@ boolean is_room;
             croom->sbrooms[sbi] = (struct mkroom *) 0;
     }
     if (!special) {
+        croom->needjoining = 1;
         for (x = lowx - 1; x <= hix + 1; x++)
             for (y = lowy - 1; y <= hiy + 1; y += (hiy - lowy + 2)) {
                 levl[x][y].typ = HWALL;
