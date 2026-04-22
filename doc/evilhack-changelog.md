@@ -5250,4 +5250,5 @@ The following changes to date are:
 - Fix: plain natural OROOMs should not be filled by makelevel()
 - Fix: Infidel amulet-chase triggers from turn 1 instead of after
   Idol of Moloch imbuement
+- Fix: panic when wielded trap item self-destructs during setting
 

@@ -3383,6 +3383,7 @@ set_trap()
            the chance of breaking the trap */
         if (rn2(16) > ACURR(A_DEX)) {
             Your("trap falls apart!");
+            setnotworn(otmp); /* in case trap was wielded when set */
             delobj(otmp);
         }
     }
