@@ -601,7 +601,7 @@ nh_timeout()
                 timeout = slow_timeout;
         }
 
-        if (u.uhave.amulet || u.ugangr)
+        if ((u.uhave.amulet && u.uachieve.amulet) || u.ugangr)
             timeout = timeout / 2;
 
         if (moves >= u.luckturn + timeout) {

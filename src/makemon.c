@@ -3598,13 +3598,14 @@ long mmflags;
         break;
     case S_EYE:
         if (mtmp->data == &mons[PM_BEHOLDER]) {
-            if (rn2(5) && !u.uhave.amulet)
+            /* chase-active: see mklev.c rationale re Infidel uachieve */
+            if (rn2(5) && !(u.uhave.amulet && u.uachieve.amulet))
                 mtmp->msleeping = 1;
         }
         break;
     case S_NYMPH:
         if (!is_satyr(ptr)) {
-            if (rn2(5) && !u.uhave.amulet)
+            if (rn2(5) && !(u.uhave.amulet && u.uachieve.amulet))
                 mtmp->msleeping = 1;
         }
         break;
@@ -3692,7 +3693,7 @@ long mmflags;
     if (in_mklev) {
         if ((is_ndemon(ptr) || mndx == PM_WUMPUS
              || mndx == PM_LONG_WORM || mndx == PM_GIANT_EEL)
-            && !u.uhave.amulet && rn2(5))
+            && !(u.uhave.amulet && u.uachieve.amulet) && rn2(5))
             mtmp->msleeping = TRUE;
     } else {
         if (byyou) {

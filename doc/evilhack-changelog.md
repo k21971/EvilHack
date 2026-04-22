@@ -5248,4 +5248,6 @@ The following changes to date are:
 - Fix: zombifying wish modifier mismatched corpse species
 - Fix: multiple issues in mklev.c via code review
 - Fix: plain natural OROOMs should not be filled by makelevel()
+- Fix: Infidel amulet-chase triggers from turn 1 instead of after
+  Idol of Moloch imbuement
 

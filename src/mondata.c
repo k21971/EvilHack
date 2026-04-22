@@ -1255,10 +1255,12 @@ struct monst *mtmp;
     /* some monsters will follow even while intending to flee from you */
     if (mtmp->mtame || mtmp->iswiz || is_fshk(mtmp))
         return TRUE;
-    /* stalking types follow, but won't when fleeing unless you hold
-       the Amulet */
+    /* stalking types follow, but won't when fleeing unless the
+       Amulet chase is active (Infidels need the Idol imbued too,
+       not just the starting Amulet in inventory) */
     return (boolean) ((mtmp->data->mflags2 & M2_STALK)
-                      && (!mtmp->mflee || u.uhave.amulet));
+                      && (!mtmp->mflee
+                          || (u.uhave.amulet && u.uachieve.amulet)));
 }
 
 static const short grownups[][2] = {

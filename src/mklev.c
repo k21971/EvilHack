@@ -1037,7 +1037,10 @@ makelevel()
            while a monster was on the stairs. Conclusion:
            we have to check for monsters on the stairs anyway. */
 
-        if (u.uhave.amulet || !rn2(3)) {
+        /* gate on uachieve as well: Infidels carry the real Amulet
+           from turn 1 (starting inventory) but the chase shouldn't
+           begin until they imbue the Idol of Moloch at the altar */
+        if ((u.uhave.amulet && u.uachieve.amulet) || !rn2(3)) {
             if (somexyspace(croom, &pos, 0)) {
                 tmonst = makemon((struct permonst *) 0, pos.x, pos.y,
                                  MM_NOGRP | MM_MPLAYEROK);
