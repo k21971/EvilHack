@@ -117,6 +117,8 @@ struct context_info {
     int rndencode;          /* randomized escape sequence introducer */
     long next_attrib_check; /* next attribute check */
     long seer_turn;         /* when random clairvoyance will next kick in */
+    long timeout_start;     /* turn at which monster-spawn rate curve
+                               begins climbing (per-game random, hidden) */
     long stethoscope_move;  /* when a stethoscope was last used */
     short stethoscope_movement; /* to track multiple moves on same turn */
     long next_moloch_offering;  /* Moloch demands regular sacrifices */

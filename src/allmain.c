@@ -136,8 +136,6 @@ boolean resuming;
     boolean monscanmove = FALSE;
     struct obj *was_shield;
 
-    /* don't make it obvious when monsters will start speeding up */
-    int timeout_start = rnd(10000) + 25000;
     int past_clock;
     boolean elf_regen = elf_can_regen();
     boolean orc_regen = orc_can_regen();
@@ -181,6 +179,10 @@ boolean resuming;
            clairvoyance (wizard with cornuthaum perhaps?); without this,
            first "random" occurrence would always kick in on turn 1 */
         context.seer_turn = (long) rnd(30);
+        /* don't make it obvious when monsters will start speeding up;
+           saved with the rest of context so the curve survives restore
+           instead of re-rolling each session */
+        context.timeout_start = (long) rnd(10000) + 25000L;
         init_mchest();
         u.umovement = NORMAL_SPEED;  /* giants and tortles put their best foot forward */
     }
@@ -271,17 +273,17 @@ boolean resuming;
                         monclock = MAX_MONGEN_RATE;
                     } else {
                         /* spawn rate slowly climbs after 30,000 turns */
-                        past_clock = moves - timeout_start;
+                        past_clock = moves - context.timeout_start;
                         if (past_clock > 0)
                             monclock = (MIN_MONGEN_RATE * 30000) / (past_clock + 30000);
-                        /* various events will double the normal spawn rate */
+                        /* various events will double the normal spawn rate;
+                           each of these is sticky so the floor never regresses */
                         if (monclock > (MIN_MONGEN_RATE / 2)) {
                             if (u.uevent.gehennom_entered) /* entering gehennom */
                                 monclock = (MIN_MONGEN_RATE / 2);
                             else if (u.uevent.uhand_of_elbereth) /* crowned */
                                 monclock = (MIN_MONGEN_RATE / 2);
-                            else if (u.ulevel < 14 /* accepting the quest early */
-                                     && (quest_status.got_quest || quest_status.got_thanks))
+                            else if (quest_status.got_quest_early) /* accepted quest early */
                                 monclock = (MIN_MONGEN_RATE / 2);
                         }
                         /* entering the first tier demon boss level */

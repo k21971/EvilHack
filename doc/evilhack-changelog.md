@@ -5252,4 +5252,5 @@ The following changes to date are:
   Idol of Moloch imbuement
 - Fix: panic when wielded trap item self-destructs during setting
 - Fix: multiple issues in mkroom.c via code review
+- Fix: monster-spawn rate could regress after sticky events or save
 

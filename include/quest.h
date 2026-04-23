@@ -5,22 +5,23 @@
 #ifndef QUEST_H
 #define QUEST_H
 
-struct q_score {              /* Quest "scorecard" */
-    Bitfield(first_start, 1); /* only set the first time */
-    Bitfield(met_leader, 1);  /* has met the leader */
-    Bitfield(not_ready, 3);   /* rejected due to alignment, etc. */
-    Bitfield(pissed_off, 1);  /* got the leader angry */
-    Bitfield(got_quest, 1);   /* got the quest assignment */
-    Bitfield(killed_leader, 1); /* killed the quest leader */
+struct q_score {                   /* Quest "scorecard" */
+    Bitfield(first_start, 1);      /* only set the first time */
+    Bitfield(met_leader, 1);       /* has met the leader */
+    Bitfield(not_ready, 3);        /* rejected due to alignment, etc. */
+    Bitfield(pissed_off, 1);       /* got the leader angry */
+    Bitfield(got_quest, 1);        /* got the quest assignment */
+    Bitfield(got_quest_early, 1);  /* got the quest while u.ulevel < 14 */
+    Bitfield(killed_leader, 1);    /* killed the quest leader */
 
-    Bitfield(first_locate, 1); /* only set the first time */
-    Bitfield(met_intermed, 1); /* used if the locate is a person. */
-    Bitfield(got_final, 1);    /* got the final quest assignment */
+    Bitfield(first_locate, 1);     /* only set the first time */
+    Bitfield(met_intermed, 1);     /* used if the locate is a person. */
+    Bitfield(got_final, 1);        /* got the final quest assignment */
 
-    Bitfield(made_goal, 3);      /* # of times on goal level */
-    Bitfield(met_nemesis, 1);    /* has met the nemesis before */
-    Bitfield(killed_nemesis, 1); /* set when the nemesis is killed */
-    Bitfield(in_battle, 1);      /* set when nemesis fighting you */
+    Bitfield(made_goal, 3);        /* # of times on goal level */
+    Bitfield(met_nemesis, 1);      /* has met the nemesis before */
+    Bitfield(killed_nemesis, 1);   /* set when the nemesis is killed */
+    Bitfield(in_battle, 1);        /* set when nemesis fighting you */
 
     Bitfield(cheater, 1);          /* set if cheating detected */
     Bitfield(touched_artifact, 1); /* for a special message */
