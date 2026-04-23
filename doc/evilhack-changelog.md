@@ -5251,4 +5251,5 @@ The following changes to date are:
 - Fix: Infidel amulet-chase triggers from turn 1 instead of after
   Idol of Moloch imbuement
 - Fix: panic when wielded trap item self-destructs during setting
+- Fix: multiple issues in mkroom.c via code review
 

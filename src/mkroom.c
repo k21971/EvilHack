@@ -202,7 +202,7 @@ gottype:
         if (sroom->hx < 0)
             return;
         if (sroom - rooms >= nroom) {
-            pline("rooms not closed by -1?");
+            impossible("rooms[] not closed by hx=-1 sentinel?");
             return;
         }
         if (sroom->rtype != OROOM)
@@ -217,7 +217,8 @@ gottype:
 
         for (x = sroom->lx - 1; x <= sroom->hx + 1; x++)
             for (y = sroom->ly - 1; y <= sroom->hy + 1; y++)
-                levl[x][y].lit = 1;
+                if (isok(x, y))
+                    levl[x][y].lit = 1;
         sroom->rlit = 1;
     }
 
@@ -256,6 +257,8 @@ boolean strict;
     struct mkroom *sroom;
     int i = nroom;
 
+    if (nroom <= 0)
+        return (struct mkroom *) 0;
     for (sroom = &rooms[rn2(nroom)]; i--; sroom++) {
         if (sroom == &rooms[nroom])
             sroom = &rooms[0];
@@ -290,7 +293,7 @@ void
 mk_zoo_thronemon(x,y)
 int x,y;
 {
-    int i = rnd(level_difficulty());
+    int i = rnd(max(level_difficulty(), 1));
     int pm = (i > 9) ? PM_OGRE_ROYAL
         : (i > 5) ? PM_ELVEN_ROYAL
         : (i > 2) ? PM_DWARF_ROYAL
@@ -338,9 +341,14 @@ struct mkroom *sroom;
         }
         i = 100;
         do { /* don't place throne on top of stairs */
-            (void) somexy(sroom, &mm);
-            tx = mm.x;
-            ty = mm.y;
+            if (somexy(sroom, &mm)) {
+                tx = mm.x;
+                ty = mm.y;
+            } else {
+                tx = sroom->lx;
+                ty = sroom->ly;
+                break;
+            }
         } while (occupied((xchar) tx, (xchar) ty) && --i > 0);
     throne_placed:
         mk_zoo_thronemon(tx, ty);
@@ -355,9 +363,12 @@ struct mkroom *sroom;
         if (sroom->irregular) {
             /* center might not be valid, so put queen/mother elsewhere */
             if ((int) levl[tx][ty].roomno != rmno || levl[tx][ty].edge) {
-                (void) somexy(sroom, &mm);
-                tx = mm.x;
-                ty = mm.y;
+                if (somexy(sroom, &mm)) {
+                    tx = mm.x;
+                    ty = mm.y;
+                }
+                /* else: keep the invalid center; the main monster
+                   loop's roomno/edge filter will skip the queen tile */
             }
         }
         break;
@@ -458,7 +469,7 @@ struct mkroom *sroom;
                 if (i >= goldlim)
                     i = 5 * level_difficulty();
                 goldlim -= i;
-                (void) mkgold((long) rn1(i, 10), sx, sy);
+                (void) mkgold((long) rn1(max(i, 1), 10), sx, sy);
                 break;
             case MORGUE:
                 if (!rn2(5))
@@ -533,18 +544,22 @@ struct mkroom *sroom;
     case COURT: {
         struct obj *chest, *gold;
         levl[tx][ty].typ = THRONE;
-        (void) somexy(sroom, &mm);
+        if (!somexy(sroom, &mm)) {
+            /* fall back to throne tile; chest sits on throne */
+            mm.x = tx;
+            mm.y = ty;
+        }
         gold = mksobj(GOLD_PIECE, TRUE, FALSE);
-        gold->quan = (long) rn1(50 * level_difficulty(), 10);
+        gold->quan = (long) rn1(max(50 * level_difficulty(), 1), 10);
         gold->owt = weight(gold);
         /* the royal coffers */
-	if (depth(&u.uz) > 15) {
-	    chest = mksobj_at(IRON_SAFE, mm.x, mm.y, TRUE, FALSE);
+        if (depth(&u.uz) > 15) {
+            chest = mksobj_at(IRON_SAFE, mm.x, mm.y, TRUE, FALSE);
         } else if (depth(&u.uz) > 10 && !rn2(10)) {
             chest = mksobj_at(CRYSTAL_CHEST, mm.x, mm.y, TRUE, FALSE);
-	} else {
-	    chest = mksobj_at(CHEST, mm.x, mm.y, TRUE, FALSE);
-	}
+        } else {
+            chest = mksobj_at(CHEST, mm.x, mm.y, TRUE, FALSE);
+        }
         add_to_container(chest, gold);
         chest->owt = weight(chest);
         chest->spe = 2; /* so it can be found later */
@@ -598,7 +613,7 @@ int mm_flags;
 STATIC_OVL struct permonst *
 morguemon()
 {
-    int i = rn2(100), hd = rn2(level_difficulty());
+    int i = rn2(100), hd = rn2(max(level_difficulty(), 1));
     int v = In_vecna_branch(&u.uz) ? 22 : 40;
 
     if (hd > 10 && i < 10) {
@@ -679,6 +694,8 @@ struct mkroom *croom; /* NULL == choose random room */
     coord pos;
     int i, tried, tryct = 0;
 
+    if (!croom && nroom <= 0)
+        return;
     while ((tryct++ < 25) && !maderoom) {
         struct mkroom *sroom = croom ? croom : &rooms[rn2(nroom)];
 
@@ -727,7 +744,7 @@ struct mkroom *croom; /* NULL == choose random room */
                 && !t_at(pos.x, pos.y) && (pmon = mkclass(S_NYMPH, 0))) {
                 struct monst *mtmp = makemon(pmon, pos.x, pos.y, NO_MM_FLAGS);
 
-                if (rn2(2))
+                if (mtmp && rn2(2))
                     mtmp->msleeping = 1;
                 i--;
             }
@@ -743,7 +760,8 @@ struct mkroom *croom; /* NULL == choose random room */
                 && !t_at(pos.x, pos.y) && (pmon = mkclass(S_PLANT, 0))) {
                 struct monst *mtmp = makemon(pmon, pos.x, pos.y, NO_MM_FLAGS);
 
-                mtmp->mpeaceful = 0;
+                if (mtmp)
+                    mtmp->mpeaceful = 0;
                 i--;
             }
         }
@@ -761,6 +779,8 @@ struct mkroom *croom; /* NULL == choose random room */
     coord pos;
     int i, tried, tryct = 0;
 
+    if (!croom && nroom <= 0)
+        return;
     while ((tryct++ < 25) && !maderoom) {
         struct mkroom *sroom = croom ? croom : &rooms[rn2(nroom)];
 
@@ -838,6 +858,8 @@ mkswamp() /* Michiel Huisjes & Fred de Wilde */
     struct mkroom *sroom;
     int sx, sy, i, eelct = 0;
 
+    if (nroom <= 0)
+        return;
     for (i = 0; i < 5; i++) { /* turn up to 5 rooms swampy */
         sroom = &rooms[rn2(nroom)];
         if (sroom->hx < 0 || sroom->rtype != OROOM || has_upstairs(sroom)
@@ -1073,8 +1095,14 @@ int xy_flags;
 
     do {
         isok = TRUE;
-        if (croom && !somexy(croom, pos))
+        if (croom && !somexy(croom, pos)) {
+            /* no valid interior tile; only mazexy (flag 16) can still
+               populate pos, otherwise bail instead of spinning with
+               stale coords */
+            if (!(xy_flags & 16))
+                return FALSE;
             isok = FALSE;
+        }
         if ((xy_flags & 16))
             mazexy(pos);
         if ((xy_flags & 1)
@@ -1137,7 +1165,7 @@ schar type;
 struct permonst *
 courtmon()
 {
-    int i = rn2(60) + rn2(3 * level_difficulty());
+    int i = rn2(60) + rn2(max(3 * level_difficulty(), 1));
 
     if (i > 100)
         return mkclass(S_DRAGON, 0);
@@ -1235,6 +1263,12 @@ struct mkroom *r;
     short i;
 
     mread(fd, (genericptr_t) r, sizeof(struct mkroom));
+    if (r->nsubrooms < 0 || r->nsubrooms > MAX_SUBROOMS)
+        panic("rest_room: bogus nsubrooms %d (max %d)",
+              r->nsubrooms, MAX_SUBROOMS);
+    if (nsubroom + r->nsubrooms > MAXNROFROOMS)
+        panic("rest_room: subroom total %d exceeds %d",
+              nsubroom + r->nsubrooms, MAXNROFROOMS);
     for (i = 0; i < r->nsubrooms; i++) {
         r->sbrooms[i] = &subrooms[nsubroom];
         rest_room(fd, &subrooms[nsubroom]);
@@ -1253,6 +1287,9 @@ int fd;
     short i;
 
     mread(fd, (genericptr_t) &nroom, sizeof(nroom));
+    if (nroom < 0 || nroom > MAXNROFROOMS)
+        panic("rest_rooms: bogus nroom %d (max %d)",
+              nroom, MAXNROFROOMS);
     nsubroom = 0;
     for (i = 0; i < nroom; i++) {
         rest_room(fd, &rooms[i]);
@@ -1361,6 +1398,12 @@ int sym;
         break;
     case S_pool:
         typ = POOL;
+        break;
+    case S_puddle:
+        typ = PUDDLE;
+        break;
+    case S_sewage:
+        typ = SEWAGE;
         break;
     case S_ice:
         typ = ICE;
