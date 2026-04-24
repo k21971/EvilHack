@@ -286,7 +286,11 @@ boolean flag;
 {
     int x2, y2;
     boolean horiz;
-    boolean lava = levl[x][y].typ == LAVAPOOL; /* assume initialized map */
+    boolean lava;
+
+    if (!isok(x, y))
+        return FALSE;
+    lava = levl[x][y].typ == LAVAPOOL; /* assume initialized map */
 
     x2 = x;
     y2 = y;
@@ -311,7 +315,7 @@ boolean flag;
         x2--;
         break;
     }
-    if (!IS_WALL(levl[x2][y2].typ))
+    if (!isok(x2, y2) || !IS_WALL(levl[x2][y2].typ))
         return FALSE;
     if (flag) { /* We want the bridge open */
         levl[x][y].typ = DRAWBRIDGE_DOWN;
@@ -908,7 +912,7 @@ int x, y, result1, result2;
     int max_result;
 
     if (result1 < 0 || result2 < 0) {
-        /* unique monster was crushed - always destroy */
+        /* unique monster survived - bridge destroyed */
         destroy_drawbridge(x, y);
         return;
     }
@@ -982,7 +986,7 @@ int x, y;
         nokiller();
         return;
     }
-    if (OBJ_AT(x, y) && !Deaf)
+    if ((OBJ_AT(x, y) || OBJ_AT(x2, y2)) && !Deaf)
         You_hear("smashing and crushing.");
     (void) revive_nasty(x, y, (char *) 0);
     (void) revive_nasty(x2, y2, (char *) 0);
@@ -1210,7 +1214,8 @@ int x, y;
                    XKILL_NOCORPSE | (e_inview ? XKILL_GIVEMSG
                                               : XKILL_NOMSG),
                    CRUSHING); /*no corpse*/
-            if (levl[etmp1->ex][etmp1->ey].typ == MOAT)
+            if (levl[etmp1->ex][etmp1->ey].typ == MOAT
+                || levl[etmp1->ex][etmp1->ey].typ == LAVAPOOL)
                 do_entity(etmp1);
         }
     }
