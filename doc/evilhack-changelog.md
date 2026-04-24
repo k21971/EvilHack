@@ -5253,4 +5253,5 @@ The following changes to date are:
 - Fix: panic when wielded trap item self-destructs during setting
 - Fix: multiple issues in mkroom.c via code review
 - Fix: monster-spawn rate could regress after sticky events or save
+- Fix: multiple issues in mkmap.c via code review
 

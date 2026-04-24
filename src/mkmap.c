@@ -41,11 +41,15 @@ init_fill(bg_typ, fg_typ)
 schar bg_typ, fg_typ;
 {
     int i, j;
-    long limit, count;
+    long limit, count, tryct;
 
     limit = (WIDTH * HEIGHT * 2) / 5;
     count = 0;
-    while (count < limit) {
+    tryct = 0;
+    /* safety cap: init_map() floods the play area with bg_typ before
+       this runs, giving ~43% fill ratio, so expected tries < 3x limit;
+       50x cap only trips if a caller skips init_map() */
+    while (count < limit && tryct++ < limit * 50L) {
         i = rn1(WIDTH - 1, 2);
         j = rnd(HEIGHT - 1);
         if (levl[i][j].typ == bg_typ) {
@@ -53,6 +57,8 @@ schar bg_typ, fg_typ;
             count++;
         }
     }
+    if (count < limit)
+        impossible("init_fill: too few bg_typ cells");
 }
 
 STATIC_OVL schar
@@ -166,7 +172,12 @@ boolean anyroom;
 {
     int i;
     int nx;
-    schar fg_typ = levl[sx][sy].typ;
+    schar fg_typ;
+
+    if (!isok(sx, sy))
+        return;
+
+    fg_typ = levl[sx][sy].typ;
 
     /* back up to find leftmost uninitialized location */
     while (sx > 0 && (anyroom ? IS_ROOM(levl[sx][sy].typ)
@@ -181,6 +192,12 @@ boolean anyroom;
     if (sy < min_ry)
         min_ry = sy;
 
+    /* note: the forward scan below uses levl[i][sy].typ == fg_typ even when
+       anyroom is TRUE. anyroom intentionally widens only the back-up so we
+       find the region's leftmost cell; each recursive call then resets
+       fg_typ from its own start tile and fills a single-type contiguous
+       run, with the recursive scan-below/scan-above loops picking up
+       adjacent IS_ROOM tiles of other types via their own fresh fg_typ */
     for (i = sx; i <= WIDTH && levl[i][sy].typ == fg_typ; i++) {
         levl[i][sy].roomno = rmno;
         levl[i][sy].lit = lit;
@@ -292,6 +309,10 @@ schar bg_typ, fg_typ;
                     add_room(min_rx, min_ry, max_rx, max_ry, FALSE, OROOM,
                              TRUE);
                     rooms[nroom - 1].irregular = TRUE;
+                    /* rooms[] has (MAXNROFROOMS + 1) * 2 slots; cap at
+                       MAXNROFROOMS * 2 leaves room for one more add_room()
+                       (which writes the room plus a trailing hx=-1
+                       sentinel one slot beyond) before overflow */
                     if (nroom >= (MAXNROFROOMS * 2))
                         goto joinm;
                 } else {
@@ -441,6 +462,9 @@ unsigned roomno;
             }
     }
 
+    /* maxroom->resident (and other pointer fields) remain aliased with
+       croom, but maxroom->hx=-1 tags the slot invalid so iterations that
+       respect the hx!=-1 sentinel (or bound by nroom) skip it */
     maxroom->hx = -1; /* just like add_room */
 }
 
@@ -463,10 +487,12 @@ boolean notpool, lit;
     cy = y1;
 
     while (count++ < 2000) {
-      	int rnum = levl[cx][cy].roomno - ROOMOFFSET;
-      	chance = 0;
+        int rnum = levl[cx][cy].roomno - ROOMOFFSET;
+        chance = 0;
 
-        if (rnum >= 0 && rooms[rnum].rtype != OROOM)
+        /* rnum < nroom guards against stale/uninitialized roomno bits
+           indexing past the live rooms on this level */
+        if (rnum >= 0 && rnum < nroom && rooms[rnum].rtype != OROOM)
             chance = 0;
         /* damp terrain replacing stairs currently isn't
            possible as makeriver() is only called during
@@ -485,8 +511,8 @@ boolean notpool, lit;
             if (notpool) {
                 levl[cx][cy].typ = SEWAGE;
                 levl[cx][cy].lit = lit;
-      	    } else {
-      	        levl[cx][cy].typ = !rn2(3) ? POOL
+            } else {
+                levl[cx][cy].typ = !rn2(3) ? POOL
                                            : !rn2(3) ? PUDDLE : MOAT;
                 if (levl[cx][cy].typ == POOL
                     || levl[cx][cy].typ == MOAT)
@@ -494,7 +520,7 @@ boolean notpool, lit;
                 else
                     levl[cx][cy].lit = lit;
             }
-      	}
+        }
 
         if (cx == x2 && cy == y2)
             break;
@@ -532,7 +558,7 @@ boolean notpool, lit;
             break;
         case 8: dx++;
             break;
-      	}
+        }
 
         if (dx < -1)
             dx = -1;
@@ -546,8 +572,10 @@ boolean notpool, lit;
         cx += dx;
         cy += dy;
 
-        if (cx < 0)
-            cx = 0;
+        /* clamp cx to >= 1; column 0 is the off-screen border per
+           isok() convention (y=0 is valid and stays) */
+        if (cx < 1)
+            cx = 1;
         else if (cx >= COLNO)
             cx = COLNO - 1;
         if (cy < 0)
@@ -564,14 +592,16 @@ boolean notpool, lit;
         cy = 1 + rn2(ROWNO - 2);
         if (levl[cx][cy].typ == POOL || levl[cx][cy].typ == MOAT
             || levl[cx][cy].typ == PUDDLE) {
+            /* max(..., 1) guards rn2(0) UB if pm.h is ever reordered so
+               PM_JELLYFISH and PM_MIND_FLAYER_LARVA become adjacent */
             if (u.uz.dlevel >= 5) {
                 (void) makemon(rn2(20) ? &mons[PM_JELLYFISH +
-                                               rn2(PM_MIND_FLAYER_LARVA - PM_JELLYFISH)]
+                                               rn2(max(PM_MIND_FLAYER_LARVA - PM_JELLYFISH, 1))]
                                        : rn2(8) ? &mons[PM_WATER_MOCCASIN]
                                                 : &mons[PM_WATER_TROLL], cx, cy, NO_MM_FLAGS);
             } else {
                 (void) makemon(&mons[PM_JELLYFISH +
-                               rn2(PM_MIND_FLAYER_LARVA - PM_JELLYFISH)], cx, cy, NO_MM_FLAGS);
+                               rn2(max(PM_MIND_FLAYER_LARVA - PM_JELLYFISH, 1))], cx, cy, NO_MM_FLAGS);
             }
             monstcount--;
         } else if (levl[cx][cy].typ == SEWAGE) {
@@ -598,10 +628,13 @@ boolean lit;
     boolean notpool = rn2(20) < depth(&u.uz);
 
     while (nriv--) {
+        /* avoid column 0 (off-screen border per isok() convention) at
+           both ends of the river walk */
         if (rn2(2))
-            makeriver(0, rn2(ROWNO), COLNO - 1, rn2(ROWNO), notpool, lit);
+            makeriver(1, rn2(ROWNO), COLNO - 1, rn2(ROWNO), notpool, lit);
         else
-            makeriver(rn2(COLNO), 0, rn2(COLNO), ROWNO - 1, notpool, lit);
+            makeriver(1 + rn2(COLNO - 1), 0,
+                      1 + rn2(COLNO - 1), ROWNO - 1, notpool, lit);
     }
 }
 
