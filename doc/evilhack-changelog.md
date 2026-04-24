@@ -5255,4 +5255,5 @@ The following changes to date are:
 - Fix: monster-spawn rate could regress after sticky events or save
 - Fix: multiple issues in mkmap.c via code review
 - Fix: multiple issues in dungeon.c via code review
+- Fix: multiple issues in dig.c via code review
 

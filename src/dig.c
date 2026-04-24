@@ -1786,7 +1786,7 @@ char *msg;
         return FALSE;
     *msg = '\0';
     room = &levl[cc->x][cc->y];
-    ltyp = room->typ, room->flags = 0;
+    ltyp = room->typ;
 
     if (is_pool(cc->x, cc->y) || is_lava(cc->x, cc->y)) {
         /* this is handled by the caller after we return FALSE */
@@ -1854,9 +1854,8 @@ char *msg;
             supporting = "magic chest";
 
         if (supporting) {
-            Sprintf(msg, "The %s%ssupporting structures remain intact.",
-                    supporting ? s_suffix(supporting) : "",
-                    supporting ? " " : "");
+            Sprintf(msg, "The %s supporting structures remain intact.",
+                    s_suffix(supporting));
             return FALSE;
         }
     }
@@ -2445,6 +2444,13 @@ struct monst *mdef, *magr;
             pline("%sA land mine blows up!", !Deaf ? "KAABLAMM!!! " : "");
         }
         blow_up_landmine(trap);
+        /* blow_up_landmine() may free trap: drawbridge destruction,
+           Water/Air level, or liquid-filled detonation site all delete
+           it. Re-acquire; if no pit remains, the hurl attack has
+           nothing to land in */
+        trap = t_at(x, y);
+        if (!trap)
+            return FALSE;
     } else { /* also includes case of no trap there in the first place */
         if (trap) {
             /* Silently delete whatever other sort of trap this is. */
@@ -2494,8 +2500,9 @@ struct monst *mdef, *magr;
          * from being hurled in. */
         if (mintrap(mdef) == 3) { /* 3 == went off level */
             sent_down_hole = TRUE;
-        } else if (is_flyer(mdef->data) || is_floater(mdef->data)
-                   || can_levitate(mdef) || can_fly(mdef)) {
+        } else if (!DEADMONSTER(mdef)
+                   && (is_flyer(mdef->data) || is_floater(mdef->data)
+                       || can_levitate(mdef) || can_fly(mdef))) {
             if (canseemon(mdef))
                 pline("%s %s back up.", Monnam(mdef),
                       (is_flyer(mdef->data) || can_fly(mdef))
