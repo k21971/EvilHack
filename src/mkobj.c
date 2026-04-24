@@ -228,7 +228,9 @@ struct obj *otmp;
     if (Is_candle(otmp))
         return FALSE;
     /* part of a monster's body and produced when it dies */
-    if (otmp->otyp == WORM_TOOTH || otmp->otyp == UNICORN_HORN)
+    if (otmp->otyp == WORM_TOOTH
+        || otmp->otyp == UNICORN_HORN
+        || otmp->otyp == CRYSKNIFE)
         return FALSE;
     /* artifacts cannot be generated eroded  */
     if (otmp->oartifact)
@@ -280,7 +282,9 @@ struct obj *otmp;
           || otmp->oclass == WEAPON_CLASS || is_barding(otmp)))
         return FALSE;
     /* part of a monster's body and produced when it dies */
-    if (otmp->otyp == WORM_TOOTH || otmp->otyp == UNICORN_HORN)
+    if (otmp->otyp == WORM_TOOTH
+        || otmp->otyp == UNICORN_HORN
+        || otmp->otyp == CRYSKNIFE)
         return FALSE;
     /* artifacts cannot be generated with a quality bit */
     if (otmp->oartifact)
@@ -573,7 +577,7 @@ long num;
     obj->quan -= num;
     obj->owt = weight(obj);
     otmp->quan = num;
-    otmp->owt = weight(otmp); /* -= obj->owt ? */
+    otmp->owt = weight(otmp);
 
     context.objsplit.parent_oid = obj->o_id;
     context.objsplit.child_oid = otmp->o_id;
@@ -598,6 +602,9 @@ long num;
     copy_oextra(otmp, obj);
     if (has_omid(otmp))
         free_omid(otmp); /* only one association with m_id*/
+    /* both parent and child keep independent timers after the split;
+       on re-merge the dying side's timers are dropped by obj_stop_timers
+       via dealloc_obj() */
     if (obj->timed)
         obj_split_timers(obj, otmp);
     if (obj_sheds_light(obj))
@@ -810,8 +817,9 @@ struct obj *otmp;
     copy_oextra(dummy, otmp);
     if (has_omid(dummy))
         free_omid(dummy); /* only one association with m_id*/
-    if (Is_candle(dummy))
-        dummy->lamplit = 0;
+    /* dummy is a shop-billing placeholder; never sheds light
+       regardless of the source obj's lit state */
+    dummy->lamplit = 0;
     dummy->owornmask = 0L; /* dummy object is not worn */
     addtobill(dummy, FALSE, TRUE, TRUE);
     if (cost)
@@ -1386,8 +1394,10 @@ int id;
        is of interest when a <foo> corpse revives as a <foo> zombie
        in case they are defined with different mons[].cnutrit values */
     if (obj->otyp == CORPSE && obj->oeaten != 0
-        /* when oeaten is non-zero, index old_id can't be NON_PM
-           and divisor mons[old_id].cnutrit can't be zero */
+        /* defensively enforce the invariant that oeaten != 0 implies
+           both corpsenm values are valid and divisor is non-zero */
+        && old_id != NON_PM && id != NON_PM
+        && mons[old_id].cnutrit != 0
         && mons[old_id].cnutrit != mons[id].cnutrit) {
         /* oeaten and cnutrit are unsigned; theoretically that could
            be 16 bits and the calculation might overflow, so force long */
@@ -1430,8 +1440,16 @@ struct obj *body;
     long age;        /* age of corpse          */
     int rot_adjust;
     short action;
-    struct permonst *mptr = has_omonst(body) ? r_data(OMONST(body))
-                                             : &mons[body->corpsenm];
+    struct permonst *mptr;
+
+    /* guard against &mons[-1] when caller passes a corpse with
+       no omonst snapshot and corpsenm is NON_PM */
+    if (!has_omonst(body) && body->corpsenm == NON_PM) {
+        impossible("start_corpse_timeout: NON_PM corpsenm on body");
+        return;
+    }
+    mptr = has_omonst(body) ? r_data(OMONST(body))
+                            : &mons[body->corpsenm];
 
     /*
      * Note:
@@ -1978,6 +1996,11 @@ unsigned corpstatflags;
     if (ptr) {
         int old_corpsenm = otmp->corpsenm;
 
+        /* direct assignment (vs set_corpsenm()) is safe here because
+           mksobj/mksobj_at produced a fresh corpse with oeaten==0,
+           making set_corpsenm()'s oeaten rescale a no-op; it also lets
+           us keep the special-corpse-only timer restart below rather
+           than set_corpsenm()'s unconditional CORPSE timer restart */
         otmp->corpsenm = monsndx(ptr);
         otmp->owt = weight(otmp);
         if (otmp->otyp == CORPSE && (zombify || otmp->zombie_corpse
@@ -2186,7 +2209,7 @@ place_object(otmp, x, y)
 struct obj *otmp;
 int x, y;
 {
-    struct obj *otmp2 = level.objects[x][y];
+    struct obj *otmp2;
 
     if (!isok(x, y)) { /* validate location */
         void VDECL((*func), (const char *, ...)) PRINTF_F(1, 2);
@@ -2195,7 +2218,9 @@ int x, y;
                : impossible;
         (*func)("place_object: \"%s\" [%d] off map <%d,%d>",
                 safe_typename(otmp->otyp), otmp->where, x, y);
+        return; /* impossible() returns; avoid OOB writes below */
     }
+    otmp2 = level.objects[x][y];
     if (otmp->where != OBJ_FREE)
         panic("place_object: obj \"%s\" [%d] not free",
               safe_typename(otmp->otyp), otmp->where);
@@ -2244,6 +2269,10 @@ xchar x, y;
 {
     struct obj *otmp, *next_obj, *reversed = 0;
 
+    if (!isok(x, y)) {
+        impossible("recreate_pile_at: bad coords <%d,%d>", x, y);
+        return;
+    }
     /* remove all objects at <x,y>, saving a reversed temporary list */
     for (otmp = level.objects[x][y]; otmp; otmp = next_obj) {
         next_obj = otmp->nexthere;
@@ -2272,6 +2301,10 @@ boolean do_buried;
 {
     struct obj *otmp;
 
+    if (!isok(x, y)) {
+        impossible("obj_ice_effects: bad coords <%d,%d>", x, y);
+        return;
+    }
     for (otmp = level.objects[x][y]; otmp; otmp = otmp->nexthere) {
         if (otmp->timed)
             obj_timer_checks(otmp, x, y, 0);
@@ -2666,6 +2699,8 @@ struct obj *obj;
         thrownobj = 0;
     if (obj == kickedobj)
         kickedobj = 0;
+    if (obj == current_wand)
+        current_wand = 0;
 
     if (obj->oextra)
         dealloc_oextra(obj);
@@ -2883,14 +2918,16 @@ const char *mesg;
                 }
                 break;
             }
-            if (obj->globby)
-                check_glob(obj, mesg);
-            if (!valid_obj_material(obj, obj->material)) {
-                char matbuf[BUFSZ];
-                Sprintf(matbuf, "invalid material %d (otyp %d)", obj->material,
-                        obj->otyp);
-                insane_object(obj, ofmt0, matbuf, (struct monst *) 0);
-            }
+        }
+        /* glob and material validation are orthogonal to owornmask;
+           run them on every object regardless of worn state */
+        if (obj->globby)
+            check_glob(obj, mesg);
+        if (!valid_obj_material(obj, obj->material)) {
+            char matbuf[BUFSZ];
+            Sprintf(matbuf, "invalid material %d (otyp %d)", obj->material,
+                    obj->otyp);
+            insane_object(obj, ofmt0, matbuf, (struct monst *) 0);
         }
     }
 }
@@ -3927,11 +3964,12 @@ metal_to_wood(obj, by_you)
 struct obj* obj;
 boolean by_you;
 {
-    int origmat = obj->material;
-    int j = 0, newmat = WOOD;
+    int origmat, newmat = WOOD;
 
     if (!obj)
         return FALSE;
+
+    origmat = obj->material;
 
     /* artifacts, invocation items,
        Amulet of Yendor are off-limits */
@@ -3947,13 +3985,6 @@ boolean by_you;
             pline("%s %s glows briefly, but remains the same.",
                   by_you ? "Your" : "The", simpleonames(obj));
         return FALSE;
-    }
-
-    while (j < 200) {
-        if ((newmat != origmat)
-            && valid_obj_material(obj, newmat))
-            break;
-        j++;
     }
 
     /* make sure the original obj can be made into
@@ -3978,7 +4009,6 @@ boolean by_you;
                   by_you ? "Your" : "The", simpleonames(obj));
         return FALSE;
     }
-    return FALSE;
 }
 
 /* Initialize the material field of an object, possibly randomizing it
