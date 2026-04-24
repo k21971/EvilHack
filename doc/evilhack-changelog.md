@@ -5258,4 +5258,5 @@ The following changes to date are:
 - Fix: multiple issues in dig.c via code review
 - Fix: multiple issues in dbridge.c via code review
 - Fix: multiple issues in mkobj.c via code review
+- Fix: multiple issues in light.c via code review
 

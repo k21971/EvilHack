@@ -60,9 +60,10 @@ anything *id;
 {
     light_source *ls;
 
-    if (range > MAX_RADIUS || range < 0
-        /* camera flash uses radius 0 and passes Null object */
-        || (range == 0 && (type != LS_OBJECT || id->a_obj != 0))) {
+    /* EvilHack does not use the NH 3.7 camera-flash path (which emits
+       a range-0 LS_OBJECT with a NULL id), so tighten the contract:
+       any range outside (0, MAX_RADIUS] is illegal */
+    if (range <= 0 || range > MAX_RADIUS) {
         impossible("new_light_source:  illegal range %d", range);
         return;
     }
@@ -100,10 +101,10 @@ anything *id;
        (in particular: chameleon vs prot. from shape changers) */
     switch (type) {
     case LS_OBJECT:
-        tmp_id.a_uint = id->a_obj->o_id;
+        tmp_id.a_uint = (id && id->a_obj) ? id->a_obj->o_id : 0;
         break;
     case LS_MONSTER:
-        tmp_id.a_uint = id->a_monst->m_id;
+        tmp_id.a_uint = (id && id->a_monst) ? id->a_monst->m_id : 0;
         break;
     default:
         tmp_id.a_uint = 0;
@@ -121,6 +122,9 @@ anything *id;
             else
                 light_base = curr->next;
 
+            /* zero before free so any stale pointer deref segfaults
+               cleanly instead of reading random memory */
+            (void) memset((genericptr_t) curr, 0, sizeof (light_source));
             free((genericptr_t) curr);
             curr = prev; /* retain prev for next loop */
             vision_full_recalc = 1;
@@ -141,16 +145,21 @@ char **cs_rows;
 {
     int x, y, min_x, max_x, max_y, offset, lit_typ;
     char *limits;
-    /* short at_hero_range = 0; */
     light_source *ls;
     char *row;
+
+    /* Note: NetHack 3.7's at_hero_range dedup is intentionally absent
+       here. EvilHack can have TEMP_LIT and TEMP_DARK sources at the
+       hero's tile simultaneously (e.g. an ordinary lamp plus a cursed
+       magic lamp), so skipping duplicates by radius alone loses the
+       dark-lamp classification */
 
     for (ls = light_base; ls; ls = ls->next) {
         ls->flags &= ~LSF_SHOW;
         lit_typ = TEMP_LIT;
 
         /*
-         * Check for moved light sources.  It may be possible to
+         * Check for moved light sources. It may be possible to
          * save some effort if an object has not moved, but not in
          * the current setup -- we need to recalculate for every
          * vision recalc.
@@ -158,39 +167,46 @@ char **cs_rows;
         if (ls->type == LS_OBJECT) {
             if (get_obj_location(ls->id.a_obj, &ls->x, &ls->y, 0))
                 ls->flags |= LSF_SHOW;
-            if (ls->id.a_obj->otyp == MAGIC_LAMP && ls->id.a_obj->cursed)
-                lit_typ = TEMP_DARK;
-            if (ls->id.a_obj->otyp == SHADOW_DRAGON_SCALES)
-                lit_typ = TEMP_DARK;
-            if (Is_dragon_scaled_armor(ls->id.a_obj)
-                && Dragon_armor_to_scales(ls->id.a_obj) == SHADOW_DRAGON_SCALES)
-                lit_typ = TEMP_DARK;
-            if (ls->id.a_obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
-                && (wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)
-                    && !Upolyd && Race_if(PM_DROW)))
-                lit_typ = TEMP_DARK;
         } else if (ls->type == LS_MONSTER) {
             if (get_mon_location(ls->id.a_monst, &ls->x, &ls->y, 0))
                 ls->flags |= LSF_SHOW;
-            if (ls->id.a_monst->data == &mons[PM_SHADOW_DRAGON])
-                lit_typ = TEMP_DARK;
-            if (ls->id.a_monst->data == &mons[PM_BABY_SHADOW_DRAGON])
-                lit_typ = TEMP_DARK;
         }
-
-#if 0 /* disabled for now since light sources at hero location may be a mix of
-         normal and "dark lamps" */
-        /* minor optimization: don't bother with duplicate light sources
-           at hero */
-        if (ls->x == u.ux && ls->y == u.uy) {
-            if (at_hero_range >= ls->range)
-                ls->flags &= ~LSF_SHOW;
-            else
-                at_hero_range = ls->range;
-        }
-#endif
 
         if (ls->flags & LSF_SHOW) {
+            /* classify dark-lamp vs normal light only after we know
+               the source is live and locatable; this keeps the
+               otyp/oartifact derefs behind the LSF_SHOW gate */
+            if (ls->type == LS_OBJECT) {
+                struct obj *lobj = ls->id.a_obj;
+
+                if (lobj->otyp == MAGIC_LAMP && lobj->cursed) {
+                    lit_typ = TEMP_DARK;
+                } else if (lobj->otyp == SHADOW_DRAGON_SCALES) {
+                    lit_typ = TEMP_DARK;
+                } else if (Is_dragon_scaled_armor(lobj)
+                           && (Dragon_armor_to_scales(lobj) == SHADOW_DRAGON_SCALES)) {
+                    lit_typ = TEMP_DARK;
+                } else if (lobj->oartifact == ART_STAFF_OF_THE_ARCHMAGI) {
+                    /* Staff emits darkness for any drow wielder;
+                       drow monsters who wield the Staff see the
+                       same aura as a drow player would */
+                    if (wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)
+                        && !Upolyd && Race_if(PM_DROW)) {
+                        lit_typ = TEMP_DARK;
+                    } else if (lobj->where == OBJ_MINVENT
+                               && lobj->ocarry
+                               && mon_wielding_artifact(lobj->ocarry,
+                                                        ART_STAFF_OF_THE_ARCHMAGI)
+                               && racial_drow(lobj->ocarry)) {
+                        lit_typ = TEMP_DARK;
+                    }
+                }
+            } else if (ls->type == LS_MONSTER) {
+                if (ls->id.a_monst->data == &mons[PM_SHADOW_DRAGON]
+                    || ls->id.a_monst->data == &mons[PM_BABY_SHADOW_DRAGON])
+                    lit_typ = TEMP_DARK;
+            }
+
             /*
              * Walk the points in the circle and see if they are
              * visible from the center.  If so, mark'em.
@@ -357,26 +373,32 @@ int fd, mode, range;
 
     if (release_data(mode)) {
         for (prev = &light_base; (curr = *prev) != 0;) {
+            /* corrupt entry (no id): unlink and free unconditionally
+               so a bogus ls cannot survive the save/restore cycle */
             if (!curr->id.a_monst) {
                 impossible("save_light_sources: no id! [range=%d]", range);
+                *prev = curr->next;
+                (void) memset((genericptr_t) curr, 0, sizeof (light_source));
+                free((genericptr_t) curr);
+                continue;
+            }
+            switch (curr->type) {
+            case LS_OBJECT:
+                is_global = !obj_is_local(curr->id.a_obj);
+                break;
+            case LS_MONSTER:
+                is_global = !mon_is_local(curr->id.a_monst);
+                break;
+            default:
                 is_global = 0;
-            } else
-                switch (curr->type) {
-                case LS_OBJECT:
-                    is_global = !obj_is_local(curr->id.a_obj);
-                    break;
-                case LS_MONSTER:
-                    is_global = !mon_is_local(curr->id.a_monst);
-                    break;
-                default:
-                    is_global = 0;
-                    impossible("save_light_sources: bad type (%d) [range=%d]",
-                               curr->type, range);
-                    break;
-                }
+                impossible("save_light_sources: bad type (%d) [range=%d]",
+                           curr->type, range);
+                break;
+            }
             /* if global and not doing local, or vice versa, remove it */
             if (is_global ^ (range == RANGE_LEVEL)) {
                 *prev = curr->next;
+                (void) memset((genericptr_t) curr, 0, sizeof (light_source));
                 free((genericptr_t) curr);
             } else {
                 prev = &(*prev)->next;
@@ -431,9 +453,10 @@ boolean ghostly;
 {
     char which;
     unsigned nid;
-    light_source *ls;
+    light_source *ls, *nxt, *prev = 0;
 
-    for (ls = light_base; ls; ls = ls->next) {
+    for (ls = light_base; ls; ls = nxt) {
+        nxt = ls->next;
         if (ls->flags & LSF_NEEDS_FIXUP) {
             if (ls->type == LS_OBJECT || ls->type == LS_MONSTER) {
                 if (ghostly) {
@@ -448,14 +471,25 @@ boolean ghostly;
                     which = 'm';
                     ls->id.a_monst = find_mid(nid, FM_EVERYWHERE);
                 }
-                if (!ls->id.a_monst)
+                if (!ls->id.a_monst) {
+                    /* lookup failed: leaving a NULL-id entry in the
+                       list would crash the next do_light_sources() */
                     impossible("relink_light_sources: cant find %c_id %d",
                                which, nid);
+                    if (prev)
+                        prev->next = nxt;
+                    else
+                        light_base = nxt;
+                    (void) memset((genericptr_t) ls, 0, sizeof (light_source));
+                    free((genericptr_t) ls);
+                    continue; /* prev stays on last surviving ls */
+                }
             } else
                 impossible("relink_light_sources: bad type (%d)", ls->type);
 
             ls->flags &= ~LSF_NEEDS_FIXUP;
         }
+        prev = ls;
     }
 }
 
@@ -477,6 +511,29 @@ boolean write_it;
             impossible("maybe_write_ls: no id! [range=%d]", range);
             continue;
         }
+        /* up-front validation: if the id can't be resolved to a live
+           obj/monst, skip it on BOTH the count pass and the write pass
+           so actual==count stays balanced and we don't serialize a
+           stale id to the save file */
+        if (ls->type == LS_OBJECT) {
+            struct obj *otmp = ls->id.a_obj;
+
+            if (!otmp || find_oid(otmp->o_id) != otmp) {
+                impossible(
+                    "maybe_write_ls: orphaned LS_OBJECT, skipping [range=%d]",
+                    range);
+                continue;
+            }
+        } else if (ls->type == LS_MONSTER) {
+            struct monst *mtmp = ls->id.a_monst;
+
+            if (!mtmp || find_mid(mtmp->m_id, FM_EVERYWHERE) != mtmp) {
+                impossible(
+                    "maybe_write_ls: orphaned LS_MONSTER, skipping [range=%d]",
+                    range);
+                continue;
+            }
+        }
         switch (ls->type) {
         case LS_OBJECT:
             is_global = !obj_is_local(ls->id.a_obj);
@@ -486,8 +543,8 @@ boolean write_it;
             break;
         default:
             is_global = 0;
-            impossible("maybe_write_ls: bad type (%d) [range=%d]", ls->type,
-                       range);
+            impossible("maybe_write_ls: bad type (%d) [range=%d]",
+                       ls->type, range);
             break;
         }
         /* if global and not doing local, or vice versa, count it */
@@ -548,16 +605,24 @@ light_source *ls;
                 otmp = ls->id.a_obj;
                 ls->id = zeroany;
                 ls->id.a_uint = otmp->o_id;
-                if (find_oid((unsigned) ls->id.a_uint) != otmp)
-                    impossible("write_ls: can't find obj #%u!",
-                               ls->id.a_uint);
+                /* belt-and-braces: maybe_write_ls already filtered
+                   these, but if we somehow still land here with an
+                   orphaned id, bail before bwrite rather than write
+                   a bogus id to the save file */
+                if (find_oid((unsigned) ls->id.a_uint) != otmp) {
+                    impossible("write_ls: can't find obj #%u!", ls->id.a_uint);
+                    ls->id = arg_save;
+                    return;
+                }
             } else { /* ls->type == LS_MONSTER */
                 mtmp = (struct monst *) ls->id.a_monst;
                 ls->id = zeroany;
                 ls->id.a_uint = mtmp->m_id;
-                if (find_mid((unsigned) ls->id.a_uint, FM_EVERYWHERE) != mtmp)
-                    impossible("write_ls: can't find mon #%u!",
-                               ls->id.a_uint);
+                if (find_mid((unsigned) ls->id.a_uint, FM_EVERYWHERE) != mtmp) {
+                    impossible("write_ls: can't find mon #%u!", ls->id.a_uint);
+                    ls->id = arg_save;
+                    return;
+                }
             }
             ls->flags |= LSF_NEEDS_FIXUP;
             bwrite(fd, (genericptr_t) ls, sizeof(light_source));
@@ -611,15 +676,23 @@ int x, y;
         if (ls->type == LS_OBJECT && ls->x == x && ls->y == y) {
             obj = ls->id.a_obj;
             if (obj_is_burning(obj)) {
-                /* The only way to snuff Sunsword is to unwield it.  Darkness
-                 * scrolls won't affect it.  (If we got here because it was
+                /* The only way to snuff Sunsword is to unwield it. Darkness
+                 * scrolls won't affect it. (If we got here because it was
                  * dropped or thrown inside a monster, this won't matter
-                 * anyway because it will go out when dropped.)
+                 * anyway because it will go out when dropped)
                  */
                 if (artifact_light(obj)
                     || (obj->otyp == MAGIC_LAMP && obj->cursed)
                     || (obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
                         && !Upolyd && Race_if(PM_DROW))
+                    /* a drow monster wielding the Staff gets the
+                       same darkness-scroll immunity as a drow
+                       player wielding it */
+                    || (obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
+                        && obj->where == OBJ_MINVENT
+                        && obj->ocarry
+                        && mon_wielding_artifact(obj->ocarry, ART_STAFF_OF_THE_ARCHMAGI)
+                        && racial_drow(obj->ocarry))
                     || (Is_dragon_armor(obj)
                         && Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES))
                     continue;
@@ -664,6 +737,9 @@ struct obj *src, *dest;
              */
             new_ls = (light_source *) alloc(sizeof(light_source));
             *new_ls = *ls;
+            /* defensive: new_ls always represents a live object,
+               so clear any LSF_NEEDS_FIXUP copied from src */
+            new_ls->flags &= ~LSF_NEEDS_FIXUP;
             if (Is_candle(src)) {
                 /* split candles may emit less light than original group */
                 ls->range = candle_light_range(src);
@@ -839,12 +915,14 @@ wiz_light_sources()
                     (ls->type == LS_OBJECT
                        ? "obj"
                        : ls->type == LS_MONSTER
-                          ? (mon_is_local(ls->id.a_monst)
-                             ? "mon"
-                             : (ls->id.a_monst == &youmonst)
-                                ? "you"
-                                /* migrating monster */
-                                : "<m>")
+                          ? (!ls->id.a_monst
+                             ? "<null>"
+                             : mon_is_local(ls->id.a_monst)
+                                ? "mon"
+                                : (ls->id.a_monst == &youmonst)
+                                   ? "you"
+                                   /* migrating monster */
+                                   : "<m>")
                           : "???"),
                     fmt_ptr(ls->id.a_void));
             putstr(win, 0, buf);
