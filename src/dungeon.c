@@ -209,6 +209,9 @@ int fd;
     mapseen *curr_ms, *last_ms;
 
     mread(fd, (genericptr_t) &n_dgns, sizeof(n_dgns));
+    if (n_dgns <= 0 || n_dgns > MAXDUNGEON)
+        panic("restore_dungeon: bad dungeon count (%d) vs max %d",
+              n_dgns, MAXDUNGEON);
     mread(fd, (genericptr_t) dungeons, sizeof(dungeon) * (unsigned) n_dgns);
     mread(fd, (genericptr_t) &dungeon_topology, sizeof dungeon_topology);
     mread(fd, (genericptr_t) tune, sizeof tune);
@@ -216,6 +219,9 @@ int fd;
     last = branches = (branch *) 0;
 
     mread(fd, (genericptr_t) &count, sizeof(count));
+    if (count < 0 || count > BRANCH_LIMIT)
+        panic("restore_dungeon: bad branch count (%d) vs max %d",
+              count, BRANCH_LIMIT);
     for (i = 0; i < count; i++) {
         curr = (branch *) alloc(sizeof(branch));
         mread(fd, (genericptr_t) curr, sizeof(branch));
@@ -228,7 +234,7 @@ int fd;
     }
 
     mread(fd, (genericptr_t) &count, sizeof(count));
-    if (count >= MAXLINFO)
+    if (count < 0 || count >= MAXLINFO)
         panic("level information count larger (%d) than allocated size",
               count);
     mread(fd, (genericptr_t) level_info,
@@ -236,6 +242,9 @@ int fd;
     mread(fd, (genericptr_t) &inv_pos, sizeof inv_pos);
 
     mread(fd, (genericptr_t) &count, sizeof(count));
+    if (count < 0 || count > MAXLINFO)
+        panic("restore_dungeon: bad mapseen count (%d) vs max %d",
+              count, MAXLINFO);
     last_ms = (mapseen *) 0;
     for (i = 0; i < count; i++) {
         curr_ms = load_mapseen(fd);
@@ -366,7 +375,12 @@ int *adjusted_base;
     int lmax = dungeons[dgn].num_dunlevs;
 
     if (chain >= 0) { /* relative to a special level */
-        s_level *levtmp = pd->final_lev[chain];
+        s_level *levtmp;
+
+        if (chain >= LEV_LIMIT)
+            panic("level_range: chain (%d) out of range (max %d)",
+                  chain, LEV_LIMIT - 1);
+        levtmp = pd->final_lev[chain];
         if (!levtmp)
             panic("level_range: empty chain level!");
 
@@ -972,10 +986,11 @@ init_dungeons()
                     if (on_level(&br->end2, &knox_level))
                         break;
 
-                if (br)
+                if (br) {
                     br->end1.dnum = n_dgns;
-                /* adjust the branch's position on the list */
-                insert_branch(br, TRUE);
+                    /* adjust the branch's position on the list */
+                    insert_branch(br, TRUE);
+                }
             }
         }
     }
@@ -2231,16 +2246,16 @@ int ledger_num;
     bp = mptr->final_resting_place;
     while (bp) {
         bpnext = bp->next;
-        free(bp);
+        free((genericptr_t) bp);
         bp = bpnext;
     }
 
     if (mprev) {
         mprev->next = mptr->next;
-        free(mptr);
+        free((genericptr_t) mptr);
     } else {
         mapseenchn = mptr->next;
-        free(mptr);
+        free((genericptr_t) mptr);
     }
 }
 
@@ -2276,6 +2291,7 @@ int fd;
     branch *curr;
 
     load = (mapseen *) alloc(sizeof *load);
+    (void) memset((genericptr_t) load, 0, sizeof *load);
 
     mread(fd, (genericptr_t) &branchnum, sizeof branchnum);
     for (brindx = 0, curr = branches; curr; curr = curr->next, ++brindx)
@@ -2287,6 +2303,9 @@ int fd;
     mread(fd, (genericptr_t) &load->feat, sizeof load->feat);
     mread(fd, (genericptr_t) &load->flags, sizeof load->flags);
     mread(fd, (genericptr_t) &load->custom_lth, sizeof load->custom_lth);
+    if (load->custom_lth > (unsigned) BUFSZ)
+        panic("load_mapseen: bad custom_lth (%u) vs max %d",
+              load->custom_lth, BUFSZ);
     if (load->custom_lth) {
         /* length doesn't include terminator (which isn't saved & restored) */
         load->custom = (char *) alloc(load->custom_lth + 1);
@@ -2310,7 +2329,7 @@ long *total_count, *total_size;
     char buf[BUFSZ], hdrbuf[QBUFSZ];
     long ocount, osize, bcount, bsize, acount, asize;
     struct cemetery *ce;
-    mapseen *mptr = find_mapseen(&u.uz);
+    mapseen *mptr;
 
     ocount = bcount = acount = osize = bsize = asize = 0L;
     for (mptr = mapseenchn; mptr; mptr = mptr->next) {
@@ -2744,7 +2763,8 @@ recalc_mapseen()
        guarantee of either a grave or a ghost, so we go by whether the
        current hero has seen the map location where each old one died */
     for (bp = mptr->final_resting_place; bp; bp = bp->next)
-        if (lastseentyp[bp->frpx][bp->frpy]) {
+        if (isok(bp->frpx, bp->frpy)
+            && lastseentyp[bp->frpx][bp->frpy]) {
             bp->bonesknown = TRUE;
             mptr->flags.knownbones = 1;
         }
@@ -2758,6 +2778,8 @@ struct monst *priest UNUSED; /* currently unused; might be useful someday */
 {
     mapseen *mptr = find_mapseen(&u.uz);
 
+    if (!mptr)
+        return;
     if (Is_valley(&u.uz))
         mptr->flags.valley = 1;
     else if (Is_sanctum(&u.uz))
@@ -2771,6 +2793,9 @@ int roomno;
 {
     mapseen *mptr = find_mapseen(&u.uz);
 
+    if (!mptr || roomno < 0
+        || roomno >= (int) SIZE(mptr->msrooms))
+        return;
     mptr->msrooms[roomno].seen = 1;
 }
 
@@ -2793,7 +2818,7 @@ int reason; /* how hero died; used when disclosing end-of-game level */
     int lastdun = -1;
 
     /* lazy initialization */
-    (void) recalc_mapseen();
+    recalc_mapseen();
 
     win = create_nhwindow(NHW_MENU);
     /* show the endgame levels before the rest of the dungeon,
