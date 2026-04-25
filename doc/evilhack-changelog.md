@@ -5262,4 +5262,5 @@ The following changes to date are:
 - Fix: druid create grass/trees spells destroy level exits and leak trap
   locations
 - Fix: #wizspell does not cast various helper spells at expert skill
+- Fix: monster protection spell golden haze visible via telepathy
 

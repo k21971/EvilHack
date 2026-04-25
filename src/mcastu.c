@@ -2107,7 +2107,7 @@ int dmg, spellnum;
             }
             if (caster->mpeaceful && caster->ispriest && inhistemple(caster)) {
                 ; /* cut down on the temple spam */
-            } else if (gain && seecaster) {
+            } else if (gain && canseemon(caster)) {
                 if (caster->mprotection)
                     pline_The("%s haze around %s becomes more dense.",
                               hcolor(NH_GOLDEN), mon_nam(caster));
