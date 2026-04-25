@@ -525,11 +525,11 @@ boolean foundyou;
         return 0;
     }
 
-    if (!mtmp->mpeaceful)
-        nomul(0);
     if (rn2(ml * 10) < (mtmp->mconf ? 100 : 10)) { /* fumbled attack */
         if (canseemon(mtmp) && !Deaf)
             pline_The("air crackles around %s.", mon_nam(mtmp));
+        if (!mtmp->mpeaceful)
+            stop_occupation();
         return 0;
     }
     if (seecaster || !is_undirected_spell(mtmp, mattk->adtyp, spellnum)) {
@@ -668,6 +668,9 @@ boolean foundyou;
     }
     if (dmg)
         mdamageu(mtmp, dmg);
+    /* hostile spellcasters interrupt player actions */
+    if (!mtmp->mpeaceful)
+        stop_occupation();
     return (ret);
 }
 
