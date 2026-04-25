@@ -45,13 +45,19 @@ char msgbuf[BUFSZ];
     (Role_if(PM_CAVEMAN) || Race_if(PM_ORC)        \
      || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
 
-/* monster types that cause hero to be turned into stone if eaten */
-#define flesh_petrifies(pm) (touch_petrifies(pm) || (pm) == &mons[PM_MEDUSA])
+/* monster types that cause hero to be turned into stone if eaten;
+   the NON_PM short-circuit prevents pointer-formation UB when callers
+   pass a generic egg, empty/spinach tin, or invalid corpsenm */
+#define flesh_petrifies(mnum)                                          \
+    ((mnum) != NON_PM                                                  \
+     && (touch_petrifies(&mons[mnum]) || (mnum) == PM_MEDUSA))
 
 /* Rider corpses are treated as non-rotting so that attempting to eat one
    will be sure to reach the stage of eating where that meal is fatal */
-#define nonrotting_corpse(mnum) \
-    ((mnum) == PM_LIZARD || (mnum) == PM_LICHEN || is_rider(&mons[mnum]))
+#define nonrotting_corpse(mnum)                                        \
+    ((mnum) != NON_PM                                                  \
+     && ((mnum) == PM_LIZARD || (mnum) == PM_LICHEN                    \
+         || is_rider(&mons[mnum])))
 
 /* non-rotting non-corpses; unlike lizard corpses, these items will behave
    as if rotten if they are cursed (fortune cookies handled elsewhere) */
@@ -457,9 +463,10 @@ do_reset_eat()
     if (context.victual.piece) {
         context.victual.o_id = 0;
         context.victual.piece = touchfood(context.victual.piece);
-        if (context.victual.piece)
+        if (context.victual.piece) {
             context.victual.o_id = context.victual.piece->o_id;
-        recalc_wt();
+            recalc_wt();
+        }
     }
     context.victual.fullwarn = context.victual.eating =
         context.victual.doreset = FALSE;
@@ -622,7 +629,7 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
             pline("%s brain is eaten!", s_suffix(Monnam(mdef)));
     }
 
-    if (flesh_petrifies(pd)) {
+    if (flesh_petrifies(monsndx(pd))) {
         /* mind flayer has attempted to eat the brains of a petrification
            inducing critter (most likely Medusa; attacking a cockatrice via
            tentacle-touch should have been caught before reaching this far) */
@@ -828,7 +835,7 @@ cprefx(pm)
 int pm;
 {
     (void) maybe_cannibal(pm, TRUE);
-    if (flesh_petrifies(&mons[pm])) {
+    if (flesh_petrifies(pm)) {
         if (!Stone_resistance
             && !(poly_when_stoned(youmonst.data)
                  && (polymon(PM_STONE_GOLEM)
@@ -1446,22 +1453,16 @@ int pm;
                                      0L);
         }
 
-        tmp = 0;   /* which one we will try to give */
-        if (conveys_STR) {
-            tmp = -1; /* use -1 as fake prop index for STR */
-            debugpline1("\"Intrinsic\" strength, %d", tmp);
-        }
+        /* EvilHack grants every possible intrinsic as a percentage,
+           not one chosen at random in full as in vanilla NetHack;
+           STR is given separately since it's not a prop index */
+        if (conveys_STR)
+            gainstr((struct obj *) 0, 0, -1);
         for (i = 1; i <= LAST_PROP; i++) {
             if (!intrinsic_possible(i, ptr))
                 continue;
-	    givit(i, ptr);
+            givit(i, ptr);
         }
-
-        /* if something was chosen, give it now givit() might fail) */
-        if (tmp == -1)
-            gainstr((struct obj *) 0, 0, -1);
-        else if (tmp > 0)
-            givit(tmp, ptr);
     } /* check_intrinsics */
 
     if (catch_lycanthropy >= LOW_PM) {
@@ -1687,7 +1688,7 @@ const char *mesg;
             } else if (r != ROTTEN_TIN) {
                 /* Draugr can eat certain tins, but only if they
                    are rotted */
-                pline ("Ugh... this tin is too fresh!");
+                pline("Ugh... this tin is too fresh!");
                 if (flags.verbose)
                     You("discard the open tin.");
                 if (!Hallucination)
@@ -2003,7 +2004,7 @@ struct obj *otmp;
     int ll_conduct = 0;
     boolean isvamp = (maybe_polyd(is_vampire(youmonst.data),
                                   Race_if(PM_VAMPIRE)));
-    boolean stoneable = (flesh_petrifies(&mons[mnum]) && !Stone_resistance
+    boolean stoneable = (flesh_petrifies(mnum) && !Stone_resistance
                          && !poly_when_stoned(youmonst.data)),
             slimeable = (mnum == PM_GREEN_SLIME && !Slimed && !Unchanging
                          && !slimeproof(youmonst.data)),
@@ -2165,7 +2166,16 @@ struct obj *otmp;
     if (!tp && !nonrotting_corpse(mnum) && (otmp->orotten || !rn2(7))) {
         if (rottenfood(otmp)) {
             otmp->orotten = TRUE;
-            (void) touchfood(otmp);
+            if (!(otmp = touchfood(otmp))) {
+                /* food destroyed (e.g., inventory full while standing
+                   on lava/open air); propagate 'used up' to doeat() */
+                context.victual.piece = (struct obj *) 0;
+                context.victual.o_id = 0;
+                return 2;
+            }
+            /* keep caller in sync with the (possibly split) new otmp */
+            context.victual.piece = otmp;
+            context.victual.o_id = otmp->o_id;
             retcode = 1;
         }
 
@@ -2748,15 +2758,20 @@ eatspecial()
     }
 
     if (otmp->oartifact == ART_HAND_OF_VECNA) {
+        int dmg = otmp->cursed ? rn1(150, 250) : rn1(50, 150);
+
         You("feel a burning deep inside your %s!", body_part(STOMACH));
-        if (otmp->cursed)
-            u.uhp -= rn1(150, 250);
-        else
-            u.uhp -= rn1(50, 150);
-        if (u.uhp <= 0) {
-            killer.format = KILLED_BY;
-            Strcpy(killer.name, "eating the Hand of Vecna");
-            done(DIED);
+        if (Upolyd) {
+            u.mh -= dmg;
+            if (u.mh <= 0)
+                rehumanize();
+        } else {
+            u.uhp -= dmg;
+            if (u.uhp <= 0) {
+                killer.format = KILLED_BY;
+                Strcpy(killer.name, "eating the Hand of Vecna");
+                done(DIED);
+            }
         }
     }
 
@@ -2837,15 +2852,22 @@ struct obj *otmp;
     case EYEBALL:
         if (!otmp->oartifact)
             break;
-        You("feel a burning deep inside your %s!", body_part(STOMACH));
-        if (otmp->cursed)
-            u.uhp -= rn1(150, 250);
-        else
-            u.uhp -= rn1(50, 150);
-        if (u.uhp <= 0) {
-            killer.format = KILLED_BY;
-            Strcpy(killer.name, "eating the Eye of Vecna");
-            done(DIED);
+        {
+            int dmg = otmp->cursed ? rn1(150, 250) : rn1(50, 150);
+
+            You("feel a burning deep inside your %s!", body_part(STOMACH));
+            if (Upolyd) {
+                u.mh -= dmg;
+                if (u.mh <= 0)
+                    rehumanize();
+            } else {
+                u.uhp -= dmg;
+                if (u.uhp <= 0) {
+                    killer.format = KILLED_BY;
+                    Strcpy(killer.name, "eating the Eye of Vecna");
+                    done(DIED);
+                }
+            }
         }
         break;
     case LUMP_OF_ROYAL_JELLY:
@@ -2876,7 +2898,7 @@ struct obj *otmp;
             heal_legs(0);
         break;
     case EGG:
-        if (flesh_petrifies(&mons[otmp->corpsenm])) {
+        if (flesh_petrifies(otmp->corpsenm)) {
             if (!Stone_resistance
                 && !(poly_when_stoned(youmonst.data)
                      && (polymon(PM_STONE_GOLEM)
@@ -2965,7 +2987,7 @@ struct obj *otmp;
 
     if (cadaver || otmp->otyp == EGG || otmp->otyp == TIN) {
         /* These checks must match those in eatcorpse() */
-        stoneorslime = (flesh_petrifies(&mons[mnum]) && !Stone_resistance
+        stoneorslime = (flesh_petrifies(mnum) && !Stone_resistance
                         && !poly_when_stoned(youmonst.data));
 
         if (mnum == PM_GREEN_SLIME || otmp->otyp == GLOB_OF_GREEN_SLIME)
@@ -3163,7 +3185,7 @@ doeat()
                && (((monstermoves - peek_at_iced_corpse_age(otmp)) / 10L) <= 3L
                    && !nonrotting_corpse(otmp->corpsenm))) {
         /* Draugr can eat corpses, but only if they are rotted */
-        pline ("Ugh... this corpse is too fresh!");
+        pline("Ugh... this corpse is too fresh!");
         return 0;
     } else if ((otmp->owornmask & (W_ARMOR | W_TOOL | W_AMUL | W_SADDLE))
                != 0) {
@@ -3265,7 +3287,7 @@ doeat()
                                an(food_xname(otmp, FALSE)));
                 ll_conduct++;
             }
-            if (!u.uconduct.unvegetarian & !ll_conduct)
+            if (!u.uconduct.unvegetarian && !ll_conduct)
                 livelog_printf(LL_CONDUCT, "tasted meat for the first time, by eating %s",
                                an(food_xname(otmp, FALSE)));
             violated_vegetarian();
@@ -3367,8 +3389,13 @@ doeat()
     already_partly_eaten = otmp->oeaten ? TRUE : FALSE;
     context.victual.o_id = 0;
     context.victual.piece = otmp = touchfood(otmp);
-    if (!otmp)
-        return 0; /* food destroyed by lava/open air */
+    if (!otmp) {
+        /* food destroyed by lava/open air; roll back the conduct
+           increment so it reflects food actually consumed */
+        if (ll_conduct)
+            u.uconduct.food--;
+        return 0;
+    }
     context.victual.o_id = otmp->o_id;
     context.victual.usedtime = 0;
 

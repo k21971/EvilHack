@@ -5266,4 +5266,5 @@ The following changes to date are:
 - Fix: stale material after poly_obj otyp reroll; clean up wish-path UX
 - Fix: monster spell attacks don't interrupt player occupation
 - Fix: shop billing/pricing bugs and crashes in shk.c
+- Fix: multiple issues in eat.c found during code review
 
