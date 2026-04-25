@@ -5265,4 +5265,5 @@ The following changes to date are:
 - Fix: monster protection spell golden haze visible via telepathy
 - Fix: stale material after poly_obj otyp reroll; clean up wish-path UX
 - Fix: monster spell attacks don't interrupt player occupation
+- Fix: shop billing/pricing bugs and crashes in shk.c
 

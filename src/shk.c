@@ -258,7 +258,6 @@ restshk(shkp, ghostly)
 struct monst *shkp;
 boolean ghostly;
 {
-    shkp->data->msound = MS_SELL;
     if (u.uz.dlevel) {
         struct eshk *eshkp = ESHK(shkp);
 
@@ -1162,8 +1161,8 @@ boolean verbosely;
                   shkp->msleeping ? "wakes up" : "can move again");
         shkp->msleeping = 0;
         shkp->mfrozen = 0;
-	if (!shkp->mstone || shkp->mstone > 2)
-	    shkp->mcanmove = 1;
+        if (!shkp->mstone || shkp->mstone > 2)
+            shkp->mcanmove = 1;
     }
 }
 
@@ -2672,7 +2671,7 @@ struct monst *shkp;
 
     /* shopkeeper may notice if the player isn't very knowledgeable -
        especially when gem prices are concerned */
-    if (!obj->dknown || !objects[obj->otyp].oc_name_known) {
+    if (shkp && (!obj->dknown || !objects[obj->otyp].oc_name_known)) {
         if (obj->oclass == GEM_CLASS) {
             /* different shop keepers give different prices */
             if (obj->material == GEMSTONE
@@ -2690,6 +2689,8 @@ struct monst *shkp;
         if (!is_izchak(shkp, TRUE) && has_erac(shkp)) {
             shk_racial_adjustments(ERAC(shkp)->rmnum, &denom, &numer);
         }
+        multiplier *= numer;
+        divisor *= denom;
     }
 
     if (tmp >= 1L) {
@@ -2708,6 +2709,19 @@ struct monst *shkp;
 
 end:
     /* (no adjustment for angry shk here) */
+    /* cap sell price at buy price. the racial sell-side reciprocal
+       can otherwise flip same-race shopkeeper transactions into a
+       profitable buy-resell loop, especially at high charisma where
+       the buy-side gets additional multiplier discounts that set_cost
+       has no parallel reduction for. compare per-stack: get_cost is
+       per-unit so multiply by get_pricing_units to match set_cost's
+       stack total. capping at exactly buy_total mirrors the natural
+       human/human break-even at charisma > 18 */
+    if (shkp && tmp > 0L) {
+        long buy_total = get_pricing_units(obj) * get_cost(obj, shkp);
+        if (tmp > buy_total)
+            tmp = buy_total;
+    }
     return tmp;
 }
 
@@ -2740,10 +2754,9 @@ int oindx;
         bp = ESHK(shkp)->bill;
         while (--ct >= 0) {
             obj = find_oid(bp->bo_id);
-            if (!obj) /* shouldn't happen */
-                continue;
-            if ((oindx != STRANGE_OBJECT) ? (obj->otyp == oindx)
-                                          : (obj->oclass == GEM_CLASS))
+            if (obj /* shouldn't ever be Null */
+                && ((oindx != STRANGE_OBJECT) ? (obj->otyp == oindx)
+                                              : (obj->oclass == GEM_CLASS)))
                 bp->price = get_cost(obj, shkp);
             ++bp;
         }
@@ -2763,7 +2776,8 @@ long amt; /* if 0, use regular shop pricing, otherwise force amount;
     struct monst *shkp;
     long new_price;
 
-    for (shkp = next_shkp(fmon, TRUE); shkp; shkp = next_shkp(shkp, TRUE))
+    for (shkp = next_shkp(fmon, TRUE); shkp;
+         shkp = next_shkp(shkp->nmon, TRUE)) {
         if ((bp = onbill(obj, shkp, TRUE)) != 0) {
             new_price = !amt ? get_cost(obj, shkp) : (amt < 0L) ? -amt : amt;
             if (new_price > bp->price || amt < 0L) {
@@ -2772,6 +2786,7 @@ long amt; /* if 0, use regular shop pricing, otherwise force amount;
             }
             break; /* done */
         }
+    }
     return;
 }
 
@@ -3120,9 +3135,11 @@ struct obj *obj, *otmp;
     }
     if (bp->bquan < otmp->quan) {
         impossible("Negative quantity on bill??");
+        return;
     }
     if (bp->bquan == otmp->quan) {
         impossible("Zero quantity on bill??");
+        return;
     }
     bp->bquan -= otmp->quan;
 
@@ -3158,6 +3175,7 @@ struct monst *shkp;
             otmp->where = OBJ_FREE;
             otmp->quan = (bp->bquan -= obj->quan);
             otmp->owt = 0; /* superfluous */
+            otmp->lamplit = 0; /* dummy is a billing placeholder; never lit */
             bp->useup = 1;
             add_to_billobjs(otmp);
             return;
@@ -3212,6 +3230,12 @@ boolean ininv;
     struct obj *otmp;
     struct bill_x *bp;
     long billamt;
+
+    /* caller may pass NULL shkp when the obj's owner cannot be located
+       (e.g. unpaid container dropped at a non-shop tile while engulfed);
+       no shopkeeper means no bill to charge against */
+    if (!shkp)
+        return price;
 
     /* the price of contained objects; caller handles top container */
     for (otmp = obj->cobj; otmp; otmp = otmp->nobj) {
@@ -3450,7 +3474,8 @@ xchar x, y;
             offer = obj->quan;
         else if (cgold)
             offer += cgold;
-        if ((eshkp->robbed -= offer < 0L))
+        eshkp->robbed -= offer;
+        if (eshkp->robbed < 0L)
             eshkp->robbed = 0L;
         if (offer && !Deaf && !muteshk(shkp))
             verbalize(
@@ -5329,8 +5354,10 @@ struct obj *obj_absorber, *obj_absorbed;
     long amount, per_unit_cost = set_cost(obj_absorbed, shkp);
     boolean floor_absorber = (obj_absorber->where == OBJ_FLOOR);
 
-    if (!obj_absorber->globby)
+    if (!obj_absorber->globby) {
         impossible("globby_bill_fixup called for non-globby object");
+        return;
+    }
 
     if (floor_absorber) {
         x = obj_absorber->ox, y = obj_absorber->oy;
