@@ -1112,10 +1112,23 @@ genericptr_t grasscnt;
             && levl[x][y].typ != CORR))
         return;
 
-    /* Never grow grass if there's an immovable
-       trap here */
+    /* Magic portals and the vibrating square are
+       permanent dungeon features; they cannot be
+       buried. Every other trap type (pits, holes,
+       bear traps, hidden arrow traps, etc.) is
+       covered over by the new grass. The trap
+       persists and still triggers when stepped on,
+       the same way traps remain active beneath
+       puddle or sewage terrain */
     ttmp = t_at(x, y);
-    if (ttmp && !delfloortrap(ttmp))
+    if (ttmp && undestroyable_trap(ttmp->ttyp))
+        return;
+
+    /* Sokoban pits, holes, and trap doors are puzzle
+       features; their layout must remain readable, so
+       never cover them with grass on Sokoban levels */
+    if (ttmp && Sokoban
+        && (is_pit(ttmp->ttyp) || is_hole(ttmp->ttyp)))
         return;
 
     /* grow grass */
@@ -1176,7 +1189,7 @@ genericptr_t treecnt;
 
        Never next to other living trees as well. this
        is done to limit their growth, mainly to prevent
-       a situation where the caster is suddenly trapped
+       a situation where the caster is suddenly trapped.
 
        Sometimes the energy of the spell can be used to
        potentially revive nearby dead trees if the
@@ -1195,11 +1208,30 @@ genericptr_t treecnt;
         return;
     }
 
-    /* Never grow a tree if there's an immovable
-       trap here */
+    /* Permanent dungeon features and level-exit
+       traps are never destroyed: magic portals
+       and the vibrating square are un-uprootable,
+       and holes and trap doors are various level's
+       route to the next */
     ttmp = t_at(x, y);
-    if (ttmp && !delfloortrap(ttmp))
+    if (ttmp && (undestroyable_trap(ttmp->ttyp)
+                 || is_hole(ttmp->ttyp)))
         return;
+
+    /* Sokoban pits are puzzle features; never destroy
+       them on Sokoban levels (holes and trap doors
+       are already guarded above) */
+    if (ttmp && Sokoban && is_pit(ttmp->ttyp))
+        return;
+
+    /* A tree is impassable, so any trap left under
+       it would be unreachable. Tear it out cleanly
+       instead of orphaning the data; ammo-bearing
+       traps (bear trap, land mine) drop their ammo
+       on the tile, where it will sit beneath the
+       new tree until the tree is chopped down */
+    if (ttmp)
+        deltrap_with_ammo(ttmp, DELTRAP_PLACE_AMMO);
 
     /* grow a tree */
     levl[x][y].typ = TREE;
