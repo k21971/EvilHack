@@ -1909,6 +1909,10 @@ int id;
             kill_egg(otmp);
         else {
             otmp->otyp = EGG;
+            /* material may have become invalid with a new otyp --
+               reset it (the upstream mkobj could have rolled any
+               food otyp, e.g., a banana with VEGGY material) */
+            init_obj_material(otmp);
             otmp->owt = weight(otmp);
         }
         otmp->corpsenm = NON_PM;
@@ -1989,6 +1993,9 @@ int id;
     case WAND_CLASS:
         while (otmp->otyp == WAN_WISHING || otmp->otyp == WAN_POLYMORPH)
             otmp->otyp = rnd_class(WAN_LIGHT, WAN_LIGHTNING);
+        /* material may have become invalid with a new otyp -- rerandomize
+           it to something valid */
+        init_obj_material(otmp);
         /* altering the object tends to degrade its quality
            (analogous to spellbook `read count' handling) */
         if ((int) otmp->recharged < rn2(7)) /* recharge_limit */
@@ -2003,6 +2010,9 @@ int id;
     case SPBOOK_CLASS:
         while (otmp->otyp == SPE_POLYMORPH)
             otmp->otyp = rnd_class(SPE_DIG, SPE_BLANK_PAPER);
+        /* material may have become invalid with a new otyp -- rerandomize
+           it to something valid */
+        init_obj_material(otmp);
         /* reduce spellbook abuse; non-blank books degrade */
         if (otmp->otyp != SPE_BLANK_PAPER) {
             otmp->spestudied = obj->spestudied + 1;

@@ -5263,4 +5263,5 @@ The following changes to date are:
   locations
 - Fix: #wizspell does not cast various helper spells at expert skill
 - Fix: monster protection spell golden haze visible via telepathy
+- Fix: stale material after poly_obj otyp reroll; clean up wish-path UX
 

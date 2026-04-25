@@ -5494,21 +5494,21 @@ struct obj *no_wish;
         }
     }
 
-    if (material > 0 && !otmp->oartifact
-        && ((wizard && !iflags.debug_fuzzer)
-            || valid_obj_material(otmp, material))) {
-        if (!valid_obj_material(otmp, material)) {
-            pline("Note: material %s is not normally valid for this object.",
-                  materialnm[material]);
-        }
-        set_material(otmp, material);
-    } else if (otmp->oartifact) {
+    if (otmp->oartifact) {
         /* oname() handles the assignment of a specific material for any
          * possible artifact. Do nothing here. */
+    } else if (material > 0 && valid_obj_material(otmp, material)) {
+        set_material(otmp, material);
     } else {
-        /* for now, material in wishes will always be base; this is to prevent
-         * problems like wishing for arrows and getting glass arrows which will
-         * shatter. */
+        /* invalid wish material, or no material specified: substitute
+           the otyp default. In wizmode, note the substitution so the
+           wisher knows their material spec was discarded. Same
+           silent-strip policy as objprops/forged_qual below. */
+        if (material > 0 && wizard && !iflags.debug_fuzzer) {
+            pline("Note: material %s is not valid for this object; using %s.",
+                  materialnm[material],
+                  materialnm[objects[otmp->otyp].oc_material]);
+        }
         set_material(otmp, objects[otmp->otyp].oc_material);
     }
 
