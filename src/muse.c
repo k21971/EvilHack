@@ -2579,7 +2579,7 @@ struct obj *otmp;
         }
         break;
     case SPE_ENTANGLE:
-        cast_entangle(mtmp);
+        cast_entangle(mtmp, P_SKILL(spell_skilltype(SPE_ENTANGLE)));
         break;
     default:
         break;

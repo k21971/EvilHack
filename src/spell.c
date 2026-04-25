@@ -803,7 +803,8 @@ int booktype;
 }
 
 void
-cast_protection()
+cast_protection(skill)
+int skill;
 {
     int l = u.ulevel, loglev = 0,
         gain, natac = u.uac + u.uspellprot;
@@ -872,8 +873,7 @@ cast_protection()
             }
         }
         u.uspellprot += gain;
-        u.uspmtime = (P_SKILL(spell_skilltype(SPE_PROTECTION)) == P_EXPERT)
-                        ? 20 : 10;
+        u.uspmtime = (skill == P_EXPERT) ? 20 : 10;
         if (!u.usptime)
             u.usptime = u.uspmtime;
         find_ac();
@@ -883,14 +883,15 @@ cast_protection()
 }
 
 void
-cast_reflection(mdef)
+cast_reflection(mdef, skill)
 struct monst *mdef;
+int skill;
 {
     boolean youdefend = (mdef == &youmonst);
-    int skill = (P_SKILL(spell_skilltype(SPE_REFLECTION)) == P_EXPERT
-                 ? 750 : P_SKILL(spell_skilltype(SPE_REFLECTION)) == P_SKILLED
-                       ? 500 : P_SKILL(spell_skilltype(SPE_REFLECTION)) == P_BASIC
-                             ? 250 : 100);
+    int duration = (skill == P_EXPERT
+                    ? 750 : skill == P_SKILLED
+                          ? 500 : skill == P_BASIC
+                                ? 250 : 100);
 
     if (youdefend) {
         u.uconduct.reflection++;
@@ -906,7 +907,7 @@ struct monst *mdef;
                 You_feel("smooth.");
         }
         /* the higher the skill in matter-based spells, the longer the effect */
-        incr_itimeout(&HReflecting, rn1(10, HReflecting ? (skill / 5) : skill));
+        incr_itimeout(&HReflecting, rn1(10, HReflecting ? (duration / 5) : duration));
     } else if (!youdefend) {
         if (canseemon(mdef))
             pline("A shimmering globe appears around %s!", mon_nam(mdef));
@@ -920,14 +921,15 @@ struct monst *mdef;
 }
 
 void
-cast_barkskin(mdef)
+cast_barkskin(mdef, skill)
 struct monst *mdef;
+int skill;
 {
     boolean youdefend = (mdef == &youmonst);
-    int skill = (P_SKILL(spell_skilltype(SPE_BARKSKIN)) == P_EXPERT
-                 ? 750 : P_SKILL(spell_skilltype(SPE_BARKSKIN)) == P_SKILLED
-                       ? 500 : P_SKILL(spell_skilltype(SPE_BARKSKIN)) == P_BASIC
-                             ? 250 : 100);
+    int duration = (skill == P_EXPERT
+                    ? 750 : skill == P_SKILLED
+                          ? 500 : skill == P_BASIC
+                                ? 250 : 100);
 
     if (youdefend) {
         if (Stoneskin) {
@@ -942,7 +944,7 @@ struct monst *mdef;
                   mbodypart(&youmonst, SKIN));
         }
         /* the higher the skill in evocation-based spells, the longer the effect */
-        incr_itimeout(&HBarkskin, rn1(10, HBarkskin ? (skill / 5) : skill));
+        incr_itimeout(&HBarkskin, rn1(10, HBarkskin ? (duration / 5) : duration));
         find_ac(); /* adjust AC; dmg reduction handled in hitmu() */
     } else if (!youdefend) {
         if (canseemon(mdef))
@@ -957,14 +959,15 @@ struct monst *mdef;
 }
 
 void
-cast_stoneskin(mdef)
+cast_stoneskin(mdef, skill)
 struct monst *mdef;
+int skill;
 {
     boolean youdefend = (mdef == &youmonst);
-    int skill = (P_SKILL(spell_skilltype(SPE_STONESKIN)) == P_EXPERT
-                 ? 750 : P_SKILL(spell_skilltype(SPE_STONESKIN)) == P_SKILLED
-                       ? 500 : P_SKILL(spell_skilltype(SPE_STONESKIN)) == P_BASIC
-                             ? 250 : 100);
+    int duration = (skill == P_EXPERT
+                    ? 750 : skill == P_SKILLED
+                          ? 500 : skill == P_BASIC
+                                ? 250 : 100);
 
     if (youdefend) {
         if (Barkskin) {
@@ -982,7 +985,7 @@ struct monst *mdef;
         HStone_resistance |= I_SPECIAL;
 
         /* the higher the skill in evocation-based spells, the longer the effect */
-        incr_itimeout(&HStoneskin, rn1(10, HStoneskin ? (skill / 5) : skill));
+        incr_itimeout(&HStoneskin, rn1(10, HStoneskin ? (duration / 5) : duration));
         find_ac(); /* adjust AC; dmg reduction handled in hitmu() */
     } else if (!youdefend) {
         if (canseemon(mdef))
@@ -998,14 +1001,15 @@ struct monst *mdef;
 }
 
 void
-cast_entangle(mdef)
+cast_entangle(mdef, skill)
 struct monst *mdef;
+int skill;
 {
     boolean youdefend = (mdef == &youmonst);
-    int skill = (P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_EXPERT
-                 ? 5 : P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_SKILLED
-                     ? 4 : P_SKILL(spell_skilltype(SPE_ENTANGLE)) == P_BASIC
-                         ? 3 : 1);
+    int tangle = (skill == P_EXPERT
+                  ? 5 : skill == P_SKILLED
+                      ? 4 : skill == P_BASIC
+                          ? 3 : 1);
 
     /* target needs to be standing on/near vegetation
        for entanglement to work */
@@ -1073,11 +1077,10 @@ struct monst *mdef;
             /* 3-8 turns at basic, 4-9 turns at skilled,
                5-10 turns at expert. at unskilled/restricted,
                1-6 turns */
-            mdef->mentangletime = rn1(6, skill);
+            mdef->mentangletime = rn1(6, tangle);
             /* if spell skill is skilled or greater, chance to
                temporarily slow mdef */
-            if (rn2(2)
-                && P_SKILL(spell_skilltype(SPE_ENTANGLE)) >= P_SKILLED)
+            if (rn2(2) && skill >= P_SKILLED)
                 mon_adjust_speed(mdef, -2, (struct obj *) 0);
         }
     }
@@ -1139,13 +1142,14 @@ genericptr_t grasscnt;
 }
 
 void
-cast_create_grass()
+cast_create_grass(skill)
+int skill;
 {
-    int skill = (P_SKILL(spell_skilltype(SPE_CREATE_GRASS)) == P_EXPERT
-                 ? 4 : P_SKILL(spell_skilltype(SPE_CREATE_GRASS)) == P_SKILLED
-                     ? 2 : P_SKILL(spell_skilltype(SPE_CREATE_GRASS)) == P_BASIC
+    int bonus = (skill == P_EXPERT
+                 ? 4 : skill == P_SKILLED
+                     ? 2 : skill == P_BASIC
                          ? 1 : 0);
-    int range = 1 + skill;
+    int range = 1 + bonus;
     int madegrass = 0;
 
     if (Is_valley(&u.uz)) {
@@ -1172,11 +1176,20 @@ cast_create_grass()
     }
 }
 
+/* opaque arg for grow_tree() - carries both the grown-tile counter and
+   the effective caster skill so the callback can honor skill-gated
+   effects (dead-tree revival) without reaching back to P_SKILL() */
+struct tree_growth {
+    int count;
+    int skill;
+};
+
 void
-grow_tree(x, y, treecnt)
+grow_tree(x, y, arg)
 int x, y;
-genericptr_t treecnt;
+genericptr_t arg;
 {
+    struct tree_growth *tg = (struct tree_growth *) arg;
     struct trap *ttmp;
 
     /* Never grow a tree on the player's space */
@@ -1195,7 +1208,7 @@ genericptr_t treecnt;
        potentially revive nearby dead trees if the
        caster is skilled enough */
     if (rn2(2) && levl[x][y].typ == DEADTREE
-        && P_SKILL(spell_skilltype(SPE_CREATE_TREES)) >= P_SKILLED) {
+        && tg->skill >= P_SKILLED) {
         if (cansee(x, y))
             You("revitalize a dead tree!");
         if (!rn2(3) && Role_if(PM_DRUID))
@@ -1237,18 +1250,22 @@ genericptr_t treecnt;
     levl[x][y].typ = TREE;
     del_engr_at(x, y);
     newsym(x, y);
-    (* (int*)treecnt)++;
+    tg->count++;
 }
 
 void
-cast_create_trees()
+cast_create_trees(skill)
+int skill;
 {
-    int skill = (P_SKILL(spell_skilltype(SPE_CREATE_TREES)) == P_EXPERT
-                 ? 4 : P_SKILL(spell_skilltype(SPE_CREATE_TREES)) == P_SKILLED
-                     ? 2 : P_SKILL(spell_skilltype(SPE_CREATE_TREES)) == P_BASIC
+    int bonus = (skill == P_EXPERT
+                 ? 4 : skill == P_SKILLED
+                     ? 2 : skill == P_BASIC
                          ? 1 : 0);
-    int range = 1 + skill;
-    int madetree = 0;
+    int range = 1 + bonus;
+    struct tree_growth tg;
+
+    tg.count = 0;
+    tg.skill = skill;
 
     if (Is_valley(&u.uz)) {
         pline("Saplings begin to form, but they quickly wither away and die.");
@@ -1260,9 +1277,9 @@ cast_create_trees()
        caster, skilled is three tile spaces out, expert is
        five tile spaces. at unskilled/restricted, a tree will
        only grow one tile space out */
-    do_clear_area(u.ux, u.uy, range, grow_tree, &madetree);
+    do_clear_area(u.ux, u.uy, range, grow_tree, &tg);
 
-    if (madetree) {
+    if (tg.count) {
         if (Hallucination)
             pline("Only you can prevent forest fires...");
         else
@@ -1765,7 +1782,7 @@ boolean wiz_cast;
             You("sense a pointy hat on top of your %s.", body_part(HEAD));
         break;
     case SPE_PROTECTION:
-        cast_protection();
+        cast_protection(role_skill);
         break;
     case SPE_JUMPING:
         if (!jump(max(role_skill, 1)))
@@ -1823,19 +1840,19 @@ boolean wiz_cast;
         }
         break;
     case SPE_REFLECTION:
-        cast_reflection(&youmonst);
+        cast_reflection(&youmonst, role_skill);
         break;
     case SPE_BARKSKIN:
-        cast_barkskin(&youmonst);
+        cast_barkskin(&youmonst, role_skill);
         break;
     case SPE_STONESKIN:
-        cast_stoneskin(&youmonst);
+        cast_stoneskin(&youmonst, role_skill);
         break;
     case SPE_CREATE_GRASS:
-        cast_create_grass();
+        cast_create_grass(role_skill);
         break;
     case SPE_CREATE_TREES:
-        cast_create_trees();
+        cast_create_trees(role_skill);
         break;
     case SPE_ORB_OF_FIRE:
     case SPE_ORB_OF_FROST:

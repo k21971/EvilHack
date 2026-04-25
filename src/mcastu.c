@@ -1061,9 +1061,11 @@ int dmg, spellnum;
         break;
     case MGC_REFLECTION:
         if (yours)
-            (void) cast_reflection(&youmonst);
+            (void) cast_reflection(&youmonst,
+                                   P_SKILL(spell_skilltype(SPE_REFLECTION)));
         else
-            (void) cast_reflection(caster);
+            (void) cast_reflection(caster,
+                                   P_SKILL(spell_skilltype(SPE_REFLECTION)));
         dmg = 0;
         break;
     case MGC_ACID_BLAST:
@@ -2084,7 +2086,7 @@ int dmg, spellnum;
     case CLC_PROTECTION: {
         if (yours) {
             /* Player casting protection on self */
-            (void) cast_protection();
+            (void) cast_protection(P_SKILL(spell_skilltype(SPE_PROTECTION)));
         } else {
             /* Monster casting protection on self */
             int natac = find_mac(caster) + caster->mprotection;
@@ -2120,16 +2122,20 @@ int dmg, spellnum;
     }
     case CLC_BARKSKIN:
         if (yours)
-            (void) cast_barkskin(&youmonst);
+            (void) cast_barkskin(&youmonst,
+                                 P_SKILL(spell_skilltype(SPE_BARKSKIN)));
         else
-            (void) cast_barkskin(caster);
+            (void) cast_barkskin(caster,
+                                 P_SKILL(spell_skilltype(SPE_BARKSKIN)));
         dmg = 0;
         break;
     case CLC_STONESKIN:
         if (yours)
-            (void) cast_stoneskin(&youmonst);
+            (void) cast_stoneskin(&youmonst,
+                                  P_SKILL(spell_skilltype(SPE_STONESKIN)));
         else
-            (void) cast_stoneskin(caster);
+            (void) cast_stoneskin(caster,
+                                  P_SKILL(spell_skilltype(SPE_STONESKIN)));
         dmg = 0;
         break;
     case CLC_UNTAME_PET:

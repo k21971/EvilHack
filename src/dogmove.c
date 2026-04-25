@@ -1564,7 +1564,7 @@ int after; /* this is extra fast monster movement */
             && distu(mtmp->mx, mtmp->my) < 3) {
             pline("%s casts a protection spell at you.",
                   Monnam(mtmp));
-            (void) cast_protection();
+            (void) cast_protection(P_SKILL(spell_skilltype(SPE_PROTECTION)));
             mtmp->mspec_used = 4 - mtmp->m_lev;
             if (mtmp->mspec_used < 2)
                 mtmp->mspec_used = 2;
@@ -1577,7 +1577,7 @@ int after; /* this is extra fast monster movement */
             && distu(mtmp->mx, mtmp->my) < 3) {
             pline("%s casts a reflection spell at you.",
                   Monnam(mtmp));
-            (void) cast_reflection(&youmonst);
+            (void) cast_reflection(&youmonst, P_SKILL(spell_skilltype(SPE_REFLECTION)));
             mtmp->mspec_used = 4 - mtmp->m_lev;
             if (mtmp->mspec_used < 2)
                 mtmp->mspec_used = 2;

@@ -753,7 +753,7 @@ struct obj *otmp;
         }
         break;
     case SPE_ENTANGLE:
-        cast_entangle(mtmp);
+        cast_entangle(mtmp, P_SKILL(spell_skilltype(SPE_ENTANGLE)));
         break;
     case SPE_CHANGE_METAL_TO_WOOD:
         if (monsndx(mtmp->data) == PM_IRON_GOLEM) {
@@ -3393,7 +3393,7 @@ boolean ordinary;
         break;
     }
     case SPE_ENTANGLE:
-        cast_entangle(&youmonst);
+        cast_entangle(&youmonst, P_SKILL(spell_skilltype(SPE_ENTANGLE)));
         break;
     case SPE_CHANGE_METAL_TO_WOOD: {
         struct obj *otmp;

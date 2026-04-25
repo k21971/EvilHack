@@ -5261,4 +5261,5 @@ The following changes to date are:
 - Fix: multiple issues in light.c via code review
 - Fix: druid create grass/trees spells destroy level exits and leak trap
   locations
+- Fix: #wizspell does not cast various helper spells at expert skill
 
