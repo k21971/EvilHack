@@ -286,8 +286,11 @@ struct monst *mtmp;
             return STRAT(STRAT_MONSTR, mtmp2->mx, mtmp2->my, mask);
     }
 
-    /* Do we have the Amulet? Alrighty then... */
-    if (Is_astralevel(&u.uz)) {
+    /* Do we have the Amulet? Alrighty then...
+       On Astral, a covetous monster carrying the Amulet of
+       Yendor heads for its own aligned altar to sacrifice it */
+    if (Is_astralevel(&u.uz)
+        && mon_has_arti(mtmp, AMULET_OF_YENDOR)) {
         int targetx = u.ux, targety = u.uy;
         aligntyp malign = sgn(mon_aligntyp(mtmp));
         int x, y;
@@ -324,6 +327,10 @@ struct monst *mtmp;
         || (mtmp->ispriest && inhistemple(mtmp))
         /* Lucifer in the sanctum */
         || (mtmp->islucifer && Is_sanctum(&u.uz)))
+        return (unsigned long) STRAT_NONE;
+
+    /* avoid divide-by-zero on degenerate mhpmax */
+    if (mtmp->mhpmax <= 0)
         return (unsigned long) STRAT_NONE;
 
     switch ((mtmp->mhp * 3) / mtmp->mhpmax) { /* 0-3 */
@@ -408,7 +415,9 @@ xchar *sy;
         y = sstairs.sy;
     }
 
-    if (x && y) {
+    /* x==0 is the no-stairs sentinel; y is the paired coordinate
+       and may legitimately be 0 (top map row), so don't gate on y */
+    if (x) {
         *sx = x;
         *sy = y;
     }
@@ -436,6 +445,9 @@ struct monst *mtmp;
             if (rloc_pos_ok(nx, ny, mtmp)
                 && distu(nx, ny) > (BOLT_LIM * BOLT_LIM)) {
                 rloc_to(mtmp, nx, ny);
+                /* rloc_to may fire mintrap and kill mtmp */
+                if (DEADMONSTER(mtmp))
+                    return 2;
                 if (mtmp->mhp <= mtmp->mhpmax - 8)
                     mtmp->mhp += rnd(8);
                 return 1;
@@ -460,8 +472,11 @@ struct monst *mtmp;
         mtmp->mavenge = 1; /* covetous monsters attack while fleeing */
         if (In_W_tower(mx, my, &u.uz)
             || (mtmp->iswiz && !sx && !mon_has_amulet(mtmp))) {
-            if (!rn2(3 + mtmp->mhp / 10))
+            if (!rn2(3 + mtmp->mhp / 10)) {
                 (void) rloc(mtmp, TRUE);
+                if (DEADMONSTER(mtmp))
+                    return 2;
+            }
         } else if (sx && (mx != sx || my != sy)) {
             if (!mnearto(mtmp, sx, sy, TRUE)) {
                 /* couldn't move to the target spot for some reason,
@@ -470,6 +485,10 @@ struct monst *mtmp;
                 rloc_to(mtmp, mx, my);
                 return 0;
             }
+            /* mnearto succeeded; its internal rloc_to may have killed
+               mtmp via mintrap on the destination tile */
+            if (DEADMONSTER(mtmp))
+                return 2;
             mx = mtmp->mx, my = mtmp->my; /* update cached location */
         }
         /* if you're not around, cast healing spells */
@@ -488,10 +507,15 @@ struct monst *mtmp;
         if (mtmp->mpeaceful && !mtmp->mtame
             && !(mtmp->mstrategy & STRAT_APPEARMSG)) {
             /* wander aimlessly */
-            if (!rn2(5))
+            if (!rn2(5)) {
                 (void) rloc(mtmp, TRUE);
+                if (DEADMONSTER(mtmp))
+                    return 2;
+            }
         } else if (distu(mtmp->mx, mtmp->my) <= 25) {
             mnexto(mtmp); /* If we're close enough, pounce */
+            if (DEADMONSTER(mtmp))
+                return 2;
         } else {
             /* figure out what direction the player's in */
             dx = sgn(u.ux - mtmp->mx);
@@ -499,8 +523,11 @@ struct monst *mtmp;
             /* since we're not close enough, use short jumps to change that */
             stx = mtmp->mx + ((rn2(3) + 4) * dx);
             sty = mtmp->my + ((rn2(3) + 3) * dy);
-            if (isok(stx, sty))
+            if (isok(stx, sty)) {
                 mnearto(mtmp, stx, sty, TRUE);
+                if (DEADMONSTER(mtmp))
+                    return 2;
+            }
         }
         return 0;
     }
@@ -521,6 +548,8 @@ struct monst *mtmp;
             /* If we're close enough, pounce */
             if (distu(mtmp->mx, mtmp->my) <= 25) {
                 mnexto(mtmp);
+                if (DEADMONSTER(mtmp))
+                    return 2;
             } else {
                 /* figure out what direction the player's in */
                 dx = sgn(u.ux - mtmp->mx);
@@ -528,7 +557,11 @@ struct monst *mtmp;
                 /* since we're not close enough, use short jumps to change that */
                 stx = mtmp->mx + ((rn2(3) + 4) * dx);
                 sty = mtmp->my + ((rn2(3) + 3) * dy);
-                mnearto(mtmp, stx, sty, TRUE);
+                if (isok(stx, sty)) {
+                    mnearto(mtmp, stx, sty, TRUE);
+                    if (DEADMONSTER(mtmp))
+                        return 2;
+                }
             }
             return 0;
         }
@@ -536,6 +569,11 @@ struct monst *mtmp;
             if (!MON_AT(tx, ty) || (mtmp->mx == tx && mtmp->my == ty)) {
                 /* teleport to it and pick it up */
                 rloc_to(mtmp, tx, ty); /* clean old pos */
+                /* destination tile may have a trap that just killed mtmp;
+                   without this guard, mpickobj would append the artifact
+                   to a dead monster's minvent (lost on dmonsfree) */
+                if (DEADMONSTER(mtmp))
+                    return 2;
 
                 if ((otmp = on_ground(which_arti(targ))) != 0
                     && !can_levitate(mtmp)) {
@@ -553,14 +591,19 @@ struct monst *mtmp;
                     return 0;
             } else {
                 /* a monster is standing on it - cause some trouble */
-                if (!rn2(5))
+                if (!rn2(5)) {
                     mnexto(mtmp);
+                    if (DEADMONSTER(mtmp))
+                        return 2;
+                }
                 return 0;
             }
         } else { /* a monster has it - 'port beside it. */
             mx = mtmp->mx, my = mtmp->my;
             if (!mnearto(mtmp, tx, ty, FALSE))
                 rloc_to(mtmp, mx, my); /* no room? stay put */
+            if (DEADMONSTER(mtmp))
+                return 2;
             return 0;
         }
     } /* default case */
@@ -712,22 +755,22 @@ BOOLEAN_P centered_on_stairs;
             bypos.y = u.uy;
         }
         for (i = rnd(tmp); i > 0 && count < MAXNASTIES; --i)
-            /* Of the 54 nasties[], 13 are lawful, 19 are chaotic,
-             * and 22 are neutral.
+            /* The 50-entry nasties[] table is 22 neutral,
+             * 15 chaotic, and 13 lawful. The inner loop
+             * keeps retrying unless the picked monster is
+             * neutral or matches the caster's alignment, so:
+             *   neutral or unaligned caster breaks on neutrals
+             *     only (22/50 per pick),
+             *   lawful caster breaks on neutrals + lawfuls
+             *     (35/50 per pick),
+             *   chaotic caster breaks on neutrals + chaotics
+             *     (37/50 per pick).
+             * Angel and demon casters additionally re-roll
+             * picks of the opposite class, shrinking the pool.
              *
-             * Neutral caster, used for late-game harrassment,
-             * has 22/54 chance to stop the inner loop on each
-             * critter, 28/54 chance for another iteration.
-             * Lawful caster has 26/54 chance to stop unless the
-             * summoner is an angel or demon, in which case the
-             * chance is 24/54.
-             * Chaotic or unaligned caster has 19/54 chance to
-             * stop, so will summon fewer creatures on average.
-             *
-             * The outer loop potentially gives chaotic/unaligned
-             * a chance to even things up since others will hit
-             * MAXNASTIES sooner, but its number of iterations is
-             * randomized so it won't always do so.
+             * The MAXNASTIES cap and the randomized outer
+             * iteration count add variance to the per-cast
+             * total summon count.
              */
             for (j = 0; j < 20; j++) {
                 int makeindex;
@@ -820,7 +863,9 @@ resurrect()
         }
     }
 
-    if (mtmp) {
+    /* makemon and mon_arrive can both fire mintrap on the destination
+       tile, which may kill the freshly-placed Wizard before we get here */
+    if (mtmp && !DEADMONSTER(mtmp)) {
         mtmp->mtame = mtmp->mpeaceful = 0; /* paranoia */
         set_malign(mtmp);
         if (!Deaf) {
@@ -882,7 +927,8 @@ intervene()
 void
 wizdead()
 {
-    context.no_of_wizards--;
+    if (context.no_of_wizards > 0)
+        context.no_of_wizards--;
     if (!u.uevent.udemigod) {
         u.uevent.udemigod = TRUE;
         u.udg_cnt = rn1(250, 50);
@@ -969,7 +1015,7 @@ struct monst *mtmp;
         else if (u.uhave.amulet && !rn2(SIZE(random_insult)))
             verbalize("Relinquish the amulet, %s!",
                       random_insult[rn2(SIZE(random_insult))]);
-        else if (u.uhp < 5 && !rn2(2)) /* Panic */
+        else if ((Upolyd ? u.mh : u.uhp) < 5 && !rn2(2)) /* Panic */
             verbalize(rn2(2) ? "Even now thy life force ebbs, %s!"
                              : "Savor thy breath, %s, it be thy last!",
                       random_insult[rn2(SIZE(random_insult))]);

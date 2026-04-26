@@ -5275,4 +5275,5 @@ The following changes to date are:
 - Fix: tame pet retains leash when forced feral by saddle/spell/artifact
 - Fix: multiple issues in timeout.c found during code review
 - Fix: multiple issues in polyself.c found during code review
+- Fix: multiple issues in wizard.c found during code review
 
