@@ -475,7 +475,7 @@ doread()
             return 0;
         }
         if (flags.verbose) {
-            pline("You turn over %s and read:", the(xname(scroll)));
+            You("turn over %s and read:", the(xname(scroll)));
         }
         pline("\"%s\".", eightball_msgs[rn2(SIZE(eightball_msgs))]);
         if (!u.uconduct.literate++) {
@@ -511,7 +511,7 @@ doread()
             return 0;
         }
         mesg = wrapper_msgs[scroll->o_id % SIZE(wrapper_msgs)];
-        pline("The wrapper reads: \"%s\".", mesg);
+        pline_The("wrapper reads: \"%s\".", mesg);
         maybe_learn_elbereth(mesg);
         if (!u.uconduct.literate++)
             livelog_write_string(LL_CONDUCT,
@@ -1141,7 +1141,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             scursed = sobj->cursed, already_known, old_erodeproof,
             new_erodeproof;
     struct obj *otmp = (struct obj *) 0;
-    aligntyp deity;
+    aligntyp deity = A_NONE;
 
     if (objects[otyp].oc_magic)
         exercise(A_WIS, TRUE);                       /* just for trying */
@@ -1658,19 +1658,14 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         int ct = 0;
         struct monst *mtmp;
 
-        if ((otyp == SCR_SCARE_MONSTER || !ct) && !Deaf)
-            You_hear("%s %s.", (confused || scursed) ? "sad wailing"
-                                                     : "maniacal laughter",
-                     !ct ? "in the distance" : "close by");
-
         for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
             if (DEADMONSTER(mtmp))
                 continue;
             if (cansee(mtmp->mx, mtmp->my)) {
                 if (confused || scursed) {
                     mtmp->mflee = mtmp->mfrozen = mtmp->msleeping = 0;
-		    if (!mtmp->mstone || mtmp->mstone > 2)
-			mtmp->mcanmove = 1;
+                    if (!mtmp->mstone || mtmp->mstone > 2)
+                        mtmp->mcanmove = 1;
                 } else if (!resist(mtmp, sobj->oclass, 0, NOTELL)
                     /* some monsters are immune */
                     && onscary(0, 0, mtmp))
@@ -1679,6 +1674,10 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                     ct++; /* pets don't laugh at you */
             }
         }
+        if ((otyp == SCR_SCARE_MONSTER || !ct) && !Deaf)
+            You_hear("%s %s.", (confused || scursed) ? "sad wailing"
+                                                     : "maniacal laughter",
+                     !ct ? "in the distance" : "close by");
         break;
     }
     case SCR_BLANK_PAPER:
@@ -2057,31 +2056,27 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         break;
     case SCR_AMNESIA:
         known = TRUE;
-        if (sblessed && ACURR(A_INT) > 12) {
-            if (yn("Do you want to reset your skills training?") != 'y') {
-                goto forget_routine;
-            } else {
-                Your("skills training has been reset.");
-                reset_weapon_skills();
-                break;
-            }
+        if (sblessed && ACURR(A_INT) > 12
+            && yn("Do you want to reset your skills training?") == 'y') {
+            Your("skills training has been reset.");
+            reset_weapon_skills();
+            break;
+        }
+        /* fall through to amnesia for cursed/uncursed scrolls, INT<=12,
+           or for blessed/INT>12 when the player declined the skill reset */
+        if (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID))) {
+            Your("psionic abilities ward off the scroll's magic.");
         } else {
- forget_routine:
-            if (maybe_polyd(is_illithid(youmonst.data), Race_if(PM_ILLITHID))) {
-                Your("psionic abilities ward off the scroll's magic.");
-                break;
-            } else {
-                forget((!sblessed ? ALL_SPELLS : 0));
-                if (Hallucination) /* Ommmmmm! */
-                    Your("mind releases itself from mundane concerns.");
-                else if (!strncmpi(plname, "Maud", 4))
-                    pline("As your mind turns inward on itself, you forget everything else.");
-                else if (rn2(2))
-                    pline("Who was that Maud person anyway?");
-                else
-                    pline("Thinking of Maud you forget everything else.");
-                exercise(A_WIS, FALSE);
-            }
+            forget((!sblessed ? ALL_SPELLS : 0));
+            if (Hallucination) /* Ommmmmm! */
+                Your("mind releases itself from mundane concerns.");
+            else if (!strncmpi(plname, "Maud", 4))
+                pline("As your mind turns inward on itself, you forget everything else.");
+            else if (rn2(2))
+                pline("Who was that Maud person anyway?");
+            else
+                pline("Thinking of Maud you forget everything else.");
+            exercise(A_WIS, FALSE);
         }
         break;
     case SCR_FIRE: {
@@ -2227,6 +2222,9 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
             || levl[u.ux][u.uy].typ == SAND
             || levl[u.ux][u.uy].typ == GRASS) {
             levl[u.ux][u.uy].typ = ALTAR;
+            /* clear union-aliased flags (looted, etc.) before
+               writing altarmask through the same byte */
+            levl[u.ux][u.uy].flags = 0;
             levl[u.ux][u.uy].altarmask = Align2amask(deity);
             levl[u.ux][u.uy].frac_altar = 0;
             if (!Blind)
@@ -2335,7 +2333,7 @@ boolean confused, byu;
         mdmg = dmgval(otmp2, mtmp) * otmp2->quan;
         if (helmet) {
             if (otmp2->owt >= 400 && is_glass(helmet)
-                && break_glass_obj(uarmh)) {
+                && break_glass_obj(helmet)) {
                 ;
             } else if (is_hard(helmet)) {
                 if (otmp2->owt >= 400) {
@@ -2358,7 +2356,7 @@ boolean confused, byu;
                           xname(helmet), mhim(mtmp));
             }
         }
-        damage_mon(mtmp, mdmg, AD_PHYS, byu ? TRUE : FALSE);
+        damage_mon(mtmp, mdmg, AD_PHYS, byu);
         if (DEADMONSTER(mtmp)) {
             if (byu) {
                 killed(mtmp);
@@ -2447,8 +2445,11 @@ struct obj *obj;
     else if (!Deaf)
         You_hear("an explosion.");
 
-    /* Use same damage calculation as player for fairness */
-    n = obj->spe + 2; /* 2 is the recharging adjustment */
+    /* Same dice-size table as wand_explode below, but the player's
+       recharge bump is rnd(lim) (1..lim) while monsters take a fixed
+       +2; deliberate so monster wand explosions are not as punishing
+       as the player's */
+    n = obj->spe + 2; /* fixed recharging adjustment for monsters */
     if (n < 2)
         n = 2;  /* arbitrary minimum */
     /* size of damage dice - same as wand_explode() */
@@ -2514,10 +2515,19 @@ genericptr_t val;
     if (val) {
         levl[x][y].lit = 1;
         if ((mtmp = m_at(x, y)) != 0 && hates_light(r_data(mtmp))) {
-            target = (struct litmon *) alloc(sizeof *target);
-            target->mon = mtmp;
-            target->nxt = light_haters;
-            light_haters = target;
+            /* m_at returns the head pointer for every tile of a long
+               worm, so dedupe to avoid hitting the same monster once
+               per body segment in the lit area */
+            for (target = light_haters; target; target = target->nxt) {
+                if (target->mon == mtmp)
+                    break;
+            }
+            if (!target) {
+                target = (struct litmon *) alloc(sizeof *target);
+                target->mon = mtmp;
+                target->nxt = light_haters;
+                light_haters = target;
+            }
         }
     } else {
         levl[x][y].lit = 0;
@@ -2722,7 +2732,7 @@ STATIC_OVL void
 do_class_genocide()
 {
     int i, j, immunecnt, gonecnt, goodcnt, class, feel_dead = 0;
-    int killed, candidates;
+    int kills, candidates;
     char buf[BUFSZ] = DUMMY;
     boolean gameover = FALSE; /* true iff killed self */
     boolean first_geno;       /* is this the player's first genocide? */
@@ -2818,7 +2828,7 @@ do_class_genocide()
             continue;
         }
 
-        killed = candidates = 0;
+        kills = candidates = 0;
         immune_buf[0] = gone_buf[0] = dark_buf[0] = killed_buf[0] = '\0';
         immune_count = gone_count = dark_count = killed_count = 0;
         first_geno = !num_genocides();  /* check before loop sets flags */
@@ -2850,16 +2860,16 @@ do_class_genocide()
                      * to geno in the first place; we must get them all then.
                      * finally, we have to make sure the self-geno cases always happen.
                      */
-                    if ((killed < 2 && (!rn2(goodcnt) || (killed + candidates > goodcnt - 2)))
+                    if ((kills < 2 && (!rn2(goodcnt) || (kills + candidates > goodcnt - 2)))
                         || Your_Own_Role(i) || Your_Own_Race(i)) {
-                        killed++;
+                        kills++;
                         /* Track genocided monster names for livelog */
                         if (killed_count++)
                             Strcat(killed_buf, " and ");
                         Strcat(killed_buf, nam);
                         mvitals[i].mvflags |= (G_GENOD | G_NOCORPSE);
                         kill_genocided_monsters();
-                        update_inventory();	/* eggs & tins */
+                        update_inventory(); /* eggs & tins */
                         pline("Wiped out all %s.", nam);
                         if (Upolyd && i == u.umonnum) {
                             u.mh = -1;
@@ -2909,7 +2919,7 @@ do_class_genocide()
                         boolean named, uniq;
                         char mnam[BUFSZ];
 
-                        named = type_is_pname(&mons[i]) ? TRUE : FALSE;
+                        named = type_is_pname(&mons[i]);
                         uniq = (mons[i].geno & G_UNIQ) ? TRUE : FALSE;
                         /* one special case */
                         if (i == PM_HIGH_PRIEST)
@@ -3001,6 +3011,10 @@ int how;
             }
 
             mndx = name_to_mon(buf, (int *) 0);
+            if (mndx == NON_PM) {
+                pline("Such creatures do not exist in this world.");
+                continue;
+            }
             ptr = &mons[mndx];
 
             /* Liches and the like are immune to genocide until Vecna
@@ -3085,9 +3099,8 @@ int how;
                 return;
             }
 
-            if (mndx == NON_PM || (mvitals[mndx].mvflags & G_GENOD)) {
-                pline("Such creatures %s exist in this world.",
-                      (mndx == NON_PM) ? "do not" : "no longer");
+            if (mvitals[mndx].mvflags & G_GENOD) {
+                pline("Such creatures no longer exist in this world.");
                 continue;
             }
             /* Although "genus" is Latin for race, the hero benefits
@@ -3224,7 +3237,7 @@ struct obj *sobj;
         You("are being punished for your misbehavior!");
     if (Punished) {
         Your("iron ball gets heavier.");
-        uball->owt += IRON_BALL_W_INCR * (1 + sobj->cursed);
+        uball->owt += IRON_BALL_W_INCR * (1 + (sobj ? sobj->cursed : 0));
         return;
     }
     if (amorphous(youmonst.data) || is_whirly(youmonst.data)

@@ -5268,4 +5268,5 @@ The following changes to date are:
 - Fix: shop billing/pricing bugs and crashes in shk.c
 - Fix: multiple issues in eat.c found during code review
 - Fix: multiple issues in potion.c found during code review
+- Fix: multiple issues in read.c found during code review
 
