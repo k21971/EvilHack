@@ -487,10 +487,13 @@ sickness_dialogue()
         /* change the message slightly for food poisoning */
         if ((u.usick_type & SICK_NONVOMITABLE) == 0)
             (void) strsubst(buf, "illness", "sickness");
-        /* change final message slightly for zombie sickness */
+        /* change final message slightly for zombie sickness;
+           races whose urace.zombienum is NON_PM cannot zombify
+           on death and should see the alt message instead */
         if ((u.usick_type & SICK_ZOMBIE) != 0
             && !(Race_if(PM_CENTAUR) || Race_if(PM_ILLITHID)
-                 || Race_if(PM_TORTLE)))
+                 || Race_if(PM_TORTLE) || Race_if(PM_AASIMAR)
+                 || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)))
             (void) strsubst(buf, "You are at Death's door",
                             "You feel a horrifying change coming over you");
         if (Hallucination && strstri(buf, "Death's door")) {
@@ -648,7 +651,7 @@ nh_timeout()
         u.uvampireshape--;
 
     /* Druids have a sense for when they can use #wildshape again */
-    if (u.uwildshape == 20)
+    if (Role_if(PM_DRUID) && u.uwildshape == 20)
         You_feel("your wildshape ability start to return.");
 
     /* Druids have an innate sense of when they will lose their
@@ -657,7 +660,7 @@ nh_timeout()
         You("are about to revert back to your original form.");
 
     /* Vampires have a sense for when they can use #shapechange again */
-    if (u.uvampireshape == 20)
+    if (Race_if(PM_VAMPIRE) && u.uvampireshape == 20)
         You_feel("your shapechanging ability start to return.");
 
     /* Vampires have an innate sense of when they will lose their
@@ -750,8 +753,12 @@ nh_timeout()
                 }
 
                 if (!!(u.usick_type & SICK_ZOMBIE)) {
+                    /* races whose urace.zombienum is NON_PM cannot
+                       actually zombify; report disease instead */
                     if (Race_if(PM_CENTAUR)
-                        || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)) {
+                        || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)
+                        || Race_if(PM_AASIMAR) || Race_if(PM_DRAUGR)
+                        || Race_if(PM_VAMPIRE)) {
                         killer.format = NO_KILLER_PREFIX;
                         Sprintf(killer.name, "diseased by %s",
                                 an(killer.name));
@@ -776,8 +783,12 @@ nh_timeout()
                 break;
             case SLOW:
                 HSlow &= ~FROMOUTSIDE;
-                You_feel("less sluggish.");
-                context.botl = TRUE;
+                /* sewage walking re-applies FROMOUTSIDE every turn,
+                   so suppress the message when still slowed */
+                if (!Slow) {
+                    You_feel("less sluggish.");
+                    context.botl = TRUE;
+                }
                 break;
             case REFLECTING:
                 if (!Blind)
@@ -881,7 +892,7 @@ nh_timeout()
             case FLYING:
                 /* timed Flying is via #wizintrinsic only */
                 if (was_flying && !Flying) {
-                    context.botl = 1;
+                    context.botl = TRUE;
                     You("land.");
                     spoteffects(TRUE);
                 }
@@ -1047,8 +1058,10 @@ long timeout;
     int i, mnum, hatchcount = 0;
 
     egg = arg->a_obj;
-    /* sterilized while waiting */
-    if (egg->corpsenm == NON_PM)
+    /* sterilized while waiting; guard mons[]/mvitals[] index bounds
+       against save corruption */
+    if (egg->corpsenm == NON_PM
+        || egg->corpsenm < LOW_PM || egg->corpsenm >= NUMMONS)
         return;
 
     mon = mon2 = (struct monst *) 0;
@@ -1206,6 +1219,9 @@ void
 learn_egg_type(mnum)
 int mnum;
 {
+    /* defensive: bad corpsenm shouldn't index mvitals[] */
+    if (mnum < LOW_PM || mnum >= NUMMONS)
+        return;
     /* baby monsters hatch from grown-up eggs */
     mnum = little_to_big(mnum);
     mvitals[mnum].mvflags |= MV_KNOWS_EGG;
@@ -1271,7 +1287,8 @@ slip_or_trip()
             You("trip over %s.", what);
         }
         if (!uarmf && otmp->otyp == CORPSE
-            && touch_petrifies(&mons[otmp->corpsenm]) && !Stone_resistance) {
+            && safe_touch_petrifies(otmp->corpsenm)
+            && !Stone_resistance) {
             Sprintf(killer.name, "tripping over %s corpse",
                     an(mons[otmp->corpsenm].mname));
             instapetrify(killer.name);
@@ -1520,7 +1537,7 @@ long timeout;
             break;
         }
 
-        if (obj->age)
+        if (obj && obj->age)
             begin_burn(obj, TRUE);
 
         break;
@@ -1769,9 +1786,15 @@ boolean already_lit;
     default:
         /* [ALI] Support artifact light sources */
         if (artifact_light(obj)) {
+            /* a drow monster wielding the Staff gets the same
+               protection from its dark aura as a drow player */
             boolean staff = (obj->oartifact == ART_STAFF_OF_THE_ARCHMAGI
-                             && wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)
-                             && !Upolyd && Race_if(PM_DROW));
+                             && ((wielding_artifact(ART_STAFF_OF_THE_ARCHMAGI)
+                                  && !Upolyd && Race_if(PM_DROW))
+                                 || (obj->where == OBJ_MINVENT && obj->ocarry
+                                     && mon_wielding_artifact(obj->ocarry,
+                                                  ART_STAFF_OF_THE_ARCHMAGI)
+                                     && racial_drow(obj->ocarry))));
             boolean armor = (Is_dragon_armor(obj)
                              && Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES);
 
@@ -1880,7 +1903,7 @@ do_storms()
     if (!Is_airlevel(&u.uz) || rn2(8))
         return;
 
-    /* the number of strikes is 8-log2(nstrike) */
+    /* the number of strikes is 7-log2(nstrike) */
     for (nstrike = rnd(64); nstrike <= 64; nstrike *= 2) {
         count = 0;
         do {
@@ -1889,11 +1912,13 @@ do_storms()
         } while (++count < 100 && levl[x][y].typ != CLOUD);
 
         if (count < 100) {
-            dirx = rn2(3) - 1;
-            diry = rn2(3) - 1;
-            if (dirx != 0 || diry != 0)
-                buzz(-16, /* "monster" LIGHTNING spell */
-                     8, x, y, dirx, diry);
+            /* re-roll any (0,0) dir so every strike actually fires */
+            do {
+                dirx = rn2(3) - 1;
+                diry = rn2(3) - 1;
+            } while (dirx == 0 && diry == 0);
+            buzz(-16, /* "monster" LIGHTNING spell */
+                 8, x, y, dirx, diry);
         }
     }
 
@@ -2311,8 +2336,9 @@ struct obj *src, *dest;
     for (curr = timer_base; curr; curr = next_timer) {
         next_timer = curr->next; /* things may be inserted */
         if (curr->kind == TIMER_OBJECT && curr->arg.a_obj == src) {
-            (void) start_timer(curr->timeout - monstermoves, TIMER_OBJECT,
-                               curr->func_index, obj_to_any(dest));
+            if (!start_timer(curr->timeout - monstermoves, TIMER_OBJECT,
+                             curr->func_index, obj_to_any(dest)))
+                impossible("obj_split_timers: failed to copy timer");
         }
     }
 }
@@ -2680,6 +2706,11 @@ long adjust;     /* how much to adjust timeout */
 
     /* restore elements */
     mread(fd, (genericptr_t) &count, sizeof count);
+    /* sanity-cap corrupt save data that could demand billions of allocs */
+    if (count < 0 || count > 100000) {
+        impossible("restore_timers: bogus count %d", count);
+        return;
+    }
     while (count-- > 0) {
         curr = (timer_element *) alloc(sizeof(timer_element));
         mread(fd, (genericptr_t) curr, sizeof(timer_element));
@@ -2711,10 +2742,11 @@ void
 relink_timers(ghostly)
 boolean ghostly;
 {
-    timer_element *curr;
+    timer_element *curr, *nxt, *prev = 0;
     unsigned nid;
 
-    for (curr = timer_base; curr; curr = curr->next) {
+    for (curr = timer_base; curr; curr = nxt) {
+        nxt = curr->next;
         if (curr->needs_fixup) {
             if (curr->kind == TIMER_OBJECT) {
                 if (ghostly) {
@@ -2723,14 +2755,26 @@ boolean ghostly;
                 } else
                     nid = curr->arg.a_uint;
                 curr->arg.a_obj = find_oid(nid);
-                if (!curr->arg.a_obj)
-                    panic("cant find o_id %d", nid);
+                if (!curr->arg.a_obj) {
+                    /* save corruption: leaving an orphan timer in
+                       the list would fire callbacks against a freed
+                       obj on the next run_timers() pass */
+                    impossible("relink_timers: cant find o_id %d", nid);
+                    if (prev)
+                        prev->next = nxt;
+                    else
+                        timer_base = nxt;
+                    (void) memset((genericptr_t) curr, 0, sizeof (timer_element));
+                    free((genericptr_t) curr);
+                    continue; /* prev stays on last surviving entry */
+                }
                 curr->needs_fixup = 0;
             } else if (curr->kind == TIMER_MONSTER) {
                 panic("relink_timers: no monster timer implemented");
             } else
                 panic("relink_timers 2");
         }
+        prev = curr;
     }
 }
 

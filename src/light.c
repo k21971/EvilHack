@@ -420,6 +420,11 @@ int fd;
 
     /* restore elements */
     mread(fd, (genericptr_t) &count, sizeof count);
+    /* sanity-cap corrupt save data that could demand billions of allocs */
+    if (count < 0 || count > 100000) {
+        impossible("restore_light_sources: bogus count %d", count);
+        return;
+    }
 
     while (count-- > 0) {
         ls = (light_source *) alloc(sizeof(light_source));

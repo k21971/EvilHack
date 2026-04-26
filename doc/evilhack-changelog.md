@@ -5273,4 +5273,5 @@ The following changes to date are:
 - Fix: multiple issues in invent.c found during code review
 - Fix: multiple issues in teleport.c found during code review
 - Fix: tame pet retains leash when forced feral by saddle/spell/artifact
+- Fix: multiple issues in timeout.c found during code review
 
