@@ -696,8 +696,9 @@ dodrink()
        was no longer dealing with an inventory item.  Unwearing
        the current potion is intended to keep it in inventory.] */
     if (otmp->quan > 1L) {
+        /* splitobj() clears owornmask on the new single-quan otmp;
+           the remainder of the original stack stays as-is */
         otmp = splitobj(otmp, 1L);
-        otmp->owornmask = 0L; /* rest of original stuck unaffected */
     } else if (otmp->owornmask) {
         remove_worn_item(otmp, FALSE);
     }
@@ -964,9 +965,9 @@ struct obj *otmp;
              */
             make_blinded(0L, TRUE);
         }
-	/* remove free permanent see-invis... */
-	incr_itimeout(&HSee_invisible,
-		      rn1(otmp->odiluted ? 50 : 100, otmp->blessed ? 1500: 750));
+        /* remove free permanent see-invis... */
+        incr_itimeout(&HSee_invisible,
+                      rn1(otmp->odiluted ? 50 : 100, otmp->blessed ? 1500: 750));
         set_mimic_blocking(); /* do special mimic handling */
         see_monsters();       /* see invisible monsters */
         newsym(u.ux, u.uy);   /* see yourself! */
@@ -1794,7 +1795,7 @@ int how;
                       buf);
         }
         if (rn2(5) && mon->mhp > 1 && !hit_saddle && !hit_barding)
-            damage_mon(mon, 1, AD_PHYS, your_fault ? TRUE : FALSE);
+            damage_mon(mon, 1, AD_PHYS, your_fault);
     }
 
     /* oil doesn't instantly evaporate; Neither does a saddle/barding hit */
@@ -2031,12 +2032,13 @@ int how;
                           is_silent(mon->data) ? "writhes" : "shrieks");
                     if (!is_silent(mon->data))
                         wake_nearto(tx, ty, mon->data->mlevel * 10);
-                    damage_mon(mon, d(2, 6), AD_ACID,
-                               your_fault ? TRUE : FALSE);
-                    /* should only be by you */
-                    if (DEADMONSTER(mon))
-                        killed(mon);
-                    else if (is_were(mon->data) && !is_human(mon->data))
+                    damage_mon(mon, d(2, 6), AD_ACID, your_fault);
+                    if (DEADMONSTER(mon)) {
+                        if (your_fault)
+                            killed(mon);
+                        else
+                            monkilled(mon, "", AD_ACID);
+                    } else if (is_were(mon->data) && !is_human(mon->data))
                         new_were(mon); /* revert to human */
                 } else if (obj->cursed) {
                     angermon = FALSE;
@@ -2055,11 +2057,13 @@ int how;
             } else if (mon->data == &mons[PM_IRON_GOLEM]) {
                 if (canseemon(mon))
                     pline("%s rusts.", Monnam(mon));
-                damage_mon(mon, d(1, 6), AD_PHYS,
-                           your_fault ? TRUE : FALSE);
-                /* should only be by you */
-                if (DEADMONSTER(mon))
-                    killed(mon);
+                damage_mon(mon, d(1, 6), AD_PHYS, your_fault);
+                if (DEADMONSTER(mon)) {
+                    if (your_fault)
+                        killed(mon);
+                    else
+                        monkilled(mon, "", AD_PHYS);
+                }
             }
             break;
         case POT_OIL:
@@ -2075,7 +2079,7 @@ int how;
                 if (!is_silent(mon->data))
                     wake_nearto(tx, ty, mon->data->mlevel * 10);
                 damage_mon(mon, d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8),
-                           AD_ACID, your_fault ? TRUE : FALSE);
+                           AD_ACID, your_fault);
                 if (DEADMONSTER(mon)) {
                     if (your_fault)
                         killed(mon);
@@ -2730,6 +2734,8 @@ dodip()
         useup(potion);
         makeknown(POT_FRUIT_JUICE);
         obj = poly_obj(obj, POT_SICKNESS);
+        if (!obj)
+            return 1;
         freeinv(obj);
         (void) hold_another_object(obj, "You drop %s!", doname(obj),
                                    (const char *) 0);
@@ -2753,6 +2759,8 @@ dodip()
         useup(potion);
         makeknown(POT_FRUIT_JUICE);
         obj = poly_obj(obj, POT_DROW_POISON);
+        if (!obj)
+            return 1;
         freeinv(obj);
         (void) hold_another_object(obj, "You drop %s!", doname(obj),
                                    (const char *) 0);

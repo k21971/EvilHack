@@ -5267,4 +5267,5 @@ The following changes to date are:
 - Fix: monster spell attacks don't interrupt player occupation
 - Fix: shop billing/pricing bugs and crashes in shk.c
 - Fix: multiple issues in eat.c found during code review
+- Fix: multiple issues in potion.c found during code review
 
