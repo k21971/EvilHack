@@ -22,8 +22,20 @@
 
 #define spellev(spell) spl_book[spell].sp_lev
 #define spellname(spell) OBJ_NAME(objects[spellid(spell)])
+/* convert a spl_book[] index 0..MAXSPELL-1 into the single character
+   used as menu accelerator and dump-file prefix:
+     0..25  -> 'a'..'z'
+     26..51 -> 'A'..'Z'
+     52..61 -> '0'..'9'
+     62+    -> '?' placeholder (only reachable past EvilHack's 62-entry
+                spell catalog; spell_let_to_idx rejects '?' so single-
+                letter input never resolves to it -- such spells are
+                accessible only via menu mode) */
 #define spellet(spell) \
-    ((char) ((spell < 26) ? ('a' + spell) : ('A' + spell - 26)))
+    ((char) ((spell) < 26 ? ('a' + (spell)) \
+             : (spell) < 52 ? ('A' + (spell) -26) \
+             : (spell) < 62 ? ('0' + (spell) -52) \
+             : '?'))
 
 STATIC_DCL int FDECL(spell_let_to_idx, (CHAR_P));
 STATIC_DCL boolean FDECL(cursed_book, (struct obj * bp));
@@ -101,7 +113,8 @@ static const char clothes[] = { ARMOR_CLASS, 0 };
 /* since the spellbook itself doesn't blow up, don't say just "explodes" */
 static const char explodes[] = "radiates explosive energy";
 
-/* convert a letter into a number in the range 0..51, or -1 if not a letter */
+/* convert a letter or digit into a number in the range 0..61, or -1
+   if not a letter/digit; inverse of spellet() */
 STATIC_OVL int
 spell_let_to_idx(ilet)
 char ilet;
@@ -114,6 +127,9 @@ char ilet;
     indx = ilet - 'A';
     if (indx >= 0 && indx < 26)
         return indx + 26;
+    indx = ilet - '0';
+    if (indx >= 0 && indx < 10)
+        return indx + 52;
     return -1;
 }
 
@@ -124,7 +140,6 @@ struct obj *bp;
 {
     boolean was_in_use;
     int lev = objects[bp->otyp].oc_level;
-    int dmg = 0;
 
     switch (rn2(lev)) {
     case 0:
@@ -164,9 +179,10 @@ struct obj *bp;
             shieldeff(u.ux, u.uy);
             pline_The("book %s, but you are unharmed!", explodes);
         } else {
+            int dmg = 2 * rnd(10) + 5;
+
             pline("As you read the book, it %s in your %s!", explodes,
                   body_part(FACE));
-            dmg = 2 * rnd(10) + 5;
             losehp(Maybe_Half_Phys(dmg), "exploding rune", KILLED_BY_AN);
         }
         return TRUE;
@@ -186,8 +202,13 @@ struct obj *spellbook;
 
     if (!rn2(3) && spellbook->otyp != SPE_BOOK_OF_THE_DEAD) {
         spellbook->in_use = TRUE; /* in case called from learn */
-        pline(
-         "Being confused you have difficulties in controlling your actions.");
+        if (Confusion) {
+            pline("Being confused you have difficulties in controlling your actions.");
+        } else {
+            /* draugr funnel through this helper for the destroy-on-fail
+               mechanic; their failure has nothing to do with confusion */
+            pline_The("runes are utterly meaningless to your undead mind.");
+        }
         display_nhwindow(WIN_MESSAGE, FALSE);
         You("accidentally tear the spellbook to pieces.");
         if (!objects[spellbook->otyp].oc_name_known
@@ -356,7 +377,7 @@ learn(VOID_ARGS)
     if (context.spbook.delay && ublindf && ublindf->otyp == LENSES && rn2(2))
         context.spbook.delay++;
     if (Confusion
-        || (Race_if(PM_DRAUGR) && book
+        || (Race_if(PM_DRAUGR)
             && book->otyp != SPE_BOOK_OF_THE_DEAD)) { /* became confused while learning */
         (void) confused_book(book);
         context.spbook.book = 0; /* no longer studying */
@@ -429,7 +450,10 @@ learn(VOID_ARGS)
         makeknown((int) booktype);
     }
 
-    if (book->cursed) { /* maybe a demon cursed it */
+    /* if the book just faded to blank paper above, skip the cursed
+       payload: oc_level is 0 for SPE_BLANK_PAPER and cursed_book()'s
+       rn2(lev) would divide by zero */
+    if (book->cursed && book->otyp != SPE_BLANK_PAPER) {
         if (cursed_book(book)) {
             useup(book);
             context.spbook.book = 0;
@@ -493,7 +517,7 @@ struct obj *spellbook;
         if (booktype == SPE_PSIONIC_WAVE
             && !Race_if(PM_ILLITHID)) {
             You("do not understand the strange language this book is written in.");
-            pline("The inscriptions in the book start to fade away!");
+            pline_The("inscriptions in the book start to fade away!");
             spellbook->otyp = booktype = SPE_BLANK_PAPER;
             set_material(spellbook, PAPER);
             makeknown(booktype);
@@ -730,11 +754,12 @@ int *spell_no;
             Sprintf(lets, "a-zA-%c", 'A' + nspells - 27);
         else if (nspells == 53)
             Sprintf(lets, "a-zA-Z0");
-        /* up to 62 different known spells maximum.
-           any more than this, and we'll need to include
-           special characters as menu selection choices */
+        else if (nspells <= 62)
+            /* a-zA-Z0-9 caps at 62 single-letter accessible spells */
+            Sprintf(lets, "a-zA-Z0-%c", '0' + nspells - 53);
         else
-            Sprintf(lets, "a-zA-Z0-%c", '9' + nspells - 11);
+            /* spells past the 62nd are only accessible via menu mode */
+            Sprintf(lets, "a-zA-Z0-9");
 
         for (;;) {
             Sprintf(qbuf, "Cast which spell? [%s *?]", lets);
@@ -897,7 +922,7 @@ int skill;
         u.uconduct.reflection++;
         if (HReflecting) {
             if (!Blind)
-                pline("The shimmering globe around you becomes slightly brighter.");
+                pline_The("shimmering globe around you becomes slightly brighter.");
             else
                 You_feel("slightly more smooth");
         } else {
@@ -1038,6 +1063,19 @@ int skill;
             pline_The("spell fails to entangle you.");
             return;
         }
+        /* dismount before describing the entanglement: the steed
+           may pitch the player onto a different tile, so the
+           messages and the eventual set_utrap should describe the
+           landing tile rather than the mounted-position tile */
+        if (u.usteed) {
+            newsym(u.usteed->mx, u.usteed->my);
+            dismount_steed(DISMOUNT_FELL);
+            if (!(levl[u.ux][u.uy].typ == GRASS
+                  || nexttotree(u.ux, u.uy))) {
+                You("land on bare ground; the spell loses its grip.");
+                return;
+            }
+        }
         if (nexttotree(u.ux, u.uy))
             pline_The("%s from a nearby tree ensnare you!",
                       rn2(2) ? "branches" : "roots");
@@ -1045,10 +1083,6 @@ int skill;
             pline_The("grass underneath you twists and loops around your %s!",
                       makeplural(body_part(LEG)));
         You("are entangled!");
-        if (u.usteed) {
-            newsym(u.usteed->mx, u.usteed->my);
-            dismount_steed(DISMOUNT_FELL);
-        }
         set_utrap(rn1(6, 3), TT_ENTANGLED); /* 3-8 turns */
         return;
     } else if (!youdefend) {
@@ -1060,8 +1094,11 @@ int skill;
         } else if (is_whirly(mdef->data)
                    || passes_walls(mdef->data)
                    || unsolid(mdef->data)) {
+            /* caster-agnostic phrasing; this branch is reached from
+               m-v-m wand-of-entangle paths where the player isn't
+               the caster */
             if (canseemon(mdef))
-                Your("spell fails to entangle %s.", mon_nam(mdef));
+                pline_The("spell fails to entangle %s.", mon_nam(mdef));
             return;
         } else {
             if (canseemon(mdef)) {
@@ -1134,8 +1171,10 @@ genericptr_t grasscnt;
         && (is_pit(ttmp->ttyp) || is_hole(ttmp->ttyp)))
         return;
 
-    /* grow grass */
+    /* grow grass; clear the rm-flags union since it aliases to a
+       different field on the new typ */
     levl[x][y].typ = GRASS;
+    levl[x][y].flags = 0;
     del_engr_at(x, y);
     newsym(x, y);
     (* (int*)grasscnt)++;
@@ -1246,8 +1285,10 @@ genericptr_t arg;
     if (ttmp)
         deltrap_with_ammo(ttmp, DELTRAP_PLACE_AMMO);
 
-    /* grow a tree */
+    /* grow a tree; clear the rm-flags union since it aliases to a
+       different field on the new typ */
     levl[x][y].typ = TREE;
+    levl[x][y].flags = 0;
     del_engr_at(x, y);
     newsym(x, y);
     tg->count++;
@@ -1550,7 +1591,7 @@ boolean wiz_cast;
         /* psychic attack uses spell power but
            technically is not considered a spell */
         && spellid(spell) != SPE_PSIONIC_WAVE) {
-        pline("You draw upon your own life force to cast the spell.");
+        You("draw upon your own life force to cast the spell.");
         /* prevent healing spell abuse:
            healing can cure 6d4 worth of hit points,
            casting it drains 30 hit points.
@@ -1803,15 +1844,24 @@ boolean wiz_cast;
             if (!otmp) {
                 otmp = getobj(clothes, "magically repair");
                 while (otmp && !(otmp->owornmask & W_ARMOR)) {
-                    pline("You cannot repair armor that is not worn.");
+                    You("cannot repair armor that is not worn.");
                     otmp = getobj(clothes, "magically repair");
                 }
             }
         } else {
+            /* unskilled cast picks armor at random; skip Hand of
+               Vecna since the cursed Hand can't be repaired by the
+               spell. some_armor() is deterministic when only one
+               slot is filled, so bound the retry to avoid an
+               infinite loop when the Hand is the player's only armor */
+            int tryct = 50;
+
             otmp = some_armor(&youmonst);
-            while (otmp && otmp->oartifact == ART_HAND_OF_VECNA) {
+            while (otmp && otmp->oartifact == ART_HAND_OF_VECNA
+                   && --tryct > 0)
                 otmp = some_armor(&youmonst);
-            }
+            if (otmp && otmp->oartifact == ART_HAND_OF_VECNA)
+                otmp = (struct obj *) 0;
         }
         if (otmp) {
             if (greatest_erosion(otmp) > 0) {
@@ -1992,8 +2042,14 @@ boolean wiz_cast;
                                 mon_nam(mtmp));
                             mtmp->mhp = 0;
                             monkilled(mtmp, (char *) 0, AD_DETH);
-                            if (!DEADMONSTER(mtmp)) /* lifesaved */
+                            if (!DEADMONSTER(mtmp)) {
+                                /* lifesaved; clean up pseudo before
+                                   bailing so the temporary doesn't
+                                   leak (matches the default branch
+                                   pattern at the end of this function) */
+                                obfree(pseudo, (struct obj *) 0);
                                 return 0;
+                            }
                             break;
                         }
                     } else { /* greater than damage_skill hit points */
@@ -2139,6 +2195,7 @@ int what;
         struct spell savespell;
         int tport_indx;
     } save_tport;
+    static boolean inited = FALSE;
     int i;
 /* also defined in teleport.c */
 #define NOOP_SPELL  0
@@ -2146,6 +2203,17 @@ int what;
 #define ADD_SPELL   2
 #define UNHIDESPELL 3
 #define REMOVESPELL 4
+
+    /* save_tport is zero-initialized by C, which leaves tport_indx
+       at 0 -- a valid spl_book[] index. If REMOVESPELL or UNHIDESPELL
+       were ever the first call (no prior ADD/HIDE), the saved-zero
+       savespell would be written to spl_book[0], wiping the player's
+       first known spell. Set tport_indx out of range on first use so
+       the defensive guards below trip */
+    if (!inited) {
+        save_tport.tport_indx = MAXSPELL;
+        inited = TRUE;
+    }
 
     for (i = 0; i < MAXSPELL; i++)
         if (spellid(i) == SPE_TELEPORT_AWAY || spellid(i) == NO_SPELL)
@@ -2158,6 +2226,8 @@ int what;
             save_tport.tport_indx = MAXSPELL;
         } else if (what == UNHIDESPELL) {
             /*assert( save_tport.savespell.sp_id == SPE_TELEPORT_AWAY );*/
+            if (save_tport.tport_indx >= MAXSPELL)
+                return NOOP_SPELL;
             spl_book[save_tport.tport_indx] = save_tport.savespell;
             save_tport.tport_indx = MAXSPELL; /* burn bridge... */
         } else if (what == ADD_SPELL) {
@@ -2173,6 +2243,8 @@ int what;
             save_tport.tport_indx = MAXSPELL;
         } else if (what == REMOVESPELL) {
             /*assert( i == save_tport.tport_indx );*/
+            if (save_tport.tport_indx >= MAXSPELL)
+                return NOOP_SPELL;
             spl_book[i] = save_tport.savespell;
             save_tport.tport_indx = MAXSPELL;
         } else if (what == HIDE_SPELL) {

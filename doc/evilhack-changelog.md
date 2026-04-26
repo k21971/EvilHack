@@ -5269,4 +5269,5 @@ The following changes to date are:
 - Fix: multiple issues in eat.c found during code review
 - Fix: multiple issues in potion.c found during code review
 - Fix: multiple issues in read.c found during code review
+- Fix: multiple issues in spell.c found during code review
 
