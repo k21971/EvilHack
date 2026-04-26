@@ -458,7 +458,7 @@ druid_wildshape()
     any = zeroany;
 
     if (Unchanging) {
-        pline("You fail to transform!");
+        You("fail to transform!");
         destroy_nhwindow(win);
         return;
     }
@@ -467,32 +467,29 @@ druid_wildshape()
         toggleshell();
 
     for (i = LOW_PM; i < NUMMONS; i++) {
-        n = (LOW_PM + i);
         if (u.ulevel >= 20) {
-            if (!all_druid_forms(n))
+            if (!all_druid_forms(i))
                 continue;
         } else if (u.ulevel >= 14) {
-            if (!druid_form_A(n)
-                && !druid_form_B(n)
-                && !druid_form_C(n))
+            if (!druid_form_A(i)
+                && !druid_form_B(i)
+                && !druid_form_C(i))
                 continue;
         } else if (u.ulevel >= 8) {
-            if (!druid_form_A(n)
-                && !druid_form_B(n))
+            if (!druid_form_A(i)
+                && !druid_form_B(i))
                 continue;
         } else if (u.ulevel >= 3) {
-            if (!druid_form_A(n))
+            if (!druid_form_A(i))
                 continue;
         } else if (u.ulevel < 3) {
             /* extra guard, otherwise potentially
                all monsters become available */
             continue;
         }
-        if (n >= NUMMONS)
-            break;
-        any.a_int = n;
+        any.a_int = i;
         add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
-                 mons[n].mname, MENU_UNSELECTED);
+                 mons[i].mname, MENU_UNSELECTED);
     }
     end_menu(win, "Pick a form to change into.");
     n = select_menu(win, PICK_ONE, &selected);
@@ -500,16 +497,17 @@ druid_wildshape()
     if (n > 0) {
         i = selected[0].item.a_int;
         free((genericptr_t) selected);
-        (void) polymon(i);
-        /* set timer for next allowed use of wildshape,
-           3600-4000 turns (this is an approximation
-           to Druids being able to use wildshape three
-           times a day, ad&d rules). how alignment is
-           abused (or not abused) can affect the amount
-           of turns needed to wait between wildshape
+        /* set timer for next allowed use of wildshape only if
+           the transformation actually took place; polymon()
+           returns 0 if the chosen form was genocided.
+           3600-4000 turns approximates Druids being able to
+           use wildshape three times a day (ad&d rules); how
+           alignment is abused (or not abused) can affect the
+           amount of turns needed to wait between wildshape
            uses */
-        u.uwildshape += rn1((u.ualign.abuse == 0) ? 201 : 401,
-                            (3600 + abuse));
+        if (polymon(i))
+            u.uwildshape += rn1((u.ualign.abuse == 0) ? 201 : 401,
+                                (3600 + abuse));
     } else {
         /* player hit ESC/did not make a selection */
         return;
@@ -543,26 +541,23 @@ vampire_shapechange()
     any = zeroany;
 
     if (Unchanging) {
-        pline("You fail to transform!");
+        You("fail to transform!");
         destroy_nhwindow(win);
         return;
     }
 
     for (i = LOW_PM; i < NUMMONS; i++) {
-        n = (LOW_PM + i);
         if (u.ulevel >= 1) {
-            if (!all_vampire_forms(n))
+            if (!all_vampire_forms(i))
                 continue;
         } else {
             /* extra guard, otherwise potentially
                all monsters become available */
             continue;
         }
-        if (n >= NUMMONS)
-            break;
-        any.a_int = n;
+        any.a_int = i;
         add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
-                 mons[n].mname, MENU_UNSELECTED);
+                 mons[i].mname, MENU_UNSELECTED);
     }
     end_menu(win, "Pick a form to change into.");
     n = select_menu(win, PICK_ONE, &selected);
@@ -570,13 +565,15 @@ vampire_shapechange()
     if (n > 0) {
         i = selected[0].item.a_int;
         free((genericptr_t) selected);
-        (void) polymon(i);
-        /* set timer for next allowed use of shapechange,
-           3600-4000 turns. how alignment is abused (or
-           not abused) can affect the amount of turns
-           needed to wait between shapechange uses */
-        u.uvampireshape += rn1((u.ualign.abuse == 0) ? 201 : 401,
-                               (3600 + abuse));
+        /* set timer for next allowed use of shapechange only
+           if the transformation actually took place; polymon()
+           returns 0 if the chosen form was genocided.
+           3600-4000 turns; how alignment is abused (or not
+           abused) can affect the amount of turns needed to
+           wait between shapechange uses */
+        if (polymon(i))
+            u.uvampireshape += rn1((u.ualign.abuse == 0) ? 201 : 401,
+                                   (3600 + abuse));
     } else {
         /* player hit ESC/did not make a selection */
         return;
@@ -620,7 +617,7 @@ int psflags;
             yourrace, old_uwvis = (Underwater && See_underwater);
 
     if (Unchanging) {
-        pline("You fail to transform!");
+        You("fail to transform!");
         return;
     }
     /* being Stunned|Unaware doesn't negate this aspect of Poly_control */
@@ -764,8 +761,10 @@ int psflags;
                 You("merge with your scaly armor.");
                 if (uskin) {
                     impossible("Already merged with some armor!");
+                    return;
                 } else if (!mergarm) {
                     impossible("No dragon armor / dragon cloak to merge?");
+                    return;
                 } else {
                     uskin = *mergarm;
                     *mergarm = NULL;
@@ -879,7 +878,8 @@ made_change:
            should have it */
         if (!((Race_if(PM_ILLITHID) || Race_if(PM_VAMPIRE))
               && u.ulevel >= 12)
-            && !(Race_if(PM_AASIMAR) && u.ulevel >= 15)) {
+            && !(Race_if(PM_AASIMAR) && u.ulevel >= 15
+                 && u.ualign.abuse == 0)) {
             HFlying &= ~FROMRACE;
             context.botl = TRUE;
             You_feel("gravity's pull!");
@@ -1308,6 +1308,11 @@ break_armor()
                     && otmp->otyp == CHROMATIC_DRAGON_SCALES) {
                     ; /* nothing bad happens, armor is still worn */
                 } else {
+                    /* end any active light before useup() so
+                       "stops shining" does not print after the
+                       cloak has already been reported destroyed */
+                    if (otmp->lamplit)
+                        end_burn(otmp, FALSE);
                     Your("%s tears apart!", cloak_simple_name(otmp));
                     (void) Cloak_off();
                     useup(otmp);
@@ -2252,8 +2257,8 @@ boolean silently;
         /* undo save/restore hack */
         (*slot)->owornmask &= ~I_SPECIAL;
 
-        if (artifact_light(uarm))
-            maybe_adjust_light(uarm, old_light);
+        if (artifact_light(*slot))
+            maybe_adjust_light(*slot, old_light);
     }
 }
 
