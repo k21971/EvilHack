@@ -620,6 +620,11 @@
     ((ptr) == &mons[PM_COCKATRICE] || (ptr) == &mons[PM_CHICKATRICE] \
      || (ptr) == &mons[PM_BASILISK])
 
+/* corpsenm-form NON_PM-safe wrapper around touch_petrifies();
+   prevents pointer-formation UB when corpsenm == NON_PM (-1) */
+#define safe_touch_petrifies(mnum) \
+    ((mnum) != NON_PM && touch_petrifies(&mons[mnum]))
+
 #define is_mind_flayer(ptr) \
     ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER] \
      || (ptr) == &mons[PM_ALHOON])

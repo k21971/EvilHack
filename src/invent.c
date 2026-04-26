@@ -39,7 +39,7 @@ STATIC_DCL void FDECL(menu_identify, (int));
 STATIC_DCL boolean FDECL(tool_in_use, (struct obj *));
 STATIC_DCL char FDECL(obj_to_let, (struct obj *));
 
-static int lastinvnr = 51; /* 0 ... 51 (never saved&restored) */
+static int lastinvnr = 51; /* 0..51, session-local; never saved */
 
 /* wizards can wish for venom, which will become an invisible inventory
  * item without this.  putting it in inv_order would mean venom would
@@ -280,8 +280,11 @@ struct obj *obj;
         obj->spe = saveo.spe;
         /* give "towel" a suffix that will force wet ones to come first,
            moist ones next, and dry ones last regardless of whether
-           they've been flagged as having spe known */
-        Strcat(res, is_wet_towel(obj) ? ((obj->spe >= 3) ? "x" : "y") : "z");
+           they've been flagged as having spe known; bound check is
+           defensive against a long custom oname filling res */
+        if (strlen(res) < BUFSZ - 2)
+            Strcat(res, is_wet_towel(obj) ? ((obj->spe >= 3) ? "x" : "y")
+                                          : "z");
     }
     if (obj->globby) {
         obj->owt = saveo.owt;
@@ -290,10 +293,11 @@ struct obj *obj;
            but globs with different bless/curse state won't merge so it is
            feasible to have multiple at the same location; add a suffix to
            get such sorted by size (small first) */
-        Strcat(res, (obj->owt <= 100) ? "a"
-                    : (obj->owt <= 300) ? "b"
-                      : (obj->owt <= 500) ? "c"
-                        : "d");
+        if (strlen(res) < BUFSZ - 2)
+            Strcat(res, (obj->owt <= 100) ? "a"
+                        : (obj->owt <= 300) ? "b"
+                          : (obj->owt <= 500) ? "c"
+                            : "d");
     }
     if (save_oname && !obj->oartifact)
         ONAME(obj) = save_oname;
@@ -501,7 +505,9 @@ sortloot(olist, mode, by_nexthere, filterfunc)
 struct obj **olist; /* previous version might have changed *olist, we don't */
 unsigned mode; /* flags for sortloot_cmp() */
 boolean by_nexthere; /* T: traverse via obj->nexthere, F: via obj->nobj */
-boolean FDECL((*filterfunc), (OBJ_P));
+boolean FDECL((*filterfunc), (OBJ_P)); /* must be pure: invoked twice
+                                          per object during count and
+                                          populate passes */
 {
     Loot *sliarray;
     struct obj *o;
@@ -523,7 +529,7 @@ boolean FDECL((*filterfunc), (OBJ_P));
                to do a cockatrice corpse touch check during pickup even
                if/when the filter rejects food class) */
             && (!augment_filter || o->otyp != CORPSE
-                || !touch_petrifies(&mons[o->corpsenm])))
+                || !safe_touch_petrifies(o->corpsenm)))
             continue;
         sliarray[i].obj = o, sliarray[i].indx = (int) i;
         sliarray[i].str = (char *) 0;
@@ -742,15 +748,13 @@ struct obj **potmp, **pobj;
 
         if (!otmp->globby)
             otmp->quan += obj->quan;
-        /* recalc weight for various classes that may use
-           different materials that could make the object
-           weigh less than 1 aum*/
+        /* WEAPON: recalc for material; COIN: recalc and clear
+           bknown; pudding: weight handled by obj_absorb in the
+           caller chain; default: simple accumulation */
         if (otmp->oclass == WEAPON_CLASS)
             otmp->owt = weight(otmp);
-        /* temporary special case for gold objects!!!! */
         else if (otmp->oclass == COIN_CLASS)
             otmp->owt = weight(otmp), otmp->bknown = 0;
-        /* and puddings!!!1!!one! */
         else if (!Is_pudding(otmp))
             otmp->owt += obj->owt;
         if (!has_oname(otmp) && has_oname(obj))
@@ -1316,7 +1320,9 @@ int x, y;
     }
 }
 
-/* normal object deletion (if unpaid, it remains on the bill) */
+/* normal object deletion (if unpaid, it remains on the bill);
+   contract: obj must be a floor object (no owornmask) -- obfree()
+   will impossible() if violated */
 void
 delobj(obj)
 struct obj *obj;
@@ -1325,7 +1331,8 @@ struct obj *obj;
 }
 
 /* destroy object; caller has control over whether to destroy something
-   that ordinarily shouldn't be destroyed */
+   that ordinarily shouldn't be destroyed; same owornmask=0 contract
+   as delobj() above */
 void
 delobj_core(obj, force)
 struct obj *obj;
@@ -2118,7 +2125,7 @@ unsigned *resultflags;
     int itemcount;
     int oletct, iletct, unpaid, unided, oc_of_sym;
     char sym, *ip, olets[MAXOCLASSES + 5], ilets[MAXOCLASSES + 10];
-    char extra_removeables[3 + 1]; /* uwep,uswapwep,uquiver */
+    char extra_removeables[3 + 1]; /* uwep + uswapwep + uquiver + NUL */
     char buf[BUFSZ] = DUMMY, qbuf[QBUFSZ];
 
     if (!invent) {
@@ -2547,8 +2554,11 @@ boolean learning_id; /* true if we just read unknown identify scroll */
             do {
                 n = ggetobj("identify", identify, id_limit, FALSE,
                             (unsigned *) 0);
-                if (n < 0)
-                    break; /* quit or no eligible items */
+                /* n<=0: quit, no eligible items, or nothing
+                   processed; defensive against ggetobj returning 0
+                   indefinitely */
+                if (n <= 0)
+                    break;
             } while ((id_limit -= n) > 0);
         if (n == 0 || n < -1)
             menu_identify(id_limit);
@@ -2649,10 +2659,14 @@ long quan;       /* if non-0, print this quantity, not obj->quan */
     long savequan = 0L;
     long save_owt = 0L;
 
-    if (quan && obj) {
+    /* obj->quan > 0 guard prevents divide-by-zero and ensures the
+       savequan/save_owt zero-as-no-op restore guards below are
+       unambiguous (zero now means we did not enter this block) */
+    if (quan && obj && obj->quan > 0L) {
         if (iflags.invweight) {
             save_owt = obj->owt;
-            obj->owt = obj->owt * quan / obj->quan;
+            /* cast to long to avoid unsigned*long width surprises */
+            obj->owt = (unsigned) ((long) obj->owt * quan / obj->quan);
         }
         savequan = obj->quan;
         obj->quan = quan;
@@ -2796,6 +2810,11 @@ long *out_cnt;
     unsigned sortflags;
     Loot *sortedinvent, *srtinv;
     boolean wizid = (wizard && iflags.override_ID), gotsomething = FALSE;
+
+    /* wizid_fakeobj is used purely as a unique-pointer sentinel;
+       zero-init for static-analyzer friendliness even though field
+       reads never occur */
+    (void) memset((genericptr_t) &wizid_fakeobj, 0, sizeof wizid_fakeobj);
 
     if (lets && !*lets)
         lets = 0; /* simplify tests: (lets) instead of (lets && *lets) */
@@ -3558,10 +3577,18 @@ dfeature_at(x, y, buf)
 int x, y;
 char *buf;
 {
-    struct rm *lev = &levl[x][y];
-    int ltyp = lev->typ, cmap = -1;
+    struct rm *lev;
+    int ltyp, cmap = -1;
     const char *dfeature = 0;
     static char altbuf[BUFSZ];
+
+    /* defense-in-depth: current callers always pass u.ux,u.uy
+       (always isok), but pointer formation before bounds check
+       would be UB for any future off-map caller */
+    if (!isok(x, y))
+        return (const char *) 0;
+    lev = &levl[x][y];
+    ltyp = lev->typ;
 
     if (IS_DOOR(ltyp)) {
         switch (lev->doormask) {
@@ -3849,7 +3876,7 @@ struct obj *otmp;
 boolean force_touch;
 {
     if ((Blind || force_touch) && !uarmg && !Stone_resistance
-        && (otmp->otyp == CORPSE && touch_petrifies(&mons[otmp->corpsenm])))
+        && (otmp->otyp == CORPSE && safe_touch_petrifies(otmp->corpsenm)))
         return TRUE;
     return FALSE;
 }
@@ -4495,7 +4522,7 @@ doorganize() /* inventory organizer by Del Lamb */
                without one, not unnamed 'from' with named candidate. */
             if ((!otmpname || (objname && !strcmp(objname, otmpname)))
                 && merged(&otmp, &obj)) {
-                /*adj_type = "Collecting:"; //already set to this*/
+                /* adj_type already set to "Collecting:" */
                 obj = otmp;
                 otmp = otmp->nobj;
                 extract_nobj(obj, &invent);
