@@ -441,8 +441,8 @@ int teleds_flags;
     update_player_regions();
     /* Move your steed, too */
     if (u.usteed) {
-	u.usteed->mx = nux;
-	u.usteed->my = nuy;
+        u.usteed->mx = nux;
+        u.usteed->my = nuy;
     }
     /*
      *  Make sure the hero disappears from the old location.  This will
@@ -533,17 +533,13 @@ boolean force_it;
         otmp = get_mleash(mtmp);
         if (!otmp) {
             impossible("%s is leashed, without a leash.", Monnam(mtmp));
-            goto release_it;
-        }
-        if (otmp->cursed && !force_it) {
+        } else if (otmp->cursed && !force_it) {
             yelp(mtmp);
             return FALSE;
         } else {
             Your("leash goes slack.");
- release_it:
-            m_unleash(mtmp, FALSE);
-            return TRUE;
         }
+        m_unleash(mtmp, FALSE);
     }
     return TRUE;
 }
@@ -577,14 +573,14 @@ struct obj *scroll;
     /* Being in the presence of demon lords/princes can negate
        teleportation most of the time */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        if (DEADMONSTER(mtmp))
+            continue;
         if (is_dlord(mtmp->data) && rn2(10)
-            && !DEADMONSTER(mtmp)
             && (!wizard
                 || yn("A Demon Lord exists here.  Override?") != 'y')) {
             pline("Demonic forces prevent you from teleporting.");
             return TRUE;
         } else if (is_dprince(mtmp->data) && rn2(20)
-            && !DEADMONSTER(mtmp)
             && (!wizard
                 || yn("A Demon Prince exists here.  Override?") != 'y')) {
             pline("Powerful demonic forces prevent you from teleporting.");
@@ -751,9 +747,12 @@ dotelecmd()
 
     HTeleportation = save_HTele;
     ETeleportation = save_ETele;
-    if (added != NOOP_SPELL || hidden != NOOP_SPELL)
-        /* can't both be non-NOOP so addition will yield the non-NOOP one */
-        (void) tport_spell(added + hidden - NOOP_SPELL);
+    if (added != NOOP_SPELL && hidden != NOOP_SPELL)
+        impossible("dotelecmd: both added and hidden set");
+    else if (added != NOOP_SPELL)
+        (void) tport_spell(added);
+    else if (hidden != NOOP_SPELL)
+        (void) tport_spell(hidden);
 
     return res;
 }
@@ -764,14 +763,13 @@ boolean break_the_rules; /* True: wizard mode ^T */
 {
     struct trap *trap;
     const char *cantdoit;
-    boolean trap_once = FALSE;
+    boolean vault_accepted = FALSE;
 
     trap = t_at(u.ux, u.uy);
     if (trap && (!trap->tseen || trap->ttyp != TELEP_TRAP_SET))
         trap = 0;
 
     if (trap) {
-        trap_once = trap->once; /* trap may get deleted, save this */
         if (trap->once) {
             pline("This is a vault teleport, usable once only.");
             if (yn("Jump in?") == 'n') {
@@ -779,13 +777,15 @@ boolean break_the_rules; /* True: wizard mode ^T */
             } else {
                 deltrap(trap);
                 newsym(u.ux, u.uy);
+                trap = (struct trap *) 0;
+                vault_accepted = TRUE;
             }
         }
-        if (trap)
+        if (trap || vault_accepted)
             You("%s onto the teleportation trap.",
                 locomotion(youmonst.data, "jump"));
     }
-    if (!trap) {
+    if (!trap && !vault_accepted) {
         boolean castit = FALSE;
         int energy = 0;
 
@@ -856,7 +856,7 @@ boolean break_the_rules; /* True: wizard mode ^T */
     }
 
     if (next_to_u()) {
-        if (trap && trap_once)
+        if (vault_accepted)
             vault_tele();
         else
             tele();
@@ -865,7 +865,7 @@ boolean break_the_rules; /* True: wizard mode ^T */
         You("%s", shudder_for_moment);
         return 0;
     }
-    if (!trap)
+    if (!trap && !vault_accepted)
         morehungry(100);
     return 1;
 }
@@ -882,50 +882,33 @@ level_tele()
     boolean force_dest = FALSE;
 
     if (iflags.debug_fuzzer) {
-        /* NetHack 3.7 improvement: randomly choose a dungeon branch and
-           a level in that branch to level teleport to, instead of mostly
-           staying in the Dungeons of Doom.
-
-           Branch number/name:
-           -------------------
-           0  - The Dungeons of Doom (Main dungeon)
-           1  - Gehennom
-           2  - The Gnomish Mines
-           3  - Goblin Town
-           4  - The Quest
-           5  - Sokoban
-           6  - Fort Ludios (excluded - special 'floating branch')
-           7  - The Ice Queen's Realm
-           8  - The Hidden Dungeon
-           9  - Vecna's Domain
-           10 - Vlad's Tower
-           11 - Purgatory
-           12 - The Wizard's Tower
-           13 - The Elemental Planes (excluded - endgame)
-
-           Target all dungeons except Fort Ludios (6) and The Elemental
-           Planes (13) */
-        int safe_dungeons[] = { 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12 };
-        int num_safe = sizeof(safe_dungeons) / sizeof(safe_dungeons[0]);
-        int selected_dungeon = safe_dungeons[rn2(num_safe)];
+        /* Randomly choose any dungeon branch except Fort Ludios and
+           the Endgame (which aren't valid level-teleport targets);
+           use runtime dnums so dungeon reorders can't desync this. */
+        int attempts, max_attempts = n_dgns * 4;
         int max_levels;
 
-        newlevel.dnum = selected_dungeon;
-        newlevel.dlevel = 1; /* safe default */
+        newlevel.dnum = 0; /* fall back to Dungeons of Doom */
+        newlevel.dlevel = 1;
 
-        /* Ensure the selected dungeon is valid */
-        if (newlevel.dnum < n_dgns
-            && dungeons[newlevel.dnum].num_dunlevs > 0) {
-            max_levels = dunlevs_in_dungeon(&newlevel);
-            if (max_levels > 0) {
-                newlevel.dlevel = 1 + rn2(max_levels);
-            }
+        for (attempts = 0; attempts < max_attempts; attempts++) {
+            int candidate = rn2(n_dgns);
+
+            if (candidate == knox_level.dnum
+                || candidate == astral_level.dnum /* all elemental + astral */
+                || dungeons[candidate].num_dunlevs <= 0)
+                continue;
+            newlevel.dnum = candidate;
+            break;
         }
+
+        max_levels = dunlevs_in_dungeon(&newlevel);
+        if (max_levels > 0)
+            newlevel.dlevel = 1 + rn2(max_levels);
 
         /* Final safety check */
-        if (newlevel.dlevel <= 0) {
+        if (newlevel.dlevel <= 0)
             newlevel.dlevel = 1;
-        }
 
         schedule_goto(&newlevel, FALSE, FALSE, 0, (char *) 0, (char *) 0);
         return;
@@ -944,14 +927,14 @@ level_tele()
     /* Being in the presence of demon lords/princes can negate
        level teleportation most of the time */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (is_dlord(mtmp->data)
-            && !DEADMONSTER(mtmp) && rn2(10)
+        if (DEADMONSTER(mtmp))
+            continue;
+        if (is_dlord(mtmp->data) && rn2(10)
             && (!wizard
                 || yn("A Demon Lord exists here.  Override?") != 'y')) {
             pline("Demonic forces prevent you from teleporting.");
             return;
-        } else if (is_dprince(mtmp->data)
-            && !DEADMONSTER(mtmp) && rn2(20)
+        } else if (is_dprince(mtmp->data) && rn2(20)
             && (!wizard
                 || yn("A Demon Prince exists here.  Override?") != 'y')) {
             pline("Powerful demonic forces prevent you from teleporting.");
@@ -1493,9 +1476,11 @@ int x, y;
            the old location */
         mtmp->mtrapped = 0;
 
-        /* Only check for new traps for non-worm segments. Worm segments
-           should inherit trap status from their head, not fall into
-           traps independently */
+        /* Skip the post-rloc trap check for long worms: the head was
+           just placed and the wseg tail laid out via
+           place_worm_tail_randomly. Re-firing mintrap here can
+           chain-trigger another relocator and collide with the
+           just-placed segments. */
         if (!mtmp->wormno) {
             (void) mintrap(mtmp); /* check for new trap at destination */
             if (DEADMONSTER(mtmp))
@@ -1616,15 +1601,16 @@ struct monst *mtmp;
 struct trap *trap;
 int in_sight;
 {
-    char *monname;
+    char monnamebuf[BUFSZ];
 
     if (tele_restrict(mtmp))
         return;
     if (resists_magm(mtmp) || defended(mtmp, AD_MAGM))
         return;
     if (teleport_pet(mtmp, FALSE)) {
-        /* save name with pre-movement visibility */
-        monname = Monnam(mtmp);
+        /* snapshot name into a local buffer before mvault_tele/rloc/
+           mnexto can churn the rotating Monnam mbuf pool */
+        Strcpy(monnamebuf, Monnam(mtmp));
 
         /* Note: don't remove the trap if a vault.  Other-
          * wise the monster will be stuck there, since
@@ -1639,9 +1625,9 @@ int in_sight;
 
         if (in_sight) {
             if (canseemon(mtmp))
-                pline("%s seems disoriented.", monname);
+                pline("%s seems disoriented.", monnamebuf);
             else
-                pline("%s suddenly disappears!", monname);
+                pline("%s suddenly disappears!", monnamebuf);
             seetrap(trap);
         }
     }
