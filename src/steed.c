@@ -444,6 +444,8 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            if (mtmp->mleashed)
+                m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
         }
         return 1;
@@ -456,6 +458,8 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            if (mtmp->mleashed)
+                m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
         }
         return 1;
@@ -470,6 +474,8 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            if (mtmp->mleashed)
+                m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
         }
         return 1;
@@ -491,6 +497,8 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            if (mtmp->mleashed)
+                m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
         }
         return 1;
@@ -613,6 +621,8 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            if (mtmp->mleashed)
+                m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
         }
         return 1;
@@ -625,6 +635,8 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            if (mtmp->mleashed)
+                m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
         }
         return 1;
@@ -639,6 +651,8 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            if (mtmp->mleashed)
+                m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
         }
         return 1;
@@ -660,6 +674,8 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            if (mtmp->mleashed)
+                m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
         }
         return 1;
@@ -864,6 +880,8 @@ boolean force;      /* Quietly force this animal */
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            if (mtmp->mleashed)
+                m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
         }
         return FALSE;
@@ -876,6 +894,8 @@ boolean force;      /* Quietly force this animal */
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            if (mtmp->mleashed)
+                m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
         }
         return FALSE;
@@ -890,6 +910,8 @@ boolean force;      /* Quietly force this animal */
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            if (mtmp->mleashed)
+                m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
         }
         return FALSE;
@@ -911,6 +933,8 @@ boolean force;      /* Quietly force this animal */
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            if (mtmp->mleashed)
+                m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
         }
         return FALSE;

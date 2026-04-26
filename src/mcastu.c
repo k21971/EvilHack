@@ -183,6 +183,8 @@ struct monst *target;
         else
             pet->mtame = 0;
         pet->mpeaceful = 0;
+        if (pet->mleashed)
+            m_unleash(pet, TRUE);
         set_malign(pet);
         if (canseemon(pet))
             pline("%s turns against you!", Monnam(pet));

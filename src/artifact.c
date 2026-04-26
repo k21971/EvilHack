@@ -3984,6 +3984,8 @@ struct obj *obj;
                                     (void) damage_mon_nonlethal(mtmp, d(6, 4), AD_DETH, TRUE);
                                     if (mtmp->mpeaceful || mtmp->mtame) {
                                         mtmp->mpeaceful = mtmp->mtame = 0;
+                                        if (mtmp->mleashed)
+                                            m_unleash(mtmp, TRUE);
                                         set_malign(mtmp);
                                         newsym(mtmp->mx, mtmp->my);
                                         if (u.ualign.type != A_NONE) {
@@ -4012,6 +4014,8 @@ struct obj *obj;
                                         mtmp->mhp = 1;
                                     if (mtmp->mpeaceful || mtmp->mtame) {
                                         mtmp->mpeaceful = mtmp->mtame = 0;
+                                        if (mtmp->mleashed)
+                                            m_unleash(mtmp, TRUE);
                                         set_malign(mtmp);
                                         newsym(mtmp->mx, mtmp->my);
                                         if (u.ualign.type != A_NONE) {
@@ -4035,6 +4039,8 @@ struct obj *obj;
                                     (void) damage_mon_nonlethal(mtmp, d(4, 4), AD_DETH, TRUE);
                                     if (mtmp->mpeaceful || mtmp->mtame) {
                                         mtmp->mpeaceful = mtmp->mtame = 0;
+                                        if (mtmp->mleashed)
+                                            m_unleash(mtmp, TRUE);
                                         set_malign(mtmp);
                                         newsym(mtmp->mx, mtmp->my);
                                         if (u.ualign.type != A_NONE) {
