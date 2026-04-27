@@ -160,6 +160,7 @@ E boolean NDECL(has_truecolor);
 E boolean NDECL(term_supports_truecolor);
 E void FDECL(term_start_color32, (unsigned long));
 E void FDECL(term_start_bgcolor32, (unsigned long));
+E void NDECL(tty_show_color_palette);
 #endif /* TEXTCOLOR */
 
 /* ### topl.c ### */

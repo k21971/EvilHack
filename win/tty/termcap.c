@@ -59,6 +59,60 @@ static int term_colors = 0;  /* number of colors terminal supports */
 static char *KS = (char *) 0, *KE = (char *) 0; /* keypad sequences */
 static char nullstr[] = "";
 
+#ifdef TEXTCOLOR
+/* Probe $TERM and $COLORTERM for an explicit color-depth advertisement.
+ * Returns 16777216 / 256 / 16, or `fallback` when no env signal is
+ * present (init_hilite passes the terminfo "Co" value here so we keep
+ * any depth >256 the terminfo entry advertises). Shared between the
+ * ANSI_DEFAULT init path and TERMLIB's init_hilite so the two stay in
+ * lockstep. Detection ladder, in descending order of confidence:
+ *   1. COLORTERM=truecolor / 24bit -- explicit advertisement.
+ *   2. TERM contains "direct" or "truecolor" -- direct-color terminfo
+ *      entry (xterm-direct, tmux-direct, ...).
+ *   3. TERM matches a known always-truecolor family (alacritty / kitty
+ *      / wezterm / contour / foot / mlterm / mintty / iTerm) or the
+ *      modern multiplexer defaults (tmux-256color / screen-256color,
+ *      which pass RGB through when the outer terminal supports it --
+ *      multiplexers without RGB strip the unrecognised SGR so the
+ *      degradation is silent).
+ *   4. TERM contains "256color" or COLORTERM is set non-empty.
+ *   5. Otherwise return `fallback` */
+static int
+detect_env_color_depth(fallback)
+int fallback;
+{
+    const char *envterm = nh_getenv("TERM");
+    const char *cterm = nh_getenv("COLORTERM");
+
+    if (cterm
+        && (!strcmp(cterm, "truecolor")
+            || !strcmp(cterm, "24bit")))
+        return 16777216;
+    if (envterm
+        && (strstr(envterm, "direct")
+            || strstr(envterm, "truecolor")))
+        return 16777216;
+    if (envterm
+        && (strstr(envterm, "alacritty")
+            || strstr(envterm, "kitty")
+            || strstr(envterm, "wezterm")
+            || strstr(envterm, "contour")
+            || strstr(envterm, "foot")
+            || strstr(envterm, "mlterm")
+            || strstr(envterm, "mintty")
+            || strstr(envterm, "iTerm")
+            || strstr(envterm, "iterm")
+            || !strcmp(envterm, "tmux-256color")
+            || !strcmp(envterm, "screen-256color")))
+        return 16777216;
+    if (envterm && strstr(envterm, "256color"))
+        return 256;
+    if (cterm && *cterm != '\0')
+        return 256;
+    return fallback;
+}
+#endif /* TEXTCOLOR */
+
 #if defined(ASCIIGRAPH) && !defined(NO_TERMS)
 extern boolean HE_resets_AS;
 #endif
@@ -157,27 +211,7 @@ int *wid, *hgt;
 #endif
         TE = VS = VE = nullstr;
 #ifdef TEXTCOLOR
-        {
-            const char *envterm = nh_getenv("TERM");
-            const char *cterm = nh_getenv("COLORTERM");
-
-            /* Tri-state: COLORTERM=truecolor / 24bit, or a *-direct or
-               *-truecolor TERM, advertises 24-bit RGB. Otherwise fall
-               back to the existing 256-color / 16-color detection */
-            if (cterm
-                && (!strcmp(cterm, "truecolor")
-                    || !strcmp(cterm, "24bit")))
-                term_colors = 16777216;
-            else if (envterm
-                     && (strstr(envterm, "direct")
-                         || strstr(envterm, "truecolor")))
-                term_colors = 16777216;
-            else if ((envterm && strstr(envterm, "256color"))
-                     || (cterm && (*cterm != '\0')))
-                term_colors = 256;
-            else
-                term_colors = 16;
-        }
+        term_colors = detect_env_color_depth(16);
         for (i = 0; i < CLR_MAX / 2; i++)
             if (i != CLR_BLACK) {
                 hilites[i | BRIGHT] = (char *) alloc(sizeof("\033[1;3%dm"));
@@ -909,7 +943,10 @@ init_hilite()
     int c, md_len;
     int colors = tgetnum("Co");
 
-    term_colors = colors;
+    /* Start from terminfo's "Co" but let an explicit COLORTERM /
+       direct-color TERM advertise a higher depth. See
+       detect_env_color_depth() above for the full ladder */
+    term_colors = detect_env_color_depth(colors);
 
     if (colors < 8 || (MD == NULL) || (strlen(MD) == 0)
         || ((setf = tgetstr("AF", (char **) 0)) == (char *) 0
@@ -1453,6 +1490,193 @@ unsigned long nhcolor;
     }
     if (closest_color(COLORVAL(nhcolor), &quant, &idx))
         term_start_bgcolor(idx);
+}
+
+/* Six-segment HSV->RGB at S=V=255. hue is in [0,360); returns a 24-bit
+   0xRRGGBB value packed into an unsigned long suitable for
+   term_start_color32. Used by tty_show_color_palette */
+STATIC_OVL unsigned long
+hue_to_rgb(hue)
+int hue;
+{
+    int seg, frac, p, q;
+    int r = 0, g = 0, b = 0;
+
+    if (hue < 0)
+        hue = 0;
+    if (hue >= 360)
+        hue %= 360;
+    seg = hue / 60;        /* 0..5 */
+    frac = (hue % 60) * 255 / 60;   /* 0..254 ascending within segment */
+    p = 0;
+    q = 255 - frac;
+    switch (seg) {
+    case 0: r = 255;  g = frac; b = p;    break; /* red   -> yellow  */
+    case 1: r = q;    g = 255;  b = p;    break; /* yellow-> green   */
+    case 2: r = p;    g = 255;  b = frac; break; /* green -> cyan    */
+    case 3: r = p;    g = q;    b = 255;  break; /* cyan  -> blue    */
+    case 4: r = frac; g = p;    b = 255;  break; /* blue  -> magenta */
+    default:r = 255;  g = p;    b = q;    break; /* magenta-> red    */
+    }
+    return ((unsigned long) r << 16)
+           | ((unsigned long) g << 8)
+           | (unsigned long) b;
+}
+
+/* Solid-block sequence used by the palette renderer. Uses U+2588 FULL
+   BLOCK on UTF-8-capable terminals, '#' otherwise */
+#define PAL_BLOCK (iflags.supports_utf8 ? "\xe2\x96\x88" : "#")
+
+/* Public renderer for the #showcolors extended command. Bypasses the
+   window port and writes raw SGR escapes directly to stdout, then waits
+   for a keystroke and forces a screen redraw. TTY-only */
+void
+tty_show_color_palette()
+{
+    const char *envterm = nh_getenv("TERM");
+    const char *cterm = nh_getenv("COLORTERM");
+    const char *depthstr;
+    const char *block;
+    char buf[BUFSZ];
+    int i, x, y, idx, v;
+    unsigned long rgb;
+
+    if (term_colors >= 16777216)
+        depthstr = "24-bit truecolor (16777216 colors)";
+    else if (term_colors >= 256)
+        depthstr = "256-color (xterm-256)";
+    else
+        depthstr = "16-color (basic ANSI)";
+
+    block = PAL_BLOCK;
+
+    /* lay the demo on top of the existing screen; docrt() restores it */
+    tty_curs(BASE_WINDOW, 1, 0);
+    cl_eos();
+
+    Sprintf(buf, "  #showcolors -- terminal color palette demo");
+    xputs(buf);
+    (void) xputc('\n');
+    Sprintf(buf, "  TERM      = %s", envterm ? envterm : "(unset)");
+    xputs(buf);
+    (void) xputc('\n');
+    Sprintf(buf, "  COLORTERM = %s", cterm ? cterm : "(unset)");
+    xputs(buf);
+    (void) xputc('\n');
+    Sprintf(buf, "  Detected  = %s", depthstr);
+    xputs(buf);
+    (void) xputc('\n');
+    (void) xputc('\n');
+
+    /* bar 1: 16-color base palette */
+    xputs("  16-color base palette (CLR_BLACK..CLR_WHITE):");
+    (void) xputc('\n');
+    xputs("   ");
+    for (i = 0; i < CLR_MAX; i++) {
+        term_start_color(i);
+        xputs(block);
+        xputs(block);
+        xputs(block);
+        xputs(block);
+        term_end_color();
+        (void) xputc(' ');
+    }
+    (void) xputc('\n');
+    xputs("   ");
+    for (i = 0; i < CLR_MAX; i++) {
+        Sprintf(buf, "%-4.4s ", (i == NO_COLOR) ? "def" : c_obj_colors[i]);
+        xputs(buf);
+    }
+    (void) xputc('\n');
+    (void) xputc('\n');
+
+    /* bar 2: 256-color cube + grayscale ramp */
+    xputs("  256-color extended palette (16..231 RGB cube,"
+          " 232..255 grayscale):");
+    (void) xputc('\n');
+    for (y = 0; y < 6; y++) {
+        xputs("   ");
+        for (x = 0; x < 36; x++) {
+            idx = 16 + y * 36 + x;
+            term_start_color(idx);
+            xputs(block);
+            term_end_color();
+        }
+        (void) xputc('\n');
+    }
+    xputs("   ");
+    for (i = 232; i < 256; i++) {
+        term_start_color(i);
+        xputs(block);
+        xputs(block);
+        term_end_color();
+    }
+    (void) xputc('\n');
+    (void) xputc('\n');
+
+    /* bar 3: 24-bit truecolor (banding == quantization to lower depth) */
+    Sprintf(buf, "  24-bit truecolor demo (%s):",
+            term_supports_truecolor()
+                ? "active -- gradients should be smooth"
+                : "fallback -- banding shows palette quantization");
+    xputs(buf);
+    (void) xputc('\n');
+
+    xputs("   Hue:   ");
+    for (x = 0; x < 64; x++) {
+        rgb = hue_to_rgb(x * 360 / 64);
+        term_start_color32(rgb);
+        xputs(block);
+        term_end_color();
+    }
+    (void) xputc('\n');
+
+    xputs("   Gray:  ");
+    for (x = 0; x < 64; x++) {
+        v = x * 255 / 63;
+        rgb = ((unsigned long) v << 16)
+              | ((unsigned long) v << 8)
+              | (unsigned long) v;
+        term_start_color32(rgb);
+        xputs(block);
+        term_end_color();
+    }
+    (void) xputc('\n');
+
+    xputs("   Red:   ");
+    for (x = 0; x < 64; x++) {
+        v = x * 255 / 63;
+        rgb = (unsigned long) v << 16;
+        term_start_color32(rgb);
+        xputs(block);
+        term_end_color();
+    }
+    (void) xputc('\n');
+
+    xputs("   Green: ");
+    for (x = 0; x < 64; x++) {
+        v = x * 255 / 63;
+        rgb = (unsigned long) v << 8;
+        term_start_color32(rgb);
+        xputs(block);
+        term_end_color();
+    }
+    (void) xputc('\n');
+
+    xputs("   Blue:  ");
+    for (x = 0; x < 64; x++) {
+        v = x * 255 / 63;
+        rgb = (unsigned long) v;
+        term_start_color32(rgb);
+        xputs(block);
+        term_end_color();
+    }
+    (void) xputc('\n');
+    (void) xputc('\n');
+
+    xputs("  --Press any key to return--");
+    (void) tty_nhgetch();
+    docrt();
 }
 
 #endif /* TEXTCOLOR */

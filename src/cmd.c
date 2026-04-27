@@ -164,6 +164,7 @@ STATIC_PTR int NDECL(wiz_show_pathfind);
 STATIC_PTR int NDECL(wiz_show_escape_pathfind);
 STATIC_PTR int NDECL(wiz_smell);
 STATIC_PTR int NDECL(wiz_show_wmodes);
+STATIC_PTR int NDECL(doshowcolors);
 STATIC_DCL void NDECL(wiz_map_levltyp);
 STATIC_DCL void NDECL(wiz_levltyp_legend);
 #if defined(__BORLANDC__) && !defined(_WIN32)
@@ -1491,6 +1492,31 @@ wiz_show_wmodes(VOID_ARGS)
     }
     display_nhwindow(win, TRUE);
     destroy_nhwindow(win);
+    return 0;
+}
+
+/* #showcolors -- demonstrate the active terminal's color palette and
+   advertised depth. Routes through the tty windowport renderer when
+   present; other ports get an apologetic message until a port-specific
+   renderer is added. tty_show_color_palette lives in win/tty/termcap.c;
+   forward-declared here so cmd.c can stay port-agnostic */
+#if defined(TTY_GRAPHICS) && defined(TEXTCOLOR)
+extern void NDECL(tty_show_color_palette);
+#endif
+
+STATIC_PTR int
+doshowcolors(VOID_ARGS)
+{
+#if defined(TTY_GRAPHICS) && defined(TEXTCOLOR)
+    if (WINDOWPORT("tty")) {
+        tty_show_color_palette();
+        return 0;
+    }
+#endif
+    pline("Color palette demo is only available on the tty windowport"
+          " (current: %s).",
+          (windowprocs.name && *windowprocs.name) ? windowprocs.name
+                                                  : "unknown");
     return 0;
 }
 
@@ -4428,6 +4454,8 @@ struct ext_func_tab extcmdlist[] = {
                        | CMD_NOT_AVAILABLE
 #endif /* SHELL */
     },
+    { '\0', "showcolors", "show terminal color palette and depth",
+            doshowcolors, IFBURIED | AUTOCOMPLETE | GENERALCMD },
     { M('s'), "sit", "sit down", dosit, AUTOCOMPLETE },
     { '\0', "stats", "show memory statistics",
             wiz_show_stats, IFBURIED | AUTOCOMPLETE | WIZMODECMD },

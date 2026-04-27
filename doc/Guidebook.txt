@@ -1310,6 +1310,10 @@
      #shell
           Do a shell escape.  Default key is `!'.
 
+     #showcolors
+          Show the terminal's color palette and detected color depth.
+          Autocompletes.
+
      #sit
           Sit down.  Autocompletes.  Default key is `M-s'.
 

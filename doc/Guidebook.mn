@@ -1497,6 +1497,9 @@ Autocompletes.
 .lp "#shell   "
 Do a shell escape.
 Default key is \(oq!\(cq.
+.lp #showcolors
+Show the terminal's color palette and detected color depth.
+Autocompletes.
 .lp "#sit     "
 Sit down.
 Autocompletes.
