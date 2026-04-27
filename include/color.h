@@ -80,6 +80,39 @@
 #define HI_PLANT    106 /* plants */
 #define HI_WATER    27  /* aquatic/blue */
 
+/* 3.7-compatible 32-bit color encoding (additive overlay).
+ * Lower 24 bits hold either a CLR_* index (when NH_BASIC_COLOR is set
+ * in the high byte) or a 0xRRGGBB value (when no flag is set).
+ * NH_ALTPALETTE is reserved for an alternate-palette future feature */
+#define NH_BASIC_COLOR 0x1000000UL
+#define NH_ALTPALETTE  0x2000000UL
+#define COLORVAL(x)    ((x) & 0xFFFFFFUL)
+
+/* Sentinel returned by mapglyph() when a glyph has a customcolor entry
+ * that the windowport should resolve via customcolor_lookup().
+ * Distinct from NO_COLOR (8), CLR_BLACK..CLR_WHITE (0..15), and the
+ * IS_EXT_COLOR range (16..255). Negative so it can never collide */
+#define NH_CUSTOMCOLOR_SENTINEL (-2)
+
+enum nhcolortype { no_color, nh_color, rgb_color };
+
+struct nethack_color {
+    enum nhcolortype colortyp;
+    int tableindex;
+    int rgbindex;
+    const char *name;
+    long r, g, b;
+};
+
+/* Customcolor registry entry: per-glyph color override loaded from the
+   CUSTOMCOLOR= rc directive (see src/glyphs.c) */
+struct customcolor_entry {
+    int glyphidx;
+    unsigned long nhcolor;
+    int color256idx;
+    struct customcolor_entry *next;
+};
+
 struct menucoloring {
     struct nhregex *match;
     char *origstr;

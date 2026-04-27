@@ -583,11 +583,30 @@ unsigned mgflags;
 
     ch = showsyms[idx];
 #ifdef TEXTCOLOR
+    /* Customcolor override: per-glyph color from the CUSTOMCOLOR= rc
+       directive. Applied before the has_color fallback so quantization
+       still works for non-truecolor terminals. When the windowport
+       advertises 24-bit truecolor, emit NH_CUSTOMCOLOR_SENTINEL so the
+       windowport reads the entry and picks the best escape sequence */
+    if (iflags.customcolors) {
+        struct customcolor_entry *ce = customcolor_lookup(glyph);
+
+        if (ce) {
+            if ((ce->nhcolor & NH_BASIC_COLOR) != 0)
+                color = (int) (ce->nhcolor & 0xFFL);
+            else if (has_truecolor())
+                color = NH_CUSTOMCOLOR_SENTINEL;
+            else
+                color = ce->color256idx;
+        }
+    }
     /* Turn off color if no color defined, or rogue level w/o PC graphics.
-       For extended 256-colors, fall back to nearest base-16 color. */
+       For extended 256-colors, fall back to nearest base-16 color.
+       NH_CUSTOMCOLOR_SENTINEL bypasses the check; the windowport
+       resolves the entry via customcolor_lookup */
     if (Is_rogue_level(&u.uz) && !has_rogue_color)
         color = NO_COLOR;
-    else if (!has_color(color))
+    else if (color != NH_CUSTOMCOLOR_SENTINEL && !has_color(color))
         color = IS_EXT_COLOR(color) ? map_color_256to16(color) : NO_COLOR;
 #else
     color = NO_COLOR;

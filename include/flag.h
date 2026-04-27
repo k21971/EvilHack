@@ -327,6 +327,8 @@ struct instance_flags {
                                * a screen reader (use ^X to review status) */
     boolean toptenwin;        /* ending list in window instead of stdout */
     boolean use_256color;     /* use extended 256-color palette */
+    boolean customcolors;     /* honor CUSTOMCOLOR rc-file overrides */
+    boolean use_truecolor;    /* allow 24-bit RGB emission to terminal */
     boolean use_background_glyph; /* use background glyph when appropriate */
     boolean use_menu_color;   /* use color in menus; only if wc_color */
     boolean use_menu_glyphs;  /* use glyphs in menus */

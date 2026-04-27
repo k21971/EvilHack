@@ -56,6 +56,8 @@ typedef struct {
     short   nhcolor;      /* NetHack color: 0-15 base, 16-255 ext, -1 none */
     short   nhattr;       /* packed: bit 0=bold, bit 1=inverse, bit 2=uline */
     short   nhbgcolor;    /* background color, NO_COLOR if none */
+    unsigned long nhcustomcolor;   /* 24-bit RGB / NH_BASIC_COLOR custom; 0 = none */
+    unsigned long nhcustombgcolor; /* 24-bit RGB / NH_BASIC_COLOR custom bg; 0 = none */
 } cell_t;
 
 /* nhattr bit flags for compact per-cell storage.
@@ -66,9 +68,10 @@ typedef struct {
 #define NHATTR_ULINE   0x04
 
 cell_t clear_cell = { CONSOLE_CLEAR_CHARACTER, CONSOLE_CLEAR_ATTRIBUTE,
-                       NO_COLOR, 0, NO_COLOR };
+                       NO_COLOR, 0, NO_COLOR, 0UL, 0UL };
 cell_t undefined_cell = { CONSOLE_UNDEFINED_CHARACTER,
-                          CONSOLE_UNDEFINED_ATTRIBUTE, NO_COLOR, 0, NO_COLOR };
+                          CONSOLE_UNDEFINED_ATTRIBUTE, NO_COLOR, 0, NO_COLOR,
+                          0UL, 0UL };
 
 /*
  * The following WIN32 Console API routines are used in this file.
@@ -145,6 +148,8 @@ struct console_t {
     WORD attr;
     int current_nhcolor;
     int current_nhbgcolor;
+    unsigned long current_nhcustomcolor;   /* active 24-bit/named customcolor; 0 = none */
+    unsigned long current_nhcustombgcolor; /* active customcolor for background; 0 = none */
     int current_nhattr[ATR_INVERSE+1];
     COORD cursor;
     HANDLE hConOut;
@@ -154,6 +159,7 @@ struct console_t {
     int height;
     boolean has_unicode;
     boolean has_vtmode;       /* VT/ANSI escape support (Win10 1511+) */
+    boolean has_truecolor;    /* 24-bit RGB SGR support (Win10 1903+ + COLORTERM) */
     int buffer_size;
     cell_t * front_buffer;
     cell_t * back_buffer;
@@ -296,15 +302,20 @@ int n;
     return vt;
 }
 
-/* Emit a complete SGR sequence for the given nhcolor, nhattr, and nhbgcolor.
- * Format: \033[0;{attrs};38;5;{color};48;5;{bgcolor}m
- * Always starts with reset (0) to avoid state accumulation. */
+/* Emit a complete SGR sequence for the given nhcolor, nhattr, nhbgcolor,
+ * plus optional 24-bit customcolor overrides.
+ * Format: \033[0;{attrs};38;{2;R;G;B|5;color};48;{2;R;G;B|5;bgcolor}m
+ * When console.has_truecolor is set and the customcolor field is a non-
+ * NH_BASIC_COLOR value, emit \033[38;2;R;G;Bm (or 48;2 for bg).
+ * Always starts with reset (0) to avoid state accumulation */
 static WCHAR *
-vt_emit_sgr(vt, nhcolor, nhattr, nhbgcolor)
+vt_emit_sgr(vt, nhcolor, nhattr, nhbgcolor, nhcustomcolor, nhcustombgcolor)
 WCHAR *vt;
 int nhcolor;
 int nhattr;
 int nhbgcolor;
+unsigned long nhcustomcolor;
+unsigned long nhcustombgcolor;
 {
     int vtcolor;
 
@@ -315,8 +326,17 @@ int nhbgcolor;
         vt = vt_append_str(vt, ";4");
     if (nhattr & NHATTR_INVERSE)
         vt = vt_append_str(vt, ";7");
-    /* Map foreground color to xterm-256 index */
-    if (nhcolor >= 0 && nhcolor < CLR_MAX) {
+    /* Foreground: 24-bit customcolor takes precedence when truecolor
+       is supported and the entry isn't a basic CLR_* */
+    if (nhcustomcolor != 0UL && console.has_truecolor
+        && !(nhcustomcolor & NH_BASIC_COLOR)) {
+        vt = vt_append_str(vt, ";38;2;");
+        vt = vt_append_int(vt, (int) ((nhcustomcolor >> 16) & 0xFFL));
+        *vt++ = (WCHAR) ';';
+        vt = vt_append_int(vt, (int) ((nhcustomcolor >> 8) & 0xFFL));
+        *vt++ = (WCHAR) ';';
+        vt = vt_append_int(vt, (int) (nhcustomcolor & 0xFFL));
+    } else if (nhcolor >= 0 && nhcolor < CLR_MAX) {
         vtcolor = nhcolor_to_vt256[nhcolor];
         vt = vt_append_str(vt, ";38;5;");
         vt = vt_append_int(vt, vtcolor);
@@ -324,8 +344,17 @@ int nhbgcolor;
         vt = vt_append_str(vt, ";38;5;");
         vt = vt_append_int(vt, nhcolor);
     }
-    /* Map background color to xterm-256 index (NO_COLOR = no bg) */
-    if (nhbgcolor >= 0 && nhbgcolor < CLR_MAX && nhbgcolor != NO_COLOR) {
+    /* Background: same precedence pattern */
+    if (nhcustombgcolor != 0UL && console.has_truecolor
+        && !(nhcustombgcolor & NH_BASIC_COLOR)) {
+        vt = vt_append_str(vt, ";48;2;");
+        vt = vt_append_int(vt, (int) ((nhcustombgcolor >> 16) & 0xFFL));
+        *vt++ = (WCHAR) ';';
+        vt = vt_append_int(vt, (int) ((nhcustombgcolor >> 8) & 0xFFL));
+        *vt++ = (WCHAR) ';';
+        vt = vt_append_int(vt, (int) (nhcustombgcolor & 0xFFL));
+    } else if (nhbgcolor >= 0 && nhbgcolor < CLR_MAX
+               && nhbgcolor != NO_COLOR) {
         vtcolor = nhcolor_to_vt256[nhbgcolor];
         vt = vt_append_str(vt, ";48;5;");
         vt = vt_append_int(vt, vtcolor);
@@ -350,15 +379,20 @@ static void back_buffer_flip()
         int last_color = -999;
         int last_attr = -999;
         int last_bgcolor = -999;
+        unsigned long last_customcolor = 0xFFFFFFFFUL;
+        unsigned long last_custombgcolor = 0xFFFFFFFFUL;
         int last_row = -1;
         int last_col = -1;
 
         for (pos.Y = 0; pos.Y < console.height; pos.Y++) {
             for (pos.X = 0; pos.X < console.width; pos.X++) {
-                /* Compare nhcolor + nhattr + nhbgcolor + character */
+                /* Compare nhcolor + nhattr + nhbgcolor + customcolors
+                   + character */
                 if (back->nhcolor != front->nhcolor
                     || back->nhattr != front->nhattr
                     || back->nhbgcolor != front->nhbgcolor
+                    || back->nhcustomcolor != front->nhcustomcolor
+                    || back->nhcustombgcolor != front->nhcustombgcolor
                     || back->character != front->character) {
                     /* Cursor positioning (skip if consecutive) */
                     if (pos.Y != last_row
@@ -372,13 +406,19 @@ static void back_buffer_flip()
                     /* Color/attribute change */
                     if (back->nhcolor != last_color
                         || back->nhattr != last_attr
-                        || back->nhbgcolor != last_bgcolor) {
+                        || back->nhbgcolor != last_bgcolor
+                        || back->nhcustomcolor != last_customcolor
+                        || back->nhcustombgcolor != last_custombgcolor) {
                         vt = vt_emit_sgr(vt, back->nhcolor,
                                          back->nhattr,
-                                         back->nhbgcolor);
+                                         back->nhbgcolor,
+                                         back->nhcustomcolor,
+                                         back->nhcustombgcolor);
                         last_color = back->nhcolor;
                         last_attr = back->nhattr;
                         last_bgcolor = back->nhbgcolor;
+                        last_customcolor = back->nhcustomcolor;
+                        last_custombgcolor = back->nhcustombgcolor;
                     }
                     /* Character */
                     *vt++ = back->character;
@@ -807,6 +847,8 @@ boolean inverse;
     cell->attribute = console.attr;
     cell->nhcolor = (short) console.current_nhcolor;
     cell->nhbgcolor = (short) console.current_nhbgcolor;
+    cell->nhcustomcolor = console.current_nhcustomcolor;
+    cell->nhcustombgcolor = console.current_nhcustombgcolor;
     cell->nhattr = 0;
     if (console.current_nhattr[ATR_BOLD])
         cell->nhattr |= NHATTR_BOLD;
@@ -1136,6 +1178,9 @@ void
 term_start_color(int color)
 {
 #ifdef TEXTCOLOR
+    /* Switching to a basic/extended color clears any active customcolor;
+       the customcolor system always emits its own term_start_color32 */
+    console.current_nhcustomcolor = 0UL;
     if (color >= 0 && color < CLR_MAX) {
         console.current_nhcolor = color;
     } else if (IS_EXT_COLOR(color)) {
@@ -1151,7 +1196,65 @@ term_start_color(int color)
 void
 term_start_bgcolor(int color)
 {
+    console.current_nhcustombgcolor = 0UL;
     console.current_nhbgcolor = color;
+}
+
+/* TRUE if the console session advertises 24-bit truecolor support */
+boolean
+term_supports_truecolor(void)
+{
+    return console.has_truecolor;
+}
+
+/* Set the foreground to a 32-bit nhcolor (NH_BASIC_COLOR-tagged or RGB).
+   On a non-truecolor console, fall back to the precomputed 256-palette
+   index via closest_color, mirroring the behaviour of the TTY version */
+void
+term_start_color32(unsigned long nhcolor)
+{
+#ifdef TEXTCOLOR
+    if (nhcolor & NH_BASIC_COLOR) {
+        term_start_color((int) (nhcolor & 0xFFL));
+        return;
+    }
+    if (console.has_truecolor) {
+        console.current_nhcustomcolor = nhcolor;
+        /* Keep current_nhcolor sane so the cell tracks something
+           meaningful even without truecolor in vt_emit_sgr fall-through */
+        console.current_nhcolor = NO_COLOR;
+    } else {
+        unsigned long quant;
+        int idx;
+
+        console.current_nhcustomcolor = 0UL;
+        if (closest_color(COLORVAL(nhcolor), &quant, &idx))
+            term_start_color(idx);
+    }
+#endif
+}
+
+/* Background sibling of term_start_color32 */
+void
+term_start_bgcolor32(unsigned long nhcolor)
+{
+#ifdef TEXTCOLOR
+    if (nhcolor & NH_BASIC_COLOR) {
+        term_start_bgcolor((int) (nhcolor & 0xFFL));
+        return;
+    }
+    if (console.has_truecolor) {
+        console.current_nhcustombgcolor = nhcolor;
+        console.current_nhbgcolor = NO_COLOR;
+    } else {
+        unsigned long quant;
+        int idx;
+
+        console.current_nhcustombgcolor = 0UL;
+        if (closest_color(COLORVAL(nhcolor), &quant, &idx))
+            term_start_bgcolor(idx);
+    }
+#endif
 }
 
 void
@@ -1163,6 +1266,8 @@ term_end_color(void)
     console.attr = (console.foreground | console.background);
     console.current_nhcolor = NO_COLOR;
     console.current_nhbgcolor = NO_COLOR;
+    console.current_nhcustomcolor = 0UL;
+    console.current_nhcustombgcolor = 0UL;
 }
 
 void
@@ -2085,6 +2190,22 @@ void nethack_enter_nttty()
     if (!console.has_vtmode) {
         windowprocs.wincap2 &= ~WC2_EXTCOLORS;
     }
+
+    /* Probe for 24-bit truecolor support. Modern Windows Terminal sets
+     * COLORTERM=truecolor; legacy conhost does not, even when VT mode
+     * works. Require both VT mode and an explicit COLORTERM marker */
+    {
+        char ctbuf[32];
+        DWORD got = 0;
+
+        if (console.has_vtmode)
+            got = GetEnvironmentVariableA("COLORTERM", ctbuf, sizeof ctbuf);
+        if (got > 0 && got < sizeof ctbuf
+            && (!_stricmp(ctbuf, "truecolor") || !_stricmp(ctbuf, "24bit")))
+            console.has_truecolor = TRUE;
+    }
+    if (!console.has_truecolor)
+        windowprocs.wincap2 &= ~WC2_TRUECOLOR;
 
     /* check the font before we capture the code page map */
     check_and_set_font();

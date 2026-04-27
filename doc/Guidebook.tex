@@ -3444,6 +3444,13 @@ players if it detects some anticipated mistakes (default on).
 Have user confirm attacks on pets, shopkeepers, and other
 peaceable creatures (default on).  Persistent.
 %.lp
+\item[\ib{customcolors}]
+Honor {\tt CUSTOMCOLOR} entries from the configuration file (default off).
+Enable to apply per-glyph overrides loaded from the rc file on top of
+{\it EvilHack's\/} built-in palette.  Has no effect when no
+{\tt CUSTOMCOLOR} lines are configured.
+See ``{\it Configuring Custom Glyph Colors\/}'' below.
+%.lp
 %.lp
 \item[\ib{dark\verb+_+room}]
 Show out-of-sight areas of lit rooms (default on).  Persistent.
@@ -4141,6 +4148,15 @@ mouse clicks on the map window.  Persistent.
 % Display intended path during each step of travel (default off).
 % Debug mode only.
 %.lp
+\item[\ib{truecolor}]
+Allow the tty and Windows VT renderers to emit 24-bit RGB escape
+sequences for {\tt CUSTOMCOLOR} entries when the terminal advertises
+truecolor support ({\tt COLORTERM=truecolor}, {\tt COLORTERM=24bit}, or
+a {\tt *-direct} / {\tt *-truecolor} {\tt TERM}).
+Default is on.
+The curses interface does not emit 24-bit; customcolor entries fall
+back to the nearest 256-palette match instead.
+%.lp
 \item[\ib{verbose}]
 Provide more commentary during the game (default on).  Persistent.
 %.lp
@@ -4379,6 +4395,8 @@ Use extended 256-color palette for materials, monsters and terrain
 features on terminals that support it.
 Disable this if colors appear wrong on your terminal.
 Default is on.
+See also {\tt CUSTOMCOLOR} for per-glyph color overrides and
+{\it truecolor\/} for 24-bit RGB output.
 %.lp
 \item[\ib{use\verb+_+darkgray}]
 Use bold black instead of blue for black glyphs (TTY only).
@@ -4922,6 +4940,67 @@ Note that if you intend to have one or more color specifications match
 {\it implicit\verb+_+uncursed\/}
 option off so that all items known to be uncursed are actually
 displayed with the ``uncursed'' description.
+
+%.lp
+%.hn 2
+\subsection*{Configuring Custom Glyph Colors}
+
+%.pg
+The {\tt CUSTOMCOLOR} configuration directive lets you override the
+color of an individual monster, object, or dungeon feature without
+recompiling.  {\it EvilHack's\/} hand-picked 256-color palette stays
+the default; {\tt CUSTOMCOLOR} entries layer on top.
+
+%.pg
+The general syntax is:
+\begin{verbatim}
+    CUSTOMCOLOR=PREFIX:NAME/COLOR
+\end{verbatim}
+
+\blist{}
+%.lp
+\item[\ib{PREFIX}]
+one of {\tt mon} (monster), {\tt obj} (object), or {\tt cmap}
+(dungeon feature / map symbol);
+%.lp
+\item[\ib{NAME}]
+the canonical name of the entity~--- the monster name from the
+internal table, the object's true (unidentified-shuffled) name, or the
+{\tt defsyms} explanation string for cmap entries.
+Names are matched case-insensitively;
+%.lp
+\item[\ib{COLOR}]
+either a 24-bit RGB value as {\tt \#RRGGBB} or as decimal
+{\tt R-G-B} (each component 0--255), or one of the legacy 16 color
+names ({\it black}, {\it red}, {\it green}, {\it brown}, {\it blue},
+{\it magenta}, {\it cyan}, {\it gray}, {\it orange},
+{\it bright-green}, {\it yellow}, {\it bright-blue},
+{\it bright-magenta}, {\it bright-cyan}, {\it white}, or
+{\it no-color}).
+\elist
+
+%.lp ""
+Examples:
+
+\begin{verbatim}
+    CUSTOMCOLOR=mon:gold dragon/#FFD700
+    CUSTOMCOLOR=obj:long sword/#C0C0C0
+    CUSTOMCOLOR=cmap:lava/255-69-0
+    CUSTOMCOLOR=mon:newt/bright-green
+\end{verbatim}
+
+%.pg
+On terminals that advertise truecolor, RGB customcolors are emitted as
+\verb+\033[38;2;R;G;Bm+ escapes.
+On 256-color terminals (or in the curses windowport), each entry falls
+back to its nearest 256-palette match.
+On legacy 16-color terminals, the 256 match further collapses to the
+nearest base color.
+
+%.pg
+The {\it customcolors\/} option toggles the entire override layer at
+runtime; with it off, the default {\it EvilHack\/} palette renders
+unchanged.
 
 %.lp
 %.hn 2

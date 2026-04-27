@@ -156,6 +156,10 @@ E void NDECL(term_end_color);
 E void FDECL(term_start_color, (int color));
 E void FDECL(term_start_bgcolor, (int color));
 E int FDECL(has_color, (int color));
+E boolean NDECL(has_truecolor);
+E boolean NDECL(term_supports_truecolor);
+E void FDECL(term_start_color32, (unsigned long));
+E void FDECL(term_start_bgcolor32, (unsigned long));
 #endif /* TEXTCOLOR */
 
 /* ### topl.c ### */

@@ -161,8 +161,19 @@ int *wid, *hgt;
             const char *envterm = nh_getenv("TERM");
             const char *cterm = nh_getenv("COLORTERM");
 
-            if ((envterm && strstr(envterm, "256color"))
-                || (cterm && (*cterm != '\0')))
+            /* Tri-state: COLORTERM=truecolor / 24bit, or a *-direct or
+               *-truecolor TERM, advertises 24-bit RGB. Otherwise fall
+               back to the existing 256-color / 16-color detection */
+            if (cterm
+                && (!strcmp(cterm, "truecolor")
+                    || !strcmp(cterm, "24bit")))
+                term_colors = 16777216;
+            else if (envterm
+                     && (strstr(envterm, "direct")
+                         || strstr(envterm, "truecolor")))
+                term_colors = 16777216;
+            else if ((envterm && strstr(envterm, "256color"))
+                     || (cterm && (*cterm != '\0')))
                 term_colors = 256;
             else
                 term_colors = 16;
@@ -1382,6 +1393,66 @@ int color;
         Sprintf(tmp, "\033[%dm", ((color % 8) + 40));
     }
     xputs(tmp);
+}
+
+/* TRUE if the active terminal advertises 24-bit truecolor support */
+boolean
+term_supports_truecolor()
+{
+    return (boolean) (term_colors >= 16777216);
+}
+
+/* Emit a foreground color from the 32-bit NH_BASIC_COLOR / RGB encoding.
+   Falls back to the 256-palette nearest match on terminals that don't
+   advertise truecolor, and to the 16-color fallback when 256 isn't
+   available either */
+void
+term_start_color32(nhcolor)
+unsigned long nhcolor;
+{
+    char buf[40];
+    unsigned long quant;
+    int idx, r, g, b;
+
+    if (nhcolor & NH_BASIC_COLOR) {
+        term_start_color((int) (nhcolor & 0xFFL));
+        return;
+    }
+    if (term_supports_truecolor()) {
+        r = (int) ((nhcolor >> 16) & 0xFFL);
+        g = (int) ((nhcolor >> 8) & 0xFFL);
+        b = (int) (nhcolor & 0xFFL);
+        Sprintf(buf, "\033[38;2;%d;%d;%dm", r, g, b);
+        xputs(buf);
+        return;
+    }
+    if (closest_color(COLORVAL(nhcolor), &quant, &idx))
+        term_start_color(idx);
+}
+
+/* Same as term_start_color32 but emits a background SGR (48 vs 38) */
+void
+term_start_bgcolor32(nhcolor)
+unsigned long nhcolor;
+{
+    char buf[40];
+    unsigned long quant;
+    int idx, r, g, b;
+
+    if (nhcolor & NH_BASIC_COLOR) {
+        term_start_bgcolor((int) (nhcolor & 0xFFL));
+        return;
+    }
+    if (term_supports_truecolor()) {
+        r = (int) ((nhcolor >> 16) & 0xFFL);
+        g = (int) ((nhcolor >> 8) & 0xFFL);
+        b = (int) (nhcolor & 0xFFL);
+        Sprintf(buf, "\033[48;2;%d;%d;%dm", r, g, b);
+        xputs(buf);
+        return;
+    }
+    if (closest_color(COLORVAL(nhcolor), &quant, &idx))
+        term_start_bgcolor(idx);
 }
 
 #endif /* TEXTCOLOR */

@@ -94,7 +94,7 @@ struct window_procs tty_procs = {
      | WC2_RESET_STATUS
 #endif
      | WC2_DARKGRAY | WC2_SUPPRESS_HIST | WC2_STATUSLINES | WC2_PEACEFUL
-     | WC2_MENU_GLYPHS | WC2_EXTCOLORS
+     | WC2_MENU_GLYPHS | WC2_EXTCOLORS | WC2_TRUECOLOR
      ),
 #ifdef TEXTCOLOR
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},   /* color availability */
@@ -3558,7 +3558,18 @@ int bkglyph UNUSED;
 #endif
 
 #ifdef TEXTCOLOR
-    if (color != ttyDisplay->color) {
+    if (color == NH_CUSTOMCOLOR_SENTINEL) {
+        /* Customcolor with 24-bit RGB; always re-emit since adjacent
+           cells with different glyphs likely have different customcolor
+           entries */
+        struct customcolor_entry *ce = customcolor_lookup(glyph);
+
+        if (ttyDisplay->color != NO_COLOR)
+            term_end_color();
+        ttyDisplay->color = NH_CUSTOMCOLOR_SENTINEL;
+        if (ce)
+            term_start_color32(ce->nhcolor);
+    } else if (color != ttyDisplay->color) {
         if (ttyDisplay->color != NO_COLOR)
             term_end_color();
         ttyDisplay->color = color;

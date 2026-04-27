@@ -2855,6 +2855,11 @@ char *origbuf;
     } else if (match_varname(buf, "MENUCOLOR", 9)) {
         if (!add_menu_coloring(bufp))
             retval = FALSE;
+    } else if (match_varname(buf, "CUSTOMCOLOR", 8)) {
+        if (!parse_customcolor_line(bufp)) {
+            config_error_add("Bad CUSTOMCOLOR specification '%s'", bufp);
+            retval = FALSE;
+        }
     } else if (match_varname(buf, "HILITE_STATUS", 6)) {
 #ifdef STATUS_HILITES
         if (!parse_status_hl1(bufp, TRUE))

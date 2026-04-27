@@ -234,7 +234,8 @@ extern
 #define WC2_MENU_GLYPHS   0x10000L /* 16 object menu glyphs in inventory */
 #define WC2_PEACEFUL      0x20000L /* 17 supports underlined peaceful monsters */
 #define WC2_EXTCOLORS     0x40000L /* 18 supports 256-color mode */
-                                   /* 13 free bits */
+#define WC2_TRUECOLOR     0x80000L /* 19 supports 24-bit truecolor */
+                                   /* 12 free bits */
 
 #define ALIGN_LEFT   1
 #define ALIGN_RIGHT  2

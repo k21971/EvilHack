@@ -2886,6 +2886,16 @@ E void FDECL(trap_ice_effects, (xchar x, xchar y, boolean ice_is_melting));
 E void NDECL(init_extcolors);
 E int FDECL(map_color_256to16, (int));
 E unsigned long FDECL(extcolor_256_rgb, (int));
+E int FDECL(color_distance, (unsigned long, unsigned long));
+E boolean FDECL(closest_color, (unsigned long, unsigned long *, int *));
+
+/* ### glyphs.c ### */
+
+E void NDECL(reset_customcolors);
+E struct customcolor_entry *FDECL(customcolor_lookup, (int));
+E int FDECL(set_customcolor, (int, unsigned long));
+E long FDECL(rgbstr_to_int32, (const char *));
+E int FDECL(parse_customcolor_line, (const char *));
 
 /* ### unicode.c ### */
 

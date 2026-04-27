@@ -91,7 +91,7 @@ static int color256_to_16[CLR_EXT_MAX];
 /* Weighted Euclidean color distance metric.
    Algorithm from https://www.compuphase.com/cmetric.htm,
    via NetHack 3.7 coloratt.c. */
-static int
+int
 color_distance(rgb1, rgb2)
 unsigned long rgb1, rgb2;
 {
@@ -158,6 +158,44 @@ int c;
     if (c >= 0 && c < CLR_EXT_MAX)
         return color256_rgb[c];
     return 0UL;
+}
+
+/* Find the 256-palette entry whose RGB value is closest to lcolor.
+   On success, *closergb receives the matched palette RGB and *clridx
+   receives the palette index (always in 16..255). Returns FALSE if
+   the palette is empty (cannot happen in practice) */
+boolean
+closest_color(lcolor, closergb, clridx)
+unsigned long lcolor;
+unsigned long *closergb;
+int *clridx;
+{
+    int i, best = -1, current, similar;
+
+    /* INT_MAX without pulling <limits.h> into a C89 dialect file: the
+       distance values are bounded by ~3 * 256^2 * (767+512)/256 which
+       fits comfortably; start "similar" above any achievable result */
+    similar = 0x7FFFFFFF;
+
+    for (i = CLR_MAX; i < CLR_EXT_MAX; i++) {
+        if (lcolor == color256_rgb[i]) {
+            best = i;
+            break;
+        }
+        current = color_distance(lcolor, color256_rgb[i]);
+        if (current < similar) {
+            similar = current;
+            best = i;
+        }
+    }
+    if (best >= 0) {
+        if (closergb)
+            *closergb = color256_rgb[best];
+        if (clridx)
+            *clridx = best;
+        return TRUE;
+    }
+    return FALSE;
 }
 
 /*extcolor.c*/

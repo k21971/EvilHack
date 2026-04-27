@@ -2340,4 +2340,16 @@ int color;
     );
 }
 
+/* Return TRUE if the active windowport advertises 24-bit truecolor
+   support and the user has not disabled it. Used by mapglyph() to
+   decide whether to forward an RGB customcolor to the windowport via
+   NH_CUSTOMCOLOR_SENTINEL or pre-quantize to 256 colors */
+boolean
+has_truecolor()
+{
+    return (iflags.use_color && iflags.use_truecolor
+            && windowprocs.name
+            && (windowprocs.wincap2 & WC2_TRUECOLOR));
+}
+
 /*windows.c*/

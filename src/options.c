@@ -135,6 +135,7 @@ static struct Bool_Opt {
     { "color", &iflags.wc_color, FALSE, SET_IN_GAME },
 #endif
     { "confirm", &flags.confirm, TRUE, SET_IN_GAME },
+    { "customcolors", &iflags.customcolors, FALSE, SET_IN_GAME },
     { "dark_room", &flags.dark_room, TRUE, SET_IN_GAME },
     { "deaf", &u.uroleplay.deaf, FALSE, DISP_IN_GAME },
     { "eight_bit_tty", &iflags.wc_eight_bit_input, FALSE, SET_IN_GAME }, /*WC*/
@@ -259,6 +260,7 @@ static struct Bool_Opt {
 #ifdef DEBUG
     { "travel_debug", &iflags.trav_debug, FALSE, SET_IN_WIZGAME }, /*hack.c*/
 #endif
+    { "truecolor", &iflags.use_truecolor, TRUE, SET_IN_GAME },
     { "underline_peacefuls", &iflags.wc2_underline_peacefuls, FALSE, SET_IN_GAME }, /*WC2*/
     { "use_256color", &iflags.use_256color, TRUE, SET_IN_GAME },
     { "use_darkgray", &iflags.wc2_darkgray, TRUE, SET_IN_FILE }, /*WC2*/
@@ -751,6 +753,8 @@ initoptions_init()
 
     /* populate 256->16 fallback table before color parsing */
     init_extcolors();
+    /* clear any customcolor entries from a prior rc-file load */
+    reset_customcolors();
 
     /* set up the command parsing */
     reset_commands(TRUE); /* init */

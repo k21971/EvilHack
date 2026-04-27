@@ -162,6 +162,7 @@
 		54FCE8292223261F00F393C8 /* isaac64.c in Sources */ = {isa = PBXBuildFile; fileRef = 54FCE8282223261F00F393C8 /* isaac64.c */; };
 		AA00000126000002000000AA /* unicode.c in Sources */ = {isa = PBXBuildFile; fileRef = AA00000126000001000000AA /* unicode.c */; };
 		AA00000126000004000000AA /* extcolor.c in Sources */ = {isa = PBXBuildFile; fileRef = AA00000126000003000000AA /* extcolor.c */; };
+		AA00000126000008000000AA /* glyphs.c in Sources */ = {isa = PBXBuildFile; fileRef = AA00000126000007000000AA /* glyphs.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -602,6 +603,7 @@
 		54FCE8282223261F00F393C8 /* isaac64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = isaac64.c; path = ../../src/isaac64.c; sourceTree = "<group>"; };
 		AA00000126000001000000AA /* unicode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = unicode.c; path = ../../src/unicode.c; sourceTree = "<group>"; };
 		AA00000126000003000000AA /* extcolor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = extcolor.c; path = ../../src/extcolor.c; sourceTree = "<group>"; };
+		AA00000126000007000000AA /* glyphs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glyphs.c; path = ../../src/glyphs.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -714,6 +716,7 @@
 				31B8A31921A238000055BD01 /* extralev.c */,
 				31B8A35721A238040055BD01 /* files.c */,
 				31B8A33921A238020055BD01 /* fountain.c */,
+				AA00000126000007000000AA /* glyphs.c */,
 				31B8A35821A238040055BD01 /* hack.c */,
 				31B8A36421A238040055BD01 /* hacklib.c */,
 				31B8A33121A238010055BD01 /* invent.c */,
@@ -1924,6 +1927,7 @@
 				31B8A3D921A238060055BD01 /* vault.c in Sources */,
 				AA00000126000002000000AA /* unicode.c in Sources */,
 				AA00000126000004000000AA /* extcolor.c in Sources */,
+				AA00000126000008000000AA /* glyphs.c in Sources */,
 				31B8A38F21A238060055BD01 /* spell.c in Sources */,
 				31B8A3B221A238060055BD01 /* pray.c in Sources */,
 				31B8A3A821A238060055BD01 /* weapon.c in Sources */,
