@@ -5277,4 +5277,5 @@ The following changes to date are:
 - Fix: multiple issues in polyself.c found during code review
 - Fix: multiple issues in wizard.c found during code review
 - Add: NetHack 3.7 hybrid customcolor overlay with 24-bit truecolor
+- Fix: Windows MSVC build break in nttty.c console_t initializer
 
