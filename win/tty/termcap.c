@@ -1426,6 +1426,13 @@ int color;
 
     if (IS_EXT_COLOR(color) && term_colors >= 256) {
         Sprintf(tmp, "\033[48;5;%dm", color);
+    } else if (color >= 8 && color < CLR_MAX) {
+        /* Slots 8-15 are the bright half of the base palette. Basic
+           ANSI bg codes 40-47 only cover the dim half, so use the
+           100-107 bright-bg extension; widely supported on modern
+           terminals, ignored on legacy 8-bg terminals (caller gets
+           default background, no garbage) */
+        Sprintf(tmp, "\033[%dm", (color - 8) + 100);
     } else {
         Sprintf(tmp, "\033[%dm", ((color % 8) + 40));
     }
@@ -1511,21 +1518,56 @@ int hue;
     p = 0;
     q = 255 - frac;
     switch (seg) {
-    case 0: r = 255;  g = frac; b = p;    break; /* red   -> yellow  */
-    case 1: r = q;    g = 255;  b = p;    break; /* yellow-> green   */
-    case 2: r = p;    g = 255;  b = frac; break; /* green -> cyan    */
-    case 3: r = p;    g = q;    b = 255;  break; /* cyan  -> blue    */
-    case 4: r = frac; g = p;    b = 255;  break; /* blue  -> magenta */
-    default:r = 255;  g = p;    b = q;    break; /* magenta-> red    */
+    case 0: /* red -> yellow */
+        r = 255;
+        g = frac;
+        b = p;
+        break;
+    case 1: /* yellow -> green */
+        r = q;
+        g = 255;
+        b = p;
+        break;
+    case 2: /* green -> cyan */
+        r = p;
+        g = 255;
+        b = frac;
+        break;
+    case 3: /* cyan -> blue */
+        r = p;
+        g = q;
+        b = 255;
+        break;
+    case 4: /* blue -> magenta */
+        r = frac;
+        g = p;
+        b = 255;
+        break;
+    default: /* magenta -> red */
+        r = 255;
+        g = p;
+        b = q;
+        break;
     }
     return ((unsigned long) r << 16)
            | ((unsigned long) g << 8)
            | (unsigned long) b;
 }
 
-/* Solid-block sequence used by the palette renderer. Uses U+2588 FULL
+/* Solid-block sequence used by the palette renderer. U+2588 FULL
    BLOCK on UTF-8-capable terminals, '#' otherwise */
 #define PAL_BLOCK (iflags.supports_utf8 ? "\xe2\x96\x88" : "#")
+
+/* Labels for bar 1 of the palette demo (16-color base). Two rows of
+   eight read more naturally than one row of sixteen 4-char truncs;
+   "br-X" abbreviates the four bright variants in the high half so
+   they don't all alias to "brig" */
+static const char *clrlabels[CLR_MAX] = {
+    "black",   "red",     "green",   "brown",
+    "blue",    "magenta", "cyan",    "gray",
+    "default", "orange",  "br-grn",  "yellow",
+    "br-blu",  "br-mag",  "br-cyn",  "white"
+};
 
 /* Public renderer for the #showcolors extended command. Bypasses the
    window port and writes raw SGR escapes directly to stdout, then waits
@@ -1568,29 +1610,48 @@ tty_show_color_palette()
     (void) xputc('\n');
     (void) xputc('\n');
 
-    /* bar 1: 16-color base palette */
+    /* bar 1: 16-color base palette. Two rows of eight; row split
+       mirrors slots 0-7 / 8-15 of the palette and gives labels room
+       for full names (clrlabels[] above). Foreground-block rendering
+       (not bg-space like bars 2/3) so CLR_BLACK picks up the
+       wc2_darkgray substitution baked into hilites[CLR_BLACK] at init
+       time, and NO_COLOR renders in the terminal's default foreground
+       via the empty hilites[NO_COLOR] entry; bg-space would bypass
+       both. Banding-stripe risk is moot because the two color rows
+       are separated by their label rows */
     xputs("  16-color base palette (CLR_BLACK..CLR_WHITE):");
     (void) xputc('\n');
-    xputs("   ");
-    for (i = 0; i < CLR_MAX; i++) {
-        term_start_color(i);
-        xputs(block);
-        xputs(block);
-        xputs(block);
-        xputs(block);
-        term_end_color();
-        (void) xputc(' ');
+    for (y = 0; y < 2; y++) {
+        xputs("   ");
+        for (x = 0; x < 8; x++) {
+            i = y * 8 + x;
+            term_start_color(i);
+            for (idx = 0; idx < 7; idx++)
+                xputs(block);
+            term_end_color();
+            (void) xputc(' ');
+        }
+        (void) xputc('\n');
+        xputs("   ");
+        for (x = 0; x < 8; x++) {
+            i = y * 8 + x;
+            Sprintf(buf, "%-7.7s ", clrlabels[i]);
+            xputs(buf);
+        }
+        (void) xputc('\n');
     }
-    (void) xputc('\n');
-    xputs("   ");
-    for (i = 0; i < CLR_MAX; i++) {
-        Sprintf(buf, "%-4.4s ", (i == NO_COLOR) ? "def" : c_obj_colors[i]);
-        xputs(buf);
-    }
+    Sprintf(buf, "   ('black' = dark gray with use_darkgray, blue without;"
+                 " current: %s)",
+            iflags.wc2_darkgray ? "ON" : "OFF");
+    xputs(buf);
     (void) xputc('\n');
     (void) xputc('\n');
 
-    /* bar 2: 256-color cube + grayscale ramp */
+    /* bar 2: 256-color cube + grayscale ramp. Cells use background-
+       colored spaces (not foreground full-block glyphs) so the cell
+       fill extends through the terminal's line-height padding and
+       consecutive rows visually touch instead of showing a banding
+       gap between glyph cells */
     xputs("  256-color extended palette (16..231 RGB cube,"
           " 232..255 grayscale):");
     (void) xputc('\n');
@@ -1598,23 +1659,24 @@ tty_show_color_palette()
         xputs("   ");
         for (x = 0; x < 36; x++) {
             idx = 16 + y * 36 + x;
-            term_start_color(idx);
-            xputs(block);
+            term_start_bgcolor(idx);
+            xputs(" ");
             term_end_color();
         }
         (void) xputc('\n');
     }
     xputs("   ");
     for (i = 232; i < 256; i++) {
-        term_start_color(i);
-        xputs(block);
-        xputs(block);
+        term_start_bgcolor(i);
+        xputs("  ");
         term_end_color();
     }
     (void) xputc('\n');
     (void) xputc('\n');
 
-    /* bar 3: 24-bit truecolor (banding == quantization to lower depth) */
+    /* bar 3: 24-bit truecolor (banding == quantization to lower depth).
+       Same background-fill technique as bar 2; keeps gradient rows
+       flush with no gap between Hue/Gray/Red/Green/Blue */
     Sprintf(buf, "  24-bit truecolor demo (%s):",
             term_supports_truecolor()
                 ? "active -- gradients should be smooth"
@@ -1625,8 +1687,8 @@ tty_show_color_palette()
     xputs("   Hue:   ");
     for (x = 0; x < 64; x++) {
         rgb = hue_to_rgb(x * 360 / 64);
-        term_start_color32(rgb);
-        xputs(block);
+        term_start_bgcolor32(rgb);
+        xputs(" ");
         term_end_color();
     }
     (void) xputc('\n');
@@ -1637,8 +1699,8 @@ tty_show_color_palette()
         rgb = ((unsigned long) v << 16)
               | ((unsigned long) v << 8)
               | (unsigned long) v;
-        term_start_color32(rgb);
-        xputs(block);
+        term_start_bgcolor32(rgb);
+        xputs(" ");
         term_end_color();
     }
     (void) xputc('\n');
@@ -1647,8 +1709,8 @@ tty_show_color_palette()
     for (x = 0; x < 64; x++) {
         v = x * 255 / 63;
         rgb = (unsigned long) v << 16;
-        term_start_color32(rgb);
-        xputs(block);
+        term_start_bgcolor32(rgb);
+        xputs(" ");
         term_end_color();
     }
     (void) xputc('\n');
@@ -1657,8 +1719,8 @@ tty_show_color_palette()
     for (x = 0; x < 64; x++) {
         v = x * 255 / 63;
         rgb = (unsigned long) v << 8;
-        term_start_color32(rgb);
-        xputs(block);
+        term_start_bgcolor32(rgb);
+        xputs(" ");
         term_end_color();
     }
     (void) xputc('\n');
@@ -1667,8 +1729,8 @@ tty_show_color_palette()
     for (x = 0; x < 64; x++) {
         v = x * 255 / 63;
         rgb = (unsigned long) v;
-        term_start_color32(rgb);
-        xputs(block);
+        term_start_bgcolor32(rgb);
+        xputs(" ");
         term_end_color();
     }
     (void) xputc('\n');

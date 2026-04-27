@@ -1498,16 +1498,18 @@ wiz_show_wmodes(VOID_ARGS)
 /* #showcolors -- demonstrate the active terminal's color palette and
    advertised depth. Routes through the tty windowport renderer when
    present; other ports get an apologetic message until a port-specific
-   renderer is added. tty_show_color_palette lives in win/tty/termcap.c;
-   forward-declared here so cmd.c can stay port-agnostic */
-#if defined(TTY_GRAPHICS) && defined(TEXTCOLOR)
+   renderer is added. tty_show_color_palette lives in win/tty/termcap.c
+   and is only compiled when termcap.c itself is in the build, so the
+   guard here mirrors the one wrapping that file (TTY_GRAPHICS plus
+   TEXTCOLOR, and not NO_TERMS; Windows pdcurses skips termcap.c) */
+#if defined(TTY_GRAPHICS) && defined(TEXTCOLOR) && !defined(NO_TERMS)
 extern void NDECL(tty_show_color_palette);
 #endif
 
 STATIC_PTR int
 doshowcolors(VOID_ARGS)
 {
-#if defined(TTY_GRAPHICS) && defined(TEXTCOLOR)
+#if defined(TTY_GRAPHICS) && defined(TEXTCOLOR) && !defined(NO_TERMS)
     if (WINDOWPORT("tty")) {
         tty_show_color_palette();
         return 0;
