@@ -5284,4 +5284,5 @@ The following changes to date are:
 - Fix: Windows MSVC EvilHackW.exe link break for tty_show_color_palette
 - Fix: Windows tty scrolls on output overflow instead of clobbering
 - Fix: Windows console overflow scroll didn't scroll on classic conhost
+- Fix: bypass back_buffer for #showcolors on Windows tty
 

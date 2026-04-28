@@ -160,6 +160,9 @@ struct console_t {
     boolean has_unicode;
     boolean has_vtmode;       /* VT/ANSI escape support (Win10 1511+) */
     boolean has_truecolor;    /* 24-bit RGB SGR support (Win10 1903+ + COLORTERM) */
+    boolean suppress_flip;    /* skip back_buffer_flip() while raw VT
+                                 demos (e.g. nt_show_color_palette) own
+                                 the screen; restored before docrt() */
     int buffer_size;
     cell_t * front_buffer;
     cell_t * back_buffer;
@@ -184,6 +187,7 @@ struct console_t {
     { 0 },
     0,
     0,
+    FALSE,
     FALSE,
     FALSE,
     FALSE,
@@ -376,6 +380,13 @@ static void back_buffer_flip()
     COORD pos;
     DWORD unused;
 
+    /* Owners of the screen (currently nt_show_color_palette()) set
+       this flag while they write raw VT to conhost. Skipping the
+       flip prevents the next input wait from clobbering their
+       output with stale back_buffer cells */
+    if (console.suppress_flip)
+        return;
+
     if (console.has_vtmode) {
         /* VT rendering path: build escape sequence buffer, flush once */
         WCHAR *vt = console.vt_buffer;
@@ -467,63 +478,6 @@ static void back_buffer_flip()
             }
         }
     }
-}
-
-/* Called from xputc_core() when content would overflow the bottom of
-   the console. Synchronises an internal back_buffer scroll with a
-   real conhost scroll so terminal scrollback retains the top row.
-   Mirrors the natural scroll-on-overflow behaviour that xterm,
-   tmux, and Windows-Terminal already provide outside the
-   back_buffer overlay. Without this, xputc_core clamped cursor.Y
-   at console.height - 1 and overflow rows clobbered the bottom */
-static void
-scroll_back_buffer_up_one_row(void)
-{
-    int row, col;
-    DWORD written;
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    COORD bottomleft;
-
-    /* Flush pending back_buffer writes so conhost's visible window
-       reflects the row that is about to scroll into scrollback.
-       Otherwise the row that scrolls off would be the OLD pre-flip
-       state, not the row we just wrote */
-    back_buffer_flip();
-
-    /* Position conhost cursor at the SCREEN BUFFER bottom (not the
-       viewport bottom) and emit '\n'. console.height tracks viewport
-       height (typically 25) but Windows screen buffers are commonly
-       much taller (9000 rows for classic conhost scrollback), and
-       SetConsoleCursorPosition uses buffer coordinates. Putting the
-       cursor at the viewport bottom inside a larger buffer leaves it
-       mid-buffer; the subsequent '\n' just advances the cursor
-       without triggering any scroll. Putting it at the buffer bottom
-       guarantees that '\n' rolls the buffer up by one line: top row
-       drops, the rest shift up (rows that were inside the viewport
-       on top now sit above the viewport in scrollback), bottom row
-       clears */
-    GetConsoleScreenBufferInfo(console.hConOut, &csbi);
-    bottomleft.X = 0;
-    bottomleft.Y = (SHORT) (csbi.dwSize.Y - 1);
-    SetConsoleCursorPosition(console.hConOut, bottomleft);
-    WriteConsoleA(console.hConOut, "\n", 1, &written, NULL);
-
-    /* Scroll back_buffer to match the new conhost state */
-    for (row = 0; row < console.height - 1; row++) {
-        memmove(&console.back_buffer[row * console.width],
-                &console.back_buffer[(row + 1) * console.width],
-                console.width * sizeof(cell_t));
-    }
-    /* Clear the new bottom row */
-    for (col = 0; col < console.width; col++) {
-        console.back_buffer[(console.height - 1) * console.width + col]
-            = clear_cell;
-    }
-
-    /* front_buffer is now stale (still reflects pre-scroll content
-       at each absolute position). We deliberately do NOT scroll it:
-       the next back_buffer_flip's per-cell diff will see the changes
-       and repaint, ending with front == back */
 }
 
 void buffer_fill_to_end(cell_t * buffer, cell_t * fill, int x, int y)
@@ -936,8 +890,6 @@ char ch;
     case '\n':
         if (console.cursor.Y < console.height - 1)
             console.cursor.Y++;
-        else
-            scroll_back_buffer_up_one_row();
     /* fall through */
     case '\r':
         console.cursor.X = 1;
@@ -962,9 +914,6 @@ char ch;
             if (console.cursor.Y < console.height - 1) {
                 console.cursor.X = 1;
                 console.cursor.Y++;
-            } else {
-                scroll_back_buffer_up_one_row();
-                console.cursor.X = 1;
             }
         } else {
             console.cursor.X++;
@@ -3628,5 +3577,311 @@ nh340_checkinput(
     }
     return mode ? 0 : ch;
 }
+
+#ifdef TEXTCOLOR
+/* ---------------------------------------------------------------------
+ * #showcolors palette renderer for Windows -- bypasses back_buffer and
+ * writes raw VT/SGR escapes directly to conhost via WriteConsoleA. The
+ * cross-platform copy in win/tty/wintty.c is structurally identical,
+ * but on Windows that copy goes through xputc_core into back_buffer
+ * (which clamps cursor.Y at console.height - 1 with no scroll
+ * mechanism) so the 29-row demo overflows the bottom row instead of
+ * scrolling. By calling this function from tty_show_color_palette
+ * when has_vtmode is true, we let conhost handle the scroll natively
+ * (top rows go into terminal scrollback) the same way Linux does.
+ * console.suppress_flip is set for the duration so input-wait flushes
+ * don't paint stale back_buffer state over the demo. docrt() restores
+ * the game screen when the user dismisses the prompt.
+ *
+ * Demo content (header / 16-color palette / 256-color cube + grayscale
+ * / 24-bit truecolor gradients / Press-any-key prompt) mirrors the
+ * shared wintty.c version line for line. Helpers (PAL_BLOCK,
+ * clrlabels[], hue_to_rgb) are duplicated rather than exported because
+ * they're small and the platforms are diverging at the output layer
+ * anyway. */
+
+static void
+demo_emit_n(s, n)
+const char *s;
+int n;
+{
+    DWORD written;
+
+    WriteConsoleA(console.hConOut, s, (DWORD) n, &written, NULL);
+}
+
+static void
+demo_emit(s)
+const char *s;
+{
+    demo_emit_n(s, (int) strlen(s));
+}
+
+static void
+demo_emit_fg(color)
+int color;
+{
+    char buf[16];
+    int n;
+
+    if (color == NO_COLOR)
+        n = sprintf(buf, "\033[39m");          /* default fg */
+    else if (color == CLR_BLACK && iflags.wc2_darkgray)
+        n = sprintf(buf, "\033[90m");          /* dark gray */
+    else if (color < 8)
+        n = sprintf(buf, "\033[3%dm", color);  /* dim 30-37 */
+    else
+        n = sprintf(buf, "\033[9%dm", color - 8); /* bright 90-97 */
+    demo_emit_n(buf, n);
+}
+
+static void
+demo_emit_bg256(idx)
+int idx;
+{
+    char buf[16];
+    int n = sprintf(buf, "\033[48;5;%dm", idx);
+
+    demo_emit_n(buf, n);
+}
+
+static void
+demo_emit_bg_rgb(rgb)
+unsigned long rgb;
+{
+    char buf[24];
+    int r = (int) ((rgb >> 16) & 0xffUL);
+    int g = (int) ((rgb >>  8) & 0xffUL);
+    int b = (int) ( rgb        & 0xffUL);
+    int n = sprintf(buf, "\033[48;2;%d;%d;%dm", r, g, b);
+
+    demo_emit_n(buf, n);
+}
+
+static void
+demo_emit_reset(VOID_ARGS)
+{
+    demo_emit_n("\033[0m", 4);
+}
+
+/* Six-segment HSV->RGB at S=V=255. Same math as wintty.c hue_to_rgb */
+static unsigned long
+demo_hue_to_rgb(hue)
+int hue;
+{
+    int seg, frac, p, q;
+    int r = 0, g = 0, b = 0;
+
+    if (hue < 0)
+        hue = 0;
+    if (hue >= 360)
+        hue %= 360;
+    seg = hue / 60;
+    frac = (hue % 60) * 255 / 60;
+    p = 0;
+    q = 255 - frac;
+    switch (seg) {
+    case 0: /* red -> yellow */
+        r = 255;
+        g = frac;
+        b = p;
+        break;
+    case 1: /* yellow -> green */
+        r = q;
+        g = 255;
+        b = p;
+        break;
+    case 2: /* green -> cyan */
+        r = p;
+        g = 255;
+        b = frac;
+        break;
+    case 3: /* cyan -> blue */
+        r = p;
+        g = q;
+        b = 255;
+        break;
+    case 4: /* blue -> magenta */
+        r = frac;
+        g = p;
+        b = 255;
+        break;
+    default: /* magenta -> red */
+        r = 255;
+        g = p;
+        b = q;
+        break;
+    }
+    return ((unsigned long) r << 16)
+           | ((unsigned long) g << 8)
+           | (unsigned long) b;
+}
+
+static const char *demo_clrlabels[CLR_MAX] = {
+    "black",   "red",     "green",   "brown",
+    "blue",    "magenta", "cyan",    "gray",
+    "default", "orange",  "br-grn",  "yellow",
+    "br-blu",  "br-mag",  "br-cyn",  "white"
+};
+
+void
+nt_show_color_palette(VOID_ARGS)
+{
+    const char *envterm = nh_getenv("TERM");
+    const char *cterm   = nh_getenv("COLORTERM");
+    const char *depthstr;
+    const char *block;
+    char buf[BUFSZ];
+    int i, x, y, idx, v, depth;
+    unsigned long rgb;
+    boolean prev_suppress = console.suppress_flip;
+
+    depth = term_active_depth();
+    if (depth >= 16777216)
+        depthstr = "24-bit truecolor (16777216 colors)";
+    else if (depth >= 256)
+        depthstr = "256-color (xterm-256)";
+    else
+        depthstr = "16-color (basic ANSI)";
+
+    block = (iflags.supports_utf8 ? "\xe2\x96\x88" : "#");
+
+    /* Suppress back_buffer_flip so input-wait and other flush
+       triggers don't repaint pre-demo back_buffer state over our
+       raw output */
+    console.suppress_flip = TRUE;
+
+    /* Clear screen + home cursor via VT */
+    demo_emit("\033[2J\033[H");
+
+    /* Header (5 rows: title, TERM, COLORTERM, Detected, blank) */
+    Sprintf(buf, "  #showcolors -- terminal color palette demo\r\n");
+    demo_emit(buf);
+    Sprintf(buf, "  TERM      = %s\r\n", envterm ? envterm : "(unset)");
+    demo_emit(buf);
+    Sprintf(buf, "  COLORTERM = %s\r\n", cterm ? cterm : "(unset)");
+    demo_emit(buf);
+    Sprintf(buf, "  Detected  = %s\r\n", depthstr);
+    demo_emit(buf);
+    demo_emit("\r\n");
+
+    /* Bar 1: 16-color base palette, 2 rows of 8 */
+    demo_emit("  16-color base palette (CLR_BLACK..CLR_WHITE):\r\n");
+    for (y = 0; y < 2; y++) {
+        demo_emit("   ");
+        for (x = 0; x < 8; x++) {
+            i = y * 8 + x;
+            demo_emit_fg(i);
+            for (idx = 0; idx < 7; idx++)
+                demo_emit(block);
+            demo_emit_reset();
+            demo_emit(" ");
+        }
+        demo_emit("\r\n");
+        demo_emit("   ");
+        for (x = 0; x < 8; x++) {
+            i = y * 8 + x;
+            Sprintf(buf, "%-7.7s ", demo_clrlabels[i]);
+            demo_emit(buf);
+        }
+        demo_emit("\r\n");
+    }
+    Sprintf(buf, "   ('black' = dark gray with use_darkgray, blue without;"
+                 " current: %s)\r\n",
+            iflags.wc2_darkgray ? "ON" : "OFF");
+    demo_emit(buf);
+    demo_emit("\r\n");
+
+    /* Bar 2: 256-color cube + grayscale (6 cube rows + 1 ramp row) */
+    demo_emit("  256-color extended palette (16..231 RGB cube,"
+              " 232..255 grayscale):\r\n");
+    for (y = 0; y < 6; y++) {
+        demo_emit("   ");
+        for (x = 0; x < 36; x++) {
+            idx = 16 + y * 36 + x;
+            demo_emit_bg256(idx);
+            demo_emit(" ");
+            demo_emit_reset();
+        }
+        demo_emit("\r\n");
+    }
+    demo_emit("   ");
+    for (i = 232; i < 256; i++) {
+        demo_emit_bg256(i);
+        demo_emit("  ");
+        demo_emit_reset();
+    }
+    demo_emit("\r\n\r\n");
+
+    /* Bar 3: 24-bit truecolor (5 gradient rows) */
+    Sprintf(buf, "  24-bit truecolor demo (%s):\r\n",
+            term_supports_truecolor()
+                ? "active -- gradients should be smooth"
+                : "fallback -- banding shows palette quantization");
+    demo_emit(buf);
+
+    demo_emit("   Hue:   ");
+    for (x = 0; x < 64; x++) {
+        rgb = demo_hue_to_rgb(x * 360 / 64);
+        demo_emit_bg_rgb(rgb);
+        demo_emit(" ");
+        demo_emit_reset();
+    }
+    demo_emit("\r\n");
+
+    demo_emit("   Gray:  ");
+    for (x = 0; x < 64; x++) {
+        v = x * 255 / 63;
+        rgb = ((unsigned long) v << 16)
+              | ((unsigned long) v << 8)
+              | (unsigned long) v;
+        demo_emit_bg_rgb(rgb);
+        demo_emit(" ");
+        demo_emit_reset();
+    }
+    demo_emit("\r\n");
+
+    demo_emit("   Red:   ");
+    for (x = 0; x < 64; x++) {
+        v = x * 255 / 63;
+        rgb = (unsigned long) v << 16;
+        demo_emit_bg_rgb(rgb);
+        demo_emit(" ");
+        demo_emit_reset();
+    }
+    demo_emit("\r\n");
+
+    demo_emit("   Green: ");
+    for (x = 0; x < 64; x++) {
+        v = x * 255 / 63;
+        rgb = (unsigned long) v << 8;
+        demo_emit_bg_rgb(rgb);
+        demo_emit(" ");
+        demo_emit_reset();
+    }
+    demo_emit("\r\n");
+
+    demo_emit("   Blue:  ");
+    for (x = 0; x < 64; x++) {
+        v = x * 255 / 63;
+        rgb = (unsigned long) v;
+        demo_emit_bg_rgb(rgb);
+        demo_emit(" ");
+        demo_emit_reset();
+    }
+    demo_emit("\r\n\r\n");
+
+    demo_emit("  --Press any key to return--");
+
+    /* Wait for input. tty_nhgetch's internal really_move_cursor
+       fires back_buffer_flip but we've suppressed it, so the demo
+       output stays on screen until the user presses a key */
+    (void) tty_nhgetch();
+
+    /* Re-enable flips and let docrt restore the game screen */
+    console.suppress_flip = prev_suppress;
+    docrt();
+}
+#endif /* TEXTCOLOR */
 
 #endif /* WIN32 */

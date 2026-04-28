@@ -4885,13 +4885,35 @@ static const char *clrlabels[CLR_MAX] = {
 void
 tty_show_color_palette()
 {
-    const char *envterm = nh_getenv("TERM");
-    const char *cterm = nh_getenv("COLORTERM");
+    const char *envterm;
+    const char *cterm;
     const char *depthstr;
     const char *block;
     char buf[BUFSZ];
     int i, x, y, idx, v, depth;
     unsigned long rgb;
+
+#ifdef WIN32CON
+    /* On Windows, this function's `xputs writes raw to stdout' contract
+       is not actually true: xputs goes through xputc_core into
+       back_buffer, which clamps cursor.Y at console.height-1 and has no
+       scroll mechanism. nt_show_color_palette() in sys/winnt/nttty.c
+       writes raw VT/SGR escapes directly to conhost via WriteConsoleA,
+       letting conhost handle scrolling natively. Fall through to the
+       legacy path only on pre-VT (Win10 < 1511) consoles, where raw
+       SGR wouldn't be interpreted anyway and the legacy path's
+       back_buffer clobber is the best we can do.
+
+       term_active_depth() returns >= 256 iff console.has_vtmode is
+       true (see sys/winnt/nttty.c term_active_depth). */
+    if (term_active_depth() >= 256) {
+        nt_show_color_palette();
+        return;
+    }
+#endif
+
+    envterm = nh_getenv("TERM");
+    cterm = nh_getenv("COLORTERM");
 
     depth = term_active_depth();
     if (depth >= 16777216)

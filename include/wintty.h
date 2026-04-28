@@ -162,6 +162,9 @@ E int NDECL(term_active_depth);
 E void FDECL(term_start_color32, (unsigned long));
 E void FDECL(term_start_bgcolor32, (unsigned long));
 E void NDECL(tty_show_color_palette);
+#ifdef WIN32CON
+E void NDECL(nt_show_color_palette);
+#endif
 #endif /* TEXTCOLOR */
 
 /* ### topl.c ### */
