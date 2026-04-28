@@ -3878,8 +3878,24 @@ nt_show_color_palette(VOID_ARGS)
        output stays on screen until the user presses a key */
     (void) tty_nhgetch();
 
-    /* Re-enable flips and let docrt restore the game screen */
+    /* Re-enable flips. The demo wrote raw VT directly to conhost
+       without touching back_buffer or front_buffer, so neither
+       buffer reflects what the user actually sees. Invalidate
+       front_buffer so the post-docrt flip treats every cell as
+       needing repaint; otherwise per-cell diff silently skips
+       cells whose new game-state happens to match pre-demo state
+       and conhost keeps showing demo content underneath gameplay
+       (player moves repaint only the changed cells, level changes
+       leave demo bleed-through where new glyphs match old).
+       Mirrors raw_clear_screen's VT path. */
     console.suppress_flip = prev_suppress;
+    {
+        cell_t *front = console.front_buffer;
+        int j;
+
+        for (j = 0; j < console.buffer_size; j++)
+            front[j] = undefined_cell;
+    }
     docrt();
 }
 #endif /* TEXTCOLOR */
