@@ -5282,4 +5282,5 @@ The following changes to date are:
 - Fix: #showcolors render bugs and Windows MSVC build break
 - Fix: #showcolors apologetic-message on Windows tty windowport
 - Fix: Windows MSVC EvilHackW.exe link break for tty_show_color_palette
+- Fix: Windows tty scrolls on output overflow instead of clobbering
 

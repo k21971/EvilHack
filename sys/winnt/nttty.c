@@ -469,6 +469,52 @@ static void back_buffer_flip()
     }
 }
 
+/* Called from xputc_core() when content would overflow the bottom of
+   the console. Synchronises an internal back_buffer scroll with a
+   real conhost scroll so terminal scrollback retains the top row.
+   Mirrors the natural scroll-on-overflow behaviour that xterm,
+   tmux, and Windows-Terminal already provide outside the
+   back_buffer overlay. Without this, xputc_core clamped cursor.Y
+   at console.height - 1 and overflow rows clobbered the bottom */
+static void
+scroll_back_buffer_up_one_row(void)
+{
+    int row, col;
+    DWORD written;
+    COORD bottomleft;
+
+    /* Flush pending back_buffer writes so conhost's visible window
+       reflects the row that is about to scroll into scrollback.
+       Otherwise the row that scrolls off would be the OLD pre-flip
+       state, not the row we just wrote */
+    back_buffer_flip();
+
+    /* Position conhost cursor at bottom-left and emit '\n'. ConHost
+       interprets this as a scroll: top row goes into scrollback,
+       all rows shift up by 1, bottom row clears */
+    bottomleft.X = 0;
+    bottomleft.Y = (SHORT) (console.height - 1);
+    SetConsoleCursorPosition(console.hConOut, bottomleft);
+    WriteConsoleA(console.hConOut, "\n", 1, &written, NULL);
+
+    /* Scroll back_buffer to match the new conhost state */
+    for (row = 0; row < console.height - 1; row++) {
+        memmove(&console.back_buffer[row * console.width],
+                &console.back_buffer[(row + 1) * console.width],
+                console.width * sizeof(cell_t));
+    }
+    /* Clear the new bottom row */
+    for (col = 0; col < console.width; col++) {
+        console.back_buffer[(console.height - 1) * console.width + col]
+            = clear_cell;
+    }
+
+    /* front_buffer is now stale (still reflects pre-scroll content
+       at each absolute position). We deliberately do NOT scroll it:
+       the next back_buffer_flip's per-cell diff will see the changes
+       and repaint, ending with front == back */
+}
+
 void buffer_fill_to_end(cell_t * buffer, cell_t * fill, int x, int y)
 {
     nhassert(x >= 0 && x < console.width);
@@ -879,6 +925,8 @@ char ch;
     case '\n':
         if (console.cursor.Y < console.height - 1)
             console.cursor.Y++;
+        else
+            scroll_back_buffer_up_one_row();
     /* fall through */
     case '\r':
         console.cursor.X = 1;
@@ -903,6 +951,9 @@ char ch;
             if (console.cursor.Y < console.height - 1) {
                 console.cursor.X = 1;
                 console.cursor.Y++;
+            } else {
+                scroll_back_buffer_up_one_row();
+                console.cursor.X = 1;
             }
         } else {
             console.cursor.X++;
