@@ -199,4 +199,17 @@ set_keyhandling_via_option(void)
 {
     return 1;
 }
+
+#ifdef TEXTCOLOR
+/* The GUI binary (EvilHackW.exe) links this stub instead of wintty.o,
+   so cmd.c's doshowcolors() can satisfy its extern reference. The
+   stub is unreachable at runtime because doshowcolors() guards the
+   call with WINDOWPORT("tty"), which is never true in the mswin GUI
+   port */
+void
+tty_show_color_palette()
+{
+    return;
+}
+#endif /* TEXTCOLOR */
 #endif /* TTYSTUBS */

@@ -5281,4 +5281,5 @@ The following changes to date are:
 - Add: #showcolors command, fix truecolor detection path
 - Fix: #showcolors render bugs and Windows MSVC build break
 - Fix: #showcolors apologetic-message on Windows tty windowport
+- Fix: Windows MSVC EvilHackW.exe link break for tty_show_color_palette
 
