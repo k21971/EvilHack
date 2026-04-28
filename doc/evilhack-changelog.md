@@ -5280,4 +5280,5 @@ The following changes to date are:
 - Fix: Windows MSVC build break in nttty.c console_t initializer
 - Add: #showcolors command, fix truecolor detection path
 - Fix: #showcolors render bugs and Windows MSVC build break
+- Fix: #showcolors apologetic-message on Windows tty windowport
 

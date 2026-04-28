@@ -158,6 +158,7 @@ E void FDECL(term_start_bgcolor, (int color));
 E int FDECL(has_color, (int color));
 E boolean NDECL(has_truecolor);
 E boolean NDECL(term_supports_truecolor);
+E int NDECL(term_active_depth);
 E void FDECL(term_start_color32, (unsigned long));
 E void FDECL(term_start_bgcolor32, (unsigned long));
 E void NDECL(tty_show_color_palette);

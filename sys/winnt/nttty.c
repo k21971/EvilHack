@@ -1210,6 +1210,22 @@ term_supports_truecolor(void)
     return console.has_truecolor;
 }
 
+/* Active console color depth: 16, 256, or 16777216. has_truecolor
+   means full 24-bit RGB SGR; has_vtmode without truecolor means VT
+   sequences work so the 256-palette \033[38;5;Nm form is honored;
+   neither means legacy 16-color conhost. Mirrors the TTY/termcap.c
+   helper so cross-platform callers (#showcolors demo in wintty.c)
+   don't need to know which backend is active */
+int
+term_active_depth(void)
+{
+    if (console.has_truecolor)
+        return 16777216;
+    if (console.has_vtmode)
+        return 256;
+    return 16;
+}
+
 /* Set the foreground to a 32-bit nhcolor (NH_BASIC_COLOR-tagged or RGB).
    On a non-truecolor console, fall back to the precomputed 256-palette
    index via closest_color, mirroring the behaviour of the TTY version */
