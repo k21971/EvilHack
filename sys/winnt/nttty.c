@@ -2221,9 +2221,13 @@ void nethack_enter_nttty()
         windowprocs.wincap2 &= ~WC2_EXTCOLORS;
     }
 
-    /* Probe for 24-bit truecolor support. Modern Windows Terminal sets
-     * COLORTERM=truecolor; legacy conhost does not, even when VT mode
-     * works. Require both VT mode and an explicit COLORTERM marker */
+    /* Probe for 24-bit truecolor support. Linux-style terminals set
+     * COLORTERM=truecolor (or 24bit) and that's the cross-platform
+     * marker. Windows Terminal does NOT set COLORTERM despite
+     * supporting full 24-bit rendering, but it does set WT_SESSION
+     * (a GUID identifying the terminal session). Accept either as
+     * a truecolor marker. Legacy conhost sets neither, even when VT
+     * mode works, so we still require VT mode. */
     {
         char ctbuf[32];
         DWORD got = 0;
@@ -2232,6 +2236,13 @@ void nethack_enter_nttty()
             got = GetEnvironmentVariableA("COLORTERM", ctbuf, sizeof ctbuf);
         if (got > 0 && got < sizeof ctbuf
             && (!_stricmp(ctbuf, "truecolor") || !_stricmp(ctbuf, "24bit")))
+            console.has_truecolor = TRUE;
+        /* WT_SESSION existence alone is sufficient; the value is a
+           GUID we don't need to parse. Buffer too small for the full
+           36-char GUID is fine - we only check the return value. */
+        if (console.has_vtmode && !console.has_truecolor
+            && GetEnvironmentVariableA("WT_SESSION", ctbuf,
+                                       sizeof ctbuf) > 0)
             console.has_truecolor = TRUE;
     }
     if (!console.has_truecolor)

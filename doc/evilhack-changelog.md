@@ -5286,4 +5286,5 @@ The following changes to date are:
 - Fix: Windows console overflow scroll didn't scroll on classic conhost
 - Fix: bypass back_buffer for #showcolors on Windows tty
 - Fix: #showcolors demo bleeds through gameplay on Windows tty
+- Add: WT_SESSION fallback for truecolor detection on Windows
 
