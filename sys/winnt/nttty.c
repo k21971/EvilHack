@@ -481,6 +481,7 @@ scroll_back_buffer_up_one_row(void)
 {
     int row, col;
     DWORD written;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
     COORD bottomleft;
 
     /* Flush pending back_buffer writes so conhost's visible window
@@ -489,11 +490,21 @@ scroll_back_buffer_up_one_row(void)
        state, not the row we just wrote */
     back_buffer_flip();
 
-    /* Position conhost cursor at bottom-left and emit '\n'. ConHost
-       interprets this as a scroll: top row goes into scrollback,
-       all rows shift up by 1, bottom row clears */
+    /* Position conhost cursor at the SCREEN BUFFER bottom (not the
+       viewport bottom) and emit '\n'. console.height tracks viewport
+       height (typically 25) but Windows screen buffers are commonly
+       much taller (9000 rows for classic conhost scrollback), and
+       SetConsoleCursorPosition uses buffer coordinates. Putting the
+       cursor at the viewport bottom inside a larger buffer leaves it
+       mid-buffer; the subsequent '\n' just advances the cursor
+       without triggering any scroll. Putting it at the buffer bottom
+       guarantees that '\n' rolls the buffer up by one line: top row
+       drops, the rest shift up (rows that were inside the viewport
+       on top now sit above the viewport in scrollback), bottom row
+       clears */
+    GetConsoleScreenBufferInfo(console.hConOut, &csbi);
     bottomleft.X = 0;
-    bottomleft.Y = (SHORT) (console.height - 1);
+    bottomleft.Y = (SHORT) (csbi.dwSize.Y - 1);
     SetConsoleCursorPosition(console.hConOut, bottomleft);
     WriteConsoleA(console.hConOut, "\n", 1, &written, NULL);
 
