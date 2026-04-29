@@ -5287,4 +5287,5 @@ The following changes to date are:
 - Fix: bypass back_buffer for #showcolors on Windows tty
 - Fix: #showcolors demo bleeds through gameplay on Windows tty
 - Add: WT_SESSION fallback for truecolor detection on Windows
+- Fix: stale hide flag survives pool-freeze for surface-hider polyform
 

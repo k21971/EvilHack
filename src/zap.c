@@ -6163,6 +6163,16 @@ boolean moncast;
                             set_utrap(rn1(50, 20), TT_INFLOOR);
                             You("are firmly stuck in the cooling rock.");
                         }
+                    } else if (u.uundetected) {
+                        /* surface-hider polyform (eel/piranha/leech)
+                           hidden on water with u.uinwater unset (form
+                           change while flying/levitating); tile is
+                           now ICE so the hide is no longer valid */
+                        maybe_unhide_at(u.ux, u.uy);
+                        if (!u.uundetected) {
+                            docrt();
+                            vision_full_recalc = 1;
+                        }
                     }
                 } else if ((mon = m_at(x, y)) != 0) {
                     /* probably ought to do some hefty damage to any
