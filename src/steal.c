@@ -181,9 +181,13 @@ stealarm(VOID_ARGS)
         if (otmp->o_id == stealoid) {
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                 if (mtmp->m_id == stealmid) {
-                    if (DEADMONSTER(mtmp))
+                    if (DEADMONSTER(mtmp)) {
                         impossible("stealarm(): dead monster stealing");
-                    if (!dmgtype(mtmp->data, AD_SITM)) /* polymorphed */
+                        goto botm;
+                    }
+                    /* polymorphed out of an item-stealer; abort steal
+                       but keep the doffed armor in inventory */
+                    if (!dmgtype(mtmp->data, AD_SITM))
                         goto botm;
                     if (otmp->unpaid)
                         subfrombill(otmp, shop_keeper(*u.ushops));
@@ -559,7 +563,7 @@ char *objnambuf;
           (was_punished && !Punished) ? " removed your chain and" : "",
           doname(otmp));
     could_petrify = (otmp->otyp == CORPSE
-                     && touch_petrifies(&mons[otmp->corpsenm]));
+                     && safe_touch_petrifies(otmp->corpsenm));
     (void) mpickobj(mtmp, otmp); /* may free otmp */
     if (could_petrify && !(mtmp->misc_worn_check & W_ARMG)) {
         minstapetrify(mtmp, TRUE);
@@ -618,8 +622,10 @@ struct obj *otmp;
     return freed_otmp;
 }
 
-static boolean
-is_stealable_item(struct obj *obj, struct monst *mtmp)
+STATIC_OVL boolean
+is_stealable_item(obj, mtmp)
+struct obj *obj;
+struct monst *mtmp;
 {
     /* the Wizard is not allowed to steal the player's
        quest artifact */
@@ -724,10 +730,11 @@ struct monst *mtmp;
         /* finally, steal the target item */
         if (otmp->owornmask)
             remove_worn_item(otmp, TRUE);
+        /* format the name before freeing inventory */
+        Strcpy(buf, doname(otmp));
         if (otmp->unpaid)
             subfrombill(otmp, shop_keeper(*u.ushops));
         freeinv(otmp);
-        Strcpy(buf, doname(otmp));
         (void) mpickobj(mtmp, otmp); /* could merge and free otmp but won't */
         pline("%s steals %s!", Monnam(mtmp), buf);
         (void) m_dowear(mtmp, TRUE);
@@ -794,15 +801,17 @@ boolean verbosely;
     int saved_otyp = obj->otyp;
     int saved_oclass = obj->oclass;
     long saved_oprops = obj->oprops;
-
-    extract_from_minvent(mon, obj, FALSE, TRUE);
+    int saved_dragonscales = obj->dragonscales;
 
     /* Don't try to drop objects at invalid coordinates (e.g., parked
-       vault guard at 0,0) */
+       vault guard at 0,0); validate before extracting from minvent */
     if (!isok(omx, omy)) {
+        extract_from_minvent(mon, obj, FALSE, TRUE);
         obfree(obj, (struct obj *) 0);
         return;
     }
+
+    extract_from_minvent(mon, obj, FALSE, TRUE);
 
     /* don't charge for an owned saddle on dead steed (provided
        that the hero is within the same shop at the time) */
@@ -836,6 +845,7 @@ boolean verbosely;
         dummy.otyp = saved_otyp;
         dummy.oclass = saved_oclass;
         dummy.oprops = saved_oprops;
+        dummy.dragonscales = saved_dragonscales;
         update_mon_intrinsics(mon, &dummy, FALSE, TRUE);
     }
     /* If flooreffects() destroyed a saddle, the steed must have been
