@@ -942,6 +942,14 @@ init_hilite()
     char *setf, *scratch;
     int c, md_len;
     int colors = tgetnum("Co");
+    /* Direct-color terminfo (Co > 256, e.g. xterm-direct) defines
+       setaf so 0-7 emit "\E[3Nm" but 8-15 emit a colon-separated
+       ITU T.416 direct-RGB form "\E[38:2::0:0:Nm" -- nearly-black
+       RGB(0,0,N) which most terminals silently drop. Bypass tparm
+       for the bright half on those terminals and emit standard ANSI
+       \E[9Nm bright codes ourselves; mirrors term_start_bgcolor()
+       which already emits raw \E[Nm rather than going through setab */
+    boolean direct_color = (colors > 256);
 
     /* Start from terminfo's "Co" but let an explicit COLORTERM /
        direct-color TERM advertise a higher depth. See
@@ -977,6 +985,7 @@ init_hilite()
     if (colors >= 16) {
         for (c = 0; c < SIZE(ti_map); c++) {
             char *work;
+            char tmp[24];
 
             /* system colors */
             scratch = tparm(setf, ti_map[c].nh_color);
@@ -985,7 +994,12 @@ init_hilite()
             hilites[ti_map[c].nh_color] = work;
 
             /* bright colors */
-            scratch = tparm(setf, ti_map[c].nh_bright_color);
+            if (direct_color) {
+                Sprintf(tmp, "\033[%dm", ti_map[c].ti_color + 90);
+                scratch = tmp;
+            } else {
+                scratch = tparm(setf, ti_map[c].nh_bright_color);
+            }
             work = (char *) alloc(strlen(scratch) + 1);
             Strcpy(work, scratch);
             hilites[ti_map[c].nh_bright_color] = work;
@@ -1009,7 +1023,14 @@ init_hilite()
     }
 
     if (colors >= 16) {
-        scratch = tparm(setf, COLOR_WHITE|BRIGHT);
+        char tmp[24];
+
+        if (direct_color) {
+            Strcpy(tmp, "\033[97m");
+            scratch = tmp;
+        } else {
+            scratch = tparm(setf, COLOR_WHITE|BRIGHT);
+        }
         hilites[CLR_WHITE] = (char *) alloc(strlen(scratch) + 1);
         Strcpy(hilites[CLR_WHITE], scratch);
     } else {
@@ -1024,7 +1045,14 @@ init_hilite()
 
     if (iflags.wc2_darkgray) {
         if (colors >= 16) {
-            scratch = tparm(setf, COLOR_BLACK|BRIGHT);
+            char tmp[24];
+
+            if (direct_color) {
+                Strcpy(tmp, "\033[90m");
+                scratch = tmp;
+            } else {
+                scratch = tparm(setf, COLOR_BLACK|BRIGHT);
+            }
             hilites[CLR_BLACK] = (char *) alloc(strlen(scratch) + 1);
             Strcpy(hilites[CLR_BLACK], scratch);
         } else {
