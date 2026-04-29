@@ -3765,14 +3765,13 @@ nt_show_color_palette(VOID_ARGS)
     /* Clear screen + home cursor via VT */
     demo_emit("\033[2J\033[H");
 
-    /* Header (5 rows: title, TERM, COLORTERM, Detected, blank) */
-    Sprintf(buf, "  #showcolors -- terminal color palette demo\r\n");
+    /* Header (3 rows: TERM+COLORTERM, Detected, blank). Compact form
+       keeps the full demo within an 80x24 console */
+    Sprintf(buf, "  TERM = %s  COLORTERM = %s\r\n",
+            envterm ? envterm : "(unset)",
+            cterm ? cterm : "(unset)");
     demo_emit(buf);
-    Sprintf(buf, "  TERM      = %s\r\n", envterm ? envterm : "(unset)");
-    demo_emit(buf);
-    Sprintf(buf, "  COLORTERM = %s\r\n", cterm ? cterm : "(unset)");
-    demo_emit(buf);
-    Sprintf(buf, "  Detected  = %s\r\n", depthstr);
+    Sprintf(buf, "  Detected = %s\r\n", depthstr);
     demo_emit(buf);
     demo_emit("\r\n");
 
@@ -3803,13 +3802,13 @@ nt_show_color_palette(VOID_ARGS)
     demo_emit(buf);
     demo_emit("\r\n");
 
-    /* Bar 2: 256-color cube + grayscale (6 cube rows + 1 ramp row) */
-    demo_emit("  256-color extended palette (16..231 RGB cube,"
+    /* Bar 2: 256-color cube + grayscale (3 cube rows + 1 ramp row) */
+    demo_emit("  256-color extended palette (16..231 RGB,"
               " 232..255 grayscale):\r\n");
-    for (y = 0; y < 6; y++) {
+    for (y = 0; y < 3; y++) {
         demo_emit("   ");
-        for (x = 0; x < 36; x++) {
-            idx = 16 + y * 36 + x;
+        for (x = 0; x < 72; x++) {
+            idx = 16 + y * 72 + x;
             demo_emit_bg256(idx);
             demo_emit(" ");
             demo_emit_reset();
@@ -3832,8 +3831,8 @@ nt_show_color_palette(VOID_ARGS)
     demo_emit(buf);
 
     demo_emit("   Hue:   ");
-    for (x = 0; x < 64; x++) {
-        rgb = demo_hue_to_rgb(x * 360 / 64);
+    for (x = 0; x < 65; x++) {
+        rgb = demo_hue_to_rgb(x * 360 / 65);
         demo_emit_bg_rgb(rgb);
         demo_emit(" ");
         demo_emit_reset();
@@ -3841,8 +3840,8 @@ nt_show_color_palette(VOID_ARGS)
     demo_emit("\r\n");
 
     demo_emit("   Gray:  ");
-    for (x = 0; x < 64; x++) {
-        v = x * 255 / 63;
+    for (x = 0; x < 65; x++) {
+        v = x * 255 / 64;
         rgb = ((unsigned long) v << 16)
               | ((unsigned long) v << 8)
               | (unsigned long) v;
@@ -3853,8 +3852,8 @@ nt_show_color_palette(VOID_ARGS)
     demo_emit("\r\n");
 
     demo_emit("   Red:   ");
-    for (x = 0; x < 64; x++) {
-        v = x * 255 / 63;
+    for (x = 0; x < 65; x++) {
+        v = x * 255 / 64;
         rgb = (unsigned long) v << 16;
         demo_emit_bg_rgb(rgb);
         demo_emit(" ");
@@ -3863,8 +3862,8 @@ nt_show_color_palette(VOID_ARGS)
     demo_emit("\r\n");
 
     demo_emit("   Green: ");
-    for (x = 0; x < 64; x++) {
-        v = x * 255 / 63;
+    for (x = 0; x < 65; x++) {
+        v = x * 255 / 64;
         rgb = (unsigned long) v << 8;
         demo_emit_bg_rgb(rgb);
         demo_emit(" ");
@@ -3873,8 +3872,8 @@ nt_show_color_palette(VOID_ARGS)
     demo_emit("\r\n");
 
     demo_emit("   Blue:  ");
-    for (x = 0; x < 64; x++) {
-        v = x * 255 / 63;
+    for (x = 0; x < 65; x++) {
+        v = x * 255 / 64;
         rgb = (unsigned long) v;
         demo_emit_bg_rgb(rgb);
         demo_emit(" ");

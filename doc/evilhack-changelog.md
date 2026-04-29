@@ -5288,4 +5288,5 @@ The following changes to date are:
 - Fix: #showcolors demo bleeds through gameplay on Windows tty
 - Add: WT_SESSION fallback for truecolor detection on Windows
 - Fix: stale hide flag survives pool-freeze for surface-hider polyform
+- Compact #showcolors output to fit standard 80x24 terminal
 

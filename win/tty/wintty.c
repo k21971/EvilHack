@@ -4929,16 +4929,14 @@ tty_show_color_palette()
     tty_curs(BASE_WINDOW, 1, 0);
     cl_eos();
 
-    Sprintf(buf, "  #showcolors -- terminal color palette demo");
+    /* Header kept to 3 lines (TERM+COLORTERM merged, Detected, blank)
+       so the full demo fits in an 80x24 terminal */
+    Sprintf(buf, "  TERM = %s  COLORTERM = %s",
+            envterm ? envterm : "(unset)",
+            cterm ? cterm : "(unset)");
     xputs(buf);
     (void) xputc('\n');
-    Sprintf(buf, "  TERM      = %s", envterm ? envterm : "(unset)");
-    xputs(buf);
-    (void) xputc('\n');
-    Sprintf(buf, "  COLORTERM = %s", cterm ? cterm : "(unset)");
-    xputs(buf);
-    (void) xputc('\n');
-    Sprintf(buf, "  Detected  = %s", depthstr);
+    Sprintf(buf, "  Detected = %s", depthstr);
     xputs(buf);
     (void) xputc('\n');
     (void) xputc('\n');
@@ -4985,13 +4983,13 @@ tty_show_color_palette()
        fill extends through the terminal's line-height padding and
        consecutive rows visually touch instead of showing a banding
        gap between glyph cells */
-    xputs("  256-color extended palette (16..231 RGB cube,"
+    xputs("  256-color extended palette (16..231 RGB,"
           " 232..255 grayscale):");
     (void) xputc('\n');
-    for (y = 0; y < 6; y++) {
+    for (y = 0; y < 3; y++) {
         xputs("   ");
-        for (x = 0; x < 36; x++) {
-            idx = 16 + y * 36 + x;
+        for (x = 0; x < 72; x++) {
+            idx = 16 + y * 72 + x;
             term_start_bgcolor(idx);
             xputs(" ");
             term_end_color();
@@ -5018,8 +5016,8 @@ tty_show_color_palette()
     (void) xputc('\n');
 
     xputs("   Hue:   ");
-    for (x = 0; x < 64; x++) {
-        rgb = hue_to_rgb(x * 360 / 64);
+    for (x = 0; x < 65; x++) {
+        rgb = hue_to_rgb(x * 360 / 65);
         term_start_bgcolor32(rgb);
         xputs(" ");
         term_end_color();
@@ -5027,8 +5025,8 @@ tty_show_color_palette()
     (void) xputc('\n');
 
     xputs("   Gray:  ");
-    for (x = 0; x < 64; x++) {
-        v = x * 255 / 63;
+    for (x = 0; x < 65; x++) {
+        v = x * 255 / 64;
         rgb = ((unsigned long) v << 16)
               | ((unsigned long) v << 8)
               | (unsigned long) v;
@@ -5039,8 +5037,8 @@ tty_show_color_palette()
     (void) xputc('\n');
 
     xputs("   Red:   ");
-    for (x = 0; x < 64; x++) {
-        v = x * 255 / 63;
+    for (x = 0; x < 65; x++) {
+        v = x * 255 / 64;
         rgb = (unsigned long) v << 16;
         term_start_bgcolor32(rgb);
         xputs(" ");
@@ -5049,8 +5047,8 @@ tty_show_color_palette()
     (void) xputc('\n');
 
     xputs("   Green: ");
-    for (x = 0; x < 64; x++) {
-        v = x * 255 / 63;
+    for (x = 0; x < 65; x++) {
+        v = x * 255 / 64;
         rgb = (unsigned long) v << 8;
         term_start_bgcolor32(rgb);
         xputs(" ");
@@ -5059,8 +5057,8 @@ tty_show_color_palette()
     (void) xputc('\n');
 
     xputs("   Blue:  ");
-    for (x = 0; x < 64; x++) {
-        v = x * 255 / 63;
+    for (x = 0; x < 65; x++) {
+        v = x * 255 / 64;
         rgb = (unsigned long) v;
         term_start_bgcolor32(rgb);
         xputs(" ");
