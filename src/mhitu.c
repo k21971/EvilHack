@@ -681,7 +681,7 @@ struct monst *mtmp;
     boolean range2 = !monnear(mtmp, mtmp->mux, mtmp->muy);
     boolean foundyou = (mtmp->mux == u.ux && mtmp->muy == u.uy);
     boolean youseeit = canseemon(mtmp);
-    boolean firstfoundyou, skipnonmagc = FALSE;
+    boolean firstfoundyou, was_unfindable, skipnonmagc = FALSE;
 
     if (!ranged)
         nomul(0);
@@ -1056,10 +1056,35 @@ struct monst *mtmp;
             return (foo == 1) ? MM_HIT : MM_MISS;
     }
 
+    /* Track whether mtmp's perceived hero location is excused by a
+       wildmiss-coverable state (mtmp blind, hero invisible to it,
+       hero displaced, or hero underwater). If a later attack in the
+       chain transitions the hero out of all four (e.g. fire gaze
+       burning a cloak of invisibility, disintegration gaze destroying
+       a cloak of displacement), mux/muy must be refreshed or
+       wildmiss() will panic for what is now an ordinary melee */
+    was_unfindable = (!mtmp->mcansee
+                      || (Invis && !mon_prop(mtmp, SEE_INVIS))
+                      || Displaced || Underwater);
     firstfoundyou = foundyou;
 
     for (i = 0; i < NATTK; i++) {
         sum[i] = 0;
+        /* a previous attack in this chain may have changed the hero's
+           visibility-relevant state; refresh perceived location so
+           wildmiss() doesn't fire its diagnostic for what is now a
+           plain melee. Only refresh on the unfindable->findable
+           transition to preserve existing behavior of multi-attack
+           monsters against still-hidden heroes */
+        if (i > 0) {
+            boolean now_unfindable = (!mtmp->mcansee
+                                      || (Invis
+                                          && !mon_prop(mtmp, SEE_INVIS))
+                                      || Displaced || Underwater);
+            if (was_unfindable && !now_unfindable)
+                set_apparxy(mtmp);
+            was_unfindable = now_unfindable;
+        }
         /* ranged &c must be updated in case the attacker has been knocked
            back by Ashmar or the Armor of Retribution */
         ranged = (distu(mtmp->mx, mtmp->my) > 3);
