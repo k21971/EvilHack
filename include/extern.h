@@ -2991,7 +2991,6 @@ E int FDECL(hide_privileges, (BOOLEAN_P));
 /* ### vault.c ### */
 
 E void FDECL(newegd, (struct monst *));
-E void FDECL(free_egd, (struct monst *));
 E boolean FDECL(grddead, (struct monst *));
 E struct monst *NDECL(findgd);
 E void NDECL(vault_summon_gd);

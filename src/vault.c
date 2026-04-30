@@ -14,7 +14,7 @@ STATIC_DCL boolean FDECL(find_guard_dest, (struct monst *, xchar *, xchar *));
 STATIC_DCL void FDECL(move_gold, (struct obj *, int));
 STATIC_DCL void FDECL(wallify_vault, (struct monst *));
 STATIC_DCL void FDECL(gd_mv_monaway, (struct monst *, int, int));
-STATIC_OVL void FDECL(gd_pick_corridor_gold, (struct monst *, int, int));
+STATIC_DCL void FDECL(gd_pick_corridor_gold, (struct monst *, int, int));
 
 void
 newegd(mtmp)
@@ -26,17 +26,6 @@ struct monst *mtmp;
         EGD(mtmp) = (struct egd *) alloc(sizeof (struct egd));
         (void) memset((genericptr_t) EGD(mtmp), 0, sizeof (struct egd));
     }
-}
-
-void
-free_egd(mtmp)
-struct monst *mtmp;
-{
-    if (mtmp->mextra && EGD(mtmp)) {
-        free((genericptr_t) EGD(mtmp));
-        EGD(mtmp) = (struct egd *) 0;
-    }
-    mtmp->isgd = 0;
 }
 
 /* try to remove the temporary corridor (from vault to rest of map) being
@@ -69,8 +58,8 @@ boolean forceshow;
             forceshow = TRUE;
         if ((u.ux == fcx && u.uy == fcy && !DEADMONSTER(grd))
             || (!forceshow && couldsee(fcx, fcy))
-            || (Punished && !carried(uball) && uball->ox == fcx
-                && uball->oy == fcy))
+            || (Punished && uball->where == OBJ_FLOOR
+                && uball->ox == fcx && uball->oy == fcy))
             return FALSE;
 
         if ((mtmp = m_at(fcx, fcy)) != 0) {
@@ -79,6 +68,8 @@ boolean forceshow;
             } else if (!in_fcorridor(grd, u.ux, u.uy)) {
                 if (mtmp->mtame)
                     yelp(mtmp);
+                if (mtmp->mtame && mtmp->mleashed)
+                    m_unleash(mtmp, TRUE);
                 if (!rloc(mtmp, TRUE))
                     m_into_limbo(mtmp);
             }
@@ -222,7 +213,8 @@ findgd()
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
             continue;
-        if (mtmp->isgd && on_level(&(EGD(mtmp)->gdlevel), &u.uz))
+        if (mtmp->isgd && has_egd(mtmp)
+            && on_level(&(EGD(mtmp)->gdlevel), &u.uz))
             return mtmp;
     }
     return (struct monst *) 0;
@@ -265,6 +257,7 @@ struct monst *grd;
             if (canspotmon(grd)) /* see or sense via telepathy */
                 pline("%s becomes irate.", Monnam(grd));
             grd->mpeaceful = 0; /* bypass setmangry() */
+            set_malign(grd);
             newsym(grd->mx, grd->my); /* update display */
         }
         /* if arriving outside guard's temporary corridor, give the
@@ -309,7 +302,6 @@ xchar *rx, *ry;
         ;
     }
     impossible("Not a single corridor on this level?");
-    tele();
     return FALSE;
 }
 
@@ -439,9 +431,9 @@ invault()
         if (Role_if(PM_CONVICT) && !Upolyd) {
             setmangry(guard, FALSE);
             verbalize("I saw your picture on the wanted poster!");
-	    if (!MON_WEP(guard)) {
-	        guard->weapon_check = NEED_HTH_WEAPON;
-		(void) mon_wield_item(guard);
+            if (!MON_WEP(guard)) {
+                guard->weapon_check = NEED_HTH_WEAPON;
+                (void) mon_wield_item(guard);
             }
             return;
         }
@@ -577,6 +569,8 @@ invault()
                 EGD(guard)->fakecorr[0].ftyp = HWALL;
             else if (x == lowx - 1 || x == hix + 1)
                 EGD(guard)->fakecorr[0].ftyp = VWALL;
+            else
+                EGD(guard)->fakecorr[0].ftyp = levl[x][y].typ;
         }
         levl[x][y].typ = DOOR;
         levl[x][y].doormask = D_NODOOR;
@@ -644,6 +638,8 @@ struct monst *grd;
                 if ((mon = m_at(x, y)) != 0 && mon != grd) {
                     if (mon->mtame)
                         yelp(mon);
+                    if (mon->mtame && mon->mleashed)
+                        m_unleash(mon, TRUE);
                     (void) rloc(mon, FALSE);
                 }
                 if ((gold = g_at(x, y)) != 0) {
@@ -693,9 +689,13 @@ struct monst *grd;
 int nx, ny;
 {
     if (MON_AT(nx, ny) && !(nx == grd->mx && ny == grd->my)) {
+        struct monst *vmon = m_at(nx, ny);
+
         if (!Deaf)
             verbalize("Out of my way, scum!");
-        if (!rloc(m_at(nx, ny), FALSE) || MON_AT(nx, ny))
+        if (vmon && vmon->mtame && vmon->mleashed)
+            m_unleash(vmon, TRUE);
+        if (!rloc(vmon, FALSE) || MON_AT(nx, ny))
             m_into_limbo(m_at(nx, ny));
     }
 }
@@ -762,11 +762,11 @@ int goldx, goldy; /* <gold->ox, gold->oy> */
     } else {
         /* just for insurance... */
         gd_mv_monaway(grd, goldx, goldy); /* make room for guard */
-        if (see_it) { /* skip if player won't see the message */
-            remove_monster(grd->mx, grd->my);
-            newsym(grd->mx, grd->my);
-            place_monster(grd, goldx, goldy); /* sets <grd->mx, grd->my> */
-        }
+        /* must move guard to gold's tile so mpickgold() finds it;
+           the post-pickup block below restores guard to original spot */
+        remove_monster(grd->mx, grd->my);
+        newsym(grd->mx, grd->my);
+        place_monster(grd, goldx, goldy); /* sets <grd->mx, grd->my> */
         mpickgold(grd); /* does a newsym */
     }
 
@@ -829,6 +829,8 @@ struct monst *grd;
             && (grd_in_vault || (in_fcorridor(grd, grd->mx, grd->my)
                                  && !in_fcorridor(grd, u.ux, u.uy)))) {
             (void) rloc(grd, TRUE);
+            if (DEADMONSTER(grd))
+                return -2; /* trap killed grd; cleanup done by mondead */
             wallify_vault(grd);
             if (!in_fcorridor(grd, grd->mx, grd->my))
                 (void) clear_fcorr(grd, TRUE);
@@ -847,6 +849,7 @@ struct monst *grd;
                       (egrd->witness & GD_EATGOLD) ? "consume" : "destroy");
         egrd->witness = 0;
         grd->mpeaceful = 0;
+        set_malign(grd);
         newsym(grd->mx, grd->my); /* update display */
         return -1;
     }
@@ -867,9 +870,12 @@ struct monst *grd;
                 if (!Deaf)
                     verbalize("You've been warned, knave!");
                 mnexto(grd);
+                if (DEADMONSTER(grd))
+                    return -2;
                 levl[m][n].typ = egrd->fakecorr[0].ftyp;
                 newsym(m, n);
                 grd->mpeaceful = 0;
+                set_malign(grd);
                 newsym(grd->mx, grd->my); /* update display */
                 return -1;
             }
@@ -884,9 +890,12 @@ struct monst *grd;
                 m = grd->mx;
                 n = grd->my;
                 (void) rloc(grd, TRUE);
+                if (DEADMONSTER(grd))
+                    return -2;
                 levl[m][n].typ = egrd->fakecorr[0].ftyp;
                 newsym(m, n);
                 grd->mpeaceful = 0;
+                set_malign(grd);
                 newsym(grd->mx, grd->my); /* update display */
  letknow:
                 if (!cansee(grd->mx, grd->my) || !mon_visible(grd))
@@ -945,6 +954,7 @@ struct monst *grd;
                     verbalize("So be it, rogue!");
                 }
                 grd->mpeaceful = 0;
+                set_malign(grd);
                 newsym(grd->mx, grd->my); /* update display */
                 return -1;
             }
@@ -1146,6 +1156,8 @@ boolean silently;
             goto remove_guard;
 
         mnexto(grd);
+        if (DEADMONSTER(grd))
+            return; /* trap killed grd; cleanup done by mondead */
         if (!silently)
             pline("%s remits your gold to the vault.", Monnam(grd));
         /* Validate vault room before placing gold */
