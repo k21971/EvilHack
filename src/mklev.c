@@ -2336,4 +2336,72 @@ xchar x, y;
     place_branch(br, x, y);
 }
 
+/* Place the Fort Ludios portal at (x,y) on the current level, bypassing
+   the eligibility test and place_branch's made_branch guard. Caller is
+   responsible for choosing a sensible level and tile. Returns FALSE if
+   the Knox branch is already wired up elsewhere or the tile is unusable. */
+boolean
+mk_knox_portal_at(x, y)
+xchar x, y;
+{
+    extern int n_dgns; /* from dungeon.c */
+    branch *br;
+    d_level *source, *dest;
+
+    br = dungeon_branch("Fort Ludios");
+    source = on_level(&knox_level, &br->end1) ? &br->end2 : &br->end1;
+    if (source->dnum < n_dgns)
+        return FALSE; /* portal is already placed somewhere */
+
+    *source = u.uz;
+    insert_branch(br, TRUE);
+
+    /* call mkportal directly; place_branch's made_branch guard would
+       otherwise silently no-op on a level that already received a
+       branch (Medusa already has the Ice Queen chain branch). */
+    dest = on_level(&br->end1, &u.uz) ? &br->end2 : &br->end1;
+    if (isok(x, y) && !occupied(x, y)) {
+        mkportal(x, y, dest->dnum, dest->dlevel);
+        debugpline0("Made knox portal (Medusa fallback).");
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* Carve a small VAULT room inside a 4x4 bounding box whose top-left is
+   (x,y). Caller has verified the box is all-moat. The inner 2x2 becomes
+   vault floor, the perimeter is converted from add_room()'s stone walls
+   to live trees (thematic on Medusa's level, and a different access
+   mechanic: chop or burn rather than dig), and the Ludios portal
+   lands on one of the floor tiles. */
+void
+mk_knox_fallback_vault(x, y)
+xchar x, y;
+{
+    int dx, dy;
+    xchar tx, ty;
+
+    /* add_room(lowx,lowy,hix,hiy,...) carves the perimeter at
+       lowx-1,lowy-1 .. hix+1,hiy+1 and floors the interior.
+       Passing a 2x2 floor at (x+1,y+1)..(x+2,y+2) walls the full
+       4x4 box (x,y)..(x+3,y+3). */
+    add_room(x + 1, y + 1, x + 2, y + 2, FALSE, VAULT, FALSE);
+    level.flags.has_vault = 1;
+    fill_room(&rooms[nroom - 1], FALSE);
+
+    /* Replace the freshly-placed stone walls with live trees. The 2x2
+       interior at (x+1..x+2, y+1..y+2) is the floor and is left alone. */
+    for (dy = 0; dy < 4; dy++)
+        for (dx = 0; dx < 4; dx++) {
+            if (dx >= 1 && dx <= 2 && dy >= 1 && dy <= 2)
+                continue;
+            tx = x + dx;
+            ty = y + dy;
+            if (IS_WALL(levl[tx][ty].typ))
+                levl[tx][ty].typ = TREE;
+        }
+
+    (void) mk_knox_portal_at(x + 1, y + 1);
+}
+
 /*mklev.c*/

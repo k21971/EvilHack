@@ -1440,6 +1440,8 @@ E void NDECL(mkinvokearea);
 E void NDECL(mkgate);
 E void NDECL(mkgate2);
 E void FDECL(mineralize, (int, int, int, int, BOOLEAN_P));
+E boolean FDECL(mk_knox_portal_at, (XCHAR_P, XCHAR_P));
+E void FDECL(mk_knox_fallback_vault, (XCHAR_P, XCHAR_P));
 
 /* ### mkmap.c ### */
 

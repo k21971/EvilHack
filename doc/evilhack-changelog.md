@@ -5294,4 +5294,5 @@ The following changes to date are:
 - Fix: steal.c review: stealarm UAF, NON_PM corpse, dragon-scale leak
 - Fix: detect.c review and cross-file mstone wakeup gates
 - Fix: various issues in vault.c found during code review
+- Add: guarantee Fort Ludios portal via Medusa fallback grove
 
