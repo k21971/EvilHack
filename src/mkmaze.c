@@ -564,7 +564,7 @@ STATIC_OVL void
 fixup_special()
 {
     lev_region *r = lregions;
-    struct d_level lev;
+    struct d_level lev = { 0, 0 };
     int x, y;
     struct mkroom *croom;
     boolean added_branch = FALSE;
@@ -589,6 +589,12 @@ fixup_special()
             } else {
                 s_level *sp = find_level(r->rname.str);
 
+                if (!sp) {
+                    impossible("LR_PORTAL: unknown level \"%s\"",
+                               r->rname.str);
+                    free((genericptr_t) r->rname.str), r->rname.str = 0;
+                    continue;
+                }
                 lev = sp->dlevel;
             }
             /*FALLTHRU*/
@@ -648,10 +654,15 @@ fixup_special()
             x = somex(croom);
             y = somey(croom);
             if (goodpos(x, y, (struct monst *) 0, 0L)) {
+                int rcap;
+
                 otmp = mk_tt_object(STATUE, x, y);
-                while (otmp && (poly_when_stoned(&mons[otmp->corpsenm])
-                                || pm_resistance(&mons[otmp->corpsenm],
-                                                 MR_STONE))) {
+                /* bound retries in case genocide ever leaves no eligible
+                   non-stone-resistant non-poly_when_stoned monsters */
+                for (rcap = 0; otmp && rcap < 100
+                     && (poly_when_stoned(&mons[otmp->corpsenm])
+                         || pm_resistance(&mons[otmp->corpsenm], MR_STONE));
+                     rcap++) {
                     /* set_corpsenm() handles weight too */
                     set_corpsenm(otmp, rndmonnum());
                 }
@@ -665,8 +676,12 @@ fixup_special()
                 mkcorpstat(STATUE, (struct monst *) 0, (struct permonst *) 0,
                            somex(croom), somey(croom), CORPSTAT_NONE);
         if (otmp) {
-            while (pm_resistance(&mons[otmp->corpsenm], MR_STONE)
-                   || poly_when_stoned(&mons[otmp->corpsenm])) {
+            int rcap;
+
+            for (rcap = 0; rcap < 100
+                 && (pm_resistance(&mons[otmp->corpsenm], MR_STONE)
+                     || poly_when_stoned(&mons[otmp->corpsenm]));
+                 rcap++) {
                 /* set_corpsenm() handles weight too */
                 set_corpsenm(otmp, rndmonnum());
             }
@@ -693,18 +708,24 @@ fixup_special()
     } else if (Is_knox(&u.uz)) {
         /* using an unfilled morgue for rm id */
         croom = search_special(MORGUE);
-        /* avoid inappropriate morgue-related messages */
-        level.flags.graveyard = level.flags.has_morgue = 0;
-        croom->rtype = OROOM; /* perhaps it should be set to VAULT? */
-        /* stock the main vault */
-        for (x = croom->lx; x <= croom->hx; x++)
-            for (y = croom->ly; y <= croom->hy; y++) {
-                if (!is_solid(x, y)) {
-                    (void) mkgold((long) rn1(300, 600), x, y);
-                    if (!rn2(3) && !is_damp_terrain(x, y))
-                        (void) maketrap(x, y, rn2(3) ? LANDMINE : SPIKED_PIT);
+        if (!croom) {
+            impossible("Knox without MORGUE?");
+        } else {
+            /* avoid inappropriate morgue-related messages */
+            level.flags.graveyard = level.flags.has_morgue = 0;
+            croom->rtype = OROOM; /* perhaps it should be set to VAULT? */
+            /* stock the main vault */
+            for (x = croom->lx; x <= croom->hx; x++) {
+                for (y = croom->ly; y <= croom->hy; y++) {
+                    if (!is_solid(x, y)) {
+                        (void) mkgold((long) rn1(300, 600), x, y);
+                        if (!rn2(3) && !is_damp_terrain(x, y))
+                            (void) maketrap(x, y,
+                                            rn2(3) ? LANDMINE : SPIKED_PIT);
+                    }
                 }
             }
+        }
     } else if (Role_if(PM_PRIEST) && In_quest(&u.uz)) {
         /* less chance for undead corpses (lured from lower morgues) */
         level.flags.graveyard = 1;
@@ -713,15 +734,22 @@ fixup_special()
     } else if (Is_sanctum(&u.uz)) {
         croom = search_special(TEMPLE);
 
-        create_secret_door(croom, W_NORTH | W_SOUTH);
+        if (!croom)
+            impossible("Sanctum without TEMPLE?");
+        else
+            create_secret_door(croom, W_NORTH | W_SOUTH);
     } else if (on_level(&u.uz, &orcus_level)) {
         struct monst *mtmp, *mtmp2;
 
-        /* it's a ghost town, get rid of shopkeepers */
+        /* it's a ghost town, get rid of shopkeepers; clear the room's
+           resident pointer first so dmonsfree() doesn't leave the freed
+           shk dangling on rooms[].resident */
         for (mtmp = fmon; mtmp; mtmp = mtmp2) {
             mtmp2 = mtmp->nmon;
-            if (mtmp->isshk)
+            if (mtmp->isshk) {
+                set_residency(mtmp, TRUE);
                 mongone(mtmp);
+            }
         }
     } else if (on_level(&u.uz, &hella_level)) {
         /* custom wallify the "beetle" potion of the level */
@@ -768,7 +796,7 @@ unsigned long mflags;
             nlev--;
         mtmp->mspare1 |= MIGR_LEFTOVERS;
     } else {
-        nlev = rn2((max_depth - cur_depth) + 1) + cur_depth;
+        nlev = rn2(max(max_depth - cur_depth, 0) + 1) + cur_depth;
         if (nlev == cur_depth)
             nlev++;
         if (nlev > max_depth)
@@ -881,6 +909,7 @@ stolen_booty(VOID_ARGS)
     if (mtmp) {
         mtmp = christen_monst(mtmp, upstart(gang));
         mtmp->mpeaceful = 0;
+        set_malign(mtmp);
         shiny_orc_stuff(mtmp);
         migrate_orc(mtmp, ORC_LEADER);
     }
@@ -1374,7 +1403,7 @@ bound_digging()
         return; /* everything diggable here */
 
     found = nonwall = FALSE;
-    for (xmin = 0; !found && xmin <= COLNO; xmin++) {
+    for (xmin = 0; !found && xmin < COLNO; xmin++) {
         lev = &levl[xmin][0];
         for (y = 0; y <= ROWNO - 1; y++, lev++) {
             typ = lev->typ;
@@ -1406,7 +1435,7 @@ bound_digging()
         xmax = COLNO - 1;
 
     found = nonwall = FALSE;
-    for (ymin = 0; !found && ymin <= ROWNO; ymin++) {
+    for (ymin = 0; !found && ymin < ROWNO; ymin++) {
         lev = &levl[xmin][ymin];
         for (x = xmin; x <= xmax; x++, lev += ROWNO) {
             typ = lev->typ;
@@ -1742,10 +1771,24 @@ int fd;
     mread(fd, (genericptr_t) &ymin, sizeof ymin);
     mread(fd, (genericptr_t) &xmax, sizeof xmax);
     mread(fd, (genericptr_t) &ymax, sizeof ymax);
+    if (n < 0 || n > 1024)
+        panic("restore_waterlevel: bogus bubble count %d", n);
+    if (xmin < 0 || xmax >= COLNO || ymin < 0 || ymax >= ROWNO
+        || xmin >= xmax || ymin >= ymax)
+        panic("restore_waterlevel: bogus bounds (%d,%d)-(%d,%d)",
+              xmin, ymin, xmax, ymax);
+    if (n == 0) {
+        bbubbles = ebubbles = (struct bubble *) 0;
+        return;
+    }
     for (i = 0; i < n; i++) {
         btmp = b;
         b = (struct bubble *) alloc(sizeof *b);
         mread(fd, (genericptr_t) b, sizeof *b);
+        if ((unsigned) b->bm[0] > 8
+            || (unsigned) b->bm[1] > MAX_BMASK)
+            panic("restore_waterlevel: bogus bubble bm[%u,%u]",
+                  b->bm[0], b->bm[1]);
         if (bbubbles) {
             btmp->next = b;
             b->prev = btmp;
@@ -2050,9 +2093,18 @@ boolean ini;
 
             case CONS_TRAP: {
                 struct trap *btrap = (struct trap *) cons->list;
+                struct trap *t;
 
-                btrap->tx = cons->x;
-                btrap->ty = cons->y;
+                /* another bubble's mv_bubble may have fired this trap
+                   via mintrap and deltrap'd it; validate against the
+                   live trap chain before writing through btrap */
+                for (t = ftrap; t; t = t->ntrap) {
+                    if (t == btrap) {
+                        btrap->tx = cons->x;
+                        btrap->ty = cons->y;
+                        break;
+                    }
+                }
                 break;
             }
 

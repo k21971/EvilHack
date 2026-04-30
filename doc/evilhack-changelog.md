@@ -5295,4 +5295,5 @@ The following changes to date are:
 - Fix: detect.c review and cross-file mstone wakeup gates
 - Fix: various issues in vault.c found during code review
 - Add: guarantee Fort Ludios portal via Medusa fallback grove
+- Fix: various issues in mkmaze.c found during code review
 
