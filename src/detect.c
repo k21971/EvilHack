@@ -223,6 +223,8 @@ struct obj *obj;
 boolean blessed;
 {
     int ct = 0;
+    struct obj *otmp;
+
     if (is_magic(obj)) {
         ct++;
         obj->oprops_known |= ITEM_MAGICAL;
@@ -230,7 +232,7 @@ boolean blessed;
             do_dknown_of(obj, TRUE);
     }
     if (Has_contents(obj) && obj->otyp != CRYSTAL_CHEST) {
-        for (struct obj *otmp = obj->cobj; otmp; otmp = otmp->nobj)
+        for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
             ct += do_mdetect(otmp, blessed);
     }
     return ct;
@@ -595,7 +597,7 @@ struct obj *sobj;
         You("%s %s nearby.", sobj ? "smell" : "sense", what);
         if (sobj && sobj->blessed) {
             if (!u.uedibility || !Food_sense)
-                pline("Your %s starts to tingle.", body_part(NOSE));
+                Your("%s starts to tingle.", body_part(NOSE));
             u.uedibility = 1;
         }
     } else {
@@ -708,19 +710,32 @@ int class;            /* an object class, 0 for all */
             do_dknown_of(obj, FALSE);
     }
 
-    for (x = 1; x < COLNO; ++x) {
-        for (y = 0; y < ROWNO; ++y) {
-            if (IS_MAGIC_CHEST(levl[x][y].typ) && mchest) {
-                for (obj = mchest->cobj; obj; obj = otmp) {
-                    otmp = obj->nobj; /* save before processing */
-                    if (x == u.ux && y == u.uy)
-                        ctu++;
-                    else
-                        ct++;
-                    if (do_dknown)
-                        do_dknown_of(obj, FALSE);
-                }
+    /* Walk shared mchest contents once, regardless of how many chest
+       tiles exist on the level; otherwise multi-chest levels would
+       count every item per chest tile */
+    if (mchest) {
+        struct obj *nobj;
+        boolean chest_at_u = FALSE;
+        int cx, cy;
+
+        for (cx = 1; cx < COLNO && !chest_at_u; ++cx) {
+            for (cy = 0; cy < ROWNO && !chest_at_u; ++cy) {
+                if (IS_MAGIC_CHEST(levl[cx][cy].typ)
+                    && cx == u.ux && cy == u.uy)
+                    chest_at_u = TRUE;
             }
+        }
+        for (obj = mchest->cobj; obj; obj = nobj) {
+            nobj = obj->nobj; /* save before processing */
+            if ((!class && !boulder) || o_in(obj, class)
+                || o_in(obj, boulder)) {
+                if (chest_at_u)
+                    ctu++;
+                else
+                    ct++;
+            }
+            if (do_dknown)
+                do_dknown_of(obj, FALSE);
         }
     }
 
@@ -774,7 +789,7 @@ int class;            /* an object class, 0 for all */
     /*
      *  Map all buried objects first.
      */
-    for (obj = level.buriedobjlist; obj; obj = obj->nobj)
+    for (obj = level.buriedobjlist; obj; obj = obj->nobj) {
         if (!class || (otmp = o_in(obj, class)) != 0) {
             if (class) {
                 if (otmp != obj) {
@@ -785,6 +800,7 @@ int class;            /* an object class, 0 for all */
             } else
                 map_object(obj, 1);
         }
+    }
     /*
      * If we are mapping all objects, map only the top object of a pile or
      * the first object in a monster's inventory.  Otherwise, go looking
@@ -793,9 +809,9 @@ int class;            /* an object class, 0 for all */
      *
      * Objects on the floor override buried objects.
      */
-    for (x = 1; x < COLNO; x++)
-        for (y = 0; y < ROWNO; y++)
-            for (obj = level.objects[x][y]; obj; obj = obj->nexthere)
+    for (x = 1; x < COLNO; x++) {
+        for (y = 0; y < ROWNO; y++) {
+            for (obj = level.objects[x][y]; obj; obj = obj->nexthere) {
                 if ((!class && !boulder) || (otmp = o_in(obj, class)) != 0
                     || (otmp = o_in(obj, boulder)) != 0) {
                     if (class || boulder) {
@@ -808,12 +824,14 @@ int class;            /* an object class, 0 for all */
                         map_object(obj, 1);
                     break;
                 }
-
+            }
+        }
+    }
     /* Objects in the monster's inventory override floor objects. */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
             continue;
-        for (obj = mtmp->minvent; obj; obj = obj->nobj)
+        for (obj = mtmp->minvent; obj; obj = obj->nobj) {
             if ((!class && !boulder) || (otmp = o_in(obj, class)) != 0
                 || (otmp = o_in(obj, boulder)) != 0) {
                 if (!class && !boulder)
@@ -823,6 +841,7 @@ int class;            /* an object class, 0 for all */
                 map_object(otmp, 1);
                 break;
             }
+        }
         /* Allow a mimic to override the detected objects it is carrying. */
         if (is_cursed && M_AP_TYPE(mtmp) == M_AP_OBJECT
             && (!class || class == objects[mtmp->mappearance].oc_class)) {
@@ -886,11 +905,12 @@ int mclass;                /* monster class, 0 for all */
      * presence of dmons, so we have to find at least one
      * with positive hit-points to know for sure.
      */
-    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (!DEADMONSTER(mtmp)) {
             mcnt++;
             break;
         }
+    }
 
     if (!mcnt) {
         if (otmp)
@@ -967,17 +987,18 @@ struct obj *detector;   /* object doing the detecting */
                      && detector->blessed);
     int ct = 0, ctu = 0;
     struct obj *obj, *nobj;
-    struct obj otmp;
+    struct obj otmp = zeroobj;
     struct monst *mtmp;
     int uw = u.uinwater, ter_typ = TER_DETECT | TER_OBJ;
     boolean woken = FALSE;
 
-    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (!DEADMONSTER(mtmp) && MAGICMONSTER(mtmp)) {
             ter_typ |= TER_MON;
             ct++;
             break;
         }
+    }
 
     if (Upolyd
         && attacktype(youmonst.data, AT_MAGC))
@@ -988,11 +1009,12 @@ struct obj *detector;   /* object doing the detecting */
     else
         Strcpy(stuff, "magic");
 
-    for (obj = invent; obj; obj = obj->nobj)
-        /* count these towards ctu (unlike object detection). you always know
-           whether you're carrying objects, but not necessarily whether those
-           objects are magic */
+    for (obj = invent; obj; obj = obj->nobj) {
+        /* count these towards ctu (unlike object detection).
+           you always know whether you're carrying objects,
+           but not necessarily whether those objects are magic */
         ctu += do_mdetect(obj, do_pknown);
+    }
 
     for (obj = fobj; obj; obj = obj->nobj) {
         if (obj->ox == u.ux && obj->oy == u.uy)
@@ -1001,17 +1023,26 @@ struct obj *detector;   /* object doing the detecting */
             ct += do_mdetect(obj, do_pknown);
     }
 
-    for (x = 1; x < COLNO; ++x) {
-        for (y = 0; y < ROWNO; ++y) {
-            if (IS_MAGIC_CHEST(levl[x][y].typ) && mchest) {
-                for (obj = mchest->cobj; obj; obj = nobj) {
-                    nobj = obj->nobj; /* save before processing */
-                    if (x == u.ux && y == u.uy)
-                        ctu += do_mdetect(obj, do_pknown);
-                    else
-                        ct += do_mdetect(obj, do_pknown);
-                }
+    /* Walk shared mchest contents once, regardless of how many chest
+       tiles exist on the level; otherwise multi-chest levels would
+       count every item per chest tile */
+    if (mchest) {
+        boolean chest_at_u = FALSE;
+        int cx, cy;
+
+        for (cx = 1; cx < COLNO && !chest_at_u; ++cx) {
+            for (cy = 0; cy < ROWNO && !chest_at_u; ++cy) {
+                if (IS_MAGIC_CHEST(levl[cx][cy].typ)
+                    && cx == u.ux && cy == u.uy)
+                    chest_at_u = TRUE;
             }
+        }
+        for (obj = mchest->cobj; obj; obj = nobj) {
+            nobj = obj->nobj; /* save before processing */
+            if (chest_at_u)
+                ctu += do_mdetect(obj, do_pknown);
+            else
+                ct += do_mdetect(obj, do_pknown);
         }
     }
 
@@ -1028,7 +1059,7 @@ struct obj *detector;   /* object doing the detecting */
         for (obj = mtmp->minvent; obj; obj = obj->nobj) {
             ct += do_mdetect(obj, do_pknown);
         }
-        if (is_cursed && mtmp->m_ap_type == M_AP_OBJECT
+        if (is_cursed && M_AP_TYPE(mtmp) == M_AP_OBJECT
             && objects[mtmp->mappearance].oc_magic) {
             ct++;
             break;
@@ -1048,7 +1079,6 @@ struct obj *detector;   /* object doing the detecting */
 
     cls();
 
-    u.uinwater = 0;
     (void) unconstrain_map();
     /* Map all buried objects first */
     for (obj = level.buriedobjlist; obj; obj = obj->nobj)
@@ -1061,10 +1091,12 @@ struct obj *detector;   /* object doing the detecting */
      *
      * Objects on the floor override buried objects.
      */
-    for (x = 1; x < COLNO; x++)
-        for (y = 0; y < ROWNO; y++)
+    for (x = 1; x < COLNO; x++) {
+        for (y = 0; y < ROWNO; y++) {
             for (obj = level.objects[x][y]; obj; obj = obj->nexthere)
                 maybe_map(obj);
+        }
+    }
 
     /* Objects in the monster's inventory override floor objects */
     for (mtmp = fmon ; mtmp ; mtmp = mtmp->nmon) {
@@ -1078,7 +1110,7 @@ struct obj *detector;   /* object doing the detecting */
             break;
         }
         /* Allow a mimic to override the detected objects it is carrying */
-        if (is_cursed && mtmp->m_ap_type == M_AP_OBJECT
+        if (is_cursed && M_AP_TYPE(mtmp) == M_AP_OBJECT
             && (objects[mtmp->mappearance].oc_magic)) {
             otmp.otyp = mtmp->mappearance; /* needed for obj_to_glyph() */
             otmp.ox = mtmp->mx;
@@ -1095,7 +1127,8 @@ struct obj *detector;   /* object doing the detecting */
         map_monst(mtmp, TRUE);
         if (is_cursed && (mtmp->msleeping || !mtmp->mcanmove)) {
             mtmp->msleeping = mtmp->mfrozen = 0;
-            mtmp->mcanmove = 1;
+            if (!mtmp->mstone || mtmp->mstone > 2)
+                mtmp->mcanmove = 1;
             woken = TRUE;
         }
     }
@@ -2013,11 +2046,15 @@ int aflag; /* intrinsic autosearch vs explicit searching */
         if (!aflag)
             pline("What are you looking for?  The exit?");
     } else {
-        int fund = ((uwep && uwep->oartifact
-                     && spec_ability(uwep, SPFX_SEARCH))
-                    || (u.twoweap && uswapwep->oartifact
-                        && spec_ability(uswapwep, SPFX_SEARCH))) ? uwep->spe
-                                                                 : 0;
+        struct obj *searchart = (uwep && uwep->oartifact
+                                 && spec_ability(uwep, SPFX_SEARCH))
+                                    ? uwep
+                                    : (u.twoweap && uswapwep
+                                       && uswapwep->oartifact
+                                       && spec_ability(uswapwep, SPFX_SEARCH))
+                                          ? uswapwep
+                                          : (struct obj *) 0;
+        int fund = searchart ? searchart->spe : 0;
 
         if (ublindf && ublindf->otyp == LENSES && !Blind)
             fund += 2; /* JDS: lenses help searching */

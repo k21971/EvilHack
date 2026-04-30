@@ -4323,6 +4323,7 @@ struct monst *mtmp;
                     spec_death ? "reconstitutes" : "transforms");
             mtmp->mcanmove = 1;
             mtmp->mfrozen = 0;
+            mtmp->mstone = 0;
             if (mtmp->mhpmax <= 0)
                 mtmp->mhpmax = 10;
             mtmp->mhp = mtmp->mhpmax;
@@ -5377,9 +5378,10 @@ struct monst *mtmp;
                     amorphous(mtmp->data) ? "coalesces on the"
                        : is_flyer(mtmp->data) ? "drops to the"
                           : "writhes on the",
-                    surface(x,y));
+                    surface(x, y));
             mtmp->mcanmove = 1;
             mtmp->mfrozen = 0;
+            mtmp->mstone = 0;
             if (mtmp->mhpmax <= 0)
                 mtmp->mhpmax = 10;
             mtmp->mhp = mtmp->mhpmax;

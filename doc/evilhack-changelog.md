@@ -5292,4 +5292,5 @@ The following changes to date are:
 - Fix: bright colors render as gray on xterm-direct without COLORTERM
 - Fix: stale mux/muy panic when monster's gaze burns cloak mid-attack
 - Fix: steal.c review: stealarm UAF, NON_PM corpse, dragon-scale leak
+- Fix: detect.c review and cross-file mstone wakeup gates
 

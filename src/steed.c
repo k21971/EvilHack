@@ -1447,7 +1447,8 @@ struct monst *steed;
         /* might break out of timed sleep or paralysis */
         if (!rn2(frozen)) {
             steed->mfrozen = 0;
-            steed->mcanmove = 1;
+            if (!steed->mstone || steed->mstone > 2)
+                steed->mcanmove = 1;
         } else {
             /* didn't awake, but remaining duration is halved */
             steed->mfrozen = frozen;
