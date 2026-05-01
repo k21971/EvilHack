@@ -695,14 +695,17 @@ fixup_special()
         {
             extern int n_dgns;
             branch *br = dungeon_branch("Fort Ludios");
-            d_level *src = on_level(&knox_level, &br->end1)
-                               ? &br->end2 : &br->end1;
 
-            if (src->dnum >= n_dgns) {
-                xchar vx, vy;
+            if (br) {
+                d_level *src = on_level(&knox_level, &br->end1)
+                                   ? &br->end2 : &br->end1;
 
-                if (find_knox_fallback_spot(&vx, &vy))
-                    mk_knox_fallback_vault(vx, vy);
+                if (src->dnum >= n_dgns) {
+                    xchar vx, vy;
+
+                    if (find_knox_fallback_spot(&vx, &vy))
+                        mk_knox_fallback_vault(vx, vy);
+                }
             }
         }
     } else if (Is_knox(&u.uz)) {

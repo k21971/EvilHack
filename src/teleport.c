@@ -882,9 +882,9 @@ level_tele()
     boolean force_dest = FALSE;
 
     if (iflags.debug_fuzzer) {
-        /* Randomly choose any dungeon branch except Fort Ludios and
-           the Endgame (which aren't valid level-teleport targets);
-           use runtime dnums so dungeon reorders can't desync this. */
+        /* Randomly choose any dungeon branch except the Endgame
+           (which is not a valid level-teleport target); use runtime
+           dnums so dungeon reorders can't desync this */
         int attempts, max_attempts = n_dgns * 4;
         int max_levels;
 
@@ -894,8 +894,7 @@ level_tele()
         for (attempts = 0; attempts < max_attempts; attempts++) {
             int candidate = rn2(n_dgns);
 
-            if (candidate == knox_level.dnum
-                || candidate == astral_level.dnum /* all elemental + astral */
+            if (candidate == astral_level.dnum /* all elemental + astral */
                 || dungeons[candidate].num_dunlevs <= 0)
                 continue;
             newlevel.dnum = candidate;

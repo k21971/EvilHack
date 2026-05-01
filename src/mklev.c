@@ -1466,6 +1466,18 @@ xchar x, y; /* location */
     /* find_branch_room() may have failed to land mp on a valid tile;
        it signals this by zeroing m, so guard the levl[] writes here */
     if (br->type == BR_PORTAL) {
+        extern int n_dgns; /* from dungeon.c */
+
+        /* If the far end of the branch is still floating (no source
+           portal has been placed in the parent dungeon yet), wire it
+           up to where the player just came from so the return portal
+           we're about to create has a valid destination. This can
+           happen for the Knox branch when the fuzzer level-teleports
+           into Knox before vault generation rolls a qualifying source */
+        if (dest->dnum >= n_dgns) {
+            *dest = u.uz0;
+            insert_branch(br, TRUE);
+        }
         if (isok(x, y) && !occupied(x, y))
             mkportal(x, y, dest->dnum, dest->dlevel);
     } else if (make_stairs && isok(x, y)) {
@@ -2349,6 +2361,8 @@ xchar x, y;
     d_level *source, *dest;
 
     br = dungeon_branch("Fort Ludios");
+    if (!br)
+        return FALSE; /* defensive; should be impossible */
     source = on_level(&knox_level, &br->end1) ? &br->end2 : &br->end1;
     if (source->dnum < n_dgns)
         return FALSE; /* portal is already placed somewhere */
