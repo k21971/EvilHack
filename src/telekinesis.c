@@ -177,7 +177,7 @@ int dx, dy, range;
                 pline_The("%s strikes %s!", xname(obj),
                           mon_nam(mtmp));
                 if (obj->otyp == CORPSE
-                    && touch_petrifies(&mons[obj->corpsenm])
+                    && safe_touch_petrifies(obj->corpsenm)
                     && !resists_ston(mtmp)) {
                     minstapetrify(mtmp, TRUE);
                 } else {
@@ -607,9 +607,9 @@ int dx, dy, range;
                 pline("%s telekinetically hurls %s at you!",
                       Monnam(mtmp), an(xname(obj)));
                 if ((obj->otyp == CORPSE
-                     && touch_petrifies(&mons[obj->corpsenm]))
+                     && safe_touch_petrifies(obj->corpsenm))
                     || (obj->otyp == EGG
-                        && touch_petrifies(&mons[obj->corpsenm]))) {
+                        && safe_touch_petrifies(obj->corpsenm))) {
                     if (!Stone_resistance
                         && !(poly_when_stoned(youmonst.data)
                              && polymon(PM_STONE_GOLEM))) {
@@ -663,7 +663,7 @@ int dx, dy, range;
                     pline("%s strikes %s!", An(xname(obj)),
                           mon_nam(target));
                 if ((obj->otyp == CORPSE || obj->otyp == EGG)
-                    && touch_petrifies(&mons[obj->corpsenm])
+                    && safe_touch_petrifies(obj->corpsenm)
                     && !resists_ston(target)) {
                     minstapetrify(target, TRUE);
                 } else {
@@ -769,12 +769,12 @@ struct monst *mtmp;
                     break;
                 }
                 if (otmp->otyp == CORPSE
-                    && touch_petrifies(&mons[otmp->corpsenm])) {
+                    && safe_touch_petrifies(otmp->corpsenm)) {
                     push_obj = otmp;
                     break;
                 }
                 if (otmp->otyp == EGG
-                    && touch_petrifies(&mons[otmp->corpsenm])) {
+                    && safe_touch_petrifies(otmp->corpsenm)) {
                     push_obj = otmp;
                     break;
                 }

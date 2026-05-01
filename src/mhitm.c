@@ -649,8 +649,7 @@ struct monst *magr, *mdef;
                 res[i] = hitmm(magr, mdef, mattk, mwep, dieroll);
                 if ((res[i]) == MM_HIT && mwep
                     && type == CORPSE
-                    && corpsenm
-                    && touch_petrifies(&mons[corpsenm])
+                    && safe_touch_petrifies(corpsenm)
                     && !(resists_ston(mdef) || defended(mdef, AD_STON))) {
                     if (poly_when_stoned(mdef->data)) {
                         mon_to_stone(mdef);
@@ -1629,7 +1628,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             struct obj *marmg;
 
             if (mwep->otyp == CORPSE
-                && touch_petrifies(&mons[mwep->corpsenm]))
+                && safe_touch_petrifies(mwep->corpsenm))
                 goto do_stone;
 
             tmp += dmgval(mwep, mdef);

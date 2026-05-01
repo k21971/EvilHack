@@ -111,7 +111,7 @@ int shotlimit;
     if (!retouch_object(&obj, !uarmg, TRUE))
         return 1;
     u_wipe_engr(2);
-    if (!uarmg && obj->otyp == CORPSE && touch_petrifies(&mons[obj->corpsenm])
+    if (!uarmg && obj->otyp == CORPSE && safe_touch_petrifies(obj->corpsenm)
         && !Stone_resistance) {
         You("throw %s with your bare %s.",
             corpse_xname(obj, (const char *) 0, CXN_PFX_THE),
@@ -1177,7 +1177,7 @@ boolean hitsroof;
 {
     const char *action;
     boolean petrifier = ((obj->otyp == EGG || obj->otyp == CORPSE)
-                         && touch_petrifies(&mons[obj->corpsenm]));
+                         && safe_touch_petrifies(obj->corpsenm));
     /* note: obj->quan == 1 */
 
     if (!has_ceiling(&u.uz)) {
@@ -2345,7 +2345,7 @@ struct obj *obj; /* thrownobj or kickedobj or uwep */
     } else if (guaranteed_hit) {
         /* this assumes that guaranteed_hit is due to swallowing */
         wakeup(mon, TRUE);
-        if (obj->otyp == CORPSE && touch_petrifies(&mons[obj->corpsenm])) {
+        if (obj->otyp == CORPSE && safe_touch_petrifies(obj->corpsenm)) {
             if (is_swallower(u.ustuck->data)) {
                 minstapetrify(u.ustuck, TRUE);
                 /* Don't leave a cockatrice corpse available in a statue */

@@ -1830,7 +1830,7 @@ struct monst *mtmp;
 
         /* untouchable (or inaccessible) items */
         } else if ((otmp->otyp == CORPSE
-                    && touch_petrifies(&mons[otmp->corpsenm])
+                    && safe_touch_petrifies(otmp->corpsenm)
                     && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
                    /* don't engulf boulders and statues or ball&chain */
                    || otmp->oclass == ROCK_CLASS
@@ -1853,13 +1853,10 @@ struct monst *mtmp;
                    || (otmp->otyp == AMULET_OF_STRANGULATION
                        || otmp->otyp == RIN_SLOW_DIGESTION)
                    /* cockatrice corpses handled above; this
-                      touch_petrifies() check catches eggs.
-                      Generic eggs (corpsenm == NON_PM) can't
-                      petrify, guard to avoid &mons[-1] UB */
+                      petrifies check catches eggs */
                    || ((otmp->otyp == CORPSE || otmp->otyp == EGG
                         || otmp->globby)
-                       && ((otmp->corpsenm != NON_PM
-                            && touch_petrifies(&mons[otmp->corpsenm])
+                       && ((safe_touch_petrifies(otmp->corpsenm)
                             && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
                            || (otmp->corpsenm == PM_GREEN_SLIME
                                && !slimeproof(mtmp->data))))) {
@@ -2051,18 +2048,15 @@ struct monst *mtmp;
 
         /* untouchable (or inaccessible) items */
         } else if ((otmp->otyp == CORPSE
-                    && touch_petrifies(&mons[otmp->corpsenm])
+                    && safe_touch_petrifies(otmp->corpsenm)
                     && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))) {
             /* do nothing--neither eaten nor engulfed */
             continue;
 
-        /* inedible items -- engulf these. Generic eggs
-           (corpsenm == NON_PM) can't petrify, guard to avoid
-           &mons[-1] UB */
+        /* inedible items -- engulf these */
         } else if (((otmp->otyp == CORPSE || otmp->otyp == EGG
                      || otmp->globby)
-                    && ((otmp->corpsenm != NON_PM
-                         && touch_petrifies(&mons[otmp->corpsenm])
+                    && ((safe_touch_petrifies(otmp->corpsenm)
                          && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
                         || (otmp->corpsenm == PM_GREEN_SLIME
                             && !slimeproof(mtmp->data))))) {
@@ -2560,7 +2554,7 @@ struct obj *otmp;
     if (notake(mdat))
         return 0; /* can't carry anything */
 
-    if (otyp == CORPSE && touch_petrifies(&mons[otmp->corpsenm])
+    if (otyp == CORPSE && safe_touch_petrifies(otmp->corpsenm)
         && !(mtmp->misc_worn_check & W_ARMG)
         && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
         return 0;
@@ -6241,7 +6235,7 @@ struct monst *mtmp;
                 || (mtmp == &youmonst ? Stone_resistance
                                       : (resists_ston(mtmp)
                                          || defended(mtmp, AD_STON)))
-                || !touch_petrifies(&mons[otmp->corpsenm]))
+                || !safe_touch_petrifies(otmp->corpsenm))
                 undetected = TRUE;
         } else if (concealment == 1) { /* terrain cover, no objects */
             undetected = TRUE;

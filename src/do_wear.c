@@ -864,7 +864,7 @@ boolean voluntary; /* taking gloves off on purpose? */
     if (obj != uwep && (obj != uswapwep || !u.twoweap))
         return;
 
-    if (touch_petrifies(&mons[obj->corpsenm]) && !Stone_resistance) {
+    if (safe_touch_petrifies(obj->corpsenm) && !Stone_resistance) {
         You("now wield %s in your bare %s.",
             corpse_xname(obj, (const char *) 0, CXN_ARTICLE),
             makeplural(body_part(HAND)));

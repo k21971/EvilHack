@@ -1313,7 +1313,7 @@ struct obj *obj;
                                          || defended(mon, AD_DRST)))
                 || (obj->zombie_corpse && !(resists_sick(mon)
                                             || defended(mon, AD_DISE)))
-                || (touch_petrifies(&mons[obj->corpsenm])
+                || (safe_touch_petrifies(obj->corpsenm)
                     && !(resists_ston(mon) || defended(mon, AD_STON))))
                 return POISON;
             /* turning into slime is preferable to starvation */

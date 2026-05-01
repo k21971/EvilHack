@@ -638,7 +638,7 @@ struct attack *alt_attk_buf;
                     && mattk[1].adtyp == AD_PHYS)
                && (magr->mcan
                    || (weap && ((weap->otyp == CORPSE
-                                 && touch_petrifies(&mons[weap->corpsenm]))
+                                 && safe_touch_petrifies(weap->corpsenm))
                                 || weap->oartifact == ART_STORMBRINGER
                                 || weap->oartifact == ART_SHADOWBLADE
                                 || weap->oartifact == ART_VORPAL_BLADE)))) {
@@ -1647,7 +1647,7 @@ struct attack *mattk;
                 int wepmaterial = otmp->material;
 
                 if (otmp->otyp == CORPSE
-                    && touch_petrifies(&mons[otmp->corpsenm])) {
+                    && safe_touch_petrifies(otmp->corpsenm)) {
                     dmg = 1;
                     pline("%s hits you with the %s corpse.", Monnam(mtmp),
                           mons[otmp->corpsenm].mname);

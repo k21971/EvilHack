@@ -1569,7 +1569,7 @@ int dieroll;
                     useup(obj);
                     return TRUE;
                 case CORPSE: /* fixed by polder@cs.vu.nl */
-                    if (touch_petrifies(&mons[obj->corpsenm])) {
+                    if (safe_touch_petrifies(obj->corpsenm)) {
                         tmp = 1;
                         hittxt = TRUE;
                         You("hit %s with %s.", mon_nam(mon),
@@ -1619,7 +1619,7 @@ int dieroll;
                             change_luck(-5);
                     }
 
-                    if (touch_petrifies(&mons[obj->corpsenm])) {
+                    if (safe_touch_petrifies(obj->corpsenm)) {
                         /*learn_egg_type(obj->corpsenm);*/
                         pline("Splat!  You hit %s with %s %s egg%s!",
                               mon_nam(mon),
@@ -2635,7 +2635,7 @@ theft_petrifies(otmp)
 struct obj *otmp;
 {
     if (uarmg || otmp->otyp != CORPSE
-        || !touch_petrifies(&mons[otmp->corpsenm]) || Stone_resistance)
+        || !safe_touch_petrifies(otmp->corpsenm) || Stone_resistance)
         return FALSE;
 
 #if 0   /* no poly_when_stoned() critter has theft capability */

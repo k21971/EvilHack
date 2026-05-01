@@ -3478,7 +3478,7 @@ const char *arg;
 {
     char kbuf[BUFSZ];
 
-    if (uwep && uwep->otyp == CORPSE && touch_petrifies(&mons[uwep->corpsenm])
+    if (uwep && uwep->otyp == CORPSE && safe_touch_petrifies(uwep->corpsenm)
         && !Stone_resistance) {
         pline("%s touch the %s corpse.", arg, mons[uwep->corpsenm].mname);
         Sprintf(kbuf, "%s corpse", an(mons[uwep->corpsenm].mname));
@@ -3490,7 +3490,7 @@ const char *arg;
     /* Or your secondary weapon, if wielded [hypothetical; we don't
        allow two-weapon combat when either weapon is a corpse] */
     if (u.twoweap && uswapwep && uswapwep->otyp == CORPSE
-        && touch_petrifies(&mons[uswapwep->corpsenm]) && !Stone_resistance) {
+        && safe_touch_petrifies(uswapwep->corpsenm) && !Stone_resistance) {
         pline("%s touch the %s corpse.", arg, mons[uswapwep->corpsenm].mname);
         Sprintf(kbuf, "%s corpse", an(mons[uswapwep->corpsenm].mname));
         instapetrify(kbuf);
@@ -3508,7 +3508,7 @@ boolean byplayer;
 {
     struct obj *mwep = MON_WEP(mon);
 
-    if (mwep && mwep->otyp == CORPSE && touch_petrifies(&mons[mwep->corpsenm])
+    if (mwep && mwep->otyp == CORPSE && safe_touch_petrifies(mwep->corpsenm)
         && !(resists_ston(mon) || defended(mon, AD_STON))) {
         if (cansee(mon->mx, mon->my)) {
             pline("%s%s touches %s.", arg ? arg : "",

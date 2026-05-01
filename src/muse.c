@@ -640,7 +640,7 @@ struct monst *mtmp;
        when applicable, use it now even if 'mtmp' isn't wounded */
     if (!mtmp->mpeaceful && !nohands(mtmp->data)
         && uwep && uwep->otyp == CORPSE
-        && touch_petrifies(&mons[uwep->corpsenm])
+        && safe_touch_petrifies(uwep->corpsenm)
         && !poly_when_stoned(mtmp->data)
         && !(resists_ston(mtmp) || defended(mtmp, AD_STON))
         && lined_up(mtmp)) { /* only lines up if distu range is within 5*5 */
@@ -4167,7 +4167,7 @@ boolean any_corpse;
 {
     while (objlist) {
         if (objlist->otyp == CORPSE
-            && (any_corpse || touch_petrifies(&mons[objlist->corpsenm])))
+            && (any_corpse || safe_touch_petrifies(objlist->corpsenm)))
             return TRUE;
         if (Has_contents(objlist) && necrophiliac(objlist->cobj, FALSE))
             return TRUE;
@@ -4266,7 +4266,7 @@ struct obj *obj;
     case FOOD_CLASS:
         if (typ == CORPSE && !obj->zombie_corpse)
             return (boolean) (((mon->misc_worn_check & W_ARMG) != 0L
-                               && touch_petrifies(&mons[obj->corpsenm]))
+                               && safe_touch_petrifies(obj->corpsenm))
                               || (!(resists_ston(mon) || defended(mon, AD_STON))
                                   && cures_stoning(mon, obj, FALSE)));
         if (typ == TIN)
@@ -4274,8 +4274,7 @@ struct obj *obj;
                               && (!(resists_ston(mon) || defended(mon, AD_STON))
                                   && cures_stoning(mon, obj, TRUE)));
         if (typ == EGG)
-            return (boolean) (obj->corpsenm != NON_PM
-                              && touch_petrifies(&mons[obj->corpsenm]));
+            return (boolean) safe_touch_petrifies(obj->corpsenm);
         if (is_royaljelly(obj) && mon->data == &mons[PM_HONEY_BADGER])
             return TRUE;
         break;

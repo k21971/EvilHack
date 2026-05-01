@@ -1779,7 +1779,7 @@ found_altar:
                         || (ptr == &mons[PM_GELATINOUS_CUBE]
                             && !index(indigestion, otmp->oclass))))
                         && !((otmp->otyp == CORPSE
-                             && touch_petrifies(&mons[otmp->corpsenm]))))
+                             && safe_touch_petrifies(otmp->corpsenm))))
                         && touch_artifact(otmp, mtmp)) {
                         if (((can_carry(mtmp, otmp) > 0 || (Is_container(otmp)))
                             && ((racial_throws_rocks(mtmp)) || !sobj_at(BOULDER, xx, yy)))

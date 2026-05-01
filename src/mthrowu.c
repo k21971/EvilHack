@@ -673,8 +673,8 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
             }
         }
 
-        if (otmp->otyp == EGG && otmp->corpsenm != NON_PM
-            && touch_petrifies(&mons[otmp->corpsenm])) {
+        if (otmp->otyp == EGG
+            && safe_touch_petrifies(otmp->corpsenm)) {
             if (!mtmp->mstone) {
                 mtmp->mstone = 5;
                 mtmp->mstonebyu = TRUE;
@@ -899,8 +899,7 @@ boolean verbose;
             switch (singleobj->otyp) {
                 int dam, hitv;
             case EGG:
-                if (singleobj->corpsenm == NON_PM
-                    || !touch_petrifies(&mons[singleobj->corpsenm])) {
+                if (!safe_touch_petrifies(singleobj->corpsenm)) {
                     impossible("monster throwing egg type %d",
                                singleobj->corpsenm);
                     hitu = 0;

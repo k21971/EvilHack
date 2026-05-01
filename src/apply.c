@@ -2114,7 +2114,7 @@ struct obj *obj;
         You("cannot tin %s which is drained of its blood.", something);
         return;
     }
-    if (touch_petrifies(&mons[corpse->corpsenm]) && !Stone_resistance
+    if (safe_touch_petrifies(corpse->corpsenm) && !Stone_resistance
         && !uarmg) {
         char kbuf[BUFSZ];
 
@@ -3629,7 +3629,7 @@ struct obj **objp;
                     /* right into your inventory */
                     You("snatch %s!", yname(otmp));
                     if (otmp->otyp == CORPSE
-                        && touch_petrifies(&mons[otmp->corpsenm]) && !uarmg
+                        && safe_touch_petrifies(otmp->corpsenm) && !uarmg
                         && !Stone_resistance
                         && !(poly_when_stoned(youmonst.data)
                              && (polymon(PM_STONE_GOLEM)
@@ -3900,7 +3900,7 @@ struct obj **objp;
                     /* right into your inventory */
                     You("snatch %s!", yname(otmp));
                     if (otmp->otyp == CORPSE
-                        && touch_petrifies(&mons[otmp->corpsenm]) && !uarmg
+                        && safe_touch_petrifies(otmp->corpsenm) && !uarmg
                         && !Stone_resistance
                         && !(poly_when_stoned(youmonst.data)
                              && (polymon(PM_STONE_GOLEM)

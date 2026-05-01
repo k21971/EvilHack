@@ -268,7 +268,7 @@ struct obj *obj;
 boolean remotely;
 {
     if (uarmg || remotely || obj->otyp != CORPSE
-        || !touch_petrifies(&mons[obj->corpsenm]) || Stone_resistance)
+        || !safe_touch_petrifies(obj->corpsenm) || Stone_resistance)
         return FALSE;
 
     if (poly_when_stoned(youmonst.data)
@@ -2144,7 +2144,7 @@ boolean taking;
         long maxquan = min(pick_list[i].count, otmp->quan);
         long unwornmask = otmp->owornmask;
         boolean petri = (otmp->otyp == CORPSE
-                         && touch_petrifies(&mons[otmp->corpsenm]));
+                         && safe_touch_petrifies(otmp->corpsenm));
         boolean mtmp_would_ston = (!taking && petri
                                    && !which_armor(mtmp, W_ARMG)
                                    && !(resists_ston(mtmp)
