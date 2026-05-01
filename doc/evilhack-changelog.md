@@ -5301,4 +5301,5 @@ The following changes to date are:
 - Fix: enforce ice-devil-only demon summons in the Ice Queen's realm
 - Fix: out-of-bounds mons[] access in mstoning() and polyfodder()
 - Fix: route corpsenm touch_petrifies() calls through safe wrapper
+- Fix: more issues in mcastu.c found during second code review
 

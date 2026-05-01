@@ -83,6 +83,12 @@ STATIC_DCL boolean FDECL(do_spell_would_be_useless, (struct monst *,
 STATIC_DCL boolean FDECL(uspell_would_be_useless, (unsigned int, int));
 STATIC_DCL int FDECL(mcount_castable_spells, (struct monst *));
 
+/* HP accessors that handle the &youmonst (player polyform) case.
+   youmonst.mhp is never synced during polymorph; u.mh / u.mhmax are
+   the only authoritative HP values for the player polyform. */
+#define CASTER_HP(c)    (((c) == &youmonst) ? u.mh    : (c)->mhp)
+#define CASTER_HPMAX(c) (((c) == &youmonst) ? u.mhmax : (c)->mhpmax)
+
 /* Choose a random bolt spell type for monster caster. Ice Queen always
    gets ice bolt. Returns spell number, or -1 if caller should use
    fallthrough behavior */
@@ -275,7 +281,8 @@ int spellval;
         spellval = rn2(spellval);
 
     /* If we're hurt, seriously consider fixing ourselves a priority */
-    if ((mtmp->mhp * 4) <= mtmp->mhpmax)
+    if (CASTER_HPMAX(mtmp) > 0
+        && (CASTER_HP(mtmp) * 4) <= CASTER_HPMAX(mtmp))
         spellval = 1;
 
     switch (spellval) {
@@ -367,7 +374,8 @@ int spellnum;
         spellnum = rn2(spellnum);
 
     /* If we're hurt, seriously consider fixing ourselves priority */
-    if ((mtmp->mhp * 4) <= mtmp->mhpmax)
+    if (CASTER_HPMAX(mtmp) > 0
+        && (CASTER_HP(mtmp) * 4) <= CASTER_HPMAX(mtmp))
         spellnum = 1;
 
     switch (spellnum) {
@@ -1212,10 +1220,17 @@ int dmg, spellnum;
         if (youdefend) {
             You_feel("that monsters are aware of your presence.");
             aggravate();
+        } else if (caster == &youmonst) {
+            /* player polyform: wake everything to the player.
+               Normally pre-filtered by uspell_would_be_useless;
+               handle defensively if it slips through */
+            You_feel("that monsters are aware of your presence.");
+            aggravate();
         } else {
+            /* m-v-m: no-op. you_aggravate() is player-perspective;
+               do_spell_would_be_useless filters this case */
             if (!target || DEADMONSTER(target))
                 return;
-            you_aggravate(target);
         }
         dmg = 0;
         break;
@@ -2433,6 +2448,11 @@ int spellnum;
                 if (!has_aggravatables(caster))
                     return rn2(100) ? TRUE : FALSE;
             }
+            /* m-v-m aggravation is meaningless: you_aggravate() is
+               player-perspective (cls/docrt/unconscious) and there
+               is no monster analogue of "wake everything to me" */
+            if (!youdefend && spellnum == MGC_AGGRAVATION)
+                return TRUE;
         }
 
         /* Target-based checks (armor destruction) - only for monster casters */
@@ -2976,47 +2996,20 @@ struct attack *mattk;
         do {
             spellnum = rn2(ml);
             if (mattk->adtyp == AD_SPEL)
-                spellnum = choose_magic_spell(mtmp, spellnum);
+                spellnum = choose_magic_spell(&youmonst, spellnum);
             else
-                spellnum = choose_clerical_spell(mtmp, spellnum);
-            /* not trying to attack?  don't allow directed spells */
-            if (!mtmp || mtmp->mhp < 1) {
-                if (is_undirected_spell((struct monst *) 0, mattk->adtyp, spellnum)
-                    && !uspell_would_be_useless(mattk->adtyp, spellnum)) {
-                break;
-            }
-        }
-
-    } while (--cnt > 0
-             && ((!mtmp && !is_undirected_spell((struct monst *) 0, mattk->adtyp, spellnum))
-                 || uspell_would_be_useless(mattk->adtyp, spellnum)));
+                spellnum = choose_clerical_spell(&youmonst, spellnum);
+            /* uhitm.c guarantees mtmp (target) is alive on entry;
+               loop only re-rolls spellnum until it isn't useless */
+        } while (--cnt > 0
+                 && uspell_would_be_useless(mattk->adtyp, spellnum));
         if (cnt == 0) {
             You("have no spells to cast right now!");
             return 0;
         }
     }
 
-    if (spellnum == MGC_AGGRAVATION && !mtmp) {
-        /* choose a random monster on the level */
-        int j = 0, k = 0;
-
-        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-            if (!mtmp->mtame && !mtmp->mpeaceful)
-                j++;
-        }
-
-        if (j > 0) {
-            k = rn2(j);
-            for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-                if (!mtmp->mtame && !mtmp->mpeaceful) {
-                    if (--k < 0)
-                        break;
-                }
-            }
-        }
-    }
-
-    directed = mtmp && !is_undirected_spell((struct monst *) 0, mattk->adtyp, spellnum);
+    directed = !is_undirected_spell(&youmonst, mattk->adtyp, spellnum);
 
     /* unable to cast spells? */
     if (u.uen < ml) {
@@ -3134,7 +3127,7 @@ struct attack *mattk;
     if (dmg) {
         if (mon_arti_has_spfx(mtmp, SPFX_HSPDAM))
             dmg = (dmg + 1) / 2;
-        if (damage_mon(mtmp, dmg, AD_SPEL, TRUE))
+        if (damage_mon(mtmp, dmg, mattk->adtyp, TRUE))
             killed(mtmp);
     }
 
