@@ -1699,8 +1699,9 @@ struct obj *otmp;
 }
 
 #define mstoning(obj)                                       \
-    (ofood(obj) && (touch_petrifies(&mons[(obj)->corpsenm]) \
-                    || (obj)->corpsenm == PM_MEDUSA))
+    (ofood(obj) && (obj)->corpsenm != NON_PM                \
+     && (touch_petrifies(&mons[(obj)->corpsenm])            \
+         || (obj)->corpsenm == PM_MEDUSA))
 
 /*
  * Maybe eat a metallic object (not just gold).

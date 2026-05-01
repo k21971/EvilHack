@@ -343,9 +343,10 @@ struct obj {
 #define stale_egg(egg) \
     ((monstermoves - (egg)->age) > (2 * MAX_EGG_HATCH_TIME))
 #define ofood(o) ((o)->otyp == CORPSE || (o)->otyp == EGG || (o)->otyp == TIN)
-#define polyfodder(obj) \
-    (ofood(obj) && (pm_to_cham((obj)->corpsenm) != NON_PM         \
-                    || dmgtype(&mons[(obj)->corpsenm], AD_POLY)))
+#define polyfodder(obj)                                       \
+    (ofood(obj) && (obj)->corpsenm != NON_PM                  \
+     && (pm_to_cham((obj)->corpsenm) != NON_PM                \
+         || dmgtype(&mons[(obj)->corpsenm], AD_POLY)))
 #define mlevelgain(obj) (ofood(obj) && (obj)->corpsenm == PM_WRAITH)
 #define mhealup(obj) (ofood(obj) && (obj)->corpsenm == PM_NURSE)
 #define is_royaljelly(o) ((o)->otyp == LUMP_OF_ROYAL_JELLY)
