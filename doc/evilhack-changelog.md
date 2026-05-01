@@ -5297,4 +5297,5 @@ The following changes to date are:
 - Add: guarantee Fort Ludios portal via Medusa fallback grove
 - Fix: various issues in mkmaze.c found during code review
 - Allow fuzzer to access Fort Ludios
+- Fix: various issues in lock.c found during code review
 

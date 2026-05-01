@@ -2400,7 +2400,7 @@ const char *str;
                         && likes_gold(mtmp->data))) {
                     if (otmp3->otyp == CORPSE
                         && !is_nymph(mtmp->data)
-                        && !touch_petrifies(&mons[otmp3->corpsenm])
+                        && !safe_touch_petrifies(otmp3->corpsenm)
                         && otmp3->corpsenm != PM_LIZARD
                         && !acidic(&mons[otmp3->corpsenm]))
                         continue;
@@ -2443,7 +2443,7 @@ const char *str;
             if (otmp->otyp == CORPSE
                 && !is_nymph(mtmp->data)
                 /* let a handful of corpse types thru to can_carry() */
-                && !touch_petrifies(&mons[otmp->corpsenm])
+                && !safe_touch_petrifies(otmp->corpsenm)
                 && otmp->corpsenm != PM_LIZARD
                 && !acidic(&mons[otmp->corpsenm]))
                 continue;
