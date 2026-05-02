@@ -1332,6 +1332,11 @@ struct monst *mtmp;
                 sum[i] = castmu(mtmp, mattk, FALSE, FALSE);
             else
                 sum[i] = castmu(mtmp, mattk, TRUE, foundyou);
+            /* Close-range MGC_FIRE_BOLT/ICE_BOLT/ACID_BLAST can kill
+               the caster via its own explode() radius; skip remaining
+               attacks if the caster is now dead */
+            if (DEADMONSTER(mtmp))
+                return MM_AGR_DIED;
             break;
         case AT_SCRE:
             if (ranged || !rn2(5)) /* sometimes right next to our hero */

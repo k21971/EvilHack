@@ -979,15 +979,15 @@ int dmg, spellnum;
                     killer.format = KILLED_BY_AN;
                     Strcpy(killer.name, "touch of death");
                     done(DIED);
-                } else if (Antimagic) {
+                } else {
                     dmg = d(8, 6);
-                    if (Antimagic || Half_spell_damage) {
-                        shieldeff(u.ux, u.uy);
-                        monstseesu(M_SEEN_MAGR);
-                        dmg /= 2;
-                    }
+                    shieldeff(u.ux, u.uy);
+                    monstseesu(M_SEEN_MAGR);
+                    dmg /= 2;
                     You("feel drained...");
                     u.uhpmax -= dmg / 3 + rn2(5);
+                    if (u.uhpmax < 1)
+                        u.uhpmax = 1;
                     losehp(dmg, "touch of death", KILLED_BY_AN);
                 }
             }
