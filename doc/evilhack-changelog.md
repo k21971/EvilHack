@@ -5306,4 +5306,5 @@ The following changes to date are:
 - Fix: mhitu.c steed double-attack, caster-died guards, enexto
 - Fix: mhitm.c rloc() death propagation, AD_SLIM clobber, cleanup
 - Fix: more issues in uhitm.c found during second code review
+- Fix: artifact.c kill credit, oprops leak, Mb_hit guards
 

@@ -324,6 +324,11 @@ aligntyp alignment; /* target alignment, or A_NONE */
         /* prevent 'superior/exceptional/inferior' or gem-studded artifacts */
         otmp->forged_qual = 0;
         otmp->affixed_gem = 0;
+        /* prevent object properties or erosion-protection from
+           leaking onto artifacts via mksobj's random rolls */
+        otmp->oprops = otmp->oprops_known = 0L;
+        otmp->oerodeproof = 0;
+        otmp->greased = 0;
         otmp = oname(otmp, a->name);
         otmp->oartifact = m;  /* probably already set by this point, but */
         artiexist[m] = 1;
@@ -1885,6 +1890,8 @@ winid tmpwin; /* supplied by dodiscover() */
         if (i == 0)
             putstr(tmpwin, iflags.menu_headings, "Artifacts");
         m = artidisco[i];
+        if (m < 1 || m > NROFARTIFACTS)
+            continue; /* corrupt entry; skip */
         otyp = artilist[m].otyp;
         Sprintf(buf, "  %s [%s %s]", artiname(m),
                 align_str(artilist[m].alignment), simple_typename(otyp));
@@ -2027,7 +2034,10 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
                     context.botl = TRUE;
                     You("lose magical energy!");
                 }
-            } else {
+            } else if (!DEADMONSTER(mdef)) {
+                /* cancel_monst -> newcham -> mselftouch can petrify-kill
+                   mdef in handless polymorph forms; skip post-cancel
+                   state writes when the cancel itself proved fatal */
                 if (mdef->data == &mons[PM_CLAY_GOLEM])
                     mdef->mhp = 1; /* cancelled clay golems will die */
                 if (youattack && attacktype(mdef->data, AT_MAGC)) {
@@ -2079,7 +2089,7 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
     if (do_stun) {
         if (youdefend) {
             make_stunned(((HStun & TIMEOUT) + 3L), FALSE);
-        } else {
+        } else if (!DEADMONSTER(mdef)) {
             if (!(resists_stun(mdef->data) || defended(mdef, AD_STUN)
                   || mon_wielding_artifact(mdef, ART_TEMPEST)))
                 mdef->mstun = 1;
@@ -2093,7 +2103,7 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
     if (do_confuse) {
         if (youdefend)
             make_confused((HConfusion & TIMEOUT) + 4L, FALSE);
-        else
+        else if (!DEADMONSTER(mdef))
             mdef->mconf = 1;
     }
 
@@ -2107,7 +2117,8 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
             shieldeff(youdefend ? u.ux : mdef->mx,
                       youdefend ? u.uy : mdef->my);
         }
-        if ((do_stun || do_confuse) && flags.verbose) {
+        if ((do_stun || do_confuse) && flags.verbose
+            && (youdefend || !DEADMONSTER(mdef))) {
             char buf[BUFSZ];
 
             buf[0] = '\0';
@@ -3115,7 +3126,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 if (show_instakill)
                     pline("As %s strikes %s, it bursts into flame!",
                           mon_nam(magr), mon_nam(mdef));
-                mongone(mdef);
+                if (magr->mtame)
+                    set_pet_killer(magr);
+                monkilled(mdef, (char *) 0, AD_DISN);
             } else if (youdefend && is_troll(youmonst.data) && k) {
                 You("burst into flame as you are hit!");
                 *dmgptr = (2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER);
@@ -3183,7 +3196,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (show_instakill)
                         pline_The("consecrated blade flares brightly as it incinerates %s!",
                                   mon_nam(mdef));
-                    mongone(mdef);
+                    if (magr->mtame)
+                        set_pet_killer(magr);
+                    monkilled(mdef, (char *) 0, AD_DISN);
                 }
             } else if (youdefend && l
                        && (maybe_polyd(is_undead(youmonst.data), Race_if(PM_DRAUGR))
@@ -3302,7 +3317,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     if (show_instakill)
                         pline_The("divine hammer flares brightly as it incinerates %s!",
                                   mon_nam(mdef));
-                    mongone(mdef);
+                    if (magr->mtame)
+                        set_pet_killer(magr);
+                    monkilled(mdef, (char *) 0, AD_DISN);
                 }
             } else if (youdefend && k
                        && maybe_polyd(is_demon(youmonst.data), Race_if(PM_DEMON))) {
@@ -3605,6 +3622,8 @@ struct obj *obj;
             struct obj *pseudo;
 
             pseudo = mksobj(SCR_TAMING, FALSE, FALSE);
+            if (!pseudo)
+                goto nothing_special;
             pseudo->blessed = 1;
             (void) seffects(pseudo);
             obfree(pseudo, (struct obj *) 0);
@@ -3638,7 +3657,11 @@ struct obj *obj;
             break;
         }
         case ENERGY_BOOST: {
-            int epboost = (u.uenmax + 1 - u.uen) / 2;
+            int epboost;
+
+            if (u.uen >= u.uenmax)
+                goto nothing_special;
+            epboost = (u.uenmax + 1 - u.uen) / 2;
 
             if (epboost > 120)
                 epboost = 120; /* arbitrary */
@@ -4826,6 +4849,8 @@ int
 arti_align(oartifact)
 int oartifact;
 {
+    if (oartifact <= 0 || oartifact > NROFARTIFACTS)
+        return A_NONE;
     return artilist[oartifact].alignment;
 }
 
