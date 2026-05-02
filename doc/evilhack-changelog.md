@@ -5305,4 +5305,5 @@ The following changes to date are:
 - Fix: DEATH_TOUCH cleanup and mhitu AT_MAGC caster-died guard
 - Fix: mhitu.c steed double-attack, caster-died guards, enexto
 - Fix: mhitm.c rloc() death propagation, AD_SLIM clobber, cleanup
+- Fix: more issues in uhitm.c found during second code review
 

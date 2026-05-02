@@ -677,8 +677,12 @@ struct monst *mtmp;
         }
 
         /* Find a position for the displaced monster:
-           prefer player's previous position, fall back to nearby */
-        if (!m_at(u.ux0, u.uy0)) {
+           prefer player's previous position, fall back to nearby.
+           Guard u.ux0/uy0 with isok() because m_at() and rloc_to()
+           access level.monsters[][] without bounds checks; degenerate
+           states (post-bones load, pre-move teleport) can leave them
+           at (0,0) or otherwise off-map */
+        if (isok(u.ux0, u.uy0) && !m_at(u.ux0, u.uy0)) {
             cc.x = u.ux0;
             cc.y = u.uy0;
         } else if (!enexto_core_mon(&cc, mtmp->mx, mtmp->my, mtmp,
@@ -1774,6 +1778,11 @@ int dieroll;
                     get_dmg_bonus = FALSE;
                     break;
                 case BALL_OF_WEBBING:
+                    /* webbing is a trap-laying tool, not a damage tool;
+                       initialize tmp so the post-switch get_dmg_bonus
+                       gate doesn't read uninitialized stack */
+                    tmp = 0;
+                    get_dmg_bonus = FALSE;
                     if (!t_at(mon->mx, mon->my)) {
                         struct trap *web = maketrap(mon->mx, mon->my, WEB);
                         if (web) {
@@ -2221,6 +2230,11 @@ int dieroll;
                 pline("A surge of frost flows through your mummified hand!");
                 explode(mon->mx, mon->my, ZT_BREATH(ZT_COLD),
                         d((!uwep ? 4 : 2), 6), 0, EXPL_FROSTY);
+                /* explode() can kill mon via xkilled/monkilled; refresh
+                   destroyed so downstream burning-hands/shocking-grasp
+                   feedback and the wep_kills credit gate observe it */
+                if (DEADMONSTER(mon))
+                    destroyed = TRUE;
             }
         }
     }
@@ -2287,7 +2301,7 @@ int dieroll;
     /* Weapons have a chance to id after a certain number of kills with
        them. The more powerful a weapon, the lower this chance is. This
        way, there is uncertainty about when a weapon will ID, but spoiled
-       players can make an educated guess. */
+       players can make an educated guess */
     if (destroyed && (obj == uwep) && uwep
         && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
         && !uwep->known) {
@@ -2303,8 +2317,12 @@ int dieroll;
     /* if a "no longer poisoned" message is coming, it will be last;
        obj->opoisoned was cleared above and any message referring to
        "poisoned <obj>" has now been given; we want just "<obj>" for
-       last message, so reformat while obj is still accessible */
-    if (unpoisonmsg || untaintmsg)
+       last message, so reformat while obj is still accessible.
+       obj may be NULL here if a poisoned lance shattered on joust
+       impact (useup() above) -- skip the reformat in that case;
+       saved_oname stays empty and the trailing Your() lines are
+       suppressed by the matching obj-NULL gates below */
+    if ((unpoisonmsg || untaintmsg) && obj)
         Strcpy(saved_oname, cxname(obj));
 
     /* [note: thrown obj might go away during killed()/xkilled() call
@@ -2383,13 +2401,13 @@ int dieroll;
         context.botl = TRUE;
     }
 
-    if (unpoisonmsg) {
+    if (unpoisonmsg && saved_oname[0]) {
         Your("%s %s no longer poisoned.", saved_oname,
              vtense(saved_oname, "are"));
         update_inventory();
     }
 
-    if (untaintmsg) {
+    if (untaintmsg && saved_oname[0]) {
         Your("%s %s no longer tainted.", saved_oname,
              vtense(saved_oname, "are"));
         update_inventory();
@@ -3413,6 +3431,13 @@ int specialdmg; /* blessed and/or silver bonus against various things */
             if (u_teleport_mon(mdef, FALSE) && u_saw_mon
                 && !(canseemon(mdef) || (u.uswallow && u.ustuck == mdef)))
                 pline("%s suddenly disappears!", nambuf);
+            /* u_teleport_mon -> rloc -> rloc_to -> mintrap on the
+               destination tile can kill mdef when it was previously
+               trapped (fire trap, lava, polymorph trap, etc.) */
+            if (DEADMONSTER(mdef)) {
+                tmp = 0;
+                break;
+            }
             if (tmp >= mdef->mhp) { /* see hitmu(mhitu.c) */
                 if (mdef->mhp == 1)
                     ++mdef->mhp;
