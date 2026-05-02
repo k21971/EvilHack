@@ -5308,4 +5308,5 @@ The following changes to date are:
 - Fix: more issues in uhitm.c found during second code review
 - Fix: artifact.c kill credit, oprops leak, Mb_hit guards
 - Fix: muse.c caster-died propagation, stoning cure order, acidic corpse
+- Fix: trap.c landmine barding UAF, magic-trap ice UAF, kill credit
 

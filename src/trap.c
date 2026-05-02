@@ -1730,8 +1730,15 @@ unsigned trflags;
             break;
         } else {
             domagictrap();
+            /* domagictrap can free the trap via the case-12 fire path:
+               dofiretrap -> melt_ice -> trap_ice_effects -> deltrap.
+               Refresh the pointer so steedintrap doesn't read freed
+               memory; mirrors the t_at re-fetch pattern used after
+               melt_ice in the FIRE_TRAP_SET monster branch */
+            trap = t_at(u.ux, u.uy);
         }
-        (void) steedintrap(trap, (struct obj *) 0);
+        if (trap)
+            (void) steedintrap(trap, (struct obj *) 0);
         break;
 
     case ANTI_MAGIC:
@@ -1842,16 +1849,20 @@ unsigned trflags;
             recursive_mine = TRUE;
             (void) steedintrap(trap, (struct obj *) 0);
             recursive_mine = FALSE;
-            saddle = sobj_at(SADDLE, u.ux, u.uy);
-            barding = sobj_at(BARDING, u.ux, u.uy);
-            abarding = sobj_at(RUNED_BARDING, u.ux, u.uy);
-            sbarding = sobj_at(SPIKED_BARDING, u.ux, u.uy);
-            rbarding = sobj_at(BARDING_OF_REFLECTION, u.ux, u.uy);
             set_wounded_legs(LEFT_SIDE, rn1(35, 41));
             set_wounded_legs(RIGHT_SIDE, rn1(35, 41));
             exercise(A_DEX, FALSE);
         }
         blow_up_landmine(trap);
+        /* fetch surviving floor tack AFTER the explosion -- scatter()
+           inside blow_up_landmine() can break and free FQ_INFERIOR
+           metallic barding, so capturing the pointers earlier risks a
+           UAF inside keep_barding_with_steedcorpse() */
+        saddle = sobj_at(SADDLE, u.ux, u.uy);
+        barding = sobj_at(BARDING, u.ux, u.uy);
+        abarding = sobj_at(RUNED_BARDING, u.ux, u.uy);
+        sbarding = sobj_at(SPIKED_BARDING, u.ux, u.uy);
+        rbarding = sobj_at(BARDING_OF_REFLECTION, u.ux, u.uy);
         if (steed_mid && saddle && !u.usteed)
             (void) keep_saddle_with_steedcorpse(steed_mid, fobj, saddle);
         if (steed_mid && barding && !u.usteed)
@@ -3161,17 +3172,23 @@ struct monst *mtmp;
                     int mtx = trap->tx, mty = trap->ty;
                     boolean madeby_player = trap->madeby_u;
 
+                    const char *killer_name =
+                        in_sight ? "magical explosion"
+                                 : (const char *) 0;
+
                     deltrap(trap);
                     if (in_sight)
                         pline("%s is caught in a magical explosion!",
                               Monnam(mtmp));
                     damage_mon(mtmp, magic_dmg, AD_MAGM, madeby_player);
-                    if (DEADMONSTER(mtmp))
-                        monkilled(mtmp,
-                                  in_sight
-                                      ? "magical explosion"
-                                      : (const char *) 0,
-                                  -AD_MAGM);
+                    if (DEADMONSTER(mtmp)) {
+                        /* player gets credit for kills on their own
+                           trap; mirrors thitm()'s umade routing */
+                        if (madeby_player)
+                            mon_xkilled(mtmp, killer_name, AD_MAGM);
+                        else
+                            monkilled(mtmp, killer_name, AD_MAGM);
+                    }
                     if (DEADMONSTER(mtmp))
                         trapkilled = TRUE;
                     if (see_it)
@@ -3194,6 +3211,11 @@ struct monst *mtmp;
                 }
             } else { /* take some damage */
                 int dmgval2 = rnd(4);
+                boolean madeby_player = trap->madeby_u;
+                const char *killer_name =
+                    in_sight
+                        ? "compression from an anti-magic field"
+                        : (const char *) 0;
 
                 if ((otmp = MON_WEP(mtmp)) != 0
                     && otmp->oartifact == ART_MAGICBANE)
@@ -3209,14 +3231,15 @@ struct monst *mtmp;
 
                 if (in_sight)
                     seetrap(trap);
-                damage_mon(mtmp, dmgval2, AD_MAGM,
-                           trap->madeby_u ? TRUE : FALSE);
-                if (DEADMONSTER(mtmp))
-                    monkilled(mtmp,
-                              in_sight
-                                  ? "compression from an anti-magic field"
-                                  : (const char *) 0,
-                              -AD_MAGM);
+                damage_mon(mtmp, dmgval2, AD_MAGM, madeby_player);
+                if (DEADMONSTER(mtmp)) {
+                    /* player gets credit for kills on their own
+                       trap; mirrors thitm()'s umade routing */
+                    if (madeby_player)
+                        mon_xkilled(mtmp, killer_name, AD_MAGM);
+                    else
+                        monkilled(mtmp, killer_name, AD_MAGM);
+                }
                 if (DEADMONSTER(mtmp))
                     trapkilled = TRUE;
                 if (see_it)
