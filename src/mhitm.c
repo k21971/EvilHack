@@ -558,7 +558,7 @@ struct monst *magr, *mdef;
                 /* D: Do a ranged attack here! */
                 strike = thrwmm(magr, mdef);
                 if (DEADMONSTER(mdef))
-                    res[i] = MM_DEF_DIED;
+                    res[i] |= MM_DEF_DIED;
                 if (DEADMONSTER(magr))
                     res[i] |= MM_AGR_DIED;
                 weap_attk_idx++;
@@ -653,6 +653,11 @@ struct monst *magr, *mdef;
                     && !(resists_ston(mdef) || defended(mdef, AD_STON))) {
                     if (poly_when_stoned(mdef->data)) {
                         mon_to_stone(mdef);
+                        /* newcham -> mon_break_armor -> mselftouch
+                           can kill mdef if the new form is handless
+                           and mdef wields a cockatrice corpse */
+                        if (DEADMONSTER(mdef))
+                            res[i] |= MM_DEF_DIED;
                     } else if (!mdef->mstone) {
                        mdef->mstone = 5;
                        mdef->mstonebyu = FALSE;
@@ -762,7 +767,7 @@ struct monst *magr, *mdef;
                 if (strike)
                     res[i] |= MM_HIT;
                 if (DEADMONSTER(mdef)) {
-                    res[i] = MM_DEF_DIED;
+                    res[i] |= MM_DEF_DIED;
                     /* monster gains experience for breath attack */
                     if (!grow_up(magr, mdef))
                         res[i] |= MM_AGR_DIED;
@@ -782,7 +787,7 @@ struct monst *magr, *mdef;
                 if (strike)
                     res[i] |= MM_HIT;
                 if (DEADMONSTER(mdef)) {
-                    res[i] = MM_DEF_DIED;
+                    res[i] |= MM_DEF_DIED;
                     /* monster gains experience for spit attack */
                     if (!grow_up(magr, mdef))
                         res[i] |= MM_AGR_DIED;
@@ -805,7 +810,7 @@ struct monst *magr, *mdef;
                 if (strike)
                     res[i] |= MM_HIT;
                 if (DEADMONSTER(mdef)) {
-                    res[i] = MM_DEF_DIED;
+                    res[i] |= MM_DEF_DIED;
                     /* monster gains experience for spell kill at a distance */
                     if (!grow_up(magr, mdef))
                         res[i] |= MM_AGR_DIED;
@@ -818,7 +823,7 @@ struct monst *magr, *mdef;
                 if (strike)
                     res[i] |= MM_HIT;
                 if (DEADMONSTER(mdef)) {
-                    res[i] = MM_DEF_DIED;
+                    res[i] |= MM_DEF_DIED;
                     /* monster gains experience for spell kill at close range */
                     if (!grow_up(magr, mdef))
                         res[i] |= MM_AGR_DIED;
@@ -863,7 +868,7 @@ struct attack *mattk;
 struct obj *mwep;
 int dieroll;
 {
-    struct obj *otmp;
+    struct obj *otmp = (struct obj *) 0;
     boolean weaponhit = ((mattk->aatyp == AT_WEAP
                           || (mattk->aatyp == AT_CLAW && mwep))),
             showit = FALSE;
@@ -1011,7 +1016,7 @@ gazemm(magr, mdef, mattk)
 struct monst *magr, *mdef;
 struct attack *mattk;
 {
-    struct obj *otmp;
+    struct obj *otmp = (struct obj *) 0;
     char buf[BUFSZ];
 
     /* call mon_reflects 2x, first test, then, if visible, print message */
@@ -1068,7 +1073,7 @@ screamm(magr, mdef, mattk)
 struct monst *magr, *mdef;
 struct attack *mattk;
 {
-    struct obj *otmp;
+    struct obj *otmp = (struct obj *) 0;
 
     if (canseemon(magr) && !Deaf) {
         pline("%s lets out a %s!", Monnam(magr),
@@ -1145,7 +1150,7 @@ struct attack *mattk;
     xchar ax, ay, dx, dy;
     int status;
     char buf[BUFSZ];
-    struct obj *obj, *otmp;
+    struct obj *obj, *otmp = (struct obj *) 0;
 
     if (!engulf_target(magr, mdef))
         return MM_MISS;
@@ -1264,7 +1269,7 @@ explmm(magr, mdef, mattk)
 struct monst *magr, *mdef;
 struct attack *mattk;
 {
-    struct obj *otmp;
+    struct obj *otmp = (struct obj *) 0;
     int result, mndx, tmp;
 
     if (magr->mcan)
@@ -1596,7 +1601,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 pline("%s %ss %s!", buf,
                       rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
             mondied(mdef);
-            if (mdef->mhp > 0)
+            if (!DEADMONSTER(mdef))
                 return 0;
             if (racial_zombie(mdef) || is_troll(mdef->data))
                 mdef->mcan = 1; /* no head? no reviving */
@@ -1685,7 +1690,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 nopoison = (10 - (mwep->owt / 10));
                 if (nopoison < 2)
                     nopoison = 2;
-                if (mwep && !rn2(nopoison)) {
+                if (!rn2(nopoison)) {
                     mwep->opoisoned = FALSE;
                     if (vis && canseemon(magr))
                         pline("%s %s is no longer poisoned.",
@@ -1721,7 +1726,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 notaint = ((is_drow_weapon(mwep) ? 20 : 5) - (mwep->owt / 10));
                 if (notaint < 2)
                     notaint = 2;
-                if (mwep && !rn2(notaint)) {
+                if (!rn2(notaint)) {
                     mwep->otainted = FALSE;
                     if (vis && canseemon(magr))
                         pline("%s %s is no longer tainted.",
@@ -1869,7 +1874,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             if (vis && canseemon(mdef))
                 pline("%s shatters into a million pieces!", Monnam(mdef));
             mondied(mdef);
-            if (mdef->mhp > 0)
+            if (!DEADMONSTER(mdef))
                 return 0;
             return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
         }
@@ -2031,6 +2036,14 @@ post_stone:
                 mdef->perminvis = mdef->minvis = TRUE;
             mdef->mstrategy &= ~STRAT_WAITFORU;
             (void) rloc(mdef, TRUE);
+            /* rloc -> rloc_to -> mintrap on the destination tile can
+               kill mdef (fire trap, land mine, polymorph trap, etc.)
+               when mdef was previously trapped */
+            if (DEADMONSTER(mdef)) {
+                res |= MM_DEF_DIED;
+                tmp = 0;
+                break;
+            }
             if (vis && wasseen && !canspotmon(mdef) && mdef != u.usteed)
                 pline("%s suddenly disappears!", mdef_Monnam);
             if (tmp >= mdef->mhp) { /* see hitmu(mhitu.c) */
@@ -2262,6 +2275,12 @@ post_stone:
             if (!tele_restrict(magr)) {
                 boolean couldspot = canspotmon(magr);
                 (void) rloc(magr, TRUE);
+                /* rloc -> rloc_to -> mintrap can kill magr */
+                if (DEADMONSTER(magr)) {
+                    res |= MM_AGR_DIED;
+                    tmp = 0;
+                    break;
+                }
                 if (vis && couldspot && !canspotmon(magr))
                     pline("%s suddenly disappears!", buf);
             }
@@ -2378,6 +2397,12 @@ post_stone:
                 boolean couldspot = canspotmon(magr);
 
                 (void) rloc(magr, TRUE);
+                /* rloc -> rloc_to -> mintrap can kill magr */
+                if (DEADMONSTER(magr)) {
+                    res |= MM_AGR_DIED;
+                    tmp = 0;
+                    break;
+                }
                 if (vis && couldspot && !canspotmon(magr))
                     pline("%s suddenly disappears!", buf);
             }
@@ -2643,8 +2668,14 @@ msickness:
         /* if (cancelled) break; */
         break;
     case AD_POLY:
-        if (!magr->mcan && tmp < mdef->mhp)
+        if (!magr->mcan && tmp < mdef->mhp) {
             tmp = mon_poly(magr, mdef, tmp);
+            /* mon_poly may rloc magr; rloc_to mintrap can kill it */
+            if (DEADMONSTER(magr)) {
+                res |= MM_AGR_DIED;
+                tmp = 0;
+            }
+        }
         break;
     case AD_WTHR: {
         uchar withertime = max(2, tmp);
@@ -2942,7 +2973,7 @@ msickness:
 
     if (!tmp) {
         if (DEADMONSTER(mdef))
-            res = MM_DEF_DIED;
+            res |= MM_DEF_DIED;
         return res;
     }
 
