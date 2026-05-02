@@ -3551,7 +3551,8 @@ struct obj **objp;
             cc.y = ry;
             You("wrap your bullwhip around %s.", wrapped_what);
             if (proficient && rn2(proficient + 2)) {
-                if (!mtmp || enexto(&cc, rx, ry, youmonst.data)) {
+                if (!mtmp || enexto_core_mon(&cc, rx, ry, &youmonst,
+                                             NO_MM_FLAGS)) {
                     You("yank yourself out of the pit!");
                     teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG);
                     reset_utrap(TRUE);
@@ -3805,7 +3806,8 @@ struct obj **objp;
             cc.y = ry;
             You("hook your axe onto %s.", hooked_what);
             if (proficient && rn2(proficient + 2)) {
-                if (!mtmp || enexto(&cc, rx, ry, youmonst.data)) {
+                if (!mtmp || enexto_core_mon(&cc, rx, ry, &youmonst,
+                                             NO_MM_FLAGS)) {
                     You("pull yourself out of the pit!");
                     teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG);
                     reset_utrap(TRUE);

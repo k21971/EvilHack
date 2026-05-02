@@ -5303,4 +5303,5 @@ The following changes to date are:
 - Fix: route corpsenm touch_petrifies() calls through safe wrapper
 - Fix: more issues in mcastu.c found during second code review
 - Fix: DEATH_TOUCH cleanup and mhitu AT_MAGC caster-died guard
+- Fix: mhitu.c steed double-attack, caster-died guards, enexto
 

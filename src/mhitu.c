@@ -729,20 +729,15 @@ struct monst *mtmp;
         if (u.usteed->mtame >= 15
             && distu(mtmp->mx, mtmp->my) <= 2
             && acceptable_pet_target(u.usteed, mtmp, FALSE)) {
-            /* steed attacks without provocation,
-               make sure it's actually alive */
-            i = mattackm(u.usteed, mtmp);
-            if ((i & MM_AGR_DIED) != 0 || !u.usteed)
-                return MM_AGR_DIED;
-            /* make sure monster is alive and is
-               within range (melee attack) */
-            if ((i & MM_DEF_DIED) != 0
-                || distu(mtmp->mx, mtmp->my) > 2)
-                return MM_MISS;
-            /* allow steed to attack */
+            /* steed attacks without provocation */
             bhitpos.x = mtmp->mx, bhitpos.y = mtmp->my;
             notonhead = FALSE;
-            return (mattackm(u.usteed, mtmp) & MM_DEF_DIED) ? MM_AGR_DIED : MM_HIT;
+            i = mattackm(u.usteed, mtmp);
+            /* steed died: mtmp wasn't the aggressor here, so mattacku's
+               return code shouldn't claim mtmp died */
+            if ((i & MM_AGR_DIED) != 0 || !u.usteed)
+                return MM_MISS;
+            return (i & MM_DEF_DIED) ? MM_AGR_DIED : MM_HIT;
         }
     }
 
@@ -760,7 +755,7 @@ struct monst *mtmp;
                is eligible for placing hero; we assume that a
                removed monster remembers its old spot <mx,my> */
             remove_monster(mtmp->mx, mtmp->my);
-            if (!enexto(&cc, u.ux, u.uy, youmonst.data)
+            if (!enexto_core_mon(&cc, u.ux, u.uy, &youmonst, NO_MM_FLAGS)
                 /* a fish won't voluntarily swap positions
                    when it's in water and hero is over land */
                 || (mtmp->data->mlet == S_EEL
@@ -789,7 +784,8 @@ struct monst *mtmp;
                 /* tail hasn't grown, so if it now occupies <cc.x,.y>
                    then one of its original spots must be free */
                 if (m_at(cc.x, cc.y))
-                    (void) enexto(&cc, u.ux, u.uy, youmonst.data);
+                    (void) enexto_core_mon(&cc, u.ux, u.uy, &youmonst,
+                                           NO_MM_FLAGS);
             }
             teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG); /* move hero */
             set_apparxy(mtmp);
@@ -1224,6 +1220,10 @@ struct monst *mtmp;
                         missmu(mtmp, tmp, j, mattk);
                         if (uarms && !rn2(3))
                             use_skill(P_SHIELD, 1);
+                        /* missmu can kill the engulfer via material-hate
+                           sear, Ashmar/Retribution knockback */
+                        if (DEADMONSTER(mtmp))
+                            return MM_AGR_DIED;
                     }
                 } else if (is_swallower(mtmp->data)) {
                     pline("%s gulps some air!", Monnam(mtmp));
@@ -1238,13 +1238,19 @@ struct monst *mtmp;
             }
             break;
         case AT_BREA:
-            if (range2)
+            if (range2) {
                 sum[i] = breamu(mtmp, mattk);
+                if (DEADMONSTER(mtmp))
+                    return MM_AGR_DIED;
+            }
             /* Note: breamu takes care of displacement */
             break;
         case AT_SPIT:
-            if (range2)
+            if (range2) {
                 sum[i] = spitmu(mtmp, mattk);
+                if (DEADMONSTER(mtmp))
+                    return MM_AGR_DIED;
+            }
             /* Note: spitmu takes care of displacement */
             break;
         case AT_WEAP:
