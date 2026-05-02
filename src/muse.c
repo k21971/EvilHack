@@ -115,7 +115,7 @@ STATIC_DCL boolean FDECL(mcan_learn_spell, (struct monst *, struct obj *));
 #define MUSE_UNICORN_HORN 17
 #define MUSE_POT_FULL_HEALING 18
 #define MUSE_LIZARD_CORPSE 19
-#define MUSE_ACID_BLOB_CORPSE 20
+#define MUSE_ACIDIC_CORPSE 20
 #define MUSE_BAG_OF_TRICKS 21
 #define MUSE_EUCALYPTUS_LEAF 22
 #define MUSE_WAN_UNDEAD_TURNING 24 /* also an offensive item */
@@ -591,14 +591,32 @@ struct monst *mtmp;
 
     if (mtmp->mconf || mtmp->mstun) {
         struct obj *liztin = 0;
+        struct obj *acidictin = 0;
+        boolean acidproof = (resists_acid(mtmp) || defended(mtmp, AD_ACID));
 
         for (obj = mtmp->minvent; obj; obj = obj->nobj) {
             if (obj->otyp == CORPSE && obj->corpsenm == PM_LIZARD) {
                 m.defensive = obj;
                 m.has_defense = MUSE_LIZARD_CORPSE;
                 return TRUE;
+            } else if (obj->otyp == CORPSE && acidproof
+                       && obj->corpsenm != NON_PM
+                       && acidic(&mons[obj->corpsenm])
+                       && obj->corpsenm != PM_GREEN_SLIME) {
+                /* acid corpse cures conf/stun for acid-resistant monster;
+                   non-resistant monsters skip this branch since the acid
+                   damage in mon_consume_unstone would kill them */
+                m.defensive = obj;
+                m.has_defense = MUSE_ACIDIC_CORPSE;
+                return TRUE;
             } else if (obj->otyp == TIN && obj->corpsenm == PM_LIZARD) {
                 liztin = obj;
+            } else if (obj->otyp == TIN && obj->corpsenm != NON_PM
+                       && acidic(&mons[obj->corpsenm])
+                       && obj->corpsenm != PM_GREEN_SLIME) {
+                /* tinned acidic corpse is universally safe (mon_consume_unstone
+                   gates acid damage on !tinned), no acidproof check needed */
+                acidictin = obj;
             }
         }
         /* confused or stunned monster might not be able to open tin */
@@ -606,6 +624,11 @@ struct monst *mtmp;
             m.defensive = liztin;
             /* tin and corpse ultimately end up being handled the same */
             m.has_defense = MUSE_LIZARD_CORPSE;
+            return TRUE;
+        }
+        if (acidictin && mcould_eat_tin(mtmp) && rn2(3)) {
+            m.defensive = acidictin;
+            m.has_defense = MUSE_ACIDIC_CORPSE;
             return TRUE;
         }
     }
@@ -1532,7 +1555,7 @@ struct monst *mtmp;
         if (oseen && how)
             makeknown(how);
         (void) rloc(mtmp, TRUE);
-        return 2;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_WAN_TELEPORTATION:
         zap_oseen = oseen;
         mzapwand(mtmp, otmp, FALSE);
@@ -1542,7 +1565,7 @@ struct monst *mtmp;
         if (level.flags.noteleport)
             mtmp->mtrapseen |= (1 << (TELEP_TRAP_SET - 1));
         m_using = FALSE;
-        return 2;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_SCR_TELEPORTATION: {
         int obj_is_cursed = otmp->cursed;
 
@@ -1633,7 +1656,7 @@ struct monst *mtmp;
         m_using = TRUE;
         mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
         m_using = FALSE;
-        return 2;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_BAG_OF_TRICKS: {
         coord cc;
         struct monst *mon;
@@ -1714,15 +1737,18 @@ struct monst *mtmp;
         if (vis) {
             struct trap *t = t_at(trapx, trapy);
 
-            Mnam = Monnam(mtmp);
-            pline("%s %s into a %s!", Mnam,
-                  vtense(fakename[0], locomotion(mtmp->data, "jump")),
-                  (t->ttyp == TRAPDOOR) ? "trap door" : "hole");
+            if (t) {
+                Mnam = Monnam(mtmp);
+                pline("%s %s into a %s!", Mnam,
+                      vtense(fakename[0], locomotion(mtmp->data, "jump")),
+                      (t->ttyp == TRAPDOOR) ? "trap door" : "hole");
+            }
             if (levl[trapx][trapy].typ == SCORR) {
                 levl[trapx][trapy].typ = CORR;
                 unblock_point(trapx, trapy);
             }
-            seetrap(t_at(trapx, trapy));
+            if (t)
+                seetrap(t);
         }
 
         /*  don't use rloc_to() because worm tails must "move" */
@@ -1814,10 +1840,13 @@ struct monst *mtmp;
     case MUSE_TELEPORT_TRAP:
         m_flee(mtmp);
         if (vis) {
+            struct trap *t = t_at(trapx, trapy);
+
             Mnam = Monnam(mtmp);
             pline("%s %s onto a teleport trap!", Mnam,
                   vtense(fakename[0], locomotion(mtmp->data, "jump")));
-            seetrap(t_at(trapx, trapy));
+            if (t)
+                seetrap(t);
         }
         /*  don't use rloc_to() because worm tails must "move" */
         remove_monster(mtmp->mx, mtmp->my);
@@ -1912,9 +1941,9 @@ struct monst *mtmp;
         m_useup(mtmp, otmp);
         return 2;
     case MUSE_LIZARD_CORPSE:
-        mon_consume_unstone(mtmp, otmp, FALSE, mtmp->mstone ? TRUE : FALSE);
-        return 2;
-    case MUSE_ACID_BLOB_CORPSE:
+    case MUSE_ACIDIC_CORPSE:
+        /* find_defensive's acid-resistance gate keeps non-resistant
+           monsters from reaching this case body with an acid corpse */
         mon_consume_unstone(mtmp, otmp, FALSE, mtmp->mstone ? TRUE : FALSE);
         return 2;
     case MUSE_EUCALYPTUS_LEAF:
@@ -2921,7 +2950,7 @@ struct monst *mtmp;
         m_using = TRUE;
         mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
         m_using = FALSE;
-        return 2;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_SCR_EARTH: {
         /* TODO: handle steeds */
         int x, y;
@@ -3697,6 +3726,11 @@ struct monst *mtmp;
         return 2;
     case MUSE_POLY_TRAP:
         tt = t_at(trapx, trapy);
+        if (!tt) {
+            impossible("MUSE_POLY_TRAP: trap vanished at <%d,%d>",
+                       trapx, trapy);
+            return 0;
+        }
         if (vismon) {
             const char *Mnam = Monnam(mtmp);
 
@@ -4570,7 +4604,8 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
     boolean vis = canseemon(mon), tinned = obj->otyp == TIN,
             food = obj->otyp == CORPSE || tinned,
             acid = obj->otyp == POT_ACID
-                   || (food && acidic(&mons[obj->corpsenm])),
+                   || (food && obj->corpsenm != NON_PM
+                       && acidic(&mons[obj->corpsenm])),
             lizard = food && obj->corpsenm == PM_LIZARD,
             leaf = obj->otyp == EUCALYPTUS_LEAF;
     int nutrit = food ? dog_nutrition(mon, obj) : 0; /* also sets meating */
@@ -4597,6 +4632,36 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
     m_useup(mon, obj);
     /* obj is now gone */
 
+    /* Cures run BEFORE acid damage so a non-resistant stoning
+       monster that died of the acid and was then lifesaved by
+       mondead comes back fully cured rather than resuming the
+       stoning timer toward statue death */
+    if (stoning) {
+        mon->mstone = 0;
+        if (!vis) {
+            ; /* no feedback */
+        } else if (Hallucination) {
+            pline("What a pity - %s just ruined a future piece of art!",
+                  mon_nam(mon));
+        } else {
+            pline("%s seems limber!", Monnam(mon));
+        }
+    }
+    /* lizard corpses cure confusion/stun per vanilla lore; acidic
+       corpses do the same for acid-resistant monsters that survive
+       the meal */
+    if ((lizard || acid) && (mon->mconf || mon->mstun)) {
+        mon->mconf = 0;
+        mon->mstun = 0;
+        if (vis && !is_bat(mon->data) && mon->data != &mons[PM_STALKER])
+            pline("%s seems steadier now.", Monnam(mon));
+    }
+    if (leaf && (mon->msick || mon->mdiseased)) {
+        mon->msick = 0;
+        mon->mdiseased = 0;
+        if (vis)
+            pline("%s is no longer ill.", Monnam(mon));
+    }
     if (acid && !tinned && !(resists_acid(mon) || defended(mon, AD_ACID))) {
         damage_mon(mon, rnd(15), AD_ACID, FALSE);
         if (vis)
@@ -4612,29 +4677,6 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
                 mondead(mon);
             return;
         }
-    }
-    if (stoning) {
-        mon->mstone = 0;
-        if (!vis) {
-            ; /* no feedback */
-        } else if (Hallucination) {
-            pline("What a pity - %s just ruined a future piece of art!",
-                  mon_nam(mon));
-        } else {
-            pline("%s seems limber!", Monnam(mon));
-        }
-    }
-    if (lizard && (mon->mconf || mon->mstun)) {
-        mon->mconf = 0;
-        mon->mstun = 0;
-        if (vis && !is_bat(mon->data) && mon->data != &mons[PM_STALKER])
-            pline("%s seems steadier now.", Monnam(mon));
-    }
-    if (leaf && (mon->msick || mon->mdiseased)) {
-        mon->msick = 0;
-        mon->mdiseased = 0;
-        if (vis)
-            pline("%s is no longer ill.", Monnam(mon));
     }
     if (mon->mtame && !mon->isminion && nutrit > 0) {
         struct edog *edog = EDOG(mon);
@@ -5258,20 +5300,27 @@ int spell_otyp;
     /* Cast the ray - negative type indicates monster casting */
     buzz(-ztype, nd, caster->mx, caster->my, sgn(dx), sgn(dy));
 
-    return TRUE;
+    /* Caster may have died from passive retaliation along the ray
+       (acid/fire/electric mhitm passivem). Report caster mortality so
+       cast_learned_spell can short-circuit downstream caster derefs */
+    return !DEADMONSTER(caster);
 }
 
 /* Cast an IMMEDIATE spell using mbhit() ray tracing.
    These spells (drain life, slow monster, teleport away, polymorph,
    turn undead, entangle, dispel evil) trace a line from caster to
-   target and affect things along the path */
-void
+   target and affect things along the path.
+   Returns TRUE if caster survived and spell was cast, FALSE if a
+   sanity check failed or the caster died mid-cast (passive retaliation
+   on an mbhit target, or AT_BOOM target explosion) */
+boolean
 mcast_immediate_spell(caster, tx, ty, spell_otyp)
 struct monst *caster;
 int tx, ty;
 int spell_otyp;
 {
     struct obj *pseudo;
+    boolean caster_alive;
 
     /* Set direction from caster to target (tbx/tby are used by mbhit) */
     tbx = tx - caster->mx;
@@ -5279,7 +5328,7 @@ int spell_otyp;
 
     /* Sanity check - can't cast at own location */
     if (!tbx && !tby)
-        return;
+        return FALSE;
 
     /* Create a pseudo-object representing the spell */
     pseudo = mksobj(spell_otyp, FALSE, FALSE);
@@ -5295,10 +5344,16 @@ int spell_otyp;
     mbhit(caster, rn1(8, 6), mbhitm, bhito, pseudo);
     m_using = FALSE;
 
+    /* Capture caster mortality before cleaning up pseudo (cleanup must
+       run regardless to avoid leaking the obj) */
+    caster_alive = !DEADMONSTER(caster);
+
     /* Clean up the pseudo-object */
     pseudo->where = OBJ_FREE; /* prevent obfree complaints */
     pseudo->ocarry = (struct monst *) 0;
     obfree(pseudo, (struct obj *) 0);
+
+    return caster_alive;
 }
 
 /* check if monster can attempt to disarm hero.

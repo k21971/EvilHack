@@ -892,7 +892,11 @@ struct monst *caster, *target;
             if (!mlined_up(caster, target, FALSE))
                 return 0; /* No clear line of sight */
         }
-        mcast_ray_spell(caster, tx, ty, spell_otyp);
+        /* mcast_ray_spell returns FALSE if caster died from passive
+           retaliation along the buzz line; short-circuit before any
+           future caller-deref creeps into the trailing return path */
+        if (!mcast_ray_spell(caster, tx, ty, spell_otyp))
+            return 0;
     } else if (spell_otyp == SPE_FORCE_BOLT
                || spell_otyp == SPE_DRAIN_LIFE
                || spell_otyp == SPE_SLOW_MONSTER
@@ -909,7 +913,11 @@ struct monst *caster, *target;
             if (!mlined_up(caster, target, FALSE))
                 return 0; /* No clear line of sight */
         }
-        mcast_immediate_spell(caster, tx, ty, spell_otyp);
+        /* mcast_immediate_spell returns FALSE if caster died from
+           passive retaliation or AT_BOOM target explosion during
+           mbhit traversal; short-circuit defensively */
+        if (!mcast_immediate_spell(caster, tx, ty, spell_otyp))
+            return 0;
     } else if (spell_otyp == SPE_POWER_WORD_KILL) {
         /* NODIR spell - no LOS check needed, directly targets enemy */
         mcast_nodir_spell(caster, target, spell_otyp);

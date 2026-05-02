@@ -5307,4 +5307,5 @@ The following changes to date are:
 - Fix: mhitm.c rloc() death propagation, AD_SLIM clobber, cleanup
 - Fix: more issues in uhitm.c found during second code review
 - Fix: artifact.c kill credit, oprops leak, Mb_hit guards
+- Fix: muse.c caster-died propagation, stoning cure order, acidic corpse
 
