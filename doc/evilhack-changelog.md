@@ -5309,4 +5309,5 @@ The following changes to date are:
 - Fix: artifact.c kill credit, oprops leak, Mb_hit guards
 - Fix: muse.c caster-died propagation, stoning cure order, acidic corpse
 - Fix: trap.c landmine barding UAF, magic-trap ice UAF, kill credit
+- Fix: zap.c second-pass re-review fixes
 

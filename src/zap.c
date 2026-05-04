@@ -467,6 +467,11 @@ struct obj *otmp;
                 if (give_msg && (canspotmon(mtmp)
                                  || (u.uswallow && mtmp == u.ustuck)))
                     learn_it = TRUE;
+                /* newcham can land on a handless poly form whose
+                   mon_break_armor + mselftouch petrifies mtmp before
+                   we get here; skip rider/long-worm reads on dead mtmp */
+                if (DEADMONSTER(mtmp))
+                    break;
                 /* Is the monster riding another monster? */
                 if (has_erid(mtmp)
                     && (!humanoid(mtmp->data) || r_bigmonst(mtmp))) {
@@ -1420,10 +1425,12 @@ unturn_you()
     }
 }
 
-/* cancel obj, possibly carried by you or a monster */
+/* cancel obj, possibly carried by you or a monster;
+   by_you gates shop billing the same way drain_item does */
 void
-cancel_item(obj)
+cancel_item(obj, by_you)
 struct obj *obj;
+boolean by_you;
 {
     boolean u_ring = (obj == uleft || obj == uright);
     int otyp = obj->otyp;
@@ -1474,13 +1481,15 @@ struct obj *obj;
             && otyp != WAN_CANCELLATION /* can't cancel cancellation */
             && otyp != MAGIC_LAMP /* cancelling doesn't remove djinni */
             && otyp != CANDELABRUM_OF_INVOCATION) {
-            costly_alteration(obj, COST_CANCEL);
+            if (by_you)
+                costly_alteration(obj, COST_CANCEL);
             obj->spe = (obj->oclass == WAND_CLASS) ? -1 : 0;
         }
         switch (obj->oclass) {
         case SCROLL_CLASS:
             if (otyp != SCR_CONSECRATION) {
-                costly_alteration(obj, COST_CANCEL);
+                if (by_you)
+                    costly_alteration(obj, COST_CANCEL);
                 obj->otyp = SCR_BLANK_PAPER;
                 obj->spe = 0;
             }
@@ -1488,16 +1497,18 @@ struct obj *obj;
         case SPBOOK_CLASS:
             if (otyp != SPE_CANCELLATION && otyp != SPE_NOVEL
                 && otyp != SPE_BOOK_OF_THE_DEAD) {
-                costly_alteration(obj, COST_CANCEL);
+                if (by_you)
+                    costly_alteration(obj, COST_CANCEL);
                 obj->otyp = SPE_BLANK_PAPER;
                 set_material(obj, PAPER);
             }
             break;
         case POTION_CLASS:
-            costly_alteration(obj,
-                              (otyp != POT_WATER)
-                                  ? COST_CANCEL
-                                  : obj->cursed ? COST_UNCURS : COST_UNBLSS);
+            if (by_you)
+                costly_alteration(obj,
+                                  (otyp != POT_WATER)
+                                      ? COST_CANCEL
+                                      : obj->cursed ? COST_UNCURS : COST_UNBLSS);
             if (otyp == POT_SICKNESS || otyp == POT_SEE_INVISIBLE
                 || otyp == POT_DROW_POISON) {
                 /* sickness is "biologically contaminated" fruit juice;
@@ -2522,13 +2533,13 @@ struct obj *obj, *otmp;
             break;
         case WAN_CANCELLATION:
         case SPE_CANCELLATION:
-            cancel_item(obj);
+            cancel_item(obj, !context.mon_moving);
 #ifdef TEXTCOLOR
             newsym(obj->ox, obj->oy); /* might change color */
 #endif
             break;
         case SPE_DRAIN_LIFE:
-            (void) drain_item(obj, TRUE);
+            (void) drain_item(obj, !context.mon_moving);
             break;
         case WAN_TELEPORTATION:
         case SPE_TELEPORT_AWAY:
@@ -2563,7 +2574,7 @@ struct obj *obj, *otmp;
                 if (!get_obj_location(obj, &ox, &oy, 0))
                     ox = obj->ox, oy = obj->oy; /* won't happen */
 
-                mtmp = revive(obj, TRUE);
+                mtmp = revive(obj, by_u);
                 if (!mtmp) {
                     res = 0; /* no monster implies corpse was left intact */
                 } else {
@@ -3459,7 +3470,8 @@ int amt;          /* pseudo-damage used to determine blindness duration */
             dmg = 10 + rnd(dmg - 10);
         if (dmg > 20)
             dmg = 20;
-        pline("Ow, that light hurts%c", (dmg > 2 || u.mh <= 5) ? '!' : '.');
+        pline("Ow, that light hurts%c",
+              (dmg > 2 || (Upolyd ? u.mh : u.uhp) <= 5) ? '!' : '.');
         /* [composing killer/reason is superfluous here; if fatal, cause
            of death will always be "killed while stuck in creature form"] */
         if (obj && (obj->oclass == SCROLL_CLASS
@@ -3590,7 +3602,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
     if (self_cancel) { /* 1st cancel inventory */
         for (otmp = (youdefend ? invent : mdef->minvent); otmp;
              otmp = otmp->nobj)
-            cancel_item(otmp);
+            cancel_item(otmp, youattack);
         if (youdefend) {
             You_feel("magical energies being absorbed from your exact location.");
             context.botl = 1; /* potential AC change */
@@ -3802,7 +3814,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
                     pline("%s!", Tobjnam(otmp, "resist"));
                     continue;
                 }
-                cancel_item(otmp);
+                cancel_item(otmp, youattack);
             }
             if (youdefend) {
                 context.botl = 1; /* potential AC change */
@@ -3846,6 +3858,12 @@ boolean youattack, allow_cancel_kill, self_cancel;
                to 0), but only for shapechangers whose m->cham is already
                NON_PM and we just verified that it's LOW_PM or higher */
             newcham(mdef, &mons[mdef->cham], FALSE, FALSE);
+            /* newcham can drop into a handless poly form; mon_break_armor
+               then drops cockatrice gloves and mselftouch petrifies mdef.
+               cancel itself succeeded (mcan was set above), so report
+               TRUE; skip writes through the dead struct */
+            if (DEADMONSTER(mdef))
+                return TRUE;
             mdef->cham = NON_PM; /* cancelled shapeshifter can't shift */
         }
         if (is_were(mdef->data) && !is_human(mdef->data))
