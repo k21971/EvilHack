@@ -36,6 +36,7 @@ char olet;
 int expltype;
 {
     int i, j, k, o, damu = dam;
+    int noise;
     boolean starting = 1;
     boolean visible, any_shield;
     int uhurt = 0; /* 0=unhurt, 1=items damaged, 2=you and items damaged */
@@ -48,6 +49,12 @@ int expltype;
     boolean shopdamage = FALSE, generic = FALSE, physical_dmg = FALSE,
             do_hallu = FALSE, inside_engulfer, grabbed, grabbing;
     coord grabxy;
+    /* Remember where the hero is standing right now. If the explosion
+       kills the steed they're riding, the hero gets thrown off and
+       may land on a different square; without this snapshot, later
+       damage steps in the same explosion could match the hero's new
+       square and apply the explosion to them a second time */
+    xchar hero_x, hero_y;
     char hallu_buf[BUFSZ], killr_buf[BUFSZ];
     short exploding_wand_typ = 0;
     boolean you_exploding = (olet == MON_EXPLODE && type >= 0);
@@ -106,8 +113,11 @@ int expltype;
            from m_respond / pet AI that may dmonsfree()) don't leave us
            dereferencing a stale pointer */
         mdef_id = mdef ? mdef->m_id : 0;
+        mdef = (struct monst *) 0; /* consumed; refs go through mdef_id */
         expltype = -expltype;
     }
+    hero_x = u.ux;
+    hero_y = u.uy;
     /* if hero is engulfed and caused the explosion, only hero and
        engulfer will be affected */
     inside_engulfer = (u.uswallow && type >= 0);
@@ -355,7 +365,7 @@ int expltype;
             for (j = 0; j < 3; j++) {
                 if (explmask[i][j] == 2)
                     continue;
-                if (i + x - 1 == u.ux && j + y - 1 == u.uy) {
+                if (i + x - 1 == hero_x && j + y - 1 == hero_y) {
                     uhurt = (explmask[i][j] == 1) ? 1 : 2;
                     /* If the player is attacking via polyself into something
                      * with an explosion attack, leave them (and their gear)
@@ -377,7 +387,7 @@ int expltype;
                                           you_exploding ? FALSE : MON_CASTBALL);
 
                 mtmp = m_at(i + x - 1, j + y - 1);
-                if (!mtmp && i + x - 1 == u.ux && j + y - 1 == u.uy)
+                if (!mtmp && i + x - 1 == hero_x && j + y - 1 == hero_y)
                     mtmp = u.usteed;
                 if (!mtmp)
                     continue;
@@ -476,7 +486,8 @@ int expltype;
 
                 if (explmask[i][j] == 1) {
                     golemeffects(mtmp, (int) adtyp, dam + idamres);
-                    damage_mon(mtmp, idamnonres, adtyp, TRUE);
+                    damage_mon(mtmp, idamnonres, adtyp,
+                               !context.mon_moving);
                 } else {
                     /* call resist with 0 and do damage manually so 1) we can
                      * get out the message before doing the damage, and 2) we
@@ -499,8 +510,9 @@ int expltype;
                     if (mon_underwater(mtmp)
                         && (adtyp == AD_FIRE || adtyp == AD_ACID))
                         mdam = rnd(3); /* physical damage only */
-                    damage_mon(mtmp, mdam, adtyp, TRUE);
-                    damage_mon(mtmp, idamres + idamnonres, adtyp, TRUE);
+                    damage_mon(mtmp, mdam, adtyp, !context.mon_moving);
+                    damage_mon(mtmp, idamres + idamnonres, adtyp,
+                               !context.mon_moving);
                 }
                 if (DEADMONSTER(mtmp)) {
                     int xkflg = ((adtyp == AD_FIRE
@@ -679,12 +691,12 @@ int expltype;
     }
 
     /* explosions are noisy */
-    i = dam * dam;
-    if (i < 50)
-        i = 50; /* in case random damage is very small */
+    noise = dam * dam;
+    if (noise < 50)
+        noise = 50; /* in case random damage is very small */
     if (inside_engulfer)
-        i = (i + 3) / 4;
-    wake_nearto(x, y, i);
+        noise = (noise + 3) / 4;
+    wake_nearto(x, y, noise);
 }
 
 struct scatter_chain {
@@ -734,11 +746,16 @@ struct obj *obj; /* only scatter this obj        */
 
     while ((otmp = (individual_object ? obj : level.objects[sx][sy])) != 0) {
         if (otmp == uball || otmp == uchain) {
-            boolean waschain = (otmp == uchain);
             pline_The("chain shatters!");
             unpunish();
-            if (waschain)
-                continue;
+            /* unpunish() frees uchain unconditionally and may free uball
+               (open-air floor case via flooreffects -> delobj). otmp is
+               dangling; uball/uchain globals are now Null. Bail this
+               iteration; level.objects[sx][sy] re-fetch will return the
+               next object (or the placed-back ball, no longer matching
+               uball/uchain) */
+            obj = (struct obj *) 0; /* in-flight obj path: terminate loop */
+            continue;
         }
         if (otmp->quan > 1L) {
             qtmp = otmp->quan - 1L;

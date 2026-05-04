@@ -5311,4 +5311,5 @@ The following changes to date are:
 - Fix: trap.c landmine barding UAF, magic-trap ice UAF, kill credit
 - Fix: zap.c second-pass re-review fixes
 - Fix: dogaze() panic on unhandled gaze adtyp
+- Fix: explode.c uball UAF, hero-pos snapshot, m-v-m damage_mon idiom
 
