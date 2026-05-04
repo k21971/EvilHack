@@ -5310,4 +5310,5 @@ The following changes to date are:
 - Fix: muse.c caster-died propagation, stoning cure order, acidic corpse
 - Fix: trap.c landmine barding UAF, magic-trap ice UAF, kill credit
 - Fix: zap.c second-pass re-review fixes
+- Fix: dogaze() panic on unhandled gaze adtyp
 

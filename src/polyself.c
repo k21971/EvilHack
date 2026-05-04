@@ -1891,7 +1891,17 @@ dogaze()
         }
     }
     if (adtyp != AD_CONF && adtyp != AD_FIRE) {
-        impossible("gaze attack %d?", adtyp);
+        /* polyform has an AT_GAZE attack but its adtyp isn't one
+           of the player-usable kinds (umber hulk's AD_CONF or
+           pyrolisk's AD_FIRE). Reachable for wizard-mode polyforms
+           that bypass M2_NOPOLY (Archon AD_BLND, Medusa AD_STON,
+           etc) and for the random-attack shambling horror if it
+           ever stops being M2_NOPOLY. Pline gracefully rather
+           than panic; sibling site gazemu() in mhitu.c handles the
+           broader adtyp set on the receive side */
+
+        /* TODO: add support for the other gaze AD_* damage types */
+        You_cant("use a gaze attack in this form.");
         return 0;
     }
 
