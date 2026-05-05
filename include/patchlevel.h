@@ -16,6 +16,8 @@
  */
 #define EDITLEVEL 0
 
+#define LISP_VERSION "0.15.1"
+
 #define COPYRIGHT_BANNER_A \
 "EvilHack, copyright 2018-2026 by Keith Simpson - a NetHack 3.6.x variant,"
 #define COPYRIGHT_BANNER_B \

@@ -4452,7 +4452,7 @@ struct ext_func_tab extcmdlist[] = {
             dovampireshapechange, IFBURIED | AUTOCOMPLETE },
     { '!', "shell", "do a shell escape",
             dosh_core, IFBURIED | GENERALCMD
-#ifndef SHELL
+#if !defined(SHELL) || defined(WIN_LISP)
                        | CMD_NOT_AVAILABLE
 #endif /* SHELL */
     },
