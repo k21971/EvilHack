@@ -414,8 +414,10 @@ struct monst* mdef;  /* victim */
         magr->mstun = 0;
 
         /* Preserve tame/peaceful status from larva */
-        if (!tamer && (mdef_tame || mdef_peaceful))
+        if (!tamer && (mdef_tame || mdef_peaceful)) {
             magr->mtame = magr->mpeaceful = 0;
+            set_malign(magr);
+        }
         if (tamer)
             (void) tamedog(magr, (struct obj *) 0);
 

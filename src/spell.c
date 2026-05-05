@@ -2028,6 +2028,7 @@ boolean wiz_cast;
                             (void) damage_mon_nonlethal(mtmp, d(8, 6), AD_DETH, TRUE);
                             if (mtmp->mpeaceful || mtmp->mtame) {
                                 mtmp->mpeaceful = mtmp->mtame = 0;
+                                set_malign(mtmp);
                                 newsym(mtmp->mx, mtmp->my);
                                 if (u.ualign.type != A_NONE) {
                                     You_feel("distraught.");
@@ -2060,6 +2061,7 @@ boolean wiz_cast;
                             (void) damage_mon_nonlethal(mtmp, d(8, 6), AD_DETH, TRUE);
                             if (mtmp->mpeaceful || mtmp->mtame) {
                                 mtmp->mpeaceful = mtmp->mtame = 0;
+                                set_malign(mtmp);
                                 newsym(mtmp->mx, mtmp->my);
                                 if (u.ualign.type != A_NONE) {
                                     You_feel("distraught.");
@@ -2090,6 +2092,7 @@ boolean wiz_cast;
                                 mtmp->mhp = 1;
                             if (mtmp->mpeaceful || mtmp->mtame) {
                                 mtmp->mpeaceful = mtmp->mtame = 0;
+                                set_malign(mtmp);
                                 newsym(mtmp->mx, mtmp->my);
                                 if (u.ualign.type != A_NONE) {
                                     You_feel("distraught.");

@@ -5315,4 +5315,5 @@ The following changes to date are:
 - Fix: dismount_steed and m_in_out_region post-callback UAF cluster
 - Fix: monmove.c re-review fixes
 - Fix: steed.c re-review fixes
+- Fix: set_malign sibling sweep for tame-to-hostile transitions
 

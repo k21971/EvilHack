@@ -933,6 +933,7 @@ long nmv; /* number of moves */
             mtmp->mtame = 0; /* untame */
         else {
             mtmp->mtame = mtmp->mpeaceful = 0; /* hostile! */
+            set_malign(mtmp);
             newsym(mtmp->mx, mtmp->my); /* update display */
         }
     }
@@ -946,6 +947,7 @@ long nmv; /* number of moves */
         if ((monstermoves > edog->hungrytime + 500 && mtmp->mhp < 3)
             || (monstermoves > edog->hungrytime + 750)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             newsym(mtmp->mx, mtmp->my); /* update display */
         }
     }
@@ -1732,6 +1734,9 @@ boolean was_dead;
     }
 
     if (!mtmp->mtame) {
+        /* mpeaceful may have just transitioned via either branch above;
+           recompute cached malign before any AI gate reads it */
+        set_malign(mtmp);
         if (!quietly && canspotmon(mtmp))
             pline("%s %s.", Monnam(mtmp),
                   mtmp->mpeaceful ? "is no longer tame" : "has become feral");
