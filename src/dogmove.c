@@ -733,8 +733,12 @@ boolean devour;
         mtmp->mhp = mtmp->mhpmax;
     if ((eyes || heal) && !mtmp->mcansee)
         mcureblindness(mtmp, canseemon(mtmp));
-    if (deadmimic)
+    if (deadmimic) {
         quickmimic(mtmp);
+        /* quickmimic dismounts a steed; the dismount may kill it */
+        if (DEADMONSTER(mtmp))
+            return 2;
+    }
     if (corpsenm != NON_PM)
         dog_givit(mtmp, &mons[corpsenm]);
     return 1;
@@ -1509,6 +1513,10 @@ int after; /* this is extra fast monster movement */
     if (mtmp == u.usteed) {
         if (Conflict && !resist_conflict(mtmp)) {
             dismount_steed(DISMOUNT_THROWN);
+            /* steed may die in dismount_steed (no landing spot,
+               pool/lava without survivability, or open air) */
+            if (DEADMONSTER(mtmp))
+                return 2;
             return 1;
         }
         udist = 1;
@@ -2114,6 +2122,10 @@ int after; /* this is extra fast monster movement */
         }
         if (!m_in_out_region(mtmp, nix, niy))
             return 1;
+        /* gas-cloud enter callback may have killed mtmp inside
+           m_in_out_region; the callback's result is discarded */
+        if (DEADMONSTER(mtmp))
+            return 2;
         if (m_digweapon_check(mtmp, nix,niy))
             return 0;
 
@@ -2176,6 +2188,9 @@ int after; /* this is extra fast monster movement */
  dognext:
         if (!m_in_out_region(mtmp, nix, niy))
             return 1;
+        /* gas-cloud enter callback may have killed mtmp */
+        if (DEADMONSTER(mtmp))
+            return 2;
         rloc_to(mtmp, cc.x, cc.y);
     }
     return 1;
@@ -2300,8 +2315,13 @@ struct monst *mtmp;
        rider taking on an unsuitable shape, but its message works fine
        for this and also avoids inflicting damage during forced dismount;
        do this before changing so that dismount refers to original shape */
-    if (mtmp == u.usteed)
+    if (mtmp == u.usteed) {
         dismount_steed(DISMOUNT_POLY);
+        /* steed may die during forced dismount (no landing spot,
+           pool/lava, open air); skip the mimic-shape application */
+        if (DEADMONSTER(mtmp))
+            return;
+    }
 
     do {
         idx = rn2(SIZE(qm));

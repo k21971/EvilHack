@@ -2085,6 +2085,10 @@ found_altar:
 
         if (!m_in_out_region(mtmp, nix, niy))
             return 3;
+        /* gas-cloud enter callback may have killed mtmp inside
+           m_in_out_region; the callback's result is discarded */
+        if (DEADMONSTER(mtmp))
+            return 2;
 
         if ((info[chi] & ALLOW_ROCK) && m_can_break_boulder(mtmp)) {
             (void) m_break_boulder(mtmp, nix, niy);

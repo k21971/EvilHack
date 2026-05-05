@@ -911,6 +911,10 @@ int x, y;
     if (will_hurtle(mon, x, y) && m_in_out_region(mon, x, y)) {
         int res;
 
+        /* gas-cloud enter callback may have killed mon during entry */
+        if (DEADMONSTER(mon))
+            return FALSE;
+
         remove_monster(mon->mx, mon->my);
         newsym(mon->mx, mon->my);
         place_monster(mon, x, y);
