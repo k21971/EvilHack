@@ -32,6 +32,8 @@ struct monst *mtmp;
     if (has_erid(mtmp)) {
         struct monst *steed = ERID(mtmp)->mon_steed;
 
+        if (!steed)
+            return;
         /* if steed has the player grabbed and rider is moving it
            away, release the grab */
         if (steed == u.ustuck && !u.uswallow
@@ -247,10 +249,18 @@ struct monst *rider;
     if (!DEADMONSTER(steed) && DEADMONSTER(rider))
         place_monster(steed, steed->mx, steed->my);
 
-    update_monster_region(rider);
-    update_monster_region(steed);
-    newsym(rider->mx, rider->my);
-    newsym(steed->mx, steed->my);
+    /* rloc_to/rloc above can kill rider via mintrap on the destination
+       (collapsing tile, anti-magic field, lava, statue corpse, gas-cloud
+       region damage); mongone(steed) above can dismiss the steed. Guard
+       each side independently against stale-coord deref */
+    if (!DEADMONSTER(rider)) {
+        update_monster_region(rider);
+        newsym(rider->mx, rider->my);
+    }
+    if (!DEADMONSTER(steed)) {
+        update_monster_region(steed);
+        newsym(steed->mx, steed->my);
+    }
 }
 
 struct monst*
@@ -444,6 +454,7 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             if (mtmp->mleashed)
                 m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
@@ -458,6 +469,7 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             if (mtmp->mleashed)
                 m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
@@ -474,6 +486,7 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             if (mtmp->mleashed)
                 m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
@@ -497,6 +510,7 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             if (mtmp->mleashed)
                 m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
@@ -621,6 +635,7 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             if (mtmp->mleashed)
                 m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
@@ -635,6 +650,7 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             if (mtmp->mleashed)
                 m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
@@ -651,6 +667,7 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             if (mtmp->mleashed)
                 m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
@@ -674,6 +691,7 @@ struct obj *otmp;
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             if (mtmp->mleashed)
                 m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
@@ -880,6 +898,7 @@ boolean force;      /* Quietly force this animal */
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             if (mtmp->mleashed)
                 m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
@@ -894,6 +913,7 @@ boolean force;      /* Quietly force this animal */
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             if (mtmp->mleashed)
                 m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
@@ -910,6 +930,7 @@ boolean force;      /* Quietly force this animal */
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             if (mtmp->mleashed)
                 m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
@@ -933,6 +954,7 @@ boolean force;      /* Quietly force this animal */
         if ((mtmp->mtame > 0 || mtmp->mpeaceful)
             && !rn2(3)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
             if (mtmp->mleashed)
                 m_unleash(mtmp, TRUE);
             newsym(mtmp->mx, mtmp->my);
@@ -1222,7 +1244,7 @@ int reason; /* Player was thrown off etc. */
         }
         break;
     case DISMOUNT_POLY:
-        You("can no longer ride %s.", mon_nam(u.usteed));
+        You("can no longer ride %s.", mon_nam(mtmp));
         if (!have_spot)
             have_spot = landing_spot(&cc, reason, 1);
         break;
@@ -1310,9 +1332,9 @@ int reason; /* Player was thrown off etc. */
             return;
         }
 
-        /* Set hero's and/or steed's positions.  Usually try moving the
-           hero first.  Note: for DISMOUNT_ENGULFED, caller hasn't set
-           u.uswallow yet but has set u.ustuck. */
+        /* Set hero's and/or steed's positions. Usually try moving the
+           hero first. Note: for DISMOUNT_ENGULFED, caller hasn't set
+           u.uswallow yet but has set u.ustuck */
         if (!u.uswallow && !u.ustuck && have_spot) {
             struct permonst *mdat = mtmp->data;
 
@@ -1320,20 +1342,32 @@ int reason; /* Player was thrown off etc. */
             if (!is_flyer(mdat) && !is_floater(mdat)
                 && !is_clinger(mdat) && !can_levitate(mtmp)) {
                 if (is_pool(u.ux, u.uy)) {
-                    if (!Underwater)
-                        pline("%s falls into the %s!", Monnam(mtmp),
-                              surface(u.ux, u.uy));
                     if (!is_swimmer(mdat) && !amphibious(mdat)) {
-                        killed(mtmp);
+                        if (!Underwater)
+                            pline("%s falls into the %s!", Monnam(mtmp),
+                                  surface(u.ux, u.uy));
+                        /* hero gets credit/blame only when player chose
+                           to dismount; accidental drops are silent kills
+                           with no XP, mirroring the no-room branch */
+                        if (reason == DISMOUNT_BYCHOICE)
+                            killed(mtmp);
+                        else
+                            monkilled(mtmp, "", -AD_PHYS);
                         You_feel("guilty.");
                         adjalign(-1);
                         record_abuse_event(-1, ABUSE_STEED_DEATH);
+                    } else if (!Underwater) {
+                        pline("%s splashes into the %s.", Monnam(mtmp),
+                              surface(u.ux, u.uy));
                     }
                 } else if (is_lava(u.ux, u.uy)) {
-                    pline("%s is pulled into the %s!", Monnam(mtmp),
-                          hliquid("lava"));
                     if (!likes_lava(mdat)) {
-                        killed(mtmp);
+                        pline("%s is pulled into the %s!", Monnam(mtmp),
+                              hliquid("lava"));
+                        if (reason == DISMOUNT_BYCHOICE)
+                            killed(mtmp);
+                        else
+                            monkilled(mtmp, "", -AD_PHYS);
                         You_feel("guilty.");
                         adjalign(-1);
                         record_abuse_event(-1, ABUSE_STEED_DEATH);
