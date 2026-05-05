@@ -701,6 +701,9 @@ struct monst *mtmp;
     if (mtmp->mflee && !rn2(40) && mon_prop(mtmp, TELEPORT) && !mtmp->iswiz
         && !level.flags.noteleport) {
         (void) rloc(mtmp, TRUE);
+        /* rloc_to may fire mintrap at the destination and kill mtmp */
+        if (DEADMONSTER(mtmp))
+            return 1;
         return 0;
     }
 
@@ -747,6 +750,9 @@ struct monst *mtmp;
            to another level */
         if (tactics_result >= 2)
             return tactics_result;
+        /* tactics->m_move->mintrap can fire a polymorph trap and
+           change mtmp's form; refresh the cached permonst */
+        mdat = mtmp->data;
     }
 
     /* check distance and scariness of attacks */
@@ -775,6 +781,10 @@ struct monst *mtmp;
                     /* "Good hunting, brother" */
                     display_nhwindow(WIN_MESSAGE, FALSE); /* --More-- */
                     (void) rloc(mtmp, TRUE);
+                    /* rloc_to may fire mintrap and kill mtmp;
+                       short-circuit before later code derefs it */
+                    if (DEADMONSTER(mtmp))
+                        return 1;
                 } else {
                     mtmp->minvis = mtmp->perminvis = 0;
                     /* Why?  For the same reason in real demon talk */
@@ -787,6 +797,9 @@ struct monst *mtmp;
                 return 1; /* you paid it off */
         } else { /* either let the player pass, or pacified somehow */
             (void) rloc(mtmp, TRUE); /* either way no bribe demands */
+            /* rloc_to may fire mintrap at the destination and kill mtmp */
+            if (DEADMONSTER(mtmp))
+                return 1;
             return 0;
         }
     }
@@ -1063,8 +1076,12 @@ toofar:
                 if (u.uswallow
                     && (!mon_has_amulet(mtmp)
                         || mindless(mdat) || is_animal(mdat)
-                        || (mtmp->ispriest && inhistemple(mtmp))))
-                    return mattacku(mtmp);
+                        || (mtmp->ispriest && inhistemple(mtmp)))) {
+                    /* dochug contract is 0/1 (alive/died);
+                       mattacku returns an MM_ bitmask, so translate */
+                    (void) mattacku(mtmp);
+                    return DEADMONSTER(mtmp) ? 1 : 0;
+                }
                 /* if confused grabber has wandered off, let go */
                 if (distu(mtmp->mx, mtmp->my) > 2)
                     unstuck(mtmp);
@@ -1098,8 +1115,12 @@ toofar:
             if (mattacku(mtmp))
                 return 1; /* monster died (e.g. exploded) */
         }
-        if (mtmp->wormno)
+        if (mtmp->wormno) {
             wormhitu(mtmp);
+            /* passive retaliation in mattacku may have killed the worm */
+            if (DEADMONSTER(mtmp))
+                return 1;
+        }
     }
     /* special speeches for quest monsters */
     if (!mtmp->msleeping && mtmp->mcanmove && nearby)
@@ -1707,6 +1728,10 @@ found_altar:
             lmx = max(1, omx - minr);
             lmy = max(0, omy - minr);
             otmp = fobj;
+            /* mchest is a global synthetic obj used to splice magic-chest
+               tiles into the fobj walk below. Both exit paths from the
+               for(otmp) loop must reset mchest->nobj/ox/oy or the next
+               dochug call inherits a stale fobj-chain alias */
             if (level.flags.nmagicchests && mchest) {
                 int mcx, mcy;
                 for (mcx = lmx; mcx <= oomx; ++mcx) {
@@ -1796,6 +1821,7 @@ found_altar:
                             gy = otmp->oy;
                             if (gx == omx && gy == omy) {
                                 mmoved = 3; /* actually unnecessary */
+                                /* clear mchest splice before goto */
                                 if (mchest) {
                                     mchest->ox = mchest->oy = 0;
                                     mchest->nobj = (struct obj *) 0;
@@ -1806,6 +1832,7 @@ found_altar:
                     }
                 }
             }
+            /* clear mchest splice on normal loop exit */
             if (mchest) {
                 mchest->ox = mchest->oy = 0;
                 mchest->nobj = (struct obj *) 0;
@@ -2827,10 +2854,12 @@ struct monst *mtmp;
             break;
         }
         lev->typ = was_lava ? ROOM : ICE;
+        /* drawbridgemask and icedpool alias the same flags byte; only
+           consult icedpool here, where it was just written - reading it
+           after the DRAWBRIDGE_UP branch would see drawbridge bits */
+        if (lev->icedpool != ICED_PUDDLE && lev->icedpool != ICED_SEWAGE)
+            bury_objs(cc.x, cc.y);
     }
-
-    if (lev->icedpool != ICED_PUDDLE && lev->icedpool != ICED_SEWAGE)
-        bury_objs(cc.x, cc.y);
 
     if (is_you || u.usteed || canseemon(mtmp)) {
         const char *liq = was_lava ? "lava" : was_sewage ? "sewage" : "water";

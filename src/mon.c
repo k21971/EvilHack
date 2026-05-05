@@ -5772,9 +5772,17 @@ struct monst *mtmp;
                     /* same as m_cure_self() */
                     if ((mon->mhp += d(3, 6)) > mon->mhpmax)
                         mon->mhp = mon->mhpmax;
+                    /* one heal per turn - match the spell-cast
+                       cooldown idiom in mcastu.c so support
+                       casters don't trickle-heal allies for free */
+                    mtmp->mspec_used = 4 - mtmp->m_lev;
+                    if (mtmp->mspec_used < 2)
+                        mtmp->mspec_used = 2;
                 }
                 break;
             }
+            if (mtmp->mspec_used)
+                break; /* heal fired - one cast per turn */
         }
     }
 }

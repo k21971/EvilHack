@@ -5313,4 +5313,5 @@ The following changes to date are:
 - Fix: dogaze() panic on unhandled gaze adtyp
 - Fix: explode.c uball UAF, hero-pos snapshot, m-v-m damage_mon idiom
 - Fix: dismount_steed and m_in_out_region post-callback UAF cluster
+- Fix: monmove.c re-review fixes
 
