@@ -5320,4 +5320,5 @@ The following changes to date are:
 - Fix: more hurtle-during-handler UAF issues
 - Fix: weapon.c re-review fixes
 - Fix: hack.c re-review fixes plus is_rider corpsenm sweep
+- Fix: were.c code review fixes
 

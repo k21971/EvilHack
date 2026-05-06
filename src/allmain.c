@@ -652,6 +652,12 @@ boolean resuming;
                         (void) dosearch0(1);
                     if (Warning)
                         warnreveal();
+                    if (iflags.were_changes) {
+                        /* update innate intrinsics
+                           (mainly Drain_resistance) */
+                        set_uasmon();
+                        iflags.were_changes = 0L;
+                    }
                     mkot_trap_warn();
                     dosounds();
                     do_storms();

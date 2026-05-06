@@ -19,6 +19,7 @@ struct monst *mon;
             && !rn2(night() ? (flags.moonphase == FULL_MOON ? 3 : 30)
                             : (flags.moonphase == FULL_MOON ? 10 : 50))) {
             new_were(mon); /* change into animal form */
+            iflags.were_changes++;
             if (!Deaf && !canseemon(mon)) {
                 const char *howler;
 
@@ -42,9 +43,12 @@ struct monst *mon;
         }
     } else if (!rn2(30) || Protection_from_shape_changers) {
         new_were(mon); /* change back into human form */
+        iflags.were_changes++;
     }
-    /* update innate intrinsics (mainly Drain_resistance) */
-    set_uasmon(); /* new_were() doesn't do this */
+    /* set_uasmon() is deferred to once-per-turn in moveloop via
+       iflags.were_changes; calling it per were-creature per
+       distress tick burned cycles and triggered drop_weapon(1)
+       as a side effect on the player */
 }
 
 int
@@ -93,8 +97,10 @@ int pm;
         return PM_WEREJACKAL;
     case PM_WEREWOLF:
     case PM_WOLF:
+    case PM_WOLF_CUB:
     case PM_WARG:
     case PM_WINTER_WOLF:
+    case PM_WINTER_WOLF_CUB:
         return PM_WEREWOLF;
     case PM_WEREDEMON:
     case PM_HELL_HOUND:
@@ -110,6 +116,13 @@ new_were(mon)
 struct monst *mon;
 {
     int pm;
+
+    /* don't allow human/demon -> beast transformation under
+       Protection_from_shape_changers; beast -> human is always
+       allowed (and is how Protection forces the revert) */
+    if (Protection_from_shape_changers
+        && (is_human(mon->data) || is_demon(mon->data)))
+        return;
 
     if (mon->data == &mons[PM_RAT_KING])
         return;
@@ -138,6 +151,10 @@ struct monst *mon;
     mon->mhp += (mon->mhpmax - mon->mhp) / 4;
     newsym(mon->mx, mon->my);
     mon_break_armor(mon, FALSE);
+    /* mon_break_armor() can potentially kill if the monster
+       lands over pool/lava/open-air or has nowhere to go */
+    if (DEADMONSTER(mon))
+        return;
     possibly_unwield(mon, FALSE);
 }
 
@@ -210,13 +227,18 @@ you_were()
 
     if (Unchanging || u.umonnum == u.ulycn)
         return;
+    if (u.ulycn < LOW_PM)
+        return; /* not a lycanthrope */
     if (controllable_poly) {
         /* `+4' => skip "were" prefix to get name of beast */
         Sprintf(qbuf, "Do you want to change into %s?",
                 an(mons[u.ulycn].mname + 4));
         if (!paranoid_query(ParanoidWerechange, qbuf))
             return;
+    } else if (monster_nearby()) {
+        return; /* don't burn a turn mid-fight */
     }
+    iflags.were_changes++;
     (void) polymon(u.ulycn);
 }
 
@@ -231,6 +253,7 @@ boolean purify;
         set_ulycn(NON_PM); /* cure lycanthropy */
     }
     if (!Unchanging && is_were(youmonst.data)
+        && !monster_nearby()
         && (!controllable_poly
             || !paranoid_query(ParanoidWerechange, "Remain in beast form?")))
         rehumanize();
