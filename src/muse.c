@@ -2352,18 +2352,23 @@ struct obj *otmp;
                 monstseesu(M_SEEN_MAGR);
                 pline("Boing!");
             } else if (rnd(20) < 10 + u.uac) {
-                if (otmp->otyp == WAN_STRIKING)
+                /* hurtle's walk_path/teleds can fire traps whose dobuzz
+                   frees otmp via destroy_mitem(WAND_CLASS); snapshot
+                   otyp before the knockback for the losehp() killer */
+                short saved_otyp = otmp->otyp;
+
+                if (saved_otyp == WAN_STRIKING)
                     pline_The("wand hits you!");
                 else
                     pline_The("force bolt hits you!");
-                tmp = d(2, (otmp->otyp == WAN_STRIKING) ? 12 : 6);
+                tmp = d(2, (saved_otyp == WAN_STRIKING) ? 12 : 6);
                 /* Force bolt damage scales with caster level */
-                if (otmp->otyp == SPE_FORCE_BOLT && mcarried(otmp))
+                if (saved_otyp == SPE_FORCE_BOLT && mcarried(otmp))
                     tmp += otmp->ocarry->m_lev / 3;
                 if (Half_spell_damage)
                     tmp = (tmp + 1) / 2;
                 /* Knockback threshold: 16 for wand, 12 for spell */
-                if (tmp > (otmp->otyp == WAN_STRIKING ? 16 : 12)
+                if (tmp > (saved_otyp == WAN_STRIKING ? 16 : 12)
                     && mcarried(otmp)
                     && !wielding_artifact(ART_HARBINGER)
                     && !wielding_artifact(ART_GIANTSLAYER)
@@ -2372,16 +2377,19 @@ struct obj *otmp;
                     struct monst *zapper = otmp->ocarry;
 
                     pline_The("force of %s knocks you %s!",
-                              otmp->otyp == WAN_STRIKING ? "the wand"
+                              saved_otyp == WAN_STRIKING ? "the wand"
                                                          : "the spell",
                               u.usteed ? "out of your saddle" : "back");
                     last_hurtled = &youmonst;
                     hurtle(u.ux - zapper->mx, u.uy - zapper->my, 1, FALSE);
-                    /* Update caster's knowledge of your position */
-                    zapper->mux = u.ux;
-                    zapper->muy = u.uy;
+                    /* otmp may now be freed and zapper may be dead */
+                    if (!DEADMONSTER(zapper)) {
+                        zapper->mux = u.ux;
+                        zapper->muy = u.uy;
+                    }
                 }
-                losehp(tmp, otmp->otyp == WAN_STRIKING ? "wand" : "force bolt",
+                losehp(tmp,
+                       saved_otyp == WAN_STRIKING ? "wand" : "force bolt",
                        KILLED_BY_AN);
             } else {
                 if (otmp->otyp == WAN_STRIKING)

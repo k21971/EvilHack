@@ -133,6 +133,10 @@ struct obj *otmp;
     boolean dbldam = Role_if(PM_KNIGHT) && u.uhave.questart;
     boolean skilled_spell, helpful_gesture = FALSE;
     int dmg, otyp = otmp->otyp;
+    /* mhurtle_to_doom can fire traps via the target's mintrap whose
+       dobuzz can destroy the player's wand; snapshot oclass for the
+       post-mhurtle resist() call */
+    char saved_oclass = otmp->oclass;
     const char *zap_type_text = "spell";
     struct obj *obj;
     struct permonst *mdat = mtmp->data;
@@ -199,7 +203,7 @@ struct obj *otmp;
                 }
             }
             if (!already_killed)
-                (void) resist(mtmp, otmp->oclass, dmg, TELL);
+                (void) resist(mtmp, saved_oclass, dmg, TELL);
         } else
             miss(zap_type_text, mtmp);
         learn_it = TRUE;
