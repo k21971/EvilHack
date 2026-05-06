@@ -2129,7 +2129,8 @@ struct obj *obj;
         }
         instapetrify(kbuf);
     }
-    if (is_rider(&mons[corpse->corpsenm])) {
+    if (corpse->corpsenm >= LOW_PM
+        && is_rider(&mons[corpse->corpsenm])) {
         if (revive_corpse(corpse))
             verbalize("Yes...  But War does not preserve its enemies...");
         else

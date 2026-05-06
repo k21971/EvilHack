@@ -1826,7 +1826,8 @@ struct monst *mtmp;
         otmp2 = otmp->nexthere;
 
         /* touch sensitive items */
-        if (otmp->otyp == CORPSE && is_rider(&mons[otmp->corpsenm])) {
+        if (otmp->otyp == CORPSE && otmp->corpsenm >= LOW_PM
+            && is_rider(&mons[otmp->corpsenm])) {
             /* Rider corpse isn't just inedible; can't engulf it either */
             (void) revive_corpse(otmp);
 
@@ -2044,7 +2045,8 @@ struct monst *mtmp;
         otmp2 = otmp->nexthere;
 
         /* touch sensitive items */
-        if (otmp->otyp == CORPSE && is_rider(&mons[otmp->corpsenm])) {
+        if (otmp->otyp == CORPSE && otmp->corpsenm >= LOW_PM
+            && is_rider(&mons[otmp->corpsenm])) {
             /* Rider corpse isn't just inedible; can't engulf it either */
             (void) revive_corpse(otmp);
 
@@ -2560,7 +2562,8 @@ struct obj *otmp;
         && !(mtmp->misc_worn_check & W_ARMG)
         && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
         return 0;
-    if (otyp == CORPSE && is_rider(&mons[otmp->corpsenm]))
+    if (otyp == CORPSE && otmp->corpsenm >= LOW_PM
+        && is_rider(&mons[otmp->corpsenm]))
         return 0;
     if (mon_hates_material(mtmp, otmp->material)
         && (otyp != BELL_OF_OPENING || !is_covetous(mdat)))

@@ -5319,4 +5319,5 @@ The following changes to date are:
 - Fix: mbhitm WAN_STRIKING knockback hurtle-during-handler UAF
 - Fix: more hurtle-during-handler UAF issues
 - Fix: weapon.c re-review fixes
+- Fix: hack.c re-review fixes plus is_rider corpsenm sweep
 

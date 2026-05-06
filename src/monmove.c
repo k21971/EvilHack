@@ -1300,7 +1300,8 @@ struct obj *container;
               || (likeobjs && index(practical, otmp->oclass)
                   && (otmp->otyp != CORPSE
                       || (is_nymph(mtmp->data)
-                          && !is_rider(&mons[otmp->corpsenm]))))
+                          && (otmp->corpsenm < LOW_PM
+                              || !is_rider(&mons[otmp->corpsenm])))))
              || (likemagic && index(magical, otmp->oclass))
              || (uses_items && searches_for_item(mtmp, otmp))
              || (likegems && otmp->oclass == GEM_CLASS
@@ -1794,7 +1795,8 @@ found_altar:
                           || (likeobjs && index(practical, otmp->oclass)
                               && (otmp->otyp != CORPSE
                                   || (is_nymph(ptr)
-                                      && !is_rider(&mons[otmp->corpsenm]))))
+                                      && (otmp->corpsenm < LOW_PM
+                                          || !is_rider(&mons[otmp->corpsenm])))))
                         || (likemagic && index(magical, otmp->oclass))
                         || (uses_items && searches_for_item(mtmp, otmp))
                         || (likerock && otmp->otyp == BOULDER)

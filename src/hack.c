@@ -81,6 +81,7 @@ const char *msg;
     for (otmp = level.objects[x][y]; otmp; otmp = otmp2) {
         otmp2 = otmp->nexthere;
         if (otmp->otyp == CORPSE
+            && otmp->corpsenm >= LOW_PM
             && (is_rider(&mons[otmp->corpsenm])
                 || otmp->corpsenm == PM_WIZARD_OF_YENDOR)) {
             /* move any living monster already at that location */
@@ -706,6 +707,10 @@ ma_break(VOID_ARGS)
         make_confused(6 + breakturns * P_SKILL(P_MARTIAL_ARTS), FALSE);
         return 0;
     }
+
+    /* occupation entry requires P_SKILLED; guard the divisors below */
+    if (P_SKILL(P_MARTIAL_ARTS) <= P_ISRESTRICTED)
+        return 0;
 
     if (breakturns < 40 / P_SKILL(P_MARTIAL_ARTS)) {
         breakturns++;
@@ -2252,6 +2257,7 @@ domove_core()
         } else if (u.ux0 != x && u.uy0 != y && NODIAG(mtmp->data - mons)) {
             /* can't swap places when pet can't move to your spot */
             You("stop.  %s can't move diagonally.", upstart(y_monnam(mtmp)));
+            didnt_move = TRUE;
         } else if (u_with_boulder
                     && !(r_verysmall(mtmp)
                          && (!mtmp->minvent || (curr_mon_load(mtmp) <= 600)))) {
@@ -2302,10 +2308,10 @@ domove_core()
             Strcpy(pnambuf, y_monnam(mtmp));
             mtmp->mtrapped = 0;
             mtmp->mentangled = 0;
-            remove_monster(x, y);
-            place_monster(mtmp, u.ux0, u.uy0);
-            newsym(x, y);
-            newsym(u.ux0, u.uy0);
+            /* rloc_to handles worm tail segments and old/new newsym;
+               mtrapped already cleared so its internal mintrap is inert
+               and the explicit mintrap below fires once at the dest */
+            rloc_to(mtmp, u.ux0, u.uy0);
 
             You("%s %s.",
                 (Underwater && is_pool(x, y)
@@ -2363,7 +2369,7 @@ domove_core()
                 }
                 break;
             default:
-                pline("that's strange, unknown mintrap result!");
+                impossible("Unknown mintrap result.");
                 break;
             }
         }

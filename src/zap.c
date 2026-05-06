@@ -1622,7 +1622,8 @@ int ochance, achance; /* percent chance for ordinary objects, artifacts */
         || obj->otyp == SCR_CONSECRATION
         || obj->oartifact == ART_SWORD_OF_ANNIHILATION
         || obj->oartifact == ART_ARMOR_OF_RETRIBUTION
-        || (obj->otyp == CORPSE && is_rider(&mons[obj->corpsenm]))) {
+        || (obj->otyp == CORPSE && obj->corpsenm >= LOW_PM
+            && is_rider(&mons[obj->corpsenm]))) {
         return TRUE;
     } else {
         int chance = rn2(100);

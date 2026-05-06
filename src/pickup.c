@@ -290,7 +290,8 @@ rider_corpse_revival(obj, remotely)
 struct obj *obj;
 boolean remotely;
 {
-    if (!obj || obj->otyp != CORPSE || !is_rider(&mons[obj->corpsenm]))
+    if (!obj || obj->otyp != CORPSE || obj->corpsenm < LOW_PM
+        || !is_rider(&mons[obj->corpsenm]))
         return FALSE;
 
     pline("At your %s, the corpse suddenly moves...",
