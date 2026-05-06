@@ -3107,8 +3107,9 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     }
                     You("are smashed backwards!");
                     hurtle(kx, ky, hurtle_distance, FALSE);
-                    /* Update monster's knowledge of your position */
-                    if (magr) {
+                    /* hurtle's traps can fire dobuzz that kills magr
+                       on the beam path */
+                    if (magr && !DEADMONSTER(magr)) {
                         magr->mux = u.ux;
                         magr->muy = u.uy;
                     }

@@ -832,7 +832,9 @@ struct monst *mtmp;
                 }
             }
             hurtle(pdx, pdy, pull_range, FALSE);
-            mtmp->mspec_used = 6 + rn2(6);
+            /* hurtle's traps can fire dobuzz that kills the puller */
+            if (!DEADMONSTER(mtmp))
+                mtmp->mspec_used = 6 + rn2(6);
             return TRUE;
         }
     } else {
@@ -846,7 +848,9 @@ struct monst *mtmp;
             mhurtle(mdef, -dx, -dy, pull_range);
             if (!DEADMONSTER(mdef))
                 tk_impact(mdef, -dx, -dy);
-            mtmp->mspec_used = 6 + rn2(6);
+            /* mhurtle's traps can fire dobuzz that kills the puller */
+            if (!DEADMONSTER(mtmp))
+                mtmp->mspec_used = 6 + rn2(6);
             return TRUE;
         }
     }

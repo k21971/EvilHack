@@ -5317,4 +5317,5 @@ The following changes to date are:
 - Fix: steed.c re-review fixes
 - Fix: set_malign sibling sweep for tame-to-hostile transitions
 - Fix: mbhitm WAN_STRIKING knockback hurtle-during-handler UAF
+- Fix: more hurtle-during-handler UAF issues
 
