@@ -345,7 +345,12 @@ struct monst *mon;
 
     /* trident is highly effective against swimmers */
     if (otmp->otyp == TRIDENT && is_swimmer(ptr)) {
-        if (is_damp_terrain(mon->mx, mon->my))
+        /* &youmonst has mx/my == 0 (off-map sentinel); read the real
+           position from u.ux/u.uy when scoring against the player */
+        xchar dx = (mon == &youmonst) ? u.ux : mon->mx;
+        xchar dy = (mon == &youmonst) ? u.uy : mon->my;
+
+        if (is_damp_terrain(dx, dy))
             tmp += 4;
         else if (ptr->mlet == S_EEL || ptr->mlet == S_SNAKE)
             tmp += 2;
@@ -402,9 +407,6 @@ struct monst *mon;
     int tmp = 0, otyp = otmp->otyp;
     struct permonst *ptr = r_data(mon);
     boolean Is_weapon = (otmp->oclass == WEAPON_CLASS || is_weptool(otmp));
-
-    if (!ptr)
-        ptr = &mons[NUMMONS];
 
     if (otyp == CREAM_PIE)
         return 0;
@@ -657,7 +659,7 @@ struct monst *mon;
     }
 
     if (tmp > 0) {
-        int mac = (mon && mon != &zeromonst) ? find_mac(mon) : 10;
+        int mac = (mon != &zeromonst) ? find_mac(mon) : 10;
         /* It's debatable whether a rusted blunt instrument
            should do less damage than a pristine one, since
            it will hit with essentially the same impact, but
@@ -980,12 +982,17 @@ boolean wearing_shield;
 struct obj *best;
 {
     struct obj *otmp;
+    int otmp_score;
+    int best_score = best ? score_artifact_weapon(mtmp, best, mdef) : 0;
 
     for (otmp = start; otmp; otmp = otmp->nobj) {
-        /* Recurse into containers */
+        /* Recurse into containers; refresh best_score afterwards
+           because best may have been replaced inside the recursion */
         if (Is_container(otmp) && otmp->cobj) {
             best = find_artifact_recurse(mtmp, otmp->cobj, mdef,
                                          strong, wearing_shield, best);
+            best_score = best ? score_artifact_weapon(mtmp, best, mdef)
+                              : 0;
             continue;
         }
 
@@ -994,10 +1001,11 @@ struct obj *best;
             && !mon_hates_material(mtmp, otmp->material)
             && ((strong && !wearing_shield)
                 || !mon_bimanual(mtmp, otmp))) {
-            if (!best
-                || score_artifact_weapon(mtmp, otmp, mdef)
-                       > score_artifact_weapon(mtmp, best, mdef))
+            otmp_score = score_artifact_weapon(mtmp, otmp, mdef);
+            if (!best || otmp_score > best_score) {
                 best = otmp;
+                best_score = otmp_score;
+            }
         }
     }
     return best;
@@ -1014,6 +1022,11 @@ boolean wearing_shield;
 {
     struct obj *otmp, *found;
 
+    /* mtmp is invariant across the recursion; bail once if it
+       can't touch silver at all rather than retesting per item */
+    if (mon_hates_material(mtmp, SILVER))
+        return (struct obj *) 0;
+
     for (otmp = start; otmp; otmp = otmp->nobj) {
         /* Recurse into containers */
         if (Is_container(otmp) && otmp->cobj) {
@@ -1024,8 +1037,6 @@ boolean wearing_shield;
             continue;
         }
 
-        if (mon_hates_material(mtmp, SILVER))
-            continue;
         if (otmp->oclass == WEAPON_CLASS && is_silver(otmp)
             && !(is_ammo(otmp) || is_missile(otmp))
             && (racial_vampire(mdef) || is_demon(raceptr(mdef)))
@@ -1090,8 +1101,18 @@ struct monst *mtmp;
 struct obj *otmp;
 {
     struct obj *wep = select_rwep(mtmp);
-
+    struct monst *mdef;
     int i = 0;
+
+    /* score against the pet's actual hostile target when available,
+       otherwise default to the player; mirrors would_prefer_hwep */
+    if (mtmp->mtame) {
+        mdef = mon_melee_target(mtmp);
+        if (!mdef)
+            mdef = &youmonst;
+    } else {
+        mdef = &youmonst;
+    }
 
     if (wep) {
         if (wep == otmp)
@@ -1112,8 +1133,8 @@ struct obj *otmp;
         for (i = 0; i < SIZE(pwep); i++) {
             if (wep && wep->otyp == pwep[i]
                 && !(otmp->otyp == pwep[i]
-            && dmgval(otmp, &youmonst) > dmgval(wep, &youmonst)))
-            return FALSE;
+                     && dmgval(otmp, mdef) > dmgval(wep, mdef)))
+                return FALSE;
             if (otmp->otyp == pwep[i])
                 return TRUE;
         }
@@ -1126,8 +1147,8 @@ struct obj *otmp;
     for (i = 0; i < SIZE(rwep); i++) {
         if (wep && wep->otyp == rwep[i]
             && !(otmp->otyp == rwep[i]
-	         && dmgval(otmp, &youmonst) > dmgval(wep, &youmonst)))
-	    return FALSE;
+                 && dmgval(otmp, mdef) > dmgval(wep, mdef)))
+            return FALSE;
         if (otmp->otyp == rwep[i])
             return TRUE;
     }
@@ -1486,9 +1507,9 @@ struct obj *otmp;
     }
 
     for (i = 0; i < SIZE(hwep); i++) {
-      	if (hwep[i] == CORPSE && !(mtmp->misc_worn_check & W_ARMG)
+        if (hwep[i] == CORPSE && !(mtmp->misc_worn_check & W_ARMG)
             && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
-      	    continue;
+            continue;
         if (wep && wep->otyp == hwep[i])
             break;
         if (otmp->otyp == hwep[i]
@@ -1596,7 +1617,18 @@ select_offhand_hwep(mon)
 struct monst *mon;
 {
     struct obj *otmp, *best = (struct obj *) 0;
+    struct monst *mdef;
     int best_val = 0, val;
+
+    /* score against the pet's hostile melee target when available;
+       otherwise default to the player */
+    if (mon->mtame) {
+        mdef = mon_melee_target(mon);
+        if (!mdef)
+            mdef = &youmonst;
+    } else {
+        mdef = &youmonst;
+    }
 
     for (otmp = mon->minvent; otmp; otmp = otmp->nobj) {
         /* skip primary weapon */
@@ -1626,8 +1658,11 @@ struct monst *mon;
         if (mon_hates_material(mon, otmp->material))
             continue;
 
-        /* score: artifact bonus + enchantment + base damage */
-        val = objects[otmp->otyp].oc_wldam;
+        /* score: artifact bonus + enchantment + base damage; pick the
+           damage column that matches the defender's size, matching
+           dmgval()'s r_bigmonst() selection */
+        val = r_bigmonst(mdef) ? objects[otmp->otyp].oc_wldam
+                               : objects[otmp->otyp].oc_wsdam;
         if (otmp->oartifact && touch_artifact(otmp, mon))
             val += 10;
         if (otmp->spe > 0)
@@ -1874,9 +1909,15 @@ struct monst *mon;
         }
         mon->mw = obj; /* wield obj */
         setmnotwielded(mon, mw_tmp);
-        /* if promoting the secondary weapon to primary, clear mw2 */
+        /* if promoting the secondary weapon to primary, clear mw2 in
+           place; skip setmnotwielded2 because its end_burn would
+           extinguish a lit artifact (Sting, Sunsword, etc.) only for
+           the begin_burn below to immediately re-fire it, producing a
+           duplicate "stops shining"/"shines" message pair. The
+           W_SWAPWEP bit is cleared by the owornmask = W_WEP assignment
+           further down */
         if (obj == MON_WEP2(mon))
-            setmnotwielded2(mon, obj);
+            MON_NOWEP2(mon);
         mon->weapon_check = NEED_WEAPON;
         if (canseemon(mon)) {
             boolean newly_welded;
@@ -2119,6 +2160,11 @@ int skill;
                             practice_needed_to_advance(i - 1);
             int partial = (P_ADVANCE(skill) - mintrain) * 100 /
                            (practice_needed_to_advance(i) - mintrain);
+            /* P_ADVANCE can sit below mintrain after a skill loss
+               that leaves the previous-tier residue intact; clamp
+               so the #enhance display never shows a negative bar */
+            if (partial < 0)
+                partial = 0;
             percent += min(partial, 100);
             break;
         }
