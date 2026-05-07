@@ -67,6 +67,14 @@ STATIC_DCL int FDECL(ready_weapon, (struct obj *));
 /* Infidels are immune to curses */
 #define will_weld_to_you(optr) (will_weld(optr) && !Role_if(PM_INFIDEL))
 
+/* artifacts that influence the bottom-line status display when wielded
+   (or held in offhand during two-weapon combat) */
+#define is_botl_artifact(o)                  \
+    ((o)->oartifact == ART_OGRESMASHER       \
+     || (o)->oartifact == ART_GIANTSLAYER    \
+     || (o)->oartifact == ART_HARBINGER      \
+     || (o)->oartifact == ART_SWORD_OF_KAS)
+
 /*** Functions that place a given item in a slot ***/
 /* Proper usage includes:
  * 1.  Initializing the slot during character generation or a
@@ -103,23 +111,8 @@ struct obj *obj;
                   ? "its aura of darkness" : "shining");
     }
     if (uwep == obj
-        && ((obj && obj->oartifact == ART_OGRESMASHER)
-            || (olduwep && olduwep->oartifact == ART_OGRESMASHER)))
-        context.botl = 1;
-
-    if (uwep == obj
-        && ((obj && obj->oartifact == ART_GIANTSLAYER)
-            || (olduwep && olduwep->oartifact == ART_GIANTSLAYER)))
-        context.botl = 1;
-
-    if (uwep == obj
-        && ((obj && obj->oartifact == ART_HARBINGER)
-            || (olduwep && olduwep->oartifact == ART_HARBINGER)))
-        context.botl = 1;
-
-    if (uwep == obj
-        && ((obj && obj->oartifact == ART_SWORD_OF_KAS)
-            || (olduwep && olduwep->oartifact == ART_SWORD_OF_KAS)))
+        && ((obj && is_botl_artifact(obj))
+            || (olduwep && is_botl_artifact(olduwep))))
         context.botl = 1;
 
     if (uwep == obj && obj && (obj->oprops & ITEM_EXCEL)) {
@@ -299,6 +292,9 @@ struct obj *obj;
     return;
 }
 
+/* note: unlike setuwep, no obj == uswapwep early-return guard;
+   callers toggling u.twoweap reseat via NULL bracket so begin_burn
+   inside this function fires on the second call */
 void
 setuswapwep(obj)
 struct obj *obj;
@@ -329,20 +325,7 @@ struct obj *obj;
         }
     }
 
-    if (uswapwep == obj
-        && (u.twoweap && uswapwep->oartifact == ART_OGRESMASHER))
-        context.botl = 1;
-
-    if (uswapwep == obj
-        && (u.twoweap && uswapwep->oartifact == ART_GIANTSLAYER))
-        context.botl = 1;
-
-    if (uswapwep == obj
-        && (u.twoweap && uswapwep->oartifact == ART_HARBINGER))
-        context.botl = 1;
-
-    if (uswapwep == obj
-        && (u.twoweap && uswapwep->oartifact == ART_SWORD_OF_KAS))
+    if (uswapwep == obj && u.twoweap && is_botl_artifact(uswapwep))
         context.botl = 1;
 
     if (uswapwep == obj
@@ -712,7 +695,6 @@ const char *verb; /* "rub",&c */
         struct obj *oldwep = uwep;
 
         if (will_weld_to_you(obj)) {
-            /* hope none of ready_weapon()'s early returns apply here... */
             (void) ready_weapon(obj);
         } else {
             You("now wield %s.", doname(obj));
@@ -822,9 +804,15 @@ dotwoweapon()
     /* May we use two weapons? */
     if (can_twoweapon()) {
         /* Success! */
+        struct obj *tmp = uswapwep;
+
         You("begin two-weapon combat.");
         u.twoweap = 1;
-        setuswapwep(uswapwep);
+        /* reseat via NULL to force setworn() to run the W_SWAPWEP grant
+           block; calling setuswapwep(uswapwep) directly hits the
+           slot-already-occupied shortcut and skips set_artifact_intrinsic */
+        setuswapwep((struct obj *) 0);
+        setuswapwep(tmp);
         update_inventory();
         return (rnd(20) > ACURR(A_DEX));
     }
@@ -939,10 +927,11 @@ int amount;
         uwep->otyp = CRYSKNIFE;
         maybe_erodeproof(uwep, 0);
         set_material(uwep, objects[CRYSKNIFE].oc_material);
-        if (multiple) {
+        if (multiple)
             uwep->quan = 1L;
-            uwep->owt = weight(uwep);
-        }
+        /* recompute weight unconditionally; both single and stack paths
+           change otyp and material so owt may have shifted */
+        uwep->owt = weight(uwep);
         if (uwep->cursed)
             uncurse(uwep);
         /* update shop bill to reflect new higher value */
@@ -962,10 +951,9 @@ int amount;
         uwep->otyp = WORM_TOOTH;
         maybe_erodeproof(uwep, 0);
         set_material(uwep, objects[WORM_TOOTH].oc_material);
-        if (multiple) {
+        if (multiple)
             uwep->quan = 1L;
-            uwep->owt = weight(uwep);
-        }
+        uwep->owt = weight(uwep);
         if (otyp != STRANGE_OBJECT && otmp->bknown)
             makeknown(otyp);
         if (multiple)
