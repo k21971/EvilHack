@@ -1300,8 +1300,7 @@ struct obj *container;
               || (likeobjs && index(practical, otmp->oclass)
                   && (otmp->otyp != CORPSE
                       || (is_nymph(mtmp->data)
-                          && (otmp->corpsenm < LOW_PM
-                              || !is_rider(&mons[otmp->corpsenm])))))
+                          && !is_rider(&safe_mons(otmp->corpsenm)))))
              || (likemagic && index(magical, otmp->oclass))
              || (uses_items && searches_for_item(mtmp, otmp))
              || (likegems && otmp->oclass == GEM_CLASS
@@ -1795,8 +1794,7 @@ found_altar:
                           || (likeobjs && index(practical, otmp->oclass)
                               && (otmp->otyp != CORPSE
                                   || (is_nymph(ptr)
-                                      && (otmp->corpsenm < LOW_PM
-                                          || !is_rider(&mons[otmp->corpsenm])))))
+                                      && !is_rider(&safe_mons(otmp->corpsenm)))))
                         || (likemagic && index(magical, otmp->oclass))
                         || (uses_items && searches_for_item(mtmp, otmp))
                         || (likerock && otmp->otyp == BOULDER)
@@ -2733,7 +2731,7 @@ struct monst *mtmp;
             && !(typ >= DAGGER && typ <= CRYSKNIFE) && typ != SLING
             && !is_cloak(obj) && typ != FEDORA && typ != TOQUE && !is_gloves(obj)
             && typ != JACKET && typ != CREDIT_CARD && !is_shirt(obj)
-            && !(typ == CORPSE && verysmall(&mons[obj->corpsenm]))
+            && !(typ == CORPSE && verysmall(&safe_mons(obj->corpsenm)))
             && typ != FORTUNE_COOKIE && typ != CANDY_BAR && typ != PANCAKE
             && typ != LEMBAS_WAFER && typ != LUMP_OF_ROYAL_JELLY
             && obj->oclass != AMULET_CLASS && obj->oclass != RING_CLASS

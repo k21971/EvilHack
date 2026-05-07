@@ -1435,7 +1435,7 @@ struct monst *mtmp;
     if (weap->spfx & SPFX_DCLAS) {
         applies += !!((weap->mtype == (unsigned long) ptr->mlet)
                       || (has_erac(mtmp) && weap->mtype ==
-                          (unsigned long) mons[ERAC(mtmp)->rmnum].mlet));
+                          (unsigned long) safe_mons(ERAC(mtmp)->rmnum).mlet));
     }
     if (weap->spfx & SPFX_DFLAG1) {
         applies += !!(((has_erac(mtmp) && (ERAC(mtmp)->mflags1 & weap->mtype))

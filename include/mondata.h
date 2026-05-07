@@ -625,6 +625,16 @@
 #define safe_touch_petrifies(mnum) \
     ((mnum) != NON_PM && touch_petrifies(&mons[mnum]))
 
+/* NON_PM-safe lookup into mons[] for corpsenm/rmnum-derived indices.
+   Falls back to PM_HUMAN (mksobj's canonical CORPSE default) on save
+   corruption so a corrupt corpse degrades to human-corpse semantics
+   rather than crashing on &mons[-1] pointer-formation UB. Use as
+   safe_mons(X->corpsenm).field or &safe_mons(X->corpsenm). Macro
+   argument is evaluated twice; pass side-effect-free expressions
+   only */
+#define safe_mons(mnum) \
+    (mons[((mnum) >= LOW_PM && (mnum) < NUMMONS) ? (mnum) : PM_HUMAN])
+
 #define is_mind_flayer(ptr) \
     ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER] \
      || (ptr) == &mons[PM_ALHOON])

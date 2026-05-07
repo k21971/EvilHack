@@ -1251,7 +1251,7 @@ struct obj *obj;
         /* vampires drain the blood from fresh corpses */
         if (is_vampire(mptr))
             return (obj->otyp == CORPSE
-                    && has_blood(&mons[obj->corpsenm]) && !obj->oeaten
+                    && has_blood(&safe_mons(obj->corpsenm)) && !obj->oeaten
                     && peek_at_iced_corpse_age(obj) + 5 >= monstermoves)
                     ? DOGFOOD : TABU;
 

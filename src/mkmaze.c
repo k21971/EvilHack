@@ -660,8 +660,8 @@ fixup_special()
                 /* bound retries in case genocide ever leaves no eligible
                    non-stone-resistant non-poly_when_stoned monsters */
                 for (rcap = 0; otmp && rcap < 100
-                     && (poly_when_stoned(&mons[otmp->corpsenm])
-                         || pm_resistance(&mons[otmp->corpsenm], MR_STONE));
+                     && (poly_when_stoned(&safe_mons(otmp->corpsenm))
+                         || pm_resistance(&safe_mons(otmp->corpsenm), MR_STONE));
                      rcap++) {
                     /* set_corpsenm() handles weight too */
                     set_corpsenm(otmp, rndmonnum());
@@ -679,8 +679,8 @@ fixup_special()
             int rcap;
 
             for (rcap = 0; rcap < 100
-                 && (pm_resistance(&mons[otmp->corpsenm], MR_STONE)
-                     || poly_when_stoned(&mons[otmp->corpsenm]));
+                 && (pm_resistance(&safe_mons(otmp->corpsenm), MR_STONE)
+                     || poly_when_stoned(&safe_mons(otmp->corpsenm)));
                  rcap++) {
                 /* set_corpsenm() handles weight too */
                 set_corpsenm(otmp, rndmonnum());

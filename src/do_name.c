@@ -1719,7 +1719,7 @@ struct monst *mtmp;
 {
     if (has_erac(mtmp)) {
         int r_id = ERAC(mtmp)->r_id;
-        Sprintf(buf, "%s ", (r_id < 0) ? mons[ERAC(mtmp)->rmnum].mname
+        Sprintf(buf, "%s ", (r_id < 0) ? safe_mons(ERAC(mtmp)->rmnum).mname
                                        : races[r_id].adj);
     }
     return buf;

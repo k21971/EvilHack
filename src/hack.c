@@ -81,8 +81,7 @@ const char *msg;
     for (otmp = level.objects[x][y]; otmp; otmp = otmp2) {
         otmp2 = otmp->nexthere;
         if (otmp->otyp == CORPSE
-            && otmp->corpsenm >= LOW_PM
-            && (is_rider(&mons[otmp->corpsenm])
+            && (is_rider(&safe_mons(otmp->corpsenm))
                 || otmp->corpsenm == PM_WIZARD_OF_YENDOR)) {
             /* move any living monster already at that location */
             if ((mtmp = m_at(x, y))

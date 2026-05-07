@@ -600,8 +600,7 @@ struct monst *mtmp;
                 m.has_defense = MUSE_LIZARD_CORPSE;
                 return TRUE;
             } else if (obj->otyp == CORPSE && acidproof
-                       && obj->corpsenm != NON_PM
-                       && acidic(&mons[obj->corpsenm])
+                       && acidic(&safe_mons(obj->corpsenm))
                        && obj->corpsenm != PM_GREEN_SLIME) {
                 /* acid corpse cures conf/stun for acid-resistant monster;
                    non-resistant monsters skip this branch since the acid
@@ -611,8 +610,8 @@ struct monst *mtmp;
                 return TRUE;
             } else if (obj->otyp == TIN && obj->corpsenm == PM_LIZARD) {
                 liztin = obj;
-            } else if (obj->otyp == TIN && obj->corpsenm != NON_PM
-                       && acidic(&mons[obj->corpsenm])
+            } else if (obj->otyp == TIN
+                       && acidic(&safe_mons(obj->corpsenm))
                        && obj->corpsenm != PM_GREEN_SLIME) {
                 /* tinned acidic corpse is universally safe (mon_consume_unstone
                    gates acid damage on !tinned), no acidproof check needed */
@@ -4612,8 +4611,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
     boolean vis = canseemon(mon), tinned = obj->otyp == TIN,
             food = obj->otyp == CORPSE || tinned,
             acid = obj->otyp == POT_ACID
-                   || (food && obj->corpsenm != NON_PM
-                       && acidic(&mons[obj->corpsenm])),
+                   || (food && acidic(&safe_mons(obj->corpsenm))),
             lizard = food && obj->corpsenm == PM_LIZARD,
             leaf = obj->otyp == EUCALYPTUS_LEAF;
     int nutrit = food ? dog_nutrition(mon, obj) : 0; /* also sets meating */

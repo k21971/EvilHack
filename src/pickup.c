@@ -290,8 +290,8 @@ rider_corpse_revival(obj, remotely)
 struct obj *obj;
 boolean remotely;
 {
-    if (!obj || obj->otyp != CORPSE || obj->corpsenm < LOW_PM
-        || !is_rider(&mons[obj->corpsenm]))
+    if (!obj || obj->otyp != CORPSE
+        || !is_rider(&safe_mons(obj->corpsenm)))
         return FALSE;
 
     pline("At your %s, the corpse suddenly moves...",
@@ -2523,7 +2523,7 @@ struct obj *obj;
 
     /* boxes, boulders, and big statues can't fit into any container */
     if (obj->otyp == ICE_BOX || Is_box(obj) || obj->otyp == BOULDER
-        || (obj->otyp == STATUE && bigmonst(&mons[obj->corpsenm]))) {
+        || (obj->otyp == STATUE && bigmonst(&safe_mons(obj->corpsenm)))) {
         /*
          *  xname() uses a static result array.  Save obj's name
          *  before current_container's name is computed.  Don't
@@ -3585,7 +3585,7 @@ boolean creation;
                 || obj->otyp == BOULDER
                 || (obj->otyp == CORPSE && inediate(mon->data))
                 || (is_graystone(obj) && obj->otyp != TOUCHSTONE)
-                || (obj->otyp == STATUE && bigmonst(&mons[obj->corpsenm]))))
+                || (obj->otyp == STATUE && bigmonst(&safe_mons(obj->corpsenm)))))
             continue;
 
         /* prevent pets from stashing random junk armor and weapons, unless

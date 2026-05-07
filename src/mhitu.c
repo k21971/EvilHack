@@ -1661,7 +1661,7 @@ struct attack *mattk;
                     && safe_touch_petrifies(otmp->corpsenm)) {
                     dmg = 1;
                     pline("%s hits you with the %s corpse.", Monnam(mtmp),
-                          mons[otmp->corpsenm].mname);
+                          safe_mons(otmp->corpsenm).mname);
                     if (!Stoned)
                         goto do_stone;
                 }

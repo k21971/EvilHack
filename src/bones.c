@@ -185,8 +185,7 @@ boolean restore;
                 otmp->spe = 0; /* not "laid by you" in next game */
             } else if (otmp->otyp == TIN) {
                 /* make tins of unique monster's meat be empty */
-                if (otmp->corpsenm >= LOW_PM
-                    && unique_corpstat(&mons[otmp->corpsenm]))
+                if (unique_corpstat(&safe_mons(otmp->corpsenm)))
                     otmp->corpsenm = NON_PM;
             } else if (otmp->otyp == CORPSE || otmp->otyp == STATUE) {
                 int mnum = otmp->corpsenm;

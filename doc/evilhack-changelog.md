@@ -5322,4 +5322,5 @@ The following changes to date are:
 - Fix: hack.c re-review fixes plus is_rider corpsenm sweep
 - Fix: were.c code review fixes
 - Fix: pray.c re-review fixes
+- Code-wide corpsenm/rmnum NON_PM-safe wrapper sweep
 

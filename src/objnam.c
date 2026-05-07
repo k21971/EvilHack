@@ -5106,7 +5106,7 @@ struct obj *no_wish;
        a real PM) so the timer matches what zombify_mon() will
        look up on fire */
     if (zombo && typ == CORPSE
-        && zombie_form(&mons[otmp->corpsenm])) {
+        && zombie_form(&safe_mons(otmp->corpsenm))) {
         (void) start_timer(rn1(5, 10), TIMER_OBJECT,
                            ZOMBIFY_MON, obj_to_any(otmp));
     }
@@ -5599,18 +5599,18 @@ struct obj *no_wish;
 
     if (halfeaten && otmp->oclass == FOOD_CLASS) {
         if (otmp->otyp == CORPSE)
-            otmp->oeaten = mons[otmp->corpsenm].cnutrit;
+            otmp->oeaten = safe_mons(otmp->corpsenm).cnutrit;
         else
             otmp->oeaten = objects[otmp->otyp].oc_nutrition;
         /* (do this adjustment before setting up object's weight) */
         consume_oeaten(otmp, 1);
     }
     if (isdrained && otmp->otyp == CORPSE
-        && mons[otmp->corpsenm].cnutrit) {
+        && safe_mons(otmp->corpsenm).cnutrit) {
         int amt;
 
         otmp->odrained = 1;
-        amt = mons[otmp->corpsenm].cnutrit - drain_level(otmp);
+        amt = safe_mons(otmp->corpsenm).cnutrit - drain_level(otmp);
         if (halfdrained) {
             amt /= 2;
             if (amt == 0)

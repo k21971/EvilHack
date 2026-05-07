@@ -616,7 +616,7 @@ int dx, dy, range;
                         killer.format = KILLED_BY_AN;
                         Sprintf(killer.name,
                                 "telekinetically hurled %s %s",
-                                mons[obj->corpsenm].mname,
+                                safe_mons(obj->corpsenm).mname,
                                 obj->otyp == EGG ? "egg" : "corpse");
                         done(STONING);
                     }

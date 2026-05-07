@@ -590,7 +590,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
         if (vis) {
             if (otmp->otyp == EGG)
                 pline("Splat!  %s is hit with %s egg!", Monnam(mtmp),
-                      otmp->known ? an(mons[otmp->corpsenm].mname) : "an");
+                      otmp->known ? an(safe_mons(otmp->corpsenm).mname) : "an");
             else
                 hit(distant_name(otmp, mshot_xname), mtmp, exclam(damage));
         } else if (verbose && !target)
@@ -1830,11 +1830,11 @@ int whodidit;   /* 1==hero, 0=other, -1==just check whether it'll pass thru */
                     && obj_type != GOGGLES);
             break;
         case ROCK_CLASS: /* includes boulder */
-            if (obj_type != STATUE || mons[otmp->corpsenm].msize > MZ_TINY)
+            if (obj_type != STATUE || safe_mons(otmp->corpsenm).msize > MZ_TINY)
                 hits = TRUE;
             break;
         case FOOD_CLASS:
-            if (obj_type == CORPSE && mons[otmp->corpsenm].msize > MZ_TINY)
+            if (obj_type == CORPSE && safe_mons(otmp->corpsenm).msize > MZ_TINY)
                 hits = TRUE;
             else
                 hits = (is_meat_armor(otmp)

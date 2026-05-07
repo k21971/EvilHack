@@ -105,7 +105,7 @@ struct obj *obj;
        Draugr can eat certain tins */
     if (u.umonnum == PM_GHOUL || (!Upolyd && Race_if(PM_DRAUGR)))
         return (boolean) ((obj->otyp == CORPSE
-                           && !vegan(&mons[obj->corpsenm]))
+                           && !vegan(&safe_mons(obj->corpsenm)))
                           || (obj->otyp == EGG)
                           || ((!Upolyd && Race_if(PM_DRAUGR))
                               && obj->otyp == TIN));
@@ -113,7 +113,7 @@ struct obj *obj;
     /* Vampires feed on blood only */
     if (maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE)))
         return (boolean) (obj->otyp == CORPSE
-                          && has_blood(&mons[obj->corpsenm])
+                          && has_blood(&safe_mons(obj->corpsenm))
                           && (!obj->odrained
                               || obj->oeaten > (unsigned) drain_level(obj)));
 
@@ -261,7 +261,7 @@ boolean the_pfx;
                               CXN_SINGULAR | (the_pfx ? CXN_PFX_THE : 0));
         /* not strictly needed since pname values are capitalized
            and the() is a no-op for them */
-        if (type_is_pname(&mons[food->corpsenm]))
+        if (type_is_pname(&safe_mons(food->corpsenm)))
             the_pfx = FALSE;
     } else {
         /* the ordinary case */
@@ -364,7 +364,7 @@ STATIC_OVL unsigned
 obj_nutrition(otmp)
 struct obj *otmp;
 {
-    unsigned nut = (otmp->otyp == CORPSE) ? mons[otmp->corpsenm].cnutrit
+    unsigned nut = (otmp->otyp == CORPSE) ? safe_mons(otmp->corpsenm).cnutrit
                       : otmp->globby ? otmp->owt
                          : (unsigned) objects[otmp->otyp].oc_nutrition;
 
@@ -1574,7 +1574,7 @@ int forcetype;
     if (forcetype == SPINACH_TIN
         || (forcetype == HEALTHY_TIN
             && (obj->corpsenm == NON_PM /* empty or already spinach */
-                || !vegetarian(&mons[obj->corpsenm])))) { /* replace meat */
+                || !vegetarian(&safe_mons(obj->corpsenm))))) { /* replace meat */
         obj->corpsenm = NON_PM; /* not based on any monster */
         obj->spe = 1;           /* spinach */
         return;
@@ -1677,7 +1677,7 @@ const char *mesg;
             /* spinach/empty tins have corpsenm == NON_PM; they are
                vegan by construction and Draugrs can't eat them either */
             if (tin->corpsenm == NON_PM
-                || vegan(&mons[tin->corpsenm])) {
+                || vegan(&safe_mons(tin->corpsenm))) {
                 You("cannot eat that!");
                 if (flags.verbose)
                     You("discard the open tin.");
@@ -2046,7 +2046,7 @@ struct obj *otmp;
         /* oeaten is set up by touchfood */
         if (otmp->odrained
             ? otmp->oeaten <= (unsigned) drain_level(otmp)
-            : otmp->oeaten < mons[otmp->corpsenm].cnutrit) {
+            : otmp->oeaten < safe_mons(otmp->corpsenm).cnutrit) {
             pline("There is no blood left in this corpse!");
             return 3;
         } else if (mnum == PM_LIZARD /* lizards don't rot */
@@ -2179,7 +2179,7 @@ struct obj *otmp;
             retcode = 1;
         }
 
-        if (!mons[otmp->corpsenm].cnutrit) {
+        if (!safe_mons(otmp->corpsenm).cnutrit) {
             /* no nutrition: rots away, no message if you passed out */
             if (!retcode)
                 pline_The("corpse rots away completely.");
@@ -2905,7 +2905,7 @@ struct obj *otmp;
                          || polymon(PM_PETRIFIED_ENT)))) {
                 if (!Stoned) {
                     Sprintf(killer.name, "%s egg",
-                            mons[otmp->corpsenm].mname);
+                            safe_mons(otmp->corpsenm).mname);
                     make_stoned(5L, (char *) 0, KILLED_BY_AN, killer.name);
                 }
             }
@@ -3417,7 +3417,7 @@ doeat()
              * changing appearance after a failed attempt to eat.
              */
             if (!otmp->odrained
-                && otmp->oeaten == mons[otmp->corpsenm].cnutrit)
+                && otmp->oeaten == safe_mons(otmp->corpsenm).cnutrit)
                 otmp->oeaten = 0;
             u.uconduct.food--;
             return 0;
@@ -3500,7 +3500,7 @@ doeat()
                 context.victual.reqtime, otmp->oeaten, basenutrit);
 
     debugpline2("nutrit == %d, cnutrit == %d", nutrit,
-                otmp->otyp == CORPSE ? mons[otmp->corpsenm].cnutrit
+                otmp->otyp == CORPSE ? safe_mons(otmp->corpsenm).cnutrit
                                      : objects[otmp->otyp].oc_nutrition);
 
     context.victual.reqtime = (basenutrit == 0) ? 0 :

@@ -2367,7 +2367,7 @@ anything *arg;
 long timeout UNUSED;
 {
     struct obj *body = arg->a_obj;
-    struct permonst *mptr = &mons[body->corpsenm];
+    struct permonst *mptr = &safe_mons(body->corpsenm);
     struct monst *mtmp;
     xchar x, y;
 
@@ -2421,7 +2421,7 @@ anything *arg;
 long timeout;
 {
     struct obj *body = arg->a_obj;
-    struct permonst *mptr = &mons[body->corpsenm];
+    struct permonst *mptr = &safe_mons(body->corpsenm);
     int zmon;
 
     if (!body->zombie_corpse && has_omonst(body) && has_erac(OMONST(body)))

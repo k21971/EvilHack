@@ -1382,7 +1382,7 @@ struct monst *mon;
         if ((mtmp2 = revive(otmp, !context.mon_moving)) != 0) {
             ++res;
             /* might get revived as a zombie rather than corpse's monster */
-            different_type = (mtmp2->data != &mons[corpsenm]);
+            different_type = (mtmp2->data != &safe_mons(corpsenm));
             if (iflags.last_msg == PLNMSG_OBJ_GLOWS) {
                 /* when hero zaps undead turning at self (or breaks
                    non-empty wand), revive() reports "[one of] your <mon>
@@ -1622,8 +1622,8 @@ int ochance, achance; /* percent chance for ordinary objects, artifacts */
         || obj->otyp == SCR_CONSECRATION
         || obj->oartifact == ART_SWORD_OF_ANNIHILATION
         || obj->oartifact == ART_ARMOR_OF_RETRIBUTION
-        || (obj->otyp == CORPSE && obj->corpsenm >= LOW_PM
-            && is_rider(&mons[obj->corpsenm]))) {
+        || (obj->otyp == CORPSE
+            && is_rider(&safe_mons(obj->corpsenm)))) {
         return TRUE;
     } else {
         int chance = rn2(100);
@@ -2218,7 +2218,7 @@ struct obj *obj;
             obj = poly_obj(obj, HUGE_CHUNK_OF_MEAT);
             smell = TRUE;
         } else if (obj->otyp == STATUE || obj->otyp == FIGURINE) {
-            ptr = &mons[obj->corpsenm];
+            ptr = &safe_mons(obj->corpsenm);
             if (is_golem(ptr)) {
                 golem_xform = (ptr != &mons[PM_FLESH_GOLEM]);
             } else if (vegetarian(ptr)) {
@@ -2238,7 +2238,7 @@ struct obj *obj;
                     obj->owt = weight(obj);
                     break;
                 }
-                if (vegetarian(&mons[obj->corpsenm])) {
+                if (vegetarian(&safe_mons(obj->corpsenm))) {
                     /* don't animate monsters that aren't fleshy */
                     obj = poly_obj(obj, MEATBALL);
                     smell = TRUE;
@@ -2592,15 +2592,15 @@ struct obj *obj, *otmp;
                             /* saw corpse but don't see monster: maybe
                                mtmp is invisible, or has been placed at
                                a different spot than <ox,oy> */
-                            if (!type_is_pname(&mons[corpsenm]))
+                            if (!type_is_pname(&safe_mons(corpsenm)))
                                 corpsname = The(corpsname);
                             pline("%s disappears.", corpsname);
                         }
                     } else {
                         /* couldn't see corpse's location */
                         if (Role_if(PM_HEALER) && !Deaf
-                            && !nonliving(&mons[corpsenm])) {
-                            if (!type_is_pname(&mons[corpsenm]))
+                            && !nonliving(&safe_mons(corpsenm))) {
+                            if (!type_is_pname(&safe_mons(corpsenm)))
                                 corpsname = an(corpsname);
                             if (!Hallucination)
                                 You_hear("%s reviving.", corpsname);

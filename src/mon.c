@@ -1701,8 +1701,8 @@ struct obj *otmp;
 }
 
 #define mstoning(obj)                                       \
-    (ofood(obj) && (obj)->corpsenm != NON_PM                \
-     && (touch_petrifies(&mons[(obj)->corpsenm])            \
+    (ofood(obj)                                             \
+     && (touch_petrifies(&safe_mons((obj)->corpsenm))       \
          || (obj)->corpsenm == PM_MEDUSA))
 
 /*
@@ -1826,8 +1826,7 @@ struct monst *mtmp;
         otmp2 = otmp->nexthere;
 
         /* touch sensitive items */
-        if (otmp->otyp == CORPSE && otmp->corpsenm >= LOW_PM
-            && is_rider(&mons[otmp->corpsenm])) {
+        if (otmp->otyp == CORPSE && is_rider(&safe_mons(otmp->corpsenm))) {
             /* Rider corpse isn't just inedible; can't engulf it either */
             (void) revive_corpse(otmp);
 
@@ -2045,8 +2044,7 @@ struct monst *mtmp;
         otmp2 = otmp->nexthere;
 
         /* touch sensitive items */
-        if (otmp->otyp == CORPSE && otmp->corpsenm >= LOW_PM
-            && is_rider(&mons[otmp->corpsenm])) {
+        if (otmp->otyp == CORPSE && is_rider(&safe_mons(otmp->corpsenm))) {
             /* Rider corpse isn't just inedible; can't engulf it either */
             (void) revive_corpse(otmp);
 
@@ -2401,7 +2399,7 @@ const char *str;
                         && !is_nymph(mtmp->data)
                         && !safe_touch_petrifies(otmp3->corpsenm)
                         && otmp3->corpsenm != PM_LIZARD
-                        && !acidic(&mons[otmp3->corpsenm]))
+                        && !acidic(&safe_mons(otmp3->corpsenm)))
                         continue;
                     if (!touch_artifact(otmp3, mtmp))
                         continue;
@@ -2444,7 +2442,7 @@ const char *str;
                 /* let a handful of corpse types thru to can_carry() */
                 && !safe_touch_petrifies(otmp->corpsenm)
                 && otmp->corpsenm != PM_LIZARD
-                && !acidic(&mons[otmp->corpsenm]))
+                && !acidic(&safe_mons(otmp->corpsenm)))
                 continue;
             if (!touch_artifact(otmp, mtmp))
                 continue;
@@ -2562,8 +2560,7 @@ struct obj *otmp;
         && !(mtmp->misc_worn_check & W_ARMG)
         && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
         return 0;
-    if (otyp == CORPSE && otmp->corpsenm >= LOW_PM
-        && is_rider(&mons[otmp->corpsenm]))
+    if (otyp == CORPSE && is_rider(&safe_mons(otmp->corpsenm)))
         return 0;
     if (mon_hates_material(mtmp, otmp->material)
         && (otyp != BELL_OF_OPENING || !is_covetous(mdat)))

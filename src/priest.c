@@ -622,7 +622,7 @@ char *pname; /* caller-supplied output buffer */
         Strcat(pname, "renegade ");
     if (has_erac(mon) && reveal_all) {
         int rid = ERAC(mon)->r_id;
-        Sprintf(eos(pname), "%s ", (rid < 0) ? mons[ERAC(mon)->rmnum].mname
+        Sprintf(eos(pname), "%s ", (rid < 0) ? safe_mons(ERAC(mon)->rmnum).mname
                                              : races[rid].adj);
     }
 

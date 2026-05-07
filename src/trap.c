@@ -472,7 +472,7 @@ int x, y, typ;
                             CORPSTAT_NONE);
         /* MM_NOSTEED prevents mount creation for riding monsters;
            we only want the rider's inventory, not a wandering steed */
-        mtmp = makemon(&mons[statue->corpsenm], 0, 0,
+        mtmp = makemon(&safe_mons(statue->corpsenm), 0, 0,
                        MM_NOCOUNTBIRTH | MM_NOSTEED);
         if (!mtmp)
             break; /* should never happen */
@@ -869,7 +869,7 @@ int *fail_reason;
 
     if (!mon) {
         if (fail_reason)
-            *fail_reason = unique_corpstat(&mons[statue->corpsenm])
+            *fail_reason = unique_corpstat(&safe_mons(statue->corpsenm))
                                ? AS_MON_IS_UNIQUE
                                : AS_NO_MON;
         return (struct monst *) 0;

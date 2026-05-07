@@ -1449,7 +1449,7 @@ struct obj *body;
         return;
     }
     mptr = has_omonst(body) ? r_data(OMONST(body))
-                            : &mons[body->corpsenm];
+                            : &safe_mons(body->corpsenm);
 
     /*
      * Note:

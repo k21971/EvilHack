@@ -1737,8 +1737,7 @@ struct obj *obj;
     boolean restricted_fall;
     int try_limit = 4000;
 
-    if (obj->otyp == CORPSE && obj->corpsenm >= LOW_PM
-        && is_rider(&mons[obj->corpsenm])) {
+    if (obj->otyp == CORPSE && is_rider(&safe_mons(obj->corpsenm))) {
         if (revive_corpse(obj))
             return FALSE;
     }

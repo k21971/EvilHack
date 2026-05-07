@@ -197,7 +197,7 @@ struct obj* tobj;
         corpse = 0;               /* can't reach corpse on floor */
         /* you can't reach tiny statues (even though you can fight
            tiny monsters while levitating--consistency, what's that?) */
-        while (statue && mons[statue->corpsenm].msize == MZ_TINY)
+        while (statue && safe_mons(statue->corpsenm).msize == MZ_TINY)
             statue = nxtobj(statue, STATUE, TRUE);
     }
     /* when both corpse and statue are present, pick the uppermost one */
@@ -228,7 +228,7 @@ struct obj* tobj;
                 /* TRUE: override visibility check--it's not on the map */
                 gndr = pronoun_gender(mtmp, TRUE);
             } else {
-                mptr = &mons[corpse->corpsenm];
+                mptr = &safe_mons(corpse->corpsenm);
                 if (is_female(mptr))
                     gndr = 1;
                 else if (is_male(mptr))
@@ -272,7 +272,7 @@ struct obj* tobj;
     } else { /* statue */
         const char *what, *how;
 
-        mptr = &mons[statue->corpsenm];
+        mptr = &safe_mons(statue->corpsenm);
         if (Blind) { /* ignore statue->dknown; it'll always be set */
             Sprintf(buf, "%s %s",
                     (rx == u.ux && ry == u.uy) ? "This" : "That",
@@ -306,7 +306,7 @@ struct obj* tobj;
                 pline("The egg doesn't really make any noise at all.");
 	    else
                 You("listen to the egg and guess... %s!",
-                    mons[egg->corpsenm].mname);
+                    safe_mons(egg->corpsenm).mname);
             egg->known = 1;
         } else {
             You("can't quite tell what's inside the egg.");
@@ -2084,7 +2084,7 @@ struct obj *corpse;
         return 0;
     if (corpse->odrained)
         return 0;
-    if (!mons[corpse->corpsenm].cnutrit)
+    if (!safe_mons(corpse->corpsenm).cnutrit)
         return 0;
     return 1;
 }
@@ -2120,24 +2120,23 @@ struct obj *obj;
 
         if (poly_when_stoned(youmonst.data))
             You("tin %s without wearing gloves.",
-                an(mons[corpse->corpsenm].mname));
+                an(safe_mons(corpse->corpsenm).mname));
         else {
             pline("Tinning %s without wearing gloves is a fatal mistake...",
-                  an(mons[corpse->corpsenm].mname));
+                  an(safe_mons(corpse->corpsenm).mname));
             Sprintf(kbuf, "trying to tin %s without gloves",
-                    an(mons[corpse->corpsenm].mname));
+                    an(safe_mons(corpse->corpsenm).mname));
         }
         instapetrify(kbuf);
     }
-    if (corpse->corpsenm >= LOW_PM
-        && is_rider(&mons[corpse->corpsenm])) {
+    if (is_rider(&safe_mons(corpse->corpsenm))) {
         if (revive_corpse(corpse))
             verbalize("Yes...  But War does not preserve its enemies...");
         else
             pline_The("corpse evades your grasp.");
         return;
     }
-    if (mons[corpse->corpsenm].cnutrit == 0) {
+    if (safe_mons(corpse->corpsenm).cnutrit == 0) {
         pline("That's too insubstantial to tin.");
         return;
     }
@@ -2360,7 +2359,7 @@ long timeout;
     silent = (timeout != monstermoves); /* happened while away */
     okay_spot = get_obj_location(figurine, &cc.x, &cc.y, 0);
     if (figurine->where == OBJ_INVENT || figurine->where == OBJ_MINVENT)
-        okay_spot = enexto(&cc, cc.x, cc.y, &mons[figurine->corpsenm]);
+        okay_spot = enexto(&cc, cc.x, cc.y, &safe_mons(figurine->corpsenm));
     if ((idol && figurine->age > timeout) || !okay_spot
         || !figurine_location_checks(figurine, &cc, TRUE)) {
         /* reset the timer to try again later */
@@ -2494,15 +2493,15 @@ boolean quietly;
         return FALSE;
     }
     if (IS_ROCK(levl[x][y].typ)
-        && !((passes_walls(&mons[obj->corpsenm]) && may_passwall(x, y))
+        && !((passes_walls(&safe_mons(obj->corpsenm)) && may_passwall(x, y))
              || (Passes_trees && may_passtree(x, y)))) {
         if (!quietly)
             You("cannot place a figurine in %s!",
                 IS_TREES(levl[x][y].typ) ? "a tree" : "solid rock");
         return FALSE;
     }
-    if (sobj_at(BOULDER, x, y) && !passes_walls(&mons[obj->corpsenm])
-        && !throws_rocks(&mons[obj->corpsenm])) {
+    if (sobj_at(BOULDER, x, y) && !passes_walls(&safe_mons(obj->corpsenm))
+        && !throws_rocks(&safe_mons(obj->corpsenm))) {
         if (!quietly)
             You("cannot fit the figurine on the boulder.");
         return FALSE;
@@ -3639,7 +3638,7 @@ struct obj **objp;
                         char kbuf[BUFSZ];
 
                         Sprintf(kbuf, "%s corpse",
-                                an(mons[otmp->corpsenm].mname));
+                                an(safe_mons(otmp->corpsenm).mname));
                         pline("Snatching %s is a fatal mistake.", kbuf);
                         instapetrify(kbuf);
                     }
@@ -3911,7 +3910,7 @@ struct obj **objp;
                         char kbuf[BUFSZ];
 
                         Sprintf(kbuf, "%s corpse",
-                                an(mons[otmp->corpsenm].mname));
+                                an(safe_mons(otmp->corpsenm).mname));
                         pline("Snatching %s is a fatal mistake.", kbuf);
                         instapetrify(kbuf);
                     }
