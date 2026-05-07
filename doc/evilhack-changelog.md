@@ -5323,4 +5323,5 @@ The following changes to date are:
 - Fix: were.c code review fixes
 - Fix: pray.c re-review fixes
 - Code-wide corpsenm/rmnum NON_PM-safe wrapper sweep
+- Fix: dothrow.c re-review fixes
 

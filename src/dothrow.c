@@ -1099,6 +1099,10 @@ int dx, dy, range;
             pline("%s is knocked straight off %s %s!",
                   Monnam(mon), mhis(mon), l_monnam(ERID(mon)->mon_steed));
         separate_steed_and_rider(mon);
+        /* rloc_to/rloc inside separate_steed_and_rider may kill mon
+           via mintrap on the destination tile */
+        if (DEADMONSTER(mon))
+            return;
     /* Is the monster being ridden? */
     } else if (mon->ridden_by) {
         struct monst *rider = get_mon_rider(mon);
@@ -1320,16 +1324,6 @@ boolean hitsroof;
             /* dmgval() already added extra damage */
             searmsg(&youmonst, &youmonst, obj, FALSE);
             exercise(A_CON, FALSE);
-        }
-        if (is_open_air(bhitpos.x, bhitpos.y)) {
-            /* All objects need hitfloor() to be properly handled.
-               For uball, this places it (for the pulling mechanic).
-               For other objects, flooreffects() destroys them */
-            if (hitfloor(obj, TRUE))
-                obj = (struct obj *) 0;
-            thrownobj = 0;
-            losehp(dmg, "falling object", KILLED_BY_AN);
-            return FALSE;
         }
         if (hitfloor(obj, TRUE))
             obj = (struct obj *) 0;
@@ -2330,6 +2324,7 @@ struct obj *obj; /* thrownobj or kickedobj or uwep */
                 mtmp->mconf = 0;
                 mtmp->mstun = 0;
                 mtmp->mpeaceful = 1;
+                set_malign(mtmp);
             }
         }
         set_malign(mon);
@@ -2387,6 +2382,7 @@ struct obj *obj;
     Strcpy(buf, Monnam(mon));
     mon->mpeaceful = 1;
     mon->mavenge = 0;
+    set_malign(mon);
 
     /* object properly identified */
     if (obj->dknown && objects[obj->otyp].oc_name_known) {
