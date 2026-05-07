@@ -5321,4 +5321,5 @@ The following changes to date are:
 - Fix: weapon.c re-review fixes
 - Fix: hack.c re-review fixes plus is_rider corpsenm sweep
 - Fix: were.c code review fixes
+- Fix: pray.c re-review fixes
 

@@ -1036,6 +1036,7 @@ gcrownu()
                 pline("Divine knowledge of the spell '%s' fills your mind!",
                       OBJ_NAME(objects[obj->otyp]));
             obfree(obj, (struct obj *) 0);
+            obj = (struct obj *) 0;
         } else {
             bless(obj);
             obj->bknown = 1; /* ok to skip set_bknown() */
@@ -1355,8 +1356,15 @@ aligntyp g_align;
        abused their alignment */
     if (pat_on_head
         && ((Role_if(PM_CAVEMAN)
-             && (u.ualign.abuse != 0)) ? rn2(10) : 1))
-        switch (rn2((Luck + 6) >> 1)) {
+             && (u.ualign.abuse != 0)) ? rn2(10) : 1)) {
+        /* Luck can drop below -1 during prayer occupation; clamp the
+           divisor so rn2(0) does not crash. Low luck falls through
+           case 0 (no extra gift) */
+        int gift_slot = (Luck + 6) >> 1;
+
+        if (gift_slot < 1)
+            gift_slot = 1;
+        switch (rn2(gift_slot)) {
         case 0:
             break;
         case 1:
@@ -1557,6 +1565,7 @@ aligntyp g_align;
         case 6: {
             struct obj *otmp;
             short gift_otyp;
+            boolean learned;
 
             /* cavepersons or those of the draugr race don't mess around
                with spells, so do nothing */
@@ -1575,14 +1584,16 @@ aligntyp g_align;
 
             if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                 && !known_spell(otmp->otyp)) {
-                if (force_learn_spell(otmp->otyp))
+                learned = force_learn_spell(otmp->otyp);
+                if (learned)
                     pline("Divine knowledge of the spell '%s' fills your mind!",
                           OBJ_NAME(objects[otmp->otyp]));
                 obfree(otmp, (struct obj *) 0);
                 otmp = (struct obj *) 0;
-                livelog_printf(LL_DIVINEGIFT,
-                               "had divine knowledge of the spell '%s' bestowed upon %s by %s",
-                               OBJ_NAME(objects[gift_otyp]), uhim(), u_gname());
+                if (learned)
+                    livelog_printf(LL_DIVINEGIFT,
+                                   "had divine knowledge of the spell '%s' bestowed upon %s by %s",
+                                   OBJ_NAME(objects[gift_otyp]), uhim(), u_gname());
             } else {
                 bless(otmp);
                 otmp->oeroded = otmp->oeroded2 = 0;
@@ -1603,10 +1614,11 @@ aligntyp g_align;
         default:
             impossible("Confused deity!");
             break;
-        } else if (pat_on_head) {
-            You_feel("that %s is not entirely paying attention.",
-                     align_gname(g_align));
         }
+    } else if (pat_on_head) {
+        You_feel("that %s is not entirely paying attention.",
+                 align_gname(g_align));
+    }
 
     u.ublesscnt = rnz(350);
     kick_on_butt = u.uevent.udemigod ? 1 : 0;
@@ -1924,11 +1936,22 @@ dosacrifice()
         struct permonst *ptr;
         struct monst *mtmp;
         boolean to_other_god;
+        int value_mndx;
 
-        if (has_omonst(otmp) && has_erac(OMONST(otmp))) {
+        /* prefer ERAC ancestral race for race/alignment checks; both
+           fields can be invalid only via save corruption, so bail
+           cleanly rather than form &mons[-1] */
+        if (has_omonst(otmp) && has_erac(OMONST(otmp))
+            && ERAC(OMONST(otmp))->rmnum >= LOW_PM
+            && ERAC(OMONST(otmp))->rmnum < NUMMONS) {
             ptr = &mons[ERAC(OMONST(otmp))->rmnum];
-        } else {
+        } else if (otmp->corpsenm >= LOW_PM
+                   && otmp->corpsenm < NUMMONS) {
             ptr = &mons[otmp->corpsenm];
+        } else {
+            impossible("dosacrifice: corpse with invalid corpsenm/erac");
+            pline1(nothing_happens);
+            return 1;
         }
         /* is this a conversion attempt? */
         to_other_god = (ugod_is_angry() && !your_race(ptr)
@@ -1949,7 +1972,13 @@ dosacrifice()
 
         if (otmp->corpsenm == PM_ACID_BLOB || your_race(ptr)
             || (monstermoves <= peek_at_iced_corpse_age(otmp) + 50)) {
-            value = mons[otmp->corpsenm].difficulty + 1;
+            /* corpsenm may be NON_PM under save corruption; ptr was
+               validated above, so fall back to it */
+            value_mndx = (otmp->corpsenm >= LOW_PM
+                          && otmp->corpsenm < NUMMONS)
+                         ? otmp->corpsenm
+                         : monsndx(ptr);
+            value = mons[value_mndx].difficulty + 1;
             /* Not demons--no demon corpses */
             if (is_undead(ptr) && u.ualign.type > A_CHAOTIC)
                 value += 1;
@@ -2229,18 +2258,20 @@ dosacrifice()
                             /* the Idol cannot be contained now,
                              * so we have to remove it */
                             obj_extract_self(otmp);
-                            (void) hold_another_object(otmp, "Oops!",
+                            otmp = hold_another_object(otmp, "Oops!",
                                                        (const char *) 0,
                                                        (const char *) 0);
                         }
-                        You_feel("strange energies envelop %s.",
-                                 the(xname(otmp)));
-                        otmp->spe = 1;
-                        if (otmp->where == OBJ_INVENT) {
-                            u.uhave.amulet = 1;
-                            u.uamulet_on_planes = 0;
-                            u.uachieve.amulet = 1;
-                            mkgate();
+                        if (otmp) {
+                            You_feel("strange energies envelop %s.",
+                                     the(xname(otmp)));
+                            otmp->spe = 1;
+                            if (otmp->where == OBJ_INVENT) {
+                                u.uhave.amulet = 1;
+                                u.uamulet_on_planes = 0;
+                                u.uachieve.amulet = 1;
+                                mkgate();
+                            }
                         }
                         livelog_write_string(LL_ACHIEVE, "imbued the Idol of Moloch");
                     }
@@ -2618,6 +2649,7 @@ dosacrifice()
                                 if (!u.uconduct.weaphit) {
                                     /* Making a spellbook */
                                     short gift_otyp;
+                                    boolean learned;
 
                                     /* Druid/evocation spells purposely omitted */
                                     otmp = make_spellbook_gift(SPE_ORB_OF_FROST);
@@ -2629,14 +2661,16 @@ dosacrifice()
 
                                     if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                                         && !known_spell(otmp->otyp)) {
-                                        if (force_learn_spell(otmp->otyp))
+                                        learned = force_learn_spell(otmp->otyp);
+                                        if (learned)
                                             pline("Divine knowledge of the spell '%s' fills your mind!",
                                                   OBJ_NAME(objects[otmp->otyp]));
                                         obfree(otmp, (struct obj *) 0);
                                         otmp = (struct obj *) 0;
-                                        livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
-                                                       "had divine knowledge of the spell '%s' bestowed upon %s by %s",
-                                                       OBJ_NAME(objects[gift_otyp]), uhim(), u_gname());
+                                        if (learned)
+                                            livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                                           "had divine knowledge of the spell '%s' bestowed upon %s by %s",
+                                                           OBJ_NAME(objects[gift_otyp]), uhim(), u_gname());
                                     } else {
                                         bless(otmp);
                                         otmp->oeroded = otmp->oeroded2 = 0;
@@ -2698,6 +2732,7 @@ dosacrifice()
                     } else if (any_primary_caster && !Race_if(PM_DRAUGR) && !rn2(3)) {
                         /* Making a spellbook */
                         short gift_otyp;
+                        boolean learned;
 
                         otmp = make_spellbook_gift(primary_casters_druid ? SPE_SUMMON_ELEMENTAL
                                                                          : SPE_ORB_OF_FROST);
@@ -2708,14 +2743,16 @@ dosacrifice()
 
                         if (!u.uconduct.literate && (otmp->otyp != SPE_BLANK_PAPER)
                             && !known_spell(otmp->otyp)) {
-                            if (force_learn_spell(otmp->otyp))
+                            learned = force_learn_spell(otmp->otyp);
+                            if (learned)
                                 pline("Divine knowledge of the spell '%s' fills your mind!",
                                       OBJ_NAME(objects[otmp->otyp]));
                             obfree(otmp, (struct obj *) 0);
                             otmp = (struct obj *) 0;
-                            livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
-                                           "had divine knowledge of the spell '%s' bestowed upon %s by %s",
-                                           OBJ_NAME(objects[gift_otyp]), uhim(), u_gname());
+                            if (learned)
+                                livelog_printf(LL_DIVINEGIFT | LL_ARTIFACT,
+                                               "had divine knowledge of the spell '%s' bestowed upon %s by %s",
+                                               OBJ_NAME(objects[gift_otyp]), uhim(), u_gname());
                         } else {
                             bless(otmp);
                             otmp->oeroded = otmp->oeroded2 = 0;
