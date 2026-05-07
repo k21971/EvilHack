@@ -6960,6 +6960,11 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
 
     possibly_unwield(mtmp, polyspot); /* might lose use of weapon */
     mon_break_armor(mtmp, polyspot);
+    /* mon_break_armor() may kill the monster if it's the player's steed
+       and the new form lands over pool/lava/open-air or has nowhere
+       to go (saddle-strip dismount cascade); mirror new_were() */
+    if (DEADMONSTER(mtmp))
+        return 1; /* polymorph itself succeeded */
     if (!(mtmp->misc_worn_check & W_ARMG))
         mselftouch(mtmp, "No longer petrify-resistant, ",
                    !context.mon_moving);

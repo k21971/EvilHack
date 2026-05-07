@@ -67,8 +67,12 @@ long mask;
                 if (oobj && !(oobj->owornmask & wp->w_mask))
                     impossible("Setworn: mask = %ld (0x%lx), existing obj '%s' owornmask = 0x%lx",
                                wp->w_mask, wp->w_mask,
-                               oobj ? cxname(oobj) : "null",
-                               oobj ? oobj->owornmask : 0L);
+                               cxname(oobj), oobj->owornmask);
+                /* slot already correctly occupied; skip teardown+grant
+                   so we don't double-increment antimagic/reflection
+                   conduct or re-call set_artifact_intrinsic */
+                if (oobj == obj && obj != (struct obj *) 0)
+                    continue;
                 if (oobj && (oobj != obj)) {
                     if (u.twoweap && (oobj->owornmask & (W_WEP | W_SWAPWEP))) {
                         /* required to avoid incorrect untwoweapon() feedback */
@@ -99,15 +103,27 @@ long mask;
                        W_WEP, W_SWAPWEP, and W_QUIVER are mutually exclusive */
                     if (wp->w_mask & W_WEAPONS) {
                         /* Clear other weapon slot pointers if obj is in them.
-                           We're about to clear all weapon masks from the object,
-                           so the other slots would become stale */
-                        if (obj == uwep && !(wp->w_mask & W_WEP))
+                           We're about to clear all weapon masks from the
+                           object, so the other slots would become stale.
+                           Reaching any of these branches means a caller put
+                           obj into multiple weapon slots without clearing
+                           the old one first; surface that protocol violation
+                           since we can't safely reconstruct the abandoned
+                           slot's extrinsics here */
+                        if (obj == uwep && !(wp->w_mask & W_WEP)) {
+                            impossible("setworn: stale uwep slot");
                             uwep = (struct obj *) 0;
-                        if (obj == uswapwep && !(wp->w_mask & W_SWAPWEP))
+                        }
+                        if (obj == uswapwep && !(wp->w_mask & W_SWAPWEP)) {
+                            impossible("setworn: stale uswapwep slot");
                             uswapwep = (struct obj *) 0;
-                        if (obj == uquiver && !(wp->w_mask & W_QUIVER))
+                        }
+                        if (obj == uquiver && !(wp->w_mask & W_QUIVER)) {
+                            impossible("setworn: stale uquiver slot");
                             uquiver = (struct obj *) 0;
-                        /* If setting any weapon mask, clear all weapon masks first */
+                        }
+                        /* If setting any weapon mask, clear all weapon
+                           masks first */
                         obj->owornmask &= ~W_WEAPONS;
                     }
                     obj->owornmask |= wp->w_mask;
@@ -1193,10 +1209,15 @@ m_lose_armor(mon, obj)
 struct monst *mon;
 struct obj *obj;
 {
+    /* snapshot coords before extract_from_minvent, since update_mon_intrinsics
+       may dismount-and-kill mon when removing a saddle from u.usteed and
+       leave mon->mx/my zeroed by m_detach */
+    xchar mx = mon->mx, my = mon->my;
+
     extract_from_minvent(mon, obj, TRUE, FALSE);
-    place_object(obj, mon->mx, mon->my);
+    place_object(obj, mx, my);
     /* call stackobj() if we ever drop anything that can merge */
-    newsym(mon->mx, mon->my);
+    newsym(mx, my);
 }
 
 /* all objects with their bypass bit set should now be reset to normal */
@@ -1480,6 +1501,10 @@ boolean polyspot;
             if (polyspot)
                 bypass_obj(otmp);
             m_lose_armor(mon, otmp);
+            /* m_lose_armor -> extract_from_minvent ->
+               update_mon_intrinsics may dismount-and-kill u.usteed */
+            if (DEADMONSTER(mon))
+                return;
             if (vis)
                 pline("%s saddle falls off.", s_suffix(Monnam(mon)));
         }
@@ -1494,6 +1519,12 @@ boolean polyspot;
             You("touch %s.", mon_nam(u.usteed));
             Sprintf(buf, "falling off %s", an(u.usteed->data->mname));
             instapetrify(buf);
+            /* instapetrify may have polymorphed the player into a
+               stone golem / petrified ent, and polymon would have
+               already called dismount_steed(DISMOUNT_POLY) when the
+               new form fails can_ride() */
+            if (!u.usteed)
+                return;
         }
         dismount_steed(DISMOUNT_FELL);
     }
@@ -1542,7 +1573,13 @@ struct obj *obj;
     if (obj->oclass != RING_CLASS)
         return 0;
 
-    /* Find out whether the monster already has some resistance. */
+    /* Find out whether the monster already has some resistance.
+       Temporarily strip any worn rings' extrinsics so the resists_*()
+       and defended() queries inside the switch see the prospective
+       "wearing this object instead" state; the matching restore at
+       the function tail re-applies them. Update_mon_intrinsics ring
+       branches must remain side-effect-free for this idiom to be
+       safe */
     old = which_armor(mon, W_RINGL);
     if (old)
         update_mon_intrinsics(mon, old, FALSE, TRUE);

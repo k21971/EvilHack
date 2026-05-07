@@ -5324,4 +5324,5 @@ The following changes to date are:
 - Fix: pray.c re-review fixes
 - Code-wide corpsenm/rmnum NON_PM-safe wrapper sweep
 - Fix: dothrow.c re-review fixes
+- Fix: worn.c re-review fixes plus mon.c newcham() UAF sibling
 
