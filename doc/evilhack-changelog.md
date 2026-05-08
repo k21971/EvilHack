@@ -5326,4 +5326,5 @@ The following changes to date are:
 - Fix: dothrow.c re-review fixes
 - Fix: worn.c re-review fixes plus mon.c newcham() UAF sibling
 - Fix: wield.c re-review fixes
+- Fix: various issue in telekinesis.c found via code review
 

@@ -8,7 +8,8 @@
 STATIC_DCL int FDECL(tk_max_msize, (int));
 STATIC_DCL void FDECL(tk_push_obj, (struct obj *, int, int, int));
 STATIC_DCL void FDECL(tk_pull_obj, (struct obj *, int, int));
-STATIC_DCL boolean FDECL(tk_impact, (struct monst *, int, int));
+STATIC_DCL boolean FDECL(tk_impact,
+                         (struct monst *, int, int, struct monst *));
 STATIC_DCL void FDECL(tk_push_mon, (struct monst *, int, int, int));
 STATIC_DCL void FDECL(tk_pull_mon, (struct monst *, int, int));
 STATIC_DCL void FDECL(m_tk_push_obj,
@@ -172,14 +173,16 @@ int dx, dy, range;
         /* Monster in the way */
         mtmp = m_at(nx, ny);
         if (mtmp) {
-            if (weight >= 20) {
+            if (weight >= 20 || obj->oclass == WEAPON_CLASS
+                || (((obj->otyp == CORPSE || obj->otyp == EGG)
+                     && safe_touch_petrifies(obj->corpsenm)))) {
                 dmg = d(max(1, weight / 50), 4);
                 pline_The("%s strikes %s!", xname(obj),
                           mon_nam(mtmp));
-                if (obj->otyp == CORPSE
+                if ((obj->otyp == CORPSE || obj->otyp == EGG)
                     && safe_touch_petrifies(obj->corpsenm)
                     && !resists_ston(mtmp)) {
-                    minstapetrify(mtmp, TRUE);
+                    minstapetrify(mtmp, !context.mon_moving);
                 } else {
                     if (damage_mon(mtmp, dmg, AD_PHYS, TRUE))
                         xkilled(mtmp, XKILL_GIVEMSG);
@@ -224,7 +227,9 @@ int dx, dy;
     int steps;
 
     if (obj->otyp == BOULDER) {
-        /* Boulder: slide towards player, stop 1 tile in front */
+        /* Boulder: slide towards player, stop 1 tile in front.
+           relies on dotelekinesis() ensuring obj is on a straight
+           line from u to target */
         int target_x = u.ux + dx;
         int target_y = u.uy + dy;
 
@@ -241,25 +246,26 @@ int dx, dy;
         pline("It's chained to you!");
         return;
     }
-    if (obj == uchain) {
-        You_cant("move the chain with telekinesis.");
-        return;
-    }
 
     /* Use existing remote pickup mechanism */
     (void) pickup_object(obj, 1L, TRUE);
 }
 
 /* Check if a monster slammed into an obstacle after hurtling
-   and apply impact damage + feedback.  hdx/hdy is the direction
-   the monster was moving.  Returns TRUE if monster died. */
+   and apply impact damage + feedback. hdx/hdy is the direction
+   the monster was moving. magr is the caster (NULL = player cast,
+   so player gets the kill); for monster casters, a tame magr's
+   kill is credited via set_pet_killer.
+   Returns TRUE if monster died */
 STATIC_OVL boolean
-tk_impact(mtmp, hdx, hdy)
+tk_impact(mtmp, hdx, hdy, magr)
 struct monst *mtmp;
 int hdx, hdy;
+struct monst *magr;
 {
     int nx, ny, dmg;
     const char *what;
+    boolean by_you = (magr == (struct monst *) 0);
 
     if (DEADMONSTER(mtmp))
         return TRUE;
@@ -291,10 +297,16 @@ int hdx, hdy;
     dmg = rnd(6);
     if (canspotmon(mtmp))
         pline("%s slams into the %s!", Monnam(mtmp), what);
-    if (damage_mon(mtmp, dmg, AD_PHYS, TRUE)) {
-        if (canseemon(mtmp))
-            pline("%s is killed!", Monnam(mtmp));
-        xkilled(mtmp, XKILL_NOMSG);
+    if (damage_mon(mtmp, dmg, AD_PHYS, by_you)) {
+        if (by_you) {
+            if (canseemon(mtmp))
+                pline("%s is killed!", Monnam(mtmp));
+            xkilled(mtmp, XKILL_NOMSG);
+        } else {
+            if (magr->mtame)
+                set_pet_killer(magr);
+            monkilled(mtmp, "telekinetic impact", AD_PHYS);
+        }
         return TRUE;
     }
     return FALSE;
@@ -308,7 +320,10 @@ int dx, dy, range;
 {
     You("telekinetically hurl %s!", mon_nam(mtmp));
     mhurtle(mtmp, dx, dy, range);
-    tk_impact(mtmp, dx, dy);
+    if (!DEADMONSTER(mtmp) && mtmp->mleashed
+        && um_dist(mtmp->mx, mtmp->my, 5))
+        m_unleash(mtmp, TRUE);
+    (void) tk_impact(mtmp, dx, dy, (struct monst *) 0);
 }
 
 /* Pull a monster towards the player, stopping 1 tile away */
@@ -327,7 +342,7 @@ int dx, dy;
     You("telekinetically pull %s towards you!",
         mon_nam(mtmp));
     mhurtle(mtmp, -dx, -dy, steps - 1);
-    tk_impact(mtmp, -dx, -dy);
+    (void) tk_impact(mtmp, -dx, -dy, (struct monst *) 0);
 }
 
 /*
@@ -478,6 +493,8 @@ dotelekinesis()
         py += dy;
         if (px == cc.x && py == cc.y)
             break; /* reached target tile */
+        if (!isok(px, py))
+            break;
         if (IS_STWALL(levl[px][py].typ) || closed_door(px, py)) {
             You_cant("see a clear path there.");
             return 0;
@@ -602,7 +619,10 @@ int dx, dy, range;
                 potionhit(&youmonst, obj, POTHIT_OTHER_THROW);
                 return;
             }
-            if (weight >= 20 || obj->oclass == WEAPON_CLASS) {
+            if (weight >= 20 || obj->oclass == WEAPON_CLASS
+                || obj->otyp == CREAM_PIE
+                || (((obj->otyp == CORPSE || obj->otyp == EGG)
+                     && safe_touch_petrifies(obj->corpsenm)))) {
                 dmg = d(max(1, weight / 50), 4);
                 pline("%s telekinetically hurls %s at you!",
                       Monnam(mtmp), an(xname(obj)));
@@ -657,7 +677,10 @@ int dx, dy, range;
                 potionhit(target, obj, POTHIT_OTHER_THROW);
                 return; /* obj destroyed */
             }
-            if (weight >= 20 || obj->oclass == WEAPON_CLASS) {
+            if (weight >= 20 || obj->oclass == WEAPON_CLASS
+                || obj->otyp == CREAM_PIE
+                || (((obj->otyp == CORPSE || obj->otyp == EGG)
+                     && safe_touch_petrifies(obj->corpsenm)))) {
                 dmg = d(max(1, weight / 50), 4);
                 if (canseemon(target))
                     pline("%s strikes %s!", An(xname(obj)),
@@ -665,12 +688,17 @@ int dx, dy, range;
                 if ((obj->otyp == CORPSE || obj->otyp == EGG)
                     && safe_touch_petrifies(obj->corpsenm)
                     && !resists_ston(target)) {
-                    minstapetrify(target, TRUE);
+                    minstapetrify(target, !context.mon_moving);
                 } else {
-                    if (damage_mon(target, dmg, AD_PHYS, FALSE))
-                        mondied(target);
-                    else
+                    if (damage_mon(target, dmg, AD_PHYS, FALSE)) {
+                        if (mtmp->mtame)
+                            set_pet_killer(mtmp);
+                        monkilled(target,
+                                  "telekinetically hurled object",
+                                  AD_PHYS);
+                    } else {
                         wakeup(target, TRUE);
+                    }
                 }
             } else {
                 wakeup(target, TRUE);
@@ -708,6 +736,9 @@ struct monst *mtmp;
     /* Only mind flayers have TK */
     if (!is_mind_flayer(mtmp->data))
         return FALSE;
+    /* Cancelled monsters can't use the ability */
+    if (mtmp->mcan)
+        return FALSE;
     /* Cooldown check */
     if (mtmp->mspec_used)
         return FALSE;
@@ -719,7 +750,7 @@ struct monst *mtmp;
     range = is_master ? 5 : 3;
     max_msize = is_master ? MZ_LARGE : MZ_SMALL;
 
-    /* Find a target — mfind_target handles hostile vs tame vs
+    /* Find a target; mfind_target handles hostile vs tame vs
        peaceful vs conflict, and checks line-of-sight */
     mdef = mfind_target(mtmp);
     if (!mdef || mdef == mtmp)
@@ -802,35 +833,29 @@ struct monst *mtmp;
 
     if (push_obj) {
         m_tk_push_obj(mtmp, push_obj, dx, dy, range);
-        mtmp->mspec_used = 6 + rn2(6);
+        if (!DEADMONSTER(mtmp))
+            mtmp->mspec_used = 6 + rn2(6);
         return TRUE;
     }
 
-    /* Priority 2: Pull the target towards the monster */
+    /* Pull the target towards the monster */
     if (target_is_you) {
         if ((int) youmonst.data->msize <= max_msize && dist > 1) {
             int pull_range = dist - 1;
             int pdx = sgn(mx - u.ux);
             int pdy = sgn(my - u.uy);
 
+            /* Chain on the floor stops the pull */
+            if (Punished && uball && !carried(uball)) {
+                if (canseemon(mtmp))
+                    pline("%s tries to pull you, but the chain holds you firm.",
+                          Monnam(mtmp));
+                mtmp->mspec_used = 6 + rn2(6);
+                return TRUE;
+            }
+
             pline("%s telekinetically pulls you towards %s!",
                   Monnam(mtmp), mhim(mtmp));
-
-            /* Chain constraint for punished player */
-            if (Punished && uball && !carried(uball)) {
-                int bx = uball->ox, by = uball->oy;
-
-                while (pull_range > 0
-                       && dist2(u.ux + pdx * pull_range,
-                                u.uy + pdy * pull_range,
-                                bx, by) > 8)
-                    pull_range--;
-                if (pull_range <= 0) {
-                    pline_The("chain goes taut!");
-                    mtmp->mspec_used = 6 + rn2(6);
-                    return TRUE;
-                }
-            }
             hurtle(pdx, pdy, pull_range, FALSE);
             /* hurtle's traps can fire dobuzz that kills the puller */
             if (!DEADMONSTER(mtmp))
@@ -846,8 +871,11 @@ struct monst *mtmp;
                       Monnam(mtmp), mon_nam(mdef),
                       mhim(mtmp));
             mhurtle(mdef, -dx, -dy, pull_range);
+            if (!DEADMONSTER(mdef) && mdef->mleashed
+                && um_dist(mdef->mx, mdef->my, 5))
+                m_unleash(mdef, TRUE);
             if (!DEADMONSTER(mdef))
-                tk_impact(mdef, -dx, -dy);
+                (void) tk_impact(mdef, -dx, -dy, mtmp);
             /* mhurtle's traps can fire dobuzz that kills the puller */
             if (!DEADMONSTER(mtmp))
                 mtmp->mspec_used = 6 + rn2(6);
