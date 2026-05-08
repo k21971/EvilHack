@@ -5329,4 +5329,5 @@ The following changes to date are:
 - Fix: various issue in telekinesis.c found via code review
 - Fix: botl.c review fixes plus describe_level branch labels
 - Fix: attrib.c code review fixes
+- Fix: quest.c code review fixes
 

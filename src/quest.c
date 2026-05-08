@@ -266,7 +266,9 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
 {
     struct obj *otmp;
     struct monst *mtmp;
-    struct permonst *q_guardian = &mons[quest_info(MS_GUARDIAN)];
+    struct permonst *q_guardian = (urole.guardnum != NON_PM)
+                                      ? &mons[urole.guardnum]
+                                      : (struct permonst *) 0;
     aligntyp saved_align;
     uchar saved_godgend;
     int i, alignabuse = 0;
@@ -297,9 +299,15 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
             i = 1; /* clamp lower limit to avoid panic */
         alignabuse = !rn2(i);
         if (alignabuse) {
-            const char *qa_name = artiname(urole.questarti),
-                       *ldr_name = ldrname();
+            char ldr_buf[BUFSZ];
+            const char *qa_name = artiname(urole.questarti);
+            const char *ldr_name;
             char qbuf[BUFSZ];
+
+            /* snapshot ldrname() into local buffer; ldrname returns
+               static nambuf which qt_pager rewrites via %l token */
+            Strcpy(ldr_buf, ldrname());
+            ldr_name = ldr_buf;
 
             Sprintf(qbuf, "Forfeit %s to %s?", qa_name, ldr_name);
             /* quest leader decides they want the quest artifact */
@@ -323,8 +331,10 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                         if (DEADMONSTER(mtmp))
                             continue;
-                        if (mtmp->isqldr)
+                        if (mtmp->isqldr) {
                             (void) mpickobj(mtmp, obj);
+                            break;
+                        }
                     }
                     update_inventory();
                     livelog_printf(LL_ACHIEVE,
@@ -357,7 +367,7 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
                     if (DEADMONSTER(mtmp))
                         continue;
                     /* quest guardians become angry */
-                    if (mtmp->data == q_guardian)
+                    if (q_guardian && mtmp->data == q_guardian)
                         setmangry(mtmp, FALSE);
                 }
                 /* Convict quest leader is extra harsh */
@@ -445,11 +455,11 @@ chat_with_leader()
             qt_pager(QT_FIRSTLEADER);
             Qstat(met_leader) = TRUE;
             Qstat(not_ready) = 0;
-	} else if (!Qstat(pissed_off)) {
-	    qt_pager(QT_NEXTLEADER);
-	} else {
-	    verbalize("Your bones shall serve to warn others.");
-	}
+        } else if (!Qstat(pissed_off)) {
+            qt_pager(QT_NEXTLEADER);
+        } else {
+            verbalize("Your bones shall serve to warn others.");
+        }
         /* the quest leader might have passed through the portal into
            the regular dungeon; none of the remaining make sense there */
         if (!on_level(&u.uz, &qstart_level))
@@ -460,16 +470,16 @@ chat_with_leader()
             exercise(A_WIS, TRUE);
             expulsion(FALSE);
         } else if (is_pure(TRUE) < 0) {
-	    if (!Qstat(pissed_off)) {
-		com_pager(QT_BANISHED);
-		Qstat(pissed_off) = 1;
-		expulsion(FALSE);
-	    }
+            if (!Qstat(pissed_off)) {
+                com_pager(QT_BANISHED);
+                Qstat(pissed_off) = 1;
+                expulsion(FALSE);
+            }
         } else if (is_pure(TRUE) == 0) {
             qt_pager(QT_BADALIGN);
-	    Qstat(not_ready) = 1;
-	    exercise(A_WIS, TRUE);
-	    expulsion(FALSE);
+            Qstat(not_ready) = 1;
+            exercise(A_WIS, TRUE);
+            expulsion(FALSE);
         } else { /* You are worthy! */
             qt_pager(QT_ASSIGNQUEST);
             exercise(A_WIS, TRUE);
@@ -488,12 +498,12 @@ struct monst *mtmp;
 {
     /* maybe you attacked leader? */
     if (!mtmp->mpeaceful) {
-	if (!Qstat(pissed_off)) {
-	/* again, don't end it permanently if the leader gets angry
-	 * since you're going to have to kill him to go questing... :)
-	 * ...but do only show this crap once. */
-	    qt_pager(QT_LASTLEADER);
-	}
+        if (!Qstat(pissed_off)) {
+            /* again, don't end it permanently if the leader gets angry
+             * since you're going to have to kill him to go questing... :)
+             * ...but do only show this crap once */
+            qt_pager(QT_LASTLEADER);
+        }
         Qstat(pissed_off) = 1;
         mtmp->mstrategy &= ~STRAT_WAITMASK; /* end the inaction */
     }
@@ -508,8 +518,9 @@ struct monst *mtmp;
     /* leader might have become pissed during the chat */
     if (Qstat(pissed_off)) {
         mtmp->mstrategy &= ~STRAT_WAITMASK;
-	mtmp->mpeaceful = 0;
-	newsym(mtmp->mx, mtmp->my); /* update display */
+        mtmp->mpeaceful = 0;
+        set_malign(mtmp);
+        newsym(mtmp->mx, mtmp->my); /* update display */
     }
 }
 
@@ -519,7 +530,7 @@ chat_with_nemesis()
     /*  The nemesis will do most of the talking, but... */
     qt_pager(rn1(10, QT_DISCOURAGE));
     if (!Qstat(met_nemesis))
-        Qstat(met_nemesis++);
+        Qstat(met_nemesis) = TRUE;
 }
 
 void
@@ -583,21 +594,29 @@ struct monst *mtmp;
 {
     if (mtmp->m_id == Qstat(leader_m_id)) {
         chat_with_leader();
-	/* leader might have become pissed during the chat */
-	if (Qstat(pissed_off)) {
-	    mtmp->mstrategy &= ~STRAT_WAITMASK;
-	    mtmp->mpeaceful = 0;
-	    newsym(mtmp->mx, mtmp->my); /* update display */
-	}
+        /* leader might have become pissed during the chat */
+        if (Qstat(pissed_off)) {
+            mtmp->mstrategy &= ~STRAT_WAITMASK;
+            mtmp->mpeaceful = 0;
+            set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* update display */
+        }
         return;
     }
     switch (mtmp->data->msound) {
     case MS_NEMESIS:
-        if (mtmp->data == &mons[urole.neminum])
+        if (urole.neminum != NON_PM
+            && mtmp->data == &mons[urole.neminum])
             chat_with_nemesis();
         break;
     case MS_GUARDIAN:
         chat_with_guardian();
+        break;
+    case MS_LEADER:
+        /* another role's quest leader (e.g. Wizard chatting Morgan
+           le Fay on the Knight quest via wizmode wizmakemap); the
+           m_id check above only catches your own role's leader, so
+           foreign-role leaders fall through to here. No dialogue */
         break;
     default:
         impossible("quest_chat: Unknown quest character %s.", mon_nam(mtmp));
@@ -614,7 +633,8 @@ struct monst *mtmp;
     }
     switch (mtmp->data->msound) {
     case MS_NEMESIS:
-        if (mtmp->data == &mons[urole.neminum])
+        if (urole.neminum != NON_PM
+            && mtmp->data == &mons[urole.neminum])
             nemesis_speaks();
         break;
     case MS_DJINNI:
