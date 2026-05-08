@@ -490,7 +490,8 @@ has_luckitem()
     struct obj *otmp;
 
     for (otmp = invent; otmp; otmp = otmp->nobj)
-	if (confers_luck(otmp)) return TRUE;
+        if (confers_luck(otmp))
+            return TRUE;
     return FALSE;
 }
 
@@ -509,7 +510,7 @@ set_moreluck()
 void
 restore_attrib()
 {
-    int i, equilibrium;;
+    int i, equilibrium;
 
     /*
      * Note:  this gets called on every turn but ATIME() is never set
@@ -1056,8 +1057,7 @@ int propidx; /* special cases can have negative values */
                               ? ysimple_name(uarmf) /* speed boots */
                                 : EFast ? "worn equipment"
                                   : something);
-            else if (wizard
-                     && (obj = what_gives(&u.uprops[propidx].extrinsic)) != 0)
+            else if ((obj = what_gives(&u.uprops[propidx].extrinsic)) != 0)
                 Sprintf(buf, because_of, obj->oartifact
                                              ? bare_artifactname(obj)
                                              : ysimple_name(obj));
@@ -1220,11 +1220,11 @@ int oldlevel, newlevel;
         if (prevabil != *(abil->ability)) /* it changed */
             postadjabil(abil->ability);
         abil++;
-
-        if (Role_if(PM_MONK) && newlevel >= 25 && Stoned)
-            make_stoned(0L, "You no longer seem to be petrifying.",
-                        0, (char *) 0);
     }
+
+    if (Role_if(PM_MONK) && newlevel >= 25 && Stoned)
+        make_stoned(0L, "You no longer seem to be petrifying.",
+                    0, (char *) 0);
 
     /* don't lose infidel skill slots when crowning. probably good to have
      * the symmetry regardless. (newlevel == 0 should never happen elsewhere,
@@ -1424,6 +1424,32 @@ int attrindx;
             || wielding_artifact(ART_HARBINGER)
             || wielding_artifact(ART_SWORD_OF_KAS))
             lolimit = hilimit;
+    } else if (attrindx == A_CHA) {
+        /* mirror acurr()'s A_CHA forced-floor / forced-ceiling so
+           a +0 ring put on while CHA is forced doesn't reveal its
+           enchantment via learnring */
+        int tmp = u.abon.a[A_CHA] + u.atemp.a[A_CHA] + u.acurr.a[A_CHA];
+
+        if ((youmonst.data->mlet == S_NYMPH
+             || u.umonnum == PM_SUCCUBUS
+             || u.umonnum == PM_INCUBUS)
+            && tmp < 18) {
+            lolimit = hilimit = 18;
+        } else if ((uwep && (uwep->oprops & ITEM_EXCEL))
+                   || (u.twoweap
+                       && (uswapwep->oprops & ITEM_EXCEL))) {
+            if (tmp > 6
+                && (uwep->cursed
+                    || (u.twoweap && uswapwep->cursed)))
+                lolimit = hilimit = 6;
+            else if (tmp < 18
+                     && (!uwep->blessed
+                         || (u.twoweap && !uswapwep->blessed)))
+                lolimit = hilimit = 18;
+            else if (uwep->blessed
+                     || (u.twoweap && uswapwep->blessed))
+                lolimit = hilimit = 25;
+        }
     } else if (attrindx == A_CON) {
         if (wielding_artifact(ART_OGRESMASHER)
             || (uarms && uarms->oartifact == ART_ASHMAR)
@@ -1762,14 +1788,18 @@ aasimar_check_abuse()
                 } else if (!has_stat_drain_penalty()) {
                     pen_id = AASIMAR_PEN_STAT_DRAIN;
                 } else {
-                    /* Stat drain taken; pick a
-                       random negative intrinsic */
-                    pen_id = rn2(2)
-                        ? AASIMAR_PEN_HUNGER
-                        : AASIMAR_PEN_AGGRAVATE;
+                    /* all positive intrinsics, both negative
+                       intrinsics, and stat drain are taken;
+                       nothing left to assign -- defensively
+                       leave the tier empty rather than
+                       double-assign a HUNGER/AGGRAVATE that
+                       the eligibility loop already rejected */
+                    pen_id = AASIMAR_PEN_NONE;
                 }
-                SET_AASIMAR_PEN_TIER(t, pen_id);
-                apply_aasimar_penalty(pen_id, TRUE);
+                if (pen_id != AASIMAR_PEN_NONE) {
+                    SET_AASIMAR_PEN_TIER(t, pen_id);
+                    apply_aasimar_penalty(pen_id, TRUE);
+                }
             } else {
                 /* Re-enforce existing penalty;
                    adjabil or restore may have
