@@ -5327,4 +5327,5 @@ The following changes to date are:
 - Fix: worn.c re-review fixes plus mon.c newcham() UAF sibling
 - Fix: wield.c re-review fixes
 - Fix: various issue in telekinesis.c found via code review
+- Fix: botl.c review fixes plus describe_level branch labels
 

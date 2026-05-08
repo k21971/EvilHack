@@ -463,7 +463,7 @@ long seconds;
 }
 
 const char *
-botl_realtime(void)
+botl_realtime()
 {
     static char buf[BUFSZ] = { 0 };
     time_t currenttime;
@@ -502,8 +502,9 @@ botl_realtime(void)
     default: {
         char *duration = format_duration_with_units(currenttime);
         /* only show 2 time units */
-        *(strchr(duration, ':')+4) = '\0';
+        *(strchr(duration, ':') + 4) = '\0';
         Sprintf(buf, "%s", duration);
+        break;
     }
     }
     return buf;
@@ -518,15 +519,41 @@ char *buf;
 {
     int ret = 1;
 
-    /* TODO:    Add in dungeon name */
-    if (Is_knox(&u.uz))
+    if (Is_knox(&u.uz)) {
         Sprintf(buf, "%s ", dungeons[u.uz.dnum].dname);
-    else if (In_quest(&u.uz))
+    } else if (In_quest(&u.uz)) {
         Sprintf(buf, "Home %d ", dunlev(&u.uz));
-    else if (In_endgame(&u.uz))
-        Sprintf(buf, Is_astralevel(&u.uz) ? "Astral Plane " : "End Game ");
-    else {
-        /* ports with more room may expand this one */
+    } else if (In_endgame(&u.uz)) {
+        (void) endgamelevelname(buf, depth(&u.uz));
+        /* status field is narrow; drop "Plane of " so just the
+           element name remains ("Astral Plane" has no prefix) */
+        (void) strsubst(buf, "Plane of ", "");
+        Strcat(buf, " ");
+    } else if (In_mines(&u.uz)) {
+        Sprintf(buf, "Mines:%-2d ", dunlev(&u.uz));
+    } else if (In_sokoban(&u.uz)) {
+        Sprintf(buf, "Soko:%-2d ", dunlev(&u.uz));
+    } else if (In_goblintown(&u.uz)) {
+        Sprintf(buf, "Goblin:%-2d ", dunlev(&u.uz));
+    } else if (In_icequeen_branch(&u.uz)) {
+        Sprintf(buf, "IceQ:%-2d ", dunlev(&u.uz));
+    /* Gehennom-chain sub-branches: each one MUST be tested before the
+       generic In_hell() arm below, since they all carry hellish=TRUE */
+    } else if (In_V_tower(&u.uz)) {
+        Sprintf(buf, "Vlad:%-2d ", dunlev(&u.uz));
+    } else if (In_vecna_branch(&u.uz)) {
+        Sprintf(buf, "Vecna:%-2d ", dunlev(&u.uz));
+    } else if (In_hdgn(&u.uz)) {
+        Sprintf(buf, "Hidden:%-2d ", dunlev(&u.uz));
+    } else if (u.uz.dnum == wiz1_level.dnum) {
+        Sprintf(buf, "WizTwr:%-2d ", dunlev(&u.uz));
+    } else if (In_purgatory(&u.uz)) {
+        Sprintf(buf, "Purg:%-2d ", dunlev(&u.uz));
+    } else if (In_hell(&u.uz)) {
+        Sprintf(buf, "Hell:%-2d ", dunlev(&u.uz));
+    } else {
+        /* main Dungeons of Doom (and any future branch we don't
+           name explicitly above) */
         Sprintf(buf, "Dlvl:%-2d ", depth(&u.uz));
         ret = 0;
     }
@@ -660,7 +687,7 @@ STATIC_VAR struct istat_s initblstats[MAXBLSTATS] = {
     INIT_BLSTAT("to-hit", " TH:%s", ANY_INT, 10, BL_TOHIT),
     INIT_BLSTAT("HD", " HD:%s", ANY_INT, 10, BL_HD),
     INIT_BLSTAT("time", " T:%s", ANY_LONG, 20, BL_TIME),
-    INIT_BLSTAT("realtime", " %s", ANY_STR, 10, BL_REALTIME),
+    INIT_BLSTAT("realtime", " %s", ANY_STR, 24, BL_REALTIME),
     /* hunger used to be 'ANY_UINT'; see note below in bot_via_windowport() */
     INIT_BLSTAT("hunger", " %s", ANY_INT, 40, BL_HUNGER),
     INIT_BLSTATP("hitpoints", " HP:%s", ANY_INT, 10, BL_HPMAX, BL_HP),
@@ -900,7 +927,6 @@ stat_update_time()
     int fld = BL_TIME;
 
     /* Time (moves) */
-    fld = BL_TIME;
     blstats[idx][fld].a.a_long = moves;
     valset[fld] = FALSE;
     eval_notify_windowport_field(fld, valset, idx);
@@ -1043,7 +1069,7 @@ evaluate_and_notify_windowport(valsetlist, idx)
 int idx;
 boolean *valsetlist;
 {
-    int i, updated = 0, notpresent = 0;
+    int i, updated = 0;
 
     /*
      *  Now pass the changed values to window port.
@@ -1057,7 +1083,6 @@ boolean *valsetlist;
 #endif
             || ((i == BL_HD) && !Upolyd)
             || ((i == BL_XP || i == BL_EXP) && Upolyd)) {
-            notpresent++;
             continue;
         }
         if (eval_notify_windowport_field(i, valsetlist, idx))
@@ -1230,12 +1255,32 @@ struct istat_s *bl1, *bl2;
     }
 
     anytype = bl1->anytype;
-    if ((!bl1->a.a_void || !bl2->a.a_void)
-        && (anytype == ANY_IPTR || anytype == ANY_UPTR || anytype == ANY_LPTR
-            || anytype == ANY_ULPTR)) {
-        panic("compare_blstat: invalid pointer %s, %s",
-              fmt_ptr((genericptr_t) bl1->a.a_void),
-              fmt_ptr((genericptr_t) bl2->a.a_void));
+    {
+        /* validate pointer-typed entries via the written union member,
+           not via a 'a_void' type pun */
+        boolean ptr_invalid = FALSE;
+
+        switch (anytype) {
+        case ANY_IPTR:
+            ptr_invalid = (!bl1->a.a_iptr || !bl2->a.a_iptr);
+            break;
+        case ANY_UPTR:
+            ptr_invalid = (!bl1->a.a_uptr || !bl2->a.a_uptr);
+            break;
+        case ANY_LPTR:
+            ptr_invalid = (!bl1->a.a_lptr || !bl2->a.a_lptr);
+            break;
+        case ANY_ULPTR:
+            ptr_invalid = (!bl1->a.a_ulptr || !bl2->a.a_ulptr);
+            break;
+        default:
+            break;
+        }
+        if (ptr_invalid) {
+            panic("compare_blstat: invalid pointer %s, %s",
+                  fmt_ptr((genericptr_t) bl1->a.a_void),
+                  fmt_ptr((genericptr_t) bl2->a.a_void));
+        }
     }
 
     switch (anytype) {
@@ -1406,41 +1451,57 @@ struct istat_s *bl, *maxbl;
 
     ival = 0, lval = 0L, uval = 0U, ulval = 0UL;
     anytype = bl->anytype;
-    if (maxbl->a.a_void) {
-        switch (anytype) {
-        case ANY_INT:
+    /* check the divisor through its written union member rather than
+       reading 'a_void' as a generic non-zero pun */
+    switch (anytype) {
+    case ANY_INT:
+        if (maxbl->a.a_int != 0) {
             ival = bl->a.a_int;
             result = ((100 * ival) / maxbl->a.a_int);
-            break;
-        case ANY_LONG:
+        }
+        break;
+    case ANY_LONG:
+        if (maxbl->a.a_long != 0L) {
             lval  = bl->a.a_long;
             result = (int) ((100L * lval) / maxbl->a.a_long);
-            break;
-        case ANY_UINT:
+        }
+        break;
+    case ANY_UINT:
+        if (maxbl->a.a_uint != 0U) {
             uval = bl->a.a_uint;
             result = (int) ((100U * uval) / maxbl->a.a_uint);
-            break;
-        case ANY_ULONG:
+        }
+        break;
+    case ANY_ULONG:
+        if (maxbl->a.a_ulong != 0UL) {
             ulval = bl->a.a_ulong;
             result = (int) ((100UL * ulval) / maxbl->a.a_ulong);
-            break;
-        case ANY_IPTR:
+        }
+        break;
+    case ANY_IPTR:
+        if (maxbl->a.a_iptr && *maxbl->a.a_iptr != 0) {
             ival = *bl->a.a_iptr;
             result = ((100 * ival) / (*maxbl->a.a_iptr));
-            break;
-        case ANY_LPTR:
+        }
+        break;
+    case ANY_LPTR:
+        if (maxbl->a.a_lptr && *maxbl->a.a_lptr != 0L) {
             lval = *bl->a.a_lptr;
             result = (int) ((100L * lval) / (*maxbl->a.a_lptr));
-            break;
-        case ANY_UPTR:
+        }
+        break;
+    case ANY_UPTR:
+        if (maxbl->a.a_uptr && *maxbl->a.a_uptr != 0U) {
             uval = *bl->a.a_uptr;
             result = (int) ((100U * uval) / (*maxbl->a.a_uptr));
-            break;
-        case ANY_ULPTR:
+        }
+        break;
+    case ANY_ULPTR:
+        if (maxbl->a.a_ulptr && *maxbl->a.a_ulptr != 0UL) {
             ulval = *bl->a.a_ulptr;
             result = (int) ((100UL * ulval) / (*maxbl->a.a_ulptr));
-            break;
         }
+        break;
     }
     /* don't let truncation from integer division produce a zero result
        from a non-zero input; note: if we ever change to something like
@@ -2091,7 +2152,7 @@ int maxsf;
             }
             c++;
         }
-        if (sf >= maxsf - 1)
+        if (sf >= maxsf)
             return -1;
         if (!*c && c != st)
             subfields[sf++] = st;
@@ -2376,13 +2437,13 @@ boolean from_configfile;
                 return FALSE;
             } else if ((hilite.value.a_int < -1)
                        || (hilite.value.a_int == -1
-                           && hilite.value.a_int != GT_VALUE)
+                           && hilite.rel != GT_VALUE)
                        || (hilite.value.a_int == 0
                            && hilite.rel == LT_VALUE)
                        || (hilite.value.a_int == 100
                            && hilite.rel == GT_VALUE)
                        || (hilite.value.a_int == 101
-                           && hilite.value.a_int != LT_VALUE)
+                           && hilite.rel != LT_VALUE)
                        || (hilite.value.a_int > 101)) {
                 config_error_add(
                            "hilite_status: invalid percentage value '%s%d%%'",
@@ -2453,7 +2514,7 @@ boolean from_configfile;
             hilite.behavior = BL_TH_TEXTMATCH;
         else if (hilite.value.a_void)
             hilite.behavior = BL_TH_VAL_ABSOLUTE;
-       else
+        else
             hilite.behavior = BL_TH_NONE;
 
         hilite.anytype = dt;
@@ -2555,6 +2616,8 @@ unsigned long ul;
     if (!ul)
         return buf;
 
+    /* skip index 0 ("strangled"); it's a single-condition alias for
+       the canonical "strngl" already emitted by the loop below */
     for (i = 1; i < SIZE(condition_aliases); i++)
         if (condition_aliases[i].bitmask == ul)
             alias = condition_aliases[i].id;
@@ -3558,7 +3621,7 @@ choose_value:
                 Sprintf(mbuf, "\"%s\"", urole.rank[i].m);
                 if (urole.rank[i].f) {
                     Sprintf(fbuf, "\"%s\"", urole.rank[i].f);
-                    Sprintf(obuf, "%s or %s",
+                    Sprintf(obuf, "%.36s or %.36s",
                             flags.female ? fbuf : mbuf,
                             flags.female ? mbuf : fbuf);
                 } else {
