@@ -1,6 +1,8 @@
 #ifndef WINLISP_H
 #define WINLISP_H
 
+#define LISP_VERSION "0.15.1"
+
 #ifndef E
 #define E extern
 #endif
