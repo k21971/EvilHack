@@ -182,8 +182,11 @@ const char *
 surface(x, y)
 int x, y;
 {
-    struct rm *lev = &levl[x][y];
+    struct rm *lev;
 
+    if (!isok(x, y))
+        return "ground";
+    lev = &levl[x][y];
     if (x == u.ux && y == u.uy && u.uswallow && is_swallower(u.ustuck->data))
         return "maw";
     else if (IS_AIR(lev->typ) && (Is_airlevel(&u.uz) || In_V_tower(&u.uz)))
@@ -222,9 +225,12 @@ const char *
 ceiling(x, y)
 int x, y;
 {
-    struct rm *lev = &levl[x][y];
+    struct rm *lev;
     const char *what;
 
+    if (!isok(x, y))
+        return "rock cavern";
+    lev = &levl[x][y];
     /* other room types will no longer exist when we're interested --
      * see check_special_room()
      */
@@ -314,8 +320,17 @@ boolean magical;
                 debugpline1("actually eroding %d characters", cnt);
             }
             wipeout_text(ep->engr_txt, (int) cnt, 0);
-            while (ep->engr_txt[0] == ' ')
-                ep->engr_txt++;
+            /* compact leading spaces in place so engr_txt stays at
+               (ep + 1); otherwise save/restore round-trip would lose
+               the advance and stale spaces would reappear */
+            {
+                char *src = ep->engr_txt;
+
+                while (*src == ' ')
+                    src++;
+                if (src != ep->engr_txt)
+                    (void) memmove(ep->engr_txt, src, strlen(src) + 1);
+            }
             if (!ep->engr_txt[0])
                 del_engr(ep);
         }
@@ -446,15 +461,17 @@ xchar e_type;
 
     struct engr *ep;
     unsigned smem;
+    boolean had_oep;
 
-    if ((ep = engr_at(x, y)) != 0)
+    had_oep = ((ep = engr_at(x, y)) != 0);
+    if (had_oep)
         del_engr(ep);
     if (!in_mklev && e_type != HEADSTONE && strstri(s, "Elbereth")) {
         if (!u.uevent.ulearned_elbereth) {
            s = bogus_elbereth[rn2(N_BOGUS_ELBERETH)];
            pline("%s", cannot_write[rn2(N_CANNOT_WRITE)]);
            You("%swrite %s instead.",
-               (ep ? "wipe out the message and " : ""),  s);
+               (had_oep ? "wipe out the message and " : ""),  s);
         } else {
             if (!strcmpi(s, "Elbereth")) {
                 /* engraving Elbereth shows wisdom */
@@ -761,14 +778,14 @@ doengrave()
                 if (!Blind) {
                     Sprintf(post_engr_text, "The bugs on the %s slow down!",
                             surface(u.ux, u.uy));
-                postknown = TRUE;
+                    postknown = TRUE;
                 }
                 break;
             case WAN_SPEED_MONSTER:
                 if (!Blind) {
                     Sprintf(post_engr_text, "The bugs on the %s speed up!",
                             surface(u.ux, u.uy));
-                postknown = TRUE;
+                    postknown = TRUE;
                 }
                 break;
             case WAN_POLYMORPH:
@@ -802,7 +819,7 @@ doengrave()
                     Sprintf(post_engr_text,
                             "The %s is riddled by bullet holes!",
                             surface(u.ux, u.uy));
-                postknown = TRUE;
+                    postknown = TRUE;
                 }
                 break;
             /* can't tell sleep from death - Eric Backus */
@@ -833,9 +850,9 @@ doengrave()
                 break;
             case WAN_TELEPORTATION:
                 if (oep && oep->engr_type != HEADSTONE) {
-                    if (!Blind)
-                        pline_The("engraving on the %s vanishes!",
-                                  surface(u.ux, u.uy));
+                    /* "vanishes" message deferred until rloc_engr
+                       confirms a relocation; if every candidate tile
+                       is full or non-good the engraving stays put */
                     teleengr = TRUE;
                 }
                 break;
@@ -978,6 +995,13 @@ doengrave()
             dengr = FALSE;
             teleengr = FALSE;
             buf[0] = '\0';
+            /* the wand effect was demoted, so suppress its
+               leftover post-engrave feedback (flames, lightning,
+               bullet holes, blinding flash); the wand is still
+               consumed because zapwand was already set */
+            post_engr_text[0] = '\0';
+            postknown = FALSE;
+            doblind = FALSE;
         }
     }
 
@@ -990,8 +1014,15 @@ doengrave()
         engraving_learn_wand(otmp);
     }
     if (teleengr) {
-        rloc_engr(oep);
-        oep = (struct engr *) 0;
+        if (rloc_engr(oep)) {
+            if (!Blind)
+                pline_The("engraving on the %s vanishes!",
+                          surface(u.ux, u.uy));
+            oep = (struct engr *) 0;
+        }
+        /* on rloc failure (no good tile within tryct), engraving
+           stays put; oep remains valid so the engrave-or-add logic
+           below can still build on it */
     }
     if (dengr) {
         del_engr(oep);
@@ -1139,7 +1170,6 @@ doengrave()
     if (len != 1 || (!index(ebuf, 'x') && !index(ebuf, 'X')))
         if (!u.uconduct.literate++)
             livelog_printf(LL_CONDUCT,"became literate by engraving \"%s\"", ebuf);
-
 
     /* Mix up engraving if surface or state of mind is unsound.
        Note: this won't add or remove any spaces. */
@@ -1323,6 +1353,11 @@ int fd;
         mread(fd, (genericptr_t) &lth, sizeof lth);
         if (lth == 0)
             return;
+        /* engr_lth is strlen(text)+1, capped at the engraving prompt
+           buffer size; reject corrupt/oversize length-prefixes before
+           alloc()/mread() can blow up the heap */
+        if (lth > BUFSZ + 1)
+            panic("rest_engravings: bogus engr_lth %u", lth);
         ep = newengr(lth);
         mread(fd, (genericptr_t) ep, sizeof (struct engr) + lth);
         ep->nxt_engr = head_engr;
@@ -1375,8 +1410,10 @@ struct engr *ep;
     dealloc_engr(ep);
 }
 
-/* randomly relocate an engraving */
-void
+/* randomly relocate an engraving; returns FALSE if no good destination
+   was found within the retry budget so the caller can suppress its
+   "vanishes" feedback rather than printing it for a no-op */
+boolean
 rloc_engr(ep)
 struct engr *ep;
 {
@@ -1384,13 +1421,14 @@ struct engr *ep;
 
     do {
         if (--tryct < 0)
-            return;
+            return FALSE;
         tx = rn1(COLNO - 3, 2);
         ty = rn2(ROWNO);
     } while (engr_at(tx, ty) || !goodpos(tx, ty, (struct monst *) 0, 0L));
 
     ep->engr_x = tx;
     ep->engr_y = ty;
+    return TRUE;
 }
 
 /* Create a headstone at the given location.
@@ -1409,7 +1447,11 @@ const char *str;
          && levl[x][y].typ != GRAVE)
         || t_at(x, y))
         return;
-    /* Make the grave */
+    /* Make the grave; clear flags first so a GRAVE -> GRAVE rebuild
+       doesn't carry stale `disturbed` (alias of horizontal) and the
+       fresh grave still spawns a ghoul on first dig */
+    levl[x][y].flags = 0;
+    levl[x][y].horizontal = 0;
     levl[x][y].typ = GRAVE;
     /* Engrave the headstone */
     del_engr_at(x, y);

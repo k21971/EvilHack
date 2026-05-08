@@ -4060,7 +4060,7 @@ struct obj *obj; /* wand or spell */
                 break;
             case WAN_TELEPORTATION:
             case SPE_TELEPORT_AWAY:
-                rloc_engr(e);
+                (void) rloc_engr(e);
                 break;
             case SPE_STONE_TO_FLESH:
                 if (e->engr_type == ENGRAVE) {

@@ -5330,4 +5330,5 @@ The following changes to date are:
 - Fix: botl.c review fixes plus describe_level branch labels
 - Fix: attrib.c code review fixes
 - Fix: quest.c code review fixes
+- Fix: engrave.c code review fixes
 
