@@ -573,8 +573,9 @@ mon_prop(mon, prop)
 struct monst *mon;
 int prop;
 {
+    boolean is_you = (mon == &youmonst);
     struct obj *o;
-    int adtyp = 0;
+
     /* First, check if prop has a corresponding monflag */
     switch (prop) {
     case REGENERATION:
@@ -597,9 +598,6 @@ int prop;
         if (telepathic(mon->data))
             return TRUE;
         break;
-    case HALLUC_RES:
-        adtyp = AD_HALU;
-        break;
     case JUMPING:
         if (is_unicorn(mon->data))
             return TRUE;
@@ -609,12 +607,12 @@ int prop;
     }
 
     /* Now check for extrinsics */
-    for (o = mon->minvent; o; o = o->nobj) {
+    for (o = is_you ? invent : mon->minvent; o; o = o->nobj) {
         if ((o->owornmask && objects[o->otyp].oc_oprop == prop)
             || (o->owornmask && obj_has_prop(o, prop)) /* object properties */
-            || (o->oartifact && ((adtyp && protects(o, TRUE))
-            || (arti_prop_spfx(prop) && spec_ability(o, arti_prop_spfx(prop)))))) {
-        return TRUE;
+            || (o->oartifact && arti_prop_spfx(prop)
+                && spec_ability(o, arti_prop_spfx(prop)))) {
+            return TRUE;
         }
     }
     return FALSE;
@@ -746,7 +744,7 @@ int
 max_passive_dmg(mdef, magr)
 struct monst *mdef, *magr;
 {
-    int i, dmg = 0, multi2 = 0;
+    int i, dmg, max_dmg = 0, multi2 = 0;
     uchar adtyp;
 
     /* each attack by magr can result in passive damage */
@@ -790,9 +788,10 @@ struct monst *mdef, *magr;
             } else
                 dmg = 0;
 
-            return dmg * multi2;
+            if (dmg > max_dmg)
+                max_dmg = dmg;
         }
-    return 0;
+    return max_dmg * multi2;
 }
 
 /* determine whether two monster types are from the same species */
@@ -836,8 +835,8 @@ struct permonst *pm1, *pm2;
         return is_gnoll(pm2);
     if (is_golem(pm1))
         return is_golem(pm2); /* even moreso... */
-    if (is_mind_flayer(pm1))
-        return is_mind_flayer(pm2);
+    if (is_illithid(pm1))
+        return is_illithid(pm2);
     if (let1 == S_KOBOLD || pm1 == &mons[PM_KOBOLD_ZOMBIE]
         || pm1 == &mons[PM_KOBOLD_MUMMY])
         return (let2 == S_KOBOLD || pm2 == &mons[PM_KOBOLD_ZOMBIE]
@@ -955,7 +954,7 @@ unsigned mhflag;
         "jabberwock",
         "wraith"
     };
-    return mrnames[mhflag];
+    return (mhflag < SIZE(mrnames)) ? mrnames[mhflag] : "creature";
 }
 
 /* for handling alternate spellings */
@@ -1002,21 +1001,23 @@ int *matchlen;
 
     if ((s = strstri(str, "vortices")) != 0)
         Strcpy(s + 4, "ex");
-    /* nobles and royalty */
+    /* nobles and royalty: write offset preserves the leading space so that
+       e.g. "vampire lord" becomes "vampire noble" (matchable against
+       mons[].mname), not "vampirenoble" */
     if (slen > 5 && (s = strstri(term - 5, " lady")) != 0)
-        Strcpy(term - 5, "noble");
+        Strcpy(term - 4, "noble");
     else if (slen > 5 && (s = strstri(term - 5, " lord")) != 0)
-        Strcpy(term - 5, "noble");
+        Strcpy(term - 4, "noble");
     else if (slen > 6 && (s = strstri(term - 6, " queen")) != 0
              && strncmpi(str, "kathryn ", 8))
         Strcpy(term - 5, "royal");
     else if (slen > 5 && (s = strstri(term - 5, " king")) != 0
              && strncmpi(str, "rat ", 4) && strncmpi(str, "goblin ", 7))
-        Strcpy(term - 5, "royal");
+        Strcpy(term - 4, "royal");
     else if (slen > 9 && (s = strstri(term - 9, " baroness")) != 0)
-        Strcpy(term - 9, "sovereign");
+        Strcpy(term - 8, "sovereign");
     else if (slen > 6 && (s = strstri(term - 6, " baron")) != 0)
-        Strcpy(term - 9, "sovereign");
+        Strcpy(term - 5, "sovereign");
     /* be careful with "ies"; "priest", "zombies" */
     else if (slen > 3 && !strcmpi(term - 3, "ies")
              && (slen < 7 || strcmpi(term - 7, "zombies")))
@@ -1050,6 +1051,11 @@ int *matchlen;
             /* Outdated names */
             { "invisible stalker", PM_STALKER },
             { "high-elf", PM_ELVEN_ROYAL }, /* PM_HIGH_ELF is obsolete */
+            /* "elf" alias for "elven" rank-titled monsters; substitution
+               above turns "elf lord"/"elf lady"/"elf king"/"elf queen"
+               into "elf noble"/"elf royal" */
+            { "elf noble", PM_ELVEN_NOBLE },
+            { "elf royal", PM_ELVEN_ROYAL },
             /* other misspellings or incorrect words */
             { "wood-elf", PM_WOODLAND_ELF },
             { "wood elf", PM_WOODLAND_ELF },
@@ -1088,8 +1094,11 @@ int *matchlen;
         const struct alt_spl *namep;
 
         for (namep = names; namep->name; namep++)
-            if (!strncmpi(str, namep->name, (int) strlen(namep->name)))
+            if (!strncmpi(str, namep->name, (int) strlen(namep->name))) {
+                if (matchlen)
+                    *matchlen = (int) strlen(namep->name);
                 return namep->pm_val;
+            }
     }
 
     for (len = 0, i = LOW_PM; i < NUMMONS; i++) {
