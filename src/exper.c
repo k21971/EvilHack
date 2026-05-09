@@ -65,13 +65,20 @@ newpw()
             enrnd += urole.enadv.hirnd + urace.enadv.hirnd;
             enfix = urole.enadv.hifix + urace.enadv.hifix;
         }
+        /* defensive floor: rn1(0, X) divides by zero; ATTRMIN
+           guarantees enrnd >= 1 in normal play, but corruption or
+           future race additions could break the invariant */
+        if (enrnd < 1)
+            enrnd = 1;
         en = enermod(rn1(enrnd, enfix));
     }
     if (en <= 0)
         en = 1;
     if (u.ulevel < MAXULEV) {
-        /* remember increment; future level drain could take it away again */
-        u.ueninc[u.ulevel] = (xchar) en;
+        /* remember increment; future level drain could take it away
+           again; clamp to xchar range to avoid sign-flip if a future
+           role/race tuning ever pushes en past 127 */
+        u.ueninc[u.ulevel] = (xchar) min(en, 127);
     } else {
         /* after level 30, throttle energy gains from extra experience;
            once max reaches 600, further increments will be just 1 more */
@@ -179,7 +186,7 @@ int exper, rexp;
     long oldexp = u.uexp,
          oldrexp = u.urexp,
          newexp = oldexp + exper,
-         rexpincr = 4 * exper + rexp,
+         rexpincr = 4L * exper + rexp,
          newrexp = oldrexp + rexpincr;
 
     /* cap experience and score on wraparound */
@@ -215,7 +222,7 @@ void
 losexp(drainer)
 const char *drainer; /* cause of death, if drain should be fatal */
 {
-    int num;
+    int num, entry_level = u.ulevel;
 
     /* override life-drain resistance when handling an explicit
        wizard mode request to reduce level; never fatal though */
@@ -225,7 +232,8 @@ const char *drainer; /* cause of death, if drain should be fatal */
         return;
 
     if (u.ulevel > 1) {
-        pline("%s level %d.", Goodbye(), u.ulevel--);
+        pline("%s level %d.", Goodbye(), u.ulevel);
+        u.ulevel--;
         /* remove intrinsic abilities */
         adjabil(u.ulevel + 1, u.ulevel);
     } else {
@@ -235,33 +243,42 @@ const char *drainer; /* cause of death, if drain should be fatal */
                 Strcpy(killer.name, drainer);
             done(DIED);
         }
-        /* no drainer or lifesaved */
+        /* no drainer or lifesaved at level 1 */
         u.uexp = 0;
     }
-    num = (int) u.uhpinc[u.ulevel];
-    u.uhpmax -= num;
-    if (u.uhpmax < 1)
-        u.uhpmax = 1;
-    u.uhp -= num;
-    if (u.uhp < 1)
-        u.uhp = 1;
-    else if (u.uhp > u.uhpmax)
-        u.uhp = u.uhpmax;
 
-    num = (int) u.ueninc[u.ulevel];
-    u.uenmax -= num;
-    if (u.uenmax < 0)
-        u.uenmax = 0;
-    u.uen -= num;
-    if (u.uen < 0)
-        u.uen = 0;
-    else if (u.uen > u.uenmax)
-        u.uen = u.uenmax;
+    /* only adjust HP/Pw if a level was actually lost; at u.ulevel==1
+       with no decrement, u.uhpinc[1] / u.ueninc[1] holds the prior
+       1->2 increment (or zero if never reached level 2), and
+       subtracting it on divine anger or lifesave at level 1 would
+       double-remove a gain that was already taken back when the hero
+       dropped from level 2 to 1 in an earlier losexp call */
+    if (u.ulevel < entry_level) {
+        num = (int) u.uhpinc[u.ulevel];
+        u.uhpmax -= num;
+        if (u.uhpmax < 1)
+            u.uhpmax = 1;
+        u.uhp -= num;
+        if (u.uhp < 1)
+            u.uhp = 1;
+        else if (u.uhp > u.uhpmax)
+            u.uhp = u.uhpmax;
+
+        num = (int) u.ueninc[u.ulevel];
+        u.uenmax -= num;
+        if (u.uenmax < 0)
+            u.uenmax = 0;
+        u.uen -= num;
+        if (u.uen < 0)
+            u.uen = 0;
+        else if (u.uen > u.uenmax)
+            u.uen = u.uenmax;
+    }
 
     if (u.uexp > 0)
         u.uexp = newuexp(u.ulevel) - 1;
 
-    if (Upolyd) {
+    if (Upolyd && u.ulevel < entry_level) {
         num = monhp_per_lvl(&youmonst);
         u.mhmax -= num;
         u.mh -= num;
@@ -346,7 +363,11 @@ boolean gaining; /* gaining XP via potion vs setting XP for polyself */
     /* make sure that `diff' is an argument which rn2() can handle */
     while (diff >= (long) LARGEST_INT)
         diff /= 2L, factor *= 2L;
-    result = minexp + factor * (long) rn2((int) diff);
+    /* diff can be 0 if u.ulevel == 0 (newuexp(-1) and newuexp(0) both
+       return 0); rn2(0) divides by zero */
+    result = minexp;
+    if (diff > 0)
+        result += factor * (long) rn2((int) diff);
     /* 3.4.1:  if already at level 30, add to current experience
        points rather than to threshold needed to reach the current
        level; otherwise blessed potions of gain level can result

@@ -1323,8 +1323,10 @@ newhp()
     if (hp <= 0)
         hp = 1;
     if (u.ulevel < MAXULEV) {
-        /* remember increment; future level drain could take it away again */
-        u.uhpinc[u.ulevel] = (xchar) hp;
+        /* remember increment; future level drain could take it away
+           again; clamp to xchar range to avoid sign-flip if a future
+           role/race tuning ever pushes hp past 127 */
+        u.uhpinc[u.ulevel] = (xchar) min(hp, 127);
     } else {
         /* after level 30, throttle hit point gains from extra experience;
            once max reaches 1200, further increments will be just 1 more */

@@ -5344,4 +5344,5 @@ The following changes to date are:
 - Fix: bhitpile() use-after-free on uchain hit while Punished
 - Fix: windows.c review fixes
 - Fix: fountain.c, vision.c review fixes
+- Fix: exper.c, attrib.c review fixes
 
