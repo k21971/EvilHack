@@ -5335,4 +5335,5 @@ The following changes to date are:
 - Fix: music.c code review fixes
 - Fix: sit.c code review fixes
 - Fix: write.c Glib marker dropx() return ignored
+- Fix: worm.c re-review fixes
 

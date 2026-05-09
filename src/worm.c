@@ -287,8 +287,10 @@ struct monst *worm;
     /* Paranoid cleanup: scan for orphaned segments that might have
        been missed due to segment coordinate mismatches. This catches
        cases where a segment's wx/wy was zeroed without calling
-       remove_monster(), leaving the segment on the map */
-    for (x = 1; x < COLNO; x++) {
+       remove_monster(), leaving the segment on the map. Scan from
+       column 0 so a stray seg at the dungeon-border column would
+       still be caught */
+    for (x = 0; x < COLNO; x++) {
         for (y = 0; y < ROWNO; y++) {
             if (level.monsters[x][y] == worm) {
                 level.monsters[x][y] = (struct monst *) 0;
@@ -318,8 +320,12 @@ struct monst *worm;
      *  is out of range of the player.  We might try to kludge, and bring
      *  the head within range for a tiny moment, but this needs a bit more
      *  looking at before we decide to do this.
+     *
+     *  Head-dummy seg sits at wheads[wnum] co-located with the worm head.
+     *  The head already attacked once via the mattacku() call in dochug;
+     *  skip it here so we don't double-attack on adjacent worm heads.
      */
-    for (seg = wtails[wnum]; seg; seg = seg->nseg) {
+    for (seg = wtails[wnum]; seg != wheads[wnum]; seg = seg->nseg) {
         if (distu(seg->wx, seg->wy) < 3) {
             if (mattacku(worm))
                 return; /* your passive ability killed the worm */
@@ -446,6 +452,11 @@ boolean cuttier; /* hit is by wielded blade or axe or by thrown axe */
     /* Place the new monster at all the segment locations. */
     place_wsegs(new_worm, worm);
 
+    /* clone_mon copied the parent's mux/muy; refresh perception
+       relative to the cut-point so the new worm's first dochug
+       doesn't target a stale apparent-player position */
+    set_apparxy(new_worm);
+
     if (context.mon_moving)
         pline("%s is cut in half.", Monnam(worm));
     else
@@ -564,6 +575,13 @@ int fd;
 
     for (i = 1; i < MAX_NUM_WORMS; i++) {
         mread(fd, (genericptr_t) &count, sizeof(int));
+        /* Reject corrupt size prefix before driving N alloc+mread
+           cycles; matches rest_regions / rest_engravings save-
+           prefix hardening */
+        if (count < 0 || count > MAX_WSEG_PER_WORM) {
+            impossible("rest_worm: bogus count %d for slot %d", count, i);
+            return;
+        }
         if (!count)
             continue; /* none */
 
@@ -573,6 +591,14 @@ int fd;
             temp->nseg = (struct wseg *) 0;
             mread(fd, (genericptr_t) & (temp->wx), sizeof(xchar));
             mread(fd, (genericptr_t) & (temp->wy), sizeof(xchar));
+            /* Validate coords before they reach place_wsegs and
+               level.monsters[][]; preserve EvilHack convention that
+               wx==0 marks an unplaced/freed segment */
+            if ((temp->wx || temp->wy) && !isok(temp->wx, temp->wy)) {
+                impossible("rest_worm: bogus seg coord <%d,%d>",
+                           temp->wx, temp->wy);
+                temp->wx = temp->wy = 0;
+            }
             if (curr)
                 curr->nseg = temp;
             else
@@ -604,7 +630,7 @@ struct monst *worm, *oldworm;
         xchar y = curr->wy;
 
         if (oldworm) {
-            if (m_at(x,y) == oldworm) {
+            if (m_at(x, y) == oldworm) {
 #ifdef EXTRA_SANITY_CHECKS
                 in_worm_cleanup++;
 #endif
@@ -612,8 +638,17 @@ struct monst *worm, *oldworm;
 #ifdef EXTRA_SANITY_CHECKS
                 in_worm_cleanup--;
 #endif
-            } else
-                impossible("placing worm seg <%i,%i> over another mon", x, y);
+            } else if (m_at(x, y)) {
+                /* Third-party mon at expected oldworm coord: warn
+                   and skip placement so we don't stomp them. Zero
+                   the seg coords so subsequent worm-cleanup paths
+                   don't remove_monster a tile we never wrote */
+                impossible("placing worm seg <%i,%i> over another mon",
+                           x, y);
+                curr->wx = curr->wy = 0;
+                curr = curr->nseg;
+                continue;
+            }
         }
         place_worm_seg(worm, x, y);
         curr = curr->nseg;
@@ -805,7 +840,7 @@ struct monst *mtmp;
     int i = 0;
     struct wseg *curr;
 
-    if (mtmp->wormno) {
+    if (mtmp->wormno && wtails[mtmp->wormno]) {
         for (curr = wtails[mtmp->wormno]->nseg; curr; curr = curr->nseg)
             i++;
     }
