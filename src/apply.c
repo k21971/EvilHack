@@ -15,7 +15,7 @@ STATIC_DCL void FDECL(use_eight_ball, (struct obj **));
 STATIC_DCL void FDECL(use_whistle, (struct obj *));
 STATIC_DCL void FDECL(use_magic_whistle, (struct obj *));
 STATIC_DCL int FDECL(use_leash, (struct obj *));
-STATIC_DCL int FDECL(use_mirror, (struct obj *));
+STATIC_DCL int FDECL(use_mirror, (struct obj **));
 STATIC_DCL void FDECL(use_bell, (struct obj **));
 STATIC_DCL void FDECL(use_candelabrum, (struct obj *));
 STATIC_DCL void FDECL(use_candle, (struct obj **));
@@ -25,14 +25,14 @@ STATIC_PTR void FDECL(display_jump_positions, (int));
 STATIC_DCL void FDECL(use_tinning_kit, (struct obj *));
 STATIC_DCL void FDECL(use_grease, (struct obj **));
 STATIC_DCL void FDECL(use_trap_kit, (struct obj *));
-STATIC_DCL void FDECL(use_trap, (struct obj *));
+STATIC_DCL void FDECL(use_trap, (struct obj **));
 STATIC_DCL void FDECL(apply_flint, (struct obj **));
 STATIC_DCL void FDECL(use_stone, (struct obj **));
 STATIC_PTR int NDECL(set_trap); /* occupation callback */
 STATIC_DCL int FDECL(use_whip, (struct obj **));
 STATIC_DCL int FDECL(use_axe, (struct obj **));
 STATIC_PTR void FDECL(display_polearm_positions, (int));
-STATIC_DCL int FDECL(use_cream_pie, (struct obj *));
+STATIC_DCL int FDECL(use_cream_pie, (struct obj **));
 STATIC_DCL int FDECL(use_grapple, (struct obj *));
 STATIC_DCL int FDECL(do_break_wand, (struct obj *));
 STATIC_DCL boolean FDECL(figurine_location_checks, (struct obj *,
@@ -136,7 +136,9 @@ struct obj *obj;
                     struct obj *saved_ublindf = ublindf;
                     You("push your %s off.", what);
                     Blindf_off(ublindf);
-                    dropx(saved_ublindf);
+                    /* dropx return discarded: saved_ublindf is local
+                       and not read after this point */
+                    (void) dropx(saved_ublindf);
                 }
             }
             if (is_wet_towel(obj))
@@ -825,8 +827,14 @@ next_to_u()
         if (DEADMONSTER(mtmp))
             continue;
         if (mtmp->mleashed) {
-            if (distu(mtmp->mx, mtmp->my) > 2)
+            if (distu(mtmp->mx, mtmp->my) > 2) {
+                if (mtmp->mtrapped) {
+                    /* no longer in previous trap (affects mintrap) */
+                    mtmp->mtrapped = 0;
+                    fill_pit(mtmp->mx, mtmp->my);
+                }
                 mnexto(mtmp);
+            }
             if (distu(mtmp->mx, mtmp->my) > 2) {
                 for (otmp = invent; otmp; otmp = otmp->nobj)
                     if (otmp->otyp == LEASH
@@ -929,9 +937,10 @@ beautiful()
 static const char look_str[] = "look %s.";
 
 STATIC_OVL int
-use_mirror(obj)
-struct obj *obj;
+use_mirror(objp)
+struct obj **objp;
 {
+    struct obj *obj = *objp;
     const char *mirror, *uvisage;
     struct monst *mtmp;
     unsigned how_seen;
@@ -1116,7 +1125,11 @@ struct obj *obj;
             return 1;
         setnotworn(obj); /* in case mirror was wielded */
         freeinv(obj);
-        (void) mpickobj(mtmp, obj);
+        /* mpickobj returns 1 if obj was merged/freed in mtmp's
+           inventory; signal that to caller so the post-switch arti
+           gate sees NULL */
+        if (mpickobj(mtmp, obj))
+            *objp = (struct obj *) 0;
         if (!tele_restrict(mtmp))
             (void) rloc(mtmp, TRUE);
     } else if (!is_unicorn(mtmp->data) && !humanoid(mtmp->data)
@@ -3137,9 +3150,10 @@ struct obj *obj; /* actual trap kit */
 
 /* Place a landmine/bear trap.  Helge Hafting */
 STATIC_OVL void
-use_trap(otmp)
-struct obj *otmp;
+use_trap(otmpp)
+struct obj **otmpp;
 {
+    struct obj *otmp = *otmpp;
     int ttyp, tmp;
     const char *what = (char *) 0;
     char buf[BUFSZ];
@@ -3249,7 +3263,11 @@ struct obj *otmp;
                     You("drop %s!",
                         the(defsyms[trap_to_defsym(what_trap(ttyp, rn2))]
                                 .explanation));
-                    dropx(otmp);
+                    /* dropx returns TRUE if flooreffects (open air,
+                       etc.) destroyed the trap; signal that to caller
+                       so the post-switch arti gate is safe */
+                    if (dropx(otmp))
+                        *otmpp = (struct obj *) 0;
                     return;
                 }
             }
@@ -4160,9 +4178,10 @@ boolean autohit;
 }
 
 STATIC_OVL int
-use_cream_pie(obj)
-struct obj *obj;
+use_cream_pie(objp)
+struct obj **objp;
 {
+    struct obj *obj = *objp;
     boolean wasblind = Blind;
     boolean wascreamed = u.ucreamed;
     boolean several = FALSE;
@@ -4197,6 +4216,10 @@ struct obj *obj;
     costly_alteration(obj, COST_SPLAT);
     obj_extract_self(obj);
     delobj(obj);
+    /* if quan was 1, no split happened and the caller's pointer was
+       just freed; signal that so the post-switch arti gate is safe */
+    if (!several)
+        *objp = (struct obj *) 0;
     return 0;
 }
 
@@ -4701,7 +4724,7 @@ doapply()
         }
         break;
     case CREAM_PIE:
-        res = use_cream_pie(obj);
+        res = use_cream_pie(&obj);
         break;
     case BULLWHIP:
         res = use_whip(&obj);
@@ -4785,7 +4808,7 @@ doapply()
         res = use_stethoscope(obj);
         break;
     case MIRROR:
-        res = use_mirror(obj);
+        res = use_mirror(&obj);
         break;
     case BELL:
     case BELL_OF_OPENING:
@@ -4871,7 +4894,7 @@ doapply()
     case ANTI_MAGIC_TRAP:
     case POLYMORPH_TRAP:
     case MAGIC_BEAM_TRAP:
-        use_trap(obj);
+        use_trap(&obj);
         break;
     case FLINT:
         if (Role_if(PM_CAVEMAN)
