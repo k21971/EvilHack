@@ -5333,4 +5333,5 @@ The following changes to date are:
 - Fix: engrave.c code review fixes
 - Fix: region.c code review fixes
 - Fix: music.c code review fixes
+- Fix: sit.c code review fixes
 

@@ -17,7 +17,6 @@ take_gold()
         nobj = otmp->nobj;
         if (otmp->oclass == COIN_CLASS) {
             lost_money = 1;
-            remove_worn_item(otmp, FALSE);
             delobj(otmp);
         }
     }
@@ -103,7 +102,7 @@ dosit()
                 You("sit in the spider web and get entangled further!");
                 u.utrap += rn1(10, 5);
             } else if (u.utraptype == TT_LAVA) {
-                /* Must have fire resistance or they'd be dead already */
+                /* Must have at least partial fire resistance, else dead */
                 You("sit in the %s!", hliquid("lava"));
                 if (Slimed)
                     burn_away_slime();
@@ -176,9 +175,27 @@ dosit()
     } else if (typ == DRAWBRIDGE_DOWN) {
         You(sit_message, "drawbridge");
     } else if (IS_THRONE(typ)) {
+        xchar tx = u.ux, ty = u.uy;
+
         You(sit_message, defsyms[S_throne].explanation);
         if (rnd(6) > 4) {
-            switch (rnd(13)) {
+            int effect = rnd(13);
+
+            if (wizard && !iflags.debug_fuzzer) {
+                char buf[BUFSZ];
+                int which;
+
+                buf[0] = '\0';
+                getlin("Throne sit effect (1..13) [0=random]", buf);
+                if (buf[0] == '\033') {
+                    pline1(Never_mind);
+                    return 1; /* turn still elapses */
+                }
+                which = atoi(buf);
+                if (which >= 1 && which <= 13)
+                    effect = which;
+            }
+            switch (effect) {
             case 1:
                 (void) adjattrib(rn2(A_MAX), -rn1(4, 3), FALSE);
                 losehp(rnd(10), "cursed throne", KILLED_BY_AN);
@@ -221,9 +238,9 @@ dosit()
                     if (!rn2(5)) {
                         makewish(FALSE);
                         /* no farming thrones for multiple wishes */
-                        levl[u.ux][u.uy].typ = ROOM, levl[u.ux][u.uy].flags = 0;
+                        levl[tx][ty].typ = ROOM, levl[tx][ty].flags = 0;
                         pline_The("throne vanishes in a puff of logic.");
-                        newsym(u.ux, u.uy);
+                        newsym(tx, ty);
                     } else {
                         if (Luck < 0 || (HSee_invisible & INTRINSIC)) {
                             if (level.flags.nommap) {
@@ -252,7 +269,7 @@ dosit()
                 verbalize("Thy audience hath been summoned, %s!",
                           flags.female ? "Dame" : "Sire");
                 while (cnt--)
-                    (void) makemon(courtmon(), u.ux, u.uy, NO_MM_FLAGS);
+                    (void) makemon(courtmon(), tx, ty, NO_MM_FLAGS);
                 break;
               }
             case 8:
@@ -286,7 +303,7 @@ dosit()
                 } else {
                     Your("vision becomes clear.");
                     incr_itimeout(&HSee_invisible, (long) rn1(100, 50));
-                    newsym(u.ux, u.uy);
+                    newsym(tx, ty);
                 }
                 break;
             case 11:
@@ -321,11 +338,11 @@ dosit()
                 You_feel("somehow out of place...");
         }
 
-        if (!rn2(3) && IS_THRONE(levl[u.ux][u.uy].typ)) {
-            /* may have teleported */
-            levl[u.ux][u.uy].typ = ROOM, levl[u.ux][u.uy].flags = 0;
+        /* hero may have teleported (case 11), so check the original tile */
+        if (!rn2(3) && IS_THRONE(levl[tx][ty].typ)) {
+            levl[tx][ty].typ = ROOM, levl[tx][ty].flags = 0;
             pline_The("throne vanishes in a puff of logic.");
-            newsym(u.ux, u.uy);
+            newsym(tx, ty);
         }
     } else if (lays_eggs(youmonst.data)) {
         struct obj *uegg;
@@ -456,13 +473,14 @@ struct monst *mtmp;
     boolean resists = resist(mtmp, 0, 0, FALSE),
             vis = couldsee(mtmp->mx, mtmp->my);
 
-    if (vis && mon_wielding_artifact(mtmp, ART_MAGICBANE) && rn2(20)) {
-        You(mal_aura, "the magic-absorbing staff");
+    if (mon_wielding_artifact(mtmp, ART_MAGICBANE) && rn2(20)) {
+        if (vis)
+            You(mal_aura, "the magic-absorbing staff");
         return;
     }
-    if (vis && mon_wielding_artifact(mtmp, ART_STAFF_OF_THE_ARCHMAGI)
-        && rn2(30)) {
-        You(mal_aura, "the powerful staff");
+    if (mon_wielding_artifact(mtmp, ART_STAFF_OF_THE_ARCHMAGI) && rn2(30)) {
+        if (vis)
+            You(mal_aura, "the powerful staff");
         return;
     }
 
@@ -516,8 +534,8 @@ attrcurse()
     switch (rnd(14)) {
     case 1:
         if (HFire_resistance) {
-	    HFire_resistance = HFire_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-	    decr_resistance(&HFire_resistance, rnd(50) + 50);
+            HFire_resistance = HFire_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
+            decr_resistance(&HFire_resistance, rnd(50) + 50);
             You_feel("warmer.");
             break;
         }
@@ -531,8 +549,8 @@ attrcurse()
         /*FALLTHRU*/
     case 3:
         if (HPoison_resistance) {
-	    HPoison_resistance = HPoison_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-	    decr_resistance(&HPoison_resistance, rnd(50) + 50);
+            HPoison_resistance = HPoison_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
+            decr_resistance(&HPoison_resistance, rnd(50) + 50);
             You_feel("a little sick!");
             break;
         }
@@ -548,8 +566,8 @@ attrcurse()
         /*FALLTHRU*/
     case 5:
         if (HCold_resistance) {
-	    HCold_resistance = HCold_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-	    decr_resistance(&HCold_resistance, rnd(50) + 50);
+            HCold_resistance = HCold_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
+            decr_resistance(&HCold_resistance, rnd(50) + 50);
             You_feel("cooler.");
             break;
         }
@@ -602,27 +620,27 @@ attrcurse()
         /*FALLTHRU*/
     case 12:
         if (HSleep_resistance) {
-	    HSleep_resistance = HSleep_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-	    decr_resistance(&HSleep_resistance, rnd(50) + 50);
-	    You_feel("a little tired.");
-	    break;
-	}
+            HSleep_resistance = HSleep_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
+            decr_resistance(&HSleep_resistance, rnd(50) + 50);
+            You_feel("a little tired.");
+            break;
+        }
         /*FALLTHRU*/
     case 13:
         if (HDisint_resistance) {
-	    HDisint_resistance = HDisint_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-	    decr_resistance(&HDisint_resistance, rnd(50) + 50);
-	    You_feel("less firm.");
-	    break;
-	}
+            HDisint_resistance = HDisint_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
+            decr_resistance(&HDisint_resistance, rnd(50) + 50);
+            You_feel("less firm.");
+            break;
+        }
         /*FALLTHRU*/
     case 14:
         if (HShock_resistance) {
-	    HShock_resistance = HShock_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
-	    decr_resistance(&HShock_resistance, rnd(50) + 50);
-	    You_feel("more conductive.");
-	    break;
-	}
+            HShock_resistance = HShock_resistance & (TIMEOUT | FROMOUTSIDE | HAVEPARTIAL);
+            decr_resistance(&HShock_resistance, rnd(50) + 50);
+            You_feel("more conductive.");
+            break;
+        }
         /*FALLTHRU*/
     default:
         break;
