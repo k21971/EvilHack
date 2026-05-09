@@ -5343,4 +5343,5 @@ The following changes to date are:
 - Fix: describe_level() endgame plane labels respect level randomization
 - Fix: bhitpile() use-after-free on uchain hit while Punished
 - Fix: windows.c review fixes
+- Fix: fountain.c, vision.c review fixes
 

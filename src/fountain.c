@@ -132,15 +132,25 @@ dolavademon()
         pline_The("forge violently spews lava for a moment, then settles.");
 }
 
+/* context threaded through do_clear_area() to gush();
+   wormhit[] dedups long worm body cells so the head's minliquid()
+   only fires once per gush event */
+struct gush_ctx {
+    int poolcnt;
+    boolean wormhit[MAX_NUM_WORMS];
+};
+
 /* Gushing forth along LOS from (u.ux, u.uy) */
 void
 dogushforth(drinking)
 int drinking;
 {
-    int madepool = 0;
+    struct gush_ctx ctx;
 
-    do_clear_area(u.ux, u.uy, 7, gush, (genericptr_t) &madepool);
-    if (!madepool) {
+    ctx.poolcnt = 0;
+    (void) memset((genericptr_t) ctx.wormhit, 0, sizeof ctx.wormhit);
+    do_clear_area(u.ux, u.uy, 7, gush, (genericptr_t) &ctx);
+    if (!ctx.poolcnt) {
         if (drinking)
             Your("thirst is quenched.");
         else
@@ -149,10 +159,11 @@ int drinking;
 }
 
 STATIC_PTR void
-gush(x, y, poolcnt)
+gush(x, y, arg)
 int x, y;
-genericptr_t poolcnt;
+genericptr_t arg;
 {
+    struct gush_ctx *ctx = (struct gush_ctx *) arg;
     struct monst *mtmp;
     struct trap *ttmp;
 
@@ -164,7 +175,7 @@ genericptr_t poolcnt;
     if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
         return;
 
-    if (!((*(int *) poolcnt)++))
+    if (!(ctx->poolcnt++))
         pline("Water gushes forth from the overflowing fountain!");
 
     /* Put a puddle at x, y */
@@ -173,8 +184,14 @@ genericptr_t poolcnt;
     del_engr_at(x, y);
     water_damage_chain(level.objects[x][y], TRUE, 0, TRUE, x, y);
 
-    if ((mtmp = m_at(x, y)) != 0)
+    /* m_at returns the head pointer for every body cell of a long worm;
+       skip if we've already hit this worm during this gush event */
+    if ((mtmp = m_at(x, y)) != 0
+        && !(mtmp->wormno && ctx->wormhit[mtmp->wormno])) {
         (void) minliquid(mtmp);
+        if (mtmp->wormno && !DEADMONSTER(mtmp))
+            ctx->wormhit[mtmp->wormno] = TRUE;
+    }
     newsym(x, y);
 }
 
@@ -308,8 +325,9 @@ struct obj *obj;
     }
 
     /* If punished and wielding a hammer, there's a good chance
-     * you can use a forge to free yourself */
-    if (Punished && obj->otyp == HEAVY_IRON_BALL) {
+     * you can use a forge to free yourself; only the attached
+     * ball can break the chain, not stray HEAVY_IRON_BALLs */
+    if (Punished && obj == uball) {
         boolean hammer = (uwep && (is_hammer(uwep)
                                    || uwep->otyp == BLACKSMITH_HAMMER));
 

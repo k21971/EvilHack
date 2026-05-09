@@ -330,7 +330,7 @@ char *rmin, *rmax;
 
     /* If in a lit room, we are able to see to its boundaries. */
     /* If dark, set COULD_SEE so various spells work -dlc */
-    if (rnum >= 0) {
+    if (rnum >= 0 && rnum < nroom) {
         for (zy = rooms[rnum].ly - 1; zy <= rooms[rnum].hy + 1; zy++) {
             rmin[zy] = start = rooms[rnum].lx - 1;
             rmax[zy] = stop = rooms[rnum].hx + 1;
@@ -647,7 +647,6 @@ int control;
              */
             has_night_vision = 0;
         }
-
 
         /*
          * Set the IN_SIGHT bit for xray and night vision.
