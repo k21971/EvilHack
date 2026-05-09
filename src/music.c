@@ -68,7 +68,7 @@ int distance;
             continue;
         if ((distm = distu(mtmp->mx, mtmp->my)) < distance) {
             mtmp->msleeping = 0;
-	    if (!mtmp->mstone || mtmp->mstone > 2)
+            if (!mtmp->mstone || mtmp->mstone > 2)
                 mtmp->mcanmove = 1;
             mtmp->mfrozen = 0;
             /* may scare some monsters -- waiting monsters excluded */
@@ -126,6 +126,7 @@ int distance;
             was_peaceful = mtmp->mpeaceful;
             mtmp->mpeaceful = 1;
             mtmp->mavenge = 0;
+            set_malign(mtmp);
             mtmp->mstrategy &= ~STRAT_WAITMASK;
             could_see_mon = canseemon(mtmp);
             mtmp->mundetected = 0;
@@ -161,6 +162,7 @@ int distance;
             mtmp->msleeping = 0;
             mtmp->mpeaceful = 1;
             mtmp->mavenge = 0;
+            set_malign(mtmp);
             mtmp->mstrategy &= ~STRAT_WAITMASK;
             if (canseemon(mtmp))
                 pline(
@@ -185,10 +187,13 @@ struct monst *bugler; /* monster that played instrument */
         if (DEADMONSTER(mtmp))
             continue;
         if (is_mercenary(mtmp->data) && mtmp->data != &mons[PM_GUARD]) {
-            mtmp->mpeaceful = mtmp->msleeping = mtmp->mfrozen = 0;
-	    if (!mtmp->mstone || mtmp->mstone > 2)
-		mtmp->mcanmove = 1;
+            if (!mtmp->mtame)
+                mtmp->mpeaceful = 0;
+            mtmp->msleeping = mtmp->mfrozen = 0;
+            if (!mtmp->mstone || mtmp->mstone > 2)
+                mtmp->mcanmove = 1;
             mtmp->mstrategy &= ~STRAT_WAITMASK;
+            set_malign(mtmp);
             if (canseemon(mtmp))
                 pline("%s is now ready for battle!", Monnam(mtmp));
             else if (!Deaf)
@@ -257,7 +262,9 @@ boolean player_caused;
     aligntyp algn;
     schar filltype;
     unsigned tu_pit = 0;
+    boolean quake_worm_hit[MAX_NUM_WORMS];
 
+    (void) memset((genericptr_t) quake_worm_hit, 0, sizeof quake_worm_hit);
     if (trap_at_u)
         tu_pit = is_pit(trap_at_u->ttyp);
     if (force > 13) /* sanity precaution; maximum used is actually 10 */
@@ -380,7 +387,7 @@ boolean player_caused;
                         break; /* from switch, not loop */
                 }
 
-                mtmp = m_at(x, y); /* (redundant?) */
+                mtmp = m_at(x, y); /* refresh; liquid_flow may have killed mtmp */
                 if ((otmp = sobj_at(BOULDER, x, y)) != 0) {
                     if (cansee(x, y))
                         pline("KADOOM!  The boulder falls into a chasm%s!",
@@ -395,7 +402,9 @@ boolean player_caused;
                 /* We have to check whether monsters or player falls into a
                    new pit....  Note: if we get here, chasm is non-Null. */
                 if (mtmp) {
-                    if (!is_flyer(mtmp->data) && !is_clinger(mtmp->data)) {
+                    if (!is_flyer(mtmp->data) && !is_clinger(mtmp->data)
+                        && !(mtmp->wormno
+                             && quake_worm_hit[mtmp->wormno])) {
                         boolean m_already_trapped = mtmp->mtrapped;
 
                         mtmp->mtrapped = 1;
@@ -407,9 +416,10 @@ boolean player_caused;
                         }
                         /* Falling is okay for falling down
                            within a pit from jostling too */
-                        mselftouch(mtmp, "Falling, ", TRUE);
+                        mselftouch(mtmp, "Falling, ", player_caused);
                         if (!DEADMONSTER(mtmp)) {
-                            damage_mon(mtmp, rnd(m_already_trapped ? 4 : 6), AD_PHYS, TRUE);
+                            damage_mon(mtmp, rnd(m_already_trapped ? 4 : 6),
+                                       AD_PHYS, player_caused);
                             if (DEADMONSTER(mtmp)) {
                                 if (!player_caused) {
                                     if (cansee(x, y))
@@ -436,6 +446,8 @@ boolean player_caused;
                                 }
                             }
                         }
+                        if (mtmp->wormno && !DEADMONSTER(mtmp))
+                            quake_worm_hit[mtmp->wormno] = TRUE;
                     }
                 } else if (x == u.ux && y == u.uy) {
                     if (u.utrap && u.utraptype == TT_BURIEDBALL) {
@@ -687,8 +699,10 @@ struct obj *instr;
             if (instr->oartifact == ART_GJALLAR) {
                 You("produce an awesome, %s!",
                     rn2(2) ? "resounding tone" : "reverberating sound");
-                if (!rn2(10) && !Role_if(PM_VALKYRIE))
+                if (!rn2(10) && !Role_if(PM_VALKYRIE)) {
                     incr_itimeout(&HDeaf, rn1(10, 10));
+                    context.botl = TRUE;
+                }
             } else
                 You("produce a frightful, grave sound.");
         } else
