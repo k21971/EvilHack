@@ -742,7 +742,7 @@ STATIC_OVL void
 clear_level_structures()
 {
     static struct rm zerorm = { cmap_to_glyph(S_stone),
-                                0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     int x, y;
     struct rm *lev;
 
@@ -1050,10 +1050,11 @@ makelevel()
             }
         }
 
-        /* pick a fresh pos inside the beehive room; the previous block
-           only populates pos on the amulet/non-rn2(3) path, so reading
-           pos here unconditionally would read uninitialized or
-           previous-iteration coords */
+        /* honey badgers thematically follow beehives: roll per
+           non-beehive OROOM/RNDVAULT for a 4-in-5 spawn when this
+           level contains a beehive (level-wide ecology, not a
+           per-room association). Fresh somexyspace gate so pos is
+           always written before the occupied() read below */
         if (level.flags.has_beehive == 1
             && somexyspace(croom, &pos, 0)) {
             if (!occupied(pos.x, pos.y) && rn2(5))
@@ -1468,18 +1469,23 @@ xchar x, y; /* location */
     if (br->type == BR_PORTAL) {
         extern int n_dgns; /* from dungeon.c */
 
-        /* If the far end of the branch is still floating (no source
-           portal has been placed in the parent dungeon yet), wire it
-           up to where the player just came from so the return portal
-           we're about to create has a valid destination. This can
-           happen for the Knox branch when the fuzzer level-teleports
-           into Knox before vault generation rolls a qualifying source */
-        if (dest->dnum >= n_dgns) {
-            *dest = u.uz0;
-            insert_branch(br, TRUE);
-        }
-        if (isok(x, y) && !occupied(x, y))
+        if (isok(x, y) && !occupied(x, y)) {
+            /* If the far end of the branch is still floating (no
+               source portal has been placed in the parent dungeon
+               yet), wire it up to where the player just came from
+               so the return portal we're about to create has a
+               valid destination. This can happen for the Knox
+               branch when the fuzzer level-teleports into Knox
+               before vault generation rolls a qualifying source.
+               Wire-up is gated on the placement check so a
+               find_branch_room sentinel leaves both the level
+               and the branch graph unmutated */
+            if (dest->dnum >= n_dgns) {
+                *dest = u.uz0;
+                insert_branch(br, TRUE);
+            }
             mkportal(x, y, dest->dnum, dest->dlevel);
+        }
     } else if (make_stairs && isok(x, y)) {
         sstairs.sx = x;
         sstairs.sy = y;
@@ -2172,8 +2178,15 @@ mkgate()
     /* we know the exact location of the stairs leading
        back up, no need to setup a for loop to find them */
     xupstair = 0; /* remove stairs mask */
-    if (levl[a][b].typ == STAIRS)
+    if (levl[a][b].typ == STAIRS) {
         levl[a][b].typ = ROOM;
+        /* clear residual ladder bits in the aliased flags byte;
+           ROOM tiles don't consume flags but the byte aliases
+           doormask/altarmask/drawbridgemask/looted/icedpool/
+           frac_altar, so leaving stale bits behind invites
+           confusion if the tile is later transmuted */
+        levl[a][b].flags = 0;
+    }
     if (cansee(a, b))
         newsym(a, b);
 
@@ -2319,6 +2332,9 @@ xchar x, y;
     schar u_depth;
 
     br = dungeon_branch("Fort Ludios");
+    if (!br)
+        return; /* defensive; dungeon_branch() panics on NULL,
+                   so this matches mk_knox_portal_at()'s guard */
     if (on_level(&knox_level, &br->end1)) {
         source = &br->end2;
     } else {
