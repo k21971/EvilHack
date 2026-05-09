@@ -2714,6 +2714,13 @@ struct obj *obj;                     /* 2nd arg to fhitm/fhito */
                 /* Fix for polymorph bug, Tim Wright */
                 next_obj = otmp->nexthere;
                 hitanything += (*fhito)(otmp, obj);
+                /* fhito (bhito) may have deferred unpunish() on a uchain
+                   hit; draining now frees uchain (and possibly uball,
+                   which may have been next_obj) before we step past otmp.
+                   Currently dormant: monsters do not zap WAN_OPENING/
+                   SPE_KNOCK, but keep the guard symmetric with bhitpile */
+                if (do_pending_unpunish())
+                    break;
             }
             if (hitanything)
                 range--;

@@ -16,6 +16,10 @@
 
 static NEARDATA boolean obj_zapped;
 static NEARDATA int poly_zapped;
+/* bhito() defers unpunish() via this flag rather than freeing uchain
+   (and possibly uball) inline; a pile iterator that saved next_obj
+   from uchain->nexthere would otherwise UAF on the next step */
+static NEARDATA boolean defer_unpunish;
 
 extern boolean notonhead; /* for long worms */
 
@@ -2430,7 +2434,12 @@ struct obj *obj, *otmp;
     } else if (obj == uchain) {
         if (otmp->otyp == WAN_OPENING || otmp->otyp == SPE_KNOCK) {
             learn_it = TRUE;
-            unpunish();
+            /* unpunish() frees uchain (always) and uball (open-air
+               floor case via flooreffects). If our caller iterates
+               level.objects[][] via the save-next idiom and uball
+               is uchain->nexthere, the saved pointer would dangle.
+               Defer; let the caller drain via do_pending_unpunish() */
+            defer_unpunish = TRUE;
         } else
             res = 0;
     } else
@@ -2662,6 +2671,21 @@ struct obj *obj, *otmp;
     return res;
 }
 
+/* Drain any unpunish() that bhito() deferred while running under a
+   floor-pile iterator. Returns TRUE if it ran, so the caller can
+   bail out of its save-next loop before dereferencing a now-dangling
+   next_obj (which may have pointed at uball, freed by unpunish) */
+boolean
+do_pending_unpunish()
+{
+    if (defer_unpunish) {
+        defer_unpunish = FALSE;
+        unpunish();
+        return TRUE;
+    }
+    return FALSE;
+}
+
 /* returns nonzero if something was hit */
 int
 bhitpile(obj, fhito, tx, ty, zz)
@@ -2702,6 +2726,7 @@ schar zz;
     }
 
     poly_zapped = -1;
+    defer_unpunish = FALSE;
     for (otmp = level.objects[tx][ty]; otmp; otmp = next_obj) {
         next_obj = otmp->nexthere;
         if (hidingunder) {
@@ -2718,6 +2743,11 @@ schar zz;
         if (otmp->where != OBJ_FLOOR || otmp->ox != tx || otmp->oy != ty)
             continue;
         hitanything += (*fhito)(otmp, obj);
+        /* fhito (bhito) may have set defer_unpunish on a uchain hit;
+           draining now frees uchain (and possibly uball, which may
+           have been our saved next_obj) before we step past otmp */
+        if (do_pending_unpunish())
+            break;
     }
 
     if (poly_zapped >= 0)
@@ -4095,6 +4125,8 @@ struct obj *obj; /* wand or spell */
 
             if (otmp)
                 hitit = bhito(otmp, obj);
+            /* hiding under uchain + zap WAN_OPENING up sets defer_unpunish */
+            (void) do_pending_unpunish();
             if (hitit) {
                 (void) hideunder(&youmonst);
                 disclose = TRUE;

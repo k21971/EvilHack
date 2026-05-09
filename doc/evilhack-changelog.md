@@ -5341,4 +5341,5 @@ The following changes to date are:
 - Fix: mklev.c re-review fixes
 - Fix: pickup.c re-review fixes
 - Fix: describe_level() endgame plane labels respect level randomization
+- Fix: bhitpile() use-after-free on uchain hit while Punished
 
