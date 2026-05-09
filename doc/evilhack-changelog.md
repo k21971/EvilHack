@@ -5339,4 +5339,5 @@ The following changes to date are:
 - Fix: apply.c re-review fixes
 - Fix: sp_lev.c re-review fixes
 - Fix: mklev.c re-review fixes
+- Fix: pickup.c re-review fixes
 

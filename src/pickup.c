@@ -2308,9 +2308,14 @@ boolean taking;
         }
     }
     free((genericptr_t) pick_list);
-    if (transferred > 0) {
+    if (transferred > 0 && !DEADMONSTER(mtmp)) {
         /* They might have gained some gear they would want to wear, or lost
-         * some and now have a different option. Reassess next turn and see. */
+         * some and now have a different option. Reassess next turn and see.
+         * Guard against mtmp having been petrified mid-give: minstapetrify()
+         * routes through xkilled()/m_detach(), zeroing mhp and unlinking from
+         * the level, but the struct survives until end-of-turn dmonsfree().
+         * Sibling: mselftouch() in trap.c uses the same DEADMONSTER guard
+         */
         check_gear_next_turn(mtmp);
     }
     /* time_taken is 1 for normal item(s), rnd(3) if you removed saddle/barding */
