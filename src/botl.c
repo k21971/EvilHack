@@ -524,11 +524,20 @@ char *buf;
     } else if (In_quest(&u.uz)) {
         Sprintf(buf, "Home %d ", dunlev(&u.uz));
     } else if (In_endgame(&u.uz)) {
-        (void) endgamelevelname(buf, depth(&u.uz));
+        /* EvilHack randomizes the elemental plane order per game, so
+           depth(&u.uz) does not map to a fixed plane; observable_depth()
+           uses the Is_*level() macros (struct-reference compare) and
+           returns the canonical -1..-5 index that endgamelevelname()
+           switches on */
+        (void) endgamelevelname(buf, observable_depth(&u.uz));
         /* status field is narrow; drop "Plane of " so just the
            element name remains ("Astral Plane" has no prefix) */
         (void) strsubst(buf, "Plane of ", "");
         Strcat(buf, " ");
+    } else if (Is_minetn_level(&u.uz)) {
+        Sprintf(buf, "Mine Town ");
+    } else if (Is_mineend_level(&u.uz)) {
+        Sprintf(buf, "Mines' End ");
     } else if (In_mines(&u.uz)) {
         Sprintf(buf, "Mines:%-2d ", dunlev(&u.uz));
     } else if (In_sokoban(&u.uz)) {

@@ -5340,4 +5340,5 @@ The following changes to date are:
 - Fix: sp_lev.c re-review fixes
 - Fix: mklev.c re-review fixes
 - Fix: pickup.c re-review fixes
+- Fix: describe_level() endgame plane labels respect level randomization
 
