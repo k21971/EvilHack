@@ -896,6 +896,10 @@ genl_status_init()
     int i;
 
     for (i = 0; i < MAXBLSTATS; ++i) {
+        /* free first in case status_initialize() runs twice (botl.c warns
+           but doesn't bail on a 2nd full-init call) */
+        if (status_vals[i])
+            free((genericptr_t) status_vals[i]);
         status_vals[i] = (char *) alloc(MAXCO);
         *status_vals[i] = '\0';
         status_activefields[i] = FALSE;
@@ -1047,10 +1051,15 @@ unsigned long *colormasks UNUSED;
         if (status_activefields[idx1])
             Strcpy(nb = eos(nb), status_vals[idx1]);
     }
-    /* if '$' is encoded, buffer length of \GXXXXNNNN is 9 greater than
-       single char; we want to subtract that 9 when checking display length */
+    if (strlen(newbot1) >= sizeof newbot1 - 1)
+        impossible("genl_status_update: line 1 overflow");
+    /* if '$' is encoded, buffer length of \GXXXXNNNN (10 chars) is
+       ENCGLYPH_DELTA greater than the rendered single char; subtract
+       that delta when checking display length */
+#define ENCGLYPH_DELTA 9
     lndelta = (status_activefields[BL_GOLD]
-               && strstr(status_vals[BL_GOLD], "\\G")) ? 9 : 0;
+               && strstr(status_vals[BL_GOLD], "\\G")) ? ENCGLYPH_DELTA : 0;
+#undef ENCGLYPH_DELTA
     /* basic bot2 formats groups of second line fields into five buffers,
        then decides how to order those buffers based on comparing lengths
        of [sub]sets of them to the width of the map; we have more control
@@ -1114,6 +1123,8 @@ unsigned long *colormasks UNUSED;
             break;
         }
     } /* pass */
+    if (strlen(newbot2) >= sizeof newbot2 - 1)
+        impossible("genl_status_update: line 2 overflow");
     curs(WIN_STATUS, 1, 0);
     putstr(WIN_STATUS, 0, newbot1);
     curs(WIN_STATUS, 1, 1);
@@ -1299,7 +1310,9 @@ boolean before; /* Tags before/after string */
 {
     static boolean in_list = FALSE;
     static boolean in_preform = FALSE;
-    if (!fp) return;
+
+    if (!fp)
+        return;
     if (before) { /* before next string is written,
                      close any finished blocks
                      and open a new block if necessary */
@@ -1350,28 +1363,29 @@ html_dump_char(fp, c)
 FILE *fp;
 char c;
 {
-    if (!fp) return;
+    if (!fp)
+        return;
     switch (c) {
-        case '<':
-            fprintf(fp, "&lt;");
-            break;
-        case '>':
-            fprintf(fp, "&gt;");
-            break;
-        case '&':
-            fprintf(fp, "&amp;");
-            break;
-        case '\"':
-            fprintf(fp, "&quot;");
-            break;
-        case '\'':
-            fprintf(fp, "&#39;");
-            break;
-        case '\n':
-            fprintf(fp, "<br>\n");
-            break;
-        default:
-            fprintf(fp, "%c", c);
+    case '<':
+        fprintf(fp, "&lt;");
+        break;
+    case '>':
+        fprintf(fp, "&gt;");
+        break;
+    case '&':
+        fprintf(fp, "&amp;");
+        break;
+    case '\"':
+        fprintf(fp, "&quot;");
+        break;
+    case '\'':
+        fprintf(fp, "&#39;");
+        break;
+    case '\n':
+        fprintf(fp, "<br>\n");
+        break;
+    default:
+        fprintf(fp, "%c", c);
     }
 }
 
@@ -1382,7 +1396,12 @@ FILE *fp;
 const char *str;
 {
     const char *p;
-    if (!fp) return;
+
+    if (!fp)
+        return;
+    if (!str)
+        str = "";
+
     for (p = str; *p; p++)
         html_dump_char(fp, *p);
 }
@@ -1394,6 +1413,8 @@ winid win;
 int attr;
 const char *str;
 {
+    if (!str)
+        str = "";
     if (strlen(str) == 0) {
        /* if it's a blank line, just print a blank line */
        fprintf(fp, "%s\n", LINEBREAK);
@@ -1412,7 +1433,8 @@ void
 dump_start_screendump()
 {
 #ifdef DUMPHTML
-    if (!dumphtml_file) return;
+    if (!dumphtml_file)
+        return;
     html_init_sym();
     fprintf(dumphtml_file, "<pre class=\"nh_screen\">\n");
 #endif
@@ -1434,7 +1456,8 @@ int coloridx, attrmask;
 boolean onoff;
 {
 #ifdef DUMPHTML
-    if (!dumphtml_file) return;
+    if (!dumphtml_file)
+        return;
     if (onoff) {
         if (attrmask & HL_BOLD)
             fprintf(dumphtml_file, BOLD_S);
@@ -1627,7 +1650,7 @@ static int hpbar_percent, hpbar_color;
    or ignored.
  */
 
-static int
+STATIC_OVL int
 condcolor(bm, bmarray)
 long bm;
 unsigned long *bmarray;
@@ -1823,7 +1846,8 @@ dump_render_status()
             }
         }
         if (dumphtml_file)
-            fprintf(dumphtml_file, "%*s</span>\n", pad, " ");
+            fprintf(dumphtml_file, "%*s</span>\n",
+                    pad > 0 ? pad : 0, " ");
     }
     return;
 }
@@ -1841,11 +1865,15 @@ unsigned long *colormasks;
     char goldbuf[40], *lastchar, *p;
     const char *fmt;
 
-    /* we don't have an init routine, so do it on the first run through */
-    static boolean inited = FALSE;
+    /* we don't have an init routine, so do it on the first run through;
+       key the cache off the live statuslines value rather than a boolean
+       so that an in-process statuslines toggle re-derives fieldorder */
+    static int inited_for_lines = 0;
+    int num_rows = (iflags.wc2_statuslines < 3) ? 2 : 3;
 
-    if (!inited) {
-        int i, num_rows = (iflags.wc2_statuslines < 3) ? 2 : 3;
+    if (inited_for_lines != num_rows) {
+        int i;
+
         fieldorder = (num_rows != 3) ? twolineorder : threelineorder;
         for (i = 0; i < MAXBLSTATS; ++i) {
             dump_status[i].idx = BL_FLUSH;
@@ -1854,13 +1882,13 @@ unsigned long *colormasks;
         }
         dump_condition_bits = 0L;
         hpbar_percent = 0, hpbar_color = NO_COLOR;
-        inited = TRUE;
+        inited_for_lines = num_rows;
     }
 
-    if ((fldidx < BL_RESET) || (fldidx >= MAXBLSTATS))
+    if (fldidx < BL_RESET || fldidx >= MAXBLSTATS)
         return;
 
-    if ((fldidx >= 0 && fldidx < MAXBLSTATS) && !status_activefields[fldidx])
+    if (fldidx >= 0 && !status_activefields[fldidx])
         return;
 
     switch (fldidx) {
@@ -2009,30 +2037,36 @@ dump_open_log(now)
 time_t now;
 {
 #if defined(DUMPLOG) || defined(DUMPHTML)
-#ifdef SYSCF
-#undef DUMPLOG_FILE
-#undef DUMPHTML_FILE
-#define DUMPLOG_FILE sysopt.dumplogfile
-#define DUMPHTML_FILE sysopt.dumphtmlfile
-#endif
     char buf[BUFSZ];
-    char *fname = (char *)0;
+    char *fname = (char *) 0;
+    const char *tmpl;
 
     dumplog_now = now;
-/* #ifdef SYSCF
-    if (!sysopt.dumplogfile)
-        return;
-    fname = dump_fmtstr(sysopt.dumplogfile, buf, TRUE);
-#else */
 #ifdef DUMPLOG
-    fname = dump_fmtstr(DUMPLOG_FILE, buf, TRUE);
-    if (fname)
-        dumplog_file = fopen(fname, "w");
+    tmpl =
+#ifdef SYSCF
+        sysopt.dumplogfile;
+#else
+        DUMPLOG_FILE;
+#endif
+    if (tmpl && *tmpl) {
+        fname = dump_fmtstr(tmpl, buf, TRUE);
+        if (fname && *fname)
+            dumplog_file = fopen(fname, "w");
+    }
 #endif
 #ifdef DUMPHTML
-    fname = dump_fmtstr(DUMPHTML_FILE, buf, TRUE);
-    if (fname)
-        dumphtml_file = fopen(fname, "w");
+    tmpl =
+#ifdef SYSCF
+        sysopt.dumphtmlfile;
+#else
+        DUMPHTML_FILE;
+#endif
+    if (tmpl && *tmpl) {
+        fname = dump_fmtstr(tmpl, buf, TRUE);
+        if (fname && *fname)
+            dumphtml_file = fopen(fname, "w");
+    }
 #endif
     if (dumplog_file || dumphtml_file) {
         dumplog_windowprocs_backup = windowprocs;
@@ -2080,6 +2114,7 @@ winid win;
 int attr;
 const char *str;
 {
+    if (!str) str = "";
     /* Suppress newline for NHW_STATUS
        Send NHW_STATUS to HTML only */
     if (dumplog_file && win != NHW_STATUS && win != NHW_DUMPHTML)
@@ -2155,6 +2190,8 @@ boolean preselected UNUSED;
 #ifdef DUMPHTML
     if (dumphtml_file) {
         int color;
+        int saved_attr = attr; /* get_menu_coloring may overwrite attr;
+                                  the closing tag must match the opener */
         boolean iscolor = FALSE;
         /* Don't use NHW_MENU for inv items as this makes bullet points */
         if (!attr && glyph != NO_GLYPH)
@@ -2169,7 +2206,7 @@ boolean preselected UNUSED;
         }
         html_dump_str(dumphtml_file, str);
         fprintf(dumphtml_file, "%s", iscolor ? "</span>" : "");
-        html_write_tags(dumphtml_file, win, attr, FALSE);
+        html_write_tags(dumphtml_file, win, saved_attr, FALSE);
     }
 #endif
 }
@@ -2249,8 +2286,7 @@ mk_dgl_extrainfo()
     dump_fmtstr(EXTRAINFO_FN, new_fn, TRUE);
 
     extrai = fopen(new_fn, "w");
-    if (!extrai) {
-    } else {
+    if (extrai) {
         int sortval = 0;
         char tmpdng[16];
         sortval += (u.uhave.amulet ? 1024 : 0);
@@ -2298,9 +2334,13 @@ unsigned int llflags;
         return;
     dumpurl = dump_fmtstr(sysopt.dumplogurl, buf, TRUE);
 #else
+#ifdef DUMPLOG_URL
     dumpurl = dump_fmtstr(DUMPLOG_URL, buf, TRUE);
+#else
+    return;     /* no URL configured */
 #endif
-    livelog_write_string(llflags,dumpurl);
+#endif
+    livelog_write_string(llflags, dumpurl);
 #else
     nhUse(llflags);
 #endif /*?DUMPLOG*/
