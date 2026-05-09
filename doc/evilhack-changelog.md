@@ -5331,4 +5331,5 @@ The following changes to date are:
 - Fix: attrib.c code review fixes
 - Fix: quest.c code review fixes
 - Fix: engrave.c code review fixes
+- Fix: region.c code review fixes
 

@@ -2122,8 +2122,8 @@ int after; /* this is extra fast monster movement */
         }
         if (!m_in_out_region(mtmp, nix, niy))
             return 1;
-        /* gas-cloud enter callback may have killed mtmp inside
-           m_in_out_region; the callback's result is discarded */
+        /* m_in_out_region transition callback may kill mtmp;
+           no current region triggers this, but guard against future ones */
         if (DEADMONSTER(mtmp))
             return 2;
         if (m_digweapon_check(mtmp, nix,niy))
@@ -2188,7 +2188,8 @@ int after; /* this is extra fast monster movement */
  dognext:
         if (!m_in_out_region(mtmp, nix, niy))
             return 1;
-        /* gas-cloud enter callback may have killed mtmp */
+        /* m_in_out_region transition callback may kill mtmp;
+           no current region triggers this, but guard against future ones */
         if (DEADMONSTER(mtmp))
             return 2;
         rloc_to(mtmp, cc.x, cc.y);

@@ -2112,8 +2112,8 @@ found_altar:
 
         if (!m_in_out_region(mtmp, nix, niy))
             return 3;
-        /* gas-cloud enter callback may have killed mtmp inside
-           m_in_out_region; the callback's result is discarded */
+        /* m_in_out_region transition callback may kill mtmp;
+           no current region triggers this, but guard against future ones */
         if (DEADMONSTER(mtmp))
             return 2;
 

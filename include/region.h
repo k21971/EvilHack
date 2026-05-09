@@ -63,4 +63,18 @@ typedef struct {
                         force field, damage of a fire zone, ...*/
 } NhRegion;
 
+/* Size caps used by rest_regions() to reject corrupt save prefixes */
+#define MAX_REGIONS         100   /* generous; gas clouds rarely co-exist */
+#define MAX_REGION_RECTS     64   /* radii > 8 are unheard of */
+#define MAX_REGION_MONST    256   /* worm body cells can inflate this */
+#define MAX_REGION_MSGLEN  BUFSZ  /* enter_msg/leave_msg cap */
+
+/* Callback dispatch sentinels. NUM_CALLBACKS must match the size of
+   the callbacks[] array in region.c; a compile-time check there
+   enforces this */
+#define NO_CALLBACK   (-1)
+#define NUM_CALLBACKS  2
+#define VALID_CALLBACK(idx) \
+    ((idx) == NO_CALLBACK || ((idx) >= 0 && (idx) < NUM_CALLBACKS))
+
 #endif /* REGION_H */

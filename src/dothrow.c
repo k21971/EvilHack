@@ -911,7 +911,8 @@ int x, y;
     if (will_hurtle(mon, x, y) && m_in_out_region(mon, x, y)) {
         int res;
 
-        /* gas-cloud enter callback may have killed mon during entry */
+        /* m_in_out_region transition callback may kill mon;
+           no current region triggers this, but guard against future ones */
         if (DEADMONSTER(mon))
             return FALSE;
 

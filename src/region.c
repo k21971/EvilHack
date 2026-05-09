@@ -15,8 +15,6 @@ static NhRegion **regions;
 static int n_regions = 0;
 static int max_regions = 0;
 
-#define NO_CALLBACK (-1)
-
 boolean FDECL(inside_gas_cloud, (genericptr, genericptr));
 boolean FDECL(expire_gas_cloud, (genericptr, genericptr));
 boolean FDECL(inside_rect, (NhRect *, int, int));
@@ -51,6 +49,12 @@ static callback_proc callbacks[] = {
 #define EXPIRE_GAS_CLOUD 1
     expire_gas_cloud
 };
+
+/* Compile-time check: NUM_CALLBACKS in region.h must equal the
+   callbacks[] array size; otherwise rest_regions VALID_CALLBACK
+   bounds-check would be wrong */
+typedef char check_NUM_CALLBACKS
+    [(sizeof callbacks / sizeof callbacks[0] == NUM_CALLBACKS) ? 1 : -1];
 
 /* Should be inlined. */
 boolean
@@ -175,6 +179,11 @@ struct monst *mon;
 {
     int i;
     unsigned *tmp_m;
+
+    /* worm body cells map to the same head; dedup so the worm
+       takes one damage tick per turn rather than once per cell */
+    if (mon_in_region(reg, mon))
+        return;
 
     if (reg->max_monst <= reg->n_monst) {
         tmp_m = (unsigned *) alloc(sizeof (unsigned)
@@ -537,7 +546,7 @@ update_player_regions()
     int i;
 
     for (i = 0; i < n_regions; i++)
-        if (!regions[i]->attach_2_u && inside_region(regions[i], u.ux, u.uy))
+        if (inside_region(regions[i], u.ux, u.uy))
             set_hero_inside(regions[i]);
         else
             clear_hero_inside(regions[i]);
@@ -703,14 +712,33 @@ boolean ghostly; /* If a bones file restore */
     else
         tmstamp = (moves - tmstamp);
     mread(fd, (genericptr_t) &n_regions, sizeof(n_regions));
+    if (n_regions < 0 || n_regions > MAX_REGIONS) {
+        impossible("rest_regions: bogus n_regions %d", n_regions);
+        n_regions = 0;
+        return;
+    }
     max_regions = n_regions;
     if (n_regions > 0)
         regions = (NhRegion **) alloc(sizeof(NhRegion *) * n_regions);
     for (i = 0; i < n_regions; i++) {
         regions[i] = (NhRegion *) alloc(sizeof(NhRegion));
+        /* zero the new region so any mid-restore bail leaves all
+           pointers NULL and ttl 0L; the cleanup loop below then
+           drops it cleanly via remove_region (NULL-safe in
+           free_region) and free_region rejects garbage */
+        (void) memset((genericptr_t) regions[i], 0, sizeof(NhRegion));
+
         mread(fd, (genericptr_t) &regions[i]->bounding_box, sizeof(NhRect));
         mread(fd, (genericptr_t) &regions[i]->nrects, sizeof(short));
-
+        if (regions[i]->nrects < 0
+            || regions[i]->nrects > MAX_REGION_RECTS) {
+            impossible("rest_regions: bogus nrects %d",
+                       regions[i]->nrects);
+            regions[i]->nrects = 0;
+            regions[i]->ttl = 0L;
+            n_regions = i + 1;
+            goto rest_regions_cleanup;
+        }
         if (regions[i]->nrects > 0)
             regions[i]->rects =
                 (NhRect *) alloc(sizeof(NhRect) * regions[i]->nrects);
@@ -720,6 +748,12 @@ boolean ghostly; /* If a bones file restore */
         mread(fd, (genericptr_t) &regions[i]->attach_2_m, sizeof(unsigned));
 
         mread(fd, (genericptr_t) &n, sizeof n);
+        if (n > MAX_REGION_MSGLEN) {
+            impossible("rest_regions: bogus enter_msg length %u", n);
+            regions[i]->ttl = 0L;
+            n_regions = i + 1;
+            goto rest_regions_cleanup;
+        }
         if (n > 0) {
             msg_buf = (char *) alloc(n + 1);
             mread(fd, (genericptr_t) msg_buf, n);
@@ -729,6 +763,12 @@ boolean ghostly; /* If a bones file restore */
             regions[i]->enter_msg = (const char *) 0;
 
         mread(fd, (genericptr_t) &n, sizeof n);
+        if (n > MAX_REGION_MSGLEN) {
+            impossible("rest_regions: bogus leave_msg length %u", n);
+            regions[i]->ttl = 0L;
+            n_regions = i + 1;
+            goto rest_regions_cleanup;
+        }
         if (n > 0) {
             msg_buf = (char *) alloc(n + 1);
             mread(fd, (genericptr_t) msg_buf, n);
@@ -748,6 +788,23 @@ boolean ghostly; /* If a bones file restore */
         mread(fd, (genericptr_t) &regions[i]->can_leave_f, sizeof(short));
         mread(fd, (genericptr_t) &regions[i]->leave_f, sizeof(short));
         mread(fd, (genericptr_t) &regions[i]->inside_f, sizeof(short));
+        if (!VALID_CALLBACK(regions[i]->expire_f)
+            || !VALID_CALLBACK(regions[i]->can_enter_f)
+            || !VALID_CALLBACK(regions[i]->enter_f)
+            || !VALID_CALLBACK(regions[i]->can_leave_f)
+            || !VALID_CALLBACK(regions[i]->leave_f)
+            || !VALID_CALLBACK(regions[i]->inside_f)) {
+            impossible("rest_regions: bogus callback index");
+            /* neutralize all six so run_regions short-circuits;
+               keep restoring the rest of the region so the save
+               stream stays in sync */
+            regions[i]->expire_f = NO_CALLBACK;
+            regions[i]->can_enter_f = NO_CALLBACK;
+            regions[i]->enter_f = NO_CALLBACK;
+            regions[i]->can_leave_f = NO_CALLBACK;
+            regions[i]->leave_f = NO_CALLBACK;
+            regions[i]->inside_f = NO_CALLBACK;
+        }
         mread(fd, (genericptr_t) &regions[i]->player_flags,
               sizeof(unsigned int));
         if (ghostly) { /* settings pertained to old player */
@@ -755,6 +812,17 @@ boolean ghostly; /* If a bones file restore */
             clear_heros_fault(regions[i]);
         }
         mread(fd, (genericptr_t) &regions[i]->n_monst, sizeof(short));
+        if (regions[i]->n_monst < 0
+            || regions[i]->n_monst > MAX_REGION_MONST) {
+            impossible("rest_regions: bogus n_monst %d",
+                       regions[i]->n_monst);
+            regions[i]->n_monst = 0;
+            regions[i]->max_monst = 0;
+            regions[i]->monsters = (unsigned int *) 0;
+            regions[i]->ttl = 0L;
+            n_regions = i + 1;
+            goto rest_regions_cleanup;
+        }
         if (regions[i]->n_monst > 0)
             regions[i]->monsters =
                 (unsigned *) alloc(sizeof(unsigned) * regions[i]->n_monst);
@@ -768,6 +836,7 @@ boolean ghostly; /* If a bones file restore */
         mread(fd, (genericptr_t) &regions[i]->glyph, sizeof(int));
         mread(fd, (genericptr_t) &regions[i]->arg, sizeof(anything));
     }
+rest_regions_cleanup:
     /* remove expired regions, do not trigger the expire_f callback (yet!);
        also update monster lists if this data is coming from a bones file */
     for (i = n_regions - 1; i >= 0; i--)
@@ -854,7 +923,6 @@ const char *msg_leave;
     reg->ttl = -1L;
     return reg;
 }
-
 
 /*--------------------------------------------------------------*
  *                                                              *
@@ -968,6 +1036,8 @@ genericptr_t p2;
 
     reg = (NhRegion *) p1;
     dam = reg->arg.a_int;
+    if (dam < 1)
+        return FALSE; /* nothing to do */
     if (p2 == (genericptr_t) 0) { /* This means *YOU* Bozo! */
         if (m_poisongas_ok(&youmonst) == M_POISONGAS_OK)
             return FALSE;
@@ -994,7 +1064,7 @@ genericptr_t p2;
             if (cansee(mtmp->mx, mtmp->my))
                 pline("%s coughs!", Monnam(mtmp));
             if (heros_fault(reg))
-                setmangry(mtmp, TRUE);
+                setmangry(mtmp, FALSE);
             if (haseyes(mtmp->data) && mtmp->mcansee) {
                 mtmp->mblinded = 1;
                 mtmp->mcansee = 0;

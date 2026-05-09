@@ -116,7 +116,7 @@ boolean clumsy;
         if (goodpos(mdx, mdy, mon, 0L)) {
             pline("%s reels from the blow.", Monnam(mon));
             if (m_in_out_region(mon, mdx, mdy)) {
-                /* gas-cloud enter callback may have killed mon;
+                /* m_in_out_region transition callback may kill mon;
                    suppress the duplicate killed() at function end */
                 if (DEADMONSTER(mon)) {
                     trapkilled = TRUE;
