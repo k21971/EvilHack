@@ -93,9 +93,10 @@ static NEARDATA const char write_on[] = { SCROLL_CLASS, SPBOOK_CLASS, 0 };
 
 /* write -- applying a magic marker */
 int
-dowrite(pen)
-struct obj *pen;
+dowrite(penp)
+struct obj **penp;
 {
+    struct obj *pen = *penp;
     struct obj *paper;
     char namebuf[BUFSZ] = DUMMY, *nm, *bp;
     struct obj *new_obj;
@@ -122,7 +123,11 @@ struct obj *pen;
     } else if (Glib) {
         pline("%s from your %s.", Tobjnam(pen, "slip"),
               fingers_or_gloves(FALSE));
-        dropx(pen);
+        /* dropx returns TRUE if flooreffects (lava, open air, etc.)
+           destroyed the marker; signal that to caller via *penp so
+           apply.c's post-switch obj deref is safe */
+        if (dropx(pen))
+            *penp = (struct obj *) 0;
         return 1;
     }
 

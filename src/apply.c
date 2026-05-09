@@ -4819,7 +4819,7 @@ doapply()
         use_eight_ball(&obj);
         break;
     case MAGIC_MARKER:
-        res = dowrite(obj);
+        res = dowrite(&obj);
         break;
     case TIN_OPENER:
         res = use_tin_opener(obj);

@@ -5334,4 +5334,5 @@ The following changes to date are:
 - Fix: region.c code review fixes
 - Fix: music.c code review fixes
 - Fix: sit.c code review fixes
+- Fix: write.c Glib marker dropx() return ignored
 

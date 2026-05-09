@@ -3331,7 +3331,7 @@ E long FDECL(armor_provides_extrinsic, (struct obj *));
 /* ### write.c ### */
 
 E int FDECL(ink_cost, (SHORT_P));
-E int FDECL(dowrite, (struct obj *));
+E int FDECL(dowrite, (struct obj **));
 
 /* ### zap.c ### */
 
