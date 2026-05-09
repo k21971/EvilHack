@@ -187,6 +187,11 @@ STATIC_DCL boolean FDECL(sp_level_coder, (sp_lev *));
 #define NewTab(type, size) (type **) alloc(sizeof(type *) * (unsigned) size)
 #define Free(ptr) if (ptr) free((genericptr_t) (ptr))
 
+/* sanity caps for disk-format .lev payload */
+#define SPLEV_MAX_OPCODES  100000L
+#define SPLEV_MAX_NSIZE    65535
+#define SPLEV_MAX_ARRAYLEN 100000L
+
 extern struct engr *head_engr;
 
 extern int min_rx, max_rx, min_ry, max_ry; /* from mkmap.c */
@@ -1935,9 +1940,13 @@ struct mkroom *croom;
 
     if (!c)
         otmp = mkobj_at(RANDOM_CLASS, x, y, !named);
-    else if (o->id != -1)
+    else if (o->id != -1) {
+        if (o->id < STRANGE_OBJECT || o->id >= NUM_OBJECTS) {
+            impossible("create_object: bogus otyp %d", o->id);
+            return;
+        }
         otmp = mksobj_at(o->id, x, y, TRUE, !named);
-    else {
+    } else {
         /*
          * The special levels are compiled with the default "text" object
          * class characters.  We must convert them to the internal format.
@@ -2561,11 +2570,22 @@ corridor *c;
         return;
     }
 
+    if (c->src.room < 0 || c->src.room >= nroom) {
+        impossible("create_corridor: bogus src.room %d (nroom=%d)",
+                   c->src.room, nroom);
+        return;
+    }
+
     if (!search_door(&rooms[c->src.room], &org.x, &org.y, c->src.wall,
                      c->src.door))
         return;
 
     if (c->dest.room != -1) {
+        if (c->dest.room < 0 || c->dest.room >= nroom) {
+            impossible("create_corridor: bogus dest.room %d (nroom=%d)",
+                       c->dest.room, nroom);
+            return;
+        }
         if (!search_door(&rooms[c->dest.room], &dest.x, &dest.y, c->dest.wall,
                          c->dest.door))
             return;
@@ -2729,12 +2749,17 @@ region *tmpregion;
     int lowx = tmpregion->x1, hix = tmpregion->x2;
 
     if (litstate) {
-        /* adjust region size for walls, but only if lighted */
-        lowx = max(lowx - 1, 1);
-        hix = min(hix + 1, COLNO - 1);
-        lowy = max(lowy - 1, 0);
-        hiy = min(hiy + 1, ROWNO - 1);
+        /* extend to cover surrounding walls when region is lit */
+        lowx -= 1;
+        hix += 1;
+        lowy -= 1;
+        hiy += 1;
     }
+    /* clamp to map bounds before pointer arithmetic */
+    lowx = max(lowx, 1);
+    hix = min(hix, COLNO - 1);
+    lowy = max(lowy, 0);
+    hiy = min(hiy, ROWNO - 1);
     for (x = lowx; x <= hix; x++) {
         lev = &levl[x][lowy];
         for (y = lowy; y <= hiy; y++) {
@@ -2873,6 +2898,8 @@ sp_lev *lvl;
     int opcode;
 
     Fread((genericptr_t) & (lvl->n_opcodes), 1, sizeof(lvl->n_opcodes), fd);
+    if (lvl->n_opcodes < 1 || lvl->n_opcodes > SPLEV_MAX_OPCODES)
+        panic("sp_level_loader: bogus n_opcodes %ld", lvl->n_opcodes);
     lvl->opcodes = (_opcode *) alloc(sizeof(_opcode) * (lvl->n_opcodes));
 
     while (n_opcode < lvl->n_opcodes) {
@@ -2913,6 +2940,8 @@ sp_lev *lvl;
                 char *opd;
 
                 Fread((genericptr_t) &nsize, 1, sizeof(nsize), fd);
+                if (nsize < 0 || nsize > SPLEV_MAX_NSIZE)
+                    panic("sp_level_loader: bogus nsize %d", nsize);
                 opd = (char *) alloc(nsize + 1);
 
                 if (nsize)
@@ -3672,6 +3701,7 @@ struct sp_coder *coder;
 {
     if (coder->n_subroom > 1) {
         coder->n_subroom--;
+        /* clear the just-popped child slot, leaving the parent intact */
         coder->tmproomlist[coder->n_subroom] = NULL;
         coder->failed_room[coder->n_subroom] = TRUE;
     } else {
@@ -5519,6 +5549,8 @@ struct sp_coder *coder;
         /* new array */
         create_new_array:
             idx = OV_i(arraylen);
+            if (idx < 0 || idx > SPLEV_MAX_ARRAYLEN)
+                panic("spo_var_init: bogus arraylen %ld", idx);
             tmpvar->array_len = idx;
             tmpvar->data.arrayvalues =
                 (struct opvar **) alloc(sizeof(struct opvar *) * idx);
