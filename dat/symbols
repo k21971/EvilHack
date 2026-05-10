@@ -373,6 +373,7 @@ start: UTF8graphics
 	S_puddle: U+2248
 	S_sewage: U+2248
 	S_water: U+2248
+	S_web: U+00A4
 	S_vbeam: U+2502
 	S_hbeam: U+2500
 	S_sw_ml: U+2502

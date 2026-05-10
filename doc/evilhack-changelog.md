@@ -5348,4 +5348,6 @@ The following changes to date are:
 - Fix: mondata.c review fixes
 - Show lit/dark tile state in monster probing output
 - Fix: drow ammo double-jeopardy break rate in light
+- Revert wall colors in Gehennom back to black; specialized symbol for
+  webs in UTF-8 symset
 

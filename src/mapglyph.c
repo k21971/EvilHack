@@ -352,7 +352,7 @@ unsigned mgflags;
             else if (Is_valley(&u.uz))
                 color = CLR_BLACK;
             else if (In_hell(&u.uz))
-                color = has_color(52) ? 52 : CLR_RED; /* dark maroon */
+                color = CLR_BLACK;
             else if (In_mines(&u.uz)) /* no in_rooms check */
                 color = CLR_BROWN;
             else if (Is_astralevel(&u.uz))
