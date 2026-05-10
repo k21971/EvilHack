@@ -5359,4 +5359,5 @@ The following changes to date are:
 - Fix: forging an artifact didn't break "never touched an artifact"
   conduct
 - Fix: monster mount_up() left steed loyalty out of sync with rider
+- Add selective remove curse at expert skill in clerical spells
 

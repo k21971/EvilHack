@@ -2349,6 +2349,7 @@ E void NDECL(forget_traps);
 E void FDECL(forget, (int));
 E int FDECL(maybe_tame, (struct monst *, struct obj *));
 E int FDECL(seffects, (struct obj *));
+E void NDECL(selective_remove_curse);
 E void FDECL(drop_boulder_on_player,
              (BOOLEAN_P, BOOLEAN_P, BOOLEAN_P, BOOLEAN_P));
 E boolean FDECL(drop_boulder_on_monster, (int, int, BOOLEAN_P, BOOLEAN_P));

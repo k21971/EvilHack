@@ -20,6 +20,7 @@ static const char all_count[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
 static const char clothes[] = { ARMOR_CLASS, 0 };
 
 STATIC_DCL boolean FDECL(learnscrolltyp, (SHORT_P));
+STATIC_DCL boolean FDECL(cursed_obj_filter, (struct obj *));
 STATIC_DCL char *FDECL(erode_obj_text, (struct obj *, char *));
 STATIC_DCL char *FDECL(hawaiian_design, (struct obj *, char *));
 STATIC_DCL void FDECL(stripspe, (struct obj *));
@@ -2244,6 +2245,79 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
     if (!sobj)
         update_inventory();
     return sobj ? 0 : 1;
+}
+
+/* query_objlist callback: cursed inventory items eligible for the
+   expert-clerical selective remove curse menu */
+STATIC_OVL boolean
+cursed_obj_filter(obj)
+struct obj *obj;
+{
+    return (boolean) (obj->cursed && obj->oclass != COIN_CLASS);
+}
+
+/* Expert clerical remove curse: prompt the player for which currently
+   cursed inventory items to uncurse instead of uncursing every cursed
+   item automatically. Steed saddle/barding, the punishment chain, and
+   the buried-ball trap are still cleared automatically since they live
+   outside open inventory */
+void
+selective_remove_curse()
+{
+    struct obj *obj;
+    menu_item *pick_list = (menu_item *) 0;
+    int i, n;
+
+    n = query_objlist("Uncurse which items?", &invent,
+                      (SIGNAL_NOMENU | USE_INVLET | INVORDER_SORT),
+                      &pick_list, PICK_ANY, cursed_obj_filter);
+    if (n > 0) {
+        You_feel(!Hallucination ? "like someone is helping you."
+                                : "in touch with the Universal Oneness.");
+        for (i = 0; i < n; i++) {
+            obj = pick_list[i].item.a_obj;
+            /* defensive: filter ran when menu opened, but skip anything
+               that somehow lost its cursed flag in the interim */
+            if (!obj || !obj->cursed)
+                continue;
+            if (obj->unpaid && obj->otyp == POT_WATER)
+                costly_alteration(obj, COST_UNCURS);
+            uncurse(obj);
+        }
+        free((genericptr_t) pick_list);
+    } else if (n < 0) {
+        /* SIGNAL_NOMENU: nothing in inventory passed cursed_obj_filter */
+        You("don't have anything that needs uncursing.");
+    }
+    /* steed gear is not in invent, so it's auto-handled like a
+       blessed scroll path */
+    if (u.usteed && (obj = which_armor(u.usteed, W_SADDLE)) != 0
+        && obj->cursed) {
+        uncurse(obj);
+        if (!Blind) {
+            pline("%s %s.", Yobjnam2(obj, "glow"), hcolor("amber"));
+            obj->bknown = Hallucination ? 0 : 1;
+        } else {
+            obj->bknown = 0;
+        }
+    }
+    if (u.usteed && (obj = which_armor(u.usteed, W_BARDING)) != 0
+        && obj->cursed) {
+        uncurse(obj);
+        if (!Blind) {
+            pline("%s %s.", Yobjnam2(obj, "glow"), hcolor("amber"));
+            obj->bknown = Hallucination ? 0 : 1;
+        } else {
+            obj->bknown = 0;
+        }
+    }
+    if (Punished)
+        unpunish();
+    if (u.utrap && u.utraptype == TT_BURIEDBALL) {
+        buried_ball_to_freedom();
+        pline_The("clasp on your %s vanishes.", body_part(LEG));
+    }
+    update_inventory();
 }
 
 void
