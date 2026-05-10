@@ -1612,6 +1612,14 @@ int dmg, spellnum;
                     rehumanize();
                     break;
                 }
+                if (u.umonnum == PM_FIRE_VORTEX
+                    || u.umonnum == PM_FIRE_ELEMENTAL
+                    || u.umonnum == PM_FLAMING_SPHERE) {
+                    /* PM_ORB_OF_FIRE is M2_NOPOLY */
+                    You("are extinguished!");
+                    rehumanize();
+                    break;
+                }
                 (void) erode_armor(&youmonst, ERODE_RUST);
             }
         } else {
@@ -1629,6 +1637,34 @@ int dmg, spellnum;
                 if (yours || canseemon(target))
                     pline("A sudden geyser slams into %s from nowhere!",
                           mon_nam(target));
+                if (target->data == &mons[PM_IRON_GOLEM]) {
+                    if (yours || canseemon(target))
+                        pline("%s falls to pieces!", Monnam(target));
+                    else if (target->mtame)
+                        pline("May %s rust in peace.", mon_nam(target));
+                    if (yours) {
+                        xkilled(target, XKILL_NOMSG);
+                    } else {
+                        if (caster->mtame)
+                            set_pet_killer(caster);
+                        monkilled(target, "", AD_PHYS);
+                    }
+                    dmg = 0;
+                    break;
+                }
+                if (completelydoused(target->data)) {
+                    if (yours || canseemon(target))
+                        pline("%s is extinguished!", Monnam(target));
+                    if (yours) {
+                        xkilled(target, XKILL_NOMSG);
+                    } else {
+                        if (caster->mtame)
+                            set_pet_killer(caster);
+                        monkilled(target, "", AD_PHYS);
+                    }
+                    dmg = 0;
+                    break;
+                }
                 dmg = d(8, 6);
                 (void) erode_armor(target, ERODE_RUST);
             }

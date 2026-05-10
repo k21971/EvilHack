@@ -5036,6 +5036,12 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             tmp = mon->mhp + 1;
             break;
         }
+        if (completelydoused(mon->data)) {
+            if (canseemon(mon))
+                pline("%s is extinguished!", Monnam(mon));
+            tmp = mon->mhp + 1;
+            break;
+        }
         if (!rn2(6)) {
             water_damage(MON_WEP(mon), 0, TRUE, mon->mx, mon->my);
             water_damage(MON_WEP2(mon), 0, TRUE, mon->mx, mon->my);
@@ -5324,6 +5330,14 @@ xchar sx, sy;
         }
         if (u.umonnum == PM_IRON_GOLEM) {
             You("rust!");
+            rehumanize();
+            break;
+        }
+        if (u.umonnum == PM_FIRE_VORTEX
+            || u.umonnum == PM_FIRE_ELEMENTAL
+            || u.umonnum == PM_FLAMING_SPHERE) {
+            /* PM_ORB_OF_FIRE is M2_NOPOLY */
+            You("are extinguished!");
             rehumanize();
             break;
         }

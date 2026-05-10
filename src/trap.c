@@ -2876,6 +2876,16 @@ struct monst *mtmp;
                     trapkilled = TRUE;
             } else if (mptr == &mons[PM_GREMLIN] && rn2(3)) {
                 (void) split_mon(mtmp, (struct monst *) 0);
+            } else if (completelydoused(mptr)) {
+                /* pure-flame creatures take a heavy dousing but
+                   aren't completely extinguished by a trap-sized
+                   splash; survivable at full HP, lethal if wounded */
+                if (in_sight)
+                    pline("%s sputters and steams violently!",
+                          Monnam(mtmp));
+                if (thitm(0, mtmp, (struct obj *) 0, d(6, 6),
+                          FALSE, trap->madeby_u ? TRUE : FALSE))
+                    trapkilled = TRUE;
             }
             break;
         } /* RUST_TRAP_SET */

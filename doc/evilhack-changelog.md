@@ -5361,4 +5361,5 @@ The following changes to date are:
 - Fix: monster mount_up() left steed loyalty out of sync with rider
 - Add selective remove curse at expert skill in clerical spells
 - Aasimar grow angelic wings as the source of experience level-15 flight
+- Significant water attacks extinguish pure-flame monsters
 

@@ -655,6 +655,14 @@
 #define completelyburns(ptr) \
     ((ptr) == &mons[PM_PAPER_GOLEM] || (ptr) == &mons[PM_STRAW_GOLEM])
 
+/* instantly extinguished by a significant water attack
+   (sea dragon breath, monster geyser spell) */
+#define completelydoused(ptr) \
+    ((ptr) == &mons[PM_FLAMING_SPHERE]     \
+     || (ptr) == &mons[PM_ORB_OF_FIRE]     \
+     || (ptr) == &mons[PM_FIRE_VORTEX]     \
+     || (ptr) == &mons[PM_FIRE_ELEMENTAL])
+
 /* monster can mount and ride other monsters */
 #define mon_can_ride(mon) \
     (!(mon)->mtame && (mon) != u.ustuck && !(mon)->mpeaceful                 \
