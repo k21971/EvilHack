@@ -5347,4 +5347,5 @@ The following changes to date are:
 - Fix: exper.c, attrib.c review fixes
 - Fix: mondata.c review fixes
 - Show lit/dark tile state in monster probing output
+- Fix: drow ammo double-jeopardy break rate in light
 

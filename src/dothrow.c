@@ -2640,10 +2640,14 @@ xchar x, y;
      * Drow weapons are a bit sturdier.
      * Melee weapons have 1/16 chance of breakage when break_glass_obj
      * is considered, thrown/kicked/etc. weapons have a 3/8 chance,
+     * ammo (arrows/bolts) gets a gentler 1/8 chance because it also
+     * eats the standard projectile-breakage roll inside thitmonst(),
      * and armor has a 1/6 chance regardless. */
     if (obj->material == ADAMANTINE && is_drow_obj(obj)
         && !obj->oartifact && !spot_is_dark(x, y)) {
-        if (!is_drow_weapon(obj) || (rn2(8) < 3))
+        if (!is_drow_weapon(obj))
+            return 1;
+        if (is_ammo(obj) ? !rn2(8) : (rn2(8) < 3))
             return 1;
     }
     /* armor and weapons of inferior quality can sometimes
