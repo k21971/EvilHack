@@ -147,6 +147,9 @@ struct monst *rider;
                 || steed->data == &mons[PM_SKELETAL_HORSE]
                 || steed->data == &mons[PM_SKELETAL_WARHORSE]))
             continue;
+        /* don't let wild riders commandeer the player's tame pet */
+        if (steed->mtame)
+            continue;
         if (monnear(rider, steed->mx, steed->my)
             && mon_can_be_ridden(steed) && !steed->ridden_by) {
             break;
@@ -175,6 +178,10 @@ struct monst *rider;
     ERID(rider)->mon_steed->mx = rider->mx;
     ERID(rider)->mon_steed->my = rider->my;
     newsym(rider->mx, rider->my);
+
+    /* rider over'rides' steed's natural inclinations */
+    steed->mpeaceful = rider->mpeaceful;
+    set_malign(steed);
     return TRUE;
 }
 

@@ -5358,4 +5358,5 @@ The following changes to date are:
 - Tame vampire pets can self-feed from blood resources
 - Fix: forging an artifact didn't break "never touched an artifact"
   conduct
+- Fix: monster mount_up() left steed loyalty out of sync with rider
 
