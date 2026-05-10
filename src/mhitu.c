@@ -981,7 +981,7 @@ struct monst *mtmp;
     if ((mtmp->cham == NON_PM) && is_demon(mdat) && !range2
         && mtmp->data != &mons[PM_BALROG] && mtmp->data != &mons[PM_SUCCUBUS]
         && mtmp->data != &mons[PM_INCUBUS] && mtmp->data != &mons[PM_DEMON])
-        if (!mtmp->mcan && !rn2(13))
+        if (!mtmp->mcan && !rn2(Inhell ? 10 : 13))
             (void) msummon(mtmp);
 
     /*  Special lycanthrope handling code */
