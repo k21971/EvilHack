@@ -5350,4 +5350,5 @@ The following changes to date are:
 - Fix: drow ammo double-jeopardy break rate in light
 - Revert wall colors in Gehennom back to black; specialized symbol for
   webs in UTF-8 symset
+- Fix: livelog and death record show actual Rider identity
 

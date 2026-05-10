@@ -609,7 +609,8 @@ int how;
         Strcat(buf, m_monnam(mtmp));
     } else {
         Strcat(buf, x_monnam(mtmp, ARTICLE_NONE, (char *) 0,
-                             (EXACT_NAME | SUPPRESS_NAME), FALSE));
+                             (EXACT_NAME | SUPPRESS_NAME | SUPPRESS_RIDER),
+                             FALSE));
         if (has_mname(mtmp))
             Sprintf(eos(buf), " called %s", MNAME(mtmp));
     }

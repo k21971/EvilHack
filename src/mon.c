@@ -50,10 +50,12 @@ STATIC_DCL void FDECL(icequeenrevive, (struct monst *));
 
 /* A specific combination of x_monnam flags for livelogging. The livelog
  * shouldn't show that you killed a hallucinatory monster and not what it
- * actually is. */
+ * actually is, and shouldn't honor the farlook-only Rider-identity
+ * obfuscation either */
 #define livelog_mon_nam(mtmp) \
-    x_monnam(mtmp, ARTICLE_THE, (char *) 0,                 \
-             (SUPPRESS_IT | SUPPRESS_HALLUCINATION), FALSE)
+    x_monnam(mtmp, ARTICLE_THE, (char *) 0,                           \
+             (SUPPRESS_IT | SUPPRESS_HALLUCINATION | SUPPRESS_RIDER), \
+             FALSE)
 
 #if 0
 /* part of the original warning code which was replaced in 3.3.1 */

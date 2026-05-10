@@ -1912,6 +1912,7 @@ boolean called;
         Strcat(buf, lcase(pbuf));
         name_at_start = FALSE;
     } else if (is_rider(mdat)
+               && !(suppress & SUPPRESS_RIDER)
                && (distu(mtmp->mx, mtmp->my) > 2)
                && !canseemon(mtmp)) {
         Strcat(buf, "Rider");

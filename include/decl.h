@@ -386,6 +386,7 @@ E const char *materialnm[];
 #define SUPPRESS_BARDING 0x10
 #define EXACT_NAME 0x1F
 #define SUPPRESS_NAME 0x20
+#define SUPPRESS_RIDER 0x40
 
 /* Vision */
 E NEARDATA boolean vision_full_recalc; /* TRUE if need vision recalc */
