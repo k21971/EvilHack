@@ -750,7 +750,7 @@ unsigned corpseflags;
         num = d(2, 6);
         while (num--) {
             obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
-            if (!valid_obj_material(obj, IRON)) {
+            if (!valid_obj_material(obj, IRON) || Is_container(obj)) {
                 delobj(obj);
                 obj = mksobj_at(IRON_CHAIN, x, y, TRUE, FALSE);
             }
@@ -763,7 +763,8 @@ unsigned corpseflags;
         while (num--) {
             obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
             if (!valid_obj_material(obj, GLASS)
-                || obj->oclass == POTION_CLASS) {
+                || obj->oclass == POTION_CLASS
+                || Is_container(obj)) {
                 delobj(obj);
                 obj = mksobj_at((LAST_GEM + rnd(9)), x, y, TRUE, FALSE);
             }
@@ -787,7 +788,7 @@ unsigned corpseflags;
         num = d(2, 4);
         while (num--) {
             obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
-            if (!valid_obj_material(obj, WOOD)) {
+            if (!valid_obj_material(obj, WOOD) || Is_container(obj)) {
                 delobj(obj);
                 obj = mksobj_at(QUARTERSTAFF, x, y, TRUE, FALSE);
             }
@@ -799,7 +800,7 @@ unsigned corpseflags;
         num = d(2, 4);
         while (num--) {
             obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
-            if (!valid_obj_material(obj, LEATHER)) {
+            if (!valid_obj_material(obj, LEATHER) || Is_container(obj)) {
                 delobj(obj);
                 obj = mksobj_at(ARMOR, x, y, TRUE, FALSE);
             }
@@ -817,7 +818,8 @@ unsigned corpseflags;
         while (num--) {
             obj = mkobj_at(RANDOM_CLASS, x, y, FALSE);
             if (!valid_obj_material(obj, PAPER) || obj->oclass == SCROLL_CLASS
-                || obj->oclass == SPBOOK_CLASS) {
+                || obj->oclass == SPBOOK_CLASS
+                || Is_container(obj)) {
                 delobj(obj);
                 obj = mksobj_at(SCR_BLANK_PAPER, x, y, TRUE, FALSE);
             }

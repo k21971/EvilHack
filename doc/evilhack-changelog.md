@@ -5353,4 +5353,5 @@ The following changes to date are:
 - Fix: livelog and death record show actual Rider identity
 - Fix: Rider 'riding its steed' pager display
 - Make demon gating slightly more frequent in Gehennom
+- Fix: object drop from destroying a golem could spawn containers
 
