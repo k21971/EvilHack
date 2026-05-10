@@ -519,10 +519,10 @@ baalz_fixup()
     bughack.inarea.y2 = bughack.delarea.y2 = 0;
 }
 
-/* Pick a random 4x4 block of pure MOAT tiles on the current level.
+/* Pick a random 3x3 block of pure MOAT tiles on the current level.
    Used by the Fort Ludios Medusa fallback to find a hidden spot for
    a vault. Returns TRUE and fills (*vx,*vy) with the top-left corner
-   on success, FALSE if no such block exists. */
+   on success, FALSE if no such block exists */
 STATIC_OVL boolean
 find_knox_fallback_spot(vx, vy)
 xchar *vx, *vy;
@@ -532,11 +532,11 @@ xchar *vx, *vy;
     int x, y, dx, dy;
     boolean ok;
 
-    for (y = 1; y < ROWNO - 4; y++) {
-        for (x = 1; x < COLNO - 4; x++) {
+    for (y = 1; y < ROWNO - 3; y++) {
+        for (x = 1; x < COLNO - 3; x++) {
             ok = TRUE;
-            for (dy = 0; dy < 4 && ok; dy++)
-                for (dx = 0; dx < 4 && ok; dx++)
+            for (dy = 0; dy < 3 && ok; dy++)
+                for (dx = 0; dx < 3 && ok; dx++)
                     if (levl[x + dx][y + dy].typ != MOAT)
                         ok = FALSE;
             if (ok) {

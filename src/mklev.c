@@ -2398,37 +2398,45 @@ xchar x, y;
     return FALSE;
 }
 
-/* Carve a small VAULT room inside a 4x4 bounding box whose top-left is
-   (x,y). Caller has verified the box is all-moat. The inner 2x2 becomes
-   vault floor, the perimeter is converted from add_room()'s stone walls
-   to live trees (thematic on Medusa's level, and a different access
-   mechanic: chop or burn rather than dig), and the Ludios portal
-   lands on one of the floor tiles. */
+/* Carve a 1x1 VAULT room inside a 3x3 bounding box whose top-left is
+   (x,y). Caller has verified the box is all-moat. The center tile
+   becomes the vault floor, the 8 perimeter tiles are converted from
+   add_room()'s stone walls to one randomly-chosen non-rock material
+   (live trees, dead trees, pool, or sewage), giving each fallback
+   grove a different access mechanic, and the Ludios portal lands on
+   the lone floor tile. The vault is intentionally bare; pass
+   prefilled=TRUE to fill_room() so it skips the usual VAULT gold */
 void
 mk_knox_fallback_vault(x, y)
 xchar x, y;
 {
+    static const schar choices[] = { TREE, DEADTREE, POOL, SEWAGE };
+    schar wallmat;
     int dx, dy;
     xchar tx, ty;
 
     /* add_room(lowx,lowy,hix,hiy,...) carves the perimeter at
        lowx-1,lowy-1 .. hix+1,hiy+1 and floors the interior.
-       Passing a 2x2 floor at (x+1,y+1)..(x+2,y+2) walls the full
-       4x4 box (x,y)..(x+3,y+3). */
-    add_room(x + 1, y + 1, x + 2, y + 2, FALSE, VAULT, FALSE);
+       Passing a 1x1 floor at (x+1,y+1) walls the full 3x3 box
+       (x,y)..(x+2,y+2) */
+    add_room(x + 1, y + 1, x + 1, y + 1, FALSE, VAULT, FALSE);
     level.flags.has_vault = 1;
-    fill_room(&rooms[nroom - 1], FALSE);
+    /* prefilled=TRUE skips fill_room()'s vault-gold injection */
+    fill_room(&rooms[nroom - 1], TRUE);
 
-    /* Replace the freshly-placed stone walls with live trees. The 2x2
-       interior at (x+1..x+2, y+1..y+2) is the floor and is left alone. */
-    for (dy = 0; dy < 4; dy++)
-        for (dx = 0; dx < 4; dx++) {
-            if (dx >= 1 && dx <= 2 && dy >= 1 && dy <= 2)
+    /* Pick one wall material for the whole perimeter */
+    wallmat = choices[rn2(SIZE(choices))];
+
+    /* Replace the freshly-placed stone walls with the chosen material.
+       The 1x1 interior at (x+1, y+1) is the floor and is left alone */
+    for (dy = 0; dy < 3; dy++)
+        for (dx = 0; dx < 3; dx++) {
+            if (dx == 1 && dy == 1)
                 continue;
             tx = x + dx;
             ty = y + dy;
             if (IS_WALL(levl[tx][ty].typ))
-                levl[tx][ty].typ = TREE;
+                levl[tx][ty].typ = wallmat;
         }
 
     (void) mk_knox_portal_at(x + 1, y + 1);

@@ -5354,4 +5354,5 @@ The following changes to date are:
 - Fix: Rider 'riding its steed' pager display
 - Make demon gating slightly more frequent in Gehennom
 - Fix: object drop from destroying a golem could spawn containers
+- Adjustments to the Fort Ludios portal on Medusa's level
 
