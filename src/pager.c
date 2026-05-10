@@ -341,7 +341,7 @@ int x, y;
     if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->mon_steed) {
         if (is_rider(mtmp->data) && (distu(mtmp->mx, mtmp->my) > 2)
             && !canseemon(mtmp))
-            Sprintf(eos(buf), ", riding its steed.");
+            Sprintf(eos(buf), ", riding its steed");
         else
             Sprintf(eos(buf), ", riding %s", a_monnam(ERID(mtmp)->mon_steed));
     }

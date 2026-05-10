@@ -5351,4 +5351,5 @@ The following changes to date are:
 - Revert wall colors in Gehennom back to black; specialized symbol for
   webs in UTF-8 symset
 - Fix: livelog and death record show actual Rider identity
+- Fix: Rider 'riding its steed' pager display
 
