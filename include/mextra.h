@@ -169,6 +169,10 @@ enum dogfood_types {
     TABU    = 7
 };
 
+/* hungrytime offset above which a pet is "deeply satiated" and stops
+   eating; gates dog_invent's eat trigger and dog_goal's pursuit */
+#define DOG_SATIATED 800
+
 struct edog {
     long droptime;            /* moment dog dropped object */
     unsigned dropdist;        /* dist of dropped obj from @ */

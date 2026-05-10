@@ -15,8 +15,6 @@ int FDECL(extra_pref, (struct monst *, struct obj *));
 extern boolean FDECL(would_prefer_hwep, (struct monst *, struct obj *));
 extern boolean FDECL(would_prefer_rwep, (struct monst *, struct obj *));
 
-#define DOG_SATIATED 800
-
 STATIC_DCL boolean FDECL(dog_hunger, (struct monst *, struct edog *));
 STATIC_DCL int FDECL(dog_invent, (struct monst *, struct edog *, int));
 STATIC_DCL int FDECL(dog_goal, (struct monst *, struct edog *, int, int, int));
@@ -190,6 +188,10 @@ boolean check_if_better, stashing;
              || otmp->otyp == EUCALYPTUS_LEAF
              || otmp->otyp == MISTLETOE
              || otmp->otyp == UNICORN_HORN
+             /* vampires hoard blood potions to drink when hungry */
+             || (is_vampire(mtmp->data)
+                 && (otmp->otyp == POT_BLOOD
+                     || otmp->otyp == POT_VAMPIRE_BLOOD))
              || cures_stoning(mtmp, otmp, FALSE)));
 
     /* don't try to pick up uball/uchain */
@@ -562,9 +564,10 @@ boolean devour;
             nutrit = (nutrit * 3) / 4;
     }
 
-    /* vampire nutrition, half the amount of
-       dog_nutrition() vs eating an entire corpse */
-    if (vamp) {
+    /* vampire nutrition for corpses: half the amount of
+       dog_nutrition() because only the blood is consumed;
+       blood potions get full nutrition from dog_nutrition */
+    if (vamp && obj->otyp == CORPSE) {
         mtmp->meating = (mtmp->meating / 4);
         nutrit = (nutrit / 2);
         if (wizard)
@@ -646,7 +649,7 @@ boolean devour;
             pline("%s spits %s out in disgust!", Monnam(mtmp),
                   distant_name(obj, doname));
         }
-    } else if (vamp) {
+    } else if (vamp && obj->otyp == CORPSE) {
         if (obj->quan > 1L) {
             if (!carried(obj)) {
                 (void) splitobj(obj, 1L);
@@ -663,9 +666,14 @@ boolean devour;
                 }
             }
         }
-        /* Take away blood nutrition */
+        /* Take away blood nutrition; preserve any prior partial-eat
+           state so a subsequent eater isn't gifted nutrition that
+           was already consumed. drain_level represents what remains
+           after the blood is gone (the meat portion) */
         if (obj) {
-            obj->oeaten = drain_level(obj);
+            if (!obj->oeaten
+                || obj->oeaten > (unsigned) drain_level(obj))
+                obj->oeaten = drain_level(obj);
             obj->odrained = 1;
         }
     } else if (obj == uball) {
@@ -923,7 +931,16 @@ int udist;
                     /* starving pet is more aggressive about eating */
                     || (edog->mhpmax_penalty && edible == ACCFOOD))
                 && could_reach_item(mtmp, obj->ox, obj->oy)) {
-                if (edog->hungrytime < monstermoves + DOG_SATIATED)
+                /* deeply satiated pets still drain intrinsic-conveying
+                   corpses; a free new intrinsic is too valuable to skip
+                   just because the pet is well-fed */
+                boolean intrinsic_corpse =
+                    (obj->otyp == CORPSE && obj->corpsenm != NON_PM
+                     && can_give_new_mintrinsic(&safe_mons(obj->corpsenm),
+                                                mtmp));
+
+                if (intrinsic_corpse
+                    || edog->hungrytime < monstermoves + DOG_SATIATED)
                     return dog_eat(mtmp, obj, omx, omy, FALSE);
             }
 
@@ -1032,7 +1049,13 @@ int after, udist, whappr;
                     continue;
                 if (otyp < MANFOOD
                     && (otyp < ACCFOOD || edog->hungrytime <= monstermoves)
-                    && edog->hungrytime < monstermoves + DOG_SATIATED) {
+                    && (edog->hungrytime < monstermoves + DOG_SATIATED
+                        /* satiated pets still pursue intrinsic-conveying
+                           corpses for the free new intrinsic */
+                        || (obj->otyp == CORPSE
+                            && obj->corpsenm != NON_PM
+                            && can_give_new_mintrinsic(
+                                   &safe_mons(obj->corpsenm), mtmp)))) {
                     if (otyp < gtyp || DDIST(nx, ny) < DDIST(gx, gy)) {
                         gx = nx;
                         gy = ny;
@@ -1507,6 +1530,66 @@ int after; /* this is extra fast monster movement */
     omy = mtmp->my;
     if ((has_edog || summoned) && dog_hunger(mtmp, edog))
         return 2; /* starved */
+
+    /* hungry vampire pet self-feeds from a carried blood potion before
+       considering anything else; mirrors player workflow of drinking
+       blood when meals are scarce */
+    if (has_edog && !(edog->petstrat & PETSTRAT_COME)
+        && is_vampire(mtmp->data)
+        && monstermoves > (edog->hungrytime + 300)) {
+        struct obj *bobj, *nbobj;
+
+        for (bobj = mtmp->minvent; bobj; bobj = nbobj) {
+            nbobj = bobj->nobj;
+            if (bobj->cursed)
+                continue;
+            if (bobj->otyp != POT_BLOOD
+                && bobj->otyp != POT_VAMPIRE_BLOOD)
+                continue;
+            if (bobj->quan > 1L)
+                bobj = splitobj(bobj, 1L);
+            if (canseemon(mtmp)) {
+                bobj->dknown = 1;
+                pline("%s drinks %s!", Monnam(mtmp),
+                      singular(bobj, doname));
+            } else if (!Deaf) {
+                You_hear("a chugging sound.");
+            }
+            /* nutrition mirrors the player lesshungry() amounts in
+               potion.c POT_BLOOD/POT_VAMPIRE_BLOOD branch */
+            if (bobj->otyp == POT_VAMPIRE_BLOOD)
+                edog->hungrytime += (bobj->odiluted ? 1 : 2)
+                                    * (bobj->blessed ? 400 : 100);
+            else
+                edog->hungrytime += (bobj->odiluted ? 1 : 2)
+                                    * (bobj->blessed ? 100 : 30);
+            if (edog->mhpmax_penalty) {
+                /* no longer starving */
+                mtmp->mhpmax += edog->mhpmax_penalty;
+                edog->mhpmax_penalty = 0;
+            }
+            /* vampire blood also heals; mirrors muse.c
+               MUSE_POT_VAMPIRE_BLOOD */
+            if (bobj->otyp == POT_VAMPIRE_BLOOD) {
+                if (bobj->blessed) {
+                    if (bobj->odiluted)
+                        mtmp->mhp += (mtmp->mhpmax / 4);
+                    else
+                        mtmp->mhp = mtmp->mhpmax;
+                } else if (!bobj->cursed) {
+                    mtmp->mhp += d(4, 4) / (bobj->odiluted ? 4 : 1);
+                    if (mtmp->mhp > mtmp->mhpmax)
+                        mtmp->mhp = ++mtmp->mhpmax;
+                }
+                if (mtmp->mhp > mtmp->mhpmax)
+                    mtmp->mhp = mtmp->mhpmax;
+            }
+            if (canseemon(mtmp))
+                makeknown(bobj->otyp);
+            m_useup(mtmp, bobj);
+            return 1;
+        }
+    }
 
     udist = distu(omx, omy);
     /* Let steeds eat and maybe throw rider during Conflict */

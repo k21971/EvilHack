@@ -1248,12 +1248,30 @@ struct obj *obj;
             && !(resists_ston(mon) || defended(mon, AD_STON)))
             return POISON;
 
-        /* vampires drain the blood from fresh corpses */
-        if (is_vampire(mptr))
-            return (obj->otyp == CORPSE
-                    && has_blood(&safe_mons(obj->corpsenm)) && !obj->oeaten
-                    && peek_at_iced_corpse_age(obj) + 5 >= monstermoves)
-                    ? DOGFOOD : TABU;
+        /* vampires drain the blood from fresh corpses; matches the
+           player's is_edible() check - allow partly-eaten corpses
+           that still have blood remaining. Tame vampire pets are
+           selective like non-vampire pets: only drain when not
+           deeply satiated (DOG_SATIATED gate) or to gain a new
+           intrinsic; satiated pets walk past blood corpses */
+        if (is_vampire(mptr)) {
+            boolean blood_corpse =
+                (obj->otyp == CORPSE
+                 && has_blood(&safe_mons(obj->corpsenm))
+                 && (!obj->odrained
+                     || obj->oeaten > (unsigned) drain_level(obj))
+                 && peek_at_iced_corpse_age(obj) + 5 >= monstermoves);
+
+            if (!blood_corpse)
+                return TABU;
+            if (mon->mtame && !mon->isminion
+                && EDOG(mon)->hungrytime
+                       >= monstermoves + DOG_SATIATED
+                && !can_give_new_mintrinsic(&safe_mons(obj->corpsenm),
+                                            mon))
+                return MANFOOD;
+            return DOGFOOD;
+        }
 
         if (!carni && !herbi)
             return obj->cursed ? UNDEF : APPORT;

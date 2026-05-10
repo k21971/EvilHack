@@ -5355,4 +5355,5 @@ The following changes to date are:
 - Make demon gating slightly more frequent in Gehennom
 - Fix: object drop from destroying a golem could spawn containers
 - Adjustments to the Fort Ludios portal on Medusa's level
+- Tame vampire pets can self-feed from blood resources
 
