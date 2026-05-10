@@ -948,6 +948,12 @@ doforging()
             You("have successfully forged %s.", doname(output));
             uwep->spe--;
             u.uconduct.forgedarti++;
+            /* artifact materialized in the hero's hands; mirror the
+               explicit bump used by every other "creation in your
+               possession" path (fountain dip, prayer gift, sacrifice
+               gift) since addinv() does not route through
+               touch_artifact() */
+            u.uconduct.artitouch++;
             livelog_printf(LL_ARTIFACT, "used a forge to create %s%s",
                            (output->oartifact == ART_GAUNTLETS_OF_PURITY
                             || output->oartifact == ART_HAMMER_OF_THE_GODS

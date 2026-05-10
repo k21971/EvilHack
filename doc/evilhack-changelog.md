@@ -5356,4 +5356,6 @@ The following changes to date are:
 - Fix: object drop from destroying a golem could spawn containers
 - Adjustments to the Fort Ludios portal on Medusa's level
 - Tame vampire pets can self-feed from blood resources
+- Fix: forging an artifact didn't break "never touched an artifact"
+  conduct
 
