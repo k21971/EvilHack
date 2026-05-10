@@ -103,6 +103,10 @@ char *outbuf;
         Sprintf(eos(outbuf), ", mounted on %s", y_monnam(u.usteed));
     if (u.uundetected || (Upolyd && U_AP_TYPE))
         mhidden_description(&youmonst, FALSE, eos(outbuf));
+    if (spot_is_dark(u.ux, u.uy))
+        Strcat(outbuf, ", in darkness");
+    else
+        Strcat(outbuf, ", in light");
     return outbuf;
 }
 
@@ -415,6 +419,12 @@ int x, y;
             t->tseen = 1;
         }
     }
+
+    /* is the monster standing on a lit or unlit tile */
+    if (spot_is_dark(x, y))
+        Strcat(buf, ", in darkness");
+    else
+        Strcat(buf, ", in light");
 
     /* we know the hero sees a monster at this location, but if it's shown
        due to persistant monster detection he might remember something else */
