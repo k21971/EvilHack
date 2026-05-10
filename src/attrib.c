@@ -1834,24 +1834,32 @@ aasimar_check_abuse()
         }
     }
 
-    /* Flying from clean alignment: level 15+ */
+    /* Flying from clean alignment: level 15+.
+       Aasimar grow angelic wings as a body part; armor interaction
+       matches crowned-Infidel demonic wings via check_wings() */
     if (u.ulevel >= 15) {
         if (u.ualign.abuse < 0
             && (HFlying & FROMRACE)) {
             HFlying &= ~FROMRACE;
-            if (!Upolyd)
-                You_feel("gravity's pull!");
+            if (!Upolyd) {
+                Your("angelic wings wither and fade away!");
+                check_wings(TRUE);
+            }
         } else if (u.ualign.abuse == 0
                    && !(HFlying & FROMRACE)) {
             HFlying |= FROMRACE;
-            if (!Upolyd)
-                You_feel("lighter than air!");
+            if (!Upolyd) {
+                pline("Angelic wings sprout from your back!");
+                check_wings(FALSE);
+            }
         }
     } else if (HFlying & FROMRACE) {
         /* Lost enough levels: revoke */
         HFlying &= ~FROMRACE;
-        if (!Upolyd)
-            You_feel("gravity's pull!");
+        if (!Upolyd) {
+            Your("angelic wings fold inward and disappear beneath your skin.");
+            check_wings(TRUE);
+        }
     }
 
     /* Hungerless regeneration from clean alignment:

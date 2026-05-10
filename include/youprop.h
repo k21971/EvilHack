@@ -291,8 +291,8 @@
 #define ELevitation u.uprops[LEVITATION].extrinsic
 /* BLevitation has I_SPECIAL set if trapped in the floor,
    FROMOUTSIDE set if inside solid rock (or in water on Plane of Water)
-   W_ARM set if in big_wings() form and wearing blocking body armor
-   (the last one obviously won't block the steed from flying) */
+   W_ARM set if in a big_wings() form/race and wearing blocking body
+   armor (the last one obviously won't block the steed from flying) */
 #define BLevitation u.uprops[LEVITATION].blocked
 #define Levitation ((HLevitation || ELevitation) && !BLevitation)
 /* Can't touch surface, can't go under water; overrides all others */
@@ -307,8 +307,14 @@
 /* BFlying has I_SPECIAL set if levitating or trapped in the floor or both,
    FROMOUTSIDE set if inside solid rock (or in water on Plane of Water) */
 #define BFlying u.uprops[FLYING].blocked
+/* FROMRACE is excluded from the bypass alongside FROMFORM so that
+   races whose flight comes from big_wings() (aasimar at level 15+
+   with clean alignment) are subject to the same hard-armor block
+   used for FROMFORM wings; non-winged FROMRACE flyers (vampires,
+   illithids at level 12+) still fall through the
+   (HFlying && !big_wings(...)) disjunct */
 #define Flying \
-    ((((EFlying || (HFlying & ~FROMFORM)                                    \
+    ((((EFlying || (HFlying & ~FROMFORM & ~FROMRACE)                        \
        || (HFlying && !big_wings(raceptr(&youmonst))))                      \
        || (u.usteed && is_flyer(u.usteed->data))) && !(BFlying & ~W_ARMOR)) \
      || (HFlying && !BFlying)) \

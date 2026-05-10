@@ -127,7 +127,8 @@
      || (ptr) == &mons[PM_GIANT_CENTIPEDE] || (ptr) == &mons[PM_CAVE_LIZARD] \
      || (ptr) == &mons[PM_LARGE_CAVE_LIZARD])
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
-/* humanoid shape with big wings (flight blocked by most body armor) */
+/* humanoid shape with big wings (flight blocked by most body armor);
+   PM_AASIMAR is gated player-side by check_wings() on level/abuse */
 #define big_wings(ptr) \
     ((ptr) == &mons[PM_WINGED_GARGOYLE] || (ptr) == &mons[PM_DEMON]  \
      || (ptr) == &mons[PM_SUCCUBUS] || (ptr) == &mons[PM_INCUBUS]    \
@@ -135,7 +136,7 @@
      || (ptr) == &mons[PM_VROCK] || (ptr) == &mons[PM_PIT_FIEND]     \
      || (ptr) == &mons[PM_BALROG] || (ptr) == &mons[PM_ANGEL]        \
      || (ptr) == &mons[PM_ARCHANGEL] || (ptr) == &mons[PM_ARCHON]    \
-     || (ptr) == &mons[PM_LUCIFER])
+     || (ptr) == &mons[PM_LUCIFER] || (ptr) == &mons[PM_AASIMAR])
 #define is_floater(ptr) \
     ((ptr)->mlet == S_EYE                               \
      || (ptr)->mlet == S_LIGHT || (ptr)->mlet == S_ORB)

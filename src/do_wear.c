@@ -1361,6 +1361,13 @@ boolean silent; /* we assume a wardrobe change if false */
     boolean old_flying = Flying;
 
     BFlying &= ~W_ARM;
+    /* Aasimar wings only manifest at experience level 15 with
+       unblemished alignment; until then ignore the wing/armor
+       interaction so a low-level or abused aasimar doesn't see
+       "holes for wings" or get W_ARM-blocked from flight */
+    if (Race_if(PM_AASIMAR)
+        && (u.ulevel < 15 || u.ualign.abuse < 0))
+        return;
     if (!big_wings(raceptr(&youmonst)))
         return;
 
