@@ -2933,7 +2933,8 @@ msickness:
         magr->mburnhands--;
         if (!magr->mburnhands && canseemon(magr))
             pline("%s %s stop burning.",
-                  s_suffix(Monnam(magr)), makeplural(mbodypart(magr, HAND)));
+                  s_suffix(Monnam(magr)),
+                  makeplural(mbodypart(magr, HAND)));
     }
 
     /* shocking grasp spell - extra shock damage on unarmed touch attacks */
@@ -2967,8 +2968,9 @@ msickness:
         }
         magr->mshockgrasp--;
         if (!magr->mshockgrasp && canseemon(magr))
-            pline("%s %s stop crackling.",
-                  s_suffix(Monnam(magr)), makeplural(mbodypart(magr, HAND)));
+            pline("%s %s stop shimmering.",
+                  s_suffix(Monnam(magr)),
+                  makeplural(mbodypart(magr, HAND)));
     }
 
     if (!tmp) {

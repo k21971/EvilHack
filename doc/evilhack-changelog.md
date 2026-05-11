@@ -5363,4 +5363,5 @@ The following changes to date are:
 - Aasimar grow angelic wings as the source of experience level-15 flight
 - Significant water attacks extinguish pure-flame monsters
 - Draugr can reinforce tameness of skeletal pets with a binding ritual
+- Cancellation and half-spell-damage now cover elemental vulnerabilities
 

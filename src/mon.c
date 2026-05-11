@@ -1269,14 +1269,27 @@ mcalcdistress()
         }
 
         /* temp vulnerability timeouts */
-        if (mtmp->vuln_fire > 0)
+        if (mtmp->vuln_fire > 0) {
             mtmp->vuln_fire--;
-        if (mtmp->vuln_cold > 0)
+            if (!mtmp->vuln_fire && canseemon(mtmp))
+                pline("%s is no longer vulnerable to fire.", Monnam(mtmp));
+        }
+        if (mtmp->vuln_cold > 0) {
             mtmp->vuln_cold--;
-        if (mtmp->vuln_elec > 0)
+            if (!mtmp->vuln_cold && canseemon(mtmp))
+                pline("%s is no longer vulnerable to cold.", Monnam(mtmp));
+        }
+        if (mtmp->vuln_elec > 0) {
             mtmp->vuln_elec--;
-        if (mtmp->vuln_acid > 0)
+            if (!mtmp->vuln_elec && canseemon(mtmp))
+                pline("%s is no longer vulnerable to electricity.",
+                      Monnam(mtmp));
+        }
+        if (mtmp->vuln_acid > 0) {
             mtmp->vuln_acid--;
+            if (!mtmp->vuln_acid && canseemon(mtmp))
+                pline("%s is no longer vulnerable to acid.", Monnam(mtmp));
+        }
 
         /* must check non-moving monsters once/turn in case they managed
            to end up in water or lava; note: when not in liquid they regen,

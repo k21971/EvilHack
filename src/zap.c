@@ -3708,6 +3708,44 @@ boolean youattack, allow_cancel_kill, self_cancel;
                     mdef->mextrinsics &= ~(MR2_STONESKIN);
                     mdef->mstoneskintime = 0;
                 }
+                if (mdef->vuln_fire) {
+                    if (canseemon(mdef))
+                        pline("%s is no longer vulnerable to fire.",
+                              Monnam(mdef));
+                    mdef->vuln_fire = 0;
+                }
+                if (mdef->vuln_cold) {
+                    if (canseemon(mdef))
+                        pline("%s is no longer vulnerable to cold.",
+                              Monnam(mdef));
+                    mdef->vuln_cold = 0;
+                }
+                if (mdef->vuln_elec) {
+                    if (canseemon(mdef))
+                        pline("%s is no longer vulnerable to electricity.",
+                              Monnam(mdef));
+                    mdef->vuln_elec = 0;
+                }
+                if (mdef->vuln_acid) {
+                    if (canseemon(mdef))
+                        pline("%s is no longer vulnerable to acid.",
+                              Monnam(mdef));
+                    mdef->vuln_acid = 0;
+                }
+                if (mdef->mburnhands) {
+                    mdef->mburnhands = 0;
+                    if (canseemon(mdef))
+                        pline("%s %s stop burning.",
+                              s_suffix(Monnam(mdef)),
+                              makeplural(mbodypart(mdef, HAND)));
+                }
+                if (mdef->mshockgrasp) {
+                    mdef->mshockgrasp = 0;
+                    if (canseemon(mdef))
+                        pline("%s %s stop shimmering.",
+                              s_suffix(Monnam(mdef)),
+                              makeplural(mbodypart(mdef, HAND)));
+                }
             }
         }
 
@@ -3743,6 +3781,55 @@ boolean youattack, allow_cancel_kill, self_cancel;
                 if (HReflecting > 0) {
                     pline("The shimmering globe around you disappears.");
                     HReflecting = 0;
+                }
+                if (HBarkskin) {
+                    HBarkskin = 0;
+                    Your("%s returns to normal.",
+                         mbodypart(&youmonst, SKIN));
+                }
+                if (HStoneskin) {
+                    HStoneskin = 0;
+                    Your("%s returns to normal.",
+                         mbodypart(&youmonst, SKIN));
+                }
+                if (HVulnerable_fire) {
+                    HVulnerable_fire = 0;
+                    You("are no longer vulnerable to fire.");
+                }
+                if (HVulnerable_cold) {
+                    HVulnerable_cold = 0;
+                    You("are no longer vulnerable to cold.");
+                }
+                if (HVulnerable_elec) {
+                    HVulnerable_elec = 0;
+                    You("are no longer vulnerable to electricity.");
+                }
+                if (HVulnerable_acid) {
+                    HVulnerable_acid = 0;
+                    You("are no longer vulnerable to acid.");
+                }
+                if (u.umburn) {
+                    u.umburn = 0;
+                    Your("%s stop burning %s.",
+                         is_bird(youmonst.data)
+                             ? "talons"
+                             : makeplural(body_part(HAND)),
+                         hcolor(NH_ORANGE));
+                }
+                if (u.umshock) {
+                    u.umshock = 0;
+                    Your("%s stop shimmering %s.",
+                         is_bird(youmonst.data)
+                             ? "talons"
+                             : makeplural(body_part(HAND)),
+                         hcolor(NH_BLUE));
+                }
+                if (u.umconf) {
+                    u.umconf = 0;
+                    Your("%s stop tingling.",
+                         is_bird(youmonst.data)
+                             ? "talons"
+                             : makeplural(body_part(HAND)));
                 }
             }
         }
@@ -3803,6 +3890,44 @@ boolean youattack, allow_cancel_kill, self_cancel;
                               s_suffix(Monnam(mdef)), mbodypart(mdef, SKIN));
                     mdef->mextrinsics &= ~(MR2_STONESKIN);
                     mdef->mstoneskintime = 0;
+                }
+                if (mdef->vuln_fire) {
+                    if (canseemon(mdef))
+                        pline("%s is no longer vulnerable to fire.",
+                              Monnam(mdef));
+                    mdef->vuln_fire = 0;
+                }
+                if (mdef->vuln_cold) {
+                    if (canseemon(mdef))
+                        pline("%s is no longer vulnerable to cold.",
+                              Monnam(mdef));
+                    mdef->vuln_cold = 0;
+                }
+                if (mdef->vuln_elec) {
+                    if (canseemon(mdef))
+                        pline("%s is no longer vulnerable to electricity.",
+                              Monnam(mdef));
+                    mdef->vuln_elec = 0;
+                }
+                if (mdef->vuln_acid) {
+                    if (canseemon(mdef))
+                        pline("%s is no longer vulnerable to acid.",
+                              Monnam(mdef));
+                    mdef->vuln_acid = 0;
+                }
+                if (mdef->mburnhands) {
+                    mdef->mburnhands = 0;
+                    if (canseemon(mdef))
+                        pline("%s %s stop burning.",
+                              s_suffix(Monnam(mdef)),
+                              makeplural(mbodypart(mdef, HAND)));
+                }
+                if (mdef->mshockgrasp) {
+                    mdef->mshockgrasp = 0;
+                    if (canseemon(mdef))
+                        pline("%s %s stop shimmering.",
+                              s_suffix(Monnam(mdef)),
+                              makeplural(mbodypart(mdef, HAND)));
                 }
             }
         }

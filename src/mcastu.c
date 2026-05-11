@@ -2022,6 +2022,7 @@ int dmg, spellnum;
         break;
     case CLC_VULN_YOU: {
         int i = rnd(4);
+        long dur;
 
         if (youdefend) {
             pline("A %s film oozes over your %s!",
@@ -2033,13 +2034,19 @@ int dmg, spellnum;
                     || caster->data == &mons[PM_VECNA]) {
                     if (Vulnerable_cold)
                         break;
-                    incr_itimeout(&HVulnerable_cold, rnd(100) + 150);
+                    dur = rnd(100) + 150;
+                    if (Half_spell_damage)
+                        dur = (dur + 1) / 2;
+                    incr_itimeout(&HVulnerable_cold, dur);
                     You_feel("extremely chilly.");
                     break;
                 } else {
                     if (Vulnerable_fire)
                         break;
-                    incr_itimeout(&HVulnerable_fire, rnd(100) + 150);
+                    dur = rnd(100) + 150;
+                    if (Half_spell_damage)
+                        dur = (dur + 1) / 2;
+                    incr_itimeout(&HVulnerable_fire, dur);
                     You_feel("more inflammable.");
                     break;
                 }
@@ -2047,19 +2054,28 @@ int dmg, spellnum;
             case 2:
                 if (Vulnerable_cold)
                     break;
-                incr_itimeout(&HVulnerable_cold, rnd(100) + 150);
+                dur = rnd(100) + 150;
+                if (Half_spell_damage)
+                    dur = (dur + 1) / 2;
+                incr_itimeout(&HVulnerable_cold, dur);
                 You_feel("extremely chilly.");
                 break;
             case 3:
                 if (Vulnerable_elec)
                     break;
-                incr_itimeout(&HVulnerable_elec, rnd(100) + 150);
+                dur = rnd(100) + 150;
+                if (Half_spell_damage)
+                    dur = (dur + 1) / 2;
+                incr_itimeout(&HVulnerable_elec, dur);
                 You_feel("overly conductive.");
                 break;
             case 4:
                 if (Vulnerable_acid)
                     break;
-                incr_itimeout(&HVulnerable_acid, rnd(100) + 150);
+                dur = rnd(100) + 150;
+                if (Half_spell_damage)
+                    dur = (dur + 1) / 2;
+                incr_itimeout(&HVulnerable_acid, dur);
                 You_feel("easily corrodable.");
                 break;
             default:
@@ -2071,12 +2087,15 @@ int dmg, spellnum;
             if (yours || canseemon(target))
                 pline("A %s film oozes over %s exterior!",
                       Blind ? "slimy" : vulntext[i], mhis(target));
-            switch (rnd(4)) {
+            switch (i) {
             case 1:
                 if ((target->data->mflags4 & M4_VULNERABLE_FIRE) != 0
                     || target->vuln_fire)
                     break;
-                target->vuln_fire = rnd(100) + 150;
+                dur = rnd(100) + 150;
+                if (mon_arti_has_spfx(target, SPFX_HSPDAM))
+                    dur = (dur + 1) / 2;
+                target->vuln_fire = (uchar) dur;
                 if (yours || canseemon(target))
                     pline("%s is more inflammable.", Monnam(target));
                 break;
@@ -2084,7 +2103,10 @@ int dmg, spellnum;
                 if ((target->data->mflags4 & M4_VULNERABLE_COLD) != 0
                     || target->vuln_cold)
                     break;
-                target->vuln_cold = rnd(100) + 150;
+                dur = rnd(100) + 150;
+                if (mon_arti_has_spfx(target, SPFX_HSPDAM))
+                    dur = (dur + 1) / 2;
+                target->vuln_cold = (uchar) dur;
                 if (yours || canseemon(target))
                     pline("%s is extremely chilly.", Monnam(target));
                 break;
@@ -2092,7 +2114,10 @@ int dmg, spellnum;
                 if ((target->data->mflags4 & M4_VULNERABLE_ELEC) != 0
                     || target->vuln_elec)
                     break;
-                target->vuln_elec = rnd(100) + 150;
+                dur = rnd(100) + 150;
+                if (mon_arti_has_spfx(target, SPFX_HSPDAM))
+                    dur = (dur + 1) / 2;
+                target->vuln_elec = (uchar) dur;
                 if (yours || canseemon(target))
                     pline("%s is overly conductive.", Monnam(target));
                 break;
@@ -2100,7 +2125,10 @@ int dmg, spellnum;
                 if ((target->data->mflags4 & M4_VULNERABLE_ACID) != 0
                     || target->vuln_acid)
                     break;
-                target->vuln_acid = rnd(100) + 150;
+                dur = rnd(100) + 150;
+                if (mon_arti_has_spfx(target, SPFX_HSPDAM))
+                    dur = (dur + 1) / 2;
+                target->vuln_acid = (uchar) dur;
                 if (yours || canseemon(target))
                     pline("%s is easily corrodable.", Monnam(target));
                 break;
