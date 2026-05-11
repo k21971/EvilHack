@@ -1514,6 +1514,37 @@ dochat()
         }
     }
 
+    /* Draugr can perform a necromantic binding ritual on an adjacent
+       tame skeletal undead pet, costing Pw and on a per-pet cooldown,
+       to reinforce the necromantic bond (+1 tameness). Skeletal
+       pets don't eat, so this fills the role thrown food plays for
+       other races */
+    if (Race_if(PM_DRAUGR) && mtmp->mtame
+        && is_skeletal_pet(mtmp->data)) {
+        if (mtmp->mtame >= 20) {
+            pline("%s is already wholly bound to your will.",
+                  Monnam(mtmp));
+            return 1;
+        }
+        if (mtmp->mspec_used > 0) {
+            pline("%s is not yet ready to bend to your will.",
+                  Monnam(mtmp));
+            return 1;
+        }
+        if (u.uen < 5) {
+            You("lack the energy for the binding ritual.");
+            return 1;
+        }
+        u.uen -= 5;
+        context.botl = 1;
+        You("chant a binding ritual over %s.", mon_nam(mtmp));
+        pline("%s rattles its bones in eerie resonance.",
+              Monnam(mtmp));
+        mtmp->mtame++;
+        mtmp->mspec_used = 1500;
+        return 1;
+    }
+
     if ((Role_if(PM_CONVICT) && is_rat(mtmp->data))
         || (Race_if(PM_DRAUGR) && is_zombie(mtmp->data))) {
         if (!mtmp->mpeaceful) {

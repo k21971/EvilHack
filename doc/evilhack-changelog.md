@@ -5362,4 +5362,5 @@ The following changes to date are:
 - Add selective remove curse at expert skill in clerical spells
 - Aasimar grow angelic wings as the source of experience level-15 flight
 - Significant water attacks extinguish pure-flame monsters
+- Draugr can reinforce tameness of skeletal pets with a binding ritual
 
