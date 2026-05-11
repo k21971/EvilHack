@@ -1542,6 +1542,9 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             obj = addinv(obj);
             (void) encumber_msg();
             if (wep_mask && !(obj->owornmask & wep_mask)) {
+                /* in case addinv() autoquivered */
+                if (obj->owornmask & W_QUIVER)
+                    setuqwep((struct obj *) 0);
                 setworn(obj, wep_mask);
                 /* only restore twoweap if swap weapon still exists */
                 if (twoweap && uswapwep) {

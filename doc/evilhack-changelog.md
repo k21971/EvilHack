@@ -5366,4 +5366,5 @@ The following changes to date are:
 - Cancellation and half-spell-damage now cover elemental vulnerabilities
 - Add a couple humorous epitaphs
 - Priest-forged Hammer of the Gods adopts the priest's alignment
+- Fix: panic when wielded boomerang returns to empty quiver
 
