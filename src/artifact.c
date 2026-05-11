@@ -67,7 +67,7 @@ hack_artifacts()
         if (art->role == Role_switch && art->alignment != A_NONE)
             art->alignment = alignmnt;
 
-    /* Excalibur can be used by any lawful character, not just knights
+    /* Excalibur can be used by any lawful character, not just knights.
        Dirge also... */
     if (!Role_if(PM_KNIGHT)) {
         artilist[ART_EXCALIBUR].role = NON_PM;
@@ -81,6 +81,12 @@ hack_artifacts()
         artilist[ART_DEMONBANE].alignment = alignmnt;
         /* For crowning purposes */
         artilist[ART_MJOLLNIR].alignment = alignmnt;
+        /* The Hammer of the Gods is forged from Demonbane and
+           Sunsword; since a priest can reach the forge carrying
+           their own retargeted Demonbane, mirror the priest's
+           alignment onto the result so they are not blasted by
+           the artifact they just made */
+        artilist[ART_HAMMER_OF_THE_GODS].alignment = alignmnt;
     }
 
     if (Role_if(PM_CAVEMAN)) {

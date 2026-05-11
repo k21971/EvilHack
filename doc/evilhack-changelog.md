@@ -5365,4 +5365,5 @@ The following changes to date are:
 - Draugr can reinforce tameness of skeletal pets with a binding ritual
 - Cancellation and half-spell-damage now cover elemental vulnerabilities
 - Add a couple humorous epitaphs
+- Priest-forged Hammer of the Gods adopts the priest's alignment
 
