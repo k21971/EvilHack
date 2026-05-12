@@ -5367,4 +5367,6 @@ The following changes to date are:
 - Add a couple humorous epitaphs
 - Priest-forged Hammer of the Gods adopts the priest's alignment
 - Fix: panic when wielded boomerang returns to empty quiver
+- Artifacts with secondary explosive attacks can be suppressed around
+  tame/peaceful monsters
 

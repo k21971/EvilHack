@@ -32,6 +32,7 @@ STATIC_DCL uchar FDECL(abil_to_adtyp, (long *));
 STATIC_DCL int FDECL(glow_strength, (int));
 STATIC_DCL boolean FDECL(untouchable, (struct obj *, BOOLEAN_P));
 STATIC_DCL int FDECL(count_surround_traps, (int, int));
+STATIC_DCL boolean FDECL(friendly_in_blast, (int, int, struct monst *));
 STATIC_DCL void FDECL(dispose_of_orig_obj, (struct obj *));
 
 /* The amount added to the victim's total hit points to insure that the
@@ -2013,8 +2014,11 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
             pline_The("massive triple-headed flail %s %s!",
                       vtense((const char *) 0, verb), hittee);
         /* assume probing has some sort of noticeable feedback
-           even if it is being done by one monster to another */
-        if (attack_indx == MB_INDEX_PROBE && !canspotmon(mdef))
+           even if it is being done by one monster to another;
+           a probe of the hero leaves no "I" glyph (the hero is
+           not a hidden monster, and &youmonst has no map coords) */
+        if (attack_indx == MB_INDEX_PROBE && !youdefend
+            && !canspotmon(mdef))
             map_invisible(mdef->mx, mdef->my);
     }
 
@@ -2430,17 +2434,28 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         /* Mjollnir's thunderclap can wake up nearby
            sleeping monsters */
         if (spec_dbon_applies && otmp->oartifact == ART_MJOLLNIR)
-            wake_nearto(mdef->mx, mdef->my, 4 * 4);
+            wake_nearto(youdefend ? u.ux : mdef->mx,
+                        youdefend ? u.uy : mdef->my, 4 * 4);
 
-        /* Tempest has a chance of a power surge on a
-           successful hit, and can cause additional
-           electrical damage (area of effect) */
+        /* Tempest has a chance of a power surge on a successful hit,
+           dealing extra electrical damage (area of effect); a blessed
+           one in the hero's hands reins the surge in rather than catch
+           a peaceful or tame creature next to the target -- an uncursed
+           or cursed one, or any monster's, blasts regardless of who is
+           standing in range */
         if (!rn2(6)
-            && spec_dbon_applies && otmp->oartifact == ART_TEMPEST) {
-            if (!DEADMONSTER(mdef)) {
+            && spec_dbon_applies && otmp->oartifact == ART_TEMPEST
+            && (youdefend || !DEADMONSTER(mdef))) {
+            if (youattack && otmp->blessed
+                && friendly_in_blast(mdef->mx, mdef->my, mdef)) {
+                pline("A surge of energy builds in the %s, then ebbs.",
+                      simpleonames(otmp));
+                /* fall through to the normal AD_ELEC follow-up */
+            } else {
                 pline("A massive surge of energy courses through the %s!",
                       simpleonames(otmp));
-                explode(mdef->mx, mdef->my,
+                explode(youdefend ? u.ux : mdef->mx,
+                        youdefend ? u.uy : mdef->my,
                         (youattack ? ZT_BREATH(ZT_LIGHTNING)
                                    : -ZT_BREATH(ZT_LIGHTNING)), d(6, 6),
                         (youattack ? 0 : MON_CASTBALL), EXPL_SHOCK);
@@ -2604,15 +2619,25 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             }
         }
 
-        /* Harbinger has a chance of an explosive
-           surge on a successful hit, and can cause
-           additional acidic damage (area of effect) */
+        /* Harbinger has a chance of an explosive surge on a successful
+           hit, dealing extra acidic damage (area of effect); a blessed
+           one in the hero's hands reins the surge in rather than catch
+           a peaceful or tame creature next to the target -- an uncursed
+           or cursed one, or any monster's, blasts regardless of who is
+           standing in range */
         if (!rn2(6)
-            && spec_dbon_applies && otmp->oartifact == ART_HARBINGER) {
-            if (!DEADMONSTER(mdef)) {
+            && spec_dbon_applies && otmp->oartifact == ART_HARBINGER
+            && (youdefend || !DEADMONSTER(mdef))) {
+            if (youattack && otmp->blessed
+                && friendly_in_blast(mdef->mx, mdef->my, mdef)) {
+                pline("A surge of acid wells up in the %s, then ebbs.",
+                      simpleonames(otmp));
+                /* fall through to the normal AD_ACID follow-up */
+            } else {
                 pline("A surge of acid flows through the %s!",
                       simpleonames(otmp));
-                explode(mdef->mx, mdef->my,
+                explode(youdefend ? u.ux : mdef->mx,
+                        youdefend ? u.uy : mdef->my,
                         (youattack ? ZT_BREATH(ZT_ACID)
                                    : -ZT_BREATH(ZT_ACID)), d(6, 6),
                         (youattack ? 0 : MON_CASTBALL), EXPL_ACID);
@@ -2909,31 +2934,38 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                           hittee,  !spec_dbon_applies ? '.' : '!');
             }
         }
-        /* Dichotomy has a chance of exploding either
-           a ball of fire or cold on a successful hit,
-           and can cause additional elemental damage
-           (area of effect) */
+        /* Dichotomy has a chance of exploding either a ball of fire or
+           cold on a successful hit, dealing extra elemental damage
+           (area of effect); a blessed one in the hero's hands reins the
+           surge in rather than catch a peaceful or tame creature next
+           to the target -- an uncursed or cursed one, or any monster's,
+           blasts regardless of who is standing in range */
         if (!rn2(6)
-            && spec_dbon_applies && otmp->oartifact == ART_DICHOTOMY) {
-            if (!DEADMONSTER(mdef)) {
-                if (rn2(2)) {
-                    if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))) {
-                        pline("A surge of flame flows through the blade!");
-                        explode(mdef->mx, mdef->my,
-                                (youattack ? ZT_BREATH(ZT_FIRE)
-                                           : -ZT_BREATH(ZT_FIRE)), d(4, 6),
-                                (youattack ? 0 : MON_CASTBALL), EXPL_FIERY);
-                        return TRUE;
-                    }
-                } else {
-                    if (!(resists_cold(mdef) || defended(mdef, AD_COLD))) {
-                        pline("A surge of frost flows through the blade!");
-                        explode(mdef->mx, mdef->my,
-                                (youattack ? ZT_BREATH(ZT_COLD)
-                                           : -ZT_BREATH(ZT_COLD)), d(4, 6),
-                                (youattack ? 0 : MON_CASTBALL), EXPL_FROSTY);
-                        return TRUE;
-                    }
+            && spec_dbon_applies && otmp->oartifact == ART_DICHOTOMY
+            && (youdefend || !DEADMONSTER(mdef))) {
+            if (youattack && otmp->blessed
+                && friendly_in_blast(mdef->mx, mdef->my, mdef)) {
+                pline("Power surges through the blade, then ebbs.");
+                /* fall through to the normal follow-up effects */
+            } else if (rn2(2)) {
+                if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))) {
+                    pline("A surge of flame flows through the blade!");
+                    explode(youdefend ? u.ux : mdef->mx,
+                            youdefend ? u.uy : mdef->my,
+                            (youattack ? ZT_BREATH(ZT_FIRE)
+                                       : -ZT_BREATH(ZT_FIRE)), d(4, 6),
+                            (youattack ? 0 : MON_CASTBALL), EXPL_FIERY);
+                    return TRUE;
+                }
+            } else {
+                if (!(resists_cold(mdef) || defended(mdef, AD_COLD))) {
+                    pline("A surge of frost flows through the blade!");
+                    explode(youdefend ? u.ux : mdef->mx,
+                            youdefend ? u.uy : mdef->my,
+                            (youattack ? ZT_BREATH(ZT_COLD)
+                                       : -ZT_BREATH(ZT_COLD)), d(4, 6),
+                            (youattack ? 0 : MON_CASTBALL), EXPL_FROSTY);
+                    return TRUE;
                 }
             }
         }
@@ -4747,6 +4779,37 @@ int x, y;
      * to a shown glyph to justify skipping it.]
      */
     return ret;
+}
+
+/* TRUE if a peaceful or tame monster (other than 'skip') - or a tame
+   steed the hero is sitting on - stands within the 3x3 area explode()
+   would affect when centered on <x,y>. The Tempest / Harbinger /
+   Dichotomy surge routines use this to rein in the bonus blast around
+   friendlies when the hero attacks and the artifact is blessed, so a
+   lucky proc on a hostile target can't anger, untame, or kill an
+   innocent bystander */
+STATIC_OVL boolean
+friendly_in_blast(x, y, skip)
+int x, y;
+struct monst *skip;
+{
+    int dx, dy;
+    struct monst *mtmp;
+
+    for (dx = x - 1; dx < x + 2; ++dx) {
+        for (dy = y - 1; dy < y + 2; ++dy) {
+            if (!isok(dx, dy))
+                continue;
+            mtmp = m_at(dx, dy);
+            if (!mtmp && dx == u.ux && dy == u.uy)
+                mtmp = u.usteed; /* mirror explode()'s steed pick */
+            if (!mtmp || mtmp == skip || DEADMONSTER(mtmp))
+                continue;
+            if (mtmp->mpeaceful || mtmp->mtame)
+                return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 /* sense adjacent traps if wielding MKoT without wearing gloves */
