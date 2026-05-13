@@ -442,7 +442,7 @@ int *attk_count, *role_roll_penalty;
     /* if unskilled with a weapon/object type (bare-handed is exempt),
        you'll never have a chance greater than 75% to land a hit */
     if (uwep && aatyp == AT_WEAP && !u.uswallow) {
-        wepskill = P_SKILL(weapon_type(uwep));
+        wepskill = weapon_skill_level(uwep);
         twowepskill = P_SKILL(P_TWO_WEAPON_COMBAT);
         /* use the lesser skill of two-weapon or your primary */
         useskill = (u.twoweap && twowepskill < wepskill) ? twowepskill : wepskill;

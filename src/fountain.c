@@ -964,13 +964,6 @@ doforging()
 
             /* special events that may happen when a
                particular artifact is forged go here */
-            if (output->oartifact == ART_GLAMDRING
-                && Role_if(PM_WIZARD)) {
-                /* how else did Gandalf learn to use
-                   a sword? */
-                unrestrict_weapon_skill(P_LONG_SWORD);
-                P_MAX_SKILL(P_LONG_SWORD) = P_BASIC;
-            }
             if (output->oartifact == ART_ITHILMAR) {
                 /* forging Ithilmar improves mounted combat mastery */
                 if (!P_RESTRICTED(P_RIDING)

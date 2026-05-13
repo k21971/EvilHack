@@ -5369,4 +5369,5 @@ The following changes to date are:
 - Fix: panic when wielded boomerang returns to empty quiver
 - Artifacts with secondary explosive attacks can be suppressed around
   tame/peaceful monsters
+- Wizard forging the artifact Glamdring skill changes
 

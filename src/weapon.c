@@ -291,7 +291,7 @@ botl_hitbonus()
     }
 
     if (uwep && aatyp == AT_WEAP && !u.uswallow) {
-        wepskill = P_SKILL(weapon_type(uwep));
+        wepskill = weapon_skill_level(uwep);
         twowepskill = P_SKILL(P_TWO_WEAPON_COMBAT);
         /* use the lesser skill of two-weapon or your primary */
         useskill = (u.twoweap && twowepskill < wepskill) ? twowepskill
@@ -2641,6 +2641,34 @@ uwep_skill_type()
 }
 
 /*
+ * Effective combat skill level for a weapon, normally just
+ * P_SKILL(weapon_type(weapon)). A Wizard fighting with Glamdring as the
+ * wielded primary weapon does so at no worse than Expert (how else did
+ * Gandalf learn to use a sword?) -- but only then: a carried, thrown,
+ * or off-hand Glamdring grants nothing, and this never lowers a higher
+ * skill, never affects any other long sword, and makes no persistent
+ * change to u.weapon_skills[] (long sword stays restricted for #enhance,
+ * training, two-weapon).
+ */
+int
+weapon_skill_level(weapon)
+struct obj *weapon;
+{
+    int type = weapon_type(weapon);
+    int skill;
+
+    if (type == P_NONE || type == P_BARE_HANDED_COMBAT
+        || type == P_TWO_WEAPON_COMBAT)
+        return P_SKILL(type);
+    skill = P_SKILL(type);
+    if (weapon && weapon == uwep && weapon->oartifact == ART_GLAMDRING
+        && type == P_LONG_SWORD && Role_if(PM_WIZARD)
+        && skill < P_EXPERT)
+        skill = P_EXPERT;
+    return skill;
+}
+
+/*
  * Return hit bonus/penalty based on skill of weapon.
  * Treat restricted weapons as unskilled.
  */
@@ -2661,7 +2689,7 @@ struct obj *weapon;
     if (type == P_NONE) {
         bonus = 0;
     } else if (type <= P_LAST_WEAPON) {
-        switch (P_SKILL(type)) {
+        switch (weapon_skill_level(weapon)) {
         default:
             impossible(bad_skill, P_SKILL(type)); /* fall through */
         case P_ISRESTRICTED:
@@ -2798,7 +2826,7 @@ struct obj *weapon;
     if (type == P_NONE) {
         bonus = 0;
     } else if (type <= P_LAST_WEAPON) {
-        switch (P_SKILL(type)) {
+        switch (weapon_skill_level(weapon)) {
         default:
             impossible("weapon_dam_bonus: bad skill %d", P_SKILL(type));
         /* fall through */
