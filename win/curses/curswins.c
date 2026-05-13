@@ -3,10 +3,19 @@
 /* Copyright (c) Karl Garrison, 2010. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+/* On distros that split ncurses and ncursesw into separate packages (e.g.
+ * Gentoo), the plain <curses.h> lacks the wide-char API even when
+ * NCURSES_WIDECHAR is pre-defined.  Prefer <ncursesw/curses.h> when present.
+ * NCURSES_WIDECHAR must be set before either header is included so that
+ * the wide-character type and function declarations are enabled. */
 #ifndef NCURSES_WIDECHAR
 #define NCURSES_WIDECHAR 1
 #endif
+#if defined __has_include && __has_include(<ncursesw/curses.h>)
+#include <ncursesw/curses.h>
+#else
 #include "curses.h"
+#endif
 #include "hack.h"
 #include "wincurs.h"
 #include "curswins.h"
