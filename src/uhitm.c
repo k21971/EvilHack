@@ -433,7 +433,7 @@ int *attk_count, *role_roll_penalty;
        or if kicking as martial artist */
     if (aatyp == AT_WEAP || aatyp == AT_CLAW) {
         if (weapon)
-            tmp += hitval(weapon, mtmp);
+            tmp += hitval(&youmonst, weapon, mtmp);
         tmp += weapon_hit_bonus(weapon);
     } else if (aatyp == AT_KICK && martial_bonus()) {
         tmp += weapon_hit_bonus((struct obj *) 0);
@@ -925,7 +925,7 @@ struct attack *uattk;
                                              &attknum, &armorpenalty);
     int dieroll = rnd(20), oldumort = u.umortality;
     int mhit = (tmp > dieroll || u.uswallow);
-    int dmg_wep = (uwep ? dmgval(uwep, &youmonst) : 0);
+    int dmg_wep = (uwep ? dmgval(&youmonst, uwep, &youmonst) : 0);
     int bash_chance = (P_SKILL(P_SHIELD) == P_MASTER ? !rn2(3) :
                        P_SKILL(P_SHIELD) == P_EXPERT ? !rn2(4) :
                        P_SKILL(P_SHIELD) == P_SKILLED ? !rn2(6) : !rn2(8));
@@ -1343,7 +1343,7 @@ int dieroll;
                         tmp++;
                 }
             } else {
-                tmp = dmgval(obj, mon);
+                tmp = dmgval(&youmonst, obj, mon);
                 /* Giants are more effective with club-like weapons.
                  * For example, a caveman's starting +1 club will do an average
                  * of 4.444 rather than 3 against large monsters, and 6.4725
@@ -1352,7 +1352,7 @@ int dieroll;
                 if (maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))
                     && objects[obj->otyp].oc_skill == P_CLUB
                     && !noncorporeal(mdat)) {
-                    int tmp2 = dmgval(obj, mon);
+                    int tmp2 = dmgval(&youmonst, obj, mon);
                     if (tmp < tmp2)
                         tmp = tmp2;
                     tmp++;
@@ -1517,7 +1517,7 @@ int dieroll;
                 case BOULDER:         /* 1d20 */
                 case HEAVY_IRON_BALL: /* 1d25 */
                 case IRON_CHAIN:      /* 1d4+1 */
-                    tmp = dmgval(obj, mon);
+                    tmp = dmgval(&youmonst, obj, mon);
                     if (mon_hates_material(mon, obj->material)) {
                         /* dmgval() already added damage, but track hated_obj */
                         hated_obj = obj;
@@ -1751,7 +1751,7 @@ int dieroll;
                         tmp = 0;
                     } else {
                         Your("venom burns %s!", mon_nam(mon));
-                        tmp = dmgval(obj, mon);
+                        tmp = dmgval(&youmonst, obj, mon);
                     }
                     if (thrown)
                         obfree(obj, (struct obj *) 0);
@@ -1767,7 +1767,7 @@ int dieroll;
                         tmp = 0;
                     } else {
                         Your("barbed needle stings %s!", mon_nam(mon));
-                        tmp = dmgval(obj, mon);
+                        tmp = dmgval(&youmonst, obj, mon);
                     }
                     if (thrown)
                         obfree(obj, (struct obj *) 0);
@@ -2496,7 +2496,7 @@ boolean thrown, verbose;
 
     /* we're using dmgval() for zero/not-zero, not for actual damage amount */
     if (!noncorporeal(mdef->data)
-        || (obj && (dmgval(obj, mdef) || shade_glare(obj))))
+        || (obj && (dmgval(magr, obj, mdef) || shade_glare(obj))))
         return FALSE;
 
     if (verbose
@@ -5877,7 +5877,7 @@ struct obj *obj;
     if (uarms && P_SKILL(P_SHIELD) >= P_BASIC) {
         /* dmgval for shields is just one point,
            plus whatever material damage applies */
-        tmp = dmgval(obj, mon);
+        tmp = dmgval(&youmonst, obj, mon);
 
         /* add extra damage based on the type
            of shield */

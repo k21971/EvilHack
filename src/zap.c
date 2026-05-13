@@ -4938,7 +4938,7 @@ int dx, dy;
         }
         if (bhitpos.x == u.ux && bhitpos.y == u.uy) { /* ct == 9 */
             if (Fumbling || rn2(20) >= ACURR(A_DEX)) {
-                int dam = dmgval(obj, &youmonst);
+                int dam = dmgval(&youmonst, obj, &youmonst);
 
                 /* we hit ourselves */
                 (void) thitu(10 + obj->spe, Maybe_Half_Phys(dam), &obj,

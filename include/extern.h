@@ -633,7 +633,8 @@ E void FDECL(hurtle, (int, int, int, BOOLEAN_P));
 E void FDECL(mhurtle, (struct monst *, int, int, int));
 E boolean FDECL(throwing_weapon, (struct obj *));
 E void FDECL(throwit, (struct obj *, long, BOOLEAN_P));
-E int FDECL(omon_adj, (struct monst *, struct obj *, BOOLEAN_P));
+E int FDECL(omon_adj, (struct monst *, struct monst *, struct obj *,
+                       BOOLEAN_P));
 E int FDECL(thitmonst, (struct monst *, struct obj *));
 E int FDECL(hero_breaks, (struct obj *, XCHAR_P, XCHAR_P, unsigned));
 E int FDECL(breaks, (struct obj *, XCHAR_P, XCHAR_P));
@@ -1825,7 +1826,8 @@ E void FDECL(Delay, (int));
 
 E boolean FDECL(m_has_launcher_and_ammo, (struct monst *));
 E int FDECL(thitu, (int, int, struct obj **, const char *));
-E int FDECL(ohitmon, (struct monst *, struct obj *, int, BOOLEAN_P));
+E int FDECL(ohitmon, (struct monst *, struct monst *, struct obj *, int,
+                      BOOLEAN_P));
 E boolean FDECL(thrwmu, (struct monst *));
 E int FDECL(spitmu, (struct monst *, struct attack *));
 E int FDECL(breamu, (struct monst *, struct attack *));
@@ -3150,8 +3152,8 @@ E int FDECL(vms_get_saved_games, (const char *, char ***));
 E const char *FDECL(weapon_descr, (struct obj *));
 E int FDECL(base_hitbonus, (struct obj *));
 E int NDECL(botl_hitbonus);
-E int FDECL(hitval, (struct obj *, struct monst *));
-E int FDECL(dmgval, (struct obj *, struct monst *));
+E int FDECL(hitval, (struct monst *, struct obj *, struct monst *));
+E int FDECL(dmgval, (struct monst *, struct obj *, struct monst *));
 E int FDECL(special_dmgval, (struct monst *, struct monst *, long,
                              struct obj **));
 E void FDECL(searmsg, (struct monst *, struct monst *, struct obj *,

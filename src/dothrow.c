@@ -1255,7 +1255,7 @@ boolean hitsroof;
         return FALSE;
     } else { /* neither potion nor other breaking object */
         boolean less_damage = uarmh && (is_hard(uarmh)), artimsg = FALSE;
-        int dmg = dmgval(obj, &youmonst);
+        int dmg = dmgval(&youmonst, obj, &youmonst);
 
         if (obj->oartifact
             || ((obj->oclass == WEAPON_CLASS
@@ -1404,7 +1404,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
         }
         if (slipok) {
             char tmpbuf[BUFSZ];
-            int dmg = dmgval(obj, &youmonst);
+            int dmg = dmgval(&youmonst, obj, &youmonst);
 
             u.dx = rn2(3) - 1;
             u.dy = rn2(3) - 1;
@@ -1877,28 +1877,29 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
 
 /* an object may hit a monster; various factors adjust chance of hitting */
 int
-omon_adj(mon, obj, mon_notices)
-struct monst *mon;
+omon_adj(magr, mdef, obj, mon_notices)
+struct monst *magr; /* the attacker, or NULL for an anonymous source */
+struct monst *mdef;
 struct obj *obj;
 boolean mon_notices;
 {
     int tmp = 0;
 
     /* size of target affects the chance of hitting */
-    tmp += (mon->data->msize - MZ_MEDIUM); /* -2..+5 */
+    tmp += (mdef->data->msize - MZ_MEDIUM); /* -2..+5 */
     /* sleeping target is more likely to be hit */
-    if (mon->msleeping) {
+    if (mdef->msleeping) {
         tmp += 2;
         if (mon_notices)
-            mon->msleeping = 0;
+            mdef->msleeping = 0;
     }
     /* ditto for immobilized target */
-    if (!mon->mcanmove || !mon->data->mmove) {
+    if (!mdef->mcanmove || !mdef->data->mmove) {
         tmp += 4;
-        if (mon_notices && mon->data->mmove && !rn2(10)) {
-	    if (!mon->mstone || mon->mstone > 2)
-	        mon->mcanmove = 1;
-            mon->mfrozen = 0;
+        if (mon_notices && mdef->data->mmove && !rn2(10)) {
+	    if (!mdef->mstone || mdef->mstone > 2)
+	        mdef->mcanmove = 1;
+            mdef->mfrozen = 0;
         }
     }
     /* Drow are affected by being in both the light or
@@ -1927,7 +1928,7 @@ boolean mon_notices;
     default:
         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
             || obj->oclass == GEM_CLASS)
-            tmp += hitval(obj, mon);
+            tmp += hitval(magr, obj, mdef);
         break;
     }
     return tmp;
@@ -2039,7 +2040,7 @@ struct obj *obj; /* thrownobj or kickedobj or uwep */
         }
     }
 
-    tmp += omon_adj(mon, obj, TRUE);
+    tmp += omon_adj(&youmonst, mon, obj, TRUE);
     if (racial_orc(mon)
         && (maybe_polyd(is_elf(youmonst.data), Race_if(PM_ELF))
             || maybe_polyd(is_drow(youmonst.data), Race_if(PM_DROW))))

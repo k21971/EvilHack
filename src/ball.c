@@ -855,7 +855,7 @@ boolean allow_drag;
                 int dieroll = rnd(20);
 
                 tmp = -2 + Luck + find_mac(victim);
-                tmp += omon_adj(victim, uball, TRUE);
+                tmp += omon_adj(&youmonst, victim, uball, TRUE);
 
                 if (tmp >= dieroll)
                     (void) hmon(victim, uball, HMON_DRAGGED, dieroll);

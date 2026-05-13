@@ -1245,7 +1245,7 @@ unsigned trflags;
 
         oldumort = u.umortality;
         {
-            int dam = dmgval(otmp, &youmonst);
+            int dam = dmgval((struct monst *) 0, otmp, &youmonst);
 
             if (u.usteed && !rn2(2) && steedintrap(trap, otmp)) {
                 ; /* nothing */
@@ -2315,14 +2315,14 @@ int style;
                     break;
                 }
             }
-            if (ohitmon(mtmp, singleobj, (style == ROLL) ? -1 : dist,
-                        FALSE)) {
+            if (ohitmon((struct monst *) 0, mtmp, singleobj,
+                        (style == ROLL) ? -1 : dist, FALSE)) {
                 used_up = TRUE;
                 launch_drop_spot((struct obj *) 0, 0, 0);
                 break;
             }
         } else if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
-            int dam = dmgval(singleobj, &youmonst);
+            int dam = dmgval((struct monst *) 0, singleobj, &youmonst);
 
             if (multi)
                 nomul(0);
@@ -6589,7 +6589,7 @@ boolean umade;
         if (d_override)
             dam = d_override;
         else if (obj) {
-            dam = dmgval(obj, mon);
+            dam = dmgval((struct monst *) 0, obj, mon);
             if (dam < 1)
                 dam = 1;
             if (mon_hates_material(mon, obj->material)

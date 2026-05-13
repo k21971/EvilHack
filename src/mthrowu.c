@@ -525,7 +525,8 @@ struct monst *mtmp;
 /* an object launched by someone/thing other than player attacks a monster;
    return 1 if the object has stopped moving (hit or its range used up) */
 int
-ohitmon(mtmp, otmp, range, verbose)
+ohitmon(magr, mtmp, otmp, range, verbose)
+struct monst *magr; /* monster that launched the missile, or NULL */
 struct monst *mtmp; /* accidental target, located at <bhitpos.x,.y> */
 struct obj *otmp;   /* missile; might be destroyed by drop_throw */
 int range;          /* how much farther will object travel if it misses;
@@ -542,7 +543,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
     ismimic = M_AP_TYPE(mtmp) && M_AP_TYPE(mtmp) != M_AP_MONSTER;
     vis = cansee(bhitpos.x, bhitpos.y);
 
-    tmp = 5 + find_mac(mtmp) + omon_adj(mtmp, otmp, FALSE);
+    tmp = 5 + find_mac(mtmp) + omon_adj(magr, mtmp, otmp, FALSE);
     /* High level monsters will be more likely to hit */
     /* This check applies only if this monster is the target
      * the archer was aiming at. */
@@ -576,14 +577,14 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
         potionhit(mtmp, otmp, POTHIT_OTHER_THROW);
         return 1;
     } else {
-        damage = dmgval(otmp, mtmp);
+        damage = dmgval(magr, otmp, mtmp);
         if (otmp->otyp == ACID_VENOM
             && (resists_acid(mtmp) || defended(mtmp, AD_ACID)))
             damage = 0; /* feedback handled further down */
-#if 0 /* can't use this because we don't have the attacker */
-        if (is_orc(mtmp->data) && is_elf(?magr?))
+        /* elven types hate orcs */
+        if (magr && (racial_elf(magr) || racial_drow(magr))
+            && racial_orc(mtmp))
             damage++;
-#endif
         if (ismimic)
             seemimic(mtmp);
         mtmp->msleeping = 0;
@@ -863,7 +864,7 @@ boolean verbose;
                give message and skip it in order to keep going */
             mtmp = (struct monst *) 0;
         } else if (mtmp) {
-            if (ohitmon(mtmp, singleobj, range, verbose))
+            if (ohitmon(mon, mtmp, singleobj, range, verbose))
                 break;
         } else if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
             if (multi)
@@ -913,7 +914,7 @@ boolean verbose;
                 hitu = thitu(8, 0, &singleobj, (char *) 0);
                 break;
             default:
-                dam = dmgval(singleobj, &youmonst);
+                dam = dmgval(mon, singleobj, &youmonst);
                 hitv = 3 - distmin(u.ux, u.uy, mon->mx, mon->my);
                 if (hitv < -4)
                     hitv = -4;
@@ -1433,7 +1434,7 @@ struct monst *mtmp;
                   obj_is_pname(otmp) ? the(onm) : an(onm));
         }
 
-        dam = dmgval(otmp, &youmonst);
+        dam = dmgval(mtmp, otmp, &youmonst);
         hitv = 3 - distmin(u.ux, u.uy, mtmp->mx, mtmp->my);
         if (hitv < -4)
             hitv = -4;

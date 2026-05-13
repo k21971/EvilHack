@@ -2341,7 +2341,8 @@ boolean confused, helmet_protects, byu, skip_uswallow;
     if (!amorphous(youmonst.data) && !Passes_walls
         && !noncorporeal(youmonst.data) && !unsolid(youmonst.data)) {
         You("are hit by %s!", doname(otmp2));
-        dmg = dmgval(otmp2, &youmonst) * otmp2->quan;
+        dmg = dmgval((byu ? &youmonst : (struct monst *) 0),
+                     otmp2, &youmonst) * otmp2->quan;
         if (uarmh && helmet_protects) {
             if (otmp2->owt >= 400 && is_glass(uarmh)
                 && break_glass_obj(uarmh)) {
@@ -2404,7 +2405,8 @@ boolean confused, byu;
                      s_suffix(mon_nam(mtmp)), mbodypart(mtmp, STOMACH),
                      body_part(HEAD));
 
-        mdmg = dmgval(otmp2, mtmp) * otmp2->quan;
+        mdmg = dmgval((byu ? &youmonst : (struct monst *) 0),
+                      otmp2, mtmp) * otmp2->quan;
         if (helmet) {
             if (otmp2->owt >= 400 && is_glass(helmet)
                 && break_glass_obj(helmet)) {

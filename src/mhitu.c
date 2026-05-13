@@ -1301,7 +1301,7 @@ struct monst *mtmp;
 
                 if (foundyou) {
                     if (mon_currwep) {
-                        hittmp = hitval(mon_currwep, &youmonst);
+                        hittmp = hitval(mtmp, mon_currwep, &youmonst);
                         tmp += hittmp;
                         mswings(mtmp, mon_currwep);
                     }
@@ -1687,7 +1687,7 @@ struct attack *mattk;
                     }
                 }
 
-                dmg += dmgval(otmp, &youmonst);
+                dmg += dmgval(mtmp, otmp, &youmonst);
                 if ((marmg = which_armor(mtmp, W_ARMG)) != 0
                     && marmg->otyp == GAUNTLETS_OF_POWER)
                     dmg += rn1(4, 3); /* 3..6 */

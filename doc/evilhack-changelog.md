@@ -5370,4 +5370,5 @@ The following changes to date are:
 - Artifacts with secondary explosive attacks can be suppressed around
   tame/peaceful monsters
 - Wizard forging the artifact Glamdring skill changes
+- Thread the attacker through hitval(), dmgval(), ohitmon(), omon_adj()
 

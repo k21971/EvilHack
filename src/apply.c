@@ -3632,7 +3632,7 @@ struct obj **objp;
                            so proficient at catching weapons */
                         int dam, hitu, hitvalu;
 
-                        dam = dmgval(otmp, &youmonst);
+                        dam = dmgval(&youmonst, otmp, &youmonst);
                         hitvalu = 8 + otmp->spe;
                         hitu = thitu(hitvalu, Maybe_Half_Phys(dam),
                                      &otmp, (char *)0);
@@ -3904,7 +3904,7 @@ struct obj **objp;
                            so proficient at catching weapons */
                         int dam, hitu, hitvalu;
 
-                        dam = dmgval(otmp, &youmonst);
+                        dam = dmgval(&youmonst, otmp, &youmonst);
                         hitvalu = 8 + otmp->spe;
                         hitu = thitu(hitvalu, Maybe_Half_Phys(dam),
                                      &otmp, (char *)0);

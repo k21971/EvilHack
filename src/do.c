@@ -216,8 +216,9 @@ const char *verb;
                         /* normally we'd use ohitmon() but it can call
                            drop_throw() which calls flooreffects();
                            damage_mon() applies SPFX_HPHDAM halving
-                           centrally for AD_PHYS */
-                        damage = dmgval(obj, mtmp);
+                           centrally for AD_PHYS; the boulder-pusher
+                           isn't tracked here, so no attacker */
+                        damage = dmgval((struct monst *) 0, obj, mtmp);
                         if (damage_mon(mtmp, damage, AD_PHYS, FALSE)) {
                             if (canspotmon(mtmp))
                                 pline("%s is %s!", Monnam(mtmp),

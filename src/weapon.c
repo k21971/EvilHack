@@ -307,15 +307,18 @@ botl_hitbonus()
 
 /*
  *      hitval returns an integer representing the "to hit" bonuses
- *      of "otmp" against the monster.
+ *      of "otmp" against the monster. magr is the attacker (the hero
+ *      via &youmonst, a monster, or (struct monst *) 0 for an anonymous
+ *      source such as a trap) and may be NULL.
  */
 int
-hitval(otmp, mon)
+hitval(magr, otmp, mdef)
+struct monst *magr;
 struct obj *otmp;
-struct monst *mon;
+struct monst *mdef;
 {
     int tmp = 0;
-    struct permonst *ptr = r_data(mon);
+    struct permonst *ptr = r_data(mdef);
     boolean Is_weapon = (otmp->oclass == WEAPON_CLASS || is_weptool(otmp));
 
     /* Add the weapon's basic to-hit bonus */
@@ -325,7 +328,7 @@ struct monst *mon;
 
     /* Blessed weapons used against undead or demons */
     if (Is_weapon && otmp->blessed
-        && (is_demon(ptr) || is_undead(ptr) || is_vampshifter(mon)))
+        && (is_demon(ptr) || is_undead(ptr) || is_vampshifter(mdef)))
         tmp += 2;
 
     /* Cursed weapons used against angelic beings */
@@ -335,9 +338,9 @@ struct monst *mon;
 
     /* Infidels get a slight bonus against lawful or
        neutral monsters when using cursed weapons */
-    if (!context.mon_moving && Is_weapon && otmp->cursed
-        && Role_if(PM_INFIDEL) && (mon_aligntyp(mon) == A_LAWFUL
-                                   || mon_aligntyp(mon) == A_NEUTRAL))
+    if (magr == &youmonst && Is_weapon && otmp->cursed
+        && Role_if(PM_INFIDEL) && (mon_aligntyp(mdef) == A_LAWFUL
+                                   || mon_aligntyp(mdef) == A_NEUTRAL))
         tmp += 1;
 
     if (is_spear(otmp) && index(kebabable, ptr->mlet))
@@ -347,8 +350,8 @@ struct monst *mon;
     if (otmp->otyp == TRIDENT && is_swimmer(ptr)) {
         /* &youmonst has mx/my == 0 (off-map sentinel); read the real
            position from u.ux/u.uy when scoring against the player */
-        xchar dx = (mon == &youmonst) ? u.ux : mon->mx;
-        xchar dy = (mon == &youmonst) ? u.uy : mon->my;
+        xchar dx = (mdef == &youmonst) ? u.ux : mdef->mx;
+        xchar dy = (mdef == &youmonst) ? u.uy : mdef->my;
 
         if (is_damp_terrain(dx, dy))
             tmp += 4;
@@ -362,13 +365,13 @@ struct monst *mon;
 
     /* Tortles receive a slight bonus to hit when using
        spears or tridents */
-    if (!context.mon_moving && Race_if(PM_TORTLE)
+    if (magr && racial_tortle(magr)
         && (is_spear(otmp) || otmp->otyp == TRIDENT))
         tmp += 2;
 
     /* Check specially named weapon "to hit" bonuses */
     if (otmp->oartifact)
-        tmp += spec_abon(otmp, mon);
+        tmp += spec_abon(otmp, mdef);
 
     return tmp;
 }
@@ -397,21 +400,24 @@ struct monst *mon;
 
 /*
  *      dmgval returns an integer representing the damage bonuses
- *      of "otmp" against the monster.
+ *      of "otmp" against the monster. magr is the attacker (the hero
+ *      via &youmonst, a monster, or (struct monst *) 0 for an anonymous
+ *      source such as a trap) and may be NULL.
  */
 int
-dmgval(otmp, mon)
+dmgval(magr, otmp, mdef)
+struct monst *magr;
 struct obj *otmp;
-struct monst *mon;
+struct monst *mdef;
 {
     int tmp = 0, otyp = otmp->otyp;
-    struct permonst *ptr = r_data(mon);
+    struct permonst *ptr = r_data(mdef);
     boolean Is_weapon = (otmp->oclass == WEAPON_CLASS || is_weptool(otmp));
 
     if (otyp == CREAM_PIE)
         return 0;
 
-    if (r_bigmonst(mon)) {
+    if (r_bigmonst(mdef)) {
         if (objects[otyp].oc_wldam)
             tmp = rnd(objects[otyp].oc_wldam);
         switch (otyp) {
@@ -502,7 +508,7 @@ struct monst *mon;
         tmp += otmp->spe;
 
         /* adjust for various roles */
-        if (!context.mon_moving && Role_if(PM_DRUID)
+        if (magr == &youmonst && Role_if(PM_DRUID)
             && otmp->material == WOOD
             && (levl[u.ux][u.uy].typ == GRASS
                 || nexttotree(u.ux, u.uy))) {
@@ -579,8 +585,8 @@ struct monst *mon;
 
     if (otmp->material <= LEATHER
         && (thick_skinned(ptr)
-            || has_barkskin(mon) || has_stoneskin(mon)
-            || (mon == &youmonst && (Barkskin || Stoneskin))))
+            || has_barkskin(mdef) || has_stoneskin(mdef)
+            || (mdef == &youmonst && (Barkskin || Stoneskin))))
         /* thick skinned/scaled creatures don't feel it */
         tmp = 0;
     if (noncorporeal(ptr) && !shade_glare(otmp))
@@ -600,11 +606,11 @@ struct monst *mon;
 
     /* Druids that #wildshape into one of their allowed forms
        enjoy a variable damage bonus */
-    if (!context.mon_moving && !uwep && druid_form)
+    if (magr == &youmonst && !uwep && druid_form)
         tmp += rn1(5, 2); /* 2-6 hp of damage */
 
     /* same with Vampires that #shapechange */
-    if (!context.mon_moving && !uwep && vampire_form)
+    if (magr == &youmonst && !uwep && vampire_form)
         tmp += rn1(5, 2); /* 2-6 hp of damage */
 
     /* Put weapon vs. monster type damage bonuses in below: */
@@ -613,53 +619,53 @@ struct monst *mon;
 
         if (otmp->blessed
             && (is_undead(ptr) || is_demon(ptr)
-                || is_vampshifter(mon)))
+                || is_vampshifter(mdef)))
             bonus += rnd(4);
         if (otmp->cursed
             && (is_angel(ptr) || is_aasimar(ptr)))
             bonus += rnd(4);
-        if (!context.mon_moving && otmp->cursed && Role_if(PM_INFIDEL)
-            && (mon_aligntyp(mon) == A_LAWFUL
-                || mon_aligntyp(mon) == A_NEUTRAL))
+        if (magr == &youmonst && otmp->cursed && Role_if(PM_INFIDEL)
+            && (mon_aligntyp(mdef) == A_LAWFUL
+                || mon_aligntyp(mdef) == A_NEUTRAL))
             bonus += rnd(2);
         if (is_axe(otmp)
             && (is_wooden(ptr) || is_plant(ptr)
-                || has_barkskin(mon)
-                || (mon == &youmonst && Barkskin)))
+                || has_barkskin(mdef)
+                || (mdef == &youmonst && Barkskin)))
             bonus += rnd(4);
         if (objects[otmp->otyp].oc_dir & WHACK
             && (is_wooden(ptr) || is_plant(ptr)
-                || has_barkskin(mon)
-                || (mon == &youmonst && Barkskin)))
+                || has_barkskin(mdef)
+                || (mdef == &youmonst && Barkskin)))
             bonus -= rnd(3) + 3;
         if (objects[otmp->otyp].oc_dir & (PIERCE | SLASH)
-            && (is_bone_monster(ptr) || has_stoneskin(mon)
-                || (mon == &youmonst && Stoneskin)))
+            && (is_bone_monster(ptr) || has_stoneskin(mdef)
+                || (mdef == &youmonst && Stoneskin)))
             bonus -= rnd(5) + 3;
         if (objects[otmp->otyp].oc_dir & WHACK
             && is_bone_monster(ptr))
             bonus += rnd(4);
-        if (mon_hates_material(mon, otmp->material)
-            && (!(has_barkskin(mon) || has_stoneskin(mon)))
-            && !(mon == &youmonst && (Barkskin || Stoneskin)))
+        if (mon_hates_material(mdef, otmp->material)
+            && (!(has_barkskin(mdef) || has_stoneskin(mdef)))
+            && !(mdef == &youmonst && (Barkskin || Stoneskin)))
             bonus += rnd(sear_damage(otmp->material));
         if (artifact_light(otmp) && otmp->lamplit
-            && (hates_light(r_data(mon))
-                || (mon == &youmonst
+            && (hates_light(r_data(mdef))
+                || (mdef == &youmonst
                     && maybe_polyd(is_drow(youmonst.data),
                                            Race_if(PM_DROW)))))
             bonus += rnd(8);
 
         /* if the weapon is going to get a double damage bonus, adjust
            this bonus so that effectively it's added after the doubling */
-        if (bonus > 1 && otmp->oartifact && spec_dbon(otmp, mon, 25) >= 25)
+        if (bonus > 1 && otmp->oartifact && spec_dbon(otmp, mdef, 25) >= 25)
             bonus = (bonus + 1) / 2;
 
         tmp += bonus;
     }
 
     if (tmp > 0) {
-        int mac = (mon != &zeromonst) ? find_mac(mon) : 10;
+        int mac = (mdef != &zeromonst) ? find_mac(mdef) : 10;
         /* It's debatable whether a rusted blunt instrument
            should do less damage than a pristine one, since
            it will hit with essentially the same impact, but
@@ -767,7 +773,7 @@ struct obj **hated_obj; /* ptr to offending object, can be NULL if not wanted */
 
     for (i = 0; i < 9; ++i) {
         if (*array[i].obj && (armask & array[i].mask)) {
-            tmpbonus = dmgval(*array[i].obj, mdef);
+            tmpbonus = dmgval(magr, *array[i].obj, mdef);
             if (tmpbonus > bonus) {
                 bonus = tmpbonus;
                 if (hated_obj) {
@@ -959,7 +965,9 @@ struct obj *obest;
                      && (is_pierce(otmp) || is_slash(otmp)
                          || (is_launcher(otmp) && !(otmp->otyp == SLING))))
             && (!otmp->oartifact || touch_artifact(otmp, mtmp))) {
-            if (!obest || dmgval(otmp, &youmonst) > dmgval(obest, &youmonst))
+            if (!obest
+                || (dmgval(mtmp, otmp, &youmonst)
+                    > dmgval(mtmp, obest, &youmonst)))
                 obest = otmp;
         }
     }
@@ -1133,7 +1141,8 @@ struct obj *otmp;
         for (i = 0; i < SIZE(pwep); i++) {
             if (wep && wep->otyp == pwep[i]
                 && !(otmp->otyp == pwep[i]
-                     && dmgval(otmp, mdef) > dmgval(wep, mdef)))
+                     && (dmgval(mtmp, otmp, mdef)
+                         > dmgval(mtmp, wep, mdef))))
                 return FALSE;
             if (otmp->otyp == pwep[i])
                 return TRUE;
@@ -1147,7 +1156,8 @@ struct obj *otmp;
     for (i = 0; i < SIZE(rwep); i++) {
         if (wep && wep->otyp == rwep[i]
             && !(otmp->otyp == rwep[i]
-                 && dmgval(otmp, mdef) > dmgval(wep, mdef)))
+                 && (dmgval(mtmp, otmp, mdef)
+                     > dmgval(mtmp, wep, mdef))))
             return FALSE;
         if (otmp->otyp == rwep[i])
             return TRUE;
@@ -1513,7 +1523,8 @@ struct obj *otmp;
         if (wep && wep->otyp == hwep[i])
             break;
         if (otmp->otyp == hwep[i]
-            && (dmgval(otmp, mdef) > (wep ? dmgval(wep, mdef) : 0))
+            && (dmgval(mtmp, otmp, mdef)
+                > (wep ? dmgval(mtmp, wep, mdef) : 0))
             && ((strong && !wearing_shield)
                 || !objects[otmp->otyp].oc_bimanual))
             return TRUE;

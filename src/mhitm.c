@@ -586,7 +586,7 @@ struct monst *magr, *mdef;
             if (mwep) {
                 if (vis)
                     mswingsm(magr, mdef, mwep);
-                tmp += hitval(mwep, mdef);
+                tmp += hitval(magr, mwep, mdef);
             }
             /*FALLTHRU*/
         case AT_CLAW:
@@ -613,7 +613,7 @@ struct monst *magr, *mdef;
             strike = (tmp > dieroll);
             /* KMH -- don't accumulate to-hit bonuses */
             if (mwep)
-                tmp -= hitval(mwep, mdef);
+                tmp -= hitval(magr, mwep, mdef);
             if ((is_displaced(mdef->data) || has_displacement(mdef))
                 && rn2(4)) {
                 if (vis && canspotmon(mdef))
@@ -1636,7 +1636,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 && safe_touch_petrifies(mwep->corpsenm))
                 goto do_stone;
 
-            tmp += dmgval(mwep, mdef);
+            tmp += dmgval(magr, mwep, mdef);
             if ((marmg = which_armor(magr, W_ARMG)) != 0
                 && marmg->otyp == GAUNTLETS_OF_POWER)
                 tmp += rn1(4, 3); /* 3..6 */
