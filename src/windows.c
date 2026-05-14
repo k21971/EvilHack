@@ -2392,4 +2392,124 @@ has_truecolor()
             && (windowprocs.wincap2 & WC2_TRUECOLOR));
 }
 
+#ifdef TEXTCOLOR
+/* CLR_* row labels used by the #showcolors palette demo. Two rows of
+   eight read more naturally than one row of sixteen 4-char truncs;
+   "br-X" abbreviates the four bright variants in the high half so
+   they don't all alias to "brig". Shared between tty and curses
+   #showcolors renderers */
+const char *const clrlabels[CLR_MAX] = {
+    "black",   "red",     "green",   "brown",
+    "blue",    "magenta", "cyan",    "gray",
+    "default", "orange",  "br-grn",  "yellow",
+    "br-blu",  "br-mag",  "br-cyn",  "white"
+};
+
+/* Six-segment HSV->RGB at S=V=255. hue is in [0,360); returns a
+   24-bit 0xRRGGBB value packed into an unsigned long. Shared between
+   tty and curses #showcolors renderers */
+unsigned long
+hue_to_rgb(hue)
+int hue;
+{
+    int seg, frac, p, q;
+    int r = 0, g = 0, b = 0;
+
+    if (hue < 0)
+        hue = 0;
+    if (hue >= 360)
+        hue %= 360;
+    seg = hue / 60;        /* 0..5 */
+    frac = (hue % 60) * 255 / 60;   /* 0..254 ascending within segment */
+    p = 0;
+    q = 255 - frac;
+    switch (seg) {
+    case 0: /* red -> yellow */
+        r = 255;
+        g = frac;
+        b = p;
+        break;
+    case 1: /* yellow -> green */
+        r = q;
+        g = 255;
+        b = p;
+        break;
+    case 2: /* green -> cyan */
+        r = p;
+        g = 255;
+        b = frac;
+        break;
+    case 3: /* cyan -> blue */
+        r = p;
+        g = q;
+        b = 255;
+        break;
+    case 4: /* blue -> magenta */
+        r = frac;
+        g = p;
+        b = 255;
+        break;
+    default: /* magenta -> red */
+        r = 255;
+        g = p;
+        b = q;
+        break;
+    }
+    return ((unsigned long) r << 16)
+           | ((unsigned long) g << 8)
+           | (unsigned long) b;
+}
+
+/* Probe $TERM and $COLORTERM for an explicit color-depth advertisement.
+ * Returns 16777216 / 256 / 16, or `fallback` when no env signal is
+ * present. Shared between win/tty/termcap.c (init_hilite + ANSI default)
+ * and win/curses/cursinit.c so the two windowports stay in lockstep.
+ * Detection ladder, in descending order of confidence:
+ *   1. COLORTERM=truecolor / 24bit -- explicit advertisement.
+ *   2. TERM contains "direct" or "truecolor" -- direct-color terminfo
+ *      entry (xterm-direct, tmux-direct, ...).
+ *   3. TERM matches a known always-truecolor family (alacritty / kitty
+ *      / wezterm / contour / foot / mlterm / mintty / iTerm) or the
+ *      modern multiplexer defaults (tmux-256color / screen-256color,
+ *      which pass RGB through when the outer terminal supports it --
+ *      multiplexers without RGB strip the unrecognised SGR so the
+ *      degradation is silent).
+ *   4. TERM contains "256color" or COLORTERM is set non-empty.
+ *   5. Otherwise return `fallback` */
+int
+detect_env_color_depth(fallback)
+int fallback;
+{
+    const char *envterm = nh_getenv("TERM");
+    const char *cterm = nh_getenv("COLORTERM");
+
+    if (cterm
+        && (!strcmp(cterm, "truecolor")
+            || !strcmp(cterm, "24bit")))
+        return 16777216;
+    if (envterm
+        && (strstr(envterm, "direct")
+            || strstr(envterm, "truecolor")))
+        return 16777216;
+    if (envterm
+        && (strstr(envterm, "alacritty")
+            || strstr(envterm, "kitty")
+            || strstr(envterm, "wezterm")
+            || strstr(envterm, "contour")
+            || strstr(envterm, "foot")
+            || strstr(envterm, "mlterm")
+            || strstr(envterm, "mintty")
+            || strstr(envterm, "iTerm")
+            || strstr(envterm, "iterm")
+            || !strcmp(envterm, "tmux-256color")
+            || !strcmp(envterm, "screen-256color")))
+        return 16777216;
+    if (envterm && strstr(envterm, "256color"))
+        return 256;
+    if (cterm && *cterm != '\0')
+        return 256;
+    return fallback;
+}
+#endif /* TEXTCOLOR */
+
 /*windows.c*/

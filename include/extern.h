@@ -3255,6 +3255,12 @@ E void NDECL(dump_close_log);
 E void FDECL(dump_redirect, (BOOLEAN_P));
 E void FDECL(dump_forward_putstr, (winid, int, const char*, int));
 E void FDECL(livelog_dump_url, (unsigned int));
+#ifdef TEXTCOLOR
+E boolean NDECL(has_truecolor);
+E int FDECL(detect_env_color_depth, (int));
+E unsigned long FDECL(hue_to_rgb, (int));
+extern const char *const clrlabels[];
+#endif
 
 /* ### winnt.c ### */
 #ifdef WIN32

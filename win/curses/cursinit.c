@@ -7,6 +7,7 @@
 #include "hack.h"
 #include "wincurs.h"
 #include "cursinit.h"
+#include "cursmisc.h"
 /*#include "patchlevel.h"*/
 
 #include <ctype.h>
@@ -301,14 +302,25 @@ curses_init_nhcolors()
 #ifdef TEXTCOLOR
     if (has_colors()) {
         use_default_colors();
-        init_pair(1, COLOR_BLACK, -1);
-        init_pair(2, COLOR_RED, -1);
-        init_pair(3, COLOR_GREEN, -1);
-        init_pair(4, COLOR_YELLOW, -1);
-        init_pair(5, COLOR_BLUE, -1);
-        init_pair(6, COLOR_MAGENTA, -1);
-        init_pair(7, COLOR_CYAN, -1);
-        init_pair(8, -1, -1);
+
+        /* Direct-color terminfo (xterm-direct, tmux-direct, etc.)
+           advertises the RGB capability and interprets the color
+           argument to init_pair() as a packed 24-bit RGB value
+           rather than a palette slot index. nh_init_pair() handles
+           the translation; flag it here so all callers route
+           through the wrapper consistently */
+#ifdef NCURSES_VERSION
+        curses_direct_color = (tigetflag("RGB") > 0);
+#endif
+
+        nh_init_pair(1, COLOR_BLACK, -1);
+        nh_init_pair(2, COLOR_RED, -1);
+        nh_init_pair(3, COLOR_GREEN, -1);
+        nh_init_pair(4, COLOR_YELLOW, -1);
+        nh_init_pair(5, COLOR_BLUE, -1);
+        nh_init_pair(6, COLOR_MAGENTA, -1);
+        nh_init_pair(7, COLOR_CYAN, -1);
+        nh_init_pair(8, -1, -1);
 
         {
             int i;
@@ -324,8 +336,8 @@ curses_init_nhcolors()
             };
 
             for (i = 0; i < (COLORS >= 16 ? 16 : 8); i++) {
-                init_pair(17 + (i * 2) + 0, clr_remap[i], COLOR_RED);
-                init_pair(17 + (i * 2) + 1, clr_remap[i], COLOR_BLUE);
+                nh_init_pair(17 + (i * 2) + 0, clr_remap[i], COLOR_RED);
+                nh_init_pair(17 + (i * 2) + 1, clr_remap[i], COLOR_BLUE);
             }
 
             if (COLORS >= 16)
@@ -334,28 +346,28 @@ curses_init_nhcolors()
             /* Work around the crazy definitions above for more background
                colors... */
             for (i = 0; i < (COLORS >= 16 ? 16 : 8); i++) {
-                init_pair((hicolor ? 49 : 9) + i, clr_remap[i], COLOR_GREEN);
-                init_pair((hicolor ? 65 : 33) + i, clr_remap[i], COLOR_YELLOW);
-                init_pair((hicolor ? 81 : 41) + i, clr_remap[i], COLOR_MAGENTA);
-                init_pair((hicolor ? 97 : 49) + i, clr_remap[i], COLOR_CYAN);
-                init_pair((hicolor ? 113 : 57) + i, clr_remap[i], COLOR_WHITE);
+                nh_init_pair((hicolor ? 49 : 9) + i, clr_remap[i], COLOR_GREEN);
+                nh_init_pair((hicolor ? 65 : 33) + i, clr_remap[i], COLOR_YELLOW);
+                nh_init_pair((hicolor ? 81 : 41) + i, clr_remap[i], COLOR_MAGENTA);
+                nh_init_pair((hicolor ? 97 : 49) + i, clr_remap[i], COLOR_CYAN);
+                nh_init_pair((hicolor ? 113 : 57) + i, clr_remap[i], COLOR_WHITE);
             }
         }
 
         if (COLORS >= 16) {
 # ifdef USE_DARKGRAY
             if (iflags.wc2_darkgray) {
-                init_pair(1, COLOR_BLACK + 8, -1);
+                nh_init_pair(1, COLOR_BLACK + 8, -1);
             }
 # endif
-            init_pair(9, COLOR_WHITE, -1);
-            init_pair(10, COLOR_RED + 8, -1);
-            init_pair(11, COLOR_GREEN + 8, -1);
-            init_pair(12, COLOR_YELLOW + 8, -1);
-            init_pair(13, COLOR_BLUE + 8, -1);
-            init_pair(14, COLOR_MAGENTA + 8, -1);
-            init_pair(15, COLOR_CYAN + 8, -1);
-            init_pair(16, COLOR_WHITE + 8, -1);
+            nh_init_pair(9, COLOR_WHITE, -1);
+            nh_init_pair(10, COLOR_RED + 8, -1);
+            nh_init_pair(11, COLOR_GREEN + 8, -1);
+            nh_init_pair(12, COLOR_YELLOW + 8, -1);
+            nh_init_pair(13, COLOR_BLUE + 8, -1);
+            nh_init_pair(14, COLOR_MAGENTA + 8, -1);
+            nh_init_pair(15, COLOR_CYAN + 8, -1);
+            nh_init_pair(16, COLOR_WHITE + 8, -1);
         }
     }
 
@@ -369,6 +381,24 @@ curses_init_nhcolors()
              * instead of generic RGB-distance mapping. */
             windowprocs.wincap2 &= ~WC2_EXTCOLORS;
         }
+
+        /* 24-bit truecolor: requires terminfo to advertise > 256
+         * color slots so init_extended_color() can allocate slots
+         * outside the base+256 palette range. Direct-color entries
+         * like xterm-direct / tmux-direct set colors#0x1000000 and
+         * the RGB capability. tmux-256color + COLORTERM=truecolor
+         * doesn't qualify: ncurses sees COLORS=256 and rejects
+         * init_extended_color above 255 -- the env probe says
+         * truecolor but the API can't honor it without raw SGR
+         * escapes (which would fight ncurses screen tracking).
+         * PDCurses (no NCURSES_VERSION) lacks the extended-color
+         * API entirely */
+#ifdef NCURSES_VERSION
+        if (COLORS <= 256 || tigetflag("RGB") <= 0)
+            windowprocs.wincap2 &= ~WC2_TRUECOLOR;
+#else
+        windowprocs.wincap2 &= ~WC2_TRUECOLOR;
+#endif
 #endif
 }
 

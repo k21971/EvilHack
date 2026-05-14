@@ -45,6 +45,7 @@ typedef struct nhwd {
 typedef struct nhchar {
     int ch;                     /* character */
     int color;                  /* color info for character */
+    unsigned long nhcolor;      /* 32-bit RGB customcolor, 0 = none */
     int attr;                   /* attributes of character */
 } nethack_char;
 
@@ -376,7 +377,8 @@ curs_destroy_all_wins()
 /* Print a single character in the given window at the given coordinates */
 
 void
-curses_putch(winid wid, int x, int y, int ch, int color, int attr)
+curses_putch(winid wid, int x, int y, int ch, int color,
+             unsigned long nhcolor, int attr)
 {
     static boolean map_initted = FALSE;
     int sx, sy, ex, ey;
@@ -399,6 +401,7 @@ curses_putch(winid wid, int x, int y, int ch, int color, int attr)
     --x; /* map column [0] is not used; draw column [1] in first screen col */
     map[y][x].ch = ch;
     map[y][x].color = color;
+    map[y][x].nhcolor = nhcolor;
     map[y][x].attr = attr;
     nch = map[y][x];
 
@@ -588,7 +591,7 @@ coordinates without a refresh.  Currently only used for the map. */
 static void
 write_char(WINDOW * win, int x, int y, nethack_char nch)
 {
-    curses_toggle_color_attr(win, nch.color, nch.attr, ON);
+    curses_toggle_color_attr32(win, nch.color, nch.nhcolor, nch.attr, ON);
 
     if (iflags.supports_utf8) {
         int uc;
@@ -630,7 +633,7 @@ write_char(WINDOW * win, int x, int y, nethack_char nch)
 #endif
     }
 
-    curses_toggle_color_attr(win, nch.color, nch.attr, OFF);
+    curses_toggle_color_attr32(win, nch.color, nch.nhcolor, nch.attr, OFF);
 }
 
 /* Draw the entire visible map onto the screen given the visible map
@@ -653,15 +656,19 @@ curses_draw_map(int sx, int sy, int ex, int ey)
 #ifdef MAP_SCROLLBARS
     hsb_back.ch = '-';
     hsb_back.color = SCROLLBAR_BACK_COLOR;
+    hsb_back.nhcolor = 0;
     hsb_back.attr = A_NORMAL;
     hsb_bar.ch = '*';
     hsb_bar.color = SCROLLBAR_COLOR;
+    hsb_bar.nhcolor = 0;
     hsb_bar.attr = A_NORMAL;
     vsb_back.ch = '|';
     vsb_back.color = SCROLLBAR_BACK_COLOR;
+    vsb_back.nhcolor = 0;
     vsb_back.attr = A_NORMAL;
     vsb_bar.ch = '*';
     vsb_bar.color = SCROLLBAR_COLOR;
+    vsb_bar.nhcolor = 0;
     vsb_bar.attr = A_NORMAL;
 
     /* Horizontal scrollbar */
@@ -730,6 +737,7 @@ clear_map()
         for (y = 0; y < ROWNO; y++) {
             map[y][x].ch = ' ';
             map[y][x].color = NO_COLOR;
+            map[y][x].nhcolor = 0;
             map[y][x].attr = A_NORMAL;
         }
     }

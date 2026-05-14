@@ -59,60 +59,6 @@ static int term_colors = 0;  /* number of colors terminal supports */
 static char *KS = (char *) 0, *KE = (char *) 0; /* keypad sequences */
 static char nullstr[] = "";
 
-#ifdef TEXTCOLOR
-/* Probe $TERM and $COLORTERM for an explicit color-depth advertisement.
- * Returns 16777216 / 256 / 16, or `fallback` when no env signal is
- * present (init_hilite passes the terminfo "Co" value here so we keep
- * any depth >256 the terminfo entry advertises). Shared between the
- * ANSI_DEFAULT init path and TERMLIB's init_hilite so the two stay in
- * lockstep. Detection ladder, in descending order of confidence:
- *   1. COLORTERM=truecolor / 24bit -- explicit advertisement.
- *   2. TERM contains "direct" or "truecolor" -- direct-color terminfo
- *      entry (xterm-direct, tmux-direct, ...).
- *   3. TERM matches a known always-truecolor family (alacritty / kitty
- *      / wezterm / contour / foot / mlterm / mintty / iTerm) or the
- *      modern multiplexer defaults (tmux-256color / screen-256color,
- *      which pass RGB through when the outer terminal supports it --
- *      multiplexers without RGB strip the unrecognised SGR so the
- *      degradation is silent).
- *   4. TERM contains "256color" or COLORTERM is set non-empty.
- *   5. Otherwise return `fallback` */
-static int
-detect_env_color_depth(fallback)
-int fallback;
-{
-    const char *envterm = nh_getenv("TERM");
-    const char *cterm = nh_getenv("COLORTERM");
-
-    if (cterm
-        && (!strcmp(cterm, "truecolor")
-            || !strcmp(cterm, "24bit")))
-        return 16777216;
-    if (envterm
-        && (strstr(envterm, "direct")
-            || strstr(envterm, "truecolor")))
-        return 16777216;
-    if (envterm
-        && (strstr(envterm, "alacritty")
-            || strstr(envterm, "kitty")
-            || strstr(envterm, "wezterm")
-            || strstr(envterm, "contour")
-            || strstr(envterm, "foot")
-            || strstr(envterm, "mlterm")
-            || strstr(envterm, "mintty")
-            || strstr(envterm, "iTerm")
-            || strstr(envterm, "iterm")
-            || !strcmp(envterm, "tmux-256color")
-            || !strcmp(envterm, "screen-256color")))
-        return 16777216;
-    if (envterm && strstr(envterm, "256color"))
-        return 256;
-    if (cterm && *cterm != '\0')
-        return 256;
-    return fallback;
-}
-#endif /* TEXTCOLOR */
-
 #if defined(ASCIIGRAPH) && !defined(NO_TERMS)
 extern boolean HE_resets_AS;
 #endif
@@ -952,8 +898,9 @@ init_hilite()
     boolean direct_color = (colors > 256);
 
     /* Start from terminfo's "Co" but let an explicit COLORTERM /
-       direct-color TERM advertise a higher depth. See
-       detect_env_color_depth() above for the full ladder */
+       direct-color TERM advertise a higher depth. Shared helper
+       lives in src/windows.c so the ANSI default path and the curses
+       port stay in lockstep */
     term_colors = detect_env_color_depth(colors);
 
     if (colors < 8 || (MD == NULL) || (strlen(MD) == 0)

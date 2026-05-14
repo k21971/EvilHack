@@ -1496,14 +1496,17 @@ wiz_show_wmodes(VOID_ARGS)
 }
 
 /* #showcolors -- demonstrate the active terminal's color palette and
-   advertised depth. Routes through the tty windowport renderer when
-   present; other ports get an apologetic message until a port-specific
-   renderer is added. tty_show_color_palette lives in win/tty/wintty.c
+   advertised depth. Routes through the active windowport's renderer
+   when present; ports without a renderer fall through to an
+   apologetic message. tty_show_color_palette lives in win/tty/wintty.c
    so both Linux/Mac (termcap.c) and Windows (nttty.c) can resolve the
    call -- wintty.c compiles on every TTY_GRAPHICS build regardless of
-   NO_TERMS */
+   NO_TERMS. curses_show_color_palette lives in win/curses/cursmisc.c */
 #if defined(TTY_GRAPHICS) && defined(TEXTCOLOR)
 extern void NDECL(tty_show_color_palette);
+#endif
+#if defined(CURSES_GRAPHICS) && defined(TEXTCOLOR)
+extern void NDECL(curses_show_color_palette);
 #endif
 
 STATIC_PTR int
@@ -1515,8 +1518,13 @@ doshowcolors(VOID_ARGS)
         return 0;
     }
 #endif
-    pline("Color palette demo is only available on the tty windowport"
-          " (current: %s).",
+#if defined(CURSES_GRAPHICS) && defined(TEXTCOLOR)
+    if (WINDOWPORT("curses")) {
+        curses_show_color_palette();
+        return 0;
+    }
+#endif
+    pline("Color palette demo is not available on the %s windowport.",
           (windowprocs.name && *windowprocs.name) ? windowprocs.name
                                                   : "unknown");
     return 0;

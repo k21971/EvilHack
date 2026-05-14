@@ -5374,4 +5374,5 @@ The following changes to date are:
 - Fix: curswins.c fails to compile on distros with split
   ncurses/ncursesw
 - Fix: Windows TTY ignores use_darkgray=OFF for CLR_BLACK glyphs
+- Add 24-bit truecolor to ncurses windowport
 

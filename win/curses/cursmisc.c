@@ -96,6 +96,89 @@ curses_read_char()
     return ch;
 }
 
+/* TRUE when terminfo advertises the RGB capability (direct-color
+   entries like xterm-direct / tmux-direct). Set in
+   curses_init_nhcolors() after start_color(). On direct-color
+   terms ncurses interprets the color argument to init_pair() as a
+   packed 24-bit RGB value rather than a palette slot index, so
+   every pair allocator in this windowport must route through
+   nh_init_pair() to translate slot indices to RGB. Always FALSE
+   on PDCurses (lacks tigetflag and the extended-pair API) */
+boolean curses_direct_color = FALSE;
+
+#ifdef NCURSES_VERSION
+/* RGB values for the 16 base ncurses color slots, used by
+   nh_init_pair() to translate COLOR_BLACK..COLOR_WHITE (+8 bright
+   variants) to packed RGB on direct-color terms. Uses the IBM/VGA
+   "Linux console" palette instead of the xterm-canonical one:
+   it has wider separation between dim and bright variants (0xAA
+   vs 0xFF instead of 0xCD vs 0xFF) and a recognisably brown slot 3
+   (0xAA5500 instead of the xterm olive 0xCDCD00). Most modern
+   terminals use a palette closer to VGA than to xterm-defaults */
+static const int xterm_base_rgb[16] = {
+    0x000000, 0xAA0000, 0x00AA00, 0xAA5500, /* 0..3 black,red,green,brown */
+    0x0000AA, 0xAA00AA, 0x00AAAA, 0xAAAAAA, /* 4..7 blue,magenta,cyan,gray */
+    0x555555, 0xFF5555, 0x55FF55, 0xFFFF55, /* 8..11 dgray,orange,brgrn,yel */
+    0x5555FF, 0xFF55FF, 0x55FFFF, 0xFFFFFF  /* 12..15 brblu,brmag,brcyn,wht */
+};
+
+/* xterm 256-color cube layout: 0..15 base, 16..231 6x6x6 cube,
+   232..255 24-step grayscale. Cube component levels are the
+   standard {0, 95, 135, 175, 215, 255}. Grayscale steps run
+   from RGB(8,8,8) to RGB(238,238,238) in increments of 10 */
+static int
+xterm_256_rgb(idx)
+int idx;
+{
+    static const int cube_levels[6] = { 0, 95, 135, 175, 215, 255 };
+    int r, g, b, v;
+
+    if (idx < 16)
+        return xterm_base_rgb[idx];
+    if (idx >= 232) {
+        v = 8 + (idx - 232) * 10;
+        return (v << 16) | (v << 8) | v;
+    }
+    idx -= 16;
+    r = cube_levels[(idx / 36) % 6];
+    g = cube_levels[(idx / 6) % 6];
+    b = cube_levels[idx % 6];
+    return (r << 16) | (g << 8) | b;
+}
+#endif /* NCURSES_VERSION */
+
+/* Wrapper around init_pair() that handles direct-color terminfo.
+   On traditional palette terms (tmux-256color, xterm-256color, ...)
+   ncurses' init_pair() takes a slot index; pass through unchanged.
+   On direct-color terms (RGB capability advertised, e.g.
+   tmux-direct, xterm-direct) the color argument is interpreted as
+   a packed 24-bit RGB value that won't fit in short, so translate
+   COLOR_BLACK..COLOR_WHITE and 256-cube indices to their xterm
+   canonical RGB equivalents and route through init_extended_pair()
+   instead. Caller can pass -1 for default fg/bg (use_default_colors)
+   unchanged on either path */
+int
+nh_init_pair(pair, fg, bg)
+int pair;
+int fg;
+int bg;
+{
+#ifdef NCURSES_VERSION
+    if (curses_direct_color) {
+        if (fg >= 0 && fg < 16)
+            fg = xterm_base_rgb[fg];
+        else if (fg >= 16 && fg < 256)
+            fg = xterm_256_rgb(fg);
+        if (bg >= 0 && bg < 16)
+            bg = xterm_base_rgb[bg];
+        else if (bg >= 16 && bg < 256)
+            bg = xterm_256_rgb(bg);
+        return init_extended_pair(pair, fg, bg);
+    }
+#endif
+    return init_pair((short) pair, (short) fg, (short) bg);
+}
+
 /* On-demand extended color pair allocation.
  * Maps xterm colors 16-255 to curses pair numbers, allocating
  * pairs lazily to fit within limited COLOR_PAIRS (e.g. PDCurses=256).
@@ -115,11 +198,200 @@ int color;
         next_ext_pair = (COLORS >= 16) ? 129 : 65;
     }
     if (ext_color_pair[idx] == 0 && next_ext_pair < COLOR_PAIRS) {
-        init_pair(next_ext_pair, color, -1);
+        nh_init_pair(next_ext_pair, color, -1);
         ext_color_pair[idx] = (short) next_ext_pair++;
     }
     return ext_color_pair[idx]; /* 0 if couldn't allocate */
 }
+
+#ifdef NCURSES_VERSION
+/* 24-bit RGB pair cache. Sits at the top of COLOR_PAIRS (pairs) and
+ * the top of COLORS (color slots) so neither collides with init_pair
+ * (1..16+bg-hilites) or get_ext_color_pair (129..). Linear scan is
+ * fine: ~30 unique customcolor entries in a normal rc-file, scanning
+ * 256 is sub-microsecond.
+ *
+ * ncurses pair indices and color slot indices live in independent
+ * namespaces. A pair references a (fg_slot, bg_slot) pair of color
+ * slots. We allocate both from the top end of their respective ranges
+ * so the existing 256-palette allocations stay untouched.
+ *
+ * On cache exhaustion (>256 unique RGB customcolors in one session)
+ * we return 0; the caller falls back through the 256-quantized path */
+/* Sized so the #showcolors demo can allocate one bg pair per cell
+   for 5 gradient ramps of CURSES_PAL_GRADIENT_W (65) cells without
+   exhausting and falling back to fg+block (which would reintroduce
+   line-height gaps mid-ramp). In-game customcolors typically use
+   <30 distinct values, so the extra slots cost ~1.5KB of static
+   memory and nothing else */
+#define TRUECOLOR_CACHE_SIZE 384
+static struct { unsigned long rgb; int pair; } tc_cache[TRUECOLOR_CACHE_SIZE];
+static int next_tc_pair = 0;       /* next pair index; 0=uninitialized */
+static int next_tc_color = 0;      /* next color slot; 0=uninitialized */
+
+static int
+get_truecolor_pair(nhcolor)
+unsigned long nhcolor;
+{
+    int rgb = (int) COLORVAL(nhcolor);
+    int r = (rgb >> 16) & 0xff;
+    int g = (rgb >> 8) & 0xff;
+    int b = rgb & 0xff;
+    int slot, i;
+
+    if (next_tc_pair == 0) {
+        /* Pair headroom is needed on every path. The color-slot
+         * headroom check only applies to traditional palette terms,
+         * where we allocate slots and reference them by index; on
+         * direct-color terms (RGB cap) the slot indirection is a
+         * no-op and what matters is the RGB value passed directly
+         * to init_extended_pair() */
+        if (COLOR_PAIRS < TRUECOLOR_CACHE_SIZE + 384)
+            return 0;
+        if (!curses_direct_color && COLORS < 256 + TRUECOLOR_CACHE_SIZE)
+            return 0;
+        next_tc_pair = COLOR_PAIRS - TRUECOLOR_CACHE_SIZE;
+        next_tc_color = curses_direct_color
+                            ? 0
+                            : COLORS - TRUECOLOR_CACHE_SIZE;
+    }
+
+    /* Linear-scan the cache for an existing pair */
+    for (i = 0; i < TRUECOLOR_CACHE_SIZE; i++)
+        if (tc_cache[i].pair != 0 && tc_cache[i].rgb == nhcolor)
+            return tc_cache[i].pair;
+
+    if (next_tc_pair >= COLOR_PAIRS)
+        return 0; /* pair-cache exhausted */
+
+    if (curses_direct_color) {
+        /* On direct-color terms the slot index passed to
+           init_extended_pair() IS the RGB value; init_extended_color
+           is a no-op since there's no palette slot to update.
+           tmux-direct / xterm-direct setaf has an if-else branch:
+           values 0..7 are treated as ANSI palette slots, only >=8
+           are emitted as direct-color SGR. RGB values < 8 (very
+           dark blue-only customcolors and pure black) would render
+           as ANSI 0..7 instead of direct color; bump to 8 (=
+           RGB(0,0,8)) so the cell still gets the direct-color
+           path, accepting a few units of blue tint at the bottom
+           of the range */
+        if (init_extended_pair(next_tc_pair, rgb < 8 ? 8 : rgb, -1)
+            == ERR)
+            return 0;
+    } else {
+        if (next_tc_color >= COLORS)
+            return 0; /* color slots exhausted */
+        /* ncurses scale is 0..1000 per channel, not 0..255 */
+        if (init_extended_color(next_tc_color, r * 1000 / 255,
+                                               g * 1000 / 255,
+                                               b * 1000 / 255) == ERR)
+            return 0;
+        if (init_extended_pair(next_tc_pair, next_tc_color, -1) == ERR)
+            return 0;
+        next_tc_color++;
+    }
+
+    slot = next_tc_pair - (COLOR_PAIRS - TRUECOLOR_CACHE_SIZE);
+    tc_cache[slot].rgb = nhcolor;
+    tc_cache[slot].pair = next_tc_pair;
+    return next_tc_pair++;
+}
+#endif /* NCURSES_VERSION */
+
+/* Bg-pair cache for #showcolors gradient rendering. The standard
+   fg+block path leaves a 1-pixel line-height gap at top and bottom
+   of every cell because most terminals don't fully fill the cell
+   rectangle when drawing FULL BLOCK glyphs. Rendering as background
+   color + space char makes the terminal paint the whole cell, so
+   the gradient looks continuous. The bg cache lives in its own pair
+   range below the fg ext-color cache so existing in-game pair
+   allocations are unaffected. When the pair pool is exhausted
+   (PDCurses' 256-pair cap) the demo falls back to fg+block */
+static short ext_color_bg_pair[240]; /* color-16 -> bg pair, 0=not yet */
+static int next_ext_bg_pair = 0;
+
+static int
+get_ext_color_bg_pair(color)
+int color;
+{
+    int idx = color - 16;
+
+    if (next_ext_bg_pair == 0) {
+        /* Sit above the in-game fg ext cache (129..368) with a
+           small gap */
+        next_ext_bg_pair = (COLORS >= 16) ? 385 : 65 + 240;
+    }
+    if (ext_color_bg_pair[idx] == 0 && next_ext_bg_pair < COLOR_PAIRS) {
+        nh_init_pair(next_ext_bg_pair, -1, color);
+        ext_color_bg_pair[idx] = (short) next_ext_bg_pair++;
+    }
+    return ext_color_bg_pair[idx];
+}
+
+#ifdef NCURSES_VERSION
+/* Bg-pair sibling of the truecolor fg cache. Lives in the pair
+   range just below the fg cache so neither collides with the other
+   nor with the base/status/ext-color allocations. Same setab < 8
+   bump applies (tmux-direct setab branches palette-vs-direct at the
+   same threshold as setaf) */
+static struct { unsigned long rgb; int pair; } tc_bg_cache[TRUECOLOR_CACHE_SIZE];
+static int next_tc_bg_pair = 0;
+static int next_tc_bg_color = 0;
+
+static int
+get_truecolor_bg_pair(nhcolor)
+unsigned long nhcolor;
+{
+    int rgb = (int) COLORVAL(nhcolor);
+    int r = (rgb >> 16) & 0xff;
+    int g = (rgb >> 8) & 0xff;
+    int b = rgb & 0xff;
+    int slot, i;
+
+    if (next_tc_bg_pair == 0) {
+        if (COLOR_PAIRS < 2 * TRUECOLOR_CACHE_SIZE + 384)
+            return 0;
+        if (!curses_direct_color
+            && COLORS < 256 + 2 * TRUECOLOR_CACHE_SIZE)
+            return 0;
+        next_tc_bg_pair = COLOR_PAIRS - 2 * TRUECOLOR_CACHE_SIZE;
+        next_tc_bg_color = curses_direct_color
+                            ? 0
+                            : COLORS - 2 * TRUECOLOR_CACHE_SIZE;
+    }
+
+    for (i = 0; i < TRUECOLOR_CACHE_SIZE; i++)
+        if (tc_bg_cache[i].pair != 0 && tc_bg_cache[i].rgb == nhcolor)
+            return tc_bg_cache[i].pair;
+
+    if (next_tc_bg_pair >= COLOR_PAIRS - TRUECOLOR_CACHE_SIZE)
+        return 0; /* hit the fg cache range */
+
+    if (curses_direct_color) {
+        if (init_extended_pair(next_tc_bg_pair, -1,
+                               rgb < 8 ? 8 : rgb) == ERR)
+            return 0;
+    } else {
+        if (next_tc_bg_color >= COLORS - TRUECOLOR_CACHE_SIZE)
+            return 0;
+        if (init_extended_color(next_tc_bg_color,
+                                 r * 1000 / 255,
+                                 g * 1000 / 255,
+                                 b * 1000 / 255) == ERR)
+            return 0;
+        if (init_extended_pair(next_tc_bg_pair, -1,
+                               next_tc_bg_color) == ERR)
+            return 0;
+        next_tc_bg_color++;
+    }
+
+    slot = next_tc_bg_pair - (COLOR_PAIRS - 2 * TRUECOLOR_CACHE_SIZE);
+    tc_bg_cache[slot].rgb = nhcolor;
+    tc_bg_cache[slot].pair = next_tc_bg_pair;
+    return next_tc_bg_pair++;
+}
+#endif /* NCURSES_VERSION */
 
 /* Turn on or off the specified color and / or attribute */
 
@@ -191,7 +463,16 @@ curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff)
                  (color > 17 + 17)) && (COLORS < 16)) {
                 wattron(win, A_BOLD);
             }
-            wattron(win, COLOR_PAIR(curses_color));
+            /* COLOR_PAIR()'s pair index occupies only 8 bits inside
+               the chtype (A_COLOR mask). Pair indices above 255 wrap
+               or alias when emitted via wattron(COLOR_PAIR(...)); use
+               the NCURSES_PAIRS_T-wide wcolor_set() path instead so
+               the full pair range stays addressable */
+            if (curses_color > 255)
+                (void) wcolor_set(win, (NCURSES_PAIRS_T) curses_color,
+                                  NULL);
+            else
+                wattron(win, COLOR_PAIR(curses_color));
         }
 
         if (attr != NONE) {
@@ -212,7 +493,10 @@ curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff)
                 wattroff(win, A_REVERSE);
             }
 # endif/* DARKGRAY */
-            wattroff(win, COLOR_PAIR(curses_color));
+            if (curses_color > 255)
+                (void) wcolor_set(win, 0, NULL);
+            else
+                wattroff(win, COLOR_PAIR(curses_color));
         }
 
         if (attr != NONE) {
@@ -223,6 +507,280 @@ curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff)
     nhUse(color);
 #endif /* TEXTCOLOR */
 }
+
+/* Map-glyph color/attr toggle that knows about 24-bit RGB nhcolor.
+   When the windowport runtime has truecolor and nhcolor carries a raw
+   RGB value (NH_BASIC_COLOR not set), allocate or reuse a pair from
+   the truecolor cache and apply via wattr_set with the opts pointer.
+   The opts-pointer form is required because the truecolor cache sits
+   at the top of COLOR_PAIRS (e.g. 65280..65535 on tmux-direct) and
+   NCURSES_PAIRS_T is typically a 16-bit short, so the inline pair
+   argument truncates the high bits and silently corrupts the cell.
+   The wattr_set macro reads *(int *)opts when opts is non-NULL,
+   bypassing the short narrowing. Every other case falls through to
+   the existing 16/256-palette code path so callers that don't carry
+   RGB continue to work byte-for-byte */
+void
+curses_toggle_color_attr32(WINDOW *win, int color, unsigned long nhcolor,
+                           int attr, int onoff)
+{
+#ifdef TEXTCOLOR
+# ifdef NCURSES_VERSION
+    if (nhcolor && !(nhcolor & NH_BASIC_COLOR)
+        && (windowprocs.wincap2 & WC2_TRUECOLOR)
+        && ((win == mapwin) ? iflags.wc_color
+                            : (iflags.wc2_guicolor || win == statuswin))) {
+        int pair = get_truecolor_pair(nhcolor);
+
+        if (pair > 0) {
+            if (onoff == ON) {
+                int pair_int = pair;
+
+                wattr_set(win,
+                          attr != NONE ? (attr_t) attr : A_NORMAL,
+                          0, &pair_int);
+            } else {
+                wattr_set(win, A_NORMAL, 0, NULL);
+            }
+            return;
+        }
+        /* cache exhausted, fall through to palette path */
+    }
+# endif /* NCURSES_VERSION */
+#else
+    nhUse(nhcolor);
+#endif /* TEXTCOLOR */
+    curses_toggle_color_attr(win, color, attr, onoff);
+}
+
+#ifdef TEXTCOLOR
+/* Public renderer for #showcolors on the curses windowport. Mirrors
+   the tty version's three-bar layout (16-color base / 256-color cube /
+   24-bit gradient) but renders inside ncurses' screen model so the
+   game windows can be restored cleanly afterwards.
+   Uses foreground full-block rendering for every bar; per-cell bg
+   pairs would overrun PDCurses' 256-pair cap. The truecolor pair
+   cache (256 slots) is shared with the regular map renderer */
+/* Sized to align the right edge of the gradient bars with the
+   256-cube bars: 256-cube row is 72 cells starting at column 3
+   (rightmost cell at column 74); gradient labels are 7 chars wide
+   at column 3 (cells start at column 10), so 74 - 10 + 1 = 65 */
+#define CURSES_PAL_GRADIENT_W 65
+void
+curses_show_color_palette()
+{
+    WINDOW *win = stdscr;
+    const char *block = iflags.supports_utf8 ? "\xe2\x96\x88" : "#";
+    const char *envterm = nh_getenv("TERM");
+    const char *cterm = nh_getenv("COLORTERM");
+    const char *envstr;
+    char buf[BUFSZ];
+    int y = 0, x, i, idx, v, row, env_depth;
+    boolean truecolor_active;
+    unsigned long rgb;
+
+    /* Show the env-advertised depth only; the curses runtime depth is
+       implied by which of the three bars actually renders below
+       (16-color base / 256-color cube / 24-bit gradient). Dropping the
+       "Active" line keeps the whole demo inside 24 rows when the
+       truecolor section is present */
+    env_depth = detect_env_color_depth(COLORS);
+    truecolor_active = has_truecolor();
+    if (env_depth >= 16777216)
+        envstr = "24-bit truecolor";
+    else if (env_depth >= 256)
+        envstr = "256-color";
+    else
+        envstr = "16-color";
+
+    erase();
+
+    /* Header */
+    Sprintf(buf, "  TERM = %s  COLORTERM = %s",
+            envterm ? envterm : "(unset)",
+            cterm ? cterm : "(unset)");
+    mvwaddstr(win, y++, 0, buf);
+    Sprintf(buf, "  Detected = %s", envstr);
+    mvwaddstr(win, y++, 0, buf);
+    y++;
+
+    /* Bar 1: 16-color base palette, two rows of 8 + labels.
+       Uses init_pair pairs 1..16 set up in curses_init_nhcolors */
+    mvwaddstr(win, y++, 0,
+              "  16-color base palette (CLR_BLACK..CLR_WHITE):");
+    for (row = 0; row < 2; row++) {
+        wmove(win, y++, 3);
+        for (x = 0; x < 8; x++) {
+            i = row * 8 + x;
+            curses_toggle_color_attr(win, i, A_NORMAL, ON);
+            for (idx = 0; idx < 7; idx++)
+                waddstr(win, block);
+            curses_toggle_color_attr(win, i, A_NORMAL, OFF);
+            waddstr(win, " ");
+        }
+        wmove(win, y++, 3);
+        for (x = 0; x < 8; x++) {
+            i = row * 8 + x;
+            Sprintf(buf, "%-7.7s ", clrlabels[i]);
+            waddstr(win, buf);
+        }
+    }
+    Sprintf(buf, "   ('black' = dark gray with use_darkgray, blue"
+                 " without; current: %s)",
+            iflags.wc2_darkgray ? "ON" : "OFF");
+    mvwaddstr(win, y++, 0, buf);
+    y++;
+
+    /* Bar 2: 256-color extended palette. fg-block rendering means
+       a thin line-height gap between the 3 cube rows; acceptable.
+       Gated on COLORS (ncurses runtime), not env_depth, because
+       ncurses can only allocate 256-color pairs when terminfo has
+       the slots */
+    if (COLORS >= 256) {
+        mvwaddstr(win, y++, 0,
+                  "  256-color extended palette (16..231 RGB,"
+                  " 232..255 grayscale):");
+        for (row = 0; row < 3; row++) {
+            wmove(win, y++, 3);
+            for (x = 0; x < 72; x++) {
+                int bg_pair = 0;
+
+                idx = 16 + row * 72 + x;
+                if (iflags.wc2_guicolor)
+                    bg_pair = get_ext_color_bg_pair(idx);
+                if (bg_pair > 0) {
+                    int p = bg_pair;
+
+                    wattr_set(win, A_NORMAL, 0, &p);
+                    waddstr(win, " ");
+                    wattr_set(win, A_NORMAL, 0, NULL);
+                } else {
+                    curses_toggle_color_attr(win, idx, A_NORMAL, ON);
+                    waddstr(win, block);
+                    curses_toggle_color_attr(win, idx, A_NORMAL, OFF);
+                }
+            }
+        }
+        wmove(win, y++, 3);
+        for (i = 232; i < 256; i++) {
+            int bg_pair = 0;
+
+            if (iflags.wc2_guicolor)
+                bg_pair = get_ext_color_bg_pair(i);
+            if (bg_pair > 0) {
+                int p = bg_pair;
+
+                wattr_set(win, A_NORMAL, 0, &p);
+                waddstr(win, "  ");
+                wattr_set(win, A_NORMAL, 0, NULL);
+            } else {
+                curses_toggle_color_attr(win, i, A_NORMAL, ON);
+                waddstr(win, block);
+                waddstr(win, block);
+                curses_toggle_color_attr(win, i, A_NORMAL, OFF);
+            }
+        }
+        y++;
+    }
+
+    /* Bar 3: 24-bit truecolor gradients */
+    if (truecolor_active) {
+        static const char *const grad_labels[5] = {
+            "Hue:   ", "Gray:  ", "Red:   ", "Green: ", "Blue:  "
+        };
+        mvwaddstr(win, y++, 0,
+                  "  24-bit truecolor demo"
+                  " (active -- gradients should be smooth):");
+        for (row = 0; row < 5; row++) {
+            mvwaddstr(win, y, 3, grad_labels[row]);
+            for (x = 0; x < CURSES_PAL_GRADIENT_W; x++) {
+                /* Single-channel ramps (rows 2-4) start at v=8
+                   instead of v=0 so the rgb value sits above the
+                   ANSI-vs-direct-color threshold in setaf (values
+                   0-7 are interpreted as ANSI palette slots, only
+                   >=8 emit direct-color SGR). The gray ramp uses
+                   the same start to keep the bottom of the demo
+                   visually consistent. Hue ramp is unaffected
+                   because every point on the wheel saturates at
+                   least one channel at 255 */
+                switch (row) {
+                case 0:
+                    rgb = hue_to_rgb(x * 360 / CURSES_PAL_GRADIENT_W);
+                    break;
+                case 1:
+                    v = 8 + x * (255 - 8) / (CURSES_PAL_GRADIENT_W - 1);
+                    rgb = ((unsigned long) v << 16)
+                          | ((unsigned long) v << 8)
+                          | (unsigned long) v;
+                    break;
+                case 2:
+                    v = 8 + x * (255 - 8) / (CURSES_PAL_GRADIENT_W - 1);
+                    rgb = (unsigned long) v << 16;
+                    break;
+                case 3:
+                    v = 8 + x * (255 - 8) / (CURSES_PAL_GRADIENT_W - 1);
+                    rgb = (unsigned long) v << 8;
+                    break;
+                default:
+                    v = 8 + x * (255 - 8) / (CURSES_PAL_GRADIENT_W - 1);
+                    rgb = (unsigned long) v;
+                    break;
+                }
+#ifdef NCURSES_VERSION
+                {
+                    int bg_pair = 0;
+
+                    if (iflags.wc2_guicolor)
+                        bg_pair = get_truecolor_bg_pair(rgb);
+                    if (bg_pair > 0) {
+                        int p = bg_pair;
+
+                        wattr_set(win, A_NORMAL, 0, &p);
+                        waddstr(win, " ");
+                        wattr_set(win, A_NORMAL, 0, NULL);
+                        continue;
+                    }
+                }
+#endif
+                curses_toggle_color_attr32(win, NO_COLOR, rgb,
+                                           A_NORMAL, ON);
+                waddstr(win, block);
+                curses_toggle_color_attr32(win, NO_COLOR, rgb,
+                                           A_NORMAL, OFF);
+            }
+            y++;
+        }
+    } else if (env_depth >= 16777216 && COLORS <= 256) {
+        mvwaddstr(win, y++, 0,
+                  "  (env advertises truecolor but terminfo has"
+                  " only 256 color slots; switch TERM to a -direct");
+        mvwaddstr(win, y++, 0,
+                  "   variant -- e.g. tmux-direct or xterm-direct"
+                  " -- to enable ncurses truecolor)");
+    } else if (env_depth >= 16777216) {
+        mvwaddstr(win, y++, 0,
+                  "  (24-bit truecolor available but disabled;"
+                  " set OPTIONS=truecolor in your rc-file)");
+    } else {
+        mvwaddstr(win, y++, 0,
+                  "  (24-bit truecolor not detected; set TERM to"
+                  " a -direct variant or");
+        mvwaddstr(win, y++, 0,
+                  "   export COLORTERM=truecolor before launching)");
+    }
+    y++;
+
+    mvwaddstr(win, y, 0, "  --Press any key to return--");
+    wrefresh(win);
+    (void) curses_getch();
+
+    /* Force a full redraw of the normal game windows */
+    erase();
+    clearok(curscr, TRUE);
+    wrefresh(win);
+    curses_refresh_nethack_windows();
+}
+#endif /* TEXTCOLOR */
 
 /* call curses_toggle_color_attr() with 'menucolors' instead of 'guicolor'
    as the control flag */

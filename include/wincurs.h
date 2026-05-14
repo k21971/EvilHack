@@ -129,7 +129,7 @@ extern void curses_del_nhwin(winid wid);
 extern void curses_del_wid(winid wid);
 extern void curs_destroy_all_wins(void);
 extern void curses_putch(winid wid, int x, int y, int ch,
-                         int color, int attrs);
+                         int color, unsigned long nhcolor, int attrs);
 extern void curses_get_window_size(winid wid, int *height, int *width);
 extern boolean curses_window_has_border(winid wid);
 extern boolean curses_window_exists(winid wid);
@@ -149,6 +149,9 @@ extern int curses_getch(void);
 extern int curses_read_char(void);
 extern void curses_toggle_color_attr(WINDOW *win, int color, int attr,
                                      int onoff);
+extern void curses_toggle_color_attr32(WINDOW *win, int color,
+                                       unsigned long nhcolor,
+                                       int attr, int onoff);
 extern void curses_menu_color_attr(WINDOW *, int, int, int);
 extern void curses_bail(const char *mesg);
 extern winid curses_get_wid(int type);

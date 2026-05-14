@@ -10,7 +10,12 @@
 
 int curses_getch(void);
 int curses_read_char(void);
+extern boolean curses_direct_color;
+int nh_init_pair(int pair, int fg, int bg);
 void curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff);
+void curses_toggle_color_attr32(WINDOW *win, int color, unsigned long nhcolor,
+                                int attr, int onoff);
+void curses_show_color_palette(void);
 void curses_menu_color_attr(WINDOW *win, int color, int attr, int onoff);
 void curses_bail(const char *mesg);
 winid curses_get_wid(int type);

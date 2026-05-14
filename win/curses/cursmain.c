@@ -55,7 +55,7 @@ struct window_procs curses_procs = {
      | WC2_FLUSH_STATUS | WC2_TERM_SIZE
      | WC2_STATUSLINES | WC2_WINDOWBORDERS | WC2_PETATTR | WC2_GUICOLOR
      | WC2_SUPPRESS_HIST | WC2_MENU_GLYPHS | WC2_PEACEFUL
-     | WC2_EXTCOLORS),
+     | WC2_EXTCOLORS | WC2_TRUECOLOR),
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, /* color availability */
     curses_init_nhwindows,
     curses_player_selection,
@@ -691,11 +691,33 @@ curses_print_glyph(winid wid, XCHAR_P x, XCHAR_P y, int glyph,
 {
     int ch;
     int color;
+    unsigned long nhcolor = 0;
     unsigned int special;
     int attr = -1;
 
     /* map glyph to character and color */
     mapglyph(glyph, &ch, &color, &special, x, y, 0);
+
+    /* Customcolor truecolor passthrough: mapglyph returns the sentinel
+       only when has_truecolor() is true and the glyph has a CUSTOMCOLOR=
+       entry whose nhcolor is a 24-bit RGB value. Pull the entry so
+       write_char() can route the RGB through init_extended_pair; stash
+       the precomputed 256-palette fallback in color for the case where
+       runtime detection clears WC2_TRUECOLOR mid-game. The 256-color and
+       16-color quantization paths are already handled by mapglyph */
+    if (color == NH_CUSTOMCOLOR_SENTINEL) {
+        struct customcolor_entry *ce = customcolor_lookup(glyph);
+
+        if (ce) {
+            nhcolor = ce->nhcolor;
+            color = (ce->nhcolor & NH_BASIC_COLOR)
+                        ? (int) COLORVAL(ce->nhcolor)
+                        : ce->color256idx;
+        } else {
+            color = NO_COLOR;
+        }
+    }
+
     if ((special & MG_PET) && iflags.hilite_pet) {
         attr = iflags.wc2_petattr;
     } else if ((special & MG_PEACEFUL) && iflags.underline_peacefuls) {
@@ -733,7 +755,7 @@ curses_print_glyph(winid wid, XCHAR_P x, XCHAR_P y, int glyph,
         }
     }
 
-    curses_putch(wid, x, y, ch, color, attr);
+    curses_putch(wid, x, y, ch, color, nhcolor, attr);
 }
 
 /*

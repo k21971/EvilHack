@@ -4809,75 +4809,11 @@ render_status(VOID_ARGS)
    term_active_depth, term_supports_truecolor, tty_nhgetch, docrt)
    are available on both the TERMLIB and the Windows nttty.c side */
 
-/* Six-segment HSV->RGB at S=V=255. hue is in [0,360); returns a
-   24-bit 0xRRGGBB value packed into an unsigned long suitable for
-   term_start_color32. Used by tty_show_color_palette */
-STATIC_OVL unsigned long
-hue_to_rgb(hue)
-int hue;
-{
-    int seg, frac, p, q;
-    int r = 0, g = 0, b = 0;
-
-    if (hue < 0)
-        hue = 0;
-    if (hue >= 360)
-        hue %= 360;
-    seg = hue / 60;        /* 0..5 */
-    frac = (hue % 60) * 255 / 60;   /* 0..254 ascending within segment */
-    p = 0;
-    q = 255 - frac;
-    switch (seg) {
-    case 0: /* red -> yellow */
-        r = 255;
-        g = frac;
-        b = p;
-        break;
-    case 1: /* yellow -> green */
-        r = q;
-        g = 255;
-        b = p;
-        break;
-    case 2: /* green -> cyan */
-        r = p;
-        g = 255;
-        b = frac;
-        break;
-    case 3: /* cyan -> blue */
-        r = p;
-        g = q;
-        b = 255;
-        break;
-    case 4: /* blue -> magenta */
-        r = frac;
-        g = p;
-        b = 255;
-        break;
-    default: /* magenta -> red */
-        r = 255;
-        g = p;
-        b = q;
-        break;
-    }
-    return ((unsigned long) r << 16)
-           | ((unsigned long) g << 8)
-           | (unsigned long) b;
-}
-
 /* Solid-block sequence used by the palette renderer. U+2588 FULL
-   BLOCK on UTF-8-capable terminals, '#' otherwise */
+   BLOCK on UTF-8-capable terminals, '#' otherwise. hue_to_rgb() and
+   clrlabels[] are shared with the curses port and live in
+   src/windows.c */
 #define PAL_BLOCK (iflags.supports_utf8 ? "\xe2\x96\x88" : "#")
-
-/* Labels for bar 1 of the palette demo (16-color base). Two rows of
-   eight read more naturally than one row of sixteen 4-char truncs;
-   "br-X" abbreviates the four bright variants in the high half so
-   they don't all alias to "brig" */
-static const char *clrlabels[CLR_MAX] = {
-    "black",   "red",     "green",   "brown",
-    "blue",    "magenta", "cyan",    "gray",
-    "default", "orange",  "br-grn",  "yellow",
-    "br-blu",  "br-mag",  "br-cyn",  "white"
-};
 
 /* Public renderer for the #showcolors extended command. Bypasses the
    window port and writes raw SGR escapes directly to stdout, then waits
