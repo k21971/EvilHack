@@ -252,10 +252,10 @@ char *buf;        /* input: filtered broadcast text */
          */
         typ = MSG_CALL;
         nam = "Bitnet noise"; /* RSCS/NJE message received via JNET */
-        Sprintf(cmd_buf, "XYZZY %s@%s", user, node);
+        snprintf(cmd_buf, sizeof cmd_buf, "XYZZY %s@%s", user, node);
         cmd = cmd_buf;
         /*{ perhaps just vanilla SEND instead of XYZZY? }*/
-        Sprintf(txt_buf, "Message from %s@%s:%s", user, node,
+        snprintf(txt_buf, sizeof txt_buf, "Message from %s@%s:%s", user, node,
                 /* "(node)user -" */
                 &buf[1 + strlen(node) + 1 + strlen(user) + 2 - 1]);
         txt = txt_buf;
