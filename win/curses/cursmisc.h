@@ -6,6 +6,22 @@
 #ifndef CURSMISC_H
 # define CURSMISC_H
 
+/* Detect ncurses 6.1+ extended-color API (init_extended_pair,
+   init_extended_color). These declarations appear in curses.h
+   from ncurses 6.1 onward regardless of how the library was
+   configured (the NCURSES_EXT_COLORS define is a separate axis
+   that only controls whether NCURSES_PAIRS_T is short vs int,
+   not whether the functions exist). Gate on the version macros
+   so older ncurses and PDCurses fall back to plain init_pair();
+   the 16/256-palette path still works in either case */
+#if defined(NCURSES_VERSION_MAJOR)                                    \
+    && (NCURSES_VERSION_MAJOR > 6                                     \
+        || (NCURSES_VERSION_MAJOR == 6 && NCURSES_VERSION_MINOR >= 1))
+# define NH_NCURSES_EXT_COLORS 1
+#else
+# define NH_NCURSES_EXT_COLORS 0
+#endif
+
 /* Global declarations */
 
 int curses_getch(void);

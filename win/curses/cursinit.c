@@ -309,7 +309,7 @@ curses_init_nhcolors()
            rather than a palette slot index. nh_init_pair() handles
            the translation; flag it here so all callers route
            through the wrapper consistently */
-#ifdef NCURSES_VERSION
+#if NH_NCURSES_EXT_COLORS
         curses_direct_color = (tigetflag("RGB") > 0);
 #endif
 
@@ -391,9 +391,10 @@ curses_init_nhcolors()
          * init_extended_color above 255 -- the env probe says
          * truecolor but the API can't honor it without raw SGR
          * escapes (which would fight ncurses screen tracking).
-         * PDCurses (no NCURSES_VERSION) lacks the extended-color
-         * API entirely */
-#ifdef NCURSES_VERSION
+         * Pre-6.1 ncurses and PDCurses lack the init_extended_*
+         * API; NH_NCURSES_EXT_COLORS is 0 on those builds and the
+         * entire truecolor branch collapses out */
+#if NH_NCURSES_EXT_COLORS
         if (COLORS <= 256 || tigetflag("RGB") <= 0)
             windowprocs.wincap2 &= ~WC2_TRUECOLOR;
 #else

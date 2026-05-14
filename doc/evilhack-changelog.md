@@ -5375,4 +5375,5 @@ The following changes to date are:
   ncurses/ncursesw
 - Fix: Windows TTY ignores use_darkgray=OFF for CLR_BLACK glyphs
 - Add 24-bit truecolor to ncurses windowport
+- Fix: curses port fails to build on pre-6.1 ncurses and PDCurses
 

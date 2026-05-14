@@ -106,7 +106,7 @@ curses_read_char()
    on PDCurses (lacks tigetflag and the extended-pair API) */
 boolean curses_direct_color = FALSE;
 
-#ifdef NCURSES_VERSION
+#if NH_NCURSES_EXT_COLORS
 /* RGB values for the 16 base ncurses color slots, used by
    nh_init_pair() to translate COLOR_BLACK..COLOR_WHITE (+8 bright
    variants) to packed RGB on direct-color terms. Uses the IBM/VGA
@@ -145,7 +145,7 @@ int idx;
     b = cube_levels[idx % 6];
     return (r << 16) | (g << 8) | b;
 }
-#endif /* NCURSES_VERSION */
+#endif /* NH_NCURSES_EXT_COLORS */
 
 /* Wrapper around init_pair() that handles direct-color terminfo.
    On traditional palette terms (tmux-256color, xterm-256color, ...)
@@ -163,7 +163,7 @@ int pair;
 int fg;
 int bg;
 {
-#ifdef NCURSES_VERSION
+#if NH_NCURSES_EXT_COLORS
     if (curses_direct_color) {
         if (fg >= 0 && fg < 16)
             fg = xterm_base_rgb[fg];
@@ -204,7 +204,7 @@ int color;
     return ext_color_pair[idx]; /* 0 if couldn't allocate */
 }
 
-#ifdef NCURSES_VERSION
+#if NH_NCURSES_EXT_COLORS
 /* 24-bit RGB pair cache. Sits at the top of COLOR_PAIRS (pairs) and
  * the top of COLORS (color slots) so neither collides with init_pair
  * (1..16+bg-hilites) or get_ext_color_pair (129..). Linear scan is
@@ -297,7 +297,7 @@ unsigned long nhcolor;
     tc_cache[slot].pair = next_tc_pair;
     return next_tc_pair++;
 }
-#endif /* NCURSES_VERSION */
+#endif /* NH_NCURSES_EXT_COLORS */
 
 /* Bg-pair cache for #showcolors gradient rendering. The standard
    fg+block path leaves a 1-pixel line-height gap at top and bottom
@@ -329,7 +329,7 @@ int color;
     return ext_color_bg_pair[idx];
 }
 
-#ifdef NCURSES_VERSION
+#if NH_NCURSES_EXT_COLORS
 /* Bg-pair sibling of the truecolor fg cache. Lives in the pair
    range just below the fg cache so neither collides with the other
    nor with the base/status/ext-color allocations. Same setab < 8
@@ -391,7 +391,7 @@ unsigned long nhcolor;
     tc_bg_cache[slot].pair = next_tc_bg_pair;
     return next_tc_bg_pair++;
 }
-#endif /* NCURSES_VERSION */
+#endif /* NH_NCURSES_EXT_COLORS */
 
 /* Turn on or off the specified color and / or attribute */
 
@@ -466,11 +466,13 @@ curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff)
             /* COLOR_PAIR()'s pair index occupies only 8 bits inside
                the chtype (A_COLOR mask). Pair indices above 255 wrap
                or alias when emitted via wattron(COLOR_PAIR(...)); use
-               the NCURSES_PAIRS_T-wide wcolor_set() path instead so
-               the full pair range stays addressable */
+               the wcolor_set() path instead so the full short-width
+               pair range stays addressable. (short) is portable -
+               PDCurses takes short, ncurses' NCURSES_PAIRS_T is short
+               on non-ext-colors builds and int on ext-colors builds
+               where this 256-cube range still fits) */
             if (curses_color > 255)
-                (void) wcolor_set(win, (NCURSES_PAIRS_T) curses_color,
-                                  NULL);
+                (void) wcolor_set(win, (short) curses_color, NULL);
             else
                 wattron(win, COLOR_PAIR(curses_color));
         }
@@ -524,8 +526,7 @@ void
 curses_toggle_color_attr32(WINDOW *win, int color, unsigned long nhcolor,
                            int attr, int onoff)
 {
-#ifdef TEXTCOLOR
-# ifdef NCURSES_VERSION
+#if defined(TEXTCOLOR) && NH_NCURSES_EXT_COLORS
     if (nhcolor && !(nhcolor & NH_BASIC_COLOR)
         && (windowprocs.wincap2 & WC2_TRUECOLOR)
         && ((win == mapwin) ? iflags.wc_color
@@ -546,10 +547,9 @@ curses_toggle_color_attr32(WINDOW *win, int color, unsigned long nhcolor,
         }
         /* cache exhausted, fall through to palette path */
     }
-# endif /* NCURSES_VERSION */
 #else
     nhUse(nhcolor);
-#endif /* TEXTCOLOR */
+#endif /* TEXTCOLOR && NH_NCURSES_EXT_COLORS */
     curses_toggle_color_attr(win, color, attr, onoff);
 }
 
@@ -726,7 +726,7 @@ curses_show_color_palette()
                     rgb = (unsigned long) v;
                     break;
                 }
-#ifdef NCURSES_VERSION
+#if NH_NCURSES_EXT_COLORS
                 {
                     int bg_pair = 0;
 
