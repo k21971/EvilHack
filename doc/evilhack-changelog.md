@@ -5376,4 +5376,5 @@ The following changes to date are:
 - Fix: Windows TTY ignores use_darkgray=OFF for CLR_BLACK glyphs
 - Add 24-bit truecolor to ncurses windowport
 - Fix: curses port fails to build on pre-6.1 ncurses and PDCurses
+- Update comment about TERM xterm-direct/tmux-direct limitations
 

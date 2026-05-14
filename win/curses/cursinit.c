@@ -311,6 +311,26 @@ curses_init_nhcolors()
            through the wrapper consistently */
 #if NH_NCURSES_EXT_COLORS
         curses_direct_color = (tigetflag("RGB") > 0);
+
+        /* Note on colon-RGB direct-color SGR (xterm-direct,
+           tmux-direct): these terminfo entries emit ITU T.416
+           colon-separated direct-color SGR (\E[38:2::R:G:Bm) for
+           values >= 8. Many terminal emulators only parse the
+           semicolon variant (\E[38;2;R;G;Bm) and silently drop the
+           colon form, so the map renders black-and-white on those
+           terminals. Inside tmux this is masked because tmux
+           normalizes the SGR before forwarding to the outer
+           terminal.
+           This cannot be fixed via cur_term capability mutation:
+           ncurses 6.x synthesizes the direct-color SGR internally
+           and does not re-read set_a_foreground/set_a_background
+           after initscr() for the direct-color path (verified
+           empirically by replacing setaf with a garbage string and
+           observing identical output). The user-side workaround is
+           to use a terminfo entry that ships semicolon-RGB
+           direct-color setaf (alacritty-direct, vte-direct,
+           konsole-direct, st-direct, etc., all shipped in
+           Ubuntu 24.04's ncurses-term) instead of xterm-direct */
 #endif
 
         nh_init_pair(1, COLOR_BLACK, -1);
