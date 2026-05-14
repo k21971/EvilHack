@@ -1195,6 +1195,13 @@ term_start_color(int color)
     /* Switching to a basic/extended color clears any active customcolor;
        the customcolor system always emits its own term_start_color32 */
     console.current_nhcustomcolor = 0UL;
+    /* Match win/tty/termcap.c init_hilite(): when use_darkgray is off,
+       render CLR_BLACK as blue for visibility against black background.
+       When on, the existing nhcolor_to_vt256[CLR_BLACK] = 8 (VT) and
+       ttycolors[CLR_BLACK] = FOREGROUND_INTENSITY (legacy) mappings
+       already give dark gray; no substitution needed */
+    if (color == CLR_BLACK && !iflags.wc2_darkgray)
+        color = CLR_BLUE;
     if (color >= 0 && color < CLR_MAX) {
         console.current_nhcolor = color;
     } else if (IS_EXT_COLOR(color)) {

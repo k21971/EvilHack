@@ -5371,4 +5371,7 @@ The following changes to date are:
   tame/peaceful monsters
 - Wizard forging the artifact Glamdring skill changes
 - Thread the attacker through hitval(), dmgval(), ohitmon(), omon_adj()
+- Fix: curswins.c fails to compile on distros with split
+  ncurses/ncursesw
+- Fix: Windows TTY ignores use_darkgray=OFF for CLR_BLACK glyphs
 
