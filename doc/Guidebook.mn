@@ -48,7 +48,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 March 28, 2026
+.ds f2 May 14, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -3811,15 +3811,17 @@ mouse clicks on the map window.  Persistent.
 ." Display intended path during each step of travel (default off).
 ." Debug mode only.
 .lp truecolor
-Allow the tty and Windows VT renderers to emit 24-bit RGB escape
-sequences for
+Allow the tty, curses, and Windows VT renderers to emit 24-bit RGB
+escape sequences for
 .op CUSTOMCOLOR
 entries when the terminal advertises truecolor support
 (\f(CRCOLORTERM=truecolor\fP, \f(CRCOLORTERM=24bit\fP, or a
 \f(CR*-direct\fP / \f(CR*-truecolor\fP \f(CRTERM\fP).
 Default is on.
-The curses interface does not emit 24-bit; customcolor entries fall
-back to the nearest 256-palette match instead.
+The curses interface additionally requires ncurses 6.1 or later and
+a TERM advertising the RGB terminfo capability (e.g.
+\f(CRxterm-direct\fP, \f(CRtmux-direct\fP); on terminals without RGB
+terminfo, curses falls back to the nearest 256-palette match.
 .lp verbose
 Provide more commentary during the game (default on).  Persistent.
 .lp whatis_coord
@@ -4535,8 +4537,8 @@ CUSTOMCOLOR=mon:newt/bright-green
 .pg
 On terminals that advertise truecolor, RGB customcolors are emitted as
 \f(CR\\033[38;2;R;G;Bm\fP escapes.
-On 256-color terminals (or in the curses windowport), each entry falls
-back to its nearest 256-palette match.
+On 256-color terminals, each entry falls back to its nearest 256-palette
+match.
 On legacy 16-color terminals, the 256 match further collapses to the
 nearest base color.
 .pg

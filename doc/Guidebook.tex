@@ -45,7 +45,7 @@
 %.au
 \author{Original version - Eric S. Raymond\\
 (Edited and expanded for EvilHack by Keith Simpson and others)}
-\date{March 28, 2026}
+\date{May 14, 2026}
 
 \maketitle
 
@@ -4152,13 +4152,16 @@ mouse clicks on the map window.  Persistent.
 % Debug mode only.
 %.lp
 \item[\ib{truecolor}]
-Allow the tty and Windows VT renderers to emit 24-bit RGB escape
-sequences for {\tt CUSTOMCOLOR} entries when the terminal advertises
-truecolor support ({\tt COLORTERM=truecolor}, {\tt COLORTERM=24bit}, or
-a {\tt *-direct} / {\tt *-truecolor} {\tt TERM}).
+Allow the tty, curses, and Windows VT renderers to emit 24-bit RGB
+escape sequences for {\tt CUSTOMCOLOR} entries when the terminal
+advertises truecolor support ({\tt COLORTERM=truecolor},
+{\tt COLORTERM=24bit}, or a {\tt *-direct} / {\tt *-truecolor}
+{\tt TERM}).
 Default is on.
-The curses interface does not emit 24-bit; customcolor entries fall
-back to the nearest 256-palette match instead.
+The curses interface additionally requires ncurses 6.1 or later and
+a TERM advertising the RGB terminfo capability (e.g.
+{\tt xterm-direct}, {\tt tmux-direct}); on terminals without RGB
+terminfo, curses falls back to the nearest 256-palette match.
 %.lp
 \item[\ib{verbose}]
 Provide more commentary during the game (default on).  Persistent.
@@ -4995,8 +4998,8 @@ Examples:
 %.pg
 On terminals that advertise truecolor, RGB customcolors are emitted as
 \verb+\033[38;2;R;G;Bm+ escapes.
-On 256-color terminals (or in the curses windowport), each entry falls
-back to its nearest 256-palette match.
+On 256-color terminals, each entry falls back to its nearest 256-palette
+match.
 On legacy 16-color terminals, the 256 match further collapses to the
 nearest base color.
 
