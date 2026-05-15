@@ -504,19 +504,26 @@ boolean on, silently;
         case TELEPAT:
             mon->mextrinsics |= MR2_TELEPATHY;
             break;
-        case LEVITATION:
+        case LEVITATION: {
+            boolean was_levitating = can_levitate(mon);
+
             mon->mextrinsics |= MR2_LEVITATE;
-            if (!unseen)
+            if (!unseen && !was_levitating)
                 pline("%s starts to float in the air!", Monnam(mon));
             break;
+        }
         case FREE_ACTION:
             mon->mextrinsics |= MR2_FREE_ACTION;
             break;
-        case FLYING:
+        case FLYING: {
+            boolean could_fly = (is_flyer(mon->data) || is_floater(mon->data)
+                                 || can_levitate(mon) || can_fly(mon));
+
             mon->mextrinsics |= MR2_FLY;
-            if (!unseen)
+            if (!unseen && !could_fly)
                 pline("%s starts to fly!", Monnam(mon));
             break;
+        }
         /* properties handled elsewhere */
         case ANTIMAGIC:
         case REFLECTING:
@@ -576,7 +583,7 @@ boolean on, silently;
             break;
         case LEVITATION:
             mon->mextrinsics &= ~(MR2_LEVITATE);
-            if (!unseen)
+            if (!unseen && !can_levitate(mon))
                 pline("%s floats gently back to the %s.",
                       Monnam(mon), surface(mon->mx, mon->my));
             break;
@@ -585,7 +592,9 @@ boolean on, silently;
             break;
         case FLYING:
             mon->mextrinsics &= ~(MR2_FLY);
-            if (!unseen)
+            if (!unseen
+                && !(is_flyer(mon->data) || is_floater(mon->data)
+                     || can_levitate(mon) || can_fly(mon)))
                 pline("%s lands on the %s.",
                       Monnam(mon), surface(mon->mx, mon->my));
             break;
