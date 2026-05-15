@@ -791,6 +791,13 @@ struct monst *mtmp;
             set_apparxy(mtmp);
             newsym(u.ux, u.uy);
 
+            /* mtmp was relocated onto the hero's vacated tile; if it
+               was a hidden hides_under/eel/leech monster its previous
+               concealment may not exist here -- re-validate so it is
+               not left "hiding under nonexistent obj" */
+            maybe_unhide_at(mtmp->mx, mtmp->my);
+            newsym(mtmp->mx, mtmp->my);
+
             if (youmonst.data->mlet != S_PIERCER)
                 return MM_MISS; /* lurkers don't attack */
 
