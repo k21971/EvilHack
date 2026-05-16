@@ -2397,7 +2397,8 @@ boolean tinitial, tfrom_file;
         if (negated) {
             bad_negation(fullname, FALSE);
             return FALSE;
-        } else if ((op = string_for_env_opt(fullname, opts, FALSE)) != 0) {
+        } else if ((op = string_for_env_opt(fullname, opts, FALSE))
+                                            != empty_optstr) {
             nmcpy(pseudoname, op, PL_PSIZ);
         } else
             return FALSE;
@@ -2412,7 +2413,8 @@ boolean tinitial, tfrom_file;
         if (negated) {
             bad_negation(fullname, FALSE);
             return FALSE;
-        } else if ((op = string_for_env_opt(fullname, opts, FALSE)) != 0) {
+        } else if ((op = string_for_env_opt(fullname, opts, FALSE))
+                                            != empty_optstr) {
             nmcpy(ratname, op, PL_PSIZ);
         } else
             return FALSE;
@@ -2427,7 +2429,8 @@ boolean tinitial, tfrom_file;
         if (negated) {
             bad_negation(fullname, FALSE);
             return FALSE;
-        } else if ((op = string_for_env_opt(fullname, opts, FALSE)) != 0) {
+        } else if ((op = string_for_env_opt(fullname, opts, FALSE))
+                                            != empty_optstr) {
             nmcpy(spidername, op, PL_PSIZ);
         } else
             return FALSE;
@@ -6326,8 +6329,8 @@ char *buf;
     } else if (!strcmp(optname, "windowtype")) {
         Sprintf(buf, "%s", windowprocs.name);
     } else if (!strcmp(optname, "windowcolors")) {
-        Sprintf(
-            buf, "%s/%s %s/%s %s/%s %s/%s",
+        (void) snprintf(
+            buf, BUFSZ, "%s/%s %s/%s %s/%s %s/%s",
             iflags.wc_foregrnd_menu ? iflags.wc_foregrnd_menu : defbrief,
             iflags.wc_backgrnd_menu ? iflags.wc_backgrnd_menu : defbrief,
             iflags.wc_foregrnd_message ? iflags.wc_foregrnd_message

@@ -5384,4 +5384,5 @@ The following changes to date are:
 - Fix: harden quest pager against bad role data and corrupt quest.dat
 - Fix: buffer overflow in update_topl()
 - Fix: cmd.c here-menu ladder label, #wizmakemap migrants, hardening
+- Fix: bound windowcolors menu display; restore pet-name check
 
