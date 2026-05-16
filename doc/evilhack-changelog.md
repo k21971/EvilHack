@@ -5382,4 +5382,5 @@ The following changes to date are:
 - Fix: suppress bogus flight/levitation messages for airborne monsters
 - Fix: sounds.c review fixes
 - Fix: harden quest pager against bad role data and corrupt quest.dat
+- Fix: buffer overflow in update_topl()
 
