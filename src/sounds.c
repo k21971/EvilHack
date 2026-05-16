@@ -643,7 +643,8 @@ struct monst *mtmp;
     if (mtmp->m_id == quest_status.leader_m_id && msound > MS_ANIMAL)
         msound = MS_LEADER;
     /* make sure it's your role's quest guardian; adjust if not */
-    else if (msound == MS_GUARDIAN && ptr != &mons[urole.guardnum])
+    else if (msound == MS_GUARDIAN && urole.guardnum != NON_PM
+             && ptr != &mons[urole.guardnum])
         msound = mons[genus(monsndx(ptr), 1)].msound;
     /* some normally non-speaking types can/will speak if hero is similar */
     else if (msound == MS_ORC         /* note: MS_ORC is same as MS_GRUNT */
@@ -1241,7 +1242,7 @@ struct monst *mtmp;
             long gdemand = 500 * u.ulevel;
             long goffer = 0;
 
-    	    if (!mtmp->mpeaceful && !mtmp->mtame) {
+            if (!mtmp->mpeaceful && !mtmp->mtame) {
                 if (!money_cnt(invent)) { /* can't bribe with no money */
                     mtmp->mspec_used = 1000;
                     break;
@@ -1250,8 +1251,8 @@ struct monst *mtmp;
                       Amonnam(mtmp), gdemand, currency(gdemand));
                 if ((goffer = bribe(mtmp)) >= gdemand) {
                     verbl_msg = "Good.  Now beat it, scum!";
-            	    mtmp->mpeaceful = 1;
-            	    set_malign(mtmp);
+                    mtmp->mpeaceful = 1;
+                    set_malign(mtmp);
                     break;
                 } else {
                     pline("I said %ld!", gdemand);
@@ -1260,6 +1261,7 @@ struct monst *mtmp;
                 }
             } else {
                 verbl_msg = "Out of my way, scum!"; /* still a jerk */
+                break;
             }
         } else if (mtmp->mpeaceful && !mtmp->mtame) {
             (void) demon_talk(mtmp);
@@ -1492,6 +1494,8 @@ dochat()
     if (Role_if(PM_DRUID) && u.ulevel > 2
         && is_woodland_creature(mtmp->data)) {
         if (!mtmp->mtame) {
+            if (!canspotmon(mtmp))
+                map_invisible(mtmp->mx, mtmp->my);
             You("speak with the %s in its native tongue...",
                 l_monnam(mtmp));
             if (rnl(20) < 2) {
@@ -1521,6 +1525,8 @@ dochat()
        other races */
     if (Race_if(PM_DRAUGR) && mtmp->mtame
         && is_skeletal_pet(mtmp->data)) {
+        if (!canspotmon(mtmp))
+            map_invisible(mtmp->mx, mtmp->my);
         if (mtmp->mtame >= 20) {
             pline("%s is already wholly bound to your will.",
                   Monnam(mtmp));
@@ -1548,6 +1554,8 @@ dochat()
     if ((Role_if(PM_CONVICT) && is_rat(mtmp->data))
         || (Race_if(PM_DRAUGR) && is_zombie(mtmp->data))) {
         if (!mtmp->mpeaceful) {
+            if (!canspotmon(mtmp))
+                map_invisible(mtmp->mx, mtmp->my);
             if (Role_if(PM_CONVICT))
                 You("attempt to soothe the %s with chittering sounds...",
                     l_monnam(mtmp));

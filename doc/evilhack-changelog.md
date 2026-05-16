@@ -5380,4 +5380,5 @@ The following changes to date are:
 - Note curses 24-bit truecolor support in Guidebook
 - Fix: clear monster hide-state after piercer-drop position swap
 - Fix: suppress bogus flight/levitation messages for airborne monsters
+- Fix: sounds.c review fixes
 
