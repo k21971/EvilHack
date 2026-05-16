@@ -687,7 +687,8 @@ extcmd_via_menu()
             add_menu(win, NO_GLYPH, &any, any.a_char, 0, ATR_NONE, buf,
                      FALSE);
         }
-        Sprintf(prompt, "Extended Command: %s", cbuf);
+        Sprintf(prompt, "Extended Command: %.*s",
+                (int) (sizeof prompt - sizeof "Extended Command: "), cbuf);
         end_menu(win, prompt);
         n = select_menu(win, PICK_ONE, &pick_list);
         destroy_nhwindow(win);
@@ -893,6 +894,48 @@ wiz_makemap(VOID_ARGS)
         /* keep steed and other adjacent pets after releasing them
            from traps, stopping eating, &c as if hero were ascending */
         keepdogs(TRUE); /* (pets-only; normally we'd be using 'FALSE' here) */
+
+        /* Shopkeepers, priests, and vault guards keep this level's
+           coordinates in mon->mextra. Any such monster that has
+           migrated away (or been parked elsewhere) but is tied to
+           the level being replaced must be discarded now; otherwise
+           it migrates back with a stale shop/shrine/vault reference
+           into the regenerated level. Splice it off migrating_mons
+           and onto fmon so savelev(FREE_SAVE) frees it and the purge
+           bookkeeping stays in sync. Idiom mirrors losedogs() */
+        {
+            struct monst *mnext, *mprev;
+
+            for (mtmp = migrating_mons; mtmp; mtmp = mnext) {
+                mnext = mtmp->nmon;
+                if (mtmp->mextra
+                    && ((mtmp->isshk
+                         && on_level(&u.uz, &ESHK(mtmp)->shoplevel))
+                        || (mtmp->ispriest
+                            && on_level(&u.uz, &EPRI(mtmp)->shrlevel))
+                        || (mtmp->isgd
+                            && on_level(&u.uz, &EGD(mtmp)->gdlevel)))) {
+                    if (mtmp == migrating_mons) {
+                        migrating_mons = mtmp->nmon;
+                    } else {
+                        for (mprev = migrating_mons; mprev;
+                             mprev = mprev->nmon)
+                            if (mprev->nmon == mtmp) {
+                                mprev->nmon = mtmp->nmon;
+                                break;
+                            }
+                    }
+                    mtmp->mstate &= ~MON_MIGRATING;
+                    mtmp->nmon = fmon;
+                    fmon = mtmp;
+                    if (mtmp->isgd)
+                        mtmp->isgd = 0; /* let mongone() proceed */
+                    else if (mtmp->isshk)
+                        setpaid(mtmp);
+                    mongone(mtmp);
+                }
+            }
+        }
 
         /* discard current level; "saving" is used to release dynamic data */
         savelev(-1, ledger_no(&u.uz), FREE_SAVE);
@@ -3448,12 +3491,13 @@ int final;
                     || (u.twoweap && (otmp->owornmask & W_SWAPWEP)))
                 && has_glow_warning(otmp)) {
                 int i;
+                int gw = has_glow_warning(otmp);
                 for (i = 0; i < 32; i++) {
                     long raceflag = 1L << i;
                     /* Artifacts let you know they are responsible even in non-Wizard mode. */
-                    if (has_glow_warning(otmp) & raceflag) {
+                    if (gw & raceflag) {
                         /* skip zombie-specific message if all undead are warned of */
-                        if (raceflag == MH_ZOMBIE && (has_glow_warning(otmp) & MH_UNZOMBIE))
+                        if (raceflag == MH_ZOMBIE && (gw & MH_UNZOMBIE))
                             continue;
                         Sprintf(buf, "aware of the presence of %s because of ",
                             makeplural(mon_race_name(i)));
@@ -5959,8 +6003,13 @@ char *cmd;
         char c, c1 = cmd[1];
 
         expcmd[0] = '\0';
-        while ((c = *cmd++) != '\0')
-            Strcat(expcmd, visctrl(c)); /* add 1..4 chars plus terminator */
+        while ((c = *cmd++) != '\0') {
+            const char *vc = visctrl(c); /* 1..4 chars plus terminator */
+
+            if (strlen(expcmd) + strlen(vc) + 1 > sizeof expcmd)
+                break;
+            Strcat(expcmd, vc);
+        }
 
         if (!prefix_seen || !help_dir(c1, spkey, "Invalid direction key!"))
             Norep("Unknown command '%s'.", expcmd);
@@ -6562,7 +6611,7 @@ boolean doit;
         || (u.ux == sstairs.sx && u.uy == sstairs.sy && !sstairs.up)
         || (u.ux == xdnladder && u.uy == ydnladder)) {
         Sprintf(buf, "Go down the %s",
-                (u.ux == xupladder && u.uy == yupladder)
+                (u.ux == xdnladder && u.uy == ydnladder)
                 ? "ladder" : "stairs");
         add_herecmd_menuitem(win, dodown, buf);
     }

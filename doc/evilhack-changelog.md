@@ -5383,4 +5383,5 @@ The following changes to date are:
 - Fix: sounds.c review fixes
 - Fix: harden quest pager against bad role data and corrupt quest.dat
 - Fix: buffer overflow in update_topl()
+- Fix: cmd.c here-menu ladder label, #wizmakemap migrants, hardening
 
