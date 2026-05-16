@@ -11,6 +11,11 @@
 
 #define QTEXT_FILE "quest.dat"
 
+/* sanity cap on the file-supplied per-class message count; must track
+   N_MSG in qtext.h, which is visible only to makedefs (the generator
+   that enforces this same limit when building quest.dat) */
+#define QT_MSG_MAX 100
+
 #ifdef TTY_GRAPHICS
 #include "wintty.h"
 #endif
@@ -29,6 +34,7 @@ STATIC_DCL const char *NDECL(homebase);
 STATIC_DCL void FDECL(qtext_pronoun, (CHAR_P, CHAR_P));
 STATIC_DCL struct qtmsg *FDECL(msg_in, (struct qtmsg *, int));
 STATIC_DCL void FDECL(convert_arg, (CHAR_P));
+STATIC_DCL char *FDECL(qt_append, (char *, char *, const char *));
 STATIC_DCL void FDECL(convert_line, (char *,char *));
 STATIC_DCL void FDECL(deliver_by_pline, (struct qtmsg *));
 STATIC_DCL void FDECL(deliver_by_window, (struct qtmsg *, int));
@@ -83,6 +89,9 @@ long hdr_offset;
 
     (void) dlb_fseek(msg_file, hdr_offset, SEEK_SET);
     Fread(&n_msgs, sizeof(int), 1, msg_file);
+    if (n_msgs < 0 || n_msgs > QT_MSG_MAX)
+        panic("construct_qtlist: bogus quest message count %d (max %d)",
+              n_msgs, QT_MSG_MAX);
     msg_list = (struct qtmsg *) alloc((unsigned) (n_msgs + 1)
                                       * sizeof (struct qtmsg));
 
@@ -113,6 +122,9 @@ load_qtlist()
      */
 
     Fread(&n_classes, sizeof (int), 1, msg_file);
+    if (n_classes < 1 || n_classes > N_HDR)
+        panic("load_qtlist: bogus quest text class count %d (max %d)",
+              n_classes, N_HDR);
     Fread(&qt_classes[0][0], sizeof (char) * LEN_HDR, n_classes, msg_file);
     Fread(qt_offsets, sizeof (long), n_classes, msg_file);
 
@@ -177,9 +189,18 @@ const char *
 ldrname()
 {
     int i = urole.ldrnum;
+    const char *nm, *pfx;
 
-    Sprintf(nambuf, "%s%s", type_is_pname(&mons[i]) ? "" : "the ",
-            mons[i].mname);
+    if (i != NON_PM) {
+        pfx = type_is_pname(&mons[i]) ? "" : "the ";
+        nm = mons[i].mname;
+        if (strlen(pfx) + strlen(nm) < sizeof nambuf) {
+            Sprintf(nambuf, "%s%s", pfx, nm);
+            return nambuf;
+        }
+        impossible("quest leader name too long (%s)", nm);
+    }
+    Strcpy(nambuf, "the quest leader");
     return nambuf;
 }
 
@@ -257,9 +278,18 @@ STATIC_OVL const char *
 neminame()
 {
     int i = urole.neminum;
+    const char *nm, *pfx;
 
-    Sprintf(nambuf, "%s%s", type_is_pname(&mons[i]) ? "" : "the ",
-            mons[i].mname);
+    if (i != NON_PM) {
+        pfx = type_is_pname(&mons[i]) ? "" : "the ";
+        nm = mons[i].mname;
+        if (strlen(pfx) + strlen(nm) < sizeof nambuf) {
+            Sprintf(nambuf, "%s%s", pfx, nm);
+            return nambuf;
+        }
+        impossible("quest nemesis name too long (%s)", nm);
+    }
+    Strcpy(nambuf, "the quest nemesis");
     return nambuf;
 }
 
@@ -268,6 +298,8 @@ guardname() /* return your role leader's guard monster name */
 {
     int i = urole.guardnum;
 
+    if (i == NON_PM)
+        return "the quest guardian";
     return mons[i].mname;
 }
 
@@ -428,6 +460,20 @@ char c;
     Strcpy(cvt_buf, str);
 }
 
+/* append s at cc within out (a BUFSZ buffer); cc always addresses a
+   NUL on entry. Panic rather than overrun out[]; return the updated
+   write point, used by convert_line() for exact per-append bounds */
+STATIC_OVL char *
+qt_append(cc, out, s)
+char *cc, *out;
+const char *s;
+{
+    if (cc + strlen(s) >= &out[BUFSZ])
+        panic("convert_line: overflow");
+    Strcat(cc, s);
+    return cc + strlen(s);
+}
+
 STATIC_OVL void
 convert_line(in_line, out_line)
 char *in_line, *out_line;
@@ -441,6 +487,8 @@ char *in_line, *out_line;
         switch (*c) {
         case '\r':
         case '\n':
+            if (cc + 1 >= &out_line[BUFSZ])
+                panic("convert_line: overflow");
             *(++cc) = 0;
             return;
 
@@ -450,12 +498,10 @@ char *in_line, *out_line;
                 switch (*(++c)) {
                 /* insert "a"/"an" prefix */
                 case 'A':
-                    Strcat(cc, An(cvt_buf));
-                    cc += strlen(cc);
+                    cc = qt_append(cc, out_line, An(cvt_buf));
                     continue; /* for */
                 case 'a':
-                    Strcat(cc, an(cvt_buf));
-                    cc += strlen(cc);
+                    cc = qt_append(cc, out_line, an(cvt_buf));
                     continue; /* for */
 
                 /* capitalize */
@@ -496,8 +542,7 @@ char *in_line, *out_line;
                 /* strip any "the" prefix */
                 case 't':
                     if (!strncmpi(cvt_buf, "the ", 4)) {
-                        Strcat(cc, &cvt_buf[4]);
-                        cc += strlen(cc);
+                        cc = qt_append(cc, out_line, &cvt_buf[4]);
                         continue; /* for */
                     }
                     break;
@@ -506,12 +551,13 @@ char *in_line, *out_line;
                     --c; /* undo switch increment */
                     break;
                 }
-                Strcat(cc, cvt_buf);
-                cc += strlen(cvt_buf);
+                cc = qt_append(cc, out_line, cvt_buf);
                 break;
             } /* else fall through */
 
         default:
+            if (cc + 1 >= &out_line[BUFSZ])
+                panic("convert_line: overflow");
             *cc++ = *c;
             break;
         }
@@ -531,7 +577,8 @@ struct qtmsg *qt_msg;
 
     *in_line = '\0';
     for (size = 0; size < qt_msg->size; size += (long) strlen(in_line)) {
-        (void) dlb_fgets(in_line, sizeof in_line, msg_file);
+        if (!dlb_fgets(in_line, sizeof in_line, msg_file))
+            break;
         convert_line(in_line, out_line);
         pline("%s", out_line);
     }
@@ -561,7 +608,8 @@ int how;
     }
 #endif
     for (size = 0; size < qt_msg->size; size += (long) strlen(in_line)) {
-        (void) dlb_fgets(in_line, sizeof in_line, msg_file);
+        if (!dlb_fgets(in_line, sizeof in_line, msg_file))
+            break;
         convert_line(in_line, out_line);
         putstr(datawin, 0, out_line);
     }
@@ -572,8 +620,8 @@ int how;
        but have a one-line summary which is put there for ^P recall */
     *out_line = '\0';
     if (qt_msg->summary_size) {
-        (void) dlb_fgets(in_line, sizeof in_line, msg_file);
-        convert_line(in_line, out_line);
+        if (dlb_fgets(in_line, sizeof in_line, msg_file))
+            convert_line(in_line, out_line);
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
     } else if (qt_msg->delivery == 'c') { /* skip for 'qtdump' of 'p' */
         /* delivery 'c' and !summary_size, summary expected but not present;

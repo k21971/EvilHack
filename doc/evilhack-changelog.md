@@ -5381,4 +5381,5 @@ The following changes to date are:
 - Fix: clear monster hide-state after piercer-drop position swap
 - Fix: suppress bogus flight/levitation messages for airborne monsters
 - Fix: sounds.c review fixes
+- Fix: harden quest pager against bad role data and corrupt quest.dat
 
