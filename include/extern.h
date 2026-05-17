@@ -1861,6 +1861,7 @@ E int FDECL(use_offensive, (struct monst *));
 E int FDECL(rnd_offensive_item, (struct monst *));
 E boolean FDECL(find_misc, (struct monst *));
 E int FDECL(use_misc, (struct monst *));
+E boolean FDECL(mon_wants_spellbook, (struct monst *, struct obj *));
 E int FDECL(rnd_misc_item, (struct monst *));
 E boolean FDECL(searches_for_item, (struct monst *, struct obj *));
 E boolean FDECL(mon_reflects, (struct monst *, const char *));

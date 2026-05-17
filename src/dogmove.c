@@ -119,6 +119,8 @@ boolean check_if_better, stashing;
                  || would_prefer_rwep(mtmp, otmp)))
              /* ammo for any launcher monster has (pets pick up opportunistically) */
              || mon_wants_ammo(mtmp, otmp)
+             /* learnable / in-progress spellbook for a spellcaster */
+             || mon_wants_spellbook(mtmp, otmp)
              /* better armor */
              || (otmp->oclass == ARMOR_CLASS
                  && (!check_if_better || is_better_armor(mtmp, otmp)))

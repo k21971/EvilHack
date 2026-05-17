@@ -5386,4 +5386,5 @@ The following changes to date are:
 - Fix: cmd.c here-menu ladder label, #wizmakemap migrants, hardening
 - Fix: bound windowcolors menu display; restore pet-name check
 - Print detach caller, address, and movemon-pass in dmonsfree mismatch
+- Fix: spellcasting pets drop and re-read the same spellbook in a loop
 

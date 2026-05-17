@@ -3328,6 +3328,30 @@ int otyp;
     return (struct obj *) 0;
 }
 
+/* Does this spellcasting monster want to keep/pick up this spellbook?
+   TRUE if it can still learn the spell, or is partway through reading
+   this exact book (so a transient stun/threat doesn't make it drop a
+   read in progress). Mirrors mon_wants_ammo() */
+boolean
+mon_wants_spellbook(mtmp, otmp)
+struct monst *mtmp;
+struct obj *otmp;
+{
+    if (!otmp || otmp->oclass != SPBOOK_CLASS)
+        return FALSE;
+    if (!is_spellcaster(mtmp))
+        return FALSE;
+    if (mcan_learn_spell(mtmp, otmp))
+        return TRUE;
+    /* keep a book a read is in progress on even if mcan_learn_spell()
+       transiently fails (e.g. brief stun/confusion) so the pet can
+       resume instead of dropping and restarting */
+    if (has_emsp(mtmp) && EMSP(mtmp)->msp_reading != 0
+        && EMSP(mtmp)->msp_reading == otmp->otyp)
+        return TRUE;
+    return FALSE;
+}
+
 boolean
 find_misc(mtmp)
 struct monst *mtmp;
