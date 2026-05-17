@@ -1524,11 +1524,19 @@ mcalcdistress()
     }
 }
 
+/* counts movemon() invocations (multiple per hero turn; see
+   allmain.c do/while); recorded in recent_detaches[].mm_seq so
+   same-turn detaches across separate movemon() passes are
+   distinguishable */
+static long movemon_callctr = 0;
+
 int
 movemon()
 {
     struct monst *mtmp, *nmtmp;
     boolean somebody_can_move = FALSE;
+
+    movemon_callctr++;
 
     /*
      * Some of you may remember the former assertion here that
@@ -3493,6 +3501,7 @@ static struct {
     long turn;
     void* mon_addr;      /* Monster memory address for reuse detection */
     unsigned int m_id;   /* Monster ID to distinguish individuals */
+    long mm_seq;         /* movemon() call counter at detach time */
 } recent_detaches[MAX_DETACH_TRACK];
 static int detach_idx = 0;
 
@@ -3553,7 +3562,7 @@ dmonsfree()
     }
 
     if (count != iflags.purge_monsters) {
-        char msgbuf[BUFSZ * 3];
+        char msgbuf[BUFSZ * 6];
         int living_detached = 0, dead_not_freed = 0, dead_detached_not_freed = 0;
         int total_mons = 0;
         struct monst *mon;
@@ -3631,12 +3640,16 @@ dmonsfree()
             for (i = 0; i < MAX_DETACH_TRACK && shown < 5; i++) {
                 idx = (start - i + MAX_DETACH_TRACK) % MAX_DETACH_TRACK;
                 if (recent_detaches[idx].mname[0]) {
-                    Sprintf(eos(msgbuf), " %s(%d,%d)#%u@%ld",
+                    Sprintf(eos(msgbuf),
+                            " %s(%d,%d)#%u@%ld mm#%ld by %p addr=%p",
                             recent_detaches[idx].mname,
                             recent_detaches[idx].x,
                             recent_detaches[idx].y,
                             recent_detaches[idx].m_id,
-                            recent_detaches[idx].turn);
+                            recent_detaches[idx].turn,
+                            recent_detaches[idx].mm_seq,
+                            recent_detaches[idx].caller,
+                            recent_detaches[idx].mon_addr);
                     shown++;
                 }
             }
@@ -3677,13 +3690,18 @@ dmonsfree()
             }
             if (found)
                 Sprintf(eos(msgbuf),
-                        " [mid#%u FOUND on %s (%d,%d) hp=%d]",
+                        " [mid#%u FOUND on %s (%d,%d) hp=%d detached by %p mm#%ld addr=%p]",
                         target_id, where, found->mx,
-                        found->my, found->mhp);
+                        found->my, found->mhp,
+                        recent_detaches[ridx].caller,
+                        recent_detaches[ridx].mm_seq,
+                        recent_detaches[ridx].mon_addr);
             else if (target_id)
                 Sprintf(eos(msgbuf),
-                        " [mid#%u NOT FOUND any list]",
-                        target_id);
+                        " [mid#%u NOT FOUND any list, detached by %p mm#%ld addr=%p]",
+                        target_id, recent_detaches[ridx].caller,
+                        recent_detaches[ridx].mm_seq,
+                        recent_detaches[ridx].mon_addr);
         }
 
         impossible("%s", msgbuf);
@@ -3972,12 +3990,13 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
         for (i = 0; i < MAX_DETACH_TRACK; i++) {
             int idx = (detach_idx + i) % MAX_DETACH_TRACK;
             if (recent_detaches[idx].mname[0]) {
-                Sprintf(tmpbuf, "[%d] %s at (%d,%d) HP:%d/%d addr:%p id:%u by %p turn:%ld",
+                Sprintf(tmpbuf, "[%d] %s at (%d,%d) HP:%d/%d addr:%p id:%u by %p turn:%ld mm:%ld",
                         i + 1, recent_detaches[idx].mname,
                         recent_detaches[idx].x, recent_detaches[idx].y,
                         recent_detaches[idx].hp, recent_detaches[idx].maxhp,
                         recent_detaches[idx].mon_addr, recent_detaches[idx].m_id,
-                        recent_detaches[idx].caller, recent_detaches[idx].turn);
+                        recent_detaches[idx].caller, recent_detaches[idx].turn,
+                        recent_detaches[idx].mm_seq);
 
                 /* Enhanced detection using both m_id and address */
                 if (recent_detaches[idx].m_id == mtmp->m_id) {
@@ -4016,6 +4035,7 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
     recent_detaches[detach_idx].turn = moves;
     recent_detaches[detach_idx].mon_addr = (void *)mtmp;
     recent_detaches[detach_idx].m_id = mtmp->m_id;
+    recent_detaches[detach_idx].mm_seq = movemon_callctr;
 
     detach_idx = (detach_idx + 1) % MAX_DETACH_TRACK;
 
