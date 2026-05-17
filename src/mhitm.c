@@ -2286,6 +2286,20 @@ post_stone:
             }
         }
         break;
+    case AD_GOLD:
+        tmp = 0;
+        if (magr->mcan || rn2(3))
+            break;
+        obj = rnd_gold_touch_obj(mdef->minvent);
+        if (obj) {
+            if (vis && canseemon(mdef)) {
+                Strcpy(buf, s_suffix(mon_nam(mdef)));
+                pline("%s touch turns %s %s to solid gold!",
+                      s_suffix(Monnam(magr)), buf, simpleonames(obj));
+            }
+            set_material(obj, GOLD);
+        }
+        break;
     case AD_DRLI:
         if (!cancelled && !rn2(3)
             && !(resists_drli(mdef) || defended(mdef, AD_DRLI))) {

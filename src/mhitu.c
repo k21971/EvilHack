@@ -2309,6 +2309,30 @@ struct attack *mattk;
             stealgold(mtmp);
         break;
 
+    case AD_GOLD: {
+        struct obj *gobj;
+
+        hitmsg(mtmp, mattk);
+        if (!(mtmp->mcan || Hidinshell)) {
+            if (!rn2(3)) {
+                gobj = rnd_gold_touch_obj(invent);
+                if (gobj) {
+                    if (!Blind)
+                        pline("%s reaches out with a glittering %s!",
+                              Monnam(mtmp), mbodypart(mtmp, HAND));
+                    (void) material_to_gold(gobj);
+                } else if (!Blind) {
+                    pline("%s's %s glints, but finds nothing to transmute.",
+                          Monnam(mtmp), mbodypart(mtmp, HAND));
+                }
+            }
+            if (!rn2(4))
+                croesus_grab_gold(mtmp);
+        }
+        dmg = 0;
+        break;
+    }
+
     case AD_SSEX:
         if (SYSOPT_SEDUCE) {
             if (could_seduce(mtmp, &youmonst, mattk) == 1

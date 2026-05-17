@@ -95,7 +95,8 @@
 #define AD_SPEL 57  /* random magic spell */
 #define AD_RBRE 58  /* random breath weapon */
 #define AD_SAMU 59  /* hits, may steal Amulet (Wizard) */
-#define LAST_AD AD_SAMU
+#define AD_GOLD 60  /* transmutes an inventory item to gold (Croesus) */
+#define LAST_AD AD_GOLD
 
 /*
  *  Monster to monster attacks.  When a monster attacks another (mattackm),

@@ -3418,6 +3418,13 @@ int specialdmg; /* blessed and/or silver bonus against various things */
         exercise(A_DEX, TRUE);
         tmp = 0;
         break;
+    case AD_GOLD:
+        /* player can never have this attack - Croesus is the
+           only AD_GOLD monster and is G_UNIQ | M2_NOPOLY, so
+           no polyform grants it; kept for switch completeness
+           so the player path never relies on the default */
+        tmp = 0;
+        break;
     case AD_TLPT:
         if (tmp <= 0)
             tmp = 1;

@@ -2647,6 +2647,10 @@ struct obj *otmp;
     if (mdat->mlet == S_NYMPH)
         return (otmp->oclass == ROCK_CLASS) ? 0 : iquan;
 
+    /* Croesus hoards without limit, like a nymph (but not rocks) */
+    if (mdat == &mons[PM_CROESUS])
+        return (otmp->oclass == ROCK_CLASS) ? 0 : iquan;
+
     /* monster is already over capacity, somehow (rock mole? leprechaun?)*/
     if (curr_mon_load(mtmp) > max_mon_load(mtmp))
         return 0;

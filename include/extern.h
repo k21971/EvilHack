@@ -1545,6 +1545,8 @@ E struct obj *FDECL(obj_absorb, (struct obj **, struct obj **));
 E struct obj *FDECL(obj_meld, (struct obj **, struct obj **));
 E void FDECL(pudding_merge_message, (struct obj *, struct obj *));
 E boolean FDECL(metal_to_wood, (struct obj *, BOOLEAN_P));
+E boolean FDECL(material_to_gold, (struct obj *));
+E struct obj *FDECL(rnd_gold_touch_obj, (struct obj *));
 E void FDECL(init_obj_material, (struct obj *));
 E boolean FDECL(valid_obj_material, (struct obj *, int));
 E void FDECL(set_material, (struct obj *, int));
@@ -2692,6 +2694,7 @@ E int NDECL(stealarm);
 #endif
 E long FDECL(somegold, (long));
 E void FDECL(stealgold, (struct monst *));
+E void FDECL(croesus_grab_gold, (struct monst *));
 E void FDECL(remove_worn_item, (struct obj *, BOOLEAN_P));
 E int FDECL(steal, (struct monst *, char *));
 E int FDECL(mpickobj, (struct monst *, struct obj *));

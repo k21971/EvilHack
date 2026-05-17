@@ -5388,4 +5388,5 @@ The following changes to date are:
 - Print detach caller, address, and movemon-pass in dmonsfree mismatch
 - Fix: spellcasting pets drop and re-read the same spellbook in a loop
 - Fix: drain purge_monsters before #wizmakemap level teardown
+- Croesus golden-touch attack (new AD_GOLD damage type)
 

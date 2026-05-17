@@ -24,6 +24,7 @@ STATIC_DCL void FDECL(check_glob, (struct obj *, const char *));
 STATIC_DCL void FDECL(sanity_check_worn, (struct obj *));
 STATIC_DCL const struct icp* FDECL(material_list, (struct obj *));
 STATIC_DCL boolean FDECL(invalid_obj_material, (struct obj *, int));
+STATIC_DCL boolean FDECL(gold_touch_ok, (struct obj *));
 
 struct icp {
     int iprob;   /* probability of an item type */
@@ -3965,6 +3966,7 @@ struct obj* obj;
 boolean by_you;
 {
     int origmat, newmat = WOOD;
+    char onamebuf[BUFSZ];
 
     if (!obj)
         return FALSE;
@@ -3990,10 +3992,13 @@ boolean by_you;
     /* make sure the original obj can be made into
        wood. if not, retain original material */
     if (valid_obj_material(obj, newmat)) {
+        /* capture the name before set_material so the message
+           describes what the object was, not wood */
+        Strcpy(onamebuf, simpleonames(obj));
         set_material(obj, newmat);
         if (!Blind)
             pline("%s %s transforms into wood.",
-                  by_you ? "Your" : "The", simpleonames(obj));
+                  by_you ? "Your" : "The", onamebuf);
         obj->owt = weight(obj);
         if (origmat != obj->material) {
             /* Charge for the cost of the object if unpaid.
@@ -4009,6 +4014,107 @@ boolean by_you;
                   by_you ? "Your" : "The", simpleonames(obj));
         return FALSE;
     }
+}
+
+/* Croesus's golden touch: transmute a single object's material to
+   gold. Modeled on metal_to_wood. Excludes artifacts, obj_resists()
+   items, coins, already-gold objects, and any object for which gold
+   is not a valid material */
+boolean
+material_to_gold(obj)
+struct obj *obj;
+{
+    int origmat, newmat = GOLD;
+    char onamebuf[BUFSZ];
+
+    if (!obj)
+        return FALSE;
+
+    origmat = obj->material;
+
+    /* artifacts, invocation items, Amulet of Yendor,
+       Annihilation/Retribution, Rider corpses, and Infidel
+       quest artifacts are off-limits */
+    if (obj->oartifact || obj_resists(obj, 0, 0)) {
+        if (!Blind)
+            pline("%s %s violently glows for a moment, but resists transformation.",
+                  carried(obj) ? "Your" : "The", simpleonames(obj));
+        return FALSE;
+    } else if (obj->material == GOLD || obj->oclass == COIN_CLASS) {
+        /* already gold, or coins which are excluded by design */
+        if (!Blind)
+            pline("%s %s glows briefly, but remains the same.",
+                  carried(obj) ? "Your" : "The", simpleonames(obj));
+        return FALSE;
+    }
+
+    /* make sure the original obj can be made into gold.
+       if not, retain original material */
+    if (valid_obj_material(obj, newmat)) {
+        /* capture the name before set_material so the message
+           describes what the object was, not solid gold */
+        Strcpy(onamebuf, simpleonames(obj));
+        set_material(obj, newmat);
+        if (!Blind)
+            pline("%s %s turns to solid gold!",
+                  carried(obj) ? "Your" : "The", onamebuf);
+        obj->owt = weight(obj);
+        if (origmat != obj->material) {
+            /* charge for the cost of the object if unpaid */
+            costly_alteration(obj, COST_DRAIN);
+        }
+        newsym_force(bhitpos.x, bhitpos.y);
+        return TRUE;
+    } else {
+        if (!Blind)
+            pline("%s %s shimmers briefly, but remains the same.",
+                  carried(obj) ? "Your" : "The", simpleonames(obj));
+        return FALSE;
+    }
+}
+
+/* TRUE iff obj is a legal target for Croesus's golden touch */
+STATIC_OVL boolean
+gold_touch_ok(obj)
+struct obj *obj;
+{
+    if (!obj)
+        return FALSE;
+    if (obj->oartifact || obj_resists(obj, 0, 0))
+        return FALSE;
+    if (obj->oclass == COIN_CLASS)
+        return FALSE;
+    if (obj->material == GOLD)
+        return FALSE;
+    if (!valid_obj_material(obj, GOLD))
+        return FALSE;
+    return TRUE;
+}
+
+/* pick one eligible object from invlist uniformly at random;
+   returns NULL if nothing is eligible. invlist is the hero's
+   invent or a monster's minvent */
+struct obj *
+rnd_gold_touch_obj(invlist)
+struct obj *invlist;
+{
+    struct obj *otmp;
+    int cnt = 0;
+
+    for (otmp = invlist; otmp; otmp = otmp->nobj) {
+        if (gold_touch_ok(otmp))
+            cnt++;
+    }
+    if (!cnt)
+        return (struct obj *) 0;
+    cnt = rn2(cnt);
+    for (otmp = invlist; otmp; otmp = otmp->nobj) {
+        if (gold_touch_ok(otmp)) {
+            if (--cnt < 0)
+                break;
+        }
+    }
+    return otmp;
 }
 
 /* Initialize the material field of an object, possibly randomizing it
