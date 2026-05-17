@@ -5387,4 +5387,5 @@ The following changes to date are:
 - Fix: bound windowcolors menu display; restore pet-name check
 - Print detach caller, address, and movemon-pass in dmonsfree mismatch
 - Fix: spellcasting pets drop and re-read the same spellbook in a loop
+- Fix: drain purge_monsters before #wizmakemap level teardown
 

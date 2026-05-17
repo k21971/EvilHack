@@ -901,8 +901,8 @@ wiz_makemap(VOID_ARGS)
            the level being replaced must be discarded now; otherwise
            it migrates back with a stale shop/shrine/vault reference
            into the regenerated level. Splice it off migrating_mons
-           and onto fmon so savelev(FREE_SAVE) frees it and the purge
-           bookkeeping stays in sync. Idiom mirrors losedogs() */
+           and onto fmon; the dmonsfree() after the loop frees it and
+           keeps the purge count in sync. Idiom mirrors losedogs() */
         {
             struct monst *mnext, *mprev;
 
@@ -936,6 +936,14 @@ wiz_makemap(VOID_ARGS)
                 }
             }
         }
+
+        /* The loop above ran mongone() on each discarded migrant,
+           bumping iflags.purge_monsters; savelev(FREE_SAVE) does not
+           call dmonsfree(), so drain it here while the now-dead
+           migrants are still on fmon (mirrors makemap_remove_mons
+           in NetHack 5.0) */
+        if (iflags.purge_monsters)
+            dmonsfree();
 
         /* discard current level; "saving" is used to release dynamic data */
         savelev(-1, ledger_no(&u.uz), FREE_SAVE);
