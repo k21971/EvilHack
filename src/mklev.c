@@ -1838,6 +1838,13 @@ coord *tm;
             }
 
             otmp = mkobj(poss_class, FALSE);
+            /* bags of treasure/devouring must never seed here;
+               both are meant to stay extremely rare */
+            if (otmp && (otmp->otyp == BAG_OF_TREASURE
+                         || otmp->otyp == BAG_OF_DEVOURING)) {
+                obfree(otmp, (struct obj *) 0);
+                otmp = (struct obj *) 0;
+            }
             /* these items are always cursed, both for flavour (owned
                by a dead adventurer, bones-pile-style) and for balance
                (less useful to use, and encourage pets to avoid the trap) */
