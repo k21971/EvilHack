@@ -26,6 +26,12 @@ STATIC_OVL NEARDATA const char *breathwep[] = {
     "a disorienting blast", "strange breath #11"
 };
 
+/* skeletal dragon breath pool: every breath type except water */
+STATIC_OVL NEARDATA const int sd_breathtypes[] = {
+    AD_MAGM, AD_FIRE, AD_COLD, AD_SLEE, AD_DISN,
+    AD_ELEC, AD_DRST, AD_ACID, AD_DRLI, AD_STUN
+};
+
 extern boolean notonhead; /* for long worms */
 STATIC_VAR int mesg_given; /* for m_throw()/thitu() 'miss' message */
 
@@ -1258,14 +1264,40 @@ struct attack *mattk;
     return 0;
 }
 
+/* pick a random breath damage type for a skeletal dragon (every
+   breath type except water) */
+int
+sd_random_breath()
+{
+    return sd_breathtypes[rn2(SIZE(sd_breathtypes))];
+}
+
+/* effective breath damage type for a breather: a skeletal dragon uses
+   the fixed type chosen when it rose (lazily assigned if still unset,
+   e.g. newcham-created or an old save); AD_RBRE re-rolls every use
+   (Chromatic Dragon); anything else is its static attack type */
+int
+breath_adtyp(mtmp, mattk)
+struct monst *mtmp;
+struct attack *mattk;
+{
+    if (mtmp->data == &mons[PM_SKELETAL_DRAGON]) {
+        if (mtmp->mbreathtyp < AD_MAGM || mtmp->mbreathtyp > AD_STUN
+            || mtmp->mbreathtyp == AD_WATR)
+            mtmp->mbreathtyp = (uchar) sd_random_breath();
+        return (int) mtmp->mbreathtyp;
+    }
+    /* if new breath types are added, change AD_STUN to max type */
+    return (mattk->adtyp == AD_RBRE) ? rnd(AD_STUN) : mattk->adtyp;
+}
+
 /* monster breathes at monster (ranged) */
 int
 breamm(mtmp, mattk, mtarg)
 struct monst *mtmp, *mtarg;
 struct attack  *mattk;
 {
-    /* if new breath types are added, change AD_STUN to max type */
-    int typ = (mattk->adtyp == AD_RBRE) ? rnd(AD_STUN) : mattk->adtyp ;
+    int typ = breath_adtyp(mtmp, mattk);
     boolean target_resists = FALSE;
 
     if (mlined_up(mtmp, mtarg, TRUE)) {
@@ -1548,8 +1580,7 @@ breamu(mtmp, mattk)
 struct monst *mtmp;
 struct attack *mattk;
 {
-    /* if new breath types are added, change AD_STUN to max type */
-    int typ = (mattk->adtyp == AD_RBRE) ? rnd(AD_STUN) : mattk->adtyp;
+    int typ = breath_adtyp(mtmp, mattk);
 
     if (lined_up(mtmp)) {
         if (mtmp->mcan) {

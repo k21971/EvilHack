@@ -5391,4 +5391,5 @@ The following changes to date are:
 - Croesus golden-touch attack (new AD_GOLD damage type)
 - New objects: Bag of Treasure, Bag of Devouring
 - Keep bags of treasure/devouring out of the trap victim drop
+- New monster: skeletal dragon
 

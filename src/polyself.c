@@ -998,6 +998,11 @@ int mntmp;
         }
     }
 
+    /* a skeletal dragon's breath is fixed per individual; reroll it
+       for every new change */
+    if (mntmp == PM_SKELETAL_DRAGON)
+        youmonst.mbreathtyp = (uchar) sd_random_breath();
+
     /* New stats for monster, to last only as long as polymorphed.
      * Currently only strength gets changed.
      */
@@ -1628,6 +1633,7 @@ int
 dobreathe()
 {
     struct attack *mattk;
+    struct attack brattk;
 
     if (Strangled) {
         You_cant("breathe.  Sorry.");
@@ -1644,13 +1650,19 @@ dobreathe()
         return 0;
 
     mattk = attacktype_fordmg(youmonst.data, AT_BREA, AD_ANY);
-    if (!mattk)
+    if (!mattk) {
         impossible("bad breath attack?"); /* mouthwash needed... */
-    else if (!u.dx && !u.dy && !u.dz)
-        ubreatheu(mattk);
-    else
-        buzz((int) (22 + mattk->adtyp - 1), (int) mattk->damn, u.ux, u.uy,
-             u.dx, u.dy);
+    } else {
+        /* resolve a concrete damage type: a skeletal dragon (or any
+           AD_RBRE form) must not feed AD_RBRE into buzz()/flash_types */
+        brattk = *mattk;
+        brattk.adtyp = (uchar) breath_adtyp(&youmonst, mattk);
+        if (!u.dx && !u.dy && !u.dz)
+            ubreatheu(&brattk);
+        else
+            buzz((int) (22 + brattk.adtyp - 1), (int) brattk.damn,
+                 u.ux, u.uy, u.dx, u.dy);
+    }
     return 1;
 }
 

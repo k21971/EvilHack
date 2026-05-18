@@ -187,6 +187,8 @@ struct monst {
     uchar vuln_cold;         /* ...to cold */
     uchar vuln_elec;         /* ...to elec */
     uchar vuln_acid;         /* ...to acid */
+    uchar mbreathtyp;        /* skeletal dragon: fixed breath adtyp,
+                                chosen at creation (0 = unassigned) */
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
 #define MAX_WSEG_PER_WORM 256 /* generous cap; rejects corrupt save prefixes */
 
