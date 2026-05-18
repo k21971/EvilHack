@@ -373,11 +373,11 @@ struct obj {
 #define Has_contents(o)                                \
     (/* (Is_container(o) || (o)->otyp == STATUE) && */ \
      (o)->cobj != (struct obj *) 0)
-#define Is_container(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS)
+#define Is_container(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_DEVOURING)
 #define Is_nonprize_container(o) (Is_container(o) && !is_soko_prize_flag(o))
 #define Is_box(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= HIDDEN_CHEST)
 #define Is_mbag(o) ((o)->otyp == BAG_OF_HOLDING || (o)->otyp == BAG_OF_TRICKS)
-#define Is_allbag(o) ((o)->otyp >= SACK && (o)->otyp <= BAG_OF_TRICKS)
+#define Is_allbag(o) ((o)->otyp >= SACK && (o)->otyp <= BAG_OF_DEVOURING)
 #define SchroedingersBox(o) ((o)->otyp == LARGE_BOX && (o)->spe == 1)
 /* usually waterproof; random chance to be subjected to leakage if cursed;
    excludes statues, which aren't vulernable to water even when cursed */
@@ -481,6 +481,13 @@ struct obj {
 #define is_graystone(obj) \
     ((obj)->otyp == LUCKSTONE || (obj)->otyp == LOADSTONE \
      || (obj)->otyp == FLINT || (obj)->otyp == TOUCHSTONE)
+
+/* what a bag of treasure will accept: gold, plus gems and worthless
+   glass, but not gray stones or plain rock */
+#define is_treasure_item(o) \
+    ((o)->oclass == COIN_CLASS \
+     || ((o)->oclass == GEM_CLASS && !is_graystone(o) \
+         && (o)->otyp != ROCK))
 
 /* worthless glass -- assumes all GLASS * are worthless glass */
 #define is_worthless_glass(obj) \

@@ -1580,7 +1580,7 @@ struct obj *otmp;
     otmp->blessed = 1;
     if (carried(otmp) && confers_luck(otmp))
         set_moreluck();
-    else if (otmp->otyp == BAG_OF_HOLDING)
+    else if (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TREASURE)
         otmp->owt = weight(otmp);
     else if (otmp->otyp == FIGURINE && otmp->timed)
         (void) stop_timer(FIG_TRANSFORM, obj_to_any(otmp));
@@ -1600,7 +1600,7 @@ struct obj *otmp;
     otmp->blessed = 0;
     if (carried(otmp) && confers_luck(otmp))
         set_moreluck();
-    else if (otmp->otyp == BAG_OF_HOLDING)
+    else if (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TREASURE)
         otmp->owt = weight(otmp);
     if (otmp->lamplit)
         maybe_adjust_light(otmp, old_light);
@@ -1630,7 +1630,7 @@ struct obj *otmp;
     /* some cursed items need immediate updating */
     if (carried(otmp) && confers_luck(otmp)) {
         set_moreluck();
-    } else if (otmp->otyp == BAG_OF_HOLDING) {
+    } else if (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TREASURE) {
         otmp->owt = weight(otmp);
     } else if (otmp->otyp == FIGURINE) {
         if (otmp->corpsenm != NON_PM && !dead_species(otmp->corpsenm, TRUE)
@@ -1657,7 +1657,7 @@ struct obj *otmp;
     otmp->cursed = 0;
     if (carried(otmp) && confers_luck(otmp))
         set_moreluck();
-    else if (otmp->otyp == BAG_OF_HOLDING)
+    else if (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TREASURE)
         otmp->owt = weight(otmp);
     else if (otmp->otyp == FIGURINE && otmp->timed)
         (void) stop_timer(FIG_TRANSFORM, obj_to_any(otmp));
@@ -1818,6 +1818,9 @@ struct obj *obj;
         else if (obj->otyp == BAG_OF_HOLDING)
             cwt = obj->cursed ? (cwt * 2) : obj->blessed ? ((cwt + 3) / 4)
                                                          : ((cwt + 1) / 2);
+        else if (obj->otyp == BAG_OF_TREASURE)
+            cwt = obj->cursed ? (cwt * 10) : obj->blessed ? ((cwt + 7) / 8)
+                                                          : ((cwt + 3) / 4);
 
         return wt + cwt;
     }
@@ -3834,6 +3837,8 @@ struct obj* obj;
     case TINNING_KIT:
     case MUMMY_WRAPPING:
     case OILSKIN_SACK:
+    case BAG_OF_TREASURE:
+    case BAG_OF_DEVOURING:
     case OILSKIN_CLOAK:
     case RUNED_BRACERS:
     case BLACKSMITH_HAMMER:

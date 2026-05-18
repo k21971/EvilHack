@@ -3598,7 +3598,8 @@ const char * in_str;
         && strncmpi(in_str, "food ration", 11)
         && strncmpi(in_str, "meat ring", 9)
         && strncmpi(in_str, "glamdring", 9)
-        && strncmpi(in_str, "one ring", 8)) {
+        && strncmpi(in_str, "one ring", 8)
+        && strncmpi(in_str, "bag of devouring", 16)) {
         for (i = 0; i < (int) (sizeof wrpsym); i++) {
             int j = strlen(wrp[i]);
             if (!strncmpi(in_str, wrp[i], j)) {
@@ -4421,7 +4422,8 @@ struct obj *no_wish;
         && strncmpi(bp, "food ration", 11)
         && strncmpi(bp, "meat ring", 9)
         && strncmpi(bp, "glamdring", 9)
-        && strncmpi(bp, "one ring", 8))
+        && strncmpi(bp, "one ring", 8)
+        && strncmpi(bp, "bag of devouring", 16))
         for (i = 0; i < (int) (sizeof wrpsym); i++) {
             int j = strlen(wrp[i]);
 

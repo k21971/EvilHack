@@ -4740,6 +4740,8 @@ doapply()
     case ICE_BOX:
     case SACK:
     case BAG_OF_HOLDING:
+    case BAG_OF_TREASURE:
+    case BAG_OF_DEVOURING:
     case OILSKIN_SACK:
     case IRON_SAFE:
     case CRYSTAL_CHEST:

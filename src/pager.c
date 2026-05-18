@@ -1456,6 +1456,8 @@ short otyp;
         case SACK:
         case OILSKIN_SACK:
         case BAG_OF_HOLDING:
+        case BAG_OF_TREASURE:
+        case BAG_OF_DEVOURING:
             subclass = "container";
             break;
         case SKELETON_KEY:

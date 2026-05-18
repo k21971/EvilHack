@@ -1874,6 +1874,10 @@ struct monst *mtmp;
             received = m_carrying(mtmp, item);
             if (received)
                 set_material(received, GOLD);
+
+            /* guaranteed one of the two rare bags, 50/50 either way */
+            item = rn2(2) ? BAG_OF_TREASURE : BAG_OF_DEVOURING;
+            (void) mongets(mtmp, item);
         } else if (mm == PM_WIZARD_OF_YENDOR) {
             otmp = mksobj(rn2(3) ? ATHAME : QUARTERSTAFF, FALSE, FALSE);
             otmp->oprops = (rn2(3) ? ITEM_FIRE : rn2(2) ? ITEM_FROST : ITEM_VENOM);

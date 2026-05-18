@@ -2379,7 +2379,9 @@ const char *str;
         else
             otmp2 = otmp->nexthere;
         if (Is_box(otmp) || otmp->otyp == ICE_BOX
-            || (Is_allbag(otmp) && !can_carry(mtmp, otmp))) {
+            || (Is_allbag(otmp) && otmp->otyp != BAG_OF_TREASURE
+                && otmp->otyp != BAG_OF_DEVOURING
+                && !can_carry(mtmp, otmp))) {
             if (nohands(mtmp->data) || r_verysmall(mtmp))
                 continue;
             if (otmp->olocked) {

@@ -33,6 +33,7 @@ STATIC_DCL boolean FDECL(mbag_explodes, (struct obj *, int));
 STATIC_DCL boolean NDECL(is_boh_item_gone);
 STATIC_DCL void FDECL(do_boh_explosion, (struct obj *, BOOLEAN_P));
 STATIC_DCL long FDECL(boh_loss, (struct obj *container, BOOLEAN_P));
+STATIC_DCL boolean FDECL(bag_devours_invent, (struct obj *));
 STATIC_PTR int FDECL(in_container, (struct obj *));
 STATIC_PTR int FDECL(out_container, (struct obj *));
 STATIC_DCL long FDECL(mbag_item_gone, (BOOLEAN_P, struct obj *, BOOLEAN_P));
@@ -1268,7 +1269,8 @@ struct obj *container, *obj;
     struct obj **prev;
     int owt, nwt;
 
-    if (container->otyp != BAG_OF_HOLDING)
+    if (container->otyp != BAG_OF_HOLDING
+        && container->otyp != BAG_OF_TREASURE)
         return obj->owt;
 
     owt = nwt = container->owt;
@@ -2387,7 +2389,8 @@ int depthin;
         return FALSE;
 
     /* odds: 1/1 (just scattered though, not gone) */
-    if (Is_mbag(obj) || obj->otyp == WAN_CANCELLATION) {
+    if (Is_mbag(obj) || obj->otyp == WAN_CANCELLATION
+        || obj->otyp == BAG_OF_TREASURE || obj->otyp == BAG_OF_DEVOURING) {
         return TRUE;
     } else if (Has_contents(obj)) {
         struct obj *otmp;
@@ -2442,7 +2445,8 @@ struct obj *container;
 boolean held;
 {
     /* sometimes toss objects if a cursed magic bag */
-    if (Is_mbag(container) && container->cursed && Has_contents(container)) {
+    if ((Is_mbag(container) || container->otyp == BAG_OF_TREASURE)
+        && container->cursed && Has_contents(container)) {
         long loss = 0L;
         struct obj *curr, *otmp;
 
@@ -2458,6 +2462,64 @@ boolean held;
         return loss;
     }
     return 0;
+}
+
+/* a cursed bag of devouring 'attacks' when you #loot it, consuming
+   1-3 eligible items from open inventory (worn/wielded included).
+   obj_resists() items, the Amulet, invocation items and an
+   uncompleted quest artifact are off-limits; returns TRUE if it
+   ate anything */
+STATIC_OVL boolean
+bag_devours_invent(container)
+struct obj *container;
+{
+    struct obj *otmp, *nextobj;
+    int devoured = 0, want = rnd(3), eligible, n;
+
+    while (devoured < want) {
+        /* recount each pass: objects and worn slots vanish as we go */
+        eligible = 0;
+        for (otmp = invent; otmp; otmp = otmp->nobj) {
+            if (otmp == container || otmp == uball || otmp == uchain
+                || otmp == uskin
+                || (otmp == uarmg && otmp->oartifact == ART_HAND_OF_VECNA)
+                || obj_resists(otmp, 0, 0)
+                || (is_quest_artifact(otmp) && !u.uevent.qcompleted))
+                continue;
+            eligible++;
+        }
+        if (!eligible)
+            break;
+        n = rn2(eligible);
+        for (otmp = invent; otmp; otmp = nextobj) {
+            nextobj = otmp->nobj;
+            if (otmp == container || otmp == uball || otmp == uchain
+                || otmp == uskin
+                || (otmp == uarmg && otmp->oartifact == ART_HAND_OF_VECNA)
+                || obj_resists(otmp, 0, 0)
+                || (is_quest_artifact(otmp) && !u.uevent.qcompleted))
+                continue;
+            if (n-- > 0)
+                continue;
+            if (!devoured) {
+                pline("%s lashes out and starts to %s some of your possessions!",
+                      Ysimple_name2(container), rn2(2) ? "eat" : "consume");
+                makeknown(BAG_OF_DEVOURING);
+            }
+            if (otmp->dknown)
+                pline("%s %s devoured!", Doname2(otmp),
+                      otense(otmp, "are"));
+            else
+                You("%s %s disappear!", Blind ? "feel" : "see",
+                    doname(otmp));
+            if (otmp->owornmask)
+                remove_worn_item(otmp, TRUE);
+            useupall(otmp); /* setnotworn + freeinv + obfree(+contents) */
+            devoured++;
+            break;
+        }
+    }
+    return (boolean) (devoured > 0);
 }
 
 /* Returns: -1 to stop, 1 item was inserted, 0 item was not inserted. */
@@ -2504,6 +2566,19 @@ struct obj *obj;
         return 0;
     } else if (obj->otyp == LEASH && obj->leashmon != 0) {
         pline("%s attached to your pet.", Tobjnam(obj, "are"));
+        return 0;
+    } else if (current_container->otyp == BAG_OF_TREASURE
+               && !is_treasure_item(obj)) {
+        pline("%s only accepts gold and gems.",
+              The(xname(current_container)));
+        makeknown(BAG_OF_TREASURE);
+        return 0;
+    } else if (current_container->otyp == BAG_OF_DEVOURING
+               && obj_resists(obj, 0, 0)) {
+        Strcpy(buf, the(xname(obj)));
+        pline("%s refuses to devour %s.",
+              The(xname(current_container)), buf);
+        makeknown(BAG_OF_DEVOURING);
         return 0;
     } else if (obj == uwep) {
         if (welded(obj)) {
@@ -2573,7 +2648,9 @@ struct obj *obj;
         if (was_unpaid)
             addtobill(obj, FALSE, FALSE, TRUE);
         if (obj->otyp == WAN_CANCELLATION
-            || obj->otyp == BAG_OF_TRICKS)
+            || obj->otyp == BAG_OF_TRICKS
+            || obj->otyp == BAG_OF_TREASURE
+            || obj->otyp == BAG_OF_DEVOURING)
             makeknown(obj->otyp);
         if (obj->otyp == BAG_OF_HOLDING) /* one bag of holding into another */
             do_boh_explosion(obj, (obj->where == OBJ_FLOOR));
@@ -2612,6 +2689,18 @@ struct obj *obj;
         }
 
         current_container = 0; /* baggone = TRUE; */
+    } else if (current_container->otyp == BAG_OF_DEVOURING) {
+        /* permanently destroy the item; obj_resists() items and the
+           Amulet/invocation items were already refused above */
+        if (was_unpaid)
+            addtobill(obj, FALSE, FALSE, TRUE);
+        Strcpy(buf, the(xname(current_container)));
+        pline("%s is devoured by %s!", The(xname(obj)), buf);
+        makeknown(BAG_OF_DEVOURING);
+        obfree(obj, (struct obj *) 0); /* also deletes contents */
+        current_container->owt = weight(current_container);
+        bot();
+        return 1;
     }
 
     if (current_container) {
@@ -2929,7 +3018,8 @@ boolean more_containers; /* True iff #loot multiple and this isn't last one */
         used = 1;
     }
 
-    cursed_mbag = Is_mbag(current_container)
+    cursed_mbag = (Is_mbag(current_container)
+                   || current_container->otyp == BAG_OF_TREASURE)
         && current_container->cursed
         && Has_contents(current_container);
     if (cursed_mbag
@@ -2937,6 +3027,22 @@ boolean more_containers; /* True iff #loot multiple and this isn't last one */
         used = 1;
         You("owe %ld %s for lost merchandise.", loss, currency(loss));
         current_container->owt = weight(current_container);
+    }
+    /* a cursed bag of devouring instead lashes out at the hero */
+    if (current_container->otyp == BAG_OF_DEVOURING
+        && current_container->cursed) {
+        if (bag_devours_invent(current_container)) {
+            used = 1;
+        } else if (!rn2(3)) {
+            /* found nothing worth eating? devour the hero instead */
+            makeknown(BAG_OF_DEVOURING);
+            pline("%s lashes out and devours you whole!",
+                  Ysimple_name2(current_container));
+            Strcpy(killer.name, "eaten by a bag of devouring");
+            killer.format = NO_KILLER_PREFIX;
+            done(DIED);
+            used = 1; /* reached only if life-saved */
+        }
     }
     inokay = (invent != 0
               && !(invent == current_container && !current_container->nobj));
@@ -3542,6 +3648,8 @@ boolean creation;
     for (obj = mon->minvent; obj; obj = obj->nobj) {
         if (!Is_nonprize_container(obj)
             || obj->otyp == BAG_OF_TRICKS
+            || obj->otyp == BAG_OF_TREASURE
+            || obj->otyp == BAG_OF_DEVOURING
             || obj->olocked)
             continue;
         if (obj->otyp == BAG_OF_HOLDING && !obj->cursed) {
@@ -3717,7 +3825,9 @@ struct obj *box; /* or bag */
         struct obj *otmp, *nobj;
         boolean terse, highdrop = !can_reach_floor(TRUE),
                 altarizing = IS_ALTAR(levl[ox][oy].typ),
-                cursed_mbag = (Is_mbag(box) && box->cursed);
+                cursed_mbag = ((Is_mbag(box)
+                                || box->otyp == BAG_OF_TREASURE)
+                               && box->cursed);
         long loss = 0L;
 
         held = carried(box) || (targetbox && carried(targetbox));
