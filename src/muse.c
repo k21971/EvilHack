@@ -4804,7 +4804,7 @@ boolean by_you;
        isn't able to cure itself of green slime with its own attack
        [possible extension: monst capable of casting high level clerical
        spells could toss pillar of fire at self--probably too suicidal] */
-    if (!mon->mcan && !mon->mspec_used
+    if (!mon->mcan && !mon->mbreath_attk
         && attacktype_fordmg(mptr, AT_BREA, AD_FIRE)) {
         odummy = zeroobj; /* otyp == STRANGE_OBJECT */
         return muse_unslime(mon, &odummy, (struct trap *) 0, by_you);
@@ -4899,7 +4899,7 @@ boolean by_you; /* true: if mon kills itself, hero gets credit/blame */
         if (vis)
             pline("%s breathes fire on %sself.", Monnam(mon), mhim(mon));
         if (!rn2(3))
-            mon->mspec_used = rn1(10, 5);
+            mon->mbreath_attk = rn1(10, 5);
         /* 1 => # of damage dice */
         dmg = zhitm(mon, by_you ? ZT_BREATH(ZT_FIRE) : -ZT_BREATH(ZT_FIRE),
                     1, &odummyp);

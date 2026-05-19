@@ -604,7 +604,8 @@ struct attack *alt_attk_buf;
             /* note: 3d9 is slightly higher than previous 4d6 */
         }
 
-    } else if (attk->aatyp == AT_ENGL && magr->mspec_used) {
+    } else if (attk->aatyp == AT_ENGL
+               && (magr->mspec_used || magr->mbreath_attk)) {
         /* can't re-engulf yet; switch to simpler attack */
         *alt_attk_buf = *attk;
         attk = alt_attk_buf;

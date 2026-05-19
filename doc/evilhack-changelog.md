@@ -5393,4 +5393,5 @@ The following changes to date are:
 - Keep bags of treasure/devouring out of the trap victim drop
 - New monster: skeletal dragon
 - Skeletal dragon tweaks and fixes
+- Decouple monster breath/spit cooldown from mspec_used
 

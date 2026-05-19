@@ -288,6 +288,8 @@ boolean digest_meal;
         mon->mhp++;
     if (mon->mspec_used)
         mon->mspec_used--;
+    if (mon->mbreath_attk)
+        mon->mbreath_attk--;
     if (mon->mbindtimer)
         mon->mbindtimer--;
     if (mon->mbreakboulder)
@@ -967,15 +969,16 @@ toofar:
        Exception: priests in their temple guard the Amulet */
     if ((!mon_has_amulet(mtmp) || mindless(mdat) || is_animal(mdat)
          || (mtmp->ispriest && inhistemple(mtmp)))
-        && (((attacktype(mtmp->data, AT_BREA)
-              || (attacktype(mtmp->data, AT_GAZE)
-                  && mtmp->data != &mons[PM_MEDUSA])
-              || attacktype(mtmp->data, AT_SPIT)
-              || attacktype(mtmp->data, AT_SCRE)
-              || (attacktype(mtmp->data, AT_MAGC)
-                  && ((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp
-                      <= AD_LOUD)))
-             && !mtmp->mspec_used)
+        && ((((attacktype(mtmp->data, AT_BREA)
+               || attacktype(mtmp->data, AT_SPIT))
+              && !mtmp->mbreath_attk)
+             || (((attacktype(mtmp->data, AT_GAZE)
+                   && mtmp->data != &mons[PM_MEDUSA])
+                  || attacktype(mtmp->data, AT_SCRE)
+                  || (attacktype(mtmp->data, AT_MAGC)
+                      && ((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp
+                          <= AD_LOUD)))
+                 && !mtmp->mspec_used))
             || (attacktype(mtmp->data, AT_WEAP)
                 && select_rwep(mtmp) != 0) || find_offensive(mtmp))
         && mtmp->mlstmv != monstermoves) {

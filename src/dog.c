@@ -913,6 +913,11 @@ long nmv; /* number of moves */
         mtmp->mspec_used = 0;
     else
         mtmp->mspec_used -= imv;
+    /* breath/spit cooldown */
+    if (imv > mtmp->mbreath_attk)
+        mtmp->mbreath_attk = 0;
+    else
+        mtmp->mbreath_attk -= imv;
     /* breaking boulders */
     if (imv > mtmp->mbreakboulder)
         mtmp->mbreakboulder = 0;

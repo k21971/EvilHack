@@ -1195,7 +1195,7 @@ struct attack *mattk;
         return 0;
     }
 
-    if (mtmp->mspec_used)
+    if (mtmp->mbreath_attk)
         return 0;
 
     otmp = (struct obj *) 0;
@@ -1215,7 +1215,7 @@ struct attack *mattk;
             otmp = mksobj(SNOWBALL, TRUE, FALSE);
             break;
         case AD_WEBS:
-            mtmp->mspec_used = rn2(4);
+            mtmp->mbreath_attk = rn2(4);
             otmp = mksobj(BALL_OF_WEBBING, TRUE, FALSE);
             break;
         default:
@@ -1368,7 +1368,7 @@ struct attack  *mattk;
             return 0;
         }
 
-        if (!mtmp->mspec_used && rn2(3)) {
+        if (!mtmp->mbreath_attk && rn2(3)) {
             if ((typ >= AD_MAGM) && (typ <= AD_STUN)) {
                 if (canseemon(mtmp))
                     pline("%s breathes %s!", Monnam(mtmp), breathwep[typ - 1]);
@@ -1378,7 +1378,7 @@ struct attack  *mattk;
                 /* breath runs out sometimes. Also, give monster some
                  * cunning; don't breath if the target fell asleep.
                  */
-                mtmp->mspec_used = 6 + rn2(18);
+                mtmp->mbreath_attk = 6 + rn2(18);
 
                 /* If this is a pet, it'll get hungry. Minions and
                  * spell beings won't hunger */
@@ -1522,7 +1522,7 @@ struct attack *mattk;
         return 0;
     }
 
-    if (mtmp->mspec_used)
+    if (mtmp->mbreath_attk)
         return 0;
 
     otmp = (struct obj *) 0;
@@ -1542,7 +1542,7 @@ struct attack *mattk;
             otmp = mksobj(SNOWBALL, TRUE, FALSE);
             break;
         case AD_WEBS:
-            mtmp->mspec_used = rn2(4);
+            mtmp->mbreath_attk = rn2(4);
             otmp = mksobj(BALL_OF_WEBBING, TRUE, FALSE);
             break;
         default:
@@ -1592,7 +1592,7 @@ struct attack *mattk;
             }
             return 0;
         }
-        if (!mtmp->mspec_used && rn2(3)) {
+        if (!mtmp->mbreath_attk && rn2(3)) {
             if ((typ >= AD_MAGM) && (typ <= AD_STUN)) {
                 if (canseemon(mtmp))
                     pline("%s breathes %s!", Monnam(mtmp),
@@ -1604,9 +1604,9 @@ struct attack *mattk;
                  * cunning; don't breath if the player fell asleep.
                  */
                 if (!rn2(3))
-                    mtmp->mspec_used = 10 + rn2(20);
+                    mtmp->mbreath_attk = 10 + rn2(20);
                 if (typ == AD_SLEE && how_resistant(SLEEP_RES) < 100)
-                    mtmp->mspec_used += rnd(20);
+                    mtmp->mbreath_attk += rnd(20);
             } else
                 impossible("Breath weapon %d used", typ - 1);
         } else {
