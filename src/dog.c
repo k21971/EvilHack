@@ -918,6 +918,11 @@ long nmv; /* number of moves */
         mtmp->mbreath_attk = 0;
     else
         mtmp->mbreath_attk -= imv;
+    /* telekinesis cooldown */
+    if (imv > mtmp->mtk_attk)
+        mtmp->mtk_attk = 0;
+    else
+        mtmp->mtk_attk -= imv;
     /* breaking boulders */
     if (imv > mtmp->mbreakboulder)
         mtmp->mbreakboulder = 0;

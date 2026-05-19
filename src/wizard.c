@@ -802,9 +802,11 @@ BOOLEAN_P centered_on_stairs;
                     mtmp = makemon((struct permonst *) 0, bypos.x, bypos.y,
                                    MM_ADJACENTOK);
                 if (mtmp) {
-                    /* delay first use of spell or breath attack */
+                    /* delay first use of spell, breath, or
+                       telekinesis attack */
                     mtmp->mspec_used = rnd(4);
                     mtmp->mbreath_attk = rnd(4);
+                    mtmp->mtk_attk = rnd(4);
                     if (++count >= MAXNASTIES
                         || mon_aligntyp(mtmp) == 0
                         || sgn(mon_aligntyp(mtmp)) == castalign)

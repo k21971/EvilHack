@@ -290,6 +290,8 @@ boolean digest_meal;
         mon->mspec_used--;
     if (mon->mbreath_attk)
         mon->mbreath_attk--;
+    if (mon->mtk_attk)
+        mon->mtk_attk--;
     if (mon->mbindtimer)
         mon->mbindtimer--;
     if (mon->mbreakboulder)
@@ -958,7 +960,7 @@ toofar:
     }
 
     /* Mind flayers may use telekinesis at range */
-    if (is_mind_flayer(mdat) && !mtmp->mspec_used
+    if (is_mind_flayer(mdat) && !mtmp->mtk_attk
         && mtmp->mlstmv != monstermoves && rn2(3)) {
         if (m_dotelekinesis(mtmp))
             return 0;

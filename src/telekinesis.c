@@ -740,7 +740,7 @@ struct monst *mtmp;
     if (mtmp->mcan)
         return FALSE;
     /* Cooldown check */
-    if (mtmp->mspec_used)
+    if (mtmp->mtk_attk)
         return FALSE;
 
     mx = mtmp->mx;
@@ -834,7 +834,7 @@ struct monst *mtmp;
     if (push_obj) {
         m_tk_push_obj(mtmp, push_obj, dx, dy, range);
         if (!DEADMONSTER(mtmp))
-            mtmp->mspec_used = 6 + rn2(6);
+            mtmp->mtk_attk = 6 + rn2(6);
         return TRUE;
     }
 
@@ -850,7 +850,7 @@ struct monst *mtmp;
                 if (canseemon(mtmp))
                     pline("%s tries to pull you, but the chain holds you firm.",
                           Monnam(mtmp));
-                mtmp->mspec_used = 6 + rn2(6);
+                mtmp->mtk_attk = 6 + rn2(6);
                 return TRUE;
             }
 
@@ -859,7 +859,7 @@ struct monst *mtmp;
             hurtle(pdx, pdy, pull_range, FALSE);
             /* hurtle's traps can fire dobuzz that kills the puller */
             if (!DEADMONSTER(mtmp))
-                mtmp->mspec_used = 6 + rn2(6);
+                mtmp->mtk_attk = 6 + rn2(6);
             return TRUE;
         }
     } else {
@@ -878,7 +878,7 @@ struct monst *mtmp;
                 (void) tk_impact(mdef, -dx, -dy, mtmp);
             /* mhurtle's traps can fire dobuzz that kills the puller */
             if (!DEADMONSTER(mtmp))
-                mtmp->mspec_used = 6 + rn2(6);
+                mtmp->mtk_attk = 6 + rn2(6);
             return TRUE;
         }
     }
