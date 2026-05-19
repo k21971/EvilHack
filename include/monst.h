@@ -100,6 +100,7 @@ struct monst {
     unsigned long mintrinsics;  /* low 9 correspond to mresists */
     unsigned long mextrinsics;  /* low 9 correspond to mresists */
     int mspec_used;             /* monster's special ability attack timeout */
+    int mbindtimer;             /* Draugr binding-ritual cooldown timer */
 
 #define M_SEEN_NOTHING 0x0000
 #define M_SEEN_MAGR    0x0001

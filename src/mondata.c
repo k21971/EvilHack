@@ -1657,6 +1657,7 @@ int mndx;
     case PM_SKELETAL_HORSE:
     case PM_LARGE_SKELETAL_HOUND:
     case PM_SKELETAL_WARHORSE:
+    case PM_SKELETAL_DRAGON:
         return BONE;
     case PM_PAPER_GOLEM:
         return PAPER;

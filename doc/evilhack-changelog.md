@@ -5392,4 +5392,5 @@ The following changes to date are:
 - New objects: Bag of Treasure, Bag of Devouring
 - Keep bags of treasure/devouring out of the trap victim drop
 - New monster: skeletal dragon
+- Skeletal dragon tweaks and fixes
 

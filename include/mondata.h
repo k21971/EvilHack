@@ -293,13 +293,14 @@
 #define racial_drow(mon) mon_has_race(mon, MH_DROW)
 #define is_zombie(ptr) (((ptr)->mhflags & MH_ZOMBIE) != 0L)
 #define racial_zombie(mon) mon_has_race(mon, MH_ZOMBIE)
-#define is_skeletal_pet(ptr) \
+#define is_skeletal_animal(ptr) \
     ((ptr) == &mons[PM_SMALL_SKELETAL_HOUND]    \
      || (ptr) == &mons[PM_SKELETAL_HOUND]       \
      || (ptr) == &mons[PM_LARGE_SKELETAL_HOUND] \
      || (ptr) == &mons[PM_SKELETAL_PONY]        \
      || (ptr) == &mons[PM_SKELETAL_HORSE]       \
-     || (ptr) == &mons[PM_SKELETAL_WARHORSE])
+     || (ptr) == &mons[PM_SKELETAL_WARHORSE]    \
+     || (ptr) == &mons[PM_SKELETAL_DRAGON])
 #define is_vampire(ptr) (((ptr)->mhflags & MH_VAMPIRE) != 0L)
 #define racial_vampire(mon) mon_has_race(mon, MH_VAMPIRE)
 #define is_aasimar(ptr) (((ptr)->mhflags & MH_AASIMAR) != 0L)

@@ -145,7 +145,8 @@ struct monst *rider;
         if (!(racial_zombie(rider) || racial_vampire(rider))
             && (steed->data == &mons[PM_SKELETAL_PONY]
                 || steed->data == &mons[PM_SKELETAL_HORSE]
-                || steed->data == &mons[PM_SKELETAL_WARHORSE]))
+                || steed->data == &mons[PM_SKELETAL_WARHORSE]
+                || steed->data == &mons[PM_SKELETAL_DRAGON]))
             continue;
         /* don't let wild riders commandeer the player's tame pet */
         if (steed->mtame)
@@ -338,7 +339,8 @@ struct monst *mtmp;
             && !(ptr->mlet == S_SKELETON
                  && mtmp->mnum != PM_SKELETAL_PONY
                  && mtmp->mnum != PM_SKELETAL_HORSE
-                 && mtmp->mnum != PM_SKELETAL_WARHORSE)
+                 && mtmp->mnum != PM_SKELETAL_WARHORSE
+                 && mtmp->mnum != PM_SKELETAL_DRAGON)
             && !(ptr->mlet == S_FELINE
                  && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
 }
@@ -393,7 +395,8 @@ struct monst *mtmp;
             && !(ptr->mlet == S_SKELETON
                  && mtmp->mnum != PM_SKELETAL_PONY
                  && mtmp->mnum != PM_SKELETAL_HORSE
-                 && mtmp->mnum != PM_SKELETAL_WARHORSE)
+                 && mtmp->mnum != PM_SKELETAL_WARHORSE
+                 && mtmp->mnum != PM_SKELETAL_DRAGON)
             && !(ptr->mlet == S_FELINE
                  && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
 }
@@ -502,7 +505,8 @@ struct obj *otmp;
     }
     if ((ptr == &mons[PM_SKELETAL_PONY]
          || ptr == &mons[PM_SKELETAL_HORSE]
-         || ptr == &mons[PM_SKELETAL_WARHORSE])
+         || ptr == &mons[PM_SKELETAL_WARHORSE]
+         || ptr == &mons[PM_SKELETAL_DRAGON])
         && !(racial_zombie(&youmonst) || racial_vampire(&youmonst))) {
         if (!Deaf) {
             pline("%s rattles noisily at you!", Monnam(mtmp));
@@ -683,7 +687,8 @@ struct obj *otmp;
     }
     if ((ptr == &mons[PM_SKELETAL_PONY]
          || ptr == &mons[PM_SKELETAL_HORSE]
-         || ptr == &mons[PM_SKELETAL_WARHORSE])
+         || ptr == &mons[PM_SKELETAL_WARHORSE]
+         || ptr == &mons[PM_SKELETAL_DRAGON])
         && !(racial_zombie(&youmonst) || racial_vampire(&youmonst))) {
         if (!Deaf) {
             pline("%s rattles noisily at you!", Monnam(mtmp));
@@ -946,7 +951,8 @@ boolean force;      /* Quietly force this animal */
     }
     if ((mtmp->data == &mons[PM_SKELETAL_PONY]
          || mtmp->data == &mons[PM_SKELETAL_HORSE]
-         || mtmp->data == &mons[PM_SKELETAL_WARHORSE])
+         || mtmp->data == &mons[PM_SKELETAL_WARHORSE]
+         || mtmp->data == &mons[PM_SKELETAL_DRAGON])
         && !(racial_zombie(&youmonst) || racial_vampire(&youmonst))) {
         if (!Deaf) {
             pline("%s rattles noisily at you!", Monnam(mtmp));

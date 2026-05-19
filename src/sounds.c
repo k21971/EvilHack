@@ -1524,7 +1524,7 @@ dochat()
        pets don't eat, so this fills the role thrown food plays for
        other races */
     if (Race_if(PM_DRAUGR) && mtmp->mtame
-        && is_skeletal_pet(mtmp->data)) {
+        && is_skeletal_animal(mtmp->data)) {
         if (!canspotmon(mtmp))
             map_invisible(mtmp->mx, mtmp->my);
         if (mtmp->mtame >= 20) {
@@ -1532,7 +1532,7 @@ dochat()
                   Monnam(mtmp));
             return 1;
         }
-        if (mtmp->mspec_used > 0) {
+        if (mtmp->mbindtimer > 0) {
             pline("%s is not yet ready to bend to your will.",
                   Monnam(mtmp));
             return 1;
@@ -1547,12 +1547,13 @@ dochat()
         pline("%s rattles its bones in eerie resonance.",
               Monnam(mtmp));
         mtmp->mtame++;
-        mtmp->mspec_used = 1500;
+        mtmp->mbindtimer = 1500;
         return 1;
     }
 
     if ((Role_if(PM_CONVICT) && is_rat(mtmp->data))
-        || (Race_if(PM_DRAUGR) && is_zombie(mtmp->data))) {
+        || (Race_if(PM_DRAUGR)
+            && (is_zombie(mtmp->data) || is_skeletal_animal(mtmp->data)))) {
         if (!mtmp->mpeaceful) {
             if (!canspotmon(mtmp))
                 map_invisible(mtmp->mx, mtmp->my);

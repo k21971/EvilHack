@@ -288,6 +288,8 @@ boolean digest_meal;
         mon->mhp++;
     if (mon->mspec_used)
         mon->mspec_used--;
+    if (mon->mbindtimer)
+        mon->mbindtimer--;
     if (mon->mbreakboulder)
         mon->mbreakboulder--;
     if (mon->msummoned)

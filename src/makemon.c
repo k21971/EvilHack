@@ -3497,8 +3497,7 @@ long mmflags;
     if (ptr == &mons[PM_SAINT_MICHAEL])
         mtmp->mhp = mtmp->mhpmax = 300 + rnd(50);
 
-    /* Test monster (will not appear during
-       normal play) */
+    /* Test monster (will not appear during normal play) */
     if (wizard && ptr == &mons[PM_TEST_MONSTER])
         mtmp->mhp = mtmp->mhpmax = 9999;
 

@@ -1576,14 +1576,27 @@ NEARDATA struct permonst mons[] = {
         M4_VULNERABLE_FIRE, MH_UNZOMBIE, 9, CLR_GRAY),
     MON("skeleton warrior", S_SKELETON, LVL(12, 8, 2, 75, -8),
         (G_NOCORPSE | 1),
-        A(ATTK(AT_WEAP, AD_PHYS, 2, 6), ATTK(AT_TUCH, AD_SLOW, 1, 6), NO_ATTK,
-          NO_ATTK, NO_ATTK, NO_ATTK),
+        A(ATTK(AT_WEAP, AD_PHYS, 2, 6), ATTK(AT_TUCH, AD_SLOW, 1, 6),
+          NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(400, 5, MS_BONES, MZ_HUMAN),
         MR_COLD | MR_SLEEP | MR_POISON | MR_STONE | MR_PSYCHIC, 0,
         M1_BREATHLESS | M1_HUMANOID | M1_THICK_HIDE,
         M2_WANDER | M2_HOSTILE | M2_STRONG | M2_COLLECT
             | M2_NASTY | M2_LORD,
         M3_INFRAVISION, M4_VULNERABLE_FIRE, MH_UNZOMBIE, 14, DRAGON_SILVER),
+    /* The reanimated skeleton of a dragon slain long ago... */
+    MON("skeletal dragon", S_SKELETON, LVL(15, 12, -3, 30, -15),
+        (G_GENO | G_NOCORPSE | 1),
+        A(ATTK(AT_BREA, AD_RBRE, 4, 6), ATTK(AT_BITE, AD_PHYS, 4, 8),
+          ATTK(AT_CLAW, AD_PHYS, 4, 6), ATTK(AT_CLAW, AD_PHYS, 4, 6),
+          NO_ATTK, NO_ATTK),
+        SIZ(WT_DRAGON, 1500, MS_BONES, MZ_GIGANTIC),
+        MR_COLD | MR_SLEEP | MR_POISON | MR_STONE | MR_PSYCHIC, 0,
+        M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS
+            | M1_BREATHLESS,
+        M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS
+            | M2_MAGIC, M3_INFRAVISION,
+        M4_VULNERABLE_FIRE, MH_UNZOMBIE, 18, HI_CLOTH),
     /*
      * Angels and other lawful minions
      */
@@ -1795,19 +1808,6 @@ NEARDATA struct permonst mons[] = {
                       | M1_CARNIVORE,
         M2_NOPOLY | M2_HOSTILE | M2_STRONG | M2_NASTY,
         M3_ACCURATE | M3_INFRAVISION, 0, 0, 16, HI_PURPLE),
-    /* The reanimated skeleton of a dragon slain long ago... */
-    MON("skeletal dragon", S_DRAGON, LVL(20, 12, -3, 30, -15),
-        (G_GENO | G_NOCORPSE | 1),
-        A(ATTK(AT_BREA, AD_RBRE, 4, 6), ATTK(AT_BITE, AD_PHYS, 4, 8),
-          ATTK(AT_CLAW, AD_PHYS, 4, 6), ATTK(AT_CLAW, AD_PHYS, 4, 6),
-          NO_ATTK, NO_ATTK),
-        SIZ(WT_DRAGON, 1500, MS_BONES, MZ_HUGE),
-        MR_COLD | MR_SLEEP | MR_POISON | MR_STONE | MR_PSYCHIC, 0,
-        M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS
-            | M1_BREATHLESS,
-        M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS
-            | M2_MAGIC, M3_INFRAVISION,
-        M4_VULNERABLE_FIRE, MH_UNZOMBIE, 22, HI_BONE),
     /*
      * Dragons
      */
