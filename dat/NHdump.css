@@ -351,3 +351,8 @@ span.nh_screen {
 .nh_color_253 { color: #DADADA; }
 .nh_color_254 { color: #E4E4E4; }
 .nh_color_255 { color: #EEEEEE; }
+
+/* Player position highlight (mimics terminal cursor on @) */
+.nh_player {
+  background-color: #00AA00;
+}

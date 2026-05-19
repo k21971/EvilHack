@@ -1570,8 +1570,8 @@ unsigned special;
 }
 
 void
-html_dump_glyph(x, y, sym, ch, color, special)
-int x, y, sym, ch, color;
+html_dump_glyph(x, y, glyph, sym, ch, color, special)
+int x, y, glyph, sym, ch, color;
 unsigned special;
 {
     char buf[BUFSZ]; /* do_screen_description requires this :( */
@@ -1579,6 +1579,7 @@ unsigned special;
     coord cc;
     int desc_found = 0;
     unsigned attr;
+    unsigned long rgb_color = 0UL; /* nonzero = emit inline RGB span */
 
     if (!dumphtml_file) return;
 
@@ -1589,15 +1590,48 @@ unsigned special;
     desc_found = do_screen_description(cc, TRUE, ch, buf, &firstmatch, (struct permonst **) 0);
     if (desc_found)
         fprintf(dumphtml_file, "<div class=\"tooltip\">");
+    /* highlight the hero's tile with a green background, mimicking
+       the terminal cursor's "you are here" cue */
+    if (x == u.ux && y == u.uy)
+        fprintf(dumphtml_file, "<span class=\"nh_player\">");
     attr = mg_hl_attr(special);
-    dump_set_color_attr(color, attr, TRUE);
+    /* mapglyph emits NH_CUSTOMCOLOR_SENTINEL when the active windowport
+       advertises 24-bit truecolor and the glyph has an RGB CUSTOMCOLOR=
+       entry. HTML supports arbitrary RGB natively, so emit the user's
+       exact colour inline. Fall back to the precomputed 256-palette
+       index for the inverse-video edge case (which dump_set_color_attr
+       already knows how to render via the nh_inv_N classes) */
+    if (color == NH_CUSTOMCOLOR_SENTINEL) {
+        struct customcolor_entry *ce = customcolor_lookup(glyph);
+
+        if (ce && (ce->nhcolor & NH_BASIC_COLOR) == 0
+            && !(attr & HL_INVERSE))
+            rgb_color = COLORVAL(ce->nhcolor);
+        else
+            color = ce ? ce->color256idx : NO_COLOR;
+    }
+    if (rgb_color) {
+        /* bold/uline/blink wrappers still come from dump_set_color_attr;
+           only the inner color span is replaced with an inline style */
+        dump_set_color_attr(NO_COLOR, attr & ~HL_INVERSE, TRUE);
+        fprintf(dumphtml_file, "<span style=\"color:#%06lX;\">", rgb_color);
+    } else {
+        dump_set_color_attr(color, attr, TRUE);
+    }
     if (htmlsym[sym])
         fprintf(dumphtml_file, "&#%d;", htmlsym[sym]);
     else if (ch > 0x7F)
         fprintf(dumphtml_file, "&#%d;", ch);
     else
         html_dump_char(dumphtml_file, (char)ch);
-    dump_set_color_attr(color, attr, FALSE);
+    if (rgb_color) {
+        fprintf(dumphtml_file, SPAN_E);
+        dump_set_color_attr(NO_COLOR, attr & ~HL_INVERSE, FALSE);
+    } else {
+        dump_set_color_attr(color, attr, FALSE);
+    }
+    if (x == u.ux && y == u.uy)
+        fprintf(dumphtml_file, SPAN_E);
     if (desc_found)
        fprintf(dumphtml_file, "<span class=\"tooltiptext\">%s</span></div>", firstmatch);
     if (x == COLNO-1)

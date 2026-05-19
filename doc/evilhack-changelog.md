@@ -5397,4 +5397,5 @@ The following changes to date are:
 - Fix: restore nasty() first-use delay for breath and spit attacks
 - Decouple monster telekinesis cooldown from mspec_used
 - Spawn skeletal dragons in graveyards, various set levels
+- HTML dumplog: highlight the hero tile and honor RGB customcolors
 
