@@ -5398,4 +5398,5 @@ The following changes to date are:
 - Decouple monster telekinesis cooldown from mspec_used
 - Spawn skeletal dragons in graveyards, various set levels
 - HTML dumplog: highlight the hero tile and honor RGB customcolors
+- Fix: don't duplicate mplayer rank title in death messages
 

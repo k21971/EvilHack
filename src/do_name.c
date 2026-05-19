@@ -1903,14 +1903,6 @@ boolean called;
             Strcat(buf, name);
             name_at_start = TRUE;
         }
-    } else if ((is_mplayer(mdat) || mdat == &mons[PM_RONIN])
-               && !In_endgame(&u.uz)) {
-        char pbuf[BUFSZ];
-
-        Strcpy(pbuf, rank_of_mplayer((int) mtmp->m_lev, mtmp,
-                                     (boolean) mtmp->female));
-        Strcat(buf, lcase(pbuf));
-        name_at_start = FALSE;
     } else if (is_rider(mdat)
                && !(suppress & SUPPRESS_RIDER)
                && (distu(mtmp->mx, mtmp->my) > 2)
