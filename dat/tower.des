@@ -53,7 +53,7 @@ MONSTER:('V',"vampire mage"),(14,08)
 MONSTER:('V',"vampire royal"),(15,07)
 MONSTER:('V',"vampire mage"),(15,08)
 MONSTER:('z',"skeleton warrior"),(16,07)
-MONSTER:('z',"skeleton warrior"),(16,08)
+MONSTER:('z',"skeletal dragon"),(16,08)
 MONSTER:('d',"hell hound"),(23,04)
 MONSTER:('d',"hell hound"),(24,04)
 # Locked doors
@@ -254,7 +254,7 @@ MONSTER:('z',"skeleton warrior"),(15,11)
 MONSTER:('Z',"giant zombie"),(16,12)
 MONSTER:('Z',"human zombie"),(32,11)
 MONSTER:('Z',"human zombie"),(34,12)
-MONSTER:('z',"skeleton warrior"),(35,11)
+MONSTER:('z',"skeletal dragon"),(35,11)
 MONSTER:('Z',"giant zombie"),(36,12)
 # Liches reside in the center chambers
 # along with some noncorporeal undead

@@ -213,8 +213,8 @@ MONSTER:('&',"balrog"),(05,18)
 MONSTER:'V',(34,03)
 MONSTER:'V',(66,04)
 MONSTER:'V',(40,03)
-MONSTER:'Z',(40,01)
-MONSTER:'Z',(62,02)
+MONSTER:'z',(40,01)
+MONSTER:'z',(62,02)
 MONSTER:'Z',(64,02)
 MONSTER:'Z',(36,01)
 MONSTER:'M',(62,04)
@@ -1019,10 +1019,10 @@ MONSTER:' ',random,hostile
 MONSTER:' ',random,hostile
 MONSTER:' ',random,hostile
 # the damned
-MONSTER:'Z',random,hostile
-MONSTER:'Z',random,hostile
-MONSTER:'Z',random,hostile
-MONSTER:'Z',random,hostile
+MONSTER:'z',random,hostile
+MONSTER:'z',random,hostile
+MONSTER:'z',random,hostile
+MONSTER:'z',random,hostile
 MONSTER:'Z',random,hostile
 MONSTER:'Z',random,hostile
 MONSTER:'Z',random,hostile
@@ -1957,7 +1957,7 @@ MONSTER:('z',"skeleton warrior"),random
 MONSTER:('z',"skeleton warrior"),random
 MONSTER:('z',"skeleton warrior"),random
 MONSTER:('z',"skeleton warrior"),random
-MONSTER:('z',"skeleton warrior"),random
+MONSTER:('z',"skeletal dragon"),random
 MONSTER:(' ',"shade"),random
 MONSTER:(' ',"shade"),random
 MONSTER:(' ',"shade"),random
@@ -2192,7 +2192,7 @@ IF [50%] {
   MONSTER:(' ',"shade"),random,hostile
 } ELSE {
   MONSTER:('z',"skeleton warrior"),random,hostile
-  MONSTER:('z',"skeleton warrior"),random,hostile
+  MONSTER:('z',"skeletal dragon"),random,hostile
 }
 
 IF [66%] {

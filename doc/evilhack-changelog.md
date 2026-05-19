@@ -5396,4 +5396,5 @@ The following changes to date are:
 - Decouple monster breath/spit cooldown from mspec_used
 - Fix: restore nasty() first-use delay for breath and spit attacks
 - Decouple monster telekinesis cooldown from mspec_used
+- Spawn skeletal dragons in graveyards, various set levels
 

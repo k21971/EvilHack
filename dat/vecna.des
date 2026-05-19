@@ -76,9 +76,9 @@ MONSTER:'V',random
 MONSTER:'V',random
 MONSTER:'V',random
 MONSTER:'V',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
+MONSTER:'z',random
+MONSTER:'z',random
+MONSTER:'z',random
 MONSTER:'Z',random
 MONSTER:'Z',random
 MONSTER:'Z',random
@@ -208,10 +208,10 @@ MONSTER:'V',(26,06)
 MONSTER:'V',(27,09)
 MONSTER:'V',(15,11)
 MONSTER:'V',(23,10)
-MONSTER:'Z',(14,03)
+MONSTER:'z',(14,03)
 MONSTER:'Z',(20,17)
 MONSTER:'Z',(31,08)
-MONSTER:'Z',(44,10)
+MONSTER:'z',(44,10)
 MONSTER:('Z',"revenant"),(18,10)
 MONSTER:('Z',"revenant"),(17,11)
 MONSTER:('Z',"revenant"),(13,12)
@@ -331,8 +331,8 @@ MONSTER:('L',"Vecna"),(28,06)
 TERRAIN:(28,06),'\'
 
 # Random monsters
-MONSTER:'Z',random
-MONSTER:'Z',random
+MONSTER:'z',random
+MONSTER:'z',random
 MONSTER:'Z',random
 MONSTER:'Z',random
 MONSTER:'M',random
