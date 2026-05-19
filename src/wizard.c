@@ -804,6 +804,7 @@ BOOLEAN_P centered_on_stairs;
                 if (mtmp) {
                     /* delay first use of spell or breath attack */
                     mtmp->mspec_used = rnd(4);
+                    mtmp->mbreath_attk = rnd(4);
                     if (++count >= MAXNASTIES
                         || mon_aligntyp(mtmp) == 0
                         || sgn(mon_aligntyp(mtmp)) == castalign)

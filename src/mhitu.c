@@ -614,9 +614,10 @@ struct attack *alt_attk_buf;
             || attk->adtyp == AD_DISE || attk->adtyp == AD_DISN) {
             attk->aatyp = AT_TUCH;
         } else {
-            /* neothelids have a breath attack plus multiple tentacle
-               attacks which cause mspec_used to virtually never allow
-               the final engulfing attack */
+            /* neothelids have a breath attack (mbreath_attk) plus
+               multiple tentacle attacks which cause the engulf gate
+               above to virtually never allow the final engulfing
+               attack */
             if (rn2(2) && magr->data == &mons[PM_NEOTHELID]) {
                 attk->aatyp = AT_ENGL;
                 attk->adtyp = AD_DGST;

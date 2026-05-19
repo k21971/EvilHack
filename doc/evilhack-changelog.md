@@ -5394,4 +5394,5 @@ The following changes to date are:
 - New monster: skeletal dragon
 - Skeletal dragon tweaks and fixes
 - Decouple monster breath/spit cooldown from mspec_used
+- Fix: restore nasty() first-use delay for breath and spit attacks
 
