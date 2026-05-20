@@ -1444,6 +1444,12 @@ int after;
             if (covetousattack & MM_AGR_DIED)
                 return 2;
             mmoved = 1;
+            /* the attack was this monster's action for the turn; finish
+               at postmov rather than falling through to the movement
+               loop, which would index info[chi] while chi is still -1
+               because no destination square was chosen (NH 5.0 returns
+               via postmov here) */
+            goto postmov;
         } else {
             mmoved = 0;
         }

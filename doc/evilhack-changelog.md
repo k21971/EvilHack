@@ -5403,4 +5403,5 @@ The following changes to date are:
 - Gate monster learned-spell selection on target resistance
 - Harden customcolor parsing and fix color-resolution issues
 - Fix: customcolor sentinel handling in tty and curses menu glyphs
+- Fix: covetous attacker could index info[-1] in m_move()
 
