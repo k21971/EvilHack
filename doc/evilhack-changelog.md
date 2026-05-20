@@ -5405,4 +5405,5 @@ The following changes to date are:
 - Fix: customcolor sentinel handling in tty and curses menu glyphs
 - Fix: covetous attacker could index info[-1] in m_move()
 - Fix: 'don't drop items' pet order let handless pets hoard items
+- Fix: kops_gone() could m_detach an already-dismissed Kop twice
 

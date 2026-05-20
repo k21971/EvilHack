@@ -4994,6 +4994,8 @@ boolean silent;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp2) {
         mtmp2 = mtmp->nmon;
+        if (DEADMONSTER(mtmp))
+            continue;
         if (mtmp->data->mlet == S_KOP) {
             if (canspotmon(mtmp))
                 cnt++;
