@@ -2158,6 +2158,7 @@ boolean taking;
 
         if (!taking) {
             int carryamt;
+            boolean nohands_full = FALSE;
             if (welded(otmp)) {
                 weldmsg(otmp);
                 continue;
@@ -2184,7 +2185,7 @@ boolean taking;
                 continue;
             }
             carryamt = can_carry(mtmp, otmp);
-            if (nohands(mtmp->data) && mtmp->minvent) {
+            if (carryamt > 0 && nohands(mtmp->data) && mtmp->minvent) {
                 struct obj *invobj;
                 /* this isn't a hard and fast rule, but dog_invent in practice
                  * doesn't let monsters carry around multiple items. */
@@ -2193,15 +2194,21 @@ boolean taking;
                      * saddled doesn't prevent mon from receiving an item */
                     if (!(invobj->owornmask & ~(W_ART | W_ARTI | W_QUIVER))) {
                         carryamt = 0;
+                        nohands_full = TRUE;
                         break;
                     }
                 }
             }
             if (carryamt == 0) {
-                /* note: this includes both "can't carry" and "won't carry", but
-                 * doesn't distinguish them */
-                pline("%s can't carry %s%s.", Monnam(mtmp),
-                      maxquan < otmp->quan ? "any of " : "", yname(otmp));
+                if (nohands_full) {
+                    /* one-loose-item limit for handless monsters */
+                    pline("%s already has something else to carry.",
+                          Monnam(mtmp));
+                } else {
+                    pline("%s can't carry %s%s.", Monnam(mtmp),
+                          maxquan < otmp->quan ? "any of " : "",
+                          yname(otmp));
+                }
                 /* debatable whether to continue or break here; if the player
                  * overloads the monster with too many items, breaking would be
                  * preferable, but if they just can't take this one otmp for

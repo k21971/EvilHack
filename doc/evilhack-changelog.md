@@ -5399,4 +5399,5 @@ The following changes to date are:
 - Spawn skeletal dragons in graveyards, various set levels
 - HTML dumplog: highlight the hero tile and honor RGB customcolors
 - Fix: don't duplicate mplayer rank title in death messages
+- Fix: pet "can't carry" message conflated two rejection reasons
 
