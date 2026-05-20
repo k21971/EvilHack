@@ -1165,14 +1165,30 @@ menu_display_page(nhmenu *menu, WINDOW * win, int page_num, char *selectors)
         }
         if (menu_item_ptr->glyph != NO_GLYPH && iflags.use_menu_glyphs) {
             unsigned special;  /*notused */
+            unsigned long nhcolor = 0;
 
             mapglyph(menu_item_ptr->glyph, &curletter, &color, &special, 0, 0, 0);
             /* Override with material color if non-base material */
             if (menu_item_ptr->material)
                 color = material_color(menu_item_ptr->material);
-            curses_toggle_color_attr(win, color, NONE, ON);
+            /* Resolve a truecolor customcolor entry; nhcolor 0 otherwise
+               leaves curses_toggle_color_attr32 on the palette path */
+            if (color == NH_CUSTOMCOLOR_SENTINEL) {
+                struct customcolor_entry *ce =
+                    customcolor_lookup(menu_item_ptr->glyph);
+
+                if (ce) {
+                    nhcolor = ce->nhcolor;
+                    color = (ce->nhcolor & NH_BASIC_COLOR)
+                                ? (int) COLORVAL(ce->nhcolor)
+                                : ce->color256idx;
+                } else {
+                    color = NO_COLOR;
+                }
+            }
+            curses_toggle_color_attr32(win, color, nhcolor, NONE, ON);
             mvwaddch(win, menu_item_ptr->line_num + 1, start_col, curletter);
-            curses_toggle_color_attr(win, color, NONE, OFF);
+            curses_toggle_color_attr32(win, color, nhcolor, NONE, OFF);
             mvwaddch(win, menu_item_ptr->line_num + 1, start_col + 1, ' ');
             entry_cols -= 2;
             start_col += 2;

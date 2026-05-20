@@ -5402,4 +5402,5 @@ The following changes to date are:
 - Fix: pet "can't carry" message conflated two rejection reasons
 - Gate monster learned-spell selection on target resistance
 - Harden customcolor parsing and fix color-resolution issues
+- Fix: customcolor sentinel handling in tty and curses menu glyphs
 

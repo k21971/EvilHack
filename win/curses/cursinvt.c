@@ -122,15 +122,30 @@ curses_add_inv(int y,
         unsigned dummy = 0; /* Not used */
         int glyph_color = 0;
         int symbol = 0;
+        unsigned long nhcolor = 0;
 
         mapglyph(glyph, &symbol, &glyph_color, &dummy, u.ux, u.uy, 0);
         /* Override with material color if menuobj has non-base material */
         if (menuobj
             && menuobj->material != objects[menuobj->otyp].oc_material)
             glyph_color = material_color(menuobj->material);
-        curses_toggle_color_attr(win, glyph_color, A_NORMAL, ON);
+        /* Resolve a truecolor customcolor entry; nhcolor 0 otherwise
+           leaves curses_toggle_color_attr32 on the palette path */
+        if (glyph_color == NH_CUSTOMCOLOR_SENTINEL) {
+            struct customcolor_entry *ce = customcolor_lookup(glyph);
+
+            if (ce) {
+                nhcolor = ce->nhcolor;
+                glyph_color = (ce->nhcolor & NH_BASIC_COLOR)
+                                  ? (int) COLORVAL(ce->nhcolor)
+                                  : ce->color256idx;
+            } else {
+                glyph_color = NO_COLOR;
+            }
+        }
+        curses_toggle_color_attr32(win, glyph_color, nhcolor, A_NORMAL, ON);
         wprintw(win, "%c ", symbol);
-        curses_toggle_color_attr(win, glyph_color, A_NORMAL, OFF);
+        curses_toggle_color_attr32(win, glyph_color, nhcolor, A_NORMAL, OFF);
         available_width -= 2;
     }
     if (accelerator /* Don't colorize categories */

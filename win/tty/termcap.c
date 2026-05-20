@@ -1376,7 +1376,7 @@ void
 term_start_color(color)
 int color;
 {
-    if (color < CLR_MAX) {
+    if (color >= 0 && color < CLR_MAX) {
         xputs(hilites[color]);
     } else if (IS_EXT_COLOR(color)) {
         if (term_colors >= 256) {

@@ -2051,8 +2051,15 @@ struct WinDesc *cw;
                             /* Override with material color if non-base */
                             if (curr->material)
                                 glyph_color = material_color(curr->material);
-                            if (glyph_color != NO_COLOR)
+                            if (glyph_color == NH_CUSTOMCOLOR_SENTINEL) {
+                                struct customcolor_entry *ce =
+                                    customcolor_lookup(curr->glyph);
+
+                                if (ce)
+                                    term_start_color32(ce->nhcolor);
+                            } else if (glyph_color != NO_COLOR) {
                                 term_start_color(glyph_color);
+                            }
 #endif
                             g_putch(glyph_sym);
                             end_glyphout();
