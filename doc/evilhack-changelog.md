@@ -5409,4 +5409,5 @@ The following changes to date are:
 - Fix: show_glyph() did not reject negative glyph values
 - Harden UTF-8 encoders against out-of-range codepoints
 - Fix: several monster and object lookup defects in pager.c
+- Fix: literacy conduct double-counted when naming an artifact
 

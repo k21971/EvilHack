@@ -1393,7 +1393,6 @@ const char *name;
                 }
             }
             /* violate illiteracy conduct since successfully wrote arti-name */
-            u.uconduct.literate++;
             if (!u.uconduct.literate++)
                 livelog_printf(LL_CONDUCT | LL_ARTIFACT, "became literate by naming %s",
                                bare_artifactname(obj));
