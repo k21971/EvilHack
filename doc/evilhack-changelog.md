@@ -5412,4 +5412,5 @@ The following changes to date are:
 - Fix: literacy conduct double-counted when naming an artifact
 - Fix: tabexpand() could overflow its buffer on tab-heavy lines
 - Silence -Wshadow warning for rgb_color in html_dump_glyph()
+- Fix: mon_arrive() panic on stairless one-way portal destination
 

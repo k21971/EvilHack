@@ -737,17 +737,32 @@ boolean with_you;
         if (t) {
             xlocale = t->tx, ylocale = t->ty;
             break;
-        } else if (iflags.debug_fuzzer && (xupstair || xdnstair)) {
-            /* debugfuzzer fallback: use stairs if available */
+        } else if (iflags.debug_fuzzer
+                   && (xupstair || xdnstair || xupladder || xdnladder
+                       || sstairs.sx)) {
+            /* debugfuzzer fallback: land on any vertical connection
+               (stairs, ladder, or branch sstairs) when the arrival
+               portal is missing, e.g. a one-way branch portal whose
+               destination has no return portal */
             if (xupstair) {
                 xlocale = xupstair, ylocale = yupstair;
-            } else {
+            } else if (xdnstair) {
                 xlocale = xdnstair, ylocale = ydnstair;
+            } else if (xupladder) {
+                xlocale = xupladder, ylocale = yupladder;
+            } else if (xdnladder) {
+                xlocale = xdnladder, ylocale = ydnladder;
+            } else {
+                xlocale = sstairs.sx, ylocale = sstairs.sy;
             }
             break;
-        } else if (!(u.uevent.qexpelled
-                     && (Is_qstart(&u.uz0) || Is_qstart(&u.uz)))) {
-            /* Only show impossible for non-quest-expulsion cases */
+        } else if (!iflags.debug_fuzzer
+                   && !(u.uevent.qexpelled
+                        && (Is_qstart(&u.uz0) || Is_qstart(&u.uz)))) {
+            /* one-way branch portals legitimately lack a return
+               portal; log it in normal play but never panic the
+               fuzzer - fall through to random placement, mirroring
+               goto_level in do.c */
             impossible("mon_arrive: no corresponding portal?");
         }
         /*FALLTHRU*/
