@@ -77,6 +77,10 @@ STATIC_DCL int FDECL(cast_learned_spell, (struct monst *, struct monst *));
 STATIC_DCL void FDECL(do_wizard_spell, (struct monst *, struct monst *, int, int));
 STATIC_DCL void FDECL(do_cleric_spell, (struct monst *, struct monst *, int, int));
 STATIC_DCL boolean FDECL(mhas_useful_selfbuff_spell, (struct monst *));
+STATIC_DCL boolean FDECL(mhas_castable_offensive_spell,
+                         (struct monst *, struct monst *));
+STATIC_DCL boolean FDECL(target_resists_learned_spell,
+                         (struct monst *, struct monst *, SHORT_P));
 STATIC_DCL boolean FDECL(is_undirected_spell, (struct monst *, unsigned int, int));
 STATIC_DCL boolean FDECL(do_spell_would_be_useless, (struct monst *,
                                                      struct monst *, unsigned int, int));
@@ -264,7 +268,8 @@ int spellval;
         if (chance > 40)
             chance = 40;
         if (rn2(100) < chance) {
-            short learned = mchoose_learned_spell(mtmp, 0, 0, FALSE);
+            short learned = mchoose_learned_spell(mtmp, (struct monst *) 0,
+                                                  0, 0, FALSE);
             if (learned != 0)
                 return MGC_LEARNED_SPELL;
         }
@@ -357,7 +362,8 @@ int spellnum;
         if (chance > 40)
             chance = 40;
         if (rn2(100) < chance) {
-            short learned = mchoose_learned_spell(mtmp, 0, 0, FALSE);
+            short learned = mchoose_learned_spell(mtmp, (struct monst *) 0,
+                                                  0, 0, FALSE);
             if (learned != 0)
                 return CLC_LEARNED_SPELL;
         }
@@ -869,7 +875,7 @@ struct monst *caster, *target;
                      && caster->mpeaceful
                      && youdefend);
 
-    spell_otyp = mchoose_learned_spell(caster, tx, ty, selfbuff_only);
+    spell_otyp = mchoose_learned_spell(caster, target, tx, ty, selfbuff_only);
 
     if (spell_otyp == 0)
         return 0; /* No castable spell available */
@@ -2262,6 +2268,119 @@ int dmg, spellnum;
     }
 }
 
+/* Returns TRUE iff the target is known to be fully immune to spell_otyp.
+   For player targets, only the M_SEEN_* memory channel is consulted -- the
+   monster must have witnessed the player resist the damage type before.
+   For monster targets, direct intrinsic checks are used (precedent at
+   muse.c's equipment evaluation for resistance rings). Spells not in the
+   table return FALSE, so the caller never filters them out */
+STATIC_OVL
+boolean
+target_resists_learned_spell(caster, target, spell_otyp)
+struct monst *caster;
+struct monst *target;
+short spell_otyp;
+{
+    boolean youdefend = (target == &youmonst);
+
+    switch (spell_otyp) {
+    case SPE_MAGIC_MISSILE:
+    case SPE_FORCE_BOLT:
+        if (youdefend)
+            return m_seenres(caster, M_SEEN_MAGR) ? TRUE : FALSE;
+        return (resists_magm(target) || defended(target, AD_MAGM));
+    case SPE_FIREBALL:
+        if (youdefend)
+            return m_seenres(caster, M_SEEN_FIRE) ? TRUE : FALSE;
+        return (resists_fire(target) || defended(target, AD_FIRE));
+    case SPE_CONE_OF_COLD:
+        if (youdefend)
+            return m_seenres(caster, M_SEEN_COLD) ? TRUE : FALSE;
+        return (resists_cold(target) || defended(target, AD_COLD));
+    case SPE_SLEEP:
+        if (youdefend)
+            return m_seenres(caster, M_SEEN_SLEEP) ? TRUE : FALSE;
+        return (resists_sleep(target) || defended(target, AD_SLEE));
+    case SPE_LIGHTNING:
+        if (youdefend)
+            return m_seenres(caster, M_SEEN_ELEC) ? TRUE : FALSE;
+        return (resists_elec(target) || defended(target, AD_ELEC));
+    case SPE_POISON_BLAST:
+        if (youdefend)
+            return m_seenres(caster, M_SEEN_POISON) ? TRUE : FALSE;
+        return (resists_poison(target) || defended(target, AD_DRST));
+    case SPE_ACID_BLAST:
+        if (youdefend)
+            return m_seenres(caster, M_SEEN_ACID) ? TRUE : FALSE;
+        return (resists_acid(target) || defended(target, AD_ACID));
+    case SPE_FINGER_OF_DEATH:
+    case SPE_POWER_WORD_KILL:
+        if (youdefend)
+            return m_seenres(caster, M_SEEN_DEATH) ? TRUE : FALSE;
+        return (immune_death_magic(target->data)
+                || is_vampshifter(target));
+    case SPE_DRAIN_LIFE:
+        /* No M_SEEN_DRAIN flag exists, so player target can't be
+           pre-filtered; for monster target, drli resistance and
+           nonliving form are sure-thing immunities */
+        if (youdefend)
+            return FALSE;
+        return (resists_drli(target) || nonliving(target->data));
+    case SPE_TURN_UNDEAD:
+        /* useless unless target is undead/vampshifter; player polyform
+           is observable to the monster */
+        if (youdefend)
+            return (!is_undead(youmonst.data)
+                    && !is_vampshifter(&youmonst));
+        return (!is_undead(target->data) && !is_vampshifter(target));
+    case SPE_DISPEL_EVIL:
+        /* useless unless target is evil (A_NONE alignment) */
+        if (youdefend)
+            return (u.ualign.type != A_NONE);
+        return !is_evil(target);
+    default:
+        return FALSE;
+    }
+}
+
+/* Returns TRUE if monster knows any offensive learned spell that would
+   not be wasted against target; used by do_spell_would_be_useless() to
+   reject MGC_LEARNED_SPELL / CLC_LEARNED_SPELL when the whole repertoire
+   resists out, letting the re-roll loops pick a different spellnum */
+STATIC_OVL
+boolean
+mhas_castable_offensive_spell(caster, target)
+struct monst *caster;
+struct monst *target;
+{
+    int i;
+    short spell_otyp;
+    int spell_lev, required_mlev;
+
+    if (!has_emsp(caster) || !target)
+        return FALSE;
+
+    for (i = 0; i < MAXMONSPELL; i++) {
+        spell_otyp = EMSP(caster)->msp_id[i];
+        if (spell_otyp == 0 || EMSP(caster)->msp_know[i] <= 0)
+            continue;
+        /* Defensive bounds check */
+        if (spell_otyp < SPE_DIG || spell_otyp > SPE_BLANK_PAPER
+            || objects[spell_otyp].oc_class != SPBOOK_CLASS)
+            continue;
+        if (IS_SELFBUFF_SPELL(spell_otyp))
+            continue;
+        spell_lev = objects[spell_otyp].oc_level;
+        required_mlev = spell_lev * 3;
+        if (caster->m_lev < required_mlev)
+            continue;
+        if (target_resists_learned_spell(caster, target, spell_otyp))
+            continue;
+        return TRUE;
+    }
+    return FALSE;
+}
+
 /* Returns TRUE if monster knows any self-buff learned spell that would
    be useful to cast right now. Used by is_undirected_spell() to
    determine if learned spells can be cast through the undirected spell
@@ -2563,6 +2682,11 @@ int spellnum;
                      || (cdist < 3 && rn2(5)))
                     && spellnum == MGC_ACID_BLAST)
                     return TRUE;
+                /* M_SEEN_DEATH is already recorded when the player
+                   resists touch of death; don't waste further casts */
+                if (m_seenres(caster, M_SEEN_DEATH)
+                    && spellnum == MGC_DEATH_TOUCH)
+                    return TRUE;
             } else {
                 /* Don't blast itself with its own explosions
                    if it doesn't resist the attack type (most times) */
@@ -2577,6 +2701,14 @@ int spellnum;
                 if (!(resists_acid(caster) || defended(caster, AD_ACID))
                     && spellnum == MGC_ACID_BLAST
                     && cdist < 3 && rn2(5))
+                    return TRUE;
+                /* m-v-m: skip touch of death against targets that
+                   can't be killed by death magic (undead/demons/
+                   nonliving/vampire-shifters/specific bosses) */
+                if (target
+                    && (immune_death_magic(target->data)
+                        || is_vampshifter(target))
+                    && spellnum == MGC_DEATH_TOUCH)
                     return TRUE;
             }
 
@@ -2595,7 +2727,18 @@ int spellnum;
                 && (spellnum == MGC_ICE_BOLT
                     || spellnum == MGC_FIRE_BOLT
                     || spellnum == MGC_ACID_BLAST
-                    || spellnum == MGC_CANCELLATION))
+                    || spellnum == MGC_CANCELLATION
+                    || (spellnum == MGC_LEARNED_SPELL
+                        && !mhas_useful_selfbuff_spell(caster))))
+                return TRUE;
+
+            /* Reject MGC_LEARNED_SPELL when the entire offensive
+               repertoire would resist out against this target and no
+               useful self-buff is queued; re-roll loop picks a
+               different MGC_* spellnum */
+            if (spellnum == MGC_LEARNED_SPELL
+                && !mhas_useful_selfbuff_spell(caster)
+                && !mhas_castable_offensive_spell(caster, target))
                 return TRUE;
         }
 
@@ -2674,7 +2817,17 @@ int spellnum;
                     || spellnum == CLC_SUMMON_MINION
                     || spellnum == CLC_CALL_UNDEAD
                     || spellnum == CLC_OPEN_WOUNDS
-                    || spellnum == CLC_VULN_YOU))
+                    || spellnum == CLC_VULN_YOU
+                    || (spellnum == CLC_LEARNED_SPELL
+                        && !mhas_useful_selfbuff_spell(caster))))
+                return TRUE;
+
+            /* Reject CLC_LEARNED_SPELL when the entire offensive
+               repertoire would resist out against this target and no
+               useful self-buff is queued */
+            if (spellnum == CLC_LEARNED_SPELL
+                && !mhas_useful_selfbuff_spell(caster)
+                && !mhas_castable_offensive_spell(caster, target))
                 return TRUE;
         }
 
@@ -3284,12 +3437,16 @@ struct monst *mtmp;
 }
 
 /* Get a random learned spell monster can cast; returns otyp or 0.
+   target is the intended target (or NULL for availability checks before
+   target selection); if non-NULL and not selfbuff_only, offensive spells
+   that target is known to resist are filtered out.
    tx, ty are target coordinates for filtering spells that require
-   specific terrain (e.g., entangle needs vegetation). Pass (0,0) to
+   specific terrain (e.g., entangle needs vegetation); pass (0,0) to
    skip terrain filtering (used when just checking spell availability) */
 short
-mchoose_learned_spell(mtmp, tx, ty, selfbuff_only)
+mchoose_learned_spell(mtmp, target, tx, ty, selfbuff_only)
 struct monst *mtmp;
+struct monst *target;
 int tx, ty;
 boolean selfbuff_only; /* TRUE = only return self-buff spells */
 {
@@ -3332,6 +3489,12 @@ boolean selfbuff_only; /* TRUE = only return self-buff spells */
                 continue;
             /* If only self-buff spells wanted, skip offensive spells */
             if (selfbuff_only && !IS_SELFBUFF_SPELL(spell_otyp))
+                continue;
+            /* Skip offensive spells the target is known to fully
+               resist; selfbuffs and unknown spells pass through */
+            if (target && !selfbuff_only
+                && !IS_SELFBUFF_SPELL(spell_otyp)
+                && target_resists_learned_spell(mtmp, target, spell_otyp))
                 continue;
             /* Entangle requires vegetation at target location.
                Skip filtering if tx,ty are 0 (availability check only) */

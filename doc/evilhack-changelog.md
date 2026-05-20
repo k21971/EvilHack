@@ -5400,4 +5400,5 @@ The following changes to date are:
 - HTML dumplog: highlight the hero tile and honor RGB customcolors
 - Fix: don't duplicate mplayer rank title in death messages
 - Fix: pet "can't carry" message conflated two rejection reasons
+- Gate monster learned-spell selection on target resistance
 
