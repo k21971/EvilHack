@@ -131,6 +131,10 @@ int color;
         return CLR_BRIGHT_CYAN;
     case HI_GEMSTONE:
         return CLR_RED;
+    case HI_ORANGE:
+        return CLR_ORANGE;
+    case HI_PURPLE:
+        return CLR_MAGENTA;
     default:
         return map_color_256to16(color);
     }

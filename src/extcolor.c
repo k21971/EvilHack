@@ -136,28 +136,18 @@ init_extcolors()
     }
 }
 
-/* Map a 256-color index to the nearest base-16 color.
-   Returns c unchanged for c < 16; NO_COLOR for out of range. */
+/* Map a 256-color index to the nearest base-16 color. Out-of-range
+   indices (negative or >= CLR_EXT_MAX) return NO_COLOR; base-16 indices
+   pass through unchanged */
 int
 map_color_256to16(c)
 int c;
 {
+    if (c < 0 || c >= CLR_EXT_MAX)
+        return NO_COLOR;
     if (c < CLR_MAX)
         return c;
-    if (c < CLR_EXT_MAX)
-        return color256_to_16[c];
-    return NO_COLOR;
-}
-
-/* Return the RGB value for a 256-color index (for HTML dumplog CSS).
-   Returns 0 for out-of-range indices. */
-unsigned long
-extcolor_256_rgb(c)
-int c;
-{
-    if (c >= 0 && c < CLR_EXT_MAX)
-        return color256_rgb[c];
-    return 0UL;
+    return color256_to_16[c];
 }
 
 /* Find the 256-palette entry whose RGB value is closest to lcolor.

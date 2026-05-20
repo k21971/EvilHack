@@ -2897,7 +2897,6 @@ E void FDECL(trap_ice_effects, (xchar x, xchar y, boolean ice_is_melting));
 
 E void NDECL(init_extcolors);
 E int FDECL(map_color_256to16, (int));
-E unsigned long FDECL(extcolor_256_rgb, (int));
 E int FDECL(color_distance, (unsigned long, unsigned long));
 E boolean FDECL(closest_color, (unsigned long, unsigned long *, int *));
 

@@ -15,9 +15,10 @@ STATIC_VAR struct customcolor_entry *customcolor_list =
 
 STATIC_DCL int FDECL(monidx_by_name, (const char *));
 STATIC_DCL int FDECL(objidx_by_name, (const char *));
-STATIC_DCL int FDECL(cmapidx_by_name, (const char *));
+STATIC_DCL int FDECL(set_cmap_customcolors, (const char *, unsigned long));
 STATIC_DCL int FDECL(parse_clr_name, (const char *));
 STATIC_DCL char *FDECL(strip_ws, (char *));
+STATIC_DCL int FDECL(customcolor_glyph, (int));
 
 /* CLR_* names accepted in CUSTOMCOLOR= color values */
 static const struct {
@@ -56,13 +57,35 @@ reset_customcolors()
     customcolor_list = (struct customcolor_entry *) 0;
 }
 
-/* Look up a customcolor entry by glyph index. Returns NULL if none */
+/* Normalize a display glyph to the canonical glyph whose color drives
+   its appearance, so a CUSTOMCOLOR= entry set on a base monster or object
+   resolves for every display state. Pet/peaceful/ridden/detected monsters
+   and corpses take a monster's mcolor, so they map to the base monster
+   glyph; statues take the STATUE object color, so they map to the statue
+   object glyph. Idempotent on the canonical keys that
+   parse_customcolor_line() stores */
+STATIC_OVL int
+customcolor_glyph(glyph)
+int glyph;
+{
+    if (glyph_is_monster(glyph))
+        return monnum_to_glyph(glyph_to_mon(glyph));
+    if (glyph_is_body(glyph))
+        return monnum_to_glyph(glyph - GLYPH_BODY_OFF);
+    if (glyph_is_statue(glyph))
+        return objnum_to_glyph(STATUE);
+    return glyph;
+}
+
+/* Look up a customcolor entry for a display glyph (normalized to its base
+   monster/object). Returns NULL if none */
 struct customcolor_entry *
 customcolor_lookup(glyph)
 int glyph;
 {
     struct customcolor_entry *cur;
 
+    glyph = customcolor_glyph(glyph);
     for (cur = customcolor_list; cur; cur = cur->next)
         if (cur->glyphidx == glyph)
             return cur;
@@ -90,7 +113,9 @@ unsigned long nhcolor;
     ce->nhcolor = nhcolor;
     /* Pre-compute the 256-palette fallback so windowports that need a
        quantized index (curses, 16-color terminals) don't redo the work
-       on every cell */
+       on every cell. Basic colors keep the field valid too (the CLR_*
+       index is its own quantized fallback) even though consumers read
+       color256idx only on the RGB path */
     if (nhcolor & NH_BASIC_COLOR) {
         ce->color256idx = (int) (nhcolor & 0xFFUL);
     } else if (closest_color(COLORVAL(nhcolor), &quant, &idx)) {
@@ -142,6 +167,7 @@ const char *s;
     char *p;
     int r, g, b;
     int idx;
+    char tail;
 
     if (!s || !*s)
         return -1L;
@@ -170,13 +196,14 @@ const char *s;
     }
     /* "R-G-B" decimal form */
     r = g = b = -1;
-    if (sscanf(s, "%d-%d-%d", &r, &g, &b) == 3) {
+    if (sscanf(s, "%d-%d-%d%c", &r, &g, &b, &tail) == 3) {
         if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
             return -1L;
         return ((long) r << 16) | ((long) g << 8) | (long) b;
     }
     /* CLR_* color name (lowercased) */
-    Strcpy(buf, s);
+    (void) strncpy(buf, s, sizeof buf - 1);
+    buf[sizeof buf - 1] = '\0';
     for (p = buf; *p; p++)
         *p = lowc(*p);
     idx = parse_clr_name(buf);
@@ -217,21 +244,26 @@ const char *name;
     return -1;
 }
 
-/* Find a cmap glyph index by defsyms[].explanation (case-insensitive,
-   exact match). Returns -1 on miss */
+/* Set the customcolor on every cmap glyph whose explanation matches
+   name (case-insensitive, exact). Terrain features commonly share an
+   explanation, so a single cmap: directive colors the whole family.
+   Returns the count of glyphs set */
 STATIC_OVL int
-cmapidx_by_name(name)
+set_cmap_customcolors(name, nhcolor)
 const char *name;
+unsigned long nhcolor;
 {
-    int i, len = (int) strlen(name);
+    int i, len = (int) strlen(name), count = 0;
 
     for (i = 0; i < MAXPCHARS; i++) {
         if (defsyms[i].explanation
             && (int) strlen(defsyms[i].explanation) == len
-            && !strncmpi(defsyms[i].explanation, name, len))
-            return i + GLYPH_CMAP_OFF;
+            && !strncmpi(defsyms[i].explanation, name, len)) {
+            (void) set_customcolor(i + GLYPH_CMAP_OFF, nhcolor);
+            count++;
+        }
     }
-    return -1;
+    return count;
 }
 
 /* Parse a CUSTOMCOLOR= rc value of the form
@@ -250,7 +282,8 @@ const char *str;
 
     if (!str)
         return 0;
-    Strcpy(buf, str);
+    (void) strncpy(buf, str, sizeof buf - 1);
+    buf[sizeof buf - 1] = '\0';
     /* Split target/color on the '/' */
     cp = strchr(buf, '/');
     if (!cp)
@@ -261,25 +294,31 @@ const char *str;
     cp = strchr(buf, ':');
     if (!cp)
         return 0;
-    prefix = strip_ws(buf);
     *cp++ = '\0';
+    prefix = strip_ws(buf);
     target = strip_ws(cp);
     if (!*prefix || !*target || !*colorstr)
         return 0;
-    /* Resolve glyph index from prefix + target name */
-    if (!strcmp(prefix, "mon"))
-        glyphidx = monidx_by_name(target);
-    else if (!strcmp(prefix, "obj"))
-        glyphidx = objidx_by_name(target);
-    else if (!strcmp(prefix, "cmap"))
-        glyphidx = cmapidx_by_name(target);
-    else
-        return 0;
-    if (glyphidx < 0)
-        return 0;
-    /* Parse and store the color */
+    /* Parse the color first so cmap: can apply it to every match */
     nhcolor = rgbstr_to_int32(colorstr);
     if (nhcolor < 0L)
+        return 0;
+    /* Resolve the prefix + target name and store the override */
+    if (!strcmp(prefix, "mon")) {
+        glyphidx = monidx_by_name(target);
+    } else if (!strcmp(prefix, "obj")) {
+        glyphidx = objidx_by_name(target);
+        if (glyphidx >= 0 && glyphidx - GLYPH_OBJ_OFF == CORPSE) {
+            config_error_add(
+                "CUSTOMCOLOR obj:corpse has no effect; use mon:<name>");
+            return 0;
+        }
+    } else if (!strcmp(prefix, "cmap")) {
+        return set_cmap_customcolors(target, (unsigned long) nhcolor) > 0;
+    } else {
+        return 0;
+    }
+    if (glyphidx < 0)
         return 0;
     return set_customcolor(glyphidx, (unsigned long) nhcolor);
 }
