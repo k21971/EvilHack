@@ -1579,7 +1579,7 @@ unsigned special;
     coord cc;
     int desc_found = 0;
     unsigned attr;
-    unsigned long rgb_color = 0UL; /* nonzero = emit inline RGB span */
+    unsigned long rgb = 0UL; /* nonzero = emit inline RGB span */
 
     if (!dumphtml_file) return;
 
@@ -1606,15 +1606,15 @@ unsigned special;
 
         if (ce && (ce->nhcolor & NH_BASIC_COLOR) == 0
             && !(attr & HL_INVERSE))
-            rgb_color = COLORVAL(ce->nhcolor);
+            rgb = COLORVAL(ce->nhcolor);
         else
             color = ce ? ce->color256idx : NO_COLOR;
     }
-    if (rgb_color) {
+    if (rgb) {
         /* bold/uline/blink wrappers still come from dump_set_color_attr;
            only the inner color span is replaced with an inline style */
         dump_set_color_attr(NO_COLOR, attr & ~HL_INVERSE, TRUE);
-        fprintf(dumphtml_file, "<span style=\"color:#%06lX;\">", rgb_color);
+        fprintf(dumphtml_file, "<span style=\"color:#%06lX;\">", rgb);
     } else {
         dump_set_color_attr(color, attr, TRUE);
     }
@@ -1624,7 +1624,7 @@ unsigned special;
         fprintf(dumphtml_file, "&#%d;", ch);
     else
         html_dump_char(dumphtml_file, (char)ch);
-    if (rgb_color) {
+    if (rgb) {
         fprintf(dumphtml_file, SPAN_E);
         dump_set_color_attr(NO_COLOR, attr & ~HL_INVERSE, FALSE);
     } else {

@@ -5411,4 +5411,5 @@ The following changes to date are:
 - Fix: several monster and object lookup defects in pager.c
 - Fix: literacy conduct double-counted when naming an artifact
 - Fix: tabexpand() could overflow its buffer on tab-heavy lines
+- Silence -Wshadow warning for rgb_color in html_dump_glyph()
 
