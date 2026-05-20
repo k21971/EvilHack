@@ -216,7 +216,9 @@ void
 pututf8char(c)
 int c;
 {
-    if (c < 0x80) {
+    if (c < 0 || c > 0x10FFFF) {
+        (void) putchar('?');
+    } else if (c < 0x80) {
         (void) putchar(c);
     } else if (c < 0x800) {
         (void) putchar(0xC0 | (c >> 6));
@@ -225,7 +227,7 @@ int c;
         (void) putchar(0xE0 | (c >> 12));
         (void) putchar(0x80 | ((c >> 6) & 0x3F));
         (void) putchar(0x80 | (c & 0x3F));
-    } else if (c < 0x200000) {
+    } else {
         (void) putchar(0xF0 | (c >> 18));
         (void) putchar(0x80 | ((c >> 12) & 0x3F));
         (void) putchar(0x80 | ((c >> 6) & 0x3F));
@@ -243,7 +245,11 @@ utf8str_from_codepoint(c, buf)
 int c;
 char *buf;
 {
-    if (c < 0x80) {
+    if (c < 0 || c > 0x10FFFF) {
+        buf[0] = '?';
+        buf[1] = '\0';
+        return 1;
+    } else if (c < 0x80) {
         buf[0] = (char) c;
         buf[1] = '\0';
         return 1;
@@ -258,7 +264,7 @@ char *buf;
         buf[2] = (char) (0x80 | (c & 0x3F));
         buf[3] = '\0';
         return 3;
-    } else if (c < 0x200000) {
+    } else {
         buf[0] = (char) (0xF0 | (c >> 18));
         buf[1] = (char) (0x80 | ((c >> 12) & 0x3F));
         buf[2] = (char) (0x80 | ((c >> 6) & 0x3F));
@@ -266,9 +272,6 @@ char *buf;
         buf[4] = '\0';
         return 4;
     }
-    buf[0] = '?';
-    buf[1] = '\0';
-    return 1;
 }
 
 /*
