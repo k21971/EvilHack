@@ -948,6 +948,10 @@ int udist;
 
             carryamt = can_carry(mtmp, obj);
             if (carryamt > 0 && !obj->cursed && !obj->zombie_corpse
+                /* a handless pet (dog, cat, &c) can carry only one
+                   unworn/unwielded item; the 'don't drop items' order
+                   must not let it hoard more */
+                && !(nohands(mtmp->data) && droppables(mtmp))
                 && could_reach_item(mtmp, obj->ox, obj->oy)) {
                 boolean can_use = could_use_item(mtmp, obj, TRUE, FALSE);
                 if (can_use || (rn2(20) < edog->apport + 3)) {

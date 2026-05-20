@@ -5404,4 +5404,5 @@ The following changes to date are:
 - Harden customcolor parsing and fix color-resolution issues
 - Fix: customcolor sentinel handling in tty and curses menu glyphs
 - Fix: covetous attacker could index info[-1] in m_move()
+- Fix: 'don't drop items' pet order let handless pets hoard items
 
