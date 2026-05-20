@@ -4,6 +4,7 @@
 
 #include "config.h"
 #include "dlb.h"
+#include <limits.h> /* UINT_MAX */
 #if defined(VERSION_IN_DLB_FILENAME)
 #include "patchlevel.h"
 #endif
@@ -11,6 +12,10 @@
 #ifdef __DJGPP__
 #include <string.h>
 #endif
+
+/* dlb.c does not include extern.h; declare panic() locally so the
+   corrupt-header guards in readlibdir() can abort */
+extern void VDECL(panic, (const char *, ...)) PRINTF_F(1, 2);
 
 #define DATAPREFIX 4
 
@@ -144,6 +149,18 @@ library *lp; /* library pointer to fill in */
     if (lp->rev > DLB_MAX_VERS || lp->rev < DLB_MIN_VERS)
         return FALSE;
 
+    /* A truncated or tampered archive header could supply counts
+       whose byte size overflows alloc()'s unsigned int argument,
+       under-allocating the directory or string space that the loops
+       below then overrun. Reject nonsensical or oversized counts */
+    if (lp->nentries < 1
+        || (unsigned long) lp->nentries > UINT_MAX / sizeof(libdir)
+        || lp->strsize < 1
+        || (unsigned long) lp->strsize > UINT_MAX)
+        panic("readlibdir: corrupt DLB directory header "
+              "(%ld entries, %ld string bytes)",
+              lp->nentries, lp->strsize);
+
     lp->dir = (libdir *) alloc(lp->nentries * sizeof(libdir));
     lp->sspace = (char *) alloc(lp->strsize);
 
@@ -167,6 +184,13 @@ library *lp; /* library pointer to fill in */
             lp->dir[i].fsize = totalsize - lp->dir[i].foffset;
         else
             lp->dir[i].fsize = lp->dir[i + 1].foffset - lp->dir[i].foffset;
+        /* a corrupt directory with a negative or non-monotonic
+           offset yields a negative start or size, which would drive
+           negative counts into the buffered-read clamp; reject it */
+        if (lp->dir[i].foffset < 0 || lp->dir[i].fsize < 0)
+            panic("readlibdir: corrupt DLB entry %d "
+                  "(offset %ld, size %ld)",
+                  i, lp->dir[i].foffset, lp->dir[i].fsize);
     }
 
     (void) fseek(lp->fdata, 0L, SEEK_SET); /* reset back to zero */
