@@ -1650,7 +1650,7 @@ int x, y, glyph;
         return;
     }
 
-    if (glyph >= MAX_GLYPH) {
+    if (glyph < 0 || glyph >= MAX_GLYPH) {
         impossible("show_glyph:  bad glyph %d [max %d] at (%d,%d).", glyph,
                    MAX_GLYPH, x, y);
         return;

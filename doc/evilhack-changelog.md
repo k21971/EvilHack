@@ -5406,4 +5406,5 @@ The following changes to date are:
 - Fix: covetous attacker could index info[-1] in m_move()
 - Fix: 'don't drop items' pet order let handless pets hoard items
 - Fix: kops_gone() could m_detach an already-dismissed Kop twice
+- Fix: show_glyph() did not reject negative glyph values
 
