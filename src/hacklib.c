@@ -399,15 +399,18 @@ char *
 tabexpand(sbuf)
 char *sbuf;
 {
-    char buf[BUFSZ];
+    char buf[BUFSZ + 10];
     char *bp, *s = sbuf;
     int idx;
 
     if (!*s)
         return sbuf;
-    /* warning: no bounds checking performed */
-    for (bp = buf, idx = 0; *s; s++)
+    for (bp = buf, idx = 0; *s; s++) {
         if (*s == '\t') {
+            /*
+             * clang-8 -Os has been seen to mis-compile this loop, hanging
+             * nethack when viewing data.base entries; clang-9 is unaffected
+             */
             do
                 *bp++ = ' ';
             while (++idx % 8);
@@ -415,6 +418,11 @@ char *sbuf;
             *bp++ = *s;
             idx++;
         }
+        if (idx >= BUFSZ) {
+            bp = &buf[BUFSZ - 1];
+            break;
+        }
+    }
     *bp = 0;
     return strcpy(sbuf, buf);
 }
