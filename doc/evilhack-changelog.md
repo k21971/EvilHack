@@ -5408,4 +5408,5 @@ The following changes to date are:
 - Fix: kops_gone() could m_detach an already-dismissed Kop twice
 - Fix: show_glyph() did not reject negative glyph values
 - Harden UTF-8 encoders against out-of-range codepoints
+- Fix: several monster and object lookup defects in pager.c
 

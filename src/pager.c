@@ -223,9 +223,9 @@ struct obj **obj_p;
                for tools and don't need to check for and delete container
                contents or extinguish lights on the temporary object */
         }
-        set_material(otmp, objects[otmp->otyp].oc_material);
         if (!otmp)
-            return FALSE;
+            return FALSE; /* defensive; mksobj/mkobj never actually fail */
+        set_material(otmp, objects[otmp->otyp].oc_material);
         /* even though we pass False for mksobj()'s 'init' arg, corpse-rot,
            egg-hatch, and figurine-transform timers get initialized */
         if (otmp->timed)
@@ -833,6 +833,7 @@ static const char * damagetypes[] = {
     "arcane",
     "random breath",
     "steal Amulet",
+    "transmute to gold", /* AD_GOLD */
 };
 
 /* Add some information to an encyclopedia window which is printing information
@@ -908,7 +909,7 @@ struct permonst * pm;
     if (uniq)
         Strcpy(buf, "Unique.");
     else if (freq == 0)
-	Strcpy(buf, "Not randomly generated.");
+        Strcpy(buf, "Not randomly generated.");
     else
         Sprintf(buf, "Normally %s%s, %s.",
                 hell ? "only appears in Gehennom" :
@@ -1167,9 +1168,9 @@ struct permonst * pm;
                 dicebuf[0] = '\0';
             }
         }
-        if (attk->aatyp > LAST_AT) {
+        if (attk->aatyp >= SIZE(attacktypes)) {
             impossible("add_to_mon: unknown attack type %d", attk->aatyp);
-        } else if (attk->adtyp > LAST_AD) {
+        } else if (attk->adtyp >= SIZE(damagetypes)) {
             impossible("add_to_mon: unknown damage type %d", attk->adtyp);
         /* hack to display gelatinous cubes' (and potentially shambling
            horrors') suffocation attack correctly---swimming won't save you! */
@@ -1365,6 +1366,7 @@ short otyp;
         OBJPUTSTR(buf);
         Sprintf(buf, "Takes %d turn%s to put on or remove.",
                 oc.oc_delay, (oc.oc_delay == 1 ? "" : "s"));
+        OBJPUTSTR(buf);
     }
     if (olet == FOOD_CLASS) {
         if (otyp == TIN || otyp == CORPSE) {
@@ -1994,7 +1996,9 @@ int artinum;
                 ADDTOLIST(buf2, "wraiths");
         } else if (arti->spfx & SPFX_DALIGN) {
             Strcpy(buf2, "cross-aligned");
-        } else if (arti->spfx & SPFX_DMONS) {
+        } else if ((arti->spfx & SPFX_DMONS)
+                   && (int) arti->mtype >= LOW_PM
+                   && (int) arti->mtype < NUMMONS) {
             Strcpy(buf2, mons[arti->mtype].mname);
         }
         if (buf2[0]) {
@@ -2406,14 +2410,13 @@ char *supplemental_name;
                         goto bad_data_file;
                 } while (!digit(*buf));
 
-                if (sscanf(buf, "%ld,%d\n", &entry_offset, &entry_count) < 2) {
+                if (sscanf(buf, "%ld,%d\n", &entry_offset, &entry_count) < 2)
                     goto bad_data_file;
                 fseekoffset = (long) txt_offset + entry_offset;
                 if (pass == 1)
                     pass1offset = fseekoffset;
                 else if (fseekoffset == pass1offset)
                     goto checkfile_done;
-                }
             }
 
             /* monster lookup: try to parse as a monster
