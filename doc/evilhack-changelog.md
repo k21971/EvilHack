@@ -5418,4 +5418,5 @@ The following changes to date are:
 - Fix: harden rumors.c against empty buffer and corrupt save data
 - Boost monster silver-weapon spawns for Infidel and vampire heroes
 - Fix: use-after-free when a self-targeted wand is freed mid-zap
+- Fix: duplicate shopkeeper names and monk health-food shop stocking
 

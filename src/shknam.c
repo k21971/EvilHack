@@ -547,10 +547,12 @@ const char *const *nlp;
 
             /* is name already in use on this level? */
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-                if (DEADMONSTER(mtmp) || (mtmp == shk) || !mtmp->isshk)
+                if (DEADMONSTER(mtmp) || (mtmp == shk) || !mtmp->isshk
+                    || !has_eshk(mtmp))
                     continue;
                 if (strcmp(ESHK(mtmp)->shknam, shname))
                     continue;
+                name_wanted = names_avail; /* try a random name */
                 break;
             }
             if (!mtmp)
@@ -774,7 +776,6 @@ int shp_indx;
 
     shk->isshk = shk->mpeaceful = 1;
     set_malign(shk);
-    shk->data->msound = MS_SELL;
     shk->msleeping = 0;
     shk->mtrapseen = ~0; /* we know all the traps already */
     eshkp->shoproom = (schar) ((sroom - rooms) + ROOMOFFSET);
@@ -901,6 +902,11 @@ int rmno, sh, sx,sy;
                || (sy == sroom->ly && doors[sh].y == sy - 1)
                || (sy == sroom->hy && doors[sh].y == sy + 1))
         return FALSE;
+
+    /* only generate items on solid floor squares */
+    if (!IS_ROOM(levl[sx][sy].typ))
+        return FALSE;
+
     return TRUE;
 }
 
@@ -925,6 +931,11 @@ struct mkroom *sroom;
     /* first, try to place a shopkeeper in the room */
     if ((sh = shkinit(shp, sroom, shp_indx)) < 0)
         return;
+
+    /* shkinit() may retype the shop (e.g. monk health-food store in
+       mine town); restock from the shop's actual type */
+    shp_indx = sroom->rtype - SHOPBASE;
+    shp = &shtypes[shp_indx];
 
     /* make sure no doorways without doors, and no trapped doors, in shops */
     sx = doors[sroom->fdoor].x;
@@ -1017,8 +1028,11 @@ int type;
     const struct shclass *shp = shtypes + type;
     int i, j;
 
-    /* select an appropriate object type at random */
-    for (j = rnd(100), i = 0; (j -= shp->iprobs[i].iprob) > 0; i++)
+    /* select an appropriate object type at random; bound the loop so a
+       misconfigured iprobs[] (not summing to 100) cannot index past the
+       array end */
+    for (j = rnd(100), i = 0;
+         i < SIZE(shp->iprobs) - 1 && (j -= shp->iprobs[i].iprob) > 0; i++)
         continue;
 
     return shp->iprobs[i].itype;
