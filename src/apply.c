@@ -4582,6 +4582,7 @@ struct obj *obj;
                     bot(); /* potion effects */
             }
             damage = zapyourself(obj, FALSE);
+            obj = current_wand; /* the effect may have freed it */
             if (damage) {
                 Sprintf(buf, "killed %sself by breaking a wand", uhim());
                 losehp(Maybe_Half_Phys(damage), buf, NO_KILLER_PREFIX);
@@ -4599,7 +4600,7 @@ struct obj *obj;
     if (shop_damage)
         pay_for_damage("dig into", FALSE);
 
-    if (obj->otyp == WAN_LIGHT) {
+    if (obj && obj->otyp == WAN_LIGHT) {
         /* only needs to be done once */
         if (cursed(obj, TRUE))
             litroom(FALSE, FALSE, obj, u.ux, u.uy);

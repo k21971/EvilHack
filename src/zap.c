@@ -2906,15 +2906,19 @@ dozap()
         /* make him pay for knowing !NODIR */
     } else if (((!u.dx && !u.dy && !u.dz) || (obj->cursed && !rn2(8)))
                && !(objects[obj->otyp].oc_dir == NODIR)) {
+        char buf[BUFSZ];
+
         if (u.dx || u.dy || u.dz)
             pline("%s backfires!", The(xname(obj)));
-        if ((damage = zapyourself(obj, TRUE)) != 0) {
-            char buf[BUFSZ];
-
-            Sprintf(buf, "zapped %sself with %s",
-                    uhim(), killer_xname(obj));
+        /* the effect may free obj; capture the killer name first, then
+           track obj across the effect via current_wand */
+        Sprintf(buf, "zapped %sself with %s", uhim(), killer_xname(obj));
+        current_wand = obj;
+        damage = zapyourself(obj, TRUE);
+        obj = current_wand; /* NULL if the effect freed it */
+        current_wand = 0;
+        if (damage)
             losehp(Maybe_Half_Phys(damage), buf, NO_KILLER_PREFIX);
-        }
     } else {
         /*      Are we having fun yet?
          * weffects -> buzz(obj->otyp) -> zhitm (temple priest) ->
@@ -2940,6 +2944,13 @@ zapyourself(obj, ordinary)
 struct obj *obj;
 boolean ordinary;
 {
+    /* some effects (polyself onto lava, self-teleport onto lava,
+       destroy_item on a wand/ring zap) can free obj mid-effect; track
+       it via current_wand so the post-effect code never dereferences
+       freed memory. a caller (dozap, break_wand) may already own
+       current_wand for this obj, so only take/release ownership when it
+       isn't already pointing at obj */
+    boolean track_wand = (current_wand != obj);
     boolean learn_it = FALSE;
     int damage = 0;
     int attack_skill = ((P_SKILL(P_ATTACK_SPELL) >= P_EXPERT)
@@ -2954,6 +2965,8 @@ boolean ordinary;
                           ? 12 : (P_SKILL(P_CLERIC_SPELL) == P_SKILLED)
                             ? 8 : (P_SKILL(P_CLERIC_SPELL) == P_BASIC) ? 6 : 4);
 
+    if (track_wand)
+        current_wand = obj; /* effect may free obj */
     switch (obj->otyp) {
     case WAN_STRIKING:
     case SPE_FORCE_BOLT:
@@ -3467,9 +3480,12 @@ boolean ordinary;
         impossible("zapyourself: object %d used?", obj->otyp);
         break;
     }
+    obj = current_wand; /* NULL if the effect freed the wand */
+    if (track_wand)
+        current_wand = 0;
     /* if effect was observable then discover the wand type provided
        that the wand itself has been seen */
-    if (learn_it)
+    if (obj && learn_it)
         learnwand(obj);
     return damage;
 }
