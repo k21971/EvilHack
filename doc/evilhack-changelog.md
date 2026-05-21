@@ -5416,4 +5416,5 @@ The following changes to date are:
 - Fix: harden DLB archive directory parsing against corrupt headers
 - Fix: harden read_simplemail() empty-message and cleanup paths
 - Fix: harden rumors.c against empty buffer and corrupt save data
+- Boost monster silver-weapon spawns for Infidel and vampire heroes
 

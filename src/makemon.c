@@ -22,6 +22,7 @@ STATIC_DCL void FDECL(m_initgrp, (struct monst *, int, int, int, int));
 STATIC_DCL void FDECL(m_initthrow, (struct monst *, int, int));
 STATIC_DCL void FDECL(m_initweap, (struct monst *));
 STATIC_DCL void FDECL(m_initinv, (struct monst *));
+STATIC_DCL void FDECL(maybe_arm_silver, (struct monst *, struct obj *));
 STATIC_DCL boolean FDECL(makemon_rnd_goodpos, (struct monst *,
                                                unsigned, coord *));
 
@@ -322,7 +323,38 @@ int otyp, oquan;
             otmp->spe = rn2(3) + 3;
         }
     }
+    maybe_arm_silver(mtmp, otmp);
     (void) mpickobj(mtmp, otmp);
+}
+
+/* when the hero is an Infidel or a vampire, monsters that don't hate
+   silver are more likely to be armed with a silver weapon, making the
+   world more hostile to a silver-vulnerable hero; called once a weapon's
+   material has been finalized, just before it is given to the monster */
+STATIC_OVL void
+maybe_arm_silver(mtmp, otmp)
+struct monst *mtmp;
+struct obj *otmp;
+{
+    /* only Infidel-role or Vampire-race heroes provoke this */
+    if (!(Role_if(PM_INFIDEL) || Race_if(PM_VAMPIRE)))
+        return;
+    /* must be a non-silver weapon that can sear on contact; skip
+       launchers, artifacts, and weapons that are already silver */
+    if (!otmp || otmp->oclass != WEAPON_CLASS
+        || otmp->material == SILVER || otmp->oartifact
+        || is_launcher(otmp))
+        return;
+    /* the wielder must tolerate silver, and silver must be a legal
+       material for this object type */
+    if (mon_hates_material(mtmp, SILVER)
+        || !valid_obj_material(otmp, SILVER))
+        return;
+    /* roughly one in five eligible weapons becomes silver */
+    if (!rn2(5)) {
+        set_material(otmp, SILVER);
+        otmp->owt = weight(otmp);
+    }
 }
 
 struct trobj {
@@ -4440,6 +4472,7 @@ int otyp;
             }
         }
 
+        maybe_arm_silver(mtmp, otmp);
         spe = otmp->spe;
         if (mpickobj(mtmp, otmp)) {
             /* otmp was freed via merging with something else */
