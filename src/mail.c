@@ -603,6 +603,8 @@ boolean adminmsg;
         goto bail;
 
     while (fgets(curline, 128, mb) != NULL) {
+        int msglen;
+
         if (!adminmsg) {
 #ifdef SIMPLE_MAIL
             fl.l_type = F_UNLCK;
@@ -613,12 +615,14 @@ boolean adminmsg;
         }
         msg = strchr(curline, ':');
 
-        if (!msg)
+        /* if incorrectly formatted, or message is empty (':' and '\n'
+           take up 2 chars, so must have at least 3 to be nonempty) */
+        if (!msg || (msglen = (int) strlen(msg)) < 3)
             goto bail;
 
         *msg = '\0';
-        msg++;
-        msg[strlen(msg) - 1] = '\0'; /* kill newline */
+        msg++, msglen--;
+        msg[msglen - 1] = '\0'; /* kill newline */
 
         pline(msgfrom, curline);
         if (adminmsg)
@@ -646,10 +650,12 @@ boolean adminmsg;
     if (adminmsg)
         display_nhwindow(WIN_MESSAGE, TRUE);
     else
-        unlink(mailbox);
+        unlink(mbox);
     return;
  bail:
     /* bail out _professionally_ */
+    if (mb)
+        fclose(mb);
     if (!adminmsg)
         pline("It appears to be all gibberish.");
 }

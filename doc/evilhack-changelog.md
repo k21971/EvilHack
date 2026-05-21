@@ -5414,4 +5414,5 @@ The following changes to date are:
 - Silence -Wshadow warning for rgb_color in html_dump_glyph()
 - Fix: mon_arrive() panic on stairless one-way portal destination
 - Fix: harden DLB archive directory parsing against corrupt headers
+- Fix: harden read_simplemail() empty-message and cleanup paths
 
