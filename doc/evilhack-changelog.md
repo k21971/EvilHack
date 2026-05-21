@@ -5415,4 +5415,5 @@ The following changes to date are:
 - Fix: mon_arrive() panic on stairless one-way portal destination
 - Fix: harden DLB archive directory parsing against corrupt headers
 - Fix: harden read_simplemail() empty-message and cleanup paths
+- Fix: harden rumors.c against empty buffer and corrupt save data
 

@@ -168,11 +168,10 @@ boolean exclude_cookie;
 #ifdef PAD_RUMORS_TO
     /* remove padding */
     {
-        char *x = eos(rumor_buf) - 1;
+        char *x = eos(rumor_buf);
 
-        while (x > rumor_buf && *x == '_')
+        while (x > rumor_buf && x[-1] == '_')
             x--;
-        *++x = '\n';
         *x = '\0';
     }
 #endif
@@ -418,6 +417,10 @@ int FDECL((*rng), (int));
            that save and restore might fix the problem wouldn't be useful */
         if (sizetxt < 1L)
             return buf;
+        /* (*rng)() takes int; clamp so an oversized file can't narrow to
+           <= 0 and feed rn2(0) (division by zero) */
+        if (sizetxt > (long) LARGEST_INT)
+            sizetxt = (long) LARGEST_INT;
         tidbit = (*rng)(sizetxt);
 
         (void) dlb_fseek(fh, starttxt + tidbit, SEEK_SET);
@@ -533,6 +536,12 @@ restore_oracles(fd)
 int fd;
 {
     mread(fd, (genericptr_t) &oracle_cnt, sizeof oracle_cnt);
+    /* sanity-cap corrupt save data; init_oracles() limits the real count
+       to 5 digits via its "%5d" read, so a larger value is corruption.
+       Must panic rather than skip: the next oracle_cnt*sizeof(long) bytes
+       are the loc array, so returning early would desync the restore */
+    if (oracle_cnt > 99999U)
+        panic("restore_oracles: bogus oracle_cnt %u", oracle_cnt);
     if (oracle_cnt) {
         oracle_loc = (unsigned long *) alloc(oracle_cnt * sizeof(long));
         mread(fd, (genericptr_t) oracle_loc, oracle_cnt * sizeof(long));
@@ -587,7 +596,7 @@ boolean delphi;
             if ((endp = index(line, '\n')) != 0)
                 *endp = 0;
             putstr(tmpwin, 0, xcrypt(line, xbuf));
-            maybe_learn_elbereth(xcrypt(line, xbuf));
+            maybe_learn_elbereth(xbuf);
         }
         display_nhwindow(tmpwin, TRUE);
         destroy_nhwindow(tmpwin);
