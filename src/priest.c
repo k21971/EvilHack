@@ -1006,15 +1006,15 @@ struct monst *priest;
             int atonement_val = original_abuse;
 
             while (tiers_paid > 0 && atonement_val > 0) {
-                /* Reduce to previous tier boundary */
+                /* drop to the bottom of the next-lower tier */
                 if (atonement_val >= 50)
-                    atonement_val = 49; /* grave -> severe */
+                    atonement_val = 30; /* grave -> severe */
                 else if (atonement_val >= 30)
-                    atonement_val = 29; /* severe -> serious */
+                    atonement_val = 15; /* severe -> serious */
                 else if (atonement_val >= 15)
-                    atonement_val = 14; /* serious -> moderate */
+                    atonement_val = 5;  /* serious -> moderate */
                 else if (atonement_val >= 5)
-                    atonement_val = 4;  /* moderate -> slight */
+                    atonement_val = 1;  /* moderate -> slight */
                 else
                     atonement_val = 0;  /* slight -> none */
                 tiers_paid--;

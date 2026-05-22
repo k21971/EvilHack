@@ -5425,4 +5425,5 @@ The following changes to date are:
 - Fix: use-after-free in remove_worn_item() and breakobj() over lava
 - Fix: let a phasing hero escape an engulfer on their own turn
 - Fix: check monster steed barding for material hatred (rider and steed)
+- Fix: priest atonement lands player at bottom of new abuse tier
 
