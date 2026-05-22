@@ -1646,6 +1646,15 @@ domove_core()
         return;
     }
     if (u.uswallow) {
+        /* a phasing hero slips out of the engulfer under their own
+           power instead of waiting to be expelled on the monster's turn */
+        if (Passes_walls) {
+            mtmp = u.ustuck;
+            expels(mtmp, mtmp->data, FALSE);
+            You("exit %s, phasing right through %s %s!", mon_nam(mtmp),
+                mhis(mtmp), mbodypart(mtmp, STOMACH));
+            return;
+        }
         u.dx = u.dy = 0;
         x = u.ustuck->mx, y = u.ustuck->my;
         u_on_newpos(x, y); /* set u.ux,uy and handle CLIPPING */

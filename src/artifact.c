@@ -3895,6 +3895,13 @@ struct obj *obj;
             }
             incr_itimeout(&HPasses_walls, (50 + rnd(100)));
             obj->age += HPasses_walls; /* Time begins after phasing ends */
+            if (u.uswallow) {
+                struct monst *mon = u.ustuck;
+
+                expels(mon, mon->data, FALSE);
+                You("exit %s, phasing right through %s %s!",
+                    mon_nam(mon), mhis(mon), mbodypart(mon, STOMACH));
+            }
             break;
         case CHANNEL:
             /* Should this break atheist conduct?  Currently it doesn't,

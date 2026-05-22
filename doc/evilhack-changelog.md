@@ -5423,4 +5423,5 @@ The following changes to date are:
 - Fix: bound config-string copies and guard version-mismatch window
 - Document ten missing config options and fix stale wizweight entry
 - Fix: use-after-free in remove_worn_item() and breakobj() over lava
+- Fix: let a phasing hero escape an engulfer on their own turn
 
