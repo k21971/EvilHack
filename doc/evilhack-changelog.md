@@ -5422,4 +5422,5 @@ The following changes to date are:
 - Fix: include fumble boots in appearance shuffle; harden o_init.c
 - Fix: bound config-string copies and guard version-mismatch window
 - Document ten missing config options and fix stale wizweight entry
+- Fix: use-after-free in remove_worn_item() and breakobj() over lava
 

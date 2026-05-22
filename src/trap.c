@@ -4719,7 +4719,7 @@ boolean *lostsome;
                       || obj == ublindf || obj == uarm || obj == uarmc
                       || obj == uarmg || obj == uarmf || obj == uarmu
                       || (obj->cursed && (obj == uarmh || obj == uarms))
-                      || welded(obj)))
+                      || welded(obj) || obj->in_use))
                     otmp = obj;
                 /* reached the mark and found some stuff to drop? */
                 if (--i < 0 && otmp)
@@ -6805,6 +6805,7 @@ lava_effects()
     struct obj *obj, *obj2, *nextobj;
     int dmg = resist_reduce(d(6, 6), FIRE_RES); /* only applicable for water walking */
     boolean usurvive, boil_away;
+    unsigned protect_oid = 0;
     static int lava_death_attempts = 0;
 
     /* Prevent recursive lava_effects() calls from remove_worn_item() ->
@@ -6842,6 +6843,21 @@ lava_effects()
     if (!usurvive)
         for (obj = invent; obj; obj = nextobj) {
             nextobj = obj->nobj;
+            /* one item can be protected from burning up: remove_worn_item()
+               sets in_use, so a worn item whose removal ended levitation
+               and dropped the hero here stays in inventory (e.g. theft
+               hands it to a monster afterward) */
+            if (obj->in_use) {
+                if (!protect_oid) {
+                    protect_oid = obj->o_id;
+                    obj->in_use = 0; /* exempt from destruction below */
+                } else {
+                    impossible(
+                       "lava_effects: '%s' (#%u) already in use; so is #%u.",
+                               simpleonames(obj), obj->o_id, protect_oid);
+                }
+                continue;
+            }
             if (is_flammable(obj) && !obj->oerodeproof
                 && !obj_resists(obj, 0, 0)) /* for invocation items */
                 obj->in_use = 1;
@@ -6851,12 +6867,14 @@ lava_effects()
      * make the player sink into the lava. Assumption: water walking only
      * comes from boots.
      */
-    if (uarmf && is_flammable(uarmf) && !uarmf->oerodeproof) {
+    if (uarmf && (uarmf->in_use
+                  || (is_flammable(uarmf) && !uarmf->oerodeproof))) {
         obj = uarmf;
         pline("%s into flame!", Yobjnam2(obj, "burst"));
         iflags.in_lava_effects++; /* (see above) */
         (void) Boots_off();
-        useup(obj);
+        if (obj->o_id != protect_oid)
+            useup(obj);
         iflags.in_lava_effects--;
     }
 
@@ -6887,8 +6905,12 @@ lava_effects()
         for (obj = invent; obj; obj = obj2) {
             obj2 = obj->nobj;
             /* above, we set in_use for objects which are to be destroyed */
-            if (obj->otyp == SPE_BOOK_OF_THE_DEAD
-                || obj->otyp == SCR_CONSECRATION) {
+            if (obj->o_id == protect_oid) {
+                /* protected item: restore the in_use flag cleared above;
+                   the remove_worn_item() in progress resets it afterward */
+                obj->in_use = 1;
+            } else if (obj->otyp == SPE_BOOK_OF_THE_DEAD
+                       || obj->otyp == SCR_CONSECRATION) {
                 if (usurvive) {
                     if (!Blind)
                         pline("%s glows a strange %s, but remains intact.",

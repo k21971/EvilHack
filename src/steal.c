@@ -259,10 +259,20 @@ remove_worn_item(obj, unchain_ball)
 struct obj *obj;
 boolean unchain_ball; /* whether to unpunish or just unwield */
 {
+    unsigned oldinuse;
+
     if (donning(obj))
         cancel_don();
     if (!obj->owornmask)
         return;
+
+    /* Losing worn gear here can end levitation and drop the hero into
+       lava (levitation/water walking boots or ring of levitation).
+       Marking it in_use lets lava_effects() recognize and protect this
+       one item so it isn't burned up while mid-removal, e.g. when theft
+       hands it to a monster afterward */
+    oldinuse = obj->in_use;
+    obj->in_use = 1;
 
     if (obj->owornmask & W_ARMOR) {
         if (obj == uskin) {
@@ -310,6 +320,8 @@ boolean unchain_ball; /* whether to unpunish or just unwield */
         /* catchall */
         setnotworn(obj);
     }
+
+    obj->in_use = oldinuse;
 }
 
 /* Returns 1 when something was stolen (or at least, when N should flee now)

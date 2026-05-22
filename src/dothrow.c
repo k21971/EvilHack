@@ -2812,6 +2812,8 @@ struct obj* obj;
     }
     if (ucarried) { /* hero's item */
         if (obj->quan == 1L) {
+            unsigned obj_oid = obj->o_id;
+
             /* weapon handling */
             if (obj == uwep)
                 uwepgone();
@@ -2842,10 +2844,10 @@ struct obj* obj;
             if (obj == uright)
                 (void) Ring_gone(uright);
             /* remove_worn_item variants above can end levitation and
-               drop the hero into lava/water/open air, which may destroy
-               obj via flooreffects. If obj is no longer carried,
-               abandon the break attempt */
-            if (!carried(obj))
+               drop the hero into lava/water/open air, which may free
+               obj. Check by id rather than dereferencing a possibly
+               freed pointer (carried() reads obj->where) */
+            if (!o_on(obj_oid, invent))
                 return FALSE;
         }
         obj->ox = u.ux, obj->oy = u.uy;

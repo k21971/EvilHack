@@ -401,7 +401,10 @@ Boots_off(VOID_ARGS)
     case LEVITATION_BOOTS:
         if (!oldprop && !HLevitation && !(BLevitation & FROMOUTSIDE)
             && !context.takeoff.cancelled_don) {
-            (void) float_down(0L, 0L);
+            /* lava_effects() sets in_lava_effects and calls Boots_off(),
+               so the hero is already in the midst of floating down */
+            if (!iflags.in_lava_effects)
+                (void) float_down(0L, 0L);
             makeknown(otyp);
         } else {
             float_vs_flight(); /* maybe toggle (BFlying & I_SPECIAL) */
@@ -3614,8 +3617,15 @@ do_takeoff()
             (void) Cloak_off();
     } else if (doff->what == WORN_BOOTS) {
         otmp = uarmf;
-        if (!cursed(otmp, FALSE))
+        if (!cursed(otmp, FALSE)) {
+            unsigned oid = otmp->o_id;
+
             (void) Boots_off();
+            /* Boots_off -> float_down -> lava_effects can burn up the
+               just-removed boots; don't hand a freed obj to off_msg */
+            if (!o_on(oid, invent))
+                otmp = (struct obj *) 0;
+        }
     } else if (doff->what == WORN_GLOVES) {
         otmp = uarmg;
         if (!cursed(otmp, FALSE))
@@ -3638,12 +3648,24 @@ do_takeoff()
             Amulet_off();
     } else if (doff->what == LEFT_RING) {
         otmp = uleft;
-        if (!cursed(otmp, FALSE))
+        if (!cursed(otmp, FALSE)) {
+            unsigned oid = otmp->o_id;
+
             Ring_off(uleft);
+            /* ring of levitation can free a flammable ring via lava */
+            if (!o_on(oid, invent))
+                otmp = (struct obj *) 0;
+        }
     } else if (doff->what == RIGHT_RING) {
         otmp = uright;
-        if (!cursed(otmp, FALSE))
+        if (!cursed(otmp, FALSE)) {
+            unsigned oid = otmp->o_id;
+
             Ring_off(uright);
+            /* ring of levitation can free a flammable ring via lava */
+            if (!o_on(oid, invent))
+                otmp = (struct obj *) 0;
+        }
     } else if (doff->what == WORN_BLINDF) {
         if (!cursed(ublindf, FALSE))
             Blindf_off(ublindf);
