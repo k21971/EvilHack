@@ -100,8 +100,10 @@ int pm;             /* steed */
                                              : rn2(3) ? SPIKED_BARDING
                                                       : BARDING_OF_REFLECTION, TRUE, FALSE);
 
-            if (otmp)
+            if (otmp) {
+                reroll_barding_material(otmp, mount, mtmp);
                 put_barding_on_mon(otmp, mount);
+            }
         }
     }
 }
@@ -797,6 +799,41 @@ struct monst *mtmp;
     barding->owornmask = W_BARDING;
     barding->leashmon = mtmp->m_id;
     update_mon_intrinsics(mtmp, barding, TRUE, FALSE);
+}
+
+/* reroll freshly spawned steed barding so neither the steed nor its
+ * rider (if any) is averse to its material; mirrors the hated-material
+ * reroll mongets() does for ordinary monster gear */
+void
+reroll_barding_material(barding, steed, rider)
+struct obj *barding;
+struct monst *steed, *rider;
+{
+    int tryct = 0, mat;
+
+    if (!barding)
+        return;
+    while (mon_hates_material(steed, barding->material)
+           || (rider && mon_hates_material(rider, barding->material))) {
+        init_obj_material(barding);
+        if (++tryct >= 100) {
+            for (mat = 1; mat < NUM_MATERIAL_TYPES; ++mat) {
+                if (valid_obj_material(barding, mat)
+                    && !mon_hates_material(steed, mat)
+                    && !(rider && mon_hates_material(rider, mat))) {
+                    set_material(barding, mat);
+                    break;
+                }
+            }
+            if (mat == NUM_MATERIAL_TYPES) {
+                impossible("no valid barding material (steed %d, rider %d)",
+                           monsndx(steed->data),
+                           rider ? monsndx(rider->data) : -1);
+                set_material(barding, objects[barding->otyp].oc_material);
+            }
+            break;
+        }
+    }
 }
 
 /*** Riding the monster ***/

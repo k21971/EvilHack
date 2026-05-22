@@ -2724,6 +2724,7 @@ E int FDECL(use_saddle, (struct obj *));
 E int FDECL(use_barding, (struct obj *));
 E void FDECL(put_saddle_on_mon, (struct obj *, struct monst *));
 E void FDECL(put_barding_on_mon, (struct obj *, struct monst *));
+E void FDECL(reroll_barding_material, (struct obj *, struct monst *, struct monst *));
 E boolean FDECL(can_ride, (struct monst *));
 E int NDECL(doride);
 E boolean FDECL(mount_steed, (struct monst *, BOOLEAN_P));

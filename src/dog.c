@@ -1901,6 +1901,7 @@ gain_guardian_steed()
                                            TRUE, FALSE);
 
                 if (otmp2) {
+                    reroll_barding_material(otmp2, mtmp, (struct monst *) 0);
                     put_barding_on_mon(otmp2, mtmp);
                     bless(otmp2);
                     otmp2->dknown = otmp2->bknown = otmp2->rknown = 1;

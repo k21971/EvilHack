@@ -3608,8 +3608,10 @@ struct _create_particular_data *d;
                                              : rn2(3) ? SPIKED_BARDING
                                                       : BARDING_OF_REFLECTION, TRUE, FALSE);
 
-            if (otmp)
+            if (otmp) {
+                reroll_barding_material(otmp, mtmp, (struct monst *) 0);
                 put_barding_on_mon(otmp, mtmp);
+            }
         }
         if (d->invisible) {
             mon_set_minvis(mtmp);

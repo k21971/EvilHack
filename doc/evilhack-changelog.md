@@ -5424,4 +5424,5 @@ The following changes to date are:
 - Document ten missing config options and fix stale wizweight entry
 - Fix: use-after-free in remove_worn_item() and breakobj() over lava
 - Fix: let a phasing hero escape an engulfer on their own turn
+- Fix: check monster steed barding for material hatred (rider and steed)
 
