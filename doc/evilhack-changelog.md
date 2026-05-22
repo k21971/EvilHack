@@ -5421,4 +5421,5 @@ The following changes to date are:
 - Fix: duplicate shopkeeper names and monk health-food shop stocking
 - Fix: include fumble boots in appearance shuffle; harden o_init.c
 - Fix: bound config-string copies and guard version-mismatch window
+- Document ten missing config options and fix stale wizweight entry
 

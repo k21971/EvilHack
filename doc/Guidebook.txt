@@ -15,7 +15,7 @@
                        Original version - Eric S. Raymond
       (Edited and expanded for EvilHack 0.9.3 by Keith Simpson and others)
 
-                                  May 14, 2026
+                                  May 22, 2026
 
 
 
@@ -2834,6 +2834,9 @@
      dark_room
        Show out-of-sight areas of lit rooms (default on).  Persistent.
 
+     deaf
+       Start the character permanently deaf (default false).  Persistent.
+
      disclose
        Controls what information the program reveals when  the  game  ends.
        Value is a space separated list of prompting/category pairs (default
@@ -2934,6 +2937,14 @@
        blessed or cursed, but it is not described as "uncursed"  even  when
        the implicit_uncursed option is "off".
 
+     hallucinating
+       Start the character permanently hallucinating (default false).  Per-
+       sistent.
+
+     hawkname
+       Name  your  starting hawk (for example "hawkname:Betty").  Cannot be
+       set with the `O' command.
+
      help
        If  more  information  is available for an object looked at with the
        `/' command, ask if you want to see it (default on).   Turning  help
@@ -2946,6 +2957,10 @@
        When using a windowport that supports mouse and clicking on yourself
        or next to you, show a menu of possible actions  for  the  location.
        Same as "#herecmdmenu" and "#therecmdmenu" commands.
+
+     hilite_hidden_stairs
+       Visually distinguish staircases that are concealed  beneath  one  or
+       more objects, so that they are not overlooked (default off).
 
      hilite_pet
        Visually  distinguish  pets from similar animals (default off).  The
@@ -2968,6 +2983,10 @@
        Show  a hit point bar graph behind your name and title.  Only avail-
        able for TTY and Windows GUI, and only when statushilites is on.
 
+     homunname
+       Name your starting homunculus (for example "homunname:Steve").  Can-
+       not be set with the `O' command.
+
      horsename
        Name your starting horse (for example "horsename:Trigger").   Cannot
        be set with the `O' command.
@@ -2978,6 +2997,10 @@
 
      implicit_uncursed
        Omit "uncursed" from inventory lists, if possible (default on).
+
+     invweight
+       Augment object descriptions  with  their  objects'  weight  (default
+       off).
 
      legacy
        Display an introductory message when starting the game (default on).
@@ -3263,6 +3286,10 @@
        it when not allowed or not possible results in explore mode instead.
        Default is normal play.
 
+     pseudoname
+       Name  your  starting  pseudodragon  (for example "pseudoname:Carl").
+       Cannot be set with the `O' command.
+
      pushweapon
        Using the `w' (wield) command when already wielding something pushes
        the old item into your alternate weapon slot (default  off).   Like-
@@ -3282,6 +3309,10 @@
        If you prefix the value with `!' or "no", you will exclude that race
        from  being  picked  randomly.   Cannot be set with the `O' command.
        Persistent.
+
+     ratname
+       Name your starting rat (for example  "ratname:Squeak").   Cannot  be
+       set with the `O' command.
 
      realtime
        Display various types of time to show on the status bar.  Default is
@@ -3389,6 +3420,10 @@
        Specify the length in frames of the sparkly animation  the  that  is
        displayed  when  a  monster  (including  you) is hit by an effect to
        which it is resistant (default 21).  Persistent.
+
+     spidername
+       Name  your  starting spider (for example "spidername:Phil").  Cannot
+       be set with the `O' command.
 
      standout
        Boldface monsters and "--More--" (default off).  Persistent.
@@ -3510,10 +3545,6 @@
        comment  line.   For a comma-separated list in EVILHACKOPTIONS or an
        OPTIONS line in a configuration file, that would  be  the  rightmost
        option in the list.
-
-     wizweight
-       Augment  object  descriptions  with  their  objects' weight (default
-       off).  Debug mode only.
 
      zerocomp
        When writing out a save file, perform zero-comp compression  of  the
@@ -3669,6 +3700,9 @@
      tile_width
        Specify the preferred width of each tile in a tile capable port
 
+     underline_peacefuls
+       Underline peaceful monsters shown on the map (default off).
+
      use_256color
        Use extended 256-color palette for materials, monsters  and  terrain
        features  on  terminals  that  support  it.   Disable this if colors
@@ -3681,6 +3715,10 @@
      use_inverse
        If EvilHack can, it should display inverse when the  game  specifies
        it.
+
+     use_menu_glyphs
+       Display object glyphs alongside the entries in menus such as  inven-
+       tory (default on).
 
      vary_msgcount
        If EvilHack can, it should display this number of messages at a time

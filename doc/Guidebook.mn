@@ -48,7 +48,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 May 14, 2026
+.ds f2 May 22, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -3186,6 +3186,9 @@ EvilHack's built-in palette.  Has no effect when no
 lines are configured.
 .lp dark_room
 Show out-of-sight areas of lit rooms (default on).  Persistent.
+.lp deaf
+Start the character permanently deaf (default false).
+Persistent.
 .lp disclose
 Controls what information the program reveals when the game ends.
 Value is a space separated list of prompting/category pairs
@@ -3295,6 +3298,12 @@ Gold is never blessed or cursed, but it is not described as \(lquncursed\(rq
 even when the
 .op implicit_uncursed
 option is \(lqoff\(rq.
+.lp hallucinating
+Start the character permanently hallucinating (default false).
+Persistent.
+.lp hawkname
+Name your starting hawk (for example \(lqhawkname:Betty\(rq).
+Cannot be set with the \(oqO\(cq command.
 .lp "help    "
 If more information is available for an object looked at
 with the \(oq/\(cq command, ask if you want to see it (default on).
@@ -3306,6 +3315,9 @@ Persistent.
 When using a windowport that supports mouse and clicking on yourself or
 next to you, show a menu of possible actions for the location.
 Same as \(lq#herecmdmenu\(rq and \(lq#therecmdmenu\(rq commands.
+.lp hilite_hidden_stairs
+Visually distinguish staircases that are concealed beneath one or more
+objects, so that they are not overlooked (default off).
 .lp hilite_pet
 Visually distinguish pets from similar animals (default off).
 The behavior of this option depends on the type of windowing you use.
@@ -3326,6 +3338,9 @@ on the top of the pile.
 .lp hitpointbar
 Show a hit point bar graph behind your name and title.
 Only available for TTY and Windows GUI, and only when statushilites is on.
+.lp homunname
+Name your starting homunculus (for example \(lqhomunname:Steve\(rq).
+Cannot be set with the \(oqO\(cq command.
 .lp horsename
 Name your starting horse (for example \(lqhorsename:Trigger\(rq).
 Cannot be set with the \(oqO\(cq command.
@@ -3333,6 +3348,8 @@ Cannot be set with the \(oqO\(cq command.
 Ignore interrupt signals, including breaks (default off).  Persistent.
 .lp implicit_uncursed
 Omit "uncursed" from inventory lists, if possible (default on).
+.lp invweight
+Augment object descriptions with their objects' weight (default off).
 .lp legacy
 Display an introductory message when starting the game (default on).
 Persistent.
@@ -3642,6 +3659,9 @@ user name (on multi-user systems) or specifying a particular character
 name (on single-user systems) or it might be disabled entirely.  Requesting
 it when not allowed or not possible results in explore mode instead.
 Default is normal play.
+.lp pseudoname
+Name your starting pseudodragon (for example \(lqpseudoname:Carl\(rq).
+Cannot be set with the \(oqO\(cq command.
 .lp pushweapon
 Using the \(oqw\(cq (wield) command when already wielding
 something pushes the old item into your alternate weapon slot (default off).
@@ -3663,6 +3683,9 @@ If you prefix the value with \(oq!\(cq or \(lqno\(rq, you will
 exclude that race from being picked randomly.
 Cannot be set with the \(oqO\(cq command.
 Persistent.
+.lp ratname
+Name your starting rat (for example \(lqratname:Squeak\(rq).
+Cannot be set with the \(oqO\(cq command.
 .lp realtime
 Display various types of time to show on the status bar.
 Default is wallclock time.  Persistent.
@@ -3763,6 +3786,9 @@ Specify the length in frames of the sparkly animation the that is
 displayed when a monster (including you) is hit by an effect to which
 it is resistant (default 21).
 Persistent.
+.lp spidername
+Name your starting spider (for example \(lqspidername:Phil\(rq).
+Cannot be set with the \(oqO\(cq command.
 .lp standout
 Boldface monsters and \(lq\fB\-\-More\-\-\fP\(rq (default off).
 Persistent.
@@ -3884,9 +3910,6 @@ For a comma-separated list in EVILHACKOPTIONS or an OPTIONS line in a
 configuration file,
 that would
 be the \fIrightmost\fP option in the list.
-.lp wizweight
-Augment object descriptions with their objects' weight (default off).
-Debug mode only.
 .lp zerocomp
 When writing out a save file, perform zero-comp compression of the
 contents. Not all ports support zero-comp compression. It has no effect
@@ -4001,6 +4024,8 @@ Specify the name of an alternative tile file to override the default.
 Specify the preferred height of each tile in a tile capable port.
 .lp tile_width
 Specify the preferred width of each tile in a tile capable port
+.lp underline_peacefuls
+Underline peaceful monsters shown on the map (default off).
 .lp use_256color
 Use extended 256\-color palette for materials, monsters and terrain
 features on terminals that support it.
@@ -4015,6 +4040,9 @@ for 24-bit RGB output.
 Use bold black instead of blue for black glyphs (TTY only).
 .lp use_inverse
 If EvilHack can, it should display inverse when the game specifies it.
+.lp use_menu_glyphs
+Display object glyphs alongside the entries in menus such as inventory
+(default on).
 .lp vary_msgcount
 If EvilHack can, it should display this number of messages at a time in
 the message window.
