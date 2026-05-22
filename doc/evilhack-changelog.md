@@ -5419,4 +5419,5 @@ The following changes to date are:
 - Boost monster silver-weapon spawns for Infidel and vampire heroes
 - Fix: use-after-free when a self-targeted wand is freed mid-zap
 - Fix: duplicate shopkeeper names and monk health-food shop stocking
+- Fix: include fumble boots in appearance shuffle; harden o_init.c
 

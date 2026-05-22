@@ -191,8 +191,8 @@ int *lo_p, *hi_p; /* output: range that item belongs among */
             *lo_p = GLOVES, *hi_p = GAUNTLETS_OF_FUMBLING;
         else if (otyp >= CLOAK_OF_PROTECTION && otyp <= CLOAK_OF_DISPLACEMENT)
             *lo_p = CLOAK_OF_PROTECTION, *hi_p = CLOAK_OF_DISPLACEMENT;
-        else if (otyp >= SPEED_BOOTS && otyp <= LEVITATION_BOOTS)
-            *lo_p = SPEED_BOOTS, *hi_p = LEVITATION_BOOTS;
+        else if (otyp >= SPEED_BOOTS && otyp <= FUMBLE_BOOTS)
+            *lo_p = SPEED_BOOTS, *hi_p = FUMBLE_BOOTS;
         break;
     case POTION_CLASS:
         /* potions of water, sickness and drow poison have
@@ -266,7 +266,7 @@ find_skates()
     int i;
     const char *s;
 
-    for (i = SPEED_BOOTS; i <= LEVITATION_BOOTS; i++)
+    for (i = SPEED_BOOTS; i <= FUMBLE_BOOTS; i++)
         if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "snow boots"))
             return i;
 
@@ -324,6 +324,8 @@ int fd;
     for (i = 0; i < NUM_OBJECTS; i++)
         if (objects[i].oc_uname) {
             mread(fd, (genericptr_t) &len, sizeof len);
+            if (len == 0 || len > BUFSZ)
+                panic("restnames: bogus oc_uname length %u", len);
             objects[i].oc_uname = (char *) alloc(len);
             mread(fd, (genericptr_t) objects[i].oc_uname, len);
         }
@@ -655,6 +657,11 @@ doclassdisco()
         break;
     default:
         oclass = def_char_to_objclass(c);
+        /* this should never happen but has been observed via the fuzzer */
+        if (oclass == MAXOCLASSES) {
+            impossible("doclassdisco: invalid object class '%s'", visctrl(c));
+            break;
+        }
         Sprintf(buf, "Discovered %s", let_to_name(oclass, FALSE, FALSE));
         putstr(tmpwin, iflags.menu_headings, buf);
         for (i = bases[(int) oclass];
