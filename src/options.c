@@ -7236,7 +7236,8 @@ char *op;
                             &iflags.wc_backgrnd_status,
                             &iflags.wc_backgrnd_text };
 
-    Strcpy(buf, op);
+    (void) strncpy(buf, op, sizeof buf - 1);
+    buf[sizeof buf - 1] = '\0';
     newop = mungspaces(buf);
     while (newop && *newop) {
         wn = tfg = tbg = (char *) 0;

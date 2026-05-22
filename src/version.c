@@ -265,7 +265,8 @@ boolean complain;
         ) {
         if (complain) {
             pline("Version mismatch for file \"%s\".", filename);
-            display_nhwindow(WIN_MESSAGE, TRUE);
+            if (WIN_MESSAGE != WIN_ERR)
+                display_nhwindow(WIN_MESSAGE, TRUE);
         }
         return FALSE;
     } else if (
@@ -280,7 +281,8 @@ boolean complain;
         || version_data->struct_sizes2 != VERSION_SANITY3) {
         if (complain) {
             pline("Configuration incompatibility for file \"%s\".", filename);
-            display_nhwindow(WIN_MESSAGE, TRUE);
+            if (WIN_MESSAGE != WIN_ERR)
+                display_nhwindow(WIN_MESSAGE, TRUE);
         }
         return FALSE;
     }
@@ -347,7 +349,9 @@ char *str;
 
     if (!str)
         return 0L;
-    str = strcpy(buf, str);
+    (void) strncpy(buf, str, sizeof buf - 1);
+    buf[sizeof buf - 1] = '\0';
+    str = buf;
     istr[j] = str;
     while (*str) {
         if (*str == '.') {
