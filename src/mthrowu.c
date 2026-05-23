@@ -72,8 +72,35 @@ const char *name; /* if null, then format `*objp' */
             panic("thitu: name & obj both null?");
         name = strcpy(onmbuf,
                       (obj->quan > 1L) ? doname(obj) : mshot_xname(obj));
-        knm = strcpy(knmbuf, killer_xname(obj));
-        kprefix = KILLED_BY; /* killer_name supplies "an" if warranted */
+        if (thrower) {
+            boolean disguised = (thrower->cham >= LOW_PM
+                                 && &mons[thrower->cham] != thrower->data);
+            boolean fired = (MON_WEP(thrower)
+                             && ammo_and_launcher(obj, MON_WEP(thrower)));
+
+            if (disguised) {
+                /* a possessive reads oddly on an "imitating X" name, so
+                   fall back to the "by" form for a clean reading */
+                const char *verb = is_pole(obj) ? "wielded"
+                                   : fired ? "fired" : "thrown";
+
+                (void) death_inflicted_by(knmbuf, killer_xname(obj), thrower);
+                (void) strsubst(knmbuf, "inflicted", verb);
+            } else {
+                /* "a goblin's thrown dagger" / "an orc's fired arrow"; a
+                   polearm thrust is a wielded reach weapon, so no verb */
+                char nbuf[BUFSZ];
+                const char *verb = is_pole(obj) ? ""
+                                   : fired ? "fired " : "thrown ";
+
+                (void) weapon_killer(knmbuf, mon_killer_name(nbuf, thrower),
+                                     verb, obj);
+            }
+        } else {
+            (void) strcpy(knmbuf, killer_xname(obj));
+        }
+        knm = knmbuf;
+        kprefix = KILLED_BY; /* killer_xname supplies "an" if warranted */
     } else {
         knm = name;
         /* [perhaps ought to check for plural here to] */
@@ -917,7 +944,9 @@ boolean verbose;
             case BLINDING_VENOM:
             case SNOWBALL:
             case BALL_OF_WEBBING:
+                thrower = mon; /* for death attribution */
                 hitu = thitu(8, 0, &singleobj, (char *) 0);
+                thrower = 0;
                 break;
             default:
                 dam = dmgval(mon, singleobj, &youmonst);
@@ -965,8 +994,10 @@ boolean verbose;
                 if ((maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
                     && MON_WEP(mon) && MON_WEP(mon)->otyp == SLING)
                     dam *= 2;
+                thrower = mon; /* for death attribution -> thrown/fired by */
                 hitu = thitu(hitv, Maybe_Half_Phys(dam),
                              &singleobj, (char *) 0);
+                thrower = 0;
             }
             if (hitu
                 && ((singleobj->opoisoned && is_poisonable(singleobj))
@@ -1372,8 +1403,10 @@ struct attack  *mattk;
             if ((typ >= AD_MAGM) && (typ <= AD_STUN)) {
                 if (canseemon(mtmp))
                     pline("%s breathes %s!", Monnam(mtmp), breathwep[typ - 1]);
+                buzzer = mtmp; /* crossfire can hit hero -> "exhaled by <mon>" */
                 dobuzz((int) (-22 - (typ - 1)), (int) mattk->damn,
                        mtmp->mx, mtmp->my, sgn(tbx), sgn(tby), FALSE);
+                buzzer = 0;
                 nomul(0);
                 /* breath runs out sometimes. Also, give monster some
                  * cunning; don't breath if the target fell asleep.
@@ -1476,7 +1509,9 @@ struct monst *mtmp;
         if (dam < 1)
             dam = 1;
 
+        thrower = mtmp; /* polearm thrust -> "wielded by" attribution */
         (void) thitu(hitv, Maybe_Half_Phys(dam), &otmp, (char *) 0);
+        thrower = 0;
         stop_occupation();
         return TRUE;
     }
@@ -1597,8 +1632,10 @@ struct attack *mattk;
                 if (canseemon(mtmp))
                     pline("%s breathes %s!", Monnam(mtmp),
                           breathwep[typ - 1]);
+                buzzer = mtmp; /* for death attribution -> "exhaled by <mon>" */
                 buzz((int) (-22 - (typ - 1)), (int) mattk->damn, mtmp->mx,
                      mtmp->my, sgn(tbx), sgn(tby));
+                buzzer = 0;
                 nomul(0);
                 /* breath runs out sometimes. Also, give monster some
                  * cunning; don't breath if the player fell asleep.

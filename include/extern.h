@@ -1355,6 +1355,8 @@ E void FDECL(genl_putmixed, (winid, int, const char *));
 /* ### mcastu.c ### */
 
 E boolean FDECL(is_spellcaster, (struct monst *));
+E char *FDECL(death_inflicted_by, (char *, const char *, struct monst *));
+E char *FDECL(mon_killer_name, (char *, struct monst *));
 E int FDECL(castmu, (struct monst *, struct attack *, BOOLEAN_P, BOOLEAN_P));
 E int FDECL(buzzmu, (struct monst *, struct attack *));
 E int FDECL(buzzmm, (struct monst *, struct monst *, struct attack *));
@@ -1961,6 +1963,7 @@ E char *FDECL(corpse_xname, (struct obj *, const char *, unsigned));
 E char *FDECL(cxname, (struct obj *));
 E char *FDECL(cxname_singular, (struct obj *));
 E char *FDECL(killer_xname, (struct obj *));
+E char *FDECL(weapon_killer, (char *, const char *, const char *, struct obj *));
 E char *FDECL(short_oname,
               (struct obj *, char *(*)(OBJ_P), char *(*)(OBJ_P), unsigned));
 E const char *FDECL(singular, (struct obj *, char *(*)(OBJ_P)));

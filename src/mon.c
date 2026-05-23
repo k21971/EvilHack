@@ -3939,6 +3939,10 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
 
     if (mtmp == context.polearm.hitmon)
         context.polearm.hitmon = 0;
+    if (mtmp == buzzer)
+        buzzer = 0;
+    if (mtmp == thrower)
+        thrower = 0;
     if (mtmp->mleashed)
         m_unleash(mtmp, FALSE);
     /* to prevent an infinite relobj-flooreffects-hmon-killed loop */

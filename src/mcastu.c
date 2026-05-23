@@ -2907,6 +2907,45 @@ int spellnum;
 /* convert AD_FOO to ZT_FOO as a spell (i.e. add MAX_ZT) */
 #define ad_to_spelltyp(k) ZT_SPELL(ad_to_typ(k))
 
+/* articled species name of the monster responsible for a kill, for the
+   death-reason builders: "a goblin", "the Wizard of Yendor", "Asmodeus"
+   (plus " imitating <X>" for a shapeshifter); names by species, like
+   done_in_by() does for the simple cases */
+char *
+mon_killer_name(outbuf, mtmp)
+char *outbuf;
+struct monst *mtmp;
+{
+    struct permonst *mptr = mtmp->data,
+                    *champtr = (mtmp->cham >= LOW_PM) ? &mons[mtmp->cham]
+                                                      : mptr;
+    const char *realnm = champtr->mname, *fakenm = mptr->mname;
+
+    if (!type_is_pname(champtr) && !the_unique_pm(champtr))
+        realnm = an(realnm);
+    Sprintf(outbuf, "%s%s", the_unique_pm(champtr) ? "the " : "", realnm);
+    if (champtr != mptr)
+        Sprintf(eos(outbuf), " imitating %s", an(fakenm));
+    return outbuf;
+}
+
+/* append " inflicted by <monster>" to a death reason; the caller may then
+   strsubst("inflicted", verb) to get "zapped/cast/exhaled by <monster>" */
+char *
+death_inflicted_by(outbuf, deathreason, mtmp)
+char *outbuf;
+const char *deathreason;
+struct monst *mtmp;
+{
+    Strcpy(outbuf, deathreason);
+    if (mtmp) {
+        char nbuf[BUFSZ];
+
+        Sprintf(eos(outbuf), " inflicted by %s", mon_killer_name(nbuf, mtmp));
+    }
+    return outbuf;
+}
+
 /* monster uses spell against player (ranged) */
 int
 buzzmu(mtmp, mattk)
@@ -2930,8 +2969,10 @@ struct attack *mattk;
             if (seecaster)
                 pline("%s zaps you with a %s!", Monnam(mtmp),
                       flash_types[ad_to_typ(mattk->adtyp)]);
+            buzzer = mtmp; /* for death attribution -> "cast by <mon>" */
             buzz(-ad_to_spelltyp(mattk->adtyp), (int) mattk->damn, mtmp->mx,
                  mtmp->my, sgn(tbx), sgn(tby));
+            buzzer = 0;
         } else
             impossible("Monster spell %d cast", mattk->adtyp - 1);
     }
@@ -2962,8 +3003,10 @@ struct attack *mattk;
             if (seecaster)
                 pline("%s zaps %s with a %s!", Monnam(mtmp),
                       mon_nam(mdef), flash_types[ad_to_typ(mattk->adtyp)]);
+            buzzer = mtmp; /* crossfire can hit hero -> "cast by <mon>" */
             dobuzz(-ad_to_spelltyp(mattk->adtyp), (int) mattk->damn, mtmp->mx,
                    mtmp->my, sgn(tbx), sgn(tby), FALSE);
+            buzzer = 0;
         } else
             impossible("Monster spell %d cast", mattk->adtyp - 1);
     }

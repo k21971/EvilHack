@@ -3032,7 +3032,11 @@ do_rust:
                 dmg = 1;
         }
 
+        /* name the wielded weapon in the death reason; mon_currwep is
+           already NULL'd if the weapon eroded away during this attack */
+        killer_weapon = (mattk->aatyp == AT_WEAP) ? mon_currwep : 0;
         mdamageu(mtmp, dmg);
+        killer_weapon = 0;
     }
 
     /* If monster was marked for removal during attack processing

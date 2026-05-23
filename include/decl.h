@@ -277,7 +277,8 @@ E NEARDATA struct obj *uball;
 E NEARDATA struct obj *migrating_objs;
 E NEARDATA struct obj *mchest; /* magic chest */
 E NEARDATA struct obj *billobjs;
-E NEARDATA struct obj *current_wand, *thrownobj, *kickedobj, *menuobj;
+E NEARDATA struct obj *current_wand, *thrownobj, *kickedobj, *menuobj,
+    *killer_weapon;
 E NEARDATA int menuitemcolor; /* programmatic menu item color */
 
 /* Distance map for intelligent monster pathfinding */
@@ -307,7 +308,7 @@ E NEARDATA struct u_realtime urealtime;
 
 E NEARDATA const struct monst zeromonst; /* for init of new or temp monsters */
 E NEARDATA struct monst youmonst; /* monster details when hero is poly'd */
-E NEARDATA struct monst *mydogs, *migrating_mons;
+E NEARDATA struct monst *mydogs, *migrating_mons, *buzzer, *thrower;
 E NEARDATA struct monst* ukiller;
 
 E NEARDATA struct mvitals {

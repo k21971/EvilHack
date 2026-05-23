@@ -1250,6 +1250,8 @@ struct monst *priest;
         break;
     }
 
+    /* divine wrath: leave buzzer unset so the death reason stays a plain
+       "bolt of lightning" with no monster attribution */
     buzz(-(ZT_SPELL(ZT_LIGHTNING)), 6, x, y, sgn(tbx),
          sgn(tby)); /* bolt of lightning */
     exercise(A_WIS, FALSE);

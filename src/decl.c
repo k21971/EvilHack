@@ -172,7 +172,8 @@ NEARDATA struct obj
     *current_wand = 0,  /* wand currently zapped/applied */
     *thrownobj = 0,     /* object in flight due to throwing */
     *kickedobj = 0,     /* object in flight due to kicking */
-    *menuobj = 0;       /* object being added to a menu */
+    *menuobj = 0,       /* object being added to a menu */
+    *killer_weapon = 0; /* wielded weapon of a melee kill, for death attribution */
 NEARDATA int menuitemcolor = NO_COLOR; /* programmatic menu item color */
 
 /* mon.c - pathfinding */
@@ -249,6 +250,16 @@ char preferred_pet; /* '\0', 'c', 'd', 'h', 'i', 'p', 'r', 's', 'B', 'n' (none) 
 NEARDATA struct monst *mydogs = (struct monst *) 0;
 /* monsters that are moving to another dungeon level */
 NEARDATA struct monst *migrating_mons = (struct monst *) 0;
+/* buzzer/thrower name the monster responsible for a ranged/projectile
+   attack on the hero, for attributing the hero's death reason. Each is
+   set only in a tight window around the buzz()/thitu() call and cleared
+   immediately after (also in m_detach() if the monster dies mid-flight);
+   they must stay 0 otherwise, so a later unrelated death is not
+   misattributed and a nested buzz()/thitu() cannot inherit the wrong actor */
+/* monster that initiated the current buzz() (wand/spell/breath) */
+NEARDATA struct monst *buzzer = (struct monst *) 0;
+/* monster throwing/firing/thrusting a weapon at the hero (for thitu()) */
+NEARDATA struct monst *thrower = (struct monst *) 0;
 NEARDATA struct autopickup_exception *apelist =
                             (struct autopickup_exception *)0;
 

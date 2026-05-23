@@ -689,8 +689,10 @@ struct obj *instr;
                 losehp(damage, buf, KILLED_BY); /* fire or frost damage */
             }
         } else {
+            current_wand = instr; /* a tool -> "played by" on self-ricochet */
             buzz((instr->otyp == FROST_HORN) ? ZT_COLD : ZT_FIRE,
                  rn1(6, 6), u.ux, u.uy, u.dx, u.dy);
+            current_wand = 0;
         }
         makeknown(instr->otyp);
         break;

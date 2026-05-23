@@ -2355,6 +2355,19 @@ struct obj *otmp;
                    frees otmp via destroy_mitem(WAND_CLASS); snapshot
                    otyp before the knockback for the losehp() killer */
                 short saved_otyp = otmp->otyp;
+                struct monst *magr = mcarried(otmp) ? otmp->ocarry : 0;
+                char kbuf[BUFSZ];
+
+                /* build the attributed killer now, before any knockback
+                   frees otmp or kills the zapping monster */
+                (void) death_inflicted_by(kbuf,
+                                          (saved_otyp == WAN_STRIKING)
+                                              ? "wand of striking"
+                                              : "force bolt",
+                                          magr);
+                (void) strsubst(kbuf, "inflicted",
+                                (saved_otyp == WAN_STRIKING) ? "zapped"
+                                                             : "cast");
 
                 if (saved_otyp == WAN_STRIKING)
                     pline_The("wand hits you!");
@@ -2387,9 +2400,7 @@ struct obj *otmp;
                         zapper->muy = u.uy;
                     }
                 }
-                losehp(tmp,
-                       saved_otyp == WAN_STRIKING ? "wand" : "force bolt",
-                       KILLED_BY_AN);
+                losehp(tmp, kbuf, KILLED_BY_AN);
             } else {
                 if (otmp->otyp == WAN_STRIKING)
                     pline_The("wand misses you.");
@@ -2939,18 +2950,26 @@ struct monst *mtmp;
         if (oseen)
             makeknown(otmp->otyp);
         m_using = TRUE;
+        current_wand = otmp; /* for death attribution -> "zapped by <mon>" */
+        buzzer = mtmp;
         buzz((int) (-(3 * MAX_ZT) - (otmp->otyp - WAN_MAGIC_MISSILE)),
              (otmp->otyp == WAN_MAGIC_MISSILE) ? 2 : 6, mtmp->mx, mtmp->my,
              sgn(tbx), sgn(tby));
+        buzzer = 0;
+        current_wand = 0;
         m_using = FALSE;
         return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_FIRE_HORN:
     case MUSE_FROST_HORN:
         mplayhorn(mtmp, otmp, FALSE);
         m_using = TRUE;
+        current_wand = otmp; /* a tool -> death attribution "played by <mon>" */
+        buzzer = mtmp;
         buzz(-(3 * MAX_ZT) - ((otmp->otyp == FROST_HORN) ? ZT_COLD : ZT_FIRE),
              rn1(6, 6), mtmp->mx, mtmp->my, sgn(tbx),
              sgn(tby));
+        buzzer = 0;
+        current_wand = 0;
         m_using = FALSE;
         return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_WAN_CANCELLATION:
@@ -5335,7 +5354,9 @@ int spell_otyp;
     ztype = ZT_SPELL(spell_otyp - SPE_MAGIC_MISSILE);
 
     /* Cast the ray - negative type indicates monster casting */
+    buzzer = caster; /* for death attribution -> "cast by <mon>" */
     buzz(-ztype, nd, caster->mx, caster->my, sgn(dx), sgn(dy));
+    buzzer = 0;
 
     /* Caster may have died from passive retaliation along the ray
        (acid/fire/electric mhitm passivem). Report caster mortality so

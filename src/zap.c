@@ -36,6 +36,7 @@ STATIC_DCL void FDECL(revive_egg, (struct obj *));
 STATIC_DCL boolean FDECL(zap_steed, (struct obj *));
 STATIC_DCL void FDECL(skiprange, (int, int *, int *));
 STATIC_DCL int FDECL(zap_hit, (int, int, BOOLEAN_P));
+STATIC_DCL char *FDECL(buzz_killer, (char *, int, int, const char *));
 STATIC_OVL void FDECL(disintegrate_mon, (struct monst *, int, const char *));
 STATIC_DCL void FDECL(backfire, (struct obj *));
 STATIC_DCL int FDECL(spell_hit_bonus, (int, BOOLEAN_P));
@@ -5251,6 +5252,35 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     return tmp;
 }
 
+/* compose the death reason for a buzz that kills the hero: a monster source
+   (type < 0 with a known buzzer) is attributed
+   "<fltxt> zapped/played/cast/exhaled by <mon>"; a hero ricochet (type >= 0)
+   becomes "<fltxt> <verb> by himself"; an unattributed monster source (e.g.
+   a divine bolt with no buzzer) stays a plain "<fltxt>". abstyp = abs(type)
+   with MAX_ZT == 11: spell 11-21, breath 22-32, wand/horn 0-10 or 33-43 */
+STATIC_OVL char *
+buzz_killer(buf, type, abstyp, fltxt)
+char *buf;
+int type, abstyp;
+const char *fltxt;
+{
+    const char *verb = (abstyp >= 11 && abstyp <= 21) ? "cast"
+                       : (abstyp >= 22 && abstyp <= 32) ? "exhaled"
+                         : (current_wand
+                            && current_wand->oclass == TOOL_CLASS) ? "played"
+                           : "zapped";
+
+    if (type < 0 && buzzer) {
+        (void) death_inflicted_by(buf, fltxt ? fltxt : "", buzzer);
+        (void) strsubst(buf, "inflicted", verb);
+    } else if (type >= 0) {
+        Sprintf(buf, "%s %s by %sself", fltxt ? fltxt : "", verb, uhim());
+    } else {
+        Strcpy(buf, fltxt ? fltxt : "");
+    }
+    return buf;
+}
+
 STATIC_OVL void
 zhitu(type, nd, fltxt, sx, sy)
 int type, nd;
@@ -5258,6 +5288,7 @@ const char *fltxt;
 xchar sx, sy;
 {
     int dam = 0, abstyp = abs(type);
+    char kbuf[BUFSZ];
 
     switch (BASE_ZT(abstyp)) {
     case ZT_MAGIC_MISSILE:
@@ -5410,7 +5441,7 @@ xchar sx, sy;
             break;
         }
         killer.format = KILLED_BY_AN;
-        Strcpy(killer.name, fltxt ? fltxt : "");
+        Strcpy(killer.name, buzz_killer(kbuf, type, abstyp, fltxt));
         /* when killed by disintegration breath, don't leave corpse */
         u.ugrave_arise = (type == -ZT_BREATH(ZT_DEATH)) ? -3 : NON_PM;
         done((type == -ZT_BREATH(ZT_DEATH)) ? DISINTEGRATED : DIED);
@@ -5537,7 +5568,7 @@ xchar sx, sy;
        including hero's own ricochets; breath attacks do full damage */
     if (dam && Half_spell_damage && !(abstyp >= 20 && abstyp <= 29))
         dam = (dam + 1) / 2;
-    losehp(dam, fltxt, KILLED_BY_AN);
+    losehp(dam, buzz_killer(kbuf, type, abstyp, fltxt), KILLED_BY_AN);
     return;
 }
 

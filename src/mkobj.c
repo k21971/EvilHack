@@ -2705,6 +2705,8 @@ struct obj *obj;
         kickedobj = 0;
     if (obj == current_wand)
         current_wand = 0;
+    if (obj == killer_weapon)
+        killer_weapon = 0;
 
     if (obj->oextra)
         dealloc_oextra(obj);

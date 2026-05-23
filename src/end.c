@@ -615,7 +615,29 @@ int how;
             Sprintf(eos(buf), " called %s", MNAME(mtmp));
     }
 
-    Strcpy(killer.name, buf);
+    if (killer_weapon) {
+        char mbuf[BUFSZ];
+        /* a possessive ("<mon>'s weapon") only reads well on a simple name;
+           an appositive/genitive/clause name (shopkeeper, former-rank ghost,
+           priest, "called X", or shapeshifter) needs the "by" form instead.
+           simple uniques and titles (Asmodeus, the Wizard of Yendor) stay
+           possessive */
+        boolean compound = (imitator || mtmp->isshk
+                            || mtmp->former_rank.mnum != NON_PM
+                            || mtmp->ispriest || mtmp->isminion
+                            || has_mname(mtmp));
+
+        /* fold the monster's article inline so the reason is one KILLED_BY */
+        Strcpy(mbuf, (killer.format == KILLED_BY_AN) ? an(buf) : buf);
+        if (compound)
+            Sprintf(killer.name, "%s wielded by %s",
+                    killer_xname(killer_weapon), mbuf);
+        else
+            (void) weapon_killer(killer.name, mbuf, "", killer_weapon);
+        killer.format = KILLED_BY;
+    } else {
+        Strcpy(killer.name, buf);
+    }
     ukiller = mtmp;
     if (!Lifesaved && ukiller) {
         if (u.uswallow) {
