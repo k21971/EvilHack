@@ -5427,4 +5427,5 @@ The following changes to date are:
 - Fix: check monster steed barding for material hatred (rider and steed)
 - Fix: priest atonement lands player at bottom of new abuse tier
 - Name the responsible monster in wand/spell/breath and weapon deaths
+- Use the "by" form, not a possessive, for artifact-weapon kills
 

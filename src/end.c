@@ -629,7 +629,9 @@ int how;
 
         /* fold the monster's article inline so the reason is one KILLED_BY */
         Strcpy(mbuf, (killer.format == KILLED_BY_AN) ? an(buf) : buf);
-        if (compound)
+        /* a proper-noun artifact ("a Woodland-elf's Sting") also reads
+           oddly possessive, so it too uses the "by" form */
+        if (compound || killer_weapon->oartifact)
             Sprintf(killer.name, "%s wielded by %s",
                     killer_xname(killer_weapon), mbuf);
         else

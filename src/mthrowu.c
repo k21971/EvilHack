@@ -78,9 +78,10 @@ const char *name; /* if null, then format `*objp' */
             boolean fired = (MON_WEP(thrower)
                              && ammo_and_launcher(obj, MON_WEP(thrower)));
 
-            if (disguised) {
-                /* a possessive reads oddly on an "imitating X" name, so
-                   fall back to the "by" form for a clean reading */
+            if (disguised || obj->oartifact) {
+                /* a possessive reads oddly on an "imitating X" name or a
+                   proper-noun artifact ("a Woodland-elf's Sting"), so fall
+                   back to the "by" form for a clean reading */
                 const char *verb = is_pole(obj) ? "wielded"
                                    : fired ? "fired" : "thrown";
 
