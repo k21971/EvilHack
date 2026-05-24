@@ -5429,4 +5429,5 @@ The following changes to date are:
 - Name the responsible monster in wand/spell/breath and weapon deaths
 - Use the "by" form, not a possessive, for artifact-weapon kills
 - Add doors made of different materials (iron doors)
+- Make the Druid spell "change metal to wood" affect metal doors
 

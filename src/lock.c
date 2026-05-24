@@ -1406,6 +1406,24 @@ int x, y;
         } else
             res = FALSE;
         break;
+    case SPE_CHANGE_METAL_TO_WOOD:
+        if (metal_door(door)) {
+            /* read material name before we overwrite it */
+            if (cansee(x, y))
+                pline_The("%s door turns to wood.",
+                          materialnm[door_material(door)]);
+            /* 0 == wood, as in the reassembly case above */
+            door->material = 0;
+            /* the door glyph is unchanged, so force the cell to
+               redraw with the new color; cf. metal_to_wood() */
+            newsym_force(x, y);
+        } else {
+            /* already wood or not metal: fizzle like metal_to_wood() */
+            if (cansee(x, y))
+                pline_The("door glows briefly, but remains the same.");
+            res = FALSE;
+        }
+        break;
     default:
         impossible("magic (%d) attempted on door.", otmp->otyp);
         break;
