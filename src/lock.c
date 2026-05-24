@@ -195,7 +195,7 @@ picklock(VOID_ARGS)
     if (xlock.door) {
         if (((xlock.door->doormask & D_TRAPPED) && !In_sokoban(&u.uz))) {
             xlock.door->doormask = D_NODOOR; /* this has to occur before b_trapped() */
-            b_trapped("door", FINGER);
+            b_trapped("door", FINGER, door_material(xlock.door));
             unblock_point(u.ux + u.dx, u.uy + u.dy);
             if (*in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE))
                 add_damage(u.ux + u.dx, u.uy + u.dy, SHOP_DOOR_COST);
@@ -1042,7 +1042,7 @@ int x, y;
         pline_The("door opens.");
         if (door->doormask & D_TRAPPED) {
             door->doormask = D_NODOOR;
-            b_trapped("door", FINGER);
+            b_trapped("door", FINGER, door_material(door));
             if (*in_rooms(cc.x, cc.y, SHOPBASE))
                 add_damage(cc.x, cc.y, SHOP_DOOR_COST);
             else if (temple_at_boundary(cc.x, cc.y))
@@ -1336,11 +1336,14 @@ int x, y;
             msg = "The door swings shut, and locks!";
             break;
         case D_BROKEN:
+            /* a broken door is fixed in place, keeping its own material */
             msg = "The broken door reassembles and locks!";
             break;
         case D_NODOOR:
             msg =
                "A cloud of dust springs up and assembles itself into a door!";
+            door->material = 0; /* a brand-new door is wood; a destroyed
+                                   door left no material behind */
             break;
         default:
             res = FALSE;
@@ -1361,6 +1364,12 @@ int x, y;
     case WAN_STRIKING:
     case SPE_FORCE_BOLT:
         if (door->doormask & (D_LOCKED | D_CLOSED)) {
+            if (metal_door(door)) {
+                /* a metal door can't be forced open by a blow; it also
+                   isn't jarred enough to set off its own trap */
+                msg = "The reinforced door shudders.";
+                break;
+            }
             if (door->doormask & D_TRAPPED) {
                 if (In_sokoban(&u.uz)) {
                     if (cansee(x,y))

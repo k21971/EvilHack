@@ -1102,18 +1102,23 @@ dokick()
     if (!IS_DOOR(maploc->typ)) {
         if (maploc->typ == SDOOR) {
             if (!Levitation && rn2(30) < avrg_attrib) {
+                boolean metal = metal_door(maploc);
+
                 cvt_sdoor_to_door(maploc); /* ->typ = DOOR */
                 pline("Crash!  %s a secret door!",
-                      /* don't "kick open" when it's locked
-                         unless it also happens to be trapped */
-                      (maploc->doormask & (D_LOCKED | D_TRAPPED)) == D_LOCKED
+                      /* don't "kick open" when it's locked or metal
+                         (a metal door can't be kicked open at all),
+                         unless a non-metal door is also trapped */
+                      (metal
+                       || (maploc->doormask & (D_LOCKED | D_TRAPPED))
+                              == D_LOCKED)
                           ? "Your kick uncovers"
                           : "You kick open");
                 exercise(A_DEX, TRUE);
-                if (maploc->doormask & D_TRAPPED) {
+                if (!metal && (maploc->doormask & D_TRAPPED)) {
                     maploc->doormask = D_NODOOR;
-                    b_trapped("door", FOOT);
-                } else if (maploc->doormask != D_NODOOR
+                    b_trapped("door", FOOT, door_material(maploc));
+                } else if (!metal && maploc->doormask != D_NODOOR
                            && !(maploc->doormask & D_LOCKED))
                     maploc->doormask = D_ISOPEN;
                 feel_newsym(x, y); /* we know it's gone */
@@ -1471,9 +1476,11 @@ dokick()
         goto ouch;
 
     exercise(A_DEX, TRUE);
-    /* door is known to be CLOSED or LOCKED */
-    if ((maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
-        || (rnl(35) < avrg_attrib + (!martial() ? 0 : ACURR(A_DEX)))) {
+    /* door is known to be CLOSED or LOCKED; a metal door can never be
+       kicked open or broken, so it always falls through to WHAMMM */
+    if (!metal_door(maploc)
+        && ((maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
+            || (rnl(35) < avrg_attrib + (!martial() ? 0 : ACURR(A_DEX))))) {
         boolean shopdoor = *in_rooms(x, y, SHOPBASE) ? TRUE : FALSE;
         /* break the door */
         if (maploc->doormask & D_TRAPPED) {
@@ -1481,7 +1488,7 @@ dokick()
                 You("kick the door.");
             exercise(A_STR, FALSE);
             maploc->doormask = D_NODOOR;
-            b_trapped("door", FOOT);
+            b_trapped("door", FOOT, door_material(maploc));
         } else if (((ACURR(A_STR) > 18 && !rn2(5))
             || ((maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))
                 || maybe_polyd(is_centaur(youmonst.data), Race_if(PM_CENTAUR)))
@@ -1518,6 +1525,17 @@ dokick()
             feel_location(x, y); /* we know we hit it */
         exercise(A_STR, TRUE);
         pline("WHAMMM!!!");
+        /* a barefoot hero who hates the door's material is hurt when an
+           unbreakable metal door refuses to budge */
+        if (metal_door(maploc) && !uarmf
+            && Hate_material(door_material(maploc))
+            && !(Barkskin || Stoneskin)) {
+            int dmat = door_material(maploc);
+
+            You("recoil from the door's %s!", materialnm[dmat]);
+            losehp(rnd(sear_damage(dmat)),
+                   "kicking a door of hated material", KILLED_BY);
+        }
         if (in_town(x, y))
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                 if (DEADMONSTER(mtmp))

@@ -2433,11 +2433,29 @@ int style;
             }
         }
         if (otyp == BOULDER && closed_door(bhitpos.x, bhitpos.y)) {
-            if (cansee(bhitpos.x, bhitpos.y))
-                pline_The("boulder crashes through a door.");
-            levl[bhitpos.x][bhitpos.y].doormask = D_BROKEN;
-            if (dist)
-                unblock_point(bhitpos.x, bhitpos.y);
+            struct rm *dlev = &levl[bhitpos.x][bhitpos.y];
+
+            if (metal_door(dlev)) {
+                /* a metal door isn't smashed: a locked one stops the
+                   boulder, an unlocked one is forced open */
+                if (dlev->doormask & D_LOCKED) {
+                    if (cansee(bhitpos.x, bhitpos.y))
+                        pline_The("boulder crashes against a door.");
+                    x2 = bhitpos.x - dx, y2 = bhitpos.y - dy; /* rest before */
+                    break;
+                }
+                if (cansee(bhitpos.x, bhitpos.y))
+                    pline_The("boulder slams the door open.");
+                dlev->doormask = D_ISOPEN;
+                if (dist)
+                    unblock_point(bhitpos.x, bhitpos.y);
+            } else {
+                if (cansee(bhitpos.x, bhitpos.y))
+                    pline_The("boulder crashes through a door.");
+                dlev->doormask = D_BROKEN;
+                if (dist)
+                    unblock_point(bhitpos.x, bhitpos.y);
+            }
         }
 
         /* if about to hit iron bars, do so now */
@@ -5659,7 +5677,7 @@ boolean force;
             if (!force && (confused || Fumbling
                            || rnd(75 + level_difficulty() / 2) > ch)) {
                 You("set it off!");
-                b_trapped("door", FINGER);
+                b_trapped("door", FINGER, door_material(&levl[x][y]));
                 levl[x][y].doormask = D_NODOOR;
                 unblock_point(x, y);
                 newsym(x, y);
@@ -6509,9 +6527,10 @@ struct trap *ttmp;
 
 /* used for doors (also tins).  can be used for anything else that opens. */
 void
-b_trapped(item, bodypart)
+b_trapped(item, bodypart, material)
 const char *item;
 int bodypart;
+int material; /* a booby-trapped door's material; 0 for non-doors */
 {
     struct rm *lev;
     struct obj *tin = context.tin.tin;
@@ -6541,6 +6560,10 @@ int bodypart;
                   Deaf ? "sense" : "hear", door_count > 1 ? "s" : "");
         return;
     }
+
+    /* a shattering metal door throws more (and more damaging) shrapnel */
+    if (mat_is_metallic(material))
+        dmg *= 3;
 
     pline("KABOOM!!  %s was booby-trapped!", The(item));
     explode(u.ux, u.uy, ZT_FIRE, resist_reduce(dmg, FIRE_RES),

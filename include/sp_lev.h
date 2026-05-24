@@ -352,7 +352,7 @@ typedef struct {
 } lev_init;
 
 typedef struct {
-    xchar wall, pos, secret, mask;
+    xchar wall, pos, secret, mask, material;
 } room_door;
 
 typedef struct {
@@ -534,6 +534,9 @@ typedef const char *vA;
 #define VA_PASS5(a1,a2,a3,a4,a5) \
     vA_(a1), vA_(a2), vA_(a3), vA_(a4), vA_(a5), vA_(0), vA_(0), vA_(0), \
         vA_(0), vA_(0), vA_(0), vA_(0), vA_(0), vA_(0)
+#define VA_PASS6(a1,a2,a3,a4,a5,a6) \
+    vA_(a1), vA_(a2), vA_(a3), vA_(a4), vA_(a5), vA_(a6), vA_(0), vA_(0), \
+        vA_(0), vA_(0), vA_(0), vA_(0), vA_(0), vA_(0)
 #define VA_PASS7(a1,a2,a3,a4,a5,a6,a7) \
     vA_(a1), vA_(a2), vA_(a3), vA_(a4), vA_(a5), vA_(a6), vA_(a7), vA_(0), \
         vA_(0), vA_(0), vA_(0), vA_(0), vA_(0), vA_(0)
@@ -554,6 +557,7 @@ typedef const char *vA;
 #define VA_PASS3(a1,a2,a3) a1, a2, a3
 #define VA_PASS4(a1,a2,a3,a4) a1, a2, a3, a4
 #define VA_PASS5(a1,a2,a3,a4,a5) a1, a2, a3, a4, a5
+#define VA_PASS6(a1,a2,a3,a4,a5,a6) a1, a2, a3, a4, a5, a6
 #define VA_PASS7(a1,a2,a3,a4,a5,a6,a7) a1, a2, a3, a4, a5, a6, a7
 #define VA_PASS8(a1,a2,a3,a4,a5,a6,a7,a8) a1, a2, a3, a4, a5, a6, a7, a8
 #define VA_PASS9(a1,a2,a3,a4,a5,a6,a7,a8,a9) a1, a2, a3, a4, a5, a6, a7, a8, a9

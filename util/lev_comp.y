@@ -196,7 +196,7 @@ extern char curr_token[512];
 %token	<i> ALTAR_ID LADDER_ID STAIR_ID NON_DIGGABLE_ID NON_PASSWALL_ID ROOM_ID
 %token	<i> PORTAL_ID TELEPRT_ID BRANCH_ID LEV MINERALIZE_ID
 %token	<i> CORRIDOR_ID GOLD_ID ENGRAVING_ID FORGE_ID MAGIC_CHEST_ID FOUNTAIN_ID PUDDLE_ID SEWAGE_ID POOL_ID SINK_ID NONE
-%token	<i> RAND_CORRIDOR_ID DOOR_STATE LIGHT_STATE CURSE_TYPE ENGRAVING_TYPE
+%token	<i> RAND_CORRIDOR_ID DOOR_STATE DOOR_MATERIAL LIGHT_STATE CURSE_TYPE ENGRAVING_TYPE
 %token	<i> DIRECTION RANDOM_TYPE RANDOM_TYPE_BRACKET A_REGISTER
 %token	<i> ALIGNMENT LEFT_OR_RIGHT CENTER TOP_OR_BOT ALTAR_TYPE UP_OR_DOWN
 %token	<i> SUBROOM_ID NAME_ID FLAGS_ID FLAG_TYPE MON_ATTITUDE MON_ALERTNESS
@@ -247,7 +247,7 @@ extern char curr_token[512];
 %type	<i> h_justif v_justif trap_name room_type door_state light_state
 %type	<i> alignment altar_type a_register roomfill door_pos
 %type	<i> alignment_prfx
-%type	<i> door_wall walled secret
+%type	<i> door_wall walled secret opt_door_material
 %type	<i> dir_list teleprt_detail
 %type	<i> object_infos object_info monster_infos monster_info
 %type	<i> levstatements stmt_block region_detail_end
@@ -1403,20 +1403,31 @@ room_size	: '(' INTEGER ',' INTEGER ')'
 		  }
 		;
 
-door_detail	: ROOMDOOR_ID ':' secret ',' door_state ',' door_wall ',' door_pos
+door_detail	: ROOMDOOR_ID ':' opt_door_material secret ',' door_state ',' door_wall ',' door_pos
 		  {
 			/* ERR means random here */
-			if ($7 == ERR && $9 != ERR) {
+			if ($8 == ERR && $10 != ERR) {
 			    lc_error("If the door wall is random, so must be its pos!");
 			} else {
-			    add_opvars(splev, "iiiio",
-				       VA_PASS5((long)$9, (long)$5, (long)$3,
-						(long)$7, SPO_ROOM_DOOR));
+			    add_opvars(splev, "iiiiio",
+				       VA_PASS6((long)$10, (long)$6, (long)$4,
+						(long)$8, (long)$3, SPO_ROOM_DOOR));
 			}
 		  }
-		| DOOR_ID ':' door_state ',' ter_selection
+		| DOOR_ID ':' opt_door_material door_state ',' ter_selection
 		  {
-		      add_opvars(splev, "io", VA_PASS2((long)$3, SPO_DOOR));
+		      add_opvars(splev, "iio",
+				 VA_PASS3((long)$4, (long)$3, SPO_DOOR));
+		  }
+		;
+
+opt_door_material : /* empty: default material (wood) */
+		  {
+		      $$ = 0;
+		  }
+		| DOOR_MATERIAL ','
+		  {
+		      $$ = $1;
 		  }
 		;
 

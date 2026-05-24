@@ -6581,6 +6581,17 @@ boolean moncast;
                 You_feel("vibrations.");
             break;
         }
+        /* a metal door shrugs off every beam except acid, which corrodes
+           it, and disintegration, which unmakes it outright */
+        if (metal_door(lev) && new_doormask >= 0
+            && abstype != ZT_ACID && abstype != ZT_DEATH) {
+            new_doormask = -1; /* survives intact */
+            if (see_it)
+                pline_The("door absorbs %s %s!",
+                          yourzap ? "your" : "the", zapverb);
+            else
+                You_feel("vibrations.");
+        }
         if (new_doormask >= 0) { /* door gets broken */
             if (*in_rooms(x, y, SHOPBASE)) {
                 if (yourzap) {

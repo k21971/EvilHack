@@ -1859,7 +1859,7 @@ genericptr_t num;
             cvt_sdoor_to_door(&levl[zx][zy]); /* .typ = DOOR */
         if (levl[zx][zy].doormask & D_TRAPPED) {
             if (distu(zx, zy) < 3)
-                b_trapped("door", 0);
+                b_trapped("door", 0, door_material(&levl[zx][zy]));
             else
                 Norep("You %s an explosion!",
                       cansee(zx, zy) ? "see" : (!Deaf ? "hear"

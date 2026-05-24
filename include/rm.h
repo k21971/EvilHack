@@ -356,6 +356,17 @@ extern struct symsetentry symset[NUM_GRAPHICS]; /* from drawing.c */
 #define D_SECRET 32 /* only used by sp_lev.c, NOT in rm-struct */
 
 /*
+ * Door material is held in the separate rm.material field rather than
+ * doormask, so it never conflicts with the wall_info bits a secret door
+ * also stores in flags. A material of 0 resolves to the default, wood.
+ * metal_door() gates the "tough" rules (no kick/force/dig/smash);
+ * door_flammable() gates fire/cold destruction.
+ */
+#define door_material(lev) ((lev)->material ? (lev)->material : WOOD)
+#define metal_door(lev) mat_is_metallic(door_material(lev))
+#define door_flammable(lev) mat_is_flammable(door_material(lev))
+
+/*
  * Some altars are considered as shrines, so we need a flag.
  */
 #define AM_SHRINE 8
@@ -459,6 +470,7 @@ struct rm {
     Bitfield(candig, 1);     /* Exception to Can_dig_down; was a trapdoor */
     Bitfield(frac_altar, 1); /* whether altar can be used to sacrifice
                                 for artifacts */
+    Bitfield(material, 5);   /* obj_material_types; 0 == default (wood) */
 };
 
 #define SET_TYPLIT(x, y, ttyp, llit)                              \

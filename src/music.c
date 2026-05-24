@@ -504,6 +504,15 @@ boolean player_caused;
                 /* if already doorless, treat like room or corridor */
                 if (levl[x][y].doormask == D_NODOOR)
                     goto do_pit;
+                /* a metal door has a good chance to withstand the quake */
+                if (metal_door(&levl[x][y]) && rn2(3)) {
+                    /* a secret door revealed by the quake above still needs
+                       its glyph refreshed even though it survives */
+                    newsym(x, y);
+                    if (cansee(x, y))
+                        pline_The("door shudders but holds.");
+                    break;
+                }
                 /* wasn't doorless, now it will be */
                 levl[x][y].doormask = D_NODOOR;
                 unblock_point(x, y);

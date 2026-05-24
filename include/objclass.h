@@ -106,6 +106,13 @@ struct objclass {
 #define is_heavy_metallic(otmp) \
     (otmp->material >= IRON && otmp->material <= PLATINUM)
 
+/* raw-material variants taking a material constant rather than a
+   struct obj; used for terrain (e.g. doors) which have no struct obj.
+   mat_is_flammable mirrors the material core of is_flammable() */
+#define mat_is_metallic(mat) ((mat) >= IRON && (mat) <= ADAMANTINE)
+#define mat_is_flammable(mat) \
+    (((mat) <= BONE && (mat) != LIQUID) || (mat) == PLASTIC)
+
 #define is_hard(otmp) \
     (is_metallic(otmp) || is_glass(otmp) \
      || is_wood(otmp) || is_bone(otmp) || is_stone(otmp))

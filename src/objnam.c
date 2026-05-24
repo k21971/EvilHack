@@ -4898,6 +4898,32 @@ struct obj *no_wish;
             lev->typ = IRONBARS;
             pline("Iron bars.");
             madeterrain = TRUE;
+        } else if (!BSTRCMPI(bp, p - 4, "door")) {
+            /* wizard-mode door for testing; an optional material prefix
+               ("iron door") and a leading state word in the original wish
+               ("open"/"locked"/"broken") are honored, else a closed wood
+               door */
+            int dmat = (material > 0) ? material : WOOD;
+            int dmask = D_CLOSED;
+            const char *st;
+
+            if (!strncmpi(fruitbuf, "open ", 5))
+                dmask = D_ISOPEN;
+            else if (!strncmpi(fruitbuf, "locked ", 7))
+                dmask = D_LOCKED;
+            else if (!strncmpi(fruitbuf, "broken ", 7))
+                dmask = D_BROKEN;
+            st = (dmask == D_ISOPEN) ? "open"
+                 : (dmask == D_LOCKED) ? "locked"
+                   : (dmask == D_BROKEN) ? "broken" : "closed";
+            lev->typ = DOOR;
+            lev->doormask = dmask;
+            lev->material = dmat;
+            if (dmat != WOOD)
+                pline("%s %s door.", An(st), materialnm[dmat]);
+            else
+                pline("%s door.", An(st));
+            madeterrain = TRUE;
         }
 
         if (madeterrain) {

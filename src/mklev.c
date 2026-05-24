@@ -571,6 +571,12 @@ int type;
             levl[x][y].doormask |= D_TRAPPED;
     }
 
+    /* chance of an iron door, scaling with depth; shops are excluded
+       and a doorless doorway (D_NODOOR) stays plain wood */
+    if (!shdoor && levl[x][y].doormask != D_NODOOR
+        && rn1(40, 10) < level_difficulty())
+        levl[x][y].material = IRON;
+
     add_door(x, y, aroom);
 }
 
@@ -742,7 +748,7 @@ STATIC_OVL void
 clear_level_structures()
 {
     static struct rm zerorm = { cmap_to_glyph(S_stone),
-                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     int x, y;
     struct rm *lev;
 

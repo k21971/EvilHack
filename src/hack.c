@@ -436,13 +436,19 @@ xchar x, y;
     if (!boulder
         && ((IS_ROCK(lev->typ) && !may_dig(x, y))
             /* may_dig() checks W_NONDIGGABLE but doesn't handle iron bars */
-            || (lev->typ == IRONBARS && (lev->wall_info & W_NONDIGGABLE)))) {
+            || (lev->typ == IRONBARS && (lev->wall_info & W_NONDIGGABLE))
+            /* only a metallivore can chew through a metal door (or a
+               metal secret door, which reads as rock) */
+            || ((IS_DOOR(lev->typ) || lev->typ == SDOOR) && metal_door(lev)
+                && !metallivorous(youmonst.data)))) {
         You("hurt your teeth on the %s.",
             (lev->typ == IRONBARS)
                 ? "bars"
-                : IS_TREES(lev->typ)
-                    ? "tree"
-                    : "hard stone");
+                : IS_DOOR(lev->typ)
+                    ? "door"
+                    : IS_TREES(lev->typ)
+                        ? "tree"
+                        : "hard stone");
         nomul(0);
         return 1;
     } else if (context.digging.pos.x != x || context.digging.pos.y != y
@@ -554,7 +560,7 @@ xchar x, y;
     } else if (lev->typ == SDOOR) {
         if (lev->doormask & D_TRAPPED) {
             lev->doormask = D_NODOOR;
-            b_trapped("secret door", 0);
+            b_trapped("secret door", 0, door_material(lev));
         } else {
             digtxt = "chew through the secret door.";
             lev->doormask = D_BROKEN;
@@ -570,7 +576,7 @@ xchar x, y;
         }
         if (lev->doormask & D_TRAPPED) {
             lev->doormask = D_NODOOR;
-            b_trapped("door", 0);
+            b_trapped("door", 0, door_material(lev));
         } else {
             digtxt = "chew through the door.";
             lev->doormask = D_BROKEN;
@@ -2024,6 +2030,9 @@ domove_core()
                     /* nothing happens - sokoban prize doors
                        are special */
                     pline_The("door remains intact.");
+                } else if (!door_flammable(tmpr)) {
+                    /* a metal door won't burn */
+                    pline_The("door is unharmed by the flames.");
                 } else {
                     if (!Blind)
                         pline_The("door is consumed in flames!");

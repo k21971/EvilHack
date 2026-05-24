@@ -2815,7 +2815,11 @@ long flag;
             ntyp = levl[nx][ny].typ;
             if (IS_ROCK(ntyp)
                 && !((flag & ALLOW_WALL) && may_passwall(nx, ny))
-                && !((IS_TREES(ntyp) ? treeok : rockok) && may_dig(nx, ny)))
+                && (!((IS_TREES(ntyp) ? treeok : rockok) && may_dig(nx, ny))
+                    /* a non-metallivore can't dig through a metal secret
+                       door (which reads as rock here) */
+                    || (levl[nx][ny].typ == SDOOR && metal_door(&levl[nx][ny])
+                        && !metallivorous(mdat))))
                 continue;
             /* intelligent peacefuls avoid digging shop/temple walls */
             if (IS_ROCK(ntyp) && rockok
@@ -2834,7 +2838,11 @@ long flag;
                 && (((In_sokoban(&u.uz) && (levl[nx][ny].doormask & D_TRAPPED)))
                 || (((levl[nx][ny].doormask & D_CLOSED) && !(flag & OPENDOOR))
                 || ((levl[nx][ny].doormask & D_LOCKED) && !(flag & UNLOCKDOOR))))
-                && !thrudoor)
+                /* busting or pick-digging can't get through a metal door;
+                   only phasing or a metallivore can */
+                && !(thrudoor
+                     && (!metal_door(&levl[nx][ny]) || (flag & ALLOW_WALL)
+                         || metallivorous(mdat))))
                 continue;
             /* avoid poison gas? */
             if (!poisongas_ok && !in_poisongas

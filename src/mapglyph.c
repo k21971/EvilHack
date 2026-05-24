@@ -448,6 +448,13 @@ unsigned mgflags;
                     break;
                 }
             }
+        } else if (iflags.use_color
+                   && (offset == S_vodoor || offset == S_hodoor
+                       || offset == S_vcdoor || offset == S_hcdoor)
+                   && door_material(&levl[x][y]) != WOOD) {
+            /* color a non-wood door by its material (e.g. iron -> cyan);
+               wood doors fall through to their normal brown */
+            color = material_color(door_material(&levl[x][y]));
         } else {
             cmap_color(offset);
         }

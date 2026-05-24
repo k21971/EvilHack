@@ -150,8 +150,9 @@ xchar x, y;
         return DIGTYP_UNDIGGABLE;
 
     ltyp = levl[x][y].typ;
+    /* a metal door can't be cut or picked through */
     if (is_axe(otmp))
-        return closed_door(x, y) ? DIGTYP_DOOR
+        return (closed_door(x, y) && !metal_door(&levl[x][y])) ? DIGTYP_DOOR
                : IS_TREES(ltyp) ? DIGTYP_TREE /* axe vs tree */
                  : DIGTYP_UNDIGGABLE;
     /* assert(is_pick(otmp)); */
@@ -159,7 +160,7 @@ xchar x, y;
            ? DIGTYP_STATUE
            : (sobj_at(BOULDER, x, y))
              ? DIGTYP_BOULDER
-             : closed_door(x, y) ? DIGTYP_DOOR
+             : (closed_door(x, y) && !metal_door(&levl[x][y])) ? DIGTYP_DOOR
                : IS_TREES(ltyp) ? DIGTYP_UNDIGGABLE /* pick vs tree */
                  : (IS_ROCK(ltyp)
                     && (!level.flags.arboreal || IS_WALL(ltyp)))
@@ -497,9 +498,14 @@ dig(VOID_ARGS)
             digtxt = "You make an opening in the wall.";
         } else if (lev->typ == SDOOR) {
             cvt_sdoor_to_door(lev); /* ->typ = DOOR */
-            digtxt = "You break through a secret door!";
-            if (!(lev->doormask & D_TRAPPED))
-                lev->doormask = D_BROKEN;
+            if (metal_door(lev)) {
+                /* a metal secret door is uncovered but can't be broken */
+                digtxt = "Clang!  You uncover a secret door.";
+            } else {
+                digtxt = "You break through a secret door!";
+                if (!(lev->doormask & D_TRAPPED))
+                    lev->doormask = D_BROKEN;
+            }
         } else if (closed_door(dpx, dpy)) {
             digtxt = "You break through the door.";
             if (shopedge || temple_at_boundary(dpx, dpy)) {
@@ -534,9 +540,10 @@ dig(VOID_ARGS)
             if (mtmp)
                 pline_The("debris from your digging comes to life!");
         }
-        if (IS_DOOR(lev->typ) && (lev->doormask & D_TRAPPED)) {
+        if (IS_DOOR(lev->typ) && (lev->doormask & D_TRAPPED)
+            && !metal_door(lev)) {
             lev->doormask = D_NODOOR;
-            b_trapped("door", 0);
+            b_trapped("door", 0, door_material(lev));
             newsym(dpx, dpy);
         }
     cleanup:
@@ -1229,6 +1236,10 @@ struct obj *obj;
             } else if (lev->typ == IRONBARS) {
                 pline("Clang!");
                 wake_nearby();
+            } else if (closed_door(rx, ry) && metal_door(lev)) {
+                pline("Clang!  %s harmlessly off the door.",
+                      Yobjnam2(obj, "bounce"));
+                wake_nearby();
             } else if (IS_TREES(lev->typ)) {
                 You("need an axe to cut down a tree.");
             } else if (IS_ROCK(lev->typ)) {
@@ -1418,6 +1429,11 @@ struct monst *mtmp;
     int pile = rnd(12);
 
     here = &levl[mtmp->mx][mtmp->my];
+    /* only a metallivore can chew through a metal door; for others it
+       stays intact (and a metal secret door stays hidden) */
+    if ((here->typ == SDOOR || closed_door(mtmp->mx, mtmp->my))
+        && metal_door(here) && !metallivorous(mtmp->data))
+        return FALSE;
     if (here->typ == SDOOR)
         cvt_sdoor_to_door(here); /* ->typ = DOOR */
 

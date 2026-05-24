@@ -1500,6 +1500,7 @@ struct mkroom *broom;
     }
     levl[x][y].typ = (dd->secret ? SDOOR : DOOR);
     levl[x][y].doormask = dd->mask;
+    levl[x][y].material = dd->material; /* 0 == default (wood) */
 }
 
 /*
@@ -4530,7 +4531,9 @@ sel_set_door(dx, dy, arg)
 int dx, dy;
 genericptr_t arg;
 {
-    xchar typ = *(xchar *) arg;
+    xchar *dpar = (xchar *) arg;
+    xchar typ = dpar[0];
+    xchar material = dpar[1];
     xchar x = dx, y = dy;
 
     if (!IS_DOOR(levl[x][y].typ) && levl[x][y].typ != SDOOR)
@@ -4551,6 +4554,7 @@ genericptr_t arg;
 
     set_door_orientation(x, y); /* set/clear levl[x][y].horizontal */
     levl[x][y].doormask = typ;
+    levl[x][y].material = material;
     SpLev_Map[x][y] = 1;
 }
 
@@ -4559,18 +4563,20 @@ spo_door(coder)
 struct sp_coder *coder;
 {
     static const char nhFunc[] = "spo_door";
-    struct opvar *msk, *sel;
-    xchar typ;
+    struct opvar *msk, *sel, *material;
+    xchar dpar[2];
 
-    if (!OV_pop_i(msk) || !OV_pop_typ(sel, SPOVAR_SEL))
+    if (!OV_pop_i(material) || !OV_pop_i(msk) || !OV_pop_typ(sel, SPOVAR_SEL))
         return;
 
-    typ = OV_i(msk) == -1 ? rnddoor() : (xchar) OV_i(msk);
+    dpar[0] = OV_i(msk) == -1 ? rnddoor() : (xchar) OV_i(msk);
+    dpar[1] = (xchar) OV_i(material);
 
-    selection_iterate(sel, sel_set_door, (genericptr_t) &typ);
+    selection_iterate(sel, sel_set_door, (genericptr_t) dpar);
 
     opvar_free(sel);
     opvar_free(msk);
+    opvar_free(material);
 }
 
 void
@@ -5122,17 +5128,18 @@ spo_room_door(coder)
 struct sp_coder *coder;
 {
     static const char nhFunc[] = "spo_room_door";
-    struct opvar *wall, *secret, *mask, *pos;
+    struct opvar *wall, *secret, *mask, *pos, *material;
     room_door tmpd;
 
-    if (!OV_pop_i(wall) || !OV_pop_i(secret) || !OV_pop_i(mask)
-        || !OV_pop_i(pos) || !coder->croom)
+    if (!OV_pop_i(material) || !OV_pop_i(wall) || !OV_pop_i(secret)
+        || !OV_pop_i(mask) || !OV_pop_i(pos) || !coder->croom)
         return;
 
     tmpd.secret = OV_i(secret);
     tmpd.mask = OV_i(mask);
     tmpd.pos = OV_i(pos);
     tmpd.wall = OV_i(wall);
+    tmpd.material = OV_i(material);
 
     create_door(&tmpd, coder->croom);
 
@@ -5140,6 +5147,7 @@ struct sp_coder *coder;
     opvar_free(secret);
     opvar_free(mask);
     opvar_free(pos);
+    opvar_free(material);
 }
 
 /*ARGSUSED*/

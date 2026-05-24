@@ -654,6 +654,22 @@ char *buf, *monbuf;
             else
                 Strcpy(buf, "doorway");
             break;
+        case S_vodoor:
+        case S_hodoor:
+        case S_vcdoor:
+        case S_hcdoor: {
+            int dmat = door_material(&levl[x][y]);
+
+            /* name the material for non-wood doors, e.g. "closed iron
+               door"; wood keeps the plain defsym wording */
+            if (dmat != WOOD)
+                Sprintf(buf, "%s %s door",
+                        (levl[x][y].doormask & D_ISOPEN) ? "open" : "closed",
+                        materialnm[dmat]);
+            else
+                Strcpy(buf, defsyms[glyph_to_cmap(glyph)].explanation);
+            break;
+        }
         case S_cloud:
             Strcpy(buf,
                    Is_airlevel(&u.uz) ? "cloudy area" : "fog/vapor cloud");

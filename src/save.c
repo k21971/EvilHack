@@ -654,7 +654,8 @@ boolean rlecomp;
                     && prm->flags == rgrm->flags && prm->lit == rgrm->lit
                     && prm->waslit == rgrm->waslit
                     && prm->roomno == rgrm->roomno && prm->edge == rgrm->edge
-                    && prm->candig == rgrm->candig) {
+                    && prm->candig == rgrm->candig
+                    && prm->material == rgrm->material) {
                     match++;
                     if (match > 254) {
                         match = 254; /* undo this match */

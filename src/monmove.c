@@ -25,6 +25,8 @@ boolean
 mb_trapped(mtmp)
 struct monst *mtmp;
 {
+    int dmg = rnd(15);
+
     if (flags.verbose) {
         if (cansee(mtmp->mx, mtmp->my) && !Unaware)
             pline("KABOOM!!  You see a door explode.");
@@ -35,7 +37,10 @@ struct monst *mtmp;
     if (!(resists_stun(mtmp->data) || defended(mtmp, AD_STUN)
           || mon_wielding_artifact(mtmp, ART_TEMPEST)))
         mtmp->mstun = 1;
-    damage_mon(mtmp, rnd(15), AD_PHYS, FALSE);
+    /* a shattering metal door throws more damaging shrapnel */
+    if (mat_is_metallic(door_material(&levl[mtmp->mx][mtmp->my])))
+        dmg *= 3;
+    damage_mon(mtmp, dmg, AD_PHYS, FALSE);
     if (DEADMONSTER(mtmp)) {
         mondied(mtmp);
         if (!DEADMONSTER(mtmp)) /* lifesaved */

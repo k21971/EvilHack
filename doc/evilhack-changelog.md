@@ -5428,4 +5428,5 @@ The following changes to date are:
 - Fix: priest atonement lands player at bottom of new abuse tier
 - Name the responsible monster in wand/spell/breath and weapon deaths
 - Use the "by" form, not a possessive, for artifact-weapon kills
+- Add doors made of different materials (iron doors)
 
