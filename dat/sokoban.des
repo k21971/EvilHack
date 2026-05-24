@@ -1328,9 +1328,9 @@ OBJECT:'/',random
 
 # Rewards
 DOOR:locked,(23,13)
-DOOR:closed,(17,11)
-DOOR:closed,(17,13)
-DOOR:closed,(17,15)
+DOOR:stone,closed,(17,11)
+DOOR:stone,closed,(17,13)
+DOOR:stone,closed,(17,15)
 REGION:(18,10,22,16),lit,"zoo",filled,irregular
 
 OBJECT:('?', "scare monster"),$place[0],cursed
@@ -1446,9 +1446,9 @@ OBJECT:'/',random
 
 # Rewards
 DOOR:locked,(23,12)
-DOOR:closed,(17,10)
-DOOR:closed,(17,12)
-DOOR:closed,(17,14)
+DOOR:stone,closed,(17,10)
+DOOR:stone,closed,(17,12)
+DOOR:stone,closed,(17,14)
 REGION:(18,09,22,15),lit,"zoo",filled,irregular
 
 OBJECT:('?', "scare monster"),$place[0],cursed
@@ -1556,9 +1556,9 @@ OBJECT:'/',random
 # Rewards
 DOOR:locked,(19,02)
 DOOR:locked,(16,08)
-DOOR:closed,(19,09)
-DOOR:closed,(19,11)
-DOOR:closed,(19,13)
+DOOR:stone,closed,(19,09)
+DOOR:stone,closed,(19,11)
+DOOR:stone,closed,(19,13)
 REGION:(16,03,19,07),lit,"zoo",filled,irregular
 
 OBJECT:('?', "scare monster"),$place[0],cursed
@@ -1663,11 +1663,11 @@ OBJECT:'=',random
 OBJECT:'/',random
 
 # Rewards
-DOOR:closed,(02,01)
+DOOR:stone,closed,(02,01)
 DOOR:locked,(09,01)
-DOOR:closed,(02,03)
+DOOR:stone,closed,(02,03)
 DOOR:locked,(09,03)
-DOOR:closed,(02,05)
+DOOR:stone,closed,(02,05)
 DOOR:locked,(09,05)
 DOOR:locked,(11,13)
 REGION:(03,01,08,05),lit,"zoo",filled,irregular
@@ -1786,9 +1786,9 @@ OBJECT:'/',random
 
 # Rewards
 DOOR:locked,(26,10)
-DOOR:closed,(20,08)
-DOOR:closed,(20,10)
-DOOR:closed,(20,12)
+DOOR:stone,closed,(20,08)
+DOOR:stone,closed,(20,10)
+DOOR:stone,closed,(20,12)
 REGION:(21,07,25,13),lit,"zoo",filled,irregular
 
 OBJECT:('?', "scare monster"),$place[0],cursed
@@ -1903,9 +1903,9 @@ OBJECT:'/',random
 
 # Rewards
 DOOR:locked,(28,05)
-DOOR:closed,(22,03)
-DOOR:closed,(22,05)
-DOOR:closed,(22,07)
+DOOR:stone,closed,(22,03)
+DOOR:stone,closed,(22,05)
+DOOR:stone,closed,(22,07)
 REGION:(23,02,27,08),lit,"zoo",filled,irregular
 
 OBJECT:('?', "scare monster"),$place[0],cursed

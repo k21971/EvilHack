@@ -60,32 +60,32 @@ MAGIC_CHEST:(32,08)
 
 FOUNTAIN:(10,08)
 # Doors
-DOOR:locked,(07,03)
-DOOR:locked,(55,03)
-DOOR:locked,(32,04)
+DOOR:steel,locked,(07,03)
+DOOR:steel,locked,(55,03)
+DOOR:iron,locked,(32,04)
 IF [50%] {
-  DOOR:closed,(15,05)
+  DOOR:iron,closed,(15,05)
 } ELSE {
-  DOOR:closed,(26,05)
+  DOOR:iron,closed,(26,05)
 }
-DOOR:locked,(46,05)
-DOOR:locked,(48,05)
-DOOR:locked,(47,07)
-DOOR:closed,(15,08)
-DOOR:closed,(26,08)
-DOOR:locked,(38,08)
-DOOR:locked,(56,08)
-DOOR:locked,(47,09)
+DOOR:iron,locked,(46,05)
+DOOR:iron,locked,(48,05)
+DOOR:iron,locked,(47,07)
+DOOR:iron,closed,(15,08)
+DOOR:iron,closed,(26,08)
+DOOR:iron,locked,(38,08)
+DOOR:iron,locked,(56,08)
+DOOR:iron,locked,(47,09)
 IF [50%] {
-  DOOR:closed,(15,11)
+  DOOR:iron,closed,(15,11)
 } ELSE {
-  DOOR:closed,(26,11)
+  DOOR:iron,closed,(26,11)
 }
-DOOR:locked,(46,11)
-DOOR:locked,(48,11)
-DOOR:locked,(32,12)
-DOOR:locked,(07,13)
-DOOR:locked,(55,13)
+DOOR:iron,locked,(46,11)
+DOOR:iron,locked,(48,11)
+DOOR:iron,locked,(32,12)
+DOOR:steel,locked,(07,13)
+DOOR:steel,locked,(55,13)
 # The drawbridge
 DRAWBRIDGE:(05,08),east,closed
 # Storeroom number 1
@@ -337,26 +337,28 @@ STAIR:(66,05,75,20),(07,01,66,20),up
 # the inner courtyard
 FOUNTAIN:(42,09)
 DRAWBRIDGE:(47,09),west,closed
-DOOR:locked,(39,09)
+DOOR:iron,locked,(39,09)
 
 # doors leading to the dragon pens
-DOOR:locked,(39,03)
-DOOR:locked,(46,03)
-DOOR:locked,(39,15)
-DOOR:locked,(46,15)
+DOOR:iron,locked,(39,03)
+DOOR:steel,locked,(46,03)
+DOOR:iron,locked,(39,15)
+DOOR:steel,locked,(46,15)
 
 # doors to the throne room
-DOOR:locked,(32,05)
-DOOR:locked,(32,09)
-DOOR:locked,(32,13)
+DOOR:steel,locked,(13,09)
+DOOR:iron,locked,(21,09)
+DOOR:iron,locked,(32,05)
+DOOR:iron,locked,(32,09)
+DOOR:iron,locked,(32,13)
 
 # doors to the barracks
-DOOR:closed,(23,04)
-DOOR:closed,(23,14)
+DOOR:iron,closed,(23,04)
+DOOR:iron,closed,(23,14)
 
 # doors to the armouries
-DOOR:locked,(13,05)
-DOOR:locked,(13,13)
+DOOR:iron,locked,(13,05)
+DOOR:iron,locked,(13,13)
 
 # Removed so that the castle can be breached with either levitation OR an
 # instrument.
@@ -543,7 +545,7 @@ GEOMETRY: center, center
 #123456789012345678901234567890123456789012345678901234567890123456789012345
 MAP
 ---------------------------------------------.LLLLLLL.......................
-|...S..S..|..S..S.......|.|.......|....S..F.S.LLLLLL........................
+|...S..S..|..S..S.......|.|.......|....S..F.|.LLLLLL........................
 |.|---F-F---F-F--.......+.+.......|....|-----LLLLLLLL.............------....
 |.S.|...........+.......|.|.......|....|...LLLLLLL.LLLLL..L.......|....|....
 |.|.F...........---------+---------+----LLLLLLL.......LLLL........+.|..|....
@@ -616,37 +618,38 @@ FOUNTAIN:(02,10)
 DRAWBRIDGE:(25,07),north,closed
 
 # the castle doors
-DOOR:locked,(39,01)
-DOOR:locked,(35,04)
-DOOR:locked,(26,02)
-DOOR:locked,(24,02)
-DOOR:locked,(25,04)
-DOOR:locked,(16,01)
-DOOR:locked,(16,03)
-DOOR:locked,(16,05)
-DOOR:locked,(16,07)
-DOOR:locked,(16,09)
-DOOR:locked,(15,10)
-DOOR:locked,(13,01)
-DOOR:locked,(12,10)
-DOOR:locked,(09,12)
-DOOR:locked,(08,10)
-DOOR:locked,(07,01)
-DOOR:locked,(06,12)
-DOOR:locked,(05,10)
-DOOR:locked,(04,01)
-DOOR:locked,(03,12)
-DOOR:locked,(02,03)
-DOOR:locked,(02,07)
-DOOR:locked,(01,14)
+DOOR:bronze,secret,(44,01)
+DOOR:bronze,locked,(39,01)
+DOOR:bronze,locked,(35,04)
+DOOR:bronze,locked,(26,02)
+DOOR:bronze,locked,(24,02)
+DOOR:bronze,locked,(25,04)
+DOOR:bronze,locked,(16,01)
+DOOR:bronze,locked,(16,03)
+DOOR:bronze,locked,(16,05)
+DOOR:bronze,locked,(16,07)
+DOOR:bronze,locked,(16,09)
+DOOR:bronze,locked,(15,10)
+DOOR:bronze,locked,(13,01)
+DOOR:bronze,locked,(12,10)
+DOOR:bronze,locked,(09,12)
+DOOR:bronze,locked,(08,10)
+DOOR:bronze,locked,(07,01)
+DOOR:bronze,locked,(06,12)
+DOOR:bronze,locked,(05,10)
+DOOR:bronze,locked,(04,01)
+DOOR:bronze,locked,(03,12)
+DOOR:bronze,locked,(02,03)
+DOOR:bronze,locked,(02,07)
+DOOR:bronze,locked,(01,14)
 
 # door of the small building
-DOOR:random,(66,04)
+DOOR:bronze,random,(66,04)
 
 # doors for the maze
-DOOR:locked,(69,17)
-DOOR:locked,(40,10)
-DOOR:locked,(19,17)
+DOOR:bronze,locked,(69,17)
+DOOR:bronze,locked,(40,10)
+DOOR:bronze,locked,(19,17)
 
 TRAP:"hole",(69,04)
 TRAP:"trap door",(33,05)

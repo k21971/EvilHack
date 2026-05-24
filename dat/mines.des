@@ -1197,7 +1197,7 @@ REGION:(15,08,16,08),unlit,"ordinary"
 TELEPORT_REGION:(23,03,48,06),(0,0,0,0)
 # Secret doors
 DOOR:locked,(12,02)
-DOOR:locked,(11,06)
+DOOR:stone,locked,(11,06)
 # Stairs
 STAIR:(36,04),up
 # Forge
@@ -1489,8 +1489,8 @@ MONSTER:'o',random,hostile
 #SECRET CAVE
 MAZEWALK:(62,15),south
 ALTAR:(70,5),noalign,shrine
-DOOR:closed,(62,12)
-DOOR:closed,(70,10)
+DOOR:stone,closed,(62,12)
+DOOR:stone,closed,(70,10)
 OBJECT:('?', "scare monster"),(70,5),cursed
 ENGRAVING:(70,5),burn,"Moloch"
 OBJECT:('(',"figurine"),(70,5),cursed,montype:"balrog",1
@@ -1564,7 +1564,7 @@ DOOR:closed,(26,9)
 DOOR:closed,(30,5)
 DOOR:closed,(37,5)
 DOOR:closed,(48,5)
-DOOR:locked,(62,6)
+DOOR:stone,locked,(62,6)
 DOOR:closed,(30,13)
 DOOR:closed,(37,13)
 DOOR:closed,(48,13)
@@ -1624,8 +1624,8 @@ TELEPORT_REGION:(39,10,53,14),(0,0,0,0)
 DOOR:locked,(05,13)
 DOOR:locked,(15,13)
 DOOR:locked,(49,04)
-DOOR:locked,(49,07)
-DOOR:locked,(58,09)
+DOOR:iron,locked,(49,07)
+DOOR:iron,locked,(58,09)
 DOOR:locked,(58,12)
 DOOR:locked,(61,04)
 DOOR:locked,(68,04)

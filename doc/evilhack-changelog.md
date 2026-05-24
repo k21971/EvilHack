@@ -5433,4 +5433,5 @@ The following changes to date are:
 - Fix: special-level placement panic when a room has no free tile
 - Add steel, stone, gold, and bronze door materials
 - Make the spell "stone to flesh" turn stone doors into meat
+- Door material changes on set levels, round one
 
