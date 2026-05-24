@@ -67,8 +67,6 @@ ROOM: "garden", random, random, random, random
 {
 [30%]:TERRAIN:random, 'T'
 [30%]:TERRAIN:random, 'T'
-[30%]:TERRAIN:random, 'T'
-[30%]:TERRAIN:random, 'T'
 FOUNTAIN:random
 TRAP:"board",random
 TRAP:random, random

@@ -41,7 +41,6 @@ ROOM: "forest", random, random, random, random
 [30%]:TERRAIN:random, 't'
 [30%]:TERRAIN:random, 't'
 [30%]:TERRAIN:random, 't'
-[30%]:TERRAIN:random, 't'
 OBJECT:random, random
 IF [30%] {
   MONSTER:'#', random

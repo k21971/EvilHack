@@ -5430,4 +5430,5 @@ The following changes to date are:
 - Use the "by" form, not a possessive, for artifact-weapon kills
 - Add doors made of different materials (iron doors)
 - Make the Druid spell "change metal to wood" affect metal doors
+- Fix: special-level placement panic when a room has no free tile
 
