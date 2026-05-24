@@ -4809,6 +4809,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
             case SPE_WIZARD_LOCK:
             case SPE_FORCE_BOLT:
             case SPE_CHANGE_METAL_TO_WOOD:
+            case SPE_STONE_TO_FLESH:
                 if (doorlock(obj, bhitpos.x, bhitpos.y)) {
                     if (cansee(bhitpos.x, bhitpos.y)
                         || (obj->otyp == WAN_STRIKING && !Deaf))

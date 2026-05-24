@@ -5432,4 +5432,5 @@ The following changes to date are:
 - Make the Druid spell "change metal to wood" affect metal doors
 - Fix: special-level placement panic when a room has no free tile
 - Add steel, stone, gold, and bronze door materials
+- Make the spell "stone to flesh" turn stone doors into meat
 

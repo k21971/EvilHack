@@ -1424,6 +1424,57 @@ int x, y;
             res = FALSE;
         }
         break;
+    case SPE_STONE_TO_FLESH:
+        if (door_material(door) != MINERAL) {
+            /* the spell only transmutes stone */
+            if (cansee(x, y))
+                pline_The("door glows briefly, but remains the same.");
+            res = FALSE;
+            break;
+        }
+        if ((door->doormask & D_TRAPPED) && In_sokoban(&u.uz)) {
+            /* never pop a sokoban prize door (mirrors WAN_STRIKING) */
+            if (cansee(x, y))
+                pline_The("door absorbs the spell!");
+            break;
+        }
+        if (cansee(x, y))
+            pline_The("stone door turns to flesh and falls apart!");
+        else if (!Deaf)
+            You_hear("a wet tearing sound.");
+        if (door->doormask & D_TRAPPED) {
+            /* the booby-trap goes off as the fleshy door comes apart */
+            if (MON_AT(x, y))
+                (void) mb_trapped(m_at(x, y));
+            else if (flags.verbose) {
+                if (cansee(x, y))
+                    pline("KABOOM!!  You see a door explode.");
+                else
+                    You_hear("a distant explosion.");
+            }
+            loudness = 40;
+        } else {
+            /* a wet collapse; also drives temple/shop billing below */
+            loudness = 10;
+        }
+        door->doormask = D_NODOOR;
+        door->material = 0;
+        unblock_point(x, y);
+        {
+            static const short meats[] = {
+                MEATBALL, MEAT_STICK, MEAT_RING, STRIP_OF_BACON,
+                HUGE_CHUNK_OF_MEAT
+            };
+            int i, n = rn1(3, 2); /* 2..4 meat items */
+
+            for (i = 0; i < n; i++)
+                (void) mksobj_at(meats[rn2(SIZE(meats))],
+                                 x, y, TRUE, FALSE);
+        }
+        /* redraw once the meat exists: the door->doorway transition
+           happened before the objects were created */
+        newsym(x, y);
+        break;
     default:
         impossible("magic (%d) attempted on door.", otmp->otyp);
         break;
