@@ -1102,23 +1102,23 @@ dokick()
     if (!IS_DOOR(maploc->typ)) {
         if (maploc->typ == SDOOR) {
             if (!Levitation && rn2(30) < avrg_attrib) {
-                boolean metal = metal_door(maploc);
+                boolean hard = hard_door(maploc);
 
                 cvt_sdoor_to_door(maploc); /* ->typ = DOOR */
                 pline("Crash!  %s a secret door!",
-                      /* don't "kick open" when it's locked or metal
-                         (a metal door can't be kicked open at all),
-                         unless a non-metal door is also trapped */
-                      (metal
+                      /* don't "kick open" when it's locked or hard
+                         (a metal or stone door can't be kicked open at
+                         all), unless a softer door is also trapped */
+                      (hard
                        || (maploc->doormask & (D_LOCKED | D_TRAPPED))
                               == D_LOCKED)
                           ? "Your kick uncovers"
                           : "You kick open");
                 exercise(A_DEX, TRUE);
-                if (!metal && (maploc->doormask & D_TRAPPED)) {
+                if (!hard && (maploc->doormask & D_TRAPPED)) {
                     maploc->doormask = D_NODOOR;
                     b_trapped("door", FOOT, door_material(maploc));
-                } else if (!metal && maploc->doormask != D_NODOOR
+                } else if (!hard && maploc->doormask != D_NODOOR
                            && !(maploc->doormask & D_LOCKED))
                     maploc->doormask = D_ISOPEN;
                 feel_newsym(x, y); /* we know it's gone */
@@ -1476,9 +1476,10 @@ dokick()
         goto ouch;
 
     exercise(A_DEX, TRUE);
-    /* door is known to be CLOSED or LOCKED; a metal door can never be
-       kicked open or broken, so it always falls through to WHAMMM */
-    if (!metal_door(maploc)
+    /* door is known to be CLOSED or LOCKED; a hard (metal or stone)
+       door can never be kicked open or broken, so it always falls
+       through to WHAMMM */
+    if (!hard_door(maploc)
         && ((maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT)))
             || (rnl(35) < avrg_attrib + (!martial() ? 0 : ACURR(A_DEX))))) {
         boolean shopdoor = *in_rooms(x, y, SHOPBASE) ? TRUE : FALSE;

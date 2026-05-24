@@ -6541,7 +6541,10 @@ boolean moncast;
                 goto def_case;
             new_doormask = D_NODOOR;
             see_txt = "The door disintegrates!";
-            hear_txt = "crashing wood.";
+            /* the heard sound depends on the door's material */
+            hear_txt = door_flammable(lev)
+                           ? "crashing wood."
+                           : "a crashing sound.";
             break;
         case ZT_LIGHTNING:
             new_doormask = D_BROKEN;
@@ -6582,15 +6585,20 @@ boolean moncast;
                 You_feel("vibrations.");
             break;
         }
-        /* a metal door shrugs off every beam except acid, which corrodes
-           it, and disintegration, which unmakes it outright */
-        if (metal_door(lev) && new_doormask >= 0
+        /* a metal or stone door shrugs off every beam except acid,
+           which corrodes/etches it, and disintegration, which unmakes
+           it outright */
+        if (hard_door(lev) && new_doormask >= 0
             && abstype != ZT_ACID && abstype != ZT_DEATH) {
             new_doormask = -1; /* survives intact */
-            if (see_it)
-                pline_The("door absorbs %s %s!",
-                          yourzap ? "your" : "the", zapverb);
-            else
+            if (see_it) {
+                if (metal_door(lev))
+                    pline_The("door absorbs %s %s!",
+                              yourzap ? "your" : "the", zapverb);
+                else /* a stone door simply isn't affected */
+                    pline_The("door is unharmed by %s %s!",
+                              yourzap ? "your" : "the", zapverb);
+            } else
                 You_feel("vibrations.");
         }
         if (new_doormask >= 0) { /* door gets broken */

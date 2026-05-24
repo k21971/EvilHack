@@ -2435,9 +2435,9 @@ int style;
         if (otyp == BOULDER && closed_door(bhitpos.x, bhitpos.y)) {
             struct rm *dlev = &levl[bhitpos.x][bhitpos.y];
 
-            if (metal_door(dlev)) {
-                /* a metal door isn't smashed: a locked one stops the
-                   boulder, an unlocked one is forced open */
+            if (hard_door(dlev)) {
+                /* a metal or stone door isn't smashed: a locked one
+                   stops the boulder, an unlocked one is forced open */
                 if (dlev->doormask & D_LOCKED) {
                     if (cansee(bhitpos.x, bhitpos.y))
                         pline_The("boulder crashes against a door.");
@@ -6561,8 +6561,9 @@ int material; /* a booby-trapped door's material; 0 for non-doors */
         return;
     }
 
-    /* a shattering metal door throws more (and more damaging) shrapnel */
-    if (mat_is_metallic(material))
+    /* a shattering metal or stone door throws more (and more damaging)
+       shrapnel */
+    if (mat_is_metallic(material) || material == MINERAL)
         dmg *= 3;
 
     pline("KABOOM!!  %s was booby-trapped!", The(item));

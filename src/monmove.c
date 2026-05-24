@@ -37,8 +37,8 @@ struct monst *mtmp;
     if (!(resists_stun(mtmp->data) || defended(mtmp, AD_STUN)
           || mon_wielding_artifact(mtmp, ART_TEMPEST)))
         mtmp->mstun = 1;
-    /* a shattering metal door throws more damaging shrapnel */
-    if (mat_is_metallic(door_material(&levl[mtmp->mx][mtmp->my])))
+    /* a shattering metal or stone door throws more damaging shrapnel */
+    if (hard_door(&levl[mtmp->mx][mtmp->my]))
         dmg *= 3;
     damage_mon(mtmp, dmg, AD_PHYS, FALSE);
     if (DEADMONSTER(mtmp)) {

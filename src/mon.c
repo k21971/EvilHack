@@ -2838,11 +2838,14 @@ long flag;
                 && (((In_sokoban(&u.uz) && (levl[nx][ny].doormask & D_TRAPPED)))
                 || (((levl[nx][ny].doormask & D_CLOSED) && !(flag & OPENDOOR))
                 || ((levl[nx][ny].doormask & D_LOCKED) && !(flag & UNLOCKDOOR))))
-                /* busting or pick-digging can't get through a metal door;
-                   only phasing or a metallivore can */
+                /* a hard (metal or stone) door resists busting; metal
+                   yields only to a metallivore, stone only to a digger,
+                   and either to phasing */
                 && !(thrudoor
-                     && (!metal_door(&levl[nx][ny]) || (flag & ALLOW_WALL)
-                         || metallivorous(mdat))))
+                     && (!hard_door(&levl[nx][ny]) || (flag & ALLOW_WALL)
+                         || (metal_door(&levl[nx][ny]) && metallivorous(mdat))
+                         || (door_material(&levl[nx][ny]) == MINERAL
+                             && rockok))))
                 continue;
             /* avoid poison gas? */
             if (!poisongas_ok && !in_poisongas

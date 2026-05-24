@@ -1364,9 +1364,9 @@ int x, y;
     case WAN_STRIKING:
     case SPE_FORCE_BOLT:
         if (door->doormask & (D_LOCKED | D_CLOSED)) {
-            if (metal_door(door)) {
-                /* a metal door can't be forced open by a blow; it also
-                   isn't jarred enough to set off its own trap */
+            if (hard_door(door)) {
+                /* a metal or stone door can't be forced open by a blow;
+                   it also isn't jarred enough to set off its own trap */
                 msg = "The reinforced door shudders.";
                 break;
             }

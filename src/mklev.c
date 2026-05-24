@@ -571,11 +571,33 @@ int type;
             levl[x][y].doormask |= D_TRAPPED;
     }
 
-    /* chance of an iron door, scaling with depth; shops are excluded
-       and a doorless doorway (D_NODOOR) stays plain wood */
+    /* chance of a non-wood door, scaling with depth; shops are excluded
+       and a doorless doorway (D_NODOOR) stays plain wood. Iron is the
+       common case; steel/bronze/stone show up less often. Gold is
+       treasure-only and never generated randomly */
     if (!shdoor && levl[x][y].doormask != D_NODOOR
-        && rn1(40, 10) < level_difficulty())
-        levl[x][y].material = IRON;
+        && rn1(40, 10) < level_difficulty()) {
+        switch (rn2(10)) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4: /* 50% */
+            levl[x][y].material = IRON;
+            break;
+        case 5:
+        case 6: /* 20% */
+            levl[x][y].material = STEEL;
+            break;
+        case 7:
+        case 8: /* 20% */
+            levl[x][y].material = BRONZE;
+            break;
+        default: /* 10% */
+            levl[x][y].material = MINERAL;
+            break;
+        }
+    }
 
     add_door(x, y, aroom);
 }
