@@ -6305,7 +6305,19 @@ int do_what;
     }
 
     if (do_what == DELTRAP_DESTROY_AMMO) {
-        set_trap_ammo(trap, (struct obj *) 0);
+        struct obj *nobj;
+
+        /* ammo was already pulled off the trap into objchn above; free
+           that chain. set_trap_ammo() on the now-empty trap frees
+           nothing and would leak it */
+        while (objchn) {
+            nobj = objchn->nobj;
+            if (objchn->oartifact)
+                impossible("destroying artifact %d that was trap ammo",
+                           objchn->oartifact);
+            obfree(objchn, (struct obj *) 0);
+            objchn = nobj;
+        }
     } else if (do_what != DELTRAP_RETURN_AMMO) {
         struct obj *nobj;
         otmp = objchn;

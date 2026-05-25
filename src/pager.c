@@ -2832,7 +2832,9 @@ struct permonst **for_supplement;
                     hit_trap = TRUE;
             }
 
-            if (i == S_altar || is_cmap_trap(i))
+            if (i == S_altar || is_cmap_trap(i)
+                || (looked && is_cmap_door(i)
+                    && door_material(&levl[cc.x][cc.y]) != WOOD))
                 need_to_look = TRUE;
         }
     }

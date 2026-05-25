@@ -5435,4 +5435,6 @@ The following changes to date are:
 - Make the spell "stone to flesh" turn stone doors into meat
 - Door material changes on set levels, round one
 - Door material changes on set levels, round two
+- Fix: open non-wood doors don't show their material in farlook, memory
+  leak when a trap's stored ammo is destroyed
 
