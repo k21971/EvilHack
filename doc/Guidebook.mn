@@ -1497,6 +1497,10 @@ Autocompletes.
 .lp "#shell   "
 Do a shell escape.
 Default key is \(oq!\(cq.
+.lp "#shield  "
+Toggle wearing a shield (sword and board) on or off.
+Autocompletes.
+Default key is \(oq{\(cq.
 .lp #showcolors
 Show the terminal's color palette and detected color depth.
 Autocompletes.

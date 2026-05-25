@@ -143,6 +143,7 @@ _	Travel via a shortest-path algorithm to a point on the map
 "	Show the amulet currently worn
 (	Show the tools currently in use
 *	Show all equipment in use (combination of the ),[,=,",( commands)
+{	Toggle shield use (sword and board)
 $	Count your gold
 +	List known spells
 #	Perform an extended command (use '#?' to list choices)

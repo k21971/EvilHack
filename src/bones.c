@@ -309,6 +309,7 @@ int x, y;
         if ((cont || artifact_light(otmp)) && obj_is_burning(otmp))
             end_burn(otmp, TRUE); /* smother in statue */
         otmp->owornmask = 0L;
+        otmp->altshield = 0; /* don't carry the #shield mark into bones */
 
         if (otmp->otyp == SLIME_MOLD)
             goodfruit(otmp->spe);

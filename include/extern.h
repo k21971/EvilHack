@@ -559,6 +559,8 @@ E int FDECL(canwearobj, (struct obj *, long *, BOOLEAN_P));
 E boolean FDECL(will_touch_skin, (long));
 E int NDECL(dowear);
 E int NDECL(doputon);
+E int NDECL(doshield);
+E void FDECL(designate_altshield, (struct obj *));
 E void NDECL(find_ac);
 E void NDECL(glibr);
 E struct obj *FDECL(some_armor, (struct monst *));

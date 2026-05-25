@@ -4516,6 +4516,8 @@ struct ext_func_tab extcmdlist[] = {
                        | CMD_NOT_AVAILABLE
 #endif /* SHELL */
     },
+    { '{', "shield", "toggle shield use (sword and board)",
+            doshield, AUTOCOMPLETE },
     { '\0', "showcolors", "show terminal color palette and depth",
             doshowcolors, IFBURIED | AUTOCOMPLETE | GENERALCMD },
     { M('s'), "sit", "sit down", dosit, AUTOCOMPLETE },

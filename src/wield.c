@@ -801,17 +801,38 @@ dotwoweapon()
         return 0;
     }
 
+    /* From sword & board: shed the shield so the readied off-hand
+       weapon can be engaged, mirroring how the #shield command sheds
+       the off-hand weapon. Guarded so the shield is never removed
+       unless two-weapon combat will actually succeed */
+    if (uarms && !is_bracer(uarms)
+        && could_twoweap(youmonst.data)
+        && uwep && !bimanual(uwep)
+        && (uwep->oclass == WEAPON_CLASS || is_weptool(uwep))
+        && uswapwep && !bimanual(uswapwep)
+        && (uswapwep->oclass == WEAPON_CLASS || is_weptool(uswapwep))
+        && !uswapwep->cursed && !Glib) {
+        struct obj *shld = uarms;
+
+        remove_worn_item(shld, FALSE);
+        designate_altshield(shld);
+        You("take off %s.", yname(shld));
+    }
+
     /* May we use two weapons? */
     if (can_twoweapon()) {
         /* Success! */
         struct obj *tmp = uswapwep;
 
         You("begin two-weapon combat.");
-        u.twoweap = 1;
         /* reseat via NULL to force setworn() to run the W_SWAPWEP grant
            block; calling setuswapwep(uswapwep) directly hits the
-           slot-already-occupied shortcut and skips set_artifact_intrinsic */
+           slot-already-occupied shortcut and skips set_artifact_intrinsic.
+           Set u.twoweap after the NULL teardown, not before: setworn()
+           cancels two-weapon when an old worn weapon is replaced while it
+           is active, so setting it first made the NULL call undo it */
         setuswapwep((struct obj *) 0);
+        u.twoweap = 1;
         setuswapwep(tmp);
         update_inventory();
         return (rnd(20) > ACURR(A_DEX));

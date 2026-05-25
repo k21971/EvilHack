@@ -5441,4 +5441,5 @@ The following changes to date are:
 - Add paranoid_confirmation:autoall option
 - Add varied booby-trapped-door behaviors
 - Update guidebook date
+- Add #shield (sword and board) command and fix two-weapon entry
 

@@ -1310,6 +1310,10 @@
      #shell
           Do a shell escape.  Default key is `!'.
 
+     #shield
+          Toggle wearing a shield (sword and board) on  or  off.   Autocom-
+          pletes.  Default key is `{'.
+
      #showcolors
           Show the terminal's  color  palette  and  detected  color  depth.
           Autocompletes.

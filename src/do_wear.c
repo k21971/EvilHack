@@ -42,6 +42,9 @@ STATIC_PTR int FDECL(accessory_or_armor_on, (struct obj *));
 STATIC_DCL void FDECL(already_wearing, (const char *));
 STATIC_DCL void FDECL(already_wearing2, (const char *, const char *));
 STATIC_DCL void FDECL(toggle_armor_light, (struct obj *, BOOLEAN_P));
+STATIC_PTR boolean FDECL(is_wearable_shield, (struct obj *));
+STATIC_DCL boolean NDECL(free_shieldhand);
+STATIC_DCL struct obj *NDECL(find_altshield);
 
 /* plural "fingers" or optionally "gloves" */
 const char *
@@ -2967,6 +2970,148 @@ struct obj *obj;
             prinv((char *) 0, obj, 0L);
     }
     return 1;
+}
+
+/* predicate for query_objlist(): an unworn shield, but not bracers */
+STATIC_PTR
+boolean
+is_wearable_shield(otmp)
+struct obj *otmp;
+{
+    return (boolean) (is_shield(otmp) && !is_bracer(otmp)
+                      && !otmp->owornmask);
+}
+
+/* Ready the shield hand: leave two-weapon combat and, if a two-handed
+   weapon is wielded, switch to a one-handed one. Returns FALSE (with
+   feedback) when that can't be done so the caller leaves the shield
+   unworn. bimanual() already treats a giant's two-handed melee weapon
+   as one-handed, while bows and crossbows stay two-handed for everyone */
+STATIC_OVL boolean
+free_shieldhand()
+{
+    /* leave two-weapon combat the same way the X command does, with
+       matching feedback, then free the hand for the shield */
+    if (u.twoweap) {
+        struct obj *tmp = uswapwep;
+
+        You("switch to your primary weapon.");
+        u.twoweap = FALSE;
+        setuswapwep((struct obj *) 0);
+        setuswapwep(tmp);
+        update_inventory();
+    }
+    /* a shield needs only a free hand, not a weapon: nothing to do when
+       empty handed or wielding a one-handed weapon */
+    if (!uwep || !bimanual(uwep))
+        return TRUE;
+    /* a welded two-hander can't be set aside */
+    if (welded(uwep)) {
+        weldmsg(uwep);
+        return FALSE;
+    }
+    /* make room for the shield: keep the readied one-handed weapon if
+       there is one, otherwise set the two-hander aside (a shield needs
+       only a free hand, not a weapon) */
+    if (uswapwep && !bimanual(uswapwep)
+        && (uswapwep->oclass == WEAPON_CLASS || is_weptool(uswapwep))) {
+        (void) doswapweapon();
+    } else {
+        struct obj *twohander = uwep;
+
+        setuwep((struct obj *) 0);
+        You("set %s aside.", yname(twohander));
+    }
+    return TRUE;
+}
+
+/* the carried shield previously chosen for sword & board, if any */
+STATIC_OVL struct obj *
+find_altshield()
+{
+    struct obj *otmp;
+
+    for (otmp = invent; otmp; otmp = otmp->nobj) {
+        if (otmp->altshield && is_shield(otmp) && !is_bracer(otmp)
+            && !otmp->owornmask)
+            return otmp;
+    }
+    return (struct obj *) 0;
+}
+
+/* mark shield as the designated sword-and-board shield, clearing the
+   mark from any other carried object so at most one is ever set */
+void
+designate_altshield(shield)
+struct obj *shield;
+{
+    struct obj *otmp;
+
+    for (otmp = invent; otmp; otmp = otmp->nobj) {
+        if (otmp != shield && otmp->altshield)
+            otmp->altshield = 0;
+    }
+    if (shield)
+        shield->altshield = 1;
+}
+
+/* the '#shield' command (default key '{'): toggle a shield on or off,
+   handling the off-hand weapon the way the 'X' (twoweapon) command
+   handles the primary and secondary weapons */
+int
+doshield()
+{
+    struct obj *shield;
+    menu_item *pick_list = (menu_item *) 0;
+    int n;
+
+    /* toggle off: a shield (not bracers) is currently worn */
+    if (uarms && !is_bracer(uarms)) {
+        shield = uarms;
+        remove_worn_item(shield, FALSE);
+        designate_altshield(shield);
+        You("take off %s.", yname(shield));
+        return 1;
+    }
+
+    /* toggle on -- same "can you wear armor at all" guard as dowear() */
+    if (verysmall(youmonst.data) || nohands(youmonst.data)
+        || Hidinshell || is_ent(youmonst.data)
+        || is_plant(youmonst.data)) {
+        pline("Don't even bother.");
+        return 0;
+    }
+    /* shield slot is already taken by bracers */
+    if (uarms) {
+        already_wearing(yname(uarms));
+        return 0;
+    }
+
+    /* prefer the previously designated shield; otherwise choose one
+       (auto-select if only one is carried) and remember it */
+    shield = find_altshield();
+    if (!shield) {
+        n = query_objlist("Wear which shield?", &invent,
+                          (USE_INVLET | INVORDER_SORT | AUTOSELECT_SINGLE
+                           | SIGNAL_NOMENU),
+                          &pick_list, PICK_ONE, is_wearable_shield);
+        if (n < 0) {
+            You("have no shield to use.");
+            return 0;
+        }
+        if (n == 0)
+            return 0; /* cancelled the menu */
+        shield = pick_list[0].item.a_obj;
+        free((genericptr_t) pick_list);
+    }
+
+    /* clear the shield hand, then don the shield */
+    if (!free_shieldhand())
+        return 0;
+
+    n = accessory_or_armor_on(shield);
+    designate_altshield(shield);
+    return n;
 }
 
 /* the 'W' command */

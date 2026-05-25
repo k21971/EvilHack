@@ -1747,6 +1747,10 @@ unsigned doname_flags;
             Strcat(bp, " (alternate weapon; not wielded)");
         }
     }
+    if (obj->altshield && is_shield(obj) && !obj->owornmask
+        && carried(obj) && BP_HAS_ROOM(bp, 35)) {
+        Strcat(bp, " (alternate shield; not worn)");
+    }
 
     /* Various in-use light sources; overwrite trailing ')'. */
     if (!Blind && BP_HAS_ROOM(bp, 30)
