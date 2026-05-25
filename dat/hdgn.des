@@ -58,12 +58,12 @@ REGION:(53,06,57,10),unlit,"barracks",irregular,unfilled
 REGION:(12,05,17,07),unlit,"nursery",filled
 
 # doors
-DOOR:locked,(11,05)
-DOOR:locked,(18,07)
-DOOR:locked,(48,12)
-DOOR:locked,(48,13)
-DOOR:locked,(52,07)
-DOOR:locked,(52,08)
+DOOR:iron,locked,(11,05)
+DOOR:iron,locked,(18,07)
+DOOR:iron,locked,(48,12)
+DOOR:iron,locked,(48,13)
+DOOR:iron,locked,(52,07)
+DOOR:iron,locked,(52,08)
 
 # boss monster + loot
 MONSTER:('e',"Tal'Gath"),(01,01)

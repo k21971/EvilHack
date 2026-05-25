@@ -52,10 +52,10 @@ DRAWBRIDGE:(26,10),west,closed
 MAGIC_CHEST:(56,10)
 
 # doors
-DOOR:locked,(12,06)
-DOOR:locked,(12,13)
-DOOR:locked,(20,09)
-DOOR:locked,(20,10)
+DOOR:iron,locked,(12,06)
+DOOR:iron,locked,(12,13)
+DOOR:iron,locked,(20,09)
+DOOR:iron,locked,(20,10)
 
 # The wizard and his pet
 MONSTER:('@',"Wizard of Yendor"),(55,10),asleep
@@ -160,26 +160,29 @@ IF [50%] {
   TERRAIN:(03,05),'-'
   TERRAIN:(04,05),'-'
   TERRAIN:(05,05),'-'
-  TERRAIN:(07,05),'S'
+  DOOR:iron,secret,(07,05)
 } ELSE {
   TERRAIN:(03,11),'-'
   TERRAIN:(04,11),'-'
   TERRAIN:(05,11),'-'
-  TERRAIN:(07,11),'S'
+  DOOR:iron,secret,(07,11)
 }
 
 IF [50%] {
-  TERRAIN:(18,11),'S'
-  TERRAIN:(10,05),'S'
+  DOOR:iron,secret,(18,11)
+  DOOR:iron,secret,(10,05)
 } ELSE {
-  TERRAIN:(18,05),'S'
-  TERRAIN:(10,11),'S'
+  DOOR:iron,secret,(18,05)
+  DOOR:iron,secret,(10,11)
 }
 
 # doors
-DOOR:locked,(02,08)
-DOOR:locked,(24,05)
-DOOR:locked,(24,11)
+DOOR:iron,locked,(02,08)
+DOOR:iron,locked,(24,05)
+DOOR:iron,locked,(24,11)
+DOOR:iron,secret,(19,06)
+DOOR:iron,secret,(19,08)
+DOOR:iron,secret,(19,10)
 
 # captive monsters
 MONSTER:('A',"angel"),$bars[0]
@@ -455,7 +458,7 @@ OBJECT:('(',"chest"),(18,02)
 OBJECT:('(',"chest"),(60,02)
 
 # stairs up
-DOOR:locked,(39,04)
+DOOR:iron,locked,(39,04)
 LADDER:(39,02),up
 
 # drawbridge
@@ -470,23 +473,27 @@ IF [50%] {
 }
 
 # doors
-DOOR:locked,(26,09)
-DOOR:locked,(26,11)
-DOOR:locked,(39,13)
-DOOR:locked,(52,09)
-DOOR:locked,(52,11)
-
+DOOR:iron,locked,(26,09)
+DOOR:iron,locked,(26,11)
+DOOR:iron,locked,(39,13)
+DOOR:iron,locked,(52,09)
+DOOR:iron,locked,(52,11)
+# secret doors
+DOOR:iron,secret,(18,07)
+DOOR:iron,secret,(60,07)
+DOOR:iron,secret,(34,10)
+DOOR:iron,secret,(44,10)
 # random door
 IF [50%] {
-  DOOR:locked,(22,04)
+  DOOR:iron,locked,(22,04)
 } ELSE {
-  DOOR:locked,(56,04)
+  DOOR:iron,locked,(56,04)
 }
 
 # random secret doors
 IF [20%] {
-  TERRAIN:(62,03),'S'
-  TERRAIN:(62,04),'S'
+  DOOR:iron,secret,(62,03)
+  DOOR:iron,secret,(62,04)
 }
 
 # none shall pass

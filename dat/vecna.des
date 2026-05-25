@@ -64,10 +64,10 @@ MONSTER:('L',"demilich"),$liches[2],asleep
 MONSTER:('L',"demilich"),$liches[3],asleep
 
 # Secret Doors
-DOOR:locked,(09,03)
-DOOR:locked,(09,17)
-DOOR:locked,(66,03)
-DOOR:locked,(66,17)
+DOOR:iron,locked,(09,03)
+DOOR:iron,locked,(09,17)
+DOOR:iron,locked,(66,03)
+DOOR:iron,locked,(66,17)
 
 # Random monsters
 MONSTER:'V',random
@@ -159,7 +159,7 @@ STAIR:(72,10),down
 DRAWBRIDGE:(50,10),east,closed
 
 # Secret Doors
-DOOR:locked,(30,07)
+DOOR:iron,locked,(30,07)
 
 # Monsters
 MONSTER:(':',"salamander"),(48,09),hostile
@@ -288,16 +288,16 @@ STAIR:(73,18),up
 
 # Doors and drawbridges
 DRAWBRIDGE:(00,08),east,closed
-DOOR:locked,(61,13)
-DOOR:locked,(10,06)
-DOOR:locked,(12,09)
-DOOR:locked,(18,06)
-DOOR:locked,(26,08)
-DOOR:locked,(26,09)
+DOOR:iron,locked,(61,13)
+DOOR:iron,locked,(10,06)
+DOOR:iron,locked,(12,09)
+DOOR:iron,locked,(18,06)
+DOOR:iron,locked,(26,08)
+DOOR:iron,locked,(26,09)
 
 # chance of a secret way into the lair
 IF [50%] {
-  DOOR:locked,(11,01)
+  DOOR:iron,locked,(11,01)
 } ELSE {
   TERRAIN: (11,01), '-'
 }

@@ -74,8 +74,8 @@ TELEPORT_REGION:(58,09,72,18),(0,0,0,0),down
 PORTAL:(74,06,74,06),(00,00,00,00),"hdgn"
 
 # Secret Doors
-DOOR:locked,(03,09)
-DOOR:locked,(08,16)
+DOOR:stone,locked,(03,09)
+DOOR:stone,locked,(08,16)
 
 # The altar of Moloch.
 ALTAR:(03,12),noalign,shrine
@@ -403,9 +403,14 @@ BRANCH:levregion(01,00,13,20),levregion(14,01,66,20)
 TELEPORT_REGION:levregion(01,00,13,20),levregion(14,01,66,20)
 
 # Doors
-DOOR:closed,(04,03)
-DOOR:locked,(18,04)
-DOOR:closed,(18,08)
+DOOR:bronze,closed,(04,03)
+DOOR:bronze,locked,(18,04)
+DOOR:bronze,closed,(18,08)
+# Secret doors
+DOOR:bronze,secret,(03,10)
+DOOR:bronze,secret,(06,06)
+DOOR:bronze,secret,(14,02)
+# monsters and traps
 MONSTER:'&',random
 MONSTER:'&',random
 MONSTER:'&',random
@@ -512,12 +517,16 @@ TELEPORT_REGION:levregion(01,00,15,20),levregion(15,01,70,16)
 # this actually leaves the farthest right column diggable
 NON_DIGGABLE:(00,00,47,12)
 STAIR:(44,06),down
-DOOR:locked,(00,06)
+DOOR:bronze,locked,(00,06)
+DOOR:bronze,secret,(10,06)
+DOOR:bronze,secret,(29,05)
+DOOR:bronze,secret,(34,08)
+DOOR:bronze,secret,(42,06)
 IF [50%] {
    TERRAIN:(34,08),'-'
-   TERRAIN:(34,04),'S'
+   DOOR:bronze,secret,(34,04)
    TERRAIN:(29,05),'|'
-   TERRAIN:(29,07),'S'
+   DOOR:bronze,secret,(29,07)
 }
 # random demon boss
 IF [50%] {
@@ -602,11 +611,11 @@ wwww........T.w}}}}}}wwwww..wwwww......................wwwww
 }}}}}}}}}}}}wwwww........................wwwwwwwwww}}}}}}}}}
 }}}}}}}}}}}}}}}}}w...T..................w}}}}}}}}}}}}}}}}}}}
 ENDMAP
-DOOR:closed,(28,07)
-DOOR:closed,(29,07)
-DOOR:locked,(45,09)
-DOOR:closed,(47,10)
-DOOR:closed,(52,10)
+DOOR:bronze,closed,(28,07)
+DOOR:bronze,closed,(29,07)
+DOOR:bronze,locked,(45,09)
+DOOR:bronze,closed,(47,10)
+DOOR:bronze,closed,(52,10)
 STAIR:levregion(01,01,20,19),(00,00,59,19),up
 BRANCH:levregion(01,01,20,19),(00,00,59,19)
 TELEPORT_REGION:levregion(01,01,20,19),(00,00,59,19)
@@ -750,19 +759,26 @@ STAIR:levregion(01,01,19,19),levregion(01,01,01,01),up
 BRANCH:levregion(01,01,19,19),levregion(01,01,01,01)
 TELEPORT_REGION:levregion(01,01,19,19),levregion(01,01,01,01)
 STAIR:(14,08),down
-DOOR:locked,(07,03)
-DOOR:locked,(10,03)
-DOOR:locked,(12,03)
-DOOR:locked,(04,04)
-DOOR:locked,(05,06)
-DOOR:locked,(01,07)
-DOOR:locked,(01,08)
-DOOR:locked,(01,09)
-DOOR:locked,(05,10)
-DOOR:locked,(04,12)
-DOOR:locked,(07,13)
-DOOR:locked,(10,13)
-DOOR:locked,(12,13)
+# Doors
+DOOR:bronze,locked,(07,03)
+DOOR:bronze,locked,(10,03)
+DOOR:bronze,locked,(12,03)
+DOOR:bronze,locked,(04,04)
+DOOR:bronze,locked,(05,06)
+DOOR:bronze,locked,(01,07)
+DOOR:bronze,locked,(01,08)
+DOOR:bronze,locked,(01,09)
+DOOR:bronze,locked,(05,10)
+DOOR:bronze,locked,(04,12)
+DOOR:bronze,locked,(07,13)
+DOOR:bronze,locked,(10,13)
+DOOR:bronze,locked,(12,13)
+# Secret doors
+DOOR:bronze,secret,(02,03)
+DOOR:bronze,secret,(02,13)
+DOOR:bronze,secret,(12,06)
+DOOR:bronze,secret,(12,10)
+#
 REGION:(00,00,21,16),lit,"ordinary"
 REGION:(10,07,14,09),lit,"throne",unfilled
 NON_DIGGABLE:(01,01,15,15)
@@ -958,6 +974,13 @@ TERRAIN: floodfill (36,00), 'L'
 TERRAIN: floodfill (00,20), 'L'
 TERRAIN: floodfill (36,20), 'L'
 
+# Secret doors
+DOOR:bronze,secret,(05,10)
+DOOR:bronze,secret,(18,06)
+DOOR:bronze,secret,(18,14)
+DOOR:bronze,secret,(15,10)
+DOOR:bronze,secret,(21,10)
+DOOR:bronze,secret,(31,10)
 # random demon boss
 IF [50%] {
   IF [50%] {
@@ -1281,9 +1304,27 @@ DRAWBRIDGE:(42,09),east,closed
 # stairs in the two towers
 STAIR:(09,09),up
 STAIR:(50,09),down
+# Secret doors
+DOOR:bronze,secret,(03,04)
+DOOR:bronze,secret,(03,13)
+DOOR:bronze,secret,(04,11)
+DOOR:bronze,secret,(05,14)
+DOOR:bronze,secret,(07,09)
+DOOR:bronze,secret,(12,07)
+DOOR:bronze,secret,(12,11)
+DOOR:bronze,secret,(15,07)
+DOOR:bronze,secret,(44,11)
+DOOR:bronze,secret,(47,07)
+DOOR:bronze,secret,(47,11)
+DOOR:bronze,secret,(48,04)
+DOOR:bronze,secret,(52,09)
+DOOR:bronze,secret,(54,04)
+DOOR:bronze,secret,(55,07)
+DOOR:bronze,secret,(56,05)
+DOOR:bronze,secret,(56,14)
 # chance of a secret way into the lair
 IF [50%] {
-  DOOR:locked,(57,09)
+  DOOR:bronze,secret,(57,09)
 } ELSE {
   TERRAIN: (57,09), '|'
 }
@@ -1465,28 +1506,28 @@ STAIR:(11,16),down
 BRANCH:(73,01,74,03),(00,00,00,00)
 TELEPORT_REGION:(60,12,65,14),(00,00,00,00)
  # Doors
-DOOR:locked,(67,16)
-DOOR:locked,(56,14)
-DOOR:locked,(56,13)
-DOOR:locked,(49,14)
-DOOR:locked,(49,13)
-DOOR:locked,(67,08)
-DOOR:locked,(67,04)
-DOOR:locked,(72,02)
-DOOR:locked,(64,06)
-DOOR:locked,(70,06)
-DOOR:locked,(17,08)
-DOOR:locked,(17,04)
-DOOR:locked,(13,02)
-DOOR:locked,(04,03)
-DOOR:locked,(03,10)
-DOOR:locked,(06,06)
-DOOR:locked,(11,09)
-DOOR:closed,(10,14)
-DOOR:closed,(11,14)
-DOOR:closed,(12,14)
-DOOR:locked,(17,16)
-DOOR:locked,(36,17)
+DOOR:bronze,locked,(67,16)
+DOOR:bronze,locked,(56,14)
+DOOR:bronze,locked,(56,13)
+DOOR:bronze,locked,(49,14)
+DOOR:bronze,locked,(49,13)
+DOOR:bronze,locked,(67,08)
+DOOR:bronze,locked,(67,04)
+DOOR:bronze,locked,(72,02)
+DOOR:bronze,locked,(64,06)
+DOOR:bronze,locked,(70,06)
+DOOR:bronze,locked,(17,08)
+DOOR:bronze,locked,(17,04)
+DOOR:bronze,locked,(13,02)
+DOOR:bronze,locked,(04,03)
+DOOR:bronze,locked,(03,10)
+DOOR:bronze,locked,(06,06)
+DOOR:bronze,locked,(11,09)
+DOOR:bronze,closed,(10,14)
+DOOR:bronze,closed,(11,14)
+DOOR:bronze,closed,(12,14)
+DOOR:bronze,locked,(17,16)
+DOOR:bronze,locked,(36,17)
 # Drawbridges
 DRAWBRIDGE:(46,06),west,closed
 DRAWBRIDGE:(43,06),west,closed
@@ -1788,14 +1829,25 @@ MONSTER:('&',"marilith"),(16,15),awake {
   OBJECT:(')',"orcish arrow"),uncursed,quantity:100
 }
 # Locked doors
-DOOR:locked,(06,06)
-DOOR:locked,(07,06)
-DOOR:locked,(15,06)
-DOOR:locked,(16,06)
-DOOR:locked,(15,11)
-DOOR:locked,(16,11)
-DOOR:locked,(24,11)
-DOOR:locked,(25,11)
+DOOR:bronze,locked,(06,06)
+DOOR:bronze,locked,(07,06)
+DOOR:bronze,locked,(15,06)
+DOOR:bronze,locked,(16,06)
+DOOR:bronze,locked,(15,11)
+DOOR:bronze,locked,(16,11)
+DOOR:bronze,locked,(24,11)
+DOOR:bronze,locked,(25,11)
+# Secret doors
+DOOR:bronze,secret,(04,14)
+DOOR:bronze,secret,(08,14)
+DOOR:bronze,secret,(12,08)
+DOOR:bronze,secret,(12,13)
+DOOR:bronze,secret,(19,04)
+DOOR:bronze,secret,(19,08)
+DOOR:bronze,secret,(23,03)
+DOOR:bronze,secret,(23,14)
+DOOR:bronze,secret,(27,03)
+DOOR:bronze,secret,(27,14)
 # treasures
 OBJECT:('(',"chest"),$niches[0]
 OBJECT:('(',"chest"),$niches[1]
@@ -1899,22 +1951,22 @@ OBJECT:('`',"boulder"),(14,15)
 OBJECT:('`',"boulder"),(15,15)
 OBJECT:('`',"boulder"),(14,16)
 # Doors
-DOOR:closed,(23,04)
-DOOR:open,(31,05)
+DOOR:bronze,closed,(23,04)
+DOOR:bronze,open,(31,05)
 DOOR:nodoor,(03,07)
-DOOR:closed,(09,07)
-DOOR:closed,(14,07)
-DOOR:closed,(41,07)
-DOOR:open,(03,10)
+DOOR:bronze,closed,(09,07)
+DOOR:bronze,closed,(14,07)
+DOOR:bronze,closed,(41,07)
+DOOR:bronze,open,(03,10)
 DOOR:nodoor,(13,10)
-DOOR:open,(41,10)
-DOOR:closed,(24,11)
-DOOR:closed,(31,13)
-DOOR:open,(11,15)
-DOOR:closed,(18,15)
-DOOR:closed,(41,15)
-DOOR:open,(26,16)
-DOOR:closed,(06,17)
+DOOR:bronze,open,(41,10)
+DOOR:bronze,closed,(24,11)
+DOOR:bronze,closed,(31,13)
+DOOR:bronze,open,(11,15)
+DOOR:bronze,closed,(18,15)
+DOOR:bronze,closed,(41,15)
+DOOR:bronze,open,(26,16)
+DOOR:bronze,closed,(06,17)
 # Special rooms
 ALTAR:(24,09),noalign,sanctum
 REGION:(22,14,25,18),unlit,"morgue"
@@ -2037,9 +2089,20 @@ NON_PASSWALL:(00,00,39,19)
 DRAWBRIDGE:(38,06),west,closed
 DRAWBRIDGE:(39,06),east,closed
 # Doors
-DOOR:locked,(62,06)
-DOOR:closed,(46,12)
-DOOR:closed,(53,10)
+DOOR:bronze,locked,(62,06)
+DOOR:bronze,closed,(46,12)
+DOOR:bronze,closed,(53,10)
+# Secret doors
+DOOR:bronze,secret,(02,09)
+DOOR:bronze,secret,(35,07)
+DOOR:bronze,secret,(53,08)
+DOOR:bronze,secret,(54,12)
+DOOR:bronze,secret,(56,07)
+DOOR:bronze,secret,(57,10)
+DOOR:bronze,secret,(61,10)
+DOOR:bronze,secret,(61,14)
+DOOR:bronze,secret,(64,08)
+DOOR:bronze,secret,(64,12)
 # Some traps.
 TRAP:"spiked pit", random
 TRAP:"fire", random

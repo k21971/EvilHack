@@ -62,11 +62,11 @@ DRAWBRIDGE:(13,08),west,closed
 DRAWBRIDGE:(13,10),west,closed
 
 # Various doors
-DOOR:closed,(02,03)
-DOOR:closed,(02,06)
-DOOR:locked,(02,09)
-DOOR:closed,(02,12)
-DOOR:closed,(02,15)
+DOOR:gold,closed,(02,03)
+DOOR:gold,closed,(02,06)
+DOOR:gold,locked,(02,09)
+DOOR:gold,closed,(02,12)
+DOOR:gold,closed,(02,15)
 DOOR:locked,(29,08)
 DOOR:locked,(29,09)
 DOOR:locked,(29,10)

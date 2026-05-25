@@ -5434,4 +5434,5 @@ The following changes to date are:
 - Add steel, stone, gold, and bronze door materials
 - Make the spell "stone to flesh" turn stone doors into meat
 - Door material changes on set levels, round one
+- Door material changes on set levels, round two
 
