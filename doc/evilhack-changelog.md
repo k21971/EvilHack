@@ -5440,4 +5440,5 @@ The following changes to date are:
 - Fix: redundant "is killed" line when a monster casts power word kill
 - Add paranoid_confirmation:autoall option
 - Add varied booby-trapped-door behaviors
+- Update guidebook date
 

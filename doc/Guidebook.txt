@@ -15,7 +15,7 @@
                        Original version - Eric S. Raymond
       (Edited and expanded for EvilHack 0.9.3 by Keith Simpson and others)
 
-                                  May 22, 2026
+                                  May 25, 2026
 
 
 
