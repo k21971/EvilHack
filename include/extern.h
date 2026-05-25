@@ -2440,6 +2440,7 @@ E int FDECL(rnd, (int));
 E int FDECL(d, (int, int));
 E int FDECL(rne, (int));
 E int FDECL(rnz, (int));
+E unsigned int FDECL(coord_hash, (XCHAR_P, XCHAR_P, int));
 
 /* ### role.c ### */
 
@@ -2882,7 +2883,9 @@ E void FDECL(deltrap, (struct trap *));
 E struct obj *FDECL(deltrap_with_ammo, (struct trap *, int));
 E boolean FDECL(delfloortrap, (struct trap *));
 E struct trap *FDECL(t_at, (int, int));
-E void FDECL(b_trapped, (const char *, int, int));
+E void FDECL(b_trapped, (const char *, int, int, int, int));
+E int FDECL(getdoortrap, (int, int));
+E boolean FDECL(door_trap_destroys, (int, int));
 E boolean NDECL(unconscious);
 E void FDECL(blow_up_landmine, (struct trap *));
 E int FDECL(launch_obj, (SHORT_P, int, int, int, int, int));

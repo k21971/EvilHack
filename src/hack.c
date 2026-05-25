@@ -560,7 +560,7 @@ xchar x, y;
     } else if (lev->typ == SDOOR) {
         if (lev->doormask & D_TRAPPED) {
             lev->doormask = D_NODOOR;
-            b_trapped("secret door", 0, door_material(lev));
+            b_trapped("secret door", 0, door_material(lev), x, y);
         } else {
             digtxt = "chew through the secret door.";
             lev->doormask = D_BROKEN;
@@ -576,7 +576,7 @@ xchar x, y;
         }
         if (lev->doormask & D_TRAPPED) {
             lev->doormask = D_NODOOR;
-            b_trapped("door", 0, door_material(lev));
+            b_trapped("door", 0, door_material(lev), x, y);
         } else {
             digtxt = "chew through the door.";
             lev->doormask = D_BROKEN;

@@ -1629,7 +1629,7 @@ const char *mesg;
 
     r = tin_variety(tin, FALSE);
     if (tin->otrapped || (tin->cursed && r != HOMEMADE_TIN && !rn2(8))) {
-        b_trapped("tin", 0, 0);
+        b_trapped("tin", 0, 0, 0, 0);
         tin = costly_tin(COST_DSTROY);
         goto use_up_tin;
     }

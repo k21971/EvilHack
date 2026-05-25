@@ -1117,7 +1117,8 @@ dokick()
                 exercise(A_DEX, TRUE);
                 if (!hard && (maploc->doormask & D_TRAPPED)) {
                     maploc->doormask = D_NODOOR;
-                    b_trapped("door", FOOT, door_material(maploc));
+                    b_trapped("door", FOOT, door_material(maploc),
+                              x, y);
                 } else if (!hard && maploc->doormask != D_NODOOR
                            && !(maploc->doormask & D_LOCKED))
                     maploc->doormask = D_ISOPEN;
@@ -1489,7 +1490,7 @@ dokick()
                 You("kick the door.");
             exercise(A_STR, FALSE);
             maploc->doormask = D_NODOOR;
-            b_trapped("door", FOOT, door_material(maploc));
+            b_trapped("door", FOOT, door_material(maploc), x, y);
         } else if (((ACURR(A_STR) > 18 && !rn2(5))
             || ((maybe_polyd(is_giant(youmonst.data), Race_if(PM_GIANT))
                 || maybe_polyd(is_centaur(youmonst.data), Race_if(PM_CENTAUR)))

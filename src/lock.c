@@ -194,13 +194,19 @@ picklock(VOID_ARGS)
     You("succeed in %s.", lock_action());
     if (xlock.door) {
         if (((xlock.door->doormask & D_TRAPPED) && !In_sokoban(&u.uz))) {
-            xlock.door->doormask = D_NODOOR; /* this has to occur before b_trapped() */
-            b_trapped("door", FINGER, door_material(xlock.door));
-            unblock_point(u.ux + u.dx, u.uy + u.dy);
-            if (*in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE))
-                add_damage(u.ux + u.dx, u.uy + u.dy, SHOP_DOOR_COST);
-            else if (temple_at_boundary(u.ux + u.dx, u.uy + u.dy))
-                add_damage(u.ux + u.dx, u.uy + u.dy, 0L);
+            /* set the door state before b_trapped() so a fire blast goes
+               off in an empty doorway */
+            if (door_trap_destroys(u.ux + u.dx, u.uy + u.dy)) {
+                xlock.door->doormask = D_NODOOR;
+                unblock_point(u.ux + u.dx, u.uy + u.dy);
+                if (*in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE))
+                    add_damage(u.ux + u.dx, u.uy + u.dy, SHOP_DOOR_COST);
+                else if (temple_at_boundary(u.ux + u.dx, u.uy + u.dy))
+                    add_damage(u.ux + u.dx, u.uy + u.dy, 0L);
+            } else
+                xlock.door->doormask = D_CLOSED; /* unlocked; trap gone */
+            b_trapped("door", FINGER, door_material(xlock.door),
+                      u.ux + u.dx, u.uy + u.dy);
             newsym(u.ux + u.dx, u.uy + u.dy);
         } else if (xlock.door->doormask & D_LOCKED)
             xlock.door->doormask = D_CLOSED;
@@ -1041,12 +1047,15 @@ int x, y;
     if (rnl(20) < (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 3) {
         pline_The("door opens.");
         if (door->doormask & D_TRAPPED) {
-            door->doormask = D_NODOOR;
-            b_trapped("door", FINGER, door_material(door));
-            if (*in_rooms(cc.x, cc.y, SHOPBASE))
-                add_damage(cc.x, cc.y, SHOP_DOOR_COST);
-            else if (temple_at_boundary(cc.x, cc.y))
-                add_damage(cc.x, cc.y, 0L);
+            if (door_trap_destroys(cc.x, cc.y)) {
+                door->doormask = D_NODOOR;
+                if (*in_rooms(cc.x, cc.y, SHOPBASE))
+                    add_damage(cc.x, cc.y, SHOP_DOOR_COST);
+                else if (temple_at_boundary(cc.x, cc.y))
+                    add_damage(cc.x, cc.y, 0L);
+            } else
+                door->doormask = D_ISOPEN; /* non-destructive: just opens */
+            b_trapped("door", FINGER, door_material(door), cc.x, cc.y);
         } else
             door->doormask = D_ISOPEN;
         feel_newsym(cc.x, cc.y); /* the hero knows she opened it */

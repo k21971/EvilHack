@@ -1858,14 +1858,21 @@ genericptr_t num;
         if (levl[zx][zy].typ == SDOOR)
             cvt_sdoor_to_door(&levl[zx][zy]); /* .typ = DOOR */
         if (levl[zx][zy].doormask & D_TRAPPED) {
+            boolean kaboom = door_trap_destroys(zx, zy);
+
+            /* set the final door state before b_trapped() so a fire blast
+               goes off in an empty doorway, matching the other trigger
+               sites (otherwise zap_over_floor reports on the still-closed
+               door) */
+            levl[zx][zy].doormask = kaboom ? D_NODOOR : D_ISOPEN;
             if (distu(zx, zy) < 3)
-                b_trapped("door", 0, door_material(&levl[zx][zy]));
-            else
+                b_trapped("door", 0, door_material(&levl[zx][zy]),
+                          zx, zy);
+            else if (kaboom)
                 Norep("You %s an explosion!",
                       cansee(zx, zy) ? "see" : (!Deaf ? "hear"
                                                       : "feel the shock of"));
             wake_nearto(zx, zy, 11 * 11);
-            levl[zx][zy].doormask = D_NODOOR;
         } else
             levl[zx][zy].doormask = D_ISOPEN;
         unblock_point(zx, zy);

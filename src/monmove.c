@@ -25,30 +25,98 @@ boolean
 mb_trapped(mtmp)
 struct monst *mtmp;
 {
-    int dmg = rnd(15);
+    int mx = mtmp->mx, my = mtmp->my;
+    int lvl = level_difficulty();
+    int dmg = 0;
 
-    if (flags.verbose) {
-        if (cansee(mtmp->mx, mtmp->my) && !Unaware)
-            pline("KABOOM!!  You see a door explode.");
-        else if (!Deaf)
-            You_hear("a distant explosion.");
+    /* same getdoortrap() varieties the hero faces, monster-targeted */
+    switch (getdoortrap(mx, my)) {
+    case HINGE_SCREECH:
+        if (!Deaf) {
+            if (cansee(mx, my))
+                pline_The("door hinges screech loudly.");
+            else
+                You_hear("a loud screech.");
+        }
+        wake_nearto(mx, my, 22 * lvl);
+        return FALSE;
+    case STATIC_SHOCK: {
+        struct obj *gloves = which_armor(mtmp, W_ARMG);
+        boolean conduct = (gloves && is_metallic(gloves));
+
+        /* monster elemental resistance fully negates (as in zap.c) */
+        dmg = (resists_elec(mtmp) || defended(mtmp, AD_ELEC))
+                  ? 0 : rnd(lvl * 2);
+        if (dmg > 0) {
+            if (conduct)
+                dmg += dmg / 2; /* metal gauntlets conduct: worse */
+            else if (gloves)
+                dmg /= 2; /* insulating gloves blunt the shock */
+        }
+        if (dmg > 0) {
+            if (canseemon(mtmp))
+                pline("%s is zapped by a doorknob!", Monnam(mtmp));
+            if (damage_mon(mtmp, dmg, AD_ELEC, FALSE)) {
+                monkilled(mtmp, "", AD_ELEC);
+                return (boolean) (DEADMONSTER(mtmp) ? TRUE : FALSE);
+            }
+        }
+        return FALSE;
     }
-    wake_nearto(mtmp->mx, mtmp->my, 7 * 7);
-    if (!(resists_stun(mtmp->data) || defended(mtmp, AD_STUN)
-          || mon_wielding_artifact(mtmp, ART_TEMPEST)))
-        mtmp->mstun = 1;
-    /* a shattering metal or stone door throws more damaging shrapnel */
-    if (hard_door(&levl[mtmp->mx][mtmp->my]))
-        dmg *= 3;
-    damage_mon(mtmp, dmg, AD_PHYS, FALSE);
-    if (DEADMONSTER(mtmp)) {
-        mondied(mtmp);
-        if (!DEADMONSTER(mtmp)) /* lifesaved */
-            return FALSE;
-        else
-            return TRUE;
+    case WATER_BUCKET:
+        if (cansee(mx, my))
+            pline("A bucket of water splashes down on %s!", mon_nam(mtmp));
+        water_damage_chain(mtmp->minvent, FALSE, (lvl / 5) + 1, FALSE, mx, my);
+        return FALSE;
+    case ROCKFALL:
+        if (cansee(mx, my))
+            You("see a tripwire snap!");
+        (void) drop_boulder_on_monster(mx, my, FALSE, FALSE);
+        /* drop_boulder_on_monster returns TRUE even when an amorphous
+           monster takes no damage, so derive death from the map; mtmp
+           may be freed if it died, so compare addresses only */
+        return (boolean) (m_at(mx, my) != mtmp);
+    case HOT_KNOB: {
+        struct obj *gloves = which_armor(mtmp, W_ARMG);
+
+        /* monster fire resistance fully negates (as in zap.c) */
+        dmg = (resists_fire(mtmp) || defended(mtmp, AD_FIRE))
+                  ? 0 : rnd(lvl);
+        if (gloves)
+            dmg /= 2;
+        if (canseemon(mtmp) && dmg > 0)
+            pline("%s is burned by a red-hot doorknob!", Monnam(mtmp));
+        if (gloves)
+            (void) erode_obj(gloves, (char *) 0, ERODE_BURN, EF_GREASE);
+        if (dmg > 0 && damage_mon(mtmp, dmg, AD_FIRE, FALSE)) {
+            monkilled(mtmp, "", AD_FIRE);
+            return (boolean) (DEADMONSTER(mtmp) ? TRUE : FALSE);
+        }
+        return FALSE;
     }
-    return FALSE;
+    case FIRE_BLAST:
+    default:
+        /* parity with the hero's FIRE_BLAST: a real area explosion rather
+           than single-target damage. explode() handles every victim
+           (including this monster), per-target resistance, and death */
+        dmg = rnd(5 + (lvl < 5 ? lvl : 2 + lvl / 2));
+        /* a shattering metal or stone door throws more (and more
+           damaging) shrapnel */
+        if (hard_door(&levl[mx][my]))
+            dmg *= 3;
+        if (cansee(mx, my) && !Unaware)
+            pline("KABOOM!!  The door was booby-trapped!");
+        if (!(resists_stun(mtmp->data) || defended(mtmp, AD_STUN)
+              || mon_wielding_artifact(mtmp, ART_TEMPEST)))
+            mtmp->mstun = 1;
+        explode(mx, my, ZT_FIRE, dmg, TRAPPED_DOOR, EXPL_FIERY);
+        scatter(mx, my, dmg,
+                VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, 0);
+        wake_nearto(mx, my, 7 * 7);
+        /* explode() inflicted the damage and any death; mtmp may be freed,
+           so compare addresses only */
+        return (boolean) (m_at(mx, my) != mtmp);
+    }
 }
 
 /* check whether a monster is carrying a locking/unlocking tool */
@@ -2269,8 +2337,10 @@ found_altar:
                     /* like the vampshift hack above, there are sequencing
                        issues when the monster is moved to the door's spot
                        first then door handling plus feedback comes after */
+                    boolean nuke = btrapped
+                        && door_trap_destroys(mtmp->mx, mtmp->my);
 
-                    UnblockDoor(here, mtmp, !btrapped ? D_ISOPEN : D_NODOOR);
+                    UnblockDoor(here, mtmp, nuke ? D_NODOOR : D_ISOPEN);
                     if (btrapped) {
                         if (mb_trapped(mtmp))
                             return 2;
@@ -2286,7 +2356,10 @@ found_altar:
                         }
                     }
                 } else if (here->doormask == D_CLOSED && can_open) {
-                    UnblockDoor(here, mtmp, !btrapped ? D_ISOPEN : D_NODOOR);
+                    boolean nuke = btrapped
+                        && door_trap_destroys(mtmp->mx, mtmp->my);
+
+                    UnblockDoor(here, mtmp, nuke ? D_NODOOR : D_ISOPEN);
                     if (btrapped) {
                         if (mb_trapped(mtmp))
                             return 2;

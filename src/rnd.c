@@ -239,4 +239,25 @@ int i;
     return (int) x;
 }
 
+/* Deterministic hash of three coordinates (intended x, y, z; z is usually
+   ledger_no() so it stays unique among levels). ubirthday and the server
+   seed are mixed in so the result cannot be read off the visible game
+   state. Adapted from xNetHack */
+unsigned int
+coord_hash(x, y, z)
+xchar x, y;
+int z;
+{
+    const int magic_number = 0x45d9f3b;
+    /* Cantor pairing reduces (x,y) to a single number */
+    unsigned int a = ((x + y) * (x + y + 1) / 2) + x + z
+                     + (unsigned int) ubirthday
+                     + (unsigned int) sysopt.serverseed;
+
+    a = a * magic_number;
+    a = ((a >> 16) ^ a) * magic_number;
+    a = ((a >> 16) ^ a);
+    return a;
+}
+
 /*rnd.c*/

@@ -5677,15 +5677,19 @@ boolean force;
             if (!force && (confused || Fumbling
                            || rnd(75 + level_difficulty() / 2) > ch)) {
                 You("set it off!");
-                b_trapped("door", FINGER, door_material(&levl[x][y]));
-                levl[x][y].doormask = D_NODOOR;
-                unblock_point(x, y);
+                if (door_trap_destroys(x, y)) {
+                    levl[x][y].doormask = D_NODOOR;
+                    unblock_point(x, y);
+                    /* (probably ought to charge for this damage...) */
+                    if (*in_rooms(x, y, SHOPBASE))
+                        add_damage(x, y, 0L);
+                    else if (temple_at_boundary(x, y))
+                        add_damage(x, y, 0L);
+                } else
+                    levl[x][y].doormask &= ~D_TRAPPED; /* trap gone, door stays */
+                b_trapped("door", FINGER, door_material(&levl[x][y]),
+                          x, y);
                 newsym(x, y);
-                /* (probably ought to charge for this damage...) */
-                if (*in_rooms(x, y, SHOPBASE))
-                    add_damage(x, y, 0L);
-                else if (temple_at_boundary(x, y))
-                    add_damage(x, y, 0L);
             } else {
                 You("disarm it!");
                 levl[x][y].doormask &= ~D_TRAPPED;
@@ -6537,21 +6541,89 @@ struct trap *ttmp;
     return FALSE;
 }
 
-/* used for doors (also tins).  can be used for anything else that opens. */
+/* Pick which booby-trapped-door variety fires at (x,y). The choice is
+   deterministic per door location so re-triggering the same door gives
+   the same trap, and a higher level_difficulty() unlocks more dangerous
+   traps. Adapted from xNetHack */
+int
+getdoortrap(x, y)
+int x, y;
+{
+    int i, lvl = level_difficulty();
+    int maxtrap = -1;
+    /* {trap, minimum level_difficulty}; keep sorted by ascending level */
+    static const int trapminlevels[NUMDOORTRAPS][2] = {
+        { HINGE_SCREECH, 1 },
+        { STATIC_SHOCK, 2 },
+        { WATER_BUCKET, 5 },
+        { ROCKFALL, 7 },
+        { HOT_KNOB, 10 },
+        { FIRE_BLAST, 12 }
+    };
+
+    for (i = 0; i < NUMDOORTRAPS; i++) {
+        if (lvl >= trapminlevels[i][1])
+            maxtrap = i;
+        else
+            break;
+    }
+    if (maxtrap < 0) {
+        impossible("getdoortrap: no valid traps");
+        return HINGE_SCREECH;
+    }
+    return (int) (coord_hash((xchar) x, (xchar) y, (int) ledger_no(&u.uz))
+                  % (maxtrap + 1));
+}
+
+/* True if the door trap at (x,y) destroys the door; only the fire blast
+   does -- the other varieties leave the door intact */
+boolean
+door_trap_destroys(x, y)
+int x, y;
+{
+    return (boolean) (getdoortrap(x, y) == FIRE_BLAST);
+}
+
+/* used for doors (also tins); can be used for anything else that opens.
+   for a door, (dx,dy) is its location and one getdoortrap() variety
+   fires; tins always just explode in your hands. The caller decides the
+   door's fate (see door_trap_destroys) and sets the door state before
+   calling this; b_trapped only produces the trap's effect */
 void
-b_trapped(item, bodypart, material)
+b_trapped(item, bodypart, material, dx, dy)
 const char *item;
 int bodypart;
 int material; /* a booby-trapped door's material; 0 for non-doors */
+int dx, dy;   /* door location; ignored for tins */
 {
     struct rm *lev;
     struct obj *tin = context.tin.tin;
     int tx = 0, ty = 0;
-    int lvl = level_difficulty(),
-        dmg = rnd(5 + (lvl < 5 ? lvl : 2 + lvl / 2));
+    int lvl = level_difficulty();
+    int dmg = rnd(5 + (lvl < 5 ? lvl : 2 + lvl / 2));
 
-    if (!tin && In_sokoban(&u.uz)) {
+    /* a tin (or other non-door) always explodes in your hands */
+    if (tin) {
+        if (mat_is_metallic(material) || material == MINERAL)
+            dmg *= 3;
+        pline("KABOOM!!  %s was booby-trapped!", The(item));
+        explode(u.ux, u.uy, ZT_FIRE, resist_reduce(dmg, FIRE_RES),
+                TRAPPED_DOOR, EXPL_FIERY);
+        scatter(u.ux, u.uy, dmg,
+                VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, 0);
+        wake_nearby();
+        exercise(A_STR, FALSE);
+        if (bodypart)
+            exercise(A_CON, FALSE);
+        make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
+        return;
+    }
+
+    /* in Sokoban a trapped door seals all the other trapped doors as walls
+       rather than exploding */
+    if (In_sokoban(&u.uz)) {
         int door_count = 0;
+
         for (; ty < ROWNO; ty++) {
             for (tx = 0; tx < COLNO; tx++) {
                 lev = &levl[tx][ty];
@@ -6573,21 +6645,71 @@ int material; /* a booby-trapped door's material; 0 for non-doors */
         return;
     }
 
-    /* a shattering metal or stone door throws more (and more damaging)
-       shrapnel */
-    if (mat_is_metallic(material) || material == MINERAL)
-        dmg *= 3;
+    /* a real booby-trapped door: pick a variety by location */
+    switch (getdoortrap(dx, dy)) {
+    case HINGE_SCREECH:
+        if (!Deaf)
+            pline_The("hinges screech loudly.");
+        wake_nearto(dx, dy, 22 * lvl);
+        break;
+    case STATIC_SHOCK: {
+        struct obj *gloves = which_armor(&youmonst, W_ARMG);
+        boolean conduct = (gloves && is_metallic(gloves));
 
-    pline("KABOOM!!  %s was booby-trapped!", The(item));
-    explode(u.ux, u.uy, ZT_FIRE, resist_reduce(dmg, FIRE_RES),
-            TRAPPED_DOOR, EXPL_FIERY);
-    scatter(u.ux, u.uy, dmg,
-            VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, 0);
-    wake_nearby();
-    exercise(A_STR, FALSE);
-    if (bodypart)
-        exercise(A_CON, FALSE);
-    make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
+        dmg = resist_reduce(rnd(lvl * 2), SHOCK_RES);
+        if (conduct)
+            dmg += dmg / 2; /* metal gauntlets conduct: worse */
+        else if (gloves)
+            dmg /= 2; /* insulating gloves blunt the shock */
+        pline("An electric spark from the doorknob zaps you!");
+        if (conduct)
+            Your("gloves conduct it!");
+        losehp(dmg, "charged doorknob", KILLED_BY_AN);
+        exercise(A_WIS, FALSE);
+        break;
+    }
+    case WATER_BUCKET:
+        pline("A bucket of water splashes down on you!");
+        water_damage_chain(invent, FALSE, (lvl / 5) + 1, FALSE, u.ux, u.uy);
+        exercise(A_WIS, FALSE);
+        break;
+    case ROCKFALL:
+        You("see a tripwire snap!");
+        drop_boulder_on_player(FALSE, TRUE, FALSE, FALSE);
+        exercise(A_STR, FALSE);
+        break;
+    case HOT_KNOB: {
+        struct obj *gloves = which_armor(&youmonst, W_ARMG);
+
+        dmg = resist_reduce(rnd(lvl), FIRE_RES);
+        if (gloves)
+            dmg /= 2;
+        pline("Ouch!  The knob is red-hot!");
+        if (dmg > 0)
+            losehp(dmg, "a red-hot doorknob", KILLED_BY);
+        else if (gloves)
+            pline("Fortunately, your gloves protect your %s.",
+                  body_part(HAND));
+        if (gloves)
+            (void) erode_obj(gloves, (char *) 0, ERODE_BURN, EF_GREASE);
+        break;
+    }
+    case FIRE_BLAST:
+    default:
+        if (mat_is_metallic(material) || material == MINERAL)
+            dmg *= 3;
+        pline("KABOOM!!  %s was booby-trapped!", The(item));
+        explode(dx, dy, ZT_FIRE, resist_reduce(dmg, FIRE_RES),
+                TRAPPED_DOOR, EXPL_FIERY);
+        scatter(dx, dy, dmg,
+                VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, 0);
+        wake_nearby();
+        exercise(A_STR, FALSE);
+        if (bodypart)
+            exercise(A_CON, FALSE);
+        make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
+        break;
+    }
 }
 
 /* Monster is hit by trap. */

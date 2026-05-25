@@ -5439,4 +5439,5 @@ The following changes to date are:
   leak when a trap's stored ammo is destroyed
 - Fix: redundant "is killed" line when a monster casts power word kill
 - Add paranoid_confirmation:autoall option
+- Add varied booby-trapped-door behaviors
 

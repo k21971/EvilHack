@@ -543,7 +543,7 @@ dig(VOID_ARGS)
         if (IS_DOOR(lev->typ) && (lev->doormask & D_TRAPPED)
             && !metal_door(lev)) {
             lev->doormask = D_NODOOR;
-            b_trapped("door", 0, door_material(lev));
+            b_trapped("door", 0, door_material(lev), dpx, dpy);
             newsym(dpx, dpy);
         }
     cleanup:
