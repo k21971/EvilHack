@@ -3387,6 +3387,9 @@ prompting one-by-one.
 Full displays a menu of
 object classes rather than a character prompt, and then a menu of matching
 objects for selection.
+(Choosing its \(oqA\(cq (Auto-select All) choice acts on every item and
+skips the second menu; to avoid triggering that by accident, set
+\f(CRparanoid_confirmation:AutoAll\fP to require confirmation.)
 Partial skips the object class filtering and
 immediately displays a menu of all objects.
 Persistent.
@@ -3568,6 +3571,10 @@ when hero has polymorph control;
 .PL pray
 require \(oqy\(cq to confirm an attempt to pray rather
 than immediately praying; on by default;
+.PL AutoAll
+require \(oqy\(cq to confirm the \(oqA\(cq (Auto-select All) choice in the
+object class menu shown for \f(CRmenustyle:Full\fP, before acting on the
+entire inventory or container;
 .PL Remove
 require selection from inventory for \(oqR\(cq and \(oqT\(cq
 commands even when wearing just one applicable item.

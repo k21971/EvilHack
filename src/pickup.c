@@ -1048,6 +1048,7 @@ int how;               /* type of query */
     boolean collected_type_name;
     char invlet;
     int ccount;
+    boolean verify_All = FALSE;
     boolean FDECL((*ofilter), (OBJ_P)) = (boolean FDECL((*), (OBJ_P))) 0;
     boolean do_unpaid = FALSE, do_unidentified = FALSE;
     boolean do_blessed = FALSE, do_cursed = FALSE, do_uncursed = FALSE,
@@ -1106,6 +1107,10 @@ int how;               /* type of query */
     pack = flags.inv_order;
 
     if (qflags & CHOOSE_ALL) {
+        /* when paranoid about auto-select-all, confirm the 'A' choice
+           after the menu instead of acting on everything immediately;
+           only relevant for the multi-pick (PICK_ANY) callers */
+        verify_All = (how == PICK_ANY) && ParanoidAutoAll;
         invlet = 'A';
         any = zeroany;
         any.a_int = 'A';
@@ -1220,6 +1225,36 @@ int how;               /* type of query */
     }
     end_menu(win, qstr);
     n = select_menu(win, how, pick_list);
+
+    /* ParanoidAutoAll: require confirmation when the 'A' (auto-select
+       every item) choice has been picked */
+    if (n > 0 && verify_All) {
+        int i, j;
+
+        for (i = 0; i < n; i++) {
+            if ((*pick_list)[i].item.a_int == 'A') {
+                if (!paranoid_query(ParanoidConfirm,
+                                    "Really autoselect All?")) {
+                    /* declined: drop 'A' but honor any other categories
+                       that were also picked; if 'A' was the only choice,
+                       fall back to a menu of all items (as if 'a' had
+                       been chosen) or, lacking that, cancel */
+                    if (n > 1) {
+                        for (j = i + 1; j < n; j++)
+                            (*pick_list)[j - 1] = (*pick_list)[j];
+                        n--;
+                    } else if (qflags & ALL_TYPES) {
+                        (*pick_list)[0].item.a_int = ALL_TYPES_SELECTED;
+                    } else {
+                        n = 0;
+                        free((genericptr_t) *pick_list);
+                        *pick_list = (menu_item *) 0;
+                    }
+                }
+                break;
+            }
+        }
+    }
  query_done:
     destroy_nhwindow(win);
     if (n < 0)

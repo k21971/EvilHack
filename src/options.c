@@ -1412,6 +1412,8 @@ STATIC_VAR const struct paranoia_opts {
       "always pick from inventory for Remove and Takeoff" },
     { PARANOID_SWIM, "swim", 1, 0, 0,
       "yes to walk into a water or lava space" },
+    { PARANOID_AUTOALL, "Autoall", 2, "autoselect-all", 2,
+      "y to pick filter choice 'A' for menustyle:Full" },
     /* for config file parsing; interactive menu skips these */
     { 0, "none", 4, 0, 0, 0 }, /* require full word match */
     { ~0, "all", 3, 0, 0, 0 }, /* ditto */

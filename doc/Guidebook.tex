@@ -3673,6 +3673,9 @@ prompting one-by-one.
 Full displays a menu of
 object classes rather than a character prompt, and then a menu of matching
 objects for selection.
+(Choosing its `{\tt A}' (Auto-select All) choice acts on every item and
+skips the second menu; to avoid triggering that by accident, set
+{\it paranoid\verb+_+confirmation:AutoAll\/} to require confirmation.)
 Partial skips the object class filtering and
 immediately displays a menu of all objects.
 Persistent.
@@ -3880,6 +3883,10 @@ when hero has polymorph control;
 \item[{\tt pray~~~}]
 require `{\tt y}' to confirm an attempt to pray rather
 than immediately praying; on by default;
+\item[{\tt AutoAll}]
+require `{\tt y}' to confirm the `{\tt A}' (Auto-select All) choice in the
+object class menu shown for {\it menustyle:Full\/}, before acting on the
+entire inventory or container;
 \item[{\tt Remove~}] require selection from inventory for `{\tt R}'
 and `{\tt T}'
 commands even when wearing just one applicable item.

@@ -113,6 +113,7 @@ struct flag {
 #define PARANOID_WERECHANGE 0x0100
 #define PARANOID_EATING     0x0200
 #define PARANOID_SWIM       0x0400
+#define PARANOID_AUTOALL    0x0800
     int pickup_burden; /* maximum burden before prompt */
     int pile_limit;    /* controls feedback when walking over objects */
     char inv_order[MAXOCLASSES];
@@ -567,6 +568,9 @@ enum runmode_types {
 /* swim: walk (not fly or jump or levitate) into water or lava from a
    non-similar square */
 #define ParanoidSwim ((flags.paranoia_bits & PARANOID_SWIM) != 0)
+/* autoall: confirm the 'A' auto-select-all choice in menustyle:Full
+   object class menus before acting on the entire inventory/container */
+#define ParanoidAutoAll ((flags.paranoia_bits & PARANOID_AUTOALL) != 0)
 
 /* command parsing, mainly dealing with number_pad handling;
    not saved and restored */
