@@ -1551,11 +1551,14 @@ use_lamp(obj)
 struct obj *obj;
 {
     char buf[BUFSZ];
+    const char *lamp = (obj->otyp == OIL_LAMP
+                        || obj->otyp == MAGIC_LAMP) ? "lamp"
+                       : (obj->otyp == LANTERN) ? "lantern"
+                         : NULL; /* NULL => candle(s) */
 
     if (obj->lamplit) {
-        if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
-            || obj->otyp == LANTERN)
-            pline("%slamp is now off.", Shk_Your(buf, obj));
+        if (lamp) /* lamp or lantern */
+            pline("%s%s is now off.", Shk_Your(buf, obj), lamp);
         else
             You("snuff out %s.", yname(obj));
         end_burn(obj, TRUE);
@@ -1572,7 +1575,7 @@ struct obj *obj;
     if ((!Is_candle(obj) && obj->age == 0)
         || (obj->otyp == MAGIC_LAMP && obj->spe == 0)) {
         if (obj->otyp == LANTERN)
-            Your("lamp has run out of power.");
+            Your("lantern has run out of power.");
         else
             pline("This %s has no oil.", xname(obj));
         return;
@@ -1582,10 +1585,9 @@ struct obj *obj;
             pline("%s for a moment, then %s.", Tobjnam(obj, "flicker"),
                   otense(obj, "die"));
     } else {
-        if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
-            || obj->otyp == LANTERN) {
+        if (lamp) { /* lamp or lantern */
             check_unpaid(obj);
-            pline("%slamp is now on.", Shk_Your(buf, obj));
+            pline("%s%s is now on.", Shk_Your(buf, obj), lamp);
         } else { /* candle(s) */
             pline("%s flame%s %s%s", s_suffix(Yname2(obj)), plur(obj->quan),
                   otense(obj, "burn"), Blind ? "." : " brightly!");

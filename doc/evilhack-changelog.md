@@ -5442,4 +5442,5 @@ The following changes to date are:
 - Add varied booby-trapped-door behaviors
 - Update guidebook date
 - Add #shield (sword and board) command and fix two-weapon entry
+- Fix: lantern miscalled "lamp" when toggled on or off
 
