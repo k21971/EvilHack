@@ -5555,7 +5555,7 @@ int spell_otyp;
                     target->mhp = 0;
                     if (caster->mtame)
                         set_pet_killer(caster);
-                    monkilled(target, "", AD_DETH);
+                    monkilled(target, (char *) 0, AD_DETH);
                 }
             } else {
                 /* Above threshold: weaken but don't kill */
