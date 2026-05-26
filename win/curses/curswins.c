@@ -332,7 +332,10 @@ curses_del_nhwin(winid wid)
                    wid);
         return;
     }
-    nhwins[wid].curwin = NULL;
+    if (nhwins[wid].curwin != NULL) {
+        delwin(nhwins[wid].curwin);
+        nhwins[wid].curwin = NULL;
+    }
     nhwins[wid].nhwin = -1;
 }
 
@@ -664,7 +667,7 @@ curses_draw_map(int sx, int sy, int ex, int ey)
 
         if (sx > 0 && sbsx == 0)
             ++sbsx;
-        if (ex < ROWNO - 1 && sbex == ROWNO - 1)
+        if (ex < COLNO - 1 && sbex == COLNO - 1)
             --sbex;
 
         for (count = 0; count < sbsx; count++) {

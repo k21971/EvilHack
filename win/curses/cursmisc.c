@@ -465,6 +465,12 @@ curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff)
 #ifdef TEXTCOLOR
     }
 
+    /* Producers resolve NH_CUSTOMCOLOR_SENTINEL before calling, but
+       guard the chokepoint so a stray sentinel never falls into the
+       CURSES_BG_FLAG or IS_EXT_COLOR branches with garbage data */
+    if (color == NH_CUSTOMCOLOR_SENTINEL)
+        color = NO_COLOR;
+
     /* Map hilite (object pile / hidden stairs / ridden steed): low byte
        is the foreground color, CURSES_HILITE_BLUE selects the blue (else
        red) background. Resolve to a pair that keeps the exact foreground,
