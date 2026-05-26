@@ -5444,4 +5444,5 @@ The following changes to date are:
 - Add #shield (sword and board) command and fix two-weapon entry
 - Fix: lantern miscalled "lamp" when toggled on or off
 - Switch status from work in progress to beta (0.9.3)
+- Fix: file permissions for 'serverseed' file
 

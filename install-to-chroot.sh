@@ -78,7 +78,7 @@ chmod 644 "$NAO_CHROOT/$NHSUBDIR/license"
 cp "$NETHACK_GIT/dat/NHdump.css" "$NAO_CHROOT/$NHSUBDIR"
 chmod 644 "$NAO_CHROOT/$NHSUBDIR/NHdump.css"
 cp "$NETHACK_GIT/dat/serverseed" "$NAO_CHROOT/$NHSUBDIR"
-chmod 600 "$NAO_CHROOT/$NHSUBDIR/serverseed"
+chmod 644 "$NAO_CHROOT/$NHSUBDIR/serverseed"
 
 echo "Copying sysconf file"
 SYSCF="$NAO_CHROOT/$NHSUBDIR/sysconf"
