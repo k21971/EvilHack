@@ -204,6 +204,54 @@ int color;
     return ext_color_pair[idx]; /* 0 if couldn't allocate */
 }
 
+/* On-demand (extended fg, solid hilite bg) pair allocation for the map
+ * highlights (object pile / hidden stairs / ridden steed). The fixed
+ * pair table built in curses_init_pairs() only covers base colors 0-15;
+ * an extended 256-palette foreground (EvilHack material colors) needs a
+ * pair built here so the exact color survives the highlight instead of
+ * overflowing the table and rendering blank. Shares the in-game
+ * on-demand pool (next_ext_pair, 129+) with get_ext_color_pair() */
+static short ext_hilite_pair[240][2]; /* [color-16][blue] -> pair, 0=none */
+
+static int
+get_ext_hilite_pair(color, blue)
+int color;
+boolean blue;
+{
+    int idx = color - 16;
+    int sub = blue ? 1 : 0;
+
+    if (next_ext_pair == 0)
+        next_ext_pair = (COLORS >= 16) ? 129 : 65;
+    if (ext_hilite_pair[idx][sub] == 0 && next_ext_pair < COLOR_PAIRS) {
+        nh_init_pair(next_ext_pair, color, blue ? COLOR_BLUE : COLOR_RED);
+        ext_hilite_pair[idx][sub] = (short) next_ext_pair++;
+    }
+    return ext_hilite_pair[idx][sub]; /* 0 if pool exhausted */
+}
+
+/* Resolve a map highlight to a color pair whose foreground is fg over a
+ * solid blue (else red) background. Base foregrounds reuse the fixed
+ * pairs; extended foregrounds allocate on demand to keep the exact color.
+ * A foreground that coincides with the highlight background would be
+ * invisible, so substitute white */
+static int
+curses_hilite_pair(fg, blue)
+int fg;
+boolean blue;
+{
+    if (IS_EXT_COLOR(fg)) {
+        int pair = get_ext_hilite_pair(fg, blue);
+
+        if (pair > 0)
+            return pair;
+        fg = CLR_WHITE; /* pool exhausted: readable fallback */
+    }
+    if ((blue && fg == CLR_BLUE) || (!blue && fg == CLR_RED))
+        fg = CLR_WHITE;
+    return 17 + (fg * 2) + (blue ? 1 : 0);
+}
+
 #if NH_NCURSES_EXT_COLORS
 /* 24-bit RGB pair cache. Sits at the top of COLOR_PAIRS (pairs) and
  * the top of COLORS (color slots) so neither collides with init_pair
@@ -417,9 +465,14 @@ curses_toggle_color_attr(WINDOW *win, int color, int attr, int onoff)
 #ifdef TEXTCOLOR
     }
 
-    /* Background-pair encoding from curses_print_glyph hilites */
+    /* Map hilite (object pile / hidden stairs / ridden steed): low byte
+       is the foreground color, CURSES_HILITE_BLUE selects the blue (else
+       red) background. Resolve to a pair that keeps the exact foreground,
+       including extended 256-palette colors that the old color*2 index
+       overflowed and rendered blank */
     if (color & CURSES_BG_FLAG) {
-        curses_color = 17 + (color & ~CURSES_BG_FLAG);
+        curses_color = curses_hilite_pair(color & 0xFF,
+                                          (color & CURSES_HILITE_BLUE) != 0);
         goto apply_pair;
     }
 

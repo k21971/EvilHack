@@ -732,12 +732,12 @@ curses_print_glyph(winid wid, XCHAR_P x, XCHAR_P y, int glyph,
     if (wid == NHW_MAP) {
         if ((special & MG_STAIRS) && iflags.hilite_hidden_stairs) {
             if (iflags.wc_color)
-                color = CURSES_BG_FLAG | (color * 2);
+                color = CURSES_BG_FLAG | (color & 0xFF);
             else
                 attr = A_REVERSE;
         } else if ((special & MG_OBJPILE) && iflags.hilite_pile) {
             if (iflags.wc_color)
-                color = CURSES_BG_FLAG | (color * 2 + 1);
+                color = CURSES_BG_FLAG | CURSES_HILITE_BLUE | (color & 0xFF);
             else
                 attr = A_REVERSE;
         }
@@ -746,7 +746,7 @@ curses_print_glyph(winid wid, XCHAR_P x, XCHAR_P y, int glyph,
             if (iflags.use_inverse)
                 attr = A_REVERSE;
             else
-                color = CURSES_BG_FLAG | (color * 2 + 1);
+                color = CURSES_BG_FLAG | CURSES_HILITE_BLUE | (color & 0xFF);
         }
         /* water and lava look the same except for color; when color is off,
            render lava in inverse video so that they look different */

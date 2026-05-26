@@ -41,6 +41,7 @@ extern WINDOW *mapwin, *statuswin, *messagewin;    /* Main windows  */
 
 /* Extended 256-color support */
 #define CURSES_BG_FLAG       0x100  /* marks bg-pair encoding, not xterm color */
+#define CURSES_HILITE_BLUE   0x200  /* bg-pair hilite uses blue bg (else red) */
 #define CURSES_EXT_PAIR_BASE 200    /* first curses pair for extended colors */
 
 #if !defined(A_LEFTLINE) && defined(A_LEFT)

@@ -2249,7 +2249,14 @@ long timeout;
         } else if (x == u.ux && y == u.uy && u.uundetected
                    && hides_under(youmonst.data))
             (void) hideunder(&youmonst);
-        newsym_force(x, y);
+        /* Force a repaint only when the spot is visible. An out-of-sight
+           spot shows its remembered glyph; forcing a repaint there would
+           recompute the live pile highlight and strip it from the frozen
+           glyph */
+        if (cansee(x, y))
+            newsym_force(x, y);
+        else
+            newsym(x, y);
     } else if (in_invent)
         update_inventory();
 }
