@@ -1231,7 +1231,13 @@ curses_convert_glyph(int ch, int glyph)
                rather than using DECgr value with high bit stripped */
             if (!ch) {
                 symbol = glyph_to_cmap(glyph);
-                ch = (int) defsyms[symbol].sym;
+                /* defsyms[] is only sized for cmap glyphs; a non-cmap
+                   glyph (monster/object/etc. routed here via mapglyph)
+                   would index defsyms[NO_GLYPH] out of bounds */
+                if (symbol != NO_GLYPH)
+                    ch = (int) defsyms[symbol].sym;
+                else
+                    ch = convindx + 0x5f; /* restore the stripped byte */
             }
         }
     }
@@ -1344,7 +1350,14 @@ curses_convert_ibm_glyph(int ch, int glyph)
            any CP437 byte a user has assigned without an ACS_ match */
         {
             int symbol = glyph_to_cmap(glyph);
-            ch = (int) defsyms[symbol].sym;
+            /* defsyms[] is only sized for cmap glyphs; tmp_at() routes
+               object/monster glyphs through here for projectile
+               animation (frost-giant boulder throw repro) and
+               defsyms[NO_GLYPH] would be far out of bounds */
+            if (symbol != NO_GLYPH)
+                ch = (int) defsyms[symbol].sym;
+            else
+                ch &= ~0x80; /* non-cmap glyph: degrade to plain ASCII */
         }
     }
 

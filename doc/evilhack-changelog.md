@@ -5447,4 +5447,5 @@ The following changes to date are:
 - Fix: file permissions for 'serverseed' file
 - Fix: two hilite_pile rendering bugs with object piles
 - Fix: IBMgraphics no longer renders on CP437 terminals
+- Fix: curses convert-glyph fallback indexed defsyms[] out of bounds
 
