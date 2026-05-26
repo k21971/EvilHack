@@ -623,7 +623,7 @@ void
 curses_show_color_palette()
 {
     WINDOW *win = stdscr;
-    const char *block = iflags.supports_utf8 ? "\xe2\x96\x88" : "#";
+    const char *block = SYMHANDLING(H_UTF8) ? "\xe2\x96\x88" : "#";
     const char *envterm = nh_getenv("TERM");
     const char *cterm = nh_getenv("COLORTERM");
     const char *envstr;
@@ -1233,6 +1233,118 @@ curses_convert_glyph(int ch, int glyph)
                 symbol = glyph_to_cmap(glyph);
                 ch = (int) defsyms[symbol].sym;
             }
+        }
+    }
+
+    return ch;
+}
+
+/* convert nethack's IBMgraphics (CP437) encoding into curses' ACS
+   encoding. Companion to curses_convert_glyph() above; called instead
+   of it when SYMHANDLING(H_IBM) is active.
+
+   Under ncursesw with a UTF-8 locale, mvwaddch() on a raw high byte
+   (e.g. 0xC4) treats it as an incomplete UTF-8 lead and renders the
+   "M-D" meta notation instead of the intended glyph. Translating the
+   CP437 byte to an ACS_x macro routes the character through the
+   terminal's alternate-character-set machinery, which is independent
+   of UTF-8 byte rendering -- the same path DEC takes, and the reason
+   the DECgraphics and 'curses' symsets render correctly on CP437
+   terminals while raw IBMgraphics did not */
+int
+curses_convert_ibm_glyph(int ch, int glyph)
+{
+    /* CP437 high-byte (0x80..0xFF) to ACS_ mapping; indexed by
+       (ch - 0x80). Lazy-initialized because ACS_x are runtime lookups
+       into acs_map[], not compile-time constants. A static boolean
+       sentinel is used because index 0 (CP437 0x80 = LATIN CAPITAL C
+       WITH CEDILLA) has no ACS counterpart and so cannot double as
+       the "initialized" flag the way curses_convert_glyph() uses
+       decchars[0] for the DEC table */
+    static int cp437_acs[128];
+    static boolean cp437_acs_inited = FALSE;
+
+    ch &= 0xff; /* 0..255 only */
+    if (!(ch & 0x80))
+        return ch; /* ASCII, no conversion needed */
+
+    /* match the DEC handler's policy: rogue levels render line drawing
+       as plain ASCII (line-drawing chars come out as lowercase
+       gibberish there). RogueIBM's double-line wall fidelity is lost
+       too -- acceptable; this mirrors DEC */
+    if (Is_rogue_level(&u.uz)) {
+        ch &= ~0x80;
+        return ch;
+    }
+
+    if (!cp437_acs_inited) {
+        /* Box drawing -- single-line, from primary IBMgraphics */
+        cp437_acs[0xB3 - 0x80] = ACS_VLINE;     /* vertical */
+        cp437_acs[0xB4 - 0x80] = ACS_RTEE;      /* right tee */
+        cp437_acs[0xBF - 0x80] = ACS_URCORNER;  /* top right */
+        cp437_acs[0xC0 - 0x80] = ACS_LLCORNER;  /* bottom left */
+        cp437_acs[0xC1 - 0x80] = ACS_BTEE;      /* bottom tee */
+        cp437_acs[0xC2 - 0x80] = ACS_TTEE;      /* top tee */
+        cp437_acs[0xC3 - 0x80] = ACS_LTEE;      /* left tee */
+        cp437_acs[0xC4 - 0x80] = ACS_HLINE;     /* horizontal */
+        cp437_acs[0xC5 - 0x80] = ACS_PLUS;      /* cross */
+        cp437_acs[0xD9 - 0x80] = ACS_LRCORNER;  /* bottom right */
+        cp437_acs[0xDA - 0x80] = ACS_ULCORNER;  /* top left */
+
+        /* Box drawing -- double-line variants from RogueIBM/RogueEpyx
+           collapse to single-line ACS (ncurses has no double-line
+           macros). Players who need double-line fidelity can use
+           UTF8graphics on a UTF-8 terminal */
+        cp437_acs[0xB9 - 0x80] = ACS_RTEE;
+        cp437_acs[0xBA - 0x80] = ACS_VLINE;
+        cp437_acs[0xBB - 0x80] = ACS_URCORNER;
+        cp437_acs[0xBC - 0x80] = ACS_LRCORNER;
+        cp437_acs[0xC8 - 0x80] = ACS_LLCORNER;
+        cp437_acs[0xC9 - 0x80] = ACS_ULCORNER;
+        cp437_acs[0xCA - 0x80] = ACS_BTEE;
+        cp437_acs[0xCB - 0x80] = ACS_TTEE;
+        cp437_acs[0xCC - 0x80] = ACS_LTEE;
+        cp437_acs[0xCD - 0x80] = ACS_HLINE;
+        cp437_acs[0xCE - 0x80] = ACS_PLUS;
+
+        /* Shading / dots / scattered symbols actually used by the
+           IBMgraphics family in dat/symbols */
+        cp437_acs[0xB0 - 0x80] = ACS_CKBOARD;   /* light shade */
+        cp437_acs[0xB1 - 0x80] = ACS_CKBOARD;   /* medium shade */
+        cp437_acs[0xB2 - 0x80] = ACS_CKBOARD;   /* dark shade */
+        cp437_acs[0xDB - 0x80] = ACS_BLOCK;     /* full block */
+        cp437_acs[0xF9 - 0x80] = ACS_BULLET;    /* centered dot */
+        cp437_acs[0xFA - 0x80] = ACS_BULLET;    /* centered dot */
+        cp437_acs[0xF1 - 0x80] = ACS_PLMINUS;   /* plus or minus */
+        cp437_acs[0xF8 - 0x80] = ACS_DEGREE;    /* degree sign */
+        cp437_acs[0x9C - 0x80] = ACS_STERLING;  /* pound sterling */
+        /* 0x04 is below 0x80 and would never reach this branch; it
+           reaches the ASCII early-return above. RogueEpyx's diamond
+           trap symbol thus renders as raw 0x04, which most curses
+           builds treat as a control char. Acceptable: RogueEpyx is
+           rarely used and a real fix would need ACS_DIAMOND mapped
+           via a different mechanism */
+
+        cp437_acs_inited = TRUE;
+    }
+
+    /* high bit guaranteed set here */
+    {
+        int convindx = ch - 0x80;
+        int acsval = cp437_acs[convindx];
+
+        if (acsval)
+            return acsval;
+        /* no ACS counterpart; fall back to the glyph's ASCII default
+           symbol -- matches the fallback strategy in
+           curses_convert_glyph(). Bytes that hit this path:
+           0xF0 (equivalence), 0xF4 (integral upper), 0xF6 (division),
+           0xF5 (section), 0xF7 (approximately equal), 0xFE (small
+           square), 0xAD (inverted exclamation), 0xE7 (Greek tau), and
+           any CP437 byte a user has assigned without an ACS_ match */
+        {
+            int symbol = glyph_to_cmap(glyph);
+            ch = (int) defsyms[symbol].sym;
         }
     }
 

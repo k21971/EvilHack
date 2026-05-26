@@ -593,45 +593,31 @@ write_char(WINDOW * win, int x, int y, nethack_char nch)
 {
     curses_toggle_color_attr32(win, nch.color, nch.nhcolor, nch.attr, ON);
 
-    if (iflags.supports_utf8) {
-        int uc;
-
-        if (SYMHANDLING(H_UTF8)) {
-            uc = nch.ch;
-        } else if (SYMHANDLING(H_IBM)
-                   && nch.ch >= 0x80 && nch.ch <= 0xFF) {
-            uc = get_unicode_codepoint(nch.ch);
-        } else if (SYMHANDLING(H_DEC) && nch.ch >= 0xE0) {
-            uc = get_unicode_codepoint(nch.ch);
-        } else {
-            uc = 0; /* use mvwaddch below */
-        }
-
 #ifndef PDCURSES
-        if (uc > 0x7F) {
-            /* Wide character output via ncursesw */
-            attr_t attr;
-            short pair;
-            wchar_t wch[2];
-            cchar_t cch;
+    if (SYMHANDLING(H_UTF8) && nch.ch > 0x7F) {
+        /* UTF-8 symset: nch.ch holds a Unicode codepoint, render via
+           the ncursesw wide-char API so the locale encodes it as the
+           appropriate multi-byte sequence on output. Other symsets
+           fall through to mvwaddch below and pass their bytes through
+           verbatim, matching the TTY g_putch policy of symset-as-
+           encoding (the run-time locale does not override the user's
+           explicit symset choice) */
+        attr_t attr;
+        short pair;
+        wchar_t wch[2];
+        cchar_t cch;
 
-            wch[0] = (wchar_t) uc;
-            wch[1] = L'\0';
-            wattr_get(win, &attr, &pair, NULL);
-            setcchar(&cch, wch, attr, pair, NULL);
-            mvwadd_wch(win, y, x, &cch);
-        } else
-#endif /* !PDCURSES */
-        {
-            mvwaddch(win, y, x, uc ? uc : nch.ch);
-        }
+        wch[0] = (wchar_t) nch.ch;
+        wch[1] = L'\0';
+        wattr_get(win, &attr, &pair, NULL);
+        setcchar(&cch, wch, attr, pair, NULL);
+        mvwadd_wch(win, y, x, &cch);
     } else {
-#ifdef PDCURSES
-        mvwaddrawch(win, y, x, nch.ch);
-#else
         mvwaddch(win, y, x, nch.ch);
-#endif
     }
+#else  /* PDCURSES */
+    mvwaddrawch(win, y, x, nch.ch);
+#endif
 
     curses_toggle_color_attr32(win, nch.color, nch.nhcolor, nch.attr, OFF);
 }

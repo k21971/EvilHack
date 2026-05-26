@@ -187,8 +187,6 @@ char *argv[];
 #endif
     setlocale(LC_ALL, "");
     initoptions();
-    if (detect_utf8_terminal())
-        iflags.supports_utf8 = TRUE;
 #ifdef PANICTRACE
     ARGV0 = hname; /* save for possible stack trace */
 #ifndef NO_SIGNAL

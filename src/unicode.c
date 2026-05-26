@@ -6,10 +6,6 @@
 
 #include "hack.h"
 
-#ifdef UNIX
-#include <langinfo.h>
-#endif
-
 /*
  * CP437 to Unicode mapping for bytes 0x80-0xFF.
  * Indexed by (ch - 0x80).
@@ -272,23 +268,6 @@ char *buf;
         buf[4] = '\0';
         return 4;
     }
-}
-
-/*
- * Detect whether the terminal supports UTF-8 encoding.
- * Uses nl_langinfo(CODESET) on Unix systems.
- */
-boolean
-detect_utf8_terminal()
-{
-#ifdef UNIX
-    const char *charset = nl_langinfo(CODESET);
-
-    if (charset
-        && (!strcmpi(charset, "UTF-8") || !strcmpi(charset, "UTF8")))
-        return TRUE;
-#endif
-    return FALSE;
 }
 
 /*unicode.c*/

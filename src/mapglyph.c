@@ -672,7 +672,7 @@ const char *str;
                         else
                             break;
                     so = mapglyph(gv, &ch, &oc, &os, 0, 0, 0);
-                    if (iflags.supports_utf8 && showsyms[so] > 0x7F) {
+                    if (SYMHANDLING(H_UTF8) && showsyms[so] > 0x7F) {
                         int uc = get_unicode_codepoint(showsyms[so]);
 
                         put += utf8str_from_codepoint(uc, put);

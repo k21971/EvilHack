@@ -2922,7 +2922,6 @@ E int FDECL(parse_customcolor_line, (const char *));
 E int FDECL(get_unicode_codepoint, (int));
 E void FDECL(pututf8char, (int));
 E int FDECL(utf8str_from_codepoint, (int, char *));
-E boolean NDECL(detect_utf8_terminal);
 
 /* ### u_init.c ### */
 

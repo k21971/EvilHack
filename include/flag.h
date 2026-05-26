@@ -487,7 +487,6 @@ struct instance_flags {
     genericptr_t returning_missile; /* 'struct obj *'; Mjollnir or aklys */
     boolean obsolete;  /* obsolete options can point at this, it isn't used */
     boolean UTF8graphics;   /* use UTF-8 characters */
-    boolean supports_utf8;  /* terminal supports UTF-8 encoding */
 };
 
 /*

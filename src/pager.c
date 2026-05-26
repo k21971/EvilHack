@@ -2640,7 +2640,7 @@ struct permonst **for_supplement;
         /* Convert glyph at selected position to a symbol for use below. */
         (void) mapglyph(glyph, &sym, &oc, &os, cc.x, cc.y, 0);
 
-        if (iflags.supports_utf8 && sym > 0x7F) {
+        if (SYMHANDLING(H_UTF8) && sym > 0x7F) {
             char ubuf[5];
             int uc = get_unicode_codepoint(sym);
 
@@ -2649,7 +2649,7 @@ struct permonst **for_supplement;
         } else {
             Sprintf(prefix, "%s        ", encglyph(glyph));
         }
-    } else if (iflags.supports_utf8 && sym > 0x7F) {
+    } else if (SYMHANDLING(H_UTF8) && sym > 0x7F) {
         char ubuf[5];
         int uc = get_unicode_codepoint(sym);
 

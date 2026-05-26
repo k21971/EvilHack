@@ -728,6 +728,8 @@ curses_print_glyph(winid wid, XCHAR_P x, XCHAR_P y, int glyph,
     }
     if (SYMHANDLING(H_DEC))
         ch = curses_convert_glyph(ch, glyph);
+    else if (SYMHANDLING(H_IBM))
+        ch = curses_convert_ibm_glyph(ch, glyph);
 
     if (wid == NHW_MAP) {
         if ((special & MG_STAIRS) && iflags.hilite_hidden_stairs) {

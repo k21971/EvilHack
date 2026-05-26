@@ -3435,20 +3435,12 @@ int in_ch;
 {
     HUPSKIP();
 #if defined(ASCIIGRAPH) && !defined(NO_TERMS)
-    if (iflags.supports_utf8) {
-        /* UTF-8 terminal: convert legacy graphics to Unicode */
-        int uc;
-
-        if (SYMHANDLING(H_UTF8)) {
-            uc = in_ch;  /* already a Unicode codepoint */
-        } else if (SYMHANDLING(H_IBM) && (in_ch & 0x80)) {
-            uc = get_unicode_codepoint(in_ch);
-        } else if (SYMHANDLING(H_DEC) && in_ch >= 0xE0) {
-            uc = get_unicode_codepoint(in_ch);
-        } else {
-            uc = in_ch;  /* plain ASCII */
-        }
-        pututf8char(uc);
+    if (SYMHANDLING(H_UTF8)) {
+        /* UTF-8 symset: primary_syms[] holds Unicode codepoints,
+           encode each one as UTF-8 bytes on the wire. Other symsets
+           emit their bytes verbatim so that the symset choice -- not
+           the run-time locale -- decides the output encoding */
+        pututf8char(in_ch);
     } else if (SYMHANDLING(H_IBM)
         || (iflags.eight_bit_tty && (!SYMHANDLING(H_DEC)
                                      || (in_ch & 0x7f) < 0x60))) {
@@ -3469,8 +3461,8 @@ int in_ch;
     }
 
 #else
-    if (iflags.supports_utf8 && in_ch > 0x7F)
-        pututf8char(get_unicode_codepoint(in_ch));
+    if (SYMHANDLING(H_UTF8))
+        pututf8char(in_ch);
     else
         (void) putchar((char) in_ch);
 
@@ -4817,10 +4809,12 @@ render_status(VOID_ARGS)
    are available on both the TERMLIB and the Windows nttty.c side */
 
 /* Solid-block sequence used by the palette renderer. U+2588 FULL
-   BLOCK on UTF-8-capable terminals, '#' otherwise. hue_to_rgb() and
-   clrlabels[] are shared with the curses port and live in
-   src/windows.c */
-#define PAL_BLOCK (iflags.supports_utf8 ? "\xe2\x96\x88" : "#")
+   BLOCK when the user has opted into the H_UTF8 symset, '#'
+   otherwise. Gated on the symset rather than the locale so the
+   #showcolors demo matches the runtime rendering policy used by
+   g_putch above. hue_to_rgb() and clrlabels[] are shared with the
+   curses port and live in src/windows.c */
+#define PAL_BLOCK (SYMHANDLING(H_UTF8) ? "\xe2\x96\x88" : "#")
 
 /* Public renderer for the #showcolors extended command. Bypasses the
    window port and writes raw SGR escapes directly to stdout, then waits

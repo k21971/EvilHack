@@ -42,6 +42,7 @@ char *curses_str_remainder(const char *str, int width, int line_num);
 boolean curses_is_menu(winid wid);
 boolean curses_is_text(winid wid);
 int curses_convert_glyph(int ch, int glyph);
+int curses_convert_ibm_glyph(int ch, int glyph);
 void curses_move_cursor(winid wid, int x, int y);
 void curses_update_stdscr_cursor(void);
 void curses_prehousekeeping(void);

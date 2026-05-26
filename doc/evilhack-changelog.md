@@ -5446,4 +5446,5 @@ The following changes to date are:
 - Switch status from work in progress to beta (0.9.3)
 - Fix: file permissions for 'serverseed' file
 - Fix: two hilite_pile rendering bugs with object piles
+- Fix: IBMgraphics no longer renders on CP437 terminals
 

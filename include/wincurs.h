@@ -163,6 +163,7 @@ extern char *curses_str_remainder(const char *str, int width, int line_num);
 extern boolean curses_is_menu(winid wid);
 extern boolean curses_is_text(winid wid);
 extern int curses_convert_glyph(int ch, int glyph);
+extern int curses_convert_ibm_glyph(int ch, int glyph);
 extern void curses_move_cursor(winid wid, int x, int y);
 extern void curses_update_stdscr_cursor(void);
 extern void curses_prehousekeeping(void);

@@ -3762,7 +3762,7 @@ nt_show_color_palette(VOID_ARGS)
     else
         depthstr = "16-color (basic ANSI)";
 
-    block = (iflags.supports_utf8 ? "\xe2\x96\x88" : "#");
+    block = (SYMHANDLING(H_UTF8) ? "\xe2\x96\x88" : "#");
 
     /* Suppress back_buffer_flip so input-wait and other flush
        triggers don't repaint pre-demo back_buffer state over our
