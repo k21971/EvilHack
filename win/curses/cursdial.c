@@ -267,6 +267,10 @@ curses_character_input_dialog(const char *prompt, const char *choices,
     boolean any_choice = FALSE;
     boolean accept_count = FALSE;
 
+    /* mirror tty_yn_function: clear any stale count so a '0' first
+       digit (or a non-'#' answer) cannot leak a prior prompt's value */
+    yn_number = 0L;
+
     /* if messages were being suppressed for the remainder of the turn,
        re-activate them now that input is being requested */
     curses_got_input();
@@ -378,6 +382,13 @@ curses_character_input_dialog(const char *prompt, const char *choices,
                     yn_number = curses_get_count(answer - '0');
                     touchwin(askwin);
                     refresh();
+                    if (yn_number < 0) {
+                        /* ESC cancelled count entry: drop the
+                           partial count and re-prompt rather than
+                           handing a negative value to the core */
+                        yn_number = 0L;
+                        continue;
+                    }
                 }
 
                 answer = '#';
