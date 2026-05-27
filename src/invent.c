@@ -3431,6 +3431,7 @@ dotypeinv()
                 i |= BUC_CURSED;
             if (xcnt)
                 i |= BUC_UNKNOWN;
+            i |= INCLUDE_VENOM;
             n = query_category(prompt, invent, i, &pick_list, PICK_ONE);
             if (!n)
                 return 0;
@@ -3564,7 +3565,7 @@ dotypeinv()
     }
     if (query_objlist((char *) 0, &invent,
                       ((flags.invlet_constant ? USE_INVLET : 0)
-                       | INVORDER_SORT),
+                       | INVORDER_SORT | INCLUDE_VENOM),
                       &pick_list, PICK_NONE, this_type_only) > 0)
         free((genericptr_t) pick_list);
     return 0;

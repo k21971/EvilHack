@@ -5452,4 +5452,5 @@ The following changes to date are:
 - Fix: nine correctness issues in the curses windowport (pass two)
 - Fix: curses popup-dialog getline bypassed debug_fuzzer hook
 - Fix: curses count-entry prompt leaked negative yn_number on ESC
+- Fix: query_objlist() empty-menu panic on venom-only invent (curses)
 

@@ -1029,7 +1029,8 @@ int retry;
         all_categories = FALSE;
         n = query_category("Drop what type of items?", invent,
                            (UNPAID_TYPES | ALL_TYPES | CHOOSE_ALL | BUCX_TYPES
-                            | UNIDED_TYPES), &pick_list, PICK_ANY);
+                            | UNIDED_TYPES | INCLUDE_VENOM),
+                           &pick_list, PICK_ANY);
         if (!n)
             goto drop_done;
         for (i = 0; i < n; i++) {
@@ -1079,7 +1080,8 @@ int retry;
     } else {
         /* should coordinate with perm invent, maybe not show worn items */
         n = query_objlist("What would you like to drop?", &invent,
-                          (USE_INVLET | INVORDER_SORT), &pick_list,
+                          (USE_INVLET | INVORDER_SORT | INCLUDE_VENOM),
+                          &pick_list,
                           drop_everything ? PICK_ALL : PICK_ANY,
                           all_categories ? allow_all : allow_category);
         if (n > 0) {

@@ -855,7 +855,7 @@ boolean FDECL((*allow), (OBJ_P)); /* allow function */
     int i, n;
     winid win;
     struct obj *curr, *last, fake_hero_object, *olist = *olist_p;
-    char *pack;
+    char *pack, packbuf[MAXOCLASSES + 1];
     anything any;
     boolean printed_type_name, first,
             sorted = (qflags & INVORDER_SORT) != 0,
@@ -915,7 +915,9 @@ boolean FDECL((*allow), (OBJ_P)); /* allow function */
      * each type so we can group them.  The allow function was
      * called by sortloot() and will be called once per item here.
      */
-    pack = flags.inv_order;
+    pack = strcpy(packbuf, flags.inv_order);
+    if (qflags & INCLUDE_VENOM)
+        (void) strkitten(pack, VENOM_CLASS); /* not in flags.inv_order */
     first = TRUE;
     do {
         printed_type_name = FALSE;
@@ -1043,7 +1045,7 @@ int how;               /* type of query */
     int n;
     winid win;
     struct obj *curr;
-    char *pack;
+    char *pack, packbuf[MAXOCLASSES + 1];
     anything any;
     boolean collected_type_name;
     char invlet;
@@ -1104,7 +1106,9 @@ int how;               /* type of query */
 
     win = create_nhwindow(NHW_MENU);
     start_menu(win);
-    pack = flags.inv_order;
+    pack = strcpy(packbuf, flags.inv_order);
+    if (qflags & INCLUDE_VENOM)
+        (void) strkitten(pack, VENOM_CLASS); /* not in flags.inv_order */
 
     if (qflags & CHOOSE_ALL) {
         /* when paranoid about auto-select-all, confirm the 'A' choice
@@ -1267,12 +1271,14 @@ count_categories(olist, qflags)
 struct obj *olist;
 int qflags;
 {
-    char *pack;
+    char *pack, packbuf[MAXOCLASSES + 1];
     boolean counted_category;
     int ccount = 0;
     struct obj *curr;
 
-    pack = flags.inv_order;
+    pack = strcpy(packbuf, flags.inv_order);
+    if (qflags & INCLUDE_VENOM)
+        (void) strkitten(pack, VENOM_CLASS); /* not in flags.inv_order */
     do {
         counted_category = FALSE;
         for (curr = olist; curr; curr = FOLLOW(curr, qflags)) {
@@ -3358,7 +3364,7 @@ boolean put_in;
             }
         }
     } else {
-        mflags = INVORDER_SORT;
+        mflags = INVORDER_SORT | INCLUDE_VENOM;
         if (put_in && flags.invlet_constant)
             mflags |= USE_INVLET;
         if (!put_in)

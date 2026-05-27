@@ -361,6 +361,9 @@ typedef struct sortloot_item Loot;
 #define SIGNAL_ESCAPE   0x20   /* return -2 rather than 0 for ESC */
 #define FEEL_COCKATRICE 0x40   /* engage cockatrice checks and react */
 #define INCLUDE_HERO    0x80   /* show hero among engulfer's inventory */
+/* recognised by both query_objlist() and query_category(); placed above
+   the query_category() block so it doesn't collide with BUC_* bits */
+#define INCLUDE_VENOM   0x1000 /* include venom objects if present */
 
 /* Flags to control query_category() */
 /* BY_NEXTHERE used by query_category() too, so skip 0x01 */
