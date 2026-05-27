@@ -732,29 +732,47 @@ curses_print_glyph(winid wid, XCHAR_P x, XCHAR_P y, int glyph,
         ch = curses_convert_ibm_glyph(ch, glyph);
 
     if (wid == NHW_MAP) {
+        boolean applied_hilite = FALSE;
+
         if ((special & MG_STAIRS) && iflags.hilite_hidden_stairs) {
-            if (iflags.wc_color)
+            if (iflags.wc_color) {
                 color = CURSES_BG_FLAG | (color & 0xFF);
-            else
+                applied_hilite = TRUE;
+            } else {
                 attr = A_REVERSE;
+            }
         } else if ((special & MG_OBJPILE) && iflags.hilite_pile) {
-            if (iflags.wc_color)
+            if (iflags.wc_color) {
                 color = CURSES_BG_FLAG | CURSES_HILITE_BLUE | (color & 0xFF);
-            else
+                applied_hilite = TRUE;
+            } else {
                 attr = A_REVERSE;
+            }
         }
 
         if (special & MG_RIDDEN) {
-            if (iflags.use_inverse)
+            if (iflags.use_inverse) {
                 attr = A_REVERSE;
-            else
+            } else {
                 color = CURSES_BG_FLAG | CURSES_HILITE_BLUE | (color & 0xFF);
+                applied_hilite = TRUE;
+            }
         }
         /* water and lava look the same except for color; when color is off,
            render lava in inverse video so that they look different */
         if ((special & MG_BW_LAVA) && iflags.use_inverse) {
             attr = A_REVERSE; /* mapglyph() only sets this if color is off */
         }
+
+        /* The truecolor branch in curses_toggle_color_attr32 has no
+           hilite-bg support; if a CUSTOMCOLOR'd glyph carries a 24-bit
+           nhcolor here, that branch would emit fg-only and the hilite
+           bg would be lost. Clear nhcolor so the palette path (which
+           resolves CURSES_BG_FLAG via curses_hilite_pair /
+           get_ext_hilite_pair) runs instead. The 256-palette fallback
+           in color is the precomputed quantization from mapglyph */
+        if (applied_hilite)
+            nhcolor = 0;
     }
 
     curses_putch(wid, x, y, ch, color, nhcolor, attr);

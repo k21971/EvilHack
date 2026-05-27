@@ -239,6 +239,15 @@ curses_add_nhwin(winid wid, int height, int width, int y, int x,
         return;
     }
 
+    /* If a previous WINDOW * is sitting in this slot, delete it
+       before overwriting; mirrors curses_del_nhwin's del-side
+       correctness and closes the latent leak in the resize teardown
+       path that gates all four windows on STATUS_WIN existence */
+    if (nhwins[wid].curwin != NULL) {
+        delwin(nhwins[wid].curwin);
+        nhwins[wid].curwin = NULL;
+    }
+
     nhwins[wid].nhwin = wid;
     nhwins[wid].border = border;
     nhwins[wid].width = width;
@@ -253,6 +262,17 @@ curses_add_nhwin(winid wid, int height, int width, int y, int x,
     }
 
     win = newwin(real_height, real_width, y, x);
+
+    /* newwin returns NULL on geometry that can't fit (negative or
+       overflowing the terminal). Don't deref it; log and bail so
+       the game stays up. Downstream code that calls ncurses
+       primitives on a NULL win gets ERR returns, not crashes */
+    if (win == NULL) {
+        impossible(
+       "curses_add_nhwin: newwin failed for wid=%d (h=%d w=%d, y=%d x=%d)",
+            wid, real_height, real_width, y, x);
+        return;
+    }
 
     switch (wid) {
     case MESSAGE_WIN:

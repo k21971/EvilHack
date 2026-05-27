@@ -255,6 +255,21 @@ curses_create_main_windows()
             map_width = COLNO;
         if (map_height > ROWNO)
             map_height = ROWNO;
+        /* Window-layout options combined with a narrow terminal (e.g.
+           40-column TTY + perm_invent + vertical status) can drive map
+           geometry negative through the carving subtractions above.
+           Clamp to 1 so curses_add_nhwin's newwin call doesn't return
+           NULL; the impossible() log captures the option conflict so
+           the player can resize or unset perm_invent / align_status */
+        if (map_width < 1 || map_height < 1) {
+            impossible(
+        "curses geometry: map collapsed to %dx%d (perm_invent/align_status conflict?)",
+                map_width, map_height);
+            if (map_width < 1)
+                map_width = 1;
+            if (map_height < 1)
+                map_height = 1;
+        }
 
         if (curses_get_nhwin(STATUS_WIN)) {
             curses_del_nhwin(STATUS_WIN);
@@ -839,9 +854,6 @@ curses_init_options()
 */
 #endif /* PDCURSES */
 
-    /* FIXME: this overrides explicit OPTIONS=!use_inverse */
-    iflags.wc_inverse = TRUE; /* aka iflags.use_inverse; default is False */
-
     /* fix up pet highlighting */
     if (iflags.wc2_petattr == -1) /* shouldn't happen */
         iflags.wc2_petattr = A_NORMAL;
@@ -872,17 +884,18 @@ curses_init_options()
 void
 curses_display_splash_window()
 {
-     int i, x_start, y_start;
+    int i, x_start, y_start;
+    /* Compute the gate locally so the user's iflags.wc_splash_screen
+       option is not mutated on small terminals (preserves the setting
+       across resizes that grow the terminal back) */
+    boolean splash_ok = iflags.wc_splash_screen
+                        && term_cols >= 70 && term_rows >= 20;
 
     curses_get_window_xy(MAP_WIN, &x_start, &y_start);
 
-    if ((term_cols < 70) || (term_rows < 20)) {
-        iflags.wc_splash_screen = FALSE;        /* No room for s.s. */
-    }
-
-    if (iflags.wc_splash_screen) {
-         if (iflags.wc2_guicolor)
-              curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, ON);
+    if (splash_ok) {
+        if (iflags.wc2_guicolor)
+            curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, ON);
         mvaddstr(y_start, x_start, NETHACK_SPLASH_A);
         mvaddstr(y_start + 1, x_start, NETHACK_SPLASH_B);
         mvaddstr(y_start + 2, x_start, NETHACK_SPLASH_C);
@@ -890,13 +903,16 @@ curses_display_splash_window()
         mvaddstr(y_start + 4, x_start, NETHACK_SPLASH_E);
         mvaddstr(y_start + 5, x_start, NETHACK_SPLASH_F);
         y_start += 7;
+        /* Bundled inside the splash_ok block so ON and OFF stay
+           balanced; the prior unconditional OFF could wattroff a
+           pair that had never been wattroned */
+        if (iflags.wc2_guicolor)
+            curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, OFF);
     }
-    if (iflags.wc2_guicolor)
-         curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, OFF);
 
     for (i = 1; i <= 4; ++i) {
-         mvaddstr(y_start, x_start, copyright_banner_line(i));
-         y_start++;
+        mvaddstr(y_start, x_start, copyright_banner_line(i));
+        y_start++;
     }
 
     refresh();

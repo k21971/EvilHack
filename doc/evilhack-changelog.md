@@ -5449,4 +5449,5 @@ The following changes to date are:
 - Fix: IBMgraphics no longer renders on CP437 terminals
 - Fix: curses convert-glyph fallback indexed defsyms[] out of bounds
 - Fix: three correctness issues in the curses windowport
+- Fix: nine correctness issues in the curses windowport (pass two)
 

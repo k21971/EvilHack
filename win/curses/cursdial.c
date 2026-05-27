@@ -575,6 +575,7 @@ curs_new_menu_item(winid wid, const char *str)
     new_item->wid = wid;
     new_item->glyph = NO_GLYPH;
     new_item->material = 0;
+    new_item->color = NO_COLOR;
     new_item->identifier = zeroany;
     new_item->accelerator = '\0';
     new_item->group_accel = '\0';
@@ -1345,18 +1346,25 @@ menu_get_selections(WINDOW * win, nhmenu *menu, int how)
                     break;
                 case MENU_SELECT_ALL:
                     curpage = menu_operation(win, menu, SELECT, 0);
+                    /* menu_operation walks every page and leaves
+                       curpage at the last one displayed; repopulate
+                       the local selectors[] for the now-visible page
+                       so accelerator dispatch matches its items */
+                    menu_display_page(menu, win, curpage, selectors);
                     break;
                 case MENU_UNSELECT_PAGE:
                     (void) menu_operation(win, menu, DESELECT, curpage);
                     break;
                 case MENU_UNSELECT_ALL:
                     curpage = menu_operation(win, menu, DESELECT, 0);
+                    menu_display_page(menu, win, curpage, selectors);
                     break;
                 case MENU_INVERT_PAGE:
                     (void) menu_operation(win, menu, INVERT, curpage);
                     break;
                 case MENU_INVERT_ALL:
                     curpage = menu_operation(win, menu, INVERT, 0);
+                    menu_display_page(menu, win, curpage, selectors);
                     break;
                 }
             }

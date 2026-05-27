@@ -382,6 +382,11 @@ curses_prev_mesg()
 
     for (count = 0; count < num_messages; ++count) {
         mesg = get_msg_line(do_lifo, count);
+        /* num_messages can drift past actual list length during a
+           partial restore via curses_putmsghistory; get_msg_line then
+           returns NULL. Mirror the sibling guard in curses_last_messages */
+        if (!mesg)
+            break;
         if (turn != mesg->turn && count != 0) {
             curses_add_menu(wid, NO_GLYPH, &Id, 0, 0, A_NORMAL, "---", FALSE);
         }
@@ -454,10 +459,10 @@ curses_count_window(const char *count_text)
         return;
 
     counting = TRUE;
-#ifdef PDCURSES
+    /* Destroy any cached countwin before recreating so it tracks the
+       current message-window geometry after a terminal resize */
     if (countwin)
         curses_destroy_win(countwin), countwin = NULL;
-#endif /* PDCURSES */
     /* this used to specify a width of 25; that was adequate for 'Count: 123'
        but not for dolook's autodescribe when it refers to a named monster */
     if (!countwin)
