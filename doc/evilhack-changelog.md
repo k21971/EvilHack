@@ -5450,4 +5450,5 @@ The following changes to date are:
 - Fix: curses convert-glyph fallback indexed defsyms[] out of bounds
 - Fix: three correctness issues in the curses windowport
 - Fix: nine correctness issues in the curses windowport (pass two)
+- Fix: curses popup-dialog getline bypassed debug_fuzzer hook
 

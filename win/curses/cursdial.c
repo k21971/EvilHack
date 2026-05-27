@@ -186,15 +186,66 @@ curses_line_input_dialog(const char *prompt, char *answer, int buffer)
         free(tmpstr);
     }
 
-    echo();
-    curs_set(1);
-    wgetnstr(askwin, input, buffer - 1);
-    curs_set(0);
+    {
+        /* Hand-rolled line input so debug_fuzzer mode can drive this
+           prompt. wgetnstr() would block on real stdin and bypass the
+           curses_getch() -> randomkey() hook used by every other curses
+           input path */
+        int x_in, y_in, ch, len = 0;
+        int max_in = buffer - 1;
+
+        getyx(askwin, y_in, x_in);
+        input[0] = '\0';
+        curs_set(1);
+        while (1) {
+            wmove(askwin, y_in, x_in + len);
+            wrefresh(askwin);
+            ch = curses_getch();
+            if (ch == ERR) {
+                input[0] = '\0';
+                break;
+            }
+            if (ch == '\033') {
+                input[0] = '\033';
+                input[1] = '\0';
+                break;
+            }
+            if (ch == '\r' || ch == '\n') {
+                input[len] = '\0';
+                break;
+            }
+            if (ch == '\b' || ch == '\177'
+                || ch == KEY_BACKSPACE || ch == KEY_DC
+                || (erase_char && ch == (int) (uchar) erase_char)) {
+                if (len > 0) {
+                    len--;
+                    input[len] = '\0';
+                    mvwaddch(askwin, y_in, x_in + len, ' ');
+                }
+                continue;
+            }
+            /* honor kill_char if it's a control char, not if it's '@' */
+            if (kill_char && ch == (int) (uchar) kill_char
+                && (ch < ' ' || ch >= '\177')) {
+                while (len > 0) {
+                    len--;
+                    mvwaddch(askwin, y_in, x_in + len, ' ');
+                }
+                input[0] = '\0';
+                continue;
+            }
+            if (len < max_in) {
+                input[len++] = (char) ch;
+                input[len] = '\0';
+                mvwaddch(askwin, y_in, x_in + len - 1, ch);
+            }
+        }
+        curs_set(0);
+    }
     Strcpy(answer, input);
     werase(bwin);
     delwin(bwin);
     curses_destroy_win(askwin);
-    noecho();
 }
 
 /* Get a single character response from the player, such as a y/n prompt */
