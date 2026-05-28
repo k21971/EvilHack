@@ -4347,7 +4347,7 @@ int final;
     }
 
     /* Display last alignment abuse events */
-    if (u.ualign.abuse != 0) {
+    if (u.ever_abused) {
         char buf[BUFSZ];
         int i, count = 0, start;
         struct abuse_event *evt;
