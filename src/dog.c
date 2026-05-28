@@ -274,6 +274,13 @@ boolean you;
             && !same_align)
             chance = 2;
 
+        if (Race_if(PM_AASIMAR) && is_demon(mtmp->data))
+            chance = 2;
+
+        if (Role_if(PM_INFIDEL) && is_angel(mtmp->data)
+            && mon_aligntyp(mtmp) > 0)
+            chance = 2;
+
         if (chance > 0) {
             mtmp->mtame = 0;   /* not tame after all */
             u.uconduct.pets--; /* doesn't count as creating a pet */
@@ -1503,6 +1510,15 @@ struct obj *obj;
 
     if (Role_if(PM_KNIGHT) && u.ualign.type == A_CHAOTIC
         && mtmp->data == &mons[PM_KI_RIN])
+        return FALSE;
+
+    /* Aasimars cannot tame demons or devils */
+    if (Race_if(PM_AASIMAR) && is_demon(mtmp->data))
+        return FALSE;
+
+    /* Infidels cannot tame lawful angels */
+    if (Role_if(PM_INFIDEL) && is_angel(mtmp->data)
+        && mon_aligntyp(mtmp) > 0)
         return FALSE;
 
     /* If wielding/wearing any of the 'banes, taming becomes

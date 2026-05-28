@@ -5455,4 +5455,5 @@ The following changes to date are:
 - Fix: query_objlist() empty-menu panic on venom-only invent (curses)
 - Build-system: portable ncurses, prune macOS hints, fix dlb race
 - Fix: #conduct hid alignment-abuse history after full atonement
+- Faction hostility: aasimars vs demons, infidels vs lawful angels
 
