@@ -38,7 +38,7 @@ WINSRC = $(WINTTYSRC)
 WINOBJ = $(WINTTYOBJ)
 WINLIB = $(WINTTYLIB)
 
-WINTTYLIB=-lncurses -ltinfo
+WINTTYLIB=$(shell pkg-config --libs ncursesw)
 
 CHOWN=true
 CHGRP=true

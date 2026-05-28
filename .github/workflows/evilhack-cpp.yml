@@ -35,7 +35,7 @@ jobs:
   mac-build:
     runs-on: macos-latest
     env:
-      HINTS_FILE: macosx10.14
+      HINTS_FILE: macosx
     steps:
     - uses: actions/checkout@v5
     - name: setup

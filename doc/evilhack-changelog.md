@@ -5453,4 +5453,5 @@ The following changes to date are:
 - Fix: curses popup-dialog getline bypassed debug_fuzzer hook
 - Fix: curses count-entry prompt leaked negative yn_number on ESC
 - Fix: query_objlist() empty-menu panic on venom-only invent (curses)
+- Build-system: portable ncurses, prune macOS hints, fix dlb race
 

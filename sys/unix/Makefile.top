@@ -106,6 +106,7 @@ all:	$(GAME) recover Guidebook $(VARDAT) dungeon spec_levs check-dlb serverseed
 # Note: many of the dependencies below are here to allow parallel make
 # to generate valid output
 
+.PHONY: Guidebook
 Guidebook:
 	( cd doc ; $(MAKE) Guidebook Guidebook.dat Guidebook.txt )
 	cp doc/Guidebook.dat dat/Guidebook
@@ -199,7 +200,7 @@ title.img:
 check-dlb: options
 	@if egrep -s librarian dat/options ; then $(MAKE) dlb ; else true ; fi
 
-dlb:
+dlb: Guidebook
 	( cd util ; $(MAKE) dlb )
 	( cd dat ; LC_ALL=C ; ../util/dlb cf nhdat $(DATDLB) )
 

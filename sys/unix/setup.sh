@@ -9,9 +9,9 @@
 # e.g.:
 #  sh setup.sh
 # or
-#  sh setup.sh hints/macosx10.5 (from sys/unix)
+#  sh setup.sh hints/linux-debug (from sys/unix)
 # or
-#  sh setup.sh sys/unix/hints/macosx10.5 (from top)
+#  sh setup.sh sys/unix/hints/linux-debug (from top)
 
 # Were we started from the top level?  Cope.
 prefix=.

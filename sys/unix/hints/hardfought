@@ -61,7 +61,7 @@ WINSRC = $(WINTTYSRC) $(WINCURSESSRC)
 WINOBJ = $(WINTTYOBJ) $(WINCURSESOBJ)
 WINLIB = $(WINTTYLIB) $(WINCURSESLIB)
 
-WINTTYLIB=-lncursesw -ltinfo
+WINTTYLIB=$(shell pkg-config --libs ncursesw)
 
 # if TTY_TILES_ESCCODES
 WINSRC += tile.c

@@ -63,7 +63,7 @@ WINLIB = $(WINTTYLIB) $(WINCURSESLIB)
 WINSRC += tile.c
 WINOBJ += tile.o
 
-WINTTYLIB=-lncursesw -ltinfo
+WINTTYLIB=$(shell pkg-config --libs ncursesw)
 
 CHOWN=true
 CHGRP=true
