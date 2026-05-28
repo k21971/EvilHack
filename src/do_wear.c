@@ -4008,8 +4008,14 @@ int retry;
         || menu_class_present('C') || menu_class_present('X'))
         all_worn_categories = FALSE;
 
+    /* INCLUDE_VENOM: is_worn() treats W_QUIVER as worn, and the quiver
+       accepts ALL_CLASSES, so a quivered venom-class item passes the
+       count loop but pack-iteration drops it (VENOM_CLASS not in
+       def_inv_order[]); without this flag the menu builds empty and
+       curses_display_nhmenu panics */
     n = query_objlist("What do you want to take off?", &invent,
-                      (SIGNAL_NOMENU | USE_INVLET | INVORDER_SORT),
+                      (SIGNAL_NOMENU | USE_INVLET | INVORDER_SORT
+                       | INCLUDE_VENOM),
                       &pick_list, PICK_ANY,
                       all_worn_categories ? is_worn : is_worn_by_type);
     if (n > 0) {

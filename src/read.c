@@ -2268,8 +2268,13 @@ selective_remove_curse()
     menu_item *pick_list = (menu_item *) 0;
     int i, n;
 
+    /* INCLUDE_VENOM: cursed_obj_filter rejects only COIN_CLASS, so a
+       cursed venom passes the count loop but pack-iteration drops it
+       (VENOM_CLASS not in def_inv_order[]); without this flag the menu
+       builds empty and curses_display_nhmenu panics */
     n = query_objlist("Uncurse which items?", &invent,
-                      (SIGNAL_NOMENU | USE_INVLET | INVORDER_SORT),
+                      (SIGNAL_NOMENU | USE_INVLET | INVORDER_SORT
+                       | INCLUDE_VENOM),
                       &pick_list, PICK_ANY, cursed_obj_filter);
     if (n > 0) {
         You_feel(!Hallucination ? "like someone is helping you."
