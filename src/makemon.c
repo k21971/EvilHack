@@ -3742,9 +3742,13 @@ long mmflags;
     if (is_dlord(ptr) && ptr->msound == MS_BRIBE) {
         mtmp->mpeaceful = mtmp->minvis = mtmp->perminvis = 1;
         mtmp->mavenge = 0;
+        /* aasimars grudge demons; a bribeable demon lord won't
+           parley with one, so spawn it hostile (matching the
+           holy-artifact cases above) rather than peaceful */
         if (wielding_artifact(ART_EXCALIBUR)
             || wielding_artifact(ART_DEMONBANE)
-            || wielding_artifact(ART_HAMMER_OF_THE_GODS))
+            || wielding_artifact(ART_HAMMER_OF_THE_GODS)
+            || Race_if(PM_AASIMAR))
             mtmp->mpeaceful = mtmp->mtame = FALSE;
     }
 #ifndef DCC30_BUG

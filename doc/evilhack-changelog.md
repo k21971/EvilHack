@@ -5458,4 +5458,6 @@ The following changes to date are:
 - Faction hostility: aasimars vs demons, infidels vs lawful angels
 - Fix: empty-menu panic when only invent match is venom-class (curses)
 - Prevent succubi and incubi from seducing aasimars
+- Keep bribeable demon lords and forge-summoned lava demons hostile to
+  aasimars
 

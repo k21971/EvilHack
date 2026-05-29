@@ -119,12 +119,14 @@ dolavademon()
             else
                 You_feel("the temperature rise significantly.");
 
-            /* Give those on low levels a (slightly) better chance of survival
-             */
-            if (rnd(100) > (80 + level_difficulty())) {
+            /* Give those on low levels a (slightly) better chance of
+               survival; tamedog() refuses for aasimars (who grudge
+               demons) and demon-slaying artifact wielders, so only
+               promise the demon's aid when it actually joins */
+            if (rnd(100) > (80 + level_difficulty())
+                && tamedog(mtmp, (struct obj *) 0)) {
                 pline("Freed from the depths of Gehennom, %s offers to aid you in your quest!",
                       mhe(mtmp));
-                (void) tamedog(mtmp, (struct obj *) 0);
             } else if (t_at(mtmp->mx, mtmp->my))
                 (void) mintrap(mtmp);
         }
