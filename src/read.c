@@ -2731,7 +2731,10 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
                 pline("%s glistens.", Monnam(u.ustuck));
         } else if (!Blind) {
             if (you) {
-                pline("A lit field surrounds you!");
+                if (mon)
+                    pline("A celestial glow surrounds you.");
+                else
+                    pline("A lit field surrounds you!");
             } else {
                 for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
                     if (!DEADMONSTER(mtmp)
@@ -2781,7 +2784,7 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
      *  set the waslit bit [could be messed up from above].
      */
     if (on)
-        blindingflash();
+        blindingflash(mon); /* mon: benign creature ability, no anger */
 
     if (!Blind) {
         vision_recalc(2);

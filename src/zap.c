@@ -2816,7 +2816,7 @@ struct obj *obj;
         if (!Blind)
             known = TRUE;
         if (obj->otyp == WAN_LIGHT && !cursed(obj, TRUE)) {
-            blindingflash();
+            blindingflash(FALSE);
             if (lightdamage(obj, TRUE, 5))
                 known = TRUE;
         }
@@ -3357,7 +3357,7 @@ boolean ordinary;
         if (flashburn((long) damage))
             learn_it = TRUE;
         if (obj->otyp == WAN_LIGHT && !cursed(obj, TRUE))
-            blindingflash();
+            blindingflash(FALSE);
         damage = 0; /* reset */
         break;
     case WAN_OPENING:
@@ -7502,7 +7502,8 @@ unsigned long udid;
 }
 
 void
-blindingflash()
+blindingflash(via_ability)
+boolean via_ability; /* creature's innate aura of light, not an attack */
 {
     struct monst* mtmp;
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -7515,8 +7516,16 @@ blindingflash()
         /* must be able to see our location... */
         if (m_cansee(mtmp, u.ux, u.uy)
             && distu(mtmp->mx, mtmp->my) <= 5) {
+            /* the aasimar's benign aura of light only touches
+               light-hating creatures; it neither blinds nor angers
+               anything else */
+            if (via_ability && !hates_light(r_data(mtmp)))
+                continue;
             if (!Blind && canseemon(mtmp))
                 pline("%s is blinded by the flash!", Monnam(mtmp));
+            /* anger a peaceful creature the flash actually affects: a
+               scroll or wand reaches anyone nearby, the aasimar aura
+               only the light-haters that got past the filter above */
             if (mtmp->mpeaceful && !mtmp->mtame && !rn2(3))
                 setmangry(mtmp, TRUE);
             mtmp->mblinded = rnd(hates_light(r_data(mtmp)) ? 40 : 20);

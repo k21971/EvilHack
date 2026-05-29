@@ -5460,4 +5460,5 @@ The following changes to date are:
 - Prevent succubi and incubi from seducing aasimars
 - Keep bribeable demon lords and forge-summoned lava demons hostile to
   aasimars
+- Make the aasimar aura of light affect only light-hating creatures
 
