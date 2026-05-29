@@ -5457,4 +5457,5 @@ The following changes to date are:
 - Fix: #conduct hid alignment-abuse history after full atonement
 - Faction hostility: aasimars vs demons, infidels vs lawful angels
 - Fix: empty-menu panic when only invent match is venom-class (curses)
+- Prevent succubi and incubi from seducing aasimars
 

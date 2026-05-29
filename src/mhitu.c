@@ -573,6 +573,16 @@ struct attack *alt_attk_buf;
         }
     }
 
+    /* aasimars are angelic in nature; a succubus or incubus cannot
+       seduce them, so suppress the seduction attack and leave the
+       demon to rely on its melee (claw) attacks */
+    if (mdef == &youmonst && Race_if(PM_AASIMAR)
+        && attk->adtyp == AD_SSEX) {
+        *alt_attk_buf = *attk;
+        attk = alt_attk_buf;
+        attk->aatyp = AT_NONE;
+    }
+
     /* prevent a monster with two consecutive disease or hunger attacks
        from hitting with both of them on the same turn; if the first has
        already hit, switch to a stun attack for the second */
@@ -4218,6 +4228,9 @@ struct attack *mattk; /* non-Null: current attack; Null: general capability */
     if (mdef == &youmonst) {
         defperc = (See_invisible != 0);
         gendef = poly_gender();
+        /* aasimars are angelic; demons cannot seduce them */
+        if (Race_if(PM_AASIMAR) && is_demon(magr->data))
+            return 0;
     } else {
         defperc = mon_prop(mdef, SEE_INVIS);
         gendef = gender(mdef);
