@@ -4804,6 +4804,8 @@ doapply()
                     set_bknown(obj, 1);
                 }
                 unbless(obj);
+                /* perm_invent: blessing was stripped in place */
+                update_inventory();
             }
         } else {
             use_whistle(obj);

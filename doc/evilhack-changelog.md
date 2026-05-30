@@ -5465,4 +5465,5 @@ The following changes to date are:
 - Reduce the skeletal dragon morgue spawn rate
 - Fix: monsters wielding thrown missiles in their off-hand
 - Fix: random-vault shops getting extra, unguarded corridor doors
+- Fix: applying a blessed eucalyptus leaf doesn't refresh perm_invent
 
