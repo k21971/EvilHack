@@ -5472,4 +5472,5 @@ The following changes to date are:
 - Aasimar monsters can invoke an aura of light; attribute light deaths
 - Fix: signed integer overflow when mixing in server seed value
 - Fix: 'make' by itself fails to generate dat/serverseed
+- Fix: long named objects truncated in xname()/doname()
 

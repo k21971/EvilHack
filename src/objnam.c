@@ -19,13 +19,12 @@
 #define PREFIX 148
 #define SCHAR_LIM 127
 #define NUMOBUF 12
-/* Reserve space in xname() for suffix annotations appended by
-   doname_base() (wear status, price, weight, etc.).  Without this,
-   long ONAMEs can fill the buffer and leave no room for suffixes,
-   causing a global-buffer-overflow in obufs[] */
-#define SUFFIX_RESERVE 50
 /* Check if bp has room for n more characters.
-   bp points PREFIX bytes into an obufs[BUFSZ] slot */
+   bp points PREFIX bytes into an obufs[BUFSZ] slot. Every suffix
+   annotation appended by doname_base() is bounded with this macro so
+   the object name itself may use the full [PREFIX, BUFSZ) region; an
+   annotation that would not fit is simply omitted rather than allowed
+   to truncate the name or overflow obufs[] */
 #define BP_HAS_ROOM(bp, n) ((int) strlen(bp) + (n) <= BUFSZ - PREFIX - 1)
 
 STATIC_DCL char *FDECL(strprepend, (char *, const char *));
@@ -1123,7 +1122,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         Strcat(buf, " named ");
  nameit:
         {
-            int avail = (int) (BUFSZ - 1 - PREFIX - SUFFIX_RESERVE)
+            int avail = (int) (BUFSZ - 1 - PREFIX)
                       - (int) strlen(buf);
             if (avail > 0)
                 (void) strncat(buf, ONAME(obj), avail);
@@ -1363,9 +1362,11 @@ unsigned doname_flags;
        while still wielded, for instance */
     struct monst *owner = mcarried(obj) ? obj->ocarry : &youmonst;
 
-    /* Safety: truncate if name is too long for suffix annotations */
+    /* Backstop: cap the name at the end of its obufs[] slot. Each suffix
+       annotation below is individually bounded with BP_HAS_ROOM(), so they
+       self-limit against this same end rather than relying on reserved space */
     {
-        int max_bp_len = BUFSZ - PREFIX - 1 - SUFFIX_RESERVE;
+        int max_bp_len = BUFSZ - PREFIX - 1;
         if ((int) strlen(bp) > max_bp_len)
             bp[max_bp_len] = '\0';
     }
@@ -1491,18 +1492,19 @@ unsigned doname_flags;
            everything out if no merges occur */
         long itemcount = count_contents(obj, FALSE, FALSE, TRUE, FALSE);
 
-        Sprintf(eos(bp), " containing %ld item%s", itemcount,
-                plur(itemcount));
+        if (BP_HAS_ROOM(bp, 40))
+            Sprintf(eos(bp), " containing %ld item%s", itemcount,
+                    plur(itemcount));
     }
 
     switch (is_weptool(obj) ? WEAPON_CLASS : obj->oclass) {
     case AMULET_CLASS:
         add_erosion_words(obj, prefix);
-        if (obj->owornmask & W_AMUL)
+        if ((obj->owornmask & W_AMUL) && BP_HAS_ROOM(bp, 15))
             Strcat(bp, " (being worn)");
         break;
     case ARMOR_CLASS:
-        if (obj->owornmask & W_ARMOR) {
+        if ((obj->owornmask & W_ARMOR) && BP_HAS_ROOM(bp, 50)) {
             Strcat(bp, (obj == uskin) ? " (embedded in your skin)"
                        /* in case of perm_invent update while Wear/Takeoff
                           is in progress; check doffing() before donning()
@@ -1582,7 +1584,8 @@ unsigned doname_flags;
                 Strcat(prefix, "inferior ");
         }
         if (obj->owornmask & (W_TOOL | W_SADDLE | W_BARDING)) { /* blindfold */
-            Strcat(bp, " (being worn)");
+            if (BP_HAS_ROOM(bp, 15))
+                Strcat(bp, " (being worn)");
             break;
         }
         if (obj->otyp == LEASH && obj->leashmon != 0) {
@@ -1592,8 +1595,11 @@ unsigned doname_flags;
                 impossible("leashed monster not on this level");
                 obj->leashmon = 0;
             } else {
-                Sprintf(eos(bp), " (attached to %s)",
-                        noit_mon_nam(mlsh));
+                char *mnam = noit_mon_nam(mlsh);
+
+                if (BP_HAS_ROOM(bp, (int) (strlen(mnam)
+                                           + sizeof " (attached to )" - 1)))
+                    Sprintf(eos(bp), " (attached to %s)", mnam);
             }
             break;
         }
@@ -1602,15 +1608,16 @@ unsigned doname_flags;
                 Strcpy(tmpbuf, "no");
             else
                 Sprintf(tmpbuf, "%d", obj->spe);
-            Sprintf(eos(bp), " (%s candle%s%s)", tmpbuf, plur(obj->spe),
-                    !obj->lamplit ? " attached" : ", lit");
+            if (BP_HAS_ROOM(bp, 30))
+                Sprintf(eos(bp), " (%s candle%s%s)", tmpbuf, plur(obj->spe),
+                        !obj->lamplit ? " attached" : ", lit");
             break;
         } else if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
                    || obj->otyp == LANTERN || Is_candle(obj)) {
             if (Is_candle(obj)
                 && obj->age < 20L * (long) objects[obj->otyp].oc_cost)
                 Strcat(prefix, "partly used ");
-            if (obj->lamplit)
+            if (obj->lamplit && BP_HAS_ROOM(bp, 8))
                 Strcat(bp, " (lit)");
             break;
         }
@@ -1620,21 +1627,21 @@ unsigned doname_flags;
     case WAND_CLASS:
         add_erosion_words(obj, prefix);
  charges:
-        if (known)
+        if (known && BP_HAS_ROOM(bp, 20))
             Sprintf(eos(bp), " (%d:%d)", (int) obj->recharged, obj->spe);
         break;
     case POTION_CLASS:
-        if (obj->otyp == POT_OIL && obj->lamplit)
+        if (obj->otyp == POT_OIL && obj->lamplit && BP_HAS_ROOM(bp, 8))
             Strcat(bp, " (lit)");
         break;
     case RING_CLASS:
         add_erosion_words(obj, prefix);
  ring:
-        if (obj->owornmask & W_RINGR)
-            Strcat(bp, " (on right ");
-        if (obj->owornmask & W_RINGL)
-            Strcat(bp, " (on left ");
-        if (obj->owornmask & W_RING) {
+        if ((obj->owornmask & W_RING) && BP_HAS_ROOM(bp, 30)) {
+            if (obj->owornmask & W_RINGR)
+                Strcat(bp, " (on right ");
+            if (obj->owornmask & W_RINGL)
+                Strcat(bp, " (on left ");
             Strcat(bp, mbodypart(owner, HAND));
             Strcat(bp, ")");
         }
@@ -1689,7 +1696,7 @@ unsigned doname_flags;
                 && (known || (mvitals[omndx].mvflags & MV_KNOWS_EGG))) {
                 Strcat(prefix, mons[omndx].mname);
                 Strcat(prefix, " ");
-                if (obj->spe)
+                if (obj->spe && BP_HAS_ROOM(bp, 16))
                     Strcat(bp, " (laid by you)");
             }
         }
@@ -1700,17 +1707,19 @@ unsigned doname_flags;
             || (obj == uarms && obj->otyp == MEAT_SHIELD)
             || (obj == uarmg && obj->otyp == MEAT_GLOVES)
             || (obj == uarmf && obj->otyp == MEAT_BOOTS)) {
-            Strcat(bp, (obj == uskin) ? " (embedded in your skin)"
-                       : doffing(obj) ? " (being doffed)"
-                         : donning(obj) ? " (being donned)"
-                           : (druid_form || vampire_form) ? " (merged to your form)"
-                             : " (being worn)");
+            if (BP_HAS_ROOM(bp, 30))
+                Strcat(bp, (obj == uskin) ? " (embedded in your skin)"
+                           : doffing(obj) ? " (being doffed)"
+                             : donning(obj) ? " (being donned)"
+                               : (druid_form || vampire_form)
+                                  ? " (merged to your form)"
+                                  : " (being worn)");
         }
         break;
     case BALL_CLASS:
     case CHAIN_CLASS:
         add_erosion_words(obj, prefix);
-        if (obj->owornmask & W_BALL)
+        if ((obj->owornmask & W_BALL) && BP_HAS_ROOM(bp, 20))
             Strcat(bp, " (chained to you)");
         break;
     case GEM_CLASS:
