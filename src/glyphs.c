@@ -247,7 +247,10 @@ const char *name;
 /* Set the customcolor on every cmap glyph whose explanation matches
    name (case-insensitive, exact). Terrain features commonly share an
    explanation, so a single cmap: directive colors the whole family.
-   Returns the count of glyphs set */
+   When no explanation matches, fall back to the map symbol name from
+   loadsyms[] (the names used by SYMBOLS=), so the short names players
+   know ("corr", "lava", ...) work too; that path targets a single
+   glyph. Returns the count of glyphs set */
 STATIC_OVL int
 set_cmap_customcolors(name, nhcolor)
 const char *name;
@@ -261,6 +264,27 @@ unsigned long nhcolor;
             && !strncmpi(defsyms[i].explanation, name, len)) {
             (void) set_customcolor(i + GLYPH_CMAP_OFF, nhcolor);
             count++;
+        }
+    }
+    if (count == 0) {
+        extern struct symparse loadsyms[]; /* drawing.c */
+        struct symparse *sp;
+        const char *sn;
+
+        for (sp = loadsyms; sp->range; sp++) {
+            if (sp->range != SYM_PCHAR)
+                continue;
+            /* accept the bare name without the "S_" prefix as well */
+            sn = sp->name;
+            if ((sn[0] == 'S' || sn[0] == 's') && sn[1] == '_')
+                sn += 2;
+            if (((int) strlen(sn) == len && !strncmpi(sn, name, len))
+                || ((int) strlen(sp->name) == len
+                    && !strncmpi(sp->name, name, len))) {
+                (void) set_customcolor(sp->idx + GLYPH_CMAP_OFF, nhcolor);
+                count++;
+                break; /* symbol names are unique */
+            }
         }
     }
     return count;

@@ -48,7 +48,7 @@
 .ds f0 \*(vr
 .ds f1 \" empty
 .\"DO NOT REMOVE NH_DATESUB .ds f2 Date(%B %-d, %Y)
-.ds f2 May 25, 2026
+.ds f2 May 30, 2026
 .
 .\" A note on some special characters:
 .\" \(lq = left double quote
@@ -4550,8 +4550,12 @@ one of \f(CRmon\fP (monster), \f(CRobj\fP (object), or \f(CRcmap\fP
 (dungeon feature / map symbol);
 .PL NAME
 the canonical name of the entity \(em the monster name from the
-internal table, the object's true (unidentified-shuffled) name, or the
-\f(CRdefsyms\fP explanation string for cmap entries.
+internal table, or the object's true (unidentified-shuffled) name.
+For \f(CRcmap\fP entries the name is either a \f(CRdefsyms\fP explanation
+string, which colors every map feature that shares it (for example
+\f(CRwall\fP or \f(CRwater\fP), or a map symbol name with or without the
+\f(CRS_\fP prefix (for example \f(CRcorr\fP, \f(CRS_corr\fP, \f(CRlava\fP,
+or \f(CRlitcorr\fP), which colors that single symbol.
 Names are matched case-insensitively;
 .PL COLOR
 either a 24-bit RGB value as
@@ -4568,9 +4572,14 @@ Examples:
 .sd
 .si
 CUSTOMCOLOR=mon:gold dragon/#FFD700
-CUSTOMCOLOR=obj:long sword/#C0C0C0
-CUSTOMCOLOR=cmap:lava/255-69-0
 CUSTOMCOLOR=mon:newt/bright-green
+CUSTOMCOLOR=obj:long sword/#C0C0C0
+# defsyms explanation
+CUSTOMCOLOR=cmap:molten lava/255-69-0
+# symbol name (with S_)
+CUSTOMCOLOR=cmap:S_corr/178-178-178
+# symbol name (without S_)
+CUSTOMCOLOR=cmap:throne/255-215-0
 .ei
 .ed
 .pg

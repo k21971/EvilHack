@@ -45,7 +45,7 @@
 %.au
 \author{Original version - Eric S. Raymond\\
 (Edited and expanded for EvilHack by Keith Simpson and others)}
-\date{May 25, 2026}
+\date{May 30, 2026}
 
 \maketitle
 
@@ -5007,8 +5007,12 @@ one of {\tt mon} (monster), {\tt obj} (object), or {\tt cmap}
 %.lp
 \item[\ib{NAME}]
 the canonical name of the entity~--- the monster name from the
-internal table, the object's true (unidentified-shuffled) name, or the
-{\tt defsyms} explanation string for cmap entries.
+internal table, or the object's true (unidentified-shuffled) name.
+For {\tt cmap} entries the name is either a {\tt defsyms} explanation
+string, which colors every map feature that shares it (for example
+{\tt wall} or {\tt water}), or a map symbol name with or without the
+{\tt S\_} prefix (for example {\tt corr}, {\tt S\_corr}, {\tt lava}, or
+{\tt litcorr}), which colors that single symbol.
 Names are matched case-insensitively;
 %.lp
 \item[\ib{COLOR}]
@@ -5026,9 +5030,14 @@ Examples:
 
 \begin{verbatim}
     CUSTOMCOLOR=mon:gold dragon/#FFD700
-    CUSTOMCOLOR=obj:long sword/#C0C0C0
-    CUSTOMCOLOR=cmap:lava/255-69-0
     CUSTOMCOLOR=mon:newt/bright-green
+    CUSTOMCOLOR=obj:long sword/#C0C0C0
+    # defsyms explanation
+    CUSTOMCOLOR=cmap:molten lava/255-69-0
+    # symbol name (with S_)
+    CUSTOMCOLOR=cmap:S_corr/178-178-178
+    # symbol name (without S_)
+    CUSTOMCOLOR=cmap:throne/255-215-0
 \end{verbatim}
 
 %.pg
