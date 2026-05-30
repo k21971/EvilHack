@@ -1665,6 +1665,10 @@ struct monst *mon;
         /* skip ammunition (arrows, bolts, sling ammo) */
         if (is_ammo(otmp))
             continue;
+        /* skip thrown missiles (shuriken, darts, boomerangs); these
+           are meant to be thrown, not held as a melee off-hand weapon */
+        if (is_missile(otmp))
+            continue;
         /* skip hated materials */
         if (mon_hates_material(mon, otmp->material))
             continue;
