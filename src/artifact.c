@@ -2441,14 +2441,16 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 
         /* Tempest has a chance of a power surge on a successful hit,
            dealing extra electrical damage (area of effect); a blessed
-           one in the hero's hands reins the surge in rather than catch
-           a peaceful or tame creature next to the target -- an uncursed
-           or cursed one, or any monster's, blasts regardless of who is
-           standing in range */
+           one in the hero's hands, wielded with at least skilled
+           proficiency in its base weapon, reins the surge in rather
+           than catch a peaceful or tame creature next to the target --
+           an uncursed, cursed, or clumsily wielded one, or any
+           monster's, blasts regardless of who is standing in range */
         if (!rn2(6)
             && spec_dbon_applies && otmp->oartifact == ART_TEMPEST
             && (youdefend || !DEADMONSTER(mdef))) {
             if (youattack && otmp->blessed
+                && P_SKILL(weapon_type(otmp)) >= P_SKILLED
                 && friendly_in_blast(mdef->mx, mdef->my, mdef)) {
                 pline("A surge of energy builds in the %s, then ebbs.",
                       simpleonames(otmp));
@@ -2623,14 +2625,16 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 
         /* Harbinger has a chance of an explosive surge on a successful
            hit, dealing extra acidic damage (area of effect); a blessed
-           one in the hero's hands reins the surge in rather than catch
-           a peaceful or tame creature next to the target -- an uncursed
-           or cursed one, or any monster's, blasts regardless of who is
-           standing in range */
+           one in the hero's hands, wielded with at least skilled
+           proficiency in its base weapon, reins the surge in rather
+           than catch a peaceful or tame creature next to the target --
+           an uncursed, cursed, or clumsily wielded one, or any
+           monster's, blasts regardless of who is standing in range */
         if (!rn2(6)
             && spec_dbon_applies && otmp->oartifact == ART_HARBINGER
             && (youdefend || !DEADMONSTER(mdef))) {
             if (youattack && otmp->blessed
+                && P_SKILL(weapon_type(otmp)) >= P_SKILLED
                 && friendly_in_blast(mdef->mx, mdef->my, mdef)) {
                 pline("A surge of acid wells up in the %s, then ebbs.",
                       simpleonames(otmp));
@@ -2938,14 +2942,17 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         }
         /* Dichotomy has a chance of exploding either a ball of fire or
            cold on a successful hit, dealing extra elemental damage
-           (area of effect); a blessed one in the hero's hands reins the
-           surge in rather than catch a peaceful or tame creature next
-           to the target -- an uncursed or cursed one, or any monster's,
-           blasts regardless of who is standing in range */
+           (area of effect); a blessed one in the hero's hands, wielded
+           with at least skilled proficiency in its base weapon, reins
+           the surge in rather than catch a peaceful or tame creature
+           next to the target -- an uncursed, cursed, or clumsily
+           wielded one, or any monster's, blasts regardless of who is
+           standing in range */
         if (!rn2(6)
             && spec_dbon_applies && otmp->oartifact == ART_DICHOTOMY
             && (youdefend || !DEADMONSTER(mdef))) {
             if (youattack && otmp->blessed
+                && P_SKILL(weapon_type(otmp)) >= P_SKILLED
                 && friendly_in_blast(mdef->mx, mdef->my, mdef)) {
                 pline("Power surges through the blade, then ebbs.");
                 /* fall through to the normal follow-up effects */
@@ -4794,9 +4801,9 @@ int x, y;
    steed the hero is sitting on - stands within the 3x3 area explode()
    would affect when centered on <x,y>. The Tempest / Harbinger /
    Dichotomy surge routines use this to rein in the bonus blast around
-   friendlies when the hero attacks and the artifact is blessed, so a
-   lucky proc on a hostile target can't anger, untame, or kill an
-   innocent bystander */
+   friendlies when the hero attacks with a blessed artifact and is at
+   least skilled in its base weapon, so a lucky proc on a hostile target
+   can't anger, untame, or kill an innocent bystander */
 STATIC_OVL boolean
 friendly_in_blast(x, y, skip)
 int x, y;

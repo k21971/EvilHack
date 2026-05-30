@@ -5468,4 +5468,5 @@ The following changes to date are:
 - Fix: applying a blessed eucalyptus leaf doesn't refresh perm_invent
 - Fix: macOS install ships a sysconf pointing at a missing serverseed
 - Fix: aasimar race receiving Angelslayer as a sacrifice gift
+- Gate artifact surge-suppression on weapon skill as well as blessing
 
