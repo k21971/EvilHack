@@ -5466,4 +5466,5 @@ The following changes to date are:
 - Fix: monsters wielding thrown missiles in their off-hand
 - Fix: random-vault shops getting extra, unguarded corridor doors
 - Fix: applying a blessed eucalyptus leaf doesn't refresh perm_invent
+- Fix: macOS install ships a sysconf pointing at a missing serverseed
 
