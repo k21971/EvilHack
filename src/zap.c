@@ -2817,11 +2817,11 @@ struct obj *obj;
             known = TRUE;
         if (obj->otyp == WAN_LIGHT && !cursed(obj, TRUE)) {
             blindingflash(FALSE);
-            if (lightdamage(obj, TRUE, 5))
+            if (lightdamage(obj, (struct monst *) 0, TRUE, 5))
                 known = TRUE;
         }
         if (obj->otyp == SPE_LIGHT) {
-            if (lightdamage(obj, FALSE, 5))
+            if (lightdamage(obj, (struct monst *) 0, FALSE, 5))
                 known = TRUE;
         }
         break;
@@ -3352,7 +3352,7 @@ boolean ordinary;
     case EXPENSIVE_CAMERA:
         if (!damage)
             damage = 5;
-        damage = lightdamage(obj, ordinary, damage);
+        damage = lightdamage(obj, (struct monst *) 0, ordinary, damage);
         damage += rnd(25);
         if (flashburn((long) damage))
             learn_it = TRUE;
@@ -3504,8 +3504,9 @@ struct attack *mattk;
 
 /* light damages hero in light-hating form */
 int
-lightdamage(obj, ordinary, amt)
+lightdamage(obj, mon, ordinary, amt)
 struct obj *obj;  /* item making light (fake book if spell) */
+struct monst *mon; /* monster source, or 0 if the hero's own */
 boolean ordinary; /* wand/camera zap vs wand destruction */
 int amt;          /* pseudo-damage used to determine blindness duration */
 {
@@ -3524,19 +3525,25 @@ int amt;          /* pseudo-damage used to determine blindness duration */
             dmg = 20;
         pline("Ow, that light hurts%c",
               (dmg > 2 || (Upolyd ? u.mh : u.uhp) <= 5) ? '!' : '.');
-        /* [composing killer/reason is superfluous here; if fatal, cause
-           of death will always be "killed while stuck in creature form"] */
         if (obj && (obj->oclass == SCROLL_CLASS
                     || obj->oclass == SPBOOK_CLASS))
             ordinary = FALSE; /* say blasted rather than zapped */
         how = obj ? ((obj->oclass != SPBOOK_CLASS)
-                      ? (const char *) ansimpleoname(obj)
+                      ? (const char *) (mon ? simpleonames(obj)
+                                            : ansimpleoname(obj))
                       : "spell of light")
                   : "aura of light";
-        Sprintf(buf, "%s %sself with %s", ordinary ? "zapped" : "blasted",
-                uhim(), how);
+        if (mon) {
+            /* light from a monster's ability or item; blame the
+               monster, not the hero */
+            Sprintf(buf, "%s %s", s_suffix(mon_nam(mon)), how);
+        } else {
+            Sprintf(buf, "%s %sself with %s",
+                    ordinary ? "zapped" : "blasted", uhim(), how);
+        }
         /* might rehumanize(); could be fatal, but only for Unchanging */
-        losehp(Maybe_Half_Phys(dmg), buf, NO_KILLER_PREFIX);
+        losehp(Maybe_Half_Phys(dmg),
+               buf, mon ? KILLED_BY : NO_KILLER_PREFIX);
     }
     return dmg;
 }

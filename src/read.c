@@ -1929,7 +1929,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
                 known = TRUE;
             litroom(!confused && !scursed, FALSE, sobj, u.ux, u.uy);
             if (!confused && !scursed) {
-                if (lightdamage(sobj, TRUE, 5))
+                if (lightdamage(sobj, (struct monst *) 0, TRUE, 5))
                     known = TRUE;
             }
         } else {

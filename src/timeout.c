@@ -1719,13 +1719,14 @@ boolean already_lit;
     long turns = 0;
     boolean do_timer = TRUE;
     xchar objx, objy;
+    struct monst *lmon = (struct monst *) 0;
     if (carried(obj)) {
         objx = u.ux;
         objy = u.uy;
     } else if (mcarried(obj)) {
-        struct monst *mon = obj->ocarry;
-        objx = mon->mx;
-        objy = mon->my;
+        lmon = obj->ocarry;
+        objx = lmon->mx;
+        objy = lmon->my;
     /* i don't think this can happen? */
     } else {
         objx = obj->ox;
@@ -1742,7 +1743,7 @@ boolean already_lit;
         do_timer = FALSE;
         if (!obj->cursed && distu(objx, objy) < circle_radii2[radius]
             && couldsee(objx, objy)) {
-            if (lightdamage(obj, FALSE, 5)) {
+            if (lightdamage(obj, lmon, FALSE, 5)) {
                 ; /* hurts light-hating players */
             }
         }
@@ -1803,7 +1804,7 @@ boolean already_lit;
             radius = arti_light_radius(obj);
             if (!(staff || armor) && distu(objx, objy) < circle_radii2[radius]
                 && couldsee(objx, objy)) {
-                if (lightdamage(obj, FALSE, 5)) {
+                if (lightdamage(obj, lmon, FALSE, 5)) {
                     ; /* light haters */
                 }
             }

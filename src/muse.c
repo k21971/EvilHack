@@ -3099,7 +3099,7 @@ struct monst *mtmp;
             You("are blinded by the flash of light!");
             make_blinded(Blinded + (long) rnd(1 + 50), FALSE);
         }
-        lightdamage(otmp, TRUE, 5);
+        lightdamage(otmp, mtmp, TRUE, 5);
         m_using = FALSE;
         otmp->spe--;
         return (DEADMONSTER(mtmp)) ? 1 : 2;

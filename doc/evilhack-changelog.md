@@ -5469,4 +5469,5 @@ The following changes to date are:
 - Fix: macOS install ships a sysconf pointing at a missing serverseed
 - Fix: aasimar race receiving Angelslayer as a sacrifice gift
 - Gate artifact surge-suppression on weapon skill as well as blessing
+- Aasimar monsters can invoke an aura of light; attribute light deaths
 

@@ -1004,6 +1004,24 @@ struct monst *mtmp;
         return 0;
     }
 
+    /* Aasimar have the innate ability to cast an aura of light
+       around themselves, and will use it if surrounded by darkness */
+    if (!rn2(10) && racial_aasimar(mtmp)
+        && !mtmp->mpeaceful
+        && !is_undead(mdat)
+        && spot_is_dark(mtmp->mx, mtmp->my)) {
+        if (canseemon(mtmp))
+            pline("%s invokes an aura of light.",
+                  Monnam(mtmp));
+        litroom(TRUE, TRUE, NULL, mtmp->mx, mtmp->my);
+        /* a drow or other light-hating hero caught within the
+           aura is harmed, just like a wand/scroll/spell of light */
+        if (distu(mtmp->mx, mtmp->my) <= 25
+            && clear_path(mtmp->mx, mtmp->my, u.ux, u.uy))
+            lightdamage(NULL, mtmp, FALSE, 5);
+        return 0;
+    }
+
 toofar:
 
     /* If monster is nearby you, and has to wield a weapon, do so.

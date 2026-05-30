@@ -2169,7 +2169,7 @@ dolight()
     context.botl = 1;
     You("invoke an aura of light.");
     litroom(TRUE, TRUE, NULL, u.ux, u.uy);
-    lightdamage(NULL, FALSE, 5);
+    lightdamage(NULL, (struct monst *) 0, FALSE, 5);
 
     return 1;
 }

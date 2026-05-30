@@ -3385,7 +3385,7 @@ E void FDECL(zapnodir, (struct obj *));
 E int NDECL(dozap);
 E int FDECL(zapyourself, (struct obj *, BOOLEAN_P));
 E void FDECL(ubreatheu, (struct attack *));
-E int FDECL(lightdamage, (struct obj *, BOOLEAN_P, int));
+E int FDECL(lightdamage, (struct obj *, struct monst *, BOOLEAN_P, int));
 E boolean FDECL(flashburn, (long));
 E boolean FDECL(cancel_monst, (struct monst *, struct obj *, BOOLEAN_P,
                                BOOLEAN_P, BOOLEAN_P));
