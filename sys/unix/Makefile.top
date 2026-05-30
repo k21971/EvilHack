@@ -275,7 +275,7 @@ update: $(GAME) recover $(VARDAT) dungeon spec_levs
 rootcheck:
 	@true; $(ROOTCHECK)
 
-install: rootcheck $(GAME) recover $(VARDAT) dungeon spec_levs
+install: rootcheck $(GAME) recover $(VARDAT) dungeon spec_levs serverseed
 	true; $(PREINSTALL)
 # set up the directories
 # not all mkdirs have -p; those that don't will create a -p directory
