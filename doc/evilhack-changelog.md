@@ -5470,4 +5470,5 @@ The following changes to date are:
 - Fix: aasimar race receiving Angelslayer as a sacrifice gift
 - Gate artifact surge-suppression on weapon skill as well as blessing
 - Aasimar monsters can invoke an aura of light; attribute light deaths
+- Fix: signed integer overflow when mixing in server seed value
 

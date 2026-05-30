@@ -1250,8 +1250,11 @@ newgame()
     context.next_moloch_offering = 6000; /* give a grace period before
                                           * the first sacrifice */
 
-    /* Extra entropy added to sysopt.serverseed */
-    sysopt.serverseed += rn2(8000000);
+    /* Extra entropy added to sysopt.serverseed; compute the sum as
+       unsigned and mask to a non-negative int so a seed already near
+       INT_MAX cannot overflow */
+    sysopt.serverseed = (int) (((unsigned) sysopt.serverseed
+                                + (unsigned) rn2(8000000)) & 0x7fffffff);
 
     for (i = LOW_PM; i < NUMMONS; i++)
         mvitals[i].mvflags = mons[i].geno & G_NOCORPSE;
