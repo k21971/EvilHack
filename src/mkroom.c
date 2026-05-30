@@ -628,7 +628,7 @@ morguemon()
     }
 
     /* rare top tier: a long-dead dragon walks again */
-    if (hd > 10 && i > 90
+    if (hd > 10 && i > 97
         && !(mvitals[PM_SKELETAL_DRAGON].mvflags & G_GONE))
         return &mons[PM_SKELETAL_DRAGON];
 

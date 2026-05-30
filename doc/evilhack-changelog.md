@@ -5462,4 +5462,5 @@ The following changes to date are:
   aasimars
 - Make the aasimar aura of light affect only light-hating creatures
 - Fix: check_caitiff() fires twice when kicking a peaceful monster
+- Reduce the skeletal dragon morgue spawn rate
 
