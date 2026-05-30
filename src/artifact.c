@@ -276,7 +276,9 @@ aligntyp alignment; /* target alignment, or A_NONE */
             && !(Race_if(PM_GIANT) && (a->mtype & MH_GIANT))
             /* handles undead races receiving Sunsword */
             && !((Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE))
-                 && (a->mtype & MH_UNDEAD))) {
+                 && (a->mtype & MH_UNDEAD))
+            /* handles aasimar receiving Angelslayer */
+            && !(Race_if(PM_AASIMAR) && (a->mtype & MH_AASIMAR))) {
             /* when a role-specific first choice is available, use it */
             if (Role_if(a->role)) {
                 /* make this be the only possibility in the list */
