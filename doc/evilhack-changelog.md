@@ -5464,4 +5464,5 @@ The following changes to date are:
 - Fix: check_caitiff() fires twice when kicking a peaceful monster
 - Reduce the skeletal dragon morgue spawn rate
 - Fix: monsters wielding thrown missiles in their off-hand
+- Fix: random-vault shops getting extra, unguarded corridor doors
 

@@ -73,20 +73,43 @@ xchar xl, yl, xh, yh;
 {
     xchar x, y;
 
+    /* Avoid placing a corridor/niche door on a wall tile that belongs
+       to a shop. A shop subroom set flush against its parent vault's
+       outer wall shares that wall, and a door there would be a second,
+       unguarded entrance bypassing the shopkeeper. okdoor() itself is
+       left shop-agnostic because create_door() relies on it to place
+       the shop's own intended entrance during level load */
     x = rn1(xh - xl + 1, xl);
     y = rn1(yh - yl + 1, yl);
-    if (okdoor(x, y))
+    if (okdoor(x, y) && !*in_rooms(x, y, SHOPBASE))
         goto gotit;
 
-    for (x = xl; x <= xh; x++)
-        for (y = yl; y <= yh; y++)
-            if (okdoor(x, y))
+    for (x = xl; x <= xh; x++) {
+        for (y = yl; y <= yh; y++) {
+            if (okdoor(x, y) && !*in_rooms(x, y, SHOPBASE))
                 goto gotit;
+        }
+    }
 
-    for (x = xl; x <= xh; x++)
-        for (y = yl; y <= yh; y++)
-            if (IS_DOOR(levl[x][y].typ) || levl[x][y].typ == SDOOR)
+    for (x = xl; x <= xh; x++) {
+        for (y = yl; y <= yh; y++) {
+            if ((IS_DOOR(levl[x][y].typ) || levl[x][y].typ == SDOOR)
+                && !*in_rooms(x, y, SHOPBASE))
                 goto gotit;
+        }
+    }
+
+    /* nothing ideal; prefer any plain non-shop wall over the degenerate
+       corner fallback below, so an unconditional join() door never
+       lands on a shop wall while ordinary wall remains */
+    for (x = xl; x <= xh; x++) {
+        for (y = yl; y <= yh; y++) {
+            if ((levl[x][y].typ == HWALL || levl[x][y].typ == VWALL)
+                && !*in_rooms(x, y, SHOPBASE))
+                goto gotit;
+        }
+    }
+
     /* cannot find something reasonable -- strange */
     x = xl;
     y = yh;
