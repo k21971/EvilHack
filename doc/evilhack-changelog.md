@@ -5479,4 +5479,5 @@ The following changes to date are:
 - Give wielded potions a higher unskilled to-hit ceiling
 - Bar aasimar from Vecna's relics; the Eye is never delicious
 - Strip an aasimar's celestial blood on alignment desecration
+- Fix: refresh monster pathfinding when a boulder is added or removed
 

@@ -2231,8 +2231,12 @@ int x, y;
 
     obj_no_longer_held(otmp);
     if (otmp->otyp == BOULDER) {
-        if (!otmp2 || otmp2->otyp != BOULDER)
+        if (!otmp2 || otmp2->otyp != BOULDER) {
             block_point(x, y); /* vision */
+            /* boulder now blocks this square; refresh monster pathfinding */
+            pathfind_turn = 0;
+            escape_pathfind_turn = 0;
+        }
     }
 
     /* non-boulder object goes under boulders so that map will show boulder
@@ -2428,8 +2432,12 @@ struct obj *otmp;
     extract_nexthere(otmp, &level.objects[x][y]);
     extract_nobj(otmp, &fobj);
     /* update vision iff this was the only boulder at its spot */
-    if (otmp->otyp == BOULDER && !sobj_at(BOULDER, x, y))
+    if (otmp->otyp == BOULDER && !sobj_at(BOULDER, x, y)) {
         unblock_point(x, y); /* vision */
+        /* square no longer blocked by a boulder; refresh pathfinding */
+        pathfind_turn = 0;
+        escape_pathfind_turn = 0;
+    }
     if (otmp->timed)
         obj_timer_checks(otmp, x, y, 0);
     /* if a monster was hiding under this object, it may need
