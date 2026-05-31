@@ -25,6 +25,7 @@ STATIC_DCL boolean FDECL(bane_applies, (const struct artifact *,
                                         struct monst *));
 STATIC_DCL int FDECL(spec_applies, (const struct artifact *, struct monst *));
 STATIC_DCL int FDECL(arti_invoke, (struct obj *));
+STATIC_DCL boolean FDECL(vecna_relic_denied, (struct obj *));
 STATIC_DCL boolean FDECL(Mb_hit, (struct monst * magr, struct monst *mdef,
                                 struct obj *, int *, int, BOOLEAN_P, char *));
 STATIC_DCL unsigned long FDECL(abil_to_spfx, (long *));
@@ -960,6 +961,19 @@ boolean being_worn;
                       || (being_worn && (arti->spfx & SPFX_PROTECT) != 0));
 }
 
+/* an aasimar's celestial nature draws no power from Vecna's relics; the
+   Eye confers intrinsics while merely carried, the Hand only while worn
+   (and an aasimar cannot wear it) -- deny both */
+STATIC_OVL boolean
+vecna_relic_denied(obj)
+struct obj *obj;
+{
+    return (boolean) (obj && obj->oartifact
+                      && (obj->oartifact == ART_EYE_OF_VECNA
+                          || obj->oartifact == ART_HAND_OF_VECNA)
+                      && racial_aasimar(&youmonst));
+}
+
 /*
  * a potential artifact has just been worn/wielded/picked-up or
  * unworn/unwielded/dropped.  Pickup/drop only set/reset the W_ART mask.
@@ -984,6 +998,10 @@ long wp_mask;
     if (oart)
         dtyp = (wp_mask != W_ART) ? oart->defn.adtyp : oart->cary.adtyp;
     else
+        dtyp = 0;
+
+    /* an aasimar gains nothing from Vecna's relics */
+    if (vecna_relic_denied(otmp))
         dtyp = 0;
 
     if (dtyp == AD_FIRE) {
@@ -1037,7 +1055,8 @@ long wp_mask;
         for (obj = invent; obj; obj = obj->nobj) {
             if (obj != otmp && obj->oartifact) {
                 art = get_artifact(obj);
-                if (art && art->cary.adtyp == dtyp) {
+                if (art && art->cary.adtyp == dtyp
+                    && !vecna_relic_denied(obj)) {
                     mask = (long *) 0;
                     break;
                 }
@@ -1070,12 +1089,16 @@ long wp_mask;
             spfx |= SPFX_ESP;
     }
 
+    /* an aasimar gains nothing from Vecna's relics */
+    if (vecna_relic_denied(otmp))
+        spfx = 0;
+
     if (spfx && wp_mask == W_ART && !on) {
         /* don't change any spfx also conferred by other artifacts */
         for (obj = invent; obj; obj = obj->nobj)
             if (obj != otmp && obj->oartifact) {
                 art = get_artifact(obj);
-                if (art)
+                if (art && !vecna_relic_denied(obj))
                     spfx &= ~art->cspfx;
             }
     }
@@ -3650,6 +3673,13 @@ struct obj *obj;
             use_crystal_ball(&obj);
         else
             pline1(nothing_happens);
+        return 1;
+    }
+
+    /* an aasimar's celestial nature recoils from Vecna's unholy relics */
+    if (vecna_relic_denied(obj)) {
+        You("recoil from %s; you cannot bring yourself to channel"
+            " such unholy power.", the(xname(obj)));
         return 1;
     }
 

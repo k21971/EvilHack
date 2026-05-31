@@ -2383,6 +2383,13 @@ struct obj *otmp;
             break;
         } else
             goto give_feedback;
+    case EYEBALL:
+        /* the Eye of Vecna is an unholy relic, never a pleasant meal */
+        if (otmp->oartifact == ART_EYE_OF_VECNA) {
+            pline("This %s is utterly revolting!", singular(otmp, xname));
+            break;
+        }
+        goto give_feedback;
     case CLOVE_OF_GARLIC:
         if (is_undead(youmonst.data)) {
             make_vomiting((long) rn1(context.victual.reqtime, 5), FALSE);
@@ -2852,6 +2859,16 @@ struct obj *otmp;
     case EYEBALL:
         if (!otmp->oartifact)
             break;
+        /* an aasimar's celestial nature cannot abide consuming Vecna's
+           unholy relic; it is instantly fatal */
+        if (racial_aasimar(&youmonst)) {
+            pline("%s consumes your celestial soul!", The(xname(otmp)));
+            killer.format = KILLED_BY;
+            Strcpy(killer.name, "eating the Eye of Vecna");
+            done(DIED);
+            break; /* only reached if life-saved */
+        }
+
         {
             int dmg = otmp->cursed ? rn1(150, 250) : rn1(50, 150);
 

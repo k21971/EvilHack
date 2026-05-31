@@ -2667,6 +2667,12 @@ boolean noisy;
                         gloves_simple_name(otmp));
             }
             err++;
+        } else if (otmp->oartifact == ART_HAND_OF_VECNA
+                   && racial_aasimar(&youmonst)) {
+            if (noisy)
+                You("recoil from %s; such an unholy relic is anathema"
+                    " to your celestial nature.", the(xname(otmp)));
+            err++;
         } else
             *mask = W_ARMG;
     } else if (is_shirt(otmp)) {
