@@ -2400,16 +2400,32 @@ struct attack *mattk;
             return 2;
         case 0:
             break;
-        default:
-            if (!is_robber && !tele_restrict(mtmp))
+        default: {
+            /* Covetous thieves (e.g. Graz'zt) normally teleport away
+               and flee after a theft, but being covetous they start to
+               teleport their way back, trapping the hero in a loop where
+               they rarely get to retaliate. Give a covetous thief a
+               chance to stand its ground and keep fighting instead */
+            boolean stand_ground = (is_covetous(mtmp->data) && *buf
+                                    && rn2(2));
+
+            if (!is_robber && !tele_restrict(mtmp) && !stand_ground)
                 (void) rloc(mtmp, TRUE);
             if (is_robber && *buf) {
                 if (canseemon(mtmp))
                     pline("%s tries to %s away with %s.", Monnam(mtmp),
                           locomotion(mtmp->data, "run"), buf);
             }
-            monflee(mtmp, 0, FALSE, FALSE);
+            if (stand_ground) {
+                if (canseemon(mtmp))
+                    pline("%s %s, and stands %s ground.",
+                          Monnam(mtmp),
+                          rn2(2) ? "sneers at you" : "ridicules you",
+                          mhis(mtmp));
+            } else
+                monflee(mtmp, 0, FALSE, FALSE);
             return 3;
+        }
         }
         break;
     }
