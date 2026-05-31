@@ -1018,6 +1018,7 @@ u_init()
     for (i = 0; i <= MAXSPELL; i++)
         spl_book[i].sp_id = NO_SPELL;
     u.ublesscnt = 300; /* no prayers just yet */
+    u.ulastprayed = 0; /* hasn't prayed yet */
     u.ualignbase[A_CURRENT] = u.ualignbase[A_ORIGINAL] = u.ualign.type =
         aligns[flags.initalign].value;
 

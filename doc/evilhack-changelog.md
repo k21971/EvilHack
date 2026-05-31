@@ -5480,4 +5480,5 @@ The following changes to date are:
 - Bar aasimar from Vecna's relics; the Eye is never delicious
 - Strip an aasimar's celestial blood on alignment desecration
 - Fix: refresh monster pathfinding when a boulder is added or removed
+- Report the turn of the hero's last prayer in enlightenment
 

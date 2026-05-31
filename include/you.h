@@ -446,6 +446,7 @@ struct you {
     struct abuse_event uabuse_history[MAX_ABUSE_HISTORY]; /* last N abuse events */
     xchar uabuse_hist_idx;   /* next write position (circular buffer) */
     int ublessed, ublesscnt; /* blessing/duration from #pray */
+    int ulastprayed;         /* moves when last prayed; 0 = never */
     long umoney0;
     long uaasimar_penalties; /* aasimar: penalty ID at each abuse tier */
     long uexp, urexp;
