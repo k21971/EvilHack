@@ -2343,6 +2343,7 @@ domove_core()
             case 0:
                 break;
             case 1: /* trapped */
+            case 3: /* changed levels, e.g. fell through a hole */
                 /* there's already been a trap message, reinforce it */
                 abuse_dog(mtmp);
                 You_feel("guilty.");

@@ -5481,4 +5481,5 @@ The following changes to date are:
 - Strip an aasimar's celestial blood on alignment desecration
 - Fix: refresh monster pathfinding when a boulder is added or removed
 - Report the turn of the hero's last prayer in enlightenment
+- Fix: handle monsters that migrate off-level via mintrap()
 

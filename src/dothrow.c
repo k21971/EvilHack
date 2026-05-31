@@ -928,7 +928,10 @@ int x, y;
         if (Is_waterlevel(&u.uz) && levl[x][y].typ == WATER)
             return FALSE;
         res = mintrap(mon);
-        if (res == 1 || res == 2 || DEADMONSTER(mon))
+        /* res 1 = caught/trapped, 2 = killed, 3 = migrated off the level
+           (fell through a Sokoban hole, etc); stop hurtling in every case,
+           and never keep stepping a monster that has left the level */
+        if (res == 1 || res == 2 || res == 3 || DEADMONSTER(mon))
             return FALSE;
         return TRUE;
     }

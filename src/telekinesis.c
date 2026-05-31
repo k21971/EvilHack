@@ -267,7 +267,10 @@ struct monst *magr;
     const char *what;
     boolean by_you = (magr == (struct monst *) 0);
 
-    if (DEADMONSTER(mtmp))
+    /* a monster that fell through a trap door or hole during the hurtle
+       has left the level (migrate_to_level forces mx,my to 0); don't apply
+       impact to a monster that is no longer here */
+    if (DEADMONSTER(mtmp) || (mtmp->mstate & MON_MIGRATING))
         return TRUE;
 
     /* Check the next tile in the movement direction */
