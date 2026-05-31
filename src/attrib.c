@@ -1884,6 +1884,65 @@ aasimar_check_abuse()
     }
 }
 
+/* An aasimar who deliberately permaconverts their alignment at a
+   cross-aligned altar betrays their celestial heritage. The spurned
+   deity strips their celestial blood: the race becomes human (one-way)
+   and every aasimar power is lost. This mirrors the Infidel crowning
+   that turns the hero into a demon (pray.c). Called from the altar
+   conversion path after uchangealign(), the chokepoint for permanent
+   alignment change */
+void
+aasimar_lose_celestial_blood()
+{
+    const struct innate *abil;
+    int i;
+
+    /* operate on the base form, not a temporary polymorph */
+    if (Upolyd)
+        rehumanize();
+
+    /* Become human before any set_uasmon()/check_wings(): those re-grant
+       celestial abilities while Race_if(PM_AASIMAR) holds. Do not use
+       adjabil() to strip the racial intrinsics either -- once the race
+       is human its ability table is empty (so it cannot strip aasimar
+       bits) and its trailing aasimar_check_abuse() would re-grant the
+       clean-alignment intrinsics. races[0] is the human entry */
+    urace = races[0];
+
+    /* Strip the FROMRACE intrinsic layer. The table-driven racial
+       abilities come from amr_abil[]; the alignment-gated grants and
+       abuse penalties imposed by aasimar_check_abuse() and
+       apply_aasimar_penalty() live outside the table and are cleared
+       explicitly. set_uasmon() below handles the separate FROMFORM
+       layer for the new human form */
+    for (abil = amr_abil; abil->ability; abil++)
+        *(abil->ability) &= ~FROMRACE;
+    HDeath_resistance &= ~FROMRACE;  /* crowning gift */
+    HFlying &= ~FROMRACE;            /* angelic wings, level 15+ */
+    HRegeneration &= ~FROMRACE;      /* hungerless regen, level 18+ */
+    HHunger &= ~FROMRACE;            /* abuse penalty */
+    HAggravate_monster &= ~FROMRACE; /* abuse penalty */
+    u.uaasimar_penalties = 0L;
+
+    /* Drop attributes to human ceilings (urace.attrmax is now human's),
+       same clamp the stat-drain penalty uses */
+    for (i = 0; i < A_MAX; i++) {
+        if (ABASE(i) > ATTRMAX(i))
+            ABASE(i) = ATTRMAX(i);
+        if (AMAX(i) > ATTRMAX(i))
+            AMAX(i) = ATTRMAX(i);
+    }
+
+    /* Recompute the FROMFORM layer for the human form and refresh
+       wings/flight; the race is human so no celestial grant returns */
+    set_uasmon();
+    newsym(u.ux, u.uy);
+    context.botl = TRUE;
+
+    /* Permanent: re-forced as human on every restore by role_init() */
+    u.uevent.ufallen_aasimar = 1;
+}
+
 /* avoid possible problems with alignment overflow, and provide a centralized
    location for any future alignment limits */
 void
@@ -2029,6 +2088,8 @@ int atype;
         return "violating vegetarian vow";
     case ABUSE_ATONEMENT:
         return "atonement";
+    case ABUSE_FORSAKE_DEITY:
+        return "forsaking your deity";
     default:
         return "transgression";
     }

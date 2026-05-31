@@ -78,6 +78,8 @@ struct u_event {
     Bitfield(udemigod, 1);          /* killed the wiz */
     Bitfield(ascended, 1);          /* has offered the Amulet */
     Bitfield(ulearned_elbereth, 1); /* learned how to write Elbereth */
+    Bitfield(ufallen_aasimar, 1);   /* aasimar stripped of celestial blood,
+                                       permanently human (one-way) */
 };
 
 struct u_achieve {

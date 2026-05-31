@@ -2866,6 +2866,10 @@ role_init()
         urace.attrmax[A_INT] = races[flags.initrace].attrmax[A_INT];
         urace.attrmax[A_WIS] = races[flags.initrace].attrmax[A_WIS];
     }
+    /* aasimar stripped of celestial blood is permanently human;
+       races[0] is the human entry */
+    if (u.uevent.ufallen_aasimar)
+        urace = races[0];
 
     /* kick it over to alternate-alignment role */
     if (alignmnt == A_CHAOTIC && Role_if(PM_KNIGHT)

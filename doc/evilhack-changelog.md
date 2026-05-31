@@ -5478,4 +5478,5 @@ The following changes to date are:
 - Give covetous thieves a chance to stand and fight after a theft
 - Give wielded potions a higher unskilled to-hit ceiling
 - Bar aasimar from Vecna's relics; the Eye is never delicious
+- Strip an aasimar's celestial blood on alignment desecration
 

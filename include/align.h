@@ -72,7 +72,9 @@ enum abuse_type {
     /* Conduct (Monk) */
     ABUSE_VEGETARIAN,           /* Monk eating meat */
     /* Atonement (not abuse, but tracked in same history) */
-    ABUSE_ATONEMENT             /* atoned for past abuse via temple donation */
+    ABUSE_ATONEMENT,            /* atoned for past abuse via temple donation */
+    /* Apostasy */
+    ABUSE_FORSAKE_DEITY         /* aasimar forsaking their deity at an altar */
 };
 
 typedef struct align { /* alignment & record */

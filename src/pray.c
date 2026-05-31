@@ -2378,10 +2378,25 @@ dosacrifice()
                     && altaralign != A_NONE && !Role_if(PM_INFIDEL)) {
                     You("have a strong feeling that %s is angry...",
                         u_gname());
+                    /* an aasimar who reaches this permaconversion
+                       chokepoint has deliberately forsaken their faith;
+                       the spurned deity rebukes them at once */
+                    if (Race_if(PM_AASIMAR))
+                        verbalize("Thou hast forsaken Me!");
                     consume_offering(otmp);
                     pline("%s accepts your allegiance.", a_gname());
 
                     uchangealign(altaralign, 0);
+                    /* the betrayal strips the aasimar's celestial blood,
+                       leaving a mere mortal human (one-way), and inflicts
+                       a heavy alignment penalty */
+                    if (Race_if(PM_AASIMAR)) {
+                        Your("bond with the heavens is severed.");
+                        aasimar_lose_celestial_blood();
+                        You("are but a mortal human now.");
+                        adjalign(-30);
+                        record_abuse_event(-30, ABUSE_FORSAKE_DEITY);
+                    }
                     /* Beware, Conversion is costly */
                     change_luck(-3);
                     u.ublesscnt += 300;

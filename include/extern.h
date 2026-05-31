@@ -148,6 +148,7 @@ E schar NDECL(acurrstr);
 E boolean FDECL(extremeattr, (int));
 E void FDECL(adjalign, (int));
 E void NDECL(aasimar_check_abuse);
+E void NDECL(aasimar_lose_celestial_blood);
 E int FDECL(is_innate, (int));
 E char *FDECL(from_what, (int));
 E void FDECL(uchangealign, (int, int));
