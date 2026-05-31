@@ -442,12 +442,17 @@ int *attk_count, *role_roll_penalty;
     /* if unskilled with a weapon/object type (bare-handed is exempt),
        you'll never have a chance greater than 75% to land a hit */
     if (uwep && aatyp == AT_WEAP && !u.uswallow) {
+        /* potions make passable improvised weapons; raise the
+           unskilled/restricted to-hit ceiling from 15 to 18 */
+        int hitcap = (uwep->oclass == POTION_CLASS) ? 18 : 15;
+
         wepskill = weapon_skill_level(uwep);
         twowepskill = P_SKILL(P_TWO_WEAPON_COMBAT);
         /* use the lesser skill of two-weapon or your primary */
         useskill = (u.twoweap && twowepskill < wepskill) ? twowepskill : wepskill;
-        if ((useskill == P_UNSKILLED || useskill == P_ISRESTRICTED) && tmp > 15) {
-            tmp = 15;
+        if ((useskill == P_UNSKILLED || useskill == P_ISRESTRICTED)
+            && tmp > hitcap) {
+            tmp = hitcap;
             if (!rn2(5)) {
                 /* using a corpse as a weapon... alrighty then */
                 if (uwep->oclass != WEAPON_CLASS && !is_weptool(uwep)) {

@@ -291,6 +291,10 @@ botl_hitbonus()
     }
 
     if (uwep && aatyp == AT_WEAP && !u.uswallow) {
+        /* potions make passable improvised weapons; raise the
+           unskilled/restricted to-hit ceiling from 15 to 18 */
+        int hitcap = (uwep->oclass == POTION_CLASS) ? 18 : 15;
+
         wepskill = weapon_skill_level(uwep);
         twowepskill = P_SKILL(P_TWO_WEAPON_COMBAT);
         /* use the lesser skill of two-weapon or your primary */
@@ -298,8 +302,8 @@ botl_hitbonus()
                                                          : wepskill;
         if ((useskill == P_UNSKILLED
              || useskill == P_ISRESTRICTED)
-            && tmp > 15)
-            tmp = 15;
+            && tmp > hitcap)
+            tmp = hitcap;
     }
 
     return tmp;

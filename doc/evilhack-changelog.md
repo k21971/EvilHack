@@ -5476,4 +5476,5 @@ The following changes to date are:
 - Fix: CUSTOMCOLOR cmap entries only matched the defsyms explanation
 - Fix: monster self-buff learned spell wrongly announced as cast at you
 - Give covetous thieves a chance to stand and fight after a theft
+- Give wielded potions a higher unskilled to-hit ceiling
 
