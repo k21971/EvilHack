@@ -73,9 +73,12 @@ STATIC_DCL int FDECL(choose_magic_spell, (struct monst *, int));
 STATIC_DCL int FDECL(choose_clerical_spell, (struct monst *, int));
 STATIC_DCL int FDECL(m_cure_self, (struct monst *, int));
 STATIC_DCL int FDECL(m_destroy_armor, (struct monst *, struct monst *));
-STATIC_DCL int FDECL(cast_learned_spell, (struct monst *, struct monst *));
-STATIC_DCL void FDECL(do_wizard_spell, (struct monst *, struct monst *, int, int));
-STATIC_DCL void FDECL(do_cleric_spell, (struct monst *, struct monst *, int, int));
+STATIC_DCL short FDECL(mpick_learned_spell, (struct monst *, struct monst *));
+STATIC_DCL int FDECL(cast_learned_spell, (struct monst *, struct monst *, SHORT_P));
+STATIC_DCL void FDECL(do_wizard_spell,
+                      (struct monst *, struct monst *, int, int, SHORT_P));
+STATIC_DCL void FDECL(do_cleric_spell,
+                      (struct monst *, struct monst *, int, int, SHORT_P));
 STATIC_DCL boolean FDECL(mhas_useful_selfbuff_spell, (struct monst *));
 STATIC_DCL boolean FDECL(mhas_castable_offensive_spell,
                          (struct monst *, struct monst *));
@@ -462,6 +465,8 @@ boolean foundyou;
     int dmg, ml = min(mtmp->m_lev, 50);
     int ret;
     int spellnum = 0;
+    short learned_otyp = 0; /* actual learned spell, resolved before msg */
+    boolean undirected;
 
     boolean seecaster = (canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters);
 
@@ -548,14 +553,28 @@ boolean foundyou;
             stop_occupation();
         return 0;
     }
-    if (seecaster || !is_undirected_spell(mtmp, mattk->adtyp, spellnum)) {
+
+    /* The learned-spell meta doesn't decide which spell is cast until
+       cast_learned_spell() runs; resolve it now so the casting message
+       matches the spell actually cast (self-buff vs directed) instead
+       of guessing from whether a useful self-buff merely exists. The
+       same spell is handed to cast_learned_spell() so the message and
+       the effect can't diverge */
+    if ((mattk->adtyp == AD_SPEL && spellnum == MGC_LEARNED_SPELL)
+        || (mattk->adtyp == AD_CLRC && spellnum == CLC_LEARNED_SPELL))
+        learned_otyp = mpick_learned_spell(mtmp, &youmonst);
+    undirected = is_undirected_spell(mtmp, mattk->adtyp, spellnum);
+    if (learned_otyp)
+        undirected = IS_SELFBUFF_SPELL(learned_otyp);
+
+    if (seecaster || !undirected) {
         if (mtmp->mpeaceful
             && mtmp->ispriest && inhistemple(mtmp)) {
             ; /* cut down on the temple spam */
         } else {
             pline("%s casts a spell%s!",
                   seecaster ? Monnam(mtmp) : "Something",
-                  is_undirected_spell(mtmp, mattk->adtyp, spellnum)
+                  undirected
                       ? ""
                       : (Invis && !mon_prop(mtmp, SEE_INVIS)
                          && (mtmp->mux != u.ux || mtmp->muy != u.uy))
@@ -565,7 +584,7 @@ boolean foundyou;
                                   ? " at your displaced image"
                                   : " at you");
         }
-    } else if (!Deaf && is_undirected_spell(mtmp, mattk->adtyp, spellnum)) {
+    } else if (!Deaf && undirected) {
         if (mtmp->mpeaceful
             && mtmp->ispriest && inhistemple(mtmp)) {
             ; /* cut down on the temple spam */
@@ -675,9 +694,9 @@ boolean foundyou;
     case AD_SPEL:   /* wizard spell */
     case AD_CLRC: { /* clerical spell */
         if (mattk->adtyp == AD_SPEL)
-            do_wizard_spell(mtmp, &youmonst, dmg, spellnum);
+            do_wizard_spell(mtmp, &youmonst, dmg, spellnum, learned_otyp);
         else
-            do_cleric_spell(mtmp, &youmonst, dmg, spellnum);
+            do_cleric_spell(mtmp, &youmonst, dmg, spellnum, learned_otyp);
         dmg = 0; /* done by the spell casting functions */
         break;
         }
@@ -840,20 +859,21 @@ struct monst *mattk, *mdef;
     return 0;
 }
 
-/* Cast a spell learned from a spellbook.
- * Returns 0 (damage is handled by the spell itself via mbhitm/etc).
- * Used by both MGC_LEARNED_SPELL and CLC_LEARNED_SPELL cases */
-STATIC_OVL int
-cast_learned_spell(caster, target)
+/* Pick the learned spell a monster would cast at target, applying the
+   same target/peaceful filtering cast_learned_spell() uses. Pulled out
+   so the casting message can reflect the spell actually chosen rather
+   than a heuristic guess. Returns the spell otyp, or 0 if none is
+   castable */
+STATIC_OVL short
+mpick_learned_spell(caster, target)
 struct monst *caster, *target;
 {
     boolean youdefend = (target == &youmonst);
     boolean selfbuff_only;
     int tx, ty;
-    short spell_otyp;
 
-    /* Determine target coordinates first, so we can filter spells
-       that require specific terrain (e.g., entangle needs vegetation) */
+    /* target coordinates gate terrain-specific spells (e.g. entangle
+       needs vegetation) */
     if (youdefend) {
         tx = u.ux;
         ty = u.uy;
@@ -875,7 +895,38 @@ struct monst *caster, *target;
                      && caster->mpeaceful
                      && youdefend);
 
-    spell_otyp = mchoose_learned_spell(caster, target, tx, ty, selfbuff_only);
+    return mchoose_learned_spell(caster, target, tx, ty, selfbuff_only);
+}
+
+/* Cast a spell learned from a spellbook.
+ * spell_otyp, when nonzero, is a spell pre-selected by the caller so its
+ * casting message can match what is actually cast; pass 0 to choose one
+ * here.
+ * Returns 0 (damage is handled by the spell itself via mbhitm/etc).
+ * Used by both MGC_LEARNED_SPELL and CLC_LEARNED_SPELL cases */
+STATIC_OVL int
+cast_learned_spell(caster, target, spell_otyp)
+struct monst *caster, *target;
+short spell_otyp;
+{
+    boolean youdefend = (target == &youmonst);
+    int tx, ty;
+
+    /* Determine target coordinates first; needed to aim ray and
+       immediate spells below (selection, when not pre-chosen, applies
+       its own terrain filtering) */
+    if (youdefend) {
+        tx = u.ux;
+        ty = u.uy;
+    } else if (target && !DEADMONSTER(target)) {
+        tx = target->mx;
+        ty = target->my;
+    } else {
+        return 0;
+    }
+
+    if (spell_otyp == 0)
+        spell_otyp = mpick_learned_spell(caster, target);
 
     if (spell_otyp == 0)
         return 0; /* No castable spell available */
@@ -954,9 +1005,10 @@ struct monst *caster, *target;
    spell_would_be_useless() */
 STATIC_OVL
 void
-do_wizard_spell(caster, target, dmg, spellnum)
+do_wizard_spell(caster, target, dmg, spellnum, learned_otyp)
 struct monst *caster, *target;
 int dmg, spellnum;
+short learned_otyp; /* pre-selected learned spell, or 0 */
 {
     boolean yours = (caster == &youmonst);
     boolean youdefend = (target == &youmonst);
@@ -1485,7 +1537,7 @@ int dmg, spellnum;
         dmg = 0;
         break;
     case MGC_LEARNED_SPELL:
-        dmg = cast_learned_spell(caster, target);
+        dmg = cast_learned_spell(caster, target, learned_otyp);
         break;
     default:
         impossible("do_wizard_spell: invalid magic spell (%d)", spellnum);
@@ -1529,9 +1581,10 @@ const char* vulntext[] = {
  */
 STATIC_OVL
 void
-do_cleric_spell(caster, target, dmg, spellnum)
+do_cleric_spell(caster, target, dmg, spellnum, learned_otyp)
 struct monst *caster, *target;
 int dmg, spellnum;
+short learned_otyp; /* pre-selected learned spell, or 0 */
 {
     boolean yours = (caster == &youmonst);
     boolean youdefend = (target == &youmonst);
@@ -2241,7 +2294,7 @@ int dmg, spellnum;
         dmg = 0;
         break;
     case CLC_LEARNED_SPELL:
-        dmg = cast_learned_spell(caster, target);
+        dmg = cast_learned_spell(caster, target, learned_otyp);
         break;
     default:
         impossible("mcastu: invalid clerical spell (%d)", spellnum);
@@ -3022,6 +3075,8 @@ struct attack *mattk;
     int dmg, ml = min(mtmp->m_lev, 50);
     int ret;
     int spellnum = 0;
+    short learned_otyp = 0; /* actual learned spell, resolved before msg */
+    boolean undirected;
 
     boolean seecaster = (canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters);
 
@@ -3107,12 +3162,20 @@ struct attack *mattk;
         return 0;
     }
 
-    if (seecaster && canseemon(mdef)
-        && !is_undirected_spell(mtmp, mattk->adtyp, spellnum))
+    /* resolve the learned-spell meta now so the casting message reflects
+       the spell actually cast (self-buff vs directed at mdef); the same
+       spell is reused below so message and effect can't diverge */
+    if ((mattk->adtyp == AD_SPEL && spellnum == MGC_LEARNED_SPELL)
+        || (mattk->adtyp == AD_CLRC && spellnum == CLC_LEARNED_SPELL))
+        learned_otyp = mpick_learned_spell(mtmp, mdef);
+    undirected = is_undirected_spell(mtmp, mattk->adtyp, spellnum);
+    if (learned_otyp)
+        undirected = IS_SELFBUFF_SPELL(learned_otyp);
+
+    if (seecaster && canseemon(mdef) && !undirected)
         pline("%s casts a spell at %s!", Monnam(mtmp), mon_nam(mdef));
 
-    if (seecaster
-        && is_undirected_spell(mtmp, mattk->adtyp, spellnum))
+    if (seecaster && undirected)
         pline("%s casts a spell!", Monnam(mtmp));
 
     if (mattk->damd)
@@ -3199,7 +3262,18 @@ struct attack *mattk;
         /* aggravation is a special case;
          * it's undirected but should still target the
          * victim so as to aggravate you */
-        if (is_undirected_spell(mtmp, mattk->adtyp, spellnum)
+        if (learned_otyp) {
+            /* the learned spell was pre-selected so the casting message
+               could match it; route self-buffs to the caster and
+               offensive spells at mdef, reusing that same spell */
+            struct monst *ltgt = IS_SELFBUFF_SPELL(learned_otyp)
+                                     ? mtmp : mdef;
+
+            if (mattk->adtyp == AD_SPEL)
+                do_wizard_spell(mtmp, ltgt, dmg, spellnum, learned_otyp);
+            else
+                do_cleric_spell(mtmp, ltgt, dmg, spellnum, learned_otyp);
+        } else if (is_undirected_spell(mtmp, mattk->adtyp, spellnum)
             /* 'undirected-but-not-really' spells: */
             && (mattk->adtyp == AD_SPEL
                 /* magic spells */
@@ -3217,14 +3291,14 @@ struct attack *mattk;
                      || spellnum == CLC_OPEN_WOUNDS)))) {
             /* monster vs you */
             if (mattk->adtyp == AD_SPEL)
-                do_wizard_spell(mtmp, &youmonst, dmg, spellnum);
+                do_wizard_spell(mtmp, &youmonst, dmg, spellnum, 0);
             else
-                do_cleric_spell(mtmp, &youmonst, dmg, spellnum);
+                do_cleric_spell(mtmp, &youmonst, dmg, spellnum, 0);
         /* you vs monster or monster vs monster */
         } else if (mattk->adtyp == AD_SPEL) {
-            do_wizard_spell(mtmp, mdef, dmg, spellnum);
+            do_wizard_spell(mtmp, mdef, dmg, spellnum, 0);
         } else {
-            do_cleric_spell(mtmp, mdef, dmg, spellnum);
+            do_cleric_spell(mtmp, mdef, dmg, spellnum, 0);
         }
         dmg = 0; /* done by the spell casting functions */
         break;
@@ -3384,9 +3458,9 @@ struct attack *mattk;
     case AD_SPEL:   /* wizard spell */
     case AD_CLRC: { /* clerical spell */
         if (mattk->adtyp == AD_SPEL)
-            do_wizard_spell(&youmonst, mtmp, dmg, spellnum);
+            do_wizard_spell(&youmonst, mtmp, dmg, spellnum, 0);
         else
-            do_cleric_spell(&youmonst, mtmp, dmg, spellnum);
+            do_cleric_spell(&youmonst, mtmp, dmg, spellnum, 0);
         dmg = 0; /* done by the spell casting functions */
         break;
         }

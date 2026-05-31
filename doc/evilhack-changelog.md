@@ -5474,4 +5474,5 @@ The following changes to date are:
 - Fix: 'make' by itself fails to generate dat/serverseed
 - Fix: long named objects truncated in xname()/doname()
 - Fix: CUSTOMCOLOR cmap entries only matched the defsyms explanation
+- Fix: monster self-buff learned spell wrongly announced as cast at you
 
