@@ -5484,4 +5484,5 @@ The following changes to date are:
 - Fix: handle monsters that migrate off-level via mintrap()
 - Fix: re-place a steed orphaned off the map when its rider-link is
   severed
+- Fix: guard off-map m_at() in hitum() when attacking while swallowed
 

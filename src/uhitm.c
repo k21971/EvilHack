@@ -1003,7 +1003,8 @@ struct attack *uattk;
        knocked to different location */
     if (u.twoweap && (!override_confirmation || forced_attack(uswapwep))
                   && !(multi < 0 || u.umortality > oldumort
-                       || !malive || m_at(x, y) != mon)) {
+                       || !malive
+                       || !isok(x, y) || m_at(x, y) != mon)) {
         tmp = find_roll_to_hit(mon, uattk->aatyp, uswapwep, &attknum,
                                &armorpenalty);
         dieroll = rnd(20);
@@ -1021,7 +1022,7 @@ struct attack *uattk;
     if (!uwep && Role_if(PM_MONK)
         && P_SKILL(P_MARTIAL_ARTS) == P_GRAND_MASTER
         && !(multi < 0 || u.umortality > oldumort
-             || !malive || m_at(x, y) != mon)) {
+             || !malive || !isok(x, y) || m_at(x, y) != mon)) {
         if (uarms && !is_bracer(uarms)) {
             if (!rn2(8))
                 pline("Your extra attack is ineffective while wearing %s.",
@@ -1090,7 +1091,8 @@ struct attack *uattk;
         && uarms && !is_bracer(uarms)
         && P_SKILL(P_SHIELD) >= P_BASIC
         && !(multi < 0 || u.umortality > oldumort
-             || u.uinwater || !malive || m_at(x, y) != mon)
+             || u.uinwater || !malive
+             || !isok(x, y) || m_at(x, y) != mon)
         /* suppress bashes with 'F' */
         && !context.forcefight) {
         tmp = find_roll_to_hit(mon, uattk->aatyp, uarms, &attknum,
@@ -1108,7 +1110,7 @@ struct attack *uattk;
      * their tentacle attack every turn, Centaurs are strong
      * enough to not need their extra kick attack */
     if (!Upolyd && !(multi < 0 || u.umortality > oldumort
-                     || !malive || m_at(x, y) != mon)) {
+                     || !malive || !isok(x, y) || m_at(x, y) != mon)) {
         int i;
         int race = (flags.female && urace.femalenum != NON_PM)
                     ? urace.femalenum : urace.malenum;
