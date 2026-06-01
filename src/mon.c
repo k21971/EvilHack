@@ -3532,6 +3532,36 @@ dmonsfree()
     char freed_list[BUFSZ] = "";
 
     buf[0] = '\0';
+    /* Diagnostic: a live steed left in fmon but off the map - its rider
+       gone and ridden_by cleared, yet never re-placed - turns invisible
+       while still attacking (the phantom saddled-spider bug). Report it
+       so a recurrence leaves a record; this only observes the state, it
+       does not repair it */
+    {
+        static unsigned orphan_warned_id = 0;
+        struct monst *o;
+        boolean any = FALSE;
+
+        for (o = fmon; o; o = o->nmon) {
+            if (DEADMONSTER(o) || o == u.usteed || o->ridden_by
+                || (o->mstate & (MON_DETACH | MON_MIGRATING | MON_OFFMAP
+                                 | MON_LIMBO | MON_ENDGAME_FREE
+                                 | MON_ENDGAME_MIGR))
+                || !isok(o->mx, o->my)
+                || level.monsters[o->mx][o->my] == o)
+                continue;
+            any = TRUE;
+            if (o->m_id != orphan_warned_id) {
+                orphan_warned_id = o->m_id;
+                impossible(
+                    "off-map steed %s (m_id %u) at <%d,%d> mstate 0x%lx",
+                    o->data ? o->data->mname : "?", o->m_id,
+                    o->mx, o->my, o->mstate);
+            }
+        }
+        if (!any)
+            orphan_warned_id = 0;
+    }
     for (mtmp = &fmon; *mtmp;) {
         freetmp = *mtmp;
 
@@ -3977,6 +4007,8 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
         struct monst *mtmp2 = get_mon_rider(mtmp);
         if (mtmp2)
             free_erid(mtmp2);
+        else
+            mtmp->ridden_by = 0; /* rider already gone; clear stale flag */
         newsym(mtmp->mx, mtmp->my);
     }
     if (onmap)
@@ -6931,7 +6963,23 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
             }
             separate_steed_and_rider(rider);
         } else {
-            /* rider gone, clear stale flag */
+            /* the rider is gone but the steed is still flagged as ridden;
+               it was taken off the map when mounted, so put it back as a
+               free monster before clearing the stale flag - otherwise it
+               lingers in fmon off the map, invisible yet still able to
+               act, until a save/restore re-places it */
+            if (m_at(mtmp->mx, mtmp->my) != mtmp) {
+                coord cc;
+
+                if (!m_at(mtmp->mx, mtmp->my) && isok(mtmp->mx, mtmp->my))
+                    place_monster(mtmp, mtmp->mx, mtmp->my);
+                else if (enexto_core_mon(&cc, mtmp->mx, mtmp->my, mtmp,
+                                         NO_MM_FLAGS))
+                    place_monster(mtmp, cc.x, cc.y);
+                else
+                    (void) rloc(mtmp, FALSE);
+                newsym(mtmp->mx, mtmp->my);
+            }
             mtmp->ridden_by = 0;
         }
     }

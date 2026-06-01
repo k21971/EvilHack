@@ -5482,4 +5482,6 @@ The following changes to date are:
 - Fix: refresh monster pathfinding when a boulder is added or removed
 - Report the turn of the hero's last prayer in enlightenment
 - Fix: handle monsters that migrate off-level via mintrap()
+- Fix: re-place a steed orphaned off the map when its rider-link is
+  severed
 
