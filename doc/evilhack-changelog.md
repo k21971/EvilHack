@@ -5485,4 +5485,5 @@ The following changes to date are:
 - Fix: re-place a steed orphaned off the map when its rider-link is
   severed
 - Fix: guard off-map m_at() in hitum() when attacking while swallowed
+- Prevent Yendorian army types and guards from spawning as aasimar
 

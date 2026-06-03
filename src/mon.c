@@ -7880,19 +7880,22 @@ short mndx;
     unsigned long permitted = MH_HUMAN;
 
     switch (mndx) {
+    case PM_SHOPKEEPER:
+        permitted |= (MH_CENTAUR | MH_ORC | MH_DWARF | MH_ELF
+                      | MH_GNOME | MH_GIANT | MH_DROW | MH_AASIMAR);
+        break;
     case PM_SOLDIER:
     case PM_SERGEANT:
     case PM_LIEUTENANT:
     case PM_WATCHMAN:
     case PM_GUARD:
     case PM_PRISON_GUARD:
-    case PM_SHOPKEEPER:
         permitted |= (MH_CENTAUR | MH_ORC);
         /* fallthru */
     case PM_CAPTAIN:
     case PM_WATCH_CAPTAIN:
         permitted |= (MH_DWARF | MH_ELF | MH_GNOME | MH_GIANT
-                      | MH_DROW | MH_AASIMAR);
+                      | MH_DROW);
         break;
     case PM_ARCHEOLOGIST:
         permitted |= (MH_DWARF | MH_GNOME | MH_HOBBIT | MH_TORTLE
