@@ -1621,6 +1621,31 @@ movemon()
                 m_dowear(mtmp, FALSE);
                 if (mtmp->misc_worn_check != oldworn || !mtmp->mcanmove)
                     continue; /* is spending this turn equipping */
+
+                /* also reassess hand-to-hand weapon: a monster that
+                   acquired a better (e.g. artifact) weapon outside of
+                   combat would otherwise keep its old weapon until it
+                   next fights. Mirror the combat re-eval, but skip a
+                   welded weapon (can't switch) or a launcher being held
+                   for ranged attacks (don't disturb a ranged stance;
+                   combat re-derives the melee weapon when it engages) */
+                if (attacktype(mtmp->data, AT_WEAP)) {
+                    struct obj *mw_tmp = MON_WEP(mtmp);
+                    struct obj *bestwep;
+
+                    if (!(mw_tmp && mwelded(mw_tmp)
+                          && mtmp->data != &mons[PM_INFIDEL])
+                        && !(mw_tmp && is_launcher(mw_tmp))) {
+                        bestwep = select_hwep(mtmp);
+                        if (bestwep && bestwep != mw_tmp
+                            && (!mw_tmp
+                                || bestwep->otyp != mw_tmp->otyp)) {
+                            mtmp->weapon_check = NEED_HTH_WEAPON;
+                            if (mon_wield_item(mtmp) != 0)
+                                continue; /* spent the turn switching */
+                        }
+                    }
+                }
             }
         }
 
