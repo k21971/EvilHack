@@ -2123,12 +2123,18 @@ struct obj *obj; /* thrownobj or kickedobj or uwep */
             pline("%s catches %s.", Monnam(mon), the(xname(obj)));
             obj_extract_self(obj);
             (void) mpickobj(mon,obj);
-            if (attacktype(mon->data, AT_WEAP)
-                && mon->weapon_check == NEED_WEAPON) {
-                mon->weapon_check = NEED_HTH_WEAPON;
-                (void) mon_wield_item(mon);
+            /* don't break a spellbook read to gear up; defer the
+               wield/wear until the monster finishes reading */
+            if (has_emsp(mon) && EMSP(mon)->msp_reading != 0) {
+                check_gear_next_turn(mon);
+            } else {
+                if (attacktype(mon->data, AT_WEAP)
+                    && mon->weapon_check == NEED_WEAPON) {
+                    mon->weapon_check = NEED_HTH_WEAPON;
+                    (void) mon_wield_item(mon);
+                }
+                m_dowear(mon, FALSE);
             }
-            m_dowear(mon, FALSE);
             newsym(mon->mx, mon->my);
             return 1;
         }

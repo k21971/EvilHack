@@ -1606,8 +1606,13 @@ movemon()
 
         /* after losing equipment, try to put on replacement;
            skip monsters parked at (0,0) since m_dowear_type() may call
-           begin_burn() which needs get_obj_location() to succeed */
-        if ((mtmp->misc_worn_check & I_SPECIAL) && mtmp->mx) {
+           begin_burn() which needs get_obj_location() to succeed; also
+           skip a monster concentrating on reading a spellbook so it
+           does not swap armor or weapons mid-read -- I_SPECIAL stays
+           set and the change is deferred until the read finishes or is
+           interrupted */
+        if ((mtmp->misc_worn_check & I_SPECIAL) && mtmp->mx
+            && !(has_emsp(mtmp) && EMSP(mtmp)->msp_reading != 0)) {
             long oldworn;
 
             /* hostiles only try to equip things if they think hero isn't
