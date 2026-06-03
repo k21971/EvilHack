@@ -3528,8 +3528,11 @@ dmonsfree()
 {
     struct monst **mtmp, *freetmp, *ridertmp;
     int count = 0;
+    int undetached = 0;
+    unsigned undetached_id = 0;
     char buf[QBUFSZ];
     char freed_list[BUFSZ] = "";
+    char undetached_buf[BUFSZ] = "";
 
     buf[0] = '\0';
     /* Diagnostic: a live steed left in fmon but off the map - its rider
@@ -3599,6 +3602,22 @@ dmonsfree()
                 Sprintf(eos(freed_list), " %s(%d,%d)",
                         freetmp->data->mname, freetmp->mx, freetmp->my);
             }
+            /* A freed monster that never went through m_detach()
+               (MON_DETACH unset) reached mhp<1 outside the death
+               pipeline - the count>purge producer. recent_detaches[]
+               cannot see it (it tracks m_detach calls only), so record
+               it here, before the struct is freed */
+            if (!(freetmp->mstate & MON_DETACH)) {
+                undetached++;
+                if (undetached == 1) {
+                    undetached_id = freetmp->m_id;
+                    Sprintf(undetached_buf,
+                            "%s(%d,%d) m_id=%u mstate=0x%lx mhp=%d",
+                            freetmp->data ? freetmp->data->mname : "?",
+                            freetmp->mx, freetmp->my, freetmp->m_id,
+                            freetmp->mstate, freetmp->mhp);
+                }
+            }
             if (!!(ridertmp = get_mon_rider(freetmp)))
                 separate_steed_and_rider(ridertmp);
             dealloc_monst(freetmp);
@@ -3654,6 +3673,12 @@ dmonsfree()
         /* Show what was actually freed */
         if (freed_list[0])
             Sprintf(eos(msgbuf), " Freed:%s", freed_list);
+        /* Name any monster freed without ever being m_detach()ed - the
+           freed-not-detached (count>purge) producer that recent_detaches[]
+           cannot capture */
+        if (undetached > 0)
+            Sprintf(eos(msgbuf), " Undetached:%d %s", undetached,
+                    undetached_buf);
 
         /* Add diagnostic counts */
         if (living_detached > 0)
@@ -3753,6 +3778,24 @@ dmonsfree()
 
         impossible("%s", msgbuf);
     }
+
+    /* Even when the counts happen to balance (a freed-not-detached
+       monster offset by a detached-not-freed one in the same pass), a
+       free without MON_DETACH is still anomalous; report it once per
+       distinct monster. buf is empty here unless the mismatch block
+       above ran, so fill it for context */
+    if (undetached > 0 && count == iflags.purge_monsters) {
+        static unsigned undetached_warned_id = 0;
+
+        if (undetached_id != undetached_warned_id) {
+            undetached_warned_id = undetached_id;
+            if (!buf[0])
+                describe_level(buf);
+            impossible("dmonsfree: freed undetached %s on %s",
+                       undetached_buf, buf);
+        }
+    }
+
     iflags.purge_monsters = 0;
 }
 

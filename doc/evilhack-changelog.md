@@ -5486,4 +5486,5 @@ The following changes to date are:
   severed
 - Fix: guard off-map m_at() in hitum() when attacking while swallowed
 - Prevent Yendorian army types and guards from spawning as aasimar
+- Add a dmonsfree detector for monsters freed without m_detach
 
