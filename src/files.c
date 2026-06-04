@@ -231,6 +231,10 @@ STATIC_DCL boolean FDECL(handle_config_section, (char *));
 #ifdef SELF_RECOVER
 STATIC_DCL boolean FDECL(copy_bytes, (int, int));
 #endif
+#ifndef MICRO
+STATIC_DCL boolean FDECL(copy_file, (const char *, const char *));
+STATIC_DCL boolean NDECL(recover_error_savefile);
+#endif
 #ifdef HOLD_LOCKFILE_OPEN
 STATIC_DCL int FDECL(open_levelfile_exclusively, (const char *, int, int));
 #endif
@@ -1221,6 +1225,105 @@ delete_savefile()
     return 0; /* for restore_saved_game() (ex-xxxmain.c) test */
 }
 
+#ifndef MICRO
+/* copy a file byte-for-byte; from and to are already fqname-resolved */
+STATIC_OVL boolean
+copy_file(from, to)
+const char *from, *to;
+{
+    int ifd, ofd, nfrom, nto;
+    char buf[BUFSIZ];
+    boolean ok = TRUE;
+
+    if ((ifd = open(from, O_RDONLY | O_BINARY, 0)) < 0)
+        return FALSE;
+    if ((ofd = open(to, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC,
+                    FCMASK)) < 0) {
+        (void) nhclose(ifd);
+        return FALSE;
+    }
+    while ((nfrom = read(ifd, buf, sizeof buf)) > 0) {
+        nto = write(ofd, buf, (unsigned) nfrom);
+        if (nto != nfrom) {
+            ok = FALSE;
+            break;
+        }
+    }
+    if (nfrom < 0)
+        ok = FALSE;
+    (void) nhclose(ifd);
+    (void) nhclose(ofd);
+    if (!ok)
+        (void) unlink(to);
+    return ok;
+}
+
+/* When a game crashes via panic(), a complete "error save" is written
+   with a ".e" inserted before the compression suffix (set_error_savefile).
+   If no normal save exists but such an error save does, offer to recover
+   it: archive a copy, then rename it into the normal save slot so the
+   regular restore path can load it. Returns TRUE when the normal slot
+   now holds a recoverable save, with SAVEF restored to the normal base
+   name. The player is never offered a way to destroy the error save;
+   declining simply leaves it in place */
+STATIC_OVL boolean
+recover_error_savefile()
+{
+    char normbase[SAVESIZE];
+    char errfile[FQN_MAX_FILENAME + 8], normfile[FQN_MAX_FILENAME + 8];
+    char arcfile[FQN_MAX_FILENAME + 12];
+    const char *fqn;
+    int tfd;
+#ifdef COMPRESS_EXTENSION
+    const char *ext = COMPRESS_EXTENSION;
+#else
+    const char *ext = "";
+#endif
+
+    /* a prompt is required; skip if we cannot ask */
+    if (!iflags.window_inited)
+        return FALSE;
+
+    /* SAVEF holds the normal base name (e.g. "save/1001keith"). Build
+       the normal and error compressed paths, then restore SAVEF to the
+       normal base before any return so the new-game path and later
+       create_savefile()/nh_compress are not left pointing at ".e" */
+    Strcpy(normbase, SAVEF);
+    fqn = fqname(SAVEF, SAVEPREFIX, 0);
+    Strcpy(normfile, fqn);
+    Strcat(normfile, ext);
+
+    set_error_savefile(); /* SAVEF -> normal base + ".e" */
+    fqn = fqname(SAVEF, SAVEPREFIX, 0);
+    Strcpy(errfile, fqn);
+    Strcat(errfile, ext);
+
+    Strcpy(SAVEF, normbase); /* unconditional restore */
+
+    /* is there an error save to recover? */
+    if ((tfd = open(errfile, O_RDONLY | O_BINARY, 0)) < 0)
+        return FALSE;
+    (void) nhclose(tfd);
+
+    /* recover or leave it; never offer to destroy it, since an admin or
+       dev may want the error save for examination */
+    if (yn("Found a save file from a crashed game.  Recover it?") != 'y')
+        return FALSE;
+
+    /* keep a forensic copy that will not be re-detected next start */
+    Strcpy(arcfile, errfile);
+    Strcat(arcfile, ".bak");
+    (void) copy_file(errfile, arcfile); /* best effort */
+
+    /* move the error save into the normal save slot */
+    if (rename(errfile, normfile) != 0) {
+        pline("Unable to prepare the recovered save file.");
+        return FALSE;
+    }
+    return TRUE;
+}
+#endif /* !MICRO */
+
 /* try to open up a save file and prepare to restore it */
 int
 restore_saved_game()
@@ -1237,8 +1340,18 @@ restore_saved_game()
     fq_save = fqname(SAVEF, SAVEPREFIX, 0);
 
     nh_uncompress(fq_save);
-    if ((fd = open_savefile()) < 0)
-        return fd;
+    if ((fd = open_savefile()) < 0) {
+#ifndef MICRO
+        /* no normal save; offer to recover a post-crash error save */
+        if (recover_error_savefile()) {
+            fq_save = fqname(SAVEF, SAVEPREFIX, 0);
+            nh_uncompress(fq_save);
+            fd = open_savefile();
+        }
+#endif
+        if (fd < 0)
+            return fd;
+    }
 
     if (validate(fd, fq_save) != 0) {
         (void) nhclose(fd), fd = -1;
