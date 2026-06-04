@@ -851,20 +851,24 @@ int *fail_reason;
         /* statues of unique monsters from bones or wishing end
            up here (cant_revive() sets mnum to be doppelganger;
            mptr reflects the original form for use by newcham()) */
+        /* MM_NOSTEED: an animated statue is a lone dead-monster snapshot;
+           don't fabricate a fresh mount for riding monsters */
         if ((mnum == PM_DOPPELGANGER && mptr != &mons[PM_DOPPELGANGER])
             /* block quest guards from other roles */
             || (mptr->msound == MS_GUARDIAN
                 && quest_info(MS_GUARDIAN) != mnum)) {
             mon = makemon(&mons[PM_DOPPELGANGER], x, y,
-                          NO_MINVENT | MM_NOCOUNTBIRTH | MM_ADJACENTOK);
+                          NO_MINVENT | MM_NOCOUNTBIRTH | MM_ADJACENTOK
+                              | MM_NOSTEED);
             /* if hero has protection from shape changers, cham field will
                be NON_PM; otherwise, set form to match the statue */
             if (mon && mon->cham >= LOW_PM)
                 (void) newcham(mon, mptr, FALSE, FALSE);
         } else
             mon = makemon(mptr, x, y, (cause == ANIMATE_SPELL)
-                                          ? (NO_MINVENT | MM_ADJACENTOK)
-                                          : NO_MINVENT);
+                                          ? (NO_MINVENT | MM_ADJACENTOK
+                                             | MM_NOSTEED)
+                                          : (NO_MINVENT | MM_NOSTEED));
     }
 
     if (!mon) {

@@ -5491,4 +5491,5 @@ The following changes to date are:
 - Fix: prevent monsters from changing gear while reading a spellbook
 - Fix: prevent revived or animated monsters from keeping a steed link
 - Allow players to recover post-crash emergency saves
+- Fix: prevent animated statues from spawning a fresh steed
 
