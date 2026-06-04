@@ -977,6 +977,15 @@ boolean adjacentok; /* False: at obj's spot only, True: nearby is allowed */
         mtmp2->mavenge = 0;
         mtmp2->meating = 0;
         mtmp2->mleashed = 0;
+        /* never inherit a steed relationship from stored traits; a
+           pre-fix corpse/statue may still hold one, and the erid's
+           mon_steed pointer is meaningless here, so raw-free it (NOT
+           free_erid, which would dereference that stale pointer) */
+        mtmp2->ridden_by = 0;
+        if (mtmp2->mextra && ERID(mtmp2)) {
+            free((genericptr_t) ERID(mtmp2));
+            ERID(mtmp2) = (struct erid *) 0;
+        }
         mtmp2->mtrapped = 0;
         mtmp2->msleeping = 0;
         mtmp2->mfrozen = 0;

@@ -5489,4 +5489,5 @@ The following changes to date are:
 - Add a dmonsfree detector for monsters freed without m_detach
 - Monster re-wield a better weapon gained outside of combat
 - Fix: prevent monsters from changing gear while reading a spellbook
+- Fix: prevent revived or animated monsters from keeping a steed link
 

@@ -944,9 +944,19 @@ boolean ghostly;
                 if (mtmp->m_id == ERID(mon)->mid)
                     break;
             }
-            if (!mtmp)
-                panic("Cannot find monster steed.");
-            ERID(mon)->mon_steed = mtmp;
+            if (!mtmp) {
+                unsigned int mig_steed_id = ERID(mon)->mid;
+
+                /* can't use free_erid since pointer from savefile is stale */
+                free((genericptr_t) ERID(mon));
+                ERID(mon) = (struct erid *) 0;
+                impossible(
+                    "migrating steed ID %d (ridden by %s [%s]) does not exist?",
+                    mig_steed_id, an(mon->data->mname),
+                    fmt_ptr((genericptr_t) mon));
+            } else {
+                ERID(mon)->mon_steed = mtmp;
+            }
         }
     }
 }
