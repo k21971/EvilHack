@@ -10,7 +10,7 @@
 extern boolean notonhead;
 extern struct obj *propellor;
 
-int FDECL(extra_pref, (struct monst *, struct obj *));
+int FDECL(extra_pref, (struct monst *, struct obj *, long));
 
 extern boolean FDECL(would_prefer_hwep, (struct monst *, struct obj *));
 extern boolean FDECL(would_prefer_rwep, (struct monst *, struct obj *));
@@ -86,14 +86,14 @@ struct obj *otmp;
             continue;
 
        	if (!best
-       	    || (armor_bonus(obj) + extra_pref(mtmp, obj)
-                > armor_bonus(best) + extra_pref(mtmp, best)))
+       	    || (armor_bonus(obj) + extra_pref(mtmp, obj, 0L)
+                > armor_bonus(best) + extra_pref(mtmp, best, 0L)))
        	    best = obj;
     }
 
     return ((best == (struct obj *) 0)
-            || (armor_bonus(otmp) + extra_pref(mtmp, otmp)
-                > armor_bonus(best) + extra_pref(mtmp, best)));
+            || (armor_bonus(otmp) + extra_pref(mtmp, otmp, 0L)
+                > armor_bonus(best) + extra_pref(mtmp, best, 0L)));
 }
 
 /*

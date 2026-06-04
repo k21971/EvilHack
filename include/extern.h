@@ -3342,7 +3342,7 @@ E int FDECL(find_mac, (struct monst *));
 E void FDECL(m_dowear, (struct monst *, BOOLEAN_P));
 E struct obj *FDECL(which_armor, (struct monst *, long));
 E void FDECL(mon_break_armor, (struct monst *, BOOLEAN_P));
-E int FDECL(extra_pref, (struct monst *, struct obj *));
+E int FDECL(extra_pref, (struct monst *, struct obj *, long));
 E void FDECL(bypass_obj, (struct obj *));
 E void NDECL(clear_bypasses);
 E void FDECL(bypass_objlist, (struct obj *, BOOLEAN_P));

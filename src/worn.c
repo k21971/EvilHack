@@ -1015,8 +1015,8 @@ boolean racialexception;
         }
         if (obj->owornmask)
             continue;
-        if (best && (armor_bonus(best) + extra_pref(mon, best)
-                     >= armor_bonus(obj) + extra_pref(mon, obj)))
+        if (best && (armor_bonus(best) + extra_pref(mon, best, flag)
+                     >= armor_bonus(obj) + extra_pref(mon, obj, flag)))
             continue;
         best = obj;
     }
@@ -1543,9 +1543,10 @@ boolean polyspot;
 /* bias a monster's preferences towards armor and
    accessories that have special benefits */
 int
-extra_pref(mon, obj)
+extra_pref(mon, obj, slot)
 struct monst *mon;
 struct obj *obj;
+long slot; /* ring slot being filled (W_RINGL/W_RINGR), or 0 */
 {
     struct obj *old;
     int rc = 1;
@@ -1583,16 +1584,16 @@ struct obj *obj;
         return 0;
 
     /* Find out whether the monster already has some resistance.
-       Temporarily strip any worn rings' extrinsics so the resists_*()
-       and defended() queries inside the switch see the prospective
-       "wearing this object instead" state; the matching restore at
-       the function tail re-applies them. Update_mon_intrinsics ring
-       branches must remain side-effect-free for this idiom to be
-       safe */
-    old = which_armor(mon, W_RINGL);
-    if (old)
-        update_mon_intrinsics(mon, old, FALSE, TRUE);
-    old = which_armor(mon, W_RINGR);
+       Temporarily strip only the ring in the slot being filled - the
+       one that would actually be replaced - so the resists_*() and
+       defended() queries inside the switch see the prospective
+       "wearing this object instead" state. Keeping the other hand's
+       ring on lets those queries notice a property the monster already
+       has from it, so a redundant duplicate ring is not over-valued.
+       The matching restore at the function tail re-applies it.
+       Update_mon_intrinsics ring branches must remain side-effect-free
+       for this idiom to be safe */
+    old = (slot & W_RING) ? which_armor(mon, slot) : (struct obj *) 0;
     if (old)
         update_mon_intrinsics(mon, old, FALSE, TRUE);
     /* This list should match the list in m_dowear_type. */
@@ -1689,10 +1690,6 @@ struct obj *obj;
             rc = 30;
         break;
     }
-    old = which_armor(mon, W_RINGL);
-    if (old)
-        update_mon_intrinsics(mon, old, TRUE, TRUE);
-    old = which_armor(mon, W_RINGR);
     if (old)
         update_mon_intrinsics(mon, old, TRUE, TRUE);
     return rc;
