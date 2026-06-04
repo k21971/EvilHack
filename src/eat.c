@@ -2051,7 +2051,8 @@ struct obj *otmp;
             return 3;
         } else if (mnum == PM_LIZARD /* lizards don't rot */
                    || (rotted <= 0L
-                       && (peek_at_iced_corpse_age(otmp) + 5) >= monstermoves)) {
+                       && (peek_at_iced_corpse_age(otmp)
+                           + blood_freshness(otmp)) >= monstermoves)) {
             char *buf = corpse_xname(otmp, (const char *) 0, CXN_PFX_THE);
 
             You("drain the blood from %s.", buf);
@@ -3355,8 +3356,8 @@ doeat()
         context.victual.piece = (struct obj *) 0; /* can't resume */
 
     if ((otmp == context.victual.piece) && otmp->odrained
-        && (peek_at_iced_corpse_age(otmp)
-            + context.victual.usedtime + 5) < monstermoves)
+        && (peek_at_iced_corpse_age(otmp) + context.victual.usedtime
+            + blood_freshness(otmp)) < monstermoves)
         context.victual.piece = (struct obj *) 0; /* can't resume */
 
     if (otmp == context.victual.piece) {

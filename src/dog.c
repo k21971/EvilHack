@@ -1292,7 +1292,8 @@ struct obj *obj;
                  && has_blood(&safe_mons(obj->corpsenm))
                  && (!obj->odrained
                      || obj->oeaten > (unsigned) drain_level(obj))
-                 && peek_at_iced_corpse_age(obj) + 5 >= monstermoves);
+                 && peek_at_iced_corpse_age(obj)
+                        + blood_freshness(obj) >= monstermoves);
 
             if (!blood_corpse)
                 return TABU;

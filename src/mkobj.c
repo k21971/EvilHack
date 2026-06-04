@@ -2366,6 +2366,20 @@ struct obj *otmp;
     return retval;
 }
 
+/*
+ * Number of turns a corpse's blood stays drinkable for a vampire after
+ * death (ice-adjusted age). Varies 8..15 per corpse, keyed to the
+ * object's o_id so the window is stable across repeated checks and
+ * identical for the player and a vampire pet -- it cannot be re-rolled
+ * by retrying the attempt.
+ */
+long
+blood_freshness(otmp)
+struct obj *otmp;
+{
+    return 8L + (long) (otmp->o_id % 8);
+}
+
 STATIC_OVL void
 obj_timer_checks(otmp, x, y, force)
 struct obj *otmp;

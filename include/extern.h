@@ -1543,6 +1543,7 @@ E void FDECL(add_to_buried, (struct obj *));
 E void FDECL(dealloc_obj, (struct obj *));
 E void FDECL(obj_ice_effects, (int, int, BOOLEAN_P));
 E long FDECL(peek_at_iced_corpse_age, (struct obj *));
+E long FDECL(blood_freshness, (struct obj *));
 E int FDECL(hornoplenty, (struct obj *, BOOLEAN_P, struct obj *));
 E void NDECL(obj_sanity_check);
 E struct obj *FDECL(obj_nexto, (struct obj *));
