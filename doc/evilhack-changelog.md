@@ -5496,4 +5496,5 @@ The following changes to date are:
 - Fix: prevent monsters from wearing a redundant second ring
 - Fix: extinguish a worn light source when stripped without unwearing
 - Fix: stop monsters re-wearing a worn ring when given a second one
+- Fix: identify magic chest on farlook under non-ASCII symsets
 

@@ -2787,8 +2787,13 @@ struct permonst **for_supplement;
             if (alt_i++ == 2)
                 i = 0; /* undo loop increment */
             x_str = defsyms[i].explanation;
-            if (i == S_magic_chest)
-                continue; /* don't mention it when asking what '(' is */
+            /* magic chest shares '(' with tools; skip it for the generic
+               symbol query, but name it when looking right at one and
+               nothing else explained the spot */
+            if (i == S_magic_chest
+                && !(looked && !found
+                     && glyph == cmap_to_glyph(S_magic_chest)))
+                continue;
             if (submerged && !strcmp(x_str, defsyms[0].explanation))
                 x_str = "land"; /* replace "dark part of a room" */
             /* alt_i is now 3 or more and no longer of interest */
