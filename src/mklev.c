@@ -1102,13 +1102,13 @@ makelevel()
         }
 
         /* honey badgers thematically follow beehives: roll per
-           non-beehive OROOM/RNDVAULT for a 4-in-5 spawn when this
-           level contains a beehive (level-wide ecology, not a
+           non-beehive OROOM/RNDVAULT for an even (1-in-2) spawn when
+           this level contains a beehive (level-wide ecology, not a
            per-room association). Fresh somexyspace gate so pos is
            always written before the occupied() read below */
         if (level.flags.has_beehive == 1
             && somexyspace(croom, &pos, 0)) {
-            if (!occupied(pos.x, pos.y) && rn2(5))
+            if (!occupied(pos.x, pos.y) && rn2(2))
                 (void) makemon(&mons[PM_HONEY_BADGER], pos.x, pos.y, NO_MM_FLAGS);
         }
 
