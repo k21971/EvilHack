@@ -3887,6 +3887,11 @@ struct obj **objp;
                 } else if (was_shield) {
                     mtmp->misc_worn_check &= ~W_ARMS;
                     update_mon_intrinsics(mtmp, otmp, FALSE, TRUE);
+                    /* a shield of light glows only while worn; extinguish
+                       it before clearing the worn mask that
+                       artifact_light() keys on */
+                    if (otmp->lamplit && artifact_light(otmp))
+                        end_burn(otmp, FALSE);
                     otmp->owornmask = 0;
                 }
 

@@ -2387,6 +2387,11 @@ post_stone:
                     mwepgone(mdef);
                 if (obj->owornmask & W_SWAPWEP)
                     mwep2gone(mdef);
+                /* extinguish a worn artifact light (shield of light,
+                   gold/shadow/chromatic dragon armor) before clearing the
+                   mask that artifact_light() depends on */
+                if (obj->lamplit && artifact_light(obj))
+                    end_burn(obj, FALSE);
                 obj->owornmask = 0L;
                 update_mon_intrinsics(mdef, obj, FALSE, FALSE);
                 /* give monster a chance to wear other equipment on its next

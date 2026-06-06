@@ -5494,4 +5494,5 @@ The following changes to date are:
 - Fix: prevent animated statues from spawning a fresh steed
 - Vary vampire blood freshness from a fixed 5 to 8-15 turns per corpse
 - Fix: prevent monsters from wearing a redundant second ring
+- Fix: extinguish a worn light source when stripped without unwearing
 
