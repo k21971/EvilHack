@@ -886,12 +886,31 @@ boolean creation;
     m_dowear_type(mon, W_ARMH, creation, FALSE);
     m_dowear_type(mon, W_ARMS, creation, FALSE);
 
-    /* Two ring per monster; ring takes up a "hand" slot */
-    if (!(mw && mon_bimanual(mon, mw) && mw->cursed && mw->otyp != CORPSE)
-	&& !cursed_glove)
-        m_dowear_type(mon, W_RINGL, creation, FALSE);
-    if (!(mw && mw->cursed && mw->otyp != CORPSE) && !cursed_glove)
-        m_dowear_type(mon, W_RINGR, creation, FALSE);
+    /* Two rings per monster; a ring takes up a "hand" slot */
+    {
+        boolean ringl_ok = !(mw && mon_bimanual(mon, mw) && mw->cursed
+                             && mw->otyp != CORPSE) && !cursed_glove;
+        boolean ringr_ok = !(mw && mw->cursed && mw->otyp != CORPSE)
+                             && !cursed_glove;
+        boolean wearl = (which_armor(mon, W_RINGL) != 0);
+        boolean wearr = (which_armor(mon, W_RINGR) != 0);
+
+        /* When one ring hand is already occupied and the other is free,
+           fill the empty hand first. Filling the occupied hand first
+           would make the monster swap a better ring into it and then
+           re-wear the displaced ring on the empty hand.
+           Empty-hand-first lets the occupied hand keep its ring unless
+           something is genuinely better */
+        if (ringl_ok && ringr_ok && wearl && !wearr) {
+            m_dowear_type(mon, W_RINGR, creation, FALSE);
+            m_dowear_type(mon, W_RINGL, creation, FALSE);
+        } else {
+            if (ringl_ok)
+                m_dowear_type(mon, W_RINGL, creation, FALSE);
+            if (ringr_ok)
+                m_dowear_type(mon, W_RINGR, creation, FALSE);
+        }
+    }
 
     m_dowear_type(mon, W_ARMG, creation, FALSE);
     if (!slithy(mon->data) && !racial_centaur(mon)
