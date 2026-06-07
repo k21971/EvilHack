@@ -904,6 +904,26 @@ untwoweapon()
     return;
 }
 
+/* Re-engage two-weapon combat after a thrown primary weapon returns to
+   hand. The off-hand object is already seated in W_SWAPWEP, so a plain
+   setuswapwep(uswapwep) would hit setworn()'s slot-occupied shortcut and
+   skip the W_SWAPWEP-gated set_artifact_intrinsic(), leaving off-hand
+   extrinsics (warning glow, ESP, searching, artifact abilities) dead until
+   the next two-weapon toggle. Reseat via a NULL bracket so the grant runs
+   with u.twoweap set, mirroring dotwoweapon(). Caller guarantees uswapwep
+   is non-NULL and u.twoweap was torn down by the throw */
+void
+retwoweapon()
+{
+    struct obj *tmp = uswapwep;
+
+    setuswapwep((struct obj *) 0);
+    u.twoweap = 1;
+    setuswapwep(tmp);
+    update_inventory();
+    return;
+}
+
 int
 chwepon(otmp, amount)
 struct obj *otmp;

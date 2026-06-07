@@ -3234,6 +3234,7 @@ E void NDECL(uwepgone);
 E void NDECL(uswapwepgone);
 E void NDECL(uqwepgone);
 E void NDECL(untwoweapon);
+E void NDECL(retwoweapon);
 E int FDECL(chwepon, (struct obj *, int));
 E int FDECL(welded, (struct obj *));
 E void FDECL(weldmsg, (struct obj *));

@@ -1489,11 +1489,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             setuwep(obj);
             /* uswapwep may have been destroyed since throw began;
                only restore twoweap mode if swap weapon still exists */
-            if (twoweap && uswapwep) {
-                u.twoweap = 1;
-                setuswapwep(uswapwep);
-                update_inventory();
-            }
+            if (twoweap && uswapwep)
+                retwoweapon();
             retouch_object(&obj, !uarmg, TRUE);
             /* retouch_object may NULL obj (e.g. hero changed state
                mid-flight and can no longer safely handle the artifact) */
@@ -1550,11 +1547,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                     setuqwep((struct obj *) 0);
                 setworn(obj, wep_mask);
                 /* only restore twoweap if swap weapon still exists */
-                if (twoweap && uswapwep) {
-                    u.twoweap = 1;
-                    setuswapwep(uswapwep);
-                    update_inventory();
-                }
+                if (twoweap && uswapwep)
+                    retwoweapon();
             }
             clear_thrownobj = TRUE;
             goto throwit_return;
@@ -1746,11 +1740,8 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                         setuqwep((struct obj *) 0);
                     setuwep(obj);
                     /* only restore twoweap if swap weapon still exists */
-                    if (twoweap && uswapwep) {
-                        u.twoweap = 1;
-                        setuswapwep(uswapwep);
-                        update_inventory();
-                    }
+                    if (twoweap && uswapwep)
+                        retwoweapon();
                     retouch_object(&obj, !uarmg, TRUE);
                     /* retouch_object may NULL obj */
                     if (obj) {
