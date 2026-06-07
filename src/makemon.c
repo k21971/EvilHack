@@ -3721,8 +3721,9 @@ long mmflags;
     } else if (mndx == PM_PESTILENCE) {
         mitem = POT_SICKNESS;
     } else if (mndx == PM_SKELETAL_DRAGON) {
-        /* each one's breath is fixed to whatever it breathed in life */
-        mtmp->mbreathtyp = (uchar) sd_random_breath();
+        /* each one's breath is fixed to whatever it breathed in life,
+           along with immunity to that element */
+        sd_assign_breath(mtmp);
     }
     if (mitem && allow_minvent)
         (void) mongets(mtmp, mitem);

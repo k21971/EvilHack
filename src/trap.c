@@ -6213,7 +6213,7 @@ boolean disarm;
                 (void) make_hallucinated(
                     (HHallucination & TIMEOUT) + (long) rn1(5, 16), FALSE, 0L);
             } else {
-                if (!(resists_stun(mon->data) || defended(mon, AD_STUN)
+                if (!(mon_resists_stun(mon) || defended(mon, AD_STUN)
                       || mon_wielding_artifact(mon, ART_TEMPEST)))
                     mon->mstun = 1;
                 mon->mconf = 1;

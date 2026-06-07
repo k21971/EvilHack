@@ -6992,6 +6992,12 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
     /* take on the new form... */
     set_mon_data(mtmp, mdat);
 
+    /* a skeletal dragon's breath is fixed per individual; assign it
+       (and its matching self-immunity) now so the resistance is in
+       place before it ever breathes */
+    if (mdat == &mons[PM_SKELETAL_DRAGON])
+        sd_assign_breath(mtmp);
+
     /* add a new random race if polymorphing into a racial monster */
     if (is_racialmon(mdat))
         apply_race(mtmp, m_randrace(mtmp->mnum));

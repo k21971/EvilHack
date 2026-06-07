@@ -1076,12 +1076,12 @@ int dx, dy, range;
         if (mon->movement < 0)
             mon->movement = 0;
         if (!rn2(5)
-            && !(resists_stun(mon->data) || defended(mon, AD_STUN)
+            && !(mon_resists_stun(mon) || defended(mon, AD_STUN)
                  || mon_wielding_artifact(mon, ART_TEMPEST)))
             mon->mstun = 1;
     } else {
         mon->movement = 0;
-        if (!(resists_stun(mon->data) || defended(mon, AD_STUN)
+        if (!(mon_resists_stun(mon) || defended(mon, AD_STUN)
               || mon_wielding_artifact(mon, ART_TEMPEST)))
             mon->mstun = 1;
     }

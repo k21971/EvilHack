@@ -5230,7 +5230,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         break;
         }
     case ZT_STUN:
-        if (resists_stun(mon->data) || defended(mon, AD_STUN)
+        if (mon_resists_stun(mon) || defended(mon, AD_STUN)
             || mon_tempest_wield) {
             sho_shieldeff = TRUE;
             break;

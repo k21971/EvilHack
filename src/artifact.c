@@ -2125,7 +2125,7 @@ char *hittee;              /* target's name: "you" or mon_nam(mdef) */
         if (youdefend) {
             make_stunned(((HStun & TIMEOUT) + 3L), FALSE);
         } else if (!DEADMONSTER(mdef)) {
-            if (!(resists_stun(mdef->data) || defended(mdef, AD_STUN)
+            if (!(mon_resists_stun(mdef) || defended(mdef, AD_STUN)
                   || mon_wielding_artifact(mdef, ART_TEMPEST)))
                 mdef->mstun = 1;
         }

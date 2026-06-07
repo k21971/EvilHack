@@ -2174,7 +2174,7 @@ int dieroll;
             if (obj && (obj == uarms) && is_shield(obj)) {
                 /* placing this here, because order of events */
                 if (!rn2(10) && P_SKILL(P_SHIELD) >= P_EXPERT
-                    && (!(resists_stun(mon->data) || defended(mon, AD_STUN)
+                    && (!(mon_resists_stun(mon) || defended(mon, AD_STUN)
                           || mon_wielding_artifact(mon, ART_TEMPEST)))) {
                     if (canspotmon(mon))
                         pline("%s %s from the force of your blow!",
@@ -3173,7 +3173,7 @@ int specialdmg; /* blessed and/or silver bonus against various things */
 
     switch (mattk->adtyp) {
     case AD_STUN:
-        if (resists_stun(mdef->data)
+        if (mon_resists_stun(mdef)
             || defended(mdef, AD_STUN) || mon_tempest_wield) {
             ; /* immune */
             break;

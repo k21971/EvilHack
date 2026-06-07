@@ -1408,7 +1408,7 @@ short learned_otyp; /* pre-selected learned spell, or 0 */
             if (resist(target, 0, 0, FALSE)) {
                 shieldeff(target->mx, target->my);
                 if (yours || canseemon(target)) {
-                    if (resists_stun(target->data) || defended(target, AD_STUN)
+                    if (mon_resists_stun(target) || defended(target, AD_STUN)
                         || mon_wielding_artifact(target, ART_TEMPEST))
                         pline("%s seems momentarily disoriented.", Monnam(target));
                 }

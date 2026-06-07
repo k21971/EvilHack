@@ -5151,7 +5151,7 @@ struct attack *mattk;
                 (void) split_mon(&youmonst, mtmp);
             break;
         case AD_STUN: /* Yellow mold */
-            if (resists_stun(mtmp->data)
+            if (mon_resists_stun(mtmp)
                 || defended(mtmp, AD_STUN) || mon_tempest_wield) {
                 ; /* immune */
                 break;

@@ -106,7 +106,7 @@ struct monst *mtmp;
             dmg *= 3;
         if (cansee(mx, my) && !Unaware)
             pline("KABOOM!!  The door was booby-trapped!");
-        if (!(resists_stun(mtmp->data) || defended(mtmp, AD_STUN)
+        if (!(mon_resists_stun(mtmp) || defended(mtmp, AD_STUN)
               || mon_wielding_artifact(mtmp, ART_TEMPEST)))
             mtmp->mstun = 1;
         explode(mx, my, ZT_FIRE, dmg, TRAPPED_DOOR, EXPL_FIERY);

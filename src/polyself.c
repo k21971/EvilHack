@@ -54,6 +54,15 @@ set_uasmon()
             u.uprops[PropIndx].intrinsic &= ~FROMFORM; \
     } while (0)
 
+    /* a skeletal dragon is immune to its own fixed breath element;
+       youmonst.mintrinsics is otherwise unused for the hero, so drive
+       the resists_*() macros below through it, cleared each form change
+       so the immunity can't leak past depolymorph */
+    youmonst.mintrinsics &= ~(MR_FIRE | MR_COLD | MR_SLEEP | MR_DISINT
+                              | MR_ELEC | MR_POISON | MR_ACID);
+    if (mdat == &mons[PM_SKELETAL_DRAGON])
+        youmonst.mintrinsics |= sd_breath_resist((int) youmonst.mbreathtyp);
+
     PROPSET(FIRE_RES, resists_fire(&youmonst));
     PROPSET(COLD_RES, resists_cold(&youmonst));
     PROPSET(SLEEP_RES, resists_sleep(&youmonst));
@@ -64,7 +73,7 @@ set_uasmon()
     PROPSET(STONE_RES, resists_ston(&youmonst));
     PROPSET(PSYCHIC_RES, resists_psychic(&youmonst));
     PROPSET(DRAIN_RES, resists_drain(racedat));
-    PROPSET(STUN_RES, resists_stun(racedat));
+    PROPSET(STUN_RES, mon_resists_stun(&youmonst));
 
     /* Vulnerablilties */
     PROPSET(VULN_FIRE, vulnerable_to(&youmonst, AD_FIRE));
@@ -984,6 +993,11 @@ int mntmp;
         int new_light;
 
         u.umonnum = mntmp;
+        /* a skeletal dragon's breath is fixed per individual; reroll it
+           for every new change, before set_uasmon() derives the form's
+           resistances (including immunity to that breath element) */
+        if (mntmp == PM_SKELETAL_DRAGON)
+            youmonst.mbreathtyp = (uchar) sd_random_breath();
         set_uasmon();
 
         new_light = emits_light(youmonst.data);
@@ -997,11 +1011,6 @@ int mntmp;
                                  monst_to_any(&youmonst));
         }
     }
-
-    /* a skeletal dragon's breath is fixed per individual; reroll it
-       for every new change */
-    if (mntmp == PM_SKELETAL_DRAGON)
-        youmonst.mbreathtyp = (uchar) sd_random_breath();
 
     /* New stats for monster, to last only as long as polymorphed.
      * Currently only strength gets changed.

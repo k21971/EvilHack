@@ -1533,7 +1533,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
     case AD_STUN:
         if (magr->mcan)
             break;
-        if (resists_stun(mdef->data)
+        if (mon_resists_stun(mdef)
             || defended(mdef, AD_STUN) || mon_tempest_wield) {
             ; /* immune */
             break;
@@ -1863,7 +1863,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         }
 
         if (!mdef->mstun) {
-            if (!(resists_stun(mdef->data)
+            if (!(mon_resists_stun(mdef)
                   || defended(mdef, AD_STUN) || mon_tempest_wield))
                 mdef->mstun = 1;
         }
@@ -3764,7 +3764,7 @@ struct obj *mwep;
             }
             break;
         case AD_STUN:
-            if (resists_stun(magr->data)
+            if (mon_resists_stun(magr)
                 || defended(magr, AD_STUN) || mon_tempest_wield) {
                 ; /* immune */
                 break;

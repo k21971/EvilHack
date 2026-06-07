@@ -1304,9 +1304,53 @@ sd_random_breath()
     return sd_breathtypes[rn2(SIZE(sd_breathtypes))];
 }
 
+/* the mresists bit that makes a skeletal dragon immune to its own
+   breath, the way a living dragon resists its element; 0 for breath
+   types with no resistance bit: magic missile and drain life are
+   already covered by its static AD_RBRE attack and undead status, and
+   stun has no bit (handled per instance by mon_resists_stun()) */
+long
+sd_breath_resist(adtyp)
+int adtyp;
+{
+    switch (adtyp) {
+    case AD_FIRE:
+        return MR_FIRE;
+    case AD_COLD:
+        return MR_COLD;
+    case AD_SLEE:
+        return MR_SLEEP;
+    case AD_DISN:
+        return MR_DISINT;
+    case AD_ELEC:
+        return MR_ELEC;
+    case AD_DRST:
+        return MR_POISON;
+    case AD_ACID:
+        return MR_ACID;
+    default:
+        return 0L;
+    }
+}
+
+/* fix a skeletal dragon's lifetime breath type (lazily assigned if
+   still unset, e.g. newcham-created, a clone, or an old save) and
+   grant the matching self-immunity. The hero's form resistances are
+   driven from set_uasmon() instead, so skip mintrinsics for youmonst;
+   its stun immunity is read live from mbreathtyp by mon_resists_stun */
+void
+sd_assign_breath(mtmp)
+struct monst *mtmp;
+{
+    if (mtmp->mbreathtyp < AD_MAGM || mtmp->mbreathtyp > AD_STUN
+        || mtmp->mbreathtyp == AD_WATR)
+        mtmp->mbreathtyp = (uchar) sd_random_breath();
+    if (mtmp != &youmonst)
+        mtmp->mintrinsics |= sd_breath_resist((int) mtmp->mbreathtyp);
+}
+
 /* effective breath damage type for a breather: a skeletal dragon uses
-   the fixed type chosen when it rose (lazily assigned if still unset,
-   e.g. newcham-created or an old save); AD_RBRE re-rolls every use
+   the fixed type chosen when it rose; AD_RBRE re-rolls every use
    (Chromatic Dragon); anything else is its static attack type */
 int
 breath_adtyp(mtmp, mattk)
@@ -1314,9 +1358,7 @@ struct monst *mtmp;
 struct attack *mattk;
 {
     if (mtmp->data == &mons[PM_SKELETAL_DRAGON]) {
-        if (mtmp->mbreathtyp < AD_MAGM || mtmp->mbreathtyp > AD_STUN
-            || mtmp->mbreathtyp == AD_WATR)
-            mtmp->mbreathtyp = (uchar) sd_random_breath();
+        sd_assign_breath(mtmp);
         return (int) mtmp->mbreathtyp;
     }
     /* if new breath types are added, change AD_STUN to max type */
@@ -1387,7 +1429,7 @@ struct attack  *mattk;
                               || defended(mtarg, AD_DRLI));
             break;
         case AD_STUN:
-            target_resists = (resists_stun(mtarg->data)
+            target_resists = (mon_resists_stun(mtarg)
                               || defended(mtarg, AD_STUN));
             break;
         default:

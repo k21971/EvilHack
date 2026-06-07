@@ -5500,4 +5500,5 @@ The following changes to date are:
 - Reduce honey badger spawn rate on beehive levels
 - Fix: drop a grabber's hold when it is moved out of the hero's reach
 - Fix: off-hand artifact extrinsics lost after a returning thrown weapon
+- Grant skeletal dragons immunity to their own breath element
 

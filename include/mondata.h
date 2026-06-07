@@ -75,6 +75,14 @@
     ((ptr) == &mons[PM_BABY_SHIMMERING_DRAGON] \
      || (ptr) == &mons[PM_SHIMMERING_DRAGON])
 
+/* like resists_stun() but also honors a skeletal dragon's fixed stun
+   breath; use at per-instance gates (resists_stun() stays for the
+   type-level farlook display) */
+#define mon_resists_stun(mon) \
+    (resists_stun((mon)->data) \
+     || ((mon)->data == &mons[PM_SKELETAL_DRAGON] \
+         && (mon)->mbreathtyp == AD_STUN))
+
 #define resists_slow(ptr) \
     ((ptr) == &mons[PM_BABY_BLUE_DRAGON] \
      || (ptr) == &mons[PM_BLUE_DRAGON])

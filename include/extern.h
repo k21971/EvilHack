@@ -1849,6 +1849,8 @@ E int FDECL(thrwmm, (struct monst *, struct monst *));
 E int FDECL(spitmm, (struct monst *, struct attack *, struct monst *));
 E int FDECL(breamm, (struct monst *, struct attack *, struct monst *));
 E int NDECL(sd_random_breath);
+E long FDECL(sd_breath_resist, (int));
+E void FDECL(sd_assign_breath, (struct monst *));
 E int FDECL(breath_adtyp, (struct monst *, struct attack *));
 E struct monst *FDECL(mfind_target, (struct monst *));
 E void FDECL(m_useupall, (struct monst *, struct obj *));
