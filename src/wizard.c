@@ -523,11 +523,15 @@ struct monst *mtmp;
             /* since we're not close enough, use short jumps to change that */
             stx = mtmp->mx + ((rn2(3) + 4) * dx);
             sty = mtmp->my + ((rn2(3) + 3) * dy);
-            if (isok(stx, sty)) {
-                mnearto(mtmp, stx, sty, TRUE);
-                if (DEADMONSTER(mtmp))
-                    return 2;
-            }
+            /* a fixed-length jump toward a hero at or near a map edge
+               can overshoot the boundary; clamp into bounds so the
+               monster keeps advancing instead of freezing (an off-map
+               coord would also index m_at() out of bounds in mnearto) */
+            stx = min(max(stx, 1), COLNO - 1);
+            sty = min(max(sty, 0), ROWNO - 1);
+            mnearto(mtmp, stx, sty, TRUE);
+            if (DEADMONSTER(mtmp))
+                return 2;
         }
         return 0;
     }
@@ -557,11 +561,16 @@ struct monst *mtmp;
                 /* since we're not close enough, use short jumps to change that */
                 stx = mtmp->mx + ((rn2(3) + 4) * dx);
                 sty = mtmp->my + ((rn2(3) + 3) * dy);
-                if (isok(stx, sty)) {
-                    mnearto(mtmp, stx, sty, TRUE);
-                    if (DEADMONSTER(mtmp))
-                        return 2;
-                }
+                /* a fixed-length jump toward a hero at or near a map
+                   edge can overshoot the boundary; clamp into bounds so
+                   the monster keeps advancing instead of freezing (an
+                   off-map coord would also index m_at() out of bounds
+                   in mnearto) */
+                stx = min(max(stx, 1), COLNO - 1);
+                sty = min(max(sty, 0), ROWNO - 1);
+                mnearto(mtmp, stx, sty, TRUE);
+                if (DEADMONSTER(mtmp))
+                    return 2;
             }
             return 0;
         }

@@ -5501,4 +5501,5 @@ The following changes to date are:
 - Fix: drop a grabber's hold when it is moved out of the hero's reach
 - Fix: off-hand artifact extrinsics lost after a returning thrown weapon
 - Grant skeletal dragons immunity to their own breath element
+- Fix: covetous monster freezes when hero stands at a map edge
 
