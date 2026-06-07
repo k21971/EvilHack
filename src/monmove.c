@@ -1159,6 +1159,13 @@ toofar:
                 newsym(mtmp->mx, mtmp->my);
             break;
         case 1: /* monster moved */
+            /* a non-swallowing grabber keeps its grip only while
+               adjacent; release before the early returns below so a
+               grabber that has wandered or been moved out of reach
+               can't leave the hero held by a now-distant monster */
+            if (mtmp == u.ustuck && !u.uswallow
+                && distu(mtmp->mx, mtmp->my) > 2)
+                unstuck(mtmp);
             /* Maybe it stepped on a trap and fell asleep... */
             if (mtmp->msleeping || !mtmp->mcanmove)
                 return 0;
@@ -1166,7 +1173,7 @@ toofar:
                our hero can't.  Is that fair? */
             if (!nearby && (ranged_attk(mtmp) || find_offensive(mtmp)))
                 break;
-            /* engulfer/grabber checks */
+            /* engulfer check; grabber release handled above */
             if (mtmp == u.ustuck) {
                 /* a monster that's digesting you can move at the
                  * same time -dlc
@@ -1180,9 +1187,6 @@ toofar:
                     (void) mattacku(mtmp);
                     return DEADMONSTER(mtmp) ? 1 : 0;
                 }
-                /* if confused grabber has wandered off, let go */
-                if (distu(mtmp->mx, mtmp->my) > 2)
-                    unstuck(mtmp);
             }
             return 0;
         case 2: /* monster died */

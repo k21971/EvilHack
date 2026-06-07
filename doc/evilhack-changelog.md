@@ -5498,4 +5498,5 @@ The following changes to date are:
 - Fix: stop monsters re-wearing a worn ring when given a second one
 - Fix: identify magic chest on farlook under non-ASCII symsets
 - Reduce honey badger spawn rate on beehive levels
+- Fix: drop a grabber's hold when it is moved out of the hero's reach
 

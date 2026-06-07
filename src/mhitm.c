@@ -399,6 +399,10 @@ boolean quietly;
     if (hides_under(magr->data))
         hideunder(magr);
     mdef->mundetected = 0;
+    /* a grabber shoved aside can no longer keep its grip on the hero */
+    if (mdef == u.ustuck && !u.uswallow
+        && distu(mdef->mx, mdef->my) > 2)
+        unstuck(mdef);
     if (vis && !quietly)
         pline("%s moves %s out of %s way!", Monnam(magr), mon_nam(mdef),
               is_rider(pa) ? "the" : mhis(magr));
