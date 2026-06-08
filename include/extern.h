@@ -1546,6 +1546,7 @@ E long FDECL(peek_at_iced_corpse_age, (struct obj *));
 E long FDECL(blood_freshness, (struct obj *));
 E int FDECL(hornoplenty, (struct obj *, BOOLEAN_P, struct obj *));
 E void NDECL(obj_sanity_check);
+E void FDECL(worn_slot_sanity, (const char *));
 E struct obj *FDECL(obj_nexto, (struct obj *));
 E struct obj *FDECL(obj_nexto_xy, (struct obj *, int, int, BOOLEAN_P));
 E struct obj *FDECL(obj_absorb, (struct obj **, struct obj **));

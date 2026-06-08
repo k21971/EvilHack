@@ -5502,4 +5502,5 @@ The following changes to date are:
 - Fix: off-hand artifact extrinsics lost after a returning thrown weapon
 - Grant skeletal dragons immunity to their own breath element
 - Fix: covetous monster freezes when hero stands at a map edge
+- Add worn-slot sanity check to catch stale equipment-slot pointers
 
