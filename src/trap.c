@@ -6657,9 +6657,14 @@ int dx, dy;   /* door location; ignored for tins */
         wake_nearto(dx, dy, 22 * lvl);
         break;
     case STATIC_SHOCK: {
-        struct obj *gloves = which_armor(&youmonst, W_ARMG);
-        boolean conduct = (gloves && is_metallic(gloves));
+        struct obj *gloves;
+        boolean conduct;
 
+        /* a doorknob trap only fires when the knob is handled by hand */
+        if (bodypart != FINGER)
+            break;
+        gloves = which_armor(&youmonst, W_ARMG);
+        conduct = (gloves && is_metallic(gloves));
         dmg = resist_reduce(rnd(lvl * 2), SHOCK_RES);
         if (conduct)
             dmg += dmg / 2; /* metal gauntlets conduct: worse */
@@ -6683,8 +6688,12 @@ int dx, dy;   /* door location; ignored for tins */
         exercise(A_STR, FALSE);
         break;
     case HOT_KNOB: {
-        struct obj *gloves = which_armor(&youmonst, W_ARMG);
+        struct obj *gloves;
 
+        /* a doorknob trap only fires when the knob is handled by hand */
+        if (bodypart != FINGER)
+            break;
+        gloves = which_armor(&youmonst, W_ARMG);
         dmg = resist_reduce(rnd(lvl), FIRE_RES);
         if (gloves)
             dmg /= 2;

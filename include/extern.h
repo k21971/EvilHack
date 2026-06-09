@@ -1739,7 +1739,7 @@ E boolean FDECL(is_fleshy, (const struct permonst *));
 /* ### monmove.c ### */
 
 E boolean FDECL(itsstuck, (struct monst *));
-E boolean FDECL(mb_trapped, (struct monst *));
+E boolean FDECL(mb_trapped, (struct monst *, BOOLEAN_P));
 E boolean FDECL(monhaskey, (struct monst *, BOOLEAN_P));
 E void FDECL(mon_regen, (struct monst *, BOOLEAN_P));
 E boolean FDECL(m_can_break_boulder, (struct monst *));

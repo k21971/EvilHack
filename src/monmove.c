@@ -22,8 +22,9 @@ STATIC_DCL boolean FDECL(mon_slowed_by_sewage, (struct monst *));
 
 /* True if mtmp died */
 boolean
-mb_trapped(mtmp)
+mb_trapped(mtmp, by_hand)
 struct monst *mtmp;
+boolean by_hand; /* TRUE if the monster worked the knob/lock by hand */
 {
     int mx = mtmp->mx, my = mtmp->my;
     int lvl = level_difficulty();
@@ -41,9 +42,14 @@ struct monst *mtmp;
         wake_nearto(mx, my, 22 * lvl);
         return FALSE;
     case STATIC_SHOCK: {
-        struct obj *gloves = which_armor(mtmp, W_ARMG);
-        boolean conduct = (gloves && is_metallic(gloves));
+        struct obj *gloves;
+        boolean conduct;
 
+        /* a doorknob trap only fires when the knob is handled by hand */
+        if (!by_hand)
+            return FALSE;
+        gloves = which_armor(mtmp, W_ARMG);
+        conduct = (gloves && is_metallic(gloves));
         /* monster elemental resistance fully negates (as in zap.c) */
         dmg = (resists_elec(mtmp) || defended(mtmp, AD_ELEC))
                   ? 0 : rnd(lvl * 2);
@@ -77,8 +83,12 @@ struct monst *mtmp;
            may be freed if it died, so compare addresses only */
         return (boolean) (m_at(mx, my) != mtmp);
     case HOT_KNOB: {
-        struct obj *gloves = which_armor(mtmp, W_ARMG);
+        struct obj *gloves;
 
+        /* a doorknob trap only fires when the knob is handled by hand */
+        if (!by_hand)
+            return FALSE;
+        gloves = which_armor(mtmp, W_ARMG);
         /* monster fire resistance fully negates (as in zap.c) */
         dmg = (resists_fire(mtmp) || defended(mtmp, AD_FIRE))
                   ? 0 : rnd(lvl);
@@ -2364,7 +2374,7 @@ found_altar:
 
                     UnblockDoor(here, mtmp, nuke ? D_NODOOR : D_ISOPEN);
                     if (btrapped) {
-                        if (mb_trapped(mtmp))
+                        if (mb_trapped(mtmp, TRUE))
                             return 2;
                     } else {
                         if (flags.verbose) {
@@ -2383,7 +2393,7 @@ found_altar:
 
                     UnblockDoor(here, mtmp, nuke ? D_NODOOR : D_ISOPEN);
                     if (btrapped) {
-                        if (mb_trapped(mtmp))
+                        if (mb_trapped(mtmp, TRUE))
                             return 2;
                     } else {
                         if (flags.verbose) {
@@ -2404,7 +2414,7 @@ found_altar:
                             : D_BROKEN);
                     UnblockDoor(here, mtmp, mask);
                     if (btrapped) {
-                        if (mb_trapped(mtmp))
+                        if (mb_trapped(mtmp, FALSE))
                             return 2;
                     } else {
                         if (flags.verbose) {

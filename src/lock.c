@@ -1385,7 +1385,7 @@ int x, y;
                         pline_The("door absorbs the force!");
                 } else {
                     if (MON_AT(x, y))
-                        (void) mb_trapped(m_at(x, y));
+                        (void) mb_trapped(m_at(x, y), FALSE);
                     else if (flags.verbose) {
                         if (cansee(x, y))
                             pline("KABOOM!!  You see a door explode.");
@@ -1454,7 +1454,7 @@ int x, y;
         if (door->doormask & D_TRAPPED) {
             /* the booby-trap goes off as the fleshy door comes apart */
             if (MON_AT(x, y))
-                (void) mb_trapped(m_at(x, y));
+                (void) mb_trapped(m_at(x, y), FALSE);
             else if (flags.verbose) {
                 if (cansee(x, y))
                     pline("KABOOM!!  You see a door explode.");

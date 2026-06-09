@@ -5503,4 +5503,5 @@ The following changes to date are:
 - Grant skeletal dragons immunity to their own breath element
 - Fix: covetous monster freezes when hero stands at a map edge
 - Add worn-slot sanity check to catch stale equipment-slot pointers
+- Fix: doorknob door traps no longer fire when the door is kicked
 

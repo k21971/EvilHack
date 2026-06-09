@@ -1446,7 +1446,7 @@ struct monst *mtmp;
         unblock_point(mtmp->mx, mtmp->my); /* vision */
         if (here->doormask & D_TRAPPED) {
             here->doormask = D_NODOOR;
-            if (mb_trapped(mtmp)) { /* mtmp is killed */
+            if (mb_trapped(mtmp, FALSE)) { /* mtmp is killed */
                 newsym(mtmp->mx, mtmp->my);
                 return TRUE;
             }
