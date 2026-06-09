@@ -5504,4 +5504,6 @@ The following changes to date are:
 - Fix: covetous monster freezes when hero stands at a map edge
 - Add worn-slot sanity check to catch stale equipment-slot pointers
 - Fix: doorknob door traps no longer fire when the door is kicked
+- Fix: shapeshifter becoming a natural enemy no longer charges alignment
+  abuse
 

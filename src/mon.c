@@ -7120,6 +7120,25 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
         place_worm_tail_randomly(mtmp, mtmp->mx, mtmp->my);
     }
 
+    /* a shapeshifter that takes on a form the hero innately grudges
+       (Knight vs cross-aligned dragon, aasimar vs demon, Infidel vs
+       lawful angel) must turn hostile the moment it transforms, just as
+       makemon() spawns such a monster hostile. Otherwise it lingers
+       peaceful until the per-turn bane-aura pass in moveloop() flips it
+       via setmangry(), charging the hero an alignment-abuse penalty for a
+       transformation the hero never caused. Only peaceful non-tame forms
+       incur that penalty, so only those are handled here; tame forms are
+       already flipped penalty-free by the moveloop pass */
+    if (mtmp->mpeaceful && !mtmp->mtame
+        && ((Role_if(PM_KNIGHT) && is_dragon(mdat)
+             && sgn(mon_aligntyp(mtmp)) != u.ualign.type)
+            || (Race_if(PM_AASIMAR) && is_demon(mdat))
+            || (Role_if(PM_INFIDEL) && is_angel(mdat)
+                && mon_aligntyp(mtmp) > 0))) {
+        mtmp->mpeaceful = 0;
+        set_malign(mtmp);
+    }
+
     newsym(mtmp->mx, mtmp->my);
 
     if (msg) {

@@ -3657,8 +3657,11 @@ long mmflags;
             mon_adjust_speed(mtmp, 2, (struct obj *) 0);
         break;
     case S_DRAGON:
-        /* Dragons are always generated awake and pissed for Knights. */
-        if (Role_if(PM_KNIGHT)) {
+        /* cross-aligned dragons bear a grudge against Knights and are
+           generated awake and hostile; same-aligned dragons follow the
+           normal rules and may even be tamed (see tamedog()) */
+        if (Role_if(PM_KNIGHT)
+            && sgn(mon_aligntyp(mtmp)) != u.ualign.type) {
             mtmp->mpeaceful = mtmp->mtame = FALSE;
             mtmp->msleeping = 0;
         }
