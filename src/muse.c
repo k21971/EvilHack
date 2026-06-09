@@ -4633,6 +4633,11 @@ boolean by_you;
                 MON_NOWEP(mon);
             if ((otmp->owornmask & W_SWAPWEP) && MON_WEP2(mon) == otmp)
                 MON_NOWEP2(mon);
+            /* extinguish a worn artifact light (shield of light,
+               gold/shadow/chromatic dragon armor) before clearing the
+               mask that artifact_light() depends on */
+            if (otmp->lamplit && artifact_light(otmp))
+                end_burn(otmp, FALSE);
             otmp->owornmask = 0L; /* obfree() expects this */
             (void) bhito(otmp, pseudo);
         }

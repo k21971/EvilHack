@@ -5506,4 +5506,6 @@ The following changes to date are:
 - Fix: doorknob door traps no longer fire when the door is kicked
 - Fix: shapeshifter becoming a natural enemy no longer charges alignment
   abuse
+- Fix: extinguish worn light sources missed by the earlier strip-site
+  fix
 

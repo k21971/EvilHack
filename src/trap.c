@@ -478,7 +478,11 @@ int x, y, typ;
             break; /* should never happen */
         while (mtmp->minvent) {
             otmp2 = mtmp->minvent;
-            otmp2->owornmask = 0;
+            /* extinguish a worn artifact light before clearing the
+               mask that artifact_light() depends on */
+            if (otmp2->lamplit && artifact_light(otmp2))
+                end_burn(otmp2, FALSE);
+            otmp2->owornmask = 0L;
             obj_extract_self(otmp2);
             (void) add_to_container(statue, otmp2);
         }

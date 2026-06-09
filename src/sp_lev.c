@@ -2160,7 +2160,11 @@ struct mkroom *croom;
             set_corpsenm(otmp, wastyp);
             while (was->minvent) {
                 obj = was->minvent;
-                obj->owornmask = 0;
+                /* extinguish a worn artifact light before clearing the
+                   mask that artifact_light() depends on */
+                if (obj->lamplit && artifact_light(obj))
+                    end_burn(obj, FALSE);
+                obj->owornmask = 0L;
                 obj_extract_self(obj);
                 (void) add_to_container(otmp, obj);
             }
