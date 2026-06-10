@@ -426,6 +426,11 @@ int x, y;
     else
         Strcat(buf, ", in light");
 
+    /* fleeing state is read from the monster's posture, so the
+       hero must actually see it, not just sense it */
+    if (mtmp->mflee && canseemon(mtmp))
+        Strcat(buf, ", scared");
+
     /* we know the hero sees a monster at this location, but if it's shown
        due to persistant monster detection he might remember something else */
     if (mtmp->mundetected || M_AP_TYPE(mtmp))
