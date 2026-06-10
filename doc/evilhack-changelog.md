@@ -5509,4 +5509,5 @@ The following changes to date are:
 - Fix: extinguish worn light sources missed by the earlier strip-site
   fix
 - Show fleeing state in farlook monster descriptions
+- Fix: show known magic chest lock state on farlook
 

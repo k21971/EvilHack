@@ -2842,7 +2842,8 @@ struct permonst **for_supplement;
                     hit_trap = TRUE;
             }
 
-            if (i == S_altar || is_cmap_trap(i)
+            /* magic chest: lookat() reports its lock state via doname */
+            if (i == S_altar || is_cmap_trap(i) || i == S_magic_chest
                 || (looked && is_cmap_door(i)
                     && door_material(&levl[cc.x][cc.y]) != WOOD))
                 need_to_look = TRUE;
