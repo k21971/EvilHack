@@ -5513,4 +5513,5 @@ The following changes to date are:
 - Fix: pet/peaceful highlighting gaps in HTML dumplogs
 - Show specific details in alignment abuse event history
 - Name the Infidel good-deed abuse event for its actual cause
+- Fix: getpos area filter could look outside the map
 
