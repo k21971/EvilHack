@@ -2102,7 +2102,7 @@ int atype;
     case ABUSE_FORBIDDEN_WEAPON:
         return "using a forbidden weapon";
     case ABUSE_INFIDEL_GOOD:
-        return "doing good deeds";
+        return "releasing the Ice Queen from her curse";
     case ABUSE_WRONG_ALTAR:
         return "praying at wrong altar";
     case ABUSE_ALIGNMENT_HELM:
