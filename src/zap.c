@@ -6729,7 +6729,9 @@ struct obj *obj;
     if (by_you && Role_if(PM_ARCHEOLOGIST) && (obj->spe & STATUE_HISTORIC)) {
         You_feel("guilty about damaging such a historic statue.");
         adjalign(-1);
-        record_abuse_event(-1, ABUSE_HISTORIC_STATUE);
+        record_abuse_event_dtl(-1, ABUSE_HISTORIC_STATUE,
+                               (obj->corpsenm >= LOW_PM)
+                                   ? obj->corpsenm + 1 : 0, 0);
     }
     obj->spe = 0;
     fracture_rock(obj);

@@ -74,8 +74,17 @@ enum abuse_type {
     /* Atonement (not abuse, but tracked in same history) */
     ABUSE_ATONEMENT,            /* atoned for past abuse via temple donation */
     /* Apostasy */
-    ABUSE_FORSAKE_DEITY         /* aasimar forsaking their deity at an altar */
+    ABUSE_FORSAKE_DEITY,        /* aasimar forsaking their deity at an altar */
+    /* Anger (cont.) */
+    ABUSE_ANGER_PRIEST,         /* angering a coaligned priest */
+    /* Dishonorable weapons (cont.) */
+    ABUSE_USE_TAINTED           /* tainted (drow poison) weapon */
 };
+
+/* abuse_event detail2 codes for ABUSE_STEED_DEATH */
+#define ABUSE_HAZ_WATER 1
+#define ABUSE_HAZ_LAVA 2
+#define ABUSE_HAZ_FALL 3
 
 typedef struct align { /* alignment & record */
     aligntyp type;

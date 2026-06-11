@@ -5511,4 +5511,5 @@ The following changes to date are:
 - Show fleeing state in farlook monster descriptions
 - Fix: show known magic chest lock state on farlook
 - Fix: pet/peaceful highlighting gaps in HTML dumplogs
+- Show specific details in alignment abuse event history
 

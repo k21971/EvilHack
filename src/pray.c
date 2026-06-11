@@ -1276,7 +1276,8 @@ aligntyp g_align;
     if (on_altar() && p_aligntyp != u.ualign.type) {
         You_feel("guilty.");
         adjalign(-1);
-        record_abuse_event(-1, ABUSE_WRONG_ALTAR);
+        record_abuse_event_dtl(-1, ABUSE_WRONG_ALTAR,
+                               Align2amask(p_aligntyp) + 1, 0);
         return;
     } else if (u.ualign.record < 2 && trouble <= 0)
         adjalign(1);
@@ -2154,7 +2155,11 @@ dosacrifice()
                  * not a real monster */
             pline("So this is how you repay loyalty?");
             adjalign(-3);
-            record_abuse_event(-3, ABUSE_SAC_PET);
+            /* mtmp here is only a copy of the pet's attributes, so
+               take the species from the corpse itself */
+            record_abuse_event_dtl(-3, ABUSE_SAC_PET,
+                                   (otmp->corpsenm >= LOW_PM)
+                                       ? otmp->corpsenm + 1 : 0, 0);
             value = -1;
             HAggravate_monster |= FROMOUTSIDE;
         } else if (is_unicorn(ptr) && value /* fresh */) {

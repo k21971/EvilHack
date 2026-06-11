@@ -5366,7 +5366,8 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                     You("have a vague sense of guilt.");
                 scenario_penalty = -(int) (ALIGNLIM / 8);
                 adjalign(scenario_penalty);
-                record_abuse_event(scenario_penalty, ABUSE_KILL_GUARDIAN);
+                record_abuse_event_mon(scenario_penalty, ABUSE_KILL_GUARDIAN,
+                                       mtmp);
             }
             if (u.ualign.type == A_NONE)
                 ; /* Moloch's indifference */
@@ -5383,7 +5384,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
             scenario_penalty = -2;
         adjalign((p_coaligned(mtmp)) ? -2 : 2);
         if (p_coaligned(mtmp))
-            record_abuse_event(-2, ABUSE_KILL_PRIEST);
+            record_abuse_event_mon(-2, ABUSE_KILL_PRIEST, mtmp);
         /* cancel divine protection for killing your priest */
         if (p_coaligned(mtmp))
             u.ublessed = 0;
@@ -5401,7 +5402,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                 You("have a vague sense of remorse.");
             scenario_penalty = -3;
             adjalign(-3); /* kinda bad, but it's how you roll */
-            record_abuse_event(-3, ABUSE_KILL_PET);
+            record_abuse_event_mon(-3, ABUSE_KILL_PET, mtmp);
         } else {
             if (canspotmon(mtmp))
                 You_feel("very guilty.");
@@ -5409,7 +5410,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                 You("have a vague sense of intense guilt.");
             scenario_penalty = -15;
             adjalign(-15); /* bad!! */
-            record_abuse_event(-15, ABUSE_KILL_PET);
+            record_abuse_event_mon(-15, ABUSE_KILL_PET, mtmp);
         }
         /* your god is mighty displeased... */
         if (!Deaf) {
@@ -5447,8 +5448,10 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
             }
             scenario_penalty = u.ualign.type > A_CHAOTIC ? -5 : -1;
             adjalign(scenario_penalty);
-            record_abuse_event(scenario_penalty,
-                               ABUSE_KILL_PEACEFUL);
+            record_abuse_event_mon(scenario_penalty,
+                                   uni_same ? ABUSE_KILL_UNICORN
+                                            : ABUSE_KILL_PEACEFUL,
+                                   mtmp);
         }
     }
 
@@ -5469,7 +5472,7 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
         }
         adjalign(mal);
         if (mal < 0)
-            record_abuse_event(mal, ABUSE_KILL_PEACEFUL_MALIGN);
+            record_abuse_event_mon(mal, ABUSE_KILL_PEACEFUL_MALIGN, mtmp);
     }
 
     if (mtmp->former_rank.mnum != NON_PM) {
@@ -5979,7 +5982,7 @@ boolean via_attack;
 
             You_feel("like a hypocrite.");
             adjalign(pen);
-            record_abuse_event(pen, ABUSE_ATTACK_ELBERETH);
+            record_abuse_event_mon(pen, ABUSE_ATTACK_ELBERETH, mtmp);
         } else
             You_feel("clever."); /* no alignment penalty */
 
@@ -6042,7 +6045,7 @@ boolean via_attack;
                     else
                         You("have a vague sense of guilt.");
                     adjalign(-5); /* very bad */
-                    record_abuse_event(-5, ABUSE_KILL_PRIEST);
+                    record_abuse_event_mon(-5, ABUSE_ANGER_PRIEST, mtmp);
                 } else {
                     adjalign(2);
                 }
@@ -6058,9 +6061,10 @@ boolean via_attack;
                     /* attacking or merely angering peaceful monsters
                        is bad; distinguish the two for the record */
                     adjalign(pen);
-                    record_abuse_event(pen, via_attack
-                                                ? ABUSE_ATTACK_PEACEFUL
-                                                : ABUSE_ANGER_PEACEFUL);
+                    record_abuse_event_mon(pen, via_attack
+                                                    ? ABUSE_ATTACK_PEACEFUL
+                                                    : ABUSE_ANGER_PEACEFUL,
+                                           mtmp);
                 }
             }
         }
@@ -6154,7 +6158,9 @@ boolean via_attack;
                                     else
                                         You("have a vague sense of guilt.");
                                     adjalign(-1);
-                                    record_abuse_event(-1, ABUSE_ANGER_PEACEFUL);
+                                    record_abuse_event_mon(-1,
+                                                           ABUSE_ANGER_PEACEFUL,
+                                                           mon);
                                 }
                                 if (!exclaimed)
                                     pline("%s gets angry!", Monnam(mon));

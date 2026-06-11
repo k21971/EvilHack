@@ -1976,6 +1976,20 @@ record_abuse_event(penalty, atype)
 int penalty;
 int atype;
 {
+    record_abuse_event_dtl(penalty, atype, 0, 0);
+}
+
+/* Core abuse event recorder. The detail fields carry optional
+   context such as a monster or object index (interpreted per event
+   type by abuse_event_desc) and are always stored so that reused
+   ring buffer slots never keep stale details */
+void
+record_abuse_event_dtl(penalty, atype, detail1, detail2)
+int penalty;
+int atype;
+int detail1;
+int detail2;
+{
     struct abuse_event *evt;
 
     /* Only record actual penalties, or atonement */
@@ -1989,7 +2003,30 @@ int atype;
         evt->penalty = (short) penalty; /* store as-is for atonement */
     else
         evt->penalty = (short) (-penalty); /* store as positive for display */
+    evt->detail1 = (short) detail1;
+    evt->detail2 = (short) detail2;
     u.uabuse_hist_idx = (u.uabuse_hist_idx + 1) % MAX_ABUSE_HISTORY;
+}
+
+/* Record an abuse event involving a particular monster. The species
+   is stored only if the hero can spot the monster, mirroring the
+   "You feel guilty" versus "vague sense of guilt" message gating */
+void
+record_abuse_event_mon(penalty, atype, mtmp)
+int penalty;
+int atype;
+struct monst *mtmp;
+{
+    int detail1 = 0, detail2 = 0;
+
+    if (mtmp && canspotmon(mtmp)) {
+        detail1 = monsndx(mtmp->data) + 1;
+        if ((atype == ABUSE_KILL_PRIEST || atype == ABUSE_ANGER_PRIEST)
+            && mtmp->ispriest && has_epri(mtmp))
+            detail2 = (Align2amask(EPRI(mtmp)->shralign) + 1)
+                      | (mtmp->female ? 8 : 0);
+    }
+    record_abuse_event_dtl(penalty, atype, detail1, detail2);
 }
 
 /* Get human-readable name for abuse type */
@@ -2047,7 +2084,7 @@ int atype;
     case ABUSE_GLUTTONY:
         return "gluttony";
     case ABUSE_CANNIBALISM:
-        return "cannibalism";
+        return "drinking vampire blood";
     case ABUSE_GENOCIDE_HUMAN:
         return "genociding humans";
     case ABUSE_QUEST_BETRAYAL:
@@ -2090,9 +2127,132 @@ int atype;
         return "atonement";
     case ABUSE_FORSAKE_DEITY:
         return "forsaking your deity";
+    case ABUSE_ANGER_PRIEST:
+        return "angering a coaligned priest";
+    case ABUSE_USE_TAINTED:
+        return "using a tainted weapon";
     default:
         return "transgression";
     }
+}
+
+/* Compose the most specific available description of an abuse event
+   into buf, which must hold at least BUFSZ characters. Falls back to
+   the generic abuse_type_name() text when no valid detail was
+   recorded, which is always the case for entries from older saves */
+void
+abuse_event_desc(evt, buf)
+struct abuse_event *evt;
+char *buf;
+{
+    int atype = (int) evt->abuse_type;
+    int d1 = (int) evt->detail1;
+    int d2 = (int) evt->detail2;
+    const char *generic = abuse_type_name(atype);
+    const char *fmt = (const char *) 0;
+    boolean parens = FALSE;
+    struct permonst *ptr;
+
+    Strcpy(buf, generic);
+
+    switch (atype) {
+    case ABUSE_ATTACK_HELPLESS:
+        fmt = "attacking a helpless %s";
+        break;
+    case ABUSE_ATTACK_PEACEFUL:
+        fmt = "attacking a peaceful %s";
+        break;
+    case ABUSE_ANGER_PEACEFUL:
+        fmt = "angering a peaceful %s";
+        break;
+    case ABUSE_ATTACK_WOODLAND:
+        fmt = "attacking a woodland %s";
+        break;
+    case ABUSE_KILL_PEACEFUL:
+        fmt = "killing a peaceful %s";
+        break;
+    case ABUSE_KILL_PEACEFUL_MALIGN:
+        fmt = "add'l penalty, killing a peaceful %s";
+        break;
+    case ABUSE_KILL_PET:
+        fmt = "murdering your pet %s";
+        break;
+    case ABUSE_KILL_UNICORN:
+        fmt = "killing a same-aligned %s";
+        break;
+    case ABUSE_SPELL_PEACEFUL:
+        fmt = "hostile spell on a peaceful %s";
+        break;
+    case ABUSE_SAC_PET:
+        fmt = "sacrificing your pet %s";
+        break;
+    case ABUSE_PET_PUSH:
+        fmt = "pushing your pet %s into hazard";
+        break;
+    case ABUSE_ATTACK_ELBERETH:
+    case ABUSE_KILL_GUARDIAN:
+    case ABUSE_HISTORIC_STATUE:
+        parens = TRUE;
+        break;
+    case ABUSE_STEED_DEATH:
+        if (d1 > 0 && d1 <= NUMMONS) {
+            const char *mname = mons[d1 - 1].mname;
+
+            if (d2 == ABUSE_HAZ_WATER)
+                Sprintf(buf, "your %s drowning", mname);
+            else if (d2 == ABUSE_HAZ_LAVA)
+                Sprintf(buf, "your %s dying in lava", mname);
+            else if (d2 == ABUSE_HAZ_FALL)
+                Sprintf(buf, "your %s falling to its death", mname);
+            else
+                Sprintf(buf, "your %s dying from hazard", mname);
+        }
+        return;
+    case ABUSE_KILL_PRIEST:
+    case ABUSE_ANGER_PRIEST:
+        if ((d2 & 7) >= 1 && (d2 & 7) <= 5) {
+            const char *gname = align_gname(Amask2align((d2 & 7) - 1));
+            const char *job = (d1 - 1 == PM_HIGH_PRIEST)
+                                  ? ((d2 & 8) ? "high priestess"
+                                              : "high priest")
+                                  : ((d2 & 8) ? "priestess" : "priest");
+
+            Sprintf(buf, "%s a %s of %s",
+                    (atype == ABUSE_KILL_PRIEST) ? "killing" : "angering",
+                    job, gname);
+        }
+        return;
+    case ABUSE_GENOCIDE_HUMAN:
+        if (d1 > 0 && d1 <= NUMMONS)
+            Sprintf(buf, "genociding %s", makeplural(mons[d1 - 1].mname));
+        return;
+    case ABUSE_FORBIDDEN_WEAPON:
+    case ABUSE_USE_POISON:
+    case ABUSE_USE_TAINTED:
+        if (d1 > 0 && d1 <= NUM_OBJECTS)
+            Sprintf(buf, "%s (%s)", generic, simple_typename(d1 - 1));
+        return;
+    case ABUSE_WRONG_ALTAR:
+        if (d1 >= 1 && d1 <= 5)
+            Sprintf(buf, "%s (%s)", generic,
+                    align_gname(Amask2align(d1 - 1)));
+        return;
+    default:
+        return;
+    }
+
+    /* the remaining cases carry a monster species index in detail1 */
+    if (d1 < 1 || d1 > NUMMONS)
+        return;
+    ptr = &mons[d1 - 1];
+    if (type_is_pname(ptr))
+        Sprintf(buf, "%s (%s)", generic, ptr->mname);
+    else if (the_unique_pm(ptr))
+        Sprintf(buf, "%s (the %s)", generic, ptr->mname);
+    else if (parens)
+        Sprintf(buf, "%s (%s)", generic, ptr->mname);
+    else if (fmt)
+        Sprintf(buf, fmt, ptr->mname);
 }
 
 /* change hero's alignment type, possibly losing use of artifacts */

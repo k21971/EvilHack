@@ -4099,7 +4099,8 @@ struct obj *obj;
                                         if (u.ualign.type != A_NONE) {
                                             You_feel("distraught.");
                                             adjalign(-3);
-                                            record_abuse_event(-3, ABUSE_SPELL_PEACEFUL);
+                                            record_abuse_event_mon(-3, ABUSE_SPELL_PEACEFUL,
+                                                                   mtmp);
                                         }
                                     }
                                 }
@@ -4129,7 +4130,8 @@ struct obj *obj;
                                         if (u.ualign.type != A_NONE) {
                                             You_feel("distraught.");
                                             adjalign(-3);
-                                            record_abuse_event(-3, ABUSE_SPELL_PEACEFUL);
+                                            record_abuse_event_mon(-3, ABUSE_SPELL_PEACEFUL,
+                                                                   mtmp);
                                         }
                                     }
                                     break;
@@ -4154,7 +4156,8 @@ struct obj *obj;
                                         if (u.ualign.type != A_NONE) {
                                             You_feel("distraught.");
                                             adjalign(-3);
-                                            record_abuse_event(-3, ABUSE_SPELL_PEACEFUL);
+                                            record_abuse_event_mon(-3, ABUSE_SPELL_PEACEFUL,
+                                                                   mtmp);
                                         }
                                     }
                                 }

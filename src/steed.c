@@ -1405,7 +1405,9 @@ int reason; /* Player was thrown off etc. */
                             monkilled(mtmp, "", -AD_PHYS);
                         You_feel("guilty.");
                         adjalign(-1);
-                        record_abuse_event(-1, ABUSE_STEED_DEATH);
+                        record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
+                                               monsndx(mdat) + 1,
+                                               ABUSE_HAZ_WATER);
                     } else if (!Underwater) {
                         pline("%s splashes into the %s.", Monnam(mtmp),
                               surface(u.ux, u.uy));
@@ -1420,7 +1422,9 @@ int reason; /* Player was thrown off etc. */
                             monkilled(mtmp, "", -AD_PHYS);
                         You_feel("guilty.");
                         adjalign(-1);
-                        record_abuse_event(-1, ABUSE_STEED_DEATH);
+                        record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
+                                               monsndx(mdat) + 1,
+                                               ABUSE_HAZ_LAVA);
                     }
                 } else if (is_open_air(u.ux, u.uy)) {
                     pline("%s plummets several thousand feet to %s death.",
@@ -1429,7 +1433,9 @@ int reason; /* Player was thrown off etc. */
                     mongone(mtmp);
                     You_feel("guilty.");
                     adjalign(-1);
-                    record_abuse_event(-1, ABUSE_STEED_DEATH);
+                    record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
+                                           monsndx(mdat) + 1,
+                                           ABUSE_HAZ_FALL);
                 }
             }
             /* Steed dismounting consists of two steps: being moved to another
@@ -1474,11 +1480,14 @@ int reason; /* Player was thrown off etc. */
         } else {
 #if 1       /* original there's-no-room handling */
             if (reason == DISMOUNT_BYCHOICE) {
+                int steed_mndx = monsndx(mtmp->data);
+
                 /* [un]#ride: hero gets credit/blame for killing steed */
                 killed(mtmp);
                 You_feel("guilty.");
                 adjalign(-1);
-                record_abuse_event(-1, ABUSE_STEED_DEATH);
+                record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
+                                       steed_mndx + 1, 0);
             } else {
                 /* other dismount: kill former steed with no penalty;
                    damage type is just "neither AD_DGST nor -AD_RBRE" */

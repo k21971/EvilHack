@@ -19,6 +19,8 @@ struct abuse_event {
     long turn;          /* monstermoves when event occurred */
     short abuse_type;   /* enum abuse_type value */
     short penalty;      /* alignment penalty (stored as positive) */
+    short detail1;      /* monster/object/species index + 1 */
+    short detail2;      /* secondary detail (deity+gender, hazard) */
 };
 
 /*** Substructures ***/

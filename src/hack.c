@@ -2320,6 +2320,7 @@ domove_core()
             didnt_move = TRUE;
         } else {
             char pnambuf[BUFSZ];
+            int pushed_mndx;
 
             /* save its current description in case of polymorph */
             Strcpy(pnambuf, y_monnam(mtmp));
@@ -2338,6 +2339,10 @@ domove_core()
                     : mtmp->mpeaceful ? "swap places with" : "frighten",
                 pnambuf);
 
+            /* snapshot the species index up front; the drowned-or-died
+               case below records the abuse event after the pet is dead */
+            pushed_mndx = monsndx(mtmp->data);
+
             /* check for displacing it into pools and traps */
             switch (minliquid(mtmp) ? 2 : mintrap(mtmp)) {
             case 0:
@@ -2348,7 +2353,8 @@ domove_core()
                 abuse_dog(mtmp);
                 You_feel("guilty.");
                 adjalign(-3);
-                record_abuse_event(-3, ABUSE_PET_PUSH);
+                record_abuse_event_dtl(-3, ABUSE_PET_PUSH,
+                                       pushed_mndx + 1, 0);
                 break;
             case 2:
                 /* drowned or died...
@@ -2379,10 +2385,12 @@ domove_core()
                     u.ugangr++;
                     if (u.ualign.type == A_NONE) {
                         adjalign(-3);
-                        record_abuse_event(-3, ABUSE_PET_PUSH);
+                        record_abuse_event_dtl(-3, ABUSE_PET_PUSH,
+                                               pushed_mndx + 1, 0);
                     } else {
                         adjalign(-15);
-                        record_abuse_event(-15, ABUSE_PET_PUSH);
+                        record_abuse_event_dtl(-15, ABUSE_PET_PUSH,
+                                               pushed_mndx + 1, 0);
                     }
                 }
                 break;

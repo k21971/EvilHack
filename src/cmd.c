@@ -4356,7 +4356,7 @@ int final;
 
     /* Display last alignment abuse events */
     if (u.ever_abused) {
-        char buf[BUFSZ];
+        char buf[BUFSZ], dbuf[BUFSZ];
         int i, count = 0, start;
         struct abuse_event *evt;
 
@@ -4376,16 +4376,13 @@ int final;
 
                 evt = &u.uabuse_history[idx];
                 if (evt->turn > 0) {
+                    abuse_event_desc(evt, dbuf);
                     if (evt->abuse_type == ABUSE_ATONEMENT)
                         Sprintf(buf, " Turn %ld: %s (+%d)",
-                                evt->turn,
-                                abuse_type_name(evt->abuse_type),
-                                evt->penalty);
+                                evt->turn, dbuf, evt->penalty);
                     else
                         Sprintf(buf, " Turn %ld: %s (-%d)",
-                                evt->turn,
-                                abuse_type_name(evt->abuse_type),
-                                evt->penalty);
+                                evt->turn, dbuf, evt->penalty);
                     putstr(en_win, 0, buf);
                 }
             }

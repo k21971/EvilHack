@@ -3198,7 +3198,8 @@ int how;
                 if (u.ualign.type == A_LAWFUL)
                     You_feel("guilty.");
                 adjalign(-sgn(u.ualign.type));
-                record_abuse_event(-sgn(u.ualign.type), ABUSE_GENOCIDE_HUMAN);
+                record_abuse_event_dtl(-sgn(u.ualign.type),
+                                       ABUSE_GENOCIDE_HUMAN, mndx + 1, 0);
             }
             if (is_demon(ptr))
                 adjalign(sgn(u.ualign.type));
