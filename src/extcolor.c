@@ -150,6 +150,17 @@ int c;
     return color256_to_16[c];
 }
 
+/* Return the RGB value for a 256-color index (for HTML dumplog
+   inline styles). Returns 0 for out-of-range indices */
+unsigned long
+extcolor_256_rgb(c)
+int c;
+{
+    if (c >= 0 && c < CLR_EXT_MAX)
+        return color256_rgb[c];
+    return 0UL;
+}
+
 /* Find the 256-palette entry whose RGB value is closest to lcolor.
    On success, *closergb receives the matched palette RGB and *clridx
    receives the palette index (always in 16..255). Returns FALSE if

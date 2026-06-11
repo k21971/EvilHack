@@ -356,3 +356,12 @@ span.nh_screen {
 .nh_player {
   background-color: #00AA00;
 }
+
+/* Underline attribute (peaceful monsters, status hilites): the
+   default hairline text-decoration is nearly invisible at map font
+   sizes, so thicken it and drop it just below the glyph; engines
+   without these properties fall back to the default underline */
+u {
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.12em;
+}

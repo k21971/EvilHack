@@ -5510,4 +5510,5 @@ The following changes to date are:
   fix
 - Show fleeing state in farlook monster descriptions
 - Fix: show known magic chest lock state on farlook
+- Fix: pet/peaceful highlighting gaps in HTML dumplogs
 

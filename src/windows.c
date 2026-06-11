@@ -1465,9 +1465,18 @@ boolean onoff;
             fprintf(dumphtml_file, UNDL_S);
         if (attrmask & HL_BLINK)
             fprintf(dumphtml_file, BLNK_S);
-        if (attrmask & HL_INVERSE)
-            fprintf(dumphtml_file, "<span class=\"nh_inv_%d\">", coloridx);
-        else if (coloridx != NO_COLOR)
+        if (attrmask & HL_INVERSE) {
+            /* the nh_inv_N CSS classes only cover the base-16 palette;
+               render an extended 256-color inverse as an inline
+               colored background instead */
+            if (IS_EXT_COLOR(coloridx))
+                fprintf(dumphtml_file,
+                        "<span style=\"color:#000;background-color:#%06lX;\">",
+                        extcolor_256_rgb(coloridx));
+            else
+                fprintf(dumphtml_file, "<span class=\"nh_inv_%d\">",
+                        coloridx);
+        } else if (coloridx != NO_COLOR)
             fprintf(dumphtml_file, "<span class=\"nh_color_%d\">", coloridx);
         /* ignore HL_DIM */
     } else {
@@ -1566,6 +1575,10 @@ unsigned special;
         hl |= HL_INVERSE;
     if ((special & MG_STAIRS) && iflags.hilite_hidden_stairs)
         hl |= HL_INVERSE;
+    if ((special & MG_PEACEFUL) && iflags.underline_peacefuls)
+        hl |= HL_ULINE;
+    if (special & MG_RIDDEN)
+        hl |= HL_INVERSE;
     return hl;
 }
 
@@ -1579,7 +1592,8 @@ unsigned special;
     coord cc;
     int desc_found = 0;
     unsigned attr;
-    unsigned long rgb = 0UL; /* nonzero = emit inline RGB span */
+    unsigned long rgb = 0UL;
+    boolean have_rgb = FALSE; /* emit inline RGB span (rgb may be black) */
 
     if (!dumphtml_file) return;
 
@@ -1598,23 +1612,28 @@ unsigned special;
     /* mapglyph emits NH_CUSTOMCOLOR_SENTINEL when the active windowport
        advertises 24-bit truecolor and the glyph has an RGB CUSTOMCOLOR=
        entry. HTML supports arbitrary RGB natively, so emit the user's
-       exact colour inline. Fall back to the precomputed 256-palette
-       index for the inverse-video edge case (which dump_set_color_attr
-       already knows how to render via the nh_inv_N classes) */
+       exact colour inline */
     if (color == NH_CUSTOMCOLOR_SENTINEL) {
         struct customcolor_entry *ce = customcolor_lookup(glyph);
 
-        if (ce && (ce->nhcolor & NH_BASIC_COLOR) == 0
-            && !(attr & HL_INVERSE))
+        if (ce && (ce->nhcolor & NH_BASIC_COLOR) == 0) {
             rgb = COLORVAL(ce->nhcolor);
-        else
+            have_rgb = TRUE;
+        } else
             color = ce ? ce->color256idx : NO_COLOR;
     }
-    if (rgb) {
+    if (have_rgb) {
         /* bold/uline/blink wrappers still come from dump_set_color_attr;
-           only the inner color span is replaced with an inline style */
+           only the inner color span is replaced with an inline style.
+           Render inverse video as a colored background so the entry
+           keeps its exact RGB */
         dump_set_color_attr(NO_COLOR, attr & ~HL_INVERSE, TRUE);
-        fprintf(dumphtml_file, "<span style=\"color:#%06lX;\">", rgb);
+        if (attr & HL_INVERSE)
+            fprintf(dumphtml_file,
+                    "<span style=\"color:#000;background-color:#%06lX;\">",
+                    rgb);
+        else
+            fprintf(dumphtml_file, "<span style=\"color:#%06lX;\">", rgb);
     } else {
         dump_set_color_attr(color, attr, TRUE);
     }
@@ -1624,7 +1643,7 @@ unsigned special;
         fprintf(dumphtml_file, "&#%d;", ch);
     else
         html_dump_char(dumphtml_file, (char)ch);
-    if (rgb) {
+    if (have_rgb) {
         fprintf(dumphtml_file, SPAN_E);
         dump_set_color_attr(NO_COLOR, attr & ~HL_INVERSE, FALSE);
     } else {
