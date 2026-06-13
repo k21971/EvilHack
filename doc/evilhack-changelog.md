@@ -5514,4 +5514,5 @@ The following changes to date are:
 - Show specific details in alignment abuse event history
 - Name the Infidel good-deed abuse event for its actual cause
 - Fix: getpos area filter could look outside the map
+- Fix: #tip into a bag of devouring or treasure ignored their rules
 

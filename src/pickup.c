@@ -3877,6 +3877,9 @@ struct obj *box; /* or bag */
                                 || box->otyp == BAG_OF_TREASURE)
                                && box->cursed);
         long loss = 0L;
+        char buf[BUFSZ];
+        boolean treasure_target = (targetbox
+                                   && targetbox->otyp == BAG_OF_TREASURE);
 
         held = carried(box) || (targetbox && carried(targetbox));
         if (u.uswallow)
@@ -3888,7 +3891,44 @@ struct obj *box; /* or bag */
          * If any other messages intervene between objects, we revert to
          * "ObjK drops to the floor.", "ObjL drops to the floor.", &c.
          */
-        if (targetbox)
+        if (treasure_target) {
+            /* a bag of treasure keeps only gold and gems; scan the
+               source up front so we can report what is kept and what
+               spills, instead of mislabeling the spilled items as
+               tumbling into the bag */
+            boolean has_gold = FALSE, has_gems = FALSE;
+            int n_spill = 0;
+            struct obj *scan;
+
+            for (scan = box->cobj; scan; scan = scan->nobj) {
+                if (scan->oclass == COIN_CLASS)
+                    has_gold = TRUE;
+                else if (is_treasure_item(scan))
+                    has_gems = TRUE;
+                else
+                    n_spill++;
+            }
+            if (has_gold || has_gems)
+                pline("The %s %s into %s.",
+                      (has_gold && has_gems) ? "gold and gems"
+                          : has_gold ? "gold" : "gems",
+                      (has_gold && !has_gems) ? "tumbles" : "tumble",
+                      the(xname(targetbox)));
+            if (n_spill) {
+                makeknown(BAG_OF_TREASURE);
+                if (has_gold || has_gems)
+                    pline("The remaining item%s fall%s to the %s.",
+                          (n_spill > 1) ? "s" : "",
+                          (n_spill > 1) ? "" : "s", surface(ox, oy));
+                else {
+                    pline("%s only holds gold and gems.",
+                          The(xname(targetbox)));
+                    pline("The item%s fall%s to the %s.",
+                          (n_spill > 1) ? "s" : "",
+                          (n_spill > 1) ? "" : "s", surface(ox, oy));
+                }
+            }
+        } else if (targetbox)
             pline("%s into %s.",
                   box->cobj->nobj ? "Objects tumble" : "An object tumbles",
                   the(xname(targetbox)));
@@ -3898,6 +3938,8 @@ struct obj *box; /* or bag */
                   terse ? ':' : '.');
 
         for (otmp = box->cobj; otmp; otmp = nobj) {
+            boolean to_floor;
+
             nobj = otmp->nobj;
 
             /* cursed bag of holding disintegration: check resist
@@ -3915,6 +3957,23 @@ struct obj *box; /* or bag */
                 continue;
             }
 
+            /* a bag of devouring destination consumes whatever is
+               tipped into it, exactly as if the item were put in with
+               #loot; obj_resists() items are refused below and fall to
+               the floor instead. handle the eaten case before billing
+               so shop loss is taken via mbag_item_gone(), matching the
+               cursed bag of holding case above */
+            if (targetbox && targetbox->otyp == BAG_OF_DEVOURING
+                && !obj_resists(otmp, 0, 0)) {
+                obj_extract_self(otmp);
+                Strcpy(buf, the(xname(targetbox)));
+                pline("%s is devoured by %s!", The(xname(otmp)), buf);
+                makeknown(BAG_OF_DEVOURING);
+                loss += mbag_item_gone(held, otmp, TRUE);
+                terse = FALSE;
+                continue;
+            }
+
             obj_extract_self(otmp);
             otmp->ox = box->ox, otmp->oy = box->oy;
 
@@ -3926,8 +3985,25 @@ struct obj *box; /* or bag */
                 iflags.suppress_price++; /* doname formatting */
             }
 
+            /* items the destination won't accept divert to the floor */
+            to_floor = (targetbox == 0);
+
             if (targetbox) {
-                if (Is_mbag(targetbox) && mbag_explodes(otmp, 0)) {
+                if (targetbox->otyp == BAG_OF_TREASURE
+                    && !is_treasure_item(otmp)) {
+                    /* only gold and gems are kept; the rest is diverted
+                       to the floor (summarized before the loop) */
+                    to_floor = TRUE;
+                } else if (targetbox->otyp == BAG_OF_DEVOURING) {
+                    /* reached only for obj_resists() items; the bag
+                       refuses them and they fall to the floor */
+                    Strcpy(buf, the(xname(otmp)));
+                    pline("%s refuses to devour %s.",
+                          The(xname(targetbox)), buf);
+                    makeknown(BAG_OF_DEVOURING);
+                    terse = FALSE;
+                    to_floor = TRUE;
+                } else if (Is_mbag(targetbox) && mbag_explodes(otmp, 0)) {
                     /* explicitly mention what item is triggering explosion */
                     pline(
                    "As %s %s inside, you are blasted by a magical explosion!",
@@ -3960,23 +4036,40 @@ struct obj *box; /* or bag */
 
                     targetbox = 0; /* it's gone */
                 } else {
+                    /* freeze corpse rot/revive timers when tipping into
+                       an ice box, matching #loot put-in */
+                    if (targetbox->otyp == ICE_BOX
+                        && !age_is_relative(otmp)) {
+                        otmp->age = monstermoves - otmp->age;
+                        if (otmp->otyp == CORPSE && otmp->timed) {
+                            (void) stop_timer(ROT_CORPSE, obj_to_any(otmp));
+                            (void) stop_timer(REVIVE_MON, obj_to_any(otmp));
+                        }
+                    }
                     (void) add_to_container(targetbox, otmp);
                 }
-            } else if (highdrop) {
-                /* might break or fall down stairs; handles altars itself */
-                hitfloor(otmp, TRUE);
-            } else {
-                if (altarizing) {
-                    doaltarobj(otmp);
-                } else if (!terse) {
-                    pline("%s %s to the %s.", Doname2(otmp),
-                          otense(otmp, "drop"), surface(ox, oy));
+            }
+
+            if (to_floor) {
+                if (highdrop) {
+                    /* might break or fall down stairs; handles altars itself */
+                    hitfloor(otmp, TRUE);
                 } else {
-                    pline("%s%c", doname(otmp), nobj ? ',' : '.');
-                    iflags.last_msg = PLNMSG_OBJNAM_ONLY;
+                    if (altarizing) {
+                        doaltarobj(otmp);
+                    } else if (treasure_target) {
+                        /* spilled items were summarized before the loop;
+                           drop them quietly to avoid a misleading list */
+                    } else if (!terse) {
+                        pline("%s %s to the %s.", Doname2(otmp),
+                              otense(otmp, "drop"), surface(ox, oy));
+                    } else {
+                        pline("%s%c", doname(otmp), nobj ? ',' : '.');
+                        iflags.last_msg = PLNMSG_OBJNAM_ONLY;
+                    }
+                    if (dropy(otmp) || iflags.last_msg != PLNMSG_OBJNAM_ONLY)
+                        terse = FALSE; /* terse formatting interrupted */
                 }
-                if (dropy(otmp) || iflags.last_msg != PLNMSG_OBJNAM_ONLY)
-                    terse = FALSE; /* terse formatting has been interrupted */
             }
 
             if (maybeshopgoods)
