@@ -51,6 +51,7 @@ STATIC_DCL void FDECL(clear_unpaid, (struct monst *, struct obj *));
 STATIC_DCL long FDECL(check_credit, (long, struct monst *));
 STATIC_DCL void FDECL(pay, (long, struct monst *));
 STATIC_DCL void FDECL(shk_racial_adjustments, (SHORT_P, long *, long *));
+STATIC_DCL boolean FDECL(shk_stat_priced, (struct monst *));
 STATIC_DCL long FDECL(get_cost, (struct obj *, struct monst *));
 STATIC_DCL long FDECL(set_cost, (struct obj *, struct monst *));
 STATIC_DCL const char *FDECL(shk_embellish, (struct obj *, long));
@@ -2339,6 +2340,22 @@ long *numerator, *denominator;
     }
 }
 
+/* gnome and nymph shopkeepers set their prices purely from a stat - the
+   hero's intelligence and charisma tier respectively (see
+   shk_racial_adjustments()) - so the general charisma price adjustment
+   must not be applied on top of theirs */
+STATIC_OVL boolean
+shk_stat_priced(shkp)
+struct monst *shkp;
+{
+    short rmnum;
+
+    if (!shkp || is_izchak(shkp, TRUE) || !has_erac(shkp))
+        return FALSE;
+    rmnum = ERAC(shkp)->rmnum;
+    return (is_gnome(&mons[rmnum]) || rmnum == PM_NYMPH);
+}
+
 /* Relative prices for the different materials.
  * Units for this are much more poorly defined than for weights; the best
  * approximation would be something like "zorkmids per aum".
@@ -2381,6 +2398,11 @@ struct monst *shkp; /* if angry, impose a surcharge */
          /* used to perform a single calculation even when multiple
             adjustments (unID'd, dunce/tourist, charisma) are made */
          multiplier = 1L, divisor = 1L;
+    /* racial_discount: shopkeeper already favors the hero's race, so the
+       high charisma purchase discount is not applied on top.
+       stat_priced: gnome/nymph shop, charisma adjustment suppressed */
+    boolean racial_discount = FALSE,
+            stat_priced = shk_stat_priced(shkp);
 
     if (!tmp)
         tmp = 5L;
@@ -2445,20 +2467,9 @@ struct monst *shkp; /* if angry, impose a surcharge */
              || (uarmu && !uarm && !uarmc)) /* touristy shirt visible */
         multiplier *= 4L, divisor *= 3L;
 
-    if (ACURR(A_CHA) > 18)
-        divisor *= 2L;
-    else if (ACURR(A_CHA) == 18)
-        multiplier *= 2L, divisor *= 3L;
-    else if (ACURR(A_CHA) >= 16)
-        multiplier *= 3L, divisor *= 4L;
-    else if (ACURR(A_CHA) <= 5)
-        multiplier *= 2L;
-    else if (ACURR(A_CHA) <= 7)
-        multiplier *= 3L, divisor *= 2L;
-    else if (ACURR(A_CHA) <= 10)
-        multiplier *= 4L, divisor *= 3L;
-
-    /* possible additional surcharges based on shk race, if one was passed in */
+    /* possible surcharges or discounts based on shk race, if one was
+       passed in; resolved first so the charisma discount below can see
+       whether this shopkeeper already favors the hero's race */
     if (shkp) {
         long numer = 1L, denom = 1L;
         if (!is_izchak(shkp, TRUE) && has_erac(shkp)) {
@@ -2466,6 +2477,30 @@ struct monst *shkp; /* if angry, impose a surcharge */
         }
         multiplier *= numer;
         divisor *= denom;
+        racial_discount = (numer < denom);
+    }
+
+    /* low charisma always raises the purchase price. high charisma
+       lowers it, except at a shopkeeper who already gives a racial
+       discount - that racial price is the hero's best and charisma
+       cannot improve on it. the high charisma floor also keeps the
+       buy price at or above what the shk pays buying the item back
+       (see set_cost()), preventing a buy-resell profit loop. gnome
+       and nymph shops are skipped entirely; they price on a stat */
+    if (!stat_priced) {
+        if (ACURR(A_CHA) <= 5)
+            multiplier *= 2L;
+        else if (ACURR(A_CHA) <= 7)
+            multiplier *= 3L, divisor *= 2L;
+        else if (ACURR(A_CHA) <= 10)
+            multiplier *= 4L, divisor *= 3L;
+        else if (!racial_discount) {
+            if (ACURR(A_CHA) > 18)
+                multiplier *= 5L, divisor *= 6L;
+            else if (ACURR(A_CHA) == 18)
+                multiplier *= 11L, divisor *= 12L;
+            /* CHA 16-17: no discount */
+        }
     }
 
     /* tmp = (tmp * multiplier) / divisor [with roundoff tweak] */
@@ -2651,6 +2686,8 @@ struct obj *obj;
 struct monst *shkp;
 {
     long tmp, unit_price = getprice(obj, TRUE), multiplier = 1L, divisor = 1L;
+    /* gnome/nymph shop: suppress the general charisma sell bonus */
+    boolean stat_priced = shk_stat_priced(shkp);
 
     tmp = get_pricing_units(obj) * unit_price;
 
@@ -2668,6 +2705,20 @@ struct monst *shkp;
         divisor *= 3L;
     else
         divisor *= 2L;
+
+    /* high charisma improves the price the shk will pay, mirroring the
+       way it used to lower purchase prices; low and neutral charisma
+       are unaffected, as are gnome/nymph shops which price on a stat.
+       the sell-price cap below keeps this from ever exceeding the buy
+       price */
+    if (!stat_priced) {
+        if (ACURR(A_CHA) > 18)
+            multiplier *= 5L, divisor *= 3L;
+        else if (ACURR(A_CHA) == 18)
+            multiplier *= 3L, divisor *= 2L;
+        else if (ACURR(A_CHA) >= 16)
+            multiplier *= 4L, divisor *= 3L;
+    }
 
     /* shopkeeper may notice if the player isn't very knowledgeable -
        especially when gem prices are concerned */
@@ -2709,14 +2760,12 @@ struct monst *shkp;
 
 end:
     /* (no adjustment for angry shk here) */
-    /* cap sell price at buy price. the racial sell-side reciprocal
-       can otherwise flip same-race shopkeeper transactions into a
-       profitable buy-resell loop, especially at high charisma where
-       the buy-side gets additional multiplier discounts that set_cost
-       has no parallel reduction for. compare per-stack: get_cost is
-       per-unit so multiply by get_pricing_units to match set_cost's
-       stack total. capping at exactly buy_total mirrors the natural
-       human/human break-even at charisma > 18 */
+    /* clamp the sell price to the buy price as a final safety net.
+       the racial sell-side reciprocal can still push a same-race
+       shopkeeper's offer above what it would charge to sell the same
+       item back, which would open a buy-resell profit loop, so cap it.
+       get_cost is per-unit while set_cost is per-stack, so scale by
+       get_pricing_units to compare stack totals */
     if (shkp && tmp > 0L) {
         long buy_total = get_pricing_units(obj) * get_cost(obj, shkp);
         if (tmp > buy_total)

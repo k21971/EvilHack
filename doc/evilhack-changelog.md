@@ -5515,4 +5515,5 @@ The following changes to date are:
 - Name the Infidel good-deed abuse event for its actual cause
 - Fix: getpos area filter could look outside the map
 - Fix: #tip into a bag of devouring or treasure ignored their rules
+- Fix: make shop selling reward charisma and converge buy/sell prices
 
