@@ -1604,11 +1604,18 @@ unsigned special;
     desc_found = do_screen_description(cc, TRUE, ch, buf, &firstmatch, (struct permonst **) 0);
     if (desc_found)
         fprintf(dumphtml_file, "<div class=\"tooltip\">");
+    attr = mg_hl_attr(special);
     /* highlight the hero's tile with a green background, mimicking
        the terminal cursor's "you are here" cue */
-    if (x == u.ux && y == u.uy)
+    if (x == u.ux && y == u.uy) {
         fprintf(dumphtml_file, "<span class=\"nh_player\">");
-    attr = mg_hl_attr(special);
+        /* while mounted the steed renders at the hero's spot with
+           MG_RIDDEN (inverse video), whose background colour would
+           paint over the green highlight. Drop the inverse here so
+           the green shows through - it already gives the "you are
+           here" cue the inverse would */
+        attr &= ~HL_INVERSE;
+    }
     /* mapglyph emits NH_CUSTOMCOLOR_SENTINEL when the active windowport
        advertises 24-bit truecolor and the glyph has an RGB CUSTOMCOLOR=
        entry. HTML supports arbitrary RGB natively, so emit the user's

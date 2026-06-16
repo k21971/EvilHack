@@ -5517,4 +5517,5 @@ The following changes to date are:
 - Fix: #tip into a bag of devouring or treasure ignored their rules
 - Fix: make shop selling reward charisma and converge buy/sell prices
 - Fix: random container contents could be nested containers
+- Fix: HTML dumplog hero highlight was hidden while riding
 
