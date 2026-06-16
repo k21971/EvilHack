@@ -1955,9 +1955,22 @@ struct mkroom *croom;
     else
         c = 0;
 
-    if (!c)
+    if (!c) {
         otmp = mkobj_at(RANDOM_CLASS, x, y, !named);
-    else if (o->id != -1) {
+        /* a fully random object placed inside a container must not
+           itself be a container; the engine never nests containers
+           when it fills boxes (see mkbox_cnts), so reroll until we
+           get a non-container to match that behavior */
+        if (o->containment & SP_OBJ_CONTENT) {
+            int tries = 100;
+
+            while (Is_container(otmp) && --tries > 0) {
+                obj_extract_self(otmp);
+                obfree(otmp, (struct obj *) 0);
+                otmp = mkobj_at(RANDOM_CLASS, x, y, !named);
+            }
+        }
+    } else if (o->id != -1) {
         if (o->id < STRANGE_OBJECT || o->id >= NUM_OBJECTS) {
             impossible("create_object: bogus otyp %d", o->id);
             return;

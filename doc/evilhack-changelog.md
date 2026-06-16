@@ -5516,4 +5516,5 @@ The following changes to date are:
 - Fix: getpos area filter could look outside the map
 - Fix: #tip into a bag of devouring or treasure ignored their rules
 - Fix: make shop selling reward charisma and converge buy/sell prices
+- Fix: random container contents could be nested containers
 
