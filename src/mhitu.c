@@ -788,6 +788,15 @@ struct monst *mtmp;
                 return MM_MISS;
             }
 
+            /* mtmp is being relocated off its tile; if it was stuck
+               in a trap (web, pit, bear trap) there it no longer is.
+               Clearing mtrapped avoids a "trapped without a trap"
+               sanity-check panic after the move */
+            if (mtmp->mtrapped) {
+                mtmp->mtrapped = 0;
+                fill_pit(mtmp->mx, mtmp->my);
+            }
+
             /* put mtmp at hero's spot and move hero to <cc.x,.y> */
             newsym(mtmp->mx, mtmp->my); /* finish removal */
             place_monster(mtmp, u.ux, u.uy);
