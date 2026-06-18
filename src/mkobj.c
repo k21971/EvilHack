@@ -2952,9 +2952,18 @@ const char *mesg;
             warned[i] = 0;
             continue;
         }
-        for (otmp = invent; otmp; otmp = otmp->nobj)
+        /* poly_obj() transiently detaches a worn item from invent before
+           remove_worn_item() clears its slot; that slot is legitimately
+           off-invent for the duration. compare pointers only, never
+           dereferencing the suspect (it may be dangling) */
+        if (o == worn_slot_exempt) {
+            warned[i] = 0;
+            continue;
+        }
+        for (otmp = invent; otmp; otmp = otmp->nobj) {
             if (otmp == o)
                 break;
+        }
         if (otmp) {
             warned[i] = 0; /* slot is healthy */
             continue;

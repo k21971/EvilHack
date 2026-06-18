@@ -2102,10 +2102,15 @@ int id;
          */
         if (old_wornmask) {
             boolean was_twohanded = bimanual(obj), was_twoweap = u.twoweap;
+            struct obj *save_exempt = worn_slot_exempt;
 
             /* wearslot() returns a mask which might have multiple bits set;
                narrow that down to the bit(s) currently in use */
             new_wornmask = wearslot(otmp) & old_wornmask;
+            /* obj has left invent (replace_object/freeinv_core above) but
+               its worn slot still points at it until remove_worn_item()
+               clears the slot; exempt it from worn_slot_sanity() meanwhile */
+            worn_slot_exempt = obj;
             remove_worn_item(obj, TRUE);
             /* if the new form can be worn in the same slot, make it so */
             if ((new_wornmask & W_WEP) != 0L) {
@@ -2128,6 +2133,7 @@ int id;
                 set_wear(otmp);
                 otmp = wearmask_to_obj(new_wornmask); /* might be Null */
             }
+            worn_slot_exempt = save_exempt;
         } /* old_wornmask */
     } else if (obj_location == OBJ_FLOOR) {
         if (obj->otyp == BOULDER && otmp->otyp != BOULDER

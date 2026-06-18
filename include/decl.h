@@ -278,7 +278,7 @@ E NEARDATA struct obj *migrating_objs;
 E NEARDATA struct obj *mchest; /* magic chest */
 E NEARDATA struct obj *billobjs;
 E NEARDATA struct obj *current_wand, *thrownobj, *kickedobj, *menuobj,
-    *killer_weapon;
+    *killer_weapon, *worn_slot_exempt;
 E NEARDATA int menuitemcolor; /* programmatic menu item color */
 
 /* Distance map for intelligent monster pathfinding */

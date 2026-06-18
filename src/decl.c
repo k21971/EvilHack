@@ -173,7 +173,8 @@ NEARDATA struct obj
     *thrownobj = 0,     /* object in flight due to throwing */
     *kickedobj = 0,     /* object in flight due to kicking */
     *menuobj = 0,       /* object being added to a menu */
-    *killer_weapon = 0; /* wielded weapon of a melee kill, for death attribution */
+    *killer_weapon = 0, /* wielded weapon of a melee kill, for death attribution */
+    *worn_slot_exempt = 0; /* worn_slot_sanity() exemption (poly_obj swap) */
 NEARDATA int menuitemcolor = NO_COLOR; /* programmatic menu item color */
 
 /* mon.c - pathfinding */
