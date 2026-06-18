@@ -24,6 +24,7 @@ STATIC_DCL int FDECL(gulpum, (struct monst *, struct attack *));
 STATIC_DCL boolean FDECL(hmonas, (struct monst *, int, BOOLEAN_P));
 STATIC_DCL void FDECL(nohandglow, (struct monst *));
 STATIC_DCL boolean FDECL(shade_aware, (struct obj *));
+STATIC_DCL boolean NDECL(unarmed_hits_shade);
 
 extern boolean notonhead; /* for long worms */
 
@@ -1241,8 +1242,16 @@ int dieroll;
 
     wakeup(mon, TRUE);
     if (actually_unarmed) { /* attack with bare hands */
+        boolean unarmed_shade_ok =
+            (!noncorporeal(mdat) || unarmed_hits_shade());
+
         if (noncorporeal(mdat)) {
-            tmp = 0;
+            /* bare-handed blows pass harmlessly through a noncorporeal
+               monster unless what makes contact is effective against
+               shades (silver, bone, a +2-or-better glove, or an
+               anti-undead artifact); a blessed item also connects,
+               via the vs-undead bonus added by special_dmgval() below */
+            tmp = unarmed_shade_ok ? 1 : 0;
         } else {
             /* It's unfair to martial arts users that whenever they roll a natural
              * 1 on their hit, they get no bonuses and hit for just that one
@@ -1289,7 +1298,7 @@ int dieroll;
         }
 
         /* fighting with fists will get the gloves' bonus... */
-        if (!uwep && uarmg)
+        if (!uwep && uarmg && unarmed_shade_ok)
             tmp += uarmg->spe;
 
         /* Blessed gloves give bonuses when fighting 'bare-handed'.  So do
@@ -2460,6 +2469,32 @@ struct obj *obj;
         || obj->material == SILVER
         || obj->material == BONE)
         return TRUE;
+    return FALSE;
+}
+
+/* True if a bare-handed (unarmed) blow can affect a noncorporeal
+   monster: whatever makes contact - the gloves (treated as the
+   striking weapon), an exposed ring, or the attacker's own body -
+   must be effective against shades (silver, bone, a +2-or-better
+   glove, or an anti-undead artifact); a blessed item also connects,
+   but through the vs-undead bonus in special_dmgval()/dmgval() */
+STATIC_OVL boolean
+unarmed_hits_shade()
+{
+    /* gloves cover any rings, so they make contact first */
+    if (uarmg)
+        return (shade_glare(uarmg) || uarmg->spe > 1);
+    /* bare hands: an exposed ring, or the body itself, must connect */
+    if (uleft && shade_glare(uleft))
+        return TRUE;
+    if (uright && shade_glare(uright))
+        return TRUE;
+    if (Upolyd) {
+        int bodymat = monmaterial(monsndx(youmonst.data));
+
+        if (bodymat == SILVER || bodymat == BONE)
+            return TRUE;
+    }
     return FALSE;
 }
 
