@@ -5522,4 +5522,5 @@ The following changes to date are:
 - Fix: bare-handed hits on a ghost now require shade-effective contact
 - Fix: spurious worn-slot sanity panic when polymorphing a worn helm
 - Fix: signed integer overflow in credit card number generation
+- Fix: which_armor bad-flag impossible from mon_reflects() on the hero
 

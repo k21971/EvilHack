@@ -4434,8 +4434,17 @@ mon_reflects(mon, str)
 struct monst *mon;
 const char *str;
 {
-    struct obj *orefl = which_armor(mon, W_ARMS);
-    struct obj *brefl = which_armor(mon, W_BARDING);
+    struct obj *orefl, *brefl;
+
+    /* the hero's reflection is tracked via Reflecting; route &youmonst
+       through ureflects() so we don't misread the hero's gear with
+       monster-inventory logic (which both scans youmonst.minvent and
+       passes barding/amulet masks that which_armor cannot map) */
+    if (mon == &youmonst)
+        return ureflects((const char *) 0, (const char *) 0);
+
+    orefl = which_armor(mon, W_ARMS);
+    brefl = which_armor(mon, W_BARDING);
 
     if (orefl && orefl->otyp == SHIELD_OF_REFLECTION) {
         if (str) {

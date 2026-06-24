@@ -1217,6 +1217,18 @@ long flag;
             return uarmf;
         case W_ARMU:
             return uarmu;
+        case W_AMUL:
+            return uamul;
+        case W_RINGL:
+            return uleft;
+        case W_RINGR:
+            return uright;
+        case W_TOOL:
+            return ublindf;
+        case W_SADDLE:
+        case W_BARDING:
+            /* hero never wears a saddle or barding */
+            return (struct obj *) 0;
         default:
             impossible("bad flag in which_armor");
             return 0;
