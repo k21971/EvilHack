@@ -5524,4 +5524,5 @@ The following changes to date are:
 - Fix: signed integer overflow in credit card number generation
 - Fix: which_armor bad-flag impossible from mon_reflects() on the hero
 - Fix: "You been absolved of past alignment abuse."
+- Fix: show absolute dungeon level in Gehennom status label
 

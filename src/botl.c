@@ -559,7 +559,11 @@ char *buf;
     } else if (In_purgatory(&u.uz)) {
         Sprintf(buf, "Purg:%-2d ", dunlev(&u.uz));
     } else if (In_hell(&u.uz)) {
-        Sprintf(buf, "Hell:%-2d ", dunlev(&u.uz));
+        /* Gehennom is the continuous downward extension of the main
+           dungeon, so show the absolute dungeon level depth() in
+           parens after the branch-relative level (level teleport and
+           total-depth bookkeeping use the absolute number) */
+        Sprintf(buf, "Hell:%d(%d) ", dunlev(&u.uz), depth(&u.uz));
     } else {
         /* main Dungeons of Doom (and any future branch we don't
            name explicitly above) */
