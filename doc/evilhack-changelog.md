@@ -5525,4 +5525,5 @@ The following changes to date are:
 - Fix: which_armor bad-flag impossible from mon_reflects() on the hero
 - Fix: "You been absolved of past alignment abuse."
 - Fix: show absolute dungeon level in Gehennom status label
+- Fix: creeping mounds missing M1_NOLIMBS flag
 
