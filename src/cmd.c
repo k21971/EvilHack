@@ -4118,7 +4118,8 @@ int final;
         you_have_never("abused your alignment");
     } else if (u.ualign.abuse == 0) {
         /* atoned back to clean slate, but did abuse in the past */
-        you_have_X("been absolved of past alignment abuse");
+        Sprintf(buf, "been absolved of past alignment abuse");
+        you_have_X(buf);
     } else if ((u.ualign.abuse * -1) < 5) {
         Sprintf(buf, "slightly abused your alignment");
         you_have_X(buf);
