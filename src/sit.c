@@ -17,6 +17,9 @@ take_gold()
         nobj = otmp->nobj;
         if (otmp->oclass == COIN_CLASS) {
             lost_money = 1;
+            /* gold can be quivered; clear the worn slot before
+               deletion so obfree() doesn't choke on a worn object */
+            remove_worn_item(otmp, FALSE);
             delobj(otmp);
         }
     }
