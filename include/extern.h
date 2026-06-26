@@ -184,6 +184,7 @@ E void FDECL(move_bc, (int, int, XCHAR_P, XCHAR_P, XCHAR_P, XCHAR_P));
 E boolean FDECL(drag_ball, (XCHAR_P, XCHAR_P, int *, xchar *, xchar *,
                             xchar *, xchar *, boolean *, BOOLEAN_P));
 E void FDECL(drop_ball, (XCHAR_P, XCHAR_P));
+E void FDECL(move_chain_to, (XCHAR_P, XCHAR_P));
 E void NDECL(drag_down);
 E void NDECL(bc_sanity_check);
 

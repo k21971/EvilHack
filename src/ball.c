@@ -1020,6 +1020,33 @@ xchar x, y;
     }
 }
 
+/* Slide the chain to (chx,chy) while the hero stays put. Used when the
+   ball has been moved independently of the hero (telekinetic push) so the
+   chain follows and stays adjacent to both. The caller guarantees (chx,chy)
+   is open and within one tile of the hero and of the ball */
+void
+move_chain_to(chx, chy)
+xchar chx, chy;
+{
+    if (!uchain) {
+        impossible("move_chain_to: no chain");
+        return;
+    }
+    if (uchain->ox == chx && uchain->oy == chy)
+        return; /* already there */
+    if (Blind) {
+        /* drop the felt glyph at the old position, pick up the new one
+           (mirrors drop_ball's chain handling) */
+        if (u.bc_felt & BC_CHAIN)
+            levl[uchain->ox][uchain->oy].glyph = u.cglyph;
+        u.bc_felt &= ~BC_CHAIN;
+        u.cglyph = levl[chx][chy].glyph;
+    }
+    movobj(uchain, chx, chy); /* remove + place + newsym on both tiles */
+    if (Blind)
+        u.bc_order = bc_order();
+}
+
 /* ball&chain cause hero to randomly lose stuff from inventory */
 STATIC_OVL void
 litter()

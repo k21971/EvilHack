@@ -141,6 +141,12 @@ int dx, dy, range;
     weight = (int) obj->owt;
 
     remove_object(obj);
+    /* a blind hero feels the ball; drop the felt glyph at its old
+       position so that tile clears (mirrors unplacebc_core) */
+    if (obj == uball && Blind && (u.bc_felt & BC_BALL)) {
+        levl[ox][oy].glyph = u.bglyph;
+        u.bc_felt &= ~BC_BALL;
+    }
     newsym(ox, oy);
 
     stopped = FALSE;
@@ -208,6 +214,15 @@ int dx, dy, range;
         return;
     place_object(obj, ox, oy);
     newsym(ox, oy);
+
+    /* The ball is chained to the hero; moving it leaves the chain
+       behind. Slide the chain one step from the hero toward the ball
+       so ball, chain, and hero stay connected (chain adjacent to the
+       hero, ball adjacent to the chain). dx,dy is the push direction,
+       so (u.ux+dx,u.uy+dy) is one tile from the hero toward the ball --
+       always open ground and within one tile of both */
+    if (obj == uball)
+        move_chain_to(u.ux + dx, u.uy + dy);
 
     /* Sokoban guilt for boulders only */
     if (obj->otyp == BOULDER && In_sokoban(&u.uz))
