@@ -1492,47 +1492,44 @@ unsigned doname_flags;
            everything out if no merges occur */
         long itemcount = count_contents(obj, FALSE, FALSE, TRUE, FALSE);
 
-        if (BP_HAS_ROOM(bp, 40))
-            Sprintf(eos(bp), " containing %ld item%s", itemcount,
-                    plur(itemcount));
+        Sprintf(suffbuf, " containing %ld item%s", itemcount,
+                plur(itemcount));
+        if (BP_HAS_ROOM(bp, (int) strlen(suffbuf)))
+            Strcat(bp, suffbuf);
     }
 
     switch (is_weptool(obj) ? WEAPON_CLASS : obj->oclass) {
     case AMULET_CLASS:
         add_erosion_words(obj, prefix);
-        if ((obj->owornmask & W_AMUL) && BP_HAS_ROOM(bp, 15))
+        if ((obj->owornmask & W_AMUL)
+            && BP_HAS_ROOM(bp, (int) (sizeof " (being worn)" - 1)))
             Strcat(bp, " (being worn)");
         break;
     case ARMOR_CLASS:
-        if ((obj->owornmask & W_ARMOR) && BP_HAS_ROOM(bp, 50)) {
-            Strcat(bp, (obj == uskin) ? " (embedded in your skin)"
-                       /* in case of perm_invent update while Wear/Takeoff
-                          is in progress; check doffing() before donning()
-                          because donning() returns True for both cases */
-                       : doffing(obj) ? " (being doffed)"
-                         : donning(obj) ? " (being donned)"
-                           : ((druid_form || vampire_form)
-                              && (owner == &youmonst))
-                               ? " (merged to your form)"
-                             : obj->otyp == MUMMIFIED_HAND ? " "
-                               : " (being worn)");
+        if (obj->owornmask & W_ARMOR) {
             /* slippery fingers is an intrinsic condition of the hero
-               rather than extrinsic condition of objects, but gloves
-               are described as slippery when hero has slippery fingers */
-            if (obj == uarmg
-                && obj->otyp != MUMMIFIED_HAND && Glib) {
-                /* just appended "(something)",
-                 * change to "(something; slippery)" */
-                Strcpy(rindex(bp, ')'), "; slippery)");
-            } else if (obj->otyp == MUMMIFIED_HAND) {
+               rather than an extrinsic condition of objects, but gloves
+               are described as slippery when the hero has slippery fingers */
+            if (obj->otyp == MUMMIFIED_HAND) {
                 /* monsters don't wear these, so assuming it's yours is fine */
-                if (Glib)
-                    Sprintf(rindex(bp, ' '), " (merged to your left %s; slippery)",
-                            body_part(ARM));
-                else
-                    Sprintf(rindex(bp, ' '), " (merged to your left %s)",
-                            body_part(ARM));
+                Sprintf(suffbuf, " (merged to your left %s%s)",
+                        body_part(ARM), Glib ? "; slippery" : "");
+            } else {
+                Sprintf(suffbuf, " (%s%s)",
+                        (obj == uskin) ? "embedded in your skin"
+                        /* in case of perm_invent update while Wear/Takeoff
+                           is in progress; check doffing() before donning()
+                           because donning() returns True for both cases */
+                        : doffing(obj) ? "being doffed"
+                          : donning(obj) ? "being donned"
+                            : ((druid_form || vampire_form)
+                               && (owner == &youmonst))
+                                ? "merged to your form"
+                              : "being worn",
+                        (obj == uarmg && Glib) ? "; slippery" : "");
             }
+            if (BP_HAS_ROOM(bp, (int) strlen(suffbuf)))
+                Strcat(bp, suffbuf);
         }
         if (Is_dragon_scaled_armor(obj)) {
             char scalebuf[30], *colorstr = dragon_scales_color(obj);
@@ -1584,7 +1581,7 @@ unsigned doname_flags;
                 Strcat(prefix, "inferior ");
         }
         if (obj->owornmask & (W_TOOL | W_SADDLE | W_BARDING)) { /* blindfold */
-            if (BP_HAS_ROOM(bp, 15))
+            if (BP_HAS_ROOM(bp, (int) (sizeof " (being worn)" - 1)))
                 Strcat(bp, " (being worn)");
             break;
         }
@@ -1608,16 +1605,18 @@ unsigned doname_flags;
                 Strcpy(tmpbuf, "no");
             else
                 Sprintf(tmpbuf, "%d", obj->spe);
-            if (BP_HAS_ROOM(bp, 30))
-                Sprintf(eos(bp), " (%s candle%s%s)", tmpbuf, plur(obj->spe),
-                        !obj->lamplit ? " attached" : ", lit");
+            Sprintf(suffbuf, " (%s candle%s%s)", tmpbuf, plur(obj->spe),
+                    !obj->lamplit ? " attached" : ", lit");
+            if (BP_HAS_ROOM(bp, (int) strlen(suffbuf)))
+                Strcat(bp, suffbuf);
             break;
         } else if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
                    || obj->otyp == LANTERN || Is_candle(obj)) {
             if (Is_candle(obj)
                 && obj->age < 20L * (long) objects[obj->otyp].oc_cost)
                 Strcat(prefix, "partly used ");
-            if (obj->lamplit && BP_HAS_ROOM(bp, 8))
+            if (obj->lamplit
+                && BP_HAS_ROOM(bp, (int) (sizeof " (lit)" - 1)))
                 Strcat(bp, " (lit)");
             break;
         }
@@ -1627,23 +1626,28 @@ unsigned doname_flags;
     case WAND_CLASS:
         add_erosion_words(obj, prefix);
  charges:
-        if (known && BP_HAS_ROOM(bp, 20))
-            Sprintf(eos(bp), " (%d:%d)", (int) obj->recharged, obj->spe);
+        if (known) {
+            Sprintf(suffbuf, " (%d:%d)", (int) obj->recharged, obj->spe);
+            if (BP_HAS_ROOM(bp, (int) strlen(suffbuf)))
+                Strcat(bp, suffbuf);
+        }
         break;
     case POTION_CLASS:
-        if (obj->otyp == POT_OIL && obj->lamplit && BP_HAS_ROOM(bp, 8))
+        if (obj->otyp == POT_OIL && obj->lamplit
+            && BP_HAS_ROOM(bp, (int) (sizeof " (lit)" - 1)))
             Strcat(bp, " (lit)");
         break;
     case RING_CLASS:
         add_erosion_words(obj, prefix);
  ring:
-        if ((obj->owornmask & W_RING) && BP_HAS_ROOM(bp, 30)) {
-            if (obj->owornmask & W_RINGR)
-                Strcat(bp, " (on right ");
-            if (obj->owornmask & W_RINGL)
-                Strcat(bp, " (on left ");
-            Strcat(bp, mbodypart(owner, HAND));
-            Strcat(bp, ")");
+        if (obj->owornmask & W_RING) {
+            /* a single ring is only ever on one hand, so W_RING implies
+               exactly one of W_RINGR / W_RINGL */
+            Sprintf(suffbuf, " (on %s %s)",
+                    (obj->owornmask & W_RINGR) ? "right" : "left",
+                    mbodypart(owner, HAND));
+            if (BP_HAS_ROOM(bp, (int) strlen(suffbuf)))
+                Strcat(bp, suffbuf);
         }
         if (known && objects[obj->otyp].oc_charged) {
             Strcat(prefix, sitoa(obj->spe));
@@ -1696,7 +1700,8 @@ unsigned doname_flags;
                 && (known || (mvitals[omndx].mvflags & MV_KNOWS_EGG))) {
                 Strcat(prefix, mons[omndx].mname);
                 Strcat(prefix, " ");
-                if (obj->spe && BP_HAS_ROOM(bp, 16))
+                if (obj->spe
+                    && BP_HAS_ROOM(bp, (int) (sizeof " (laid by you)" - 1)))
                     Strcat(bp, " (laid by you)");
             }
         }
@@ -1707,19 +1712,22 @@ unsigned doname_flags;
             || (obj == uarms && obj->otyp == MEAT_SHIELD)
             || (obj == uarmg && obj->otyp == MEAT_GLOVES)
             || (obj == uarmf && obj->otyp == MEAT_BOOTS)) {
-            if (BP_HAS_ROOM(bp, 30))
-                Strcat(bp, (obj == uskin) ? " (embedded in your skin)"
-                           : doffing(obj) ? " (being doffed)"
-                             : donning(obj) ? " (being donned)"
-                               : (druid_form || vampire_form)
-                                  ? " (merged to your form)"
-                                  : " (being worn)");
+            const char *ws = (obj == uskin) ? " (embedded in your skin)"
+                             : doffing(obj) ? " (being doffed)"
+                               : donning(obj) ? " (being donned)"
+                                 : (druid_form || vampire_form)
+                                    ? " (merged to your form)"
+                                    : " (being worn)";
+
+            if (BP_HAS_ROOM(bp, (int) strlen(ws)))
+                Strcat(bp, ws);
         }
         break;
     case BALL_CLASS:
     case CHAIN_CLASS:
         add_erosion_words(obj, prefix);
-        if ((obj->owornmask & W_BALL) && BP_HAS_ROOM(bp, 20))
+        if ((obj->owornmask & W_BALL)
+            && BP_HAS_ROOM(bp, (int) (sizeof " (chained to you)" - 1)))
             Strcat(bp, " (chained to you)");
         break;
     case GEM_CLASS:
@@ -1728,10 +1736,9 @@ unsigned doname_flags;
         break;
     }
 
-    if ((obj->owornmask & W_WEP) && !mrg_to_wielded
-        && BP_HAS_ROOM(bp, 35)) {
+    if ((obj->owornmask & W_WEP) && !mrg_to_wielded) {
         if (obj->quan != 1L) {
-            Strcat(bp, " (wielded)");
+            Strcpy(suffbuf, " (wielded)");
         } else {
             const char *hand_s = mbodypart(owner, HAND);
 
@@ -1740,36 +1747,43 @@ unsigned doname_flags;
                 hand_s = makeplural(hand_s);
             /* note: Sting's glow message, if added, will insert text
                in front of "(weapon in hand)"'s closing paren */
-            Sprintf(eos(bp), " (%sweapon in %s)",
+            Sprintf(suffbuf, " (%sweapon in %s)",
                     (obj->otyp == AKLYS
                      || (obj->oartifact == ART_HAMMER_OF_THE_GODS
                          && P_SKILL(P_HAMMER) >= P_SKILLED)) ? "tethered "
                                                              : "", hand_s);
         }
+        if (BP_HAS_ROOM(bp, (int) strlen(suffbuf)))
+            Strcat(bp, suffbuf);
     }
-    if ((obj->owornmask & W_SWAPWEP) && BP_HAS_ROOM(bp, 35)) {
+    if (obj->owornmask & W_SWAPWEP) {
         if (u.twoweap
             || (owner != &youmonst && MON_WEP2(owner) == obj)) {
-            Sprintf(eos(bp), " (wielded in other %s)",
+            Sprintf(suffbuf, " (wielded in other %s)",
                     mbodypart(owner, HAND));
         } else {
-            Strcat(bp, " (alternate weapon; not wielded)");
+            Strcpy(suffbuf, " (alternate weapon; not wielded)");
         }
+        if (BP_HAS_ROOM(bp, (int) strlen(suffbuf)))
+            Strcat(bp, suffbuf);
     }
     if (obj->altshield && is_shield(obj) && !obj->owornmask
-        && carried(obj) && BP_HAS_ROOM(bp, 35)) {
+        && carried(obj)
+        && BP_HAS_ROOM(bp,
+                       (int) (sizeof " (alternate shield; not worn)" - 1))) {
         Strcat(bp, " (alternate shield; not worn)");
     }
 
     /* Various in-use light sources; overwrite trailing ')'. */
-    if (!Blind && BP_HAS_ROOM(bp, 30)
+    if (!Blind
         && ((obj->owornmask & (W_ARMOR | W_ACCESSORY | W_WEP))
         || ((u.twoweap || (owner != &youmonst && MON_WEP2(owner)))
             && (obj->owornmask & W_SWAPWEP)))) {
+        suffbuf[0] = '\0';
         /* Warning glow from in-use artifacts. */
         if (obj->lastwarncnt
             && strcmp(glow_color(obj->oartifact), "no color")) {
-            Sprintf(eos(bp) - 1, ", %s %s)",
+            Sprintf(suffbuf, ", %s %s)",
                     glow_verb(obj->lastwarncnt, TRUE),
                     glow_color(obj->oartifact));
 
@@ -1779,43 +1793,50 @@ unsigned doname_flags;
                  && !Upolyd && Race_if(PM_DROW))
                 || (Is_dragon_armor(obj)
                     && (Dragon_armor_to_scales(obj) == SHADOW_DRAGON_SCALES)))
-                Sprintf(eos(bp) - 1, ", aura of darkness)");
+                Strcpy(suffbuf, ", aura of darkness)");
             else
-                Sprintf(eos(bp) - 1, ", %s lit)",
+                Sprintf(suffbuf, ", %s lit)",
                         arti_light_description(obj));
         }
+        /* this overwrites the trailing ')' of a worn/wielded suffix appended
+           above, so it needs one byte less than its own length; the full
+           length is kept as a conservative room margin. Require an actual
+           trailing ')' so that if that suffix was dropped (name too long) we
+           don't clobber the final character of the name itself */
+        if (suffbuf[0] && *(eos(bp) - 1) == ')'
+            && BP_HAS_ROOM(bp, (int) strlen(suffbuf)))
+            Strcpy(eos(bp) - 1, suffbuf);
     }
 
-    if (obj->owornmask & W_QUIVER && !iflags.suppress_worn
-        && BP_HAS_ROOM(bp, 18)) {
+    if ((obj->owornmask & W_QUIVER) && !iflags.suppress_worn) {
+        const char *qs;
+
         switch (obj->oclass) {
         case WEAPON_CLASS:
             if (is_ammo(obj)) {
-                if (objects[obj->otyp].oc_skill == -P_BOW) {
-                    /* Ammo for a bow */
-                    Strcat(bp, " (in quiver)");
-                    break;
-                } else {
-                    /* Ammo not for a bow */
-                    Strcat(bp, " (in quiver pouch)");
-                    break;
-                }
+                /* ammo for a bow vs ammo not for a bow */
+                qs = (objects[obj->otyp].oc_skill == -P_BOW)
+                         ? " (in quiver)"
+                         : " (in quiver pouch)";
             } else {
                 /* Weapons not considered ammo */
-                Strcat(bp, " (at the ready)");
-                break;
+                qs = " (at the ready)";
             }
+            break;
         /* Small things and ammo not for a bow */
         case RING_CLASS:
         case AMULET_CLASS:
         case WAND_CLASS:
         case COIN_CLASS:
         case GEM_CLASS:
-            Strcat(bp, " (in quiver pouch)");
+            qs = " (in quiver pouch)";
             break;
         default: /* odd things */
-            Strcat(bp, " (at the ready)");
+            qs = " (at the ready)";
+            break;
         }
+        if (BP_HAS_ROOM(bp, (int) strlen(qs)))
+            Strcat(bp, qs);
     }
     /* treat 'restoring' like suppress_price because shopkeeper and
        bill might not be available yet while restore is in progress

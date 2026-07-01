@@ -5530,4 +5530,5 @@ The following changes to date are:
 - Fix: panic deleting quivered gold in take_gold()
 - Fix: signed integer overflow in tty_nhgetch() window counter
 - Fix: non-rotting corpses failing to stack for Draugr and ghouls
+- Fix: inventory worn/status suffixes dropped from long object names
 
