@@ -5529,4 +5529,5 @@ The following changes to date are:
 - Fix: telekinetic ball push left the ball and chain desynced
 - Fix: panic deleting quivered gold in take_gold()
 - Fix: signed integer overflow in tty_nhgetch() window counter
+- Fix: non-rotting corpses failing to stack for Draugr and ghouls
 

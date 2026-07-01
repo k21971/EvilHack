@@ -3990,8 +3990,13 @@ struct obj *otmp, *obj;
        rot_amount() uses (monstermoves - age) / 10 for Draugr, with
        thresholds at 3 (rancid) and 5 (very rancid), so use 30-turn
        buckets to keep corpses in the same rot category together;
-       only enforce for Draugr/ghouls who can sense freshness */
+       only enforce for Draugr/ghouls who can sense freshness.
+       Non-rotting corpses (lizard, lichen) never change rot category
+       and never display a freshness status, so they must not be
+       blocked here; Rider corpses are already excluded above via
+       is_reviver() */
     if (obj->otyp == CORPSE
+        && obj->corpsenm != PM_LIZARD && obj->corpsenm != PM_LICHEN
         && ((!Upolyd && Race_if(PM_DRAUGR)) || u.umonnum == PM_GHOUL)
         && (monstermoves - obj->age) / 30 != (monstermoves - otmp->age) / 30)
         return FALSE;
