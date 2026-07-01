@@ -5528,4 +5528,5 @@ The following changes to date are:
 - Fix: creeping mounds missing M1_NOLIMBS flag
 - Fix: telekinetic ball push left the ball and chain desynced
 - Fix: panic deleting quivered gold in take_gold()
+- Fix: signed integer overflow in tty_nhgetch() window counter
 

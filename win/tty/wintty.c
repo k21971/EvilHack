@@ -3716,8 +3716,10 @@ tty_nhgetch()
     if (ttyDisplay && ttyDisplay->toplin == 1)
         ttyDisplay->toplin = 2;
 #ifdef TTY_TILES_ESCCODES
-    {
-        /* hack to force output of the window select code */
+    /* hack to force output of the window select code; only meaningful
+       when vt_tiledata is active, and gating it here keeps the marker
+       from growing unbounded (and overflowing) when it is not */
+    if (iflags.vt_tiledata) {
         int tmp = vt_tile_current_window;
 
         vt_tile_current_window++;
