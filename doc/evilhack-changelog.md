@@ -5532,4 +5532,5 @@ The following changes to date are:
 - Fix: non-rotting corpses failing to stack for Draugr and ghouls
 - Fix: inventory worn/status suffixes dropped from long object names
 - Fix: egg petrified into a rock kept its flesh material
+- Fix: What weird race is this? (Amr) Program in disorder!
 

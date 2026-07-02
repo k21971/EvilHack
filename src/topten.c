@@ -1426,8 +1426,9 @@ boolean fem;
     if (!strcmp(plch, "E"))
         return PM_RANGER;
 
-    impossible("What weird role is this? (%s)", plch);
-    return  PM_HUMAN_MUMMY;
+    /* record files are retained across versions; an entry written
+       by a newer binary may name a role this binary does not know */
+    return PM_HUMAN_MUMMY;
 }
 
 STATIC_OVL int
@@ -1460,7 +1461,9 @@ boolean fem;
         }
     }
 
-    impossible("What weird race is this? (%s)", plrac);
+    /* record files are retained across versions; an entry written
+       by a newer binary may name a race this binary does not know,
+       so treat it like the old-format "?" case */
     return NON_PM;
 }
 
