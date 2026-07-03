@@ -447,7 +447,7 @@ chat_with_leader()
 
     /* Rule 4: You haven't got the artifact yet. */
     } else if (Qstat(got_quest)) {
-        qt_pager(rn1(10, QT_ENCOURAGE));
+        qt_pager(rn1(11, QT_ENCOURAGE));
 
     /* Rule 5: You aren't yet acceptable - or are you? */
     } else {
