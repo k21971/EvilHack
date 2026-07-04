@@ -23,6 +23,7 @@ STATIC_DCL void FDECL(missmu, (struct monst *, int, int, struct attack *));
 STATIC_DCL void FDECL(mswings, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(wildmiss, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(hitmsg, (struct monst *, struct attack *));
+STATIC_DCL const char *FDECL(hidden_under_what, (struct monst *));
 
 static const char *const mwep_pierce[] = {
     "pierce", "gore", "stab", "impale", "hit"
@@ -43,6 +44,31 @@ static const char *const mwep_none[] = {
 /* See comment in mhitm.c.  If we use this a lot it probably should be */
 /* changed to a parameter to mhitu. */
 static int dieroll;
+
+/* name what a just-revealed hider was concealed beneath; liquid
+   terrain is checked separately from concealed_spot() because eels
+   and giant leeches hide in bare water/sewage with no object cover */
+STATIC_OVL const char *
+hidden_under_what(mtmp)
+struct monst *mtmp;
+{
+    struct obj *obj = level.objects[mtmp->mx][mtmp->my];
+    int concealment = concealed_spot(mtmp->mx, mtmp->my);
+
+    if (Blind && !(obj && obj->dknown))
+        return something;
+    if (is_pool(mtmp->mx, mtmp->my) && !Underwater)
+        return "the water";
+    if (is_puddle(mtmp->mx, mtmp->my))
+        return "the shallow water";
+    if (is_sewage(mtmp->mx, mtmp->my))
+        return "the raw sewage";
+    if (concealment == 2) /* object cover */
+        return doname(obj);
+    if (concealment == 1) /* terrain cover, no objects */
+        return the(explain_terrain(mtmp->mx, mtmp->my));
+    return something;
+}
 
 STATIC_OVL void
 hitmsg(mtmp, mattk)
@@ -905,26 +931,8 @@ struct monst *mtmp;
                     || mdat == &mons[PM_GIANT_LEECH])) {
                 mtmp->mundetected = 0;
                 if (!(Blind ? Blind_telepat : Unblind_telepat)) {
-                    struct obj *obj = level.objects[mtmp->mx][mtmp->my];
-                    const char *what = something;
-                    int concealment = concealed_spot(mtmp->mx, mtmp->my);
-
-                    if (concealment == 2) { /* object cover */
-                        if (Blind && !obj->dknown)
-                            what = something;
-                        else if (is_pool(mtmp->mx, mtmp->my) && !Underwater)
-                            what = "the water";
-                        else if (is_puddle(mtmp->mx, mtmp->my))
-                            what = "the shallow water";
-                        else if (is_sewage(mtmp->mx, mtmp->my))
-                            what = "the raw sewage";
-                        else
-                            what = doname(obj);
-                    } else if (concealment == 1) { /* terrain cover, no objects */
-                        what = explain_terrain(mtmp->mx, mtmp->my);
-                    }
-                    pline("%s was hidden under %s%s!", Amonnam(mtmp),
-                          obj ? "" : "the ", what);
+                    pline("%s was hidden under %s!", Amonnam(mtmp),
+                          hidden_under_what(mtmp));
                     /* unhide attacking monster if hidden */
                     maybe_unhide_at(mtmp->mx, mtmp->my);
                     newsym(mtmp->mx, mtmp->my);
@@ -1580,26 +1588,8 @@ struct attack *mattk;
                               || mdat == &mons[PM_GIANT_LEECH])) {
         mtmp->mundetected = 0;
         if (!(Blind ? Blind_telepat : Unblind_telepat)) {
-            struct obj *obj = level.objects[mtmp->mx][mtmp->my];
-            const char *what = something;
-            int concealment = concealed_spot(mtmp->mx, mtmp->my);
-
-            if (concealment == 2) { /* object cover */
-                if (Blind && !obj->dknown)
-                    what = something;
-                else if (is_pool(mtmp->mx, mtmp->my) && !Underwater)
-                    what = "the water";
-                else if (is_puddle(mtmp->mx, mtmp->my))
-                    what = "the shallow water";
-                else if (is_sewage(mtmp->mx, mtmp->my))
-                    what = "the raw sewage";
-                else
-                    what = doname(obj);
-            } else if (concealment == 1) { /* terrain cover, no objects */
-                what = explain_terrain(mtmp->mx, mtmp->my);
-            }
-            pline("%s was hidden under %s%s!", Amonnam(mtmp),
-                  obj ? "" : "the ", what);
+            pline("%s was hidden under %s!", Amonnam(mtmp),
+                  hidden_under_what(mtmp));
             newsym(mtmp->mx, mtmp->my);
         }
     }
