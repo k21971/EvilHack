@@ -5534,4 +5534,5 @@ The following changes to date are:
 - Fix: egg petrified into a rock kept its flesh material
 - Fix: What weird race is this? (Amr) Program in disorder!
 - Fix: unreachable Charon and quest leader dialogue lines
+- Fix: double m_detach when monster-cast dispel evil kills
 

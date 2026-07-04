@@ -2609,7 +2609,8 @@ struct obj *otmp;
             int dmg = d(4, 6);
             if (mcarried(otmp))
                 dmg += otmp->ocarry->m_lev / 3;
-            if (!resist(mtmp, otmp->oclass, dmg, NOTELL)) {
+            if (!resist(mtmp, otmp->oclass, dmg, NOTELL)
+                && !DEADMONSTER(mtmp)) {
                 damage_mon(mtmp, dmg, AD_MAGM, TRUE);
                 if (canseemon(mtmp))
                     pline("%s %s in %s!", Monnam(mtmp),
