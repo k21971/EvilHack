@@ -773,7 +773,15 @@ int x, y;
         wakeup(mon, FALSE);
         if (!canspotmon(mon))
             map_invisible(mon->mx, mon->my);
-        setmangry(mon, FALSE);
+        /* colliding with a peaceful is not the hero's fault when
+           knocked back, but a voluntary jump through a square with
+           a remembered monster or 'I' mark is a knowing act; test
+           the glyph cached above, before any map update */
+        if (via_jumping
+            && (glyph_is_monster(glyph) || glyph_is_invisible(glyph)))
+            setmangry(mon, FALSE);
+        else
+            setmangry_accidental(mon, FALSE);
         if (touch_petrifies(mon->data)
             /* this is a bodily collision, so check for body armor */
             && !uarmu && !uarm && !uarmc) {
@@ -938,7 +946,15 @@ int x, y;
     if ((mtmp = m_at(x, y)) != 0  && mtmp != mon) {
         if (canseemon(mon) || canseemon(mtmp))
             pline("%s bumps into %s.", Monnam(mon), a_monnam(mtmp));
-        wakeup(mtmp, !context.mon_moving);
+        /* when the hero sent mon flying into a monster they could
+           not spot, the collision charges luck rather than
+           alignment; a visible victim keeps the full penalty */
+        if (context.mon_moving || canspotmon(mtmp)) {
+            wakeup(mtmp, !context.mon_moving);
+        } else {
+            wakeup(mtmp, FALSE);
+            setmangry_accidental(mtmp, TRUE);
+        }
         /* check whether 'mon' is turned to stone by touching 'mtmp' */
         if (touch_petrifies(mtmp->data)
             && !which_armor(mon, W_ARMU | W_ARM | W_ARMC)) {

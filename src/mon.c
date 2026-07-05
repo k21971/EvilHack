@@ -14,6 +14,11 @@
 #include <ctype.h>
 
 STATIC_VAR boolean rise_msg, disintegested, player_killed;
+/* how the hero accidentally angered a peaceful, for setmangry() */
+#define ACCIDENT_NONE 0
+#define ACCIDENT_BUMP 1      /* walked into an unseen monster */
+#define ACCIDENT_COLLISION 2 /* involuntary knockback collision */
+STATIC_VAR int accidental_bump;
 STATIC_VAR struct monst *pet_killer; /* pet that killed monster, for livelog */
 
 /* Set the pet responsible for a kill (call before monkilled) */
@@ -5965,6 +5970,12 @@ setmangry(mtmp, via_attack)
 struct monst *mtmp;
 boolean via_attack;
 {
+    int accidental = accidental_bump;
+
+    /* consume the flag immediately so early returns or nested
+       calls never inherit it */
+    accidental_bump = ACCIDENT_NONE;
+
     if (via_attack && sengr_at("Elbereth", u.ux, u.uy, TRUE)
         /* only hypocritical if monster is vulnerable to Elbereth (or
            peaceful--not vulnerable but attacking it is hypocritical) */
@@ -5977,14 +5988,18 @@ boolean via_attack;
            it's intentionally larger than the 1s and 2s that are normally
            given for this sort of thing. */
         /* reduce to 3 (average) when alignment is already very low */
-        if (u.ualign.type != A_NONE) {
-            int pen = (u.ualign.record > 5) ? -5 : -rnd(5);
+        /* blundering into an unseen monster is not hypocrisy, but
+           the engraving still fades below */
+        if (!accidental) {
+            if (u.ualign.type != A_NONE) {
+                int pen = (u.ualign.record > 5) ? -5 : -rnd(5);
 
-            You_feel("like a hypocrite.");
-            adjalign(pen);
-            record_abuse_event_mon(pen, ABUSE_ATTACK_ELBERETH, mtmp);
-        } else
-            You_feel("clever."); /* no alignment penalty */
+                You_feel("like a hypocrite.");
+                adjalign(pen);
+                record_abuse_event_mon(pen, ABUSE_ATTACK_ELBERETH, mtmp);
+            } else
+                You_feel("clever."); /* no alignment penalty */
+        }
 
         if (!Blind)
             pline("The engraving beneath you fades.");
@@ -6040,31 +6055,52 @@ boolean via_attack;
                   && !uwep && context.forcefight && !Upolyd))) {
             if (mtmp->ispriest) {
                 if (p_coaligned(mtmp)) {
-                    if (canspotmon(mtmp))
-                        You_feel("guilty.");
-                    else
-                        You("have a vague sense of guilt.");
-                    adjalign(-5); /* very bad */
-                    record_abuse_event_mon(-5, ABUSE_ANGER_PRIEST, mtmp);
+                    if (accidental) {
+                        /* blundering into your own deity's priest is
+                           not malice, so no alignment abuse, but the
+                           gods take a very dim view of it regardless */
+                        u.uluck = LUCKMIN;
+                        pline(accidental == ACCIDENT_COLLISION
+                                  ? "That was extremely unfortunate..."
+                                  : "That was extremely careless of you.");
+                    } else {
+                        if (canspotmon(mtmp))
+                            You_feel("guilty.");
+                        else
+                            You("have a vague sense of guilt.");
+                        adjalign(-5); /* very bad */
+                        record_abuse_event_mon(-5, ABUSE_ANGER_PRIEST, mtmp);
+                    }
                 } else {
                     adjalign(2);
                 }
             } else {
                 /* Infidels and Convicts don't feel guilt from this */
                 if (!(u.ualign.type == A_NONE || Role_if(PM_CONVICT))) {
-                    int pen = u.ualign.type > A_CHAOTIC ? -5 : -1;
+                    if (accidental) {
+                        /* contact with a monster the hero had no way
+                           to detect or avoid is not malice; charge
+                           luck instead of alignment */
+                        change_luck(-2);
+                        pline(accidental == ACCIDENT_COLLISION
+                                  ? "That was unfortunate..."
+                                  : "That was careless of you.");
+                    } else {
+                        int pen = u.ualign.type > A_CHAOTIC ? -5 : -1;
 
-                    if (canspotmon(mtmp))
-                        You_feel("guilty.");
-                    else
-                        You("have a vague sense of guilt.");
-                    /* attacking or merely angering peaceful monsters
-                       is bad; distinguish the two for the record */
-                    adjalign(pen);
-                    record_abuse_event_mon(pen, via_attack
-                                                    ? ABUSE_ATTACK_PEACEFUL
-                                                    : ABUSE_ANGER_PEACEFUL,
-                                           mtmp);
+                        if (canspotmon(mtmp))
+                            You_feel("guilty.");
+                        else
+                            You("have a vague sense of guilt.");
+                        /* attacking or merely angering peaceful monsters
+                           is bad; distinguish the two for the record */
+                        adjalign(pen);
+                        record_abuse_event_mon(pen,
+                                               via_attack
+                                                 ? ABUSE_ATTACK_PEACEFUL
+                                                 : ABUSE_ANGER_PEACEFUL,
+                                               mtmp);
+                    }
                 }
             }
         }
@@ -6152,7 +6188,9 @@ boolean via_attack;
                                 mon->mpeaceful = 0;
                                 set_malign(mon);
                                 newsym(mon->mx, mon->my); /* clear peaceful glyph */
-                                if (u.ualign.type != A_NONE) {
+                                /* bystanders still anger over an
+                                   accidental bump, but charge nothing */
+                                if (u.ualign.type != A_NONE && !accidental) {
                                     if (canspotmon(mon))
                                         You_feel("guilty.");
                                     else
@@ -6199,6 +6237,30 @@ boolean via_attack;
     finish_meating(mtmp);
     if (via_attack)
         setmangry(mtmp, TRUE);
+}
+
+/* hero blundered into a monster they had no way to detect; anger it
+   as an attack but charge luck rather than alignment */
+void
+wakeup_accidental(mtmp)
+struct monst *mtmp;
+{
+    accidental_bump = ACCIDENT_BUMP;
+    wakeup(mtmp, TRUE);
+    accidental_bump = ACCIDENT_NONE; /* setmangry consumes it; be safe */
+}
+
+/* monster angered by an involuntary collision (hero knocked back,
+   jumping blind, or a monster the hero sent flying); anger it but
+   charge luck rather than alignment */
+void
+setmangry_accidental(mtmp, via_attack)
+struct monst *mtmp;
+boolean via_attack;
+{
+    accidental_bump = ACCIDENT_COLLISION;
+    setmangry(mtmp, via_attack);
+    accidental_bump = ACCIDENT_NONE; /* setmangry consumes it; be safe */
 }
 
 /* Wake up nearby monsters without angering them. */

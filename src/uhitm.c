@@ -179,7 +179,16 @@ struct obj *wep; /* uwep for attack(), null for kick_monster() */
          * peacefuls, we're operating as if an attack attempt did occur
          * and the Elbereth behavior is consistent.
          */
-        wakeup(mtmp, TRUE); /* always necessary; also un-mimics mimics */
+        /* waking up is always necessary and also un-mimics mimics;
+           a remembered monster glyph means the hero knew something
+           was here, so the bump is a knowing attack - otherwise
+           charge luck rather than alignment. Must test the glyph
+           cached above; map_invisible() has already placed an 'I'
+           on the map */
+        if (glyph_is_monster(glyph))
+            wakeup(mtmp, TRUE);
+        else
+            wakeup_accidental(mtmp);
         return TRUE;
     }
 
