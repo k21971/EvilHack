@@ -1010,6 +1010,7 @@ struct monst *caster, *target;
 int dmg, spellnum;
 short learned_otyp; /* pre-selected learned spell, or 0 */
 {
+    struct monst *save_exploder;
     boolean yours = (caster == &youmonst);
     boolean youdefend = (target == &youmonst);
     boolean seecaster = (yours || canseemon(caster)
@@ -1151,8 +1152,11 @@ short learned_otyp; /* pre-selected learned spell, or 0 */
         if (youdefend) {
             if (seecaster)
                 pline("%s douses you in a torrent of acid!", Monnam(caster));
+            save_exploder = exploder;
+            exploder = caster;
             explode(u.ux, u.uy, ZT_ACID, d((ml / 2) + 4, 8),
                     MON_CASTBALL, EXPL_ACID);
+            exploder = save_exploder;
             if (how_resistant(ACID_RES) == 100) {
                 shieldeff(u.ux, u.uy);
                 pline("The acid dissipates harmlessly.");
@@ -1172,9 +1176,12 @@ short learned_otyp; /* pre-selected learned spell, or 0 */
             else if (seecaster)
                 pline("%s douses %s in a torrent of acid!",
                       Monnam(caster), mon_nam(target));
+            save_exploder = exploder;
+            exploder = caster;
             explode(target->mx, target->my, ZT_ACID,
                     d((ml / 2) + 4, 8),
                     yours ? 0 : MON_CASTBALL, EXPL_ACID);
+            exploder = save_exploder;
             if (DEADMONSTER(target)) {
                 dmg = 0;
                 break;
@@ -1457,12 +1464,15 @@ short learned_otyp; /* pre-selected learned spell, or 0 */
             if (seecaster)
                 pline("%s blasts you with %s!", Monnam(caster),
                       (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
+            save_exploder = exploder;
+            exploder = caster;
             explode(u.ux, u.uy,
                     (spellnum == MGC_FIRE_BOLT) ? ZT_FIRE : ZT_COLD,
                     resist_reduce(d((ml / 5) + 1, 8),
                                   (spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES),
                     MON_CASTBALL,
                     (spellnum == MGC_FIRE_BOLT) ? EXPL_FIERY : EXPL_FROSTY);
+            exploder = save_exploder;
             if (how_resistant((spellnum == MGC_FIRE_BOLT) ? FIRE_RES : COLD_RES) == 100) {
                 shieldeff(u.ux, u.uy);
                 monstseesu((spellnum == MGC_FIRE_BOLT) ? M_SEEN_FIRE : M_SEEN_COLD);
@@ -1477,11 +1487,14 @@ short learned_otyp; /* pre-selected learned spell, or 0 */
             else if (seecaster)
                 pline("%s blasts %s with %s!", Monnam(caster), mon_nam(target),
                       (spellnum == MGC_FIRE_BOLT) ? "fire" : "ice");
+            save_exploder = exploder;
+            exploder = caster;
             explode(target->mx, target->my,
                     (spellnum == MGC_FIRE_BOLT) ? ZT_FIRE : ZT_COLD,
                     d((ml / 5) + 1, 8),
                     yours ? 0 : MON_CASTBALL,
                     (spellnum == MGC_FIRE_BOLT) ? EXPL_FIERY : EXPL_FROSTY);
+            exploder = save_exploder;
             if (DEADMONSTER(target)) {
                 dmg = 0;
                 break;

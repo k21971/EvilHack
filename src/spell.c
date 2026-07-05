@@ -2053,7 +2053,7 @@ boolean wiz_cast;
                                 rn2(2) ? "annihilate" : "obliterate",
                                 mon_nam(mtmp));
                             mtmp->mhp = 0;
-                            monkilled(mtmp, (char *) 0, AD_DETH);
+                            xkilled(mtmp, XKILL_NOMSG);
                             if (!DEADMONSTER(mtmp)) {
                                 /* lifesaved; clean up pseudo before
                                    bailing so the temporary doesn't

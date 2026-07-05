@@ -183,8 +183,11 @@ int target, roll;
                    hero-symmetric site at mhitu.c */
                 if (damage_mon(magr,
                                rnd(sear_damage(blocker->material) / 2),
-                               AD_PHYS, FALSE))
+                               AD_PHYS, FALSE)) {
+                    if (mdef->mtame)
+                        set_pet_killer(mdef);
                     monkilled(magr, "", AD_PHYS);
+                }
             }
             /* glass armor, or certain drow armor if in the presence
                of light, can potentially break if it deflects an attack */
@@ -381,6 +384,8 @@ boolean quietly;
             }
             if (!quietly && canspotmon(magr))
                 pline("%s turns to stone!", Monnam(magr));
+            if (mdef->mtame)
+                set_pet_killer(mdef);
             monstone(magr);
             if (!DEADMONSTER(magr))
                 return MM_HIT; /* lifesaved */
@@ -1060,6 +1065,8 @@ struct attack *mattk;
                 }
                 if (canseemon(magr))
                     pline("%s is turned to stone!", Monnam(magr));
+                if (mdef->mtame)
+                    set_pet_killer(mdef);
                 monstone(magr);
                 if (!DEADMONSTER(magr))
                     return MM_MISS;
@@ -1399,6 +1406,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             }
             if (vis && canspotmon(magr))
                 pline("%s turns to stone!", Monnam(magr));
+            if (mdef->mtame)
+                set_pet_killer(mdef);
             monstone(magr);
             if (!DEADMONSTER(magr))
                 return MM_HIT; /* lifesaved */
@@ -1604,6 +1613,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             if (canseemon(mdef))
                 pline("%s %ss %s!", buf,
                       rn2(2) ? "behead" : "decapitate", mon_nam(mdef));
+            if (magr->mtame)
+                set_pet_killer(magr);
             mondied(mdef);
             if (!DEADMONSTER(mdef))
                 return 0;
@@ -1687,6 +1698,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                     } else {
                         if (vis && canseemon(mdef))
                             pline_The("poison was deadly...");
+                        if (magr->mtame)
+                            set_pet_killer(magr);
                         mondied(mdef);
                     }
                 }
@@ -1983,6 +1996,8 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 if (magr->data == &mons[PM_MEDUSA]) {
                     if (vis && canseemon(mdef))
                         pline("%s turns to stone!", Monnam(mdef));
+                    if (magr->mtame)
+                        set_pet_killer(magr);
                     monstone(mdef);
 post_stone:
                     if (!DEADMONSTER(mdef))
@@ -2884,7 +2899,12 @@ msickness:
                 tmp = 0;
                 break;
             }
+            /* cancellation only kills clay golems; clear afterward in
+               case no death consumed the attribution */
+            if (magr->mtame)
+                set_pet_killer(magr);
             (void) cancel_monst(mdef, (struct obj *) 0, FALSE, TRUE, FALSE);
+            set_pet_killer((struct monst *) 0);
         }
         break;
     case AD_PITS:
@@ -3272,6 +3292,8 @@ struct obj *mwep;
                         if (damage_mon(magr, rnd(4), AD_DRST, FALSE)) {
                             if (canseemon(magr))
                                 pline("%s dies!", Monnam(magr));
+                            if (mdef->mtame)
+                                set_pet_killer(mdef);
                             monkilled(magr, "", AD_DRST);
                             return (mdead | mhit | MM_AGR_DIED);
                         }
@@ -3279,6 +3301,8 @@ struct obj *mwep;
                 } else {
                     if (canseemon(magr))
                         pline("%s is fatally poisoned!", Monnam(magr));
+                    if (mdef->mtame)
+                        set_pet_killer(mdef);
                     monkilled(magr, "", AD_DRST);
                     return (mdead | mhit | MM_AGR_DIED);
                 }
@@ -3349,6 +3373,8 @@ struct obj *mwep;
                                 }
                                 magr->mhp = magr->mhpmax;
                             } else {
+                                if (mdef->mtame)
+                                    set_pet_killer(mdef);
                                 monkilled(magr, "", AD_DISN);
                                 return (mdead | mhit | MM_AGR_DIED);
                             }
@@ -3372,6 +3398,8 @@ struct obj *mwep;
                         if (damage_mon(magr, rnd(4), AD_COLD, FALSE)) {
                             if (canseemon(magr))
                                 pline("%s dies!", Monnam(magr));
+                            if (mdef->mtame)
+                                set_pet_killer(mdef);
                             monkilled(magr, "", AD_COLD);
                             return (mdead | mhit | MM_AGR_DIED);
                         }
@@ -3382,6 +3410,8 @@ struct obj *mwep;
                     if (damage_mon(magr, d(6, 6), AD_COLD, FALSE)) {
                         if (canseemon(magr))
                             pline("%s dies!", Monnam(magr));
+                        if (mdef->mtame)
+                            set_pet_killer(mdef);
                         monkilled(magr, "", AD_COLD);
                         return (mdead | mhit | MM_AGR_DIED);
                     }
@@ -3398,6 +3428,8 @@ struct obj *mwep;
                         if (damage_mon(magr, rnd(4), AD_FIRE, FALSE)) {
                             if (canseemon(magr))
                                 pline("%s dies!", Monnam(magr));
+                            if (mdef->mtame)
+                                set_pet_killer(mdef);
                             monkilled(magr, "", AD_FIRE);
                             return (mdead | mhit | MM_AGR_DIED);
                         }
@@ -3408,6 +3440,8 @@ struct obj *mwep;
                     if (damage_mon(magr, d(6, 6), AD_FIRE, FALSE)) {
                         if (canseemon(magr))
                             pline("%s dies!", Monnam(magr));
+                        if (mdef->mtame)
+                            set_pet_killer(mdef);
                         monkilled(magr, "", AD_FIRE);
                         return (mdead | mhit | MM_AGR_DIED);
                     }
@@ -3424,6 +3458,8 @@ struct obj *mwep;
                         if (damage_mon(magr, rnd(4), AD_ACID, FALSE)) {
                             if (canseemon(magr))
                                 pline("%s dies!", Monnam(magr));
+                            if (mdef->mtame)
+                                set_pet_killer(mdef);
                             monkilled(magr, "", AD_ACID);
                             return (mdead | mhit | MM_AGR_DIED);
                         }
@@ -3434,15 +3470,25 @@ struct obj *mwep;
                     if (damage_mon(magr, d(6, 6), AD_ACID, FALSE)) {
                         if (canseemon(magr))
                             pline("%s dies!", Monnam(magr));
+                        if (mdef->mtame)
+                            set_pet_killer(mdef);
                         monkilled(magr, "", AD_ACID);
                         return (mdead | mhit | MM_AGR_DIED);
                     }
                 }
                 break;
             case GRAY_DRAGON_SCALES:
-                if (!rn2(6))
-                    (void) cancel_monst(magr, (struct obj *) 0, TRUE,
+                if (!rn2(6)) {
+                    /* not the hero's attack; passing TRUE for
+                       youattack here used to hand the hero credit
+                       and blame when the cancellation killed a clay
+                       golem attacker */
+                    if (mdef->mtame)
+                        set_pet_killer(mdef);
+                    (void) cancel_monst(magr, (struct obj *) 0, FALSE,
                                         TRUE, FALSE);
+                    set_pet_killer((struct monst *) 0);
+                }
                 break;
             default: /* all other types of armor, just pass on through */
                 break;
@@ -3465,6 +3511,8 @@ struct obj *mwep;
                         pline("Dragonbane's power overwhelms %s!",
                               mon_nam(magr));
                     pline("%s dies!", Monnam(magr));
+                    if (mdef->mtame)
+                        set_pet_killer(mdef);
                     monkilled(magr, "", AD_PHYS);
                     return (mdead | mhit | MM_AGR_DIED);
                 }
@@ -3583,6 +3631,8 @@ struct obj *mwep;
                             }
                             magr->mhp = magr->mhpmax;
                         } else {
+                            if (mdef->mtame)
+                                set_pet_killer(mdef);
                             monkilled(magr, "", AD_DISN);
                             return (mdead | mhit | MM_AGR_DIED);
                         }
@@ -3610,6 +3660,8 @@ struct obj *mwep;
                     if (canseemon(magr))
                         pline("%s poisonous hide was deadly...",
                               s_suffix(Monnam(mdef)));
+                    if (mdef->mtame)
+                        set_pet_killer(mdef);
                     monkilled(magr, "", (int) mdattk[i].adtyp);
                     return (mdead | mhit | MM_AGR_DIED);
                 }
@@ -3658,7 +3710,10 @@ struct obj *mwep;
             if (canseemon(magr))
                 pline("%s hide absorbs magical energy from %s.",
                       s_suffix(Monnam(mdef)), mon_nam(magr));
+            if (mdef->mtame)
+                set_pet_killer(mdef);
             (void) cancel_monst(magr, mwep, FALSE, TRUE, FALSE);
+            set_pet_killer((struct monst *) 0);
         }
         break;
     case AD_SLIM:
@@ -3843,6 +3898,8 @@ struct obj *mwep;
  assess_dmg:
     if (damage_mon(magr, tmp, (int) mdattk[i].adtyp, FALSE)) {
         zombify = FALSE;
+        if (mdef->mtame)
+            set_pet_killer(mdef);
         if (mdef->uexp)
             mon_xkilled(magr, "", (int) mdattk[i].adtyp);
         else

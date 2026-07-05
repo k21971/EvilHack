@@ -2201,6 +2201,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     char hittee[BUFSZ];
     struct artifact *atmp;
     struct obj *target;
+    struct monst *save_exploder;
     int j, k, l, permdmg = 0;
     int hurtle_distance;
     boolean def_underwater;
@@ -2481,11 +2482,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else {
                 pline("A massive surge of energy courses through the %s!",
                       simpleonames(otmp));
+                save_exploder = exploder;
+                exploder = magr;
                 explode(youdefend ? u.ux : mdef->mx,
                         youdefend ? u.uy : mdef->my,
                         (youattack ? ZT_BREATH(ZT_LIGHTNING)
                                    : -ZT_BREATH(ZT_LIGHTNING)), d(6, 6),
                         (youattack ? 0 : MON_CASTBALL), EXPL_SHOCK);
+                exploder = save_exploder;
                 return TRUE;
             }
         }
@@ -2665,11 +2669,14 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else {
                 pline("A surge of acid flows through the %s!",
                       simpleonames(otmp));
+                save_exploder = exploder;
+                exploder = magr;
                 explode(youdefend ? u.ux : mdef->mx,
                         youdefend ? u.uy : mdef->my,
                         (youattack ? ZT_BREATH(ZT_ACID)
                                    : -ZT_BREATH(ZT_ACID)), d(6, 6),
                         (youattack ? 0 : MON_CASTBALL), EXPL_ACID);
+                exploder = save_exploder;
                 return TRUE;
             }
         }
@@ -2982,21 +2989,27 @@ int dieroll; /* needed for Magicbane and vorpal blades */
             } else if (rn2(2)) {
                 if (!(resists_fire(mdef) || defended(mdef, AD_FIRE))) {
                     pline("A surge of flame flows through the blade!");
+                    save_exploder = exploder;
+                    exploder = magr;
                     explode(youdefend ? u.ux : mdef->mx,
                             youdefend ? u.uy : mdef->my,
                             (youattack ? ZT_BREATH(ZT_FIRE)
                                        : -ZT_BREATH(ZT_FIRE)), d(4, 6),
                             (youattack ? 0 : MON_CASTBALL), EXPL_FIERY);
+                    exploder = save_exploder;
                     return TRUE;
                 }
             } else {
                 if (!(resists_cold(mdef) || defended(mdef, AD_COLD))) {
                     pline("A surge of frost flows through the blade!");
+                    save_exploder = exploder;
+                    exploder = magr;
                     explode(youdefend ? u.ux : mdef->mx,
                             youdefend ? u.uy : mdef->my,
                             (youattack ? ZT_BREATH(ZT_COLD)
                                        : -ZT_BREATH(ZT_COLD)), d(4, 6),
                             (youattack ? 0 : MON_CASTBALL), EXPL_FROSTY);
+                    exploder = save_exploder;
                     return TRUE;
                 }
             }

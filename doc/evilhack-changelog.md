@@ -5537,4 +5537,5 @@ The following changes to date are:
 - Fix: double m_detach when monster-cast dispel evil kills
 - Fix: hidden water lurker reveal said "under the something"
 - Accidental bumps into unseen peacefuls cost luck, not alignment
+- Fix: pet kills of unique monsters were missing from the livelog
 

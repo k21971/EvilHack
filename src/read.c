@@ -2199,7 +2199,7 @@ struct obj *sobj; /* sobj - scroll or fake spellbook for spell */
         if (!is_valid_stinking_cloud_pos(cc.x, cc.y, TRUE))
             break;
         (void) create_gas_cloud(cc.x, cc.y, 3 + bcsign(sobj),
-                                8 + 4 * bcsign(sobj));
+                                8 + 4 * bcsign(sobj), &youmonst);
         break;
     }
     case SCR_MAGIC_DETECTION:

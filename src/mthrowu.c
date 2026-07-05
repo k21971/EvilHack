@@ -608,7 +608,11 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
             otmp->dknown = 1;
         /* probably thrown by a monster rather than 'other', but the
            distinction only matters when hitting the hero */
+        if (magr && magr->mtame)
+            set_pet_killer(magr);
         potionhit(mtmp, otmp, POTHIT_OTHER_THROW);
+        /* the potion may not have killed; clear leftover attribution */
+        set_pet_killer((struct monst *) 0);
         return 1;
     } else {
         damage = dmgval(magr, otmp, mtmp);
@@ -730,10 +734,13 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                            || !canspotmon(mtmp)) ? "destroyed" : "killed");
                 /* don't blame hero for unknown rolling boulder trap */
                 if (!context.mon_moving && (otmp->otyp != BOULDER
-                                            || range >= 0 || otmp->otrapped))
+                                            || range >= 0 || otmp->otrapped)) {
                     xkilled(mtmp, XKILL_NOMSG);
-                else
+                } else {
+                    if (magr && magr->mtame)
+                        set_pet_killer(magr);
                     mondied(mtmp);
+                }
             }
         }
 

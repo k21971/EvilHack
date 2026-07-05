@@ -1074,10 +1074,17 @@ genericptr_t p2;
             damage_mon(mtmp, rnd(dam) + 5, AD_DRST,
                        heros_fault(reg) ? TRUE : FALSE);
             if (DEADMONSTER(mtmp)) {
-                if (heros_fault(reg))
+                if (heros_fault(reg)) {
                     killed(mtmp);
-                else
+                } else {
+                    struct monst *creator = reg->creator_mid
+                              ? find_mid(reg->creator_mid, FM_FMON)
+                              : (struct monst *) 0;
+
+                    if (creator && creator->mtame)
+                        set_pet_killer(creator);
                     monkilled(mtmp, "gas cloud", AD_DRST);
+                }
                 if (DEADMONSTER(mtmp)) { /* not lifesaved */
                     return TRUE;
                 }
@@ -1088,10 +1095,12 @@ genericptr_t p2;
 }
 
 NhRegion *
-create_gas_cloud(x, y, radius, damage)
+create_gas_cloud(x, y, radius, damage, creator)
 xchar x, y;
 int radius;
 int damage;
+struct monst *creator; /* &youmonst = hero, monster pointer = that
+                          monster, NULL = environment/level generation */
 {
     NhRegion *cloud;
     int i, nrect;
@@ -1111,8 +1120,16 @@ int damage;
         tmprect.hy--;
     }
     cloud->ttl = rn1(3, 4);
-    if (!in_mklev && !context.mon_moving)
-        set_heros_fault(cloud); /* assume player has created it */
+    /* only hero-created clouds credit or blame the hero for their
+       kills; create_region() already starts regions as not the
+       hero's fault, so the else branch is belt-and-suspenders that
+       also keeps the intent explicit */
+    if (creator == &youmonst)
+        set_heros_fault(cloud);
+    else
+        clear_heros_fault(cloud);
+    cloud->creator_mid = (creator && creator != &youmonst) ? creator->m_id
+                                                           : 0;
     cloud->inside_f = INSIDE_GAS_CLOUD;
     cloud->expire_f = EXPIRE_GAS_CLOUD;
     cloud->arg = zeroany;

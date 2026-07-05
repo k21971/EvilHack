@@ -2410,7 +2410,8 @@ E void FDECL(show_region, (NhRegion *, XCHAR_P, XCHAR_P));
 E void FDECL(save_regions, (int, int));
 E void FDECL(rest_regions, (int, BOOLEAN_P));
 E void FDECL(region_stats, (const char *, char *, long *, long *));
-E NhRegion *FDECL(create_gas_cloud, (XCHAR_P, XCHAR_P, int, int));
+E NhRegion *FDECL(create_gas_cloud, (XCHAR_P, XCHAR_P, int, int,
+                                     struct monst *));
 E boolean NDECL(region_danger);
 E void NDECL(region_safety);
 

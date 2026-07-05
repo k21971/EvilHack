@@ -542,6 +542,8 @@ int expltype;
                            left; adtyp itself must NOT be mutated --
                            later iterations and the post-loop player
                            block still read it */
+                        if (exploder && exploder->mtame)
+                            set_pet_killer(exploder);
                         monkilled(mtmp, "",
                                   xkflg ? -AD_RBRE : (int) adtyp);
                     }
@@ -1005,6 +1007,7 @@ mon_explodes(mon, mattk)
 struct monst *mon;
 struct attack *mattk;
 {
+    struct monst *save_exploder;
     int dmg;
     int type;
     if (mattk->damn)
@@ -1036,8 +1039,15 @@ struct attack *mattk;
     Sprintf(killer.name, "%s explosion", s_suffix(mon->data->mname));
     killer.format = KILLED_BY_AN;
 
+    /* credit the exploding monster for blast kills (set after the
+       mondead() above so m_detach() doesn't clear it; a dead pet is
+       still valid for the mtame check until dmonsfree()); save and
+       restore so a chained explosion cannot clobber an outer one */
+    save_exploder = exploder;
+    exploder = mon;
     explode(mon->mx, mon->my, type, dmg, MON_EXPLODE,
             adtyp_to_expltype(mattk->adtyp));
+    exploder = save_exploder;
 
     /* reset killer */
     killer.name[0] = '\0';

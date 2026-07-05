@@ -1559,7 +1559,9 @@ struct monst *mtmp;
         zap_oseen = oseen;
         mzapwand(mtmp, otmp, FALSE);
         m_using = TRUE;
+        buzzer = mtmp; /* for kill attribution (pet livelog credit) */
         mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
+        buzzer = 0;
         /* monster learns that teleportation isn't useful here */
         if (level.flags.noteleport)
             mtmp->mtrapseen |= (1 << (TELEP_TRAP_SET - 1));
@@ -1653,7 +1655,9 @@ struct monst *mtmp;
         zap_oseen = oseen;
         mzapwand(mtmp, otmp, FALSE);
         m_using = TRUE;
+        buzzer = mtmp; /* for kill attribution (pet livelog credit) */
         mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
+        buzzer = 0;
         m_using = FALSE;
         return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_BAG_OF_TRICKS: {
@@ -2982,7 +2986,9 @@ struct monst *mtmp;
         zap_oseen = oseen;
         mzapwand(mtmp, otmp, FALSE);
         m_using = TRUE;
+        buzzer = mtmp; /* for kill attribution (pet livelog credit) */
         mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
+        buzzer = 0;
         m_using = FALSE;
         return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_SCR_EARTH: {
@@ -3155,7 +3161,8 @@ struct monst *mtmp;
             makeknown(otmp->otyp);
         /* Use target coordinates (tbx/tby) from mfind_target() */
         (void) create_gas_cloud(mtmp->mx + tbx, mtmp->my + tby,
-                                3 + bcsign(otmp), 8 + 4 * bcsign(otmp));
+                                3 + bcsign(otmp), 8 + 4 * bcsign(otmp),
+                                mtmp);
         m_useup(mtmp, otmp);
         return (DEADMONSTER(mtmp)) ? 1 : 2;
     case 0:
@@ -4895,6 +4902,7 @@ struct trap *trap;
 boolean by_you; /* true: if mon kills itself, hero gets credit/blame */
 {               /* [by_you not honored if 'mon' triggers fire trap]. */
     struct obj *odummyp;
+    struct monst *save_exploder;
     int otyp = obj->otyp, dmg = 0;
     boolean vis = canseemon(mon), res = TRUE;
 
@@ -4951,8 +4959,11 @@ boolean by_you; /* true: if mon kills itself, hero gets credit/blame */
         } else {
             dmg = (2 * (rn1(3, 3) + 2 * bcsign(obj)) + 1) / 3;
             m_useup(mon, obj); /* before explode() */
+            save_exploder = exploder;
+            exploder = mon;
             explode(mon->mx, mon->my, -ZT_SPELL(ZT_FIRE), dmg, SCROLL_CLASS,
                     by_you ? -EXPL_FIERY : EXPL_FIERY);
+            exploder = save_exploder;
             dmg = 0; /* damage has been applied by explode() */
         }
     } else { /* wand/horn of fire w/ positive charge count */

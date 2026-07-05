@@ -26,6 +26,7 @@ mb_trapped(mtmp, by_hand)
 struct monst *mtmp;
 boolean by_hand; /* TRUE if the monster worked the knob/lock by hand */
 {
+    struct monst *save_exploder;
     int mx = mtmp->mx, my = mtmp->my;
     int lvl = level_difficulty();
     int dmg = 0;
@@ -119,7 +120,10 @@ boolean by_hand; /* TRUE if the monster worked the knob/lock by hand */
         if (!(mon_resists_stun(mtmp) || defended(mtmp, AD_STUN)
               || mon_wielding_artifact(mtmp, ART_TEMPEST)))
             mtmp->mstun = 1;
+        save_exploder = exploder;
+        exploder = mtmp;
         explode(mx, my, ZT_FIRE, dmg, TRAPPED_DOOR, EXPL_FIERY);
+        exploder = save_exploder;
         scatter(mx, my, dmg,
                 VIS_EFFECTS | MAY_HIT | MAY_DESTROY | MAY_FRACTURE, 0);
         wake_nearto(mx, my, 7 * 7);
@@ -973,9 +977,11 @@ struct monst *mtmp;
                 if (mon_arti_has_spfx(m2, SPFX_HSPDAM))
                     dmg = (dmg + 1) / 2;
                 damage_mon(m2, dmg, AD_DRIN, FALSE);
-                if (DEADMONSTER(m2))
+                if (DEADMONSTER(m2)) {
+                    if (mtmp->mtame)
+                        set_pet_killer(mtmp);
                     monkilled(m2, "", AD_DRIN);
-                else
+                } else
                     m2->msleeping = 0;
             }
         }
@@ -1110,7 +1116,7 @@ toofar:
     /* Now the actual movement phase */
 
     if (mtmp->data == &mons[PM_HEZROU]) /* stench */
-        create_gas_cloud(mtmp->mx, mtmp->my, 1, 8);
+        create_gas_cloud(mtmp->mx, mtmp->my, 1, 8, mtmp);
 
     if (!nearby || mtmp->mflee || scared || mtmp->mconf || mtmp->mstun
         || (mtmp->minvis && !rn2(3))

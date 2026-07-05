@@ -261,6 +261,11 @@ NEARDATA struct monst *migrating_mons = (struct monst *) 0;
 NEARDATA struct monst *buzzer = (struct monst *) 0;
 /* monster throwing/firing/thrusting a weapon at the hero (for thitu()) */
 NEARDATA struct monst *thrower = (struct monst *) 0;
+/* monster responsible for the current explode() call, for crediting
+   pet-caused explosion kills; same tight set/clear discipline as
+   buzzer/thrower, with callers saving and restoring the previous value
+   so chained explosions (gas spores) cannot inherit the wrong actor */
+NEARDATA struct monst *exploder = (struct monst *) 0;
 NEARDATA struct autopickup_exception *apelist =
                             (struct autopickup_exception *)0;
 

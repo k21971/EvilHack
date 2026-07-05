@@ -641,6 +641,8 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
                mind flayers don't have those capabilities */
             if (visflag && canseemon(magr))
                 pline("%s turns to stone!", Monnam(magr));
+            if (mdef->mtame)
+                set_pet_killer(mdef);
             monstone(magr);
             if (!DEADMONSTER(magr)) {
                 /* life-saved; don't continue eating the brains */

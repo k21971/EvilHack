@@ -4074,10 +4074,13 @@ boolean youattack, allow_cancel_kill, self_cancel;
             /* !allow_cancel_kill is for Magicbane, where clay golem
                will be killed somewhere back up the call/return chain... */
             if (allow_cancel_kill) {
-                if (youattack)
+                if (youattack) {
                     killed(mdef);
-                else
+                } else {
+                    if (buzzer && buzzer->mtame)
+                        set_pet_killer(buzzer);
                     monkilled(mdef, "", AD_CNCL);
+                }
             }
         }
     }
@@ -5731,9 +5734,11 @@ const char *fltxt;
 
 #undef oresist_disintegration
 
-    if (type < 0)
+    if (type < 0) {
+        if (buzzer && buzzer->mtame)
+            set_pet_killer(buzzer);
         monkilled(mon, (char *) 0, -AD_RBRE);
-    else
+    } else
         xkilled(mon, XKILL_NOMSG | XKILL_NOCORPSE);
 }
 
@@ -5901,6 +5906,8 @@ boolean say; /* Announce out of sight hit/miss events if true */
                     } else if (DEADMONSTER(mon)) {
                         if (type < 0) {
                             /* mon has just been killed by another monster */
+                            if (buzzer && buzzer->mtame)
+                                set_pet_killer(buzzer);
                             monkilled(mon, fltxt, AD_RBRE);
                         } else {
                             int xkflags = XKILL_GIVEMSG; /* killed(mon); */
@@ -6467,7 +6474,14 @@ boolean moncast;
         break; /* ZT_COLD */
 
     case ZT_POISON_GAS:
-        (void) create_gas_cloud(x, y, 1, 8);
+        /* same hero predicate the old set_heros_fault() logic used
+           (covers hero beams, hero spell explosions arriving with
+           moncast set, and hero-triggered trap beams); during monster
+           movement the beam originator (buzzer) gets the credit, and
+           a null buzzer means environment */
+        (void) create_gas_cloud(x, y, 1, 8,
+                                (!in_mklev && !context.mon_moving)
+                                    ? &youmonst : buzzer);
         break;
 
     case ZT_ACID:
@@ -7320,9 +7334,11 @@ int damage, tell;
 
         damage_mon(mtmp, damage, AD_RBRE, m_using ? FALSE : TRUE);
         if (DEADMONSTER(mtmp)) {
-            if (m_using)
+            if (m_using) {
+                if (buzzer && buzzer->mtame)
+                    set_pet_killer(buzzer);
                 monkilled(mtmp, "", AD_RBRE);
-            else
+            } else
                 killed(mtmp);
         } else {
             print_mon_wounded(mtmp, saved_mhp);

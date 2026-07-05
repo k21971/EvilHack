@@ -4062,6 +4062,8 @@ struct permonst *mptr; /* reflects mtmp->data _prior_ to mtmp's death */
         buzzer = 0;
     if (mtmp == thrower)
         thrower = 0;
+    if (mtmp == exploder)
+        exploder = 0;
     if (mtmp->mleashed)
         m_unleash(mtmp, FALSE);
     /* to prevent an infinite relobj-flooreffects-hmon-killed loop */
@@ -4317,7 +4319,19 @@ struct monst *mtmp;
     struct permonst *mptr;
     struct monst *rider;
     struct obj *otmp;
+    struct monst *pet_credit;
+    boolean was_player_kill;
     int tmp;
+
+    /* consume the kill attribution state up front so that every path
+       through here (including lifesaved early returns) clears it;
+       deaths that bypass xkilled()/monkilled() can then never inherit
+       a previous kill's attribution */
+    was_player_kill = player_killed;
+    pet_credit = (pet_killer && pet_killer->mtame) ? pet_killer
+                                                   : (struct monst *) 0;
+    player_killed = FALSE;
+    pet_killer = (struct monst *) 0;
 
     mtmp->mhp = 0; /* in case caller hasn't done this */
     lifesaved_monster(mtmp);
@@ -4615,66 +4629,67 @@ struct monst *mtmp;
      * (monster vs monster, traps, etc.) are not logged. */
     if (mtmp->data == &mons[PM_MEDUSA] && !u.uachieve.killed_medusa) {
         u.uachieve.killed_medusa = 1;
-        if (player_killed && pet_killer && pet_killer->mtame)
+        if (pet_credit)
             livelog_printf(LL_ACHIEVE | LL_UMONST, "pet %s killed Medusa",
-                           pet_killer->data->mname);
-        else if (player_killed)
+                           pet_credit->data->mname);
+        else if (was_player_kill)
             livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Medusa");
     } else if (mtmp->iscerberus && !u.uachieve.killed_cerberus) {
         u.uachieve.killed_cerberus = 1;
-        if (player_killed && pet_killer && pet_killer->mtame)
+        if (pet_credit)
             livelog_printf(LL_ACHIEVE | LL_UMONST, "pet %s killed Cerberus",
-                           pet_killer->data->mname);
-        else if (player_killed)
+                           pet_credit->data->mname);
+        else if (was_player_kill)
             livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Cerberus");
     } else if (mtmp->isvecna && !u.uachieve.killed_vecna) {
         u.uachieve.killed_vecna = 1;
-        if (player_killed && pet_killer && pet_killer->mtame)
+        if (pet_credit)
             livelog_printf(LL_ACHIEVE | LL_UMONST, "pet %s destroyed Vecna",
-                           pet_killer->data->mname);
-        else if (player_killed)
+                           pet_credit->data->mname);
+        else if (was_player_kill)
             livelog_write_string(LL_ACHIEVE | LL_UMONST, "destroyed Vecna");
     } else if (mtmp->isvlad && !u.uachieve.killed_vlad) {
         u.uachieve.killed_vlad = 1;
-        if (player_killed && pet_killer && pet_killer->mtame)
+        if (pet_credit)
             livelog_printf(LL_ACHIEVE | LL_UMONST, "pet %s destroyed Vlad the Impaler",
-                           pet_killer->data->mname);
-        else if (player_killed)
+                           pet_credit->data->mname);
+        else if (was_player_kill)
             livelog_write_string(LL_ACHIEVE | LL_UMONST, "destroyed Vlad the Impaler");
     } else if (mtmp->istalgath && !u.uachieve.killed_talgath) {
         u.uachieve.killed_talgath = 1;
-        if (player_killed && pet_killer && pet_killer->mtame)
+        if (pet_credit)
             livelog_printf(LL_ACHIEVE | LL_UMONST, "pet %s killed Tal'Gath",
-                           pet_killer->data->mname);
-        else if (player_killed)
+                           pet_credit->data->mname);
+        else if (was_player_kill)
             livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Tal'Gath");
     } else if (mtmp->isgking && !u.uachieve.killed_gking) {
         u.uachieve.killed_gking = 1;
-        if (player_killed && pet_killer && pet_killer->mtame)
+        if (pet_credit)
             livelog_printf(LL_ACHIEVE | LL_UMONST, "pet %s killed the Goblin King",
-                           pet_killer->data->mname);
-        else if (player_killed)
+                           pet_credit->data->mname);
+        else if (was_player_kill)
             livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed the Goblin King");
     } else if (mtmp->islucifer && !u.uachieve.killed_lucifer) {
         u.uachieve.killed_lucifer = 1;
-        if (player_killed && pet_killer && pet_killer->mtame)
+        if (pet_credit)
             livelog_printf(LL_ACHIEVE | LL_UMONST, "pet %s killed Lucifer",
-                           pet_killer->data->mname);
-        else if (player_killed)
+                           pet_credit->data->mname);
+        else if (was_player_kill)
             livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Lucifer");
     } else if (mtmp->ismichael && !u.uachieve.killed_michael) {
         u.uachieve.killed_michael = 1;
-        if (player_killed && pet_killer && pet_killer->mtame)
+        if (pet_credit)
             livelog_printf(LL_ACHIEVE | LL_UMONST, "pet %s killed Saint Michael",
-                           pet_killer->data->mname);
-        else if (player_killed)
+                           pet_credit->data->mname);
+        else if (was_player_kill)
             livelog_write_string(LL_ACHIEVE | LL_UMONST, "killed Saint Michael");
-    } else if (mtmp->data == &mons[PM_DEATH] && player_killed) {
+    } else if (mtmp->data == &mons[PM_DEATH]
+               && (was_player_kill || pet_credit)) {
         switch (mvitals[tmp].died) {
         case 1:
-            if (pet_killer && pet_killer->mtame)
+            if (pet_credit)
                 livelog_printf(LL_UMONST, "pet %s put %s down for a little nap",
-                               pet_killer->data->mname, livelog_mon_nam(mtmp));
+                               pet_credit->data->mname, livelog_mon_nam(mtmp));
             else
                 livelog_printf(LL_UMONST, "put %s down for a little nap",
                                livelog_mon_nam(mtmp));
@@ -4686,9 +4701,9 @@ struct monst *mtmp;
         case 150:
         case 200:
         case 250:
-            if (pet_killer && pet_killer->mtame)
+            if (pet_credit)
                 livelog_printf(LL_UMONST, "pet %s put %s down for a little nap (%d times)",
-                               pet_killer->data->mname,
+                               pet_credit->data->mname,
                                livelog_mon_nam(mtmp), mvitals[tmp].died);
             else
                 livelog_printf(LL_UMONST, "put %s down for a little nap (%d times)",
@@ -4698,14 +4713,15 @@ struct monst *mtmp;
             /* don't spam the log every time */
             break;
         }
-    } else if (unique_corpstat(mtmp->data) && player_killed) {
+    } else if (unique_corpstat(mtmp->data)
+               && (was_player_kill || pet_credit)) {
         const char *verb = nonliving(mtmp->data) ? "destroyed" : "killed";
 
         switch (mvitals[tmp].died) {
         case 1:
-            if (pet_killer && pet_killer->mtame)
+            if (pet_credit)
                 livelog_printf(LL_UMONST, "pet %s %s %s",
-                               pet_killer->data->mname,
+                               pet_credit->data->mname,
                                verb, livelog_mon_nam(mtmp));
             else
                 livelog_printf(LL_UMONST, "%s %s", verb, livelog_mon_nam(mtmp));
@@ -4717,9 +4733,9 @@ struct monst *mtmp;
         case 150:
         case 200:
         case 250:
-            if (pet_killer && pet_killer->mtame)
+            if (pet_credit)
                 livelog_printf(LL_UMONST, "pet %s %s %s (%d times)",
-                               pet_killer->data->mname,
+                               pet_credit->data->mname,
                                verb, livelog_mon_nam(mtmp), mvitals[tmp].died);
             else
                 livelog_printf(LL_UMONST, "%s %s (%d times)",
@@ -4811,8 +4827,14 @@ boolean was_swallowed; /* digestion */
                     if (!Deaf)
                         You_hear("an explosion.");
                     damage_mon(magr, tmp, AD_PHYS, FALSE);
-                    if (DEADMONSTER(magr))
+                    if (DEADMONSTER(magr)) {
+                        /* swallowed pet gas spore rips its engulfer
+                           open; parity with the exploder credit for
+                           normal spore blasts */
+                        if (mon->mtame)
+                            set_pet_killer(mon);
                         mondied(magr);
+                    }
                     if (DEADMONSTER(magr)) { /* maybe lifesaved */
                         if (canspotmon(magr))
                             pline("%s rips open!", Monnam(magr));
@@ -4894,8 +4916,13 @@ struct monst *mdef;
 
     /* vampshifter reverts to vampire;
        3.6.3: also used to unshift shape-changed sandestin */
-    if (!vamp_stone(mdef))
+    if (!vamp_stone(mdef)) {
+        /* stoning failed; drop any pending kill attribution since
+           mondead() will not run to consume it */
+        player_killed = FALSE;
+        pet_killer = (struct monst *) 0;
         return;
+    }
 
     /* we have to make the statue before calling mondead, to be able to
      * put inventory in it, and we have to check for lifesaving before
@@ -4903,8 +4930,11 @@ struct monst *mdef;
      */
     mdef->mhp = 0; /* in case caller hasn't done this */
     lifesaved_monster(mdef);
-    if (!DEADMONSTER(mdef))
+    if (!DEADMONSTER(mdef)) {
+        player_killed = FALSE;
+        pet_killer = (struct monst *) 0;
         return;
+    }
 
     mdef->mtrapped = 0; /* (see m_detach) */
     mdef->mentangled = 0;
@@ -4986,15 +5016,12 @@ int how;
         be_sad = (mdef->mtame != 0 && !mdef->msummoned);
 
     /* no corpses if digested, disintegrated or withered */
-    /* pet kills should be logged with attribution */
-    player_killed = (pet_killer && pet_killer->mtame) ? TRUE : FALSE;
     disintegested = (how == AD_DGST || how == -AD_RBRE
                      || how == AD_WTHR || how == AD_DISN);
     if (disintegested)
         mondead(mdef);
     else
         mondied(mdef);
-    pet_killer = (struct monst *) 0; /* reset */
 
     if (be_sad && DEADMONSTER(mdef))
         You("have a sad feeling for a moment, then it passes.");
@@ -5095,7 +5122,6 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
                         && sgn(u.ualign.type) == sgn(mtmp->data->maligntyp));
     boolean orb = (mtmp->data->mlet == S_ORB);
 
-    player_killed = TRUE; /* for livelog attribution in mondead() */
     mtmp->mhp = 0; /* caller will usually have already done this */
     if (!noconduct) { /* KMH, conduct */
         if (!u.uconduct.killer++)
@@ -5150,14 +5176,13 @@ int xkill_flags; /* XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE,
 
     rise_msg = FALSE; /* might get set in mondead(); only checked below */
     disintegested = nocorpse; /* alternate vamp_rise message needed if true */
+    player_killed = TRUE; /* for livelog attribution in mondead() */
     /* dispose of monster and make cadaver */
     if (stoned)
         monstone(mtmp);
     else
         mondead(mtmp);
     disintegested = FALSE; /* reset */
-    player_killed = FALSE; /* reset */
-    pet_killer = (struct monst *) 0; /* reset */
 
     if (!DEADMONSTER(mtmp)) { /* monster lifesaved */
         /* Cannot put the non-visible lifesaving message in

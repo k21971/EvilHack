@@ -308,7 +308,8 @@ E NEARDATA struct u_realtime urealtime;
 
 E NEARDATA const struct monst zeromonst; /* for init of new or temp monsters */
 E NEARDATA struct monst youmonst; /* monster details when hero is poly'd */
-E NEARDATA struct monst *mydogs, *migrating_mons, *buzzer, *thrower;
+E NEARDATA struct monst *mydogs, *migrating_mons, *buzzer, *thrower,
+                        *exploder;
 E NEARDATA struct monst* ukiller;
 
 E NEARDATA struct mvitals {
