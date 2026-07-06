@@ -2150,7 +2150,7 @@ boolean identified, all_containers, reportempty;
                             if (Is_container(obj) || obj->otyp == STATUE)
                                 obj->cknown = obj->lknown = 1;
                         }
-                        Strcpy(&buf[2], doname_with_price(obj));
+                        copynchars(&buf[2], doname_with_price(obj), BUFSZ - 3);
                         putstr(tmpwin, 0, buf);
                     }
                     unsortloot(&sortedcobj);

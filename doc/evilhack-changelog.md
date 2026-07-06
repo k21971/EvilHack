@@ -5543,4 +5543,5 @@ The following changes to date are:
 - Fix: paying an angry shopkeeper away from his shop hit an impossible
 - Fix: crystal plate mail made its wearer immune to disintegration
 - Fix: polymorphed monsters ignored their terrain until their next move
+- Fix: object names truncated in the end-of-game dumplog
 

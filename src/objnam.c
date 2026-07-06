@@ -20,12 +20,13 @@
 #define SCHAR_LIM 127
 #define NUMOBUF 12
 /* Check if bp has room for n more characters.
-   bp points PREFIX bytes into an obufs[BUFSZ] slot. Every suffix
-   annotation appended by doname_base() is bounded with this macro so
-   the object name itself may use the full [PREFIX, BUFSZ) region; an
+   bp points PREFIX bytes into an obufs[] slot, leaving a name region
+   of BUFSZ bytes (see the obufs[] declaration). Every suffix
+   annotation appended by xname() and doname_base() is bounded with
+   this macro so the object name may use that whole region; an
    annotation that would not fit is simply omitted rather than allowed
    to truncate the name or overflow obufs[] */
-#define BP_HAS_ROOM(bp, n) ((int) strlen(bp) + (n) <= BUFSZ - PREFIX - 1)
+#define BP_HAS_ROOM(bp, n) ((int) strlen(bp) + (n) <= BUFSZ - 1)
 
 STATIC_DCL char *FDECL(strprepend, (char *, const char *));
 STATIC_DCL short FDECL(rnd_otyp_by_wpnskill, (SCHAR_P));
@@ -97,8 +98,15 @@ const char *pref;
     return s;
 }
 
-/* manage a pool of BUFSZ buffers, so callers don't have to */
-static char NEARDATA obufs[NUMOBUF][BUFSZ];
+/* manage a pool of buffers, so callers don't have to; each slot
+   reserves PREFIX bytes for doname_base()'s prefix, a full BUFSZ
+   bytes for the object name built by xname() (results returned to
+   callers never exceed BUFSZ - 1 chars), plus a small amount of
+   slack because some strlen()-based room checks measure from a
+   pointer that has been advanced past a stripped leading word
+   ("the ", "poisoned ", "tainted ") and could otherwise allow a
+   write just past a tightly sized region */
+static char NEARDATA obufs[NUMOBUF][PREFIX + BUFSZ + 32];
 static int obufidx = 0;
 
 STATIC_OVL char *
@@ -119,7 +127,7 @@ char *bufp;
        the pointer our caller has and is passing to us might be into the
        middle of an obuf rather than the address returned by nextobuf() */
     if (bufp >= obufs[obufidx]
-        && bufp < obufs[obufidx] + sizeof obufs[obufidx]) /* obufs[][BUFSZ] */
+        && bufp < obufs[obufidx] + sizeof obufs[obufidx])
         obufidx = (obufidx - 1 + NUMOBUF) % NUMOBUF;
 }
 
@@ -621,7 +629,7 @@ boolean has_of;
 STATIC_OVL void
 xcalled(buf, siz, pfx, sfx)
 char *buf;       /* eos(obuf) or eos(&obuf[PREFIX]) */
-int siz;         /* BUFSZ or BUFSZ-PREFIX */
+int siz;         /* BUFSZ (both regions are that size) */
 const char *pfx; /* usually class string, sometimes more specific */
 const char *sfx; /* user assigned type name */
 {
@@ -749,7 +757,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         else if (nn && !is_soko_prize_flag(obj))
             Strcat(buf, actualn);
         else if (un && !is_soko_prize_flag(obj))
-            xcalled(buf, BUFSZ - PREFIX, "amulet", un);
+            xcalled(buf, BUFSZ, "amulet", un);
         else if (is_soko_prize_flag(obj))
             Strcpy(buf, "sokoban prize amulet");
         else
@@ -778,7 +786,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         else if (nn && !is_soko_prize_flag(obj))
             Strcat(buf, actualn);
         else if (un && !is_soko_prize_flag(obj))
-            xcalled(buf, BUFSZ - PREFIX, dn, un);
+            xcalled(buf, BUFSZ, dn, un);
         else if (is_soko_prize_flag(obj))
             Strcpy(buf, "sokoban prize tool");
         else
@@ -870,8 +878,14 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                 Strcat(buf, "armor");
             propnames(buf, obj->oprops, obj->oprops_known,
                       FALSE, FALSE);
-            Strcat(buf, " called ");
-            Strcat(buf, un);
+            if (BP_HAS_ROOM(buf, (int) (sizeof " called " - 1))) {
+                int avail;
+
+                Strcat(buf, " called ");
+                avail = BUFSZ - 1 - (int) strlen(buf);
+                if (avail > 0)
+                    (void) strncat(buf, un, avail);
+            }
         } else if (is_soko_prize_flag(obj)) {
             Strcpy(buf, "sokoban prize armor");
         } else {
@@ -976,7 +990,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                 }
                 Strcat(buf, actualn);
             } else {
-                xcalled(buf, BUFSZ - PREFIX, "", un);
+                xcalled(buf, BUFSZ, "", un);
             }
         } else {
             Strcat(buf, dn);
@@ -991,7 +1005,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, " of ");
             Strcat(buf, actualn);
         } else if (un) {
-            xcalled(buf, BUFSZ - PREFIX, "", un);
+            xcalled(buf, BUFSZ, "", un);
         } else if (ocl->oc_magic) {
             Strcat(buf, " labeled ");
             Strcat(buf, dn);
@@ -1006,7 +1020,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         else if (nn)
             Sprintf(eos(buf), "wand of %s", actualn);
         else if (un)
-            xcalled(buf, BUFSZ - PREFIX, "wand", un);
+            xcalled(buf, BUFSZ, "wand", un);
         else
             Sprintf(eos(buf), "%s wand", dn);
         break;
@@ -1017,7 +1031,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             else if (nn)
                 Strcat(buf, actualn);
             else if (un)
-                xcalled(buf, BUFSZ - PREFIX, "novel", un);
+                xcalled(buf, BUFSZ, "novel", un);
             else
                 Sprintf(eos(buf), "%s book", dn);
             break;
@@ -1029,7 +1043,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                 Strcat(buf, "spellbook of ");
             Strcat(buf, actualn);
         } else if (un) {
-            xcalled(buf, BUFSZ - PREFIX, "spellbook", un);
+            xcalled(buf, BUFSZ, "spellbook", un);
         } else
             Sprintf(eos(buf), "%s spellbook", dn);
         break;
@@ -1043,7 +1057,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                 Sprintf(eos(buf), "%s ring", actualn);
         }
         else if (un)
-            xcalled(buf, BUFSZ - PREFIX, "ring", un);
+            xcalled(buf, BUFSZ, "ring", un);
         else
             Sprintf(eos(buf), "%s ring", dn);
         break;
@@ -1062,7 +1076,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcpy(buf, rock);
         } else if (!nn) {
             if (un)
-                xcalled(buf, BUFSZ - PREFIX, rock, un);
+                xcalled(buf, BUFSZ, rock, un);
             else
                 Sprintf(eos(buf), "%s %s", dn, rock);
         } else {
@@ -1080,22 +1094,26 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     }
     if (pluralize) {
         /* (see fruit name handling in case FOOD_CLASS above) */
-        Strcpy(buf, obufp = makeplural(buf));
+        copynchars(buf, obufp = makeplural(buf), BUFSZ - 1);
         releaseobuf(obufp);
     }
 
     /* additional information shown during end-of-game inventory disclosure */
-    if (obj->otyp == T_SHIRT && program_state.gameover
+    if ((obj->otyp == T_SHIRT || obj->otyp == ALCHEMY_SMOCK
+         || obj->otyp == STRIPED_SHIRT || obj->otyp == HAWAIIAN_SHIRT)
+        && program_state.gameover
         /* o_id will be 0 for wizard mode attribute disclosure (formatted
            via from_what() -> ysimple_name() -> minimal_xname() -> xname()
-           by the enlightenment code; moot here since T-shirts don't affect
-           any attributes (but for 3.7, aprons will have comparable text) */
+           by the enlightenment code); it must stay excluded so that
+           "you were acid resistant because of your alchemy smock" does
+           not grow a text suffix */
         && obj->o_id
         /* distantname is non-0 for do_screen_description() which is used
            to produce tooltip text for HTMLDUMP (not supported by nethack) */
         && !distantname
         ) {
         char tmpbuf[BUFSZ];
+        int avail = BUFSZ - 1 - (int) strlen(buf);
 
         /* disclose without breaking illiterate conduct, but mainly tip off
            players who aren't aware that something readable is present */
@@ -1103,15 +1121,22 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         case T_SHIRT:
         case ALCHEMY_SMOCK:
         case STRIPED_SHIRT:
-            Sprintf(eos(buf), " with text \"%s\"",
-                    (obj->otyp == T_SHIRT)
-                        ? tshirt_text(obj, tmpbuf)
-                        : (obj->otyp == STRIPED_SHIRT)
-                            ? striped_text(obj, tmpbuf)
-                            : apron_text(obj, tmpbuf));
+            if (avail > 0)
+                (void) snprintf(eos(buf), (size_t) avail, " with text \"%s\"",
+                                (obj->otyp == T_SHIRT)
+                                    ? tshirt_text(obj, tmpbuf)
+                                    : (obj->otyp == STRIPED_SHIRT)
+                                        ? striped_text(obj, tmpbuf)
+                                        : apron_text(obj, tmpbuf));
             break;
         case HAWAIIAN_SHIRT:
-            Sprintf(eos(buf), " with %s motif", an(hawaiian_motif(obj, tmpbuf)));
+            if (avail > 0) {
+                char anbuf[10];
+                const char *motif = hawaiian_motif(obj, tmpbuf);
+
+                (void) snprintf(eos(buf), (size_t) avail, " with %s%s motif",
+                                just_an(anbuf, motif), motif);
+            }
             break;
         default:
             break;
@@ -1122,8 +1147,8 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         Strcat(buf, " named ");
  nameit:
         {
-            int avail = (int) (BUFSZ - 1 - PREFIX)
-                      - (int) strlen(buf);
+            int avail = BUFSZ - 1 - (int) strlen(buf);
+
             if (avail > 0)
                 (void) strncat(buf, ONAME(obj), avail);
         }
@@ -1362,11 +1387,12 @@ unsigned doname_flags;
        while still wielded, for instance */
     struct monst *owner = mcarried(obj) ? obj->ocarry : &youmonst;
 
-    /* Backstop: cap the name at the end of its obufs[] slot. Each suffix
-       annotation below is individually bounded with BP_HAS_ROOM(), so they
-       self-limit against this same end rather than relying on reserved space */
+    /* Backstop: cap the name at the end of its BUFSZ-byte region within
+       the obufs[] slot. Each suffix annotation below is individually
+       bounded with BP_HAS_ROOM(), so they self-limit against this same
+       end rather than relying on reserved space */
     {
-        int max_bp_len = BUFSZ - PREFIX - 1;
+        int max_bp_len = BUFSZ - 1;
         if ((int) strlen(bp) > max_bp_len)
             bp[max_bp_len] = '\0';
     }
@@ -1894,6 +1920,12 @@ unsigned doname_flags;
 
     bp = strprepend(bp, prefix);
 
+    /* the prefix plus a name that used its full region can exceed what
+       callers with char buf[BUFSZ] destinations can hold; keep the
+       long-standing contract that doname() results fit in BUFSZ */
+    if ((int) strlen(bp) > BUFSZ - 1)
+        bp[BUFSZ - 1] = '\0';
+
     obj->oprops_known = orig_opknwn;
 
     return bp;
@@ -2044,7 +2076,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         Strcat(nambuf, mrace);
         Strcat(nambuf, mname);
     } else {
-        int avail = BUFSZ - PREFIX - 1 - (int) strlen(nambuf);
+        int avail = BUFSZ - 1 - (int) strlen(nambuf);
 
         /* adjective positioning depends upon format of monster name */
         if (avail > 0) {
