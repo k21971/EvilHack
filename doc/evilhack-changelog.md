@@ -5541,4 +5541,5 @@ The following changes to date are:
 - Tweak vampiric monk loadout at game start
 - Fix: paranoid swim prompt fired while flying via amulet of flying
 - Fix: paying an angry shopkeeper away from his shop hit an impossible
+- Fix: crystal plate mail made its wearer immune to disintegration
 

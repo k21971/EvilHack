@@ -3398,26 +3398,38 @@ struct attack *mattk;
             } else if (how_resistant(DISINT_RES) >= 50) {
                 You("aren't disintegrated, but that hurts!");
                 tmp = resist_reduce(tmp, DISINT_RES);
-                if (tmp)
+                if (tmp) {
                     mdamageu(mtmp, tmp);
+                    stop_occupation();
+                }
+                /* damage already applied; don't let the call
+                   after the switch apply it a second time */
+                tmp = 0;
                 break;
             } else if (how_resistant(DISINT_RES) < 50) {
                 tmp = resist_reduce(tmp, DISINT_RES);
-                if (tmp)
+                if (tmp) {
                     mdamageu(mtmp, tmp);
+                    stop_occupation();
+                }
+                /* damage already applied; don't let the call
+                   after the switch apply it a second time */
+                tmp = 0;
                 if (uarms) {
                     /* destroy shield; other possessions are safe */
-                    (void) destroy_arm(uarms);
-                    break;
+                    if (destroy_arm(uarms) || uarms->oartifact)
+                        break;
                 } else if (uarm) {
                     /* destroy suit; if present, cloak goes too */
                     if (uarmc)
                         (void) destroy_arm(uarmc);
-                    (void) destroy_arm(uarm);
-                    break;
+                    if (destroy_arm(uarm) || uarm->oartifact)
+                        break;
+                    Your("%s remains intact, but you do not!", xname(uarm));
                 }
                 /* fall through. not having enough disintegration
-                   resistance can still get you disintegrated */
+                   resistance can still get you disintegrated, as can
+                   wearing a suit that cannot be sacrificed to the blast */
             }
             /* no shield or suit, you're dead; wipe out cloak
                and/or shirt in case of life-saving or bones */
@@ -4046,19 +4058,22 @@ struct attack *mattk;
                 if (dmg)
                     mdamageu(mtmp, dmg);
                 break;
-            } else if (uarms) {
-                /* destroy shield; other possessions are safe */
-                (void) destroy_arm(uarms);
-                break;
-            } else if (uarm) {
-                /* destroy suit; if present, cloak goes too */
-                if (uarmc)
-                    (void) destroy_arm(uarmc);
-                (void) destroy_arm(uarm);
-                break;
             } else {
-                /* no shield or suit, you're dead; wipe out cloak
-                 * and/or shirt in case of life-saving or bones */
+                if (uarms) {
+                    /* destroy shield; other possessions are safe */
+                    if (destroy_arm(uarms) || uarms->oartifact)
+                        break;
+                } else if (uarm) {
+                    /* destroy suit; if present, cloak goes too */
+                    if (uarmc)
+                        (void) destroy_arm(uarmc);
+                    if (destroy_arm(uarm) || uarm->oartifact)
+                        break;
+                    Your("%s remains intact, but you do not!", xname(uarm));
+                }
+                /* no shield or suit (or a suit that cannot be
+                 * sacrificed), you're dead; wipe out cloak and/or
+                 * shirt in case of life-saving or bones */
                 if (uarmc)
                     (void) destroy_arm(uarmc);
                 if (uarmu)

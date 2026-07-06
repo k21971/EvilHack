@@ -4022,7 +4022,8 @@ struct monst *mon;
 /* note: worn amulet of life saving must be preserved in order to operate */
 #define oresist_disintegration(obj) \
     (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
-     || is_quest_artifact(obj) || obj == m_amulet)
+     || obj->otyp == CRYSTAL_PLATE_MAIL || is_quest_artifact(obj)         \
+     || obj == m_amulet)
 
     for (otmp = mon->minvent; otmp; otmp = otmp2) {
         otmp2 = otmp->nobj;

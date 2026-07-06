@@ -5118,21 +5118,26 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             }
             type = -1; /* so they don't get saving throws */
         } else {
-            struct obj *otmp2;
+            struct obj *otmp2, *suit = which_armor(mon, W_ARM);
 
-            if (resists_disint(mon) || defended(mon, AD_DISN)) {
+            if (resists_disint(mon) || defended(mon, AD_DISN)
+                || (suit && suit->otyp == CRYSTAL_PLATE_MAIL
+                    && suit->oartifact)) {
+                /* fully resistant, or wearing an artifact suit that
+                   withstands the blast and shields its wearer */
                 sho_shieldeff = TRUE;
             } else if (mon->misc_worn_check & W_ARMS) {
                 /* destroy shield; victim survives */
                 *ootmp = which_armor(mon, W_ARMS);
-            } else if (mon->misc_worn_check & W_ARM) {
+            } else if (suit && suit->otyp != CRYSTAL_PLATE_MAIL) {
                 /* destroy suit, also cloak if present */
-                *ootmp = which_armor(mon, W_ARM);
+                *ootmp = suit;
                 if ((otmp2 = which_armor(mon, W_ARMC)) != 0)
                     m_useup(mon, otmp2);
             } else {
-                /* no suit, victim dies; destroy cloak
-                   and shirt now in case target gets life-saved */
+                /* no suit, or one that cannot be sacrificed to the
+                   blast; victim dies; destroy cloak and shirt now in
+                   case target gets life-saved */
                 tmp = MAGIC_COOKIE;
                 if ((otmp2 = which_armor(mon, W_ARMC)) != 0)
                     m_useup(mon, otmp2);
@@ -5399,17 +5404,19 @@ xchar sx, sy;
                 dam = resist_reduce(d(12, 6), DISINT_RES);
                 if (uarms) {
                     /* destroy shield; other possessions are safe */
-                    (void) destroy_arm(uarms);
-                    break;
+                    if (destroy_arm(uarms) || uarms->oartifact)
+                        break;
                 } else if (uarm) {
                     /* destroy suit; if present, cloak goes too */
                     if (uarmc)
                         (void) destroy_arm(uarmc);
-                    (void) destroy_arm(uarm);
-                    break;
+                    if (destroy_arm(uarm) || uarm->oartifact)
+                        break;
+                    Your("%s remains intact, but you do not!", xname(uarm));
                 }
                 /* fall through. not having enough disintegration
-                   resistance can still get you disintegrated */
+                   resistance can still get you disintegrated, as can
+                   wearing a suit that cannot be sacrificed to the blast */
             }
             /* no shield or suit, you're dead; wipe out cloak
                and/or shirt in case of life-saving or bones */
@@ -5698,7 +5705,8 @@ const char *fltxt;
 /* note: worn amulet of life saving must be preserved in order to operate */
 #define oresist_disintegration(obj) \
     (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
-     || is_quest_artifact(obj) || obj == m_amulet)
+     || obj->otyp == CRYSTAL_PLATE_MAIL || is_quest_artifact(obj)         \
+     || obj == m_amulet)
 
     for (otmp = mon->minvent; otmp; otmp = otmp2) {
         otmp2 = otmp->nobj;

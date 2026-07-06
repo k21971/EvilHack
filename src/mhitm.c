@@ -2742,9 +2742,14 @@ msickness:
         }
         break;
     }
-    case AD_DISN:
+    case AD_DISN: /* called via AT_GAZE and AT_ENGL */
+        /* the disintegration event handles all of its consequences
+           in-case (armor destruction or death); no generic HP damage
+           is applied after the switch on any path */
+        tmp = 0;
         if (!rn2(5)) {
             struct obj *otmp = (struct obj *) 0, *otmp2;
+            struct obj *suit = which_armor(mdef, W_ARM);
 
             if (mattk->aatyp == AT_GAZE) {
                 if (vis) {
@@ -2763,11 +2768,13 @@ msickness:
                     return MM_MISS;
                 }
             }
-            if (magr->mcan) {
-                tmp = 0;
+            if (magr->mcan)
                 break;
-            }
-            if (resists_disint(mdef) || defended(mdef, AD_DISN)) {
+            if (resists_disint(mdef) || defended(mdef, AD_DISN)
+                || (suit && suit->otyp == CRYSTAL_PLATE_MAIL
+                    && suit->oartifact)) {
+                /* fully resistant, or wearing an artifact suit that
+                   withstands the gaze and shields its wearer */
                 shieldeff(mdef->mx, mdef->my);
                 pline("%s basks in the %s aura of %s gaze.",
                       Monnam(mdef), hcolor(NH_BLACK),
@@ -2777,8 +2784,8 @@ msickness:
                 pline ("%s %s crumbles away!", s_suffix(Monnam(mdef)),
                        xname(*ootmp));
                 m_useup(mdef, *ootmp);
-            } else if (mdef->misc_worn_check & W_ARM) {
-                *ootmp = which_armor(mdef, W_ARM);
+            } else if (suit && suit->otyp != CRYSTAL_PLATE_MAIL) {
+                *ootmp = suit;
                 pline ("%s %s turns to dust and blows away!",
                        s_suffix(Monnam(mdef)), xname(*ootmp));
                 m_useup(mdef, *ootmp);
@@ -2788,6 +2795,8 @@ msickness:
                     m_useup(mdef, otmp2);
                 }
             } else {
+                /* no suit, or one that cannot be sacrificed to the
+                   gaze; victim dies */
                 struct obj *m_amulet = mlifesaver(mdef);
                 if ((otmp2 = which_armor(mdef, W_ARMC)) != 0)
                     m_useup(mdef, otmp2);
@@ -2817,7 +2826,8 @@ msickness:
 /* note: worn amulet of life saving must be preserved in order to operate */
 #define oresist_disintegration(obj) \
     (objects[obj->otyp].oc_oprop == DISINT_RES || obj_resists(obj, 5, 50) \
-     || is_quest_artifact(obj) || obj == m_amulet)
+     || obj->otyp == CRYSTAL_PLATE_MAIL || is_quest_artifact(obj)         \
+     || obj == m_amulet)
 
                 for (otmp = mdef->minvent; otmp; otmp = otmp2) {
                     otmp2 = otmp->nobj;
