@@ -3078,6 +3078,10 @@ msickness:
             } else if (pd == &mons[PM_NURSE]) {
                 magr->mhp = magr->mhpmax;
             }
+            /* the transform might have killed the eater (new form
+               unable to survive water, lava, or open air) */
+            if (DEADMONSTER(magr))
+                return (MM_DEF_DIED | MM_AGR_DIED);
         }
         /* caveat: above digestion handling doesn't keep `pa' up to date */
 

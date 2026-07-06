@@ -20,6 +20,10 @@ STATIC_VAR boolean rise_msg, disintegested, player_killed;
 #define ACCIDENT_COLLISION 2 /* involuntary knockback collision */
 STATIC_VAR int accidental_bump;
 STATIC_VAR struct monst *pet_killer; /* pet that killed monster, for livelog */
+/* suppress newcham()'s immediate terrain check when a shape change is
+   part of death processing or level restoration; those monsters get the
+   regular minliquid() check on their next move instead */
+STATIC_VAR boolean defer_minliquid;
 
 /* Set the pet responsible for a kill (call before monkilled) */
 void
@@ -39,6 +43,8 @@ STATIC_DCL int FDECL(pickvampshape, (struct monst *));
 STATIC_DCL boolean FDECL(isspecmon, (struct monst *));
 STATIC_DCL boolean FDECL(validspecmon, (struct monst *, int));
 STATIC_DCL struct permonst *FDECL(accept_newcham_form, (struct monst *, int));
+STATIC_DCL int FDECL(newcham_deferred,
+                     (struct monst *, struct permonst *, BOOLEAN_P));
 STATIC_DCL struct obj *FDECL(make_corpse, (struct monst *, unsigned));
 STATIC_DCL short FDECL(m_chooserace, (unsigned long));
 STATIC_OVL long FDECL(mm_2way_aggression, (struct monst *, struct monst *));
@@ -364,7 +370,7 @@ struct monst* mdef;  /* victim */
             pline("But wait!  %s transforms into his true form!",
                   Monnam(mdef));
         }
-        newcham(mdef, &mons[PM_ARCHANGEL], FALSE, FALSE);
+        newcham_deferred(mdef, &mons[PM_ARCHANGEL], FALSE);
         mdef->mcanmove = 1;
         mdef->mfrozen = 0;
         mdef->mstone = 0;
@@ -405,6 +411,9 @@ struct monst* mdef;  /* victim */
 
     /* Transform the larva (aggressor) into a mind flayer */
     if (newcham(magr, &mons[PM_MIND_FLAYER], FALSE, FALSE)) {
+        /* the transform might have killed the new mind flayer */
+        if (DEADMONSTER(magr))
+            return MM_AGR_DIED;
         /* Give the mind flayer the victim's name */
         if (victimname[0] != '\0') {
             christen_monst(magr, victimname);
@@ -1504,10 +1513,15 @@ mcalcdistress()
         }
 
         /* possibly polymorph shapechangers and lycanthropes */
-        if (mtmp->cham >= LOW_PM)
+        if (mtmp->cham >= LOW_PM) {
             decide_to_shapeshift(mtmp, (canspotmon(mtmp)
                                         || (u.uswallow && mtmp == u.ustuck))
                                           ? SHIFT_MSG : 0);
+            /* the shape change might have killed it (new form unable
+               to survive water, lava, or open air) */
+            if (DEADMONSTER(mtmp))
+                continue;
+        }
         were_change(mtmp);
 
         /* special handling for Izchak */
@@ -1836,7 +1850,8 @@ struct monst *mtmp;
                     ptr = mtmp->data;
                     if (poly) {
                         if (newcham(mtmp, (struct permonst *) 0, FALSE, FALSE))
-                            ptr = mtmp->data;
+                            ptr = DEADMONSTER(mtmp) ? (struct permonst *) 0
+                                                    : mtmp->data;
                     } else if (grow) {
                         ptr = grow_up(mtmp, (struct monst *) 0);
                     } else if (mstone) {
@@ -1969,7 +1984,8 @@ struct monst *mtmp;
             ptr = mtmp->data;
             if (poly) {
                 if (newcham(mtmp, (struct permonst *) 0, FALSE, FALSE))
-                    ptr = mtmp->data;
+                    ptr = DEADMONSTER(mtmp) ? (struct permonst *) 0
+                                            : mtmp->data;
             } else if (grow) {
                 ptr = grow_up(mtmp, (struct monst *) 0);
             } else if (heal) {
@@ -2163,7 +2179,8 @@ struct monst *mtmp;
             ptr = mtmp->data;
             if (poly) {
                 if (newcham(mtmp, (struct permonst *) 0, FALSE, FALSE))
-                    ptr = mtmp->data;
+                    ptr = DEADMONSTER(mtmp) ? (struct permonst *) 0
+                                            : mtmp->data;
             } else if (grow) {
                 ptr = grow_up(mtmp, (struct monst *) 0);
             } else if (heal) {
@@ -4355,7 +4372,7 @@ struct monst *mtmp;
         mtmp->mstun = 0;
         if (!mtmp->mpeaceful)
             hot_pursuit(mtmp);
-        newcham(mtmp, &mons[PM_ARCHANGEL], FALSE, FALSE);
+        newcham_deferred(mtmp, &mons[PM_ARCHANGEL], FALSE);
         free_erac(mtmp);
         mtmp->mhp = mtmp->mhpmax = 1500;
         if (mtmp == u.ustuck) {
@@ -4521,7 +4538,7 @@ struct monst *mtmp;
                     rloc_to(mtmp, new_xy.x, new_xy.y);
                 }
             }
-            newcham(mtmp, &mons[mndx], FALSE, FALSE);
+            newcham_deferred(mtmp, &mons[mndx], FALSE);
             if (is_changeling(mtmp))
                 mtmp->mcan = TRUE;
             if (mtmp->data == &mons[mndx])
@@ -5592,7 +5609,7 @@ struct monst *mtmp;
                 pline("%s!", buf);
                 display_nhwindow(WIN_MESSAGE, FALSE);
             }
-            newcham(mtmp, &mons[mndx], FALSE, FALSE);
+            newcham_deferred(mtmp, &mons[mndx], FALSE);
             if (mtmp->data == &mons[mndx])
                 mtmp->cham = NON_PM;
             else
@@ -5613,7 +5630,7 @@ struct monst *mtmp;
         if (mtmp->mhpmax <= 0)
             mtmp->mhpmax = 10;
         mtmp->mhp = mtmp->mhpmax;
-        (void) newcham(mtmp, &mons[mtmp->cham], FALSE, TRUE);
+        (void) newcham_deferred(mtmp, &mons[mtmp->cham], TRUE);
         newsym(mtmp->mx, mtmp->my);
         return FALSE;   /* didn't petrify */
     }
@@ -6361,6 +6378,10 @@ rescham()
         if (mcham >= LOW_PM) {
             (void) newcham(mtmp, &mons[mcham], FALSE, FALSE);
             mtmp->cham = NON_PM;
+            /* reverting might have killed it (base form unable to
+               survive water, lava, or open air) */
+            if (DEADMONSTER(mtmp))
+                continue;
         }
         if (is_were(mtmp->data) && mtmp->data->mlet != S_HUMAN)
             new_were(mtmp);
@@ -6405,7 +6426,7 @@ struct monst *mon;
         mcham = (int) mon->cham;
         if (mcham >= LOW_PM) {
             mon->cham = NON_PM;
-            (void) newcham(mon, &mons[mcham], FALSE, FALSE);
+            (void) newcham_deferred(mon, &mons[mcham], FALSE);
         } else if (is_were(mon->data) && !racial_human(mon)) {
             new_were(mon);
         }
@@ -7298,7 +7319,36 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
         }
     }
 
+    /* the new form might not be able to survive its current location
+       (non-flyer over water, lava, or open air); apply liquid and
+       open-air effects now instead of waiting for the monster's next
+       move, unless this shape change is part of death processing or
+       level restoration */
+    if (!DEADMONSTER(mtmp) && !defer_minliquid)
+        (void) minliquid(mtmp);
+
     return 1;
+}
+
+/* newcham() for shape changes that happen inside death processing
+   (vampshifter, changeling, and Izchak reverts) or during level
+   restoration; defers the immediate terrain check so those paths
+   cannot re-enter monster death handling. save/restore rather than
+   set/clear keeps nested shape changes (mselftouch petrification can
+   trigger vamp_stone) deferred as well */
+STATIC_OVL int
+newcham_deferred(mtmp, mdat, msg)
+struct monst *mtmp;
+struct permonst *mdat;
+boolean msg;
+{
+    boolean save_defer = defer_minliquid;
+    int result;
+
+    defer_minliquid = TRUE;
+    result = newcham(mtmp, mdat, FALSE, msg);
+    defer_minliquid = save_defer;
+    return result;
 }
 
 /* sometimes an egg will be special */
@@ -7815,7 +7865,7 @@ struct monst *mtmp;
 
     mvitals[PM_KATHRYN_THE_ICE_QUEEN].died++;
     livelog_printf(LL_UMONST, "defeated %s", livelog_mon_nam(mtmp));
-    newcham(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], FALSE, FALSE);
+    newcham_deferred(mtmp, &mons[PM_KATHRYN_THE_ENCHANTRESS], FALSE);
 
     mtmp->mcanmove = 1;
     mtmp->mfrozen = 0;

@@ -5542,4 +5542,5 @@ The following changes to date are:
 - Fix: paranoid swim prompt fired while flying via amulet of flying
 - Fix: paying an angry shopkeeper away from his shop hit an impossible
 - Fix: crystal plate mail made its wearer immune to disintegration
+- Fix: polymorphed monsters ignored their terrain until their next move
 

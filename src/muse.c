@@ -3753,7 +3753,7 @@ struct monst *mtmp;
         (void) newcham(mtmp, muse_newcham_mon(mtmp), TRUE, FALSE);
         if (oseen)
             makeknown(WAN_POLYMORPH);
-        return 2;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_WAN_WISHING:
         /* wear any armor items previously wished for before
          * using another wish */
@@ -3774,7 +3774,7 @@ struct monst *mtmp;
         (void) newcham(mtmp, muse_newcham_mon(mtmp), FALSE, FALSE);
         if (oseen)
             makeknown(POT_POLYMORPH);
-        return 2;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_SCR_REMOVE_CURSE:
         mreadmsg(mtmp, otmp);
         if (canseemon(mtmp)) {
@@ -3816,7 +3816,7 @@ struct monst *mtmp;
         newsym(trapx, trapy);
 
         (void) newcham(mtmp, (struct permonst *) 0, FALSE, FALSE);
-        return 2;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_BULLWHIP:
         /* attempt to disarm hero */
         {

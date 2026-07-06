@@ -5088,7 +5088,11 @@ struct attack *mattk;
                 if (!munslime(mtmp, FALSE) && !DEADMONSTER(mtmp)) {
                     if (newcham(mtmp, &mons[PM_GREEN_SLIME], FALSE,
                                 (boolean) (canseemon(mtmp))))
-                    mtmp->mstrategy &= ~STRAT_WAITFORU;
+                        mtmp->mstrategy &= ~STRAT_WAITFORU;
+                    /* the transform might have killed it (green slime
+                       unable to survive water, lava, or open air) */
+                    if (DEADMONSTER(mtmp))
+                        return 2;
                 }
             }
         }

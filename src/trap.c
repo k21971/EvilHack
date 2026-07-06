@@ -3344,6 +3344,12 @@ struct monst *mtmp;
                     /* we're done with mptr but keep it up to date */
                     mptr = mtmp->data;
                 }
+                /* the transform might have killed it (new form unable
+                   to survive shallow water at the trap's location) */
+                if (DEADMONSTER(mtmp)) {
+                    trapkilled = TRUE;
+                    break;
+                }
                 /* Is the monster riding another monster? */
                 if (has_erid(mtmp)
                     && (!humanoid(mtmp->data) || bigmonst(mtmp->data))) {
