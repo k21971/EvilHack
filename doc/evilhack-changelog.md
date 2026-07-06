@@ -5540,4 +5540,5 @@ The following changes to date are:
 - Fix: pet kills of unique monsters were missing from the livelog
 - Tweak vampiric monk loadout at game start
 - Fix: paranoid swim prompt fired while flying via amulet of flying
+- Fix: paying an angry shopkeeper away from his shop hit an impossible
 
