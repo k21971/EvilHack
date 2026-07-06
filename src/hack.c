@@ -2174,8 +2174,10 @@ domove_core()
                           || (uarm && Is_dragon_scaled_armor(uarm)
                                && Dragon_armor_to_scales(uarm) == WHITE_DRAGON_SCALES));
 
-        if (!HLevitation && !ELevitation
-            && ((!EFlying && !HFlying) || !!(BFlying & W_ARMOR))
+        /* mirror the gating pooleffects() uses; the Flying macro knows
+           that hard armor only blocks wing-based flight, so an amulet
+           or other non-wing source still counts as flying */
+        if (!Levitation && !Flying
             && !(u.usteed && (is_flyer(u.usteed->data) || can_fly(u.usteed)))
             && grounded(youmonst.data)
             && !Stunned && !Confusion && levl[x][y].seenv

@@ -5539,4 +5539,5 @@ The following changes to date are:
 - Accidental bumps into unseen peacefuls cost luck, not alignment
 - Fix: pet kills of unique monsters were missing from the livelog
 - Tweak vampiric monk loadout at game start
+- Fix: paranoid swim prompt fired while flying via amulet of flying
 
