@@ -203,8 +203,8 @@ struct trobj Vampire_Monk[] = {
     { ROBE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
-    { POT_HEALING, 0, POTION_CLASS, 3, UNDEF_BLESS },
-    { FOOD_RATION, 0, FOOD_CLASS, 3, 0 },
+    { POT_VAMPIRE_BLOOD, 0, POTION_CLASS, 1, UNDEF_BLESS },
+    { POT_BLOOD, 0, POTION_CLASS, 3, 0 },
     { 0, 0, 0, 0, 0 }
 };
 struct trobj Priest[] = {
