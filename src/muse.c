@@ -5491,6 +5491,9 @@ boolean confused;
                 uncurse(obj);
         }
     }
+    /* curse changes can unblock gear (e.g. rings under formerly
+       cursed gloves); reassess equipment on the next move */
+    check_gear_next_turn(mtmp);
 }
 
 /* Monster casts a NODIR spell (power word kill, cure blindness,
