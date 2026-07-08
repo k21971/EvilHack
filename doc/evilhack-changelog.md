@@ -5545,4 +5545,6 @@ The following changes to date are:
 - Fix: polymorphed monsters ignored their terrain until their next move
 - Fix: object names truncated in the end-of-game dumplog
 - Fix: pets never re-equipped gear after uncursing their own items
+- Farlook reports whether the selected spot is lit or dark, for all
+  things
 

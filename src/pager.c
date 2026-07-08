@@ -12,6 +12,7 @@
 
 STATIC_DCL boolean FDECL(is_swallow_sym, (int));
 STATIC_DCL int FDECL(append_str, (char *, const char *));
+STATIC_DCL void FDECL(append_spot_lighting, (char *, int, int, BOOLEAN_P));
 STATIC_DCL void FDECL(look_at_object, (char *, int, int, int));
 STATIC_DCL void FDECL(look_at_monster, (char *, char *,
                                         struct monst *, int, int));
@@ -103,10 +104,6 @@ char *outbuf;
         Sprintf(eos(outbuf), ", mounted on %s", y_monnam(u.usteed));
     if (u.uundetected || (Upolyd && U_AP_TYPE))
         mhidden_description(&youmonst, FALSE, eos(outbuf));
-    if (spot_is_dark(u.ux, u.uy))
-        Strcat(outbuf, ", in darkness");
-    else
-        Strcat(outbuf, ", in light");
     return outbuf;
 }
 
@@ -276,6 +273,35 @@ struct obj **obj_p;
     return fakeobj; /* when True, caller needs to dealloc *obj_p */
 }
 
+/* append ", in darkness" or ", in light" for the spot at (x, y); a
+   spot holding a described creature is reported unconditionally the
+   way probing does, since some combat mechanics key off it even for
+   creatures merely sensed; otherwise stay quiet unless the hero has
+   an unobstructed view of the spot and could occupy it - with clear
+   line of sight, a spot too dark to make out is thereby known to be
+   dark (vision_recalc computes could-see even while blind, for the
+   benefit of monsters, so blindness must be checked explicitly) */
+STATIC_OVL void
+append_spot_lighting(buf, x, y, mon_spot)
+char *buf; /* output buffer, assumed to be of size BUFSZ */
+int x, y;
+boolean mon_spot;
+{
+    if (!isok(x, y))
+        return;
+    if (!mon_spot) {
+        boolean submerged = (Underwater && !Is_waterlevel(&u.uz)
+                             && !See_underwater);
+
+        if (Blind || !couldsee(x, y) || u.uswallow || submerged)
+            return;
+        if (!(ACCESSIBLE(levl[x][y].typ) || is_pool_or_lava(x, y)))
+            return;
+    }
+    (void) strncat(buf, spot_is_dark(x, y) ? ", in darkness" : ", in light",
+                   BUFSZ - strlen(buf) - 1);
+}
+
 STATIC_OVL void
 look_at_object(buf, x, y, glyph)
 char *buf; /* output buffer */
@@ -419,12 +445,6 @@ int x, y;
             t->tseen = 1;
         }
     }
-
-    /* is the monster standing on a lit or unlit tile */
-    if (spot_is_dark(x, y))
-        Strcat(buf, ", in darkness");
-    else
-        Strcat(buf, ", in light");
 
     /* fleeing state is read from the monster's posture, so the
        hero must actually see it, not just sense it */
@@ -2963,6 +2983,20 @@ struct permonst **for_supplement;
                 (void) strncat(out_str, temp_buf,
                                BUFSZ - strlen(out_str) - 1);
             }
+        }
+        /* is the described spot lit or dark */
+        if (found && glyph_is_monster(glyph)) {
+            /* only while a creature is actually there; a remembered
+               creature glyph must not reveal the spot's current state */
+            if (m_at(cc.x, cc.y) != 0 || (cc.x == u.ux && cc.y == u.uy))
+                append_spot_lighting(out_str, cc.x, cc.y, TRUE);
+        } else if (found
+                   && (glyph_is_cmap(glyph) || glyph_is_object(glyph))
+                   /* skip the stone glyph so detection browsing stays
+                      quiet about spots it deliberately describes as
+                      unreconnoitered */
+                   && glyph != cmap_to_glyph(S_stone)) {
+            append_spot_lighting(out_str, cc.x, cc.y, FALSE);
         }
     }
 
