@@ -2404,6 +2404,19 @@ short spell_otyp;
         if (youdefend)
             return (u.ualign.type != A_NONE);
         return !is_evil(target);
+    case SPE_TELEPORT_AWAY:
+        /* mirror the wand of teleportation tactics from muse.c */
+        if (level.flags.noteleport
+            && (caster->mtrapseen & (1 << (TELEP_TRAP_SET - 1))))
+            return TRUE; /* knows teleporting fails on this level */
+        if (youdefend)
+            return (Teleport_control
+                    || !(onscary(u.ux, u.uy, caster)
+                         || (u.ux == sstairs.sx && u.uy == sstairs.sy)));
+        /* monster target: filter sure-thing no-ops */
+        return (level.flags.noteleport
+                || (target->ispriest
+                    && *in_rooms(target->mx, target->my, TEMPLE)));
     default:
         return FALSE;
     }

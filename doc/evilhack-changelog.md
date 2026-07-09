@@ -5547,4 +5547,5 @@ The following changes to date are:
 - Fix: pets never re-equipped gear after uncursing their own items
 - Farlook reports whether the selected spot is lit or dark, for all
   things
+- Learned teleport away now follows the wand of teleportation AI rules
 

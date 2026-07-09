@@ -121,6 +121,8 @@ STATIC_DCL boolean FDECL(mcan_learn_spell, (struct monst *, struct obj *));
 #define MUSE_WAN_UNDEAD_TURNING 24 /* also an offensive item */
 #define MUSE_POT_RESTORE_ABILITY 25
 #define MUSE_POT_VAMPIRE_BLOOD 26
+#define MUSE_SPE_TELEPORT_AWAY_SELF 27 /* learned spell, no item */
+#define MUSE_SPE_TELEPORT_AWAY 28      /* learned spell, no item */
 /* MUSE_* constants for offensive items */
 #define MUSE_WAN_DEATH 1
 #define MUSE_WAN_SLEEP 2
@@ -810,6 +812,22 @@ struct monst *mtmp;
     if (t && (is_pit(t->ttyp) || t->ttyp == WEB
               || t->ttyp == BEAR_TRAP))
         t = 0; /* ok for monster to dig here */
+
+    /* spellcasters that have learned teleport away can cast it to
+       escape without needing a wand or scroll; same noteleport
+       knowledge check as the wand, same minimum-level rule as
+       mchoose_learned_spell() */
+    if (!mtmp->mcan && !mtmp->mspec_used && !mtmp->mconf
+        && mknows_spell(mtmp, SPE_TELEPORT_AWAY)
+        && mtmp->m_lev >= objects[SPE_TELEPORT_AWAY].oc_level * 3
+        && (!level.flags.noteleport
+            || !(mtmp->mtrapseen & (1 << (TELEP_TRAP_SET - 1))))) {
+        if (mon_has_amulet(mtmp))
+            m.has_defense = MUSE_SPE_TELEPORT_AWAY;
+        else if (!(mtmp->isshk && inhishop(mtmp)) && !mtmp->isgd
+                 && !mtmp->ispriest)
+            m.has_defense = MUSE_SPE_TELEPORT_AWAY_SELF;
+    }
 
 #define nomore(x)       if (m.has_defense == x) continue;
     /* selection could be improved by collecting all possibilities
@@ -1560,12 +1578,52 @@ struct monst *mtmp;
         mzapwand(mtmp, otmp, FALSE);
         m_using = TRUE;
         buzzer = mtmp; /* for kill attribution (pet livelog credit) */
-        mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
+        /* mbhit() aims via the tbx/tby globals; nothing on the
+           defensive path sets them, so aim at the hero's tracked
+           position (skip the beam if that is somehow the caster's
+           own spot) */
+        tbx = mtmp->mux - mtmp->mx;
+        tby = mtmp->muy - mtmp->my;
+        if (tbx || tby)
+            mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
         buzzer = 0;
         /* monster learns that teleportation isn't useful here */
         if (level.flags.noteleport)
             mtmp->mtrapseen |= (1 << (TELEP_TRAP_SET - 1));
         m_using = FALSE;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
+    case MUSE_SPE_TELEPORT_AWAY_SELF:
+        if ((mtmp->isshk && inhishop(mtmp)) || mtmp->isgd || mtmp->ispriest)
+            return 2;
+        m_flee(mtmp);
+        /* casting-act messages use the wider castmu() visibility test */
+        if (canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters)
+            pline("%s casts a spell!", Monnam(mtmp));
+        else if (!Deaf)
+            You_hear("something cast a spell!");
+        /* castmu()'s casting cost formula floors at 2 for any monster
+           of high enough level to cast this spell */
+        mtmp->mspec_used = 2;
+        goto mon_tele;
+    case MUSE_SPE_TELEPORT_AWAY:
+        /* carrying the Amulet, so it can't teleport itself; cast at
+           the hero to send them away instead, as with the wand */
+        pline("%s casts a spell%s!",
+              (canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters)
+                  ? Monnam(mtmp)
+                  : "Something",
+              (Invis && !mon_prop(mtmp, SEE_INVIS)
+               && (mtmp->mux != u.ux || mtmp->muy != u.uy))
+                  ? " at a spot near you"
+                  : (Displaced && (mtmp->mux != u.ux || mtmp->muy != u.uy))
+                        ? " at your displaced image"
+                        : " at you");
+        mtmp->mspec_used = 2;
+        (void) mcast_immediate_spell(mtmp, mtmp->mux, mtmp->muy,
+                                     SPE_TELEPORT_AWAY);
+        /* monster learns that teleportation isn't useful here */
+        if (level.flags.noteleport)
+            mtmp->mtrapseen |= (1 << (TELEP_TRAP_SET - 1));
         return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_SCR_TELEPORTATION: {
         int obj_is_cursed = otmp->cursed;
@@ -2506,8 +2564,11 @@ struct obj *otmp;
                 if (canseemon(mtmp))
                     pline("%s is killed!", Monnam(mtmp));
                 mtmp->mhp = 0;
-                if (DEADMONSTER(mtmp))
+                if (DEADMONSTER(mtmp)) {
+                    if (mcarried(otmp) && otmp->ocarry->mtame)
+                        set_pet_killer(otmp->ocarry);
                     mondied(mtmp);
+                }
             } else if (newcham(mtmp, (struct permonst *) 0, TRUE, FALSE)) {
                 if (!Hallucination && zap_oseen && otmp->otyp == WAN_POLYMORPH)
                     makeknown(otmp->otyp);
@@ -3087,6 +3148,8 @@ struct monst *mtmp;
                     if (resists_cold(mtmp2))
                         damage_mon(mtmp2, 3 * num, AD_FIRE, FALSE);
                     if (DEADMONSTER(mtmp2)) {
+                        if (mtmp->mtame)
+                            set_pet_killer(mtmp);
                         mondied(mtmp2);
                         break;
                     }
@@ -5425,7 +5488,9 @@ int spell_otyp;
 
     /* Trace the ray and affect targets along the path */
     m_using = TRUE;
+    buzzer = caster; /* for kill attribution (pet livelog credit) */
     mbhit(caster, rn1(8, 6), mbhitm, bhito, pseudo);
+    buzzer = 0;
     m_using = FALSE;
 
     /* Capture caster mortality before cleaning up pseudo (cleanup must

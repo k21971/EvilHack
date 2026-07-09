@@ -1293,10 +1293,17 @@ unsigned trflags;
         seetrap(trap);
         if (isok(trap->launch.x, trap->launch.y)
             && IS_STWALL(levl[trap->launch.x][trap->launch.y].typ)) {
+            /* nested firing (knockback or teleport during a monster's
+               beam can trigger this trap) must not inherit the outer
+               actor; a trap kill is unattributed */
+            struct monst *save_buzzer = buzzer;
+
+            buzzer = (struct monst *) 0;
             dobuzz(trap->launch_otyp, 8,
                    trap->launch.x, trap->launch.y,
                    sgn(trap->tx - trap->launch.x),
                    sgn(trap->ty - trap->launch.y), FALSE);
+            buzzer = save_buzzer;
         } else {
             deltrap(trap);
             newsym(u.ux, u.uy);
@@ -3431,12 +3438,20 @@ struct monst *mtmp;
                 seetrap(trap);
             if (isok(trap->launch.x, trap->launch.y)
                 && IS_STWALL(levl[trap->launch.x][trap->launch.y].typ)) {
+                /* nested firing (knockback or teleport during a
+                   monster's beam can trigger this trap) must not
+                   inherit the outer actor; a trap kill is
+                   unattributed */
+                struct monst *save_buzzer = buzzer;
+
                 trap->once = 1; /* set before dobuzz; it may free
                                    trap via melt_ice -> deltrap */
+                buzzer = (struct monst *) 0;
                 dobuzz(trap->launch_otyp, 8,
                        trap->launch.x, trap->launch.y,
                        sgn(trap->tx - trap->launch.x),
                        sgn(trap->ty - trap->launch.y), FALSE);
+                buzzer = save_buzzer;
                 /* trap may be freed; don't dereference */
                 if (DEADMONSTER(mtmp))
                     trapkilled = TRUE;
