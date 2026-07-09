@@ -255,4 +255,9 @@ struct mextra {
 #define has_emsp(mon) ((mon)->mextra && EMSP(mon))
 #define has_mcorpsenm(mon) ((mon)->mextra && MCORPSENM(mon) != NON_PM)
 
+/* pet has been ordered not to drop items */
+#define pet_wont_drop(mon) \
+    ((mon)->mtame && has_edog(mon) \
+     && (EDOG(mon)->petstrat & PETSTRAT_NODROP) != 0)
+
 #endif /* MEXTRA_H */

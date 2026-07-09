@@ -1134,7 +1134,9 @@ boolean racialexception;
         struct obj *mw2 = MON_WEP2(mon);
 
         setmnotwielded2(mon, mw2);
-        if (!creation) {
+        /* a pet ordered not to drop items keeps its off-hand
+           weapon in inventory */
+        if (!creation && !pet_wont_drop(mon)) {
             obj_extract_self(mw2);
             if (cansee(mon->mx, mon->my)) {
                 pline("%s drops %s.", Monnam(mon),

@@ -1766,17 +1766,22 @@ boolean polyspot;
     if (!attacktype(mon->data, AT_WEAP)) {
         setmnotwielded(mon, mw_tmp);
         mon->weapon_check = NO_WEAPON_WANTED;
-        obj_extract_self(obj);
-        if (cansee(mon->mx, mon->my)) {
-            pline("%s drops %s.", Monnam(mon), distant_name(obj, doname));
-            newsym(mon->mx, mon->my);
-        }
-        /* might be dropping object into water or lava */
-        if (!flooreffects(obj, mon->mx, mon->my, "drop")) {
-            if (polyspot)
-                bypass_obj(obj);
-            place_object(obj, mon->mx, mon->my);
-            stackobj(obj);
+        /* a pet ordered not to drop items keeps the weapon
+           in inventory */
+        if (!pet_wont_drop(mon)) {
+            obj_extract_self(obj);
+            if (cansee(mon->mx, mon->my)) {
+                pline("%s drops %s.", Monnam(mon),
+                      distant_name(obj, doname));
+                newsym(mon->mx, mon->my);
+            }
+            /* might be dropping object into water or lava */
+            if (!flooreffects(obj, mon->mx, mon->my, "drop")) {
+                if (polyspot)
+                    bypass_obj(obj);
+                place_object(obj, mon->mx, mon->my);
+                stackobj(obj);
+            }
         }
         goto check_mw2;
     }
@@ -1809,17 +1814,21 @@ boolean polyspot;
         } else if (!can_dual_wield(mon)) {
             /* can no longer dual-wield (form change, etc.) */
             setmnotwielded2(mon, mw_tmp);
-            obj_extract_self(obj);
-            if (cansee(mon->mx, mon->my)) {
-                pline("%s drops %s.", Monnam(mon),
-                      distant_name(obj, doname));
-                newsym(mon->mx, mon->my);
-            }
-            if (!flooreffects(obj, mon->mx, mon->my, "drop")) {
-                if (polyspot)
-                    bypass_obj(obj);
-                place_object(obj, mon->mx, mon->my);
-                stackobj(obj);
+            /* a pet ordered not to drop items keeps the weapon
+               in inventory */
+            if (!pet_wont_drop(mon)) {
+                obj_extract_self(obj);
+                if (cansee(mon->mx, mon->my)) {
+                    pline("%s drops %s.", Monnam(mon),
+                          distant_name(obj, doname));
+                    newsym(mon->mx, mon->my);
+                }
+                if (!flooreffects(obj, mon->mx, mon->my, "drop")) {
+                    if (polyspot)
+                        bypass_obj(obj);
+                    place_object(obj, mon->mx, mon->my);
+                    stackobj(obj);
+                }
             }
         }
     }

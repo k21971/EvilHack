@@ -5548,4 +5548,5 @@ The following changes to date are:
 - Farlook reports whether the selected spot is lit or dark, for all
   things
 - Learned teleport away now follows the wand of teleportation AI rules
+- Fix: pets ordered not to drop items still dropped unwielded weapons
 
