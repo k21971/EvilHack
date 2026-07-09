@@ -1263,6 +1263,10 @@ const char *build_date;
 #else
     statusbuf[0] = '\0';
 #endif
+#ifdef LISP_GRAPHICS
+    Strcat(statusbuf, " lisp-patch ");
+    Strcat(statusbuf, LISP_VERSION);
+#endif
 
     subbuf[0] = '\0';
 #ifdef PORT_SUB_ID
@@ -1789,6 +1793,9 @@ static struct win_info window_opts[] = {
 #endif
 #ifdef MAC /* defunct OS 9 interface */
     { "mac", "Mac" },
+#endif
+#ifdef LISP_GRAPHICS
+    { "lisp", "lisp" },
 #endif
 #ifdef AMIGA_INTUITION /* unmaintained/defunct */
     { "amii", "Amiga Intuition" },
