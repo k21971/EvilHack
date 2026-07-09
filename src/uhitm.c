@@ -11,6 +11,7 @@ STATIC_DCL boolean FDECL(known_hitum, (struct monst *, struct obj *, int *,
 STATIC_DCL boolean FDECL(theft_petrifies, (struct obj *));
 STATIC_DCL void FDECL(steal_it, (struct monst *, struct attack *));
 STATIC_DCL struct obj *FDECL(really_steal, (struct obj *, struct monst *));
+STATIC_DCL struct monst *NDECL(find_steal_target);
 STATIC_DCL boolean FDECL(should_cleave, (void));
 STATIC_DCL boolean FDECL(hitum_cleave, (struct monst *, struct attack *));
 STATIC_DCL boolean FDECL(hitum, (struct monst *, struct attack *));
@@ -3076,6 +3077,39 @@ struct attack *mattk;
     }
 }
 
+/* Find the single valid adjacent steal target if exactly one exists.
+   Returns the monster if found, NULL if zero or multiple */
+STATIC_OVL struct monst *
+find_steal_target()
+{
+    struct monst *mtmp, *found = (struct monst *) 0;
+    int dx, dy;
+
+    for (dx = -1; dx <= 1; dx++) {
+        for (dy = -1; dy <= 1; dy++) {
+            if (!dx && !dy)
+                continue;
+            if (!isok(u.ux + dx, u.uy + dy))
+                continue;
+            mtmp = m_at(u.ux + dx, u.uy + dy);
+            /* a long worm can occupy several adjacent spots */
+            if (!mtmp || mtmp == found)
+                continue;
+            if (!canspotmon(mtmp))
+                continue;
+            /* skip targets the steal code always refuses */
+            if (mtmp->mtame)
+                continue;
+            if (mtmp->isshk && !strcmp(shkname(mtmp), "Izchak"))
+                continue;
+            if (found)
+                return (struct monst *) 0; /* more than one */
+            found = mtmp;
+        }
+    }
+    return found;
+}
+
 /* #steal command - Rogue/Convict thievery via extended command,
    replaces the old forcefight-triggered thievery mechanic */
 int
@@ -3108,25 +3142,29 @@ dosteal()
         return 0;
     }
 
-    /* Target selection */
-    cc.x = u.ux;
-    cc.y = u.uy;
-    if (getpos(&cc, FALSE, "the monster you want to steal from") < 0)
-        return 0;  /* Aborted - no turn cost */
+    /* If exactly one valid adjacent target exists, auto-select it */
+    mtmp = find_steal_target();
+    if (!mtmp) {
+        /* Cursor-based targeting */
+        cc.x = u.ux;
+        cc.y = u.uy;
+        if (getpos(&cc, FALSE, "the monster you want to steal from") < 0)
+            return 0;  /* Aborted - no turn cost */
 
-    if (!isok(cc.x, cc.y))
-        return 0;
+        if (!isok(cc.x, cc.y))
+            return 0;
 
-    mtmp = m_at(cc.x, cc.y);
-    if (!mtmp || !canspotmon(mtmp)) {
-        pline("There's no one there to steal from.");
-        return 0;
-    }
+        mtmp = m_at(cc.x, cc.y);
+        if (!mtmp || !canspotmon(mtmp)) {
+            pline("There's no one there to steal from.");
+            return 0;
+        }
 
-    /* Adjacency check */
-    if (distu(cc.x, cc.y) > 2) {
-        pline("You're too far away to steal from %s.", mon_nam(mtmp));
-        return 0;
+        /* Adjacency check */
+        if (distu(cc.x, cc.y) > 2) {
+            pline("You're too far away to steal from %s.", mon_nam(mtmp));
+            return 0;
+        }
     }
 
     /* Izchak is off-limits */

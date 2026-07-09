@@ -5550,4 +5550,5 @@ The following changes to date are:
 - Learned teleport away now follows the wand of teleportation AI rules
 - Fix: pets ordered not to drop items still dropped unwielded weapons
 - Fix: monster spellbook reads blanked the book one study early
+- The #steal command now auto-selects the only possible adjacent target
 
