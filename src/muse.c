@@ -4221,14 +4221,6 @@ struct monst *mtmp;
                     else
                         pline("%s finishes reading.", Monnam(mtmp));
                 }
-
-                /* Book goes blank after too many reads */
-                if (otmp->spestudied >= MAX_SPELL_STUDY) {
-                    if (vismon)
-                        pline_The("spellbook fades.");
-                    otmp->otyp = SPE_BLANK_PAPER;
-                    set_material(otmp, PAPER);
-                }
             }
             /* Still reading, spent a turn */
             return 2;

@@ -5549,4 +5549,5 @@ The following changes to date are:
   things
 - Learned teleport away now follows the wand of teleportation AI rules
 - Fix: pets ordered not to drop items still dropped unwielded weapons
+- Fix: monster spellbook reads blanked the book one study early
 
