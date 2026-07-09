@@ -129,7 +129,8 @@ unsigned int mode;
         }
     } else if (!index(file, '.')) {
         /* force some punctuation to be present */
-        file = strcat(strcpy(filnambuf, file), ".");
+        (void) snprintf(filnambuf, sizeof filnambuf, "%s.", file);
+        file = filnambuf;
     }
     return creat(file, mode, "shr=nil", "mbc=32", "mbf=2", "rop=wbh");
 }
@@ -152,7 +153,8 @@ unsigned int mode;
     if (!index(file, '.') && !index(file, ';')) {
         /* force some punctuation to be present to make sure that
            the file name can't accidentally match a logical name */
-        file = strcat(strcpy(filnambuf, file), ";0");
+        (void) snprintf(filnambuf, sizeof filnambuf, "%s;0", file);
+        file = filnambuf;
     }
     fd = open(file, flags, mode, "mbc=32", "mbf=2", "rop=rah");
     if (fd < 0 && errno == EVMSERR && lib$match_cond(vaxc$errno, RMS$_FLK)) {
@@ -174,7 +176,8 @@ const char *file, *mode;
     if (!index(file, '.') && !index(file, ';')) {
         /* force some punctuation to be present to make sure that
            the file name can't accidentally match a logical name */
-        file = strcat(strcpy(filnambuf, file), ";0");
+        (void) snprintf(filnambuf, sizeof filnambuf, "%s;0", file);
+        file = filnambuf;
     }
     fp = fopen(file, mode, "mbc=32", "mbf=2", "rop=rah");
     if (!fp && errno == EVMSERR && lib$match_cond(vaxc$errno, RMS$_FLK)) {
@@ -331,7 +334,8 @@ const char *name;
     len = (name_p && name_p > name) ? name_p - name : strlen(name);
 
     /* return a lowercase copy of the name in a private static buffer */
-    base = strncpy(base_name, name, len);
+    memcpy(base_name, name, len);
+    base = base_name;
     base[len] = '\0';
     /* we don't use lcase() so that utilities won't need hacklib.c */
     for (base_p = base; base_p < &base[len]; base_p++)
