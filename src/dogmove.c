@@ -1470,11 +1470,18 @@ boolean ranged;
     return
     !((!ranged && (int) mtmp2->m_lev >= balk
        && !attacktype(mtmp->data, AT_EXPL))
+      /* passive counterattacks: free action protects against paralysis,
+         reflection blocks the floating eye's gaze, and slimeproof pets
+         cannot be slimed (see passivemm) */
       || (!ranged && mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10)
           && mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
-          && (mon_prop(mtmp, SEE_INVIS) || !mtmp2->minvis))
-      || (!ranged && mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10))
-      || (!ranged && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10))
+          && (mon_prop(mtmp, SEE_INVIS) || !mtmp2->minvis)
+          && !has_free_action(mtmp)
+          && !mon_reflects(mtmp, (char *) 0))
+      || (!ranged && mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10)
+          && !has_free_action(mtmp))
+      || (!ranged && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10)
+          && !slimeproof(mtmp->data))
       || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
       || (is_support(mtmp->data) && mtmp2->mpeaceful && !Conflict
           && mtmp2->mhp > 0 && (mtmp2->mhpmax / mtmp2->mhp) < 4)

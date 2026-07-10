@@ -5554,4 +5554,5 @@ The following changes to date are:
 - Fix: pets forgot extra gear given while they were dressing
 - Fix: #order pet targeting and worn-armor hand-over bugs
 - Fix: monsters could waste casts on learned charm monster
+- Fix: pets avoided passive attackers they were protected against
 
