@@ -2449,6 +2449,9 @@ struct monst *target;
             continue;
         if (IS_SELFBUFF_SPELL(spell_otyp))
             continue;
+        /* charm monster has no direct-cast handler */
+        if (spell_otyp == SPE_CHARM_MONSTER)
+            continue;
         spell_lev = objects[spell_otyp].oc_level;
         required_mlev = spell_lev * 3;
         if (caster->m_lev < required_mlev)
@@ -3569,6 +3572,9 @@ struct monst *mtmp;
             if (spell_otyp < SPE_DIG || spell_otyp > SPE_BLANK_PAPER
                 || objects[spell_otyp].oc_class != SPBOOK_CLASS)
                 continue;
+            /* charm monster has no direct-cast handler */
+            if (spell_otyp == SPE_CHARM_MONSTER)
+                continue;
             /* Check level requirement */
             spell_level = objects[spell_otyp].oc_level;
             required_mlev = spell_level * 3;
@@ -3629,6 +3635,10 @@ boolean selfbuff_only; /* TRUE = only return self-buff spells */
             spell_level = objects[spell_otyp].oc_level;
             required_mlev = spell_level * 3;
             if (mtmp->m_lev < required_mlev)
+                continue;
+            /* charm monster has no direct-cast handler; knowing it only
+               enables the untame-pet special in castmm() */
+            if (spell_otyp == SPE_CHARM_MONSTER)
                 continue;
             /* If only self-buff spells wanted, skip offensive spells */
             if (selfbuff_only && !IS_SELFBUFF_SPELL(spell_otyp))

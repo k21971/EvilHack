@@ -5553,4 +5553,5 @@ The following changes to date are:
 - The #steal command now auto-selects the only possible adjacent target
 - Fix: pets forgot extra gear given while they were dressing
 - Fix: #order pet targeting and worn-armor hand-over bugs
+- Fix: monsters could waste casts on learned charm monster
 
