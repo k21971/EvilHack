@@ -5551,4 +5551,5 @@ The following changes to date are:
 - Fix: pets ordered not to drop items still dropped unwielded weapons
 - Fix: monster spellbook reads blanked the book one study early
 - The #steal command now auto-selects the only possible adjacent target
+- Fix: pets forgot extra gear given while they were dressing
 

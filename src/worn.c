@@ -1056,8 +1056,12 @@ boolean racialexception;
     boolean autocurse;
     char nambuf[BUFSZ];
 
-    if (mon->mfrozen)
-        return; /* probably putting previous item on */
+    if (mon->mfrozen) {
+        /* probably putting previous item on; check again when
+           able to act so remaining gear is not forgotten */
+        check_gear_next_turn(mon);
+        return;
+    }
 
     /* Get a copy of monster's name before altering its visibility */
     Strcpy(nambuf, See_invisible ? Monnam(mon) : mon_nam(mon));
@@ -1115,8 +1119,12 @@ boolean racialexception;
         } /* can see it */
         m_delay += objects[best->otyp].oc_delay;
         mon->mfrozen = m_delay;
-        if (mon->mfrozen)
+        if (mon->mfrozen) {
             mon->mcanmove = 0;
+            /* this wear ends the gear pass early; check again
+               afterwards for anything else worth equipping */
+            check_gear_next_turn(mon);
+        }
     }
     if (old) {
         update_mon_intrinsics(mon, old, FALSE, creation);
