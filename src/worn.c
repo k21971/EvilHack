@@ -948,6 +948,10 @@ boolean racialexception;
         if (mon_hates_material(mon, obj->material))
             continue;
 
+        /* unworn at the hero's request; waiting to be collected */
+        if (obj->oreserved)
+            continue;
+
         switch (flag) {
         case W_AMUL:
             if (obj->oclass != AMULET_CLASS
@@ -1794,6 +1798,8 @@ boolean silently; /* doesn't affect all possible messages, just
         impossible("extract_from_minvent called on object not in minvent");
         return;
     }
+    /* leaving the monster's inventory releases any hero reservation */
+    obj->oreserved = 0;
     /* handle gold dragon scales/shield of light (lit when worn) before
        clearing obj->owornmask because artifact_light() expects that to
        be W_ARM / W_ARMC / W_ARMS */

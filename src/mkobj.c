@@ -2618,6 +2618,9 @@ struct obj *obj;
         panic("add_to_minv: obj not free (%d, %d, %d)",
               obj->where, obj->otyp, obj->invlet);
 
+    /* a newly acquired item carries no hero reservation */
+    obj->oreserved = 0;
+
     /* merge if possible */
     for (otmp = mon->minvent; otmp; otmp = otmp->nobj)
         if (merged(&otmp, &obj))

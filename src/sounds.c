@@ -1665,28 +1665,25 @@ const char *msg;
 
 #endif /* USER_SOUNDS */
 
-/* Find the single commandable pet if exactly one exists.
-   Returns the pet if found, NULL if zero or multiple */
+/* Find the single candidate pet if exactly one exists.
+   Candidates are tame pets with edog that the hero can communicate
+   with; temporary incapacitation does not disqualify, so a busy pet
+   is reported by the caller instead of being silently skipped in
+   favor of another one.
+   Returns the pet if exactly one candidate, NULL if zero or multiple */
 STATIC_OVL struct monst *
 find_commandable_pet()
 {
     struct monst *mtmp, *found = (struct monst *) 0;
 
-    /* Check steed first - always commandable if present */
-    if (u.usteed && u.usteed->mtame && has_edog(u.usteed)
-        && !u.usteed->msleeping && !u.usteed->mstun
-        && !u.usteed->mconf && !u.usteed->mfrozen) {
+    /* Check steed first - always a candidate if present */
+    if (u.usteed && u.usteed->mtame && has_edog(u.usteed))
         found = u.usteed;
-    }
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp) || mtmp == u.usteed)
             continue;
         if (!mtmp->mtame || !has_edog(mtmp))
-            continue;
-        /* Pet must be alert */
-        if (mtmp->msleeping || mtmp->mstun
-            || mtmp->mconf || mtmp->mfrozen)
             continue;
         /* Must be able to communicate: visible, adjacent,
            or two-way telepathy */
@@ -1722,23 +1719,18 @@ doorder()
         return 0;
     }
 
-    /* If exactly one commandable pet exists, auto-select it */
+    /* If exactly one candidate pet exists, auto-select it */
     mtmp = find_commandable_pet();
-    if (mtmp) {
-        cc.x = (mtmp == u.usteed) ? u.ux : mtmp->mx;
-        cc.y = (mtmp == u.usteed) ? u.uy : mtmp->my;
-    } else {
+
+    /* If not auto-selected, ask for a target and validate it */
+    if (!mtmp) {
         /* Cursor-based targeting */
         cc.x = u.ux;
         cc.y = u.uy;
         if (getpos(&cc, FALSE, "the monster you want to issue orders to") < 0
             || !isok(cc.x, cc.y))
             return 0;
-        mtmp = (struct monst *) 0; /* will be set below */
-    }
 
-    /* If not auto-selected, look up and validate the target */
-    if (!mtmp) {
         /* Check for steed if targeting self */
         if (cc.x == u.ux && cc.y == u.uy) {
             if (u.usteed) {
@@ -1775,17 +1767,18 @@ doorder()
             pline("%s doesn't respond to commands.", Monnam(mtmp));
             return 0;
         }
+    }
 
-        /* Pet must be alert to receive orders */
-        if (mtmp->msleeping) {
-            pline("%s is asleep.", Monnam(mtmp));
-            return 0;
-        }
-        /* Pet cannot be stunned/confused/paralyzed */
-        if (mtmp->mstun || mtmp->mconf || mtmp->mfrozen) {
-            pline("%s is incapacitated.", Monnam(mtmp));
-            return 0;
-        }
+    /* Pet must be alert to receive orders, whether targeted
+       via cursor or auto-selected */
+    if (mtmp->msleeping) {
+        pline("%s is asleep.", Monnam(mtmp));
+        return 0;
+    }
+    /* Pet cannot be stunned/confused/paralyzed */
+    if (mtmp->mstun || mtmp->mconf || mtmp->mfrozen) {
+        pline("%s is incapacitated.", Monnam(mtmp));
+        return 0;
     }
 
     skill_level = P_SKILL(P_PET_HANDLING);
@@ -1957,6 +1950,17 @@ doorder()
     /* Process selection */
     switch (choice) {
     case 1: /* Belay orders */
+        {
+            struct obj *otmp;
+
+            /* release any items held unworn for the hero */
+            for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+                if (otmp->oreserved) {
+                    otmp->oreserved = 0;
+                    check_gear_next_turn(mtmp);
+                }
+            }
+        }
         EDOG(mtmp)->petstrat = 0L;
         You("leave the actions of %s up to %s own discretion.",
             mon_nam(mtmp), noit_mhis(mtmp));

@@ -121,7 +121,8 @@ struct obj {
     Bitfield(cknown, 1);   /* contents of container assumed to be known */
     Bitfield(lknown, 1);   /* locked/unlocked status is known */
     Bitfield(altshield, 1); /* designated sword-and-board shield (#shield) */
-    /* 5 free bits */
+    Bitfield(oreserved, 1); /* mon unwore it at hero's request; mons won't wear it */
+    /* 4 free bits */
 
     int corpsenm;         /* type of corpse is mons[corpsenm] */
 #define leashmon corpsenm /* gets m_id of attached pet */

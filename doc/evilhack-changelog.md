@@ -5552,4 +5552,5 @@ The following changes to date are:
 - Fix: monster spellbook reads blanked the book one study early
 - The #steal command now auto-selects the only possible adjacent target
 - Fix: pets forgot extra gear given while they were dressing
+- Fix: #order pet targeting and worn-armor hand-over bugs
 

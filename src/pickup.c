@@ -2267,6 +2267,7 @@ boolean taking;
             if (otmp->owornmask)
                 setnotworn(otmp); /* reset quivered, wielded, etc, status */
             obj_extract_self(otmp);
+            otmp->oreserved = 0; /* a gift is free to be worn */
             if (add_to_minv(mtmp, otmp))
                 otmp = (struct obj *) 0; /* merged with something in minvent */
             transferred++;
@@ -2320,19 +2321,16 @@ boolean taking;
                      * do it here. */
                     otmp->owt = weight(otmp); /* reset armor weight */
                     mtmp->misc_worn_check &= ~unwornmask;
+                    /* reserve the item for the hero: gear checks skip it,
+                     * so the monster won't re-wear it before a follow-up
+                     * take order can collect it. The reservation clears
+                     * when the item changes hands (extract_from_minvent,
+                     * add_to_minv) or when orders are belayed */
+                    otmp->oreserved = 1;
                     check_gear_next_turn(mtmp);
                     /* monster is now occupied, won't hand over other things */
                     break;
                 }
-                /* This isn't an ideal solution, since there's no way to
-                 * communicate directly to the player when the monster unfreezes
-                 * that it is done taking the item off. They also could try to
-                 * rewear it soon after they begin moving again.
-                 * The alternative is to make this an occupation: the hero
-                 * stands next to the monster for the duration of its disrobing,
-                 * and assuming they're both still in place at the end, the hero
-                 * is given the item directly. But that's more complex and has
-                 * a lot more edge cases; this may suffice. */
             }
             if (maxquan < otmp->quan)
                 otmp = splitobj(otmp, maxquan);
