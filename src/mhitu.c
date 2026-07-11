@@ -3207,7 +3207,7 @@ struct attack *mattk;
         swallowed(1);
         for (otmp2 = invent; otmp2; otmp2 = nextobj) {
             nextobj = otmp2->nobj;
-            (void) snuff_lit(otmp2);
+            (void) snuff_lit(otmp2, FALSE);
         }
     }
 

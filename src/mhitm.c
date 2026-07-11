@@ -1180,7 +1180,7 @@ struct attack *mattk;
         pline("%s %s.", buf, mon_nam(mdef));
     }
     for (obj = mdef->minvent; obj; obj = obj->nobj)
-        (void) snuff_lit(obj);
+        (void) snuff_lit(obj, FALSE);
 
     if (is_vampshifter(mdef)
         && newcham(mdef, &mons[mdef->cham], FALSE, FALSE)) {

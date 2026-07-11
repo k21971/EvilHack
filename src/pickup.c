@@ -2664,7 +2664,7 @@ struct obj *obj;
     freeinv(obj);
 
     if (obj_is_burning(obj)) /* this used to be part of freeinv() */
-        (void) snuff_lit(obj);
+        (void) snuff_lit(obj, TRUE);
 
     if (floor_container && costly_spot(u.ux, u.uy)) {
         /* defer gold until after put-in message */
@@ -3785,7 +3785,7 @@ boolean creation;
             (void) stop_timer(FIG_TRANSFORM, (genericptr_t) obj);
 
         if (obj_is_burning(obj))
-            (void) snuff_lit(obj);
+            (void) snuff_lit(obj, TRUE);
 
         if (bag->otyp == ICE_BOX && !age_is_relative(obj)) {
             obj->age = monstermoves - obj->age;

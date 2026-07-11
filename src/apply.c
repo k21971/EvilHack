@@ -1477,30 +1477,29 @@ struct obj *otmp;
 
 /* called when lit lamp is hit by water or put into a container or
    you've been swallowed by a monster; obj might be in transit while
-   being thrown or dropped so don't assume that its location is valid */
+   being thrown or dropped so don't assume that its location is valid.
+   A magic lamp's flame is impervious to water and engulfing; callers
+   that must snuff one anyway (stowing it in a container, dousing it
+   via magic) pass forced as TRUE */
 boolean
-snuff_lit(obj)
+snuff_lit(obj, forced)
 struct obj *obj;
+boolean forced; /* TRUE: snuff even a magic lamp */
 {
     xchar x, y;
 
     if (obj->lamplit) {
         if (obj->otyp == OIL_LAMP || obj->otyp == LANTERN
             || obj->otyp == POT_OIL || obj->otyp == MAGIC_LAMP) {
-            (void) get_obj_location(obj, &x, &y, 0);
-
-            if (obj->otyp == MAGIC_LAMP
-                && (is_damp_terrain(x, y) || u.uswallow)) {
+            if (obj->otyp == MAGIC_LAMP && !forced)
                 return FALSE;
-            } else {
-                /* Print message only if player can perceive it */
-                if (obj->where == OBJ_MINVENT ? cansee(x, y) : !Blind) {
-                    pline("%s %s out!", Yname2(obj), otense(obj, "go"));
-                }
-                /* Always extinguish, regardless of visibility */
-                end_burn(obj, TRUE);
-                return TRUE;
-            }
+            (void) get_obj_location(obj, &x, &y, 0);
+            /* Print message only if player can perceive it */
+            if (obj->where == OBJ_MINVENT ? cansee(x, y) : !Blind)
+                pline("%s %s out!", Yname2(obj), otense(obj, "go"));
+            /* Always extinguish, regardless of visibility */
+            end_burn(obj, TRUE);
+            return TRUE;
         }
         if (snuff_candle(obj))
             return TRUE;

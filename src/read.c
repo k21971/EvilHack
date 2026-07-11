@@ -2654,7 +2654,7 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
                         continue;
                     } else {
                         if (!artifact_light(otmp))
-                            (void) snuff_lit(otmp);
+                            (void) snuff_lit(otmp, TRUE);
                         else if (!mon)
                             /* wielded Sunsword or worn shield of light/gold dragon
                             scales; maybe lower its BUC state if not already
@@ -2708,7 +2708,7 @@ xchar x, y;      /* coordinates for centering do_clear_area() */
 
                 if (otmp->lamplit && !mon) {
                     if (!artifact_light(otmp) && lamp) {
-                        (void) snuff_lit(otmp);
+                        (void) snuff_lit(otmp, TRUE);
                     } else {
                         /* wielded Sunsword or worn shield of light/gold dragon
                            scales; maybe raise its BUC state if not already

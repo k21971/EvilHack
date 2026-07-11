@@ -5558,4 +5558,5 @@ The following changes to date are:
 - Monster lookup now reports many more species attributes
 - Object lookup now reports rarity, materials, and more
 - Artifact lookup: fix missing aasimar, add prices and special details
+- Fix: lit magic lamps were extinguished by water on dry land
 

@@ -1451,9 +1451,8 @@ unsigned trflags;
             for (otmp = invent; otmp; otmp = nextobj) {
                 nextobj = otmp->nobj;
                 if (otmp->lamplit && otmp != uwep
-                    && otmp->otyp != MAGIC_LAMP
                     && (otmp != uswapwep || !u.twoweap))
-                    (void) snuff_lit(otmp);
+                    (void) snuff_lit(otmp, FALSE);
             }
             if (uarmc)
                 (void) water_damage(uarmc, cloak_simple_name(uarmc),
@@ -2883,9 +2882,9 @@ struct monst *mtmp;
                     pline("%s %s!", A_gush_of_water_hits, mon_nam(mtmp));
                 for (otmp = mtmp->minvent; otmp; otmp = nextobj) {
                     nextobj = otmp->nobj;
-                    if (otmp->lamplit && otmp->otyp != MAGIC_LAMP
+                    if (otmp->lamplit
                         && (otmp->owornmask & (W_WEP | W_SWAPWEP)) == 0)
-                        (void) snuff_lit(otmp);
+                        (void) snuff_lit(otmp, FALSE);
                 }
                 if ((target = which_armor(mtmp, W_ARMC)) != 0)
                     (void) water_damage(target, cloak_simple_name(target),
@@ -4473,7 +4472,7 @@ xchar x, y;
     if (!obj)
         return ER_NOTHING;
 
-    if (snuff_lit(obj))
+    if (snuff_lit(obj, FALSE))
         return ER_DAMAGED;
 
     if (!ostr)

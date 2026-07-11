@@ -4064,7 +4064,7 @@ struct attack *mattk;
 
     if (u.uhunger < 1500 && !u.uswallow) {
         for (otmp = mdef->minvent; otmp; otmp = otmp->nobj)
-            (void) snuff_lit(otmp);
+            (void) snuff_lit(otmp, FALSE);
 
         /* force vampire in bat, cloud, or wolf form to revert back to
            vampire form now instead of dealing with that when it dies */
