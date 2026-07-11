@@ -5557,4 +5557,5 @@ The following changes to date are:
 - Fix: pets avoided passive attackers they were protected against
 - Monster lookup now reports many more species attributes
 - Object lookup now reports rarity, materials, and more
+- Artifact lookup: fix missing aasimar, add prices and special details
 

@@ -22,6 +22,7 @@ STATIC_DCL void FDECL(add_mon_info, (winid, struct permonst *));
 STATIC_DCL void FDECL(add_obj_info, (winid, SHORT_P));
 STATIC_DCL const char *FDECL(material_noun, (int));
 STATIC_DCL void FDECL(add_arti_info, (winid, int));
+STATIC_DCL void FDECL(add_mhflag_names, (unsigned long, char *));
 STATIC_DCL const char *FDECL(arti_adtyp_str, (int, BOOLEAN_P));
 STATIC_DCL const char *FDECL(arti_invprop_str, (int));
 STATIC_DCL void FDECL(look_all, (BOOLEAN_P,BOOLEAN_P));
@@ -2002,6 +2003,221 @@ int invprop;
         Strcat((list), (item)); \
     } while (0)
 
+/* MH_ monster-race flags mapped to display names, in output order;
+   MH_UNDEAD (both zombie bits) must stay first so that either bit
+   reads as "undead" */
+static const struct mh_name {
+    unsigned long flag;
+    const char *name;
+} mh_names[] = {
+    { MH_UNDEAD, "undead" },
+    { MH_DEMON, "demons" },
+    { MH_DRAGON, "dragons" },
+    { MH_GIANT, "giants" },
+    { MH_ORC, "orcs" },
+    { MH_TROLL, "trolls" },
+    { MH_OGRE, "ogres" },
+    { MH_ELF, "elves" },
+    { MH_HUMAN, "humans" },
+    { MH_WERE, "lycanthropes" },
+    { MH_VAMPIRE, "vampires" },
+    { MH_ANGEL, "angels" },
+    { MH_JABBERWOCK, "jabberwocks" },
+    { MH_SPIDER, "spiders" },
+    { MH_DROW, "drow" },
+    { MH_WRAITH, "wraiths" },
+    { MH_AASIMAR, "aasimar" },
+    { MH_DWARF, "dwarves" },
+    { MH_GNOME, "gnomes" },
+    { MH_HOBBIT, "hobbits" },
+    { MH_CENTAUR, "centaurs" },
+    { MH_ILLITHID, "illithids" },
+    { MH_TORTLE, "tortles" },
+    { MH_GNOLL, "gnolls" },
+};
+
+/* append the display name of each monster-race flag set in mtype */
+STATIC_OVL void
+add_mhflag_names(mtype, outbuf)
+unsigned long mtype;
+char *outbuf;
+{
+    int i;
+
+    for (i = 0; i < SIZE(mh_names); i++) {
+        if (mtype & mh_names[i].flag)
+            ADDTOLIST(outbuf, mh_names[i].name);
+    }
+}
+
+/* per-artifact behaviors hardcoded in the game logic that the artilist
+   data cannot express; shown under "Other properties" in the lookup */
+static const struct arti_special {
+    short artinum;
+    const char *line;
+} arti_specials[] = {
+    { ART_MAGICBANE,
+      "Magical hits may probe, stun, scare, or cancel the target." },
+    { ART_MAGICBANE, "Protects your inventory from curses while wielded." },
+    { ART_MAGICBANE, "Wielder takes extra damage from anti-magic fields." },
+    { ART_BUTCHER, "Magical hits may probe or stun the target." },
+    { ART_STAFF_OF_THE_ARCHMAGI,
+      "Magical hits may probe, stun, or scare the target." },
+    { ART_STAFF_OF_THE_ARCHMAGI,
+      "Protects your inventory from curses while wielded." },
+    { ART_STAFF_OF_THE_ARCHMAGI,
+      "Shines with light while wielded (an aura of darkness for drow)." },
+    { ART_TEMPEST, "Shock hits may unleash a lightning explosion." },
+    { ART_TEMPEST, "Wielder cannot be stunned." },
+    { ART_TEMPEST, "Protects your inventory from electrical damage." },
+    { ART_HARBINGER, "Acid hits may unleash an acid explosion." },
+    { ART_HARBINGER, "May instantly slay giants." },
+    { ART_HARBINGER, "Raises strength to maximum while wielded." },
+    { ART_HARBINGER, "Prevents knockback and protects your gear from acid." },
+    { ART_HARBINGER, "Its presence angers giants." },
+    { ART_DICHOTOMY, "Hits may explode in fire or frost." },
+    { ART_DICHOTOMY, "Protects your gear from fire and cold." },
+    { ART_DICHOTOMY, "Can burn through flammable doors and trees." },
+    { ART_VORPAL_BLADE, "Damage bonus applies to every target." },
+    { ART_VORPAL_BLADE, "Beheaded trolls and zombies cannot revive." },
+    { ART_VORPAL_BLADE, "Always beheads jabberwocks." },
+    { ART_VORPAL_BLADE, "Its presence angers jabberwocks." },
+    { ART_TSURUGI_OF_MURAMASA, "May bisect its target outright." },
+    { ART_SWORD_OF_KAS,
+      "Deals triple damage to Vecna and double to liches." },
+    { ART_SWORD_OF_KAS, "Poisons those it strikes." },
+    { ART_SWORD_OF_KAS, "Raises strength to maximum while wielded." },
+    { ART_SWORD_OF_KAS,
+      "Bloodthirsty: attacks peaceful creatures without asking." },
+    { ART_WAND_OF_ORCUS,
+      "Hits may drain the soul or permanently reduce maximum HP." },
+    { ART_WAND_OF_ORCUS,
+      "Curses and welds itself to the hand that wields it." },
+    { ART_WAND_OF_ORCUS, "Blocks natural HP regeneration while wielded." },
+    { ART_WAND_OF_ORCUS, "Always blasts you when touched." },
+    { ART_SWORD_OF_ANNIHILATION,
+      "Hits may disintegrate the target and its armor." },
+    { ART_SWORD_OF_ANNIHILATION, "Cannot be destroyed or polymorphed." },
+    { ART_GIANTSLAYER, "May instantly slay giants." },
+    { ART_GIANTSLAYER, "Raises strength to maximum while wielded." },
+    { ART_GIANTSLAYER, "Prevents knockback." },
+    { ART_GIANTSLAYER, "Its presence angers giants." },
+    { ART_OGRESMASHER, "May instantly slay ogres." },
+    { ART_OGRESMASHER, "Knocks smaller foes backwards." },
+    { ART_OGRESMASHER, "Raises constitution to maximum while wielded." },
+    { ART_OGRESMASHER, "Its presence angers ogres." },
+    { ART_CLEAVER, "Swings in an arc, striking up to three adjacent foes." },
+    { ART_WEREBANE, "May instantly slay lycanthropes." },
+    { ART_WEREBANE, "Its presence angers lycanthropes." },
+    { ART_SHADOWBLADE, "May instantly slay lycanthropes." },
+    { ART_SHADOWBLADE, "Deals heavy bonus damage when backstabbing." },
+    { ART_SHADOWBLADE, "Its presence angers lycanthropes." },
+    { ART_TROLLSBANE, "May instantly slay trolls." },
+    { ART_TROLLSBANE, "Nearby slain trolls never revive." },
+    { ART_TROLLSBANE, "Its presence angers trolls." },
+    { ART_ORCRIST, "May instantly slay orcs." },
+    { ART_ORCRIST, "Its presence angers orcs." },
+    { ART_STING, "May instantly slay orcs." },
+    { ART_STING, "Cuts through webs." },
+    { ART_STING, "Its presence angers orcs and spiders." },
+    { ART_GLAMDRING, "Wizards can wield it at Expert skill." },
+    { ART_GLAMDRING, "Its presence angers orcs." },
+    { ART_GRIMTOOTH, "May instantly slay elves and drow." },
+    { ART_GRIMTOOTH, "Its presence angers elves and drow." },
+    { ART_SUNSWORD, "May incinerate undead, leaving no corpse." },
+    { ART_SUNSWORD, "Nearby slain zombies leave no corpse." },
+    { ART_SUNSWORD, "Shines with light while wielded." },
+    { ART_SUNSWORD, "Its presence angers the undead." },
+    { ART_DEMONBANE, "May banish demons outright." },
+    { ART_DEMONBANE, "Blocks demon summoning and bribery while wielded." },
+    { ART_DEMONBANE, "Its presence angers demons." },
+    { ART_HAMMER_OF_THE_GODS,
+      "May destroy demons and incinerate undead." },
+    { ART_HAMMER_OF_THE_GODS,
+      "Returns when thrown by a skilled hammer wielder." },
+    { ART_HAMMER_OF_THE_GODS,
+      "Blocks demon summoning and bribery while wielded." },
+    { ART_HAMMER_OF_THE_GODS, "Shines with light while wielded." },
+    { ART_HAMMER_OF_THE_GODS, "Its presence angers undead and demons." },
+    { ART_DRAMBORLEG, "Slays balrogs outright." },
+    { ART_DRAMBORLEG, "Damage bonus applies to every target." },
+    { ART_ANGELSLAYER, "May incinerate angels and aasimar." },
+    { ART_ANGELSLAYER, "Its hellfire burns even underwater." },
+    { ART_ANGELSLAYER, "Can burn through flammable doors and trees." },
+    { ART_ANGELSLAYER, "Its presence angers angels and aasimar." },
+    { ART_MITRE_OF_HOLINESS, "Allows prayer within Gehennom while worn." },
+    { ART_FIRE_BRAND, "Can burn through flammable doors and trees." },
+    { ART_MJOLLNIR,
+      "Strikes with thunderclaps that wake nearby monsters." },
+    { ART_MJOLLNIR,
+      "The mighty can throw it; returns to a Valkyrie's hand." },
+    { ART_XIUHCOATL, "The dexterous can throw it, and it returns to hand." },
+    { ART_XIUHCOATL, "Its fire burns even underwater." },
+    { ART_XIUHCOATL, "Can burn through flammable doors and trees." },
+    { ART_LONGBOW_OF_DIANA,
+      "Fired arrows gain damage, range, and multishot bonuses." },
+    { ART_CROSSBOW_OF_CARL,
+      "Fired bolts gain damage, range, and multishot bonuses." },
+    { ART_CROSSBOW_OF_CARL,
+      "Magically lightened for gnome and hobbit Rangers." },
+    { ART_SECESPITA,
+      "Sacrifices made with it are worth half again as much." },
+    { ART_SECESPITA, "Killing with it restores your magical energy." },
+    { ART_STORMBRINGER,
+      "Bloodthirsty: attacks peaceful creatures without asking." },
+    { ART_MASTER_KEY_OF_THIEVERY,
+      "Senses nearby traps when held with bare hands." },
+    { ART_MASTER_KEY_OF_THIEVERY,
+      "Unlocks locks by touch for Rogues or when blessed." },
+    { ART_MASTER_KEY_OF_THIEVERY, "Never breaks while picking locks." },
+    { ART_YENDORIAN_EXPRESS_CARD, "Never breaks while picking locks." },
+    { ART_EXCALIBUR, "Grants flawless tracking of monsters." },
+    { ART_EXCALIBUR, "Demons refuse bribes from its wielder." },
+    { ART_BAG_OF_THE_HESPERIDES,
+      "Lightens its contents more than any bag of holding." },
+    { ART_BAG_OF_THE_HESPERIDES, "Keeps its contents dry." },
+    { ART_BAG_OF_THE_HESPERIDES, "Nearly impossible to steal." },
+    { ART_GJALLAR, "Blowing it wakes every monster on the level." },
+    { ART_GJALLAR, "Blessed, its blast stuns those nearby." },
+    { ART_IDOL_OF_MOLOCH,
+      "Can be applied as a figurine of a horned devil." },
+    { ART_MAGIC___BALL, "Dispenses advice when read." },
+    { ART_HAND_OF_VECNA, "Raises strength to maximum while worn." },
+    { ART_HAND_OF_VECNA,
+      "Chills your strikes; bare-handed blows may burst in frost." },
+    { ART_HAND_OF_VECNA,
+      "Merges with your arm; cannot be removed or destroyed." },
+    { ART_EYE_OF_VECNA, "Prized above all other sacrifices." },
+    { ART_EYE_OF_VECNA, "Cannot be destroyed, even by lava." },
+    { ART_GAUNTLETS_OF_PURITY, "Boosts unarmed damage for lawful wearers." },
+    { ART_GAUNTLETS_OF_PURITY,
+      "Wards off seduction and theft by nymphs and succubi." },
+    { ART_GAUNTLETS_OF_PURITY, "Slides off wearers who stray from purity." },
+    { ART_DRAGONBANE, "Sears dragons that attack the wearer." },
+    { ART_DRAGONBANE, "Cannot be disintegrated by black dragons." },
+    { ART_DRAGONBANE, "Its presence angers dragons." },
+    { ART_ASHMAR, "May knock attackers back when it deflects a blow." },
+    { ART_ASHMAR, "Raises constitution to maximum and grants extra AC." },
+    { ART_ASHMAR, "Prevents knockback." },
+    { ART_ARMOR_OF_RETRIBUTION, "May knock attackers back when struck." },
+    { ART_ARMOR_OF_RETRIBUTION,
+      "Raises constitution to maximum; adds AC and carry capacity." },
+    { ART_ARMOR_OF_RETRIBUTION,
+      "Resists cancellation and cannot be destroyed." },
+    { ART_BRACERS_OF_THE_FIRST_CIRCL, "Extra AC for Druids." },
+    { ART_BRACERS_OF_THE_FIRST_CIRCL, "No shield spellcasting penalty." },
+    { ART_EYES_OF_THE_OVERWORLD,
+      "Shields the wearer from most gaze attacks (not Medusa's)." },
+    { ART_ITHILMAR, "Protects a jousting rider's lance from breaking." },
+    { ART_STRIPED_SHIRT_OF_LIBERATIO, "Cannot be removed once worn." },
+    { ART_STRIPED_SHIRT_OF_LIBERATIO,
+      "Shopkeepers refuse entry to its wearer." },
+    { ART_STRIPED_SHIRT_OF_LIBERATIO,
+      "Its phasing invoke is only reliable for Convicts." },
+    { ART_ONE_RING, "Wearing it angers nearby wraiths." },
+    { 0, (const char *) 0 }
+};
+
 /* Add artifact-specific information to the lookup window */
 STATIC_OVL void
 add_arti_info(datawin, artinum)
@@ -2024,19 +2240,25 @@ int artinum;
     ARTIPUTSTR("");
 
     /* Base type */
-    Sprintf(buf, "Base item: %s", OBJ_NAME(objects[arti->otyp]));
+    Sprintf(buf, "Base item: %s.", OBJ_NAME(objects[arti->otyp]));
     ARTIPUTSTR(buf);
 
     /* Material - use artifact's material if specified, else base object's */
     {
         int mat = arti->material ? arti->material
                                  : objects[arti->otyp].oc_material;
-        Sprintf(buf, "Material: %s", materialnm[mat]);
+        Sprintf(buf, "Material: %s.", materialnm[mat]);
         ARTIPUTSTR(buf);
     }
 
+    /* Price - same computation as arti_cost() */
+    Sprintf(buf, "Base price: %ld zm.",
+            arti->cost ? arti->cost
+                       : 100L * (long) objects[arti->otyp].oc_cost);
+    ARTIPUTSTR(buf);
+
     /* Alignment */
-    Sprintf(buf, "Alignment: %s",
+    Sprintf(buf, "Alignment: %s.",
             arti->alignment == A_LAWFUL ? "lawful" :
             arti->alignment == A_NEUTRAL ? "neutral" :
             arti->alignment == A_CHAOTIC ? "chaotic" : "unaligned");
@@ -2052,7 +2274,7 @@ int artinum;
         }
         if (arti->race != NON_PM)
             Strcat(buf2, mons[arti->race].mname);
-        Sprintf(buf, "Associated role/race: %s", buf2);
+        Sprintf(buf, "Associated role/race: %s.", buf2);
         ARTIPUTSTR(buf);
     }
 
@@ -2069,9 +2291,16 @@ int artinum;
     if (arti->spfx & SPFX_INTEL)
         ADDTOLIST(buf2, "intelligent");
     if (buf2[0]) {
-        Sprintf(buf, "Restrictions: %s", buf2);
+        Sprintf(buf, "Restrictions: %s.", buf2);
         ARTIPUTSTR(buf);
     }
+
+    /* consequence of restricted/self-willed status (touch_artifact) */
+    if (((arti->spfx & SPFX_RESTR) && arti->alignment != A_NONE)
+        || ((arti->spfx & SPFX_INTEL)
+            && (arti->role != NON_PM || arti->race != NON_PM)))
+        ARTIPUTSTR(
+            "May blast you when touched (wrong alignment, role, or race).");
 
     /* Forge recipe - for forged artifacts, show what ingredients are needed */
     if (arti->spfx & SPFX_FORGED) {
@@ -2131,7 +2360,7 @@ int artinum;
         if (arti->spfx & SPFX_BEHEAD)
             ADDTOLIST(buf2, "beheading");
         if (buf2[0]) {
-            Sprintf(buf, "Special attack: %s", buf2);
+            Sprintf(buf, "Special attack: %s.", buf2);
             ARTIPUTSTR(buf);
         }
     }
@@ -2142,38 +2371,7 @@ int artinum;
         if (arti->spfx & SPFX_DCLAS) {
             Sprintf(buf2, "class '%c'", (char) arti->mtype);
         } else if (arti->spfx & SPFX_DFLAGH) {
-            if (arti->mtype & MH_UNDEAD)
-                ADDTOLIST(buf2, "undead");
-            if (arti->mtype & MH_DEMON)
-                ADDTOLIST(buf2, "demons");
-            if (arti->mtype & MH_DRAGON)
-                ADDTOLIST(buf2, "dragons");
-            if (arti->mtype & MH_GIANT)
-                ADDTOLIST(buf2, "giants");
-            if (arti->mtype & MH_ORC)
-                ADDTOLIST(buf2, "orcs");
-            if (arti->mtype & MH_TROLL)
-                ADDTOLIST(buf2, "trolls");
-            if (arti->mtype & MH_OGRE)
-                ADDTOLIST(buf2, "ogres");
-            if (arti->mtype & MH_ELF)
-                ADDTOLIST(buf2, "elves");
-            if (arti->mtype & MH_HUMAN)
-                ADDTOLIST(buf2, "humans");
-            if (arti->mtype & MH_WERE)
-                ADDTOLIST(buf2, "lycanthropes");
-            if (arti->mtype & MH_VAMPIRE)
-                ADDTOLIST(buf2, "vampires");
-            if (arti->mtype & MH_ANGEL)
-                ADDTOLIST(buf2, "angels");
-            if (arti->mtype & MH_JABBERWOCK)
-                ADDTOLIST(buf2, "jabberwocks");
-            if (arti->mtype & MH_SPIDER)
-                ADDTOLIST(buf2, "spiders");
-            if (arti->mtype & MH_DROW)
-                ADDTOLIST(buf2, "drow");
-            if (arti->mtype & MH_WRAITH)
-                ADDTOLIST(buf2, "wraiths");
+            add_mhflag_names(arti->mtype, buf2);
         } else if (arti->spfx & SPFX_DALIGN) {
             Strcpy(buf2, "cross-aligned");
         } else if ((arti->spfx & SPFX_DMONS)
@@ -2182,7 +2380,7 @@ int artinum;
             Strcpy(buf2, mons[arti->mtype].mname);
         }
         if (buf2[0]) {
-            Sprintf(buf, "Damage bonus vs: %s", buf2);
+            Sprintf(buf, "Damage bonus vs: %s.", buf2);
             ARTIPUTSTR(buf);
         }
     }
@@ -2203,40 +2401,13 @@ int artinum;
             /* Build "warns vs X, Y, Z" for specific monster types */
             char warnbuf[BUFSZ];
             warnbuf[0] = '\0';
-            if (arti->mtype & MH_UNDEAD)
-                ADDTOLIST(warnbuf, "undead");
-            if (arti->mtype & MH_DEMON)
-                ADDTOLIST(warnbuf, "demons");
-            if (arti->mtype & MH_DRAGON)
-                ADDTOLIST(warnbuf, "dragons");
-            if (arti->mtype & MH_GIANT)
-                ADDTOLIST(warnbuf, "giants");
-            if (arti->mtype & MH_ORC)
-                ADDTOLIST(warnbuf, "orcs");
-            if (arti->mtype & MH_TROLL)
-                ADDTOLIST(warnbuf, "trolls");
-            if (arti->mtype & MH_OGRE)
-                ADDTOLIST(warnbuf, "ogres");
-            if (arti->mtype & MH_ELF)
-                ADDTOLIST(warnbuf, "elves");
-            if (arti->mtype & MH_HUMAN)
-                ADDTOLIST(warnbuf, "humans");
-            if (arti->mtype & MH_WERE)
-                ADDTOLIST(warnbuf, "lycanthropes");
-            if (arti->mtype & MH_VAMPIRE)
-                ADDTOLIST(warnbuf, "vampires");
-            if (arti->mtype & MH_ANGEL)
-                ADDTOLIST(warnbuf, "angels");
-            if (arti->mtype & MH_JABBERWOCK)
-                ADDTOLIST(warnbuf, "jabberwocks");
-            if (arti->mtype & MH_SPIDER)
-                ADDTOLIST(warnbuf, "spiders");
-            if (arti->mtype & MH_DROW)
-                ADDTOLIST(warnbuf, "drow");
-            if (arti->mtype & MH_WRAITH)
-                ADDTOLIST(warnbuf, "wraiths");
+            add_mhflag_names(arti->mtype, warnbuf);
             if (warnbuf[0]) {
                 Sprintf(tmpbuf, "warns vs %s", warnbuf);
+                /* such artifacts glow when the warned type is near */
+                if (arti->acolor != NO_COLOR)
+                    Sprintf(eos(tmpbuf), " (glows %s)",
+                            clr2colorname(arti->acolor));
                 ADDTOLIST(buf2, tmpbuf);
             } else {
                 ADDTOLIST(buf2, "warning");
@@ -2271,7 +2442,7 @@ int artinum;
         ADDTOLIST(buf2, "reflection");
     if (arti->spfx & SPFX_PROTECT)
         ADDTOLIST(buf2, "protection");
-    Sprintf(buf, "While wielded/worn: %s", buf2[0] ? buf2 : "(none)");
+    Sprintf(buf, "While wielded/worn: %s.", buf2[0] ? buf2 : "(none)");
     ARTIPUTSTR(buf);
 
     /* Carry properties - build comma-separated list */
@@ -2313,13 +2484,30 @@ int artinum;
         ADDTOLIST(buf2, "reflection");
     if (arti->cspfx & SPFX_PROTECT)
         ADDTOLIST(buf2, "protection");
-    Sprintf(buf, "While carried: %s", buf2[0] ? buf2 : "(none)");
+    Sprintf(buf, "While carried: %s.", buf2[0] ? buf2 : "(none)");
     ARTIPUTSTR(buf);
 
     /* Invoke property */
     tmp = arti_invprop_str(arti->inv_prop);
-    Sprintf(buf, "When invoked: %s", tmp ? tmp : "(none)");
+    Sprintf(buf, "When invoked: %s.", tmp ? tmp : "(none)");
     ARTIPUTSTR(buf);
+
+    /* behaviors hardcoded in the game logic beyond the artilist data */
+    {
+        const struct arti_special *asp;
+        boolean first = TRUE;
+
+        for (asp = arti_specials; asp->line; asp++) {
+            if (asp->artinum == artinum) {
+                if (first) {
+                    ARTIPUTSTR("Other properties:");
+                    first = FALSE;
+                }
+                Sprintf(buf, "  %s", asp->line);
+                ARTIPUTSTR(buf);
+            }
+        }
+    }
 
 #undef ARTIPUTSTR
 }
