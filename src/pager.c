@@ -20,6 +20,7 @@ STATIC_DCL struct permonst *FDECL(lookat, (int, int, char *, char *));
 STATIC_DCL char *FDECL(hallucinatory_armor, (char *));
 STATIC_DCL void FDECL(add_mon_info, (winid, struct permonst *));
 STATIC_DCL void FDECL(add_obj_info, (winid, SHORT_P));
+STATIC_DCL const char *FDECL(material_noun, (int));
 STATIC_DCL void FDECL(add_arti_info, (winid, int));
 STATIC_DCL const char *FDECL(arti_adtyp_str, (int, BOOLEAN_P));
 STATIC_DCL const char *FDECL(arti_invprop_str, (int));
@@ -1302,6 +1303,18 @@ extern const struct propname {
     const char* prop_name;
 } propertynames[]; /* located in timeout.c */
 
+/* materialnm[] uses adjectival forms; two entries differ as nouns */
+STATIC_OVL const char *
+material_noun(mat)
+int mat;
+{
+    if (mat == WOOD)
+        return "wood";
+    if (mat == VEGGY)
+        return "vegetable matter";
+    return materialnm[mat];
+}
+
 /* Add some information to an encyclopedia window which is printing information
  * about an object. */
 STATIC_OVL void
@@ -1325,6 +1338,8 @@ short otyp;
     boolean has_precipes;
     const struct trap_recipe *trecipe;
     boolean has_trecipes;
+    struct obj dummy;
+    int mat, j, totprob, pmil;
 
 #define OBJPUTSTR(str) putstr(datawin, ATR_NONE, str)
 #define ADDCLASSPROP(cond, str)          \
@@ -1337,7 +1352,6 @@ short otyp;
     putstr(datawin, ATR_BOLD, buf);
     OBJPUTSTR("");
 
-    /* Object classes currently with no special messages here: amulets. */
     if (olet == WEAPON_CLASS || weptool || gemammo) {
         const int skill = oc.oc_skill;
         const char* dmgtyp = "blunt";
@@ -1449,6 +1463,20 @@ short otyp;
         Sprintf(buf, "Has a %s%d %s to hit.", (oc.oc_hitbon >= 0 ? "+" : ""),
                 oc.oc_hitbon, (oc.oc_hitbon >= 0 ? "bonus" : "penalty"));
         OBJPUTSTR(buf);
+        if (skill >= P_BOW && skill <= P_CROSSBOW) {
+            Sprintf(buf, "Fires %s.",
+                    (skill == P_BOW) ? "arrows"
+                      : (skill == P_CROSSBOW) ? "crossbow bolts"
+                        : "sling bullets, stones, and gems");
+            OBJPUTSTR(buf);
+        }
+        if (olet == WEAPON_CLASS
+            && !(skill >= P_BOW && skill <= P_CROSSBOW)
+            && oc.oc_dir != WHACK)
+            OBJPUTSTR("Can be coated with poison.");
+        if (olet == WEAPON_CLASS
+            && skill >= -P_SHURIKEN && skill <= -P_BOW)
+            OBJPUTSTR("Normally generated in stacks.");
     }
     if (olet == ARMOR_CLASS) {
         /* Indexes here correspond to ARM_SHIELD, etc; not the W_* masks.
@@ -1606,10 +1634,60 @@ short otyp;
         buf[0] -= ('a' - 'A');
         OBJPUTSTR(buf);
     }
+    if (olet == AMULET_CLASS) {
+        OBJPUTSTR("Amulet.");
+    }
+    if (olet == COIN_CLASS) {
+        OBJPUTSTR("Coin.");
+    }
+    if (olet == ROCK_CLASS) {
+        OBJPUTSTR(otyp == STATUE ? "Statue." : "Boulder.");
+    }
+    if (olet == BALL_CLASS) {
+        OBJPUTSTR("Heavy iron ball.");
+    }
+    if (olet == CHAIN_CLASS) {
+        OBJPUTSTR("Chain.");
+    }
+    if (olet == VENOM_CLASS) {
+        OBJPUTSTR("Venom.");
+    }
 
     /* cost, wt should go next */
     Sprintf(buf, "Base cost %d, weighs %d aum.", oc.oc_cost, oc.oc_weight);
     OBJPUTSTR(buf);
+
+    /* generation frequency, only for the object classes that are part
+       of mkobj's random mixture */
+    if (olet == WEAPON_CLASS || olet == ARMOR_CLASS || olet == RING_CLASS
+        || olet == AMULET_CLASS || olet == TOOL_CLASS || olet == FOOD_CLASS
+        || olet == POTION_CLASS || olet == SCROLL_CLASS
+        || olet == SPBOOK_CLASS || olet == WAND_CLASS
+        || olet == GEM_CLASS) {
+        if (!oc.oc_prob) {
+            OBJPUTSTR("Not randomly generated.");
+        } else {
+            /* oc_prob values are relative weights, normalized over the
+               class total at selection time (see mkobj); not every
+               class sums its weights to 1000 */
+            totprob = 0;
+            for (j = bases[(int) olet];
+                 j < NUM_OBJECTS && objects[j].oc_class == olet; j++)
+                totprob += objects[j].oc_prob;
+            pmil = (oc.oc_prob * 1000 + totprob / 2) / totprob;
+            if (pmil == 0)
+                Sprintf(buf, "Makes up less than 0.1%% of randomly"
+                             " generated %s.",
+                        (olet == GEM_CLASS) ? "gems and stones"
+                                            : def_oc_syms[(int) olet].name);
+            else
+                Sprintf(buf, "Makes up %d.%d%% of randomly generated %s.",
+                        pmil / 10, pmil % 10,
+                        (olet == GEM_CLASS) ? "gems and stones"
+                                            : def_oc_syms[(int) olet].name);
+            OBJPUTSTR(buf);
+        }
+    }
 
     /* Scrolls or spellbooks: ink cost */
     if (olet == SCROLL_CLASS || olet == SPBOOK_CLASS) {
@@ -1706,24 +1784,26 @@ short otyp;
      * Object classes where this may matter: rings, wands. All randomized tools
      * share materials, and all scrolls and potions are the same material. */
     if (!(olet == RING_CLASS || olet == WAND_CLASS) || oc.oc_name_known) {
-        /* char array converting materials to strings; if this is ever needed
-        * anywhere else it should be externified. Corresponds exactly to the
-        * materials defined in objclass.h.
-        * This is very similar to materialnm[], but the slight difference is
-        * that this is always the noun form whereas materialnm uses adjective
-        * forms; most materials have the same noun and adjective forms but two
-        * (wood/wooden, vegetable matter/organic) don't */
-        const char* mat_str = materialnm[oc.oc_material];
-        /* Two exceptions to materialnm, which uses adjectival forms: most of
-         * these work fine as nouns but two don't. */
-        if (oc.oc_material == WOOD) {
-            mat_str = "wood";
-        } else if (oc.oc_material == VEGGY) {
-            mat_str = "vegetable matter";
-        }
-
-        Sprintf(buf, "Normally made of %s.", mat_str);
+        Sprintf(buf, "Normally made of %s.", material_noun(oc.oc_material));
         OBJPUTSTR(buf);
+
+        /* other materials this object type can randomly generate as;
+           the dummy stands in for a generic non-artifact instance */
+        dummy = zeroobj;
+        dummy.otyp = otyp;
+        dummy.oclass = olet;
+        buf[0] = '\0';
+        for (mat = 1; mat < NUM_MATERIAL_TYPES; mat++) {
+            if (mat == (int) oc.oc_material)
+                continue;
+            if (valid_obj_material(&dummy, mat)) {
+                ADDCLASSPROP(TRUE, material_noun(mat));
+            }
+        }
+        if (*buf) {
+            Sprintf(buf2, "Can also be made of %s.", buf);
+            OBJPUTSTR(buf2);
+        }
     }
 
     /* TODO: prevent obj lookup from displaying with monster database entry
