@@ -5555,4 +5555,5 @@ The following changes to date are:
 - Fix: #order pet targeting and worn-armor hand-over bugs
 - Fix: monsters could waste casts on learned charm monster
 - Fix: pets avoided passive attackers they were protected against
+- Monster lookup now reports many more species attributes
 

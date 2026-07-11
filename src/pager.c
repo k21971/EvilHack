@@ -895,6 +895,8 @@ struct permonst * pm;
     boolean nohell = !!(gen & G_NOHELL);
     boolean nogen = !!(gen & G_NOGEN);
     boolean iceq = is_iceq_only(pm);
+    int mndx = monsndx(pm);
+    unsigned long mflag2 = pm->mflags2;
     unsigned int mflag3 = pm->mflags3;
     unsigned int mflag4 = pm->mflags4;
 
@@ -1058,6 +1060,9 @@ struct permonst * pm;
             APPENDC(TRUE, "big");
         }
     }
+    APPENDC(humanoid(pm), "humanoid");
+    APPENDC(is_animal(pm), "animal-bodied");
+    APPENDC(slithy(pm), "serpentine");
 
     /* inherent characteristics: "Monster is X." */
     APPENDC(!(gen & G_GENO), "ungenocideable");
@@ -1078,6 +1083,11 @@ struct permonst * pm;
     if (!is_undead(pm))
         APPENDC(nonliving(pm), "nonliving");
     APPENDC(mindless(pm), "mindless");
+    APPENDC(!haseyes(pm), "eyeless");
+    APPENDC(nolimbs(pm), "limbless");
+    if (!nolimbs(pm))
+        APPENDC(nohands(pm), "handless");
+    APPENDC(!has_head(pm), "headless");
     APPENDC(telepathic(pm), "telepathic");
     ADDRESIST(pm_resistance(pm, MR2_TELEPATHY), "telepathic");
     APPENDC(is_displaced(pm), "displaced");
@@ -1092,6 +1102,14 @@ struct permonst * pm;
     APPENDC(metallivorous(pm), "metallivorous");
     APPENDC(inediate(pm), "inediate");
     APPENDC(is_covetous(pm), "covetous");
+    APPENDC(always_hostile(pm), "always hostile");
+    APPENDC(always_peaceful(pm), "always peaceful");
+    APPENDC(extra_nasty(pm), "extra-nasty");
+    APPENDC(is_shapeshifter(pm), "a shapeshifter");
+    APPENDC(is_lord(pm), "nobility among its kind");
+    APPENDC(is_prince(pm), "royalty among its kind");
+    APPENDC(is_minion(pm), "a minion of a deity");
+    APPENDC(is_mercenary(pm), "a mercenary");
     APPENDC(hates_material(pm, IRON), "harmed by iron")
     APPENDC(hates_material(pm, MITHRIL), "harmed by mithril")
     APPENDC(hates_material(pm, SILVER), "harmed by silver")
@@ -1117,6 +1135,17 @@ struct permonst * pm;
         buf[0] = '\0';
     }
 
+    /* "Monster collects X." */
+    APPENDC(likes_gold(pm), "gold");
+    APPENDC(likes_gems(pm), "gems");
+    APPENDC(likes_objs(pm), "weapons and food");
+    APPENDC(likes_magic(pm), "magic items");
+    if (*buf) {
+        Sprintf(buf2, "Collects %s.", buf);
+        MONPUTSTR(buf2);
+        buf[0] = '\0';
+    }
+
     /* inherent abilities: "Monster can X." */
     APPENDC(perceives(pm), "see invisible");
     APPENDC(hides_under(pm), "hide under objects");
@@ -1134,6 +1163,8 @@ struct permonst * pm;
     APPENDC(lays_eggs(pm), "lay eggs");
     APPENDC(webmaker(pm), "spin webs");
     APPENDC(needspick(pm), "mine");
+    APPENDC(throws_rocks(pm), "throw boulders");
+    APPENDC(is_displacer(pm), "shove other monsters out of its way");
     APPENDC(is_berserker(pm), "go berserk");
     APPENDC(is_support(pm), "supports allies")
     APPENDC(can_flollop(pm), "flollop");
@@ -1152,6 +1183,7 @@ struct permonst * pm;
     APPENDC(no_geno_vlad(pm), "be genocided until its leader is destroyed");
     APPENDC(no_geno_talgath(pm), "be genocided until its leader is killed");
     APPENDC(is_defeated(pm), "be killed");
+    APPENDC(notake(pm), "pick up items");
     APPENDC(hates_light(pm), "stand the light");
     if (*buf) {
         Sprintf(buf2, "Can't %s.", buf);
@@ -1170,6 +1202,24 @@ struct permonst * pm;
         MONPUTSTR("Has a thick hide.");
     if (control_teleport(pm))
         MONPUTSTR("Has teleport control.");
+    if (is_domestic(pm) && !non_tameable(pm))
+        MONPUTSTR("Can be tamed by feeding.");
+    if (pm == &mons[PM_GELATINOUS_CUBE])
+        MONPUTSTR("Eats objects off the floor.");
+    if (pm == &mons[PM_CREEPING_MOUND])
+        MONPUTSTR("Eats food off the floor.");
+    if (pm == &mons[PM_HONEY_BADGER])
+        MONPUTSTR("Eats royal jelly off the floor.");
+    if (pm == &mons[PM_GOLLUM])
+        MONPUTSTR("Eats fish, goblin, and bat corpses off the floor.");
+    if (is_wanderer(pm))
+        MONPUTSTR("Wanders about randomly.");
+    if ((mflag2 & M2_STALK) != 0L)
+        MONPUTSTR("Follows you to other levels.");
+    if ((mflag3 & M3_WAITFORU) != 0)
+        MONPUTSTR("Waits for you to arrive.");
+    if ((mflag3 & M3_CLOSE) != 0)
+        MONPUTSTR("Waits for you to get close.");
     if (your_race(pm))
         MONPUTSTR("Is the same race as you.");
     if (!(gen & G_NOCORPSE)) {
@@ -1187,6 +1237,15 @@ struct permonst * pm;
         else
             MONPUTSTR("Emits light.");
     }
+    if (all_druid_forms(mndx)) {
+        Sprintf(buf, "Is a druid wildshape form (experience level %d).",
+                druid_form_A(mndx) ? 3
+                  : druid_form_B(mndx) ? 8
+                    : druid_form_C(mndx) ? 14 : 20);
+        MONPUTSTR(buf);
+    }
+    if (all_vampire_forms(mndx))
+        MONPUTSTR("Is a vampire shapechange form.");
     Sprintf(buf, "Is %sa valid polymorph form.",
             polyok(pm) ? "" : "not ");
     MONPUTSTR(buf);
