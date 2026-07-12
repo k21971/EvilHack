@@ -19,9 +19,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   defines + working-tree content swap, message files in scratchpad
   msg-phase1-slice-a.txt / msg-phase1-content.txt; BOTH LANDED
   cc0bf8a13 + ec925f41a). Slice 3 (artilist + Role/Race port)
-  staged, message /tmp/p2.txt. NEXT = u_init.c port, then chain
-  lightning/shield re-adds, persistent-struct enumeration, glyph
-  audit, Phase 1 gate
+  LANDED 4f3d4bc7c. Slice 4 u_init.c staged, message /tmp/p3.txt.
+  NEXT = chain lightning/shield re-adds, persistent-struct
+  enumeration, glyph audit, Phase 1 boot gate
 - Adoption commit (nh50/master @ merge):
   74d1133c229a0fe17c6b05d4d4084937cb2631ca (2026-07-12); adoption
   merge commit on evilhack-50: 6160262a4 (parents c444f6a3a +
@@ -309,13 +309,21 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       role_init variant swaps; skills.h final enum (P_KNIFE/
       P_MORNING_STAR folded away, THIEVERY/SHIELD/PET_HANDLING
       added); femalenum columns merged to NAMS-era mnum
-- [ ] u_init.c port NEXT (LAST boot blocker): EvilHack starting
-      inventories/skills for all roles incl. Convict/Infidel/Druid
-      + Draugr variants + racial gear; NOTE 5.0 struct trobj has
-      trquan_min/trquan_max vs EvilHack's single trquan - column
-      adaptation needed. New roles are SELECTABLE but broken until
-      this lands; NO BOOT TESTS, and never select the new roles in
-      any pre-gate test
+- [x] u_init.c port DONE 2026-07-12b (subagent, verified; zero
+      warnings): all role/race inventories + 22 skill tables incl.
+      Skill_Dra_*; trquan column adapted to min/max; 6 TODO-EVILHACK
+      deferrals inside (valid_obj_material/set_material, otainted,
+      maybe_erodeproof x2, oprops) - each ports with its Phase 2
+      subsystem. Judgment calls: Draugr/Vampire -20 start expressed
+      as direct u.ualign.record set (adjalign would charge abuse +
+      buff Erinys + stack across rerolls); vampire blood-potion
+      oc_prob mutation resyncs init_oclass_probs() (5.0 caches
+      class totals). FOLLOW-UPS: pauper Infidel starts without the
+      Amulet (maintainer decision when Infidel mechanics port);
+      vampire oc_prob resets on save/restore (re-apply at vampire
+      race port; latent in EvilHack master too); Druid bracers
+      rewield carve-outs pending. BOOT TESTS now unblocked (gate
+      still needs glyph audit first)
 - [ ] 5.0-only content adoption - DECIDED 2026-07-12 (maintainer):
       ADOPT spellbook of chain lightning (cast_chain_lightning()
       still compiled; pick attack vs evocation school at re-add)
