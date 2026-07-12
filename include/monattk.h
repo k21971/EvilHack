@@ -24,6 +24,7 @@
 #define AT_BOOM 14  /* explodes when killed */
 #define AT_GAZE 15  /* gaze - ranged */
 #define AT_TENT 16  /* tentacles */
+#define AT_SCRE 17  /* scream - sonic attack */
 
 #define AT_WEAP 254 /* uses weapon */
 #define AT_MAGC 255 /* uses magic spell(s) */
@@ -83,6 +84,18 @@
 #define AD_ENCH 41  /* remove enchantment (disenchanter) */
 #define AD_CORR 42  /* corrode armor (black pudding) */
 #define AD_POLY 43  /* polymorph the target (genetic engineer) */
+#define AD_WATR 44  /* water (physical) attack */
+#define AD_CNCL 45  /* cancellation */
+#define AD_BHED 46  /* beheading (vorpal jabberwock) */
+#define AD_LUCK 47  /* affects luck (magical eye) */
+#define AD_PSYC 48  /* psionic attack */
+#define AD_LOUD 49  /* sound damage */
+#define AD_CLOB 50  /* knock-back attack */
+#define AD_WTHR 51  /* withering attack (mummies) */
+#define AD_PITS 52  /* create pit under target (pit fiend) */
+#define AD_WEBS 53  /* entangles target in webbing */
+#define AD_FUSE 54  /* combines different damage types into one type */
+#define AD_GOLD 55  /* transmutes an inventory item to gold (Croesus) */
 
 #define AD_CLRC 240 /* random clerical spell */
 #define AD_SPEL 241 /* random magic spell */

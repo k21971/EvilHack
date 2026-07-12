@@ -54,6 +54,32 @@
 #define DRAGON_SILVER CLR_BRIGHT_CYAN
 #define HI_ZAP CLR_BRIGHT_BLUE
 
+/* EvilHack color aliases for materials and monster families. On the
+ * 3.6 tree these are 256-color palette indices; until the customcolor
+ * registry ports, each stands in as the base-16 color that EvilHack's
+ * own map_color_256to16() fallback resolves it to */
+#define HI_WAX CLR_WHITE
+#define HI_VEGGY CLR_BROWN
+#define HI_FLESH CLR_ORANGE
+#define HI_SPIDER_SILK CLR_WHITE
+#define HI_BONE CLR_WHITE
+#define HI_DRAGON_HIDE CLR_RED
+#define HI_STEEL CLR_GRAY
+#define HI_BRONZE CLR_BROWN
+#define HI_PLATINUM CLR_WHITE
+#define HI_MITHRIL CLR_GRAY
+#define HI_ADAMANTINE CLR_BLACK
+#define HI_PLASTIC CLR_YELLOW
+#define HI_GEMSTONE CLR_RED
+#define HI_LIQUID CLR_BROWN
+#define HI_IRON CLR_CYAN
+#define HI_MPLAYER CLR_YELLOW
+#define HI_ORANGE CLR_ORANGE
+#define HI_PURPLE CLR_MAGENTA
+#define HI_TREE CLR_BRIGHT_GREEN
+#define HI_PLANT CLR_BROWN
+#define HI_WATER CLR_BRIGHT_BLUE
+
 #define NH_BASIC_COLOR  0x1000000
 #define NH_ALTPALETTE   0x2000000
 #define COLORVAL(x) ((x) & 0xFFFFFF)

@@ -14,10 +14,10 @@ enum ms_sounds {
     MS_ROAR     =  3,   /* roars */
     MS_BELLOW   =  4,   /* adult male crocodiles; hatchlings 'chirp' */
     MS_GROWL    =  5,   /* growls */
-    MS_SQEEK    =  6,   /* squeaks, as a rodent */
-    MS_SQAWK    =  7,   /* squawks, as a bird */
+    MS_SQEEK    =  6,   /* squeaks, as a rodent (bats, woodchucks broken out) */
+    MS_SQAWK    =  7,   /* squawks, as a bird (raptors broken out) */
     MS_CHIRP    =  8,   /* baby crocodile */
-    MS_HISS     =  9,   /* hisses */
+    MS_HISS     =  9,   /* hisses (lizards, pseudodragons broken out) */
     MS_BUZZ     = 10,   /* buzzes (killer bee) */
     MS_GRUNT    = 11,   /* grunts (or speaks own language) */
     MS_NEIGH    = 12,   /* neighs, as an equine */
@@ -57,6 +57,11 @@ enum ms_sounds {
     MS_SPELL    = 42,   /* spellcaster not matching any of the above */
     MS_BOAST    = 43,   /* giants */
     MS_GROAN    = 44,   /* zombies groan */
+    MS_BAT      = 45,   /* bats */
+    MS_WCHUCK   = 46,   /* woodchucks don't sound like rodents */
+    MS_RAPTOR   = 47,   /* birds of prey */
+    MS_LIZARD   = 48,   /* lizard (and turtle) hiss specialization */
+    MS_PSEUDO   = 49,   /* pseudodragon hiss specialization */
 };
 
 #define MR_FIRE         0x01 /* resists fire */
@@ -67,6 +72,7 @@ enum ms_sounds {
 #define MR_POISON       0x20 /* resists poison */
 #define MR_ACID         0x40 /* resists acid */
 #define MR_STONE        0x80 /* resists petrification */
+#define MR_PSYCHIC      0x100 /* resists psychic */
 /* NB: the above resistances correspond to the first 8 hero properties in
    prop_types (FIRE_RES through STONE_RES), which can be converted to their
    MR_foo equivalents with the macro res_to_mr() defined in prop.h */
@@ -74,13 +80,20 @@ enum ms_sounds {
 /* other conveyances: teleport, teleport control, telepathy */
 
 /* individual resistances */
-#define MR2_SEE_INVIS   0x0100 /* see invisible */
-#define MR2_LEVITATE    0x0200 /* levitation */
-#define MR2_WATERWALK   0x0400 /* water walking */
-#define MR2_MAGBREATH   0x0800 /* magical breathing */
-#define MR2_DISPLACED   0x1000 /* displaced */
-#define MR2_STRENGTH    0x2000 /* gauntlets of power */
-#define MR2_FUMBLING    0x4000 /* clumsy */
+#define MR2_SEE_INVIS   0x0200 /* see invisible */
+#define MR2_LEVITATE    0x0400 /* levitation */
+#define MR2_WATERWALK   0x0800 /* water walking */
+#define MR2_MAGBREATH   0x1000 /* magical breathing */
+#define MR2_DISPLACED   0x2000 /* displaced */
+#define MR2_STRENGTH    0x4000 /* gauntlets of power */
+#define MR2_FUMBLING    0x8000 /* clumsy */
+#define MR2_TELEPATHY   0x00010000L /* telepathic */
+#define MR2_JUMPING     0x00020000L /* can jump */
+#define MR2_REFLECTION  0x00040000L /* has reflection */
+#define MR2_FREE_ACTION 0x00080000L /* has free action */
+#define MR2_BARKSKIN    0x00100000L /* has barkskin */
+#define MR2_STONESKIN   0x00200000L /* has stoneskin */
+#define MR2_FLY         0x00400000L /* can fly (extrinsic) */
 
 #define M1_FLY          0x00000001L /* can fly or float */
 #define M1_SWIM         0x00000002L /* can traverse water */
@@ -171,8 +184,18 @@ enum ms_sounds {
 /* Infravision is currently implemented for players only */
 #define M3_INFRAVISION  0x0100 /* has infravision */
 #define M3_INFRAVISIBLE 0x0200 /* visible by infravision */
+#define M3_ULTRAVISION  0x0400 /* has ultravision */
 
-#define M3_DISPLACES    0x0400 /* moves monsters out of its way */
+#define M3_DISPLACES    0x0800 /* moves monsters out of its way */
+#define M3_SKITTISH     0x1000 /* tends to stay a few squares away from you */
+#define M3_ACCURATE     0x2000 /* gets an accuracy bonus to hit */
+#define M3_BERSERK      0x4000 /* extremely indiscriminate in its attacks */
+#define M3_STATIONARY   0x8000 /* is sessile, but can otherwise attack */
+
+#define M4_VULNERABLE_FIRE 0x0001 /* inherent elemental vulnerabilities */
+#define M4_VULNERABLE_COLD 0x0002
+#define M4_VULNERABLE_ELEC 0x0004
+#define M4_VULNERABLE_ACID 0x0008
 
 #define MZ_TINY         0 /* < 2' */
 #define MZ_SMALL        1 /* 2-4' */
@@ -191,6 +214,9 @@ enum ms_sounds {
 #define MH_ORC          M2_ORC
 
 /* for mons[].geno (constant during game) */
+#define G_TALG          0x8000 /* can't be genocided until Tal'Gath is destroyed */
+#define G_VLAD          0x4000 /* can't be genocided until Vlad is destroyed */
+#define G_VECNA         0x2000 /* can't be genocided until Vecna is destroyed */
 #define G_UNIQ          0x1000 /* generated only once */
 #define G_NOHELL        0x0800 /* not generated in "hell" */
 #define G_HELL          0x0400 /* generated only in "hell" */
@@ -202,7 +228,7 @@ enum ms_sounds {
 #define G_FREQ          0x0007 /* creation frequency mask */
 /* note: G_IGNORE controls handling of mvitals[].mvflags bits but is
    passed to mkclass() as if it dealt with mons[].geno bits */
-#define G_IGNORE        0x8000 /* for mkclass(), ignore G_GENOD|G_EXTINCT */
+#define G_IGNORE        0x0100 /* for mkclass(), ignore G_GENOD|G_EXTINCT */
 
 /* for svm.mvitals[].mvflags (variant during game), along with G_NOCORPSE */
 #define G_KNOWN         0x04 /* have been encountered */
