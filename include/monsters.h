@@ -538,6 +538,24 @@
         M2_HOSTILE | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION,
         19, CLR_BRIGHT_MAGENTA, MASTER_MIND_FLAYER),
+    /* EvilHack: undead arch-illithid; TODO-EVILHACK: restore G_VECNA
+       generation flag, MR_PSYCHIC resistance, and MH_ILLITHID |
+       MH_UNZOMBIE when the extended generation/resistance/hybrid
+       flag sets port (Phase 1) */
+    MON(NAM("alhoon"), S_HUMANOID,
+        LVL(26, 9, -6, 90, -15), (G_HELL | G_GENO | G_NOCORPSE | 1),
+        A(ATTK(AT_WEAP, AD_PHYS, 1, 10), ATTK(AT_TUCH, AD_COLD, 5, 6),
+          ATTK(AT_TENT, AD_DRIN, 2, 1), ATTK(AT_TENT, AD_DRIN, 2, 1),
+          ATTK(AT_MAGC, AD_SPEL, 0, 0), NO_ATTK),
+        SIZ(1200, 250, MS_HISS, MZ_HUMAN),
+        MR_FIRE | MR_COLD | MR_SLEEP | MR_ELEC | MR_POISON,
+        MR_FIRE | MR_COLD,
+        M1_BREATHLESS | M1_HUMANOID | M1_FLY | M1_SEE_INVIS | M1_POIS
+            | M1_REGEN,
+        M2_NOPOLY | M2_HOSTILE | M2_NASTY | M2_MAGIC | M2_GREEDY
+            | M2_JEWELS | M2_COLLECT,
+        M3_WANTSBOOK | M3_INFRAVISIBLE | M3_INFRAVISION,
+        30, CLR_GRAY, ALHOON),
     /*
      * imps & other minor demons/devils
      */

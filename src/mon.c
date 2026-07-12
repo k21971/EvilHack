@@ -756,7 +756,8 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
 
     case PM_HOBBIT: case PM_DWARF: case PM_BUGBEAR: case PM_DWARF_LEADER:
     case PM_DWARF_RULER:
-    case PM_MIND_FLAYER: case PM_MASTER_MIND_FLAYER: case PM_MANES:
+    case PM_MIND_FLAYER: case PM_MASTER_MIND_FLAYER: case PM_ALHOON:
+    case PM_MANES:
     case PM_HOMUNCULUS: case PM_IMP: case PM_LEMURE: case PM_QUASIT:
     case PM_TENGU: case PM_BLUE_JELLY: case PM_SPOTTED_JELLY:
     case PM_OCHRE_JELLY: case PM_KOBOLD: case PM_LARGE_KOBOLD:
@@ -4523,7 +4524,6 @@ iter_mons_safe(boolean (*bfunc)(struct monst *))
     return;
 }
 
-
 /* iterate all living monsters on current level, calling vfunc for each. */
 void
 iter_mons(void (*vfunc)(struct monst *))
@@ -4538,7 +4538,6 @@ iter_mons(void (*vfunc)(struct monst *))
     }
     return;
 }
-
 
 /* iterate all living monsters on current level, calling bfunc for each.
    if bfunc returns TRUE, stop and return that monster. */
@@ -4577,7 +4576,6 @@ get_iter_mons_xy(
     return mtmp;
 }
 
-
 /* Heal the given monster by amt hitpoints, unless it is somehow prevented
    from healing. "overheal" is the maximum amount by which the max HP will
    increase to allow for the healing (the resulting HP caps at max HP +
@@ -4614,7 +4612,6 @@ healmon(struct monst *mtmp, int amt, int overheal)
         return mtmp->mhp - oldhp;
     }
 }
-
 
 /* force all chameleons and mimics to become themselves and werecreatures
    to revert to human form; called when Protection_from_shape_changers gets

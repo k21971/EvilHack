@@ -208,7 +208,8 @@
 #define passes_rocks(ptr) (passes_walls(ptr) && !unsolid(ptr))
 
 #define is_mind_flayer(ptr) \
-    ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER])
+    ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER] \
+     || (ptr) == &mons[PM_ALHOON])
 
 #define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE)
 
