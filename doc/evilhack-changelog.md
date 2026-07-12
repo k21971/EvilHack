@@ -5559,4 +5559,5 @@ The following changes to date are:
 - Object lookup now reports rarity, materials, and more
 - Artifact lookup: fix missing aasimar, add prices and special details
 - Fix: lit magic lamps were extinguished by water on dry land
+- Switch status from beta to released
 
