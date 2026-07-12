@@ -13,7 +13,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 
 ## Dashboard
 
-- Current phase: PHASE 0 IN PROGRESS (started 2026-07-12)
+- Current phase: PHASE 0 COMPLETE (2026-07-12); next = Phase 0.5
+  pilot vertical slice
 - Adoption commit (nh50/master @ merge):
   74d1133c229a0fe17c6b05d4d4084937cb2631ca (2026-07-12); adoption
   merge commit on evilhack-50: 6160262a4 (parents c444f6a3a +
@@ -27,11 +28,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   bundles into the offsite ritual). Prep artifacts (tooling + this
   tracker + exemplars + the plan file itself) offsite-backed-up by
   maintainer 2026-07-03 - refresh that copy whenever they change.
-- Last session: 2026-07-12 (PHASE 0 STARTED: interim delta
-  219cfb687..74d1133c2 surveyed - 42 upstream commits, all benign
-  bugfixes within existing architecture, §4 inventory unchanged;
-  baseline build re-proven at 74d1133c2; tree-adoption merge
-  executed; fork point tagged; tracker moved onto the branch)
+- Last session: 2026-07-12 (PHASE 0 COMPLETE in one session:
+  interim delta 219cfb687..74d1133c2 surveyed - 42 upstream
+  commits, all benign, §4 inventory unchanged; baseline build
+  re-proven at 74d1133c2; tree-adoption merge 6160262a4; fork
+  point tagged; tracker on branch; identity pass code+renames
+  build-green and strings-verified; CI linux job re-added;
+  glyphs.c->customcolor.c decided; first bundle cut+verified.
+  Commit flow: git commit is deny-listed for the agent - stage +
+  write message file, maintainer runs `! git commit -F <file>`.
+  Found+fixed upstream shk.c impossible() format typo, see
+  Upstream-reportable table)
 - Baseline builds: NetHack50 clean @ 219cfb687 (2026-07-02) with
   BOTH hints/linux-debug and hints/hardfought - zero warnings;
   RE-PROVEN @ 74d1133c2 (2026-07-12, make spotless,
@@ -84,7 +91,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       sys/unix + make fetch-lua + make all; install/artifact steps
       and macOS/Windows jobs deferred to Phase 6, need a
       runner-writable .gha hints re-derive)
-- [ ] Set up + test the backup ritual (first bundle/push TODAY)
+- [x] Set up + test the backup ritual (2026-07-12: dated bundle
+      `git bundle create /home/build/wizmode_builds/
+      evilhack-50-backups/evilhack-50_YYYY-MM-DD.bundle
+      --branches --tags`, verified complete-history; refresh at
+      every session end and after big landings; maintainer pulls
+      the bundle dir into the offsite ritual)
 
 ## Phase 0.5 - Pilot vertical slice (one of everything, end-to-end)
 
