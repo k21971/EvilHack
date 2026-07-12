@@ -1,14 +1,14 @@
-/* NetHack 3.6	hacklib.c	$NHDT-Date: 1552639487 2019/03/15 08:44:47 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.67 $ */
+/* NetHack 5.0	hacklib.c	$NHDT-Date: 1781973051 2026/06/20 16:30:51 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.133 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2007. */
 /* Copyright (c) Robert Patrick Rankin, 1991                      */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h" /* for config.h+extern.h */
+
 /*=
     Assorted 'small' utility routines.  They're virtually independent of
-    NetHack, except that rounddiv may call panic().  setrandom calls one
-    of srandom(), srand48(), or srand() depending upon configuration.
+    NetHack.
 
       return type     routine name    argument type(s)
         boolean         digit           (char)
@@ -18,12 +18,17 @@
         char *          lcase           (char *)
         char *          ucase           (char *)
         char *          upstart         (char *)
+        char *          upwords         (char *)
         char *          mungspaces      (char *)
         char *          trimspaces      (char *)
         char *          strip_newline   (char *)
         char *          stripchars      (char *, const char *, const char *)
+        char *          stripdigits     (char *)
         char *          eos             (char *)
+        const char *    c_eos           (const char *)
+        boolean         str_start_is    (const char *, const char *, boolean)
         boolean         str_end_is      (const char *, const char *)
+        int             str_lines_maxlen (const char *)
         char *          strkitten       (char *,char)
         void            copynchars      (char *,const char *,int)
         char            chrcasecpy      (int,int)
@@ -36,91 +41,53 @@
         char *          visctrl         (char)
         char *          strsubst        (char *, const char *, const char *)
         int             strNsubst       (char *,const char *,const char *,int)
+        const char *    findword        (const char *,const char *,int,boolean)
         const char *    ordin           (int)
         char *          sitoa           (int)
         int             sgn             (int)
-        int             rounddiv        (long, int)
-        int             distmin         (int, int, int, int)
-        int             dist2           (int, int, int, int)
-        boolean         online2         (int, int)
-        boolean         pmatch          (const char *, const char *)
-        boolean         pmatchi         (const char *, const char *)
-        boolean         pmatchz         (const char *, const char *)
+        int             distmin         (coordxy, coordxy, coordxy, coordxy)
+        int             dist2           (coordxy, coordxy, coordxy, coordxy)
+        boolean         online2         (coordxy, coordxy)
         int             strncmpi        (const char *, const char *, int)
         char *          strstri         (const char *, const char *)
         boolean         fuzzymatch      (const char *, const char *,
                                          const char *, boolean)
-        void            setrandom       (void)
-        void            init_random     (fn)
-        void            reseed_random   (fn)
-        time_t          getnow          (void)
-        int             getyear         (void)
-        int             getmonth        (void)
-        int             getmday         (void)
-        char *          yymmdd          (time_t)
-        long            yyyymmdd        (time_t)
-        long            hhmmss          (time_t)
-        char *          yyyymmddhhmmss  (time_t)
-        time_t          time_from_yyyymmddhhmmss (char *)
-        int             phase_of_the_moon (void)
-        boolean         friday_13th     (void)
-        boolean         halloween       (void)
-        int             night           (void)
-        int             midnight        (void)
-        boolean         kathryn_bday    (void)
-        boolean         bourbon_bday    (void)
-        boolean         ozzy_bday       (void)
-        void            strbuf_init     (strbuf *, const char *)
-        void            strbuf_append   (strbuf *, const char *)
-        void            strbuf_reserve  (strbuf *, int)
-        void            strbuf_empty    (strbuf *)
-        void            strbuf_nl_to_crlf (strbuf_t *)
+        int             swapbits        (int, int, int)
+        void            nh_snprintf     (const char *, int, char *, size_t,
+                                         const char *, ...)
 =*/
-#ifdef LINT
-#define Static /* pacify lint */
-#else
-#define Static static
-#endif
-
-static boolean FDECL(pmatch_internal, (const char *, const char *,
-                                       BOOLEAN_P, const char *));
 
 /* is 'c' a digit? */
 boolean
-digit(c)
-char c;
+digit(char c)
 {
     return (boolean) ('0' <= c && c <= '9');
 }
 
 /* is 'c' a letter?  note: '@' classed as letter */
 boolean
-letter(c)
-char c;
+letter(char c)
 {
     return (boolean) ('@' <= c && c <= 'Z') || ('a' <= c && c <= 'z');
 }
 
 /* force 'c' into uppercase */
 char
-highc(c)
-char c;
+highc(char c)
 {
     return (char) (('a' <= c && c <= 'z') ? (c & ~040) : c);
 }
 
 /* force 'c' into lowercase */
 char
-lowc(c)
-char c;
+lowc(char c)
 {
     return (char) (('A' <= c && c <= 'Z') ? (c | 040) : c);
 }
 
 /* convert a string into all lowercase */
 char *
-lcase(s)
-char *s;
+lcase(char *s)
 {
     char *p;
 
@@ -132,8 +99,7 @@ char *s;
 
 /* convert a string into all uppercase */
 char *
-ucase(s)
-char *s;
+ucase(char *s)
 {
     char *p;
 
@@ -145,18 +111,35 @@ char *s;
 
 /* convert first character of a string to uppercase */
 char *
-upstart(s)
-char *s;
+upstart(char *s)
 {
     if (s)
         *s = highc(*s);
     return s;
 }
 
+/* capitalize first letter of every word in a string (in place) */
+char *
+upwords(char *s)
+{
+    char *p;
+    boolean space = TRUE;
+
+    for (p = s; *p; p++)
+        if (*p == ' ') {
+            space = TRUE;
+        } else if (space && letter(*p)) {
+            *p = highc(*p);
+            space = FALSE;
+        } else {
+            space = FALSE;
+        }
+    return s;
+}
+
 /* remove excess whitespace from a string buffer (in place) */
 char *
-mungspaces(bp)
-char *bp;
+mungspaces(char *bp)
 {
     char c, *p, *p2;
     boolean was_space = TRUE;
@@ -178,8 +161,7 @@ char *bp;
 
 /* skip leading whitespace; remove trailing whitespace, in place */
 char *
-trimspaces(txt)
-char *txt;
+trimspaces(char *txt)
 {
     char *end;
 
@@ -195,10 +177,9 @@ char *txt;
 
 /* remove \n from end of line; remove \r too if one is there */
 char *
-strip_newline(str)
-char *str;
+strip_newline(char *str)
 {
-    char *p = rindex(str, '\n');
+    char *p = strrchr(str, '\n');
 
     if (p) {
         if (p > str && *(p - 1) == '\r')
@@ -210,18 +191,54 @@ char *str;
 
 /* return the end of a string (pointing at '\0') */
 char *
-eos(s)
-char *s;
+eos(char *s)
 {
     while (*s)
         s++; /* s += strlen(s); */
     return s;
 }
 
+/* version of eos() which takes a const* arg and returns that result */
+const char *
+c_eos(const char *s)
+{
+    while (*s)
+        s++; /* s += strlen(s); */
+    return s;
+}
+
+/* determine whether 'str' starts with 'chkstr', possibly ignoring case;
+ * panics on huge strings */
+boolean
+str_start_is(
+    const char *str,
+    const char *chkstr,
+    boolean caseblind)
+{
+    char t1, t2;
+    int n = LARGEST_INT;
+
+    while (--n) {
+        if (!*str)
+            return (*chkstr == 0); /* chkstr >= str */
+        else if (!*chkstr)
+            return TRUE; /* chkstr < str */
+        t1 = caseblind ? lowc(*str) : *str;
+        t2 = caseblind ? lowc(*chkstr) : *chkstr;
+        str++, chkstr++;
+        if (t1 != t2)
+            return FALSE;
+    }
+#if 0
+    if (n == 0)
+        panic("string too long");
+#endif
+    return TRUE;
+}
+
 /* determine whether 'str' ends in 'chkstr' */
 boolean
-str_end_is(str, chkstr)
-const char *str, *chkstr;
+str_end_is(const char *str, const char *chkstr)
 {
     int clen = (int) strlen(chkstr);
 
@@ -230,11 +247,33 @@ const char *str, *chkstr;
     return FALSE;
 }
 
+/* return max line length from buffer comprising newline-separated strings */
+int
+str_lines_maxlen(const char *str)
+{
+    const char *s1, *s2;
+    int len, max_len = 0;
+
+    s1 = str;
+    while (s1 && *s1) {
+        s2 = strchr(s1, '\n');
+        if (s2) {
+            len = (int) (s2 - s1);
+            s1 = s2 + 1;
+        } else {
+            len = (int) strlen(s1);
+            s1 = (char *) 0;
+        }
+        if (len > max_len)
+            max_len = len;
+    }
+
+    return max_len;
+}
+
 /* append a character to a string (in place): strcat(s, {c,'\0'}); */
 char *
-strkitten(s, c)
-char *s;
-char c;
+strkitten(char *s, char c)
 {
     char *p = eos(s);
 
@@ -245,10 +284,7 @@ char c;
 
 /* truncating string copy */
 void
-copynchars(dst, src, n)
-char *dst;
-const char *src;
-int n;
+copynchars(char *dst, const char *src, int n)
 {
     /* copies at most n characters, stopping sooner if terminator reached;
        treats newline as input terminator; unlike strncpy, always supplies
@@ -262,8 +298,7 @@ int n;
 
 /* convert char nc into oc's case; mostly used by strcasecpy */
 char
-chrcasecpy(oc, nc)
-int oc, nc;
+chrcasecpy(int oc, int nc)
 {
 #if 0 /* this will be necessary if we switch to <ctype.h> */
     oc = (int) (unsigned char) oc;
@@ -285,9 +320,7 @@ int oc, nc;
    for case-insensitive editions of makeplural() and makesingular();
    src might be shorter, same length, or longer than dst */
 char *
-strcasecpy(dst, src)
-char *dst;
-const char *src;
+strcasecpy(char *dst, const char *src)
 {
     char *result = dst;
     int ic, oc, dst_exhausted = 0;
@@ -309,10 +342,9 @@ const char *src;
 
 /* return a name converted to possessive */
 char *
-s_suffix(s)
-const char *s;
+s_suffix(const char *s)
 {
-    Static char buf[BUFSZ];
+    static char buf[BUFSZ];
 
     Strcpy(buf, s);
     if (!strcmpi(buf, "it")) /* it -> its */
@@ -328,8 +360,7 @@ const char *s;
 
 /* construct a gerund (a verb formed by appending "ing" to a noun) */
 char *
-ing_suffix(s)
-const char *s;
+ing_suffix(const char *s)
 {
     static const char vowel[] = "aeiouwy";
     static char buf[BUFSZ];
@@ -342,12 +373,14 @@ const char *s;
     if ((p >= &buf[3] && !strcmpi(p - 3, " on"))
         || (p >= &buf[4] && !strcmpi(p - 4, " off"))
         || (p >= &buf[5] && !strcmpi(p - 5, " with"))) {
-        p = rindex(buf, ' ');
+        p = strrchr(buf, ' ');
         Strcpy(onoff, p);
         *p = '\0';
     }
-    if (p >= &buf[3] && !index(vowel, *(p - 1))
-        && index(vowel, *(p - 2)) && !index(vowel, *(p - 3))) {
+    if (p >= &buf[2] && !strcmpi(p - 2, "er")) { /* slither + ing */
+        /* nothing here */
+    } else if (p >= &buf[3] && !strchr(vowel, *(p - 1))
+        && strchr(vowel, *(p - 2)) && !strchr(vowel, *(p - 3))) {
         /* tip -> tipp + ing */
         *p = *(p - 1);
         *(p + 1) = '\0';
@@ -364,9 +397,7 @@ const char *s;
 
 /* trivial text encryption routine (see makedefs) */
 char *
-xcrypt(str, buf)
-const char *str;
-char *buf;
+xcrypt(const char *str, char *buf)
 {
     const char *p;
     char *q;
@@ -385,8 +416,7 @@ char *buf;
 
 /* is a string entirely whitespace? */
 boolean
-onlyspace(s)
-const char *s;
+onlyspace(const char *s)
 {
     for (; *s; s++)
         if (*s != ' ' && *s != '\t')
@@ -394,10 +424,12 @@ const char *s;
     return TRUE;
 }
 
-/* expand tabs into proper number of spaces */
+/* expand tabs into proper number of spaces (in place) */
 char *
-tabexpand(sbuf)
-char *sbuf;
+tabexpand(
+    char *sbuf) /* assumed to be [BUFSZ] but can be smaller provided that
+                 * expanded string fits; expansion bigger than BUFSZ-1
+                 * will be truncated */
 {
     char buf[BUFSZ + 10];
     char *bp, *s = sbuf;
@@ -408,15 +440,19 @@ char *sbuf;
     for (bp = buf, idx = 0; *s; s++) {
         if (*s == '\t') {
             /*
-             * clang-8 -Os has been seen to mis-compile this loop, hanging
-             * nethack when viewing data.base entries; clang-9 is unaffected
+             * clang-8's optimizer at -Os has been observed to mis-compile
+             * this code.  Symptom is nethack getting stuck in an apparent
+             * infinite loop (or perhaps just an extremely long one) when
+             * examining data.base entries.
+             * clang-9 doesn't exhibit this problem.  [Was the incorrect
+             * optimization fixed or just disabled?]
              */
             do
                 *bp++ = ' ';
             while (++idx % 8);
         } else {
             *bp++ = *s;
-            idx++;
+            ++idx;
         }
         if (idx >= BUFSZ) {
             bp = &buf[BUFSZ - 1];
@@ -430,10 +466,9 @@ char *sbuf;
 #define VISCTRL_NBUF 5
 /* make a displayable string from a character */
 char *
-visctrl(c)
-char c;
+visctrl(char c)
 {
-    Static char visctrl_bufs[VISCTRL_NBUF][5];
+    static char visctrl_bufs[VISCTRL_NBUF][5];
     static int nbuf = 0;
     int i = 0;
     char *ccc = visctrl_bufs[nbuf];
@@ -461,63 +496,75 @@ char c;
 /* caller is responsible for ensuring that bp is a
    valid pointer to a BUFSZ buffer */
 char *
-stripchars(bp, stuff_to_strip, orig)
-char *bp;
-const char *stuff_to_strip, *orig;
+stripchars(
+    char *bp,
+    const char *stuff_to_strip,
+    const char *orig)
 {
     int i = 0;
     char *s = bp;
 
-    if (s) {
-        while (*orig && i < (BUFSZ - 1)) {
-            if (!index(stuff_to_strip, *orig)) {
-                *s++ = *orig;
-                i++;
-            }
-            orig++;
+    while (*orig && i < (BUFSZ - 1)) {
+        if (!strchr(stuff_to_strip, *orig)) {
+            *s++ = *orig;
+            i++;
         }
-        *s = '\0';
-    } else
-        impossible("no output buf in stripchars");
+        orig++;
+    }
+    *s = '\0';
+
     return bp;
 }
 
-/* substitute a word or phrase in a string (in place) */
-/* caller is responsible for ensuring that bp points to big enough buffer */
+/* remove digits from string */
 char *
-strsubst(bp, orig, replacement)
-char *bp;
-const char *orig, *replacement;
+stripdigits(char *s)
+{
+    char *s1, *s2;
+
+    for (s1 = s2 = s; *s1; s1++)
+        if (*s1 < '0' || *s1 > '9')
+            *s2++ = *s1;
+    *s2 = '\0';
+
+    return s;
+}
+
+/* substitute a word or phrase in a string (in place);
+   caller is responsible for ensuring that bp points to big enough buffer */
+char *
+strsubst(
+    char *bp,
+    const char *orig,
+    const char *replacement)
 {
     char *found, buf[BUFSZ];
+    /* [this could be replaced by strNsubst(bp, orig, replacement, 1)] */
 
-    if (bp) {
-        /* [this could be replaced by strNsubst(bp, orig, replacement, 1)] */
-        found = strstr(bp, orig);
-        if (found) {
-            Strcpy(buf, found + strlen(orig));
-            Strcpy(found, replacement);
-            Strcat(bp, buf);
-        }
+    found = strstr(bp, orig);
+    if (found) {
+        Strcpy(buf, found + strlen(orig));
+        Strcpy(found, replacement);
+        Strcat(bp, buf);
     }
     return bp;
 }
 
 /* substitute the Nth occurrence of a substring within a string (in place);
-   if N is 0, substitute all occurrences; returns the number of subsitutions;
+   if N is 0, substitute all occurrences; returns the number of substitutions;
    maximum output length is BUFSZ (BUFSZ-1 chars + terminating '\0') */
 int
-strNsubst(inoutbuf, orig, replacement, n)
-char *inoutbuf; /* current string, and result buffer */
-const char *orig, /* old substring; if "" then insert in front of Nth char */
-           *replacement; /* new substring; if "" then delete old substring */
-int n; /* which occurrence to replace; 0 => all */
+strNsubst(
+    char *inoutbuf,   /* current string, and result buffer */
+    const char *orig, /* old substring; if "", insert in front of Nth char */
+    const char *replacement, /* new substring; if "", delete old substring */
+    int n) /* which occurrence to replace; 0 => all */
 {
     char *bp, *op, workbuf[BUFSZ];
     const char *rp;
     unsigned len = (unsigned) strlen(orig);
     int ocount = 0, /* number of times 'orig' has been matched */
-        rcount = 0; /* number of subsitutions made */
+        rcount = 0; /* number of substitutions made */
 
     for (bp = inoutbuf, op = workbuf; *bp && op < &workbuf[BUFSZ - 1]; ) {
         if ((!len || !strncmp(bp, orig, len)) && (++ocount == n || n == 0)) {
@@ -549,10 +596,33 @@ int n; /* which occurrence to replace; 0 => all */
     return rcount;
 }
 
+/* search for a word in a space-separated list; returns non-Null if found */
+const char *
+findword(
+    const char *list,   /* string of space-separated words */
+    const char *word,   /* word to try to find */
+    int wordlen,        /* so that it isn't required to be \0 terminated */
+    boolean ignorecase) /* T: case-blind, F: case-sensitive */
+{
+    const char *p = list;
+
+    while (p) {
+        while (*p == ' ')
+            ++p;
+        if (!*p)
+            break;
+        if ((ignorecase ? !strncmpi(p, word, wordlen)
+                        : !strncmp(p, word, wordlen))
+            && (p[wordlen] == '\0' || p[wordlen] == ' '))
+            return p;
+        p = strchr(p + 1, ' ');
+    }
+    return (const char *) 0;
+}
+
 /* return the ordinal suffix of a number */
 const char *
-ordin(n)
-int n;               /* note: should be non-negative */
+ordin(int n)               /* note: should be non-negative */
 {
     int dd = n % 10;
 
@@ -560,58 +630,33 @@ int n;               /* note: should be non-negative */
                : (dd == 1) ? "st" : (dd == 2) ? "nd" : "rd";
 }
 
+DISABLE_WARNING_FORMAT_NONLITERAL  /* one compiler complains about
+                                      result of ?: for format string */
+
 /* make a signed digit string from a number */
 char *
-sitoa(n)
-int n;
+sitoa(int n)
 {
-    Static char buf[13];
+    static char buf[13];
 
     Sprintf(buf, (n < 0) ? "%d" : "+%d", n);
     return buf;
 }
 
+RESTORE_WARNING_FORMAT_NONLITERAL
+
 /* return the sign of a number: -1, 0, or 1 */
 int
-sgn(n)
-int n;
+sgn(int n)
 {
     return (n < 0) ? -1 : (n != 0);
 }
 
-/* calculate x/y, rounding as appropriate */
-int
-rounddiv(x, y)
-long x;
-int y;
-{
-    int r, m;
-    int divsgn = 1;
-
-    if (y == 0)
-        panic("division by zero in rounddiv");
-    else if (y < 0) {
-        divsgn = -divsgn;
-        y = -y;
-    }
-    if (x < 0) {
-        divsgn = -divsgn;
-        x = -x;
-    }
-    r = x / y;
-    m = x % y;
-    if (2 * m >= y)
-        r++;
-
-    return divsgn * r;
-}
-
 /* distance between two points, in moves */
 int
-distmin(x0, y0, x1, y1)
-int x0, y0, x1, y1;
+distmin(coordxy x0, coordxy y0, coordxy x1, coordxy y1)
 {
-    int dx = x0 - x1, dy = y0 - y1;
+    coordxy dx = x0 - x1, dy = y0 - y1;
 
     if (dx < 0)
         dx = -dx;
@@ -623,20 +668,18 @@ int x0, y0, x1, y1;
     return (dx < dy) ? dy : dx;
 }
 
-/* square of euclidean distance between pair of pts */
+/* square of Euclidean distance between pair of pts */
 int
-dist2(x0, y0, x1, y1)
-int x0, y0, x1, y1;
+dist2(coordxy x0, coordxy y0, coordxy x1, coordxy y1)
 {
-    int dx = x0 - x1, dy = y0 - y1;
+    coordxy dx = x0 - x1, dy = y0 - y1;
 
     return dx * dx + dy * dy;
 }
 
 /* integer square root function without using floating point */
 int
-isqrt(val)
-int val;
+isqrt(int val)
 {
     int rt = 0;
     int odd = 1;
@@ -658,8 +701,7 @@ int val;
 
 /* are two points lined up (on a straight line)? */
 boolean
-online2(x0, y0, x1, y1)
-int x0, y0, x1, y1;
+online2(coordxy x0, coordxy y0, coordxy x1, coordxy y1)
 {
     int dx = x0 - x1, dy = y0 - y1;
     /*  If either delta is zero then they're on an orthogonal line,
@@ -668,80 +710,13 @@ int x0, y0, x1, y1;
     return (boolean) (!dy || !dx || dy == dx || dy == -dx);
 }
 
-/* guts of pmatch(), pmatchi(), and pmatchz();
-   match a string against a pattern */
-static boolean
-pmatch_internal(patrn, strng, ci, sk)
-const char *patrn, *strng;
-boolean ci;     /* True => case-insensitive, False => case-sensitive */
-const char *sk; /* set of characters to skip */
-{
-    char s, p;
-    /*
-     *  Simple pattern matcher:  '*' matches 0 or more characters, '?' matches
-     *  any single character.  Returns TRUE if 'strng' matches 'patrn'.
-     */
-pmatch_top:
-    if (!sk) {
-        s = *strng++;
-        p = *patrn++; /* get next chars and pre-advance */
-    } else {
-        /* fuzzy match variant of pmatch; particular characters are ignored */
-        do {
-            s = *strng++;
-        } while (index(sk, s));
-        do {
-            p = *patrn++;
-        } while (index(sk, p));
-    }
-    if (!p)                           /* end of pattern */
-        return (boolean) (s == '\0'); /* matches iff end of string too */
-    else if (p == '*')                /* wildcard reached */
-        return (boolean) ((!*patrn
-                           || pmatch_internal(patrn, strng - 1, ci, sk))
-                          ? TRUE
-                          : s ? pmatch_internal(patrn - 1, strng, ci, sk)
-                              : FALSE);
-    else if ((ci ? lowc(p) != lowc(s) : p != s) /* check single character */
-             && (p != '?' || !s))               /* & single-char wildcard */
-        return FALSE;                           /* doesn't match */
-    else                 /* return pmatch_internal(patrn, strng, ci, sk); */
-        goto pmatch_top; /* optimize tail recursion */
-}
-
-/* case-sensitive wildcard match */
-boolean
-pmatch(patrn, strng)
-const char *patrn, *strng;
-{
-    return pmatch_internal(patrn, strng, FALSE, (const char *) 0);
-}
-
-/* case-insensitive wildcard match */
-boolean
-pmatchi(patrn, strng)
-const char *patrn, *strng;
-{
-    return pmatch_internal(patrn, strng, TRUE, (const char *) 0);
-}
-
-/* case-insensitive wildcard fuzzymatch */
-boolean
-pmatchz(patrn, strng)
-const char *patrn, *strng;
-{
-    /* ignore spaces, tabs (just in case), dashes, and underscores */
-    static const char fuzzychars[] = " \t-_";
-
-    return pmatch_internal(patrn, strng, TRUE, fuzzychars);
-}
-
 #ifndef STRNCMPI
-/* case insensitive counted string comparison */
+/* case-insensitive counted string comparison */
+/*{ aka strncasecmp }*/
 int
-strncmpi(s1, s2, n) /*{ aka strncasecmp }*/
-const char *s1, *s2;
-int n; /*(should probably be size_t, which is unsigned)*/
+strncmpi(
+    const char *s1, const char *s2,
+    int n) /*(should probably be size_t, which is unsigned)*/
 {
     char t1, t2;
 
@@ -760,11 +735,9 @@ int n; /*(should probably be size_t, which is unsigned)*/
 #endif /* STRNCMPI */
 
 #ifndef STRSTRI
-/* case insensitive substring search */
+/* case-insensitive substring search */
 char *
-strstri(str, sub)
-const char *str;
-const char *sub;
+strstri(const char *str, const char *sub)
 {
     const char *s1, *s2;
     int i, k;
@@ -809,17 +782,17 @@ const char *sub;
 /* compare two strings for equality, ignoring the presence of specified
    characters (typically whitespace) and possibly ignoring case */
 boolean
-fuzzymatch(s1, s2, ignore_chars, caseblind)
-const char *s1, *s2;
-const char *ignore_chars;
-boolean caseblind;
+fuzzymatch(
+    const char *s1, const char *s2,
+    const char *ignore_chars,
+    boolean caseblind)
 {
     char c1, c2;
 
     do {
-        while ((c1 = *s1++) != '\0' && index(ignore_chars, c1) != 0)
+        while ((c1 = *s1++) != '\0' && strchr(ignore_chars, c1) != 0)
             continue;
-        while ((c2 = *s2++) != '\0' && index(ignore_chars, c2) != 0)
+        while ((c2 = *s2++) != '\0' && strchr(ignore_chars, c2) != 0)
             continue;
         if (!c1 || !c2)
             break; /* stop when end of either string is reached */
@@ -845,451 +818,198 @@ boolean caseblind;
  *  - determination of what files are "very old"
  */
 
-/* TIME_type: type of the argument to time(); we actually use &(time_t) */
-#if defined(BSD) && !defined(POSIX_TYPES)
-#define TIME_type long *
-#else
+/* TIME_type: type of the argument to time(); we actually use &(time_t);
+   you might need to define either or both of these to 'long *' in *conf.h */
+#ifndef TIME_type
 #define TIME_type time_t *
 #endif
-/* LOCALTIME_type: type of the argument to localtime() */
-#if (defined(ULTRIX) && !(defined(ULTRIX_PROTO) || defined(NHSTDC))) \
-    || (defined(BSD) && !defined(POSIX_TYPES))
-#define LOCALTIME_type long *
-#else
+#ifndef LOCALTIME_type
 #define LOCALTIME_type time_t *
 #endif
 
-#if defined(AMIGA) && !defined(AZTEC_C) && !defined(__SASC_60) \
-    && !defined(_DCC) && !defined(__GNUC__)
-extern struct tm *FDECL(localtime, (time_t *));
-#endif
-STATIC_DCL struct tm *NDECL(getlt);
-
-/* Sets the seed for the random number generator */
-#ifdef USE_ISAAC64
-
-static void
-set_random(seed, fn)
-unsigned long seed;
-int FDECL((*fn), (int));
+/* swapbits(val, bita, bitb) swaps bit a with bit b in val */
+int
+swapbits(int val, int bita, int bitb)
 {
-    init_isaac64(seed, fn);
+    int tmp = ((val >> bita) & 1) ^ ((val >> bitb) & 1);
+
+    return (val ^ ((tmp << bita) | (tmp << bitb)));
 }
 
-#else /* USE_ISAAC64 */
-
-/*ARGSUSED*/
-static void
-set_random(seed, fn)
-unsigned long seed;
-int FDECL((*fn), (int)) UNUSED;
-{
-    /* the types are different enough here that sweeping the different
-     * routine names into one via #defines is even more confusing
-     */
-# ifdef RANDOM /* srandom() from sys/share/random.c */
-    srandom((unsigned int) seed);
-# else
-#  if defined(__APPLE__) || defined(BSD) || defined(LINUX) || defined(ULTRIX) \
-    || defined(CYGWIN32) /* system srandom() */
-#   if defined(BSD) && !defined(POSIX_TYPES) && defined(SUNOS4)
-    (void)
-#   endif
-        srandom((int) seed);
-#  else
-#   ifdef UNIX /* system srand48() */
-    srand48((long) seed);
-#   else       /* poor quality system routine */
-    srand((int) seed);
-#   endif
-#  endif
-# endif
-}
-
-#endif /* USE_ISAAC64 */
-
-/* An appropriate version of this must always be provided in
-   port-specific code somewhere. It returns a number suitable
-   as seed for the random number generator */
-extern unsigned long NDECL(sys_random_seed);
+DISABLE_WARNING_FORMAT_NONLITERAL
 
 /*
- * Initializes the random number generator.
- * Only call once.
+ * Wrap snprintf for use in the main code.
+ *
+ * Wrap reasons:
+ *   1. If there are any platform issues, we have one spot to fix them -
+ *      snprintf is a routine with a troubling history of bad implementations.
+ *   2. Add cumbersome error checking in one spot.  Problems with text
+ *      wrangling do not have to be fatal.
+ *   3. Gcc 9+ will issue a warning unless the return value is used.
+ *      Annoyingly, explicitly casting to void does not remove the error.
+ *      So, use the result - see reason #2.
  */
 void
-init_random(fn)
-int FDECL((*fn), (int));
+nh_snprintf(
+    const char *func UNUSED, int line UNUSED,
+    char *str, size_t size,
+    const char *fmt, ...)
 {
-    set_random(sys_random_seed(), fn);
-}
+    va_list ap;
+    int n;
 
-/* Reshuffles the random number generator. */
-void
-reseed_random(fn)
-int FDECL((*fn), (int));
-{
-   /* only reseed if we are certain that the seed generation is unguessable
-    * by the players. */
-    if (has_strong_rngseed)
-        init_random(fn);
-}
-
-time_t
-getnow()
-{
-    time_t datetime = 0;
-
-    (void) time((TIME_type) &datetime);
-    return datetime;
-}
-
-STATIC_OVL struct tm *
-getlt()
-{
-    time_t date = getnow();
-
-    return localtime((LOCALTIME_type) &date);
-}
-
-int
-getyear()
-{
-    return (1900 + getlt()->tm_year);
-}
-
-int
-getmonth()
-{
-    return (1 + getlt()->tm_mon);
-}
-
-int
-getmday()
-{
-    return (getlt()->tm_mday);
-}
-
+    va_start(ap, fmt);
+    n = vsnprintf(str, size, fmt, ap);
+    va_end(ap);
+    if (n < 0 || (size_t) n >= size) { /* is there a problem? */
 #if 0
-/* This routine is no longer used since in 20YY it yields "1YYmmdd". */
-char *
-yymmdd(date)
-time_t date;
-{
-    Static char datestr[10];
-    struct tm *lt;
-
-    if (date == 0)
-        lt = getlt();
-    else
-        lt = localtime((LOCALTIME_type) &date);
-
-    Sprintf(datestr, "%02d%02d%02d",
-            lt->tm_year, lt->tm_mon + 1, lt->tm_mday);
-    return datestr;
-}
+TODO: add set_impossible(), impossible -> func pointer,
+ test funcpointer before call
+        impossible("snprintf %s: func %s, file line %d",
+                   (n < 0) ? "format error" : "overflow",
+                   func, line);
 #endif
-
-long
-yyyymmdd(date)
-time_t date;
-{
-    long datenum;
-    struct tm *lt;
-
-    if (date == 0)
-        lt = getlt();
-    else
-        lt = localtime((LOCALTIME_type) &date);
-
-    /* just in case somebody's localtime supplies (year % 100)
-       rather than the expected (year - 1900) */
-    if (lt->tm_year < 70)
-        datenum = (long) lt->tm_year + 2000L;
-    else
-        datenum = (long) lt->tm_year + 1900L;
-    /* yyyy --> yyyymm */
-    datenum = datenum * 100L + (long) (lt->tm_mon + 1);
-    /* yyyymm --> yyyymmdd */
-    datenum = datenum * 100L + (long) lt->tm_mday;
-    return datenum;
-}
-
-long
-hhmmss(date)
-time_t date;
-{
-    long timenum;
-    struct tm *lt;
-
-    if (date == 0)
-        lt = getlt();
-    else
-        lt = localtime((LOCALTIME_type) &date);
-
-    timenum = lt->tm_hour * 10000L + lt->tm_min * 100L + lt->tm_sec;
-    return timenum;
-}
-
-char *
-yyyymmddhhmmss(date)
-time_t date;
-{
-    long datenum;
-    static char datestr[15];
-    struct tm *lt;
-
-    if (date == 0)
-        lt = getlt();
-    else
-#if (defined(ULTRIX) && !(defined(ULTRIX_PROTO) || defined(NHSTDC))) \
-    || defined(BSD)
-        lt = localtime((long *) (&date));
-#else
-        lt = localtime(&date);
-#endif
-    /* just in case somebody's localtime supplies (year % 100)
-       rather than the expected (year - 1900) */
-    if (lt->tm_year < 70)
-        datenum = (long) lt->tm_year + 2000L;
-    else
-        datenum = (long) lt->tm_year + 1900L;
-    Sprintf(datestr, "%04ld%02d%02d%02d%02d%02d", datenum, lt->tm_mon + 1,
-            lt->tm_mday, lt->tm_hour, lt->tm_min, lt->tm_sec);
-    debugpline1("yyyymmddhhmmss() produced date string %s", datestr);
-    return datestr;
-}
-
-time_t
-time_from_yyyymmddhhmmss(buf)
-char *buf;
-{
-    int k;
-    time_t timeresult = (time_t) 0;
-    struct tm t, *lt;
-    char *g, *p, y[5], mo[3], md[3], h[3], mi[3], s[3];
-
-    if (buf && strlen(buf) == 14) {
-        g = buf;
-        p = y; /* year */
-        for (k = 0; k < 4; ++k)
-            *p++ = *g++;
-        *p = '\0';
-        p = mo; /* month */
-        for (k = 0; k < 2; ++k)
-            *p++ = *g++;
-        *p = '\0';
-        p = md; /* day */
-        for (k = 0; k < 2; ++k)
-            *p++ = *g++;
-        *p = '\0';
-        p = h; /* hour */
-        for (k = 0; k < 2; ++k)
-            *p++ = *g++;
-        *p = '\0';
-        p = mi; /* minutes */
-        for (k = 0; k < 2; ++k)
-            *p++ = *g++;
-        *p = '\0';
-        p = s; /* seconds */
-        for (k = 0; k < 2; ++k)
-            *p++ = *g++;
-        *p = '\0';
-        lt = getlt();
-        if (lt) {
-            t = *lt;
-            t.tm_year = atoi(y) - 1900;
-            t.tm_mon = atoi(mo) - 1;
-            t.tm_mday = atoi(md);
-            t.tm_hour = atoi(h);
-            t.tm_min = atoi(mi);
-            t.tm_sec = atoi(s);
-            timeresult = mktime(&t);
-        }
-        if ((int) timeresult == -1)
-            debugpline1("time_from_yyyymmddhhmmss(%s) would have returned -1",
-                        buf ? buf : "");
-        else
-            return timeresult;
+        str[size - 1] = '\0'; /* make sure it is nul terminated */
     }
-    return (time_t) 0;
 }
 
-/*
- * moon period = 29.53058 days ~= 30, year = 365.2422 days
- * days moon phase advances on first day of year compared to preceding year
- *      = 365.2422 - 12*29.53058 ~= 11
- * years in Metonic cycle (time until same phases fall on the same days of
- *      the month) = 18.6 ~= 19
- * moon phase on first day of year (epact) ~= (11*(year%19) + 29) % 30
- *      (29 as initial condition)
- * current phase in days = first day phase + days elapsed in year
- * 6 moons ~= 177 days
- * 177 ~= 8 reported phases * 22
- * + 11/22 for rounding
- */
-int
-phase_of_the_moon() /* 0-7, with 0: new, 4: full */
-{
-    struct tm *lt = getlt();
-    int epact, diy, goldn;
+RESTORE_WARNING_FORMAT_NONLITERAL
 
-    diy = lt->tm_yday;
-    goldn = (lt->tm_year % 19) + 1;
-    epact = (11 * goldn + 18) % 30;
-    if ((epact == 25 && goldn > 11) || epact == 24)
-        epact++;
-
-    return ((((((diy + epact) * 6) + 11) % 177) / 22) & 7);
-}
-
-boolean
-friday_13th()
-{
-    struct tm *lt = getlt();
-
-    /* tm_wday (day of week; 0==Sunday) == 5 => Friday */
-    return (boolean) (lt->tm_wday == 5 && lt->tm_mday == 13);
-}
-
-boolean
-halloween()
-{
-    return (boolean) ((getmday() == 31) && (getmonth() == 10));
-}
+/* Unicode routines */
 
 int
-night()
+unicodeval_to_utf8str(int uval, uint8 *buffer, size_t bufsz)
 {
-    int hour = getlt()->tm_hour;
+    //    static uint8 buffer[7];
+    uint8 *b = buffer;
 
-    return (hour < 6 || hour > 21);
-}
-
-int
-midnight()
-{
-    return (getlt()->tm_hour == 0);
-}
-
-boolean
-kathryn_bday()
-{
-    return (boolean) ((getmday() == 12) && (getmonth() == 2));
-}
-
-boolean
-bourbon_bday()
-{
-    return (boolean) ((getmday() == 19) && (getmonth() == 4));
-}
-
-boolean
-ozzy_bday()
-{
-    return (boolean) ((getmday() == 13) && (getmonth() == 1));
-}
-
-static char buf_fmt_duration[BUFSZ];
-/* Returns a iso-8601 formatted duration (e.g. hh:mm:ss) */
-char *
-iso8601_duration(long int seconds)
-{
-    /* currently no days, months and years, as the conversion
-     * is non-trivial */
-    long minutes = seconds / 60;
-    long hours = minutes / 60;
-    long days = hours / 24;
-
-    if (days > 0) {
-        /* dddhh:mm:ss */
-        sprintf(buf_fmt_duration, "%02ldd%02ld:%02ld:%02ld",
-                days, hours % 24, minutes % 60, seconds % 60);
+    if (bufsz < 5)
+        return 0;
+    /*
+     *   Binary   Hex        Comments
+     *   0xxxxxxx 0x00..0x7F Only byte of a 1-byte character encoding
+     *   10xxxxxx 0x80..0xBF Continuation byte : one of 1-3 bytes following
+     * first 110xxxxx 0xC0..0xDF First byte of a 2-byte character encoding
+     *   1110xxxx 0xE0..0xEF First byte of a 3-byte character encoding
+     *   11110xxx 0xF0..0xF7 First byte of a 4-byte character encoding
+     */
+    *b = '\0';
+    if (uval < 0x80) {
+        *b++ = uval;
+    } else if (uval < 0x800) {
+        *b++ = 192 + uval / 64;
+        *b++ = 128 + uval % 64;
+    } else if (uval - 0xd800u < 0x800) {
+        return 0;
+    } else if (uval < 0x10000) {
+        *b++ = 224 + uval / 4096;
+        *b++ = 128 + uval / 64 % 64;
+        *b++ = 128 + uval % 64;
+    } else if (uval < 0x110000) {
+        *b++ = 240 + uval / 262144;
+        *b++ = 128 + uval / 4096 % 64;
+        *b++ = 128 + uval / 64 % 64;
+        *b++ = 128 + uval % 64;
     } else {
-        /* hh:mm:ss */
-        sprintf(buf_fmt_duration, "%02ldh:%02ldm:%02lds",
-                hours, minutes % 60, seconds % 60);
+        return 0;
     }
-    return buf_fmt_duration;
+    *b = '\0'; /* NUL terminate */
+    return 1;
 }
 
-/* strbuf_init() initializes strbuf state for use */
-void
-strbuf_init(strbuf)
-strbuf_t *strbuf;
+int
+case_insensitive_comp(const char *s1, const char *s2)
 {
-    strbuf->str = NULL;
-    strbuf->len = 0;
-}
+    uchar u1, u2;
 
-/* strbuf_append() appends given str to strbuf->str */
-void
-strbuf_append(strbuf, str)
-strbuf_t *strbuf;
-const char *str;
-{
-    int len = (int) strlen(str) + 1;
-
-    strbuf_reserve(strbuf,
-                   len + (strbuf->str ? (int) strlen(strbuf->str) : 0));
-    Strcat(strbuf->str, str);
-}
-
-/* strbuf_reserve() ensure strbuf->str has storage for len characters */
-void
-strbuf_reserve(strbuf, len)
-strbuf_t *strbuf;
-int len;
-{
-    if (strbuf->str == NULL) {
-        strbuf->str = strbuf->buf;
-        strbuf->str[0] = '\0';
-        strbuf->len = (int) sizeof strbuf->buf;
+    for (;; s1++, s2++) {
+        u1 = (uchar) *s1;
+        if (isupper(u1))
+            u1 = (uchar) tolower(u1);
+        u2 = (uchar) *s2;
+        if (isupper(u2))
+            u2 = (uchar) tolower(u2);
+        if (u1 == '\0' || u1 != u2)
+            break;
     }
-
-    if (len > strbuf->len) {
-        char *oldbuf = strbuf->str;
-
-        strbuf->len = len + (int) sizeof strbuf->buf;
-        strbuf->str = (char *) alloc(strbuf->len);
-        Strcpy(strbuf->str, oldbuf);
-        if (oldbuf != strbuf->buf)
-            free((genericptr_t) oldbuf);
-    }
+    return u1 - u2;
 }
 
-/* strbuf_empty() frees allocated memory and set strbuf to initial state */
-void
-strbuf_empty(strbuf)
-strbuf_t *strbuf;
+#if defined(MACOS)
+#define RETTYPE ssize_t
+#else
+#define RETTYPE int
+#endif
+
+boolean
+copy_bytes(int ifd, int ofd)
 {
-    if (strbuf->str != NULL && strbuf->str != strbuf->buf)
-        free((genericptr_t) strbuf->str);
-    strbuf_init(strbuf);
+    char buf[BUFSIZ];
+    RETTYPE nfrom, nto;
+
+    do {
+        nto = 0;
+        nfrom = read(ifd, buf, BUFSIZ);
+        /* read can return -1 */
+        if (nfrom >= 0 && nfrom <= BUFSIZ)
+            nto = write(ofd, buf, nfrom);
+        if (nto != nfrom || nfrom < 0)
+            return FALSE;
+    } while (nfrom == (RETTYPE) BUFSIZ);
+    return TRUE;
 }
+#undef RETTYPE
 
-/* strbuf_nl_to_crlf() converts all occurences of \n to \r\n */
-void
-strbuf_nl_to_crlf(strbuf)
-strbuf_t *strbuf;
+#define MAX_D 5
+struct datamodel_information {
+    int sz[MAX_D];
+    const char *datamodel;
+    const char *dmplatform;
+};
+
+static struct datamodel_information dm[] = {
+    { { (int) sizeof(short), (int) sizeof(int), (int) sizeof(long),
+        (int) sizeof(long long), (int) sizeof(genericptr_t) },
+      "", "" },
+    { { 2, 4, 4, 8, 4 }, "ILP32LL64", "x86 32-bit" }, /* Windows or Unix */
+    { { 2, 4, 4, 8, 8 }, "IL32LLP64", "Windows x64 64-bit" },
+    { { 2, 4, 8, 8, 8 }, "I32LP64", "Unix 64-bit"},
+    { { 2, 8, 8, 8, 8 }, "ILP64", "Unix ILP64"},      /* HAL, SPARC64 */
+};
+
+const char *
+datamodel(int retidx)
 {
-    if (strbuf->str) {
-        int len = (int) strlen(strbuf->str);
-        int count = 0;
-        char *cp = strbuf->str;
+    int i, j, matchcount;
+    static const char *unknown = "Unknown";
 
-        while (*cp)
-            if (*cp++ == '\n')
-                count++;
-        if (count) {
-            strbuf_reserve(strbuf, len + count + 1);
-            for (cp = strbuf->str + len + count; count; --cp)
-                if ((*cp = cp[-count]) == '\n') {
-                    *--cp = '\r';
-                    --count;
-                }
+    for (i = 1; i < SIZE(dm); ++i) {
+        matchcount = 0;
+        for (j = 0; j < MAX_D; ++j) {
+            if (dm[0].sz[j] == dm[i].sz[j])
+                ++matchcount;
         }
+        if (matchcount == MAX_D)
+            return (retidx == 0) ? dm[i].datamodel : dm[i].dmplatform;
     }
+    return unknown;
 }
 
+const char *
+what_datamodel_is_this(int retidx, int szshort, int szint, int szlong, int szll,
+                       int szptr)
+{
+    int i;
+    static const char *unknown = "Unknown";
+
+    for (i = 1; i < SIZE(dm); ++i) {
+        if (szshort == dm[i].sz[0] && szint == dm[i].sz[1]
+            && szlong == dm[i].sz[2] && szll == dm[i].sz[3]
+            && szptr == dm[i].sz[4])
+            return (retidx == 0) ? dm[i].datamodel : dm[i].dmplatform;
+    }
+    return unknown;
+}
+#undef MAX_D
 /*hacklib.c*/

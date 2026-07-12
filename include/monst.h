@@ -1,10 +1,15 @@
-/* NetHack 3.6	monst.h	$NHDT-Date: 1561053561 2019/06/20 17:59:21 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.33 $ */
+/* NetHack 5.0	monst.h	$NHDT-Date: 1781973083 2026/06/20 16:31:23 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.78 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef MONST_H
 #define MONST_H
+
+/* start with incomplete types in case these aren't defined yet;
+   basic pointers to them don't need to know their details */
+struct monst;
+struct obj;
 
 #ifndef MEXTRA_H
 #include "mextra.h"
@@ -36,7 +41,7 @@ enum wpn_chk_flags {
  * PICK_NONE, PICK_ONE, PICK_ANY (wintype.h)  0, 1, 2
  * MINV_NOLET  If set, don't display inventory letters on monster's inventory.
  * MINV_ALL    If set, display all items in monster's inventory, otherwise
- *	       just display wielded weapons and worn items.
+ *             just display wielded weapons and worn items.
  */
 #define MINV_PICKMASK 0x03 /* 1|2 */
 #define MINV_NOLET    0x04
@@ -50,30 +55,44 @@ enum m_ap_types {
     M_AP_MONSTER   = 3  /* a monster; mostly used for cloned Wizard */
 };
 
-#define MON_FLOOR        0x00
-#define MON_OFFMAP       0x01
-#define MON_DETACH       0x02
-#define MON_MIGRATING    0x04
-#define MON_LIMBO        0x08
-#define MON_BUBBLEMOVE   0x10
-#define MON_ENDGAME_FREE 0x20
-#define MON_ENDGAME_MIGR 0x40
-#define MON_OBLITERATE   0x80
-#define MSTATE_MASK      0xFF
+#define MON_FLOOR          0x0000
+#define MON_OFFMAP         0x0001
+#define MON_DETACH         0x0002
+#define MON_MIGRATING      0x0004
+#define MON_LIMBO          0x0008
+#define MON_BUBBLEMOVE     0x0010
+#define MON_ENDGAME_FREE   0x0020
+#define MON_ENDGAME_MIGR   0x0040
+#define MON_OBLITERATE     0x0080
+#define MON_STILL_ARRIVING 0x0100
+#define MON_PARKED         0x0200
 
 #define M_AP_TYPMASK  0x7
 #define M_AP_F_DKNOWN 0x8
-#define U_AP_TYPE (youmonst.m_ap_type & M_AP_TYPMASK)
-#define U_AP_FLAG (youmonst.m_ap_type & ~M_AP_TYPMASK)
+#define U_AP_TYPE (gy.youmonst.m_ap_type & M_AP_TYPMASK)
+#define U_AP_FLAG (gy.youmonst.m_ap_type & ~M_AP_TYPMASK)
 #define M_AP_TYPE(m) ((m)->m_ap_type & M_AP_TYPMASK)
 #define M_AP_FLAG(m) ((m)->m_ap_type & ~M_AP_TYPMASK)
 
-/* for saving the hero's rank in bones monster */
-struct mon_former_rank {
-    int lev;
-    short mnum;
-    boolean female;
+enum m_seen_resistance {
+    M_SEEN_NOTHING = 0x0000,
+    M_SEEN_MAGR    = 0x0001, /* Antimagic, AD_MAGM */
+    M_SEEN_FIRE    = 0x0002, /* Fire_resistance, AD_FIRE */
+    M_SEEN_COLD    = 0x0004, /* Cold_resistance, AD_COLD */
+    M_SEEN_SLEEP   = 0x0008, /* Sleep_resistance, AD_SLEE */
+    M_SEEN_DISINT  = 0x0010, /* Disint_resistance, AD_DISN */
+    M_SEEN_ELEC    = 0x0020, /* Shock_resistance, AD_ELEC */
+    M_SEEN_POISON  = 0x0040, /* AD_DRST */
+    M_SEEN_ACID    = 0x0080, /* Acid_resistance, AD_ACID */
+    M_SEEN_REFL    = 0x0100, /* reflection, no corresponding AD_foo */
 };
+
+#define m_seenres(mon, mask) ((mon)->seen_resistance & (mask))
+#define m_setseenres(mon, mask) ((mon)->seen_resistance |= (mask))
+#define m_clearseenres(mon, mask) ((mon)->seen_resistance &= ~(mask))
+#define monstseesu_ad(adtyp) monstseesu(cvt_adtyp_to_mseenres(adtyp))
+#define monstunseesu_ad(adtyp) monstunseesu(cvt_adtyp_to_mseenres(adtyp))
+#define monstunseesu_prop(prop) monstunseesu(cvt_prop_to_mseenres(prop))
 
 struct monst {
     struct monst *nmon;
@@ -82,44 +101,24 @@ struct monst {
     short mnum;           /* permanent monster index number */
     short cham;           /* if shapeshifter, orig mons[] idx goes here */
     short movement;       /* movement points (derived from permonst definition
-                             and added effects */
+                           * and added effects */
     uchar m_lev;          /* adjusted difficulty level of monster */
     aligntyp malign;      /* alignment of this monster, relative to the
-                             player (positive = good to kill) */
-    xchar mx, my;
-    xchar mux, muy;       /* where the monster thinks you are */
+                           * player (positive = good to kill) */
+    coordxy mx, my;
+    coordxy mux, muy;     /* where the monster thinks you are */
 #define MTSZ 4
+    /* mtrack[0..2] is used to keep extra data when migrating the monster */
     coord mtrack[MTSZ];   /* monster track */
     int mhp, mhpmax;
     unsigned mappearance; /* for undetected mimics and the wiz */
-    unsigned ridden_by;   /* m_id for rider while on its steed, can check if not
-                             ridden since context.ident is initialized at 1 */
     uchar m_ap_type;      /* what mappearance is describing, m_ap_types */
 
-    schar mtame;                /* level of tameness, implies peaceful */
-    unsigned long mintrinsics;  /* low 9 correspond to mresists */
-    unsigned long mextrinsics;  /* low 9 correspond to mresists */
-    int mspec_used;             /* monster's special ability attack timeout */
-    int mbindtimer;             /* Draugr binding-ritual cooldown timer */
-    int mbreath_attk;           /* breath/spit attack cooldown timeout */
-    int mtk_attk;               /* telekinesis attack cooldown timeout */
-
-#define M_SEEN_NOTHING 0x0000
-#define M_SEEN_MAGR    0x0001
-#define M_SEEN_FIRE    0x0002
-#define M_SEEN_COLD    0x0004
-#define M_SEEN_SLEEP   0x0008
-#define M_SEEN_DISINT  0x0010
-#define M_SEEN_ELEC    0x0020
-#define M_SEEN_POISON  0x0040
-#define M_SEEN_ACID    0x0080
-#define M_SEEN_REFL    0x0100
-#define M_SEEN_DEATH   0x0200
-
-#define m_seenres(mon, mask) ((mon)->seen_resistance & (mask))
-#define m_setseen(mon, mask) ((mon)->seen_resistance |= (mask))
-
-    unsigned long seen_resistance; /* Has seen you resist an element or magical effect */
+    schar mtame;          /* level of tameness, implies peaceful */
+    unsigned short mintrinsics; /* low 8 correspond to mresists */
+    unsigned short mextrinsics; /* low 8 correspond to mresists */
+    unsigned long seen_resistance; /* M_SEEN_x; saw you resist an effect */
+    int mspec_used;       /* monster's special ability attack timeout */
 
     Bitfield(female, 1);      /* is female */
     Bitfield(minvis, 1);      /* currently invisible */
@@ -127,73 +126,47 @@ struct monst {
     Bitfield(perminvis, 1);   /* intrinsic minvis value */
     Bitfield(mcan, 1);        /* has been cancelled */
     Bitfield(mburied, 1);     /* has been buried */
-#define mtemplit mburied      /* since buried isn't implemented, use bit for
-                               * monsters shown by transient light source;
-                               * only valid during bhit() execution        */
     Bitfield(mundetected, 1); /* not seen in present hiding place;
                                * implies one of M1_CONCEAL or M1_HIDE,
                                * but not mimic (that is, snake, spider,
                                * trapper, piercer, eel) */
-    Bitfield(mcansee, 1);     /* cansee 1, temp.blinded 0, blind 0 */
+    Bitfield(mcansee, 1);   /* cansee 1, temp.blinded 0, blind 0 */
 
-    Bitfield(mspeed, 2);     /* current speed */
-    Bitfield(permspeed, 2);  /* intrinsic mspeed value */
-    Bitfield(mrevived, 1);   /* has been revived from the dead */
-    Bitfield(mcloned, 1);    /* has been cloned from another */
-    Bitfield(mavenge, 1);    /* did something to deserve retaliation */
-    Bitfield(mflee, 1);      /* fleeing */
+    Bitfield(mspeed, 2);    /* current speed */
+    Bitfield(permspeed, 2); /* intrinsic mspeed value */
+    Bitfield(mrevived, 1);  /* has been revived from the dead */
+    Bitfield(mcloned, 1);   /* has been cloned from another */
+    Bitfield(mavenge, 1);   /* did something to deserve retaliation */
+    Bitfield(mflee, 1);     /* fleeing */
 
-    Bitfield(mfleetim, 7);   /* timeout for mflee */
-    Bitfield(msleeping, 1);  /* asleep until woken */
+    Bitfield(mfleetim, 7);  /* timeout for mflee */
+    Bitfield(msleeping, 1); /* asleep until woken */
 
-    Bitfield(mblinded, 7);   /* cansee 0, temp.blinded n, blind 0 */
-    Bitfield(mstun, 1);      /* stunned (off balance) */
+    Bitfield(mblinded, 7);  /* cansee 0, temp.blinded n, blind 0 */
+    Bitfield(mstun, 1);     /* stunned (off balance) */
 
     Bitfield(mfrozen, 7);
-    Bitfield(mcanmove, 1);   /* paralysis, similar to mblinded */
+    Bitfield(mcanmove, 1);  /* paralysis, similar to mblinded */
 
-    Bitfield(mconf, 1);      /* confused */
-    Bitfield(msick, 2);      /* monsters ill from zombies */
-    Bitfield(msickbyu, 1);   /* monsters ill from you as a zombie */
-    Bitfield(mdiseased, 1);  /* monsters infected with disease */
-    Bitfield(mdiseabyu, 1);  /* monsters infected by you */
-    Bitfield(mpeaceful, 1);  /* does not attack unprovoked */
-    Bitfield(mtrapped, 1);   /* trapped in a pit, web or bear trap */
-    Bitfield(mentangled, 1); /* entangled by a spell */
-    Bitfield(mleashed, 1);   /* monster is on a leash */
-    Bitfield(uexp, 1);       /* you get experience for its kills */
-    Bitfield(isshk, 1);      /* is shopkeeper */
-    Bitfield(isminion, 1);   /* is a minion */
-    Bitfield(isgd, 1);       /* is guard */
-    Bitfield(ispriest, 1);   /* is an aligned priest or high priest */
-    Bitfield(isqldr, 1);     /* is quest leader */
+    Bitfield(mconf, 1);     /* confused */
+    Bitfield(mpeaceful, 1); /* does not attack unprovoked */
+    Bitfield(mtrapped, 1);  /* trapped in a pit, web or bear trap */
+    Bitfield(mleashed, 1);  /* monster is on a leash */
+    Bitfield(isshk, 1);     /* is shopkeeper */
+    Bitfield(isminion, 1);  /* is a minion */
+    Bitfield(isgd, 1);      /* is guard */
+    Bitfield(ispriest, 1);  /* is an aligned priest or high priest */
 
-    Bitfield(iscerberus, 1); /* is Cerberus */
-    Bitfield(isvecna, 1);    /* is Vecna */
-    Bitfield(isvlad, 1);     /* is Vlad the Impaler */
-    Bitfield(istalgath, 1);  /* is Tal'Gath */
-    Bitfield(isgking, 1);    /* is the Goblin King */
-    Bitfield(islucifer, 1);  /* is Lucifer */
-    Bitfield(ismichael, 1);  /* is Saint Michael */
-    Bitfield(iswiz, 1);      /* is the Wizard of Yendor */
-    Bitfield(wormno, 5);     /* at most 31 worms on any level */
-    Bitfield(mwither_from_u, 1); /* is withering due to player */
-
-    Bitfield(mstonebyu, 1);  /* you caused the monster to start stoning */
-    Bitfield(mstone, 3);     /* monster is turning to stone */
-    Bitfield(mberserk, 1);   /* monster is berserk */
-    Bitfield(minsects, 1);   /* monster summoned via CLC_INSECTS spell */
-    /* 4 free bits */
-
-    uchar mwither;           /* withering; amount of turns left till recovery */
-    uchar vuln_fire;         /* timeout of temp vulnerability to fire */
-    uchar vuln_cold;         /* ...to cold */
-    uchar vuln_elec;         /* ...to elec */
-    uchar vuln_acid;         /* ...to acid */
-    uchar mbreathtyp;        /* skeletal dragon: fixed breath adtyp,
-                                chosen at creation (0 = unassigned) */
+    Bitfield(iswiz, 1);     /* is the Wizard of Yendor */
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
-#define MAX_WSEG_PER_WORM 256 /* generous cap; rejects corrupt save prefixes */
+    Bitfield(wormno, 5);    /* at most 31 worms on any level */
+    Bitfield(mtemplit, 1);  /* temporarily seen; only valid during bhit() */
+    Bitfield(meverseen, 1); /* mon has been seen at some point */
+
+    Bitfield(mspotted, 1);  /* mon is currently seen by hero */
+    Bitfield(mwandexp, 1);  /* mon has experience with wands */
+    Bitfield(mgenmklev, 1); /* made by the level generation */
+    /* 5 spare bits */
 
     unsigned long mstrategy; /* for monsters with mflag3: current strategy */
 #ifdef NHSTDC
@@ -211,38 +184,20 @@ struct monst {
 #define STRAT_PLAYER    0x01000000L
 #define STRAT_NONE      0x00000000L
 #define STRAT_STRATMASK 0x0f000000L
-#define STRAT_XMASK     0x00ff0000L
-#define STRAT_YMASK     0x0000ff00L
+    /* mstrategy unused 0x00ffff00L */
 #define STRAT_GOAL      0x000000ffL
-#define STRAT_GOALX(s) ((xchar) ((s & STRAT_XMASK) >> 16))
-#define STRAT_GOALY(s) ((xchar) ((s & STRAT_YMASK) >> 8))
 
+    coord mgoal;           /* monster strategy, target location */
     long mtrapseen;        /* bitmap of traps we've been trapped in */
     long mlstmv;           /* for catching up with lost time */
+    long mstate;           /* debugging info on monsters stored here */
+    long migflags;         /* migrating flags */
     long mspare1;
-#define mstate mspare1     /* only for debug exam right now, not code flow */
     struct obj *minvent;   /* mon's inventory */
     struct obj *mw;        /* mon's weapon */
-    struct obj *mw2;       /* mon's secondary weapon (dual-wield) */
     long misc_worn_check;  /* mon's wornmask */
-    xchar weapon_check;    /* flag for whether to try switching weapons */
-
+    xint16 weapon_check;   /* flag for whether to try switching weapons */
     int meating;           /* monster is eating timeout */
-    int msummoned;         /* is a temporarily summoned being */
-    int msicktime;         /* zombie sick timer */
-    int mdiseasetime;      /* diseased timer */
-    int mreflecttime;      /* timeout for monster reflection spell */
-    int mbarkskintime;     /* timeout for monster barkskin spell */
-    int mstoneskintime;    /* timeout for monster stoneskin spell */
-    int mentangletime;     /* timeout for monster entangle spell */
-    int mlevitatetime;     /* timeout for monster levitation spell */
-    int mjumptime;         /* timeout for monster jumping spell */
-    uchar mburnhands;      /* burning hands spell charges */
-    uchar mshockgrasp;     /* shocking grasp spell charges */
-    int mbreakboulder;     /* timeout for monster breaking a boulder */
-    uchar mprotection;     /* monster protection spell */
-    uchar mprottime;       /* timeout for monster protection spell */
-    struct mon_former_rank former_rank; /* for monsters in bones */
     struct mextra *mextra; /* point to mextra struct */
 };
 
@@ -254,60 +209,83 @@ struct monst {
 
 #define MON_WEP(mon) ((mon)->mw)
 #define MON_NOWEP(mon) ((mon)->mw = (struct obj *) 0)
-#define MON_WEP2(mon) ((mon)->mw2)
-#define MON_NOWEP2(mon) ((mon)->mw2 = (struct obj *) 0)
 
-#define OFFHAND_PENALTY 4 /* to-hit penalty for monster off-hand attacks */
-
+/* dead monsters stay on the fmon list until dmonsfree() at end of turn */
 #define DEADMONSTER(mon) ((mon)->mhp < 1)
-#define is_starting_pet(mon) ((mon)->m_id == context.startingpet_mid)
-#define is_vampshifter(mon) \
-    ((mon)->cham == PM_VAMPIRE_SOVEREIGN || (mon)->cham == PM_VAMPIRE_NOBLE \
-     || (mon)->cham == PM_VAMPIRE_ROYAL || (mon)->cham == PM_VAMPIRE_MAGE   \
-     || (mon)->cham == PM_KAS || (mon)->cham == PM_VLAD_THE_IMPALER)
-#define is_changeling(mon) \
-    ((mon)->cham == PM_CHAMELEON || (mon)->cham == PM_DOPPELGANGER \
-     || (mon)->cham == PM_SANDESTIN)
+/* vault guards intentionally remain on the fmon list at 0,0 until
+   the temporary corridor is dealt with */
+#define PARKEDMONSTER(mon) ((mon)->isgd && (mon)->mx == 0)
+/* eventually, we'll be able to use (((mon)->mstate & MON_PARKED) != 0) */
 
-/* monsters which cannot be displaced: priests, shopkeepers, vault guards,
-   Oracle, Charon, quest leader */
-#define mundisplaceable(mon) ((mon)->ispriest                    \
-                              || (mon)->isshk                    \
-                              || (mon)->isgd                     \
-                              || (mon)->data == &mons[PM_ORACLE] \
-                              || (mon)->data == &mons[PM_CHARON] \
-                              || (mon)->m_id == quest_status.leader_m_id)
+#define is_starting_pet(mon) ((mon)->m_id == svc.context.startingpet_mid)
+#define is_vampshifter(mon) \
+    ((mon)->cham == PM_VAMPIRE || (mon)->cham == PM_VAMPIRE_LEADER \
+     || (mon)->cham == PM_VLAD_THE_IMPALER)
+#define vampshifted(mon) (is_vampshifter((mon)) && !is_vampire((mon)->data))
+/* Vlad might be vampshifted so just checking monst->data is insufficient */
+#define is_Vlad(m) ((m)->data == &mons[PM_VLAD_THE_IMPALER]  \
+                    || (m)->cham == PM_VLAD_THE_IMPALER)
+
+/* monsters which cannot be displaced: temple priests, shopkeepers,
+   vault guards, the Oracle, quest leader */
+#define mundisplaceable(mon) \
+    ((mon)->ispriest || (mon)->isshk                    \
+     || (mon)->isgd || (mon)->data == &mons[PM_ORACLE]  \
+     || (mon)->m_id == svq.quest_status.leader_m_id)
 
 /* mimic appearances that block vision/light */
-#define is_lightblocker_mappear(mon)                       \
+#define is_lightblocker_mappear(mon) \
     (is_obj_mappear(mon, BOULDER)                          \
      || (M_AP_TYPE(mon) == M_AP_FURNITURE                  \
          && ((mon)->mappearance == S_hcdoor                \
              || (mon)->mappearance == S_vcdoor             \
              || (mon)->mappearance < S_ndoor /* = walls */ \
-             || (mon)->mappearance == S_tree               \
-             || (mon)->mappearance == S_deadtree)))
+             || (mon)->mappearance == S_tree)))
 #define is_door_mappear(mon) (M_AP_TYPE(mon) == M_AP_FURNITURE   \
                               && ((mon)->mappearance == S_hcdoor \
                                   || (mon)->mappearance == S_vcdoor))
 #define is_obj_mappear(mon,otyp) (M_AP_TYPE(mon) == M_AP_OBJECT \
                                   && (mon)->mappearance == (otyp))
 
+/* is mon m (presumably just killed) a troll and obj o Trollsbane? */
+#define troll_baned(m,o) \
+    ((m)->data->mlet == S_TROLL && (o) && (o)->oartifact == ART_TROLLSBANE)
+
+#define engulfing_u(mon) (u.uswallow && (u.ustuck == (mon)))
 #define helpless(mon) ((mon)->msleeping || !(mon)->mcanmove)
 
 #define mon_perma_blind(mon) (!mon->mcansee && !mon->mblinded)
 
-/* Get the maximum difficulty monsters that can currently be
-   generated, given the current level difficulty and the hero's
-   level. However, once the Wizard of Yendor has been killed or
-   the invocation has been performed, all bets are off */
-#define monmax_difficulty(levdif) \
-    (u.uevent.udemigod ? 256 : (((levdif) + u.ulevel) / 2))
-#define monmin_difficulty(levdif) ((levdif) / 6)
+#define mon_offmap(mon) ((mon)->mstate != MON_FLOOR)
 
-/* Macros for whether a type of monster is too strong for a
-   specific level */
+/* Get the maximum difficulty monsters that can currently be generated,
+   given the current level difficulty and the hero's level. */
+#define monmax_difficulty(levdif) (((levdif) + u.ulevel) / 2)
+#define monmin_difficulty(levdif) ((levdif) / 6)
+#define monmax_difficulty_lev() (monmax_difficulty(level_difficulty()))
+
+/* Macros for whether a type of monster is too strong for a specific level. */
 #define montoostrong(monindx, lev) (mons[monindx].difficulty > lev)
 #define montooweak(monindx, lev) (mons[monindx].difficulty < lev)
+
+#ifdef PMNAME_MACROS
+#define Mgender(mon) ((mon)->female ? FEMALE : MALE)
+#endif
+#define mon_resistancebits(mon) \
+    ((mon)->data->mresists | (mon)->mextrinsics | (mon)->mintrinsics)
+#define resists_fire(mon)   Resists_Elem(mon, FIRE_RES)
+#define resists_cold(mon)   Resists_Elem(mon, COLD_RES)
+#define resists_sleep(mon)  Resists_Elem(mon, SLEEP_RES)
+#define resists_disint(mon) Resists_Elem(mon, DISINT_RES)
+#define resists_elec(mon)   Resists_Elem(mon, SHOCK_RES)
+#define resists_poison(mon) Resists_Elem(mon, POISON_RES)
+#define resists_acid(mon)   Resists_Elem(mon, ACID_RES)
+#define resists_ston(mon)   Resists_Elem(mon, STONE_RES)
+
+#define is_lminion(mon) \
+    (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
+
+/* x is a valid index into mons[] array */
+#define ismnum(x) ((x) >= LOW_PM && (x) < NUMMONS)
 
 #endif /* MONST_H */

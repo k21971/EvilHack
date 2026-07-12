@@ -1,4 +1,4 @@
-/* NetHack 3.6	pckeys.c	$NHDT-Date: 1501465420 2017/07/31 01:43:40 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.12 $ */
+/* NetHack 5.0	pckeys.c	$NHDT-Date: 1596498270 2020/08/03 23:44:30 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.14 $ */
 /* Copyright (c) NetHack PC Development Team 1996                 */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -9,15 +9,15 @@
 #include "hack.h"
 
 #ifdef MSDOS
-#ifdef USE_TILES
+#ifdef TILES_IN_GLYPHMAP
 #include "wintty.h"
 #include "pcvideo.h"
 
-boolean FDECL(pckeys, (unsigned char, unsigned char));
-static void FDECL(userpan, (BOOLEAN_P));
-static void FDECL(overview, (BOOLEAN_P));
-static void FDECL(traditional, (BOOLEAN_P));
-static void NDECL(refresh);
+boolean pckeys(unsigned char, unsigned char);
+static void userpan(enum vga_pan_direction pan);
+static void overview(boolean);
+static void traditional(boolean);
+static void refresh(void);
 
 extern struct WinDesc *wins[MAXWIN]; /* from wintty.c */
 extern boolean inmap;                /* from video.c */
@@ -32,13 +32,11 @@ extern boolean inmap;                /* from video.c */
  *
  */
 boolean
-pckeys(scancode, shift)
-unsigned char scancode;
-unsigned char shift;
+pckeys(unsigned char scancode, unsigned char shift)
 {
     boolean opening_dialog;
 
-    opening_dialog = pl_character[0] ? FALSE : TRUE;
+    opening_dialog = svp.pl_character[0] ? FALSE : TRUE;
     switch (scancode) {
 #ifdef SIMULATE_CURSOR
     case 0x3d: /* F3 = toggle cursor type */
@@ -51,11 +49,25 @@ unsigned char shift;
 #endif
     case 0x74: /* Control-right_arrow = scroll horizontal to right */
         if ((shift & CTRL) && iflags.tile_view && !opening_dialog)
-            userpan(1);
+            userpan(pan_right);
         break;
     case 0x73: /* Control-left_arrow = scroll horizontal to left */
         if ((shift & CTRL) && iflags.tile_view && !opening_dialog)
-            userpan(0);
+            userpan(pan_left);
+        break;
+    /* Dosbox reports control-up and down arrows, but VirtualBox and QEMU
+       don't; accept home, end, page up and page down also */
+    case 0x77: /* control-home */
+    case 0x8D: /* control-up_arrow */
+    case 0x84: /* control-page_up */
+        if ((shift & CTRL) && iflags.tile_view && !opening_dialog)
+            userpan(pan_up);
+        break;
+    case 0x75: /* control-end */
+    case 0x91: /* control-down_arrow */
+    case 0x76: /* control-page_down */
+        if ((shift & CTRL) && iflags.tile_view && !opening_dialog)
+            userpan(pan_down);
         break;
     case 0x3E: /* F4 = toggle overview mode */
         if (iflags.tile_view && !opening_dialog && !Is_rogue_level(&u.uz)) {
@@ -78,22 +90,20 @@ unsigned char shift;
 }
 
 static void
-userpan(on)
-boolean on;
+userpan(enum vga_pan_direction pan)
 {
 #ifdef SCREEN_VGA
     if (iflags.usevga)
-        vga_userpan(on);
+        vga_userpan(pan);
 #endif
 #ifdef SCREEN_VESA
     if (iflags.usevesa)
-        vesa_userpan(on);
+        vesa_userpan(pan);
 #endif
 }
 
 static void
-overview(on)
-boolean on;
+overview(boolean on)
 {
 #ifdef SCREEN_VGA
     if (iflags.usevga)
@@ -106,8 +116,7 @@ boolean on;
 }
 
 static void
-traditional(on)
-boolean on;
+traditional(boolean on)
 {
 #ifdef SCREEN_VGA
     if (iflags.usevga)
@@ -120,7 +129,7 @@ boolean on;
 }
 
 static void
-refresh()
+refresh(void)
 {
 #ifdef SCREEN_VGA
     if (iflags.usevga)
@@ -131,7 +140,7 @@ refresh()
         vesa_refresh();
 #endif
 }
-#endif /* USE_TILES */
+#endif /* TILES_IN_GLYPHMAP */
 #endif /* MSDOS */
 
 /*pckeys.c*/

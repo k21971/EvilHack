@@ -28,45 +28,28 @@ static struct RastPort *rp;
 #undef NULL
 #define NULL 0
 
-#ifdef AZTEC_C
-#include <functions.h>
-#else
-#ifdef _DCC
-#include <clib/dos_protos.h>
-#include <clib/exec_protos.h>
-#include <clib/console_protos.h>
-#include <clib/diskfont_protos.h>
-#else
 #include <proto/dos.h>
 #include <proto/exec.h>
 #include <proto/console.h>
 #include <proto/diskfont.h>
-#endif
 
-static char *load_list[] = { "tomb.iff", 0 };
 static BitMapHeader tomb_bmhd;
-static struct BitMap *tbmp[1] = { 0 };
+static struct BitMap *tombimg = NULL;
 
-static int cols[2] = { 154, 319 }; /* X location of center of columns */
+static const int cols_base[2] = { 154, 319 }; /* X location of center of columns */
+static int cols[2]; /* cols_base[] + xoff, computed per call */
 static int cno = 0; /* current column */
 #define TEXT_TOP (65 + yoff)
 
-static xoff, yoff; /* image centering */
+static int xoff, yoff; /* image centering */
 
 /* terrible kludge */
 /* this is why prototypes should have ONLY types in them! */
 #undef red
 #undef green
 #undef blue
-#undef index
-#ifdef _DCC
-#include <clib/graphics_protos.h>
-#include <clib/intuition_protos.h>
-#else
 #include <proto/graphics.h>
 #include <proto/intuition.h>
-#endif
-#endif /* AZTEC_C */
 
 static struct Window *ripwin = 0;
 static void tomb_text(char *);
@@ -98,25 +81,32 @@ static struct NewWindow newwin = { 0, 0, 640, 200, 1, 0,
 
 int wh; /* was local in outrip, but needed for SCALE macro */
 
-int cmap_white, cmap_black;
+int cmap_outline, cmap_fill;
 
 void
-amii_outrip(tmpwin, how, when)
-winid tmpwin;
-int how;
-time_t when;
+amii_outrip(winid tmpwin, int how, time_t when)
 {
     int just_return = 0;
     int done, rtxth;
+
     struct IntuiMessage *imsg;
     int i;
-    register char *dpx;
+    char *dpx;
     char buf[200];
     int line, tw, ww;
-    char *errstr = NULL;
     long year;
 
     if (!WINVERS_AMIV || HackScreen->RastPort.BitMap->Depth < 4)
+        goto cleanup;
+
+    /* The graphical tombstone uses raw chipset-style palette twiddling
+     * (LoadRGB4, transpalette fade) and BltBitMap to a SMART_REFRESH
+     * window.  That works on the native chipset and AGA, but on RTG
+     * setups (Picasso96, CyberGraphX) the visible display is decoupled
+     * from the chipset registers and the tombstone never appears.
+     * Detect RTG by screen size beyond what chipset modes can reach
+     * and fall through to the plain ASCII tombstone instead. */
+    if (HackScreen->Width > 800 || HackScreen->Height > 600)
         goto cleanup;
 
     /* Use the users display size */
@@ -142,9 +132,7 @@ time_t when;
         SetFont(rp, HackFont);
 #endif
 
-    tomb_bmhd = ReadImageFiles(load_list, tbmp, &errstr);
-    if (errstr)
-        goto cleanup;
+    tomb_bmhd = ReadImageFile("tomb.iff", &tombimg);
     if (tomb_bmhd.w > ww || tomb_bmhd.h > wh)
         goto cleanup;
 
@@ -152,13 +140,13 @@ time_t when;
     xoff = GENOFF(ww, tomb_bmhd.w);
     yoff = GENOFF(wh, tomb_bmhd.h);
     for (i = 0; i < SIZE(cols); i++)
-        cols[i] += xoff;
+        cols[i] = cols_base[i] + xoff;
 
-    cmap_white = search_cmap(0, 0, 0);
-    cmap_black = search_cmap(15, 15, 15);
+    cmap_outline = search_cmap(0, 0, 0);
+    cmap_fill = search_cmap(15, 15, 15);
 
-    BltBitMap(*tbmp, 0, 0, rp->BitMap, xoff, yoff, tomb_bmhd.w, tomb_bmhd.h,
-              0xc0, 0xff, NULL);
+    BltBitMapRastPort(tombimg, 0, 0, rp, xoff, yoff,
+                      tomb_bmhd.w, tomb_bmhd.h, 0xc0);
 
     /* Put together death description */
     formatkiller(buf, sizeof buf, how, FALSE);
@@ -186,12 +174,12 @@ time_t when;
     SetDrMd(rp, JAM1);
 
     /* Put name on stone */
-    Sprintf(buf, "%s", plname);
+    Sprintf(buf, "%s", svp.plname);
     buf[STONE_LINE_LEN] = 0;
     tomb_text(buf);
 
     /* Put $ on stone */
-    Sprintf(buf, "%ld Au", done_money);
+    Sprintf(buf, "%ld Au", gd.done_money);
     buf[STONE_LINE_LEN] = 0; /* It could be a *lot* of gold :-) */
     tomb_text(buf);
 
@@ -200,7 +188,7 @@ time_t when;
 
     /* Put death type on stone */
     for (line = DEATH_LINE, dpx = buf; line < YEAR_LINE; line++) {
-        register int i, i0;
+        int i, i0;
         char tmpchar;
 
         if ((i0 = strlen(dpx)) > STONE_LINE_LEN) {
@@ -276,13 +264,12 @@ cleanup:
         Forbid();
         while (imsg = (struct IntuiMessage *) GetMsg(ripwin->UserPort))
             ReplyMsg((struct Message *) imsg);
-        CloseWindow(ripwin);
         Permit();
+        CloseWindow(ripwin);
     }
     LoadRGB4(&HackScreen->ViewPort, sysflags.amii_curmap, amii_numcolors);
 
-    if (tbmp[0])
-        FreeImageFiles(load_list, tbmp);
+    FreeImageFile(&tombimg);
     if (just_return)
         return;
     /* fall back to the straight-ASCII version */
@@ -290,8 +277,7 @@ cleanup:
 }
 
 static void
-tomb_text(p)
-char *p;
+tomb_text(char *p)
 {
     char buf[STONE_LINE_LEN * 2];
     int l;
@@ -303,23 +289,23 @@ char *p;
     sprintf(buf, " %s ", p);
     l = TextLength(rp, buf, strlen(buf));
 
-    SetAPen(rp, cmap_white);
+    SetAPen(rp, cmap_outline);
     Move(rp, cols[cno] - (l / 2) - 1, tomb_line);
     Text(rp, buf, strlen(buf));
 
-    SetAPen(rp, cmap_white);
+    SetAPen(rp, cmap_outline);
     Move(rp, cols[cno] - (l / 2) + 1, tomb_line);
     Text(rp, buf, strlen(buf));
 
-    SetAPen(rp, cmap_white);
+    SetAPen(rp, cmap_outline);
     Move(rp, cols[cno] - (l / 2), tomb_line - 1);
     Text(rp, buf, strlen(buf));
 
-    SetAPen(rp, cmap_white);
+    SetAPen(rp, cmap_outline);
     Move(rp, cols[cno] - (l / 2), tomb_line + 1);
     Text(rp, buf, strlen(buf));
 
-    SetAPen(rp, cmap_black);
+    SetAPen(rp, cmap_fill);
     Move(rp, cols[cno] - (l / 2), tomb_line);
     Text(rp, buf, strlen(buf));
 }

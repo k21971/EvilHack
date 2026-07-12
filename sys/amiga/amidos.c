@@ -9,6 +9,7 @@
 
 #include "hack.h"
 #include "winami.h"
+#include "windefs.h"
 
 /* Defined in config.h, let's undefine it here (static function below) */
 #undef strcmpi
@@ -18,27 +19,42 @@
 #include <intuition/intuition.h>
 
 #undef COUNT
-#if defined(__SASC_60) || defined(__GNUC__)
+
 #include <proto/exec.h>
 #include <proto/dos.h>
+
+/* POSIX stubs needed by libnix (-noixemul) */
+#ifdef __noixemul__
+int getpid(void) { return (int)FindTask(NULL); }
 #endif
 
-#ifdef AZTEC_50
-#include <functions.h>
-#undef strcmpi
-#endif
+/* Point NetHack: at the directory we were launched from.  Works for both
+   CLI ("nethack") and Workbench (icon double-click) launches, since
+   GetProgramDir() (V37+) resolves both.  Any existing assign is replaced;
+   it would just be stale state from a previous install or session. */
+void
+amiga_self_assign(void)
+{
+    BPTR dup;
 
-/* Prototypes */
-#include "NH:sys/amiga/winami.p"
-#include "NH:sys/amiga/amiwind.p"
-#include "NH:sys/amiga/amidos.p"
+    if (GetProgramDir() == 0)
+        return;
+    if ((dup = DupLock(GetProgramDir())) == 0)
+        return;
+    if (!AssignLock("NetHack", dup))
+        UnLock(dup);
+}
+
+#include "winext.h"
+#include "winproto.h"
+
 
 extern char Initialized;
 extern struct window_procs amii_procs;
+struct ami_sysflags sysflags = {0};
+FILE *fopenp(const char *, const char *);
 
-#ifndef __SASC_60
 int Enable_Abort = 0; /* for stdio package */
-#endif
 
 /* Initial path, so we can find NetHack.cnf */
 char PATH[PATHLEN] = "NetHack:";
@@ -46,13 +62,14 @@ char PATH[PATHLEN] = "NetHack:";
 static boolean record_exists(void);
 
 void
-flushout()
+flushout(void)
 {
     (void) fflush(stdout);
 }
 
 #ifndef getuid
-getuid()
+int
+getuid(void)
 {
     return 1;
 }
@@ -60,41 +77,13 @@ getuid()
 
 #ifndef getlogin
 char *
-getlogin()
+getlogin(void)
 {
     return ((char *) NULL);
 }
 #endif
 
-#ifndef AZTEC_50
-int
-abs(x)
-int x;
-{
-    return x < 0 ? -x : x;
-}
-#endif
-
-#ifdef SHELL
-int
-dosh()
-{
-    int i;
-    char buf[BUFSZ];
-    extern struct ExecBase *SysBase;
-
-    /* Only under 2.0 and later ROMs do we have System() */
-    if (SysBase->LibNode.lib_Version >= 37 && !amibbs) {
-        getlin("Enter CLI Command...", buf);
-        if (buf[0] != '\033')
-            i = System(buf, NULL);
-    } else {
-        i = 0;
-        pline("No mysterious force prevented you from using multitasking.");
-    }
-    return i;
-}
-#endif /* SHELL */
+/* abs() provided by libnix/stdlib */
 
 #ifdef MFLOPPY
 #include <ctype.h>
@@ -113,19 +102,10 @@ dosh()
  */
 /* TODO: update this for FFS */
 long
-freediskspace(path)
-char *path;
+freediskspace(char *path)
 {
-#ifdef UNTESTED
-    /* these changes from Patric Mueller <bhaak@gmx.net> for AROS to
-     * handle larger disks.  Also needs limits.h and aros/oldprograms.h
-     * for AROS.  (keni)
-     */
-    unsigned long long freeBytes = 0;
-#else
-    register long freeBytes = 0;
-#endif
-    register struct InfoData *infoData; /* Remember... longword aligned */
+    long freeBytes = 0;
+    struct InfoData *infoData; /* Remember... longword aligned */
     char fileName[32];
 
     /*
@@ -137,11 +117,11 @@ char *path;
      *  so must be on the current device, so "" is enough...
      */
     {
-        register char *colon;
+        char *colon;
 
         strncpy(fileName, path, sizeof(fileName) - 1);
         fileName[31] = 0;
-        if (colon = index(fileName, ':'))
+        if (colon = strchr(fileName, ':'))
             colon[1] = '\0';
         else
             fileName[0] = '\0';
@@ -166,11 +146,6 @@ char *path;
                         infoData->id_NumBlocks - infoData->id_NumBlocksUsed;
                     freeBytes -= (freeBytes + EXTENSION) / (EXTENSION + 1);
                     freeBytes *= infoData->id_BytesPerBlock;
-#ifdef UNTESTED
-                    if (freeBytes > LONG_MAX) {
-                        freeBytes = LONG_MAX;
-                    }
-#endif
                 }
                 if (freeBytes < 0)
                     freeBytes = 0;
@@ -183,12 +158,11 @@ char *path;
 }
 
 long
-filesize(file)
-char *file;
+filesize(char *file)
 {
-    register BPTR fileLock;
-    register struct FileInfoBlock *fileInfoBlock;
-    register long size = 0;
+    BPTR fileLock;
+    struct FileInfoBlock *fileInfoBlock;
+    long size = 0;
 
     fileInfoBlock =
         (struct FileInfoBlock *) alloc(sizeof(struct FileInfoBlock));
@@ -202,84 +176,17 @@ char *file;
     return size;
 }
 
-#if 0
-void
-eraseall(path, files)
-const char *path, *files;
-{
-    BPTR dirLock, dirLock2;
-    struct FileInfoBlock *fibp;
-    int chklen;
-#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
-    if(files != alllevels)panic("eraseall");
-#endif
-    chklen=(int)index(files,'*')-(int)files;
 
-    if (dirLock = Lock( (char *)path ,SHARED_LOCK)) {
-	dirLock2=DupLock(dirLock);
-	dirLock2= CurrentDir(dirLock2);
-	fibp=AllocMem(sizeof(struct FileInfoBlock),0);
-	if(fibp){
-	    if(Examine(dirLock,fibp)){
-		while(ExNext(dirLock,fibp)){
-		    if(!strncmp(fibp->fib_FileName,files,chklen)){
-			DeleteFile(fibp->fib_FileName);
-		    }
-		}
-	    }
-	    FreeMem(fibp,sizeof(struct FileInfoBlock));
-	}
-	UnLock(dirLock);
-	UnLock(CurrentDir(dirLock2));
-    }
-}
-#endif
-
-/* This size makes that most files can be copied with two Read()/Write()s */
-
-#if 0 /* Unused */
-#define COPYSIZE 4096
-
-char *CopyFile(from, to)
-const char *from, *to;
-{
-    register BPTR fromFile, toFile;
-    register char *buffer;
-    register long size;
-    char *error = NULL;
-
-    buffer = (char *) alloc(COPYSIZE);
-    if (fromFile = Open( (char *)from, MODE_OLDFILE)) {
-	if (toFile = Open( (char *)to, MODE_NEWFILE)) {
-	    while (size = Read(fromFile, buffer, (long)COPYSIZE)) {
-		if (size == -1){
-		    error = "Read error";
-		    break;
-		}
-		if (size != Write(toFile, buffer, size)) {
-		    error = "Write error";
-		    break;
-		}
-	    }
-	    Close(toFile);
-	} else
-	    error = "Cannot open destination";
-	Close(fromFile);
-    } else
-	error = "Cannot open source (this should not occur)";
-    free(buffer);
-    return error;
-}
-#endif
-
+#ifdef MFLOPPY
 /* this should be replaced */
-saveDiskPrompt(start)
+int
+saveDiskPrompt(int start)
 {
     char buf[BUFSIZ], *bp;
     BPTR fileLock;
     if (sysflags.asksavedisk) {
         /* Don't prompt if you can find the save file */
-        if (fileLock = Lock(SAVEF, SHARED_LOCK)) {
+        if (fileLock = Lock(gs.SAVEF, SHARED_LOCK)) {
             UnLock(fileLock);
 #if defined(TTY_GRAPHICS)
             if (windowprocs.win_init_nhwindows
@@ -294,7 +201,7 @@ saveDiskPrompt(start)
             return 1;
         }
         pline("If save file is on a SAVE disk, put that disk in now.");
-        if (strlen(SAVEF) > QBUFSZ - 25 - 22)
+        if (strlen(gs.SAVEF) > QBUFSZ - 25 - 22)
             panic("not enough buffer space for prompt");
 /* THIS IS A HACK */
 #if defined(TTY_GRAPHICS)
@@ -305,7 +212,7 @@ saveDiskPrompt(start)
 #endif
 #if defined(AMII_GRAPHICS)
         if (windowprocs.win_init_nhwindows == amii_procs.win_init_nhwindows) {
-            getlind("File name ?", buf, SAVEF);
+            getlind("File name ?", buf, gs.SAVEF);
             clear_nhwindow(WIN_BASE);
         }
 #endif
@@ -314,21 +221,22 @@ saveDiskPrompt(start)
             return 0;
 
         /* Strip any whitespace. Also, if nothing was entered except
-         * whitespace, do not change the value of SAVEF.
+         * whitespace, do not change the value of gs.SAVEF.
          */
         for (bp = buf; *bp; bp++) {
             if (!isspace(*bp)) {
-                strncpy(SAVEF, bp, PATHLEN);
+                strncpy(gs.SAVEF, bp, PATHLEN);
                 break;
             }
         }
     }
     return 1;
 }
+#endif /* MFLOPPY */
 
 /* Return 1 if the record file was found */
 static boolean
-record_exists()
+record_exists(void)
 {
     FILE *file;
 
@@ -345,7 +253,7 @@ record_exists()
  * For Amiga: do nothing, but called from restore.c
  */
 void
-gameDiskPrompt()
+gameDiskPrompt(void)
 {
 }
 #endif
@@ -355,8 +263,7 @@ gameDiskPrompt()
  * be room for the /.
  */
 void
-append_slash(name)
-char *name;
+append_slash(char *name)
 {
     char *ptr;
 
@@ -371,8 +278,7 @@ char *name;
 }
 
 void
-getreturn(str)
-const char *str;
+getreturn(const char *str)
 {
     int ch;
 
@@ -386,12 +292,11 @@ const char *str;
 #define PATHSEP ';'
 
 FILE *
-fopenp(name, mode)
-register const char *name, *mode;
+fopenp(const char *name, const char *mode)
 {
-    register char *bp, *pp, lastch;
-    register FILE *fp;
-    register BPTR theLock;
+    char *bp, *pp, lastch = 0;
+    FILE *fp;
+    BPTR theLock;
     char buf[BUFSIZ];
 
     /* Try the default directory first.  Then look along PATH.
@@ -408,12 +313,15 @@ register const char *name, *mode;
     while (pp && *pp) {
         bp = buf;
         while (*pp && *pp != PATHSEP) {
-            if (bp > buf + BUFSIZ - 1)
+            if (bp >= buf + BUFSIZ - 1)
                 return (NULL);
             lastch = *bp++ = *pp++;
         }
-        if (lastch != ':' && lastch != '/' && bp != buf)
+        if (lastch != ':' && lastch != '/' && bp != buf) {
+            if (bp >= buf + BUFSIZ - 2)
+                return (NULL);
             *bp++ = '/';
+        }
         if (bp + strlen(name) > buf + BUFSIZ - 1)
             return (NULL);
         strcpy(bp, name);
@@ -442,7 +350,12 @@ register const char *name, *mode;
 
 static BPTR OrgDirLock = NO_LOCK;
 
-chdir(dir) char *dir;
+int
+chdir(
+#ifdef CROSS_TO_AMIGA
+      const
+#endif
+      char *dir)
 {
     extern char orgdir[];
 
@@ -479,7 +392,7 @@ chdir(dir) char *dir;
  */
 #undef exit
 void
-nethack_exit(code)
+nethack_exit(int code)
 {
 #ifdef CHDIR
     extern char orgdir[];
@@ -496,11 +409,11 @@ nethack_exit(code)
     exit(code);
 }
 
-void regularize(s) /* normalize file name - we don't like :'s or /'s */
-register char *s;
+void
+regularize(char *s) /* normalize file name - we don't like :'s or /'s */
 {
-    register char *lp;
+    char *lp;
 
-    while ((lp = index(s, ':')) || (lp = index(s, '/')))
+    while ((lp = strchr(s, ':')) || (lp = strchr(s, '/')))
         *lp = '_';
 }

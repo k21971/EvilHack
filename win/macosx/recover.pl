@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# NetHack 3.6  recover.pl $NHDT-Date: 1524684612 2018/04/25 19:30:12 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.12 $
+# NetHack 5.0  recover.pl $NHDT-Date: 1596498329 2020/08/03 23:45:29 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.13 $
 # Copyright (c) Kenneth Lorber, Kensington, Maryland, 2009
 # NetHack may be freely redistributed.  See license for details.
 
@@ -13,7 +13,7 @@ if(! -d $playground){
 	print "Cannot find playground $playground.";
 	exit 0
 }
-if(! -f "$playground/castle-?.lev" && ! -f "$playground/nhdat"){
+if(! -f "$playground/castle.lev" && ! -f "$playground/nhdat"){
 	print "Failed to find playground $playground.";
 	exit 0
 }

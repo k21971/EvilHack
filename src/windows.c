@@ -1,4 +1,4 @@
-/* NetHack 3.6	windows.c	$NHDT-Date: 1575245096 2019/12/02 00:04:56 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.60 $ */
+/* NetHack 5.0	windows.c	$NHDT-Date: 1781973074 2026/06/20 16:31:14 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.147 $ */
 /* Copyright (c) D. Cohrs, 1993. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -6,6 +6,7 @@
 #if defined (EXTRAINFO_FN) && defined(UNIX)
 #include <sys/stat.h>
 #endif
+#include "dlb.h"
 #ifdef TTY_GRAPHICS
 #include "wintty.h"
 #endif
@@ -16,76 +17,88 @@ extern struct window_procs curses_procs;
 /* Cannot just blindly include winX.h without including all of X11 stuff
    and must get the order of include files right.  Don't bother. */
 extern struct window_procs X11_procs;
-extern void FDECL(win_X11_init, (int));
+extern void win_X11_init(int);
 #endif
 #ifdef QT_GRAPHICS
 extern struct window_procs Qt_procs;
 #endif
 #ifdef GEM_GRAPHICS
-#include "wingem.h"
+/*#include "wingem.h"*/
 #endif
-#ifdef MAC
+#ifdef MAC68K
 extern struct window_procs mac_procs;
 #endif
 #ifdef BEOS_GRAPHICS
 extern struct window_procs beos_procs;
-extern void FDECL(be_win_init, (int));
+extern void be_win_init(int);
 FAIL /* be_win_init doesn't exist? XXX*/
 #endif
 #ifdef AMIGA_INTUITION
 extern struct window_procs amii_procs;
 extern struct window_procs amiv_procs;
-extern void FDECL(ami_wininit_data, (int));
-#endif
-#ifdef WIN32_GRAPHICS
-extern struct window_procs win32_procs;
+extern void ami_wininit_data(int);
 #endif
 #ifdef GNOME_GRAPHICS
-#include "winGnome.h"
+/*#include "winGnome.h"*/
 extern struct window_procs Gnome_procs;
 #endif
 #ifdef MSWIN_GRAPHICS
 extern struct window_procs mswin_procs;
 #endif
+#ifdef SHIM_GRAPHICS
+extern struct window_procs shim_procs;
+#endif
 #ifdef WINCHAIN
 extern struct window_procs chainin_procs;
-extern void FDECL(chainin_procs_init, (int));
-extern void *FDECL(chainin_procs_chain, (int, int, void *, void *, void *));
+extern void chainin_procs_init(int);
+extern void *chainin_procs_chain(int, int, void *, void *, void *);
 
 extern struct chain_procs chainout_procs;
-extern void FDECL(chainout_procs_init, (int));
-extern void *FDECL(chainout_procs_chain, (int, int, void *, void *, void *));
+extern void chainout_procs_init(int);
+extern void *chainout_procs_chain(int, int, void *, void *, void *);
 
 extern struct chain_procs trace_procs;
-extern void FDECL(trace_procs_init, (int));
-extern void *FDECL(trace_procs_chain, (int, int, void *, void *, void *));
+extern void trace_procs_init(int);
+extern void *trace_procs_chain(int, int, void *, void *, void *);
 #endif
 
-STATIC_DCL void FDECL(def_raw_print, (const char *s));
-STATIC_DCL void NDECL(def_wait_synch);
+#if defined(WINCHAIN) || defined(TTY_GRAPHICS)
+staticfn struct win_choices *win_choices_find(const char *s) NONNULLARG1;
+#endif
+
+staticfn void def_raw_print(const char *s) NONNULLARG1;
+staticfn void def_wait_synch(void);
+staticfn boolean get_menu_coloring(const char *, int *, int *) NONNULLPTRS;
 
 #if defined(DUMPLOG) || defined(DUMPHTML)
-STATIC_DCL winid FDECL(dump_create_nhwindow, (int));
-STATIC_DCL void FDECL(dump_clear_nhwindow, (winid));
-STATIC_DCL void FDECL(dump_display_nhwindow, (winid, BOOLEAN_P));
-STATIC_DCL void FDECL(dump_destroy_nhwindow, (winid));
-STATIC_DCL void FDECL(dump_start_menu, (winid));
-STATIC_DCL void FDECL(dump_add_menu, (winid, int, const ANY_P *, CHAR_P,
-                                      CHAR_P, int, const char *, BOOLEAN_P));
-STATIC_DCL void FDECL(dump_end_menu, (winid, const char *));
-STATIC_DCL int FDECL(dump_select_menu, (winid, int, MENU_ITEM_P **));
-STATIC_DCL void FDECL(dump_putstr, (winid, int, const char *));
-STATIC_DCL void FDECL(dump_status_update, (int, genericptr_t, int, int, int,
-                                           unsigned long *));
-STATIC_DCL void NDECL(dump_headers);
-STATIC_DCL void NDECL(dump_footers);
-STATIC_DCL void FDECL(dump_set_color_attr, (int, int, BOOLEAN_P));
+staticfn winid dump_create_nhwindow(int);
+staticfn void dump_clear_nhwindow(winid);
+staticfn void dump_display_nhwindow(winid, boolean);
+staticfn void dump_destroy_nhwindow(winid);
+staticfn void dump_start_menu(winid, unsigned long);
+staticfn void dump_add_menu(winid, const glyph_info *, const ANY_P *, char,
+                          char, int, int, const char *, unsigned int);
+staticfn void dump_end_menu(winid, const char *);
+staticfn int dump_select_menu(winid, int, MENU_ITEM_P **);
+staticfn void dump_putstr(winid, int, const char *);
 #ifdef DUMPHTML
-STATIC_DCL void NDECL(html_init_sym);
-STATIC_DCL void NDECL(dump_css);
-STATIC_DCL void FDECL(dump_outrip, (winid, int, time_t));
-#endif
-
+staticfn void html_write_tags(FILE *, int, boolean);
+staticfn void html_dump_char(FILE *, char);
+staticfn void html_dump_str(FILE *, const char *);
+staticfn void html_dump_line(FILE *, int, const char *);
+staticfn void dump_set_color_attr(int, int, boolean);
+staticfn void html_init_sym(void);
+staticfn unsigned mg_hl_attr(unsigned);
+staticfn int condcolor(long, unsigned long *);
+staticfn int condattr(long, unsigned long *);
+staticfn void dump_render_status(void);
+staticfn void dump_status_update(int, genericptr_t, int, int,
+                               int, unsigned long *);
+staticfn void dump_headers(void);
+staticfn void dump_footers(void);
+staticfn void dump_css(void);
+staticfn void dump_outrip(winid, int, time_t);
+#endif /* DUMPHTML */
 #endif /* DUMPLOG */
 
 #ifdef HANGUPHANDLING
@@ -101,9 +114,9 @@ volatile
 
 static struct win_choices {
     struct window_procs *procs;
-    void FDECL((*ini_routine), (int)); /* optional (can be 0) */
+    void (*ini_routine)(int); /* optional (can be 0) */
 #ifdef WINCHAIN
-    void *FDECL((*chain_routine), (int, int, void *, void *, void *));
+    void *(*chain_routine)(int, int, void *, void *, void *);
 #endif
 } winchoices[] = {
 #ifdef TTY_GRAPHICS
@@ -121,7 +134,7 @@ static struct win_choices {
 #ifdef GEM_GRAPHICS
     { &Gem_procs, win_Gem_init CHAINR(0) },
 #endif
-#ifdef MAC
+#ifdef MAC68K
     { &mac_procs, 0 CHAINR(0) },
 #endif
 #ifdef BEOS_GRAPHICS
@@ -133,14 +146,14 @@ static struct win_choices {
     { &amiv_procs,
       ami_wininit_data CHAINR(0) }, /* Tile version of the game */
 #endif
-#ifdef WIN32_GRAPHICS
-    { &win32_procs, 0 CHAINR(0) },
-#endif
 #ifdef GNOME_GRAPHICS
     { &Gnome_procs, 0 CHAINR(0) },
 #endif
 #ifdef MSWIN_GRAPHICS
     { &mswin_procs, 0 CHAINR(0) },
+#endif
+#ifdef SHIM_GRAPHICS
+    { &shim_procs, 0 CHAINR(0) },
 #endif
 #ifdef WINCHAIN
     { &chainin_procs, chainin_procs_init, chainin_procs_chain },
@@ -163,8 +176,8 @@ struct winlink {
 
 static struct winlink *chain = 0;
 
-static struct winlink *
-wl_new()
+staticfn struct winlink *
+wl_new(void)
 {
     struct winlink *wl = (struct winlink *) alloc(sizeof *wl);
 
@@ -175,13 +188,14 @@ wl_new()
     return wl;
 }
 
-static void
+staticfn void
 wl_addhead(struct winlink *wl)
 {
     wl->nextlink = chain;
     chain = wl;
 }
-static void
+
+staticfn void
 wl_addtail(struct winlink *wl)
 {
     struct winlink *p = chain;
@@ -198,31 +212,30 @@ wl_addtail(struct winlink *wl)
 }
 #endif /* WINCHAIN */
 
-static struct win_choices *last_winchoice = 0;
-
 boolean
-genl_can_suspend_no(VOID_ARGS)
+genl_can_suspend_no(void)
 {
     return FALSE;
 }
 
 boolean
-genl_can_suspend_yes(VOID_ARGS)
+genl_can_suspend_yes(void)
 {
     return TRUE;
 }
 
-STATIC_OVL
+staticfn
 void
-def_raw_print(s)
-const char *s;
+def_raw_print(const char *s)
 {
     puts(s);
+    if (*s)
+        iflags.raw_printed++;
 }
 
-STATIC_OVL
+staticfn
 void
-def_wait_synch(VOID_ARGS)
+def_wait_synch(void)
 {
     /* Config file error handling routines
      * call wait_sync() without checking to
@@ -236,10 +249,31 @@ def_wait_synch(VOID_ARGS)
      return;
 }
 
-#ifdef WINCHAIN
-static struct win_choices *
-win_choices_find(s)
-const char *s;
+#ifdef TTY_GRAPHICS
+boolean
+check_tty_wincap(unsigned long wincap)
+{
+    struct win_choices *wc = win_choices_find("tty");
+
+    if (wc)
+        return ((wc->procs->wincap & wincap) == wincap);
+    return FALSE;
+}
+
+boolean
+check_tty_wincap2(unsigned long wincap2)
+{
+    struct win_choices *wc = win_choices_find("tty");
+
+    if (wc)
+        return ((wc->procs->wincap2 & wincap2) == wincap2);
+    return FALSE;
+}
+#endif
+
+#if defined(WINCHAIN) || defined(TTY_GRAPHICS)
+staticfn struct win_choices *
+win_choices_find(const char *s)
 {
     int i;
 
@@ -253,8 +287,7 @@ const char *s;
 #endif
 
 void
-choose_windows(s)
-const char *s;
+choose_windows(const char *s)
 {
     int i;
     char *tmps = 0;
@@ -267,11 +300,11 @@ const char *s;
         if (!strcmpi(s, winchoices[i].procs->name)) {
             windowprocs = *winchoices[i].procs;
 
-            if (last_winchoice && last_winchoice->ini_routine)
-                (*last_winchoice->ini_routine)(WININIT_UNDO);
+            if (gl.last_winchoice && gl.last_winchoice->ini_routine)
+                (*gl.last_winchoice->ini_routine)(WININIT_UNDO);
             if (winchoices[i].ini_routine)
                 (*winchoices[i].ini_routine)(WININIT);
-            last_winchoice = &winchoices[i];
+            gl.last_winchoice = &winchoices[i];
             return;
         }
     }
@@ -323,15 +356,13 @@ const char *s;
     if (tmps)
         free((genericptr_t) tmps) /*, tmps = 0*/ ;
 
-    if (windowprocs.win_raw_print == def_raw_print
-            || WINDOWPORT("safe-startup"))
+    if (windowprocs.win_raw_print == def_raw_print)
         nh_terminate(EXIT_SUCCESS);
 }
 
 #ifdef WINCHAIN
 void
-addto_windowchain(s)
-const char *s;
+addto_windowchain(const char *s)
 {
     int i;
 
@@ -340,6 +371,7 @@ const char *s;
             continue;
         if (!strcmpi(s, winchoices[i].procs->name)) {
             struct winlink *p = wl_new();
+
             p->wincp = &winchoices[i];
             wl_addtail(p);
             /* NB: The ini_routine() will be called during commit. */
@@ -360,7 +392,7 @@ const char *s;
 }
 
 void
-commit_windowchain()
+commit_windowchain(void)
 {
     struct winlink *p;
     int n;
@@ -402,7 +434,7 @@ commit_windowchain()
                                               p->nextlink->linkdata);
         } else {
             (void) (*p->wincp->chain_routine)(WINCHAIN_INIT, n, p->linkdata,
-                                              last_winchoice->procs, 0);
+                                              gl.last_winchoice->procs, 0);
         }
     }
 
@@ -439,10 +471,9 @@ commit_windowchain()
  */
 /*ARGSUSED*/
 char
-genl_message_menu(let, how, mesg)
-char let UNUSED;
-int how UNUSED;
-const char *mesg;
+genl_message_menu(char let UNUSED,
+                  int how UNUSED,
+                  const char *mesg)
 {
     pline("%s", mesg);
     return 0;
@@ -450,8 +481,7 @@ const char *mesg;
 
 /*ARGSUSED*/
 void
-genl_preference_update(pref)
-const char *pref UNUSED;
+genl_preference_update(const char *pref UNUSED)
 {
     /* window ports are expected to provide
        their own preference update routine
@@ -462,8 +492,7 @@ const char *pref UNUSED;
 }
 
 char *
-genl_getmsghistory(init)
-boolean init UNUSED;
+genl_getmsghistory(boolean init UNUSED)
 {
     /* window ports can provide
        their own getmsghistory() routine to
@@ -480,9 +509,7 @@ boolean init UNUSED;
 }
 
 void
-genl_putmsghistory(msg, is_restoring)
-const char *msg;
-boolean is_restoring;
+genl_putmsghistory(const char *msg, boolean is_restoring)
 {
     /* window ports can provide
        their own putmsghistory() routine to
@@ -516,45 +543,49 @@ boolean is_restoring;
  * in order to avoid all terminal I/O after hangup/disconnect.
  */
 
-static int NDECL(hup_nhgetch);
-static char FDECL(hup_yn_function, (const char *, const char *, CHAR_P));
-static int FDECL(hup_nh_poskey, (int *, int *, int *));
-static void FDECL(hup_getlin, (const char *, char *));
-static void FDECL(hup_init_nhwindows, (int *, char **));
-static void FDECL(hup_exit_nhwindows, (const char *));
-static winid FDECL(hup_create_nhwindow, (int));
-static int FDECL(hup_select_menu, (winid, int, MENU_ITEM_P **));
-static void FDECL(hup_add_menu, (winid, int, const anything *, CHAR_P, CHAR_P,
-                                 int, const char *, BOOLEAN_P));
-static void FDECL(hup_end_menu, (winid, const char *));
-static void FDECL(hup_putstr, (winid, int, const char *));
-static void FDECL(hup_print_glyph, (winid, XCHAR_P, XCHAR_P, int, int));
-static void FDECL(hup_outrip, (winid, int, time_t));
-static void FDECL(hup_curs, (winid, int, int));
-static void FDECL(hup_display_nhwindow, (winid, BOOLEAN_P));
-static void FDECL(hup_display_file, (const char *, BOOLEAN_P));
+staticfn int hup_nhgetch(void);
+staticfn char hup_yn_function(const char *, const char *, char);
+staticfn int hup_nh_poskey(coordxy *, coordxy *, int *);
+staticfn void hup_getlin(const char *, char *);
+staticfn void hup_init_nhwindows(int *, char **);
+staticfn void hup_exit_nhwindows(const char *);
+staticfn winid hup_create_nhwindow(int);
+staticfn int hup_select_menu(winid, int, MENU_ITEM_P **);
+staticfn void hup_add_menu(winid, const glyph_info *, const anything *, char,
+                         char, int, int, const char *, unsigned int);
+staticfn void hup_end_menu(winid, const char *);
+staticfn void hup_putstr(winid, int, const char *);
+staticfn void hup_print_glyph(winid, coordxy, coordxy, const glyph_info *,
+                            const glyph_info *);
+staticfn void hup_outrip(winid, int, time_t);
+staticfn void hup_curs(winid, int, int);
+staticfn void hup_display_nhwindow(winid, boolean);
+staticfn void hup_display_file(const char *, boolean);
 #ifdef CLIPPING
-static void FDECL(hup_cliparound, (int, int));
+staticfn void hup_cliparound(int, int);
 #endif
 #ifdef CHANGE_COLOR
-static void FDECL(hup_change_color, (int, long, int));
-#ifdef MAC
-static short FDECL(hup_set_font_name, (winid, char *));
+staticfn void hup_change_color(int, long, int);
+#ifdef MAC68K
+staticfn short hup_set_font_name(winid, char *);
 #endif
-static char *NDECL(hup_get_color_string);
+staticfn char *hup_get_color_string(void);
 #endif /* CHANGE_COLOR */
-static void FDECL(hup_status_update, (int, genericptr_t, int, int, int,
-                                      unsigned long *));
+staticfn void hup_status_update(int, genericptr_t, int, int, int,
+                              unsigned long *);
 
-static int NDECL(hup_int_ndecl);
-static void NDECL(hup_void_ndecl);
-static void FDECL(hup_void_fdecl_int, (int));
-static void FDECL(hup_void_fdecl_winid, (winid));
-static void FDECL(hup_void_fdecl_constchar_p, (const char *));
+staticfn int hup_int_ndecl(void);
+staticfn void hup_void_ndecl(void);
+staticfn void hup_void_fdecl_int(int);
+staticfn void hup_void_fdecl_winid(winid);
+staticfn void hup_void_fdecl_winid_ulong(winid, unsigned long);
+staticfn void hup_void_fdecl_constchar_p(const char *);
+staticfn win_request_info *hup_ctrl_nhwindow(winid, int, win_request_info *);
 
 static struct window_procs hup_procs = {
-    "hup", 0L, 0L,
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    WPID(hup), 0L, 0L,
+    { FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+      FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE }, /* colors */
     hup_init_nhwindows,
     hup_void_ndecl,                                    /* player_selection */
     hup_void_ndecl,                                    /* askname */
@@ -564,17 +595,15 @@ static struct window_procs hup_procs = {
     hup_create_nhwindow, hup_void_fdecl_winid,         /* clear_nhwindow */
     hup_display_nhwindow, hup_void_fdecl_winid,        /* destroy_nhwindow */
     hup_curs, hup_putstr, hup_putstr,                  /* putmixed */
-    hup_display_file, hup_void_fdecl_winid,            /* start_menu */
+    hup_display_file, hup_void_fdecl_winid_ulong,      /* start_menu */
     hup_add_menu, hup_end_menu, hup_select_menu, genl_message_menu,
-    hup_void_ndecl,                                    /* update_inventory */
     hup_void_ndecl,                                    /* mark_synch */
     hup_void_ndecl,                                    /* wait_synch */
 #ifdef CLIPPING
     hup_cliparound,
 #endif
 #ifdef POSITIONBAR
-    (void FDECL((*), (char *))) hup_void_fdecl_constchar_p,
-                                                      /* update_positionbar */
+    (void (*)(char *)) hup_void_fdecl_constchar_p,    /* update_positionbar */
 #endif
     hup_print_glyph,
     hup_void_fdecl_constchar_p,                       /* raw_print */
@@ -583,32 +612,32 @@ static struct window_procs hup_procs = {
     hup_int_ndecl,                                    /* doprev_message */
     hup_yn_function, hup_getlin, hup_int_ndecl,       /* get_ext_cmd */
     hup_void_fdecl_int,                               /* number_pad */
-    hup_void_ndecl,                                   /* delay_output  */
+    hup_void_ndecl,                                   /* nh_delay_output  */
 #ifdef CHANGE_COLOR
     hup_change_color,
-#ifdef MAC
+#ifdef MAC68K
     hup_void_fdecl_int,                               /* change_background */
     hup_set_font_name,
 #endif
     hup_get_color_string,
 #endif /* CHANGE_COLOR */
-    hup_void_ndecl,                                   /* start_screen */
-    hup_void_ndecl,                                   /* end_screen */
     hup_outrip, genl_preference_update, genl_getmsghistory,
     genl_putmsghistory,
     hup_void_ndecl,                                   /* status_init */
     hup_void_ndecl,                                   /* status_finish */
     genl_status_enablefield, hup_status_update,
     genl_can_suspend_no,
+    hup_void_fdecl_int,                               /* update_inventory */
+    hup_ctrl_nhwindow,
 };
 
-static void FDECL((*previnterface_exit_nhwindows), (const char *)) = 0;
+static void (*previnterface_exit_nhwindows)(const char *) = 0;
 
 /* hangup has occurred; switch to no-op user interface */
 void
-nhwindows_hangup()
+nhwindows_hangup(void)
 {
-    char *FDECL((*previnterface_getmsghistory), (BOOLEAN_P)) = 0;
+    char *(*previnterface_getmsghistory)(boolean) = 0;
 
 #ifdef ALTMETA
     /* command processor shouldn't look for 2nd char after seeing ESC */
@@ -633,9 +662,8 @@ nhwindows_hangup()
         windowprocs.win_getmsghistory = previnterface_getmsghistory;
 }
 
-static void
-hup_exit_nhwindows(lastgasp)
-const char *lastgasp;
+staticfn void
+hup_exit_nhwindows(const char *lastgasp)
 {
     /* core has called exit_nhwindows(); call the previous interface's
        shutdown routine now; xxx_exit_nhwindows() needs to call other
@@ -645,20 +673,21 @@ const char *lastgasp;
         (*previnterface_exit_nhwindows)(lastgasp);
         previnterface_exit_nhwindows = 0;
     }
-    iflags.window_inited = 0;
+    iflags.window_inited = FALSE;
 }
 
-static int
-hup_nhgetch(VOID_ARGS)
+staticfn int
+hup_nhgetch(void)
 {
     return '\033'; /* ESC */
 }
 
 /*ARGSUSED*/
-static char
-hup_yn_function(prompt, resp, deflt)
-const char *prompt UNUSED, *resp UNUSED;
-char deflt;
+staticfn char
+hup_yn_function(
+    const char *prompt UNUSED,
+    const char *resp UNUSED,
+    char deflt)
 {
     if (!deflt)
         deflt = '\033';
@@ -666,134 +695,116 @@ char deflt;
 }
 
 /*ARGSUSED*/
-static int
-hup_nh_poskey(x, y, mod)
-int *x UNUSED, *y UNUSED, *mod UNUSED;
+staticfn int
+hup_nh_poskey(coordxy *x UNUSED, coordxy *y UNUSED, int *mod UNUSED)
 {
     return '\033';
 }
 
 /*ARGSUSED*/
-static void
-hup_getlin(prompt, outbuf)
-const char *prompt UNUSED;
-char *outbuf;
+staticfn void
+hup_getlin(const char *prompt UNUSED, char *outbuf)
 {
     Strcpy(outbuf, "\033");
 }
 
 /*ARGSUSED*/
-static void
-hup_init_nhwindows(argc_p, argv)
-int *argc_p UNUSED;
-char **argv UNUSED;
+staticfn void
+hup_init_nhwindows(int *argc_p UNUSED, char **argv UNUSED)
 {
-    iflags.window_inited = 1;
+    iflags.window_inited = TRUE;
 }
 
 /*ARGUSED*/
-static winid
-hup_create_nhwindow(type)
-int type UNUSED;
+staticfn winid
+hup_create_nhwindow(int type UNUSED)
 {
     return WIN_ERR;
 }
 
 /*ARGSUSED*/
-static int
-hup_select_menu(window, how, menu_list)
-winid window UNUSED;
-int how UNUSED;
-struct mi **menu_list UNUSED;
+staticfn int
+hup_select_menu(
+    winid window UNUSED,
+    int how UNUSED,
+    struct mi **menu_list UNUSED)
 {
     return -1;
 }
 
 /*ARGSUSED*/
-static void
-hup_add_menu(window, glyph, identifier, sel, grpsel, attr, txt, preselected)
-winid window UNUSED;
-int glyph UNUSED, attr UNUSED;
-const anything *identifier UNUSED;
-char sel UNUSED, grpsel UNUSED;
-const char *txt UNUSED;
-boolean preselected UNUSED;
+staticfn void
+hup_add_menu(
+    winid window UNUSED,
+    const glyph_info *glyphinfo UNUSED,
+    const anything *identifier UNUSED,
+    char sel UNUSED,
+    char grpsel UNUSED,
+    int attr UNUSED,
+    int clr UNUSED,
+    const char *txt UNUSED,
+    unsigned int itemflags UNUSED)
 {
     return;
 }
 
 /*ARGSUSED*/
-static void
-hup_end_menu(window, prompt)
-winid window UNUSED;
-const char *prompt UNUSED;
+staticfn void
+hup_end_menu(winid window UNUSED, const char *prompt UNUSED)
 {
     return;
 }
 
 /*ARGSUSED*/
-static void
-hup_putstr(window, attr, text)
-winid window UNUSED;
-int attr UNUSED;
-const char *text UNUSED;
+staticfn void
+hup_putstr(winid window UNUSED, int attr UNUSED, const char *text UNUSED)
 {
     return;
 }
 
 /*ARGSUSED*/
-static void
-hup_print_glyph(window, x, y, glyph, bkglyph)
-winid window UNUSED;
-xchar x UNUSED, y UNUSED;
-int glyph UNUSED;
-int bkglyph UNUSED;
+staticfn void
+hup_print_glyph(
+    winid window UNUSED,
+    coordxy x UNUSED, coordxy y UNUSED,
+    const glyph_info *glyphinfo UNUSED,
+    const glyph_info *bkglyphinfo UNUSED)
 {
     return;
 }
 
 /*ARGSUSED*/
-static void
-hup_outrip(tmpwin, how, when)
-winid tmpwin UNUSED;
-int how UNUSED;
-time_t when UNUSED;
+staticfn void
+hup_outrip(winid tmpwin UNUSED, int how UNUSED, time_t when UNUSED)
 {
     return;
 }
 
 /*ARGSUSED*/
-static void
-hup_curs(window, x, y)
-winid window UNUSED;
-int x UNUSED, y UNUSED;
+staticfn void
+hup_curs(winid window UNUSED, int x UNUSED, int y UNUSED)
 {
     return;
 }
 
 /*ARGSUSED*/
-static void
-hup_display_nhwindow(window, blocking)
-winid window UNUSED;
-boolean blocking UNUSED;
+staticfn void
+hup_display_nhwindow(winid window UNUSED, boolean blocking UNUSED)
 {
     return;
 }
 
 /*ARGSUSED*/
-static void
-hup_display_file(fname, complain)
-const char *fname UNUSED;
-boolean complain UNUSED;
+staticfn void
+hup_display_file(const char *fname UNUSED, boolean complain UNUSED)
 {
     return;
 }
 
 #ifdef CLIPPING
 /*ARGSUSED*/
-static void
-hup_cliparound(x, y)
-int x UNUSED, y UNUSED;
+staticfn void
+hup_cliparound(int x UNUSED, int y UNUSED)
 {
     return;
 }
@@ -801,40 +812,34 @@ int x UNUSED, y UNUSED;
 
 #ifdef CHANGE_COLOR
 /*ARGSUSED*/
-static void
-hup_change_color(color, rgb, reverse)
-int color, reverse;
-long rgb;
+staticfn void
+hup_change_color(int color UNUSED, long rgb UNUSED, int reverse UNUSED)
 {
     return;
 }
 
-#ifdef MAC
+#ifdef MAC68K
 /*ARGSUSED*/
-static short
-hup_set_font_name(window, fontname)
-winid window;
-char *fontname;
+staticfn short
+hup_set_font_name(winid window UNUSED, char *fontname UNUSED)
 {
     return 0;
 }
-#endif /* MAC */
+#endif /* MAC68K */
 
-static char *
-hup_get_color_string(VOID_ARGS)
+staticfn char *
+hup_get_color_string(void)
 {
     return (char *) 0;
 }
 #endif /* CHANGE_COLOR */
 
 /*ARGSUSED*/
-static void
-hup_status_update(idx, ptr, chg, pc, color, colormasks)
-int idx UNUSED;
-genericptr_t ptr UNUSED;
-int chg UNUSED, pc UNUSED, color UNUSED;
-unsigned long *colormasks UNUSED;
-
+staticfn void
+hup_status_update(
+    int idx UNUSED, genericptr_t ptr UNUSED,
+    int chg UNUSED, int pc UNUSED,
+    int color UNUSED, unsigned long *colormasks UNUSED)
 {
     return;
 }
@@ -843,40 +848,56 @@ unsigned long *colormasks UNUSED;
  * Non-specific stubs.
  */
 
-static int
-hup_int_ndecl(VOID_ARGS)
+staticfn int
+hup_int_ndecl(void)
 {
     return -1;
 }
 
-static void
-hup_void_ndecl(VOID_ARGS)
+staticfn void
+hup_void_ndecl(void)
 {
     return;
 }
 
 /*ARGUSED*/
-static void
-hup_void_fdecl_int(arg)
-int arg UNUSED;
+staticfn void
+hup_void_fdecl_int(int arg UNUSED)
 {
     return;
 }
 
 /*ARGUSED*/
-static void
-hup_void_fdecl_winid(window)
-winid window UNUSED;
+staticfn void
+hup_void_fdecl_winid(winid window UNUSED)
 {
     return;
 }
 
 /*ARGUSED*/
-static void
-hup_void_fdecl_constchar_p(string)
-const char *string UNUSED;
+staticfn void
+hup_void_fdecl_winid_ulong(
+    winid window UNUSED,
+    unsigned long mbehavior UNUSED)
 {
     return;
+}
+
+/*ARGUSED*/
+staticfn void
+hup_void_fdecl_constchar_p(const char *string UNUSED)
+{
+    return;
+}
+
+/*ARGUSED*/
+win_request_info *
+hup_ctrl_nhwindow(
+    winid window UNUSED,  /* window to use, must be of type NHW_MENU */
+    int request UNUSED,
+    win_request_info *wri UNUSED)
+{
+    return (win_request_info *) 0;
 }
 
 #endif /* HANGUPHANDLING */
@@ -891,15 +912,11 @@ char *status_vals[MAXBLSTATS];
 boolean status_activefields[MAXBLSTATS];
 
 void
-genl_status_init()
+genl_status_init(void)
 {
     int i;
 
     for (i = 0; i < MAXBLSTATS; ++i) {
-        /* free first in case status_initialize() runs twice (botl.c warns
-           but doesn't bail on a 2nd full-init call) */
-        if (status_vals[i])
-            free((genericptr_t) status_vals[i]);
         status_vals[i] = (char *) alloc(MAXCO);
         *status_vals[i] = '\0';
         status_activefields[i] = FALSE;
@@ -911,7 +928,7 @@ genl_status_init()
 }
 
 void
-genl_status_finish()
+genl_status_finish(void)
 {
     /* tear down routine */
     int i;
@@ -924,24 +941,26 @@ genl_status_finish()
 }
 
 void
-genl_status_enablefield(fieldidx, nm, fmt, enable)
-int fieldidx;
-const char *nm;
-const char *fmt;
-boolean enable;
+genl_status_enablefield(
+    int fieldidx,
+    const char *nm,
+    const char *fmt,
+    boolean enable)
 {
     status_fieldfmt[fieldidx] = fmt;
     status_fieldnm[fieldidx] = nm;
     status_activefields[fieldidx] = enable;
 }
 
+DISABLE_WARNING_FORMAT_NONLITERAL
+
 /* call once for each field, then call with BL_FLUSH to output the result */
 void
-genl_status_update(idx, ptr, chg, percent, color, colormasks)
-int idx;
-genericptr_t ptr;
-int chg UNUSED, percent UNUSED, color UNUSED;
-unsigned long *colormasks UNUSED;
+genl_status_update(
+    int idx,
+    genericptr_t ptr,
+    int chg UNUSED, int percent UNUSED,
+    int color UNUSED, unsigned long *colormasks UNUSED)
 {
     char newbot1[MAXCO], newbot2[MAXCO];
     long cond, *condptr = (long *) ptr;
@@ -950,34 +969,33 @@ unsigned long *colormasks UNUSED;
     enum statusfields idx1, idx2, *fieldlist;
     char *nb, *text = (char *) ptr;
 
-    static enum statusfields fieldorder[][18] = {
+    static enum statusfields fieldorder[][15] = {
         /* line one */
         { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_ALIGN,
           BL_SCORE, BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH,
-          BL_FLUSH, BL_FLUSH },
+          BL_FLUSH },
         /* line two, default order */
         { BL_LEVELDESC, BL_GOLD,
-          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC, BL_MC, BL_TOHIT,
+          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
           BL_XP, BL_EXP, BL_HD,
-          BL_TIME, BL_REALTIME,
+          BL_TIME,
           BL_HUNGER, BL_CAP, BL_CONDITION,
           BL_FLUSH },
         /* move time to the end */
         { BL_LEVELDESC, BL_GOLD,
-          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC, BL_MC, BL_TOHIT,
+          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
           BL_XP, BL_EXP, BL_HD,
           BL_HUNGER, BL_CAP, BL_CONDITION,
-          BL_TIME, BL_REALTIME, BL_FLUSH },
+          BL_TIME, BL_FLUSH },
         /* move experience and time to the end */
         { BL_LEVELDESC, BL_GOLD,
-          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC, BL_MC, BL_TOHIT,
+          BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
           BL_HUNGER, BL_CAP, BL_CONDITION,
-          BL_XP, BL_EXP, BL_HD, BL_TIME, BL_REALTIME, BL_FLUSH },
+          BL_XP, BL_EXP, BL_HD, BL_TIME, BL_FLUSH },
         /* move level description plus gold and experience and time to end */
-        { BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC, BL_MC, BL_TOHIT,
+        { BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX, BL_AC,
           BL_HUNGER, BL_CAP, BL_CONDITION,
-          BL_LEVELDESC, BL_GOLD, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_REALTIME,
-          BL_FLUSH },
+          BL_LEVELDESC, BL_GOLD, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_FLUSH },
     };
 
     /* in case interface is using genl_status_update() but has not
@@ -1003,8 +1021,6 @@ unsigned long *colormasks UNUSED;
                 Strcpy(nb = eos(nb), " FoodPois");
             if (cond & BL_MASK_TERMILL)
                 Strcpy(nb = eos(nb), " TermIll");
-            if (cond & BL_MASK_WITHER)
-                Strcpy(nb = eos(nb), " Wither");
             if (cond & BL_MASK_BLIND)
                 Strcpy(nb = eos(nb), " Blind");
             if (cond & BL_MASK_DEAF)
@@ -1021,10 +1037,6 @@ unsigned long *colormasks UNUSED;
                 Strcpy(nb = eos(nb), " Fly");
             if (cond & BL_MASK_RIDE)
                 Strcpy(nb = eos(nb), " Ride");
-            if (cond & BL_MASK_SLOW)
-                Strcpy(nb = eos(nb), " Slow");
-            if (cond & BL_MASK_PHASING)
-                Strcpy(nb = eos(nb), " Phasing");
             break;
         default:
             Sprintf(status_vals[idx],
@@ -1051,15 +1063,10 @@ unsigned long *colormasks UNUSED;
         if (status_activefields[idx1])
             Strcpy(nb = eos(nb), status_vals[idx1]);
     }
-    if (strlen(newbot1) >= sizeof newbot1 - 1)
-        impossible("genl_status_update: line 1 overflow");
-    /* if '$' is encoded, buffer length of \GXXXXNNNN (10 chars) is
-       ENCGLYPH_DELTA greater than the rendered single char; subtract
-       that delta when checking display length */
-#define ENCGLYPH_DELTA 9
+    /* if '$' is encoded, buffer length of \GXXXXNNNN is 9 greater than
+       single char; we want to subtract that 9 when checking display length */
     lndelta = (status_activefields[BL_GOLD]
-               && strstr(status_vals[BL_GOLD], "\\G")) ? ENCGLYPH_DELTA : 0;
-#undef ENCGLYPH_DELTA
+               && strstr(status_vals[BL_GOLD], "\\G")) ? 9 : 0;
     /* basic bot2 formats groups of second line fields into five buffers,
        then decides how to order those buffers based on comparing lengths
        of [sub]sets of them to the width of the map; we have more control
@@ -1076,7 +1083,7 @@ unsigned long *colormasks UNUSED;
                 case BL_HP: /* for pass 4, Hp comes first; mungspaces()
                                will strip the unwanted leading spaces */
                 case BL_XP: case BL_HD:
-                case BL_TIME: case BL_REALTIME:
+                case BL_TIME:
                     Strcpy(nb = eos(nb), " ");
                     break;
                 case BL_LEVELDESC:
@@ -1123,33 +1130,30 @@ unsigned long *colormasks UNUSED;
             break;
         }
     } /* pass */
-    if (strlen(newbot2) >= sizeof newbot2 - 1)
-        impossible("genl_status_update: line 2 overflow");
     curs(WIN_STATUS, 1, 0);
     putstr(WIN_STATUS, 0, newbot1);
     curs(WIN_STATUS, 1, 1);
     putmixed(WIN_STATUS, 0, newbot2); /* putmixed() due to GOLD glyph */
 }
 
-/*************/
-/* DUMP LOGS */
-/*************/
-STATIC_VAR struct window_procs dumplog_windowprocs_backup;
-STATIC_VAR int menu_headings_backup;
+RESTORE_WARNING_FORMAT_NONLITERAL
 
-STATIC_VAR FILE *dumplog_file;
-STATIC_VAR FILE *dumphtml_file;
+static struct window_procs dumplog_windowprocs_backup;
+static int menu_headings_backup;
+
+static FILE *dumplog_file;
+static FILE *dumphtml_file;
 
 #if defined(DUMPLOG) || defined(DUMPHTML)
-STATIC_VAR time_t dumplog_now;
+static time_t dumplog_now;
 
 char *
-dump_fmtstr(fmt, buf, fullsubs)
-const char *fmt;
-char *buf;
-boolean fullsubs; /* True -> full substitution for file name, False ->
-                   * partial substitution for '--showpaths' feedback
-                   * where there's no game in progress when executed */
+dump_fmtstr(
+    const char *fmt,
+    char *buf,
+    boolean fullsubs) /* True -> full substitution for file name,
+                       * False -> partial substitution for '--showpaths'
+                       * feedback where there's no game in progress */
 {
     const char *fp = fmt;
     char *bp = buf;
@@ -1207,21 +1211,22 @@ boolean fullsubs; /* True -> full substitution for file name, False ->
                 else
                     Strcpy(tmpbuf, "{current date+time}");
                 break;
-            case 'v': /* version, eg. "3.6.5-0" */
-                Sprintf(tmpbuf, "%s", version_string(verbuf));
+            case 'v': /* version, eg. "5.0.0,-0" */
+                Sprintf(tmpbuf, "%s", version_string(verbuf, sizeof verbuf));
                 break;
             case 'u': /* UID */
                 Sprintf(tmpbuf, "%ld", uid);
                 break;
             case 'n': /* player name */
                 if (fullsubs)
-                    Sprintf(tmpbuf, "%s", *plname ? plname : "unknown");
+                    Sprintf(tmpbuf, "%s",
+                            *svp.plname ? svp.plname : "unknown");
                 else
                     Strcpy(tmpbuf, "{hero name}");
                 break;
             case 'N': /* first character of player name */
                 if (fullsubs)
-                    Sprintf(tmpbuf, "%c", *plname ? *plname : 'u');
+                    Sprintf(tmpbuf, "%c", *svp.plname ? *svp.plname : 'u');
                 else
                     Strcpy(tmpbuf, "{hero initial}");
                 break;
@@ -1300,17 +1305,14 @@ boolean fullsubs; /* True -> full substitution for file name, False ->
    then delimit the item with <li></li>
    for preformatted text, we don't mess with any existing bullet list, but try to
    keep consecutive preformatted strings in a single block.  */
-STATIC_OVL
 void
-html_write_tags(fp, win, attr, before)
-FILE *fp;
-winid win;
-int attr;
-boolean before; /* Tags before/after string */
+html_write_tags(
+    FILE *fp,
+    int attr,
+    boolean before) /* Tags before/after string */
 {
     static boolean in_list = FALSE;
     static boolean in_preform = FALSE;
-
     if (!fp)
         return;
     if (before) { /* before next string is written,
@@ -1327,7 +1329,7 @@ boolean before; /* Tags before/after string */
             fprintf(fp, PREF_E);
             in_preform = FALSE;
         }
-        if (!(attr & (ATR_HEADING | ATR_SUBHEAD)) && win == NHW_MENU) {
+        if (!(attr & (ATR_HEADING | ATR_SUBHEAD)) && gd.dumping_list) {
             /* This is a bullet point */
             if (!in_list) {
                 fprintf(fp, "%s\n", LIST_S);
@@ -1346,7 +1348,7 @@ boolean before; /* Tags before/after string */
     }
     /* after string is written */
     if (in_preform) {
-        fprintf(fp, LINEBREAK); /* preform still gets <br /> at end of line */
+        fprintf(fp, LINEBREAK); /* preform still gets <br> at end of line */
         return; /* don't write </pre> until we get the next thing */
     }
     if (in_list) {
@@ -1358,10 +1360,10 @@ boolean before; /* Tags before/after string */
 }
 
 /* Write HTML-escaped char to a file */
-STATIC_OVL void
-html_dump_char(fp, c)
-FILE *fp;
-char c;
+void
+html_dump_char(
+    FILE *fp,
+    char c)
 {
     if (!fp)
         return;
@@ -1390,70 +1392,60 @@ char c;
 }
 
 /* Write HTML-escaped string to a file */
-STATIC_OVL void
-html_dump_str(fp, str)
-FILE *fp;
-const char *str;
+void
+html_dump_str(
+    FILE *fp,
+    const char *str)
 {
     const char *p;
-
     if (!fp)
         return;
-    if (!str)
-        str = "";
-
     for (p = str; *p; p++)
         html_dump_char(fp, *p);
 }
 
-STATIC_OVL void
-html_dump_line(fp, win, attr, str)
-FILE *fp;
-winid win;
-int attr;
-const char *str;
+void
+html_dump_line(
+    FILE *fp,
+    int attr,
+    const char *str)
 {
-    if (!str)
-        str = "";
     if (strlen(str) == 0) {
        /* if it's a blank line, just print a blank line */
        fprintf(fp, "%s\n", LINEBREAK);
        return;
     }
-    html_write_tags(fp, win, attr, TRUE);
+    html_write_tags(fp, attr, TRUE);
     html_dump_str(fp, str);
-    html_write_tags(fp, win, attr, FALSE);
+    html_write_tags(fp, attr, FALSE);
 }
-
-#endif
 
 /** HTML Map and status bar (collectively, the 'screendump') **/
 
 void
-dump_start_screendump()
+dump_start_screendump(void)
 {
-#ifdef DUMPHTML
     if (!dumphtml_file)
         return;
     html_init_sym();
     fprintf(dumphtml_file, "<pre class=\"nh_screen\">\n");
-#endif
 }
 
 void
-dump_end_screendump()
+dump_end_screendump(void)
 {
-#ifdef DUMPHTML
     if (dumphtml_file)
         fprintf(dumphtml_file, "%s\n", PREF_E);
-#endif
 }
 
+#endif /* DUMPHTML */
+
 /* Status and map highlighting */
-STATIC_OVL void
-dump_set_color_attr(coloridx, attrmask, onoff)
-int coloridx, attrmask;
-boolean onoff;
+void
+dump_set_color_attr(
+    int coloridx,
+    int  attrmask,
+    boolean onoff)
 {
 #ifdef DUMPHTML
     if (!dumphtml_file)
@@ -1465,18 +1457,9 @@ boolean onoff;
             fprintf(dumphtml_file, UNDL_S);
         if (attrmask & HL_BLINK)
             fprintf(dumphtml_file, BLNK_S);
-        if (attrmask & HL_INVERSE) {
-            /* the nh_inv_N CSS classes only cover the base-16 palette;
-               render an extended 256-color inverse as an inline
-               colored background instead */
-            if (IS_EXT_COLOR(coloridx))
-                fprintf(dumphtml_file,
-                        "<span style=\"color:#000;background-color:#%06lX;\">",
-                        extcolor_256_rgb(coloridx));
-            else
-                fprintf(dumphtml_file, "<span class=\"nh_inv_%d\">",
-                        coloridx);
-        } else if (coloridx != NO_COLOR)
+        if (attrmask & HL_INVERSE)
+            fprintf(dumphtml_file, "<span class=\"nh_inv_%d\">", coloridx);
+        else if (coloridx != NO_COLOR)
             fprintf(dumphtml_file, "<span class=\"nh_color_%d\">", coloridx);
         /* ignore HL_DIM */
     } else {
@@ -1494,75 +1477,52 @@ boolean onoff;
     nhUse(coloridx);
     nhUse(attrmask);
     nhUse(onoff);
-#endif
+#endif /* DUMPHTML */
 }
 
 #ifdef DUMPHTML
 /** HTML Map **/
 
 /* Construct a symset for HTML line-drawing symbols.
-   Uses Unicode codepoints as HTML numeric character references
-   (&#NNNN;) indexed by MAXPCHARS symbol offset */
+   dat/symbols can't be used here because nhsym is uchar,
+   and we require 16 bit values */
 
 static int htmlsym[SYM_MAX] = DUMMY;
 
-STATIC_OVL void
-html_init_sym()
+void
+html_init_sym(void)
 {
     /* see https://html-css-js.com/html/character-codes/drawing/ */
 
-    /* Walls and structural */
-    htmlsym[S_vwall] = 9474;        /* U+2502 BOX LIGHT VERTICAL */
-    htmlsym[S_hwall] = 9472;        /* U+2500 BOX LIGHT HORIZONTAL */
-    htmlsym[S_tlcorn] = 9484;       /* U+250C BOX LIGHT DOWN AND RIGHT */
-    htmlsym[S_trcorn] = 9488;       /* U+2510 BOX LIGHT DOWN AND LEFT */
-    htmlsym[S_blcorn] = 9492;       /* U+2514 BOX LIGHT UP AND RIGHT */
-    htmlsym[S_brcorn] = 9496;       /* U+2518 BOX LIGHT UP AND LEFT */
-    htmlsym[S_crwall] = 9532;       /* U+253C BOX LIGHT VERT AND HORIZ */
-    htmlsym[S_tuwall] = 9524;       /* U+2534 BOX LIGHT UP AND HORIZ */
-    htmlsym[S_tdwall] = 9516;       /* U+252C BOX LIGHT DOWN AND HORIZ */
-    htmlsym[S_tlwall] = 9508;       /* U+2524 BOX LIGHT VERT AND LEFT */
-    htmlsym[S_trwall] = 9500;       /* U+251C BOX LIGHT VERT AND RIGHT */
-    /* Doors */
-    htmlsym[S_ndoor] = 183;         /* U+00B7 MIDDLE DOT */
-    htmlsym[S_vodoor] = 9632;       /* U+25A0 BLACK SQUARE */
-    htmlsym[S_hodoor] = 9632;       /* U+25A0 BLACK SQUARE */
-    /* Features */
-    htmlsym[S_bars] = 8801;         /* U+2261 IDENTICAL TO */
-    htmlsym[S_tree] = 936;          /* U+03A8 GREEK CAPITAL LETTER PSI */
-    htmlsym[S_deadtree] = 936;      /* U+03A8 GREEK CAPITAL LETTER PSI */
-    htmlsym[S_altar] = 937;         /* U+03A9 GREEK CAPITAL LETTER OMEGA */
-    htmlsym[S_grave] = 8224;        /* U+2020 DAGGER */
-    htmlsym[S_room] = 183;          /* U+00B7 MIDDLE DOT */
-    htmlsym[S_corr] = 9617;         /* U+2591 LIGHT SHADE */
-    htmlsym[S_litcorr] = 9618;      /* U+2592 MEDIUM SHADE */
-    htmlsym[S_sink] = 8992;         /* U+2320 TOP HALF INTEGRAL */
-    htmlsym[S_forge] = 8992;        /* U+2320 TOP HALF INTEGRAL */
-    htmlsym[S_magic_chest] = 8962;  /* U+2302 HOUSE */
-    htmlsym[S_fountain] = 8992;     /* U+2320 TOP HALF INTEGRAL */
-    /* Liquids */
-    htmlsym[S_pool] = 8776;         /* U+2248 ALMOST EQUAL TO */
-    htmlsym[S_ice] = 183;           /* U+00B7 MIDDLE DOT */
-    htmlsym[S_grass] = 183;         /* U+00B7 MIDDLE DOT */
-    htmlsym[S_sand] = 183;          /* U+00B7 MIDDLE DOT */
-    htmlsym[S_lava] = 8776;         /* U+2248 ALMOST EQUAL TO */
-    htmlsym[S_puddle] = 8776;       /* U+2248 ALMOST EQUAL TO */
-    htmlsym[S_sewage] = 8776;       /* U+2248 ALMOST EQUAL TO */
-    htmlsym[S_water] = 8776;        /* U+2248 ALMOST EQUAL TO */
-    /* Beams and effects */
-    htmlsym[S_vbeam] = 9474;        /* U+2502 BOX LIGHT VERTICAL */
-    htmlsym[S_hbeam] = 9472;        /* U+2500 BOX LIGHT HORIZONTAL */
-    htmlsym[S_sw_ml] = 9474;        /* U+2502 BOX LIGHT VERTICAL */
-    htmlsym[S_sw_mr] = 9474;        /* U+2502 BOX LIGHT VERTICAL */
-    htmlsym[S_explode4] = 9474;     /* U+2502 BOX LIGHT VERTICAL */
-    htmlsym[S_explode6] = 9474;     /* U+2502 BOX LIGHT VERTICAL */
+    /* Minimal set, based on IBMGraphics_1 set.
+       Add more as required. */
+    htmlsym[S_vwall] = 9474;
+    htmlsym[S_hwall] = 9472;
+    htmlsym[S_tlcorn] = 9484;
+    htmlsym[S_trcorn] = 9488;
+    htmlsym[S_blcorn] = 9492;
+    htmlsym[S_brcorn] = 9496;
+    htmlsym[S_crwall] = 9532;
+    htmlsym[S_tuwall] = 9524;
+    htmlsym[S_tdwall] = 9516;
+    htmlsym[S_tlwall] = 9508;
+    htmlsym[S_trwall] = 9500;
+    htmlsym[S_vbeam] = 9474;
+    htmlsym[S_hbeam] = 9472;
+    htmlsym[S_sw_ml] = 9474;
+    htmlsym[S_sw_mr] = 9474;
+    htmlsym[S_expl_ml] = 9474;
+    htmlsym[S_expl_mr] = 9474;
+    /* and some extras */
+    htmlsym[S_corr] = 9617;
+    htmlsym[S_litcorr] = 9618;
+    htmlsym[S_fountain] = 8992;
 }
 
 /* convert 'special' flags returned from mapglyph to
   highlight attrs (currently just inverse) */
-STATIC_OVL unsigned
-mg_hl_attr(special)
-unsigned special;
+unsigned
+mg_hl_attr(unsigned special)
 {
     unsigned hl = 0;
     if ((special & MG_PET) && iflags.hilite_pet)
@@ -1573,67 +1533,57 @@ unsigned special;
         hl |= HL_INVERSE;
     if ((special & MG_BW_LAVA) && iflags.use_inverse)
         hl |= HL_INVERSE;
-    if ((special & MG_STAIRS) && iflags.hilite_hidden_stairs)
-        hl |= HL_INVERSE;
-    if ((special & MG_PEACEFUL) && iflags.underline_peacefuls)
-        hl |= HL_ULINE;
-    if (special & MG_RIDDEN)
-        hl |= HL_INVERSE;
     return hl;
 }
 
 void
-html_dump_glyph(x, y, glyph, sym, ch, color, special)
-int x, y, glyph, sym, ch, color;
-unsigned special;
+html_print_glyph(
+    winid win UNUSED,
+    coordxy x,
+    coordxy y,
+    const glyph_info *glyphinfo,
+    const glyph_info *bkglyphinfo UNUSED)
 {
     char buf[BUFSZ]; /* do_screen_description requires this :( */
     const char *firstmatch = "unknown"; /* and this */
     coord cc;
-    int desc_found = 0;
+    int desc_found = 0, color;
     unsigned attr;
-    unsigned long rgb = 0UL;
-    boolean have_rgb = FALSE; /* emit inline RGB span (rgb may be black) */
+    uint32 custclr;
+    unsigned long rgb = 0UL; /* nonzero => emit inline 24-bit RGB span */
 
-    if (!dumphtml_file) return;
+    if (!dumphtml_file)
+        return;
 
-    if (x == 1) /* start row */
-        fprintf(dumphtml_file, "<span class=\"nh_screen\">  "); /* 2 space left margin */
+    if (x == 1) /* start row - 2 space left margin: */
+        fprintf(dumphtml_file, "<span class=\"nh_screen\">  ");
     cc.x = x;
     cc.y = y;
-    desc_found = do_screen_description(cc, TRUE, ch, buf, &firstmatch, (struct permonst **) 0);
+    desc_found = do_screen_description(cc, TRUE, glyphinfo->gm.sym.symidx, buf,
+                                       &firstmatch, (struct permonst **) 0);
     if (desc_found)
         fprintf(dumphtml_file, "<div class=\"tooltip\">");
-    attr = mg_hl_attr(special);
-    /* highlight the hero's tile with a green background, mimicking
-       the terminal cursor's "you are here" cue */
-    if (x == u.ux && y == u.uy) {
+    attr = mg_hl_attr(glyphinfo->gm.glyphflags);
+    /* honor CUSTOMCOLOR: NH50 stores the resolved colour directly in the
+       glyph_map.  A non-zero customcolor with NH_BASIC_COLOR set is just a
+       0-15 override; without it, the low 24 bits are a raw RGB which HTML
+       can render exactly via an inline style. */
+    color = glyphinfo->gm.sym.color;
+    custclr = iflags.customcolors ? glyphinfo->gm.customcolor : 0;
+    if (custclr != 0) {
+        if ((custclr & NH_BASIC_COLOR) != 0)
+            color = (int) COLORVAL(custclr);
+        else
+            rgb = (unsigned long) COLORVAL(custclr);
+    }
+    /* highlight the hero's tile with a green background, mimicking the
+       terminal cursor's "you are here" cue on every other windowport */
+    if (x == u.ux && y == u.uy)
         fprintf(dumphtml_file, "<span class=\"nh_player\">");
-        /* while mounted the steed renders at the hero's spot with
-           MG_RIDDEN (inverse video), whose background colour would
-           paint over the green highlight. Drop the inverse here so
-           the green shows through - it already gives the "you are
-           here" cue the inverse would */
-        attr &= ~HL_INVERSE;
-    }
-    /* mapglyph emits NH_CUSTOMCOLOR_SENTINEL when the active windowport
-       advertises 24-bit truecolor and the glyph has an RGB CUSTOMCOLOR=
-       entry. HTML supports arbitrary RGB natively, so emit the user's
-       exact colour inline */
-    if (color == NH_CUSTOMCOLOR_SENTINEL) {
-        struct customcolor_entry *ce = customcolor_lookup(glyph);
-
-        if (ce && (ce->nhcolor & NH_BASIC_COLOR) == 0) {
-            rgb = COLORVAL(ce->nhcolor);
-            have_rgb = TRUE;
-        } else
-            color = ce ? ce->color256idx : NO_COLOR;
-    }
-    if (have_rgb) {
-        /* bold/uline/blink wrappers still come from dump_set_color_attr;
-           only the inner color span is replaced with an inline style.
-           Render inverse video as a colored background so the entry
-           keeps its exact RGB */
+    if (rgb) {
+        /* keep the bold/uline/blink wrappers from dump_set_color_attr but
+           supply the colour inline; render inverse video as a coloured
+           background here so no nh_inv_N class (0-15 only) is needed */
         dump_set_color_attr(NO_COLOR, attr & ~HL_INVERSE, TRUE);
         if (attr & HL_INVERSE)
             fprintf(dumphtml_file,
@@ -1644,13 +1594,26 @@ unsigned special;
     } else {
         dump_set_color_attr(color, attr, TRUE);
     }
-    if (htmlsym[sym])
-        fprintf(dumphtml_file, "&#%d;", htmlsym[sym]);
-    else if (ch > 0x7F)
-        fprintf(dumphtml_file, "&#%d;", ch);
-    else
-        html_dump_char(dumphtml_file, (char)ch);
-    if (have_rgb) {
+    {
+        /* prefer the player's own glyph: a UTF8 symset (e.g. Enhanced1)
+           stores its codepoint in gm.u, so the dump matches the screen;
+           otherwise fall back to the html line-drawing table, then the
+           default tty character */
+        long cp = 0;
+
+#ifdef ENHANCED_SYMBOLS
+        if (glyphinfo->gm.u && glyphinfo->gm.u->utf32ch)
+            cp = (long) glyphinfo->gm.u->utf32ch;
+        else
+#endif
+        if (htmlsym[glyphinfo->gm.sym.symidx])
+            cp = htmlsym[glyphinfo->gm.sym.symidx];
+        if (cp)
+            fprintf(dumphtml_file, "&#%ld;", cp);
+        else
+            html_dump_char(dumphtml_file, (char) glyphinfo->ttychar);
+    }
+    if (rgb) {
         fprintf(dumphtml_file, SPAN_E);
         dump_set_color_attr(NO_COLOR, attr & ~HL_INVERSE, FALSE);
     } else {
@@ -1659,9 +1622,10 @@ unsigned special;
     if (x == u.ux && y == u.uy)
         fprintf(dumphtml_file, SPAN_E);
     if (desc_found)
-       fprintf(dumphtml_file, "<span class=\"tooltiptext\">%s</span></div>", firstmatch);
-    if (x == COLNO-1)
-        fprintf(dumphtml_file, "  </span>\n"); /* 2 trailing spaces and newline */
+       fprintf(dumphtml_file,
+               "<span class=\"tooltiptext\">%s</span></div>", firstmatch);
+    if (x == COLNO-1) /* end row - 2 trailing spaces and newline: */
+        fprintf(dumphtml_file, "  </span>\n");
 }
 
 #endif /* DUMPHTML */
@@ -1670,13 +1634,13 @@ unsigned special;
 
 /* Status field ordering for 2 or 3 lines, from tty windowport */
 #define blPAD BL_FLUSH
-#define MAX_PER_ROW 17
+#define MAX_PER_ROW 15
 static const enum statusfields
     twolineorder[3][MAX_PER_ROW] = {
     { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_ALIGN,
       BL_SCORE, BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD },
     { BL_LEVELDESC, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX,
-      BL_AC, BL_MC, BL_TOHIT, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_HUNGER,
+      BL_AC, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_HUNGER,
       BL_CAP, BL_CONDITION, BL_FLUSH },
     { BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD,
       blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
@@ -1685,7 +1649,7 @@ static const enum statusfields
     { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH,
       BL_SCORE, BL_FLUSH, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD },
     { BL_ALIGN, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX,
-      BL_AC, BL_MC, BL_TOHIT, BL_XP, BL_EXP, BL_HD, BL_HUNGER,
+      BL_AC, BL_XP, BL_EXP, BL_HD, BL_HUNGER,
       BL_CAP, BL_FLUSH, blPAD, blPAD },
     { BL_LEVELDESC, BL_TIME, BL_CONDITION, BL_FLUSH, blPAD, blPAD,
       blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD, blPAD }
@@ -1703,6 +1667,7 @@ static long dump_condition_bits;
 static struct dump_status_fields dump_status[MAXBLSTATS];
 static int hpbar_percent, hpbar_color;
 
+#ifdef DUMPHTML
 /* condcolor and condattr are needed to render the HTML status bar.
    These static routines exist verbatim in at least two other window
    ports. They should be promoted to the core (maybe botl.c).
@@ -1710,16 +1675,16 @@ static int hpbar_percent, hpbar_color;
    or ignored.
  */
 
-STATIC_OVL int
-condcolor(bm, bmarray)
-long bm;
-unsigned long *bmarray;
+int
+condcolor(
+    long bm,
+    unsigned long *bmarray)
 {
-#if defined(STATUS_HILITES) && defined(TEXTCOLOR)
+#if defined(STATUS_HILITES)
     int i;
 
     if (bm && bmarray)
-        for (i = 0; i < CLR_EXT_MAX; ++i) {
+        for (i = 0; i < CLR_MAX; ++i) {
             if ((bmarray[i] & bm) != 0)
                 return i;
         }
@@ -1727,10 +1692,10 @@ unsigned long *bmarray;
     return NO_COLOR;
 }
 
-STATIC_OVL int
-condattr(bm, bmarray)
-long bm;
-unsigned long *bmarray;
+int
+condattr(
+    long bm,
+    unsigned long *bmarray)
 {
     int attr = 0;
 #ifdef STATUS_HILITES
@@ -1769,8 +1734,8 @@ unsigned long *bmarray;
    No truncation is done as we'd prefer to see all info in the dumplog
    and allow the lines to be a little longer if necessary */
 
-STATIC_OVL void
-dump_render_status()
+void
+dump_render_status(void)
 {
     long mask, bits;
     int i, idx, c, row, num_rows, coloridx = 0, attrmask = 0;
@@ -1778,14 +1743,13 @@ dump_render_status()
     struct condition_t { /* auto, since this only gets called once */
         long mask;
         const char *text;
-    } conditions[] = {
+    } cond[] = {
         /* The sequence order of these matters */
         { BL_MASK_STONE,     "Stone"    },
         { BL_MASK_SLIME,     "Slime"    },
         { BL_MASK_STRNGL,    "Strngl"   },
         { BL_MASK_FOODPOIS,  "FoodPois" },
         { BL_MASK_TERMILL,   "TermIll"  },
-        { BL_MASK_WITHER,    "Wither"   },
         { BL_MASK_BLIND,     "Blind"    },
         { BL_MASK_DEAF,      "Deaf"     },
         { BL_MASK_STUN,      "Stun"     },
@@ -1793,9 +1757,7 @@ dump_render_status()
         { BL_MASK_HALLU,     "Hallu"    },
         { BL_MASK_LEV,       "Lev"      },
         { BL_MASK_FLY,       "Fly"      },
-        { BL_MASK_RIDE,      "Ride"     },
-        { BL_MASK_SLOW,      "Slow"     },
-        { BL_MASK_PHASING,   "Phasing"  }
+        { BL_MASK_RIDE,      "Ride"     }
     };
 
     num_rows = (iflags.wc2_statuslines < 3) ? 2 : 3;
@@ -1814,8 +1776,8 @@ dump_render_status()
             if (idx == BL_CONDITION) {
                 /* | Condition Codes | */
                 bits = dump_condition_bits;
-                for (c = 0; c < SIZE(conditions) && bits != 0L; ++c) {
-                    mask = conditions[c].mask;
+                for (c = 0; c < SIZE(cond) && bits != 0L; ++c) {
+                    mask = cond[c].mask;
                     if (bits & mask) {
                         putstr(NHW_STATUS, 0, " ");
                         pad--;
@@ -1826,8 +1788,8 @@ dump_render_status()
                             dump_set_color_attr(coloridx, attrmask, TRUE);
                         }
 #endif
-                        putstr(NHW_STATUS, 0, conditions[c].text);
-                        pad -= strlen(conditions[c].text);
+                        putstr(NHW_STATUS, 0, cond[c].text);
+                        pad -= strlen(cond[c].text);
 #ifdef STATUS_HILITES
                         if (iflags.hilite_delta) {
                             dump_set_color_attr(coloridx, attrmask, FALSE);
@@ -1906,18 +1868,21 @@ dump_render_status()
             }
         }
         if (dumphtml_file)
-            fprintf(dumphtml_file, "%*s</span>\n",
-                    pad > 0 ? pad : 0, " ");
+            fprintf(dumphtml_file, "%*s</span>\n", pad, " ");
     }
     return;
 }
 
-STATIC_OVL void
-dump_status_update(fldidx, ptr, chg, percent, color, colormasks)
-int fldidx, percent, color;
-genericptr_t ptr;
-int chg UNUSED;
-unsigned long *colormasks;
+DISABLE_WARNING_FORMAT_NONLITERAL
+
+void
+dump_status_update(
+    int fldidx,
+    genericptr_t ptr,
+    int chg UNUSED,
+    int percent,
+    int color,
+    unsigned long *colormasks)
 {
     int attrmask;
     long *condptr = (long *) ptr;
@@ -1925,15 +1890,11 @@ unsigned long *colormasks;
     char goldbuf[40], *lastchar, *p;
     const char *fmt;
 
-    /* we don't have an init routine, so do it on the first run through;
-       key the cache off the live statuslines value rather than a boolean
-       so that an in-process statuslines toggle re-derives fieldorder */
-    static int inited_for_lines = 0;
-    int num_rows = (iflags.wc2_statuslines < 3) ? 2 : 3;
+    /* we don't have an init routine, so do it on the first run through */
+    static boolean inited = FALSE;
 
-    if (inited_for_lines != num_rows) {
-        int i;
-
+    if (!inited) {
+        int i, num_rows = (iflags.wc2_statuslines < 3) ? 2 : 3;
         fieldorder = (num_rows != 3) ? twolineorder : threelineorder;
         for (i = 0; i < MAXBLSTATS; ++i) {
             dump_status[i].idx = BL_FLUSH;
@@ -1942,13 +1903,13 @@ unsigned long *colormasks;
         }
         dump_condition_bits = 0L;
         hpbar_percent = 0, hpbar_color = NO_COLOR;
-        inited_for_lines = num_rows;
+        inited = TRUE;
     }
 
-    if (fldidx < BL_RESET || fldidx >= MAXBLSTATS)
+    if ((fldidx < BL_RESET) || (fldidx >= MAXBLSTATS))
         return;
 
-    if (fldidx >= 0 && !status_activefields[fldidx])
+    if ((fldidx >= 0 && fldidx < MAXBLSTATS) && !status_activefields[fldidx])
         return;
 
     switch (fldidx) {
@@ -1963,12 +1924,10 @@ unsigned long *colormasks;
         break;
     case BL_GOLD:
         text = decode_mixed(goldbuf, text);
+        FALLTHROUGH;
         /*FALLTHRU*/
     default:
         attrmask = (color >> 8) & 0x00FF;
-#ifndef TEXTCOLOR
-        color = NO_COLOR;
-#endif
         fmt = status_fieldfmt[fldidx];
         if (!fmt)
             fmt = "%s";
@@ -2008,12 +1967,13 @@ unsigned long *colormasks;
     return;
 }
 
+RESTORE_WARNING_FORMAT_NONLITERAL
+
 /** HTML Headers and footers **/
 
-STATIC_OVL void
-dump_headers()
+void
+dump_headers(void)
 {
-#ifdef DUMPHTML
     char vers[16]; /* buffer for short version string */
 
     /* TODO: make portable routine for getting iso8601 datetime */
@@ -2028,38 +1988,41 @@ dump_headers()
     fprintf(dumphtml_file, "<!DOCTYPE html>\n");
     fprintf(dumphtml_file, "<html lang=\"en\">\n<head>\n");
     fprintf(dumphtml_file, "<meta charset=\"utf-8\">\n");
-    fprintf(dumphtml_file, "<title>EvilHack %s (%s)</title>\n", version_string(vers), plname);
-    fprintf(dumphtml_file, "<meta name=\"generator\" content=\"EvilHack %s\">\n", vers);
+    fprintf(dumphtml_file, "<title>NetHack %s (%s)</title>\n",
+            version_string(vers, sizeof vers), svp.plname);
+    fprintf(dumphtml_file,
+            "<meta name=\"generator\" content=\"NetHack %s (%s)\">\n",
+            vers, svp.plname);
     fprintf(dumphtml_file, "<meta name=\"date\" content=\"%s\">\n", iso8601);
-    fprintf(dumphtml_file, "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
-    fprintf(dumphtml_file, "<link href=\"https://fonts.cdnfonts.com/css/dejavu-sans-mono\" rel=\"stylesheet\">\n");
+    fprintf(dumphtml_file,
+            "<meta name=\"viewport\""
+            " content=\"width=device-width, initial-scale=1.0\">\n");
+    fprintf(dumphtml_file,
+            "<link href=\"https://cdn.jsdelivr.net/gh/maxwell-k/"
+            "dejavu-sans-mono-web-font@2.37/index.css\""
+            " title=\"Default\" rel=\"stylesheet\" media=\"all\">\n");
     fprintf(dumphtml_file, "<style>\n");
     dump_css();
     fprintf(dumphtml_file, "</style>\n</head>\n<body>\n");
 
-#endif
 }
 
-STATIC_OVL void
-dump_footers()
+void
+dump_footers(void)
 {
-#ifdef DUMPHTML
     if (dumphtml_file) {
-        html_write_tags(dumphtml_file, 0, 0, TRUE); /* close </ul> and </pre> if open */
+        html_write_tags(dumphtml_file, 0, TRUE); /* close </ul> and </pre> if open */
         fprintf(dumphtml_file, "</body>\n</html>\n");
     }
-#endif
 }
 
-#ifdef DUMPHTML
-STATIC_OVL void
-dump_css()
+void
+dump_css(void)
 {
     int c = 0;
     FILE *css;
     if (!dumphtml_file)
         return;
-
     css = fopen_datafile("NHdump.css", "r", DATAPREFIX);
     if (!css) {
         pline("Can't open css file for input.");
@@ -2072,14 +2035,14 @@ dump_css()
     fclose(css);
 }
 
-STATIC_OVL void
-dump_outrip(win, how, when)
-winid win;
-int how;
-time_t when;
+void
+dump_outrip(
+    winid win,
+    int how,
+    time_t when)
 {
    if (dumphtml_file) {
-       html_write_tags(dumphtml_file, 0, 0, TRUE); /* </ul>, </pre> if needed */
+       html_write_tags(dumphtml_file, 0, TRUE); /* </ul>, </pre> if needed */
        fprintf(dumphtml_file, "%s\n", PREF_S);
    }
    genl_outrip(win, how, when);
@@ -2088,49 +2051,37 @@ time_t when;
 
 }
 
-#endif
+#endif /* DUMPHTML */
 
 /** Dump file handling **/
 
 void
-dump_open_log(now)
-time_t now;
+dump_open_log(time_t now)
 {
 #if defined(DUMPLOG) || defined(DUMPHTML)
+#ifdef SYSCF
+#undef DUMPLOG_FILE
+#undef DUMPHTML_FILE
+#define DUMPLOG_FILE sysopt.dumplogfile
+#define DUMPHTML_FILE sysopt.dumphtmlfile
+#endif
     char buf[BUFSZ];
-    char *fname = (char *) 0;
-    const char *tmpl;
+    char *fname = (char *)0;
 
     dumplog_now = now;
 #ifdef DUMPLOG
-    tmpl =
-#ifdef SYSCF
-        sysopt.dumplogfile;
-#else
-        DUMPLOG_FILE;
-#endif
-    if (tmpl && *tmpl) {
-        fname = dump_fmtstr(tmpl, buf, TRUE);
-        if (fname && *fname)
-            dumplog_file = fopen(fname, "w");
-    }
+    fname = dump_fmtstr(DUMPLOG_FILE, buf, TRUE);
+    if (fname)
+        dumplog_file = fopen(fname, "w");
 #endif
 #ifdef DUMPHTML
-    tmpl =
-#ifdef SYSCF
-        sysopt.dumphtmlfile;
-#else
-        DUMPHTML_FILE;
-#endif
-    if (tmpl && *tmpl) {
-        fname = dump_fmtstr(tmpl, buf, TRUE);
-        if (fname && *fname)
-            dumphtml_file = fopen(fname, "w");
-    }
+    fname = dump_fmtstr(DUMPHTML_FILE, buf, TRUE);
+    if (fname)
+        dumphtml_file = fopen(fname, "w");
 #endif
     if (dumplog_file || dumphtml_file) {
         dumplog_windowprocs_backup = windowprocs;
-        menu_headings_backup = iflags.menu_headings;
+        menu_headings_backup = iflags.menu_headings.attr;
     }
     dump_headers();
 #else /*!DUMPLOG/HTML*/
@@ -2139,7 +2090,7 @@ time_t now;
 }
 
 void
-dump_close_log()
+dump_close_log(void)
 {
     dump_footers();
     if (dumplog_file) {
@@ -2153,11 +2104,7 @@ dump_close_log()
 }
 
 void
-dump_forward_putstr(win, attr, str, no_forward)
-winid win;
-int attr;
-const char *str;
-int no_forward;
+dump_forward_putstr(winid win, int attr, const char *str, int no_forward)
 {
 #if defined(DUMPLOG) || defined (DUMPHTML)
     dump_putstr(win, attr, str);
@@ -2168,13 +2115,9 @@ int no_forward;
 
 #if defined(DUMPLOG) || defined (DUMPHTML)
 /*ARGSUSED*/
-STATIC_OVL void
-dump_putstr(win, attr, str)
-winid win;
-int attr;
-const char *str;
+staticfn void
+dump_putstr(winid win, int attr, const char *str)
 {
-    if (!str) str = "";
     /* Suppress newline for NHW_STATUS
        Send NHW_STATUS to HTML only */
     if (dumplog_file && win != NHW_STATUS && win != NHW_DUMPHTML)
@@ -2184,65 +2127,65 @@ const char *str;
         if (win == NHW_STATUS)
             html_dump_str(dumphtml_file, str);
         else
-            html_dump_line(dumphtml_file, win, attr, str);
+            html_dump_line(dumphtml_file, attr, str);
     }
 #endif
 }
 
-STATIC_OVL winid
-dump_create_nhwindow(dummy)
-int dummy;
+staticfn winid
+dump_create_nhwindow(int type)
 {
-    return dummy;
+#ifdef DUMPHTML
+    gd.dumping_list = (boolean) (type == NHW_MENU);
+#endif
+    return WIN_ERR;
 }
 
 /*ARGUSED*/
-STATIC_OVL void
-dump_clear_nhwindow(win)
-winid win UNUSED;
+staticfn void
+dump_clear_nhwindow(winid win UNUSED)
 {
     return;
 }
 
 /*ARGSUSED*/
-STATIC_OVL void
-dump_display_nhwindow(win, p)
-winid win UNUSED;
-boolean p UNUSED;
+staticfn void
+dump_display_nhwindow(winid win UNUSED, boolean p UNUSED)
 {
     return;
 }
 
 /*ARGUSED*/
-STATIC_OVL void
-dump_destroy_nhwindow(win)
-winid win UNUSED;
+staticfn void
+dump_destroy_nhwindow(winid win UNUSED)
 {
+#ifdef DUMPHTML
+    gd.dumping_list = FALSE;
+#endif
     return;
 }
 
 /*ARGUSED*/
-STATIC_OVL void
-dump_start_menu(win)
-winid win UNUSED;
+staticfn void
+dump_start_menu(winid win UNUSED, unsigned long mbehavior UNUSED)
 {
     return;
 }
 
 /*ARGSUSED*/
-STATIC_OVL void
-dump_add_menu(win, glyph, identifier, ch, gch, attr, str, preselected)
-winid win;
-int glyph;
-const anything *identifier UNUSED;
-char ch;
-char gch UNUSED;
-int attr;
-const char *str;
-boolean preselected UNUSED;
+staticfn void
+dump_add_menu(winid win UNUSED,
+              const glyph_info *glyphinfo,
+              const anything *identifier UNUSED,
+              char ch,
+              char gch UNUSED,
+              int attr UNUSED,
+              int clr UNUSED,
+              const char *str,
+              unsigned int itemflags UNUSED)
 {
     if (dumplog_file) {
-        if (glyph == NO_GLYPH)
+        if (glyphinfo->glyph == NO_GLYPH)
             fprintf(dumplog_file, " %s\n", str);
         else
             fprintf(dumplog_file, "  %c - %s\n", ch, str);
@@ -2250,32 +2193,28 @@ boolean preselected UNUSED;
 #ifdef DUMPHTML
     if (dumphtml_file) {
         int color;
-        int saved_attr = attr; /* get_menu_coloring may overwrite attr;
-                                  the closing tag must match the opener */
         boolean iscolor = FALSE;
         /* Don't use NHW_MENU for inv items as this makes bullet points */
-        if (!attr && glyph != NO_GLYPH)
+        if (!attr && glyphinfo->glyph != NO_GLYPH)
             win = (winid)0;
-        html_write_tags(dumphtml_file, win, attr, TRUE);
+        html_write_tags(dumphtml_file, attr, TRUE);
         if (iflags.use_menu_color && get_menu_coloring(str, &color, &attr)) {
             iscolor = TRUE;
             fprintf(dumphtml_file, "<span class=\"nh_color_%d\">", color);
         }
-        if (glyph != NO_GLYPH) {
+        if (glyphinfo->glyph != NO_GLYPH) {
             fprintf(dumphtml_file, "<span class=\"nh_item_letter\">%c</span> - ", ch);
         }
         html_dump_str(dumphtml_file, str);
         fprintf(dumphtml_file, "%s", iscolor ? "</span>" : "");
-        html_write_tags(dumphtml_file, win, saved_attr, FALSE);
+        html_write_tags(dumphtml_file, attr, FALSE);
     }
 #endif
 }
 
 /*ARGSUSED*/
-STATIC_OVL void
-dump_end_menu(win, str)
-winid win UNUSED;
-const char *str;
+staticfn void
+dump_end_menu(winid win UNUSED, const char *str)
 {
     if (dumplog_file) {
         if (str)
@@ -2285,23 +2224,19 @@ const char *str;
     }
 #ifdef DUMPHTML
     if (dumphtml_file)
-        html_dump_line(dumphtml_file, 0, 0, str ? str : "");
+        html_dump_line(dumphtml_file, 0, str ? str : "");
 #endif
 }
 
-STATIC_OVL int
-dump_select_menu(win, how, item)
-winid win UNUSED;
-int how UNUSED;
-menu_item **item;
+staticfn int
+dump_select_menu(winid win UNUSED, int how UNUSED, menu_item **item)
 {
     *item = (menu_item *) 0;
     return 0;
 }
 
 void
-dump_redirect(onoff_flag)
-boolean onoff_flag;
+dump_redirect(boolean onoff_flag)
 {
     if (dumplog_file || dumphtml_file) {
         if (onoff_flag) {
@@ -2320,24 +2255,45 @@ boolean onoff_flag;
             windowprocs.win_status_update = dump_status_update;
         } else {
             windowprocs = dumplog_windowprocs_backup;
-            iflags.menu_headings = menu_headings_backup;
+            iflags.menu_headings.attr = menu_headings_backup;
         }
         iflags.in_dumplog = onoff_flag;
-        iflags.menu_headings |= ATR_SUBHEAD; /* ATR_SUBHEAD changes with in_dumplog */
+        iflags.menu_headings.attr |= ATR_SUBHEAD; /* ATR_SUBHEAD changes with in_dumplog */
     } else {
         iflags.in_dumplog = FALSE;
     }
 }
 #endif
 
+#ifdef TTY_GRAPHICS
+#ifdef TOS
+extern const char *hilites[CLR_MAX];
+#else
+extern NEARDATA char *hilites[CLR_MAX];
+#endif
+#endif
+
+int
+has_color(int color)
+{
+    return (iflags.use_color && windowprocs.name
+            && (windowprocs.wincap & WC_COLOR) && windowprocs.has_color[color]
+#ifdef TTY_GRAPHICS
+#if defined(TERMLIB) && !defined(NO_TERMS)
+             && (hilites[color] != 0)
+#endif
+#endif
+    );
+}
+
 #ifdef EXTRAINFO_FN
 /* This probably belongs in files.c, but it
  * uses dump_fmtstr() which is static here.
  */
 void
-mk_dgl_extrainfo()
+mk_dgl_extrainfo(void)
 {
-    FILE *extrai = (FILE *)0;
+    FILE *extrai = (FILE *) 0;
 #ifdef UNIX
     mode_t eimode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 #endif
@@ -2346,7 +2302,9 @@ mk_dgl_extrainfo()
     dump_fmtstr(EXTRAINFO_FN, new_fn, TRUE);
 
     extrai = fopen(new_fn, "w");
-    if (extrai) {
+    if (!extrai) {
+        ;
+    } else {
         int sortval = 0;
         char tmpdng[16];
         sortval += (u.uhave.amulet ? 1024 : 0);
@@ -2355,19 +2313,19 @@ mk_dgl_extrainfo()
             sortval += 245;
         } else if (In_quest(&u.uz)) {
             Sprintf(tmpdng, "%s%i", "Q", dunlev(&u.uz));
-            sortval += 250+(dunlev(&u.uz));
+            sortval += 250 + (dunlev(&u.uz));
         } else if (In_endgame(&u.uz)) {
             Sprintf(tmpdng, "%s", "End");
             sortval += 256;
         } else if (In_tower(&u.uz)) {
             Sprintf(tmpdng, "T%i", dunlev(&u.uz));
-            sortval += 235+(depth(&u.uz));
+            sortval += 235 + (depth(&u.uz));
         } else if (In_sokoban(&u.uz)) {
             Sprintf(tmpdng, "S%i", dunlev(&u.uz));
-            sortval += 225+(depth(&u.uz));
+            sortval += 225 + (depth(&u.uz));
         } else if (In_mines(&u.uz)) {
             Sprintf(tmpdng, "M%i", dunlev(&u.uz));
-            sortval += 215+(dunlev(&u.uz));
+            sortval += 215 + (dunlev(&u.uz));
         } else {
             Sprintf(tmpdng, "D%i", depth(&u.uz));
             sortval += (depth(&u.uz));
@@ -2380,10 +2338,8 @@ mk_dgl_extrainfo()
     }
 }
 #endif /* EXTRAINFO_FN */
-
 void
-livelog_dump_url(llflags)
-unsigned int llflags;
+livelog_dump_url(unsigned int llflags)
 {
 #ifdef DUMPLOG
     char buf[BUFSZ];
@@ -2394,182 +2350,505 @@ unsigned int llflags;
         return;
     dumpurl = dump_fmtstr(sysopt.dumplogurl, buf, TRUE);
 #else
-#ifdef DUMPLOG_URL
     dumpurl = dump_fmtstr(DUMPLOG_URL, buf, TRUE);
-#else
-    return;     /* no URL configured */
 #endif
-#endif
-    livelog_write_string(llflags, dumpurl);
+    livelog_printf(llflags, "%s", dumpurl);
 #else
     nhUse(llflags);
 #endif /*?DUMPLOG*/
 }
 
-#ifdef TTY_GRAPHICS
-#ifdef TEXTCOLOR
-#ifdef TOS
-extern const char *hilites[CLR_MAX];
-#else
-extern NEARDATA char *hilites[CLR_MAX];
-#endif
-#endif
-#endif
-
 int
-has_color(color)
-int color;
+glyph2ttychar(int glyph)
 {
-    /* Extended 256 colors bypass the per-color arrays (which are only
-       CLR_MAX entries); they render via direct ANSI escapes or extended
-       curses pairs, so just check that color is enabled. */
-    if (IS_EXT_COLOR(color)) {
-        return (iflags.use_color && iflags.use_256color
-                && windowprocs.name
-                && (windowprocs.wincap2 & WC2_EXTCOLORS));
-    }
-    return (iflags.use_color && windowprocs.name
-            && (windowprocs.wincap & WC_COLOR)
-            && color >= 0 && color < CLR_MAX
-            && windowprocs.has_color[color]
-#ifdef TTY_GRAPHICS
-#if defined(TEXTCOLOR) && defined(TERMLIB) && !defined(NO_TERMS)
-             && (hilites[color] != 0)
-#endif
-#endif
-    );
+    glyph_info glyphinfo;
+
+    map_glyphinfo(0, 0, glyph, 0, &glyphinfo);
+    return glyphinfo.ttychar;
 }
 
-/* Return TRUE if the active windowport advertises 24-bit truecolor
-   support and the user has not disabled it. Used by mapglyph() to
-   decide whether to forward an RGB customcolor to the windowport via
-   NH_CUSTOMCOLOR_SENTINEL or pre-quantize to 256 colors */
+int
+glyph2symidx(int glyph)
+{
+    glyph_info glyphinfo;
+
+    map_glyphinfo(0, 0, glyph, 0, &glyphinfo);
+    return glyphinfo.gm.sym.symidx;
+}
+
+char *
+encglyph(int glyph)
+{
+    static char encbuf[20]; /* 10+1 would suffice */
+
+    Sprintf(encbuf, "\\G%04X%04X", svc.context.rndencode, glyph);
+    return encbuf;
+}
+
+/* hexdd[] is defined in decl.c */
+
+int
+decode_glyph(const char *str, int *glyph_ptr)
+{
+    int rndchk = 0, dcount = 0, retval = 0;
+    const char *dp;
+
+    for (; *str && ++dcount <= 4; ++str) {
+        if ((dp = strchr(hexdd, *str)) != 0) {
+            retval++;
+            rndchk = (rndchk * 16) + ((int) (dp - hexdd) / 2);
+        } else
+            break;
+    }
+    if (rndchk == svc.context.rndencode) {
+        *glyph_ptr = dcount = 0;
+        for (; *str && ++dcount <= 4; ++str) {
+            if ((dp = strchr(hexdd, *str)) != 0) {
+                retval++;
+                *glyph_ptr = (*glyph_ptr * 16) + ((int) (dp - hexdd) / 2);
+            } else
+                break;
+        }
+        return retval;
+    }
+    return 0;
+}
+
+char *
+decode_mixed(char *buf, const char *str)
+{
+    char *put = buf;
+    glyph_info glyphinfo = nul_glyphinfo;
+
+    if (!str)
+        return strcpy(buf, "");
+
+    while (*str) {
+        if (*str == '\\') {
+            int dcount, so, ggv;
+            const char *save_str;
+
+            save_str = str++;
+            switch (*str) {
+            case 'G': /* glyph value \GXXXXNNNN*/
+                if ((dcount = decode_glyph(str + 1, &ggv))) {
+                    str += (dcount + 1);
+                    map_glyphinfo(0, 0, ggv, 0, &glyphinfo);
+                    so = glyphinfo.gm.sym.symidx;
+                    *put++ = gs.showsyms[so];
+                    /* 'str' is ready for the next loop iteration and '*str'
+                       should not be copied at the end of this iteration */
+                    continue;
+                } else {
+                    /* possible forgery - leave it the way it is */
+                    str = save_str;
+                }
+                break;
+            case '\\':
+                break;
+            case '\0':
+                /* String ended with '\\'.  This can happen when someone
+                   names an object with a name ending with '\\', drops the
+                   named object on the floor nearby and does a look at all
+                   nearby objects. */
+                /* brh - should we perhaps not allow things to have names
+                   that contain '\\' */
+                str = save_str;
+                break;
+            }
+        }
+        *put++ = *str++;
+    }
+    *put = '\0';
+    return buf;
+}
+
+/*
+ * This differs from putstr() because the str parameter can
+ * contain a sequence of characters representing:
+ *        \GXXXXNNNN    a glyph value, encoded by encglyph().
+ *
+ * For window ports that haven't yet written their own
+ * XXX_putmixed() routine, this general one can be used.
+ * It replaces the encoded glyph sequence with a single
+ * showsyms[] char, then just passes that string onto
+ * putstr().
+ */
+
+void
+genl_putmixed(winid window, int attr, const char *str)
+{
+    char buf[BUFSZ];
+
+    /* now send it to the normal putstr */
+    putstr(window, attr, decode_mixed(buf, str));
+}
+
+/* possibly called to show usage info during command line processing when
+   an interface hasn't yet been chosen and set up */
+void
+genl_display_file(const char *fname, boolean complain)
+{
+    char buf[BUFSZ];
+    dlb *f = dlb_fopen(fname, "r");
+
+    if (!f) {
+        if (complain) /* send complaint to stdout rather than to stderr */
+            fprintf(stdout, "\nCannot open \"%s\".\n", fname);
+    } else {
+        /* straight copy to stdout, no pagination or other interaction */
+        while (dlb_fgets(buf, BUFSZ, f)) {
+            if (fputs(buf, stdout) < 0)
+                break;
+        }
+        (void) dlb_fclose(f);
+    }
+}
+
+/*
+ * Window port helper function for menu invert routines to move the decision
+ * logic into one place instead of 7 different window-port routines.
+ */
 boolean
-has_truecolor()
+menuitem_invert_test(
+    int mode UNUSED,        /* 0: invert; 1: select; 2: deselect */
+    unsigned itemflags,     /* itemflags for the item */
+    boolean is_selected)    /* current selection status of the item */
 {
-    return (iflags.use_color && iflags.use_truecolor
-            && windowprocs.name
-            && (windowprocs.wincap2 & WC2_TRUECOLOR));
-}
+    boolean skipinvert = (itemflags & MENU_ITEMFLAGS_SKIPINVERT) != 0;
 
-#ifdef TEXTCOLOR
-/* CLR_* row labels used by the #showcolors palette demo. Two rows of
-   eight read more naturally than one row of sixteen 4-char truncs;
-   "br-X" abbreviates the four bright variants in the high half so
-   they don't all alias to "brig". Shared between tty and curses
-   #showcolors renderers */
-const char *const clrlabels[CLR_MAX] = {
-    "black",   "red",     "green",   "brown",
-    "blue",    "magenta", "cyan",    "gray",
-    "default", "orange",  "br-grn",  "yellow",
-    "br-blu",  "br-mag",  "br-cyn",  "white"
-};
-
-/* Six-segment HSV->RGB at S=V=255. hue is in [0,360); returns a
-   24-bit 0xRRGGBB value packed into an unsigned long. Shared between
-   tty and curses #showcolors renderers */
-unsigned long
-hue_to_rgb(hue)
-int hue;
-{
-    int seg, frac, p, q;
-    int r = 0, g = 0, b = 0;
-
-    if (hue < 0)
-        hue = 0;
-    if (hue >= 360)
-        hue %= 360;
-    seg = hue / 60;        /* 0..5 */
-    frac = (hue % 60) * 255 / 60;   /* 0..254 ascending within segment */
-    p = 0;
-    q = 255 - frac;
-    switch (seg) {
-    case 0: /* red -> yellow */
-        r = 255;
-        g = frac;
-        b = p;
-        break;
-    case 1: /* yellow -> green */
-        r = q;
-        g = 255;
-        b = p;
-        break;
-    case 2: /* green -> cyan */
-        r = p;
-        g = 255;
-        b = frac;
-        break;
-    case 3: /* cyan -> blue */
-        r = p;
-        g = q;
-        b = 255;
-        break;
-    case 4: /* blue -> magenta */
-        r = frac;
-        g = p;
-        b = 255;
-        break;
-    default: /* magenta -> red */
-        r = 255;
-        g = p;
-        b = q;
-        break;
+    if (!skipinvert) /* if not flagged SKIPINVERT, always pass test */
+        return TRUE;
+    /*
+     * mode 0: inverting current on/off state;
+     *      1: unconditionally setting on;
+     *      2: unconditionally setting off.
+     * menuinvertmode 0: treat entries flagged with skipinvert as ordinary
+     *                   (same as if not flagged);
+     * menuinvertmode 1: don't toggle bulk invert or bulk select entries On;
+     *                   allow toggling to Off (for invert and deselect;
+     *                   select doesn't do Off);
+     * menuinvertmode 2: don't toggle skipinvert entries either On or Off
+     *                   when any bulk change is performed.
+     */
+    if (iflags.menuinvertmode == 2) {
+        return FALSE;
+    } else if (iflags.menuinvertmode == 1) {
+        return is_selected ? TRUE : FALSE;
     }
-    return ((unsigned long) r << 16)
-           | ((unsigned long) g << 8)
-           | (unsigned long) b;
+    return TRUE;
 }
 
-/* Probe $TERM and $COLORTERM for an explicit color-depth advertisement.
- * Returns 16777216 / 256 / 16, or `fallback` when no env signal is
- * present. Shared between win/tty/termcap.c (init_hilite + ANSI default)
- * and win/curses/cursinit.c so the two windowports stay in lockstep.
- * Detection ladder, in descending order of confidence:
- *   1. COLORTERM=truecolor / 24bit -- explicit advertisement.
- *   2. TERM contains "direct" or "truecolor" -- direct-color terminfo
- *      entry (xterm-direct, tmux-direct, ...).
- *   3. TERM matches a known always-truecolor family (alacritty / kitty
- *      / wezterm / contour / foot / mlterm / mintty / iTerm) or the
- *      modern multiplexer defaults (tmux-256color / screen-256color,
- *      which pass RGB through when the outer terminal supports it --
- *      multiplexers without RGB strip the unrecognised SGR so the
- *      degradation is silent).
- *   4. TERM contains "256color" or COLORTERM is set non-empty.
- *   5. Otherwise return `fallback` */
-int
-detect_env_color_depth(fallback)
-int fallback;
+/*
+ * helper routine if a window port wants to extract the glyph
+ * information from a glyph number representation in the string;
+ * the returned string is the remainder of the string after
+ * extracting the \GNNNNNNNN information. The glyph details,
+ * including the utf8 representation under ENHANCED_SYMBOLS,
+ * will be stored in the glyph_info struct pointed to by gip.
+ */
+const char *
+mixed_to_glyphinfo(const char *str, glyph_info *gip)
 {
-    const char *envterm = nh_getenv("TERM");
-    const char *cterm = nh_getenv("COLORTERM");
+    int dcount, ggv;
 
-    if (cterm
-        && (!strcmp(cterm, "truecolor")
-            || !strcmp(cterm, "24bit")))
-        return 16777216;
-    if (envterm
-        && (strstr(envterm, "direct")
-            || strstr(envterm, "truecolor")))
-        return 16777216;
-    if (envterm
-        && (strstr(envterm, "alacritty")
-            || strstr(envterm, "kitty")
-            || strstr(envterm, "wezterm")
-            || strstr(envterm, "contour")
-            || strstr(envterm, "foot")
-            || strstr(envterm, "mlterm")
-            || strstr(envterm, "mintty")
-            || strstr(envterm, "iTerm")
-            || strstr(envterm, "iterm")
-            || !strcmp(envterm, "tmux-256color")
-            || !strcmp(envterm, "screen-256color")))
-        return 16777216;
-    if (envterm && strstr(envterm, "256color"))
-        return 256;
-    if (cterm && *cterm != '\0')
-        return 256;
-    return fallback;
+    if (!str || !gip)
+        return " ";
+
+    *gip = nul_glyphinfo;
+    if (*str == '\\' && *(str + 1) == 'G') {
+        if ((dcount = decode_glyph(str + 2, &ggv))) {
+            map_glyphinfo(0, 0, ggv, 0, gip);
+            /* 'str' is ready for the next loop iteration and
+                '*str' should not be copied at the end of this
+                iteration */
+            str += (dcount + 2);
+        }
+    }
+    return str;
 }
-#endif /* TEXTCOLOR */
 
+/*
+ * This is a somewhat generic menu for taking a list of NetHack style
+ * class choices and presenting them via a description
+ * rather than the traditional NetHack characters.
+ * (Benefits users whose first exposure to NetHack is via tiles).
+ *
+ * prompt
+ *           The title at the top of the menu.
+ *
+ * category: 0 = monster class
+ *           1 = object  class
+ *
+ * way
+ *           FALSE = PICK_ONE, TRUE = PICK_ANY
+ *
+ * class_list
+ *           a null terminated string containing the list of choices.
+ *
+ * class_selection
+ *           a null terminated string containing the selected characters.
+ *
+ * Returns number selected.
+ */
+int
+choose_classes_menu(const char *prompt,
+                    int category,
+                    boolean way,
+                    char *class_list,
+                    char *class_select)
+{
+    menu_item *pick_list = (menu_item *) 0;
+    winid win;
+    anything any;
+    char buf[BUFSZ];
+    const char *text = 0;
+    boolean selected;
+    int ret, i, n, next_accelerator, accelerator = 0;
+    int clr = NO_COLOR;
+
+    if (!class_list || !class_select)
+        return 0;
+    next_accelerator = 'a';
+    any = cg.zeroany;
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win, MENU_BEHAVE_STANDARD);
+    while (*class_list) {
+        int idx;
+
+        selected = FALSE;
+        switch (category) {
+        case 0:
+            idx = def_char_to_monclass(*class_list);
+            if (!IndexOk(idx, def_monsyms)) {
+                panic("choose_classes_menu: invalid monclass '%c'",
+                      *class_list);
+                /*NOTREACHED*/
+            }
+            text = def_monsyms[idx].explain;
+            accelerator = *class_list;
+            Sprintf(buf, "%s", text);
+            break;
+        case 1:
+            idx = def_char_to_objclass(*class_list);
+            if (!IndexOk(idx, def_oc_syms)) {
+                panic("choose_classes_menu: invalid objclass '%c'",
+                      *class_list);
+                /*NOTREACHED*/
+            }
+            text = def_oc_syms[idx].explain;
+            accelerator = next_accelerator;
+            Sprintf(buf, "%c  %s", *class_list, text);
+            break;
+        default:
+            panic("choose_classes_menu: invalid category %d", category);
+            /*NOTREACHED*/
+        }
+        if (way && *class_select) { /* Selections there already */
+            if (strchr(class_select, *class_list)) {
+                selected = TRUE;
+            }
+        }
+        any.a_int = *class_list;
+        add_menu(win, &nul_glyphinfo, &any, accelerator,
+                 category ? *class_list : 0, ATR_NONE, clr, buf,
+                 selected ? MENU_ITEMFLAGS_SELECTED : MENU_ITEMFLAGS_NONE);
+        if (category > 0) {
+            if (next_accelerator == 'Z')
+                break;
+            else if (next_accelerator == 'z')
+                next_accelerator = 'A';
+            else
+                ++next_accelerator;
+        }
+        ++class_list;
+    }
+    if (category == 1 && next_accelerator <= 'z') {
+        /* for objects, add "A - ' '  all classes", after a separator */
+        add_menu_str(win, "");
+        any = cg.zeroany;
+        any.a_int = (int) ' ';
+        Sprintf(buf, "%c  %s", (char) any.a_int, "All classes of objects");
+        /* we won't preselect this even if the incoming list is empty;
+           having it selected means that it would have to be explicitly
+           de-selected in order to select anything else */
+        add_menu(win, &nul_glyphinfo, &any, 'A', 0,
+                 ATR_NONE, clr, buf, MENU_ITEMFLAGS_SKIPINVERT);
+        if (!strcmp(prompt, "Autopickup what?")) {
+            add_menu_str(win,
+                   "Note: when no choices are selected, \"all\" is implied.");
+            /* for 'O', "toggle" should be intuitive; for 'm O', it would
+               probably be better to say "Set 'autopickup' to true|false" */
+            add_menu_str(win, flags.pickup
+                        ? "Toggle off 'autopickup' to not pick up anything."
+           : "Toggle on 'autopickup' to automatically pick these things up.");
+        }
+    }
+    end_menu(win, prompt);
+    n = select_menu(win, way ? PICK_ANY : PICK_ONE, &pick_list);
+    destroy_nhwindow(win);
+    if (n > 0) {
+        if (category == 1) {
+            /* for object classes, first check for 'all'; it means 'use
+               a blank list' rather than 'collect every possible choice' */
+            for (i = 0; i < n; ++i)
+                if (pick_list[i].item.a_int == ' ') {
+                    pick_list[0].item.a_int = ' ';
+                    n = 1; /* return 1; also an implicit 'break;' */
+                }
+        }
+        for (i = 0; i < n; ++i)
+            *class_select++ = (char) pick_list[i].item.a_int;
+        free((genericptr_t) pick_list);
+        ret = n;
+    } else if (n == -1) {
+        class_select = eos(class_select);
+        ret = -1;
+    } else {
+        ret = 0;
+    }
+    *class_select = '\0';
+    return ret;
+}
+
+/* enum and structs are defined in wintype.h */
+
+win_request_info zerowri = { { 0L, 0, 0, 0, 0, 0, 0, 0 },
+                             { 0, 0, { NO_COLOR, ATR_NONE }}};
+
+void
+adjust_menu_promptstyle(winid window, color_attr *style)
+{
+    win_request_info wri = zerowri;
+    wri.fromcore.menu_promptstyle.color = style->color;
+    wri.fromcore.menu_promptstyle.attr = style->attr;
+    /*  relay the style change to the window port */
+    (void) ctrl_nhwindow(window, set_menu_promptstyle, &wri);
+    go.opt_need_promptstyle = FALSE;
+}
+
+/*
+ *   Common code point leading into the interface-specific
+ *   add_menu() to allow single-spot adjustments to the parameters,
+ *   such as those done by menu_colors.
+ */
+void
+add_menu(
+    winid window,  /* window to use, must be of type NHW_MENU */
+    const glyph_info *glyphinfo, /* glyph info with glyph to
+                                  * display with item */
+    const anything *identifier, /* what to return if selected */
+    char ch,                    /* selector letter (0 = pick our own) */
+    char gch,                   /* group accelerator (0 = no group) */
+    int attr,                   /* attribute for menu text (str) */
+    int color,                  /* color for menu text (str) */
+    const char *str,            /* menu text */
+    unsigned int itemflags)     /* itemflags such as MENU_ITEMFLAGS_SELECTED */
+{
+    if (!str) {
+        /* if 'str' is Null, just return without adding any menu entry */
+        debugpline0("add_menu(Null)");
+        return;
+    }
+
+    if (iflags.use_menu_color) {
+        if ((itemflags & MENU_ITEMFLAGS_SKIPMENUCOLORS) == 0)
+            (void) get_menu_coloring(str, &color, &attr);
+    }
+    /* this is the only function that cared about this flag; remove it now */
+    itemflags &= ~MENU_ITEMFLAGS_SKIPMENUCOLORS;
+
+    (*windowprocs.win_add_menu)(window, glyphinfo, identifier,
+                                ch, gch, attr, color, str, itemflags);
+}
+
+/* insert a non-selectable, possibly highlighted line of text into a menu */
+void
+add_menu_heading(winid tmpwin, const char *buf)
+{
+    anything any = cg.zeroany;
+    int attr = iflags.menu_headings.attr,
+        color = iflags.menu_headings.color;
+
+    /* suppress highlighting during end-of-game disclosure */
+    if (program_state.gameover)
+        attr = ATR_NONE, color = NO_COLOR;
+
+    add_menu(tmpwin, &nul_glyphinfo, &any, '\0', '\0', attr, color,
+             buf, MENU_ITEMFLAGS_SKIPMENUCOLORS);
+}
+
+/* insert a non-selectable, unhighlighted line of text into a menu */
+void
+add_menu_str(winid tmpwin, const char *buf)
+{
+    anything any = cg.zeroany;
+
+    add_menu(tmpwin, &nul_glyphinfo, &any, '\0', '\0', ATR_NONE, NO_COLOR,
+             buf, MENU_ITEMFLAGS_NONE);
+}
+
+staticfn boolean
+get_menu_coloring(const char *str, int *color, int *attr)
+{
+    struct menucoloring *tmpmc;
+
+    if (iflags.use_menu_color)
+        for (tmpmc = gm.menu_colorings; tmpmc; tmpmc = tmpmc->next)
+            if (regex_match(str, tmpmc->match)) {
+                *color = tmpmc->color;
+                *attr = tmpmc->attr;
+                return TRUE;
+            }
+    return FALSE;
+}
+
+int
+select_menu(winid window, int how, menu_item **menu_list)
+{
+    int reslt;
+    boolean old_bot_disabled = gb.bot_disabled;
+
+    gb.bot_disabled = TRUE;
+    reslt = (*windowprocs.win_select_menu)(window, how, menu_list);
+    gb.bot_disabled = old_bot_disabled;
+    return reslt;
+}
+
+void
+getlin(const char *query, char *bufp)
+{
+    boolean old_bot_disabled = gb.bot_disabled;
+    char *obufp = bufp;
+    boolean got_cmdq = FALSE;
+    struct _cmd_queue *cmdq = NULL;
+
+    while ((cmdq = cmdq_pop()) != 0) {
+        if (cmdq->typ == CMDQ_KEY) {
+            got_cmdq = TRUE;
+            *bufp = (cmdq->key != '\n') ? cmdq->key : '\0';
+            bufp++;
+            if (cmdq->key == '\n')
+                break;
+        } else {
+            break;
+        }
+        free(cmdq);
+        cmdq = NULL;
+    }
+    if (cmdq)
+        free(cmdq);
+
+    if (got_cmdq) {
+        *bufp = '\0';
+        pline("%s %s", query, obufp);
+        return;
+    }
+
+    program_state.in_getlin = 1;
+    gb.bot_disabled = TRUE;
+    (*windowprocs.win_getlin)(query, bufp);
+    gb.bot_disabled = old_bot_disabled;
+    program_state.in_getlin = 0;
+}
 /*windows.c*/

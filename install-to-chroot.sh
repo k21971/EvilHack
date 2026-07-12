@@ -8,19 +8,18 @@
 
 # autonamed chroot directory. Can rename.
 DATESTAMP=`date +%Y%m%d-%H%M%S`
-NAO_CHROOT="/opt/nethack/chroot"
-NETHACK_GIT="/home/build/EvilHack"
+HDF_CHROOT="/opt/nethack/chroot"
+NETHACK_GIT="/home/build/NetHack50"
 # the user & group from dgamelaunch config file.
 USRGRP="games:games"
 # COMPRESS from include/config.h; the compression binary to copy. leave blank to skip.
 COMPRESSBIN="/bin/gzip"
 # fixed data to copy (leave blank to skip)
-NH_GIT="/home/build/EvilHack"
-NH_BRANCH="master"
+NH_GIT="/home/build/NetHack50"
 # HACKDIR from include/config.h; aka nethack subdir inside chroot
-NHSUBDIR="evilhack-0.9.3"
+NHSUBDIR="nh500.0-hdf"
 # VAR_PLAYGROUND from include/unixconf.h
-NH_VAR_PLAYGROUND="/evilhack-0.9.3/var/"
+NH_VAR_PLAYGROUND="/nh500.0-hdf/var/"
 # END OF CONFIG
 ##############################################################################
 
@@ -45,87 +44,83 @@ set -e
 umask 022
 
 echo "Creating inprogress and extrainfo directories"
-mkdir -p "$NAO_CHROOT/dgldir/inprogress-evil093"
-chown "$USRGRP" "$NAO_CHROOT/dgldir/inprogress-evil093"
-mkdir -p "$NAO_CHROOT/dgldir/extrainfo-evil"
-chown "$USRGRP" "$NAO_CHROOT/dgldir/extrainfo-evil"
+mkdir -p "$HDF_CHROOT/dgldir/inprogress-nh500.0-hdf"
+chown "$USRGRP" "$HDF_CHROOT/dgldir/inprogress-nh500.0-hdf"
+mkdir -p "$HDF_CHROOT/dgldir/extrainfo-nh500"
+chown "$USRGRP" "$HDF_CHROOT/dgldir/extrainfo-nh500"
 
-echo "Making $NAO_CHROOT/$NHSUBDIR"
-mkdir -p "$NAO_CHROOT/$NHSUBDIR"
+echo "Making $HDF_CHROOT/$NHSUBDIR"
+mkdir -p "$HDF_CHROOT/$NHSUBDIR"
 
-NETHACKBIN="$NETHACK_GIT/src/evilhack"
+NETHACKBIN="$NETHACK_GIT/src/nethack"
 if [ -n "$NETHACKBIN" -a ! -e "$NETHACKBIN" ]; then
   errorexit "Cannot find NetHack binary $NETHACKBIN"
 fi
 
 if [ -n "$NETHACKBIN" -a -e "$NETHACKBIN" ]; then
   echo "Copying $NETHACKBIN"
-  cd "$NAO_CHROOT/$NHSUBDIR"
+  cd "$HDF_CHROOT/$NHSUBDIR"
   NHBINFILE="`basename $NETHACKBIN`-$DATESTAMP"
   cp "$NETHACKBIN" "$NHBINFILE"
-  ln -fs "$NHBINFILE" evilhack
+  ln -fs "$NHBINFILE" nethack
   LIBS="$LIBS `findlibs $NETHACKBIN`"
-  cd "$NAO_CHROOT"
+  cd "$HDF_CHROOT"
 fi
 
 echo "Copying NetHack playground stuff"
-cp "$NETHACK_GIT/dat/nhdat" "$NAO_CHROOT/$NHSUBDIR"
-chmod 644 "$NAO_CHROOT/$NHSUBDIR/nhdat"
-cp "$NETHACK_GIT/dat/symbols" "$NAO_CHROOT/$NHSUBDIR"
-chmod 644 "$NAO_CHROOT/$NHSUBDIR/symbols"
-cp "$NETHACK_GIT/dat/license" "$NAO_CHROOT/$NHSUBDIR"
-chmod 644 "$NAO_CHROOT/$NHSUBDIR/license"
-cp "$NETHACK_GIT/dat/NHdump.css" "$NAO_CHROOT/$NHSUBDIR"
-chmod 644 "$NAO_CHROOT/$NHSUBDIR/NHdump.css"
-cp "$NETHACK_GIT/dat/serverseed" "$NAO_CHROOT/$NHSUBDIR"
-chmod 644 "$NAO_CHROOT/$NHSUBDIR/serverseed"
+cp "$NETHACK_GIT/dat/nhdat" "$HDF_CHROOT/$NHSUBDIR"
+chmod 644 "$HDF_CHROOT/$NHSUBDIR/nhdat"
+cp "$NETHACK_GIT/dat/symbols" "$HDF_CHROOT/$NHSUBDIR"
+chmod 644 "$HDF_CHROOT/$NHSUBDIR/symbols"
+cp "$NETHACK_GIT/dat/license" "$HDF_CHROOT/$NHSUBDIR"
+chmod 644 "$HDF_CHROOT/$NHSUBDIR/license"
+cp "$NETHACK_GIT/dat/NHdump.css" "$HDF_CHROOT/$NHSUBDIR"
+chmod 644 "$HDF_CHROOT/$NHSUBDIR/NHdump.css"
 
 echo "Copying sysconf file"
-SYSCF="$NAO_CHROOT/$NHSUBDIR/sysconf"
+SYSCF="$HDF_CHROOT/$NHSUBDIR/sysconf"
 cp "$NETHACK_GIT/sys/unix/sysconf" "$SYSCF"
 chmod 644 $SYSCF
 
 echo "Creating NetHack variable dir stuff."
-mkdir -p "$NAO_CHROOT/$NHSUBDIR/var"
-chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var"
-mkdir -p "$NAO_CHROOT/$NHSUBDIR/var/save"
-chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/save"
-mkdir -p "$NAO_CHROOT/$NHSUBDIR/var/save/backup"
-chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/save/backup"
-mkdir -p "$NAO_CHROOT/$NHSUBDIR/var/whereis"
-chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/whereis"
+mkdir -p "$HDF_CHROOT/$NHSUBDIR/var"
+chown -R "$USRGRP" "$HDF_CHROOT/$NHSUBDIR/var"
+mkdir -p "$HDF_CHROOT/$NHSUBDIR/var/save"
+chown -R "$USRGRP" "$HDF_CHROOT/$NHSUBDIR/var/save"
+mkdir -p "$HDF_CHROOT/$NHSUBDIR/var/save/backup"
+chown -R "$USRGRP" "$HDF_CHROOT/$NHSUBDIR/var/save/backup"
+mkdir -p "$HDF_CHROOT/$NHSUBDIR/var/whereis"
+chown -R "$USRGRP" "$HDF_CHROOT/$NHSUBDIR/var/whereis"
 
-touch "$NAO_CHROOT/$NHSUBDIR/var/logfile"
-chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/logfile"
-touch "$NAO_CHROOT/$NHSUBDIR/var/perm"
-chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/perm"
-touch "$NAO_CHROOT/$NHSUBDIR/var/record"
-chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/record"
-touch "$NAO_CHROOT/$NHSUBDIR/var/xlogfile"
-chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/xlogfile"
-touch "$NAO_CHROOT/$NHSUBDIR/var/livelog"
-chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/livelog"
-touch "$NAO_CHROOT/$NHSUBDIR/var/wishtracker"
-chown -R "$USRGRP" "$NAO_CHROOT/$NHSUBDIR/var/wishtracker"
+touch "$HDF_CHROOT/$NHSUBDIR/var/logfile"
+chown -R "$USRGRP" "$HDF_CHROOT/$NHSUBDIR/var/logfile"
+touch "$HDF_CHROOT/$NHSUBDIR/var/perm"
+chown -R "$USRGRP" "$HDF_CHROOT/$NHSUBDIR/var/perm"
+touch "$HDF_CHROOT/$NHSUBDIR/var/record"
+chown -R "$USRGRP" "$HDF_CHROOT/$NHSUBDIR/var/record"
+touch "$HDF_CHROOT/$NHSUBDIR/var/xlogfile"
+chown -R "$USRGRP" "$HDF_CHROOT/$NHSUBDIR/var/xlogfile"
+touch "$HDF_CHROOT/$NHSUBDIR/var/livelog"
+chown -R "$USRGRP" "$HDF_CHROOT/$NHSUBDIR/var/livelog"
 
 RECOVER="$NETHACK_GIT/util/recover"
 
 if [ -n "$RECOVER" -a -e "$RECOVER" ]; then
   echo "Copying $RECOVER"
-  cp "$RECOVER" "$NAO_CHROOT/$NHSUBDIR/var"
+  cp "$RECOVER" "$HDF_CHROOT/$NHSUBDIR/var"
   LIBS="$LIBS `findlibs $RECOVER`"
-  cd "$NAO_CHROOT"
+  cd "$HDF_CHROOT"
 fi
 
 LIBS=`for lib in $LIBS; do echo $lib; done | sort | uniq`
 echo "Copying libraries:" $LIBS
 for lib in $LIBS; do
-        mkdir -p "$NAO_CHROOT`dirname $lib`"
-        if [ -f "$NAO_CHROOT$lib" ]
+        mkdir -p "$HDF_CHROOT`dirname $lib`"
+        if [ -f "$HDF_CHROOT$lib" ]
 	then
-		echo "$NAO_CHROOT$lib already exists - skipping."
+		echo "$HDF_CHROOT$lib already exists - skipping."
 	else
-		cp $lib "$NAO_CHROOT$lib"
+		cp $lib "$HDF_CHROOT$lib"
 	fi
 done
 

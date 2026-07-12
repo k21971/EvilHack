@@ -1,5 +1,5 @@
 /* vim:set cin ft=c sw=4 sts=4 ts=8 et ai cino=Ls\:0t0(0 : -*- mode:c;fill-column:80;tab-width:8;c-basic-offset:4;indent-tabs-mode:nil;c-file-style:"k&r" -*-*/
-/* NetHack 3.6 cursinit.c */
+/* NetHack 5.0 cursinit.c */
 /* Copyright (c) Karl Garrison, 2010. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -8,9 +8,6 @@
 #include "wincurs.h"
 #include "cursinit.h"
 #include "cursmisc.h"
-/*#include "patchlevel.h"*/
-
-#include <ctype.h>
 
 /* Initialization and startup functions for curses interface */
 
@@ -31,31 +28,23 @@ typedef struct nhrgb_type {
 /* Banners used for an optional ASCII splash screen */
 
 #define NETHACK_SPLASH_A \
-"    ______      _ ____  __           __"
+" _   _        _    _    _               _    "
 
 #define NETHACK_SPLASH_B \
-"   / ____/   __(_) / / / /___ ______/ /__"
+"| \\ | |      | |  | |  | |             | |   "
 
 #define NETHACK_SPLASH_C \
-"  / __/ | | / / / / /_/ / __ `/ ___/ //_/"
+"|  \\| |  ___ | |_ | |__| |  __ _   ___ | | __"
 
 #define NETHACK_SPLASH_D \
-" / /___ | |/ / / / __  / /_/ / /__/ ,<"
+"| . ` | / _ \\| __||  __  | / _` | / __|| |/ /"
 
 #define NETHACK_SPLASH_E \
-"/_____/ |___/_/_/_/ /_/`__,_/`___/_/|_|"
+"| |\\  ||  __/| |_ | |  | || (_| || (__ |   < "
 
 #define NETHACK_SPLASH_F \
-" "
+"|_| \\_| \\___| \\__||_|  |_| \\__,_| \\___||_|\\_\\"
 
-/* how the above should look...
-    ______      _ ____  __           __
-   / ____/   __(_) / / / /___ ______/ /__
-  / __/ | | / / / / /_/ / __ `/ ___/ //_/
- / /___ | |/ / / / __  / /_/ / /__/ ,<
-/_____/ |___/_/_/_/ /_/`__,_/`___/_/|_|
-
-*/
 
 /* win* is size and placement of window to change, x/y/w/h is baseline
    which can decrease depending on alignment of win* in orientation.
@@ -107,27 +96,36 @@ set_window_position(int *winx, int *winy, int *winw, int *winh,
 
 /* Create the "main" nonvolatile windows used by nethack */
 void
-curses_create_main_windows()
+curses_create_main_windows(void)
 {
-    int min_message_height = 1;
+    /* int min_message_height = 1; */
     int message_orientation = 0;
     int status_orientation = 0;
     int border_space = 0;
     int hspace = term_cols - 80;
-    boolean borders = FALSE;
+    boolean borders = FALSE, noperminv_borders = FALSE;
 
     switch (iflags.wc2_windowborders) {
+    default:
     case 0:                     /* Off */
         borders = FALSE;
         break;
+
+    case 3:
+        noperminv_borders = TRUE;
+        FALLTHROUGH;
+        /*FALLTHRU*/
     case 1:                     /* On */
         borders = TRUE;
         break;
+
+    case 4:
+        noperminv_borders = TRUE;
+        FALLTHROUGH;
+        /*FALLTHRU*/
     case 2:                     /* Auto */
-        borders = (term_cols > 81 && term_rows > 25);
+        borders = (term_cols >= 80 + 2 && term_rows >= 24 + 2);
         break;
-    default:
-        borders = FALSE;
     }
 
     if (borders) {
@@ -136,7 +134,7 @@ curses_create_main_windows()
     }
 
     if ((term_cols - border_space) < COLNO) {
-        min_message_height++;
+        /* min_message_height++; */
     }
 
     /* Determine status window orientation */
@@ -210,7 +208,7 @@ curses_create_main_windows()
         boolean msg_vertical = (message_orientation == ALIGN_LEFT
                                 || message_orientation == ALIGN_RIGHT);
 
-        /* Vertical windows have priority. Otherwise, priotity is:
+        /* Vertical windows have priority. Otherwise, priority is:
            status > inv > msg */
         if (status_vertical)
             set_window_position(&status_x, &status_y,
@@ -227,6 +225,9 @@ curses_create_main_windows()
                                 ALIGN_RIGHT, &map_x, &map_y,
                                 &map_width, &map_height,
                                 border_space, -1, width);
+            /* suppress borders on perm_invent window, part I */
+            if (noperminv_borders)
+                inv_width += border_space, inv_height += border_space; /*+=2*/
         }
 
         if (msg_vertical)
@@ -255,21 +256,6 @@ curses_create_main_windows()
             map_width = COLNO;
         if (map_height > ROWNO)
             map_height = ROWNO;
-        /* Window-layout options combined with a narrow terminal (e.g.
-           40-column TTY + perm_invent + vertical status) can drive map
-           geometry negative through the carving subtractions above.
-           Clamp to 1 so curses_add_nhwin's newwin call doesn't return
-           NULL; the impossible() log captures the option conflict so
-           the player can resize or unset perm_invent / align_status */
-        if (map_width < 1 || map_height < 1) {
-            impossible(
-        "curses geometry: map collapsed to %dx%d (perm_invent/align_status conflict?)",
-                map_width, map_height);
-            if (map_width < 1)
-                map_width = 1;
-            if (map_height < 1)
-                map_height = 1;
-        }
 
         if (curses_get_nhwin(STATUS_WIN)) {
             curses_del_nhwin(STATUS_WIN);
@@ -290,7 +276,9 @@ curses_create_main_windows()
 
         if (iflags.perm_invent)
             curses_add_nhwin(INV_WIN, inv_height, inv_width, inv_y, inv_x,
-                             ALIGN_RIGHT, borders);
+                             ALIGN_RIGHT,
+                             /* suppress perm_invent borders, part II */
+                             borders && !noperminv_borders);
 
         curses_add_nhwin(MAP_WIN, map_height, map_width,
                          map_y, map_x, 0, borders);
@@ -310,138 +298,85 @@ curses_create_main_windows()
     }
 }
 
+static int pairs_used = 0;
+static int colors_used = 0;
+
+/* create a new color */
+int
+curses_init_rgb(int r, int g, int b)
+{
+    if (!can_change_color())
+        return 0;
+
+    if (colors_used < COLORS - 1) {
+        colors_used++;
+        init_color(colors_used, r*4, g*4, b*4);
+        return colors_used;
+    }
+    return 0;
+}
+
+/* create a new foreground/background combination */
+int
+curses_init_pair(int fg, int bg)
+{
+    if (pairs_used < COLOR_PAIRS - 1) {
+        pairs_used++;
+        init_pair(pairs_used, fg, bg);
+        return pairs_used;
+    }
+    return 0;
+}
+
 /* Initialize curses colors to colors used by NetHack */
 void
-curses_init_nhcolors()
+curses_init_nhcolors(void)
 {
-#ifdef TEXTCOLOR
-    if (has_colors()) {
-        use_default_colors();
+    /* COLOR_foo + 8 means COLOR | A_BOLD when COLORS < 16 */
+    /* otherwise assume the terminal has least 16 different colors */
+    /* these map to the NetHack CLR_ defines */
+    static const int basic_fg_clr[16] = {
+        COLOR_BLACK, COLOR_RED, COLOR_GREEN, COLOR_YELLOW,
+        COLOR_BLUE,  COLOR_MAGENTA, COLOR_CYAN, COLOR_WHITE,
+        -1, COLOR_RED + 8, COLOR_GREEN + 8, COLOR_YELLOW + 8,
+        COLOR_BLUE + 8, COLOR_MAGENTA + 8, COLOR_CYAN + 8, COLOR_WHITE + 8
+    };
+    static const int bg_clr[CURSES_NUM_BACKGROUND_COLORS] = {
+        -1, COLOR_RED, COLOR_GREEN, COLOR_YELLOW,
+        COLOR_BLUE, COLOR_MAGENTA, COLOR_CYAN, COLOR_WHITE
+    };
+    int bg, nhclr;
+    int maxc = curses_has_256color() ? 256 : (COLORS >= 16) ? 16 : 8;
 
-        /* Direct-color terminfo (xterm-direct, tmux-direct, etc.)
-           advertises the RGB capability and interprets the color
-           argument to init_pair() as a packed 24-bit RGB value
-           rather than a palette slot index. nh_init_pair() handles
-           the translation; flag it here so all callers route
-           through the wrapper consistently */
-#if NH_NCURSES_EXT_COLORS
-        curses_direct_color = (tigetflag("RGB") > 0);
+    if (!has_colors())
+        return;
 
-        /* Note on colon-RGB direct-color SGR (xterm-direct,
-           tmux-direct): these terminfo entries emit ITU T.416
-           colon-separated direct-color SGR (\E[38:2::R:G:Bm) for
-           values >= 8. Many terminal emulators only parse the
-           semicolon variant (\E[38;2;R;G;Bm) and silently drop the
-           colon form, so the map renders black-and-white on those
-           terminals. Inside tmux this is masked because tmux
-           normalizes the SGR before forwarding to the outer
-           terminal.
-           This cannot be fixed via cur_term capability mutation:
-           ncurses 6.x synthesizes the direct-color SGR internally
-           and does not re-read set_a_foreground/set_a_background
-           after initscr() for the direct-color path (verified
-           empirically by replacing setaf with a garbage string and
-           observing identical output). The user-side workaround is
-           to use a terminfo entry that ships semicolon-RGB
-           direct-color setaf (alacritty-direct, vte-direct,
-           konsole-direct, st-direct, etc., all shipped in
-           Ubuntu 24.04's ncurses-term) instead of xterm-direct */
-#endif
+    use_default_colors();
 
-        nh_init_pair(1, COLOR_BLACK, -1);
-        nh_init_pair(2, COLOR_RED, -1);
-        nh_init_pair(3, COLOR_GREEN, -1);
-        nh_init_pair(4, COLOR_YELLOW, -1);
-        nh_init_pair(5, COLOR_BLUE, -1);
-        nh_init_pair(6, COLOR_MAGENTA, -1);
-        nh_init_pair(7, COLOR_CYAN, -1);
-        nh_init_pair(8, -1, -1);
-
-        {
-            int i;
-            boolean hicolor = FALSE;
-
-            static const int clr_remap[16] = {
-                COLOR_BLACK, COLOR_RED, COLOR_GREEN, COLOR_YELLOW,
-                COLOR_BLUE,
-                COLOR_MAGENTA, COLOR_CYAN, -1, COLOR_WHITE,
-                COLOR_RED + 8, COLOR_GREEN + 8, COLOR_YELLOW + 8,
-                COLOR_BLUE + 8,
-                COLOR_MAGENTA + 8, COLOR_CYAN + 8, COLOR_WHITE + 8
-            };
-
-            for (i = 0; i < (COLORS >= 16 ? 16 : 8); i++) {
-                nh_init_pair(17 + (i * 2) + 0, clr_remap[i], COLOR_RED);
-                nh_init_pair(17 + (i * 2) + 1, clr_remap[i], COLOR_BLUE);
-            }
-
-            if (COLORS >= 16)
-                hicolor = TRUE;
-
-            /* Work around the crazy definitions above for more background
-               colors... */
-            for (i = 0; i < (COLORS >= 16 ? 16 : 8); i++) {
-                nh_init_pair((hicolor ? 49 : 9) + i, clr_remap[i], COLOR_GREEN);
-                nh_init_pair((hicolor ? 65 : 33) + i, clr_remap[i], COLOR_YELLOW);
-                nh_init_pair((hicolor ? 81 : 41) + i, clr_remap[i], COLOR_MAGENTA);
-                nh_init_pair((hicolor ? 97 : 49) + i, clr_remap[i], COLOR_CYAN);
-                nh_init_pair((hicolor ? 113 : 57) + i, clr_remap[i], COLOR_WHITE);
-            }
-        }
-
-        if (COLORS >= 16) {
-# ifdef USE_DARKGRAY
-            if (iflags.wc2_darkgray) {
-                nh_init_pair(1, COLOR_BLACK + 8, -1);
-            }
-# endif
-            nh_init_pair(9, COLOR_WHITE, -1);
-            nh_init_pair(10, COLOR_RED + 8, -1);
-            nh_init_pair(11, COLOR_GREEN + 8, -1);
-            nh_init_pair(12, COLOR_YELLOW + 8, -1);
-            nh_init_pair(13, COLOR_BLUE + 8, -1);
-            nh_init_pair(14, COLOR_MAGENTA + 8, -1);
-            nh_init_pair(15, COLOR_CYAN + 8, -1);
-            nh_init_pair(16, COLOR_WHITE + 8, -1);
+    for (nhclr = CLR_BLACK; nhclr < maxc; nhclr++) {
+        for (bg = 0; bg < CURSES_NUM_BACKGROUND_COLORS; bg++) {
+            int fg_color = (nhclr < 16) ? basic_fg_clr[nhclr] : nhclr;
+            init_pair((maxc * bg) + nhclr + 1, fg_color, bg_clr[bg]);
         }
     }
 
-        /* Extended 256-color pairs are allocated on demand in
-         * get_ext_color_pair() (cursmisc.c) to work with any
-         * COLOR_PAIRS value, including PDCurses (256 pairs). */
-        if (COLORS < 256) {
-            /* Curses library can't render 256 colors. Clear
-             * WC2_EXTCOLORS so has_color() returns FALSE for extended
-             * colors and game-specific fallbacks in mapglyph.c engage
-             * instead of generic RGB-distance mapping. */
-            windowprocs.wincap2 &= ~WC2_EXTCOLORS;
+#ifdef USE_DARKGRAY
+    if (COLORS >= 16) {
+        if (iflags.wc2_darkgray) {
+            init_pair(CLR_BLACK + 1, COLOR_BLACK + 8, -1);
         }
-
-        /* 24-bit truecolor: requires terminfo to advertise > 256
-         * color slots so init_extended_color() can allocate slots
-         * outside the base+256 palette range. Direct-color entries
-         * like xterm-direct / tmux-direct set colors#0x1000000 and
-         * the RGB capability. tmux-256color + COLORTERM=truecolor
-         * doesn't qualify: ncurses sees COLORS=256 and rejects
-         * init_extended_color above 255 -- the env probe says
-         * truecolor but the API can't honor it without raw SGR
-         * escapes (which would fight ncurses screen tracking).
-         * Pre-6.1 ncurses and PDCurses lack the init_extended_*
-         * API; NH_NCURSES_EXT_COLORS is 0 on those builds and the
-         * entire truecolor branch collapses out */
-#if NH_NCURSES_EXT_COLORS
-        if (COLORS <= 256 || tigetflag("RGB") <= 0)
-            windowprocs.wincap2 &= ~WC2_TRUECOLOR;
-#else
-        windowprocs.wincap2 &= ~WC2_TRUECOLOR;
+    }
 #endif
-#endif
+    colors_used = maxc;
+    pairs_used = (maxc * 8) + 16 + 1;
 }
+
+#if 0   /* curses_choose_character + curses_character_dialog no longer used */
 
 /* Allow player to pick character's role, race, gender, and alignment.
    Borrowed from the Gnome window port. */
 void
-curses_choose_character()
+curses_choose_character(void)
 {
     int n, i, sel, count_off, pick4u;
     int count = 0;
@@ -481,7 +416,7 @@ curses_choose_character()
     }
 
     prompt[count_off] = '\0';
-    sprintf(choice, "%s%c", tmpchoice, '\033');
+    Snprintf(choice, sizeof(choice), "%s%c", tmpchoice, '\033');
     if (strchr(tmpchoice, 't')) {       /* Tutorial mode */
         mvaddstr(0, 1, "New? Press t to enter a tutorial.");
     }
@@ -748,6 +683,7 @@ curses_choose_character()
             flags.initalign = sel;
         }
     }
+    return;
 }
 
 /* Prompt user for character race, role, alignment, or gender */
@@ -755,13 +691,14 @@ int
 curses_character_dialog(const char **choices, const char *prompt)
 {
     int count, count2, ret, curletter;
-    char used_letters[52];
+    char used_letters[invlet_basic]; /* a..zA..Z */
     anything identifier;
     menu_item *selected = NULL;
     winid wid = curses_get_wid(NHW_MENU);
+    int clr = NO_COLOR;
 
     identifier.a_void = 0;
-    curses_start_menu(wid);
+    curses_start_menu(wid, MENU_BEHAVE_STANDARD);
 
     for (count = 0; choices[count]; count++) {
         curletter = tolower(choices[count][0]);
@@ -771,30 +708,21 @@ curses_character_dialog(const char **choices, const char *prompt)
             }
         }
 
-        if (!strcmp(choices[count], "giant"))
-            curletter = 'G';
-        else if (!strcmp(choices[count], "hobbit"))
-            curletter = 'H';
-        else if (!strcmp(choices[count], "drow"))
-            curletter = 'D';
-        else if (!strcmp(choices[count], "draugr"))
-            curletter = 'Z';
-
         identifier.a_int = (count + 1); /* Must be non-zero */
-        curses_add_menu(wid, NO_GLYPH, &identifier, curletter, 0,
-                        A_NORMAL, choices[count], FALSE);
+        curses_add_menu(wid, &nul_glyphinfo, &identifier, curletter, 0,
+                        A_NORMAL, clr, choices[count], MENU_ITEMFLAGS_NONE);
         used_letters[count] = curletter;
     }
 
     /* Random Selection */
     identifier.a_int = ROLE_RANDOM;
-    curses_add_menu(wid, NO_GLYPH, &identifier, '*', 0, A_NORMAL, "Random",
-                    FALSE);
+    curses_add_menu(wid, &nul_glyphinfo, &identifier, '*', 0,
+                    A_NORMAL, clr, "Random", MENU_ITEMFLAGS_NONE);
 
     /* Quit prompt */
     identifier.a_int = ROLE_NONE;
-    curses_add_menu(wid, NO_GLYPH, &identifier, 'q', 0, A_NORMAL, "Quit",
-                    FALSE);
+    curses_add_menu(wid, &nul_glyphinfo, &identifier, 'q', 0,
+                    A_NORMAL, clr, "Quit", MENU_ITEMFLAGS_NONE);
     curses_end_menu(wid, prompt);
     ret = curses_select_menu(wid, PICK_ONE, &selected);
     if (ret == 1) {
@@ -812,32 +740,47 @@ curses_character_dialog(const char **choices, const char *prompt)
     return ret;
 }
 
+#endif /* 0 */
+
 /* Initialize and display options appropriately */
 void
-curses_init_options()
+curses_init_options(void)
 {
-    /* change these from DISP_IN_GAME to SET_IN_GAME */
-    set_wc_option_mod_status(WC_ALIGN_MESSAGE | WC_ALIGN_STATUS, SET_IN_GAME);
+#ifdef PDCURSES
+    int display_height = 0, display_width = 0;
+#if defined(WIN32) && !defined(WIN32CON)
+    int alt_display_height = 0, alt_display_width = 0;
+#endif
+#endif
+    /* change these from set_gameview to set_in_game */
+    set_wc_option_mod_status(WC_ALIGN_MESSAGE | WC_ALIGN_STATUS, set_in_game);
 
     /* Remove a few options that are irrelevant to this windowport */
-    set_option_mod_status("eight_bit_tty", SET_IN_FILE);
+    set_option_mod_status("eight_bit_tty", set_in_config);
 
     /* If we don't have a symset defined, load the curses symset by default */
-    if (!symset[PRIMARY].explicitly)
-        load_symset("curses", PRIMARY);
-    if (!symset[ROGUESET].explicitly)
+    if (!gs.symset[PRIMARYSET].explicitly)
+        load_symset("curses", PRIMARYSET);
+    if (!gs.symset[ROGUESET].explicitly)
         load_symset("default", ROGUESET);
 
 #ifdef PDCURSES
     /* PDCurses for SDL, win32 and OS/2 has the ability to set the
-       terminal size programatically.  If the user does not specify a
+       terminal size programmatically.  If the user does not specify a
        size in the config file, we will set it to a nice big 32x110 to
        take advantage of some of the nice features of this windowport. */
-    if (iflags.wc2_term_cols == 0)
-        iflags.wc2_term_cols = 110;
-    if (iflags.wc2_term_rows == 0)
-        iflags.wc2_term_rows = 32;
 
+    getmaxyx(base_term, display_height, display_width);
+#if defined(WIN32) && !defined(WIN32CON)
+    alt_display_width = get_approx_display_cols();
+    alt_display_height = get_approx_display_rows();
+    display_width = min(230, alt_display_width);
+    display_height = min(66, alt_display_height);
+#endif
+    if (iflags.wc2_term_cols == 0)
+        iflags.wc2_term_cols = display_width;
+    if (iflags.wc2_term_rows == 0)
+        iflags.wc2_term_rows = display_height;
     resize_term(iflags.wc2_term_rows, iflags.wc2_term_cols);
     getmaxyx(base_term, term_rows, term_cols);
 
@@ -854,16 +797,8 @@ curses_init_options()
 */
 #endif /* PDCURSES */
 
-    /* fix up pet highlighting */
-    if (iflags.wc2_petattr == -1) /* shouldn't happen */
-        iflags.wc2_petattr = A_NORMAL;
-    if (iflags.wc2_petattr != A_NORMAL) {
-        /* Pet attribute specified, so hilite_pet should be true */
-        iflags.hilite_pet = TRUE;
-    } else if (iflags.hilite_pet) {
-        /* pet highlighting specified, so don't leave petattr at A_NORMAL */
-        iflags.wc2_petattr = A_REVERSE;
-    }
+    /* FIXME: this overrides explicit OPTIONS=!use_inverse */
+    iflags.wc_inverse = TRUE; /* aka iflags.use_inverse; default is False */
 
     /* curses doesn't support 's' (single message at a time; successive
        ^P's go back to earlier messages) and 'c' (combination; single
@@ -882,20 +817,19 @@ curses_init_options()
 
 /* Display an ASCII splash screen if the splash_screen option is set */
 void
-curses_display_splash_window()
+curses_display_splash_window(void)
 {
-    int i, x_start, y_start;
-    /* Compute the gate locally so the user's iflags.wc_splash_screen
-       option is not mutated on small terminals (preserves the setting
-       across resizes that grow the terminal back) */
-    boolean splash_ok = iflags.wc_splash_screen
-                        && term_cols >= 70 && term_rows >= 20;
+     int i, x_start, y_start;
 
     curses_get_window_xy(MAP_WIN, &x_start, &y_start);
 
-    if (splash_ok) {
-        if (iflags.wc2_guicolor)
-            curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, ON);
+    if ((term_cols < 70) || (term_rows < 20)) {
+        iflags.wc_splash_screen = FALSE;        /* No room for s.s. */
+    }
+
+    if (iflags.wc_splash_screen) {
+         if (iflags.wc2_guicolor)
+              curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, ON);
         mvaddstr(y_start, x_start, NETHACK_SPLASH_A);
         mvaddstr(y_start + 1, x_start, NETHACK_SPLASH_B);
         mvaddstr(y_start + 2, x_start, NETHACK_SPLASH_C);
@@ -903,23 +837,20 @@ curses_display_splash_window()
         mvaddstr(y_start + 4, x_start, NETHACK_SPLASH_E);
         mvaddstr(y_start + 5, x_start, NETHACK_SPLASH_F);
         y_start += 7;
-        /* Bundled inside the splash_ok block so ON and OFF stay
-           balanced; the prior unconditional OFF could wattroff a
-           pair that had never been wattroned */
-        if (iflags.wc2_guicolor)
-            curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, OFF);
     }
+    if (iflags.wc2_guicolor)
+         curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, OFF);
 
     for (i = 1; i <= 4; ++i) {
-        mvaddstr(y_start, x_start, copyright_banner_line(i));
-        y_start++;
+         mvaddstr(y_start, x_start, copyright_banner_line(i));
+         y_start++;
     }
 
     refresh();
 }
 
-/* Resore colors and cursor state before exiting */
+/* Restore colors and cursor state before exiting */
 void
-curses_cleanup()
+curses_cleanup(void)
 {
 }

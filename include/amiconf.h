@@ -7,33 +7,17 @@
 #define AMICONF_H
 
 #undef abs /* avoid using macro form of abs */
-#ifndef __SASC_60
 #undef min /* this gets redefined */
 #undef max /* this gets redefined */
-#endif
 
 #include <time.h> /* get time_t defined before use! */
 
-#ifdef __SASC_60    /* since SAS can prevent re-inclusion */
-#include <stdlib.h> /* general things, including builtins */
+#include <stdlib.h>
 #include <string.h>
-#endif
-
-#ifdef AZTEC_50
-#include <stdlib.h>
-#define AZTEC_C_WORKAROUND /* Bug which turns up in sounds.c. Bummer... */
-#define NO_SIGNAL          /* 5.0 signal handling doesn't like SIGINT... */
-#endif
-
-#ifdef _DCC
-#include <stdlib.h>
-#define _SIZE_T
-#define DCC30_BUG /* A bitfield bug (from dog.c, others) in DICE 3.0. */
-#endif
-
-#ifndef __GNUC__
-typedef long off_t;
-#endif
+#include <unistd.h>
+#include <dos/dos.h>
+#include <clib/dos_protos.h>
+#include <proto/dos.h>
 
 #define MICRO /* must be defined to allow some inclusions */
 
@@ -41,68 +25,35 @@ typedef long off_t;
                              LEVELDIR, SAVEDIR, BONESDIR, DATADIR,    \
                              SCOREDIR, LOCKDIR, CONFIGDIR, and TROUBLEDIR */
 
+#define PATHLEN 130
+
 /* data librarian defs */
-#ifndef NOCWD_ASSUMPTIONS
-#define DLBFILE "NetHack:nhdat"   /* main library */
-#define DLBFILE2 "NetHack:nhsdat" /* sound library */
-#else
 #define DLBFILE "nhdat"   /* main library */
-#define DLBFILE2 "nhsdat" /* sound library */
-#endif
+/* nhsdat sound library not used in 5.0 */
+#undef DLBFILE2
 
-#define FILENAME_CMP stricmp /* case insensitive */
-
-#ifndef __SASC_60
+#define FILENAME_CMP strcmpi /* case insensitive */
 #define O_BINARY 0
-#endif
-
-/* Compile in New Intuition look for 2.0 */
-#ifdef IDCMP_CLOSEWINDOW
-#ifndef INTUI_NEW_LOOK
-#define INTUI_NEW_LOOK 1
-#endif
-#endif
 
 #define MFLOPPY /* You'll probably want this; provides assistance \
                  * for typical personal computer configurations   \
                  */
-#define RANDOM
 
 /* ### amidos.c ### */
 
-extern void FDECL(nethack_exit, (int));
-
-/* ### amiwbench.c ### */
-
-extern void NDECL(ami_wbench_init);
-extern void NDECL(ami_wbench_args);
-extern int FDECL(ami_wbench_getsave, (int));
-extern void FDECL(ami_wbench_unlink, (char *));
-extern int FDECL(ami_wbench_iconsize, (char *));
-extern void FDECL(ami_wbench_iconwrite, (char *));
-extern int FDECL(ami_wbench_badopt, (const char *));
-extern void NDECL(ami_wbench_cleanup);
-extern void FDECL(getlind, (const char *, char *, const char *));
+extern void nethack_exit(int);
 
 /* ### winreq.c ### */
 
 extern void amii_setpens(int);
 
-extern void FDECL(exit, (int));
-extern void NDECL(CleanUp);
-extern void FDECL(Abort, (long));
-extern int NDECL(getpid);
-extern char *FDECL(CopyFile, (const char *, const char *));
-extern int NDECL(kbhit);
-extern int NDECL(WindowGetchar);
-extern void FDECL(ami_argset, (int *, char *[]));
-extern void FDECL(ami_mkargline, (int *, char **[]));
-extern void FDECL(ami_wininit_data, (int));
-
-#define FromWBench 0 /* A hint for compiler ... */
-/* extern boolean FromWBench;	/* how were we run? */
-extern int ami_argc;
-extern char **ami_argv;
+extern void getlind(const char *, char *, const char *);
+extern void CleanUp(void);
+extern void Abort(long) NORETURN;
+extern int getpid(void);
+extern int kbhit(void);
+extern int WindowGetchar(void);
+extern void ami_wininit_data(int);
 
 #ifndef MICRO_H
 #include "micro.h"
@@ -113,37 +64,15 @@ extern char **ami_argv;
 #endif
 
 #define remove(x) unlink(x)
-
-/* DICE wants rewind() to return void.	We want it to return int. */
-#if defined(_DCC) || defined(__GNUC__)
 #define rewind(f) fseek(f, 0, 0)
-#endif
-
-#ifdef AZTEC_C
-extern FILE *FDECL(freopen, (const char *, const char *, FILE *));
-extern char *FDECL(gets, (char *));
-#endif
-
-#define msmsg printf
-
-/*
- * If AZTEC_C  we can't use the long cpath in vision.c....
- */
-#ifdef AZTEC_C
-#undef MACRO_CPATH
-#endif
 
 /*
  *  (Possibly) configurable Amiga options:
  */
 
-#define TEXTCOLOR /* Use colored monsters and objects */
 #define HACKFONT  /* Use special hack.font */
-#define SHELL     /* Have a shell escape command (!) */
 #define MAIL      /* Get mail at unexpected occasions */
-#define DEFAULT_ICON "NetHack:default.icon" /* private icon */
 #define AMIFLUSH /* toss typeahead (select flush in .cnf) */
-/* #define OPT_DISPMAP		/* enable fast_map option */
 
 /* new window system options */
 /* WRONG - AMIGA_INTUITION should go away */
@@ -152,40 +81,41 @@ extern char *FDECL(gets, (char *));
 #endif
 
 #define CHANGE_COLOR 1
-
-#ifdef TEXTCOLOR
 #define DEPTH 6 /* Maximum depth of the screen allowed */
-#else
-#define DEPTH 2 /* Four colors...sigh... */
-#endif
-
 #define AMII_MAXCOLORS (1L << DEPTH)
+/* Number of palette entries actually populated in amii_init_map[] (AMII text
+ * mode) and amiv_init_map[] (AMIV tile mode).  Indices beyond these read 0. */
+#define AMII_PALETTE_SIZE 8
+#define AMIV_PALETTE_SIZE 32
 typedef unsigned short AMII_COLOR_TYPE;
 
-#define PORT_HELP "nethack:amii.hlp"
+#define PORT_HELP "amii.hlp"
 
 #undef TERMLIB
 
-#define AMII_MUFFLED_VOLUME 40
-#define AMII_SOFT_VOLUME 50
-#define AMII_OKAY_VOLUME 60
-#define AMII_LOUDER_VOLUME 80
-
-#ifdef TTY_GRAPHICS
-#define ANSI_DEFAULT
-#endif
-
-extern int amibbs; /* BBS mode? */
-
 #ifdef AMII_GRAPHICS
 extern int amii_numcolors;
-void FDECL(amii_setpens, (int));
+void amii_setpens(int);
 #endif
 
-/* for cmd.c: override version in micro.h */
-#ifdef __SASC_60
-#undef M
-#define M(c) ((c) -128)
+struct ami_sysflags {
+    char sysflagsid[10];
+#ifdef AMIFLUSH
+    boolean altmeta;  /* use ALT keys as META */
+    boolean amiflush; /* kill typeahead */
 #endif
+#ifdef AMII_GRAPHICS
+    int numcols;
+    unsigned short amii_dripens[20]; /* DrawInfo Pens currently there are 13 in v39 */
+    AMII_COLOR_TYPE amii_curmap[AMII_MAXCOLORS]; /* colormap */
+#endif
+#ifdef MFLOPPY
+    boolean asksavedisk;
+#endif
+};
+extern struct ami_sysflags sysflags;
+
+#undef SYSCF
+#undef SYSCF_FILE
 
 #endif /* AMICONF_H */

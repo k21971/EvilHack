@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by EvilHackW.rc
+// Used by NetHackW.rc
 //
 #define IDC_MYICON                      2
 #define IDD_WINHACK_DIALOG              102

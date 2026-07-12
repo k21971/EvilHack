@@ -1,538 +1,92 @@
-/* NetHack 3.6	steed.c	$NHDT-Date: 1575245090 2019/12/02 00:04:50 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.68 $ */
+/* NetHack 5.0	steed.c	$NHDT-Date: 1781973068 2026/06/20 16:31:08 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.132 $ */
 /* Copyright (c) Kevin Hugo, 1998-1999. */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
 
 /* Monsters that might be ridden */
-static NEARDATA const char steeds[] = { S_QUADRUPED, S_UNICORN,  S_ANGEL,
-                                        S_CENTAUR,   S_DRAGON,   S_JABBERWOCK,
-                                        S_DOG,       S_FELINE,   S_SPIDER,
-                                        S_LIZARD,    S_SKELETON, '\0' };
+static NEARDATA const char steeds[] = { S_QUADRUPED, S_UNICORN, S_ANGEL,
+                                        S_CENTAUR,   S_DRAGON,  S_JABBERWOCK,
+                                        '\0' };
 
-/* Monsters that might wear barding */
-static NEARDATA const char mbarding[] = { S_QUADRUPED, S_UNICORN,    S_ANGEL,
-                                          S_DRAGON,    S_JABBERWOCK, S_DOG,
-                                          S_FELINE,    S_SPIDER,     S_LIZARD,
-                                          S_SKELETON,  '\0' };
-
-STATIC_DCL boolean FDECL(landing_spot, (coord *, int, int));
-STATIC_DCL void FDECL(maybewakesteed, (struct monst *));
+staticfn boolean landing_spot(coord *, int, int);
+staticfn void maybewakesteed(struct monst *);
 
 /* caller has decided that hero can't reach something while mounted */
 void
-rider_cant_reach()
+rider_cant_reach(void)
 {
     You("aren't skilled enough to reach from %s.", y_monnam(u.usteed));
-}
-
-void update_monsteed(mtmp)
-struct monst *mtmp;
-{
-    if (has_erid(mtmp)) {
-        struct monst *steed = ERID(mtmp)->mon_steed;
-
-        if (!steed)
-            return;
-        /* if steed has the player grabbed and rider is moving it
-           away, release the grab */
-        if (steed == u.ustuck && !u.uswallow
-            && !sticks(youmonst.data)
-            && distu(mtmp->mx, mtmp->my) > 2) {
-            unstuck(steed);
-            You("get released!");
-        }
-        steed->mx = mtmp->mx;
-        steed->my = mtmp->my;
-        steed->mpeaceful = mtmp->mpeaceful;
-        set_malign(steed);
-    }
-}
-
-/* assign a steed to a monster as the monster spawns */
-void mount_monster(mtmp, pm)
-struct monst *mtmp; /* rider */
-int pm;             /* steed */
-{
-    struct monst *mount;
-
-    /* small hack here: make it in a random spot to avoid failures due
-       to there not being enough room. */
-    mount = makemon(&mons[pm], 0, 0, MM_ADJACENTOK);
-    /* no steed (doesn't exist, genocided, extinct) or if for
-       some reason the steed is covetous - denied */
-    if (!mount || is_covetous(mount->data)
-        || ((mvitals[monsndx(mount->data)].mvflags & G_GONE)
-            && !(mount->data == &mons[PM_PALE_HORSE]
-                 || mount->data == &mons[PM_WHITE_HORSE]
-                 || mount->data == &mons[PM_BLACK_HORSE]))) {
-        return;
-    } else {
-        remove_monster(mount->mx, mount->my);
-        newsym(mount->mx, mount->my);
-    }
-    newerid(mtmp);
-    ERID(mtmp)->mon_steed = mount;
-    ERID(mtmp)->mid = mount->m_id;
-    ERID(mtmp)->mon_steed->ridden_by = mtmp->m_id;
-    ERID(mtmp)->mon_steed->mx = mtmp->mx;
-    ERID(mtmp)->mon_steed->my = mtmp->my;
-    newsym(mtmp->mx, mtmp->my);
-
-    /* rider over'rides' steed's natural inclinations */
-    mount->mpeaceful = mtmp->mpeaceful;
-    set_malign(mount);
-
-    /* monster steeds will come with a saddle */
-    if (can_saddle(mount) && !which_armor(mtmp, W_SADDLE)) {
-        struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
-
-        if (otmp)
-            put_saddle_on_mon(otmp, mount);
-    }
-
-    /* if the monster steed has a saddle, there's a chance it's wearing
-       barding also */
-    if (!rn2(10) && which_armor(mount, W_SADDLE)) {
-        if (can_wear_barding(mount)
-            && !which_armor(mtmp, W_BARDING)) {
-            struct obj *otmp = mksobj(rn2(4) ? BARDING
-                                             : rn2(3) ? SPIKED_BARDING
-                                                      : BARDING_OF_REFLECTION, TRUE, FALSE);
-
-            if (otmp) {
-                reroll_barding_material(otmp, mount, mtmp);
-                put_barding_on_mon(otmp, mount);
-            }
-        }
-    }
-}
-
-boolean mount_up(rider)
-struct monst *rider;
-{
-    struct monst *steed, *nmon;
-
-    /* not acceptable as riders */
-    if (!mon_can_ride(rider) || has_erid(rider))
-        return FALSE;
-
-    for (steed = fmon; steed; steed = nmon) {
-        nmon = steed->nmon;
-        if (nmon == rider)
-            nmon = rider->nmon;
-        if (steed == rider)
-            continue;
-        /* criteria for an acceptable steed */
-        if (steed->data == &mons[PM_CAVE_BEAR]
-            || steed->data == &mons[PM_GRIZZLY_BEAR])
-            continue;
-        if (steed->data == &mons[PM_DEER]
-            || steed->data == &mons[PM_STAG])
-            continue;
-        if (!racial_drow(rider) && is_spider(steed->data))
-            continue;
-        if (!racial_drow(rider)
-            && (steed->data == &mons[PM_CAVE_LIZARD]
-                || steed->data == &mons[PM_LARGE_CAVE_LIZARD]))
-            continue;
-        if (!racial_orc(rider)
-            && (steed->data == &mons[PM_WARG]
-                || steed->data == &mons[PM_WOLF]))
-            continue;
-        if (!(rider->data == &mons[PM_CAVEMAN]
-              || rider->data == &mons[PM_CAVEWOMAN])
-            && steed->data == &mons[PM_SABER_TOOTHED_TIGER])
-            continue;
-        if (!(racial_zombie(rider) || racial_vampire(rider))
-            && (steed->data == &mons[PM_SKELETAL_PONY]
-                || steed->data == &mons[PM_SKELETAL_HORSE]
-                || steed->data == &mons[PM_SKELETAL_WARHORSE]
-                || steed->data == &mons[PM_SKELETAL_DRAGON]))
-            continue;
-        /* don't let wild riders commandeer the player's tame pet */
-        if (steed->mtame)
-            continue;
-        if (monnear(rider, steed->mx, steed->my)
-            && mon_can_be_ridden(steed) && !steed->ridden_by) {
-            break;
-        }
-    }
-    /* not a steed? can't ride */
-    if (!steed)
-        return FALSE;
-    /* steed doesn't have a saddle? can't ride */
-    if (!which_armor(steed, W_SADDLE))
-        return FALSE;
-
-    if (canseemon(rider)) {
-        pline("%s clambers onto %s!", Monnam(rider),
-              canseemon(steed) ?  mon_nam(steed) : "something");
-    } else if (!Deaf && distu(rider->mx, rider->my) <= 5) {
-        You_hear("someone %s.", Hallucination ? "getting on their high horse"
-                                              : "jump into a saddle");
-    }
-    remove_monster(steed->mx, steed->my);
-    newsym(steed->mx, steed->my);
-    newerid(rider);
-    ERID(rider)->mon_steed = steed;
-    ERID(rider)->mid = steed->m_id;
-    ERID(rider)->mon_steed->ridden_by = rider->m_id;
-    ERID(rider)->mon_steed->mx = rider->mx;
-    ERID(rider)->mon_steed->my = rider->my;
-    newsym(rider->mx, rider->my);
-
-    /* rider over'rides' steed's natural inclinations */
-    steed->mpeaceful = rider->mpeaceful;
-    set_malign(steed);
-    return TRUE;
-}
-
-void
-newerid(mtmp)
-struct monst *mtmp;
-{
-    if (!mtmp->mextra)
-        mtmp->mextra = newmextra();
-    if (!ERID(mtmp)) {
-        ERID(mtmp) = (struct erid *) alloc(sizeof(struct erid));
-        (void) memset((genericptr_t) ERID(mtmp), 0, sizeof(struct erid));
-    }
-}
-
-void
-free_erid(mtmp)
-struct monst *mtmp;
-{
-    if (mtmp->mextra && ERID(mtmp)) {
-        struct monst *steed = ERID(mtmp)->mon_steed;
-        if (steed)
-            steed->ridden_by = 0; /* Remove pointer to monster in steed */
-        free((genericptr_t) ERID(mtmp));
-        ERID(mtmp) = (struct erid *) 0;
-    }
-}
-
-void
-separate_steed_and_rider(rider)
-struct monst *rider;
-{
-    struct monst *steed;
-    coord cc;
-
-    if (!has_erid(rider))
-        return;
-
-    steed = ERID(rider)->mon_steed;
-    free_erid(rider);
-
-    /* handle rider if both rider and steed are alive */
-    if (!DEADMONSTER(rider) && !DEADMONSTER(steed)) {
-        xchar orig_x = rider->mx, orig_y = rider->my; /* cache riders position */
-        boolean rider_moved;
-
-        /* move rider to an adjacent tile */
-        if (enexto_core_mon(&cc, rider->mx, rider->my, rider, NO_MM_FLAGS)) {
-            rloc_to(rider, cc.x, cc.y);
-            rider_moved = TRUE;
-        } else {
-            /* evidently no room nearby; move rider elsewhere */
-            rider_moved = rloc(rider, FALSE);
-        }
-        if (rider_moved) {
-            place_monster(steed, orig_x, orig_y);
-        } else if (enexto_core_mon(&cc, orig_x, orig_y, steed,
-                                   NO_MM_FLAGS)) {
-            /* rider stuck at orig; find a different spot for steed */
-            place_monster(steed, cc.x, cc.y);
-        } else {
-            /* truly nowhere to put the steed - dismiss it */
-            mongone(steed);
-        }
-    }
-    /* place rider if steed dies and rider is still alive */
-    if (!DEADMONSTER(rider) && DEADMONSTER(steed)) {
-        remove_monster(steed->mx, steed->my); /* remove pointer to steed */
-        place_monster(rider, rider->mx, rider->my);
-    }
-    /* place steed if rider dies and steed is still alive */
-    if (!DEADMONSTER(steed) && DEADMONSTER(rider))
-        place_monster(steed, steed->mx, steed->my);
-
-    /* rloc_to/rloc above can kill rider via mintrap on the destination
-       (collapsing tile, anti-magic field, lava, statue corpse, gas-cloud
-       region damage); mongone(steed) above can dismiss the steed. Guard
-       each side independently against stale-coord deref */
-    if (!DEADMONSTER(rider)) {
-        update_monster_region(rider);
-        newsym(rider->mx, rider->my);
-    }
-    if (!DEADMONSTER(steed)) {
-        update_monster_region(steed);
-        newsym(steed->mx, steed->my);
-    }
-}
-
-struct monst*
-get_mon_rider(mtmp)
-struct monst *mtmp;
-{
-    struct monst *mtmp2;
-
-    if (!mtmp->ridden_by)
-        return (struct monst *) 0;
-    for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
-        if (mtmp->ridden_by == mtmp2->m_id)
-            return mtmp2;
-    }
-    return (struct monst *) 0;
 }
 
 /*** Putting the saddle on ***/
 
 /* Can this monster wear a saddle? */
 boolean
-can_saddle(mtmp)
-struct monst *mtmp;
+can_saddle(struct monst *mtmp)
 {
-    struct permonst *ptr = r_data(mtmp);
+    struct permonst *ptr = mtmp->data;
 
-    return (index(steeds, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
-            && (!humanoid(ptr) || ptr->mlet == S_CENTAUR)
-            && !amorphous(ptr) && !noncorporeal(ptr)
-            && !is_whirly(ptr) && !unsolid(ptr)
-            && !(ptr->mlet == S_QUADRUPED
-                 && mtmp->mnum != PM_ROTHE
-                 && mtmp->mnum != PM_LEOCROTTA
-                 && mtmp->mnum != PM_WUMPUS
-                 && mtmp->mnum != PM_MUMAK
-                 && mtmp->mnum != PM_TITANOTHERE
-                 && mtmp->mnum != PM_BALUCHITHERIUM
-                 && mtmp->mnum != PM_MASTODON
-                 && mtmp->mnum != PM_WOOLLY_MAMMOTH)
-            && !(ptr->mlet == S_UNICORN
-                 && mtmp->mnum != PM_PONY
-                 && mtmp->mnum != PM_HORSE
-                 && mtmp->mnum != PM_WARHORSE
-                 && mtmp->mnum != PM_LESSER_NIGHTMARE
-                 && mtmp->mnum != PM_NIGHTMARE
-                 && mtmp->mnum != PM_CAUCHEMAR
-                 && mtmp->mnum != PM_WHITE_UNICORN
-                 && mtmp->mnum != PM_GRAY_UNICORN
-                 && mtmp->mnum != PM_BLACK_UNICORN
-                 && mtmp->mnum != PM_PEGASUS
-                 && mtmp->mnum != PM_GREATER_PEGASUS
-                 && mtmp->mnum != PM_PALE_HORSE
-                 && mtmp->mnum != PM_BLACK_HORSE
-                 && mtmp->mnum != PM_WHITE_HORSE
-                 && mtmp->mnum != PM_RED_HORSE)
-            && !(ptr->mlet == S_JABBERWOCK
-                 && mtmp->mnum != PM_JABBERWOCK
-                 && mtmp->mnum != PM_VORPAL_JABBERWOCK)
-            && !(ptr->mlet == S_DOG
-                 && mtmp->mnum != PM_WOLF
-                 && mtmp->mnum != PM_WARG)
-            && !(ptr->mlet == S_SPIDER
-                 && mtmp->mnum != PM_GIANT_SPIDER
-                 && mtmp->mnum != PM_GARGANTUAN_SPIDER)
-            && !(ptr->mlet == S_LIZARD
-                 && mtmp->mnum != PM_CAVE_LIZARD
-                 && mtmp->mnum != PM_LARGE_CAVE_LIZARD)
-            && !(ptr->mlet == S_SKELETON
-                 && mtmp->mnum != PM_SKELETAL_PONY
-                 && mtmp->mnum != PM_SKELETAL_HORSE
-                 && mtmp->mnum != PM_SKELETAL_WARHORSE
-                 && mtmp->mnum != PM_SKELETAL_DRAGON)
-            && !(ptr->mlet == S_FELINE
-                 && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
-}
-
-/* Can this monster wear barding? */
-boolean
-can_wear_barding(mtmp)
-struct monst *mtmp;
-{
-    struct permonst *ptr = r_data(mtmp);
-
-    return (index(mbarding, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
-            && !humanoid(ptr) && !amorphous(ptr)
-            && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr)
-            && !(ptr->mlet == S_QUADRUPED
-                 && mtmp->mnum != PM_ROTHE
-                 && mtmp->mnum != PM_LEOCROTTA
-                 && mtmp->mnum != PM_WUMPUS
-                 && mtmp->mnum != PM_MUMAK
-                 && mtmp->mnum != PM_TITANOTHERE
-                 && mtmp->mnum != PM_BALUCHITHERIUM
-                 && mtmp->mnum != PM_MASTODON
-                 && mtmp->mnum != PM_WOOLLY_MAMMOTH)
-            && !(ptr->mlet == S_UNICORN
-                 && mtmp->mnum != PM_PONY
-                 && mtmp->mnum != PM_HORSE
-                 && mtmp->mnum != PM_WARHORSE
-                 && mtmp->mnum != PM_LESSER_NIGHTMARE
-                 && mtmp->mnum != PM_NIGHTMARE
-                 && mtmp->mnum != PM_CAUCHEMAR
-                 && mtmp->mnum != PM_WHITE_UNICORN
-                 && mtmp->mnum != PM_GRAY_UNICORN
-                 && mtmp->mnum != PM_BLACK_UNICORN
-                 && mtmp->mnum != PM_PEGASUS
-                 && mtmp->mnum != PM_GREATER_PEGASUS
-                 && mtmp->mnum != PM_PALE_HORSE
-                 && mtmp->mnum != PM_BLACK_HORSE
-                 && mtmp->mnum != PM_WHITE_HORSE
-                 && mtmp->mnum != PM_RED_HORSE)
-            && !(ptr->mlet == S_JABBERWOCK
-                 && mtmp->mnum != PM_JABBERWOCK
-                 && mtmp->mnum != PM_VORPAL_JABBERWOCK)
-            && !(ptr->mlet == S_DOG
-                 && mtmp->mnum != PM_WOLF
-                 && mtmp->mnum != PM_WARG)
-            && !(ptr->mlet == S_SPIDER
-                 && mtmp->mnum != PM_GIANT_SPIDER
-                 && mtmp->mnum != PM_GARGANTUAN_SPIDER)
-            && !(ptr->mlet == S_LIZARD
-                 && mtmp->mnum != PM_CAVE_LIZARD
-                 && mtmp->mnum != PM_LARGE_CAVE_LIZARD)
-            && !(ptr->mlet == S_SKELETON
-                 && mtmp->mnum != PM_SKELETAL_PONY
-                 && mtmp->mnum != PM_SKELETAL_HORSE
-                 && mtmp->mnum != PM_SKELETAL_WARHORSE
-                 && mtmp->mnum != PM_SKELETAL_DRAGON)
-            && !(ptr->mlet == S_FELINE
-                 && mtmp->mnum != PM_SABER_TOOTHED_TIGER));
+    return (strchr(steeds, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
+            && (!humanoid(ptr) || ptr->mlet == S_CENTAUR) && !amorphous(ptr)
+            && !noncorporeal(ptr) && !is_whirly(ptr) && !unsolid(ptr));
 }
 
 int
-use_saddle(otmp)
-struct obj *otmp;
+use_saddle(struct obj *otmp)
 {
     struct monst *mtmp;
     struct permonst *ptr;
     int chance;
-    const char *s;
 
     if (!u_handsy())
-        return 0;
+        return ECMD_OK;
 
     /* Select an animal */
     if (u.uswallow || Underwater || !getdir((char *) 0)) {
         pline1(Never_mind);
-        return 0;
+        return ECMD_CANCEL;
     }
     if (!u.dx && !u.dy) {
         pline("Saddle yourself?  Very funny...");
-        return 0;
+        return ECMD_OK;
     }
     if (!isok(u.ux + u.dx, u.uy + u.dy)
         || !(mtmp = m_at(u.ux + u.dx, u.uy + u.dy)) || !canspotmon(mtmp)) {
         pline("I see nobody there.");
-        return 1;
+        return ECMD_TIME;
     }
 
     /* Is this a valid monster? */
-    if (which_armor(mtmp, W_SADDLE)) {
+    if ((mtmp->misc_worn_check & W_SADDLE) != 0L
+        || which_armor(mtmp, W_SADDLE)) {
         pline("%s doesn't need another one.", Monnam(mtmp));
-        return 1;
+        return ECMD_TIME;
     }
     ptr = mtmp->data;
     if (touch_petrifies(ptr) && !uarmg && !Stone_resistance) {
         char kbuf[BUFSZ];
 
         You("touch %s.", mon_nam(mtmp));
-        if (!(poly_when_stoned(youmonst.data)
-              && (polymon(PM_STONE_GOLEM)
-                  || polymon(PM_PETRIFIED_ENT)))) {
+        if (!(poly_when_stoned(gy.youmonst.data) && polymon(PM_STONE_GOLEM))) {
             Sprintf(kbuf, "attempting to saddle %s",
-                    an(mtmp->data->mname));
+                    an(pmname(mtmp->data, Mgender(mtmp))));
             instapetrify(kbuf);
         }
     }
-    if (ptr == &mons[PM_INCUBUS] || ptr == &mons[PM_SUCCUBUS]) {
+    if (ptr == &mons[PM_AMOROUS_DEMON]) {
         pline("Shame on you!");
         exercise(A_WIS, FALSE);
-        return 1;
+        return ECMD_TIME;
     }
     if (mtmp->isminion || mtmp->isshk || mtmp->ispriest || mtmp->isgd
         || mtmp->iswiz) {
         pline("I think %s would mind.", mon_nam(mtmp));
-        return 1;
-    }
-    if ((ptr == &mons[PM_WARG] || ptr == &mons[PM_WOLF])
-        && !racial_orc(&youmonst)) {
-        if (!Deaf)
-            pline("%s %s menacingly at you!", Monnam(mtmp),
-                  rn2(2) ? "snarls" : "growls");
-        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3)) {
-            mtmp->mtame = mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            if (mtmp->mleashed)
-                m_unleash(mtmp, TRUE);
-            newsym(mtmp->mx, mtmp->my);
-        }
-        return 1;
-    }
-    if (ptr == &mons[PM_SABER_TOOTHED_TIGER]
-        && !Role_if(PM_CAVEMAN)) {
-        if (!Deaf)
-            pline("%s %s menacingly at you!", Monnam(mtmp),
-                  rn2(2) ? "snarls" : "growls");
-        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3)) {
-            mtmp->mtame = mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            if (mtmp->mleashed)
-                m_unleash(mtmp, TRUE);
-            newsym(mtmp->mx, mtmp->my);
-        }
-        return 1;
-    }
-    if ((ptr == &mons[PM_GIANT_SPIDER]
-         || ptr == &mons[PM_GARGANTUAN_SPIDER]
-         || ptr == &mons[PM_CAVE_LIZARD]
-         || ptr == &mons[PM_LARGE_CAVE_LIZARD])
-        && !racial_drow(&youmonst)) {
-        if (!Deaf)
-            pline("%s hisses threateningly at you!", Monnam(mtmp));
-        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3)) {
-            mtmp->mtame = mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            if (mtmp->mleashed)
-                m_unleash(mtmp, TRUE);
-            newsym(mtmp->mx, mtmp->my);
-        }
-        return 1;
-    }
-    if ((ptr == &mons[PM_SKELETAL_PONY]
-         || ptr == &mons[PM_SKELETAL_HORSE]
-         || ptr == &mons[PM_SKELETAL_WARHORSE]
-         || ptr == &mons[PM_SKELETAL_DRAGON])
-        && !(racial_zombie(&youmonst) || racial_vampire(&youmonst))) {
-        if (!Deaf) {
-            pline("%s rattles noisily at you!", Monnam(mtmp));
-            if (!(racial_zombie(&youmonst)
-                  || racial_vampire(&youmonst))) {
-                You("freeze for a moment.");
-                nomul(-2);
-                multi_reason = "scared by rattling";
-                nomovemsg = 0;
-            }
-        }
-        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3)) {
-            mtmp->mtame = mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            if (mtmp->mleashed)
-                m_unleash(mtmp, TRUE);
-            newsym(mtmp->mx, mtmp->my);
-        }
-        return 1;
+        return ECMD_TIME;
     }
     if (!can_saddle(mtmp)) {
         You_cant("saddle such a creature.");
-        return 1;
+        return ECMD_TIME;
     }
 
     /* Calculate your chance */
@@ -559,12 +113,10 @@ struct obj *otmp;
     }
     if (Confusion || Fumbling || Glib)
         chance -= 20;
-    else if (uarmg && (s = OBJ_DESCR(objects[uarmg->otyp])) != (char *) 0
-             && !strncmp(s, "riding ", 7))
+    else if (uarmg && objdescr_is(uarmg, "riding gloves"))
         /* Bonus for wearing "riding" (but not fumbling) gloves */
         chance += 10;
-    else if (uarmf && (s = OBJ_DESCR(objects[uarmf->otyp])) != (char *) 0
-             && !strncmp(s, "riding ", 7))
+    else if (uarmf && objdescr_is(uarmf, "riding boots"))
         /* ... or for "riding boots" */
         chance += 10;
     if (otmp->cursed)
@@ -579,305 +131,75 @@ struct obj *otmp;
         if (otmp->owornmask)
             remove_worn_item(otmp, FALSE);
         freeinv(otmp);
+        /* !can_saddle(mtmp) already eliminated above */
         put_saddle_on_mon(otmp, mtmp);
     } else
         pline("%s resists!", Monnam(mtmp));
-    return 1;
-}
-
-int
-use_barding(otmp)
-struct obj *otmp;
-{
-    struct monst *mtmp;
-    struct permonst *ptr;
-    int chance;
-    const char *s;
-
-    if (!u_handsy())
-        return 0;
-
-    /* Select an animal */
-    if (u.uswallow || Underwater || !getdir((char *) 0)) {
-        pline1(Never_mind);
-        return 0;
-    }
-    if (!u.dx && !u.dy) {
-        pline("Put barding on yourself?  Very funny...");
-        return 0;
-    }
-    if (!isok(u.ux + u.dx, u.uy + u.dy)
-        || !(mtmp = m_at(u.ux + u.dx, u.uy + u.dy)) || !canspotmon(mtmp)) {
-        pline("I see nobody there.");
-        return 1;
-    }
-
-    /* Is this a valid monster? */
-    if (which_armor(mtmp, W_BARDING)) {
-        pline("%s doesn't need another one.", Monnam(mtmp));
-        return 1;
-    }
-    ptr = mtmp->data;
-    if (touch_petrifies(ptr) && !uarmg && !Stone_resistance) {
-        char kbuf[BUFSZ];
-
-        You("touch %s.", mon_nam(mtmp));
-        if (!(poly_when_stoned(youmonst.data)
-              && (polymon(PM_STONE_GOLEM)
-                  || polymon(PM_PETRIFIED_ENT)))) {
-            Sprintf(kbuf, "attempting to put barding on %s",
-                    an(mtmp->data->mname));
-            instapetrify(kbuf);
-        }
-    }
-    if (ptr == &mons[PM_INCUBUS] || ptr == &mons[PM_SUCCUBUS]) {
-        pline("This won't accessorize well...");
-        exercise(A_WIS, FALSE);
-        return 1;
-    }
-    if (mtmp->isminion || mtmp->isshk || mtmp->ispriest || mtmp->isgd
-        || mtmp->iswiz) {
-        pline("I think %s would mind.", mon_nam(mtmp));
-        return 1;
-    }
-    if ((ptr == &mons[PM_WARG] || ptr == &mons[PM_WOLF])
-        && !racial_orc(&youmonst)) {
-        if (!Deaf)
-            pline("%s %s menacingly at you!", Monnam(mtmp),
-                  rn2(2) ? "snarls" : "growls");
-        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3)) {
-            mtmp->mtame = mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            if (mtmp->mleashed)
-                m_unleash(mtmp, TRUE);
-            newsym(mtmp->mx, mtmp->my);
-        }
-        return 1;
-    }
-    if (ptr == &mons[PM_SABER_TOOTHED_TIGER]
-        && !Role_if(PM_CAVEMAN)) {
-        if (!Deaf)
-            pline("%s %s menacingly at you!", Monnam(mtmp),
-                  rn2(2) ? "snarls" : "growls");
-        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3)) {
-            mtmp->mtame = mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            if (mtmp->mleashed)
-                m_unleash(mtmp, TRUE);
-            newsym(mtmp->mx, mtmp->my);
-        }
-        return 1;
-    }
-    if ((ptr == &mons[PM_GIANT_SPIDER]
-         || ptr == &mons[PM_GARGANTUAN_SPIDER]
-         || ptr == &mons[PM_CAVE_LIZARD]
-         || ptr == &mons[PM_LARGE_CAVE_LIZARD])
-        && !racial_drow(&youmonst)) {
-        if (!Deaf)
-            pline("%s hisses threateningly at you!", Monnam(mtmp));
-        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3)) {
-            mtmp->mtame = mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            if (mtmp->mleashed)
-                m_unleash(mtmp, TRUE);
-            newsym(mtmp->mx, mtmp->my);
-        }
-        return 1;
-    }
-    if ((ptr == &mons[PM_SKELETAL_PONY]
-         || ptr == &mons[PM_SKELETAL_HORSE]
-         || ptr == &mons[PM_SKELETAL_WARHORSE]
-         || ptr == &mons[PM_SKELETAL_DRAGON])
-        && !(racial_zombie(&youmonst) || racial_vampire(&youmonst))) {
-        if (!Deaf) {
-            pline("%s rattles noisily at you!", Monnam(mtmp));
-            if (!(racial_zombie(&youmonst)
-                  || racial_vampire(&youmonst))) {
-                You("freeze for a moment.");
-                nomul(-2);
-                multi_reason = "scared by rattling";
-                nomovemsg = 0;
-            }
-        }
-        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3)) {
-            mtmp->mtame = mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            if (mtmp->mleashed)
-                m_unleash(mtmp, TRUE);
-            newsym(mtmp->mx, mtmp->my);
-        }
-        return 1;
-    }
-    if (!can_wear_barding(mtmp)) {
-        You_cant("put barding on such a creature.");
-        return 1;
-    }
-
-    /* Calculate your chance (same for using a saddle) */
-    chance = ACURR(A_DEX) + ACURR(A_CHA) / 2 + 2 * mtmp->mtame;
-    chance += u.ulevel * (mtmp->mtame ? 20 : 5);
-    if (!mtmp->mtame)
-        chance -= 10 * mtmp->m_lev;
-    if (Role_if(PM_KNIGHT))
-        chance += 20;
-    switch (P_SKILL(P_RIDING)) {
-    case P_ISRESTRICTED:
-    case P_UNSKILLED:
-    default:
-        chance -= 20;
-        break;
-    case P_BASIC:
-        break;
-    case P_SKILLED:
-        chance += 15;
-        break;
-    case P_EXPERT:
-        chance += 30;
-        break;
-    }
-    if (Confusion || Fumbling || Glib)
-        chance -= 20;
-    else if (uarmg && (s = OBJ_DESCR(objects[uarmg->otyp])) != (char *) 0
-             && !strncmp(s, "riding ", 7))
-        /* Bonus for wearing "riding" (but not fumbling) gloves */
-        chance += 10;
-    else if (uarmf && (s = OBJ_DESCR(objects[uarmf->otyp])) != (char *) 0
-             && !strncmp(s, "riding ", 7))
-        /* ... or for "riding boots" */
-        chance += 10;
-    if (otmp->cursed)
-        chance -= 50;
-
-    /* [intended] steed becomes alert if possible */
-    maybewakesteed(mtmp);
-
-    /* Make the attempt */
-    if (rn2(100) < chance) {
-        You("fit the barding on %s.", mon_nam(mtmp));
-        if (otmp->owornmask)
-            remove_worn_item(otmp, FALSE);
-        freeinv(otmp);
-        put_barding_on_mon(otmp, mtmp);
-    } else
-        pline("%s resists!", Monnam(mtmp));
-    return 1;
+    return ECMD_TIME;
 }
 
 void
-put_saddle_on_mon(saddle, mtmp)
-struct obj *saddle;
-struct monst *mtmp;
+put_saddle_on_mon(struct obj *saddle, struct monst *mtmp)
 {
-    if (!saddle) /* defense-in-depth against mksobj() NULL return */
+    if (!can_saddle(mtmp) || which_armor(mtmp, W_SADDLE)) {
+        if (saddle)
+            impossible("put_saddle_on_mon: saddle obj could get orphaned");
         return;
-    if (!can_saddle(mtmp) || which_armor(mtmp, W_SADDLE))
-        return;
+    }
+    if (!saddle) {
+        if ((saddle = mksobj(SADDLE, TRUE, FALSE)) != 0) {
+            fully_identify_obj(saddle);
+            /* mpickobj can later override identification if out-of-view */
+        } else {
+            return;
+        }
+    }
     if (mpickobj(mtmp, saddle))
         panic("merged saddle?");
     mtmp->misc_worn_check |= W_SADDLE;
     saddle->owornmask = W_SADDLE;
     saddle->leashmon = mtmp->m_id;
-    update_mon_intrinsics(mtmp, saddle, TRUE, FALSE);
-}
-
-void
-put_barding_on_mon(barding, mtmp)
-struct obj *barding;
-struct monst *mtmp;
-{
-    if (!barding) /* defense-in-depth against mksobj() NULL return */
-        return;
-    if (!can_wear_barding(mtmp) || which_armor(mtmp, W_BARDING))
-        return;
-    if (mpickobj(mtmp, barding))
-        panic("merged barding?");
-    mtmp->misc_worn_check |= W_BARDING;
-    barding->owornmask = W_BARDING;
-    barding->leashmon = mtmp->m_id;
-    update_mon_intrinsics(mtmp, barding, TRUE, FALSE);
-}
-
-/* reroll freshly spawned steed barding so neither the steed nor its
- * rider (if any) is averse to its material; mirrors the hated-material
- * reroll mongets() does for ordinary monster gear */
-void
-reroll_barding_material(barding, steed, rider)
-struct obj *barding;
-struct monst *steed, *rider;
-{
-    int tryct = 0, mat;
-
-    if (!barding)
-        return;
-    while (mon_hates_material(steed, barding->material)
-           || (rider && mon_hates_material(rider, barding->material))) {
-        init_obj_material(barding);
-        if (++tryct >= 100) {
-            for (mat = 1; mat < NUM_MATERIAL_TYPES; ++mat) {
-                if (valid_obj_material(barding, mat)
-                    && !mon_hates_material(steed, mat)
-                    && !(rider && mon_hates_material(rider, mat))) {
-                    set_material(barding, mat);
-                    break;
-                }
-            }
-            if (mat == NUM_MATERIAL_TYPES) {
-                impossible("no valid barding material (steed %d, rider %d)",
-                           monsndx(steed->data),
-                           rider ? monsndx(rider->data) : -1);
-                set_material(barding, objects[barding->otyp].oc_material);
-            }
-            break;
-        }
-    }
+    update_mon_extrinsics(mtmp, saddle, TRUE, FALSE);
 }
 
 /*** Riding the monster ***/
 
 /* Can we ride this monster?  Caller should also check can_saddle() */
 boolean
-can_ride(mtmp)
-struct monst *mtmp;
+can_ride(struct monst *mtmp)
 {
-    return ((mtmp->mtame && humanoid(youmonst.data)
-             && !maybe_polyd(is_tortle(youmonst.data), Race_if(PM_TORTLE))
-             && !verysmall(youmonst.data)
-             && !bigmonst(youmonst.data)
-             && (!Underwater || is_swimmer(mtmp->data)))
-            || (r_data(mtmp) == &mons[PM_WOOLLY_MAMMOTH] && Race_if(PM_GIANT)));
+    return (mtmp->mtame && humanoid(gy.youmonst.data)
+            && !verysmall(gy.youmonst.data) && !bigmonst(gy.youmonst.data)
+            && (!Underwater || is_swimmer(mtmp->data)));
 }
 
+/* the #ride command */
 int
-doride()
+doride(void)
 {
     boolean forcemount = FALSE;
 
     if (u.usteed) {
         dismount_steed(DISMOUNT_BYCHOICE);
     } else if (getdir((char *) 0) && isok(u.ux + u.dx, u.uy + u.dy)) {
-        if (wizard && yn("Force the mount to succeed?") == 'y')
+        if (wizard && y_n("Force the mount to succeed?") == 'y')
             forcemount = TRUE;
-        return (mount_steed(m_at(u.ux + u.dx, u.uy + u.dy), forcemount));
+        return (mount_steed(m_at(u.ux + u.dx, u.uy + u.dy), forcemount)
+                ? ECMD_TIME : ECMD_OK);
     } else {
-        return 0;
+        return ECMD_CANCEL;
     }
-    return 1;
+    return ECMD_TIME;
 }
 
 /* Start riding, with the given monster */
 boolean
-mount_steed(mtmp, force)
-struct monst *mtmp; /* The animal */
-boolean force;      /* Quietly force this animal */
+mount_steed(
+    struct monst *mtmp, /* The animal */
+    boolean force)      /* Quietly force this animal */
 {
     struct obj *otmp;
-    struct obj *barding;
     char buf[BUFSZ];
-    int role_modifier;
     struct permonst *ptr;
 
     /* Sanity checks */
@@ -891,8 +213,8 @@ boolean force;      /* Quietly force this animal */
         pline("Maybe you should find a designated driver.");
         return (FALSE);
     }
-    /* While riding Wounded_legs refers to the steed's,
-     * not the hero's legs.
+    /* While riding, Wounded_legs refers to the steed's
+     * legs, not the hero's legs.
      * That opens up a potential abuse where the player
      * can mount a steed, then dismount immediately to
      * heal leg damage, because leg damage is always
@@ -905,15 +227,21 @@ boolean force;      /* Quietly force this animal */
      * temporary 1 point Dex loss become permanent.]
      */
     if (Wounded_legs) {
-        Your("%s are in no shape for riding.", makeplural(body_part(LEG)));
-        if (force && wizard && yn("Heal your legs?") == 'y')
-            HWounded_legs = EWounded_legs = 0L;
+        char qbuf[QBUFSZ];
+
+        legs_in_no_shape("riding", FALSE);
+        Sprintf(qbuf, "Heal your leg%s?",
+                ((HWounded_legs & BOTH_SIDES) == BOTH_SIDES) ? "s" : "");
+        if (force && wizard && y_n(qbuf) == 'y')
+            heal_legs(0);
         else
             return (FALSE);
     }
 
-    if (Upolyd && (!humanoid(youmonst.data) || verysmall(youmonst.data)
-                   || bigmonst(youmonst.data) || slithy(youmonst.data))) {
+    if (Upolyd && (!humanoid(gy.youmonst.data)
+                   || verysmall(gy.youmonst.data)
+                   || bigmonst(gy.youmonst.data)
+                   || slithy(gy.youmonst.data))) {
         You("won't fit on a saddle.");
         return (FALSE);
     }
@@ -939,78 +267,6 @@ boolean force;      /* Quietly force this animal */
         You("couldn't ride %s, let alone its tail.", a_monnam(mtmp));
         return FALSE;
     }
-    if ((mtmp->data == &mons[PM_WARG] || mtmp->data == &mons[PM_WOLF])
-        && !racial_orc(&youmonst)) {
-        if (!Deaf)
-            pline("%s %s menacingly at you!", Monnam(mtmp),
-                  rn2(2) ? "snarls" : "growls");
-        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3)) {
-            mtmp->mtame = mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            if (mtmp->mleashed)
-                m_unleash(mtmp, TRUE);
-            newsym(mtmp->mx, mtmp->my);
-        }
-        return FALSE;
-    }
-    if (mtmp->data == &mons[PM_SABER_TOOTHED_TIGER]
-        && !Role_if(PM_CAVEMAN)) {
-        if (!Deaf)
-            pline("%s %s menacingly at you!", Monnam(mtmp),
-                  rn2(2) ? "snarls" : "growls");
-        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3)) {
-            mtmp->mtame = mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            if (mtmp->mleashed)
-                m_unleash(mtmp, TRUE);
-            newsym(mtmp->mx, mtmp->my);
-        }
-        return FALSE;
-    }
-    if ((mtmp->data == &mons[PM_GIANT_SPIDER]
-         || mtmp->data == &mons[PM_GARGANTUAN_SPIDER]
-         || mtmp->data == &mons[PM_CAVE_LIZARD]
-         || mtmp->data == &mons[PM_LARGE_CAVE_LIZARD])
-        && !racial_drow(&youmonst)) {
-        if (!Deaf)
-            pline("%s hisses threateningly at you!", Monnam(mtmp));
-        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3)) {
-            mtmp->mtame = mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            if (mtmp->mleashed)
-                m_unleash(mtmp, TRUE);
-            newsym(mtmp->mx, mtmp->my);
-        }
-        return FALSE;
-    }
-    if ((mtmp->data == &mons[PM_SKELETAL_PONY]
-         || mtmp->data == &mons[PM_SKELETAL_HORSE]
-         || mtmp->data == &mons[PM_SKELETAL_WARHORSE]
-         || mtmp->data == &mons[PM_SKELETAL_DRAGON])
-        && !(racial_zombie(&youmonst) || racial_vampire(&youmonst))) {
-        if (!Deaf) {
-            pline("%s rattles noisily at you!", Monnam(mtmp));
-            if (!(racial_zombie(&youmonst)
-                  || racial_vampire(&youmonst))) {
-                You("freeze for a moment.");
-                nomul(-2);
-                multi_reason = "scared by rattling";
-                nomovemsg = 0;
-            }
-        }
-        if ((mtmp->mtame > 0 || mtmp->mpeaceful)
-            && !rn2(3)) {
-            mtmp->mtame = mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-            if (mtmp->mleashed)
-                m_unleash(mtmp, TRUE);
-            newsym(mtmp->mx, mtmp->my);
-        }
-        return FALSE;
-    }
     if (u.uswallow || u.ustuck || u.utrap || Punished
         || !test_move(u.ux, u.uy, mtmp->mx - u.ux, mtmp->my - u.uy,
                       TEST_MOVE)) {
@@ -1027,12 +283,14 @@ boolean force;      /* Quietly force this animal */
         pline("%s is not saddled.", Monnam(mtmp));
         return (FALSE);
     }
+
     ptr = mtmp->data;
     if (touch_petrifies(ptr) && !Stone_resistance) {
         char kbuf[BUFSZ];
 
         You("touch %s.", mon_nam(mtmp));
-        Sprintf(kbuf, "attempting to ride %s", an(mtmp->data->mname));
+        Sprintf(kbuf, "attempting to ride %s",
+                an(pmname(mtmp->data, Mgender(mtmp))));
         instapetrify(kbuf);
     }
     if (!mtmp->mtame || mtmp->isminion) {
@@ -1043,23 +301,11 @@ boolean force;      /* Quietly force this animal */
         struct trap *t = t_at(mtmp->mx, mtmp->my);
 
         You_cant("mount %s while %s's trapped in %s.", mon_nam(mtmp),
-                 mhe(mtmp), an(defsyms[trap_to_defsym(t->ttyp)].explanation));
+                 mhe(mtmp), an(trapname(t->ttyp, FALSE)));
         return (FALSE);
     }
 
-    if (mtmp->mentangled) {
-        You_cant("mount %s while %s's entangled.", mon_nam(mtmp),
-                 mhe(mtmp));
-        return (FALSE);
-    }
-
-    /* Knights will not decrease the tameness of their steed when
-       mounting them. The same is true for any role whose steed is
-       wearing Ithilmar (artifact barding) */
-    barding = which_armor(mtmp, W_BARDING);
-    if (!force && !(Role_if(PM_KNIGHT)
-                    || (barding && barding->oartifact == ART_ITHILMAR))
-        && !(--mtmp->mtame)) {
+    if (!force && !Role_if(PM_KNIGHT) && !(--mtmp->mtame)) {
         /* no longer tame */
         newsym(mtmp->mx, mtmp->my);
         pline("%s resists%s!", Monnam(mtmp),
@@ -1079,8 +325,7 @@ boolean force;      /* Quietly force this animal */
     }
 
     /* Is the player impaired? */
-    if (!force && !is_floater(ptr) && !is_flyer(ptr)
-        && !can_levitate(mtmp) && Levitation
+    if (!force && !is_floater(ptr) && !is_flyer(ptr) && Levitation
         && !Lev_at_will) {
         You("cannot reach %s.", mon_nam(mtmp));
         return (FALSE);
@@ -1090,12 +335,10 @@ boolean force;      /* Quietly force this animal */
              uarm->oeroded ? "rusty" : "corroded", mon_nam(mtmp));
         return (FALSE);
     }
-    /* A Knight should be able to ride his own horse!
-       so we get a bonus for all horse-like things */
-    role_modifier = (Role_if(PM_KNIGHT) && mtmp->data->mlet == S_UNICORN) ? 10 : 0;
     if (!force
         && (Confusion || Fumbling || Glib || Wounded_legs || otmp->cursed
-            || (u.ulevel + mtmp->mtame + role_modifier < rnd(MAXULEV / 2 + 5)))) {
+            || otmp->greased
+            || (u.ulevel + mtmp->mtame < rnd(MAXULEV / 2 + 5)))) {
         if (Levitation) {
             pline("%s slips away from you.", Monnam(mtmp));
             return FALSE;
@@ -1115,8 +358,7 @@ boolean force;      /* Quietly force this animal */
     /* Success */
     maybewakesteed(mtmp);
     if (!force) {
-        if (Levitation && !is_floater(ptr)
-            && !is_flyer(ptr) && !can_levitate(mtmp))
+        if (Levitation && !is_floater(ptr) && !is_flyer(ptr))
             /* Must have Lev_at_will at this point */
             pline("%s magically floats up!", Monnam(mtmp));
         You("mount %s.", mon_nam(mtmp));
@@ -1125,26 +367,30 @@ boolean force;      /* Quietly force this animal */
     }
     /* setuwep handles polearms differently when you're mounted */
     if (uwep && is_pole(uwep))
-        unweapon = FALSE;
+        gu.unweapon = FALSE;
     u.usteed = mtmp;
+    {
+        boolean was_stealthy = Stealth != 0;
+
+        steed_vs_stealth();
+        if (was_stealthy && !Stealth)
+            You("aren't stealthy anymore.");
+    }
     remove_monster(mtmp->mx, mtmp->my);
     teleds(mtmp->mx, mtmp->my, TELEDS_ALLOW_DRAG);
-    context.botl = TRUE;
-    update_inventory();
+    disp.botl = TRUE;
     return TRUE;
 }
 
 /* You and your steed have moved */
 void
-exercise_steed()
+exercise_steed(void)
 {
     if (!u.usteed)
         return;
 
-    /* It takes many turns of riding to exercise skill
-     * but we're going to make this a bit more reasonable.
-     * Taken from SporkHack. */
-    if (u.urideturns++ >= 50) {
+    /* It takes many turns of riding to exercise skill */
+    if (++u.urideturns >= 100) {
         u.urideturns = 0;
         use_skill(P_RIDING, 1);
     }
@@ -1153,14 +399,14 @@ exercise_steed()
 
 /* The player kicks or whips the steed */
 void
-kick_steed()
+kick_steed(void)
 {
-    char He[4];
+    char He[BUFSZ]; /* monverbself() appends to the "He"/"She"/"It" value */
     if (!u.usteed)
         return;
 
     /* [ALI] Various effects of kicking sleeping/paralyzed steeds */
-    if (u.usteed->msleeping || !u.usteed->mcanmove) {
+    if (helpless(u.usteed)) {
         /* We assume a message has just been output of the form
          * "You kick <steed>."
          */
@@ -1173,13 +419,14 @@ kick_steed()
                 u.usteed->mfrozen -= 2;
             else {
                 u.usteed->mfrozen = 0;
-                if (!u.usteed->mstone || u.usteed->mstone > 2)
-                    u.usteed->mcanmove = 1;
+                u.usteed->mcanmove = 1;
             }
-            if (u.usteed->msleeping || !u.usteed->mcanmove)
+            if (helpless(u.usteed))
                 pline("%s stirs.", He);
             else
-                pline("%s rouses %sself!", He, mhim(u.usteed));
+                /* if hallucinating, might yield "He rouses herself" or
+                   "She rouses himself" */
+                pline("%s!", monverbself(u.usteed, He, "rouse", (char *) 0));
         } else
             pline("%s does not respond.", He);
         return;
@@ -1209,54 +456,125 @@ kick_steed()
  * room's walls, which is not what we want.
  * Adapted from mail daemon code.
  */
-STATIC_OVL boolean
-landing_spot(spot, reason, forceit)
-coord *spot; /* landing position (we fill it in) */
-int reason;
-int forceit;
+staticfn boolean
+landing_spot(
+    coord *spot, /* landing position (we fill it in) */
+    int reason,
+    int forceit)
 {
-    int i = 0, x, y, distance, min_distance = -1;
-    boolean found = FALSE;
+    coord cc, try[8]; /* 8: the 8 spots adjacent to the hero's spot */
+    int i, j, best_j, clockwise_j, counterclk_j,
+        n, viable, distance, min_distance = -1;
+    coordxy x, y;
+    boolean found, impaird, kn_trap, boulder;
     struct trap *t;
 
-    /* avoid known traps (i == 0) and boulders, but allow them as a backup */
-    if (reason != DISMOUNT_BYCHOICE || Stunned || Confusion || Fumbling)
-        i = 1;
-    for (; !found && i < 2; ++i) {
-        for (x = u.ux - 1; x <= u.ux + 1; x++)
-            for (y = u.uy - 1; y <= u.uy + 1; y++) {
-                if (!isok(x, y) || (x == u.ux && y == u.uy))
-                    continue;
+    (void) memset((genericptr_t) try, 0, sizeof try);
+    n = 0;
+    j = xytodir(u.dx, u.dy);
+    if (reason == DISMOUNT_KNOCKED && j != DIR_ERR) {
+        /* we'll check preferred location first; if viable it'll be picked */
+        best_j = j;
+        try[0].x = u.dx, try[0].y = u.dy;
+        /* the two next best locations are checked second and third */
+        i = rn2(2);
+        clockwise_j = DIR_RIGHT(j); /* (j + 1) % 8 */
+        dirtocoord(&cc, clockwise_j);
+        try[1 + i].x = cc.x, try[1 + i].y = cc.y; /* [1] or [2] */
+        counterclk_j = DIR_LEFT(j); /* (j + 8 - 1) % 8 */
+        dirtocoord(&cc, counterclk_j);
+        try[2 - i].x = cc.x, try[2 - i].y = cc.y; /* [2] or [1] */
+        n = 3;
+        debugpline3("knock from saddle: best %s, next %s or %s",
+                    directionname(best_j),
+                    directionname(clockwise_j), directionname(counterclk_j));
+    } else {
+        best_j = clockwise_j = counterclk_j = -1;
+    }
+    for (j = 0; j < N_DIRS; ++j) {
+        /* fortunately NODIAG() handling isn't needed for DISMOUNT_KNOCKED
+           because hero can only ride when humanoid */
+        if (j == best_j || j == clockwise_j || j == counterclk_j)
+            continue;
+        /* j==0 is W, j==1 NW, j==2 N, j==3 NE, ..., around to j==7 SW;
+           so odd j values are diagonal directions here */
+        if (reason == DISMOUNT_POLY && NODIAG(u.umonnum) && (j % 1) != 0)
+            continue;
+        dirtocoord(&cc, j);
+        try[n++] = cc;
+    }
 
-                if (accessible(x, y) && !MON_AT(x, y)) {
-                    distance = distu(x, y);
-                    if (min_distance < 0 || distance < min_distance
-                        || (distance == min_distance && rn2(2))) {
-                        if (i > 0 || (((t = t_at(x, y)) == 0 || !t->tseen)
-                                      && (!sobj_at(BOULDER, x, y)
-                                          || racial_throws_rocks(&youmonst)))) {
-                            spot->x = x;
-                            spot->y = y;
-                            min_distance = distance;
-                            found = TRUE;
-                        }
+    /*
+     * Up to three passes;
+     * i==0: voluntary dismount without impairment avoids known traps and
+     *       boulders;
+     * i==1: voluntary dismount with impairment or knocked out of saddle
+     *       avoids boulders but allows known traps;
+     * i==2: other, allow traps and boulders.
+     *
+     * Fallback to i==1 if nothing appropriate was found for i==0 and
+     * to i==2 as last resort.
+     */
+    impaird = (Stunned || Confusion || Fumbling);
+    viable = 0;
+    found = FALSE;
+    for (i = (reason == DISMOUNT_BYCHOICE && !impaird) ? 0
+             : ((reason == DISMOUNT_BYCHOICE && impaird)
+                || reason == DISMOUNT_KNOCKED) ? 1
+               : 2;
+         i <= 2 && !found; ++i) {
+        for (j = 0; j < n; ++j) {
+            x = u.ux + try[j].x;
+            y = u.uy + try[j].y;
+            if (!isok(x, y) || u_at(x, y)) /* [note: u_at() can't happen] */
+                continue;
+
+            if (accessible(x, y) && !MON_AT(x, y)
+                && test_move(u.ux, u.uy, x - u.ux, y - u.uy, TEST_MOVE)) {
+                ++viable;
+                distance = distu(x, y);
+                if (min_distance < 0 /* no viable candidate yet */
+                    /* or better than pending candidate (note: orthogonal
+                       spots are distance 1 and diagonal ones distance 2;
+                       treating one as better than the other is arbitrary
+                       and not wanted for DISMOUNT_KNOCKED) */
+                    || ((best_j == -1) ? (distance < min_distance) : (j < 3))
+                    /* or equally good, maybe substitute this one */
+                    || (distance == min_distance && !rn2(viable))) {
+                    /* traps avoided on pass 0; boulders avoided on 0 and 1 */
+                    kn_trap = i == 0 && ((t = t_at(x, y)) != 0 && t->tseen
+                                         && t->ttyp != VIBRATING_SQUARE);
+                    boulder = i <= 1 && (sobj_at(BOULDER, x, y)
+                                         && !throws_rocks(gy.youmonst.data));
+                    if (!kn_trap && !boulder) {
+                        spot->x = x;
+                        spot->y = y;
+                        min_distance = distance;
+                        found = TRUE;
+                        if (best_j != -1 && j < 3)
+                            /* since best_j is first candidate (j==0), j==1
+                               and j==2 can only get here when best_j was
+                               not viable; 50:50 chance for clockwise_j to
+                               come before counterclk_j so each has same
+                               chance to be next after best_j */
+                            break;
                     }
                 }
             }
+        }
     }
 
     /* If we didn't find a good spot and forceit is on, try enexto(). */
-    if (forceit && min_distance < 0
-        && !enexto(spot, u.ux, u.uy, youmonst.data))
-        return FALSE;
+    if (forceit && !found)
+        found = enexto(spot, u.ux, u.uy, gy.youmonst.data);
 
     return found;
 }
 
 /* Stop riding the current steed */
 void
-dismount_steed(reason)
-int reason; /* Player was thrown off etc. */
+dismount_steed(
+    int reason) /* Player was thrown off etc. */
 {
     struct monst *mtmp;
     struct obj *otmp;
@@ -1271,18 +589,22 @@ int reason; /* Player was thrown off etc. */
     /* Sanity check */
     if (!mtmp) /* Just return silently */
         return;
-    u.usteed = 0; /* affects Fly test; could hypothetically affect Lev */
+    u.usteed = 0; /* affects Fly test; could hypothetically affect Lev;
+                   * also affects u_locomotion() */
     ufly = Flying ? TRUE : FALSE;
     ulev = Levitation ? TRUE : FALSE;
+    verb = u_locomotion("fall"); /* only used for _FELL and _KNOCKED */
     u.usteed = mtmp;
 
     /* Check the reason for dismounting */
     otmp = which_armor(mtmp, W_SADDLE);
     switch (reason) {
     case DISMOUNT_THROWN:
+        verb = "are thrown";
+        FALLTHROUGH;
+        /*FALLTHRU*/
+    case DISMOUNT_KNOCKED:
     case DISMOUNT_FELL:
-        verb = (reason == DISMOUNT_THROWN) ? "are thrown"
-               : ulev ? "float" : ufly ? "fly" : "fall";
         You("%s off of %s!", verb, mon_nam(mtmp));
         if (!have_spot)
             have_spot = landing_spot(&cc, reason, 1);
@@ -1294,7 +616,7 @@ int reason; /* Player was thrown off etc. */
         }
         break;
     case DISMOUNT_POLY:
-        You("can no longer ride %s.", mon_nam(mtmp));
+        You("can no longer ride %s.", mon_nam(u.usteed));
         if (!have_spot)
             have_spot = landing_spot(&cc, reason, 1);
         break;
@@ -1319,9 +641,9 @@ int reason; /* Player was thrown off etc. */
             You("can't.  There isn't anywhere for you to stand.");
             return;
         }
-        if (!has_mname(mtmp)) {
+        if (!has_mgivenname(mtmp)) {
             pline("You've been through the dungeon on %s with no name.",
-                  an(mtmp->data->mname));
+                  an(pmname(mtmp->data, Mgender(mtmp))));
             if (Hallucination)
                 pline("It felt good to get out of the rain.");
         } else
@@ -1332,9 +654,23 @@ int reason; /* Player was thrown off etc. */
     if (repair_leg_damage)
         heal_legs(1);
 
-    /* Release the steed and saddle */
-    u.usteed = 0;
+    /* Release the steed */
+    u.usteed = (struct monst *) NULL;
     u.ugallop = 0L;
+    {
+        boolean was_stealthy = Stealth != 0;
+
+        steed_vs_stealth();
+        if (Stealth && !was_stealthy)
+            You("seem less noisy now.");
+    }
+
+    if (u.utraptype == TT_BEARTRAP
+        || u.utraptype == TT_PIT
+        || u.utraptype == TT_WEB) {
+        mtmp->mtrapped = 1;
+    }
+
     /*
      * rloc(), rloc_to(), and monkilled()->mondead()->m_detach() all
      * expect mtmp to be on the map or else have mtmp->mx be 0, but
@@ -1354,88 +690,53 @@ int reason; /* Player was thrown off etc. */
         /* hero's spot has a monster in it; hero must have been plucked
            from saddle as engulfer moved into his spot--other dismounts
            shouldn't run into this situation; find nearest viable spot */
-        if (!enexto_core_mon(&steedcc, u.ux, u.uy, mtmp, NO_MM_FLAGS)
+        if (!enexto(&steedcc, u.ux, u.uy, mtmp->data)
             /* no spot? must have been engulfed by a lurker-above over
                water or lava; try requesting a location for a flyer */
-            && !enexto(&steedcc, u.ux, u.uy, &mons[PM_BAT])
+            && !enexto(&steedcc, u.ux, u.uy, &mons[PM_BAT]))
             /* still no spot; last resort is any spot within bounds */
-            && !enexto(&steedcc, u.ux, u.uy, &mons[PM_GHOST])) {
-            /* nowhere at all to place the steed; dismiss it so the
-               !DEADMONSTER wrapper below skips placement safely */
-            mongone(mtmp);
-        }
+            (void) enexto(&steedcc, u.ux, u.uy, &mons[PM_GHOST]);
     }
 
     if (!DEADMONSTER(mtmp)) {
-        in_steed_dismounting++;
+        gi.in_steed_dismounting++;
         place_monster(mtmp, steedcc.x, steedcc.y);
-        in_steed_dismounting--;
+        gi.in_steed_dismounting--;
 
         /* if for bones, there's no reason to place the hero;
            we want to make room for potential ghost, so move steed */
         if (reason == DISMOUNT_BONES) {
             /* move the steed to an adjacent square */
-            if (enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS))
+            if (enexto(&cc, u.ux, u.uy, mtmp->data))
                 rloc_to(mtmp, cc.x, cc.y);
             else /* evidently no room nearby; move steed elsewhere */
-                (void) rloc(mtmp, FALSE);
+                (void) rloc(mtmp, RLOC_ERR | RLOC_NOMSG);
             return;
         }
 
-        /* Set hero's and/or steed's positions. Usually try moving the
-           hero first. Note: for DISMOUNT_ENGULFED, caller hasn't set
-           u.uswallow yet but has set u.ustuck */
+        /* Set hero's and/or steed's positions.  Usually try moving the
+           hero first.  Note: for DISMOUNT_ENGULFED, caller hasn't set
+           u.uswallow yet but has set u.ustuck. */
         if (!u.uswallow && !u.ustuck && have_spot) {
             struct permonst *mdat = mtmp->data;
 
             /* The steed may drop into water/lava */
-            if (!is_flyer(mdat) && !is_floater(mdat)
-                && !is_clinger(mdat) && !can_levitate(mtmp)) {
+            if (grounded(mdat)) {
                 if (is_pool(u.ux, u.uy)) {
-                    if (!is_swimmer(mdat) && !amphibious(mdat)) {
-                        if (!Underwater)
-                            pline("%s falls into the %s!", Monnam(mtmp),
-                                  surface(u.ux, u.uy));
-                        /* hero gets credit/blame only when player chose
-                           to dismount; accidental drops are silent kills
-                           with no XP, mirroring the no-room branch */
-                        if (reason == DISMOUNT_BYCHOICE)
-                            killed(mtmp);
-                        else
-                            monkilled(mtmp, "", -AD_PHYS);
-                        You_feel("guilty.");
-                        adjalign(-1);
-                        record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
-                                               monsndx(mdat) + 1,
-                                               ABUSE_HAZ_WATER);
-                    } else if (!Underwater) {
-                        pline("%s splashes into the %s.", Monnam(mtmp),
+                    if (!Underwater)
+                        pline("%s falls into the %s!", Monnam(mtmp),
                               surface(u.ux, u.uy));
+                    if (!cant_drown(mdat)) {
+                        killed(mtmp);
+                        adjalign(-1);
                     }
                 } else if (is_lava(u.ux, u.uy)) {
+                    pline("%s is pulled into the %s!", Monnam(mtmp),
+                          hliquid("lava"));
                     if (!likes_lava(mdat)) {
-                        pline("%s is pulled into the %s!", Monnam(mtmp),
-                              hliquid("lava"));
-                        if (reason == DISMOUNT_BYCHOICE)
-                            killed(mtmp);
-                        else
-                            monkilled(mtmp, "", -AD_PHYS);
-                        You_feel("guilty.");
+                        killed(mtmp);
                         adjalign(-1);
-                        record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
-                                               monsndx(mdat) + 1,
-                                               ABUSE_HAZ_LAVA);
                     }
-                } else if (is_open_air(u.ux, u.uy)) {
-                    pline("%s plummets several thousand feet to %s death.",
-                          Monnam(mtmp), mhis(mtmp));
-                    /* no corpse or objects as both are now several thousand feet down */
-                    mongone(mtmp);
-                    You_feel("guilty.");
-                    adjalign(-1);
-                    record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
-                                           monsndx(mdat) + 1,
-                                           ABUSE_HAZ_FALL);
                 }
             }
             /* Steed dismounting consists of two steps: being moved to another
@@ -1449,29 +750,30 @@ int reason; /* Player was thrown off etc. */
              *
              * Clearly this is not the best way to do it.  A full fix would
              * involve having these functions not call pickup() at all,
-             * instead
-             * calling them first and calling pickup() afterwards.  But it
-             * would take a lot of work to keep this change from having any
-             * unforeseen side effects (for instance, you would no longer be
-             * able to walk onto a square with a hole, and autopickup before
-             * falling into the hole).
+             * instead calling them first and calling pickup() afterwards.
+             * But it would take a lot of work to keep this change from
+             * having any unforeseen side effects (for instance, you would
+             * no longer be able to walk onto a square with a hole, and
+             * autopickup before falling into the hole).
              */
             /* [ALI] No need to move the player if the steed died. */
             if (!DEADMONSTER(mtmp)) {
                 /* Keep steed here, move the player to cc;
                  * teleds() clears u.utrap
                  */
-                in_steed_dismounting = TRUE;
+                gi.in_steed_dismounting = TRUE;
                 teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG);
-                in_steed_dismounting = FALSE;
+                if (sobj_at(BOULDER, cc.x, cc.y))
+                    sokoban_guilt();
+                gi.in_steed_dismounting = FALSE;
 
                 /* Put your steed in your trap */
                 if (save_utrap)
-                    (void) mintrap(mtmp);
+                    (void) mintrap(mtmp, NO_TRAP_FLAGS);
             }
 
         /* Couldn't move hero... try moving the steed. */
-        } else if (enexto_core_mon(&cc, u.ux, u.uy, mtmp, NO_MM_FLAGS)) {
+        } else if (enexto(&cc, u.ux, u.uy, mtmp->data)) {
             /* Keep player here, move the steed to cc */
             rloc_to(mtmp, cc.x, cc.y);
             /* Player stays put */
@@ -1480,14 +782,9 @@ int reason; /* Player was thrown off etc. */
         } else {
 #if 1       /* original there's-no-room handling */
             if (reason == DISMOUNT_BYCHOICE) {
-                int steed_mndx = monsndx(mtmp->data);
-
                 /* [un]#ride: hero gets credit/blame for killing steed */
                 killed(mtmp);
-                You_feel("guilty.");
                 adjalign(-1);
-                record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
-                                       steed_mndx + 1, 0);
             } else {
                 /* other dismount: kill former steed with no penalty;
                    damage type is just "neither AD_DGST nor -AD_RBRE" */
@@ -1510,29 +807,27 @@ int reason; /* Player was thrown off etc. */
 
     /* usually return the hero to the surface */
     if (reason != DISMOUNT_ENGULFED && reason != DISMOUNT_BONES) {
-        in_steed_dismounting = TRUE;
+        gi.in_steed_dismounting = TRUE;
         (void) float_down(0L, W_SADDLE);
-        in_steed_dismounting = FALSE;
-        context.botl = TRUE;
-        (void) encumber_msg();
-        vision_full_recalc = 1;
+        gi.in_steed_dismounting = FALSE;
+        disp.botl = TRUE;
+        encumber_msg();
+        gv.vision_full_recalc = 1;
     } else
-        context.botl = TRUE;
+        disp.botl = TRUE;
     /* polearms behave differently when not mounted */
     if (uwep && is_pole(uwep))
-        unweapon = TRUE;
-    update_inventory();
+        gu.unweapon = TRUE;
     return;
 }
 
 /* when attempting to saddle or mount a sleeping steed, try to wake it up
    (for the saddling case, it won't be u.usteed yet) */
-STATIC_OVL void
-maybewakesteed(steed)
-struct monst *steed;
+staticfn void
+maybewakesteed(struct monst *steed)
 {
     int frozen = (int) steed->mfrozen;
-    boolean wasimmobile = steed->msleeping || !steed->mcanmove;
+    boolean wasimmobile = helpless(steed);
 
     steed->msleeping = 0;
     if (frozen) {
@@ -1540,36 +835,59 @@ struct monst *steed;
         /* might break out of timed sleep or paralysis */
         if (!rn2(frozen)) {
             steed->mfrozen = 0;
-            if (!steed->mstone || steed->mstone > 2)
-                steed->mcanmove = 1;
+            steed->mcanmove = 1;
         } else {
             /* didn't awake, but remaining duration is halved */
             steed->mfrozen = frozen;
         }
     }
-    if (wasimmobile && !steed->msleeping && steed->mcanmove)
+    if (wasimmobile && !helpless(steed))
         pline("%s wakes up.", Monnam(steed));
     /* regardless of waking, terminate any meal in progress */
     finish_meating(steed);
 }
 
+/* steed has taken on a new shape */
+void
+poly_steed(
+    struct monst *steed,
+    struct permonst *oldshape)
+{
+    if (!can_saddle(steed) || !can_ride(steed)) {
+        /* can't get here; newcham() -> mon_break_armor() -> m_lose_armor()
+           removes saddle and/or forces hero to dismount, if applicable,
+           before newcham() calls us */
+        dismount_steed(DISMOUNT_FELL);
+    } else {
+        char buf[BUFSZ];
+
+        Strcpy(buf, x_monnam(steed, ARTICLE_YOUR, (char *) 0,
+                             SUPPRESS_SADDLE, FALSE));
+        if (oldshape != steed->data)
+            (void) strsubst(buf, "your ", "your new ");
+        You("adjust yourself in the saddle on %s.", buf);
+
+        /* riding blocks stealth unless hero+steed fly */
+        steed_vs_stealth();
+    }
+}
+
 /* decide whether hero's steed is able to move;
    doesn't check for holding traps--those affect the hero directly */
 boolean
-stucksteed(checkfeeding)
-boolean checkfeeding;
+stucksteed(boolean checkfeeding)
 {
     struct monst *steed = u.usteed;
 
     if (steed) {
         /* check whether steed can move */
-        if (steed->msleeping || !steed->mcanmove) {
-            pline("%s won't move!", upstart(y_monnam(steed)));
+        if (helpless(steed)) {
+            pline("%s won't move!", YMonnam(steed));
             return TRUE;
         }
         /* optionally check whether steed is in the midst of a meal */
         if (checkfeeding && steed->meating) {
-            pline("%s is still eating.", upstart(y_monnam(steed)));
+            pline("%s is still eating.", YMonnam(steed));
             return TRUE;
         }
     }
@@ -1577,9 +895,7 @@ boolean checkfeeding;
 }
 
 void
-place_monster(mon, x, y)
-struct monst *mon;
-int x, y;
+place_monster(struct monst *mon, coordxy x, coordxy y)
 {
     struct monst *othermon;
     const char *monnm, *othnm;
@@ -1587,37 +903,44 @@ int x, y;
 
     buf[0] = '\0';
     /* normal map bounds are <1..COLNO-1,0..ROWNO-1> but sometimes
-       vault guards (either living or dead) are parked at <0,0> */
-    if (!isok(x, y) && (x != 0 || y != 0 || !mon->isgd)) {
-        describe_level(buf);
+       vault guards (either living or dead) are parked at <0,0>;
+       their mstate should have the MON_PARKED bit set (post-5.0.0) */
+    if (!isok(x, y)
+        && !(((mon->mstate & MON_PARKED) != 0) || PARKEDMONSTER(mon))) {
+        describe_level(buf, 0);
         impossible("trying to place %s at <%d,%d> mstate:%lx on %s",
                    minimal_monnam(mon, TRUE), x, y, mon->mstate, buf);
         x = y = 0;
     }
-    if ((mon == u.usteed && !in_steed_dismounting)
+    if ((mon == u.usteed && !gi.in_steed_dismounting)
         /* special case is for convoluted vault guard handling */
-        || (DEADMONSTER(mon) && !(mon->isgd && x == 0 && y == 0))) {
-        describe_level(buf);
+        || (DEADMONSTER(mon) && !PARKEDMONSTER(mon))) {
+        describe_level(buf, 0);
         impossible("placing %s onto map, mstate:%lx, on %s?",
                    (mon == u.usteed) ? "steed" : "defunct monster",
                    mon->mstate, buf);
         return;
     }
-    if (((othermon = level.monsters[x][y]) != 0)
-        /* steed and rider are colocated in the same position, so allow
-         * placing one on top of the other */
-        && !((has_erid(othermon) && ERID(othermon)->mon_steed == mon)
-             || (has_erid(mon) && ERID(mon)->mon_steed == othermon))) {
-        describe_level(buf);
+    if ((othermon = svl.level.monsters[x][y]) != 0) {
+        describe_level(buf, 0);
         monnm = minimal_monnam(mon, FALSE);
         othnm = (mon != othermon) ? minimal_monnam(othermon, TRUE) : "itself";
         impossible("placing %s over %s at <%d,%d>, mstates:%lx %lx on %s?",
                    monnm, othnm, x, y, othermon->mstate, mon->mstate, buf);
     }
     mon->mx = x, mon->my = y;
-    level.monsters[x][y] = mon;
-    mon->mstate &= ~(MON_OFFMAP | MON_MIGRATING | MON_LIMBO | MON_BUBBLEMOVE
-                     | MON_ENDGAME_FREE | MON_ENDGAME_MIGR);
+    svl.level.monsters[x][y] = mon;
+    /* even though MON_FLOOR is not actually a bit currently
+       (MON_FLOOR == 0) we want to preserve some of the other
+       bits that may be set. We'll probably make MON_FLOOR an
+       actual bit one day */
+
+    mon->mstate &= ~(MON_OFFMAP | MON_DETACH | MON_LIMBO | MON_MIGRATING);
+
+    /* We don't mess with these bits above:
+       MON_BUBBLEMOVE | MON_ENDGAME_FREE | MON_ENDGAME_MIGR
+       | MON_OBLITERATE | MON_STILL_ARRIVING | MON_PARKED
+     */
 }
 
 /*steed.c*/

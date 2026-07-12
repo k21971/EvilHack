@@ -25,13 +25,6 @@ _$*
 *.elc
 *.ln
 core
-evilhack
-vaults.dat
-dat/Guidebook
-dat/serverseed
-*.diff
-*.log
-input.txt
 # CVS default ignores end
 .*.swp
 
@@ -42,9 +35,12 @@ Makefile
 Debug/
 Release/
 binary/
+package/*
+vspackage/
+vsbinary/
 build/
 ipch/
-lib/
+lib/*
 Nethack.sln
 Nethack.sdf
 Nethack.opensdf
@@ -53,6 +49,7 @@ Makefile.gcc
 Makefile-orig
 Makefile.bcc-orig
 Makefile.gcc-orig
+make.prefs
 *.suo
 *.pdb
 *.ilk
@@ -60,10 +57,48 @@ Makefile.gcc-orig
 *.lastcodeanalysissucceeded
 # VS 2017 caches data into the hidden directory .vs
 .vs
+win/win32/vs/obj/*
 # Win32-specific ignores end
 .DS_Store
-# misc
+# ms-dos 
+# resulting zip
+NH*DOS.ZIP
+# 8.3 versions
+dat/data.bas
+sys/share/posixreg.c
+include/patchlev.h
+doc/guidebk.txt
+# folders compiler, target objs, binary results
+djgpp/
+src/msdos_o/
+msdos-binary/
+dat/NHTILES.BMP
+dat/msdoshlp.txt
+src/host_o/
+util/djgpp-linux64-gcc550.tar.bz2
+util/djgpp-osx-gcc550.tar.bz2
+util/djgpp-mingw-gcc550-standalone.zip
+util/dlb_main
+util/thintile
+util/til2bin2
+util/tile2bin
+win/share/monthin.txt
+win/share/objthin.txt
+win/share/oththin.txt
+# end of ms-dos
+
+#libnethack
+targets/*
+bundle/*
+#test.js
+#sys/lib/npm-package/build/nethack.js
+#sys/lib/npm-package/build/nethack.wasm
+*.user
+util/*.lib
+util/*.exp
+submodules/CHKSUMS.tmp
+sys/amiga/regex/
+
+#misc
 CLAUDE.md
-dat/md*
 .claude/
-doc/claude/

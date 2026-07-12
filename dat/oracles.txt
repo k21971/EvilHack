@@ -17,9 +17,9 @@ cockatrice can petrify any ordinary being it contacts--save those wise
 adventurers who eat a dead lizard or blob of acid when they feel themselves
 slowly turning to stone.
 -----
-While some wayfarers rely on scrounging whatever armour the dungeon provides,
-the resourceful know the mystical means by which scales from a dragon's hide may
-be used to transform a modest armor piece into a superb one.
+While some wayfarers rely on scrounging finished armour in the dungeon, the
+resourceful know the mystical means by which mail may be fashioned out of
+scales from a dragon's hide.
 -----
 It is customarily known among travelers that extra-healing draughts may clear
 thy senses when thou art addled by delusory visions.  But never forget, the
@@ -100,5 +100,6 @@ be old and miserly.
 The name of Elbereth may strike fear into the hearts of thine enemies, if
 thou dost write it upon the ground at thy feet.  If thou maintainest the
 utmost calm, thy safety will be aided greatly, but beware lest thy clumsy
-feet scuff the inscription, cancelling its potence.
+feet scuff the inscription, cancelling its potence, or thy wayward
+sword-arm break the truce.
 -----

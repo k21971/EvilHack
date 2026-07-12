@@ -18,12 +18,22 @@ extern int LI;
 extern int scrollmsg;
 extern int alwaysinvent;
 
-#ifndef SHAREDLIB
 extern unsigned short amii_defpens[20];
 extern struct amii_DisplayDesc
     *amiIDisplay; /* the Amiga Intuition descriptor */
 extern struct window_procs amii_procs;
 extern struct window_procs amiv_procs;
+/* Three similarly-named palette arrays.  Note the position of the
+ * second underscore distinguishes them:
+ *   amii_initmap  = working/runtime palette (mutated by tile/tomb load
+ *                   and the in-game color editor).
+ *   amii_init_map = AMII (text-mode) compile-time defaults, 8 entries.
+ *   amiv_init_map = AMIV (tile-mode) compile-time defaults, 32 entries
+ *                   (mutated by ReadImageFile when a tile/tomb IFF
+ *                   carries its own CMAP).
+ * The naming is historical; sysflags.amii_curmap is yet another related
+ * array holding the user's saved color choices.
+ */
 extern unsigned short amii_initmap[AMII_MAXCOLORS];
 extern unsigned short amiv_init_map[AMII_MAXCOLORS];
 extern unsigned short amii_init_map[AMII_MAXCOLORS];
@@ -33,21 +43,6 @@ extern long amii_scrnmode;
 extern winid amii_rawprwin;
 extern struct Screen *HackScreen;
 extern char Initialized;
-/* These have already been defined elsewhere (and some are conflicting)
- * ... going ... going once ... going twice ....
- * extern const char *roles[];
- * extern struct Library *ConsoleDevice;
- * extern char toplines[ TBUFSZ ];
- * extern NEARDATA winid WIN_MESSAGE;
- * extern NEARDATA winid WIN_MAP;
- * extern NEARDATA winid WIN_STATUS;
- * extern NEARDATA winid WIN_INVEN;
- * extern winid WIN_OVER;
- * extern struct GfxBase *GfxBase;
- * extern struct Library *DiskfontBase;
- * extern struct IntuitionBase *IntuitionBase;
- * extern struct Library *LayersBase;
- */
 extern int amii_msgAPen;
 extern int amii_msgBPen;
 extern int amii_statAPen;
@@ -58,9 +53,6 @@ extern int amii_textAPen;
 extern int amii_textBPen;
 extern int amii_otherAPen;
 extern int amii_otherBPen;
-#else
-extern WinamiBASE *WinamiBase;
-#endif
 /* All kinds of shared stuff */
 extern struct TextAttr Hack160;
 extern struct TextAttr Hack40;
@@ -71,16 +63,13 @@ extern struct Menu HackMenu[];
 extern struct Menu *MenuStrip;
 extern struct NewMenu GTHackMenu[];
 extern APTR *VisualInfo;
-extern unsigned char KbdBuffered;
+extern int KbdBuffered;
 extern struct TextFont *TextsFont;
 extern struct TextFont *HackFont;
 extern struct IOStdReq ConsoleIO;
 extern struct MsgPort *HackPort;
 
 extern int txwidth, txheight, txbaseline;
-#ifdef SUPERBITMAP_MAP
-extern struct BitMap amii_vbm;
-#endif
 
 /* This gadget data is replicated for menu/text windows... */
 extern struct PropInfo PropScroll;
@@ -132,17 +121,9 @@ typedef enum {
 extern struct PDAT pictdata;
 extern struct Hook fillhook;
 extern struct TagItem wintags[];
-#ifndef SHAREDLIB
-#ifndef __GNUC__
-void __asm LayerFillHook(register __a0 struct Hook *hk,
-                         register __a2 struct RastPort *rp,
-                         register __a1 struct FillParams *fp);
-#else
 #ifdef __PPC__
 struct EmulLibEntry LayerFillHook;
 #else
 void LayerFillHook(void);
-#endif
-#endif
 #endif
 extern int mxsize, mysize;

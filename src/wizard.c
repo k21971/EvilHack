@@ -1,4 +1,4 @@
-/* NetHack 3.6	wizard.c	$NHDT-Date: 1561336025 2019/06/24 00:27:05 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.56 $ */
+/* NetHack 5.0	wizard.c	$NHDT-Date: 1781973074 2026/06/20 16:31:14 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.121 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -9,15 +9,17 @@
 /*             - generalized for 3.1 (mike@bullns.on01.bull.ca) */
 
 #include "hack.h"
-#include "qtext.h"
 
-STATIC_DCL short FDECL(which_arti, (int));
-STATIC_DCL boolean FDECL(mon_has_arti, (struct monst *, SHORT_P));
-STATIC_DCL struct monst *FDECL(other_mon_has_arti, (struct monst *, SHORT_P));
-STATIC_DCL struct obj *FDECL(on_ground, (SHORT_P));
-STATIC_DCL boolean FDECL(you_have, (int));
-STATIC_DCL unsigned long FDECL(target_on, (int, struct monst *));
-STATIC_DCL unsigned long FDECL(strategy, (struct monst *));
+staticfn short which_arti(int);
+staticfn boolean mon_has_arti(struct monst *, short) NONNULLARG1;
+/* other_mon_has_arti() won't blow up if passed a NULL monst,
+ * but its caller target_on() passes it a nonnull monst;
+ * it may return a NULL monst pointer */
+staticfn struct monst *other_mon_has_arti(struct monst *, short) NONNULLARG1;
+staticfn struct obj *on_ground(short);  /* might return NULL obj pointer */
+staticfn boolean you_have(int);
+staticfn unsigned long target_on(int, struct monst *) NONNULLARG2;
+staticfn unsigned long strategy(struct monst *) NONNULLARG1;
 
 /* adding more neutral creatures will tend to reduce the number of monsters
    summoned by nasty(); adding more lawful creatures will reduce the number
@@ -26,58 +28,37 @@ STATIC_DCL unsigned long FDECL(strategy, (struct monst *));
    only four lawful candidates, so lawful summoners tended to summon more
    (trying to get lawful or neutral but obtaining chaotic instead) than
    their chaotic counterparts */
-
 static NEARDATA const int nasties[] = {
     /* neutral */
     PM_COCKATRICE, PM_ETTIN, PM_STALKER, PM_MINOTAUR,
     PM_OWLBEAR, PM_PURPLE_WORM, PM_XAN, PM_UMBER_HULK,
-    PM_XORN, PM_ZRUTY, PM_LEOCROTTA, PM_DIRE_WOLVERINE,
-    PM_GIANT_CENTIPEDE, PM_FIRE_ELEMENTAL, PM_JABBERWOCK,
+    PM_XORN, PM_ZRUTY, PM_LEOCROTTA, PM_BALUCHITHERIUM,
+    PM_CARNIVOROUS_APE, PM_FIRE_ELEMENTAL, PM_JABBERWOCK,
     PM_IRON_GOLEM, PM_OCHRE_JELLY, PM_GREEN_SLIME,
-    PM_GELATINOUS_CUBE, PM_SEA_DRAGON,
     PM_DISPLACER_BEAST, PM_GENETIC_ENGINEER,
     /* chaotic */
-    PM_BLACK_DRAGON, PM_SHADOW_DRAGON, PM_DEMILICH, PM_VAMPIRE_ROYAL,
+    PM_BLACK_DRAGON, PM_RED_DRAGON, PM_ARCH_LICH, PM_VAMPIRE_LEADER,
     PM_MASTER_MIND_FLAYER, PM_DISENCHANTER, PM_WINGED_GARGOYLE,
-    PM_STORM_GIANT, PM_OLOG_HAI, PM_MAGICAL_EYE, PM_ELVEN_ROYAL,
-    PM_OGRE_ROYAL, PM_CAPTAIN, PM_GREMLIN, PM_HILL_GIANT_SHAMAN,
+    PM_STORM_GIANT, PM_OLOG_HAI, PM_ELF_NOBLE, PM_ELVEN_MONARCH,
+    PM_OGRE_TYRANT, PM_CAPTAIN, PM_GREMLIN,
     /* lawful */
-    PM_SILVER_DRAGON, PM_GOLD_DRAGON, PM_STONE_GIANT,
-    PM_SHIMMERING_DRAGON, PM_GRAY_DRAGON, PM_DWARF_ROYAL,
-    PM_GUARDIAN_NAGA, PM_FIRE_GIANT, PM_ALEAX, PM_ANGEL,
-    PM_COUATL, PM_TORTLE_SHAMAN, PM_BLACK_NAGA,
+    PM_SILVER_DRAGON, PM_ORANGE_DRAGON, PM_GREEN_DRAGON,
+    PM_YELLOW_DRAGON, PM_GUARDIAN_NAGA, PM_FIRE_GIANT,
+    PM_ALEAX, PM_COUATL, PM_HORNED_DEVIL, PM_BARBED_DEVIL,
     /* (Archons, titans, ki-rin, and golden nagas are suitably nasty, but
        they're summoners so would aggravate excessive summoning) */
 };
 
-static NEARDATA const int ice_nasties[] = {
-    PM_WHITE_DRAGON, PM_SILVER_DRAGON, PM_DIRE_WOLVERINE,
-    PM_MASTODON, PM_WOOLLY_MAMMOTH, PM_WINTER_WOLF,
-    PM_CAVE_BEAR, PM_WARG, PM_ICE_TROLL, PM_FROST_GIANT,
-    PM_WEREWOLF, PM_YETI, PM_SASQUATCH, PM_ICE_VORTEX,
-    PM_GELATINOUS_CUBE, PM_OWLBEAR, PM_GOBLIN_CAPTAIN,
-    PM_SABER_TOOTHED_TIGER, PM_FROST_SALAMANDER,
-    PM_ICE_NYMPH,
-};
-
-static NEARDATA const int vecna_nasties[] = {
-    PM_HUMAN_ZOMBIE, PM_REVENANT, PM_LICH, PM_DEMILICH,
-    PM_VAMPIRE_NOBLE, PM_SHADE, PM_SPECTRE, PM_HEZROU,
-    PM_MARILITH, PM_WEREWOLF, PM_HELL_HOUND, PM_VROCK,
-    PM_GIANT_ZOMBIE, PM_HUMAN_MUMMY, PM_ETTIN_MUMMY,
-    PM_GHOUL, PM_WRAITH, PM_BARROW_WIGHT,
-};
-
 static NEARDATA const unsigned wizapp[] = {
-    PM_HUMAN,      PM_LAVA_DEMON,        PM_VAMPIRE_ROYAL, PM_RED_DRAGON,
-    PM_ROCK_TROLL, PM_UMBER_HULK,        PM_XORN,          PM_GIANT_CENTIPEDE,
-    PM_BASILISK,   PM_VORPAL_JABBERWOCK, PM_GUARDIAN_NAGA, PM_TRAPPER,
+    PM_HUMAN,      PM_WATER_DEMON,  PM_VAMPIRE,       PM_RED_DRAGON,
+    PM_TROLL,      PM_UMBER_HULK,   PM_XORN,          PM_XAN,
+    PM_COCKATRICE, PM_FLOATING_EYE, PM_GUARDIAN_NAGA, PM_TRAPPER,
 };
 
 /* If you've found the Amulet, make the Wizard appear after some time */
 /* Also, give hints about portal locations, if amulet is worn/wielded -dlc */
 void
-amulet()
+amulet(void)
 {
     struct monst *mtmp;
     struct trap *ttmp;
@@ -88,11 +69,9 @@ amulet()
         return;
 #endif
     if ((((amu = uamul) != 0 && amu->otyp == AMULET_OF_YENDOR)
-         || ((amu = uwep) != 0 && (amu->otyp == AMULET_OF_YENDOR
-                                   || (amu->oartifact == ART_IDOL_OF_MOLOCH
-                                       && u.uachieve.amulet))))
+         || ((amu = uwep) != 0 && amu->otyp == AMULET_OF_YENDOR))
         && !rn2(15)) {
-        for (ttmp = ftrap; ttmp; ttmp = ttmp->ntrap) {
+        for (ttmp = gf.ftrap; ttmp; ttmp = ttmp->ntrap) {
             if (ttmp->ttyp == MAGIC_PORTAL) {
                 int du = distu(ttmp->tx, ttmp->ty);
                 if (du <= 9)
@@ -107,7 +86,7 @@ amulet()
         }
     }
 
-    if (!context.no_of_wizards)
+    if (!svc.context.no_of_wizards)
         return;
     /* find Wizard, and wake him if necessary */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -115,7 +94,7 @@ amulet()
             continue;
         if (mtmp->iswiz && mtmp->msleeping && !rn2(40)) {
             mtmp->msleeping = 0;
-            if (distu(mtmp->mx, mtmp->my) > 2)
+            if (!m_next2u(mtmp))
                 You(
       "get the creepy feeling that somebody noticed your taking the Amulet.");
             return;
@@ -124,22 +103,18 @@ amulet()
 }
 
 int
-mon_has_amulet(mtmp)
-struct monst *mtmp;
+mon_has_amulet(struct monst *mtmp)
 {
     struct obj *otmp;
 
     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
-        if (otmp->otyp == AMULET_OF_YENDOR
-            || (otmp->oartifact == ART_IDOL_OF_MOLOCH
-                && u.uachieve.amulet))
+        if (otmp->otyp == AMULET_OF_YENDOR)
             return 1;
     return 0;
 }
 
 int
-mon_has_special(mtmp)
-struct monst *mtmp;
+mon_has_special(struct monst *mtmp)
 {
     struct obj *otmp;
 
@@ -160,15 +135,11 @@ struct monst *mtmp;
  *      The strategy section decides *what* the monster is going
  *      to attempt, the tactics section implements the decision.
  */
-#define STRAT(w, x, y, typ)                            \
-    ((unsigned long) (w) | ((unsigned long) (x) << 16) \
-     | ((unsigned long) (y) << 8) | (unsigned long) (typ))
 
 #define M_Wants(mask) (mtmp->data->mflags3 & (mask))
 
-STATIC_OVL short
-which_arti(mask)
-int mask;
+staticfn short
+which_arti(int mask)
 {
     switch (mask) {
     case M3_WANTSAMUL:
@@ -190,10 +161,8 @@ int mask;
  *      since bell, book, candle, and amulet are all objects, not really
  *      artifacts right now.  [MRS]
  */
-STATIC_OVL boolean
-mon_has_arti(mtmp, otyp)
-struct monst *mtmp;
-short otyp;
+staticfn boolean
+mon_has_arti(struct monst *mtmp, short otyp)
 {
     struct obj *otmp;
 
@@ -207,10 +176,12 @@ short otyp;
     return 0;
 }
 
-STATIC_OVL struct monst *
-other_mon_has_arti(mtmp, otyp)
-struct monst *mtmp;
-short otyp;
+/*
+ * Returns some monster other than mtmp that
+ * has artifact, or NULL monst pointer.
+ */
+staticfn struct monst *
+other_mon_has_arti(struct monst *mtmp, short otyp)
 {
     struct monst *mtmp2;
 
@@ -223,9 +194,12 @@ short otyp;
     return (struct monst *) 0;
 }
 
-STATIC_OVL struct obj *
-on_ground(otyp)
-short otyp;
+/*
+ * Returns obj of type specified if there is one
+ * on the ground, otherwise returns NULL obj pointer.
+ */
+staticfn struct obj *
+on_ground(short otyp)
 {
     struct obj *otmp;
 
@@ -238,9 +212,8 @@ short otyp;
     return (struct obj *) 0;
 }
 
-STATIC_OVL boolean
-you_have(mask)
-int mask;
+staticfn boolean
+you_have(int mask)
 {
     switch (mask) {
     case M3_WANTSAMUL:
@@ -259,62 +232,42 @@ int mask;
     return 0;
 }
 
-STATIC_OVL unsigned long
-target_on(mask, mtmp)
-int mask;
-struct monst *mtmp;
+staticfn unsigned long
+target_on(int mask, struct monst *mtmp)
 {
     short otyp;
     struct obj *otmp;
     struct monst *mtmp2;
 
-    if (!M_Wants(mask) && !is_mplayer(mtmp->data))
+    if (!M_Wants(mask))
         return (unsigned long) STRAT_NONE;
 
     otyp = which_arti(mask);
     if (!mon_has_arti(mtmp, otyp)) {
-        if (you_have(mask) && !mtmp->mpeaceful)
-            return STRAT(STRAT_PLAYER, u.ux, u.uy, mask);
-        else if ((otmp = on_ground(otyp)))
-            return STRAT(STRAT_GROUND, otmp->ox, otmp->oy, mask);
-        else if ((mtmp2 = other_mon_has_arti(mtmp, otyp)) != 0
-                 /* when seeking the Amulet or a quest artifact,
-                    avoid targetting the Wizard or temple priests
-                    (to protect Moloch's high priest) */
-                 && ((otyp != AMULET_OF_YENDOR && otyp != 0 )
-                     || (!mtmp2->iswiz && !inhistemple(mtmp2))))
-            return STRAT(STRAT_MONSTR, mtmp2->mx, mtmp2->my, mask);
-    }
-
-    /* Do we have the Amulet? Alrighty then...
-       On Astral, a covetous monster carrying the Amulet of
-       Yendor heads for its own aligned altar to sacrifice it */
-    if (Is_astralevel(&u.uz)
-        && mon_has_arti(mtmp, AMULET_OF_YENDOR)) {
-        int targetx = u.ux, targety = u.uy;
-        aligntyp malign = sgn(mon_aligntyp(mtmp));
-        int x, y;
-
-        /* Scan level for monster's aligned altar - alignments are
-           shuffled per game so we can't rely on hardcoded coordinates */
-        for (x = 1; x < COLNO; x++) {
-            for (y = 0; y < ROWNO; y++) {
-                if (IS_ALTAR(levl[x][y].typ) && a_align(x, y) == malign) {
-                    targetx = x;
-                    targety = y;
-                    goto found_altar;
-                }
-            }
+        if (you_have(mask)) {
+            mtmp->mgoal.x = u.ux;
+            mtmp->mgoal.y = u.uy;
+            return (STRAT_PLAYER | mask);
+        } else if ((otmp = on_ground(otyp))) {
+            mtmp->mgoal.x = otmp->ox;
+            mtmp->mgoal.y = otmp->oy;
+            return (STRAT_GROUND | mask);
+        } else if ((mtmp2 = other_mon_has_arti(mtmp, otyp)) != 0
+                 /* when seeking the Amulet, avoid targeting the Wizard
+                    or temple priests (to protect Moloch's high priest) */
+                 && (otyp != AMULET_OF_YENDOR
+                     || (!mtmp2->iswiz && !inhistemple(mtmp2)))) {
+            mtmp->mgoal.x = mtmp2->mx;
+            mtmp->mgoal.y = mtmp2->my;
+            return (STRAT_MONSTR | mask);
         }
-found_altar:
-        return STRAT(STRAT_NONE, targetx, targety, mask);
     }
+    mtmp->mgoal.x = mtmp->mgoal.y = 0;
     return (unsigned long) STRAT_NONE;
 }
 
-STATIC_OVL unsigned long
-strategy(mtmp)
-struct monst *mtmp;
+staticfn unsigned long
+strategy(struct monst *mtmp)
 {
     unsigned long strat, dstrat;
 
@@ -324,13 +277,7 @@ struct monst *mtmp;
            because that will leave its shop untended */
         || (mtmp->isshk && inhishop(mtmp))
         /* likewise for temple priests */
-        || (mtmp->ispriest && inhistemple(mtmp))
-        /* Lucifer in the sanctum */
-        || (mtmp->islucifer && Is_sanctum(&u.uz)))
-        return (unsigned long) STRAT_NONE;
-
-    /* avoid divide-by-zero on degenerate mhpmax */
-    if (mtmp->mhpmax <= 0)
+        || (mtmp->ispriest && inhistemple(mtmp)))
         return (unsigned long) STRAT_NONE;
 
     switch ((mtmp->mhp * 3) / mtmp->mhpmax) { /* 0-3 */
@@ -339,11 +286,11 @@ struct monst *mtmp;
     case 0: /* panic time - mtmp is almost snuffed */
         return (unsigned long) STRAT_HEAL;
 
-    case 1: /* the wiz and vecna are less cautious */
-        if (!(mtmp->iswiz || mtmp->isvecna))
+    case 1: /* the wiz is less cautious */
+        if (mtmp->data != &mons[PM_WIZARD_OF_YENDOR])
             return (unsigned long) STRAT_HEAL;
-    /* else fall through */
-
+        FALLTHROUGH;
+        /* FALLTHRU */
     case 2:
         dstrat = STRAT_HEAL;
         break;
@@ -353,13 +300,7 @@ struct monst *mtmp;
         break;
     }
 
-    /* Quest nemeses will always prioritize their treasure
-     * (important for the Infidel quest) */
-    if (mtmp->data->msound == MS_NEMESIS)
-        if ((strat = target_on(M3_WANTSARTI, mtmp)) != STRAT_NONE)
-            return strat;
-
-    if (context.made_amulet)
+    if (svc.context.made_amulet)
         if ((strat = target_on(M3_WANTSAMUL, mtmp)) != STRAT_NONE)
             return strat;
 
@@ -385,234 +326,139 @@ struct monst *mtmp;
     return dstrat;
 }
 
+/* pick a destination for a covetous monster to flee to so that it can
+   heal or for guardians (Kops) to congregate at to block hero's progress */
 void
-choose_stairs(sx, sy)
-xchar *sx;
-xchar *sy;
+choose_stairs(
+    coordxy *sx, coordxy *sy, /* output; left as-is if no spot found */
+    boolean dir) /* True: forward, False: backtrack (usually up) */
 {
-    xchar x = 0, y = 0;
+    stairway *stway;
+    boolean stdir = builds_up(&u.uz) ? dir : !dir;
 
-    if (builds_up(&u.uz)) {
-        if (xdnstair) {
-            x = xdnstair;
-            y = ydnstair;
-        } else if (xdnladder) {
-            x = xdnladder;
-            y = ydnladder;
+    /* look for stairs in direction 'stdir' (True: up, False: down) */
+    stway = stairway_find_type_dir(FALSE, stdir);
+    if (!stway) {
+        /* no stairs; look for ladder it that direction */
+        stway = stairway_find_type_dir(TRUE, stdir);
+        if (!stway) {
+            /* no ladder either; look for branch stairs or ladder in any
+               direction */
+            for (stway = gs.stairs; stway; stway = stway->next)
+                if (stway->tolev.dnum != u.uz.dnum)
+                    break;
+            /* if no branch stairs/ladder, check for regular stairs in
+               opposite direction, then for regular ladder if necessary */
+            if (!stway) {
+                stway = stairway_find_type_dir(FALSE, !stdir);
+                if (!stway)
+                    stway = stairway_find_type_dir(TRUE, !stdir);
+            }
         }
-    } else {
-        if (xupstair) {
-            x = xupstair;
-            y = yupstair;
-        } else if (xupladder) {
-            x = xupladder;
-            y = yupladder;
-        }
+        /* [note: 'stway' could still be Null if the only access to this
+           level is via magic portal] */
     }
 
-    if (!x && sstairs.sx) {
-        x = sstairs.sx;
-        y = sstairs.sy;
-    }
-
-    /* x==0 is the no-stairs sentinel; y is the paired coordinate
-       and may legitimately be 0 (top map row), so don't gate on y */
-    if (x) {
-        *sx = x;
-        *sy = y;
-    }
+    if (stway)
+        *sx = stway->sx, *sy = stway->sy;
 }
 
+DISABLE_WARNING_UNREACHABLE_CODE
+
 int
-tactics(mtmp)
-struct monst *mtmp;
+tactics(struct monst *mtmp)
 {
     unsigned long strat = strategy(mtmp);
-    xchar sx = 0, sy = 0, mx, my;
-    schar nx, ny;
-    int j;
+    coordxy sx = 0, sy = 0, mx, my;
 
     mtmp->mstrategy =
         (mtmp->mstrategy & (STRAT_WAITMASK | STRAT_APPEARMSG)) | strat;
 
-    /* if monster is magically scared, don't 'flee' right next
-     * to the player */
-    if (mtmp->mflee) {
-        mtmp->mavenge = 1;
-        for (j = 0; j < 400; j++) {
-            nx = rnd(COLNO - 1);
-            ny = rn2(ROWNO);
-            if (rloc_pos_ok(nx, ny, mtmp)
-                && distu(nx, ny) > (BOLT_LIM * BOLT_LIM)) {
-                rloc_to(mtmp, nx, ny);
-                /* rloc_to may fire mintrap and kill mtmp */
-                if (DEADMONSTER(mtmp))
-                    return 2;
-                if (mtmp->mhp <= mtmp->mhpmax - 8)
-                    mtmp->mhp += rnd(8);
-                return 1;
-            }
-        }
-        /* we couldn't find someplace far enough away from the player
-         * to run to, which should be very rare, but...
-         * and in that case, just fall through so we do something */
-        pline("%s looks around nervously.", Monnam(mtmp));
-    }
-
-    /* once a covetous monster gets close enough, they will start
-       to move normally 95% of the time */
-    if (rn2(20) && distu(mtmp->mx, mtmp->my) <= 8)
-        return m_move(mtmp, 0);
-
     switch (strat) {
     case STRAT_HEAL: /* hide and recover */
         mx = mtmp->mx, my = mtmp->my;
+
+        if (u.uswallow && u.ustuck == mtmp)
+            expels(mtmp, mtmp->data, TRUE);
+
         /* if wounded, hole up on or near the stairs (to block them) */
-        choose_stairs(&sx, &sy);
+        choose_stairs(&sx, &sy, (mtmp->m_id % 2));
         mtmp->mavenge = 1; /* covetous monsters attack while fleeing */
         if (In_W_tower(mx, my, &u.uz)
             || (mtmp->iswiz && !sx && !mon_has_amulet(mtmp))) {
-            if (!rn2(3 + mtmp->mhp / 10)) {
-                (void) rloc(mtmp, TRUE);
-                if (DEADMONSTER(mtmp))
-                    return 2;
-            }
+            if (!noteleport_level(mtmp) &&
+                !rn2(3 + mtmp->mhp / 10))
+                (void) rloc(mtmp, RLOC_MSG);
         } else if (sx && (mx != sx || my != sy)) {
-            if (!mnearto(mtmp, sx, sy, TRUE)) {
+            if (!noteleport_level(mtmp) &&
+                !mnearto(mtmp, sx, sy, TRUE, RLOC_MSG)) {
                 /* couldn't move to the target spot for some reason,
                    so stay where we are (don't actually need rloc_to()
                    because mtmp is still on the map at <mx,my>... */
                 rloc_to(mtmp, mx, my);
                 return 0;
             }
-            /* mnearto succeeded; its internal rloc_to may have killed
-               mtmp via mintrap on the destination tile */
-            if (DEADMONSTER(mtmp))
-                return 2;
             mx = mtmp->mx, my = mtmp->my; /* update cached location */
         }
         /* if you're not around, cast healing spells */
         if (distu(mx, my) > (BOLT_LIM * BOLT_LIM))
             if (mtmp->mhp <= mtmp->mhpmax - 8) {
-                mtmp->mhp += rnd(8);
+                healmon(mtmp, rnd(8), 0);
                 return 1;
             }
+        FALLTHROUGH;
         /*FALLTHRU*/
 
     case STRAT_NONE: /* harass */
-    {
-        xchar tx = STRAT_GOALX(strat), ty = STRAT_GOALY(strat),
-                   dx = 0, dy = 0, stx = tx, sty = ty;
-
-        if (mtmp->mpeaceful && !mtmp->mtame
-            && !(mtmp->mstrategy & STRAT_APPEARMSG)) {
-            /* wander aimlessly */
-            if (!rn2(5)) {
-                (void) rloc(mtmp, TRUE);
-                if (DEADMONSTER(mtmp))
-                    return 2;
-            }
-        } else if (distu(mtmp->mx, mtmp->my) <= 25) {
-            mnexto(mtmp); /* If we're close enough, pounce */
-            if (DEADMONSTER(mtmp))
-                return 2;
-        } else {
-            /* figure out what direction the player's in */
-            dx = sgn(u.ux - mtmp->mx);
-            dy = sgn(u.uy - mtmp->my);
-            /* since we're not close enough, use short jumps to change that */
-            stx = mtmp->mx + ((rn2(3) + 4) * dx);
-            sty = mtmp->my + ((rn2(3) + 3) * dy);
-            /* a fixed-length jump toward a hero at or near a map edge
-               can overshoot the boundary; clamp into bounds so the
-               monster keeps advancing instead of freezing (an off-map
-               coord would also index m_at() out of bounds in mnearto) */
-            stx = min(max(stx, 1), COLNO - 1);
-            sty = min(max(sty, 0), ROWNO - 1);
-            mnearto(mtmp, stx, sty, TRUE);
-            if (DEADMONSTER(mtmp))
-                return 2;
-        }
+        if (!noteleport_level(mtmp) && !rn2(!mtmp->mflee ? 5 : 33))
+            mnexto(mtmp, RLOC_MSG);
         return 0;
-    }
 
     default: /* kill, maim, pillage! */
     {
         long where = (strat & STRAT_STRATMASK);
-        xchar tx = STRAT_GOALX(strat), ty = STRAT_GOALY(strat),
-                   dx = 0, dy = 0, stx = tx, sty = ty;
+        coordxy tx = mtmp->mgoal.x, ty = mtmp->mgoal.y;
         int targ = (int) (strat & STRAT_GOAL);
         struct obj *otmp;
 
-        if (!targ) { /* simply wants you to close */
+        if (!targ || !isok(tx, ty)) { /* simply wants you to close */
             return 0;
         }
-        /* player is standing on it (or has it) */
-        if ((u.ux == tx && u.uy == ty) || where == STRAT_PLAYER) {
-            /* If we're close enough, pounce */
-            if (distu(mtmp->mx, mtmp->my) <= 25) {
-                mnexto(mtmp);
-                if (DEADMONSTER(mtmp))
-                    return 2;
-            } else {
-                /* figure out what direction the player's in */
-                dx = sgn(u.ux - mtmp->mx);
-                dy = sgn(u.uy - mtmp->my);
-                /* since we're not close enough, use short jumps to change that */
-                stx = mtmp->mx + ((rn2(3) + 4) * dx);
-                sty = mtmp->my + ((rn2(3) + 3) * dy);
-                /* a fixed-length jump toward a hero at or near a map
-                   edge can overshoot the boundary; clamp into bounds so
-                   the monster keeps advancing instead of freezing (an
-                   off-map coord would also index m_at() out of bounds
-                   in mnearto) */
-                stx = min(max(stx, 1), COLNO - 1);
-                sty = min(max(sty, 0), ROWNO - 1);
-                mnearto(mtmp, stx, sty, TRUE);
-                if (DEADMONSTER(mtmp))
-                    return 2;
-            }
+        if (noteleport_level(mtmp) && !monnear(mtmp, tx, ty))
+            return 0;
+        if (u_at(tx, ty) || where == STRAT_PLAYER) {
+            /* player is standing on it (or has it) */
+            mx = mtmp->mx, my = mtmp->my;
+            if (noteleport_level(mtmp) ||
+                !mnearto(mtmp, tx, ty, FALSE, RLOC_MSG))
+                rloc_to(mtmp, mx, my); /* no room? stay put */
             return 0;
         }
         if (where == STRAT_GROUND) {
             if (!MON_AT(tx, ty) || (mtmp->mx == tx && mtmp->my == ty)) {
                 /* teleport to it and pick it up */
                 rloc_to(mtmp, tx, ty); /* clean old pos */
-                /* destination tile may have a trap that just killed mtmp;
-                   without this guard, mpickobj would append the artifact
-                   to a dead monster's minvent (lost on dmonsfree) */
-                if (DEADMONSTER(mtmp))
-                    return 2;
 
-                if ((otmp = on_ground(which_arti(targ))) != 0
-                    && !can_levitate(mtmp)) {
+                if ((otmp = on_ground(which_arti(targ))) != 0) {
                     if (cansee(mtmp->mx, mtmp->my))
                         pline("%s picks up %s.", Monnam(mtmp),
-                              (distu(mtmp->mx, mtmp->my) <= 5)
-                                  ? doname(otmp)
-                                  : distant_name(otmp, doname));
+                              distant_name(otmp, doname));
                     obj_extract_self(otmp);
                     (void) mpickobj(mtmp, otmp);
-                    /* artifact might be armor, attempt to put it on */
-                    m_dowear(mtmp, FALSE);
                     return 1;
                 } else
                     return 0;
             } else {
                 /* a monster is standing on it - cause some trouble */
-                if (!rn2(5)) {
-                    mnexto(mtmp);
-                    if (DEADMONSTER(mtmp))
-                        return 2;
-                }
+                if (!rn2(5) && !noteleport_level(mtmp))
+                    mnexto(mtmp, RLOC_MSG);
                 return 0;
             }
         } else { /* a monster has it - 'port beside it. */
             mx = mtmp->mx, my = mtmp->my;
-            if (!mnearto(mtmp, tx, ty, FALSE))
+            if (!noteleport_level(mtmp) &&
+                !mnearto(mtmp, tx, ty, FALSE, RLOC_MSG))
                 rloc_to(mtmp, mx, my); /* no room? stay put */
-            if (DEADMONSTER(mtmp))
-                return 2;
             return 0;
         }
     } /* default case */
@@ -621,10 +467,11 @@ struct monst *mtmp;
     return 0;
 }
 
+RESTORE_WARNINGS
+
 /* are there any monsters mon could aggravate? */
 boolean
-has_aggravatables(mon)
-struct monst *mon;
+has_aggravatables(struct monst *mon)
 {
     struct monst *mtmp;
     boolean in_w_tower = In_W_tower(mon->mx, mon->my, &u.uz);
@@ -637,31 +484,28 @@ struct monst *mon;
             continue;
         if (in_w_tower != In_W_tower(mtmp->mx, mtmp->my, &u.uz))
             continue;
-        if ((mtmp->mstrategy & STRAT_WAITFORU) != 0
-            || mtmp->msleeping || !mtmp->mcanmove)
+        if ((mtmp->mstrategy & STRAT_WAITFORU) != 0 || helpless(mtmp))
             return TRUE;
     }
     return FALSE;
 }
 
 void
-aggravate()
+aggravate(void)
 {
     struct monst *mtmp;
     boolean in_w_tower = In_W_tower(u.ux, u.uy, &u.uz);
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (DEADMONSTER(mtmp) || mtmp->islucifer
-            || mtmp->iswiz)
+        if (DEADMONSTER(mtmp))
             continue;
         if (in_w_tower != In_W_tower(mtmp->mx, mtmp->my, &u.uz))
             continue;
-        mtmp->mstrategy &= ~STRAT_WAITFORU;
+        mtmp->mstrategy &= ~(STRAT_WAITFORU | STRAT_APPEARMSG);
         mtmp->msleeping = 0;
         if (!mtmp->mcanmove && !rn2(5)) {
             mtmp->mfrozen = 0;
-            if (!mtmp->mstone || mtmp->mstone > 2)
-                mtmp->mcanmove = 1;
+            mtmp->mcanmove = 1;
         }
     }
 }
@@ -670,7 +514,7 @@ aggravate()
    only casting this when there is currently one wizard in existence;
    the clone can't use it unless/until its creator has been killed off */
 void
-clonewiz()
+clonewiz(void)
 {
     struct monst *mtmp2;
 
@@ -681,17 +525,20 @@ clonewiz()
             (void) add_to_minv(mtmp2,
                                mksobj(FAKE_AMULET_OF_YENDOR, TRUE, FALSE));
         }
-        mtmp2->m_ap_type = M_AP_MONSTER;
-        mtmp2->mappearance = wizapp[rn2(SIZE(wizapp))];
+        if (!Protection_from_shape_changers) {
+            mtmp2->m_ap_type = M_AP_MONSTER;
+            mtmp2->mappearance = ROLL_FROM(wizapp);
+        }
         newsym(mtmp2->mx, mtmp2->my);
     }
 }
 
 /* also used by newcham() */
 int
-pick_nasty()
+pick_nasty(
+    int difcap) /* if non-zero, try to make difficulty be lower than this */
 {
-    int res = nasties[rn2(SIZE(nasties))];
+    int alt, res = ROLL_FROM(nasties);
 
     /* To do?  Possibly should filter for appropriate forms when
      * in the elemental planes or surrounded by water or lava.
@@ -700,24 +547,35 @@ pick_nasty()
      * but we don't try very hard.
      */
     if (Is_rogue_level(&u.uz)
-        && !('A' <= mons[res].mlet && mons[res].mlet <= 'Z'))
-        res = nasties[rn2(SIZE(nasties))];
+        && !('A' <= monsym(&mons[res]) && monsym(&mons[res]) <= 'Z'))
+        res = ROLL_FROM(nasties);
 
-    return res;
-}
+    /* if genocided or too difficult or out of place, try a substitute
+       when a suitable one exists
+           arch-lich -> master lich,
+           master mind flayer -> mind flayer,
+       but the substitutes are likely to be genocided too */
+    alt = res;
+    if ((svm.mvitals[res].mvflags & G_GENOD) != 0
+        || (difcap > 0 && mons[res].difficulty >= difcap)
+         /* note: nasty() -> makemon() ignores G_HELL|G_NOHELL;
+            arch-lich and master lich are both flagged as hell-only;
+            this filtering demotes arch-lich to master lich when
+            outside of Gehennom (unless the latter has been genocided) */
+        || (mons[res].geno & (Inhell ? G_NOHELL : G_HELL)) != 0)
+        alt = big_to_little(res);
+    if (alt != res && (svm.mvitals[alt].mvflags & G_GENOD) == 0) {
+        const char *mnam = mons[alt].pmnames[NEUTRAL],
+                   *lastspace = strrchr(mnam, ' ');
 
-int
-pick_nasty_ice()
-{
-    int res = ice_nasties[rn2(SIZE(ice_nasties))];
-
-    return res;
-}
-
-int
-pick_nasty_vecna()
-{
-    int res = vecna_nasties[rn2(SIZE(vecna_nasties))];
+        /* only non-juveniles can become alternate choice */
+        if (strncmp(mnam, "baby ", 5)
+            && (!lastspace
+                || (strcmp(lastspace, " hatchling")
+                    && strcmp(lastspace, " pup")
+                    && strcmp(lastspace, " cub"))))
+            res = alt;
+    }
 
     return res;
 }
@@ -730,15 +588,15 @@ pick_nasty_vecna()
    creatures on average (in 3.6.0 and earlier, Null was treated as chaotic);
    returns the number of monsters created */
 int
-nasty(summoner, centered_on_stairs)
-struct monst *summoner;
-BOOLEAN_P centered_on_stairs;
+nasty(struct monst *summoner)
 {
     struct monst *mtmp;
-    int i, j, tmp;
-    int castalign = (summoner ? sgn(mon_aligntyp(summoner)) : 0);
     coord bypos;
-    int count, census, s_cls, m_cls;
+    int i, j, count, census, tmp, makeindex,
+        s_cls, m_cls, difcap, trylimit, castalign;
+    /* when a monster casts the "summon nasties" spell, it gives feedback;
+       when random post-Wizard harassment casts that, we give feedback */
+    unsigned mmflags = summoner ? MM_NOMSG : NO_MM_FLAGS;
 
 #define MAXNASTIES 10 /* more than this can be created */
 
@@ -752,51 +610,46 @@ BOOLEAN_P centered_on_stairs;
     } else {
         count = 0;
         s_cls = summoner ? summoner->data->mlet : 0;
+        difcap = summoner ? summoner->data->difficulty : 0; /* spellcasters */
+        castalign = summoner ? sgn(summoner->data->maligntyp) : 0;
         tmp = (u.ulevel > 3) ? u.ulevel / 3 : 1;
         /* if we don't have a casting monster, nasties appear around hero,
-         * ...unless we're being called with the 'stairs' flag to block the
-         * adventurer's return with the amulet */
-        if (centered_on_stairs && xupstair) {
-            bypos.x = xupstair;
-            bypos.y = yupstair;
-        } else {
-            bypos.x = u.ux;
-            bypos.y = u.uy;
-        }
-        for (i = rnd(tmp); i > 0 && count < MAXNASTIES; --i)
-            /* The 50-entry nasties[] table is 22 neutral,
-             * 15 chaotic, and 13 lawful. The inner loop
-             * keeps retrying unless the picked monster is
-             * neutral or matches the caster's alignment, so:
-             *   neutral or unaligned caster breaks on neutrals
-             *     only (22/50 per pick),
-             *   lawful caster breaks on neutrals + lawfuls
-             *     (35/50 per pick),
-             *   chaotic caster breaks on neutrals + chaotics
-             *     (37/50 per pick).
-             * Angel and demon casters additionally re-roll
-             * picks of the opposite class, shrinking the pool.
+           otherwise they'll appear around spot summoner thinks she's at */
+        bypos.x = u.ux;
+        bypos.y = u.uy;
+        for (i = rnd(tmp); i > 0 && count < MAXNASTIES; --i) {
+            /* Of the 44 nasties[], 10 are lawful, 14 are chaotic,
+             * and 20 are neutral.  [These numbers are up date for
+             * 5.0.0; the ones in the next paragraph are not....]
              *
-             * The MAXNASTIES cap and the randomized outer
-             * iteration count add variance to the per-cast
-             * total summon count.
+             * Neutral caster, used for late-game harassment,
+             * has 18/42 chance to stop the inner loop on each
+             * critter, 24/42 chance for another iteration.
+             * Lawful caster has 28/42 chance to stop unless the
+             * summoner is an angel or demon, in which case the
+             * chance is 26/42.
+             * Chaotic or unaligned caster has 32/42 chance to
+             * stop, so will summon fewer creatures on average.
+             *
+             * The outer loop potentially gives chaotic/unaligned
+             * a chance to even things up since others will hit
+             * MAXNASTIES sooner, but its number of iterations is
+             * randomized so it won't always do so.
              */
             for (j = 0; j < 20; j++) {
-                int makeindex;
-                /* Don't create more spellcasters of the monsters' level or
+                /* Don't create more spellcasters of the monster's level or
                  * higher--avoids chain summoners filling up the level.
                  */
+                trylimit = 10 + 1; /* 10 tries */
                 do {
-                    makeindex = ((summoner && summoner->data == &mons[PM_KATHRYN_THE_ICE_QUEEN])
-                                 ? pick_nasty_ice() : (summoner && summoner->data == &mons[PM_VECNA])
-                                                    ? pick_nasty_vecna() : pick_nasty());
+                    if (!--trylimit)
+                        goto nextj; /* break this loop, continue outer one */
+                    makeindex = pick_nasty(difcap);
                     m_cls = mons[makeindex].mlet;
-                } while (summoner
-                         && ((attacktype(&mons[makeindex], AT_MAGC)
-                             && mons[makeindex].difficulty
-                             >= mons[summoner->mnum].difficulty)
-                             || (s_cls == S_DEMON && m_cls == S_ANGEL)
-                             || (s_cls == S_ANGEL && m_cls == S_DEMON)));
+                } while ((difcap > 0 && mons[makeindex].difficulty >= difcap
+                          && attacktype(&mons[makeindex], AT_MAGC))
+                         || (s_cls == S_DEMON && m_cls == S_ANGEL)
+                         || (s_cls == S_ANGEL && m_cls == S_DEMON));
                 /* do this after picking the monster to place */
                 if (summoner && !enexto(&bypos, summoner->mux, summoner->muy,
                                         &mons[makeindex]))
@@ -804,70 +657,100 @@ BOOLEAN_P centered_on_stairs;
                 /* this honors genocide but overrides extinction; it ignores
                    inside-hell-only (G_HELL) & outside-hell-only (G_NOHELL) */
                 if ((mtmp = makemon(&mons[makeindex], bypos.x, bypos.y,
-                                    MM_ADJACENTOK)) != 0) {
+                                    mmflags)) != 0) {
                     mtmp->msleeping = mtmp->mpeaceful = mtmp->mtame = 0;
                     set_malign(mtmp);
-                } else /* random monster to substitute for geno'd selection */
-                    mtmp = makemon((struct permonst *) 0, bypos.x, bypos.y,
-                                   MM_ADJACENTOK);
+                } else {
+                    /* random monster to substitute for geno'd selection;
+                       unlike direct choice, not forced to be hostile [why?];
+                       limit spellcasters to inhibit chain summoning */
+                    if ((mtmp = makemon((struct permonst *) 0,
+                                        bypos.x, bypos.y, mmflags)) != 0) {
+                        m_cls = mtmp->data->mlet;
+                        if ((difcap > 0 && mtmp->data->difficulty >= difcap
+                             /* always capping for substitutes made wanton
+                                genocide become too strong in the endgame */
+                             && rn2(In_endgame(&u.uz) ? 3 : 7) /* usually */
+                             && attacktype(mtmp->data, AT_MAGC))
+                            || (s_cls == S_DEMON && m_cls == S_ANGEL)
+                            || (s_cls == S_ANGEL && m_cls == S_DEMON))
+                            mtmp = unmakemon(mtmp, NO_MM_FLAGS); /* Null */
+                    }
+                }
+
                 if (mtmp) {
-                    /* delay first use of spell, breath, or
-                       telekinesis attack */
+                    /* if creating an arch-lich or Archon, further directly
+                       selected nasties will have to be less difficult, and
+                       substitues for geno victims will usually be less
+                       (note: Archon is not in nasties[] but could be chosen
+                       as random replacement for a genocided selection) */
+                    if (mtmp->data == &mons[PM_ARCH_LICH]
+                        || mtmp->data == &mons[PM_ARCHON]) {
+                        tmp = min(mons[PM_ARCHON].difficulty, /* A:26 */
+                                  mons[PM_ARCH_LICH].difficulty); /* L:31 */
+                        if (!difcap || difcap > tmp)
+                            difcap = tmp; /* rest must be lower difficulty */
+                    }
+                    /* delay first use of spell or breath attack */
                     mtmp->mspec_used = rnd(4);
-                    mtmp->mbreath_attk = rnd(4);
-                    mtmp->mtk_attk = rnd(4);
+
                     if (++count >= MAXNASTIES
-                        || mon_aligntyp(mtmp) == 0
-                        || sgn(mon_aligntyp(mtmp)) == castalign)
+                        || mtmp->data->maligntyp == 0
+                        || sgn(mtmp->data->maligntyp) == castalign)
                         break;
                 }
-            }
-        }
+ nextj:
+                ; /* empty; label must be followed by a statement */
+            } /* for j */
+        } /* for i */
+    }
+
     if (count)
         count = monster_census(FALSE) - census;
     return count;
 }
 
-/* Let's resurrect the wizard, for some unexpected fun. */
+/* Let's resurrect the Wizard, for some unexpected fun. */
 void
-resurrect()
+resurrect(void)
 {
     struct monst *mtmp, **mmtmp;
     long elapsed;
     const char *verb;
 
-    if (!context.no_of_wizards) {
+    if (!svc.context.no_of_wizards) {
         /* make a new Wizard */
         verb = "kill";
         mtmp = makemon(&mons[PM_WIZARD_OF_YENDOR], u.ux, u.uy, MM_NOWAIT);
         /* affects experience; he's not coming back from a corpse
            but is subject to repeated killing like a revived corpse */
-        if (mtmp) mtmp->mrevived = 1;
+        if (mtmp)
+            mtmp->mrevived = 1;
     } else {
         /* look for a migrating Wizard */
         verb = "elude";
-        mmtmp = &migrating_mons;
+        mmtmp = &gm.migrating_mons;
         while ((mtmp = *mmtmp) != 0) {
             if (mtmp->iswiz
                 /* if he has the Amulet, he won't bring it to you */
                 && !mon_has_amulet(mtmp)
-                && (elapsed = monstermoves - mtmp->mlstmv) > 0L) {
+                && (elapsed = svm.moves - mtmp->mlstmv) > 0L) {
                 mon_catchup_elapsed_time(mtmp, elapsed);
                 if (elapsed >= LARGEST_INT)
                     elapsed = LARGEST_INT - 1;
                 elapsed /= 50L;
                 if (mtmp->msleeping && rn2((int) elapsed + 1))
                     mtmp->msleeping = 0;
-                if (mtmp->mfrozen == 1) { /* would unfreeze on next move */
-                    mtmp->mfrozen = 0;
-                    if (!mtmp->mstone || mtmp->mstone > 2)
-                        mtmp->mcanmove = 1;
-                }
-                if (mtmp->mcanmove && !mtmp->msleeping) {
+                if (mtmp->mfrozen == 1) /* would unfreeze on next move */
+                    mtmp->mfrozen = 0, mtmp->mcanmove = 1;
+                if (!helpless(mtmp)) {
                     *mmtmp = mtmp->nmon;
-                    mon_arrive(mtmp, TRUE);
+                    mon_arrive(mtmp, -1); /* -1: Wiz_arrive (dog.c) */
+                    /* mx: mon_arrive() might have sent mtmp into limbo */
+                    if (!mtmp->mx)
+                        mtmp = 0;
                     /* note: there might be a second Wizard; if so,
-                       he'll have to wait til the next resurrection */
+                       he'll have to wait until the next resurrection */
                     break;
                 }
             }
@@ -875,13 +758,22 @@ resurrect()
         }
     }
 
-    /* makemon and mon_arrive can both fire mintrap on the destination
-       tile, which may kill the freshly-placed Wizard before we get here */
-    if (mtmp && !DEADMONSTER(mtmp)) {
-        mtmp->mtame = mtmp->mpeaceful = 0; /* paranoia */
+    if (mtmp) {
+        /* FIXME: when a new wizard is created by makemon(), it gives
+           a "<mon> appears" message, delivered after he's been placed
+           on the map; however, when an existing wizard comes off
+           migrating_mons, he ends up triggering "<mon> vanishes and
+           reappears" on his first move (tactics when hero is carrying
+           the Amulet); setting STRAT_WAITMASK suppresses that but then
+           he just sits wherever he is, "meditating", contradicting the
+           threatening message below */
+        mtmp->mstrategy &= ~STRAT_WAITMASK;
+
+        mtmp->mtame = 0, mtmp->mpeaceful = 0; /* paranoia */
         set_malign(mtmp);
         if (!Deaf) {
             pline("A voice booms out...");
+            SetVoice(mtmp, 0, 80, 0);
             verbalize("So thou thought thou couldst %s me, fool.", verb);
         }
     }
@@ -890,16 +782,13 @@ resurrect()
 /* Here, we make trouble for the poor shmuck who actually
    managed to do in the Wizard. */
 void
-intervene()
+intervene(void)
 {
-    struct monst *mtmp = (struct monst *) 0;
-    int which = Is_astralevel(&u.uz) ? rnd(4) : rn2(8);
+    int which = Is_astralevel(&u.uz) ? rnd(4) : rn2(6);
 
-    /* cases 0, and 5 through 7 don't apply on the Astral level */
+    /* cases 0 and 5 don't apply on the Astral level */
     switch (which) {
     case 0:
-        You_feel("apprehensive.");
-        break;
     case 1:
         You_feel("vaguely nervous.");
         break;
@@ -912,42 +801,27 @@ intervene()
         aggravate();
         break;
     case 4:
-        (void) nasty((struct monst *) 0, FALSE);
+        (void) nasty((struct monst *) 0);
         break;
     case 5:
         resurrect();
         break;
-    case 6:
-        if (u.uevent.invoked) {
-            pline_The("entire dungeon starts shaking around you!");
-            do_earthquake((MAXULEV - 1) / 3 + 1, FALSE);
-            for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-                if (DEADMONSTER(mtmp))
-                    continue;
-                wakeup(mtmp, FALSE); /* peaceful monster will not become hostile */
-            }
-            /* shake up monsters in a much larger radius... */
-            awaken_monsters(ROWNO * COLNO);
-        }
-        break;
-    case 7:
-        (void) nasty((struct monst *) 0, TRUE);
-        break;
     }
 }
 
+/* Wizard of Yendor is being removed from play (dead or escaped the dungeon);
+   keep the bookkeeping for him up to date */
 void
-wizdead()
+wizdeadorgone(void)
 {
-    if (context.no_of_wizards > 0)
-        context.no_of_wizards--;
+    svc.context.no_of_wizards--;
     if (!u.uevent.udemigod) {
         u.uevent.udemigod = TRUE;
         u.udg_cnt = rn1(250, 50);
     }
 }
 
-const char *const random_insult[] = {
+static const char *const random_insult[] = {
     "antic",      "blackguard",   "caitiff",    "chucklehead",
     "coistrel",   "craven",       "cretin",     "cur",
     "dastard",    "demon fodder", "dimwit",     "dolt",
@@ -958,7 +832,7 @@ const char *const random_insult[] = {
     "wittol",     "worm",         "wretch",
 };
 
-const char *const random_malediction[] = {
+static const char *const random_malediction[] = {
     "Hell shall soon claim thy remains,", "I chortle at thee, thou pathetic",
     "Prepare to die, thou", "Resistance is useless,",
     "Surrender or die, thou", "There shall be no mercy, thou",
@@ -967,198 +841,45 @@ const char *const random_malediction[] = {
     "Verily, thou shalt be one dead"
 };
 
-const char *const random_icequeen[] = {
-    "My magic is greater than yours", "You will never defeat me",
-    "Winter shall last forever", "The cold never bothered me anyway",
-    "Muahahahah", "I am even more powerful than the Wizard himself",
-    "Run while you still can, fool", "Let's build a snowman",
-    "The pegasus belongs to me"
-};
-
-const char *const random_enchantress[] = {
-    "Thank you again for freeing me", "I have so much damage to undo",
-    "I apologize for any harm I may have caused you",
-    "Be careful leaving this place, I have no control over the monsters that still lurk here",
-    "Please treat the pegasus well, it has been through a lot",
-    "It will take a long time to regrow the forest"
-};
-
-const char *const random_vecna[] = {
-    "I am Vecna the Unholy", "Kneel before me, wretched mortal",
-    "You have no idea what true power is!  I will show you",
-    "Your suffering will be legendary, even in hell",
-    "Ah, the suffering.  The sweet, sweet suffering",
-    "I will rip your soul to shreds"
-};
-
-const char *const random_talgath[] = {
-    "Puny creature!  Bow before my might",
-    "Look into my eyes, if you dare",
-    "Beauty truly is in the eye of the beholder"
-};
-
-const char *const random_goblinking[] = {
-    "Bones will be shattered, necks will be wrung!  You'll be beaten and battered, from racks you'll be hung",
-    "You will die down here and never be found, down in the deep of Goblin Town",
-    "With a swish and a smack, and a whip and a crack!  Everybody talks when they're on my rack",
-    "Mine Town is under my control!  No one is allowed to visit",
-    "So you want to explore Mines' End, eh?  Over my dead body",
-};
-
-const char *const random_gollum[] = {
-    "Precious, precious, precious!  My Precious!  O my Precious",
-    "Losst it is, my precious, lost, lost!  Curse us and crush us, my precious is lost",
-    "Never!  Smeagol wouldn't hurt a fly",
-    "It isn't fair, my precious, is it, to ask us what it's got in it's nassty little pocketsess",
-    "We wants it, we needs it.  Must have the precious.  They stole it from us",
-    "And they doesn't taste very nice, does they, Precious",
-};
-
 /* Insult or intimidate the player */
 void
-cuss(mtmp)
-struct monst *mtmp;
+cuss(struct monst *mtmp)
 {
     if (Deaf)
         return;
     if (mtmp->iswiz) {
-        if (!rn2(5)) /* typical bad guy action */
+        if (!rn2(5)) { /* typical bad guy action */
             pline("%s laughs fiendishly.", Monnam(mtmp));
-        else if (u.uhave.amulet && !rn2(SIZE(random_insult)))
+        } else if (u.uhave.amulet && !rn2(SIZE(random_insult))) {
+            SetVoice(mtmp, 0, 80, 0);
             verbalize("Relinquish the amulet, %s!",
-                      random_insult[rn2(SIZE(random_insult))]);
-        else if ((Upolyd ? u.mh : u.uhp) < 5 && !rn2(2)) /* Panic */
+                      ROLL_FROM(random_insult));
+        } else if (u.uhp < 5 && !rn2(2)) { /* Panic */
+            SetVoice(mtmp, 0, 80, 0);
             verbalize(rn2(2) ? "Even now thy life force ebbs, %s!"
                              : "Savor thy breath, %s, it be thy last!",
-                      random_insult[rn2(SIZE(random_insult))]);
-        else if (mtmp->mhp < 5 && !rn2(2)) /* Parthian shot */
+                      ROLL_FROM(random_insult));
+        } else if (mtmp->mhp < 5 && !rn2(2)) { /* Parthian shot */
+            SetVoice(mtmp, 0, 80, 0);
             verbalize(rn2(2) ? "I shall return." : "I'll be back.");
-        else
+        } else {
+            SetVoice(mtmp, 0, 80, 0);
             verbalize("%s %s!",
-                      random_malediction[rn2(SIZE(random_malediction))],
-                      random_insult[rn2(SIZE(random_insult))]);
+                      ROLL_FROM(random_malediction),
+                      ROLL_FROM(random_insult));
+        }
     } else if (is_lminion(mtmp)
                && !(mtmp->isminion && EMIN(mtmp)->renegade)) {
-        com_pager(rn2(QTN_ANGELIC - 1 + (Hallucination ? 1 : 0))
-                  + QT_ANGELIC);
-    } else if (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]) {
-        if (!rn2(5)) {
-            pline("%s points and giggles at you.", Monnam(mtmp));
-            if (kathryn_bday())
-                verbalize("It's my birthday!  Woohoo!!");
-            else if (bourbon_bday())
-                verbalize("Wish Bourbon a happy birthday!  Now!!");
-            else if (ozzy_bday())
-                verbalize("Say happy birthday to Ozzy!  Say it!!");
-        } else {
-            verbalize("%s!",
-                      random_icequeen[rn2(SIZE(random_icequeen))]);
-        }
-    } else if (mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
-        if (mtmp->mpeaceful) {
-            if (!rn2(5)) {
-                pline("%s waves to you.", Monnam(mtmp));
-                if (kathryn_bday())
-                    verbalize("You freed me on my birthday!  Thank you so much!!");
-                else if (bourbon_bday())
-                    verbalize("Happy birthday, Bourbon!  Good girl!!");
-                else if (ozzy_bday())
-                    verbalize("Happy birthday, Ozzy!  You're a good boy, yes you are!!");
-            } else {
-                verbalize("%s.",
-                          random_enchantress[rn2(SIZE(random_enchantress))]);
-            }
-        } else {
-            if (!rn2(7))
-                pline("%s waves to you.", Monnam(mtmp));
-        }
-    } else if (mtmp->isvecna) {
-        verbalize("%s!",
-                  random_vecna[rn2(SIZE(random_vecna))]);
-    } else if (mtmp->istalgath) {
-        verbalize("%s!",
-                  random_talgath[rn2(SIZE(random_talgath))]);
-    } else if (mtmp->isgking) {
-        if (!rn2(3)) {
-            if (uwep && uwep->oartifact == ART_ORCRIST) {
-                verbalize("I know that sword!  It is the Goblin Cleaver!  The Biter!  The blade that sliced a thousand necks!");
-            } else if (uwep && uwep->oartifact == ART_GLAMDRING) {
-                verbalize("%s wields the Foe-Hammer!  The Beater!  Bright as daylight!",
-                          flags.female ? "She" : "He");
-            }
-        } else {
-            verbalize("%s!",
-                      random_goblinking[rn2(SIZE(random_goblinking))]);
-        }
-    } else if (mtmp->data == &mons[PM_GOLLUM]) {
-        verbalize("%s!",
-                  random_gollum[rn2(SIZE(random_gollum))]);
+        com_pager("angel_cuss"); /* TODO: the Hallucination msg */
+        /*com_pager(rn2(QTN_ANGELIC - 1 + (Hallucination ? 1 : 0))
+          + QT_ANGELIC);*/
     } else {
         if (!rn2(is_minion(mtmp->data) ? 100 : 5))
             pline("%s casts aspersions on your ancestry.", Monnam(mtmp));
         else
-            com_pager(rn2(QTN_DEMONIC) + QT_DEMONIC);
+            com_pager("demon_cuss");
     }
-}
-
-const char *const random_mplayer_amulet[] = {
-    "Give me the Amulet of Yendor",
-    "Where is the Amulet?  I need it to escape this place",
-    "This isn't Purgatory, it's Hell with a nice view",
-    "Either you relinquish the Amulet now, or I will kill you"
-};
-
-const char *const random_mplayer_idol[] = {
-    "Give me the Idol of Moloch",
-    "Where is the Idol?  I need it to escape this place",
-    "This isn't Purgatory, it's Hell with a nice view",
-    "Either you relinquish the Idol now, or I will kill you"
-};
-
-/* Player monsters harass the player in Purgatory */
-void
-mplayer_purg_talk(mtmp)
-struct monst *mtmp;
-{
-    if (Deaf)
-        return;
-    if (is_mplayer(mtmp->data)) {
-        if (Role_if(PM_INFIDEL))
-            verbalize("%s!",
-                      random_mplayer_idol[rn2(SIZE(random_mplayer_idol))]);
-        else
-            verbalize("%s!",
-                      random_mplayer_amulet[rn2(SIZE(random_mplayer_amulet))]);
-    }
-}
-
-const char *const random_arch_amulet[] = {
-    "Hast thou come to repent thy sins?",
-    "Give unto me the Amulet, and I shall cleanse thee of thy sins.",
-    "Only those that are pure of heart can ascend to glory."
-};
-
-const char *const random_arch_idol[] = {
-    "Begone, foul Infidel!  I cast thee back to hell!",
-    "Return from whence thou cam'st!",
-    "I shall relieve thee of thy charge, and destroy thine wicked Idol!"
-};
-
-/* Saint Michael the Archangel */
-void
-archangel_purg_talk(mtmp)
-struct monst *mtmp;
-{
-    if (Deaf)
-        return;
-    if (mtmp->data == &mons[PM_SAINT_MICHAEL]) {
-        if (Role_if(PM_INFIDEL))
-            verbalize("%s",
-                      random_arch_idol[rn2(SIZE(random_arch_idol))]);
-        else
-            verbalize("%s",
-                      random_arch_amulet[rn2(SIZE(random_arch_amulet))]);
-    }
+    wake_nearto(mtmp->mx, mtmp->my, 5 * 5);
 }
 
 /*wizard.c*/

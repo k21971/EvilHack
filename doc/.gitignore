@@ -10,7 +10,15 @@ Guidebook.dat
 Guidebook.aux
 Guidebook.dvi
 Guidebook.log
+Guidebook.out
 Guidebook.pdf
 Guidebook.ps
+Guidebook.dated.*
 *.synctex.*
-
+# files that might appear from "make fetch-docs"
+dlb.pdf
+makedefs.pdf
+mn.pdf
+mnh.pdf
+nethack.pdf
+recover.pdf

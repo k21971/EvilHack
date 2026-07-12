@@ -2,9 +2,9 @@
 /* Copyright (c) Gregg Wonderly, Naperville, Illinois,  1991,1992,1993. */
 /* NetHack may be freely redistributed.  See license for details. */
 
-#include "NH:sys/amiga/windefs.h"
-#include "NH:sys/amiga/winext.h"
-#include "NH:sys/amiga/winproto.h"
+#include "windefs.h"
+#include "winext.h"
+#include "winproto.h"
 
 #define GADBLUEPEN 2
 #define GADREDPEN 3
@@ -21,8 +21,8 @@ struct IntuiText IText1 = { 3, 0, JAM1, 4, 1, NULL, (UBYTE *) "Cancel",
 struct Gadget Gadget2 = { NULL, 9, 15, 56, 10, NULL, RELVERIFY, BOOLGADGET,
                           (APTR) &Border1, NULL, &IText1, NULL, NULL, 1,
                           NULL };
-UBYTE StrStringSIBuff[300];
-struct StringInfo StrStringSInfo = { StrStringSIBuff, UNDOBUFFER, 0, 300, 0,
+UBYTE StrStringSIBuff[BUFSZ];
+struct StringInfo StrStringSInfo = { StrStringSIBuff, UNDOBUFFER, 0, BUFSZ, 0,
                                      0, 0, 0, 0, 0, 0, 0, NULL };
 SHORT BorderVectors2[] = { 0, 0, 439, 0, 439, 11, 0, 11, 0, 0 };
 struct Border Border2 = { -1, -1, 3, 0, JAM1, 5, BorderVectors2, NULL };
@@ -39,7 +39,7 @@ struct NewWindow StrWindow = {
     &String, NULL, NULL, NULL, NULL, 5, 5, 0xffff, 0xffff, CUSTOMSCREEN
 };
 
-#include "NH:sys/amiga/colorwin.c"
+#include "colorwin.c"
 
 #define XSIZE 2
 #define YSIZE 3
@@ -48,21 +48,21 @@ struct NewWindow StrWindow = {
 #define GADOKAY 6
 #define GADCANCEL 7
 
-#include "NH:sys/amiga/clipwin.c"
+#include "clipwin.c"
 
 void ClearCol(struct Window *w);
 
 void
-EditColor()
+EditColor(void)
 {
-    extern char configfile[];
+    const char *configfile = get_configfile();
     int i, done = 0, okay = 0;
     long code, qual, class;
-    register struct Gadget *gd, *dgad;
-    register struct Window *nw;
-    register struct IntuiMessage *imsg;
-    register struct PropInfo *pip;
-    register struct Screen *scrn;
+    struct Gadget *gd, *dgad;
+    struct Window *nw;
+    struct IntuiMessage *imsg;
+    struct PropInfo *pip;
+    struct Screen *scrn;
     long aidx;
     int msx, msy;
     int curcol = 0, drag = 0;
@@ -103,26 +103,16 @@ EditColor()
         svcolors[i] = colors[i] = GetRGB4(scrn->ViewPort.ColorMap, i);
 
     Col_NewWindowStructure1.Screen = scrn;
-#ifdef INTUI_NEW_LOOK
     if (IntuitionBase->LibNode.lib_Version >= 37) {
         ((struct PropInfo *) Col_BluePen.SpecialInfo)->Flags |= PROPNEWLOOK;
         ((struct PropInfo *) Col_RedPen.SpecialInfo)->Flags |= PROPNEWLOOK;
         ((struct PropInfo *) Col_GreenPen.SpecialInfo)->Flags |= PROPNEWLOOK;
     }
-#endif
-    if (WINVERS_AMIV || WINVERS_AMII) {
-#ifdef INTUI_NEW_LOOK
-        Col_NewWindowStructure1.Extension = wintags;
-        Col_NewWindowStructure1.Flags |= WFLG_NW_EXTENDED;
-#ifdef __GNUC__
-        fillhook.h_Entry = (void *) &LayerFillHook;
-#else
-        fillhook.h_Entry = (ULONG (*) ()) LayerFillHook;
-#endif
-        fillhook.h_Data = (void *) -2;
-        fillhook.h_SubEntry = 0;
-#endif
-    }
+    Col_NewWindowStructure1.Extension = wintags;
+    Col_NewWindowStructure1.Flags |= WFLG_NW_EXTENDED;
+    fillhook.h_Entry = (void *) &LayerFillHook;
+    fillhook.h_Data = (void *) -2;
+    fillhook.h_SubEntry = 0;
 
     nw = OpenWindow((void *) &Col_NewWindowStructure1);
 
@@ -197,14 +187,23 @@ EditColor()
                         break;
                     }
 
-                    strcpy(oname, dirname((char *) configfile));
-                    if (oname[strlen(oname) - 1] != ':') {
-                        sprintf(nname, "%s/New_NetHack.cnf", oname);
-                        strcat(oname, "/");
-                        strcat(oname, "Old_NetHack.cnf");
-                    } else {
-                        sprintf(nname, "%sNew_NetHack.cnf", oname);
-                        strcat(oname, "Old_NetHack.cnf");
+                    {
+                        size_t olen;
+                        strncpy(oname, dirname((char *) configfile),
+                                sizeof(oname) - 1);
+                        oname[sizeof(oname) - 1] = '\0';
+                        olen = strlen(oname);
+                        if (olen > 0 && oname[olen - 1] != ':') {
+                            Snprintf(nname, sizeof nname,
+                                     "%s/New_NetHack.cnf", oname);
+                            Snprintf(oname + olen, sizeof(oname) - olen,
+                                     "/Old_NetHack.cnf");
+                        } else {
+                            Snprintf(nname, sizeof nname,
+                                     "%sNew_NetHack.cnf", oname);
+                            Snprintf(oname + olen, sizeof(oname) - olen,
+                                     "Old_NetHack.cnf");
+                        }
                     }
 
                     nfp = fopen(nname, "w");
@@ -234,7 +233,7 @@ EditColor()
                         for (i = 0; i < amii_numcolors; ++i) {
                             fprintf(nfp, "%03x", colors[i]);
                             if ((i + 1) < amii_numcolors)
-                                putc(',', nfp);
+                                putc('/', nfp);
                         }
                         putc('\n', nfp);
                     }
@@ -342,11 +341,11 @@ EditClipping(void)
     char buf[40];
     int done = 0, okay = 0;
     long code, qual, class;
-    register struct Gadget *gd, *dgad;
-    register struct Window *nw;
-    register struct IntuiMessage *imsg;
-    register struct PropInfo *pip;
-    register struct Screen *scrn;
+    struct Gadget *gd, *dgad;
+    struct Window *nw;
+    struct IntuiMessage *imsg;
+    struct PropInfo *pip;
+    struct Screen *scrn;
     long aidx;
     int lmxsize = mxsize, lmysize = mysize;
     int lxclipbord = xclipbord, lyclipbord = yclipbord;
@@ -362,27 +361,17 @@ EditClipping(void)
         once = 1;
     }
     ClipNewWindowStructure1.Screen = scrn;
-#ifdef INTUI_NEW_LOOK
     if (IntuitionBase->LibNode.lib_Version >= 37) {
         ((struct PropInfo *) ClipXSIZE.SpecialInfo)->Flags |= PROPNEWLOOK;
         ((struct PropInfo *) ClipYSIZE.SpecialInfo)->Flags |= PROPNEWLOOK;
         ((struct PropInfo *) ClipXCLIP.SpecialInfo)->Flags |= PROPNEWLOOK;
         ((struct PropInfo *) ClipYCLIP.SpecialInfo)->Flags |= PROPNEWLOOK;
     }
-#endif
-    if (WINVERS_AMIV || WINVERS_AMII) {
-#ifdef INTUI_NEW_LOOK
-        ClipNewWindowStructure1.Extension = wintags;
-        ClipNewWindowStructure1.Flags |= WFLG_NW_EXTENDED;
-#ifdef __GNUC__
-        fillhook.h_Entry = (void *) &LayerFillHook;
-#else
-        fillhook.h_Entry = (ULONG (*) ()) LayerFillHook;
-#endif
-        fillhook.h_Data = (void *) -2;
-        fillhook.h_SubEntry = 0;
-#endif
-    }
+    ClipNewWindowStructure1.Extension = wintags;
+    ClipNewWindowStructure1.Flags |= WFLG_NW_EXTENDED;
+    fillhook.h_Entry = (void *) &LayerFillHook;
+    fillhook.h_Data = (void *) -2;
+    fillhook.h_SubEntry = 0;
 
     nw = OpenWindow((void *) &ClipNewWindowStructure1);
 
@@ -393,11 +382,9 @@ EditClipping(void)
 
     ShowClipValues(nw);
     mflags = AUTOKNOB | FREEHORIZ;
-#ifdef INTUI_NEW_LOOK
     if (IntuitionBase->LibNode.lib_Version >= 37) {
         mflags |= PROPNEWLOOK;
     }
-#endif
 
     for (i = 0; i < 7; ++i) {
         if (mxsize <= sizes[i])
@@ -464,9 +451,6 @@ EditClipping(void)
                         yclipbord = aidx + 2;
                     }
                     ShowClipValues(nw);
-#ifdef OPT_DISPMAP
-                    dispmap_sanity();
-#endif
                 } else if (gd->GadgetID == GADOKAY) {
                     done = 1;
                     okay = 1;
@@ -512,9 +496,6 @@ EditClipping(void)
                 SetBPen(nw->RPort, amii_otherBPen);
                 SetDrMd(nw->RPort, JAM2);
                 Text(nw->RPort, buf, strlen(buf));
-#ifdef OPT_DISPMAP
-                dispmap_sanity();
-#endif
                 break;
             }
         }
@@ -532,29 +513,26 @@ EditClipping(void)
 }
 
 char *
-dirname(str)
-char *str;
+dirname(char *str)
 {
-    char *t, c;
     static char dir[300];
+    char *t;
 
-    t = strrchr(str, '/');
+    strncpy(dir, str, sizeof(dir) - 1);
+    dir[sizeof(dir) - 1] = '\0';
+
+    t = strrchr(dir, '/');
     if (!t)
-        t = strrchr(str, ':');
+        t = strrchr(dir, ':');
     if (!t)
-        t = str;
-    else {
-        c = *t;
-        *t = 0;
-        strcpy(dir, str);
-        *t = c;
-    }
+        dir[0] = '\0';
+    else
+        *t = '\0';
     return (dir);
 }
 
 char *
-basename(str)
-char *str;
+basename(char *str)
 {
     char *t;
 
@@ -568,7 +546,8 @@ char *str;
     return (t);
 }
 
-filecopy(from, to) char *from, *to;
+int
+filecopy(char *from, char *to)
 {
     char *buf;
     int i = 0;
@@ -577,12 +556,9 @@ filecopy(from, to) char *from, *to;
     if (buf) {
         sprintf(buf, "c:copy \"%s\" \"%s\" clone", from, to);
 
-/* Check SysBase instead?  Shouldn't matter  */
-#ifdef INTUI_NEW_LOOK
         if (IntuitionBase->LibNode.lib_Version >= 37)
             i = System(buf, NULL);
         else
-#endif
             Execute(buf, NULL, NULL);
         free(buf);
     } else {
@@ -592,7 +568,7 @@ filecopy(from, to) char *from, *to;
 }
 
 /* The colornames, and the default values for the pens */
-static struct COLDEF {
+struct COLDEF {
     char *name, *defval;
 };
 struct COLDEF amii_colnames[AMII_MAXCOLORS] = {
@@ -643,10 +619,7 @@ ClearCol(struct Window *w)
 }
 
 void
-DrawCol(w, idx, colors)
-struct Window *w;
-int idx;
-UWORD *colors;
+DrawCol(struct Window *w, int idx, UWORD *colors)
 {
     int bxorx, bxory, bxxlen, bxylen;
     int i, incx, incy, r, g, b;
@@ -714,11 +687,9 @@ UWORD *colors;
     b = colors[idx] & 0x00f;
 
     mflags = AUTOKNOB | FREEHORIZ;
-#ifdef INTUI_NEW_LOOK
     if (IntuitionBase->LibNode.lib_Version >= 37) {
         mflags |= PROPNEWLOOK;
     }
-#endif
     NewModifyProp(&Col_RedPen, w, NULL, mflags, (r * MAXPOT) / 15, 0,
                   MAXPOT / 15, 0, 1);
     NewModifyProp(&Col_GreenPen, w, NULL, mflags, (g * MAXPOT) / 15, 0,
@@ -728,13 +699,13 @@ UWORD *colors;
 }
 
 void
-DispCol(w, idx, colors)
-struct Window *w;
-int idx;
-UWORD *colors;
+DispCol(struct Window *w, int idx, UWORD *colors)
 {
     char buf[50];
     char *colname, *defval;
+
+    if (idx < 0 || idx >= amii_numcolors)
+        return;
 
     if (WINVERS_AMIV) {
         colname = amiv_colnames[idx].name;
@@ -760,7 +731,6 @@ UWORD *colors;
 void
 amii_setpens(int count)
 {
-#ifdef INTUI_NEW_LOOK
     struct EasyStruct ea = { sizeof(struct EasyStruct), 0l, "NetHack Request",
                              "Number of pens requested(%ld) not correct",
                              "Use default pens|Use requested pens" };
@@ -769,12 +739,9 @@ amii_setpens(int count)
                               "Number of pens requested(%ld) not\ncompatible "
                               "with game configuration(%ld)",
                               "Use default pens|Use requested pens" };
-#endif
-/* If the pens in amii_curmap are
- * more pens than in amii_numcolors, then we choose to ignore
- * those pens.
- */
-#ifdef INTUI_NEW_LOOK
+
+    /* If the pens in amii_curmap are more than in amii_numcolors, ignore
+     * the extras. */
     if (IntuitionBase && IntuitionBase->LibNode.lib_Version >= 39) {
         if (count != amii_numcolors) {
             long args[2];
@@ -792,9 +759,7 @@ amii_setpens(int count)
                        amii_numcolors * sizeof(amii_initmap[0]));
             }
         }
-    } else
-#endif
-        if (count != amii_numcolors) {
+    } else if (count != amii_numcolors) {
         memcpy(sysflags.amii_curmap, amii_initmap,
                amii_numcolors * sizeof(amii_initmap[0]));
     }
@@ -810,26 +775,21 @@ amii_setpens(int count)
 /* Generate a requester for a string value. */
 
 void
-amii_getlin(prompt, bufp)
-const char *prompt;
-char *bufp;
+amii_getlin(const char *prompt, char *bufp)
 {
     getlind(prompt, bufp, 0);
 }
 
 /* and with default */
 void
-getlind(prompt, bufp, dflt)
-const char *prompt;
-char *bufp;
-const char *dflt;
+getlind(const char *prompt, char *bufp, const char *dflt)
 {
 #ifndef TOPL_GETLINE
-    register struct Window *cwin;
-    register struct IntuiMessage *imsg;
-    register long class, code, qual;
-    register int aredone = 0;
-    register struct Gadget *gd;
+    struct Window *cwin;
+    struct IntuiMessage *imsg;
+    long class, code, qual;
+    int aredone = 0;
+    struct Gadget *gd;
     static int once;
 
     *StrString = 0;
@@ -854,19 +814,11 @@ const char *dflt;
         once = 1;
     }
 
-    if (WINVERS_AMIV || WINVERS_AMII) {
-#ifdef INTUI_NEW_LOOK
-        StrWindow.Extension = wintags;
-        StrWindow.Flags |= WFLG_NW_EXTENDED;
-#ifdef __GNUC__
-        fillhook.h_Entry = (void *) &LayerFillHook;
-#else
-        fillhook.h_Entry = (ULONG (*) ()) LayerFillHook;
-#endif
-        fillhook.h_Data = (void *) -2;
-        fillhook.h_SubEntry = 0;
-#endif
-    }
+    StrWindow.Extension = wintags;
+    StrWindow.Flags |= WFLG_NW_EXTENDED;
+    fillhook.h_Entry = (void *) &LayerFillHook;
+    fillhook.h_Data = (void *) -2;
+    fillhook.h_SubEntry = 0;
 
     if ((cwin = OpenWindow((void *) &StrWindow)) == NULL) {
         return;
@@ -992,9 +944,7 @@ const char *dflt;
 }
 
 void
-amii_change_color(pen, val, rev)
-int pen, rev;
-long val;
+amii_change_color(int pen, long val, int rev)
 {
     if (rev)
         sysflags.amii_curmap[pen] = ~val;
@@ -1006,11 +956,12 @@ long val;
 }
 
 char *
-amii_get_color_string()
+amii_get_color_string(void)
 {
     int i;
     char s[10];
     static char buf[BUFSZ];
+
 
     *buf = 0;
     for (i = 0; i < min(32, amii_numcolors); ++i) {

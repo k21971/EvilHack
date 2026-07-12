@@ -1,5 +1,5 @@
-/* NetHack 3.6	recover.c	$NHDT-Date: 1550103078 2019/02/14 00:11:18 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.19 $ */
-/*	Copyright (c) Janet Walz, 1992.				  */
+/* NetHack 5.0	recover.c	$NHDT-Date: 1687547437 2023/06/23 19:10:37 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.33 $ */
+/* Copyright (c) Janet Walz, 1992.                                */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -12,21 +12,38 @@
 #include "win32api.h"
 #endif
 
+#define RECOVER_C
+
 #include "config.h"
+#include "hacklib.h"
+
+#include "artifact.h"
+#include "rect.h"
+#include "dungeon.h"
+#include "hack.h"
+
 #if !defined(O_WRONLY) && !defined(LSC) && !defined(AZTEC_C)
 #include <fcntl.h>
 #endif
 
 #ifdef VMS
-extern int FDECL(vms_creat, (const char *, unsigned));
-extern int FDECL(vms_open, (const char *, int, unsigned));
+extern int vms_creat(const char *, unsigned);
+extern int vms_open(const char *, int, unsigned);
 #endif /* VMS */
 
-int FDECL(restore_savefile, (char *, const char *));
-static void FDECL(set_levelfile_name, (int));
-static int FDECL(open_levelfile, (int, const char *));
-static int FDECL(create_savefile, (const char *));
-void FDECL(copy_bytes, (int, int));
+#ifndef nhUse
+#define nhUse(arg) (void)(arg)
+#endif
+
+/* copy_bytes() has been moved to hacklib */
+
+int restore_savefile(char *);
+void set_levelfile_name(int);
+int open_levelfile(int);
+int create_savefile(void);
+
+extern int get_critical_size_count(void);
+extern uchar cscbuf[];
 
 #ifndef WIN_CE
 #define Fprintf (void) fprintf
@@ -37,6 +54,8 @@ static void nhce_message(FILE *, const char *, ...);
 
 #define Close (void) close
 
+
+#if 0
 #ifdef UNIX
 #define SAVESIZE (PL_NSIZ + 13) /* save/99999player.e */
 #else
@@ -50,9 +69,51 @@ static void nhce_message(FILE *, const char *, ...);
 #endif
 #endif
 #endif
+#endif
+
+/* This needs to match NetHack itself */
+
+#define INDEXT ".xxxxxx"           /* largest indicator suffix */
+#define INDSIZE sizeof(INDEXT)
+
+#if defined(UNIX) || defined(__BEOS__)
+#define SAVEX "save/99999.e"
+#ifndef SAVE_EXTENSION
+#define SAVE_EXTENSION ""
+#endif
+#else /* UNIX || __BEOS__ */
+#ifdef VMS
+#define SAVEX "[.save]nnnnn.e;1"
+#ifndef SAVE_EXTENSION
+#define SAVE_EXTENSION ""
+#endif
+#else /* VMS */
+#if defined(WIN32) || defined(MICRO)
+#define SAVEX ""
+#if !defined(SAVE_EXTENSION)
+#ifdef MICRO
+#define SAVE_EXTENSION ".svh"
+#endif
+#ifdef WIN32
+#define SAVE_EXTENSION ".NetHack-saved-game"
+#endif
+#endif /* !SAVE_EXTENSION */
+#endif /* WIN32 || MICRO */
+#endif /* else !VMS */
+#endif /* else !(UNIX || __BEOS__) */
+
+#ifndef SAVE_EXTENSION
+#define SAVE_EXTENSION ""
+#endif
+
+#ifdef MICRO
+#define SAVESIZE FILENAME
+#else
+#define SAVESIZE (PL_NSIZ + sizeof(SAVEX) + sizeof(SAVE_EXTENSION) + INDSIZE)
+#endif
 
 #if defined(EXEPATH)
-char *FDECL(exepath, (char *));
+char *exepath(char *);
 #endif
 
 #if defined(__BORLANDC__) && !defined(_WIN32)
@@ -60,14 +121,13 @@ extern unsigned _stklen = STKSIZ;
 #endif
 char savename[SAVESIZE]; /* holds relative path of save file from playground */
 
-#ifndef NO_MAIN
+DISABLE_WARNING_UNREACHABLE_CODE
+
 int
-main(argc, argv)
-int argc;
-char *argv[];
+main(int argc, char *argv[])
 {
     int argno;
-    const char *dir = (char *) 0;
+    const char *dir = (char *) 0, *progname = (char *) 0;
 #ifdef AMIGA
     char *startdir = (char *) 0;
 #endif
@@ -80,14 +140,21 @@ char *argv[];
     if (!dir)
         dir = exepath(argv[0]);
 #endif
-    if (argc == 1 || (argc == 2 && !strcmp(argv[1], "-"))) {
+    if (argc > 0)
+        progname = argv[0];
+    if (!progname || !*progname)
+        progname = "recover";
+#ifdef VMS
+    /*progname = vms_basebame(progname, FALSE);*/ /* needs vmsfiles.obj */
+#endif
+
+    if (argc < 2 || (argc == 2 && !strcmp(argv[1], "-"))) {
         Fprintf(stderr, "Usage: %s [ -d directory ] base1 [ base2 ... ]\n",
-                argv[0]);
+                progname);
 #if defined(WIN32) || defined(MSDOS)
         if (dir) {
-            Fprintf(
-                stderr,
-                "\t(Unless you override it with -d, recover will look \n");
+            Fprintf(stderr,
+                   "\t(Unless you override it with -d, recover will look \n");
             Fprintf(stderr, "\t in the %s directory on your system)\n", dir);
         }
 #endif
@@ -117,10 +184,8 @@ char *argv[];
         && strcmp(dir, HACKDIR)
 #endif
             ) {
-        if (setgid(getgid()) == -1 || setuid(getuid()) == -1) {
-            perror("Failed to drop privileges");
-            exit(EXIT_FAILURE);
-        }
+        (void) setgid(getgid());
+        (void) setuid(getuid());
     }
 #endif /* SECURE && !VMS */
 
@@ -138,7 +203,7 @@ char *argv[];
     }
 
     while (argc > argno) {
-        if (restore_savefile(argv[argno], dir) == 0)
+        if (restore_savefile(argv[argno]) == 0)
             Fprintf(stderr, "recovered \"%s\" to %s\n", argv[argno],
                     savename);
         argno++;
@@ -151,17 +216,17 @@ char *argv[];
     /*NOTREACHED*/
     return 0;
 }
-#endif /* !NO_MAIN */
+
+RESTORE_WARNINGS
 
 static char lock[256];
 
-static void
-set_levelfile_name(lev)
-int lev;
+void
+set_levelfile_name(int lev)
 {
     char *tf;
 
-    tf = rindex(lock, '.');
+    tf = strrchr(lock, '.');
     if (!tf)
         tf = lock + strlen(lock);
     (void) sprintf(tf, ".%d", lev);
@@ -170,87 +235,51 @@ int lev;
 #endif
 }
 
-static int
-open_levelfile(lev, directory)
-int lev;
-const char *directory;
+int
+open_levelfile(int lev)
 {
     int fd;
-    char levelfile[BUFSIZ];
 
     set_levelfile_name(lev);
-    if (directory) {
-        snprintf(levelfile, BUFSIZ, "%s/%s", directory, lock);
-    } else {
-        strcpy(levelfile, lock);
-    }
 #if defined(MICRO) || defined(WIN32) || defined(MSDOS)
-    fd = open(levelfile, O_RDONLY | O_BINARY);
+    fd = open(lock, O_RDONLY | O_BINARY);
 #else
-    fd = open(levelfile, O_RDONLY, 0);
+    fd = open(lock, O_RDONLY, 0);
 #endif
     return fd;
-}
-
-static int
-create_savefile(directory)
-const char *directory;
-{
-    int fd;
-    char savefile[BUFSIZ];
-
-    if (directory) {
-        sprintf(savefile, "%s/%s", directory, savename);
-    } else {
-        strcpy(savefile, savename);
-    }
-#if defined(MICRO) || defined(WIN32) || defined(MSDOS)
-    fd = open(savefile, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, FCMASK);
-#else
-    fd = creat(savefile, FCMASK);
-#endif
-    return fd;
-}
-
-void
-copy_bytes(ifd, ofd)
-int ifd, ofd;
-{
-    char buf[BUFSIZ];
-    int nfrom, nto;
-
-    do {
-        nfrom = read(ifd, buf, BUFSIZ);
-        nto = write(ofd, buf, nfrom);
-        if (nto != nfrom) {
-            Fprintf(stderr, "file copy failed!\n");
-            exit(EXIT_FAILURE);
-        }
-    } while (nfrom == BUFSIZ);
 }
 
 int
-restore_savefile(basename, directory)
-char *basename;
-const char *directory;
+create_savefile(void)
+{
+    int fd;
+
+#if defined(MICRO) || defined(WIN32) || defined(MSDOS)
+    fd = open(savename, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, FCMASK);
+#else
+    fd = creat(savename, FCMASK);
+#endif
+    return fd;
+}
+
+int
+restore_savefile(char *basename)
 {
     int gfd, lfd, sfd;
     int res = 0, lev, savelev, hpid, pltmpsiz;
-    xchar levc;
+    xint8 levc;
     struct version_info version_data;
-    struct savefile_info sfi;
-    char plbuf[PL_NSIZ];
+    char plbuf[PL_NSIZ_PLUS], indicator, cscsize;
 
     /* level 0 file contains:
      *  pid of creating process (ignored here)
      *  level number for current level of save file
      *  name of save file nethack would have created
-     *  savefile info
      *  player name
      *  and game state
      */
     (void) strcpy(lock, basename);
-    gfd = open_levelfile(0, directory);
+    gfd = open_levelfile(0);
     if (gfd < 0) {
 #if defined(WIN32) && !defined(WIN_CE)
         if (errno == EACCES) {
@@ -284,11 +313,16 @@ const char *directory;
     }
     if ((read(gfd, (genericptr_t) savename, sizeof savename)
          != sizeof savename)
+        || (read(gfd, (genericptr_t) &indicator, sizeof indicator)
+            != sizeof indicator)
+        || (read(gfd, (genericptr_t) &cscsize, sizeof cscsize)
+            != sizeof cscsize)
+        || (read(gfd, (genericptr_t) &cscbuf, cscsize)
+            != cscsize)
         || (read(gfd, (genericptr_t) &version_data, sizeof version_data)
             != sizeof version_data)
-        || (read(gfd, (genericptr_t) &sfi, sizeof sfi) != sizeof sfi)
         || (read(gfd, (genericptr_t) &pltmpsiz, sizeof pltmpsiz)
-            != sizeof pltmpsiz) || (pltmpsiz > PL_NSIZ)
+            != sizeof pltmpsiz) || (pltmpsiz > PL_NSIZ_PLUS)
         || (read(gfd, (genericptr_t) plbuf, pltmpsiz) != pltmpsiz)) {
         Fprintf(stderr, "Error reading %s -- can't recover.\n", lock);
         Close(gfd);
@@ -296,21 +330,24 @@ const char *directory;
     }
 
     /* save file should contain:
+     *  format indicator (1 byte)
+     *  n = count of critical size list (1 byte)
+     *  n bytes of critical sizes (n bytes)
      *  version info
-     *  savefile info
-     *  player name
+     *  plnametmp = player name size (int, 2 bytes)
+     *  player name (PL_NSIZ_PLUS)
      *  current level (including pets)
      *  (non-level-based) game state
      *  other levels
      */
-    sfd = create_savefile(directory);
+    sfd = create_savefile();
     if (sfd < 0) {
         Fprintf(stderr, "Cannot create savefile %s.\n", savename);
         Close(gfd);
         return -1;
     }
 
-    lfd = open_levelfile(savelev, directory);
+    lfd = open_levelfile(savelev);
     if (lfd < 0) {
         Fprintf(stderr, "Cannot open level of save for %s.\n", basename);
         Close(gfd);
@@ -318,19 +355,35 @@ const char *directory;
         return -1;
     }
 
-    if (write(sfd, (genericptr_t) &version_data, sizeof version_data)
-        != sizeof version_data) {
-        Fprintf(stderr, "Error writing %s; recovery failed.\n", savename);
+    if (write(sfd, (genericptr_t) &indicator, sizeof indicator)
+        != sizeof indicator) {
+        Fprintf(stderr, "Error writing %s %s; recovery failed.\n",
+                savename, "indicator");
         Close(gfd);
         Close(sfd);
         Close(lfd);
         return -1;
     }
-
-    if (write(sfd, (genericptr_t) &sfi, sizeof sfi) != sizeof sfi) {
-        Fprintf(stderr,
-                "Error writing %s; recovery failed (savefile_info).\n",
-                savename);
+    if (write(sfd, (genericptr_t) &cscsize, sizeof cscsize) != sizeof cscsize) {
+        Fprintf(stderr, "Error writing %s %s; recovery failed.\n",
+                savename, "cscsize");
+        Close(gfd);
+        Close(sfd);
+        Close(lfd);
+        return -1;
+    }
+    if (write(sfd, (genericptr_t) &cscbuf, cscsize) != cscsize) {
+        Fprintf(stderr, "Error writing %s %s; recovery failed.\n",
+                savename, "critical bytes");
+        Close(gfd);
+        Close(sfd);
+        Close(lfd);
+        return -1;
+    }
+    if (write(sfd, (genericptr_t) &version_data, sizeof version_data)
+        != sizeof version_data) {
+        Fprintf(stderr, "Error writing %s %s; recovery failed.\n",
+                savename, "version_data");
         Close(gfd);
         Close(sfd);
         Close(lfd);
@@ -348,6 +401,7 @@ const char *directory;
         return -1;
     }
 
+    assert((size_t) pltmpsiz <= sizeof plbuf);
     if (write(sfd, (genericptr_t) plbuf, pltmpsiz) != pltmpsiz) {
         Fprintf(stderr, "Error writing %s; recovery failed (player name).\n",
                 savename);
@@ -357,29 +411,39 @@ const char *directory;
         return -1;
     }
 
-    copy_bytes(lfd, sfd);
+    if (!copy_bytes(lfd, sfd)) {
+        Fprintf(stderr, "file copy failed!\n");
+        exit(EXIT_FAILURE);
+    }
     Close(lfd);
     (void) unlink(lock);
 
-    copy_bytes(gfd, sfd);
+    if (!copy_bytes(gfd, sfd)) {
+        Fprintf(stderr, "file copy failed!\n");
+        exit(EXIT_FAILURE);
+    }
     Close(gfd);
     set_levelfile_name(0);
     (void) unlink(lock);
 
     for (lev = 1; lev < 256 && res == 0; lev++) {
-        /* level numbers are kept in xchars in save.c, so the
+        /* level numbers are kept in 'xint8's in save.c, so the
          * maximum level number (for the endlevel) must be < 256
          */
         if (lev != savelev) {
-            lfd = open_levelfile(lev, directory);
+            lfd = open_levelfile(lev);
             if (lfd >= 0) {
                 /* any or all of these may not exist */
-                levc = (xchar) lev;
+                levc = (xint8) lev;
                 if (write(sfd, (genericptr_t) &levc, sizeof levc)
-                    != sizeof levc)
+                    != sizeof levc) {
                     res = -1;
-                else
-                    copy_bytes(lfd, sfd);
+                } else {
+                    if (!copy_bytes(lfd, sfd)) {
+                        Fprintf(stderr, "file copy failed!\n");
+                        exit(EXIT_FAILURE);
+                    }
+                }
                 Close(lfd);
                 (void) unlink(lock);
             }
@@ -401,7 +465,10 @@ const char *directory;
         in = open("NetHack:default.icon", O_RDONLY);
         out = open(iconfile, O_WRONLY | O_TRUNC | O_CREAT);
         if (in > -1 && out > -1) {
-            copy_bytes(in, out);
+            if (!copy_bytes(in, out)) {
+                Fprintf(stderr, "file copy failed!\n");
+                exit(EXIT_FAILURE);
+            }
         }
         if (in > -1)
             close(in);
@@ -424,14 +491,14 @@ const char *directory;
 char exepathbuf[EXEPATHBUFSZ];
 
 char *
-exepath(str)
-char *str;
+exepath(char *str)
 {
     char *tmp, *tmp2;
     int bsize;
 
     if (!str)
         return (char *) 0;
+    nhUse(bsize);
     bsize = EXEPATHBUFSZ;
     tmp = exepathbuf;
 #if !defined(WIN32)
@@ -454,11 +521,6 @@ char *str;
 }
 #endif /* EXEPATH */
 
-#ifdef AMIGA
-#include "date.h"
-const char amiga_version_string[] = AMIGA_VERSION_STRING;
-#endif
-
 #ifdef WIN_CE
 void
 nhce_message(FILE *f, const char *str, ...)
@@ -477,3 +539,4 @@ nhce_message(FILE *f, const char *str, ...)
 #endif
 
 /*recover.c*/
+

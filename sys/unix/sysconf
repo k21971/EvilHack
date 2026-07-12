@@ -1,4 +1,4 @@
-# NetHack 3.6 sysconf $NHDT-Date: 1575245127 2019/12/02 00:05:27 $ $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.32 $
+# NetHack 5.0 sysconf $NHDT-Date: 1777240863 2026/04/26 22:01:03 $ $NHDT-Branch: to500 $:$NHDT-Revision: 1.47 $
 # Copyright (c) 2015 by Kenneth Lorber, Kensington, Maryland
 # NetHack may be freely redistributed.  See license for details.
 #
@@ -8,7 +8,7 @@
 # program.
 #
 # This file can also be used to set local system defaults for run-time
-# options, using the same syntax as an individual user's ./evilhackrc file.
+# options, using the same syntax as an individual user's ./nethackrc file.
 
 # Which users can use debug mode (aka wizard mode; accessed via '-D' command
 # line flag or OPTIONS=playmode:debug in the runtime options config file).
@@ -32,10 +32,15 @@ EXPLORERS=*
 # Uses the same syntax as the WIZARDS and EXPLORERS options above.
 #SHELLERS=
 
+# Execute this program whenever a new message-window message is shown.
+# The program will get the message text as the only parameter.
+#MSGHANDLER=/usr/bin/espeak
+
 # If the user name is found in this list, prompt for username instead.
 # Uses the same syntax as the WIZARDS option above.
 # A public server should probably disable this.
-# GENERICUSERS=play player game games nethack nethacker
+# ["ec2-user" is the default user name on Amazon Linux]
+#GENERICUSERS=play player game games nethack nethacker ec2-user
 
 # Use the player name for matching WIZARDS, EXPLORERS and SHELLERS,
 # instead of the user's login name.
@@ -50,28 +55,20 @@ CHECK_PLNAME=1
 # letter and "lock" (eg. alock, block, ...)
 MAXPLAYERS=0
 
+# Limit the number of rerolls per second when using the reroll option.
+# 0 means that there is no limit on how quickly the user can reroll.
+MAX_REROLL_RATE=10
+
 # If not null, added to string "To get local support, " in the support
 # information help.
 SUPPORT=Contact K2 or Tangles on Libera irc channel #hardfought
 
 # If not null, displayed at the end of a panic-save sequence.
-#RECOVER=Run the recover program.
+RECOVER=Run the recover program.
 
 # Uncomment the next line to disable the SEDUCE option, causing succubi and
 # incubi to use nymphs' charm behavior rather than their own seduce behavior.
 #SEDUCE=0
-
-# Number added into the game's deterministic hash functions to prevent
-# players from computing the result of said functions. Mostly useful on
-# multi-user installs.
-# Do NOT keep this default value of 100 (maximum of 2147483647), choose
-# an arbitrary one, and don't disclose it to your players.
-SERVERSEED=100
-
-# Alternatively, set SERVERSEED_FILE to point to a file containing
-# a single positive integer (1-2147483647). The file is generated
-# during 'make all'. When set, this overrides SERVERSEED above.
-SERVERSEED_FILE=serverseed
 
 # Uncomment the next line to enable some accessibility features such
 # as S_hero_override and S_pet_override symbols for screen readers
@@ -94,32 +91,38 @@ POINTSMIN=1
 # numeric (1) user id.
 #PERS_IS_UID=1
 
+# Help menu control; 0 - include "command line usage" entry in help menu;
+# 1 - suppress it from the menu.  Does not affect 'nethack --usage' when
+# player has access to the command line.
+#HIDEUSAGE=0
+
 # Maximum number of score file entries to use for random statue names
 MAX_STATUENAME_RANK=50
 
-# Use "Live logging" for in-game progress (achievements, wishes, etc)
+# Use "Live logging" for important events (achievements, wishes, etc)
+# Only available if NetHack was compiled with LIVELOG.
+# Only really meaningful for public servers or debugging.
+# See the log in-game with #chronicle -command.
 # Bitmask for kinds of things you want to log - combine the following values
 # as desired.
-# 0x0000 - No live logging
-# 0x0001 - Wishes
-# 0x0002 - Significant achievements (complete sokoban, perform invocation, etc)
-# 0x0004 - Kill, destroy or bribe a unique monster.
-# 0x0008 - Significant religious events (sacrifice gifts, crowning)
-# 0x0010 - Life-saving
-# 0x0020 - Break conduct - see also LLC_TURNS below.
-# 0x0040 - Artifact obtained (#name Sting, dip for Excalibur)
-# 0x0080 - Genocides
-# 0x0100 - Murder of tame pet
-# 0x0200 - Changed alignment temporarily or permanently
-# 0x0400 - Log URL for dumplog if ascended
-# 0x0800 - Log dumplog url for all games
-# 0x8000 - Livelog debug msgs (currently only 'enter new level')
-# Enabled at compile time by defining LIVELOGFILE in config.h
+# 0x0000 - No live logging (default)
+# 0x0001 - Wishes [bit 1]
+# 0x0002 - Significant achievements (complete sokoban, perform invocation, etc) [bit 2]
+# 0x0004 - Kill, destroy or bribe a unique monster. [bit 4]
+# 0x0008 - Significant religious events (sacrifice gifts, crowning) [bit 8]
+# 0x0010 - Life-saving [bit 16]
+# 0x0020 - Break conduct [bit 32]
+# 0x0040 - Artifact obtained (#name Sting, dip for Excalibur) [bit 64]
+# 0x0080 - Genocides [bit 128]
+# 0x0100 - Murder of tame pet [bit 256]
+# 0x0200 - Changed alignment temporarily or permanently [bit 512]
+# 0x0400 - Log URL for dumplog if ascended [bit 1024]
+# 0x0800 - Log dumplog url for all games [bit 2048]
+# 0x1000 - Log 'minor' achievements - can be spammy [bit 4096]
+# 0x2000 - Spoiler event; can include in livelog but hidden from #chronicle [bit 8192]
+# 0x4000 - Include as 'major' event in dumplog; can be hidden from livelog [bit 16384]
+# 0x8000 - Livelog debug msgs [bit 32768]
 LIVELOG=0x0FFF
-
-# Do not livelog breaking of conducts before this turncount
-# Cuts down on spam
-LLC_TURNS=3000
 
 # Show debugging information originating from these source files.
 # Use '*' for all, or list source files separated by spaces.
@@ -131,7 +134,7 @@ LLC_TURNS=3000
 # Only available if NetHack was compiled with DUMPLOG
 # Allows following placeholders:
 #   %% literal '%'
-#   %v version (eg. "0.9.3-0")
+#   %v version (eg. "NetHack 5.0.0-0")
 #   %u game UID
 #   %t game start time, UNIX timestamp format
 #   %T current time, UNIX timestamp format
@@ -139,12 +142,12 @@ LLC_TURNS=3000
 #   %D current time, YYYYMMDDhhmmss format
 #   %n player name
 #   %N first character of player name
-DUMPLOGFILE=/dgldir/userdata/%N/%n/evilhack/dumplog/%t.evil.txt
+DUMPLOGFILE=/dgldir/userdata/%N/%n/nethack/dumplog/%t.nh.txt
 
 # End of game HTML dump.
 # Only available if NetHack was compiled with DUMPHTML
 # Allows placeholders as above.
-DUMPHTMLFILE=/dgldir/userdata/%N/%n/evilhack/dumplog/%t.evil.html
+DUMPHTMLFILE=/dgldir/userdata/%N/%n/nethack/dumplog/%t.nh.html
 
 # Number of bones file pools.
 # The pool you belong to is determined at game start. You will
@@ -169,20 +172,33 @@ GREPPATH=/bin/grep
 PANICTRACE_GDB=1
 PANICTRACE_LIBC=2
 
+# URL loaded for creating reports to the NetHack DevTeam
+#CRASHREPORTURL=https://nethack.org/links/cr-5.0.0.html
+
+# 'portable_device_paths' is only supported for Windows.  Starting with
+# 3.6.3, nethack on Windows treats the folder containing nethack.exe and
+# nethackW.exe as read-only and puts data files which are generated or
+# modified during play or by the user in assorted folders derived from
+# user name.  3.6.4 added PORTABLE_DEVICE_PATHS to allow reverting to
+# the old behavior of having the run-time configuration file and other
+# data in the same directory as the executable so that the whole thing
+# can be moved from one machine to another (flash drive or perhaps cloud)
+# without updating folder paths.
+#PORTABLE_DEVICE_PATHS=0
+
 # Ordinary run-time options can be set here to override the builtin-in
-# default values.  Unlike the SYSCF values above, individual users can
-# still choose their own option settings via EVILHACKOPTIONS in their
-# environment or via ~/.evilhackrc run-time configuration file.
+# default values.  Unlike all the SYSCF values above, individual users
+# can override the overridden options set here by choosing their own
+# option settings via NETHACKOPTIONS in their environment or via
+# ~/.nethackrc run-time configuration file.
 
 # Basic options
 OPTIONS=disclose:yi ya yv yg yc yo
 OPTIONS=bones,color,lit_corridor,dark_room,autodig,autoopen
-OPTIONS=pickup_burden:unencumbered,sparkle:5
+OPTIONS=boulder:0,pickup_burden:unencumbered
 OPTIONS=!autopickup,hilite_pet,hilite_pile,time,use_darkgray
-OPTIONS=msg_window:reversed,number_pad:0,sortloot:full
+OPTIONS=msg_window:reversed,number_pad:1,sortloot:full
 OPTIONS=menu_objsyms,perm_invent,hitpointbar,quick_farsight
-# realtime options (wallclock time / play time / disabled)
-OPTIONS=realtime:wallclock time
 
 # Various MSGTYPE examples
 MSGTYPE=hide "Unknown command *"

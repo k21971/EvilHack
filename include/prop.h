@@ -1,5 +1,5 @@
-/* NetHack 3.6	prop.h	$NHDT-Date: 1570566360 2019/10/08 20:26:00 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.21 $ */
-/* Copyright (c) 1989 Mike Threepoint				  */
+/* NetHack 5.0	prop.h	$NHDT-Date: 1781973086 2026/06/20 16:31:26 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.28 $ */
+/* Copyright (c) 1989 Mike Threepoint                             */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef PROP_H
@@ -20,90 +20,77 @@ enum prop_types {
     POISON_RES        =  6,
     ACID_RES          =  7,
     STONE_RES         =  8,
-    PSYCHIC_RES       =  9,
-    /* note: for the first nine properties, MR_xxx == (1 << (xxx_RES - 1)) */
-    DRAIN_RES         = 10,
-    SICK_RES          = 11,
-    DEATH_RES         = 12,
-    WERE_RES          = 13,
-    INVULNERABLE      = 14,
-    ANTIMAGIC         = 15,
+    /* note: the first eight properties above are equivalent to MR_xxx bits
+     * MR_FIRE through MR_STONE, and can be directly converted to them: */
+#define res_to_mr(r) \
+    ((FIRE_RES <= (r) && (r) <= STONE_RES) ? (uchar) (1 << ((r) - 1)) : 0x00)
+    DRAIN_RES         =  9,
+    SICK_RES          = 10,
+    INVULNERABLE      = 11,
+    ANTIMAGIC         = 12,
     /* Troubles */
-    STUNNED           = 16,
-    STUN_RES          = 17,
-    CONFUSION         = 18,
-    BLINDED           = 19,
-    DEAF              = 20,
-    SICK              = 21,
-    STONED            = 22,
-    STRANGLED         = 23,
-    VOMITING          = 24,
-    GLIB              = 25,
-    SLIMED            = 26,
-    HALLUC            = 27,
-    HALLUC_RES        = 28,
-    FUMBLING          = 29,
-    WOUNDED_LEGS      = 30,
-    SLEEPY            = 31,
-    HUNGER            = 32,
+    STUNNED           = 13,
+    CONFUSION         = 14,
+    BLINDED           = 15,
+    DEAF              = 16,
+    SICK              = 17,
+    STONED            = 18,
+    STRANGLED         = 19,
+    VOMITING          = 20,
+    GLIB              = 21,
+    SLIMED            = 22,
+    HALLUC            = 23,
+    HALLUC_RES        = 24,
+    FUMBLING          = 25,
+    WOUNDED_LEGS      = 26,
+    SLEEPY            = 27,
+    HUNGER            = 28,
     /* Vision and senses */
-    SEE_INVIS         = 33,
-    TELEPAT           = 34,
-    WARNING           = 35,
-    WARN_OF_MON       = 36,
-    WARN_UNDEAD       = 37,
-    SEARCHING         = 38,
-    CLAIRVOYANT       = 39,
-    INFRAVISION       = 40,
-    ULTRAVISION       = 41,
-    DETECT_MONSTERS   = 42,
-    FOOD_SENSE        = 43,
-    XRAY_VISION       = 44,
+    SEE_INVIS         = 29,
+    TELEPAT           = 30,
+    WARNING           = 31,
+    WARN_OF_MON       = 32,
+    WARN_UNDEAD       = 33,
+    SEARCHING         = 34,
+    CLAIRVOYANT       = 35,
+    INFRAVISION       = 36,
+    DETECT_MONSTERS   = 37,
+    BLND_RES          = 38,
     /* Appearance and behavior */
-    ADORNED           = 45,
-    INVIS             = 46,
-    DISPLACED         = 47,
-    STEALTH           = 48,
-    AGGRAVATE_MONSTER = 49,
-    CONFLICT          = 50,
+    ADORNED           = 39,
+    INVIS             = 40,
+    DISPLACED         = 41,
+    STEALTH           = 42,
+    AGGRAVATE_MONSTER = 43,
+    CONFLICT          = 44,
     /* Transportation */
-    JUMPING           = 51,
-    TELEPORT          = 52,
-    TELEPORT_CONTROL  = 53,
-    LEVITATION        = 54,
-    FLYING            = 55,
-    WWALKING          = 56,
-    SWIMMING          = 57,
-    MAGICAL_BREATHING = 58,
-    PASSES_WALLS      = 59,
-    PASSES_TREES      = 60,
+    JUMPING           = 45,
+    TELEPORT          = 46,
+    TELEPORT_CONTROL  = 47,
+    LEVITATION        = 48,
+    FLYING            = 49,
+    WWALKING          = 50,
+    SWIMMING          = 51,
+    MAGICAL_BREATHING = 52,
+    PASSES_WALLS      = 53,
     /* Physical attributes */
-    SLOW_DIGESTION    = 61,
-    HALF_SPDAM        = 62,
-    HALF_PHDAM        = 63,
-    REGENERATION      = 64,
-    ENERGY_REGENERATION = 65,
-    PROTECTION        = 66,
-    PROT_FROM_SHAPE_CHANGERS = 67,
-    POLYMORPH         = 68,
-    POLYMORPH_CONTROL = 69,
-    UNCHANGING        = 70,
-    SLOW              = 71,
-    FAST              = 72,
-    REFLECTING        = 73,
-    FREE_ACTION       = 74,
-    BARKSKIN          = 75,
-    STONESKIN         = 76,
-    FIXED_ABIL        = 77,
-    WITHERING         = 78,
-    LIFESAVED         = 79,
-    VULN_FIRE         = 80,
-    VULN_COLD         = 81,
-    VULN_ELEC         = 82,
-    VULN_ACID         = 83,
-    TELEKINESIS       = 84
+    SLOW_DIGESTION    = 54,
+    HALF_SPDAM        = 55,
+    HALF_PHDAM        = 56,
+    REGENERATION      = 57,
+    ENERGY_REGENERATION = 58,
+    PROTECTION        = 59,
+    PROT_FROM_SHAPE_CHANGERS = 60,
+    POLYMORPH         = 61,
+    POLYMORPH_CONTROL = 62,
+    UNCHANGING        = 63,
+    FAST              = 64,
+    REFLECTING        = 65,
+    FREE_ACTION       = 66,
+    FIXED_ABIL        = 67,
+    LIFESAVED         = 68,
+    LAST_PROP = LIFESAVED
 };
-#define LAST_PROP (TELEKINESIS)
 
 /*** Where the properties come from ***/
 /* Definitions were moved here from obj.h and you.h */
@@ -135,10 +122,9 @@ struct prop {
 #define W_ACCESSORY (W_RING | W_AMUL | W_TOOL)
     /* historical note: originally in slash'em, 'worn' saddle stayed in
        hero's inventory; in nethack, it's kept in the steed's inventory */
-#define W_SADDLE 0x00100000L  /* KMH -- For riding monsters */
-#define W_BARDING 0x00200000L /* Barding for steeds */
-#define W_BALL 0x00400000L    /* Punishment ball */
-#define W_CHAIN 0x00800000L   /* Punishment chain */
+#define W_SADDLE 0x00100000L /* KMH -- For riding monsters */
+#define W_BALL 0x00200000L   /* Punishment ball */
+#define W_CHAIN 0x00400000L  /* Punishment chain */
 
     /*** Property is blocked by an object ***/
     long blocked; /* Same assignments as extrinsic */
@@ -147,16 +133,14 @@ struct prop {
     long intrinsic;
 /* Timed properties */
 #define TIMEOUT 0x00ffffffL     /* Up to 16 million turns */
-                                /* Permanent properties */
-#define FROMEXPER 0x01000000L   /* Gain/lose with experience, for role */
-#define FROMRACE 0x02000000L    /* Gain/lose with experience, for race */
+/* Permanent properties */
+#define FROMEXPER   0x01000000L /* Gain/lose with experience, for role */
+#define FROMRACE    0x02000000L /* Gain/lose with experience, for race */
 #define FROMOUTSIDE 0x04000000L /* By corpses, prayer, thrones, etc. */
-#define FROMHUNGER 0x08000000L  /* Gain/lose based on hunger status */
-#define HAVEPARTIAL 0x10000000L /* This is no longer a timeout, but a partial resistance */
-#define INTRINSIC (FROMOUTSIDE | FROMRACE | FROMEXPER | FROMHUNGER | HAVEPARTIAL)
+#define INTRINSIC   (FROMOUTSIDE | FROMRACE | FROMEXPER)
 /* Control flags */
-#define FROMFORM 0x20000000L  /* Polyd; conferred by monster form */
-#define I_SPECIAL 0x40000000L /* Property is controllable */
+#define FROMFORM    0x10000000L /* Polyd; conferred by monster form */
+#define I_SPECIAL   0x20000000L /* Property is controllable */
 };
 
 /*** Definitions for backwards compatibility ***/

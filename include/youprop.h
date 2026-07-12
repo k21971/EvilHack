@@ -1,5 +1,5 @@
-/* NetHack 3.6	youprop.h	$NHDT-Date: 1568831820 2019/09/18 18:37:00 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.27 $ */
-/* Copyright (c) 1989 Mike Threepoint				  */
+/* NetHack 5.0	youprop.h	$NHDT-Date: 1781973093 2026/06/20 16:31:33 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.50 $ */
+/* Copyright (c) 1989 Mike Threepoint                             */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef YOUPROP_H
@@ -8,7 +8,6 @@
 #include "prop.h"
 #include "permonst.h"
 #include "mondata.h"
-#include "pm.h"
 
 /* KMH, intrinsics patch.
  * Reorganized and rewritten for >32-bit properties.
@@ -52,41 +51,6 @@
 #define EDrain_resistance u.uprops[DRAIN_RES].extrinsic
 #define Drain_resistance (HDrain_resistance || EDrain_resistance)
 
-#define HPsychic_resistance u.uprops[PSYCHIC_RES].intrinsic
-#define EPsychic_resistance u.uprops[PSYCHIC_RES].extrinsic
-#define Psychic_resistance (HPsychic_resistance || EPsychic_resistance)
-
-#define HStun_resistance u.uprops[STUN_RES].intrinsic
-#define EStun_resistance u.uprops[STUN_RES].extrinsic
-#define Stun_resistance \
-    (HStun_resistance || EStun_resistance                  \
-     || youmonst.data == &mons[PM_SHIMMERING_DRAGON]       \
-     || youmonst.data == &mons[PM_BABY_SHIMMERING_DRAGON])
-
-#define HVulnerable_fire u.uprops[VULN_FIRE].intrinsic
-#define EVulnerable_fire u.uprops[VULN_FIRE].extrinsic
-#define Vulnerable_fire \
-    (HVulnerable_fire || EVulnerable_fire  \
-     || vulnerable_to(&youmonst, AD_FIRE))
-
-#define HVulnerable_cold u.uprops[VULN_COLD].intrinsic
-#define EVulnerable_cold u.uprops[VULN_COLD].extrinsic
-#define Vulnerable_cold \
-    (HVulnerable_cold || EVulnerable_cold  \
-     || vulnerable_to(&youmonst, AD_COLD))
-
-#define HVulnerable_elec u.uprops[VULN_ELEC].intrinsic
-#define EVulnerable_elec u.uprops[VULN_ELEC].extrinsic
-#define Vulnerable_elec \
-    (HVulnerable_elec || EVulnerable_elec  \
-     || vulnerable_to(&youmonst, AD_ELEC))
-
-#define HVulnerable_acid u.uprops[VULN_ACID].intrinsic
-#define EVulnerable_acid u.uprops[VULN_ACID].extrinsic
-#define Vulnerable_acid	\
-    (HVulnerable_acid || EVulnerable_acid  \
-     || vulnerable_to(&youmonst, AD_ACID))
-
 /* Hxxx due to FROMFORM only */
 #define HAntimagic u.uprops[ANTIMAGIC].intrinsic
 #define EAntimagic u.uprops[ANTIMAGIC].extrinsic
@@ -100,33 +64,12 @@
 #define EStone_resistance u.uprops[STONE_RES].extrinsic
 #define Stone_resistance (HStone_resistance || EStone_resistance)
 
-#define HDeath_resistance u.uprops[DEATH_RES].intrinsic
-#define EDeath_resistance u.uprops[DEATH_RES].extrinsic
-#define Death_resistance (HDeath_resistance || EDeath_resistance)
-
-#define HLycan_resistance u.uprops[WERE_RES].intrinsic
-#define ELycan_resistance u.uprops[WERE_RES].extrinsic
-#define Lycan_resistance \
-    (HLycan_resistance || ELycan_resistance                                 \
-     || youmonst.data->mlet == S_LICH || youmonst.data->mlet == S_ZOMBIE    \
-     || youmonst.data->mlet == S_WRAITH || youmonst.data->mlet == S_VAMPIRE \
-     || youmonst.data->mlet == S_GHOST || youmonst.data->mlet == S_MUMMY    \
-     || youmonst.data->mlet == S_SKELETON || defended(&youmonst, AD_WERE))
-
-/* Intrinsics only */
 #define HSick_resistance u.uprops[SICK_RES].intrinsic
 #define ESick_resistance u.uprops[SICK_RES].extrinsic
-#define Sick_resistance \
-    (HSick_resistance || ESick_resistance                                        \
-     || youmonst.data->mlet == S_FUNGUS || youmonst.data->mlet == S_ENT          \
-     || youmonst.data->mlet == S_PLANT || youmonst.data->mlet == S_ZOMBIE        \
-     || youmonst.data->mlet == S_WRAITH || youmonst.data->mlet == S_VAMPIRE      \
-     || youmonst.data->mlet == S_GHOST || youmonst.data->mlet == S_MUMMY         \
-     || youmonst.data->mlet == S_LICH || youmonst.data->mlet == S_SKELETON       \
-     || youmonst.data->mlet == S_ANGEL || youmonst.data->mlet == S_DEMON         \
-     || youmonst.data == &mons[PM_BABY_GREEN_DRAGON]                             \
-     || youmonst.data == &mons[PM_GREEN_DRAGON] || defended(&youmonst, AD_DISE))
+#define Sick_resistance (HSick_resistance || ESick_resistance \
+                         || defended(&gy.youmonst, AD_DISE))
 
+/* Intrinsics only */
 #define Invulnerable u.uprops[INVULNERABLE].intrinsic /* [Tom] */
 
 /*** Troubles ***/
@@ -140,23 +83,28 @@
 #define HConfusion u.uprops[CONFUSION].intrinsic
 #define Confusion HConfusion
 
-#define Blinded u.uprops[BLINDED].intrinsic
-#define Blindfolded \
-    (ublindf && !(ublindf->otyp == LENSES || ublindf->otyp == GOGGLES))
-/* ...means blind because of a cover */
-#define Blind \
-    ((u.uroleplay.blind || Blinded || Blindfolded \
-      || !haseyes(youmonst.data) || Hidinshell)   \
-     && !(ublindf && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD))
-/* ...the Eyes operate even when you really are blind
-    or don't have any eyes */
-#define Blindfolded_only \
-    (Blindfolded && ublindf->oartifact != ART_EYES_OF_THE_OVERWORLD \
-     && !u.uroleplay.blind && !Blinded && haseyes(youmonst.data))
-/* ...blind because of a blindfold, and *only* that */
+/* Blindness is more complex than other properties */
+#define HBlinded u.uprops[BLINDED].intrinsic /* TIMEOUT|FROMOUTSIDE|FROMFORM */
+#define EBlinded u.uprops[BLINDED].extrinsic /* W_TOOL */
+        /* wearing the Eyes of the Overworld overrides blindness */
+#define BBlinded u.uprops[BLINDED].blocked   /* W_TOOL */
+        /* non-blindfold: timed effect | u.uroleplay.blind | !haseyes() */
+#define Blinded (HBlinded && !BBlinded)
+#define BlindedTimeout (HBlinded & TIMEOUT)
+#define PermaBlind ((HBlinded & FROMOUTSIDE) != 0L) /* OPTIONS:blind */
+        /* worn blindfold (or towel; lenses don't set [BLINDED].extrinsic) */
+#define Blindfolded EBlinded
+#define Blindfolded_only (Blindfolded && !Blinded)
+        /* '#define Blind (Blinded || Blindfolded)' would work, but only
+           because BBlinded (conferred by artifact lenses) and Blindfolded
+           are mutually exclusive; explicitly applying !BBlinded to both
+           internal and external blindness should be more robust in case
+           of future changes */
+#define Blind ((HBlinded || EBlinded) && !BBlinded)
 
-#define Hidinshell (u.uinshell > 0)
-
+/*
+ * Maladies
+ */
 #define Sick u.uprops[SICK].intrinsic
 #define Stoned u.uprops[STONED].intrinsic
 #define Strangled u.uprops[STRANGLED].intrinsic
@@ -169,8 +117,7 @@
 #define HHalluc_resistance u.uprops[HALLUC_RES].intrinsic
 #define EHalluc_resistance u.uprops[HALLUC_RES].extrinsic
 #define Halluc_resistance (HHalluc_resistance || EHalluc_resistance)
-#define Hallucination \
-    ((HHallucination && !Halluc_resistance) || u.uroleplay.hallu)
+#define Hallucination (HHallucination && !Halluc_resistance)
 
 /* Timeout, plus a worn mask */
 #define HDeaf u.uprops[DEAF].intrinsic
@@ -181,10 +128,16 @@
 #define EFumbling u.uprops[FUMBLING].extrinsic
 #define Fumbling (HFumbling || EFumbling)
 
+/* HWounded_legs indicates whether wounded leg(s) condition exists and
+   holds the timeout for recovery; EWounded_legs uses the worn-ring bits
+   to track left vs right vs both and is meaningless when HWounded_legs
+   is zero except when timeout has just decremented that to 0 and calls
+   heal_legs(); both values apply to steed rather than to hero when riding */
 #define HWounded_legs u.uprops[WOUNDED_LEGS].intrinsic
 #define EWounded_legs u.uprops[WOUNDED_LEGS].extrinsic
 #define Wounded_legs (HWounded_legs || EWounded_legs)
 
+/* Sleepy: prone to falling asleep periodically; not necessarily asleep now */
 #define HSleepy u.uprops[SLEEPY].intrinsic
 #define ESleepy u.uprops[SLEEPY].extrinsic
 #define Sleepy (HSleepy || ESleepy)
@@ -203,18 +156,13 @@
 #define Blind_telepat (HTelepat || ETelepat)
 #define Unblind_telepat (ETelepat)
 
+#define HBlnd_resist u.uprops[BLND_RES].intrinsic /* from form */
+#define EBlnd_resist u.uprops[BLND_RES].extrinsic /* wielding Sunsword */
+#define Blnd_resist (HBlnd_resist || EBlnd_resist)
+
 #define HWarning u.uprops[WARNING].intrinsic
 #define EWarning u.uprops[WARNING].extrinsic
 #define Warning (HWarning || EWarning)
-
-#define HFood_sense u.uprops[FOOD_SENSE].intrinsic
-#define EFood_sense u.uprops[FOOD_SENSE].extrinsic
-#define Food_sense (HFood_sense || EFood_sense)
-
-/* (intrinsic x-ray vision prop is not currently used) */
-#define HXray_vision u.uprops[XRAY_VISION].intrinsic
-#define EXray_vision u.uprops[XRAY_VISION].extrinsic
-#define Xray_vision (HXray_vision || EXray_vision)
 
 /* Warning for a specific type of monster */
 #define HWarn_of_mon u.uprops[WARN_OF_MON].intrinsic
@@ -237,10 +185,6 @@
 #define EInfravision u.uprops[INFRAVISION].extrinsic
 #define Infravision (HInfravision || EInfravision)
 
-#define HUltravision u.uprops[ULTRAVISION].intrinsic
-#define EUltravision u.uprops[ULTRAVISION].extrinsic
-#define Ultravision (HUltravision || EUltravision)
-
 #define HDetect_monsters u.uprops[DETECT_MONSTERS].intrinsic
 #define EDetect_monsters u.uprops[DETECT_MONSTERS].extrinsic
 #define Detect_monsters (HDetect_monsters || EDetect_monsters)
@@ -256,11 +200,12 @@
 /* Note: invisibility also hides inventory and steed */
 
 #define HDisplaced u.uprops[DISPLACED].intrinsic /* timed from corpse */
-#define EDisplaced u.uprops[DISPLACED].extrinsic /* worn item */
-#define Displaced (HDisplaced || EDisplaced || is_displaced(youmonst.data))
+#define EDisplaced u.uprops[DISPLACED].extrinsic /* worn cloak */
+#define Displaced (HDisplaced || EDisplaced)
 
 #define HStealth u.uprops[STEALTH].intrinsic
 #define EStealth u.uprops[STEALTH].extrinsic
+/* BStealth has FROMOUTSIDE set if mounted on non-flying steed */
 #define BStealth u.uprops[STEALTH].blocked
 #define Stealth ((HStealth || EStealth) && !BStealth)
 
@@ -275,7 +220,7 @@
 /*** Transportation ***/
 #define HJumping u.uprops[JUMPING].intrinsic
 #define EJumping u.uprops[JUMPING].extrinsic
-#define Jumping (HJumping || EJumping || is_jumper(youmonst.data))
+#define Jumping (HJumping || EJumping)
 
 #define HTeleportation u.uprops[TELEPORT].intrinsic
 #define ETeleportation u.uprops[TELEPORT].extrinsic
@@ -290,13 +235,11 @@
 #define HLevitation u.uprops[LEVITATION].intrinsic
 #define ELevitation u.uprops[LEVITATION].extrinsic
 /* BLevitation has I_SPECIAL set if trapped in the floor,
-   FROMOUTSIDE set if inside solid rock (or in water on Plane of Water)
-   W_ARM set if in a big_wings() form/race and wearing blocking body
-   armor (the last one obviously won't block the steed from flying) */
+   FROMOUTSIDE set if inside solid rock (or in water on Plane of Water) */
 #define BLevitation u.uprops[LEVITATION].blocked
 #define Levitation ((HLevitation || ELevitation) && !BLevitation)
 /* Can't touch surface, can't go under water; overrides all others */
-#define Lev_at_will \
+#define Lev_at_will                                                    \
     (((HLevitation & I_SPECIAL) != 0L || (ELevitation & W_ARTI) != 0L) \
      && (HLevitation & ~(I_SPECIAL | TIMEOUT)) == 0L                   \
      && (ELevitation & ~W_ARTI) == 0L)
@@ -307,20 +250,12 @@
 /* BFlying has I_SPECIAL set if levitating or trapped in the floor or both,
    FROMOUTSIDE set if inside solid rock (or in water on Plane of Water) */
 #define BFlying u.uprops[FLYING].blocked
-/* FROMRACE is excluded from the bypass alongside FROMFORM so that
-   races whose flight comes from big_wings() (aasimar at level 15+
-   with clean alignment) are subject to the same hard-armor block
-   used for FROMFORM wings; non-winged FROMRACE flyers (vampires,
-   illithids at level 12+) still fall through the
-   (HFlying && !big_wings(...)) disjunct */
-#define Flying \
-    ((((EFlying || (HFlying & ~FROMFORM & ~FROMRACE)                        \
-       || (HFlying && !big_wings(raceptr(&youmonst))))                      \
-       || (u.usteed && is_flyer(u.usteed->data))) && !(BFlying & ~W_ARMOR)) \
-     || (HFlying && !BFlying)) \
+#define Flying                                                      \
+    ((HFlying || EFlying || (u.usteed && is_flyer(u.usteed->data))) \
+     && !BFlying)
 /* May touch surface; does not override any others */
 
-#define HWwalking u.uprops[WWALKING].intrinsic
+#define HWwalking u.uprops[WWALKING].intrinsic /* see lava_effects() */
 #define EWwalking u.uprops[WWALKING].extrinsic
 #define Wwalking ((HWwalking || EWwalking) && !Is_waterlevel(&u.uz))
 /* Don't get wet, can't go under water; overrides others except levitation */
@@ -335,22 +270,11 @@
 #define HMagical_breathing u.uprops[MAGICAL_BREATHING].intrinsic
 #define EMagical_breathing u.uprops[MAGICAL_BREATHING].extrinsic
 #define Amphibious \
-    (HMagical_breathing || EMagical_breathing                  \
-     || amphibious(youmonst.data) || racial_tortle(&youmonst))
+    (HMagical_breathing || EMagical_breathing || amphibious(gy.youmonst.data))
 /* Get wet, may go under surface */
 
-#define See_underwater \
-    ((HSwimming && (HMagical_breathing || amphibious(youmonst.data)  \
-                    || racial_tortle(&youmonst)))                    \
-     || (ublindf && ublindf->oartifact == ART_EYES_OF_THE_OVERWORLD) \
-     || (ublindf && ublindf->otyp == GOGGLES))
-
-#define Breathless_nomagic \
-    (breathless(youmonst.data) || racial_zombie(&youmonst) \
-     || racial_vampire(&youmonst))
-
 #define Breathless \
-    (HMagical_breathing || EMagical_breathing || Breathless_nomagic)
+    (HMagical_breathing || EMagical_breathing || breathless(gy.youmonst.data))
 
 #define Underwater (u.uinwater)
 /* Note that Underwater and u.uinwater are both used in code.
@@ -360,10 +284,6 @@
 #define HPasses_walls u.uprops[PASSES_WALLS].intrinsic
 #define EPasses_walls u.uprops[PASSES_WALLS].extrinsic
 #define Passes_walls (HPasses_walls || EPasses_walls)
-
-#define HPasses_trees u.uprops[PASSES_TREES].intrinsic
-#define EPasses_trees u.uprops[PASSES_TREES].extrinsic
-#define Passes_trees (HPasses_trees || EPasses_trees)
 
 /*** Physical attributes ***/
 #define HSlow_digestion u.uprops[SLOW_DIGESTION].intrinsic
@@ -453,56 +373,36 @@
 
 #define HFast u.uprops[FAST].intrinsic
 #define EFast u.uprops[FAST].extrinsic
-#define SFast (Underwater && is_fast_underwater(youmonst.data))
-#define Fast ((HFast || EFast || SFast) && !Slow)
-#define Very_fast (((HFast & ~INTRINSIC) || EFast || SFast) && !Slow)
-
-#define HSlow u.uprops[SLOW].intrinsic
-#define ESlow u.uprops[SLOW].extrinsic
-#define Slow (HSlow || ESlow)
+#define Fast (HFast || EFast)
+#define Very_fast ((HFast & ~INTRINSIC) || EFast)
 
 #define HReflecting u.uprops[REFLECTING].intrinsic
 #define EReflecting u.uprops[REFLECTING].extrinsic
-#define Reflecting \
-    (HReflecting || EReflecting                     \
-     || (youmonst.data == &mons[PM_SILVER_DRAGON]))
-
-#define HWithering u.uprops[WITHERING].intrinsic
-#define EWithering u.uprops[WITHERING].extrinsic
-#define BWithering u.uprops[WITHERING].blocked
-#define Withering ((HWithering || EWithering) && !BWithering)
+#define Reflecting (HReflecting || EReflecting)
 
 #define Free_action u.uprops[FREE_ACTION].extrinsic /* [Tom] */
 
-#define HBarkskin u.uprops[BARKSKIN].intrinsic
-#define EBarkskin u.uprops[BARKSKIN].extrinsic
-#define Barkskin (HBarkskin || EBarkskin)
-
-#define HStoneskin u.uprops[STONESKIN].intrinsic
-#define EStoneskin u.uprops[STONESKIN].extrinsic
-#define Stoneskin (HStoneskin || EStoneskin)
-
 #define Fixed_abil u.uprops[FIXED_ABIL].extrinsic /* KMH */
 
-#define HLifesaved u.uprops[LIFESAVED].intrinsic /* Draugr race */
-#define ELifesaved u.uprops[LIFESAVED].extrinsic
-#define Lifesaved (HLifesaved || ELifesaved)
-
-#define HTelekinesis u.uprops[TELEKINESIS].intrinsic
-#define ETelekinesis u.uprops[TELEKINESIS].extrinsic
-#define Telekinesis (HTelekinesis || ETelekinesis)
+#define Lifesaved u.uprops[LIFESAVED].extrinsic
 
 /*
  * Some pseudo-properties.
  */
 
+/* the code will needs lots of updating to use this so leave it commented
+#define Riding (u.usteed != NULL)
+*/
+
 /* unconscious() includes u.usleep but not is_fainted(); the multi test is
    redundant but allows the function calls to be skipped most of the time */
-#define Unaware (multi < 0 && (unconscious() || is_fainted()))
+#define Unaware (gm.multi < 0 && (unconscious() || is_fainted()))
 
-/* Whether the hero is in a form that dislikes a certain material */
-#define Hate_material(material) \
-    (hates_material(raceptr(&youmonst), material) \
-     || mon_hates_material(&youmonst, material))
+#define Hate_silver (u.ulycn >= LOW_PM || hates_silver(gy.youmonst.data))
+
+/* _The_Hitchhikers_Guide_to_the_Galaxy_ on uses for 'towel': "wrap it round
+   your head to ward off noxious fumes" [we require it to be damp or wet] */
+#define Half_gas_damage \
+    (ublindf && ublindf->otyp == TOWEL && ublindf->spe > 0)
 
 #endif /* YOUPROP_H */

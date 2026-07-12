@@ -1,27 +1,26 @@
-/* NetHack 3.6	quest.h	$NHDT-Date: 1432512779 2015/05/25 00:12:59 $  $NHDT-Branch: master $:$NHDT-Revision: 1.10 $ */
-/* Copyright (c) Mike Stephenson 1991.				  */
+/* NetHack 5.0	quest.h	$NHDT-Date: 1781973086 2026/06/20 16:31:26 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.16 $ */
+/* Copyright (c) Mike Stephenson 1991.                            */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef QUEST_H
 #define QUEST_H
 
-struct q_score {                   /* Quest "scorecard" */
-    Bitfield(first_start, 1);      /* only set the first time */
-    Bitfield(met_leader, 1);       /* has met the leader */
-    Bitfield(not_ready, 3);        /* rejected due to alignment, etc. */
-    Bitfield(pissed_off, 1);       /* got the leader angry */
-    Bitfield(got_quest, 1);        /* got the quest assignment */
-    Bitfield(got_quest_early, 1);  /* got the quest while u.ulevel < 14 */
-    Bitfield(killed_leader, 1);    /* killed the quest leader */
+struct q_score {              /* Quest "scorecard" */
+    Bitfield(first_start, 1); /* only set the first time */
+    Bitfield(met_leader, 1);  /* has met the leader */
+    Bitfield(not_ready, 3);   /* rejected due to alignment, etc. */
+    Bitfield(pissed_off, 1);  /* got the leader angry */
+    Bitfield(got_quest, 1);   /* got the quest assignment */
+    Bitfield(killed_leader, 1); /* killed the quest leader */
 
-    Bitfield(first_locate, 1);     /* only set the first time */
-    Bitfield(met_intermed, 1);     /* used if the locate is a person. */
-    Bitfield(got_final, 1);        /* got the final quest assignment */
+    Bitfield(first_locate, 1); /* only set the first time */
+    Bitfield(met_intermed, 1); /* used if the locate is a person */
+    Bitfield(got_final, 1);    /* got the final quest assignment */
 
-    Bitfield(made_goal, 3);        /* # of times on goal level */
-    Bitfield(met_nemesis, 1);      /* has met the nemesis before */
-    Bitfield(killed_nemesis, 1);   /* set when the nemesis is killed */
-    Bitfield(in_battle, 1);        /* set when nemesis fighting you */
+    Bitfield(made_goal, 3);      /* # of times on goal level */
+    Bitfield(met_nemesis, 1);    /* has met the nemesis before */
+    Bitfield(killed_nemesis, 1); /* set when the nemesis is killed */
+    Bitfield(in_battle, 1);      /* set when nemesis fighting you */
 
     Bitfield(cheater, 1);          /* set if cheating detected */
     Bitfield(touched_artifact, 1); /* for a special message */
@@ -41,10 +40,9 @@ struct q_score {                   /* Quest "scorecard" */
     unsigned leader_m_id;
 };
 
-#define MAX_QUEST_TRIES 7  /* exceed this and you "fail" */
 #define MIN_QUEST_ALIGN 20 /* at least this align.record to start */
 /* note: align 20 matches "pious" as reported by enlightenment (cmd.c) */
-#define MIN_QUEST_LEVEL 10 /* at least this u.ulevel to start */
-/* note: exp.lev. 10 is threshold level for 4th rank (class title, role.c) */
+#define MIN_QUEST_LEVEL 14 /* at least this u.ulevel to start */
+/* note: exp.lev. 14 is threshold level for 5th rank (class title, role.c) */
 
 #endif /* QUEST_H */

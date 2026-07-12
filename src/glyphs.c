@@ -1,350 +1,1265 @@
-/* NetHack 3.6  glyphs.c  $NHDT-Date: 2026/04/26 $  $NHDT-Branch: master $ */
-/* Copyright (c) Keith Simpson, 2026. */
-/* EvilHack may be freely redistributed.  See license for details. */
-
-/* Customcolor registry: per-glyph color overrides delivered via the
-   CUSTOMCOLOR= rc-file directive. Sparse linked list so glyphs without
-   overrides cost nothing. Encoding follows NetHack 3.7's uint32 scheme:
-   NH_BASIC_COLOR flag selects between a 16-color index (low byte) and a
-   24-bit RGB value (low 24 bits). See doc/Guidebook for syntax */
+/* NetHack 5.0	glyphs.c	TODO: add NHDT branch/date/revision tags */
+/* Copyright (c) Michael Allison, 2021. */
+/* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
 
-STATIC_VAR struct customcolor_entry *customcolor_list =
-    (struct customcolor_entry *) 0;
+extern const struct symparse loadsyms[];
+extern glyph_map glyphmap[MAX_GLYPH];
+extern struct enum_dump monsdump[];
+extern struct enum_dump objdump[];
 
-STATIC_DCL int FDECL(monidx_by_name, (const char *));
-STATIC_DCL int FDECL(objidx_by_name, (const char *));
-STATIC_DCL int FDECL(set_cmap_customcolors, (const char *, unsigned long));
-STATIC_DCL int FDECL(parse_clr_name, (const char *));
-STATIC_DCL char *FDECL(strip_ws, (char *));
-STATIC_DCL int FDECL(customcolor_glyph, (int));
+#define Fprintf (void) fprintf
 
-/* CLR_* names accepted in CUSTOMCOLOR= color values */
-static const struct {
-    const char *name;
-    int idx;
-} clr_names[] = {
-    { "black",          CLR_BLACK },
-    { "red",            CLR_RED },
-    { "green",          CLR_GREEN },
-    { "brown",          CLR_BROWN },
-    { "blue",           CLR_BLUE },
-    { "magenta",        CLR_MAGENTA },
-    { "cyan",           CLR_CYAN },
-    { "gray",           CLR_GRAY },
-    { "grey",           CLR_GRAY },
-    { "no-color",       NO_COLOR },
-    { "orange",         CLR_ORANGE },
-    { "bright-green",   CLR_BRIGHT_GREEN },
-    { "yellow",         CLR_YELLOW },
-    { "bright-blue",    CLR_BRIGHT_BLUE },
-    { "bright-magenta", CLR_BRIGHT_MAGENTA },
-    { "bright-cyan",    CLR_BRIGHT_CYAN },
-    { "white",          CLR_WHITE }
+enum reserved_activities { res_nothing, res_dump_glyphnames };
+enum things_to_find { find_nothing, find_pm, find_oc, find_cmap, find_glyph };
+struct find_struct {
+    enum things_to_find findtype;
+    int val;
+    int loadsyms_offset;
+    int loadsyms_count;
+    int *extraval;
+    uint32 color;
+    const char *unicode_val; /* U+NNNN format */
+    void (*callback)(int glyph, struct find_struct *);
+    enum reserved_activities restype;
+    genericptr_t reserved;
 };
+static const struct find_struct zero_find = { 0 };
+struct glyphname_hash_index_entry_t {
+    uint32 hash;
+    int glyphnum;
+};
+static struct glyphname_hash_index_entry_t *glyphname_hash_indices_ptr;
+static size_t glyphname_hash_indices_count;
+static struct find_struct to_custom_symbol_find;
+static const long nonzero_black = CLR_BLACK | NH_BASIC_COLOR;
 
-/* Free every customcolor entry. Called at rc-file (re)load */
-void
-reset_customcolors()
+staticfn int find_glyph_in_hashtable(const char *id);
+staticfn int cmp_glyphname_entry(const void *a, const void *b);
+staticfn uint32 glyph_hash(const char *id);
+staticfn int compose_glyph_name(int glyph, char *buf, size_t bufsz);
+staticfn int get_cmap_offset(void);
+staticfn void to_custom_symset_entry_callback(int glyph,
+                                            struct find_struct *findwhat);
+staticfn int parse_id(const char *id, struct find_struct *findwhat);
+staticfn int glyph_find_core(const char *id, struct find_struct *findwhat);
+staticfn char *fix_glyphname(char *str);
+staticfn void shuffle_customizations(void);
+/* staticfn void purge_custom_entries(enum graphics_sets which_set); */
+
+staticfn void
+to_custom_symset_entry_callback(
+    int glyph,
+    struct find_struct *findwhat)
 {
-    struct customcolor_entry *cur, *nxt;
+    int idx = gs.symset_which_set;
+#ifdef ENHANCED_SYMBOLS
+    uint8 utf8str[6] = { 0, 0, 0, 0, 0, 0 };
+    int uval = 0;
+#endif
 
-    for (cur = customcolor_list; cur; cur = nxt) {
-        nxt = cur->next;
-        free((genericptr_t) cur);
+    if (findwhat->extraval)
+        *findwhat->extraval = glyph;
+
+    assert(idx >= 0 && idx < NUM_GRAPHICS);
+#ifdef ENHANCED_SYMBOLS
+    if (findwhat->unicode_val)
+        uval = unicode_val(findwhat->unicode_val);
+    if (uval && unicodeval_to_utf8str(uval, utf8str, sizeof utf8str)) {
+        /* presently the customizations are affiliated with a particular
+         * symset but if we don't have any symset context, ignore it for now
+         * in order to avoid a segfault.
+         * FIXME:
+         * One future idea might be to store the U+ entries under "UTF8"
+         * and apply those customizations to any current symset if it has
+         * a UTF8 handler. Similar approach for unaffiliated glyph/symbols
+         * non-UTF color customizations
+         */
+        if (gs.symset[idx].name) {
+            add_custom_urep_entry(gs.symset[idx].name, glyph, uval,
+                              utf8str, gs.symset_which_set);
+        } else {
+            static int glyphnag = 0;
+
+            if (!glyphnag++)
+                config_error_add("Unimplemented customization feature,"
+                                 " ignoring for now");
+        }
     }
-    customcolor_list = (struct customcolor_entry *) 0;
+#endif
+    if (findwhat->color) {
+        if (gs.symset[idx].name) {
+            add_custom_nhcolor_entry(gs.symset[idx].name, glyph,
+                                 findwhat->color, gs.symset_which_set);
+        } else {
+            static int colornag = 0;
+
+            if (!colornag++)
+                config_error_add("Unimplemented customization feature,"
+                                 " ignoring for now");
+        }
+    }
 }
 
-/* Normalize a display glyph to the canonical glyph whose color drives
-   its appearance, so a CUSTOMCOLOR= entry set on a base monster or object
-   resolves for every display state. Pet/peaceful/ridden/detected monsters
-   and corpses take a monster's mcolor, so they map to the base monster
-   glyph; statues take the STATUE object color, so they map to the statue
-   object glyph. Idempotent on the canonical keys that
-   parse_customcolor_line() stores */
-STATIC_OVL int
-customcolor_glyph(glyph)
-int glyph;
-{
-    if (glyph_is_monster(glyph))
-        return monnum_to_glyph(glyph_to_mon(glyph));
-    if (glyph_is_body(glyph))
-        return monnum_to_glyph(glyph - GLYPH_BODY_OFF);
-    if (glyph_is_statue(glyph))
-        return objnum_to_glyph(STATUE);
-    return glyph;
-}
-
-/* Look up a customcolor entry for a display glyph (normalized to its base
-   monster/object). Returns NULL if none */
-struct customcolor_entry *
-customcolor_lookup(glyph)
-int glyph;
-{
-    struct customcolor_entry *cur;
-
-    glyph = customcolor_glyph(glyph);
-    for (cur = customcolor_list; cur; cur = cur->next)
-        if (cur->glyphidx == glyph)
-            return cur;
-    return (struct customcolor_entry *) 0;
-}
-
-/* Insert or replace a customcolor entry. Returns 1 on success */
+/*
+ * Return value:
+ *               1 = success
+ *               0 = failure
+ */
 int
-set_customcolor(glyphidx, nhcolor)
-int glyphidx;
-unsigned long nhcolor;
+glyphrep_to_custom_map_entries(
+    const char *op,
+    int *glyphptr)
 {
-    struct customcolor_entry *ce;
-    unsigned long quant;
-    int idx;
+    to_custom_symbol_find = zero_find;
+    char buf[BUFSZ], *c_glyphname, *c_unicode, *c_colorval, *cp;
+    int reslt = 0;
+    long rgb = 0L;
+    boolean slash = FALSE, colon = FALSE;
 
-    ce = customcolor_lookup(glyphidx);
-    if (!ce) {
-        ce = (struct customcolor_entry *) alloc(
-            (unsigned) sizeof (struct customcolor_entry));
-        ce->glyphidx = glyphidx;
-        ce->next = customcolor_list;
-        customcolor_list = ce;
-    }
-    ce->nhcolor = nhcolor;
-    /* Pre-compute the 256-palette fallback so windowports that need a
-       quantized index (curses, 16-color terminals) don't redo the work
-       on every cell. Basic colors keep the field valid too (the CLR_*
-       index is its own quantized fallback) even though consumers read
-       color256idx only on the RGB path */
-    if (nhcolor & NH_BASIC_COLOR) {
-        ce->color256idx = (int) (nhcolor & 0xFFUL);
-    } else if (closest_color(COLORVAL(nhcolor), &quant, &idx)) {
-        ce->color256idx = idx;
-    } else {
-        ce->color256idx = 0;
-    }
-    return 1;
-}
+    if (!glyphname_hash_indices_ptr)
+        reslt = 1; /* for debugger use only; no cache available */
+    nhUse(reslt);
 
-/* Strip leading/trailing whitespace; modifies buf in place; returns
-   pointer to first non-whitespace character */
-STATIC_OVL char *
-strip_ws(buf)
-char *buf;
-{
-    char *cp;
-
-    while (*buf == ' ' || *buf == '\t')
-        buf++;
-    cp = eos(buf);
-    while (cp > buf && (cp[-1] == ' ' || cp[-1] == '\t')) {
-        cp--;
-        *cp = '\0';
-    }
-    return buf;
-}
-
-/* Look up a CLR_* index by lowercased name. Returns -1 on miss */
-STATIC_OVL int
-parse_clr_name(name)
-const char *name;
-{
-    unsigned i;
-
-    for (i = 0; i < SIZE(clr_names); i++)
-        if (!strcmp(name, clr_names[i].name))
-            return clr_names[i].idx;
-    return -1;
-}
-
-/* Convert a color string ("#RRGGBB", "R-G-B", or a CLR_* name) into
-   the 32-bit nhcolor encoding. Returns -1L on parse failure */
-long
-rgbstr_to_int32(s)
-const char *s;
-{
-    char buf[BUFSZ];
-    char *p;
-    int r, g, b;
-    int idx;
-    char tail;
-
-    if (!s || !*s)
-        return -1L;
-    /* "#RRGGBB" hex form */
-    if (s[0] == '#') {
-        unsigned long v = 0;
-        const char *q = s + 1;
-        int n = 0, d;
-
-        while (*q && n < 6) {
-            if (*q >= '0' && *q <= '9')
-                d = *q - '0';
-            else if (*q >= 'a' && *q <= 'f')
-                d = 10 + (*q - 'a');
-            else if (*q >= 'A' && *q <= 'F')
-                d = 10 + (*q - 'A');
-            else
-                return -1L;
-            v = (v << 4) | (unsigned long) d;
-            q++;
-            n++;
+    Snprintf(buf, sizeof buf, "%s", op);
+    c_unicode = c_colorval = (char *) 0;
+    c_glyphname = cp = buf;
+    while (*cp) {
+        if (*cp == ':' || *cp == '/') {
+            if (*cp == ':') {
+                colon = TRUE;
+                *cp = '\0';
+            }
+            if (*cp == '/') {
+                slash = TRUE;
+                *cp = '\0';
+            }
         }
-        if (*q || n != 6)
-            return -1L;
-        return (long) v;
-    }
-    /* "R-G-B" decimal form */
-    r = g = b = -1;
-    if (sscanf(s, "%d-%d-%d%c", &r, &g, &b, &tail) == 3) {
-        if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
-            return -1L;
-        return ((long) r << 16) | ((long) g << 8) | (long) b;
-    }
-    /* CLR_* color name (lowercased) */
-    (void) strncpy(buf, s, sizeof buf - 1);
-    buf[sizeof buf - 1] = '\0';
-    for (p = buf; *p; p++)
-        *p = lowc(*p);
-    idx = parse_clr_name(buf);
-    if (idx >= 0)
-        return (long) (NH_BASIC_COLOR | (unsigned long) idx);
-    return -1L;
-}
-
-/* Find a monster's glyph index by name (case-insensitive, via the
-   existing name_to_mon helper). Returns -1 on miss */
-STATIC_OVL int
-monidx_by_name(name)
-const char *name;
-{
-    int matchlen = 0;
-    int mn = name_to_mon(name, &matchlen);
-
-    if (mn == NON_PM)
-        return -1;
-    return mn + GLYPH_MON_OFF;
-}
-
-/* Find an object's glyph index by canonical name (case-insensitive,
-   exact match against obj_descr[oc_name_idx].oc_name). Returns -1 */
-STATIC_OVL int
-objidx_by_name(name)
-const char *name;
-{
-    int i, len = (int) strlen(name);
-
-    for (i = 0; i < NUM_OBJECTS; i++) {
-        const char *on = OBJ_NAME(objects[i]);
-
-        if (on && (int) strlen(on) == len
-            && !strncmpi(on, name, len))
-            return i + GLYPH_OBJ_OFF;
-    }
-    return -1;
-}
-
-/* Set the customcolor on every cmap glyph whose explanation matches
-   name (case-insensitive, exact). Terrain features commonly share an
-   explanation, so a single cmap: directive colors the whole family.
-   When no explanation matches, fall back to the map symbol name from
-   loadsyms[] (the names used by SYMBOLS=), so the short names players
-   know ("corr", "lava", ...) work too; that path targets a single
-   glyph. Returns the count of glyphs set */
-STATIC_OVL int
-set_cmap_customcolors(name, nhcolor)
-const char *name;
-unsigned long nhcolor;
-{
-    int i, len = (int) strlen(name), count = 0;
-
-    for (i = 0; i < MAXPCHARS; i++) {
-        if (defsyms[i].explanation
-            && (int) strlen(defsyms[i].explanation) == len
-            && !strncmpi(defsyms[i].explanation, name, len)) {
-            (void) set_customcolor(i + GLYPH_CMAP_OFF, nhcolor);
-            count++;
+        cp++;
+        if (colon) {
+            c_unicode = cp;
+            colon = FALSE;
+        }
+        if (slash) {
+            c_colorval = cp;
+            slash = FALSE;
         }
     }
-    if (count == 0) {
-        extern struct symparse loadsyms[]; /* drawing.c */
-        struct symparse *sp;
-        const char *sn;
+    /* some sanity checks */
+    if (c_glyphname && *c_glyphname == ' ')
+        c_glyphname++;
+    if (c_colorval && *c_colorval == ' ')
+        c_colorval++;
+    if (c_unicode && *c_unicode == ' ') {
+        while (*c_unicode == ' ') {
+            c_unicode++;
+        }
+    }
+    if (c_unicode && !*c_unicode)
+        c_unicode = 0;
 
-        for (sp = loadsyms; sp->range; sp++) {
-            if (sp->range != SYM_PCHAR)
-                continue;
-            /* accept the bare name without the "S_" prefix as well */
-            sn = sp->name;
-            if ((sn[0] == 'S' || sn[0] == 's') && sn[1] == '_')
-                sn += 2;
-            if (((int) strlen(sn) == len && !strncmpi(sn, name, len))
-                || ((int) strlen(sp->name) == len
-                    && !strncmpi(sp->name, name, len))) {
-                (void) set_customcolor(sp->idx + GLYPH_CMAP_OFF, nhcolor);
-                count++;
-                break; /* symbol names are unique */
+    if ((c_colorval && (rgb = rgbstr_to_int32(c_colorval)) != -1L)
+        || !c_colorval) {
+        /* if the color 0 is an actual color, as opposed to just "not set"
+           we set a marker bit outside the 24-bit range to indicate a
+           valid color value 0. That allows valid color 0, but allows a
+           simple checking for 0 to detect "not set". The window port that
+           implements the color switch, needs to either check that bit
+           or appropriately mask colors with 0xFFFFFF. */
+        to_custom_symbol_find.color = (rgb == -1 || !c_colorval) ? 0L
+                                      : (rgb == 0L) ? nonzero_black
+                                                    : rgb;
+    }
+    if (c_unicode)
+        to_custom_symbol_find.unicode_val = c_unicode;
+    to_custom_symbol_find.extraval = glyphptr;
+    to_custom_symbol_find.callback = to_custom_symset_entry_callback;
+    reslt = glyph_find_core(c_glyphname, &to_custom_symbol_find);
+    return reslt;
+}
+
+staticfn char *
+fix_glyphname(char *str)
+{
+    char *c;
+
+    for (c = str; *c; c++) {
+        if (*c >= 'A' && *c <= 'Z')
+            *c += (char) ('a' - 'A');
+        else if (*c >= '0' && *c <= '9')
+            ;
+        else if (*c < 'a' || *c > 'z')
+            *c = '_';
+    }
+    return str;
+}
+
+/* First SYM_PCHAR index in loadsyms[], cached (0 = not computed yet;
+   SYM_PCHAR is never at index 0). */
+static int cached_cmap_offset = 0;
+
+staticfn int
+get_cmap_offset(void)
+{
+    if (!cached_cmap_offset) {
+        int i;
+
+        for (i = 0; loadsyms[i].range; i++) {
+            if (loadsyms[i].range == SYM_PCHAR) {
+                cached_cmap_offset = i;
+                break;
             }
         }
     }
-    return count;
+    return cached_cmap_offset;
 }
 
-/* Parse a CUSTOMCOLOR= rc value of the form
-       PREFIX:NAME/COLOR
-   where PREFIX is one of mon|obj|cmap and COLOR is "#RRGGBB", an
-   "R-G-B" decimal triple, or a CLR_* name. Returns 1 on success,
-   0 on parse failure (caller emits a config error) */
-int
-parse_customcolor_line(str)
-const char *str;
+/* Build the canonical "G_xxx" identifier for the given glyph into buf.
+ * Returns 1 if a name was produced, 0 if this glyph has no canonical name
+ * (a few unused object indices); buf[0] is set to '\0' in that case.
+ * Callers must pass a BUFSZ-sized buffer.
+ * Used by find_glyph_in_hashtable to verify hash matches, by the
+ * --dumpglyphnames path, by populate_glyphname_hash_indices to fill the
+ * table, and by wizcustom_glyphnames. */
+staticfn int
+compose_glyph_name(int glyph, char *buf, size_t bufsz)
 {
-    char buf[BUFSZ];
-    char *cp, *prefix, *target, *colorstr;
-    int glyphidx = -1;
-    long nhcolor;
+    int i, j, mnum, cmap_offset;
+    boolean skip_base = FALSE;
+    const char *buf2, *buf3, *buf4;
+    char tmpbuf[4][QBUFSZ];
 
-    if (!str)
+    if (bufsz < BUFSZ)
         return 0;
-    (void) strncpy(buf, str, sizeof buf - 1);
-    buf[sizeof buf - 1] = '\0';
-    /* Split target/color on the '/' */
-    cp = strchr(buf, '/');
-    if (!cp)
-        return 0;
-    *cp++ = '\0';
-    colorstr = strip_ws(cp);
-    /* Split prefix:target on the ':' */
-    cp = strchr(buf, ':');
-    if (!cp)
-        return 0;
-    *cp++ = '\0';
-    prefix = strip_ws(buf);
-    target = strip_ws(cp);
-    if (!*prefix || !*target || !*colorstr)
-        return 0;
-    /* Parse the color first so cmap: can apply it to every match */
-    nhcolor = rgbstr_to_int32(colorstr);
-    if (nhcolor < 0L)
-        return 0;
-    /* Resolve the prefix + target name and store the override */
-    if (!strcmp(prefix, "mon")) {
-        glyphidx = monidx_by_name(target);
-    } else if (!strcmp(prefix, "obj")) {
-        glyphidx = objidx_by_name(target);
-        if (glyphidx >= 0 && glyphidx - GLYPH_OBJ_OFF == CORPSE) {
-            config_error_add(
-                "CUSTOMCOLOR obj:corpse has no effect; use mon:<name>");
+    buf[0] = '\0';
+    tmpbuf[0][0] = tmpbuf[1][0] = tmpbuf[2][0] = tmpbuf[3][0] = '\0';
+    cmap_offset = get_cmap_offset();
+
+    if (glyph_is_monster(glyph)) {
+        buf2 = "";
+        buf3 = monsdump[glyph_to_mon(glyph)].nm;
+        if (glyph_is_normal_male_monster(glyph)) {
+            buf2 = "male_";
+        } else if (glyph_is_normal_female_monster(glyph)) {
+            buf2 = "female_";
+        } else if (glyph_is_ridden_male_monster(glyph)) {
+            buf2 = "ridden_male_";
+        } else if (glyph_is_ridden_female_monster(glyph)) {
+            buf2 = "ridden_female_";
+        } else if (glyph_is_detected_male_monster(glyph)) {
+            buf2 = "detected_male_";
+        } else if (glyph_is_detected_female_monster(glyph)) {
+            buf2 = "detected_female_";
+        } else if (glyph_is_male_pet(glyph)) {
+            buf2 = "pet_male_";
+        } else if (glyph_is_female_pet(glyph)) {
+            buf2 = "pet_female_";
+        }
+        Snprintf(buf, bufsz, "G_%s%s", buf2, buf3);
+    } else if (glyph_is_body(glyph)) {
+        buf2 = glyph_is_body_piletop(glyph) ? "piletop_body_" : "body_";
+        buf3 = monsdump[glyph_to_body_corpsenm(glyph)].nm;
+        Snprintf(buf, bufsz, "G_%s%s", buf2, buf3);
+    } else if (glyph_is_statue(glyph)) {
+        buf2 = glyph_is_fem_statue_piletop(glyph)
+               ? "piletop_statue_of_female_"
+               : glyph_is_fem_statue(glyph)
+                 ? "statue_of_female_"
+                 : glyph_is_male_statue_piletop(glyph)
+                   ? "piletop_statue_of_male_"
+                   : glyph_is_male_statue(glyph)
+                     ? "statue_of_male_"
+                     : "";
+        buf3 = monsdump[glyph_to_statue_corpsenm(glyph)].nm;
+        Snprintf(buf, bufsz, "G_%s%s", buf2, buf3);
+    } else if (glyph_is_object(glyph)) {
+        i = glyph_to_obj(glyph);
+        if (((i > SCR_STINKING_CLOUD) && (i < SCR_MAIL))
+            || ((i > WAN_LIGHTNING) && (i < GOLD_PIECE))) {
             return 0;
         }
-    } else if (!strcmp(prefix, "cmap")) {
-        return set_cmap_customcolors(target, (unsigned long) nhcolor) > 0;
-    } else {
-        return 0;
+        if ((i >= WAN_LIGHT) && (i <= WAN_LIGHTNING))
+            buf2 = "wand of ";
+        else if ((i >= SPE_DIG) && (i < SPE_BLANK_PAPER))
+            buf2 = "spellbook of ";
+        else if ((i >= SCR_ENCHANT_ARMOR) && (i <= SCR_STINKING_CLOUD))
+            buf2 = "scroll of ";
+        else if ((i >= POT_GAIN_ABILITY) && (i <= POT_WATER))
+            buf2 = (i == POT_WATER) ? "flask of n" : "potion of ";
+        else if ((i >= RIN_ADORNMENT) && (i <= RIN_PROTECTION_FROM_SHAPE_CHAN))
+            buf2 = "ring of ";
+        else if (i == LAND_MINE)
+            buf2 = "unset ";
+        else
+            buf2 = "";
+        buf3 = (i == SCR_BLANK_PAPER) ? "blank scroll"
+               : (i == SPE_BLANK_PAPER) ? "blank spellbook"
+                 : (i == SLIME_MOLD) ? "slime mold"
+                   : obj_descr[i].oc_name
+                     ? obj_descr[i].oc_name
+                     : obj_descr[i].oc_descr;
+        Snprintf(buf, bufsz, "G_%s%s%s",
+                 (glyph_is_normal_piletop_obj(glyph)
+                  || glyph_is_piletop_generic_obj(glyph)) ? "piletop_" : "",
+                 buf2, buf3);
+    } else if (glyph_is_cmap(glyph) || glyph_is_cmap_zap(glyph)
+               || glyph_is_swallow(glyph) || glyph_is_explosion(glyph)) {
+        int cmap = -1;
+
+        buf2 = "";
+        buf3 = "";
+        buf4 = "";
+        if (glyph == GLYPH_CMAP_OFF) {
+            cmap = S_stone;
+            buf3 = "stone substrate";
+            skip_base = TRUE;
+        } else if (glyph_is_cmap_gehennom(glyph)) {
+            cmap = (glyph - GLYPH_CMAP_GEH_OFF) + S_vwall;
+            buf4 = "_gehennom";
+        } else if (glyph_is_cmap_knox(glyph)) {
+            cmap = (glyph - GLYPH_CMAP_KNOX_OFF) + S_vwall;
+            buf4 = "_knox";
+        } else if (glyph_is_cmap_main(glyph)) {
+            cmap = (glyph - GLYPH_CMAP_MAIN_OFF) + S_vwall;
+            buf4 = "_main";
+        } else if (glyph_is_cmap_mines(glyph)) {
+            cmap = (glyph - GLYPH_CMAP_MINES_OFF) + S_vwall;
+            buf4 = "_mines";
+        } else if (glyph_is_cmap_sokoban(glyph)) {
+            cmap = (glyph - GLYPH_CMAP_SOKO_OFF) + S_vwall;
+            buf4 = "_sokoban";
+        } else if (glyph_is_cmap_a(glyph)) {
+            cmap = (glyph - GLYPH_CMAP_A_OFF) + S_ndoor;
+        } else if (glyph_is_cmap_altar(glyph)) {
+            static const char *const altar_text[] = {
+                "unaligned", "chaotic", "neutral",
+                "lawful",    "other",
+            };
+
+            j = (glyph - GLYPH_ALTAR_OFF);
+            cmap = S_altar;
+            if (j != altar_other) {
+                Snprintf(tmpbuf[2], sizeof tmpbuf[2], "%s_", altar_text[j]);
+                buf2 = tmpbuf[2];
+            } else {
+                buf3 = "altar other";
+                skip_base = TRUE;
+            }
+        } else if (glyph_is_cmap_b(glyph)) {
+            cmap = (glyph - GLYPH_CMAP_B_OFF) + S_grave;
+        } else if (glyph_is_cmap_zap(glyph)) {
+            static const char *const zap_texts[] = {
+                "missile", "fire",      "frost",      "sleep",
+                "death",   "lightning", "poison gas", "acid"
+            };
+
+            j = (glyph - GLYPH_ZAP_OFF);
+            cmap = (j % 4) + S_vbeam;
+            Snprintf(tmpbuf[2], sizeof tmpbuf[2], "%s",
+                     loadsyms[cmap + cmap_offset].name + 2);
+            Snprintf(tmpbuf[3], sizeof tmpbuf[3], "%s zap %s",
+                     zap_texts[j / 4], fix_glyphname(tmpbuf[2]));
+            buf3 = tmpbuf[3];
+            buf2 = "";
+            skip_base = TRUE;
+        } else if (glyph_is_cmap_c(glyph)) {
+            cmap = (glyph - GLYPH_CMAP_C_OFF) + S_digbeam;
+        } else if (glyph_is_swallow(glyph)) {
+            static const char *const swallow_texts[] = {
+                "top left",      "top center",   "top right",
+                "middle left",   "middle right", "bottom left",
+                "bottom center", "bottom right",
+            };
+
+            j = glyph - GLYPH_SWALLOW_OFF;
+            mnum = j / ((S_sw_br - S_sw_tl) + 1);
+            if (!attacktype(&mons[mnum], AT_ENGL))
+                return 0;
+            cmap = glyph_to_swallow(glyph);
+            Snprintf(tmpbuf[3], sizeof tmpbuf[3], "swallow %s %s",
+                     monsdump[mnum].nm, swallow_texts[cmap]);
+            buf3 = tmpbuf[3];
+            skip_base = TRUE;
+        } else if (glyph_is_explosion(glyph)) {
+            static const char *const expl_type_texts[] = {
+                "dark",    "noxious", "muddy",  "wet",
+                "magical", "fiery",   "frosty",
+            };
+            static const char *const expl_texts[] = {
+                "tl", "tc", "tr", "ml", "mc",
+                "mr", "bl", "bc", "br",
+            };
+            int expl;
+
+            j = glyph - GLYPH_EXPLODE_OFF;
+            expl = j / ((S_expl_br - S_expl_tl) + 1);
+            cmap = glyph_to_explosion(glyph) + S_expl_tl;
+            i = cmap - S_expl_tl;
+            Snprintf(tmpbuf[2], sizeof tmpbuf[2], "%s ",
+                     expl_type_texts[expl]);
+            buf2 = tmpbuf[2];
+            Snprintf(tmpbuf[3], sizeof tmpbuf[3], "%s%s", "expl_",
+                     expl_texts[i]);
+            buf3 = tmpbuf[3];
+            skip_base = TRUE;
+        }
+        if (!skip_base) {
+            if (cmap >= 0 && cmap < MAXPCHARS)
+                buf3 = loadsyms[cmap + cmap_offset].name + 2;
+        }
+        Snprintf(buf, bufsz, "G_%s%s%s", buf2, buf3, buf4);
+    } else if (glyph_is_invisible(glyph)) {
+        Snprintf(buf, bufsz, "G_invisible");
+    } else if (glyph_is_nothing(glyph)) {
+        Snprintf(buf, bufsz, "G_nothing");
+    } else if (glyph_is_unexplored(glyph)) {
+        Snprintf(buf, bufsz, "G_unexplored");
+    } else if (glyph_is_warning(glyph)) {
+        j = glyph - GLYPH_WARNING_OFF;
+        Snprintf(buf, bufsz, "G_%s%d", "warning", j);
     }
-    if (glyphidx < 0)
+
+    if (buf[0] == '\0')
         return 0;
-    return set_customcolor(glyphidx, (unsigned long) nhcolor);
+    fix_glyphname(buf + 2);
+    nhUse(mnum);
+    return 1;
 }
 
-/*glyphs.c*/
+int
+glyph_to_cmap(int glyph)
+{
+    if (glyph == GLYPH_CMAP_STONE_OFF)
+        return S_stone;
+    else if (glyph_is_cmap_main(glyph))
+        return (glyph - GLYPH_CMAP_MAIN_OFF) + S_vwall;
+    else if (glyph_is_cmap_mines(glyph))
+        return (glyph - GLYPH_CMAP_MINES_OFF) + S_vwall;
+    else if (glyph_is_cmap_gehennom(glyph))
+        return (glyph - GLYPH_CMAP_GEH_OFF) + S_vwall;
+    else if (glyph_is_cmap_knox(glyph))
+        return (glyph - GLYPH_CMAP_KNOX_OFF) + S_vwall;
+    else if (glyph_is_cmap_sokoban(glyph))
+        return (glyph - GLYPH_CMAP_SOKO_OFF) + S_vwall;
+    else if (glyph_is_cmap_a(glyph))
+        return (glyph - GLYPH_CMAP_A_OFF) + S_ndoor;
+    else if (glyph_is_cmap_altar(glyph))
+        return S_altar;
+    else if (glyph_is_cmap_b(glyph))
+        return (glyph - GLYPH_CMAP_B_OFF) + S_grave;
+    else if (glyph_is_cmap_c(glyph))
+        return (glyph - GLYPH_CMAP_C_OFF) + S_digbeam;
+    else if (glyph_is_cmap_zap(glyph))
+        return ((glyph - GLYPH_ZAP_OFF) % 4) + S_vbeam;
+    else if (glyph_is_swallow(glyph))
+        return glyph_to_swallow(glyph) + S_sw_tl;
+    else if (glyph_is_explosion(glyph))
+        return glyph_to_explosion(glyph) + S_expl_tl;
+    else
+        return MAXPCHARS;    /* MAXPCHARS is legal array index because
+                              * of trailing fencepost entry */
+}
+
+staticfn int
+glyph_find_core(
+    const char *id,
+    struct find_struct *findwhat)
+{
+    int glyph;
+    boolean do_callback, end_find = FALSE;
+
+    if (parse_id(id, findwhat)) {
+        if (findwhat->findtype == find_glyph) {
+            (*findwhat->callback)(findwhat->val, findwhat);
+        } else {
+            for (glyph = 0; glyph < MAX_GLYPH; ++glyph) {
+                do_callback = FALSE;
+                switch (findwhat->findtype) {
+                case find_cmap:
+                    if (glyph_to_cmap(glyph) == findwhat->val)
+                        do_callback = TRUE;
+                    break;
+                case find_pm:
+                    if (glyph_is_monster(glyph)
+                        && mons[glyph_to_mon(glyph)].mlet
+                           == findwhat->val)
+                        do_callback = TRUE;
+                    break;
+                case find_oc:
+                    if (glyph_is_object(glyph)
+                        && glyph_to_obj(glyph) == findwhat->val)
+                        do_callback = TRUE;
+                    break;
+                case find_glyph:
+                    if (glyph == findwhat->val) {
+                        do_callback = TRUE;
+                        end_find = TRUE;
+                    }
+                    break;
+                case find_nothing:
+                default:
+                    end_find = TRUE;
+                    break;
+                }
+                if (do_callback)
+                    (findwhat->callback)(glyph, findwhat);
+                if (end_find)
+                    break;
+            }
+        }
+        return 1;
+    }
+    return 0;
+}
+
+/*
+ * glyphname_hash_indices is a sorted (hash, glyph) index of canonical
+ * "G_xxx" identifiers.  populate_glyphname_hash_indices() allocates one
+ * block of MAX_GLYPH * sizeof(entry) (some entries go unused for the
+ * scroll/gem appearance gaps), fills it via compose_glyph_name(), and
+ * sorts ascending by hash.  Lookup is bsearch on the hash with
+ * compose_glyph_name()+strcmpi to disambiguate the rare collision.
+ *
+ * The name "hashtable" is historical; this is a sorted array, not an
+ * open-addressed hash table.  The on-disk API in extern.h is kept so
+ * that callers (wizcmds.c, options.c) don't need to change.
+ *
+ * Memory: one alloc, ~75 KB for the 9577 named slots on a typical 5.0
+ * build (struct is 8 bytes, no per-name strings).  The same data in
+ * upstream's open-addressed table cost ~256 KB for the buckets plus
+ * ~290 KB of dupstr'd names plus malloc overhead.
+ */
+
+staticfn int
+cmp_glyphname_entry(const void *a, const void *b)
+{
+    uint32 ha = ((const struct glyphname_hash_index_entry_t *) a)->hash;
+    uint32 hb = ((const struct glyphname_hash_index_entry_t *) b)->hash;
+
+    if (ha < hb)
+        return -1;
+    if (ha > hb)
+        return 1;
+    return 0;
+}
+
+void
+populate_glyphname_hash_indices(void)
+{
+    int glyph;
+    size_t n = 0;
+    char buf[BUFSZ];
+
+    if (glyphname_hash_indices_ptr)
+        return;
+    glyphname_hash_indices_ptr = (struct glyphname_hash_index_entry_t *) alloc(
+        MAX_GLYPH * sizeof (struct glyphname_hash_index_entry_t));
+
+    for (glyph = 0; glyph < MAX_GLYPH; ++glyph) {
+        if (compose_glyph_name(glyph, buf, sizeof buf)) {
+            glyphname_hash_indices_ptr[n].hash = glyph_hash(buf);
+            glyphname_hash_indices_ptr[n].glyphnum = glyph;
+            ++n;
+        }
+    }
+    qsort(glyphname_hash_indices_ptr, n,
+          sizeof glyphname_hash_indices_ptr[0], cmp_glyphname_entry);
+    glyphname_hash_indices_count = n;
+}
+
+void
+empty_glyphname_hash_indices(void)
+{
+    if (!glyphname_hash_indices_ptr)
+        return;
+    free(glyphname_hash_indices_ptr);
+    glyphname_hash_indices_ptr = (struct glyphname_hash_index_entry_t *) 0;
+    glyphname_hash_indices_count = 0;
+}
+
+staticfn int
+find_glyph_in_hashtable(const char *id)
+{
+    uint32 want = glyph_hash(id);
+    size_t lo = 0, hi = glyphname_hash_indices_count, mid;
+    char buf[BUFSZ];
+
+    /* Binary-search the sorted array for the first entry whose hash >= want. */
+    while (lo < hi) {
+        mid = (lo + hi) >> 1;
+        if (glyphname_hash_indices_ptr[mid].hash < want)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    /* Walk forward across any equal-hash neighbours, verifying each by
+       reconstructing the canonical name and strcmpi'ing it back. */
+    while (lo < glyphname_hash_indices_count
+           && glyphname_hash_indices_ptr[lo].hash == want) {
+        int g = glyphname_hash_indices_ptr[lo].glyphnum;
+
+        if (compose_glyph_name(g, buf, sizeof buf) && !strcmpi(id, buf))
+            return g;
+        ++lo;
+    }
+    return -1;
+}
+
+staticfn uint32
+glyph_hash(const char *id)
+{
+    uint32 hash = 0;
+    size_t i;
+
+    for (i = 0; id[i] != '\0'; ++i) {
+        char ch = id[i];
+        if ('A' <= ch && ch <= 'Z') {
+            ch += 'a' - 'A';
+        }
+        hash = (hash << 5) | (hash >> 27);
+        hash ^= ch;
+    }
+    return hash;
+}
+
+boolean
+glyphname_hash_indices_loaded(void)
+{
+    return (glyphname_hash_indices_ptr != 0);
+}
+
+int
+match_glyph(char *buf)
+{
+    char workbuf[BUFSZ];
+
+    /* buf contains a G_ glyph reference, not an S_ symbol.
+        There could be an R-G-B color attached too.
+        Let's get a copy to work with. */
+    Snprintf(workbuf, sizeof workbuf, "%s", buf); /* get a copy */
+    return glyphrep(workbuf);
+}
+
+int
+glyphrep(const char *op)
+{
+    int reslt = 0, glyph = NO_GLYPH;
+
+    if (!glyphname_hash_indices_ptr)
+        reslt = 1;      /* for debugger use only; no cache available */
+    nhUse(reslt);
+    reslt = glyphrep_to_custom_map_entries(op, &glyph);
+    if (reslt)
+        return 1;
+    return 0;
+}
+
+int
+add_custom_nhcolor_entry(
+    const char *customization_name,
+    int glyphidx,
+    uint32 nhcolor,
+    enum graphics_sets which_set)
+{
+    struct symset_customization *gdc
+                        = &gs.sym_customizations[which_set][custom_nhcolor];
+    struct customization_detail *details, *newdetails = 0;
+#if 0
+    static uint32 closecolor = 0;
+    static int clridx = 0;
+#endif
+
+    if (!gdc->details) {
+        gdc->customization_name = dupstr(customization_name);
+        gdc->custtype = custom_nhcolor;
+        gdc->details = 0;
+        gdc->details_end = 0;
+    }
+    details = find_matching_customization(customization_name,
+                                          custom_nhcolor, which_set);
+    if (details) {
+        while (details) {
+            if (details->content.ccolor.glyphidx == glyphidx) {
+                details->content.ccolor.nhcolor = nhcolor;
+                return 1;
+            }
+            details = details->next;
+        }
+    }
+    /* create new details entry */
+    newdetails = (struct customization_detail *) alloc(sizeof *newdetails);
+    newdetails->content.urep.glyphidx = glyphidx;
+    newdetails->content.ccolor.nhcolor = nhcolor;
+    newdetails->next = (struct customization_detail *) 0;
+    if (gdc->details == NULL) {
+        gdc->details = newdetails;
+    } else {
+        gdc->details_end->next = newdetails;
+    }
+    gdc->details_end = newdetails;
+    gdc->count++;
+    return 1;
+}
+
+void
+apply_customizations(
+    enum graphics_sets which_set,
+    enum do_customizations docustomize)
+{
+    glyph_map *gmap;
+    struct customization_detail *details;
+    struct symset_customization *sc;
+    boolean at_least_one = FALSE,
+            do_colors = ((docustomize & do_custom_colors) != 0),
+            do_symbols = ((docustomize & do_custom_symbols) != 0);
+    int custs;
+
+    for (custs = 0; custs < (int) custom_count; ++custs) {
+        sc = &gs.sym_customizations[which_set][custs];
+        if (sc->count && sc->details) {
+            at_least_one = TRUE;
+            /* These glyph customizations get applied to the glyphmap array,
+               not to symset entries */
+            details = sc->details;
+            while (details) {
+#ifdef ENHANCED_SYMBOLS
+                if (iflags.customsymbols && do_symbols) {
+                    if (sc->custtype == custom_ureps) {
+                        gmap = &glyphmap[details->content.urep.glyphidx];
+                        if (gs.symset[which_set].handling == H_UTF8)
+                            (void) set_map_u(gmap,
+                                             details->content.urep.u.utf32ch,
+                                             details->content.urep.u.utf8str);
+                    }
+                }
+#endif
+                if (iflags.customcolors && do_colors) {
+                    if (sc->custtype == custom_nhcolor) {
+                        gmap = &glyphmap[details->content.ccolor.glyphidx];
+                        (void) set_map_customcolor(gmap,
+                                             details->content.ccolor.nhcolor);
+                    }
+                }
+                details = details->next;
+            }
+        }
+    }
+    iflags.pending_customizations = at_least_one;
+}
+
+/* Shuffle the customizations to match shuffled object descriptions,
+ * so a red potion isn't displayed with a blue customization, and so on.
+ */
+
+void
+maybe_shuffle_customizations(void)
+{
+    if (iflags.pending_customizations) {
+        shuffle_customizations();
+        iflags.pending_customizations = 0;
+    }
+}
+
+#if 0
+staticfn void
+shuffle_customizations(void)
+{
+    static const int offsets[2] = { GLYPH_OBJ_OFF, GLYPH_OBJ_PILETOP_OFF };
+    int j;
+
+    for (j = 0; j < SIZE(offsets); j++) {
+        glyph_map *obj_glyphs = glyphmap + offsets[j];
+        int i;
+        struct unicode_representation *tmp_u[NUM_OBJECTS];
+        int duplicate[NUM_OBJECTS];
+
+        for (i = 0; i < NUM_OBJECTS; i++) {
+            duplicate[i] = -1;
+            tmp_u[i] = (struct unicode_representation *) 0;
+        }
+        for (i = 0; i < NUM_OBJECTS; i++) {
+            int idx = objects[i].oc_descr_idx;
+
+            /*
+             * Shuffling gem appearances can cause the same oc_descr_idx to
+             * appear more than once. Detect this condition and ensure that
+             * each pointer points to a unique allocation.
+             */
+            if (duplicate[idx] >= 0) {
+                /* Current structure already appears in tmp_u */
+                struct unicode_representation *other = tmp_u[duplicate[idx]];
+
+                tmp_u[i] = (struct unicode_representation *)
+                           alloc(sizeof *tmp_u[i]);
+                *tmp_u[i] = *other;
+                if (other->utf8str != NULL) {
+                    tmp_u[i]->utf8str = (uint8 *)
+                                        dupstr((const char *) other->utf8str);
+                }
+            } else {
+                tmp_u[i] = obj_glyphs[idx].u;
+                if (obj_glyphs[idx].u != NULL)  {
+                    duplicate[idx] = i;
+                    obj_glyphs[idx].u = NULL;
+                }
+            }
+        }
+        for (i = 0; i < NUM_OBJECTS; i++) {
+            /* Some glyphmaps may not have been transferred */
+            if (obj_glyphs[i].u != NULL) {
+                free(obj_glyphs[i].u->utf8str);
+                free(obj_glyphs[i].u);
+            }
+            obj_glyphs[i].u = tmp_u[i];
+        }
+    }
+}
+
+#else
+staticfn void
+shuffle_customizations(void)
+{
+    static const int offsets[2] = { GLYPH_OBJ_OFF, GLYPH_OBJ_PILETOP_OFF };
+    int j;
+
+    for (j = 0; j < SIZE(offsets); j++) {
+        glyph_map *obj_glyphs = glyphmap + offsets[j];
+        int i;
+#ifdef ENHANCED_SYMBOLS
+        struct unicode_representation *tmp_u[NUM_OBJECTS];
+#endif
+        uint32 tmp_customcolor[NUM_OBJECTS];
+        uint16 tmp_color256idx[NUM_OBJECTS];
+
+        int duplicate[NUM_OBJECTS];
+
+        for (i = 0; i < NUM_OBJECTS; i++) {
+            duplicate[i] = -1;
+#ifdef ENHANCED_SYMBOLS
+            tmp_u[i] = (struct unicode_representation *) 0;
+#endif
+            tmp_customcolor[i] = 0;
+            tmp_color256idx[i] = 0;
+        }
+        for (i = 0; i < NUM_OBJECTS; i++) {
+            int idx = objects[i].oc_descr_idx;
+
+            /*
+             * Shuffling gem appearances can cause the same oc_descr_idx to
+             * appear more than once. Detect this condition and ensure that
+             * each pointer points to a unique allocation.
+             */
+            if (duplicate[idx] >= 0) {
+#ifdef ENHANCED_SYMBOLS
+                /* Current structure already appears in tmp_u */
+                struct unicode_representation *other = tmp_u[duplicate[idx]];
+#endif
+                uint32 other_customcolor = tmp_customcolor[duplicate[idx]];
+                uint16 other_color256idx = tmp_color256idx[duplicate[idx]];
+
+                tmp_customcolor[i] = other_customcolor;
+                tmp_color256idx[i] = other_color256idx;
+#ifdef ENHANCED_SYMBOLS
+                if (other) {
+                    tmp_u[i] = (struct unicode_representation *) alloc(
+                        sizeof *tmp_u[i]);
+                    *tmp_u[i] = *other;
+                    if (other->utf8str != NULL) {
+                        tmp_u[i]->utf8str =
+                            (uint8 *) dupstr((const char *) other->utf8str);
+                    }
+                }
+#endif
+            } else {
+                tmp_customcolor[i] = obj_glyphs[idx].customcolor;
+                tmp_color256idx[i] = obj_glyphs[idx].color256idx;
+#ifdef ENHANCED_SYMBOLS
+                tmp_u[i] = obj_glyphs[idx].u;
+#endif
+                if (
+#ifdef ENHANCED_SYMBOLS
+                    obj_glyphs[idx].u != NULL ||
+#endif
+                    obj_glyphs[idx].customcolor != 0) {
+                    duplicate[idx] = i;
+#ifdef ENHANCED_SYMBOLS
+                    obj_glyphs[idx].u = NULL;
+#endif
+                    obj_glyphs[idx].customcolor = 0;
+                    obj_glyphs[idx].color256idx = 0;
+                }
+            }
+        }
+        for (i = 0; i < NUM_OBJECTS; i++) {
+            /* Some glyphmaps may not have been transferred */
+#ifdef ENHANCED_SYMBOLS
+            if (obj_glyphs[i].u != NULL) {
+                free(obj_glyphs[i].u->utf8str);
+                free(obj_glyphs[i].u);
+            }
+            obj_glyphs[i].u = tmp_u[i];
+#endif
+            obj_glyphs[i].customcolor = tmp_customcolor[i];
+            obj_glyphs[i].color256idx = tmp_color256idx[i];
+        }
+    }
+}
+#endif
+
+struct customization_detail *
+find_matching_customization(
+    const char *customization_name,
+    enum customization_types custtype,
+    enum graphics_sets which_set)
+{
+    struct symset_customization *gdc
+        = &gs.sym_customizations[which_set][custtype];
+
+    if ((gdc->custtype == custtype) && gdc->customization_name
+        && (strcmp(customization_name, gdc->customization_name) == 0))
+        return gdc->details;
+    return (struct customization_detail *) 0;
+}
+
+void
+purge_all_custom_entries(void)
+{
+    int i;
+
+    for (i = 0; i < NUM_GRAPHICS + 1; ++i) {
+        purge_custom_entries(i);
+    }
+}
+
+void
+purge_custom_entries(enum graphics_sets which_set)
+{
+    enum customization_types custtype;
+    struct symset_customization *gdc;
+    struct customization_detail *details, *next;
+
+    for (custtype = custom_none; custtype < custom_count; ++custtype) {
+        gdc = &gs.sym_customizations[which_set][custtype];
+        details = gdc->details;
+        while (details) {
+            next = details->next;
+            if (gdc->custtype == custom_ureps) {
+                if (details->content.urep.u.utf8str)
+                    free(details->content.urep.u.utf8str);
+                details->content.urep.u.utf8str = (uint8 *) 0;
+            } else if (gdc->custtype == custom_symbols) {
+                details->content.sym.symparse = (struct symparse *) 0;
+                details->content.sym.val = 0;
+            } else if (gdc->custtype == custom_nhcolor) {
+                details->content.ccolor.nhcolor = 0;
+                details->content.ccolor.glyphidx = 0;
+            }
+            free(details);
+            details = next;
+        }
+        gdc->details = 0;
+        gdc->details_end = 0;
+        if (gdc->customization_name) {
+            free((genericptr_t) gdc->customization_name);
+            gdc->customization_name = 0;
+        }
+        gdc->count = 0;
+    }
+}
+
+void
+dump_all_glyphnames(FILE *fp)
+{
+    struct find_struct dump_glyphname_find = zero_find;
+
+    dump_glyphname_find.findtype = find_nothing;
+    dump_glyphname_find.reserved = (genericptr_t) fp;
+    dump_glyphname_find.restype = res_dump_glyphnames;
+    (void) parse_id((char *) 0, &dump_glyphname_find);
+}
+
+void
+wizcustom_glyphnames(winid win)
+{
+    int glyphnum;
+    char buf[BUFSZ];
+
+    for (glyphnum = 0; glyphnum < MAX_GLYPH; ++glyphnum) {
+        if (compose_glyph_name(glyphnum, buf, sizeof buf))
+            wizcustom_callback(win, glyphnum, buf);
+    }
+}
+
+staticfn int
+parse_id(
+    const char *id,
+    struct find_struct *findwhat)
+{
+    FILE *fp = (FILE *) 0;
+    int i = 0, glyph,
+        pm_offset = 0, oc_offset = 0, cmap_offset = 0,
+        pm_count = 0, oc_count = 0, cmap_count = 0;
+    boolean dump_ids = FALSE, is_S = FALSE, is_G = FALSE;
+    char buf[BUFSZ];
+
+    if (findwhat->findtype == find_nothing && findwhat->restype) {
+        if (findwhat->restype == res_dump_glyphnames) {
+            if (findwhat->reserved) {
+                fp = (FILE *) findwhat->reserved;
+                dump_ids = TRUE;
+            } else {
+                return 0;
+            }
+        }
+    }
+
+    is_G = (id && id[0] == 'G' && id[1] == '_');
+    is_S = (id && id[0] == 'S' && id[1] == '_');
+
+    if (dump_ids || is_S) {
+        while (loadsyms[i].range) {
+            if (!pm_offset && loadsyms[i].range == SYM_MON)
+                pm_offset = i;
+            if (!pm_count && pm_offset && loadsyms[i].range != SYM_MON)
+                pm_count = i - pm_offset;
+            if (!oc_offset && loadsyms[i].range == SYM_OC)
+                oc_offset = i;
+            if (!oc_count && oc_offset && loadsyms[i].range != SYM_OC)
+                oc_count = i - oc_offset;
+            if (!cmap_offset && loadsyms[i].range == SYM_PCHAR)
+                cmap_offset = i;
+            if (!cmap_count && cmap_offset && loadsyms[i].range != SYM_PCHAR)
+                cmap_count = i - cmap_offset;
+            i++;
+        }
+    }
+    if (is_G && id) {
+        if (glyphname_hash_indices_ptr) {
+            /* Fast path: bsearch the populated index. */
+            int val = find_glyph_in_hashtable(id);
+
+            if (val >= 0) {
+                findwhat->findtype = find_glyph;
+                findwhat->val = val;
+                findwhat->loadsyms_offset = 0;
+                return 1;
+            }
+        } else {
+            /* Unpopulated: linear scan, no alloc. */
+            for (glyph = 0; glyph < MAX_GLYPH; ++glyph) {
+                if (compose_glyph_name(glyph, buf, sizeof buf)
+                    && !strcmpi(id, buf)) {
+                    findwhat->findtype = find_glyph;
+                    findwhat->val = glyph;
+                    findwhat->loadsyms_offset = 0;
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
+    if (dump_ids) {
+        /* iterate and dump every named glyph */
+        for (glyph = 0; glyph < MAX_GLYPH; ++glyph) {
+            if (compose_glyph_name(glyph, buf, sizeof buf))
+                Fprintf(fp, "(%04d) %s\n", glyph, buf);
+        }
+        return 1;
+    }
+    if (is_S) {
+        /* cmap entries */
+        for (i = 0; i < cmap_count; ++i) {
+            if (!strcmpi(loadsyms[i + cmap_offset].name + 2, id + 2)) {
+                findwhat->findtype = find_cmap;
+                findwhat->val = i;
+                findwhat->loadsyms_offset = i + cmap_offset;
+                return 1;
+            }
+        }
+        /* objclass entries */
+        for (i = 0; i < oc_count; ++i) {
+            if (!strcmpi(loadsyms[i + oc_offset].name + 2, id + 2)) {
+                findwhat->findtype = find_oc;
+                findwhat->val = i;
+                findwhat->loadsyms_offset = i + oc_offset;
+                return 1;
+            }
+        }
+        /* permonst entries */
+        for (i = 0; i < pm_count; ++i) {
+            if (!strcmpi(loadsyms[i + pm_offset].name + 2, id + 2)) {
+                findwhat->findtype = find_pm;
+                findwhat->val = i + 1; /* starts at 1 */
+                findwhat->loadsyms_offset = i + pm_offset;
+                return 1;
+            }
+        }
+    }
+    findwhat->findtype = find_nothing;
+    findwhat->val = 0;
+    findwhat->loadsyms_offset = 0;
+    return 0;
+}
+
+/* extern glyph_map glyphmap[MAX_GLYPH]; */
+
+void
+clear_all_glyphmap_colors(void)
+{
+    int glyph;
+
+    for (glyph = 0; glyph < MAX_GLYPH; ++glyph) {
+        if (glyphmap[glyph].customcolor)
+            glyphmap[glyph].customcolor = 0;
+        glyphmap[glyph].color256idx = 0;
+    }
+}
+
+void
+reset_customcolors(void)
+{
+    clear_all_glyphmap_colors();
+    apply_customizations(gc.currentgraphics, do_custom_colors);
+}
+
+/* not used yet */
+
+#if 0
+staticfn struct customization_detail *find_display_sym_customization(
+    const char *customization_name, const struct symparse *symparse,
+    enum graphics_sets which_set);
+staticfn struct customization_detail *find_display_urep_customization(
+    const char *customization_name, int glyphidx,
+    enum graphics_sets which_set);
+
+struct customization_detail *
+find_display_sym_customization(
+    const char *customization_name,
+    const struct symparse *symparse,
+    enum graphics_sets which_set)
+{
+    struct symset_customization *gdc;
+    struct customization_detail *symdetails;
+
+    gdc = &gs.sym_customizations[which_set][custom_symbols];
+    if ((gdc->custtype == custom_symbols)
+        && (strcmp(customization_name, gdc->customization_name) == 0)) {
+        symdetails = gdc->details;
+        while (symdetails) {
+            if (symdetails->content.sym.symparse == symparse)
+                return symdetails;
+            symdetails = symdetails->next;
+        }
+    }
+    return (struct customization_detail *) 0;
+}
+
+struct customization_detail *
+find_display_urep_customization(
+    const char *customization_name,
+    int glyphidx,
+    enum graphics_sets which_set)
+{
+    struct symset_customization *gdc = &gs.sym_customizations[which_set];
+    struct customization_detail *urepdetails;
+
+    if ((gdc->custtype == custom_reps)
+        || (strcmp(customization_name, gdc->customization_name) == 0)) {
+        urepdetails = gdc->details;
+        while (urepdetails) {
+            if (urepdetails->content.urep.glyphidx == glyphidx)
+                return urepdetails;
+            urepdetails = urepdetails->next;
+        }
+    }
+    return (struct customization_detail *) 0;
+}
+#endif  /* 0 not used yet */
+
+#ifdef TEST_GLYPHNAMES
+
+static struct {
+    int idx;
+    const char *nm1;
+    const char *nm2;
+} cmapname[MAXPCHARS] = {
+#define PCHAR_TILES
+#include "defsym.h"
+#undef PCHAR_TILES
+};
+
+void
+test_glyphnames(void)
+{
+    int reslt;
+
+    reslt = find_glyphs("G_potion_of_monster_detection");
+    reslt = find_glyphs("G_piletop_body_chickatrice");
+    reslt = find_glyphs("G_detected_male_homunculus");
+    reslt = find_glyphs("S_pool");
+    reslt = find_glyphs("S_dog");
+    reslt = glyphs_to_unicode("S_dog", "U+130E6", 0L);
+}
+
+staticfn void
+just_find_callback(int glyph UNUSED, struct find_struct *findwhat UNUSED)
+{
+    return;
+}
+
+staticfn int
+find_glyphs(const char *id)
+{
+    struct find_struct find_only = zero_find;
+
+    find_only.unicode_val = 0;
+    find_only.callback = just_find_callback;
+    return glyph_find_core(id, &find_only);
+}
+
+staticfn void
+to_unicode_callback(int glyph UNUSED, struct find_struct *findwhat)
+{
+    int uval;
+#ifdef NO_PARSING_SYMSET
+    glyph_map *gm = &glyphmap[glyph];
+#endif
+    uint8 utf8str[6];
+
+    if (!findwhat->unicode_val)
+        return;
+    uval = unicode_val(findwhat->unicode_val);
+    if (unicodeval_to_utf8str(uval, utf8str, sizeof utf8str)) {
+#ifdef NO_PARSING_SYMSET
+        set_map_u(gm, uval, utf8str,
+                  (findwhat->color != 0L) ? findwhat->color : 0L);
+#else
+
+#endif
+    }
+}
+
+int
+glyphs_to_unicode(const char *id, const char *unicode_val, long clr)
+{
+    struct find_struct to_unicode = zero_find;
+
+    to_unicode.unicode_val = unicode_val;
+    to_unicode.callback = to_unicode_callback;
+    /* if the color 0 is an actual color, as opposed to just "not set"
+       we set a marker bit outside the 24-bit range to indicate a
+       valid color value 0. That allows valid color 0, but allows a
+       simple checking for 0 to detect "not set". The window port that
+       implements the color switch, needs to either check that bit
+       or appropriately mask colors with 0xFFFFFF. */
+    to_unicode.color = (clr == -1) ? 0L : (clr == 0L) ? nonzero_black : clr;
+    return glyph_find_core(id, &to_unicode);
+}
+
+#endif /* SOME TEST STUFF */
+
+/* glyphs.c */
+
+
+

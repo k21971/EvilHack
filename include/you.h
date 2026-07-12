@@ -1,4 +1,4 @@
-/* NetHack 3.6	you.h	$NHDT-Date: 1547514642 2019/01/15 01:10:42 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.35 $ */
+/* NetHack 5.0	you.h	$NHDT-Date: 1781973093 2026/06/20 16:31:33 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.89 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -13,16 +13,6 @@
 #endif
 #include "skills.h"
 
-/* Alignment abuse event tracking */
-#define MAX_ABUSE_HISTORY 5
-struct abuse_event {
-    long turn;          /* monstermoves when event occurred */
-    short abuse_type;   /* enum abuse_type value */
-    short penalty;      /* alignment penalty (stored as positive) */
-    short detail1;      /* monster/object/species index + 1 */
-    short detail2;      /* secondary detail (deity+gender, hazard) */
-};
-
 /*** Substructures ***/
 
 struct RoleName {
@@ -32,9 +22,9 @@ struct RoleName {
 
 struct RoleAdvance {
     /* "fix" is the fixed amount, "rnd" is the random amount */
-    xchar infix, inrnd; /* at character initialization */
-    xchar lofix, lornd; /* gained per level <  urole.xlev */
-    xchar hifix, hirnd; /* gained per level >= urole.xlev */
+    xint16 infix, inrnd; /* at character initialization */
+    xint16 lofix, lornd; /* gained per level <  gu.urole.xlev */
+    xint16 hifix, hirnd; /* gained per level >= gu.urole.xlev */
 };
 
 struct u_have {
@@ -53,66 +43,94 @@ struct u_event {
     Bitfield(qcalled, 1);      /* called by Quest leader to do task */
     Bitfield(qexpelled, 1);    /* expelled from the Quest dungeon */
     Bitfield(qcompleted, 1);   /* successfully completed Quest task */
-    Bitfield(uheard_tune, 2);  /* 1=know about, 2=heard passtune */
-
+    Bitfield(uheard_tune, 2);  /* 1=know about, 2=heard passtune, 3=bridge has
+                                * been destroyed so tune has become useless */
     Bitfield(uopened_dbridge, 1);   /* opened the drawbridge */
     Bitfield(invoked, 1);           /* invoked Gate to the Sanctum level */
     Bitfield(gehennom_entered, 1);  /* entered Gehennom via Valley */
-    Bitfield(tower_entered, 1);     /* entered Vlad's tower (cavern level) */
-    Bitfield(hella_entered, 1);     /* entered the first demon lord lair */
-    Bitfield(hellb_entered, 1);     /* entered the second demon lord lair */
-    Bitfield(hellc_entered, 1);     /* entered one of the demon prince lairs */
-    Bitfield(orcus_entered, 1);     /* entered Orcus town */
-    Bitfield(iceq_entered, 1);      /* entered the Ice Queen's realm */
-    Bitfield(vecnad_entered, 1);    /* entered Vecna's domain */
-    Bitfield(gtown_entered, 1);     /* entered Goblin Town */
-    Bitfield(purgatory_entered, 1); /* entered Purgatory */
-    Bitfield(hdgn_entered, 1);      /* entered the Hidden Dungeon */
-    Bitfield(wiztower_entered, 1);  /* entered final Wizard's tower level */
-    Bitfield(uhand_of_elbereth, 3); /* became Hand of Elbereth */
-    Bitfield(ucerberus, 1);         /* killed Cerberus */
-    Bitfield(uvecna, 1);            /* destroyed Vecna */
-    Bitfield(uvlad, 1);             /* destroyed Vlad */
-    Bitfield(utalgath, 1);          /* killed Tal'Gath */
-    Bitfield(ugking, 1);            /* killed the Goblin King */
-    Bitfield(ulucifer, 1);          /* killed Lucifer */
-    Bitfield(umichael, 1);          /* killed Saint Michael */
+    Bitfield(uhand_of_elbereth, 2); /* became Hand of Elbereth */
     Bitfield(udemigod, 1);          /* killed the wiz */
+    Bitfield(uvibrated, 1);         /* stepped on "vibrating square" */
     Bitfield(ascended, 1);          /* has offered the Amulet */
-    Bitfield(ulearned_elbereth, 1); /* learned how to write Elbereth */
-    Bitfield(ufallen_aasimar, 1);   /* aasimar stripped of celestial blood,
-                                       permanently human (one-way) */
+
+    Bitfield(amulet_wish, 1);       /* has gained a wish from the Amulet */
+    /* 7 free bits */
 };
 
-struct u_achieve {
-    Bitfield(amulet, 1);  /* touched (for Infidels: offered) Amulet */
-    Bitfield(bell, 1);    /* touched Bell */
-    Bitfield(book, 1);    /* touched Book */
-    Bitfield(menorah, 1); /* touched Candelabrum */
-    Bitfield(enter_gehennom,
-             1);           /* entered Gehennom by any means */
-    Bitfield(enter_purgatory,
-             1);           /* entered Purgatory by any means */
-    Bitfield(enter_hdgn,
-             1);           /* entered the Hidden Dungeon by any means */
-    Bitfield(enter_wiztower,
-             1);           /* entered the Wizard of Yendor's final level by any means */
-    Bitfield(ascended, 1); /* not quite the same as u.uevent.ascended */
-    Bitfield(mines_luckstone, 1); /* got a luckstone at end of mines */
-    Bitfield(finish_sokoban, 1);  /* obtained the sokoban prize */
-
-    Bitfield(killed_medusa, 1);
-    Bitfield(defeat_icequeen, 1);
-    Bitfield(killed_cerberus, 1);
-    Bitfield(killed_vecna, 1);
-    Bitfield(killed_vlad, 1);
-    Bitfield(killed_talgath, 1);
-    Bitfield(killed_gking, 1);
-    Bitfield(killed_lucifer, 1);
-    Bitfield(killed_michael, 1);
-
-    Bitfield(vibrating_square, 1); /* stepped on "vibrating square" */
+/*
+ * Achievements:  milestones reached during the current game.
+ * Numerical order of these matters because they've been encoded in
+ * a bitmask in xlogfile.  Reordering would break decoding that.
+ * Aside from that, the number isn't significant--they're recorded
+ * and eventually disclosed in the order achieved.
+ *
+ * Since xlogfile could be post-processed by unknown tools, we should
+ * limit these to 31 total (it's possible that 32-bit signed longs are
+ * the best such tools can offer).  Eventually that is likely to need
+ * to change, probably by giving xlogfile an achieve2 field rather
+ * than by assuming that 64-bit longs are viable or by squeezing in a
+ * 32nd entry by switching to unsigned long.
+ */
+enum achivements {
+    ACH_BELL =  1, /* acquired Bell of Opening */
+    ACH_HELL =  2, /* entered Gehennom */
+    ACH_CNDL =  3, /* acquired Candelabrum of Invocation */
+    ACH_BOOK =  4, /* acquired Book of the Dead */
+    ACH_INVK =  5, /* performed invocation to gain access to Sanctum */
+    ACH_AMUL =  6, /* acquired The Amulet */
+    ACH_ENDG =  7, /* entered end game */
+    ACH_ASTR =  8, /* entered Astral Plane */
+    ACH_UWIN =  9, /* ascended */
+    ACH_MINE_PRIZE = 10, /* acquired Mines' End luckstone */
+    ACH_SOKO_PRIZE = 11, /* acquired Sokoban bag or amulet */
+    ACH_MEDU = 12, /* killed Medusa */
+    ACH_BLND = 13, /* hero was always blond, no, blind */
+    ACH_NUDE = 14, /* hero never wore armor */
+    /* 1 through 14 were present in 3.6.x; the rest are newer; first,
+       some easier ones so less skilled players can have achievements */
+    ACH_MINE = 15, /* entered Gnomish Mines */
+    ACH_TOWN = 16, /* reached Minetown */
+    ACH_SHOP = 17, /* entered a shop */
+    ACH_TMPL = 18, /* entered a temple */
+    ACH_ORCL = 19, /* consulted the Oracle */
+    ACH_NOVL = 20, /* read at least one passage from a Discworld novel */
+    ACH_SOKO = 21, /* entered Sokoban */
+    ACH_BGRM = 22, /* entered Bigroom (not guaranteed to be in every dgn) */
+    /* role's rank titles, beyond first (#0 at level one, not an achievement);
+       23..30 are negated if hero is female at the time new rank is gained
+       so that disclosing them can use the gender which applied at the time */
+    ACH_RNK1 = 23, ACH_RNK2 = 24, ACH_RNK3 = 25, ACH_RNK4 = 26,
+    ACH_RNK5 = 27, ACH_RNK6 = 28, ACH_RNK7 = 29, ACH_RNK8 = 30,
+    ACH_TUNE = 31, /* discovered the castle drawbridge's open/close tune */
+    N_ACH = 32     /* allocate room for 31 plus a slot for 0 terminator */
 };
+    /*
+     * Other potential achievements to track (this comment briefly resided
+     * in encodeachieve(topten.c) and has been revised since moving here:
+     *  AC <= 0, AC <= -10, AC <= -20 (stop there; lower is better but
+     *    not something to encourage with achievements),
+     *  got quest summons,
+     *  entered quest branch,
+     *  chatted with leader,
+     *  entered second or lower quest level (implies leader gave the Ok),
+     *  entered last quest level,
+     *  defeated nemesis (not same as acquiring Bell or artifact),
+     *  completed quest (formally, by bringing artifact to leader),
+     *  entered rogue level,
+     *  entered Fort Ludios level/branch (not guaranteed to be achievable),
+     *  entered Medusa level,
+     *  entered castle level,
+     *  obtained castle wand (handle similarly to mines and sokoban prizes),
+     *  passed Valley level (entered-Gehennom already covers Valley itself),
+     *  [assorted demon lairs?],
+     *  entered Vlad's tower branch,
+     *  defeated Vlad (not same as acquiring Candelabrum),
+     *  entered Wizard's tower area within relevant level,
+     *  defeated Wizard,
+     *  found vibrating square,
+     *  entered sanctum level (maybe not; too close to performed-invocation),
+     *  [defeated Famine, defeated Pestilence, defeated Death]
+     */
 
 struct u_realtime {
     long   realtime;     /* accumulated playing time in seconds */
@@ -139,20 +157,26 @@ struct u_conduct {     /* number of times... */
     long wishes;       /* used a wish */
     long wisharti;     /* wished for an artifact */
     long elbereth;     /* engraved Elbereth */
-    long artitouch;    /* touched an artifact */
+    long sokocheat;    /* violated special 'rules' in Sokoban */
     long pets;         /* obtained a pet */
-    long forgedarti;   /* forged an artifact */
-    long antimagic;    /* acquired magic resistance */
-    long reflection;   /* acquired reflection */
     /* genocides already listed at end of game */
+    long reserved1;
+    long reserved2;
+    long reserved3;
+    long reserved4;
 };
 
 struct u_roleplay {
-    boolean blind;  /* permanently blind */
-    boolean nudist; /* has not worn any armor, ever */
-    boolean hallu;  /* permanently hallucinating */
-    boolean deaf;   /* permanently deaf */
-    long numbones;  /* # of bones files loaded  */
+    boolean blind;   /* permanently blind */
+    boolean nudist;  /* has not worn any armor, ever */
+    boolean deaf;    /* permanently deaf */
+    boolean pauper;  /* no starting inventory */
+    boolean reroll;  /* starting inventory/attr rerolling enabled */
+    boolean reserved1;
+    boolean reserved2;
+    boolean reserved3;
+    long numbones;   /* # of bones files loaded */
+    long numrerolls; /* # of rerolls used */
 };
 
 /*** Unified structure containing role information ***/
@@ -166,8 +190,7 @@ struct Role {
     const char *intermed; /* quest intermediate goal (from questpgr.c) */
 
     /*** Indices of important monsters and objects ***/
-    short malenum, /* index (PM_) as a male (botl.c) */
-        femalenum, /* ... or as a female (NON_PM == same) */
+    short mnum,    /* index (PM_) of role (botl.c) */
         petnum,    /* PM_ of preferred pet (NON_PM == random) */
         ldrnum,    /* PM_ of quest leader (questpgr.c) */
         guardnum,  /* PM_ of quest guardians (questpgr.c) */
@@ -179,25 +202,24 @@ struct Role {
     short questarti; /* index (ART_) of quest artifact (questpgr.c) */
 
     /*** Bitmasks ***/
-    long mhrace;
     short allow;                  /* bit mask of allowed variations */
-#define ROLE_NORACEALIGN 0x0100   /* ignore racial alignment for role (Con) */
-#define ROLE_GENDMASK    0xf000   /* allowable genders */
-#define ROLE_MALE        0x1000
-#define ROLE_FEMALE      0x2000
-#define ROLE_NEUTER      0x4000
+#define ROLE_RACEMASK  0x0ff8     /* allowable races */
+#define ROLE_GENDMASK  0xf000     /* allowable genders */
+#define ROLE_MALE      0x1000
+#define ROLE_FEMALE    0x2000
+#define ROLE_NEUTER    0x4000
 #define ROLE_ALIGNMASK AM_MASK    /* allowable alignments */
 #define ROLE_LAWFUL    AM_LAWFUL
 #define ROLE_NEUTRAL   AM_NEUTRAL
 #define ROLE_CHAOTIC   AM_CHAOTIC
 
     /*** Attributes (from attrib.c and exper.c) ***/
-    xchar attrbase[A_MAX];    /* lowest initial attributes */
-    xchar attrdist[A_MAX];    /* distribution of initial attributes */
+    xint16 attrbase[A_MAX];    /* lowest initial attributes */
+    xint16 attrdist[A_MAX];    /* distribution of initial attributes */
     struct RoleAdvance hpadv; /* hit point advancement */
     struct RoleAdvance enadv; /* energy advancement */
-    xchar xlev;               /* cutoff experience level */
-    xchar initrecord;         /* initial alignment record */
+    xint16 xlev;               /* cutoff experience level */
+    xint16 initrecord;         /* initial alignment record */
 
     /*** Spell statistics (from spell.c) ***/
     int spelbase; /* base spellcasting penalty */
@@ -222,11 +244,8 @@ struct Role {
 };
 
 extern const struct Role roles[]; /* table of available roles */
-extern const struct Role align_roles[]; /* table of available roles */
-extern struct Role urole;
-
-#define Role_if(X) (urole.malenum == (X))
-#define Role_switch (urole.malenum)
+#define Role_if(X) (gu.urole.mnum == (X))
+#define Role_switch (gu.urole.mnum)
 
 /* used during initialization for race, gender, and alignment
    as well as for character class */
@@ -244,8 +263,7 @@ struct Race {
     struct RoleName individual; /* individual as a noun ("man", "elf") */
 
     /*** Indices of important monsters and objects ***/
-    short malenum, /* PM_ as a male monster */
-        femalenum, /* ...or as a female (NON_PM == same) */
+    short mnum,    /* PM_ as a monster */
         mummynum,  /* PM_ as a mummy */
         zombienum; /* PM_ as a zombie */
 
@@ -256,8 +274,8 @@ struct Race {
         hatemask;   /* bit mask of always hostile */
 
     /*** Attributes ***/
-    xchar attrmin[A_MAX];     /* minimum allowable attribute */
-    xchar attrmax[A_MAX];     /* maximum allowable attribute */
+    xint16 attrmin[A_MAX];     /* minimum allowable attribute */
+    xint16 attrmax[A_MAX];     /* maximum allowable attribute */
     struct RoleAdvance hpadv; /* hit point advancement */
     struct RoleAdvance enadv; /* energy advancement */
 #if 0 /* DEFERRED */
@@ -276,10 +294,8 @@ struct Race {
 };
 
 extern const struct Race races[]; /* Table of available races */
-extern struct Race race_demon;    /* used in pray.c */
-extern struct Race urace;
-#define Race_if(X) (urace.malenum == (X))
-#define Race_switch (urace.malenum)
+#define Race_if(X) (gu.urace.mnum == (X))
+#define Race_switch (gu.urace.mnum)
 
 /*** Unified structure specifying gender information ***/
 struct Gender {
@@ -298,14 +314,21 @@ extern const struct Gender genders[]; /* table of available genders */
 #define uhe()      (genders[flags.female ? 1 : 0].he)
 #define uhim()     (genders[flags.female ? 1 : 0].him)
 #define uhis()     (genders[flags.female ? 1 : 0].his)
+/* pronoun_gender() flag masks */
+#define PRONOUN_NORMAL 0 /* none of the below */
+#define PRONOUN_NO_IT  1
+#define PRONOUN_HALLU  2
 /* corresponding pronouns for monsters; yields "it" when mtmp can't be seen */
-#define mhe(mtmp)  (genders[pronoun_gender(mtmp, FALSE)].he)
-#define mhim(mtmp) (genders[pronoun_gender(mtmp, FALSE)].him)
-#define mhis(mtmp) (genders[pronoun_gender(mtmp, FALSE)].his)
+#define mhe(mtmp)  (genders[pronoun_gender(mtmp, PRONOUN_HALLU)].he)
+#define mhim(mtmp) (genders[pronoun_gender(mtmp, PRONOUN_HALLU)].him)
+#define mhis(mtmp) (genders[pronoun_gender(mtmp, PRONOUN_HALLU)].his)
 /* override "it" if reason is lack of visibility rather than neuter species */
-#define noit_mhe(mtmp)  (genders[pronoun_gender(mtmp, TRUE)].he)
-#define noit_mhim(mtmp) (genders[pronoun_gender(mtmp, TRUE)].him)
-#define noit_mhis(mtmp) (genders[pronoun_gender(mtmp, TRUE)].his)
+#define noit_mhe(mtmp) \
+    (genders[pronoun_gender(mtmp, (PRONOUN_NO_IT | PRONOUN_HALLU))].he)
+#define noit_mhim(mtmp) \
+    (genders[pronoun_gender(mtmp, (PRONOUN_NO_IT | PRONOUN_HALLU))].him)
+#define noit_mhis(mtmp) \
+    (genders[pronoun_gender(mtmp, (PRONOUN_NO_IT | PRONOUN_HALLU))].his)
 
 /*** Unified structure specifying alignment information ***/
 struct Align {
@@ -320,30 +343,42 @@ struct Align {
 extern const struct Align aligns[]; /* table of available alignments */
 
 enum utraptypes {
-    TT_BEARTRAP   = 0,
-    TT_PIT        = 1,
-    TT_WEB        = 2,
-    TT_LAVA       = 3,
-    TT_INFLOOR    = 4,
-    TT_BURIEDBALL = 5,
-    TT_ENTANGLED  = 6
+    TT_NONE       = 0,
+    TT_BEARTRAP   = 1,
+    TT_PIT        = 2,
+    TT_WEB        = 3,
+    TT_LAVA       = 4,
+    TT_INFLOOR    = 5,
+    TT_BURIEDBALL = 6
+};
+
+enum utotypes {
+    UTOTYPE_NONE     = 0x00,
+    UTOTYPE_ATSTAIRS = 0x01,
+    UTOTYPE_FALLING  = 0x02,
+    UTOTYPE_PORTAL   = 0x04,
+    UTOTYPE_RMPORTAL = 0x10,  /* remove portal */
+    UTOTYPE_DEFERRED = 0x20   /* deferred_goto */
 };
 
 /*** Information about the player ***/
 struct you {
-    xchar ux, uy;       /* current map coordinates */
-    schar dx, dy, dz;   /* direction of move (or zap or ... ) */
-    schar di;           /* direction of FF */
-    xchar tx, ty;       /* destination of travel */
-    xchar ux0, uy0;     /* initial position FF */
+    coordxy ux, uy;     /* current map coordinates */
+    int dx, dy, dz;     /* x,y,z deltas; direction of move (or zap or ... )
+                         * usually +1 or 0 or -1 */
+    coordxy tx, ty;     /* destination of travel */
+    coordxy ux0, uy0;   /* previous ux,uy */
     d_level uz, uz0;    /* your level on this and the previous turn */
     d_level utolev;     /* level monster teleported you to, or uz */
     uchar utotype;      /* bitmask of goto_level() flags for utolev */
+    d_level ucamefrom;  /* level where you came from; used for tutorial */
     boolean umoved;     /* changed map location (post-move) */
     int last_str_turn;  /* 0: none, 1: half turn, 2: full turn
-                           +: turn right, -: turn left */
-    int ulevel;         /* 1 to MAXULEV */
-    int ulevelmax;
+                         * +: turn right, -: turn left */
+    int ulevel;         /* 1 to MAXULEV (30) */
+    int ulevelmax;      /* highest level, but might go down (to throttle
+                         * lost level recovery via blessed full healing) */
+    int ulevelpeak;     /* really highest level reached; never does down */
     unsigned utrap;     /* trap timeout */
     unsigned utraptype; /* defined if utrap nonzero. one of utraptypes */
     char urooms[5];         /* rooms (roomno + 3) occupied now */
@@ -354,23 +389,21 @@ struct you {
     char ushops_entered[5]; /* ditto, shops entered this turn */
     char ushops_left[5];    /* ditto, shops exited this turn */
 
-    int uhunger;  /* refd only in eat.c and shk.c */
+    int uhunger;  /* refd only in eat.c and shk.c (also insight.c) */
     unsigned uhs; /* hunger state - see eat.c */
 
     struct prop uprops[LAST_PROP + 1];
 
     unsigned umconf;
-    unsigned umburn;
-    unsigned umshock;
-    Bitfield(usick_type, 3);
+    Bitfield(usick_type, 2);
 #define SICK_VOMITABLE 0x01
 #define SICK_NONVOMITABLE 0x02
-#define SICK_ZOMBIE 0x04
-#define SICK_ALL 0x07
+#define SICK_ALL 0x03
 
     /* These ranges can never be more than MAX_RANGE (vision.h). */
     int nv_range;   /* current night vision range */
     int xray_range; /* current xray vision range */
+    int unblind_telepat_range;
 
 /*
  * These variables are valid globally only when punished and blind.
@@ -385,28 +418,30 @@ struct you {
     int umonster;               /* hero's "real" monster num */
     int umonnum;                /* current monster number */
 
-    int mh, mhmax, mtimedone;   /* for polymorph-self */
+    int mh, mhmax,              /* current and max hit points when polyd */
+        mtimedone;              /* no. of turns until polymorph times out */
     struct attribs macurr,      /* for monster attribs */
                    mamax;       /* for monster attribs */
     int ulycn;                  /* lycanthrope type */
 
     unsigned ucreamed;
-    unsigned uswldtim;              /* time you have been swallowed */
-    unsigned uwildshape;            /* time between using wildshape (druid ability) */
-    unsigned uvampireshape;         /* time between using shapechange (vampire ability) */
+    unsigned uswldtim;          /* time you have been swallowed */
 
-    Bitfield(uswallow, 1);          /* true if swallowed */
-    Bitfield(uinwater, 1);          /* if you're currently in water (only
-                                       underwater possible currently) */
-    Bitfield(uundetected, 1);       /* if you're a hiding monster/piercer */
-    Bitfield(mfemale, 1);           /* saved human value of flags.female */
-    Bitfield(uinvulnerable, 1);     /* you're invulnerable (praying) */
-    Bitfield(uburied, 1);           /* you're buried */
-    Bitfield(uedibility, 1);        /* blessed food detect; sense unsafe food */
-    Bitfield(uamulet_on_planes, 1); /* monster escaped to Planes with Amulet */
-    /* no free bits */
+    Bitfield(uswallow, 1);      /* true if swallowed */
+    Bitfield(uinwater, 1);      /* if you're currently in water (only
+                                   underwater possible currently) */
+    Bitfield(uundetected, 1);   /* if you're a hiding monster/piercer */
+    Bitfield(mfemale, 1);       /* saved human value of flags.female */
+    Bitfield(uinvulnerable, 1); /* you're invulnerable (praying) */
+    Bitfield(uburied, 1);       /* you're buried */
+    Bitfield(uedibility, 1);    /* blessed food detect; sense unsafe food */
+    Bitfield(uhandedness, 1); /* There is no advantage for either handedness.
+                                 The distinction is only for flavor variation
+                                 and for use in messages. */
+#define RIGHT_HANDED 0x00
+#define LEFT_HANDED  0x01
+
     unsigned udg_cnt;           /* how long you have been demigod */
-    struct u_achieve uachieve;  /* achievements */
     struct u_event uevent;      /* certain events have happened */
     struct u_have uhave;        /* you're carrying special objects */
     struct u_conduct uconduct;  /* KMH, conduct */
@@ -418,62 +453,117 @@ struct you {
                    atemp,       /* used for temporary loss/gain */
                    atime;       /* used for loss/gain countdown */
     align ualign;               /* character alignment */
-    boolean ever_abused;        /* ever abused alignment (for conduct) */
 #define CONVERT    2
 #define A_ORIGINAL 1
 #define A_CURRENT  0
     aligntyp ualignbase[CONVERT]; /* for ualign conversion record */
     schar uluck, moreluck;        /* luck and luck bonus */
-    int luckturn;
+    /* default u.uluck is 0 except on special days (full moon: +1, Fri 13: -1,
+       both: 0); equilibrium for luck timeout is changed to those values,
+       but Luck max and min stay at 10+3 and -10-3 even on those days */
 #define Luck (u.uluck + u.moreluck)
 #define LUCKADD    3  /* value of u.moreluck when carrying luck stone;
-                         + when blessed or uncursed, - when cursed */
-#define LUCKMAX   10  /* maximum value of u.ulUck */
+                       * +3 when blessed or uncursed, -3 when cursed */
+#define LUCKMAX   10  /* maximum value of u.uluck */
 #define LUCKMIN (-10) /* minimum value of u.uluck */
     schar uhitinc;
     schar udaminc;
     schar uac;
+#define AC_MAX    99  /* abs(u.uac) <= 99; likewise for monster AC */
     uchar uspellprot;        /* protection by SPE_PROTECTION */
     uchar usptime;           /* #moves until uspellprot-- */
     uchar uspmtime;          /* #moves between uspellprot-- */
-    int uhp, uhpmax;         /* hit points, aka health */
-    int uen, uenmax;         /* magical energy - M. Stephenson */
-    xchar uhpinc[MAXULEV],   /* increases to uhpmax for each level gain */
+    int uhp, uhpmax,         /* hit points, aka health */
+        uhppeak;             /* highest value of uhpmax so far */
+    int uen, uenmax,         /* magical energy, aka spell power */
+        uenpeak;             /* highest value of uenmax so far */
+    xint16 uhpinc[MAXULEV],  /* increases to uhpmax for each level gain */
           ueninc[MAXULEV];   /* increases to uenmax for each level gain */
     int ugangr;              /* if the gods are angry at you */
     int ugifts;              /* number of artifacts bestowed */
-#define MAX_GIFT_HISTORY 50  /* track last N non-artifact sacrifice gifts */
-    short ugift_history[MAX_GIFT_HISTORY]; /* otyp values of recent gifts */
-    xchar ugift_hist_idx;    /* next write position (circular buffer) */
-    struct abuse_event uabuse_history[MAX_ABUSE_HISTORY]; /* last N abuse events */
-    xchar uabuse_hist_idx;   /* next write position (circular buffer) */
     int ublessed, ublesscnt; /* blessing/duration from #pray */
-    int ulastprayed;         /* moves when last prayed; 0 = never */
     long umoney0;
-    long uaasimar_penalties; /* aasimar: penalty ID at each abuse tier */
-    long uexp, urexp;
+    long uspare1;
+    long uexp, urexp;        /* exper pts for gaining levels and for score */
     long ucleansed;          /* to record moves when player was cleansed */
     long usleep;             /* sleeping; monstermove you last started */
     int uinvault;
-    int uinshell;            /* time in shell */
     struct monst *ustuck;    /* engulfer or grabber, maybe grabbee if Upolyd */
     struct monst *usteed;    /* mount when riding */
+    unsigned ustuck_mid;     /* u.ustuck->m_id, used during save/restore */
+    unsigned usteed_mid;     /* u.usteed->m_id, used during save/restore */
     long ugallop;            /* turns steed will run after being kicked */
     int urideturns;          /* time spent riding, for skill advancement */
     int umortality;          /* how many times you died */
-    int ugrave_arise;        /* you die and become something aside from a ghost */
+    int ugrave_arise;    /* you die and become something aside from a ghost */
     int weapon_slots;        /* unused skill slots */
     int skills_advanced;     /* # of advances made so far */
-    xchar skill_record[P_SKILL_LIMIT]; /* skill advancements */
+    xint16 skill_record[P_SKILL_LIMIT]; /* skill advancements */
     struct skills weapon_skills[P_NUM_SKILLS];
     boolean twoweap;         /* KMH -- Using two-weapon combat */
-    short umovement;         /* hero movement points */
-
+    short mcham;             /* vampire mndx if shapeshifted to bat/cloud */
+    short umovement;         /* instead of youmonst.movement */
+    schar uachieved[N_ACH];  /* list of achievements in the order attained */
+    struct monst *umonst;    /* for future conversion of &gy.youmonst to u.umonst */
 }; /* end of `struct you' */
 
-#define Upolyd (u.umonnum != u.umonster)
 
-#define druid_form (Role_if(PM_DRUID) && all_druid_forms(monsndx(youmonst.data)))
-#define vampire_form (Race_if(PM_VAMPIRE) && all_vampire_forms(monsndx(youmonst.data)))
+/* _hitmon_data: Info for when hero hits a monster */
+/* The basic reason we need all these booleans is that we don't want
+ * a "hit" message when a monster dies, so we have to know how much
+ * damage it did _before_ outputting a hit message, but any messages
+ * associated with the damage don't come out until _after_ outputting
+ * a hit message.
+ *
+ * More complications:  first_weapon_hit() should be called before
+ * xkilled() in order to have the gamelog messages in the right order.
+ * So it can't be deferred until end of known_hitum() as was originally
+ * done.
+ */
+struct _hitmon_data {
+    int dmg;  /* damage */
+    int thrown;
+    int twohits; /* 0: 1 of 1; 1: 1 of 2; 2: 2 of 2 */
+    int dieroll;
+    struct permonst *mdat;
+    boolean use_weapon_skill;
+    boolean train_weapon_skill;
+    int barehand_silver_rings;
+    boolean silvermsg;
+    boolean silverobj;
+    boolean lightobj;
+    int material;
+    int jousting;
+    boolean hittxt;
+    boolean get_dmg_bonus;
+    boolean unarmed;
+    boolean hand_to_hand;
+    boolean ispoisoned;
+    boolean unpoisonmsg;
+    boolean needpoismsg;
+    boolean poiskilled;
+    boolean already_killed;
+    boolean offmap;
+    boolean destroyed;
+    boolean dryit;
+    boolean doreturn;
+    boolean retval;
+    char saved_oname[BUFSZ];
+};
+
+#define Upolyd (u.umonnum != u.umonster)
+#define Ugender ((Upolyd ? u.mfemale : flags.female) ? 1 : 0)
+
+/* point px,py is adjacent to (or same location as) hero */
+#define next2u(px,py) (distu((px),(py)) <= 2)
+/* is monster on top of or next to hero? */
+#define m_next2u(m) (distu((m)->mx,(m)->my) <= 2)
+/* hero at (x,y)? */
+#define u_at(x,y) ((x) == u.ux && (y) == u.uy)
+
+#define URIGHTY (u.uhandedness == RIGHT_HANDED)
+#define ULEFTY (u.uhandedness == LEFT_HANDED)
+#define RING_ON_PRIMARY (ULEFTY ? uleft : uright)
+#define RING_ON_SECONDARY (ULEFTY ? uright : uleft)
 
 #endif /* YOU_H */

@@ -1,42 +1,33 @@
-/* NetHack 3.6	bones.c	$NHDT-Date: 1571363147 2019/10/18 01:45:47 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.76 $ */
+/* NetHack 5.0	bones.c	$NHDT-Date: 1781973041 2026/06/20 16:30:41 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.159 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985,1993. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
-#include "lev.h"
 
-extern char bones[]; /* from files.c */
-#ifdef MFLOPPY
-extern long bytes_counted;
-#endif
+#ifndef SFCTOOL
+staticfn boolean no_bones_level(d_level *);
+staticfn void goodfruit(int);
+staticfn void resetobjs(struct obj *, boolean);
+staticfn void give_to_nearby_mon(struct obj *, coordxy, coordxy) NONNULLARG1;
+staticfn boolean fixuporacle(struct monst *) NONNULLARG1;
+staticfn void remove_mon_from_bones(struct monst *) NONNULLARG1;
+staticfn void set_ghostly_objlist(struct obj *objchain);
 
-STATIC_DCL boolean FDECL(no_bones_level, (d_level *));
-STATIC_DCL void FDECL(goodfruit, (int));
-STATIC_DCL void FDECL(resetobjs, (struct obj *, BOOLEAN_P));
-STATIC_DCL boolean FDECL(fixuporacle, (struct monst *));
-STATIC_DCL boolean FDECL(in_owner_lair, (struct obj *));
-STATIC_DCL struct monst *FDECL(find_owner_on_level, (struct obj *));
-
-STATIC_OVL boolean
-no_bones_level(lev)
-d_level *lev;
+staticfn boolean
+no_bones_level(d_level *lev)
 {
-    extern d_level save_dlevel; /* in do.c */
     s_level *sptr;
 
-    if (ledger_no(&save_dlevel))
-        assign_level(lev, &save_dlevel);
+    if (ledger_no(&gs.save_dlevel))
+        assign_level(lev, &gs.save_dlevel);
 
     return (boolean) (((sptr = Is_special(lev)) != 0 && !sptr->boneid)
-                      || !dungeons[lev->dnum].boneid
+                      || !svd.dungeons[lev->dnum].boneid
                       /* no bones on the last or multiway branch levels
                          in any dungeon (level 1 isn't multiway) */
                       || Is_botlevel(lev)
                       || (Is_branchlev(lev) && lev->dlevel > 1)
-                      /* only allow bones in the valley if Cerberus
-                         still lives */
-                      || (Is_valley(lev) && !u.uevent.ucerberus)
                       /* no bones in the invocation level */
                       || (In_hell(lev)
                           && lev->dlevel == dunlevs_in_dungeon(lev) - 1));
@@ -47,9 +38,8 @@ d_level *lev;
  * ID is positive instead of negative).  This way, when we later save the
  * chain of fruit types, we know to only save the types that exist.
  */
-STATIC_OVL void
-goodfruit(id)
-int id;
+staticfn void
+goodfruit(int id)
 {
     struct fruit *f = fruit_from_indx(-id);
 
@@ -57,10 +47,8 @@ int id;
         f->fid = id;
 }
 
-STATIC_OVL void
-resetobjs(ochain, restore)
-struct obj *ochain;
-boolean restore;
+staticfn void
+resetobjs(struct obj *ochain, boolean restore)
 {
     struct obj *otmp, *nobj;
 
@@ -85,23 +73,18 @@ boolean restore;
                     if (has_oname(otmp))
                         free_oname(otmp);
                 } else {
-                    artifact_exists(otmp, safe_oname(otmp), TRUE);
+                    artifact_exists(otmp, safe_oname(otmp), TRUE,
+                                    ONAME_BONES);
                 }
             } else if (has_oname(otmp)) {
                 sanitize_name(ONAME(otmp));
             }
-
-            /* prevent materials from differing on things like rings */
-            if (!valid_obj_material(otmp, otmp->material)) {
-                set_material(otmp, objects[otmp->otyp].oc_material);
-            }
-
             /* 3.6.3: set no_charge for partly eaten food in shop;
                all other items become goods for sale if in a shop */
             if (otmp->oclass == FOOD_CLASS && otmp->oeaten) {
                 struct obj *top;
                 char *p;
-                xchar ox, oy;
+                coordxy ox, oy;
 
                 for (top = otmp; top->where == OBJ_CONTAINED;
                      top = top->ocontainer)
@@ -112,26 +95,21 @@ boolean restore;
                                       result depends upon hero's location */
                                    && inside_shop(ox, oy)
                                    && *(p = in_rooms(ox, oy, SHOPBASE))
-                                   && tended_shop(&rooms[*p - ROOMOFFSET]));
+                                 && tended_shop(&svr.rooms[*p - ROOMOFFSET]));
             }
         } else { /* saving */
-            /* Note: when called from the fmon save loop, an artifact
-               may be re-processed if non_wishable_artifact moves it
-               to a later monster in the chain, so every branch below
-               must be idempotent */
-
             /* do not zero out o_ids for ghost levels anymore */
 
             if (objects[otmp->otyp].oc_uses_known)
                 otmp->known = 0;
             otmp->dknown = otmp->bknown = 0;
-            otmp->oprops_known = 0;
             otmp->rknown = 0;
             otmp->lknown = 0;
             otmp->cknown = 0;
+            otmp->tknown = 0;
             otmp->invlet = 0;
             otmp->no_charge = 0;
-            otmp->was_thrown = 0;
+            otmp->how_lost = LOST_NONE;
 
             /* strip user-supplied names */
             /* Statue and some corpse names are left intact,
@@ -150,31 +128,9 @@ boolean restore;
                 free_oname(otmp);
             }
 
-            /* Prevent non-wishable artifacts that are
-               meant to be found with their owners or at
-               the end of a specific quest from winding up
-               in a bones pile. Forged artifacts also fall
-               under this category, as all of them are
-               flagged as SPFX_NOWISH */
-            if (non_wishable_artifact(otmp)) {
-                struct monst *mtmp;
-                mtmp = find_owner_on_level(otmp);
-                if (mtmp) {
-                    /* return special artifact to its owner when they are on
-                     * the bones level, if they aren't carrying it already */
-                    if (!mcarried(otmp) || otmp->ocarry != mtmp) {
-                        obj_extract_self(otmp);
-                        (void) mpickobj(mtmp, otmp);
-                    }
-                } else if (!in_owner_lair(otmp)) {
-                    otmp->oartifact = 0;
-                    free_oname(otmp);
-                }
-            }
-
             if (otmp->otyp == SLIME_MOLD) {
                 goodfruit(otmp->spe);
-#ifdef MAIL
+#ifdef MAIL_STRUCTURES
             } else if (otmp->otyp == SCR_MAIL) {
                 /* 0: delivered in-game via external event;
                    1: from bones or wishing; 2: written with marker */
@@ -185,7 +141,8 @@ boolean restore;
                 otmp->spe = 0; /* not "laid by you" in next game */
             } else if (otmp->otyp == TIN) {
                 /* make tins of unique monster's meat be empty */
-                if (unique_corpstat(&safe_mons(otmp->corpsenm)))
+                if (ismnum(otmp->corpsenm)
+                    && unique_corpstat(&mons[otmp->corpsenm]))
                     otmp->corpsenm = NON_PM;
             } else if (otmp->otyp == CORPSE || otmp->otyp == STATUE) {
                 int mnum = otmp->corpsenm;
@@ -206,41 +163,18 @@ boolean restore;
                     if (mnum == PM_DOPPELGANGER && otmp->otyp == CORPSE)
                         set_corpsenm(otmp, mnum);
                 }
-            } else if ((otmp->otyp == iflags.mines_prize_type
-                        && !Is_mineend_level(&u.uz))
-                       || ((otmp->otyp == iflags.soko_prize_type1
-                            || otmp->otyp == iflags.soko_prize_type2
-                            || otmp->otyp == iflags.soko_prize_type3
-                            || otmp->otyp == iflags.soko_prize_type4
-                            || otmp->otyp == iflags.soko_prize_type5
-                            || otmp->otyp == iflags.soko_prize_type6)
-                           && !Is_sokoend_level(&u.uz))) {
-                /* "special prize" in this game becomes ordinary object
-                   if loaded into another game */
-                otmp->record_achieve_special = NON_PM;
-            } else if (otmp->otyp == MAGIC_KEY) {
-                /* magic key becomes a regular key */
-                otmp->otyp = SKELETON_KEY;
-                set_material(otmp, BONE);
-            } else if (otmp->otyp == BLACKSMITH_HAMMER) {
-                /* blacksmith hammer becomes a war hammer */
-                otmp->otyp = WAR_HAMMER;
-                set_material(otmp, IRON);
-            } else if (otmp->otyp == SCR_CONSECRATION) {
-                /* scroll of consecration becomes a scroll
-                   of blank paper */
-                otmp->otyp = SCR_BLANK_PAPER;
-                curse(otmp);
+            } else if (is_mines_prize(otmp) || is_soko_prize(otmp)) {
+                /* achievement tracking; in case prize was moved off its
+                   original level (which is always a no-bones level) */
+                otmp->nomerge = 0;
             } else if (otmp->otyp == AMULET_OF_YENDOR) {
                 /* no longer the real Amulet */
                 otmp->otyp = FAKE_AMULET_OF_YENDOR;
-                set_material(otmp, PLASTIC);
                 curse(otmp);
             } else if (otmp->otyp == CANDELABRUM_OF_INVOCATION) {
                 if (otmp->lamplit)
                     end_burn(otmp, TRUE);
                 otmp->otyp = WAX_CANDLE;
-                set_material(otmp, WAX);
                 otmp->age = 50L; /* assume used */
                 if (otmp->spe > 0)
                     otmp->quan = (long) otmp->spe;
@@ -249,7 +183,6 @@ boolean restore;
                 curse(otmp);
             } else if (otmp->otyp == BELL_OF_OPENING) {
                 otmp->otyp = BELL;
-                set_material(otmp, SILVER);
                 curse(otmp);
             } else if (otmp->otyp == SPE_BOOK_OF_THE_DEAD) {
                 otmp->otyp = SPE_BLANK_PAPER;
@@ -262,11 +195,10 @@ boolean restore;
 /* while loading bones, strip out text possibly supplied by old player
    that might accidentally or maliciously disrupt new player's display */
 void
-sanitize_name(namebuf)
-char *namebuf;
+sanitize_name(char *namebuf)
 {
     int c;
-    boolean strip_8th_bit = (WINDOWPORT("tty")
+    boolean strip_8th_bit = (WINDOWPORT(tty)
                              && !iflags.wc_eight_bit_input);
 
     /* it's tempting to skip this for single-user platforms, since
@@ -287,17 +219,59 @@ char *namebuf;
     }
 }
 
+/* Give object to a random object-liking monster on or adjacent to x,y
+   but skipping hero's location.
+   If no such monster, place object on floor at x,y. */
+staticfn void
+give_to_nearby_mon(struct obj *otmp, coordxy x, coordxy y)
+{
+    struct monst *mtmp;
+    struct monst *selected = (struct monst *) 0;
+    int nmon = 0, xx, yy;
+
+    for (xx = x - 1; xx <= x + 1; ++xx) {
+        for (yy = y - 1; yy <= y + 1; ++yy) {
+            if (!isok(xx, yy))
+                continue;
+            if (u_at(xx, yy))
+                continue;
+            if (!(mtmp = m_at(xx, yy)))
+                continue;
+            /* This doesn't do any checks on otmp to see that it matches the
+             * likes_* property, intentionally. Assume that the monster is
+             * rifling through and taking things that look interesting. */
+            if (!(likes_gold(mtmp->data) || likes_gems(mtmp->data)
+                  || likes_objs(mtmp->data) || likes_magic(mtmp->data)))
+                continue;
+            nmon++;
+            if (!rn2(nmon))
+                selected = mtmp;
+        }
+    }
+    if (selected && can_carry(selected, otmp))
+        add_to_minv(selected, otmp);
+    else
+        place_object(otmp, x, y);
+}
+
 /* called by savebones(); also by finish_paybill(shk.c) */
 void
-drop_upon_death(mtmp, cont, x, y)
-struct monst *mtmp; /* monster if hero turned into one (other than ghost) */
-struct obj *cont; /* container if hero is turned into a statue */
-int x, y;
+drop_upon_death(
+    struct monst *mtmp, /* monster if hero rises as one (non ghost) */
+    struct obj *cont,   /* container if hero is turned into a statue */
+    coordxy x, coordxy y)
 {
     struct obj *otmp;
 
-    u.twoweap = FALSE; /* ensure curse() won't cause swapwep to drop twice */
-    while ((otmp = invent) != 0) {
+    /* when dual-wielding, the second weapon gets dropped rather than
+       welded if it becomes cursed; ensure that that won't happen here
+       by ending dual-wield */
+    u.twoweap = FALSE; /* bypass set_twoweap() */
+
+    /* all inventory is dropped (for the normal case), even non-droppable
+       things like worn armor and accessories, welded weapon, or cursed
+       loadstones */
+    while ((otmp = gi.invent) != 0) {
         obj_extract_self(otmp);
         /* when turning into green slime, all gear remains held;
            other types "arise from the dead" do aren't holding
@@ -309,7 +283,6 @@ int x, y;
         if ((cont || artifact_light(otmp)) && obj_is_burning(otmp))
             end_burn(otmp, TRUE); /* smother in statue */
         otmp->owornmask = 0L;
-        otmp->altshield = 0; /* don't carry the #shield mark into bones */
 
         if (otmp->otyp == SLIME_MOLD)
             goodfruit(otmp->spe);
@@ -320,6 +293,8 @@ int x, y;
             (void) add_to_minv(mtmp, otmp);
         else if (cont)
             (void) add_to_container(cont, otmp);
+        else if (!rn2(8))
+            give_to_nearby_mon(otmp, x, y);
         else
             place_object(otmp, x, y);
     }
@@ -329,9 +304,8 @@ int x, y;
 
 /* possibly restore oracle's room and/or put her back inside it; returns
    False if she's on the wrong level and should be removed, True otherwise */
-STATIC_OVL boolean
-fixuporacle(oracle)
-struct monst *oracle;
+staticfn boolean
+fixuporacle(struct monst *oracle)
 {
     coord cc;
     int ridx, o_ridx;
@@ -343,14 +317,9 @@ struct monst *oracle;
     if (!Is_oracle_level(&u.uz))
         return FALSE;
 
-    oracle->mpeaceful = 1;
-    oracle->movement = oracle->minvis = 0;
-    o_ridx = isok(oracle->mx, oracle->my)
-                 ? levl[oracle->mx][oracle->my].roomno - ROOMOFFSET
-                 : -1;
-    if (o_ridx >= 0 && rooms[o_ridx].rtype == DELPHI
-        && (oracle->mx == (rooms[o_ridx].lx + rooms[o_ridx].hx) / 2)
-        && (oracle->my == (rooms[o_ridx].ly + rooms[o_ridx].hy) / 2))
+    oracle->mpeaceful = 1; /* for behavior toward next character */
+    o_ridx = levl[oracle->mx][oracle->my].roomno - ROOMOFFSET;
+    if (o_ridx >= 0 && svr.rooms[o_ridx].rtype == DELPHI)
         return TRUE; /* no fixup needed */
 
     /*
@@ -361,109 +330,30 @@ struct monst *oracle;
      */
 
     /* find original delphi chamber; should always succeed */
-    for (ridx = 0; ridx < SIZE(rooms); ++ridx)
-        if (rooms[ridx].orig_rtype == DELPHI)
+    for (ridx = 0; ridx < SIZE(svr.rooms); ++ridx)
+        if (svr.rooms[ridx].orig_rtype == DELPHI)
             break;
 
-    if (ridx < SIZE(rooms)) {
-        /* room found and she's not not in it, so try to move her there */
-        cc.x = (rooms[ridx].lx + rooms[ridx].hx) / 2;
-        cc.y = (rooms[ridx].ly + rooms[ridx].hy) / 2;
-        if (goodpos(cc.x, cc.y, oracle, NO_MM_FLAGS)
-            || enexto_core_mon(&cc, cc.x, cc.y, oracle, NO_MM_FLAGS)) {
+    if (o_ridx != ridx && ridx < SIZE(svr.rooms)) {
+        /* room found and she's not in it, so try to move her there */
+        cc.x = (svr.rooms[ridx].lx + svr.rooms[ridx].hx) / 2;
+        cc.y = (svr.rooms[ridx].ly + svr.rooms[ridx].hy) / 2;
+        if (enexto(&cc, cc.x, cc.y, oracle->data)) {
             rloc_to(oracle, cc.x, cc.y);
-            o_ridx = isok(oracle->mx, oracle->my)
-                         ? levl[oracle->mx][oracle->my].roomno - ROOMOFFSET
-                         : -1;
+            o_ridx = levl[oracle->mx][oracle->my].roomno - ROOMOFFSET;
         }
         /* [if her room is already full, she might end up outside;
            that's ok, next hero just won't get any welcome message,
            same as used to happen before this fixup was introduced] */
     }
     if (ridx == o_ridx) /* if she's in her room, mark it as such */
-        rooms[ridx].rtype = DELPHI;
+        svr.rooms[ridx].rtype = DELPHI;
     return TRUE; /* keep oracle in new bones file */
-}
-
-STATIC_OVL boolean
-in_owner_lair(obj)
-struct obj *obj;
-{
-    d_level *lair;
-
-    if (!obj || !obj->oartifact)
-        return FALSE;
-
-    switch (obj->oartifact) {
-    case ART_MAGIC___BALL:
-        lair = &oracle_level;
-        break;
-    case ART_BUTCHER:
-        lair = &hellb_level;
-        break;
-    case ART_WAND_OF_ORCUS:
-        lair = &orcus_level;
-        break;
-    case ART_BAG_OF_THE_HESPERIDES:
-    case ART_LIFESTEALER:
-    case ART_EYE_OF_VECNA:
-    case ART_HAND_OF_VECNA:
-    case ART_SWORD_OF_KAS:
-    default:
-        /* these are not allowed in bones; most are handled
-           by find_owner_on_level instead */
-        return FALSE;
-        break;
-    }
-    return (Lcheck(&u.uz, lair));
-}
-
-STATIC_OVL struct monst *
-find_owner_on_level(obj)
-struct obj *obj;
-{
-    struct monst *mtmp;
-    int owner = NON_PM;
-
-    if (!obj || !obj->oartifact)
-        return (struct monst *) 0;
-
-    switch (obj->oartifact) {
-    case ART_MAGIC___BALL:
-        owner = PM_ORACLE;
-        break;
-    case ART_BUTCHER:
-        owner = PM_YEENOGHU;
-        break;
-    case ART_LIFESTEALER:
-        owner = PM_VLAD_THE_IMPALER;
-        break;
-    case ART_WAND_OF_ORCUS:
-        owner = PM_ORCUS;
-        break;
-    case ART_EYE_OF_VECNA:
-    case ART_HAND_OF_VECNA:
-        owner = PM_VECNA;
-        break;
-    case ART_SWORD_OF_KAS:
-        owner = PM_KAS;
-        break;
-    default:
-        break;
-    }
-
-    if (owner != NON_PM) {
-        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-            if (monsndx(mtmp->data) == owner)
-                return mtmp;
-        }
-    }
-    return (struct monst *) 0;
 }
 
 /* check whether bones are feasible */
 boolean
-can_make_bones()
+can_make_bones(void)
 {
     struct trap *ttmp;
 
@@ -476,11 +366,9 @@ can_make_bones()
     if (u.uswallow) {
         return FALSE; /* no bones when swallowed */
     }
-    if (is_open_air(u.ux, u.uy))
-        return FALSE; /* no bones objects hovering in midair */
     if (!Is_branchlev(&u.uz)) {
         /* no bones on non-branches with portals */
-        for (ttmp = ftrap; ttmp; ttmp = ttmp->ntrap)
+        for (ttmp = gf.ftrap; ttmp; ttmp = ttmp->ntrap)
             if (ttmp->ttyp == MAGIC_PORTAL)
                 return FALSE;
     }
@@ -496,31 +384,41 @@ can_make_bones()
     return TRUE;
 }
 
+/* monster might need to be removed before saving a bones file,
+   in case these characters are not in their home bases */
+staticfn void
+remove_mon_from_bones(struct monst *mtmp)
+{
+    struct permonst *mptr = mtmp->data;
+
+    if (mtmp->iswiz || mptr == &mons[PM_MEDUSA]
+        || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
+        || is_Vlad(mtmp) /* mptr == &mons[VLAD_THE_IMPALER] || cham == VLAD */
+        || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp)))
+        mongone(mtmp);
+}
+
 /* save bones and possessions of a deceased adventurer */
 void
-savebones(how, when, corpse)
-int how;
-time_t when;
-struct obj *corpse;
+savebones(int how, time_t when, struct obj *corpse)
 {
-    int fd, x, y;
+    coordxy x, y;
     struct trap *ttmp;
-    struct monst *mtmp, *msteed;
-    struct permonst *mptr;
+    struct monst *mtmp;
     struct fruit *f;
     struct cemetery *newbones;
     char c, *bonesid;
     char whynot[BUFSZ];
-    coord cc;
+    NHFILE *nhfp;
 
     /* caller has already checked `can_make_bones()' */
 
     clear_bypasses();
-    fd = open_bonesfile(&u.uz, &bonesid);
-    if (fd >= 0) {
-        (void) nhclose(fd);
+    nhfp = open_bonesfile(&u.uz, &bonesid);
+    if (nhfp) {
+        close_nhfile(nhfp);
         if (wizard) {
-            if (yn("Bones file already exists.  Replace it?") == 'y') {
+            if (y_n("Bones file already exists.  Replace it?") == 'y') {
                 if (delete_bonesfile(&u.uz))
                     goto make_bones;
                 else
@@ -535,7 +433,6 @@ struct obj *corpse;
 
  make_bones:
     unleash_all();
-
     /* new ghost or other undead isn't punished even if hero was;
        end-of-game disclosure has already had a chance to report the
        Punished status so we don't need to preserve it any further */
@@ -545,209 +442,121 @@ struct obj *corpse;
        before cleaning up dead monsters */
     if (u.usteed)
         dismount_steed(DISMOUNT_BONES);
-    /* in case these characters are not in their home bases */
-    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-        if (DEADMONSTER(mtmp)) {
-            if (ukiller == mtmp)
-                ukiller = (struct monst *) 0;
-            continue;
-        }
-        mptr = mtmp->data;
-        if (mtmp->iswiz || mtmp->isvecna
-            || mtmp->isgking || mtmp->isvlad
-            || mtmp->islucifer || mtmp->ismichael || mtmp->istalgath
-            || (mptr == &mons[PM_MEDUSA] && !Is_medusa_level(&u.uz))
-            || mptr->msound == MS_NEMESIS || mptr->msound == MS_LEADER
-            || mtmp->cham == PM_VLAD_THE_IMPALER /* in case he's vampshifted */
-            || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp))
-            || (mtmp->iscerberus && !Is_valley(&u.uz))
-            || (mptr == &mons[PM_CHARON] && !Is_valley(&u.uz))
-            || mptr == &mons[PM_KAS]
-            || mtmp->cham == PM_KAS /* in case he's vampshifted */
-            || mptr == &mons[PM_RAT_KING]
-            || mtmp->cham == PM_RAT_KING /* in case he's wereshifted */
-            || mptr == &mons[PM_ABOMINABLE_SNOWMAN]
-            || mptr == &mons[PM_KATHRYN_THE_ICE_QUEEN]
-            || mptr == &mons[PM_KATHRYN_THE_ENCHANTRESS]) {
-            mongone(mtmp);
-            if (mtmp == ukiller)
-                ukiller = (struct monst *) 0;
-            continue; /* don't inspect erid on a detached monster */
-        }
 
-        /* monster steeds tend to wander off */
-        if (has_erid(mtmp)) {
-            msteed = ERID(mtmp)->mon_steed;
-            cc.x = msteed->mx;
-            cc.y = msteed->my;
-            /* anchor on the rider, not the hero; act on the return
-               value so we don't silently place the steed on the
-               fallback square (which would be the hero's tile when
-               anchored on u.ux,u.uy) */
-            if (enexto_core_mon(&cc, mtmp->mx, mtmp->my, msteed,
-                                NO_MM_FLAGS)
-                && !m_at(cc.x, cc.y)) {
-                place_monster(msteed, cc.x, cc.y);
-            } else {
-                mongone(msteed);
-                if (msteed == ukiller)
-                    ukiller = (struct monst *) 0;
-            }
-        }
-        free_erid(mtmp);
-    }
-    dmonsfree(); /* discard dead or gone monsters */
+    iter_mons(remove_mon_from_bones); /* send various unique monsters away, */
+    dmonsfree();                      /* then discard dead or gone monsters */
 
-    /* mark all fruits as nonexistent; when we come to them we'll mark
-     * them as existing (using goodfruit())
-     */
-    for (f = ffruit; f; f = f->nextf)
-        f->fid = -f->fid; /* relies on fid being short (int promotion) */
+    forget_engravings(); /* next hero won't have read any engravings yet */
+    /* mark all named fruits as nonexistent; if/when we come to instances
+       of any of them we'll mark those as existing (using goodfruit()) */
+    for (f = gf.ffruit; f; f = f->nextf)
+        f->fid = -f->fid;
 
+    set_ghostly_objlist(gi.invent);
     /* dispose of your possessions, usually cursed */
-    if (u.ugrave_arise == (NON_PM - 1)) {
-        struct obj *otmp;
-
-        /* embed your possessions in your statue */
-        otmp = mk_named_object(STATUE, &mons[u.umonnum], u.ux, u.uy, plname);
-        if (!Upolyd) {
-            int rnum = (flags.female && urace.femalenum != NON_PM)
-                           ? urace.femalenum
-                           : urace.malenum;
-            struct monst *rmon = makemon(&mons[u.umonnum], 0, 0,
-                                         MM_NOCOUNTBIRTH);
-            /* makemon can fail (no good position, genocided race);
-               only apply_race() guards against NULL internally */
-            if (rmon) {
-                apply_race(rmon, rnum);
-                christen_monst(rmon, plname);
-                otmp = save_mtraits(otmp, rmon);
-                mongone(rmon);
-            }
-        }
-
-        drop_upon_death((struct monst *) 0, otmp, u.ux, u.uy);
-        if (!otmp)
-            return; /* couldn't make statue */
-        mtmp = (struct monst *) 0;
-    } else if (Race_if(PM_DRAUGR)) {
-        /* don't let draugr arise as some other monster */
-        drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
-        mtmp = (struct monst *) 0;
-        u.ugrave_arise = NON_PM;
-    } else if (Race_if(PM_VAMPIRE)) {
-        /* don't let vampires arise as some other monster */
-        drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
-        mtmp = (struct monst *) 0;
-        u.ugrave_arise = NON_PM;
-    } else if (u.ugrave_arise < LOW_PM) {
-        /* drop everything */
-        drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
-        /* trick makemon() into allowing monster creation
-         * on your location
-         */
-        if (ukiller) {
-            /* If you don't rise from your grave (and are thus carrying your stuff),
-             * the critter that killed you gets some special handling here.
-             *
-             * First, it gets to loot your body; if it's a demon lord or prince,
-             * it will tend to take all the "good stuff".
-             *
-             * It also gets a chance to be removed as well -- hitting Yeenoghu bones
-             * once is not a big deal, but a persistent upper-dungeon Yeenoghu from
-             * an unlucky fountain quaffer would be a bit much.
-             */
-            struct obj* otmp;
-            struct obj* otmp2;
-            boolean greedy = FALSE;
-
-            /* Actively mean monsters */
-            if (is_dlord(ukiller->data) || is_dprince(ukiller->data))
-                greedy = TRUE;
-
-            for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp2) {
-                otmp2 = otmp->nexthere; /* mpickobj might free otmp */
-                /* leave the hero's corpse on the floor so the newly
-                   created ghost remains linked to it via obj_attach_mid;
-                   otherwise the corpse ends up locked inside ukiller's
-                   inventory */
-                if (otmp == corpse)
-                    continue;
-                if (!rn2(8) || find_owner_on_level(otmp) == ukiller
-                    || (greedy && rn2(2) && (otmp->oartifact || Is_dragon_armor(otmp)
-                        || otmp->otyp == AMULET_OF_LIFE_SAVING || Is_allbag(otmp)
-                        || otmp->otyp == MAGIC_MARKER || otmp->otyp == UNICORN_HORN))) {
-                    if (!touch_artifact(otmp, ukiller))
-                        continue;
-                    if (!can_carry(ukiller, otmp))
-                        continue;
-                    if (otmp == uball || otmp == uchain)
-                        continue;
-                    obj_extract_self(otmp);
-                    mpickobj(ukiller, otmp);
-                }
-            }
-            m_dowear(ukiller, TRUE);  /* Let them wear it */
-            /* This right here can help prevent an endless loop of low dungeon level
-             * demon prince/lord bones, but some of the more desirable loot could go
-             * with them. */
-            if (greedy && !rn2(3)) {
-                mongone(ukiller);
-                dmonsfree(); /* have to call this again */
-            }
-        }
-        in_mklev = TRUE;
-        mtmp = makemon(&mons[PM_GHOST], u.ux, u.uy, MM_NONAME);
-        in_mklev = FALSE;
-        if (!mtmp)
-            return;
-        mtmp = christen_monst(mtmp, plname);
-        if (corpse)
-            (void) obj_attach_mid(corpse, mtmp->m_id);
-    } else {
+    if (ismnum(u.ugrave_arise)) {
         /* give your possessions to the monster you become */
-        in_mklev = TRUE; /* use <u.ux,u.uy> as-is */
+        gi.in_mklev = TRUE; /* use <u.ux,u.uy> as-is */
         mtmp = makemon(&mons[u.ugrave_arise], u.ux, u.uy, NO_MINVENT);
-        in_mklev = FALSE;
+        gi.in_mklev = FALSE;
         if (!mtmp) { /* arise-type might have been genocided */
             drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
-            u.ugrave_arise = NON_PM;
+            u.ugrave_arise = NON_PM; /* in case caller cares */
             return;
         }
-        mtmp = christen_monst(mtmp, plname);
+        give_u_to_m_resistances(mtmp);
+        mtmp = christen_monst(mtmp, svp.plname);
         newsym(u.ux, u.uy);
         /* ["Your body rises from the dead as an <mname>..." used
            to be given here, but it has been moved to done() so that
            it gets delivered even when savebones() isn't called] */
         drop_upon_death(mtmp, (struct obj *) 0, u.ux, u.uy);
+        assert(mtmp != NULL && mtmp->data != NULL); /* static analysis hack */
         /* 'mtmp' now has hero's inventory; if 'mtmp' is a mummy, give it
            a wrapping unless already carrying one */
         if (mtmp->data->mlet == S_MUMMY && !m_carrying(mtmp, MUMMY_WRAPPING))
             (void) mongets(mtmp, MUMMY_WRAPPING);
         m_dowear(mtmp, TRUE);
+    } else if (u.ugrave_arise == LEAVESTATUE) {
+        struct obj *otmp;
+
+        /* embed your possessions in your statue */
+        otmp = mk_named_object(STATUE, &mons[u.umonnum], u.ux, u.uy,
+                               svp.plname);
+
+        drop_upon_death((struct monst *) 0, otmp, u.ux, u.uy);
+        if (!otmp)
+            return; /* couldn't make statue */
+        mtmp = (struct monst *) 0;
+    } else { /* u.ugrave_arise < LEAVESTATUE */
+        /* drop everything */
+        drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
+        /* trick makemon() into allowing monster creation
+         * on your location
+         */
+        gi.in_mklev = TRUE;
+        mtmp = makemon(&mons[PM_GHOST], u.ux, u.uy, MM_NONAME);
+        gi.in_mklev = FALSE;
+        if (!mtmp)
+            return;
+        mtmp = christen_monst(mtmp, svp.plname);
+        if (corpse)
+            (void) obj_attach_mid(corpse, mtmp->m_id);
     }
     if (mtmp) {
+        int i;
+
         mtmp->m_lev = (u.ulevel ? u.ulevel : 1);
         mtmp->mhp = mtmp->mhpmax = u.uhpmax;
         mtmp->female = flags.female;
         mtmp->msleeping = 1;
-        mtmp->former_rank.lev = mtmp->m_lev;
-        mtmp->former_rank.mnum = Role_switch;
-        mtmp->former_rank.female = flags.female;
+
+        if (!has_ebones(mtmp))
+            newebones(mtmp);
+        if (has_ebones(mtmp)) {
+            for (i = 0; i <= NUM_ROLES; ++i) {
+                if (!strcmp(gu.urole.name.m, roles[i].name.m)) {
+                    EBONES(mtmp)->role = i;
+                    break;
+                }
+                /* impossible("savebones: bad gu.urole.name.m \"%s\"",
+                              gu.urole.name.m); */
+            }
+            for (i = 0; i <= NUM_RACES; ++i) {
+                if (!strcmp(gu.urace.noun, races[i].noun)) {
+                    EBONES(mtmp)->race = i;
+                    break;
+                }
+                /* impossible("savebones: bad gu.urace.noun \"%s\"",
+                              gu.urace.noun); */
+            }
+            EBONES(mtmp)->oldalign = u.ualign;
+            EBONES(mtmp)->deathlevel = u.ulevel;
+            EBONES(mtmp)->luck = u.uluck; /* moreluck not included */
+            EBONES(mtmp)->mnum = Role_switch;
+            EBONES(mtmp)->female = flags.female;
+            EBONES(mtmp)->demigod = u.uevent.udemigod;
+            EBONES(mtmp)->crowned = u.uevent.uhand_of_elbereth;
+        }
     }
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        set_ghostly_objlist(mtmp->minvent);
         resetobjs(mtmp->minvent, FALSE);
         /* do not zero out m_ids for bones levels any more */
         mtmp->mlstmv = 0L;
         if (mtmp->mtame)
             mtmp->mtame = mtmp->mpeaceful = 0;
+        /* observations about the current hero won't apply to future game */
+        mtmp->seen_resistance = M_SEEN_NOTHING;
     }
-    for (ttmp = ftrap; ttmp; ttmp = ttmp->ntrap) {
+    for (ttmp = gf.ftrap; ttmp; ttmp = ttmp->ntrap) {
         ttmp->madeby_u = 0;
-        ttmp->tseen = (ttmp->ttyp == HOLE);
+        ttmp->tseen = unhideable_trap(ttmp->ttyp);
     }
+    set_ghostly_objlist(fobj);
     resetobjs(fobj, FALSE);
-    resetobjs(level.buriedobjlist, FALSE);
+    set_ghostly_objlist(svl.level.buriedobjlist);
+    resetobjs(svl.level.buriedobjlist, FALSE);
 
     /* Hero is no longer on the map. */
     u.ux0 = u.ux, u.uy0 = u.uy;
@@ -758,30 +567,22 @@ struct obj *corpse;
         for (y = 0; y < ROWNO; y++) {
             levl[x][y].seenv = 0;
             levl[x][y].waslit = 0;
-            levl[x][y].glyph = cmap_to_glyph(S_stone);
-            lastseentyp[x][y] = 0;
+            levl[x][y].glyph = GLYPH_UNEXPLORED;
+            svl.lastseentyp[x][y] = 0;
         }
 
     /* Attach bones info to the current level before saving. */
     newbones = (struct cemetery *) alloc(sizeof *newbones);
-    /* zero the whole struct first so the `next' pointer and other
-       non-char fields aren't filled with 0x20 bytes (UB under UBSan);
-       entries are '\0' terminated but have fixed length allocations,
-       so pre-fill each char field with spaces to initialize any
-       excess room */
-    (void) memset((genericptr_t) newbones, 0, sizeof *newbones);
-    (void) memset((genericptr_t) newbones->who, ' ',
-                  sizeof newbones->who);
-    (void) memset((genericptr_t) newbones->how, ' ',
-                  sizeof newbones->how);
-    (void) memset((genericptr_t) newbones->when, ' ',
-                  sizeof newbones->when);
+    /* entries are '\0' terminated but have fixed length allocations,
+       so pre-fill with spaces to initialize any excess room */
+    (void) memset((genericptr_t) newbones, ' ', sizeof *newbones);
     /* format name+role,&c, death reason, and date+time;
        gender and alignment reflect final values rather than what the
        character started out as, same as topten and logfile entries */
-    Sprintf(newbones->who, "%s-%.3s-%.3s-%.3s-%.3s", plname, urole.filecode,
-            urace.filecode, genders[flags.female].filecode,
-            aligns[u.ualign.type == A_NONE ? 3 : 1 - u.ualign.type].filecode);
+    Sprintf(newbones->who, "%s-%.3s-%.3s-%.3s-%.3s",
+            svp.plname, gu.urole.filecode,
+            gu.urace.filecode, genders[flags.female].filecode,
+            aligns[1 - u.ualign.type].filecode);
     formatkiller(newbones->how, sizeof newbones->how, how, TRUE);
     Strcpy(newbones->when, yyyymmddhhmmss(when));
     /* final resting place, used to decide when bones are discovered */
@@ -789,16 +590,16 @@ struct obj *corpse;
     newbones->bonesknown = FALSE;
     /* if current character died on a bones level, the cemetery list
        will have multiple entries, most recent (this dead hero) first */
-    newbones->next = level.bonesinfo;
-    level.bonesinfo = newbones;
+    newbones->next = svl.level.bonesinfo;
+    svl.level.bonesinfo = newbones;
     /* flag these bones if they are being created in wizard mode;
        they might already be flagged as such, even when we're playing
        in normal mode, if this level came from a previous bones file */
     if (wizard)
-        level.flags.wizard_bones = 1;
+        svl.level.flags.wizard_bones = 1;
 
-    fd = create_bonesfile(&u.uz, &bonesid, whynot);
-    if (fd < 0) {
+    nhfp = create_bonesfile(&u.uz, &bonesid, whynot);
+    if (!nhfp) {
         if (wizard)
             pline1(whynot);
         /* bones file creation problems are silent to the player.
@@ -809,55 +610,33 @@ struct obj *corpse;
     }
     c = (char) (strlen(bonesid) + 1);
 
-#ifdef MFLOPPY /* check whether there is room */
-    if (iflags.checkspace) {
-        savelev(fd, ledger_no(&u.uz), COUNT_SAVE);
-        /* savelev() initializes bytes_counted to 0, so it must come
-         * first here even though it does not in the real save.  the
-         * resulting extra bflush() at the end of savelev() may increase
-         * bytes_counted by a couple over what the real usage will be.
-         *
-         * note it is safe to call store_version() here only because
-         * bufon() is null for ZEROCOMP, which MFLOPPY uses -- otherwise
-         * this code would have to know the size of the version
-         * information itself.
-         */
-        store_version(fd);
-        store_savefileinfo(fd);
-        bwrite(fd, (genericptr_t) &c, sizeof c);
-        bwrite(fd, (genericptr_t) bonesid, (unsigned) c); /* DD.nnn */
-        savefruitchn(fd, COUNT_SAVE);
-        bflush(fd);
-        if (bytes_counted > freediskspace(bones)) { /* not enough room */
-            if (wizard)
-                pline("Insufficient space to create bones file.");
-            (void) nhclose(fd);
-            cancel_bonesfile();
-            return;
-        }
-        co_false(); /* make sure stuff before savelev() gets written */
-    }
-#endif /* MFLOPPY */
-
-    store_version(fd);
-    store_savefileinfo(fd);
-    bwrite(fd, (genericptr_t) &c, sizeof c);
-    bwrite(fd, (genericptr_t) bonesid, (unsigned) c); /* DD.nnn */
-    savefruitchn(fd, WRITE_SAVE);
+    nhfp->mode = WRITING;
+    store_version(nhfp);
+    Sfo_char(nhfp, &svn.nhuuid[0], "ancestor-nhuuid", sizeof svn.nhuuid);
+    /* if a bones pool digit is in use, it precedes the bonesid
+       string and isn't recorded in the file */
+    Sfo_char(nhfp, &c, "bones_count", 1);
+    Sfo_char(nhfp, bonesid, "bonesid", (int) c);       /* DD.nnn */
+    savefruitchn(nhfp);
     update_mlstmv(); /* update monsters for eventual restoration */
-    savelev(fd, ledger_no(&u.uz), WRITE_SAVE);
-    bclose(fd);
+    savelev(nhfp, ledger_no(&u.uz));
+    close_nhfile(nhfp);
     commit_bonesfile(&u.uz);
     compress_bonesfile();
 }
 
-int
-getbones()
-{
-    int fd;
-    int ok;
-    char c, *bonesid, oldbonesid[40]; /* length validated via c from file */
+#endif /* !SFCTOOL */
 
+int
+getbones(void)
+{
+    int ok;
+    NHFILE *nhfp = (NHFILE *) 0;
+    char c = 0, *bonesid,
+         oldbonesid[40] = { 0 }; /* was [10]; more should be safer */
+    char ancestor_nhuuid[SIZE(svn.nhuuid)];
+
+#ifndef SFCTOOL
     if (discover) /* save bones files for real games */
         return 0;
 
@@ -869,94 +648,97 @@ getbones()
         return 0;
     if (no_bones_level(&u.uz))
         return 0;
-    fd = open_bonesfile(&u.uz, &bonesid);
-    if (fd < 0)
-        return 0;
+#endif /* !SFCTOOL */
 
-    if (validate(fd, bones) != 0) {
+    nhfp = open_bonesfile(&u.uz, &bonesid);
+    if (!nhfp)
+        return 0;
+    if (nhfp && nhfp->structlevel && nhfp->fd < 0)
+        return 0;
+    if (nhfp && nhfp->fieldlevel) {
+        if (nhfp->style.deflt && !nhfp->fpdef)
+        return 0;
+    }
+
+    program_state.reading_bonesfile = 1;
+    if (validate(nhfp, gb.bones, FALSE, 0) != SF_UPTODATE) {
         if (!wizard)
             pline("Discarding unusable bones; no need to panic...");
         ok = FALSE;
+        program_state.reading_bonesfile = 0;
     } else {
         ok = TRUE;
         if (wizard) {
-            if (yn("Get bones?") == 'n') {
-                (void) nhclose(fd);
+            if (y_n("Get bones?") == 'n') {
+                close_nhfile(nhfp);
                 compress_bonesfile();
+                program_state.reading_bonesfile = 0;
                 return 0;
             }
         }
-        mread(fd, (genericptr_t) &c, sizeof c); /* length incl. '\0' */
-        /* validate length before feeding it to mread as a byte count;
-           a corrupt/malicious bones file could otherwise overflow the
-           fixed oldbonesid[] buffer */
-        if (c < 1 || (unsigned) c > sizeof oldbonesid) {
+        Sfi_char(nhfp, &ancestor_nhuuid[0], "ancestor-nhuuid",
+                 sizeof ancestor_nhuuid);
+        Sfi_char(nhfp, &c, "bones_count", 1); /* length incl. '\0' */
+            if ((unsigned) c <= sizeof oldbonesid) {
+                Sfi_char(nhfp, oldbonesid, "bonesid", (int) c);
+            } else {
+                if (wizard)
+                    debugpline2("Abandoning bones , %u > %u.",
+                                (unsigned) c, (unsigned) sizeof oldbonesid);
+                close_nhfile(nhfp);
+                compress_bonesfile();
+                /* ToDo: maybe unlink these problematic bones? */
+                program_state.reading_bonesfile = 0;
+                return 0;
+            }
+        if (strcmp(bonesid, oldbonesid) != 0) {
             char errbuf[BUFSZ];
 
-            Sprintf(errbuf, "Bones file has bogus bonesid length %d!",
-                    (int) c);
+            Sprintf(errbuf, "This is bones level '%s', not '%s'!",
+                    oldbonesid, bonesid);
             if (wizard) {
                 pline1(errbuf);
                 ok = FALSE; /* won't die of trickery */
             }
+            program_state.reading_bonesfile = 0;
             trickery(errbuf);
         } else {
-            mread(fd, (genericptr_t) oldbonesid, (unsigned) c); /* DD.nnn */
-            if (strcmp(bonesid, oldbonesid) != 0
-                /* from 3.3.0 through 3.6.0, bones in the quest branch stored
-                   a bogus bonesid in the file; 3.6.1 fixed that, but for
-                   3.6.0 bones to remain compatible, we need an extra test;
-                   once compatibility with 3.6.x goes away, this can too
-                   (we don't try to make this conditional upon the value of
-                   VERSION_COMPATIBILITY because then we'd need patchlevel.h) */
-                && (strlen(bonesid) <= 2
-                    || strcmp(bonesid + 2, oldbonesid) != 0)) {
-                char errbuf[BUFSZ];
+            struct monst *mtmp;
 
-                Sprintf(errbuf, "This is bones level '%s', not '%s'!",
-                        oldbonesid, bonesid);
-                if (wizard) {
-                    pline1(errbuf);
-                    ok = FALSE; /* won't die of trickery */
-                }
-                trickery(errbuf);
-            } else {
-                struct monst *mtmp;
+            getlev(nhfp, 0, 0);
 
-                getlev(fd, 0, 0, TRUE);
-
-                /* Note that getlev() now keeps tabs on unique
-                 * monsters such as demon lords, and tracks the
-                 * birth counts of all species just as makemon()
-                 * does.  If a bones monster is extinct or has been
-                 * subject to genocide, their mhpmax will be
-                 * set to the magic DEFUNCT_MONSTER cookie value.
-                 */
-                for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-                    if (has_mname(mtmp))
-                        sanitize_name(MNAME(mtmp));
-                    if (mtmp->mhpmax == DEFUNCT_MONSTER) {
-                        if (wizard) {
-                            debugpline1(
-                                "Removing defunct monster %s from bones.",
-                                mtmp->data->mname);
-                        }
-                        mongone(mtmp);
-                    } else
-                        /* to correctly reset named artifacts on the level */
-                        resetobjs(mtmp->minvent, TRUE);
-                }
-                resetobjs(fobj, TRUE);
-                resetobjs(level.buriedobjlist, TRUE);
+            /* Note that getlev() now keeps tabs on unique
+             * monsters such as demon lords, and tracks the
+             * birth counts of all species just as makemon()
+             * does.  If a bones monster is extinct or has been
+             * subject to genocide, their mhpmax will be
+             * set to the magic DEFUNCT_MONSTER cookie value.
+             */
+            for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                if (has_mgivenname(mtmp))
+                    sanitize_name(MGIVENNAME(mtmp));
+                if (mtmp->mhpmax == DEFUNCT_MONSTER) {
+                    if (wizard) {
+                        debugpline1("Removing defunct monster %s from bones.",
+                                    mtmp->data->pmnames[NEUTRAL]);
+                    }
+                    mongone(mtmp);
+                } else
+                    /* to correctly reset named artifacts on the level */
+                    resetobjs(mtmp->minvent, TRUE);
             }
+            resetobjs(fobj, TRUE);
+            resetobjs(svl.level.buriedobjlist, TRUE);
+            fix_shop_damage();
         }
     }
-    (void) nhclose(fd);
+    close_nhfile(nhfp);
+    program_state.reading_bonesfile = 0;
     sanitize_engravings();
     u.uroleplay.numbones++;
 
     if (wizard) {
-        if (yn("Unlink bones?") == 'n') {
+        if (y_n("Unlink bones?") == 'n') {
             compress_bonesfile();
             return ok;
         }
@@ -974,13 +756,14 @@ getbones()
     return ok;
 }
 
+#ifndef SFCTOOL
+
 /* check whether current level contains bones from a particular player */
 boolean
-bones_include_name(name)
-const char *name;
+bones_include_name(const char *name)
 {
     struct cemetery *bp;
-    int len;
+    size_t len;
     char buf[BUFSZ];
 
     /* prepare buffer by appending terminal hyphen to name, to avoid partial
@@ -989,12 +772,73 @@ const char *name;
     Strcat(buf, "-");
     len = strlen(buf);
 
-    for (bp = level.bonesinfo; bp; bp = bp->next) {
+    for (bp = svl.level.bonesinfo; bp; bp = bp->next) {
         if (!strncmp(bp->who, buf, len))
             return TRUE;
     }
 
     return FALSE;
 }
+
+/* set the ghostly bit in a list of objects */
+staticfn void
+set_ghostly_objlist(struct obj *objchain)
+{
+    while (objchain) {
+        objchain->ghostly = 1;
+        objchain = objchain->nobj;
+    }
+}
+
+/* This is called when a marked object from a bones file is picked-up.
+   Some could result in a message, and the obj->ghostly flag is always
+   cleared. obj->ghostly has no other usage at this time. */
+void
+fix_ghostly_obj(struct obj *obj)
+{
+    if (!obj->ghostly)
+        return;
+    switch(obj->otyp) {
+        /* asymmetrical weapons */
+        case BOW:
+        case ELVEN_BOW:
+        case ORCISH_BOW:
+        case YUMI:
+        case BOOMERANG:
+            You("make adjustments to %s to suit your %s hand.",
+                the(xname(obj)),
+                URIGHTY ? "right" : "left");
+            break;
+        default:
+            break;
+    }
+    obj->ghostly = 0;
+}
+
+void
+newebones(struct monst *mtmp)
+{
+    if (!mtmp->mextra)
+        mtmp->mextra = newmextra();
+    if (!EBONES(mtmp)) {
+        EBONES(mtmp) = (struct ebones *) alloc(
+            sizeof (struct ebones));
+        (void) memset((genericptr_t) EBONES(mtmp), 0,
+                      sizeof (struct ebones));
+        EBONES(mtmp)->parentmid = mtmp->m_id;
+    }
+}
+
+/* this is not currently used */
+void
+free_ebones(struct monst *mtmp)
+{
+    if (mtmp->mextra && EBONES(mtmp)) {
+        free((genericptr_t) EBONES(mtmp));
+        EBONES(mtmp) = (struct ebones *) 0;
+    }
+}
+
+#endif /* SFCTOOL */
 
 /*bones.c*/

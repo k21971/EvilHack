@@ -1,4 +1,4 @@
-/* NetHack 3.6	tcap.h	$NHDT-Date: 1432512774 2015/05/25 00:12:54 $  $NHDT-Branch: master $:$NHDT-Revision: 1.10 $ */
+/* NetHack 5.0	tcap.h	$NHDT-Date: 1781973089 2026/06/20 16:31:29 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.17 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1989. */
 /*-Copyright (c) Kenneth Lorber, Kensington, Maryland, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -13,7 +13,7 @@
 #endif
 
 /* might display need graphics code? */
-#if !defined(AMIGA) && !defined(TOS) && !defined(MAC)
+#if !defined(AMIGA) && !defined(TOS) && !defined(MAC68K)
 #if defined(TERMLIB) || defined(OS2) || defined(MSDOS)
 #define ASCIIGRAPH
 #endif
@@ -47,12 +47,10 @@ extern struct tc_lcl_data { /* defined and set up in termcap.c */
 
 extern short ospeed; /* set up in termcap.c */
 
-#ifdef TEXTCOLOR
 #ifdef TOS
 extern const char *hilites[CLR_MAX];
 #else
 extern NEARDATA char *hilites[CLR_MAX];
-#endif
 #endif
 
 #endif /* TCAP_H */

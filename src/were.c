@@ -1,4 +1,4 @@
-/* NetHack 3.6	were.c	$NHDT-Date: 1550524568 2019/02/18 21:16:08 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.23 $ */
+/* NetHack 5.0	were.c	$NHDT-Date: 1781973073 2026/06/20 16:31:13 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.46 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -6,20 +6,17 @@
 #include "hack.h"
 
 void
-were_change(mon)
-struct monst *mon;
+were_change(struct monst *mon)
 {
     if (!is_were(mon->data))
         return;
 
-    if (is_human(mon->data) || is_demon(mon->data)) {
-        if (mon->data == &mons[PM_RAT_KING])
-            return;
+    if (is_human(mon->data)) {
         if (!Protection_from_shape_changers
             && !rn2(night() ? (flags.moonphase == FULL_MOON ? 3 : 30)
                             : (flags.moonphase == FULL_MOON ? 10 : 50))) {
             new_were(mon); /* change into animal form */
-            iflags.were_changes++;
+            gw.were_changes++;
             if (!Deaf && !canseemon(mon)) {
                 const char *howler;
 
@@ -30,30 +27,25 @@ struct monst *mon;
                 case PM_WEREJACKAL:
                     howler = "jackal";
                     break;
-                case PM_WEREDEMON:
-                    howler = "hell hound";
-                    break;
                 default:
                     howler = (char *) 0;
                     break;
                 }
-                if (howler)
+                if (howler) {
+                    Soundeffect(se_canine_howl, 50);
                     You_hear("a %s howling at the moon.", howler);
+                    wake_nearto(mon->mx, mon->my, 4 * 4);
+                }
             }
         }
     } else if (!rn2(30) || Protection_from_shape_changers) {
         new_were(mon); /* change back into human form */
-        iflags.were_changes++;
+        gw.were_changes++;
     }
-    /* set_uasmon() is deferred to once-per-turn in moveloop via
-       iflags.were_changes; calling it per were-creature per
-       distress tick burned cycles and triggered drop_weapon(1)
-       as a side effect on the player */
 }
 
 int
-counter_were(pm)
-int pm;
+counter_were(int pm)
 {
     switch (pm) {
     case PM_WEREWOLF:
@@ -68,10 +60,6 @@ int pm;
         return PM_HUMAN_WERERAT;
     case PM_HUMAN_WERERAT:
         return PM_WERERAT;
-    case PM_WEREDEMON:
-        return PM_DEMON_WEREDEMON;
-    case PM_DEMON_WEREDEMON:
-        return PM_WEREDEMON;
     default:
         return NON_PM;
     }
@@ -79,32 +67,25 @@ int pm;
 
 /* convert monsters similar to werecritters into appropriate werebeast */
 int
-were_beastie(pm)
-int pm;
+were_beastie(int pm)
 {
     switch (pm) {
     case PM_WERERAT:
     case PM_SEWER_RAT:
     case PM_GIANT_RAT:
     case PM_RABID_RAT:
-    case PM_ENORMOUS_RAT:
         return PM_WERERAT;
     case PM_WEREJACKAL:
     case PM_JACKAL:
     case PM_FOX:
     case PM_COYOTE:
-    case PM_RABID_DOG:
         return PM_WEREJACKAL;
     case PM_WEREWOLF:
     case PM_WOLF:
-    case PM_WOLF_CUB:
     case PM_WARG:
     case PM_WINTER_WOLF:
     case PM_WINTER_WOLF_CUB:
         return PM_WEREWOLF;
-    case PM_WEREDEMON:
-    case PM_HELL_HOUND:
-        return PM_WEREDEMON;
     default:
         break;
     }
@@ -112,59 +93,57 @@ int pm;
 }
 
 void
-new_were(mon)
-struct monst *mon;
+new_were(struct monst *mon)
 {
     int pm;
 
-    /* don't allow human/demon -> beast transformation under
-       Protection_from_shape_changers; beast -> human is always
-       allowed (and is how Protection forces the revert) */
-    if (Protection_from_shape_changers
-        && (is_human(mon->data) || is_demon(mon->data)))
-        return;
-
-    if (mon->data == &mons[PM_RAT_KING])
+    /* neither hero nor werecreature can change from human form to
+       critter form if hero has Protection_from_shape_changers extrinsic;
+       if already in critter form, always change to human form for that */
+    if (Protection_from_shape_changers && is_human(mon->data))
         return;
 
     pm = counter_were(monsndx(mon->data));
     if (pm < LOW_PM) {
-        impossible("unknown lycanthrope %s.", mon->data->mname);
+        impossible("unknown lycanthrope %s.",
+                    mon->data->pmnames[NEUTRAL]);
         return;
     }
 
     if (canseemon(mon) && !Hallucination)
         pline("%s changes into a %s.", Monnam(mon),
-              is_human(&mons[pm]) ? "human" :
-              is_demon(&mons[pm]) ? "demon" :
-              pm == PM_WEREDEMON  ? "hell hound" : mons[pm].mname + 4);
+              is_human(&mons[pm]) ? "human"
+                                  /* pmname()+4: skip past "were" prefix */
+                                  : pmname(&mons[pm], Mgender(mon)) + 4);
 
     set_mon_data(mon, &mons[pm]);
-    if (mon->msleeping || !mon->mcanmove) {
+    if (helpless(mon)) {
         /* transformation wakens and/or revitalizes */
         mon->msleeping = 0;
         mon->mfrozen = 0; /* not asleep or paralyzed */
-        if (!mon->mstone || mon->mstone > 2)
-            mon->mcanmove = 1;
+        mon->mcanmove = 1;
     }
     /* regenerate by 1/4 of the lost hit points */
-    mon->mhp += (mon->mhpmax - mon->mhp) / 4;
+    healmon(mon, (mon->mhpmax - mon->mhp) / 4, 0);
     newsym(mon->mx, mon->my);
     mon_break_armor(mon, FALSE);
-    /* mon_break_armor() can potentially kill if the monster
-       lands over pool/lava/open-air or has nowhere to go */
-    if (DEADMONSTER(mon))
-        return;
     possibly_unwield(mon, FALSE);
+
+    /* vision capability isn't changing so we don't call set_apparxy() to
+       update mon's idea of where hero is; peaceful check is redundant */
+    if (svc.context.mon_moving && !mon->mpeaceful
+        && onscary(mon->mux, mon->muy, mon)
+        && monnear(mon, mon->mux, mon->muy))
+        monflee(mon, rn1(9, 2), TRUE, TRUE); /* 2..10 turns */
 }
 
 /* were-creature (even you) summons a horde */
 int
-were_summon(ptr, yours, visible, genbuf)
-struct permonst *ptr;
-boolean yours;
-int *visible; /* number of visible helpers created */
-char *genbuf;
+were_summon(
+    struct permonst *ptr,
+    boolean yours,
+    int *visible, /* number of visible helpers created */
+    char *genbuf)
 {
     int i, typ, pm = monsndx(ptr);
     struct monst *mtmp;
@@ -177,18 +156,14 @@ char *genbuf;
         switch (pm) {
         case PM_WERERAT:
         case PM_HUMAN_WERERAT:
-        case PM_RAT_KING:
             typ = rn2(3) ? PM_SEWER_RAT
-                         : rn2(3) ? PM_GIANT_RAT
-                                  : rn2(2) ? PM_RABID_RAT : PM_ENORMOUS_RAT;
+                         : rn2(3) ? PM_GIANT_RAT : PM_RABID_RAT;
             if (genbuf)
                 Strcpy(genbuf, "rat");
             break;
         case PM_WEREJACKAL:
         case PM_HUMAN_WEREJACKAL:
-            typ = rn2(7) ? PM_JACKAL
-                         : rn2(3) ? PM_COYOTE
-                                  : rn2(2) ? PM_FOX : PM_RABID_DOG;
+            typ = rn2(7) ? PM_JACKAL : rn2(3) ? PM_COYOTE : PM_FOX;
             if (genbuf)
                 Strcpy(genbuf, "jackal");
             break;
@@ -197,12 +172,6 @@ char *genbuf;
             typ = rn2(5) ? PM_WOLF : rn2(2) ? PM_WARG : PM_WINTER_WOLF;
             if (genbuf)
                 Strcpy(genbuf, "wolf");
-            break;
-        case PM_WEREDEMON:
-        case PM_DEMON_WEREDEMON:
-            typ = PM_HELL_HOUND;
-            if (genbuf)
-                Strcpy(genbuf, "hell hound");
             break;
         default:
             continue;
@@ -214,37 +183,34 @@ char *genbuf;
                 *visible += 1;
         }
         if (yours && mtmp)
-            (void) tamedog(mtmp, (struct obj *) 0);
+            (void) tamedog(mtmp, (struct obj *) 0, FALSE);
     }
     return total;
 }
 
 void
-you_were()
+you_were(void)
 {
     char qbuf[QBUFSZ];
     boolean controllable_poly = Polymorph_control && !(Stunned || Unaware);
 
     if (Unchanging || u.umonnum == u.ulycn)
         return;
-    if (u.ulycn < LOW_PM)
-        return; /* not a lycanthrope */
     if (controllable_poly) {
         /* `+4' => skip "were" prefix to get name of beast */
         Sprintf(qbuf, "Do you want to change into %s?",
-                an(mons[u.ulycn].mname + 4));
+                an(mons[u.ulycn].pmnames[NEUTRAL] + 4));
         if (!paranoid_query(ParanoidWerechange, qbuf))
             return;
     } else if (monster_nearby()) {
-        return; /* don't burn a turn mid-fight */
+        return;
     }
-    iflags.were_changes++;
+    gw.were_changes++;
     (void) polymon(u.ulycn);
 }
 
 void
-you_unwere(purify)
-boolean purify;
+you_unwere(boolean purify)
 {
     boolean controllable_poly = Polymorph_control && !(Stunned || Unaware);
 
@@ -252,19 +218,18 @@ boolean purify;
         You_feel("purified.");
         set_ulycn(NON_PM); /* cure lycanthropy */
     }
-    if (!Unchanging && is_were(youmonst.data)
+    if (!Unchanging && is_were(gy.youmonst.data)
         && !monster_nearby()
         && (!controllable_poly
             || !paranoid_query(ParanoidWerechange, "Remain in beast form?")))
         rehumanize();
-    else if (is_were(youmonst.data) && !u.mtimedone)
+    else if (is_were(gy.youmonst.data) && !u.mtimedone)
         u.mtimedone = rn1(200, 200); /* 40% of initial were change */
 }
 
 /* lycanthropy is being caught or cured, but no shape change is involved */
 void
-set_ulycn(which)
-int which;
+set_ulycn(int which)
 {
     u.ulycn = which;
     /* add or remove lycanthrope's innate intrinsics (Drain_resistance) */

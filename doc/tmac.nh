@@ -1,4 +1,4 @@
-.\" NetHack 3.6	tmac.nh
+.\" NetHack 5.0	tmac.nh	$NHDT-Date: $ $NHDT-Branch: $:$NHDT-Revision: $
 .
 .\"   Miscellaneous tmac.n-style macros specifically for nethack's Guidebook.
 .\"
@@ -29,7 +29,7 @@
 .\" labeled paragraph label (and first line)
 .de PL
 .br
-\\h'|-\\n(PYu'\\$1\\h'|-\\n(PXu'\ -\ \\c \" back up, output the label, then
+\\h'|-\\n(PYu'\\$1\\h'|-\\n(PXu'\ -\ \\c\" back up, output the label, then
 .					\" skip to width-of(" - ") before the
 .					\" normal indentation, output the " - "
 .					\" then attach the next line (the
@@ -121,16 +121,11 @@
 .
 .\" .BR - hard line break with vertical padding inserted
 .\"    $1 - repeat count for amount of padding (optional; default is 1)
-.\"    In one-page mode (register 1P), just insert spacing without the
-.\"    digit-width space that interacts with tbl keeps to produce dead space.
 .de BR
 .ie \\.$==0 .nr bR 1v
 .el .nr bR 0\\$1v
-.ie \\n(1P .sp 1v
-.el \{\
 \0
 .sp \\n(bR
-.\}
 .br
 ..
 .\" .UR url
@@ -144,4 +139,6 @@
 .\" before/after last/first 2 characters of a word.
 .ie \n(.g .hy 12
 .el       .hy 14
+.ds JW Jon W{tte\"
+.if \n(.g .if !'\*[.T]'ascii' .ds JW Jon W\(:atte
 .\"tmac.nh/"

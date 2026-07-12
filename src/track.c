@@ -1,4 +1,4 @@
-/* NetHack 3.6	track.c	$NHDT-Date: 1432512769 2015/05/25 00:12:49 $  $NHDT-Branch: master $:$NHDT-Revision: 1.9 $ */
+/* NetHack 5.0	track.c	$NHDT-Date: 1781973070 2026/06/20 16:31:10 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.24 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Kenneth Lorber, Kensington, Maryland, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -6,21 +6,27 @@
 
 #include "hack.h"
 
-#define UTSZ 50
+#define UTSZ 100
 
-STATIC_VAR NEARDATA int utcnt, utpnt;
-STATIC_VAR NEARDATA coord utrack[UTSZ];
+static NEARDATA int utcnt, utpnt;
+static NEARDATA coord utrack[UTSZ];
 
 void
-initrack()
+initrack(void)
 {
     utcnt = utpnt = 0;
+    (void) memset((genericptr_t) &utrack, 0, sizeof(utrack));
 }
 
+#ifndef SFCTOOL
 /* add to track */
 void
-settrack()
+settrack(void)
 {
+    if ((uleft && uleft->otyp == RIN_STEALTH)
+        || (uright && uright->otyp == RIN_STEALTH))
+        return;
+
     if (utcnt < UTSZ)
         utcnt++;
     if (utpnt == UTSZ)
@@ -30,9 +36,10 @@ settrack()
     utpnt++;
 }
 
+/* get a track coord on or next to x,y and last tracked by hero,
+   returns null if no such track */
 coord *
-gettrack(x, y)
-int x, y;
+gettrack(coordxy x, coordxy y)
 {
     int cnt, ndist;
     coord *tc;
@@ -44,20 +51,57 @@ int x, y;
             tc--;
         ndist = distmin(x, y, tc->x, tc->y);
 
-        /* if far away, skip track entries til we're closer */
-        if (ndist > 2) {
-            ndist -= 2; /* be careful due to extra decrement at top of loop */
-            cnt -= ndist;
-            if (cnt <= 0)
-                return (coord *) 0; /* too far away, no matches possible */
-            if (tc < &utrack[ndist])
-                tc += (UTSZ - ndist);
-            else
-                tc -= ndist;
-        } else if (ndist <= 1)
+        if (ndist <= 1)
             return (ndist ? tc : 0);
     }
     return (coord *) 0;
+}
+#endif /* !SFCTOOL */
+
+/* return TRUE if x,y has hero tracks on it */
+boolean
+hastrack(coordxy x, coordxy y)
+{
+    int i;
+
+    for (i = 0; i < utcnt; i++)
+        if (utrack[i].x == x && utrack[i].y == y)
+            return TRUE;
+
+    return FALSE;
+}
+
+/* save the hero tracking info */
+void
+save_track(NHFILE *nhfp)
+{
+    if (update_file(nhfp)) {
+        int i;
+
+        Sfo_int(nhfp, &utcnt, "track-utcnt");
+        Sfo_int(nhfp, &utpnt, "track-utpnt");
+        for (i = 0; i < utcnt; i++) {
+            Sfo_nhcoord(nhfp, &utrack[i], "utrack");
+        }
+    }
+    if (release_data(nhfp))
+        initrack();
+}
+
+/* restore the hero tracking info */
+void
+rest_track(NHFILE *nhfp)
+{
+    int i;
+
+    Sfi_int(nhfp, &utcnt, "track-utcnt");
+    Sfi_int(nhfp, &utpnt, "track-utpnt");
+
+    if (utcnt > UTSZ || utpnt > UTSZ)
+        panic("rest_track: impossible pt counts");
+    for (i = 0; i < utcnt; i++) {
+        Sfi_nhcoord(nhfp, &utrack[i], "utrack");
+    }
 }
 
 /*track.c*/

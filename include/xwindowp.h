@@ -1,5 +1,5 @@
-/* NetHack 3.6	xwindowp.h	$NHDT-Date: 1432512779 2015/05/25 00:12:59 $  $NHDT-Branch: master $:$NHDT-Revision: 1.8 $ */
-/* Copyright (c) Dean Luick, 1992				  */
+/* NetHack 5.0	xwindowp.h	$NHDT-Date: 1781973093 2026/06/20 16:31:33 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.12 $ */
+/* Copyright (c) Dean Luick, 1992                                 */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef _xwindowp_h

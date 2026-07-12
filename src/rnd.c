@@ -1,4 +1,4 @@
-/* NetHack 3.6	rnd.c	$NHDT-Date: 1524689470 2018/04/25 20:51:10 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.18 $ */
+/* NetHack 5.0	rnd.c	$NHDT-Date: 1781973065 2026/06/20 16:31:05 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.41 $ */
 /*      Copyright (c) 2004 by Robert Patrick Rankin               */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -7,12 +7,16 @@
 #ifdef USE_ISAAC64
 #include "isaac64.h"
 
+staticfn int whichrng(int (*fn)(int));
+staticfn int RND(int);
+staticfn void set_random(unsigned long, int (*)(int));
+
 #if 0
 static isaac64_ctx rng_state;
 #endif
 
 struct rnglist_t {
-    int FDECL((*fn), (int));
+    int (*fn)(int);
     boolean init;
     isaac64_ctx rng_state;
 };
@@ -24,9 +28,8 @@ static struct rnglist_t rnglist[] = {
     { rn2_on_display_rng, FALSE, { 0 } },       /* DISP */
 };
 
-int
-whichrng(fn)
-int FDECL((*fn), (int));
+staticfn int
+whichrng(int (*fn)(int))
 {
     int i;
 
@@ -37,9 +40,7 @@ int FDECL((*fn), (int));
 }
 
 void
-init_isaac64(seed, fn)
-unsigned long seed;
-int FDECL((*fn), (int));
+init_isaac64(unsigned long seed, int (*fn)(int))
 {
     unsigned char new_rng_state[sizeof seed];
     unsigned i;
@@ -56,7 +57,7 @@ int FDECL((*fn), (int));
                  (int) sizeof seed);
 }
 
-static int
+staticfn int
 RND(int x)
 {
     return (isaac64_next_uint64(&rnglist[CORE].rng_state) % x);
@@ -66,8 +67,7 @@ RND(int x)
    used in cases where the answer doesn't affect gameplay and we don't
    want to give users easy control over the main RNG sequence. */
 int
-rn2_on_display_rng(x)
-int x;
+rn2_on_display_rng(int x)
 {
     return (isaac64_next_uint64(&rnglist[DISP].rng_state) % x);
 }
@@ -75,31 +75,24 @@ int x;
 #else   /* USE_ISAAC64 */
 
 /* "Rand()"s definition is determined by [OS]conf.h */
-#if defined(LINT) && defined(UNIX) /* rand() is long... */
-extern int NDECL(rand);
-#define RND(x) (rand() % x)
-#else /* LINT */
 #if defined(UNIX) || defined(RANDOM)
 #define RND(x) ((int) (Rand() % (long) (x)))
 #else
 /* Good luck: the bottom order bits are cyclic. */
 #define RND(x) ((int) ((Rand() >> 3) % (x)))
 #endif
-#endif /* LINT */
 int
-rn2_on_display_rng(x)
-int x;
+rn2_on_display_rng(int x)
 {
     static unsigned seed = 1;
     seed *= 2739110765;
-    return (int)((seed >> 16) % (unsigned)x);
+    return (int) ((seed >> 16) % (unsigned) x);
 }
 #endif  /* USE_ISAAC64 */
 
 /* 0 <= rn2(x) < x */
 int
-rn2(x)
-int x;
+rn2(int x)
 {
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
     if (x <= 0) {
@@ -116,8 +109,7 @@ int x;
 /* 0 <= rnl(x) < x; sometimes subtracting Luck;
    good luck approaches 0, bad luck approaches (x-1) */
 int
-rnl(x)
-int x;
+rnl(int x)
 {
     int i, adjustment;
 
@@ -160,8 +152,7 @@ int x;
 
 /* 1 <= rnd(x) <= x */
 int
-rnd(x)
-int x;
+rnd(int x)
 {
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
     if (x <= 0) {
@@ -173,10 +164,15 @@ int x;
     return x;
 }
 
+int
+rnd_on_display_rng(int x)
+{
+    return rn2_on_display_rng(x) + 1;
+}
+
 /* d(N,X) == NdX == dX+dX+...+dX N times; n <= d(n,x) <= (n*x) */
 int
-d(n, x)
-int n, x;
+d(int n, int x)
 {
     int tmp = n;
 
@@ -193,8 +189,7 @@ int n, x;
 
 /* 1 <= rne(x) <= max(u.ulevel/3,5) */
 int
-rne(x)
-int x;
+rne(int x)
 {
     int tmp, utmp;
 
@@ -216,16 +211,10 @@ int x;
 
 /* rnz: everyone's favorite! */
 int
-rnz(i)
-int i;
+rnz(int i)
 {
-#ifdef LINT
-    int x = i;
-    int tmp = 1000;
-#else
     long x = (long) i;
     long tmp = 1000L;
-#endif
 
     tmp += rn2(1000);
     tmp *= rne(4);
@@ -239,25 +228,85 @@ int i;
     return (int) x;
 }
 
-/* Deterministic hash of three coordinates (intended x, y, z; z is usually
-   ledger_no() so it stays unique among levels). ubirthday and the server
-   seed are mixed in so the result cannot be read off the visible game
-   state. Adapted from xNetHack */
-unsigned int
-coord_hash(x, y, z)
-xchar x, y;
-int z;
-{
-    const int magic_number = 0x45d9f3b;
-    /* Cantor pairing reduces (x,y) to a single number */
-    unsigned int a = ((x + y) * (x + y + 1) / 2) + x + z
-                     + (unsigned int) ubirthday
-                     + (unsigned int) sysopt.serverseed;
+/* Sets the seed for the random number generator */
+#ifdef USE_ISAAC64
 
-    a = a * magic_number;
-    a = ((a >> 16) ^ a) * magic_number;
-    a = ((a >> 16) ^ a);
-    return a;
+staticfn void
+set_random(unsigned long seed,
+           int (*fn)(int))
+{
+    init_isaac64(seed, fn);
+}
+
+#else /* USE_ISAAC64 */
+
+/*ARGSUSED*/
+staticfn void
+set_random(unsigned long seed,
+           int (*fn)(int) UNUSED)
+{
+    /*
+     * The types are different enough here that sweeping the different
+     * routine names into one via #defines is even more confusing.
+     */
+# ifdef RANDOM /* srandom() from sys/share/random.c */
+    srandom((unsigned int) seed);
+# else
+#  if defined(__APPLE__) || defined(BSD) || defined(LINUX) \
+    || defined(ULTRIX) || defined(CYGWIN32) /* system srandom() */
+#   if defined(BSD) && !defined(POSIX_TYPES) && defined(SUNOS4)
+    (void)
+#   endif
+        srandom((int) seed);
+#  else
+#   ifdef UNIX /* system srand48() */
+    srand48((long) seed);
+#   else       /* poor quality system routine */
+    srand((int) seed);
+#   endif
+#  endif
+# endif
+}
+#endif /* USE_ISAAC64 */
+
+/* An appropriate version of this must always be provided in
+   port-specific code somewhere. It returns a number suitable
+   as seed for the random number generator */
+extern unsigned long sys_random_seed(void);
+
+/*
+ * Initializes the random number generator.
+ * Only call once.
+ */
+void
+init_random(int (*fn)(int))
+{
+    set_random(sys_random_seed(), fn);
+}
+
+/* Reshuffles the random number generator. */
+void
+reseed_random(int (*fn)(int))
+{
+   /* only reseed if we are certain that the seed generation is unguessable
+    * by the players. */
+    if (has_strong_rngseed)
+        init_random(fn);
+}
+
+/* randomize the given list of numbers  0 <= i < count */
+void
+shuffle_int_array(int *indices, int count)
+{
+    int i, iswap, temp;
+
+    for (i = count - 1; i > 0; i--) {
+        if ((iswap = rn2(i + 1)) == i)
+            continue;
+        temp = indices[i];
+        indices[i] = indices[iswap];
+        indices[iswap] = temp;
+    }
 }
 
 /*rnd.c*/

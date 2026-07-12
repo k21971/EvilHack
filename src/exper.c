@@ -1,4 +1,4 @@
-/* NetHack 3.6	exper.c	$NHDT-Date: 1562114352 2019/07/03 00:39:12 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.33 $ */
+/* NetHack 5.0	exper.c	$NHDT-Date: 1781973049 2026/06/20 16:30:49 $  $NHDT-Branch: NetHack-5.0 $:$NHDT-Revision: 1.71 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2007. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -8,32 +8,28 @@
 #include <limits.h>
 #endif
 
-STATIC_DCL int FDECL(enermod, (int));
+staticfn int enermod(int);
 
 long
-newuexp(lev)
-int lev;
+newuexp(int lev)
 {
     if (lev < 1) /* for newuexp(u.ulevel - 1) when u.ulevel is 1 */
         return 0L;
     if (lev < 10)
         return (10L * (1L << lev));
-    if (lev < 17)
+    if (lev < 20)
         return (10000L * (1L << (lev - 10)));
-    return (320000L * ((long) (lev - 14)));
+    return (10000000L * ((long) (lev - 19)));
 }
 
-STATIC_OVL int
-enermod(en)
-int en;
+staticfn int
+enermod(int en)
 {
     switch (Role_switch) {
-    case PM_DRUID:
-    case PM_PRIEST:
+    case PM_CLERIC:
     case PM_WIZARD:
         return (2 * en);
     case PM_HEALER:
-    case PM_INFIDEL:
     case PM_KNIGHT:
         return ((3 * en) / 2);
     case PM_BARBARIAN:
@@ -46,39 +42,32 @@ int en;
 
 /* calculate spell power/energy points for new level */
 int
-newpw()
+newpw(void)
 {
     int en = 0, enrnd, enfix;
 
     if (u.ulevel == 0) {
-        en = urole.enadv.infix + urace.enadv.infix;
-        if (urole.enadv.inrnd > 0)
-            en += rnd(urole.enadv.inrnd);
-        if (urace.enadv.inrnd > 0)
-            en += rnd(urace.enadv.inrnd);
+        en = gu.urole.enadv.infix + gu.urace.enadv.infix;
+        if (gu.urole.enadv.inrnd > 0)
+            en += rnd(gu.urole.enadv.inrnd);
+        if (gu.urace.enadv.inrnd > 0)
+            en += rnd(gu.urace.enadv.inrnd);
     } else {
         enrnd = (int) ACURR(A_WIS) / 2;
-        if (u.ulevel < urole.xlev) {
-            enrnd += urole.enadv.lornd + urace.enadv.lornd;
-            enfix = urole.enadv.lofix + urace.enadv.lofix;
+        if (u.ulevel < gu.urole.xlev) {
+            enrnd += gu.urole.enadv.lornd + gu.urace.enadv.lornd;
+            enfix = gu.urole.enadv.lofix + gu.urace.enadv.lofix;
         } else {
-            enrnd += urole.enadv.hirnd + urace.enadv.hirnd;
-            enfix = urole.enadv.hifix + urace.enadv.hifix;
+            enrnd += gu.urole.enadv.hirnd + gu.urace.enadv.hirnd;
+            enfix = gu.urole.enadv.hifix + gu.urace.enadv.hifix;
         }
-        /* defensive floor: rn1(0, X) divides by zero; ATTRMIN
-           guarantees enrnd >= 1 in normal play, but corruption or
-           future race additions could break the invariant */
-        if (enrnd < 1)
-            enrnd = 1;
         en = enermod(rn1(enrnd, enfix));
     }
     if (en <= 0)
         en = 1;
     if (u.ulevel < MAXULEV) {
-        /* remember increment; future level drain could take it away
-           again; clamp to xchar range to avoid sign-flip if a future
-           role/race tuning ever pushes en past 127 */
-        u.ueninc[u.ulevel] = (xchar) min(en, 127);
+        /* remember increment; future level drain could take it away again */
+        u.ueninc[u.ulevel] = (xint16) en;
     } else {
         /* after level 30, throttle energy gains from extra experience;
            once max reaches 600, further increments will be just 1 more */
@@ -93,9 +82,7 @@ newpw()
 
 /* return # of exp points for mtmp after nk killed */
 int
-experience(mtmp, nk)
-struct monst *mtmp;
-int nk;
+experience(struct monst *mtmp, int nk)
 {
     struct permonst *ptr = mtmp->data;
     int i, tmp, tmp2;
@@ -135,8 +122,7 @@ int nk;
         /* extra heavy damage bonus */
         if ((int) (ptr->mattk[i].damd * ptr->mattk[i].damn) > 23)
             tmp += mtmp->m_lev;
-        if (tmp2 == AD_WRAP && ptr->mlet == S_EEL
-            && !Amphibious && !Breathless)
+        if (tmp2 == AD_WRAP && ptr->mlet == S_EEL && !Amphibious)
             tmp += 1000;
     }
 
@@ -148,7 +134,7 @@ int nk;
     if (mtmp->m_lev > 8)
         tmp += 50;
 
-#ifdef MAIL
+#ifdef MAIL_STRUCTURES
     /* Mail daemons put up no fight. */
     if (mtmp->data == &mons[PM_MAIL_DAEMON])
         tmp = 1;
@@ -180,13 +166,12 @@ int nk;
 }
 
 void
-more_experienced(exper, rexp)
-int exper, rexp;
+more_experienced(int exper, int rexp)
 {
     long oldexp = u.uexp,
          oldrexp = u.urexp,
          newexp = oldexp + exper,
-         rexpincr = 4L * exper + rexp,
+         rexpincr = 4 * exper + rexp,
          newrexp = oldrexp + rexpincr;
 
     /* cap experience and score on wraparound */
@@ -198,95 +183,111 @@ int exper, rexp;
     if (newexp != oldexp) {
         u.uexp = newexp;
         if (flags.showexp)
-            context.botl = TRUE;
+            disp.botl = TRUE;
         /* even when experience points aren't being shown, experience level
            might be highlighted with a percentage highlight rule and that
            percentage depends upon experience points */
-        if (!context.botl && exp_percent_changing())
-            context.botl = TRUE;
+        if (!disp.botl && exp_percent_changing())
+            disp.botl = TRUE;
     }
     /* newrexp will always differ from oldrexp unless they're LONG_MAX */
     if (newrexp != oldrexp) {
         u.urexp = newrexp;
 #ifdef SCORE_ON_BOTL
         if (flags.showscore)
-            context.botl = TRUE;
+            disp.botl = TRUE;
 #endif
     }
     if (u.urexp >= (Role_if(PM_WIZARD) ? 1000 : 2000))
-        flags.beginner = 0;
+        flags.beginner = FALSE;
 }
 
 /* e.g., hit by drain life attack */
 void
-losexp(drainer)
-const char *drainer; /* cause of death, if drain should be fatal */
+losexp(
+    const char *drainer) /* cause of death, if drain should be fatal */
 {
-    int num, entry_level = u.ulevel;
+    int num, uhpmin, olduhpmax;
 
     /* override life-drain resistance when handling an explicit
        wizard mode request to reduce level; never fatal though */
     if (drainer && !strcmp(drainer, "#levelchange"))
         drainer = 0;
-    else if (resists_drli(&youmonst))
+    else if (resists_drli(&gy.youmonst))
         return;
 
-    if (u.ulevel > 1) {
+    /* level-loss message; "Goodbye level 1." is fatal; divine anger
+       (drainer==NULL) resets a level 1 character to 0 experience points
+       without reducing level and that isn't fatal so suppress the message
+       in that situation */
+    if (u.ulevel > 1 || drainer)
         pline("%s level %d.", Goodbye(), u.ulevel);
-        u.ulevel--;
+
+    if (u.ulevel > 1) {
+        u.ulevel -= 1;
         /* remove intrinsic abilities */
         adjabil(u.ulevel + 1, u.ulevel);
-    } else {
+        livelog_printf(LL_MINORAC, "lost experience level %d", u.ulevel + 1);
+        SoundAchievement(0, sa2_xpleveldown, 0);
+    } else { /* u.ulevel==1 */
         if (drainer) {
-            killer.format = KILLED_BY;
-            if (killer.name != drainer)
-                Strcpy(killer.name, drainer);
+            svk.killer.format = KILLED_BY;
+            if (svk.killer.name != drainer)
+                Strcpy(svk.killer.name, drainer);
             done(DIED);
         }
-        /* no drainer or lifesaved at level 1 */
+        /* no drainer or lifesaved */
+        if (u.ulevel > 1)
+            /* can happen during debug fuzzing if fuzzer_savelife() uses
+               a blessed potion of restore ability to restore lost levels */
+            return;
         u.uexp = 0;
+        livelog_printf(LL_MINORAC, "lost all experience");
     }
+    assert(u.ulevel >= 0 && u.ulevel < MAXULEV); /* valid array index */
 
-    /* only adjust HP/Pw if a level was actually lost; at u.ulevel==1
-       with no decrement, u.uhpinc[1] / u.ueninc[1] holds the prior
-       1->2 increment (or zero if never reached level 2), and
-       subtracting it on divine anger or lifesave at level 1 would
-       double-remove a gain that was already taken back when the hero
-       dropped from level 2 to 1 in an earlier losexp call */
-    if (u.ulevel < entry_level) {
-        num = (int) u.uhpinc[u.ulevel];
-        u.uhpmax -= num;
-        if (u.uhpmax < 1)
-            u.uhpmax = 1;
-        u.uhp -= num;
-        if (u.uhp < 1)
-            u.uhp = 1;
-        else if (u.uhp > u.uhpmax)
-            u.uhp = u.uhpmax;
+    olduhpmax = u.uhpmax;
+    uhpmin = minuhpmax(10); /* same minimum as is used by life-saving */
+    num = (int) u.uhpinc[u.ulevel];
+    u.uhpmax -= num;
+    if (u.uhpmax < uhpmin)
+        setuhpmax(uhpmin, TRUE);
+    /* uhpmax might try to go up if it has previously been reduced by
+       strength loss or by a fire trap or by an attack by Death which
+       all use a different minimum than life-saving or experience loss;
+       we don't allow it to go up because that contradicts assumptions
+       elsewhere (such as healing wielder who drains with Stormbringer) */
+    if (u.uhpmax > olduhpmax)
+        setuhpmax(olduhpmax, TRUE);
 
-        num = (int) u.ueninc[u.ulevel];
-        u.uenmax -= num;
-        if (u.uenmax < 0)
-            u.uenmax = 0;
-        u.uen -= num;
-        if (u.uen < 0)
-            u.uen = 0;
-        else if (u.uen > u.uenmax)
-            u.uen = u.uenmax;
-    }
+    u.uhp -= num;
+    if (u.uhp < 1)
+        u.uhp = 1;
+    else if (u.uhp > u.uhpmax)
+        u.uhp = u.uhpmax;
+
+    num = (int) u.ueninc[u.ulevel];
+    u.uenmax -= num;
+    if (u.uenmax < 0)
+        u.uenmax = 0;
+    u.uen -= num;
+    if (u.uen < 0)
+        u.uen = 0;
+    else if (u.uen > u.uenmax)
+        u.uen = u.uenmax;
 
     if (u.uexp > 0)
         u.uexp = newuexp(u.ulevel) - 1;
 
-    if (Upolyd && u.ulevel < entry_level) {
-        num = monhp_per_lvl(&youmonst);
+    if (Upolyd) {
+        num = monhp_per_lvl(&gy.youmonst);
         u.mhmax -= num;
         u.mh -= num;
         if (u.mh <= 0)
             rehumanize();
     }
 
-    context.botl = TRUE;
+    disp.botl = TRUE;
 }
 
 /*
@@ -296,16 +297,18 @@ const char *drainer; /* cause of death, if drain should be fatal */
  * at a dragon created with a wand of polymorph??
  */
 void
-newexplevel()
+newexplevel(void)
 {
     if (u.ulevel < MAXULEV && u.uexp >= newuexp(u.ulevel))
         pluslvl(TRUE);
 }
 
 void
-pluslvl(incr)
-boolean incr; /* true iff via incremental experience growth */
-{             /*        (false for potion of gain level)    */
+pluslvl(
+    boolean incr) /* True: incremental experience growth;
+                   * False: potion of gain level or wraith corpse
+                   *        or wizard mode #levelchange */
+{
     int hpinc, eninc;
 
     if (!incr)
@@ -314,24 +317,30 @@ boolean incr; /* true iff via incremental experience growth */
     /* increase hit points (when polymorphed, do monster form first
        in order to retain normal human/whatever increase for later) */
     if (Upolyd) {
-        hpinc = monhp_per_lvl(&youmonst);
-        u.mhmax += hpinc;
+        hpinc = monhp_per_lvl(&gy.youmonst);
         u.mh += hpinc;
+        setuhpmax(u.mhmax, FALSE); /* acts as setmhmax() when Upolyd */
     }
     hpinc = newhp();
-    u.uhpmax += hpinc;
     u.uhp += hpinc;
+    setuhpmax(u.uhpmax + hpinc, TRUE); /* will lower u.uhp if it exceeds
+                                        * u.uhpmax */
 
     /* increase spell power/energy points */
     eninc = newpw();
     u.uenmax += eninc;
+    if (u.uenmax > u.uenpeak)
+        u.uenpeak = u.uenmax;
     u.uen += eninc;
 
     /* increase level (unless already maxxed) */
     if (u.ulevel < MAXULEV) {
+        int old_ach_cnt, newrank, oldrank = xlev_to_rank(u.ulevel);
+
         /* increase experience points to reflect new level */
         if (incr) {
             long tmp = newuexp(u.ulevel + 1);
+
             if (u.uexp >= tmp)
                 u.uexp = tmp - 1;
         } else {
@@ -344,16 +353,29 @@ boolean incr; /* true iff via incremental experience growth */
         if (u.ulevelmax < u.ulevel)
             u.ulevelmax = u.ulevel;
         adjabil(u.ulevel - 1, u.ulevel); /* give new intrinsics */
+        SoundAchievement(0, sa2_xplevelup, 0);
+        old_ach_cnt = count_achievements();
+        newrank = xlev_to_rank(u.ulevel);
+        if (newrank > oldrank)
+            record_achievement(achieve_rank(newrank));
+        /* a new rank achievement will log its own message; log a simpler
+           message here if we didn't just get an achievement (so when rank
+           hasn't changed or hero just regained a lost level and the rank
+           achievement doesn't get repeated) */
+        if (count_achievements() == old_ach_cnt)
+            livelog_printf(LL_MINORAC, "%sgained experience level %d",
+                           (u.ulevel <= u.ulevelpeak) ? "re" : "", u.ulevel);
+        if (u.ulevel > u.ulevelpeak)
+            u.ulevelpeak = u.ulevel;
     }
-    context.botl = TRUE;
+    disp.botl = TRUE;
 }
 
 /* compute a random amount of experience points suitable for the hero's
    experience level:  base number of points needed to reach the current
    level plus a random portion of what it takes to get to the next level */
 long
-rndexp(gaining)
-boolean gaining; /* gaining XP via potion vs setting XP for polyself */
+rndexp(boolean gaining) /* gaining XP via potion vs setting XP for polyself */
 {
     long minexp, maxexp, diff, factor, result;
 
@@ -363,11 +385,7 @@ boolean gaining; /* gaining XP via potion vs setting XP for polyself */
     /* make sure that `diff' is an argument which rn2() can handle */
     while (diff >= (long) LARGEST_INT)
         diff /= 2L, factor *= 2L;
-    /* diff can be 0 if u.ulevel == 0 (newuexp(-1) and newuexp(0) both
-       return 0); rn2(0) divides by zero */
-    result = minexp;
-    if (diff > 0)
-        result += factor * (long) rn2((int) diff);
+    result = minexp + factor * (long) rn2((int) diff);
     /* 3.4.1:  if already at level 30, add to current experience
        points rather than to threshold needed to reach the current
        level; otherwise blessed potions of gain level can result

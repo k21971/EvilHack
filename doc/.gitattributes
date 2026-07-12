@@ -3,7 +3,6 @@
 *.6	NHSUBST
 *.7	NHSUBST
 fixes*	NHSUBST
-window.doc NHSUBST
 config.nh NHSUBST
 Guidebook.txt NH_header=no
 tmac.n NH_header=no
@@ -15,4 +14,4 @@ Guidebook.tex	NH_DATESUB
 Guidebook.mn	NH_DATESUB NHAUTODOCS
 *.6	NH_DATESUB NHAUTODOCS
 *.7	NH_DATESUB NHAUTODOCS
-fixes*	-NHAUTODOCS
+fixes* -NHAUTODOCS
