@@ -1173,7 +1173,7 @@ distant_monnam(
     /* high priest(ess)'s identity is concealed on the Astral Plane,
        unless you're adjacent (overridden for hallucination which does
        its own obfuscation) */
-    if (mon->data == &mons[PM_HIGH_CLERIC] && !Hallucination
+    if (mon->data == &mons[PM_HIGH_PRIEST] && !Hallucination
         && Is_astralevel(&u.uz) && !m_next2u(mon)) {
         Strcpy(outbuf, article == ARTICLE_THE ? "the " : "");
         Strcat(outbuf, mon->female ? "high priestess" : "high priest");
@@ -1347,7 +1347,7 @@ obj_pmname(struct obj *obj)
            random gender to be chosen here because splitting a stack of
            corpses could cause the split-off portion to change gender, so
            settle for avoiding "aligned"] */
-        if (mndx == PM_ALIGNED_CLERIC && cgend == CORPSTAT_RANDOM)
+        if (mndx == PM_ALIGNED_PRIEST && cgend == CORPSTAT_RANDOM)
             mndx = PM_CLERIC;
 
         return pmname(&mons[mndx], mgend);

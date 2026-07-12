@@ -1585,9 +1585,6 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
         if (!(jump(max(role_skill, 1)) & ECMD_TIME))
             pline1(nothing_happens);
         break;
-    case SPE_CHAIN_LIGHTNING:
-        cast_chain_lightning();
-        break;
     default:
         impossible("Unknown spell %d attempted.", spell);
         obfree(pseudo, (struct obj *) 0);

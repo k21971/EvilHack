@@ -561,8 +561,8 @@ shade_glare(struct obj *obj)
         return TRUE;
     /* non-silver artifacts with bonus against undead also are effective */
     arti = get_artifact(obj);
-    if (arti != &artilist[ART_NONARTIFACT] && (arti->spfx & SPFX_DFLAG2)
-                             && arti->mtype == M2_UNDEAD)
+    if (arti != &artilist[ART_NONARTIFACT] && (arti->spfx & SPFX_DFLAGH)
+                             && arti->mtype == MH_UNDEAD)
         return TRUE;
     /* [if there was anything with special bonus against noncorporeals,
        it would be effective too] */
@@ -642,11 +642,8 @@ defends(int adtyp, struct obj *otmp)
     if ((weap = get_artifact(otmp)) != &artilist[ART_NONARTIFACT])
         return (boolean) (weap->defn.adtyp == adtyp);
     if (Is_dragon_armor(otmp)) {
-        int otyp = otmp->otyp;
-
-        /* convert mail to scales to simplify testing */
-        if (Is_dragon_mail(otmp))
-            otyp += GRAY_DRAGON_SCALES - GRAY_DRAGON_SCALE_MAIL;
+        /* convert dragon-scaled armor to scales to simplify testing */
+        int otyp = Dragon_armor_to_scales(otmp);
 
         switch (adtyp) {
         case AD_MAGM: /* magic missiles => general magic resistance */
@@ -822,13 +819,13 @@ set_artifact_intrinsic(
             ETeleport_control &= ~wp_mask;
     }
     if (spfx & SPFX_WARN) {
-        if (spec_m2(otmp)) {
+        if (spec_mh(otmp)) {
             if (on) {
                 EWarn_of_mon |= wp_mask;
-                svc.context.warntype.obj |= spec_m2(otmp);
+                svc.context.warntype.obj |= spec_mh(otmp);
             } else {
                 EWarn_of_mon &= ~wp_mask;
-                svc.context.warntype.obj &= ~spec_m2(otmp);
+                svc.context.warntype.obj &= ~spec_mh(otmp);
             }
             see_monsters();
         } else {
@@ -1023,11 +1020,11 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
         return (weap->mtype == (unsigned long) ptr->mlet);
     } else if (weap->spfx & SPFX_DFLAG1) {
         return ((ptr->mflags1 & weap->mtype) != 0L);
-    } else if (weap->spfx & SPFX_DFLAG2) {
-        return ((ptr->mflags2 & weap->mtype)
+    } else if (weap->spfx & SPFX_DFLAGH) {
+        return ((ptr->mhflags & weap->mtype)
                 || (yours
                     && ((!Upolyd && (gu.urace.selfmask & weap->mtype))
-                        || ((weap->mtype & M2_WERE) && ismnum(u.ulycn)))));
+                        || ((weap->mtype & MH_WERE) && ismnum(u.ulycn)))));
     } else if (weap->spfx & SPFX_DALIGN) {
         return yours ? (u.ualign.type != weap->alignment)
                      : (ptr->maligntyp == A_NONE
@@ -1059,10 +1056,10 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
     return 0;
 }
 
-/* return the M2 flags of monster that an artifact's special attacks apply
+/* return the MH flags of monster that an artifact's special attacks apply
  * against */
 long
-spec_m2(struct obj *otmp)
+spec_mh(struct obj *otmp)
 {
     const struct artifact *artifact = get_artifact(otmp);
 
@@ -2265,8 +2262,8 @@ artifact_light(struct obj *obj)
 {
     /* not artifacts but treat them as if they were because they emit
        light without burning */
-    if (obj && (obj->otyp == GOLD_DRAGON_SCALE_MAIL
-                || obj->otyp == GOLD_DRAGON_SCALES)
+    if (obj && Is_dragon_armor(obj)
+        && Dragon_armor_to_scales(obj) == GOLD_DRAGON_SCALES
         && (obj->owornmask & W_ARM) != 0L)
         return TRUE;
 

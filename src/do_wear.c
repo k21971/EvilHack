@@ -191,7 +191,7 @@ Boots_on(void)
 
     switch (uarmf->otyp) {
     case LOW_BOOTS:
-    case IRON_SHOES:
+    case DWARVISH_BOOTS:
     case HIGH_BOOTS:
     case JUMPING_BOOTS:
     case KICKING_BOOTS:
@@ -310,7 +310,7 @@ Boots_off(void)
         }
         break;
     case LOW_BOOTS:
-    case IRON_SHOES:
+    case DWARVISH_BOOTS:
     case HIGH_BOOTS:
     case JUMPING_BOOTS:
     case KICKING_BOOTS:
@@ -333,7 +333,7 @@ Cloak_on(void)
     case DWARVISH_CLOAK:
     case CLOAK_OF_MAGIC_RESISTANCE:
     case ROBE:
-    case LEATHER_CLOAK:
+    case CLOAK:
         break;
     case CLOAK_OF_PROTECTION:
         makeknown(uarmc->otyp);
@@ -396,7 +396,7 @@ Cloak_off(void)
     case CLOAK_OF_MAGIC_RESISTANCE:
     case OILSKIN_CLOAK:
     case ROBE:
-    case LEATHER_CLOAK:
+    case CLOAK:
         break;
     case ELVEN_CLOAK:
         toggle_stealth(otmp, oldprop, FALSE);
@@ -440,8 +440,8 @@ Helmet_on(void)
         break;
     case HELMET:
     case DENTED_POT:
-    case ELVEN_LEATHER_HELM:
-    case DWARVISH_IRON_HELM:
+    case ELVEN_HELM:
+    case DWARVISH_HELM:
     case ORCISH_HELM:
     case HELM_OF_TELEPATHY:
         break;
@@ -526,8 +526,8 @@ Helmet_off(void)
         break;
     case HELMET:
     case DENTED_POT:
-    case ELVEN_LEATHER_HELM:
-    case DWARVISH_IRON_HELM:
+    case ELVEN_HELM:
+    case DWARVISH_HELM:
     case ORCISH_HELM:
         break;
     case DUNCE_CAP:
@@ -579,7 +579,7 @@ Gloves_on(void)
         u.uprops[objects[uarmg->otyp].oc_oprop].extrinsic & ~WORN_GLOVES;
 
     switch (uarmg->otyp) {
-    case LEATHER_GLOVES:
+    case GLOVES:
         break;
     case GAUNTLETS_OF_FUMBLING:
         if (!oldprop && !(HFumbling & ~TIMEOUT))
@@ -653,7 +653,7 @@ Gloves_off(void)
     svc.context.takeoff.mask &= ~W_ARMG;
 
     switch (uarmg->otyp) {
-    case LEATHER_GLOVES:
+    case GLOVES:
         break;
     case GAUNTLETS_OF_FUMBLING:
         if (!oldprop && !(HFumbling & ~TIMEOUT))
@@ -710,8 +710,6 @@ Shield_on(void)
        in setworn() called by armor_or_accessory_on() before Shield_on()] */
     switch (uarms->otyp) {
     case SMALL_SHIELD:
-    case SHIELD_OF_DRAIN_RESISTANCE:
-    case SHIELD_OF_SHOCK_RESISTANCE:
     case ELVEN_SHIELD:
     case URUK_HAI_SHIELD:
     case ORCISH_SHIELD:
@@ -738,8 +736,6 @@ Shield_off(void)
        keep this uncommented in case somebody adds a new one which does */
     switch (uarms->otyp) {
     case SMALL_SHIELD:
-    case SHIELD_OF_DRAIN_RESISTANCE:
-    case SHIELD_OF_SHOCK_RESISTANCE:
     case ELVEN_SHIELD:
     case URUK_HAI_SHIELD:
     case ORCISH_SHIELD:
@@ -807,7 +803,6 @@ dragon_armor_handling(
         /* grey: no extra effect */
         /* silver: no extra effect */
     case BLACK_DRAGON_SCALES:
-    case BLACK_DRAGON_SCALE_MAIL:
         if (puton) {
             EDrain_resistance |= W_ARM;
         } else {
@@ -815,7 +810,6 @@ dragon_armor_handling(
         }
         break;
     case BLUE_DRAGON_SCALES:
-    case BLUE_DRAGON_SCALE_MAIL:
         if (puton) {
             if (!Very_fast)
                 You("speed up%s.", Fast ? " a bit more" : "");
@@ -827,7 +821,6 @@ dragon_armor_handling(
         }
         break;
     case GREEN_DRAGON_SCALES:
-    case GREEN_DRAGON_SCALE_MAIL:
         if (puton) {
             ESick_resistance |= W_ARM;
         } else {
@@ -835,7 +828,6 @@ dragon_armor_handling(
         }
         break;
     case RED_DRAGON_SCALES:
-    case RED_DRAGON_SCALE_MAIL:
         if (puton) {
             EInfravision |= W_ARM;
         } else {
@@ -844,13 +836,11 @@ dragon_armor_handling(
         see_monsters();
         break;
     case GOLD_DRAGON_SCALES:
-    case GOLD_DRAGON_SCALE_MAIL:
         (void) make_hallucinated((long) !puton,
                                  program_state.restoring ? FALSE : TRUE,
                                  W_ARM);
         break;
     case ORANGE_DRAGON_SCALES:
-    case ORANGE_DRAGON_SCALE_MAIL:
         if (puton) {
             Free_action |= W_ARM;
         } else {
@@ -858,7 +848,6 @@ dragon_armor_handling(
         }
         break;
     case YELLOW_DRAGON_SCALES:
-    case YELLOW_DRAGON_SCALE_MAIL:
         if (puton) {
             EStone_resistance |= W_ARM;
         } else {
@@ -871,7 +860,6 @@ dragon_armor_handling(
         }
         break;
     case WHITE_DRAGON_SCALES:
-    case WHITE_DRAGON_SCALE_MAIL:
         if (puton) {
             ESlow_digestion |= W_ARM;
         } else {
@@ -1836,12 +1824,8 @@ dotakeoff(void)
 
     count_worn_stuff(&otmp, FALSE);
     if (!Narmorpieces && !Naccessories) {
-        /* assert( GRAY_DRAGON_SCALES > YELLOW_DRAGON_SCALE_MAIL ); */
         if (uskin)
-            pline_The("%s merged with your skin!",
-                      uskin->otyp >= GRAY_DRAGON_SCALES
-                          ? "dragon scales are"
-                          : "dragon scale mail is");
+            pline("Your scaly armor is merged with your skin!");
         else
             pline("Not wearing any armor or accessories.");
         return ECMD_OK;

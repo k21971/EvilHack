@@ -1750,7 +1750,6 @@ start_tin(struct obj *otmp)
             tmp = rn2(uwep->cursed ? 3 : !uwep->blessed ? 2 : 1);
             break;
         case DAGGER:
-        case SILVER_DAGGER:
         case ELVEN_DAGGER:
         case ORCISH_DAGGER:
         case ATHAME:
@@ -2156,7 +2155,7 @@ fprefx(struct obj *otmp)
         goto give_feedback;
     case MEATBALL:
     case MEAT_STICK:
-    case ENORMOUS_MEATBALL:
+    case HUGE_CHUNK_OF_MEAT:
     case MEAT_RING:
         goto give_feedback;
     case CLOVE_OF_GARLIC:

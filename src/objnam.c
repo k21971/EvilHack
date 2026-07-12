@@ -108,12 +108,12 @@ static const struct Jitem Japanese_items[] = {
     { FLAIL, "nunchaku" },
     { GLAIVE, "naginata" },
     { LOCK_PICK, "osaku" },
-    { WOODEN_HARP, "koto" },
+    { HARP, "koto" },
     { MAGIC_HARP, "magic koto" },
     { KNIFE, "shito" },
     { PLATE_MAIL, "tanko" },
     { HELMET, "kabuto" },
-    { LEATHER_GLOVES, "yugake" },
+    { GLOVES, "yugake" },
     { FOOD_RATION, "gunyoki" },
     { POT_BOOZE, "sake" },
     { 0, "" }
@@ -209,7 +209,7 @@ obj_typename(int otyp)
 
     if (Role_if(PM_SAMURAI)) {
         actualn = Japanese_item_name(otyp, actualn);
-        if (otyp == WOODEN_HARP || otyp == MAGIC_HARP)
+        if (otyp == HARP || otyp == MAGIC_HARP)
             dn = "koto";
     }
     /* generic items don't have an actual-name; we shouldn't ever be called
@@ -604,7 +604,7 @@ xname_flags(
 
     if (Role_if(PM_SAMURAI)) {
         actualn = Japanese_item_name(typ, actualn);
-        if (typ == WOODEN_HARP || typ == MAGIC_HARP)
+        if (typ == HARP || typ == MAGIC_HARP)
             dn = "koto";
     }
     /* generic items don't have an actual-name; we shouldn't ever be called
@@ -1131,7 +1131,7 @@ the_unique_pm(struct permonst *ptr)
     /* high priest is unique if it includes "of <deity>", otherwise not
        (caller needs to handle the 1st possibility; we assume the 2nd);
        worm tail should be irrelevant but is included for completeness */
-    if (ptr == &mons[PM_HIGH_CLERIC] || ptr == &mons[PM_LONG_WORM_TAIL])
+    if (ptr == &mons[PM_HIGH_PRIEST] || ptr == &mons[PM_LONG_WORM_TAIL])
         uniq = FALSE;
     /* Wizard no longer needs this; he's flagged as unique these days */
     if (ptr == &mons[PM_WIZARD_OF_YENDOR])
@@ -1455,7 +1455,7 @@ doname_base(
             ConcatF2(bp, 0, " (%d of 7 candle%s)", obj->spe, suffix);
             break;
         } else if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
-                   || obj->otyp == BRASS_LANTERN || Is_candle(obj)) {
+                   || obj->otyp == LANTERN || Is_candle(obj)) {
             if (Is_candle(obj)) {
                 anything timer;
                 long full_burn_time = 20L * (long) objects[obj->otyp].oc_cost,
@@ -3379,17 +3379,15 @@ static NEARDATA const struct o_range o_ranges[] = {
     { "horn", TOOL_CLASS, TOOLED_HORN, HORN_OF_PLENTY },
     { "shield", ARMOR_CLASS, SMALL_SHIELD, SHIELD_OF_REFLECTION },
     { "hat", ARMOR_CLASS, FEDORA, DUNCE_CAP },
-    { "helm", ARMOR_CLASS, ELVEN_LEATHER_HELM, HELM_OF_TELEPATHY },
-    { "gloves", ARMOR_CLASS, LEATHER_GLOVES, GAUNTLETS_OF_DEXTERITY },
-    { "gauntlets", ARMOR_CLASS, LEATHER_GLOVES, GAUNTLETS_OF_DEXTERITY },
+    { "helm", ARMOR_CLASS, ELVEN_HELM, HELM_OF_TELEPATHY },
+    { "gloves", ARMOR_CLASS, GLOVES, GAUNTLETS_OF_DEXTERITY },
+    { "gauntlets", ARMOR_CLASS, GLOVES, GAUNTLETS_OF_DEXTERITY },
     { "boots", ARMOR_CLASS, LOW_BOOTS, LEVITATION_BOOTS },
-    { "shoes", ARMOR_CLASS, LOW_BOOTS, IRON_SHOES },
+    { "shoes", ARMOR_CLASS, LOW_BOOTS, DWARVISH_BOOTS },
     { "cloak", ARMOR_CLASS, MUMMY_WRAPPING, CLOAK_OF_DISPLACEMENT },
     { "shirt", ARMOR_CLASS, HAWAIIAN_SHIRT, T_SHIRT },
-    { "dragon scales", ARMOR_CLASS, GRAY_DRAGON_SCALES,
-      YELLOW_DRAGON_SCALES },
-    { "dragon scale mail", ARMOR_CLASS, GRAY_DRAGON_SCALE_MAIL,
-      YELLOW_DRAGON_SCALE_MAIL },
+    { "dragon scales", ARMOR_CLASS, FIRST_DRAGON_SCALES,
+      LAST_DRAGON_SCALES },
     { "sword", WEAPON_CLASS, SHORT_SWORD, KATANA },
     { "venom", VENOM_CLASS, BLINDING_VENOM, ACID_VENOM },
     { "gray stone", GEM_CLASS, LUCKSTONE, FLINT },
@@ -3406,13 +3404,12 @@ static const struct alt_spellings {
 } spellings[] = {
     { "pickax", PICK_AXE },
     { "whip", BULLWHIP },
-    { "saber", SILVER_SABER },
-    { "silver sabre", SILVER_SABER },
+    { "saber", SABER },
+    { "sabre", SABER },
     { "smooth shield", SHIELD_OF_REFLECTION },
-    { "grey dragon scale mail", GRAY_DRAGON_SCALE_MAIL },
     { "grey dragon scales", GRAY_DRAGON_SCALES },
     { "iron ball", HEAVY_IRON_BALL },
-    { "lantern", BRASS_LANTERN },
+    { "lantern", LANTERN },
     { "mattock", DWARVISH_MATTOCK },
     { "amulet of poison resistance", AMULET_VERSUS_POISON },
     { "amulet of protection", AMULET_OF_GUARDING },
@@ -3420,7 +3417,7 @@ static const struct alt_spellings {
     { "helm of esp", HELM_OF_TELEPATHY },
     { "gauntlets of ogre power", GAUNTLETS_OF_POWER },
     { "gauntlets of giant strength", GAUNTLETS_OF_POWER },
-    { "elven chain mail", ELVEN_MITHRIL_COAT },
+    { "elven chain mail", ELVEN_CHAIN_MAIL },
     { "silver shield", SHIELD_OF_REFLECTION },
     { "potion of sleep", POT_SLEEPING },
     { "scroll of recharging", SCR_CHARGING },
@@ -3436,8 +3433,8 @@ static const struct alt_spellings {
     { "tripe", TRIPE_RATION },
     { "cookie", FORTUNE_COOKIE },
     { "pie", CREAM_PIE },
-    { "huge meatball", ENORMOUS_MEATBALL }, /* likely conflated name */
-    { "huge chunk of meat", ENORMOUS_MEATBALL }, /* original name */
+    { "huge meatball", HUGE_CHUNK_OF_MEAT }, /* likely conflated name */
+    { "huge chunk of meat", HUGE_CHUNK_OF_MEAT }, /* original name */
     { "marker", MAGIC_MARKER },
     { "hook", GRAPPLING_HOOK },
     { "grappling iron", GRAPPLING_HOOK },
@@ -5113,7 +5110,7 @@ readobjnam(char *bp, struct obj *no_wish)
     }
 
     if (d.islit && (d.typ == OIL_LAMP || d.typ == MAGIC_LAMP
-                    || d.typ == BRASS_LANTERN
+                    || d.typ == LANTERN
                     || Is_candle(d.otmp) || d.typ == POT_OIL)) {
         place_object(d.otmp, u.ux, u.uy); /* make it viable light source */
         begin_burn(d.otmp, FALSE);
@@ -5273,10 +5270,8 @@ readobjnam(char *bp, struct obj *no_wish)
                 delete_contents(d.otmp); /* no spellbook */
             break;
         case SCALE_MAIL:
-            /* Dragon mail - depends on the order of objects & dragons. */
-            if (d.mntmp >= PM_GRAY_DRAGON && d.mntmp <= PM_YELLOW_DRAGON)
-                d.otmp->otyp = GRAY_DRAGON_SCALE_MAIL
-                              + d.mntmp - PM_GRAY_DRAGON;
+            /* TODO-EVILHACK: "<color> dragon scale mail" wishes should
+               produce dragon-scaled armor once that system ports */
             break;
         }
     }
@@ -5502,10 +5497,10 @@ suit_simple_name(struct obj *suit)
     const char *suitnm, *esuitp;
 
     if (suit) {
-        if (Is_dragon_mail(suit))
-            return "dragon mail"; /* <color> dragon scale mail */
-        else if (Is_dragon_scales(suit))
+        if (Is_dragon_scales(suit))
             return "dragon scales";
+        else if (Is_dragon_scaled_armor(suit))
+            return "dragon mail"; /* <color> dragon-scaled armor */
         suitnm = OBJ_NAME(objects[suit->otyp]);
         esuitp = eos((char *) suitnm);
         if (strlen(suitnm) > 5 && !strcmp(esuitp - 5, " mail"))

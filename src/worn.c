@@ -425,7 +425,7 @@ check_wornmask_slots(void)
         else if (!Is_dragon_scales(o))
             Sprintf(whybuf, "%s (%s) %s not dragon scales",
                     what, simpleonames(o), otense(o, "are"));
-        else if (Dragon_scales_to_pm(o) != &mons[u.umonnum])
+        else if (Dragon_armor_to_pm(o) != u.umonnum)
             Sprintf(whybuf, "%s, hero is not %s",
                     what, an(mons[u.umonnum].pmnames[NEUTRAL]));
         if (whybuf[0])
@@ -1185,8 +1185,8 @@ mon_break_armor(struct monst *mon, boolean polyspot)
 
     if (breakarm(mdat)) {
         if ((otmp = which_armor(mon, W_ARM)) != 0) {
-            if ((Is_dragon_scales(otmp) && mdat == Dragon_scales_to_pm(otmp))
-                || (Is_dragon_mail(otmp) && mdat == Dragon_mail_to_pm(otmp))) {
+            if (Is_dragon_armor(otmp)
+                && monsndx(mdat) == Dragon_armor_to_pm(otmp)) {
                 ; /* no message here;
                      "the dragon merges with his scaly armor" is odd
                      and the monster's previous form is already gone */

@@ -1051,7 +1051,7 @@ dotele(
                 return 1;
             } else
                 trap = 0; /* continue with normal horizontal teleport */
-        } else if (trap->ttyp == TELEP_TRAP) {
+        } else if (trap->ttyp == TELEP_TRAP_SET) {
             trap_once = trap->once; /* trap may get deleted, save this */
             if (trap->once) {
                 pline("This is a vault teleport, usable once only.");

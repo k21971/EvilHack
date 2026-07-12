@@ -177,7 +177,7 @@ extern int doinvoke(void);
 extern boolean finesse_ahriman(struct obj *);
 extern int arti_speak(struct obj *);
 extern boolean artifact_light(struct obj *);
-extern long spec_m2(struct obj *);
+extern long spec_mh(struct obj *);
 extern boolean artifact_has_invprop(struct obj *, uchar);
 extern long arti_cost(struct obj *) NONNULLARG1;
 extern struct obj *what_gives(long *) NONNULLARG1;

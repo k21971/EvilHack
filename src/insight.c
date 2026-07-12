@@ -1591,20 +1591,20 @@ attributes_enlightenment(
         you_are("warned", from_what(WARNING));
     if (Warn_of_mon && svc.context.warntype.obj) {
         Sprintf(buf, "aware of the presence of %s",
-                (svc.context.warntype.obj & M2_ORC) ? "orcs"
-                : (svc.context.warntype.obj & M2_ELF) ? "elves"
-                  : (svc.context.warntype.obj & M2_DEMON) ? "demons"
+                (svc.context.warntype.obj & MH_ORC) ? "orcs"
+                : (svc.context.warntype.obj & MH_ELF) ? "elves"
+                  : (svc.context.warntype.obj & MH_DEMON) ? "demons"
                     : something);
         you_are(buf, from_what(WARN_OF_MON));
     }
     if (Warn_of_mon && svc.context.warntype.polyd) {
         Sprintf(buf, "aware of the presence of %s",
-                ((svc.context.warntype.polyd & (M2_HUMAN | M2_ELF))
-                 == (M2_HUMAN | M2_ELF)) ? "humans and elves"
-                    : (svc.context.warntype.polyd & M2_HUMAN) ? "humans"
-                      : (svc.context.warntype.polyd & M2_ELF) ? "elves"
-                        : (svc.context.warntype.polyd & M2_ORC) ? "orcs"
-                          : (svc.context.warntype.polyd & M2_DEMON) ? "demons"
+                ((svc.context.warntype.polyd & (MH_HUMAN | MH_ELF))
+                 == (MH_HUMAN | MH_ELF)) ? "humans and elves"
+                    : (svc.context.warntype.polyd & MH_HUMAN) ? "humans"
+                      : (svc.context.warntype.polyd & MH_ELF) ? "elves"
+                        : (svc.context.warntype.polyd & MH_ORC) ? "orcs"
+                          : (svc.context.warntype.polyd & MH_DEMON) ? "demons"
                             : "certain monsters");
         you_are(buf, "");
     }
@@ -2657,8 +2657,8 @@ vanqsort_cmp(
         res = mstr2 - mstr1; /* monstr high to low */
         break;
     case VANQ_ALPHA_SEP:
-        uniq1 = ((mons[indx1].geno & G_UNIQ) && indx1 != PM_HIGH_CLERIC);
-        uniq2 = ((mons[indx2].geno & G_UNIQ) && indx2 != PM_HIGH_CLERIC);
+        uniq1 = ((mons[indx1].geno & G_UNIQ) && indx1 != PM_HIGH_PRIEST);
+        uniq2 = ((mons[indx2].geno & G_UNIQ) && indx2 != PM_HIGH_PRIEST);
         if (uniq1 ^ uniq2) { /* one or other uniq, but not both */
             res = uniq2 - uniq1;
             break;
@@ -2678,7 +2678,7 @@ vanqsort_cmp(
            so force our copies (mcls1, mcls2) to be signed */
         mcls1 = (schar) mons[indx1].mlet;
         mcls2 = (schar) mons[indx2].mlet;
-        /* S_ANT through S_ZRUTY correspond to lowercase monster classes,
+        /* S_ANT through S_SKELETON correspond to lowercase monster classes,
            S_ANGEL through S_ZOMBIE correspond to uppercase, and various
            punctuation characters are used for classes beyond those */
         if (mcls1 > S_ZOMBIE && mcls2 > S_ZOMBIE) {
@@ -2790,7 +2790,7 @@ dovanquished(void)
 
 /* high priests aren't unique but are flagged as such to simplify something */
 #define UniqCritterIndx(mndx) \
-    ((mons[mndx].geno & G_UNIQ) != 0 && mndx != PM_HIGH_CLERIC)
+    ((mons[mndx].geno & G_UNIQ) != 0 && mndx != PM_HIGH_PRIEST)
 
 #define done_stopprint program_state.stopprint
 

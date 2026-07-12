@@ -133,20 +133,18 @@ enum ms_sounds {
 #define M1_METALLIVORE  0x80000000L /* eats metal */
 #endif
 
+/* race/kind membership lives in mhflags (MH_* below); the freed low
+   M2_ bits carry EvilHack's shapechange form pools */
 #define M2_NOPOLY       0x00000001L /* players mayn't poly into one */
-#define M2_UNDEAD       0x00000002L /* is walking dead */
-#define M2_WERE         0x00000004L /* is a lycanthrope */
-#define M2_HUMAN        0x00000008L /* is a human */
-#define M2_ELF          0x00000010L /* is an elf */
-#define M2_DWARF        0x00000020L /* is a dwarf */
-#define M2_GNOME        0x00000040L /* is a gnome */
-#define M2_ORC          0x00000080L /* is an orc */
-#define M2_DEMON        0x00000100L /* is a demon */
-#define M2_MERC         0x00000200L /* is a guard or soldier */
+#define M2_DRUID_FORM_A 0x00000002L /* monster a druid can wildshape into, first tier */
+#define M2_DRUID_FORM_B 0x00000004L /* monster a druid can wildshape into, second tier */
+#define M2_DRUID_FORM_C 0x00000008L /* monster a druid can wildshape into, third tier */
+#define M2_DRUID_FORM_D 0x00000010L /* monster a druid can wildshape into, fourth tier */
+#define M2_VAMPIRE_FORM 0x00000020L /* monsters a vampire can shapechange into */
 #define M2_LORD         0x00000400L /* is a lord to its kind */
 #define M2_PRINCE       0x00000800L /* is an overlord to its kind */
 #define M2_MINION       0x00001000L /* is a minion of a deity */
-#define M2_GIANT        0x00002000L /* is a giant */
+#define M2_MERC         0x00002000L /* is a guard or soldier */
 #define M2_SHAPESHIFTER 0x00004000L /* is a shapeshifting species */
 #define M2_MALE         0x00010000L /* always male */
 #define M2_FEMALE       0x00020000L /* always female */
@@ -205,13 +203,37 @@ enum ms_sounds {
 #define MZ_HUGE         4 /* 12-25' */
 #define MZ_GIGANTIC     7 /* off the scale */
 
-/* Monster races -- must stay within ROLE_RACEMASK */
-/* Eventually this may become its own field */
-#define MH_HUMAN        M2_HUMAN
-#define MH_ELF          M2_ELF
-#define MH_DWARF        M2_DWARF
-#define MH_GNOME        M2_GNOME
-#define MH_ORC          M2_ORC
+/* Monster races - stored in permonst mhflags */
+/* Remember to update mon_race_name method when adding bits here */
+#define MH_HUMAN      0x00000001L
+#define MH_ELF        0x00000002L
+#define MH_DWARF      0x00000004L
+#define MH_GNOME      0x00000008L
+#define MH_ORC        0x00000010L
+#define MH_GIANT      0x00000020L
+#define MH_HOBBIT     0x00000040L
+#define MH_CENTAUR    0x00000080L
+#define MH_ILLITHID   0x00000100L
+#define MH_TORTLE     0x00000200L
+#define MH_DROW       0x00000400L
+#define MH_ZOMBIE     0x00000800L
+#define MH_VAMPIRE    0x00001000L
+#define MH_AASIMAR    0x00002000L
+#define MH_DEMON      0x00004000L
+/* Flags below not used as a player race */
+#define MH_UNZOMBIE   0x00008000L
+#define MH_WERE       0x00010000L
+#define MH_DRAGON     0x00020000L
+#define MH_ANGEL      0x00040000L
+#define MH_OGRE       0x00080000L
+#define MH_TROLL      0x00100000L
+#define MH_GNOLL      0x00200000L
+#define MH_SPIDER     0x00400000L
+#define MH_JABBERWOCK 0x00800000L
+#define MH_WRAITH     0x01000000L
+#define MH_UNDEAD (MH_ZOMBIE | MH_UNZOMBIE)
+
+#define MH_ANY        0x80000000L
 
 /* for mons[].geno (constant during game) */
 #define G_TALG          0x8000 /* can't be genocided until Tal'Gath is destroyed */

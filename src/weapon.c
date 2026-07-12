@@ -35,6 +35,7 @@ staticfn void add_skills_to_menu(winid, boolean, boolean);
 #define PN_ESCAPE_SPELL (-13)
 #define PN_MATTER_SPELL (-14)
 #define PN_TELEKINESIS (-15) /* EvilHack */
+#define PN_EVOCATION_SPELL (-16)
 
 static NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     /* Weapon */
@@ -45,6 +46,7 @@ static NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     /* Spell */
     PN_ATTACK_SPELL, PN_HEALING_SPELL, PN_DIVINATION_SPELL,
     PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL, PN_MATTER_SPELL,
+    PN_EVOCATION_SPELL,
     /* Other */
     PN_BARE_HANDED, PN_TWO_WEAPONS, PN_RIDING, PN_TELEKINESIS
 };
@@ -55,7 +57,7 @@ static NEARDATA const char *const odd_skill_names[] = {
     "two weapon combat", "riding", "polearms", "saber", "hammer", "whip",
     "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
-    "telekinesis",
+    "telekinesis", "evocation spells",
 };
 /* indexed via is_martial() */
 static NEARDATA const char *const barehands_or_martial[] = {
@@ -269,7 +271,6 @@ dmgval(struct obj *otmp, struct monst *mon)
         case IRON_CHAIN:
         case CROSSBOW_BOLT:
         case MACE:
-        case SILVER_MACE:
         case WAR_HAMMER:
         case FLAIL:
         case SPETUM:
@@ -498,9 +499,9 @@ oselect(struct monst *mtmp, int type)
 }
 
 static NEARDATA const int rwep[] = {
-    DWARVISH_SPEAR, SILVER_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR, JAVELIN,
-    SHURIKEN, YA, SILVER_ARROW, ELVEN_ARROW, ARROW, ORCISH_ARROW,
-    CROSSBOW_BOLT, SILVER_DAGGER, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, KNIFE,
+    DWARVISH_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR, JAVELIN,
+    SHURIKEN, YA, ELVEN_ARROW, ARROW, ORCISH_ARROW,
+    CROSSBOW_BOLT, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, KNIFE,
     FLINT, ROCK, LOADSTONE, LUCKSTONE, DART, CREAM_PIE,
 };
 
@@ -694,11 +695,11 @@ static const NEARDATA short hwep[] = {
     CORPSE, /* cockatrice corpse */
     TSURUGI, RUNESWORD, DWARVISH_MATTOCK, TWO_HANDED_SWORD, BATTLE_AXE,
     KATANA, UNICORN_HORN, CRYSKNIFE, TRIDENT, LONG_SWORD, ELVEN_BROADSWORD,
-    BROADSWORD, SCIMITAR, SILVER_SABER, MORNING_STAR, ELVEN_SHORT_SWORD,
-    DWARVISH_SHORT_SWORD, SHORT_SWORD, ORCISH_SHORT_SWORD, SILVER_MACE, MACE,
-    AXE, DWARVISH_SPEAR, SILVER_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR, FLAIL,
+    BROADSWORD, SCIMITAR, SABER, MORNING_STAR, ELVEN_SHORT_SWORD,
+    DWARVISH_SHORT_SWORD, SHORT_SWORD, ORCISH_SHORT_SWORD, HEAVY_MACE, MACE,
+    AXE, DWARVISH_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR, FLAIL,
     BULLWHIP, QUARTERSTAFF, JAVELIN, AKLYS, CLUB, PICK_AXE, RUBBER_HOSE,
-    WAR_HAMMER, SILVER_DAGGER, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, ATHAME,
+    WAR_HAMMER, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, ATHAME,
     SCALPEL, KNIFE, WORM_TOOTH
 };
 

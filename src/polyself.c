@@ -573,7 +573,7 @@ polyself(int psflags)
                               rather than the role; override that unless
                               the text explicitly contains "aligned" */
                            || (u.umonster == PM_CLERIC
-                               && mntmp == PM_ALIGNED_CLERIC
+                               && mntmp == PM_ALIGNED_PRIEST
                                && !strstri(buf, "aligned")))) {
                 /* in wizard mode, picking own role while poly'd reverts to
                    normal without newman()'s chance of level or sex change */
@@ -634,25 +634,8 @@ polyself(int psflags)
                                                      : 0;
 
                 /* allow G_EXTINCT */
-                if (Is_dragon_scales(uarm)) {
-                    /* dragon scales remain intact as uskin */
-                    You("merge with your scaly armor.");
-                } else { /* dragon scale mail reverts to scales */
-                    /* similar to noarmor(invent.c),
-                       shorten to "<color> scale mail" */
-                    Strcpy(buf, simpleonames(uarm));
-                    strsubst(buf, " dragon ", " ");
-                    /* tricky phrasing; dragon scale mail is singular, dragon
-                       scales are plural (note: we don't use "set of scales",
-                       which usually overrides the distinction, here) */
-                    Your("%s reverts to scales as you merge with them.", buf);
-                    /* uarm->spe enchantment remains unchanged;
-                       re-converting scales to mail poses risk
-                       of evaporation due to over enchanting */
-                    uarm->otyp += GRAY_DRAGON_SCALES - GRAY_DRAGON_SCALE_MAIL;
-                    observe_object(uarm);
-                    disp.botl = TRUE; /* AC is changing */
-                }
+                /* dragon scales remain intact as uskin */
+                You("merge with your scaly armor.");
                 uskin = uarm;
                 uarm = (struct obj *) 0;
                 /* save/restore hack */
@@ -670,7 +653,7 @@ polyself(int psflags)
         } else if (isvamp) {
  do_vampyr:
             if (mntmp < LOW_PM || (mons[mntmp].geno & G_UNIQ)) {
-                mntmp = (gy.youmonst.data == &mons[PM_VAMPIRE_LEADER]
+                mntmp = (gy.youmonst.data == &mons[PM_VAMPIRE_NOBLE]
                          && !rn2(10)) ? PM_WOLF
                                       : !rn2(4) ? PM_FOG_CLOUD
                                                 : PM_VAMPIRE_BAT;
@@ -1564,7 +1547,7 @@ dospinweb(void)
             deltrap(ttmp);
             newsym(x, y);
             return ECMD_TIME;
-        case TELEP_TRAP:
+        case TELEP_TRAP_SET:
         case LEVEL_TELEP:
         case MAGIC_PORTAL:
         case VIBRATING_SQUARE:
@@ -1585,17 +1568,17 @@ dospinweb(void)
             deltrap(ttmp);
             newsym(x, y);
             return ECMD_TIME;
-        case ARROW_TRAP:
-        case DART_TRAP:
+        case ARROW_TRAP_SET:
+        case DART_TRAP_SET:
         case BEAR_TRAP:
         case ROCKTRAP:
-        case FIRE_TRAP:
+        case FIRE_TRAP_SET:
         case LANDMINE:
-        case SLP_GAS_TRAP:
-        case RUST_TRAP:
-        case MAGIC_TRAP:
+        case SLP_GAS_TRAP_SET:
+        case RUST_TRAP_SET:
+        case MAGIC_TRAP_SET:
         case ANTI_MAGIC:
-        case POLY_TRAP:
+        case POLY_TRAP_SET:
             You("have triggered a trap!");
             dotrap(ttmp, NO_TRAP_FLAGS);
             return ECMD_TIME;
@@ -2190,45 +2173,11 @@ ugolemeffects(int damtype, int dam)
 staticfn int
 armor_to_dragon(int atyp)
 {
-    switch (atyp) {
-    case GRAY_DRAGON_SCALE_MAIL:
-    case GRAY_DRAGON_SCALES:
-        return PM_GRAY_DRAGON;
-    case SILVER_DRAGON_SCALE_MAIL:
-    case SILVER_DRAGON_SCALES:
-        return PM_SILVER_DRAGON;
-    case GOLD_DRAGON_SCALE_MAIL:
-    case GOLD_DRAGON_SCALES:
-        return PM_GOLD_DRAGON;
-#if 0 /* DEFERRED */
-    case SHIMMERING_DRAGON_SCALE_MAIL:
-    case SHIMMERING_DRAGON_SCALES:
-        return PM_SHIMMERING_DRAGON;
-#endif
-    case RED_DRAGON_SCALE_MAIL:
-    case RED_DRAGON_SCALES:
-        return PM_RED_DRAGON;
-    case ORANGE_DRAGON_SCALE_MAIL:
-    case ORANGE_DRAGON_SCALES:
-        return PM_ORANGE_DRAGON;
-    case WHITE_DRAGON_SCALE_MAIL:
-    case WHITE_DRAGON_SCALES:
-        return PM_WHITE_DRAGON;
-    case BLACK_DRAGON_SCALE_MAIL:
-    case BLACK_DRAGON_SCALES:
-        return PM_BLACK_DRAGON;
-    case BLUE_DRAGON_SCALE_MAIL:
-    case BLUE_DRAGON_SCALES:
-        return PM_BLUE_DRAGON;
-    case GREEN_DRAGON_SCALE_MAIL:
-    case GREEN_DRAGON_SCALES:
-        return PM_GREEN_DRAGON;
-    case YELLOW_DRAGON_SCALE_MAIL:
-    case YELLOW_DRAGON_SCALES:
-        return PM_YELLOW_DRAGON;
-    default:
-        return NON_PM;
-    }
+    /* dragon scales only; dragon-scaled body armor ports with the
+       object-properties subsystem */
+    if (atyp >= FIRST_DRAGON_SCALES && atyp <= LAST_DRAGON_SCALES)
+        return FIRST_DRAGON + (atyp - FIRST_DRAGON_SCALES);
+    return NON_PM;
 }
 
 /* some species have awareness of other species */
@@ -2248,8 +2197,8 @@ polysense(void)
         warnidx = PM_SHRIEKER;
         break;
     case PM_VAMPIRE:
-    case PM_VAMPIRE_LEADER:
-        svc.context.warntype.polyd = M2_HUMAN | M2_ELF;
+    case PM_VAMPIRE_NOBLE:
+        svc.context.warntype.polyd = MH_HUMAN | MH_ELF;
         HWarn_of_mon |= FROMRACE;
         return;
     }

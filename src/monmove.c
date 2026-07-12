@@ -2335,7 +2335,7 @@ stuff_prevents_passage(struct monst *mtmp)
         if (obj->oclass != GEM_CLASS && !(typ >= ARROW && typ <= BOOMERANG)
             && !(typ >= DAGGER && typ <= CRYSKNIFE) && typ != SLING
             && !is_cloak(obj) && typ != FEDORA && !is_gloves(obj)
-            && typ != LEATHER_JACKET && typ != CREDIT_CARD && !is_shirt(obj)
+            && typ != JACKET && typ != CREDIT_CARD && !is_shirt(obj)
             && !(typ == CORPSE && verysmall(&mons[obj->corpsenm]))
             && typ != FORTUNE_COOKIE && typ != CANDY_BAR && typ != PANCAKE
             && typ != LEMBAS_WAFER && typ != LUMP_OF_ROYAL_JELLY
@@ -2344,7 +2344,7 @@ stuff_prevents_passage(struct monst *mtmp)
             && typ != BAG_OF_HOLDING && typ != BAG_OF_TRICKS
             && !Is_candle(obj) && typ != OILSKIN_SACK && typ != LEASH
             && typ != STETHOSCOPE && typ != BLINDFOLD && typ != TOWEL
-            && typ != TIN_WHISTLE && typ != MAGIC_WHISTLE
+            && typ != PEA_WHISTLE && typ != MAGIC_WHISTLE
             && typ != MAGIC_MARKER && typ != TIN_OPENER && typ != SKELETON_KEY
             && typ != LOCK_PICK)
             return TRUE;

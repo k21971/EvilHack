@@ -251,7 +251,7 @@ mksobj_at(
 struct obj *
 mksobj_migr_to_species(
     int otyp,
-    unsigned mflags2,
+    unsigned mhflags,
     boolean init, boolean artif)
 {
     struct obj *otmp;
@@ -259,7 +259,7 @@ mksobj_migr_to_species(
     otmp = mksobj(otyp, init, artif);
     add_to_migration(otmp);
     otmp->owornmask = (long) MIGR_TO_SPECIES;
-    otmp->migr_species = mflags2;
+    otmp->migr_species = mhflags;
     return otmp;
 }
 
@@ -994,7 +994,7 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->quan = 1L + (long) (rn2(2) ? rn2(7) : 0);
             blessorcurse(otmp, 5);
             break;
-        case BRASS_LANTERN:
+        case LANTERN:
         case OIL_LAMP:
             otmp->spe = 1;
             otmp->age = (long) rn1(500, 1000);
@@ -1114,10 +1114,6 @@ mksobj_init(struct obj **obj, boolean artif)
     case WAND_CLASS:
         if (otmp->otyp == WAN_WISHING)
             otmp->spe = 1;
-        else if (otmp->otyp == WAN_STASIS)
-            /* just as easy to recharge as other NODIR wands, but starts with
-               fewer charges */
-            otmp->spe = rn1(4, 3);
         else
             otmp->spe = rn1(5,
                             (objects[otmp->otyp].oc_dir == NODIR) ? 11 : 4);

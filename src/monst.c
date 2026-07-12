@@ -17,15 +17,16 @@ extern const struct attack c_sa_no[NATTK];
 #define NO_ATTK { 0, 0, 0, 0 }
 
 /* monster type with single name */
-#define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2, \
-            flg1, flg2, flg3, d, col, bn)           \
+#define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2,     \
+            flg1, flg2, flg3, flg4, mflg, d, col, bn)   \
     {                                                                   \
         nam, PM_##bn,                                                   \
-        sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, col     \
+        sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3,            \
+        flg4, mflg, d, col                                              \
     }
 
 /* LVL() and SIZ() collect several fields to cut down on number of args
- * for MON().  Using more than 15 would fail to conform to the C Standard.
+ * for MON(). EvilHack's MON() has 16 parameters (C89 guarantees 31).
  * ATTK() and A() are to avoid braces and commas within args to MON().
  * NAM() and NAMS() are used for both reasons.
  */
@@ -46,17 +47,19 @@ static struct permonst mons_init[NUMMONS + 1] = {
      * uses NON_PM for that.  Now, a few monster flags also get set.
      */
 #undef MON
-#define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2, \
-            flg1, flg2, flg3, d, col, bn)           \
+#define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2,     \
+            flg1, flg2, flg3, flg4, mflg, d, col, bn)   \
     {                                                                   \
         nam, NON_PM,                                                    \
-        sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, d, col     \
+        sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3,            \
+        flg4, mflg, d, col                                              \
     }
     MON(NAM(""), 0,
         LVL(0, 0, 0, 0, 0), G_NOGEN | G_NOCORPSE,
         A(NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(0, 0, 0, 0), 0, 0,
         0L,  M2_NOPOLY, 0,
+        0, 0,
         0, 0, 0),
 };
 

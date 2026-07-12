@@ -148,11 +148,11 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
 
         /* default equipment; much of it will be overridden below */
         weapon = !rn2(2) ? LONG_SWORD : rnd_class(SPEAR, BULLWHIP);
-        armor  = rnd_class(GRAY_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALE_MAIL);
+        armor  = rnd_class(FIRST_DRAGON_SCALES, LAST_DRAGON_SCALES);
         cloak  = !rn2(8) ? STRANGE_OBJECT
                          : rnd_class(OILSKIN_CLOAK, CLOAK_OF_DISPLACEMENT);
         helm   = !rn2(8) ? STRANGE_OBJECT
-                         : rnd_class(ELVEN_LEATHER_HELM, HELM_OF_TELEPATHY);
+                         : rnd_class(ELVEN_HELM, HELM_OF_TELEPATHY);
         shield = !rn2(8) ? STRANGE_OBJECT
                          : rnd_class(ELVEN_SHIELD, SHIELD_OF_REFLECTION);
 
@@ -239,8 +239,8 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
             if (rn2(4))
                 weapon = rn2(2) ? QUARTERSTAFF : ATHAME;
             if (rn2(2)) {
-                armor = rn2(2) ? BLACK_DRAGON_SCALE_MAIL
-                               : SILVER_DRAGON_SCALE_MAIL;
+                armor = rn2(2) ? BLACK_DRAGON_SCALES
+                               : SILVER_DRAGON_SCALES;
                 cloak = CLOAK_OF_MAGIC_RESISTANCE;
             }
             if (rn2(4))
@@ -285,7 +285,7 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
             if (weapon == WAR_HAMMER) /* valkyrie: wimpy weapon or Mjollnir */
                 mk_mplayer_armor(mtmp, GAUNTLETS_OF_POWER);
             else if (rn2(8))
-                mk_mplayer_armor(mtmp, rnd_class(LEATHER_GLOVES,
+                mk_mplayer_armor(mtmp, rnd_class(GLOVES,
                                                  GAUNTLETS_OF_DEXTERITY));
             if (rn2(8))
                 mk_mplayer_armor(mtmp, rnd_class(LOW_BOOTS,

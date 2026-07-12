@@ -322,7 +322,7 @@
     MONSYM(24, 'x', XAN, S_XAN, "xan or other mythical/fantastic insect")
     /* yellow light, black light */
     MONSYM(25, 'y', LIGHT, S_LIGHT, "light")
-    MONSYM(26, 'z', ZRUTY, S_ZRUTY, "zruty")
+    MONSYM(26, 'z', SKELETON, S_SKELETON, "skeleton")
     MONSYM(27, 'A', ANGEL, S_ANGEL, "angelic being")
     MONSYM(28, 'B', BAT, S_BAT, "bat or bird")
     MONSYM(29, 'C', CENTAUR, S_CENTAUR, "centaur")
@@ -362,8 +362,14 @@
     MONSYM(57, ';', EEL, S_EEL,  "sea monster")
     /* reptiles */
     MONSYM(58, ':', LIZARD, S_LIZARD, "lizard")
-    MONSYM(59, '~', WORM_TAIL, S_WORM_TAIL, "long worm tail")
-    MONSYM(60, ']', MIMIC_DEF, S_MIMIC_DEF, "mimic")
+    /* tree-like */
+    MONSYM(59, '#', ENT, S_ENT, "tree-like creature")
+    /* plants, vines */
+    MONSYM(60, '{', PLANT, S_PLANT, "plant-like creature")
+    /* summoned orbs */
+    MONSYM(61, '8', ORB, S_ORB, "summoned orb")
+    MONSYM(62, '~', WORM_TAIL, S_WORM_TAIL, "long worm tail")
+    MONSYM(63, ']', MIMIC_DEF, S_MIMIC_DEF, "mimic")
 
 #undef MONSYM
 #endif /* MONSYMS_S_ENUM || MONSYMS_DEFCHAR_ENUM || MONSYMS_PARSE

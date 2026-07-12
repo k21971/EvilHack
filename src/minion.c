@@ -224,7 +224,7 @@ summon_minion(aligntyp alignment, boolean talk)
             EMIN(mon)->renegade = FALSE;
         }
     } else if (mnum != PM_SHOPKEEPER && mnum != PM_GUARD
-               && mnum != PM_ALIGNED_CLERIC && mnum != PM_HIGH_CLERIC) {
+               && mnum != PM_ALIGNED_PRIEST && mnum != PM_HIGH_PRIEST) {
         /* This was mons[mnum].pxlth == 0 but is this restriction
            appropriate or necessary now that the structures are separate? */
         mon = makemon(&mons[mnum], u.ux, u.uy, MM_EMIN|MM_NOMSG);
@@ -547,7 +547,7 @@ gain_guardian_angel(void)
             mtmp->mhp = mtmp->mhpmax =
                 d((int) mtmp->m_lev, 10) + 30 + rnd(30);
             if ((otmp = select_hwep(mtmp)) == 0) {
-                otmp = mksobj(SILVER_SABER, FALSE, FALSE);
+                otmp = mksobj(SABER, FALSE, FALSE);
                 if (mpickobj(mtmp, otmp))
                     panic("merged weapon?");
             }

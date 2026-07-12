@@ -35,7 +35,7 @@
 #define SPFX_DMONS  0x00100000L /* attack bonus on one monster type */
 #define SPFX_DCLAS  0x00200000L /* attack bonus on monsters w/ symbol mtype */
 #define SPFX_DFLAG1 0x00400000L /* attack bonus on monsters w/ mflags1 flag */
-#define SPFX_DFLAG2 0x00800000L /* attack bonus on monsters w/ mflags2 flag */
+#define SPFX_DFLAGH 0x00800000L /* attack bonus on monsters w/ mhflags flag */
 #define SPFX_DALIGN 0x01000000L /* attack bonus on non-aligned monsters  */
 #define SPFX_DBONUS 0x01F00000L /* attack bonus mask */
 #define SPFX_XRAY   0x02000000L /* gives X-RAY vision to player */

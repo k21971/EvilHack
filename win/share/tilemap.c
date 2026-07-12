@@ -123,7 +123,10 @@ struct tiles_used {
     char tilenam[MAX_TILENAM];
     char references[1024];
 };
-struct tiles_used *tilelist[2500] = { 0 };
+/* every tile is referenced by at least one glyph, so the glyph count
+   bounds the tile count; a fixed 2500 overflowed at EvilHack's
+   monster count */
+struct tiles_used *tilelist[MAX_GLYPH] = { 0 };
 
 /* Some special tiles used for init of some things */
 int TILE_stone = 0,       /* will get set to correct tile later */
@@ -160,7 +163,7 @@ struct conditionals_t {
     { MON_GLYPH, PM_BABY_SILVER_DRAGON, "baby shimmering dragon" },
     { MON_GLYPH, PM_SILVER_DRAGON, "shimmering dragon" },
     { MON_GLYPH, PM_JABBERWOCK, "vorpal jabberwock" },
-    { MON_GLYPH, PM_VAMPIRE_LEADER, "vampire mage" },
+    { MON_GLYPH, PM_VAMPIRE_NOBLE, "vampire mage" },
 #ifndef CHARON /* not supported yet */
     { MON_GLYPH, PM_CROESUS, "Charon" },
 #endif
@@ -174,7 +177,6 @@ struct conditionals_t {
     { MON_GLYPH, PM_CHROMATIC_DRAGON, "Goblin King" },
     { MON_GLYPH, PM_NEANDERTHAL, "High-elf" },
     /* objects commented out in objects.c at present */
-    { OBJ_GLYPH, SILVER_DRAGON_SCALE_MAIL, "shimmering dragon scale mail" },
     { OBJ_GLYPH, SILVER_DRAGON_SCALES, "shimmering dragon scales" },
 /* allow slime mold to look like slice of pizza, since we
  * don't know what a slime mold should look like when renamed anyway
@@ -738,7 +740,7 @@ init_tilemap(void)
         tilemap[GLYPH_RIDDEN_FEM_OFF + i].tilenum = tilenum;
 #if defined(OBTAIN_TILEMAP)
         Sprintf(buf, "%s (mnum=%d)", tilename(MON_GLYPH, file_entry, 0), i);
-        Snprintf(tilemap[GLYPH_MON_FEM_OFF + i].name, 
+        Snprintf(tilemap[GLYPH_MON_FEM_OFF + i].name,
                  sizeof tilemap[0].name, "female %s", buf);
         Snprintf(tilemap[GLYPH_PET_FEM_OFF + i].name,
                  sizeof tilemap[0].name, "%s female %s", "pet",
@@ -1345,8 +1347,8 @@ main(int argc, char *argv[])
     Fprintf(ofp, "\n#ifndef TILES_IN_GLYPHMAP\n");
     Fprintf(ofp, "\n#else /* ?TILES_IN_GLYPHMAP */\n");
     Fprintf(ofp, "\nenum special_tiles {\n");
-    Fprintf(ofp, "    TILE_CORR = %d,\n", TILE_corr); 
-    Fprintf(ofp, "    TILE_STONE = %d,\n", TILE_stone); 
+    Fprintf(ofp, "    TILE_CORR = %d,\n", TILE_corr);
+    Fprintf(ofp, "    TILE_STONE = %d,\n", TILE_stone);
     Fprintf(ofp, "    TILE_UNEXPLORED = %d\n", TILE_unexplored);
     Fprintf(ofp, "};\n");
     Fprintf(ofp, "\nint total_tiles_used = %d,\n", laststatuetile + 1);

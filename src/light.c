@@ -904,8 +904,9 @@ arti_light_radius(struct obj *obj)
        light than other light sources */
     if (obj == uskin)
         res = 1;
-    else if (obj->otyp == GOLD_DRAGON_SCALE_MAIL) /* DSM but not scales */
-        ++res;
+    else if (Is_dragon_scaled_armor(obj)
+             && Dragon_armor_to_scales(obj) == GOLD_DRAGON_SCALES)
+        ++res; /* fused gold dragon scales; not plain scales */
 
     return res;
 }

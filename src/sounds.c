@@ -746,7 +746,7 @@ domonnoise(struct monst *mtmp)
            night */
         boolean isnight = night();
         boolean kindred = (Upolyd && (u.umonnum == PM_VAMPIRE
-                                      || u.umonnum == PM_VAMPIRE_LEADER));
+                                      || u.umonnum == PM_VAMPIRE_NOBLE));
         boolean nightchild = (Upolyd && (u.umonnum == PM_WOLF
                                          || u.umonnum == PM_WINTER_WOLF
                                          || u.umonnum == PM_WINTER_WOLF_CUB));

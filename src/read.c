@@ -659,7 +659,7 @@ stripspe(struct obj *obj)
         pline("%s briefly.", Yobjnam2(obj, "vibrate"));
         costly_alteration(obj, COST_UNCHRG);
         obj->spe = 0;
-        if (obj->otyp == OIL_LAMP || obj->otyp == BRASS_LANTERN)
+        if (obj->otyp == OIL_LAMP || obj->otyp == LANTERN)
             obj->age = 0;
     }
 }
@@ -704,7 +704,7 @@ charge_ok(struct obj *obj)
 
     if (obj->oclass == TOOL_CLASS) {
         /* suggest tools that aren't oc_charged but can still be recharged */
-        if (obj->otyp == BRASS_LANTERN
+        if (obj->otyp == LANTERN
             || (obj->otyp == OIL_LAMP)
             /* only list magic lamps if they are not identified yet */
             || (obj->otyp == MAGIC_LAMP
@@ -894,7 +894,7 @@ recharge(struct obj *obj, int curse_bless)
             }
             break;
         case OIL_LAMP:
-        case BRASS_LANTERN:
+        case LANTERN:
             if (is_cursed) {
                 stripspe(obj);
                 if (obj->lamplit) {
@@ -1166,11 +1166,9 @@ seffect_enchant_armor(struct obj **sobjp)
     special_armor = is_elven_armor(otmp)
         || (Role_if(PM_WIZARD) && otmp->otyp == CORNUTHAUM);
     if (scursed)
-        same_color = (otmp->otyp == BLACK_DRAGON_SCALE_MAIL
-                      || otmp->otyp == BLACK_DRAGON_SCALES);
+        same_color = (otmp->otyp == BLACK_DRAGON_SCALES);
     else
-        same_color = (otmp->otyp == SILVER_DRAGON_SCALE_MAIL
-                      || otmp->otyp == SILVER_DRAGON_SCALES
+        same_color = (otmp->otyp == SILVER_DRAGON_SCALES
                       || otmp->otyp == SHIELD_OF_REFLECTION);
     if (Blind)
         same_color = FALSE;
@@ -1223,34 +1221,9 @@ seffect_enchant_armor(struct obj **sobjp)
     if (scursed)
         s = -s;
 
-    if (s >= 0 && Is_dragon_scales(otmp)) {
-        unsigned was_lit = otmp->lamplit;
-        int old_light = artifact_light(otmp) ? arti_light_radius(otmp) : 0;
-
-        /* dragon scales get turned into dragon scale mail */
-        pline("%s merges and hardens!", Yname2(otmp));
-        setworn((struct obj *) 0, W_ARM);
-        /* assumes same order */
-        otmp->otyp += GRAY_DRAGON_SCALE_MAIL - GRAY_DRAGON_SCALES;
-        otmp->lamplit = 0; /* don't want bless() or uncurse() to adjust
-                            * light radius because scales -> scale_mail will
-                            * result in a second increase with own message */
-        if (sblessed) {
-            otmp->spe++;
-            cap_spe(otmp);
-            if (!otmp->blessed)
-                bless(otmp);
-        } else if (otmp->cursed)
-            uncurse(otmp);
-        otmp->known = 1;
-        setworn(otmp, W_ARM);
-        if (otmp->unpaid)
-            alter_cost(otmp, 0L); /* shop bill */
-        otmp->lamplit = was_lit;
-        if (old_light)
-            maybe_adjust_light(otmp, old_light);
-        return;
-    }
+    /* TODO-EVILHACK: enchanting worn dragon scales melds them onto
+       body armor (obj->dragonscales); that system ports with the
+       object-properties subsystem */
     pline("%s %s%s%s%s for a %s.", Yname2(otmp),
           (s == 0) ? "violently " : "",
           otense(otmp, Blind ? "vibrate" : "glow"),
@@ -2800,7 +2773,7 @@ do_class_genocide(void)
                         named = type_is_pname(&mons[i]) ? TRUE : FALSE;
                         uniq = (mons[i].geno & G_UNIQ) ? TRUE : FALSE;
                         /* one special case */
-                        if (i == PM_HIGH_CLERIC)
+                        if (i == PM_HIGH_PRIEST)
                             uniq = FALSE;
 
                         You("aren't permitted to genocide %s%s.",
@@ -2949,7 +2922,7 @@ do_genocide(
     } else {
         /* use actual type */
         Strcpy(buf, realbuf);
-        if ((ptr->geno & G_UNIQ) && ptr != &mons[PM_HIGH_CLERIC])
+        if ((ptr->geno & G_UNIQ) && ptr != &mons[PM_HIGH_PRIEST])
             which = !type_is_pname(ptr) ? "the " : "";
     }
 
@@ -3117,7 +3090,7 @@ cant_revive(
 {
     /* SHOPKEEPERS can be revived now */
     if (*mtype == PM_GUARD || (*mtype == PM_SHOPKEEPER && !revival)
-        || *mtype == PM_HIGH_CLERIC || *mtype == PM_ALIGNED_CLERIC
+        || *mtype == PM_HIGH_PRIEST || *mtype == PM_ALIGNED_PRIEST
         || *mtype == PM_ANGEL) {
         *mtype = PM_HUMAN_ZOMBIE;
         return TRUE;

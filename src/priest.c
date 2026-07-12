@@ -227,8 +227,8 @@ priestini(
     struct obj *otmp;
     int cnt;
     int px = 0, py = 0, i, si = rn2(N_DIRS);
-    struct permonst *prim = &mons[sanctum ? PM_HIGH_CLERIC
-                                          : PM_ALIGNED_CLERIC];
+    struct permonst *prim = &mons[sanctum ? PM_HIGH_PRIEST
+                                          : PM_ALIGNED_PRIEST];
 
     for (i = 0; i < N_DIRS; i++) {
         px = sx + xdir[DIR_CLAMP(i+si)];
@@ -306,8 +306,8 @@ priestname(
     char *pname) /* caller-supplied output buffer */
 {
     boolean do_hallu = Hallucination,
-            aligned_priest = mon->data == &mons[PM_ALIGNED_CLERIC],
-            high_priest = mon->data == &mons[PM_HIGH_CLERIC];
+            aligned_priest = mon->data == &mons[PM_ALIGNED_PRIEST],
+            high_priest = mon->data == &mons[PM_HIGH_PRIEST];
     char whatcode = '\0';
     const char *what = do_hallu ? rndmonnam(&whatcode) : mon_pmname(mon);
 
@@ -426,7 +426,7 @@ intemple(int roomno)
 
         epri_p = EPRI(priest);
         shrined = has_shrine(priest);
-        sanctum = (priest->data == &mons[PM_HIGH_CLERIC]
+        sanctum = (priest->data == &mons[PM_HIGH_PRIEST]
                    && (Is_sanctum(&u.uz) || In_endgame(&u.uz)));
         can_speak = !helpless(priest);
         if (can_speak && !Deaf && svm.moves >= epri_p->intone_time) {
@@ -728,7 +728,7 @@ mk_roamer(struct permonst *ptr, aligntyp alignment, coordxy x, coordxy y,
     boolean coaligned = (u.ualign.type == alignment);
 
 #if 0 /* this was due to permonst's pxlth field which is now gone */
-    if (ptr != &mons[PM_ALIGNED_CLERIC] && ptr != &mons[PM_ANGEL])
+    if (ptr != &mons[PM_ALIGNED_PRIEST] && ptr != &mons[PM_ANGEL])
         return (struct monst *) 0;
 #endif
 
@@ -756,7 +756,7 @@ reset_hostility(struct monst *roamer)
 {
     if (!roamer->isminion)
         return;
-    if (roamer->data != &mons[PM_ALIGNED_CLERIC]
+    if (roamer->data != &mons[PM_ALIGNED_PRIEST]
         && roamer->data != &mons[PM_ANGEL])
         return;
 

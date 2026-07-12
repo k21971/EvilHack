@@ -68,11 +68,13 @@ struct permonst {
     unsigned short cnutrit;     /* its nutritional value */
     uchar msound;               /* noise it makes (6 bits) */
     uchar msize;                /* physical size (3 bits) */
-    uchar mresists;             /* resistances */
+    unsigned long mresists;     /* resistances */
     uchar mconveys;             /* conveyed by eating */
     unsigned long mflags1,      /* boolean bitflags */
         mflags2;                /* more boolean bitflags */
     unsigned short mflags3;     /* yet more boolean bitflags */
+    unsigned short mflags4;     /* yup. another boolean bitflag */
+    unsigned long mhflags;      /* race boolean bitflags */
     uchar difficulty;           /* toughness (formerly from  makedefs -m) */
     uchar mcolor;               /* color to use */
 };

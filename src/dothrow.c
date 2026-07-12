@@ -950,7 +950,7 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
         } else if (ttmp->ttyp == VIBRATING_SQUARE) {
             pline("The ground vibrates as you pass it.");
             dotrap(ttmp, NO_TRAP_FLAGS); /* doesn't print messages */
-        } else if (ttmp->ttyp == FIRE_TRAP) {
+        } else if (ttmp->ttyp == FIRE_TRAP_SET) {
             dotrap(ttmp, NO_TRAP_FLAGS);
         } else if ((is_pit(ttmp->ttyp) || is_hole(ttmp->ttyp)) && Sokoban) {
             /* air currents overcome the recoil in Sokoban;
@@ -2118,7 +2118,7 @@ thitmonst(
         case GAUNTLETS_OF_FUMBLING:
             tmp -= 3;
             break;
-        case LEATHER_GLOVES:
+        case GLOVES:
         case GAUNTLETS_OF_DEXTERITY:
             break;
         default:

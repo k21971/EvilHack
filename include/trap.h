@@ -57,28 +57,28 @@ struct trap {
 enum trap_types {
     ALL_TRAPS    = -1, /* mon_knows_traps(), mon_learns_traps() */
     NO_TRAP      =  0,
-    ARROW_TRAP   =  1,
-    DART_TRAP    =  2,
+    ARROW_TRAP_SET   =  1,
+    DART_TRAP_SET    =  2,
     ROCKTRAP     =  3,
     SQKY_BOARD   =  4,
     BEAR_TRAP    =  5,
     LANDMINE     =  6,
     ROLLING_BOULDER_TRAP = 7,
-    SLP_GAS_TRAP =  8,
-    RUST_TRAP    =  9,
-    FIRE_TRAP    = 10,
+    SLP_GAS_TRAP_SET =  8,
+    RUST_TRAP_SET    =  9,
+    FIRE_TRAP_SET    = 10,
     PIT          = 11,
     SPIKED_PIT   = 12,
     HOLE         = 13,
     TRAPDOOR     = 14,
-    TELEP_TRAP   = 15,
+    TELEP_TRAP_SET   = 15,
     LEVEL_TELEP  = 16,
     MAGIC_PORTAL = 17,
     WEB          = 18,
     STATUE_TRAP  = 19,
-    MAGIC_TRAP   = 20,
+    MAGIC_TRAP_SET   = 20,
     ANTI_MAGIC   = 21,
-    POLY_TRAP    = 22,
+    POLY_TRAP_SET    = 22,
     VIBRATING_SQUARE = 23, /* not a trap but shown/remembered as if one
                             * once it has been discovered */
 
@@ -115,14 +115,14 @@ enum trap_immunities {
 #define unhideable_trap(ttyp) ((ttyp) == HOLE) /* visible traps */
 #define undestroyable_trap(ttyp) ((ttyp) == MAGIC_PORTAL         \
                                   || (ttyp) == VIBRATING_SQUARE)
-#define is_magical_trap(ttyp) ((ttyp) == TELEP_TRAP     \
+#define is_magical_trap(ttyp) ((ttyp) == TELEP_TRAP_SET     \
                                || (ttyp) == LEVEL_TELEP \
-                               || (ttyp) == MAGIC_TRAP  \
+                               || (ttyp) == MAGIC_TRAP_SET  \
                                || (ttyp) == ANTI_MAGIC  \
-                               || (ttyp) == POLY_TRAP)
+                               || (ttyp) == POLY_TRAP_SET)
 /* "transportation" traps */
-#define is_xport(ttyp) ((ttyp) >= TELEP_TRAP && (ttyp) <= MAGIC_PORTAL)
-#define fixed_tele_trap(t) ((t)->ttyp == TELEP_TRAP \
+#define is_xport(ttyp) ((ttyp) >= TELEP_TRAP_SET && (ttyp) <= MAGIC_PORTAL)
+#define fixed_tele_trap(t) ((t)->ttyp == TELEP_TRAP_SET \
                             && isok((t)->teledest.x,(t)->teledest.y))
 
 #endif /* TRAP_H */

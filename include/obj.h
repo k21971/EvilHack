@@ -165,6 +165,8 @@ struct obj {
 #define leashmon corpsenm /* gets m_id of attached pet */
 #define fromsink corpsenm /* a potion from a sink */
 #define novelidx corpsenm /* 3.6 tribute - the index of the novel title */
+#define dragonscales corpsenm /* dragon-scaled body armor
+                               * (index into objects[], not mons[]) */
 #define migr_species corpsenm /* species to endow for MIGR_TO_SPECIES */
 #define next_boulder corpsenm /* flag for xname() when pushing a pile of
                                * boulders, 0 for first (top of pile),
@@ -301,16 +303,16 @@ struct obj {
 #define is_suit(otmp) \
     (otmp->oclass == ARMOR_CLASS && objects[otmp->otyp].oc_armcat == ARM_SUIT)
 #define is_elven_armor(otmp)                                              \
-    ((otmp)->otyp == ELVEN_LEATHER_HELM                                   \
-     || (otmp)->otyp == ELVEN_MITHRIL_COAT || (otmp)->otyp == ELVEN_CLOAK \
+    ((otmp)->otyp == ELVEN_HELM                                   \
+     || (otmp)->otyp == ELVEN_CHAIN_MAIL || (otmp)->otyp == ELVEN_CLOAK \
      || (otmp)->otyp == ELVEN_SHIELD || (otmp)->otyp == ELVEN_BOOTS)
 #define is_orcish_armor(otmp)                                            \
     ((otmp)->otyp == ORCISH_HELM || (otmp)->otyp == ORCISH_CHAIN_MAIL    \
      || (otmp)->otyp == ORCISH_RING_MAIL || (otmp)->otyp == ORCISH_CLOAK \
      || (otmp)->otyp == URUK_HAI_SHIELD || (otmp)->otyp == ORCISH_SHIELD)
 #define is_dwarvish_armor(otmp)               \
-    ((otmp)->otyp == DWARVISH_IRON_HELM       \
-     || (otmp)->otyp == DWARVISH_MITHRIL_COAT \
+    ((otmp)->otyp == DWARVISH_HELM       \
+     || (otmp)->otyp == DWARVISH_CHAIN_MAIL \
      || (otmp)->otyp == DWARVISH_CLOAK        \
      || (otmp)->otyp == DWARVISH_ROUNDSHIELD)
 #define is_gnomish_armor(otmp) (FALSE)
@@ -347,18 +349,32 @@ struct obj {
 #define Waterproof_container(o) \
     ((o)->otyp == OILSKIN_SACK || (o)->otyp == ICE_BOX || Is_box(o))
 
-/* dragon gear */
+/* dragon gear
+ * NOTE: this assumes that gray dragons come first and chromatic last, as
+ * detailed in monsters.h. */
+#define FIRST_DRAGON        PM_GRAY_DRAGON
+#define LAST_DRAGON         PM_CHROMATIC_DRAGON
+#define FIRST_DRAGON_SCALES GRAY_DRAGON_SCALES
+#define LAST_DRAGON_SCALES  CHROMATIC_DRAGON_SCALES
 #define Is_dragon_scales(obj) \
-    ((obj)->otyp >= GRAY_DRAGON_SCALES && (obj)->otyp <= YELLOW_DRAGON_SCALES)
-#define Is_dragon_mail(obj)                \
-    ((obj)->otyp >= GRAY_DRAGON_SCALE_MAIL \
-     && (obj)->otyp <= YELLOW_DRAGON_SCALE_MAIL)
-#define Is_dragon_armor(obj) (Is_dragon_scales(obj) || Is_dragon_mail(obj))
-#define Dragon_scales_to_pm(obj) \
-    &mons[PM_GRAY_DRAGON + (obj)->otyp - GRAY_DRAGON_SCALES]
-#define Dragon_mail_to_pm(obj) \
-    &mons[PM_GRAY_DRAGON + (obj)->otyp - GRAY_DRAGON_SCALE_MAIL]
-#define Dragon_to_scales(pm) (GRAY_DRAGON_SCALES + (pm - mons))
+    ((obj)->otyp >= FIRST_DRAGON_SCALES && (obj)->otyp <= LAST_DRAGON_SCALES)
+/* Note: dragonscales is corpsenm, and corpsenm is usually initialized to
+ * NON_PM, which is -1. Thus, check for > 0 rather than just nonzero. */
+#define Is_dragon_scaled_armor(obj) \
+    (is_suit(obj) && (obj)->dragonscales > 0)
+#define Is_dragon_armor(obj) \
+    (Is_dragon_scales(obj) || Is_dragon_scaled_armor(obj))
+/* any dragon armor -> FOO_DRAGON_SCALES object */
+#define Dragon_armor_to_scales(obj) \
+    (Is_dragon_scales(obj) ? (obj)->otyp : (obj)->dragonscales)
+/* any dragon armor -> associated dragon PM_ constant */
+#define Dragon_armor_to_pm(obj) \
+    (FIRST_DRAGON \
+     + (Is_dragon_scales(obj) ? (obj)->otyp : (obj)->dragonscales) \
+     - FIRST_DRAGON_SCALES)
+/* dragon PM_ constant -> dragon scales */
+#define mndx_to_dragon_scales(mndx) \
+    (FIRST_DRAGON_SCALES + (mndx - FIRST_DRAGON))
 
 /* Elven gear */
 #define is_elven_weapon(otmp)                                             \
@@ -390,7 +406,7 @@ struct obj {
 /* age field of this is relative age rather than absolute; does not include
    magic lamp */
 #define age_is_relative(otmp) \
-    ((otmp)->otyp == BRASS_LANTERN || (otmp)->otyp == OIL_LAMP      \
+    ((otmp)->otyp == LANTERN || (otmp)->otyp == OIL_LAMP      \
      || (otmp)->otyp == CANDELABRUM_OF_INVOCATION                   \
      || (otmp)->otyp == TALLOW_CANDLE || (otmp)->otyp == WAX_CANDLE \
      || (otmp)->otyp == POT_OIL)
@@ -399,7 +415,7 @@ struct obj {
      (ignitable(obj) || obj->otyp == MAGIC_LAMP)
    so include it; brass lantern can be lit but not by fire */
 #define ignitable(otmp) \
-    ((otmp)->otyp == BRASS_LANTERN || (otmp)->otyp == OIL_LAMP      \
+    ((otmp)->otyp == LANTERN || (otmp)->otyp == OIL_LAMP      \
      || ((otmp)->otyp == MAGIC_LAMP && (otmp)->spe > 0)             \
      || (otmp)->otyp == CANDELABRUM_OF_INVOCATION                   \
      || (otmp)->otyp == TALLOW_CANDLE || (otmp)->otyp == WAX_CANDLE \

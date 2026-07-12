@@ -257,10 +257,10 @@ staticfn void
 mk_zoo_thronemon(coordxy x, coordxy y)
 {
     int i = rnd(level_difficulty());
-    int pm = (i > 9) ? PM_OGRE_TYRANT
-        : (i > 5) ? PM_ELVEN_MONARCH
-        : (i > 2) ? PM_DWARF_RULER
-        : PM_GNOME_RULER;
+    int pm = (i > 9) ? PM_OGRE_ROYAL
+        : (i > 5) ? PM_ELVEN_ROYAL
+        : (i > 2) ? PM_DWARF_ROYAL
+        : PM_GNOME_ROYAL;
     struct monst *mon = makemon(&mons[pm], x, y, NO_MM_FLAGS);
 
     if (mon) {

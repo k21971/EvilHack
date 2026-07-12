@@ -57,16 +57,18 @@ enum p_skills {
     P_CLERIC_SPELL       = 32,
     P_ESCAPE_SPELL       = 33,
     P_MATTER_SPELL       = 34,
+    P_EVOCATION_SPELL    = 35,
 
     /* Other types of combat */
-    P_BARE_HANDED_COMBAT = 35, /* actually weaponless; gloves are ok */
-    P_TWO_WEAPON_COMBAT  = 36, /* pair of weapons, one in each hand */
-    P_RIDING             = 37, /* How well you control your steed */
+    P_BARE_HANDED_COMBAT = 36, /* actually weaponless; gloves are ok */
+    P_TWO_WEAPON_COMBAT  = 37, /* pair of weapons, one in each hand */
+    P_RIDING             = 38, /* How well you control your steed */
     /* EvilHack skills; u.weapon_skills[] is saved as part of struct
-       you, so additions are append-only */
-    P_TELEKINESIS        = 38, /* Illithid telekinetic ability */
+       you, so additions are append-only once real saves exist
+       (evocation had to extend the contiguous spell block) */
+    P_TELEKINESIS        = 39, /* Illithid telekinetic ability */
 
-    P_NUM_SKILLS         = 39
+    P_NUM_SKILLS         = 40
 };
 
 #define P_MARTIAL_ARTS P_BARE_HANDED_COMBAT /* Role distinguishes */
@@ -75,7 +77,7 @@ enum p_skills {
 #define P_LAST_WEAPON P_UNICORN_HORN
 
 #define P_FIRST_SPELL P_ATTACK_SPELL
-#define P_LAST_SPELL P_MATTER_SPELL
+#define P_LAST_SPELL P_EVOCATION_SPELL
 
 #define P_LAST_H_TO_H P_TELEKINESIS
 #define P_FIRST_H_TO_H P_BARE_HANDED_COMBAT

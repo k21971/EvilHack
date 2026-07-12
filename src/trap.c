@@ -563,7 +563,7 @@ maketrap(coordxy x, coordxy y, int typ)
         unearth_objs(x, y);
         recalc_block_point(x, y);
         break;
-    case TELEP_TRAP:
+    case TELEP_TRAP_SET:
         if (isok(gl.launchplace.x, gl.launchplace.y)) {
             ttmp->teledest.x = gx.xstart + gl.launchplace.x;
             ttmp->teledest.y = gy.ystart + gl.launchplace.y;
@@ -1061,16 +1061,16 @@ staticfn boolean
 floor_trigger(int ttyp)
 {
     switch (ttyp) {
-    case ARROW_TRAP:
-    case DART_TRAP:
+    case ARROW_TRAP_SET:
+    case DART_TRAP_SET:
     case ROCKTRAP:
     case SQKY_BOARD:
     case BEAR_TRAP:
     case LANDMINE:
     case ROLLING_BOULDER_TRAP:
-    case SLP_GAS_TRAP:
-    case RUST_TRAP:
-    case FIRE_TRAP:
+    case SLP_GAS_TRAP_SET:
+    case RUST_TRAP_SET:
+    case FIRE_TRAP_SET:
     case PIT:
     case SPIKED_PIT:
     case HOLE:
@@ -1113,9 +1113,9 @@ m_harmless_trap(struct monst *mtmp, struct trap *ttmp)
         return TRUE;
 
     switch (ttmp->ttyp) {
-    case ARROW_TRAP:
+    case ARROW_TRAP_SET:
         break;
-    case DART_TRAP:
+    case DART_TRAP_SET:
         break;
     case ROCKTRAP:
         break;
@@ -1133,15 +1133,15 @@ m_harmless_trap(struct monst *mtmp, struct trap *ttmp)
         if (In_sokoban(&u.uz))
             return TRUE;
         break;
-    case SLP_GAS_TRAP:
+    case SLP_GAS_TRAP_SET:
         if (resists_sleep(mtmp) || defended(mtmp, AD_SLEE))
             return TRUE;
         break;
-    case RUST_TRAP:
+    case RUST_TRAP_SET:
         if (mdat != &mons[PM_IRON_GOLEM])
             return TRUE;
         break;
-    case FIRE_TRAP:
+    case FIRE_TRAP_SET:
         if (resists_fire(mtmp) || defended(mtmp, AD_FIRE))
             return TRUE;
         break;
@@ -1158,7 +1158,7 @@ m_harmless_trap(struct monst *mtmp, struct trap *ttmp)
         if (is_clinger(mdat) && !Sokoban)
             return TRUE;
         break;
-    case TELEP_TRAP:
+    case TELEP_TRAP_SET:
         break;
     case LEVEL_TELEP:
         break;
@@ -1171,13 +1171,13 @@ m_harmless_trap(struct monst *mtmp, struct trap *ttmp)
         break;
     case STATUE_TRAP:
         return TRUE;
-    case MAGIC_TRAP:
+    case MAGIC_TRAP_SET:
         return TRUE; /* usually */
     case ANTI_MAGIC:
         if (resists_magm(mtmp) || defended(mtmp, AD_MAGM))
             return TRUE;
         break;
-    case POLY_TRAP:
+    case POLY_TRAP_SET:
         break;
     case VIBRATING_SQUARE:
         return TRUE;
@@ -2482,7 +2482,7 @@ trapeffect_poly_trap(
             deltrap(trap);
             pline("%s warps strangely.", Yname2(uarmf));
             poly_obj(
-                uarmf, uarmf->otyp == IRON_SHOES ? KICKING_BOOTS : IRON_SHOES);
+                uarmf, uarmf->otyp == DWARVISH_BOOTS ? KICKING_BOOTS : DWARVISH_BOOTS);
             update_inventory();
             if (uarmf)
                 prinv(NULL, uarmf, 0);
@@ -2509,7 +2509,7 @@ trapeffect_poly_trap(
                 return Trap_Effect_Finished;
             }
             shoes = poly_obj(
-                shoes, shoes->otyp == IRON_SHOES ? KICKING_BOOTS : IRON_SHOES);
+                shoes, shoes->otyp == DWARVISH_BOOTS ? KICKING_BOOTS : DWARVISH_BOOTS);
             /* now equip them again */
             if (shoes) {
                 mtmp->misc_worn_check |= W_ARMF;
@@ -2797,8 +2797,8 @@ immune_to_trap(struct monst *mon, unsigned ttype)
     is_you = (mon == &gy.youmonst);
 
     switch (ttype) {
-    case ARROW_TRAP:
-    case DART_TRAP:
+    case ARROW_TRAP_SET:
+    case DART_TRAP_SET:
     case ROCKTRAP:
         /* can hit anything; even noncorporeal monsters might get a blessed
            projectile */
@@ -2828,7 +2828,7 @@ immune_to_trap(struct monst *mon, unsigned ttype)
         else if (is_you && (Levitation || Flying))
             return TRAP_CLEARLY_IMMUNE;
         return TRAP_NOT_IMMUNE;
-    case SLP_GAS_TRAP:
+    case SLP_GAS_TRAP_SET:
         if (breathless(pm))
             return TRAP_CLEARLY_IMMUNE;
         else if (!is_you && resists_sleep(mon))
@@ -2837,14 +2837,14 @@ immune_to_trap(struct monst *mon, unsigned ttype)
             return TRAP_HIDDEN_IMMUNE;
         return TRAP_NOT_IMMUNE;
     case LEVEL_TELEP:
-    case TELEP_TRAP:
+    case TELEP_TRAP_SET:
         /* consider unintended teleporting to be an adverse effect; if in
            the endgame or carrying the Amulet, the teleport trap won't work
            anyway, so anything hitting it is immune. */
         if (In_endgame(&u.uz) || mon_has_amulet(mon))
             return TRAP_CLEARLY_IMMUNE;
         return TRAP_NOT_IMMUNE;
-    case POLY_TRAP:
+    case POLY_TRAP_SET:
         if (resists_magm(mon))
             /* covers Antimagic for player */
             return (is_you ? TRAP_HIDDEN_IMMUNE : TRAP_CLEARLY_IMMUNE);
@@ -2878,7 +2878,7 @@ immune_to_trap(struct monst *mon, unsigned ttype)
             return TRAP_CLEARLY_IMMUNE;
         }
         return TRAP_NOT_IMMUNE;
-    case RUST_TRAP:
+    case RUST_TRAP_SET:
         /* harmful if wearing anything rustable or if mon is an iron golem */
         if (pm == &mons[PM_IRON_GOLEM])
             return TRAP_NOT_IMMUNE;
@@ -2893,14 +2893,14 @@ immune_to_trap(struct monst *mon, unsigned ttype)
             }
         }
         return TRAP_CLEARLY_IMMUNE;
-    case MAGIC_TRAP:
+    case MAGIC_TRAP_SET:
         /* for player, any number of bad effects;
            for monsters, only replicates fire trap, so fall through */
         if (is_you)
             return TRAP_NOT_IMMUNE;
         FALLTHROUGH;
         /*FALLTHRU*/
-    case FIRE_TRAP: /* can always destroy items being carried */
+    case FIRE_TRAP_SET: /* can always destroy items being carried */
         /* harmful if not resistant or if carrying anything that could burn */
         if (is_you ? !Fire_resistance : !resists_fire(mon))
             return TRAP_NOT_IMMUNE;
@@ -2943,9 +2943,9 @@ trapeffect_selector(
     unsigned int trflags)
 {
     switch (trap->ttyp) {
-    case ARROW_TRAP:
+    case ARROW_TRAP_SET:
         return trapeffect_arrow_trap(mtmp, trap, trflags);
-    case DART_TRAP:
+    case DART_TRAP_SET:
         return trapeffect_dart_trap(mtmp, trap, trflags);
     case ROCKTRAP:
         return trapeffect_rocktrap(mtmp, trap, trflags);
@@ -2953,11 +2953,11 @@ trapeffect_selector(
         return trapeffect_sqky_board(mtmp, trap, trflags);
     case BEAR_TRAP:
         return trapeffect_bear_trap(mtmp, trap, trflags);
-    case SLP_GAS_TRAP:
+    case SLP_GAS_TRAP_SET:
         return trapeffect_slp_gas_trap(mtmp, trap, trflags);
-    case RUST_TRAP:
+    case RUST_TRAP_SET:
         return trapeffect_rust_trap(mtmp, trap, trflags);
-    case FIRE_TRAP:
+    case FIRE_TRAP_SET:
         return trapeffect_fire_trap(mtmp, trap, trflags);
     case PIT:
     case SPIKED_PIT:
@@ -2969,19 +2969,19 @@ trapeffect_selector(
         return trapeffect_level_telep(mtmp, trap, trflags);
     case MAGIC_PORTAL:
         return trapeffect_magic_portal(mtmp, trap, trflags);
-    case TELEP_TRAP:
+    case TELEP_TRAP_SET:
         return trapeffect_telep_trap(mtmp, trap, trflags);
     case WEB:
         return trapeffect_web(mtmp, trap, trflags);
     case STATUE_TRAP:
         return trapeffect_statue_trap(mtmp, trap, trflags);
-    case MAGIC_TRAP:
+    case MAGIC_TRAP_SET:
         return trapeffect_magic_trap(mtmp, trap, trflags);
     case ANTI_MAGIC:
         return trapeffect_anti_magic(mtmp, trap, trflags);
     case LANDMINE:
         return trapeffect_landmine(mtmp, trap, trflags);
-    case POLY_TRAP:
+    case POLY_TRAP_SET:
         return trapeffect_poly_trap(mtmp, trap, trflags);
     case ROLLING_BOULDER_TRAP:
         return trapeffect_rolling_boulder_trap(mtmp, trap, trflags);
@@ -3029,7 +3029,7 @@ dotrap(struct trap *trap, unsigned trflags)
         if (floor_trigger(ttype) && check_in_air(&gy.youmonst, trflags)) {
             if (already_seen) {
                 You("%s over %s %s.", u_locomotion("step"),
-                    (ttype == ARROW_TRAP && !trap->madeby_u)
+                    (ttype == ARROW_TRAP_SET && !trap->madeby_u)
                     ? "an" : a_your[trap->madeby_u],
                     trapname(ttype, FALSE));
             }
@@ -3039,7 +3039,7 @@ dotrap(struct trap *trap, unsigned trflags)
             && ttype != ANTI_MAGIC && !forcebungle && !plunged
             && !conj_pit && !adj_pit
             && (!rn2(5) || (is_pit(ttype) && is_clinger(gy.youmonst.data)))) {
-                You("escape %s %s.", (ttype == ARROW_TRAP && !trap->madeby_u)
+                You("escape %s %s.", (ttype == ARROW_TRAP_SET && !trap->madeby_u)
                                      ? "an"
                                      : a_your[trap->madeby_u],
                 trapname(ttype, FALSE));
@@ -3116,7 +3116,7 @@ steedintrap(struct trap *trap, struct obj *otmp)
     trapkilled = steedhit = FALSE;
 
     switch (tt) {
-    case ARROW_TRAP:
+    case ARROW_TRAP_SET:
         if (!otmp) {
             impossible("steed hit by non-existent arrow?");
             return Trap_Effect_Finished;
@@ -3124,7 +3124,7 @@ steedintrap(struct trap *trap, struct obj *otmp)
         trapkilled = thitm(8, steed, otmp, 0, FALSE);
         steedhit = TRUE;
         break;
-    case DART_TRAP:
+    case DART_TRAP_SET:
         if (!otmp) {
             impossible("steed hit by non-existent dart?");
             return Trap_Effect_Finished;
@@ -3132,7 +3132,7 @@ steedintrap(struct trap *trap, struct obj *otmp)
         trapkilled = thitm(7, steed, otmp, 0, FALSE);
         steedhit = TRUE;
         break;
-    case SLP_GAS_TRAP:
+    case SLP_GAS_TRAP_SET:
         if (!resists_sleep(steed) && !breathless(steed->data)
             && !helpless(steed)) {
             if (sleep_monst(steed, rnd(25), -1))
@@ -3152,7 +3152,7 @@ steedintrap(struct trap *trap, struct obj *otmp)
                                rnd((tt == PIT) ? 6 : 10), FALSE));
         steedhit = TRUE;
         break;
-    case POLY_TRAP:
+    case POLY_TRAP_SET:
         if (!resists_magm(steed) && !resist(steed, WAND_CLASS, 0, NOTELL)) {
             /* newcham() will probably end up calling poly_steed() */
             (void) newcham(steed, (struct permonst *) 0, NC_SHOW_MSG);
@@ -3469,14 +3469,14 @@ launch_obj(
                         break;
                     FALLTHROUGH;
                     /*FALLTHRU*/
-                case TELEP_TRAP:
+                case TELEP_TRAP_SET:
                     if (cansee(x, y))
                         pline_xy(x, y,
                                  "Suddenly the rolling boulder disappears!");
                     else if (!Deaf)
                         You_hear("a rumbling stop abruptly.");
                     singleobj->otrapped = 0;
-                    if (t->ttyp == TELEP_TRAP) {
+                    if (t->ttyp == TELEP_TRAP_SET) {
                         (void) rloco(singleobj);
                     } else {
                         add_to_migration(singleobj);
@@ -5382,7 +5382,7 @@ into_vs_onto(int traptype)
     case PIT:
     case SPIKED_PIT:
     case HOLE:
-    case TELEP_TRAP:
+    case TELEP_TRAP_SET:
     case LEVEL_TELEP:
     case MAGIC_PORTAL:
     case WEB:
@@ -5973,9 +5973,9 @@ untrap(
                     return disarm_landmine(ttmp);
                 case SQKY_BOARD:
                     return disarm_squeaky_board(ttmp);
-                case DART_TRAP:
+                case DART_TRAP_SET:
                     return disarm_shooting_trap(ttmp, DART);
-                case ARROW_TRAP:
+                case ARROW_TRAP_SET:
                     return disarm_shooting_trap(ttmp, ARROW);
                 case PIT:
                 case SPIKED_PIT:
@@ -6672,11 +6672,11 @@ delfloortrap(struct trap *ttmp)
 {
     /* some of these are arbitrary -dlc */
     if (ttmp && ((ttmp->ttyp == SQKY_BOARD) || (ttmp->ttyp == BEAR_TRAP)
-                 || (ttmp->ttyp == LANDMINE) || (ttmp->ttyp == FIRE_TRAP)
+                 || (ttmp->ttyp == LANDMINE) || (ttmp->ttyp == FIRE_TRAP_SET)
                  || is_pit(ttmp->ttyp)
                  || is_hole(ttmp->ttyp)
-                 || (ttmp->ttyp == TELEP_TRAP) || (ttmp->ttyp == LEVEL_TELEP)
-                 || (ttmp->ttyp == WEB) || (ttmp->ttyp == MAGIC_TRAP)
+                 || (ttmp->ttyp == TELEP_TRAP_SET) || (ttmp->ttyp == LEVEL_TELEP)
+                 || (ttmp->ttyp == WEB) || (ttmp->ttyp == MAGIC_TRAP_SET)
                  || (ttmp->ttyp == ANTI_MAGIC))) {
         struct monst *mtmp;
 

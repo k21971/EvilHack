@@ -13,10 +13,14 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 
 ## Dashboard
 
-- Current phase: PHASE 0 + PHASE 0.5 COMPLETE (2026-07-12); next =
-  PHASE 1 (types, fields, content data - regenerate the converters
-  against current trees first, splice the macro pre-drafts, then
-  bulk monsters/objects; see Phase 1 checklist)
+- Current phase: PHASE 1 IN PROGRESS (content data LANDED
+  2026-07-12: 561 monsters + 566 objects build clean-rebuild green;
+  two commits pending maintainer: staged slice A scaffolding
+  defines + working-tree content swap, message files in scratchpad
+  msg-phase1-slice-a.txt / msg-phase1-content.txt). NEXT = struct
+  Role/Race mhrace port (role.c:1741 warning is the marker; MUST
+  land before any boot test), then artilist.h, remaining
+  persistent-struct enumeration, glyph audit, Phase 1 gate
 - Adoption commit (nh50/master @ merge):
   74d1133c229a0fe17c6b05d4d4084937cb2631ca (2026-07-12); adoption
   merge commit on evilhack-50: 6160262a4 (parents c444f6a3a +
@@ -30,7 +34,17 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   bundles into the offsite ritual). Prep artifacts (tooling + this
   tracker + exemplars + the plan file itself) offsite-backed-up by
   maintainer 2026-07-03 - refresh that copy whenever they change.
-- Last session: 2026-07-12 (PHASE 0 COMPLETE in one session:
+- Last session: 2026-07-12 LATER (PHASE 1 content-data session:
+  converters regenerated at the adoption trees - monsters 564->561
+  NAMS-merged 0 PORT-TODOs round-trip OK, objects 566 round-trip
+  OK; monster macro pre-draft + 561 entries + objects pre-draft +
+  566 entries spliced; MH_ race-bit migration, PM_/onames rename
+  sweeps, trap-type *_TRAP_SET renames, make_corpse exhaustive
+  switch regenerated, dragon-gear macros + scale-mail carve-out;
+  full clean rebuild ZERO errors, ONE known warning role.c:1741 =
+  the pending Role-struct port; see Phase 1 checklist notes and
+  Decisions log 2026-07-12 entries for everything decided)
+- Previous session: 2026-07-12 (PHASE 0 COMPLETE in one session:
   interim delta 219cfb687..74d1133c2 surveyed - 42 upstream
   commits, all benign, §4 inventory unchanged; baseline build
   re-proven at 74d1133c2; tree-adoption merge 6160262a4; fork
@@ -220,9 +234,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [ ] obj.h (+409 lines: material, oprops, forging bits, ...)
 - [ ] monst.h (+169: boss bits, status bits, mextra hooks)
 - [ ] prop.h (+154: property enum - couples to SAVED uprops array;
-      keep append-only vs upstream ordering)
+      keep append-only vs upstream ordering) [~] ULTRAVISION=70
+      appended 2026-07-12 (objects.h needed it); rest pending
 - [ ] you.h (+131: abuse fields, u_event additions, race/role state)
 - [ ] skills.h (+88: P_PET_HANDLING etc. - saved weapon_skills)
+      [~] P_EVOCATION_SPELL landed 2026-07-12 INSERTED at 35 to
+      extend the contiguous spell block (P_BARE_HANDED..
+      P_TELEKINESIS shifted +1; acceptable pre-real-saves, noted
+      in skills.h comment; weapon.c positional tables updated -
+      remember that gotcha for every remaining skill)
 - [ ] flag.h (+82: options/flags - split saved vs unsaved carefully)
 - [ ] mextra.h (+55: ERAC racial struct, edog petstrat, emsp spells)
 - [ ] context.h (+16)
@@ -243,20 +263,55 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       branch at Phase 1)
 - [x] Decide the 3 NAMS merge pairs - DONE 2026-07-03 (Decisions
       log; converter auto-merges, 564 -> 561 entries, 0 PORT-TODOs)
-- [ ] Regenerate + splice ~/monst_to_50.py output (561 entries)
-- [ ] Review monster cross-diff report (5.0-only monsters: adopt?)
+- [x] Regenerate + splice ~/monst_to_50.py output (561 entries;
+      2026-07-12, converters re-run at adoption trees, round-trip
+      clean; MH_ race-bit migration + PM_ rename sweep + grownups[]
+      replacement + make_corpse exhaustive-switch regeneration
+      landed with it; details in the content commit message)
+- [x] Review monster cross-diff report - RESOLVED 2026-07-12: all
+      12 "5.0-only monsters" are upstream's gendered-NAMS name
+      triples or renames of monsters EvilHack renamed differently
+      (leader/ruler vs noble/royal, Grand Master vs Master Po,
+      Chromatic Dragon vs Tiamat+placeholder); ZERO new species -
+      EvilHack's set + naming win per full-parity mandate
 - [x] Extend objects.h wrapper macros - PRE-DRAFTED 2026-07-03
       (objects-macros-predraft.h: upstream-verbatim context guards +
       GENERIC prelude + 23 EvilHack-signature wrappers +sn + MARKER
       insertion list + fencepost tail; same harness, NUM_OBJECTS=583
       = 566 entries + 17 GENERIC slots, gems/spells marker ranges
       verified; PAPER-override + P/S/B re-insert anchors documented)
-- [ ] Regenerate + splice ~/objects_to_50.py output (566 entries;
-      keep upstream GENERIC/MARKER prelude - PORT-NOTE marks spot)
+- [x] Regenerate + splice ~/objects_to_50.py output (566 entries;
+      2026-07-12, upstream GENERIC/MARKER prelude kept, 8 content
+      MARKERs + PAPER override re-anchored; onames rename sweep,
+      trap-type *_TRAP_SET renames, dragon-gear macro adoption,
+      silver-weapon base-type substitution landed with it; NOTE:
+      upstream-only content carved pending adoption decision - see
+      Decisions log and the 5.0-only content queue below)
 - [ ] artilist.h: 69 entries reformatted by hand (no converter -
-      count is small; watch 5.0 artifact struct changes)
+      count is small; watch 5.0 artifact struct changes). Interim
+      2026-07-12: upstream artilist compiles with MH_/DFLAGH bits
+      and EvilHack base items for Demonbane/Werebane/Grayswandir
 - [ ] roles/races: role.c 16 roles + align_roles[] Dark Knight
-      variant-quest MECHANISM port; 13 races
+      variant-quest MECHANISM port; 13 races. LOAD-BEARING and
+      NEXT UP: EvilHack moved race selection out of the packed
+      allow field into struct Role .mhrace (long) - with MH_HUMAN
+      = 0x1 the 5.0 packed masks collide with AM_LAWFUL, so role/
+      race selection is silently broken until this lands
+      (role.c:1741 -Wtautological-compare is the marker). NO BOOT
+      TESTS before this port
+- [ ] 5.0-only content adoption - DECIDED 2026-07-12 (maintainer):
+      ADOPT spellbook of chain lightning (cast_chain_lightning()
+      still compiled; pick attack vs evocation school at re-add)
+      and shields of drain/shock resistance; DECLINE wand of
+      stasis (level.flags.stasis_until machinery left dormant in
+      the tree - harmless, eases future upstream re-derives) and
+      dragon scale mail objects (superseded by EvilHack's
+      scales-fusion dragon-scaled armor, Phase 2). Re-add the two
+      adopted items as a small slice after the Role-struct port:
+      restore code sites from pre-swap history, append objects.h
+      entries (enum append-only; new book needs an unused
+      description; mirror upstream oc_prob and rebalance the
+      class to keep the o_init probability sum intact)
 - [ ] Glyph-space audit: every NUMMONS/MAX_GLYPH-dimensioned array
       (tiles, symbols, warnings) vs 564 monsters through sex-split
       offsets
@@ -484,6 +539,11 @@ trees, different content - Phase 0 rename).
 | 2026-07-12 | src/glyphs.c collision: upstream glyphs.c keeps its name; EvilHack customcolor registry ports as src/customcolor.c (Phase 4) | plan §6.0.4 default |
 | 2026-07-12 | CLI rc flags renamed -nethackrc/-no-nethackrc -> -evilhackrc/-no-evilhackrc (moved to case 'e' in earlyarg.c, removing the case 'n' collision with -n news suppression); Phase 6 must check dgamelaunch/server invocations for the old flag | session |
 | 2026-07-12 | NETHACKDIR env var kept unchanged (mirrors master; man page documents it) | mirrors master |
+| 2026-07-12 | 5.0-only monster list = pure renames/NAMS triples, none adopted; EvilHack names + gender-neutral noble/royal naming win (matches maintainer's master-side renames) | session, per full-parity mandate |
+| 2026-07-12 | HI_ material/monster color aliases defined as the base-16 colors EvilHack's own map_color_256to16() computes (verified against extcolor.c algorithm) until customcolor ports at Phase 4 - NOT hand-picked approximations | session, pilot C precedent |
+| 2026-07-12 | trap types ARROW/DART/SLP_GAS/RUST/FIRE/TELEP/MAGIC/POLY_TRAP -> EvilHack's *_TRAP_SET names (trap-kit objects own the plain names); EvilHack's NEW trap types (BOLT/ICE/SPEAR/MAGIC_BEAM_TRAP_SET) deferred to Phase 2 with their mechanics | mirrors EvilHack master |
+| 2026-07-12 | G_IGNORE moved 0x8000 -> 0x0100 (call-flag only, never stored in geno; 0x8000 is EvilHack's G_TALG) | session |
+| 2026-07-12 | upstream 5.0-only content: ADOPT chain lightning spellbook + shields of drain/shock resistance (re-add slice after the Role-struct port); DECLINE wand of stasis (dormant machinery stays) + dragon scale mail objects (EvilHack scales-fusion supersedes) | maintainer |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 

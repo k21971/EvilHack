@@ -42,7 +42,7 @@ staticfn boolean restricted_spell_discipline(int);
 static const struct trobj Archeologist[] = {
     /* if adventure has a name...  idea from tan@uvm-gen */
     { BULLWHIP, 2, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
-    { LEATHER_JACKET, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { JACKET, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { FEDORA, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { FOOD_RATION, 0, FOOD_CLASS, 3, 3, 0 },
     { PICK_AXE, UNDEF_SPE, TOOL_CLASS, 1, 1, UNDEF_BLESS },
@@ -70,12 +70,12 @@ static const struct trobj Cave_man[] = {
     { SLING, 2, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { FLINT, 0, GEM_CLASS, 10, 20, UNDEF_BLESS },
     { ROCK, 0, GEM_CLASS, 3, 3, 0 }, /* yields 18..33 */
-    { LEATHER_ARMOR, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { ARMOR, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0, 0 }
 };
 static const struct trobj Healer[] = {
     { SCALPEL, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
-    { LEATHER_GLOVES, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { GLOVES, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { STETHOSCOPE, 0, TOOL_CLASS, 1, 1, 0 },
     { POT_HEALING, 0, POTION_CLASS, 4, 4, UNDEF_BLESS },
     { POT_EXTRA_HEALING, 0, POTION_CLASS, 4, 4, UNDEF_BLESS },
@@ -93,13 +93,13 @@ static const struct trobj Knight[] = {
     { RING_MAIL, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { HELMET, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { SMALL_SHIELD, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
-    { LEATHER_GLOVES, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { GLOVES, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { APPLE, 0, FOOD_CLASS, 10, 10, 0 },
     { CARROT, 0, FOOD_CLASS, 10, 10, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
 static const struct trobj Monk[] = {
-    { LEATHER_GLOVES, 2, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { GLOVES, 2, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { ROBE, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, 1, UNDEF_BLESS },
     { POT_HEALING, 0, POTION_CLASS, 3, 3, UNDEF_BLESS },
@@ -133,7 +133,7 @@ static const struct trobj Ranger[] = {
 static const struct trobj Rogue[] = {
     { SHORT_SWORD, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { DAGGER, 0, WEAPON_CLASS, 6, 15, 0 },
-    { LEATHER_ARMOR, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { ARMOR, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { POT_SICKNESS, 0, POTION_CLASS, 1, 1, 0 },
     { LOCK_PICK, 0, TOOL_CLASS, 1, 1, 0 },
     { SACK, 0, TOOL_CLASS, 1, 1, 0 },
@@ -228,7 +228,7 @@ static const struct inv_sub {
     { PM_ELF, SHORT_SWORD, ELVEN_SHORT_SWORD },
     { PM_ELF, BOW, ELVEN_BOW },
     { PM_ELF, ARROW, ELVEN_ARROW },
-    { PM_ELF, HELMET, ELVEN_LEATHER_HELM },
+    { PM_ELF, HELMET, ELVEN_HELM },
     /* { PM_ELF, SMALL_SHIELD, ELVEN_SHIELD }, */
     { PM_ELF, CLOAK_OF_DISPLACEMENT, ELVEN_CLOAK },
     { PM_ELF, CRAM_RATION, LEMBAS_WAFER },
@@ -245,7 +245,7 @@ static const struct inv_sub {
     { PM_ORC, LEMBAS_WAFER, TRIPE_RATION },
     { PM_DWARF, SPEAR, DWARVISH_SPEAR },
     { PM_DWARF, SHORT_SWORD, DWARVISH_SHORT_SWORD },
-    { PM_DWARF, HELMET, DWARVISH_IRON_HELM },
+    { PM_DWARF, HELMET, DWARVISH_HELM },
     /* { PM_DWARF, SMALL_SHIELD, DWARVISH_ROUNDSHIELD }, */
     /* { PM_DWARF, PICK_AXE, DWARVISH_MATTOCK }, */
     { PM_DWARF, LEMBAS_WAFER, CRAM_RATION },
@@ -804,7 +804,7 @@ u_init_race(void)
          */
         if (Role_if(PM_CLERIC) || Role_if(PM_WIZARD)) {
             static const int trotyp[] =
-                { WOODEN_FLUTE, TOOLED_HORN, WOODEN_HARP,
+                { FLUTE, TOOLED_HORN, HARP,
                   BELL,         BUGLE,       LEATHER_DRUM };
             const struct trobj Instrument[] =
                 { { ROLL_FROM(trotyp), 0, TOOL_CLASS, 1, 1, 0 },
@@ -819,8 +819,8 @@ u_init_race(void)
         knows_object(ELVEN_SPEAR, FALSE);
         knows_object(ELVEN_DAGGER, FALSE);
         knows_object(ELVEN_BROADSWORD, FALSE);
-        knows_object(ELVEN_MITHRIL_COAT, FALSE);
-        knows_object(ELVEN_LEATHER_HELM, FALSE);
+        knows_object(ELVEN_CHAIN_MAIL, FALSE);
+        knows_object(ELVEN_HELM, FALSE);
         knows_object(ELVEN_SHIELD, FALSE);
         knows_object(ELVEN_BOOTS, FALSE);
         knows_object(ELVEN_CLOAK, FALSE);
@@ -831,8 +831,8 @@ u_init_race(void)
         knows_object(DWARVISH_SPEAR, FALSE);
         knows_object(DWARVISH_SHORT_SWORD, FALSE);
         knows_object(DWARVISH_MATTOCK, FALSE);
-        knows_object(DWARVISH_IRON_HELM, FALSE);
-        knows_object(DWARVISH_MITHRIL_COAT, FALSE);
+        knows_object(DWARVISH_HELM, FALSE);
+        knows_object(DWARVISH_CHAIN_MAIL, FALSE);
         knows_object(DWARVISH_CLOAK, FALSE);
         knows_object(DWARVISH_ROUNDSHIELD, FALSE);
         break;

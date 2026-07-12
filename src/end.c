@@ -204,7 +204,7 @@ done_in_by(struct monst *mtmp, int how)
     /* "killed by the high priest of Crom" is okay,
        "killed by the high priest" alone isn't */
     if ((mptr->geno & G_UNIQ) != 0 && !(imitator && !mimicker)
-        && !(mptr == &mons[PM_HIGH_CLERIC] && !mtmp->ispriest)) {
+        && !(mptr == &mons[PM_HIGH_PRIEST] && !mtmp->ispriest)) {
         if (!type_is_pname(mptr))
             Strcat(buf, "the ");
         svk.killer.format = KILLED_BY;

@@ -1095,7 +1095,7 @@ magic_negation(struct monst *mon)
             via_amul = FALSE,
             gotprot = is_you ? (EProtection != 0L)
                              /* high priests have innate protection */
-                             : (mon->data == &mons[PM_HIGH_CLERIC]);
+                             : (mon->data == &mons[PM_HIGH_PRIEST]);
 
     for (o = is_you ? gi.invent : mon->minvent; o; o = o->nobj) {
         /* a_can field is only applicable for armor (which must be worn) */
@@ -1129,7 +1129,7 @@ magic_negation(struct monst *mon)
            protection is too easy); it confers minimum mc 1 instead of 0 */
         if ((is_you && ((HProtection && u.ublessed > 0) || u.uspellprot))
             /* aligned priests and angels have innate intrinsic Protection */
-            || (mon->data == &mons[PM_ALIGNED_CLERIC]
+            || (mon->data == &mons[PM_ALIGNED_PRIEST]
                 || is_minion(mon->data)))
             mc = 1;
     }

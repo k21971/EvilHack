@@ -392,7 +392,7 @@ m_tele(
             makeknown(how);
         /* monster learns that teleportation isn't useful here */
         if (noteleport_level(mtmp))
-            mon_learns_traps(mtmp, TELEP_TRAP);
+            mon_learns_traps(mtmp, TELEP_TRAP_SET);
     } else if ((mon_has_amulet(mtmp) || On_W_tower_level(&u.uz)) && !rn2(3)) {
         if (vismon)
             pline_mon(mtmp, "%s seems disoriented for a moment.", Monnam(mtmp));
@@ -624,7 +624,7 @@ find_defensive(struct monst *mtmp, boolean tryescape)
                 gt.trapy = yy;
                 gm.m.has_defense = MUSE_TRAPDOOR;
                 break; /* no need to look at any other spots */
-            } else if (t->ttyp == TELEP_TRAP) {
+            } else if (t->ttyp == TELEP_TRAP_SET) {
                 gt.trapx = xx;
                 gt.trapy = yy;
                 gm.m.has_defense = MUSE_TELEPORT_TRAP;
@@ -678,14 +678,14 @@ find_defensive(struct monst *mtmp, boolean tryescape)
         nomore(MUSE_WAN_TELEPORTATION_SELF);
         nomore(MUSE_WAN_TELEPORTATION);
         if (obj->otyp == WAN_TELEPORTATION && obj->spe > 0) {
-            /* use the TELEP_TRAP bit to determine if they know
+            /* use the TELEP_TRAP_SET bit to determine if they know
              * about noteleport on this level or not.  Avoids
              * ineffective re-use of teleportation.  This does
              * mean if the monster leaves the level, they'll know
              * about teleport traps.
              */
             if (!noteleport_level(mtmp)
-                || !mon_knows_traps(mtmp, TELEP_TRAP)) {
+                || !mon_knows_traps(mtmp, TELEP_TRAP_SET)) {
                 gm.m.defensive = obj;
                 gm.m.has_defense = (mon_has_amulet(mtmp))
                                     ? MUSE_WAN_TELEPORTATION
@@ -699,7 +699,7 @@ find_defensive(struct monst *mtmp, boolean tryescape)
                                  && !mtmp->isgd && !mtmp->ispriest))) {
             /* see WAN_TELEPORTATION case above */
             if (!noteleport_level(mtmp)
-                || !mon_knows_traps(mtmp, TELEP_TRAP)) {
+                || !mon_knows_traps(mtmp, TELEP_TRAP_SET)) {
                 gm.m.defensive = obj;
                 gm.m.has_defense = MUSE_SCR_TELEPORTATION;
             }
@@ -864,7 +864,7 @@ use_defensive(struct monst *mtmp)
         mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
         /* monster learns that teleportation isn't useful here */
         if (noteleport_level(mtmp))
-            mon_learns_traps(mtmp, TELEP_TRAP);
+            mon_learns_traps(mtmp, TELEP_TRAP_SET);
         gm.m_using = FALSE;
         return 2;
     case MUSE_SCR_TELEPORTATION: {
@@ -1510,7 +1510,7 @@ find_offensive(struct monst *mtmp)
             && !Teleport_control
             /* same hack as MUSE_WAN_TELEPORTATION_SELF */
             && (!noteleport_level(mtmp)
-                || !mon_knows_traps(mtmp, TELEP_TRAP))
+                || !mon_knows_traps(mtmp, TELEP_TRAP_SET))
             /* do try to move hero to a more vulnerable spot */
             && (onscary(u.ux, u.uy, mtmp)
                 || (hero_behind_chokepoint(mtmp) && mon_has_friends(mtmp))
@@ -2133,7 +2133,7 @@ find_misc(struct monst *mtmp)
                         && !onscary(xx, yy, mtmp)) {
                         /* use trap if it's the correct type and will
                            polymorph the monster */
-                        if (t->ttyp == POLY_TRAP &&
+                        if (t->ttyp == POLY_TRAP_SET &&
                             !wearing_iron_shoes(mtmp)) {
                             gt.trapx = xx;
                             gt.trapy = yy;
@@ -2252,10 +2252,8 @@ muse_newcham_mon(struct monst *mon)
     struct obj *m_armr;
 
     if ((m_armr = which_armor(mon, W_ARM)) != 0) {
-        if (Is_dragon_scales(m_armr))
-            return Dragon_scales_to_pm(m_armr);
-        else if (Is_dragon_mail(m_armr))
-            return Dragon_mail_to_pm(m_armr);
+        if (Is_dragon_armor(m_armr))
+            return &mons[Dragon_armor_to_pm(m_armr)];
     }
     return rndmonst();
 }
@@ -2817,8 +2815,7 @@ mon_reflects(struct monst *mon, const char *str)
         }
         return TRUE;
     } else if ((orefl = which_armor(mon, W_ARM))
-               && (orefl->otyp == SILVER_DRAGON_SCALES
-                   || orefl->otyp == SILVER_DRAGON_SCALE_MAIL)) {
+               && orefl->otyp == SILVER_DRAGON_SCALES) {
         if (str)
             pline(str, s_suffix(mon_nam(mon)), "armor");
         return TRUE;
@@ -3065,7 +3062,7 @@ munslime(struct monst *mon, boolean by_you)
             if (cures_sliming(mon, obj))
                 return muse_unslime(mon, obj, (struct trap *) 0, by_you);
 
-        if (((t = t_at(mon->mx, mon->my)) == 0 || t->ttyp != FIRE_TRAP)
+        if (((t = t_at(mon->mx, mon->my)) == 0 || t->ttyp != FIRE_TRAP_SET)
             && mptr->mmove && !mon->mtrapped) {
             coordxy xy[2][8], x, y, idx, ridx, nxy = 0;
 
@@ -3087,11 +3084,11 @@ munslime(struct monst *mon, boolean by_you)
                     xy[1][ridx] = y;
                 }
                 if ((t = t_at(xy[0][idx], xy[1][idx])) != 0
-                    && t->ttyp == FIRE_TRAP)
+                    && t->ttyp == FIRE_TRAP_SET)
                     break;
             }
         }
-        if (t && t->ttyp == FIRE_TRAP)
+        if (t && t->ttyp == FIRE_TRAP_SET)
             return muse_unslime(mon, &hands_obj, t, by_you);
 
     } /* MUSE */

@@ -1173,7 +1173,7 @@ rndtrap(void)
                 rtrap = NO_TRAP;
             break;
         case LEVEL_TELEP:
-        case TELEP_TRAP:
+        case TELEP_TRAP_SET:
             if (svl.level.flags.noteleport)
                 rtrap = NO_TRAP;
             break;
@@ -4330,28 +4330,28 @@ lspo_altar(lua_State *L)
 static const struct {
     const char *name;
     int type;
-} trap_types[] = { { "arrow", ARROW_TRAP },
-                   { "dart", DART_TRAP },
+} trap_types[] = { { "arrow", ARROW_TRAP_SET },
+                   { "dart", DART_TRAP_SET },
                    { "falling rock", ROCKTRAP },
                    { "board", SQKY_BOARD },
                    { "bear", BEAR_TRAP },
                    { "land mine", LANDMINE },
                    { "rolling boulder", ROLLING_BOULDER_TRAP },
-                   { "sleep gas", SLP_GAS_TRAP },
-                   { "rust", RUST_TRAP },
-                   { "fire", FIRE_TRAP },
+                   { "sleep gas", SLP_GAS_TRAP_SET },
+                   { "rust", RUST_TRAP_SET },
+                   { "fire", FIRE_TRAP_SET },
                    { "pit", PIT },
                    { "spiked pit", SPIKED_PIT },
                    { "hole", HOLE },
                    { "trap door", TRAPDOOR },
-                   { "teleport", TELEP_TRAP },
+                   { "teleport", TELEP_TRAP_SET },
                    { "level teleport", LEVEL_TELEP },
                    { "magic portal", MAGIC_PORTAL },
                    { "web", WEB },
                    { "statue", STATUE_TRAP },
-                   { "magic", MAGIC_TRAP },
+                   { "magic", MAGIC_TRAP_SET },
                    { "anti magic", ANTI_MAGIC },
-                   { "polymorph", POLY_TRAP },
+                   { "polymorph", POLY_TRAP_SET },
                    { "vibrating square", VIBRATING_SQUARE },
                    { "random", -1 },
                    { 0, NO_TRAP } };

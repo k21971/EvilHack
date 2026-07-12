@@ -575,10 +575,10 @@ moverock_core(coordxy sx, coordxy sy)
                     }
                     FALLTHROUGH;
                     /*FALLTHRU*/
-                case TELEP_TRAP:
+                case TELEP_TRAP_SET:
                     rock_disappear_msg(otmp);
                     otmp->next_boulder = 0; /* reset before moving it */
-                    if (ttmp->ttyp == TELEP_TRAP) {
+                    if (ttmp->ttyp == TELEP_TRAP_SET) {
                         (void) rloco(otmp);
                     } else {
                         if (costly)

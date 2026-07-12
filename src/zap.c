@@ -2028,7 +2028,7 @@ stone_to_flesh_obj(struct obj *obj) /* nonnull */
     case ROCK_CLASS: /* boulders and statues */
     case TOOL_CLASS: /* figurines */
         if (obj->otyp == BOULDER) {
-            obj = poly_obj(obj, ENORMOUS_MEATBALL);
+            obj = poly_obj(obj, HUGE_CHUNK_OF_MEAT);
             smell = TRUE;
         } else if (obj->otyp == STATUE || obj->otyp == FIGURINE) {
             ptr = &mons[obj->corpsenm];
@@ -2572,16 +2572,6 @@ zapnodir(struct obj *obj)
         known = !!obj->dknown;
         (void) findit();
         break;
-    case WAN_STASIS: {
-        long tmp_until = svm.moves + (long) rn1(21, 10);
-
-        /* no immediately obvious effect, and no message so that it isn't
-           distinguishable from other NODIR wands that produce no message;
-           for multiple zaps, keep the longest duration rather than latest */
-        if (tmp_until > svl.level.flags.stasis_until)
-            svl.level.flags.stasis_until = tmp_until;
-        break;
-    }
     case WAN_CREATE_MONSTER:
         /* create_critters() returns True iff hero sees a new monster appear */
         if (create_critters(rn2(23) ? 1 : rn1(7, 2),

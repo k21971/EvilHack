@@ -1866,8 +1866,8 @@ deliver_obj_to_mon(struct monst *mtmp, int cnt, unsigned long deliverflags)
     else
         maxobj = 1;
 
-#define DELIVER_PM (M2_UNDEAD | M2_WERE | M2_HUMAN | M2_ELF | M2_DWARF \
-                    | M2_GNOME | M2_ORC | M2_DEMON | M2_GIANT)
+#define DELIVER_PM (MH_UNDEAD | MH_WERE | MH_HUMAN | MH_ELF | MH_DWARF \
+                    | MH_GNOME | MH_ORC | MH_DEMON | MH_GIANT)
 
     cnt = 0;
     for (otmp = gm.migrating_objs; otmp; otmp = otmp2) {
@@ -1877,14 +1877,14 @@ deliver_obj_to_mon(struct monst *mtmp, int cnt, unsigned long deliverflags)
             continue;
 
         if (otmp->migr_species != NON_PM
-            && ((mtmp->data->mflags2 & DELIVER_PM)
+            && ((mtmp->data->mhflags & DELIVER_PM)
                 == (unsigned) otmp->migr_species)) {
             obj_extract_self(otmp);
             otmp->owornmask = 0L;
             otmp->ox = otmp->oy = 0;
 
             /* special treatment for orcs and their kind */
-            if ((otmp->corpsenm & M2_ORC) != 0 && has_oname(otmp)) {
+            if ((otmp->corpsenm & MH_ORC) != 0 && has_oname(otmp)) {
                 if (!has_mgivenname(mtmp)) {
                     if (at_crime_scene || !rn2(2))
                         mtmp = christen_orc(mtmp,
