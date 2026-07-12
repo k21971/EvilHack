@@ -4613,6 +4613,20 @@ healmon(struct monst *mtmp, int amt, int overheal)
     }
 }
 
+/* EvilHack. Central monster-damage router: damages mon by amount of
+   type and reports whether it should have died. TODO-EVILHACK: the
+   vulnerability multiplier, SPFX_HPHDAM artifact halving, monster
+   spellbook-reading interruption, and hero-facing damage display
+   return here with their subsystems */
+boolean
+damage_mon(struct monst *mon, int amount, int type, boolean by_you)
+{
+    nhUse(type);
+    nhUse(by_you);
+    mon->mhp -= amount;
+    return (DEADMONSTER(mon)) ? TRUE : FALSE;
+}
+
 /* force all chameleons and mimics to become themselves and werecreatures
    to revert to human form; called when Protection_from_shape_changers gets
    activated via wearing or eating ring or via #wizintrinsic */

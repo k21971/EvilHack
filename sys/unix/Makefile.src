@@ -68,7 +68,6 @@ SYSOBJ ?= $(TARGETPFX)ioctl.o $(TARGETPFX)unixmain.o $(TARGETPFX)unixtty.o \
 #SYSSRC ?= ../sys/be/bemain.c ../sys/share/unixtty.c ../sys/share/ioctl.c
 #SYSOBJ ?= $(TARGETPFX)bemain.o $(TARGETPFX)unixtty.o $(TARGETPFX)ioctl.o
 
-
 # NetHack 5.0 began introducing C99 code.
 #
 # If your compiler needs an appropriate switch to accept C99 code.
@@ -451,7 +450,6 @@ QUIETCC=1
 # Other things that have to be reconfigured are in config.h,
 # {unixconf.h, pcconf.h}, and possibly cstd.h
 
-
 # NB: This is not used for all .c files (see explicit rules in
 #  dependencies).
 #    A normal or cross compile.
@@ -558,7 +556,6 @@ VERSOURCES ?= $(HACKCSRC) $(HACKLIBSRC) $(SYSSRC) $(WINSRC) $(CHAINSRC)
 # .c files for all versions using this Makefile (for lint and tags)
 CSOURCES ?= $(HACKCSRC) $(HACKLIBSRC) $(SYSCSRC) $(WINCSRC) $(CHAINSRC)
 
-
 # all .h files except date.h, which would
 # cause dependency loops if run through "make depend"
 # and dgn_file.h, special level & dungeon files.
@@ -623,7 +620,8 @@ HOBJ ?= $(TARGETPFX)allmain.o $(TARGETPFX)alloc.o \
 	$(TARGETPFX)sit.o $(TARGETPFX)sounds.o $(TARGETPFX)sp_lev.o \
 	$(TARGETPFX)spell.o $(TARGETPFX)stairs.o $(TARGETPFX)symbols.o \
 	$(TARGETPFX)sys.o $(TARGETPFX)steal.o $(TARGETPFX)steed.o \
-	$(TARGETPFX)strutil.o $(TARGETPFX)teleport.o $(TARGETPFX)timeout.o \
+	$(TARGETPFX)strutil.o $(TARGETPFX)telekinesis.o \
+	$(TARGETPFX)teleport.o $(TARGETPFX)timeout.o \
 	$(TARGETPFX)topten.o $(TARGETPFX)track.o $(TARGETPFX)trap.o \
 	$(TARGETPFX)u_init.o $(TARGETPFX)uhitm.o $(TARGETPFX)utf8map.o \
 	$(TARGETPFX)vault.o $(TARGETPFX)vision.o $(TARGETPFX)weapon.o \
@@ -632,7 +630,7 @@ HOBJ ?= $(TARGETPFX)allmain.o $(TARGETPFX)alloc.o \
 	$(TARGETPFX)worn.o $(TARGETPFX)write.o $(TARGETPFX)zap.o \
 	$(REGEXOBJ) $(RANDOBJ) $(SYSOBJ) $(WINOBJ) \
 	$(HINTOBJ) $(SNDLIBOBJ) $(UUIDOBJ) \
-	$(TARGETPFX)version.o 
+	$(TARGETPFX)version.o
 
 DATE_O = $(TARGETPFX)date.o
 
@@ -811,7 +809,6 @@ lint:
 	@echo lint -axbh -DLINT ...
 	@lint -axbh -I../include -DLINT $(CSOURCES) | sed '/_flsbuf/d'
 
-
 tags: $(CSOURCES)
 	@echo ctags -tw ...
 	@ctags -tw $(CSOURCES)
@@ -825,7 +822,7 @@ clean:
 	true; $(CLEAN_CC_RESPONSEFILE) $(CLEAN_CXX_RESPONSEFILE)
 
 spotless: clean
-	-rm -f a.out core $(HACKLIB) $(GAMEBIN) Sys* 
+	-rm -f a.out core $(HACKLIB) $(GAMEBIN) Sys*
 	-rm -f ../include/nhlua.h
 	-rm -f ../include/date.h #created but no longer used, at least by core
 	-rm -f ../include/onames.h ../include/pm.h #obsolete generated files
@@ -887,7 +884,6 @@ depend2:	$(WINQTMOC)
 	- diff Makefile.bak $(MAKEFILE_NAME)
 	@rm -f Makefile.bak
 	@rm -f ../include/nhlua.h $(GENTILECFILE)
-
 
 # DO NOT DELETE THIS LINE OR CHANGE ANYTHING BEYOND IT
 
@@ -1275,6 +1271,7 @@ $(TARGETPFX)steed.o: steed.c $(HACK_H)
 $(TARGETPFX)strutil.o: strutil.c $(HACK_H)
 $(TARGETPFX)symbols.o: symbols.c $(HACK_H) ../include/tcap.h
 $(TARGETPFX)sys.o: sys.c $(HACK_H)
+$(TARGETPFX)telekinesis.o: telekinesis.c $(HACK_H)
 $(TARGETPFX)teleport.o: teleport.c $(HACK_H)
 $(TARGETPFX)tile.o: $(SRCDIR)/tile.c $(HACK_H)
 $(TARGETPFX)timeout.o: timeout.c $(HACK_H)

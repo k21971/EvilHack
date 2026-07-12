@@ -226,6 +226,7 @@ extern void uchangealign(int, int);
 
 extern void ballrelease(boolean);
 extern void ballfall(void);
+extern void move_chain_to(coordxy, coordxy);
 #ifndef BREADCRUMBS
 extern void placebc(void);
 extern void unplacebc(void);
@@ -1843,6 +1844,7 @@ extern struct monst *get_iter_mons_xy(boolean (*)(struct monst *,
                                                   coordxy, coordxy),
                                       coordxy, coordxy);
 extern int healmon(struct monst *, int, int) NONNULLARG1;
+extern boolean damage_mon(struct monst *, int, int, boolean) NONNULLARG1;
 extern void rescham(void);
 extern void restartcham(void);
 extern void restore_cham(struct monst *) NONNULLARG1;
@@ -3009,7 +3011,6 @@ extern void use_unpaid_trapobj(struct obj *, coordxy, coordxy) NONNULLARG1;
 extern void noisy_shop(struct mkroom *);
 extern const char *says(void);
 
-
 /* ### shknam.c ### */
 
 extern void neweshk(struct monst *) NONNULLARG1;
@@ -3219,6 +3220,14 @@ extern boolean parsesymbols(char *, int) NONNULLARG1;
 extern void sys_early_init(void);
 extern void sysopt_release(void);
 extern void sysopt_seduce_set(int);
+
+/* ### telekinesis.c ### */
+
+extern boolean can_use_telekinesis(boolean);
+extern int tk_skill(void);
+extern int tk_range(void);
+extern int tk_pw_cost(void);
+extern int dotelekinesis(void);
 
 /* ### teleport.c ### */
 
@@ -3511,7 +3520,6 @@ extern boolean disguised_as_non_mon(struct monst *) NONNULLARG1;
 extern boolean disguised_as_mon(struct monst *) NONNULLARG1;
 extern int flash_hits_mon(struct monst *, struct obj *) NONNULLARG12;
 extern void light_hits_gremlin(struct monst *, int) NONNULLARG1;
-
 
 /* ### unixmain.c ### */
 #ifdef UNIX

@@ -293,7 +293,7 @@ read.c      rect.c      region.c    report.c    restore.c   revision.c
 rip.c       rnd.c       role.c      rumors.c    save.c      selvar.c
 sfbase.c    sfstruct.c  shk.c       shknam.c    sit.c       sounds.c
 sp_lev.c    spell.c     stairs.c    steal.c     steed.c     strutil.c
-symbols.c   sys.c       teleport.c  timeout.c   topten.c    track.c
+symbols.c   sys.c  telekinesis.c  teleport.c  timeout.c   topten.c    track.c
 trap.c      u_init.c    uhitm.c     utf8map.c   vault.c     version.c
 vision.c    weapon.c    were.c      wield.c     windows.c   wizard.c
 wizcmds.c   worm.c      worn.c      write.c     zap.c

@@ -691,7 +691,7 @@ HACKCSRC = \
 	$(SRC)save.c     $(SRC)selvar.c   $(SRC)sfbase.c   $(SRC)sfstruct.c \
 	$(SRC)shk.c      $(SRC)shknam.c   $(SRC)sit.c      $(SRC)sounds.c \
 	$(SRC)sp_lev.c   $(SRC)spell.c    $(SRC)stairs.c   $(SRC)steal.c \
-	$(SRC)steed.c    $(SRC)symbols.c  $(SRC)sys.c      $(SRC)teleport.c \
+	$(SRC)steed.c    $(SRC)symbols.c  $(SRC)sys.c      $(SRC)telekinesis.c $(SRC)teleport.c \
 	$(SRC)timeout.c  $(SRC)topten.c   $(SRC)track.c    $(SRC)trap.c \
 	$(SRC)u_init.c   $(SRC)uhitm.c    $(SRC)utf8map.c  $(SRC)vault.c \
 	$(SRC)version.c  $(SRC)vision.c   $(SRC)weapon.c   $(SRC)were.c \
@@ -894,7 +894,7 @@ COREOBJTTY = \
 	$(OTTY)sfbase.o   $(OTTY)sfstruct.o $(OTTY)shk.o      $(OTTY)shknam.o \
 	$(OTTY)sit.o      $(OTTY)sounds.o   $(OTTY)sp_lev.o   $(OTTY)spell.o \
 	$(OTTY)stairs.o   $(OTTY)steal.o    $(OTTY)steed.o    $(OTTY)strutil.o \
-	$(OTTY)symbols.o  $(OTTY)sys.o      $(OTTY)teleport.o $(OTTY)timeout.o \
+	$(OTTY)symbols.o  $(OTTY)sys.o      $(OTTY)telekinesis.o $(OTTY)teleport.o $(OTTY)timeout.o \
 	$(OTTY)topten.o   $(OTTY)track.o    $(OTTY)trap.o     $(OTTY)u_init.o \
 	$(OTTY)uhitm.o    $(OTTY)utf8map.o  $(OTTY)vault.o    $(OTTY)vision.o \
 	$(OTTY)weapon.o   $(OTTY)were.o     $(OTTY)wield.o    $(OTTY)windows.o \
@@ -957,7 +957,7 @@ COREOBJGUI = \
 	$(OGUI)sfbase.o   $(OGUI)sfstruct.o $(OGUI)shk.o      $(OGUI)shknam.o \
 	$(OGUI)sit.o      $(OGUI)sounds.o   $(OGUI)sp_lev.o   $(OGUI)spell.o \
 	$(OGUI)stairs.o   $(OGUI)steal.o    $(OGUI)steed.o    $(OGUI)strutil.o \
-	$(OGUI)symbols.o  $(OGUI)sys.o      $(OGUI)teleport.o $(OGUI)timeout.o \
+	$(OGUI)symbols.o  $(OGUI)sys.o      $(OGUI)telekinesis.o $(OGUI)teleport.o $(OGUI)timeout.o \
 	$(OGUI)topten.o   $(OGUI)track.o    $(OGUI)trap.o     $(OGUI)u_init.o \
 	$(OGUI)uhitm.o    $(OGUI)utf8map.o  $(OGUI)vault.o    $(OGUI)vision.o \
 	$(OGUI)weapon.o   $(OGUI)were.o     $(OGUI)wield.o    $(OGUI)windows.o \

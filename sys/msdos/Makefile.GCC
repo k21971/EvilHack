@@ -291,7 +291,7 @@ VOBJ17 = $(O)read.o     $(O)rect.o     $(O)region.o   $(O)report.o   $(O)restore
 VOBJ18 = $(O)revision.o $(O)rip.o      $(O)rnd.o      $(O)role.o     $(O)rumors.o
 VOBJ19 = $(O)save.o     $(O)selvar.o   $(O)sfstruct.o $(O)shk.o      $(O)shknam.o
 VOBJ20 = $(O)sit.o      $(O)sounds.o   $(O)sp_lev.o   $(O)spell.o    $(O)stairs.o
-VOBJ21 = $(O)steal.o    $(O)steed.o    $(O)symbols.o  $(O)sys.o      $(O)teleport.o
+VOBJ21 = $(O)steal.o    $(O)steed.o    $(O)symbols.o  $(O)sys.o      $(O)telekinesis.o $(O)teleport.o
 VOBJ22 = $(O)strutil.o  $(O)termcap.o  $(O)timeout.o  $(O)topl.o     $(O)topten.o
 VOBJ23 = $(O)trap.o     $(O)u_init.o   $(O)uhitm.o    $(O)utf8map.o  $(O)vault.o
 VOBJ24 = $(O)track.o    $(O)vision.o   $(O)weapon.o   $(O)were.o     $(O)wield.o
@@ -1480,6 +1480,7 @@ $(TARGETPFX)steal.o: steal.c $(HACK_H)
 $(TARGETPFX)steed.o: steed.c $(HACK_H)
 $(TARGETPFX)symbols.o: symbols.c $(HACK_H) ../include/tcap.h
 $(TARGETPFX)sys.o: sys.c $(HACK_H)
+$(TARGETPFX)telekinesis.o: telekinesis.c $(HACK_H)
 $(TARGETPFX)teleport.o: teleport.c $(HACK_H)
 $(TARGETPFX)timeout.o: timeout.c $(HACK_H)
 $(TARGETPFX)topten.o: topten.c $(HACK_H) ../include/dlb.h

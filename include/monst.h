@@ -119,6 +119,8 @@ struct monst {
     unsigned short mextrinsics; /* low 8 correspond to mresists */
     unsigned long seen_resistance; /* M_SEEN_x; saw you resist an effect */
     int mspec_used;       /* monster's special ability attack timeout */
+    int mtk_attk;         /* telekinesis attack cooldown timeout;
+                           * struct monst is whole-struct saved */
 
     Bitfield(female, 1);      /* is female */
     Bitfield(minvis, 1);      /* currently invisible */

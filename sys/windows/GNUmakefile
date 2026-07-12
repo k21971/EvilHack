@@ -1241,7 +1241,7 @@ COREOBJS = $(addsuffix .o, allmain alloc apply artifact attrib ball bones botl \
 	   random read rect region report restore revision rip rnd role rumors \
 	   save sfbase sfstruct shk shknam sit selvar sounds sp_lev \
 	   spell stairs steal steed strutil \
-	   symbols sys teleport timeout topten track trap u_init uhitm utf8map \
+	   symbols sys telekinesis teleport timeout topten track trap u_init uhitm utf8map \
 	   vault version vision weapon were wield windmain windows windsys wizard \
 	   wizcmds worm worn write zap $(SOUNDLIBOBJS))
 

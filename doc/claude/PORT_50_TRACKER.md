@@ -100,32 +100,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 
 ## Phase 0.5 - Pilot vertical slice (one of everything, end-to-end)
 
-- [~] One EvilHack-only file compiled in: telekinesis.c - IN
-      PROGRESS 2026-07-12. Dependency closure mapped (the "near
-      clean carry-over" file drags a subsystem tail; this IS the
-      calibration finding): alhoon + helm/property/skill landed as
-      Pilots B/C; still to port: (a) helpers damage_mon -> mon.c
-      (33L core; vulnerable_to/SPFX_HPHDAM/emsp/showmondamage hooks
-      -> TODO-EVILHACK), mfind_target -> mthrowu.c (125L),
-      move_chain_to -> ball.c (21L); (b) monst.h mtk_attk cooldown
-      field (whole-struct-saved, Pilot D recipe; AI decay ticker is
-      Phase 2); (c) materialnm[] name array (with materials); (d)
-      the file itself: FDECL->ANSI, staticfn, youmonst->gy.youmonst,
-      context->svc.context, level.objects->svl.level.objects,
-      zeroany->cg.zeroany, killer->svk/gk (verify), 5.0 menu API
-      (start_menu behavior arg, add_menu glyph_info+clr+itemflags),
-      getpos/hurtle/pickup_object/potionhit signature checks,
-      safe_touch_petrifies -> ismnum()+touch_petrifies,
-      safe_mons().mname -> 5.0 pmnames idiom (copy mthrowu.c's
-      hurled-corpse killer-string idiom), IS_TREES/IS_DEADTREE ->
-      IS_TREE + TODO-EVILHACK(dead trees), set_pet_killer sites ->
-      TODO-EVILHACK(kill-attribution), Race_if(PM_ILLITHID) sites ->
-      TODO-EVILHACK(illithid race; helm branches keep helm check
-      without the race conjunct until the race ports); (e) extern.h
-      decls + Makefile.src entry (+ legacy sys Makefiles per
-      legacy-makefile-status memory); #tk command wiring = Phase 2.
-      Master source snapshot: scratchpad/telekinesis-master.c (also
-      re-derivable via git show master:src/telekinesis.c)
+- [x] One EvilHack-only file compiled in: telekinesis.c
+      (2026-07-12, HERO SIDE - dotelekinesis + tk_* helpers +
+      can_use/tk_skill/tk_range/tk_pw_cost, fully converted to 5.0
+      idiom: staticfn/ANSI, gy.youmonst, svc.context, svl.level
+      .objects, cg.zeroany, disp.botl, 5.0 menu API, ismnum()
+      instead of the safe_* macros, IS_TREE only). Port-alongs:
+      damage_mon core -> mon.c (vulnerability/HPHDAM/emsp/display
+      hooks = TODO-EVILHACK), move_chain_to -> ball.c, monst.h
+      mtk_attk field, materialnm[] UPDATED IN PLACE in decl.c -
+      5.0 already carried a vanilla-ordered copy, so the enum swap
+      HAD to be paired with this array (silent name-shift class!).
+      extern.h decls, Makefile.src + windows/vms/msdos/vcxproj/
+      Files parity entries. DEFERRED to Phase 2 monster-AI (do NOT
+      forget): m_dotelekinesis + m_tk_push_obj + mfind_target ->
+      mthrowu.c + its mlined_up + dogmove.c acceptable_pet_target +
+      un-static mm_aggression + mtk_attk decay ticker + #tk command
+      wiring + set_pet_killer credit + illithid-race gates
+      (Race_if conjuncts marked TODO-EVILHACK in the file).
+      CALIBRATION: the "cleanest" EvilHack-only file took ~1
+      session incl. 3 pilot dependency slices; budget accordingly
+      for Phase 2 files. Master source: git show
+      master:src/telekinesis.c (monster half lines ~588-905)
 - [x] One monster into monsters.h: alhoon (2026-07-12, hand-added
       in upstream's CURRENT MON format - the 16-arg extension stays
       Phase 1; enum suffix arg -> PM_ALHOON generated via permonst.h

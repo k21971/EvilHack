@@ -194,6 +194,7 @@
     <ClCompile Include="$(SrcDir)strutil.c" />
     <ClCompile Include="$(SrcDir)symbols.c" />
     <ClCompile Include="$(SrcDir)sys.c" />
+    <ClCompile Include="$(SrcDir)telekinesis.c" />
     <ClCompile Include="$(SrcDir)teleport.c" />
     <ClCompile Include="$(SrcDir)timeout.c" />
     <ClCompile Include="$(SrcDir)topten.c" />

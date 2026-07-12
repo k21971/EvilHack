@@ -88,11 +88,12 @@ NEARDATA struct accessibility_data a11y;
 /* NOTE: the order of these words exactly corresponds to the
    order of oc_material values #define'd in objclass.h. */
 const char *materialnm[] = { "mysterious", "liquid",  "wax",        "organic",
-                             "flesh",      "paper",   "cloth",      "leather",
-                             "wooden",     "bone",    "dragonhide", "iron",
-                             "metal",      "copper",  "silver",     "gold",
-                             "platinum",   "mithril", "plastic",    "glass",
-                             "gemstone",   "stone" };
+                             "flesh",      "paper",   "cloth",      "spider silk",
+                             "leather",    "wooden",  "bone",       "dragonhide",
+                             "iron",       "steel",   "copper",     "bronze",
+                             "silver",     "gold",    "platinum",   "mithril",
+                             "adamantine", "plastic", "glass",      "crystal",
+                             "stone" };
 const char quitchars[] = " \r\n\033";
 const int shield_static[SHIELD_COUNT] = {
     S_ss1, S_ss2, S_ss3, S_ss2, S_ss1, S_ss2, S_ss4, /* 7 per row */
