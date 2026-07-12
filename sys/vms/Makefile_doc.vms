@@ -147,12 +147,12 @@ MANDIR	= /usr/man/man6
 MANEXT	= 6
 
 # manual installation for most BSD-style systems
-GAMEMANCREATE = cat nethack.6 | $(NHGREP) >
+GAMEMANCREATE = cat evilhack.6 | $(NHGREP) >
 RCVRMANCREATE = cat recover.6 | $(NHGREP) >
 DLBMANCREATE = cat dlb.6 | $(NHGREP) >
 MDMANCREATE = cat makedefs.6 | $(NHGREP) >
 # manual installation for most SYSV-style systems
-# GAMEMANCREATE = cat nethack.6 | $(NHGREP) | nroff -man - >
+# GAMEMANCREATE = cat evilhack.6 | $(NHGREP) | nroff -man - >
 # RCVRMANCREATE = cat recover.6 | $(NHGREP) | nroff -man - >
 # DLBMANCREATE = cat dlb.6 | $(NHGREP) | nroff -man - >
 # MDMANCREATE = cat makedefs.6 | $(NHGREP) | nroff -man - >
@@ -165,7 +165,7 @@ manpages:
 #	-$(MDMANCREATE) $(MANDIR)/makedefs.$(MANEXT)
 
 # manual creation for distribution
-DISTRIB = Guidebook.txt nethack.txt recover.txt \
+DISTRIB = Guidebook.txt evilhack.txt recover.txt \
 	dlb.txt makedefs.txt
 
 distrib: $(DISTRIB)
@@ -181,9 +181,9 @@ Guidebook.dat	: Gbk-1pg-pfx.mn Gbk-1pg-sfx.mn $(GUIDEBOOK_MN) tmac.n tmac.nh \
 #	$(ONEPAGECMD) > $@
 
 MAN2TXT = $(NHGREP) | nroff -man - | $(COLCMD)
-nethack.txt	: nethack.6
+evilhack.txt	: evilhack.6
 	echo $@ disabled on VMS
-#	cat nethack.6 | $(MAN2TXT) > nethack.txt
+#	cat evilhack.6 | $(MAN2TXT) > evilhack.txt
 recover.txt	: recover.6
 	echo $@ disabled on VMS
 #	cat recover.6 | $(MAN2TXT) > recover.txt

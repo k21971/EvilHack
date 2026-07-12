@@ -594,7 +594,7 @@ endif
 	@$(subst /,\,copy $(DOC)/guideb*.txt  $(GAMEDIR))
 	@$(subst /,\,copy $(MSYS)/sysconf  $(GAMEDIR))
 	@$(subst /,\,if not exist $(GAMEDIR)/sysconf touch $(GAMEDIR)/sysconf)
-	@$(subst /,\,if exist $(DOC)/nethack.txt copy $(DOC)/nethack.txt $(GAMEDIR))
+	@$(subst /,\,if exist $(DOC)/evilhack.txt copy $(DOC)/evilhack.txt $(GAMEDIR))
 ifdef CWSDPMI
 	@$(subst /,\,if exist $(CWSDPMI) copy $(CWSDPMI) $(GAMEDIR))
 else

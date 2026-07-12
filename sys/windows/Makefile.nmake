@@ -1748,11 +1748,11 @@ binary.tag: 	$(DAT)data $(DAT)rumors $(DAT)oracles $(DLB) \
 	if exist $(MSWSYS)sysconf.template copy $(MSWSYS)sysconf.template $(GAMEDIR)
 	if exist $(DAT)symbols copy $(DAT)symbols $(GAMEDIR)symbols
 	if exist $(DOC)guidebook.txt copy $(DOC)guidebook.txt $(GAMEDIR)Guidebook.txt
-	if exist $(DOC)nethack.txt copy $(DOC)nethack.txt $(GAMEDIR)NetHack.txt
+	if exist $(DOC)evilhack.txt copy $(DOC)evilhack.txt $(GAMEDIR)NetHack.txt
 #	if exist $(UTIL)sfctool.pdb copy $(UTIL)sfctool.pdb $(GAMEDIR)sfctool.pdb
 	@if exist $(GAMEDIR)NetHack.PDB echo NOTE: You may want to remove $(U_GAMEDIR)/NetHack.PDB to conserve space
 	@if exist $(GAMEDIR)NetHackW.PDB echo NOTE: You may want to remove $(U_GAMEDIR)/NetHackW.PDB to conserve space
-	-if exist $(MSWSYS)nethackrc.template copy $(MSWSYS)nethackrc.template   $(R_GAMEDIR)
+	-if exist $(MSWSYS)evilhackrc.template copy $(MSWSYS)evilhackrc.template   $(R_GAMEDIR)
 	-if not exist $(GAMEDIR)record. goto>$(GAMEDIR)record.
 ! IF ("$(USE_DLB)" == "Y")
 	copy /Y nhdat$(NHV) $(GAMEDIR)
@@ -1802,12 +1802,12 @@ $(INCL)nhlua.h:
 tileutil: $(U)gif2txt.exe $(U)gif2tx32.exe $(U)txt2ppm.exe
 	@echo Optional tile development utilities are up to date.
 
-$(OGUI)NetHackW.res: $(SRC)tiles.bmp $(MSWIN)NetHackW.rc $(MSWIN)NetHack.ico \
+$(OGUI)NetHackW.res: $(SRC)tiles.bmp $(MSWIN)EvilHackW.rc $(MSWIN)NetHack.ico \
 	$(MSWIN)mnsel.bmp $(MSWIN)mnselcnt.bmp $(MSWIN)mnunsel.bmp \
 	$(MSWIN)petmark.bmp $(MSWIN)pilemark.bmp $(MSWIN)NetHack.ico \
-	$(MSWIN)rip.bmp $(MSWIN)splash.bmp $(MSWIN)NetHackW.exe.manifest $(WAV)
+	$(MSWIN)rip.bmp $(MSWIN)splash.bmp $(MSWIN)EvilHackW.exe.manifest $(WAV)
 	@echo Building resource file $@ from $**
-	$(rc) -nologo -r -fo$@ -i$(MSWIN) -i$(SndWavDir) -dNDEBUG -dVIA_MAKE $(RCFLAGS) $(MSWIN)NetHackW.rc
+	$(rc) -nologo -r -fo$@ -i$(MSWIN) -i$(SndWavDir) -dNDEBUG -dVIA_MAKE $(RCFLAGS) $(MSWIN)EvilHackW.rc
 
 $(OTTY)console.res: $(MSWSYS)console.rc $(MSWSYS)NetHack.ico $(WAV)
 	@echo Building resource file $@ from $**
@@ -2798,10 +2798,10 @@ $(SndWavDir)sa2_xplevelup.wav: $(SndWavDir)sa2_xplevelup.uu $(U)uudecode.exe
 # packaging
 #===============================================================================
 
-PKGFILES = nethackrc.template Guidebook.txt license NetHack.exe NetHack.txt \
+PKGFILES = evilhackrc.template Guidebook.txt license NetHack.exe NetHack.txt \
 	 NetHackW.exe opthelp nhdat$(NHV) record symbols \
 	 sysconf.template $(SFCTOOLBASENAM)
-FILESTOZIP = $(BinDir)nethackrc.template $(BinDir)Guidebook.txt $(BinDir)license \
+FILESTOZIP = $(BinDir)evilhackrc.template $(BinDir)Guidebook.txt $(BinDir)license \
 	$(BinDir)NetHack.exe $(BinDir)NetHack.txt $(BinDir)NetHackW.exe \
 	$(BinDir)opthelp $(BinDir)nhdat$(NHV) $(BinDir)record \
 	$(BinDir)symbols $(BinDir)sysconf.template $(SFCTOOLPKG)

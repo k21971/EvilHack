@@ -1324,7 +1324,7 @@ $(ONHW)/%.o: $(WSHR)/%.c $(NHLUAH) | $(ONHW)
 $(ONHW)/%.o: $(WCURSES)/%.c $(NHLUAH) | $(ONHW)
 	$(cc) $(CFLAGSW) $(PDCINCL) $< -o$@
 
-$(NHWRES): $(MSWIN)/NetHackW.rc $(MSWIN)/NetHackW.exe.manifest \
+$(NHWRES): $(MSWIN)/EvilHackW.rc $(MSWIN)/EvilHackW.exe.manifest \
 		$(BMPS) $(WAV) $(MSWIN)/NetHack.ico | $(ONHW)
 	$(rc) --include-dir=$(MSWIN) $(RCFLAGS) -DVIA_MAKE --input=$< -o$@
 
@@ -1388,7 +1388,7 @@ TARGET_CPU = x86
 endif
 endif
 
-PKGFILES = nethackrc.template Guidebook.txt license NetHack.exe NetHack.txt \
+PKGFILES = evilhackrc.template Guidebook.txt license NetHack.exe NetHack.txt \
 	NetHackW.exe opthelp nhdat$(NHV) record symbols sysconf.template $(notdir $(LUADLL))
 
 FILESTOZIP = $(addprefix $(GAMEDIR)/, $(PKGFILES))
@@ -1515,7 +1515,7 @@ endif
 $(GAMEDIR)/symbols.template: $(DAT)/symbols
 	cp $< $@
 
-$(GAMEDIR)/NetHack.txt: $(DOC)/nethack.txt
+$(GAMEDIR)/NetHack.txt: $(DOC)/evilhack.txt
 	cp $< $@
 
 $(GAMEDIR)/record:

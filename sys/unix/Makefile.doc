@@ -99,13 +99,13 @@ MANEXT	= 6
 MANDIRPREP ?=  true
 
 # manual installation for most BSD-style systems
-GAMEMANCREATE = cat nethack.6 | $(NHGREP) >
+GAMEMANCREATE = cat evilhack.6 | $(NHGREP) >
 RCVRMANCREATE = cat recover.6 | $(NHGREP) >
 DLBMANCREATE = cat dlb.6 | $(NHGREP) >
 MDMANCREATE = cat makedefs.6 | $(NHGREP) >
 
 # manual installation for most SYSV-style systems
-# GAMEMANCREATE = cat nethack.6 | $(NHGREP) | $(NROFF) -man - >
+# GAMEMANCREATE = cat evilhack.6 | $(NHGREP) | $(NROFF) -man - >
 # RCVRMANCREATE = cat recover.6 | $(NHGREP) | $(NROFF) -man - >
 # DLBMANCREATE = cat dlb.6 | $(NHGREP) | $(NROFF) -man - >
 # MDMANCREATE = cat makedefs.6 | $(NHGREP) | $(NROFF) -man - >
@@ -118,7 +118,7 @@ manpages: $(PREMANPAGES)
 	-$(MDMANCREATE) $(MANDIR)/makedefs.$(MANEXT)
 
 # manual creation for distribution
-DISTRIB = Guidebook.txt nethack.txt recover.txt \
+DISTRIB = Guidebook.txt evilhack.txt recover.txt \
 	dlb.txt makedefs.txt
 
 distrib: $(DISTRIB)
@@ -139,8 +139,8 @@ MAN2TXT = $(NHGREP) | $(NROFF) -man $(MAN2TXTPRE) $(MAN2TXTPOST)
 # If you aren't using a hints file, you can uncomment the following
 # line if you have groff 1.23 or greater.
 #MAN2TXT = $(NHGREP) | groff -man -Tascii -P -cbou
-nethack.txt	: nethack.6
-	cat nethack.6 | $(MAN2TXT) > nethack.txt
+evilhack.txt	: evilhack.6
+	cat evilhack.6 | $(MAN2TXT) > evilhack.txt
 recover.txt	: recover.6
 	cat recover.6 | $(MAN2TXT) > recover.txt
 dlb.txt		: dlb.6

@@ -68,11 +68,11 @@ default: packageall
 NHDATFILEBASE=nhdat$(NHV)
 PKGFILES=Guidebook.txt license NetHack.exe NetHack.txt \
 	 NetHackW.exe opthelp $(NHDATFILEBASE) record symbols.template \
-	sysconf.template nethackrc.template
+	sysconf.template evilhackrc.template
 FILESTOZIP=$(VSBINDIR)\Guidebook.txt $(VSBINDIR)\license \
 	$(VSBINDIR)\NetHack.exe $(VSBINDIR)\NetHack.txt $(VSBINDIR)\NetHackW.exe \
 	$(VSBINDIR)\opthelp $(VSBINDIR)\$(NHDATFILEBASE) $(VSBINDIR)\record \
-	$(VSBINDIR)\symbols.template $(VSBINDIR)\sysconf.template $(VSBINDIR)\nethackrc.template
+	$(VSBINDIR)\symbols.template $(VSBINDIR)\sysconf.template $(VSBINDIR)\evilhackrc.template
 DBGSYMS = NetHack.PDB NetHackW.PDB
 PDBTOZIP = ..\NetHack\symbols\$(Configuration)\$(Platform)\NetHack.PDB \
 	   ..\NetHackW\symbols\$(Configuration)\$(Platform)\NetHackW.PDB
@@ -107,8 +107,8 @@ $(VSBINDIR)\nhdat$(NHV): $(BinDir)\nhdat$(NHV)
 	copy /Y $(BinDir)\nhdat$(NHV) $@
 $(VSBINDIR)\symbols.template: $(BinDir)\symbols.template
 	copy /Y $(BinDir)\symbols.template $@
-$(VSBINDIR)\nethackrc.template: $(BinDir)\nethackrc.template
-	copy /Y $(BinDir)\nethackrc.template $@
+$(VSBINDIR)\evilhackrc.template: $(BinDir)\evilhackrc.template
+	copy /Y $(BinDir)\evilhackrc.template $@
 $(VSBINDIR)\sysconf.template: $(BinDir)\sysconf.template
 	copy /Y $(BinDir)\sysconf.template $@
 $(VSBINDIR)\record:

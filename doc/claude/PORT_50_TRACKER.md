@@ -61,22 +61,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [x] Resolve src/glyphs.c name collision - DECIDED 2026-07-12:
       EvilHack's customcolor registry ports as src/customcolor.c at
       Phase 4; upstream src/glyphs.c keeps its name (see Decisions)
-- [~] Identity pass (2026-07-12, code level DONE + build-green +
-      strings-verified in binary: banner, 1.0.0 WIP version,
-      evilhack50dir, .evilhackrc, EVILHACKOPTIONS, -evilhackrc/
-      -no-evilhackrc flags, GAME=evilhack in Makefile.top/.src/
-      .doc/.utl, dat/help + dat/usagehlp + doc/nethack.6 text).
-      REMAINING (needs staging, do after commit lands): file renames
-      doc/nethack.6/.txt -> evilhack.6/.txt (+ Makefile.doc rules +
-      regen .txt via doc make, never hand-edit), sys/windows/
-      nethackrc.template -> evilhackrc.template (windconf.h
-      CONFIG_TEMPLATE already updated), win/win32 NetHackW.rc/
-      NetHackW.exe.manifest/nethack.rc renames + build-file ref
-      sweep. Left as-is on purpose (mirrors master): NETHACKDIR env
-      var, "NetHack Defaults"/"NetHack.cnf" exotic-platform names,
-      X11 "NetHack" title/class, rumors-file fallback strings.
-      Exotic hints (macOS.500/cross-post.500/solaris-playground)
-      rc refs deferred to their platform validation
+- [x] Identity pass (2026-07-12, build-green + strings-verified in
+      binary: banner, 1.0.0 WIP version, evilhack50dir, .evilhackrc,
+      EVILHACKOPTIONS, -evilhackrc/-no-evilhackrc flags,
+      GAME=evilhack in Makefile.top/.src/.doc/.utl, dat/help +
+      dat/usagehlp text; file renames doc/evilhack.6/.txt (.txt
+      regenerated via doc make, never hand-edit),
+      sys/windows/evilhackrc.template, win/win32 EvilHackW.rc/
+      EvilHackW.exe.manifest/evilhack.rc, refs swept in Files +
+      msdos/vms/windows build files + cross-post/macOS hints).
+      Left as-is on purpose (mirrors master): NETHACKDIR env var,
+      "NetHack Defaults"/"NetHack.cnf" exotic-platform names,
+      X11 "NetHack" title/class + win/X11/nethack.rc file, rumors
+      fallback strings, man page .TH NETHACK header. Deferred:
+      Windows package output names (NetHack.exe/NetHack.txt dests,
+      afternethack.proj file name) to the Phase 6 Windows-port
+      validation; sys/amiga/txt-info.uu embedded icon name
+      (uuencoded binary); Guidebook .nethackrc.template mentions
+      (Guidebook gets wholesale re-derived later)
 - [x] CI: re-add adapted .github/workflows (2026-07-12,
       evilhack-cpp.yml: linux-build job only - setup.sh from
       sys/unix + make fetch-lua + make all; install/artifact steps

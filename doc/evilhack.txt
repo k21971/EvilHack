@@ -1,13 +1,13 @@
 NETHACK(6)                       Games Manual                       NETHACK(6)
 
-
-
 NAME
        nethack - Exploring The Mazes of Menace
 
 SYNOPSIS
+
+
        nethack [role-option] [-d|--directory directory] [-w|--window-
-              type interface] [--nethackrc:rc-file|--no-nethackrc] [-n]
+              type interface] [--evilhackrc:rc-file|--no-evilhackrc] [-n]
               [-dec|-ibm] [-u player-name] [-X|-D] [-p profession] [-r race]
               [-@]
 
@@ -26,6 +26,7 @@ SYNOPSIS
               -T|-Tou
               -V|-Val
               -W|-Wiz
+
 
        nethack {-s|--scores} [-d|--directory directory] [-v] [-p profession]
               [-r race] [player-name ...]
@@ -53,48 +54,48 @@ DESCRIPTION
        To win the game (as opposed to merely playing to  beat  other  people's
        high  scores)  you  must locate the Amulet of Yendor which is somewhere
        below the 20th level of the dungeon and get it out.  Few people achieve
-       this;  most  never  do.   Those  who have done so go down in history as
-       heroes among heroes -- and then they find ways of making the game  even
-       harder.   See  the Guidebook section on Conduct if this game has gotten
+       this; most never do.  Those who have done so  go  down  in  history  as
+       heroes  among heroes -- and then they find ways of making the game even
+       harder.  See the Guidebook section on Conduct if this game  has  gotten
        too easy for you.
 
-       When the game ends, whether by your dying, quitting, or  escaping  from
-       the  caves, NetHack will give you (a fragment of) the list of top scor-
-       ers.  The scoring is based on many aspects  of  your  behavior,  but  a
+       When  the  game ends, whether by your dying, quitting, or escaping from
+       the caves, NetHack will give you (a fragment of) the list of top  scor-
+       ers.   The  scoring  is  based  on many aspects of your behavior, but a
        rough estimate is obtained by taking the amount of gold you've found in
        the cave plus four times your (real) experience.  Precious  stones  may
-       be  worth  a lot of gold when brought to the exit.  There is a 10% pen-
-       alty for getting yourself killed.
+       be  worth  a  lot  of  gold  when  brought to the exit.  There is a 10%
+       penalty for getting yourself killed.
 
-       The environment variable NETHACKOPTIONS can be used to initialize  many
-       run-time  options.   The  ?  command  provides  a  description of these
-       options and syntax.  (The -dec and -ibm command line options are  mutu-
-       ally  exclusive  and  are equivalent to the decgraphics and ibmgraphics
-       run-time options described there, and are provided  purely  for  conve-
+       The environment variable EVILHACKOPTIONS can be used to initialize many
+       run-time options.  The  ?  command  provides  a  description  of  these
+       options  and syntax.  (The -dec and -ibm command line options are mutu-
+       ally exclusive and are equivalent to the  decgraphics  and  ibmgraphics
+       run-time  options  described  there, and are provided purely for conve-
        nience on systems supporting multiple types of terminals.)
 
-       Because  the option list can be very long, options may also be included
+       Because the option list can be very long, options may also be  included
        in a configuration file.  The default is located in your home directory
-       and  named  .nethackrc  on  UNIX systems (including descendants such as
-       linux, NetBSD, and macOS).  On Windows, the name is also .nethackrc but
-       the  location  can vary (see --showpaths below).  On other systems, the
-       default may be different, possibly NetHack.cnf.  On MS-DOS, the name is
-       defaults.nh in NetHack's directory (folder), while on VMS|OpenVMS it is
-       nethack.ini in your home directory.  The default configuration file may
-       be  overridden  via  the  --nethackrc:rc-file command line option or by
-       setting NETHACKOPTIONS in your environment to a string consisting of an
-       @ character followed by the path and filename.
+       and  named  .evilhackrc  on UNIX systems (including descendants such as
+       linux, NetBSD, and macOS).  On Windows, the name  is  also  .evilhackrc
+       but  the  location can vary (see --showpaths below).  On other systems,
+       the default may be different, possibly  NetHack.cnf.   On  MS-DOS,  the
+       name is defaults.nh in NetHack's directory (folder), while on VMS|Open-
+       VMS  it  is nethack.ini in your home directory.  The default configura-
+       tion file may be overridden via the --evilhackrc:rc-file  command  line
+       option  or  by  setting EVILHACKOPTIONS in your environment to a string
+       consisting of an @ character followed by the path and filename.
 
-       The  -u player-name option supplies the answer to the question "Who are
-       you?".  It overrides any name from the options or  configuration  file,
-       USER,  LOGNAME,  or getlogin(), which will otherwise be tried in order.
-       If none of these provides a useful name, the player will be  asked  for
+       The -u player-name option supplies the answer to the question "Who  are
+       you?".   It  overrides any name from the options or configuration file,
+       USER, LOGNAME, or getlogin(), which will otherwise be tried  in  order.
+       If  none  of these provides a useful name, the player will be asked for
        one.  Player names (in conjunction with uids) are used to identify save
        files, so you can have several saved games under different names.  Con-
-       versely,  you  must  use the appropriate player name to restore a saved
+       versely, you must use the appropriate player name to  restore  a  saved
        game.
 
-       A player-name suffix can be  used  to  specify  the  profession,  race,
+       A  player-name  suffix  can  be  used  to specify the profession, race,
        alignment and/or gender of the character.  The full syntax of a player-
        name including a suffix is "name-ppp-rrr-aaa-ggg".  "ppp" are at  least
        the  first  three letters of the profession (this can also be specified
@@ -128,17 +129,17 @@ DESCRIPTION
        The -n option suppresses printing of any news from the game administra-
        tor.
 
-       The -X option will start the game in a  special  non-scoring  discovery
-       mode  (also  known  as  explore mode).  -D will start the game in debug
-       mode (also known as wizard mode) after changing the character  name  to
-       "wizard",  if  the  player is allowed.  Otherwise it will switch to -X.
-       Control of who is allowed to use debug mode is done via the  "WIZARDS="
+       The  -X  option  will start the game in a special non-scoring discovery
+       mode (also known as explore mode).  -D will start  the  game  in  debug
+       mode  (also  known as wizard mode) after changing the character name to
+       "wizard", if the player is allowed.  Otherwise it will  switch  to  -X.
+       Control  of who is allowed to use debug mode is done via the "WIZARDS="
        line in NetHack's sysconf file.
 
-       The  -d  or  --directory option, which must be the first argument if it
-       appears, supplies a directory which is to serve as the playground.   It
-       overrides  the  value from NETHACKDIR, HACKDIR, or the directory speci-
-       fied by the game administrator during compilation (usually  /usr/games/
+       The -d or --directory option, which must be the first  argument  if  it
+       appears,  supplies a directory which is to serve as the playground.  It
+       overrides the value from NETHACKDIR, HACKDIR, or the  directory  speci-
+       fied  by the game administrator during compilation (usually /usr/games/
        lib/nethackdir).  This option is usually only useful to the game admin-
        istrator.  The playground must contain several auxiliary files such  as
        help  files,  the  list  of  top scorers, and a subdirectory save where
@@ -150,30 +151,30 @@ DESCRIPTION
        specified  in the run-time configuration file.  NetHack's #version com-
        mand shows available interfaces.
 
-       The --nethackrc:rc-file option will use rc-file instead of the  default
-       run-time   configuration   file   (typically   ~/.nethackrc)   and  the
-       --no-nethackrc option can be used to skip  any  run-time  configuration
+       The --evilhackrc:rc-file option will use rc-file instead of the default
+       run-time  configuration  file   (typically   ~/.evilhackrc)   and   the
+       --no-evilhackrc  option  can be used to skip any run-time configuration
        file.
 
        Some options provide feedback and then exit rather than play the game:
 
-       The  -s or --scores option alone will print out the list of your scores
-       on the current version.  An immediately following  -v  reports  on  all
-       versions present in the score file.  '-s|-s -v' may also be followed by
+       The -s or --scores option alone will print out the list of your  scores
+       on  the  current  version.   An immediately following -v reports on all
+       versions present in the score file.  `-s|-s -v' may also be followed by
        arguments -p profession and -r race to print the scores  of  particular
        roles  and  races  only.   Either  can  be  specified multiple times to
        include more than one role or more than one race.  When both are speci-
-       fied,  score  entries which match either the role or the race (or both)
-       are printed rather than just entries which match both.  '-s|-s -v'  may
-       be  followed  by  one  or  more player names to print the scores of the
-       players mentioned, by 'all' to print out all scores, or by a number  to
-       print  that many top scores.  Combining names with role or race or both
-       will report entries which match any of those rather than just the  ones
+       fied, score entries which match either the role or the race  (or  both)
+       are  printed rather than just entries which match both.  `-s|-s -v' may
+       be followed by one or more player names to  print  the  scores  of  the
+       players  mentioned, by 'all' to print out all scores, or by a number to
+       print that many top scores.  Combining names with role or race or  both
+       will  report entries which match any of those rather than just the ones
        which match all.
 
-       --version  or  --version:show  can be used to cause NetHack to show the
-       version number, the date and time that the program was built  from  its
-       source  code, and possibly some auxiliary information about that source
+       --version or --version:show can be used to cause NetHack  to  show  the
+       version  number,  the date and time that the program was built from its
+       source code, and possibly some auxiliary information about that  source
        code, then exit.  The optional auxiliary information is git commit hash
        (reflecting  the  source code's most recent modification when extracted
        from the git version control system, if that is in  use)  if  available
@@ -186,13 +187,13 @@ DESCRIPTION
        or bones file is compatible with the program.  The program will display
        a line containing five numbers expressed in hexadecimal, then exit.
 
-       --showpaths can be used to cause NetHack to show where it is  expecting
-       to  find  various  files.   Among other things it shows the path to and
-       name for the player's run-time configuration file, a  text  file  which
+       --showpaths  can be used to cause NetHack to show where it is expecting
+       to find various files.  Among other things it shows  the  path  to  and
+       name  for  the  player's run-time configuration file, a text file which
        can be edited to customize aspects of how the game operates.
 
        --usage or --help will display information similar to this manual page,
-       then exit.  Use 'nethack --usage | more' to read it a page at a time.
+       then exit.  Use `nethack --usage | more' to read it a page at a time.
 
 AUTHORS
        Jay Fenlason (+ Kenny Woodland, Mike Thome and  Jon  Payne)  wrote  the
@@ -202,19 +203,19 @@ AUTHORS
        different game.
 
        Mike Stephenson has continued the perversion of sources, adding various
-       warped  character  classes  and  sadistic  traps  with the help of many
-       strange people who reside in that place between the worlds, the  Usenet
-       Zone.   A number of these miscreants are immortalized in the historical
+       warped character classes and sadistic  traps  with  the  help  of  many
+       strange  people who reside in that place between the worlds, the Usenet
+       Zone.  A number of these miscreants are immortalized in the  historical
        roll of dishonor and various other places.
 
-       The resulting mess is now called NetHack, to denote its development  by
+       The  resulting mess is now called NetHack, to denote its development by
        the Usenet.  Andries Brouwer has made this request for the distinction,
        as he may eventually release a new version of his own.
 
 FILES
        Run-time configuration options were discussed above and use a  platform
        specific  name  for  a file in a platform specific location.  For Unix,
-       the name is .nethackrc in the user's home directory.
+       the name is .evilhackrc in the user's home directory.
 
        All other files are in the playground directory,  normally  /usr/games/
        lib/nethackdir.   If DLB was defined during the compile, the data files
@@ -302,7 +303,7 @@ FILES
        save/  Subdirectory containing saved games.
 
        sysconf
-              System-wide options.  Required if program is built with  'SYSCF'
+              System-wide  options.  Required if program is built with 'SYSCF'
               option enabled, ignored if not.
 
        The location of sysconf is specified at build time and can't be changed
@@ -338,10 +339,10 @@ ENVIRONMENT
        NETHACKDIR
        HACKDIR         Playground.
 
-       NETHACKOPTIONS  Predefined NetHack options.
+       EVILHACKOPTIONS Predefined NetHack options.
 
-       If the same option is specified in both NETHACKOPTIONS and  .nethackrc,
-       the value assigned in NETHACKOPTIONS takes precedence.
+       If  the  same  option  is  specified  in   both   EVILHACKOPTIONS   and
+       .evilhackrc, the value assigned in EVILHACKOPTIONS takes precedence.
 
        SHOPTYPE  and  SPLEVTYPE  can  be  used  in  debugging  (wizard)  mode.
        DEBUGFILES can be used if the program was built with 'DEBUG' enabled.
@@ -356,7 +357,5 @@ COPYRIGHT
        This file is Copyright (C) Robert  Patrick  Rankin,  2024  for  version
        NetHack-5:1.31.   NetHack may be freely redistributed.  See license for
        details.
-
-
 
 NETHACK                          26 April 2026                      NETHACK(6)
