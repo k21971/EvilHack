@@ -13,8 +13,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 
 ## Dashboard
 
-- Current phase: PHASE 0 COMPLETE (2026-07-12); next = Phase 0.5
-  pilot vertical slice
+- Current phase: PHASE 0 + PHASE 0.5 COMPLETE (2026-07-12); next =
+  PHASE 1 (types, fields, content data - regenerate the converters
+  against current trees first, splice the macro pre-drafts, then
+  bulk monsters/objects; see Phase 1 checklist)
 - Adoption commit (nh50/master @ merge):
   74d1133c229a0fe17c6b05d4d4084937cb2631ca (2026-07-12); adoption
   merge commit on evilhack-50: 6160262a4 (parents c444f6a3a +
@@ -38,7 +40,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   Commit flow: git commit is deny-listed for the agent - stage +
   write message file, maintainer runs `! git commit -F <file>`.
   Found+fixed upstream shk.c impossible() format typo, see
-  Upstream-reportable table)
+  Upstream-reportable table. SAME DAY: Phase 0.5 pilot slice
+  COMPLETE - all six items, see Phase 0.5 section for recipes,
+  gotchas, and effort calibration; branch test sessions use
+  --no-evilhackrc and install via `make install SHELLDIR=`)
 - Baseline builds: NetHack50 clean @ 219cfb687 (2026-07-02) with
   BOTH hints/linux-debug and hints/hardfought - zero warnings;
   RE-PROVEN @ 74d1133c2 (2026-07-12, make spotless,
@@ -136,8 +141,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       monster in the Phase 1 bulk add - the converter output should
       be paired with a make_corpse case-list update). Tiles: no
       coupling fired on linux-debug (tty/curses); tile art parity is
-      a Phase 4 item. Wizmode genesis smoke test PENDING (batch with
-      the next approved game launch).
+      a Phase 4 item. Wizmode genesis smoke test PASSED
+      2026-07-12 ("An alhoon appears next to you").
 - [x] One object into objects.h: helm of telekinesis (2026-07-12,
       hand-added in upstream's current HELM macro incl. sn suffix
       arg; ADAMANTINE material from the Pilot D enum; CLR_CYAN
@@ -179,9 +184,33 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       benign, verify by field not by cmp; ~/.evilhackrc is SHARED
       with the live 3.6 game during migration - branch test
       launches use --no-evilhackrc (renamed flag verified working)
-- [ ] One small .des level to Lua by hand using
-      /root/nh50-port-preview/exemplar/DES_TO_LUA_CRIB.md
-- [ ] Write down effort calibration notes for the XL phases
+- [x] One small .des level to Lua: nymph.lua exemplar validated
+      through the REAL engine (2026-07-12, #wizloaddes on the
+      branch): the sp_lev Lua loader parsed and executed it and
+      stopped exactly at the first EvilHack-only binding - impossible
+      "Unknown room type 'garden'" (non-fatal, paniclogged, game
+      continued; graceful degradation confirmed). This is the
+      runtime class luac -p cannot catch - the engine-load test is
+      the real gate for Phase 3, and the missing pieces are exactly
+      the tracker's Phase 2 nhl-binding items (garden room type et
+      al). BONUS finding: the panic path wrote var/save/0wizard.e.gz
+      - the fork carries the emergency-save machinery and it works
+      on the branch. Session-driving gotcha reconfirmed the hard
+      way: capture-pane before EVERY send-keys; a queued 'y' during
+      a panic --More-- chain answered "Dump core?" and aborted the
+      test game (self-inflicted, no harm).
+- [x] Effort calibration for the XL phases (2026-07-12, one
+      session for the whole pilot): persistent field ~= 2h incl.
+      tooling bring-up (recipe now known: near-instant for
+      whole-struct fields); one monster ~= 30min + one exhaustive-
+      switch case; one object+property+skill ~= 45min (watch
+      positional name tables); the "cleanest" EvilHack-only file =
+      ~3h incl. three dependency slices and six build-file parity
+      entries - EVERY EvilHack file will drag a subsystem tail, so
+      Phase 2 file estimates should assume 2-4x the naive line
+      count. Engine-level validation (wizloaddes / genesis / save
+      round-trip) catches what compilers and luac cannot; budget a
+      short wizmode session per landed slice.
 
 ## Phase 1 - Types, fields, content data
 
