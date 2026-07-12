@@ -1,0 +1,360 @@
+# EvilHack -> NetHack 5.0 Port Tracker
+
+**This is the single source of truth for port state - keep it
+updated every session.** Lives on the `evilhack-50` branch (moved
+here from /root/nh50-port-preview/ at Phase 0 step 3). The plan
+lives at `/root/.claude/plans/feature-evilhack-50-migration.md`;
+READ PLAN SECTION 11 (implementing-model rules) BEFORE EVERY PHASE.
+
+Skeleton pre-populated 2026-07-02 (Fable 5) from the measured tree
+delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
+`[ ]` todo, `[~]` in progress (add a note!), `[x]` done+build-green,
+`[d]` dropped (superseded upstream - note why).
+
+## Dashboard
+
+- Current phase: PHASE 0 IN PROGRESS (started 2026-07-12)
+- Adoption commit (nh50/master @ merge):
+  74d1133c229a0fe17c6b05d4d4084937cb2631ca (2026-07-12); adoption
+  merge commit on evilhack-50: 6160262a4 (parents c444f6a3a +
+  74d1133c2; tree verified byte-identical to nh50/master)
+- Fork-point tag on master: evilhack-50-fork-point @
+  c444f6a3ab1e9f16d0676961dba86f628e91c6ba (= master tip at
+  adoption; re-derive queue starts EMPTY)
+- Backup mechanism (plan §7): dated git bundle at session end ->
+  /home/build/wizmode_builds/evilhack-50-backups/ (branch stays
+  local until playable per plan §9 decision 5; maintainer pulls
+  bundles into the offsite ritual). Prep artifacts (tooling + this
+  tracker + exemplars + the plan file itself) offsite-backed-up by
+  maintainer 2026-07-03 - refresh that copy whenever they change.
+- Last session: 2026-07-12 (PHASE 0 STARTED: interim delta
+  219cfb687..74d1133c2 surveyed - 42 upstream commits, all benign
+  bugfixes within existing architecture, §4 inventory unchanged;
+  baseline build re-proven at 74d1133c2; tree-adoption merge
+  executed; fork point tagged; tracker moved onto the branch)
+- Baseline builds: NetHack50 clean @ 219cfb687 (2026-07-02) with
+  BOTH hints/linux-debug and hints/hardfought - zero warnings;
+  RE-PROVEN @ 74d1133c2 (2026-07-12, make spotless,
+  hints/linux-debug, zero warnings, src/nethack 12365040 bytes)
+
+## Phase 0 - Scaffolding
+
+- [x] Re-verify baseline build at the ACTUAL adoption commit
+      (74d1133c2, 2026-07-12, zero warnings; interim delta from
+      219cfb687 surveyed: 42 commits, benign - u.ustuck save/restore
+      fixes, glyph lookup optimization, herecmdmenu buttons,
+      MS-DOS/Windows, Guidebook regen; no §4 inventory changes)
+- [x] Create evilhack-50 via tree-adoption merge (plan §3 commands;
+      merge commit 6160262a4, tree == nh50/master, both parents
+      reachable; note: git reset --hard was permission-denied, used
+      git branch -f from master + checkout instead - same result)
+- [x] Tag master fork point; record both hashes above
+- [x] Adopted tree builds GREEN in the EvilHack worktree
+      (2026-07-12, make all zero warnings after setup.sh; gotchas:
+      sys/unix/setup.sh must be run FROM sys/unix/ - hints path is
+      relative; lib/lua-5.4.8 + lib/lua are fetched artifacts, not
+      tracked - copied from NetHack50/lib instead of make fetch-lua;
+      stale 3.6 build leftovers in the worktree are untracked/
+      ignored and harmless - do NOT git clean, doc/claude lives
+      there)
+- [x] Move this tracker into doc/claude/ on the branch
+- [ ] Resolve src/glyphs.c name collision (rename ours; extcolor
+      merge or customcolor.c)
+- [ ] Identity pass: game name, 1.0.0-dev version strings,
+      evilhackdir paths, .evilhackrc, sysconf/log names; file-level
+      renames from the census: doc/evilhack.6/.txt (upstream ships
+      nethack.6/.txt), win/win32 EvilHackW/evilhack .rc+.manifest
+      (upstream NetHackW/nethack), sys/winnt/.evilhackrc.template
+      (winnt is now sys/windows/)
+- [ ] CI: re-add adapted .github/workflows (adopted tree has NONE;
+      needs Lua submodule/fetch step)
+- [ ] Set up + test the backup ritual (first bundle/push TODAY)
+
+## Phase 0.5 - Pilot vertical slice (one of everything, end-to-end)
+
+- [ ] One EvilHack-only file compiled in: telekinesis.c (ANSI/gX
+      touch-ups; add to Makefile.src equivalents)
+- [ ] One monster into monsters.h via ~/monst_to_50.py output
+      (extend MON macro variants to 16 args first - see generated
+      header comment)
+- [ ] One object into objects.h via ~/objects_to_50.py output
+      (extend wrapper macros per the signature-delta report)
+- [ ] One persistent field end-to-end: struct field + sfo writer/
+      reader + critical_members[] + wizmode save/reload + sfexpasc
+      diff proving it persists
+- [ ] One small .des level to Lua by hand using
+      /root/nh50-port-preview/exemplar/DES_TO_LUA_CRIB.md
+- [ ] Write down effort calibration notes for the XL phases
+
+## Phase 1 - Types, fields, content data
+
+### Persistent-struct enumeration (authoritative source:
+`git diff 44b6612fd..master -- include/` - NEVER from memory)
+
+- [ ] obj.h (+409 lines: material, oprops, forging bits, ...)
+- [ ] monst.h (+169: boss bits, status bits, mextra hooks)
+- [ ] prop.h (+154: property enum - couples to SAVED uprops array;
+      keep append-only vs upstream ordering)
+- [ ] you.h (+131: abuse fields, u_event additions, race/role state)
+- [ ] skills.h (+88: P_PET_HANDLING etc. - saved weapon_skills)
+- [ ] flag.h (+82: options/flags - split saved vs unsaved carefully)
+- [ ] mextra.h (+55: ERAC racial struct, edog petstrat, emsp spells)
+- [ ] context.h (+16)
+- [ ] Every field above: sfo_* writer/reader + critical_members[]
+- [ ] gX vs svX decision LOG (append every placement + why):
+
+| Global | gX/svX | Why |
+|--------|--------|-----|
+| _example: forge heat state_ | sv? | survives save |
+
+### Content data
+
+- [x] Extend MON() macro variants to 16 args - PRE-DRAFTED 2026-07-03
+      (monsters-macros-predraft.h: monsters.h guard+tail blocks,
+      SEDUCTION_* re-insert anchor, branch permonst struct, monst.c
+      mons_init block; compile-validated via macro-test/driver.sh -
+      gnu89 run + c99 syntax, 0 warnings, NUMMONS=561; splice on the
+      branch at Phase 1)
+- [x] Decide the 3 NAMS merge pairs - DONE 2026-07-03 (Decisions
+      log; converter auto-merges, 564 -> 561 entries, 0 PORT-TODOs)
+- [ ] Regenerate + splice ~/monst_to_50.py output (561 entries)
+- [ ] Review monster cross-diff report (5.0-only monsters: adopt?)
+- [x] Extend objects.h wrapper macros - PRE-DRAFTED 2026-07-03
+      (objects-macros-predraft.h: upstream-verbatim context guards +
+      GENERIC prelude + 23 EvilHack-signature wrappers +sn + MARKER
+      insertion list + fencepost tail; same harness, NUM_OBJECTS=583
+      = 566 entries + 17 GENERIC slots, gems/spells marker ranges
+      verified; PAPER-override + P/S/B re-insert anchors documented)
+- [ ] Regenerate + splice ~/objects_to_50.py output (566 entries;
+      keep upstream GENERIC/MARKER prelude - PORT-NOTE marks spot)
+- [ ] artilist.h: 69 entries reformatted by hand (no converter -
+      count is small; watch 5.0 artifact struct changes)
+- [ ] roles/races: role.c 16 roles + align_roles[] Dark Knight
+      variant-quest MECHANISM port; 13 races
+- [ ] Glyph-space audit: every NUMMONS/MAX_GLYPH-dimensioned array
+      (tiles, symbols, warnings) vs 564 monsters through sex-split
+      offsets
+- [ ] GATE: builds, boots, vanilla-content wizmode sanity
+
+## Phase 2 - Core subsystems (port detectors FIRST)
+
+- [ ] Lifecycle detectors EARLY: dmonsfree accounting,
+      freed-without-detach, off-map orphan (BUG-1259 class),
+      worn_slot_sanity - re-derive onto 5.0 mstate machine
+- [ ] Materials system (obj->material; init/naming/pricing/burn)
+- [ ] Object properties (oprops)
+- [ ] Racial monsters (ERAC overlay)
+- [ ] Forging (+ FORGE nhl binding for .des->lua levels)
+- [ ] Magic chests (+ MAGIC_CHEST nhl binding, crystal chest obj)
+- [ ] telekinesis.c + #tk command (pilot did the file; wire cmds)
+- [ ] Alignment-abuse subsystem (tiers, #conduct API - see memory
+      alignment-abuse-subsystem)
+- [ ] Monster AI/equipment: dual-wield, artifact ranking, weapon
+      selection (see weapon-selection-architecture memory)
+- [ ] Monster spellbook learning (struct emsp)
+- [ ] Zombie/were/Draugr mechanics (zombify, binding ritual)
+- [ ] Ice Queen branch bosses; Vecna; demon-lord behaviors
+      (msummon mechanics memory)
+- [ ] Pet order system (P_PET_HANDLING, petstrat, #order)
+- [ ] Player races: giant, centaur, hobbit, illithid, tortle, drow
+      (light/dark auras - litroom memory), vampire, aasimar (wings,
+      light aura, seduction immunity, cross-faction hostility)
+- [ ] Roles: Convict, Infidel (penance/Amulet gate memory), Druid
+- [ ] Door materials + door-trap variety (+ des.door material=
+      binding; 224 TODO-EVILHACK sites in converted levels)
+- [ ] Monster `dead` .des flag -> des.monster dead= binding
+      (must call mondied(); 13 sites)
+- [ ] MINDEPTH: directive binding (17 sites)
+- [ ] rndvault room system + "garden"/other room types (mkroom.h
+      GARDEN=17 etc. -> sp_lev room-name table)
+- [ ] #shield, other added commands (sweep cmd.c delta)
+- [ ] Bag of treasure/devouring rules; #tip interactions
+- [ ] Steed/saddle/barding architecture (memory file)
+- [ ] Shop pricing racial adjustments (shk_racial_adjustments)
+- [ ] Murder mechanic; Croesus AD_GOLD; seduction attacks table
+- [ ] Endgame randomized plane order + mkportal dlevel-1 semantics
+      (MUST land with Phase 3 endgame.lua - see crib sheet gotcha)
+- [ ] SWEEP: FEATURES_ARCHIVE.md Features Index (57 entries) +
+      dated 2026 sections (~100) - tick each off as covered by the
+      subsystems above or added here; nothing skipped silently
+- [ ] Per-subsystem: BUGFIXES_ARCHIVE.md keyword sweep as it lands
+
+## Phase 3 - Levels and quests (233 lua files from 36 .des)
+
+Workflow + gotchas: /root/nh50-port-preview/exemplar/DES_TO_LUA_CRIB.md.
+Delta-diff strategy for EvilHack-modified vanilla levels (plan §6 Ph3).
+Statuses per file: C=converted, P=polished, W=wizmode-walked.
+
+| .des | levels | mode | C | P | W | notes |
+|------|--------|------|---|---|---|-------|
+| bigroom.des | 10 | delta-diff | | | | |
+| castle.des | 3 | delta-diff | | | | wand recharged:1 now converts |
+| endgame.des | 5 | delta-diff | | | | PORTAL self-name + mkportal semantics! |
+| gehennom.des | 14 | delta-diff | | | | |
+| knox.des | 3 | delta-diff | | | | |
+| medusa.des | 4 | delta-diff | | | | |
+| mines.des | 14 | delta-diff | | | | |
+| oracle.des | 3 | delta-diff | | | | |
+| sokoban.des | 24 | delta-diff | | | | |
+| tower.des | 4 | delta-diff | | | | |
+| yendor.des | 4 | delta-diff | | | | |
+| forest.des | 1 | from-scratch | | | | 7 top-level TERRAIN:random TODOs |
+| goblintown.des | 3 | from-scratch | | | | |
+| hdgn.des | 1 | from-scratch | | | | |
+| icequeen.des | 3 | from-scratch | | | | |
+| nymph.des | 1 | from-scratch | x | x | | EXEMPLAR (luac-clean; W needs branch content) |
+| purgatory.des | 2 | from-scratch | | | | dead-shopkeeper flag |
+| vaults.des | 46 | from-scratch | | | | rndvault; vlt-0004/0045 HAND-CONVERTED 2026-07-03 (exemplar/vaults/, luac-clean, nil-swept; rndvault type/flag/MINDEPTH = TODO-EVILHACK until Phase 2); remaining 44 convert cleanly - polish with the vlt-0045 ROOMDOOR idiom |
+| vecna.des | 3 | from-scratch | | | | |
+| Arch..Wizard (13 vanilla quests) | 65 | delta-diff | | | | Val-strt done as the delta-diff EXEMPLAR (exemplar/Val-strt.lua; Norn inv reconcile + magic-chest TODO) |
+| Convict.des | 5 | from-scratch | | | | |
+| DKnight.des | 5 | from-scratch | | | | align_roles mechanism first |
+| Druid.des | 5 | from-scratch | | | | |
+| Infidel.des | 5 | from-scratch | | | | |
+
+- [ ] dungeon.def -> dat/dungeon.lua (branches: Ice Queen etc.)
+- [x] quest.txt -> quest.lua converter BUILT + VALIDATED (2026-07-03,
+      ~/quest_to_50.py; output quest_evilhack.lua 18 sections / 1066
+      messages, luac-clean, round-tripped field-by-field through real
+      Lua 5.4.8; key sets match upstream exactly on all 13 shared
+      roles; quest-conversion-report.md has msgnum->msgid map, C
+      call-site rewrite table, gating notes for charon_talk/
+      angel_cuss and the altstart substitution hook; rerun after any
+      master quest.txt edit)
+- [x] Val-strt selection-DSL expression hand-translated (2026-07-02,
+      exemplar/Val-strt.lua - adopted upstream's own translation;
+      `&` is UNION per SPO_SEL_ADD, crib sheet has the vocabulary)
+- [ ] Themed rooms: drop our back-port, keep custom rooms as
+      additions on upstream themerms.lua
+- [ ] nhl bindings from Phase 2 wired: MAGIC_CHEST, FORGE,
+      MINDEPTH, dead=, door material=, room types
+- [ ] GATE: every level wizmode-walked (W column full)
+
+## Phase 4 - Display and UI
+
+- [ ] Customcolor/truecolor rebuilt on map_glyphinfo(); reconcile
+      with upstream coloratt/utf8map (nh50-color-architecture
+      memory: 5.0 ships 16-color baseline, truecolor opt-in)
+- [ ] unicode.c vs upstream utf8map.c reconciliation
+- [ ] curses/tty re-port (print_glyph glyph_info signatures; census
+      note: win/tty + win/curses file sets are IDENTICAL between
+      trees - pure per-file content reconciliation, no add/remove)
+- [ ] HTML dumplog: NetHack50 DUMPHTML base + EvilHack enhancements
+      (pet/peaceful highlighting, customcolor swatches, rider fix)
+- [ ] menuitemcolor / status branch-labels / UI extras sweep
+- [ ] Fuzzer input hook (curses_getch chokepoint) re-established
+
+## Phase 5 - Bugfix triage sweep
+
+- [ ] Systematic BUGFIXES_ARCHIVE.md pass for shared-logic fixes
+      not covered by subsystem ports; verify against 5.0 body first
+      (upstream fixed many independently - their fixes archive is
+      doc/fixes5-0-*.txt, renamed from fixesN.N); use the
+      file-relocation map (re-derive queue section) to find where
+      each fix's home file went
+
+## Phase 6 - Infra and server
+
+- [ ] serverseed persistence (+ hints install parity memory)
+- [ ] hints reconciliation (EvilHack vs NetHack50 hardfought hints;
+      hints/hardfought + linux-debug + linux-minimal exist in BOTH
+      trees; EvilHack-only hints needing re-derive: linux-chroot,
+      linux-debug.gha, clang-linux-debug; upstream hints now
+      composable *.500 + hints/include/ fragments)
+- [ ] Emergency-save recovery vs 5.0 SELF_RECOVER + CRASHREPORT
+- [ ] Deploy scripts; xlogfile field-set scoreboard check (plan §9.3)
+- [ ] Fuzzer harness re-target (paths, randomkey hook)
+
+## Phase 7 - Validation and release
+
+- [ ] Build matrix; Lua test harness (test/) wired in
+- [ ] Long ASan/UBSan fuzzer campaign
+- [ ] sfctool/sfexpasc save-format inspection pass
+- [ ] Scripted wizmode walkthrough of every special level
+- [ ] EvilHack-only docs carried over: colors256.md,
+      color-swatches.html, monster-colors.html,
+      shop-price-matrix.md, to-do-list.txt (+ evilhack-changelog.md
+      - hands-off rule, maintainer curates); lev_comp.6/dgn_comp.6
+      man pages die with the level compiler
+- [ ] v1.0.0 hard cutover per plan §9 (archive saves+bones, keep
+      0.9.x binary offline, announce)
+
+## Master re-derive queue
+
+Mechanism: `git log evilhack-50-fork-point..master --oneline`; every
+commit gets re-derived by hand on the branch (NEVER `git merge
+master`) and ticked here. Seeded at adoption 2026-07-12: EMPTY
+(fork point c444f6a3a == master tip; nothing outstanding).
+
+| master commit | subject | re-derived as | status |
+|---------------|---------|---------------|--------|
+
+### File-relocation map (where a master fix lands on the branch)
+
+Function-level provenance verified 2026-07-03 (full census incl.
+include/sys/win/util/dat/doc: plan appendix "new/removed file
+mapping"). A master commit touching the left file may re-target
+the right file in 5.0:
+
+| EvilHack file | What moved | 5.0 file |
+|---------------|-----------|----------|
+| cmd.c | enlightenment/#conduct/#attributes/achievements | insight.c |
+| cmd.c | wiz_* commands + #stats/sanity_check | wizcmds.c |
+| end.c | vanquished/genocided listings | insight.c |
+| end.c | panictrace | report.c |
+| priest.c | align_str, piousness, mstatusline, ustatusline | insight.c |
+| do_name.c | getpos + gloc_filter subsystem | getpos.c |
+| files.c | config parsing/config_error_* | cfgfiles.c |
+| files.c | symset line parsing | symbols.c |
+| pline.c | vconfig_error_add | cfgfiles.c |
+| drawing.c | symbol init/assign/switch | symbols.c |
+| options.c | symset load/parse | symbols.c |
+| options.c | color+attr names, menucolors | coloratt.c |
+| hacklib.c | time/date functions | calendar.c |
+| hacklib.c | strbuf_*, pmatch | strutil.c |
+| dungeon.c | u_on_*stairs, On_stairs | stairs.c |
+| allmain.c | argcheck, debug_fields | earlyarg.c |
+| sp_lev.c | selection_* engine | selvar.c |
+| save.c | bwrite/bufon/bufoff/bclose/bflush | sfstruct.c |
+| restore.c | mread | sfstruct.c |
+| mapglyph.c | mapglyph() -> map_glyphinfo() | display.c |
+| util/makedefs.c | version/banner strings | mdlib.c |
+| sys/winnt/nttty.c | whole file renamed | sys/windows/consoletty.c |
+| sys/winnt/winnt.c | whole file renamed | sys/windows/windsys.c |
+
+Name-collision watchlist: wiz_telekinesis (upstream debug command
+in wizcmds.c vs our telekinesis.c ability), src/glyphs.c (both
+trees, different content - Phase 0 rename).
+
+## Feature-collision audit (adopt upstream, re-add our extras)
+
+| Feature | Upstream/NetHack50 has | EvilHack extras to re-add | status |
+|---------|------------------------|---------------------------|--------|
+| HTML dumplog | DUMPHTML (fork) | pet/peaceful highlight, customcolor, rider hero highlight | |
+| livelog | fork livelog | EvilHack event extras - diff the sets | |
+| server hints | hints/hardfought (fork) | EvilHack hints deltas (pkg-config WINTTYLIB etc.) | |
+| recover | fork recover.c changes | EvilHack recover tweaks | |
+| themed rooms | themerms.lua (origin) | EvilHack-only room types | |
+| color/truecolor | coloratt/utf8map/glyphs.c | extcolor 24-bit, customcolor registry (RENAME ours) | |
+| crash logging | CRASHREPORT (report.c) | crash-log infra, paniclog extras | |
+| self-recovery | SELF_RECOVER | emergency .e.gz save + in-game recovery | |
+| extended player names | fork | verify parity | |
+
+## Decisions log
+
+| date | decision | by |
+|------|----------|----|
+| 2026-06-12 | plan §9: v1.0.0, hard cutover, same xlogfile, full parity, local-until-playable, DUMPHTML base | maintainer |
+| 2026-07-03 | NAMS merges: ALL THREE pairs merge like upstream - caveman/cavewoman -> PM_CAVE_DWELLER, priest/priestess (role mon) -> PM_CLERIC, incubus/succubus -> PM_AMOROUS_DEMON; M2_MALE/M2_FEMALE dropped (sex assigned at creation); pairs verified field-identical otherwise; monst_to_50.py now auto-merges (refuses + PORT-TODOs any future diverging pair). GOTCHA: upstream has TWO "priest"/"priestess" NAMS records (role PM_CLERIC d=12 vs temple PM_ALIGNED_CLERIC d=15) - converter disambiguates by field score; C port must map role sites (Role_if etc.) to PM_CLERIC, temple/aligned-priest sites to PM_ALIGNED_CLERIC | maintainer |
+| | endgame portal naming kept EvilHack-style | per crib sheet |
+
+## Gotcha shortlist (full list: plan §7 + §11)
+
+1. gX/svX misplacement and missing sfo coupling = SILENT save loss.
+2. Enum renumbering vs saved raw indices - append-only during port.
+3. NUMMONS/MAX_GLYPH arrays compile clean and overflow at runtime.
+4. luac -p passes runtime-broken Lua (bare identifiers) - use the
+   crib-sheet grep sweep.
+5. Endgame portals: EvilHack self-named + mkportal dlevel-1.
+6. The plan was verified 2026-07-02 against tip 219cfb687; the tree
+   at adoption WILL be newer - trust the tree, then fix the plan.
