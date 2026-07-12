@@ -34,6 +34,7 @@ staticfn void add_skills_to_menu(winid, boolean, boolean);
 #define PN_CLERIC_SPELL (-12)
 #define PN_ESCAPE_SPELL (-13)
 #define PN_MATTER_SPELL (-14)
+#define PN_TELEKINESIS (-15) /* EvilHack */
 
 static NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     /* Weapon */
@@ -45,7 +46,7 @@ static NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     PN_ATTACK_SPELL, PN_HEALING_SPELL, PN_DIVINATION_SPELL,
     PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL, PN_MATTER_SPELL,
     /* Other */
-    PN_BARE_HANDED, PN_TWO_WEAPONS, PN_RIDING
+    PN_BARE_HANDED, PN_TWO_WEAPONS, PN_RIDING, PN_TELEKINESIS
 };
 
 /* note: entry [0] isn't used */
@@ -54,6 +55,7 @@ static NEARDATA const char *const odd_skill_names[] = {
     "two weapon combat", "riding", "polearms", "saber", "hammer", "whip",
     "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
+    "telekinesis",
 };
 /* indexed via is_martial() */
 static NEARDATA const char *const barehands_or_martial[] = {
@@ -1847,6 +1849,7 @@ setmnotwielded(struct monst *mon, struct obj *obj)
 #undef PN_CLERIC_SPELL
 #undef PN_ESCAPE_SPELL
 #undef PN_MATTER_SPELL
+#undef PN_TELEKINESIS
 #undef AKLYS_LIM
 
 /*weapon.c*/

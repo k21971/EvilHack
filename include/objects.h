@@ -485,6 +485,11 @@ HELM("helm of opposite alignment", "crested helmet",
 HELM("helm of telepathy", "visored helmet",
      0, 1,     TELEPAT,  4, 1, 50, 50,  9, 0, IRON, HI_METAL,
                                                  HELM_OF_TELEPATHY),
+/* EvilHack; CLR_CYAN stands in for master's HI_ADAMANTINE until the
+   HI_ color alias family ports with the Phase 1 objects.h swap */
+HELM("helm of telekinesis", "spiked helmet",
+     0, 1, TELEKINESIS,  1, 1, 30, 100, 9, 0, ADAMANTINE, CLR_CYAN,
+                                                 HELM_OF_TELEKINESIS),
 
 /* suits of armor */
 /*

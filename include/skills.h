@@ -62,8 +62,11 @@ enum p_skills {
     P_BARE_HANDED_COMBAT = 35, /* actually weaponless; gloves are ok */
     P_TWO_WEAPON_COMBAT  = 36, /* pair of weapons, one in each hand */
     P_RIDING             = 37, /* How well you control your steed */
+    /* EvilHack skills; u.weapon_skills[] is saved as part of struct
+       you, so additions are append-only */
+    P_TELEKINESIS        = 38, /* Illithid telekinetic ability */
 
-    P_NUM_SKILLS         = 38
+    P_NUM_SKILLS         = 39
 };
 
 #define P_MARTIAL_ARTS P_BARE_HANDED_COMBAT /* Role distinguishes */
@@ -74,7 +77,7 @@ enum p_skills {
 #define P_FIRST_SPELL P_ATTACK_SPELL
 #define P_LAST_SPELL P_MATTER_SPELL
 
-#define P_LAST_H_TO_H P_RIDING
+#define P_LAST_H_TO_H P_TELEKINESIS
 #define P_FIRST_H_TO_H P_BARE_HANDED_COMBAT
 
 /* These roles qualify for a martial arts bonus */

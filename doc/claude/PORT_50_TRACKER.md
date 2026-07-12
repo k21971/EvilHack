@@ -100,13 +100,61 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 
 ## Phase 0.5 - Pilot vertical slice (one of everything, end-to-end)
 
-- [ ] One EvilHack-only file compiled in: telekinesis.c (ANSI/gX
-      touch-ups; add to Makefile.src equivalents)
-- [ ] One monster into monsters.h via ~/monst_to_50.py output
-      (extend MON macro variants to 16 args first - see generated
-      header comment)
-- [ ] One object into objects.h via ~/objects_to_50.py output
-      (extend wrapper macros per the signature-delta report)
+- [~] One EvilHack-only file compiled in: telekinesis.c - IN
+      PROGRESS 2026-07-12. Dependency closure mapped (the "near
+      clean carry-over" file drags a subsystem tail; this IS the
+      calibration finding): alhoon + helm/property/skill landed as
+      Pilots B/C; still to port: (a) helpers damage_mon -> mon.c
+      (33L core; vulnerable_to/SPFX_HPHDAM/emsp/showmondamage hooks
+      -> TODO-EVILHACK), mfind_target -> mthrowu.c (125L),
+      move_chain_to -> ball.c (21L); (b) monst.h mtk_attk cooldown
+      field (whole-struct-saved, Pilot D recipe; AI decay ticker is
+      Phase 2); (c) materialnm[] name array (with materials); (d)
+      the file itself: FDECL->ANSI, staticfn, youmonst->gy.youmonst,
+      context->svc.context, level.objects->svl.level.objects,
+      zeroany->cg.zeroany, killer->svk/gk (verify), 5.0 menu API
+      (start_menu behavior arg, add_menu glyph_info+clr+itemflags),
+      getpos/hurtle/pickup_object/potionhit signature checks,
+      safe_touch_petrifies -> ismnum()+touch_petrifies,
+      safe_mons().mname -> 5.0 pmnames idiom (copy mthrowu.c's
+      hurled-corpse killer-string idiom), IS_TREES/IS_DEADTREE ->
+      IS_TREE + TODO-EVILHACK(dead trees), set_pet_killer sites ->
+      TODO-EVILHACK(kill-attribution), Race_if(PM_ILLITHID) sites ->
+      TODO-EVILHACK(illithid race; helm branches keep helm check
+      without the race conjunct until the race ports); (e) extern.h
+      decls + Makefile.src entry (+ legacy sys Makefiles per
+      legacy-makefile-status memory); #tk command wiring = Phase 2.
+      Master source snapshot: scratchpad/telekinesis-master.c (also
+      re-derivable via git show master:src/telekinesis.c)
+- [x] One monster into monsters.h: alhoon (2026-07-12, hand-added
+      in upstream's CURRENT MON format - the 16-arg extension stays
+      Phase 1; enum suffix arg -> PM_ALHOON generated via permonst.h
+      X-macro re-inclusion of monsters.h, there is NO generated pm.h
+      on this tree, census note corrected). Deferred bits marked in
+      the entry comment: G_VECNA, MR_PSYCHIC, MH_ILLITHID|MH_UNZOMBIE
+      (need Phase 1 extended flag sets). is_mind_flayer() updated to
+      master parity (+PM_ALHOON). RECIPE GOTCHA: under NH_STATUS_WIP,
+      mon.c make_corpse() has a deliberately exhaustive -Wswitch
+      switch over enum monnums - EVERY new monster must be added to
+      its case list (upstream dev-mode feature; expect this per
+      monster in the Phase 1 bulk add - the converter output should
+      be paired with a make_corpse case-list update). Tiles: no
+      coupling fired on linux-debug (tty/curses); tile art parity is
+      a Phase 4 item. Wizmode genesis smoke test PENDING (batch with
+      the next approved game launch).
+- [x] One object into objects.h: helm of telekinesis (2026-07-12,
+      hand-added in upstream's current HELM macro incl. sn suffix
+      arg; ADAMANTINE material from the Pilot D enum; CLR_CYAN
+      stands in for HI_ADAMANTINE until the HI_ alias family ports).
+      Landed WITH its property + skill as one slice: prop.h
+      TELEKINESIS=69 (LAST_PROP moved; append-only - uprops saved
+      raw), youprop.h H/E/Telekinesis macros, skills.h
+      P_TELEKINESIS=38 + P_NUM_SKILLS=39 + P_LAST_H_TO_H moved.
+      RECIPE GOTCHA: weapon.c skill_names_indices[P_NUM_SKILLS] is
+      POSITIONALLY initialized - a new skill without a PN_ entry +
+      odd_skill_names string + indices tail entry compiles clean and
+      silently names the skill "no skill" (found by inspection, NOT
+      by the compiler; add to the Phase 1 skills checklist).
 - [x] One persistent field end-to-end: obj->material (2026-07-12).
       RECIPE PROVEN, simpler than the plan expected: (1) game saves
       are `historical` format = whole-struct binary, so a new struct

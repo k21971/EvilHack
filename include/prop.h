@@ -89,7 +89,10 @@ enum prop_types {
     FREE_ACTION       = 66,
     FIXED_ABIL        = 67,
     LIFESAVED         = 68,
-    LAST_PROP = LIFESAVED
+    /* EvilHack properties; u.uprops[] is saved as part of struct
+       you, so additions are append-only */
+    TELEKINESIS       = 69,
+    LAST_PROP = TELEKINESIS
 };
 
 /*** Where the properties come from ***/

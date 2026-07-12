@@ -386,6 +386,11 @@
 
 #define Lifesaved u.uprops[LIFESAVED].extrinsic
 
+/* EvilHack */
+#define HTelekinesis u.uprops[TELEKINESIS].intrinsic
+#define ETelekinesis u.uprops[TELEKINESIS].extrinsic
+#define Telekinesis (HTelekinesis || ETelekinesis)
+
 /*
  * Some pseudo-properties.
  */
