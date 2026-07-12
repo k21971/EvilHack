@@ -20,44 +20,48 @@ staticfn void add_skills_to_menu(winid, boolean, boolean);
 
 /* Categories whose names don't come from OBJ_NAME(objects[type])
  */
-#define PN_BARE_HANDED (-1) /* includes martial arts */
+#define PN_BARE_HANDED (-1) /* includes martial arts and thievery */
 #define PN_TWO_WEAPONS (-2)
-#define PN_RIDING (-3)
-#define PN_POLEARMS (-4)
-#define PN_SABER (-5)
-#define PN_HAMMER (-6)
-#define PN_WHIP (-7)
-#define PN_ATTACK_SPELL (-8)
-#define PN_HEALING_SPELL (-9)
-#define PN_DIVINATION_SPELL (-10)
-#define PN_ENCHANTMENT_SPELL (-11)
-#define PN_CLERIC_SPELL (-12)
-#define PN_ESCAPE_SPELL (-13)
-#define PN_MATTER_SPELL (-14)
-#define PN_TELEKINESIS (-15) /* EvilHack */
+#define PN_SHIELD (-3)
+#define PN_RIDING (-4)
+#define PN_POLEARMS (-5)
+#define PN_SABER (-6)
+#define PN_HAMMER (-7)
+#define PN_WHIP (-8)
+#define PN_ATTACK_SPELL (-9)
+#define PN_HEALING_SPELL (-10)
+#define PN_DIVINATION_SPELL (-11)
+#define PN_ENCHANTMENT_SPELL (-12)
+#define PN_CLERIC_SPELL (-13)
+#define PN_ESCAPE_SPELL (-14)
+#define PN_MATTER_SPELL (-15)
 #define PN_EVOCATION_SPELL (-16)
+#define PN_PET_HANDLING (-17)
+#define PN_THIEVERY (-18)
+#define PN_TELEKINESIS (-19)
 
 static NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     /* Weapon */
-    0, DAGGER, KNIFE, AXE, PICK_AXE, SHORT_SWORD, BROADSWORD, LONG_SWORD,
-    TWO_HANDED_SWORD, PN_SABER, CLUB, MACE, MORNING_STAR, FLAIL, PN_HAMMER,
-    QUARTERSTAFF, PN_POLEARMS, SPEAR, TRIDENT, LANCE, BOW, SLING, CROSSBOW,
-    DART, SHURIKEN, BOOMERANG, PN_WHIP, UNICORN_HORN,
+    0, DAGGER, AXE, PICK_AXE, SHORT_SWORD, BROADSWORD, LONG_SWORD,
+    TWO_HANDED_SWORD, PN_SABER, CLUB, MACE, FLAIL, PN_HAMMER, QUARTERSTAFF,
+    PN_POLEARMS, SPEAR, TRIDENT, LANCE, BOW, SLING, CROSSBOW, DART, SHURIKEN,
+    BOOMERANG, PN_WHIP, UNICORN_HORN,
     /* Spell */
     PN_ATTACK_SPELL, PN_HEALING_SPELL, PN_DIVINATION_SPELL,
-    PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL, PN_MATTER_SPELL,
-    PN_EVOCATION_SPELL,
+    PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL,
+    PN_MATTER_SPELL, PN_EVOCATION_SPELL,
     /* Other */
-    PN_BARE_HANDED, PN_TWO_WEAPONS, PN_RIDING, PN_TELEKINESIS
+    PN_BARE_HANDED, PN_TWO_WEAPONS, PN_THIEVERY, PN_SHIELD, PN_RIDING,
+    PN_PET_HANDLING, PN_TELEKINESIS
 };
 
 /* note: entry [0] isn't used */
 static NEARDATA const char *const odd_skill_names[] = {
     "no skill", "bare hands", /* use barehands_or_martial[] instead */
-    "two weapon combat", "riding", "polearms", "saber", "hammer", "whip",
-    "attack spells", "healing spells", "divination spells",
+    "two weapon combat", "shield", "riding", "polearms", "saber", "hammer",
+    "whip", "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
-    "telekinesis", "evocation spells",
+    "evocation spells", "pet handling", "thievery", "telekinesis",
 };
 /* indexed via is_martial() */
 static NEARDATA const char *const barehands_or_martial[] = {

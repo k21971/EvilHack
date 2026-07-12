@@ -41,6 +41,8 @@
 #define SPFX_XRAY   0x02000000L /* gives X-RAY vision to player */
 #define SPFX_REFLECT 0x04000000L /* Reflection */
 #define SPFX_PROTECT 0x08000000L /* Protection */
+#define SPFX_NOWISH 0x10000000L /* cannot be wished for */
+#define SPFX_FORGED 0x20000000L /* forged artifact */
 
 struct artifact {
     short otyp;
@@ -57,6 +59,7 @@ struct artifact {
     uchar gift_value;   /* minimum sacrifice value to be gifted this */
     long cost;          /* price when sold to hero (default 100 x base cost) */
     char acolor;        /* color to use if artifact 'glows' */
+    short material;     /* material it's made of (0 = base type's default) */
 };
 
 /* invoked properties with special powers */
@@ -74,7 +77,14 @@ enum invoke_prop_types {
     FLING_POISON,
     FIRESTORM,
     SNOWSTORM,
-    BLINDING_RAY
+    BLINDING_RAY,
+    /* EvilHack invoke powers (handlers port with the Phase 2
+       artifact work; referenced by artilist entries as data) */
+    SHADOWBLADE,
+    PHASING,
+    CHANNEL,
+    DEATH_MAGIC,
+    COMMAND_UNDEAD
 };
 
 /* artifact tracking; gift and wish imply found; it also gets set for items

@@ -17,10 +17,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   2026-07-12: 561 monsters + 566 objects build clean-rebuild green;
   two commits pending maintainer: staged slice A scaffolding
   defines + working-tree content swap, message files in scratchpad
-  msg-phase1-slice-a.txt / msg-phase1-content.txt). NEXT = struct
-  Role/Race mhrace port (role.c:1741 warning is the marker; MUST
-  land before any boot test), then artilist.h, remaining
-  persistent-struct enumeration, glyph audit, Phase 1 gate
+  msg-phase1-slice-a.txt / msg-phase1-content.txt; BOTH LANDED
+  cc0bf8a13 + ec925f41a). Slice 3 (artilist + Role/Race port)
+  staged, message /tmp/p2.txt. NEXT = u_init.c port, then chain
+  lightning/shield re-adds, persistent-struct enumeration, glyph
+  audit, Phase 1 gate
 - Adoption commit (nh50/master @ merge):
   74d1133c229a0fe17c6b05d4d4084937cb2631ca (2026-07-12); adoption
   merge commit on evilhack-50: 6160262a4 (parents c444f6a3a +
@@ -287,18 +288,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       silver-weapon base-type substitution landed with it; NOTE:
       upstream-only content carved pending adoption decision - see
       Decisions log and the 5.0-only content queue below)
-- [ ] artilist.h: 69 entries reformatted by hand (no converter -
-      count is small; watch 5.0 artifact struct changes). Interim
-      2026-07-12: upstream artilist compiles with MH_/DFLAGH bits
-      and EvilHack base items for Demonbane/Werebane/Grayswandir
-- [ ] roles/races: role.c 16 roles + align_roles[] Dark Knight
-      variant-quest MECHANISM port; 13 races. LOAD-BEARING and
-      NEXT UP: EvilHack moved race selection out of the packed
-      allow field into struct Role .mhrace (long) - with MH_HUMAN
-      = 0x1 the 5.0 packed masks collide with AM_LAWFUL, so role/
-      race selection is silently broken until this lands
-      (role.c:1741 -Wtautological-compare is the marker). NO BOOT
-      TESTS before this port
+- [x] artilist.h DONE 2026-07-12b: EvilHack's 69 entries in 5.0's
+      four-context layout via scratchpad merge_artilist.py; struct
+      artifact gains material; gen_spe/gift_value from upstream for
+      the 35 shared, heuristic defaults for the 34 EvilHack-only
+      (report file scratchpad draft-artilist.h.report - maintainer
+      balance pass pending); ART_ name map vs EvilHack master's
+      makedefs manglings: ART_MAGIC___BALL->ART_MAGIC_8_BALL,
+      ART_RING_OF_P_HUL->ART_RING_OF_PHUL,
+      ART_STRIPED_SHIRT_OF_LIBERATIO(N), ART_BRACERS_OF_THE_FIRST_
+      CIRCL(E) - REMEMBER when porting EvilHack code in Phase 2;
+      quest-arti boundary = ART_XIUHCOATL; Gjallar carries the
+      readable "Heimdallr." signature
+- [x] roles/races structural port DONE 2026-07-12b (zero
+      warnings; the role.c:1741 marker warning resolved by the
+      real mhrace fix): struct Role.mhrace; rfilter.race_mask
+      split (MH selfmasks overlap ROLE_GENDMASK - vampire=MALE
+      bit!); 16 roles + 14 RACES (Draugr is its own race - plan
+      said 13) + align_roles/race_roles/draugr_roles/race_demon;
+      role_init variant swaps; skills.h final enum (P_KNIFE/
+      P_MORNING_STAR folded away, THIEVERY/SHIELD/PET_HANDLING
+      added); femalenum columns merged to NAMS-era mnum
+- [ ] u_init.c port NEXT (LAST boot blocker): EvilHack starting
+      inventories/skills for all roles incl. Convict/Infidel/Druid
+      + Draugr variants + racial gear; NOTE 5.0 struct trobj has
+      trquan_min/trquan_max vs EvilHack's single trquan - column
+      adaptation needed. New roles are SELECTABLE but broken until
+      this lands; NO BOOT TESTS, and never select the new roles in
+      any pre-gate test
 - [ ] 5.0-only content adoption - DECIDED 2026-07-12 (maintainer):
       ADOPT spellbook of chain lightning (cast_chain_lightning()
       still compiled; pick attack vs evocation school at re-add)

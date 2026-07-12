@@ -129,7 +129,7 @@ static const struct Role urole_init_data = {
     "L", "N", "C",
     "Xxx", "home", "locate",
     NON_PM, NON_PM, NON_PM, NON_PM, NON_PM, NON_PM, NON_PM,
-    0, 0, 0, 0,
+    0, 0, 0, 0L, 0,
     /* Str Int Wis Dex Con Cha */
     { 7, 7, 7, 7, 7, 7 },
     { 20, 15, 15, 20, 20, 10 },
@@ -680,7 +680,7 @@ static const struct instance_globals_r g_init_r = {
     /* role.c */
     UNDEFINED_VALUES, /* role_pa */
     UNDEFINED_VALUE, /* role_post_attrib */
-    { { 0 }, 0 }, /* rfilter */
+    { { 0 }, 0, 0 }, /* rfilter */
     /* shk.c */
     UNDEFINED_VALUES, /* repo */
     TRUE, /* havestate*/

@@ -274,7 +274,7 @@ struct obj {
      || permapoisoned(otmp))
 #define uslinging() (uwep && objects[uwep->otyp].oc_skill == P_SLING)
 /* 'is_quest_artifact()' only applies to the current role's artifact */
-#define any_quest_artifact(o) ((o)->oartifact >= ART_ORB_OF_DETECTION)
+#define any_quest_artifact(o) ((o)->oartifact >= ART_XIUHCOATL)
 /* 'missile' aspect is up to the caller and does not imply is_missile();
    rings might be launched as missiles when being scattered by an explosion */
 #define stone_missile(o) \
@@ -426,7 +426,8 @@ struct obj {
     ((otmp)->otyp == FORTUNE_COOKIE || (otmp)->otyp == T_SHIRT               \
      || (otmp)->otyp == ALCHEMY_SMOCK || (otmp)->otyp == CREDIT_CARD         \
      || (otmp)->otyp == CAN_OF_GREASE || (otmp)->otyp == MAGIC_MARKER        \
-     || (otmp)->oclass == COIN_CLASS || (otmp)->oartifact == ART_ORB_OF_FATE \
+     || (otmp)->oclass == COIN_CLASS || (otmp)->oartifact == ART_GJALLAR \
+     || (otmp)->otyp == STRIPED_SHIRT                                    \
      || (otmp)->otyp == CANDY_BAR || (otmp)->otyp == HAWAIIAN_SHIRT)
 
 /* special stones */

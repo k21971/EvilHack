@@ -202,8 +202,9 @@ struct Role {
     short questarti; /* index (ART_) of quest artifact (questpgr.c) */
 
     /*** Bitmasks ***/
+    long mhrace;                  /* allowed races as an MH_ mask */
     short allow;                  /* bit mask of allowed variations */
-#define ROLE_RACEMASK  0x0ff8     /* allowable races */
+#define ROLE_NORACEALIGN 0x0100   /* ignore racial alignment for role */
 #define ROLE_GENDMASK  0xf000     /* allowable genders */
 #define ROLE_MALE      0x1000
 #define ROLE_FEMALE    0x2000
@@ -244,6 +245,9 @@ struct Role {
 };
 
 extern const struct Role roles[]; /* table of available roles */
+extern const struct Role align_roles[]; /* alternate-alignment variants */
+extern const struct Role race_roles[];  /* race-variant quest roles */
+extern const struct Role draugr_roles[]; /* Draugr role variants */
 #define Role_if(X) (gu.urole.mnum == (X))
 #define Role_switch (gu.urole.mnum)
 
@@ -294,6 +298,7 @@ struct Race {
 };
 
 extern const struct Race races[]; /* Table of available races */
+extern struct Race race_demon;    /* special race for crowned Infidels */
 #define Race_if(X) (gu.urace.mnum == (X))
 #define Race_switch (gu.urace.mnum)
 

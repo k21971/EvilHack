@@ -948,7 +948,7 @@ hmon_hitmon_weapon_melee(
     /* Healer with anatomy knowledge */
     if (Role_if(PM_HEALER) && hmd->hand_to_hand
         && obj->oclass == WEAPON_CLASS
-        && objects[obj->otyp].oc_skill == P_KNIFE)
+        && objects[obj->otyp].oc_skill == P_DAGGER)
         hmd->dmg += min(3, svm.mvitals[monsndx(mon->data)].died / 6);
 
     /* special attack actions */

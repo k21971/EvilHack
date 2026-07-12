@@ -2800,7 +2800,7 @@ doeat_nonfood(struct obj *otmp)
     } else if (!nodelicious) {
         pline("%s%s is delicious!",
               (obj_is_pname(otmp)
-               && otmp->oartifact < ART_ORB_OF_DETECTION)
+               && otmp->oartifact < ART_XIUHCOATL)
               ? ""
               : "This ",
               (otmp->oclass == COIN_CLASS)

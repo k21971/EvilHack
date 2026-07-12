@@ -51,9 +51,10 @@ const struct Role roles[NUM_ROLES+1] = {
       PM_HUMAN_MUMMY,
       S_SNAKE,
       S_MUMMY,
-      ART_ORB_OF_DETECTION,
-      MH_HUMAN | MH_DWARF | MH_GNOME | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL
-          | ROLE_NEUTRAL,
+      ART_XIUHCOATL,
+      MH_HUMAN | MH_DWARF | MH_GNOME | MH_HOBBIT
+          | MH_TORTLE | MH_AASIMAR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 10, 7, 7, 7 },
       { 20, 20, 20, 10, 20, 10 },
@@ -92,9 +93,10 @@ const struct Role roles[NUM_ROLES+1] = {
       PM_TROLL,
       S_OGRE,
       S_TROLL,
-      ART_HEART_OF_AHRIMAN,
-      MH_HUMAN | MH_ORC | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL
-          | ROLE_CHAOTIC,
+      ART_RING_OF_PHUL,
+      MH_HUMAN | MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR
+          | MH_TORTLE | MH_ZOMBIE | MH_VAMPIRE,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 16, 7, 7, 15, 16, 6 },
       { 30, 6, 7, 20, 30, 7 },
@@ -108,7 +110,7 @@ const struct Role roles[NUM_ROLES+1] = {
       0,
       8,
       A_INT,
-      SPE_HASTE_SELF,
+      SPE_CAUSE_FEAR,
       -4 },
     { { "Caveman", "Cavewoman" },
       { { "Troglodyte", 0 },
@@ -123,7 +125,7 @@ const struct Role roles[NUM_ROLES+1] = {
       "Anu", "_Ishtar", "Anshar", /* Babylonian */
       "Cav",
       "the Caves of the Ancestors",
-      "the Dragon's Lair",
+      "Annam's Lair",
       PM_CAVE_DWELLER,
       PM_LITTLE_DOG,
       PM_SHAMAN_KARNOV,
@@ -134,8 +136,8 @@ const struct Role roles[NUM_ROLES+1] = {
       S_HUMANOID,
       S_GIANT,
       ART_SCEPTRE_OF_MIGHT,
-      MH_HUMAN | MH_DWARF | MH_GNOME | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL
-          | ROLE_NEUTRAL,
+      MH_HUMAN | MH_DWARF | MH_GNOME | MH_GIANT | MH_AASIMAR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 7, 7, 8, 6 },
       { 30, 6, 7, 20, 30, 7 },
@@ -149,7 +151,91 @@ const struct Role roles[NUM_ROLES+1] = {
       1,
       8,
       A_INT,
-      SPE_DIG,
+      0,
+      -4 },
+    { { "Convict", 0 },
+      { { "Detainee", 0 },
+        { "Inmate", 0 },
+        { "Jail-bird", 0 },
+        { "Prisoner", 0 },
+        { "Outlaw", 0 },
+        { "Crook", 0 },
+        { "Desperado", 0 },
+        { "Felon", 0 },
+        { "Fugitive", 0 } },
+      "Ilmater", "Grumbar", "_Tymora",	/* Faerunian */
+      "Con",
+      "Castle Waterdeep Dungeon",
+      "the Warden's Level",
+      PM_CONVICT,
+      PM_SEWER_RAT,
+      PM_ROBERT_THE_LIFER,
+      PM_INMATE,
+      PM_WARDEN_ARIANNA,
+      PM_GIANT_BEETLE,
+      PM_SOLDIER_ANT,
+      S_RODENT,
+      S_SPIDER,
+      ART_STRIPED_SHIRT_OF_LIBERATION,
+      MH_HUMAN | MH_DWARF | MH_GNOME | MH_ORC | MH_HOBBIT
+          | MH_ILLITHID | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+      ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC | ROLE_NORACEALIGN,
+      /* Str Int Wis Dex Con Cha */
+      { 10, 7, 7, 7, 13, 6 },
+      { 20, 20, 10, 20, 20, 10 },
+      /* Init   Lower  Higher */
+      { 8, 0, 0, 8, 0, 0 },	/* Hit points */
+      { 1, 0, 0, 1, 0, 1 },
+      10, /* Energy */
+      -10,
+      5,
+      0,
+      2,
+      10,
+      A_INT,
+      SPE_TELEPORT_AWAY,
+      -4 },
+    { { "Druid", 0 },
+      { { "Aspirant", 0 },
+        { "Ovate", 0 },
+        { "Initiate", 0 },
+        { "Adept", 0 },
+        { "Mystic", 0 },
+        { "Hierophant", 0 },
+        { "Druid", 0 },
+        { "Archdruid", 0 },
+        { "Great Druid", 0 } },
+      "_Mielikki", "Silvanus", "_Auril", /* Celtic */
+      "Dru",
+      "the High Forest",
+      "Baba Yaga's Hut",
+      PM_DRUID,
+      PM_HAWK,
+      PM_ELANEE,
+      PM_ASPIRANT,
+      PM_BABA_YAGA,
+      PM_WEREWOLF,
+      PM_TREE_BLIGHT,
+      S_SKELETON,
+      S_PLANT,
+      ART_BRACERS_OF_THE_FIRST_CIRCLE,
+      MH_HUMAN | MH_ELF | MH_HOBBIT | MH_CENTAUR | MH_TORTLE
+          | MH_GIANT,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
+      /* Str Int Wis Dex Con Cha */
+      { 7, 7, 10, 7, 7, 15 },
+      { 15, 10, 30, 15, 20, 5 },
+      /* Init   Lower  Higher */
+      { 12, 0, 0, 8, 1, 0 }, /* Hit points */
+      { 4, 3, 0, 2, 0, 2 },
+      10, /* Energy */
+      0,
+      3,
+      -2,
+      2,
+      10,
+      A_WIS,
+      SPE_ENTANGLE,
       -4 },
     { { "Healer", 0 },
       { { "Rhizotomist", 0 },
@@ -175,13 +261,15 @@ const struct Role roles[NUM_ROLES+1] = {
       S_RODENT,
       S_YETI,
       ART_STAFF_OF_AESCULAPIUS,
-      MH_HUMAN | MH_GNOME | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
+          | MH_GIANT | MH_CENTAUR | MH_TORTLE,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 13, 7, 11, 16 },
       { 15, 20, 20, 15, 25, 5 },
       /* Init   Lower  Higher */
       { 11, 0, 0, 8, 1, 0 }, /* Hit points */
-      { 1, 4, 0, 1, 0, 2 },
+      { 4, 2, 0, 1, 0, 2 },
       20, /* Energy */
       10,
       3,
@@ -191,10 +279,52 @@ const struct Role roles[NUM_ROLES+1] = {
       A_WIS,
       SPE_CURE_SICKNESS,
       -4 },
+    { { "Infidel", 0 },
+      { { "Apostate", 0 },
+        { "Heathen", 0 },
+        { "Heretic", 0 },
+        { "Idolater", "Idolatress" },
+        { "Cultist", 0 },
+        { "Splanchomancer", 0 },
+        { "Maleficus", "Malefica" },
+        { "Demonologist", 0 },
+        { "Heresiarch", 0 } },
+      0, 0, 0, /* uses a random role's pantheon */
+      "Inf",
+      "the Hidden Temple",
+      "the Howling Forest",
+      PM_INFIDEL,
+      PM_LESSER_HOMUNCULUS,
+      PM_ARCHBISHOP_OF_MOLOCH,
+      PM_CULTIST,
+      PM_PALADIN,
+      PM_AGENT,
+      PM_CHAMPION,
+      S_DOG,
+      S_UNICORN,
+      ART_IDOL_OF_MOLOCH,
+      MH_HUMAN | MH_ELF | MH_ORC | MH_ILLITHID | MH_GIANT
+          | MH_CENTAUR | MH_DROW | MH_ZOMBIE  | MH_VAMPIRE,
+      ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC, /* actually unaligned */
+      /* Str Int Wis Dex Con Cha */
+      { 7, 7, 10, 7, 7, 7 },
+      { 20, 10, 25, 15, 20, 10 },
+      /* Init   Lower  Higher */
+      { 10, 0, 0, 8, 1, 0 }, /* Hit points */
+      { 4, 3, 0, 1, 0, 2 },
+      10, /* Energy */
+      10,
+      3,
+      1,
+      2,
+      10,
+      A_WIS,
+      SPE_FIREBALL,
+      -4 },
     { { "Knight", 0 },
       { { "Gallant", 0 },
         { "Esquire", 0 },
-        { "Bachelor", 0 },
+        { "Bachelor", "Bachelorette" },
         { "Sergeant", 0 },
         { "Knight", 0 },
         { "Banneret", 0 },
@@ -215,7 +345,9 @@ const struct Role roles[NUM_ROLES+1] = {
       S_IMP,
       S_JELLY,
       ART_MAGIC_MIRROR_OF_MERLIN,
-      MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL,
+      MH_HUMAN | MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
+          | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 13, 7, 14, 8, 10, 17 },
       { 30, 15, 15, 10, 20, 10 },
@@ -255,7 +387,9 @@ const struct Role roles[NUM_ROLES+1] = {
       S_ELEMENTAL,
       S_XORN,
       ART_EYES_OF_THE_OVERWORLD,
-      MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR
+          | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 8, 8, 7, 7 },
@@ -296,7 +430,10 @@ const struct Role roles[NUM_ROLES+1] = {
       S_ZOMBIE,
       S_WRAITH,
       ART_MITRE_OF_HOLINESS,
-      MH_HUMAN | MH_ELF | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_ORC | MH_GIANT
+          | MH_HOBBIT | MH_CENTAUR | MH_ILLITHID
+          | MH_TORTLE | MH_DROW | MH_AASIMAR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 10, 7, 7, 7 },
@@ -339,7 +476,9 @@ const struct Role roles[NUM_ROLES+1] = {
       S_NYMPH,
       S_NAGA,
       ART_MASTER_KEY_OF_THIEVERY,
-      MH_HUMAN | MH_ORC | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
+      MH_HUMAN | MH_ELF | MH_ORC | MH_HOBBIT | MH_GNOME
+          | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 7, 7, 7, 10, 7, 6 },
       { 20, 10, 10, 30, 20, 10 },
@@ -393,8 +532,9 @@ const struct Role roles[NUM_ROLES+1] = {
       S_CENTAUR,
       S_SPIDER,
       ART_LONGBOW_OF_DIANA,
-      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | ROLE_MALE | ROLE_FEMALE
-          | ROLE_NEUTRAL | ROLE_CHAOTIC,
+      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | MH_HOBBIT
+          | MH_CENTAUR | MH_DROW,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 13, 13, 13, 9, 13, 7 },
       { 30, 10, 10, 20, 20, 10 },
@@ -434,8 +574,8 @@ const struct Role roles[NUM_ROLES+1] = {
       S_DOG,
       S_ELEMENTAL,
       ART_TSURUGI_OF_MURAMASA,
-      MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL,
-      /* Str Int Wis Dex Con Cha */
+      MH_HUMAN | MH_DWARF | MH_GIANT | MH_TORTLE | MH_AASIMAR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL,
       { 10, 8, 7, 10, 17, 6 },
       { 30, 10, 8, 30, 14, 8 },
       /* Init   Lower  Higher */
@@ -474,7 +614,8 @@ const struct Role roles[NUM_ROLES+1] = {
       S_SPIDER,
       S_CENTAUR,
       ART_YENDORIAN_EXPRESS_CARD,
-      MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
+      MH_HUMAN | MH_HOBBIT | MH_GNOME | MH_TORTLE,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 6, 7, 7, 10 },
       { 15, 10, 10, 15, 30, 20 },
@@ -513,8 +654,9 @@ const struct Role roles[NUM_ROLES+1] = {
       PM_FIRE_GIANT,
       S_ANT,
       S_GIANT,
-      ART_ORB_OF_FATE,
-      MH_HUMAN | MH_DWARF | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
+      ART_GJALLAR,
+      MH_HUMAN | MH_DWARF | MH_GIANT | MH_CENTAUR | MH_AASIMAR,
+      ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 7, 7, 10, 7 },
       { 30, 6, 7, 20, 30, 7 },
@@ -528,7 +670,7 @@ const struct Role roles[NUM_ROLES+1] = {
       0,
       9,
       A_WIS,
-      SPE_CONE_OF_COLD,
+      SPE_REPAIR_ARMOR,
       -4 },
     { { "Wizard", 0 },
       { { "Evoker", 0 },
@@ -545,7 +687,7 @@ const struct Role roles[NUM_ROLES+1] = {
       "the Lonely Tower",
       "the Tower of Darkness",
       PM_WIZARD,
-      PM_KITTEN,
+      PM_PSEUDODRAGON,
       PM_NEFERET_THE_GREEN,
       PM_APPRENTICE,
       PM_DARK_ONE,
@@ -554,8 +696,10 @@ const struct Role roles[NUM_ROLES+1] = {
       S_BAT,
       S_WRAITH,
       ART_EYE_OF_THE_AETHIOPICA,
-      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | ROLE_MALE | ROLE_FEMALE
-          | ROLE_NEUTRAL | ROLE_CHAOTIC,
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_ORC
+          | MH_HOBBIT | MH_GIANT | MH_ILLITHID
+          | MH_TORTLE | MH_DROW | MH_VAMPIRE,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 7, 7, 7, 7 },
       { 10, 30, 10, 20, 20, 10 },
@@ -575,9 +719,363 @@ const struct Role roles[NUM_ROLES+1] = {
     UNDEFINED_ROLE,
 };
 
-/* Table of all races */
+/* Dark Knight - alternate quest for chaotic Knights */
+const struct Role align_roles[] = {
+    { { "Dark Knight", 0 },
+      { { "Sniveler", 0 },
+        { "Pawn", 0 },
+        { "Brute", 0 },
+        { "Mercenary", 0 },
+        { "Blackguard", 0 },
+        { "Turncoat", 0 },
+        { "Knave", "Vixen" },
+        { "Dark Baron", "Dark Baroness" },
+        { "Dark Paladin", 0 } },
+      "Lugh", "_Brigit", "Manannan Mac Lir", /* Celtic */
+      "Dkn",
+      "the Isle of Avalon",
+      "the Caledonian Forest",
+      PM_KNIGHT,
+      PM_PONY,
+      PM_MORGAN_LE_FAY,
+      PM_PAGE,
+      PM_MERLIN,
+      PM_HAWK,
+      PM_WOLF,
+      S_BAT,
+      S_DOG,
+      ART_MAGIC_MIRROR_OF_MERLIN,
+      MH_HUMAN | MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
+          | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 13, 7, 14, 8, 10, 17 },
+      { 30, 15, 15, 10, 20, 10 },
+      /* Init   Lower  Higher */
+      { 14, 0, 0, 8, 2, 0 }, /* Hit points */
+      { 1, 4, 0, 1, 0, 2 },
+      10, /* Energy */
+      10,
+      8,
+      -2,
+      0,
+      9,
+      A_WIS,
+      SPE_TURN_UNDEAD,
+      -4 },
+    /* Array terminator */
+    UNDEFINED_ROLE,
+};
 
-/* NUM_RACES is defined in hack.h */
+/* Gnomish/Hobbit Ranger */
+const struct Role race_roles[] = {
+    { { "Ranger", 0 },
+      {
+        { "Tenderfoot", 0 },
+        { "Lookout", 0 },
+        { "Trailblazer", 0 },
+        { "Reconnoiterer", "Reconnoiteress" },
+        { "Scout", 0 },
+        { "Arbalester", 0 }, /* One skilled at crossbows */
+        { "Archer", 0 },
+        { "Sharpshooter", 0 },
+        { "Marksman", "Markswoman" } },
+      "Mercury", "_Venus", "Mars", /* Roman/planets */
+      "Ran",
+      "Orion's camp",
+      "the cave of the wumpus",
+      PM_RANGER,
+      PM_LITTLE_DOG /* Orion & canis major */,
+      PM_ORION,
+      PM_HUNTER,
+      PM_SCORPIUS,
+      PM_FOREST_CENTAUR,
+      PM_SCORPION,
+      S_CENTAUR,
+      S_SPIDER,
+      ART_CROSSBOW_OF_CARL,
+      MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | MH_HOBBIT
+          | MH_CENTAUR | MH_DROW,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 13, 13, 13, 9, 13, 7 },
+      { 30, 10, 10, 20, 20, 10 },
+      /* Init   Lower  Higher */
+      { 13, 0, 0, 6, 1, 0 }, /* Hit points */
+      { 1, 0, 0, 1, 0, 1 },
+      12, /* Energy */
+      10,
+      9,
+      2,
+      1,
+      10,
+      A_INT,
+      SPE_INVISIBILITY,
+      -4 },
+    /* Array terminator */
+    UNDEFINED_ROLE,
+};
+
+/* Draugr roles */
+const struct Role draugr_roles[] = {
+    { { "Barbarian", 0 },
+      { { "Plunderer", "Plunderess" },
+        { "Pillager", 0 },
+        { "Bandit", 0 },
+        { "Brigand", 0 },
+        { "Raider", 0 },
+        { "Reaver", 0 },
+        { "Slayer", 0 },
+        { "Chieftain", "Chieftainess" },
+        { "Conqueror", "Conqueress" } },
+      "Mitra", "Crom", "Set", /* Hyborian */
+      "Bar",
+      "the Camp of the Duali Tribe",
+      "the Duali Oasis",
+      PM_BARBARIAN,
+      NON_PM,
+      PM_PELIAS,
+      PM_CHIEFTAIN,
+      PM_THOTH_AMON,
+      PM_OGRE,
+      PM_TROLL,
+      S_OGRE,
+      S_TROLL,
+      ART_RING_OF_PHUL,
+      MH_HUMAN | MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR
+          | MH_TORTLE | MH_ZOMBIE | MH_VAMPIRE,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 16, 7, 7, 15, 16, 6 },
+      { 30, 6, 7, 20, 30, 7 },
+      /* Init   Lower  Higher */
+      { 14, 0, 0, 10, 2, 0 }, /* Hit points */
+      { 1, 0, 0, 1, 0, 1 },
+      10, /* Energy */
+      10,
+      14,
+      0,
+      0,
+      8,
+      A_INT,
+      0,
+      -4 },
+    { { "Convict", 0 },
+      { { "Detainee", 0 },
+        { "Inmate", 0 },
+        { "Jail-bird", 0 },
+        { "Prisoner", 0 },
+        { "Outlaw", 0 },
+        { "Crook", 0 },
+        { "Desperado", 0 },
+        { "Felon", 0 },
+        { "Fugitive", 0 } },
+      "Ilmater", "Grumbar", "_Tymora",  /* Faerunian */
+      "Con",
+      "Castle Waterdeep Dungeon",
+      "the Warden's Level",
+      PM_CONVICT,
+      PM_SEWER_RAT,
+      PM_ROBERT_THE_LIFER,
+      PM_INMATE,
+      PM_WARDEN_ARIANNA,
+      PM_GIANT_BEETLE,
+      PM_SOLDIER_ANT,
+      S_RODENT,
+      S_SPIDER,
+      ART_STRIPED_SHIRT_OF_LIBERATION,
+      MH_HUMAN | MH_DWARF | MH_GNOME | MH_ORC | MH_HOBBIT
+          | MH_ILLITHID | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+      ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC | ROLE_NORACEALIGN,
+      /* Str Int Wis Dex Con Cha */
+      { 10, 7, 7, 7, 13, 6 },
+      { 20, 20, 10, 20, 20, 10 },
+      /* Init   Lower  Higher */
+      { 8, 0, 0, 8, 0, 0 },     /* Hit points */
+      { 1, 0, 0, 1, 0, 1 },
+      10, /* Energy */
+      -10,
+      5,
+      0,
+      2,
+      10,
+      A_INT,
+      0,
+      -4 },
+    { { "Infidel", 0 },
+      { { "Apostate", 0 },
+        { "Heathen", 0 },
+        { "Heretic", 0 },
+        { "Idolater", "Idolatress" },
+        { "Cultist", 0 },
+        { "Splanchomancer", 0 },
+        { "Maleficus", "Malefica" },
+        { "Demonologist", 0 },
+        { "Heresiarch", 0 } },
+      0, 0, 0, /* uses a random role's pantheon */
+      "Inf",
+      "the Hidden Temple",
+      "the Howling Forest",
+      PM_INFIDEL,
+      PM_LESSER_HOMUNCULUS,
+      PM_ARCHBISHOP_OF_MOLOCH,
+      PM_CULTIST,
+      PM_PALADIN,
+      PM_AGENT,
+      PM_CHAMPION,
+      S_DOG,
+      S_UNICORN,
+      ART_IDOL_OF_MOLOCH,
+      MH_HUMAN | MH_ELF | MH_ORC | MH_ILLITHID | MH_GIANT
+          | MH_CENTAUR | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+      ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC, /* actually unaligned */
+      /* Str Int Wis Dex Con Cha */
+      { 7, 7, 10, 7, 7, 7 },
+      { 20, 10, 25, 15, 20, 10 },
+      /* Init   Lower  Higher */
+      { 10, 0, 0, 8, 1, 0 }, /* Hit points */
+      { 4, 3, 0, 1, 0, 2 },
+      10, /* Energy */
+      10,
+      3,
+      1,
+      2,
+      10,
+      A_WIS,
+      0,
+      -4 },
+    { { "Dark Knight", 0 },
+      { { "Sniveler", 0 },
+        { "Pawn", 0 },
+        { "Brute", 0 },
+        { "Mercenary", 0 },
+        { "Blackguard", 0 },
+        { "Turncoat", 0 },
+        { "Knave", "Vixen" },
+        { "Dark Baron", "Dark Baroness" },
+        { "Dark Paladin", 0 } },
+      "Lugh", "_Brigit", "Manannan Mac Lir", /* Celtic */
+      "Dkn",
+      "the Isle of Avalon",
+      "the Caledonian Forest",
+      PM_KNIGHT,
+      PM_PONY,
+      PM_MORGAN_LE_FAY,
+      PM_PAGE,
+      PM_MERLIN,
+      PM_HAWK,
+      PM_WOLF,
+      S_BAT,
+      S_DOG,
+      ART_MAGIC_MIRROR_OF_MERLIN,
+      MH_HUMAN | MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
+          | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 13, 7, 14, 8, 10, 17 },
+      { 30, 15, 15, 10, 20, 10 },
+      /* Init   Lower  Higher */
+      { 14, 0, 0, 8, 2, 0 }, /* Hit points */
+      { 1, 4, 0, 1, 0, 2 },
+      10, /* Energy */
+      10,
+      8,
+      -2,
+      0,
+      9,
+      A_WIS,
+      0,
+      -4 },
+    { { "Monk", 0 },
+      { { "Candidate", 0 },
+        { "Novice", 0 },
+        { "Initiate", 0 },
+        { "Student of Stones", 0 },
+        { "Student of Waters", 0 },
+        { "Student of Metals", 0 },
+        { "Student of Winds", 0 },
+        { "Student of Fire", 0 },
+        { "Master", 0 } },
+      "Shan Lai Ching", "Chih Sung-tzu", "Huan Ti", /* Chinese */
+      "Mon",
+      "the Monastery of Chan-Sune",
+      "the Monastery of the Earth-Lord",
+      PM_MONK,
+      NON_PM,
+      PM_MASTER_PO,
+      PM_ABBOT,
+      PM_MASTER_KAEN,
+      PM_EARTH_ELEMENTAL,
+      PM_XORN,
+      S_ELEMENTAL,
+      S_XORN,
+      ART_EYES_OF_THE_OVERWORLD,
+      MH_HUMAN | MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR
+          | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
+      ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
+          | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 10, 7, 8, 8, 7, 7 },
+      { 25, 10, 20, 20, 15, 10 },
+      /* Init   Lower  Higher */
+      { 12, 0, 0, 8, 1, 0 }, /* Hit points */
+      { 2, 2, 0, 2, 0, 2 },
+      10, /* Energy */
+      10,
+      8,
+      -2,
+      2,
+      20,
+      A_WIS,
+      0,
+      -4 },
+    { { "Rogue", 0 },
+      { { "Footpad", 0 },
+        { "Cutpurse", 0 },
+        { "Rogue", 0 },
+        { "Pilferer", 0 },
+        { "Robber", 0 },
+        { "Burglar", 0 },
+        { "Filcher", 0 },
+        { "Magsman", "Magswoman" },
+        { "Thief", 0 } },
+      "Issek", "Mog", "Kos", /* Nehwon */
+      "Rog",
+      "the Thieves' Guild Hall",
+      "the Assassins' Guild Hall",
+      PM_ROGUE,
+      NON_PM,
+      PM_MASTER_OF_THIEVES,
+      PM_THUG,
+      PM_MASTER_ASSASSIN,
+      PM_LEPRECHAUN,
+      PM_GUARDIAN_NAGA,
+      S_NYMPH,
+      S_NAGA,
+      ART_MASTER_KEY_OF_THIEVERY,
+      MH_HUMAN | MH_ELF | MH_ORC | MH_HOBBIT | MH_GNOME
+          | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
+      /* Str Int Wis Dex Con Cha */
+      { 7, 7, 7, 10, 7, 6 },
+      { 20, 10, 10, 30, 20, 10 },
+      /* Init   Lower  Higher */
+      { 10, 0, 0, 8, 1, 0 }, /* Hit points */
+      { 1, 0, 0, 1, 0, 1 },
+      11, /* Energy */
+      10,
+      8,
+      0,
+      1,
+      9,
+      A_INT,
+      0,
+      -4 },
+    /* Array terminator */
+    UNDEFINED_ROLE,
+};
+
+/* Table of all races */
 const struct Race races[NUM_RACES + 1] = {
     {
         "human",
@@ -592,7 +1090,8 @@ const struct Race races[NUM_RACES + 1] = {
             | ROLE_CHAOTIC,
         MH_HUMAN,
         0,
-        MH_GNOME | MH_ORC,
+        MH_GNOME | MH_ORC | MH_CENTAUR | MH_ILLITHID | MH_ZOMBIE
+            | MH_VAMPIRE,
         /*    Str     Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(100), 18, 18, 18, 18, 18 },
@@ -609,13 +1108,13 @@ const struct Race races[NUM_RACES + 1] = {
         PM_ELF,
         PM_ELF_MUMMY,
         PM_ELF_ZOMBIE,
-        MH_ELF | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
+        MH_ELF | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
         MH_ELF,
-        MH_ELF,
-        MH_ORC,
+        MH_ELF | MH_HOBBIT,
+        MH_DROW | MH_ORC | MH_ILLITHID | MH_ZOMBIE | MH_VAMPIRE,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
-        { 18, 20, 20, 18, 16, 18 },
+        { 18, 20, 20, 20, 16, 18 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 1, 0 }, /* Hit points */
         { 2, 0, 3, 0, 3, 0 }  /* Energy */
@@ -629,10 +1128,11 @@ const struct Race races[NUM_RACES + 1] = {
         PM_DWARF,
         PM_DWARF_MUMMY,
         PM_DWARF_ZOMBIE,
-        MH_DWARF | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL,
+        MH_DWARF | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
         MH_DWARF,
         MH_DWARF | MH_GNOME,
-        MH_ORC,
+        MH_ORC | MH_ILLITHID | MH_GIANT | MH_DROW | MH_ZOMBIE
+            | MH_VAMPIRE,
         /*    Str     Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(100), 16, 16, 20, 20, 16 },
@@ -649,10 +1149,11 @@ const struct Race races[NUM_RACES + 1] = {
         PM_GNOME,
         PM_GNOME_MUMMY,
         PM_GNOME_ZOMBIE,
-        MH_GNOME | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
+        MH_GNOME | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
         MH_GNOME,
         MH_DWARF | MH_GNOME,
-        MH_HUMAN,
+        MH_HUMAN | MH_ORC | MH_GIANT | MH_ILLITHID | MH_DROW
+            | MH_ZOMBIE | MH_VAMPIRE,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
         { STR18(50), 19, 18, 18, 18, 18 },
@@ -672,16 +1173,234 @@ const struct Race races[NUM_RACES + 1] = {
         MH_ORC | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
         MH_ORC,
         0,
-        MH_HUMAN | MH_ELF | MH_DWARF,
+        MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
+            | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE
+            | MH_AASIMAR,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
-        { STR18(50), 16, 16, 18, 18, 16 },
+        { STR18(50), 16, 16, 18, 19, 16 },
         /* Init   Lower  Higher */
         { 1, 0, 0, 1, 0, 0 }, /* Hit points */
         { 1, 0, 1, 0, 1, 0 }  /* Energy */
     },
+    {
+        "giant",
+        "giant",
+        "giant-kind",
+        "Gia",
+        { 0, 0 },
+        PM_GIANT,
+        PM_GIANT_MUMMY,
+        PM_GIANT_ZOMBIE,
+        MH_GIANT | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
+            | ROLE_CHAOTIC,
+        MH_GIANT,
+        MH_GIANT,
+        MH_HUMAN | MH_DWARF | MH_GNOME | MH_ORC | MH_ILLITHID
+            | MH_ZOMBIE | MH_VAMPIRE,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { STR19(25), 14, 18, 14, 25, 16 },
+        /* Init   Lower  Higher */
+        { 4, 3, 1, 4, 3, 3 }, /* Hit points */
+        { 1, 0, 1, 0, 1, 0 }  /* Energy */
+    },
+    {
+        "hobbit",
+        "hobbit",
+        "halfling",
+        "Hob",
+        { 0, 0 },
+        PM_HOBBIT,
+        PM_HOBBIT_MUMMY,
+        PM_HOBBIT_ZOMBIE,
+        MH_HOBBIT | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL,
+        MH_HOBBIT,
+        MH_HOBBIT | MH_ELF | MH_TORTLE | MH_AASIMAR,
+        MH_ORC | MH_ILLITHID | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { 16, 16, 20, 20, 20, 16 },
+        /* Init   Lower  Higher */
+        { 2, 0, 0, 2, 1, 0 }, /* Hit points */
+        { 2, 0, 2, 1, 2, 0 }  /* Energy */
+    },
+    {
+        "centaur",
+        "centaurian",
+        "centaurian",
+        "Cen",
+        { 0, 0 },
+        PM_CENTAUR,
+        NON_PM,
+        NON_PM,
+        MH_CENTAUR | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL | ROLE_CHAOTIC,
+        MH_CENTAUR,
+        MH_CENTAUR,
+        MH_HUMAN | MH_DWARF | MH_GNOME | MH_ILLITHID
+            | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { STR19(20), 12, 14, 20, 18, 16 },
+        /* Init   Lower  Higher */
+        { 3, 3, 1, 2, 2, 2 }, /* Hit points */
+        { 1, 0, 1, 0, 1, 0 }  /* Energy */
+    },
+    {
+        "illithid",
+        "illithid",
+        "illithid-kind",
+        "Ith",
+        { 0, 0 },
+        PM_ILLITHID,
+        NON_PM,
+        NON_PM,
+        MH_ILLITHID | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
+        MH_ILLITHID,
+        MH_ILLITHID,
+        MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
+            | MH_GIANT | MH_CENTAUR | MH_ORC | MH_TORTLE
+            | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { 10, 22, 22, 20, 12, 16 },
+        /* Init   Lower  Higher */
+        { 1, 0, 0, 1, 0, 1 }, /* Hit points */
+        { 3, 1, 3, 1, 4, 1 }  /* Energy */
+    },
+    {
+        "tortle",
+        "tortle",
+        "tortle",
+        "Trt",
+        { 0, 0 },
+        PM_TORTLE,
+        NON_PM,
+        NON_PM,
+        MH_TORTLE | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL
+            | ROLE_NEUTRAL,
+        MH_TORTLE,
+        MH_TORTLE | MH_HOBBIT | MH_AASIMAR,
+        MH_ORC | MH_ILLITHID | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { STR19(19), 18, 20, 10, 18, 14 },
+        /* Init   Lower  Higher */
+        { 2, 0, 0, 2, 1, 0 }, /* Hit points */
+        { 2, 0, 2, 1, 2, 0 }  /* Energy */
+    },
+    {
+        "drow",
+        "dark elven",
+        "drow",
+        "Dro",
+        { 0, 0 },
+        PM_DROW,
+        PM_DROW_MUMMY,
+        PM_DROW_ZOMBIE,
+        MH_DROW | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
+        MH_DROW,
+        MH_DROW,
+        MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
+            | MH_GIANT | MH_CENTAUR | MH_ORC | MH_TORTLE
+            | MH_ILLITHID | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { 18, 20, 20, 20, 16, 18 },
+        /* Init   Lower  Higher */
+        { 1, 0, 0, 1, 1, 0 }, /* Hit points */
+        { 2, 0, 3, 0, 3, 0 }  /* Energy */
+    },
+    {
+        "draugr",
+        "draugr",
+        "draugr",
+        "Dra",
+        { 0, 0 },
+        PM_DRAUGR,
+        NON_PM,
+        NON_PM,
+        MH_ZOMBIE | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
+        MH_ZOMBIE,
+        MH_ZOMBIE,
+        MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
+            | MH_GIANT | MH_CENTAUR | MH_ORC | MH_AASIMAR
+            | MH_TORTLE | MH_DROW | MH_ILLITHID,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { STR19(20), 6, 8, 18, 20, 6 },
+        /* Init   Lower  Higher */
+        { 2, 0, 0, 2, 1, 0 }, /* Hit points */
+        { 1, 0, 2, 0, 2, 0 }  /* Energy */
+    },
+    {
+        "vampire",
+        "vampiric",
+        "vampiric",
+        "Vam",
+        { 0, 0 },
+        PM_VAMPIRE,
+        NON_PM,
+        NON_PM,
+        MH_VAMPIRE | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC,
+        MH_VAMPIRE,
+        MH_VAMPIRE,
+        MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
+            | MH_GIANT | MH_CENTAUR | MH_ORC | MH_AASIMAR
+            | MH_TORTLE | MH_DROW | MH_ILLITHID,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { STR19(19), 18, 18, 20, 20, 20 },
+        /* Init   Lower  Higher */
+        { 2, 0, 0, 2, 1, 0 }, /* Hit points */
+        { 2, 0, 2, 0, 3, 0 }  /* Energy */
+    },
+    {
+        "aasimar",
+        "aasimar",
+        "aasimar",
+        "Amr",
+        { 0, 0 },
+        PM_AASIMAR,
+        NON_PM,
+        NON_PM,
+        MH_AASIMAR | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL,
+        MH_AASIMAR,
+        MH_AASIMAR | MH_TORTLE,
+        MH_ORC | MH_ILLITHID | MH_DROW | MH_ZOMBIE | MH_VAMPIRE,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { STR19(20), 18, 20, 18, 18, 20 },
+        /* Init   Lower  Higher */
+        { 3, 2, 1, 3, 2, 1 }, /* Hit points */
+        { 2, 0, 2, 1, 3, 1 }  /* Energy */
+    },
     /* Array terminator */
     UNDEFINED_RACE,
+};
+
+/* Special race for crowned Infidels. */
+struct Race race_demon = {
+    "demon",
+    "demonic",
+    "demonkind",
+    "Dem",
+    { 0, 0 },
+    PM_DEMON,
+    NON_PM,
+    NON_PM,
+    MH_DEMON | ROLE_MALE | ROLE_FEMALE, /* not available at start */
+    MH_DEMON,
+    MH_DEMON,
+    MH_HUMAN | MH_ELF | MH_DWARF | MH_GNOME | MH_HOBBIT
+        | MH_GIANT | MH_CENTAUR | MH_ORC | MH_TORTLE | MH_AASIMAR
+        | MH_DROW | MH_ILLITHID | MH_ZOMBIE | MH_VAMPIRE,
+    /*  Str    Int Wis Dex Con Cha */
+    { 3, 3, 3, 3, 3, 3 },
+    { STR18(100), 18, 18, 20, 20, 18 },
+    /* Init   Lower  Higher */
+    { 8, 0, 0, 8, 4, 0 }, /* Hit points */
+    { 4, 0, 6, 0, 6, 0 }  /* Energy */
 };
 
 /* Table of all genders */
@@ -779,8 +1498,7 @@ validrace(int rolenum, int racenum)
 {
     /* Assumes validrole */
     return (boolean) (IndexOkT(racenum, races)
-                      && (roles[rolenum].allow & races[racenum].allow
-                          & ROLE_RACEMASK));
+                      && (roles[rolenum].mhrace & races[racenum].selfmask));
 }
 
 int
@@ -790,7 +1508,7 @@ randrace(int rolenum)
 
     /* Count the number of valid races */
     for (i = 0; races[i].noun; i++)
-        if (roles[rolenum].allow & races[i].allow & ROLE_RACEMASK)
+        if (roles[rolenum].mhrace & races[i].selfmask)
             n++;
 
     /* Pick a random race */
@@ -798,7 +1516,7 @@ randrace(int rolenum)
     if (n)
         n = rn2(n * 100) / 100;
     for (i = 0; races[i].noun; i++)
-        if (roles[rolenum].allow & races[i].allow & ROLE_RACEMASK) {
+        if (roles[rolenum].mhrace & races[i].selfmask) {
             if (n)
                 n--;
             else
@@ -978,7 +1696,7 @@ ok_role(int rolenum, int racenum, int gendnum, int alignnum)
             return FALSE;
         allow = roles[rolenum].allow;
         if (IndexOkT(racenum, races)
-            && !(allow & races[racenum].allow & ROLE_RACEMASK))
+            && !(roles[rolenum].mhrace & races[racenum].selfmask))
             return FALSE;
         if (gendnum >= 0 && gendnum < ROLE_GENDERS
             && !(allow & genders[gendnum].allow & ROLE_GENDMASK))
@@ -994,7 +1712,7 @@ ok_role(int rolenum, int racenum, int gendnum, int alignnum)
                 continue;
             allow = roles[i].allow;
             if (IndexOkT(racenum, races)
-                && !(allow & races[racenum].allow & ROLE_RACEMASK))
+                && !(roles[i].mhrace & races[racenum].selfmask))
                 continue;
             if (gendnum >= 0 && gendnum < ROLE_GENDERS
                 && !(allow & genders[gendnum].allow & ROLE_GENDMASK))
@@ -1040,11 +1758,11 @@ ok_race(int rolenum, int racenum, int gendnum, int alignnum)
     short allow;
 
     if (IndexOkT(racenum, races)) {
-        if (gr.rfilter.mask & races[racenum].selfmask)
+        if (gr.rfilter.race_mask & races[racenum].selfmask)
             return FALSE;
         allow = races[racenum].allow;
         if (IndexOkT(rolenum, roles)
-            && !(allow & roles[rolenum].allow & ROLE_RACEMASK))
+            && !(allow & roles[rolenum].mhrace & races[racenum].selfmask))
             return FALSE;
         if (gendnum >= 0 && gendnum < ROLE_GENDERS
             && !(allow & genders[gendnum].allow & ROLE_GENDMASK))
@@ -1056,11 +1774,11 @@ ok_race(int rolenum, int racenum, int gendnum, int alignnum)
     } else {
         /* random; check whether any selection is possible */
         for (i = 0; i < SIZE(races) - 1; i++) {
-            if (gr.rfilter.mask & races[i].selfmask)
+            if (gr.rfilter.race_mask & races[i].selfmask)
                 continue;
             allow = races[i].allow;
             if (IndexOkT(rolenum, roles)
-                && !(allow & roles[rolenum].allow & ROLE_RACEMASK))
+                && !(allow & roles[rolenum].mhrace & races[i].selfmask))
                 continue;
             if (gendnum >= 0 && gendnum < ROLE_GENDERS
                 && !(allow & genders[gendnum].allow & ROLE_GENDMASK))
@@ -1289,7 +2007,7 @@ setrolefilter(const char *bufp)
     if ((i = str2role(bufp)) != ROLE_NONE && i != ROLE_RANDOM)
         gr.rfilter.roles[i] = TRUE;
     else if ((i = str2race(bufp)) != ROLE_NONE && i != ROLE_RANDOM)
-        gr.rfilter.mask |= races[i].selfmask;
+        gr.rfilter.race_mask |= races[i].selfmask;
     else if ((i = str2gend(bufp)) != ROLE_NONE && i != ROLE_RANDOM)
         gr.rfilter.mask |= genders[i].allow;
     else if ((i = str2align(bufp)) != ROLE_NONE && i != ROLE_RANDOM)
@@ -1304,7 +2022,7 @@ gotrolefilter(void)
 {
     int i;
 
-    if (gr.rfilter.mask)
+    if (gr.rfilter.mask || gr.rfilter.race_mask)
         return TRUE;
     for (i = 0; i < SIZE(roles) - 1; ++i)
         if (gr.rfilter.roles[i])
@@ -1361,7 +2079,8 @@ clearrolefilter(int which)
 
     switch (which) {
     case RS_filter:
-        gr.rfilter.mask = 0; /* clear race, gender, and alignment filters */
+        gr.rfilter.mask = 0; /* clear gender and alignment filters */
+        gr.rfilter.race_mask = 0;
         FALLTHROUGH;
         /*FALLTHRU*/
     case RS_ROLE:
@@ -1369,7 +2088,7 @@ clearrolefilter(int which)
             gr.rfilter.roles[i] = FALSE;
         break;
     case RS_RACE:
-        gr.rfilter.mask &= ~ROLE_RACEMASK;
+        gr.rfilter.race_mask = 0;
         break;
     case RS_GENDER:
         gr.rfilter.mask &= ~ROLE_GENDMASK;
@@ -1738,10 +2457,10 @@ role_selection_prolog(int which, winid where)
     if (r >= 0) {
         assert(IndexOkT(r, roles));
         allowmask = roles[r].allow;
-        if ((allowmask & ROLE_RACEMASK) == MH_HUMAN)
+        if (roles[r].mhrace == MH_HUMAN)
             c = 0; /* races[human] */
         else if (IndexOkT(c, races)
-                 && !(allowmask & ROLE_RACEMASK & races[c].allow))
+                 && !(roles[r].mhrace & races[c].selfmask))
             c = ROLE_RANDOM;
         if ((allowmask & ROLE_GENDMASK) == ROLE_MALE)
             gend = 0; /* role forces male (hypothetical) */
@@ -1850,13 +2569,13 @@ role_menu_extra(int which, winid where, boolean preselect)
         f = flags.initrace;
         c = ROLE_NONE; /* override player's setting */
         if (r >= 0) {
-            allowmask = roles[r].allow & ROLE_RACEMASK;
+            allowmask = roles[r].mhrace;
             if (allowmask == MH_HUMAN)
                 c = 0; /* races[human] */
             if (c >= 0) {
                 constrainer = "role";
                 forcedvalue = races[c].noun;
-            } else if (f >= 0 && ((allowmask & ~gr.rfilter.mask)
+            } else if (f >= 0 && ((allowmask & ~gr.rfilter.race_mask)
                                   == races[f].selfmask)) {
                 /* if there is only one race choice available due to user
                    options disallowing others, race menu entry is disabled */
@@ -2023,6 +2742,32 @@ role_init(void)
     /* Initialize gu.urole and gu.urace */
     gu.urole = roles[flags.initrole];
     gu.urace = races[flags.initrace];
+
+    /* kick it over to alternate-alignment role */
+    if (alignmnt == A_CHAOTIC && Role_if(PM_KNIGHT)
+        && !Race_if(PM_DRAUGR)) {
+        gu.urole = align_roles[0];
+    }
+
+    if ((Race_if(PM_GNOME) || Race_if(PM_HOBBIT))
+        && Role_if(PM_RANGER)) {
+        gu.urole = race_roles[0];
+    }
+
+    if (Race_if(PM_DRAUGR)) {
+        if (Role_if(PM_BARBARIAN))
+            gu.urole = draugr_roles[0];
+        else if (Role_if(PM_CONVICT))
+            gu.urole = draugr_roles[1];
+        else if (Role_if(PM_INFIDEL))
+            gu.urole = draugr_roles[2];
+        else if (Role_if(PM_KNIGHT))
+            gu.urole = draugr_roles[3];
+        else if (Role_if(PM_MONK))
+            gu.urole = draugr_roles[4];
+        else if (Role_if(PM_ROGUE))
+            gu.urole = draugr_roles[5];
+    }
 
     /* Fix up the quest leader */
     if (gu.urole.ldrnum != NON_PM) {

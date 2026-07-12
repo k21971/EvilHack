@@ -759,12 +759,14 @@ struct rogueroom {
     int nroom; /* Only meaningful for "real" rooms */
 };
 
-#define NUM_ROLES (13)
+#define NUM_ROLES (16)
 struct role_filter {
     boolean roles[NUM_ROLES + 1];
-    short mask;
+    short mask;      /* gender and alignment filter bits */
+    short race_mask; /* OR'd from races[].selfmask; MH_ bits overlap
+                      * the gender bits so races filter separately */
 };
-#define NUM_RACES (5)
+#define NUM_RACES (14)
 
 struct selectionvar {
     int wid, hei;
@@ -1120,7 +1122,7 @@ typedef struct nh_file NHFILE;
       /* quest artifact object index */         \
       STRANGE_OBJECT,                           \
       /* Bitmasks */                            \
-      0,                                        \
+      0L, 0,                                    \
       /* Attributes */                          \
       {0}, {0}, {0}, {0}, 0, 0,                 \
       /* spell statistics */                    \
