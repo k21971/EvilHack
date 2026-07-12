@@ -3509,7 +3509,7 @@ reveal_paths(int code)
                            (int) (sizeof buf - 1 - strlen(buf)));
                 if (access(buf, 4) == -1) {
                     /* second alternate failed too, so revert to the
-                       original default ("$HOME/.nethackrc") for message */
+                       original default ("$HOME/.evilhackrc") for message */
                     copynchars(endp, get_default_configfile(),
                                (int) (sizeof buf - 1 - strlen(buf)));
                 }

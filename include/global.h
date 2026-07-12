@@ -594,7 +594,7 @@ enum option_phases {
     builtin_opt = 1, /* compiled-in default value of an option */
     syscf_opt,       /* sysconf setting of an option, overrides builtin */
     rc_file_opt, /* player's run-time config file setting, overrides syscf */
-    environ_opt, /* player's environment NETHACKOPTIONS, overrides rc_file */
+    environ_opt, /* player's environment EVILHACKOPTIONS, overrides rc_file */
     cmdline_opt, /* program invocation command-line, overrides environ */
     play_opt,    /* 'O' command, interactively set so overrides all */
     num_opt_phases

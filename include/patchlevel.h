@@ -6,8 +6,8 @@
 #ifndef PATCHLEVEL_H
 #define PATCHLEVEL_H
 
-/* NetHack 5.0.x */
-#define VERSION_MAJOR 5
+/* EvilHack 1.0.x (based on NetHack 5.0.x) */
+#define VERSION_MAJOR 1
 #define VERSION_MINOR 0
 /*
  * PATCHLEVEL is updated for each release.
@@ -28,17 +28,18 @@
 #define NH_STATUS_POSTRELEASE 3         /* patch commit point only */
 
 /*
- * Development status of this NetHack version.
+ * Development status of this EvilHack version.
  */
-#define NH_DEVEL_STATUS NH_STATUS_POSTRELEASE
+#define NH_DEVEL_STATUS NH_STATUS_WIP
 
 #ifndef DEBUG  /* allow tool chains to define without causing warnings */
 #define DEBUG
 #endif
 
-#define COPYRIGHT_BANNER_A "NetHack, Copyright 1985-2026"
+#define COPYRIGHT_BANNER_A \
+    "EvilHack, copyright 2018-2026 by Keith Simpson - a NetHack 5.0.x variant,"
 #define COPYRIGHT_BANNER_B \
-    "         By Stichting Mathematisch Centrum and M. Stephenson."
+    "copyright 1985-2026 by Stichting Mathematisch Centrum and M. Stephenson."
 /* nomakedefs.copyright_banner_c is generated at runtime */
 #define COPYRIGHT_BANNER_C nomakedefs.copyright_banner_c
 #define COPYRIGHT_BANNER_D "         See license for details."

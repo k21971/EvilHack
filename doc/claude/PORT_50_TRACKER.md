@@ -58,16 +58,30 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ignored and harmless - do NOT git clean, doc/claude lives
       there)
 - [x] Move this tracker into doc/claude/ on the branch
-- [ ] Resolve src/glyphs.c name collision (rename ours; extcolor
-      merge or customcolor.c)
-- [ ] Identity pass: game name, 1.0.0-dev version strings,
-      evilhackdir paths, .evilhackrc, sysconf/log names; file-level
-      renames from the census: doc/evilhack.6/.txt (upstream ships
-      nethack.6/.txt), win/win32 EvilHackW/evilhack .rc+.manifest
-      (upstream NetHackW/nethack), sys/winnt/.evilhackrc.template
-      (winnt is now sys/windows/)
-- [ ] CI: re-add adapted .github/workflows (adopted tree has NONE;
-      needs Lua submodule/fetch step)
+- [x] Resolve src/glyphs.c name collision - DECIDED 2026-07-12:
+      EvilHack's customcolor registry ports as src/customcolor.c at
+      Phase 4; upstream src/glyphs.c keeps its name (see Decisions)
+- [~] Identity pass (2026-07-12, code level DONE + build-green +
+      strings-verified in binary: banner, 1.0.0 WIP version,
+      evilhack50dir, .evilhackrc, EVILHACKOPTIONS, -evilhackrc/
+      -no-evilhackrc flags, GAME=evilhack in Makefile.top/.src/
+      .doc/.utl, dat/help + dat/usagehlp + doc/nethack.6 text).
+      REMAINING (needs staging, do after commit lands): file renames
+      doc/nethack.6/.txt -> evilhack.6/.txt (+ Makefile.doc rules +
+      regen .txt via doc make, never hand-edit), sys/windows/
+      nethackrc.template -> evilhackrc.template (windconf.h
+      CONFIG_TEMPLATE already updated), win/win32 NetHackW.rc/
+      NetHackW.exe.manifest/nethack.rc renames + build-file ref
+      sweep. Left as-is on purpose (mirrors master): NETHACKDIR env
+      var, "NetHack Defaults"/"NetHack.cnf" exotic-platform names,
+      X11 "NetHack" title/class, rumors-file fallback strings.
+      Exotic hints (macOS.500/cross-post.500/solaris-playground)
+      rc refs deferred to their platform validation
+- [x] CI: re-add adapted .github/workflows (2026-07-12,
+      evilhack-cpp.yml: linux-build job only - setup.sh from
+      sys/unix + make fetch-lua + make all; install/artifact steps
+      and macOS/Windows jobs deferred to Phase 6, need a
+      runner-writable .gha hints re-derive)
 - [ ] Set up + test the backup ritual (first bundle/push TODAY)
 
 ## Phase 0.5 - Pilot vertical slice (one of everything, end-to-end)
@@ -279,6 +293,12 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 - [ ] v1.0.0 hard cutover per plan §9 (archive saves+bones, keep
       0.9.x binary offline, announce)
 
+## Upstream-reportable fixes (send as format-patch, never edit their tree)
+
+| date | fix | status |
+|------|-----|--------|
+| 2026-07-12 | shk.c shop_keeper() impossible() format typo `&d` -> `%d` (code only compiles when NH_DEVEL_STATUS is WIP/BETA, so upstream's POSTRELEASE builds never saw the -Wformat-extra-args warning) | fixed on branch; not yet sent |
+
 ## Master re-derive queue
 
 Mechanism: `git log evilhack-50-fork-point..master --oneline`; every
@@ -347,6 +367,10 @@ trees, different content - Phase 0 rename).
 | 2026-06-12 | plan §9: v1.0.0, hard cutover, same xlogfile, full parity, local-until-playable, DUMPHTML base | maintainer |
 | 2026-07-03 | NAMS merges: ALL THREE pairs merge like upstream - caveman/cavewoman -> PM_CAVE_DWELLER, priest/priestess (role mon) -> PM_CLERIC, incubus/succubus -> PM_AMOROUS_DEMON; M2_MALE/M2_FEMALE dropped (sex assigned at creation); pairs verified field-identical otherwise; monst_to_50.py now auto-merges (refuses + PORT-TODOs any future diverging pair). GOTCHA: upstream has TWO "priest"/"priestess" NAMS records (role PM_CLERIC d=12 vs temple PM_ALIGNED_CLERIC d=15) - converter disambiguates by field score; C port must map role sites (Role_if etc.) to PM_CLERIC, temple/aligned-priest sites to PM_ALIGNED_CLERIC | maintainer |
 | | endgame portal naming kept EvilHack-style | per crib sheet |
+| 2026-07-12 | local install dir = /usr/games/lib/evilhack50dir for the migration window (hints fragment + config.h default); flip to evilhackdir at v1.0.0 cutover - protects the live 3.6.x local install | maintainer |
+| 2026-07-12 | src/glyphs.c collision: upstream glyphs.c keeps its name; EvilHack customcolor registry ports as src/customcolor.c (Phase 4) | plan §6.0.4 default |
+| 2026-07-12 | CLI rc flags renamed -nethackrc/-no-nethackrc -> -evilhackrc/-no-evilhackrc (moved to case 'e' in earlyarg.c, removing the case 'n' collision with -n news suppression); Phase 6 must check dgamelaunch/server invocations for the old flag | session |
+| 2026-07-12 | NETHACKDIR env var kept unchanged (mirrors master; man page documents it) | mirrors master |
 
 ## Gotcha shortlist (full list: plan §7 + §11)
 

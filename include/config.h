@@ -47,7 +47,6 @@
 #include "patchlevel.h"
 #endif
 
-
 /* Windowing systems...
  * Define all of those you want supported in your binary.
  * Some combinations make no sense.  See the installation document.
@@ -90,7 +89,7 @@
 #define BEOS_GRAPHICS             /* (optional) */
 #define DEFAULT_WINDOW_SYS "BeOS" /* "tty" */
 #ifndef HACKDIR                   /* override the default hackdir below */
-#define HACKDIR "/boot/apps/NetHack"
+#define HACKDIR "/boot/apps/EvilHack"
 #endif
 #endif
 
@@ -126,7 +125,7 @@
 #ifndef DEFAULT_WINDOW_SYS
 #define DEFAULT_WINDOW_SYS "mswin"
 #endif
-#define HACKDIR "\\nethack"
+#define HACKDIR "\\evilhack"
 #endif
 
 #ifdef TTY_GRAPHICS
@@ -211,9 +210,9 @@
  *                           define specifies the name of the helper program
  *                           used to launch the browser and enables the
  *                           feature))
- *            Regular nethack options can also be specified in order to
+ *            Regular evilhack options can also be specified in order to
  *            provide system-wide default values local to your system:
- *              OPTIONS      (same as in users' .nethackrc or defaults.nh)
+ *              OPTIONS      (same as in users' .evilhackrc or defaults.nh)
  *
  *              In the future there may be other ways to supply SYSCF
  *              information (Windows registry, Apple resource forks, etc)
@@ -438,13 +437,20 @@
 #define CHDIR /* delete if no chdir() available */
 #endif
 
+/* game name shown by status/version displays; the default without
+   this is the executable's base name */
+#define VERS_GAME_NAME "EvilHack"
+
 #ifdef CHDIR
 /*
  * If you define HACKDIR, then this will be the default playground;
  * otherwise it will be the current directory.
+ * The migration-window install dir is evilhack50dir so the live
+ * 3.6.x evilhackdir install is untouched; flip to evilhackdir at
+ * the v1.0.0 cutover.
  */
 #ifndef HACKDIR
-#define HACKDIR "/usr/games/lib/nethackdir"
+#define HACKDIR "/usr/games/lib/evilhack50dir"
 #endif
 
 /*
@@ -463,7 +469,6 @@
  * #define MAX_NR_OF_PLAYERS 6
  */
 #endif /* CHDIR */
-
 
 /*
  * Section 3:   Definitions that may vary with system type.
@@ -539,7 +544,7 @@ typedef unsigned char uchar;
 #endif
 #endif
 
-/* CONFIG_ERROR_SECURE: If user makes NETHACKOPTIONS point to a file ...
+/* CONFIG_ERROR_SECURE: If user makes EVILHACKOPTIONS point to a file ...
  *  TRUE: Show the first error, nothing else.
  *  FALSE: Show all errors as normal, with line numbers and context.
  */
@@ -556,7 +561,7 @@ typedef unsigned char uchar;
  */
 
 /* SELECTSAVED: Enable the 'selectsaved' run-time option, allowing it
- * to be set in user's config file or NETHACKOPTIONS.  When set, if
+ * to be set in user's config file or EVILHACKOPTIONS.  When set, if
  * player is about to be given the "who are you?" prompt, check for
  * save files and if any are found, put up a menu of them for choosing
  * one to restore (plus extra menu entries "new game" and "quit").
@@ -732,7 +737,7 @@ typedef unsigned char uchar;
 #ifdef DUMPLOG
 #define DUMPLOG_CORE
 #ifndef DUMPLOG_FILE
-#define DUMPLOG_FILE        "/tmp/nethack.%n.%d.log"
+#define DUMPLOG_FILE        "/tmp/evilhack.%n.%d.log"
 /* DUMPLOG_FILE allows following placeholders:
    %% literal '%'
    %v version (eg. "3.6.3-0")
@@ -755,7 +760,7 @@ typedef unsigned char uchar;
 
 #ifdef DUMPHTML
 #ifndef DUMPHTML_FILE
-#define DUMPHTML_FILE        "/tmp/nethack.%n.%d.html"
+#define DUMPHTML_FILE        "/tmp/evilhack.%n.%d.html"
 /* Placeholders as above
  * DUMPHTML_FILE is not used if SYSCF is defiined
  */

@@ -20,11 +20,11 @@ NHSROOT=.
 #	to execute things like 'data' and 'rumors'.)
 # MAKE = make
 
-#	make NetHack (as opposite to variants or such)
+#	make EvilHack (a NetHack variant)
 #PREFIX	 = /usr
-GAME     = nethack
-# GAME     = nethack.exe
-# GAME     = nethack.prg
+GAME     = evilhack
+# GAME     = evilhack.exe
+# GAME     = evilhack.prg
 #GAMEUID  = games
 #GAMEGRP  = bin
 TARGET_CC ?= $(CC)
@@ -529,7 +529,6 @@ install: rootcheck $(PRECHECK) $(GAME) recover $(VARDAT) spec_levs sys/unix/sysc
 	true; $(POSTINSTALL)
 # and a reminder
 	@echo You may also want to reinstall the man pages via the doc Makefile.
-
 
 # 'make clean' removes all the .o files, but leaves around all the executables
 # and compiled data files

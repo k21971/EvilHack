@@ -93,7 +93,7 @@ $(MAKEDEFS)	: ../util/makedefs.c ../include/config.h ../src/mdlib.c \
 ../util/stripbs: ../util/stripbs.c
 	( cd .. ; $(MAKE) stripbs )
 
-GAME	= nethack
+GAME	= evilhack
 MANDIR	?= /usr/man/man6
 MANEXT	= 6
 MANDIRPREP ?=  true

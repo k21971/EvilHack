@@ -414,7 +414,7 @@ WINOBJ ?= $(WINTTYOBJ)
 WINLIB ?= $(WINTTYLIB) -lncurses
 
 # make NetHack
-GAME     ?= nethack
+GAME     ?= evilhack
 # GAME     = nethack.prg
 GAMEBIN ?= $(GAME)
 

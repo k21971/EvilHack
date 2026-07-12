@@ -1,15 +1,15 @@
-This is a terse description of nethack's command line arguments.
+This is a terse description of evilhack's command line arguments.
 It is oriented toward UNIX (including descendants such as linux and macOS)
 and might not be accurate for other platforms.
 
 When starting play, if there is a save file for the chosen character name
 then it will be restored, otherwise a new game using that name will begin.
 
-nethack
+evilhack
   with no arguments; uses character name from run-time configuration file's
   OPTIONS=name:character-name entry, or player's username if none.
 
-nethack -u character-name [-X or -D]
+evilhack -u character-name [-X or -D]
   '-u character-name' specifies the name to use for this game's character;
        -u must be lowercase; the space between it and character-name may
        be omitted;
@@ -17,7 +17,7 @@ nethack -u character-name [-X or -D]
        -X must be uppercase; character starts with a wand of wishing and
        player may opt to be life-saved and keep going if character dies;
   '-D' run in debug mode also known as wizard mode; -D must be uppercase;
-       if player is not allowed then nethack will switch to -X; if player
+       if player is not allowed then evilhack will switch to -X; if player
        is allowed, character name will be changed to "wizard".
 
   A character name may have a suffix specifying any or all of role, race,
@@ -25,7 +25,7 @@ nethack -u character-name [-X or -D]
   The components present must be at least three letters long but can be
   longer; their case doesn't matter.  See also -p and -r, next,
 
-nethack -p Ppp -r Rrr [-@]
+evilhack -p Ppp -r Rrr [-@]
   '-p Ppp' specify role; p for "profession" is used because -r is in use;
        'Ppp' is three or more letters of the role name such as Val for
        Valkyrie; unlike -p itself, upper/lower case of Ppp doesn't matter
@@ -43,16 +43,16 @@ nethack -p Ppp -r Rrr [-@]
   uppercase, the three or more letter form can be in any case.  There is
   no single-letter option for the Ranger role.
 
-nethack -DEC[graphics]
-nethack -IBM[graphics]
+evilhack -DEC[graphics]
+evilhack -IBM[graphics]
   selects the DEC or IBM symbol set to use line-drawing characters on a
   text map; might be ignored depending on interface, or ineffective or
   even scrambled depending on display capability; -DECgraphics and
   -IBMgraphics are mutually exclusive; they can be any case but must use
   at least three letters.
 
-nethack -wIii
-nethack --windowtype:Iii
+evilhack -wIii
+evilhack --windowtype:Iii
   where 'Iii' represents an interface designation:  tty, curses, X11, or
   Qt; only useful if the program was built to support more than one
   interface (the game's '#version' command will disclose that); overrides
@@ -61,24 +61,24 @@ nethack --windowtype:Iii
   designation itself may be any case; variations '--windowtype Iii' and
   '-w Iii' work too.
 
-  On Windows, nethack.exe supports tty or curses or both depending on
-  settings at the time the program is built from source; nethackW.exe
+  On Windows, evilhack.exe supports tty or curses or both depending on
+  settings at the time the program is built from source; evilhackW.exe
   supports mswin (also referred to as Win GUI) and optionally curses.
   For MS-DOS, the program supports tty or curses or both.
 
-nethack -n
-  don't show the 'news' file if one is present in nethack's directory.
+evilhack -n
+  don't show the 'news' file if one is present in evilhack's directory.
 
-nethack --nethackrc:RC-file
+evilhack --evilhackrc:RC-file
   use RC-file instead of the default run-time configuration file (which is
-  usually '~/.nethackrc'); the file name should include full path unless
-  located in nethack's directory;
-nethack --no-nethackrc
+  usually '~/.evilhackrc'); the file name should include full path unless
+  located in evilhack's directory;
+evilhack --no-evilhackrc
   don't use any run-time configuration file; equivalent to
-  --nethackrc:/dev/null which behaves as if an empty file.
+  --evilhackrc:/dev/null which behaves as if an empty file.
 
-nethack -dDir
-nethack --directory:Dir
+evilhack -dDir
+evilhack --directory:Dir
   could be used to override the build-time value of NETHACKDIR with
   location Dir; if used, it should precede other command line arguments.
 
@@ -90,29 +90,29 @@ they're listed separately for readability.
 Other options which perform some action and then exit rather than play
 the game:
 
-nethack -s
-nethack --scores
+evilhack -s
+evilhack --scores
   show scores for the default character; optional additional arguments:
-nethack -s -v
+evilhack -s -v
   show scores for all versions present in the high scores file (record)
   if it contains scores for any older versions; by default, only scores
-  for current version of nethack are shown; when '-v' is used, it should
+  for current version of evilhack are shown; when '-v' is used, it should
   immediately follow -s or --scores, preceding any name(s) or -p or -r;
-nethack -s character-name [character-name2 [character-name3 [...]]]
+evilhack -s character-name [character-name2 [character-name3 [...]]]
   show scores for one or more specific character names (might not be
-  effective if PERS_IS_UID=1 is specified in nethack's sysconf file);
+  effective if PERS_IS_UID=1 is specified in evilhack's sysconf file);
   character names may be preceded by '-u' but that isn't required;
   special character-name "all" is used to display all scores that pass
   other criteria;
-nethack -s -p Ppp -r Rrr
+evilhack -s -p Ppp -r Rrr
   show scores for specific roles or races; multiple instances can be used;
   if both '-p' and '-r' are used, scores that match either will be shown
   rather than scores that match both;
-nethack -dDir -s
-nethack --directory:Dir -s
+evilhack -dDir -s
+evilhack --directory:Dir -s
   as above; alternate directory, if specified, should come first.
 
-nethack --version or --version:copy or --version:dump or --version:show
+evilhack --version or --version:copy or --version:dump or --version:show
   '--version' display the program's version number plus the date and
   time it was built from source code, then exit;
   '--version:copy' display version number and also copy it into system
@@ -122,18 +122,18 @@ nethack --version or --version:copy or --version:dump or --version:show
   '--version:dump' display several internal values, then exit;
   '--version:show' same as '--version'.
 
-nethack --showpaths
+evilhack --showpaths
   list expected locations for various files and directories, then exit;
   includes the name and location for the run-time configuration file which
   can vary from platform to platform.
 
-nethack --usage
-nethack --help
-  show this text; 'nethack -?' and 'nethack ?' also work but the question
+evilhack --usage
+evilhack --help
+  show this text; 'evilhack -?' and 'evilhack ?' also work but the question
   mark may need to be quoted to prevent the shell from intercepting it.
 
 *******
 
 This text is available during play in the menu for the game's '?' command
-or can be viewed via 'nethack --usage | more' at the shell prompt.
+or can be viewed via 'evilhack --usage | more' at the shell prompt.
 

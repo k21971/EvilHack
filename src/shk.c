@@ -1080,7 +1080,7 @@ shop_keeper(char rmno)
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED \
      && NH_DEVEL_STATUS != NH_STATUS_POSTRELEASE)
             impossible("untrustworthy null shkp; level_status.shkready"
-                        " is FALSE (%d, %d, %d, &d)",
+                        " is FALSE (%d, %d, %d, %d)",
                         level_status.making, level_status.loading,
                         level_status.shkready, level_status.ready);
 #endif
@@ -1548,7 +1548,6 @@ cheapest_item(int ibillct, Bill *ibill)
             gmin = ibill[i].cost;
     return gmin;
 }
-
 
 /* for itemized purchasing, create an alternate shop bill that hides
    container contents */
@@ -4323,7 +4322,6 @@ corpsenm_price_adj(struct obj *obj)
                 tmp += icost[i].cost;
         if (unique_corpstat(ptr))
             tmp += 50;
-
 
         val = max(1, ((ptr->mlevel - 1) * 2));
         if (obj->otyp == CORPSE)

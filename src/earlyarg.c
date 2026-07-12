@@ -257,6 +257,18 @@ early_options(int *argc_p, char ***argv_p, char **hackdir_p)
 #endif /* CHDIR */
             }
             break;
+        case 'e':
+            oldargc = argc;
+            arg = lopt(arg, (ArgValRequired | ArgErrComplain),
+                       "-evilhackrc", origarg, &argc, &argv);
+            if (arg) {
+                gc.cmdline_rcfile = dupstr(arg);
+                if (oldargc == argc)
+                    consume_arg(ndx, argc_p, argv_p), consumed = 1;
+                else
+                    consume_two_args(ndx, argc_p, argv_p), consumed = 2;
+            }
+            break;
         case 'h':
         case '?':
             if (lopt(arg, ArgValDisallowed, "-help", origarg, &argc, &argv)
@@ -265,18 +277,10 @@ early_options(int *argc_p, char ***argv_p, char **hackdir_p)
                 opt_usage(*hackdir_p); /* doesn't return */
             break;
         case 'n':
-            oldargc = argc;
-            if (!strcmp(arg, "-no-nethackrc")) /* no abbreviation allowed */
-                arg = nhStr("/dev/null");
-            else
-                arg = lopt(arg, (ArgValRequired | ArgErrComplain),
-                           "-nethackrc", origarg, &argc, &argv);
-            if (arg) {
-                gc.cmdline_rcfile = dupstr(arg);
-                if (oldargc == argc)
-                    consume_arg(ndx, argc_p, argv_p), consumed = 1;
-                else
-                    consume_two_args(ndx, argc_p, argv_p), consumed = 2;
+            if (!strcmp(arg, "-no-evilhackrc")) { /* no abbreviation
+                                                   * allowed */
+                gc.cmdline_rcfile = dupstr("/dev/null");
+                consume_arg(ndx, argc_p, argv_p), consumed = 1;
             }
             break;
         case 's':
@@ -582,7 +586,6 @@ debug_fields(char *opts)
     if (strlen(opts) > BUFSZ / 2)
         return;
 
-
     /* strip leading and trailing white space */
     while (isspace((uchar) *opts))
         opts++;
@@ -694,7 +697,6 @@ static struct enum_dump mcastu_enum_dump[] = {
 #undef DUMP_MCASTU_ENUM2
 
 #undef DUMP_ENUMS
-
 
 #ifndef NODUMPENUMS
 

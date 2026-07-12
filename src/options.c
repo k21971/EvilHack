@@ -4960,7 +4960,7 @@ optfn_windowtype(
          * For user, making it be first in a config file is trivial, use
          * OPTIONS=windowtype:Foo
          * as the first non-comment line of the file.
-         * Making it first in NETHACKOPTIONS requires it to be at the
+         * Making it first in EVILHACKOPTIONS requires it to be at the
          * _end_ because comma-separated option strings are processed from
          * right to left.
          */
@@ -6815,7 +6815,7 @@ rejectoption(const char *optname)
 #ifdef MICRO
     pline("\"%s\" settable only from %s.", optname, get_configfile());
 #else
-    pline("%s can be set only from NETHACKOPTIONS or %s.", optname,
+    pline("%s can be set only from EVILHACKOPTIONS or %s.", optname,
           get_configfile());
 #endif
 }
@@ -7140,11 +7140,11 @@ initoptions_init(void)
          * FIXME?  This continues even if setting windowtype to player's
          * specified value fails.  It doesn't lock the windowtype in
          * that situation though, so the game will use whatever is in
-         * RC/NETHACKOPTIONS or resort to DEFAULT_WINDOW_SYS.
+         * RC/EVILHACKOPTIONS or resort to DEFAULT_WINDOW_SYS.
          */
         if (windowprocs.name
             && !strcmpi(windowprocs.name, gc.cmdline_windowsys))
-            /* ignore any windowtype:foo in RC file or NETHACKOPTIONS */
+            /* ignore any windowtype:foo in RC file or EVILHACKOPTIONS */
             iflags.windowtype_locked = TRUE;
         /* shouldn't need cmdline_windowsys beyond here */
         free((genericptr_t) gc.cmdline_windowsys),
@@ -7309,19 +7309,19 @@ initoptions_init(void)
 
 /*
  *  Process user's run-time configuration file:
- *    get value of NETHACKOPTIONS;
- *    if command line specified -nethackrc=filename, use that;
- *      if NETHACKOPTIONS is present,
+ *    get value of EVILHACKOPTIONS;
+ *    if command line specified -evilhackrc=filename, use that;
+ *      if EVILHACKOPTIONS is present,
  *        honor it if it has a list of options to set
  *        or ignore it if it specifies a file name;
- *    else if not specified on command line and NETHACKOPTIONS names a file,
+ *    else if not specified on command line and EVILHACKOPTIONS names a file,
  *      use that as the config file;
- *      no extra options (normal use of NETHACKOPTIONS) will be set;
- *    otherwise (not on command line and either no NETHACKOPTIONS or that
+ *      no extra options (normal use of EVILHACKOPTIONS) will be set;
+ *    otherwise (not on command line and either no EVILHACKOPTIONS or that
  *        isn't a file name),
- *      pass Null to read_config_file() so that it will read ~/.nethackrc
+ *      pass Null to read_config_file() so that it will read ~/.evilhackrc
  *        by default,
- *      then process the value of NETHACKOPTIONS as extra options.
+ *      then process the value of EVILHACKOPTIONS as extra options.
  */
 void
 initoptions_finish(void)
@@ -9454,11 +9454,11 @@ static const char *opt_intro[] = {
 #define CONFIG_SLOT 3 /* fill in next value at run-time */
     (char *) 0,
 #if !defined(MICRO) && !defined(MAC68K)
-    "or use `NETHACKOPTIONS=\"<options>\"' in your environment",
+    "or use `EVILHACKOPTIONS=\"<options>\"' in your environment",
 #endif
     "(<options> is a list of options separated by commas)",
 #ifdef VMS
-    "-- for example, $ DEFINE NETHACKOPTIONS \"noautopickup,fruit:kumquat\"",
+    "-- for example, $ DEFINE EVILHACKOPTIONS \"noautopickup,fruit:kumquat\"",
 #endif
     "or press \"O\" while playing and use the menu.",
     "",

@@ -61,9 +61,9 @@ nethack \- Exploring The Mazes of Menace
 .RB [ \-w | \-\-windowtype\*_\c
 .IR interface ]
 \%[\c
-.BI \-\-nethackrc: rc-file\c
+.BI \-\-evilhackrc: rc-file\c
 |\c
-.B \-\-no\-nethackrc\c
+.B \-\-no\-evilhackrc\c
 ]
 .RB [ \-n ]
 .RB [ \-dec | \-ibm ]
@@ -164,7 +164,7 @@ times your (real) experience.
 Precious stones may be worth a lot of gold when brought to the exit.
 There is a 10% penalty for getting yourself killed.
 .PP
-The environment variable NETHACKOPTIONS can be used to initialize many
+The environment variable EVILHACKOPTIONS can be used to initialize many
 run-time options.
 The ? command provides a description of these options and syntax.
 (The
@@ -182,9 +182,9 @@ supporting multiple types of terminals.)
 Because the option list can be very long,
 options may also be included in a configuration file.
 The default is located in your home directory and
-named .nethackrc on UNIX systems (including descendants such as
+named .evilhackrc on UNIX systems (including descendants such as
 linux, NetBSD, and macOS).
-On Windows, the name is also .nethackrc but the location can vary
+On Windows, the name is also .evilhackrc but the location can vary
 (see
 .B \-\-showpaths
 below).
@@ -194,8 +194,8 @@ while
 .\" on the Macintosh or BeOS, it is \*(lqNetHack Defaults\*(rq, and
 on VMS|OpenVMS it is nethack.ini in your home directory.
 The default configuration file may be overridden via the
-.BI \-\-nethackrc: rc-file
-command line option or by setting NETHACKOPTIONS in your environment
+.BI \-\-evilhackrc: rc-file
+command line option or by setting EVILHACKOPTIONS in your environment
 to a string consisting of an @ character followed by the path and filename.
 .PP
 The
@@ -340,13 +340,13 @@ specified in the run-time configuration file.
 NetHack's #version command shows available interfaces.
 .PP
 The
-.BI \-\-nethackrc: rc-file
+.BI \-\-evilhackrc: rc-file
 option will use
 .I rc-file
 instead of the default run-time configuration file
-.RI "(typically " \*~/.nethackrc )
+.RI "(typically " \*~/.evilhackrc )
 and the
-.B \-\-no\-nethackrc
+.B \-\-no\-evilhackrc
 option can be used to skip any run-time configuration file.
 .PP
 Some options provide feedback and then exit rather than play the game:
@@ -432,7 +432,7 @@ Run-time configuration options were discussed above and use a platform
 specific name for a file in a platform specific location.
 For Unix, the
 name is
-.I .nethackrc
+.I .evilhackrc
 in the user's home directory.
 .PP
 All other files are in the playground directory,
@@ -594,7 +594,7 @@ attempts to access multiple environment variables in sequence
 .IR getenv (3)
 or similar)
 to determine information.
-.TP 16n \" "NETHACKOPTIONS" + 2n
+.TP 16n \" "EVILHACKOPTIONS" + 2n
 .I USER
 .TQ
 .I
@@ -632,17 +632,17 @@ or
 .I HACKDIR
 Playground.
 .TP
-.I NETHACKOPTIONS
+.I EVILHACKOPTIONS
 Predefined
 .I NetHack
 options.
 .PP
 If the same option is specified in both
-.I \%NETHACKOPTIONS
+.I \%EVILHACKOPTIONS
 and
-.IR \%.nethackrc ,
+.IR \%.evilhackrc ,
 the value assigned in
-.I \%NETHACKOPTIONS
+.I \%EVILHACKOPTIONS
 takes precedence.
 .PP
 .I SHOPTYPE

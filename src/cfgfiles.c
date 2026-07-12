@@ -131,7 +131,7 @@ static boolean ignore_errors_on_unmatched = FALSE,
 /* used for messaging. Also used in options.c */
 static const char *default_configfile =
 #ifdef UNIX
-    ".nethackrc";
+    ".evilhackrc";
 #else
 #if defined(MAC68K) || defined(__BEOS__)
     "NetHack Defaults";
@@ -251,8 +251,8 @@ fopen_config_file(const char *filename, int src)
         set_configfile_name(filename);
 #ifdef UNIX
         if (!strncmp(configfile, "~/", 2) && (envp = nh_getenv("HOME")) != 0) {
-            /* support for command line '--nethackrc=~/path' (or for
-               NETHACKOPTIONS='@~/path'; we don't support ~user/path) */
+            /* support for command line '--evilhackrc=~/path' (or for
+               EVILHACKOPTIONS='@~/path'; we don't support ~user/path) */
             Snprintf(tmp_config, sizeof tmp_config, "%s/%s",
                      envp, configfile + 2); /* insert $HOME/ and remove ~/ */
             set_configfile_name(tmp_config);
@@ -325,9 +325,9 @@ fopen_config_file(const char *filename, int src)
 #else /* should be only UNIX left */
     envp = nh_getenv("HOME");
     if (!envp)
-        Strcpy(tmp_config, ".nethackrc");
+        Strcpy(tmp_config, ".evilhackrc");
     else
-        Sprintf(tmp_config, "%s/%s", envp, ".nethackrc");
+        Sprintf(tmp_config, "%s/%s", envp, ".evilhackrc");
 
     set_configfile_name(tmp_config);
     if ((fp = fopen(configfile, "r")) != (FILE *) 0)
@@ -336,7 +336,7 @@ fopen_config_file(const char *filename, int src)
     /* try an alternative */
     if (envp) {
         /* keep 'tmp_config' intact here; if alternates fail, use it to
-           restore configfile[] to its preferred setting (".nethackrc") */
+           restore configfile[] to its preferred setting (".evilhackrc") */
         char alt_config[sizeof tmp_config];
 
         /* OSX-style configuration settings */
@@ -1943,7 +1943,7 @@ rcfile(void)
     go.opt_phase = environ_opt;
     /* getenv() instead of nhgetenv(): let total length of options be long;
        parseoptions() will check each individually */
-    envname = "NETHACKOPTIONS";
+    envname = "EVILHACKOPTIONS";
     opts = getenv(envname);
     if (!opts) {
         /* fall back to original name; discouraged */
@@ -1956,16 +1956,16 @@ rcfile(void)
         nameval = gc.cmdline_rcfile;
         xtraopts = opts;
         if (opts && (*opts == '/' || *opts == '\\' || *opts == '@'))
-            xtraopts = 0; /* NETHACKOPTIONS is a file name; ignore it */
+            xtraopts = 0; /* EVILHACKOPTIONS is a file name; ignore it */
     } else if (opts && (*opts == '/' || *opts == '\\' || *opts == '@')) {
-        /* NETHACKOPTIONS is a file name; use that instead of the default */
+        /* EVILHACKOPTIONS is a file name; use that instead of the default */
         if (*opts == '@')
             ++opts; /* @filename */
         namesrc = envname;
         nameval = opts;
         xtraopts = 0;
     } else {
-        /* either no NETHACKOPTIONS or it wasn't a file name;
+        /* either no EVILHACKOPTIONS or it wasn't a file name;
            read the default configuration file */
         nameval = namesrc = 0;
         xtraopts = opts;
@@ -1978,17 +1978,17 @@ rcfile(void)
     if (nameval && (int) strlen(nameval) >= BUFSZ / 2) {
         config_error_init(TRUE, namesrc, FALSE);
         config_error_add(
-            "nethackrc file name \"%.40s\"... too long; using default",
+            "evilhackrc file name \"%.40s\"... too long; using default",
             nameval);
         config_error_done();
-        nameval = namesrc = 0; /* revert to default nethackrc */
+        nameval = namesrc = 0; /* revert to default evilhackrc */
     }
 
     config_error_init(TRUE, nameval, nameval ? CONFIG_ERROR_SECURE : FALSE);
     (void) read_config_file(nameval, set_in_config);
     config_error_done();
     if (xtraopts) {
-        /* NETHACKOPTIONS is present and not a file name */
+        /* EVILHACKOPTIONS is present and not a file name */
         go.opt_phase = environ_opt;
         config_error_init(FALSE, envname, FALSE);
         (void) parseoptions(xtraopts, TRUE, FALSE);
@@ -1997,9 +1997,8 @@ rcfile(void)
 
     if (gc.cmdline_rcfile)
         free((genericptr_t) gc.cmdline_rcfile), gc.cmdline_rcfile = 0;
-    /*[end of nethackrc handling]*/
+    /*[end of evilhackrc handling]*/
 }
-
 
 void
 heed_all_config_statements(void)

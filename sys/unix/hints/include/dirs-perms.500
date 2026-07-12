@@ -63,7 +63,9 @@ ifeq "$(WHICH_OS)" "Linux"
 # -----------------------------------------
 
 PREFIX ?=/usr
-HACKDIR ?=$(PREFIX)/games/lib/500-hdf_$(GAME)dir
+# Migration window: $(GAME)50dir keeps the live 3.6.x $(GAME)dir
+# install untouched; flip to $(GAME)dir at the v1.0.0 cutover
+HACKDIR ?=$(PREFIX)/games/lib/$(GAME)50dir
 SHELLDIR ?= $(PREFIX)/games
 INSTDIR ?=$(HACKDIR)
 VARDIR ?=$(HACKDIR)/var

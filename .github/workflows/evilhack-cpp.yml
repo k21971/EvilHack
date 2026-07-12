@@ -1,0 +1,31 @@
+name: EvilHack
+
+on:
+  push:
+    branches: [ master, evilhack-50 ]
+    tags:
+      - '*' # won't work on tags containing /
+  pull_request:
+    branches: [ master, evilhack-50 ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-build:
+    runs-on: ubuntu-24.04
+    env:
+      HINTS_FILE: linux-debug
+    steps:
+    - uses: actions/checkout@v5
+    - name: setup
+      run: cd sys/unix && sh setup.sh hints/$HINTS_FILE
+    - name: fetch lua
+      run: make fetch-lua
+    - name: make all
+      run: make all
+    # make install and artifact upload need a runner-writable PREFIX;
+    # the 5.0 hints install system-wide. Re-derive a linux-debug.gha
+    # hints (Phase 6) before re-adding install/artifact steps, plus
+    # the macOS and Windows jobs from the 3.6.x workflow.
