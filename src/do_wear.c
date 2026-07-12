@@ -710,6 +710,8 @@ Shield_on(void)
        in setworn() called by armor_or_accessory_on() before Shield_on()] */
     switch (uarms->otyp) {
     case SMALL_SHIELD:
+    case SHIELD_OF_DRAIN_RESISTANCE:
+    case SHIELD_OF_SHOCK_RESISTANCE:
     case ELVEN_SHIELD:
     case URUK_HAI_SHIELD:
     case ORCISH_SHIELD:
@@ -736,6 +738,8 @@ Shield_off(void)
        keep this uncommented in case somebody adds a new one which does */
     switch (uarms->otyp) {
     case SMALL_SHIELD:
+    case SHIELD_OF_DRAIN_RESISTANCE:
+    case SHIELD_OF_SHOCK_RESISTANCE:
     case ELVEN_SHIELD:
     case URUK_HAI_SHIELD:
     case ORCISH_SHIELD:

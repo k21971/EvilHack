@@ -19,9 +19,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   defines + working-tree content swap, message files in scratchpad
   msg-phase1-slice-a.txt / msg-phase1-content.txt; BOTH LANDED
   cc0bf8a13 + ec925f41a). Slice 3 (artilist + Role/Race port)
-  LANDED 4f3d4bc7c. Slice 4 u_init.c staged, message /tmp/p3.txt.
-  NEXT = chain lightning/shield re-adds, persistent-struct
-  enumeration, glyph audit, Phase 1 boot gate
+  LANDED 4f3d4bc7c; u_init LANDED ec155733e; approved re-adds
+  (chain lightning P_ATTACK_SPELL + drain/shock shields) staged,
+  message /tmp/p4.txt. NEXT = persistent-struct enumeration
+  (obj.h/monst.h/prop.h/you.h/flag.h/mextra.h/context.h), glyph
+  audit, Phase 1 boot gate (ask maintainer before launching)
 - Adoption commit (nh50/master @ merge):
   74d1133c229a0fe17c6b05d4d4084937cb2631ca (2026-07-12); adoption
   merge commit on evilhack-50: 6160262a4 (parents c444f6a3a +
