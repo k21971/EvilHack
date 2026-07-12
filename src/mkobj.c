@@ -247,7 +247,6 @@ mksobj_at(
     return otmp;
 }
 
-
 /* used for extra orctown loot */
 struct obj *
 mksobj_migr_to_species(
@@ -1193,6 +1192,10 @@ mksobj(int otyp, boolean init, boolean artif)
     otmp->corpsenm = NON_PM;
     otmp->lua_ref_cnt = 0;
     otmp->pickup_prev = 0;
+    /* default to the class material; the materials subsystem's
+       init_obj_material() random-selection pass replaces this call
+       site when it is ported */
+    otmp->material = objects[otyp].oc_material;
 
     if (init)
         mksobj_init(&otmp, artif);

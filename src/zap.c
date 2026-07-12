@@ -1580,12 +1580,14 @@ create_polymon(struct obj *obj, int okind)
     /* some of these choices are arbitrary */
     switch (okind) {
     case IRON:
-    case METAL:
+    case STEEL:
     case MITHRIL:
+    case ADAMANTINE:
         pm_index = PM_IRON_GOLEM;
         material = "metal ";
         break;
     case COPPER:
+    case BRONZE:
     case SILVER:
     case PLATINUM:
     case GEMSTONE:

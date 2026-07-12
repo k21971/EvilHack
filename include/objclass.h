@@ -9,6 +9,11 @@
 /* [misnamed] definition of a type of object; many objects are composites
    (liquid potion inside glass bottle, metal arrowhead on wooden shaft)
    and object definitions only specify one type on a best-fit basis */
+/* EvilHack's material set and numbering, adopted wholesale; the
+   values are stored raw in saved objects (struct obj material
+   field), so this enum is append-only from now on. The IRON..
+   ADAMANTINE run and the IRON..PLATINUM subrange are load-bearing
+   for the is_metallic()/is_heavy_metallic() range checks */
 enum obj_material_types {
     NO_MATERIAL =  0,
     LIQUID      =  1, /* currently only for venom */
@@ -17,21 +22,25 @@ enum obj_material_types {
     FLESH       =  4, /*   ditto    */
     PAPER       =  5,
     CLOTH       =  6,
-    LEATHER     =  7,
-    WOOD        =  8,
-    BONE        =  9,
-    DRAGON_HIDE = 10, /* not leather! */
-    IRON        = 11, /* Fe - includes steel */
-    METAL       = 12, /* Sn, &c. */
-    COPPER      = 13, /* Cu - includes brass */
-    SILVER      = 14, /* Ag */
-    GOLD        = 15, /* Au */
-    PLATINUM    = 16, /* Pt */
-    MITHRIL     = 17,
-    PLASTIC     = 18,
-    GLASS       = 19,
-    GEMSTONE    = 20,
-    MINERAL     = 21
+    SPIDER_SILK =  7,
+    LEATHER     =  8,
+    WOOD        =  9,
+    BONE        = 10,
+    DRAGON_HIDE = 11, /* not leather! */
+    IRON        = 12, /* Fe */
+    STEEL       = 13, /* stainless steel, Sn, etc */
+    COPPER      = 14, /* Cu - includes brass */
+    BRONZE      = 15,
+    SILVER      = 16, /* Ag */
+    GOLD        = 17, /* Au */
+    PLATINUM    = 18, /* Pt */
+    MITHRIL     = 19,
+    ADAMANTINE  = 20,
+    PLASTIC     = 21,
+    GLASS       = 22,
+    GEMSTONE    = 23,
+    MINERAL     = 24,
+    NUM_MATERIAL_TYPES
 };
 
 enum obj_armor_types {
@@ -191,9 +200,12 @@ extern NEARDATA struct objdescr obj_descr[NUM_OBJECTS + 1];
 #define OBJ_DESCR(obj) (obj_descr[(obj).oc_descr_idx].oc_descr)
 
 #define is_organic(otmp) (objects[otmp->otyp].oc_material <= WOOD)
+/* instance-based: obj->material defaults to the class oc_material
+   at creation; the materials subsystem can override it per-object */
 #define is_metallic(otmp) \
-    (objects[otmp->otyp].oc_material >= IRON            \
-     && objects[otmp->otyp].oc_material <= MITHRIL)
+    (otmp->material >= IRON && otmp->material <= ADAMANTINE)
+#define is_heavy_metallic(otmp) \
+    (otmp->material >= IRON && otmp->material <= PLATINUM)
 
 /* primary damage: fire/rust/--- */
 /* is_flammable(otmp), is_rottable(otmp) in mkobj.c */

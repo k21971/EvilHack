@@ -456,7 +456,7 @@ mattackm(
                 if ((mdef->data == &mons[PM_BLACK_PUDDING]
                      || mdef->data == &mons[PM_BROWN_PUDDING])
                     && (mwep && (objects[mwep->otyp].oc_material == IRON
-                                 || objects[mwep->otyp].oc_material == METAL))
+                                 || objects[mwep->otyp].oc_material == STEEL))
                     && mdef->mhp > 1 && !mdef->mcan) {
                     struct monst *mclone;
 

@@ -107,9 +107,34 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       header comment)
 - [ ] One object into objects.h via ~/objects_to_50.py output
       (extend wrapper macros per the signature-delta report)
-- [ ] One persistent field end-to-end: struct field + sfo writer/
-      reader + critical_members[] + wizmode save/reload + sfexpasc
-      diff proving it persists
+- [x] One persistent field end-to-end: obj->material (2026-07-12).
+      RECIPE PROVEN, simpler than the plan expected: (1) game saves
+      are `historical` format = whole-struct binary, so a new struct
+      field persists with NO hand-written sfo pair; (2) the
+      field-level writers (exportascii) are GENERATED from the
+      struct definitions via ctags -> util/sftags -> sfdata.c +
+      include/sfproto.h when building the OPTIONAL sfctool target
+      (NEW BUILD DEP: universal-ctags); (3) the plan's
+      "critical_members[]" is actually critical_sizes[] in
+      src/version.c - stores (uchar) sizeof(struct obj) etc. in the
+      save header AUTOMATICALLY, no manual entry (plan corrected);
+      (4) verification: sfctool -c <save> exports per-field ascii -
+      verified tin=STEEL(13), fedora=CLOTH(6), bullwhip/leather
+      jacket=LEATHER(8) in the stream; in-game S+restore round trip
+      intact. Scope landed with it: EvilHack materials ENUM adopted
+      wholesale in objclass.h (values FROZEN, append-only - saved
+      raw), METAL->STEEL sweep (objects.h data + mhitm/uhitm +
+      zap.c create_polymon golem cases mirrored from master),
+      instance-based is_metallic/is_heavy_metallic, mksobj default
+      init (init_obj_material() hook point marked for Phase 2).
+      GOTCHAS: sfctool exits on the fork sysconf's OPTIONS/MSGTYPE
+      lines (tool build lacks the fork's sysconf extensions -
+      comment them out temporarily); sfctool -u round-trip differs
+      from the original in ~1400 bytes = struct PADDING noise
+      (historical bwrite includes padding; unconvert zeroes it) -
+      benign, verify by field not by cmp; ~/.evilhackrc is SHARED
+      with the live 3.6 game during migration - branch test
+      launches use --no-evilhackrc (renamed flag verified working)
 - [ ] One small .des level to Lua by hand using
       /root/nh50-port-preview/exemplar/DES_TO_LUA_CRIB.md
 - [ ] Write down effort calibration notes for the XL phases
@@ -312,6 +337,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | date | fix | status |
 |------|-----|--------|
 | 2026-07-12 | shk.c shop_keeper() impossible() format typo `&d` -> `%d` (code only compiles when NH_DEVEL_STATUS is WIP/BETA, so upstream's POSTRELEASE builds never saw the -Wformat-extra-args warning) | fixed on branch; not yet sent |
+| 2026-07-12 | util/sfctool.c validate() call missing the 4th arg added by the u.ustuck save/restore fixes (optional target, upstream CI never builds it); also two -DSFCTOOL -Wunused-function warnings in files.c (set_whereisfile/write_whereis) | validate fix on branch; warnings not chased |
 
 ## Master re-derive queue
 

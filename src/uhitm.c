@@ -1615,7 +1615,7 @@ hmon_hitmon_splitmon(
         && obj && (obj == uwep || (u.twoweap && obj == uswapwep))
         && ((hmd->material == IRON
              /* allow scalpel and tsurugi to split puddings */
-             || hmd->material == METAL)
+             || hmd->material == STEEL)
             /* but not bashing with darts, arrows or ya */
             && !(is_ammo(obj) || is_missile(obj)))
         && hmd->hand_to_hand) {
@@ -4091,7 +4091,7 @@ mhitm_ad_phys(
                 if (u.mh - tmp > 1
                     && (objects[otmp->otyp].oc_material == IRON
                         /* relevant 'metal' objects are scalpel and tsurugi */
-                        || objects[otmp->otyp].oc_material == METAL)
+                        || objects[otmp->otyp].oc_material == STEEL)
                     && (u.umonnum == PM_BLACK_PUDDING
                         || u.umonnum == PM_BROWN_PUDDING)) {
                     if (tmp > 1)

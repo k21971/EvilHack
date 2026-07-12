@@ -140,6 +140,10 @@ struct obj {
 
     Bitfield(globby, 1);    /* combines with like types on adjacent squares */
     Bitfield(greased, 1);   /* covered with grease */
+    Bitfield(material, 5);  /* material this obj is made of; defaults to
+                             * the class oc_material at creation and is
+                             * saved raw, so obj_material_types values
+                             * must stay stable */
     Bitfield(in_use, 1); /* for magic items before useup items */
     Bitfield(bypass, 1); /* mark this as an object to be skipped by bhito() */
     Bitfield(pickup_prev, 1); /* was picked up previously */

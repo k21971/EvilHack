@@ -11,6 +11,7 @@ SysV-AT
 Systos
 SysBe
 nethack
+evilhack
 *.o
 *.tag
 tiles.bmp
@@ -35,5 +36,4 @@ GNUmakefile.depend
 .depend
 date-gui.nmk
 date-tty.nmk
-
 
