@@ -1075,7 +1075,12 @@ shop_keeper(char rmno)
             return (struct monst *) 0;
         }
     } else {
-        if (!level_status.shkready) {
+        /* a no-room probe (rmno below ROOMOFFSET) answers null
+           correctly even before shops are ready; only a real room
+           queried that early is untrustworthy (level generation
+           reaches here via obfree's unconditional billing fallback
+           when container contents merge, e.g. throne-room coffers) */
+        if (!level_status.shkready && rmno >= ROOMOFFSET) {
             int hmm UNUSED = 1;
 #if (NH_DEVEL_STATUS != NH_STATUS_RELEASED \
      && NH_DEVEL_STATUS != NH_STATUS_POSTRELEASE)

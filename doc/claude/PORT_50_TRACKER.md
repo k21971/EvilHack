@@ -390,11 +390,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       zero-warning rebuild + boot re-verified clean (tortle Healer,
       sanity_check on, no o_init reports); (5) SAME SMOKE:
       upstream WIP-gated shop_keeper() diagnostic "untrustworthy
-      null shkp; shkready FALSE (1,0,0,0)" fired 4x during Dlvl 3
-      creation (making=1; shk.c, the block whose format typo Phase
-      0 fixed; compiled out of release builds) - premature
-      shop_keeper() call during mklev needs a caller trace; unknown
-      whether vanilla-5.0 or ported-content induced
+      null shkp; shkready FALSE (1,0,0,0)" fired 4x at newgame
+      Dlvl 1 creation (timestamp decode corrected the first Dlvl 3
+      guess) - RESOLVED 2026-07-13 as UPSTREAM 5.0 BUG, not
+      port-induced: gdb backtrace (breakpoint shk.c:1082, caught on
+      a fresh throne-room level) = fill_zoo COURT royal-coffers
+      fill -> add_to_container(chest, gold) -> merged -> obfree,
+      whose DELIBERATELY unconditional billing fallback
+      shop_keeper(*u.ushops) (shk.c:1227, historical comment right
+      there) probes with rmno '\0' during making and trips 5.0's
+      new WIP diagnostic; chest is created with init=TRUE so its
+      random contents can include gold for the merge. All three
+      code sites byte-identical in NetHack50 (shk.c:1227, 1082,
+      mkroom.c:430); nothing in upstream fixes docs. Suggested
+      upstream fix: skip the diagnostic when rmno < ROOMOFFSET (a
+      no-room probe's NULL answer is definitionally trustworthy).
+      Entry added to the upstream-reportable table; local guard =
+      maintainer decision (paniclog noise during migration vs
+      divergence)
 
 ## Phase 2 - Core subsystems (port detectors FIRST)
 
@@ -594,6 +607,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 |------|-----|--------|
 | 2026-07-12 | shk.c shop_keeper() impossible() format typo `&d` -> `%d` (code only compiles when NH_DEVEL_STATUS is WIP/BETA, so upstream's POSTRELEASE builds never saw the -Wformat-extra-args warning) | fixed on branch; not yet sent |
 | 2026-07-12 | util/sfctool.c validate() call missing the 4th arg added by the u.ustuck save/restore fixes (optional target, upstream CI never builds it); also two -DSFCTOOL -Wunused-function warnings in files.c (set_whereisfile/write_whereis) | validate fix on branch; warnings not chased |
+| 2026-07-13 | WIP-build false positive: shop_keeper()'s "untrustworthy null shkp" diagnostic (shk.c:1082) fires during throne-room generation - fill_zoo COURT chest fill -> add_to_container gold merge -> obfree's unconditional shop_keeper(*u.ushops) fallback (shk.c:1227) probes rmno '\0' while level_status.making. Repro: generate levels until a COURT spawns (4 merges = 4 reports at one newgame observed). Suggested fix: diagnostic should skip rmno < ROOMOFFSET - a no-room probe's NULL is definitionally correct | traced on branch (gdb bt); code byte-identical upstream; not yet sent |
 
 ## Master re-derive queue
 
