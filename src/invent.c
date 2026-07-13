@@ -1239,6 +1239,9 @@ hold_another_object(
         obj_extract_self(obj);
         if (crysknife) {
             obj->otyp = CRYSKNIFE;
+            /* obj_no_longer_held() may have reverted it to a worm
+               tooth and reset its material */
+            set_material(obj, objects[CRYSKNIFE].oc_material);
             obj->oerodeproof = oerode;
         }
     }

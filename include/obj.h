@@ -338,6 +338,14 @@ struct obj {
     ((otmp)->otyp == ELVEN_HELM                                   \
      || (otmp)->otyp == ELVEN_CHAIN_MAIL || (otmp)->otyp == ELVEN_CLOAK \
      || (otmp)->otyp == ELVEN_SHIELD || (otmp)->otyp == ELVEN_BOOTS)
+#define is_drow_armor(otmp)                                           \
+    ((otmp)->otyp == DARK_ELVEN_HELM                                  \
+     || (otmp)->otyp == DARK_ELVEN_BOOTS                              \
+     || (otmp)->otyp == DARK_ELVEN_CHAIN_MAIL                         \
+     || (otmp)->otyp == DARK_ELVEN_TUNIC                              \
+     || (otmp)->otyp == DARK_ELVEN_CLOAK                              \
+     || (otmp)->otyp == DARK_ELVEN_BRACERS                            \
+     || (otmp)->otyp == DARK_ELVEN_GLOVES)
 #define is_orcish_armor(otmp)                                            \
     ((otmp)->otyp == ORCISH_HELM || (otmp)->otyp == ORCISH_CHAIN_MAIL    \
      || (otmp)->otyp == ORCISH_RING_MAIL || (otmp)->otyp == ORCISH_CLOAK \
@@ -414,6 +422,21 @@ struct obj {
      || (otmp)->otyp == ELVEN_DAGGER || (otmp)->otyp == ELVEN_SHORT_SWORD \
      || (otmp)->otyp == ELVEN_BROADSWORD || (otmp)->otyp == ELVEN_BOW)
 #define is_elven_obj(otmp) (is_elven_armor(otmp) || is_elven_weapon(otmp))
+
+/* Drow gear */
+#define is_drow_weapon(otmp)                                          \
+    ((otmp)->otyp == DARK_ELVEN_ARROW                                 \
+     || (otmp)->otyp == DARK_ELVEN_CROSSBOW_BOLT                      \
+     || (otmp)->otyp == DARK_ELVEN_HAND_CROSSBOW                      \
+     || (otmp)->otyp == DARK_ELVEN_SPEAR                              \
+     || (otmp)->otyp == DARK_ELVEN_DAGGER                             \
+     || (otmp)->otyp == DARK_ELVEN_SHORT_SWORD                        \
+     || (otmp)->otyp == DARK_ELVEN_BROADSWORD                         \
+     || (otmp)->otyp == DARK_ELVEN_BOW                                \
+     || (otmp)->otyp == DARK_ELVEN_LONG_SWORD                         \
+     || (otmp)->otyp == DARK_ELVEN_MACE                               \
+     || (otmp)->otyp == DARK_ELVEN_HEAVY_MACE)
+#define is_drow_obj(otmp) (is_drow_armor(otmp) || is_drow_weapon(otmp))
 
 /* Orcish gear */
 #define is_orcish_obj(otmp)                                           \

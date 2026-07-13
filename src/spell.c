@@ -401,6 +401,7 @@ learn(void)
         if (book->spestudied > MAX_SPELL_STUDY) {
             pline("This spellbook is too faint to be read any more.");
             book->otyp = booktype = SPE_BLANK_PAPER;
+            set_material(book, PAPER);
             faded_to_blank = TRUE;
             /* reset spestudied as if polymorph had taken place */
             book->spestudied = rn2(book->spestudied);
@@ -419,6 +420,7 @@ learn(void)
             /* pre-used due to being the product of polymorph */
             pline("This spellbook is too faint to read even once.");
             book->otyp = booktype = SPE_BLANK_PAPER;
+            set_material(book, PAPER);
             faded_to_blank = TRUE;
             /* reset spestudied as if polymorph had taken place */
             book->spestudied = rn2(book->spestudied);
@@ -814,7 +816,6 @@ dowizcast(void)
     return ECMD_OK;
 }
 
-
 /* the #cast command -- cast a spell */
 int
 docast(void)
@@ -904,7 +905,6 @@ skill_based_spellbook_id(void)
             discover_object(booktype, TRUE, FALSE, FALSE);
     }
 }
-
 
 /* Limit the total area chain lightning can cover; this is both for
    technical reasons (making it possible to limit the size of arrays
@@ -1098,7 +1098,6 @@ cast_chain_lightning(void)
 
     tmp_at(DISP_END, 0);
 }
-
 
 staticfn void
 cast_protection(void)

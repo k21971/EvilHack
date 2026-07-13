@@ -959,11 +959,13 @@ chwepon(struct obj *otmp, int amount)
         Your("%s %s much sharper now.", simpleonames(uwep),
              multiple ? "fuse, and become" : "is");
         uwep->otyp = CRYSKNIFE;
-        uwep->oerodeproof = 0;
-        if (multiple) {
+        maybe_erodeproof(uwep, 0);
+        set_material(uwep, objects[CRYSKNIFE].oc_material);
+        if (multiple)
             uwep->quan = 1L;
-            uwep->owt = weight(uwep);
-        }
+        /* recompute weight unconditionally; both single and stack paths
+           change otyp and material so owt may have shifted */
+        uwep->owt = weight(uwep);
         if (uwep->cursed)
             uncurse(uwep);
         /* update shop bill to reflect new higher value */
@@ -981,11 +983,11 @@ chwepon(struct obj *otmp, int amount)
              multiple ? "fuse, and become" : "is");
         costly_alteration(uwep, COST_DEGRD); /* DECHNT? other? */
         uwep->otyp = WORM_TOOTH;
-        uwep->oerodeproof = 0;
-        if (multiple) {
+        maybe_erodeproof(uwep, 0);
+        set_material(uwep, objects[WORM_TOOTH].oc_material);
+        if (multiple)
             uwep->quan = 1L;
-            uwep->owt = weight(uwep);
-        }
+        uwep->owt = weight(uwep);
         if (otyp != STRANGE_OBJECT && otmp->bknown)
             makeknown(otyp);
         if (multiple)

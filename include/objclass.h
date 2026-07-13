@@ -199,28 +199,64 @@ extern NEARDATA struct objdescr obj_descr[NUM_OBJECTS + 1];
 #define OBJ_NAME(obj) (obj_descr[(obj).oc_name_idx].oc_name)
 #define OBJ_DESCR(obj) (obj_descr[(obj).oc_descr_idx].oc_descr)
 
-#define is_organic(otmp) (objects[otmp->otyp].oc_material <= WOOD)
 /* instance-based: obj->material defaults to the class oc_material
    at creation; the materials subsystem can override it per-object */
+#define is_organic(otmp) (otmp->material <= WOOD)
+#define is_dragonhide(otmp) (otmp->material == DRAGON_HIDE)
+#define is_mithril(otmp) (otmp->material == MITHRIL)
+#define is_iron(otmp) (otmp->material == IRON)
+#define is_glass(otmp) (otmp->material == GLASS)
+#define is_wood(otmp) (otmp->material == WOOD)
+#define is_bone(otmp) (otmp->material == BONE)
+#define is_stone(otmp) (otmp->material == MINERAL)
+#define is_crystal(otmp) (otmp->material == GEMSTONE)
+#define is_adamantine(otmp) (otmp->material == ADAMANTINE)
+#define is_spidersilk(otmp) (otmp->material == SPIDER_SILK)
+#define is_bronze(otmp) (otmp->material == BRONZE)
+#define is_silver(otmp) (otmp->material == SILVER)
+
 #define is_metallic(otmp) \
     (otmp->material >= IRON && otmp->material <= ADAMANTINE)
 #define is_heavy_metallic(otmp) \
     (otmp->material >= IRON && otmp->material <= PLATINUM)
 
+/* raw-material variants taking a material constant rather than a
+   struct obj; used for terrain (e.g. doors) which have no struct obj.
+   mat_is_flammable mirrors the material core of is_flammable() */
+#define mat_is_metallic(mat) ((mat) >= IRON && (mat) <= ADAMANTINE)
+#define mat_is_flammable(mat) \
+    (((mat) <= BONE && (mat) != LIQUID) || (mat) == PLASTIC)
+
+#define is_hard(otmp) \
+    (is_metallic(otmp) || is_glass(otmp) \
+     || is_wood(otmp) || is_bone(otmp) || is_stone(otmp))
+
 /* primary damage: fire/rust/--- */
 /* is_flammable(otmp), is_rottable(otmp) in mkobj.c */
-#define is_rustprone(otmp) (objects[otmp->otyp].oc_material == IRON)
+#define is_rustprone(otmp) (otmp->material == IRON)
 #define is_crackable(otmp) \
-    (objects[(otmp)->otyp].oc_material == GLASS         \
+    ((otmp)->material == GLASS \
      && (otmp)->oclass == ARMOR_CLASS) /* erosion_matters() */
+
 /* secondary damage: rot/acid/acid */
 #define is_corrodeable(otmp) \
-    (objects[otmp->otyp].oc_material == COPPER          \
-     || objects[otmp->otyp].oc_material == IRON)
+    (otmp->material == COPPER || otmp->material == IRON \
+     || otmp->material == BRONZE)
+
+/* inherently fooproof */
+#define is_supermaterial(otmp) \
+    (otmp->material == DRAGON_HIDE || otmp->material == MITHRIL \
+     || otmp->material == GOLD || otmp->material == PLATINUM    \
+     || otmp->material == SILVER || otmp->material == MINERAL   \
+     || otmp->material == STEEL || otmp->material == ADAMANTINE \
+     || otmp->material == GEMSTONE)
+
+#define is_fixed(otmp) \
+    (is_supermaterial(otmp) || otmp->oerodeproof)
+
 /* subject to any damage */
 #define is_damageable(otmp) \
-    (is_rustprone(otmp) || is_flammable(otmp)           \
-     || is_rottable(otmp) || is_corrodeable(otmp)       \
-     || is_crackable(otmp))
+    (is_rustprone(otmp) || is_flammable(otmp) || is_rottable(otmp) \
+     || is_corrodeable(otmp) || is_glass(otmp))
 
 #endif /* OBJCLASS_H */

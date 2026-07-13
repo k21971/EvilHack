@@ -1336,6 +1336,7 @@ cancel_item(struct obj *obj)
             if (otyp != SPE_CANCELLATION && otyp != SPE_BOOK_OF_THE_DEAD) {
                 costly_alteration(obj, COST_CANCEL);
                 obj->otyp = SPE_BLANK_PAPER;
+                set_material(obj, PAPER);
                 /* cancelling a novel is more involved than a spellbook */
                 if (otyp == SPE_NOVEL) /* old type */
                     blank_novel(obj);
@@ -1778,6 +1779,10 @@ poly_obj(struct obj *obj, int id)
             kill_egg(otmp);
         else {
             otmp->otyp = EGG;
+            /* material may have become invalid with a new otyp --
+               reset it (the upstream mkobj could have rolled any
+               food otyp, e.g., a banana with VEGGY material) */
+            init_obj_material(otmp);
             otmp->owt = weight(otmp);
         }
         otmp->corpsenm = NON_PM;
@@ -1824,9 +1829,10 @@ poly_obj(struct obj *obj, int id)
             otmp->oclass = ARMOR_CLASS;
             otmp->spe = 0;
             otmp->oeroded = 0;
-            otmp->oerodeproof = TRUE;
             otmp->quan = 1L;
             otmp->cursed = FALSE;
+            set_material(otmp, LEATHER);
+            maybe_erodeproof(otmp, 1);
         }
     }
     if (obj->otyp == LEASH && obj->leashmon != 0) {
@@ -1863,6 +1869,9 @@ poly_obj(struct obj *obj, int id)
     case WAND_CLASS:
         while (otmp->otyp == WAN_WISHING || otmp->otyp == WAN_POLYMORPH)
             otmp->otyp = rnd_class(WAN_LIGHT, WAN_LIGHTNING);
+        /* material may have become invalid with a new otyp -- rerandomize
+           it to something valid */
+        init_obj_material(otmp);
         /* altering the object tends to degrade its quality
            (analogous to spellbook `read count' handling) */
         if ((int) otmp->recharged < rn2(7)) /* recharge_limit */
@@ -1880,6 +1889,9 @@ poly_obj(struct obj *obj, int id)
     case SPBOOK_CLASS:
         while (otmp->otyp == SPE_POLYMORPH)
             otmp->otyp = rnd_class(svb.bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
+        /* material may have become invalid with a new otyp -- rerandomize
+           it to something valid */
+        init_obj_material(otmp);
         /* reduce spellbook abuse; non-blank books degrade;
            5.0: novels don't use spestudied so shouldn't degrade to blank
            (but don't force spestudied to zero for them since a non-zero
@@ -1888,6 +1900,7 @@ poly_obj(struct obj *obj, int id)
             otmp->spestudied = obj->spestudied + 1;
             if (otmp->spestudied > MAX_SPELL_STUDY) {
                 otmp->otyp = SPE_BLANK_PAPER;
+                set_material(otmp, PAPER);
                 /* writing a new book over it will yield an unstudied
                    one; re-polymorphing this one as-is may or may not
                    get something non-blank */
@@ -1901,6 +1914,7 @@ poly_obj(struct obj *obj, int id)
             && objects[obj->otyp].oc_material == MINERAL
             && objects[otmp->otyp].oc_material != MINERAL) {
             otmp->otyp = ROCK; /* transmutation backfired */
+            set_material(otmp, MINERAL); /* rocks must be MINERAL material */
             otmp->quan /= 2L;  /* some material has been lost */
         }
         break;

@@ -1725,6 +1725,7 @@ extern void curse(struct obj *) NONNULLARG1;
 extern void uncurse(struct obj *) NONNULLARG1;
 extern void blessorcurse(struct obj *, int) NONNULLARG1;
 extern void set_bknown(struct obj *, unsigned) NONNULLARG1;
+extern int maybe_erodeproof(struct obj *, boolean) NONNULLARG1;
 extern boolean is_flammable(struct obj *) NONNULLARG1;
 extern boolean is_rottable(struct obj *) NONNULLARG1;
 extern void place_object(struct obj *, coordxy, coordxy) NONNULLARG1;
@@ -1751,6 +1752,9 @@ extern struct obj *obj_nexto_xy(struct obj *, coordxy, coordxy, boolean) NONNULL
 extern struct obj *obj_absorb(struct obj **, struct obj **);
 extern struct obj *obj_meld(struct obj **, struct obj **);
 extern void pudding_merge_message(struct obj *, struct obj *) NONNULLARG12;
+extern void init_obj_material(struct obj *) NONNULLARG1;
+extern boolean valid_obj_material(struct obj *, int) NONNULLARG1;
+extern void set_material(struct obj *, int) NONNULLARG1;
 extern struct obj *init_dummyobj(struct obj *, short, long);
 
 /* ### mkroom.c ### */

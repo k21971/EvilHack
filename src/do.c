@@ -913,7 +913,8 @@ obj_no_longer_held(struct obj *obj)
             if (!svc.context.mon_moving && !program_state.gameover)
                 costly_alteration(obj, COST_DEGRD);
             obj->otyp = WORM_TOOTH;
-            obj->oerodeproof = 0;
+            set_material(obj, objects[WORM_TOOTH].oc_material);
+            maybe_erodeproof(obj, 0);
         }
         break;
     }

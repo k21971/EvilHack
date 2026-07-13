@@ -463,7 +463,54 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       helm of opposite alignment with sanity_check on, vault-guard
       cycle, Plane of Water bubbles, crowded-level arrival, fuzzer
       with fuzzer_impossible_panic)
-- [ ] Materials system (obj->material; init/naming/pricing/burn)
+- [~] Materials system (obj->material; init/naming/pricing/burn)
+      SLICE A (core assignment) IN PROGRESS 2026-07-13, subagent-
+      executed + reviewed: instance-based predicates (objclass.h;
+      is_supermaterial/is_fixed/is_damageable/mat_is_* added;
+      is_crackable converted), is_drow_obj/is_drow_weapon (obj.h),
+      matdensities[] + weight() scaling, maybe_erodeproof, 20 icp
+      tables + material_list/init_obj_material/invalid_obj_material/
+      valid_obj_material/set_material (soko-prize clause
+      TODO-EVILHACK), wiring at mksobj + mkbox_cnts + mkobj_erosions,
+      obj_sanity_check validity check, u_init 4 material TODOs
+      un-deferred + anti-start-scum block. ADAPTATION: set_material
+      erosion-clear follows the 5.0 crack model (glass on oeroded
+      via is_crackable, NOT master's oeroded2; verified vs 5 crack
+      sites). REVIEWER BLOCKER FIXED same day: master pairs every
+      otyp-rewrite with a material refresh - ported spell/trap/pray
+      blanking, zap poly_obj transmutes (+cancel_item sibling the
+      agent found itself, master zap.c:1521), worm tooth<->crysknife
+      x4 (invent.c site ADDED - master LACKS it, candidate master
+      backport), uhitm egg->rock, bones resetobjs (general validity
+      fixup + fake-Amulet/wax-candle/Bell; the MAGIC_KEY/BLACKSMITH_
+      HAMMER bones rewrites are not on the branch yet - their
+      set_material travels with them), t_missile per-shot
+      base-material guard (TODO until set_trap_ammo ports).
+      poly_obj oerodeproof carry-over still direct assign vs
+      master's maybe_erodeproof - later slice. VERIFIED 2026-07-13
+      (wizmode, sanity_check on): elf Priest starts with a COPPER
+      mace (gdb: otyp 82 material 14) and it stays copper across
+      save/reload; polymorph churn on floor stacks silent; per-turn
+      material validity quiet in normal play. Incidental finds:
+      (a) race-picker has DUPLICATE accelerators (h human/hobbit,
+      d dwarf/drow - drow may be letter-unreachable; Phase 1 roles
+      follow-up), (b) tut-1.lua partial-load debris trips engraving
+      sanity x3 on the fallback maze (corollary of the known Phase 3
+      tut-1.lua item - engravings placed before the line-147
+      failure). DEFERRED to later
+      material slices (reviewer-inventoried): naming/wishing
+      (objnam), do_name artifact material normalization (BONE
+      Excalibur class - MUST-HAVE next slice), pricing (shk),
+      mon_hates_material/searing combat, metal_to_wood +
+      material_to_gold (Croesus item), bones.c full pass,
+      class-based consumer conversions (breaktest glass, o_material
+      detect, poly_zapped, stone_missile, is_flimsy), racial-gear
+      macro gaps (is_elven_weapon/is_orcish_obj/is_dwarvish_obj
+      lack EvilHack's added otyps - ELVEN_LONG_SWORD etc.), NITs:
+      valid_obj_material(NO_MATERIAL) leading reject,
+      matdensities[] 5-bit-field OOB clamp on restore,
+      init_dummyobj material, is_rottable dead BONE test (master
+      parity, kept)
 - [ ] Object properties (oprops)
 - [ ] Racial monsters (ERAC overlay)
 - [ ] Forging (+ FORGE nhl binding for .des->lua levels)

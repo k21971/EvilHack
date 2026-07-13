@@ -100,7 +100,6 @@ static const char *const godvoices[] = {
 #define TROUBLE_CONFUSED (-10)
 #define TROUBLE_HALLUCINATION (-11)
 
-
 #define ugod_is_angry() (u.ualign.record < 0)
 #define on_altar() IS_ALTAR(levl[u.ux][u.uy].typ)
 #define on_shrine() ((levl[u.ux][u.uy].altarmask & AM_SHRINE) != 0)
@@ -1021,6 +1020,7 @@ give_spell(void)
                 break;
         }
         otmp->otyp = rnd_class(svb.bases[SPBOOK_CLASS], SPE_BLANK_PAPER);
+        set_material(otmp, objects[otmp->otyp].oc_material);
     }
     /*
      * 25% chance of learning the spell directly instead of

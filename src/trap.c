@@ -1019,6 +1019,9 @@ t_missile(int otyp, struct trap *trap)
 {
     struct obj *otmp = mksobj(otyp, TRUE, FALSE);
 
+    /* TODO-EVILHACK: per-shot ammo takes the base material until the
+       trap-ammo subsystem (set_trap_ammo) ports */
+    set_material(otmp, objects[otyp].oc_material);
     otmp->quan = 1L;
     otmp->owt = weight(otmp);
     otmp->opoisoned = 0;
@@ -4817,6 +4820,7 @@ water_damage(
            on since that replaces it with new book and studied count of 0 */
         if (obj->spestudied)
             obj->spestudied = rn2(obj->spestudied);
+        set_material(obj, PAPER); /* in case it was one of the LEATHER books */
         obj->dknown = 0;
         /* blanking a novel is more involved than blanking a spellbook */
         if (otyp == SPE_NOVEL) /* old type */

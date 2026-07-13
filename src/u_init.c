@@ -1784,9 +1784,26 @@ ini_inv_mkobj_filter(int oclass, boolean got_level1_spellbook)
            /* drow hate the light, no self-respecting dark elf
               would ever want to cast it */
            || (otyp == SPE_LIGHT && Race_if(PM_DROW))
-           /* TODO-EVILHACK: rerolling racially mismatched materials
-              (silver for vampires, iron for elves and drow, mithril
-              for orcs) ports with the object materials subsystem */
+           /* items that will be silver for vampires
+              (rings/wands perhaps) that can't become iron */
+           || (Race_if(PM_VAMPIRE)
+               && objects[otyp].oc_material == SILVER
+               && !valid_obj_material(obj, IRON))
+           /* items that will be iron for elves
+              (rings/wands perhaps) that can't become copper */
+           || (Race_if(PM_ELF)
+               && objects[otyp].oc_material == IRON
+               && !valid_obj_material(obj, COPPER))
+           /* items that will be iron for drow
+              (rings/wands perhaps) that can't become adamantine */
+           || (Race_if(PM_DROW)
+               && objects[otyp].oc_material == IRON
+               && !valid_obj_material(obj, ADAMANTINE))
+           /* items that will be mithril for orcs
+              (rings/wands perhaps) that can't become iron */
+           || (Race_if(PM_ORC)
+               && objects[otyp].oc_material == MITHRIL
+               && !valid_obj_material(obj, IRON))
            /* powerful spells are either useless to
               low level players or unbalancing; also
               spells in restricted skill categories */
@@ -1834,9 +1851,13 @@ ini_inv_obj_substitution(const struct trobj *trop, struct obj *obj)
                 /* the substitute might be in a different class
                    (vampires' food rations become potions of blood) */
                 obj->oclass = objects[obj->otyp].oc_class;
-                /* TODO-EVILHACK: refreshing obj->material after the
-                   substitution ports with the object materials
-                   subsystem */
+                /* This might have created a bad material combination,
+                   such as a dagger (which was forced to be iron
+                   earlier) turning into an elven dagger, but now
+                   remaining iron. Fix this up via set_material() so
+                   stale oeroded/oeroded2 bits from the pre-sub
+                   material are cleared */
+                set_material(obj, objects[obj->otyp].oc_material);
                 break;
             }
     }
@@ -1873,8 +1894,10 @@ ini_inv_adjust_obj(const struct trobj *trop, struct obj *obj)
                    && obj->otyp != FLINT) {
             obj->quan = 1L;
         }
-        /* TODO-EVILHACK: erodeproofing Infidels' starting armor ports
-           with maybe_erodeproof */
+        if (Role_if(PM_INFIDEL) && obj->oclass == ARMOR_CLASS) {
+            /* Infidels are used to playing with fire */
+            maybe_erodeproof(obj, 1);
+        }
         if (obj->otyp == STRIPED_SHIRT)
             obj->cursed = TRUE;
         if (trop->trspe != UNDEF_SPE) {
@@ -1997,6 +2020,33 @@ ini_inv(const struct trobj *trop)
         /* Put post-creation object adjustments that don't depend on whether
          * it was UNDEF_TYP or not after this. */
 
+        /* Don't allow materials to be start scummed for */
+        set_material(obj, objects[otyp].oc_material);
+
+        /* Replace iron objects (e.g. Priest's mace) with copper
+           for elves */
+        if (Race_if(PM_ELF) && obj->material == IRON
+            && valid_obj_material(obj, COPPER))
+            set_material(obj, COPPER);
+
+        /* Replace iron objects (e.g. Priest's mace) with adamantine
+           for drow */
+        if (Race_if(PM_DROW) && obj->material == IRON
+            && valid_obj_material(obj, ADAMANTINE))
+            set_material(obj, ADAMANTINE);
+
+        /* Do the same for orcs and mithril objects.
+           Currently not a concern, but may be in the future */
+        if (Race_if(PM_ORC) && obj->material == MITHRIL
+            && valid_obj_material(obj, IRON))
+            set_material(obj, IRON);
+
+        /* Do the same for vampires and silver objects.
+           Currently not a concern, but may be in the future */
+        if (Race_if(PM_VAMPIRE) && obj->material == SILVER
+            && valid_obj_material(obj, IRON))
+            set_material(obj, IRON);
+
         otyp = ini_inv_obj_substitution(trop, obj);
         nhUse(otyp);
 
@@ -2068,8 +2118,18 @@ u_init_inventory_attrs(void)
         }
     }
 
-    /* TODO-EVILHACK: rustproofing tortle Barbarians' starting tridents
-       ports with maybe_erodeproof */
+    /* Tortles that start with a trident get one that
+       is rustproof (currently only barbarian role) */
+    if (Role_if(PM_BARBARIAN) && Race_if(PM_TORTLE)) {
+        struct obj *otmp;
+
+        for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
+            if (otmp->otyp == TRIDENT) {
+                maybe_erodeproof(otmp, 1);
+                otmp->rknown = 1;
+            }
+        }
+    }
 
     init_attr(75);    /* init attribute values */
     vary_init_attr(); /* minor variation to attrs */

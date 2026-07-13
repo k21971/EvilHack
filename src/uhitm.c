@@ -1235,6 +1235,8 @@ hmon_hitmon_misc_obj(
                     obj_stop_timers(obj);
                 obj->otyp = ROCK;
                 obj->oclass = GEM_CLASS;
+                /* rocks must be MINERAL material */
+                set_material(obj, MINERAL);
                 obj->oartifact = 0;
                 obj->spe = 0;
                 obj->known = obj->dknown = obj->bknown = 0;
@@ -1933,7 +1935,6 @@ hmon_hitmon(
     }
     return hmd.destroyed ? FALSE : TRUE;
 }
-
 
 /* joust or martial arts punch is knocking the target back; that might
    kill 'mon' (via trap) before known_hitum() has a chance to do so;
@@ -2853,7 +2854,6 @@ mhitm_ad_sgld(
         }
     }
 }
-
 
 void
 mhitm_ad_tlpt(
