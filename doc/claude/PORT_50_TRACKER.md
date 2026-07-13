@@ -497,10 +497,35 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       follow-up), (b) tut-1.lua partial-load debris trips engraving
       sanity x3 on the fallback maze (corollary of the known Phase 3
       tut-1.lua item - engravings placed before the line-147
-      failure). DEFERRED to later
-      material slices (reviewer-inventoried): naming/wishing
-      (objnam), do_name artifact material normalization (BONE
-      Excalibur class - MUST-HAVE next slice), pricing (shk),
+      failure). SLICE B (naming/wishing/artifact normalization)
+      DONE 2026-07-13 (commit pending): force_material_name + xname
+      material prefixes (4 class branches + minimal_xname bareobj),
+      artifact_material() + oname() normalization gated on 5.0's
+      ONAME_VIA_NAMING (only do_oname sets it - closes BONE
+      Excalibur), not_spec_material + readobjnam material parse in
+      the 5.0 preparse structure (token consumption bounds-guarded
+      vs master; apply block placed BEFORE erosion since 5.0 moved
+      erosion before oname - outcome-equivalent, wizmode-only pline
+      divergence on invalid artifact materials), "<material> armor"
+      redirects re-expressed in return-code convention, GOLD
+      fallback. REVIEWER BLOCKER FIXED: readobjnam wrp-loop guard
+      list updated to master's (studded armor/armor renames + ring
+      of p'/wand of orcus/glamdring/one ring/bag of devouring -
+      the artifact entries were broken at HEAD since the Phase 1
+      content swap, not just this slice). VERIFIED (wizmode): elf
+      Priest inventory shows "copper mace"; wishes: silver dagger,
+      studded armor (guard fix), bag of devouring (guard fix),
+      glamdring -> "mithril elven long sword named Glamdring"
+      (guard fix + normalization); all names survive save/reload.
+      Reviewer nits logged: not_spec_material one-past-NUL read on
+      bare uppercase material wish (master-parity flaw, fix master
+      first), "iron door" terrain wish drops material silently
+      (terrain-materials slice), invalid-material artifact wish
+      prints a Note master didn't (intentional). sfctool LINK
+      broken pre-existing (sfi_x_emsp/sfi_x_abuse_event missing
+      from Phase 1 field enumeration - regen sfdata.c when next
+      needed). DEFERRED to later
+      material slices (reviewer-inventoried): pricing (shk),
       mon_hates_material/searing combat, metal_to_wood +
       material_to_gold (Croesus item), bones.c full pass,
       class-based consumer conversions (breaktest glass, o_material

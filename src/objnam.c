@@ -23,6 +23,7 @@ struct _readobjnam_data {
     int eroded, eroded2, erodeproof, locked, unlocked, broken, real, fake;
     int halfeaten, mntmp, contents;
     int islit, unlabeled, ishistoric, isdiluted, trapped;
+    int material;
     int doorless, open, closed, looted;
     int tmp, tinv, tvariety, mgend;
     int wetness, gsize;
@@ -48,6 +49,7 @@ staticfn boolean badman(const char *, boolean);
 staticfn boolean wishymatch(const char *, const char *, boolean);
 staticfn short rnd_otyp_by_wpnskill(schar);
 staticfn short rnd_otyp_by_namedesc(const char *, char, int);
+staticfn boolean not_spec_material(const char *, int);
 staticfn void set_wallprop_from_str(char *) NONNULLARG1;
 staticfn struct obj *wizterrainwish(struct _readobjnam_data *);
 staticfn void dbterrainmesg(const char *, coordxy, coordxy) NONNULLARG1;
@@ -571,6 +573,18 @@ xcalled(
     Sprintf(eos(buf), "%s called %.*s", pfx, bufsiz - pfxlen, sfx);
 }
 
+/* Force rendering of materials on certain items where the object name
+ * wouldn't make as much sense without a material (e.g. "leather jacket" vs
+ * "jacket"), or those where the default material is non-obvious.
+ * NB: GLOVES have a randomized description when not identified; "leather
+ * padded gloves" would give the game away if we did not check their
+ * identification status */
+#define force_material_name(typ) \
+    ((typ) == ARMOR || (typ) == STUDDED_ARMOR                     \
+     || (typ) == JACKET || (typ) == CLOAK || (typ) == BRACERS     \
+     || ((typ) == GLOVES && objects[GLOVES].oc_name_known)        \
+     || ((typ) == GAUNTLETS && objects[GAUNTLETS].oc_name_known))
+
 char *
 xname(struct obj *obj)
 {
@@ -670,17 +684,21 @@ xname_flags(
        until after the switch. */
     switch (obj->oclass) {
     case AMULET_CLASS:
+        if (obj->material != objects[typ].oc_material && dknown) {
+            Strcat(buf, materialnm[obj->material]);
+            Strcat(buf, " ");
+        }
         if (!dknown)
             Strcpy(buf, "amulet");
         else if (typ == AMULET_OF_YENDOR || typ == FAKE_AMULET_OF_YENDOR)
             /* each must be identified individually */
-            Strcpy(buf, known ? actualn : dn);
+            Strcat(buf, known ? actualn : dn);
         else if (nn)
-            Strcpy(buf, actualn);
+            Strcat(buf, actualn);
         else if (un)
             xcalled(buf, BUFSZ - PREFIX, "amulet", un);
         else
-            Sprintf(buf, "%s amulet", dn);
+            Sprintf(eos(buf), "%s amulet", dn);
         break;
     case WEAPON_CLASS:
         if (is_poisonable(obj) && obj->opoisoned)
@@ -695,6 +713,12 @@ xname_flags(
             Strcpy(buf, "pair of ");
         else if (is_wet_towel(obj))
             Strcpy(buf, (obj->spe < 3) ? "moist " : "wet ");
+
+        if (dknown && (obj->material != objects[typ].oc_material
+                       || force_material_name(typ))) {
+            Strcat(buf, materialnm[obj->material]);
+            Strcat(buf, " ");
+        }
 
         if (!dknown)
             Strcat(buf, dn);
@@ -732,6 +756,12 @@ xname_flags(
                 Strcpy(buf, "smooth shield");
                 break;
             }
+        }
+
+        if ((obj->material != objects[typ].oc_material
+             || force_material_name(typ)) && dknown) {
+            Strcat(buf, materialnm[obj->material]);
+            Strcat(buf, " ");
         }
         ConcUpdate(buf);
 
@@ -912,7 +942,15 @@ xname_flags(
             Sprintf(buf, "%s ring", dn);
         break;
     case GEM_CLASS: {
-        const char *rock = (ocl->oc_material == MINERAL) ? "stone" : "gem";
+        const char *rock = (ocl->oc_material == MINERAL
+                            || typ == SLING_BULLET) ? "stone" : "gem";
+
+        if (typ == SLING_BULLET) {
+            if (obj->material != objects[obj->otyp].oc_material) {
+                Strcat(buf, materialnm[obj->material]);
+                Strcat(buf, " ");
+            }
+        }
 
         if (!dknown) {
             Strcpy(buf, rock);
@@ -920,9 +958,9 @@ xname_flags(
             if (un)
                 xcalled(buf, BUFSZ - PREFIX, rock, un);
             else
-                Sprintf(buf, "%s %s", dn, rock);
+                Sprintf(eos(buf), "%s %s", dn, rock);
         } else {
-            Strcpy(buf, actualn);
+            Strcat(buf, actualn);
             if (GemStone(typ))
                 Strcat(buf, " stone");
         }
@@ -1073,6 +1111,10 @@ minimal_xname(struct obj *obj)
        [perhaps we should force "slime mold" rather than use xname?] */
     if (obj->otyp == SLIME_MOLD)
         bareobj.spe = obj->spe;
+    /* in the interest of minimalism, don't show this specific object's
+     * material, unless the material is always included in the name */
+    bareobj.material = force_material_name(obj->otyp)
+                        ? obj->material : objects[obj->otyp].oc_material;
 
     bufp = distant_name(&bareobj, xname);
     /* undo forced setting of bareobj.blessed for cleric (priest[ess]);
@@ -1571,7 +1613,6 @@ doname_base(
     if ((obj->owornmask & W_WEP) && !gm.mrg_to_wielded) {
         boolean twoweap_primary = (obj == uwep && u.twoweap),
                 tethered = (obj->otyp == AKLYS);
-
 
         /* use alternate phrasing for non-weapons and for wielded ammo
            (arrows, bolts), or missiles (darts, shuriken, boomerangs)
@@ -3192,7 +3233,6 @@ makesingular(const char *oldstr)
     return bp;
 }
 
-
 staticfn boolean
 ch_ksound(const char *basestr)
 {
@@ -3955,6 +3995,74 @@ dbterrainmesg(
 #define TIN_EMPTY 1
 #define TIN_SPINACH 2
 
+/* Return true if the input string appears to be specifying something that
+   happens to start with a material name and is not actually specifying a
+   material */
+staticfn boolean
+not_spec_material(const char *str, int material)
+{
+    int i;
+    short otyp;
+    const char *matstr = materialnm[material];
+    int matlen = (int) strlen(matstr);
+
+    /* is this the entire string? e.g. "gold" is actually a wish for
+       zorkmids. The effect of this is that you can't just wish for a
+       material and get a random item, made of that material, from the set
+       of items that can be made of that material, but this was never a
+       feature anyway; it would give a totally random object even if the
+       material-object combo was invalid */
+    if (!strcmp(str, matstr)) {
+        return TRUE;
+    }
+    /* does it match some object? */
+    for (i = STRANGE_OBJECT + 1; i < NUM_OBJECTS; ++i) {
+        /* match in the object name e.g. "gold detection", "wax candle" */
+        const char *oc_name = OBJ_NAME(objects[i]),
+                   *oc_descr = OBJ_DESCR(objects[i]);
+
+        if (oc_name && !strncmpi(str, oc_name, strlen(oc_name))) {
+            return TRUE;
+        }
+        /* match in the object description, followed by object class name
+           e.g. "silver ring"
+           Note: this assumes that the only types of objects that can have
+           material strings as descriptions are not eligible to have object
+           materials vary on them. It also does not account for the fact
+           that, for instance, there being more wand descriptions than
+           wands could mean that "iron wand" doesn't actually exist in
+           this game */
+        if (oc_descr && !strcmp(matstr, oc_descr)) {
+            /* this is a bit complicated... the only 3 object classes that
+               ought to behave this way are rings, wands and spellbooks,
+               all of which have the singular object class string in
+               def_oc_syms[].explain. If e.g. "silver armor" was a real
+               randomized armor description this would break because the
+               explain is "suit or piece of armor" */
+            const char *aftermat = str + matlen + 1; /* advance past mat */
+
+            oc_descr = def_oc_syms[(int) objects[i].oc_class].explain;
+            if (!strncmpi(aftermat, oc_descr, strlen(oc_descr))) {
+                return TRUE;
+            }
+        }
+    }
+    /* does it match some artifact? e.g. "platinum yendorian express card" */
+    if (artifact_name(str, &otyp, TRUE)) {
+        return TRUE;
+    }
+    /* does it match some terrain or a trap? e.g. "iron bars" */
+    for (i = 0; i < MAXPCHARS; ++i) {
+        const char *terr_name = defsyms[i].explanation;
+
+        if (terr_name && *terr_name
+            && !strncmpi(str, terr_name, strlen(terr_name))) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 staticfn void
 readobjnam_init(char *bp, struct _readobjnam_data *d)
 {
@@ -3972,6 +4080,7 @@ readobjnam_init(char *bp, struct _readobjnam_data *d)
     d->tvariety = RANDOM_TIN;
     d->mgend = -1; /* not specified, aka random */
     d->mntmp = NON_PM;
+    d->material = 0;
     d->contents = TIN_UNDEFINED;
     d->oclass = 0;
     d->actualn = d->dn = d->un = 0;
@@ -3992,7 +4101,7 @@ staticfn int
 readobjnam_preparse(struct _readobjnam_data *d)
 {
     char *save_bp = 0;
-    int more_l = 0, res = 1;
+    int i = 0, more_l = 0, res = 1;
 
     for (;;) {
         int l;
@@ -4191,7 +4300,36 @@ readobjnam_preparse(struct _readobjnam_data *d)
                 || !strncmpi(d->bp + l, "the ", more_l = 4))
                 l += more_l;
         } else {
-            break;
+            /* check for materials */
+            if (!strncmpi(d->bp, "silver dragon", l = 13)
+                || !strncmpi(d->bp, "gold dragon", l = 11)) {
+                /* hack so that gold/silver dragon scales doesn't get
+                 * interpreted as silver, or a wish for just "gold" doesn't
+                 * get interpreted as gold */
+                break;
+            }
+            /* doesn't currently catch "wood" for wooden */
+            for (i = 1; i < NUM_MATERIAL_TYPES; i++) {
+                l = (int) strlen(materialnm[i]);
+                if (l > 0 && !strncmpi(d->bp, materialnm[i], l)
+                    /* require a word boundary after the material name so
+                       that e.g. "silverfish" doesn't match "silver" */
+                    && (d->bp[l] == ' ' || d->bp[l] == '\0')
+                    /* it LOOKS like a wish for a material...
+                       but need to ensure that it's not just a wish for
+                       something else that happens to have a prefix of a
+                       material */
+                    && !not_spec_material(d->bp, i)) {
+                    d->material = i;
+                    if (d->bp[l] == ' ')
+                        l++;
+                    break; /* from the for loop */
+                }
+            }
+            if (i == NUM_MATERIAL_TYPES)
+                /* no matching materials so no match for anything in this
+                 * whole if chain */
+                break;
         }
         d->bp += l;
     }
@@ -4585,11 +4723,16 @@ readobjnam_postparse1(struct _readobjnam_data *d)
         && strncmpi(d->bp, "detect food", 11)
         && strncmpi(d->bp, "food detection", 14)
         && strncmpi(d->bp, "ring mail", 9)
-        && strncmpi(d->bp, "studded leather armor", 21)
-        && strncmpi(d->bp, "leather armor", 13)
+        && strncmpi(d->bp, "studded armor", 13)
+        && strncmpi(d->bp, "armor", 5)
         && strncmpi(d->bp, "tooled horn", 11)
+        && strncmpi(d->bp, "ring of p'", 10)
+        && strncmpi(d->bp, "wand of orcus", 13)
         && strncmpi(d->bp, "food ration", 11)
-        && strncmpi(d->bp, "meat ring", 9))
+        && strncmpi(d->bp, "meat ring", 9)
+        && strncmpi(d->bp, "glamdring", 9)
+        && strncmpi(d->bp, "one ring", 8)
+        && strncmpi(d->bp, "bag of devouring", 16))
         for (i = 0; i < (int) (sizeof wrpsym); i++) {
             int j = Strlen(wrp[i]);
 
@@ -4603,7 +4746,13 @@ readobjnam_postparse1(struct _readobjnam_data *d)
                     /* else if(*bp) ?? */
                 } else
                     d->actualn = d->bp;
-                return 1; /*goto srch;*/
+                if (d->oclass != ARMOR_CLASS || !d->material)
+                    return 1; /*goto srch;*/
+                /* "<material> armor" is a wish for the base armor
+                   object rather than for a random piece of armor */
+                d->oclass = 0;
+                d->typ = ARMOR;
+                return 2; /*goto typfnd;*/
             }
             /* check for "something <class>" */
             if (!BSTRCMPI(d->bp, d->p - j, wrp[i])) {
@@ -4641,7 +4790,13 @@ readobjnam_postparse1(struct _readobjnam_data *d)
                     }
                 }
                 d->actualn = d->dn = d->bp;
-                return 1; /*goto srch;*/
+                if (d->oclass != ARMOR_CLASS || !d->material)
+                    return 1; /*goto srch;*/
+                /* "<material> armor" is a wish for the base armor
+                   object rather than for a random piece of armor */
+                d->oclass = 0;
+                d->typ = ARMOR;
+                return 2; /*goto typfnd;*/
             }
         }
 
@@ -4924,7 +5079,6 @@ readobjnam_postparse3(struct _readobjnam_data *d)
     return 0;
 }
 
-
 /*
  * Return something wished for.  Specifying a null pointer for
  * the user request string results in a random object.  Otherwise,
@@ -5015,6 +5169,11 @@ readobjnam(char *bp, struct obj *no_wish)
         }
     }
 
+    if (!d.oclass && d.material == GOLD) {
+        /* things like "5000 gold" */
+        d.oclass = COIN_CLASS;
+        d.typ = GOLD_PIECE;
+    }
     if (!d.oclass)
         return ((struct obj *) 0);
  any:
@@ -5289,6 +5448,24 @@ readobjnam(char *bp, struct obj *no_wish)
         d.otmp->cursed = (Luck < 0 && !wizard);
     } else if (d.spesgn < 0) {
         curse(d.otmp);
+    }
+
+    /* apply the wished-for material, if any */
+    if (d.otmp->oartifact) {
+        /* oname() handles the assignment of a specific material for any
+         * possible artifact. Do nothing here */
+    } else if (d.material > 0 && valid_obj_material(d.otmp, d.material)) {
+        set_material(d.otmp, d.material);
+    } else {
+        /* invalid wish material, or no material specified: substitute
+           the otyp default. In wizmode, note the substitution so the
+           wisher knows their material spec was discarded */
+        if (d.material > 0 && wizard && !iflags.debug_fuzzer) {
+            pline("Note: material %s is not valid for this object; using %s.",
+                  materialnm[d.material],
+                  materialnm[objects[d.otmp->otyp].oc_material]);
+        }
+        set_material(d.otmp, objects[d.otmp->otyp].oc_material);
     }
 
     /* set eroded and erodeproof */

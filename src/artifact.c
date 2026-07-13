@@ -155,6 +155,17 @@ artiname(int artinum)
     return artilist[artinum].name;
 }
 
+/* return the material of a given artifact */
+short
+artifact_material(int artinum)
+{
+    if (artinum <= 0 || artinum > NROFARTIFACTS) {
+        impossible("invalid artifact number %d to artifact_material", artinum);
+        return 0;
+    }
+    return artilist[artinum].material;
+}
+
 /*
    Make an artifact.  If a specific alignment is specified, then an object of
    the appropriate alignment is created from scratch, or 0 is returned if
