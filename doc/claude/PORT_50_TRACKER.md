@@ -13,9 +13,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 
 ## Dashboard
 
-- Current phase: PHASE 1 COMPLETE except roles-side follow-ups
-  logged above (2026-07-13 gate PASSED); next = PHASE 2 (port
-  lifecycle detectors FIRST, then subsystems)
+- Current phase: PHASE 2 IN PROGRESS (started 2026-07-13; lifecycle
+  detectors slice ported first per plan - see Phase 2 checklist
+  notes; commit pending). Phase 1 COMPLETE 2026-07-13 (gate PASSED)
+  except roles-side follow-ups logged in its section
 - (was: PHASE 1 IN PROGRESS (content data LANDED
   2026-07-12: 561 monsters + 566 objects build clean-rebuild green;
   two commits pending maintainer: staged slice A scaffolding
@@ -267,6 +268,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 | Global | gX/svX | Why |
 |--------|--------|-----|
 | _example: forge heat state_ | sv? | survives save |
+| worn_slot_exempt (poly_obj/worn_slot_sanity) | gw | transient diagnostic exemption, Null between moves, never saved; g_init_w resets it per game (better than master's bare global) |
 
 ### Content data
 
@@ -376,9 +378,49 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 
 ## Phase 2 - Core subsystems (port detectors FIRST)
 
-- [ ] Lifecycle detectors EARLY: dmonsfree accounting,
+- [~] Lifecycle detectors EARLY: dmonsfree accounting,
       freed-without-detach, off-map orphan (BUG-1259 class),
       worn_slot_sanity - re-derive onto 5.0 mstate machine
+      PORTED 2026-07-13 (commit pending): recent_detaches[] ring +
+      movemon_callctr + double-detach history dump (m_detach), off-map
+      orphan scan + freed-undetached tracking + rich count-mismatch
+      diagnostic (dmonsfree), worn_slot_sanity() in mkobj.c (called
+      from obj_sanity_check + retouch_equipment entry, both gated
+      iflags.sanity_check||debug_fuzzer like master) with
+      gw.worn_slot_exempt poly_obj-transient exemption (zap.c window
+      around remove_worn_item). All observation-only, zero behavior
+      change. NOT ported (deferred with their subsystems): Ice Queen
+      revive interception in dmonsfree (TODO-EVILHACK marker; Ice
+      Queen bosses item), erid rider-separation in the free loop
+      (TODO-EVILHACK; monster-riding item), vault.c grddead
+      purge_monsters-- + restfakecorr mongone compensations (3.6
+      hybrid-specific; memory pattern-dmonsfree-purge-accounting
+      verdict = dead code in single-guard flow; revisit at the
+      vault-guard subsystem review), master's wiz_makemap purge drain
+      (upstream already has makemap_remove_mons). Paniclog chops
+      impossible() text at BUFSZ-1 on BOTH trees; the oversized
+      msgbuf locals are deliberate - core-dump/GDB readers see them
+      whole (see pattern-crashlog-print-elements-truncation).
+      Reviewer pass 2026-07-13 (claims verified in-tree): orphan
+      scan uses mon_offmap() instead of master's verbatim six-flag
+      mask - also covers 5.0-new BUBBLEMOVE/OBLITERATE/
+      STILL_ARRIVING/PARKED states that could false-fire after
+      future upstream merges; NOTE 5.0 natively added
+      check_wornmask_slots() (worn.c, per sanity pass) covering the
+      slot->invent direction too - our variant adds dedup +
+      poly_obj exemption + retouch entry hook (comment cross-refs
+      it; the native one is NOT exemption-aware but is unreachable
+      inside the poly_obj window today); ring/dedup statics stay
+      file-statics like master (diagnostic-only; a same-process
+      game restart can stale them - migrate to a g_init struct if
+      that ever matters); detach ring mname capped at 64 via
+      copynchars (fixes a -Wformat-overflow master never saw).
+      Build zero-warning after fixes.
+      Remaining for [x]: maintainer commit + wizmode smoke (needs
+      maintainer-approved launch; reviewer test list: poly a worn
+      helm of opposite alignment with sanity_check on, vault-guard
+      cycle, Plane of Water bubbles, crowded-level arrival, fuzzer
+      with fuzzer_impossible_panic)
 - [ ] Materials system (obj->material; init/naming/pricing/burn)
 - [ ] Object properties (oprops)
 - [ ] Racial monsters (ERAC overlay)

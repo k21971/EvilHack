@@ -2992,6 +2992,7 @@ obj_sanity_check(void)
         }
 
     objlist_sanity(gi.invent, OBJ_INVENT, "invent sanity");
+    worn_slot_sanity("worn-slot sanity");
     objlist_sanity(gm.migrating_objs, OBJ_MIGRATING, "migrating sanity");
     objlist_sanity(svl.level.buriedobjlist, OBJ_BURIED, "buried sanity");
     objlist_sanity(gb.billobjs, OBJ_ONBILL, "bill sanity");
@@ -3024,6 +3025,72 @@ obj_sanity_check(void)
     if (gc.current_wand)
         insane_object(gc.current_wand, ofmt3, "current_wand sanity",
                       (struct monst *) 0);
+}
+
+/* verify every set worn-equipment slot still points into invent.
+   sanity_check_worn() only checks the invent->slot direction (for each
+   worn object in invent, the matching ufoo points back to it); a slot
+   left pointing at an object that has departed invent is invisible to
+   that check and otherwise surfaces only later, as a freeinv() ->
+   extract_nobj("object lost") panic. check_wornmask_slots() (worn.c)
+   also walks the slot->invent direction once per sanity pass, but it
+   has no poly_obj exemption, no per-slot dedup, and no hook at
+   retouch_equipment() entry, which is what this variant adds.
+   ball/chain are excluded (a chained ball can legitimately rest on
+   the floor) and the steed saddle is not a hero slot. the suspect
+   pointer is never dereferenced -- it may be dangling -- so detection
+   is pure pointer comparison and the report prints only its address,
+   the slot name, and the turn */
+void
+worn_slot_sanity(const char *mesg)
+{
+    static const struct {
+        struct obj **slotp;
+        const char *nm;
+    } slots[] = {
+        { &uwep, "uwep" },     { &uswapwep, "uswapwep" },
+        { &uquiver, "uquiver" },
+        { &uarm, "uarm" },     { &uarmc, "uarmc" },   { &uarmh, "uarmh" },
+        { &uarms, "uarms" },   { &uarmg, "uarmg" },   { &uarmf, "uarmf" },
+        { &uarmu, "uarmu" },   { &uleft, "uleft" },   { &uright, "uright" },
+        { &uamul, "uamul" },   { &ublindf, "ublindf" }
+    };
+    /* per-slot dedup so a persistent stale slot reports once, not every
+       turn (mirrors dmonsfree's orphan_warned_id) */
+    static struct obj *warned[SIZE(slots)];
+    struct obj *o, *otmp;
+    int i;
+
+    for (i = 0; i < (int) SIZE(slots); i++) {
+        o = *slots[i].slotp;
+        if (!o) {
+            warned[i] = 0;
+            continue;
+        }
+        /* poly_obj() transiently detaches a worn item from invent before
+           remove_worn_item() clears its slot; that slot is legitimately
+           off-invent for the duration. compare pointers only, never
+           dereferencing the suspect (it may be dangling) */
+        if (o == gw.worn_slot_exempt) {
+            warned[i] = 0;
+            continue;
+        }
+        for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
+            if (otmp == o)
+                break;
+        }
+        if (otmp) {
+            warned[i] = 0; /* slot is healthy */
+            continue;
+        }
+        /* slot is set but its object is no longer in invent */
+        if (o != warned[i]) {
+            warned[i] = o;
+            impossible("%s: worn slot %s -> %s not in invent (turn %ld)",
+                       mesg, slots[i].nm, fmt_ptr((genericptr_t) o),
+                       svm.moves);
+        }
+    }
 }
 
 /* sanity check for objects on specified list (fobj, &c) */

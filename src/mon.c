@@ -1341,11 +1341,19 @@ movemon_singlemon(struct monst *mtmp)
     return FALSE;
 }
 
+/* counts movemon() invocations (multiple per hero turn; see
+   allmain.c do/while); recorded in recent_detaches[].mm_seq so
+   same-turn detaches across separate movemon() passes are
+   distinguishable */
+static long movemon_callctr = 0;
+
 /* perform movement for all monsters */
 int
 movemon(void)
 {
     gs.somebody_can_move = FALSE;
+
+    movemon_callctr++;
 
     iter_mons_safe(movemon_singlemon);
 
@@ -2502,20 +2510,97 @@ monnear(struct monst *mon, coordxy x, coordxy y)
     return (boolean) (distance < 3);
 }
 
+/* recent m_detach tracking for debugging; the oversized buffers built
+   from this ring get chopped to BUFSZ-1 in the paniclog, but survive
+   whole in the impossible()/panic stack frame for core-dump readers */
+#define MAX_DETACH_TRACK 10
+static struct {
+    char mname[64]; /* longest monster name is well under this */
+    coordxy x, y;
+    int hp, maxhp;
+    void *caller;
+    long turn;
+    void *mon_addr;    /* monster memory address for reuse detection */
+    unsigned m_id;     /* monster id to distinguish individuals */
+    long mm_seq;       /* movemon() call counter at detach time */
+} recent_detaches[MAX_DETACH_TRACK];
+static int detach_idx = 0;
+
 /* really free dead monsters */
 void
 dmonsfree(void)
 {
     struct monst **mtmp, *freetmp;
     int count = 0;
+    int undetached = 0;
+    unsigned undetached_id = 0;
     char buf[QBUFSZ];
+    char freed_list[BUFSZ] = "";
+    char undetached_buf[BUFSZ] = "";
 
     buf[0] = '\0';
+    /* diagnostic: a live steed left in fmon but off the map - its rider
+       gone and ridden_by cleared, yet never re-placed - turns invisible
+       while still attacking (the phantom saddled-spider bug). report it
+       so a recurrence leaves a record; this only observes the state, it
+       does not repair it */
+    {
+        static unsigned orphan_warned_id = 0;
+        struct monst *o;
+        boolean any = FALSE;
+
+        for (o = fmon; o; o = o->nmon) {
+            /* any non-MON_FLOOR lifecycle state is legitimately not
+               placed; the target is a monster whose mstate claims it
+               is an ordinary on-map resident */
+            if (DEADMONSTER(o) || o == u.usteed || o->ridden_by
+                || mon_offmap(o)
+                || !isok(o->mx, o->my)
+                || svl.level.monsters[o->mx][o->my] == o)
+                continue;
+            any = TRUE;
+            if (o->m_id != orphan_warned_id) {
+                orphan_warned_id = o->m_id;
+                impossible(
+                    "off-map steed %s (m_id %u) at <%d,%d> mstate 0x%lx",
+                    o->data ? mon_pmname(o) : "?", o->m_id,
+                    o->mx, o->my, o->mstate);
+            }
+        }
+        if (!any)
+            orphan_warned_id = 0;
+    }
+
+    /* TODO-EVILHACK: the Ice Queen -> Enchantress revive interception
+       (icequeenrevive) goes here when the Ice Queen bosses port */
     for (mtmp = &fmon; *mtmp; ) {
         freetmp = *mtmp;
         if (DEADMONSTER(freetmp) && !freetmp->isgd) {
             *mtmp = freetmp->nmon;
             freetmp->nmon = NULL;
+
+            /* track what is actually freed for debugging */
+            if (count < 5 && freetmp->data)
+                Sprintf(eos(freed_list), " %s(%d,%d)",
+                        mon_pmname(freetmp), freetmp->mx, freetmp->my);
+            /* a freed monster that never went through m_detach()
+               (MON_DETACH unset) reached mhp<1 outside the death
+               pipeline - the count>purge producer. recent_detaches[]
+               cannot see it (it tracks m_detach calls only), so record
+               it here, before the struct is freed */
+            if (!(freetmp->mstate & MON_DETACH)) {
+                undetached++;
+                if (undetached == 1) {
+                    undetached_id = freetmp->m_id;
+                    Sprintf(undetached_buf,
+                            "%s(%d,%d) m_id=%u mstate=0x%lx mhp=%d",
+                            freetmp->data ? mon_pmname(freetmp) : "?",
+                            freetmp->mx, freetmp->my, freetmp->m_id,
+                            freetmp->mstate, freetmp->mhp);
+                }
+            }
+            /* TODO-EVILHACK: separate a steed from its monster rider
+               (erid) before dealloc when the monster-riding port lands */
             dealloc_monst(freetmp);
             count++;
         } else
@@ -2523,9 +2608,177 @@ dmonsfree(void)
     }
 
     if (count != iflags.purge_monsters) {
+        char msgbuf[BUFSZ * 6];
+        int living_detached = 0, dead_not_freed = 0,
+            dead_detached_not_freed = 0;
+        int total_mons = 0;
+        struct monst *mon;
+        char not_freed_list[BUFSZ] = "";
+
         describe_level(buf, 2);
-        impossible("dmonsfree: %d removed doesn't match %d pending on %s",
-                   count, iflags.purge_monsters, buf);
+
+        /* add game state context */
+        if (program_state.saving)
+            Strcat(buf, " [SAVING]");
+        if (program_state.restoring)
+            Strcat(buf, " [RESTORING]");
+        if (program_state.in_moveloop)
+            Strcat(buf, " [MOVELOOP]");
+        if (wizard && program_state.wizkit_wishing)
+            Strcat(buf, " [WIZKIT_WISHING]");
+
+        /* count problematic monsters */
+        for (mon = fmon; mon; mon = mon->nmon) {
+            total_mons++;
+            if (!DEADMONSTER(mon) && (mon->mstate & MON_DETACH))
+                living_detached++;
+            if (DEADMONSTER(mon)) {
+                /* dead monsters that won't be freed */
+                if (mon->isgd) {
+                    dead_not_freed++;
+                } else if (mon->mstate & MON_DETACH) {
+                    /* bad - dead with MON_DETACH but still on the list */
+                    dead_detached_not_freed++;
+                    if (dead_detached_not_freed <= 3) {
+                        Sprintf(eos(not_freed_list), " %s(%d,%d)",
+                                mon->data ? mon_pmname(mon) : "unknown",
+                                mon->mx, mon->my);
+                    }
+                }
+            }
+        }
+
+        /* build detailed error message */
+        Sprintf(msgbuf, "dmonsfree: %d removed != %d pending on %s [%dmons]",
+                count, iflags.purge_monsters, buf, total_mons);
+        /* show what was actually freed */
+        if (freed_list[0])
+            Sprintf(eos(msgbuf), " Freed:%s", freed_list);
+        /* name any monster freed without ever being m_detach()ed - the
+           freed-not-detached (count>purge) producer that
+           recent_detaches[] cannot capture */
+        if (undetached > 0)
+            Sprintf(eos(msgbuf), " Undetached:%d %s", undetached,
+                    undetached_buf);
+
+        /* add diagnostic counts */
+        if (living_detached > 0)
+            Sprintf(eos(msgbuf), " [%d living with MON_DETACH!]",
+                    living_detached);
+        if (dead_not_freed > 0)
+            Sprintf(eos(msgbuf), " [%d dead vault guards]", dead_not_freed);
+        if (dead_detached_not_freed > 0)
+            Sprintf(eos(msgbuf), " [%d DEAD+DETACHED NOT FREED!%s]",
+                    dead_detached_not_freed, not_freed_list);
+
+        /* log first few problematic monsters */
+        if (living_detached > 0) {
+            int shown = 0;
+
+            Strcat(msgbuf, " Living+detached:");
+            for (mon = fmon; mon && shown < 3; mon = mon->nmon) {
+                if (!DEADMONSTER(mon) && (mon->mstate & MON_DETACH)) {
+                    Sprintf(eos(msgbuf), " %s(%d,%d)",
+                            mon_pmname(mon), mon->mx, mon->my);
+                    shown++;
+                }
+            }
+        }
+
+        /* show recent m_detach calls with m_id and turn */
+        if (recent_detaches[0].mname[0]) {
+            int start = (detach_idx - 1 + MAX_DETACH_TRACK)
+                        % MAX_DETACH_TRACK;
+            int shown = 0, i, idx;
+
+            Strcat(msgbuf, " Recent:");
+            for (i = 0; i < MAX_DETACH_TRACK && shown < 5; i++) {
+                idx = (start - i + MAX_DETACH_TRACK) % MAX_DETACH_TRACK;
+                if (recent_detaches[idx].mname[0]) {
+                    Sprintf(eos(msgbuf),
+                            " %s(%d,%d)#%u@%ld mm#%ld by %p addr=%p",
+                            recent_detaches[idx].mname,
+                            recent_detaches[idx].x,
+                            recent_detaches[idx].y,
+                            recent_detaches[idx].m_id,
+                            recent_detaches[idx].turn,
+                            recent_detaches[idx].mm_seq,
+                            recent_detaches[idx].caller,
+                            recent_detaches[idx].mon_addr);
+                    shown++;
+                }
+            }
+        }
+
+        /* search other monster lists for the most recently
+           detached monster to diagnose where it ended up */
+        {
+            int ridx = (detach_idx - 1 + MAX_DETACH_TRACK)
+                       % MAX_DETACH_TRACK;
+            unsigned target_id = recent_detaches[ridx].m_id;
+            struct monst *found = (struct monst *) 0;
+            const char *where = (const char *) 0;
+
+            if (target_id) {
+                for (found = gm.migrating_mons; found; found = found->nmon) {
+                    if (found->m_id == target_id) {
+                        where = "migrating";
+                        break;
+                    }
+                }
+                if (!found) {
+                    for (found = gm.mydogs; found; found = found->nmon) {
+                        if (found->m_id == target_id) {
+                            where = "mydogs";
+                            break;
+                        }
+                    }
+                }
+                if (!found) {
+                    for (found = fmon; found; found = found->nmon) {
+                        if (found->m_id == target_id) {
+                            where = "fmon(missed)";
+                            break;
+                        }
+                    }
+                }
+            }
+            if (found)
+                Sprintf(eos(msgbuf),
+                        " [mid#%u FOUND on %s (%d,%d) hp=%d detached by %p"
+                        " mm#%ld addr=%p]",
+                        target_id, where, found->mx,
+                        found->my, found->mhp,
+                        recent_detaches[ridx].caller,
+                        recent_detaches[ridx].mm_seq,
+                        recent_detaches[ridx].mon_addr);
+            else if (target_id)
+                Sprintf(eos(msgbuf),
+                        " [mid#%u NOT FOUND any list, detached by %p"
+                        " mm#%ld addr=%p]",
+                        target_id, recent_detaches[ridx].caller,
+                        recent_detaches[ridx].mm_seq,
+                        recent_detaches[ridx].mon_addr);
+        }
+
+        impossible("%s", msgbuf);
+    }
+
+    /* even when the counts happen to balance (a freed-not-detached
+       monster offset by a detached-not-freed one in the same pass), a
+       free without MON_DETACH is still anomalous; report it once per
+       distinct monster. buf is empty here unless the mismatch block
+       above ran, so fill it for context */
+    if (undetached > 0 && count == iflags.purge_monsters) {
+        static unsigned undetached_warned_id = 0;
+
+        if (undetached_id != undetached_warned_id) {
+            undetached_warned_id = undetached_id;
+            if (!buf[0])
+                describe_level(buf, 2);
+            impossible("dmonsfree: freed undetached %s on %s",
+                       undetached_buf, buf);
+        }
     }
     iflags.purge_monsters = 0;
 }
@@ -2815,11 +3068,79 @@ m_detach(
         mtmp->mstate |= MON_ENDGAME_FREE;
 
     if ((mtmp->mstate & MON_DETACH) != 0) {
-        impossible("m_detach: %s is already detached?",
-                   minimal_monnam(mtmp, FALSE));
+        /* double detach - the root cause of many dmonsfree miscounts;
+           dump the recent m_detach history so the producer is named */
+        int i;
+        char msgbuf[BUFSZ * 12]; /* header + full detach history */
+        char tmpbuf[BUFSZ];
+
+        Sprintf(msgbuf, "m_detach: %s is already detached?\n",
+                minimal_monnam(mtmp, FALSE));
+        Sprintf(eos(msgbuf), "=== RECENT M_DETACH HISTORY ===\n");
+        Sprintf(eos(msgbuf), "Double m_detach detected at turn %ld\n",
+                svm.moves);
+        Sprintf(eos(msgbuf), "Monster: %s at (%d,%d) HP:%d/%d\n",
+                mtmp->data ? mon_pmname(mtmp) : "?", mx, my,
+                mtmp->mhp, mtmp->mhpmax);
+
+        for (i = 0; i < MAX_DETACH_TRACK; i++) {
+            int idx = (detach_idx + i) % MAX_DETACH_TRACK;
+
+            if (recent_detaches[idx].mname[0]) {
+                Sprintf(tmpbuf,
+                        "[%d] %s at (%d,%d) HP:%d/%d addr:%p id:%u by %p"
+                        " turn:%ld mm:%ld",
+                        i + 1, recent_detaches[idx].mname,
+                        recent_detaches[idx].x, recent_detaches[idx].y,
+                        recent_detaches[idx].hp, recent_detaches[idx].maxhp,
+                        recent_detaches[idx].mon_addr,
+                        recent_detaches[idx].m_id,
+                        recent_detaches[idx].caller,
+                        recent_detaches[idx].turn,
+                        recent_detaches[idx].mm_seq);
+
+                /* flag likely-related history entries */
+                if (recent_detaches[idx].m_id == mtmp->m_id) {
+                    Strcat(tmpbuf, " <-- SAME MONSTER ID!");
+                } else if (recent_detaches[idx].mon_addr == (void *) mtmp) {
+                    Strcat(tmpbuf, " <-- SAME ADDRESS (REUSED)!");
+                } else if (mtmp->data
+                           && !strcmp(recent_detaches[idx].mname,
+                                      mon_pmname(mtmp))
+                           && abs(recent_detaches[idx].x - mx) <= 1
+                           && abs(recent_detaches[idx].y - my) <= 1) {
+                    Strcat(tmpbuf, " <-- SIMILAR POSITION!");
+                }
+                Sprintf(eos(msgbuf), "%s\n", tmpbuf);
+            }
+        }
+        Strcat(msgbuf, "=== END M_DETACH HISTORY ===");
+
+        /* output everything in one impossible() call */
+        impossible("%s", msgbuf);
     } else {
         mtmp->mstate |= MON_DETACH;
         iflags.purge_monsters++;
+
+        /* track recent detaches for debugging */
+        copynchars(recent_detaches[detach_idx].mname,
+                   mtmp->data ? mon_pmname(mtmp) : "?",
+                   (int) sizeof recent_detaches[0].mname - 1);
+        recent_detaches[detach_idx].x = mx;
+        recent_detaches[detach_idx].y = my;
+        recent_detaches[detach_idx].hp = mtmp->mhp;
+        recent_detaches[detach_idx].maxhp = mtmp->mhpmax;
+#ifdef __GNUC__
+        recent_detaches[detach_idx].caller = __builtin_return_address(0);
+#else
+        recent_detaches[detach_idx].caller = NULL; /* needs compiler support */
+#endif
+        recent_detaches[detach_idx].turn = svm.moves;
+        recent_detaches[detach_idx].mon_addr = (void *) mtmp;
+        recent_detaches[detach_idx].m_id = mtmp->m_id;
+        recent_detaches[detach_idx].mm_seq = movemon_callctr;
+
+        detach_idx = (detach_idx + 1) % MAX_DETACH_TRACK;
     }
 
     /* hero is thrown from his steed when it dies or gets genocided */

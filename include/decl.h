@@ -1055,6 +1055,12 @@ struct instance_globals_w {
     /* mkmaze.c */
     struct trap *wportal;
 
+    /* zap.c */
+    struct obj *worn_slot_exempt; /* poly_obj swap: obj legitimately off
+                                   * invent while its worn slot still
+                                   * points at it; worn_slot_sanity()
+                                   * skips this one slot meanwhile */
+
     /* new */
     struct win_settings wsettings;      /* wintype.h */
     long were_changes;                  /* were.c, allmain.c */

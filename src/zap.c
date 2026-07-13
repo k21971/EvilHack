@@ -1936,6 +1936,7 @@ poly_obj(struct obj *obj, int id)
          */
         if (old_wornmask) {
             boolean was_twohanded = bimanual(obj), was_twoweap = u.twoweap;
+            struct obj *save_exempt = gw.worn_slot_exempt;
 
             /* wearslot() expects us to deal with wielded/alt-wep/quivered
                items in case they're not weapons; for other slots it might
@@ -1943,6 +1944,10 @@ poly_obj(struct obj *obj, int id)
                the bit(s) currently in use */
             new_wornmask = ((old_wornmask & W_WEAPONS) != 0L) ? old_wornmask
                            : (wearslot(otmp) & old_wornmask);
+            /* obj has left invent (replace_object/freeinv_core above) but
+               its worn slot still points at it until remove_worn_item()
+               clears the slot; exempt it from worn_slot_sanity() meanwhile */
+            gw.worn_slot_exempt = obj;
             remove_worn_item(obj, TRUE);
             /* if the new form can be worn in the same slot, make it so */
             if ((new_wornmask & W_WEP) != 0L) {
@@ -1964,6 +1969,7 @@ poly_obj(struct obj *obj, int id)
                 set_wear(otmp);
                 otmp = wearmask_to_obj(new_wornmask); /* might be Null */
             }
+            gw.worn_slot_exempt = save_exempt;
         } /* old_wornmask */
     } else if (obj_location == OBJ_FLOOR) {
         if (obj->otyp == BOULDER && otmp->otyp != BOULDER) {

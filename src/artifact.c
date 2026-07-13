@@ -2656,6 +2656,11 @@ retouch_equipment(
     if (!nesting++)
         clear_bypasses(); /* init upon initial entry */
 
+    /* catch a worn slot already pointing outside invent on entry, before
+       a forced drop turns it into a freeinv() "object lost" panic */
+    if (iflags.sanity_check || iflags.debug_fuzzer)
+        worn_slot_sanity("retouch_equipment entry");
+
     dropit = (dropflag > 0); /* drop all or drop weapon */
     /* check secondary weapon first, before possibly unwielding primary */
     if (u.twoweap) {

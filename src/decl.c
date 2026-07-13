@@ -830,6 +830,8 @@ static const struct instance_globals_w g_init_w = {
     UNDEFINED_VALUE, /* wc */
     /* mkmaze.c */
     UNDEFINED_PTR, /* wportal */
+    /* zap.c */
+    NULL, /* worn_slot_exempt */
     /* new */
     { wdmode_traditional, NO_COLOR },       /* wsettings */
     0L,                                     /* were.c, allmain.c */

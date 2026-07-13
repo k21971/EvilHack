@@ -1745,6 +1745,7 @@ extern long peek_at_iced_corpse_age(struct obj *) NONNULLARG1;
 extern void dobjsfree(void);
 extern int hornoplenty(struct obj *, boolean, struct obj *);
 extern void obj_sanity_check(void);
+extern void worn_slot_sanity(const char *);
 extern struct obj *obj_nexto(struct obj *);
 extern struct obj *obj_nexto_xy(struct obj *, coordxy, coordxy, boolean) NONNULLARG1;
 extern struct obj *obj_absorb(struct obj **, struct obj **);
