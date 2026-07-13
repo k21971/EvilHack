@@ -538,9 +538,54 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       NOT here; 5.0's own charisma block kept. VERIFIED live (gdb
       call on wished daggers): get_cost silver 16 vs iron 5,
       set_cost 6 vs 2 - exact 3x silver/iron ratio both directions.
+      SLICE D (combat: material hatred/searing) IN PROGRESS
+      2026-07-13, subagent-ported 27 files (+681/-337), reviewed:
+      mon_hates_material/hates_material/sear_damage/monmaterial/
+      is_fleshy (mondata.c; erac clause = the slice's one
+      TODO-EVILHACK), Hate_material (youprop.h), searmsg +
+      special_dmgval rework (magr,mdef,armask,&hated_obj) + dmgval
+      material bonus (weapon.c), hmd.hated_obj lifecycle with UAF
+      guards (boomerang splinter/lance shatter - reviewer traced
+      ALL destruction paths clean), retouch_object master rework
+      (new direct param + will_touch_skin; 5.0 touch_blasted gate
+      dropped per master; eat.c passes direct=TRUE deliberately -
+      mouth contact), mk_artifact gift filter, ~20 consumer files
+      (mhitm/mhitu/mthrowu/dokick/dothrow/dig/trap/pickup/steal/
+      dog/muse/makemon reroll loop/insight enlightenment).
+      REVIEWER BLOCKER FIXED: dmgval's 5.0 class gate
+      (Is_weapon/GEM/BALL/CHAIN) went unconditional like master
+      (the special_dmgval delegation needs worn items to flow
+      through dmgval; reviewer traced single-count safety on all
+      paths); + 4 concerns fixed (heavy-ball hated_obj message,
+      thick_skinned instance read + barkskin/stoneskin defender
+      fold-in, shade_glare instance read, returning-weapon self-hit
+      sear); eat.c direct=TRUE divergence documented in-code.
+      VERIFIED 2026-07-13 (wizmode elf Priest XL15, sanity_check
+      on, paniclog clean): iron dagger wield -> "The iron of your
+      dagger hurts to touch!" (retouch, bearable non-silver);
+      silver saber kill (lethal-blow sear suppressed by design);
+      BLOCKER CASE bare-hand punch with worn silver ring -> "Your
+      silver ring of protection sears the werewolf's flesh!";
+      negative control gemstone ring dmgval=0 via gdb (ring
+      materials follow SHUFFLED descriptions - "ring of
+      teleportation" was topaz this game; test gotcha worth
+      remembering); mon_hates_material(werewolf,SILVER)=1 by gdb;
+      enlightenment "You are harmed by iron." for the elf.
+      Wizard death prompt saved a level-1 test hero mid-battery -
+      genesis werewolves one-shot fresh heroes, #levelchange first. DEFERRED with their subsystems
+      (reviewer-verified no dangling refs): blocker-sears family,
+      monster-touch-attack sears (armask plumbing in hitmu),
+      AI weapon-ranking oselect/score_artifact material filters
+      (until then a monster CAN wield instance-silver it hates -
+      known interim gap), maybe_arm_silver, barding rerolls, door
+      kick sear (terrain materials), pet armor-exchange filter,
+      pager harmed-by lines. Master-parity nits tracked: pickup.c
+      "a iron container" grammar + searmsg unbounded Sprintf
+      (BUG-1315 family) + minimal-comment mismatch - fix master
+      first. MR2_BARKSKIN/STONESKIN allocated, no monster producer
+      yet (hero side live).
       DEFERRED to later
-      material slices (reviewer-inventoried):
-      mon_hates_material/searing combat, metal_to_wood +
+      material slices (reviewer-inventoried): metal_to_wood +
       material_to_gold (Croesus item), bones.c full pass,
       class-based consumer conversions (breaktest glass, o_material
       detect, poly_zapped, stone_missile, is_flimsy), racial-gear

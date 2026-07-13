@@ -98,6 +98,7 @@
 #define is_dwarf(ptr) (((ptr)->mhflags & MH_DWARF) != 0L)
 #define is_gnome(ptr) (((ptr)->mhflags & MH_GNOME) != 0L)
 #define is_orc(ptr) (((ptr)->mhflags & MH_ORC) != 0L)
+#define is_drow(ptr) (((ptr)->mhflags & MH_DROW) != 0L)
 #define is_human(ptr) (((ptr)->mhflags & MH_HUMAN) != 0L)
 #define your_race(ptr) (((ptr)->mhflags & gu.urace.selfmask) != 0L)
 #define is_bat(ptr)                                         \

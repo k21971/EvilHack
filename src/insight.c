@@ -1898,8 +1898,15 @@ attributes_enlightenment(
     }
     if (Unchanging && Upolyd) /* !Upolyd handled above */
         you_can("not change from your current form", from_what(UNCHANGING));
-    if (Hate_silver)
-        you_are("harmed by silver", "");
+    for (ltmp = 1; ltmp < NUM_MATERIAL_TYPES; ++ltmp) {
+        if (Hate_material(ltmp)
+            && (!(Barkskin || Stoneskin)
+                || is_demon(raceptr(&gy.youmonst))
+                || is_vampire(raceptr(&gy.youmonst)))) {
+            Sprintf(buf, "harmed by %s", materialnm[ltmp]);
+            you_are(buf, "");
+        }
+    }
     /* movement and non-armor-based protection */
     if (Fast)
         you_are(Very_fast ? "very fast" : "fast", from_what(FAST));

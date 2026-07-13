@@ -797,6 +797,7 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
 
     if (!Passes_walls || !(may_pass = may_passwall(x, y))) {
         const char *why = NULL;
+        int searxtra = 0;
         boolean diagonal = (u.ux - x) != 0 && (u.uy - y) != 0,
                 open_door = IS_DOOR(ltyp) && (lev->doormask & D_ISOPEN) != 0,
                 odoor_diag = open_door && diagonal;
@@ -813,6 +814,10 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
         } else if (ltyp == IRONBARS) {
             why = "crashing into iron bars";
             You("crash into some iron bars.  Ouch!");
+            if (Hate_material(IRON) && !(Barkskin || Stoneskin)) {
+                pline_The("iron hurts to touch!");
+                searxtra = sear_damage(IRON);
+            }
         } else if ((obj = sobj_at(BOULDER, x, y)) != 0) {
             why = "bumping into a boulder";
             You("bump into a %s.  Ouch!", xname(obj));
@@ -833,7 +838,7 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
             }
         }
         if (why) {
-            dmg = rnd(2 + *range);
+            dmg = rnd(2 + *range) + searxtra;
             losehp(Maybe_Half_Phys(dmg), why, KILLED_BY);
             wake_nearto(x, y, 10);
             return FALSE;
@@ -1340,10 +1345,8 @@ toss_up(struct obj *obj, boolean hitsroof)
         hitfloor(obj, FALSE);
         gt.thrownobj = 0;
     } else { /* neither potion nor other breaking object */
-        int material = objects[otyp].oc_material;
-        boolean is_silver = (material == SILVER),
-                less_damage = (hard_helmet(uarmh)
-                               && (!is_silver || !Hate_silver)),
+        boolean hatemat = Hate_material(obj->material),
+                less_damage = (hard_helmet(uarmh) && !hatemat),
                 harmless = (stone_missile(obj)
                             && passes_rocks(gy.youmonst.data)),
                 artimsg = FALSE;
@@ -1359,18 +1362,19 @@ toss_up(struct obj *obj, boolean hitsroof)
             dmg = (dmg <= 1) ? 1 : rnd(dmg);
             if (dmg > 6)
                 dmg = 6;
-            /* since obj is a non-weapon, bonuses for silver and blessed
-               haven't been applied (otherwise '!dmg' test will fail when
-               they're applicable here); we don't have to worry about
-               dmgval()'s artifact light against gremlin or axe against
-               woody creature since both involve weapons; hero-as-shade is
-               hypothetical because hero can't polymorph into that form */
-            if (gy.youmonst.data == &mons[PM_SHADE] && !is_silver)
+            /* since obj is a non-weapon, bonuses for hated materials and
+               blessed haven't been applied (otherwise '!dmg' test will
+               fail when they're applicable here); we don't have to worry
+               about dmgval()'s artifact light against gremlin or axe
+               against woody creature since both involve weapons;
+               hero-as-shade is hypothetical because hero can't polymorph
+               into that form */
+            if (gy.youmonst.data == &mons[PM_SHADE] && !hatemat)
                 dmg = 0;
             if (obj->blessed && mon_hates_blessings(&gy.youmonst))
                 dmg += rnd(4);
-            if (is_silver && Hate_silver)
-                dmg += rnd(20);
+            if (hatemat)
+                dmg += rnd(sear_damage(obj->material));
         }
         if (dmg > 1 && less_damage)
             dmg = 1;
@@ -1413,8 +1417,10 @@ toss_up(struct obj *obj, boolean hitsroof)
             done(STONING);
             return obj ? TRUE : FALSE;
         }
-        if (is_silver && Hate_silver)
-            pline_The("silver sears you!");
+        if (hatemat) {
+            searmsg(&gy.youmonst, &gy.youmonst, obj, FALSE);
+            exercise(A_CON, FALSE);
+        }
         if (harmless)
             hit(thesimpleoname(obj), &gy.youmonst, " but doesn't hurt.");
 
@@ -1787,6 +1793,12 @@ throwit(
                         if (obj->oartifact)
                             (void) artifact_hit((struct monst *) 0,
                                                 &gy.youmonst, obj, &dmg, 0);
+                        if (Hate_material(obj->material)
+                            && (!(Barkskin || Stoneskin))) {
+                            dmg += rnd(sear_damage(obj->material));
+                            exercise(A_CON, FALSE);
+                            searmsg(NULL, &gy.youmonst, obj, TRUE);
+                        }
                         losehp(Maybe_Half_Phys(dmg), killer_xname(obj),
                                KILLED_BY);
                     }

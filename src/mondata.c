@@ -420,7 +420,6 @@ ranged_attk(struct permonst *ptr)
  */
 static boolean mstrength_ranged_attk(struct permonst *);
 
-
 /* This routine is designed to return an integer value which represents
    an approximation of monster strength.  It uses a similar method of
    determination as "experience()" to arrive at the strength. */
@@ -512,20 +511,73 @@ mstrength_ranged_attk(struct permonst *ptr)
 }
 #endif /* (NH_DEVEL_STATUS != NH_STATUS_RELEASED) || DEBUG || MAKEDEFS_C */
 
-/* True if specific monster is especially affected by silver weapons */
+/* True if specific monster is especially affected by weapons of the given
+ * material type */
 boolean
-mon_hates_silver(struct monst *mon)
+mon_hates_material(struct monst *mon, int material)
 {
-    return (boolean) (is_vampshifter(mon) || hates_silver(mon->data));
+    /* TODO-EVILHACK: master consults the erac racial overlay here (via
+       r_data and racial_elf/racial_drow/racial_orc, so that racially
+       overlaid monsters hate iron or mithril); ports with the erac
+       subsystem */
+    if (hates_material(mon->data, material))
+        return TRUE;
+
+    /* extra case: shapeshifted vampires still hate silver */
+    if (material == SILVER && is_vampshifter(mon))
+        return TRUE;
+
+    /* extra extra case: lycanthrope player (monster lycanthropes all fall
+     * under hates_material, and non-lycanthropes can't currently be
+     * infected) */
+    if (mon == &gy.youmonst && material == SILVER && u.ulycn >= LOW_PM)
+        return TRUE;
+
+    return FALSE;
 }
 
-/* True if monster-type is especially affected by silver weapons */
+/* True if monster-type is especially affected by weapons of the given
+ * material type */
 boolean
-hates_silver(struct permonst *ptr)
+hates_material(const struct permonst *ptr, int material)
 {
-    return (boolean) (is_were(ptr) || ptr->mlet == S_VAMPIRE || is_demon(ptr)
-                      || ptr == &mons[PM_SHADE]
-                      || (ptr->mlet == S_IMP && ptr != &mons[PM_TENGU]));
+    if (material == SILVER) {
+        if (ptr->mlet == S_IMP) {
+            /* impish creatures that aren't actually demonic */
+            if (ptr == &mons[PM_TENGU] || ptr == &mons[PM_LEPRECHAUN])
+                return FALSE;
+        }
+        return (is_were(ptr) || is_vampire(ptr)
+                || is_demon(ptr) || ptr == &mons[PM_SHADE]
+                || (ptr->mlet == S_IMP));
+    } else if (material == IRON) {
+        if (is_undead(ptr))
+            return FALSE;
+        /* cold iron: elves and drow hate it */
+        return (is_elf(ptr) || is_drow(ptr));
+    } else if (material == MITHRIL) {
+        if (is_undead(ptr))
+            return FALSE;
+        /* mithril: orcs hate it */
+        return (is_orc(ptr));
+    }
+    return FALSE;
+}
+
+/* Return amount of damage a monster will take from coming into contact
+ * with a material it hates */
+int
+sear_damage(int material)
+{
+    switch (material) {
+    case SILVER:
+        return 20;
+    case IRON:
+    case MITHRIL:
+        return rnd(3) + 3;
+    default:
+        return 6;
+    }
 }
 
 /* True if specific monster is especially affected by blessed objects */
@@ -1696,6 +1748,80 @@ get_atkdam_type(int adtyp)
         return ROLL_FROM(rnd_breath_typ);
     }
     return adtyp;
+}
+
+/* Return the material a monster is composed of */
+int
+monmaterial(int mndx)
+{
+    switch (mndx) {
+    case PM_GARGOYLE:
+    case PM_WINGED_GARGOYLE:
+    case PM_EARTH_ELEMENTAL:
+        return MINERAL;
+    case PM_BONE_DEVIL:
+    case PM_SKELETON:
+    case PM_SKELETON_WARRIOR:
+    case PM_SMALL_SKELETAL_HOUND:
+    case PM_SKELETAL_PONY:
+    case PM_SKELETAL_HOUND:
+    case PM_SKELETAL_HORSE:
+    case PM_LARGE_SKELETAL_HOUND:
+    case PM_SKELETAL_WARHORSE:
+    case PM_SKELETAL_DRAGON:
+        return BONE;
+    case PM_PAPER_GOLEM:
+        return PAPER;
+    case PM_GOLD_GOLEM:
+        return GOLD;
+    case PM_LEATHER_GOLEM:
+        return LEATHER;
+    case PM_WOOD_GOLEM:
+    case PM_ENT:
+    case PM_ELDER_ENT:
+    case PM_TWIG_BLIGHT:
+    case PM_TREE_BLIGHT:
+    case PM_NEEDLE_BLIGHT:
+    case PM_GULTHIAS_TREE:
+        return WOOD;
+    case PM_CLAY_GOLEM:
+    case PM_STONE_GOLEM:
+    case PM_PETRIFIED_ENT:
+        return MINERAL;
+    case PM_GLASS_GOLEM:
+        return GLASS;
+    case PM_IRON_GOLEM:
+        return IRON;
+    case PM_ASSASSIN_VINE:
+    case PM_CREEPING_MOUND:
+        return VEGGY;
+    default:
+        return 0;
+    }
+}
+
+/* Return TRUE if the monster has flesh */
+boolean
+is_fleshy(const struct permonst *ptr)
+{
+    if (vegetarian(ptr)) {
+        /* vegetarian monsters generally don't have flesh */
+        return FALSE;
+    }
+    if (noncorporeal(ptr)) {
+        /* these certainly don't have flesh */
+        return FALSE;
+    }
+    if (!nonliving(ptr)) {
+        /* nonvegetarian, alive monsters generally do */
+        return TRUE;
+    }
+    if (ptr->mlet == S_MUMMY || ptr->mlet == S_VAMPIRE
+        || ptr->mlet == S_ZOMBIE || ptr == &mons[PM_FLESH_GOLEM]) {
+        /* Exceptions: non-living monsters that do have flesh */
+        return TRUE;
+    }
+    return FALSE;
 }
 
 /*mondata.c*/

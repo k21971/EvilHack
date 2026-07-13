@@ -1974,7 +1974,6 @@ mkclass_aligned(char class, int spc, /* special mons[].geno handling */
 }
 #undef MONSi
 
-
 /* like mkclass(), but excludes difficulty considerations; used when
    player with polycontrol picks a class instead of a specific type;
    genocided types are avoided but extinct ones are acceptable; we don't
@@ -2219,6 +2218,41 @@ mongets(struct monst *mtmp, int otyp)
                 otmp->spe = 1;
             else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 0)
                 otmp->spe = 0;
+        }
+
+        /* if mtmp would hate the material of the object they're getting,
+         * rerandomize it */
+        if (otmp->oclass == WEAPON_CLASS
+            || is_weptool(otmp) || otmp->oclass == ARMOR_CLASS
+            || otmp->oclass == AMULET_CLASS
+            || (otmp->oclass == TOOL_CLASS
+                && otmp->otyp != BELL_OF_OPENING)) {
+            int tryct = 0;
+
+            while (mon_hates_material(mtmp, otmp->material)) {
+                init_obj_material(otmp);
+                tryct++;
+                if (tryct >= 100) {
+                    /* will anything work? */
+                    int mat;
+
+                    for (mat = 1; mat < NUM_MATERIAL_TYPES; ++mat) {
+                        if (valid_obj_material(otmp, mat)
+                            && !mon_hates_material(mtmp, mat)) {
+                            set_material(otmp, mat);
+                            break;
+                        }
+                    }
+                    if (mat == NUM_MATERIAL_TYPES) {
+                        impossible(
+                            "mon %d doesn't like any materials for obj %d",
+                                   monsndx(mtmp->data), otmp->otyp);
+                        set_material(otmp,
+                                     objects[otmp->otyp].oc_material);
+                    }
+                    break;
+                }
+            }
         }
 
         if (mpickobj(mtmp, otmp)) {

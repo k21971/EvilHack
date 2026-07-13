@@ -2151,6 +2151,19 @@ do_loot_cont(
     }
     cobj->lknown = 1; /* floor container, so no need for update_inventory() */
 
+    if (Hate_material(cobj->material) && !uarmg
+        && (!(Barkskin || Stoneskin))) {
+        char kbuf[BUFSZ];
+
+        pline("The %s %s %s!", materialnm[cobj->material],
+              cobj->otyp == IRON_SAFE ? "safe door"
+                  : Is_box(cobj) ? "lid" : "container",
+              cobj->material == SILVER ? "sears your flesh"
+                                       : "hurts to touch");
+        Sprintf(kbuf, "opening a %s container", materialnm[cobj->material]);
+        losehp(rnd(sear_damage(cobj->material)), kbuf, KILLED_BY);
+    }
+
     if (cobj->otyp == BAG_OF_TRICKS) {
         int tmp;
 

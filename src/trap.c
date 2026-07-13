@@ -6754,6 +6754,11 @@ thitm(
             dam = dmgval(obj, mon);
             if (dam < 1)
                 dam = 1;
+            if (mon_hates_material(mon, obj->material)
+                && cansee(mon->mx, mon->my)) {
+                /* extra damage already applied by dmgval() */
+                searmsg(NULL, mon, obj, TRUE);
+            }
         }
         if (!harmless) {
             mon->mhp -= dam;

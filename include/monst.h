@@ -333,6 +333,10 @@ struct monst {
 #endif
 #define mon_resistancebits(mon) \
     ((mon)->data->mresists | (mon)->mextrinsics | (mon)->mintrinsics)
+#define has_barkskin(mon) \
+    ((mon_resistancebits(mon) & MR2_BARKSKIN) != 0)
+#define has_stoneskin(mon) \
+    ((mon_resistancebits(mon) & MR2_STONESKIN) != 0)
 #define resists_fire(mon)   Resists_Elem(mon, FIRE_RES)
 #define resists_cold(mon)   Resists_Elem(mon, COLD_RES)
 #define resists_sleep(mon)  Resists_Elem(mon, SLEEP_RES)

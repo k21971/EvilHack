@@ -651,8 +651,8 @@ hitmm(
     int compat;
     boolean weaponhit = (mattk->aatyp == AT_WEAP
                          || (mattk->aatyp == AT_CLAW && mwep)),
-            silverhit = (weaponhit && mwep
-                         && objects[mwep->otyp].oc_material == SILVER);
+            hatedhit = (weaponhit && mwep
+                        && mon_hates_material(mdef, mwep->material));
 
     pre_mm_attack(magr, mdef);
 
@@ -703,27 +703,8 @@ hitmm(
             if (*buf)
                 pline("%s %s.", buf, mon_nam_too(mdef, magr));
 
-            if (mon_hates_silver(mdef) && silverhit) {
-                char *mdef_name = mon_nam_too(mdef, magr);
-
-                /* note: mon_nam_too returns a modifiable buffer; so
-                   does s_suffix, but it returns a single static buffer
-                   and we might be calling it twice for this message */
-                Strcpy(magr_name, s_suffix(magr_name));
-                if (!noncorporeal(mdef->data) && !amorphous(mdef->data)) {
-                    if (mdef != magr) {
-                        mdef_name = s_suffix(mdef_name);
-                    } else {
-                        (void) strsubst(mdef_name, "himself", "his own");
-                        (void) strsubst(mdef_name, "herself", "her own");
-                        (void) strsubst(mdef_name, "itself", "its own");
-                    }
-                    Strcat(mdef_name, " flesh");
-                }
-
-                pline("%s %s sears %s!", magr_name, /* s_suffix(magr_name), */
-                      simpleonames(mwep), mdef_name);
-            }
+            if (hatedhit)
+                searmsg(magr, mdef, mwep, FALSE);
         }
     } else
         noises(magr, mattk);

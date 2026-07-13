@@ -2136,6 +2136,19 @@ doseduce(struct monst *mon)
     if (u.utotype || !m_next2u(mon))
         return 1;
 
+    /* seducer loses interest if the hero is covered in materials
+       that it hates */
+    if ((uarm && mon_hates_material(mon, uarm->material))
+        || (uarmc && mon_hates_material(mon, uarmc->material))
+        || (uarmf && mon_hates_material(mon, uarmf->material))
+        || (uarmg && mon_hates_material(mon, uarmg->material))
+        || (uarms && mon_hates_material(mon, uarms->material))
+        || (uarmh && mon_hates_material(mon, uarmh->material))
+        || (uarmu && mon_hates_material(mon, uarmu->material))) {
+        mon->mspec_used = rnd(100); /* no longer interested */
+        return 0;
+    }
+
     if (uarm || uarmc) {
         if (!Deaf) {
             if (!(ld() && mon->female)) {
@@ -2318,6 +2331,16 @@ mayberem(struct monst *mon,
        (loss of levitation that leads to landing on a transport trap) */
     if (u.utotype || !m_next2u(mon))
         return;
+    /* monster won't steal objects made of a material it hates */
+    if (mon_hates_material(mon, obj->material)) {
+        if (!Deaf) {
+            SetVoice(mon, 0, 80, 0);
+            verbalize("Ow!  %s hurts to touch!", Ysimple_name2(obj));
+        } else if (canseemon(mon)) {
+            pline("%s appears to recoil in disgust.", Monnam(mon));
+        }
+        return;
+    }
 
     /* being deaf overrides confirmation prompt for high charisma */
     if (Deaf) {

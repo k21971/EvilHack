@@ -2097,6 +2097,25 @@ already_wearing2(const char *cc1, const char *cc2)
     You_cant("wear %s because you're wearing %s there already.", cc1, cc2);
 }
 
+/* will wearing (or wielding) an item with the given worn mask bring it
+   into direct contact with the hero's skin? */
+boolean
+will_touch_skin(long mask)
+{
+    if ((mask == W_ARMC || mask == W_AMUL) && (uarm || uarmu))
+        return FALSE;
+    else if (mask == W_ARM && uarmu)
+        return FALSE;
+    else if ((mask & (W_WEP | W_SWAPWEP | W_ARMS)) && uarmg)
+        return FALSE;
+    else if ((mask & W_RINGL) && uarmg
+             && uarmg->oartifact == ART_HAND_OF_VECNA)
+        return FALSE;
+    else if (mask == W_QUIVER)
+        return FALSE;
+    return TRUE;
+}
+
 /*
  * canwearobj checks to see whether the player can wear a piece of armor
  *
@@ -2430,7 +2449,7 @@ accessory_or_armor_on(struct obj *obj)
         }
     }
 
-    if (!retouch_object(&obj, FALSE))
+    if (!retouch_object(&obj, will_touch_skin(mask), FALSE))
         return ECMD_TIME; /* costs a turn even though it didn't get worn */
 
     if (armor) {

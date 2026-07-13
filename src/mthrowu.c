@@ -137,10 +137,9 @@ thitu(
             potionhit(&gy.youmonst, obj, POTHIT_OTHER_THROW);
             *objp = obj = 0; /* potionhit() uses up the potion */
         } else {
-            if (obj && objects[obj->otyp].oc_material == SILVER
-                && Hate_silver) {
+            if (obj && Hate_material(obj->material)) {
                 /* extra damage already applied by dmgval() */
-                pline_The("silver sears your flesh!");
+                searmsg((struct monst *) 0, &gy.youmonst, obj, FALSE);
                 exercise(A_CON, FALSE);
             }
             if (is_acid) {
@@ -367,7 +366,6 @@ ohitmon(
         potionhit(mtmp, otmp, POTHIT_OTHER_THROW);
         return 1;
     } else {
-        int material = objects[otmp->otyp].oc_material;
         boolean harmless = (stone_missile(otmp) && passes_rocks(mtmp->data));
 
         damage = dmgval(otmp, mtmp);
@@ -415,20 +413,10 @@ ohitmon(
                 }
             }
         }
-        if (material == SILVER && mon_hates_silver(mtmp)) {
-            boolean flesh = (!noncorporeal(mtmp->data)
-                             && !amorphous(mtmp->data));
-
-            /* note: extra silver damage is handled by dmgval() */
-            if (vis) {
-                char *m_name = mon_nam(mtmp);
-
-                if (flesh) /* s_suffix returns a modifiable buffer */
-                    m_name = strcat(s_suffix(m_name), " flesh");
-                pline_The("silver sears %s!", m_name);
-            } else if (verbose && !gm.mtarget) {
-                pline("%s is seared!", flesh ? "Its flesh" : "It");
-            }
+        if (!DEADMONSTER(mtmp)
+            && mon_hates_material(mtmp, otmp->material)) {
+            /* note: extra material damage is handled by dmgval() */
+            searmsg((struct monst *) 0, mtmp, otmp, FALSE);
         }
         if (otmp->otyp == ACID_VENOM && cansee(mtmp->mx, mtmp->my)) {
             if (resists_acid(mtmp)) {
@@ -1391,7 +1379,6 @@ m_lined_up(struct monst *mtarg, struct monst *mtmp)
     return linedup(tx, ty, mtmp->mx, mtmp->my,
                    utarget ? (ignore_boulders ? 1 : 2) : 0);
 }
-
 
 /* is mtmp in position to use ranged attack on hero? */
 boolean

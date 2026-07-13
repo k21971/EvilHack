@@ -584,9 +584,9 @@ struct _hitmon_data {
     struct permonst *mdat;
     boolean use_weapon_skill;
     boolean train_weapon_skill;
-    int barehand_silver_rings;
-    boolean silvermsg;
-    boolean silverobj;
+    struct obj *hated_obj; /* object whose material sears mon, or
+                            * &zeroobj for the hero's own body; cleared
+                            * if the object gets used up mid-hit */
     boolean lightobj;
     int material;
     int jousting;

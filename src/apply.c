@@ -4226,7 +4226,7 @@ doapply(void)
     if (!obj)
         return ECMD_CANCEL;
 
-    if (!retouch_object(&obj, FALSE))
+    if (!retouch_object(&obj, !uarmg, FALSE))
         return ECMD_TIME; /* evading your grasp costs a turn; just be
                              grateful that you don't drop it as well */
 

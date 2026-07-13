@@ -2868,8 +2868,11 @@ doeat(void)
         /* let them eat rings */
         You_cant("eat %s you're wearing.", something);
         return ECMD_OK;
-    } else if (!(carried(otmp) ? retouch_object(&otmp, FALSE)
-                               : touch_artifact(otmp, &gy.youmonst))) {
+    } else if (!(carried(otmp)
+                 /* direct=TRUE: eating means mouth contact, so gloves
+                    offer no protection from a hated material */
+                 ? retouch_object(&otmp, TRUE, FALSE)
+                 : touch_artifact(otmp, &gy.youmonst))) {
         return ECMD_TIME; /* got blasted so use a turn */
     }
     if (is_metallic(otmp) && u.umonnum == PM_RUST_MONSTER
@@ -2917,7 +2920,6 @@ doeat(void)
     }
     if (otmp->oclass != FOOD_CLASS)
         return doeat_nonfood(otmp);
-
 
     if (otmp == svc.context.victual.piece) {
         boolean one_bite_left = (svc.context.victual.usedtime + 1
@@ -3090,7 +3092,6 @@ tinopen_ok(struct obj *obj)
 
     return GETOBJ_EXCLUDE;
 }
-
 
 int
 use_tin_opener(struct obj *obj)

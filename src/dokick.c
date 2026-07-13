@@ -36,6 +36,7 @@ kickdmg(struct monst *mon, boolean clumsy)
     int mdx, mdy;
     int dmg = (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 15;
     int specialdmg, kick_skill = P_NONE;
+    struct obj *hated_obj = (struct obj *) 0;
     boolean trapkilled = FALSE;
 
     if (uarmf && uarmf->otyp == KICKING_BOOTS)
@@ -53,7 +54,7 @@ kickdmg(struct monst *mon, boolean clumsy)
     if (mon->data == &mons[PM_SHADE])
         dmg = 0;
 
-    specialdmg = special_dmgval(&gy.youmonst, mon, W_ARMF, (long *) 0);
+    specialdmg = special_dmgval(&gy.youmonst, mon, W_ARMF, &hated_obj);
 
     if (mon->data == &mons[PM_SHADE] && !specialdmg) {
         pline_The("%s.", kick_passes_thru);
@@ -87,9 +88,11 @@ kickdmg(struct monst *mon, boolean clumsy)
         /* a good kick exercises your dex */
         exercise(A_DEX, TRUE);
     }
-    dmg += specialdmg; /* for blessed (or hypothetically, silver) boots */
+    dmg += specialdmg; /* for blessed boots or boots of a hated material */
     if (uarmf)
         dmg += uarmf->spe;
+    if (specialdmg && hated_obj)
+        searmsg(&gy.youmonst, mon, hated_obj, TRUE);
     dmg += u.udaminc; /* add ring(s) of increase damage */
     if (dmg > 0)
         mon->mhp -= dmg;
@@ -182,6 +185,7 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
      */
     if (Upolyd && attacktype(gy.youmonst.data, AT_KICK)) {
         struct attack *uattk;
+        struct obj *hated_obj = (struct obj *) 0;
         int sum, kickdieroll, armorpenalty, specialdmg,
             attknum = 0,
             tmp = find_roll_to_hit(mon, AT_KICK, (struct obj *) 0, &attknum,
@@ -201,7 +205,7 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
 
             kickdieroll = rnd(20);
             specialdmg = special_dmgval(&gy.youmonst, mon, W_ARMF,
-                                        (long *) 0);
+                                        &hated_obj);
             if (mon->data == &mons[PM_SHADE] && !specialdmg) {
                 /* doesn't matter whether it would have hit or missed,
                    and shades have no passive counterattack */
@@ -210,6 +214,8 @@ kick_monster(struct monst *mon, coordxy x, coordxy y)
             } else if (tmp > kickdieroll) {
                 You("kick %s.", mon_nam(mon));
                 sum = damageum(mon, uattk, specialdmg);
+                if (hated_obj)
+                    searmsg(&gy.youmonst, mon, hated_obj, FALSE);
                 (void) passive(mon, uarmf, (sum != M_ATTK_MISS),
                                !(sum & M_ATTK_DEF_DIED), AT_KICK, FALSE);
                 if ((sum & M_ATTK_DEF_DIED))
@@ -553,6 +559,13 @@ really_kick_object(coordxy x, coordxy y)
                     killer_xname(gk.kickedobj));
             instapetrify(svk.killer.name);
         }
+    }
+
+    if (!uarmf && Hate_material(gk.kickedobj->material)
+        && (!(Barkskin || Stoneskin))) {
+        searmsg(NULL, &gy.youmonst, gk.kickedobj, FALSE);
+        losehp(rnd(sear_damage(gk.kickedobj->material)),
+               "kicking an adverse material", KILLED_BY);
     }
 
     isgold = (gk.kickedobj->oclass == COIN_CLASS);
