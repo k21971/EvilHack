@@ -200,7 +200,6 @@ allunworn(void)
     }
 }
 
-
 /* return item worn in slot indicated by wornmask; needed by poly_obj() */
 struct obj *
 wearmask_to_obj(long wornmask)
@@ -510,7 +509,7 @@ mon_adjust_speed(
     case -1:
         if (mon->permspeed == MFAST)
             mon->permspeed = 0;
-        else
+        else if (!(defended(mon, AD_SLOW) || resists_slow(r_data(mon))))
             mon->permspeed = MSLOW;
         break;
     case -2:
@@ -717,7 +716,7 @@ int
 find_mac(struct monst *mon)
 {
     struct obj *obj;
-    int base = mon->data->ac;
+    int base = r_data(mon)->ac - mon->mprotection;
     long mwflags = mon->misc_worn_check;
 
     for (obj = mon->minvent; obj; obj = obj->nobj) {
@@ -773,7 +772,7 @@ m_dowear(struct monst *mon, boolean creation)
         return;
 
     m_dowear_type(mon, W_AMUL, creation, FALSE);
-    can_wear_armor = !cantweararm(mon->data); /* for suit, cloak, shirt */
+    can_wear_armor = !cantweararm(mon); /* for suit, cloak, shirt */
     /* can't put on shirt if already wearing suit */
     if (can_wear_armor && !(mon->misc_worn_check & W_ARM))
         m_dowear_type(mon, W_ARMU, creation, FALSE);
@@ -1183,7 +1182,7 @@ mon_break_armor(struct monst *mon, boolean polyspot)
             noride = FALSE;
     const char *pronoun = mhim(mon), *ppronoun = mhis(mon);
 
-    if (breakarm(mdat)) {
+    if (breakarm(mon)) {
         if ((otmp = which_armor(mon, W_ARM)) != 0) {
             if (Is_dragon_armor(otmp)
                 && monsndx(mdat) == Dragon_armor_to_pm(otmp)) {
@@ -1226,7 +1225,7 @@ mon_break_armor(struct monst *mon, boolean polyspot)
                 You_hear("a ripping sound.");
             m_useup(mon, otmp);
         }
-    } else if (sliparm(mdat)) {
+    } else if (sliparm(mon)) {
         /* sliparm checks whirly, noncorporeal, and small or under */
         boolean passes_thru_clothes = !(mdat->msize <= MZ_SMALL);
 

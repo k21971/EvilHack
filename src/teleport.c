@@ -175,7 +175,7 @@ goodpos(
             return FALSE;
     }
     /* skip boulder locations for most creatures */
-    if (sobj_at(BOULDER, x, y) && (!mdat || !throws_rocks(mdat)))
+    if (sobj_at(BOULDER, x, y) && (!mdat || !racial_throws_rocks(mtmp)))
         return FALSE;
     /* pretend GP_AVOID_MONPOS == monster creation */
     if (avoid_monpos && is_exclusion_zone(LR_MONGEN, x, y))

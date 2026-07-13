@@ -1395,6 +1395,7 @@ start_corpse_timeout(struct obj *body)
     long age;        /* age of corpse          */
     int rot_adjust;
     short action;
+    struct permonst *mptr;
 
     /*
      * Note:
@@ -1406,6 +1407,16 @@ start_corpse_timeout(struct obj *body)
     if (body->corpsenm == PM_LIZARD || body->corpsenm == PM_LICHEN)
         return;
 
+    /* guard against &mons[-1] when caller passes a corpse with
+       no omonst snapshot and corpsenm is NON_PM */
+    if (!has_omonst(body) && body->corpsenm == NON_PM) {
+        impossible("start_corpse_timeout: NON_PM corpsenm on body");
+        return;
+    }
+    /* honor any racial overlay saved with the corpse's monster */
+    mptr = has_omonst(body) ? r_data(OMONST(body))
+                            : &safe_mons(body->corpsenm);
+
     action = ROT_CORPSE;               /* default action: rot away */
     rot_adjust = gi.in_mklev ? 25 : 10; /* give some variation */
     age = max(svm.moves, 1) - body->age;
@@ -1415,17 +1426,17 @@ start_corpse_timeout(struct obj *body)
         when = ROT_AGE - age;
     when += (long) (rnz(rot_adjust) - rot_adjust);
 
-    if (is_rider(&mons[body->corpsenm])) {
+    if (is_rider(mptr)) {
         action = REVIVE_MON;
         when = rider_revival_time(body, FALSE);
-    } else if (mons[body->corpsenm].mlet == S_TROLL) {
+    } else if (mptr->mlet == S_TROLL) {
         for (age = 2; age <= TAINT_AGE; age++)
             if (!rn2(TROLL_REVIVE_CHANCE)) { /* troll revives */
                 action = REVIVE_MON;
                 when = age;
                 break;
             }
-    } else if (gz.zombify && zombie_form(&mons[body->corpsenm]) != NON_PM
+    } else if (gz.zombify && zombie_form(mptr) != NON_PM
                && !body->norevive) {
         action = ZOMBIFY_MON;
         when = rn1(15, 5); /* 5..19 */
@@ -2019,8 +2030,13 @@ weight(struct obj *obj)
         return wt + cwt;
     }
     if (obj->otyp == CORPSE && ismnum(obj->corpsenm)) {
-        long long_wt = obj->quan * (long) mons[obj->corpsenm].cwt;
+        int mnum = obj->corpsenm;
+        long long_wt;
 
+        /* racial corpses weigh what their racial monster weighs */
+        if (has_omonst(obj) && has_erac(OMONST(obj)))
+            mnum = ERAC(OMONST(obj))->rmnum;
+        long_wt = obj->quan * (long) mons[mnum].cwt;
         wt = (long_wt > LARGEST_INT) ? LARGEST_INT : (int) long_wt;
         if (obj->oeaten)
             wt = eaten_stat(wt, obj);

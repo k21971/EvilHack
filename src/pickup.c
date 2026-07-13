@@ -1723,7 +1723,7 @@ lift_object(
        and for boulder picked up by hero poly'd into a giant; override
        availability of open inventory slot iff not already carrying one */
     if (obj->otyp == LOADSTONE
-        || (obj->otyp == BOULDER && throws_rocks(gy.youmonst.data))) {
+        || (obj->otyp == BOULDER && racial_throws_rocks(&gy.youmonst))) {
         if (inv_cnt(FALSE) < invlet_basic || !carrying(obj->otyp)
             || merge_choice(gi.invent, obj))
             return 1; /* lift regardless of current situation */

@@ -272,7 +272,6 @@
  * colors, but would also be represented by different symbols.
  */
 
-
 #include "color.h"
 /* 3.6.3: poison gas zap used to be yellow and acid zap was green,
    which conflicted with the corresponding dragon colors */
@@ -551,17 +550,28 @@ enum glyph_offsets {
 #define GLYPH_NOTHING     GLYPH_NOTHING_OFF
 
 #define warning_to_glyph(mwarnlev) ((mwarnlev) + GLYPH_WARNING_OFF)
+/* display racial monsters with their racial glyph; mercenaries and
+   player monsters keep their base-class glyph, as does the high priest
+   of Moloch's impersonator on the Astral Plane */
+#define use_racial_glyph(mon) \
+    (has_erac(mon) \
+     && !is_mplayer(&mons[(mon)->mnum]) \
+     && !is_mercenary(&mons[(mon)->mnum]) \
+     && !((mon)->mnum == PM_HIGH_PRIEST && Is_astralevel(&u.uz)))
+/* index into mons[] honoring any racial overlay, for display purposes */
+#define racial_mndx(mon) \
+    (use_racial_glyph(mon) ? (int) ERAC(mon)->rmnum : monsndx((mon)->data))
 #define mon_to_glyph(mon, rng) \
-    ((int) what_mon(monsndx((mon)->data), rng)                          \
+    ((int) what_mon(racial_mndx(mon), rng)                              \
      + (((mon)->female == 0) ?  GLYPH_MON_MALE_OFF : GLYPH_MON_FEM_OFF))
 #define detected_mon_to_glyph(mon, rng) \
-    ((int) what_mon(monsndx((mon)->data), rng)                          \
+    ((int) what_mon(racial_mndx(mon), rng)                              \
      + (((mon)->female == 0) ?  GLYPH_DETECT_MALE_OFF : GLYPH_DETECT_FEM_OFF))
 #define ridden_mon_to_glyph(mon, rng) \
-    ((int) what_mon(monsndx((mon)->data), rng)                          \
+    ((int) what_mon(racial_mndx(mon), rng)                              \
      + (((mon)->female == 0) ?  GLYPH_RIDDEN_MALE_OFF : GLYPH_RIDDEN_FEM_OFF))
 #define pet_to_glyph(mon, rng) \
-    ((int) what_mon(monsndx((mon)->data), rng)                          \
+    ((int) what_mon(racial_mndx(mon), rng)                              \
      + (((mon)->female == 0) ? GLYPH_PET_MALE_OFF : GLYPH_PET_FEM_OFF))
 
 /* treat unaligned as the default instead of explicitly checking for it;
@@ -951,7 +961,9 @@ enum glyph_offsets {
     ((Hallucination)                                                \
      ? ((random_monster(rng))                                       \
         + ((!(rng)(2)) ? GLYPH_MON_MALE_OFF : GLYPH_MON_FEM_OFF))   \
-     : ((int) (obj)->corpsenm                                       \
+     : ((int) (has_omonst(obj) && use_racial_glyph(OMONST(obj))     \
+               ? ERAC(OMONST(obj))->rmnum                           \
+               : (obj)->corpsenm)                                   \
         + ((((obj)->spe & CORPSTAT_GENDER) == CORPSTAT_FEMALE)      \
            ? (obj_is_piletop(obj)                                   \
               ? GLYPH_STATUE_FEM_PILETOP_OFF                        \

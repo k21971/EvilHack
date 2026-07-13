@@ -2141,7 +2141,7 @@ canwearobj(struct obj *otmp, long *mask, boolean noisy)
             : is_shirt(otmp) ? c_shirt
               : is_suit(otmp) ? c_suit
                 : 0;
-    if (which && cantweararm(gy.youmonst.data)
+    if (which && cantweararm(&gy.youmonst)
         /* same exception for cloaks as used in m_dowear() */
         && (which != c_cloak
             || ((otmp->otyp != MUMMY_WRAPPING)

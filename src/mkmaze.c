@@ -855,7 +855,7 @@ stolen_booty(void)
         if (DEADMONSTER(mtmp))
             continue;
 
-        if (is_orc(mtmp->data) && !has_mgivenname(mtmp) && rn2(10)) {
+        if (racial_orc(mtmp) && !has_mgivenname(mtmp) && rn2(10)) {
             /*
              * We'll consider the orc captain from the level
              * description to be the captain of a rival orc horde

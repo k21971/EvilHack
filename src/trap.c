@@ -1168,7 +1168,7 @@ m_harmless_trap(struct monst *mtmp, struct trap *ttmp)
     case MAGIC_PORTAL:
         break;
     case WEB:
-        if (amorphous(mdat) || webmaker(mdat)
+        if (amorphous(mdat) || webmaker(mdat) || racial_drow(mtmp)
             || is_whirly(mdat) || unsolid(mdat))
             return TRUE;
         break;
@@ -2214,7 +2214,7 @@ trapeffect_web(
         boolean forcetrap = ((trflags & FORCETRAP) != 0);
         struct permonst *mptr = mtmp->data;
 
-        if (webmaker(mptr))
+        if (webmaker(mptr) || racial_drow(mtmp))
             return Trap_Effect_Finished;
         if (mu_maybe_destroy_web(mtmp, in_sight, trap))
             return Trap_Effect_Finished;
@@ -3399,7 +3399,7 @@ launch_obj(
         y = (gb.bhitpos.y += dy);
 
         if ((mtmp = m_at(x, y)) != 0) {
-            if (otyp == BOULDER && throws_rocks(mtmp->data)) {
+            if (otyp == BOULDER && racial_throws_rocks(mtmp)) {
                 if (rn2(3)) {
                     if (cansee(x, y))
                         pline_mon(mtmp, "%s snatches the boulder.",
@@ -5465,8 +5465,8 @@ try_disarm(
         return 0;
     }
     /* duplicate tight-space checks from test_move */
-    if (u.dx && u.dy && bad_rock(gy.youmonst.data, u.ux, ttmp->ty)
-        && bad_rock(gy.youmonst.data, ttmp->tx, u.uy)) {
+    if (u.dx && u.dy && bad_rock(&gy.youmonst, u.ux, ttmp->ty)
+        && bad_rock(&gy.youmonst, ttmp->tx, u.uy)) {
         if ((gi.invent && (inv_weight() + weight_cap() > WT_TOOMUCH_DIAGONAL))
             || bigmonst(gy.youmonst.data)) {
             /* don't allow untrap if they can't get thru to it */
@@ -7052,7 +7052,13 @@ sokoban_guilt(void)
 {
     if (Sokoban) {
         u.uconduct.sokocheat++;
-        change_luck(-1);
+        /* giants can easily bring boulders to Sokoban and fill up
+           all of the holes, or circumvent existing boulders without
+           moving them - their luck penalty is a bit more severe */
+        if (racial_throws_rocks(&gy.youmonst))
+            change_luck(-2);
+        else
+            change_luck(-1);
         /*
          * TODO:
          *  Issue some feedback so that player can learn that whatever

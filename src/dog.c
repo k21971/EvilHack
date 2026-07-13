@@ -717,10 +717,13 @@ mon_catchup_elapsed_time(
         m_unleash(mtmp, FALSE);
     }
 
-    /* recover lost hit points */
-    if (!regenerates(mtmp->data))
-        imv /= 20;
-    healmon(mtmp, imv, 0);
+    /* recover lost hit points; only the undead can regenerate in
+       the Valley of the Dead */
+    if (!Is_valley(&u.uz) || is_undead(r_data(mtmp))) {
+        if (!regenerates(mtmp->data))
+            imv /= 20;
+        healmon(mtmp, imv, 0);
+    }
 
     set_mon_lastmove(mtmp);
 }
@@ -1039,10 +1042,10 @@ dogfood(struct monst *mon, struct obj *obj)
         /* even carnivores will eat carrots if they're temporarily blind */
         mblind = (!mon->mcansee && haseyes(mon->data));
 
-        /* ghouls prefer old corpses and unhatchable eggs, yum!
-           they'll eat fresh non-veggy corpses and hatchable eggs
-           when starving; they never eat stone-to-flesh'd meat */
-        if (mptr == &mons[PM_GHOUL]) {
+        /* ghouls and racial zombies prefer old corpses and unhatchable
+           eggs, yum! they'll eat fresh non-veggy corpses and hatchable
+           eggs when starving; they never eat stone-to-flesh'd meat */
+        if (mptr == &mons[PM_GHOUL] || racial_zombie(mon)) {
             if (obj->otyp == CORPSE)
                 return (peek_at_iced_corpse_age(obj) + 50L <= svm.moves
                         && !(fx == PM_LIZARD || fx == PM_LICHEN)) ? DOGFOOD
@@ -1052,6 +1055,10 @@ dogfood(struct monst *mon, struct obj *obj)
                 return stale_egg(obj) ? CADAVER : starving ? ACCFOOD : POISON;
             return TABU;
         }
+
+        /* gnomes hate eggs */
+        if (obj->otyp == EGG && racial_gnome(mon))
+            return TABU;
 
         switch (obj->otyp) {
         case TRIPE_RATION:
@@ -1078,11 +1085,13 @@ dogfood(struct monst *mon, struct obj *obj)
             else if (vegan(fptr))
                 return herbi ? CADAVER : MANFOOD;
             /* most humanoids will avoid cannibalism unless starving;
-               arbitrary: elves won't eat other elves even then */
+               arbitrary: elven types won't eat other elves even then */
             else if (humanoid(mptr) && same_race(mptr, fptr)
                      && (!is_undead(mptr) && fptr->mlet != S_KOBOLD
                          && fptr->mlet != S_ORC && fptr->mlet != S_OGRE))
-                return (starving && carni && !is_elf(mptr)) ? ACCFOOD : TABU;
+                return (starving && carni
+                        && !(racial_elf(mon) || racial_drow(mon)))
+                       ? ACCFOOD : TABU;
             else
                 return carni ? CADAVER : MANFOOD;
         case GLOB_OF_GREEN_SLIME: /* other globs use the default case */
@@ -1104,6 +1113,21 @@ dogfood(struct monst *mon, struct obj *obj)
             return (mptr->mlet == S_YETI && herbi) ? DOGFOOD
                    : (herbi || starving) ? ACCFOOD
                      : MANFOOD;
+        case K_RATION:
+        case C_RATION:
+        case CRAM_RATION:
+        case LEMBAS_WAFER:
+        case FOOD_RATION:
+            /* prepared rations suit the humanoid races */
+            if (racial_human(mon) || racial_elf(mon) || racial_drow(mon)
+                || racial_dwarf(mon) || racial_gnome(mon)
+                || racial_orc(mon) || racial_hobbit(mon)
+                || racial_giant(mon) || racial_centaur(mon)
+                || racial_illithid(mon) || racial_tortle(mon)
+                || racial_aasimar(mon))
+                return ACCFOOD;
+            FALLTHROUGH;
+            /*FALLTHRU*/
         default:
             if (starving)
                 return ACCFOOD;
@@ -1245,8 +1269,33 @@ tamedog(
            with each other anymore] */
         || mtmp->isshk || mtmp->isgd || mtmp->ispriest || mtmp->isminion
         || is_covetous(mtmp->data) || is_human(mtmp->data)
+        || racial_human(mtmp)
         || (is_demon(mtmp->data) && !is_demon(gy.youmonst.data))
         || (obj && dogfood(mtmp, obj) >= MANFOOD))
+        return FALSE;
+
+    /* wielding any of the 'banes makes taming its hated race
+       impossible */
+    if (wielding_artifact(ART_STING)
+        && (racial_orc(mtmp) || is_spider(mtmp->data)))
+        return FALSE;
+
+    if (wielding_artifact(ART_ORCRIST) && racial_orc(mtmp))
+        return FALSE;
+
+    if (wielding_artifact(ART_GLAMDRING) && racial_orc(mtmp))
+        return FALSE;
+
+    if (wielding_artifact(ART_GRIMTOOTH)
+        && (racial_elf(mtmp) || racial_drow(mtmp)))
+        return FALSE;
+
+    if ((wielding_artifact(ART_GIANTSLAYER)
+         || wielding_artifact(ART_HARBINGER))
+        && racial_giant(mtmp))
+        return FALSE;
+
+    if (wielding_artifact(ART_TROLLSBANE) && is_troll(mtmp->data))
         return FALSE;
 
     if (mtmp->m_id == svq.quest_status.leader_m_id)

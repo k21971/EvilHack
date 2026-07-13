@@ -449,7 +449,7 @@ steal(struct monst *mtmp, char *objnambuf)
     if (otmp->o_id == gs.stealoid)
         return 0;
 
-    if (otmp->otyp == BOULDER && !throws_rocks(mtmp->data)) {
+    if (otmp->otyp == BOULDER && !racial_throws_rocks(mtmp)) {
         if (!retrycnt++)
             goto retry;
         goto cant_take;

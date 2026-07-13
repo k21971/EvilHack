@@ -395,7 +395,6 @@ unmap_invisible(coordxy x, coordxy y)
     return FALSE;
 }
 
-
 /*
  * unmap_object()
  *
@@ -730,7 +729,6 @@ feel_newsym(coordxy x, coordxy y)
     else
         newsym(x, y);
 }
-
 
 /*
  * feel_location()
@@ -1528,6 +1526,7 @@ void
 see_monsters(void)
 {
     struct monst *mon;
+    unsigned long raceflags;
     int new_warn_obj_cnt = 0;
 
     if (gd.defer_see_monsters)
@@ -1551,8 +1550,12 @@ see_monsters(void)
         newsym(mon->mx, mon->my);
         if (mon->wormno)
             see_wsegs(mon);
-        if (Warn_of_mon
-            && (svc.context.warntype.obj & mon->data->mflags2) != 0L)
+        /* warning masks live in mhflags space; honor any racial overlay */
+        if (has_erac(mon))
+            raceflags = ERAC(mon)->mrace;
+        else
+            raceflags = mon->data->mhflags;
+        if (Warn_of_mon && (svc.context.warntype.obj & raceflags) != 0L)
             new_warn_obj_cnt++;
     }
 

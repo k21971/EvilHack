@@ -63,7 +63,7 @@ msummon(struct monst *mon)
     struct monst *mtmp;
 
     if (mon) {
-        ptr = mon->data;
+        ptr = r_data(mon);
 
         if (u_wield_art(ART_DEMONBANE) && is_demon(ptr)) {
             if (canseemon(mon))

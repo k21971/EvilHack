@@ -531,13 +531,25 @@ look_at_monster(
                 } else {
                     unsigned long mW = (svc.context.warntype.obj
                                         | svc.context.warntype.polyd),
-                                  mh = mtmp->data->mhflags;
-                    const char *whom = ((mW & MH_HUMAN & mh) ? "human"
-                                        : (mW & MH_ELF & mh) ? "elf"
-                                          : (mW & MH_ORC & mh) ? "orc"
-                                            : (mW & MH_DEMON & mh) ? "demon"
-                                              : pmname(mtmp->data,
-                                                       Mgender(mtmp)));
+                                  mh = has_erac(mtmp) ? ERAC(mtmp)->mrace
+                                                      : mtmp->data->mhflags;
+                    const char *whom =
+                        ((mW & MH_HUMAN & mh) ? "human"
+                         : (mW & MH_ELF & mh) ? "elf"
+                           : (mW & MH_DROW & mh) ? "drow"
+                             : (mW & MH_ORC & mh) ? "orc"
+                               : (mW & MH_UNDEAD & mh) ? "the undead"
+                                 : (mW & MH_GIANT & mh) ? "giant"
+                                   : (mW & MH_AASIMAR & mh) ? "aasimar"
+                         : (mW & MH_WERE & mh) ? "werecreature"
+                           : (mW & MH_DRAGON & mh) ? "dragon"
+                             : (mW & MH_OGRE & mh) ? "ogre"
+                               : (mW & MH_TROLL & mh) ? "troll"
+                                 : (mW & MH_DEMON & mh) ? "demon"
+                                   : (mW & MH_ANGEL & mh) ? "angel"
+                         : (mW & MH_JABBERWOCK & mh) ? "jabberwock"
+                           : (mW & MH_WRAITH & mh) ? "wraith"
+                             : pmname(mtmp->data, Mgender(mtmp)));
 
                     Sprintf(eos(monbuf), "warned of %s", makeplural(whom));
                 }

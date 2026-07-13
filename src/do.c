@@ -86,7 +86,7 @@ boulder_hits_pool(
                "dmonsfree: N removed doesn't match N+1 pending" when other
                monsters have finished their current turn */
             if ((mtmp = m_at(rx, ry)) != 0 && !DEADMONSTER(mtmp)
-                && !m_in_air(mtmp))
+                && r_data(mtmp)->msize <= MZ_LARGE && !m_in_air(mtmp))
                 mondied(mtmp);
 
             if (ttmp)
@@ -196,7 +196,7 @@ flooreffects(
                       vtense((const char *) 0, verb),
                       mtmp ? "" : " with you");
             if (mtmp) {
-                if (!passes_walls(mtmp->data) && !throws_rocks(mtmp->data)) {
+                if (!passes_walls(mtmp->data) && !racial_throws_rocks(mtmp)) {
                     /* dieroll was rnd(20); 1: maximum chance to hit
                        since trapped target is a sitting duck */
                     int damage, dieroll = 1;
@@ -228,7 +228,7 @@ flooreffects(
                 }
                 mtmp->mtrapped = 0;
             } else {
-                if (!Passes_walls && !throws_rocks(gy.youmonst.data)) {
+                if (!Passes_walls && !racial_throws_rocks(&gy.youmonst)) {
                     losehp(Maybe_Half_Phys(rnd(15)),
                            "squished under a boulder", NO_KILLER_PREFIX);
                     goto deletedwithboulder;

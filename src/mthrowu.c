@@ -240,12 +240,18 @@ monmulti(
         multishot += multishot_class_bonus(monsndx(mtmp->data), otmp, mwep);
 
         /* racial bonus */
-        if ((is_elf(mtmp->data) && otmp->otyp == ELVEN_ARROW
-             && mwep && mwep->otyp == ELVEN_BOW)
-            || (is_orc(mtmp->data) && otmp->otyp == ORCISH_ARROW
-                && mwep && mwep->otyp == ORCISH_BOW)
-            || (is_gnome(mtmp->data) && otmp->otyp == CROSSBOW_BOLT
-                && mwep && mwep->otyp == CROSSBOW))
+        if (mwep
+            && ((racial_elf(mtmp) && otmp->otyp == ELVEN_ARROW
+                 && mwep->otyp == ELVEN_BOW)
+                || (racial_drow(mtmp) && otmp->otyp == DARK_ELVEN_ARROW
+                    && mwep->otyp == DARK_ELVEN_BOW)
+                || (racial_orc(mtmp) && otmp->otyp == ORCISH_ARROW
+                    && mwep->otyp == ORCISH_BOW)
+                || (racial_drow(mtmp)
+                    && otmp->otyp == DARK_ELVEN_CROSSBOW_BOLT
+                    && mwep->otyp == DARK_ELVEN_HAND_CROSSBOW)
+                || (racial_gnome(mtmp) && otmp->otyp == CROSSBOW_BOLT
+                    && mwep->otyp == CROSSBOW)))
             multishot++;
     }
 
@@ -712,7 +718,7 @@ m_throw(
                     if (hitv < -4)
                         hitv = -4;
                     /* [elves get a shooting bonus, orcs don't...] */
-                    if (is_elf(mon->data)
+                    if (racial_elf(mon)
                         && objects[singleobj->otyp].oc_skill == -P_BOW) {
                         hitv++;
                         if (MON_WEP(mon) && MON_WEP(mon)->otyp == ELVEN_BOW)
@@ -720,9 +726,22 @@ m_throw(
                         if (singleobj->otyp == ELVEN_ARROW)
                             dam++;
                     }
+                    if (racial_drow(mon)
+                        && objects[singleobj->otyp].oc_skill == -P_BOW) {
+                        hitv++;
+                        if (MON_WEP(mon)
+                            && MON_WEP(mon)->otyp == DARK_ELVEN_BOW)
+                            hitv++;
+                        if (singleobj->otyp == DARK_ELVEN_ARROW)
+                            dam++;
+                    }
                     if (bigmonst(gy.youmonst.data))
                         hitv++;
                     hitv += 8 + singleobj->spe;
+                    /* M3_ACCURATE monsters get a significant bonus here */
+                    if ((has_erac(mon) && (ERAC(mon)->mflags3 & M3_ACCURATE))
+                        || (!has_erac(mon) && is_accurate(mon->data)))
+                        hitv += mon->m_lev;
                     if (dam < 1)
                         dam = 1;
                     if (singleobj->otyp != ACID_VENOM)
@@ -1366,7 +1385,7 @@ m_lined_up(struct monst *mtarg, struct monst *mtmp)
     boolean utarget = (mtarg == &gy.youmonst);
     coordxy tx = utarget ? mtmp->mux : mtarg->mx;
     coordxy ty = utarget ? mtmp->muy : mtarg->my;
-    boolean ignore_boulders = utarget && (throws_rocks(mtmp->data)
+    boolean ignore_boulders = utarget && (racial_throws_rocks(mtmp)
                                           || m_carrying(mtmp, WAN_STRIKING));
 
     /* hero concealment usually trumps monst awareness of being lined up */

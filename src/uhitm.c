@@ -398,8 +398,15 @@ find_roll_to_hit(
         else if (!uwep && !uarms)
             tmp += (u.ulevel / 3) + 2;
     }
-    if (is_orc(mtmp->data)
-        && maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF)))
+    /* elves get a slight bonus to-hit vs orcs */
+    if (racial_orc(mtmp)
+        && (maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF))
+            || maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW))))
+        tmp++;
+
+    /* orcs should get the same to-hit bonus vs elves */
+    if ((racial_elf(mtmp) || racial_drow(mtmp))
+        && maybe_polyd(is_orc(gy.youmonst.data), Race_if(PM_ORC)))
         tmp++;
 
     /* encumbrance: with a lot of luggage, your agility diminishes */
@@ -1033,6 +1040,9 @@ hmon_hitmon_weapon_melee(
     if (hmd->thrown == HMON_THROWN
         && (is_ammo(obj) || is_missile(obj))) {
         if (ammo_and_launcher(obj, uwep)) {
+            /* slings hit giants harder */
+            if (uwep->otyp == SLING && racial_giant(mon))
+                hmd->dmg *= 2;
             /* elves and samurai do extra damage using their own
                bows with their own arrows; they're highly trained */
             if (Role_if(PM_SAMURAI) && obj->otyp == YA
@@ -2954,8 +2964,17 @@ mhitm_ad_blnd(
             mdef->mcansee = 0;
             mdef->mstrategy &= ~STRAT_WAITFORU;
         }
-        if (mhm)
-            mhm->damage = 0;
+        if (mhm) {
+            /* light-haters can take damage from the intense light
+               (yellow light explosion), blind or not */
+            if (mattk->aatyp == AT_EXPL && hates_light(r_data(mdef))) {
+                if (!Deaf)
+                    pline("%s cries out in pain!", Monnam(mdef));
+                mhm->damage = rnd(5);
+            } else {
+                mhm->damage = 0;
+            }
+        }
     }
 }
 
@@ -4846,6 +4865,18 @@ explum(struct monst *mdef, struct attack *mattk)
             mdef->mblinded = min((int) mdef->mblinded + tmp, 127);
             mdef->mcansee = 0;
         }
+        /* light-haters take damage from the intense light itself */
+        if (mdef && hates_light(r_data(mdef))) {
+            if (!Deaf)
+                pline("%s cries out in pain!", Monnam(mdef));
+            if (damage_mon(mdef, rnd(5), AD_BLND, TRUE))
+                xkilled(mdef, XKILL_GIVEMSG);
+            if (DEADMONSTER(mdef)) {
+                /* other monsters may have died too, but return this
+                   if the actual target died */
+                return M_ATTK_DEF_DIED;
+            }
+        }
         break;
     case AD_HALU:
         if (mdef && haseyes(mdef->data) && mdef->mcansee) {
@@ -5817,6 +5848,8 @@ passive(
     boolean wep_was_destroyed)
 {
     struct permonst *ptr = mon->data;
+    /* passive attacks come from the racial overlay's matrix */
+    struct attack *mattk = has_erac(mon) ? ERAC(mon)->mattk : ptr->mattk;
     int i, tmp;
     int mhit = mhitb ? M_ATTK_HIT : M_ATTK_MISS;
     int malive = maliveb ? M_ATTK_HIT : M_ATTK_MISS;
@@ -5824,20 +5857,20 @@ passive(
     for (i = 0;; i++) {
         if (i >= NATTK)
             return (malive | mhit); /* no passive attacks */
-        if (ptr->mattk[i].aatyp == AT_NONE)
+        if (mattk[i].aatyp == AT_NONE)
             break; /* try this one */
     }
     /* Note: tmp not always used */
-    if (ptr->mattk[i].damn)
-        tmp = d((int) ptr->mattk[i].damn, (int) ptr->mattk[i].damd);
-    else if (ptr->mattk[i].damd)
-        tmp = d((int) mon->m_lev + 1, (int) ptr->mattk[i].damd);
+    if (mattk[i].damn)
+        tmp = d((int) mattk[i].damn, (int) mattk[i].damd);
+    else if (mattk[i].damd)
+        tmp = d((int) mon->m_lev + 1, (int) mattk[i].damd);
     else
         tmp = 0;
 
     /*  These affect you even if they just died.
      */
-    switch (ptr->mattk[i].adtyp) {
+    switch (mattk[i].adtyp) {
     case AD_FIRE:
         if (mhitb && !mon->mcan && weapon) {
             if (aatyp == AT_KICK) {
@@ -5846,7 +5879,7 @@ passive(
                                      EF_GREASE | EF_VERBOSE);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(ptr->mattk[i]));
+                passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_ACID:
@@ -5873,7 +5906,7 @@ passive(
                                      EF_GREASE | EF_VERBOSE);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(ptr->mattk[i]));
+                passive_obj(mon, weapon, &(mattk[i]));
         }
         exercise(A_STR, FALSE);
         break;
@@ -5909,7 +5942,7 @@ passive(
                                      EF_GREASE | EF_VERBOSE);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(ptr->mattk[i]));
+                passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_CORR:
@@ -5920,7 +5953,7 @@ passive(
                                      EF_GREASE | EF_VERBOSE);
             } else if (aatyp == AT_WEAP || aatyp == AT_CLAW
                        || aatyp == AT_MAGC || aatyp == AT_TUCH)
-                passive_obj(mon, weapon, &(ptr->mattk[i]));
+                passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     case AD_MAGM:
@@ -5953,7 +5986,7 @@ passive(
                  */
                 ;
             }
-            passive_obj(mon, weapon, &(ptr->mattk[i]));
+            passive_obj(mon, weapon, &(mattk[i]));
         }
         break;
     default:
@@ -5963,7 +5996,7 @@ passive(
     /*  These only affect you if they still live.
      */
     if (malive && !mon->mcan && rn2(3)) {
-        switch (ptr->mattk[i].adtyp) {
+        switch (mattk[i].adtyp) {
         case AD_PLYS:
             if (ptr == &mons[PM_FLOATING_EYE]) {
                 if (!canseemon(mon)) {
@@ -6333,11 +6366,11 @@ flash_hits_mon(
                 pline("%s is blinded by the flash!", Monnam(mtmp));
                 res = 1;
             }
-            if (mtmp->data == &mons[PM_GREMLIN]) {
+            if (hates_light(r_data(mtmp))) {
                 /* Rule #1: Keep them out of the light. */
                 amt = (otmp->otyp == WAN_LIGHT) ? d(1 + otmp->spe, 4)
                                                 : rnd(min(mtmp->mhp, 4));
-                light_hits_gremlin(mtmp, amt);
+                light_hits_light_hater(mtmp, amt);
             }
             if (!DEADMONSTER(mtmp)) {
                 if (!svc.context.mon_moving)
@@ -6368,7 +6401,7 @@ flash_hits_mon(
 }
 
 void
-light_hits_gremlin(struct monst *mon, int dmg)
+light_hits_light_hater(struct monst *mon, int dmg)
 {
     if (!Deaf && mdistu(mon) <= 90) {
         /* cry of pain can be heard somewhat farther than the waking radius */

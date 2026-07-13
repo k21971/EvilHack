@@ -559,10 +559,17 @@ done_eating(boolean message)
             food_xname(piece, TRUE));
     }
 
-    if (piece->otyp == CORPSE || piece->globby)
-        cpostfx(piece->corpsenm);
-    else
+    if (piece->otyp == CORPSE || piece->globby) {
+        /* use the racial base for racial corpses (example: elven
+           soldier gives elven intrinsics), otherwise the corpse's
+           monster type */
+        if (has_omonst(piece) && has_erac(OMONST(piece)))
+            cpostfx(ERAC(OMONST(piece))->rmnum);
+        else
+            cpostfx(piece->corpsenm);
+    } else {
         fpostfx(piece);
+    }
 
     if (carried(piece))
         useup(piece);
@@ -620,6 +627,12 @@ eat_brains(
         if (visflag)
             pline("%s brain is unharmed.",
                   (mdef == &gy.youmonst) ? "Your" : s_suffix(Monnam(mdef)));
+        return M_ATTK_MISS; /* side-effects can't occur */
+    } else if (racial_illithid(mdef)) {
+        if (visflag)
+            pline("%s psionic abilities shield %s brain.",
+                  (mdef == &gy.youmonst) ? "Your" : s_suffix(Monnam(mdef)),
+                  (mdef == &gy.youmonst) ? "your" : "its");
         return M_ATTK_MISS; /* side-effects can't occur */
     } else if (magr == &gy.youmonst) {
         You("eat %s brain!", s_suffix(mon_nam(mdef)));
@@ -687,8 +700,11 @@ eat_brains(
             *dmg_p += xtra_dmg;
         }
         /* targeting another mind flayer or your own underlying species
-           is cannibalism */
-        (void) maybe_cannibal(monsndx(pd), TRUE);
+           is cannibalism; judge racial monsters by their race */
+        if (has_erac(mdef))
+            (void) maybe_cannibal(ERAC(mdef)->rmnum, TRUE);
+        else
+            (void) maybe_cannibal(monsndx(pd), TRUE);
 
     } else if (mdef == &gy.youmonst) {
         /*
@@ -1892,7 +1908,10 @@ eatcorpse(struct obj *otmp)
 
     /* 5.0: globs don't become tainted, they shrink away */
     if (!glob && !stoneable && !slimeable && rotted > 5L) {
-        boolean cannibal = maybe_cannibal(mnum, FALSE);
+        /* cannibalism is judged by the corpse's racial base */
+        boolean cannibal = (has_omonst(otmp) && has_erac(OMONST(otmp)))
+                           ? maybe_cannibal(ERAC(OMONST(otmp))->rmnum, FALSE)
+                           : maybe_cannibal(mnum, FALSE);
 
         /* tp++; -- early return makes this unnecessary */
         pline("Ulch - that %s was tainted%s!",
@@ -2037,7 +2056,11 @@ start_eating(struct obj *otmp, boolean already_partly_eaten)
     svc.context.victual.eating = 1;
 
     if (otmp->otyp == CORPSE || otmp->globby) {
-        cprefx(svc.context.victual.piece->corpsenm);
+        /* use the racial base for racial corpses */
+        if (has_omonst(otmp) && has_erac(OMONST(otmp)))
+            cprefx(ERAC(OMONST(otmp))->rmnum);
+        else
+            cprefx(svc.context.victual.piece->corpsenm);
         if (!svc.context.victual.piece || !svc.context.victual.eating) {
             /* rider revived, or hero died and was lifesaved */
             return;

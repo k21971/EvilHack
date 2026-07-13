@@ -190,7 +190,7 @@ void
 done_in_by(struct monst *mtmp, int how)
 {
     char buf[BUFSZ];
-    struct permonst *mptr = mtmp->data,
+    struct permonst *mptr = r_data(mtmp),
                     *champtr = ismnum(mtmp->cham) ? &mons[mtmp->cham]
                                                   : mptr;
     boolean distorted = (boolean) (Hallucination && canspotmon(mtmp)),
@@ -321,8 +321,8 @@ done_in_by(struct monst *mtmp, int how)
         u.ugrave_arise = gu.urace.mummynum;
     else if (zombie_maker(mtmp) && gu.urace.zombienum != NON_PM)
         u.ugrave_arise = gu.urace.zombienum;
-    else if (mptr->mlet == S_VAMPIRE && Race_if(PM_HUMAN))
-        u.ugrave_arise = PM_VAMPIRE;
+    else if (racial_vampire(mtmp) && Race_if(PM_HUMAN))
+        u.ugrave_arise = PM_VAMPIRE_SOVEREIGN;
     else if (mptr == &mons[PM_GHOUL])
         u.ugrave_arise = PM_GHOUL;
     /* this could happen if a high-end vampire kills the hero

@@ -1142,7 +1142,7 @@ break_armor(void)
     struct obj *otmp;
     struct permonst *uptr = gy.youmonst.data;
 
-    if (breakarm(uptr)) {
+    if (breakarm(&gy.youmonst)) {
         if ((otmp = uarm) != 0) {
             if (donning(otmp))
                 cancel_don();
@@ -1178,7 +1178,7 @@ break_armor(void)
             Your("shirt rips to shreds!");
             useup(uarmu);
         }
-    } else if (sliparm(uptr)) {
+    } else if (sliparm(&gy.youmonst)) {
         if ((otmp = uarm) != 0 && racial_exception(&gy.youmonst, otmp) < 1) {
             if (donning(otmp))
                 cancel_don();

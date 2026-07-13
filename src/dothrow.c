@@ -125,7 +125,7 @@ throw_obj(struct obj *obj, int shotlimit)
         goto unsplit_stack;
     }
     if ((is_art(obj, ART_MJOLLNIR) && ACURR(A_STR) < STR19(25))
-        || (obj->otyp == BOULDER && !throws_rocks(gy.youmonst.data))) {
+        || (obj->otyp == BOULDER && !racial_throws_rocks(&gy.youmonst))) {
         pline("It's too heavy.");
         res = ECMD_TIME;
         goto unsplit_stack;
@@ -342,7 +342,7 @@ throw_ok(struct obj *obj)
     if (uslinging() && obj->oclass == GEM_CLASS)
         return GETOBJ_SUGGEST;
 
-    if (throws_rocks(gy.youmonst.data) && obj->otyp == BOULDER)
+    if (racial_throws_rocks(&gy.youmonst) && obj->otyp == BOULDER)
         return GETOBJ_SUGGEST;
 
     return GETOBJ_DOWNPLAY;
@@ -826,8 +826,8 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
             why = "touching the edge of the universe";
             You("smack into something!");
         } else if (diagonal
-                   && bad_rock(gy.youmonst.data, u.ux, y)
-                   && bad_rock(gy.youmonst.data, x, u.uy)) {
+                   && bad_rock(&gy.youmonst, u.ux, y)
+                   && bad_rock(&gy.youmonst, x, u.uy)) {
             boolean too_much = (gi.invent
                        && (inv_weight() + weight_cap() > WT_TOOMUCH_DIAGONAL));
 
@@ -889,8 +889,8 @@ hurtle_step(genericptr_t arg, coordxy x, coordxy y)
     }
 
     if ((u.ux - x) && (u.uy - y)
-        && bad_rock(gy.youmonst.data, u.ux, y)
-        && bad_rock(gy.youmonst.data, x, u.uy)) {
+        && bad_rock(&gy.youmonst, u.ux, y)
+        && bad_rock(&gy.youmonst, x, u.uy)) {
         /* Move at a diagonal. */
         if (Sokoban) {
             You("come to an abrupt halt!");
@@ -985,7 +985,7 @@ will_hurtle(struct monst *mon, coordxy x, coordxy y)
     if (!isok(x, y))
         return FALSE;
     /* redundant when called by mhurtle() but needed for mhitm_knockback() */
-    if (mon->data->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped)
+    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped)
         return FALSE;
     /*
      * TODO: Treat walls, doors, iron bars, etc. specially
@@ -1145,7 +1145,7 @@ mhurtle(struct monst *mon, int dx, int dy, int range)
     /* Is the monster stuck or too heavy to push?
      * (very large monsters have too much inertia, even floaters and flyers)
      */
-    if (mon->data->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped) {
+    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped) {
         if (canseemon(mon))
             pline("%s doesn't budge!", Monnam(mon));
         return;
@@ -2141,8 +2141,9 @@ thitmonst(
     }
 
     tmp += omon_adj(mon, obj, TRUE);
-    if (is_orc(mon->data)
-        && maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF)))
+    if (racial_orc(mon)
+        && (maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF))
+            || maybe_polyd(is_drow(gy.youmonst.data), Race_if(PM_DROW))))
         tmp++;
     if (guaranteed_hit) {
         tmp += 1000; /* Guaranteed hit */

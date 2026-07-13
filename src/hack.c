@@ -54,6 +54,9 @@ staticfn int QSORTCALLBACK cmp_weights(const void *, const void *);
 
 #define IS_SHOP(x) (svr.rooms[x].rtype >= SHOPBASE)
 
+/* effective weight of a boulder for a boulder-throwing carrier */
+#define GIANT_BLDR_WEIGHT 8
+
 /* XXX: if more sources of water walking than just boots are added,
    cause_known(insight.c) should be externified and used for this */
 #define Known_wwalking \
@@ -152,7 +155,7 @@ could_move_onto_boulder(coordxy sx, coordxy sy)
         return FALSE;
     /* can if a giant, unless doing so allows hero to pass into a
        diagonal squeeze at the same time */
-    if (throws_rocks(gy.youmonst.data))
+    if (racial_throws_rocks(&gy.youmonst))
         return (!u.dx || !u.dy || !(IS_OBSTRUCTED(levl[u.ux][sy].typ)
                                     && IS_OBSTRUCTED(levl[sx][u.uy].typ)));
     /* can if tiny (implies carrying very little else couldn't move at all) */
@@ -189,7 +192,7 @@ dopush(
                     || svm.moves < gb.bldrpushtime);
         what = givemesg ? the(xname(otmp)) : 0;
         if (!u.usteed) {
-            easypush = throws_rocks(gy.youmonst.data);
+            easypush = racial_throws_rocks(&gy.youmonst);
             if (givemesg)
                 pline("With %s effort you move %s.",
                       easypush ? "little" : "great", what);
@@ -261,7 +264,7 @@ cannot_push_msg(struct obj *otmp, coordxy sx, coordxy sy)
 staticfn int
 cannot_push(struct obj *otmp, coordxy sx, coordxy sy)
 {
-    if (throws_rocks(gy.youmonst.data)) {
+    if (racial_throws_rocks(&gy.youmonst)) {
         boolean
             canpickup = (!Sokoban
                          /* similar exception as in can_lift():
@@ -388,7 +391,7 @@ moverock_core(coordxy sx, coordxy sy)
             int res;
 
             feel_location(sx, sy); /* same for all 3 if/else-if/else cases */
-            if (throws_rocks(gy.youmonst.data)) {
+            if (racial_throws_rocks(&gy.youmonst)) {
                 /* player has used 'm<dir>' to move, so step to boulder's
                    spot without pushing it; hero is poly'd into a giant,
                    so exotic forms of locomotion are out, but might be
@@ -936,13 +939,14 @@ may_passwall(coordxy x, coordxy y)
 }
 
 boolean
-bad_rock(struct permonst *mdat, coordxy x, coordxy y)
+bad_rock(struct monst *mon, coordxy x, coordxy y)
 {
     return (boolean) ((Sokoban && sobj_at(BOULDER, x, y))
                       || (IS_OBSTRUCTED(levl[x][y].typ)
-                          && (!tunnels(mdat) || needspick(mdat)
+                          && (!racial_tunnels(mon) || racial_needspick(mon)
                               || !may_dig(x, y))
-                          && !(passes_walls(mdat) && may_passwall(x, y))));
+                          && !(passes_walls(mon->data)
+                               && may_passwall(x, y))));
 }
 
 /* caller has already decided that it's a tight diagonal; check whether a
@@ -1150,8 +1154,8 @@ test_move(
             }
         }
     }
-    if (dx && dy && bad_rock(gy.youmonst.data, ux, y)
-        && bad_rock(gy.youmonst.data, x, uy)) {
+    if (dx && dy && bad_rock(&gy.youmonst, ux, y)
+        && bad_rock(&gy.youmonst, x, uy)) {
         /* Move at a diagonal. */
         switch (cant_squeeze_thru(&gy.youmonst)) {
         case 3:
@@ -1976,10 +1980,10 @@ domove_attackmon_at(
                       && !u.utrap && !u.ustuck && !u.usteed
                       && !(u.dx && u.dy
                            && (NODIAG(u.umonnum)
-                               || (bad_rock(mtmp->data, x, u.uy0)
-                                   && bad_rock(mtmp->data, u.ux0, y))
-                               || (bad_rock(gy.youmonst.data, u.ux0, y)
-                                   && bad_rock(gy.youmonst.data, x, u.uy0))))
+                               || (bad_rock(mtmp, x, u.uy0)
+                                   && bad_rock(mtmp, u.ux0, y))
+                               || (bad_rock(&gy.youmonst, u.ux0, y)
+                                   && bad_rock(&gy.youmonst, x, u.uy0))))
                       && goodpos(u.ux0, u.uy0, mtmp, GP_ALLOW_U));
         /* if not displacing, try to attack; note that it might evade;
            also, we don't attack tame or peaceful when safemon() */
@@ -2132,8 +2136,8 @@ domove_swap_with_pet(
         You("stop.  %s won't fit into the same spot that you're at.",
             YMonnam(mtmp));
         didnt_move = TRUE;
-    } else if (u.ux0 != x && u.uy0 != y && bad_rock(mtmp->data, x, u.uy0)
-               && bad_rock(mtmp->data, u.ux0, y)
+    } else if (u.ux0 != x && u.uy0 != y && bad_rock(mtmp, x, u.uy0)
+               && bad_rock(mtmp, u.ux0, y)
                && (bigmonst(mtmp->data) || (curr_mon_load(mtmp) > 600))) {
         /* can't swap places when pet won't fit thru the opening */
         You("stop.  %s won't fit through.", YMonnam(mtmp));
@@ -2153,7 +2157,15 @@ domove_swap_with_pet(
         didnt_move = TRUE;
     } else if (mtmp->mpeaceful
                && (!goodpos(u.ux0, u.uy0, mtmp, 0)
-                   || t_at(u.ux0, u.uy0) != NULL
+                   /* exception: web-immune monsters can swap onto webs */
+                   || ((trap = t_at(u.ux0, u.uy0)) != NULL
+                       && !(trap->ttyp == WEB
+                            && (webmaker(mtmp->data) || racial_drow(mtmp)
+                                || amorphous(mtmp->data)
+                                || is_whirly(mtmp->data)
+                                || flaming(mtmp->data)
+                                || unsolid(mtmp->data)
+                                || mtmp->data == &mons[PM_GELATINOUS_CUBE])))
                    || mundisplaceable(mtmp))) {
         /* displacing peaceful into unsafe or trapped space, or trying to
            displace quest leader, Oracle, shk, priest, or vault guard */
@@ -2435,7 +2447,7 @@ impaired_movement(coordxy *x, coordxy *y)
             confdir(TRUE);
             *x = u.ux + u.dx;
             *y = u.uy + u.dy;
-        } while (!isok(*x, *y) || bad_rock(gy.youmonst.data, *x, *y));
+        } while (!isok(*x, *y) || bad_rock(&gy.youmonst, *x, *y));
     }
     return FALSE;
 }
@@ -4095,8 +4107,8 @@ crawl_destination(coordxy x, coordxy y)
     if (IS_DOOR(levl[x][y].typ) && (!doorless_door(x, y) || block_door(x, y)))
         return FALSE;
     /* finally, are we trying to squeeze through a too-narrow gap? */
-    return !(bad_rock(gy.youmonst.data, u.ux, y)
-             && bad_rock(gy.youmonst.data, x, u.uy)
+    return !(bad_rock(&gy.youmonst, u.ux, y)
+             && bad_rock(&gy.youmonst, x, u.uy)
              && cant_squeeze_thru(&gy.youmonst));
 }
 
@@ -4356,7 +4368,9 @@ inv_weight(void)
     while (otmp) {
         if (otmp->oclass == COIN_CLASS)
             wt += (int) (((long) otmp->quan + 50L) / 100L);
-        else if (otmp->otyp != BOULDER || !throws_rocks(gy.youmonst.data))
+        else if (otmp->otyp == BOULDER && racial_throws_rocks(&gy.youmonst))
+            wt += GIANT_BLDR_WEIGHT * otmp->quan;
+        else /* otmp->otyp != BOULDER || !racial_throws_rocks(&gy.youmonst) */
             wt += otmp->owt;
         otmp = otmp->nobj;
     }
@@ -4570,6 +4584,5 @@ rounddiv(long x, int y)
 
     return divsgn * r;
 }
-
 
 /*hack.c*/

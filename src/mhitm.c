@@ -324,6 +324,15 @@ mattackm(
         mdef->msleeping = 0;
     }
 
+    /* elven types hate orcs */
+    if ((racial_elf(magr) || racial_drow(magr)) && racial_orc(mdef))
+        tmp++;
+
+    /* M3_ACCURATE monsters get a to-hit bonus */
+    if ((has_erac(magr) && (ERAC(magr)->mflags3 & M3_ACCURATE))
+        || is_accurate(magr->data))
+        tmp += 5;
+
     /* mundetected monsters become un-hidden if they are attacked */
     if (mdef->mundetected) {
         mdef->mundetected = 0;
@@ -738,7 +747,7 @@ gazemm(struct monst *magr, struct monst *mdef, struct attack *mattk)
 
     if (magr->mcan || !mdef->mcansee
         || (archon ? resists_blnd(mdef) : !magr->mcansee)
-        || (magr->minvis && !perceives(mdef->data)) || mdef->msleeping) {
+        || (magr->minvis && !racial_perceives(mdef)) || mdef->msleeping) {
         if (gv.vis && canspotmon(mdef))
             pline("but nothing happens.");
         return M_ATTK_MISS;
@@ -754,7 +763,7 @@ gazemm(struct monst *magr, struct monst *mdef, struct attack *mattk)
                                       "The gaze is reflected away by %s %s.");
                 return M_ATTK_MISS;
             }
-            if (mdef->minvis && !perceives(magr->data)) {
+            if (mdef->minvis && !racial_perceives(magr)) {
                 if (canseemon(magr)) {
                     pline(
                       "%s doesn't seem to notice that %s gaze was reflected.",
@@ -793,8 +802,9 @@ engulf_target(struct monst *magr, struct monst *mdef)
             udef = (mdef == &gy.youmonst);
 
     /* can't swallow something that's too big */
-    if (mdef->data->msize >= MZ_HUGE
-        || (magr->data->msize < mdef->data->msize && !is_whirly(magr->data)))
+    if (r_data(mdef)->msize >= MZ_HUGE
+        || (r_data(magr)->msize < r_data(mdef)->msize
+            && !is_whirly(magr->data)))
         return FALSE;
 
     /* can't (move to) swallow if trapped. TODO: could do some? */
@@ -1291,6 +1301,9 @@ passivemm(
 {
     struct permonst *mddat = mdef->data;
     struct permonst *madat = magr->data;
+    /* defender's passive attacks come from its racial overlay's matrix */
+    struct attack *mdattk = has_erac(mdef) ? ERAC(mdef)->mattk
+                                           : mddat->mattk;
     char buf[BUFSZ];
     int i, tmp;
     int mhit = mhitb ? M_ATTK_HIT : M_ATTK_MISS;
@@ -1298,18 +1311,18 @@ passivemm(
     for (i = 0;; i++) {
         if (i >= NATTK)
             return (mdead | mhit); /* no passive attacks */
-        if (mddat->mattk[i].aatyp == AT_NONE)
+        if (mdattk[i].aatyp == AT_NONE)
             break;
     }
-    if (mddat->mattk[i].damn)
-        tmp = d((int) mddat->mattk[i].damn, (int) mddat->mattk[i].damd);
-    else if (mddat->mattk[i].damd)
-        tmp = d((int) mddat->mlevel + 1, (int) mddat->mattk[i].damd);
+    if (mdattk[i].damn)
+        tmp = d((int) mdattk[i].damn, (int) mdattk[i].damd);
+    else if (mdattk[i].damd)
+        tmp = d((int) mddat->mlevel + 1, (int) mdattk[i].damd);
     else
         tmp = 0;
 
     /* These affect the enemy even if defender killed */
-    switch (mddat->mattk[i].adtyp) {
+    switch (mdattk[i].adtyp) {
     case AD_ACID:
         if (mhitb && !rn2(2)) {
             Strcpy(buf, Monnam(magr));
@@ -1342,7 +1355,7 @@ passivemm(
 
     /* These affect the enemy only if defender is still alive */
     if (rn2(3))
-        switch (mddat->mattk[i].adtyp) {
+        switch (mdattk[i].adtyp) {
         case AD_PLYS: /* Floating eye */
             if (tmp > 127)
                 tmp = 127;
@@ -1350,7 +1363,7 @@ passivemm(
                 if (!rn2(4))
                     tmp = 127;
                 if (magr->mcansee && haseyes(madat) && mdef->mcansee
-                    && (perceives(madat) || !mdef->minvis)) {
+                    && (racial_perceives(magr) || !mdef->minvis)) {
                     /* construct format string; guard against '%' in Monnam */
                     Strcpy(buf, s_suffix(Monnam(mdef)));
                     (void) strNsubst(buf, "%", "%%", 0);
@@ -1431,7 +1444,7 @@ passivemm(
 
  assess_dmg:
     if ((magr->mhp -= tmp) <= 0) {
-        monkilled(magr, "", (int) mddat->mattk[i].adtyp);
+        monkilled(magr, "", (int) mdattk[i].adtyp);
         return (mdead | mhit | M_ATTK_AGR_DIED);
     }
     return (mdead | mhit);

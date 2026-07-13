@@ -645,10 +645,12 @@ staticfn void
 mcast_insects(struct monst *mtmp)
 {
     /* Try for insects, and if there are none
-       left, go for (sticks to) snakes.  -3. */
-    struct permonst *pm = mkclass(S_ANT, 0);
+       left, go for (sticks to) snakes. -3.
+       Drow and Lolth summon spiders instead */
+    boolean spiders = (mtmp->data == &mons[PM_LOLTH] || racial_drow(mtmp));
+    struct permonst *pm = mkclass(spiders ? S_SPIDER : S_ANT, 0);
     struct monst *mtmp2 = (struct monst *) 0;
-    char whatbuf[QBUFSZ], let = (pm ? S_ANT : S_SNAKE);
+    char whatbuf[QBUFSZ], let = (pm ? (spiders ? S_SPIDER : S_ANT) : S_SNAKE);
     boolean success = FALSE, seecaster;
     int i, quan, oldseen, newseen;
     coord bypos;
@@ -673,7 +675,9 @@ mcast_insects(struct monst *mtmp)
 
     /* not canspotmon() which includes unseen things sensed via warning */
     seecaster = canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters;
-    what = (let == S_SNAKE) ? "snakes" : "insects";
+    what = (let == S_SNAKE) ? "snakes"
+           : (let == S_SPIDER) ? "arachnids"
+             : "insects";
     if (Hallucination)
         what = makeplural(bogusmon(whatbuf, (char *) 0));
 

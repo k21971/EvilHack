@@ -1107,8 +1107,8 @@ use_mirror(struct obj *obj)
 #define SEENMON (MONSEEN_NORMAL | MONSEEN_SEEINVIS | MONSEEN_INFRAVIS)
     how_seen = vis ? howmonseen(mtmp) : 0;
     /* whether monster is able to use its vision-based capabilities */
-    monable = !mtmp->mcan && (!mtmp->minvis || perceives(mtmp->data));
-    mlet = mtmp->data->mlet;
+    monable = !mtmp->mcan && (!mtmp->minvis || racial_perceives(mtmp));
+    mlet = r_data(mtmp)->mlet;
     if (mtmp->msleeping) {
         if (vis)
             pline("%s is too tired to look at your %s.", Monnam(mtmp),
@@ -1116,7 +1116,7 @@ use_mirror(struct obj *obj)
     } else if (!mtmp->mcansee) {
         if (vis)
             pline("%s can't see anything right now.", Monnam(mtmp));
-    } else if (invis_mirror && !perceives(mtmp->data)) {
+    } else if (invis_mirror && !racial_perceives(mtmp)) {
         if (vis)
             pline("%s fails to notice your %s.", Monnam(mtmp), mirror);
         /* infravision doesn't produce an image in the mirror */
@@ -1126,7 +1126,8 @@ use_mirror(struct obj *obj)
                   monverbself(mtmp, Monnam(mtmp), "are",
                               "too far away to see"));
         /* some monsters do special things */
-    } else if (mlet == S_VAMPIRE || mlet == S_GHOST || is_vampshifter(mtmp)) {
+    } else if (racial_vampire(mtmp) || mlet == S_GHOST
+               || is_vampshifter(mtmp)) {
         if (vis)
             pline("%s doesn't have a reflection.", Monnam(mtmp));
     } else if (monable && mtmp->data == &mons[PM_MEDUSA]) {
@@ -1167,7 +1168,7 @@ use_mirror(struct obj *obj)
             (void) rloc(mtmp, RLOC_MSG);
     } else if (!is_unicorn(mtmp->data) && !humanoid(mtmp->data)
                && !is_demon(mtmp->data)
-               && (!mtmp->minvis || perceives(mtmp->data)) && rn2(5)) {
+               && (!mtmp->minvis || racial_perceives(mtmp)) && rn2(5)) {
         boolean do_react = TRUE;
 
         if (mtmp->mfrozen) {
@@ -1186,7 +1187,7 @@ use_mirror(struct obj *obj)
     } else if (!Blind) {
         if (mtmp->minvis && !See_invisible)
             ;
-        else if ((mtmp->minvis && !perceives(mtmp->data))
+        else if ((mtmp->minvis && !racial_perceives(mtmp))
                  /* redundant: can't get here if these are true */
                  || !haseyes(mtmp->data) || gn.notonhead || !mtmp->mcansee)
             pline("%s doesn't seem to notice %s reflection.", Monnam(mtmp),
@@ -1884,7 +1885,7 @@ check_jump(genericptr arg, coordxy x, coordxy y)
     /* let giants jump over boulders (what about Flying?
        and is there really enough head room for giants to jump
        at all, let alone over something tall?) */
-    if (sobj_at(BOULDER, x, y) && !throws_rocks(gy.youmonst.data))
+    if (sobj_at(BOULDER, x, y) && !racial_throws_rocks(&gy.youmonst))
         return FALSE;
     return TRUE;
 }
@@ -2223,7 +2224,11 @@ use_tinning_kit(struct obj *obj)
     if ((can = mksobj(TIN, FALSE, FALSE)) != 0) {
         static const char you_buy_it[] = "You tin it, you bought it!";
 
-        can->corpsenm = corpse->corpsenm;
+        /* tinning a racial corpse yields a tin of its racial monster */
+        if (has_omonst(corpse) && has_erac(OMONST(corpse)))
+            can->corpsenm = ERAC(OMONST(corpse))->rmnum;
+        else
+            can->corpsenm = corpse->corpsenm;
         can->cursed = obj->cursed;
         can->blessed = obj->blessed;
         can->owt = weight(can);
@@ -2673,7 +2678,6 @@ touchstone_ok(struct obj *obj)
 
     return GETOBJ_DOWNPLAY;
 }
-
 
 /* touchstones - by Ken Arnold */
 staticfn int

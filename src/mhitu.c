@@ -313,7 +313,10 @@ getmattk(
     struct attack *alt_attk_buf)
 {
     struct permonst *mptr = magr->data;
-    struct attack *attk = &mptr->mattk[indx];
+    /* racial monsters attack with their racial overlay's matrix */
+    struct attack *mattk = has_erac(magr) ? ERAC(magr)->mattk
+                                          : mptr->mattk;
+    struct attack *attk = &mattk[indx];
     struct obj *weap = (magr == &gy.youmonst) ? uwep : MON_WEP(magr);
     boolean udefend = mdef == &gy.youmonst;
 
@@ -324,7 +327,7 @@ getmattk(
         /* if the first attack is for SSEX damage, all six attacks will be
            substituted (expected succubus/incubus handling); if it isn't
            but another one is, only that other one will be substituted */
-        if (mptr->mattk[0].adtyp == AD_SSEX) {
+        if (mattk[0].adtyp == AD_SSEX) {
             *alt_attk_buf = c_sa_no[indx];
             attk = alt_attk_buf;
         } else if (attk->adtyp == AD_SSEX) {
@@ -340,7 +343,7 @@ getmattk(
     if (indx > 0 && prev_result[indx - 1] > M_ATTK_MISS
         && (attk->adtyp == AD_DISE || attk->adtyp == AD_PEST
             || attk->adtyp == AD_FAMN)
-        && attk->adtyp == mptr->mattk[indx - 1].adtyp) {
+        && attk->adtyp == mattk[indx - 1].adtyp) {
         *alt_attk_buf = *attk;
         attk = alt_attk_buf;
         attk->adtyp = AD_STUN;
@@ -398,8 +401,8 @@ getmattk(
        doesn't--avoid forcing physical damage for those */
     } else if (indx == 0 && magr != &gy.youmonst
                && attk->aatyp == AT_WEAP && attk->adtyp != AD_PHYS
-               && !(mptr->mattk[1].aatyp == AT_WEAP
-                    && mptr->mattk[1].adtyp == AD_PHYS)
+               && !(mattk[1].aatyp == AT_WEAP
+                    && mattk[1].adtyp == AD_PHYS)
                && (magr->mcan
                    || (weap && ((weap->otyp == CORPSE
                                  && touch_petrifies(&mons[weap->corpsenm]))
@@ -531,7 +534,7 @@ mattacku(struct monst *mtmp)
             /* Your steed won't attack you */
             return 0;
         /* Orcs like to steal and eat horses and the like */
-        if (!rn2(is_orc(mtmp->data) ? 2 : 4) && m_next2u(mtmp)) {
+        if (!rn2(racial_orc(mtmp) ? 2 : 4) && m_next2u(mtmp)) {
             /* attack your steed instead; 'bhitpos' and 'notonhead' are
                already set from targeting hero */
             i = mattackm(mtmp, u.usteed);
@@ -710,10 +713,14 @@ mattacku(struct monst *mtmp)
     tmp += mtmp->m_lev;
     if (gm.multi < 0)
         tmp += 4;
-    if ((Invis && !perceives(mdat)) || !mtmp->mcansee)
+    if ((Invis && !racial_perceives(mtmp)) || !mtmp->mcansee)
         tmp -= 2;
     if (mtmp->mtrapped)
         tmp -= 2;
+    /* M3_ACCURATE monsters get a to-hit bonus */
+    if ((has_erac(mtmp) && (ERAC(mtmp)->mflags3 & M3_ACCURATE))
+        || is_accurate(mdat))
+        tmp += 5;
     if (tmp <= 0)
         tmp = 1;
 
@@ -1101,6 +1108,21 @@ magic_negation(struct monst *mon)
         /* a_can field is only applicable for armor (which must be worn) */
         if ((o->owornmask & W_ARMOR) != 0L) {
             armpro = objects[o->otyp].a_can;
+            /* mithril armor grants a level of MC due to its magical
+               origins, plus extra for elves */
+            if ((o->owornmask & (W_ARM | W_ARMC)) != 0
+                && o->material == MITHRIL) {
+                armpro = max(armpro,
+                             ((is_you ? (Race_if(PM_ELF) && !Upolyd)
+                                      : racial_elf(mon)) ? 3 : 2));
+            /* bone or stone armor grants MC to orcs */
+            } else if ((o->owornmask & (W_ARM | W_ARMC)) != 0
+                       && (o->material == BONE || o->material == MINERAL)
+                       && (is_you ? (Race_if(PM_ORC) && !Upolyd)
+                                  : racial_orc(mon))
+                       && armpro < 3) {
+                armpro = 3;
+            }
             if (armpro > mc)
                 mc = armpro;
         } else if ((o->owornmask & W_AMUL) != 0L) {
@@ -2399,10 +2421,11 @@ ranged_attk_assessed(
     boolean (*assessfunc)(struct monst *, int))
 {
     int i;
-    struct permonst *ptr = mtmp->data;
+    struct attack *mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk
+                                          : mtmp->data->mattk;
 
     for (i = 0; i < NATTK; i++)
-        if (DISTANCE_ATTK_TYPE(ptr->mattk[i].aatyp)) {
+        if (DISTANCE_ATTK_TYPE(mattk[i].aatyp)) {
             if (!assessfunc || (*assessfunc)(mtmp, i) == 0)
                 return TRUE;
         }
@@ -2417,11 +2440,12 @@ mon_avoiding_this_attack(
     struct monst *mtmp,
     int attkidx)
 {
-    struct permonst *ptr = mtmp->data;
+    struct attack *mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk
+                                          : mtmp->data->mattk;
     int typ = -1;
 
     if (attkidx >= 0
-        && (typ = get_atkdam_type(ptr->mattk[attkidx].adtyp)) >= 0
+        && (typ = get_atkdam_type(mattk[attkidx].adtyp)) >= 0
         && m_seenres(mtmp, cvt_adtyp_to_mseenres(typ)))
         return TRUE;
     return FALSE;
@@ -2436,11 +2460,12 @@ boolean
 ranged_attk_available(struct monst *mtmp)
 {
     int i, typ = -1;
-    struct permonst *ptr = mtmp->data;
+    struct attack *mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk
+                                          : mtmp->data->mattk;
 
     for (i = 0; i < NATTK; i++) {
-        if (DISTANCE_ATTK_TYPE(ptr->mattk[i].aatyp)
-            && (typ = get_atkdam_type(ptr->mattk[i].adtyp)) >= 0
+        if (DISTANCE_ATTK_TYPE(mattk[i].aatyp)
+            && (typ = get_atkdam_type(mattk[i].adtyp)) >= 0
                 && m_seenres(mtmp, cvt_adtyp_to_mseenres(typ)) == 0)
                 return TRUE;
     }

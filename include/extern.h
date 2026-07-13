@@ -184,6 +184,7 @@ extern long arti_cost(struct obj *) NONNULLARG1;
 extern struct obj *what_gives(long *) NONNULLARG1;
 extern const char *glow_color(int);
 extern const char *glow_verb(int, boolean);
+extern boolean wielding_artifact(int);
 extern void Sting_effects(int);
 extern int retouch_object(struct obj **, boolean, boolean) NONNULLARG1;
 extern void retouch_equipment(int);
@@ -1223,7 +1224,7 @@ extern int still_chewing(coordxy, coordxy);
 extern void movobj(struct obj *, coordxy, coordxy);
 extern boolean may_dig(coordxy, coordxy);
 extern boolean may_passwall(coordxy, coordxy);
-extern boolean bad_rock(struct permonst *, coordxy, coordxy) NONNULLARG1;
+extern boolean bad_rock(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern int cant_squeeze_thru(struct monst *) NONNULLARG1;
 extern boolean invocation_pos(coordxy, coordxy);
 extern boolean test_move(coordxy, coordxy, coordxy, coordxy, int);
@@ -1920,8 +1921,8 @@ extern boolean can_blow(struct monst *) NONNULLARG1;
 extern boolean can_chant(struct monst *) NONNULLARG1;
 extern boolean can_be_strangled(struct monst *) NONNULLARG1;
 extern boolean can_track(struct permonst *) NONNULLARG1;
-extern boolean breakarm(struct permonst *) NONNULLARG1;
-extern boolean sliparm(struct permonst *) NONNULLARG1;
+extern boolean breakarm(struct monst *) NONNULLARG1;
+extern boolean sliparm(struct monst *) NONNULLARG1;
 extern boolean sticks(struct permonst *) NONNULLARG1;
 extern boolean cantvomit(struct permonst *) NONNULLARG1;
 extern int num_horns(struct permonst *) NONNULLARG1;
@@ -3537,7 +3538,7 @@ extern void stumble_onto_mimic(struct monst *) NONNULLARG1;
 extern boolean disguised_as_non_mon(struct monst *) NONNULLARG1;
 extern boolean disguised_as_mon(struct monst *) NONNULLARG1;
 extern int flash_hits_mon(struct monst *, struct obj *) NONNULLARG12;
-extern void light_hits_gremlin(struct monst *, int) NONNULLARG1;
+extern void light_hits_light_hater(struct monst *, int) NONNULLARG1;
 
 /* ### unixmain.c ### */
 #ifdef UNIX

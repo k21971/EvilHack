@@ -198,7 +198,6 @@ enum {
 
 typedef long cmdcount_nht;    /* Command counts */
 
-
 /* special key functions */
 enum nh_keyfunc {
     NHKF_ESC = 0,
@@ -341,7 +340,6 @@ enum digcheck_result {
     DIGCHECK_FAIL_BOULDER,
     DIGCHECK_FAIL_OBJ_POOL_OR_TRAP
 };
-
 
 /* Dismount: causes for why you are no longer riding */
 enum dismount_types {
@@ -505,7 +503,6 @@ struct gamelog_line {
     char *text;
     struct gamelog_line *next;
 };
-
 
 /* values returned from getobj() callback functions */
 enum getobj_callback_returns {
@@ -684,7 +681,6 @@ struct mvitals {
     Bitfield(seen_close, 1);
     Bitfield(photographed, 1);
 };
-
 
 /* Lua callback functions */
 enum nhcore_calls {
@@ -1143,15 +1139,20 @@ typedef struct nh_file NHFILE;
       {0}, {0}                                  \
     }
 
+/* warning masks live in mhflags space; racial overlays substitute
+   the erac race mask for the base species' */
 #define MATCH_WARN_OF_MON(mon) \
-    (Warn_of_mon                                                        \
-     && ((svc.context.warntype.obj & (mon)->data->mflags2) != 0           \
-         || (svc.context.warntype.polyd & (mon)->data->mflags2) != 0      \
+    (Warn_of_mon                                                          \
+     && ((svc.context.warntype.obj                                        \
+          & (has_erac(mon) ? ERAC(mon)->mrace                             \
+                           : (mon)->data->mhflags)) != 0                  \
+         || (svc.context.warntype.polyd                                   \
+             & (has_erac(mon) ? ERAC(mon)->mrace                          \
+                              : (mon)->data->mhflags)) != 0               \
          || (svc.context.warntype.species                                 \
              && (svc.context.warntype.species == (mon)->data))))
 
 typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
-
 
 /* flags to control makemon(); goodpos() uses some plus has some of its own*/
 #define NO_MM_FLAGS     0x00000000L /* use this rather than plain 0 */

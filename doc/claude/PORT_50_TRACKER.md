@@ -657,12 +657,97 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       r_data trusts restored rmnum (master parity), stale
       util/sfctool binary until make sfutil. ERAC->mattk racial
       attack overlays saved but NO combat consumer yet (Slice B).
-      Slice B TODO: tree-wide mon->data -> r_data consumer sweep
-      (~15 files), racial gear (priest.c TODO-EVILHACK x2 inside),
-      worn.c racial_exception, shk racial pricing; reviewer's
-      deep-test list for Slice B battery: Minetown priest
-      (epri+erac straddle), corpse-revive race persistence, bones
-      round-trip, sfctool convert cycle, newcham poly churn
+      SLICE B1 (racial consumer sweep) PORTED 2026-07-13,
+      UNCOMMITTED working-tree diff, 43 files +645/-262 incl.
+      coordinator fixups (patch snapshot:
+      evilhack-50-backups/phase2-erac-slice-b1-worktree-2026-07-13
+      .patch). Subagent-ported, reviewer CONDITIONAL PASS, clean
+      make clean+all zero-warning after fixes. Contents: mondata.h
+      derived macros (racial_tunnels/needspick/perceives/
+      throws_rocks, has_telepathy, extended telepathic 16-PM list,
+      hates_light +drow/shadow dragons, ultravision, resists_slow,
+      is_zombie/angel/troll/spider/accurate, cantweararm(mon));
+      ~60 r_data sites; ERAC->mattk overlay INSIDE getmattk (=
+      master's own choke point; hmonas safe, youmonst never has
+      erac) + 6 full-matrix scanners (passive x13 refs, passivemm,
+      ranged_attk_assessed/available/mon_avoiding, can_carry
+      AT_ENGL, monmove castmu scan) - index-consistency reviewer-
+      verified, zero leftover base-matrix reads; signature changes
+      bad_rock/breakarm/sliparm/cantweararm -> struct monst* (all
+      callers swept) + light_hits_gremlin -> light_hits_light_hater
+      + litroom light_haters generalization; NEW wielding_artifact()
+      helper (artifact.c, uwep+twoweap offhand); racial naming
+      chain (corpse_xname/statue/tin prefixes, maybe_cannibal by
+      ERAC rmnum x4 eat.c sites, start_corpse_timeout NON_PM guard,
+      weight racial cwt, pray offering racial ptr); mm_2way
+      aggression rows; elf/drow/orc to-hit matrix + M3_ACCURATE;
+      boulder/giant sites (moverock family, hurtle, multishot,
+      ignore_boulders); dog.c tamedog 'bane block + dogfood racial
+      cases; mcastu CLC drow->Lolth spiders; display MH-space
+      warning fixes (below). LATENT PHASE 1 BUG #2 FIXED (same
+      MH-vs-M2 class as Slice A's): warning masks are MH-space
+      (spec_mh producer) but three consumers tested mflags2 -
+      see_monsters() count (port agent), MATCH_WARN_OF_MON macro
+      hack.h + pager.c farlook overlay/race list (coordinator,
+      post-review). MASTER BACKPORT CANDIDATE #3: mthrowu.c
+      thrwmu elf/drow ranged bonus tests oc_skill == P_BOW but
+      ammo skill is negative (-P_BOW) - dead code on master since
+      3.6 vanilla; branch uses -P_BOW so the racial archer bonus
+      is LIVE here for the first time (balance note for testing).
+      PENDING B1 FIXUPS (reviewer-verified, NOT yet applied - do
+      these before/with B2): (1) CONCERN tamedog 'bane list
+      truncated - master also gates Ogresmasher/Sunsword/Hammer of
+      the Gods/Werebane/Shadowblade/Demonbane/Angelslayer/Vorpal
+      Blade/Dragonbane gloves/One Ring-vs-wraiths, all exist in
+      branch artilist; (2) CONCERN tamedog order: branch flips
+      mpeaceful=1 BEFORE the bane gates, master gates first
+      (hostile stays hostile) - restructure or record decision;
+      (3) CONCERN drow web immunity hero half missing (trapeffect_
+      web hero branch + 5.0-only immune_to_trap WEB case; monster
+      half landed; drow heroes playable NOW - fix together);
+      (4) NIT minion.c msummon gate: use wielding_artifact() +
+      Hammer of the Gods per master; (5) NITs deferred-with-
+      subsystems: corpse_xname snprintf hardening (master parity),
+      minsects producer+consumer pair (insect summon), sliparm/
+      breakarm druid_form/vampire_form early-returns (shapeshift
+      forms), MUSE_CAMERA drow clause (player races), bad_rock
+      tree-passing exemption (trees). COORDINATOR DECISIONS OPEN
+      (from port report): zombie_maker semantics kept 5.0-balanced
+      vs master's bare racial_zombie (resolve with zombie
+      subsystem); corpse_to_glyph racial bodies? (statues ARE
+      racial now); Izchak transform protection needs an owning
+      item (suggest shk B2); mon_prop() sites ported as racial-
+      half only (upgrade when monster-intrinsics lands); end.c
+      grave-arise master extras (VAMPIRE_MAGE/Nazgul/larva/lich)
+      = non-racial parity pass. Deferral map (per-file detail in
+      B1 port report, session 2026-07-13): player races (eat/
+      attrib/cmd/spell/polyself/do_wear/youprop/hack body-parts/
+      light/timeout/zap blindingflash/monmove auras), zombie
+      subsystem (mm zombie rules, zombify, sickness, resists_sick
+      family), bane-aura moveloop (allmain), claws family
+      (has_claws), weapon-selection architecture (would_prefer_*/
+      find_silver), hellfire (mcastu), steed/barding (steed.c
+      gates), Mine Town invasion (sounds), peaceful_to_glyph
+      (Phase 4 - no 5.0 peaceful glyph class).
+      Slice B2 TODO (NEXT): makemon.c m_initweap/m_initinv racial
+      gear (~104 sites), priest.c TODO-EVILHACK x2 inventory
+      rebuilds, worn.c racial gear block (find_mac racial-AC +
+      eshk, m_dowear racial, racial_exception, find_best_armor_
+      recurse racialexception param, sewage -2), shk.c
+      shk_racial_adjustments + get_cost racial/charisma rework
+      (deferred from materials Slice C), shknam.c racial
+      shopkeepers (r_data gender x2, unlocks dormant x_monnam shk
+      branch), racial-gear otyp macro gaps (is_elven_weapon/
+      is_orcish_obj/is_dwarvish_obj missing EvilHack otyps, from
+      materials-slice deferral list), + B1 pending fixups above;
+      reviewer's deep-test list for the Slice B battery: Minetown
+      priest (epri+erac straddle), corpse-revive race persistence,
+      bones round-trip, sfctool convert cycle, newcham poly churn,
+      + B1 review recs: Sting glow-count vs map glyphs near racial
+      orc AND druid-form monster (MH/M2 alias check), Werebane vs
+      werewolf taming, drow hero+monster in webs, racial tin/
+      sacrifice, vorpal-behead troll corpse revival, yellow light
+      vs drow both directions
 - [ ] Forging (+ FORGE nhl binding for .des->lua levels)
 - [ ] Magic chests (+ MAGIC_CHEST nhl binding, crystal chest obj)
 - [ ] telekinesis.c + #tk command (pilot did the file; wire cmds)

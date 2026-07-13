@@ -22,6 +22,10 @@
 
 #define pm_resistance(ptr, typ) (((ptr)->mresists & (typ)) != 0)
 
+#define resists_slow(ptr) \
+    ((ptr) == &mons[PM_BABY_BLUE_DRAGON] \
+     || (ptr) == &mons[PM_BLUE_DRAGON])
+
 #define immune_poisongas(ptr) ((ptr) == &mons[PM_HEZROU]        \
                                || (ptr) == &mons[PM_VROCK])
 
@@ -39,7 +43,13 @@
 #define amorphous(ptr) (((ptr)->mflags1 & M1_AMORPHOUS) != 0L)
 #define noncorporeal(ptr) ((ptr)->mlet == S_GHOST)
 #define tunnels(ptr) (((ptr)->mflags1 & M1_TUNNEL) != 0L)
+#define racial_tunnels(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mflags1 & M1_TUNNEL)) \
+     || tunnels((mon)->data))
 #define needspick(ptr) (((ptr)->mflags1 & M1_NEEDPICK) != 0L)
+#define racial_needspick(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mflags1 & M1_NEEDPICK)) \
+     || needspick((mon)->data))
 /* hides_under() requires an object at the location in order to hide */
 #define hides_under(ptr) (((ptr)->mflags1 & M1_CONCEAL) != 0L)
 /* is_hider() is True for mimics but when hiding they appear as something
@@ -88,11 +98,26 @@
     (lays_eggs(ptr) && (ptr)->mlet == S_EEL && is_swimmer(ptr))
 #define regenerates(ptr) (((ptr)->mflags1 & M1_REGEN) != 0L)
 #define perceives(ptr) (((ptr)->mflags1 & M1_SEE_INVIS) != 0L)
+#define racial_perceives(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mflags1 & M1_SEE_INVIS)) \
+     || perceives((mon)->data))
 #define can_teleport(ptr) (((ptr)->mflags1 & M1_TPORT) != 0L)
 #define control_teleport(ptr) (((ptr)->mflags1 & M1_TPORT_CNTRL) != 0L)
 #define telepathic(ptr)                                                \
     ((ptr) == &mons[PM_FLOATING_EYE] || (ptr) == &mons[PM_MIND_FLAYER] \
-     || (ptr) == &mons[PM_MASTER_MIND_FLAYER])
+     || (ptr) == &mons[PM_MASTER_MIND_FLAYER]                          \
+     || (ptr) == &mons[PM_GOBLIN_SHAMAN] || (ptr) == &mons[PM_KOBOLD_SHAMAN] \
+     || (ptr) == &mons[PM_ORC_SHAMAN] || (ptr) == &mons[PM_HILL_GIANT_SHAMAN] \
+     || (ptr) == &mons[PM_ELVEN_WIZARD] || (ptr) == &mons[PM_GNOMISH_WIZARD] \
+     || (ptr) == &mons[PM_ALHOON] || (ptr) == &mons[PM_ILLITHID]       \
+     || (ptr) == &mons[PM_GNOLL_CLERIC] || (ptr) == &mons[PM_NEOTHELID] \
+     || (ptr) == &mons[PM_TORTLE_SHAMAN] || (ptr) == &mons[PM_DROW_MAGE] \
+     || (ptr) == &mons[PM_DROW_CLERIC])
+/* telepathy from the monster's own form or race, or acquired
+   as an intrinsic or from worn gear */
+#define has_telepathy(mon) \
+    (telepathic(r_data(mon)) \
+     || (mon_resistancebits(mon) & MR2_TELEPATHY) != 0)
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
 #define acidic(ptr) (((ptr)->mflags1 & M1_ACID) != 0L)
 #define poisonous(ptr) (((ptr)->mflags1 & M1_POIS) != 0L)
@@ -129,6 +154,7 @@
 #define racial_illithid(mon) mon_has_race(mon, MH_ILLITHID)
 #define racial_tortle(mon) mon_has_race(mon, MH_TORTLE)
 #define racial_drow(mon) mon_has_race(mon, MH_DROW)
+#define is_zombie(ptr) (((ptr)->mhflags & MH_ZOMBIE) != 0L)
 #define racial_zombie(mon) mon_has_race(mon, MH_ZOMBIE)
 #define racial_vampire(mon) mon_has_race(mon, MH_VAMPIRE)
 #define racial_aasimar(mon) mon_has_race(mon, MH_AASIMAR)
@@ -138,8 +164,11 @@
      || (ptr) == &mons[PM_VAMPIRE_BAT])
 #define is_bird(ptr) ((ptr)->mlet == S_BAT && !is_bat(ptr))
 #define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
+#define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
+#define is_spider(ptr) (((ptr)->mhflags & MH_SPIDER) != 0L)
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
+#define is_angel(ptr) (((ptr)->mhflags & MH_ANGEL) != 0L)
 #define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
 #define is_mercenary(ptr) (((ptr)->mflags2 & M2_MERC) != 0L)
 #define is_male(ptr) (((ptr)->mflags2 & M2_MALE) != 0L)
@@ -169,8 +198,12 @@
     ((  ((ptr)->mattk[0].aatyp == AT_WEAP)              \
       + ((ptr)->mattk[1].aatyp == AT_WEAP)              \
       + ((ptr)->mattk[2].aatyp == AT_WEAP)  ) > 1)
-#define cantweararm(ptr) (breakarm(ptr) || sliparm(ptr))
+#define cantweararm(mon) (breakarm(mon) || sliparm(mon))
 #define throws_rocks(ptr) (((ptr)->mflags2 & M2_ROCKTHROW) != 0L)
+#define racial_throws_rocks(mon) \
+    ((has_erac(mon) && (ERAC(mon)->mflags2 & M2_ROCKTHROW)) \
+     || throws_rocks((mon)->data) \
+     || ((mon) == &gy.youmonst && !Upolyd && Race_if(PM_GIANT)))
 #define type_is_pname(ptr) (((ptr)->mflags2 & M2_PNAME) != 0L)
 #define is_lord(ptr) (((ptr)->mflags2 & M2_LORD) != 0L)
 #define is_prince(ptr) (((ptr)->mflags2 & M2_PRINCE) != 0L)
@@ -190,8 +223,12 @@
     (((ptr) == &mons[PM_BABY_LONG_WORM]) || ((ptr) == &mons[PM_LONG_WORM]) \
      || ((ptr) == &mons[PM_LONG_WORM_TAIL]))
 #define is_covetous(ptr) (((ptr)->mflags3 & M3_COVETOUS))
+#define is_accurate(ptr) \
+    (((ptr)->mflags3 & M3_ACCURATE) \
+     || ((ptr) == gy.youmonst.data && !Upolyd && Race_if(PM_CENTAUR)))
 #define infravision(ptr) (((ptr)->mflags3 & M3_INFRAVISION))
 #define infravisible(ptr) (((ptr)->mflags3 & M3_INFRAVISIBLE))
+#define ultravision(ptr) (((ptr)->mflags3 & M3_ULTRAVISION))
 #define is_displacer(ptr) (((ptr)->mflags3 & M3_DISPLACES) != 0L)
 #define is_mplayer(ptr) \
     (((ptr) >= &mons[PM_ARCHEOLOGIST]) && ((ptr) <= &mons[PM_WIZARD]))
@@ -260,7 +297,10 @@
 
 #define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE)
 
-#define hates_light(ptr) ((ptr) == &mons[PM_GREMLIN])
+#define hates_light(ptr) \
+    ((ptr) == &mons[PM_GREMLIN] || is_drow(ptr) \
+     || (ptr) == &mons[PM_BABY_SHADOW_DRAGON]   \
+     || (ptr) == &mons[PM_SHADOW_DRAGON])
 
 /* used to vary a few messages */
 #define weirdnonliving(ptr) (is_golem(ptr) || (ptr)->mlet == S_VORTEX)

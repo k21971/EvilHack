@@ -157,7 +157,7 @@ int
 hitval(struct obj *otmp, struct monst *mon)
 {
     int tmp = 0;
-    struct permonst *ptr = mon->data;
+    struct permonst *ptr = r_data(mon);
     boolean Is_weapon = (otmp->oclass == WEAPON_CLASS || is_weptool(otmp));
 
     if (Is_weapon)
@@ -224,7 +224,7 @@ int
 dmgval(struct obj *otmp, struct monst *mon)
 {
     int tmp = 0, otyp = otmp->otyp;
-    struct permonst *ptr = mon->data;
+    struct permonst *ptr = r_data(mon);
     boolean Is_weapon = (otmp->oclass == WEAPON_CLASS || is_weptool(otmp));
 
     if (otyp == CREAM_PIE)
@@ -692,7 +692,7 @@ select_rwep(struct monst *mtmp)
     Oselect(EGG);      /* cockatrice egg */
     if (mlet == S_KOP) /* pies are first choice for Kops */
         Oselect(CREAM_PIE);
-    if (throws_rocks(mtmp->data)) /* ...boulders for giants */
+    if (racial_throws_rocks(mtmp)) /* ...boulders for giants */
         Oselect(BOULDER);
 
     /* Select polearms first; they do more damage and aren't expendable.
@@ -867,7 +867,7 @@ select_hwep(struct monst *mtmp)
             return otmp;
     }
 
-    if (is_giant(mtmp->data)) /* giants just love to use clubs */
+    if (racial_giant(mtmp)) /* giants just love to use clubs */
         Oselect(CLUB);
     else if (mtmp->data == &mons[PM_BALROG] && uwep)
         Oselect(BULLWHIP);

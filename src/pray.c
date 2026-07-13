@@ -172,7 +172,8 @@ stuck_in_wall(void)
             if (!isok(x, y)
                 || (IS_OBSTRUCTED(levl[x][y].typ)
                     && (levl[x][y].typ != SDOOR && levl[x][y].typ != SCORR))
-                || (blocked_boulder(i, j) && !throws_rocks(gy.youmonst.data)))
+                || (blocked_boulder(i, j)
+                    && !racial_throws_rocks(&gy.youmonst)))
                 ++count;
         }
     }
@@ -1906,7 +1907,12 @@ eval_offering(struct obj *otmp, aligntyp altaralign)
     if (!value)
         return 0;
 
-    ptr = &mons[otmp->corpsenm];
+    /* prefer the ancestral race for race/alignment checks */
+    if (has_omonst(otmp) && has_erac(OMONST(otmp))
+        && ismnum(ERAC(OMONST(otmp))->rmnum))
+        ptr = &mons[ERAC(OMONST(otmp))->rmnum];
+    else
+        ptr = &mons[otmp->corpsenm];
 
     if (is_undead(ptr)) { /* Not demons--no demon corpses */
         /* most undead that leave a corpse yield 'human' (or other race)
@@ -1986,7 +1992,12 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
     if (rider_corpse_revival(otmp, FALSE))
         return;
 
-    ptr = &mons[otmp->corpsenm];
+    /* prefer the ancestral race for race/alignment checks */
+    if (has_omonst(otmp) && has_erac(OMONST(otmp))
+        && ismnum(ERAC(OMONST(otmp))->rmnum))
+        ptr = &mons[ERAC(OMONST(otmp))->rmnum];
+    else
+        ptr = &mons[otmp->corpsenm];
 
     /* same race or former pet results apply even if the corpse is
        too old (value==0) */

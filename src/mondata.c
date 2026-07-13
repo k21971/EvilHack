@@ -205,7 +205,9 @@ resists_drli(struct monst *mon)
     if (is_undead(ptr) || is_demon(ptr) || is_were(ptr)
         /* is_were() doesn't handle hero in human form */
         || (mon == &gy.youmonst && u.ulycn >= LOW_PM)
-        || ptr == &mons[PM_DEATH] || is_vampshifter(mon))
+        || ptr == &mons[PM_DEATH] || is_vampshifter(mon)
+        /* racial overlay: undead, demonic, or lycanthropic race */
+        || mon_has_race(mon, MH_UNDEAD | MH_DEMON | MH_WERE))
         return TRUE;
     return defended(mon, AD_DRLI);
 }
@@ -602,7 +604,7 @@ hates_blessings(struct permonst *ptr)
 boolean
 mon_hates_light(struct monst *mon)
 {
-    return (boolean) hates_light(mon->data);
+    return (boolean) hates_light(r_data(mon));
 }
 
 /* True iff the type of monster pass through iron bars */
@@ -685,17 +687,30 @@ can_track(struct permonst *ptr)
 
 /* creature will slide out of armor */
 boolean
-sliparm(struct permonst *ptr)
+sliparm(struct monst *mon)
 {
+    struct permonst *ptr = r_data(mon);
+
     return (boolean) (is_whirly(ptr) || ptr->msize <= MZ_SMALL
                       || noncorporeal(ptr));
 }
 
 /* creature will break out of armor */
 boolean
-breakarm(struct permonst *ptr)
+breakarm(struct monst *mon)
 {
-    if (sliparm(ptr))
+    struct permonst *ptr = r_data(mon);
+
+    if (sliparm(mon))
+        return FALSE;
+
+    if (racial_centaur(mon))
+        return FALSE;
+
+    if (racial_tortle(mon))
+        return TRUE;
+
+    if (ptr == &mons[PM_DRIDER])
         return FALSE;
 
     return (boolean) (bigmonst(ptr)

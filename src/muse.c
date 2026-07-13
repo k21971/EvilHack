@@ -583,7 +583,7 @@ find_defensive(struct monst *mtmp, boolean tryescape)
         /* Note: trap doors take precedence over teleport traps. */
         coordxy xx, yy, i, locs[10][2];
         boolean ignore_boulders = (verysmall(mtmp->data)
-                                   || throws_rocks(mtmp->data)
+                                   || racial_throws_rocks(mtmp)
                                    || passes_walls(mtmp->data)),
             diag_ok = !NODIAG(monsndx(mtmp->data));
 
@@ -2119,7 +2119,7 @@ find_misc(struct monst *mtmp)
 
     if (!stuck && !immobile && !mtmp->mtrapped && (mtmp->cham == NON_PM)
         && mons[(pmidx = monsndx(mdat))].difficulty < 6) {
-        boolean ignore_boulders = (verysmall(mdat) || throws_rocks(mdat)
+        boolean ignore_boulders = (verysmall(mdat) || racial_throws_rocks(mtmp)
                                    || passes_walls(mdat)),
             diag_ok = !NODIAG(pmidx);
 
@@ -2758,7 +2758,7 @@ searches_for_item(struct monst *mon, struct obj *obj)
         break;
     case TOOL_CLASS:
         if (typ == PICK_AXE)
-            return (boolean) needspick(mon->data);
+            return (boolean) racial_needspick(mon);
         if (typ == UNICORN_HORN)
             return (boolean) (!obj->cursed && !is_unicorn(mon->data)
                               && mon->data != &mons[PM_KI_RIN]);

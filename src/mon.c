@@ -1945,7 +1945,7 @@ curr_mon_load(struct monst *mtmp)
     struct obj *obj;
 
     for (obj = mtmp->minvent; obj; obj = obj->nobj) {
-        if (obj->otyp != BOULDER || !throws_rocks(mtmp->data))
+        if (obj->otyp != BOULDER || !racial_throws_rocks(mtmp))
             curload += obj->owt;
     }
 
@@ -1956,6 +1956,13 @@ int
 max_mon_load(struct monst *mtmp)
 {
     long maxload;
+    long maxcarrcap = MAX_CARR_CAP;
+
+    if (racial_giant(mtmp) || racial_centaur(mtmp))
+        maxcarrcap += 400;
+
+    if (racial_tortle(mtmp))
+        maxcarrcap += 200;
 
     /* Base monster carrying capacity is equal to human maximum
      * carrying capacity, or half human maximum if not strong.
@@ -1966,12 +1973,12 @@ max_mon_load(struct monst *mtmp)
      * proportional to their size instead of weight.
      */
     if (!mtmp->data->cwt)
-        maxload = (MAX_CARR_CAP * (long) mtmp->data->msize) / MZ_HUMAN;
+        maxload = (maxcarrcap * (long) mtmp->data->msize) / MZ_HUMAN;
     else if (!strongmonst(mtmp->data)
              || (strongmonst(mtmp->data) && (mtmp->data->cwt > WT_HUMAN)))
-        maxload = (MAX_CARR_CAP * (long) mtmp->data->cwt) / WT_HUMAN;
+        maxload = (maxcarrcap * (long) mtmp->data->cwt) / WT_HUMAN;
     else
-        maxload = MAX_CARR_CAP; /*strong monsters w/cwt <= WT_HUMAN*/
+        maxload = maxcarrcap; /*strong monsters w/cwt <= WT_HUMAN*/
 
     if (!strongmonst(mtmp->data))
         maxload /= 2;
@@ -2044,14 +2051,18 @@ can_carry(struct monst *mtmp, struct obj *otmp)
 
         if (mtmp->data->mlet == S_DRAGON
             && (otmp->oclass == COIN_CLASS
-                || otmp->oclass == GEM_CLASS))
+                || otmp->oclass == GEM_CLASS)) {
             glomper = TRUE;
-        else
+        } else {
+            struct attack *mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk
+                                                  : mtmp->data->mattk;
+
             for (nattk = 0; nattk < NATTK; nattk++)
-                if (mtmp->data->mattk[nattk].aatyp == AT_ENGL) {
+                if (mattk[nattk].aatyp == AT_ENGL) {
                     glomper = TRUE;
                     break;
                 }
+        }
         if ((mtmp->data->mflags1 & M1_NOHANDS) && !glomper)
             return 1;
     }
@@ -2068,8 +2079,12 @@ can_carry(struct monst *mtmp, struct obj *otmp)
      */
 
     /* special--boulder throwers carry unlimited amounts of boulders */
-    if (throws_rocks(mdat) && otyp == BOULDER)
+    if (racial_throws_rocks(mtmp) && otyp == BOULDER)
         return iquan;
+
+    /* gnomes hate eggs */
+    if (otyp == EGG && racial_gnome(mtmp))
+        return 0;
 
     /* nymphs deal in stolen merchandise, but not boulders or statues */
     if (mdat->mlet == S_NYMPH)
@@ -2096,12 +2111,12 @@ mon_allowflags(struct monst *mtmp)
     boolean can_open = !(nohands(mtmp->data) || verysmall(mtmp->data));
     boolean can_unlock = ((can_open && monhaskey(mtmp, TRUE))
                           || mtmp->iswiz || is_rider(mtmp->data));
-    boolean doorbuster = is_giant(mtmp->data);
+    boolean doorbuster = racial_giant(mtmp);
     /* don't tunnel if on rogue level or if hostile and close enough
        to prefer a weapon; same criteria as in m_move() */
-    boolean can_tunnel = (tunnels(mtmp->data) && !Is_rogue_level(&u.uz));
+    boolean can_tunnel = (racial_tunnels(mtmp) && !Is_rogue_level(&u.uz));
 
-    if (can_tunnel && needspick(mtmp->data)
+    if (can_tunnel && racial_needspick(mtmp)
         && ((!mtmp->mpeaceful || Conflict)
             && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 8))
         can_tunnel = FALSE;
@@ -2120,7 +2135,7 @@ mon_allowflags(struct monst *mtmp)
         allowflags |= ALLOW_SSM | ALLOW_SANCT;
     if (passes_walls(mtmp->data))
         allowflags |= (ALLOW_ROCK | ALLOW_WALL);
-    if (throws_rocks(mtmp->data) || m_can_break_boulder(mtmp))
+    if (racial_throws_rocks(mtmp) || m_can_break_boulder(mtmp))
         allowflags |= ALLOW_ROCK;
     if (can_tunnel)
         allowflags |= ALLOW_DIG;
@@ -2206,7 +2221,7 @@ mfndpos(
         struct obj *mw_tmp;
 
         /* need to be specific about what can currently be dug */
-        if (!needspick(mdat)) {
+        if (!racial_needspick(mon)) {
             rockok = treeok = TRUE;
         } else if ((mw_tmp = MON_WEP(mon)) && mw_tmp->cursed
                    && mon->weapon_check == NO_WEAPON_WANTED) {
@@ -2371,8 +2386,8 @@ mfndpos(
                     data->info[cnt] |= NOTONL;
                 }
                 /* check for diagonal tight squeeze */
-                if (nx != x && ny != y && bad_rock(mdat, x, ny)
-                    && bad_rock(mdat, nx, y) && cant_squeeze_thru(mon))
+                if (nx != x && ny != y && bad_rock(mon, x, ny)
+                    && bad_rock(mon, nx, y) && cant_squeeze_thru(mon))
                     continue;
                 /* The monster avoids a particular type of trap if it's
                  * familiar with the trap type.  Pets get ALLOW_TRAPS
@@ -2445,6 +2460,28 @@ mm_2way_aggression(struct monst *magr, struct monst *mdef)
             && !unique_corpstat(magr->data) && !unique_corpstat(mdef->data))
             return (ALLOW_M | ALLOW_TM);
     }
+
+    /* elvenkind vs orcs */
+    if ((racial_elf(magr) || racial_drow(magr)) && racial_orc(mdef)
+        && !(nonliving(magr->data) || nonliving(mdef->data)))
+        return ALLOW_M | ALLOW_TM;
+
+    /* elves vs drow */
+    if (racial_elf(magr) && racial_drow(mdef)
+        && !(nonliving(magr->data) || nonliving(mdef->data)))
+        return ALLOW_M | ALLOW_TM;
+
+    /* angels vs demons */
+    if (((is_angel(magr->data) && magr->data != &mons[PM_ELDRITCH_KI_RIN])
+         || racial_aasimar(magr))
+        && is_demon(mdef->data))
+        return ALLOW_M | ALLOW_TM;
+
+    /* Nazgul vs hobbits */
+    if (magr->data == &mons[PM_NAZGUL]
+        && racial_hobbit(mdef) && !is_undead(mdef->data))
+        return ALLOW_M | ALLOW_TM;
+
     return 0L;
 }
 
@@ -3595,10 +3632,11 @@ corpse_chance(
     if (LEVEL_SPECIFIC_NOCORPSE(mdat))
         return FALSE;
 
-    if (((bigmonst(mdat) || mdat == &mons[PM_LIZARD]) && !mon->mcloned)
-        || is_golem(mdat) || is_mplayer(mdat) || is_rider(mdat) || mon->isshk)
+    if (((r_bigmonst(mon) || mdat == &mons[PM_LIZARD]) && !mon->mcloned)
+        || racial_zombie(mon) || is_golem(mdat) || is_mplayer(mdat)
+        || is_rider(mdat) || mon->isshk)
         return TRUE;
-    tmp = 2 + ((mdat->geno & G_FREQ) < 2) + verysmall(mdat);
+    tmp = 2 + ((mdat->geno & G_FREQ) < 2) + r_verysmall(mon);
     return (boolean) !rn2(tmp);
 }
 
@@ -4793,7 +4831,7 @@ normal_shape(struct monst *mon)
             mon->mcan = 1;
         newsym(mon->mx, mon->my);
     }
-    if (is_were(mon->data) && mon->data->mlet != S_HUMAN) {
+    if (is_were(mon->data) && !racial_human(mon)) {
         new_were(mon);
     }
     if (M_AP_TYPE(mon) != M_AP_NOTHING) {
@@ -5861,7 +5899,7 @@ newcham(
      * minvent should be sorted in order to drop heaviest items first.
      */
     /* former giants can't continue carrying boulders */
-    if (mtmp->minvent && !throws_rocks(mdat)) {
+    if (mtmp->minvent && !racial_throws_rocks(mtmp)) {
         struct obj *otmp, *otmp2;
 
         /* DEADMONSTER(): it is possible for flooreffects() to kill mtmp;

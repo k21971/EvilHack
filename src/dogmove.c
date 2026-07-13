@@ -52,7 +52,7 @@ droppables(struct monst *mon)
         pickaxe = unihorn = key = &dummy; /* act as if already have them */
     } else {
         /* don't hang on to pick-axe if can't use one or don't need one */
-        if (!tunnels(mon->data) || !needspick(mon->data))
+        if (!racial_tunnels(mon) || !racial_needspick(mon))
             pickaxe = &dummy;
         /* don't hang on to key if can't open doors */
         if (nohands(mon->data) || verysmall(mon->data))
@@ -137,7 +137,6 @@ droppables(struct monst *mon)
 
 static NEARDATA const char nofetch[] = { BALL_CLASS, CHAIN_CLASS, ROCK_CLASS,
                                          0 };
-
 
 staticfn void wantdoor(coordxy, coordxy, genericptr_t);
 
@@ -1363,7 +1362,7 @@ could_reach_item(struct monst *mon, coordxy nx, coordxy ny)
 {
     if ((!is_pool(nx, ny) || is_swimmer(mon->data))
         && (!is_lava(nx, ny) || likes_lava(mon->data))
-        && (!sobj_at(BOULDER, nx, ny) || throws_rocks(mon->data)))
+        && (!sobj_at(BOULDER, nx, ny) || racial_throws_rocks(mon)))
         return TRUE;
     return FALSE;
 }

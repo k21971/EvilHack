@@ -1029,11 +1029,16 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
     if (weap->spfx & SPFX_DMONS) {
         return (ptr == &mons[(int) weap->mtype]);
     } else if (weap->spfx & SPFX_DCLAS) {
-        return (weap->mtype == (unsigned long) ptr->mlet);
+        return (weap->mtype == (unsigned long) ptr->mlet
+                || (has_erac(mtmp)
+                    && weap->mtype
+                       == (unsigned long) safe_mons(ERAC(mtmp)->rmnum).mlet));
     } else if (weap->spfx & SPFX_DFLAG1) {
-        return ((ptr->mflags1 & weap->mtype) != 0L);
+        return ((has_erac(mtmp) && (ERAC(mtmp)->mflags1 & weap->mtype))
+                || (ptr->mflags1 & weap->mtype) != 0L);
     } else if (weap->spfx & SPFX_DFLAGH) {
-        return ((ptr->mhflags & weap->mtype)
+        return ((has_erac(mtmp) && (ERAC(mtmp)->mrace & weap->mtype))
+                || (!has_erac(mtmp) && (ptr->mhflags & weap->mtype))
                 || (yours
                     && ((!Upolyd && (gu.urace.selfmask & weap->mtype))
                         || ((weap->mtype & MH_WERE) && ismnum(u.ulycn)))));
@@ -1628,6 +1633,10 @@ artifact_hit(
                       mon_nam(mdef));
                 if (Hallucination && !flags.female)
                     pline("Good job Henry, but that wasn't Anne.");
+                /* kinda hard to revive if you've lost your head */
+                if (racial_zombie(mdef)
+                    || (is_troll(mdef->data) && !mlifesaver(mdef)))
+                    mdef->mcan = 1;
                 observe_object(otmp);
                 return TRUE;
             } else {
@@ -2468,6 +2477,18 @@ glow_verb(int count, /* 0 means blind rather than no applicable creatures */
     if (ingsfx)
         Strcat(resbuf, "ing");
     return resbuf;
+}
+
+/* TRUE if the hero is wielding the given artifact, either as the
+   primary weapon or as the off-hand weapon while two-weaponing */
+boolean
+wielding_artifact(int art)
+{
+    if (!art)
+        return FALSE;
+
+    return (u_wield_art(art)
+            || (u.twoweap && uswapwep && is_art(uswapwep, art)));
 }
 
 /* use for warning "glow" for Sting, Orcrist, and Grimtooth */

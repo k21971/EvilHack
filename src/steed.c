@@ -25,7 +25,7 @@ rider_cant_reach(void)
 boolean
 can_saddle(struct monst *mtmp)
 {
-    struct permonst *ptr = mtmp->data;
+    struct permonst *ptr = r_data(mtmp);
 
     return (strchr(steeds, ptr->mlet) && (ptr->msize >= MZ_MEDIUM)
             && (!humanoid(ptr) || ptr->mlet == S_CENTAUR) && !amorphous(ptr)
@@ -544,8 +544,9 @@ landing_spot(
                     /* traps avoided on pass 0; boulders avoided on 0 and 1 */
                     kn_trap = i == 0 && ((t = t_at(x, y)) != 0 && t->tseen
                                          && t->ttyp != VIBRATING_SQUARE);
-                    boulder = i <= 1 && (sobj_at(BOULDER, x, y)
-                                         && !throws_rocks(gy.youmonst.data));
+                    boulder = i <= 1
+                              && (sobj_at(BOULDER, x, y)
+                                  && !racial_throws_rocks(&gy.youmonst));
                     if (!kn_trap && !boulder) {
                         spot->x = x;
                         spot->y = y;

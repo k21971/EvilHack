@@ -1830,7 +1830,8 @@ potionhit(struct monst *mon, struct obj *obj, int how)
             break;
         case POT_WATER:
             if (mon_hates_blessings(mon) /* undead or demon */
-                || is_were(mon->data) || is_vampshifter(mon)) {
+                || is_were(mon->data) || is_vampshifter(mon)
+                || racial_zombie(mon) || racial_vampire(mon)) {
                 if (obj->blessed) {
                     pline("%s %s in pain!", Monnam(mon),
                           is_silent(mon->data) ? "writhes" : "shrieks");

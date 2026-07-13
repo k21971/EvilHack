@@ -272,7 +272,7 @@ onscary(coordxy x, coordxy y, struct monst *mtmp)
 
     /* should this still be true for defiled/molochian altars? */
     if (IS_ALTAR(levl[x][y].typ)
-        && (mtmp->data->mlet == S_VAMPIRE || is_vampshifter(mtmp)))
+        && (racial_vampire(mtmp) || is_vampshifter(mtmp)))
         return TRUE;
 
     /* the scare monster scroll doesn't have any of the below
@@ -306,7 +306,9 @@ onscary(coordxy x, coordxy y, struct monst *mtmp)
 void
 mon_regen(struct monst *mon, boolean digest_meal)
 {
-    if (svm.moves % 20 == 0 || regenerates(mon->data))
+    /* only the undead can regenerate in the Valley of the Dead */
+    if ((!Is_valley(&u.uz) || is_undead(r_data(mon)))
+        && (svm.moves % 20 == 0 || regenerates(mon->data)))
         healmon(mon, 1, 0);
     if (mon->mspec_used)
         mon->mspec_used--;
@@ -443,7 +445,6 @@ gelcube_digests(struct monst *mtmp)
     m_consume_obj(mtmp, otmp);
     return 0; /* used a move */
 }
-
 
 /* FIXME: gremlins don't flee from monsters wielding Sunsword or wearing
    gold dragon scales/mail, nor from gold dragons, only from the hero */
@@ -894,9 +895,10 @@ dochug(struct monst *mtmp)
            or similar spells by the time you reach it */
         if (!mtmp->mspec_used
             && dist2(mtmp->mx, mtmp->my, u.ux, u.uy) <= 49) {
-            struct attack *a;
+            struct attack *a, *mattk;
 
-            for (a = &mdat->mattk[0]; a < &mdat->mattk[NATTK]; a++) {
+            mattk = has_erac(mtmp) ? ERAC(mtmp)->mattk : mdat->mattk;
+            for (a = &mattk[0]; a < &mattk[NATTK]; a++) {
                 if (a->aatyp == AT_MAGC
                     && (a->adtyp == AD_SPEL || a->adtyp == AD_CLRC)) {
                     if ((castmu(mtmp, a, FALSE, FALSE) & M_ATTK_HIT)) {
@@ -1020,7 +1022,7 @@ mon_would_take_item(struct monst *mtmp, struct obj *otmp)
     if (likes_magic(mtmp->data) && strchr(magical, otmp->oclass)
         && pctload < 85)
         return TRUE;
-    if (throws_rocks(mtmp->data) && otmp->otyp == BOULDER
+    if (racial_throws_rocks(mtmp) && otmp->otyp == BOULDER
         && pctload < 50 && !Sokoban)
         return TRUE;
     if (mtmp->data == &mons[PM_GELATINOUS_CUBE]
@@ -1113,9 +1115,9 @@ m_digweapon_check(
     struct obj *mw_tmp = MON_WEP(mtmp);
 
     if (!Is_rogue_level(&u.uz))
-        can_tunnel = tunnels(mtmp->data);
+        can_tunnel = racial_tunnels(mtmp);
 
-    if (can_tunnel && needspick(mtmp->data) && !mwelded(mw_tmp)
+    if (can_tunnel && racial_needspick(mtmp) && !mwelded(mw_tmp)
         && (may_dig(nix, niy) || closed_door(nix, niy))) {
         /* may_dig() is either IS_STWALL or IS_TREE */
         if (closed_door(nix, niy)) {
@@ -1763,7 +1765,7 @@ m_move(struct monst *mtmp, int after)
     set_apparxy(mtmp); /* set mtmp->mux, mtmp->muy */
 
     if (!Is_rogue_level(&u.uz))
-        can_tunnel = tunnels(ptr);
+        can_tunnel = racial_tunnels(mtmp);
     can_open = !(nohands(ptr) || verysmall(ptr));
     can_unlock = ((can_open && monhaskey(mtmp, TRUE))
                   || mtmp->iswiz || is_rider(ptr));
@@ -1893,8 +1895,8 @@ m_move(struct monst *mtmp, int after)
     if ((!mtmp->mpeaceful || !rn2(10)) && (!Is_rogue_level(&u.uz))) {
         boolean in_line = (lined_up(mtmp)
              && (distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy)
-                 <= (throws_rocks(gy.youmonst.data) ? 20
-                                                    : (ACURRSTR / 2 + 1))));
+                 <= (racial_throws_rocks(&gy.youmonst) ? 20
+                                                       : (ACURRSTR / 2 + 1))));
 
         if (appr != 1 || !in_line) {
             /* Monsters in combat won't pick stuff up, avoiding the
@@ -1910,7 +1912,7 @@ m_move(struct monst *mtmp, int after)
                        seenflgs, can_tunnel, can_unlock, can_open);
 
     /* don't tunnel if hostile and close enough to prefer a weapon */
-    if (can_tunnel && needspick(ptr)
+    if (can_tunnel && racial_needspick(mtmp)
         && ((!mtmp->mpeaceful || Conflict)
             && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 8))
         can_tunnel = FALSE;

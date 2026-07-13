@@ -829,8 +829,15 @@ xname_flags(
         break;
     case ROCK_CLASS:
         if (typ == STATUE && omndx != NON_PM) {
-            char anbuf[10];
-            const char *statue_pmname = obj_pmname(obj);
+            char anbuf[10], monnam[BUFSZ];
+            const char *statue_pmname;
+
+            /* prepend any racial adjective saved with the monster */
+            *monnam = '\0';
+            if (has_omonst(obj) && has_erac(OMONST(obj)))
+                (void) racial_adj(monnam, OMONST(obj));
+            Strcat(monnam, obj_pmname(obj));
+            statue_pmname = monnam;
 
             Snprintf(buf, bufspaceleft, "%s%s of %s%s",
                      (Role_if(PM_ARCHEOLOGIST)
@@ -1906,6 +1913,11 @@ corpse_xname(
         possessive = FALSE,
         glob = (otmp->otyp != CORPSE && otmp->globby);
     const char *mnam, *gndr;
+    char mrace[BUFSZ];
+
+    *mrace = '\0';
+    if (has_omonst(otmp))
+        (void) racial_adj(mrace, OMONST(otmp));
 
     /* some callers [aobjnam()] rely on prefix area that xname() sets aside */
     gx.xnamep = nextobuf();
@@ -1951,13 +1963,14 @@ corpse_xname(
     if (!adjective || !*adjective) {
         Strcat(nambuf, gndr);
         /* normal case:  newt corpse */
+        Strcat(nambuf, mrace);
         Strcat(nambuf, mnam);
     } else {
         /* adjective positioning depends upon format of monster name */
         if (possessive) /* Medusa's cursed partly eaten corpse */
-            Sprintf(eos(nambuf), "%s %s%s", mnam, gndr, adjective);
+            Sprintf(eos(nambuf), "%s%s %s%s", mrace, mnam, gndr, adjective);
         else /* cursed partly eaten troll corpse */
-            Sprintf(eos(nambuf), "%s %s%s", adjective, gndr, mnam);
+            Sprintf(eos(nambuf), "%s %s%s%s", adjective, gndr, mrace, mnam);
         /* in case adjective has a trailing space, squeeze it out */
         mungspaces(nambuf);
         /* doname() might include a count in the adjective argument;
