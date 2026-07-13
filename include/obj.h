@@ -438,6 +438,9 @@ struct obj {
      || (otmp)->otyp == DARK_ELVEN_HEAVY_MACE)
 #define is_drow_obj(otmp) (is_drow_armor(otmp) || is_drow_weapon(otmp))
 
+#define is_worthless_glass(obj) \
+    ((obj)->oclass == GEM_CLASS && obj->material == GLASS)
+
 /* Orcish gear */
 #define is_orcish_obj(otmp)                                           \
     (is_orcish_armor(otmp) || (otmp)->otyp == ORCISH_ARROW            \

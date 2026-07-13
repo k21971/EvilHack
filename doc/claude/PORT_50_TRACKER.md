@@ -524,8 +524,22 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       prints a Note master didn't (intentional). sfctool LINK
       broken pre-existing (sfi_x_emsp/sfi_x_abuse_event missing
       from Phase 1 field enumeration - regen sfdata.c when next
-      needed). DEFERRED to later
-      material slices (reviewer-inventoried): pricing (shk),
+      needed). SLICE C (pricing) DONE 2026-07-13 (commit pending,
+      hand-ported - small): matprices[] (static const, only shk.c
+      uses it) + the multiplier/divisor material ratio in get_cost
+      AND set_cost (5.0 already adopted the accumulator pattern
+      independently, so master's lines dropped in verbatim);
+      set_cost gem-sell condition switched to instance material +
+      is_worthless_glass (macro added to obj.h; kept 5.0's
+      FIRST_REAL_GEM formula + divisor reset - master's variant is
+      3.6 inheritance). NOTE master's get_cost has the charisma/
+      racial rework (multiplier *=/shk_stat_priced/racial numer-
+      denom) - that ports with the shop-racial-adjustments item,
+      NOT here; 5.0's own charisma block kept. VERIFIED live (gdb
+      call on wished daggers): get_cost silver 16 vs iron 5,
+      set_cost 6 vs 2 - exact 3x silver/iron ratio both directions.
+      DEFERRED to later
+      material slices (reviewer-inventoried):
       mon_hates_material/searing combat, metal_to_wood +
       material_to_gold (Croesus item), bones.c full pass,
       class-based consumer conversions (breaktest glass, o_material

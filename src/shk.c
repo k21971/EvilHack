@@ -2896,6 +2896,38 @@ oid_price_adjustment(struct obj *obj, unsigned int oid)
     return res;
 }
 
+/* Relative prices for the different materials.
+ * Units for this are much more poorly defined than for weights; the best
+ * approximation would be something like "zorkmids per aum".
+ * We only care about the ratio of two of these together */
+static const int matprices[] = {
+     0,
+     1, /* LIQUID */
+     1, /* WAX */
+     1, /* VEGGY */
+     3, /* FLESH */
+     2, /* PAPER */
+     3, /* CLOTH */
+    30, /* SPIDER_SILK */
+     5, /* LEATHER */
+     8, /* WOOD */
+    20, /* BONE */
+   200, /* DRAGON_HIDE - DSM to scale mail */
+    10, /* IRON */
+    15, /* STEEL */
+    18, /* COPPER */
+    12, /* BRONZE */
+    30, /* SILVER */
+    60, /* GOLD */
+    80, /* PLATINUM */
+    50, /* MITHRIL - mithril-coat to regular chain mail */
+    70, /* ADAMANTINE */
+    10, /* PLASTIC */
+    20, /* GLASS */
+   500, /* GEMSTONE */
+    10  /* MINERAL */
+};
+
 /* calculate the value that the shk will charge for [one of] an object */
 staticfn long
 get_cost(
@@ -2968,6 +3000,10 @@ get_cost(
             divisor *= 3L;
         }
     }
+    /* adjust for different material */
+    multiplier *= matprices[obj->material];
+    divisor *= matprices[objects[obj->otyp].oc_material];
+
     if (uarmh && uarmh->otyp == DUNCE_CAP)
         multiplier *= 4L, divisor *= 3L;
     else if ((Role_if(PM_TOURIST) && u.ulevel < (MAXULEV / 2))
@@ -3175,6 +3211,10 @@ set_cost(struct obj *obj, struct monst *shkp)
 
     tmp = get_pricing_units(obj) * unit_price;
 
+    /* adjust for different material */
+    multiplier *= matprices[obj->material];
+    divisor *= matprices[objects[obj->otyp].oc_material];
+
     if (uarmh && uarmh->otyp == DUNCE_CAP)
         divisor *= 3L;
     else if ((Role_if(PM_TOURIST) && u.ulevel < (MAXULEV / 2))
@@ -3188,8 +3228,8 @@ set_cost(struct obj *obj, struct monst *shkp)
     if (!obj->dknown || !objects[obj->otyp].oc_name_known) {
         if (obj->oclass == GEM_CLASS) {
             /* different shop keepers give different prices */
-            if (objects[obj->otyp].oc_material == GEMSTONE
-                || objects[obj->otyp].oc_material == GLASS) {
+            if (obj->material == GEMSTONE
+                || is_worthless_glass(obj)) {
                 tmp = ((obj->otyp - FIRST_REAL_GEM) % (6 - shkp->m_id % 3));
                 tmp = (tmp + 3) * obj->quan;
                 divisor = 1L;
