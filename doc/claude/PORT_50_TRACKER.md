@@ -374,14 +374,43 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       strings = Phase 3 item with reproducer; (2) re-test
       chromatic-scales wish parity (EvilHack blocks it) once the
       wish-restriction port lands; (3) wish-prompt EDIT_GETLIN
-      remembers previous input - clear with ^U when driving tests
+      remembers previous input - clear with ^U when driving tests;
+      (4) FROM THE PHASE 2 SMOKE 2026-07-13: o_init init_objects
+      boot check (sanity_check on) flags 5 ported objects "name is
+      not known despite no alternate description" - ashwood staff
+      #101, ring placeholders ancient #240 / lustrous #241, pan
+      flute #316, gold piece #539: all have real name + NoDes +
+      kn=0 (byte-faithful to master, but 5.0 requires desc-less
+      objects born name-known and silently repairs kn->1 at init) -
+      fix = kn 1 in the five objects.h entries (pure formalization
+      of the runtime repair, zero behavior delta) - FIXED 2026-07-13:
+      kn columns for ashwood staff + pan flute, raw OBJECT expansion
+      for the two ring placeholders (RING wrapper hardcodes kn 0;
+      barding idiom), COIN macro BITS kn restored to upstream's 1;
+      zero-warning rebuild + boot re-verified clean (tortle Healer,
+      sanity_check on, no o_init reports); (5) SAME SMOKE:
+      upstream WIP-gated shop_keeper() diagnostic "untrustworthy
+      null shkp; shkready FALSE (1,0,0,0)" fired 4x during Dlvl 3
+      creation (making=1; shk.c, the block whose format typo Phase
+      0 fixed; compiled out of release builds) - premature
+      shop_keeper() call during mklev needs a caller trace; unknown
+      whether vanilla-5.0 or ported-content induced
 
 ## Phase 2 - Core subsystems (port detectors FIRST)
 
-- [~] Lifecycle detectors EARLY: dmonsfree accounting,
+- [x] Lifecycle detectors EARLY: dmonsfree accounting,
       freed-without-detach, off-map orphan (BUG-1259 class),
       worn_slot_sanity - re-derive onto 5.0 mstate machine
-      PORTED 2026-07-13 (commit pending): recent_detaches[] ring +
+      DONE 2026-07-13, commit e265bd879; wizmode smoke PASSED same
+      day (Valkyrie, sanity_check on via EVILHACKOPTIONS env: 4
+      kills through the death pipeline, pet corpse-eating, level
+      teleport with pet = STILL_ARRIVING window, THE BUG-1290 path
+      dip-poly of a worn helm of opposite alignment - exemption
+      window kept the detector silent through the in-window
+      uchangealign/retouch, alignment/AC/slot all correct after -
+      save+reload exact; ZERO detector paniclog entries; two
+      PRE-EXISTING findings surfaced, logged as Phase 1 follow-ups
+      in the gate section). PORTED 2026-07-13: recent_detaches[] ring +
       movemon_callctr + double-detach history dump (m_detach), off-map
       orphan scan + freed-undetached tracking + rich count-mismatch
       diagnostic (dmonsfree), worn_slot_sanity() in mkobj.c (called

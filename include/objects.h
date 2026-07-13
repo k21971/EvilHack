@@ -433,9 +433,10 @@ WEAPON("staff of war", "ironshod staff",
 WEAPON("staff of evocation", "gnarled staff",
        0, 0, 1, 1,  5,  40, 400,  6,  6, 1, B,   P_QUARTERSTAFF, WOOD, HI_WOOD,
         STAFF_OF_EVOCATION),
-/* template for the Staff of the Archmagi */
+/* template for the Staff of the Archmagi; no shuffled description, so
+   born name-known (o_init enforces that for desc-less objects) */
 WEAPON("ashwood staff", NoDes,
-       0, 0, 1, 1,  0,  40, 600,  8, 10, 0, B,   P_QUARTERSTAFF, WOOD, CLR_WHITE,
+       1, 0, 1, 1,  0,  40, 600,  8, 10, 0, B,   P_QUARTERSTAFF, WOOD, CLR_WHITE,
         ASHWOOD_STAFF),
 /* two-piece */
 WEAPON("aklys", "thonged club",
@@ -930,13 +931,18 @@ RING("see invisible", "engagement",
 RING("protection from shape changers", "shiny",
      PROT_FROM_SHAPE_CHANGERS, 1, 100, 1, 0,  5, PLATINUM, HI_PLATINUM,
         RIN_PROTECTION_FROM_SHAPE_CHAN),
-/* placeholders for artifact rings; will not spawn randomly */
-RING("ancient", NoDes,
-     FREE_ACTION,              0, 800, 1, 0,  8, GEMSTONE, CLR_BRIGHT_GREEN,
-        RIN_ANCIENT),
-RING("lustrous", NoDes,
-     INVIS,                    0, 600, 1, 0,  3, GOLD, HI_GOLD,
-        RIN_LUSTROUS),
+/* placeholders for artifact rings; will not spawn randomly. raw OBJECT
+   entries because they have no shuffled description and so must be born
+   name-known (kn 1), which the RING wrapper cannot express */
+/* === OBJECT entries === */
+OBJECT(OBJ("ancient", NoDes),
+        BITS(1, 0, 0, 0, 1, 0, 0, 0, 0, HARDGEM(8), 0, P_NONE, GEMSTONE),
+        FREE_ACTION, RING_CLASS, 0, 0, 3, 800, 0, 0, 0, 0, 15,
+        CLR_BRIGHT_GREEN, RIN_ANCIENT),
+OBJECT(OBJ("lustrous", NoDes),
+        BITS(1, 0, 0, 0, 1, 0, 0, 0, 0, HARDGEM(3), 0, P_NONE, GOLD),
+        INVIS, RING_CLASS, 0, 0, 3, 600, 0, 0, 0, 0, 15,
+        HI_GOLD, RIN_LUSTROUS),
 /* amulets ... - THE Amulet comes last because it is special */
 
 #undef RING
@@ -1208,7 +1214,7 @@ TOOL("flute", "flute",
      0, 0, 0, 0,   4,   5,  12, WOOD, HI_WOOD,
         FLUTE),
 TOOL("pan flute", NoDes,
-     0, 0, 0, 0,   0,   6,  24, WOOD, HI_WOOD,
+     1, 0, 0, 0,   0,   6,  24, WOOD, HI_WOOD,
         PAN_FLUTE),
 TOOL("magic flute", "flute",
      0, 0, 1, 1,   2,   5,  36, WOOD, HI_WOOD,
@@ -1874,7 +1880,7 @@ WAND(NoDes,            "jeweled",  0, 150, 1, 0, IRON, HI_MINERAL,
 
 #define COIN(name,prob,metal,worth,sn) \
     OBJECT(OBJ(name, NoDes),                                        \
-           BITS(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, metal),    \
+           BITS(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, metal),    \
            0, COIN_CLASS, prob, 0, 1, worth, 0, 0, 0, 0, 0,         \
            HI_GOLD, sn)
 /* === COIN entries === */
