@@ -3288,7 +3288,7 @@ nomerge_exception(struct obj *obj)
 static const char *const obj_state_names[NOBJ_STATES] = {
     "free", "floor", "contained", "invent",
     "minvent", "migrating", "buried", "onbill",
-    "luafree", "deleted",
+    "luafree", "deleted", "mchest", "intrap",
 };
 
 staticfn const char *

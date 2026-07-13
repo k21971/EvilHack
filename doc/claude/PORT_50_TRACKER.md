@@ -13,7 +13,10 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 
 ## Dashboard
 
-- Current phase: PHASE 1 IN PROGRESS (content data LANDED
+- Current phase: PHASE 1 COMPLETE except roles-side follow-ups
+  logged above (2026-07-13 gate PASSED); next = PHASE 2 (port
+  lifecycle detectors FIRST, then subsystems)
+- (was: PHASE 1 IN PROGRESS (content data LANDED
   2026-07-12: 561 monsters + 566 objects build clean-rebuild green;
   two commits pending maintainer: staged slice A scaffolding
   defines + working-tree content swap, message files in scratchpad
@@ -23,7 +26,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
   (chain lightning P_ATTACK_SPELL + drain/shock shields) staged,
   message /tmp/p4.txt. NEXT = persistent-struct enumeration
   (obj.h/monst.h/prop.h/you.h/flag.h/mextra.h/context.h), glyph
-  audit, Phase 1 boot gate (ask maintainer before launching)
+  audit, Phase 1 boot gate (ask maintainer before launching))
 - Adoption commit (nh50/master @ merge):
   74d1133c229a0fe17c6b05d4d4084937cb2631ca (2026-07-12); adoption
   merge commit on evilhack-50: 6160262a4 (parents c444f6a3a +
@@ -234,22 +237,31 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 ### Persistent-struct enumeration (authoritative source:
 `git diff 44b6612fd..master -- include/` - NEVER from memory)
 
-- [ ] obj.h (+409 lines: material, oprops, forging bits, ...)
-- [ ] monst.h (+169: boss bits, status bits, mextra hooks)
+- [x] obj.h DONE 2026-07-12b (subagent, verified)
+- [x] monst.h DONE 2026-07-12b (mintrinsics widened to long;
+      mw2/erid raw pointers need relink code before first use)
 - [ ] prop.h (+154: property enum - couples to SAVED uprops array;
       keep append-only vs upstream ordering) [~] ULTRAVISION=70
       appended 2026-07-12 (objects.h needed it); rest pending
-- [ ] you.h (+131: abuse fields, u_event additions, race/role state)
+- [x] you.h DONE 2026-07-12b (u_achieve NOT ported: 5.0 enum
+      achievements + 31-bit xlogfile mask full - MAINTAINER
+      DECISION achieve2 field needed for EvilHack's 8 extras)
 - [ ] skills.h (+88: P_PET_HANDLING etc. - saved weapon_skills)
       [~] P_EVOCATION_SPELL landed 2026-07-12 INSERTED at 35 to
       extend the contiguous spell block (P_BARE_HANDED..
       P_TELEKINESIS shifted +1; acceptable pre-real-saves, noted
       in skills.h comment; weapon.c positional tables updated -
       remember that gotcha for every remaining skill)
-- [ ] flag.h (+82: options/flags - split saved vs unsaved carefully)
-- [ ] mextra.h (+55: ERAC racial struct, edog petstrat, emsp spells)
-- [ ] context.h (+16)
-- [ ] Every field above: sfo_* writer/reader + critical_members[]
+- [x] flag.h DONE 2026-07-12b (fields only; options.c wiring
+      with subsystems; sparkle bool-vs-int kept 5.0 bool)
+- [x] mextra.h DONE 2026-07-12b (copy_mextra intentionally NOT
+      extended - needs new* constructors, Phase 2)
+- [x] context.h DONE 2026-07-12b (soko 6-prize system deferred:
+      5.0 tracks prizes via svc.context.achieveo - extend that,
+      not record_achieve_special)
+- [d] sfo_* writers OBSOLETE (Pilot D: historical whole-struct
+      saves; critical_sizes[] stamps sizeof automatically; struct
+      growth invalidates dev saves only - none kept)
 - [ ] gX vs svX decision LOG (append every placement + why):
 
 | Global | gX/svX | Why |
@@ -339,10 +351,28 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       entries (enum append-only; new book needs an unused
       description; mirror upstream oc_prob and rebalance the
       class to keep the o_init probability sum intact)
-- [ ] Glyph-space audit: every NUMMONS/MAX_GLYPH-dimensioned array
-      (tiles, symbols, warnings) vs 564 monsters through sex-split
-      offsets
-- [ ] GATE: builds, boots, vanilla-content wizmode sanity
+- [x] Glyph-space audit DONE 2026-07-13: all consumers X-macro/
+      NUMMONS-derived; the one hardcoded bound (tilemap tilelist
+      [2500]) was caught+fixed in the content swap; generated
+      tile.c shows sex-split mappings working (female Yeenoghu)
+- [x] GATE PASSED 2026-07-13 (wizmode, tortle Monk): boots clean
+      (no impossible), genesis drow warrior + alhoon OK, wishes OK
+      (spellbook of chain lightning, gray dragon scales), save +
+      reload restores character/map/monsters/inventory; vanilla
+      dungeon generates. GATE FINDING fixed en route: do_wear
+      armor on/off switches impossible()'d on EvilHack armor
+      otyps ("Unknown type of helmet (117)" = toque) - all 19
+      missing case labels/behaviors added from EvilHack master
+      (helm of speed/telekinesis, dark elven stealth pieces,
+      RIN_LUSTROUS, gauntlets of protection, mummified hand
+      TODO-EVILHACK for the Vecna meld, bracers/shields labels).
+      FOLLOW-UPS: (1) upstream dat/*.lua reference RENAMED object
+      names - tut-1.lua fails to load (paniclog, safe maze
+      fallback); sweep upstream lua for renamed object/monster
+      strings = Phase 3 item with reproducer; (2) re-test
+      chromatic-scales wish parity (EvilHack blocks it) once the
+      wish-restriction port lands; (3) wish-prompt EDIT_GETLIN
+      remembers previous input - clear with ^U when driving tests
 
 ## Phase 2 - Core subsystems (port detectors FIRST)
 

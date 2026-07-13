@@ -71,6 +71,9 @@ struct obj {
     char invlet;    /* designation in inventory */
     char oartifact; /* artifact array index */
 
+    long oprops;       /* item properties */
+    long oprops_known; /* known item properties */
+
     xint8 where;        /* where the object thinks it is */
 #define OBJ_FREE 0      /* object not attached to anything */
 #define OBJ_FLOOR 1     /* object on floor */
@@ -82,9 +85,11 @@ struct obj {
 #define OBJ_ONBILL 7    /* object on shk bill */
 #define OBJ_LUAFREE 8   /* object has been dealloc'd, but is ref'd by lua */
 #define OBJ_DELETED 9   /* object is marked for deletion by dobjsfree() */
+#define OBJ_MCHEST 10   /* object in magic chest */
+#define OBJ_INTRAP 11   /* object is trap ammo */
     /* note: OBJ_xxx values are used in obj_state_names[] in mkobj.c
        so adding, removing, or renumbering these needs to change that too */
-#define NOBJ_STATES 10
+#define NOBJ_STATES 12
     xint16 timed; /* # of fuses (timers) attached to this obj */
 
     /* Bitfields currently require 5 bytes minimum */
@@ -118,6 +123,9 @@ struct obj {
     Bitfield(lknown, 1); /* locked/unlocked status is known; assigned for bags
                           * and for horn of plenty (when tipping) even though
                           * they have no locks */
+    Bitfield(altshield, 1); /* designated sword-and-board shield (#shield) */
+    Bitfield(oreserved, 1); /* mon unwore it at hero's request; mons won't
+                             * wear it */
     Bitfield(tknown, 1); /* trap status known for chests */
     Bitfield(nomerge, 1);   /* set temporarily to prevent merging */
 
@@ -132,14 +140,23 @@ struct obj {
 #define norevive oeroded2 /* frozen corpse */
     Bitfield(oerodeproof, 1); /* erodeproof weapon/armor */
     Bitfield(olocked, 1);     /* object is locked */
+#define sokoprize olocked     /* special flag for sokoban prize */
+#define orecursive olocked    /* special flag for preventing recursive calls */
     Bitfield(obroken, 1);     /* lock has been broken */
 #define degraded_horn obroken /* unicorn horn will poly to non-magic */
     Bitfield(otrapped, 1);    /* container is trapped */
 /* or accidental tripped rolling boulder trap */
-#define opoisoned otrapped /* object (weapon) is coated with poison */
+#define zombie_corpse otrapped /* zombie corpse that can revive */
+    Bitfield(ocoated1, 1); /* object (weapon) is coated in some type of
+                            * poison */
+    Bitfield(ocoated2, 1); /* object (weapon) is coated in some other type
+                            * of poison */
+#define opoisoned ocoated1 /* object (weapon) is coated with poison */
+#define otainted ocoated2  /* object (weapon) is coated with drow poison */
 
     Bitfield(globby, 1);    /* combines with like types on adjacent squares */
     Bitfield(greased, 1);   /* covered with grease */
+    Bitfield(odrained, 1);  /* corpse is drained of blood */
     Bitfield(material, 5);  /* material this obj is made of; defaults to
                              * the class oc_material at creation and is
                              * saved raw, so obj_material_types values
@@ -156,9 +173,9 @@ struct obj {
     Bitfield(eknown, 1); /* effect known for wands zapped or rings worn when
                           * not seen yet after being picked up while blind
                           * [maybe for remaining stack of used potion too] */
-    /* 5 free bits */
+    /* 0 free bits */
 #else
-    /* 6 free bits */
+    /* 1 free bit */
 #endif
 
     int corpsenm;         /* type of corpse is mons[corpsenm] */
@@ -171,10 +188,23 @@ struct obj {
 #define next_boulder corpsenm /* flag for xname() when pushing a pile of
                                * boulders, 0 for first (top of pile),
                                * 1 for others (format as "next boulder") */
+    int wep_kills;          /* tally number of kills a weapon has */
+    unsigned forged_qual;   /* build quality of a forged object */
+#define FQ_NORMAL 0         /* default value, all objects start out
+                             * 'normal' quality */
+#define FQ_INFERIOR 1       /* forged obj quality is inferior */
+#define FQ_SUPERIOR 2       /* forged obj quality is superior */
+#define FQ_EXCEPTIONAL 3    /* forged obj quality is exceptional */
+    short trap_ammo_typ;    /* crafted traps: preserve original ammo otyp */
+    short affixed_gem;      /* otyp of affixed gemstone, 0 = none */
     int usecount;           /* overloaded for various things that tally */
 #define spestudied usecount /* # of times a spellbook has been studied */
 #define wishedfor usecount  /* flag for hold_another_object() if from wish */
+    int newwarncnt;         /* tally how many monsters a glow warning
+                             * artifact is currently warning of */
     unsigned oeaten;        /* nutrition left in food, if partly eaten */
+    unsigned lastwarncnt;   /* tally how many monsters a glow warning
+                             * artifact was last warning of */
     long age;               /* creation date */
     long owornmask;        /* bit mask indicating which equipment slot(s) an
                             * item is worn in [by hero or by monster; could
@@ -203,6 +233,8 @@ struct obj {
 #define has_omonst(o) ((o)->oextra && OMONST(o))
 #define has_omailcmd(o) ((o)->oextra && OMAILCMD(o))
 #define has_omid(o) ((o)->oextra && OMID(o))
+
+#define has_affixed_gem(o) ((o)->affixed_gem != 0)
 
 /* Weapons and weapon-tools */
 /* KMH -- now based on skill categories.  Formerly:
@@ -478,6 +510,7 @@ struct obj {
 #define ERODE_ROT 2
 #define ERODE_CORRODE 3
 #define ERODE_CRACK 4 /* crystal armor */
+#define ERODE_DETERIORATE 5
 
 /* erosion flags for erode_obj() */
 #define EF_NONE 0
@@ -509,6 +542,33 @@ struct obj {
 /* tracking how a name got acquired by an object in named_how field */
 #define NAMED_PLAIN 0 /* nothing special, typical naming */
 #define NAMED_KEEP  1 /* historic statue, or stoned/killed monster */
+
+/* Object properties - magical properties that can spawn on
+   weapons/armor. Stored in obj->oprops; knowledge tracked in
+   obj->oprops_known. For weapons: damage properties add elemental
+   damage to attacks. For armor: damage properties provide elemental
+   resistance when worn. See create_oprop() in artifact.c for spawning
+   restrictions */
+#define ITEM_FIRE      0x00000001L /* fire damage or resistance */
+#define ITEM_FROST     0x00000002L /* frost damage or resistance */
+#define ITEM_SHOCK     0x00000004L /* shock damage or resistance */
+#define ITEM_VENOM     0x00000008L /* poison damage or resistance */
+#define ITEM_DRLI      0x00000010L /* drains life or resists it */
+#define ITEM_OILSKIN   0x00000020L /* permanently greased */
+#define ITEM_ESP       0x00000040L /* extrinsic telepathy */
+#define ITEM_SEARCHING 0x00000080L /* extrinsic searching */
+#define ITEM_WARNING   0x00000100L /* extrinsic warning */
+#define ITEM_EXCEL     0x00000200L /* confers luck, charisma boost */
+#define ITEM_FUMBLING  0x00000400L /* extrinsic fumbling */
+#define ITEM_HUNGER    0x00000800L /* extrinsic hunger */
+
+#define ITEM_MAGICAL   0x80000000L /* known to have magical properties */
+
+#define ITEM_PROP_MASK 0x00000FFFL /* all current properties */
+/* damage properties are mutually exclusive - only one per item */
+#define ITEM_DMG_PROPS (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK \
+                        | ITEM_VENOM | ITEM_DRLI)
+#define MAX_ITEM_PROPS 12
 
 /*
  *  Notes for adding new oextra structures:

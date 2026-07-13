@@ -13,6 +13,16 @@
 #endif
 #include "skills.h"
 
+/* Alignment abuse event tracking */
+#define MAX_ABUSE_HISTORY 5
+struct abuse_event {
+    long turn;        /* monstermoves when event occurred */
+    short abuse_type; /* enum abuse_type value */
+    short penalty;    /* alignment penalty (stored as positive) */
+    short detail1;    /* monster/object/species index + 1 */
+    short detail2;    /* secondary detail (deity+gender, hazard) */
+};
+
 /*** Substructures ***/
 
 struct RoleName {
@@ -48,13 +58,34 @@ struct u_event {
     Bitfield(uopened_dbridge, 1);   /* opened the drawbridge */
     Bitfield(invoked, 1);           /* invoked Gate to the Sanctum level */
     Bitfield(gehennom_entered, 1);  /* entered Gehennom via Valley */
-    Bitfield(uhand_of_elbereth, 2); /* became Hand of Elbereth */
+    Bitfield(tower_entered, 1);     /* entered Vlad's tower (cavern level) */
+    Bitfield(hella_entered, 1);     /* entered the first demon lord lair */
+    Bitfield(hellb_entered, 1);     /* entered the second demon lord lair */
+    Bitfield(hellc_entered, 1);     /* entered one of the demon prince lairs */
+    Bitfield(orcus_entered, 1);     /* entered Orcus town */
+    Bitfield(iceq_entered, 1);      /* entered the Ice Queen's realm */
+    Bitfield(vecnad_entered, 1);    /* entered Vecna's domain */
+    Bitfield(gtown_entered, 1);     /* entered Goblin Town */
+    Bitfield(purgatory_entered, 1); /* entered Purgatory */
+    Bitfield(hdgn_entered, 1);      /* entered the Hidden Dungeon */
+    Bitfield(wiztower_entered, 1);  /* entered final Wizard's tower level */
+    Bitfield(uhand_of_elbereth, 3); /* became Hand of Elbereth */
+    Bitfield(ucerberus, 1);         /* killed Cerberus */
+    Bitfield(uvecna, 1);            /* destroyed Vecna */
+    Bitfield(uvlad, 1);             /* destroyed Vlad */
+    Bitfield(utalgath, 1);          /* killed Tal'Gath */
+    Bitfield(ugking, 1);            /* killed the Goblin King */
+    Bitfield(ulucifer, 1);          /* killed Lucifer */
+    Bitfield(umichael, 1);          /* killed Saint Michael */
     Bitfield(udemigod, 1);          /* killed the wiz */
     Bitfield(uvibrated, 1);         /* stepped on "vibrating square" */
     Bitfield(ascended, 1);          /* has offered the Amulet */
 
     Bitfield(amulet_wish, 1);       /* has gained a wish from the Amulet */
-    /* 7 free bits */
+    Bitfield(ulearned_elbereth, 1); /* learned how to write Elbereth */
+    Bitfield(ufallen_aasimar, 1);   /* aasimar stripped of celestial blood,
+                                       permanently human (one-way) */
+    /* 26 free bits */
 };
 
 /*
@@ -160,10 +191,11 @@ struct u_conduct {     /* number of times... */
     long sokocheat;    /* violated special 'rules' in Sokoban */
     long pets;         /* obtained a pet */
     /* genocides already listed at end of game */
-    long reserved1;
-    long reserved2;
-    long reserved3;
-    long reserved4;
+    /* EvilHack conducts, claiming 5.0's four reserved slots */
+    long artitouch;    /* touched an artifact */
+    long forgedarti;   /* forged an artifact */
+    long antimagic;    /* acquired magic resistance */
+    long reflection;   /* acquired reflection */
 };
 
 struct u_roleplay {
@@ -172,7 +204,7 @@ struct u_roleplay {
     boolean deaf;    /* permanently deaf */
     boolean pauper;  /* no starting inventory */
     boolean reroll;  /* starting inventory/attr rerolling enabled */
-    boolean reserved1;
+    boolean hallu;   /* permanently hallucinating */
     boolean reserved2;
     boolean reserved3;
     long numbones;   /* # of bones files loaded */
@@ -354,7 +386,8 @@ enum utraptypes {
     TT_WEB        = 3,
     TT_LAVA       = 4,
     TT_INFLOOR    = 5,
-    TT_BURIEDBALL = 6
+    TT_BURIEDBALL = 6,
+    TT_ENTANGLED  = 7
 };
 
 enum utotypes {
@@ -400,10 +433,13 @@ struct you {
     struct prop uprops[LAST_PROP + 1];
 
     unsigned umconf;
-    Bitfield(usick_type, 2);
+    unsigned umburn;
+    unsigned umshock;
+    Bitfield(usick_type, 3);
 #define SICK_VOMITABLE 0x01
 #define SICK_NONVOMITABLE 0x02
-#define SICK_ALL 0x03
+#define SICK_ZOMBIE 0x04
+#define SICK_ALL 0x07
 
     /* These ranges can never be more than MAX_RANGE (vision.h). */
     int nv_range;   /* current night vision range */
@@ -431,6 +467,10 @@ struct you {
 
     unsigned ucreamed;
     unsigned uswldtim;          /* time you have been swallowed */
+    unsigned uwildshape;        /* time between using wildshape (druid
+                                   ability) */
+    unsigned uvampireshape;     /* time between using shapechange (vampire
+                                   ability) */
 
     Bitfield(uswallow, 1);      /* true if swallowed */
     Bitfield(uinwater, 1);      /* if you're currently in water (only
@@ -445,6 +485,8 @@ struct you {
                                  and for use in messages. */
 #define RIGHT_HANDED 0x00
 #define LEFT_HANDED  0x01
+    Bitfield(uamulet_on_planes, 1); /* monster escaped to Planes with
+                                       Amulet */
 
     unsigned udg_cnt;           /* how long you have been demigod */
     struct u_event uevent;      /* certain events have happened */
@@ -458,6 +500,7 @@ struct you {
                    atemp,       /* used for temporary loss/gain */
                    atime;       /* used for loss/gain countdown */
     align ualign;               /* character alignment */
+    boolean ever_abused;        /* ever abused alignment (for conduct) */
 #define CONVERT    2
 #define A_ORIGINAL 1
 #define A_CURRENT  0
@@ -466,6 +509,7 @@ struct you {
     /* default u.uluck is 0 except on special days (full moon: +1, Fri 13: -1,
        both: 0); equilibrium for luck timeout is changed to those values,
        but Luck max and min stay at 10+3 and -10-3 even on those days */
+    int luckturn;
 #define Luck (u.uluck + u.moreluck)
 #define LUCKADD    3  /* value of u.moreluck when carrying luck stone;
                        * +3 when blessed or uncursed, -3 when cursed */
@@ -486,13 +530,21 @@ struct you {
           ueninc[MAXULEV];   /* increases to uenmax for each level gain */
     int ugangr;              /* if the gods are angry at you */
     int ugifts;              /* number of artifacts bestowed */
+#define MAX_GIFT_HISTORY 50  /* track last N non-artifact sacrifice gifts */
+    short ugift_history[MAX_GIFT_HISTORY]; /* otyp values of recent gifts */
+    xint8 ugift_hist_idx;    /* next write position (circular buffer) */
+    /* last N abuse events */
+    struct abuse_event uabuse_history[MAX_ABUSE_HISTORY];
+    xint8 uabuse_hist_idx;   /* next write position (circular buffer) */
     int ublessed, ublesscnt; /* blessing/duration from #pray */
+    int ulastprayed;         /* moves when last prayed; 0 = never */
     long umoney0;
-    long uspare1;
+    long uaasimar_penalties; /* aasimar: penalty ID at each abuse tier */
     long uexp, urexp;        /* exper pts for gaining levels and for score */
     long ucleansed;          /* to record moves when player was cleansed */
     long usleep;             /* sleeping; monstermove you last started */
     int uinvault;
+    int uinshell;            /* time in shell */
     struct monst *ustuck;    /* engulfer or grabber, maybe grabbee if Upolyd */
     struct monst *usteed;    /* mount when riding */
     unsigned ustuck_mid;     /* u.ustuck->m_id, used during save/restore */
@@ -511,7 +563,6 @@ struct you {
     schar uachieved[N_ACH];  /* list of achievements in the order attained */
     struct monst *umonst;    /* for future conversion of &gy.youmonst to u.umonst */
 }; /* end of `struct you' */
-
 
 /* _hitmon_data: Info for when hero hits a monster */
 /* The basic reason we need all these booleans is that we don't want
@@ -558,6 +609,11 @@ struct _hitmon_data {
 
 #define Upolyd (u.umonnum != u.umonster)
 #define Ugender ((Upolyd ? u.mfemale : flags.female) ? 1 : 0)
+
+#define druid_form \
+    (Role_if(PM_DRUID) && all_druid_forms(monsndx(gy.youmonst.data)))
+#define vampire_form \
+    (Race_if(PM_VAMPIRE) && all_vampire_forms(monsndx(gy.youmonst.data)))
 
 /* point px,py is adjacent to (or same location as) hero */
 #define next2u(px,py) (distu((px),(py)) <= 2)

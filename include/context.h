@@ -154,9 +154,14 @@ struct context_info {
     int warnlevel;          /* threshold (digit) to warn about unseen mons */
     long next_attrib_check; /* next attribute check */
     long seer_turn;         /* when random clairvoyance will next kick in */
+    long timeout_start;     /* turn at which monster-spawn rate curve
+                               begins climbing (per-game random, hidden) */
     long snickersnee_turn;  /* Snickersnee last used to distance attack */
     long stethoscope_seq;   /* when a stethoscope was last used; first use
                              * during a move takes no time, second uses move */
+    long next_moloch_offering;  /* Moloch demands regular sacrifices */
+    char inf_aligns; /* random alignment permutation number for Infidels */
+    boolean coward;  /* restrict Infidel Elbereth penalty to once per move */
     boolean travel;  /* find way automatically to u.tx,u.ty */
     boolean travel1; /* first travel step */
     boolean forcefight;

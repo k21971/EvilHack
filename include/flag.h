@@ -18,6 +18,7 @@
 struct flag {
     boolean acoustics;       /* allow dungeon sound messages */
     boolean armorstatus;     /* show armor info on status lines */
+    boolean autoall_menu;    /* show menu with 'A' menu option */
     boolean autodig;         /* MRKR: Automatically dig */
     boolean autoquiver;      /* Automatically fill quiver */
     boolean autoopen;        /* open doors by walking into them */
@@ -43,6 +44,7 @@ struct flag {
     boolean invlet_constant; /* let objects keep their inventory symbol */
     boolean legacy;          /* print game entry "story" */
     boolean lit_corridor;    /* show a dark corr as lit if it is in sight */
+    boolean lookup_data;     /* show detailed mon/item data for lookup */
     boolean mention_decor;   /* give feedback for unobscured furniture */
     boolean mention_walls;   /* give feedback when bumping walls */
     boolean nap;             /* `timed_delay' option for display effects */
@@ -268,6 +270,8 @@ struct instance_flags {
     boolean remember_getpos; /* save getpos() positioning in do-again queue */
     boolean sad_feeling;   /* unseen pet is dying */
     boolean showdamage;    /* extra message reporting damage hero has taken */
+    boolean showmondamage; /* show how much damage monster you're attacking
+                            * took */
     boolean pending_customizations; /* at least one custom. was specified */
     xint8 debug_fuzzer;    /* fuzz testing */
     int at_midnight;       /* only valid during end of game disclosure */
@@ -285,8 +289,11 @@ struct instance_flags {
     int override_ID;       /* true to force full identification of objects */
     int parse_config_file_src;  /* hack for parse_config_line() */
     int purge_monsters;    /* # of dead monsters still on fmon list */
+    long were_changes;     /* # of were transformations this turn;
+                            * triggers deferred set_uasmon() */
     int raw_printed;       /* count of messages issued before window_inited */
     int suppress_price;    /* controls doname() for unpaid objects */
+    int suppress_worn;     /* controls doname() for worn status */
     unsigned  terrainmode; /* for getpos()'s autodescribe during #terrain */
 #define TER_MAP    0x01U
 #define TER_TRP    0x02U
@@ -324,6 +331,7 @@ struct instance_flags {
     int terrain_typ;      /* index into terrain_descr[] for botl */
     color_attr menu_headings;    /* CLR_ and ATR_ for menu headings */
     uint32_t colorcount;    /* store how many colors terminal is capable of */
+    boolean use_256color;   /* use extended 256-color palette */
     boolean use_truecolor;  /* force use of truecolor */
 #ifdef ALTMETA
     boolean altmeta;        /* Alt+c sends ESC c rather than M-c */
@@ -335,6 +343,7 @@ struct instance_flags {
     boolean echo;             /* 1 to echo characters */
     boolean force_invmenu;    /* always menu when handling inventory */
     boolean hilite_pile;      /* mark piles of objects with a hilite */
+    boolean hilite_hidden_stairs; /* mark hidden stairs with a hilite */
     boolean menu_head_objsym; /* Show obj symbol in menu headings; controlled
                                * by 'menuobjsyms' */
     boolean menu_overlay;     /* Draw menus over the map */
@@ -379,6 +388,10 @@ struct instance_flags {
     uchar bouldersym;         /* symbol for boulder display */
     char prevmsg_window;      /* type of old message window to use */
     boolean extmenu;          /* extended commands use menu interface */
+#ifdef REALTIME_ON_BOTL
+    char show_realtime;       /* type of time to show in status display */
+    char realtime_format;     /* format of time shown */
+#endif
 #ifdef MICRO
     boolean BIOS; /* use IBM or ST BIOS calls when appropriate */
 #endif
@@ -472,6 +485,7 @@ struct instance_flags {
     boolean wc2_darkgray;    /* try to use dark-gray color for black glyphs */
     boolean wc2_hitpointbar;  /* show graphical bar representing hit points */
     boolean wc2_guicolor;       /* allow colours in gui (outside map) */
+    boolean wc2_underline_peacefuls; /* underline peaceful monsters */
     int wc_mouse_support;       /* allow mouse support */
     int wc2_term_cols;          /* terminal width, in characters */
     int wc2_term_rows;          /* terminal height, in characters */
@@ -508,6 +522,7 @@ struct instance_flags {
 #endif
 #define use_color wc_color
 #define hilite_pet wc_hilite_pet
+#define underline_peacefuls wc2_underline_peacefuls
 #define use_inverse wc_inverse
 #ifdef MAC_GRAPHICS_ENV
 #define large_font obsolete

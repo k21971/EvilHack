@@ -51,6 +51,43 @@
 #define EDrain_resistance u.uprops[DRAIN_RES].extrinsic
 #define Drain_resistance (HDrain_resistance || EDrain_resistance)
 
+#define HPsychic_resistance u.uprops[PSYCHIC_RES].intrinsic
+#define EPsychic_resistance u.uprops[PSYCHIC_RES].extrinsic
+#define Psychic_resistance (HPsychic_resistance || EPsychic_resistance)
+
+#define HStun_resistance u.uprops[STUN_RES].intrinsic
+#define EStun_resistance u.uprops[STUN_RES].extrinsic
+#define Stun_resistance \
+    (HStun_resistance || EStun_resistance                  \
+     || gy.youmonst.data == &mons[PM_SHIMMERING_DRAGON]    \
+     || gy.youmonst.data == &mons[PM_BABY_SHIMMERING_DRAGON])
+
+/* TODO-EVILHACK: vulnerable_to() ports with the monster
+   vulnerability subsystem */
+#define HVulnerable_fire u.uprops[VULN_FIRE].intrinsic
+#define EVulnerable_fire u.uprops[VULN_FIRE].extrinsic
+#define Vulnerable_fire \
+    (HVulnerable_fire || EVulnerable_fire  \
+     || vulnerable_to(&gy.youmonst, AD_FIRE))
+
+#define HVulnerable_cold u.uprops[VULN_COLD].intrinsic
+#define EVulnerable_cold u.uprops[VULN_COLD].extrinsic
+#define Vulnerable_cold \
+    (HVulnerable_cold || EVulnerable_cold  \
+     || vulnerable_to(&gy.youmonst, AD_COLD))
+
+#define HVulnerable_elec u.uprops[VULN_ELEC].intrinsic
+#define EVulnerable_elec u.uprops[VULN_ELEC].extrinsic
+#define Vulnerable_elec \
+    (HVulnerable_elec || EVulnerable_elec  \
+     || vulnerable_to(&gy.youmonst, AD_ELEC))
+
+#define HVulnerable_acid u.uprops[VULN_ACID].intrinsic
+#define EVulnerable_acid u.uprops[VULN_ACID].extrinsic
+#define Vulnerable_acid \
+    (HVulnerable_acid || EVulnerable_acid  \
+     || vulnerable_to(&gy.youmonst, AD_ACID))
+
 /* Hxxx due to FROMFORM only */
 #define HAntimagic u.uprops[ANTIMAGIC].intrinsic
 #define EAntimagic u.uprops[ANTIMAGIC].extrinsic
@@ -63,6 +100,23 @@
 #define HStone_resistance u.uprops[STONE_RES].intrinsic
 #define EStone_resistance u.uprops[STONE_RES].extrinsic
 #define Stone_resistance (HStone_resistance || EStone_resistance)
+
+#define HDeath_resistance u.uprops[DEATH_RES].intrinsic
+#define EDeath_resistance u.uprops[DEATH_RES].extrinsic
+#define Death_resistance (HDeath_resistance || EDeath_resistance)
+
+#define HLycan_resistance u.uprops[WERE_RES].intrinsic
+#define ELycan_resistance u.uprops[WERE_RES].extrinsic
+#define Lycan_resistance \
+    (HLycan_resistance || ELycan_resistance                 \
+     || gy.youmonst.data->mlet == S_LICH                    \
+     || gy.youmonst.data->mlet == S_ZOMBIE                  \
+     || gy.youmonst.data->mlet == S_WRAITH                  \
+     || gy.youmonst.data->mlet == S_VAMPIRE                 \
+     || gy.youmonst.data->mlet == S_GHOST                   \
+     || gy.youmonst.data->mlet == S_MUMMY                   \
+     || gy.youmonst.data->mlet == S_SKELETON                \
+     || defended(&gy.youmonst, AD_WERE))
 
 #define HSick_resistance u.uprops[SICK_RES].intrinsic
 #define ESick_resistance u.uprops[SICK_RES].extrinsic
@@ -163,6 +217,15 @@
 #define HWarning u.uprops[WARNING].intrinsic
 #define EWarning u.uprops[WARNING].extrinsic
 #define Warning (HWarning || EWarning)
+
+#define HFood_sense u.uprops[FOOD_SENSE].intrinsic
+#define EFood_sense u.uprops[FOOD_SENSE].extrinsic
+#define Food_sense (HFood_sense || EFood_sense)
+
+/* (intrinsic x-ray vision prop is not currently used) */
+#define HXray_vision u.uprops[XRAY_VISION].intrinsic
+#define EXray_vision u.uprops[XRAY_VISION].extrinsic
+#define Xray_vision (HXray_vision || EXray_vision)
 
 /* Warning for a specific type of monster */
 #define HWarn_of_mon u.uprops[WARN_OF_MON].intrinsic
@@ -289,6 +352,10 @@
 #define EPasses_walls u.uprops[PASSES_WALLS].extrinsic
 #define Passes_walls (HPasses_walls || EPasses_walls)
 
+#define HPasses_trees u.uprops[PASSES_TREES].intrinsic
+#define EPasses_trees u.uprops[PASSES_TREES].extrinsic
+#define Passes_trees (HPasses_trees || EPasses_trees)
+
 /*** Physical attributes ***/
 #define HSlow_digestion u.uprops[SLOW_DIGESTION].intrinsic
 #define ESlow_digestion u.uprops[SLOW_DIGESTION].extrinsic
@@ -380,11 +447,30 @@
 #define Fast (HFast || EFast)
 #define Very_fast ((HFast & ~INTRINSIC) || EFast)
 
+/* TODO-EVILHACK: EvilHack gates Fast and Very_fast on !Slow and
+   adds an SFast underwater form; port with the slow subsystem */
+#define HSlow u.uprops[SLOW].intrinsic
+#define ESlow u.uprops[SLOW].extrinsic
+#define Slow (HSlow || ESlow)
+
 #define HReflecting u.uprops[REFLECTING].intrinsic
 #define EReflecting u.uprops[REFLECTING].extrinsic
 #define Reflecting (HReflecting || EReflecting)
 
+#define HWithering u.uprops[WITHERING].intrinsic
+#define EWithering u.uprops[WITHERING].extrinsic
+#define BWithering u.uprops[WITHERING].blocked
+#define Withering ((HWithering || EWithering) && !BWithering)
+
 #define Free_action u.uprops[FREE_ACTION].extrinsic /* [Tom] */
+
+#define HBarkskin u.uprops[BARKSKIN].intrinsic
+#define EBarkskin u.uprops[BARKSKIN].extrinsic
+#define Barkskin (HBarkskin || EBarkskin)
+
+#define HStoneskin u.uprops[STONESKIN].intrinsic
+#define EStoneskin u.uprops[STONESKIN].extrinsic
+#define Stoneskin (HStoneskin || EStoneskin)
 
 #define Fixed_abil u.uprops[FIXED_ABIL].extrinsic /* KMH */
 

@@ -93,7 +93,26 @@ enum prop_types {
        you, so additions are append-only */
     TELEKINESIS       = 69,
     ULTRAVISION       = 70,
-    LAST_PROP = ULTRAVISION
+    /* note: in EvilHack PSYCHIC_RES is property 9 so that
+       MR_PSYCHIC == (1 << (PSYCHIC_RES - 1)); appended here, so
+       res_to_mr() does NOT cover it - any MR_PSYCHIC conversion
+       must map it explicitly */
+    PSYCHIC_RES       = 71,
+    DEATH_RES         = 72,
+    WERE_RES          = 73,
+    STUN_RES          = 74,
+    FOOD_SENSE        = 75,
+    XRAY_VISION       = 76,
+    PASSES_TREES      = 77,
+    SLOW              = 78,
+    BARKSKIN          = 79,
+    STONESKIN         = 80,
+    WITHERING         = 81,
+    VULN_FIRE         = 82,
+    VULN_COLD         = 83,
+    VULN_ELEC         = 84,
+    VULN_ACID         = 85,
+    LAST_PROP = VULN_ACID
 };
 
 /*** Where the properties come from ***/
@@ -126,9 +145,10 @@ struct prop {
 #define W_ACCESSORY (W_RING | W_AMUL | W_TOOL)
     /* historical note: originally in slash'em, 'worn' saddle stayed in
        hero's inventory; in nethack, it's kept in the steed's inventory */
-#define W_SADDLE 0x00100000L /* KMH -- For riding monsters */
-#define W_BALL 0x00200000L   /* Punishment ball */
-#define W_CHAIN 0x00400000L  /* Punishment chain */
+#define W_SADDLE 0x00100000L  /* KMH -- For riding monsters */
+#define W_BARDING 0x00200000L /* Barding for steeds */
+#define W_BALL 0x00400000L    /* Punishment ball */
+#define W_CHAIN 0x00800000L   /* Punishment chain */
 
     /*** Property is blocked by an object ***/
     long blocked; /* Same assignments as extrinsic */
@@ -141,10 +161,14 @@ struct prop {
 #define FROMEXPER   0x01000000L /* Gain/lose with experience, for role */
 #define FROMRACE    0x02000000L /* Gain/lose with experience, for race */
 #define FROMOUTSIDE 0x04000000L /* By corpses, prayer, thrones, etc. */
-#define INTRINSIC   (FROMOUTSIDE | FROMRACE | FROMEXPER)
+#define FROMHUNGER  0x08000000L /* Gain/lose based on hunger status */
+#define HAVEPARTIAL 0x10000000L /* This is no longer a timeout, but a
+                                   partial resistance */
+#define INTRINSIC \
+    (FROMOUTSIDE | FROMRACE | FROMEXPER | FROMHUNGER | HAVEPARTIAL)
 /* Control flags */
-#define FROMFORM    0x10000000L /* Polyd; conferred by monster form */
-#define I_SPECIAL   0x20000000L /* Property is controllable */
+#define FROMFORM    0x20000000L /* Polyd; conferred by monster form */
+#define I_SPECIAL   0x40000000L /* Property is controllable */
 };
 
 /*** Definitions for backwards compatibility ***/

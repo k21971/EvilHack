@@ -85,6 +85,7 @@ enum m_seen_resistance {
     M_SEEN_POISON  = 0x0040, /* AD_DRST */
     M_SEEN_ACID    = 0x0080, /* Acid_resistance, AD_ACID */
     M_SEEN_REFL    = 0x0100, /* reflection, no corresponding AD_foo */
+    M_SEEN_DEATH   = 0x0200, /* Death_resistance, AD_DETH */
 };
 
 #define m_seenres(mon, mask) ((mon)->seen_resistance & (mask))
@@ -112,13 +113,18 @@ struct monst {
     coord mtrack[MTSZ];   /* monster track */
     int mhp, mhpmax;
     unsigned mappearance; /* for undetected mimics and the wiz */
+    unsigned ridden_by;   /* m_id for rider while on its steed, can check
+                           * if not ridden since context.ident is
+                           * initialized at 1 */
     uchar m_ap_type;      /* what mappearance is describing, m_ap_types */
 
     schar mtame;          /* level of tameness, implies peaceful */
-    unsigned short mintrinsics; /* low 8 correspond to mresists */
-    unsigned short mextrinsics; /* low 8 correspond to mresists */
+    unsigned long mintrinsics;  /* low 9 correspond to mresists */
+    unsigned long mextrinsics;  /* low 9 correspond to mresists */
     unsigned long seen_resistance; /* M_SEEN_x; saw you resist an effect */
     int mspec_used;       /* monster's special ability attack timeout */
+    int mbindtimer;       /* Draugr binding-ritual cooldown timer */
+    int mbreath_attk;     /* breath/spit attack cooldown timeout */
     int mtk_attk;         /* telekinesis attack cooldown timeout;
                            * struct monst is whole-struct saved */
 
@@ -161,6 +167,8 @@ struct monst {
 
     Bitfield(iswiz, 1);     /* is the Wizard of Yendor */
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
+#define MAX_WSEG_PER_WORM 256 /* generous cap; rejects corrupt save
+                               * prefixes */
     Bitfield(wormno, 5);    /* at most 31 worms on any level */
     Bitfield(mtemplit, 1);  /* temporarily seen; only valid during bhit() */
     Bitfield(meverseen, 1); /* mon has been seen at some point */
@@ -168,7 +176,38 @@ struct monst {
     Bitfield(mspotted, 1);  /* mon is currently seen by hero */
     Bitfield(mwandexp, 1);  /* mon has experience with wands */
     Bitfield(mgenmklev, 1); /* made by the level generation */
-    /* 5 spare bits */
+
+    Bitfield(msick, 2);      /* monsters ill from zombies */
+    Bitfield(msickbyu, 1);   /* monsters ill from you as a zombie */
+    Bitfield(mdiseased, 1);  /* monsters infected with disease */
+    Bitfield(mdiseabyu, 1);  /* monsters infected by you */
+    Bitfield(mentangled, 1); /* entangled by a spell */
+    Bitfield(uexp, 1);       /* you get experience for its kills */
+    Bitfield(isqldr, 1);     /* is quest leader */
+
+    Bitfield(iscerberus, 1); /* is Cerberus */
+    Bitfield(isvecna, 1);    /* is Vecna */
+    Bitfield(isvlad, 1);     /* is Vlad the Impaler */
+    Bitfield(istalgath, 1);  /* is Tal'Gath */
+    Bitfield(isgking, 1);    /* is the Goblin King */
+    Bitfield(islucifer, 1);  /* is Lucifer */
+    Bitfield(ismichael, 1);  /* is Saint Michael */
+    Bitfield(mwither_from_u, 1); /* is withering due to player */
+
+    Bitfield(mstonebyu, 1);  /* you caused the monster to start stoning */
+    Bitfield(mstone, 3);     /* monster is turning to stone */
+    Bitfield(mberserk, 1);   /* monster is berserk */
+    Bitfield(minsects, 1);   /* monster summoned via CLC_INSECTS spell */
+    /* 7 spare bits */
+
+    uchar mwither;           /* withering; amount of turns left till
+                              * recovery */
+    uchar vuln_fire;         /* timeout of temp vulnerability to fire */
+    uchar vuln_cold;         /* ...to cold */
+    uchar vuln_elec;         /* ...to elec */
+    uchar vuln_acid;         /* ...to acid */
+    uchar mbreathtyp;        /* skeletal dragon: fixed breath adtyp,
+                                chosen at creation (0 = unassigned) */
 
     unsigned long mstrategy; /* for monsters with mflag3: current strategy */
 #ifdef NHSTDC
@@ -197,9 +236,24 @@ struct monst {
     long mspare1;
     struct obj *minvent;   /* mon's inventory */
     struct obj *mw;        /* mon's weapon */
+    struct obj *mw2;       /* mon's secondary weapon (dual-wield) */
     long misc_worn_check;  /* mon's wornmask */
     xint16 weapon_check;   /* flag for whether to try switching weapons */
     int meating;           /* monster is eating timeout */
+    int msummoned;         /* is a temporarily summoned being */
+    int msicktime;         /* zombie sick timer */
+    int mdiseasetime;      /* diseased timer */
+    int mreflecttime;      /* timeout for monster reflection spell */
+    int mbarkskintime;     /* timeout for monster barkskin spell */
+    int mstoneskintime;    /* timeout for monster stoneskin spell */
+    int mentangletime;     /* timeout for monster entangle spell */
+    int mlevitatetime;     /* timeout for monster levitation spell */
+    int mjumptime;         /* timeout for monster jumping spell */
+    uchar mburnhands;      /* burning hands spell charges */
+    uchar mshockgrasp;     /* shocking grasp spell charges */
+    int mbreakboulder;     /* timeout for monster breaking a boulder */
+    uchar mprotection;     /* monster protection spell */
+    uchar mprottime;       /* timeout for monster protection spell */
     struct mextra *mextra; /* point to mextra struct */
 };
 
@@ -211,6 +265,10 @@ struct monst {
 
 #define MON_WEP(mon) ((mon)->mw)
 #define MON_NOWEP(mon) ((mon)->mw = (struct obj *) 0)
+#define MON_WEP2(mon) ((mon)->mw2)
+#define MON_NOWEP2(mon) ((mon)->mw2 = (struct obj *) 0)
+
+#define OFFHAND_PENALTY 4 /* to-hit penalty for monster off-hand attacks */
 
 /* dead monsters stay on the fmon list until dmonsfree() at end of turn */
 #define DEADMONSTER(mon) ((mon)->mhp < 1)

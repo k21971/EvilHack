@@ -814,7 +814,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_BABY_GOLD_DRAGON: case PM_BABY_SEA_DRAGON:
     case PM_BABY_YELLOW_DRAGON: case PM_BABY_SHADOW_DRAGON:
     case PM_BABY_CELESTIAL_DRAGON:
-   
+
     case PM_CHROMATIC_DRAGON: case PM_STALKER: case PM_AIR_ELEMENTAL:
     case PM_FIRE_ELEMENTAL: case PM_EARTH_ELEMENTAL: case PM_WATER_ELEMENTAL:
     case PM_LICHEN: case PM_BROWN_MOLD: case PM_YELLOW_MOLD: case PM_GREEN_MOLD:
@@ -2683,6 +2683,12 @@ dealloc_mextra(struct monst *m)
             free((genericptr_t) x->emin), x->emin = 0;
         if (x->edog)
             free((genericptr_t) x->edog), x->edog = 0;
+        if (x->erid)
+            free((genericptr_t) x->erid), x->erid = 0;
+        if (x->erac)
+            free((genericptr_t) x->erac), x->erac = 0;
+        if (x->emsp)
+            free((genericptr_t) x->emsp), x->emsp = 0;
         if (x->ebones)
             free((genericptr_t) x->ebones), x->ebones = 0;
         x->mcorpsenm = NON_PM; /* no allocation to release */

@@ -131,6 +131,7 @@ struct eshk {
     schar unused;         /* to force alignment for stupid compilers */
     boolean following;    /* following customer since he owes us sth */
     boolean surcharge;    /* angry shk inflates prices */
+    boolean pbanned;      /* player is banned from the shop */
     boolean dismiss_kops; /* pacified shk sends kops away */
     coord shk;            /* usual position shopkeeper */
     coord shd;            /* position shop door */
@@ -157,6 +158,26 @@ struct emin {
 /***
  **     formerly edog.h -- pet extension
  */
+/* Pet behavior strategy flags - stored in edog->petstrat */
+#define PETSTRAT_AGGRO       0x00000001L /* Attack aggressively, pursue
+                                          * enemies */
+#define PETSTRAT_COWED       0x00000002L /* Defensive - avoid combat when
+                                          * possible */
+#define PETSTRAT_STAY        0x00000004L /* Stay on current level, don't
+                                          * follow */
+#define PETSTRAT_NOAPPORT    0x00000008L /* Don't pick up items */
+#define PETSTRAT_AVOIDPEACE  0x00000010L /* Avoid attacking peaceful
+                                          * creatures */
+#define PETSTRAT_STATIONARY  0x00000020L /* Stay at current position, don't
+                                          * move */
+#define PETSTRAT_COME        0x00000040L /* Come to player, ignore
+                                          * everything */
+#define PETSTRAT_NODROP      0x00000080L /* Don't drop items */
+#define PETSTRAT_IGNORETRAPS 0x00000100L /* Ignore harmless traps (squeaky
+                                          * board, rust) */
+#define PETSTRAT_NOATTACK    0x00000200L /* Never attack anything,
+                                          * overrides grudges */
+
 /*      various types of pet food, the lower the value, the better liked */
 enum dogfood_types {
     DOGFOOD = 0,
@@ -168,6 +189,10 @@ enum dogfood_types {
     UNDEF   = 6,
     TABU    = 7
 };
+
+/* hungrytime offset above which a pet is "deeply satiated" and stops
+   eating; gates dog_invent's eat trigger and dog_goal's pursuit */
+#define DOG_SATIATED 800
 
 struct edog {
     unsigned parentmid;       /* make clobber-detection possible */
@@ -181,6 +206,42 @@ struct edog {
     int revivals;             /* count pet deaths */
     int mhpmax_penalty;       /* while starving, points reduced */
     Bitfield(killed_by_u, 1); /* you attempted to kill him */
+    long petstrat;            /* pet strategy flags (PETSTRAT_*) */
+};
+
+/***
+ **     ridden-steed extension
+ */
+struct erid {
+    struct monst *mon_steed;  /* monster being ridden */
+    unsigned int mid;         /* pointer to attached monster id */
+};
+
+/***
+ **     racial characteristics
+ */
+struct erac {
+    unsigned long mrace;        /* equivalent to mhflags */
+    int r_id;                   /* index in races, used for races[r_id].adj */
+    short rmnum;                /* index in mons, e.g. PM_HOBBIT */
+    aligntyp ralign;            /* equivalent to maligntyp */
+    struct attack mattk[NATTK]; /* attacks matrix */
+    unsigned long mflags1;
+    unsigned long mflags2;
+    unsigned long mflags3;
+};
+
+/***
+ **     monster spell knowledge extension
+ */
+#define MAXMONSPELL 8    /* max spells a monster can learn */
+#define MSPELL_KEEN 5000 /* spell retention (vs player's 20000) */
+
+struct emsp {
+    short msp_id[MAXMONSPELL]; /* spell otyp (0 = empty slot) */
+    int msp_know[MAXMONSPELL]; /* knowledge retention counter */
+    short msp_reading;         /* otyp of book being read (0 = not reading) */
+    short msp_read_turns;      /* turns remaining to finish reading */
 };
 
 /***
@@ -209,6 +270,9 @@ struct mextra {
     struct eshk *eshk;
     struct emin *emin;
     struct edog *edog;
+    struct erid *erid;
+    struct erac *erac;
+    struct emsp *emsp;
     struct ebones *ebones;
     int mcorpsenm; /* obj->corpsenm for mimic posing as statue or corpse,
                     * obj->spe (fruit index) for one posing as a slime mold,
@@ -221,6 +285,9 @@ struct mextra {
 #define ESHK(mon) ((mon)->mextra->eshk)
 #define EMIN(mon) ((mon)->mextra->emin)
 #define EDOG(mon) ((mon)->mextra->edog)
+#define ERID(mon) ((mon)->mextra->erid)
+#define ERAC(mon) ((mon)->mextra->erac)
+#define EMSP(mon) ((mon)->mextra->emsp)
 #define EBONES(mon) ((mon)->mextra->ebones)
 #define MCORPSENM(mon) ((mon)->mextra->mcorpsenm)
 
@@ -230,7 +297,15 @@ struct mextra {
 #define has_eshk(mon)  ((mon)->mextra && ESHK(mon))
 #define has_emin(mon)  ((mon)->mextra && EMIN(mon))
 #define has_edog(mon)  ((mon)->mextra && EDOG(mon))
+#define has_erid(mon)  ((mon)->mextra && ERID(mon))
+#define has_erac(mon)  ((mon)->mextra && ERAC(mon))
+#define has_emsp(mon)  ((mon)->mextra && EMSP(mon))
 #define has_ebones(mon) ((mon)->mextra && EBONES(mon))
 #define has_mcorpsenm(mon) ((mon)->mextra && MCORPSENM(mon) != NON_PM)
+
+/* pet has been ordered not to drop items */
+#define pet_wont_drop(mon) \
+    ((mon)->mtame && has_edog(mon) \
+     && (EDOG(mon)->petstrat & PETSTRAT_NODROP) != 0)
 
 #endif /* MEXTRA_H */

@@ -190,6 +190,7 @@ Boots_on(void)
         u.uprops[objects[uarmf->otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
 
     switch (uarmf->otyp) {
+    case ORCISH_BOOTS:
     case LOW_BOOTS:
     case DWARVISH_BOOTS:
     case HIGH_BOOTS:
@@ -225,6 +226,7 @@ Boots_on(void)
                      (oldprop || HFast) ? " a bit more" : "");
         }
         break;
+    case DARK_ELVEN_BOOTS:
     case ELVEN_BOOTS:
         toggle_stealth(uarmf, oldprop, TRUE);
         break;
@@ -290,6 +292,7 @@ Boots_off(void)
             spoteffects(TRUE);
         }
         break;
+    case DARK_ELVEN_BOOTS:
     case ELVEN_BOOTS:
         toggle_stealth(otmp, oldprop, FALSE);
         break;
@@ -309,6 +312,7 @@ Boots_off(void)
             float_vs_flight(); /* maybe toggle (BFlying & I_SPECIAL) */
         }
         break;
+    case ORCISH_BOOTS:
     case LOW_BOOTS:
     case DWARVISH_BOOTS:
     case HIGH_BOOTS:
@@ -338,6 +342,7 @@ Cloak_on(void)
     case CLOAK_OF_PROTECTION:
         makeknown(uarmc->otyp);
         break;
+    case DARK_ELVEN_CLOAK:
     case ELVEN_CLOAK:
         toggle_stealth(uarmc, oldprop, TRUE);
         break;
@@ -398,6 +403,7 @@ Cloak_off(void)
     case ROBE:
     case CLOAK:
         break;
+    case DARK_ELVEN_CLOAK:
     case ELVEN_CLOAK:
         toggle_stealth(otmp, oldprop, FALSE);
         break;
@@ -433,15 +439,33 @@ Cloak_off(void)
 staticfn int
 Helmet_on(void)
 {
+    long oldprop =
+        u.uprops[objects[uarmh->otyp].oc_oprop].extrinsic & ~WORN_HELMET;
+
     switch (uarmh->otyp) {
     case FEDORA:
         if (Role_if(PM_ARCHEOLOGIST))
             change_luck(1);
         break;
+    case TOQUE:
     case HELMET:
     case DENTED_POT:
     case ELVEN_HELM:
+    case DARK_ELVEN_HELM:
     case DWARVISH_HELM:
+    case HELM_OF_SPEED:
+        if (!oldprop && !(HFast & TIMEOUT)) {
+            makeknown(uarmh->otyp);
+            You_feel("yourself speed up%s.",
+                     (oldprop || HFast) ? " a bit more" : "");
+        }
+        break;
+    /* TODO-EVILHACK: illithid-race message variant ports with the
+       illithid race work */
+    case HELM_OF_TELEKINESIS:
+        You_feel("your mind expand with telekinetic power.");
+        makeknown(uarmh->otyp);
+        break;
     case ORCISH_HELM:
     case HELM_OF_TELEPATHY:
         break;
@@ -520,6 +544,18 @@ Helmet_off(void)
     svc.context.takeoff.mask &= ~W_ARMH;
 
     switch (uarmh->otyp) {
+    case TOQUE:
+    case DARK_ELVEN_HELM:
+        break;
+    case HELM_OF_SPEED:
+        setworn((struct obj *) 0, W_ARMH);
+        if (!Very_fast && !svc.context.takeoff.cancelled_don)
+            You_feel("yourself slow down%s.", Fast ? " a bit" : "");
+        break;
+    case HELM_OF_TELEKINESIS:
+        if (!svc.context.takeoff.cancelled_don)
+            You_feel("the telekinetic power recede from your mind.");
+        break;
     case FEDORA:
         if (Role_if(PM_ARCHEOLOGIST))
             change_luck(-1);
@@ -579,7 +615,18 @@ Gloves_on(void)
         u.uprops[objects[uarmg->otyp].oc_oprop].extrinsic & ~WORN_GLOVES;
 
     switch (uarmg->otyp) {
+    case DARK_ELVEN_GLOVES:
+    case GAUNTLETS:
     case GLOVES:
+        break;
+    case GAUNTLETS_OF_PROTECTION:
+        makeknown(uarmg->otyp);
+        break;
+    /* TODO-EVILHACK: the Hand of Vecna donning interplay (piety
+       check, hand meld) ports with the Vecna content */
+    case MUMMIFIED_HAND:
+        makeknown(uarmg->otyp);
+        disp.botl = TRUE;
         break;
     case GAUNTLETS_OF_FUMBLING:
         if (!oldprop && !(HFumbling & ~TIMEOUT))
@@ -653,7 +700,12 @@ Gloves_off(void)
     svc.context.takeoff.mask &= ~W_ARMG;
 
     switch (uarmg->otyp) {
+    case DARK_ELVEN_GLOVES:
+    case GAUNTLETS:
     case GLOVES:
+        break;
+    case GAUNTLETS_OF_PROTECTION:
+    case MUMMIFIED_HAND:
         break;
     case GAUNTLETS_OF_FUMBLING:
         if (!oldprop && !(HFumbling & ~TIMEOUT))
@@ -710,6 +762,11 @@ Shield_on(void)
        in setworn() called by armor_or_accessory_on() before Shield_on()] */
     switch (uarms->otyp) {
     case SMALL_SHIELD:
+    case SHIELD_OF_LIGHT:
+    case SHIELD_OF_MOBILITY:
+    case BRACERS:
+    case DARK_ELVEN_BRACERS:
+    case RUNED_BRACERS:
     case SHIELD_OF_DRAIN_RESISTANCE:
     case SHIELD_OF_SHOCK_RESISTANCE:
     case ELVEN_SHIELD:
@@ -738,6 +795,11 @@ Shield_off(void)
        keep this uncommented in case somebody adds a new one which does */
     switch (uarms->otyp) {
     case SMALL_SHIELD:
+    case SHIELD_OF_LIGHT:
+    case SHIELD_OF_MOBILITY:
+    case BRACERS:
+    case DARK_ELVEN_BRACERS:
+    case RUNED_BRACERS:
     case SHIELD_OF_DRAIN_RESISTANCE:
     case SHIELD_OF_SHOCK_RESISTANCE:
     case ELVEN_SHIELD:
@@ -964,6 +1026,7 @@ Amulet_on(struct obj *amul)
     case AMULET_OF_ESP:
     case AMULET_OF_LIFE_SAVING:
     case AMULET_VERSUS_POISON:
+    case AMULET_OF_MAGIC_RESISTANCE:
     case AMULET_OF_REFLECTION:
     case FAKE_AMULET_OF_YENDOR:
         break;
@@ -1097,6 +1160,7 @@ Amulet_off(void)
         break;
     case AMULET_OF_LIFE_SAVING:
     case AMULET_VERSUS_POISON:
+    case AMULET_OF_MAGIC_RESISTANCE:
     case AMULET_OF_REFLECTION:
     case AMULET_OF_CHANGE:
     case AMULET_OF_UNCHANGING:
@@ -1264,6 +1328,7 @@ Ring_on(struct obj *obj)
     case RIN_TELEPORT_CONTROL:
     case RIN_POLYMORPH:
     case RIN_POLYMORPH_CONTROL:
+    case RIN_ANCIENT:
     case RIN_FREE_ACTION:
     case RIN_SLOW_DIGESTION:
     case RIN_SUSTAIN_ABILITY:
@@ -1286,6 +1351,21 @@ Ring_on(struct obj *obj)
             newsym(u.ux, u.uy);
             pline("Suddenly you are transparent, but there!");
             learnring(obj, TRUE);
+        }
+        break;
+    case RIN_LUSTROUS: /* grants invisibility and stealth */
+        if (maybe_polyd(is_giant(gy.youmonst.data), Race_if(PM_GIANT))) {
+            pline_The("%s will not silence someone %s.",
+                      xname(obj), rn2(2) ? "as large as you"
+                                         : "of your stature");
+            EStealth &= ~W_RING;
+        } else {
+            toggle_stealth(obj, oldprop, TRUE);
+        }
+        if (!oldprop && !HInvis && !BInvis && !Blind) {
+            learnring(obj, TRUE);
+            newsym(u.ux, u.uy);
+            self_invis_message();
         }
         break;
     case RIN_INVISIBILITY:
@@ -1363,6 +1443,7 @@ Ring_off_or_gone(struct obj *obj, boolean gone)
     case RIN_TELEPORT_CONTROL:
     case RIN_POLYMORPH:
     case RIN_POLYMORPH_CONTROL:
+    case RIN_ANCIENT:
     case RIN_FREE_ACTION:
     case RIN_SLOW_DIGESTION:
     case RIN_SUSTAIN_ABILITY:
@@ -1384,6 +1465,15 @@ Ring_off_or_gone(struct obj *obj, boolean gone)
         if (Invisible && !Blind) {
             newsym(u.ux, u.uy);
             pline("Suddenly you cannot see yourself.");
+            learnring(obj, TRUE);
+        }
+        break;
+    case RIN_LUSTROUS:
+        toggle_stealth(obj, (EStealth & ~mask), FALSE);
+        if (!Invis && !BInvis && !Blind) {
+            newsym(u.ux, u.uy);
+            Your("body seems to unfade%s.",
+                 See_invisible ? " completely" : "..");
             learnring(obj, TRUE);
         }
         break;

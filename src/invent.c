@@ -1570,7 +1570,6 @@ u_carried_gloves(void)
     return gloves;
 }
 
-
 /* 3.6 tribute */
 struct obj *
 u_have_novel(void)
@@ -2714,7 +2713,6 @@ check_for_puzzling_nonmerge(struct obj *objchn)
     for (i = 0; i < invlet_basic + 1; ++i)
         gp.puzzling_ilets[i] = mnums[i] = gndr[i] = 0;
 
-
     for (obj = objchn; obj; obj = obj->nobj) {
         if (obj->otyp == CORPSE
             && obj->corpsenm >= 0 && obj->corpsenm < NUMMONS) {
@@ -2996,7 +2994,6 @@ xprname(
 
 RESTORE_WARNING_FORMAT_NONLITERAL
 
-
 /* show some or all of inventory while allowing the picking of an item in
    order to preform context-sensitive item action on it; always returns 'ok';
    invent subsets specified by the ')', '[', '(', '=', '"', or '*' commands
@@ -3257,7 +3254,6 @@ display_pickinv(
         if (sortedinvent[0].obj == &inuse_fakeobj && !sortedinvent[1].obj)
             sortedinvent[0].obj = (struct obj *) 0;
     }
-
 
     puzzling_count = check_for_puzzling_nonmerge(gi.invent);
 
@@ -3833,7 +3829,6 @@ dounpaid(
     destroy_nhwindow(win);
     return;
 }
-
 
 staticfn boolean
 this_type_only(struct obj *obj)
@@ -4467,18 +4462,23 @@ mergable(
 
     if (obj->unpaid != otmp->unpaid || obj->spe != otmp->spe
         || obj->no_charge != otmp->no_charge || obj->obroken != otmp->obroken
-        || obj->otrapped != otmp->otrapped || obj->lamplit != otmp->lamplit)
+        || obj->otrapped != otmp->otrapped || obj->lamplit != otmp->lamplit
+        || obj->ocoated1 != otmp->ocoated1 || obj->ocoated2 != otmp->ocoated2
+        || obj->forged_qual != otmp->forged_qual
+        || obj->affixed_gem != otmp->affixed_gem)
         return FALSE;
 
     if (obj->oclass == FOOD_CLASS
-        && (obj->oeaten != otmp->oeaten || obj->orotten != otmp->orotten))
+        && (obj->oeaten != otmp->oeaten
+            || obj->odrained != otmp->odrained
+            || obj->orotten != otmp->orotten))
         return FALSE;
 
     if (obj->dknown != otmp->dknown
         || (obj->bknown != otmp->bknown && !Role_if(PM_CLERIC) &&
             (Blind || Hallucination))
         || obj->oeroded != otmp->oeroded || obj->oeroded2 != otmp->oeroded2
-        || obj->greased != otmp->greased)
+        || obj->material != otmp->material || obj->greased != otmp->greased)
         return FALSE;
 
     if ((erosion_matters(obj))
@@ -4513,6 +4513,13 @@ mergable(
     /* some additional information is always incompatible */
     if (has_omonst(obj) || has_omid(obj)
         || has_omonst(otmp) || has_omid(otmp))
+        return FALSE;
+
+    if (obj->oprops != otmp->oprops)
+        return FALSE;
+
+    if ((obj->oprops & (obj->oprops_known | ITEM_MAGICAL))
+        != (otmp->oprops & (otmp->oprops_known | ITEM_MAGICAL)))
         return FALSE;
 
     /* if they have names, make sure they're the same */
@@ -5523,7 +5530,6 @@ display_cinventory(struct obj *obj)
     obj->cknown = 1;
     return ret;
 }
-
 
 staticfn boolean
 only_here(struct obj *obj)
