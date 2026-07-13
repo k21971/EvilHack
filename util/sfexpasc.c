@@ -154,6 +154,7 @@ SF_C(struct, egd)
 SF_C(struct, emin)
 SF_C(struct, engr)
 SF_C(struct, epri)
+SF_C(struct, erac)
 SF_C(struct, eshk)
 SF_C(struct, fe)
 SF_C(struct, flag)
@@ -1165,6 +1166,7 @@ struct sf_fieldlevel_procs exportascii_sfo_procs = {
         sfo_x_emin,
         sfo_x_engr,
         sfo_x_epri,
+        sfo_x_erac,
         sfo_x_eshk,
         sfo_x_fe,
         sfo_x_flag,
@@ -1241,6 +1243,7 @@ struct sf_fieldlevel_procs exportascii_sfi_procs = {
         sfi_x_emin,
         sfi_x_engr,
         sfi_x_epri,
+        sfi_x_erac,
         sfi_x_eshk,
         sfi_x_fe,
         sfi_x_flag,

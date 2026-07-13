@@ -8,8 +8,17 @@
 /* The macros in here take a permonst * as an argument */
 
 #define monsndx(ptr) ((ptr)->pmidx)
+
+/* monster data with any racial overlay applied; erac carries the racial
+   monster index in rmnum, otherwise this is just mon->data */
+#define r_data(mon) (&mons[has_erac(mon) ? ERAC(mon)->rmnum : (mon)->mnum])
+
 #define verysmall(ptr) ((ptr)->msize < MZ_SMALL)
+#define r_verysmall(mon) (verysmall(r_data(mon)))
 #define bigmonst(ptr) ((ptr)->msize >= MZ_LARGE)
+#define r_bigmonst(mon) (bigmonst(r_data(mon)))
+#define biggermonst(ptr) ((ptr)->msize > (gy.youmonst.data)->msize)
+#define r_biggermonst(mon) (biggermonst(r_data(mon)))
 
 #define pm_resistance(ptr, typ) (((ptr)->mresists & (typ)) != 0)
 
@@ -101,6 +110,29 @@
 #define is_drow(ptr) (((ptr)->mhflags & MH_DROW) != 0L)
 #define is_human(ptr) (((ptr)->mhflags & MH_HUMAN) != 0L)
 #define your_race(ptr) (((ptr)->mhflags & gu.urace.selfmask) != 0L)
+
+/* race checks that honor the erac racial overlay (and, for the hero,
+   the unpolymorphed character race) */
+#define mon_has_race(mon, rflag) \
+    ((has_erac(mon) ? (ERAC(mon)->mrace & (rflag)) \
+                    : ((mon)->data->mhflags & (rflag))) \
+     || ((mon) == &gy.youmonst && !Upolyd \
+         && (gu.urace.selfmask & (rflag))))
+#define racial_elf(mon) mon_has_race(mon, MH_ELF)
+#define racial_dwarf(mon) mon_has_race(mon, MH_DWARF)
+#define racial_gnome(mon) mon_has_race(mon, MH_GNOME)
+#define racial_orc(mon) mon_has_race(mon, MH_ORC)
+#define racial_human(mon) mon_has_race(mon, MH_HUMAN)
+#define racial_hobbit(mon) mon_has_race(mon, MH_HOBBIT)
+#define racial_giant(mon) mon_has_race(mon, MH_GIANT)
+#define racial_centaur(mon) mon_has_race(mon, MH_CENTAUR)
+#define racial_illithid(mon) mon_has_race(mon, MH_ILLITHID)
+#define racial_tortle(mon) mon_has_race(mon, MH_TORTLE)
+#define racial_drow(mon) mon_has_race(mon, MH_DROW)
+#define racial_zombie(mon) mon_has_race(mon, MH_ZOMBIE)
+#define racial_vampire(mon) mon_has_race(mon, MH_VAMPIRE)
+#define racial_aasimar(mon) mon_has_race(mon, MH_AASIMAR)
+#define racial_match(mon) mon_has_race(mon, gu.urace.selfmask)
 #define is_bat(ptr)                                         \
     ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
      || (ptr) == &mons[PM_VAMPIRE_BAT])
@@ -116,8 +148,14 @@
 #define is_wanderer(ptr) (((ptr)->mflags2 & M2_WANDER) != 0L)
 #define always_hostile(ptr) (((ptr)->mflags2 & M2_HOSTILE) != 0L)
 #define always_peaceful(ptr) (((ptr)->mflags2 & M2_PEACEFUL) != 0L)
-#define race_hostile(ptr) (((ptr)->mflags2 & gu.urace.hatemask) != 0L)
-#define race_peaceful(ptr) (((ptr)->mflags2 & gu.urace.lovemask) != 0L)
+#define race_hostile(ptr) (((ptr)->mhflags & gu.urace.hatemask) != 0L)
+#define race_peaceful(ptr) (((ptr)->mhflags & gu.urace.lovemask) != 0L)
+#define erac_race_hostile(mon) \
+    (((has_erac(mon) ? ERAC(mon)->mrace : (mon)->data->mhflags) \
+     & gu.urace.hatemask) != 0L)
+#define erac_race_peaceful(mon) \
+    (((has_erac(mon) ? ERAC(mon)->mrace : (mon)->data->mhflags) \
+     & gu.urace.lovemask) != 0L)
 #define extra_nasty(ptr) (((ptr)->mflags2 & M2_NASTY) != 0L)
 #define strongmonst(ptr) (((ptr)->mflags2 & M2_STRONG) != 0L)
 #define can_breathe(ptr) attacktype(ptr, AT_BREA)
@@ -159,6 +197,14 @@
     (((ptr) >= &mons[PM_ARCHEOLOGIST]) && ((ptr) <= &mons[PM_WIZARD]))
 #define is_watch(ptr) \
     ((ptr) == &mons[PM_WATCHMAN] || (ptr) == &mons[PM_WATCH_CAPTAIN])
+#define is_racialmon(ptr) (is_mplayer(ptr) || is_mercenary(ptr))
+/* NON_PM-safe lookup into mons[] for corpsenm/rmnum-derived indices.
+   Falls back to PM_HUMAN on corruption so a corrupt index degrades to
+   human semantics rather than crashing on &mons[-1] pointer-formation
+   UB. Use as safe_mons(X).field or &safe_mons(X). Macro argument is
+   evaluated twice; pass side-effect-free expressions only */
+#define safe_mons(mnum) \
+    (mons[((mnum) >= LOW_PM && (mnum) < NUMMONS) ? (mnum) : PM_HUMAN])
 #define is_rider(ptr)                                      \
     ((ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_FAMINE] \
      || (ptr) == &mons[PM_PESTILENCE])

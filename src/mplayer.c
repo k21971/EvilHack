@@ -114,6 +114,179 @@ mk_mplayer_armor(struct monst *mon, short typ)
     (void) mpickobj(mon, obj);
 }
 
+
+void
+init_mplayer_erac(struct monst *mtmp, boolean noname)
+{
+    char nam[PL_NSIZ];
+    int race;
+    struct erac *rptr;
+    int mndx = mtmp->mnum;
+    struct permonst *ptr = &mons[mndx];
+
+    newerac(mtmp);
+    rptr = ERAC(mtmp);
+    /* note: mrace holds the full mhflags word (which can carry more
+       than one MH_ bit, e.g. vampires are MH_UNDEAD | MH_VAMPIRE), so
+       race tests below must be bitwise, never equality */
+    rptr->mrace = ptr->mhflags;
+    rptr->ralign = ptr->maligntyp;
+    memcpy(rptr->mattk, ptr->mattk, sizeof (struct attack) * NATTK);
+
+    /* default player monster attacks.
+       [2] slot used for various special
+       racial attacks (see mon.c) */
+    rptr->mattk[0].aatyp = AT_WEAP;
+    rptr->mattk[0].adtyp = AD_PHYS;
+    rptr->mattk[0].damn = 1;
+    rptr->mattk[0].damd = 6;
+    rptr->mattk[1].aatyp = AT_WEAP;
+    rptr->mattk[1].adtyp = AD_SAMU;
+    rptr->mattk[1].damn = 1;
+    rptr->mattk[1].damd = 6;
+
+    race = m_randrace(mndx);
+    if (race != NON_PM)
+        apply_race(mtmp, race);
+
+    switch (mndx) {
+    case PM_ARCHEOLOGIST:
+        /* flags for all archeologists regardless of race */
+        rptr->mflags1 |= (M1_TUNNEL | M1_NEEDPICK);
+        break;
+    case PM_BARBARIAN:
+        /* flags for all barbarians regardless of race */
+        rptr->mflags3 |= M3_BERSERK;
+        mtmp->mintrinsics |= MR_POISON;
+        /* vampire only */
+        if (rptr->mrace & MH_VAMPIRE)
+            rptr->mflags1 |= M1_FLY;
+        break;
+    case PM_CAVE_DWELLER:
+        /* flags for all cavepersons regardless of race */
+        /* cavepeople only have a single attack, but it does 2d4 */
+        rptr->mattk[0].damn = 2;
+        rptr->mattk[0].damd = 4;
+        rptr->mattk[0].adtyp = AD_SAMU;
+        rptr->mattk[1].aatyp = rptr->mattk[1].adtyp = 0;
+        rptr->mattk[1].damn = rptr->mattk[1].damd = 0;
+        break;
+    case PM_CONVICT:
+        /* flags for all convicts regardless of race */
+        mtmp->mintrinsics |= MR_POISON;
+        /* illithid/vampire only */
+        if (rptr->mrace & (MH_ILLITHID | MH_VAMPIRE))
+            rptr->mflags1 |= M1_FLY;
+        break;
+    case PM_DRUID:
+        /* flags for all druids regardless of race */
+        rptr->mattk[0].adtyp = AD_SAMU;
+        rptr->mattk[1].aatyp = AT_MAGC;
+        rptr->mattk[1].adtyp = AD_CLRC;
+        mtmp->mintrinsics |= MR_SLEEP;
+        break;
+    case PM_HEALER:
+        /* flags for all healers regardless of race */
+        rptr->mattk[0].adtyp = AD_SAMU;
+        rptr->mattk[1].aatyp = AT_MAGC;
+        rptr->mattk[1].adtyp = AD_CLRC;
+        mtmp->mintrinsics |= MR_POISON;
+        break;
+    case PM_INFIDEL:
+        /* flags for all infidels regardless of race */
+        rptr->mattk[0].adtyp = AD_SAMU;
+        if (rptr->mrace & MH_ZOMBIE) {
+            rptr->mattk[1].aatyp = AT_CLAW;
+            rptr->mattk[1].adtyp = AD_DRCO;
+        } else {
+            rptr->mattk[1].aatyp = AT_MAGC;
+            rptr->mattk[1].adtyp = AD_SPEL;
+        }
+        /* illithid/vampire only */
+        if (rptr->mrace & (MH_ILLITHID | MH_VAMPIRE))
+            rptr->mflags1 |= M1_FLY;
+        /* all except draugr/vampire */
+        if (!(rptr->mrace & (MH_ZOMBIE | MH_VAMPIRE)))
+            mtmp->mintrinsics |= MR_FIRE;
+        break;
+    case PM_KNIGHT:
+        if (rptr->mrace & MH_VAMPIRE)
+            rptr->mflags1 |= M1_FLY;
+        break;
+    case PM_MONK:
+        /* flags for all monks regardless of race */
+        rptr->mattk[0].adtyp = AD_SAMU;
+        rptr->mattk[1].aatyp = AT_KICK;
+        rptr->mattk[1].adtyp = AD_CLOB;
+        /* monks do 1d8 instead of 1d6 */
+        rptr->mattk[0].damn = rptr->mattk[1].damn = 1;
+        rptr->mattk[0].damd = rptr->mattk[1].damd = 8;
+        rptr->mflags1 |= M1_SEE_INVIS;
+        mtmp->mintrinsics |= (MR_POISON | MR_SLEEP);
+        /* vampire only */
+        if (rptr->mrace & MH_VAMPIRE)
+            rptr->mflags1 |= M1_FLY;
+        break;
+    case PM_CLERIC:
+        /* flags for all priests regardless of race */
+        rptr->mattk[0].adtyp = AD_SAMU;
+        rptr->mattk[1].aatyp = AT_MAGC;
+        rptr->mattk[1].adtyp = AD_CLRC;
+        /* illithid only */
+        if (rptr->mrace & MH_ILLITHID)
+            rptr->mflags1 |= M1_FLY;
+        break;
+    case PM_RANGER:
+        /* flags for all rangers regardless of race */
+        rptr->mflags3 |= M3_ACCURATE;
+        break;
+    case PM_ROGUE:
+        /* flags for all rogues regardless of race */
+        rptr->mattk[0].adtyp = AD_SAMU;
+        rptr->mattk[1].aatyp = AT_CLAW;
+        rptr->mattk[1].adtyp = AD_SITM;
+        rptr->mattk[1].damn = rptr->mattk[1].damd = 0;
+        rptr->mflags3 |= M3_ACCURATE;
+        /* vampire only */
+        if (rptr->mrace & MH_VAMPIRE)
+            rptr->mflags1 |= M1_FLY;
+        break;
+    case PM_SAMURAI:
+        /* flags for all samurai regardless of race */
+        /* samurai do 1d8 instead of 1d6 */
+        rptr->mattk[0].damn = rptr->mattk[1].damn = 1;
+        rptr->mattk[0].damd = rptr->mattk[1].damd = 8;
+        break;
+    case PM_TOURIST:
+        /* nothing special based on role */
+        break;
+    case PM_VALKYRIE:
+        /* flags for all valkyrie regardless of race */
+        /* valkyries do 1d8 instead of 1d6 */
+        rptr->mattk[0].damn = rptr->mattk[1].damn = 1;
+        rptr->mattk[0].damd = rptr->mattk[1].damd = 8;
+        mtmp->mintrinsics |= MR_COLD;
+        break;
+    case PM_WIZARD:
+        /* flags for all wizards regardless of race */
+        rptr->mattk[0].adtyp = AD_SAMU;
+        rptr->mattk[1].aatyp = AT_MAGC;
+        rptr->mattk[1].adtyp = AD_SPEL;
+        /* illithid/vampire only */
+        if (rptr->mrace & (MH_ILLITHID | MH_VAMPIRE))
+            rptr->mflags1 |= M1_FLY;
+        break;
+    default:
+        break;
+    }
+
+    if (!noname) {
+        get_mplname(mtmp, nam);
+        mtmp = christen_monst(mtmp, nam);
+        nhUse(mtmp);
+    }
+}
+
 struct monst *
 mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
 {
@@ -129,7 +302,9 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
     if (!In_endgame(&u.uz))
         special = FALSE;
 
-    if ((mtmp = makemon(ptr, x, y, special ? MM_NOMSG : NO_MM_FLAGS)) != 0) {
+    if ((mtmp = makemon(ptr, x, y,
+                        special ? (MM_NOMSG | MM_NONAME)
+                                : MM_NONAME)) != 0) {
         short weapon, armor, cloak, helm, shield;
         int quan;
         struct obj *otmp;
@@ -138,11 +313,11 @@ mk_mplayer(struct permonst *ptr, coordxy x, coordxy y, boolean special)
         mtmp->mhp = mtmp->mhpmax = d((int) mtmp->m_lev, 10)
                                    + (special ? (30 + rnd(30)) : 30);
         if (special) {
-            get_mplname(mtmp, nam);
-            mtmp = christen_monst(mtmp, nam);
             /* that's why they are "stuck" in the endgame :-) */
             (void) mongets(mtmp, FAKE_AMULET_OF_YENDOR);
         }
+        get_mplname(mtmp, nam);
+        mtmp = christen_monst(mtmp, nam);
         mtmp->mpeaceful = 0;
         set_malign(mtmp); /* peaceful may have changed again */
 

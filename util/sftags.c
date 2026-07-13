@@ -233,6 +233,7 @@ struct nhdatatypes_t readtagstypes[] = {
     { NHTYPE_COMPLEX, (char *) "emin", sizeof(struct emin) },
     { NHTYPE_COMPLEX, (char *) "engr", sizeof(struct engr) },
     { NHTYPE_COMPLEX, (char *) "epri", sizeof(struct epri) },
+    { NHTYPE_COMPLEX, (char *) "erac", sizeof(struct erac) },
     { NHTYPE_COMPLEX, (char *) "eshk", sizeof(struct eshk) },
     { NHTYPE_COMPLEX, (char *) "fakecorridor", sizeof(struct fakecorridor) },
     { NHTYPE_COMPLEX, (char *) "fe", sizeof(struct fe) },
@@ -1424,6 +1425,7 @@ static void generate_c_files(void)
                                    || !strcmp(t->ptr, "struct eshk *")
                                    || !strcmp(t->ptr, "struct emin *")
                                    || !strcmp(t->ptr, "struct ebones *")
+                                   || !strcmp(t->ptr, "struct erac *")
                                    || !strcmp(t->ptr, "struct edog *"))) {
                         Strcpy(altbuf, "genericptr");
                     } else if (isptr
@@ -1980,6 +1982,7 @@ const struct already_in_sfbase already[] = {
     { NHTYPE_COMPLEX, "Sfi_emin", "Sfi_x_emin" },
     { NHTYPE_COMPLEX, "Sfi_engr", "Sfi_x_engr" },
     { NHTYPE_COMPLEX, "Sfi_epri", "Sfi_x_epri" },
+    { NHTYPE_COMPLEX, "Sfi_erac", "Sfi_x_erac" },
     { NHTYPE_COMPLEX, "Sfi_eshk", "Sfi_x_eshk" },
     { NHTYPE_COMPLEX, "Sfi_fe", "Sfi_x_fe" },
     { NHTYPE_COMPLEX, "Sfi_flag", "Sfi_x_flag" },
@@ -2035,6 +2038,7 @@ const struct already_in_sfbase already[] = {
     { NHTYPE_COMPLEX, "Sfo_emin", "Sfo_x_emin" },
     { NHTYPE_COMPLEX, "Sfo_engr", "Sfo_x_engr" },
     { NHTYPE_COMPLEX, "Sfo_epri", "Sfo_x_epri" },
+    { NHTYPE_COMPLEX, "Sfo_erac", "Sfo_x_erac" },
     { NHTYPE_COMPLEX, "Sfo_eshk", "Sfo_x_eshk" },
     { NHTYPE_COMPLEX, "Sfo_fe", "Sfo_x_fe" },
     { NHTYPE_COMPLEX, "Sfo_flag", "Sfo_x_flag" },
@@ -2126,6 +2130,7 @@ struct nh_classification nhdatatypes[] = {
     { 0, NHTYPE_COMPLEX, "sfi_engr", "sfi_engr" },
     { 0, NHTYPE_COMPLEX, "sfi_engrave_info", "sfi_engrave_info" },
     { 0, NHTYPE_COMPLEX, "sfi_epri", "sfi_epri" },
+    { 0, NHTYPE_COMPLEX, "sfi_erac", "sfi_erac" },
     { 0, NHTYPE_COMPLEX, "sfi_eshk", "sfi_eshk" },
     { 0, NHTYPE_COMPLEX, "sfi_fakecorridor", "sfi_fakecorridor" },
     { 0, NHTYPE_COMPLEX, "sfi_fe", "sfi_fe" },
@@ -2197,6 +2202,7 @@ struct nh_classification nhdatatypes[] = {
     { 0, NHTYPE_COMPLEX, "sfo_engr", "sfo_engr" },
     { 0, NHTYPE_COMPLEX, "sfo_engrave_info", "sfo_engrave_info" },
     { 0, NHTYPE_COMPLEX, "sfo_epri", "sfo_epri" },
+    { 0, NHTYPE_COMPLEX, "sfo_erac", "sfo_erac" },
     { 0, NHTYPE_COMPLEX, "sfo_eshk", "sfo_eshk" },
     { 0, NHTYPE_COMPLEX, "sfo_fakecorridor", "sfo_fakecorridor" },
     { 0, NHTYPE_COMPLEX, "sfo_fe", "sfo_fe" },

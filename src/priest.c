@@ -256,6 +256,12 @@ priestini(
         priest->msleeping = 0;
         set_malign(priest); /* mpeaceful may have changed */
 
+        apply_race(priest, align_randrace(mon_aligntyp(priest)));
+        /* TODO-EVILHACK: master rebuilds the priest's inventory here
+           (discard_minvent + setup_mon_inventory, so giants get giant
+           gear) and extinguishes the temple light for drow priests;
+           ports with the racial gear and drow darkness subsystems */
+
         /* now his/her goodies... */
         if (sanctum && EPRI(priest)->shralign == A_NONE
             && on_level(&sanctum_level, &u.uz)) {
@@ -746,6 +752,13 @@ mk_roamer(struct permonst *ptr, aligntyp alignment, coordxy x, coordxy y,
     roamer->mpeaceful = peaceful;
     roamer->msleeping = 0;
     set_malign(roamer); /* peaceful may have changed */
+
+    if (ptr == &mons[PM_ALIGNED_PRIEST] || ptr == &mons[PM_HIGH_PRIEST]) {
+        apply_race(roamer, align_randrace(mon_aligntyp(roamer)));
+        /* TODO-EVILHACK: master rebuilds the roamer's inventory here
+           (discard_minvent + setup_mon_inventory); ports with the
+           racial gear subsystem */
+    }
 
     /* MORE TO COME */
     return roamer;

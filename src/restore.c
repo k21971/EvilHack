@@ -366,6 +366,12 @@ restmon(NHFILE *nhfp, struct monst *mtmp)
             newebones(mtmp);
             Sfi_ebones(nhfp, EBONES(mtmp), "monst-ebones");
         }
+        /* erac - racial characteristics */
+        Sfi_int(nhfp, &buflen, "monst-erac_length");
+        if (buflen > 0) {
+            newerac(mtmp);
+            Sfi_erac(nhfp, ERAC(mtmp), "monst-erac");
+        }
         /* mcorpsenm - obj->corpsenm for mimic posing as corpse or
            statue (inline int rather than pointer to something) */
         Sfi_int(nhfp, &mc, "monst-mcorpsenm");
@@ -1240,7 +1246,7 @@ getlev(NHFILE *nhfp, int pid, xint8 lev)
                 mtmp->mpeaceful = (is_unicorn(mtmp->data)
                                    && (sgn(u.ualign.type)
                                        == sgn(mtmp->data->maligntyp))) ? 1
-                                  : peace_minded(mtmp->data);
+                                  : peace_minded(mtmp);
             set_malign(mtmp);
         } else if (elapsed > 0L) {
             mon_catchup_elapsed_time(mtmp, elapsed);

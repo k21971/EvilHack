@@ -572,7 +572,24 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       remembering); mon_hates_material(werewolf,SILVER)=1 by gdb;
       enlightenment "You are harmed by iron." for the elf.
       Wizard death prompt saved a level-1 test hero mid-battery -
-      genesis werewolves one-shot fresh heroes, #levelchange first. DEFERRED with their subsystems
+      genesis werewolves one-shot fresh heroes, #levelchange first.
+      EXTENDED BATTERY post-commit f5af0ebd4 (2026-07-13, random
+      Infidel XL15, paniclog zero new entries): shade kick with
+      blessed jackboots CONNECTS (was "passes harmlessly through" -
+      blocker half 2); wielded iron chain vs Grey-elf prints "The
+      Grey-elf is burned by your iron chain!" (the misc ball/chain
+      hated_obj message fix); mongets stress = no reroll
+      impossibles AND a genesis'd Grey-elf threw a "mithril runed
+      spear" (reroll away from hated iron + material naming live in
+      combat messages); spear passed harmlessly through the shade
+      (noncorporeal intact); silver boomerang vs Grey-elf = no sear
+      (correct - elves hate iron not silver); iron chain wield
+      burned the (iron-hating-race) hero on wield. Boomerang
+      splinter UAF stays statically-verified only (reviewer traced
+      all hmon destruction paths; in-game rnl(4) repro skipped).
+      SLICE D COMPLETE - materials system remaining: Croesus
+      transmutes, class-based consumer stragglers, master-parity
+      nits (all inventoried above). DEFERRED with their subsystems
       (reviewer-verified no dangling refs): blocker-sears family,
       monster-touch-attack sears (armask plumbing in hitmu),
       AI weapon-ranking oselect/score_artifact material filters
@@ -596,7 +613,56 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       init_dummyobj material, is_rottable dead BONE test (master
       parity, kept)
 - [ ] Object properties (oprops)
-- [ ] Racial monsters (ERAC overlay)
+- [~] Racial monsters (ERAC overlay)
+      SLICE A (core) 2026-07-13, subagent-ported 20 files +791,
+      reviewed (conditional pass, NO blockers; fixups in flight):
+      struct erac (Phase 1 fields matched master exactly; NO
+      pointers = no relink), newerac/free_erac + copy_mextra ext,
+      FULL sf-layer serializer (ebones precedent: save.c/restore.c
+      blocks after ebones before mcorpsenm; SF_C in sfmacros.h,
+      sfprocs positional member epri->ERAC->eshk, sfstruct both
+      tables, sfbase norm_ptrs stub, savefile.h x8, version.c
+      critical-sizes entry, sftags/sfexpasc/sfctool wiring),
+      r_data + racial_* family + erac_race_hostile/peaceful +
+      is_racialmon + safe_mons (mondata.h), apply_race/pm_to_race/
+      m_chooserace/align_randrace/m_randrace (mon.c; NAMS merges
+      CAVE_DWELLER/CLERIC adapted), generation (mercenaries always
+      roll, mplayers via init_mplayer_erac, aligned/high priests +
+      emin via align_randrace, newcham re-rolls; peace_minded
+      signature -> struct monst* all 3 callers), racial_adj through
+      5.0 x_monnam (+ shopkeeper branch, dormant until shk erac),
+      mon_hates_material erac clause UN-DEFERRED. LATENT PHASE 1
+      BUG FOUND+FIXED: race_hostile/peaceful tested mflags2 vs
+      MH-space races[].hatemask - dead test; now mhflags (also
+      makes the combat slice's mk_artifact race filter actually
+      work). SAVE FORMAT: dev saves invalidated (critical-bytes
+      refusal names struct erac - LIVE-VERIFIED refusing the old
+      Phase 1 gate save cleanly, no crash/debris beyond the known
+      unpack; gate save now format-obsolete, backups in scratchpad,
+      regenerate a gate save on this build when needed). VERIFIED
+      live: genesis "dwarven soldier"/"dwarven watchman"/"giant
+      watchman" (racial rolls + naming), save+reload keeps all
+      three erac overlays (gdb: rmnum/mrace/ralign intact).
+      REVIEW FIXUPS LANDED same day: mplayer mrace tests all
+      bitwise now (was ==-vs-composite-mask, a MASTER BUG
+      faithfully ported - MASTER BACKPORT CANDIDATE: vampire
+      mplayers never get FLY, vampire Infidels wrongly MR_FIRE;
+      fork-point mplayer.c:300-425), mk_mplayer christens
+      unconditionally per master (sp_lev player-monsters named
+      again), peace_minded racial carve-out deferral TODO-EVILHACK
+      added (5 carve-outs listed, port with player races),
+      mon_has_race reformatted. Reviewer NITs
+      noted: newcham mplayer rank truncation keeps 5.0 endgame
+      gate (stale rank if polymorphed elsewhere - cosmetic),
+      r_data trusts restored rmnum (master parity), stale
+      util/sfctool binary until make sfutil. ERAC->mattk racial
+      attack overlays saved but NO combat consumer yet (Slice B).
+      Slice B TODO: tree-wide mon->data -> r_data consumer sweep
+      (~15 files), racial gear (priest.c TODO-EVILHACK x2 inside),
+      worn.c racial_exception, shk racial pricing; reviewer's
+      deep-test list for Slice B battery: Minetown priest
+      (epri+erac straddle), corpse-revive race persistence, bones
+      round-trip, sfctool convert cycle, newcham poly churn
 - [ ] Forging (+ FORGE nhl binding for .des->lua levels)
 - [ ] Magic chests (+ MAGIC_CHEST nhl binding, crystal chest obj)
 - [ ] telekinesis.c + #tk command (pilot did the file; wire cmds)

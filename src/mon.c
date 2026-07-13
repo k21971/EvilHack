@@ -38,6 +38,7 @@ staticfn int wiz_force_cham_form(struct monst *);
 staticfn struct permonst *accept_newcham_form(struct monst *, int);
 staticfn void kill_eggs(struct obj *) NO_NNARGS;
 staticfn void pacify_guard(struct monst *);
+staticfn short m_chooserace(unsigned long);
 
 extern const struct shclass shtypes[]; /* defined in shknam.c */
 
@@ -2914,6 +2915,12 @@ copy_mextra(struct monst *mtmp2, struct monst *mtmp1)
         assert(has_ebones(mtmp2));
         *EBONES(mtmp2) = *EBONES(mtmp1);
     }
+    if (ERAC(mtmp1)) {
+        if (!ERAC(mtmp2))
+            newerac(mtmp2);
+        assert(has_erac(mtmp2));
+        *ERAC(mtmp2) = *ERAC(mtmp1);
+    }
     if (has_mcorpsenm(mtmp1))
         MCORPSENM(mtmp2) = MCORPSENM(mtmp1);
 }
@@ -5705,6 +5712,10 @@ newcham(
         && (p = strstr(MGIVENNAME(mtmp), " the ")) != 0)
         *p = '\0';
 
+    /* ditch the old monster's race if it exists */
+    if (has_erac(mtmp))
+        free_erac(mtmp);
+
     if (mtmp->wormno) { /* throw tail away */
         coordxy mx = mtmp->mx, my = mtmp->my;
 
@@ -5735,6 +5746,10 @@ newcham(
 
     /* take on the new form... */
     set_mon_data(mtmp, mdat);
+
+    /* add a new random race if polymorphing into a racial monster */
+    if (is_racialmon(mdat))
+        apply_race(mtmp, m_randrace(mtmp->mnum));
 
     if (mtmp->mleashed) {
         if (!leashable(mtmp))
@@ -6437,5 +6452,383 @@ flash_mon(struct monst *mtmp)
 #undef mstoning
 #undef livelog_mon_nam
 #undef BREEDER_EGG
+
+/* map a monster index to an index into races[] (the playable-race
+   table), or NON_PM if it is not a playable race */
+int
+pm_to_race(short mndx)
+{
+    int i;
+
+    for (i = 0; races[i].adj; i++) {
+        if (races[i].mnum == mndx)
+            return i;
+    }
+    return NON_PM;
+}
+
+staticfn short
+m_chooserace(unsigned long permitted)
+{
+    int i, count = 0;
+    short race = NON_PM;
+    static const short mraces[] = {
+        PM_HUMAN, PM_ELF, PM_DWARF, PM_GNOME,
+        PM_ORC, PM_GIANT, PM_HOBBIT, PM_CENTAUR,
+        PM_ILLITHID, PM_TORTLE, PM_DROW, PM_DRAUGR,
+        PM_VAMPIRE, PM_AASIMAR, 0
+    };
+
+    for (i = 0; mraces[i]; i++) {
+        if ((permitted & mons[mraces[i]].mhflags) != 0L
+            && !(svm.mvitals[mraces[i]].mvflags & G_GONE)) {
+            count++;
+            if (!rn2(count))
+                race = mraces[i];
+        }
+    }
+    return race;
+}
+
+/* this function is used for racial priests creation */
+short
+align_randrace(aligntyp algn)
+{
+    unsigned long permitted = MH_HUMAN;
+
+    switch (algn) {
+    case A_NONE:
+        permitted |= (MH_ILLITHID | MH_ORC | MH_ELF | MH_GIANT
+                      | MH_DROW);
+        break;
+    case A_CHAOTIC:
+        permitted |=
+            (MH_ILLITHID | MH_ORC | MH_ELF | MH_GIANT | MH_CENTAUR
+             | MH_DROW);
+        break;
+    case A_LAWFUL:
+        permitted |= (MH_DWARF | MH_GIANT | MH_TORTLE | MH_AASIMAR);
+        break;
+    case A_NEUTRAL:
+        permitted |=
+            (MH_ELF | MH_DWARF | MH_GIANT | MH_CENTAUR | MH_TORTLE);
+        break;
+    default:
+        break;
+    }
+    return m_chooserace(permitted);
+}
+
+short
+m_randrace(short mndx)
+{
+    unsigned long permitted = MH_HUMAN;
+
+    switch (mndx) {
+    case PM_SHOPKEEPER:
+        permitted |= (MH_CENTAUR | MH_ORC | MH_DWARF | MH_ELF
+                      | MH_GNOME | MH_GIANT | MH_DROW | MH_AASIMAR);
+        break;
+    case PM_SOLDIER:
+    case PM_SERGEANT:
+    case PM_LIEUTENANT:
+    case PM_WATCHMAN:
+    case PM_GUARD:
+    case PM_PRISON_GUARD:
+        permitted |= (MH_CENTAUR | MH_ORC);
+        FALLTHROUGH;
+        /*FALLTHRU*/
+    case PM_CAPTAIN:
+    case PM_WATCH_CAPTAIN:
+        permitted |= (MH_DWARF | MH_ELF | MH_GNOME | MH_GIANT
+                      | MH_DROW);
+        break;
+    case PM_ARCHEOLOGIST:
+        permitted |= (MH_DWARF | MH_GNOME | MH_HOBBIT | MH_TORTLE
+                      | MH_AASIMAR);
+        break;
+    case PM_BARBARIAN:
+        permitted |= (MH_DWARF | MH_ORC | MH_GIANT | MH_CENTAUR
+                      | MH_TORTLE | MH_ZOMBIE | MH_VAMPIRE);
+        break;
+    case PM_CAVE_DWELLER:
+        permitted |= (MH_DWARF | MH_GNOME | MH_GIANT | MH_AASIMAR);
+        break;
+    case PM_CONVICT:
+        permitted |=
+            (MH_DWARF | MH_ORC | MH_GNOME | MH_HOBBIT | MH_ILLITHID
+             | MH_DROW | MH_ZOMBIE | MH_VAMPIRE);
+        break;
+    case PM_DRUID:
+        permitted |=
+            (MH_ELF | MH_HOBBIT | MH_CENTAUR | MH_TORTLE | MH_GIANT);
+        break;
+    case PM_HEALER:
+        permitted |=
+            (MH_DWARF | MH_ELF | MH_GNOME | MH_HOBBIT | MH_CENTAUR
+             | MH_GIANT | MH_TORTLE);
+        break;
+    case PM_INFIDEL:
+        permitted |= (MH_ELF | MH_GIANT | MH_ORC | MH_ILLITHID
+                      | MH_DROW | MH_ZOMBIE | MH_VAMPIRE);
+        break;
+    case PM_KNIGHT:
+        permitted |= (MH_DWARF | MH_ELF | MH_ORC | MH_CENTAUR
+                      | MH_DROW | MH_ZOMBIE | MH_VAMPIRE | MH_AASIMAR);
+        break;
+    case PM_MONK:
+        permitted |= (MH_DWARF | MH_ELF | MH_GIANT | MH_CENTAUR
+                      | MH_TORTLE | MH_DROW | MH_ZOMBIE | MH_VAMPIRE
+                      | MH_AASIMAR);
+        break;
+    case PM_CLERIC:
+        permitted |=
+            (MH_DWARF | MH_ELF | MH_GIANT | MH_HOBBIT | MH_CENTAUR
+             | MH_ORC | MH_ILLITHID | MH_TORTLE | MH_DROW | MH_AASIMAR);
+        break;
+    case PM_RANGER:
+        permitted |= (MH_ELF | MH_GNOME | MH_HOBBIT | MH_CENTAUR
+                      | MH_ORC | MH_DROW);
+        break;
+    case PM_ROGUE:
+        permitted |= (MH_ELF | MH_HOBBIT | MH_ORC | MH_GNOME
+                      | MH_DROW | MH_ZOMBIE | MH_VAMPIRE);
+        break;
+    case PM_SAMURAI:
+        permitted |= (MH_DWARF | MH_GIANT | MH_TORTLE | MH_AASIMAR);
+        break;
+    case PM_TOURIST:
+        permitted |= (MH_HOBBIT | MH_GNOME | MH_TORTLE);
+        break;
+    case PM_VALKYRIE:
+        permitted |= (MH_DWARF | MH_GIANT | MH_CENTAUR | MH_AASIMAR);
+        break;
+    case PM_WIZARD:
+        permitted |=
+          (MH_DWARF | MH_ELF | MH_GIANT | MH_GNOME | MH_HOBBIT
+           | MH_ORC | MH_ILLITHID | MH_TORTLE | MH_DROW | MH_VAMPIRE);
+        break;
+    default:
+        break;
+    }
+    return m_chooserace(permitted);
+}
+
+/* overlay a race onto a monster via the erac mextra component; raceidx
+   is a PM_ index for the race (e.g. PM_DWARF), or NON_PM to clear */
+void
+apply_race(struct monst *mtmp, short raceidx)
+{
+    struct erac *rptr;
+    struct permonst *ptr, *mptr;
+    boolean init = FALSE;
+
+    if (!mtmp)
+        return;
+
+    if (raceidx == NON_PM) {
+        /* apply non-race - clear race data */
+        if (has_erac(mtmp))
+            free_erac(mtmp);
+        return;
+    }
+
+    if (svm.mvitals[raceidx].mvflags & G_GONE)
+        return;
+
+    ptr = &mons[raceidx];
+    mptr = &mons[mtmp->mnum];
+
+    if (!has_erac(mtmp)) {
+        newerac(mtmp);
+        init = TRUE;
+    }
+
+    rptr = ERAC(mtmp);
+
+    if (init) {
+        rptr->ralign = mptr->maligntyp;
+        memcpy(rptr->mattk, mptr->mattk, sizeof (struct attack) * NATTK);
+        rptr->mflags1 = mptr->mflags1;
+        rptr->mflags2 = mptr->mflags2;
+        rptr->mflags3 = mptr->mflags3;
+    }
+
+    if (is_female(ptr))
+        mtmp->female = 1;
+    else if (is_male(ptr))
+        mtmp->female = 0;
+
+    mtmp->mintrinsics |= ptr->mresists;
+    rptr->r_id = pm_to_race(raceidx);
+    rptr->mrace = ptr->mhflags;
+    rptr->rmnum = raceidx;
+    /* racial mflags are cumulative with mflags from the base monster,
+     * rather than overwriting them entirely */
+    rptr->mflags1 |= ptr->mflags1;
+    rptr->mflags2 |= ptr->mflags2;
+    rptr->mflags3 |= ptr->mflags3;
+
+    /* various racial adjustments (special attack types, alignment, etc) */
+    switch (raceidx) {
+    case PM_HUMAN:
+        if (mtmp->mnum == PM_CONVICT)
+            rptr->ralign = -3;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        if (mtmp->mnum == PM_BARBARIAN
+            || mtmp->mnum == PM_RANGER
+            || mtmp->mnum == PM_ROGUE
+            || mtmp->mnum == PM_WIZARD)
+            rptr->ralign = rn2(2) ? 0 : -3;
+        if (mtmp->mnum == PM_ARCHEOLOGIST
+            || mtmp->mnum == PM_CAVE_DWELLER
+            || mtmp->mnum == PM_VALKYRIE)
+            rptr->ralign = rn2(2) ? 0 : 3;
+        if (mtmp->mnum == PM_KNIGHT)
+            rptr->ralign = rn2(2) ? 3 : -3;
+        if (mtmp->mnum == PM_MONK
+            || mtmp->mnum == PM_CLERIC)
+            rptr->ralign = rn2(2) ? 3 : rn2(2) ? 0 : -3;
+        break;
+    case PM_ELF:
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        if (mtmp->mnum == PM_HEALER
+            || mtmp->mnum == PM_DRUID)
+            rptr->ralign = 0;
+        if (mtmp->mnum == PM_KNIGHT)
+            rptr->ralign = -3;
+        if (mtmp->mnum == PM_MONK
+            || mtmp->mnum == PM_CLERIC
+            || mtmp->mnum == PM_RANGER
+            || mtmp->mnum == PM_ROGUE
+            || mtmp->mnum == PM_WIZARD)
+            rptr->ralign = rn2(3) ? -3 : 0;
+        break;
+    case PM_DWARF:
+        if (mtmp->mnum == PM_CONVICT)
+            rptr->ralign = -3;
+        if (mtmp->mnum == PM_ARCHEOLOGIST
+            || mtmp->mnum == PM_CAVE_DWELLER
+            || mtmp->mnum == PM_MONK
+            || mtmp->mnum == PM_CLERIC
+            || mtmp->mnum == PM_VALKYRIE)
+            rptr->ralign = rn2(3) ? 3 : 0;
+        if (mtmp->mnum == PM_BARBARIAN
+            || mtmp->mnum == PM_HEALER
+            || mtmp->mnum == PM_WIZARD)
+            rptr->ralign = 0;
+        if (mtmp->mnum == PM_KNIGHT)
+            rptr->ralign = 3;
+        break;
+    case PM_GIANT:
+        if (!(mtmp->mnum == PM_WIZARD
+              || mtmp->mnum == PM_MONK
+              || mtmp->mnum == PM_HEALER
+              || mtmp->mnum == PM_CLERIC
+              || mtmp->mnum == PM_DRUID)) {
+            rptr->mattk[0].aatyp = AT_WEAP;
+            rptr->mattk[0].adtyp = AD_CLOB;
+            rptr->mattk[0].damn = 2;
+            rptr->mattk[0].damd = 8;
+        }
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        if (mtmp->mnum == PM_CAVE_DWELLER
+            || mtmp->mnum == PM_VALKYRIE)
+            rptr->ralign = rn2(2) ? 0 : 3;
+        if (mtmp->mnum == PM_BARBARIAN
+            || mtmp->mnum == PM_WIZARD)
+            rptr->ralign = rn2(2) ? 0 : -3;
+        if (mtmp->mnum == PM_HEALER
+            || mtmp->mnum == PM_DRUID)
+            rptr->ralign = 0;
+        if (mtmp->mnum == PM_MONK
+            || mtmp->mnum == PM_CLERIC)
+            rptr->ralign = rn2(2) ? 3 : rn2(2) ? 0 : -3;
+        break;
+    case PM_GNOME:
+        rptr->ralign = 0;
+        if (mtmp->mnum == PM_CONVICT)
+            rptr->ralign = -3;
+        if (mtmp->mnum == PM_RANGER
+            || mtmp->mnum == PM_ROGUE
+            || mtmp->mnum == PM_WIZARD)
+            rptr->ralign = rn2(3) ? 0 : -3;
+        break;
+    case PM_HOBBIT:
+        rptr->ralign = 0;
+        if (mtmp->mnum == PM_CONVICT)
+            rptr->ralign = -3;
+        if (mtmp->mnum == PM_ARCHEOLOGIST
+            || mtmp->mnum == PM_CLERIC)
+            rptr->ralign = rn2(3) ? 0 : 3;
+        break;
+    case PM_CENTAUR:
+        rptr->mattk[2].aatyp = AT_KICK;
+        rptr->mattk[2].adtyp = AD_PHYS;
+        rptr->mattk[2].damn = 1;
+        rptr->mattk[2].damd = 6;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        if (mtmp->mnum == PM_HEALER
+            || mtmp->mnum == PM_VALKYRIE
+            || mtmp->mnum == PM_DRUID)
+            rptr->ralign = 0;
+        if (mtmp->mnum == PM_BARBARIAN
+            || mtmp->mnum == PM_MONK
+            || mtmp->mnum == PM_CLERIC)
+            rptr->ralign = rn2(3) ? -3 : 0;
+        break;
+    case PM_ORC:
+        rptr->ralign = -3;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        break;
+    case PM_ILLITHID:
+        rptr->mattk[2].aatyp = AT_TENT;
+        rptr->mattk[2].adtyp = AD_DRIN;
+        rptr->mattk[2].damn = 2;
+        rptr->mattk[2].damd = 1;
+        rptr->ralign = -3;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        break;
+    case PM_TORTLE:
+        rptr->ralign = 0;
+        if (mtmp->mnum == PM_ARCHEOLOGIST
+            || mtmp->mnum == PM_MONK
+            || mtmp->mnum == PM_CLERIC)
+            rptr->ralign = rn2(4) ? 3 : 0;
+        break;
+    case PM_DROW:
+        rptr->ralign = -3;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        break;
+    case PM_DRAUGR:
+        rptr->mattk[2].aatyp = AT_BITE;
+        rptr->mattk[2].adtyp = AD_DRIN;
+        rptr->mattk[2].damn = 2;
+        rptr->mattk[2].damd = 1;
+        rptr->ralign = -3;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        break;
+    case PM_VAMPIRE:
+        rptr->mattk[2].aatyp = AT_BITE;
+        rptr->mattk[2].adtyp = AD_DRLI;
+        rptr->mattk[2].damn = 4;
+        rptr->mattk[2].damd = 1;
+        rptr->ralign = -3;
+        if (mtmp->mnum == PM_INFIDEL)
+            rptr->ralign = -128;
+        break;
+    case PM_AASIMAR:
+        rptr->ralign = 3;
+        break;
+    }
+}
 
 /*mon.c*/

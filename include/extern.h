@@ -705,6 +705,7 @@ extern int call_ok(struct obj *);
 extern int docallcmd(void);
 extern void docall(struct obj *) NONNULLARG1;
 extern const char *rndghostname(void);
+extern char *racial_adj(char *, struct monst *) NONNULLPTRS;
 extern char *x_monnam(struct monst *, int, const char *, int, boolean) NONNULLARG1;
 extern char *l_monnam(struct monst *) NONNULLARG1;
 extern char *mon_nam(struct monst *) NONNULLARG1;
@@ -1501,6 +1502,8 @@ extern struct monst *clone_mon(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern int monhp_per_lvl(struct monst *) NONNULLARG1;
 extern void newmonhp(struct monst *, int) NONNULLARG1;
 extern struct mextra *newmextra(void) NONNULL;
+extern void newerac(struct monst *) NONNULLARG1;
+extern void free_erac(struct monst *) NONNULLARG1;
 extern struct monst *makemon(struct permonst *, coordxy, coordxy, mmflags_nht);
 extern struct monst *unmakemon(struct monst *, mmflags_nht) NONNULLARG1;
 extern boolean create_critters(int, struct permonst *, boolean);
@@ -1513,7 +1516,7 @@ extern int adj_lev(struct permonst *) NONNULLARG1;
 extern struct permonst *grow_up(struct monst *, struct monst *) NONNULLARG1;
 extern struct obj* mongets(struct monst *, int) NONNULLARG1;
 extern int golemhp(int);
-extern boolean peace_minded(struct permonst *) NONNULLARG1;
+extern boolean peace_minded(struct monst *) NONNULLARG1;
 extern void set_malign(struct monst *) NONNULLARG1;
 extern void newmcorpsenm(struct monst *) NONNULLARG1;
 extern void freemcorpsenm(struct monst *) NONNULLARG1;
@@ -1783,6 +1786,10 @@ extern int cmap_to_type(int);
 
 extern void dealloc_monst(struct monst *) NONNULLARG1;
 extern void copy_mextra(struct monst *, struct monst *);
+extern int pm_to_race(short);
+extern short align_randrace(aligntyp);
+extern short m_randrace(short);
+extern void apply_race(struct monst *, short);
 extern void dealloc_mextra(struct monst *) NONNULLARG1;
 extern void mon_sanity_check(void);
 extern boolean zombie_maker(struct monst *) NONNULLARG1;
@@ -1994,6 +2001,7 @@ extern void monst_globals_init(void);
 
 /* ### mplayer.c ### */
 
+extern void init_mplayer_erac(struct monst *, boolean) NONNULLARG1;
 extern struct monst *mk_mplayer(struct permonst *,
                                 coordxy, coordxy, boolean) NONNULLARG1;
 extern void create_mplayers(int, boolean);

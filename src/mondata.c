@@ -516,11 +516,7 @@ mstrength_ranged_attk(struct permonst *ptr)
 boolean
 mon_hates_material(struct monst *mon, int material)
 {
-    /* TODO-EVILHACK: master consults the erac racial overlay here (via
-       r_data and racial_elf/racial_drow/racial_orc, so that racially
-       overlaid monsters hate iron or mithril); ports with the erac
-       subsystem */
-    if (hates_material(mon->data, material))
+    if (hates_material(r_data(mon), material))
         return TRUE;
 
     /* extra case: shapeshifted vampires still hate silver */
@@ -532,6 +528,14 @@ mon_hates_material(struct monst *mon, int material)
      * infected) */
     if (mon == &gy.youmonst && material == SILVER && u.ulycn >= LOW_PM)
         return TRUE;
+
+    if (has_erac(mon)) {
+        if (material == IRON) {
+            return (racial_elf(mon) || racial_drow(mon));
+        } else if (material == MITHRIL) {
+            return (racial_orc(mon));
+        }
+    }
 
     return FALSE;
 }

@@ -840,6 +840,19 @@ rndghostname(void)
  * options works, since those are special cases.
  */
 char *
+racial_adj(char *buf, struct monst *mtmp)
+{
+    if (has_erac(mtmp)) {
+        int r_id = ERAC(mtmp)->r_id;
+
+        Sprintf(buf, "%s ",
+                (r_id < 0) ? safe_mons(ERAC(mtmp)->rmnum).pmnames[NEUTRAL]
+                           : races[r_id].adj);
+    }
+    return buf;
+}
+
+char *
 x_monnam(
     struct monst *mtmp,
     int article,
@@ -941,10 +954,12 @@ x_monnam(
             Strcat(buf, shkname(mtmp));
         } else {
             Strcat(buf, shkname(mtmp));
-            if (mdat != &mons[PM_SHOPKEEPER] || do_invis){
+            if (mdat != &mons[PM_SHOPKEEPER] || do_invis
+                || has_erac(mtmp)) {
                 Strcat(buf, " the ");
                 if (do_invis)
                     Strcat(buf, "invisible ");
+                (void) racial_adj(eos(buf), mtmp);
                 Strcat(buf, pm_name);
             }
         }
@@ -959,6 +974,13 @@ x_monnam(
     if (do_saddle && (mtmp->misc_worn_check & W_SADDLE) && !Blind
         && !Hallucination)
         Strcat(buf, "saddled ");
+    if (has_erac(mtmp) && !type_is_pname(mdat)
+        /* don't reveal high priest race too early */
+        && mdat != &mons[PM_HIGH_PRIEST]
+        && (!(do_name && has_mgivenname(mtmp)) || called)
+        && !do_hallu) {
+        (void) racial_adj(eos(buf), mtmp);
+    }
     has_adjectives = (buf[0] != '\0');
 
     /* Put the actual monster name or type into the buffer now.

@@ -122,7 +122,7 @@ m_initgrp(
     mm.x = x;
     mm.y = y;
     while (cnt--) {
-        if (peace_minded(mtmp->data))
+        if (peace_minded(mtmp))
             continue;
         /* Don't create groups of peaceful monsters since they'll get
          * in our way.  If the monster has a percentage chance so some
@@ -1072,6 +1072,27 @@ newmextra(void)
     return mextra;
 }
 
+void
+newerac(struct monst *mtmp)
+{
+    if (!mtmp->mextra)
+        mtmp->mextra = newmextra();
+
+    if (!ERAC(mtmp)) {
+        ERAC(mtmp) = (struct erac *) alloc(sizeof (struct erac));
+        (void) memset((genericptr_t) ERAC(mtmp), 0, sizeof (struct erac));
+    }
+}
+
+void
+free_erac(struct monst *mtmp)
+{
+    if (mtmp->mextra && ERAC(mtmp)) {
+        free((genericptr_t) ERAC(mtmp));
+        ERAC(mtmp) = (struct erac *) 0;
+    }
+}
+
 staticfn boolean
 makemon_rnd_goodpos(
     struct monst *mon,
@@ -1296,7 +1317,15 @@ makemon(
     mtmp->mcansee = mtmp->mcanmove = TRUE;
     mtmp->mgenmklev = gi.in_mklev;
     mtmp->seen_resistance = M_SEEN_NOTHING;
-    mtmp->mpeaceful = (mmflags & MM_ANGRY) ? FALSE : peace_minded(ptr);
+
+    /* set player monsters rank/title, race flags, and any
+       appropriate flags that go along with their race */
+    if (is_mplayer(ptr))
+        init_mplayer_erac(mtmp, (mmflags & MM_NONAME) ? TRUE : FALSE);
+    else if (is_mercenary(ptr) && ptr != &mons[PM_GUARD])
+        apply_race(mtmp, m_randrace(mndx));
+
+    mtmp->mpeaceful = (mmflags & MM_ANGRY) ? FALSE : peace_minded(mtmp);
     if ((mmflags & MM_MINVIS) != 0) /* for ^G */
         mon_set_minvis(mtmp, FALSE); /* call after place_monster() */
 
@@ -1425,6 +1454,9 @@ makemon(
         mtmp->mpeaceful = (eminp->min_align == u.ualign.type)
                               ? !eminp->renegade
                               : eminp->renegade;
+        /* done in priest.c for other priests (in temples and roamers) */
+        if (mndx != PM_ANGEL)
+            apply_race(mtmp, align_randrace(mon_aligntyp(mtmp)));
     }
     set_malign(mtmp); /* having finished peaceful changes */
     if (anymon && !(mmflags & MM_NOGRP)) {
@@ -2299,9 +2331,11 @@ golemhp(int type)
  *      (Some "animal" types are co-aligned, but also hungry.)
  */
 boolean
-peace_minded(struct permonst *ptr)
+peace_minded(struct monst *mtmp)
 {
-    aligntyp mal = ptr->maligntyp, ual = u.ualign.type;
+    struct permonst *ptr = mtmp->data;
+    aligntyp mal = has_erac(mtmp) ? ERAC(mtmp)->ralign : ptr->maligntyp,
+             ual = u.ualign.type;
 
     if (always_peaceful(ptr))
         return TRUE;
@@ -2314,9 +2348,16 @@ peace_minded(struct permonst *ptr)
     if (ptr == &mons[PM_ERINYS])
         return !u.ualign.abuse;
 
-    if (race_peaceful(ptr))
+    /* TODO-EVILHACK: master has additional racial peace carve-outs
+       here (major demons 50% peaceful to unaligned Infidels, Lolth
+       and drow peace for drow heroes, undead peace for draugr and
+       vampire heroes, angelic beings peaceful to aasimar, ents
+       peaceful to elves/Druids/Rangers); they port with the
+       player-races subsystem */
+
+    if (erac_race_peaceful(mtmp))
         return TRUE;
-    if (race_hostile(ptr))
+    if (erac_race_hostile(mtmp))
         return FALSE;
 
     /* the monster is hostile if its alignment is different from the
@@ -2354,7 +2395,8 @@ peace_minded(struct permonst *ptr)
 void
 set_malign(struct monst *mtmp)
 {
-    schar mal = mtmp->data->maligntyp;
+    schar mal = has_erac(mtmp) ? ERAC(mtmp)->ralign
+                               : mtmp->data->maligntyp;
     boolean coaligned;
 
     if (mtmp->ispriest || mtmp->isminion) {

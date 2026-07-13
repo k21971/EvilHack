@@ -1055,6 +1055,26 @@ free_ebones(struct monst *mtmp)
     }
 }
 
+void
+newerac(struct monst *mtmp)
+{
+    if (!mtmp->mextra)
+        mtmp->mextra = newmextra();
+    if (!ERAC(mtmp)) {
+        ERAC(mtmp) = (struct erac *) alloc(sizeof(struct erac));
+        (void) memset((genericptr_t) ERAC(mtmp), 0, sizeof(struct erac));
+    }
+}
+
+void
+free_erac(struct monst *mtmp)
+{
+    if (mtmp->mextra && ERAC(mtmp)) {
+        free((genericptr_t) ERAC(mtmp));
+        ERAC(mtmp) = (struct erac *) 0;
+    }
+}
+
 static const struct mextra zeromextra = DUMMY;
 
 static void
@@ -1174,6 +1194,8 @@ dealloc_mextra(struct monst* m)
             free((genericptr_t) x->edog);
         if (x->ebones)
             free((genericptr_t) x->ebones);
+        if (x->erac)
+            free((genericptr_t) x->erac);
         /* [no action needed for x->mcorpsenm] */
 
         free((genericptr_t) x);
