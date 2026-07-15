@@ -696,9 +696,53 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       of the Overworld/Ithilmar do not confer MR when worn yet),
       mk_artifact forged_qual/affixed_gem zeroing (Forging),
       SLING_BULLET quan rn1(7,8) mkobj init (sling parity, found
-      in passing). Reviewer's 10-point oprops wizmode battery
-      list is in the review report (session 2026-07-15); runs
-      with the next battery.
+      in passing).
+      OPROPS WIZMODE BATTERY RUN 2026-07-15 (maintainer-approved,
+      fresh install of e95bed697, sanity_check ON): PANICLOG
+      EMPTY. PASSED LIVE: (1) B1-blocker regression - "long sword
+      of warning" wielded -> EWarning gains W_WEP (gdb 0x100),
+      unwield clears to 0; (2) armor extrinsics - hunger-prop
+      cloak wear -> EHunger W_ARMC, remove -> 0; detrimental
+      "magical" prop item born CURSED (create_oprop curse rule
+      observed); (3) EXCEL - blessed excellence sword wield ->
+      CHA 7->25 floor + u.moreluck 3, unwield reverts both;
+      (4) wish parse 15/15 - fire sword oprops 0x1, "of fire and
+      frost" -> FROST only 0x2 = VERIFIED MASTER PARITY (mutex
+      chain is frost-first; damage props mutually exclusive by
+      documented design - the review's "wizard gets both"
+      expectation was wrong), silver saber of frost mat 16 +
+      0x2, "magical" random prop incl. detrimental, oilskin
+      stripped on non-cloth, helm-of-telepathy/gauntlets-of-
+      fumbling/scroll-of-fire/potion/tin/figurine all resolve to
+      fixed items with oprops 0, C1-fixed plurals live ("2 wands
+      of fire" -> WAN_FIRE, "wands of lightning" -> WAN_LIGHTNING,
+      "spellbooks of fireball" -> SPE_FIREBALL); wished props are
+      born UNKNOWN (master parity - master's wish tail never
+      marks oprops_known; reveal on proc); (5) combat - fire
+      proc "The long sword burns the gnoll!" + autolearn
+      known=0x1 + post-learn naming "long sword of fire" in
+      combat messages; frost vs cold-resistant winter wolf ->
+      plain "hits." + NO learn; (6) engulf - hero purple worm
+      "You swallow Croesus whole!" -> "You hurriedly regurgitate
+      the indigestible Croesus." target alive (C2 fix); (8)
+      thunderclap - Keolewa lightning proc leaves adjacent
+      sleeper asleep, Mjollnir wakes it "The gnoll wakes up."
+      (C3 fix); (9) pricing via gdb getprice() - long sword base
+      15 -> 115 one-prop (+100 factor exact), excellence 125;
+      (10) end-of-game identified-possessions screen renders all
+      props in full ("blessed +1 long sword of excellence", "+0
+      silver saber of frost", ...) cleanly distinct from fixed
+      items. NOT LIVE-TESTED: (7) lava-drop mdrop_obj hardening
+      (not deterministically stageable; reviewer-verified incl.
+      the stackobj reachability proof), thrown-stack whole-stack
+      learn + bare-hand gloves rider (same rider plumbing as
+      melee, reviewer-verified), dumplog FILE write (procedural
+      miss: sysconf DUMPLOGFILE retarget happened mid-game but
+      sysconf is read at game START, so the game kept the
+      /dgldir path - the disclosure CONTENT was verified on
+      screen; retest opportunistically with the retarget done
+      BEFORE launch), mon-side worn-prop extrinsics in live
+      combat (obj_has_prop/mon_prop paths gdb-adjacent only).
 - [~] Racial monsters (ERAC overlay)
       SLICE A (core) 2026-07-13, subagent-ported 20 files +791,
       reviewed (conditional pass, NO blockers; fixups in flight):
@@ -1179,6 +1223,16 @@ master`) and ticked here. Seeded at adoption 2026-07-12: EMPTY
 | master commit | subject | re-derived as | status |
 |---------------|---------|---------------|--------|
 
+QUEUE PERMANENTLY EMPTY: maintainer ruling 2026-07-15 - master
+(v0.9.3) will not see any further updates. The 2026-07-15 backport
+batch (BUG-1330..1333, briefly committed locally as
+d6f951a21/7ffa7c24c/abe69f813/60e7a491e) was rescinded the same
+day and master reset to the fork point c444f6a3a; the four fixes
+live on the branch (they originated there). The MASTER BACKPORT
+CANDIDATE tracking concept is retired - future master-side bugs
+found during branch work get an archive entry noting master is
+frozen-unfixed, nothing more.
+
 ### File-relocation map (where a master fix lands on the branch)
 
 Function-level provenance verified 2026-07-03 (full census incl.
@@ -1234,6 +1288,11 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-07-15 | Item economy: v1.0.0 ships the RICH economy (branch keeps upstream `ptr == &mons[PM_SOLDIER]` m_initinv gate - every monster rolls the m_lev magic/gold tail). Master's 2021 `!=` slip stays branch-excluded AND master-unfixed (soldier gate NOT in the backport batch; the lean-economy years remain a master-only accident that dies at cutover) | maintainer |
+| 2026-07-15 | Elf/hobbit ELVEN_CHAIN_MAIL: branch stays master-exact (no civilian grant, dead mithril-upgrade check kept textually identical for re-derive ease); revisit as cleanup after v1.0.0 | maintainer |
+| 2026-07-15 | Angel weapon: 5.0's rebalance kept (rn2(3) sword-biased + mace +3..+6 compensation) over master's rn2(2)/flat-spe; master's Demonbane gate/Shield of Light/Saint Michael gear ride on top | maintainer |
+| 2026-07-15 | Master backport batch APPROVED (4 of 5 candidates; soldier gate excluded per the economy ruling): wish-parse `l = N` length clobber, invent.c crysknife-restore material refresh, mplayer.c mrace ==-vs-& composite masks, mthrowu.c P_BOW-sign dead archer bonus. Prepared as sequential master commits, coordinator stages + maintainer commits | maintainer |
+| 2026-07-15 | SUPERSEDES the row above: master (v0.9.3) is FROZEN - no further updates ever ("I should have made this clear from the beginning"). The committed batch was rescinded same day, master reset to c444f6a3a (= fork point = release tip). ALL backport activity to master stops; the branch (v1.0.0) is the sole future. Archive entries BUG-1330..1333 re-pointed to the originating branch commits | maintainer |
 | 2026-06-12 | plan §9: v1.0.0, hard cutover, same xlogfile, full parity, local-until-playable, DUMPHTML base | maintainer |
 | 2026-07-03 | NAMS merges: ALL THREE pairs merge like upstream - caveman/cavewoman -> PM_CAVE_DWELLER, priest/priestess (role mon) -> PM_CLERIC, incubus/succubus -> PM_AMOROUS_DEMON; M2_MALE/M2_FEMALE dropped (sex assigned at creation); pairs verified field-identical otherwise; monst_to_50.py now auto-merges (refuses + PORT-TODOs any future diverging pair). GOTCHA: upstream has TWO "priest"/"priestess" NAMS records (role PM_CLERIC d=12 vs temple PM_ALIGNED_CLERIC d=15) - converter disambiguates by field score; C port must map role sites (Role_if etc.) to PM_CLERIC, temple/aligned-priest sites to PM_ALIGNED_CLERIC | maintainer |
 | | endgame portal naming kept EvilHack-style | per crib sheet |
