@@ -657,12 +657,12 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       r_data trusts restored rmnum (master parity), stale
       util/sfctool binary until make sfutil. ERAC->mattk racial
       attack overlays saved but NO combat consumer yet (Slice B).
-      SLICE B1 (racial consumer sweep) PORTED 2026-07-13,
-      UNCOMMITTED working-tree diff, 43 files +645/-262 incl.
-      coordinator fixups (patch snapshot:
-      evilhack-50-backups/phase2-erac-slice-b1-worktree-2026-07-13
-      .patch). Subagent-ported, reviewer CONDITIONAL PASS, clean
-      make clean+all zero-warning after fixes. Contents: mondata.h
+      SLICE B1 (racial consumer sweep) COMMITTED 2026-07-13 as
+      e9b9cab24, 44 files +736/-268 incl. coordinator fixups and
+      this tracker's B1 record (this status line updated
+      post-commit, rides with the next commit). Subagent-ported,
+      reviewer CONDITIONAL PASS, clean make clean+all zero-warning
+      after fixes. Wizmode battery still pending (with B2). Contents: mondata.h
       derived macros (racial_tunnels/needspick/perceives/
       throws_rocks, has_telepathy, extended telepathic 16-PM list,
       hates_light +drow/shadow dragons, ultravision, resists_slow,
@@ -694,24 +694,48 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ammo skill is negative (-P_BOW) - dead code on master since
       3.6 vanilla; branch uses -P_BOW so the racial archer bonus
       is LIVE here for the first time (balance note for testing).
-      PENDING B1 FIXUPS (reviewer-verified, NOT yet applied - do
-      these before/with B2): (1) CONCERN tamedog 'bane list
-      truncated - master also gates Ogresmasher/Sunsword/Hammer of
-      the Gods/Werebane/Shadowblade/Demonbane/Angelslayer/Vorpal
-      Blade/Dragonbane gloves/One Ring-vs-wraiths, all exist in
-      branch artilist; (2) CONCERN tamedog order: branch flips
-      mpeaceful=1 BEFORE the bane gates, master gates first
-      (hostile stays hostile) - restructure or record decision;
-      (3) CONCERN drow web immunity hero half missing (trapeffect_
-      web hero branch + 5.0-only immune_to_trap WEB case; monster
-      half landed; drow heroes playable NOW - fix together);
-      (4) NIT minion.c msummon gate: use wielding_artifact() +
-      Hammer of the Gods per master; (5) NITs deferred-with-
-      subsystems: corpse_xname snprintf hardening (master parity),
-      minsects producer+consumer pair (insect summon), sliparm/
-      breakarm druid_form/vampire_form early-returns (shapeshift
-      forms), MUSE_CAMERA drow clause (player races), bad_rock
-      tree-passing exemption (trees). COORDINATOR DECISIONS OPEN
+      B1 FIXUPS APPLIED 2026-07-14 (pre-B2 pass, build-green
+      zero-warning): (1) tamedog 'bane list completed - all 9
+      missing master gates added (Ogresmasher, Sunsword+Hammer of
+      the Gods undead, Werebane, Shadowblade, Demonbane+Hammer
+      demons, Angelslayer angels+aasimar, Vorpal Blade jabberwock,
+      Dragonbane gloves, One Ring both hands vs wraiths); needed 5
+      new mondata.h MH-space predicates (is_ogre/is_dragon/
+      is_jabberwock/is_wraith/is_aasimar - MH bits were populated
+      in monsters.h, macros missing on branch, no name conflicts).
+      (2) tamedog RESTRUCTURED to master order: all bane gates now
+      sit before the mpeaceful flip (bane-wielders cannot even
+      pacify the hated race; 5.0 upstream has no bane gates so no
+      upstream-vs-master conflict - decision = master parity).
+      (3) drow web immunity hero half landed: trapeffect_web hero
+      branch + immune_to_trap WEB case, both via racial_drow()
+      (mon_has_race youmonst clause reproduces master's
+      maybe_polyd(is_drow, Race_if) semantics - equivalence
+      hand-checked across polyd/unpolyd cases; one idiom across
+      all three web sites incl. the B1 monster half). (4) minion.c
+      msummon gate -> wielding_artifact() x2 incl. Hammer of the
+      Gods per master; sibling sweep caught 2 more Excalibur/
+      Demonbane gates on u_wield_art that master expresses via
+      wielding_artifact: demon_talk (minion.c) + dprince MS_BRIBE
+      genesis (makemon.c) - fixed same pass. (5) NITs still
+      deferred-with-subsystems (unchanged): corpse_xname snprintf
+      hardening, minsects producer+consumer pair, sliparm/breakarm
+      druid_form/vampire_form early-returns, MUSE_CAMERA drow
+      clause, bad_rock tree-passing exemption.
+      NEW FOLLOW-UP (from the fixup-4 sibling audit):
+      wielding_artifact PARITY SWEEP - branch retains ~14
+      u_wield_art sites where master is offhand-aware
+      (attrib.c Ogresmasher/Giantslayer STR-CHA artifact blocks,
+      pray.c crowning in_hand chain, sit.c Magicbane throne,
+      hack.c Sting warning glow, mondata.c Excalibur, trap.c
+      Magicbane/Sting, wield.c), and master's monster-side
+      mon_wielding_artifact() helper is not yet ported (worn.c/
+      sit.c/trap.c consumers). These ride with their owning
+      subsystems (artifact internals, prayer, attrib, Sting glow)
+      or one dedicated pass - do not convert piecemeal. apply.c
+      Snickersnee sites are a 5.0-upstream feature (distance free
+      hit; master has no counterpart, obj==uwep is its design) -
+      NOT part of the gap. COORDINATOR DECISIONS OPEN
       (from port report): zombie_maker semantics kept 5.0-balanced
       vs master's bare racial_zombie (resolve with zombie
       subsystem); corpse_to_glyph racial bodies? (statues ARE
@@ -729,25 +753,131 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       find_silver), hellfire (mcastu), steed/barding (steed.c
       gates), Mine Town invasion (sounds), peaceful_to_glyph
       (Phase 4 - no 5.0 peaceful glyph class).
-      Slice B2 TODO (NEXT): makemon.c m_initweap/m_initinv racial
-      gear (~104 sites), priest.c TODO-EVILHACK x2 inventory
-      rebuilds, worn.c racial gear block (find_mac racial-AC +
-      eshk, m_dowear racial, racial_exception, find_best_armor_
-      recurse racialexception param, sewage -2), shk.c
-      shk_racial_adjustments + get_cost racial/charisma rework
-      (deferred from materials Slice C), shknam.c racial
-      shopkeepers (r_data gender x2, unlocks dormant x_monnam shk
-      branch), racial-gear otyp macro gaps (is_elven_weapon/
-      is_orcish_obj/is_dwarvish_obj missing EvilHack otyps, from
-      materials-slice deferral list), + B1 pending fixups above;
-      reviewer's deep-test list for the Slice B battery: Minetown
-      priest (epri+erac straddle), corpse-revive race persistence,
-      bones round-trip, sfctool convert cycle, newcham poly churn,
-      + B1 review recs: Sting glow-count vs map glyphs near racial
-      orc AND druid-form monster (MH/M2 alias check), Werebane vs
-      werewolf taming, drow hero+monster in webs, racial tin/
-      sacrifice, vorpal-behead troll corpse revival, yellow light
-      vs drow both directions
+      SLICE B2 PORTED + REVIEWED 2026-07-14/15 (subagent-ported,
+      reviewer CONDITIONAL PASS, all blockers+concerns fixed by
+      coordinator, full make clean rebuild zero-warning; NOT yet
+      committed - rides with the B1 fixups above as one commit,
+      files overlap in makemon.c/mondata.h). Contents: makemon.c
+      m_initweap/m_initinv full racial-gear rework + mplayer kit
+      system (struct trobj -> decl.h shared u_init.c/makemon.c, 31
+      kit arrays de-static'd const, ini_mon_inv re-expresses
+      master runtime kit mutations as const _0/_1 variants with
+      5.0 trquan_min/max - reviewer verified every quantity vs
+      master rn1 calls; setup_mon_inventory() new public helper),
+      maybe_arm_silver + Medusa m_initthrow, mongets tail rework
+      (spear rne(2) stacking, prince/lord gear-quality tiers,
+      Medusa quality, maybe_arm_silver hook; reviewer CONCERN -
+      was initially thrown-ammo-only); priest.c priestini +
+      mk_roamer discard_minvent+setup_mon_inventory rebuilds
+      (reviewer: lifecycle CLEAN - extract_from_minvent clears
+      worn masks/mw/lights), drow temple darkening, sanctum-Amulet
+      Infidel gate; worn.c find_mac racial-AC block verbatim +
+      m_dowear racial gates + racial_exception + pick-loop
+      mon_hates_material/W_AMUL/W_ARMS bracers/W_ARMG +
+      mon_adjust_speed sewage cases (inert) + BUG-1323
+      check_gear_next_turn re-arms x2 (reviewer CONCERN); shk.c
+      shk_racial_adjustments/shk_stat_priced verbatim, get_cost
+      materials->dunce->racial->charisma order (racial_discount
+      suppresses high-CHA tiers), set_cost reciprocal + sell<=buy
+      clamp + globby goto-end short-circuit + shkp guard (reviewer
+      CONCERN+NIT); shknam.c shkinit racial shk per shop class +
+      apply_race + racial/Izchak gear + nameshk r_data gender x2 -
+      x_monnam racial shk naming now LIVE (light-up traced);
+      obj.h gear macros = fork-point token sets (verified by
+      token-set diff) + is_bracer; mondata.h +8 predicates;
+      dat/Ran-goal.lua Longbow floor object retired (Scorpius
+      carries it, crossbow for crossbow races).
+      REVIEWER BLOCKERS FIXED: demon-bribe cluster - branch/5.0
+      is_dprince vs master is_dlord (EvilHack re-tiered archdevils:
+      Geryon/Dispater/Baalzebub/Mephistopheles = M2_LORD+MS_BRIBE,
+      Asmodeus = M2_PRINCE+M2_HOSTILE, so the 5.0 gate caught
+      exactly the wrong monster) at makemon bribe-genesis + minion
+      demon_talk reveal; Hammer of the Gods clause at both artifact
+      gates + Race_if(PM_AASIMAR) spawn-hostile clause. Coordinator
+      sibling sweep added the monmove Demonic-Blackmail
+      PM_PRISON_GUARD exclusion (prison guards share MS_BRIBE on
+      the branch roster and must not blackmail). DEFERRED from the
+      bribe cluster to demon-lord behaviors subsystem: master
+      STRAT_APPEARMSG bribe one-shot rework (monmove whisper gated
+      on STRAT_APPEARMSG, demon_talk entry clear, mnexto/rloc
+      peaceful-MS_BRIBE keep-flag carve-out - branch is on the
+      vanilla flow, teleport.c rloc_to_core owns the one-chance
+      clear in 5.0).
+      OPEN MAINTAINER DECISIONS (Slice B2): (1) master m_initinv
+      soldier gate `ptr != PM_SOLDIER` = verified mechanical slip
+      in 81102642b (every sibling hunk converted is_soldier() to
+      ==; contradicts its own comment; non-soldiers skip the
+      magic/gold tail 12/13 on live master since 2021-02) - branch
+      keeps upstream `==`; MASTER BACKPORT CANDIDATE #4. (2)
+      elf/hobbit ELVEN_CHAIN_MAIL: master's materials commit
+      03e87e1bd removed every civilian grant but kept the
+      m_carrying mithril upgrade = dead code; ported master
+      exactly (elves/hobbits get no mail); restore a mongets
+      before each upgrade if the grant was intended to survive.
+      (3) angel weapon: kept 5.0's rn2(3) sword-bias + mace +3..+6
+      compensation over master's rn2(2)+flat-spe (upstream balance
+      improvement); master's Demonbane gate/SHIELD_OF_LIGHT/Saint
+      Michael/astral ring ported on top.
+      REVIEWER NITS RECORDED: vampire-monk book + Barbarian_0/_1 +
+      D_weapon const splits are deliberate fixes of master's
+      sticky kit-array mutations (RNG-observable delta, cleaner);
+      W_ARMC size gate uses mon->data msize vs cloak gate's
+      r_data (racial polish pass); master m_dowear_type
+      shield-forces-mw2-drop block absent - safe, nothing writes
+      mw2 yet, land with dual-wield + shadow-dragon wear-message
+      variant; purple-rain insurance (astral RIN_SLOW_DIGESTION
+      grants at priest/angel sites) is INERT until monster
+      ring-wearing lands - the wear pass AND master's mhitm
+      mon_prop(SLOW_DIGESTION) AD_DGST expel check must land
+      together (record ON the ring-wearing deferral, else Astral
+      priests keep getting purple-worm-eaten); set_cost globby
+      accumulates a dead materials multiplier pre-goto (master
+      parity, harmless). B2 deferral map (per-file detail in B2
+      port report): Goblin Town gates (makemon/shknam
+      TODO-EVILHACK markers), create_oprop sites (oprops = next
+      big unlock; direct ITEM_* assignments already ported and
+      saved), m_stash_items + container AI, setmnotwielded2
+      dual-wield drop, mon_bimanual, big_wings W_ARM, monster
+      ring-wearing (extra_pref rework, W_RINGL/R, Nazgul ring,
+      cursed_glove gating), armor_bonus/material_bonus AC.
+      Slice B wizmode battery TODO (NEXT - ASK MAINTAINER before
+      any launch; #levelchange 30 FIRST; regenerate a dev
+      reference save after, pre-ERAC saves are format-dead):
+      (1) mplayer roles at m_lev 1/10/20+ incl. giant/tortle/
+      draugr/vampire overlays - kit contents, YA 26-45 stacks,
+      draugr monk bookless, Infidel cursed gear + fake Amulet,
+      wizard suit never gray-scaled, lev-20 amulet/ring/artifact
+      loop, watch paniclog for worn_slot/objlist; (2) temple
+      sweep - Minetown priest (epri+erac straddle), drow priest
+      dark temple (darkness confined to temple), giant priest
+      gear, sanctum HP with/without Infidel hero, Astral priests,
+      mk_roamer genesis churn (extract_nobj panics); (3) shop
+      sweep all classes - racial shk distribution + naming,
+      Izchak human/kit/no-racial-pricing, drow shop darkness,
+      gnome INT + nymph CHA tiers, same-race discount + CHA>18
+      non-stacking, buy-sell-back no-profit incl. stacks AND
+      globs; (4) Gehennom archdevils - Geryon/Dispater/Baalzebub/
+      Mephistopheles spawn invisible+peaceful awaiting bribe,
+      Asmodeus hostile, demon_talk with Excalibur/Demonbane/
+      Hammer angers, aasimar hero spawns them hostile, peaceful
+      prison guard does NOT blackmail; (5) tamedog every bane
+      wielded/worn vs matching race incl. Dragonbane gloves +
+      One Ring vs Nazgul - no taming AND no peaceful flip;
+      (6) Stronghold racial soldier spawns - weapons/ammo per
+      rank, no impossible() from merc mac switch, spear stacks,
+      ~1/5 silver weapons for Infidel/Vampire hero, prince/lord
+      gear quality; (7) drow hero + monster web interplay,
+      immune_to_trap pet-displacement path; (8) Ranger quest goal
+      - no floor bow, Scorpius carries Longbow (crossbow for
+      gnome/hobbit heroes), artifact one-shot; (9) monster gear
+      churn - mixed amulets/bracers/two-handers wear priority, no
+      swap loop, frozen mid-donning monster resumes equipping;
+      (10) save/reload + bones round-trip over racial shk/priest
+      levels, sfctool convert cycle, newcham poly churn; + B1
+      recs: Sting glow-count vs racial orc + druid-form monster,
+      Werebane vs werewolf taming, racial tin/sacrifice,
+      vorpal-behead troll corpse revival, yellow light vs drow
+      both directions.
 - [ ] Forging (+ FORGE nhl binding for .des->lua levels)
 - [ ] Magic chests (+ MAGIC_CHEST nhl binding, crystal chest obj)
 - [ ] telekinesis.c + #tk command (pilot did the file; wire cmds)

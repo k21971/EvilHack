@@ -2129,7 +2129,7 @@ trapeffect_web(
         feeltrap(trap);
         if (mu_maybe_destroy_web(&gy.youmonst, webmsgok, trap))
             return Trap_Effect_Finished;
-        if (webmaker(gy.youmonst.data)) {
+        if (webmaker(gy.youmonst.data) || racial_drow(&gy.youmonst)) {
             if (webmsgok)
                 pline(trap->madeby_u ? "You take a walk on your web."
                       : "There is a spider web here.");
@@ -2861,7 +2861,8 @@ immune_to_trap(struct monst *mon, unsigned ttype)
         return TRAP_NOT_IMMUNE;
     case WEB:
         /* most of this code is lifted from mu_maybe_destroy_web */
-        if (webmaker(pm) || amorphous(pm) || is_whirly(pm) || flaming(pm)
+        if (webmaker(pm) || racial_drow(mon)
+            || amorphous(pm) || is_whirly(pm) || flaming(pm)
             || unsolid(pm) || pm == &mons[PM_GELATINOUS_CUBE])
             return TRAP_CLEARLY_IMMUNE;
         return TRAP_NOT_IMMUNE;

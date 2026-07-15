@@ -1191,6 +1191,70 @@ tamedog(
         || (mtmp->data->mflags3 & M3_WANTSARTI))
         return FALSE;
 
+    /* wielding or wearing any of the 'banes makes taming its hated
+       race impossible; it isn't even made peaceful */
+    if (wielding_artifact(ART_STING)
+        && (racial_orc(mtmp) || is_spider(mtmp->data)))
+        return FALSE;
+
+    if (wielding_artifact(ART_ORCRIST) && racial_orc(mtmp))
+        return FALSE;
+
+    if (wielding_artifact(ART_GLAMDRING) && racial_orc(mtmp))
+        return FALSE;
+
+    if (wielding_artifact(ART_GRIMTOOTH)
+        && (racial_elf(mtmp) || racial_drow(mtmp)))
+        return FALSE;
+
+    if ((wielding_artifact(ART_GIANTSLAYER)
+         || wielding_artifact(ART_HARBINGER))
+        && racial_giant(mtmp))
+        return FALSE;
+
+    if (wielding_artifact(ART_TROLLSBANE) && is_troll(mtmp->data))
+        return FALSE;
+
+    if (wielding_artifact(ART_OGRESMASHER) && is_ogre(mtmp->data))
+        return FALSE;
+
+    if ((wielding_artifact(ART_SUNSWORD)
+         || wielding_artifact(ART_HAMMER_OF_THE_GODS))
+        && is_undead(mtmp->data))
+        return FALSE;
+
+    if (wielding_artifact(ART_WEREBANE) && is_were(mtmp->data))
+        return FALSE;
+
+    if (wielding_artifact(ART_SHADOWBLADE) && is_were(mtmp->data))
+        return FALSE;
+
+    /* can't really tame demons, but this is here for completeness sake */
+    if ((wielding_artifact(ART_DEMONBANE)
+         || wielding_artifact(ART_HAMMER_OF_THE_GODS))
+        && is_demon(mtmp->data))
+        return FALSE;
+
+    /* same for angels */
+    if (wielding_artifact(ART_ANGELSLAYER)
+        && (is_angel(mtmp->data) || is_aasimar(mtmp->data)))
+        return FALSE;
+
+    if (wielding_artifact(ART_VORPAL_BLADE) && is_jabberwock(mtmp->data))
+        return FALSE;
+
+    if (uarmg && uarmg->oartifact == ART_DRAGONBANE
+        && is_dragon(mtmp->data))
+        return FALSE;
+
+    if (uleft && uleft->oartifact == ART_ONE_RING
+        && is_wraith(mtmp->data))
+        return FALSE;
+
+    if (uright && uright->oartifact == ART_ONE_RING
+        && is_wraith(mtmp->data))
+        return FALSE;
+
     /* worst case, at least it'll be peaceful. */
     if (givemsg && !mtmp->mpeaceful && canspotmon(mtmp)) {
         pline_mon(mtmp, "%s seems %s.", Monnam(mtmp),
@@ -1272,30 +1336,6 @@ tamedog(
         || racial_human(mtmp)
         || (is_demon(mtmp->data) && !is_demon(gy.youmonst.data))
         || (obj && dogfood(mtmp, obj) >= MANFOOD))
-        return FALSE;
-
-    /* wielding any of the 'banes makes taming its hated race
-       impossible */
-    if (wielding_artifact(ART_STING)
-        && (racial_orc(mtmp) || is_spider(mtmp->data)))
-        return FALSE;
-
-    if (wielding_artifact(ART_ORCRIST) && racial_orc(mtmp))
-        return FALSE;
-
-    if (wielding_artifact(ART_GLAMDRING) && racial_orc(mtmp))
-        return FALSE;
-
-    if (wielding_artifact(ART_GRIMTOOTH)
-        && (racial_elf(mtmp) || racial_drow(mtmp)))
-        return FALSE;
-
-    if ((wielding_artifact(ART_GIANTSLAYER)
-         || wielding_artifact(ART_HARBINGER))
-        && racial_giant(mtmp))
-        return FALSE;
-
-    if (wielding_artifact(ART_TROLLSBANE) && is_troll(mtmp->data))
         return FALSE;
 
     if (mtmp->m_id == svq.quest_status.leader_m_id)

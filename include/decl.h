@@ -1317,4 +1317,24 @@ extern const struct const_globals cg;
 
 extern struct obj hands_obj;
 
+/* initial-inventory kit element; the role kit arrays defined in
+   u_init.c are shared with makemon.c so that player monsters can be
+   outfitted with the same equipment sets as the hero */
+struct trobj {
+    short trotyp;
+    schar trspe;
+    char trclass;
+    char trquan_min;
+    char trquan_max;
+    char trbless;
+};
+
+extern const struct trobj Archeologist[], Barbarian_0[], Barbarian_1[],
+    Cave_man[], Convict[], Druid[], Healer[], Knight[], Elven_Knight[],
+    Dwarvish_Knight[], Orcish_Knight[], Draugr_Knight[], Monk[],
+    Draugr_Monk[], Vampire_Monk[], Priest[], Ranger[], Rogue[],
+    Drow_Rogue[], Samurai[], Tourist[], Valkyrie[], Wizard[],
+    Healing_book[], Protection_book[], Confuse_monster_book[],
+    Tinopener[], Lamp[], Blindfold[], Leash[], Towel[];
+
 #endif /* DECL_H */

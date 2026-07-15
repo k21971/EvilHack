@@ -65,7 +65,9 @@ msummon(struct monst *mon)
     if (mon) {
         ptr = r_data(mon);
 
-        if (u_wield_art(ART_DEMONBANE) && is_demon(ptr)) {
+        if ((wielding_artifact(ART_DEMONBANE)
+             || wielding_artifact(ART_HAMMER_OF_THE_GODS))
+            && is_demon(ptr)) {
             if (canseemon(mon))
                 pline("%s looks puzzled for a moment.", Monnam(mon));
             return 0;
@@ -262,7 +264,9 @@ demon_talk(struct monst *mtmp)
 {
     long cash, demand, offer;
 
-    if (u_wield_art(ART_EXCALIBUR) || u_wield_art(ART_DEMONBANE)) {
+    if (wielding_artifact(ART_EXCALIBUR)
+        || wielding_artifact(ART_DEMONBANE)
+        || wielding_artifact(ART_HAMMER_OF_THE_GODS)) {
         if (canspotmon(mtmp))
             pline("%s looks very angry.", Amonnam(mtmp));
         else
@@ -284,7 +288,7 @@ demon_talk(struct monst *mtmp)
     }
 
     /* Slight advantage given. */
-    if (is_dprince(mtmp->data) && mtmp->minvis) {
+    if (is_dlord(mtmp->data) && mtmp->minvis) {
         boolean wasunseen = !canspotmon(mtmp);
 
         mtmp->minvis = mtmp->perminvis = 0;

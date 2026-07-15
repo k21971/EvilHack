@@ -21,6 +21,9 @@ staticfn void init_mongen_order(void);
 staticfn boolean wrong_elem_type(struct permonst *);
 staticfn void m_initgrp(struct monst *, coordxy, coordxy, int, mmflags_nht);
 staticfn void m_initthrow(struct monst *, int, int);
+staticfn void maybe_arm_silver(struct monst *, struct obj *);
+staticfn void ini_mon_inv(struct monst *, const struct trobj *,
+                          unsigned short);
 staticfn void m_initweap(struct monst *);
 staticfn void m_initinv(struct monst *);
 staticfn boolean makemon_rnd_goodpos(struct monst *, mmflags_nht, coord *);
@@ -152,9 +155,618 @@ m_initthrow(struct monst *mtmp, int otyp, int oquan)
     otmp = mksobj(otyp, TRUE, FALSE);
     otmp->quan = (long) rn1(oquan, 3);
     otmp->owt = weight(otmp);
-    if (otyp == ORCISH_ARROW)
+    if (otyp == ORCISH_ARROW) {
         otmp->opoisoned = TRUE;
+        if (mtmp->data == &mons[PM_MEDUSA]) {
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, 1);
+            otmp->spe = rn2(3) + 3;
+        }
+    }
+    maybe_arm_silver(mtmp, otmp);
     (void) mpickobj(mtmp, otmp);
+}
+
+/* when the hero is an Infidel or a vampire, monsters that don't hate
+   silver are more likely to be armed with a silver weapon, making the
+   world more hostile to a silver-vulnerable hero; called once a weapon's
+   material has been finalized, just before it is given to the monster */
+staticfn void
+maybe_arm_silver(struct monst *mtmp, struct obj *otmp)
+{
+    /* only Infidel-role or Vampire-race heroes provoke this */
+    if (!(Role_if(PM_INFIDEL) || Race_if(PM_VAMPIRE)))
+        return;
+    /* must be a non-silver weapon that can sear on contact; skip
+       launchers, artifacts, and weapons that are already silver */
+    if (!otmp || otmp->oclass != WEAPON_CLASS
+        || otmp->material == SILVER || otmp->oartifact
+        || is_launcher(otmp))
+        return;
+    /* the wielder must tolerate silver, and silver must be a legal
+       material for this object type */
+    if (mon_hates_material(mtmp, SILVER)
+        || !valid_obj_material(otmp, SILVER))
+        return;
+    /* roughly one in five eligible weapons becomes silver */
+    if (!rn2(5)) {
+        set_material(otmp, SILVER);
+        otmp->owt = weight(otmp);
+    }
+}
+
+/* kit tables for player monsters; the role kits proper live in
+   u_init.c (see decl.h) - these are the monster-only variants plus
+   the level-based extras handed out by m_initweap() */
+
+#define UNDEF_TYP 0
+#define UNDEF_SPE '\177'
+#define RND_SPE 1 /* trspe bit: randomize enchantment a little */
+#define UNDEF_BLESS 2
+#define CURSED 3
+
+/* player monster Infidels are perpetually stuck with a cheap
+   imitation of the Amulet of Yendor; an actual Infidel hero starts
+   with the real one (see u_init.c) */
+static const struct trobj subInfidel[] = {
+    { FAKE_AMULET_OF_YENDOR, 0, AMULET_CLASS, 1, 1, 0 },
+    { DAGGER, 1, WEAPON_CLASS, 1, 1, 0 },
+    { JACKET, 1, ARMOR_CLASS, 1, 1, CURSED },
+    { CLOAK_OF_PROTECTION, 0, ARMOR_CLASS, 1, 1, CURSED },
+    { POT_WATER, 0, POTION_CLASS, 3, 3, CURSED },
+    { SCR_CHARGING, 0, SCROLL_CLASS, 1, 1, 0 },
+    { SPE_DRAIN_LIFE, 0, SPBOOK_CLASS, 1, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1, 0 },
+    { FIRE_HORN, UNDEF_SPE, TOOL_CLASS, 1, 1, 0 },
+    { OILSKIN_SACK, 0, TOOL_CLASS, 1, 1, 0 },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj draugrInfidel[] = {
+    { FAKE_AMULET_OF_YENDOR, 0, AMULET_CLASS, 1, 1, 0 },
+    { DAGGER, 1, WEAPON_CLASS, 1, 1, 0 },
+    { JACKET, 1, ARMOR_CLASS, 1, 1, CURSED },
+    { CLOAK_OF_PROTECTION, 0, ARMOR_CLASS, 1, 1, CURSED },
+    { POT_WATER, 0, POTION_CLASS, 3, 3, CURSED },
+    { SCR_CHARGING, 0, SCROLL_CLASS, 1, 1, 0 },
+    { FIRE_HORN, UNDEF_SPE, TOOL_CLASS, 1, 1, 0 },
+    { OILSKIN_SACK, 0, TOOL_CLASS, 1, 1, 0 },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj giantInfidel[] = {
+    { FAKE_AMULET_OF_YENDOR, 0, AMULET_CLASS, 1, 1, 0 },
+    { DAGGER, 1, WEAPON_CLASS, 1, 1, 0 },
+    { LOW_BOOTS, 1, ARMOR_CLASS, 1, 1, CURSED },
+    { GAUNTLETS_OF_PROTECTION, 0, ARMOR_CLASS, 1, 1, CURSED },
+    { POT_WATER, 0, POTION_CLASS, 3, 3, CURSED },
+    { SCR_CHARGING, 0, SCROLL_CLASS, 1, 1, 0 },
+    { SPE_DRAIN_LIFE, 0, SPBOOK_CLASS, 1, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1, 0 },
+    { FIRE_HORN, UNDEF_SPE, TOOL_CLASS, 1, 1, 0 },
+    { OILSKIN_SACK, 0, TOOL_CLASS, 1, 1, 0 },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+/* centaur player monsters */
+static const struct trobj Level10KitCentaur1[] = {
+    { ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { CLOAK, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level10KitCentaur2[] = {
+    { STUDDED_ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { ELVEN_CLOAK, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20KitCentaur1[] = {
+    { CHAIN_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20KitCentaur2[] = {
+    { SPLINT_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+/* giant player monsters */
+static const struct trobj giantBarbarian_0[] = {
+    { TWO_HANDED_SWORD, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { AXE, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { HELMET, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 1, 1, 0 },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj giantBarbarian_1[] = {
+    { BATTLE_AXE, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { SHORT_SWORD, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { HELMET, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 1, 1, 0 },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj giantCave_man[] = {
+    { CLUB, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { SLING, 2, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { FLINT, 0, GEM_CLASS, 10, 20, UNDEF_BLESS },
+    { SLING_BULLET, 0, GEM_CLASS, 1, 1, UNDEF_BLESS },
+    { HELMET, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+/* druid weapon and the randomly chosen spellbook are handled at
+   runtime in m_initweap(), mirroring u_init_role() */
+static const struct trobj giantDruid[] = {
+    { BRACERS, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { HIGH_BOOTS, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { EUCALYPTUS_LEAF, 0, FOOD_CLASS, 1, 1, 0 },
+    { MISTLETOE, 0, FOOD_CLASS, 1, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, 2, UNDEF_BLESS },
+    { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1, 1 },
+    { SPE_CREATE_GRASS, 0, SPBOOK_CLASS, 1, 1, 1 },
+    { SACK, 0, TOOL_CLASS, 1, 1, 0 },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+/* the monk spellbook is chosen at runtime in m_initweap() */
+static const struct trobj giantMonk[] = {
+    { GLOVES, 2, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { HIGH_BOOTS, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, 1, UNDEF_BLESS },
+    { POT_HEALING, 0, POTION_CLASS, 3, 3, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 3, 3, 0 },
+    { APPLE, 0, FOOD_CLASS, 5, 5, UNDEF_BLESS },
+    { ORANGE, 0, FOOD_CLASS, 5, 5, UNDEF_BLESS },
+    { FORTUNE_COOKIE, 0, FOOD_CLASS, 3, 3, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj giantPriest[] = {
+    { MACE, 1, WEAPON_CLASS, 1, 1, 1 },
+    { HIGH_BOOTS, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { SMALL_SHIELD, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { POT_WATER, 0, POTION_CLASS, 4, 4, 1 }, /* holy water */
+    { CLOVE_OF_GARLIC, 0, FOOD_CLASS, 1, 1, 0 },
+    { SPRIG_OF_WOLFSBANE, 0, FOOD_CLASS, 1, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 2, 2, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj giantSamurai[] = {
+    { KATANA, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { SHORT_SWORD, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS }, /* wakizashi */
+    { YUMI, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { YA, 0, WEAPON_CLASS, 26, 45, UNDEF_BLESS },
+    { LARGE_SPLINT_MAIL, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj giantWizard[] = {
+    { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, 1, UNDEF_BLESS },
+    { WAN_MAGIC_MISSILE, UNDEF_SPE, WAND_CLASS, 1, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, RING_CLASS, 2, 2, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 3, 3, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 3, 3, UNDEF_BLESS },
+    { SPE_FORCE_BOLT, 0, SPBOOK_CLASS, 1, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level10KitGiant[] = {
+    { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20KitGiant[] = {
+    { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+/* tortle player monsters */
+static const struct trobj tortleArcheologist[] = {
+    { BULLWHIP, 2, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { GLOVES, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { FEDORA, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 3, 3, 0 },
+    { PICK_AXE, UNDEF_SPE, TOOL_CLASS, 1, 1, UNDEF_BLESS },
+    { TINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, 1, UNDEF_BLESS },
+    { TOUCHSTONE, 0, GEM_CLASS, 1, 1, 0 },
+    { SACK, 0, TOOL_CLASS, 1, 1, 0 },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj tortleBarbarian_0[] = {
+    { TRIDENT, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { AXE, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { TOQUE, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 1, 1, 0 },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj tortleBarbarian_1[] = {
+    { TRIDENT, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { SHORT_SWORD, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { TOQUE, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 1, 1, 0 },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj tortleDruid[] = {
+    { BRACERS, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { TOQUE, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { EUCALYPTUS_LEAF, 0, FOOD_CLASS, 1, 1, 0 },
+    { MISTLETOE, 0, FOOD_CLASS, 1, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 2, 2, UNDEF_BLESS },
+    { SPE_ENTANGLE, 0, SPBOOK_CLASS, 1, 1, 1 },
+    { SPE_CREATE_GRASS, 0, SPBOOK_CLASS, 1, 1, 1 },
+    { SACK, 0, TOOL_CLASS, 1, 1, 0 },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj tortleMonk[] = {
+    { GLOVES, 2, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { TOQUE, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, 1, UNDEF_BLESS },
+    { POT_HEALING, 0, POTION_CLASS, 3, 3, UNDEF_BLESS },
+    { FOOD_RATION, 0, FOOD_CLASS, 3, 3, 0 },
+    { APPLE, 0, FOOD_CLASS, 5, 5, UNDEF_BLESS },
+    { ORANGE, 0, FOOD_CLASS, 5, 5, UNDEF_BLESS },
+    { FORTUNE_COOKIE, 0, FOOD_CLASS, 3, 3, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj tortlePriest[] = {
+    { MACE, 1, WEAPON_CLASS, 1, 1, 1 },
+    { TOQUE, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { SMALL_SHIELD, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { POT_WATER, 0, POTION_CLASS, 4, 4, 1 }, /* holy water */
+    { CLOVE_OF_GARLIC, 0, FOOD_CLASS, 1, 1, 0 },
+    { SPRIG_OF_WOLFSBANE, 0, FOOD_CLASS, 1, 1, 0 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 2, 2, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj tortleSamurai[] = {
+    { KATANA, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { SHORT_SWORD, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS }, /* wakizashi */
+    { YUMI, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+    { YA, 0, WEAPON_CLASS, 26, 45, UNDEF_BLESS },
+    { TOQUE, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj tortleTourist[] = {
+    { DART, 2, WEAPON_CLASS, 21, 40, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 10, 10, 0 },
+    { POT_EXTRA_HEALING, 0, POTION_CLASS, 2, 2, UNDEF_BLESS },
+    { SCR_MAGIC_MAPPING, 0, SCROLL_CLASS, 4, 4, UNDEF_BLESS },
+    { TOQUE, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { EXPENSIVE_CAMERA, UNDEF_SPE, TOOL_CLASS, 1, 1, 0 },
+    { CREDIT_CARD, 0, TOOL_CLASS, 1, 1, 0 },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj tortleWizard[] = {
+    { AMULET_OF_MAGIC_RESISTANCE, 0, AMULET_CLASS, 1, 1, UNDEF_BLESS },
+    { WAN_MAGIC_MISSILE, UNDEF_SPE, WAND_CLASS, 1, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, RING_CLASS, 2, 2, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 3, 3, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 3, 3, UNDEF_BLESS },
+    { SPE_FORCE_BOLT, 0, SPBOOK_CLASS, 1, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1, UNDEF_BLESS },
+    { GLOVES, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level10KitTortle[] = {
+    { TOQUE, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { SMALL_SHIELD, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20KitTortle[] = {
+    { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { SHIELD_OF_REFLECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { ELVEN_HELM, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+/* monk player monsters */
+static const struct trobj Level10KitMonk1[] = {
+    { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level10KitMonk2[] = {
+    { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20KitMonk1[] = {
+    { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20KitMonk2[] = {
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+/* generic level-based player monster kits */
+static const struct trobj Level20Kit1[] = {
+    { RING_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20Kit2[] = {
+    { BANDED_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { ROBE, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20Kit3[] = {
+    { SPLINT_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { GLOVES, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { CLOAK_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20Kit4[] = {
+    { PLATE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { GAUNTLETS, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { WATER_WALKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { CLOAK_OF_DISPLACEMENT, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { HELM_OF_BRILLIANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20Kit5[] = {
+    { CHAIN_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { GAUNTLETS_OF_PROTECTION, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { KICKING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { ALCHEMY_SMOCK, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { HELM_OF_SPEED, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20Kit6[] = {
+    { SCALE_MAIL, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { HIGH_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { OILSKIN_CLOAK, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { HELM_OF_TELEPATHY, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20Kit7[] = {
+    { ARMOR, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { GAUNTLETS_OF_DEXTERITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { JUMPING_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { CLOAK_OF_MAGIC_RESISTANCE, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { CORNUTHAUM, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level20Kit8[] = {
+    { STUDDED_ARMOR, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { GAUNTLETS_OF_POWER, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { SPEED_BOOTS, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { CLOAK_OF_INVISIBILITY, (4 | RND_SPE), ARMOR_CLASS, 1, 1, 1 },
+    { ELVEN_HELM, (4 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level10Kit1[] = {
+    { ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { HELMET, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { HIGH_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { GAUNTLETS, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+static const struct trobj Level10Kit2[] = {
+    { STUDDED_ARMOR, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { ELVEN_HELM, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { LOW_BOOTS, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { GLOVES, (2 | RND_SPE), ARMOR_CLASS, 1, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0, 0 }
+};
+
+/* give a player monster one kit of items; kits use the same trobj
+   format as the hero's initial inventory in u_init.c, but object
+   creation here is much simpler. chance is rolled per item: 0 or 1
+   means always, N means 1 in N */
+staticfn void
+ini_mon_inv(
+    struct monst *mtmp,
+    const struct trobj *trop,
+    unsigned short chance)
+{
+    struct obj *obj;
+    long cnt;
+    int otyp;
+    /* for random objects, do not create certain overly powerful
+       items (wand of wishing, ring of levitation, or the polymorph/
+       polymorph control combination) or a few really useless ones;
+       reset per kit so state can't leak between player monsters */
+    short nocreate = STRANGE_OBJECT, nocreate2 = STRANGE_OBJECT,
+          nocreate3 = STRANGE_OBJECT, nocreate4 = STRANGE_OBJECT;
+
+    for (; trop->trclass; trop++) {
+        cnt = !trop->trquan_min
+                  ? 1L
+                  : (long) (trop->trquan_min
+                            + rn2(trop->trquan_max - trop->trquan_min + 1));
+        while (cnt > 0) {
+            if (chance > 1 && rn2(chance)) {
+                cnt--;
+                continue;
+            }
+            otyp = (int) trop->trotyp;
+            if (otyp != UNDEF_TYP) {
+                obj = mksobj(otyp, TRUE, FALSE);
+            } else {
+                obj = mkobj(trop->trclass, FALSE);
+                otyp = obj->otyp;
+                while (otyp == WAN_WISHING || otyp == nocreate
+                       || otyp == nocreate2 || otyp == nocreate3
+                       || otyp == nocreate4 || otyp == RIN_LEVITATION
+                       /* 'useless' items */
+                       || otyp == POT_HALLUCINATION
+                       || otyp == POT_ACID
+                       || otyp == SCR_AMNESIA
+                       || otyp == SCR_FIRE
+                       || otyp == SCR_BLANK_PAPER
+                       || otyp == SPE_BLANK_PAPER
+                       || otyp == RIN_AGGRAVATE_MONSTER
+                       || otyp == RIN_HUNGER
+                       || otyp == WAN_NOTHING
+                       || (otyp == SCR_ENCHANT_WEAPON
+                           && mtmp->mnum == PM_MONK)
+                       || (otyp == SPE_FORCE_BOLT
+                           && mtmp->mnum == PM_WIZARD)
+                       || (otyp == WAN_MAGIC_MISSILE
+                           && mtmp->mnum == PM_WIZARD)
+                       || (otyp == SPE_ENTANGLE
+                           && mtmp->mnum == PM_DRUID)
+                       || (otyp == SPE_DRAIN_LIFE
+                           && mtmp->mnum == PM_INFIDEL)
+                       || (otyp == SPE_CLAIRVOYANCE
+                           && mtmp->mnum == PM_INFIDEL)
+                       || (obj->oclass == SPBOOK_CLASS
+                           && objects[otyp].oc_level > 3)) {
+                    dealloc_obj(obj);
+                    obj = mkobj(trop->trclass, FALSE);
+                    otyp = obj->otyp;
+                }
+
+                if (objects[otyp].oc_charged && obj->spe <= 0)
+                    obj->spe = rne(3);
+
+                /* relies on the facts that 1) kits create wands
+                   before rings, 2) rings before spellbooks, and
+                   3) not more than one object of a particular
+                   symbol is prohibited at a time */
+                switch (otyp) {
+                case WAN_POLYMORPH:
+                case RIN_POLYMORPH:
+                case POT_POLYMORPH:
+                    nocreate = RIN_POLYMORPH_CONTROL;
+                    break;
+                case RIN_POLYMORPH_CONTROL:
+                    nocreate = RIN_POLYMORPH;
+                    nocreate2 = SPE_POLYMORPH;
+                    nocreate3 = POT_POLYMORPH;
+                    break;
+                }
+                /* don't have two of the same ring or spellbook */
+                if (obj->oclass == RING_CLASS
+                    || obj->oclass == SPBOOK_CLASS)
+                    nocreate4 = otyp;
+            }
+
+            if (trop->trclass == COIN_CLASS) {
+                /* no "blessed" or "identified" money */
+                obj->quan = cnt;
+                cnt = 1;
+            } else {
+                obj->cursed = (trop->trbless == CURSED);
+                if (obj->opoisoned && mon_aligntyp(mtmp) > A_CHAOTIC)
+                    obj->opoisoned = 0;
+                if (obj->otainted)
+                    obj->otainted = 0;
+                if (obj->oclass == WEAPON_CLASS
+                    || obj->oclass == TOOL_CLASS) {
+                    /* the whole quantity as a single stack */
+                    obj->quan = cnt;
+                    cnt = 1;
+                } else if (obj->oclass == GEM_CLASS && is_graystone(obj)
+                           && obj->otyp != FLINT) {
+                    obj->quan = 1L;
+                }
+                if (trop->trspe != UNDEF_SPE) {
+                    obj->spe = (trop->trspe & ~RND_SPE);
+                    if (trop->trspe & RND_SPE) {
+                        obj->spe--;
+                        obj->spe += rn2(3);
+                    }
+                }
+                if (trop->trbless != UNDEF_BLESS)
+                    obj->blessed = (trop->trbless == 1);
+                if (mtmp->mnum == PM_INFIDEL
+                    && obj->oclass == ARMOR_CLASS
+                    && is_flammable(obj))
+                    (void) maybe_erodeproof(obj, 1);
+                if (mtmp->mnum == PM_INFIDEL
+                    && (obj->oclass == WEAPON_CLASS
+                        || obj->oclass == ARMOR_CLASS
+                        || obj->otyp == POT_WATER)) {
+                    obj->blessed = FALSE;
+                    obj->cursed = TRUE;
+                }
+                if (obj->otyp == STRIPED_SHIRT) {
+                    obj->blessed = FALSE;
+                    obj->cursed = TRUE;
+                }
+                /* lower level player monsters get weaker gear */
+                if ((obj->oclass == WEAPON_CLASS
+                     || obj->oclass == ARMOR_CLASS)
+                    && chance > 1)
+                    obj->spe = (obj->spe * rn2(chance)) / chance;
+                if (mtmp->m_lev > 19
+                    && obj->oclass == ARMOR_CLASS
+                    && objects[obj->otyp].oc_armcat == ARM_SUIT) {
+                    obj->dragonscales = rnd_class(FIRST_DRAGON_SCALES,
+                                                  LAST_DRAGON_SCALES - 1);
+                    if (mtmp->mnum == PM_WIZARD) {
+                        /* wizards have a guaranteed cloak of magic
+                           resistance, so no gray-scaled armor */
+                        obj->dragonscales =
+                            rnd_class(FIRST_DRAGON_SCALES + 1,
+                                      LAST_DRAGON_SCALES - 1);
+                    }
+                }
+            }
+            /* defined after setting otyp+quan+blessedness */
+            obj->owt = weight(obj);
+            (void) mpickobj(mtmp, obj);
+            mon_wield_item(mtmp);
+            cnt--;
+        }
+    }
 }
 
 staticfn void
@@ -162,11 +774,347 @@ m_initweap(struct monst *mtmp)
 {
     struct permonst *ptr = mtmp->data;
     int mm = monsndx(ptr);
-    struct obj *otmp;
-    int bias, w1, w2;
+    struct obj *otmp, *nextobj;
+    int bias, w1, w2, randwand, quan;
 
     if (Is_rogue_level(&u.uz))
         return;
+
+    /* TODO-EVILHACK: master suppresses most racial gear for monsters
+       generated inside Goblin Town; those gates port with the Goblin
+       Town dungeon branch */
+
+    /* treat player monsters differently: they are outfitted with role
+       kits akin to the hero's initial inventory, scaled by level */
+    if (is_mplayer(ptr)) {
+        if (mtmp->m_lev > 1) {
+            if (mm == PM_MONK) {
+                if (mtmp->m_lev > 10 || !rn2(15))
+                    ini_mon_inv(mtmp,
+                                rn2(2) ? Level20KitMonk1 : Level20KitMonk2,
+                                (mtmp->m_lev >= 20)
+                                    ? 1 : isqrt(23 - mtmp->m_lev));
+                ini_mon_inv(mtmp,
+                            rn2(2) ? Level10KitMonk1 : Level10KitMonk2,
+                            (mtmp->m_lev >= 10)
+                                ? 1 : isqrt(13 - mtmp->m_lev));
+            } else if (racial_giant(mtmp)) {
+                if (mtmp->m_lev > 10 || !rn2(15))
+                    ini_mon_inv(mtmp, Level20KitGiant,
+                                (mtmp->m_lev >= 20)
+                                    ? 1 : isqrt(23 - mtmp->m_lev));
+                ini_mon_inv(mtmp, Level10KitGiant,
+                            (mtmp->m_lev >= 10)
+                                ? 1 : isqrt(13 - mtmp->m_lev));
+                (void) mongets(mtmp, BOULDER);
+            } else if (racial_centaur(mtmp)) {
+                if (mtmp->m_lev > 10 || !rn2(15))
+                    ini_mon_inv(mtmp,
+                                rn2(2) ? Level20KitCentaur1
+                                       : Level20KitCentaur2,
+                                (mtmp->m_lev >= 20)
+                                    ? 1 : isqrt(23 - mtmp->m_lev));
+                ini_mon_inv(mtmp,
+                            rn2(2) ? Level10KitCentaur1 : Level10KitCentaur2,
+                            (mtmp->m_lev >= 10)
+                                ? 1 : isqrt(13 - mtmp->m_lev));
+            } else if (racial_tortle(mtmp)) {
+                if (mtmp->m_lev > 10 || !rn2(15))
+                    ini_mon_inv(mtmp, Level20KitTortle,
+                                (mtmp->m_lev >= 20)
+                                    ? 1 : isqrt(23 - mtmp->m_lev));
+                ini_mon_inv(mtmp, Level10KitTortle,
+                            (mtmp->m_lev >= 10)
+                                ? 1 : isqrt(13 - mtmp->m_lev));
+            } else {
+                if (mtmp->m_lev > 10 || !rn2(15)) {
+                    unsigned short kitchance =
+                        (mtmp->m_lev >= 20) ? 1 : isqrt(23 - mtmp->m_lev);
+
+                    switch (rnd(4)) {
+                    case 1:
+                        ini_mon_inv(mtmp, rn2(2) ? Level20Kit1 : Level20Kit2,
+                                    kitchance);
+                        break;
+                    case 2:
+                        ini_mon_inv(mtmp, rn2(2) ? Level20Kit3 : Level20Kit4,
+                                    kitchance);
+                        break;
+                    case 3:
+                        ini_mon_inv(mtmp, rn2(2) ? Level20Kit5 : Level20Kit6,
+                                    kitchance);
+                        break;
+                    case 4:
+                        ini_mon_inv(mtmp, rn2(2) ? Level20Kit7 : Level20Kit8,
+                                    kitchance);
+                        break;
+                    }
+                }
+                ini_mon_inv(mtmp, rn2(2) ? Level10Kit1 : Level10Kit2,
+                            (mtmp->m_lev >= 10)
+                                ? 1 : isqrt(13 - mtmp->m_lev));
+            }
+        }
+
+        switch (mm) {
+        case PM_ARCHEOLOGIST:
+            if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleArcheologist, 1);
+            else
+                ini_mon_inv(mtmp, Archeologist, 1);
+            if (!rn2(10))
+                ini_mon_inv(mtmp, Tinopener, 1);
+            else if (!rn2(4))
+                ini_mon_inv(mtmp, Lamp, 1);
+            (void) mongets(mtmp, SKELETON_KEY);
+            break;
+        case PM_BARBARIAN:
+            if (rn2(100) >= 50) {
+                if (racial_giant(mtmp))
+                    ini_mon_inv(mtmp, giantBarbarian_1, 1);
+                else if (racial_tortle(mtmp))
+                    ini_mon_inv(mtmp, tortleBarbarian_1, 1);
+                else
+                    ini_mon_inv(mtmp, Barbarian_1, 1);
+            } else {
+                if (racial_giant(mtmp))
+                    ini_mon_inv(mtmp, giantBarbarian_0, 1);
+                else if (racial_tortle(mtmp))
+                    ini_mon_inv(mtmp, tortleBarbarian_0, 1);
+                else
+                    ini_mon_inv(mtmp, Barbarian_0, 1);
+            }
+            ini_mon_inv(mtmp, Lamp, 6);
+            (void) mongets(mtmp, SKELETON_KEY);
+            break;
+        case PM_CAVE_DWELLER:
+            if (racial_giant(mtmp))
+                ini_mon_inv(mtmp, giantCave_man, 1);
+            else
+                ini_mon_inv(mtmp, Cave_man, 1);
+            break;
+        case PM_CONVICT:
+            ini_mon_inv(mtmp, Convict, 1);
+            (void) mongets(mtmp, SKELETON_KEY);
+            if (!racial_drow(mtmp)) /* iron bad */
+                (void) mongets(mtmp, GRAPPLING_HOOK);
+            break;
+        case PM_DRUID: {
+            static const short D_spell[] = {
+                SPE_BARKSKIN, SPE_SUMMON_ANIMAL, SPE_HEALING,
+                SPE_KNOCK, SPE_CURE_SICKNESS
+            };
+            const struct trobj D_weapon[] = {
+                { (rn2(100) >= 50) ? SCIMITAR : QUARTERSTAFF, 1,
+                  WEAPON_CLASS, 1, 1, UNDEF_BLESS },
+                { 0, 0, 0, 0, 0, 0 }
+            };
+            const struct trobj D_book[] = {
+                { D_spell[rn2(100) / 20], UNDEF_SPE, SPBOOK_CLASS, /* 0..4 */
+                  1, 1, UNDEF_BLESS },
+                { 0, 0, 0, 0, 0, 0 }
+            };
+
+            ini_mon_inv(mtmp, D_weapon, 1);
+            if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleDruid, 1);
+            else if (racial_giant(mtmp))
+                ini_mon_inv(mtmp, giantDruid, 1);
+            else
+                ini_mon_inv(mtmp, Druid, 1);
+            ini_mon_inv(mtmp, D_book, 1);
+            ini_mon_inv(mtmp, Lamp, 25);
+            (void) mongets(mtmp, SKELETON_KEY);
+            break;
+        }
+        case PM_HEALER:
+            mkmonmoney(mtmp, (long) rn1(1000, 1001));
+            ini_mon_inv(mtmp, Healer, 1);
+            ini_mon_inv(mtmp, Lamp, 25);
+            (void) mongets(mtmp, SKELETON_KEY);
+            break;
+        case PM_INFIDEL:
+            mkmonmoney(mtmp, (long) rn1(251, 250));
+            if (racial_giant(mtmp))
+                ini_mon_inv(mtmp, giantInfidel, 1);
+            else if (racial_zombie(mtmp))
+                ini_mon_inv(mtmp, draugrInfidel, 1);
+            else
+                ini_mon_inv(mtmp, subInfidel, 1);
+            (void) mongets(mtmp, SKELETON_KEY);
+            break;
+        case PM_KNIGHT:
+            if (racial_elf(mtmp))
+                ini_mon_inv(mtmp, Elven_Knight, 1);
+            else if (racial_dwarf(mtmp))
+                ini_mon_inv(mtmp, Dwarvish_Knight, 1);
+            else if (racial_orc(mtmp))
+                ini_mon_inv(mtmp, Orcish_Knight, 1);
+            else if (racial_zombie(mtmp))
+                ini_mon_inv(mtmp, Draugr_Knight, 1);
+            else
+                ini_mon_inv(mtmp, Knight, 1);
+            (void) mongets(mtmp, SKELETON_KEY);
+            break;
+        case PM_MONK: {
+            static const struct trobj *const M_spell[] = {
+                Healing_book, Protection_book, Confuse_monster_book
+            };
+
+            if (racial_giant(mtmp))
+                ini_mon_inv(mtmp, giantMonk, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleMonk, 1);
+            else if (racial_zombie(mtmp))
+                ini_mon_inv(mtmp, Draugr_Monk, 1);
+            else if (racial_vampire(mtmp))
+                ini_mon_inv(mtmp, Vampire_Monk, 1);
+            else
+                ini_mon_inv(mtmp, Monk, 1);
+            /* draugr can't cast spells, so no spellbook for them */
+            if (!racial_zombie(mtmp))
+                ini_mon_inv(mtmp, M_spell[rn2(90) / 30], 1); /* 0..2 */
+            ini_mon_inv(mtmp, Lamp, 10);
+            (void) mongets(mtmp, SKELETON_KEY);
+            break;
+        }
+        case PM_CLERIC:
+            mkmonmoney(mtmp, (long) rn1(10, 20));
+            if (racial_giant(mtmp))
+                ini_mon_inv(mtmp, giantPriest, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortlePriest, 1);
+            else
+                ini_mon_inv(mtmp, Priest, 1);
+            if (!racial_drow(mtmp)) /* light bad */
+                ini_mon_inv(mtmp, Lamp, 10);
+            (void) mongets(mtmp, SKELETON_KEY);
+            break;
+        case PM_RANGER:
+            ini_mon_inv(mtmp, Ranger, 1);
+            (void) mongets(mtmp, SKELETON_KEY);
+            break;
+        case PM_ROGUE:
+            mkmonmoney(mtmp, (long) rn1(1000, 500));
+            if (racial_drow(mtmp))
+                ini_mon_inv(mtmp, Drow_Rogue, 1);
+            else
+                ini_mon_inv(mtmp, Rogue, 1);
+            ini_mon_inv(mtmp, Blindfold, 5);
+            break;
+        case PM_SAMURAI:
+            if (racial_giant(mtmp))
+                ini_mon_inv(mtmp, giantSamurai, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleSamurai, 1);
+            else
+                ini_mon_inv(mtmp, Samurai, 1);
+            ini_mon_inv(mtmp, Blindfold, 5);
+            (void) mongets(mtmp, SKELETON_KEY);
+            break;
+        case PM_TOURIST:
+            mkmonmoney(mtmp, (long) rn1(1000, 1001));
+            if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleTourist, 1);
+            else
+                ini_mon_inv(mtmp, Tourist, 1);
+            if (!rn2(25))
+                ini_mon_inv(mtmp, Tinopener, 1);
+            else if (!rn2(25))
+                ini_mon_inv(mtmp, Leash, 1);
+            else if (!rn2(25))
+                ini_mon_inv(mtmp, Towel, 1);
+            break;
+        case PM_VALKYRIE:
+            ini_mon_inv(mtmp, Valkyrie, 1);
+            ini_mon_inv(mtmp, Lamp, 6);
+            (void) mongets(mtmp, SKELETON_KEY);
+            break;
+        case PM_WIZARD:
+            if (racial_giant(mtmp))
+                ini_mon_inv(mtmp, giantWizard, 1);
+            else if (racial_tortle(mtmp))
+                ini_mon_inv(mtmp, tortleWizard, 1);
+            else
+                ini_mon_inv(mtmp, Wizard, 1);
+            ini_mon_inv(mtmp, Blindfold, 5);
+            (void) mongets(mtmp, SKELETON_KEY);
+            break;
+        default: /* impossible */
+            break;
+        }
+
+        /* other items all player monsters can receive at various
+           experience levels */
+        if (mtmp->m_lev > 10) {
+            /* spawn with some type of portable container */
+            if (!(m_carrying(mtmp, SACK)
+                  || m_carrying(mtmp, OILSKIN_SACK)))
+                (void) mongets(mtmp, !rn2(5) ? SACK
+                                             : rn2(4) ? OILSKIN_SACK
+                                               : rn2(7) ? BAG_OF_HOLDING
+                                                        : BAG_OF_TRICKS);
+            for (otmp = mtmp->minvent; otmp; otmp = nextobj) {
+                nextobj = otmp->nobj;
+                if (otmp->oclass == WEAPON_CLASS) {
+                    if ((mtmp->m_lev >= 20
+                         || rn2(400) < mtmp->m_lev * mtmp->m_lev)
+                        && !rn2(100 + 10 * nartifact_exist()))
+                        otmp = mk_artifact(otmp, A_NONE, 99, FALSE);
+                    if (!rn2(3) && is_drow_weapon(otmp)
+                        && is_poisonable(otmp))
+                        otmp->otainted = 1;
+                    if (!rn2(4)
+                        && !otmp->oartifact
+                        && !objects[otmp->otyp].oc_magic
+                        && (is_metallic(otmp) || is_crystal(otmp)))
+                        otmp->forged_qual = rn2(4) ? FQ_SUPERIOR
+                                                   : FQ_EXCEPTIONAL;
+                }
+                if (otmp->oclass == ARMOR_CLASS) {
+                    if (!rn2(5)
+                        && !otmp->oartifact
+                        && !objects[otmp->otyp].oc_magic
+                        && (is_metallic(otmp) || is_crystal(otmp)))
+                        otmp->forged_qual = rn2(4) ? FQ_SUPERIOR
+                                                   : FQ_EXCEPTIONAL;
+                }
+            }
+        }
+
+        if (mtmp->m_lev >= 20) {
+            (void) mongets(mtmp, rn2(2) ? AMULET_OF_REFLECTION
+                                        : rn2(4) ? AMULET_OF_MAGIC_RESISTANCE
+                                                 : AMULET_OF_LIFE_SAVING);
+            (void) mongets(mtmp,
+                           rnd_class(RIN_ADORNMENT,
+                                     RIN_PROTECTION_FROM_SHAPE_CHAN));
+
+            quan = rn2(3) ? rn2(3) : rn2(16);
+            while (quan--)
+                (void) mongets(mtmp, rnd_class(DILITHIUM_CRYSTAL, JADE));
+            /* to get the gold "right" would mean a player could double
+               their gold supply by killing one mplayer; not good */
+            mkmonmoney(mtmp, rn2(1000));
+            quan = rn2(10);
+            while (quan--)
+                (void) mpickobj(mtmp, mkobj(RANDOM_CLASS, FALSE));
+
+            quan = rnd(3);
+            while (quan--)
+                (void) mongets(mtmp, rnd_offensive_item(mtmp));
+            quan = rnd(3);
+            while (quan--)
+                (void) mongets(mtmp, rnd_defensive_item(mtmp));
+            quan = rnd(3);
+            while (quan--)
+                (void) mongets(mtmp, rnd_misc_item(mtmp));
+        }
+        m_dowear(mtmp, TRUE);
+        mon_wield_item(mtmp);
+        return;
+    }
+
     /*
      *  First a few special cases:
      *          giants get a boulder to throw sometimes
@@ -184,31 +1132,176 @@ m_initweap(struct monst *mtmp)
             (void) mongets(mtmp, rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE);
         break;
     case S_HUMAN:
-        if (is_mercenary(ptr)) {
+        if (is_mercenary(ptr) || mm == PM_TEMPLAR) {
             w1 = w2 = 0;
             switch (mm) {
             case PM_WATCHMAN:
             case PM_SOLDIER:
-                if (!rn2(3)) {
-                    /* lance and dwarvish mattock used to be in midst of
-                       the polearms but use different skills from polearms
-                       and aren't appropriates choices for human soldiers */
-                    do {
+                if (racial_elf(mtmp)) {
+                    if (!rn2(3)) {
+                        (void) mongets(mtmp, ELVEN_BOW);
+                        m_initthrow(mtmp, ELVEN_ARROW, 12);
+                        (void) mongets(mtmp, ELVEN_DAGGER);
+                    } else
+                        w1 = rn2(2) ? ELVEN_SPEAR : ELVEN_SHORT_SWORD;
+                } else if (racial_drow(mtmp)) {
+                    if (!rn2(3)) {
+                        (void) mongets(mtmp, DARK_ELVEN_HAND_CROSSBOW);
+                        m_initthrow(mtmp, DARK_ELVEN_CROSSBOW_BOLT, 12);
+                        (void) mongets(mtmp, DARK_ELVEN_DAGGER);
+                    } else
+                        w1 = rn2(2) ? DARK_ELVEN_SPEAR
+                                    : DARK_ELVEN_SHORT_SWORD;
+                } else if (racial_dwarf(mtmp)) {
+                    if (!rn2(3)) {
                         w1 = rn1(BEC_DE_CORBIN - PARTISAN + 1, PARTISAN);
-                    } while (objects[w1].oc_skill != P_POLEARMS);
-                    w2 = rn2(2) ? DAGGER : KNIFE;
-                } else
-                    w1 = rn2(2) ? SPEAR : SHORT_SWORD;
+                        w2 = rn2(2) ? DAGGER : AXE;
+                    } else
+                        w1 = rn2(2) ? DWARVISH_SPEAR : DWARVISH_SHORT_SWORD;
+                } else if (racial_orc(mtmp)) {
+                    if (!rn2(3)) {
+                        (void) mongets(mtmp, ORCISH_BOW);
+                        m_initthrow(mtmp, ORCISH_ARROW, 12);
+                        w1 = rn2(2) ? ORCISH_DAGGER : KNIFE;
+                    } else
+                        w1 = rn2(2) ? ORCISH_SPEAR
+                                    : rn2(2) ? ORCISH_SHORT_SWORD
+                                             : ORCISH_SCIMITAR;
+                } else {
+                    if (!rn2(3)) {
+                        /* lance and dwarvish mattock used to be in midst
+                           of the polearms but use different skills from
+                           polearms and aren't appropriate choices for
+                           human soldiers */
+                        do {
+                            w1 = rn1(BEC_DE_CORBIN - PARTISAN + 1, PARTISAN);
+                        } while (objects[w1].oc_skill != P_POLEARMS);
+                        w2 = rn2(2) ? DAGGER : KNIFE;
+                    } else
+                        w1 = rn2(2) ? SPEAR : SHORT_SWORD;
+                }
                 break;
             case PM_SERGEANT:
-                w1 = rn2(2) ? FLAIL : MACE;
+                if (racial_elf(mtmp)) {
+                    w1 = rn2(2) ? ELVEN_BROADSWORD : QUARTERSTAFF;
+                    if (Is_stronghold(&u.uz)) {
+                        w2 = ELVEN_BOW;
+                        m_initthrow(mtmp, ELVEN_ARROW, 30);
+                    }
+                } else if (racial_drow(mtmp)) {
+                    w1 = rn2(2) ? DARK_ELVEN_BROADSWORD
+                                : DARK_ELVEN_SHORT_SWORD;
+                    if (Is_stronghold(&u.uz)) {
+                        w2 = DARK_ELVEN_HAND_CROSSBOW;
+                        m_initthrow(mtmp, DARK_ELVEN_CROSSBOW_BOLT, 30);
+                    }
+                } else if (racial_dwarf(mtmp)) {
+                    w1 = rn2(2) ? MORNING_STAR : DWARVISH_MATTOCK;
+                    if (Is_stronghold(&u.uz)) {
+                        w2 = BOW;
+                        m_initthrow(mtmp, ARROW, 30);
+                    }
+                } else if (racial_orc(mtmp)) {
+                    w1 = rn2(2) ? ORCISH_MORNING_STAR : ORCISH_SHORT_SWORD;
+                    if (Is_stronghold(&u.uz)) {
+                        w2 = ORCISH_BOW;
+                        m_initthrow(mtmp, ORCISH_ARROW, 30);
+                    }
+                } else if (racial_centaur(mtmp)) {
+                    (void) mongets(mtmp, CROSSBOW);
+                    m_initthrow(mtmp, CROSSBOW_BOLT, 20);
+                    w1 = rn2(2) ? CLUB : MACE;
+                } else if (racial_giant(mtmp)) {
+                    w1 = rn2(2) ? HEAVY_WAR_HAMMER : BATTLE_AXE;
+                    (void) mongets(mtmp, BOULDER);
+                } else {
+                    w1 = rn2(2) ? FLAIL : MACE;
+                    if (Is_stronghold(&u.uz)) {
+                        w2 = BOW;
+                        m_initthrow(mtmp, ARROW, 30);
+                    }
+                }
                 break;
             case PM_LIEUTENANT:
-                w1 = rn2(2) ? BROADSWORD : LONG_SWORD;
+                if (racial_elf(mtmp)) {
+                    w1 = rn2(4) ? ELVEN_BROADSWORD : ELVEN_LONG_SWORD;
+                    if (Is_stronghold(&u.uz)) {
+                        w2 = ELVEN_BOW;
+                        m_initthrow(mtmp, ELVEN_ARROW, 30);
+                    }
+                } else if (racial_drow(mtmp)) {
+                    w1 = rn2(4) ? DARK_ELVEN_BROADSWORD
+                                : DARK_ELVEN_LONG_SWORD;
+                    if (Is_stronghold(&u.uz)) {
+                        w2 = DARK_ELVEN_BOW;
+                        m_initthrow(mtmp, DARK_ELVEN_ARROW, 30);
+                    }
+                } else if (racial_dwarf(mtmp)) {
+                    w1 = rn2(2) ? DWARVISH_SHORT_SWORD : DWARVISH_BEARDED_AXE;
+                    if (Is_stronghold(&u.uz)) {
+                        w2 = BOW;
+                        m_initthrow(mtmp, ARROW, 30);
+                    }
+                } else if (racial_orc(mtmp)) {
+                    w1 = rn2(2) ? ORCISH_LONG_SWORD : ORCISH_SCIMITAR;
+                } else if (racial_giant(mtmp)) {
+                    w1 = rn2(2) ? HALBERD : BATTLE_AXE;
+                    (void) mongets(mtmp, BOULDER);
+                } else {
+                    w1 = rn2(3) ? BROADSWORD : LONG_SWORD;
+                    if (Is_stronghold(&u.uz)) {
+                        w2 = CROSSBOW;
+                        m_initthrow(mtmp, CROSSBOW_BOLT, 30);
+                    }
+
+                    do {
+                        randwand = rn2(7);
+                    } while (randwand > 5 && rn2(14));
+                    switch (randwand) {
+                    case 1:
+                        randwand = WAN_MAGIC_MISSILE;
+                        break;
+                    case 2:
+                        randwand = WAN_SLEEP;
+                        break;
+                    case 3:
+                        randwand = WAN_FIRE;
+                        break;
+                    case 4:
+                        randwand = WAN_COLD;
+                        break;
+                    case 5:
+                        randwand = WAN_LIGHTNING;
+                        break;
+                    case 6:
+                        randwand = WAN_DEATH;
+                        break;
+                    case 0:
+                    default:
+                        randwand = WAN_STRIKING;
+                        break;
+                    }
+                    (void) mongets(mtmp, randwand);
+                }
                 break;
             case PM_CAPTAIN:
             case PM_WATCH_CAPTAIN:
+            case PM_PRISON_GUARD:
+                if (racial_elf(mtmp))
+                    w1 = ELVEN_LONG_SWORD;
+                else if (racial_drow(mtmp))
+                    w1 = DARK_ELVEN_LONG_SWORD;
+                else if (racial_dwarf(mtmp))
+                    w1 = rn2(4) ? DWARVISH_BEARDED_AXE : BATTLE_AXE;
+                else if (racial_giant(mtmp))
+                    w1 = rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE;
+                else
+                    w1 = rn2(2) ? LONG_SWORD : SABER;
+                (void) mongets(mtmp, SKELETON_KEY);
+                break;
+            case PM_TEMPLAR:
                 w1 = rn2(2) ? LONG_SWORD : SABER;
+                (void) mongets(mtmp, SKELETON_KEY);
                 break;
             default:
                 if (!rn2(4))
@@ -223,34 +1316,49 @@ m_initweap(struct monst *mtmp)
                 w2 = KNIFE;
             if (w2)
                 (void) mongets(mtmp, w2);
-        } else if (is_elf(ptr)) {
+        } else if (racial_elf(mtmp) && mm != PM_ELANEE) {
             if (rn2(2))
                 (void) mongets(mtmp,
-                               rn2(2) ? ELVEN_CHAIN_MAIL : ELVEN_CLOAK);
-            if (rn2(2))
-                (void) mongets(mtmp, ELVEN_HELM);
-            else if (!rn2(4))
+                               (rn2(2) && (mm == PM_GREY_ELF
+                                           || mm == PM_ELVEN_NOBLE
+                                           || mm == PM_ELVEN_ROYAL
+                                           || mm == PM_ELVEN_WIZARD))
+                                   ? ELVEN_HELM : ELVEN_CLOAK);
+            if (rn2(2) && mm != PM_ELVEN_WIZARD) {
+                struct obj *mail = m_carrying(mtmp, ELVEN_CHAIN_MAIL);
+
+                if (mail)
+                    set_material(mail, MITHRIL);
+            } else if (!rn2(4)) {
                 (void) mongets(mtmp, ELVEN_BOOTS);
+            }
             if (rn2(2))
                 (void) mongets(mtmp, ELVEN_DAGGER);
             switch (rn2(3)) {
             case 0:
-                if (!rn2(4))
-                    (void) mongets(mtmp, ELVEN_SHIELD);
-                if (rn2(3))
-                    (void) mongets(mtmp, ELVEN_SHORT_SWORD);
-                (void) mongets(mtmp, ELVEN_BOW);
-                m_initthrow(mtmp, ELVEN_ARROW, 12);
+                if (mm != PM_ELVEN_WIZARD) {
+                    if (!rn2(4))
+                        (void) mongets(mtmp, ELVEN_SHIELD);
+                    if (rn2(3))
+                        (void) mongets(mtmp, ELVEN_SHORT_SWORD);
+                    (void) mongets(mtmp, ELVEN_BOW);
+                    m_initthrow(mtmp, ELVEN_ARROW, 12);
+                }
                 break;
             case 1:
-                (void) mongets(mtmp, ELVEN_BROADSWORD);
-                if (rn2(2))
-                    (void) mongets(mtmp, ELVEN_SHIELD);
+                if (mm != PM_ELVEN_WIZARD) {
+                    (void) mongets(mtmp, rn2(2) ? ELVEN_LONG_SWORD
+                                                : ELVEN_BROADSWORD);
+                    if (rn2(2))
+                        (void) mongets(mtmp, ELVEN_SHIELD);
+                }
                 break;
             case 2:
-                if (rn2(2)) {
-                    (void) mongets(mtmp, ELVEN_SPEAR);
-                    (void) mongets(mtmp, ELVEN_SHIELD);
+                if (mm != PM_ELVEN_WIZARD) {
+                    if (rn2(2)) {
+                        (void) mongets(mtmp, ELVEN_SPEAR);
+                        (void) mongets(mtmp, ELVEN_SHIELD);
+                    }
                 }
                 break;
             }
@@ -259,6 +1367,66 @@ m_initweap(struct monst *mtmp)
                     (void) mongets(mtmp, PICK_AXE);
                 if (!rn2(50))
                     (void) mongets(mtmp, CRYSTAL_BALL);
+            }
+        } else if (racial_drow(mtmp)) {
+            if (rn2(2))
+                (void) mongets(mtmp, rn2(2) ? DARK_ELVEN_HELM
+                                            : DARK_ELVEN_CLOAK);
+            if (rn2(2) && !(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
+                (void) mongets(mtmp, rn2(5) ? DARK_ELVEN_TUNIC
+                                            : DARK_ELVEN_CHAIN_MAIL);
+            } else if (!rn2(3)) {
+                (void) mongets(mtmp, rn2(2) ? DARK_ELVEN_BOOTS
+                                            : DARK_ELVEN_GLOVES);
+            }
+            if (rn2(2) && mm != PM_DROW_CLERIC)
+                (void) mongets(mtmp, DARK_ELVEN_DAGGER);
+            switch (rn2(4)) {
+            case 0:
+                if (!(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
+                    if (!rn2(4))
+                        (void) mongets(mtmp, DARK_ELVEN_BRACERS);
+                    if (rn2(3))
+                        (void) mongets(mtmp, DARK_ELVEN_SHORT_SWORD);
+                    (void) mongets(mtmp, DARK_ELVEN_BOW);
+                    m_initthrow(mtmp, DARK_ELVEN_ARROW, 12);
+                }
+                break;
+            case 1:
+                if (!(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
+                    if (!rn2(4))
+                        (void) mongets(mtmp, DARK_ELVEN_BRACERS);
+                    if (rn2(3))
+                        (void) mongets(mtmp, DARK_ELVEN_SHORT_SWORD);
+                    (void) mongets(mtmp, DARK_ELVEN_HAND_CROSSBOW);
+                    m_initthrow(mtmp, DARK_ELVEN_CROSSBOW_BOLT, 12);
+                }
+                break;
+            case 2:
+                if (!(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
+                    (void) mongets(mtmp, !rn2(4) ? DARK_ELVEN_LONG_SWORD
+                                                 : DARK_ELVEN_BROADSWORD);
+                    if (rn2(2))
+                        (void) mongets(mtmp, DARK_ELVEN_BRACERS);
+                }
+                break;
+            case 3:
+                if (!(mm == PM_DROW_MAGE || mm == PM_DROW_CLERIC)) {
+                    if (rn2(2)) {
+                        (void) mongets(mtmp, DARK_ELVEN_SPEAR);
+                        (void) mongets(mtmp, DARK_ELVEN_BRACERS);
+                    }
+                }
+                break;
+            }
+            if (mm == PM_DROW_CLERIC) {
+                if (rn2(4))
+                    (void) mongets(mtmp, DARK_ELVEN_BRACERS);
+                if (rn2(3))
+                    (void) mongets(mtmp, DARK_ELVEN_TUNIC);
+                if (rn2(8))
+                    (void) mongets(mtmp, rn2(2) ? DARK_ELVEN_MACE
+                                                : DARK_ELVEN_HEAVY_MACE);
             }
         } else if (ptr->msound == MS_PRIEST
                    || quest_mon_represents_role(ptr, PM_CLERIC)) {
@@ -270,11 +1438,118 @@ m_initweap(struct monst *mtmp)
         } else if (mm == PM_NINJA) { /* extra quest villains */
             (void) mongets(mtmp, rn2(4) ? SHURIKEN : DART);
             (void) mongets(mtmp, rn2(4) ? SHORT_SWORD : AXE);
+        } else if (mm == PM_RONIN) {
+            (void) mongets(mtmp, rn2(4) ? KATANA : SHORT_SWORD);
+            if (!rn2(4)) {
+                (void) mongets(mtmp, YUMI);
+                /* 10 to 25 arrows */
+                m_initthrow(mtmp, YA, rn2(16) + 10);
+            }
+            (void) mongets(mtmp, rn2(3) ? SPLINT_MAIL : CHAIN_MAIL);
+        } else if (mm == PM_CHAMPION) {
+            (void) mongets(mtmp, rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE);
+            (void) mongets(mtmp, rn2(3) ? RING_MAIL : CHAIN_MAIL);
+        } else if (mm == PM_AGENT) {
+            (void) mongets(mtmp, rn2(4) ? SHORT_SWORD : DAGGER);
+            if (!rn2(3))
+                (void) mongets(mtmp, ARMOR);
+            (void) mongets(mtmp, POT_INVISIBILITY);
+        } else if (mm == PM_HIPPOCRATES) {
+            (void) mongets(mtmp, AMULET_OF_REFLECTION);
+            (void) mongets(mtmp, RIN_SLOW_DIGESTION);
+        } else if (mm == PM_KING_ARTHUR) {
+            /* if it has not yet been generated, of course
+               Arthur gets Excalibur */
+            otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_EXCALIBUR), ONAME_RANDOM);
+            bless(otmp);
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) maybe_erodeproof(otmp, 1);
+            otmp->spe = rnd(4) + 1;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, LARGE_SHIELD);
+        } else if (mm == PM_MORGAN_LE_FAY) {
+            otmp = mksobj(ATHAME, FALSE, FALSE);
+            otmp->spe = rnd(2) + 1;
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, CLOAK_OF_MAGIC_RESISTANCE);
+        } else if (mm == PM_MERLIN) {
+            /* if it has not yet been generated,
+               Merlin gets Magicbane */
+            otmp = mksobj(QUARTERSTAFF, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_MAGICBANE), ONAME_RANDOM);
+            bless(otmp);
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) maybe_erodeproof(otmp, 1);
+            otmp->spe = rnd(2) + 1;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, ROBE);
+            (void) mongets(mtmp, CORNUTHAUM);
+        } else if (mm == PM_NEFERET_THE_GREEN) {
+            otmp = mksobj(QUARTERSTAFF, FALSE, FALSE);
+            otmp->spe = rnd(2) + 1;
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, ROBE);
+            (void) mongets(mtmp, CORNUTHAUM);
+        } else if (mm == PM_TWOFLOWER) {
+            (void) mongets(mtmp, EXPENSIVE_CAMERA);
+            (void) mongets(mtmp, HAWAIIAN_SHIRT);
+        } else if (mm == PM_ELANEE) {
+            struct obj *received;
+
+            otmp = mksobj(QUARTERSTAFF, FALSE, FALSE);
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, 1);
+            otmp->spe = rnd(2) + 1;
+            set_material(otmp, WOOD);
+            (void) mpickobj(mtmp, otmp);
+
+            (void) mongets(mtmp, BRACERS);
+            received = m_carrying(mtmp, BRACERS);
+            if (received)
+                set_material(received, LEATHER);
+
+            (void) mongets(mtmp, ELVEN_CLOAK);
+            (void) mongets(mtmp, ELVEN_BOOTS);
+        } else if (mm == PM_MEDUSA) {
+            (void) mongets(mtmp, ORCISH_BOW);
+            /* 25 to 40 arrows */
+            m_initthrow(mtmp, ORCISH_ARROW, rn2(16) + 25);
+        } else if (mm == PM_RAT_KING) {
+            otmp = mksobj(SCIMITAR, FALSE, FALSE);
+            bless(otmp);
+            otmp->oprops = ITEM_VENOM;
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) maybe_erodeproof(otmp, 1);
+            otmp->spe = rnd(3);
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, HIGH_BOOTS);
+            (void) mongets(mtmp, CLOAK_OF_DISPLACEMENT);
+        } else if (mm == PM_CHARON) {
+            (void) mongets(mtmp, WAN_OPENING);
+            mkmonmoney(mtmp, (long) rn1(100, 100));
+        } else if (mm == PM_KATHRYN_THE_ICE_QUEEN) {
+            otmp = mksobj(ATHAME, FALSE, FALSE);
+            bless(otmp);
+            otmp->oprops = ITEM_FROST;
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) maybe_erodeproof(otmp, 1);
+            otmp->spe = rnd(3) + 4;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, AMULET_OF_REFLECTION);
+            (void) mongets(mtmp, GLOVES);
+            (void) mongets(mtmp, HIGH_BOOTS);
+            (void) mongets(mtmp, RIN_SLOW_DIGESTION);
+            (void) mongets(mtmp, rn2(2) ? CLOAK_OF_MAGIC_RESISTANCE
+                                        : CLOAK_OF_DISPLACEMENT);
         } else if (ptr->msound == MS_GUARDIAN) {
             /* quest "guardians" */
             switch (mm) {
             case PM_STUDENT:
             case PM_ATTENDANT:
+            case PM_CULTIST:
             case PM_ABBOT:
             case PM_ACOLYTE:
             case PM_GUIDE:
@@ -323,7 +1598,75 @@ m_initweap(struct monst *mtmp)
                 (void) mongets(mtmp, CLUB);
                 (void) mongets(mtmp, ARMOR);
                 break;
+            case PM_ASPIRANT: {
+                struct obj *received;
+                int item;
+
+                if (rn2(3))
+                    (void) mongets(mtmp, rn2(3) ? LOW_BOOTS : HIGH_BOOTS);
+                if (!rn2(3))
+                    (void) mongets(mtmp, CLOAK);
+                if (rn2(3))
+                    (void) mongets(mtmp, POT_HEALING);
+
+                item = rn2(3) ? QUARTERSTAFF : SCIMITAR;
+                (void) mongets(mtmp, item);
+                received = m_carrying(mtmp, item);
+                if (received && (item == QUARTERSTAFF))
+                    set_material(received, WOOD);
+
+                if (rn2(2)) {
+                    (void) mongets(mtmp, BRACERS);
+                    received = m_carrying(mtmp, BRACERS);
+                    if (received)
+                        set_material(received, LEATHER);
+                }
+                break;
             }
+            }
+        } else if (mm == PM_CROESUS) {
+            struct obj *received;
+            int item;
+
+            item = TWO_HANDED_SWORD;
+            (void) mongets(mtmp, item);
+            received = m_carrying(mtmp, item);
+            if (received)
+                set_material(received, GOLD);
+
+            item = rn2(2) ? BANDED_MAIL : PLATE_MAIL;
+            (void) mongets(mtmp, item);
+            received = m_carrying(mtmp, item);
+            if (received)
+                set_material(received, GOLD);
+
+            item = rn2(2) ? HELMET : DWARVISH_HELM;
+            (void) mongets(mtmp, item);
+            received = m_carrying(mtmp, item);
+            if (received)
+                set_material(received, GOLD);
+
+            item = rn2(2) ? KICKING_BOOTS : DWARVISH_BOOTS;
+            (void) mongets(mtmp, item);
+            received = m_carrying(mtmp, item);
+            if (received)
+                set_material(received, GOLD);
+
+            /* guaranteed one of the two rare bags, 50/50 either way */
+            (void) mongets(mtmp, rn2(2) ? BAG_OF_TREASURE
+                                        : BAG_OF_DEVOURING);
+        } else if (mm == PM_WIZARD_OF_YENDOR) {
+            otmp = mksobj(rn2(3) ? ATHAME : QUARTERSTAFF, FALSE, FALSE);
+            otmp->oprops = (rn2(3) ? ITEM_FIRE
+                                   : rn2(2) ? ITEM_FROST : ITEM_VENOM);
+            otmp->spe = rnd(4) + 1;
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, ROBE);
+            (void) mongets(mtmp, CORNUTHAUM);
+            if (rn2(2))
+                (void) mongets(mtmp, rn2(4) ? AMULET_OF_GUARDING
+                                            : AMULET_OF_MAGIC_RESISTANCE);
         }
         break;
 
@@ -334,14 +1677,20 @@ m_initweap(struct monst *mtmp)
             const char *nam = (typ == LONG_SWORD) ? "Sunsword" : "Demonbane";
 
             otmp = mksobj(typ, FALSE, FALSE);
-            /* maybe promote weapon to an artifact */
+            /* maybe promote weapon to an artifact; a priest hero who
+               abandoned lawfulness never faces Demonbane this way */
             if ((!rn2(20) || is_lord(ptr))
                  && sgn(mtmp->isminion ? EMIN(mtmp)->min_align
-                                       : ptr->maligntyp) == A_LAWFUL)
-                otmp = oname(otmp, nam, ONAME_RANDOM); /* randomly created */
+                                       : ptr->maligntyp) == A_LAWFUL) {
+                if (typ == LONG_SWORD
+                    || !Role_if(PM_CLERIC)
+                    || u.ualignbase[A_ORIGINAL] == A_LAWFUL)
+                    otmp = oname(otmp, nam, ONAME_RANDOM); /* random */
+            }
             /* enhance the weapon */
             bless(otmp);
-            otmp->oerodeproof = TRUE;
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) maybe_erodeproof(otmp, 1);
             /* make long sword be +0 to +3, mace be +3 to +6 to compensate
                for being significantly weaker against large opponents */
             otmp->spe = rn2(4);
@@ -349,18 +1698,37 @@ m_initweap(struct monst *mtmp)
                 otmp->spe += 3;
             (void) mpickobj(mtmp, otmp);
 
-            otmp = mksobj(!rn2(4) || is_lord(ptr) ? SHIELD_OF_REFLECTION
-                                                  : LARGE_SHIELD,
+            otmp = mksobj((!rn2(4) || is_lord(ptr) || is_prince(ptr))
+                              ? SHIELD_OF_REFLECTION
+                              : rn2(3) ? LARGE_SHIELD
+                                       : SHIELD_OF_LIGHT,
                           FALSE, FALSE);
             /* uncurse(otmp); -- mksobj(,FALSE,) item is always uncursed */
-            otmp->oerodeproof = TRUE;
+            (void) maybe_erodeproof(otmp, 1);
             otmp->spe = 0;
             (void) mpickobj(mtmp, otmp);
+
+            /* Saint Michael */
+            if (is_prince(ptr)) {
+                otmp = mksobj(RUNESWORD, FALSE, FALSE);
+                bless(otmp);
+                (void) maybe_erodeproof(otmp, 1);
+                otmp->spe = rn2(3) + 5;
+                otmp->oprops = ITEM_FIRE;
+                set_material(otmp, SILVER);
+                (void) mpickobj(mtmp, otmp);
+            }
+            /* some insurance against 'purple rain' */
+            if (on_level(&astral_level, &u.uz) && !rn2(3)) {
+                otmp = mksobj(RIN_SLOW_DIGESTION, FALSE, FALSE);
+                (void) mpickobj(mtmp, otmp);
+                m_dowear(mtmp, FALSE);
+            }
         }
         break;
 
     case S_HUMANOID:
-        if (mm == PM_HOBBIT) {
+        if (is_hobbit(ptr)) {
             switch (rn2(3)) {
             case 0:
                 (void) mongets(mtmp, DAGGER);
@@ -370,20 +1738,35 @@ m_initweap(struct monst *mtmp)
                 break;
             case 2:
                 (void) mongets(mtmp, SLING);
-                m_initthrow(mtmp, !rn2(4) ? FLINT : ROCK, 6);
+                if (rn2(3))
+                    m_initthrow(mtmp, FLINT, 4 + rnd(6));
+                else
+                    m_initthrow(mtmp, SLING_BULLET, 4 + rnd(6));
                 break;
             }
-            if (!rn2(10))
-                (void) mongets(mtmp, ELVEN_CHAIN_MAIL);
+            if (!rn2(10)) {
+                struct obj *mail = m_carrying(mtmp, ELVEN_CHAIN_MAIL);
+
+                if (mail)
+                    set_material(mail, MITHRIL);
+            }
             if (!rn2(10))
                 (void) mongets(mtmp, DWARVISH_CLOAK);
+            if (mm == PM_HOBBIT_PICKPOCKET) {
+                mkmonmoney(mtmp, (long) rn1(100, 20));
+                if (!rn2(6))
+                    (void) mongets(mtmp, LOCK_PICK);
+                if (!rn2(8))
+                    (void) mongets(mtmp, SACK);
+            }
         } else if (is_dwarf(ptr)) {
             if (rn2(7))
                 (void) mongets(mtmp, DWARVISH_CLOAK);
             if (rn2(7))
                 (void) mongets(mtmp, DWARVISH_BOOTS);
             if (!rn2(4)) {
-                (void) mongets(mtmp, DWARVISH_SHORT_SWORD);
+                (void) mongets(mtmp, rn2(5) ? DWARVISH_SHORT_SWORD
+                                            : DWARVISH_BEARDED_AXE);
                 /* note: you can't use a mattock with a shield */
                 if (rn2(2))
                     (void) mongets(mtmp, DWARVISH_MATTOCK);
@@ -392,10 +1775,57 @@ m_initweap(struct monst *mtmp)
                     (void) mongets(mtmp, DWARVISH_ROUNDSHIELD);
                 }
                 (void) mongets(mtmp, DWARVISH_HELM);
-                if (!rn2(3))
+                if (!rn2(3) && mm != PM_MOUNTAIN_DWARF) {
                     (void) mongets(mtmp, DWARVISH_CHAIN_MAIL);
+                    if ((ptr == &mons[PM_DWARF_NOBLE] && !rn2(4))
+                        || (ptr == &mons[PM_DWARF_ROYAL] && !rn2(2))) {
+                        struct obj *mail = m_carrying(mtmp,
+                                                      DWARVISH_CHAIN_MAIL);
+
+                        if (mail)
+                            set_material(mail, MITHRIL);
+                    }
+                }
             } else {
                 (void) mongets(mtmp, !rn2(3) ? PICK_AXE : DAGGER);
+            }
+        } else if (mm == PM_MINER) {
+            (void) mongets(mtmp, PICK_AXE);
+            otmp = mksobj(LANTERN, TRUE, FALSE);
+            /* mpickobj returns 1 if otmp was merged/freed; only
+               touch otmp when it survives the call intact */
+            if (!mpickobj(mtmp, otmp))
+                begin_burn(otmp, FALSE);
+        } else if (mm == PM_ALHOON && !rn2(3)) {
+            otmp = mksobj(rn2(3) ? ATHAME : QUARTERSTAFF, TRUE,
+                          rn2(13) ? FALSE : TRUE);
+            if (otmp->spe < 2)
+                otmp->spe = rnd(3);
+            if (!rn2(4))
+                (void) maybe_erodeproof(otmp, 1);
+            (void) mpickobj(mtmp, otmp);
+        } else if (is_gnoll(ptr)) {
+            if (rn2(4))
+                (void) mongets(mtmp, ARMOR);
+            if (!rn2(5))
+                (void) mongets(mtmp, CLOAK);
+            if (mm != PM_GNOLL_CLERIC) {
+                if (rn2(4))
+                    (void) mongets(mtmp, rn2(3) ? FLAIL : SPEAR);
+                else
+                    (void) mongets(mtmp, !rn2(3) ? VOULGE : MORNING_STAR);
+            }
+            if (mm == PM_GNOLL_HUNTER) {
+                (void) mongets(mtmp, BOW);
+                m_initthrow(mtmp, ARROW, 12);
+            }
+            if (mm == PM_FLIND) {
+                if (rn2(4))
+                    (void) mongets(mtmp, HIGH_BOOTS);
+                if (!rn2(4))
+                    (void) mongets(mtmp, HELMET);
+                (void) mongets(mtmp, !rn2(3) ? TWO_HANDED_SWORD
+                                             : BATTLE_AXE);
             }
         }
         break;
@@ -408,13 +1838,13 @@ m_initweap(struct monst *mtmp)
             (void) mongets(mtmp, (rn2(2)) ? CLUB : RUBBER_HOSE);
         break;
     case S_ORC:
-        if (rn2(2))
+        if (mm != PM_GOBLIN_KING && rn2(2))
             (void) mongets(mtmp, ORCISH_HELM);
         switch ((mm != PM_ORC_CAPTAIN) ? mm
                 : rn2(2) ? PM_MORDOR_ORC : PM_URUK_HAI) {
         case PM_MORDOR_ORC:
             if (!rn2(3))
-                (void) mongets(mtmp, SCIMITAR);
+                (void) mongets(mtmp, ORCISH_SCIMITAR);
             if (!rn2(3))
                 (void) mongets(mtmp, ORCISH_SHIELD);
             if (!rn2(3))
@@ -428,7 +1858,7 @@ m_initweap(struct monst *mtmp)
             if (!rn2(3))
                 (void) mongets(mtmp, ORCISH_SHORT_SWORD);
             if (!rn2(3))
-                (void) mongets(mtmp, DWARVISH_BOOTS);
+                (void) mongets(mtmp, ORCISH_BOOTS);
             if (!rn2(3)) {
                 (void) mongets(mtmp, ORCISH_BOW);
                 m_initthrow(mtmp, ORCISH_ARROW, 12);
@@ -436,11 +1866,37 @@ m_initweap(struct monst *mtmp)
             if (!rn2(3))
                 (void) mongets(mtmp, URUK_HAI_SHIELD);
             break;
+        case PM_GOBLIN_OUTRIDER:
+            if (!rn2(3))
+                (void) mongets(mtmp, ORCISH_CLOAK);
+            if (!rn2(3))
+                (void) mongets(mtmp, ORCISH_SPEAR);
+            if (!rn2(3))
+                (void) mongets(mtmp, ORCISH_SHIELD);
+            if (!rn2(3)) {
+                (void) mongets(mtmp, ORCISH_BOW);
+                m_initthrow(mtmp, ORCISH_ARROW, 12);
+            }
+            break;
+        case PM_GOBLIN_CAPTAIN:
+            if (!rn2(3))
+                (void) mongets(mtmp, ORCISH_CLOAK);
+            if (!rn2(3))
+                (void) mongets(mtmp, ORCISH_SCIMITAR);
+            if (!rn2(3))
+                (void) mongets(mtmp, ORCISH_SHIELD);
+            if (!rn2(3))
+                (void) mongets(mtmp, ORCISH_MORNING_STAR);
+            if (!rn2(3))
+                (void) mongets(mtmp, ORCISH_CHAIN_MAIL);
+            if (!rn2(3))
+                (void) mongets(mtmp, ORCISH_BOOTS);
+            break;
         default:
             if (mm != PM_ORC_SHAMAN && rn2(2))
                 (void) mongets(mtmp, (mm == PM_GOBLIN || rn2(2) == 0)
                                          ? ORCISH_DAGGER
-                                         : SCIMITAR);
+                                         : ORCISH_SCIMITAR);
         }
         break;
     case S_OGRE:
@@ -473,6 +1929,8 @@ m_initweap(struct monst *mtmp)
 
     case S_CENTAUR:
         if (rn2(2)) {
+            (void) mongets(mtmp, rn2(2) ? ARMOR : STUDDED_ARMOR);
+            (void) mongets(mtmp, rn2(2) ? GLOVES : ELVEN_HELM);
             if (ptr == &mons[PM_FOREST_CENTAUR]) {
                 (void) mongets(mtmp, BOW);
                 m_initthrow(mtmp, ARROW, 12);
@@ -493,27 +1951,162 @@ m_initweap(struct monst *mtmp)
             (void) mongets(mtmp, (rn2(3) ? KNIFE : SHORT_SWORD));
         break;
     case S_LIZARD:
+        if (mm == PM_SEA_TORTLE)
+            (void) mongets(mtmp, (rn2(5) ? SPEAR : TRIDENT));
         if (mm == PM_SALAMANDER)
             (void) mongets(mtmp,
                            (rn2(7) ? SPEAR : rn2(3) ? TRIDENT : STILETTO));
+        if (mm == PM_FROST_SALAMANDER)
+            (void) mongets(mtmp, (rn2(4) ? HALBERD : SPETUM));
+        break;
+    case S_NYMPH:
+        if (is_satyr(ptr)) {
+            if (!rn2(4))
+                (void) mongets(mtmp,
+                               (rn2(3) ? ELVEN_SHORT_SWORD : ELVEN_SPEAR));
+            if (rn2(3))
+                (void) mongets(mtmp, ELVEN_DAGGER);
+        }
+        break;
+    case S_SKELETON:
+        if (mm == PM_SKELETON) {
+            if (rn2(2))
+                (void) mongets(mtmp, HELMET);
+            if (rn2(2)) {
+                if (rn2(4))
+                    (void) mongets(mtmp, rn2(3) ? ARMOR : STUDDED_ARMOR);
+                else
+                    (void) mongets(mtmp, RING_MAIL);
+            }
+            if (rn2(3)) {
+                if (rn2(4))
+                    (void) mongets(mtmp, rn2(3) ? SHORT_SWORD : BROADSWORD);
+                else
+                    (void) mongets(mtmp,
+                                   rn1(BEC_DE_CORBIN - PARTISAN + 1,
+                                       PARTISAN));
+            }
+        }
+        if (mm == PM_SKELETON_WARRIOR) {
+            if (rn2(2))
+                (void) mongets(mtmp, HELMET);
+            if (rn2(5)) {
+                if (rn2(4))
+                    (void) mongets(mtmp, rn2(3) ? CHAIN_MAIL : SPLINT_MAIL);
+                else
+                    (void) mongets(mtmp, BANDED_MAIL);
+            }
+            (void) mongets(mtmp, rn2(3) ? TWO_HANDED_SWORD : BATTLE_AXE);
+        }
         break;
     case S_DEMON:
         switch (mm) {
-        case PM_BALROG:
-            (void) mongets(mtmp, BULLWHIP);
-            (void) mongets(mtmp, BROADSWORD);
-            break;
-        case PM_ORCUS:
-            (void) mongets(mtmp, WAN_DEATH); /* the Wand of Orcus */
-            break;
         case PM_HORNED_DEVIL:
             (void) mongets(mtmp, rn2(4) ? TRIDENT : BULLWHIP);
             break;
+        case PM_BALROG:
+            if (!rn2(20)) {
+                otmp = mksobj(TRIDENT, FALSE, FALSE);
+                otmp = oname(otmp, artiname(ART_ANGELSLAYER), ONAME_RANDOM);
+                curse(otmp);
+                otmp->oeroded = otmp->oeroded2 = 0;
+                (void) maybe_erodeproof(otmp, 1);
+                otmp->spe = rnd(3);
+                (void) mpickobj(mtmp, otmp);
+            } else {
+                otmp = mksobj(BROADSWORD, FALSE, FALSE);
+                otmp->oprops = ITEM_FIRE;
+                otmp->spe = rnd(3) + 2;
+                (void) mpickobj(mtmp, otmp);
+            }
+            otmp = mksobj(BULLWHIP, FALSE, FALSE);
+            otmp->oprops = ITEM_FIRE;
+            otmp->spe = rnd(3) + 2;
+            (void) mpickobj(mtmp, otmp);
+            break;
+        case PM_ORCUS:
+            otmp = mksobj(ROD, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_WAND_OF_ORCUS), ONAME_RANDOM);
+            curse(otmp);
+            otmp->spe = rnd(4) + 3;
+            (void) mpickobj(mtmp, otmp);
+            break;
         case PM_DISPATER:
+            otmp = mksobj(ROD, FALSE, FALSE);
+            curse(otmp);
+            otmp->spe = rnd(3) + 2;
+            set_material(otmp, GOLD);
+            (void) mpickobj(mtmp, otmp);
             (void) mongets(mtmp, WAN_STRIKING);
             break;
+        case PM_GERYON:
+            otmp = mksobj(BATTLE_AXE, FALSE, FALSE);
+            otmp->oprops = ITEM_SHOCK;
+            curse(otmp);
+            otmp->spe = rnd(3) + 2;
+            set_material(otmp, STEEL);
+            (void) mpickobj(mtmp, otmp);
+            break;
         case PM_YEENOGHU:
-            (void) mongets(mtmp, FLAIL);
+            otmp = mksobj(TRIPLE_HEADED_FLAIL, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_BUTCHER), ONAME_RANDOM);
+            curse(otmp);
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) maybe_erodeproof(otmp, 1);
+            otmp->spe = rnd(3) + 2;
+            (void) mpickobj(mtmp, otmp);
+            break;
+        case PM_LOLTH:
+            otmp = mksobj(DARK_ELVEN_BROADSWORD, FALSE, FALSE);
+            otmp->oprops = ITEM_VENOM;
+            curse(otmp);
+            otmp->spe = rnd(3) + 2;
+            otmp->otainted = 1;
+            (void) mpickobj(mtmp, otmp);
+            break;
+        case PM_BAPHOMET:
+            otmp = mksobj(BARDICHE, FALSE, FALSE);
+            otmp->oprops = ITEM_VENOM;
+            curse(otmp);
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) maybe_erodeproof(otmp, 1);
+            otmp->spe = rnd(3) + 2;
+            (void) mpickobj(mtmp, otmp);
+            break;
+        case PM_MEPHISTOPHELES:
+            otmp = mksobj(RANSEUR, FALSE, FALSE);
+            otmp->oprops = ITEM_FIRE;
+            curse(otmp);
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) maybe_erodeproof(otmp, 1);
+            otmp->spe = rnd(3) + 2;
+            (void) mpickobj(mtmp, otmp);
+            break;
+        case PM_GRAZ_ZT:
+            /* if it has not yet been generated,
+               Graz'zt gets Dirge */
+            otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_DIRGE), ONAME_RANDOM);
+            curse(otmp);
+            otmp->spe = rnd(4) + 1;
+            (void) mpickobj(mtmp, otmp);
+            break;
+        case PM_ASMODEUS:
+            otmp = mksobj(ROD, FALSE, FALSE);
+            otmp->oprops = ITEM_FROST;
+            curse(otmp);
+            otmp->spe = rnd(3) + 4;
+            set_material(otmp, GEMSTONE);
+            (void) mpickobj(mtmp, otmp);
+            break;
+        case PM_LUCIFER:
+            otmp = mksobj(MORNING_STAR, FALSE, FALSE);
+            otmp->oprops = ITEM_FIRE;
+            curse(otmp);
+            otmp->spe = rnd(3) + 4;
+            otmp->oeroded = otmp->oeroded2 = 0;
+            set_material(otmp, IRON);
+            (void) mpickobj(mtmp, otmp);
             break;
         }
         /* prevent djinn and mail daemons from leaving objects when
@@ -528,38 +2121,51 @@ m_initweap(struct monst *mtmp)
          * Now the general case, some chance of getting some type
          * of weapon for "normal" monsters.  Certain special types
          * of monsters will get a bonus chance or different selections.
+         * Unique monsters are typically kitted out in specific and
+         * deliberate gear, so exclude them. Ents and other plant-like
+         * creatures never carry weapons.
          */
         bias = is_lord(ptr) + is_prince(ptr) * 2 + extra_nasty(ptr);
         switch (rnd(14 - (2 * bias))) {
         case 1:
-            if (strongmonst(ptr))
-                (void) mongets(mtmp, BATTLE_AXE);
-            else
-                m_initthrow(mtmp, DART, 12);
+            if (!unique_corpstat(ptr) && !is_ent(ptr) && !is_plant(ptr)) {
+                if (strongmonst(ptr))
+                    (void) mongets(mtmp, BATTLE_AXE);
+                else
+                    m_initthrow(mtmp, DART, 12);
+            }
             break;
         case 2:
-            if (strongmonst(ptr))
-                (void) mongets(mtmp, TWO_HANDED_SWORD);
-            else {
-                (void) mongets(mtmp, CROSSBOW);
-                m_initthrow(mtmp, CROSSBOW_BOLT, 12);
+            if (!unique_corpstat(ptr) && !is_ent(ptr) && !is_plant(ptr)) {
+                if (strongmonst(ptr)) {
+                    (void) mongets(mtmp, TWO_HANDED_SWORD);
+                } else {
+                    (void) mongets(mtmp, CROSSBOW);
+                    m_initthrow(mtmp, CROSSBOW_BOLT, 12);
+                }
             }
             break;
         case 3:
-            (void) mongets(mtmp, BOW);
-            m_initthrow(mtmp, ARROW, 12);
+            if (!unique_corpstat(ptr) && !is_ent(ptr) && !is_plant(ptr)) {
+                (void) mongets(mtmp, BOW);
+                m_initthrow(mtmp, ARROW, 12);
+            }
             break;
         case 4:
-            if (strongmonst(ptr))
-                (void) mongets(mtmp, LONG_SWORD);
-            else
-                m_initthrow(mtmp, DAGGER, 3);
+            if (!unique_corpstat(ptr) && !is_ent(ptr) && !is_plant(ptr)) {
+                if (strongmonst(ptr))
+                    (void) mongets(mtmp, LONG_SWORD);
+                else
+                    m_initthrow(mtmp, DAGGER, 3);
+            }
             break;
         case 5:
-            if (strongmonst(ptr))
-                (void) mongets(mtmp, LUCERN_HAMMER);
-            else
-                (void) mongets(mtmp, AKLYS);
+            if (!unique_corpstat(ptr) && !is_ent(ptr) && !is_plant(ptr)) {
+                if (strongmonst(ptr))
+                    (void) mongets(mtmp, LUCERN_HAMMER);
+                else
+                    (void) mongets(mtmp, AKLYS);
+            }
             break;
         default:
             break;
@@ -567,8 +2173,22 @@ m_initweap(struct monst *mtmp)
         break;
     }
 
-    if ((int) mtmp->m_lev > rn2(75))
-        (void) mongets(mtmp, rnd_offensive_item(mtmp));
+    /* drow types have a high chance of their weapons being coated
+       in drow poison; restart from minvent: most racial branches add
+       weapons via mongets() which prepends without updating otmp */
+    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+        if (otmp->oclass == WEAPON_CLASS) {
+            if (!rn2(3) && is_drow_weapon(otmp) && is_poisonable(otmp))
+                otmp->otainted = 1;
+        }
+    }
+
+    if ((int) mtmp->m_lev > rn2(75)) {
+        if (is_ent(ptr) || is_plant(ptr))
+            ; /* nothing */
+        else
+            (void) mongets(mtmp, rnd_offensive_item(mtmp));
+    }
 }
 
 /* create a new stack of gold in monster's inventory */
@@ -583,6 +2203,19 @@ mkmonmoney(struct monst *mtmp, long amount)
         gold->owt = weight(gold);
         add_to_minv(mtmp, gold);
     }
+}
+
+/* arm and outfit a newly created monster; also used by callers that
+   rebuild a monster's inventory after changing its race so racial
+   gear matches (see priest.c) */
+void
+setup_mon_inventory(struct monst *mtmp)
+{
+    if (is_armed(mtmp->data))
+        m_initweap(mtmp); /* equip with weapons / armor */
+    m_initinv(mtmp); /* add on a few special items incl. more armor */
+    m_dowear(mtmp, TRUE);
+    mon_wield_item(mtmp);
 }
 
 staticfn void
@@ -600,12 +2233,15 @@ m_initinv(struct monst *mtmp)
      */
     switch (ptr->mlet) {
     case S_HUMAN:
-        if (is_mercenary(ptr)) {
+        if (is_mercenary(ptr) || monsndx(ptr) == PM_TEMPLAR) {
             int mac;
 
             switch (monsndx(ptr)) {
             case PM_GUARD:
                 mac = -1;
+                break;
+            case PM_PRISON_GUARD:
+                mac = -2;
                 break;
             case PM_SOLDIER:
                 mac = 3;
@@ -625,6 +2261,9 @@ m_initinv(struct monst *mtmp)
             case PM_WATCH_CAPTAIN:
                 mac = -2;
                 break;
+            case PM_TEMPLAR:
+                mac = -3;
+                break;
             default:
                 impossible("odd mercenary %d?", monsndx(ptr));
                 mac = 0;
@@ -635,45 +2274,96 @@ m_initinv(struct monst *mtmp)
     if (otmp) { mac += ARM_BONUS(otmp); } \
     otmp = (struct obj *) 0;
 
-            /* round 1: give them body armor */
-            if (mac < -1 && rn2(5))
-                otmp = mongets(mtmp, (rn2(5)) ? PLATE_MAIL
-                                              : CRYSTAL_PLATE_MAIL);
-            else if (mac < 3 && rn2(5))
+            /* round 1: give them race-appropriate body armor */
+            if (mac < -1 && rn2(5) && !racial_giant(mtmp))
+                otmp = mongets(mtmp, (rn2(15)) ? PLATE_MAIL
+                                               : CRYSTAL_PLATE_MAIL);
+            else if (mac < 3 && rn2(5)
+                     && !(racial_giant(mtmp) || racial_elf(mtmp)
+                          || racial_drow(mtmp) || racial_orc(mtmp)))
                 otmp = mongets(mtmp, (rn2(3)) ? SPLINT_MAIL : BANDED_MAIL);
-            else if (rn2(5))
+            else if (mac < 3 && rn2(5) && racial_elf(mtmp))
+                otmp = mongets(mtmp, (rn2(3)) ? ELVEN_CHAIN_MAIL
+                                              : BANDED_MAIL);
+            else if (mac < 3 && rn2(5) && racial_drow(mtmp))
+                otmp = mongets(mtmp, (rn2(3)) ? DARK_ELVEN_CHAIN_MAIL
+                                              : DARK_ELVEN_TUNIC);
+            else if (rn2(5)
+                     && !(racial_giant(mtmp) || racial_elf(mtmp)
+                          || racial_drow(mtmp) || racial_orc(mtmp)))
                 otmp = mongets(mtmp, (rn2(3)) ? RING_MAIL
                                               : STUDDED_ARMOR);
-            else
+            else if (rn2(5) && racial_drow(mtmp))
+                otmp = mongets(mtmp, DARK_ELVEN_TUNIC);
+            else if (rn2(5) && racial_orc(mtmp))
+                otmp = mongets(mtmp, (rn2(3)) ? ORCISH_RING_MAIL
+                                              : ARMOR);
+            else if (racial_drow(mtmp))
+                otmp = mongets(mtmp, DARK_ELVEN_TUNIC);
+            else if (!(racial_giant(mtmp) || racial_drow(mtmp)))
                 otmp = mongets(mtmp, ARMOR);
             add_ac(otmp);
 
             /* round 2: helmets */
-            if (mac < 10 && rn2(3))
+            if (mac < 10 && rn2(3)
+                && !(racial_elf(mtmp) || racial_drow(mtmp)
+                     || racial_orc(mtmp)))
                 otmp = mongets(mtmp, HELMET);
-            else if (mac < 10 && rn2(2))
+            else if (mac < 10 && rn2(2)
+                     && !(racial_elf(mtmp) || racial_drow(mtmp)
+                          || racial_orc(mtmp)))
                 otmp = mongets(mtmp, DENTED_POT);
+            else if (mac < 10 && rn2(3) && racial_elf(mtmp))
+                otmp = mongets(mtmp, ELVEN_HELM);
+            else if (mac < 10 && rn2(3) && racial_drow(mtmp))
+                otmp = mongets(mtmp, DARK_ELVEN_HELM);
+            else if (mac < 10 && rn2(3) && racial_orc(mtmp))
+                otmp = mongets(mtmp, ORCISH_HELM);
             add_ac(otmp);
 
             /* round 3: shields */
-            if (mac < 10 && rn2(3))
+            if (mac < 10 && rn2(3)
+                && !(racial_elf(mtmp) || racial_drow(mtmp)
+                     || racial_orc(mtmp)))
                 otmp = mongets(mtmp, SMALL_SHIELD);
-            else if (mac < 10 && rn2(2))
+            else if (mac < 10 && rn2(2)
+                     && !(racial_elf(mtmp) || racial_drow(mtmp)
+                          || racial_orc(mtmp)))
                 otmp = mongets(mtmp, LARGE_SHIELD);
+            else if (mac < 10 && rn2(2) && racial_elf(mtmp))
+                otmp = mongets(mtmp, ELVEN_SHIELD);
+            else if (mac < 10 && rn2(2) && racial_drow(mtmp))
+                otmp = mongets(mtmp, DARK_ELVEN_BRACERS);
+            else if (mac < 10 && rn2(2) && racial_orc(mtmp))
+                otmp = mongets(mtmp, ORCISH_SHIELD);
             add_ac(otmp);
 
             /* round 4: boots */
-            if (mac < 10 && rn2(3))
+            if (mac < 10 && rn2(3)
+                && !(racial_centaur(mtmp) || racial_drow(mtmp)))
                 otmp = mongets(mtmp, LOW_BOOTS);
-            else if (mac < 10 && rn2(2))
+            else if (mac < 10 && rn2(2)
+                     && !(racial_centaur(mtmp) || racial_drow(mtmp)))
                 otmp = mongets(mtmp, HIGH_BOOTS);
+            else if (mac < 10 && rn2(2) && racial_drow(mtmp))
+                otmp = mongets(mtmp, DARK_ELVEN_BOOTS);
             add_ac(otmp);
 
             /* round 5: gloves + cloak */
             if (mac < 10 && rn2(3))
-                otmp = mongets(mtmp, GLOVES);
-            else if (mac < 10 && rn2(2))
+                otmp = mongets(mtmp, (rn2(3)) ? GLOVES : GAUNTLETS);
+            else if (mac < 10 && rn2(3) && racial_drow(mtmp))
+                otmp = mongets(mtmp, DARK_ELVEN_GLOVES);
+            else if (mac < 10 && rn2(2)
+                     && !(racial_giant(mtmp) || racial_elf(mtmp)
+                          || racial_drow(mtmp) || racial_orc(mtmp)))
                 otmp = mongets(mtmp, CLOAK);
+            else if (mac < 10 && rn2(2) && racial_elf(mtmp))
+                otmp = mongets(mtmp, ELVEN_CLOAK);
+            else if (mac < 10 && rn2(2) && racial_drow(mtmp))
+                otmp = mongets(mtmp, DARK_ELVEN_CLOAK);
+            else if (mac < 10 && rn2(2) && racial_orc(mtmp))
+                otmp = mongets(mtmp, ORCISH_CLOAK);
             add_ac(otmp); /* not technically needed */
 
 #undef add_ac
@@ -684,6 +2374,10 @@ m_initinv(struct monst *mtmp)
             } else if (ptr == &mons[PM_WATCHMAN]) {
                 if (rn2(3)) /* most watchmen carry a whistle */
                     (void) mongets(mtmp, PEA_WHISTLE);
+            } else if (ptr == &mons[PM_TEMPLAR]) {
+                if (rn2(3)) /* being in a holy order has its benefits */
+                    (void) mongets(mtmp, rn2(4) ? POT_HEALING
+                                                : POT_EXTRA_HEALING);
             } else if (ptr == &mons[PM_GUARD]) {
                 /* if hero teleports out of a vault while being confronted
                    by the vault's guard, there is a shrill whistling sound,
@@ -700,6 +2394,7 @@ m_initinv(struct monst *mtmp)
                     (void) mongets(mtmp, BUGLE);
             }
         } else if (ptr == &mons[PM_SHOPKEEPER]) {
+            /* racial specific gear handled in shknam.c */
             (void) mongets(mtmp, SKELETON_KEY);
             switch (rn2(4)) {
             /* MAJOR fall through ... */
@@ -716,31 +2411,85 @@ m_initinv(struct monst *mtmp)
                 FALLTHROUGH;
                 /*FALLTHRU*/
             case 3:
-                (void) mongets(mtmp, WAN_STRIKING);
+                (void) mongets(mtmp, WAN_SLEEP);
             }
         } else if (ptr->msound == MS_PRIEST
                    || quest_mon_represents_role(ptr, PM_CLERIC)) {
-            (void) mongets(mtmp, rn2(7) ? ROBE
-                                        : rn2(3) ? CLOAK_OF_PROTECTION
-                                                 : CLOAK_OF_MAGIC_RESISTANCE);
-            (void) mongets(mtmp, SMALL_SHIELD);
+            if (!racial_giant(mtmp)) {
+                (void) mongets(mtmp,
+                               rn2(7) ? ROBE
+                                      : rn2(3) ? CLOAK_OF_PROTECTION
+                                               : CLOAK_OF_MAGIC_RESISTANCE);
+                if (racial_drow(mtmp))
+                    (void) mongets(mtmp, DARK_ELVEN_BRACERS);
+                else
+                    (void) mongets(mtmp, SMALL_SHIELD);
+            } else {
+                (void) mongets(mtmp,
+                               rn2(7) ? HIGH_BOOTS
+                                      : rn2(3) ? GAUNTLETS_OF_PROTECTION
+                                               : AMULET_OF_MAGIC_RESISTANCE);
+                (void) mongets(mtmp, LARGE_SHIELD);
+            }
+            if (racial_drow(mtmp))
+                (void) mongets(mtmp, rn2(2) ? DARK_ELVEN_MACE
+                                            : DARK_ELVEN_HEAVY_MACE);
+            else
+                (void) mongets(mtmp, rn2(2) ? MACE : HEAVY_MACE);
+            /* some insurance against 'purple rain' */
+            if (on_level(&astral_level, &u.uz) && rn2(2)) {
+                (void) mongets(mtmp, RIN_SLOW_DIGESTION);
+                m_dowear(mtmp, FALSE);
+            }
             mkmonmoney(mtmp, (long) rn1(10, 20));
         } else if (quest_mon_represents_role(ptr, PM_MONK)) {
             (void) mongets(mtmp, rn2(11) ? ROBE : CLOAK_OF_MAGIC_RESISTANCE);
+        } else if (ptr == &mons[PM_ARCHBISHOP_OF_MOLOCH]) {
+            (void) mongets(mtmp, QUARTERSTAFF);
+            (void) mongets(mtmp, rn2(3) ? ROBE : CLOAK_OF_PROTECTION);
+        } else if (ptr == &mons[PM_PALADIN]) {
+            otmp = mksobj(MORNING_STAR, FALSE, FALSE);
+            otmp->oeroded = otmp->oeroded2 = 0;
+            otmp->blessed = 1;
+            (void) maybe_erodeproof(otmp, 1);
+            otmp->spe = rn1(3, 3);
+            if (rn2(2)) { /* spice it up a little */
+                set_material(otmp, SILVER);
+                /* only add a property if silver; we don't want the
+                   player immediately giving this to a summoned demon */
+                if (!rn2(3))
+                    otmp->oprops = ITEM_FROST;
+                else if (!rn2(4))
+                    otmp->oprops = ITEM_SHOCK;
+            }
+            (void) mpickobj(mtmp, otmp);
+            /* the Paladin wears no helmet
+               because she looks cooler without a helmet */
+            (void) mongets(mtmp, GLOVES);
+            (void) mongets(mtmp, SHIELD_OF_REFLECTION);
+            (void) mongets(mtmp, CLOAK);
+            (void) mongets(mtmp, CRYSTAL_PLATE_MAIL);
+            (void) mongets(mtmp, HIGH_BOOTS);
+            (void) mongets(mtmp, POT_SPEED);
         }
         break;
     case S_NYMPH:
-        if (!rn2(2))
-            (void) mongets(mtmp, MIRROR);
-        if (!rn2(2))
-            (void) mongets(mtmp, POT_OBJECT_DETECTION);
+        if (is_satyr(ptr)) {
+            if (rn2(5))
+                (void) mongets(mtmp, PAN_FLUTE);
+        } else {
+            if (!rn2(2))
+                (void) mongets(mtmp, MIRROR);
+            if (!rn2(2))
+                (void) mongets(mtmp, POT_OBJECT_DETECTION);
+        }
         break;
     case S_GIANT:
-        if (ptr == &mons[PM_MINOTAUR]) {
-            if (!rn2(8) || (gi.in_mklev && Is_earthlevel(&u.uz)))
+        if (ptr == &mons[PM_MINOTAUR] || ptr == &mons[PM_ELDER_MINOTAUR]) {
+            if (!rn2(3) || (gi.in_mklev && Is_earthlevel(&u.uz)))
                 (void) mongets(mtmp, WAN_DIGGING);
         } else if (is_giant(ptr)) {
-            for (cnt = rn2((int) (mtmp->m_lev / 2)); cnt; cnt--) {
+            for (cnt = rn2(max(1, (int) (mtmp->m_lev / 2))); cnt; cnt--) {
                 otmp = mksobj(rnd_class(DILITHIUM_CRYSTAL, LUCKSTONE - 1),
                               FALSE, FALSE);
                 otmp->quan = (long) rn1(2, 3);
@@ -757,21 +2506,38 @@ m_initinv(struct monst *mtmp)
         }
         break;
     case S_LICH:
-        if (ptr == &mons[PM_MASTER_LICH] && !rn2(13))
+        if (ptr == &mons[PM_MASTER_LICH] && !rn2(13)) {
             (void) mongets(mtmp, (rn2(7) ? ATHAME : WAN_NOTHING));
-        else if (ptr == &mons[PM_ARCH_LICH] && !rn2(3)) {
+        } else if (ptr == &mons[PM_ARCH_LICH] && !rn2(3)) {
             otmp = mksobj(rn2(3) ? ATHAME : QUARTERSTAFF, TRUE,
                           rn2(13) ? FALSE : TRUE);
             if (otmp->spe < 2)
                 otmp->spe = rnd(3);
             if (!rn2(4))
-                otmp->oerodeproof = 1;
+                (void) maybe_erodeproof(otmp, 1);
             (void) mpickobj(mtmp, otmp);
+        } else if (ptr == &mons[PM_VECNA]) {
+            otmp = mksobj(ROBE, FALSE, FALSE);
+            otmp->oprops = ITEM_DRLI;
+            otmp->oeroded2 = TRUE;
+            curse(otmp);
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, RIN_SLOW_DIGESTION);
         }
         break;
     case S_MUMMY:
         if (rn2(7))
             (void) mongets(mtmp, MUMMY_WRAPPING);
+        break;
+    case S_ORC:
+        if (ptr == &mons[PM_GOBLIN_KING]) {
+            struct obj *received;
+
+            (void) mongets(mtmp, QUARTERSTAFF);
+            received = m_carrying(mtmp, QUARTERSTAFF);
+            if (received)
+                set_material(received, BONE);
+        }
         break;
     case S_QUANTMECH:
         if (!rn2(20) && ptr == &mons[PM_QUANTUM_MECHANIC]) {
@@ -796,6 +2562,10 @@ m_initinv(struct monst *mtmp)
     case S_LEPRECHAUN:
         mkmonmoney(mtmp, (long) d(level_difficulty(), 30));
         break;
+    case S_LIZARD:
+        if (ptr == &mons[PM_SEA_TORTLE] && !rn2(3))
+            (void) mongets(mtmp, SMALL_SHIELD);
+        break;
     case S_DEMON:
         /* moved here from m_initweap() because these don't
            have AT_WEAP so m_initweap() is not called for them */
@@ -804,6 +2574,69 @@ m_initinv(struct monst *mtmp)
         } else if (ptr == &mons[PM_ASMODEUS]) {
             (void) mongets(mtmp, WAN_COLD);
             (void) mongets(mtmp, WAN_FIRE);
+        } else if (ptr == &mons[PM_GRAZ_ZT]) {
+            (void) mongets(mtmp, SHIELD_OF_REFLECTION);
+        }
+        break;
+    case S_SPIDER:
+        if (ptr == &mons[PM_SCORPIUS]) {
+            /* the Ranger quest artifact; a crossbow for the races
+               that favor crossbows, a longbow for everyone else */
+            if (Race_if(PM_GNOME) || Race_if(PM_HOBBIT)) {
+                otmp = mksobj(CROSSBOW, FALSE, FALSE);
+                otmp = oname(otmp, artiname(ART_CROSSBOW_OF_CARL),
+                             ONAME_RANDOM);
+            } else {
+                otmp = mksobj(BOW, FALSE, FALSE);
+                otmp = oname(otmp, artiname(ART_LONGBOW_OF_DIANA),
+                             ONAME_RANDOM);
+            }
+            bless(otmp);
+            otmp->spe = 0;
+            otmp->oeroded = otmp->oeroded2 = 0;
+            (void) mpickobj(mtmp, otmp);
+        } else if (ptr == &mons[PM_DRIDER]) {
+            if (rn2(3)) {
+                (void) mongets(mtmp, DARK_ELVEN_BOW);
+                m_initthrow(mtmp, DARK_ELVEN_ARROW, 12);
+            } else {
+                (void) mongets(mtmp, DARK_ELVEN_HAND_CROSSBOW);
+                m_initthrow(mtmp, DARK_ELVEN_CROSSBOW_BOLT, 12);
+            }
+            if (rn2(3))
+                (void) mongets(mtmp, rn2(4) ? DARK_ELVEN_SPEAR
+                                            : rn2(3) ? DARK_ELVEN_BROADSWORD
+                                                     : DARK_ELVEN_LONG_SWORD);
+            if (!rn2(3))
+                (void) mongets(mtmp, rn2(6) ? DARK_ELVEN_TUNIC
+                                            : DARK_ELVEN_CHAIN_MAIL);
+        }
+        break;
+    case S_VAMPIRE:
+        if (rn2(2))
+            (void) mongets(mtmp, rn2(4) ? POT_BLOOD
+                                        : POT_VAMPIRE_BLOOD);
+        if (ptr == &mons[PM_KAS]) {
+            otmp = mksobj(TWO_HANDED_SWORD, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_SWORD_OF_KAS), ONAME_RANDOM);
+            curse(otmp);
+            otmp->spe = rnd(4) + 1;
+            (void) mpickobj(mtmp, otmp);
+            (void) mongets(mtmp, PLATE_MAIL);
+            (void) mongets(mtmp, HELMET);
+            (void) mongets(mtmp, GAUNTLETS);
+            (void) mongets(mtmp, DWARVISH_BOOTS);
+            (void) mongets(mtmp, RIN_SLOW_DIGESTION);
+            if (rn2(2))
+                (void) mongets(mtmp, rn2(4) ? POT_BLOOD
+                                            : POT_VAMPIRE_BLOOD);
+        }
+        break;
+    case S_HUMANOID:
+        if (ptr == &mons[PM_DARK_ONE]) {
+            (void) mongets(mtmp, ROBE);
+            if (!rn2(4))
+                (void) mongets(mtmp, CORNUTHAUM);
         }
         break;
     case S_GNOME:
@@ -821,6 +2654,10 @@ m_initinv(struct monst *mtmp)
 
     /* ordinary soldiers rarely have access to magic (or gold :-) */
     if (ptr == &mons[PM_SOLDIER] && rn2(13))
+        return;
+
+    /* ents and other plant-like creatures don't carry anything */
+    if (is_ent(ptr) || is_plant(ptr))
         return;
 
     if ((int) mtmp->m_lev > rn2(50))
@@ -1423,10 +3260,16 @@ makemon(
             set_apparxy(mtmp);
         }
     }
-    if (is_dprince(ptr) && ptr->msound == MS_BRIBE) {
+    if (is_dlord(ptr) && ptr->msound == MS_BRIBE) {
         mtmp->mpeaceful = mtmp->minvis = mtmp->perminvis = 1;
         mtmp->mavenge = 0;
-        if (u_wield_art(ART_EXCALIBUR) || u_wield_art(ART_DEMONBANE))
+        /* aasimars grudge demons; a bribeable demon lord won't
+           parley with one, so spawn it hostile (matching the
+           holy-artifact cases above) rather than peaceful */
+        if (wielding_artifact(ART_EXCALIBUR)
+            || wielding_artifact(ART_DEMONBANE)
+            || wielding_artifact(ART_HAMMER_OF_THE_GODS)
+            || Race_if(PM_AASIMAR))
             mtmp->mpeaceful = mtmp->mtame = FALSE;
     }
     if (mndx == PM_RAVEN && uwep && uwep->otyp == BEC_DE_CORBIN)
@@ -1471,10 +3314,7 @@ makemon(
     }
 
     if (allow_minvent) {
-        if (is_armed(ptr))
-            m_initweap(mtmp); /* equip with weapons / armor */
-        m_initinv(mtmp); /* add on a few special items incl. more armor */
-        m_dowear(mtmp, TRUE);
+        setup_mon_inventory(mtmp);
 
         if (!rn2(100) && is_domestic(ptr)
             && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)) {
@@ -2226,8 +4066,8 @@ mongets(struct monst *mtmp, int otyp)
             otmp->cursed = FALSE;
             if (otmp->spe < 0)
                 otmp->spe = 0;
-            otmp->oerodeproof = 1;
             otmp->oeroded = otmp->oeroded2 = 0;
+            (void) maybe_erodeproof(otmp, 1);
         } else if (is_mplayer(mtmp->data) && is_sword(otmp)) {
             otmp->spe = (3 + rn2(4));
         }
@@ -2244,12 +4084,47 @@ mongets(struct monst *mtmp, int otyp)
             otmp->cursed = TRUE;
         }
 
-        /* leaders don't tolerate inferior quality battle gear */
+        /* any monster that gets a spear may get a stack of them */
+        if (is_spear(otmp)) {
+            otmp->quan = rne(2);
+            otmp->owt = weight(otmp);
+        }
+
+        /* leaders don't tolerate inferior quality battle gear
+         * in fact, they don't settle for non-enchanted gear period */
         if (is_prince(mtmp->data)) {
-            if (otmp->oclass == WEAPON_CLASS && otmp->spe < 1)
-                otmp->spe = 1;
-            else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 0)
-                otmp->spe = 0;
+            if (otmp->oclass == WEAPON_CLASS && otmp->spe < 1) {
+                otmp->spe = rn2(3) + 1;
+                otmp->oeroded = otmp->oeroded2 = 0;
+                if (!rn2(5))
+                    (void) maybe_erodeproof(otmp, 1);
+            } else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 1) {
+                otmp->spe = mtmp->iswiz ? rn2(2) : rn2(4) + 1;
+                otmp->oeroded = otmp->oeroded2 = 0;
+                if (!rn2(5))
+                    (void) maybe_erodeproof(otmp, 1);
+            }
+        }
+        if (is_lord(mtmp->data)) {
+            if (otmp->oclass == WEAPON_CLASS && otmp->spe < 1) {
+                otmp->spe = rn2(2) + 1;
+                otmp->oeroded = otmp->oeroded2 = 0;
+                if (!rn2(8))
+                    (void) maybe_erodeproof(otmp, 1);
+            } else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 1) {
+                otmp->spe = rn2(2) + 1;
+                otmp->oeroded = otmp->oeroded2 = 0;
+                if (!rn2(8))
+                    (void) maybe_erodeproof(otmp, 1);
+            }
+        }
+
+        /* Medusa's bow and arrows are also high quality */
+        if (mtmp->data == &mons[PM_MEDUSA]) {
+            if (otmp->oclass == WEAPON_CLASS && otmp->spe < 7)
+                otmp->spe = rn2(3) + 3;
+            otmp->blessed = TRUE;
+            (void) maybe_erodeproof(otmp, 1);
         }
 
         /* if mtmp would hate the material of the object they're getting,
@@ -2287,6 +4162,7 @@ mongets(struct monst *mtmp, int otyp)
             }
         }
 
+        maybe_arm_silver(mtmp, otmp);
         if (mpickobj(mtmp, otmp)) {
             /* otmp was freed via merging with something else */
             otmp = (struct obj *) 0;

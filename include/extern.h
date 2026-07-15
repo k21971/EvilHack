@@ -1524,6 +1524,7 @@ extern void freemcorpsenm(struct monst *) NONNULLARG1;
 extern void set_mimic_sym(struct monst *) NO_NNARGS; /* tests for NULL mtmp */
 extern int mbirth_limit(int);
 extern void mkmonmoney(struct monst *, long) NONNULLARG1;
+extern void setup_mon_inventory(struct monst *) NONNULLARG1;
 extern int bagotricks(struct obj *, boolean, int *);
 extern boolean propagate(int, boolean, boolean);
 extern void summon_furies(int);

@@ -134,6 +134,11 @@
 #define is_orc(ptr) (((ptr)->mhflags & MH_ORC) != 0L)
 #define is_drow(ptr) (((ptr)->mhflags & MH_DROW) != 0L)
 #define is_human(ptr) (((ptr)->mhflags & MH_HUMAN) != 0L)
+#define is_hobbit(ptr) (((ptr)->mhflags & MH_HOBBIT) != 0L)
+#define is_centaur(ptr) (((ptr)->mhflags & MH_CENTAUR) != 0L)
+#define is_illithid(ptr) (((ptr)->mhflags & MH_ILLITHID) != 0L)
+#define is_tortle(ptr) (((ptr)->mhflags & MH_TORTLE) != 0L)
+#define is_gnoll(ptr) (((ptr)->mhflags & MH_GNOLL) != 0L)
 #define your_race(ptr) (((ptr)->mhflags & gu.urace.selfmask) != 0L)
 
 /* race checks that honor the erac racial overlay (and, for the hero,
@@ -157,6 +162,7 @@
 #define is_zombie(ptr) (((ptr)->mhflags & MH_ZOMBIE) != 0L)
 #define racial_zombie(mon) mon_has_race(mon, MH_ZOMBIE)
 #define racial_vampire(mon) mon_has_race(mon, MH_VAMPIRE)
+#define is_aasimar(ptr) (((ptr)->mhflags & MH_AASIMAR) != 0L)
 #define racial_aasimar(mon) mon_has_race(mon, MH_AASIMAR)
 #define racial_match(mon) mon_has_race(mon, gu.urace.selfmask)
 #define is_bat(ptr)                                         \
@@ -166,6 +172,13 @@
 #define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
 #define is_spider(ptr) (((ptr)->mhflags & MH_SPIDER) != 0L)
+#define is_ogre(ptr) (((ptr)->mhflags & MH_OGRE) != 0L)
+#define is_dragon(ptr) (((ptr)->mhflags & MH_DRAGON) != 0L)
+#define is_jabberwock(ptr) (((ptr)->mhflags & MH_JABBERWOCK) != 0L)
+#define is_wraith(ptr) (((ptr)->mhflags & MH_WRAITH) != 0L)
+#define is_ent(ptr) ((ptr)->mlet == S_ENT)
+#define is_plant(ptr) ((ptr)->mlet == S_PLANT)
+#define is_satyr(ptr) ((ptr) == &mons[PM_SATYR])
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
 #define is_angel(ptr) (((ptr)->mhflags & MH_ANGEL) != 0L)

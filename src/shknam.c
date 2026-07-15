@@ -530,9 +530,9 @@ nameshk(struct monst *shk, const char *const *nlp)
             } else {
                 shname = shk->female ? "-Lucrezia" : "+Dirk";
             }
-            if (*shname == '_' || *shname == '-')
+            if (*shname == '_' || *shname == '-' || is_female(r_data(shk)))
                 shk->female = 1;
-            else if (*shname == '|' || *shname == '+')
+            if (*shname == '|' || *shname == '+' || is_male(r_data(shk)))
                 shk->female = 0;
 
             /* is name already in use on this level? */
@@ -628,6 +628,7 @@ staticfn int
 shkinit(const struct shclass *shp, struct mkroom *sroom)
 {
     int sh;
+    int srace = 0;
     coordxy sx, sy;
     struct monst *shk;
     struct eshk *eshkp;
@@ -663,6 +664,119 @@ shkinit(const struct shclass *shp, struct mkroom *sroom)
     if (!(shk = makemon(&mons[PM_SHOPKEEPER], sx, sy, MM_ESHK)))
         return -1;
     eshkp = ESHK(shk); /* makemon(...,MM_ESHK) allocates this */
+    /* change the shopkeeper to a race that suits the shop type */
+    switch (shp->symb) {
+    /* armors and weaponry are similar */
+    case ARMOR_CLASS:
+    case WEAPON_CLASS:
+        switch (rnd(5)) {
+        case 1:
+            srace = PM_HUMAN;
+            break;
+        case 2:
+            srace = PM_GIANT;
+            break;
+        case 3:
+            srace = PM_CENTAUR;
+            break;
+        case 4:
+            srace = PM_DWARF;
+            break;
+        case 5:
+            srace = PM_AASIMAR;
+            break;
+        }
+        break;
+    case FOOD_CLASS:
+        switch (rnd(4)) {
+        case 1:
+            srace = PM_DWARF;
+            break;
+        case 2:
+            srace = PM_GNOME;
+            break;
+        case 3:
+            srace = PM_HUMAN;
+            break;
+        case 4:
+            srace = PM_AASIMAR;
+            break;
+        }
+        break;
+    case RING_CLASS:
+        srace = PM_NYMPH;
+        break;
+    /* wands and potions also similar */
+    case WAND_CLASS:
+    case POTION_CLASS:
+        switch (rnd(6)) {
+        case 1:
+            srace = PM_ELF;
+            break;
+        case 2:
+            srace = PM_GNOME;
+            break;
+        case 3:
+            srace = PM_NYMPH;
+            break;
+        case 4:
+            srace = PM_HUMAN;
+            break;
+        case 5:
+            srace = PM_DROW;
+            break;
+        case 6:
+            srace = PM_AASIMAR;
+            break;
+        }
+        break;
+    case TOOL_CLASS:
+        if (shp->shknms == shklight && In_mines(&u.uz)) {
+            /* Izchak is always human. The shk has not been named at
+               this point, so just check for a lighting store in the
+               mines; this technically makes any lighting store in the
+               Mines have a human shopkeeper, not only Minetown's */
+            srace = PM_HUMAN;
+        } else {
+            srace = PM_GNOME;
+        }
+        break;
+    /* and scrolls and books fall to spellcasters */
+    case SCROLL_CLASS:
+    case SPBOOK_CLASS:
+        switch (rnd(6)) {
+        case 1:
+            srace = PM_ILLITHID;
+            break;
+        case 2:
+            srace = PM_HUMAN;
+            break;
+        case 3:
+            srace = PM_GNOME;
+            break;
+        case 4:
+            srace = PM_ELF;
+            break;
+        case 5:
+            srace = PM_DROW;
+            break;
+        case 6:
+            srace = PM_AASIMAR;
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+
+    if (!srace)
+        srace = m_randrace(monsndx(shk->data));
+
+    /* TODO-EVILHACK: master forces srace to PM_ORC inside Goblin
+       Town; ports with the Goblin Town dungeon branch */
+
+    apply_race(shk, srace);
+
     shk->isshk = shk->mpeaceful = 1;
     set_malign(shk);
     shk->msleeping = 0;
@@ -679,6 +793,49 @@ shkinit(const struct shclass *shp, struct mkroom *sroom)
     eshkp->billct = eshkp->visitct = 0;
     eshkp->bill_p = (struct bill_x *) 0;
     eshkp->customer[0] = '\0';
+
+    /* iff the shopkeeper is Drow, kill the light */
+    if (racial_drow(shk)) {
+        int x, y;
+
+        for (x = sroom->lx - 1; x <= sroom->hx + 1; x++)
+            for (y = sroom->ly - 1; y <= sroom->hy + 1; y++)
+                levl[x][y].lit = 0;
+        sroom->rlit = 0;
+    }
+
+    /* shopkeeper racial gear - keys, wands/potions
+       handled in makemon.c */
+    if (racial_orc(shk)) {
+        if (rn2(4))
+            (void) mongets(shk, ORCISH_HELM);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : ORCISH_SCIMITAR);
+    } else if (racial_elf(shk) || racial_hobbit(shk)) {
+        if (rn2(4))
+            (void) mongets(shk, ELVEN_HELM);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : ELVEN_BROADSWORD);
+    } else if (racial_drow(shk)) {
+        if (rn2(4))
+            (void) mongets(shk, DARK_ELVEN_HELM);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : DARK_ELVEN_BROADSWORD);
+    } else if (racial_dwarf(shk)) {
+        if (rn2(4))
+            (void) mongets(shk, DWARVISH_HELM);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : DWARVISH_SHORT_SWORD);
+    } else if (racial_tortle(shk)) {
+        if (rn2(4))
+            (void) mongets(shk, TOQUE);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : TRIDENT);
+    } else if (racial_illithid(shk)) {
+        if (rn2(4))
+            (void) mongets(shk, DARK_ELVEN_HELM);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : ATHAME);
+    } else {
+        if (rn2(4))
+            (void) mongets(shk, rn2(3) ? ELVEN_HELM : HELMET);
+        (void) mongets(shk, rn2(8) ? QUARTERSTAFF : BROADSWORD);
+    }
+
     mkmonmoney(shk, 1000L + 30L * (long) rnd(100)); /* initial capital */
     if (shp->shknms == shkrings)
         (void) mongets(shk, TOUCHSTONE);
@@ -687,6 +844,49 @@ shkinit(const struct shclass *shp, struct mkroom *sroom)
         (shp->shknms == shkgeneral && rn2(5)))
         (void) mongets(shk, SCR_CHARGING);
     nameshk(shk, shp->shknms);
+
+    if (!strcmp(shkname(shk), "Izchak")) {
+        struct obj *otmp;
+
+        otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+        if (otmp) {
+            bless(otmp);
+            otmp->spe = rn2(4) + 1;
+            otmp->forged_qual = FQ_EXCEPTIONAL;
+            (void) maybe_erodeproof(otmp, 1);
+            (void) mpickobj(shk, otmp);
+        }
+        otmp = mksobj(SHIELD_OF_REFLECTION, FALSE, FALSE);
+        if (otmp) {
+            bless(otmp);
+            otmp->spe = rn2(4);
+            (void) maybe_erodeproof(otmp, 1);
+            (void) mpickobj(shk, otmp);
+        }
+        otmp = mksobj(CLOAK_OF_MAGIC_RESISTANCE, FALSE, FALSE);
+        if (otmp) {
+            bless(otmp);
+            otmp->spe = rn2(4);
+            (void) maybe_erodeproof(otmp, 1);
+            (void) mpickobj(shk, otmp);
+        }
+        otmp = mksobj(CRYSTAL_PLATE_MAIL, FALSE, FALSE);
+        if (otmp) {
+            bless(otmp);
+            otmp->spe = rn2(4);
+            otmp->forged_qual = FQ_SUPERIOR;
+            (void) maybe_erodeproof(otmp, 1);
+            (void) mpickobj(shk, otmp);
+        }
+        otmp = mksobj(RIN_SLOW_DIGESTION, FALSE, FALSE);
+        if (otmp) {
+            bless(otmp);
+            (void) maybe_erodeproof(otmp, 1);
+            (void) mpickobj(shk, otmp);
+        }
+    }
+    m_dowear(shk, TRUE);
+    mon_wield_item(shk);
 
     return sh;
 }

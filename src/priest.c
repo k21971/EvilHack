@@ -257,15 +257,31 @@ priestini(
         set_malign(priest); /* mpeaceful may have changed */
 
         apply_race(priest, align_randrace(mon_aligntyp(priest)));
-        /* TODO-EVILHACK: master rebuilds the priest's inventory here
-           (discard_minvent + setup_mon_inventory, so giants get giant
-           gear) and extinguishes the temple light for drow priests;
-           ports with the racial gear and drow darkness subsystems */
+        /* makemon() filled the inventory before the race was known;
+           rebuild it so the gear matches the race (giants get giant
+           gear, drow get drow gear, and so on) */
+        discard_minvent(priest, TRUE);
+        setup_mon_inventory(priest);
+
+        /* iff the priest is Drow, kill the light */
+        if (racial_drow(priest)) {
+            int x, y;
+
+            for (x = sroom->lx - 1; x <= sroom->hx + 1; x++)
+                for (y = sroom->ly - 1; y <= sroom->hy + 1; y++)
+                    levl[x][y].lit = 0;
+            sroom->rlit = 0;
+        }
 
         /* now his/her goodies... */
         if (sanctum && EPRI(priest)->shralign == A_NONE
-            && on_level(&sanctum_level, &u.uz)) {
+            && on_level(&sanctum_level, &u.uz) && !Role_if(PM_INFIDEL)) {
             (void) mongets(priest, AMULET_OF_YENDOR);
+        }
+        /* some insurance against 'purple rain' */
+        if (on_level(&astral_level, &u.uz)) {
+            (void) mongets(priest, RIN_SLOW_DIGESTION);
+            m_dowear(priest, FALSE);
         }
         /* 2 to 4 spellbooks */
         for (cnt = rn1(3, 2); cnt > 0; --cnt) {
@@ -755,9 +771,10 @@ mk_roamer(struct permonst *ptr, aligntyp alignment, coordxy x, coordxy y,
 
     if (ptr == &mons[PM_ALIGNED_PRIEST] || ptr == &mons[PM_HIGH_PRIEST]) {
         apply_race(roamer, align_randrace(mon_aligntyp(roamer)));
-        /* TODO-EVILHACK: master rebuilds the roamer's inventory here
-           (discard_minvent + setup_mon_inventory); ports with the
-           racial gear subsystem */
+        /* makemon() filled the inventory before the race was known;
+           reset it in case the roamer changed from or to a giant */
+        discard_minvent(roamer, TRUE);
+        setup_mon_inventory(roamer);
     }
 
     /* MORE TO COME */

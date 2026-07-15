@@ -800,9 +800,10 @@ dochug(struct monst *mtmp)
             return 1;
     }
 
-    /* Demonic Blackmail! */
+    /* Demonic Blackmail! (prison guards share MS_BRIBE for their own
+       gold demands and must not act as blackmailing demons) */
     if (nearby && mdat->msound == MS_BRIBE && mtmp->mpeaceful && !mtmp->mtame
-        && !u.uswallow) {
+        && !u.uswallow && monsndx(mdat) != PM_PRISON_GUARD) {
         if (mtmp->mux != u.ux || mtmp->muy != u.uy) {
             pline("%s whispers at thin air.",
                   cansee(mtmp->mux, mtmp->muy) ? Monnam(mtmp) : "It");

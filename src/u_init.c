@@ -5,14 +5,8 @@
 
 #include "hack.h"
 
-struct trobj {
-    short trotyp;
-    schar trspe;
-    char trclass;
-    char trquan_min;
-    char trquan_max;
-    char trbless;
-};
+/* struct trobj is declared in decl.h; the role kit arrays below are
+   shared with makemon.c so player monsters use the same kits */
 
 staticfn long trquan(const struct trobj *);
 staticfn struct obj *ini_inv_mkobj_filter(int, boolean);
@@ -40,7 +34,7 @@ staticfn boolean restricted_spell_discipline(int);
  *      Initial inventory for the various roles.
  */
 
-static const struct trobj Archeologist[] = {
+const struct trobj Archeologist[] = {
     /* if adventure has a name...  idea from tan@uvm-gen */
     { BULLWHIP, 2, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { JACKET, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
@@ -52,21 +46,21 @@ static const struct trobj Archeologist[] = {
     { SACK, 0, TOOL_CLASS, 1, 1, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Barbarian_0[] = {
+const struct trobj Barbarian_0[] = {
     { TWO_HANDED_SWORD, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { AXE, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { RING_MAIL, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { FOOD_RATION, 0, FOOD_CLASS, 1, 1, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Barbarian_1[] = {
+const struct trobj Barbarian_1[] = {
     { BATTLE_AXE, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { SHORT_SWORD, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { RING_MAIL, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { FOOD_RATION, 0, FOOD_CLASS, 1, 1, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Cave_man[] = {
+const struct trobj Cave_man[] = {
     { CLUB, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { SLING, 2, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { FLINT, 0, GEM_CLASS, 10, 20, UNDEF_BLESS },
@@ -74,14 +68,14 @@ static const struct trobj Cave_man[] = {
     { ARMOR, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Convict[] = {
+const struct trobj Convict[] = {
     { ROCK, 0, GEM_CLASS, 1, 1, 0 },
     { STRIPED_SHIRT, 0, ARMOR_CLASS, 1, 1, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
 /* the Druid's initial weapon (quarterstaff or scimitar) and one of
    their spellbooks are chosen in u_init_role() */
-static const struct trobj Druid[] = {
+const struct trobj Druid[] = {
     { BRACERS, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { CLOAK, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { EUCALYPTUS_LEAF, 0, FOOD_CLASS, 1, 1, 0 },
@@ -92,7 +86,7 @@ static const struct trobj Druid[] = {
     { SACK, 0, TOOL_CLASS, 1, 1, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Healer[] = {
+const struct trobj Healer[] = {
     { SCALPEL, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { GLOVES, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { STETHOSCOPE, 0, TOOL_CLASS, 1, 1, 0 },
@@ -130,7 +124,7 @@ static const struct trobj Draugr_Infidel[] = {
     { OILSKIN_SACK, 0, TOOL_CLASS, 1, 1, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Knight[] = {
+const struct trobj Knight[] = {
     { LONG_SWORD, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { LANCE, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { PLATE_MAIL, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
@@ -141,7 +135,7 @@ static const struct trobj Knight[] = {
     { CARROT, 0, FOOD_CLASS, 10, 10, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Elven_Knight[] = {
+const struct trobj Elven_Knight[] = {
     { LONG_SWORD, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { LANCE, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { PLATE_MAIL, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
@@ -152,7 +146,7 @@ static const struct trobj Elven_Knight[] = {
     { CARROT, 0, FOOD_CLASS, 10, 10, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Dwarvish_Knight[] = {
+const struct trobj Dwarvish_Knight[] = {
     { LONG_SWORD, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { LANCE, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { PLATE_MAIL, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
@@ -163,7 +157,7 @@ static const struct trobj Dwarvish_Knight[] = {
     { CARROT, 0, FOOD_CLASS, 10, 10, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Orcish_Knight[] = {
+const struct trobj Orcish_Knight[] = {
     { LONG_SWORD, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { LANCE, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { PLATE_MAIL, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
@@ -174,7 +168,7 @@ static const struct trobj Orcish_Knight[] = {
     { CARROT, 0, FOOD_CLASS, 10, 10, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Draugr_Knight[] = {
+const struct trobj Draugr_Knight[] = {
     { LONG_SWORD, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { LANCE, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { PLATE_MAIL, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
@@ -183,7 +177,7 @@ static const struct trobj Draugr_Knight[] = {
     { GAUNTLETS, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Monk[] = {
+const struct trobj Monk[] = {
     { GLOVES, 2, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { ROBE, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, 1, UNDEF_BLESS },
@@ -196,7 +190,7 @@ static const struct trobj Monk[] = {
     { FORTUNE_COOKIE, 0, FOOD_CLASS, 3, 3, UNDEF_BLESS },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Draugr_Monk[] = {
+const struct trobj Draugr_Monk[] = {
     { GLOVES, 2, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { ROBE, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, 1, UNDEF_BLESS },
@@ -205,7 +199,7 @@ static const struct trobj Draugr_Monk[] = {
     { FORTUNE_COOKIE, 0, FOOD_CLASS, 3, 3, UNDEF_BLESS },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Vampire_Monk[] = {
+const struct trobj Vampire_Monk[] = {
     { GLOVES, 2, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { ROBE, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, 1, UNDEF_BLESS },
@@ -213,7 +207,7 @@ static const struct trobj Vampire_Monk[] = {
     { POT_BLOOD, 0, POTION_CLASS, 3, 3, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Priest[] = {
+const struct trobj Priest[] = {
     { MACE, 1, WEAPON_CLASS, 1, 1, 1 },
     { ROBE, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { SMALL_SHIELD, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
@@ -223,7 +217,7 @@ static const struct trobj Priest[] = {
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 2, 2, UNDEF_BLESS },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Ranger[] = {
+const struct trobj Ranger[] = {
     { DAGGER, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { BOW, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { ARROW, 2, WEAPON_CLASS, 50, 59, UNDEF_BLESS },
@@ -232,7 +226,7 @@ static const struct trobj Ranger[] = {
     { CRAM_RATION, 0, FOOD_CLASS, 4, 4, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Rogue[] = {
+const struct trobj Rogue[] = {
     { SHORT_SWORD, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { DAGGER, 0, WEAPON_CLASS, 6, 15, 0 },
     { ARMOR, 1, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
@@ -242,7 +236,7 @@ static const struct trobj Rogue[] = {
     { SACK, 0, TOOL_CLASS, 1, 1, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Drow_Rogue[] = {
+const struct trobj Drow_Rogue[] = {
     { SHORT_SWORD, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { DARK_ELVEN_HAND_CROSSBOW, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { DARK_ELVEN_CROSSBOW_BOLT, 0, WEAPON_CLASS, 26, 45, UNDEF_BLESS },
@@ -253,7 +247,7 @@ static const struct trobj Drow_Rogue[] = {
     { SACK, 0, TOOL_CLASS, 1, 1, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Samurai[] = {
+const struct trobj Samurai[] = {
     { KATANA, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { SHORT_SWORD, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS }, /* wakizashi */
     { YUMI, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
@@ -261,7 +255,7 @@ static const struct trobj Samurai[] = {
     { SPLINT_MAIL, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Tourist[] = {
+const struct trobj Tourist[] = {
     { DART, 2, WEAPON_CLASS, 21, 40, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 10, 10, 0 },
     { POT_EXTRA_HEALING, 0, POTION_CLASS, 2, 2, UNDEF_BLESS },
@@ -271,14 +265,14 @@ static const struct trobj Tourist[] = {
     { CREDIT_CARD, 0, TOOL_CLASS, 1, 1, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Valkyrie[] = {
+const struct trobj Valkyrie[] = {
     { SPEAR, 1, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { DAGGER, 0, WEAPON_CLASS, 1, 1, UNDEF_BLESS },
     { SMALL_SHIELD, 3, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { FOOD_RATION, 0, FOOD_CLASS, 1, 1, 0 },
     { 0, 0, 0, 0, 0, 0 }
 };
-static const struct trobj Wizard[] = {
+const struct trobj Wizard[] = {
     { CLOAK_OF_MAGIC_RESISTANCE, 0, ARMOR_CLASS, 1, 1, UNDEF_BLESS },
     { WAN_MAGIC_MISSILE, UNDEF_SPE, WAND_CLASS, 1, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, 1, UNDEF_BLESS },
@@ -294,22 +288,22 @@ static const struct trobj Wizard[] = {
  *      Optional extra inventory items.
  */
 
-static const struct trobj Healing_book[] =
+const struct trobj Healing_book[] =
     { { SPE_HEALING, UNDEF_SPE, SPBOOK_CLASS, 1, 1, 1 },
       { 0, 0, 0, 0, 0, 0 } };
-static const struct trobj Protection_book[] =
+const struct trobj Protection_book[] =
     { { SPE_PROTECTION, UNDEF_SPE, SPBOOK_CLASS, 1, 1, 1 },
       { 0, 0, 0, 0, 0, 0 } };
-static const struct trobj Confuse_monster_book[] =
+const struct trobj Confuse_monster_book[] =
     { { SPE_CONFUSE_MONSTER, UNDEF_SPE, SPBOOK_CLASS, 1, 1, 1 },
       { 0, 0, 0, 0, 0, 0 } };
-static const struct trobj Tinopener[] =
+const struct trobj Tinopener[] =
     { { TIN_OPENER, 0, TOOL_CLASS, 1, 1, 0 },
       { 0, 0, 0, 0, 0, 0 } };
-static const struct trobj Lamp[] =
+const struct trobj Lamp[] =
     { { OIL_LAMP, 1, TOOL_CLASS, 1, 1, 0 },
       { 0, 0, 0, 0, 0, 0 } };
-static const struct trobj Blindfold[] =
+const struct trobj Blindfold[] =
     { { BLINDFOLD, 0, TOOL_CLASS, 1, 1, 0 },
       { 0, 0, 0, 0, 0, 0 } };
 static const struct trobj Xtra_food[] =
@@ -318,10 +312,10 @@ static const struct trobj Xtra_food[] =
 static const struct trobj Dra_food[] =
     { { EGG, UNDEF_SPE, FOOD_CLASS, 5, 5, 0 },
       { 0, 0, 0, 0, 0, 0 } };
-static const struct trobj Leash[] =
+const struct trobj Leash[] =
     { { LEASH, 0, TOOL_CLASS, 1, 1, 0 },
       { 0, 0, 0, 0, 0, 0 } };
-static const struct trobj Towel[] =
+const struct trobj Towel[] =
     { { TOWEL, 0, TOOL_CLASS, 1, 1, 0 },
       { 0, 0, 0, 0, 0, 0 } };
 static const struct trobj Wishing[] =

@@ -494,6 +494,9 @@ mon_adjust_speed(
     unsigned int oldspeed = mon->mspeed;
 
     switch (adjust) {
+    case 3:
+        give_msg = FALSE; /* recovering from sewage */
+        break;
     case 2:
         mon->permspeed = MFAST;
         give_msg = FALSE; /* special-case monster creation */
@@ -512,10 +515,11 @@ mon_adjust_speed(
         else if (!(defended(mon, AD_SLOW) || resists_slow(r_data(mon))))
             mon->permspeed = MSLOW;
         break;
-    case -2:
-        mon->permspeed = MSLOW;
-        give_msg = FALSE; /* (not currently used) */
-        break;
+    case -2: /* wading through sewage: set mspeed for temporary slow */
+        if (!(defended(mon, AD_SLOW) || resists_slow(r_data(mon))))
+            mon->mspeed = MSLOW;
+        give_msg = FALSE;
+        return; /* return early so mspeed isn't changed */
     case -3: /* petrification */
         /* take away intrinsic speed but don't reduce normal speed */
         if (mon->permspeed == MFAST)
@@ -529,10 +533,14 @@ mon_adjust_speed(
         break;
     }
 
-    for (otmp = mon->minvent; otmp; otmp = otmp->nobj)
+    for (otmp = mon->minvent; otmp; otmp = otmp->nobj) {
         if (otmp->owornmask && objects[otmp->otyp].oc_oprop == FAST)
             break;
-    if (otmp) /* speed boots */
+        if (otmp->owornmask && Is_dragon_scaled_armor(otmp)
+            && Dragon_armor_to_scales(otmp) == BLUE_DRAGON_SCALES)
+            break;
+    }
+    if (otmp) /* speed boots or blue-scaled armor */
         mon->mspeed = MFAST;
     else
         mon->mspeed = mon->permspeed;
@@ -717,6 +725,7 @@ find_mac(struct monst *mon)
 {
     struct obj *obj;
     int base = r_data(mon)->ac - mon->mprotection;
+    int bonus, div, race_role_bonus;
     long mwflags = mon->misc_worn_check;
 
     for (obj = mon->minvent; obj; obj = obj->nobj) {
@@ -726,8 +735,94 @@ find_mac(struct monst *mon)
             else
                 base -= ARM_BONUS(obj);
             /* since ARM_BONUS is positive, subtracting it increases AC */
+
+            /* race and role armor bonuses, separate from regular
+               bonuses, leaving drow gloves out of this on purpose */
+            race_role_bonus = 1;
+            if (which_armor(mon, W_ARM)) {
+                if ((racial_orc(mon)
+                     && (obj->otyp == ORCISH_CHAIN_MAIL
+                         || obj->otyp == ORCISH_RING_MAIL))
+                    || (racial_drow(mon)
+                        && (obj->otyp == DARK_ELVEN_CHAIN_MAIL
+                            || obj->otyp == DARK_ELVEN_TUNIC))
+                    || (racial_elf(mon) && obj->otyp == ELVEN_CHAIN_MAIL)
+                    || (racial_dwarf(mon)
+                        && obj->otyp == DWARVISH_CHAIN_MAIL)
+                    || (racial_zombie(mon) && is_bone(obj))
+                    || (racial_vampire(mon) && is_bone(obj))
+                    || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
+                    base -= race_role_bonus;
+            }
+            if (which_armor(mon, W_ARMC)) {
+                if ((racial_orc(mon) && obj->otyp == ORCISH_CLOAK)
+                    || (racial_elf(mon) && obj->otyp == ELVEN_CLOAK)
+                    || (racial_drow(mon) && obj->otyp == DARK_ELVEN_CLOAK)
+                    || (racial_dwarf(mon) && obj->otyp == DWARVISH_CLOAK))
+                    base -= race_role_bonus;
+            }
+            if (which_armor(mon, W_ARMH)) {
+                if ((racial_orc(mon) && obj->otyp == ORCISH_HELM)
+                    || (racial_elf(mon) && obj->otyp == ELVEN_HELM)
+                    || (racial_drow(mon) && obj->otyp == DARK_ELVEN_HELM)
+                    || (racial_dwarf(mon) && obj->otyp == DWARVISH_HELM)
+                    || (racial_zombie(mon) && is_bone(obj))
+                    || (racial_vampire(mon) && is_bone(obj))
+                    || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
+                    base -= race_role_bonus;
+            }
+            if (which_armor(mon, W_ARMF)) {
+                if ((racial_orc(mon) && obj->otyp == ORCISH_BOOTS)
+                    || (racial_elf(mon) && obj->otyp == ELVEN_BOOTS)
+                    || (racial_drow(mon) && obj->otyp == DARK_ELVEN_BOOTS)
+                    || (racial_dwarf(mon) && obj->otyp == DWARVISH_BOOTS)
+                    || (racial_zombie(mon) && is_bone(obj))
+                    || (racial_vampire(mon) && is_bone(obj))
+                    || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
+                    base -= race_role_bonus;
+            }
+            if (which_armor(mon, W_ARMS)) {
+                if ((racial_orc(mon)
+                     && (obj->otyp == ORCISH_SHIELD
+                         || obj->otyp == URUK_HAI_SHIELD))
+                    || (racial_elf(mon) && obj->otyp == ELVEN_SHIELD)
+                    || (racial_drow(mon) && obj->otyp == DARK_ELVEN_BRACERS)
+                    || (racial_dwarf(mon)
+                        && obj->otyp == DWARVISH_ROUNDSHIELD)
+                    || (racial_zombie(mon) && is_bone(obj))
+                    || (racial_vampire(mon) && is_bone(obj))
+                    || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
+                    base -= race_role_bonus;
+            }
+            if (which_armor(mon, W_ARMG)) {
+                if ((racial_zombie(mon) && is_bone(obj))
+                    || (racial_vampire(mon) && is_bone(obj))
+                    || (mon->data == &mons[PM_DRUID] && is_wood(obj)))
+                    base -= race_role_bonus;
+            }
         }
     }
+
+    /* other spell effects */
+    if (has_barkskin(mon))
+        base -= 5;
+    if (has_stoneskin(mon))
+        base -= 8;
+
+    /* base derives from r_data(mon)->ac rather than mon->data->ac;
+       make sure racial shopkeepers retain their buffed up AC */
+    if (has_eshk(mon))
+        base -= 10;
+
+    /* tweak the monster's AC a bit according to its level */
+    div = mon->m_lev > 20 ? 4 : 3;
+    bonus = ((mon->m_lev / 2)) / div;
+    if (bonus > 20)
+        bonus = 20;
+    if (bonus < 0)
+        bonus = 0;
+    base -= bonus;
+
     /* same cap as for hero [find_ac(do_wear.c)] */
     if (abs(base) > AC_MAX)
         base = sgn(base) * AC_MAX;
@@ -762,13 +857,14 @@ m_dowear(struct monst *mon, boolean creation)
      * except for the additional restriction on intelligence.  (Players
      * are always intelligent, even if polymorphed).
      */
-    if (verysmall(mon->data) || nohands(mon->data) || is_animal(mon->data))
+    if (r_verysmall(mon) || nohands(mon->data) || is_animal(mon->data)
+        || is_ent(mon->data) || is_plant(mon->data))
         return;
     /* give mummies a chance to wear their wrappings
      * and let skeletons wear their initial armor */
     if (mindless(mon->data)
         && (!creation || (mon->data->mlet != S_MUMMY
-                          && mon->data != &mons[PM_SKELETON])))
+                          && mon->data->mlet != S_SKELETON)))
         return;
 
     m_dowear_type(mon, W_AMUL, creation, FALSE);
@@ -780,13 +876,15 @@ m_dowear(struct monst *mon, boolean creation)
        treating small as a special case allows hobbits, gnomes, and
        kobolds to wear all cloaks; large and huge allows giants and such
        to wear mummy wrappings but not other cloaks */
-    if (can_wear_armor || WrappingAllowed(mon->data))
+    if (can_wear_armor || WrappingAllowed(r_data(mon)))
         m_dowear_type(mon, W_ARMC, creation, FALSE);
     m_dowear_type(mon, W_ARMH, creation, FALSE);
-    if (!MON_WEP(mon) || !bimanual(MON_WEP(mon)))
-        m_dowear_type(mon, W_ARMS, creation, FALSE);
+    /* bracers fill the shield slot but leave the hands free, so the
+       two-handed weapon restriction is applied per item instead */
+    m_dowear_type(mon, W_ARMS, creation, FALSE);
     m_dowear_type(mon, W_ARMG, creation, FALSE);
-    if (!slithy(mon->data) && mon->data->mlet != S_CENTAUR)
+    if (!slithy(mon->data) && !racial_centaur(mon)
+        && mon->data != &mons[PM_DRIDER] && !racial_tortle(mon))
         m_dowear_type(mon, W_ARMF, creation, FALSE);
     if (can_wear_armor)
         m_dowear_type(mon, W_ARM, creation, FALSE);
@@ -809,8 +907,12 @@ m_dowear_type(
     boolean autocurse;
     char nambuf[BUFSZ];
 
-    if (mon->mfrozen)
-        return; /* probably putting previous item on */
+    if (mon->mfrozen) {
+        /* probably putting previous item on; check again when
+           able to act so remaining gear is not forgotten */
+        check_gear_next_turn(mon);
+        return;
+    }
 
     /* Get a copy of monster's name before altering its visibility */
     Strcpy(nambuf, See_invisible ? Monnam(mon) : mon_nam(mon));
@@ -823,12 +925,20 @@ m_dowear_type(
     best = old;
 
     for (obj = mon->minvent; obj; obj = obj->nobj) {
+        /* never equip gear made of a hated material */
+        if (mon_hates_material(mon, obj->material))
+            continue;
+
         switch (flag) {
         case W_AMUL:
             if (obj->oclass != AMULET_CLASS
                 || (obj->otyp != AMULET_OF_LIFE_SAVING
                     && obj->otyp != AMULET_OF_REFLECTION
-                    && obj->otyp != AMULET_OF_GUARDING))
+                    && obj->otyp != AMULET_OF_MAGIC_RESISTANCE
+                    && obj->otyp != AMULET_OF_GUARDING
+                    && obj->otyp != AMULET_OF_ESP
+                    && obj->otyp != AMULET_OF_FLYING
+                    && obj->oartifact != ART_EYE_OF_THE_AETHIOPICA))
                 continue;
             /* for 'best' to be non-Null, it must be an amulet of guarding;
                life-saving and reflection don't get here due to early return
@@ -869,11 +979,16 @@ m_dowear_type(
                 continue;
             break;
         case W_ARMS:
-            if (!is_shield(obj))
+            if (!(is_shield(obj) || is_bracer(obj)))
+                continue;
+            /* bracers leave the hands free; a proper shield can't be
+               used together with a two-handed weapon */
+            if (!is_bracer(obj)
+                && MON_WEP(mon) && bimanual(MON_WEP(mon)))
                 continue;
             break;
         case W_ARMG:
-            if (!is_gloves(obj))
+            if (!is_gloves(obj) || obj->otyp == MUMMIFIED_HAND)
                 continue;
             break;
         case W_ARMF:
@@ -954,8 +1069,12 @@ m_dowear_type(
         } /* can see it */
         m_delay += objects[best->otyp].oc_delay;
         mon->mfrozen = m_delay;
-        if (mon->mfrozen)
+        if (mon->mfrozen) {
             mon->mcanmove = 0;
+            /* this wear ends the gear pass early; check again
+               afterwards for anything else worth equipping */
+            check_gear_next_turn(mon);
+        }
     }
     if (old) {
         update_mon_extrinsics(mon, old, FALSE, creation);
@@ -1362,11 +1481,21 @@ racial_exception(struct monst *mon, struct obj *obj)
 
     /* Acceptable Exceptions: */
     /* Allow hobbits to wear elven armor - LoTR */
-    if (ptr == &mons[PM_HOBBIT] && is_elven_armor(obj))
+    if ((is_hobbit(ptr) || racial_hobbit(mon)) && is_elven_armor(obj))
         return 1;
     /* Unacceptable Exceptions: */
     /* Checks for object that certain races should never use go here */
-    /*  return -1; */
+    if ((is_elf(ptr) || racial_elf(mon))
+        && (is_orcish_armor(obj) || is_drow_armor(obj)))
+        return -1;
+
+    if ((is_drow(ptr) || racial_drow(mon))
+        && (is_orcish_armor(obj) || is_elven_armor(obj)))
+        return -1;
+
+    if ((is_orc(ptr) || racial_orc(mon))
+        && (is_elven_armor(obj) || is_drow_armor(obj)))
+        return -1;
 
     return 0;
 }

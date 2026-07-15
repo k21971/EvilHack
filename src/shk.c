@@ -77,6 +77,8 @@ staticfn void clear_no_charge(struct monst *, struct obj *);
 staticfn void clear_no_charge_pets(struct monst *);
 staticfn long check_credit(long, struct monst *);
 staticfn void pay(long, struct monst *);
+staticfn void shk_racial_adjustments(short, long *, long *);
+staticfn boolean shk_stat_priced(struct monst *);
 staticfn long get_cost(struct obj *, struct monst *);
 staticfn long set_cost(struct obj *, struct monst *);
 staticfn const char *shk_embellish(struct obj *, long);
@@ -2896,6 +2898,211 @@ oid_price_adjustment(struct obj *obj, unsigned int oid)
     return res;
 }
 
+/* price adjustments based on the shopkeeper's race versus the hero's;
+   the single source of racial price multipliers. gnome shopkeepers
+   price on the hero's intelligence and nymph shopkeepers on charisma
+   instead of on race */
+staticfn void
+shk_racial_adjustments(
+    short mnum, /* the shopkeeper's racial monster index, not the hero */
+    long *numerator,
+    long *denominator)
+{
+    const struct permonst *shkdat = &mons[mnum];
+
+    *numerator = 1L;
+    *denominator = 1L;
+
+    if (is_human(shkdat)) {
+        if (Race_if(PM_ORC) || Race_if(PM_GNOME)) {
+            *numerator = 4L;
+            *denominator = 3L;
+        } else if (Race_if(PM_CENTAUR)) {
+            *numerator = 3L;
+            *denominator = 2L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
+        } else if (Race_if(PM_AASIMAR)) {
+            *numerator = 4L;
+            *denominator = 5L;
+        }
+    } else if (is_elf(shkdat)) {
+        if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)
+            || Race_if(PM_DROW)) {
+            *numerator = 2L;
+        } else if (Race_if(PM_DWARF) || Race_if(PM_TORTLE)) {
+            *numerator = 4L;
+            *denominator = 3L;
+        } else if (Race_if(PM_ELF)) {
+            *numerator = 4L;
+            *denominator = 5L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
+        }
+    } else if (is_drow(shkdat)) {
+        if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)
+            || Race_if(PM_ELF)) {
+            *numerator = 2L;
+        } else if (Race_if(PM_DWARF) || Race_if(PM_TORTLE)) {
+            *numerator = 4L;
+            *denominator = 3L;
+        } else if (Race_if(PM_DROW)) {
+            *numerator = 4L;
+            *denominator = 5L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
+        }
+    } else if (is_dwarf(shkdat)) {
+        if (Race_if(PM_ORC) || Race_if(PM_ILLITHID)) {
+            *numerator = 2L;
+        } else if (Race_if(PM_ELF) || Race_if(PM_DROW)) {
+            *numerator = 4L;
+            *denominator = 3L;
+        } else if (Race_if(PM_GIANT)) {
+            *numerator = 3L;
+            *denominator = 2L;
+        } else if (Race_if(PM_DWARF)) {
+            *numerator = 3L;
+            *denominator = 4L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
+        } else if (Race_if(PM_AASIMAR)) {
+            *numerator = 4L;
+            *denominator = 5L;
+        }
+    } else if (is_orc(shkdat)) {
+        if (Race_if(PM_ELF) || Race_if(PM_GNOME)
+            || Race_if(PM_HOBBIT) || Race_if(PM_DROW)) {
+            *numerator = 3L;
+        } else if (Race_if(PM_DWARF) || Race_if(PM_TORTLE)) {
+            *numerator = 5L;
+            *denominator = 3L;
+        } else if (Race_if(PM_HUMAN) || Race_if(PM_AASIMAR)) {
+            *numerator = 4L;
+            *denominator = 3L;
+        } else if (Race_if(PM_ORC)) {
+            *numerator = 2L;
+            *denominator = 3L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
+        }
+    } else if (is_gnome(shkdat)) {
+        if (ACURR(A_INT) <= 6) {
+            *numerator = 6L;
+        } else if (ACURR(A_INT) < 12) {
+            *numerator = 2L;
+        } else if (ACURR(A_INT) < 15) {
+            *numerator = 3L;
+            *denominator = 2L;
+        } else if (ACURR(A_INT) < 18) {
+            *numerator = 4L;
+            *denominator = 3L;
+        }
+    } else if (is_illithid(shkdat)) {
+        if (mnum < PM_ILLITHID) {
+            impossible("mnum for illithid shopkeeper is too low!");
+            return;
+        }
+        if (!Race_if(PM_ILLITHID))
+            *numerator =
+                ((mnum - PM_ILLITHID + 1) * (Race_if(PM_DRAUGR) ? 20 : 10));
+    } else if (is_centaur(shkdat)) {
+        if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+            || Race_if(PM_DWARF) || Race_if(PM_ORC)
+            || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)
+            || Race_if(PM_AASIMAR)) {
+            *numerator = 3L;
+            *denominator = 2L;
+        } else if (Race_if(PM_CENTAUR)) {
+            *numerator = 3L;
+            *denominator = 4L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
+        }
+    } else if (is_giant(shkdat)) {
+        if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+            || Race_if(PM_ILLITHID) || Race_if(PM_ORC)
+            || Race_if(PM_HOBBIT) || Race_if(PM_TORTLE)) {
+            *numerator = 4L;
+            *denominator = 3L;
+        } else if (Race_if(PM_DWARF)) {
+            *numerator = 3L;
+            *denominator = 2L;
+        } else if (Race_if(PM_GIANT)) {
+            *numerator = 3L;
+            *denominator = 4L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
+        } else if (Race_if(PM_AASIMAR)) {
+            *numerator = 4L;
+            *denominator = 5L;
+        }
+    } else if (shkdat == &mons[PM_NYMPH]) {
+        if (ACURR(A_CHA) <= 6) {
+            *numerator = 8L;
+        } else if (ACURR(A_CHA) < 12) {
+            *numerator = 3L;
+        } else if (ACURR(A_CHA) < 15) {
+            *numerator = 5L;
+            *denominator = 3L;
+        } else if (ACURR(A_CHA) < 18) {
+            *numerator = 4L;
+            *denominator = 3L;
+        }
+    } else if (is_aasimar(shkdat)) {
+        if (Race_if(PM_HUMAN) || Race_if(PM_GNOME)
+            || Race_if(PM_ILLITHID) || Race_if(PM_ORC)
+            || Race_if(PM_HOBBIT) || Race_if(PM_TORTLE)
+            || Race_if(PM_GIANT)) {
+            *numerator = 4L;
+            *denominator = 3L;
+        } else if (Race_if(PM_DWARF) || Race_if(PM_ELF)
+                   || Race_if(PM_DROW)) {
+            *numerator = 3L;
+            *denominator = 2L;
+        } else if (Race_if(PM_AASIMAR)) {
+            *numerator = 3L;
+            *denominator = 4L;
+        } else if (Race_if(PM_DRAUGR)) {
+            *numerator = 20L;
+        } else if (Race_if(PM_VAMPIRE)) {
+            *numerator = 5L;
+        }
+    } else {
+        ; /* other monsters are possible (e.g. polyed shopkeeper);
+             don't do any adjustment in that case */
+    }
+}
+
+/* gnome and nymph shopkeepers set their prices purely from a stat, the
+   hero's intelligence and charisma tier respectively (see
+   shk_racial_adjustments()), so the general charisma price adjustment
+   must not be applied on top of theirs */
+staticfn boolean
+shk_stat_priced(struct monst *shkp)
+{
+    short rmnum;
+
+    if (!shkp || is_izchak(shkp, TRUE) || !has_erac(shkp))
+        return FALSE;
+    rmnum = ERAC(shkp)->rmnum;
+    return (is_gnome(&mons[rmnum]) || rmnum == PM_NYMPH);
+}
+
 /* Relative prices for the different materials.
  * Units for this are much more poorly defined than for weights; the best
  * approximation would be something like "zorkmids per aum".
@@ -2945,14 +3152,18 @@ get_cost(
          /* used to perform a single calculation even when multiple
             adjustments (unID'd, dunce/tourist, charisma) are made */
         multiplier = 1L, divisor = 1L;
+    /* racial_discount: shopkeeper already favors the hero's race, so
+       the high charisma purchase discount is not applied on top.
+       stat_priced: gnome/nymph shop, charisma adjustment suppressed */
+    boolean racial_discount = FALSE,
+            stat_priced = shk_stat_priced(shkp);
 
     if (!tmp)
         tmp = 5L;
     /* shopkeeper may notice if the player isn't very knowledgeable -
        especially when gem prices are concerned */
     if (!obj->dknown || !objects[obj->otyp].oc_name_known) {
-        if (obj->oclass == GEM_CLASS
-            && objects[obj->otyp].oc_material == GLASS) {
+        if (is_worthless_glass(obj)) {
             int i;
             /* get a value that's 'random' from game to game, but the
                same within the same game */
@@ -3010,18 +3221,41 @@ get_cost(
              || (uarmu && !uarm && !uarmc)) /* touristy shirt visible */
         multiplier *= 4L, divisor *= 3L;
 
-    if (ACURR(A_CHA) > 18)
-        divisor *= 2L;
-    else if (ACURR(A_CHA) == 18)
-        multiplier *= 2L, divisor *= 3L;
-    else if (ACURR(A_CHA) >= 16)
-        multiplier *= 3L, divisor *= 4L;
-    else if (ACURR(A_CHA) <= 5)
-        multiplier *= 2L;
-    else if (ACURR(A_CHA) <= 7)
-        multiplier *= 3L, divisor *= 2L;
-    else if (ACURR(A_CHA) <= 10)
-        multiplier *= 4L, divisor *= 3L;
+    /* possible surcharges or discounts based on shk race, if one was
+       passed in; resolved first so the charisma discount below can see
+       whether this shopkeeper already favors the hero's race */
+    if (shkp) {
+        long numer = 1L, denom = 1L;
+
+        if (!is_izchak(shkp, TRUE) && has_erac(shkp))
+            shk_racial_adjustments(ERAC(shkp)->rmnum, &numer, &denom);
+        multiplier *= numer;
+        divisor *= denom;
+        racial_discount = (numer < denom);
+    }
+
+    /* low charisma always raises the purchase price. high charisma
+       lowers it, except at a shopkeeper who already gives a racial
+       discount - that racial price is the hero's best and charisma
+       cannot improve on it. the high charisma floor also keeps the
+       buy price at or above what the shk pays buying the item back
+       (see set_cost()), preventing a buy-resell profit loop. gnome
+       and nymph shops are skipped entirely; they price on a stat */
+    if (!stat_priced) {
+        if (ACURR(A_CHA) <= 5)
+            multiplier *= 2L;
+        else if (ACURR(A_CHA) <= 7)
+            multiplier *= 3L, divisor *= 2L;
+        else if (ACURR(A_CHA) <= 10)
+            multiplier *= 4L, divisor *= 3L;
+        else if (!racial_discount) {
+            if (ACURR(A_CHA) > 18)
+                multiplier *= 5L, divisor *= 6L;
+            else if (ACURR(A_CHA) == 18)
+                multiplier *= 11L, divisor *= 12L;
+            /* CHA 16-17: no discount */
+        }
+    }
 
     /* tmp = (tmp * multiplier) / divisor [with roundoff tweak] */
     tmp *= multiplier;
@@ -3208,12 +3442,18 @@ staticfn long
 set_cost(struct obj *obj, struct monst *shkp)
 {
     long tmp, unit_price = getprice(obj, TRUE), multiplier = 1L, divisor = 1L;
+    /* gnome/nymph shop: suppress the general charisma sell bonus */
+    boolean stat_priced = shk_stat_priced(shkp);
 
     tmp = get_pricing_units(obj) * unit_price;
 
     /* adjust for different material */
     multiplier *= matprices[obj->material];
     divisor *= matprices[objects[obj->otyp].oc_material];
+
+    /* globs price purely by their pricing units */
+    if (obj->globby)
+        goto end;
 
     if (uarmh && uarmh->otyp == DUNCE_CAP)
         divisor *= 3L;
@@ -3223,9 +3463,23 @@ set_cost(struct obj *obj, struct monst *shkp)
     else
         divisor *= 2L;
 
+    /* high charisma improves the price the shk will pay, mirroring the
+       way it used to lower purchase prices; low and neutral charisma
+       are unaffected, as are gnome/nymph shops which price on a stat.
+       the sell-price cap below keeps this from ever exceeding the buy
+       price */
+    if (!stat_priced) {
+        if (ACURR(A_CHA) > 18)
+            multiplier *= 5L, divisor *= 3L;
+        else if (ACURR(A_CHA) == 18)
+            multiplier *= 3L, divisor *= 2L;
+        else if (ACURR(A_CHA) >= 16)
+            multiplier *= 4L, divisor *= 3L;
+    }
+
     /* shopkeeper may notice if the player isn't very knowledgeable -
        especially when gem prices are concerned */
-    if (!obj->dknown || !objects[obj->otyp].oc_name_known) {
+    if (shkp && (!obj->dknown || !objects[obj->otyp].oc_name_known)) {
         if (obj->oclass == GEM_CLASS) {
             /* different shop keepers give different prices */
             if (obj->material == GEMSTONE
@@ -3236,6 +3490,19 @@ set_cost(struct obj *obj, struct monst *shkp)
             }
         } else if (tmp > 1L && !(shkp->m_id % 4))
             multiplier *= 3L, divisor *= 4L;
+    }
+
+    /* possible additional adjustments based on shk race, if one was
+       passed in; the numerator/denominator are swapped relative to
+       get_cost() so a shopkeeper that charges the hero's race more
+       also pays that hero less, and vice versa */
+    if (shkp) {
+        long numer = 1L, denom = 1L;
+
+        if (!is_izchak(shkp, TRUE) && has_erac(shkp))
+            shk_racial_adjustments(ERAC(shkp)->rmnum, &denom, &numer);
+        multiplier *= numer;
+        divisor *= denom;
     }
 
     if (tmp >= 1L) {
@@ -3252,7 +3519,20 @@ set_cost(struct obj *obj, struct monst *shkp)
             tmp = 1L;
     }
 
+ end:
     /* (no adjustment for angry shk here) */
+    /* clamp the sell price to the buy price as a final safety net.
+       the racial sell-side reciprocal can still push a same-race
+       shopkeeper's offer above what it would charge to sell the same
+       item back, which would open a buy-resell profit loop, so cap it.
+       get_cost is per-unit while set_cost is per-stack, so scale by
+       get_pricing_units to compare stack totals */
+    if (shkp && tmp > 0L) {
+        long buy_total = get_pricing_units(obj) * get_cost(obj, shkp);
+
+        if (tmp > buy_total)
+            tmp = buy_total;
+    }
     return tmp;
 }
 
