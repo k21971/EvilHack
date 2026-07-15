@@ -1249,7 +1249,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       gem-studded long sword in inventory display (pre-fix =
       stack smash; ASan build ideal); (12) save/reload forge
       level + FQ/gem items intact; old dev save REFUSED cleanly.
-- [~] Magic chests (+ MAGIC_CHEST nhl binding, crystal chest obj)
+- [x] Magic chests (+ MAGIC_CHEST nhl binding, crystal chest obj)
       PORTED + REVIEWED 2026-07-15 (subagent-ported ~40 files,
       reviewer CONDITIONAL PASS with NO blockers -> all 3 concerns
       + 4 nits coordinator-resolved same day; commit + battery
@@ -1328,8 +1328,66 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       tip-into keeps 5.0's carried-only target design + the
       chest as the sole floor-side target (master offered all
       floor containers; revisit only if players miss it).
-      Remaining for [x]: maintainer commit + wizmode battery
-      (reviewer's 14-point list, trimmed to the live-testable):
+      COMMITTED as 366e7ac34 (45 files +802/-154; bundle
+      evilhack-50_2026-07-15e cut+verified). WIZMODE BATTERY RUN
+      2026-07-15 + PASSED WITH TWO REAL CATCHES (both fixed same
+      session, fixup commit pending with this record):
+      BUG-1334 = ERAC B2 REGRESSION, giant-race mercenary
+      crashed level generation (m_initinv add_ac macro read the
+      uninitialized otmp when the round-1 armor chain skips
+      every arm for giants; master's int-returning mongets shape
+      cannot crash; caught by depth-20 wizmakemap sweep, core
+      analyzed, fixed = initialize otmp, verified by 20 clean
+      regens + genesis'd giant soldier with armor-less kit);
+      BUG-1335 = 5.0-new timer sanity walker fired false
+      impossibles on timered chest contents (OBJ_MCHEST has no
+      map location by design; added to the walker's existing
+      skip clause; corpse rot timer verified identical across
+      save/reload). BATTERY PASSES: (1) shared chain cross-level
+      stash/retrieve incl. lock state traveling with the global
+      object; (2) timer relink through save/reload (newt corpse
+      timeout byte-identical; NOTE lichen corpses have no rot
+      timer - do not use them for timer tests); (3) loot menu
+      chest-first with content count + two-container menu; (4)
+      autounlock: locked chest w/ magic key -> NO trap prompt
+      (concern-2 fix) straight to key offer; ordinary chest
+      control DOES get the trap prompt; autokey offers the
+      magic key as only tool on ordinary locks (concern-3 fix);
+      (5) crystal chest: kick THUD no-break, #force refusal,
+      probe resist message, teleport-zap no-op, mundane-key
+      refusal (magic key correctly does NOT bypass) vs
+      gdb-oartifact-flagged key unlocks, loot = OWN contents
+      not the shared chain (the crux); (6) wand of locking/
+      opening down-zaps toggle (Klunk/Klick x2 = tile chest +
+      floor box), lateral zap across the tile single-toggles;
+      (7) #tip on tile "bolted down!", locked-chest tip-into
+      refused, unlocked tip-into lands contents in the shared
+      chain via the target menu; (8) terrain suite: sit
+      "surprisingly comfortable", kick THUNK+ouch, dig "magic
+      chest is unaffected", drum earthquake pits everywhere +
+      chest survives; (9) bones: magic key -> skeleton key of
+      bone (gdb otyp 268 mat bone); (10) object-detection
+      potion senses chest contents cleanly (NOTE "object
+      detection" is a POTION - a "scroll of object detection"
+      wish correctly yields a random scroll, not a parse bug);
+      (11) depth sweep: Dlvl 12 + 20 wizmakemap samples show
+      plain boxes/chests only, zero iron safes, zero crystal
+      chests at 20 (stand-in fix live; crystal at 11-15 is a
+      rare roll, absence in an 8-map sample is expected); (12)
+      wishes: "bearded axe" -> "Nothing fitting" (master's
+      terrain-hijack bug fixed; full "dwarvish bearded axe"
+      works), "magic chest object" -> unlocked HIDDEN_CHEST,
+      "iron safe" -> born locked with 8 rolled contents (NIT-7
+      fix live). PANICLOG at session end: EMPTY (the single
+      pre-fix BUG-1335 entry was wiped by the reinstall; both
+      fixed binaries produced zero entries). Battery driving
+      notes: keep-save-file prompt after restore eats blind
+      keys (capture first); cross-role quest artifacts (MKoT)
+      blast AND evade non-role heroes - gdb oartifact flag on a
+      mundane key is the deterministic artifact-unlock lever;
+      make install DELETES var incl. paniclog (record baselines
+      before reinstalling mid-battery).
+      ORIGINAL reviewer battery list (kept for reference):
       (1) shared chain cross-level: stash on level A via wished
       terrain chest + magic key, retrieve on level B; (2) timer
       relink: fresh corpse in chest -> save/reload + level

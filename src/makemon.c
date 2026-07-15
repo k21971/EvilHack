@@ -2235,7 +2235,10 @@ staticfn void
 m_initinv(struct monst *mtmp)
 {
     int cnt;
-    struct obj *otmp;
+    /* must start out null: the racial gear chains below can skip
+       every arm (a giant mercenary gets no body armor at all) and
+       add_ac dereferences whatever is left here */
+    struct obj *otmp = (struct obj *) 0;
     struct permonst *ptr = mtmp->data;
 
     if (Is_rogue_level(&u.uz))

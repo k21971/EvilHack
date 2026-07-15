@@ -2154,9 +2154,11 @@ timer_sanity_check(void)
                 if ((owhere = top->where) != OBJ_CONTAINED)
                     break;
             assert(top != NULL);
-            if (owhere == OBJ_MIGRATING
+            if (owhere == OBJ_MIGRATING || owhere == OBJ_MCHEST
                 || (owhere == OBJ_MINVENT && !mon_is_local(top->ocarry))) {
-                /* migrating directly or carried by migrating monster */
+                /* migrating directly, carried by a migrating monster, or
+                   inside the shared magic chest (which has no map
+                   location by design) */
                 ; /* not able to validate location so skip checks */
             } else if (!get_obj_location(obj, &x, &y,
                                          CONTAINED_TOO | BURIED_TOO)) {
