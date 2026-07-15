@@ -840,9 +840,70 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dual-wield drop, mon_bimanual, big_wings W_ARM, monster
       ring-wearing (extra_pref rework, W_RINGL/R, Nazgul ring,
       cursed_glove gating), armor_bonus/material_bonus AC.
-      Slice B wizmode battery TODO (NEXT - ASK MAINTAINER before
-      any launch; #levelchange 30 FIRST; regenerate a dev
-      reference save after, pre-ERAC saves are format-dead):
+      SLICE B WIZMODE BATTERY RUN 2026-07-15 (maintainer-approved,
+      4 wizard games on the fresh install, sanity_check ON every
+      turn): PANICLOG EMPTY, zero crashes/impossibles. PASSED
+      LIVE: (4) archdevil bribes END-TO-END - Geryon+Dispater
+      spawn invisible+peaceful, teleport-to-hero, "demands 3100
+      zorkmids", pay->vanishes laughing; broke hero ($0) ->
+      hostile per vanilla no-gold path; Asmodeus spawns
+      hostile+visible (gdb mpeaceful=0); Hammer-wielded genesis
+      -> bribeable lord born hostile (gdb, still minvis=1 per
+      master). (5) bane taming - Hammer/vampire-lord (scroll
+      no-ops, gdb peaceful=0 tame=0; control bare-handed: same
+      scroll tames mtame=5), Dragonbane GLOVES/red dragon no-op,
+      One Ring/WRAITH no-op + ring-off control tames (Nazgul
+      first attempt was non-discriminating - covetous gate;
+      maintainer caught it, re-run on plain wraith). (1)+(6)
+      racial gear - "An orcish soldier" (erac orc + orcish
+      helm/spear/dagger/chain), human sergeant (C-rations x2,
+      splint mail, small shield, helmet, mace), mplayer
+      "Richard the Raider" barbarian (BATTLE_AXE variant kit,
+      ring mail, oilskin-sack m_lev>10 container, enchanted
+      level-kit gear), "Kevin" monk rolled CENTAUR race (apples/
+      oranges/fortune cookies/potions-of-healing kit, spellbook,
+      robe worn, gloves worn) - christening + racial naming +
+      trquan stacks all correct by gdb minvent dump. (2) Minetown
+      temple - GIANT aligned priest (epri+erac straddle) with
+      racial rebuild gear: silver mace +2, large shield +2 worn,
+      healing books, gold. (3) Minetown shops - 4 shks ALL erac
+      (3 human + 1 gnome), x_monnam racial branch LIVE by direct
+      gdb call ("Nenagh the human shopkeeper"), book buy 300
+      (CHA-6 x1.5 exact) / sell-back 100 (base/2, no high-CHA) =
+      clamp holds, no profit. (7) drow webs - drow Wizard hero on
+      web: "There is a spider web here." + u.utrap==0 stays 0;
+      non-drow pet pseudodragon stuck in same web (normal path
+      intact). (8) Ranger goal via #wizloaddes Ran-goal.lua - NO
+      floor artifact (objlist scan), Scorpius carries BOW
+      oartifact=ART_LONGBOW_OF_DIANA blessed. (10) save/reload
+      full cycle + BONES round-trip (die in Minetown, save bones,
+      new game, "Get bones? y") - all 5 erac overlays (gnome shk
+      258/0x8, giant priest 263/0x20, 3 human) byte-identical
+      through BOTH serialization paths. (9) gear churn - wear
+      paths exercised at genesis across all sampled monsters;
+      worn masks correct by gdb.
+      NOT LIVE-TESTED (static/reviewer verification only, revisit
+      opportunistically): drow temple darkening (needs random
+      drow temple-priest roll), gnome INT-tier + nymph CHA-tier
+      quotes + Izchak carve-out live pricing, maybe_arm_silver
+      ~1/5 silver vs Infidel/Vampire hero (needs such a hero +
+      spawn sampling), Crossbow of Carl variant (needs gnome/
+      hobbit hero), m_dowear_type mfrozen re-arm corner (not
+      deterministically stageable via tmux), glob sell pricing
+      (needs food shop + glob), sfctool convert cycle (binary
+      link broken pre-existing until erid/emsp serialize).
+      Wizmode battery notes: trap wishes work ("web") but fail on
+      doorways/stairs (trap-cover model); genesis Geryon/Dispater
+      etc. needs force-confirm 'y'; farlook via tmux races game
+      input - use gdb x_monnam/field dumps instead; wizkill
+      picker accepts ',' select; lava suicide = wish "molten
+      lava" + Die? y (a space answers default 'n' and rlocs you).
+      Dev reference save NOT regenerated (battery save was
+      consumed by the restore test; make one at next session
+      start if needed).
+      ORIGINAL battery list (kept for the not-yet-covered
+      details; ASK MAINTAINER before any launch; #levelchange 30
+      FIRST):
       (1) mplayer roles at m_lev 1/10/20+ incl. giant/tortle/
       draugr/vampire overlays - kit contents, YA 26-45 stacks,
       draugr monk bookless, Infidel cursed gear + fake Amulet,
