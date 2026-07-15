@@ -976,7 +976,7 @@ minliquid(struct monst *mtmp)
 staticfn int
 minliquid_core(struct monst *mtmp)
 {
-    boolean inpool, inlava, infountain;
+    boolean inpool, inlava, infountain, inforge;
     boolean waterwall = is_waterwall(mtmp->mx,mtmp->my);
 
     /* [ceiling clingers are handled below] */
@@ -987,6 +987,7 @@ minliquid_core(struct monst *mtmp)
     inlava = (is_lava(mtmp->mx, mtmp->my)
               && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));
     infountain = IS_FOUNTAIN(levl[mtmp->mx][mtmp->my].typ);
+    inforge = IS_FORGE(levl[mtmp->mx][mtmp->my].typ);
 
     /* Flying and levitation keeps our steed out of the liquid
        (but not water-walking or swimming; note: if hero is in a
@@ -1005,6 +1006,13 @@ minliquid_core(struct monst *mtmp)
             dryup(mtmp->mx, mtmp->my, FALSE);
         if (inpool)
             water_damage_chain(mtmp->minvent, FALSE);
+        return 0;
+    } else if (mtmp->data == &mons[PM_LAVA_GREMLIN]
+               && (inlava || inforge) && rn2(3)) {
+        (void) split_mon(mtmp, (struct monst *) 0);
+        /* no lava damage chain func (yet), so minvent is spared */
+        if (inforge && !rn2(3))
+            blowupforge(mtmp->mx, mtmp->my);
         return 0;
     } else if (mtmp->data == &mons[PM_IRON_GOLEM] && inpool && !rn2(5)) {
         int dam = d(2, 6);

@@ -1069,7 +1069,128 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Werebane vs werewolf taming, racial tin/sacrifice,
       vorpal-behead troll corpse revival, yellow light vs drow
       both directions.
-- [ ] Forging (+ FORGE nhl binding for .des->lua levels)
+- [~] Forging (+ FORGE nhl binding for .des->lua levels)
+      PORTED + REVIEWED 2026-07-15 (subagent-ported 50 files
+      +1935/-154, reviewer CONDITIONAL PASS -> blocker + concerns
+      fixed by coordinator same day; commit + wizmode battery
+      pending). Contents: FORGE terrain end-to-end (rm.h FORGE=28
+      inserted before FOUNTAIN - FOUNTAIN..CLOUD/MAX_TYPE/
+      MATCH_WALL/xFLOOR.. all shifted +1, range-macro membership
+      audited, DEV SAVES/BONES INVALIDATED; defsym.h S_forge PCHAR
+      37 inserted before S_fountain with explicit-index renumber,
+      '{' CLR_ORANGE = map_color_256to16(202) per the HI_ alias
+      precedent; levelflags nforges; back_to_glyph/botl
+      terrain_descr/cmd levltyp/pager/invent dfeature/overview
+      mapseen 2-bit nforge/sounds; mklev mkforge 1/40 between
+      mksink and mkaltar; wizard terrain wish); fountain.c core
+      (dipforge + fusions[] 96 recipes + artifusions[] 13 -
+      both mechanically diffed byte-equivalent to master;
+      get_forge_recipe, gem helpers, doforging via 5.0 menu/getobj
+      API with oprops+gem-property transfer and material take-on
+      LIVE, doaffixgem, breakforge/blowupforge/coolforge/
+      drinkforge, dolavademon); #forge M('F') + herecmdmenu +
+      domonability lava gremlin; forgedarti conduct (insight
+      listing + xlog bit 15 + never_forged_an_artifact achieveX);
+      FQ combat (find_roll_to_hit, dmgval clamp, two-hander
+      shatter, breaktest 3/8) + ARM_BONUS +1/+2/-2 (replaces
+      master's armor_bonus - covers hero AC + find_mac); shk
+      getprice quality factor; objnam quality/gem naming + wish
+      parse + PREFIX 148; mkobj may_generate_quality (init-only);
+      artifact.c mk_particular_artifact/is_forged_artifact/
+      non_wishable_artifact + mk_artifact forged_qual/affixed_gem
+      zeroing (un-defers the oprops item); bones BLACKSMITH_HAMMER
+      rewrite + set_material + the non-wishable-artifact bones
+      strip/return-to-owner policy (in_owner_lair/
+      find_owner_on_level; Butcher hellb_level lair TODO-EVILHACK
+      until Ice Queen topology ports); sp_lev feature("forge") +
+      object forged_qual=/affixed_gem= params = THE FORGE NHL
+      BINDING (Phase 3 unblocked); dat/symbols S_forge for Blank
+      + IBMgraphics (NHAccess/UTF8graphics symsets do not exist
+      on branch; U+2320 intent -> Phase 4 utf8map).
+      REVIEWER BLOCKER FIXED: objnam PREFIX stayed 80 while the
+      port added "exceptional "/"<gem>-studded " prefix words -
+      doname prefix[] stack overflow on a fully-ID'd eroded
+      gem-affixed quality weapon; master's 148 + worst-case
+      comment ported. CONCERNS FIXED: explode.c FORGE_EXPLODE
+      killer branch (self-death now "killed by an exploding
+      forge"); scatter() forge stop; mthrowu MT_FLIGHTCHECK forge
+      stop (master parenthesization kept - forge stops in pre
+      phase too); COORDINATOR-FOUND sibling master zap.c bhit
+      IS_SINK||IS_FORGE flight stop (reviewer missed it - claimed
+      master zap.c had no forge sites); bones non-wishable policy
+      (above); sel_set_feature forces lit=1 for FORGE = master
+      SET_TYPLIT parity (the ONE placement path master forced was
+      the one path the port missed; set_levltyp forcing kept).
+      GOTCHA RECONFIRMED: include/onames.h is a DECOMMISSIONED
+      makedefs reference file (5.0 header says "no longer used in
+      the build") that can sit stale in the worktree - the real
+      ART_ enum comes from artilist.h bn column via hack.h
+      ARTI_ENUM (ART_MAGIC_8_BALL etc., exactly the Phase 1
+      tracker map); never grep onames.h for branch names.
+      DELIBERATE DEVIATIONS (reviewer-verified executed): binary
+      Fire_resistance for master's percent-resist at 5 sites
+      (revisit when percent-resist ports); destroy_one_item as
+      wrapper over 5.0 destroyable/maybe_destroy_item with the
+      forge min-1 guarantee inside; no mhitu FQ damage duplicate
+      (master double-counted vs dmgval); FORGE_EXPLODE =
+      MAXOCLASSES+4; ZT_FORGE_FIRE local define; illogical-fusion
+      blowup returns ECMD_TIME (master 0 - blowing up your gear
+      costs the turn); "no forge here" fixes master's "no
+      fountain here" copy-paste; quality roll init=TRUE-only.
+      MASTER BUGS FLAGGED (frozen-unfixed, archive entries when
+      convenient): shatter `!= FQ_SUPERIOR && rn2(2)` slip
+      (ported verbatim); hitmu FQ double-count (not ported);
+      domonability fountain message (fixed on branch).
+      DEFERRED (item -> subsystem): break_glass_obj + blocker/
+      deflection FQ_INFERIOR melee fall-apart channel (glass/
+      blocker combat slice - EXPLICIT RULING: FQ_INFERIOR clause
+      rides with it), forge tile art in win/share/other.txt
+      (Phase 4 - NOTE S_forge insertion shifts every cmap tile
+      after sink; master tile exists to copy), pager forge-recipe
+      /journal lookup subsystem (extended obj/artifact lookup UI;
+      get_forge_recipe exported ready), percent-resist sites,
+      hack_artifacts non-forge retargets (Dirge/Priest/Caveman -
+      artifact/crowning slice), botl_hitbonus FQ display
+      (SCORE_ON_BOTL extension), monk qi weapon-break FQ guards,
+      pray.c sacrifice-gift FQ sites (sacrifice rework),
+      Blacksmith's Cookbook tribute passages (Phase 3 dat),
+      MAGIC_KEY bones rewrite (magic chests). NITs left as
+      master/upstream parity: mkforge transient nforges overcount
+      (upstream mkfount idiom, self-heals), sp_lev %4 negative
+      lua value clamp, getprice erosion-pricing block absent
+      (PRE-EXISTING port gap, separate decision), TOOL_CLASS
+      add_erosion_words inert until barding erosion_matters.
+      Remaining for [x]: maintainer commit + wizmode battery
+      (list below) + xlog token style ruling (kept master's
+      long never_forged_an_artifact vs branch short-style).
+      BATTERY LIST (ASK MAINTAINER before launch; #levelchange
+      30 first; sanity_check on): (1) wish "forge" terrain ->
+      lit tile, '{' orange, lookat/overview/^o counts, level
+      sound; (2) #forge fusion recipe (two inputs -> product,
+      FQ roll by gdb, oprops/material carry); (3) artifact
+      fusion (artifusions pair + gold cost) -> livelog,
+      forgedarti conduct broken in #conduct + xlog bit,
+      touch_artifact; (4) doaffixgem gem onto weapon (property
+      grant, shatter path, enchant threshold via scroll);
+      (5) dipforge potion destroyed (min-1 guarantee), drinkforge
+      fire-res vs not, dolavademon; (6) kick forge (ouch/splash),
+      throw over forge (object stops - zap bhit + mthrowu +
+      scatter fixes), dig -> breakforge -> LAVAPOOL, sit burn;
+      (7) lava gremlin #monster at forge -> blowupforge,
+      FORGE_EXPLODE death line "killed by an exploding forge"
+      (Luck<0 dip case 22); (8) BLACKSMITH_HAMMER apply ->
+      wield+forge prompt, recharge case, bones round-trip ->
+      war hammer iron; (9) Sword of Annihilation (or any
+      SPFX_FORGED arti) in bones -> stripped on reload; Magic
+      8-Ball on Oracle level bones -> survives (lair), off-level
+      -> returned to Oracle if present else stripped; (10)
+      #wizloaddes lua with feature("forge") + obj forged_qual=3
+      affixed_gem= -> forge LIT, nforges correct after coolforge,
+      object quality/gem live; (11) PREFIX regression: fully-ID
+      thoroughly rusty thoroughly corroded +7 exceptional
+      gem-studded long sword in inventory display (pre-fix =
+      stack smash; ASan build ideal); (12) save/reload forge
+      level + FQ/gem items intact; old dev save REFUSED cleanly.
 - [ ] Magic chests (+ MAGIC_CHEST nhl binding, crystal chest obj)
 - [ ] telekinesis.c + #tk command (pilot did the file; wire cmds)
 - [ ] Alignment-abuse subsystem (tiers, #conduct API - see memory

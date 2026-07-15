@@ -449,6 +449,8 @@ encodeconduct(void)
         e |= 1L << 13;
     if (!u.uconduct.pets)
         e |= 1L << 14;
+    if (!u.uconduct.forgedarti)
+        e |= 1L << 15;
 
     return e;
 }
@@ -607,6 +609,7 @@ encode_extended_conducts(char *buf)
     add_achieveX(buf, "pauper",       u.uroleplay.pauper);
     add_achieveX(buf, "bonesless",    !flags.bones);
     add_achieveX(buf, "petless",      !u.uconduct.pets);
+    add_achieveX(buf, "never_forged_an_artifact", !u.uconduct.forgedarti);
     add_achieveX(buf, "unrerolled",   !u.uroleplay.reroll);
 
     return buf;
@@ -1415,7 +1418,6 @@ get_rnd_toptenentry(void)
     (void) fclose(rfile);
     return tt;
 }
-
 
 /*
  * Attach random player name and class from high score list

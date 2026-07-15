@@ -536,6 +536,16 @@ dosit(void)
         You(sit_message, "stairs");
     } else if (typ == LADDER) {
         You(sit_message, "ladder");
+    } else if (IS_FORGE(typ)) {
+        You(sit_message, defsyms[S_forge].explanation);
+        burn_away_slime();
+        if (likes_fire(gy.youmonst.data) || Fire_resistance) {
+            pline_The("forge feels nice and cozy.");
+            return ECMD_TIME;
+        }
+        pline("Argh!  This forge is hot!");
+        losehp(d(4, 4), /* lava damage */
+               "sitting on a forge", KILLED_BY);
     } else if (is_lava(u.ux, u.uy)) {
         /* must be WWalking */
         You(sit_message, hliquid("lava"));

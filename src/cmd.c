@@ -926,6 +926,13 @@ domonability(void)
         } else {
             There("is no fountain here.");
         }
+    } else if (u.umonnum == PM_LAVA_GREMLIN) {
+        if (IS_FORGE(levl[u.ux][u.uy].typ)) {
+            if (split_mon(&gy.youmonst, (struct monst *) 0) && !rn2(3))
+                blowupforge(u.ux, u.uy);
+        } else {
+            There("is no forge here.");
+        }
     } else if (is_unicorn(uptr)) {
         use_unicorn_horn((struct obj **) 0);
         return ECMD_TIME;
@@ -1076,8 +1083,8 @@ const char *levltyp[MAX_TYPE + 2] = {
     "tee-left wall", "tee-right wall", "drawbridge wall", "tree",
     "secret door", "secret corridor", "pool", "moat", "water",
     "drawbridge up", "lava pool", "lava wall", "iron bars", "door",
-    "corridor", "room", "stairs", "ladder", "fountain", "throne", "sink",
-    "grave", "altar", "ice", "drawbridge down", "air", "cloud",
+    "corridor", "room", "stairs", "ladder", "forge", "fountain", "throne",
+    "sink", "grave", "altar", "ice", "drawbridge down", "air", "cloud",
     /* not a real terrain type, but used for undiggable stone
        by wiz_map_levltyp() */
     "unreachable/undiggable",
@@ -1725,6 +1732,8 @@ struct ext_func_tab extcmdlist[] = {
               dofire, 0, NULL },
     { M('f'), "force", "force a lock",
               doforce, AUTOCOMPLETE, NULL },
+    { M('F'), "forge", "use a forge to combine objects or affix gemstones",
+              doforging, AUTOCOMPLETE, NULL },
     { M('g'), "genocided",
               "list monsters that have been genocided or become extinct",
               dogenocided,
@@ -3240,7 +3249,6 @@ key2txt(uchar c, char *txt) /* sufficiently long buffer */
     return txt;
 }
 
-
 void
 parseautocomplete(char *autocomplete, boolean condition)
 {
@@ -4395,6 +4403,7 @@ enum menucmd {
 
     MCMD_QUAFF,
     MCMD_DIP,
+    MCMD_FORGE,
     MCMD_SIT,
     MCMD_UP,
     MCMD_DOWN,
@@ -4454,8 +4463,17 @@ there_cmd_menu_self(winid win, coordxy x, coordxy y, int *act UNUSED)
                 defsyms[IS_FOUNTAIN(typ) ? S_fountain : S_sink].explanation);
         mcmd_addmenu(win, MCMD_QUAFF, buf), ++K;
     }
+    if (IS_FORGE(typ) && can_reach_floor(FALSE))
+        mcmd_addmenu(win, MCMD_QUAFF,
+                     "Really drink the lava from the forge?"), ++K;
     if (IS_FOUNTAIN(typ) && can_reach_floor(FALSE))
         mcmd_addmenu(win, MCMD_DIP, "Dip something into the fountain"), ++K;
+    if (IS_FORGE(typ) && can_reach_floor(FALSE))
+        mcmd_addmenu(win, MCMD_DIP, "Dip something into the forge"), ++K;
+    if (IS_FORGE(typ)) {
+        Sprintf(buf, "Use the %s", defsyms[S_forge].explanation);
+        mcmd_addmenu(win, MCMD_FORGE, buf), ++K;
+    }
     if (IS_THRONE(typ))
         mcmd_addmenu(win, MCMD_SIT, "Sit on the throne"), ++K;
     if (IS_ALTAR(typ))
@@ -4504,7 +4522,6 @@ there_cmd_menu_self(winid win, coordxy x, coordxy y, int *act UNUSED)
             mcmd_addmenu(win, MCMD_EAT, buf), ++K;
         }
     }
-
 
     if (gi.invent) {
         mcmd_addmenu(win, MCMD_INVENTORY, "Inventory"), ++K;
@@ -4788,6 +4805,9 @@ act_on_act(
         cmdq_add_userinput(CQ_CANNED);
         cmdq_add_key(CQ_CANNED, 'y'); /* "Dip foo into the fountain?" */
         break;
+    case MCMD_FORGE:
+        cmdq_add_ec(CQ_CANNED, doforging);
+        break;
     case MCMD_SIT:
         cmdq_add_ec(CQ_CANNED, dosit);
         break;
@@ -4965,6 +4985,9 @@ domouseaction(void)
             if (IS_FOUNTAIN(levl[u.ux][u.uy].typ)
                 || IS_SINK(levl[u.ux][u.uy].typ)) {
                 cmdq_add_ec(CQ_CANNED, dodrink);
+                return ECMD_OK;
+            } else if (IS_FORGE(levl[u.ux][u.uy].typ)) {
+                cmdq_add_ec(CQ_CANNED, doforging);
                 return ECMD_OK;
             } else if (IS_THRONE(levl[u.ux][u.uy].typ)) {
                 cmdq_add_ec(CQ_CANNED, dosit);

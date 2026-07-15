@@ -14,6 +14,7 @@ staticfn struct mkroom *generate_stairs_find_room(void);
 staticfn void generate_stairs(void);
 staticfn void mkfount(struct mkroom *);
 staticfn boolean find_okay_roompos(struct mkroom *, coord *) NONNULLARG12;
+staticfn void mkforge(struct mkroom *);
 staticfn void mksink(struct mkroom *);
 staticfn void mkaltar(struct mkroom *);
 staticfn void mkgrave(struct mkroom *);
@@ -823,13 +824,15 @@ makevtele(void)
     makeniche(TELEP_TRAP_SET);
 }
 
-/* count the tracked features (sinks, fountains) present on the level */
+/* count the tracked features (sinks, fountains, forges) present on the
+   level */
 void
 count_level_features(void)
 {
     coordxy x, y;
 
     svl.level.flags.nfountains = svl.level.flags.nsinks = 0;
+    svl.level.flags.nforges = 0;
     for (y = 0; y < ROWNO; y++)
         for (x = 1; x < COLNO; x++) {
             int typ = levl[x][y].typ;
@@ -838,6 +841,8 @@ count_level_features(void)
                 svl.level.flags.nfountains++;
             else if (typ == SINK)
                 svl.level.flags.nsinks++;
+            else if (typ == FORGE)
+                svl.level.flags.nforges++;
         }
 }
 
@@ -874,6 +879,7 @@ clear_level_structures(void)
 
     svl.level.flags.nfountains = 0;
     svl.level.flags.nsinks = 0;
+    svl.level.flags.nforges = 0;
     svl.level.flags.has_shop = 0;
     svl.level.flags.has_vault = 0;
     svl.level.flags.has_zoo = 0;
@@ -991,6 +997,8 @@ fill_ordinary_room(
         mkfount(croom);
     if (!rn2(60))
         mksink(croom);
+    if (!rn2(40))
+        mkforge(croom);
     if (!rn2(60))
         mkaltar(croom);
     x = 80 - (depth(&u.uz) * 2);
@@ -1127,7 +1135,6 @@ fill_ordinary_room(
         }
     }
 
-
     /* put box/chest inside;
      *  40% chance for at least 1 box, regardless of number
      *  of rooms; about 5 - 7.5% for 2 boxes, least likely
@@ -1245,7 +1252,6 @@ mklev_sanity_check(void)
             impossible("room %i not connected?", i);
     }
 }
-
 
 staticfn void
 makelevel(void)
@@ -2330,6 +2336,21 @@ mksink(struct mkroom *croom)
         return;
 
     svl.level.flags.nsinks++;
+}
+
+staticfn void
+mkforge(struct mkroom *croom)
+{
+    coord m;
+
+    if (!find_okay_roompos(croom, &m))
+        return;
+
+    /* Put a forge at m.x, m.y */
+    if (!set_levltyp(m.x, m.y, FORGE))
+        return;
+
+    svl.level.flags.nforges++;
 }
 
 staticfn void

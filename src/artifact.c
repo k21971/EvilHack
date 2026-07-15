@@ -98,6 +98,15 @@ hack_artifacts(void)
     if (!Role_if(PM_KNIGHT))
         artilist[ART_EXCALIBUR].role = NON_PM;
 
+    if (Role_if(PM_CLERIC)) {
+        /* The Hammer of the Gods is forged from Demonbane and
+           Sunsword; since a priest can reach the forge carrying
+           their own retargeted Demonbane, mirror the priest's
+           alignment onto the result so they are not blasted by
+           the artifact they just made */
+        artilist[ART_HAMMER_OF_THE_GODS].alignment = alignmnt;
+    }
+
     /* Fix up the quest artifact */
     if (gu.urole.questarti) {
         artilist[gu.urole.questarti].alignment = alignmnt;
@@ -195,6 +204,30 @@ artifact_material(int artinum)
         return 0;
     }
     return artilist[artinum].material;
+}
+
+/* create a specific artifact regardless of alignment or role; used when
+   forging artifacts together at a forge */
+struct obj *
+mk_particular_artifact(int artinum)
+{
+    const struct artifact *a;
+    struct obj *obj;
+
+    if (artinum <= 0 || artinum > NROFARTIFACTS) {
+        impossible("invalid artifact number %d to mk_particular_artifact",
+                   artinum);
+        return (struct obj *) 0;
+    }
+    a = &artilist[artinum];
+    obj = mksobj((int) a->otyp, TRUE, FALSE);
+    if (!artiexist[artinum].exists) {
+        /* oname() sets oartifact and the artifact's material and
+           marks it as existing (via artifact_exists()); the hero is
+           creating it in hand so it starts out found */
+        obj = oname(obj, a->name, ONAME_KNOW_ARTI);
+    }
+    return obj;
 }
 
 /*
@@ -330,6 +363,10 @@ mk_artifact(
         assert(otmp != 0);
         /* prevent erosion from generating */
         otmp->oeroded = otmp->oeroded2 = 0;
+        /* prevent 'superior/exceptional/inferior' or gem-studded
+           artifacts */
+        otmp->forged_qual = FQ_NORMAL;
+        otmp->affixed_gem = 0;
         /* prevent object properties or erosion-protection from
            leaking onto artifacts via mksobj's random rolls */
         otmp->oprops = otmp->oprops_known = 0L;
@@ -3287,6 +3324,28 @@ boolean
 permapoisoned(struct obj *obj)
 {
     return (obj && is_art(obj, ART_GRIMTOOTH));
+}
+
+/* is this artifact one that can never be wished for? */
+boolean
+non_wishable_artifact(struct obj *otmp)
+{
+    int art = otmp->oartifact;
+
+    if (!art)
+        return FALSE;
+    return ((artilist[art].spfx & SPFX_NOWISH) != 0L);
+}
+
+/* is this artifact one that can only be created via forging? */
+boolean
+is_forged_artifact(struct obj *otmp)
+{
+    int art = otmp->oartifact;
+
+    if (!art)
+        return FALSE;
+    return ((artilist[art].spfx & SPFX_FORGED) != 0L);
 }
 #endif /* SFCTOOL */
 

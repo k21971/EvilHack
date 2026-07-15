@@ -81,30 +81,31 @@ enum levl_typ_types {
     ROOM      = 25,
     STAIRS    = 26,
     LADDER    = 27,
-    FOUNTAIN  = 28,
-    THRONE    = 29,
-    SINK      = 30,
-    GRAVE     = 31,
-    ALTAR     = 32,
-    ICE       = 33,
-    DRAWBRIDGE_DOWN = 34,
-    AIR       = 35,
-    CLOUD     = 36,
+    FORGE     = 28,
+    FOUNTAIN  = 29,
+    THRONE    = 30,
+    SINK      = 31,
+    GRAVE     = 32,
+    ALTAR     = 33,
+    ICE       = 34,
+    DRAWBRIDGE_DOWN = 35,
+    AIR       = 36,
+    CLOUD     = 37,
 
-    MAX_TYPE  = 37,
+    MAX_TYPE  = 38,
     /* for special levels */
-    MATCH_WALL = 38,
+    MATCH_WALL = 39,
 
     /* these aren't levl[][].typ values, they're additional indices
        into terrain_descr[] for status feedback */
-    xFLOOR     = 39,
-    xGROUND    = 40,
-    xOPENDOOR  = 41,
-    xSHUTDOOR  = 42,
-    xSWAMP     = 43,
-    xSUBMERGED = 44,
-    xSEA       = 45,
-    xWATERWALL = 46,
+    xFLOOR     = 40,
+    xGROUND    = 41,
+    xOPENDOOR  = 42,
+    xSHUTDOOR  = 43,
+    xSWAMP     = 44,
+    xSUBMERGED = 45,
+    xSEA       = 46,
+    xWATERWALL = 47,
 
     INVALID_TYPE = 127
 };
@@ -129,6 +130,7 @@ enum levl_typ_types {
 #define IS_POOL(typ) ((typ) >= POOL && (typ) <= DRAWBRIDGE_UP)
 #define IS_LAVA(typ) ((typ) == LAVAPOOL || (typ) == LAVAWALL)
 #define IS_THRONE(typ) ((typ) == THRONE)
+#define IS_FORGE(typ) ((typ) == FORGE)
 #define IS_FOUNTAIN(typ) ((typ) == FOUNTAIN)
 #define IS_SINK(typ) ((typ) == SINK)
 #define IS_GRAVE(typ) ((typ) == GRAVE)
@@ -431,6 +433,7 @@ struct cemetery {
 struct levelflags {
     uchar nfountains; /* number of fountains on level */
     uchar nsinks;     /* number of sinks on the level */
+    uchar nforges;    /* number of forges on the level */
     /* Several flags that give hints about what's on the level */
     Bitfield(has_shop, 1);
     Bitfield(has_vault, 1);

@@ -96,7 +96,8 @@ set_levltyp(coordxy x, coordxy y, schar newtyp)
              *  the way newtyp will use them, clear them.
              */
 
-            if (IS_LAVA(newtyp)) /* [what about IS_LAVA(oldtyp)=>.lit = 0?] */
+            if (IS_LAVA(newtyp) /* [what about IS_LAVA(oldtyp)=>.lit = 0?] */
+                || IS_FORGE(newtyp)) /* forges hold molten lava */
                 levl[x][y].lit = 1;
             if (was_ice && newtyp != ICE) {
                 /* frozen corpses resume rotting, no more ice to melt away */
@@ -104,8 +105,10 @@ set_levltyp(coordxy x, coordxy y, schar newtyp)
                 spot_stop_timers(x, y, MELT_ICE_AWAY);
             }
             if ((IS_FOUNTAIN(oldtyp) != IS_FOUNTAIN(newtyp))
-                || (IS_SINK(oldtyp) != IS_SINK(newtyp)))
-                count_level_features(); /* level.flags.nfountains,nsinks */
+                || (IS_SINK(oldtyp) != IS_SINK(newtyp))
+                || (IS_FORGE(oldtyp) != IS_FORGE(newtyp)))
+                count_level_features(); /* level.flags.nfountains,nsinks,
+                                         * nforges */
 
             return TRUE;
         }
@@ -133,7 +136,7 @@ set_levltyp_lit(coordxy x, coordxy y, schar typ, schar lit)
                 impossible("set_levltyp_lit(%d,%d,%d,%d)",
                            (int) x, (int) y, (int) typ, (int) lit);
 #endif /*EXTRA_SANITY_CHECKS*/
-            if (IS_LAVA(typ))
+            if (IS_LAVA(typ) || IS_FORGE(typ))
                 lit = 1;
             else if (lit == SET_LIT_RANDOM)
                 lit = rn2(2);

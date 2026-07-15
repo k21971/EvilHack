@@ -2671,7 +2671,6 @@ find_mapseen_by_str(const char *s)
     return mptr;
 }
 
-
 void
 rm_mapseen(int ledger_num)
 {
@@ -2882,8 +2881,9 @@ init_mapseen(d_level *lev)
 }
 
 #define OF_INTEREST(feat) \
-    ((feat).nfount || (feat).nsink || (feat).nthrone || (feat).naltar   \
-     || (feat).ngrave || (feat).ntree || (feat).nshop || (feat).ntemple)
+    ((feat).nfount || (feat).nsink || (feat).nforge || (feat).nthrone   \
+     || (feat).naltar || (feat).ngrave || (feat).ntree || (feat).nshop  \
+     || (feat).ntemple)
   /* || (feat).water || (feat).ice || (feat).lava */
 
 /* returns true if this level has something interesting to print out */
@@ -3011,6 +3011,11 @@ count_feat_lastseentyp(
         count = mptr->feat.nsink + 1;
         if (count <= 3)
             mptr->feat.nsink = count;
+        break;
+    case FORGE:
+        count = mptr->feat.nforge + 1;
+        if (count <= 3)
+            mptr->feat.nforge = count;
         break;
     case GRAVE:
         count = mptr->feat.ngrave + 1;
@@ -3629,6 +3634,7 @@ print_mapseen(
                 Sprintf(eos(buf), " to %s", align_gname(u.ualign.type));
         }
         ADDNTOBUF("throne", mptr->feat.nthrone);
+        ADDNTOBUF("forge", mptr->feat.nforge);
         ADDNTOBUF("fountain", mptr->feat.nfount);
         ADDNTOBUF("sink", mptr->feat.nsink);
         ADDNTOBUF("grave", mptr->feat.ngrave);

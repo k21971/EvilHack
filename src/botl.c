@@ -888,9 +888,10 @@ const char *terrain_descr[] = {
        "Room",          /* also replaced by "Floor" */
        "Stairs",
        "Ladder",
+       "Forge",
        "Fountain",
-       "Throne",
-/*30*/ "Sink",
+/*30*/ "Throne",
+       "Sink",
        "Grave",
        "Altar",
        "Ice",
@@ -899,13 +900,13 @@ const char *terrain_descr[] = {
        "Cloud",         /* [part of] a cloud or Air level */
        /*
         */
-/*37*/ "",              /* MAX_TYPE; skipped ratther than overloaded */
-/*38*/ c_Wall,          /* MATCH_WALL for special levels; shouldn't happen */
+/*38*/ "",              /* MAX_TYPE; skipped ratther than overloaded */
+/*39*/ c_Wall,          /* MATCH_WALL for special levels; shouldn't happen */
        /*
         * additional terrain names that aren't simple levl[][].typ values
         */
-/*39*/ "Floor",         /* substituted for room or corridor */
-/*40*/ "Ground",        /* 'room' on Earth level */
+/*40*/ "Floor",         /* substituted for room or corridor */
+/*41*/ "Ground",        /* 'room' on Earth level */
        "Open-door",     /* open (not broken or doorless) */
        "Shut-door",     /* closed or locked (or trapped) */
        "Swamp",         /* Juiblex level */
@@ -2214,7 +2215,6 @@ static const struct fieldid_t {
 static const char threshold_value[] = "hilite_status threshold ",
                   is_out_of_range[] = " is out of range";
 
-
 /* field name to bottom line index */
 staticfn enum statusfields
 fldname_to_bl_indx(const char *name)
@@ -3144,7 +3144,6 @@ conditionbitmask2str(unsigned long ul)
     boolean first = TRUE;
     const char *alias = (char *) 0;
 
-
     buf[0] = '\0';
     if (!ul)
         return buf;
@@ -3583,7 +3582,6 @@ status_hilite_linestr_gather(void)
 
     status_hilite_linestr_gather_conditions();
 }
-
 
 staticfn char *
 status_hilite2str(struct hilite_s *hl)

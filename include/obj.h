@@ -262,6 +262,9 @@ struct obj {
     (otmp->oclass == WEAPON_CLASS                     \
      && objects[otmp->otyp].oc_skill >= P_SHORT_SWORD \
      && objects[otmp->otyp].oc_skill <= P_SABER)
+#define is_hammer(otmp)                                           \
+    ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
+     && objects[otmp->otyp].oc_skill == P_HAMMER)
 /* Snickersnee is not a polearm, but can hit from distance */
 #define is_pole(otmp)                                             \
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
@@ -521,6 +524,16 @@ struct obj {
      || ((o)->oartifact == ART_EYES_OF_THE_OVERWORLD                    \
          && !undiscovered_artifact(ART_EYES_OF_THE_OVERWORLD)))
 #define pair_of(o) ((o)->otyp == LENSES || is_gloves(o) || is_boots(o))
+
+/* objects that skip the metallic/crystal material requirement when
+   used as a forge ingredient */
+#define bypass_forging_rules(obj) \
+    ((obj)->otyp == SADDLE || (obj)->otyp == ROCK \
+     || (obj)->oartifact == ART_MAGICBANE         \
+     || (obj)->oartifact == ART_DRAGONBANE        \
+     || (obj)->oartifact == ART_EYE_OF_VECNA      \
+     || (obj)->oartifact == ART_HAND_OF_VECNA     \
+     || (obj)->oartifact == ART_KEOLEWA)
 
 #define unpolyable(o) ((o)->otyp == WAN_POLYMORPH \
                        || (o)->otyp == SPE_POLYMORPH \

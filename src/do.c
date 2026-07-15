@@ -399,7 +399,7 @@ trycall(struct obj *obj)
 }
 
 /* Transforms the sink at the player's position into
-   a fountain, throne, altar or grave. */
+   a fountain, throne, altar, forge or grave */
 void
 polymorph_sink(void)
 {
@@ -413,7 +413,7 @@ polymorph_sink(void)
     sinklooted = levl[u.ux][u.uy].looted != 0;
     /* svl.level.flags.nsinks--; // set_levltyp() will update this */
     levl[u.ux][u.uy].flags = 0;
-    switch (rn2(4)) {
+    switch (rn2(5)) {
     default:
     case 0:
         sym = S_fountain;
@@ -443,6 +443,10 @@ polymorph_sink(void)
         make_grave(u.ux, u.uy, (char *) 0);
         if (levl[u.ux][u.uy].typ == GRAVE)
             sym = S_grave;
+        break;
+    case 4:
+        sym = S_forge;
+        set_levltyp(u.ux, u.uy, FORGE); /* updates level.flags.nforges */
         break;
     }
     /* give message even if blind; we know we're not levitating,

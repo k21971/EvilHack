@@ -193,6 +193,7 @@ struct mapseen_feat {
     /* feature knowledge that must be calculated from levl array */
     Bitfield(nfount, 2);
     Bitfield(nsink, 2);
+    Bitfield(nforge, 2);
     Bitfield(naltar, 2);
     Bitfield(nthrone, 2);
 

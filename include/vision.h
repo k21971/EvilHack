@@ -28,6 +28,11 @@ enum ls_sources {
 #define cansee(x, y) ((gv.viz_array[y][x] & IN_SIGHT) != 0)
 #define couldsee(x, y) ((gv.viz_array[y][x] & COULD_SEE) != 0)
 #define templit(x, y) ((gv.viz_array[y][x] & TEMP_LIT) != 0)
+/* TODO-EVILHACK: extend with the TEMP_DARK viz bit once the drow
+   darkness subsystem is ported */
+#define spot_is_dark(x, y) \
+    (!(levl[x][y].lit || (gv.viz_array[y][x] & TEMP_LIT)) \
+     || ((x) == u.ux && (y) == u.uy && u.uswallow))
 
 /*
  *  The following assume the monster is not blind.

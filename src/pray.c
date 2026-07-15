@@ -977,6 +977,7 @@ gcrownu(void)
     if (ok_wep(obj)) {
         bless(obj);
         obj->oeroded = obj->oeroded2 = 0;
+        obj->forged_qual = FQ_NORMAL;
         obj->oerodeproof = TRUE;
         obj->bknown = obj->rknown = 1; /* ok to skip set_bknown() */
         if (obj->spe < 1)

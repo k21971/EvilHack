@@ -2234,6 +2234,10 @@ show_conduct(int final)
                     " for any artifacts", "");
     }
 
+    if (!u.uconduct.forgedarti) {
+        you_have_never("forged an artifact");
+    }
+
     /* only report Sokoban conduct if the Sokoban branch has been entered */
     if (sokoban_in_play()) {
         const char *presentverb = "have violated", *pastverb = "violated";

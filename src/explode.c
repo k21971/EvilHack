@@ -258,6 +258,10 @@ explode(
     } else if (olet == SCROLL_CLASS) {
         /* ditto */
         exploding_wand_typ = SCR_FIRE;
+    } else if (olet == FORGE_EXPLODE) {
+        /* a forge explosion behaves like a non-wand fiery blast when
+           it hits the surrounding terrain */
+        exploding_wand_typ = SCR_FIRE;
     } else if (olet == TRAP_EXPLODE) {
         type = 0; /* hardcoded to generic magic explosion */
     }
@@ -318,7 +322,9 @@ explode(
             break;
         case 1:
             adstr = (olet == BURNING_OIL) ? "burning oil"
-                     : (olet == SCROLL_CLASS) ? "tower of flame" : "fireball";
+                     : (olet == SCROLL_CLASS) ? "tower of flame"
+                       : (olet == FORGE_EXPLODE) ? "exploding forge"
+                         : "fireball";
             /* fire damage, not physical damage */
             adtyp = AD_FIRE;
             break;
@@ -653,6 +659,9 @@ explode(
                     Snprintf(svk.killer.name, sizeof svk.killer.name,
                              "caught %sself in a %s", uhim(),
                              str);
+                } else if (adtyp == AD_FIRE && olet == FORGE_EXPLODE) {
+                    svk.killer.format = KILLED_BY_AN;
+                    Strcpy(svk.killer.name, str);
                 } else if (type >= 0 && olet != SCROLL_CLASS) {
                     svk.killer.format = NO_KILLER_PREFIX;
                     Snprintf(svk.killer.name, sizeof svk.killer.name,
@@ -890,7 +899,8 @@ scatter(
                 }
                 stmp->ox = gb.bhitpos.x;
                 stmp->oy = gb.bhitpos.y;
-                if (IS_SINK(levl[stmp->ox][stmp->oy].typ))
+                if (IS_SINK(levl[stmp->ox][stmp->oy].typ)
+                    || IS_FORGE(levl[stmp->ox][stmp->oy].typ))
                     stmp->stopped = TRUE;
                 gt.thrownobj = (struct obj *) 0;
             }

@@ -308,6 +308,19 @@ dmgval(struct obj *otmp, struct monst *mon)
             tmp = 0;
     }
 
+    /* higher quality weapons can dish out a bit more damage,
+       inferior ones not so much */
+    if (otmp->forged_qual == FQ_SUPERIOR)
+        tmp += 1;
+    else if (otmp->forged_qual == FQ_EXCEPTIONAL)
+        tmp += 2;
+    else if (otmp->forged_qual == FQ_INFERIOR)
+        tmp -= 2;
+
+    /* negative modifiers mustn't produce negative damage */
+    if (tmp < 0)
+        tmp = 0;
+
     if (otmp->material <= LEATHER
         && (thick_skinned(ptr)
             || has_barkskin(mon) || has_stoneskin(mon)

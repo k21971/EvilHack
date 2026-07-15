@@ -149,6 +149,16 @@ enum bodypart_types {
     STOMACH   = 18
 };
 
+struct forge_recipe {
+    short result_typ;
+    short typ1;
+    short typ2;
+    long quan_typ1;
+    long quan_typ2;
+};
+
+extern const struct forge_recipe fusions[]; /* array of forge recipes */
+
 #define MAX_BMASK 4
 
 struct bubble {
@@ -1535,9 +1545,14 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define LIMIT_TO_RANGE_INT(lo, hi, var) \
     ((int) ((var) < (lo) ? (lo) : (var) > (hi) ? (hi) : (var)))
 
+/* armor of higher forged quality protects a bit better,
+   inferior armor not so much */
 #define ARM_BONUS(obj) \
     (objects[(obj)->otyp].a_ac + (obj)->spe                             \
-     - min((int) greatest_erosion(obj), objects[(obj)->otyp].a_ac))
+     - min((int) greatest_erosion(obj), objects[(obj)->otyp].a_ac)      \
+     + (((obj)->forged_qual == FQ_SUPERIOR) ? 1                         \
+        : ((obj)->forged_qual == FQ_EXCEPTIONAL) ? 2                    \
+          : ((obj)->forged_qual == FQ_INFERIOR) ? -2 : 0))
 
 #define makeknown(x) discover_object((x), TRUE, TRUE, TRUE)
 #define distu(xx, yy) dist2((coordxy) (xx), (coordxy) (yy), u.ux, u.uy)

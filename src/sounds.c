@@ -221,6 +221,13 @@ dosounds(void)
         };
         You_hear1(sink_msg[rn2(2) + hallu]);
     }
+    if (svl.level.flags.nforges && !rn2(300)) {
+        static const char *const forge_msg[3] = {
+            "a slow bubbling.", "crackling flames.",
+            "chestnuts roasting on an open fire.",
+        };
+        You_hear1(forge_msg[rn2(2) + hallu]);
+    }
     if (svl.level.flags.has_court && !rn2(200)) {
         if (get_iter_mons(throne_mon_sound))
             return;

@@ -586,7 +586,8 @@ u_catch_thrown_obj(struct obj *otmp)
                       gb.bhitpos.x + dx, gb.bhitpos.y + dy,            \
                       ((pre) ? 0 : forcehit), 0))                      \
      /* Thrown objects "sink" */                                       \
-     || (!(pre) && IS_SINK(levl[gb.bhitpos.x][gb.bhitpos.y].typ))      \
+     || ((!(pre) && IS_SINK(levl[gb.bhitpos.x][gb.bhitpos.y].typ))     \
+         || IS_FORGE(levl[gb.bhitpos.x][gb.bhitpos.y].typ))            \
      )
 
 void
@@ -842,6 +843,11 @@ m_throw(
                     && IS_SINK(levl[gb.bhitpos.x][gb.bhitpos.y].typ))
                     pline("%s %s onto the sink.", The(mshot_xname(singleobj)),
                           otense(singleobj, Hallucination ? "plop" : "drop"));
+                else if (range && cansee(gb.bhitpos.x, gb.bhitpos.y)
+                         && IS_FORGE(levl[gb.bhitpos.x][gb.bhitpos.y].typ))
+                    pline("%s %s onto the forge.",
+                          The(mshot_xname(singleobj)),
+                          otense(singleobj, Hallucination ? "boop" : "drop"));
                 else if (gm.m_shot.n > 1
                          && (!gm.mesg_given
                              || gb.bhitpos.x != u.ux || gb.bhitpos.y != u.uy)

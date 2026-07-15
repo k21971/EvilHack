@@ -11,6 +11,8 @@ staticfn void goodfruit(int);
 staticfn void resetobjs(struct obj *, boolean);
 staticfn void give_to_nearby_mon(struct obj *, coordxy, coordxy) NONNULLARG1;
 staticfn boolean fixuporacle(struct monst *) NONNULLARG1;
+staticfn boolean in_owner_lair(struct obj *);
+staticfn struct monst *find_owner_on_level(struct obj *);
 staticfn void remove_mon_from_bones(struct monst *) NONNULLARG1;
 staticfn void set_ghostly_objlist(struct obj *objchain);
 
@@ -135,6 +137,32 @@ resetobjs(struct obj *ochain, boolean restore)
                 free_oname(otmp);
             }
 
+            /* Prevent non-wishable artifacts that are
+               meant to be found with their owners or at
+               the end of a specific quest from winding up
+               in a bones pile. Forged artifacts also fall
+               under this category, as all of them are
+               flagged as SPFX_NOWISH. Note: when called from
+               the monster save loop, an artifact may be
+               re-processed if it moves to a later monster in
+               the chain, so every branch here is idempotent */
+            if (non_wishable_artifact(otmp)) {
+                struct monst *mtmp;
+
+                mtmp = find_owner_on_level(otmp);
+                if (mtmp) {
+                    /* return special artifact to its owner when they are on
+                     * the bones level, if they aren't carrying it already */
+                    if (!mcarried(otmp) || otmp->ocarry != mtmp) {
+                        obj_extract_self(otmp);
+                        (void) mpickobj(mtmp, otmp);
+                    }
+                } else if (!in_owner_lair(otmp)) {
+                    otmp->oartifact = 0;
+                    free_oname(otmp);
+                }
+            }
+
             if (otmp->otyp == SLIME_MOLD) {
                 goodfruit(otmp->spe);
 #ifdef MAIL_STRUCTURES
@@ -174,6 +202,12 @@ resetobjs(struct obj *ochain, boolean restore)
                 /* achievement tracking; in case prize was moved off its
                    original level (which is always a no-bones level) */
                 otmp->nomerge = 0;
+            } else if (otmp->otyp == BLACKSMITH_HAMMER) {
+                /* TODO-EVILHACK: also rewrite MAGIC_KEY to SKELETON_KEY
+                   here once the magic chest subsystem is ported */
+                /* blacksmith hammer becomes a war hammer */
+                otmp->otyp = WAR_HAMMER;
+                set_material(otmp, IRON);
             } else if (otmp->otyp == AMULET_OF_YENDOR) {
                 /* no longer the real Amulet */
                 otmp->otyp = FAKE_AMULET_OF_YENDOR;
@@ -359,6 +393,77 @@ fixuporacle(struct monst *oracle)
     if (ridx == o_ridx) /* if she's in her room, mark it as such */
         svr.rooms[ridx].rtype = DELPHI;
     return TRUE; /* keep oracle in new bones file */
+}
+
+/* is a non-wishable artifact on the level where it is meant to be
+   found?  the other non-wishable artifacts have no fixed lair level
+   and travel with their owners instead; those are handled by
+   find_owner_on_level */
+staticfn boolean
+in_owner_lair(struct obj *obj)
+{
+    d_level *lair;
+
+    if (!obj || !obj->oartifact)
+        return FALSE;
+
+    switch (obj->oartifact) {
+    case ART_MAGIC_8_BALL:
+        lair = &oracle_level;
+        break;
+    /* TODO-EVILHACK: case ART_BUTCHER maps to hellb_level once the
+       Ice Queen branch dungeon topology is ported */
+    case ART_WAND_OF_ORCUS:
+        lair = &orcus_level;
+        break;
+    default:
+        return FALSE;
+    }
+    return (Lcheck(&u.uz, lair));
+}
+
+/* find the unique monster on this level that a non-wishable artifact
+   should be returned to when making bones */
+staticfn struct monst *
+find_owner_on_level(struct obj *obj)
+{
+    struct monst *mtmp;
+    int owner = NON_PM;
+
+    if (!obj || !obj->oartifact)
+        return (struct monst *) 0;
+
+    switch (obj->oartifact) {
+    case ART_MAGIC_8_BALL:
+        owner = PM_ORACLE;
+        break;
+    case ART_BUTCHER:
+        owner = PM_YEENOGHU;
+        break;
+    case ART_LIFESTEALER:
+        owner = PM_VLAD_THE_IMPALER;
+        break;
+    case ART_WAND_OF_ORCUS:
+        owner = PM_ORCUS;
+        break;
+    case ART_EYE_OF_VECNA:
+    case ART_HAND_OF_VECNA:
+        owner = PM_VECNA;
+        break;
+    case ART_SWORD_OF_KAS:
+        owner = PM_KAS;
+        break;
+    default:
+        break;
+    }
+
+    if (owner != NON_PM) {
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (monsndx(mtmp->data) == owner)
+                return mtmp;
+        }
+    }
+    return (struct monst *) 0;
 }
 
 /* check whether bones are feasible */

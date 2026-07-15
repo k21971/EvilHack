@@ -1031,18 +1031,37 @@ chwepon(struct obj *otmp, int amount)
             pline("%s %s.", Yobjnam2(uwep, "faintly glow"), color);
         return 1;
     }
-    /* there is a (soft) upper and lower limit to uwep->spe */
-    if (((uwep->spe > 5 && amount >= 0) || (uwep->spe < -5 && amount < 0))
-        && rn2(3)) {
-        if (!Blind)
-            pline("%s %s for a while and then %s.",
-                  Yobjnam2(uwep, "violently glow"), color,
-                  otense(uwep, "evaporate"));
-        else
-            pline("%s.", Yobjnam2(uwep, "evaporate"));
+    /* there is a (soft) upper and lower limit to uwep->spe.
+       affixed gemstones can raise the safe limit */
+    {
+        int safe_limit = 5 + gem_enchant_bonus(uwep);
 
-        useupall(uwep); /* let all of them disappear */
-        return 1;
+        if (((uwep->spe > safe_limit && amount >= 0)
+             || (uwep->spe < -safe_limit && amount < 0))
+            && rn2(3)) {
+            if (uwep->oartifact == ART_SWORD_OF_ANNIHILATION) {
+                if (!Blind)
+                    pline("%s %s for a while, but %s intact.",
+                          Yobjnam2(uwep, "violently glow"), color,
+                          otense(uwep, "remain"));
+                /* no particular sensation of "non-evaporation" if blind */
+            } else {
+                if (!Blind)
+                    pline("%s %s for a while and then %s.",
+                          Yobjnam2(uwep, "violently glow"), color,
+                          otense(uwep, "evaporate"));
+                else
+                    pline("%s.", Yobjnam2(uwep, "evaporate"));
+
+                /* evaporate message above subsumes "stops shining";
+                   still explicitly end the burn for parity with
+                   uwepgone() */
+                if (artifact_light(uwep) && uwep->lamplit)
+                    end_burn(uwep, FALSE);
+                useupall(uwep); /* let all of them disappear */
+            }
+            return 1;
+        }
     }
     if (!Blind) {
         xtime = (amount * amount == 1) ? "moment" : "while";
@@ -1076,8 +1095,9 @@ chwepon(struct obj *otmp, int amount)
 
     /* an elven magic clue, cookie@keebler */
     /* elven weapons vibrate warningly when enchanted beyond a limit */
-    if ((uwep->spe > 5)
-        && (is_elven_weapon(uwep) || uwep->oartifact || !rn2(7)))
+    if ((uwep->spe > 5 + gem_enchant_bonus(uwep))
+        && (is_elven_weapon(uwep) || is_drow_weapon(uwep)
+            || uwep->oartifact || !rn2(7)))
         pline("%s unexpectedly.", Yobjnam2(uwep, "suddenly vibrate"));
 
     return 1;

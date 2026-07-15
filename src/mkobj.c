@@ -7,6 +7,8 @@
 
 staticfn boolean may_generate_eroded(struct obj *);
 staticfn void mkobj_erosions(struct obj *);
+staticfn boolean may_generate_quality(struct obj *);
+staticfn void mkobj_quality(struct obj *);
 staticfn void mkbox_cnts(struct obj *);
 staticfn unsigned nextoid(struct obj *, struct obj *);
 staticfn void mksobj_init(struct obj **, boolean);
@@ -222,6 +224,48 @@ mkobj_erosions(struct obj *otmp)
          * will generate greased */
         if (!rn2(1000))
             otmp->greased = 1;
+    }
+}
+
+/* can object be generated with a certain level of quality?
+   only if they can be forged */
+staticfn boolean
+may_generate_quality(struct obj *otmp)
+{
+    /* initial hero inventory */
+    if (svm.moves <= 1 && !gi.in_mklev)
+        return FALSE;
+    /* only armor and weapons */
+    if (!(otmp->oclass == ARMOR_CLASS
+          || otmp->oclass == WEAPON_CLASS || is_barding(otmp)))
+        return FALSE;
+    /* part of a monster's body and produced when it dies */
+    if (otmp->otyp == WORM_TOOTH
+        || otmp->otyp == UNICORN_HORN
+        || otmp->otyp == CRYSKNIFE)
+        return FALSE;
+    /* artifacts cannot be generated with a quality bit */
+    if (otmp->oartifact)
+        return FALSE;
+    /* neither can magic items */
+    if (objects[otmp->otyp].oc_magic)
+        return FALSE;
+    /* only objects that can be forged */
+    if (!(is_metallic(otmp) || is_crystal(otmp)))
+        return FALSE;
+
+    return TRUE;
+}
+
+/* random chance of applying quality bit to object */
+staticfn void
+mkobj_quality(struct obj *otmp)
+{
+    if (may_generate_quality(otmp)) {
+        if (!rn2(80))
+            otmp->forged_qual = rn2(8) ? FQ_SUPERIOR
+                                       : rn2(2) ? FQ_EXCEPTIONAL
+                                                : FQ_INFERIOR;
     }
 }
 
@@ -1043,6 +1087,10 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->spe = rn1(21, 5); /* 0..20 + 5 => 5..25 */
             blessorcurse(otmp, 10);
             break;
+        case BLACKSMITH_HAMMER:
+            otmp->spe = rn1(4, 2); /* 2-5 initial charges */
+            blessorcurse(otmp, 10);
+            break;
         case CRYSTAL_BALL:
             otmp->spe = rn1(5, 3); /* 0..4 + 3 => 3..7 */
             blessorcurse(otmp, 2);
@@ -1205,6 +1253,7 @@ mksobj_init(struct obj **obj, boolean artif)
     }
 
     mkobj_erosions(otmp);
+    mkobj_quality(otmp);
     if (permapoisoned(otmp))
         otmp->opoisoned = 1;
 }

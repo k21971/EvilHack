@@ -981,7 +981,6 @@ flip_level_rnd(int flp, boolean extras)
         flip_level(c, extras);
 }
 
-
 staticfn void
 sel_set_wall_property(coordxy x, coordxy y, genericptr_t arg)
 {
@@ -2282,6 +2281,21 @@ create_object(object *o, struct mkroom *croom)
         otmp->oeroded = otmp->oeroded2 = 0;
         otmp->oerodeproof = 0;
     }
+    /* artifacts cannot have forging quality or affixed gems */
+    if (!otmp->oartifact) {
+        otmp->forged_qual = o->forged_qual ? (o->forged_qual % 4)
+                                           : FQ_NORMAL;
+        if (o->affixed_gem
+            && ((o->affixed_gem >= FIRST_REAL_GEM
+                 && o->affixed_gem <= LAST_REAL_GEM)
+                || o->affixed_gem == LUCKSTONE)) {
+            long gem_prop = get_gem_property(o->affixed_gem);
+
+            otmp->affixed_gem = o->affixed_gem;
+            if (gem_prop)
+                otmp->oprops |= gem_prop;
+        }
+    }
     if (o->recharged)
         otmp->recharged = (o->recharged % 8);
     if (o->locked == 0 || o->locked == 1) {
@@ -3026,7 +3040,6 @@ sp_code_jmpaddr(long curpos, long jmpaddr)
 }
 #endif
 
-
 /*ARGUSED*/
 staticfn void
 spo_end_moninvent(void)
@@ -3570,6 +3583,7 @@ lspo_object(lua_State *L)
             0,       /* lit */
             0, 0, 0, 0, 0, /* eroded, locked, trapped, tknown, recharged */
             0, 0, 0, 0, /* invis, greased, broken, achievement */
+            0, 0,    /* forged_qual, affixed_gem */
     };
 #if 0
     int nparams = 0;
@@ -3647,6 +3661,8 @@ lspo_object(lua_State *L)
         tmpobj.greased = get_table_boolean_opt(L, "greased", 0);
         tmpobj.broken = get_table_boolean_opt(L, "broken", 0);
         tmpobj.achievement = get_table_boolean_opt(L, "achievement", 0);
+        tmpobj.forged_qual = get_table_int_opt(L, "forged_qual", 0);
+        tmpobj.affixed_gem = get_table_int_opt(L, "affixed_gem", 0);
 
         get_table_xy_or_coord(L, &ox, &oy);
 
@@ -4651,6 +4667,8 @@ sel_set_feature(coordxy x, coordxy y, genericptr_t arg)
     if (IS_FURNITURE(levl[x][y].typ))
         return;
     levl[x][y].typ = (*(int *) arg);
+    if (IS_FORGE(levl[x][y].typ))
+        levl[x][y].lit = 1; /* forges hold molten lava */
 }
 
 staticfn void
@@ -4854,9 +4872,10 @@ int
 lspo_feature(lua_State *L)
 {
     static const char *const features[] = { "fountain", "sink", "pool",
-                                            "throne", "tree", NULL };
+                                            "throne", "tree", "forge",
+                                            NULL };
     static const int features2i[] = { FOUNTAIN, SINK, POOL,
-                                      THRONE, TREE, STONE };
+                                      THRONE, TREE, FORGE, STONE };
     coordxy x, y;
     int typ;
     int argc = lua_gettop(L);
@@ -4973,7 +4992,6 @@ lspo_gas_cloud(lua_State *L)
 
     return 0;
 }
-
 
 /*
  * [lit_state: 1 On, 0 Off, -1 random, -2 leave as-is]
@@ -6384,7 +6402,6 @@ sp_level_coder_init(void)
 
     return coder;
 }
-
 
 static const struct luaL_Reg nhl_functions[] = {
     { "message", lspo_message },

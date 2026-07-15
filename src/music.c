@@ -416,6 +416,11 @@ do_earthquake(int force)
                     pline_The("kitchen sink falls%s.", into_a_chasm);
                 do_pit(x, y, tu_pit);
                 break;
+            case FORGE:
+                if (cansee(x, y))
+                    pline_The("forge falls%s.", into_a_chasm);
+                do_pit(x, y, tu_pit);
+                break;
             case ALTAR:
                 amsk = altarmask_at(x, y);
                 /* always preserve the high altars */
@@ -806,7 +811,6 @@ do_play_instrument(struct obj *instr)
     You(!Deaf ? "extract a strange sound from %s!"
               : "can feel %s emitting vibrations.", the(xname(instr)));
     Hero_playnotes(obj_to_instr(instr), buf, 50);
-
 
     /* Check if there was the Stronghold drawbridge near
      * and if the tune conforms to what we're waiting for.

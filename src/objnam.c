@@ -5,8 +5,13 @@
 
 #include "hack.h"
 
-/* "an uncursed greased partly eaten guardian naga hatchling [corpse]" */
-#define PREFIX 80 /* (56) */
+/* PREFIX: max length of the prefix string prepended by doname_base().
+   Prefix-only components (object name is separate, added by xname()):
+   "2147483647 uncursed greased poisoned tainted thoroughly rusty
+    thoroughly corroded rustproof +127 exceptional
+    dilithium crystal-studded " (135 characters worst case;
+    136 after just_an() "a "->"an " conversion) */
+#define PREFIX 148
 #define SCHAR_LIM 127
 #define NUMOBUF 12
 
@@ -24,6 +29,7 @@ struct _readobjnam_data {
     int halfeaten, mntmp, contents;
     int islit, unlabeled, ishistoric, isdiluted, trapped;
     int magical;
+    int isforged0, isforged1, isforged2;
     long objprops, objpropcount;
     int material;
     int doorless, open, closed, looted;
@@ -1602,9 +1608,37 @@ doname_base(
         if (known) {
             Sprintf(eos(prefix), "%+d ", obj->spe); /* sitoa(obj->spe)+" " */
         }
+        if (known || Role_if(PM_SAMURAI) || Role_if(PM_KNIGHT)) {
+            if (obj->forged_qual == FQ_SUPERIOR)
+                Strcat(prefix, "superior ");
+            else if (obj->forged_qual == FQ_EXCEPTIONAL)
+                Strcat(prefix, "exceptional ");
+            else if (obj->forged_qual == FQ_INFERIOR)
+                Strcat(prefix, "inferior ");
+        }
+        if (has_affixed_gem(obj)
+            && obj->affixed_gem > 0 && obj->affixed_gem < NUM_OBJECTS
+            && (known || Role_if(PM_SAMURAI) || Role_if(PM_KNIGHT))) {
+            Sprintf(eos(prefix), "%s-studded ",
+                    OBJ_NAME(objects[obj->affixed_gem]));
+        }
         break;
     case TOOL_CLASS:
-        if (obj->owornmask & (W_TOOL | W_SADDLE)) { /* blindfold */
+        add_erosion_words(obj, prefix);
+        if (is_barding(obj) && known) {
+            Sprintf(eos(prefix), "%+d ", obj->spe);
+        }
+        if (is_barding(obj)
+            && (known || Role_if(PM_SAMURAI) || Role_if(PM_KNIGHT))) {
+            if (obj->forged_qual == FQ_SUPERIOR)
+                Strcat(prefix, "superior ");
+            else if (obj->forged_qual == FQ_EXCEPTIONAL)
+                Strcat(prefix, "exceptional ");
+            else if (obj->forged_qual == FQ_INFERIOR)
+                Strcat(prefix, "inferior ");
+        }
+        if (obj->owornmask & (W_TOOL | W_SADDLE | W_BARDING)) {
+            /* blindfold */
             Concat(bp, 0, " (being worn)");
             break;
         }
@@ -3822,6 +3856,14 @@ wizterrainwish(struct _readobjnam_data *d)
         lev->looted = d->looted ? (S_LPUDDING | S_LDWASHER | S_LRING) : 0;
         pline("A sink.");
         madeterrain = TRUE;
+    } else if (!BSTRCMPI(bp, p - 5, "forge")) {
+        lev->typ = FORGE;
+        if (oldtyp != FORGE)
+            svl.level.flags.nforges++;
+        lev->flags = 0;
+        lev->lit = 1; /* forges hold molten lava */
+        pline("A forge.");
+        madeterrain = TRUE;
 
     /* ("water" matches "potion of water" rather than terrain) */
     } else if (!BSTRCMPI(bp, p - 4, "pool")
@@ -4227,6 +4269,7 @@ readobjnam_init(char *bp, struct _readobjnam_data *d)
         = d->looted /* wizard mode fountain/sink/throne/tree and grave */
         = d->real = d->fake = 0; /* Amulet */
     d->magical = 0;
+    d->isforged0 = d->isforged1 = d->isforged2 = 0;
     d->objprops = d->objpropcount = 0L;
     d->tvariety = RANDOM_TIN;
     d->mgend = -1; /* not specified, aka random */
@@ -4319,6 +4362,20 @@ readobjnam_preparse(struct _readobjnam_data *d)
                    || !strncmpi(d->bp, "unlabelled ", l = 11)
                    || !strncmpi(d->bp, "blank ", l = 6)) {
             d->unlabeled = 1;
+        } else if (!strncmpi(d->bp, "inferior ", l = 9)) {
+            d->isforged0 = 1;
+        } else if (!strncmpi(d->bp, "superior ", l = 9)) {
+            d->isforged1 = 1;
+        } else if (!strncmpi(d->bp, "exceptional ", l = 12)) {
+            d->isforged2 = 1;
+        } else if ((d->p = strstri(d->bp, "-studded ")) != 0
+                   && d->p > d->bp && d->p < d->bp + 20
+                   && !memchr((genericptr_t) d->bp, ' ', d->p - d->bp)) {
+            /* strip "X-studded " prefix -- can't wish for gem-studded
+               items. require match near start of bp with no spaces
+               before the hyphen, so we don't accidentally strip from
+               object names */
+            l = (int) ((d->p + 9) - d->bp); /* 9 = strlen("-studded ") */
         } else if (!strncmpi(d->bp, "poisoned ", l = 9)) {
             d->ispoisoned = 1;
 
@@ -5465,6 +5522,9 @@ readobjnam(char *bp, struct obj *no_wish)
         case SPE_BOOK_OF_THE_DEAD:
             d.typ = SPE_BLANK_PAPER;
             break;
+        case BLACKSMITH_HAMMER:
+            d.typ = WAR_HAMMER;
+            break;
         case MAGIC_LAMP:
             d.typ = OIL_LAMP;
             break;
@@ -5778,6 +5838,13 @@ readobjnam(char *bp, struct obj *no_wish)
             /* try to taint by making it as old as possible */
             d.otmp->age = 1L;
     }
+    /* set forge quality */
+    if (d.isforged0)
+        d.otmp->forged_qual = FQ_INFERIOR;
+    if (d.isforged1)
+        d.otmp->forged_qual = FQ_SUPERIOR;
+    if (d.isforged2)
+        d.otmp->forged_qual = FQ_EXCEPTIONAL;
     /* and [un]trapped */
     if (d.trapped) {
         if (Is_box(d.otmp) || d.typ == TIN)
@@ -5835,6 +5902,10 @@ readobjnam(char *bp, struct obj *no_wish)
         d.otmp = oname(d.otmp, d.name, ONAME_WISH);
         /* name==aname => wished for artifact (otmp->oartifact => got it) */
         if (d.otmp->oartifact || d.name == aname) {
+            /* prevent artifacts from being wished for with
+               quality bit applied, adjust this if we want
+               certain artifacts to have a forged quality bit */
+            d.otmp->forged_qual = FQ_NORMAL;
             d.otmp->quan = 1L;
             u.uconduct.wisharti++; /* KMH, conduct */
         }
@@ -5853,6 +5924,23 @@ readobjnam(char *bp, struct obj *no_wish)
         pline("For a moment, you feel %s in your %s, but it disappears!",
               something, makeplural(body_part(HAND)));
         return d.otmp;
+    }
+
+    /* set quality */
+    if (d.otmp->forged_qual) {
+        /* quality bits only apply to forgeable metal/crystal armor
+           or weapons; silently drop the bit if the player wished for
+           a modifier that can't apply to this object (e.g.
+           "superior ring of free action") rather than rejecting the
+           whole wish. Matches the artifact silent-strip above */
+        if (!(d.otmp->oclass == ARMOR_CLASS
+              || d.otmp->oclass == WEAPON_CLASS || is_barding(d.otmp))
+            || d.otmp->otyp == WORM_TOOTH
+            || d.otmp->otyp == UNICORN_HORN
+            || d.otmp->oartifact
+            || objects[d.otmp->otyp].oc_magic
+            || !(is_metallic(d.otmp) || is_crystal(d.otmp)))
+            d.otmp->forged_qual = FQ_NORMAL;
     }
 
     /* object property restrictions; these mirror create_oprop() */

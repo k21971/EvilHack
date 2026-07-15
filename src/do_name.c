@@ -401,6 +401,9 @@ oname(
     if (obj->oartifact) {
         /* artifacts do not carry object properties */
         obj->oprops = obj->oprops_known = 0L;
+        /* artifacts cannot have forging quality or affixed gems */
+        obj->forged_qual = FQ_NORMAL;
+        obj->affixed_gem = 0;
         /* can't dual-wield with artifact as secondary weapon */
         if (obj == uswapwep)
             untwoweapon();
@@ -1637,7 +1640,9 @@ static const char *const sir_Terry_novels[] = {
     "Night Watch", "The Wee Free Men", "Monstrous Regiment",
     "A Hat Full of Sky", "Going Postal", "Thud!", "Wintersmith",
     "Making Money", "Unseen Academicals", "I Shall Wear Midnight", "Snuff",
-    "Raising Steam", "The Shepherd's Crown"
+    "Raising Steam", "The Shepherd's Crown",
+    /* Specific journal for forge recipes */
+    "The Blacksmith's Cookbook"
 };
 #define NVL_COLOUR_OF_MAGIC 0
 #define NVL_SOURCERY 4

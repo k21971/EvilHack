@@ -2682,6 +2682,11 @@ breaktest(struct obj *obj)
     if (objects[obj->otyp].oc_material == GLASS && !obj->oartifact
         && obj->oclass != GEM_CLASS)
         return TRUE;
+    /* armor and weapons of inferior quality can sometimes
+       fall apart with use */
+    if (obj->forged_qual == FQ_INFERIOR
+        && !obj->oartifact && (rn2(8) < 3))
+        return TRUE;
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     case EXPENSIVE_CAMERA:
     case POT_WATER: /* really, all potions */
@@ -2706,9 +2711,17 @@ breakmsg(struct obj *obj, boolean in_view)
 
     to_pieces = "";
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
-    default: /* glass or crystal wand */
-        if (obj->oclass != WAND_CLASS)
+    default: /* glass or crystal wand, or inferior quality objects */
+        if (obj->oclass != WAND_CLASS && obj->forged_qual != FQ_INFERIOR)
             impossible("breaking odd object (%d)?", obj->otyp);
+        if (obj->forged_qual == FQ_INFERIOR) {
+            if (!in_view && !Deaf)
+                You_hear("something fall apart!");
+            else
+                pline("%s fall%s apart!",
+                      Doname2(obj), (obj->quan == 1L) ? "s" : "");
+            break;
+        }
         FALLTHROUGH;
         /*FALLTHRU*/
     case LENSES:

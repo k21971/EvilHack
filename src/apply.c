@@ -4367,6 +4367,13 @@ doapply(void)
     case TIN_OPENER:
         res = use_tin_opener(obj);
         break;
+    case BLACKSMITH_HAMMER:
+        if (obj != uwep) {
+            if (!wield_tool(obj, "forge"))
+                return ECMD_OK;
+        }
+        res = doforging();
+        break;
     case FIGURINE:
         res = use_figurine(&obj);
         break;

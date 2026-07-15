@@ -4605,11 +4605,23 @@ lava_damage(struct obj *obj, coordxy x, coordxy y)
             /* this feedback is pretty clunky and can become very verbose
                when former contents of a burned container get here via
                flooreffects() */
-            if (obj == gt.thrownobj || obj == gk.kickedobj)
+            if (obj == gt.thrownobj || obj == gk.kickedobj) {
                 pline("%s %s up!", is_plural(obj) ? "They" : "It",
                       otense(obj, "burn"));
-            else
+            } else if (IS_FORGE(levl[u.ux][u.uy].typ)) {
+                if ((obj->owornmask & W_ARMOR) != 0L && carried(obj)) {
+                    You("were still wearing your %s!", xname(obj));
+                    if (!Fire_resistance)
+                        losehp(d(2, 6),
+                               "dipping a worn object into a forge",
+                               KILLED_BY);
+                }
+                /* use the() to properly handle artifacts */
+                pline_The("molten lava in the forge incinerates %s.",
+                          the(xname(obj)));
+            } else {
                 You_see("%s hit lava and burn up!", doname(obj));
+            }
         }
         if (carried(obj)) { /* shouldn't happen */
             remove_worn_item(obj, TRUE);

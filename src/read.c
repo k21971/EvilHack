@@ -852,6 +852,22 @@ recharge(struct obj *obj, int curse_bless)
             if (obj->spe > 5)
                 obj->spe = 5;
             break;
+        case BLACKSMITH_HAMMER:
+            if (is_cursed) {
+                stripspe(obj);
+            } else if (rechrg > 1) { /* previously recharged twice */
+                obj->recharged = 2; /* override increment done above */
+                pline1(nothing_happens);
+            } else if (is_blessed) {
+                obj->spe += rn1(3, 3); /* 3-5 charges */
+                p_glow2(obj, NH_BLUE);
+            } else {
+                obj->spe += rn1(3, 1); /* 1-3 charges */
+                p_glow1(obj);
+            }
+            if (obj->spe > 5)
+                obj->spe = 5;
+            break;
         case MAGIC_MARKER:
         case TINNING_KIT:
         case EXPENSIVE_CAMERA:
@@ -1605,7 +1621,7 @@ seffect_enchant_weapon(struct obj **sobjp)
     boolean scursed = sobj->cursed;
     boolean confused = (Confusion != 0);
     boolean old_erodeproof, new_erodeproof;
-    int s;
+    int s, gem_bon;
 
     /* [What about twoweapon mode?  Proofing/repairing/enchanting both
        would be too powerful, but shouldn't we choose randomly between
@@ -1638,10 +1654,12 @@ seffect_enchant_weapon(struct obj **sobjp)
         uwep->oerodeproof = new_erodeproof ? 1 : 0;
         return;
     }
+    /* affixed gemstones raise the safe enchantment limit */
+    gem_bon = uwep ? gem_enchant_bonus(uwep) : 0;
     s = scursed ? -1
         : !uwep ? 1 /* guard further tests against null pointer */
-          : (uwep->spe >= 9) ? (rn2(uwep->spe) == 0) /* usually 0, maybe  1 */
-            : sblessed ? rnd(3 - uwep->spe / 3) /* >= 9 case prevents rnd(0) */
+          : (uwep->spe >= 9 + gem_bon) ? (rn2(uwep->spe) == 0)
+            : sblessed ? rnd(3 - uwep->spe / (3 + gem_bon))
               : 1; /* uncursed */
     if (!chwepon(sobj, s))
         *sobjp = 0; /* nothing enchanted: strange_feeling -> useup */

@@ -147,6 +147,7 @@ extern void restore_artifacts(NHFILE *);
 extern const char *artiname(int);
 extern unsigned long arti_prop_spfx(int);
 extern short artifact_material(int);
+extern struct obj *mk_particular_artifact(int);
 extern struct obj *mk_artifact(struct obj *, aligntyp, uchar, boolean);
 extern long enforce_oprops_mutex(long);
 extern struct obj *create_oprop(struct obj *, boolean);
@@ -196,6 +197,8 @@ extern boolean is_magic_key(struct monst *, struct obj *);
 extern struct obj *has_magic_key(struct monst *);
 extern boolean is_art(struct obj *, int);
 extern boolean permapoisoned(struct obj *);
+extern boolean non_wishable_artifact(struct obj *) NONNULLARG1;
+extern boolean is_forged_artifact(struct obj *) NONNULLARG1;
 
 /* ### attrib.c ### */
 
@@ -1168,6 +1171,18 @@ extern void dryup(coordxy, coordxy, boolean);
 extern void drinkfountain(void);
 extern void dipfountain(struct obj *) NONNULLARG1;
 extern int wash_hands(void);
+extern void dipforge(struct obj *) NONNULLARG1;
+extern int doforging(void);
+extern boolean get_forge_recipe(int, int, int *, int *);
+extern int get_gem_enchant_bonus(int);
+extern long get_gem_property(int);
+extern int gem_enchant_bonus(struct obj *);
+extern boolean is_affix_gem(struct obj *);
+extern int doaffixgem(void);
+extern void breakforge(coordxy, coordxy);
+extern void blowupforge(coordxy, coordxy);
+extern void coolforge(coordxy, coordxy);
+extern void drinkforge(void);
 extern void breaksink(coordxy, coordxy);
 extern void drinksink(void);
 extern void dipsink(struct obj *) NONNULLARG1;
@@ -4086,6 +4101,7 @@ extern struct monst *bhit(int, int, int, enum bhit_call_types,
                           struct obj **) NONNULLARG7;
 extern struct monst *boomhit(struct obj *, int, int) NONNULLARG1;
 extern int zhitm(struct monst *, int, int, struct obj **) NONNULLPTRS;
+extern void destroy_one_item(struct obj *, int) NONNULLARG1;
 extern int burn_floor_objects(coordxy, coordxy, boolean, boolean);
 extern void ubuzz(int, int);
 extern void buzz(int, int, coordxy, coordxy, int, int);

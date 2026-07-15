@@ -163,7 +163,7 @@ typedef struct {
     short buried;
     short lit;
     short eroded, locked, trapped, tknown, recharged, invis, greased, broken,
-          achievement;
+          achievement, forged_qual, affixed_gem;
 } object;
 
 typedef struct {

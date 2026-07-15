@@ -4115,7 +4115,7 @@ bhit(
             /* kicked objects fall in pools */
             if ((weapon == KICKED_WEAPON) && is_pool_or_lava(x, y))
                 break;
-            if (IS_SINK(typ) && weapon != FLASHED_LIGHT)
+            if ((IS_SINK(typ) || IS_FORGE(typ)) && weapon != FLASHED_LIGHT)
                 break; /* physical objects fall onto sink */
         }
         /* limit range of ball so hero won't make an invalid move */
@@ -5923,6 +5923,8 @@ maybe_destroy_item(
             if (!rn2(3))
                 cnt++;
 
+        if (!cnt && u_carry && IS_FORGE(levl[u.ux][u.uy].typ))
+            cnt = 1L; /* forge dipping, always at least one destroyed */
         if (!cnt)
             return 0;
 
@@ -5980,6 +5982,16 @@ maybe_destroy_item(
 }
 
 /* scaling factor; dmg/5 stacks will be subjected to destroy_items() */
+/* destroy a single item or stack of the hero's subjected to elemental
+   damage; used for objects dipped into a forge which are not handled
+   by lava_damage() */
+void
+destroy_one_item(struct obj *obj, int dmgtyp)
+{
+    if (destroyable(obj, dmgtyp))
+        (void) maybe_destroy_item(&gy.youmonst, obj, dmgtyp);
+}
+
 #define DMG_DESTROY_SCALE 5
 /* largest amount of stacks that will be destroyed in a single call */
 #define MAX_ITEMS_DESTROYED 20
