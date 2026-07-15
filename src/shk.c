@@ -4667,6 +4667,15 @@ getprice(struct obj *obj, boolean shk_buying)
         tmp = arti_cost(obj);
         if (shk_buying)
             tmp /= 4;
+    } else if (obj->oprops) {
+        int i;
+        long factor = 50L, next = 2L;
+
+        for (i = 0; i < MAX_ITEM_PROPS; i++) {
+            if (obj->oprops & (1 << i))
+                factor *= next, next = (next == 2L) ? 5L : 2L;
+        }
+        tmp += factor;
     }
     switch (obj->oclass) {
     case FOOD_CLASS:

@@ -201,6 +201,8 @@ boolean
 resists_drli(struct monst *mon)
 {
     struct permonst *ptr = mon->data;
+    struct obj *armor;
+    long slotmask;
 
     if (is_undead(ptr) || is_demon(ptr) || is_were(ptr)
         /* is_were() doesn't handle hero in human form */
@@ -209,6 +211,14 @@ resists_drli(struct monst *mon)
         /* racial overlay: undead, demonic, or lycanthropic race */
         || mon_has_race(mon, MH_UNDEAD | MH_DEMON | MH_WERE))
         return TRUE;
+    /* check for the drain resistance object property */
+    armor = (mon == &gy.youmonst) ? gi.invent : mon->minvent;
+    slotmask = W_ARMOR | W_ACCESSORY;
+    for (; armor; armor = armor->nobj) {
+        if ((armor->owornmask & slotmask) != 0L
+            && obj_has_prop(armor, DRAIN_RES))
+            return TRUE;
+    }
     return defended(mon, AD_DRLI);
 }
 
@@ -239,7 +249,7 @@ resists_magm(struct monst *mon)
         slotmask |= W_SWAPWEP;
     for (; o; o = o->nobj)
         if (((o->owornmask & slotmask) != 0L
-             && objects[o->otyp].oc_oprop == ANTIMAGIC)
+             && obj_has_prop(o, ANTIMAGIC))
             || (o->oartifact && defends_when_carried(AD_MAGM, o)))
             return TRUE;
     return FALSE;
@@ -683,6 +693,57 @@ can_track(struct permonst *ptr)
     if (u_wield_art(ART_EXCALIBUR))
         return TRUE;
     return (boolean) haseyes(ptr);
+}
+
+/* whether a monster (possibly the hero) has the given property,
+   either from its species or from worn or wielded gear */
+boolean
+mon_prop(struct monst *mon, int prop)
+{
+    boolean is_you = (mon == &gy.youmonst);
+    struct obj *o;
+
+    /* first, check if prop has a corresponding monflag */
+    switch (prop) {
+    case REGENERATION:
+        if (regenerates(mon->data))
+            return TRUE;
+        break;
+    case SEE_INVIS:
+        if (racial_perceives(mon))
+            return TRUE;
+        break;
+    case TELEPORT:
+        if (can_teleport(mon->data) && !mon->mcan)
+            return TRUE;
+        break;
+    case TELEPORT_CONTROL:
+        if (control_teleport(mon->data) || is_covetous(mon->data))
+            return TRUE;
+        break;
+    case TELEPAT:
+        if (telepathic(mon->data))
+            return TRUE;
+        break;
+    case JUMPING:
+        if (is_unicorn(mon->data))
+            return TRUE;
+        break;
+    case ANTIMAGIC: /* just in case */
+        return resists_magm(mon);
+    }
+
+    /* now check for extrinsics */
+    for (o = is_you ? gi.invent : mon->minvent; o; o = o->nobj) {
+        if ((o->owornmask && objects[o->otyp].oc_oprop == prop)
+            /* object properties */
+            || (o->owornmask && obj_has_prop(o, prop))
+            || (o->oartifact && arti_prop_spfx(prop)
+                && spec_ability(o, arti_prop_spfx(prop)))) {
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 /* creature will slide out of armor */

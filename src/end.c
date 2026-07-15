@@ -588,8 +588,10 @@ dump_everything(
     dump_plines();
     putstr(0, 0, "");
     putstr(0, ATR_HEADING, "Inventory:");
+    dump_prop_on();
     (void) display_inventory((char *) 0, TRUE);
     container_contents(gi.invent, TRUE, TRUE, FALSE);
+    dump_prop_off();
     enlightenment((BASICENLIGHTENMENT | MAGICENLIGHTENMENT),
                   (how >= PANICKED) ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD);
     putstr(NHW_DUMPTXT, 0, "");
@@ -634,8 +636,10 @@ disclose(int how, boolean taken)
             /* caller has already ID'd everything; we pass 'want_reply=True'
                to force display_pickinv() to avoid using WIN_INVENT */
             iflags.force_invmenu = FALSE;
+            dump_prop_on();
             (void) display_inventory((char *) 0, TRUE);
             container_contents(gi.invent, TRUE, TRUE, FALSE);
+            dump_prop_off();
         }
         if (c == 'q')
             done_stopprint++;

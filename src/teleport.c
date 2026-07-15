@@ -2281,7 +2281,7 @@ u_teleport_mon(
         unstuck(mtmp);
         if (!rloc(mtmp, RLOC_MSG))
             m_into_limbo(mtmp);
-    } else if ((is_rider(mtmp->data) || control_teleport(mtmp->data))
+    } else if (mon_prop(mtmp, TELEPORT_CONTROL)
                && rn2(13) && enexto(&cc, u.ux, u.uy, mtmp->data)) {
         rloc_to(mtmp, cc.x, cc.y);
     } else {

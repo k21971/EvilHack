@@ -612,7 +612,93 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       matdensities[] 5-bit-field OOB clamp on restore,
       init_dummyobj material, is_rottable dead BONE test (master
       parity, kept)
-- [ ] Object properties (oprops)
+- [x] Object properties (oprops)
+      PORTED + REVIEWED 2026-07-15 (subagent-ported 33 files
+      +~1400, reviewer CONDITIONAL FAIL -> all findings fixed by
+      coordinator same day, make clean rebuild zero-warning; NOT
+      yet committed). Contents: create_oprop/enforce_oprops_mutex
+      producers + arti_prop_spfx/obj_has_prop helpers; generation
+      at mksobj x4 (incl. new BARDING/SPIKED_BARDING init case),
+      makemon x4 (the B2-deferred mplayer/angel/Dispater sites),
+      Izchak sword, invoke_create_ammo, wish; objnam naming
+      (opropnames table, per-class prefix/suffix rework, magical
+      prefix, oprops_known gating, end-of-game dump_prop
+      disclosure) + wish parse (preparse magical/oilskin,
+      postparse of/and property loop, class-restriction mask);
+      do_wear oprops_on/_off all 7 slots + Armor_gone + EXCEL
+      luck/CHA (adj_abon, acurr, extremeattr); worn.c
+      update_mon_extrinsics oprops loop + obj_has_prop; mondata
+      mon_prop() whole + resists_drli/resists_magm worn loops +
+      ~20 consumer upgrades (apply/dog/dogmove/mcastu/mhitu/mon/
+      monmove/polyself/teleport/uhitm) - resolves the "mon_prop
+      upgrade path" open decision; engulf slow-digestion expel
+      both directions via NEW M_ATTK_EXPELLED 0x10 (master's 0x8
+      is 5.0's M_ATTK_AGR_DONE - anything porting master code
+      that hardcodes 0x8-as-expelled must re-map); combat riders
+      (artifact_hit FIRE/FROST/SHOCK/DRLI/VENOM + known-marking,
+      spec_dbon early block, venom -> hmon poison path, bare-hand
+      gloves rider, oilskin slip both directions, thrown
+      ammo_stack whole-stack learn); getprice oprops factor;
+      steal.c mdrop_obj saved-fields dummy (fixes an UPSTREAM
+      5.0 UAF - see Upstream-reportable table); bones/oname/
+      u_init/invent/wield sites. B2's inert racial-gear ITEM_*
+      assignments (Vecna robe, Saint Michael runesword, paladin
+      gear, Izchak sword) now fully live.
+      REVIEWER FINDINGS ALL FIXED: BLOCKER worn.c x3
+      set_artifact_intrinsic caller gates needed || obj->oprops
+      (wielded SEARCHING/WARNING/ESP was dead code); CONCERN wish
+      gate now tests makesingular(bp) per master ("wands of
+      fire" was hijacked by the property scan; gauntlets/gloves/
+      boots/eyes are as_is[] so their protections survive
+      singularization); CONCERN unique_corpstat engulf expel
+      ported both directions (purple worm could digest uniques;
+      barding expel stays with barding slice); CONCERN
+      thunderclap re-gated is_art(ART_MJOLLNIR) (Keolewa/Tempest
+      shocks were waking radius 16); CONCERN AD_DRST section
+      restructured to master shape (Sword of Kas message + hero
+      1/8 STR poison were skipped by an ITEM_VENOM outer gate).
+      REVIEWER CONFIRMED: gulpum expel returns M_ATTK_HIT not
+      master's literal 2 (master's 2 = DEF_DIED wrongly fired the
+      zombie-sick rider and passed maliveb=0 for a live monster -
+      deliberate improvement); M_ATTK_EXPELLED mask-safe at every
+      consumer (no ==-tests reachable, gulpmm consumes the bit,
+      passivemm overwrites res[i]); steal.c dummy carries exactly
+      the fields update_mon_extrinsics reads (dropping master's
+      dragonscales save is correct - branch derives via
+      oc_oprop); stackobj merge in mdrop_obj safe path CANNOT
+      free the dropped obj (reachability proof in review).
+      DELIBERATE INTENT-FIX vs master (MASTER BACKPORT CANDIDATE
+      #5): master's wish-parse exclusion checks clobber the
+      match length via assignments inside strncmpi args (fork
+      objnam.c ~4310 `l = 4` then `l = 5`), silently breaking
+      "X of fire and frost" two-property wishes; branch uses
+      constant-length exclusion tests.
+      OPEN DECISIONS RECORDED: mon_prop uses branch spec_ability
+      (spfx-only) - a merely CARRIED artifact confers less than
+      master's known carried-intrinsic leak; revisit with the
+      artifact-behavior slice. W_SWAPWEP oprops extrinsics inert
+      (5.0 setworn skips off-hand intrinsics for artifacts too);
+      the artifact.c W_SWAPWEP mapping arm is unreachable until
+      a twoweap-extrinsics decision.
+      DEFERRED (item -> subsystem): pray.c gear-gift/altar-venom/
+      Moloch-hellfire/Dirge oprops (sacrifice + Infidel + Dirge),
+      fountain.c forge-transfer + property gems + sp_lev
+      affixed-gem (Forging), monster ring/amulet wearing
+      (extra_pref/RIN_* muse sites), detect-magic ITEM_MAGICAL
+      (SPE_DETECT_MAGIC absent), dragon-scales merge oprops strip,
+      trap-kit transfer, terrain-burning fire-weapon, greased/
+      oilskin theft-slip trio, shield-bash rider, thrown-slip
+      self-hit, monster teleport-AI (decide_to_teleport),
+      pet-stash filter, vulnerable_to/mon_underwater severity,
+      "tainted " xname prefix (drow-poison - producers exist,
+      display does not), resists_magm defends(AD_MAGM)+W_BARDING
+      (artifact-defense wiring: Striped Shirt/Ring of P'hul/Eyes
+      of the Overworld/Ithilmar do not confer MR when worn yet),
+      mk_artifact forged_qual/affixed_gem zeroing (Forging),
+      SLING_BULLET quan rn1(7,8) mkobj init (sling parity, found
+      in passing). Reviewer's 10-point oprops wizmode battery
+      list is in the review report (session 2026-07-15); runs
+      with the next battery.
 - [~] Racial monsters (ERAC overlay)
       SLICE A (core) 2026-07-13, subagent-ported 20 files +791,
       reviewed (conditional pass, NO blockers; fixups in flight):
@@ -1081,6 +1167,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-12 | shk.c shop_keeper() impossible() format typo `&d` -> `%d` (code only compiles when NH_DEVEL_STATUS is WIP/BETA, so upstream's POSTRELEASE builds never saw the -Wformat-extra-args warning) | fixed on branch; not yet sent |
 | 2026-07-12 | util/sfctool.c validate() call missing the 4th arg added by the u.ustuck save/restore fixes (optional target, upstream CI never builds it); also two -DSFCTOOL -Wunused-function warnings in files.c (set_whereisfile/write_whereis) | validate fix on branch; warnings not chased |
 | 2026-07-13 | WIP-build false positive: shop_keeper()'s "untrustworthy null shkp" diagnostic (shk.c:1082) fires during throne-room generation - fill_zoo COURT chest fill -> add_to_container gold merge -> obfree's unconditional shop_keeper(*u.ushops) fallback (shk.c:1227) probes rmno '\0' while level_status.making. Repro: generate levels until a COURT spawns (4 merges = 4 reports at one newgame observed). Suggested fix: diagnostic should skip rmno < ROOMOFFSET - a no-room probe's NULL is definitionally correct | traced on branch (gdb bt); code byte-identical upstream; not yet sent |
+| 2026-07-15 | steal.c mdrop_obj() use-after-free: update_mon_extrinsics(mon, obj, ...) runs after flooreffects() may have destroyed obj (worn item dropped over lava/open air deallocates it, then the extrinsics update derefs the freed object). Verbatim in upstream 5.0 at adoption commit 74d1133c2 and in Official_nh50. Fixed on the branch (oprops slice) with master's saved-fields dummy-object pattern; the companion stackobj() merge in the safe path was reviewer-proven NOT to free the dropped obj (merged() keeps the potmp arg = the dropped obj, frees the pre-existing floor stack) so no further change needed | fixed on branch; not yet sent |
 
 ## Master re-derive queue
 

@@ -705,7 +705,11 @@ hitmm(
                 FALLTHROUGH;
                 /*FALLTHRU*/
             default:
-                if (!weaponhit || !mwep || !mwep->oartifact)
+                if (!weaponhit || !mwep
+                    || !(mwep->oartifact
+                         || ((mwep->oclass == WEAPON_CLASS
+                              || is_weptool(mwep) || is_bullet(mwep))
+                             && mwep->oprops)))
                     Snprintf(buf, sizeof buf, "%s hits", magr_name);
                 break;
             }
@@ -941,10 +945,21 @@ gulpmm(
         newsym(dx, dy);
     } else {                           /* both alive, put them back */
         if (cansee(dx, dy)) {
-            pline("%s is %s!", Monnam(mdef),
-                  digests(magr->data) ? "regurgitated"
-                    : enfolds(magr->data) ? "released"
-                      : "expelled");
+            if (status & M_ATTK_EXPELLED) {
+                pline("%s hurriedly %s %s!", Monnam(magr),
+                      digests(magr->data) ? "regurgitates"
+                        : enfolds(magr->data) ? "releases"
+                          : "expels",
+                      mon_nam(mdef));
+                if (digests(magr->data))
+                    pline("Obviously, it didn't like %s taste.",
+                          s_suffix(mon_nam(mdef)));
+            } else {
+                pline("%s is %s!", Monnam(mdef),
+                      digests(magr->data) ? "regurgitated"
+                        : enfolds(magr->data) ? "released"
+                          : "expelled");
+            }
         }
 
         remove_monster(dx,dy);

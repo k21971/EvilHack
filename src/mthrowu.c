@@ -27,6 +27,11 @@ static NEARDATA const char *breathwep[] = {
     "strange breath #9"
 };
 
+/* parent stack of a missile in flight, so that an object property
+   identified when one item from the stack hits can be learned for
+   the rest of the stack */
+static struct obj *ammo_stack = 0;
+
 /* hallucinatory ray types */
 static const char *const hallublasts[] = {
     "asteroids", "beads", "bubbles", "butterflies", "champagne", "chaos",
@@ -115,10 +120,20 @@ thitu(
             You("are almost hit by %s.", onm);
         return 0;
     } else {
-        if (Blind || !flags.verbose)
+        if (obj
+            && (obj->oartifact
+                || ((obj->oclass == WEAPON_CLASS || is_weptool(obj)
+                     || is_bullet(obj))
+                    && (obj->oprops & ITEM_PROP_MASK))))
+            (void) artifact_hit((struct monst *) 0, &gy.youmonst, obj,
+                                &dam, 0);
+        else if (Blind || !flags.verbose)
             You("are hit%s", exclam(dam));
         else
             You("are hit by %s%s", onm, exclam(dam));
+
+        if (ammo_stack && obj)
+            ammo_stack->oprops_known |= obj->oprops_known;
 
         if (is_acid && Acid_resistance) {
             pline("It doesn't seem to hurt you.");
@@ -424,6 +439,18 @@ ohitmon(
             /* note: extra material damage is handled by dmgval() */
             searmsg((struct monst *) 0, mtmp, otmp, FALSE);
         }
+        if (!DEADMONSTER(mtmp)
+            && (otmp->oartifact
+                || ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+                     || is_bullet(otmp))
+                    && (otmp->oprops & ITEM_PROP_MASK)))) {
+            /* damage from objects with offensive object properties */
+            (void) artifact_hit((struct monst *) 0, mtmp, otmp, &damage, 0);
+        }
+
+        if (ammo_stack)
+            ammo_stack->oprops_known |= otmp->oprops_known;
+
         if (otmp->otyp == ACID_VENOM && cansee(mtmp->mx, mtmp->my)) {
             if (resists_acid(mtmp)) {
                 if (vis || (verbose && !gm.mtarget))
@@ -583,6 +610,7 @@ m_throw(
     gb.bhitpos.x = x;
     gb.bhitpos.y = y;
     gn.notonhead = FALSE; /* reset potentially stale value */
+    ammo_stack = obj;
 
     if (obj->quan == 1L) {
         /*
@@ -626,12 +654,14 @@ m_throw(
         /* check validity of new direction */
         if (!dx && !dy) {
             (void) drop_throw(singleobj, 0, gb.bhitpos.x, gb.bhitpos.y);
+            ammo_stack = (struct obj *) 0;
             return;
         }
     }
 
     if (MT_FLIGHTCHECK(TRUE, 0)) {
         (void) drop_throw(singleobj, 0, gb.bhitpos.x, gb.bhitpos.y);
+        ammo_stack = (struct obj *) 0;
         return;
     }
     gm.mesg_given = 0; /* a 'missile misses' message has not yet been shown */
@@ -848,6 +878,7 @@ m_throw(
     }
     /* note: all early returns follow drop_throw() which clears thrownobj */
     gt.thrownobj = 0;
+    ammo_stack = (struct obj *) 0;
     return;
 }
 

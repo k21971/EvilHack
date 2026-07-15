@@ -896,6 +896,9 @@ mksobj_init(struct obj **obj, boolean artif)
             /* mk_artifact() with otmp and A_NONE will never return NULL */
             otmp = mk_artifact(otmp, (aligntyp) A_NONE, 99, TRUE);
             *obj = otmp;
+        } else if (rn2(175) < (level_difficulty() / 2)) {
+            otmp = create_oprop(otmp, TRUE);
+            *obj = otmp;
         }
         break;
     case FOOD_CLASS:
@@ -989,6 +992,11 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->quan = 2L;
         else
             otmp->quan = 1L;
+
+        if (is_bullet(otmp) && !rn2(150)) {
+            otmp = create_oprop(otmp, TRUE);
+            *obj = otmp;
+        }
         break;
     case TOOL_CLASS:
         switch (otmp->otyp) {
@@ -1061,6 +1069,28 @@ mksobj_init(struct obj **obj, boolean artif)
         case DRUM_OF_EARTHQUAKE:
             otmp->spe = rn1(5, 4);
             break;
+        case BARDING:
+        case SPIKED_BARDING:
+            if (!rn2(10)) {
+                otmp->blessed = rn2(2);
+                otmp->spe = rne(3);
+            } else
+                blessorcurse(otmp, 10);
+            /* chance for an object property; barding of
+               reflection is excluded because it is already
+               magical */
+            if (!rn2(150)) {
+                otmp = create_oprop(otmp, FALSE);
+                *obj = otmp;
+            }
+            break;
+        case BARDING_OF_REFLECTION:
+            if (!rn2(10)) {
+                otmp->blessed = rn2(2);
+                otmp->spe = rne(3);
+            } else
+                blessorcurse(otmp, 10);
+            break;
         }
         break;
     case AMULET_CLASS:
@@ -1104,6 +1134,9 @@ mksobj_init(struct obj **obj, boolean artif)
         if (artif && !rn2(40 + (10 * nartifact_exist()))) {
             /* mk_artifact() with otmp and A_NONE will never return NULL */
             otmp = mk_artifact(otmp, (aligntyp) A_NONE, 99, TRUE);
+            *obj = otmp;
+        } else if (!rn2(150)) {
+            otmp = create_oprop(otmp, TRUE);
             *obj = otmp;
         }
         /* simulate lacquered armor for samurai */

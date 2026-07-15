@@ -1003,7 +1003,9 @@ hmon_hitmon_weapon_melee(
         hmd->hittxt = TRUE;
     }
 
-    if (obj->oartifact
+    if ((obj->oartifact
+         || ((obj->oclass == WEAPON_CLASS || is_weptool(obj)
+              || is_bullet(obj)) && obj->oprops))
         && artifact_hit(&gy.youmonst, mon, obj, &hmd->dmg, hmd->dieroll)) {
         /* artifact_hit updates 'tmp' but doesn't inflict any
            damage; however, it might cause carried items to be
@@ -1524,7 +1526,9 @@ hmon_hitmon_poison(
         You_feel("like an evil coward for using a poisoned weapon.");
         adjalign(-1);
     }
-    if (!permapoisoned(obj) && !rn2(nopoison)) {
+    /* the venom object property never wears off */
+    if (hmd->ispoisoned && !permapoisoned(obj)
+        && !(obj->oprops & ITEM_VENOM) && !rn2(nopoison)) {
         /* remove poison now in case obj ends up in a bones file */
         obj->opoisoned = FALSE;
         /* defer "obj is no longer poisoned" until after hit message */
@@ -1766,7 +1770,7 @@ hmon_hitmon(
     if (hmd.dmg > 0)
         hmon_hitmon_dmg_recalc(&hmd, obj);
 
-    if (hmd.ispoisoned)
+    if (hmd.ispoisoned || (obj && (obj->oprops & ITEM_VENOM)))
         hmon_hitmon_poison(&hmd, mon, obj);
 
     if (hmd.dmg < 1) {
@@ -1780,6 +1784,19 @@ hmon_hitmon(
             /* this gives "harmlessly passes through" feedback even when
                hero doesn't see it happen; presumably sensed by touch? */
             hmd.hittxt = shade_miss(&gy.youmonst, mon, obj, FALSE, TRUE);
+    }
+
+    /* potential for gloves with an object property to do additional
+       damage when fighting bare-handed */
+    if (!hmd.already_killed && !rn2(3) && hmd.hand_to_hand
+        && !uwep && !obj && uarmg
+        && (uarmg->oprops & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK))) {
+        (void) artifact_hit(&gy.youmonst, mon, uarmg, &hmd.dmg, dieroll);
+        if (DEADMONSTER(mon)) {
+            hmd.already_killed = TRUE;
+            hmd.destroyed = TRUE;
+        }
+        hmd.hittxt = TRUE;
     }
 
     if (hmd.jousting) {
@@ -1854,13 +1871,32 @@ hmon_hitmon(
        minvent and might merge with a stack that's already there)] */
     /* already_killed and poiskilled won't apply for Trollsbane */
 
-    if (hmd.needpoismsg)
+    if (hmd.needpoismsg) {
         pline_The("poison doesn't seem to affect %s.", mon_nam(mon));
+        if (obj && (obj->oprops & ITEM_VENOM)) {
+            obj->oprops_known |= ITEM_VENOM;
+            update_inventory();
+        }
+    }
     if (hmd.poiskilled) {
+        struct obj *vobj = obj;
+
         pline_The("poison was deadly...");
         if (!hmd.already_killed)
             xkilled(mon, XKILL_NOMSG);
         hmd.destroyed = TRUE; /* return FALSE; */
+        /* thrown obj might be gone (swallowed hero's missile added to
+           engulfer's minvent, possibly merged); a melee weapon might
+           have been destroyed by death side effects */
+        if (thrown == HMON_THROWN && !gt.thrownobj)
+            vobj = (struct obj *) 0;
+        else if (thrown != HMON_THROWN && vobj && vobj != uwep
+                 && !(u.twoweap && vobj == uswapwep))
+            vobj = (struct obj *) 0;
+        if (vobj && (vobj->oprops & ITEM_VENOM)) {
+            vobj->oprops_known |= ITEM_VENOM;
+            update_inventory();
+        }
     } else if (hmd.destroyed) {
         if (!hmd.already_killed) {
             if (troll_baned(mon, obj))
@@ -2030,7 +2066,8 @@ m_slips_free(struct monst *mdef, struct attack *mattk)
 
     /* if monster's cloak/armor is greased, your grab slips off; this
        protection might fail (33% chance) when the armor is cursed */
-    if (obj && (obj->greased || obj->otyp == OILSKIN_CLOAK)
+    if (obj && (obj->greased || obj->otyp == OILSKIN_CLOAK
+                || (obj->oprops & ITEM_OILSKIN))
         && (!obj->cursed || rn2(3))) {
         You("%s %s %s %s!",
             (mattk->adtyp == AD_WRAP) ? "slip off of"
@@ -3876,7 +3913,8 @@ mhitm_ad_halu(
         mhm->damage = 0;
     } else {
         /* mhitm */
-        if (!magr->mcan && haseyes(pd) && mdef->mcansee) {
+        if (!magr->mcan && haseyes(pd) && mdef->mcansee
+            && !mon_prop(mdef, HALLUC_RES)) {
             if (gv.vis && canseemon(mdef))
                 pline_mon(mdef, "%s looks %sconfused.", Monnam(mdef),
                       mdef->mconf ? "more " : "");
@@ -4031,7 +4069,9 @@ mhitm_ad_phys(
                     mhm->damage += rn1(4, 3); /* 3..6 */
                 if (mhm->damage <= 0)
                     mhm->damage = 1;
-                if (!otmp->oartifact
+                if (!(otmp->oartifact
+                      || ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+                           || is_bullet(otmp)) && otmp->oprops))
                     || !artifact_hit(magr, mdef, otmp, &mhm->damage,
                                      gm.mhitu_dieroll)) {
                     hitmsg(magr, mattk);
@@ -4121,7 +4161,9 @@ mhitm_ad_phys(
                 mhm->damage += rn1(4, 3); /* 3..6 */
             if (mhm->damage < 1) /* is this necessary?  mhitu.c has it... */
                 mhm->damage = 1;
-            if (mwep->oartifact) {
+            if (mwep->oartifact
+                || ((mwep->oclass == WEAPON_CLASS || is_weptool(mwep)
+                     || is_bullet(mwep)) && mwep->oprops)) {
                 /* when magr's weapon is an artifact, caller suppressed its
                    usual 'hit' message in case artifact_hit() delivers one;
                    now we'll know and might need to deliver skipped message
@@ -4473,6 +4515,19 @@ mhitm_ad_dgst(
         int num;
         struct obj *obj;
 
+        /* slow digestion protects against being swallowed whole */
+        if (mon_prop(mdef, SLOW_DIGESTION)) {
+            mhm->hitflags = (M_ATTK_HIT | M_ATTK_EXPELLED);
+            mhm->done = TRUE;
+            return;
+        }
+        /* unique monsters are too significant to be digested;
+           expelled immediately with no damage, like slow digestion */
+        if (unique_corpstat(pd)) {
+            mhm->hitflags = (M_ATTK_HIT | M_ATTK_EXPELLED);
+            mhm->done = TRUE;
+            return;
+        }
         /* eating a Rider or its corpse is fatal */
         if (is_rider(pd)) {
             if (gv.vis && canseemon(magr))
@@ -5011,6 +5066,13 @@ gulpum(struct monst *mdef, struct attack *mattk)
             start_engulf(mdef);
             switch (mattk->adtyp) {
             case AD_DGST:
+                /* slow digestion protects against being swallowed */
+                if (mon_prop(mdef, SLOW_DIGESTION)) {
+                    You("hurriedly %s the indigestible %s.",
+                        expel_verb, m_monnam(mdef));
+                    end_engulf();
+                    return M_ATTK_HIT;
+                }
                 /* eating a Rider or its corpse is fatal */
                 if (is_rider(pd)) {
                     pline("Unfortunately, digesting any of it is fatal.");
@@ -5020,6 +5082,15 @@ gulpum(struct monst *mdef, struct attack *mattk)
                     svk.killer.format = NO_KILLER_PREFIX;
                     done(DIED);
                     return M_ATTK_MISS; /* lifesaved */
+                }
+                /* unique monsters are too significant to be digested;
+                   expelled immediately with no damage, like slow
+                   digestion */
+                if (unique_corpstat(pd)) {
+                    You("hurriedly %s the indigestible %s.",
+                        expel_verb, m_monnam(mdef));
+                    end_engulf();
+                    return M_ATTK_HIT;
                 }
 
                 if (Slow_digestion) {

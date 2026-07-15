@@ -123,5 +123,6 @@ struct mhitm_data {
 #define M_ATTK_DEF_DIED 0x2 /* defender died */
 #define M_ATTK_AGR_DIED 0x4 /* aggressor died */
 #define M_ATTK_AGR_DONE 0x8 /* aggressor is done with their turn */
+#define M_ATTK_EXPELLED 0x10 /* defender was saved by slow digestion */
 
 #endif /* MONATTK_H */

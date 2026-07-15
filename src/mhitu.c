@@ -178,7 +178,8 @@ wildmiss(struct monst *mtmp, struct attack *mattk)
     int compat;
     const char *Monst_name; /* Monnam(), deferred until after early returns */
     /* expected reasons for wildmiss() */
-    boolean unotseen = (!mtmp->mcansee || (Invis && !perceives(mtmp->data))),
+    boolean unotseen = (!mtmp->mcansee
+                        || (Invis && !mon_prop(mtmp, SEE_INVIS))),
             unotthere = (Displaced != 0), usubmerged = (Underwater != 0);
 
     /* the reasons for wildmiss end up getting checked twice so that the
@@ -713,7 +714,7 @@ mattacku(struct monst *mtmp)
     tmp += mtmp->m_lev;
     if (gm.multi < 0)
         tmp += 4;
-    if ((Invis && !racial_perceives(mtmp)) || !mtmp->mcansee)
+    if ((Invis && !mon_prop(mtmp, SEE_INVIS)) || !mtmp->mcansee)
         tmp -= 2;
     if (mtmp->mtrapped)
         tmp -= 2;
@@ -1069,7 +1070,8 @@ u_slip_free(
 
     /* if your cloak/armor is greased, monster slips off; this
        protection might fail (33% chance) when the armor is cursed */
-    if (obj && (obj->greased || obj->otyp == OILSKIN_CLOAK)
+    if (obj && (obj->greased || obj->otyp == OILSKIN_CLOAK
+                || (obj->oprops & ITEM_OILSKIN))
         && (!obj->cursed || rn2(3))) {
         pline_mon(mtmp, "%s %s your %s %s!", Monnam(mtmp),
               (mattk->adtyp == AD_WRAP) ? "slips off of"
@@ -1977,7 +1979,7 @@ could_seduce(
         defperc = (See_invisible != 0);
         gendef = poly_gender();
     } else {
-        defperc = perceives(mdef->data);
+        defperc = mon_prop(mdef, SEE_INVIS);
         gendef = gender(mdef);
     }
 
@@ -2585,7 +2587,7 @@ passiveum(
                 if (!rn2(4))
                     tmp = 127;
                 if (mtmp->mcansee && haseyes(mtmp->data) && rn2(3)
-                    && (perceives(mtmp->data) || !Invis)) {
+                    && (mon_prop(mtmp, SEE_INVIS) || !Invis)) {
                     if (Blind) {
                         pline("As a blind %s, you cannot defend yourself.",
                               pmname(gy.youmonst.data,

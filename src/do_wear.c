@@ -183,6 +183,114 @@ toggle_displacement(
  * [Blindf_on() is an exception and calls setworn() itself.]
  */
 
+/* extrinsics conferred by object properties on newly worn armor */
+void
+oprops_on(struct obj *otmp, long mask)
+{
+    long props = otmp->oprops;
+
+    if (props & ITEM_FIRE)
+        EFire_resistance |= mask;
+    if (props & ITEM_FROST)
+        ECold_resistance |= mask;
+    if (props & ITEM_DRLI)
+        EDrain_resistance |= mask;
+    if (props & ITEM_SHOCK)
+        EShock_resistance |= mask;
+    if (props & ITEM_VENOM)
+        EPoison_resistance |= mask;
+    if (props & ITEM_OILSKIN) {
+        pline("%s very tightly.", Tobjnam(otmp, "fit"));
+        otmp->oprops_known |= ITEM_OILSKIN;
+    }
+    if (props & ITEM_ESP) {
+        ETelepat |= mask;
+        see_monsters();
+    }
+    if (props & ITEM_SEARCHING)
+        ESearching |= mask;
+    if (props & ITEM_WARNING) {
+        EWarning |= mask;
+        see_monsters();
+    }
+    if (props & ITEM_FUMBLING) {
+        if (!EFumbling && !(HFumbling & ~TIMEOUT))
+            incr_itimeout(&HFumbling, rnd(20));
+        EFumbling |= mask;
+    }
+    if (props & ITEM_HUNGER)
+        EHunger |= mask;
+    if (props & ITEM_EXCEL) {
+        int which = A_CHA, old_attrib = ACURR(which);
+
+        /* helm of brilliance and gauntlets of dexterity adjust
+           their attributes in adj_abon() */
+        if (otmp->otyp != HELM_OF_BRILLIANCE
+            && otmp->otyp != GAUNTLETS_OF_DEXTERITY)
+            ABON(which) += otmp->spe;
+        if (old_attrib != ACURR(which))
+            otmp->oprops_known |= ITEM_EXCEL;
+        set_moreluck();
+        disp.botl = TRUE;
+    }
+}
+
+/* undo oprops_on(); called while the item is still worn */
+void
+oprops_off(struct obj *otmp, long mask)
+{
+    long props = otmp->oprops;
+
+    if (props & ITEM_FIRE)
+        EFire_resistance &= ~mask;
+    if (props & ITEM_FROST)
+        ECold_resistance &= ~mask;
+    if (props & ITEM_DRLI)
+        EDrain_resistance &= ~mask;
+    if (props & ITEM_SHOCK)
+        EShock_resistance &= ~mask;
+    if (props & ITEM_VENOM)
+        EPoison_resistance &= ~mask;
+    if (props & ITEM_OILSKIN)
+        otmp->oprops_known |= ITEM_OILSKIN;
+    if (props & ITEM_ESP) {
+        ETelepat &= ~mask;
+        see_monsters();
+    }
+    if (props & ITEM_SEARCHING)
+        ESearching &= ~mask;
+    if (props & ITEM_WARNING) {
+        EWarning &= ~mask;
+        see_monsters();
+    }
+    if (props & ITEM_FUMBLING) {
+        EFumbling &= ~mask;
+        if (!EFumbling && !(HFumbling & ~TIMEOUT))
+            HFumbling = EFumbling = 0L;
+    }
+    if (props & ITEM_HUNGER)
+        EHunger &= ~mask;
+    if (props & ITEM_EXCEL) {
+        int which = A_CHA, old_attrib = ACURR(which);
+
+        /* helm of brilliance and gauntlets of dexterity adjust
+           their attributes in adj_abon() */
+        if (otmp->otyp != HELM_OF_BRILLIANCE
+            && otmp->otyp != GAUNTLETS_OF_DEXTERITY)
+            ABON(which) -= otmp->spe;
+        if (old_attrib != ACURR(which))
+            otmp->oprops_known |= ITEM_EXCEL;
+        /* temporarily clear ITEM_EXCEL so confers_luck() won't count
+           this item during set_moreluck(); owornmask is still set at
+           this point; safe because set_moreluck() has no side effects
+           that read oprops */
+        otmp->oprops &= ~ITEM_EXCEL;
+        set_moreluck();
+        otmp->oprops |= ITEM_EXCEL;
+        disp.botl = TRUE;
+    }
+}
+
 int
 Boots_on(void)
 {
@@ -253,9 +361,12 @@ Boots_on(void)
         impossible(unknown_type, c_boots, uarmf->otyp);
     }
     /* uarmf could be Null here (levitation boots put on over a sink) */
-    if (uarmf && !uarmf->known) {
-        uarmf->known = 1; /* boots' +/- evident because of status line AC */
-        update_inventory();
+    if (uarmf) {
+        if (!uarmf->known) {
+            uarmf->known = 1; /* boots' +/- evident from status line AC */
+            update_inventory();
+        }
+        oprops_on(uarmf, WORN_BOOTS);
     }
     return 0;
 }
@@ -266,6 +377,8 @@ Boots_off(void)
     struct obj *otmp = uarmf;
     int otyp = otmp->otyp;
     long oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_BOOTS;
+
+    oprops_off(otmp, WORN_BOOTS);
 
     svc.context.takeoff.mask &= ~W_ARMF;
     /* For levitation, float_down() returns if Levitation, so we
@@ -377,9 +490,12 @@ Cloak_on(void)
     default:
         impossible(unknown_type, c_cloak, uarmc->otyp);
     }
-    if (uarmc && !uarmc->known) { /* no known instance of !uarmc here */
-        uarmc->known = 1; /* cloak's +/- evident because of status line AC */
-        update_inventory();
+    if (uarmc) { /* no known instance of !uarmc here but play it safe */
+        if (!uarmc->known) {
+            uarmc->known = 1; /* cloak's +/- evident from status line AC */
+            update_inventory();
+        }
+        oprops_on(uarmc, WORN_CLOAK);
     }
     return 0;
 }
@@ -390,6 +506,8 @@ Cloak_off(void)
     struct obj *otmp = uarmc;
     int otyp = otmp->otyp;
     long oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_CLOAK;
+
+    oprops_off(otmp, WORN_CLOAK);
 
     svc.context.takeoff.mask &= ~W_ARMC;
     /* For mummy wrapping, taking it off first resets `Invisible'. */
@@ -531,9 +649,12 @@ Helmet_on(void)
         impossible(unknown_type, c_helmet, uarmh->otyp);
     }
     /* uarmh could be Null due to uchangealign() */
-    if (uarmh && !uarmh->known) {
-        uarmh->known = 1; /* helmet's +/- evident because of status line AC */
-        update_inventory();
+    if (uarmh) {
+        if (!uarmh->known) {
+            uarmh->known = 1; /* helmet's +/- evident from status line AC */
+            update_inventory();
+        }
+        oprops_on(uarmh, WORN_HELMET);
     }
     return 0;
 }
@@ -541,6 +662,8 @@ Helmet_on(void)
 int
 Helmet_off(void)
 {
+    oprops_off(uarmh, WORN_HELMET);
+
     svc.context.takeoff.mask &= ~W_ARMH;
 
     switch (uarmh->otyp) {
@@ -646,6 +769,7 @@ Gloves_on(void)
         uarmg->known = 1; /* gloves' +/- evident because of status line AC */
         update_inventory();
     }
+    oprops_on(uarmg, WORN_GLOVES);
     return 0;
 }
 
@@ -696,6 +820,8 @@ Gloves_off(void)
     long oldprop =
         u.uprops[objects[uarmg->otyp].oc_oprop].extrinsic & ~WORN_GLOVES;
     boolean on_purpose = !svc.context.mon_moving && !uarmg->in_use;
+
+    oprops_off(uarmg, WORN_GLOVES);
 
     svc.context.takeoff.mask &= ~W_ARMG;
 
@@ -783,12 +909,15 @@ Shield_on(void)
         uarms->known = 1; /* shield's +/- evident because of status line AC */
         update_inventory();
     }
+    oprops_on(uarms, WORN_SHIELD);
     return 0;
 }
 
 int
 Shield_off(void)
 {
+    oprops_off(uarms, WORN_SHIELD);
+
     svc.context.takeoff.mask &= ~W_ARMS;
 
     /* no shield currently requires special handling when taken off, but we
@@ -833,12 +962,15 @@ Shirt_on(void)
         uarmu->known = 1; /* shirt's +/- evident because of status line AC */
         update_inventory();
     }
+    oprops_on(uarmu, WORN_SHIRT);
     return 0;
 }
 
 int
 Shirt_off(void)
 {
+    oprops_off(uarmu, WORN_SHIRT);
+
     svc.context.takeoff.mask &= ~W_ARMU;
 
     /* no shirt currently requires special handling when taken off, but we
@@ -946,6 +1078,7 @@ Armor_on(void)
         uarm->known = 1; /* suit's +/- evident because of status line AC */
         update_inventory();
     }
+    oprops_on(uarm, W_ARM);
     dragon_armor_handling(uarm, TRUE, TRUE);
     /* gold DSM requires extra handling since it emits light when worn;
        do that after the special armor handling */
@@ -964,6 +1097,9 @@ Armor_off(void)
 {
     struct obj *otmp = uarm;
     boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
+
+    if (otmp)
+        oprops_off(otmp, W_ARM);
 
     svc.context.takeoff.mask &= ~W_ARM;
     setworn((struct obj *) 0, W_ARM);
@@ -994,6 +1130,9 @@ Armor_gone(void)
 {
     struct obj *otmp = uarm;
     boolean was_arti_light = otmp && otmp->lamplit && artifact_light(otmp);
+
+    if (otmp)
+        oprops_off(otmp, W_ARM);
 
     svc.context.takeoff.mask &= ~W_ARM;
     setnotworn(uarm);
@@ -3427,6 +3566,18 @@ adj_abon(struct obj *otmp, schar delta)
             makeknown(uarmh->otyp);
             ABON(A_INT) += (delta);
             ABON(A_WIS) += (delta);
+        }
+        disp.botl = TRUE;
+    }
+    if ((otmp->oprops & ITEM_EXCEL) && (otmp->owornmask & W_ARMOR)
+        && carried(otmp)) {
+        if (delta) {
+            int which = A_CHA, old_attrib = ACURR(which);
+
+            ABON(which) += (delta);
+            if (old_attrib != ACURR(which))
+                otmp->oprops_known |= ITEM_EXCEL;
+            set_moreluck();
         }
         disp.botl = TRUE;
     }

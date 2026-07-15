@@ -1024,7 +1024,7 @@ addinv_core1(struct obj *obj)
 void
 addinv_core2(struct obj *obj)
 {
-    if (confers_luck(obj)) {
+    if (confers_luck(obj) || (obj->oprops & ITEM_EXCEL)) {
         /* new luckstone must be in inventory by this point
            for correct calculation */
         set_moreluck();
@@ -1388,7 +1388,7 @@ freeinv_core(struct obj *obj)
 
     if (obj->otyp == LOADSTONE) {
         curse(obj);
-    } else if (confers_luck(obj)) {
+    } else if (confers_luck(obj) || (obj->oprops & ITEM_EXCEL)) {
         set_moreluck();
         disp.botl = TRUE;
     } else if (obj->otyp == FIGURINE && obj->timed) {
@@ -2638,6 +2638,7 @@ fully_identify_obj(struct obj *otmp)
         discover_artifact((xint16) otmp->oartifact);
     observe_object(otmp);
     otmp->known = otmp->bknown = otmp->rknown = 1;
+    otmp->oprops_known = ITEM_PROP_MASK;
     set_cknown_lknown(otmp); /* set otmp->{cknown,lknown} if applicable */
     if (otmp->otyp == EGG && otmp->corpsenm != NON_PM)
         learn_egg_type(otmp->corpsenm);

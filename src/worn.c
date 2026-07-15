@@ -102,7 +102,7 @@ setworn(struct obj *obj, long mask)
                         monstunseesu_prop(p);
                         if ((p = w_blocks(oobj, mask)) != 0)
                             u.uprops[p].blocked &= ~wp->w_mask;
-                        if (oobj->oartifact)
+                        if (oobj->oartifact || oobj->oprops)
                             set_artifact_intrinsic(oobj, 0, mask);
                     }
                     /* in case wearing or removal is in progress or removal
@@ -126,7 +126,7 @@ setworn(struct obj *obj, long mask)
                             if ((p = w_blocks(obj, mask)) != 0)
                                 u.uprops[p].blocked |= wp->w_mask;
                         }
-                        if (obj->oartifact)
+                        if (obj->oartifact || obj->oprops)
                             set_artifact_intrinsic(obj, 1, mask);
                     }
                 }
@@ -169,7 +169,7 @@ setnotworn(struct obj *obj)
             u.uprops[p].extrinsic = u.uprops[p].extrinsic & ~wp->w_mask;
             monstunseesu_prop(p); /* remove this extrinsic from seenres */
             obj->owornmask &= ~wp->w_mask;
-            if (obj->oartifact)
+            if (obj->oartifact || obj->oprops)
                 set_artifact_intrinsic(obj, 0, wp->w_mask);
             if ((p = w_blocks(obj, wp->w_mask)) != 0)
                 u.uprops[p].blocked &= ~wp->w_mask;
@@ -570,6 +570,51 @@ mon_adjust_speed(
     }
 }
 
+/* whether an object bestows the given property, either inherently
+   or via one of its object properties; offensive damage properties
+   on weapons do not confer the corresponding resistance */
+boolean
+obj_has_prop(struct obj *obj, int which)
+{
+    if (objects[obj->otyp].oc_oprop == which)
+        return TRUE;
+
+    if (!obj->oprops)
+        return FALSE;
+
+    switch (which) {
+    case FIRE_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_FIRE));
+    case COLD_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_FROST));
+    case DRAIN_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_DRLI));
+    case SHOCK_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_SHOCK));
+    case POISON_RES:
+        return !!(obj->oclass != WEAPON_CLASS
+                  && !is_weptool(obj)
+                  && (obj->oprops & ITEM_VENOM));
+    case TELEPAT:
+        return !!(obj->oprops & ITEM_ESP);
+    case FUMBLING:
+        return !!(obj->oprops & ITEM_FUMBLING);
+    case HUNGER:
+        return !!(obj->oprops & ITEM_HUNGER);
+    case ADORNED:
+        return !!(obj->oprops & ITEM_EXCEL);
+    }
+    return FALSE;
+}
+
 /* alchemy smock confers two properties, poison and acid resistance
    but objects[ALCHEMY_SMOCK].oc_oprop can only describe one of them;
    if it is poison resistance, alternate property is acid resistance;
@@ -594,6 +639,8 @@ update_mon_extrinsics(
     struct obj *otmp;
     int which = (int) objects[obj->otyp].oc_oprop,
         altwhich = altprop(obj);
+    long props = obj->oprops;
+    long i = 0L;
 
     unseen = !canseemon(mon);
     if (!which && !altwhich)
@@ -677,6 +724,9 @@ update_mon_extrinsics(
                     continue;
                 if ((int) objects[otmp->otyp].oc_oprop == which)
                     break;
+                /* object properties */
+                if (obj_has_prop(otmp, which))
+                    break;
                 /* check whether 'otmp' confers target property as an extra
                    one rather than as the one specified for it in objects[] */
                 if (altprop(otmp) == which)
@@ -708,6 +758,60 @@ update_mon_extrinsics(
         break;
     default:
         break;
+    }
+
+    /* run each of the item's object properties through the
+       switches above; damage properties on weapons are offensive
+       and do not confer the corresponding resistance */
+    while (props) {
+        if (!i)
+            i = 1L;
+        else
+            i <<= 1;
+
+        if (i > ITEM_PROP_MASK)
+            break;
+
+        if (props & i) {
+            which = 0;
+            props &= ~i;
+            switch (i) {
+            case ITEM_FIRE:
+                if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                    which = FIRE_RES;
+                break;
+            case ITEM_FROST:
+                if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                    which = COLD_RES;
+                break;
+            case ITEM_DRLI:
+                if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                    which = DRAIN_RES;
+                break;
+            case ITEM_SHOCK:
+                if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                    which = SHOCK_RES;
+                break;
+            case ITEM_VENOM:
+                if (obj->oclass != WEAPON_CLASS && !is_weptool(obj))
+                    which = POISON_RES;
+                break;
+            case ITEM_ESP:
+                which = TELEPAT;
+                break;
+            case ITEM_FUMBLING:
+                which = FUMBLING;
+                break;
+            case ITEM_HUNGER:
+                which = HUNGER;
+                break;
+            case ITEM_EXCEL:
+                which = ADORNED;
+                break;
+            }
+            if (which)
+                goto again;
+        }
     }
 
     if (!on && mon == u.usteed && obj->otyp == SADDLE)

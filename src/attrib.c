@@ -1222,6 +1222,23 @@ acurr(int chridx)
         if (tmp < 18 && (gy.youmonst.data->mlet == S_NYMPH
                          || u.umonnum == PM_AMOROUS_DEMON))
             result = 18;
+        else if ((uwep && (uwep->oprops & ITEM_EXCEL))
+                 || (u.twoweap && uswapwep
+                     && (uswapwep->oprops & ITEM_EXCEL))) {
+            /* a wielded weapon of excellence forces charisma toward
+               an extreme based on its beatitude */
+            if (tmp > 6
+                && ((uwep && uwep->cursed)
+                    || (u.twoweap && uswapwep->cursed)))
+                result = 6;
+            else if (tmp < 18
+                     && ((uwep && !uwep->blessed)
+                         || (u.twoweap && !uswapwep->blessed)))
+                result = 18;
+            else if ((uwep && uwep->blessed)
+                     || (u.twoweap && uswapwep->blessed))
+                result = 25;
+        }
     } else if (chridx == A_CON) {
         if (u_wield_art(ART_OGRESMASHER))
             result = 25;
@@ -1280,6 +1297,30 @@ extremeattr(
     } else if (attrindx == A_CON) {
         if (u_wield_art(ART_OGRESMASHER))
             lolimit = hilimit;
+    } else if (attrindx == A_CHA) {
+        /* mirror acurr()'s A_CHA forced floor and ceiling so a +0 item
+           put on while charisma is forced doesn't reveal its
+           enchantment via a no-visible-change deduction */
+        int tmp = u.abon.a[A_CHA] + u.atemp.a[A_CHA] + u.acurr.a[A_CHA];
+
+        if ((gy.youmonst.data->mlet == S_NYMPH
+             || u.umonnum == PM_AMOROUS_DEMON) && tmp < 18) {
+            lolimit = hilimit = 18;
+        } else if ((uwep && (uwep->oprops & ITEM_EXCEL))
+                   || (u.twoweap && uswapwep
+                       && (uswapwep->oprops & ITEM_EXCEL))) {
+            if (tmp > 6
+                && ((uwep && uwep->cursed)
+                    || (u.twoweap && uswapwep->cursed)))
+                lolimit = hilimit = 6;
+            else if (tmp < 18
+                     && ((uwep && !uwep->blessed)
+                         || (u.twoweap && !uswapwep->blessed)))
+                lolimit = hilimit = 18;
+            else if ((uwep && uwep->blessed)
+                     || (u.twoweap && uswapwep->blessed))
+                lolimit = hilimit = 25;
+        }
     }
     /* this exception is hypothetical; the only other worn item affecting
        Int or Wis is another helmet so can't be in use at the same time */

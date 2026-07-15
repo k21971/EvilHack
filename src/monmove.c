@@ -308,7 +308,7 @@ mon_regen(struct monst *mon, boolean digest_meal)
 {
     /* only the undead can regenerate in the Valley of the Dead */
     if ((!Is_valley(&u.uz) || is_undead(r_data(mon)))
-        && (svm.moves % 20 == 0 || regenerates(mon->data)))
+        && (svm.moves % 20 == 0 || mon_prop(mon, REGENERATION)))
         healmon(mon, 1, 0);
     if (mon->mspec_used)
         mon->mspec_used--;
@@ -549,7 +549,7 @@ distfleeck(
      * running into you by accident but possibly attacking the spot
      * where it guesses you are.
      */
-    if (!mtmp->mcansee || (Invis && !perceives(mtmp->data))) {
+    if (!mtmp->mcansee || (Invis && !mon_prop(mtmp, SEE_INVIS))) {
         seescaryx = mtmp->mux;
         seescaryy = mtmp->muy;
     } else {
@@ -743,7 +743,7 @@ dochug(struct monst *mtmp)
         mtmp->mstun = 0;
 
     /* Some monsters teleport. Teleportation costs a turn. */
-    if (mtmp->mflee && !rn2(40) && can_teleport(mdat) && !mtmp->iswiz
+    if (mtmp->mflee && !rn2(40) && mon_prop(mtmp, TELEPORT) && !mtmp->iswiz
         && !noteleport_level(mtmp)) {
         if (rloc(mtmp, RLOC_MSG))
             leppie_stash(mtmp);
@@ -1868,7 +1868,7 @@ m_move(struct monst *mtmp, int after)
                               && (dist2(omx, omy, ggx, ggy) <= 36));
 
         if (!mtmp->mcansee
-            || (should_see && Invis && !perceives(ptr) && rn2(11))
+            || (should_see && Invis && !mon_prop(mtmp, SEE_INVIS) && rn2(11))
             || is_obj_mappear(&gy.youmonst, STRANGE_OBJECT) || u.uundetected
             || (is_obj_mappear(&gy.youmonst, GOLD_PIECE) && !likes_gold(ptr))
             || (mtmp->mpeaceful && !mtmp->isshk) /* allow shks to follow */
@@ -2219,7 +2219,7 @@ set_apparxy(struct monst *mtmp)
             return;
     }
 
-    notseen = (!mtmp->mcansee || (Invis && !perceives(mtmp->data)));
+    notseen = (!mtmp->mcansee || (Invis && !mon_prop(mtmp, SEE_INVIS)));
     notthere = (Displaced && mtmp->data != &mons[PM_DISPLACER_BEAST]);
     /* add cases as required.  eg. Displacement ... */
     if (Underwater) {

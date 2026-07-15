@@ -67,7 +67,7 @@ cursetxt(struct monst *mtmp, boolean undirected)
 
         if (undirected)
             point_msg = "all around, then curses";
-        else if ((Invis && !perceives(mtmp->data)
+        else if ((Invis && !mon_prop(mtmp, SEE_INVIS)
                   && (mtmp->mux != u.ux || mtmp->muy != u.uy))
                  || is_obj_mappear(&gy.youmonst, STRANGE_OBJECT)
                  || u.uundetected)
@@ -217,7 +217,7 @@ castmu(
         pline_mon(mtmp, "%s casts a spell%s!",
                  canspotmon(mtmp) ? Monnam(mtmp) : "Something",
                  is_undirected_spell(spellnum) ? ""
-                 : (Invis && !perceives(mtmp->data)
+                 : (Invis && !mon_prop(mtmp, SEE_INVIS)
                     && !u_at(mtmp->mux, mtmp->muy))
                    ? " at a spot near you"
                    : (Displaced && !u_at(mtmp->mux, mtmp->muy))
@@ -434,7 +434,7 @@ mcast_summon_mons(struct monst *mtmp)
 
         /* messages not quite right if plural monsters created but
            only a single monster is seen */
-        if (Invis && !perceives(mtmp->data)
+        if (Invis && !mon_prop(mtmp, SEE_INVIS)
             && (mtmp->mux != u.ux || mtmp->muy != u.uy))
             pline("%s %s a spot near you!", mappear,
                   one ? "at" : "around");
@@ -714,7 +714,7 @@ mcast_insects(struct monst *mtmp)
         what = "";
     } else if (let == S_SNAKE) {
         fmt = "%s transforms a clump of sticks into %s!";
-    } else if (Invis && !perceives(mtmp->data)
+    } else if (Invis && !mon_prop(mtmp, SEE_INVIS)
                && (mtmp->mux != u.ux || mtmp->muy != u.uy)) {
         fmt = "%s summons %s around a spot near you!";
     } else if (Displaced && (mtmp->mux != u.ux || mtmp->muy != u.uy)) {

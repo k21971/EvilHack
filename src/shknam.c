@@ -850,6 +850,7 @@ shkinit(const struct shclass *shp, struct mkroom *sroom)
 
         otmp = mksobj(LONG_SWORD, FALSE, FALSE);
         if (otmp) {
+            (void) create_oprop(otmp, FALSE);
             bless(otmp);
             otmp->spe = rn2(4) + 1;
             otmp->forged_qual = FQ_EXCEPTIONAL;

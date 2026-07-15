@@ -284,10 +284,16 @@ struct obj {
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
      && objects[otmp->otyp].oc_skill >= -P_BOOMERANG              \
      && objects[otmp->otyp].oc_skill <= -P_DART)
+#define is_bullet(otmp) (otmp->otyp == SLING_BULLET)
 #define is_weptool(o) \
     ((o)->oclass == TOOL_CLASS && objects[(o)->otyp].oc_skill != P_NONE)
         /* towel is not a weptool:  spe isn't an enchantment, cursed towel
            doesn't weld to hand, and twoweapon won't work with one */
+#define is_barding(otmp)                     \
+    (otmp->otyp == BARDING                   \
+     || otmp->otyp == RUNED_BARDING          \
+     || otmp->otyp == SPIKED_BARDING         \
+     || otmp->otyp == BARDING_OF_REFLECTION)
 #define is_blunt_weapon(o)                          \
     (((o)->oclass == WEAPON_CLASS || is_weptool(o)) \
      && ((objects[(o)->otyp].oc_dir & WHACK) != 0))

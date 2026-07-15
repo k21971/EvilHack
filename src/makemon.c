@@ -1057,10 +1057,14 @@ m_initweap(struct monst *mtmp)
             for (otmp = mtmp->minvent; otmp; otmp = nextobj) {
                 nextobj = otmp->nobj;
                 if (otmp->oclass == WEAPON_CLASS) {
-                    if ((mtmp->m_lev >= 20
-                         || rn2(400) < mtmp->m_lev * mtmp->m_lev)
-                        && !rn2(100 + 10 * nartifact_exist()))
-                        otmp = mk_artifact(otmp, A_NONE, 99, FALSE);
+                    if (mtmp->m_lev >= 20
+                        || rn2(400) < mtmp->m_lev * mtmp->m_lev) {
+                        if (!rn2(100 + 10 * nartifact_exist()))
+                            otmp = mk_artifact(otmp, A_NONE, 99, FALSE);
+                        else if (!rn2(4)
+                                 && !objects[otmp->otyp].oc_magic)
+                            (void) create_oprop(otmp, FALSE);
+                    }
                     if (!rn2(3) && is_drow_weapon(otmp)
                         && is_poisonable(otmp))
                         otmp->otainted = 1;
@@ -1072,6 +1076,12 @@ m_initweap(struct monst *mtmp)
                                                    : FQ_EXCEPTIONAL;
                 }
                 if (otmp->oclass == ARMOR_CLASS) {
+                    if ((mtmp->m_lev >= 20
+                         || rn2(400) < mtmp->m_lev * mtmp->m_lev)
+                        && !rn2(5)
+                        && !(Is_dragon_scaled_armor(otmp)
+                             || objects[otmp->otyp].oc_magic))
+                        (void) create_oprop(otmp, FALSE);
                     if (!rn2(5)
                         && !otmp->oartifact
                         && !objects[otmp->otyp].oc_magic
@@ -1686,6 +1696,8 @@ m_initweap(struct monst *mtmp)
                     || !Role_if(PM_CLERIC)
                     || u.ualignbase[A_ORIGINAL] == A_LAWFUL)
                     otmp = oname(otmp, nam, ONAME_RANDOM); /* random */
+                if (!otmp->oartifact && !rn2(10))
+                    (void) create_oprop(otmp, FALSE);
             }
             /* enhance the weapon */
             bless(otmp);
@@ -2033,6 +2045,7 @@ m_initweap(struct monst *mtmp)
             break;
         case PM_DISPATER:
             otmp = mksobj(ROD, FALSE, FALSE);
+            (void) create_oprop(otmp, FALSE);
             curse(otmp);
             otmp->spe = rnd(3) + 2;
             set_material(otmp, GOLD);

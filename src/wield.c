@@ -121,6 +121,19 @@ setuwep(struct obj *obj)
         && (u_wield_art(ART_OGRESMASHER)
             || is_art(olduwep, ART_OGRESMASHER)))
         disp.botl = TRUE;
+    /* wielding or unwielding a weapon of excellence changes Luck */
+    if (uwep == obj && obj && (obj->oprops & ITEM_EXCEL)) {
+        obj->oprops_known |= ITEM_EXCEL;
+        set_moreluck();
+        disp.botl = TRUE;
+        update_inventory();
+    }
+    if (olduwep && (olduwep->oprops & ITEM_EXCEL)) {
+        olduwep->oprops_known |= ITEM_EXCEL;
+        set_moreluck();
+        disp.botl = TRUE;
+        update_inventory();
+    }
     /* Note: Explicitly wielding a pick-axe will not give a "bashing"
      * message.  Wielding one via 'a'pplying it will.
      * 3.2.2:  Wielding arbitrary objects will give bashing message too.
@@ -289,7 +302,23 @@ setuqwep(struct obj *obj)
 void
 setuswapwep(struct obj *obj)
 {
+    struct obj *olduswapwep = uswapwep;
+
     setworn(obj, W_SWAPWEP);
+    /* wielding or unwielding a weapon of excellence changes Luck */
+    if (uswapwep == obj && obj && u.twoweap
+        && (obj->oprops & ITEM_EXCEL)) {
+        uswapwep->oprops_known |= ITEM_EXCEL;
+        set_moreluck();
+        disp.botl = TRUE;
+        update_inventory();
+    }
+    if (olduswapwep && (olduswapwep->oprops & ITEM_EXCEL)) {
+        olduswapwep->oprops_known |= ITEM_EXCEL;
+        set_moreluck();
+        disp.botl = TRUE;
+        update_inventory();
+    }
     return;
 }
 

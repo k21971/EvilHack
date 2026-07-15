@@ -1906,8 +1906,11 @@ ini_inv_adjust_obj(const struct trobj *trop, struct obj *obj)
             obj->blessed = (trop->trbless == 1);
 
     }
-    /* TODO-EVILHACK: clearing obj->oprops/oprops_known here ports with
-       the object properties subsystem */
+    /* don't allow gear with object properties to be start scummed
+       for; must clear before setworn/setuwep, since those push
+       oprops extrinsics into u.uprops[*].extrinsic and spfx effects
+       that a later clear would not undo */
+    obj->oprops = obj->oprops_known = 0L;
     /* defined after setting otyp+quan + blessedness */
     obj->owt = weight(obj);
     return stop;

@@ -720,7 +720,7 @@ mon_catchup_elapsed_time(
     /* recover lost hit points; only the undead can regenerate in
        the Valley of the Dead */
     if (!Is_valley(&u.uz) || is_undead(r_data(mtmp))) {
-        if (!regenerates(mtmp->data))
+        if (!mon_prop(mtmp, REGENERATION))
             imv /= 20;
         healmon(mtmp, imv, 0);
     }

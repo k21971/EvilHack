@@ -825,6 +825,11 @@ mdrop_obj(
 {
     coordxy omx = mon->mx, omy = mon->my;
     long unwornmask = obj->owornmask;
+    /* save fields that update_mon_extrinsics reads, in case
+       flooreffects() destroys the object on lava or open air */
+    int saved_otyp = obj->otyp;
+    char saved_oclass = obj->oclass;
+    long saved_oprops = obj->oprops;
     /* call distant_name() for its possible side-effects even if the result
        might not be printed, and do it before extracting obj from minvent */
     char *obj_name = distant_name(obj, doname);
@@ -844,12 +849,25 @@ mdrop_obj(
     if (!flooreffects(obj, omx, omy, "fall")) {
         place_object(obj, omx, omy);
         stackobj(obj);
+        /* do this last, after placing obj on floor; removing steed's
+           saddle throws rider, possibly inflicting fatal damage and
+           producing bones; this is why we had to call
+           extract_from_minvent() with do_intrinsics=FALSE */
+        if (!DEADMONSTER(mon) && unwornmask)
+            update_mon_extrinsics(mon, obj, FALSE, TRUE);
+    } else if (!DEADMONSTER(mon) && unwornmask
+               && !(unwornmask & W_SADDLE)) {
+        /* object was destroyed on lava or open air; still need to
+           clear extrinsics the monster got from wearing it; pass a
+           stack copy with the fields update_mon_extrinsics reads */
+        struct obj dummy;
+
+        dummy = cg.zeroobj;
+        dummy.otyp = saved_otyp;
+        dummy.oclass = saved_oclass;
+        dummy.oprops = saved_oprops;
+        update_mon_extrinsics(mon, &dummy, FALSE, TRUE);
     }
-    /* do this last, after placing obj on floor; removing steed's saddle
-       throws rider, possibly inflicting fatal damage and producing bones; this
-       is why we had to call extract_from_minvent() with do_intrinsics=FALSE */
-    if (!DEADMONSTER(mon) && unwornmask)
-        update_mon_extrinsics(mon, obj, FALSE, TRUE);
 }
 
 /* some monsters bypass the normal rules for moving between levels or

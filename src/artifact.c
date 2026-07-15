@@ -155,6 +155,37 @@ artiname(int artinum)
     return artilist[artinum].name;
 }
 
+/* finds a matching SPFX for a prop; used in mondata.c */
+unsigned long
+arti_prop_spfx(int prop)
+{
+    switch (prop) {
+    case SEARCHING:
+        return SPFX_SEARCH;
+    case WARNING:
+        return SPFX_WARN;
+    case TELEPAT:
+        return SPFX_ESP;
+    case HALLUC_RES:
+        return SPFX_HALRES;
+    case STEALTH:
+        return SPFX_STLTH;
+    case REGENERATION:
+        return SPFX_REGEN;
+    case TELEPORT_CONTROL:
+        return SPFX_TCTRL;
+    case ENERGY_REGENERATION:
+        return SPFX_EREGEN;
+    case HALF_SPDAM:
+        return SPFX_HSPDAM;
+    case HALF_PHDAM:
+        return SPFX_HPHDAM;
+    case REFLECTING:
+        return SPFX_REFLECT;
+    }
+    return 0L;
+}
+
 /* return the material of a given artifact */
 short
 artifact_material(int artinum)
@@ -194,6 +225,12 @@ mk_artifact(
     boolean unique = !by_align && otmp && objects[o_typ].oc_unique;
     short eligible[NROFARTIFACTS];
     xint16 skill_compatibility;
+
+    /* don't convert objects that already have special properties */
+    if (otmp && otmp->oprops)
+        return otmp;
+    if (otmp && otmp->oartifact)
+        return otmp;
 
     n = altn = 0;    /* no candidates found yet */
     eligible[0] = 0; /* lint suppression */
@@ -293,6 +330,11 @@ mk_artifact(
         assert(otmp != 0);
         /* prevent erosion from generating */
         otmp->oeroded = otmp->oeroded2 = 0;
+        /* prevent object properties or erosion-protection from
+           leaking onto artifacts via mksobj's random rolls */
+        otmp->oprops = otmp->oprops_known = 0L;
+        otmp->oerodeproof = 0;
+        otmp->greased = 0;
         otmp = oname(otmp, a->name, ONAME_NO_FLAGS);
         otmp->oartifact = m;  /* probably already set by this point, but */
         /* set existence and reason for creation bits */
@@ -331,6 +373,188 @@ dispose_of_orig_obj(struct obj *obj)
 
     obj_extract_self(obj);
     obfree(obj, (struct obj *) 0);
+}
+
+/* Enforce mutual exclusivity of damage properties.
+   Only one of FIRE/FROST/SHOCK/VENOM/DRLI can exist on an item.
+   Priority order: FROST > FIRE > SHOCK > VENOM > DRLI */
+long
+enforce_oprops_mutex(long props)
+{
+    if (props & ITEM_FROST)
+        props &= ~(ITEM_DMG_PROPS & ~ITEM_FROST);
+    else if (props & ITEM_FIRE)
+        props &= ~(ITEM_DMG_PROPS & ~ITEM_FIRE);
+    else if (props & ITEM_SHOCK)
+        props &= ~(ITEM_DMG_PROPS & ~ITEM_SHOCK);
+    else if (props & ITEM_VENOM)
+        props &= ~(ITEM_DMG_PROPS & ~ITEM_VENOM);
+    else if (props & ITEM_DRLI)
+        props &= ~(ITEM_DMG_PROPS & ~ITEM_DRLI);
+    return props;
+}
+
+/* Create an item with special properties, or grant the item those
+ * properties.
+ *
+ * Object property restrictions:
+ * - Weapons/weptools: No DRLI (would be Stormbringer-like, overpowered),
+ *   no OILSKIN (doesn't make sense), no FUMBLING/HUNGER (handled
+ *   differently)
+ * - Launchers (bows): No damage properties (damage comes from ammo)
+ * - Ammo/missiles: No utility properties (too transient to matter)
+ * - Helmets: No ESP (helm of telepathy already exists)
+ * - Barding: Limited properties (practical considerations)
+ * - Non-cloth: No OILSKIN (oilskin is inherently cloth-based)
+ * - Damage properties (FIRE/FROST/SHOCK/VENOM/DRLI) are mutually
+ *   exclusive
+ */
+struct obj *
+create_oprop(struct obj *obj, boolean allow_detrimental)
+{
+    struct obj *otmp = obj;
+    int i, j;
+
+    if (!otmp) {
+        int type = 0, skill = P_NONE,
+            candidates[128], ccount,
+            threshold = P_EXPERT;
+        /* this probably is only ever done for weapons;
+           find an appropriate type of weapon */
+        while (threshold > P_UNSKILLED) {
+            ccount = 0;
+            for (i = P_FIRST_WEAPON; i < P_LAST_WEAPON; i++) {
+                if (P_MAX_SKILL(i) >= max(threshold, P_BASIC)
+                    && P_SKILL(i) >= threshold)
+                    candidates[ccount++] = i;
+                if (ccount >= 128)
+                    break;
+            }
+            if (ccount == 0) {
+                threshold--;
+                continue;
+            }
+            skill = candidates[rn2(ccount)];
+            ccount = 0;
+            for (i = ARROW; i <= CROSSBOW; i++) {
+                if (abs(objects[i].oc_skill) == skill)
+                    candidates[ccount++] = i;
+                if (ccount == 128)
+                    break;
+            }
+            if (!ccount) {
+                impossible("found no weapons for skill %d?", skill);
+                threshold--;
+                continue;
+            }
+            type = candidates[rn2(ccount)];
+            break;
+        }
+        /* now make one, if we can */
+        if (type != 0)
+            otmp = mksobj(type, TRUE, FALSE);
+        else
+            otmp = mkobj(WEAPON_CLASS, FALSE);
+    }
+
+    /* don't spruce up certain objects */
+    if (otmp->oartifact)
+        return otmp;
+    else if (objects[otmp->otyp].oc_unique)
+        return otmp;
+    /* weapons made from monster body parts never get
+       object properties */
+    else if (otmp->otyp == WORM_TOOTH
+             || otmp->otyp == UNICORN_HORN
+             || otmp->otyp == CRYSKNIFE)
+        return otmp;
+    /* already magical items obtain properties
+       a tenth as often */
+    else if (objects[otmp->otyp].oc_magic && rn2(10))
+        return otmp;
+    else if (Is_dragon_armor(otmp))
+        return otmp;
+
+    /* properties only added to weapons and armor */
+    if (otmp->oclass != WEAPON_CLASS && !is_bullet(otmp)
+        && !is_weptool(otmp) && !is_barding(otmp)
+        && otmp->oclass != ARMOR_CLASS)
+        return otmp;
+
+    /* it is possible to have an object spawn with more
+       than one object property, but the odds are so low
+       that if it happens, well good for you */
+    while (!otmp->oprops || !rn2(100000)) {
+        i = rn2(MAX_ITEM_PROPS);
+        j = 1 << i; /* pick an object property */
+
+        if (otmp->oprops & j)
+            continue;
+
+        if ((j & (ITEM_FUMBLING | ITEM_HUNGER))
+            && !allow_detrimental)
+            continue;
+
+        /* check for restrictions */
+        if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
+            && (j & (ITEM_DRLI | ITEM_FUMBLING | ITEM_HUNGER
+                     | ITEM_OILSKIN)))
+            continue;
+
+        if (is_launcher(otmp)
+            && (j & (ITEM_FIRE | ITEM_FROST | ITEM_SHOCK
+                     | ITEM_VENOM | ITEM_DRLI | ITEM_OILSKIN)))
+            continue;
+
+        if ((is_ammo(otmp) || is_missile(otmp) || is_bullet(otmp))
+            && (j & (ITEM_DRLI | ITEM_OILSKIN | ITEM_ESP
+                     | ITEM_EXCEL | ITEM_SEARCHING | ITEM_WARNING
+                     | ITEM_FUMBLING | ITEM_HUNGER)))
+            continue;
+
+        if ((otmp->oprops & ITEM_DMG_PROPS) && (j & ITEM_DMG_PROPS))
+            continue; /* damage properties are mutually exclusive */
+
+        if (otmp->material != CLOTH && (j & ITEM_OILSKIN))
+            continue;
+
+        if (otmp->otyp == OILSKIN_CLOAK && (j & ITEM_OILSKIN))
+            continue;
+
+        /* helm of telepathy already exists */
+        if (is_helmet(otmp) && (j & ITEM_ESP))
+            continue;
+
+        if (is_barding(otmp)
+            && (j & (ITEM_OILSKIN | ITEM_EXCEL
+                     | ITEM_SEARCHING | ITEM_WARNING
+                     | ITEM_FUMBLING | ITEM_HUNGER)))
+            continue;
+
+        otmp->oprops |= j;
+    }
+
+    /* fix it up as necessary */
+    if (otmp->oprops
+        && (otmp->oclass == WEAPON_CLASS
+            || otmp->oclass == ARMOR_CLASS
+            || is_bullet(otmp) || is_barding(otmp))
+        && !(otmp->oprops & (ITEM_FUMBLING | ITEM_HUNGER))) {
+        if (!rn2(8)) {
+            blessorcurse(otmp, 8);
+            if (otmp->cursed)
+                otmp->spe = -rne(3);
+            else
+                otmp->spe = rne(3);
+        }
+    }
+
+    if (otmp->oprops & (ITEM_FUMBLING | ITEM_HUNGER)) {
+        if (!otmp->cursed)
+            curse(otmp);
+        otmp->spe = -rne(3);
+    }
+    return otmp;
 }
 
 /*
@@ -544,6 +768,10 @@ confers_luck(struct obj *obj)
     if (obj->otyp == LUCKSTONE)
         return TRUE;
 
+    if ((obj->oprops & ITEM_EXCEL)
+        && (obj->owornmask & (W_ARMOR | W_WEP | W_SWAPWEP)))
+        return TRUE;
+
     return (boolean) (obj->oartifact && spec_ability(obj, SPFX_LUCK));
 }
 
@@ -644,6 +872,22 @@ attacks(int adtyp, struct obj *otmp)
 
     if ((weap = get_artifact(otmp)) != &artilist[ART_NONARTIFACT])
         return (boolean) (weap->attk.adtyp == adtyp);
+
+    /* not an artifact; check for object properties on weapons/armor */
+    if (otmp->oprops
+        && (otmp->oclass == WEAPON_CLASS
+            || is_weptool(otmp) || is_bullet(otmp)
+            || (uarms && otmp == uarms)
+            || (uarmg && otmp == uarmg))) {
+        if (adtyp == AD_FIRE && (otmp->oprops & ITEM_FIRE))
+            return TRUE;
+        if (adtyp == AD_COLD && (otmp->oprops & ITEM_FROST))
+            return TRUE;
+        if (adtyp == AD_ELEC && (otmp->oprops & ITEM_SHOCK))
+            return TRUE;
+        if (adtyp == AD_DRST && (otmp->oprops & ITEM_VENOM))
+            return TRUE;
+    }
     return FALSE;
 }
 
@@ -736,10 +980,11 @@ set_artifact_intrinsic(
     uchar dtyp;
     long spfx;
 
-    if (oart == &artilist[ART_NONARTIFACT])
+    if (oart == &artilist[ART_NONARTIFACT] && !otmp->oprops)
         return;
 
-    /* effects from the defn field */
+    /* effects from the defn field; the non-artifact dummy entry
+       yields zero here so plain property objects are unaffected */
     dtyp = (wp_mask != W_ART) ? oart->defn.adtyp : oart->cary.adtyp;
 
     if (dtyp == AD_FIRE)
@@ -780,6 +1025,16 @@ set_artifact_intrinsic(
 
     /* intrinsics from the spfx field; there could be more than one */
     spfx = (wp_mask != W_ART) ? oart->spfx : oart->cspfx;
+    if (oart == &artilist[ART_NONARTIFACT]
+        && (wp_mask == W_WEP || wp_mask == W_SWAPWEP)) {
+        /* object properties on a wielded weapon */
+        if (otmp->oprops & ITEM_SEARCHING)
+            spfx |= SPFX_SEARCH;
+        if (otmp->oprops & ITEM_WARNING)
+            spfx |= SPFX_WARN;
+        if (otmp->oprops & ITEM_ESP)
+            spfx |= SPFX_ESP;
+    }
     if (spfx && wp_mask == W_ART && !on) {
         /* don't change any spfx also conferred by other artifacts */
         for (obj = gi.invent; obj; obj = obj->nobj)
@@ -1105,6 +1360,44 @@ int
 spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
 {
     const struct artifact *weap = get_artifact(otmp);
+    boolean yours = (mon == &gy.youmonst);
+
+    if (weap == &artilist[ART_NONARTIFACT] && otmp->oprops
+        && (otmp->oclass == WEAPON_CLASS
+            || is_weptool(otmp) || is_bullet(otmp)
+            || (uarms && otmp == uarms)
+            || (uarmg && otmp == uarmg))) {
+        gs.spec_dbon_applies = FALSE;
+        if ((attacks(AD_FIRE, otmp)
+             && (yours ? !(Fire_resistance || Underwater)
+                       : !(resists_fire(mon) || defended(mon, AD_FIRE))))
+            || (attacks(AD_COLD, otmp)
+                && (yours ? !Cold_resistance
+                          : !(resists_cold(mon)
+                              || defended(mon, AD_COLD))))
+            || (attacks(AD_ELEC, otmp)
+                && (yours ? !Shock_resistance
+                          : !(resists_elec(mon)
+                              || defended(mon, AD_ELEC))))
+            || (attacks(AD_DRST, otmp)
+                && (yours ? !Poison_resistance
+                          : !(resists_poison(mon)
+                              || defended(mon, AD_DRST))))) {
+            gs.spec_dbon_applies = TRUE;
+            /* the majority of ITEM_VENOM damage is handled in
+               the poisoned-hit code */
+            if (otmp->oprops & ITEM_VENOM)
+                return rnd(2);
+            return rnd(5) + 3;
+        }
+        if ((otmp->oprops & ITEM_DRLI)
+            && (yours ? !Drain_resistance
+                      : !(resists_drli(mon) || defended(mon, AD_DRLI)))) {
+            gs.spec_dbon_applies = TRUE;
+            return 0;
+        }
+        return 0;
+    }
 
     if ((weap == &artilist[ART_NONARTIFACT])
         || (weap->attk.adtyp == AD_PHYS /* check for `NO_ATTK' */
@@ -1494,14 +1787,33 @@ artifact_hit(
 
     /* the four basic attacks: fire, cold, shock and missiles */
     if (attacks(AD_FIRE, otmp)) {
-        if (realizes_damage)
-            pline_The("fiery blade %s %s%c",
-                      !gs.spec_dbon_applies
-                          ? "hits"
-                          : (mdef->data == &mons[PM_WATER_ELEMENTAL])
-                                ? "vaporizes part of"
-                                : "burns",
-                      hittee, !gs.spec_dbon_applies ? '.' : '!');
+        if (realizes_damage) {
+            if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+                 || is_bullet(otmp) || otmp == uarms || otmp == uarmg)
+                && (otmp->oprops & ITEM_FIRE))
+                pline_The("%s %s %s%c",
+                          otmp->oclass == WEAPON_CLASS
+                              ? distant_name(otmp, xname)
+                              : simpleonames(otmp),
+                          !gs.spec_dbon_applies
+                              ? "hits"
+                              : (mdef->data == &mons[PM_WATER_ELEMENTAL])
+                                    ? "vaporizes part of"
+                                    : "burns",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            else
+                pline_The("fiery blade %s %s%c",
+                          !gs.spec_dbon_applies
+                              ? "hits"
+                              : (mdef->data == &mons[PM_WATER_ELEMENTAL])
+                                    ? "vaporizes part of"
+                                    : "burns",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+        }
+        if ((otmp->oprops & ITEM_FIRE) && gs.spec_dbon_applies) {
+            otmp->oprops_known |= ITEM_FIRE;
+            update_inventory();
+        }
         if (!rn2(4)) {
             int itemdmg = destroy_items(mdef, AD_FIRE, *dmgptr);
             if (!youdefend)
@@ -1513,10 +1825,25 @@ artifact_hit(
         return realizes_damage;
     }
     if (attacks(AD_COLD, otmp)) {
-        if (realizes_damage)
-            pline_The("ice-cold blade %s %s%c",
-                      !gs.spec_dbon_applies ? "hits" : "freezes", hittee,
-                      !gs.spec_dbon_applies ? '.' : '!');
+        if (realizes_damage) {
+            if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+                 || is_bullet(otmp) || otmp == uarms || otmp == uarmg)
+                && (otmp->oprops & ITEM_FROST))
+                pline_The("%s %s %s%c",
+                          otmp->oclass == WEAPON_CLASS
+                              ? distant_name(otmp, xname)
+                              : simpleonames(otmp),
+                          !gs.spec_dbon_applies ? "hits" : "freezes",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            else
+                pline_The("ice-cold blade %s %s%c",
+                          !gs.spec_dbon_applies ? "hits" : "freezes", hittee,
+                          !gs.spec_dbon_applies ? '.' : '!');
+        }
+        if ((otmp->oprops & ITEM_FROST) && gs.spec_dbon_applies) {
+            otmp->oprops_known |= ITEM_FROST;
+            update_inventory();
+        }
         if (!rn2(4)) {
             int itemdmg = destroy_items(mdef, AD_COLD, *dmgptr);
             if (!youdefend)
@@ -1525,17 +1852,63 @@ artifact_hit(
         return realizes_damage;
     }
     if (attacks(AD_ELEC, otmp)) {
-        if (realizes_damage)
-            pline_The("massive hammer hits%s %s%c",
-                      !gs.spec_dbon_applies ? "" : "!  Lightning strikes",
-                      hittee, !gs.spec_dbon_applies ? '.' : '!');
-        if (gs.spec_dbon_applies)
+        if (realizes_damage) {
+            if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+                 || is_bullet(otmp) || otmp == uarms || otmp == uarmg)
+                && (otmp->oprops & ITEM_SHOCK))
+                pline_The("%s %s %s%c",
+                          otmp->oclass == WEAPON_CLASS
+                              ? distant_name(otmp, xname)
+                              : simpleonames(otmp),
+                          !gs.spec_dbon_applies
+                              ? "hits"
+                              : rn2(2) ? "jolts" : "shocks",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            else
+                pline_The("massive hammer hits%s %s%c",
+                          !gs.spec_dbon_applies ? "" : "!  Lightning strikes",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+        }
+        if ((otmp->oprops & ITEM_SHOCK) && gs.spec_dbon_applies) {
+            otmp->oprops_known |= ITEM_SHOCK;
+            update_inventory();
+        }
+        /* only Mjollnir's thunderclap wakes the neighborhood; other
+           shock artifacts and object-property weapons stay quiet */
+        if (gs.spec_dbon_applies && is_art(otmp, ART_MJOLLNIR))
             wake_nearto(mdef->mx, mdef->my, 4 * 4);
         if (!rn2(5)) {
             int itemdmg = destroy_items(mdef, AD_ELEC, *dmgptr);
             if (!youdefend)
                 *dmgptr += itemdmg; /* item destruction dmg */
         }
+        return realizes_damage;
+    }
+    if (attacks(AD_DRST, otmp)) {
+        if (realizes_damage) {
+            if (is_art(otmp, ART_SWORD_OF_KAS)) {
+                pline_The("gigantic blade %s %s%c",
+                          (resists_poison(mdef) || defended(mdef, AD_DRST))
+                              ? "hits"
+                              : rn2(2) ? "poisons" : "eviscerates",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            } else if ((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)
+                        || is_bullet(otmp))
+                       && (otmp->oprops & ITEM_VENOM)) {
+                pline_The("%s %s %s%c",
+                          distant_name(otmp, xname),
+                          (resists_poison(mdef) || defended(mdef, AD_DRST))
+                              ? "hits"
+                              : rn2(2) ? "infects" : "poisons",
+                          hittee, !gs.spec_dbon_applies ? '.' : '!');
+            }
+        }
+        if ((otmp->oprops & ITEM_VENOM) && gs.spec_dbon_applies) {
+            otmp->oprops_known |= ITEM_VENOM;
+            update_inventory();
+        }
+        if (youdefend && gs.spec_dbon_applies && !rn2(8))
+            poisoned("blade", A_STR, "poisoned blade", 30, FALSE);
         return realizes_damage;
     }
     if (attacks(AD_MAGM, otmp)) {
@@ -1684,9 +2057,19 @@ artifact_hit(
                 if (is_art(otmp, ART_STORMBRINGER))
                     pline_The("%s blade draws the %s from %s!",
                               hcolor(NH_BLACK), life, mon_nam(mdef));
+                /* thirsty weapons currently are not allowed but we
+                   cover that base here in case they are added someday */
+                else if (otmp->oclass == WEAPON_CLASS
+                         && (otmp->oprops & ITEM_DRLI))
+                    pline_The("deadly %s draws the %s from %s!",
+                              otmpname, life, mon_nam(mdef));
                 else
                     pline("%s draws the %s from %s!",
                           The(otmpname), life, mon_nam(mdef));
+                if (otmp->oprops & ITEM_DRLI) {
+                    otmp->oprops_known |= ITEM_DRLI;
+                    update_inventory();
+                }
             }
             if (mdef->m_lev == 0) {
                 /* losing a level when at 0 is fatal */
@@ -1725,8 +2108,15 @@ artifact_hit(
                 if (is_art(otmp, ART_STORMBRINGER))
                     pline_The("%s blade drains your %s!",
                               hcolor(NH_BLACK), life);
+                else if (otmp->oclass == WEAPON_CLASS
+                         && (otmp->oprops & ITEM_DRLI))
+                    pline_The("deadly %s drains your %s!", otmpname, life);
                 else
                     pline("%s drains your %s!", The(otmpname), life);
+            }
+            if (otmp->oprops & ITEM_DRLI) {
+                otmp->oprops_known |= ITEM_DRLI;
+                update_inventory();
             }
             losexp("life drainage");
             if (magr && magr->mhp < magr->mhpmax) {
@@ -1965,12 +2355,15 @@ invoke_create_ammo(struct obj *obj)
         if (otmp->spe < 0)
             otmp->spe = 0;
         otmp->quan += rnd(10);
+        if (!rn2(5))
+            (void) create_oprop(otmp, FALSE);
     } else if (obj->cursed) {
         if (otmp->spe > 0)
             otmp->spe = 0;
     } else
         otmp->quan += rnd(5);
     otmp->owt = weight(otmp);
+    otmp->oprops_known |= obj->oprops_known;
     otmp = hold_another_object(otmp, "Suddenly %s out.",
                                aobjnam(otmp, "fall"), (char *) 0);
     nhUse(otmp);

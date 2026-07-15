@@ -35,6 +35,11 @@ staticfn boolean mhurtle_step(genericptr_t, coordxy, coordxy);
 
 /* gt.thrownobj (decl.c) tracks an object until it lands */
 
+/* parent stack of a missile in flight, so that an object property
+   identified when one item from the stack hits can be learned for
+   the rest of the stack */
+static struct obj *ammo_stack = 0;
+
 int
 multishot_class_bonus(
     int pm,
@@ -252,6 +257,7 @@ throw_obj(struct obj *obj, int shotlimit)
     oldslot = 0;
     gm.m_shot.o = obj->otyp;
     gm.m_shot.n = multishot;
+    ammo_stack = obj;
     for (gm.m_shot.i = 1; gm.m_shot.i <= gm.m_shot.n; gm.m_shot.i++) {
         twoweap = u.twoweap;
         assert(obj != NULL); /* m_shot.i <= m_shot.n guarantees this */
@@ -271,6 +277,7 @@ throw_obj(struct obj *obj, int shotlimit)
         throwit(otmp, wep_mask, twoweap, oldslot);
         encumber_msg();
     }
+    ammo_stack = (struct obj *) 0;
     gm.m_shot.n = gm.m_shot.i = 0;
     gm.m_shot.o = STRANGE_OBJECT;
     gm.m_shot.s = FALSE;
@@ -1352,10 +1359,19 @@ toss_up(struct obj *obj, boolean hitsroof)
                 artimsg = FALSE;
         int dmg = dmgval(obj, &gy.youmonst);
 
-        if (obj->oartifact && !harmless)
+        if ((obj->oartifact
+             || ((obj->oclass == WEAPON_CLASS || is_weptool(obj)
+                  || is_bullet(obj)) && obj->oprops))
+            && !harmless)
             /* need a fake die roll here; rn1(18,2) avoids 1 and 20 */
             artimsg = artifact_hit((struct monst *) 0, &gy.youmonst, obj,
                                    &dmg, rn1(18, 2));
+
+        /* propagate identified oprops to the parent stack; skip if
+           ammo_stack aliases obj (single item throw) to avoid a
+           redundant self-OR */
+        if (ammo_stack && ammo_stack != obj)
+            ammo_stack->oprops_known |= obj->oprops_known;
 
         if (!dmg) { /* probably wasn't a weapon; base damage on weight */
             dmg = ((int) obj->owt + (WT_TO_DMG - 1)) / WT_TO_DMG;
@@ -1498,6 +1514,8 @@ throwit_mon_hit(struct obj *obj, struct monst *mon)
         (void) snuff_candle(obj);
         gn.notonhead = (gb.bhitpos.x != mon->mx || gb.bhitpos.y != mon->my);
         obj_gone = thitmonst(mon, obj);
+        if (!obj_gone && ammo_stack && ammo_stack != obj)
+            ammo_stack->oprops_known |= obj->oprops_known;
         /* Monster may have been tamed; this frees old mon [obsolete] */
         mon = m_at(gb.bhitpos.x, gb.bhitpos.y);
 
