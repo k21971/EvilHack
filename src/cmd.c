@@ -1083,8 +1083,9 @@ const char *levltyp[MAX_TYPE + 2] = {
     "tee-left wall", "tee-right wall", "drawbridge wall", "tree",
     "secret door", "secret corridor", "pool", "moat", "water",
     "drawbridge up", "lava pool", "lava wall", "iron bars", "door",
-    "corridor", "room", "stairs", "ladder", "forge", "fountain", "throne",
-    "sink", "grave", "altar", "ice", "drawbridge down", "air", "cloud",
+    "corridor", "room", "stairs", "ladder", "forge", "magic chest",
+    "fountain", "throne", "sink", "grave", "altar", "ice",
+    "drawbridge down", "air", "cloud",
     /* not a real terrain type, but used for undiggable stone
        by wiz_map_levltyp() */
     "unreachable/undiggable",
@@ -4474,6 +4475,8 @@ there_cmd_menu_self(winid win, coordxy x, coordxy y, int *act UNUSED)
         Sprintf(buf, "Use the %s", defsyms[S_forge].explanation);
         mcmd_addmenu(win, MCMD_FORGE, buf), ++K;
     }
+    if (IS_MAGIC_CHEST(typ))
+        mcmd_addmenu(win, MCMD_LOOT, "Loot the magic chest"), ++K;
     if (IS_THRONE(typ))
         mcmd_addmenu(win, MCMD_SIT, "Sit on the throne"), ++K;
     if (IS_ALTAR(typ))
@@ -4988,6 +4991,9 @@ domouseaction(void)
                 return ECMD_OK;
             } else if (IS_FORGE(levl[u.ux][u.uy].typ)) {
                 cmdq_add_ec(CQ_CANNED, doforging);
+                return ECMD_OK;
+            } else if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ)) {
+                cmdq_add_ec(CQ_CANNED, doloot);
                 return ECMD_OK;
             } else if (IS_THRONE(levl[u.ux][u.uy].typ)) {
                 cmdq_add_ec(CQ_CANNED, dosit);

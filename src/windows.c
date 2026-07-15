@@ -1517,6 +1517,7 @@ html_init_sym(void)
     htmlsym[S_corr] = 9617;
     htmlsym[S_litcorr] = 9618;
     htmlsym[S_fountain] = 8992;
+    htmlsym[S_magic_chest] = 8962; /* U+2302 HOUSE */
 }
 
 /* convert 'special' flags returned from mapglyph to

@@ -2403,6 +2403,9 @@ back_to_glyph(coordxy x, coordxy y)
     case FORGE:
         idx = S_forge;
         break;
+    case MAGIC_CHEST:
+        idx = S_magic_chest;
+        break;
     case FOUNTAIN:
         idx = S_fountain;
         break;
@@ -3147,7 +3150,7 @@ static const char *const type_names[MAX_TYPE] = {
     "SDOOR", "SCORR", "POOL", "MOAT", "WATER", "DRAWBRIDGE_UP", "LAVAPOOL",
     "LAVAWALL",
     "IRON_BARS", "DOOR", "CORR", "ROOM", "STAIRS", "LADDER", "FORGE",
-    "FOUNTAIN", "THRONE", "SINK", "GRAVE", "ALTAR", "ICE",
+    "MAGIC_CHEST", "FOUNTAIN", "THRONE", "SINK", "GRAVE", "ALTAR", "ICE",
     "DRAWBRIDGE_DOWN", "AIR", "CLOUD"
 };
 

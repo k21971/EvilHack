@@ -777,6 +777,17 @@ lookat(coordxy x, coordxy y, char *buf, char *monbuf)
             Strcpy(buf,
                    Is_airlevel(&u.uz) ? "cloudy area" : "fog/vapor cloud");
             break;
+        case S_magic_chest:
+            if (gm.mchest) {
+                /* show the shared chest's lock status */
+                char *chestnam = doname(gm.mchest);
+
+                Strcpy(buf, chestnam);
+                maybereleaseobuf(chestnam);
+            } else {
+                Strcpy(buf, "magic chest");
+            }
+            break;
         case S_pool:
         case S_water: /* was Plane of Water, now that or "wall of water" */
         case S_lava:
@@ -1488,6 +1499,14 @@ do_screen_description(
             if (alt_i == S_darkroom && glyph && glyph_is_nothing(glyph))
                 continue;
 
+            /* magic chest shares '(' with tools; skip it for the generic
+               symbol query, but name it when looking right at one and
+               nothing else explained the spot */
+            if (alt_i == S_magic_chest
+                && !(looked && !found
+                     && glyph == cmap_to_glyph(S_magic_chest)))
+                continue;
+
             /* avoid "an unexplored", "an stone", "an air",
                "a floor of a room", "a dark part of a room" */
             article = strstri(x_str, " of a room") ? 2
@@ -1515,7 +1534,9 @@ do_screen_description(
                                     || alt_i == S_lavawall
                                     || alt_i == S_ice))
                 || alt_i == S_engroom || alt_i == S_engrcorr
-                || alt_i == S_grave) /* 'need_to_look' to report engraving */
+                || alt_i == S_grave /* 'need_to_look' to report engraving */
+                /* magic chest: lookat() reports its lock state */
+                || alt_i == S_magic_chest)
                 need_to_look = TRUE;
         }
     }

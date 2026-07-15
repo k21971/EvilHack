@@ -148,6 +148,7 @@ start: Blank
         S_litcorr: \032
         S_lizard: \032
         S_lslant: \032
+        S_magic_chest: \032
         S_magic_portal: \032
         S_magic_trap: \032
         S_mimic: \032
@@ -547,6 +548,7 @@ start: RogueEpyx
 	S_magic_portal: \x04
 	S_web: \x04
 	S_statue_trap: \x04
+	S_magic_chest: \x28		# match it to tools
 	S_magic_trap: \x04
 	S_anti_magic_trap: \x04
 	S_polymorph_trap: \x04

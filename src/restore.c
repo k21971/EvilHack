@@ -670,6 +670,9 @@ restgamestate(NHFILE *nhfp)
 
     gi.invent = restobjchn(nhfp, FALSE);
 
+    /* the shared magic chest contents */
+    gm.mchest = restobjchn(nhfp, FALSE);
+
     /* restore dangling (not on floor or in inventory) ball and/or chain */
     bc_obj = restobjchn(nhfp, FALSE);
 #ifndef SFCTOOL

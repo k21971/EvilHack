@@ -202,9 +202,11 @@ resetobjs(struct obj *ochain, boolean restore)
                 /* achievement tracking; in case prize was moved off its
                    original level (which is always a no-bones level) */
                 otmp->nomerge = 0;
+            } else if (otmp->otyp == MAGIC_KEY) {
+                /* magic key becomes a regular key */
+                otmp->otyp = SKELETON_KEY;
+                set_material(otmp, BONE);
             } else if (otmp->otyp == BLACKSMITH_HAMMER) {
-                /* TODO-EVILHACK: also rewrite MAGIC_KEY to SKELETON_KEY
-                   here once the magic chest subsystem is ported */
                 /* blacksmith hammer becomes a war hammer */
                 otmp->otyp = WAR_HAMMER;
                 set_material(otmp, IRON);

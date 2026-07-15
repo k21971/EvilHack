@@ -755,6 +755,9 @@ wiz_map_levltyp(void)
         if (svl.level.flags.nforges)
             Sprintf(eos(dsc), " %c:%d", defsyms[S_forge].sym,
                     (int) svl.level.flags.nforges);
+        if (svl.level.flags.nmagicchests)
+            Sprintf(eos(dsc), " %c:%d", defsyms[S_magic_chest].sym,
+                    (int) svl.level.flags.nmagicchests);
         if (svl.level.flags.has_vault)
             Strcat(dsc, " vault");
         if (svl.level.flags.has_shop)
@@ -1645,6 +1648,11 @@ wiz_show_stats(void)
     obj_chain(win, "buried", svl.level.buriedobjlist, FALSE,
               &total_obj_count, &total_obj_size);
     obj_chain(win, "migrating obj", gm.migrating_objs, FALSE,
+              &total_obj_count, &total_obj_size);
+    /* just showing mchest isn't very informative;
+       mchest items are not counted as "contained" later */
+    obj_chain(win, "magic chest contents",
+              gm.mchest ? gm.mchest->cobj : 0, FALSE,
               &total_obj_count, &total_obj_size);
     obj_chain(win, "billobjs", gb.billobjs, FALSE,
               &total_obj_count, &total_obj_size);

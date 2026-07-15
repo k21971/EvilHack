@@ -2030,6 +2030,11 @@ container_at(coordxy x, coordxy y, boolean countem)
     struct obj *cobj, *nobj;
     int container_count = 0;
 
+    if (IS_MAGIC_CHEST(levl[x][y].typ)) {
+        ++container_count;
+        if (!countem)
+            return container_count;
+    }
     for (cobj = svl.level.objects[x][y]; cobj; cobj = nobj) {
         nobj = cobj->nexthere;
         if (Is_container(cobj)) {
@@ -2113,12 +2118,28 @@ do_loot_cont(
             pline("Hmmm, %s turns out to be locked.", the(xname(cobj)));
         cobj->lknown = 1;
 
-        if (flags.autounlock) {
+        if (flags.autounlock && cobj->otyp != CRYSTAL_CHEST) {
+            /* don't prompt for a crystal chest; only artifact unlocking
+               tools can unlock one, and we don't want to give that away
+               by suggesting them automatically to the user */
             struct obj *otmp, *unlocktool = 0;
-            coordxy ox = cobj->ox, oy = cobj->oy;
+            /* the shared magic chest has no location of its own; it is
+               opened at the hero's spot */
+            coordxy ox = (cobj == gm.mchest) ? u.ux : cobj->ox,
+                    oy = (cobj == gm.mchest) ? u.uy : cobj->oy;
 
             u.dz = 0; /* might be non-zero from previous command since
                        * #loot isn't a move command; pick_lock() cares */
+            if (cobj->otyp == HIDDEN_CHEST) {
+                /* artifact unlocking tools can also unlock magic chests,
+                   but don't give that away by suggesting them (same logic
+                   as with crystal chests above) */
+                if ((flags.autounlock & AUTOUNLOCK_APPLY_KEY) != 0
+                    && (unlocktool = carrying(MAGIC_KEY)) != 0
+                    && pick_lock(unlocktool, ox, oy, cobj))
+                    res = ECMD_TIME;
+                return res;
+            }
             /* if both the untrap and apply_key bits are set, untrap
                attempt will be performed first but we need to set up
                unlocktool in case "check for trap?" is declined */
@@ -2263,6 +2284,13 @@ doloot_core(void)
             win = create_nhwindow(NHW_MENU);
             start_menu(win, MENU_BEHAVE_STANDARD);
 
+            if (IS_MAGIC_CHEST(levl[cc.x][cc.y].typ) && gm.mchest) {
+                any.a_obj = gm.mchest;
+                tmpglyph = obj_to_glyph(gm.mchest, rn2_on_display_rng);
+                map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
+                add_menu(win, &tmpglyphinfo, &any, 0, 0, ATR_NONE, clr,
+                         doname(gm.mchest), MENU_ITEMFLAGS_NONE);
+            }
             for (cobj = svl.level.objects[cc.x][cc.y]; cobj;
                  cobj = cobj->nexthere)
                 if (Is_container(cobj)) {
@@ -2291,6 +2319,12 @@ doloot_core(void)
             if (n != 0)
                 c = 'y';
         } else {
+            if (IS_MAGIC_CHEST(levl[cc.x][cc.y].typ) && gm.mchest) {
+                anyfound = TRUE;
+                timepassed |= do_loot_cont(&gm.mchest, 1, 1);
+                if (ga.abort_looting)
+                    return (timepassed ? ECMD_TIME : ECMD_OK);
+            }
             for (cobj = svl.level.objects[cc.x][cc.y]; cobj; cobj = nobj) {
                 nobj = cobj->nexthere;
 
@@ -2409,7 +2443,8 @@ reverse_loot(void)
         /* find original coffers chest if present, otherwise use nearest */
         otmp = 0;
         for (coffers = fobj; coffers; coffers = coffers->nobj)
-            if (coffers->otyp == CHEST) {
+            if (coffers->otyp == CHEST || coffers->otyp == IRON_SAFE
+                || coffers->otyp == CRYSTAL_CHEST) {
                 if (coffers->spe == 2)
                     break; /* a throne room chest */
                 if (!otmp || (distu(coffers->ox, coffers->oy)
@@ -3536,7 +3571,16 @@ choose_tip_container_menu(void)
     win = create_nhwindow(NHW_MENU);
     start_menu(win, MENU_BEHAVE_STANDARD);
 
-    for (otmp = svl.level.objects[u.ux][u.uy], i = 0; otmp;
+    i = 0;
+    if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ) && gm.mchest) {
+        ++i;
+        any.a_obj = gm.mchest;
+        tmpglyph = obj_to_glyph(gm.mchest, rn2_on_display_rng);
+        map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
+        add_menu(win, &tmpglyphinfo, &any, 0, 0, ATR_NONE,
+                 clr, doname(gm.mchest), MENU_ITEMFLAGS_NONE);
+    }
+    for (otmp = svl.level.objects[u.ux][u.uy]; otmp;
          otmp = otmp->nexthere)
         if (Is_container(otmp)) {
             ++i;
@@ -3622,6 +3666,18 @@ dotip(void)
                     return res;
                 /* else pick-from-gi.invent below */
             } else {
+                if (IS_MAGIC_CHEST(levl[cc.x][cc.y].typ) && gm.mchest) {
+                    c = ynq(safe_qbuf(qbuf, "There is ", " here, tip it?",
+                                      gm.mchest, doname, ansimpleoname,
+                                      "container"));
+                    if (c == 'q')
+                        return ECMD_OK;
+                    if (c != 'n') {
+                        tipcontainer(gm.mchest);
+                        /* can only tip one container at a time */
+                        return ECMD_TIME;
+                    }
+                }
                 for (cobj = svl.level.objects[cc.x][cc.y]; cobj;
                      cobj = nobj) {
                     int target_count = 0;
@@ -3729,6 +3785,13 @@ tipcontainer(struct obj *box) /* or bag */
     boolean srcheld = FALSE, dstheld = FALSE, maybeshopgoods;
     struct obj *targetbox = (struct obj *) 0;
     boolean cancelled = FALSE;
+
+    /* magic chests are too heavy to tip; also, they don't have a
+       location, so return before anyone notices */
+    if (box->otyp == HIDDEN_CHEST) {
+        pline_The("chest is bolted down!");
+        return;
+    }
 
     /* box is either held or on floor at hero's spot; no need to check for
        nesting; when held, we need to update its location to match hero's;
@@ -3964,6 +4027,29 @@ tipcontainer_gettarget(
             add_menu_str(win, "");
 
             n_conts = 0;
+        }
+        /* the shared magic chest is a valid tip-into target when the
+           hero is standing on a magic chest tile */
+        if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ) && gm.mchest
+            && box != gm.mchest) {
+            otmp = gm.mchest;
+            if (!n_conts++)
+                hands_available = u_handsy(); /* might issue message */
+            exclude_it = !hands_available
+                         || (otmp->olocked && otmp->lknown);
+            if (looppass == 0) {
+                if (!exclude_it)
+                    count_tiptargets++;
+            } else {
+                any = cg.zeroany;
+                any.a_obj = !exclude_it ? otmp : 0;
+                Sprintf(buf, "%s%s", !exclude_it ? "" : "    ",
+                        doname(otmp));
+                tmpglyph = obj_to_glyph(otmp, rn2_on_display_rng);
+                map_glyphinfo(0, 0, tmpglyph, 0U, &tmpglyphinfo);
+                add_menu(win, &tmpglyphinfo, &any, 0, 0, ATR_NONE, clr,
+                         buf, MENU_ITEMFLAGS_NONE);
+            }
         }
         for (otmp = gi.invent; otmp; otmp = otmp->nobj) {
             if (otmp == box)

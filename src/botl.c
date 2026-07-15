@@ -889,8 +889,9 @@ const char *terrain_descr[] = {
        "Stairs",
        "Ladder",
        "Forge",
-       "Fountain",
-/*30*/ "Throne",
+       "Magic-chest",
+/*30*/ "Fountain",
+       "Throne",
        "Sink",
        "Grave",
        "Altar",
@@ -900,13 +901,13 @@ const char *terrain_descr[] = {
        "Cloud",         /* [part of] a cloud or Air level */
        /*
         */
-/*38*/ "",              /* MAX_TYPE; skipped ratther than overloaded */
-/*39*/ c_Wall,          /* MATCH_WALL for special levels; shouldn't happen */
+/*39*/ "",              /* MAX_TYPE; skipped ratther than overloaded */
+/*40*/ c_Wall,          /* MATCH_WALL for special levels; shouldn't happen */
        /*
         * additional terrain names that aren't simple levl[][].typ values
         */
-/*40*/ "Floor",         /* substituted for room or corridor */
-/*41*/ "Ground",        /* 'room' on Earth level */
+/*41*/ "Floor",         /* substituted for room or corridor */
+/*42*/ "Ground",        /* 'room' on Earth level */
        "Open-door",     /* open (not broken or doorless) */
        "Shut-door",     /* closed or locked (or trapped) */
        "Swamp",         /* Juiblex level */

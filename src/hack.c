@@ -2313,7 +2313,9 @@ domove_fight_empty(coordxy x, coordxy y)
                5.0: used to say "solid rock" for STONE, but that made it be
                different from unmapped walls outside of rooms (and was wrong
                on arboreal levels) */
-            if (levl[x][y].seenv || IS_STWALL(levl[x][y].typ)
+            if (levl[x][y].seenv && IS_MAGIC_CHEST(levl[x][y].typ)) {
+                Strcpy(buf, "thin air"); /* acts like a chest object would */
+            } else if (levl[x][y].seenv || IS_STWALL(levl[x][y].typ)
                 || levl[x][y].typ == SDOOR || levl[x][y].typ == SCORR) {
                 glyph = back_to_glyph(x, y);
                 Strcpy(buf, the(defsyms[glyph_to_cmap(glyph)].explanation));
@@ -3465,6 +3467,17 @@ spoteffects(boolean pick)
         }
         mnexto(mtmp, RLOC_NOMSG); /* have to move the monster */
     }
+    if (IS_MAGIC_CHEST(levl[u.ux][u.uy].typ) && !Levitation && gm.mchest) {
+        char *tmp = doname(gm.mchest);
+
+        if (!Blind)
+            You("see here %s.", tmp);
+        /* magic chest is already mentioned if objects are on square */
+        else if (!OBJ_AT(u.ux, u.uy))
+            You("feel here %s.", tmp);
+        /* release doname's obuf, just in case */
+        maybereleaseobuf(tmp);
+    }
  spotdone:
     if (!--inspoteffects) {
         spotterrain = STONE; /* 0 */
@@ -3853,6 +3866,8 @@ pickup_checks(void)
             pline("It won't come off the hinges.");
         else if (IS_ALTAR(lev->typ))
             pline("Moving the altar would be a very bad idea.");
+        else if (IS_MAGIC_CHEST(lev->typ))
+            pline_The("chest is bolted down!");   /* from dnethack */
         else if (lev->typ == STAIRS)
             pline_The("stairs are solidly affixed.");
         else

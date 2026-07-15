@@ -106,9 +106,10 @@ set_levltyp(coordxy x, coordxy y, schar newtyp)
             }
             if ((IS_FOUNTAIN(oldtyp) != IS_FOUNTAIN(newtyp))
                 || (IS_SINK(oldtyp) != IS_SINK(newtyp))
-                || (IS_FORGE(oldtyp) != IS_FORGE(newtyp)))
+                || (IS_FORGE(oldtyp) != IS_FORGE(newtyp))
+                || (IS_MAGIC_CHEST(oldtyp) != IS_MAGIC_CHEST(newtyp)))
                 count_level_features(); /* level.flags.nfountains,nsinks,
-                                         * nforges */
+                                         * nforges,nmagicchests */
 
             return TRUE;
         }

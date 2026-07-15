@@ -4277,6 +4277,9 @@ doapply(void)
     case SACK:
     case BAG_OF_HOLDING:
     case OILSKIN_SACK:
+    case IRON_SAFE:
+    case CRYSTAL_CHEST:
+    case HIDDEN_CHEST: /* just in case */
         res = use_container(&obj, TRUE, FALSE);
         break;
     case BAG_OF_TRICKS:
@@ -4288,6 +4291,7 @@ doapply(void)
     case LOCK_PICK:
     case CREDIT_CARD:
     case SKELETON_KEY:
+    case MAGIC_KEY:
         res = (pick_lock(obj, 0, 0, NULL) != 0) ? ECMD_TIME : ECMD_OK;
         break;
     case PICK_AXE:

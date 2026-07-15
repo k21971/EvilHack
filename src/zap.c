@@ -833,6 +833,7 @@ montraits(
  *      OBJ_INVENT      if in hero's inventory; return 0.
  *      OBJ_FLOOR       if on the floor; return 0.
  *      OBJ_BURIED      if buried; return 0.
+ *      OBJ_MCHEST      if in magic chest; return 0.
  *      OBJ_MINVENT     if in monster's inventory; return monster.
  * container_nesting is updated with the nesting depth of the containers
  * if applicable.
@@ -953,7 +954,8 @@ revive(struct obj *corpse, boolean by_hero)
          */
         || (container && (container->olocked || container_nesting > 2
                           || container->otyp == STATUE
-                          || (container->otyp == BAG_OF_HOLDING && rn2(40))))
+                          || (container->otyp == BAG_OF_HOLDING && rn2(40))
+                          || container->otyp == HIDDEN_CHEST))
         /* if buried zombie cannot dig itself out, do not revive */
         || (is_zomb && corpse->where == OBJ_BURIED && !zombie_can_dig(x, y)))
         return (struct monst *) 0;
@@ -1529,6 +1531,8 @@ polyuse(struct obj *objhdr, int mat, int minwt)
             continue;
         if (obj_resists(otmp, 0, 0))
             continue; /* preserve unique objects */
+        if (otmp->otyp == CRYSTAL_CHEST)
+            continue; /* special container that is immune to magic */
 #ifdef MAIL_STRUCTURES
         if (otmp->otyp == SCR_MAIL)
             continue;
@@ -1696,7 +1700,9 @@ obj_unpolyable(struct obj *obj)
 {
     return (unpolyable(obj)
             || obj == uball || obj == uskin
-            || obj_resists(obj, 5, 95));
+            || obj_resists(obj, 5, 95)
+            /* special container that is immune to magic */
+            || obj->otyp == CRYSTAL_CHEST);
 }
 
 /* classes of items whose current charge count carries over across polymorph
@@ -2260,6 +2266,13 @@ bhito(struct obj *obj, struct obj *otmp)
             /* target object has now been "seen (up close)" */
             observe_object(obj);
             if (Is_container(obj) || obj->otyp == STATUE) {
+                if (obj->otyp == CRYSTAL_CHEST) {
+                    /* special container that is immune to magic */
+                    pline_The("%s resists your magical probing.",
+                              xname(obj));
+                    res = 0;
+                    break;
+                }
                 obj->cknown = obj->lknown = 1;
                 if (Is_box(obj) && !obj->tknown) {
                     /* obj->tknown applies to boxes and chests, not bags or
@@ -2356,6 +2369,11 @@ bhito(struct obj *obj, struct obj *otmp)
             break;
         case WAN_TELEPORTATION:
         case SPE_TELEPORT_AWAY:
+            /* special container that is immune to magic */
+            if (obj->otyp == CRYSTAL_CHEST) {
+                res = 0;
+                break;
+            }
             {
                 coordxy ox = obj->ox, oy = obj->oy;
 
@@ -3304,6 +3322,9 @@ zap_updown(struct obj *obj) /* wand or spell, nonnull */
                    && on_level(&u.uz, &qstart_level) && !ok_to_quest()) {
             pline_The("stairs seem to ripple momentarily.");
             disclose = TRUE;
+        } else if (u.dz > 0 && IS_MAGIC_CHEST(levl[x][y].typ)
+                   && gm.mchest) {
+            disclose = boxlock(gm.mchest, obj);
         }
         /* down will release you from bear trap or web */
         if (u.dz > 0 && u.utrap) {
@@ -3344,6 +3365,9 @@ zap_updown(struct obj *obj) /* wand or spell, nonnull */
                 stackobj(otmp);
             }
             newsym(x, y);
+        } else if (!striking && u.dz > 0 && IS_MAGIC_CHEST(levl[x][y].typ)
+                   && gm.mchest) {
+            disclose = boxlock(gm.mchest, obj);
         } else if (u.dz > 0 && ttmp) {
             if (!striking && closeholdingtrap(&gy.youmonst, &disclose)) {
                 ; /* now stuck in web or bear trap */
@@ -3741,6 +3765,21 @@ zap_map(
                 break;
             }
         } /* find_drawbridge */
+
+        /* a lateral zap can lock or unlock a magic chest */
+        if (IS_MAGIC_CHEST(ltyp) && gm.mchest) {
+            switch (obj->otyp) {
+            case WAN_OPENING:
+            case SPE_KNOCK:
+            case WAN_LOCKING:
+            case SPE_WIZARD_LOCK:
+                if (boxlock(gm.mchest, obj))
+                    learn_it = TRUE;
+                break;
+            default:
+                break;
+            }
+        }
     } /* !u.uz */
 
     if (obj->otyp == WAN_PROBING) {

@@ -1069,11 +1069,69 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Werebane vs werewolf taming, racial tin/sacrifice,
       vorpal-behead troll corpse revival, yellow light vs drow
       both directions.
-- [~] Forging (+ FORGE nhl binding for .des->lua levels)
+- [x] Forging (+ FORGE nhl binding for .des->lua levels)
       PORTED + REVIEWED 2026-07-15 (subagent-ported 50 files
       +1935/-154, reviewer CONDITIONAL PASS -> blocker + concerns
-      fixed by coordinator same day; commit + wizmode battery
-      pending). Contents: FORGE terrain end-to-end (rm.h FORGE=28
+      fixed by coordinator same day), COMMITTED as 8541bacb0
+      (52 files +2187/-160 incl. fixes + this record; bundle
+      evilhack-50_2026-07-15d cut+verified at that head; this
+      status-line edit + battery record ride with the next
+      commit). WIZMODE BATTERY RUN + PASSED 2026-07-15
+      (maintainer-approved; 4 wizard games on the fresh install,
+      sanity_check ON every turn; PANICLOG EMPTY, zero crashes/
+      impossibles). PASSED LIVE: (1) terrain wish "A forge.",
+      orange '{', lookat, overview count; (2) fusion trident =
+      scimitar+spear via the 5.0 menu/getobj flow, components
+      consumed, hammer gate enforced ("You'll need a blacksmith
+      hammer"); (3) artifact fusion Dichotomy = Fire Brand +
+      Frost Brand -> livelog "used a forge to create Dichotomy",
+      forgedarti=1 AND artitouch=1 by gdb, #conduct line
+      disappears once broken (master shape), coolforge stress
+      fired ("The lava in the forge cools and solidifies");
+      (4) doaffixgem: 3 shatter failures with gem staying unID,
+      then success ("glows brilliantly") + makeknown on the
+      remaining stack; dilithium correctly grants no oprop
+      (enchant-bonus gem); (5) dipforge potion "boils and
+      explodes"; drinkforge lethal sans fire res, killer
+      "killed by drinking molten lava"; (6) kick ouch, thrown
+      dagger rests ON the forge, sit burn d(4,4), dig ->
+      breakforge "splits in two as molten lava rushes forth" ->
+      LAVAPOOL + hero fell in (gear lava_damage live); (7)
+      blowupforge via invocation-item fusion ("You can't forge
+      such a thing!"), Bell of Opening survived via obj_resists,
+      tombstone + xlog death = "burned by an exploding forge"
+      (the killer-branch fix live); (8) hammer apply -> forge
+      menu directly; (9) BONES POLICY by gdb scan of loaded
+      bones: Eye of Vecna arrived STRIPPED (oartifact=0, oname
+      freed), blacksmith hammer arrived as war hammer material
+      IRON (resetobjs rewrite + set_material); return-to-owner
+      arm reviewer-verified only; (10) des.feature("forge")
+      engine-load: both lua forges LIT=1 (the sel_set_feature
+      fix), nforges=2, lua object forged_qual=3 + affixed_gem=
+      540 applied to the floor sword; (11) PREFIX regression:
+      89-char prefix trident renders in inventory AND in the
+      end-of-game disclosure, no crash; (12) save/reload:
+      forge+lava terrain, trident qual/gem/erosion/spe,
+      Dichotomy, forgedarti, nforges all byte-intact; kept-save
+      double-restore OK. XLOG both directions: conduct bit 15
+      set when intact + token never_forged_an_artifact present;
+      bit clear + token absent after forging. gdb spot checks:
+      getprice 5 -> 85 with FQ_EXCEPTIONAL (x3 factor visible),
+      affixed dilithium otyp 540, FQ-aware dmgval callable.
+      NOT LIVE-TESTED (static/reviewer verification only):
+      FQ to-hit/damage deltas in real combat (dice noise),
+      two-hander shatter + breaktest odds (statistical),
+      scatter/monster-thrown forge stops (need staging), forge
+      ambient sound (random tick), mkforge natural 1/40 spawn.
+      Battery driving notes: terrain wish over the start
+      upstairs leaves the 5.0 stairs-list entry live (lookat
+      says forge, dig says "stairs are too hard" - master-parity
+      wizmode quirk, harmless); restore queues "keep save file?"
+      which eats blind keystrokes - capture first; a Dlvl with
+      the Mines branch stairs refuses bones (Is_branchlev
+      upstream rule) - use Dlvl 4; the wizard Die? prompt
+      defaults n on space, answer y deliberately.
+      Contents: FORGE terrain end-to-end (rm.h FORGE=28
       inserted before FOUNTAIN - FOUNTAIN..CLOUD/MAX_TYPE/
       MATCH_WALL/xFLOOR.. all shifted +1, range-macro membership
       audited, DEV SAVES/BONES INVALIDATED; defsym.h S_forge PCHAR
@@ -1191,7 +1249,113 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       gem-studded long sword in inventory display (pre-fix =
       stack smash; ASan build ideal); (12) save/reload forge
       level + FQ/gem items intact; old dev save REFUSED cleanly.
-- [ ] Magic chests (+ MAGIC_CHEST nhl binding, crystal chest obj)
+- [~] Magic chests (+ MAGIC_CHEST nhl binding, crystal chest obj)
+      PORTED + REVIEWED 2026-07-15 (subagent-ported ~40 files,
+      reviewer CONDITIONAL PASS with NO blockers -> all 3 concerns
+      + 4 nits coordinator-resolved same day; commit + battery
+      pending). Contents: MAGIC_CHEST terrain end-to-end (rm.h
+      =29 inserted after FORGE - FOUNTAIN..CLOUD/MAX_TYPE/xFLOOR
+      shifted AGAIN, dev saves invalidated; defsym.h S_magic_chest
+      PCHAR 38 '(' CLR_BRIGHT_MAGENTA, indices renumbered;
+      levelflags nmagicchests; back_to_glyph/type_names/botl
+      "Magic-chest"/cmd levltyp + herecmd MCMD_LOOT + mouse-click
+      loot/pager lookat incl. lock state/invent dfeature/mapseen
+      2-bit + overview/wizcmds legend + stats chain; dat/symbols
+      Blank + RogueEpyx; windows.c htmlsym U+2302); THE SHARED
+      CHAIN gm.mchest = HIDDEN_CHEST head object, contents in its
+      cobj (decl.h instance_globals_m after migrating_objs,
+      g_init_m UNDEFINED_PTR, allmain init_mchest() new-game
+      create, save/restore at the invent->mchest->ball&chain slot
+      = master stream order, freedynamicdata, obj_extract_self
+      OBJ_MCHEST, unsplitobj exclusion, objlist_sanity,
+      obj_is_local FALSE = global timers relink through find_oid
+      recursion, clear_bypass incl. contents (improves on
+      master's head-only), kill_eggs, find_qarti bit); mechanics
+      (lock.c pick_lock chain splice - reviewer verified all 3
+      continuation points + at-most-once transition; MAGIC_KEY
+      odds 75/70+DEX; crystal=artifact-only + hidden=artifact-or-
+      MAGIC_KEY refusals; doforce refusals; pickup.c container_at
+      /doloot splices/do_loot_cont AUTOUNLOCK re-expression/
+      reverse_loot/dotip flows; zap probe-resist no-learn +
+      teleport resist + revive block + zap_updown boxlock +
+      zap_map lateral toggle - double-fire reviewer-ruled-out;
+      dig/kick/sit/quake-immune/fire-immune/spoteffects/meatbox/
+      dogmove-skip; detect trapped_chest_at + observe_recursively
+      crystal guard + object_detect single walk; objnam terrain
+      wish + wizmode "magic chest object"->HIDDEN_CHEST; mkobj
+      mkbox_cnts + mksobj init cases); CRYSTAL CHEST = own-cobj
+      container (reviewer verified the crux vs master: ONLY the
+      terrain tile reaches the shared chain); sp_lev
+      feature("magic chest") binding (Phase 3: 24 master .des
+      levels use it); bones MAGIC_KEY->SKELETON_KEY +
+      set_material BONE (master-exact; forging-slice TODO
+      resolved). REVIEWER CONCERNS ALL RESOLVED: (1) iron-safe
+      deferral economy delta - crystal chests were substituting
+      for IRON_SAFE at every depth >15 (permanently sealed
+      loot for non-artifact heroes at 20% of deep box rolls);
+      FIXED with plain-CHEST stand-in arms at all three master
+      safe sites (mklev fill_ordinary_room, mkroom COURT coffers
+      100%-at->15 arm, mkroom BARRACKS payroll 1/3 arm + master's
+      LARGE_BOX->CHEST payroll upgrade), crystal chests back to
+      master's depth 11-15 window, TODO markers kept; (2)
+      pick_lock untrap-offer leak on the never-trappable chest
+      (turn-waster) - skipped for HIDDEN_CHEST; (3) autokey had
+      no MAGIC_KEY channel - master's mkey/amkey tracking +
+      top-priority return + rogue MKoT promotion ported into the
+      5.0 body (NAMING HAZARD note: 5.0 is_magic_key() = Master
+      Key of Thievery, NOT the MAGIC_KEY otyp - master renamed
+      its own to is_roguish_key; watch this in every future
+      lock.c port). NITS RESOLVED: IRON_SAFE wish stub (was
+      unlocked/empty) - mksobj locked+mkbox_cnts(10) init added,
+      stethoscope-only rules stay deferred w/ TODO; magic-
+      detection deferral marker added in detect.c (SCR_MAGIC_
+      DETECTION effect unported; master magic_detect walks the
+      chain + 3 crystal guards); cursed-tool-break marker in
+      lock.c (MAGIC_KEY exemption must ride when it ports);
+      tile art -> Phase 4 (S_magic_chest shifts cmap tiles
+      after forge - BOTH new terrains need one tiles pass).
+      REVIEWER POSITIVES: objnam parse block fixes a LATENT
+      MASTER BUG (master's bare else sent wizard "bearded axe"
+      wishes to the magic-chest terrain path; frozen-unfixed);
+      wizterrainwish flags=0 + counter guard improve on master.
+      DEFERRED (item -> subsystem): monster container looting
+      (mpickstuff/likes_contents/m_move mchest splice/muse
+      MAGIC_KEY pickup - one TODO in mon.c), iron safes
+      (generation arms + stethoscope cracking + lock_action
+      flavor), magic detection (marker above), cursed-tool
+      break, Is_container range to BAG_OF_DEVOURING (bags
+      slice), tile art (Phase 4). OPEN DECISION recorded:
+      tip-into keeps 5.0's carried-only target design + the
+      chest as the sole floor-side target (master offered all
+      floor containers; revisit only if players miss it).
+      Remaining for [x]: maintainer commit + wizmode battery
+      (reviewer's 14-point list, trimmed to the live-testable):
+      (1) shared chain cross-level: stash on level A via wished
+      terrain chest + magic key, retrieve on level B; (2) timer
+      relink: fresh corpse in chest -> save/reload + level
+      change -> rots on schedule, no find_oid panic; (3) #loot
+      menu chest-first + sequential splice walk with 2 floor
+      boxes; (4) autounlock: apply-key+untrap set, loot locked
+      chest w/ magic key -> NO trap prompt (concern-2 fix),
+      unlock prompt fires; autokey: magic key as only tool ->
+      offered on ordinary locked chest (concern-3 fix); (5)
+      crystal chest: kick no-break, #force refusal, probe
+      resists + wand stays unID, poly/tele zaps no-op, artifact
+      unlock, loot = OWN contents not shared; (6) wand of
+      opening/locking down-zap toggles chest lock; lateral zap
+      across tile single-toggles; (7) #tip on tile "bolted
+      down!"; tip carried sack into chest tile target ->
+      contents land in shared chain; (8) terrain suite: dig
+      unaffected, earthquake survives, kick THUNK+ouch, sit
+      comfortable, farlook lock state, overview counts; (9)
+      bones: die w/ magic key -> next game skeleton key of
+      bone; (10) object detection with items only in chest,
+      on- and off-tile; (11) depth sweep #wizmakemap at 12 +
+      20: crystal chests 11-15 only, CHEST stand-ins deeper,
+      court coffers, no safes; (12) wish checks: non-wiz
+      "magic chest" rejected, wiz terrain + "magic chest
+      object", "bearded axe" -> axe (parse regression), "iron
+      safe" -> locked + 10 contents.
 - [ ] telekinesis.c + #tk command (pilot did the file; wire cmds)
 - [ ] Alignment-abuse subsystem (tiers, #conduct API - see memory
       alignment-abuse-subsystem)
@@ -1409,6 +1573,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-07-15 | xlogfile forging conduct token stays master's long-style `never_forged_an_artifact` (0.9.x scoreboard-parser continuity) rather than a 5.0 short-style token | maintainer |
 | 2026-07-15 | Item economy: v1.0.0 ships the RICH economy (branch keeps upstream `ptr == &mons[PM_SOLDIER]` m_initinv gate - every monster rolls the m_lev magic/gold tail). Master's 2021 `!=` slip stays branch-excluded AND master-unfixed (soldier gate NOT in the backport batch; the lean-economy years remain a master-only accident that dies at cutover) | maintainer |
 | 2026-07-15 | Elf/hobbit ELVEN_CHAIN_MAIL: branch stays master-exact (no civilian grant, dead mithril-upgrade check kept textually identical for re-derive ease); revisit as cleanup after v1.0.0 | maintainer |
 | 2026-07-15 | Angel weapon: 5.0's rebalance kept (rn2(3) sword-biased + mace +3..+6 compensation) over master's rn2(2)/flat-spe; master's Demonbane gate/Shield of Light/Saint Michael gear ride on top | maintainer |

@@ -664,9 +664,16 @@ really_kick_object(coordxy x, coordxy y)
         boolean otrp = gk.kickedobj->otrapped;
 
         if (range < 2)
-            pline("THUD!");
+            pline("%s", gk.kickedobj->otyp == IRON_SAFE ? "CLANG!"
+                                                        : "THUD!");
+        if (gk.kickedobj->otyp == IRON_SAFE)
+            return 1;
         container_impact_dmg(gk.kickedobj, x, y);
         if (gk.kickedobj->olocked) {
+            if (gk.kickedobj->otyp == CRYSTAL_CHEST) {
+                You("are unable to break open the lock of such a container.");
+                return 1;
+            }
             if (!rn2(5) || (martial() && !rn2(2))) {
                 You("break open the lock!");
                 breakchestlock(gk.kickedobj, FALSE);
@@ -830,6 +837,8 @@ kickstr(char *buf, const char *kickobjnam)
         what = "a sink";
     else if (IS_FORGE(gm.maploc->typ))
         what = "a forge";
+    else if (IS_MAGIC_CHEST(gm.maploc->typ))
+        what = "a magic chest";
     else if (IS_ALTAR(gm.maploc->typ))
         what = "an altar";
     else if (IS_DRAWBRIDGE(gm.maploc->typ))
@@ -1133,6 +1142,15 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
             }
         }
         exercise(A_DEX, TRUE);
+        return ECMD_TIME;
+    }
+    if (IS_MAGIC_CHEST(gm.maploc->typ)) {
+        if (Levitation) {
+            kick_dumb(x, y);
+            return ECMD_TIME;
+        }
+        pline("THUNK!"); /* same sound effect as other chests */
+        kick_ouch(x, y, ""); /* but these are much sturdier */
         return ECMD_TIME;
     }
     if (IS_GRAVE(gm.maploc->typ)) {

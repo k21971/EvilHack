@@ -536,6 +536,10 @@ dosit(void)
         You(sit_message, "stairs");
     } else if (typ == LADDER) {
         You(sit_message, "ladder");
+    } else if (typ == MAGIC_CHEST) {
+        You(sit_message, defsyms[S_magic_chest].explanation);
+        /* more ergonomic than most chests */
+        pline("It's surprisingly comfortable!");
     } else if (IS_FORGE(typ)) {
         You(sit_message, defsyms[S_forge].explanation);
         burn_away_slime();

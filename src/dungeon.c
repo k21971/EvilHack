@@ -2881,7 +2881,8 @@ init_mapseen(d_level *lev)
 }
 
 #define OF_INTEREST(feat) \
-    ((feat).nfount || (feat).nsink || (feat).nforge || (feat).nthrone   \
+    ((feat).nfount || (feat).nsink || (feat).nforge \
+     || (feat).nmagicchest || (feat).nthrone   \
      || (feat).naltar || (feat).ngrave || (feat).ntree || (feat).nshop  \
      || (feat).ntemple)
   /* || (feat).water || (feat).ice || (feat).lava */
@@ -3016,6 +3017,11 @@ count_feat_lastseentyp(
         count = mptr->feat.nforge + 1;
         if (count <= 3)
             mptr->feat.nforge = count;
+        break;
+    case MAGIC_CHEST:
+        count = mptr->feat.nmagicchest + 1;
+        if (count <= 3)
+            mptr->feat.nmagicchest = count;
         break;
     case GRAVE:
         count = mptr->feat.ngrave + 1;
@@ -3635,6 +3641,7 @@ print_mapseen(
         }
         ADDNTOBUF("throne", mptr->feat.nthrone);
         ADDNTOBUF("forge", mptr->feat.nforge);
+        ADDNTOBUF("magic chest", mptr->feat.nmagicchest);
         ADDNTOBUF("fountain", mptr->feat.nfount);
         ADDNTOBUF("sink", mptr->feat.nsink);
         ADDNTOBUF("grave", mptr->feat.ngrave);

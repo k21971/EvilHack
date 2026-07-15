@@ -395,9 +395,12 @@ fill_zoo(struct mkroom *sroom)
                                      FALSE);
                 break;
             case BARRACKS:
+                /* TODO-EVILHACK: master rolls IRON_SAFE 1 in 3 here
+                   below depth 15; a plain chest stands in until the
+                   iron safe subsystem ports (master upgraded the
+                   payroll box from LARGE_BOX to CHEST throughout) */
                 if (!rn2(20)) /* the payroll and some loot */
-                    (void) mksobj_at((rn2(3)) ? LARGE_BOX : CHEST, sx, sy,
-                                     TRUE, FALSE);
+                    (void) mksobj_at(CHEST, sx, sy, TRUE, FALSE);
                 break;
             case COCKNEST:
                 if (!rn2(3)) {
@@ -426,7 +429,15 @@ fill_zoo(struct mkroom *sroom)
         gold->quan = (long) rn1(50 * level_difficulty(), 10);
         gold->owt = weight(gold);
         /* the royal coffers */
-        chest = mksobj_at(CHEST, mm.x, mm.y, TRUE, FALSE);
+        /* TODO-EVILHACK: master uses IRON_SAFE below depth 15; a plain
+           chest stands in until the iron safe subsystem ports, keeping
+           crystal chests in master's depth 11-15 window */
+        if (depth(&u.uz) > 15)
+            chest = mksobj_at(CHEST, mm.x, mm.y, TRUE, FALSE);
+        else if (depth(&u.uz) > 10 && !rn2(10))
+            chest = mksobj_at(CRYSTAL_CHEST, mm.x, mm.y, TRUE, FALSE);
+        else
+            chest = mksobj_at(CHEST, mm.x, mm.y, TRUE, FALSE);
         add_to_container(chest, gold);
         chest->owt = weight(chest);
         chest->spe = 2; /* so it can be found later */
@@ -1003,6 +1014,9 @@ cmap_to_type(int sym)
         break;
     case S_forge:
         typ = FORGE;
+        break;
+    case S_magic_chest:
+        typ = MAGIC_CHEST;
         break;
     case S_fountain:
         typ = FOUNTAIN;

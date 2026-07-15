@@ -824,15 +824,15 @@ makevtele(void)
     makeniche(TELEP_TRAP_SET);
 }
 
-/* count the tracked features (sinks, fountains, forges) present on the
-   level */
+/* count the tracked features (sinks, fountains, forges, magic chests)
+   present on the level */
 void
 count_level_features(void)
 {
     coordxy x, y;
 
     svl.level.flags.nfountains = svl.level.flags.nsinks = 0;
-    svl.level.flags.nforges = 0;
+    svl.level.flags.nforges = svl.level.flags.nmagicchests = 0;
     for (y = 0; y < ROWNO; y++)
         for (x = 1; x < COLNO; x++) {
             int typ = levl[x][y].typ;
@@ -843,6 +843,8 @@ count_level_features(void)
                 svl.level.flags.nsinks++;
             else if (typ == FORGE)
                 svl.level.flags.nforges++;
+            else if (typ == MAGIC_CHEST)
+                svl.level.flags.nmagicchests++;
         }
 }
 
@@ -880,6 +882,7 @@ clear_level_structures(void)
     svl.level.flags.nfountains = 0;
     svl.level.flags.nsinks = 0;
     svl.level.flags.nforges = 0;
+    svl.level.flags.nmagicchests = 0;
     svl.level.flags.has_shop = 0;
     svl.level.flags.has_vault = 0;
     svl.level.flags.has_zoo = 0;
@@ -1141,9 +1144,24 @@ fill_ordinary_room(
      *  when few rooms; chance for 3 or more is negligible.
      */
     /*assert(svn.nroom > 0); // must be true because we're filling a room*/
-    if (!skip_chests && !rn2(svn.nroom * 5 / 2) && somexyspace(croom, &pos))
-        (void) mksobj_at(rn2(3) ? LARGE_BOX : CHEST,
-                         pos.x, pos.y, TRUE, FALSE);
+    if (!skip_chests && !rn2(svn.nroom * 5 / 2) && somexyspace(croom, &pos)) {
+        int i = rn2(5), boxtype;
+
+        /* TODO-EVILHACK: master generates IRON_SAFE here below depth 15
+           (taking precedence over the crystal chest); a plain chest
+           stands in until the iron safe subsystem (stethoscope
+           cracking) ports, keeping crystal chests in master's
+           depth 11-15 window */
+        if (!i && depth(&u.uz) > 15)
+            boxtype = CHEST;
+        else if (!i && depth(&u.uz) > 10)
+            boxtype = CRYSTAL_CHEST;
+        else if (i > 2)
+            boxtype = CHEST;
+        else
+            boxtype = LARGE_BOX;
+        (void) mksobj_at(boxtype, pos.x, pos.y, TRUE, FALSE);
+    }
 
     /* maybe make some graffiti */
     if (!rn2(27 + 3 * abs(depth(&u.uz)))) {

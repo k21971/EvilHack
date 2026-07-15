@@ -3864,6 +3864,13 @@ wizterrainwish(struct _readobjnam_data *d)
         lev->lit = 1; /* forges hold molten lava */
         pline("A forge.");
         madeterrain = TRUE;
+    } else if (!BSTRCMPI(bp, p - 11, "magic chest")) {
+        lev->typ = MAGIC_CHEST;
+        if (oldtyp != MAGIC_CHEST)
+            svl.level.flags.nmagicchests++;
+        lev->flags = 0;
+        pline("A magic chest.");
+        madeterrain = TRUE;
 
     /* ("water" matches "potion of water" rather than terrain) */
     } else if (!BSTRCMPI(bp, p - 4, "pool")
@@ -5139,15 +5146,21 @@ readobjnam_postparse1(struct _readobjnam_data *d)
      * and tins), or append something--anything at all except for
      * " object", but " trap" is suggested--to either the trap
      * name or the object name.
+     * Similarly, wishing for a "magic chest" will give the terrain
+     * unless specifically wishing for a "magic chest object."
      */
     if (wizard && (!strncmpi(d->bp, "bear", 4)
-                   || !strncmpi(d->bp, "land", 4))) {
+                   || !strncmpi(d->bp, "land", 4)
+                   || !strncmpi(d->bp, "magic chest", 11))) {
         boolean beartrap = (lowc(*d->bp) == 'b');
-        char *zp = d->bp + 4; /* skip "bear"/"land" */
+        boolean landmine = (lowc(*d->bp) == 'l');
+        boolean four = (beartrap || landmine);
+        /* skip "bear"/"land" or "magic chest" */
+        char *zp = d->bp + (four ? 4 : 11);
 
         if (*zp == ' ')
             ++zp; /* embedded space is optional */
-        if (!strncmpi(zp, beartrap ? "trap" : "mine", 4)) {
+        if (four && !strncmpi(zp, beartrap ? "trap" : "mine", 4)) {
             zp += 4;
             if (d->trapped == 2 || !strcmpi(zp, " object")) {
                 /* "untrapped <foo>" or "<foo> object" */
@@ -5161,6 +5174,14 @@ readobjnam_postparse1(struct _readobjnam_data *d)
             }
             /* [no prefix or suffix; we're going to end up matching
                the object name and getting a disarmed trap object] */
+        } else if (!four) {
+            if (!strcmpi(zp, "object")) {
+                d->typ = HIDDEN_CHEST;
+                return 2; /*goto typfnd;*/
+            } else {
+                Strcpy(d->bp, "magic chest");
+                return 5; /*goto wiztrap;*/
+            }
         }
     }
 
@@ -5653,6 +5674,8 @@ readobjnam(char *bp, struct obj *no_wish)
     case SKELETON_KEY:
     case CHEST:
     case LARGE_BOX:
+    case IRON_SAFE:
+    case CRYSTAL_CHEST:
     case HEAVY_IRON_BALL:
     case IRON_CHAIN:
         break;

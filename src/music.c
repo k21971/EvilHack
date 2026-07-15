@@ -421,6 +421,9 @@ do_earthquake(int force)
                     pline_The("forge falls%s.", into_a_chasm);
                 do_pit(x, y, tu_pit);
                 break;
+            case MAGIC_CHEST:
+                /* magic chests are unaffected by earthquakes */
+                break;
             case ALTAR:
                 amsk = altarmask_at(x, y);
                 /* always preserve the high altars */

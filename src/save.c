@@ -330,6 +330,10 @@ savegamestate(NHFILE *nhfp)
        pointers into invent (uwep, uarmg, uamul, &c) are set to Null too */
     saveobjchn(nhfp, &gi.invent);
 
+    /* the shared magic chest contents; it's just the one object, but
+       saveobj doesn't do everything needed */
+    saveobjchn(nhfp, &gm.mchest);
+
     /* save ball and chain if they happen to be in an unusual state */
     save_bc(nhfp);
 
@@ -1154,6 +1158,7 @@ freedynamicdata(void)
     free_timers(RANGE_GLOBAL);
     free_light_sources(RANGE_GLOBAL);
     freeobjchn(gi.invent);
+    freeobjchn(gm.mchest);
     freeobjchn(gm.migrating_objs);
     freemonchn(gm.migrating_mons);
     freemonchn(gm.mydogs); /* ascension or dungeon escape */

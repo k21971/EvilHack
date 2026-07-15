@@ -42,14 +42,17 @@ lock_action(void)
         "unlocking the door",   /* [0] */
         "unlocking the chest",  /* [1] */
         "unlocking the box",    /* [2] */
-        "picking the lock"      /* [3] */
+        "picking the lock",     /* [3] */
+        "unlocking the magic chest" /* [4] */
     };
 
     /* if the target is currently unlocked, we're trying to lock it now */
     if (gx.xlock.door && !(gx.xlock.door->doormask & D_LOCKED))
         return actions[0] + 2; /* "locking the door" */
     else if (gx.xlock.box && !gx.xlock.box->olocked)
-        return gx.xlock.box->otyp == CHEST ? actions[1] + 2 : actions[2] + 2;
+        return gx.xlock.box->otyp == CHEST ? actions[1] + 2
+               : gx.xlock.box->otyp == HIDDEN_CHEST ? actions[4] + 2
+                 : actions[2] + 2;
     /* otherwise we're trying to unlock it */
     else if (gx.xlock.picktyp == LOCK_PICK)
         return actions[3]; /* "picking the lock" */
@@ -58,7 +61,9 @@ lock_action(void)
     else if (gx.xlock.door)
         return actions[0]; /* "unlocking the door" */
     else if (gx.xlock.box)
-        return gx.xlock.box->otyp == CHEST ? actions[1] : actions[2];
+        return gx.xlock.box->otyp == CHEST ? actions[1]
+               : gx.xlock.box->otyp == HIDDEN_CHEST ? actions[4]
+                 : actions[2];
     else
         return actions[3];
 }
@@ -68,9 +73,23 @@ staticfn int
 picklock(void)
 {
     if (gx.xlock.box) {
-        if (gx.xlock.box->where != OBJ_FLOOR
-            || gx.xlock.box->ox != u.ux || gx.xlock.box->oy != u.uy) {
-            return ((gx.xlock.usedtime = 0)); /* you or it moved */
+        if (gx.xlock.box->where == OBJ_MCHEST) {
+            /* mchest is bound to a MAGIC_CHEST tile, not to ox/oy */
+            if (!IS_MAGIC_CHEST(levl[u.ux][u.uy].typ))
+                return ((gx.xlock.usedtime = 0));
+        } else {
+            /* iron safes and crystal chests are heavy enough that the
+               player may pick them from an adjacent tile; ordinary
+               boxes require same-tile */
+            boolean adjacent_ok = (gx.xlock.box->otyp == IRON_SAFE
+                                   || gx.xlock.box->otyp == CRYSTAL_CHEST);
+
+            if (gx.xlock.box->where != OBJ_FLOOR
+                || abs(gx.xlock.box->ox - u.ux) > 1
+                || abs(gx.xlock.box->oy - u.uy) > 1
+                || (!adjacent_ok && (gx.xlock.box->ox != u.ux
+                                     || gx.xlock.box->oy != u.uy)))
+                return ((gx.xlock.usedtime = 0)); /* you or it moved */
         }
     } else { /* door */
         if (gx.xlock.door != &(levl[u.ux + u.dx][u.uy + u.dy])) {
@@ -288,18 +307,22 @@ maybe_reset_pick(struct obj *container) /* passed from obfree() */
 struct obj *
 autokey(boolean opening) /* True: key, pick, or card; False: key or pick */
 {
-    struct obj *o, *key, *pick, *card, *akey, *apick, *acard;
+    struct obj *o, *key, *mkey, *pick, *card, *akey, *amkey, *apick, *acard;
 
     /* mundane item or regular artifact or own role's quest artifact */
-    key = pick = card = (struct obj *) 0;
+    key = mkey = pick = card = (struct obj *) 0;
     /* other role's quest artifact (Rogue's Key or Tourist's Credit Card) */
-    akey = apick = acard = (struct obj *) 0;
+    akey = amkey = apick = acard = (struct obj *) 0;
     for (o = gi.invent; o; o = o->nobj) {
         if (any_quest_artifact(o) && !is_quest_artifact(o)) {
             switch (o->otyp) {
             case SKELETON_KEY:
                 if (!akey)
                     akey = o;
+                break;
+            case MAGIC_KEY:
+                if (!amkey)
+                    amkey = o;
                 break;
             case LOCK_PICK:
                 if (!apick)
@@ -318,6 +341,10 @@ autokey(boolean opening) /* True: key, pick, or card; False: key or pick */
                 if (!key || is_magic_key(&gy.youmonst, o))
                     key = o;
                 break;
+            case MAGIC_KEY:
+                if (!mkey)
+                    mkey = o;
+                break;
             case LOCK_PICK:
                 if (!pick)
                     pick = o;
@@ -334,13 +361,18 @@ autokey(boolean opening) /* True: key, pick, or card; False: key or pick */
     if (!opening)
         card = acard = 0;
     /* only resort to other role's quest artifact if no other choice */
+    if (!key && !mkey && !pick && !card)
+        mkey = amkey;
+    /* rogues favor the Master Key of Thievery for its untrapping */
+    if (key && is_magic_key(&gy.youmonst, key) && Role_if(PM_ROGUE))
+        mkey = key;
     if (!key && !pick && !card)
         key = akey;
     if (!pick && !card)
         pick = apick;
     if (!card)
         card = acard;
-    return key ? key : pick ? pick : card ? card : 0;
+    return mkey ? mkey : key ? key : pick ? pick : card ? card : 0;
 }
 
 DISABLE_WARNING_FORMAT_NONLITERAL
@@ -412,7 +444,8 @@ pick_lock(
     }
 
     if (pick != &dummypick && picktyp != SKELETON_KEY
-        && picktyp != LOCK_PICK && picktyp != CREDIT_CARD) {
+        && picktyp != LOCK_PICK && picktyp != CREDIT_CARD
+        && picktyp != MAGIC_KEY) {
         impossible("picking lock with object %d?", picktyp);
         return PICKLOCK_DID_NOTHING;
     }
@@ -446,12 +479,18 @@ pick_lock(
 
         count = 0;
         c = 'n'; /* in case there are no boxes here */
-        for (otmp = svl.level.objects[cc.x][cc.y]; otmp;
-             otmp = otmp->nexthere) {
+        /* a magic chest tile acts like a box on this spot; the shared
+           mchest object is spliced in ahead of the floor chain */
+        otmp = (IS_MAGIC_CHEST(levl[cc.x][cc.y].typ) && gm.mchest)
+               ? gm.mchest : svl.level.objects[cc.x][cc.y];
+        while (otmp) {
             /* autounlock on boxes: only the one that was just discovered to
                be locked; don't include any other boxes which might be here */
-            if (autounlock && otmp != container)
+            if (autounlock && otmp != container) {
+                otmp = (otmp == gm.mchest) ? svl.level.objects[cc.x][cc.y]
+                                           : otmp->nexthere;
                 continue;
+            }
             if (Is_box(otmp)) {
                 ++count;
                 if (!can_reach_floor(TRUE)) {
@@ -468,7 +507,10 @@ pick_lock(
                 else
                     verb = "pick";
 
-                if (autounlock && (flags.autounlock & AUTOUNLOCK_UNTRAP) != 0
+                /* no untrap offer for the magic chest: it can never be
+                   trapped, so checking would only waste the turn */
+                if (autounlock && otmp->otyp != HIDDEN_CHEST
+                    && (flags.autounlock & AUTOUNLOCK_UNTRAP) != 0
                     && could_untrap(FALSE, TRUE)
                     && (c = otmp->tknown ? (otmp->otrapped ? 'y' : 'n')
                             : ynq(safe_qbuf(qbuf, "Check ", " for a trap?",
@@ -499,8 +541,13 @@ pick_lock(
                     c = ynq(qbuf);
                     if (c == 'q')
                         return PICKLOCK_DID_NOTHING;
-                    if (c == 'n')
-                        continue; /* try next box */
+                    if (c == 'n') {
+                        /* try next box */
+                        otmp = (otmp == gm.mchest)
+                               ? svl.level.objects[cc.x][cc.y]
+                               : otmp->nexthere;
+                        continue;
+                    }
                 }
 
                 if (otmp->obroken) {
@@ -517,6 +564,29 @@ pick_lock(
                     /* note: for !autounlock, apply already did touch check */
                     return PICKLOCK_DID_SOMETHING;
                 }
+
+                /* crystal chests can only be opened by artifacts */
+                if (otmp->otyp == CRYSTAL_CHEST && !pick->oartifact) {
+                    You_cant("%s %ssuch a container with a mundane %s.",
+                             verb, it ? "" : "the lock on ",
+                             simple_typename(picktyp));
+                    return PICKLOCK_LEARNED_SOMETHING;
+                }
+
+                /* magic chests can be opened by artifacts or
+                   purpose-made keys */
+                if (otmp->otyp == HIDDEN_CHEST
+                    && !(pick->oartifact || pick->otyp == MAGIC_KEY)) {
+                    You_cant("%s %ssuch a container with a mundane %s.",
+                             verb, it ? "" : "the lock on ",
+                             simple_typename(picktyp));
+                    return PICKLOCK_LEARNED_SOMETHING;
+                }
+
+                /* TODO-EVILHACK: master breaks a cursed unlocking tool
+                   1 in 5 per use, exempting MAGIC_KEY, STETHOSCOPE and
+                   the quest artifact keys; the exemptions must ride
+                   along when that feature ports */
                 switch (picktyp) {
                 case CREDIT_CARD:
                     ch = ACURR(A_DEX) + 20 * Role_if(PM_ROGUE);
@@ -525,6 +595,7 @@ pick_lock(
                     ch = 4 * ACURR(A_DEX) + 25 * Role_if(PM_ROGUE);
                     break;
                 case SKELETON_KEY:
+                case MAGIC_KEY:
                     ch = 75 + ACURR(A_DEX);
                     break;
                 default:
@@ -537,6 +608,8 @@ pick_lock(
                 gx.xlock.door = 0;
                 break;
             }
+            otmp = (otmp == gm.mchest) ? svl.level.objects[cc.x][cc.y]
+                                       : otmp->nexthere;
         }
         if (c != 'y') {
             if (!count)
@@ -637,6 +710,7 @@ pick_lock(
                 ch = 3 * ACURR(A_DEX) + 30 * Role_if(PM_ROGUE);
                 break;
             case SKELETON_KEY:
+            case MAGIC_KEY:
                 ch = 70 + ACURR(A_DEX);
                 break;
             default:
@@ -715,6 +789,14 @@ doforce(void)
     gx.xlock.box = (struct obj *) 0;
     for (otmp = svl.level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere)
         if (Is_box(otmp)) {
+            if (otmp->otyp == IRON_SAFE) {
+                You("would need dynamite to force %s.", the(xname(otmp)));
+                continue;
+            }
+            if (otmp->otyp == CRYSTAL_CHEST) {
+                You_cant("force the lock of such a container.");
+                continue;
+            }
             if (otmp->obroken || !otmp->olocked) {
                 /* force doname() to omit known "broken" or "unlocked"
                    prefix so that the message isn't worded redundantly;

@@ -510,6 +510,7 @@ static const struct instance_globals_m g_init_m = {
     FALSE, /* mrg_to_wielded */
     UNDEFINED_PTR, /* menu_colorings */
     UNDEFINED_PTR, /* migrating_objs */
+    UNDEFINED_PTR, /* mchest */
     /* dog.c */
     UNDEFINED_PTR, /* mydogs */
     UNDEFINED_PTR, /* migrating_mons */

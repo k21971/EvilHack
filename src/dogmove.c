@@ -425,6 +425,7 @@ dog_invent(struct monst *mtmp, struct edog *edog, int udist)
     } else {
         if ((obj = svl.level.objects[omx][omy]) != 0
             && !strchr(nofetch, obj->oclass)
+            && obj->otyp != CRYSTAL_CHEST
 #ifdef MAIL_STRUCTURES
             && obj->otyp != SCR_MAIL
 #endif

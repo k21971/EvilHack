@@ -2562,6 +2562,7 @@ obj_is_local(struct obj *obj)
     switch (obj->where) {
     case OBJ_INVENT:
     case OBJ_MIGRATING:
+    case OBJ_MCHEST:
         return FALSE;
     case OBJ_FLOOR:
     case OBJ_BURIED:
@@ -2649,7 +2650,6 @@ maybe_write_timer(NHFILE *nhfp, int range, boolean write_it)
 
     return count;
 }
-
 
 /*
  * Save part of the timer list.  The parameter 'range' specifies either

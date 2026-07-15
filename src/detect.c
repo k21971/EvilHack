@@ -156,7 +156,8 @@ trapped_chest_at(int ttyp, coordxy x, coordxy y)
      */
 
     /* on map, presence of any trappable container will do */
-    if (sobj_at(CHEST, x, y) || sobj_at(LARGE_BOX, x, y))
+    if (sobj_at(CHEST, x, y) || sobj_at(LARGE_BOX, x, y)
+        || sobj_at(IRON_SAFE, x, y) || sobj_at(CRYSTAL_CHEST, x, y))
         return TRUE;
     /* in inventory, we need to find one which is actually trapped */
     if (u_at(x, y)) {
@@ -251,7 +252,13 @@ observe_recursively(struct obj *obj)
     struct obj *otmp;
 
     observe_object(obj);
-    if (Has_contents(obj)) {
+    /* TODO-EVILHACK: when the magic detection subsystem ports
+       (SCR_MAGIC_DETECTION has no effect yet), master's magic_detect
+       also walks the shared magic chest chain and its do_mdetect/
+       do_dknown_of/maybe_map helpers carry this same crystal chest
+       resistance guard */
+    /* the crystal chest resists; its contents stay hidden */
+    if (Has_contents(obj) && obj->otyp != CRYSTAL_CHEST) {
         for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
             observe_recursively(otmp);
     }
@@ -649,6 +656,27 @@ object_detect(struct obj *detector, /* object doing the detecting */
         }
         if (do_dknown)
             observe_recursively(obj);
+    }
+
+    /* Walk the shared mchest contents once, regardless of how many
+       chest tiles exist on the level; otherwise multi-chest levels
+       would count every item per chest tile */
+    if (gm.mchest) {
+        boolean chest_at_u = IS_MAGIC_CHEST(levl[u.ux][u.uy].typ);
+        struct obj *nobj;
+
+        for (obj = gm.mchest->cobj; obj; obj = nobj) {
+            nobj = obj->nobj; /* save before processing */
+            if ((!class && !boulder) || o_in(obj, class)
+                || o_in(obj, boulder)) {
+                if (chest_at_u)
+                    ctu++;
+                else
+                    ct++;
+            }
+            if (do_dknown)
+                observe_recursively(obj);
+        }
     }
 
     for (obj = svl.level.buriedobjlist; obj; obj = obj->nobj) {

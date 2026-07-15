@@ -359,7 +359,11 @@ mkbox_cnts(struct obj *box)
     case ICE_BOX:
         n = 20;
         break;
+    case IRON_SAFE:
+        n = 10;
+        break;
     case CHEST:
+    case CRYSTAL_CHEST:
         n = box->olocked ? 7 : 5;
         break;
     case LARGE_BOX:
@@ -622,6 +626,7 @@ unsplitobj(struct obj *obj)
     case OBJ_ONBILL:
     case OBJ_MIGRATING:
     case OBJ_BURIED:
+    case OBJ_MCHEST:
     default:
         return (struct obj *) 0;
     case OBJ_INVENT:
@@ -1064,6 +1069,24 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->spe = 1;
             otmp->lamplit = 0;
             blessorcurse(otmp, 2);
+            break;
+        case IRON_SAFE:
+            /* TODO-EVILHACK: not generated yet (see mklev.c); a wished
+               safe is born locked and filled per master, but the
+               stethoscope-only unlocking rules port with the iron
+               safe subsystem */
+            otmp->olocked = 1;
+            mkbox_cnts(otmp);
+            break;
+        case HIDDEN_CHEST:
+            /* should not happen unless wizmode wishing */
+            otmp->olocked = 0;
+            otmp->otrapped = 0;
+            break;
+        case CRYSTAL_CHEST:
+            otmp->olocked = 1;
+            otmp->otrapped = 0;
+            mkbox_cnts(otmp);
             break;
         case CHEST:
         case LARGE_BOX:
@@ -2729,6 +2752,7 @@ discard_minvent(struct monst *mtmp, boolean uncreate_artifacts)
  *      OBJ_ONBILL      on gb.billobjs chain
  *      OBJ_LUAFREE     obj is dealloc'd from core, but still used by lua
  *      OBJ_DELETED     obj has been deleted from play but not yet deallocated
+ *      OBJ_MCHEST      magic chest
  */
 void
 obj_extract_self(struct obj *obj)
@@ -2761,6 +2785,9 @@ obj_extract_self(struct obj *obj)
         break;
     case OBJ_ONBILL:
         extract_nobj(obj, &gb.billobjs);
+        break;
+    case OBJ_MCHEST:
+        extract_nobj(obj, &gm.mchest);
         break;
     default:
         panic("obj_extract_self, where=%d", obj->where);
@@ -3172,6 +3199,7 @@ obj_sanity_check(void)
     objlist_sanity(gi.invent, OBJ_INVENT, "invent sanity");
     worn_slot_sanity("worn-slot sanity");
     objlist_sanity(gm.migrating_objs, OBJ_MIGRATING, "migrating sanity");
+    objlist_sanity(gm.mchest, OBJ_MCHEST, "magic chest sanity");
     objlist_sanity(svl.level.buriedobjlist, OBJ_BURIED, "buried sanity");
     objlist_sanity(gb.billobjs, OBJ_ONBILL, "bill sanity");
     objlist_sanity(go.objs_deleted, OBJ_DELETED, "deleted object sanity");

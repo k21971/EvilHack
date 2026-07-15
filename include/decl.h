@@ -602,6 +602,7 @@ struct instance_globals_m {
     boolean mrg_to_wielded; /* weapon picked is merged with wielded one */
     struct menucoloring *menu_colorings;
     struct obj *migrating_objs; /* objects moving to another dungeon level */
+    struct obj *mchest; /* shared contents of all magic chest terrain */
 
     /* dog.c */
     struct monst *mydogs; /* monsters that went down/up together with @ */

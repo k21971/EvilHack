@@ -18,6 +18,7 @@ staticfn void maybe_do_tutorial(void);
 #ifdef POSITIONBAR
 staticfn void do_positionbar(void);
 #endif
+staticfn void init_mchest(void);
 staticfn void regen_pw(int);
 staticfn void regen_hp(int);
 staticfn void interrupt_multi(const char *);
@@ -80,6 +81,7 @@ moveloop_preamble(boolean resuming)
         /* give hero initial movement points; new game only--for restore,
            pending movement points were included in the save file */
         u.umovement = NORMAL_SPEED;
+        init_mchest();
         initrack();
     }
     disp.botlx = TRUE; /* for STATUS_HILITES */
@@ -611,6 +613,16 @@ moveloop(boolean resuming)
     for (;;) {
         moveloop_core();
     }
+}
+
+/* create the game-global magic chest object; every magic chest terrain
+   tile opens onto this one shared contents chain */
+staticfn void
+init_mchest(void)
+{
+    gm.mchest = mksobj(HIDDEN_CHEST, FALSE, FALSE);
+    gm.mchest->olocked = 1;
+    gm.mchest->where = OBJ_MCHEST;
 }
 
 staticfn void

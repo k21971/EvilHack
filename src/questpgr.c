@@ -116,6 +116,9 @@ find_quest_artifact(unsigned whichchains)
     if (!qarti && (whichchains & (1 << OBJ_BURIED)) != 0)
         qarti = find_qarti(svl.level.buriedobjlist);
 
+    if (!qarti && (whichchains & (1 << OBJ_MCHEST)) != 0)
+        qarti = find_qarti(gm.mchest);
+
     return qarti;
 }
 

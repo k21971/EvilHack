@@ -221,6 +221,8 @@ dig_check(struct monst *madeby, coordxy x, coordxy y)
                && (madeby != BY_OBJECT
                    || (altarmask_at(x, y) & AM_SANCTUM) != 0)) {
         return DIGCHECK_FAIL_ALTAR;
+    } else if (IS_MAGIC_CHEST(levl[x][y].typ)) {
+        return DIGCHECK_FAIL_MAGICCHEST;
     } else if (Is_airlevel(&u.uz)) {
         return DIGCHECK_FAIL_AIRLEVEL;
     } else if (Is_waterlevel(&u.uz)) {
@@ -279,6 +281,9 @@ digcheck_fail_message(enum digcheck_result digresult, struct monst *madeby,
         break;
     case DIGCHECK_FAIL_THRONE:
         pline_The("throne is too hard to break apart.");
+        break;
+    case DIGCHECK_FAIL_MAGICCHEST:
+        pline_The("magic chest is unaffected.");
         break;
     case DIGCHECK_FAIL_CANTDIG:
     case DIGCHECK_FAIL_TOOHARD:
@@ -585,6 +590,8 @@ furniture_handled(coordxy x, coordxy y, boolean madeby_u)
         breaksink(x, y);
     } else if (IS_FORGE(lev->typ)) {
         breakforge(x, y);
+    } else if (IS_MAGIC_CHEST(lev->typ)) {
+        ; /* digging cannot damage a magic chest */
     } else if (lev->typ == DRAWBRIDGE_DOWN
                || (is_drawbridge_wall(x, y) >= 0)) {
         coordxy bx = x, by = y;
@@ -987,12 +994,15 @@ dighole(boolean pit_only, boolean by_magic, coord *cc)
             retval = TRUE;
         }
 
-    /* the following two are here for the wand of digging */
+    /* the following are here for the wand of digging */
     } else if (IS_THRONE(old_typ)) {
         pline_The("throne is too hard to break apart.");
 
     } else if (IS_ALTAR(old_typ)) {
         pline_The("altar is too hard to break apart.");
+
+    } else if (IS_MAGIC_CHEST(old_typ)) {
+        pline_The("magic chest is unaffected.");
 
     } else {
         typ = fillholetyp(dig_x, dig_y, FALSE);
@@ -1836,6 +1846,8 @@ adj_pit_checks(coord *cc, char *msg)
         else if (ltyp == DRAWBRIDGE_DOWN   /* "lowered drawbridge" */
                  || ltyp == DBWALL)        /* "raised drawbridge" */
             supporting = "drawbridge";
+        else if (IS_MAGIC_CHEST(ltyp))
+            supporting = "magic chest";
 
         if (supporting) {
             Sprintf(msg, "The %s supporting structures remain intact.",

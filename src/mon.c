@@ -1394,7 +1394,8 @@ meatbox(struct monst *mon, struct obj *otmp)
     int x = mon->mx, y = mon->my;
     struct obj *cobj;
 
-    if (!Has_contents(otmp) || !isok(x, y))
+    if (!Has_contents(otmp) || !isok(x, y)
+        || otmp->otyp == CRYSTAL_CHEST)
         return;
 
     /* contents of eaten containers become engulfed or dropped onto
@@ -1885,6 +1886,14 @@ mpickstuff(struct monst *mtmp)
 {
     struct obj *otmp, *otmp2, *otmp3;
     int carryamt = 0;
+
+    /* TODO-EVILHACK: master lets monsters unlock and loot containers
+       here (keyed on carried unlocking tools, with magic chests gated
+       on MAGIC_KEY and crystal chests off limits), splices the shared
+       magic chest into this walk and into m_move's goal search
+       (likes_contents), and has searches_for_item() cover keys so
+       monsters pick them up; port all of that together as the
+       monster-container-looting slice */
 
     /* prevent shopkeepers from leaving the door of their shop */
     if (mtmp->isshk && inhishop(mtmp))
@@ -6086,6 +6095,7 @@ kill_genocided_monsters(void)
     kill_eggs(gi.invent);
     kill_eggs(fobj);
     kill_eggs(gm.migrating_objs);
+    kill_eggs(gm.mchest);
     kill_eggs(svl.level.buriedobjlist);
 }
 

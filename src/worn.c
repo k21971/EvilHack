@@ -1303,6 +1303,7 @@ clear_bypasses(void)
     clear_bypass(fobj);
     clear_bypass(gi.invent);
     clear_bypass(gm.migrating_objs);
+    clear_bypass(gm.mchest);
     clear_bypass(svl.level.buriedobjlist);
     clear_bypass(gb.billobjs);
     clear_bypass(go.objs_deleted);
