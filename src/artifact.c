@@ -1452,6 +1452,114 @@ spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
     return 0;
 }
 
+/* Estimate of expected per-hit damage for an artifact weapon
+   against a target. Used by find_artifact_recurse() in weapon.c to
+   rank multiple artifacts in a monster's inventory. Direct rnd(N)
+   damage terms are replaced by the closed-form mean (N+1)/2, but
+   the estimate is not fully deterministic: spec_applies() rolls
+   against magic resistance for some attack types and
+   monhp_per_lvl() rolls a die, so repeat evaluations of the same
+   weapon can differ. Mirrors spec_dbon() gating without side
+   effects (gs.spec_dbon_applies is intentionally not touched);
+   keep the special cases here in sync with spec_dbon() and
+   artifact_hit() */
+int
+score_artifact_weapon(
+    struct monst *magr UNUSED, /* attacker, reserved for future use */
+    struct obj *otmp,
+    struct monst *mdef)
+{
+    const struct artifact *weap;
+    int score = 0, base_dmg, dbon, hp;
+    boolean yours, applies = FALSE;
+
+    if (!otmp)
+        return 0;
+    if (!mdef)
+        mdef = &gy.youmonst;
+    yours = (mdef == &gy.youmonst);
+
+    /* base 1d(weapon damage), expected value (N+1)/2;
+       r_bigmonst() picks oc_wldam vs oc_wsdam to match dmgval() */
+    base_dmg = r_bigmonst(mdef)
+                   ? (objects[otmp->otyp].oc_wldam + 1) / 2
+                   : (objects[otmp->otyp].oc_wsdam + 1) / 2;
+    score += base_dmg;
+
+    /* enchantment, signed */
+    score += otmp->spe;
+
+    weap = get_artifact(otmp);
+    if (weap == &artilist[ART_NONARTIFACT])
+        return score;
+
+    /* mirror spec_dbon() gating without rnd() or side effects */
+    if (weap->attk.adtyp == AD_PHYS
+        && weap->attk.damn == 0 && weap->attk.damd == 0)
+        applies = FALSE;
+    else if (is_art(otmp, ART_GRIMTOOTH))
+        /* spec_dbon() bypasses spec_applies() for Grimtooth */
+        applies = TRUE;
+    else
+        applies = (spec_applies(weap, mdef) != 0);
+
+    if (applies) {
+        /* when damd is 0, spec_dbon() returns max(tmp, 1) where tmp
+           is the base weapon damage roll - i.e. it doubles the base
+           hit; mirror that closed form using the average base damage */
+        dbon = weap->attk.damd
+                   ? (weap->attk.damd + 1) / 2
+                   : (base_dmg > 0 ? base_dmg : 1);
+        /* TODO-EVILHACK: scale dbon for targets vulnerable to
+           weap->attk.adtyp when the monster vulnerability
+           subsystem lands */
+        score += dbon;
+
+        /* Magicbane's extra effects aren't part of spec_dbon() but
+           fire whenever spec_dbon() would apply; Mb_hit adds probe
+           (always +1d4), plus 50% stun (+1d4) and rare scare/cancel
+           (+1d4 each) - roughly +4 expected per swing */
+        if (otmp->oartifact == ART_MAGICBANE)
+            score += 4;
+    }
+
+    /* save-or-die expected value, scaled by target HP */
+    hp = yours ? u.uhpmax : mdef->mhpmax;
+    if (hp < 1)
+        hp = 1;
+    switch (otmp->oartifact) {
+    case ART_VORPAL_BLADE:
+        if (has_head(mdef->data) && !noncorporeal(mdef->data)
+            && !amorphous(mdef->data))
+            score += hp / 20;
+        break;
+    case ART_TSURUGI_OF_MURAMASA:
+        score += hp / 20;
+        break;
+    default:
+        break;
+    }
+
+    /* expected level-drain damage for AD_DRLI artifacts */
+    if ((attacks(AD_DRLI, otmp) || spec_ability(otmp, SPFX_DRLI))
+        && !(yours ? Drain_resistance
+                   : (resists_drli(mdef)
+                      || defended(mdef, AD_DRLI)
+                      || nonliving(mdef->data))))
+        score += monhp_per_lvl(mdef);
+
+    /* expected searing damage when the target hates this weapon's
+       material (silver vs demons and vampires, iron vs elves, and
+       so on); mirrors the dmgval() bonus in weapon.c using the
+       closed-form mean of rnd(sear_damage(material)) */
+    if (mon_hates_material(mdef, otmp->material)
+        && !(has_barkskin(mdef) || has_stoneskin(mdef))
+        && !(yours && (Barkskin || Stoneskin)))
+        score += (otmp->material == SILVER) ? 10 : 3;
+
+    return score;
+}
+
 /* add identified artifact to discoveries list */
 void
 discover_artifact(xint16 m)

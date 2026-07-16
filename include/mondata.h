@@ -268,6 +268,11 @@
     (((ptr) >= &mons[PM_ARCHEOLOGIST]) && ((ptr) <= &mons[PM_WIZARD]))
 #define is_watch(ptr) \
     ((ptr) == &mons[PM_WATCHMAN] || (ptr) == &mons[PM_WATCH_CAPTAIN])
+#define is_priest(ptr) \
+    ((ptr) == &mons[PM_CLERIC] || (ptr) == &mons[PM_HIGH_PRIEST]        \
+     || (ptr) == &mons[PM_ARCH_PRIEST] || (ptr) == &mons[PM_ACOLYTE]    \
+     || (ptr) == &mons[PM_ALIGNED_PRIEST])
+#define is_stationary(ptr) (((ptr)->mflags3 & M3_STATIONARY) != 0)
 #define is_racialmon(ptr) (is_mplayer(ptr) || is_mercenary(ptr))
 /* NON_PM-safe lookup into mons[] for corpsenm/rmnum-derived indices.
    Falls back to PM_HUMAN on corruption so a corrupt index degrades to
@@ -276,6 +281,10 @@
    evaluated twice; pass side-effect-free expressions only */
 #define safe_mons(mnum) \
     (mons[((mnum) >= LOW_PM && (mnum) < NUMMONS) ? (mnum) : PM_HUMAN])
+/* corpsenm-form NON_PM-safe wrapper around touch_petrifies();
+   prevents pointer-formation UB when corpsenm == NON_PM (-1) */
+#define safe_touch_petrifies(mnum) \
+    ((mnum) != NON_PM && touch_petrifies(&mons[mnum]))
 #define is_rider(ptr)                                      \
     ((ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_FAMINE] \
      || (ptr) == &mons[PM_PESTILENCE])

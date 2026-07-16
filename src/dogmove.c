@@ -15,10 +15,8 @@ staticfn void dog_starve(struct monst *);
 staticfn boolean dog_hunger(struct monst *, struct edog *);
 staticfn int dog_invent(struct monst *, struct edog *, int);
 staticfn int dog_goal(struct monst *, struct edog *, int, int, int);
-staticfn struct monst *find_targ(struct monst *, int, int, int);
 staticfn int find_friends(struct monst *, struct monst *, int);
 staticfn struct monst *best_target(struct monst *, boolean);
-staticfn long score_targ(struct monst *, struct monst *);
 staticfn boolean can_reach_location(struct monst *, coordxy, coordxy, coordxy,
                                   coordxy) NONNULLARG1;
 staticfn boolean mnum_leashable(int);
@@ -128,7 +126,7 @@ droppables(struct monst *mon)
             break;
         }
 
-        if (!obj->owornmask && obj != wep)
+        if (!obj->owornmask && obj != wep && obj != MON_WEP2(mon))
             return obj;
     }
 
@@ -646,7 +644,7 @@ dog_goal(
 #undef FARAWAY
 }
 
-staticfn struct monst *
+struct monst *
 find_targ(
     struct monst *mtmp,
     int dx, int dy,
@@ -735,7 +733,7 @@ find_friends(struct monst *mtmp, struct monst *mtarg, int maxdist)
     return 0;
 }
 
-staticfn long
+long
 score_targ(struct monst *mtmp, struct monst *mtarg)
 {
     long score = 0L;

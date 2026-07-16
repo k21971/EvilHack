@@ -3162,13 +3162,14 @@ use_whip(struct obj *obj)
             Strcpy(onambuf, cxname(otmp));
             if (gotit) {
                 mon_hand = mbodypart(mtmp, HAND);
-                if (bimanual(otmp))
+                if (mon_bimanual(mtmp, otmp))
                     mon_hand = makeplural(mon_hand);
             } else
                 mon_hand = 0; /* lint suppression */
 
             You("wrap your bullwhip around %s.", yname(otmp));
-            if (gotit && mwelded(otmp)) {
+            if (gotit && mwelded(otmp)
+                && mtmp->data != &mons[PM_INFIDEL]) {
                 pline("%s welded to %s %s%c",
                       (otmp->quan == 1L) ? "It is" : "They are", mhis(mtmp),
                       mon_hand, !otmp->bknown ? '!' : '.');

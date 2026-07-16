@@ -1832,7 +1832,11 @@ doname_base(
         }
     }
     if (obj->owornmask & W_SWAPWEP) {
-        if (u.twoweap)
+        if (mcarried(obj) && MON_WEP2(obj->ocarry) == obj)
+            /* dual-wielding monster's secondary weapon */
+            ConcatF1(bp, 0, " (wielded in other %s)",
+                     mbodypart(obj->ocarry, HAND));
+        else if (u.twoweap)
             ConcatF2(bp, 0, " (wielded in %s %s)",
                      URIGHTY ? "left" : "right", body_part(HAND));
         else

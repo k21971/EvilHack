@@ -2812,8 +2812,10 @@ mhitm_ad_acid(
         }
         if (!rn2(30))
             erode_armor(mdef, ERODE_CORRODE);
-        if (!rn2(6))
+        if (!rn2(6)) {
             acid_damage(MON_WEP(mdef));
+            acid_damage(MON_WEP2(mdef));
+        }
     }
 }
 
@@ -4978,6 +4980,9 @@ explum(struct monst *mdef, struct attack *mattk)
     case AD_COLD:
     case AD_FIRE:
     case AD_ELEC:
+        /* TODO-EVILHACK: AD_ACID belongs here too (acid sphere form),
+           with corrosion of the defender's wielded weapons; ports with
+           the EXPL_ACID/EXPL_SHOCK explosion-glyph extension */
         /* See comment in mon_explodes() and in zap.c for an explanation
            of this math.  Here, the player is causing the explosion, so it
            should be in the +20 to +29 range instead of negative. */

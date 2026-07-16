@@ -2359,6 +2359,7 @@ save_mtraits(struct obj *obj, struct monst *mtmp)
         mtmp2->data = (struct permonst *) 0;
         mtmp2->minvent = (struct obj *) 0;
         MON_NOWEP(mtmp2); /* mtmp2->mw = (struct obj *) 0; */
+        MON_NOWEP2(mtmp2); /* mtmp2->mw2 = (struct obj *) 0; */
         if (mtmp->mextra)
             copy_mextra(mtmp2, mtmp);
         /* if mtmp is a long worm with segments, its saved traits will
@@ -3495,6 +3496,13 @@ mon_obj_sanity(struct monst *monlist, const char *mesg)
             if (mwep->ocarry != mon)
                 insane_object(mwep, mfmt2, mesg, mon);
         }
+        mwep = MON_WEP2(mon); /* mon->mw2 */
+        if (mwep) {
+            if (!mcarried(mwep))
+                insane_object(mwep, mfmt1, mesg, mon);
+            if (mwep->ocarry != mon)
+                insane_object(mwep, mfmt2, mesg, mon);
+        }
         for (obj = mon->minvent; obj; obj = obj->nobj) {
             if (obj->where != OBJ_MINVENT)
                 insane_object(obj, mfmt1, mesg, mon);
@@ -3868,10 +3876,13 @@ sanity_check_worn(struct obj *obj)
             if (embedded && !Is_dragon_scales(obj))
                 what = "skin";
         } else if (owornmask & W_WEAPONS) {
-            /* monsters don't maintain alternate weapon or quiver */
-            if (mcarried(obj) && (owornmask & (W_SWAPWEP | W_QUIVER)) != 0L)
-                what = (owornmask & W_SWAPWEP) != 0L ? "monst alt weapon?"
-                                                     : "monst quiver?";
+            /* monsters don't maintain quiver; alt weapon is valid
+               for dual-wielding monsters */
+            if (mcarried(obj) && (owornmask & W_SWAPWEP) != 0L
+                && MON_WEP2(obj->ocarry) != obj)
+                what = "monst alt weapon mismatch?";
+            else if (mcarried(obj) && (owornmask & W_QUIVER) != 0L)
+                what = "monst quiver?";
             /* hero can quiver gold but not wield it (hence not alt-wield
                it either); also catches monster wielding gold */
             else if (obj->oclass == COIN_CLASS

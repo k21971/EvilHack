@@ -172,6 +172,8 @@ extern void set_artifact_intrinsic(struct obj *, boolean, long);
 extern int touch_artifact(struct obj *, struct monst *) NONNULLARG2;
 extern int spec_abon(struct obj *, struct monst *) NONNULLARG2;
 extern int spec_dbon(struct obj *, struct monst *, int) NONNULLARG2;
+extern int score_artifact_weapon(struct monst *, struct obj *,
+                                 struct monst *) NO_NNARGS;
 extern void discover_artifact(xint16);
 extern boolean undiscovered_artifact(xint16);
 extern int disp_artifact_discoveries(winid);
@@ -843,6 +845,8 @@ extern int dog_nutrition(struct monst *, struct obj *) NONNULLPTRS;
 extern int dog_eat(struct monst *, struct obj *,
                    coordxy, coordxy, boolean) NONNULLPTRS;
 extern int pet_ranged_attk(struct monst *, boolean) NONNULLARG1;
+extern struct monst *find_targ(struct monst *, int, int, int) NONNULLARG1;
+extern long score_targ(struct monst *, struct monst *) NONNULLARG12;
 extern boolean acceptable_pet_target(struct monst *, struct monst *,
                                      boolean) NONNULLARG12;
 extern int dog_move(struct monst *, int) NONNULLARG1;
@@ -1914,6 +1918,7 @@ extern void pacify_guards(void);
 extern void decide_to_shapeshift(struct monst *) NONNULLARG1;
 extern boolean vamp_stone(struct monst *) NONNULLARG1;
 extern void check_gear_next_turn(struct monst *) NONNULLARG1;
+extern int mon_container_extract(struct monst *, struct obj *) NONNULLARG1;
 extern void copy_mextra(struct monst *, struct monst *);
 extern void dealloc_mextra(struct monst *);
 extern boolean usmellmon(struct permonst *);
@@ -2108,7 +2113,8 @@ extern int thitu(int, int, struct obj **, const char *) NO_NNARGS;
 extern struct monst *mfind_target(struct monst *) NONNULLARG1;
 extern boolean ohitmon(struct monst *, struct obj *,
                        int, boolean) NONNULLARG12;
-extern void thrwmu(struct monst *) NONNULLARG1;
+extern boolean thrwmu(struct monst *) NONNULLARG1;
+extern int m_lined_up(struct monst *, struct monst *, boolean) NONNULLARG12;
 extern int spitmu(struct monst *, struct attack *) NONNULLPTRS;
 extern int breamu(struct monst *, struct attack *) NONNULLPTRS;
 extern boolean linedup_callback(coordxy, coordxy, coordxy, coordxy,
@@ -3816,9 +3822,17 @@ extern void searmsg(struct monst *, struct monst *, struct obj *,
 extern struct obj *select_rwep(struct monst *) NONNULLARG1;
 extern boolean monmightthrowwep(struct obj *) NONNULLARG1;
 extern struct obj *select_hwep(struct monst *) NONNULLARG1;
+extern boolean would_prefer_rwep(struct monst *, struct obj *) NONNULLARG12;
+extern boolean would_prefer_hwep(struct monst *, struct obj *) NONNULLARG1;
+extern int mon_needs_ammo(struct monst *) NONNULLARG1;
+extern boolean mon_wants_ammo(struct monst *, struct obj *) NONNULLARG12;
+extern boolean can_dual_wield(struct monst *) NONNULLARG1;
+extern struct obj *select_offhand_hwep(struct monst *) NONNULLARG1;
+extern int mon_wield_offhand(struct monst *) NONNULLARG1;
 extern void possibly_unwield(struct monst *, boolean) NONNULLARG1;
 extern int mon_wield_item(struct monst *) NONNULLARG1;
 extern void mwepgone(struct monst *) NONNULLARG1;
+extern void mwep2gone(struct monst *) NONNULLARG1;
 extern int abon(void);
 extern int dbon(void);
 extern void wet_a_towel(struct obj *, int, boolean) NONNULLARG1;
@@ -3841,6 +3855,7 @@ extern int weapon_hit_bonus(struct obj *) NO_NNARGS;
 extern int weapon_dam_bonus(struct obj *) NO_NNARGS;
 extern void skill_init(const struct def_skill *) NONNULLARG1;
 extern void setmnotwielded(struct monst *, struct obj *) NONNULLARG1;
+extern void setmnotwielded2(struct monst *, struct obj *) NONNULLARG1;
 extern const struct throw_and_return_weapon *autoreturn_weapon(struct obj *)
     NONNULLARG1;
 

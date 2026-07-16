@@ -628,41 +628,166 @@ searmsg(
     }
 }
 
+staticfn struct obj *oselect_recurse(struct monst *, struct obj *, int,
+                                     struct obj *);
 staticfn struct obj *oselect(struct monst *, int);
+staticfn struct obj *find_artifact_recurse(struct monst *, struct obj *,
+                                           struct monst *, boolean, boolean,
+                                           struct obj *);
+staticfn struct obj *find_silver_recurse(struct monst *, struct obj *,
+                                         struct monst *, boolean, boolean);
+staticfn struct obj *find_gem_recurse(struct monst *, struct obj *);
+staticfn struct monst *mon_melee_target(struct monst *);
 #define Oselect(x) \
     do {                                        \
         if ((otmp = oselect(mtmp, x)) != 0)     \
             return otmp;                        \
     } while (0)
 
+/* recursive helper to find the best weapon of type 'type', looking
+   into carried containers as well as open inventory; 'obest' carries
+   the running best across the recursion, pass NULL on the initial
+   call */
 staticfn struct obj *
-oselect(struct monst *mtmp, int type)
+oselect_recurse(struct monst *mtmp, struct obj *start, int type,
+                struct obj *obest)
 {
     struct obj *otmp;
 
-    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+    for (otmp = start; otmp; otmp = otmp->nobj) {
+        /* recurse into containers */
+        if (Is_container(otmp) && otmp->cobj) {
+            obest = oselect_recurse(mtmp, otmp->cobj, type, obest);
+            continue;
+        }
         if (otmp->otyp != type)
             continue;
-
         /* never select non-cockatrice corpses */
         if ((type == CORPSE || type == EGG)
-            && (otmp->corpsenm == NON_PM
-                || !touch_petrifies(&mons[otmp->corpsenm])))
+            && !safe_touch_petrifies(otmp->corpsenm))
             continue;
-
+        /* covers hated materials and untouchable artifacts */
         if (!can_touch_safely(mtmp, otmp))
             continue;
+        /* priests avoid weapons that draw blood */
+        if (is_priest(mtmp->data)
+            && (otmp->oclass == WEAPON_CLASS || is_weptool(otmp))
+            && (is_pierce(otmp) || is_slash(otmp)
+                || (is_launcher(otmp) && otmp->otyp != SLING)))
+            continue;
+        if (!obest
+            || dmgval(otmp, &gy.youmonst) > dmgval(obest, &gy.youmonst))
+            obest = otmp;
+    }
+    return obest;
+}
 
-        return otmp;
+/* Recursive helper to find the best artifact weapon a monster can
+   wield, including those nested in containers. When more than one
+   candidate exists, score_artifact_weapon() ranks them by expected
+   per-hit damage against 'mdef' and the highest scorer wins.
+   'best' carries the running best across recursion; pass NULL on
+   the initial call */
+staticfn struct obj *
+find_artifact_recurse(struct monst *mtmp, struct obj *start,
+                      struct monst *mdef, boolean strong,
+                      boolean wearing_shield, struct obj *best)
+{
+    struct obj *otmp;
+    int otmp_score;
+    int best_score = best ? score_artifact_weapon(mtmp, best, mdef) : 0;
+
+    for (otmp = start; otmp; otmp = otmp->nobj) {
+        /* recurse into containers; refresh best_score afterwards
+           because best may have been replaced inside the recursion */
+        if (Is_container(otmp) && otmp->cobj) {
+            best = find_artifact_recurse(mtmp, otmp->cobj, mdef,
+                                         strong, wearing_shield, best);
+            best_score = best ? score_artifact_weapon(mtmp, best, mdef)
+                              : 0;
+            continue;
+        }
+        if (otmp->oclass == WEAPON_CLASS && otmp->oartifact
+            && touch_artifact(otmp, mtmp)
+            && !mon_hates_material(mtmp, otmp->material)
+            && ((strong && !wearing_shield)
+                || !mon_bimanual(mtmp, otmp))) {
+            otmp_score = score_artifact_weapon(mtmp, otmp, mdef);
+            if (!best || otmp_score > best_score) {
+                best = otmp;
+                best_score = otmp_score;
+            }
+        }
+    }
+    return best;
+}
+
+/* recursive helper to find a silver weapon, including in containers */
+staticfn struct obj *
+find_silver_recurse(struct monst *mtmp, struct obj *start,
+                    struct monst *mdef, boolean strong,
+                    boolean wearing_shield)
+{
+    struct obj *otmp, *found;
+
+    /* mtmp is invariant across the recursion; bail once if it
+       can't touch silver at all rather than retesting per item */
+    if (mon_hates_material(mtmp, SILVER))
+        return (struct obj *) 0;
+
+    for (otmp = start; otmp; otmp = otmp->nobj) {
+        /* recurse into containers */
+        if (Is_container(otmp) && otmp->cobj) {
+            found = find_silver_recurse(mtmp, otmp->cobj, mdef, strong,
+                                        wearing_shield);
+            if (found)
+                return found;
+            continue;
+        }
+        if (otmp->oclass == WEAPON_CLASS && is_silver(otmp)
+            && !(is_ammo(otmp) || is_missile(otmp))
+            && (racial_vampire(mdef) || is_demon(raceptr(mdef)))
+            && ((strong && !wearing_shield)
+                || !mon_bimanual(mtmp, otmp)))
+            return otmp;
     }
     return (struct obj *) 0;
 }
 
+/* recursive helper to find a gem for sling ammo, including in
+   containers */
+staticfn struct obj *
+find_gem_recurse(struct monst *mtmp, struct obj *start)
+{
+    struct obj *otmp, *found;
+
+    for (otmp = start; otmp; otmp = otmp->nobj) {
+        /* recurse into containers */
+        if (Is_container(otmp) && otmp->cobj) {
+            found = find_gem_recurse(mtmp, otmp->cobj);
+            if (found)
+                return found;
+            continue;
+        }
+        if (otmp->oclass == GEM_CLASS
+            && (otmp->otyp != LOADSTONE || !otmp->cursed))
+            return otmp;
+    }
+    return (struct obj *) 0;
+}
+
+staticfn struct obj *
+oselect(struct monst *mtmp, int type)
+{
+    return oselect_recurse(mtmp, mtmp->minvent, type, (struct obj *) 0);
+}
+
 static NEARDATA const int rwep[] = {
-    DWARVISH_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR, JAVELIN,
-    SHURIKEN, YA, ELVEN_ARROW, ARROW, ORCISH_ARROW,
-    CROSSBOW_BOLT, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, KNIFE,
-    FLINT, ROCK, LOADSTONE, LUCKSTONE, DART, CREAM_PIE,
+    DWARVISH_SPEAR, DARK_ELVEN_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR,
+    JAVELIN, SHURIKEN, YA, ELVEN_ARROW, DARK_ELVEN_ARROW, ARROW,
+    ORCISH_ARROW, CROSSBOW_BOLT, DARK_ELVEN_CROSSBOW_BOLT,
+    DARK_ELVEN_DAGGER, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, KNIFE,
+    SLING_BULLET, FLINT, ROCK, LOADSTONE, LUCKSTONE, DART, CREAM_PIE,
 };
 
 /* polearms */
@@ -691,12 +816,177 @@ autoreturn_weapon(struct obj *otmp)
     return (struct throw_and_return_weapon *) 0;
 }
 
+boolean
+would_prefer_rwep(struct monst *mtmp, struct obj *otmp)
+{
+    struct obj *wep = select_rwep(mtmp);
+    struct monst *mdef;
+    int i = 0;
+
+    /* score against the pet's actual hostile target when available,
+       otherwise default to the player; mirrors would_prefer_hwep */
+    if (mtmp->mtame) {
+        mdef = mon_melee_target(mtmp);
+        if (!mdef)
+            mdef = &gy.youmonst;
+    } else {
+        mdef = &gy.youmonst;
+    }
+
+    if (wep) {
+        if (wep == otmp)
+            return TRUE;
+        if (wep->oartifact)
+            return FALSE;
+        if (mtmp->data->mlet == S_KOP && wep->otyp == CREAM_PIE)
+            return FALSE;
+        if (mtmp->data->mlet == S_KOP && otmp->otyp == CREAM_PIE)
+            return TRUE;
+        if (racial_throws_rocks(mtmp) && wep->otyp == BOULDER)
+            return FALSE;
+        if (racial_throws_rocks(mtmp) && otmp->otyp == BOULDER)
+            return TRUE;
+    }
+
+    if (strongmonst(mtmp->data) && (mtmp->misc_worn_check & W_ARMS) == 0) {
+        for (i = 0; i < SIZE(pwep); i++) {
+            if (wep && wep->otyp == pwep[i]
+                && !(otmp->otyp == pwep[i]
+                     && dmgval(otmp, mdef) > dmgval(wep, mdef)))
+                return FALSE;
+            if (otmp->otyp == pwep[i])
+                return TRUE;
+        }
+    }
+
+    if (is_pole(otmp))
+        return FALSE; /* if we get this far,
+                         we failed the polearm strength check */
+
+    for (i = 0; i < SIZE(rwep); i++) {
+        if (wep && wep->otyp == rwep[i]
+            && !(otmp->otyp == rwep[i]
+                 && dmgval(otmp, mdef) > dmgval(wep, mdef)))
+            return FALSE;
+        if (otmp->otyp == rwep[i])
+            return TRUE;
+    }
+    return FALSE;
+}
+
+/*
+ * Check if monster needs ammo.
+ * Returns:
+ *   0 - doesn't need ranged weapons (has ammo or thrown weapons)
+ *   1 - needs launcher ammo (has bow/crossbow/sling but no matching ammo)
+ *   2 - needs thrown weapons (no ranged options at all)
+ */
+int
+mon_needs_ammo(struct monst *mtmp)
+{
+    struct obj *otmp, *launcher = (struct obj *) 0;
+    boolean has_thrown = FALSE, has_matching_ammo = FALSE;
+
+    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+        if (is_launcher(otmp) && !launcher)
+            launcher = otmp;
+        if (is_missile(otmp) || throwing_weapon(otmp))
+            has_thrown = TRUE;
+    }
+
+    if (launcher) {
+        for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+            if (ammo_and_launcher(otmp, launcher)) {
+                has_matching_ammo = TRUE;
+                break;
+            }
+        }
+        if (!has_matching_ammo)
+            return 1; /* needs launcher ammo */
+    }
+
+    if (!has_thrown && !launcher)
+        return 2; /* needs thrown weapons */
+
+    return 0;
+}
+
+/*
+ * Check if monster wants this ammo/thrown item.
+ * Pets opportunistically pick up any compatible ammo for their launchers.
+ * Non-pets only seek ammo when they're completely out.
+ */
+boolean
+mon_wants_ammo(struct monst *mtmp, struct obj *obj)
+{
+    struct obj *launcher;
+    int need;
+
+    /* don't seek ammo made of hated materials */
+    if (mon_hates_material(mtmp, obj->material))
+        return FALSE;
+
+    /* pets opportunistically pick up any compatible ammo or thrown
+       weapons, but not if there's a hostile monster adjacent - combat
+       takes priority */
+    if (mtmp->mtame) {
+        struct monst *mon;
+        coordxy x, y;
+
+        /* check for adjacent hostiles - don't seek ammo during combat */
+        for (x = mtmp->mx - 1; x <= mtmp->mx + 1; x++) {
+            for (y = mtmp->my - 1; y <= mtmp->my + 1; y++) {
+                if (!isok(x, y) || (x == mtmp->mx && y == mtmp->my))
+                    continue;
+                mon = m_at(x, y);
+                if (mon && !mon->mpeaceful && !mon->mtame)
+                    return FALSE; /* hostile adjacent, focus on combat */
+            }
+        }
+
+        /* launcher ammo - need matching launcher */
+        if (is_ammo(obj)) {
+            for (launcher = mtmp->minvent; launcher;
+                 launcher = launcher->nobj) {
+                if (is_launcher(launcher) && ammo_and_launcher(obj, launcher))
+                    return TRUE;
+            }
+        }
+        /* thrown weapons - always useful */
+        if (is_missile(obj) || throwing_weapon(obj))
+            return TRUE;
+    }
+
+    /* non-pets only seek ammo when they need it */
+    need = mon_needs_ammo(mtmp);
+    if (need) {
+        /* hostile monsters shouldn't seek ammo if player is adjacent */
+        if (!mtmp->mpeaceful && mdistu(mtmp) <= 2)
+            return FALSE; /* player adjacent, focus on combat */
+
+        if (need == 1) {
+            /* needs launcher ammo - check if obj matches any launcher */
+            for (launcher = mtmp->minvent; launcher;
+                 launcher = launcher->nobj) {
+                if (is_launcher(launcher) && ammo_and_launcher(obj, launcher))
+                    return TRUE;
+            }
+        } else if (need == 2) {
+            /* needs thrown weapons - accept missiles and throwing weapons */
+            if (is_missile(obj) || throwing_weapon(obj))
+                return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 /* select a ranged weapon for the monster */
 struct obj *
 select_rwep(struct monst *mtmp)
 {
     struct obj *otmp;
     struct obj *mwep;
+    struct obj *tmpprop = &hands_obj;
     boolean mweponly;
     int i;
 
@@ -712,15 +1002,15 @@ select_rwep(struct monst *mtmp)
     /* Select polearms first; they do more damage and aren't expendable.
        But don't pick one if monster's weapon is welded, because then
        we'd never have a chance to throw non-wielding missiles. */
-    /* The limit of 13 here is based on the monster polearm range limit
-     * (defined as 5 in mthrowu.c).  5 corresponds to a distance of 2 in
-     * one direction and 1 in another; one space beyond that would be 3 in
-     * one direction and 2 in another; 3^2+2^2=13.
-     */
+    /* the distance limit matches the monster polearm range limit
+       (MON_POLE_DIST); selecting a polearm from any farther away
+       would have the monster treat it as if it had the range of a
+       bow, repeatedly wielding it without being able to use it */
     mwep = MON_WEP(mtmp);
     /* NO_WEAPON_WANTED means we already tried to wield and failed */
-    mweponly = (mwelded(mwep) && mtmp->weapon_check == NO_WEAPON_WANTED);
-    if (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 13
+    mweponly = (mwelded(mwep) && mtmp->data != &mons[PM_INFIDEL]
+                && mtmp->weapon_check == NO_WEAPON_WANTED);
+    if (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 5
         && couldsee(mtmp->mx, mtmp->my)) {
         if (is_art(mwep, ART_SNICKERSNEE)) {
             gp.propellor = mwep;
@@ -731,12 +1021,11 @@ select_rwep(struct monst *mtmp)
             /* Only strong monsters can wield big (esp. long) weapons.
              * Big weapon is basically the same as bimanual.
              * All monsters can wield the remaining weapons.
+             * Hated instance materials are rejected by oselect().
              */
-            if (((strongmonst(mtmp->data)
-                  && (mtmp->misc_worn_check & W_ARMS) == 0)
-                 || !objects[pwep[i]].oc_bimanual)
-                && !mon_hates_material(mtmp,
-                                       objects[pwep[i]].oc_material)) {
+            if ((strongmonst(mtmp->data)
+                 && (mtmp->misc_worn_check & W_ARMS) == 0)
+                || !objects[pwep[i]].oc_bimanual) {
                 if ((otmp = oselect(mtmp, pwep[i])) != 0
                     && (otmp == mwep || !mweponly)) {
                     gp.propellor = otmp; /* force the monster to wield it */
@@ -779,12 +1068,11 @@ select_rwep(struct monst *mtmp)
         /* (shooting rocks is already handled via the rwep[] ordering) */
         if (rwep[i] == DART && !likes_gems(mtmp->data)
             && m_carrying(mtmp, SLING)) { /* propellor */
-            for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
-                if (otmp->oclass == GEM_CLASS
-                    && (otmp->otyp != LOADSTONE || !otmp->cursed)) {
-                    gp.propellor = m_carrying(mtmp, SLING);
-                    return otmp;
-                }
+            otmp = find_gem_recurse(mtmp, mtmp->minvent);
+            if (otmp) {
+                gp.propellor = m_carrying(mtmp, SLING);
+                return otmp;
+            }
         }
 
         /* KMH -- This belongs here so darts will work */
@@ -798,6 +1086,8 @@ select_rwep(struct monst *mtmp)
                 if (!gp.propellor)
                     gp.propellor = oselect(mtmp, ELVEN_BOW);
                 if (!gp.propellor)
+                    gp.propellor = oselect(mtmp, DARK_ELVEN_BOW);
+                if (!gp.propellor)
                     gp.propellor = oselect(mtmp, BOW);
                 if (!gp.propellor)
                     gp.propellor = oselect(mtmp, ORCISH_BOW);
@@ -807,8 +1097,13 @@ select_rwep(struct monst *mtmp)
                 break;
             case P_CROSSBOW:
                 gp.propellor = oselect(mtmp, CROSSBOW);
+                if (!gp.propellor)
+                    gp.propellor = oselect(mtmp, DARK_ELVEN_HAND_CROSSBOW);
             }
-            if ((otmp = MON_WEP(mtmp)) && mwelded(otmp) && otmp != gp.propellor
+            if (tmpprop == &hands_obj)
+                tmpprop = gp.propellor;
+            if ((otmp = MON_WEP(mtmp)) && mwelded(otmp)
+                && mtmp->data != &mons[PM_INFIDEL] && otmp != gp.propellor
                 && mtmp->weapon_check == NO_WEAPON_WANTED)
                 gp.propellor = 0;
         }
@@ -824,7 +1119,8 @@ select_rwep(struct monst *mtmp)
             if (rwep[i] != LOADSTONE) {
                 /* Don't throw a cursed weapon-in-hand or an artifact */
                 if ((otmp = oselect(mtmp, rwep[i])) && !otmp->oartifact
-                    && !(otmp == MON_WEP(mtmp) && mwelded(otmp)))
+                    && !(otmp == MON_WEP(mtmp) && mwelded(otmp)
+                         && mtmp->data != &mons[PM_INFIDEL]))
                     return otmp;
             } else
                 for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
@@ -834,7 +1130,10 @@ select_rwep(struct monst *mtmp)
         }
     }
 
-    /* failure */
+    /* failure; remember a launcher found along the way so the monster
+       can still wield it (and then go looking for ammo) */
+    if (tmpprop)
+        gp.propellor = tmpprop;
     return (struct obj *) 0;
 }
 
@@ -850,36 +1149,163 @@ monmightthrowwep(struct obj *obj)
     return FALSE;
 }
 
-/* Weapons in order of preference */
+/* Weapons in order of preference, primarily based on effective
+   damage output (with some exceptions). Polearms are intentionally
+   excluded - they are tracked in pwep[] and selected for ranged
+   thrust via select_rwep()/thrwmu(), not for melee */
 static const NEARDATA short hwep[] = {
     CORPSE, /* cockatrice corpse */
-    TSURUGI, RUNESWORD, DWARVISH_MATTOCK, TWO_HANDED_SWORD, BATTLE_AXE,
-    KATANA, UNICORN_HORN, CRYSKNIFE, TRIDENT, LONG_SWORD, ELVEN_BROADSWORD,
-    BROADSWORD, SCIMITAR, SABER, MORNING_STAR, ELVEN_SHORT_SWORD,
-    DWARVISH_SHORT_SWORD, SHORT_SWORD, ORCISH_SHORT_SWORD, HEAVY_MACE, MACE,
-    AXE, DWARVISH_SPEAR, ELVEN_SPEAR, SPEAR, ORCISH_SPEAR, FLAIL,
-    BULLWHIP, QUARTERSTAFF, JAVELIN, AKLYS, CLUB, PICK_AXE, RUBBER_HOSE,
-    WAR_HAMMER, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, ATHAME,
-    SCALPEL, KNIFE, WORM_TOOTH
+    TSURUGI, RUNESWORD, TRIPLE_HEADED_FLAIL, DWARVISH_MATTOCK,
+    TWO_HANDED_SWORD, BATTLE_AXE, DARK_ELVEN_HEAVY_MACE, HEAVY_MACE,
+    KATANA, DARK_ELVEN_LONG_SWORD, ELVEN_LONG_SWORD, UNICORN_HORN,
+    CRYSKNIFE, TRIDENT, LONG_SWORD, ORCISH_LONG_SWORD, ATLATL,
+    HEAVY_WAR_HAMMER, DWARVISH_BEARDED_AXE, DARK_ELVEN_BROADSWORD,
+    ELVEN_BROADSWORD, BROADSWORD, SCIMITAR, ORCISH_SCIMITAR, SABER,
+    MORNING_STAR, ORCISH_MORNING_STAR, DARK_ELVEN_SHORT_SWORD,
+    ELVEN_SHORT_SWORD, DWARVISH_SHORT_SWORD, SHORT_SWORD,
+    ORCISH_SHORT_SWORD, ROD, DARK_ELVEN_MACE, MACE, AXE,
+    DWARVISH_SPEAR, DARK_ELVEN_SPEAR, ELVEN_SPEAR, SPEAR,
+    ORCISH_SPEAR, FLAIL, BULLWHIP, QUARTERSTAFF, JAVELIN, AKLYS,
+    CLUB, PICK_AXE, RUBBER_HOSE, WAR_HAMMER, DARK_ELVEN_DAGGER,
+    ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, ATHAME, SCALPEL, KNIFE,
+    STILETTO, WORM_TOOTH
 };
+
+/* pick the most attractive monster target this monster could reach
+   with a melee weapon; used to score candidate weapons against the
+   pet's actual foe instead of the player */
+staticfn struct monst *
+mon_melee_target(struct monst *mtmp)
+{
+    struct monst *bestmon = (struct monst *) 0, *candidate;
+    long bestscore = -1000000L, currscore;
+    int dx, dy;
+
+    for (dx = -1; dx <= 1; dx++) {
+        for (dy = -1; dy <= 1; dy++) {
+            if (!dx && !dy)
+                continue;
+            /* find_targ() traverses a straight line from (mx, my)
+               toward direction (dx, dy) up to range 7, and returns
+               the first monster 'candidate' that could be attacked;
+               invisible monsters are skipped if the attacker lacks
+               see-invisible */
+            candidate = find_targ(mtmp, dx, dy, 7);
+            if (!candidate)
+                continue;
+            /* is that candidate truly a legal melee foe? */
+            if (!acceptable_pet_target(mtmp, candidate, FALSE))
+                continue;
+            /* score how attractive that candidate is
+               (lower = less attractive) */
+            currscore = score_targ(mtmp, candidate);
+            if (currscore > bestscore) {
+                bestscore = currscore;
+                bestmon = candidate;
+            }
+        }
+    }
+
+    return bestmon;
+}
+
+boolean
+would_prefer_hwep(struct monst *mtmp, struct obj *otmp)
+{
+    struct obj *wep;
+    struct obj *brac;
+    struct monst *mdef; /* target under certain scenarios */
+    int i = 0;
+    boolean strong = strongmonst(mtmp->data);
+    boolean wearing_shield = (mtmp->misc_worn_check & W_ARMS) != 0;
+
+    if (!otmp)
+        return FALSE;
+
+    wep = select_hwep(mtmp);
+
+    if (mtmp->mtame) {
+        mdef = mon_melee_target(mtmp);
+        if (!mdef)
+            mdef = &gy.youmonst;
+    } else {
+        mdef = &gy.youmonst;
+    }
+
+    if (wep) {
+        if (wep == otmp)
+            return TRUE;
+        if (wep->oartifact)
+            return FALSE;
+        if (racial_giant(mtmp) && wep->otyp == CLUB)
+            return FALSE;
+        if (racial_giant(mtmp) && otmp->otyp == CLUB)
+            return TRUE;
+    }
+
+    /* bracers don't really count as shields */
+    if (wearing_shield) {
+        for (brac = mtmp->minvent; brac; brac = brac->nobj) {
+            if (brac->owornmask && is_bracer(brac))
+                wearing_shield = FALSE;
+        }
+    }
+
+    for (i = 0; i < SIZE(hwep); i++) {
+        if (hwep[i] == CORPSE && !(mtmp->misc_worn_check & W_ARMG)
+            && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
+            continue;
+        if (wep && wep->otyp == hwep[i])
+            break;
+        if (otmp->otyp == hwep[i]
+            && dmgval(otmp, mdef) > (wep ? dmgval(wep, mdef) : 0)
+            && ((strong && !wearing_shield)
+                || !objects[otmp->otyp].oc_bimanual))
+            return TRUE;
+    }
+    return FALSE;
+}
 
 /* select a hand to hand weapon for the monster */
 struct obj *
 select_hwep(struct monst *mtmp)
 {
     struct obj *otmp;
+    struct monst *mdef; /* target under certain scenarios */
     int i;
     boolean strong = strongmonst(mtmp->data);
     boolean wearing_shield = (mtmp->misc_worn_check & W_ARMS) != 0;
 
-    /* prefer artifacts to everything else */
-    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-        if (otmp->oclass == WEAPON_CLASS && otmp->oartifact
-            && touch_artifact(otmp, mtmp)
-            && ((strong && !wearing_shield)
-                || !objects[otmp->otyp].oc_bimanual))
-            return otmp;
+    if (mtmp->mtame) {
+        mdef = mon_melee_target(mtmp);
+        if (!mdef)
+            mdef = &gy.youmonst;
+    } else {
+        mdef = &gy.youmonst;
     }
+
+    /* bracers don't really count as shields */
+    if (wearing_shield) {
+        for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+            if (otmp->owornmask && is_bracer(otmp))
+                wearing_shield = FALSE;
+        }
+    }
+
+    /* prefer artifacts to everything else (including in containers);
+       when several artifacts are present, pick the highest-scoring
+       one against the chosen target */
+    otmp = find_artifact_recurse(mtmp, mtmp->minvent, mdef, strong,
+                                 wearing_shield, (struct obj *) 0);
+    if (otmp)
+        return otmp;
+
+    /* prefer silver weapons when fighting demons or vampires
+       (including in containers) */
+    otmp = find_silver_recurse(mtmp, mtmp->minvent, mdef, strong,
+                               wearing_shield);
+    if (otmp)
+        return otmp;
 
     if (racial_giant(mtmp)) /* giants just love to use clubs */
         Oselect(CLUB);
@@ -891,15 +1317,154 @@ select_hwep(struct monst *mtmp)
     /* all monsters can wield the remaining weapons */
     for (i = 0; i < SIZE(hwep); i++) {
         if (hwep[i] == CORPSE && !(mtmp->misc_worn_check & W_ARMG)
-            && !resists_ston(mtmp))
+            && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
             continue;
-        if (((strong && !wearing_shield) || !objects[hwep[i]].oc_bimanual)
+        if (((strong && !wearing_shield) || !objects[hwep[i]].oc_bimanual
+             || is_giant(mtmp->data))
             && !mon_hates_material(mtmp, objects[hwep[i]].oc_material))
             Oselect(hwep[i]);
     }
 
     /* failure */
     return (struct obj *) 0;
+}
+
+/* can this monster fight with two weapons? */
+boolean
+can_dual_wield(struct monst *mon)
+{
+    struct obj *shield, *mwep;
+
+    if (!could_twoweap(mon->data))
+        return FALSE;
+    if (mindless(mon->data) || is_animal(mon->data))
+        return FALSE;
+
+    mwep = MON_WEP(mon);
+    if (!mwep)
+        return FALSE;
+    /* can't dual-wield with a two-handed primary */
+    if (mon_bimanual(mon, mwep))
+        return FALSE;
+
+    /* non-bracer shields block dual-wield */
+    shield = which_armor(mon, W_ARMS);
+    if (shield && !is_bracer(shield))
+        return FALSE;
+
+    return TRUE;
+}
+
+/* Select a secondary hand-to-hand weapon for dual-wielding.
+   Similar to select_hwep() but skips the primary weapon, requires
+   one-handed, and uses simpler scoring */
+struct obj *
+select_offhand_hwep(struct monst *mon)
+{
+    struct obj *otmp, *best = (struct obj *) 0;
+    struct monst *mdef;
+    int best_val = 0, val;
+
+    /* score against the pet's hostile melee target when available;
+       otherwise default to the player */
+    if (mon->mtame) {
+        mdef = mon_melee_target(mon);
+        if (!mdef)
+            mdef = &gy.youmonst;
+    } else {
+        mdef = &gy.youmonst;
+    }
+
+    for (otmp = mon->minvent; otmp; otmp = otmp->nobj) {
+        /* skip primary weapon */
+        if (otmp == MON_WEP(mon))
+            continue;
+        /* skip worn/wielded items (but allow current mw2) */
+        if (otmp->owornmask && otmp != MON_WEP2(mon))
+            continue;
+        /* must be a weapon or weapon-tool */
+        if (otmp->oclass != WEAPON_CLASS && !is_weptool(otmp))
+            continue;
+        /* must be one-handed (giants one-hand non-launchers) */
+        if (mon_bimanual(mon, otmp))
+            continue;
+        /* skip launchers (even one-handed ones) */
+        if (is_launcher(otmp))
+            continue;
+        /* skip ammunition (arrows, bolts, sling ammo) */
+        if (is_ammo(otmp))
+            continue;
+        /* skip thrown missiles (shuriken, darts, boomerangs); these
+           are meant to be thrown, not held as a melee off-hand weapon */
+        if (is_missile(otmp))
+            continue;
+        /* skip hated materials */
+        if (mon_hates_material(mon, otmp->material))
+            continue;
+        /* skip artifacts that would reject the wielder */
+        if (otmp->oartifact && !touch_artifact(otmp, mon))
+            continue;
+
+        /* score: artifact bonus + enchantment + base damage; pick the
+           damage column that matches the defender's size, matching
+           dmgval()'s r_bigmonst() selection */
+        val = r_bigmonst(mdef) ? objects[otmp->otyp].oc_wldam
+                               : objects[otmp->otyp].oc_wsdam;
+        if (otmp->oartifact)
+            val += 10;
+        if (otmp->spe > 0)
+            val += otmp->spe;
+
+        if (val > best_val) {
+            best_val = val;
+            best = otmp;
+        }
+    }
+    return best;
+}
+
+/* Have a monster wield a secondary weapon for dual-wielding.
+   Returns 1 if the monster took time to do it, 0 if not */
+int
+mon_wield_offhand(struct monst *mon)
+{
+    struct obj *obj;
+
+    if (!can_dual_wield(mon))
+        return 0;
+
+    obj = select_offhand_hwep(mon);
+    if (!obj)
+        return 0;
+
+    /* already wielding this one */
+    if (obj == MON_WEP2(mon))
+        return 0;
+
+    /* clear old secondary */
+    if (MON_WEP2(mon))
+        setmnotwielded2(mon, MON_WEP2(mon));
+
+    mon->mw2 = obj;
+
+    if (canseemon(mon))
+        pline_mon(mon, "%s wields %s in %s other %s.", Monnam(mon),
+                  doname(obj), mhis(mon), mbodypart(mon, HAND));
+
+    /* handle artifact light */
+    if (artifact_light(obj) && !obj->lamplit) {
+        begin_burn(obj, FALSE);
+        if (canseemon(mon))
+            pline("%s %s in %s %s!", Tobjnam(obj, "shine"),
+                  arti_light_description(obj), s_suffix(mon_nam(mon)),
+                  mbodypart(mon, HAND));
+        else if (cansee(mon->mx, mon->my))
+            pline("Light begins shining %s.",
+                  (mdistu(mon) <= 5 * 5) ? "nearby" : "in the distance");
+    }
+
+    obj->owornmask = W_SWAPWEP;
+    return 1;
 }
 
 /* Called after polymorphing a monster, robbing it, etc....  Monsters
@@ -911,32 +1476,38 @@ possibly_unwield(struct monst *mon, boolean polyspot)
     struct obj *obj, *mw_tmp;
 
     if (!(mw_tmp = MON_WEP(mon)))
-        return;
+        goto check_mw2; /* still need to validate secondary weapon */
     for (obj = mon->minvent; obj; obj = obj->nobj)
         if (obj == mw_tmp)
             break;
     if (!obj) { /* The weapon was stolen or destroyed */
         MON_NOWEP(mon);
         mon->weapon_check = NEED_WEAPON;
-        return;
+        goto check_mw2;
     }
     if (!attacktype(mon->data, AT_WEAP)) {
         setmnotwielded(mon, mw_tmp);
         mon->weapon_check = NO_WEAPON_WANTED;
-        /* if we're going to call distant_name(), do so before extract_self */
-        if (cansee(mon->mx, mon->my)) {
-            pline_mon(mon, "%s drops %s.", Monnam(mon), distant_name(obj, doname));
-            newsym(mon->mx, mon->my);
+        /* a pet ordered not to drop items keeps the weapon
+           in inventory */
+        if (!pet_wont_drop(mon)) {
+            /* if we're going to call distant_name(), do so before
+               extract_self */
+            if (cansee(mon->mx, mon->my)) {
+                pline_mon(mon, "%s drops %s.", Monnam(mon),
+                          distant_name(obj, doname));
+                newsym(mon->mx, mon->my);
+            }
+            obj_extract_self(obj);
+            /* might be dropping object into water or lava */
+            if (!flooreffects(obj, mon->mx, mon->my, "drop")) {
+                if (polyspot)
+                    bypass_obj(obj);
+                place_object(obj, mon->mx, mon->my);
+                stackobj(obj);
+            }
         }
-        obj_extract_self(obj);
-        /* might be dropping object into water or lava */
-        if (!flooreffects(obj, mon->mx, mon->my, "drop")) {
-            if (polyspot)
-                bypass_obj(obj);
-            place_object(obj, mon->mx, mon->my);
-            stackobj(obj);
-        }
-        return;
+        goto check_mw2;
     }
     /* The remaining case where there is a change is where a monster
      * is polymorphed into a stronger/weaker monster with a different
@@ -951,8 +1522,40 @@ possibly_unwield(struct monst *mon, boolean polyspot)
      * polymorphed into little monster.  But it's not quite clear how to
      * handle this anyway....
      */
-    if (!(mwelded(mw_tmp) && mon->weapon_check == NO_WEAPON_WANTED))
+    if (!(mwelded(mw_tmp) && mon->data != &mons[PM_INFIDEL]
+          && mon->weapon_check == NO_WEAPON_WANTED))
         mon->weapon_check = NEED_WEAPON;
+
+ check_mw2:
+    /* also check secondary weapon */
+    if ((mw_tmp = MON_WEP2(mon)) != 0) {
+        for (obj = mon->minvent; obj; obj = obj->nobj)
+            if (obj == mw_tmp)
+                break;
+        if (!obj) {
+            /* secondary weapon was stolen or destroyed */
+            MON_NOWEP2(mon);
+        } else if (!can_dual_wield(mon)) {
+            /* can no longer dual-wield (form change, etc.) */
+            setmnotwielded2(mon, mw_tmp);
+            /* a pet ordered not to drop items keeps the weapon
+               in inventory */
+            if (!pet_wont_drop(mon)) {
+                if (cansee(mon->mx, mon->my)) {
+                    pline_mon(mon, "%s drops %s.", Monnam(mon),
+                              distant_name(obj, doname));
+                    newsym(mon->mx, mon->my);
+                }
+                obj_extract_self(obj);
+                if (!flooreffects(obj, mon->mx, mon->my, "drop")) {
+                    if (polyspot)
+                        bypass_obj(obj);
+                    place_object(obj, mon->mx, mon->my);
+                    stackobj(obj);
+                }
+            }
+        }
+    }
     return;
 }
 
@@ -1010,9 +1613,25 @@ mon_wield_item(struct monst *mon)
     if (obj && obj != &hands_obj) {
         struct obj *mw_tmp = MON_WEP(mon);
 
+        /* if weapon is in a container, extract it first (uses turn) */
+        if (obj->where == OBJ_CONTAINED) {
+            int result = mon_container_extract(mon, obj);
+
+            if (result != 1) { /* 0=failed, 2=used turn for extraction */
+                /* reset to NEED_WEAPON so combat code re-evaluates
+                   next turn */
+                mon->weapon_check = NEED_WEAPON;
+                return (result == 2) ? 1 : 0;
+            }
+            /* result==1 means already in inventory (shouldn't happen) */
+        }
+
         if (mw_tmp && mw_tmp->otyp == obj->otyp) {
             /* already wielding it */
             mon->weapon_check = NEED_WEAPON;
+            /* still try to wield secondary weapon if capable */
+            if (can_dual_wield(mon) && !MON_WEP2(mon))
+                return mon_wield_offhand(mon);
             return 0;
         }
         /* Actually, this isn't necessary--as soon as the monster
@@ -1020,12 +1639,12 @@ mon_wield_item(struct monst *mon)
          * can know it's cursed and needn't even bother trying.
          * Still....
          */
-        if (mw_tmp && mwelded(mw_tmp)) {
+        if (mw_tmp && mwelded(mw_tmp) && mon->data != &mons[PM_INFIDEL]) {
             if (canseemon(mon)) {
                 char welded_buf[BUFSZ];
                 const char *mon_hand = mbodypart(mon, HAND);
 
-                if (bimanual(mw_tmp))
+                if (mon_bimanual(mon, mw_tmp))
                     mon_hand = makeplural(mon_hand);
                 Sprintf(welded_buf, "%s welded to %s %s",
                         otense(mw_tmp, "are"), mhis(mon), mon_hand);
@@ -1046,6 +1665,14 @@ mon_wield_item(struct monst *mon)
         }
         mon->mw = obj; /* wield obj */
         setmnotwielded(mon, mw_tmp);
+        /* if promoting the secondary weapon to primary, clear mw2 in
+           place; skip setmnotwielded2 because its end_burn would
+           extinguish a lit artifact only for the begin_burn below to
+           immediately re-fire it, producing a duplicate "stops
+           shining"/"shines" message pair. The W_SWAPWEP bit is
+           cleared by the owornmask = W_WEP assignment further down */
+        if (obj == MON_WEP2(mon))
+            MON_NOWEP2(mon);
         mon->weapon_check = NEED_WEAPON;
         if (canseemon(mon)) {
             boolean newly_welded;
@@ -1064,12 +1691,12 @@ mon_wield_item(struct monst *mon)
                in hand/claw)' appended; so we set it for the mwelded test
                and then clear it, until finally setting it for good below */
             obj->owornmask |= W_WEP;
-            newly_welded = mwelded(obj);
+            newly_welded = (mwelded(obj) && mon->data != &mons[PM_INFIDEL]);
             obj->owornmask &= ~W_WEP;
             if (newly_welded) {
                 const char *mon_hand = mbodypart(mon, HAND);
 
-                if (bimanual(obj))
+                if (mon_bimanual(mon, obj))
                     mon_hand = makeplural(mon_hand);
                 pline("%s %s to %s %s!", Tobjnam(obj, "weld"),
                       is_plural(obj) ? "themselves" : "itself",
@@ -1089,6 +1716,14 @@ mon_wield_item(struct monst *mon)
                       (mdistu(mon) <= 5 * 5) ? "nearby" : "in the distance");
         }
         obj->owornmask = W_WEP;
+
+        /* if primary is two-handed, clear any secondary */
+        if (mon_bimanual(mon, obj) && MON_WEP2(mon))
+            setmnotwielded2(mon, MON_WEP2(mon));
+        /* try to wield secondary weapon if capable */
+        if (can_dual_wield(mon) && !MON_WEP2(mon))
+            (void) mon_wield_offhand(mon);
+
         return 1;
     }
     mon->weapon_check = NEED_WEAPON;
@@ -1103,6 +1738,18 @@ mwepgone(struct monst *mon)
 
     if (mwep) {
         setmnotwielded(mon, mwep);
+        mon->weapon_check = NEED_WEAPON;
+    }
+}
+
+/* force monster to stop wielding secondary weapon, if any */
+void
+mwep2gone(struct monst *mon)
+{
+    struct obj *mwep2 = MON_WEP2(mon);
+
+    if (mwep2) {
+        setmnotwielded2(mon, mwep2);
         mon->weapon_check = NEED_WEAPON;
     }
 }
@@ -2002,6 +2649,24 @@ setmnotwielded(struct monst *mon, struct obj *obj)
     if (MON_WEP(mon) == obj)
         MON_NOWEP(mon);
     obj->owornmask &= ~W_WEP;
+}
+
+/* off-hand counterpart of setmnotwielded() */
+void
+setmnotwielded2(struct monst *mon, struct obj *obj)
+{
+    if (!obj)
+        return;
+    if (artifact_light(obj) && obj->lamplit) {
+        end_burn(obj, FALSE);
+        if (canseemon(mon))
+            pline("%s in %s %s %s shining.", The(xname(obj)),
+                  s_suffix(mon_nam(mon)), mbodypart(mon, HAND),
+                  otense(obj, "stop"));
+    }
+    if (MON_WEP2(mon) == obj)
+        MON_NOWEP2(mon);
+    obj->owornmask &= ~W_SWAPWEP;
 }
 
 #undef PN_BARE_HANDED

@@ -300,6 +300,7 @@ mattackm(
         attk,       /* attack attempted this time */
         struck = 0, /* hit at least once */
         res[NATTK], /* results of all attacks */
+        weap_attk_idx = 0, /* which AT_WEAP attack (0=primary, 1+=off-hand) */
         dieroll = 0;
     struct attack *mattk, alt_attk;
     struct obj *mwep;
@@ -410,15 +411,28 @@ mattackm(
                     res[i] = M_ATTK_DEF_DIED;
                 if (DEADMONSTER(magr))
                     res[i] |= M_ATTK_AGR_DIED;
+                weap_attk_idx++;
                 break;
             }
-            if (magr->weapon_check == NEED_WEAPON || !MON_WEP(magr)) {
-                magr->weapon_check = NEED_HTH_WEAPON;
-                if (mon_wield_item(magr) != 0)
-                    return M_ATTK_MISS;
+            if (weap_attk_idx == 0) {
+                /* first AT_WEAP: use primary weapon */
+                if (magr->weapon_check == NEED_WEAPON || !MON_WEP(magr)) {
+                    magr->weapon_check = NEED_HTH_WEAPON;
+                    if (mon_wield_item(magr) != 0)
+                        return M_ATTK_MISS;
+                }
+                possibly_unwield(magr, FALSE);
+                mwep = MON_WEP(magr);
+            } else {
+                /* 2nd+ AT_WEAP: use off-hand weapon with penalty */
+                mwep = MON_WEP2(magr);
+                if (mwep)
+                    tmp -= OFFHAND_PENALTY;
+                else
+                    mwep = MON_WEP(magr); /* fallback to primary */
             }
-            possibly_unwield(magr, FALSE);
-            if ((mwep = MON_WEP(magr)) != 0) {
+            weap_attk_idx++;
+            if (mwep) {
                 if (gv.vis)
                     mswingsm(magr, mdef, mwep);
                 tmp += hitval(mwep, mdef);
@@ -986,6 +1000,9 @@ explmm(struct monst *magr, struct monst *mdef, struct attack *mattk)
         noises(magr, mattk);
 
     /* monster explosion types which actually create an explosion */
+    /* TODO-EVILHACK: AD_ACID belongs here too (acid sphere), with
+       corrosion of the defender's wielded weapons; ports with the
+       EXPL_ACID/EXPL_SHOCK explosion-glyph extension */
     if (mattk->adtyp == AD_FIRE || mattk->adtyp == AD_COLD
         || mattk->adtyp == AD_ELEC) {
         mon_explodes(magr, mattk);
@@ -1353,8 +1370,10 @@ passivemm(
             tmp = 0;
         if (!rn2(30))
             erode_armor(magr, ERODE_CORRODE);
-        if (!rn2(6))
+        if (!rn2(6)) {
             acid_damage(MON_WEP(magr));
+            acid_damage(MON_WEP2(magr));
+        }
         goto assess_dmg;
     case AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
         if (mhitb && !mdef->mcan && mwep) {

@@ -1684,11 +1684,17 @@ trapeffect_rust_trap(
                       "%s %s's left %s!", A_gush_of_water_hits,
                       mon_nam(mtmp), mbodypart(mtmp, ARM));
             target = which_armor(mtmp, W_ARMS);
-            if (water_damage(target, "shield", TRUE) != ER_NOTHING)
+            if (water_damage(target,
+                             (target && is_bracer(target))
+                               ? "bracers" : "shield",
+                             TRUE) != ER_NOTHING)
                 break;
             target = MON_WEP(mtmp);
-            if (target && bimanual(target))
+            if (target && mon_bimanual(mtmp, target))
                 (void) water_damage(target, 0, TRUE);
+            /* off-hand weapon is held in the left hand */
+            if (MON_WEP2(mtmp))
+                (void) water_damage(MON_WEP2(mtmp), 0, TRUE);
  mglovecheck:
             target = which_armor(mtmp, W_ARMG);
             (void) water_damage(target, gloves_simple_name(target), TRUE);
@@ -1699,6 +1705,7 @@ trapeffect_rust_trap(
                       "%s %s's right %s!", A_gush_of_water_hits,
                       mon_nam(mtmp), mbodypart(mtmp, ARM));
             (void) water_damage(MON_WEP(mtmp), 0, TRUE);
+            (void) water_damage(MON_WEP2(mtmp), 0, TRUE);
             goto mglovecheck;
         default:
             if (in_sight)
@@ -3936,9 +3943,11 @@ mselftouch(
         }
         minstapetrify(mon, byplayer);
         /* if life-saved, might not be able to continue wielding */
-        if (!DEADMONSTER(mon)
-            && !which_armor(mon, W_ARMG) && !resists_ston(mon))
+        if (!DEADMONSTER(mon) && !which_armor(mon, W_ARMG)
+            && !(resists_ston(mon) || defended(mon, AD_STON))) {
             mwepgone(mon);
+            mwep2gone(mon);
+        }
     }
 }
 

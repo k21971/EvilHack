@@ -2213,6 +2213,8 @@ rot_corpse(anything *arg, long timeout)
     } else if (obj->where == OBJ_MINVENT) {
         if (obj->owornmask && obj == MON_WEP(obj->ocarry))
             setmnotwielded(obj->ocarry, obj); /* clears owornmask */
+        if (obj->owornmask && obj == MON_WEP2(obj->ocarry))
+            setmnotwielded2(obj->ocarry, obj);
     } else if (obj->where == OBJ_MIGRATING) {
         /* clear destination flag so that obfree()'s check for
            freeing a worn object doesn't get a false hit */

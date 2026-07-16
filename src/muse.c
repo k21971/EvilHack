@@ -861,12 +861,21 @@ use_defensive(struct monst *mtmp)
         gz.zap_oseen = oseen;
         mzapwand(mtmp, otmp, FALSE);
         gm.m_using = TRUE;
-        mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
+        /* mbhit() aims via the gt.tbx/gt.tby globals; nothing on the
+           defensive path sets them, so aim at the hero's tracked
+           position (skip the beam if that is somehow the caster's
+           own spot) */
+        gt.tbx = mtmp->mux - mtmp->mx;
+        gt.tby = mtmp->muy - mtmp->my;
+        gb.buzzer = mtmp; /* for kill attribution (pet livelog credit) */
+        if (gt.tbx || gt.tby)
+            mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
+        gb.buzzer = 0;
         /* monster learns that teleportation isn't useful here */
         if (noteleport_level(mtmp))
             mon_learns_traps(mtmp, TELEP_TRAP_SET);
         gm.m_using = FALSE;
-        return 2;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_SCR_TELEPORTATION: {
         int obj_is_cursed;
 
@@ -975,9 +984,16 @@ use_defensive(struct monst *mtmp)
         gz.zap_oseen = oseen;
         mzapwand(mtmp, otmp, FALSE);
         gm.m_using = TRUE;
-        mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
+        /* as with defensive teleportation, aim mbhit() at the hero's
+           tracked position */
+        gt.tbx = mtmp->mux - mtmp->mx;
+        gt.tby = mtmp->muy - mtmp->my;
+        gb.buzzer = mtmp; /* for kill attribution (pet livelog credit) */
+        if (gt.tbx || gt.tby)
+            mbhit(mtmp, rn1(8, 6), mbhitm, bhito, otmp);
+        gb.buzzer = 0;
         gm.m_using = FALSE;
-        return 2;
+        return (DEADMONSTER(mtmp)) ? 1 : 2;
     case MUSE_WAN_CREATE_MONSTER: {
         coord cc;
         struct monst *mon;
@@ -1421,12 +1437,30 @@ boolean
 find_offensive(struct monst *mtmp)
 {
     struct obj *obj, *mtmp_helmet;
-    boolean reflection_skip;
+    struct monst *target = mfind_target(mtmp);
+    boolean reflection_skip = FALSE;
+
+    /* pet ordered to avoid all monsters - skip all offensive items,
+       but Conflict overrides this order */
+    if (mtmp->mtame && has_edog(mtmp)
+        && (EDOG(mtmp)->petstrat & PETSTRAT_NOATTACK) && !Conflict)
+        return FALSE;
+
+    if (!target)
+        return FALSE; /* nothing to attack */
+    if (target == &gy.youmonst) {
+        reflection_skip = (m_seenres(mtmp, M_SEEN_REFL) != 0
+                           || (monnear(mtmp, mtmp->mux, mtmp->muy)
+                               && !rn2(3)));
+    } else if (mtmp->mtame && !acceptable_pet_target(mtmp, target, TRUE)) {
+        /* tame pets should respect acceptable_pet_target() */
+        return FALSE;
+    }
 
     gm.m.offensive = (struct obj *) 0;
     gm.m.has_offense = 0;
-    if (mtmp->mpeaceful || is_animal(mtmp->data) || mindless(mtmp->data)
-        || nohands(mtmp->data))
+    if ((mtmp->mpeaceful && !mtmp->mtame) || is_animal(mtmp->data)
+        || mindless(mtmp->data) || nohands(mtmp->data))
         return FALSE;
     if (u.uswallow)
         return FALSE;
@@ -1437,12 +1471,17 @@ find_offensive(struct monst *mtmp)
         && !uarms && !uarmg && !uarmc && !uarmf)
         return FALSE;
     /* all offensive items require orthogonal or diagonal targeting */
-    if (!lined_up(mtmp))
-        return FALSE;
+    if (target == &gy.youmonst) {
+        if (!lined_up(mtmp))
+            return FALSE;
+    } else {
+        /* for monster targets, use m_lined_up which checks alignment
+           with the target and avoids friendly fire */
+        if (!m_lined_up(target, mtmp, FALSE))
+            return FALSE;
+    }
 
 #define nomore(x)       if (gm.m.has_offense == x) continue;
-    reflection_skip = (m_seenres(mtmp, M_SEEN_REFL) != 0
-                       || monnear(mtmp, mtmp->mux, mtmp->muy));
     mtmp_helmet = which_armor(mtmp, W_ARMH);
     /* this picks the last viable item rather than prioritizing choices */
     for (obj = mtmp->minvent; obj; obj = obj->nobj) {
@@ -1744,8 +1783,8 @@ mbhit(
 
     gb.bhitpos.x = mon->mx;
     gb.bhitpos.y = mon->my;
-    ddx = sgn(mon->mux - mon->mx);
-    ddy = sgn(mon->muy - mon->my);
+    ddx = sgn(gt.tbx);
+    ddy = sgn(gt.tby);
 
     while (range-- > 0) {
         coordxy x, y, dbx, dby;
@@ -1853,7 +1892,7 @@ use_offensive(struct monst *mtmp)
         gb.buzzer = mtmp;
         buzzfn(BZ_M_WAND(BZ_OFS_WAN(otmp->otyp)),
                (otmp->otyp == WAN_MAGIC_MISSILE) ? 2 : 6, mtmp->mx, mtmp->my,
-               sgn(mtmp->mux - mtmp->mx), sgn(mtmp->muy - mtmp->my));
+               sgn(gt.tbx), sgn(gt.tby));
         gb.buzzer = 0;
         gc.current_wand = 0;
         gm.m_using = FALSE;
@@ -1867,8 +1906,7 @@ use_offensive(struct monst *mtmp)
         gc.current_wand = otmp; /* needed by zhitu() */
         buzzfn(BZ_M_WAND(BZ_OFS_AD(
                              (otmp->otyp == FROST_HORN) ? AD_COLD : AD_FIRE)),
-             rn1(6, 6), mtmp->mx, mtmp->my, sgn(mtmp->mux - mtmp->mx),
-             sgn(mtmp->muy - mtmp->my));
+             rn1(6, 6), mtmp->mx, mtmp->my, sgn(gt.tbx), sgn(gt.tby));
         gb.buzzer = 0;
         gc.current_wand = 0;
         gm.m_using = FALSE;
@@ -2017,9 +2055,10 @@ use_offensive(struct monst *mtmp)
             pline_mon(mtmp, "%s hurls %s!",
                       Monnam(mtmp), singular(otmp, doname));
         }
-        m_throw(mtmp, mtmp->mx, mtmp->my, sgn(mtmp->mux - mtmp->mx),
-                sgn(mtmp->muy - mtmp->my),
-                distmin(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy), otmp);
+        /* use target coordinates (gt.tbx/gt.tby) from mfind_target() */
+        m_throw(mtmp, mtmp->mx, mtmp->my, sgn(gt.tbx), sgn(gt.tby),
+                distmin(mtmp->mx, mtmp->my,
+                        mtmp->mx + gt.tbx, mtmp->my + gt.tby), otmp);
         return 2;
     case 0:
         return 0; /* i.e. an exploded wand */
@@ -2783,6 +2822,12 @@ searches_for_item(struct monst *mon, struct obj *obj)
         if (typ == EGG && ismnum(obj->corpsenm))
             return (boolean) touch_petrifies(&mons[obj->corpsenm]);
         break;
+    case WEAPON_CLASS:
+    case GEM_CLASS:
+        /* intelligent monsters seek ammo when out */
+        if (!nohands(mon->data) && mon_wants_ammo(mon, obj))
+            return TRUE;
+        break;
     default:
         break;
     }
@@ -2807,6 +2852,11 @@ mon_reflects(struct monst *mon, const char *str)
         /* due to wielded artifact weapon */
         if (str)
             pline(str, s_suffix(mon_nam(mon)), "weapon");
+        return TRUE;
+    } else if (arti_reflects(MON_WEP2(mon))) {
+        /* due to off-hand artifact weapon */
+        if (str)
+            pline(str, s_suffix(mon_nam(mon)), "other weapon");
         return TRUE;
     } else if ((orefl = which_armor(mon, W_AMUL))
                && orefl->otyp == AMULET_OF_REFLECTION) {

@@ -12,7 +12,6 @@ staticfn boolean u_catch_thrown_obj(struct obj *);
 staticfn const char *breathwep_name(int);
 staticfn boolean drop_throw(struct obj *, boolean, coordxy, coordxy);
 staticfn boolean blocking_terrain(coordxy, coordxy);
-staticfn int m_lined_up(struct monst *, struct monst *) NONNULLARG12;
 staticfn void return_from_mtoss(struct monst *, struct obj *, boolean);
 
 #define URETREATING(x, y) \
@@ -357,7 +356,7 @@ mfind_target(struct monst *mtmp)
         struct monst *mtmp2 = isok(goalx, goaly) ? m_at(goalx, goaly)
                                                  : (struct monst *) 0;
 
-        if (mtmp2 && m_lined_up(mtmp2, mtmp))
+        if (mtmp2 && m_lined_up(mtmp2, mtmp, FALSE))
             return mtmp2;
 
         /* kludge - attack the player first if possible */
@@ -763,6 +762,8 @@ m_throw(
            not its existence */
         if (MON_WEP(mon) == obj)
             setmnotwielded(mon, obj);
+        if (MON_WEP2(mon) == obj)
+            setmnotwielded2(mon, obj);
         obj_extract_self(obj);
         singleobj = obj;
         obj = (struct obj *) 0;
@@ -1170,7 +1171,7 @@ thrwmm(struct monst *mtmp, struct monst *mtarg)
 
     mwep = MON_WEP(mtmp); /* wielded weapon */
 
-    if (!ispole && m_lined_up(mtarg, mtmp)) {
+    if (!ispole && m_lined_up(mtarg, mtmp, FALSE)) {
         int chance = max(BOLT_LIM - distmin(x, y, mtarg->mx, mtarg->my), 1);
 
         if (!mtarg->mflee || !rn2(chance)) {
@@ -1208,7 +1209,7 @@ spitmm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
         }
         return M_ATTK_MISS;
     }
-    if (m_lined_up(mtarg, mtmp)) {
+    if (m_lined_up(mtarg, mtmp, FALSE)) {
         boolean utarg = (mtarg == &gy.youmonst);
         coordxy tx = utarg ? mtmp->mux : mtarg->mx;
         coordxy ty = utarg ? mtmp->muy : mtarg->my;
@@ -1274,7 +1275,7 @@ breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
     int typ = get_atkdam_type(mattk->adtyp);
     boolean utarget = (mtarg == &gy.youmonst);
 
-    if (m_lined_up(mtarg, mtmp)) {
+    if (m_lined_up(mtarg, mtmp, TRUE)) {
         if (mtmp->mcan) {
             if (!Deaf) {
                 if (canseemon(mtmp)) {
@@ -1348,8 +1349,9 @@ m_useup(struct monst *mon, struct obj *obj)
     }
 }
 
-/* monster attempts ranged weapon attack against player */
-void
+/* monster attempts ranged weapon attack against player;
+   returns TRUE if it did something, FALSE if it decided not to attack */
+boolean
 thrwmu(struct monst *mtmp)
 {
     struct obj *otmp, *mwep;
@@ -1359,24 +1361,34 @@ thrwmu(struct monst *mtmp)
     const struct throw_and_return_weapon *arw;
     boolean always_toss = FALSE;
 
-    /* Rearranged beginning so monsters can use polearms not in a line */
-    if (mtmp->weapon_check == NEED_WEAPON || !MON_WEP(mtmp)) {
+    /* Rearranged beginning so monsters can use polearms not in a line;
+       skip re-wielding when already holding a polearm so the monster
+       cannot oscillate between it and another weapon */
+    if ((mtmp->weapon_check == NEED_WEAPON
+         && MON_WEP(mtmp) && !is_pole(MON_WEP(mtmp)))
+        || !MON_WEP(mtmp)) {
+        /* prefer a hand-to-hand weapon when already close */
+        if (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 3) {
+            mtmp->weapon_check = NEED_HTH_WEAPON;
+            if (mon_wield_item(mtmp) != 0)
+                return TRUE;
+        }
         mtmp->weapon_check = NEED_RANGED_WEAPON;
         /* mon_wield_item resets weapon_check as appropriate */
         if (mon_wield_item(mtmp) != 0)
-            return;
+            return TRUE;
     }
 
     /* Pick a weapon */
     otmp = select_rwep(mtmp);
     if (!otmp)
-        return;
+        return FALSE;
 
     if (is_pole(otmp)) {
         int dam, hitv;
 
         if (otmp != MON_WEP(mtmp))
-            return; /* polearm, aklys must be wielded */
+            return FALSE; /* polearm, aklys must be wielded */
 
         /*
          * MON_POLE_DIST encompasses knight's move range (5): two spots
@@ -1394,7 +1406,7 @@ thrwmu(struct monst *mtmp)
          */
         rang = dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy);
         if (rang > MON_POLE_DIST || !couldsee(mtmp->mx, mtmp->my))
-            return; /* Out of range, or intervening wall */
+            return FALSE; /* Out of range, or intervening wall */
 
         if (canseemon(mtmp)) {
             onm = xname(otmp);
@@ -1416,11 +1428,11 @@ thrwmu(struct monst *mtmp)
 
         (void) thitu(hitv, Maybe_Half_Phys(dam), &otmp, (char *) 0);
         stop_occupation();
-        return;
+        return TRUE;
     } else if ((arw = autoreturn_weapon(otmp)) != 0 && !mwelded(otmp)) {
         rang = dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy);
         if (rang > arw->range || !couldsee(mtmp->mx, mtmp->my))
-            return; /* Out of range, or intervening wall */
+            return FALSE; /* Out of range, or intervening wall */
         always_toss = TRUE;
     }
 
@@ -1435,11 +1447,12 @@ thrwmu(struct monst *mtmp)
         || (URETREATING(x, y)
             && (!always_toss
                 && rn2(BOLT_LIM - distmin(x, y, mtmp->mux, mtmp->muy)))))
-        return;
+        return FALSE;
 
     mwep = MON_WEP(mtmp); /* wielded weapon */
     monshoot(mtmp, otmp, mwep); /* multishot shooting or throwing */
     nomul(0);
+    return TRUE;
 }
 
 /* monster spits substance at you */
@@ -1551,14 +1564,19 @@ linedup(
     return FALSE;
 }
 
-staticfn int
-m_lined_up(struct monst *mtarg, struct monst *mtmp)
+int
+m_lined_up(
+    struct monst *mtarg,
+    struct monst *mtmp,
+    boolean breath) /* breath weapons pass through the target and
+                     * keep going, so scan the entire firing line */
 {
     boolean utarget = (mtarg == &gy.youmonst);
     coordxy tx = utarget ? mtmp->mux : mtarg->mx;
     coordxy ty = utarget ? mtmp->muy : mtarg->my;
     boolean ignore_boulders = utarget && (racial_throws_rocks(mtmp)
                                           || m_carrying(mtmp, WAN_STRIKING));
+    int lined;
 
     /* hero concealment usually trumps monst awareness of being lined up */
     if (utarget && Upolyd && rn2(25)
@@ -1567,15 +1585,42 @@ m_lined_up(struct monst *mtarg, struct monst *mtmp)
         return FALSE;
 
     /* [no callers care about the 1 vs 2 situation any more] */
-    return linedup(tx, ty, mtmp->mx, mtmp->my,
-                   utarget ? (ignore_boulders ? 1 : 2) : 0);
+    lined = linedup(tx, ty, mtmp->mx, mtmp->my,
+                    utarget ? (ignore_boulders ? 1 : 2) : 0);
+
+    /* a tame attacker aiming at a monster walks the firing line and
+       holds off when the hero or another tame monster would be hit;
+       no special checks if confused - can't tell friend from foe */
+    if (lined && !utarget && mtmp->mtame && !mtmp->mconf) {
+        struct monst *mat;
+        int dx = sgn(mtarg->mx - mtmp->mx), dy = sgn(mtarg->my - mtmp->my);
+        coordxy x = mtmp->mx, y = mtmp->my;
+        int i = 10; /* arbitrary */
+
+        for (; !breath || i > 0; --i) {
+            x += dx;
+            y += dy;
+            if (!isok(x, y))
+                break;
+            if (u_at(x, y))
+                return FALSE;
+            if ((mat = m_at(x, y)) != 0) {
+                if (!breath && mat == mtarg)
+                    break;
+                /* don't hit friendlies */
+                if (mat->mtame)
+                    return FALSE;
+            }
+        }
+    }
+    return lined;
 }
 
 /* is mtmp in position to use ranged attack on hero? */
 boolean
 lined_up(struct monst *mtmp)
 {
-    return m_lined_up(&gy.youmonst, mtmp) ? TRUE : FALSE;
+    return m_lined_up(&gy.youmonst, mtmp, FALSE) ? TRUE : FALSE;
 }
 
 /* check if a monster is carrying an item of a particular type */

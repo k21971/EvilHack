@@ -1567,8 +1567,59 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       engine lands. abuse_tier() + the aasimar penalty engine
       travel with the aasimar race slice (named in the attrib.c
       stub). ugift_history is a parallel dead Phase 1 ring - its
-      display pends with the sacrifice/gift subsystem. Battery
-      pending (reviewer's 7-point list in the review report).
+      display pends with the sacrifice/gift subsystem.
+      WIZMODE BATTERY PASSED 2026-07-16 (commit 028cbf44a; two games,
+      sanity_check on throughout, paniclog NEVER CREATED, save dir
+      restored): [lawful human Valkyrie XL30] peaceful attack ->
+      guilt + abuse=5 + ring entry (type ATTACK_PEACEFUL, pen stored
+      +5, watchman mndx+1 detail, canspotmon-gated) + #conduct
+      "moderately abused" + history line "attacking a peaceful
+      watchman (-5)"; tier walk via gdb 15/30/50 -> seriously/
+      severely/gravely; wizard enlightenment "alignment abuse value
+      is N"; BLOCKER-2 FIX LIVE: angered ex-peaceful's malign
+      resynced +15 by the setmangry set_malign, killing it = NO
+      phantom KILL_PEACEFUL_MALIGN record, no murderer, abuse
+      unchanged; Minetown atonement ladder EXACT (non-coaligned
+      priestess of Loki, 50k/tier): 30->15, 100k->two tiers 15->1,
+      50k->0 with the not-of-my-faith full-absolution verbalize;
+      abuse-scaled suggested ask visibly fell 12720->9397->6637 as
+      tiers dropped; ATONEMENT ring entries +15/+14/+1; post-clear
+      #conduct "absolved of past alignment abuse" WITH history still
+      shown (ever_abused gate); ring wraparound + eviction (6th
+      event overwrote oldest, idx wrapped 4->0); Elbereth hypocrisy
+      (athame-engraved; finger-dust degraded to "E|ber{tr" and
+      correctly did NOT trigger): "You feel like a hypocrite." +
+      engraving fades + ATTACK_ELBERETH pen 2 (-rnd(5) at record<=5)
+      + ATTACK_PEACEFUL same turn; one-shot kills of peacefuls
+      bypass setmangry (no hypocrite/anger) and route through
+      xkilled KILL_PEACEFUL only - master parity; accidental bump
+      of invisible peaceful stalker: "Wait! ... That was careless of
+      you." + luck -2, abuse UNCHANGED, no ring entry,
+      ga.accidental_bump read back 0 (consume-on-entry proven);
+      malign tail contributed 0 on a still-peaceful gnome kill
+      (recalced malign >= 0, code byte-identical to master).
+      [neutral human Ranger] tree wish + axe chop -> "You cut down
+      the tree. You feel a little guilty." + abuse=2 +
+      DESTROY_TREE ring entry (maintainer's -2 ruling live);
+      save/reload round-trips abuse/ever_abused/idx/ring
+      byte-identical; post-reload #conduct "slightly abused" +
+      "destroying a tree (-2)". NOT live-run: museum-copy crash
+      repro (statically verified + reviewer-verified vs master fix
+      96c1f08ae; the gdb staging attempt is the gotcha below),
+      coaligned-priest 25k rate + LUCKMIN priest-bump arm (code
+      master-identical; non-co rate proven), COLLISION accidental
+      variant. BATTERY GOTCHAS: NEVER call message-generating game
+      functions (newcham) from batch gdb - the nested More-prompt
+      hangs the call, the Bash timeout SIGTERMs gdb, the signal
+      hits the game and panictrace aborts it (killed battery game 1;
+      no paniclog entry, stale lock destroyed on next launch);
+      genesis "aligned priest" creates an emin MINION (ispriest=0,
+      hostile cross-aligned) - real ispriest priests only via
+      temples (Minetown route: C-v to 4, branch stair, 3x descend,
+      altar '_' getpos-jump); rloc_to + freeze on a temple priest
+      angers her on next chat ("breaks out of reverie") - gdb-flip
+      peaceful back + set_malign recovers; wished axes/helms come
+      cursed often (welds) - wish blessed or plan around.
 - [ ] Monster AI/equipment: dual-wield, artifact ranking, weapon
       selection (see weapon-selection-architecture memory)
       (+ master monmove.c dochug ranged-attack scan block using
@@ -1576,6 +1627,145 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       ranged_attk_available gate; + master mlined_up tame
       friendly-fire path walk vs branch m_lined_up; + muse.c
       mfind_target offensive-item consumer)
+      PORTED + REVIEWED 2026-07-16 (port subagent 24 files
+      +1369/-151, reviewer CONDITIONAL PASS NO blockers -> all 4
+      concerns + nits coordinator-verified and fixed same day;
+      clean rebuild + wizmode battery + commit pending below).
+      Contents: weapon.c selection architecture (oselect_recurse
+      container recursion + best-by-dmgval + priest edged gate;
+      find_artifact_recurse + score_artifact_weapon in artifact.c
+      mirroring BRANCH spec_dbon/artifact_hit arms only;
+      find_silver_recurse/find_gem_recurse; would_prefer_rwep/
+      would_prefer_hwep/mon_melee_target via un-static'd dogmove
+      find_targ/score_targ; mon_needs_ammo/mon_wants_ammo with the
+      searches_for_item/mon_would_take_item non-pet consumer;
+      select_rwep rework incl. polearm wield range 13->5 master
+      fix, Infidel weld exemptions, dark-elven launcher chains,
+      tmpprop launcher latch; select_hwep rework incl. artifact-
+      then-silver ranking, defended(AD_STON) corpse gate, giants
+      one-hand bimanual; polearms stay pwep[]-exclusive, pwep/hwep/
+      rwep disjointness verified programmatically). DUAL-WIELD:
+      can_dual_wield/select_offhand_hwep/mon_wield_offhand +
+      setmnotwielded2/mwep2gone, mon_wield_item rework (OBJ_
+      CONTAINED -> new mon.c mon_container_extract, turn-consuming
+      rummage), possibly_unwield mw2 arm, worn.c shield-forces-mw2-
+      drop + extract_from_minvent W_SWAPWEP choke point (supersedes
+      master per-site steal fixes - both m-v-m steal paths verified
+      routing through it), mhitm/mhitu weap_attk_idx offhand attack
+      loops (OFFHAND_PENALTY, getmattk erac-consistent), passive-
+      acid + rust-trap + petrify mw2 arms, mkobj mon_obj_sanity mw2
+      check, makemon clone_mon mw/mw2 stale-pointer clear, zap
+      montraits mw2 copy + mkobj save_mtraits MON_NOWEP2
+      (reviewer-found asymmetry), objnam minimal W_SWAPWEP suffix,
+      restore.c mw2 relink cloned from the mw idiom (savemon whole-
+      struct Sfo_monst verified - NO new sfo pair needed). AI
+      CONSUMERS: monmove.c dochug m-v-m ranged scan at master's
+      position (after m_dotelekinesis hook; result codes mapped by
+      NAME; no double attack vs the 5.0 move-then-shoot gate -
+      scan returns 0 as the turn); muse.c find_offensive
+      mfind_target targeting (PETSTRAT_NOATTACK + acceptable_pet_
+      target gates inert until #order) + gt.tbx/gt.tby aiming for
+      offensive buzz/potion-throw/mbhit + BOTH defensive mbhit
+      callers aim explicitly (master only fixed teleport - undead-
+      turning stale-aim is MASTER BACKPORT CANDIDATE #6); mon.c
+      I_SPECIAL weapon-side re-eval (parked-mx guard, msp_reading
+      defer, welded/launcher skips); mthrowu.c m_lined_up friendly-
+      fire walk (REVERSED args vs master mlined_up, breath param;
+      callers: breamm TRUE, mfind_target/thrwmm/spitmm/lined_up
+      FALSE); thrwmu void->boolean + master head rework.
+      REVIEWER CONCERNS ALL FIXED: (1) both defensive mbhit arms
+      lacked master's gb.buzzer kill-attribution bracket +
+      DEADMONSTER-guarded return (offensive arms had them; sibling
+      sweep confirmed no others); (2) save_mtraits nulled mw but
+      not mw2 while montraits copies both back (defensive, no live
+      producer today); (3) score_artifact_weapon "never calls
+      rnd()" comment was FALSE both trees (spec_applies rolls
+      rn2(100) vs mr for AD_MAGM/AD_STUN targets, monhp_per_lvl
+      rolls a die) - comment fixed, determinism rework queued with
+      the artifact-behaviors re-sync follow-up, master frozen-
+      unfixed; (4) would_prefer_*/mon_needs_ammo land with zero
+      branch consumers - CONFIRMED deliberate (master callers are
+      dogmove only = pet order slice; architecture-first
+      precedent). DELIBERATE DEVIATIONS (recorded): select_offhand_
+      hwep gains a touch_artifact skip gate master lacks (master
+      lets a monster offhand-wield an artifact that would blast it
+      - MASTER BACKPORT CANDIDATE #7); dochug scan maps mattacku's
+      1 to M_ATTK_AGR_DIED so dochug returns 1 on attacker death
+      (master loses the signal - harmless there, same dmonsfree
+      reasoning as telekinesis); possibly_unwield mw2 arm keeps
+      branch print-before-extract ordering (fixes master's
+      print-after-extract). FOLLOW-UPS QUEUED: re-sync score_
+      artifact_weapon arms when artifact-behaviors slice lands
+      (Dichotomy/Angelslayer/Harbinger/Orcus/Annihilation/
+      vulnerable_to scaling absent by design - TODO-EVILHACK at
+      the vulnerable_to site). CLONE_MON WORN-MASK FIX (maintainer
+      "fold it in" 2026-07-16): clone_mon now clears
+      misc_worn_check beside the mw/mw2 clears - the *m2 = *mon
+      copy carried worn-slot bits with an empty inventory in ALL
+      FOUR trees (branch/master/both upstream 5.0); a cloned
+      gear-wearer was a candidate producer for the BUG-1273
+      stale-worn-slot class (worn_slot_sanity fires on mask-
+      without-item) and the gap violated the clone-mirrors-
+      polymorph transient-state reset rule. Master frozen-unfixed;
+      upstream-reportable (worn-mask half only - upstream also
+      lacks the mw/mw2 clears, see reportable table). DEFERRED (item -> subsystem):
+      pet consumers of would_prefer_*/mon_wants_ammo + is_better_
+      armor mon_bimanual (pet order), mhitu steed-retaliation
+      acceptable_pet_target (steed), m_stash_items + m_dowear
+      container armor extraction (monster looting), worn.c ring-
+      choice mw2/oprops blocks (monster ring/amulet), mon_wielding_
+      artifact incl. MON_WEP2 arm (artifact behaviors), AD_ACID
+      explosion arms EXPL_ACID/EXPL_SHOCK (explosion-glyph
+      extension - TODO-EVILHACK markers at mhitm.c/uhitm.c sites,
+      acid sphere exists on branch = silent-divergence guard),
+      muse offensive-item parity (maxdmg melee gate + master-only
+      MUSE_* items), munstone self stone-to-flesh (monster
+      spellcasting), hitmsg pierce/slash/whack verbs (mhitu
+      flavor), break_glass_obj setmnotwielded2 (glass shatter),
+      pager.c probe wielding-both display, pickup.c exchange_
+      objects_with_mon MON_NOWEP2 (pet item-exchange), dothrow
+      glass-breakage unwear, ZT_WATER arm + mon_underwater acid
+      gates (underwater parity), W_BARDING resists slotmask
+      (steed), thrower attribution global (kill-attribution),
+      objnam owner-aware doname rework. MASTER QUIRKS PORTED
+      FAITHFULLY: select_rwep tmpprop NULL-latch (first empty
+      launcher search poisons later latches - low impact);
+      branch can_touch_safely rejects gloveless defended(AD_STON)
+      corpse-wielders that the new selection gates accept (inert
+      inconsistency, fold into a defended() sweep). BATTERY LIST
+      (ASK MAINTAINER before launch; #levelchange 30 first;
+      sanity_check on): (1) dual-wield lifecycle - genesis a
+      dual-wielder (or gdb-arm one), verify both weapons in
+      combat messages + OFFHAND_PENALTY, then steal/poly/shield-
+      don m_dowear drop/petrify/save-reload with mw2 set,
+      mon_obj_sanity quiet throughout; (2) artifact ranking - pet
+      with two artifacts incl. one in a carried sack (rummage
+      turn + wield turn), watch for wield churn (concern-3
+      nondeterminism exposure); (3) m-v-m ranged - hostile with
+      launcher+ammo vs another monster: dochug scan fires at
+      dist2>8 from hero, no melee/launcher oscillation, no
+      double attack per turn; (4) pet friendly-fire hold - tame
+      breath/wand user lined up through hero or another pet =
+      holds fire (m_lined_up walk); (5) muse offensive aiming -
+      monster zaps striking/fire wand at a MONSTER target via
+      gt.tbx (not at hero), stinking-cloud absence unchanged;
+      (6) defensive undead-turning/teleport zap: beam aims at
+      hero's tracked position, kill through the beam credits the
+      caster (buzzer fix; pet livelog line); (7) polearm: monster
+      with polearm-only inventory wields at dist2<=5, thrusts at
+      2-3, no re-wield loop at 6-13; (8) mon_container_extract -
+      locked chest + cursed BoH refusals (no stall), unlocked
+      sack = one rummage turn then wield turn; (9) I_SPECIAL
+      re-eval - hand a pet a better weapon via floor gift, next
+      turn it re-wields (no combat trigger needed), frozen/
+      mid-read monster defers; (10) save/reload + bones with a
+      dual-wielder on-level and mid-migration: mw2 relink, no
+      impossible; statue/corpse revive of a dual-wielder (stone-
+      to-flesh + undead turning) with sanity_check on (save_
+      mtraits fix regression guard); (11) launcher point-blank:
+      adjacent launcher-wielder swaps to HTH or point-blank
+      shoots per master logic, attack slot not double-consumed;
+      (12) paniclog EMPTY at session end.
 - [ ] Monster spellbook learning (struct emsp)
 - [ ] Zombie/were/Draugr mechanics (zombify, binding ritual)
 - [ ] Ice Queen branch bosses; Vecna; demon-lord behaviors

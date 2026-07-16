@@ -778,6 +778,7 @@ montraits(
         mtmp2->mux = mtmp->mux;
         mtmp2->muy = mtmp->muy;
         mtmp2->mw = mtmp->mw;
+        mtmp2->mw2 = mtmp->mw2;
         mtmp2->wormno = mtmp->wormno;
         mtmp2->misc_worn_check = mtmp->misc_worn_check;
         mtmp2->weapon_check = mtmp->weapon_check;
@@ -4441,8 +4442,10 @@ zhitm(
             break;
         }
         tmp = d(nd, 6);
-        if (!rn2(6))
+        if (!rn2(6)) {
             acid_damage(MON_WEP(mon));
+            acid_damage(MON_WEP2(mon));
+        }
         if (!rn2(6))
             erode_armor(mon, ERODE_CORRODE);
         break;

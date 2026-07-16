@@ -2729,6 +2729,9 @@ clone_mon(
     m2->mtrapped = 0;
     m2->mcloned = 1;
     m2->minvent = (struct obj *) 0; /* objects don't clone */
+    m2->mw = (struct obj *) 0;
+    m2->mw2 = (struct obj *) 0;
+    m2->misc_worn_check = 0L; /* no inventory, so no worn masks */
     m2->mleashed = 0;
     /* Max HP the same, but current HP halved for both.  The caller
      * might want to override this by halving the max HP also.

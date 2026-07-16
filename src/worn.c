@@ -1088,7 +1088,7 @@ m_dowear_type(
             /* bracers leave the hands free; a proper shield can't be
                used together with a two-handed weapon */
             if (!is_bracer(obj)
-                && MON_WEP(mon) && bimanual(MON_WEP(mon)))
+                && MON_WEP(mon) && mon_bimanual(mon, MON_WEP(mon)))
                 continue;
             break;
         case W_ARMG:
@@ -1191,6 +1191,26 @@ m_dowear_type(
     }
     mon->misc_worn_check |= flag;
     best->owornmask |= flag;
+    /* equipping a non-bracer shield forces dropping secondary weapon */
+    if (flag == W_ARMS && !is_bracer(best) && MON_WEP2(mon)) {
+        struct obj *mw2 = MON_WEP2(mon);
+
+        setmnotwielded2(mon, mw2);
+        /* a pet ordered not to drop items keeps its off-hand
+           weapon in inventory */
+        if (!creation && !pet_wont_drop(mon)) {
+            if (cansee(mon->mx, mon->my)) {
+                pline_mon(mon, "%s drops %s.", Monnam(mon),
+                          distant_name(mw2, doname));
+                newsym(mon->mx, mon->my);
+            }
+            obj_extract_self(mw2);
+            if (!flooreffects(mw2, mon->mx, mon->my, "drop")) {
+                place_object(mw2, mon->mx, mon->my);
+                stackobj(mw2);
+            }
+        }
+    }
     if (autocurse)
         curse(best);
     if (artifact_light(best) && !best->lamplit) {
@@ -1647,6 +1667,8 @@ extract_from_minvent(
     if (unwornmask & W_WEP) {
         mwepgone(mon); /* unwields and sets weapon_check to NEED_WEAPON */
     }
+    if (unwornmask & W_SWAPWEP)
+        mwep2gone(mon);
 }
 
 #undef w_blocks

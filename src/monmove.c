@@ -855,8 +855,13 @@ dochug(struct monst *mtmp)
          */
         mw_tmp = MON_WEP(mtmp);
         if (!(scared && mw_tmp && is_pick(mw_tmp))
+            /* a wielded polearm stays wielded; switching to a
+               hand-to-hand weapon here would oscillate */
+            && !(mw_tmp && is_pole(mw_tmp))
             && mtmp->weapon_check == NEED_WEAPON
-            && !(mtmp->mtrapped && !nearby && select_rwep(mtmp))) {
+            && !((mtmp->mtrapped || mtmp->mentangled
+                  || is_stationary(mdat))
+                 && !nearby && select_rwep(mtmp))) {
             mtmp->weapon_check = NEED_HTH_WEAPON;
             if (mon_wield_item(mtmp) != 0)
                 return 0;
@@ -868,6 +873,41 @@ dochug(struct monst *mtmp)
         && mtmp->mlstmv != svm.moves && rn2(3)) {
         if (m_dotelekinesis(mtmp))
             return 0;
+    }
+
+    /* Look for other monsters to fight (at a distance). Intelligent
+       monsters with Amulet of Yendor skip ranged attacks - escape.
+       Exception: priests in their temple guard the Amulet */
+    if ((!mon_has_amulet(mtmp) || mindless(mdat) || is_animal(mdat)
+         || (mtmp->ispriest && inhistemple(mtmp)))
+        && ((((attacktype(mdat, AT_BREA) || attacktype(mdat, AT_SPIT))
+              && !mtmp->mbreath_attk)
+             || (((attacktype(mdat, AT_GAZE) && mdat != &mons[PM_MEDUSA])
+                  || attacktype(mdat, AT_SCRE)
+                  || (attacktype(mdat, AT_MAGC)
+                      && (attacktype_fordmg(mdat, AT_MAGC, AD_ANY)->adtyp
+                          <= AD_LOUD)))
+                 && !mtmp->mspec_used))
+            || (attacktype(mdat, AT_WEAP) && select_rwep(mtmp) != 0)
+            || find_offensive(mtmp))
+        && mtmp->mlstmv != svm.moves) {
+        struct monst *mtmp2 = mfind_target(mtmp);
+
+        /* the > value is important here - if it's not just right,
+           the attacking monster can get stuck in a loop switching
+           back and forth between its melee weapon and launcher */
+        if (mtmp2 && mtmp2 != mtmp
+            && (mtmp2 != &gy.youmonst
+                || dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 8)) {
+            /* mattacku() returns nonzero only when the attacker died */
+            res = (mtmp2 == &gy.youmonst)
+                      ? (mattacku(mtmp) ? M_ATTK_AGR_DIED : M_ATTK_MISS)
+                      : mattackm(mtmp, mtmp2);
+            if (res & M_ATTK_AGR_DIED)
+                return 1; /* oops */
+
+            return 0; /* that was our move for the round */
+        }
     }
 
     /*

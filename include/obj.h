@@ -276,6 +276,12 @@ struct obj {
 #define is_launcher(otmp)                                                  \
     (otmp->oclass == WEAPON_CLASS && objects[otmp->otyp].oc_skill >= P_BOW \
      && objects[otmp->otyp].oc_skill <= P_CROSSBOW)
+/* launchers that always need both hands, even for giants */
+#define is_2h_launcher(otmp)                                  \
+    (otmp->oclass == WEAPON_CLASS                             \
+     && (objects[otmp->otyp].oc_skill == P_BOW                \
+         || (objects[otmp->otyp].oc_skill == P_CROSSBOW       \
+             && otmp->otyp != DARK_ELVEN_HAND_CROSSBOW)))
 #define is_ammo(otmp)                                            \
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == GEM_CLASS) \
      && objects[otmp->otyp].oc_skill >= -P_CROSSBOW              \
@@ -304,6 +310,13 @@ struct obj {
 #define bimanual(otmp)                                            \
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
      && objects[otmp->otyp].oc_bimanual)
+/* monster-aware version of bimanual(); giants can wield two-handed
+   weapons in one hand, except for full-size launchers */
+#define mon_bimanual(mon, otmp)                       \
+    ((!is_giant((mon)->data) || is_2h_launcher(otmp)) \
+     && ((otmp)->oclass == WEAPON_CLASS               \
+         || (otmp)->oclass == TOOL_CLASS)             \
+     && objects[(otmp)->otyp].oc_bimanual)
 #define is_multigen(otmp)                           \
     (otmp->oclass == WEAPON_CLASS                   \
      && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \

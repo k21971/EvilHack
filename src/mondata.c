@@ -182,6 +182,8 @@ Resists_Elem(struct monst *mon, int propindx)
         slotmask |= W_WEP;
     if (is_you && u.twoweap)
         slotmask |= W_SWAPWEP;
+    if (!is_you && MON_WEP2(mon))
+        slotmask |= W_SWAPWEP;
     for (; o; o = o->nobj)
         if (((o->owornmask & slotmask) != 0L
              && objects[o->otyp].oc_oprop == propindx)
@@ -247,6 +249,8 @@ resists_magm(struct monst *mon)
         slotmask |= W_WEP;
     if (is_you && u.twoweap)
         slotmask |= W_SWAPWEP;
+    if (!is_you && MON_WEP2(mon))
+        slotmask |= W_SWAPWEP;
     for (; o; o = o->nobj)
         if (((o->owornmask & slotmask) != 0L
              && obj_has_prop(o, ANTIMAGIC))
@@ -294,6 +298,9 @@ resists_blnd_by_arti(struct monst *mon)
 
     o = is_you ? uwep : MON_WEP(mon);
     if (o && o->oartifact && defends(AD_BLND, o))
+        return TRUE;
+    if (!is_you && (o = MON_WEP2(mon)) != 0
+        && o->oartifact && defends(AD_BLND, o))
         return TRUE;
     o = is_you ? gi.invent : mon->minvent;
     for (; o; o = o->nobj)

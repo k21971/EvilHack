@@ -496,6 +496,7 @@ mattacku(struct monst *mtmp)
 {
     struct attack *mattk, alt_attk;
     int i, j = 0, tmp, sum[NATTK];
+    int weap_attk_idx = 0; /* which AT_WEAP attack (0=primary, 1+=off-hand) */
     struct permonst *mdat = mtmp->data;
     /*
      * ranged: Is it near you?  Affects your actions.
@@ -892,21 +893,47 @@ mattacku(struct monst *mtmp)
             if (range2) {
                 if (!Is_rogue_level(&u.uz))
                     thrwmu(mtmp);
+                weap_attk_idx++;
             } else {
                 int hittmp = 0;
 
-                /* Rare but not impossible.  Normally the monster
-                 * wields when 2 spaces away, but it can be
-                 * teleported or whatever....
-                 */
-                if (mtmp->weapon_check == NEED_WEAPON || !MON_WEP(mtmp)) {
-                    mtmp->weapon_check = NEED_HTH_WEAPON;
-                    /* mon_wield_item resets weapon_check as appropriate */
-                    if (mon_wield_item(mtmp) != 0)
-                        break;
-                }
-                if (foundyou) {
+                if (weap_attk_idx == 0) {
+                    /* first AT_WEAP: use primary weapon */
+                    /* Rare but not impossible. Normally the monster
+                     * wields when 2 spaces away, but it can be
+                     * teleported or whatever....
+                     */
+                    if (mtmp->weapon_check == NEED_WEAPON || !MON_WEP(mtmp)
+                        || (is_launcher(MON_WEP(mtmp))
+                            && !(MON_WEP(mtmp))->cursed)) {
+                        mtmp->weapon_check = NEED_HTH_WEAPON;
+                        /* mon_wield_item resets weapon_check
+                           as appropriate */
+                        if (mon_wield_item(mtmp) != 0) {
+                            weap_attk_idx++;
+                            break;
+                        }
+                    }
+                    if (!MON_WEP(mtmp) || is_launcher(MON_WEP(mtmp))) {
+                        /* implies we could not find a HTH weapon,
+                         * try point blank ranged attack */
+                        if (thrwmu(mtmp)) {
+                            weap_attk_idx++;
+                            break;
+                        }
+                    }
                     mon_currwep = MON_WEP(mtmp);
+                } else {
+                    /* 2nd+ AT_WEAP: use off-hand weapon */
+                    mon_currwep = MON_WEP2(mtmp);
+                    if (mon_currwep)
+                        tmp -= OFFHAND_PENALTY;
+                    else
+                        mon_currwep = MON_WEP(mtmp); /* fallback */
+                }
+                weap_attk_idx++;
+
+                if (foundyou) {
                     if (mon_currwep) {
                         boolean bash = (is_pole(mon_currwep)
                                         && !is_art(mon_currwep,
@@ -2526,8 +2553,10 @@ passiveum(
             tmp = 0;
         if (!rn2(30))
             erode_armor(mtmp, ERODE_CORRODE);
-        if (!rn2(6))
+        if (!rn2(6)) {
             acid_damage(MON_WEP(mtmp));
+            acid_damage(MON_WEP2(mtmp));
+        }
         return assess_dmg(mtmp, tmp);
     case AD_STON: /* cockatrice */
     {
