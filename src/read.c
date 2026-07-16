@@ -2907,8 +2907,13 @@ do_genocide(
                 killplayer++;
                 break;
             }
-            if (is_human(ptr))
+            if (is_human(ptr) && u.ualign.type != A_NONE) {
+                if (u.ualign.type == A_LAWFUL)
+                    You_feel("guilty.");
                 adjalign(-sgn(u.ualign.type));
+                record_abuse_event_dtl(-sgn(u.ualign.type),
+                                       ABUSE_GENOCIDE_HUMAN, mndx + 1, 0);
+            }
             if (is_demon(ptr))
                 adjalign(sgn(u.ualign.type));
 

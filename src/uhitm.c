@@ -245,7 +245,16 @@ attack_checks(
          * peacefuls, we're operating as if an attack attempt did occur
          * and the Elbereth behavior is consistent.
          */
-        wakeup(mtmp, TRUE); /* always necessary; also un-mimics mimics */
+        /* waking up is always necessary and also un-mimics mimics;
+           a remembered monster glyph means the hero knew something
+           was here, so the bump is a knowing attack - otherwise
+           charge luck rather than alignment. Must test the glyph
+           cached above; map_invisible() has already placed an 'I'
+           on the map */
+        if (glyph_is_monster(glyph))
+            wakeup(mtmp, TRUE);
+        else
+            wakeup_accidental(mtmp);
         return TRUE;
     }
 
@@ -337,10 +346,12 @@ check_caitiff(struct monst *mtmp)
             || (mtmp->mflee && !mtmp->mavenge))) {
         You("caitiff!");
         adjalign(-1);
+        record_abuse_event_mon(-1, ABUSE_ATTACK_HELPLESS, mtmp);
     } else if (Role_if(PM_SAMURAI) && mtmp->mpeaceful) {
         /* attacking peaceful creatures is bad for the samurai's giri */
         You("dishonorably attack the innocent!");
         adjalign(-1);
+        record_abuse_event_mon(-1, ABUSE_ATTACK_PEACEFUL, mtmp);
     }
 }
 
@@ -1541,9 +1552,15 @@ hmon_hitmon_poison(
     if (Role_if(PM_SAMURAI)) {
         You("dishonorably use a poisoned weapon!");
         adjalign(-sgn(u.ualign.type));
+        record_abuse_event_dtl(-sgn(u.ualign.type), ABUSE_USE_POISON,
+                               obj->otyp + 1, 0);
     } else if (u.ualign.type == A_LAWFUL && u.ualign.record > -10) {
+        int pen = Role_if(PM_KNIGHT) ? -3 : -1;
+
         You_feel("like an evil coward for using a poisoned weapon.");
-        adjalign(-1);
+        adjalign(pen);
+        record_abuse_event_dtl(pen, ABUSE_USE_POISON,
+                               obj->otyp + 1, 0);
     }
     /* the venom object property never wears off */
     if (hmd->ispoisoned && !permapoisoned(obj)

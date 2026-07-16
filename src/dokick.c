@@ -1169,8 +1169,11 @@ kick_nondoor(coordxy x, coordxy y, int avrg_attrib)
                any already created contents will still be buried here */
             exercise(A_WIS, FALSE);
             if (Role_if(PM_ARCHEOLOGIST) || Role_if(PM_SAMURAI)
-                || (u.ualign.type == A_LAWFUL && u.ualign.record > -10))
+                || (u.ualign.type == A_LAWFUL && u.ualign.record > -10)) {
+                You_feel("guilty.");
                 adjalign(-sgn(u.ualign.type));
+                record_abuse_event(-sgn(u.ualign.type), ABUSE_GRAVE_ROB);
+            }
             gm.maploc->typ = ROOM;
             gm.maploc->emptygrave = 0; /* clear 'flags' */
             gm.maploc->disturbed = 0; /* clear 'horizontal' */

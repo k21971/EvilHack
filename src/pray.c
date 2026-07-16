@@ -1085,7 +1085,10 @@ pleased(aligntyp g_align)
 
     /* not your deity */
     if (on_altar() && gp.p_aligntyp != u.ualign.type) {
+        You_feel("guilty.");
         adjalign(-1);
+        record_abuse_event_dtl(-1, ABUSE_WRONG_ALTAR,
+                               Align2amask(gp.p_aligntyp) + 1, 0);
         return;
     } else if (u.ualign.record < 2 && trouble <= 0)
         adjalign(1);
@@ -1565,6 +1568,7 @@ offer_real_amulet(struct obj *otmp, aligntyp altaralign)
         /* And the opposing team picks you up and carries you off
            on their shoulders. */
         adjalign(-99);
+        record_abuse_event(-99, ABUSE_AMULET_BETRAYAL);
         pline("%s accepts your gift, and gains dominion over %s...",
               a_gname(), u_gname());
         pline("%s is enraged...", u_gname());
@@ -1622,8 +1626,11 @@ offer_fake_amulet(
         if (Deaf)
             pline("Oh, no."); /* didn't hear thunderclap */
         change_luck(-3);
-        adjalign(-1);
-        u.ugangr += 3;
+        if (u.ualign.type != A_NONE) {
+            adjalign(-1);
+            record_abuse_event(-1, ABUSE_DECEPTION);
+            u.ugangr += 3;
+        }
         offer_negative_valued(highaltar, altaralign);
     }
 }
@@ -1650,6 +1657,7 @@ offer_different_alignment_altar(
         } else {
             u.ugangr += 3;
             adjalign(-5);
+            record_abuse_event(-5, ABUSE_SAC_REJECTED);
             pline("%s rejects your sacrifice!", a_gname());
             godvoice(altaralign, "Suffer, infidel!");
             change_luck(-5);
@@ -1764,8 +1772,10 @@ sacrifice_your_race(
             pline_The("%s.", demonless_msg);
     }
 
-    if (u.ualign.type != A_CHAOTIC) {
+    if (u.ualign.type > A_CHAOTIC) {
+        You_feel("guilty.");
         adjalign(-5);
+        record_abuse_event(-5, ABUSE_SAC_SAME_RACE);
         u.ugangr += 3;
         (void) adjattrib(A_WIS, -1, TRUE);
         if (!Inhell)
@@ -2013,6 +2023,11 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
              * not a real monster */
         pline("So this is how you repay loyalty?");
         adjalign(-3);
+        /* mtmp here is only a copy of the pet's attributes, so
+           take the species from the corpse itself */
+        record_abuse_event_dtl(-3, ABUSE_SAC_PET,
+                               (otmp->corpsenm >= LOW_PM)
+                                   ? otmp->corpsenm + 1 : 0, 0);
         HAggravate_monster |= FROMOUTSIDE;
         offer_negative_valued(highaltar, altaralign);
         return;

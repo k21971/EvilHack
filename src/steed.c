@@ -728,15 +728,32 @@ dismount_steed(
                         pline("%s falls into the %s!", Monnam(mtmp),
                               surface(u.ux, u.uy));
                     if (!cant_drown(mdat)) {
-                        killed(mtmp);
+                        /* hero gets credit/blame only when player chose
+                           to dismount; accidental drops are silent kills
+                           with no XP, mirroring the no-room branch */
+                        if (reason == DISMOUNT_BYCHOICE)
+                            killed(mtmp);
+                        else
+                            monkilled(mtmp, "", -AD_PHYS);
+                        You_feel("guilty.");
                         adjalign(-1);
+                        record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
+                                               monsndx(mdat) + 1,
+                                               ABUSE_HAZ_WATER);
                     }
                 } else if (is_lava(u.ux, u.uy)) {
                     pline("%s is pulled into the %s!", Monnam(mtmp),
                           hliquid("lava"));
                     if (!likes_lava(mdat)) {
-                        killed(mtmp);
+                        if (reason == DISMOUNT_BYCHOICE)
+                            killed(mtmp);
+                        else
+                            monkilled(mtmp, "", -AD_PHYS);
+                        You_feel("guilty.");
                         adjalign(-1);
+                        record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
+                                               monsndx(mdat) + 1,
+                                               ABUSE_HAZ_LAVA);
                     }
                 }
             }
@@ -783,9 +800,14 @@ dismount_steed(
         } else {
 #if 1       /* original there's-no-room handling */
             if (reason == DISMOUNT_BYCHOICE) {
+                int steed_mndx = monsndx(mtmp->data);
+
                 /* [un]#ride: hero gets credit/blame for killing steed */
                 killed(mtmp);
+                You_feel("guilty.");
                 adjalign(-1);
+                record_abuse_event_dtl(-1, ABUSE_STEED_DEATH,
+                                       steed_mndx + 1, 0);
             } else {
                 /* other dismount: kill former steed with no penalty;
                    damage type is just "neither AD_DGST nor -AD_RBRE" */

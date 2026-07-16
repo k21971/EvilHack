@@ -25,7 +25,7 @@ staticfn boolean ok_to_obliterate(struct monst *);
 staticfn void m_respond_shrieker(struct monst *);
 staticfn void m_respond_medusa(struct monst *);
 staticfn void qst_guardians_respond(void);
-staticfn void peacefuls_respond(struct monst *);
+staticfn void peacefuls_respond(struct monst *, int);
 staticfn void wake_nearto_core(coordxy, coordxy, int, boolean);
 staticfn void m_restartcham(struct monst *);
 staticfn boolean restrap(struct monst *);
@@ -40,6 +40,12 @@ staticfn void pacify_guard(struct monst *);
 staticfn short m_chooserace(unsigned long);
 
 extern const struct shclass shtypes[]; /* defined in shknam.c */
+
+/* values for ga.accidental_bump: how the hero accidentally angered
+   a peaceful, for setmangry() */
+#define ACCIDENT_NONE 0
+#define ACCIDENT_BUMP 1      /* walked into an unseen monster */
+#define ACCIDENT_COLLISION 2 /* involuntary knockback collision */
 
 #define LEVEL_SPECIFIC_NOCORPSE(mdat) \
     (Is_rogue_level(&u.uz)            \
@@ -3888,7 +3894,7 @@ xkilled(
     struct monst *mtmp,
     int xkill_flags) /* 1: suppress mesg, 2: suppress corpse, 4: pacifist */
 {
-    int tmp, mndx;
+    int tmp, mndx, scenario_penalty = 0;
     coordxy x = mtmp->mx, y = mtmp->my;
     struct monst museum = cg.zeromonst;
     struct permonst *mdat;
@@ -3900,6 +3906,12 @@ xkilled(
             nomsg = (xkill_flags & XKILL_NOMSG) != 0,
             nocorpse = (xkill_flags & XKILL_NOCORPSE) != 0,
             noconduct = (xkill_flags & XKILL_NOCONDUCT) != 0;
+    boolean not_con_inf = (!((u.ualign.type == A_NONE
+                              || Role_if(PM_CONVICT))
+                             && (mtmp->isgd || mtmp->isshk
+                                 || is_watch(mtmp->data))));
+    boolean uni_same = (is_unicorn(mtmp->data)
+                        && sgn(u.ualign.type) == sgn(mtmp->data->maligntyp));
 
     /* potential pet message; always clear global flag */
     be_sad = iflags.sad_feeling;
@@ -4052,30 +4064,41 @@ xkilled(
     newsym(x, y);
 
  cleanup:
-    /*
-     * Punish bad behavior.
+    /* recalculate malign based on current alignment; it may be stale
+       if the hero's alignment changed since the monster was created
+       (e.g. helm of opposite alignment) */
+    set_malign(mtmp);
+    /* punish bad behaviour...
+     * Change needed since there are racial shopkeepers now,
+     * should also prevent triggering being a murderer on Astral
+     * if you need to kill that renegade priest that's trying
+     * to kill you.
      */
-    if (is_human(mdat)
-        && (!always_hostile(mdat) && mtmp->malign <= 0)
-        /* exclude role monsters */
-        && (mndx < PM_ARCHEOLOGIST || mndx > PM_WIZARD)
-        /* exclude plain "human", which isn't flagged as always hostile;
-           it is rare and most likely to occur as the result of resurrecting
-           a corpse or animating a statue and usually will be hostile */
-        && mndx != PM_HUMAN
+    if (((always_peaceful(mdat) && mtmp->malign <= 0)
+        || (mtmp->isshk && !is_zombie(mdat)))) {
+        if (not_con_inf)
+            You_feel("guilty.");
         /* only applicable if hero is lawful or neutral */
-        && u.ualign.type != A_CHAOTIC) {
-        HTelepat &= ~INTRINSIC;
-        change_luck(-2);
-        You("murderer!");
-        if (Blind && !Blind_telepat)
-            see_monsters(); /* Can't sense monsters any more. */
+        if (u.ualign.type > A_CHAOTIC) {
+            HTelepat &= ~INTRINSIC;
+            change_luck(-2);
+            You("murderer!");
+            if (Blind && !Blind_telepat)
+                see_monsters(); /* can't sense monsters any more */
+        }
     }
     if ((mtmp->mpeaceful && !rn2(2)) || mtmp->mtame)
         change_luck(-1);
-    if (is_unicorn(mdat) && sgn(u.ualign.type) == sgn(mdat->maligntyp)) {
-        change_luck(-5);
-        You_feel("guilty...");
+    if (uni_same) {
+        /* this is super bad, don't do it. adjalign() handled
+           further down */
+        if (u.ualign.type != A_NONE) {
+            change_luck(-5);
+            if (canspotmon(mtmp))
+                You_feel("guilty...");
+            else
+                You("have a vague sense of profound guilt.");
+        }
     }
 
     /* give experience points */
@@ -4085,8 +4108,19 @@ xkilled(
 
     /* adjust alignment points */
     if (mtmp->m_id == svq.quest_status.leader_m_id) { /* REAL BAD! */
-        adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
-        u.ugangr += 7; /* instantly become "extremely" angry */
+        if (u.ualign.type != A_NONE) {
+            if (canspotmon(mtmp))
+                You_feel("very guilty.");
+            else
+                You("have a vague sense of intense guilt.");
+            adjalign(-(u.ualign.record + (int) ALIGNLIM / 2));
+            record_abuse_event(-(u.ualign.record + (int) ALIGNLIM / 2),
+                               ABUSE_KILL_LEADER);
+        }
+        if (u.ualign.type == A_NONE)
+            ; /* Moloch's indifference */
+        else
+            u.ugangr += 7; /* instantly become "extremely" angry */
         change_luck(-20);
         pline("That was %sa bad idea...",
               u.uevent.qcompleted ? "probably " : "");
@@ -4096,26 +4130,68 @@ xkilled(
         if (!svq.quest_status.killed_leader)
             adjalign((int) (ALIGNLIM / 4));
     } else if (mdat->msound == MS_GUARDIAN) { /* Bad */
-        adjalign(-(int) (ALIGNLIM / 8));
-        u.ugangr++;
-        change_luck(-4);
-        if (!Hallucination)
-            pline("That was probably a bad idea...");
-        else
-            pline("Whoopsie-daisy!");
-    } else if (mtmp->ispriest) {
+        if (On_W_tower_level(&u.uz)) {
+            ; /* nothing bad happens */
+        } else {
+            if (u.ualign.type != A_NONE) {
+                if (canspotmon(mtmp))
+                    You_feel("guilty.");
+                else
+                    You("have a vague sense of guilt.");
+                scenario_penalty = -(int) (ALIGNLIM / 8);
+                adjalign(scenario_penalty);
+                record_abuse_event_mon(scenario_penalty,
+                                       ABUSE_KILL_GUARDIAN, mtmp);
+            }
+            if (u.ualign.type == A_NONE)
+                ; /* Moloch's indifference */
+            else
+                u.ugangr++;
+            change_luck(-4);
+            if (!Hallucination)
+                pline("That was probably a bad idea...");
+            else
+                pline("Whoopsie-daisy!");
+        }
+    } else if (mtmp->ispriest && mtmp != &museum) {
+        if (p_coaligned(mtmp))
+            scenario_penalty = -2;
         adjalign((p_coaligned(mtmp)) ? -2 : 2);
+        if (p_coaligned(mtmp))
+            record_abuse_event_mon(-2, ABUSE_KILL_PRIEST, mtmp);
         /* cancel divine protection for killing your priest */
         if (p_coaligned(mtmp))
             u.ublessed = 0;
-        if (mdat->maligntyp == A_NONE)
+        else if (mdat->maligntyp == A_NONE)
             adjalign((int) (ALIGNLIM / 4)); /* BIG bonus */
+        else if (u.ualign.type == A_NONE && mdat->maligntyp == A_LAWFUL)
+            adjalign((int) (ALIGNLIM / 4)); /* Infidel-only BIG bonus */
     } else if (mtmp->mtame) {
-        adjalign(-15); /* bad!! */
+        if (u.ualign.type == A_NONE) {
+            if (canspotmon(mtmp))
+                You_feel("a bit remorseful.");
+            else
+                You("have a vague sense of remorse.");
+            scenario_penalty = -3;
+            adjalign(-3); /* kinda bad, but it's how you roll */
+            record_abuse_event_mon(-3, ABUSE_KILL_PET, mtmp);
+        } else {
+            if (canspotmon(mtmp))
+                You_feel("very guilty.");
+            else
+                You("have a vague sense of intense guilt.");
+            scenario_penalty = -15;
+            adjalign(-15); /* bad!! */
+            record_abuse_event_mon(-15, ABUSE_KILL_PET, mtmp);
+        }
         /* your god is mighty displeased... */
         if (!Hallucination) {
-            Soundeffect(se_distant_thunder, 40);
-            You_hear("the rumble of distant thunder...");
+            if (u.ualign.type == A_NONE) {
+                You_hear("sinister laughter off in the distance...");
+            } else {
+                Soundeffect(se_distant_thunder, 40);
+                You_hear("the rumble of distant thunder...");
+            }
         } else {
             Soundeffect(se_applause, 40);
             You_hear("the studio audience applaud!");
@@ -4127,11 +4203,44 @@ xkilled(
                            mname ? ", " : "",
                            uhis(), pmname(mdat, Mgender(mtmp)));
         }
-    } else if (mtmp->mpeaceful)
-        adjalign(-5);
+    } else if (mtmp->mpeaceful) {
+        if (u.ualign.type != A_NONE) {
+            /* same alignment unicorn feedback handled before we reach
+               this part of the code */
+            if (!uni_same) {
+                if (canspotmon(mtmp))
+                    You_feel("guilty.");
+                else
+                    You("have a vague sense of guilt.");
+            }
+            scenario_penalty = u.ualign.type > A_CHAOTIC ? -5 : -1;
+            adjalign(scenario_penalty);
+            record_abuse_event_mon(scenario_penalty,
+                                   uni_same ? ABUSE_KILL_UNICORN
+                                            : ABUSE_KILL_PEACEFUL,
+                                   mtmp);
+        }
+    }
 
-    /* malign was already adjusted for u.ualign.type and randomization */
-    adjalign(mtmp->malign);
+    /* malign was already adjusted for u.ualign.type and randomization.
+       This final adjalign() call is in addition to any prior adjalign()
+       adjustments in this block of code. Infidels and Convicts in
+       certain scenarios don't feel this kind of guilt.
+       Cap the additional malign penalty proportionally: no worse than
+       triple the scenario-specific penalty, and never exceeding -15 */
+    if (not_con_inf) {
+        int mal = mtmp->malign;
+
+        if (scenario_penalty < 0) {
+            int mal_cap = max(scenario_penalty * 3, -15);
+
+            if (mal < mal_cap)
+                mal = mal_cap;
+        }
+        adjalign(mal);
+        if (mal < 0)
+            record_abuse_event_mon(mal, ABUSE_KILL_PEACEFUL_MALIGN, mtmp);
+    }
 
     if (has_ebones(mtmp)) {
         livelog_printf(LL_UMONST, "destroyed %s, %s former %s",
@@ -4549,6 +4658,8 @@ qst_guardians_respond(void)
             continue;
         if (mon->data == q_guardian && mon->mpeaceful) {
             mon->mpeaceful = 0;
+            set_malign(mon);
+            newsym(mon->mx, mon->my); /* clear peaceful glyph */
             if (canseemon(mon))
                 ++got_mad;
         }
@@ -4565,7 +4676,7 @@ qst_guardians_respond(void)
 
 /* how other peacefuls react when you attack monster */
 staticfn void
-peacefuls_respond(struct monst *mtmp)
+peacefuls_respond(struct monst *mtmp, int accidental)
 {
     struct monst *mon;
     int mndx = monsndx(mtmp->data);
@@ -4635,8 +4746,20 @@ peacefuls_respond(struct monst *mtmp)
                            * perhaps reduce tameness? */
                     } else {
                         mon->mpeaceful = 0;
+                        set_malign(mon);
+                        newsym(mon->mx, mon->my); /* clear peaceful glyph */
                         mon->mstrategy &= ~STRAT_WAITMASK;
-                        adjalign(-1);
+                        /* bystanders still anger over an
+                           accidental bump, but charge nothing */
+                        if (u.ualign.type != A_NONE && !accidental) {
+                            if (canspotmon(mon))
+                                You_feel("guilty.");
+                            else
+                                You("have a vague sense of guilt.");
+                            adjalign(-1);
+                            record_abuse_event_mon(-1, ABUSE_ANGER_PEACEFUL,
+                                                   mon);
+                        }
                         if (!exclaimed)
                             pline_mon(mon, "%s gets angry!", Monnam(mon));
                     }
@@ -4669,57 +4792,159 @@ peacefuls_respond(struct monst *mtmp)
 void
 setmangry(struct monst *mtmp, boolean via_attack)
 {
+    int accidental = ga.accidental_bump;
+
+    /* consume the flag immediately so early returns or nested
+       calls never inherit it */
+    ga.accidental_bump = ACCIDENT_NONE;
+
     if (via_attack && sengr_at("Elbereth", u.ux, u.uy, TRUE)
         /* only hypocritical if monster is vulnerable to Elbereth (or
            peaceful--not vulnerable but attacking it is hypocritical) */
         && (onscary(u.ux, u.uy, mtmp) || mtmp->mpeaceful)) {
-        You_feel("like a hypocrite.");
         /* AIS: Yes, I know alignment penalties and bonuses aren't balanced
            at the moment. This is about correct relative to other "small"
            penalties; it should be fairly large, as attacking while standing
            on an Elbereth means that you're requesting peace and then
            violating your own request. I know 5 isn't actually large, but
            it's intentionally larger than the 1s and 2s that are normally
-           given for this sort of thing. */
+           given for this sort of thing */
         /* reduce to 3 (average) when alignment is already very low */
-        adjalign((u.ualign.record > 5) ? -5 : -rnd(5));
+        /* blundering into an unseen monster is not hypocrisy, but
+           the engraving still fades below */
+        if (!accidental) {
+            if (u.ualign.type != A_NONE) {
+                int pen = (u.ualign.record > 5) ? -5 : -rnd(5);
+
+                You_feel("like a hypocrite.");
+                adjalign(pen);
+                record_abuse_event_mon(pen, ABUSE_ATTACK_ELBERETH, mtmp);
+            } else
+                You_feel("clever."); /* no alignment penalty */
+        }
 
         if (!Blind)
             pline("The engraving beneath you fades.");
         del_engr_at(u.ux, u.uy);
     }
 
-    /* AIS: Should this be in both places, or just in wakeup()? */
-    mtmp->mstrategy &= ~STRAT_WAITMASK;
-    if (!mtmp->mpeaceful)
-        return;
-    /* [FIXME: this logic seems wrong; peaceful humanoids gasp or exclaim
-       when they see you attack a peaceful monster but they just casually
-       look the other way when you attack a pet?] */
-    if (mtmp->mtame)
-        return;
-    mtmp->mpeaceful = 0;
-    if (mtmp->ispriest) {
-        if (p_coaligned(mtmp))
-            adjalign(-5); /* very bad */
-        else
-            adjalign(2);
-    } else
-        adjalign(-1); /* attacking peaceful monsters is bad */
-    if (humanoid(mtmp->data) || mtmp->isshk || mtmp->isgd) {
-        if (couldsee(mtmp->mx, mtmp->my))
-            pline_mon(mtmp, "%s gets angry!", Monnam(mtmp));
-    } else {
-        growl(mtmp);
+    if (via_attack
+        && (mtmp->data == &mons[PM_KATHRYN_THE_ICE_QUEEN]
+            || mtmp->data == &mons[PM_KATHRYN_THE_ENCHANTRESS])) {
+        struct monst *mon;
+        struct permonst *bourbon = &mons[PM_BOURBON];
+        struct permonst *ozzy = &mons[PM_OZZY];
+
+        for (mon = fmon; mon; mon = mon->nmon) {
+            if (DEADMONSTER(mon))
+                continue;
+            if (mon->data == bourbon && mon->mpeaceful) {
+                mon->mstrategy &= ~STRAT_WAITMASK;
+                mon->mpeaceful = 0;
+                set_malign(mon);
+                growl(mon);
+            }
+            if (mon->data == ozzy && mon->mpeaceful) {
+                mon->mstrategy &= ~STRAT_WAITMASK;
+                mon->mpeaceful = 0;
+                set_malign(mon);
+                growl(mon);
+            }
+            newsym(mon->mx, mon->my); /* clear peaceful glyph */
+        }
     }
 
-    /* attacking your own quest leader will anger his or her guardians */
-    if (mtmp->data == &mons[quest_info(MS_LEADER)])
-        qst_guardians_respond();
+    /* AIS: Should this be in both places, or just in wakeup()? */
+    if (!(via_attack
+          && (Role_if(PM_ROGUE) && !uwep
+              && svc.context.forcefight && !Upolyd))) {
+        mtmp->mstrategy &= ~STRAT_WAITMASK;
+        if (!mtmp->mpeaceful)
+            return;
+        /* [FIXME: this logic seems wrong; peaceful humanoids gasp or exclaim
+           when they see you attack a peaceful monster but they just casually
+           look the other way when you attack a pet?] */
+        if (mtmp->mtame)
+            return;
+        mtmp->mpeaceful = 0;
+        set_malign(mtmp);
+        newsym(mtmp->mx, mtmp->my); /* clear peaceful glyph */
+        /* peacefuls always catch convicts stealing. but, convicts don't
+           feel guilty about it. (note there's still an alignment penalty
+           for failing to steal from a priest in steal_it()) */
+        if (!(via_attack
+              && (Role_if(PM_CONVICT)
+                  && !uwep && svc.context.forcefight && !Upolyd))) {
+            if (mtmp->ispriest) {
+                if (p_coaligned(mtmp)) {
+                    if (accidental) {
+                        /* blundering into your own deity's priest is
+                           not malice, so no alignment abuse, but the
+                           gods take a very dim view of it regardless */
+                        u.uluck = LUCKMIN;
+                        pline(accidental == ACCIDENT_COLLISION
+                                  ? "That was extremely unfortunate..."
+                                  : "That was extremely careless of you.");
+                    } else {
+                        if (canspotmon(mtmp))
+                            You_feel("guilty.");
+                        else
+                            You("have a vague sense of guilt.");
+                        adjalign(-5); /* very bad */
+                        record_abuse_event_mon(-5, ABUSE_ANGER_PRIEST, mtmp);
+                    }
+                } else {
+                    adjalign(2);
+                }
+            } else {
+                /* Infidels and Convicts don't feel guilt from this */
+                if (!(u.ualign.type == A_NONE || Role_if(PM_CONVICT))) {
+                    if (accidental) {
+                        /* contact with a monster the hero had no way
+                           to detect or avoid is not malice; charge
+                           luck instead of alignment */
+                        change_luck(-2);
+                        pline(accidental == ACCIDENT_COLLISION
+                                  ? "That was unfortunate..."
+                                  : "That was careless of you.");
+                    } else {
+                        int pen = u.ualign.type > A_CHAOTIC ? -5 : -1;
 
-    /* make other peaceful monsters react */
-    if (!svc.context.mon_moving)
-        peacefuls_respond(mtmp);
+                        if (canspotmon(mtmp))
+                            You_feel("guilty.");
+                        else
+                            You("have a vague sense of guilt.");
+                        /* attacking or merely angering peaceful monsters
+                           is bad; distinguish the two for the record */
+                        adjalign(pen);
+                        record_abuse_event_mon(pen,
+                                               via_attack
+                                                 ? ABUSE_ATTACK_PEACEFUL
+                                                 : ABUSE_ANGER_PEACEFUL,
+                                               mtmp);
+                    }
+                }
+            }
+        }
+        if (mtmp->data == &mons[PM_ORACLE])
+            mons[PM_ORACLE].mmove = 18;
+        if (mtmp->data == &mons[PM_CHARON])
+            mons[PM_CHARON].mmove = 18;
+        if (humanoid(mtmp->data) || mtmp->isshk || mtmp->isgd) {
+            if (couldsee(mtmp->mx, mtmp->my))
+                pline_mon(mtmp, "%s gets angry!", Monnam(mtmp));
+        } else {
+            growl(mtmp);
+        }
+
+        /* attacking your own quest leader will anger his or her guardians */
+        if (mtmp->data == &mons[quest_info(MS_LEADER)])
+            qst_guardians_respond();
+
+        /* make other peaceful monsters react */
+        if (!svc.context.mon_moving)
+            peacefuls_respond(mtmp, accidental);
+    }
 }
 
 /* Indicate via message that a monster has awoken. */
@@ -4765,6 +4990,27 @@ wakeup(struct monst *mtmp, boolean via_attack)
                 hot_pursuit(mtmp);
         }
     }
+}
+
+/* hero blundered into a monster they had no way to detect; anger it
+   as an attack but charge luck rather than alignment */
+void
+wakeup_accidental(struct monst *mtmp)
+{
+    ga.accidental_bump = ACCIDENT_BUMP;
+    wakeup(mtmp, TRUE);
+    ga.accidental_bump = ACCIDENT_NONE; /* setmangry consumes it; be safe */
+}
+
+/* monster angered by an involuntary collision (hero knocked back,
+   jumping blind, or a monster the hero sent flying); anger it but
+   charge luck rather than alignment */
+void
+setmangry_accidental(struct monst *mtmp, boolean via_attack)
+{
+    ga.accidental_bump = ACCIDENT_COLLISION;
+    setmangry(mtmp, via_attack);
+    ga.accidental_bump = ACCIDENT_NONE; /* setmangry consumes it; be safe */
 }
 
 /* Wake up nearby monsters without angering them. */

@@ -510,7 +510,9 @@ invault(void)
         if (u.ualign.type == A_LAWFUL
             /* ignore trailing text, in case player includes rank */
             && strncmpi(buf, svp.plname, (int) strlen(svp.plname)) != 0) {
+            You_feel("guilty.");
             adjalign(-1); /* Liar! */
+            record_abuse_event(-1, ABUSE_LYING);
         }
 
         if (!strcmpi(buf, "Croesus") || !strcmpi(buf, "Kroisos")
@@ -832,7 +834,6 @@ gd_pick_corridor_gold(struct monst *grd, int goldx, int goldy)
     }
     return;
 }
-
 
 /* return 1: guard moved, -2: died  */
 staticfn int

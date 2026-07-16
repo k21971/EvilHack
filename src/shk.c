@@ -712,8 +712,12 @@ rob_shop(struct monst *shkp)
     livelog_printf(LL_ACHIEVE, "stole %ld %s worth of merchandise from %s %s",
                    total, currency(total), s_suffix(shkname(shkp)),
                    shtypes[eshkp->shoptype - SHOPBASE].name);
-    if (!Role_if(PM_ROGUE)) /* stealing is unlawful */
+    if (!(Role_if(PM_ROGUE) || Role_if(PM_CONVICT))
+        && u.ualign.type != A_NONE) { /* stealing is unlawful */
+        You_feel("guilty.");
         adjalign(-sgn(u.ualign.type));
+        record_abuse_event(-sgn(u.ualign.type), ABUSE_SHOPLIFTING);
+    }
 
     hot_pursuit(shkp);
     return TRUE;
@@ -5393,6 +5397,7 @@ shopdig(int fall)
         if (Role_if(PM_KNIGHT)) {
             You_feel("like a common thief.");
             adjalign(-sgn(u.ualign.type));
+            record_abuse_event(-sgn(u.ualign.type), ABUSE_VANDALISM);
         }
         return;
     }
@@ -5422,6 +5427,7 @@ shopdig(int fall)
         if (Role_if(PM_KNIGHT)) {
             You_feel("like a common thief.");
             adjalign(-sgn(u.ualign.type));
+            record_abuse_event(-sgn(u.ualign.type), ABUSE_VANDALISM);
         }
     } else if (!um_dist(shkp->mx, shkp->my, 5)
                && !helpless(shkp)
@@ -5706,7 +5712,13 @@ pay_for_damage(const char *dmgstr, boolean cant_mollify)
         } else
             growl(shkp);
         hot_pursuit(shkp);
-        adjalign(-sgn(u.ualign.type));
+        /* Convicts and Infidels don't feel guilt over
+           damage to shops */
+        if (!(Role_if(PM_CONVICT) || u.ualign.type == A_NONE)) {
+            You_feel("guilty.");
+            adjalign(-sgn(u.ualign.type));
+            record_abuse_event(-sgn(u.ualign.type), ABUSE_VANDALISM);
+        }
     }
 }
 

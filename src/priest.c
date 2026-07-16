@@ -656,11 +656,24 @@ priest_talk(struct monst *priest)
            cheapskate out to rerandomize the donation amounts they will be
            higher next time */
         long offer;
+        int abuse_val = (int) u.ualign.abuse;
+        boolean dominated = (abuse_val >= 50); /* gravely abused */
         long suggested = (u.ulevelpeak ? u.ulevelpeak : 1 ) *
             rn1(101, 150 + (cheapskate ? *cheapskate : 0) * 40);
-        long quan = money_cnt(gi.invent) / (suggested * 3);
+        long quan;
         char buf[BUFSZ];
 
+        /* alignment abuse increases priest service costs */
+        if (abuse_val >= 30)
+            suggested = (suggested * 2);     /* 2.0x */
+        else if (abuse_val >= 15)
+            suggested = (suggested * 7) / 4; /* 1.75x */
+        else if (abuse_val >= 5)
+            suggested = (suggested * 3) / 2; /* 1.5x */
+        else if (abuse_val >= 1)
+            suggested = (suggested * 5) / 4; /* 1.25x */
+
+        quan = money_cnt(gi.invent) / (suggested * 3);
         if (quan < 1)
             quan = 1;
 
@@ -676,9 +689,63 @@ priest_talk(struct monst *priest)
         if ((offer = bribe(priest, buf)) == 0) {
             SetVoice(priest, 0, 80, 0);
             verbalize("Thou shalt regret thine action!");
-            if (coaligned)
+            if (coaligned) {
                 adjalign(-1);
+                record_abuse_event(-1, ABUSE_REFUSE_TITHE);
+            }
             if (cheapskate) ++*cheapskate;
+        } else if (offer >= (coaligned ? 25000L : 50000L)
+                   && u.ualign.abuse != 0) {
+            /* Atonement for alignment abuse - any priest can accept,
+               but co-aligned priests charge less per tier */
+            long atone_cost = coaligned ? 25000L : 50000L;
+            int tiers_paid = (int) (offer / atone_cost);
+            int tiers_reduced = 0;
+            int original_abuse = (int) u.ualign.abuse;
+            int atonement_val = original_abuse;
+
+            while (tiers_paid > 0 && atonement_val > 0) {
+                /* drop to the bottom of the next-lower tier */
+                if (atonement_val >= 50)
+                    atonement_val = 30; /* grave -> severe */
+                else if (atonement_val >= 30)
+                    atonement_val = 15; /* severe -> serious */
+                else if (atonement_val >= 15)
+                    atonement_val = 5;  /* serious -> moderate */
+                else if (atonement_val >= 5)
+                    atonement_val = 1;  /* moderate -> slight */
+                else
+                    atonement_val = 0;  /* slight -> none */
+                tiers_paid--;
+                tiers_reduced++;
+            }
+            if (tiers_reduced > 0) {
+                int abuse_reduced = original_abuse - atonement_val;
+
+                u.ualign.abuse = (unsigned) atonement_val;
+                record_abuse_event(abuse_reduced, ABUSE_ATONEMENT);
+                aasimar_check_abuse();
+                SetVoice(priest, 0, 80, 0);
+                if (coaligned) {
+                    if (atonement_val == 0)
+                        verbalize("Thy penance is accepted.  "
+                                  "Thou art fully absolved of past "
+                                  "transgressions.");
+                    else
+                        verbalize("Thy penance is accepted.  "
+                                  "The burden of thy transgressions "
+                                  "is lightened.");
+                } else {
+                    if (atonement_val == 0)
+                        verbalize("Even one not of my faith may "
+                                  "find redemption.  Thy penance "
+                                  "is accepted.");
+                    else
+                        verbalize("Thy gold speaks of sincere "
+                                  "contrition.  I shall intercede "
+                                  "on thy behalf.");
+                }
+            }
         } else if (offer < suggested * quan) {
             if (money_cnt(gi.invent) > (offer * 2L)) {
                 SetVoice(priest, 0, 80, 0);
@@ -700,6 +767,11 @@ priest_talk(struct monst *priest)
             verbalize("I bestow upon thee a blessing.");
             incr_itimeout(&HClairvoyant, rn1(500 * offer / suggested,
                                              500 * offer / suggested));
+        } else if (offer < suggested * quan * 3 && dominated) {
+            /* gravely abused - take gold but refuse protection */
+            SetVoice(priest, 0, 80, 0);
+            verbalize("Thy transgressions are too grave.  "
+                      "No protection can I offer thee.");
         } else if (offer < suggested * quan * 3) {
             int orig_ublessed = u.ublessed;
 

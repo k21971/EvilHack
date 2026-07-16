@@ -870,6 +870,9 @@ animate_statue(
         if (historic) {
             You_feel("guilty %s.", historic_statue_is_gone);
             adjalign(-1);
+            record_abuse_event_dtl(-1, ABUSE_HISTORIC_STATUE,
+                                   (statue->corpsenm >= LOW_PM)
+                                       ? statue->corpsenm + 1 : 0, 0);
         }
     } else {
         if (historic && cansee(x, y))

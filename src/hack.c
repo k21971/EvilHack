@@ -2172,6 +2172,10 @@ domove_swap_with_pet(
         You("stop.  %s doesn't want to swap places.", YMonnam(mtmp));
         didnt_move = TRUE;
     } else {
+        /* snapshot the species index up front; the drowned-or-died
+           case below records the abuse event after the pet is dead */
+        int pushed_mndx = monsndx(mtmp->data);
+
         mtmp->mtrapped = 0;
         remove_monster(x, y);
         place_monster(mtmp, u.ux0, u.uy0);
@@ -2196,7 +2200,10 @@ domove_swap_with_pet(
         case Trap_Moved_Mon: /* changed levels */
             /* there's already been a trap message, reinforce it */
             abuse_dog(mtmp);
+            You_feel("guilty.");
             adjalign(-3);
+            record_abuse_event_dtl(-3, ABUSE_PET_PUSH,
+                                   pushed_mndx + 1, 0);
             break;
         case Trap_Killed_Mon:
             /* drowned or died...
@@ -2225,7 +2232,15 @@ domove_swap_with_pet(
             if (rn2(4)) {
                 You_feel("guilty about losing your pet like this.");
                 u.ugangr++;
-                adjalign(-15);
+                if (u.ualign.type == A_NONE) {
+                    adjalign(-3);
+                    record_abuse_event_dtl(-3, ABUSE_PET_PUSH,
+                                           pushed_mndx + 1, 0);
+                } else {
+                    adjalign(-15);
+                    record_abuse_event_dtl(-15, ABUSE_PET_PUSH,
+                                           pushed_mndx + 1, 0);
+                }
             }
             break;
         default:

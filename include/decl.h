@@ -157,6 +157,8 @@ struct instance_globals_a {
     /* mon.c */
     short *animal_list; /* list of PM values for animal monsters */
     int animal_list_count;
+    int accidental_bump; /* how the hero accidentally angered a
+                          * peaceful, for setmangry() */
 
 #ifdef CHANGE_COLOR
     /* options.c */

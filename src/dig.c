@@ -485,12 +485,33 @@ dig(void)
                 }
             }
             if (digtyp == DIGTYP_TREE) {
-                digtxt = "You cut down the tree.";
+                /* Druids are penalized for cutting down
+                   live trees */
+                if (Role_if(PM_DRUID)) {
+                    digtxt = "You cut down the tree.  You feel very guilty.";
+                    adjalign(-15);
+                    record_abuse_event(-15, ABUSE_DESTROY_TREE);
+                    change_luck(-7);
+                    /* deity becomes "very" angry */
+                    u.ugangr += 5;
+                } else if (Race_if(PM_ELF)) {
+                    /* Elves are also penalized, but
+                       not as severely */
+                    digtxt = "You cut down the tree.  You feel guilty.";
+                    adjalign(-5);
+                    record_abuse_event(-5, ABUSE_DESTROY_TREE);
+                    change_luck(-2);
+                } else if (Role_if(PM_RANGER)) {
+                    /* Rangers are penalized mildly */
+                    digtxt = "You cut down the tree.  You feel a little guilty.";
+                    adjalign(-2);
+                    record_abuse_event(-2, ABUSE_DESTROY_TREE);
+                } else {
+                    digtxt = "You cut down the tree.";
+                }
                 lev->typ = ROOM, lev->flags = 0;
                 if (!rn2(5))
                     (void) rnd_treefruit_at(dpx, dpy);
-                if (Race_if(PM_ELF) || Role_if(PM_RANGER))
-                    adjalign(-1);
             } else {
                 digtxt = "You succeed in cutting away some rock.";
                 lev->typ = CORR, lev->flags = 0;
@@ -1059,14 +1080,18 @@ dig_up_grave(coord *cc)
     /* Grave-robbing is frowned upon... */
     exercise(A_WIS, FALSE);
     if (Role_if(PM_ARCHEOLOGIST)) {
-        adjalign(-sgn(u.ualign.type) * 3);
+        int pen = -sgn(u.ualign.type) * 3;
+
+        adjalign(pen);
+        record_abuse_event(pen, ABUSE_GRAVE_ROB);
         You_feel("like a despicable grave-robber!");
     } else if (Role_if(PM_SAMURAI)) {
         adjalign(-sgn(u.ualign.type));
+        record_abuse_event(-sgn(u.ualign.type), ABUSE_GRAVE_ROB);
         You("disturb the honorable dead!");
-    } else if (u.ualign.type == A_LAWFUL) {
-        if (u.ualign.record > -10)
-            adjalign(-1);
+    } else if ((u.ualign.type == A_LAWFUL) && (u.ualign.record > -10)) {
+        adjalign(-sgn(u.ualign.type));
+        record_abuse_event(-sgn(u.ualign.type), ABUSE_GRAVE_ROB);
         You("have violated the sanctity of this grave!");
     }
 

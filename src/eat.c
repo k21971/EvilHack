@@ -249,7 +249,8 @@ choke(struct obj *food)
         if (!food || food->otyp != AMULET_OF_STRANGULATION)
             return;
     } else if (Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL) {
-        adjalign(-1); /* gluttony is unchivalrous */
+        adjalign(-2); /* gluttony is unchivalrous */
+        record_abuse_event(-2, ABUSE_GLUTTONY);
         You_feel("like a glutton!");
     }
 
@@ -1392,9 +1393,11 @@ void
 violated_vegetarian(void)
 {
     u.uconduct.unvegetarian++;
-    if (Role_if(PM_MONK)) {
+    if (Role_if(PM_MONK) && !Race_if(PM_DRAUGR)
+        && !Race_if(PM_VAMPIRE)) {
         You_feel("guilty.");
         adjalign(-1);
+        record_abuse_event(-1, ABUSE_VEGETARIAN);
     }
     return;
 }

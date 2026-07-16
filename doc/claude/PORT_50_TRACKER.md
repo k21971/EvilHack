@@ -1456,8 +1456,38 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       slices: branch carries 5.0-NATIVE pet ranged AI
       (score_targ/best_target/pet_ranged_attk in dogmove.c) parallel
       to master's mfind_target pet path - RECONCILE per
-      adopt-upstream-then-re-add rule. Reviewer's 10-point battery
-      list in the review report; battery pending.
+      adopt-upstream-then-re-add rule.
+      WIZMODE BATTERY PASSED 2026-07-16 (illithid Wizard XL30,
+      sanity_check on all game, paniclog NEVER CREATED, save dir
+      restored): skill_init unlock (#enhance telekinesis Unskilled
+      0(20)); use_skill counter ticks on use; force-advance capped
+      at Master; Unskilled = no menu/push-only/range 1/stack split;
+      Master = push-pull menu + remote-pickup pull; helm +1 range
+      boundary EXACT (6 in, 7 out of range); iron-helm block with
+      material name; hero tk_push_mon + tk_impact wall slam; monster
+      pull-you x2 (mhim renders both sexes; hurtle dist-1 stops
+      adjacent); cooldown set 9/10 after actions and ticks exactly
+      1/turn (gdb); dagger hurl at hero; potion hurl -> potionhit
+      splash, destroyed obj clean; cockatrice-corpse hurl ->
+      done(STONING) with killer string read live via gdb =
+      "telekinetically hurled cockatrice corpse" KILLED_BY_AN;
+      chain-hold blocks pull + consumes cooldown (unguarded set =
+      master parity); BUG-1336 FIX VERIFIED (struck peaceful
+      watchman stays peaceful=1, hero align record/abuse 0/0);
+      tame flayer mfind_target + acceptable_pet_target pull of a
+      hostile then melee (pull-to-prey combo); #wiztelekinesis
+      works; save/reload keeps mtk_attk (8 -> 7, one legit
+      save-turn tick). NOT live-run (statically + reviewer
+      verified): covetous mgoal early-return, boulder push by
+      master flayer, A_INT<6 gate. BATTERY-DRIVING GOTCHAS: gdb
+      reads taken while a prompt is up (e.g. potion-naming docall)
+      see MID-TURN state - the caller's cooldown line has not run
+      yet; rloc_to does NOT validate terrain - placing a monster on
+      a wall/stone tile silently kills its TK ray (ZAP_POS break)
+      and mimics an AI bug; wizard #enhance 'y' force-advance is
+      the fast lever for skill-gate testing; genesis'd master mind
+      flayers drink !speed and brain-suck relentlessly - stage via
+      gdb mcanmove=0/mfrozen, not in melee range.
 - [ ] Kill-attribution/livelog architecture (player_killed +
       pet_killer set/consume; memory kill-attribution-architecture):
       producers = xkilled/monkilled callers, set_pet_killer sites in
@@ -1467,8 +1497,78 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       Ice Queen/Vecna bosses + livelog reconciliation (setter
       without consumer = never-cleared stale monst pointer - do NOT
       port piecemeal)
-- [ ] Alignment-abuse subsystem (tiers, #conduct API - see memory
+- [x] Alignment-abuse subsystem (tiers, #conduct API - see memory
       alignment-abuse-subsystem)
+      DONE 2026-07-16 (commit pending; port subagent + reviewer
+      CONDITIONAL PASS + coordinator fixes; clean rebuild pending
+      below). PROVENANCE FINDING: upstream 5.0 itself added the
+      u.ualign.abuse counter (unsigned POSITIVE magnitude) with
+      erinyes scaling (adj_erinys) and HoOA fury summons (Meyer,
+      2023-11) - the slice is adopt-upstream-base + re-add EvilHack
+      extras; Phase 1 had landed only the EvilHack data-model extras
+      (abuse_event ring, ever_abused, uaasimar_penalties), all dead
+      until now. SIGN ADAPTATION: master stores abuse negative; all
+      ported reads/assigns adapted to the branch's positive-unsigned
+      convention (recorder API contract unchanged - producers pass
+      negative penalties). Landed: 47-value ABUSE_* enum (align.h,
+      append-only, saved as short); recorders + abuse_type_name +
+      abuse_event_desc (pmnames[NEUTRAL], range-validated details);
+      adjalign ever_abused + aasimar stub; setmangry rebuilt to
+      master parity (accidental consume-on-entry, Elbereth gate,
+      Kathryn/Bourbon/Ozzy cross-anger, Rogue/Convict carve-outs,
+      priest LUCKMIN arm, chaotic-aware pen formula, Oracle/Charon
+      mmove=18 chase); ga.accidental_bump one-shot flag +
+      wakeup_accidental/setmangry_accidental + consumers
+      (attack_checks glyph split, hurtle_step/mhurtle_step); xkilled
+      reworked (scenario_penalty, A_NONE gates, uni_same, malign cap
+      max(3*pen,-15)); priest_talk atonement (25k/50k per tier,
+      tier-bottom landing, tier-scaled suggested donations,
+      REFUSE_TITHE); insight.c enlightenment line + #conduct tiers +
+      aasimar purity/lost-gifts (inert) + "Last alignment abuse
+      events:" ring readout (ever_abused gate); restore stub call.
+      Producers: 50 of 79 master sites ported (16 host files);
+      29 DEFERRED with named subsystems - Moloch periodic offering
+      (allmain), Grimtooth disease + Vecna invoke (artifact.c),
+      aasimar helm explosion (do_wear) + forsake-deity (pray),
+      Enchantress attack + Lolth deity-kill + Infidel good-deed
+      (mon.c), Infidel cowardice (monmove), vampire-blood quaff
+      (potion), real-Amulet deception (pray), quest betrayal
+      (quest.c pissed_off), death-spell peaceful (spell.c),
+      steed HAZ_FALL (is_open_air terrain), Druid woodland +
+      Priest forbidden-weapon + tainted-weapon + P_THIEVERY
+      pickpocket (uhitm), ray tree destruction (zap/hack) -
+      full table in the port report. REVIEWER BLOCKERS FIXED:
+      (1) museum-copy segfault guard restored on the xkilled
+      ispriest arm (master ispriest && mtmp != &museum - a crash
+      fix, not an abuse feature; two new p_coaligned calls made it
+      three-deep); (2) stale-malign accounting - master's
+      set_malign(mtmp) recalc at the xkilled cleanup label ported
+      TOGETHER with master's murderer-block rework
+      (always_peaceful/isshk gate, > A_CHAOTIC - deps
+      always_peaceful/is_zombie already on branch) plus
+      set_malign+newsym at the three mpeaceful->hostile flips
+      (setmangry main, bystander cascade, quest guardians -
+      BUG-945/981/982 pattern family). Also fixed: priest-kill
+      else-if chain + Infidel lawful-priest bonus arm; steed
+      water/lava BYCHOICE-vs-monkilled credit split;
+      accidental_bump moved go->ga struct (first-letter
+      partitioning); hack.c decl-to-block-top. FOLLOW-UPS
+      (maintainer decisions / later slices): dig.c tree-cut Ranger
+      arm RESOLVED (maintainer 2026-07-16): kept and raised to -2
+      with an ABUSE_DESTROY_TREE record and mild-guilt message
+      (Druid -15 / Elf -5 / Ranger -2; elven Rangers hit the Elf
+      arm first); priest suggested-donation multiplier
+      partially cancels for wealthy purses (quan divides it back
+      out) - sanity-check intent; uabuse_hist_idx restore clamp
+      (defense-in-depth vs corrupt saves, master shares exposure) -
+      decide; atonement does not de-escalate erinyes (upstream
+      adj_erinys is escalate-only by design) - confirm intended;
+      re-verify restore-call ordering when the aasimar penalty
+      engine lands. abuse_tier() + the aasimar penalty engine
+      travel with the aasimar race slice (named in the attrib.c
+      stub). ugift_history is a parallel dead Phase 1 ring - its
+      display pends with the sacrifice/gift subsystem. Battery
+      pending (reviewer's 7-point list in the review report).
 - [ ] Monster AI/equipment: dual-wield, artifact ranking, weapon
       selection (see weapon-selection-architecture memory)
       (+ master monmove.c dochug ranged-attack scan block using

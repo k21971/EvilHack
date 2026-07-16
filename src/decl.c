@@ -185,6 +185,7 @@ static const struct instance_globals_a g_init_a = {
     /* mon.c */
     UNDEFINED_PTR, /* animal_list */
     UNDEFINED_VALUE, /* animal_list_count */
+    0, /* accidental_bump */
 #ifdef CHANGE_COLOR
     /* options.c */
     { 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U,

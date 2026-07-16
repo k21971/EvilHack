@@ -1524,6 +1524,11 @@ attributes_enlightenment(
         enl_msg("Your alignment ", "is", "was", buf, "");
     }
 
+    if (wizard) {
+        Sprintf(buf, " %u", u.ualign.abuse);
+        enl_msg("Your alignment abuse value ", "is", "was", buf, "");
+    }
+
     /*** Resistances to troubles ***/
     if (Invulnerable)
         you_are("invulnerable", from_what(INVULNERABLE));
@@ -2174,6 +2179,38 @@ show_conduct(int final)
         you_have_X(buf);
     }
 
+    if (!u.ever_abused) {
+        you_have_never("abused your alignment");
+    } else if (u.ualign.abuse == 0) {
+        /* atoned back to clean slate, but did abuse in the past */
+        Sprintf(buf, "been absolved of past alignment abuse");
+        you_have_X(buf);
+    } else if (u.ualign.abuse < 5) {
+        Sprintf(buf, "slightly abused your alignment");
+        you_have_X(buf);
+    } else if (u.ualign.abuse < 15) {
+        Sprintf(buf, "moderately abused your alignment");
+        you_have_X(buf);
+    } else if (u.ualign.abuse < 30) {
+        Sprintf(buf, "seriously abused your alignment");
+        you_have_X(buf);
+    } else if (u.ualign.abuse < 50) {
+        Sprintf(buf, "severely abused your alignment");
+        you_have_X(buf);
+    } else {
+        Sprintf(buf, "gravely abused your alignment");
+        you_have_X(buf);
+    }
+
+    if (Race_if(PM_AASIMAR)) {
+        if (u.ualign.abuse == 0) {
+            enl_msg(You_, "gain", "gained",
+                    " bonus vitality from your celestial purity", "");
+        } else if (u.uaasimar_penalties != 0L) {
+            you_have_X("lost divine gifts due to alignment abuse");
+        }
+    }
+
     if (!u.uconduct.pets)
         you_have_never("had a pet");
 
@@ -2254,6 +2291,42 @@ show_conduct(int final)
     }
 
     show_achievements(final);
+
+    /* Display last alignment abuse events */
+    if (u.ever_abused) {
+        char dbuf[BUFSZ];
+        int i, count = 0, start;
+        struct abuse_event *evt;
+
+        /* Count valid entries */
+        for (i = 0; i < MAX_ABUSE_HISTORY; i++)
+            if (u.uabuse_history[i].turn > 0)
+                count++;
+
+        if (count > 0) {
+            putstr(ge.en_win, 0, "");
+            putstr(ge.en_win, ATR_HEADING, "Last alignment abuse events:");
+
+            /* Display in reverse chronological order */
+            start = (u.uabuse_hist_idx - 1 + MAX_ABUSE_HISTORY)
+                    % MAX_ABUSE_HISTORY;
+            for (i = 0; i < count && i < MAX_ABUSE_HISTORY; i++) {
+                int idx = (start - i + MAX_ABUSE_HISTORY) % MAX_ABUSE_HISTORY;
+
+                evt = &u.uabuse_history[idx];
+                if (evt->turn > 0) {
+                    abuse_event_desc(evt, dbuf);
+                    if (evt->abuse_type == ABUSE_ATONEMENT)
+                        Snprintf(buf, sizeof buf, " Turn %ld: %s (+%d)",
+                                 evt->turn, dbuf, evt->penalty);
+                    else
+                        Snprintf(buf, sizeof buf, " Turn %ld: %s (-%d)",
+                                 evt->turn, dbuf, evt->penalty);
+                    putstr(ge.en_win, 0, buf);
+                }
+            }
+        }
+    }
 
     /* Pop up the window and wait for a key */
     display_nhwindow(ge.en_win, TRUE);

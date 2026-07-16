@@ -750,6 +750,8 @@ restgamestate(NHFILE *nhfp)
     relink_timers(FALSE);
     relink_light_sources(FALSE);
     adj_erinys(u.ualign.abuse);
+    /* re-apply aasimar abuse penalties after role_init resets urace */
+    aasimar_check_abuse();
 #ifdef WHEREIS_FILE
     touch_whereis();
 #endif
