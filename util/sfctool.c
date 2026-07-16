@@ -1075,6 +1075,26 @@ free_erac(struct monst *mtmp)
     }
 }
 
+void
+newemsp(struct monst *mtmp)
+{
+    if (!mtmp->mextra)
+        mtmp->mextra = newmextra();
+    if (!EMSP(mtmp)) {
+        EMSP(mtmp) = (struct emsp *) alloc(sizeof (struct emsp));
+        (void) memset((genericptr_t) EMSP(mtmp), 0, sizeof (struct emsp));
+    }
+}
+
+void
+free_emsp(struct monst *mtmp)
+{
+    if (mtmp->mextra && EMSP(mtmp)) {
+        free((genericptr_t) EMSP(mtmp));
+        EMSP(mtmp) = (struct emsp *) 0;
+    }
+}
+
 static const struct mextra zeromextra = DUMMY;
 
 static void

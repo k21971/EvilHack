@@ -372,6 +372,12 @@ restmon(NHFILE *nhfp, struct monst *mtmp)
             newerac(mtmp);
             Sfi_erac(nhfp, ERAC(mtmp), "monst-erac");
         }
+        /* emsp - monster spell knowledge */
+        Sfi_int(nhfp, &buflen, "monst-emsp_length");
+        if (buflen > 0) {
+            newemsp(mtmp);
+            Sfi_emsp(nhfp, EMSP(mtmp), "monst-emsp");
+        }
         /* mcorpsenm - obj->corpsenm for mimic posing as corpse or
            statue (inline int rather than pointer to something) */
         Sfi_int(nhfp, &mc, "monst-mcorpsenm");

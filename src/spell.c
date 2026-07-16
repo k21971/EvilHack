@@ -44,7 +44,6 @@ staticfn boolean dospellmenu(const char *, int, int *);
 staticfn int percent_success(int);
 staticfn char *spellretention(int, char *);
 staticfn int throwspell(void);
-staticfn void cast_protection(void);
 staticfn void cast_chain_lightning(void);
 staticfn void spell_backfire(int);
 staticfn boolean spelleffects_check(int, int *, int *);
@@ -1099,8 +1098,8 @@ cast_chain_lightning(void)
     tmp_at(DISP_END, 0);
 }
 
-staticfn void
-cast_protection(void)
+void
+cast_protection(int skill)
 {
     int l = u.ulevel, loglev = 0,
         gain, natac = u.uac + u.uspellprot;
@@ -1165,13 +1164,217 @@ cast_protection(void)
             }
         }
         u.uspellprot += gain;
-        u.uspmtime = (P_SKILL(spell_skilltype(SPE_PROTECTION)) == P_EXPERT)
-                        ? 20 : 10;
+        u.uspmtime = (skill == P_EXPERT) ? 20 : 10;
         if (!u.usptime)
             u.usptime = u.uspmtime;
         find_ac();
     } else {
         Your("skin feels warm for a moment.");
+    }
+}
+
+void
+cast_reflection(struct monst *mdef, int skill)
+{
+    boolean youdefend = (mdef == &gy.youmonst);
+    int duration = (skill == P_EXPERT) ? 750
+                   : (skill == P_SKILLED) ? 500
+                     : (skill == P_BASIC) ? 250
+                       : 100;
+
+    if (youdefend) {
+        u.uconduct.reflection++;
+        if (HReflecting) {
+            if (!Blind)
+                pline_The(
+                 "shimmering globe around you becomes slightly brighter.");
+            else
+                You_feel("slightly more smooth.");
+        } else {
+            if (!Blind)
+                pline("A shimmering globe appears around you!");
+            else
+                You_feel("smooth.");
+        }
+        /* the higher the skill in matter-based spells, the longer
+           the effect */
+        incr_itimeout(&HReflecting,
+                      rn1(10, HReflecting ? (duration / 5) : duration));
+    } else {
+        if (canseemon(mdef))
+            pline("A shimmering globe appears around %s!", mon_nam(mdef));
+        /* monster reflection is handled in mon_reflects() */
+        mdef->mextrinsics |= MR2_REFLECTION;
+        mdef->mreflecttime = rn1(10, (mdef->iswiz || is_prince(mdef->data)
+                                      || mdef->data->msound == MS_NEMESIS
+                                      || mdef->data->msound == MS_LEADER)
+                                     ? 250 : 150);
+    }
+}
+
+void
+cast_barkskin(struct monst *mdef, int skill)
+{
+    boolean youdefend = (mdef == &gy.youmonst);
+    int duration = (skill == P_EXPERT) ? 750
+                   : (skill == P_SKILLED) ? 500
+                     : (skill == P_BASIC) ? 250
+                       : 100;
+
+    if (youdefend) {
+        if (Stoneskin) {
+            You_cant("cast Barkskin while Stoneskin is active.");
+            return;
+        } else if (HBarkskin) {
+            /* increases timeout only */
+            pline_The("bark covering your %s feels a bit thicker.",
+                      mbodypart(&gy.youmonst, SKIN));
+        } else {
+            pline("A thick layer of bark covers your %s.",
+                  mbodypart(&gy.youmonst, SKIN));
+        }
+        /* the higher the skill in evocation-based spells, the longer
+           the effect */
+        incr_itimeout(&HBarkskin,
+                      rn1(10, HBarkskin ? (duration / 5) : duration));
+        find_ac(); /* adjust AC; dmg reduction handled in hitmu() */
+    } else {
+        if (canseemon(mdef))
+            pline("A thick layer of bark covers %s %s!",
+                  s_suffix(Monnam(mdef)), mbodypart(mdef, SKIN));
+        mdef->mextrinsics |= MR2_BARKSKIN;
+        mdef->mbarkskintime = rn1(10, (mdef->iswiz || is_prince(mdef->data)
+                                       || mdef->data->msound == MS_NEMESIS
+                                       || mdef->data->msound == MS_LEADER)
+                                      ? 250 : 150);
+    }
+}
+
+void
+cast_stoneskin(struct monst *mdef, int skill)
+{
+    boolean youdefend = (mdef == &gy.youmonst);
+    int duration = (skill == P_EXPERT) ? 750
+                   : (skill == P_SKILLED) ? 500
+                     : (skill == P_BASIC) ? 250
+                       : 100;
+
+    if (youdefend) {
+        if (Barkskin) {
+            You_cant("cast Stoneskin while Barkskin is active.");
+            return;
+        } else if (HStoneskin) {
+            /* increases timeout only */
+            pline_The("stone covering your %s feels a bit thicker.",
+                      mbodypart(&gy.youmonst, SKIN));
+        } else {
+            pline("A thick layer of stone covers your %s.",
+                  mbodypart(&gy.youmonst, SKIN));
+        }
+        /* become stone resistant */
+        HStone_resistance |= I_SPECIAL;
+
+        /* the higher the skill in evocation-based spells, the longer
+           the effect */
+        incr_itimeout(&HStoneskin,
+                      rn1(10, HStoneskin ? (duration / 5) : duration));
+        find_ac(); /* adjust AC; dmg reduction handled in hitmu() */
+    } else {
+        if (canseemon(mdef))
+            pline("A thick layer of stone covers %s %s!",
+                  s_suffix(Monnam(mdef)), mbodypart(mdef, SKIN));
+        /* already stone resistant from resists_ston() */
+        mdef->mextrinsics |= MR2_STONESKIN;
+        mdef->mstoneskintime = rn1(10, (mdef->iswiz || is_prince(mdef->data)
+                                        || mdef->data->msound == MS_NEMESIS
+                                        || mdef->data->msound == MS_LEADER)
+                                       ? 250 : 150);
+    }
+}
+
+void
+cast_entangle(struct monst *mdef, int skill)
+{
+    boolean youdefend = (mdef == &gy.youmonst);
+    int tangle = (skill == P_EXPERT) ? 5
+                 : (skill == P_SKILLED) ? 4
+                   : (skill == P_BASIC) ? 3
+                     : 1;
+
+    /* target needs to be standing on or near vegetation for
+       entanglement to work */
+    /* TODO-EVILHACK: also allow standing on GRASS terrain once the
+       grass terrain type is ported (terrain slice) */
+    if (youdefend) {
+        if (!nexttotree(u.ux, u.uy)) {
+            You("must be on or near vegetation to become entangled.");
+            return;
+        }
+    } else {
+        if (!nexttotree(mdef->mx, mdef->my)) {
+            pline("%s must be on or near vegetation to become entangled.",
+                  Monnam(mdef));
+            return;
+        }
+    }
+
+    if (youdefend) {
+        if (u.utrap && u.utraptype == TT_ENTANGLED) {
+            You("are already entangled!");
+            return;
+        }
+        if (is_whirly(gy.youmonst.data) || passes_walls(gy.youmonst.data)
+            || unsolid(gy.youmonst.data)) {
+            pline_The("spell fails to entangle you.");
+            return;
+        }
+        /* dismount before describing the entanglement: the steed
+           may pitch the player onto a different tile, so the
+           messages and the eventual set_utrap should describe the
+           landing tile rather than the mounted-position tile */
+        if (u.usteed) {
+            newsym(u.usteed->mx, u.usteed->my);
+            dismount_steed(DISMOUNT_FELL);
+            if (!nexttotree(u.ux, u.uy)) {
+                You("land on bare ground; the spell loses its grip.");
+                return;
+            }
+        }
+        pline_The("%s from a nearby tree ensnare you!",
+                  rn2(2) ? "branches" : "roots");
+        You("are entangled!");
+        set_utrap(rn1(6, 3), TT_ENTANGLED); /* 3-8 turns */
+        return;
+    } else {
+        if (mdef->mentangled) {
+            /* if already entangled, don't add to it */
+            if (canseemon(mdef))
+                pline("%s is already entangled!", Monnam(mdef));
+            return;
+        } else if (is_whirly(mdef->data)
+                   || passes_walls(mdef->data)
+                   || unsolid(mdef->data)) {
+            /* caster-agnostic phrasing; this branch is reached from
+               m-v-m spell paths where the player isn't the caster */
+            if (canseemon(mdef))
+                pline_The("spell fails to entangle %s.", mon_nam(mdef));
+            return;
+        } else {
+            if (canseemon(mdef)) {
+                pline_The("%s from a nearby tree ensnare %s!",
+                          rn2(2) ? "branches" : "roots", mon_nam(mdef));
+                pline("%s is entangled!", Monnam(mdef));
+            }
+            mdef->mentangled = 1;
+            /* 3-8 turns at basic, 4-9 turns at skilled,
+               5-10 turns at expert. at unskilled/restricted,
+               1-6 turns */
+            mdef->mentangletime = rn1(6, tangle);
+            /* if spell skill is skilled or greater, chance to
+               temporarily slow mdef */
+            if (rn2(2) && skill >= P_SKILLED)
+                mon_adjust_speed(mdef, -2, (struct obj *) 0);
+        }
     }
 }
 
@@ -1475,6 +1678,7 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_EXTRA_HEALING:
     case SPE_DRAIN_LIFE:
     case SPE_STONE_TO_FLESH:
+    case SPE_ENTANGLE:
         if (objects[otyp].oc_dir != NODIR) {
             if (otyp == SPE_HEALING || otyp == SPE_EXTRA_HEALING) {
                 /* healing and extra healing are actually potion effects,
@@ -1578,7 +1782,16 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
             You("sense a pointy hat on top of your %s.", body_part(HEAD));
         break;
     case SPE_PROTECTION:
-        cast_protection();
+        cast_protection(role_skill);
+        break;
+    case SPE_REFLECTION:
+        cast_reflection(&gy.youmonst, role_skill);
+        break;
+    case SPE_BARKSKIN:
+        cast_barkskin(&gy.youmonst, role_skill);
+        break;
+    case SPE_STONESKIN:
+        cast_stoneskin(&gy.youmonst, role_skill);
         break;
     case SPE_JUMPING:
         if (!(jump(max(role_skill, 1)) & ECMD_TIME))

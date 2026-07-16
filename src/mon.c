@@ -1234,6 +1234,45 @@ m_calcdistress(struct monst *mtmp)
     if (mtmp->mfleetim && !--mtmp->mfleetim)
         mtmp->mflee = 0;
 
+    /* spell-conferred buffs wear off (timers tick in mon_regen) */
+    if (has_reflection(mtmp) && mtmp->mreflecttime <= 1) {
+        if (canseemon(mtmp))
+            pline("%s shimmering globe disappears.",
+                  s_suffix(Monnam(mtmp)));
+        mtmp->mextrinsics &= ~(MR2_REFLECTION);
+    }
+    if (has_barkskin(mtmp) && mtmp->mbarkskintime <= 1) {
+        if (canseemon(mtmp))
+            pline("%s %s returns to normal.",
+                  s_suffix(Monnam(mtmp)), mbodypart(mtmp, SKIN));
+        mtmp->mextrinsics &= ~(MR2_BARKSKIN);
+    }
+    if (has_stoneskin(mtmp) && mtmp->mstoneskintime <= 1) {
+        if (canseemon(mtmp))
+            pline("%s %s returns to normal.",
+                  s_suffix(Monnam(mtmp)), mbodypart(mtmp, SKIN));
+        /* stone resistance also goes away */
+        mtmp->mextrinsics &= ~(MR2_STONESKIN);
+    }
+    if (mtmp->mentangled && mtmp->mentangletime < 1) {
+        mtmp->mentangled = 0;
+        if (canseemon(mtmp))
+            pline("%s is no longer entangled.", Monnam(mtmp));
+    }
+    if (can_levitate(mtmp) && mtmp->mlevitatetime
+        && mtmp->mlevitatetime <= 1) {
+        mtmp->mextrinsics &= ~(MR2_LEVITATE);
+        mtmp->mlevitatetime = 0;
+        if (canseemon(mtmp))
+            pline("%s floats gently to the %s.",
+                  Monnam(mtmp), surface(mtmp->mx, mtmp->my));
+    }
+    if (can_jump(mtmp) && mtmp->mjumptime && mtmp->mjumptime <= 1) {
+        mtmp->mextrinsics &= ~(MR2_JUMPING);
+        mtmp->mjumptime = 0;
+        /* no message - jumping expiration is silent */
+    }
+
     /* FIXME: mtmp->mlstmv ought to be updated here */
 }
 
@@ -2584,7 +2623,8 @@ mm_displacement(
         && !(magr->mx != mdef->mx && magr->my != mdef->my
              && NODIAG(monsndx(pd)))
         /* no displacing trapped monsters or multi-location longworms */
-        && !mdef->mtrapped && (!mdef->wormno || !count_wsegs(mdef))
+        && !mdef->mtrapped && !mdef->mentangled
+        && (!mdef->wormno || !count_wsegs(mdef))
         /* riders can move anything; others, same size or smaller only */
         && (is_rider(pa) || pa->msize >= pd->msize))
         return ALLOW_MDISP;
@@ -3012,6 +3052,12 @@ copy_mextra(struct monst *mtmp2, struct monst *mtmp1)
         assert(has_erac(mtmp2));
         *ERAC(mtmp2) = *ERAC(mtmp1);
     }
+    if (EMSP(mtmp1)) {
+        if (!EMSP(mtmp2))
+            newemsp(mtmp2);
+        assert(has_emsp(mtmp2));
+        *EMSP(mtmp2) = *EMSP(mtmp1);
+    }
     if (has_mcorpsenm(mtmp1))
         MCORPSENM(mtmp2) = MCORPSENM(mtmp1);
 }
@@ -3077,6 +3123,7 @@ mon_leaving_level(struct monst *mon)
 
     /* to prevent an infinite relobj-flooreffects-hmon-killed loop */
     mon->mtrapped = 0;
+    mon->mentangled = 0;
     unstuck(mon); /* mon is not swallowing or holding you nor held by you */
 
     /* vault guard might be at <0,0> */
@@ -3751,6 +3798,7 @@ monstone(struct monst *mdef)
         return;
 
     mdef->mtrapped = 0; /* (see m_detach) */
+    mdef->mentangled = 0;
 
     if ((int) mdef->data->msize > MZ_TINY
         || !rn2(2 + ((int) (mdef->data->geno & G_FREQ) > 2))) {
@@ -5301,10 +5349,43 @@ healmon(struct monst *mtmp, int amt, int overheal)
 boolean
 damage_mon(struct monst *mon, int amount, int type, boolean by_you)
 {
+    /* TODO-EVILHACK: vulnerability scaling, HPHDAM artifact halving,
+       and damage display port with the damage_mon core slice */
     nhUse(type);
     nhUse(by_you);
     mon->mhp -= amount;
+
+    /* interrupt spellbook reading - being attacked breaks
+       concentration */
+    if (has_emsp(mon) && EMSP(mon)->msp_reading != 0) {
+        EMSP(mon)->msp_reading = 0;
+        EMSP(mon)->msp_read_turns = 0;
+    }
+
     return (DEADMONSTER(mon)) ? TRUE : FALSE;
+}
+
+/* Like damage_mon() but clamps mhp to 1 so mon cannot die from the
+   hit; returns FALSE always. Used for "resists the spell but still
+   takes a sting" branches (power word kill and similar MR-resist
+   paths) so they share the central damage logic without crossing into
+   a killing blow */
+boolean
+damage_mon_nonlethal(struct monst *mon, int amount, int type,
+                     boolean by_you)
+{
+    nhUse(type);
+    nhUse(by_you);
+    mon->mhp -= amount;
+    if (mon->mhp < 1)
+        mon->mhp = 1;
+
+    if (has_emsp(mon) && EMSP(mon)->msp_reading != 0) {
+        EMSP(mon)->msp_reading = 0;
+        EMSP(mon)->msp_read_turns = 0;
+    }
+
+    return FALSE;
 }
 
 /* force all chameleons and mimics to become themselves and werecreatures

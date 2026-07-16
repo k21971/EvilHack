@@ -717,7 +717,7 @@ mattacku(struct monst *mtmp)
         tmp += 4;
     if ((Invis && !mon_prop(mtmp, SEE_INVIS)) || !mtmp->mcansee)
         tmp -= 2;
-    if (mtmp->mtrapped)
+    if (mtmp->mtrapped || mtmp->mentangled)
         tmp -= 2;
     /* M3_ACCURATE monsters get a to-hit bonus */
     if ((has_erac(mtmp) && (ERAC(mtmp)->mflags3 & M3_ACCURATE))
@@ -1262,6 +1262,58 @@ hitmu(struct monst *mtmp, struct attack *mattk)
             mhm.damage = 1;
     }
 
+    /* burning hands spell - extra fire damage on unarmed touch attacks */
+    if (mtmp->mburnhands && !MON_WEP(mtmp)
+        && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
+            || mattk->aatyp == AT_WEAP)) {
+        int firedmg = rnd(6) + 2;
+
+        if (Fire_resistance) {
+            shieldeff(u.ux, u.uy);
+            pline("%s %s don't burn you!", s_suffix(Monnam(mtmp)),
+                  makeplural(mbodypart(mtmp, HAND)));
+        } else {
+            pline("%s burns you with %s %s!", Monnam(mtmp), mhis(mtmp),
+                  makeplural(mbodypart(mtmp, HAND)));
+            if (Half_spell_damage)
+                firedmg /= 2;
+            mhm.damage += firedmg;
+            if ((int) mtmp->m_lev > rn2(20))
+                (void) destroy_items(&gy.youmonst, AD_FIRE, firedmg);
+            burn_away_slime();
+        }
+        mtmp->mburnhands--;
+        if (!mtmp->mburnhands && canseemon(mtmp))
+            pline("%s %s stop burning.", s_suffix(Monnam(mtmp)),
+                  makeplural(mbodypart(mtmp, HAND)));
+    }
+
+    /* shocking grasp spell - extra shock damage on unarmed touch attacks */
+    if (mtmp->mshockgrasp && !MON_WEP(mtmp)
+        && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
+            || mattk->aatyp == AT_WEAP)) {
+        int elecdmg = rnd(6) + 2;
+
+        if (Shock_resistance) {
+            shieldeff(u.ux, u.uy);
+            pline("%s %s don't shock you!", s_suffix(Monnam(mtmp)),
+                  makeplural(mbodypart(mtmp, HAND)));
+        } else {
+            pline("%s %s you with %s %s!", Monnam(mtmp),
+                  rn2(2) ? "jolts" : "shocks", mhis(mtmp),
+                  makeplural(mbodypart(mtmp, HAND)));
+            if (Half_spell_damage)
+                elecdmg /= 2;
+            mhm.damage += elecdmg;
+            if ((int) mtmp->m_lev > rn2(20))
+                (void) destroy_items(&gy.youmonst, AD_ELEC, elecdmg);
+        }
+        mtmp->mshockgrasp--;
+        if (!mtmp->mshockgrasp && canseemon(mtmp))
+            pline("%s %s stop crackling.", s_suffix(Monnam(mtmp)),
+                  makeplural(mbodypart(mtmp, HAND)));
+    }
+
     if (mhm.damage > 0) {
         /* [Half_physical_damage isn't applied to mhm.permdmg] */
         if (Half_physical_damage
@@ -1360,6 +1412,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
             unplacebc(); /* ball&chain go away */
         remove_monster(omx, omy);
         mtmp->mtrapped = 0; /* no longer on old trap */
+        mtmp->mentangled = 0; /* no longer entangled */
         place_monster(mtmp, u.ux, u.uy);
         set_ustuck(mtmp);
         newsym(mtmp->mx, mtmp->my);

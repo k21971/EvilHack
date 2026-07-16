@@ -335,6 +335,8 @@ struct monst {
     ((mon)->data->mresists | (mon)->mextrinsics | (mon)->mintrinsics)
 #define has_free_action(mon) \
     ((mon_resistancebits(mon) & MR2_FREE_ACTION) != 0)
+#define has_reflection(mon) \
+    ((mon_resistancebits(mon) & MR2_REFLECTION) != 0)
 #define has_barkskin(mon) \
     ((mon_resistancebits(mon) & MR2_BARKSKIN) != 0)
 #define has_stoneskin(mon) \
@@ -350,6 +352,7 @@ struct monst {
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
+#define is_evil(mon) (mon_aligntyp(mon) == A_NONE)
 
 /* x is a valid index into mons[] array */
 #define ismnum(x) ((x) >= LOW_PM && (x) < NUMMONS)

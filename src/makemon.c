@@ -2727,6 +2727,16 @@ clone_mon(
 
     m2->mundetected = 0;
     m2->mtrapped = 0;
+    /* clones start fresh: clear spell-conferred transient state that
+       would otherwise never time out coherently on the clone */
+    m2->mentangled = 0;
+    m2->mentangletime = 0;
+    m2->mextrinsics = 0L;
+    m2->mreflecttime = 0;
+    m2->mbarkskintime = 0;
+    m2->mstoneskintime = 0;
+    m2->mlevitatetime = 0;
+    m2->mjumptime = 0;
     m2->mcloned = 1;
     m2->minvent = (struct obj *) 0; /* objects don't clone */
     m2->mw = (struct obj *) 0;
@@ -2946,6 +2956,27 @@ free_erac(struct monst *mtmp)
     if (mtmp->mextra && ERAC(mtmp)) {
         free((genericptr_t) ERAC(mtmp));
         ERAC(mtmp) = (struct erac *) 0;
+    }
+}
+
+void
+newemsp(struct monst *mtmp)
+{
+    if (!mtmp->mextra)
+        mtmp->mextra = newmextra();
+
+    if (!EMSP(mtmp)) {
+        EMSP(mtmp) = (struct emsp *) alloc(sizeof (struct emsp));
+        (void) memset((genericptr_t) EMSP(mtmp), 0, sizeof (struct emsp));
+    }
+}
+
+void
+free_emsp(struct monst *mtmp)
+{
+    if (mtmp->mextra && EMSP(mtmp)) {
+        free((genericptr_t) EMSP(mtmp));
+        EMSP(mtmp) = (struct emsp *) 0;
     }
 }
 

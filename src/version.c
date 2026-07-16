@@ -3,7 +3,6 @@
 /*-Copyright (c) Michael Allison, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
 
-
 #include "hack.h"
 #include "dlb.h"
 
@@ -585,6 +584,7 @@ struct critical_sizes_with_names critical_sizes[] = {
     { (uchar) sizeof(struct edog), "struct edog" },
     { (uchar) sizeof(struct egd), "struct egd" },
     { (uchar) sizeof(struct emin), "struct emin" },
+    { (uchar) sizeof(struct emsp), "struct emsp" },
     { (uchar) sizeof(struct engr), "struct engr" },
     { (uchar) sizeof(struct epri), "struct epri" },
     { (uchar) sizeof(struct erac), "struct erac" },

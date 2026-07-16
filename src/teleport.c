@@ -1765,6 +1765,11 @@ rloc_to_core(
     /* trapped monster teleported away */
     if (mtmp->mtrapped && !mtmp->wormno)
         (void) mintrap(mtmp, NO_TRAP_FLAGS);
+
+    /* entanglement goes away (pulled away from plants magically
+       entangling mtmp) */
+    if (mtmp->mentangled)
+        mtmp->mentangled = 0;
 }
 
 void

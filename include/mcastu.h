@@ -1,5 +1,4 @@
 
-
 #define MCF_NONE     0x0000
 #define MCF_INDIRECT 0x0001 /* untargeted/indirect spell */
 #define MCF_SIGHT    0x0002 /* monster needs to see hero */
@@ -15,6 +14,7 @@
 #define MONSPELL(def, lvl, flags) { MCAST_DUMPENUM_##def, #def }
 #endif
 
+/* new entries must be appended at the end of this list */
 MONSPELL(PSI_BOLT,     0, MCF_HOSTILE|MCF_SIGHT),
 MONSPELL(OPEN_WOUNDS,  0, MCF_HOSTILE|MCF_SIGHT),
 MONSPELL(CURE_SELF,    1, MCF_INDIRECT),
@@ -35,5 +35,10 @@ MONSPELL(AGGRAVATION, 13, MCF_INDIRECT|MCF_HOSTILE|MCF_SIGHT),
 MONSPELL(SUMMON_MONS, 15, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 MONSPELL(CLONE_WIZ,   18, MCF_HOSTILE|MCF_INDIRECT|MCF_SIGHT),
 MONSPELL(DEATH_TOUCH, 20, MCF_HOSTILE|MCF_SIGHT),
+/* spell learned from a spellbook; selection and targeting gates are
+   handled dynamically in mcastu.c, not via the flags here */
+MONSPELL(LEARNED_SPELL, 0, MCF_NONE),
+/* charm-monster special vs tame monsters; castmm() only */
+MONSPELL(UNTAME_PET,    0, MCF_NONE),
 
 #undef MONSPELL

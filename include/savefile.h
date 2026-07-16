@@ -80,6 +80,7 @@ extern void sfo_ebones(NHFILE *, struct ebones *, const char *);
 extern void sfo_edog(NHFILE *, struct edog *, const char *);
 extern void sfo_egd(NHFILE *, struct egd *, const char *);
 extern void sfo_emin(NHFILE *, struct emin *, const char *);
+extern void sfo_emsp(NHFILE *, struct emsp *, const char *);
 extern void sfo_engr(NHFILE *, struct engr *, const char *);
 extern void sfo_epri(NHFILE *, struct epri *, const char *);
 extern void sfo_erac(NHFILE *, struct erac *, const char *);
@@ -169,6 +170,7 @@ extern void sfi_ebones(NHFILE *, struct ebones *, const char *);
 extern void sfi_edog(NHFILE *, struct edog *, const char *);
 extern void sfi_egd(NHFILE *, struct egd *, const char *);
 extern void sfi_emin(NHFILE *, struct emin *, const char *);
+extern void sfi_emsp(NHFILE *, struct emsp *, const char *);
 extern void sfi_engr(NHFILE *, struct engr *, const char *);
 extern void sfi_epri(NHFILE *, struct epri *, const char *);
 extern void sfi_erac(NHFILE *, struct erac *, const char *);
@@ -243,6 +245,7 @@ extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
 #define Sfo_edog(a,b,c) sfo_edog(a, b, c)
 #define Sfo_egd(a,b,c) sfo_egd(a, b, c)
 #define Sfo_emin(a,b,c) sfo_emin(a, b, c)
+#define Sfo_emsp(a,b,c) sfo_emsp(a, b, c)
 #define Sfo_engr(a,b,c) sfo_engr(a, b, c)
 #define Sfo_epri(a,b,c) sfo_epri(a, b, c)
 #define Sfo_erac(a,b,c) sfo_erac(a, b, c)
@@ -309,6 +312,7 @@ extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
 #define Sfi_edog(a,b,c) sfi_edog(a, b, c)
 #define Sfi_egd(a,b,c) sfi_egd(a, b, c)
 #define Sfi_emin(a,b,c) sfi_emin(a, b, c)
+#define Sfi_emsp(a,b,c) sfi_emsp(a, b, c)
 #define Sfi_engr(a,b,c) sfi_engr(a, b, c)
 #define Sfi_epri(a,b,c) sfi_epri(a, b, c)
 #define Sfi_erac(a,b,c) sfi_erac(a, b, c)
@@ -358,6 +362,7 @@ extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
     struct edog *         : sfo_edog,          \
     struct egd *          : sfo_egd,           \
     struct emin *         : sfo_emin,          \
+    struct emsp *         : sfo_emsp,          \
     struct engr *         : sfo_engr,          \
     struct epri *         : sfo_epri,          \
     struct erac *         : sfo_erac,          \
@@ -421,6 +426,7 @@ extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
     struct edog *         : sfi_edog,          \
     struct egd *          : sfi_egd,           \
     struct emin *         : sfi_emin,          \
+    struct emsp *         : sfi_emsp,          \
     struct engr *         : sfi_engr,          \
     struct epri *         : sfi_epri,          \
     struct erac *         : sfi_erac,          \
@@ -510,6 +516,7 @@ extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
 #define Sfo_edog(a,b,c) sfo(a, b, c)
 #define Sfo_egd(a,b,c) sfo(a, b, c)
 #define Sfo_emin(a,b,c) sfo(a, b, c)
+#define Sfo_emsp(a,b,c) sfo(a, b, c)
 #define Sfo_engr(a,b,c) sfo(a, b, c)
 #define Sfo_epri(a,b,c) sfo(a, b, c)
 #define Sfo_erac(a,b,c) sfo(a, b, c)
@@ -577,6 +584,7 @@ extern void sfi_mystruct_rev0(NHFILE *, struct mystruct_rev0 *, const char *);
 #define Sfi_edog(a,b,c) sfi(a, b, c)
 #define Sfi_egd(a,b,c) sfi(a, b, c)
 #define Sfi_emin(a,b,c) sfi(a, b, c)
+#define Sfi_emsp(a,b,c) sfi(a, b, c)
 #define Sfi_engr(a,b,c) sfi(a, b, c)
 #define Sfi_epri(a,b,c) sfi(a, b, c)
 #define Sfi_erac(a,b,c) sfi(a, b, c)

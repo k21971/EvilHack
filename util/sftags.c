@@ -194,8 +194,7 @@ struct nhdatatypes_t readtagstypes[] = {
     { NHTYPE_SIMPLE, (char *) "xint16", sizeof(xint16) },
     { NHTYPE_SIMPLE, (char *) "coordxy", sizeof(coordxy) },
     { NHTYPE_COMPLEX, (char *) "align", sizeof(struct align) },
-    /* { NHTYPE_COMPLEX, (char *) "attack", sizeof(struct attack) }, */
-    /* ^ permonst affil */
+    { NHTYPE_COMPLEX, (char *) "attack", sizeof(struct attack) },
     { NHTYPE_COMPLEX, (char *) "arti_info", sizeof(struct arti_info) },
     { NHTYPE_COMPLEX, (char *) "attribs", sizeof(struct attribs) },
     { NHTYPE_COMPLEX, (char *) "bill_x", sizeof(struct bill_x) },
@@ -231,6 +230,7 @@ struct nhdatatypes_t readtagstypes[] = {
     { NHTYPE_COMPLEX, (char *) "edog", sizeof(struct edog) },
     { NHTYPE_COMPLEX, (char *) "egd", sizeof(struct egd) },
     { NHTYPE_COMPLEX, (char *) "emin", sizeof(struct emin) },
+    { NHTYPE_COMPLEX, (char *) "emsp", sizeof(struct emsp) },
     { NHTYPE_COMPLEX, (char *) "engr", sizeof(struct engr) },
     { NHTYPE_COMPLEX, (char *) "epri", sizeof(struct epri) },
     { NHTYPE_COMPLEX, (char *) "erac", sizeof(struct erac) },
@@ -273,6 +273,8 @@ struct nhdatatypes_t readtagstypes[] = {
     { NHTYPE_COMPLEX, (char *) "sysflag", sizeof(struct sysflag) },
 #endif
     { NHTYPE_COMPLEX, (char *) "trap", sizeof(struct trap) },
+    /* you sub-structure */
+    { NHTYPE_COMPLEX, (char *) "abuse_event", sizeof(struct abuse_event) },
     /*    {NHTYPE_COMPLEX, (char *) "u_achieve", sizeof(struct u_achieve)}, */
     { NHTYPE_COMPLEX, (char *) "u_conduct", sizeof(struct u_conduct) },
     { NHTYPE_COMPLEX, (char *) "u_event", sizeof(struct u_event) },
@@ -285,7 +287,6 @@ struct nhdatatypes_t readtagstypes[] = {
     { NHTYPE_COMPLEX, (char *) "you", sizeof(struct you) },
 };
 
-
 /*
  * These have arrays of other structs, not just arrays of
  * simple types. We need to put array handling right into
@@ -296,6 +297,10 @@ struct needs_array_handling nah[] = {
     {"bill", "eshk"},
     {"msrooms", "mapseen"},
     {"mtrack", "monst"},
+    {"mattk", "erac"},
+    {"msp_id", "emsp"},
+    {"msp_know", "emsp"},
+    {"uabuse_history", "you"},
     {"ualignbase", "you"},
     {"weapon_skills", "you"},
 };
@@ -1127,7 +1132,6 @@ static void generate_c_files(void)
 
       if (readtagstypes[k].dtclass == NHTYPE_COMPLEX) {
 
-
           if (!strncmpi(readtagstypes[k].dtype,"Bitfield",8)) {
               Fprintf(SFO_DATA,
                     "\nvoid\nsfo_bitfield(nhfp,\n"
@@ -1145,7 +1149,6 @@ static void generate_c_files(void)
                     "int bflen)\n"
                     "{\n");
         }
-
 
 #if 0
         if (!strncmpi(readtagstypes[k].dtype,"version_info",8))
@@ -1223,7 +1226,6 @@ static void generate_c_files(void)
 #endif
 
         Sprintf(sfparent, "%s %s", pt, readtagstypes[k].dtype);
-
 
         Fprintf(SF_NORMALIZE_POINTERS,
                 "\nvoid norm_ptrs_%s(%s "
@@ -1426,6 +1428,8 @@ static void generate_c_files(void)
                                    || !strcmp(t->ptr, "struct emin *")
                                    || !strcmp(t->ptr, "struct ebones *")
                                    || !strcmp(t->ptr, "struct erac *")
+                                   || !strcmp(t->ptr, "struct erid *")
+                                   || !strcmp(t->ptr, "struct emsp *")
                                    || !strcmp(t->ptr, "struct edog *"))) {
                         Strcpy(altbuf, "genericptr");
                     } else if (isptr
@@ -1876,7 +1880,7 @@ bfsize(const char *str)
         }
         *c2 = '\0';
     } else {
-        retval = (char *) 0; 
+        retval = (char *) 0;
     }
     free((genericptr_t) copy_str);
     return retval;
@@ -1942,7 +1946,6 @@ strncmpi(const char *s1, const char *s2, size_t n)
 }
 #endif
 
-
 struct already_in_sfbase {
     int typ;
     const char *actual;
@@ -1980,6 +1983,7 @@ const struct already_in_sfbase already[] = {
     { NHTYPE_COMPLEX, "Sfi_edog", "Sfi_x_edog" },
     { NHTYPE_COMPLEX, "Sfi_egd", "Sfi_x_egd" },
     { NHTYPE_COMPLEX, "Sfi_emin", "Sfi_x_emin" },
+    { NHTYPE_COMPLEX, "Sfi_emsp", "Sfi_x_emsp" },
     { NHTYPE_COMPLEX, "Sfi_engr", "Sfi_x_engr" },
     { NHTYPE_COMPLEX, "Sfi_epri", "Sfi_x_epri" },
     { NHTYPE_COMPLEX, "Sfi_erac", "Sfi_x_erac" },
@@ -2036,6 +2040,7 @@ const struct already_in_sfbase already[] = {
     { NHTYPE_COMPLEX, "Sfo_edog", "Sfo_x_edog" },
     { NHTYPE_COMPLEX, "Sfo_egd", "Sfo_x_egd" },
     { NHTYPE_COMPLEX, "Sfo_emin", "Sfo_x_emin" },
+    { NHTYPE_COMPLEX, "Sfo_emsp", "Sfo_x_emsp" },
     { NHTYPE_COMPLEX, "Sfo_engr", "Sfo_x_engr" },
     { NHTYPE_COMPLEX, "Sfo_epri", "Sfo_x_epri" },
     { NHTYPE_COMPLEX, "Sfo_erac", "Sfo_x_erac" },
@@ -2126,7 +2131,9 @@ struct nh_classification nhdatatypes[] = {
     { 0, NHTYPE_COMPLEX, "sfi_ebones", "sfi_ebones" },
     { 0, NHTYPE_COMPLEX, "sfi_edog", "sfi_edog" },
     { 0, NHTYPE_COMPLEX, "sfi_egd", "sfi_egd" },
+    { 0, NHTYPE_COMPLEX, "sfi_abuse_event", "sfi_abuse_event" },
     { 0, NHTYPE_COMPLEX, "sfi_emin", "sfi_emin" },
+    { 0, NHTYPE_COMPLEX, "sfi_emsp", "sfi_emsp" },
     { 0, NHTYPE_COMPLEX, "sfi_engr", "sfi_engr" },
     { 0, NHTYPE_COMPLEX, "sfi_engrave_info", "sfi_engrave_info" },
     { 0, NHTYPE_COMPLEX, "sfi_epri", "sfi_epri" },
@@ -2198,7 +2205,9 @@ struct nh_classification nhdatatypes[] = {
     { 0, NHTYPE_COMPLEX, "sfo_ebones", "sfo_ebones" },
     { 0, NHTYPE_COMPLEX, "sfo_edog", "sfo_edog" },
     { 0, NHTYPE_COMPLEX, "sfo_egd", "sfo_egd" },
+    { 0, NHTYPE_COMPLEX, "sfo_abuse_event", "sfo_abuse_event" },
     { 0, NHTYPE_COMPLEX, "sfo_emin", "sfo_emin" },
+    { 0, NHTYPE_COMPLEX, "sfo_emsp", "sfo_emsp" },
     { 0, NHTYPE_COMPLEX, "sfo_engr", "sfo_engr" },
     { 0, NHTYPE_COMPLEX, "sfo_engrave_info", "sfo_engrave_info" },
     { 0, NHTYPE_COMPLEX, "sfo_epri", "sfo_epri" },
@@ -2287,5 +2296,4 @@ struct nh_classification nhdatatypes[] = {
 };
 
     /*sftags.c*/
-
 

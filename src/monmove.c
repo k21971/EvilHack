@@ -314,6 +314,18 @@ mon_regen(struct monst *mon, boolean digest_meal)
         mon->mspec_used--;
     if (mon->mtk_attk)
         mon->mtk_attk--;
+    if (mon->mreflecttime)
+        mon->mreflecttime--;
+    if (mon->mbarkskintime)
+        mon->mbarkskintime--;
+    if (mon->mstoneskintime)
+        mon->mstoneskintime--;
+    if (mon->mentangletime)
+        mon->mentangletime--;
+    if (mon->mlevitatetime)
+        mon->mlevitatetime--;
+    if (mon->mjumptime)
+        mon->mjumptime--;
     if (digest_meal) {
         if (mon->meating) {
             mon->meating--;
@@ -1795,6 +1807,10 @@ m_move(struct monst *mtmp, int after)
             return MMOVE_NOTHING; /* still in trap, so didn't move */
     }
     ptr = mtmp->data; /* mintrap() can change mtmp->data -dlc */
+
+    /* held fast by magical vegetation; can still attack */
+    if (mtmp->mentangled)
+        return MMOVE_NOTHING;
 
     if (mtmp->meating) {
         mtmp->meating--;

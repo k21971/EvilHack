@@ -549,6 +549,8 @@ magic_whistled(struct obj *obj)
             mtmp->mtrapped = 0;
             fill_pit(mtmp->mx, mtmp->my);
         }
+        if (mtmp->mentangled)
+            mtmp->mentangled = 0;
 
         oseen = canspotmon(mtmp); /* old 'seen' status */
         if (oseen) /* get name in case it's one we'll remember */

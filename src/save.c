@@ -915,6 +915,11 @@ savemon(NHFILE *nhfp, struct monst *mtmp)
         if (buflen > 0) {
             Sfo_erac(nhfp, ERAC(mtmp), "monst-erac");
         }
+        buflen = EMSP(mtmp) ? (int) sizeof (struct emsp) : 0;
+        Sfo_int(nhfp, &buflen, "monst-emsp_length");
+        if (buflen > 0) {
+            Sfo_emsp(nhfp, EMSP(mtmp), "monst-emsp");
+        }
         /* mcorpsenm is inline int rather than pointer to something,
            so doesn't need to be preceded by a length field */
         buflen = (int) MCORPSENM(mtmp);

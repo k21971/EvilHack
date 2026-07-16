@@ -1683,6 +1683,19 @@ trapmove(
                 buried_ball_to_punishment();
         }
         break;
+    case TT_ENTANGLED:
+        if (flags.verbose) {
+            if (nexttotree(u.ux, u.uy))
+                predicament = "entangled by a tree";
+            else
+                predicament = "entangled by vegetation";
+            if (u.usteed)
+                Norep("%s is %s.", upstart(steedname), predicament);
+            else
+                Norep("You are %s.", predicament);
+        }
+        /* no escape by struggling */
+        break;
     case TT_NONE:
         impossible("trapmove: trapped in nothing?");
         break;
@@ -2154,6 +2167,11 @@ domove_swap_with_pet(
         }
         You("stop.  %s can't move out of %s%s.", YMonnam(mtmp), which, what);
         (void) handle_tip(TIP_UNTRAP_MON);
+        didnt_move = TRUE;
+    } else if (mtmp->mpeaceful
+               && (mtmp->mentangled || is_stationary(mtmp->data))) {
+        /* all mtame are also mpeaceful, so this affects pets too */
+        You("stop.  %s is unable to move.", YMonnam(mtmp));
         didnt_move = TRUE;
     } else if (mtmp->mpeaceful
                && (!goodpos(u.ux0, u.uy0, mtmp, 0)

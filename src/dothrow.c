@@ -1000,7 +1000,8 @@ will_hurtle(struct monst *mon, coordxy x, coordxy y)
     if (!isok(x, y))
         return FALSE;
     /* redundant when called by mhurtle() but needed for mhitm_knockback() */
-    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped)
+    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped
+        || mon->mentangled)
         return FALSE;
     /*
      * TODO: Treat walls, doors, iron bars, etc. specially
@@ -1126,7 +1127,8 @@ hurtle(int dx, int dy, int range, boolean verbose)
             : (u.utraptype == TT_LAVA) ? hliquid("lava")
               : (u.utraptype == TT_INFLOOR) ? surface(u.ux, u.uy)
                 : (u.utraptype == TT_BURIEDBALL) ? "buried ball"
-                  : "trap");
+                  : (u.utraptype == TT_ENTANGLED) ? "entangling vegetation"
+                    : "trap");
         nomul(0);
         return;
     }
@@ -1168,7 +1170,8 @@ mhurtle(struct monst *mon, int dx, int dy, int range)
     /* Is the monster stuck or too heavy to push?
      * (very large monsters have too much inertia, even floaters and flyers)
      */
-    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped) {
+    if (r_data(mon)->msize >= MZ_HUGE || mon == u.ustuck || mon->mtrapped
+        || mon->mentangled) {
         if (canseemon(mon))
             pline("%s doesn't budge!", Monnam(mon));
         return;

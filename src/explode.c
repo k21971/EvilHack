@@ -950,6 +950,8 @@ scatter(
         (void) hideunder(&gy.youmonst);
     if (((mtmp = m_at(sx, sy)) != 0) && mtmp->mtrapped)
         mtmp->mtrapped = 0;
+    if (((mtmp = m_at(sx, sy)) != 0) && mtmp->mentangled)
+        mtmp->mentangled = 0;
     maybe_unhide_at(sx, sy);
     if (lostgoods) /* implies shop_origin and therefore shkp valid */
         credit_report(shkp, 1, FALSE);

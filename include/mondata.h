@@ -50,6 +50,10 @@
     (ptr_resists_sick((mon)->data)                                       \
      || (has_erac(mon) ? ptr_resists_sick(&mons[ERAC(mon)->rmnum]) : 0))
 
+#define is_jumper(ptr) \
+    ((ptr) == &mons[PM_JUMPING_SPIDER] || (ptr) == &mons[PM_ZRUTY]           \
+     || (ptr) == &mons[PM_GIANT_CENTIPEDE] || (ptr) == &mons[PM_CAVE_LIZARD] \
+     || (ptr) == &mons[PM_LARGE_CAVE_LIZARD])
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 /* clinger: piercers, mimics, wumpus -- generally don't fall down holes */
@@ -59,6 +63,9 @@
 #define is_swimmer(ptr) (((ptr)->mflags1 & M1_SWIM) != 0L)
 #define breathless(ptr) (((ptr)->mflags1 & M1_BREATHLESS) != 0L)
 #define amphibious(ptr) (((ptr)->mflags1 & M1_AMPHIBIOUS) != 0L)
+/* monster that is in or underwater */
+#define mon_underwater(mon) \
+    (is_swimmer((mon)->data) && is_pool((mon)->mx, (mon)->my))
 #define cant_drown(ptr) (is_swimmer(ptr) || amphibious(ptr) || breathless(ptr))
 #define passes_walls(ptr) (((ptr)->mflags1 & M1_WALLWALK) != 0L)
 #define amorphous(ptr) (((ptr)->mflags1 & M1_AMORPHOUS) != 0L)
@@ -139,6 +146,12 @@
 #define has_telepathy(mon) \
     (telepathic(r_data(mon)) \
      || (mon_resistancebits(mon) & MR2_TELEPATHY) != 0)
+#define can_jump(mon) \
+    ((mon_resistancebits(mon) & MR2_JUMPING) != 0)
+#define can_levitate(mon) \
+    ((mon_resistancebits(mon) & MR2_LEVITATE) != 0)
+#define can_fly(mon) \
+    ((mon_resistancebits(mon) & MR2_FLY) != 0)
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
 #define acidic(ptr) (((ptr)->mflags1 & M1_ACID) != 0L)
 #define poisonous(ptr) (((ptr)->mflags1 & M1_POIS) != 0L)
@@ -190,6 +203,7 @@
     ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
      || (ptr) == &mons[PM_VAMPIRE_BAT])
 #define is_bird(ptr) ((ptr)->mlet == S_BAT && !is_bat(ptr))
+#define is_skeleton(ptr) ((ptr)->mlet == S_SKELETON)
 #define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
 #define is_troll(ptr) (((ptr)->mhflags & MH_TROLL) != 0L)
 #define is_spider(ptr) (((ptr)->mhflags & MH_SPIDER) != 0L)
@@ -204,6 +218,14 @@
 #define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L)
 #define is_angel(ptr) (((ptr)->mhflags & MH_ANGEL) != 0L)
 #define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
+/* is_vampshifter(mon) is handled explicitly at call sites */
+#define immune_death_magic(ptr) \
+    (dmgtype((ptr), AD_DETH)                                   \
+     || nonliving(ptr) || is_angel(ptr) || is_demon(ptr)       \
+     || (ptr)->msound == MS_LEADER || (ptr) == &mons[PM_DEATH] \
+     || (ptr) == &mons[PM_CERBERUS]                            \
+     || (ptr) == &mons[PM_BABY_CELESTIAL_DRAGON]               \
+     || (ptr) == &mons[PM_CELESTIAL_DRAGON])
 #define is_mercenary(ptr) (((ptr)->mflags2 & M2_MERC) != 0L)
 #define is_male(ptr) (((ptr)->mflags2 & M2_MALE) != 0L)
 #define is_female(ptr) (((ptr)->mflags2 & M2_FEMALE) != 0L)

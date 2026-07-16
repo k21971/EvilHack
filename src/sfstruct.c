@@ -95,7 +95,6 @@ void historical_sfi_##dtyp(NHFILE *nhfp, xxx *d_##dtyp,                         
                            const char *myname UNUSED, int bflen UNUSED)             \
     SFI_BODY(dtyp)
 
-
 #include "sfmacros.h"
 SF_C(struct, version_info)
 
@@ -166,6 +165,7 @@ struct sf_structlevel_procs historical_sfo_procs = {
         historical_sfo_edog,
         historical_sfo_egd,
         historical_sfo_emin,
+        historical_sfo_emsp,
         historical_sfo_engr,
         historical_sfo_epri,
         historical_sfo_erac,
@@ -246,6 +246,7 @@ struct sf_structlevel_procs historical_sfi_procs = {
         historical_sfi_edog,
         historical_sfi_egd,
         historical_sfi_emin,
+        historical_sfi_emsp,
         historical_sfi_engr,
         historical_sfi_epri,
         historical_sfi_erac,
@@ -349,7 +350,6 @@ static FILE *ofp[20] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     char ifnamebuf[80];
     static long icnt = 0L;
 #endif
-
 
 /*
  * Presumably, the fdopen() to allow use of stdio fwrite()

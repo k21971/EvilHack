@@ -941,6 +941,25 @@ nh_timeout(void)
                 if (!Protection_from_shape_changers)
                     restartcham();
                 break;
+            case REFLECTING:
+                if (!Blind)
+                    pline_The(
+                       "shimmering globe around you flickers and vanishes.");
+                else
+                    You("don't feel very smooth anymore.");
+                break;
+            case BARKSKIN:
+                pline_The("bark covering your %s completely disappears.",
+                          mbodypart(&gy.youmonst, SKIN));
+                find_ac();
+                break;
+            case STONESKIN:
+                /* lose stone resistance */
+                HStone_resistance &= ~I_SPECIAL;
+                pline_The("stone covering your %s completely disappears.",
+                          mbodypart(&gy.youmonst, SKIN));
+                find_ac();
+                break;
             }
         }
 

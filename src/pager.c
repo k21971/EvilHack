@@ -465,6 +465,8 @@ look_at_monster(
 
     if (mtmp->mleashed)
         Strcat(buf, ", leashed to you");
+    if (mtmp->mentangled && cansee(mtmp->mx, mtmp->my))
+        Strcat(buf, ", entangled");
     if (mtmp->mtrapped && cansee(mtmp->mx, mtmp->my)) {
         struct trap *t = t_at(mtmp->mx, mtmp->my);
         int tt = t ? t->ttyp : NO_TRAP;

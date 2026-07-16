@@ -1537,6 +1537,8 @@ extern void newmonhp(struct monst *, int) NONNULLARG1;
 extern struct mextra *newmextra(void) NONNULL;
 extern void newerac(struct monst *) NONNULLARG1;
 extern void free_erac(struct monst *) NONNULLARG1;
+extern void newemsp(struct monst *) NONNULLARG1;
+extern void free_emsp(struct monst *) NONNULLARG1;
 extern struct monst *makemon(struct permonst *, coordxy, coordxy, mmflags_nht);
 extern struct monst *unmakemon(struct monst *, mmflags_nht) NONNULLARG1;
 extern boolean create_critters(int, struct permonst *, boolean);
@@ -1566,10 +1568,18 @@ extern void dump_mongen(void);
 
 extern int castmu(struct monst *, struct attack *,
                   boolean, boolean) NONNULLARG12;
+extern int castmm(struct monst *, struct monst *,
+                  struct attack *) NONNULLARG123;
 extern void touch_of_death(struct monst *) NONNULLARG1;
 extern char *death_inflicted_by(char *, const char *,
                                 struct monst *) NONNULLARG12;
 extern int buzzmu(struct monst *, struct attack *) NONNULLARG12;
+extern boolean is_spellcaster(struct monst *) NONNULLARG1;
+extern boolean mknows_spell(struct monst *, int) NONNULLARG1;
+extern boolean mlearn_spell(struct monst *, struct obj *) NONNULLARG12;
+extern short mchoose_learned_spell(struct monst *, struct monst *,
+                                   coordxy, coordxy, boolean) NONNULLARG1;
+extern void mage_spells(struct monst *) NONNULLARG1;
 
 /* ### mdlib.c ### */
 
@@ -1802,6 +1812,7 @@ extern void do_mkroom(int);
 extern void fill_zoo(struct mkroom *) NONNULLARG1;
 extern struct permonst *antholemon(void);
 extern boolean nexttodoor(int, int);
+extern boolean nexttotree(coordxy, coordxy);
 extern boolean has_dnstairs(struct mkroom *) NONNULLARG1;
 extern boolean has_upstairs(struct mkroom *) NONNULLARG1;
 extern int somex(struct mkroom *) NONNULLARG1;
@@ -1896,6 +1907,8 @@ extern struct monst *get_iter_mons_xy(boolean (*)(struct monst *,
                                       coordxy, coordxy);
 extern int healmon(struct monst *, int, int) NONNULLARG1;
 extern boolean damage_mon(struct monst *, int, int, boolean) NONNULLARG1;
+extern boolean damage_mon_nonlethal(struct monst *, int, int,
+                                    boolean) NONNULLARG1;
 extern void rescham(void);
 extern void restartcham(void);
 extern void restore_cham(struct monst *) NONNULLARG1;
@@ -2151,6 +2164,14 @@ extern boolean ureflects(const char *, const char *) NO_NNARGS;
 extern void mcureblindness(struct monst *, boolean) NONNULLARG1;
 extern boolean munstone(struct monst *, boolean) NONNULLARG1;
 extern boolean munslime(struct monst *, boolean) NONNULLARG1;
+extern boolean mon_wants_spellbook(struct monst *,
+                                   struct obj *) NONNULLARG1;
+extern boolean mcast_ray_spell(struct monst *, coordxy, coordxy,
+                               int) NONNULLARG1;
+extern boolean mcast_immediate_spell(struct monst *, coordxy, coordxy,
+                                     int) NONNULLARG1;
+extern boolean mcast_nodir_spell(struct monst *, struct monst *,
+                                 int) NONNULLARG1;
 
 /* ### music.c ### */
 
@@ -3181,6 +3202,11 @@ extern void age_spells(void);
 extern int dowizcast(void);
 extern int docast(void);
 extern int spell_skilltype(int);
+extern void cast_protection(int);
+extern void cast_reflection(struct monst *, int);
+extern void cast_barkskin(struct monst *, int);
+extern void cast_stoneskin(struct monst *, int);
+extern void cast_entangle(struct monst *, int);
 extern int spelleffects(int, boolean, boolean);
 extern int tport_spell(int);
 extern void losespells(void);

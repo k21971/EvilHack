@@ -123,7 +123,7 @@ LIBS =
 OBJDIR = ../src
 
 # This is the universal ctags utility which produces the tags in the
-# format that util/readtags requires. 
+# format that util/readtags requires.
 # https://github.com/universal-ctags/ctags.git
 #CTAGSCMD = universal-ctags
 CTAGSCMD = ctags
@@ -200,7 +200,7 @@ CALLOC = ../src/alloc.c panic.c
 OALLOC = $(OBJDIR)/alloc.o panic.o
 # build time info
 CDATE = ../src/date.c
-ODATE = $(OBJDIR)/date.o 
+ODATE = $(OBJDIR)/date.o
 
 # hacklib utility routines
 HACKLIB = $(OBJDIR)/hacklib.a
@@ -237,7 +237,6 @@ TARGET_AR ?= $(AR)
 makedefs:	$(HACKLIB) $(MAKEOBJS) mdgrep.h
 	$(CLINK) $(LFLAGS) -o makedefs $(MAKEOBJS) $(HACKLIB)
 
-
 # note: the headers listed here are maintained manually rather than via
 #	'make depend'; only the ones which are directly included by
 #	makedefs.c are listed, without various nested ones that they include;
@@ -266,7 +265,6 @@ mdgreph: mdgrep.pl
 lintdefs:
 	@lint -axbh -I../include -DLINT $(MAKESRC) $(CMONOBJ) | sed '/_flsbuf/d'
 
-
 # we defer this makedefs call to the src Makefile, since it knows all about
 # the main src and include files date.h is a timestamp for
 ../include/date.h::
@@ -279,13 +277,11 @@ $(HACKLIB): $(CONFIG_H) $(HACKLIBSRC) panic.o
 panic.o:     panic.c $(CONFIG_H)
 	$(CC) $(CFLAGS) $(CSTD) -c panic.c -o $@
 
-
 # with all of extern.h's functions to complain about, we drown in
 # 'defined but not used' without -u
 lintdgn:
 	@lint -axhu -I../include -DLINT $(UTILSRCS) $(CALLOC) \
 		| sed '/_flsbuf/d'
-
 
 #	dependencies for recover
 #
@@ -413,12 +409,12 @@ CTAGDEP = ../include/align.h  ../include/artifact.h ../include/artilist.h \
 	  ../include/flag.h   ../include/func_tab.h ../include/global.h   \
 	  ../include/hack.h   ../include/mextra.h   \
 	  ../include/mkroom.h ../include/monst.h    ../include/defsym.h   \
-	  ../include/obj.h    ../include/objclass.h ../include/prop.h     \
+	  ../include/obj.h    ../include/objclass.h ../include/permonst.h \
+	  ../include/prop.h   \
 	  ../include/quest.h  ../include/rect.h     ../include/region.h   \
 	  ../include/rm.h     ../include/skills.h   ../include/spell.h    \
 	  ../include/sys.h    ../include/timeout.h  ../include/trap.h     \
 	  ../include/you.h    ../include/onames.h   ../include/wintype.h
-#	  ../include/permonst.h
 CTAGSOPT = --language-force=c --sort=no -D"Bitfield(x,n)=unsigned x : n" --excmd=pattern
 #
 INCL=../include/
@@ -447,7 +443,7 @@ sf.tags: $(CTAGDEP)
 	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)defsym.h
 	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)obj.h
 	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)objclass.h
-#	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)permonst.h
+	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)permonst.h
 	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)prop.h
 	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)quest.h
 	$(CTAGSCMD) $(CTAGSOPT) -a -f $@ $(INCL)rect.h

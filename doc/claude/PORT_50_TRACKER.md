@@ -1766,7 +1766,226 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       adjacent launcher-wielder swaps to HTH or point-blank
       shoots per master logic, attack slot not double-consumed;
       (12) paniclog EMPTY at session end.
+      COMMITTED 2026-07-16 as 89dfbd4e7 (25 files +1516/-153 incl.
+      the clone_mon misc_worn_check fold-in and this record's
+      earlier half; bundle evilhack-50_2026-07-16c cut+verified at
+      that head; this battery record rides with the next commit).
+      WIZMODE BATTERY RUN + PASSED 2026-07-16 (no-install recipe:
+      src binary vs installed playground, valid because the slice
+      changed no data files; one Valkyrie XL30 game, sanity_check
+      on all game, T:37). PANICLOG: only 2 same-event entries from
+      a coordinator STAGING mistake (gdb freeinv of the hero's
+      WIELDED spear -> stale uwep; worn_slot detector caught it
+      instantly = detector pipeline live-verified; repaired via
+      gdb null uwep + owornmask clear). ZERO real firings.
+      PASSED LIVE: (1) dual-wield core - tame marilith wields
+      scimitar + "wields 5 daggers in her other claw" (stack
+      offhand OK); m-v-m cycle "swings her long sword"/"swings
+      her scimitar" both AT_WEAP slots; vs-hero missing-mw2
+      fallback-to-primary "hits! hits again!" (master parity);
+      orc-captain worn-shield can_dual_wield refusal (negative);
+      (2) combat wield "wields a bronze scimitar!" after gdb
+      mongets (weaponless-kit orc punches correctly before);
+      (3) I_SPECIAL re-eval - planted +5 long sword + check_gear
+      -> non-combat turn "The marilith wields a long sword!",
+      mw2 daggers PRESERVED across primary swap, old primary
+      mask zeroed; (4) silver-hate selection gate - planted +7
+      silver saber: I_SPECIAL consumed, mw unchanged (demon
+      mon_hates_material skip; handler precedes the pet drop);
+      (5) container extraction - bag+7 sword on hostile ogre:
+      "removes a long sword from the bag" (rummage turn) ->
+      "wields a long sword!" (wield turn) -> melees hero with
+      it; (6) offhand throw lifecycle - pet throws daggers FROM
+      the wielded mw2 stack (5.0-native pet ranged), splits keep
+      W_SWAPWEP quan 5->3, last-dagger throw clears mw2 clean;
+      (7) dochug m-v-m ranged scan - Grey-elf (gdb-armed bow)
+      "wields an elven bow!" + "shoots 3 elven arrows!" at
+      dist2 9 (>8 hero-guard boundary); ogre threw a SPEAR at
+      the MARILITH = pure m-v-m scan+thrwmm; ogre hurled a
+      potion at the marilith = muse offensive m_throw at a
+      monster target via gt.tbx; (8) launcher point-blank -
+      hero closes -> elf swaps "wields a copper elven
+      broadsword!"; (9) save/reload - marilith mw+mw2 relink
+      exact (o_id preserved, W_SWAPWEP, quan, pointer resolves
+      into own minvent); (10) 37 turns of pick/drop/throw/kill
+      churn sanity-silent. NOT LIVE-TESTED (static/reviewer
+      verification stands): shield-don mw2-drop (staging
+      inconclusive, see follow-up), tame friendly-fire walk
+      (pets exit dochug before the scan until pet slices land),
+      defensive mbhit aim+buzzer (coordinator code fix +
+      reviewer-verified), corpse/statue revive mw2 (no corpse
+      rolled; fix is defensive), bones round-trip, polearm
+      range boundary. FOLLOW-UP (ride with pet order slice):
+      staged +3 shield on the dual-wielding tame marilith never
+      donned; I_SPECIAL re-armed every turn by pet pick/drop
+      churn (the deferred droppables would_prefer consumers) and
+      an instrumented turn never reached m_dowear_type(W_ARMS) -
+      churn may starve the equip pass for pets; ALSO the known
+      deferral gap showed live as a pet pick-drop oscillation
+      (scimitar loop). BATTERY GOTCHAS (new): gi.invent head is
+      NOT the newest item (wished items append at tail); NEVER
+      gdb-freeinv a wielded hero item (stale uwep, detector
+      fires; repair = null uwep + clear moved obj owornmask);
+      gdb -ex while-loops fail SILENTLY (use flat derefs);
+      live-game breakpoints survive via background gdb +
+      pkill -INT bailout (a timeout SIGTERM would kill the
+      game); genesis kit rolls vary (weaponless orc-captain,
+      melee-only Grey-elf - normalize via gdb mongets); mongets
+      merges stackables (spears rne(2)) - distinct otyps for
+      separate gifts; ^G tame prefix silently fails on marilith
+      (gdb newedog+initedog recipe works).
 - [ ] Monster spellbook learning (struct emsp)
+      PORTED + REVIEWED 2026-07-16 (port subagent 38 files
+      +2530/-84, reviewer CONDITIONAL PASS 1 blocker + 5 concerns
+      -> ALL coordinator-verified and fixed same day; clean
+      rebuild + battery + commit pending below). Contents: emsp
+      lifecycle (newemsp/free_emsp beside erac ctors, copy_mextra
+      arm, LAZY allocation - first read attempt/first learn/
+      restore only, so the AI slice's I_SPECIAL msp_reading guard
+      stays correct); FULL sf-layer serializer on the erac
+      exemplar (emin->emsp->engr position in ALL positional
+      structures, critical_sizes entry, savemon/restmon blocks
+      after erac before mcorpsenm - reviewer verified positional
+      consistency end-to-end; dev saves invalidated) + SFCTOOL
+      NOW LINKS: fixed THREE pre-existing link breakers -
+      sfi_x_abuse_event (alignment-abuse slice gap: sftags.c
+      never got the abuse_event entry), erid genericptr mapping
+      (pure link fix; erid serializer still rides the steed
+      slice), sfo/sfi_x_attack for erac->mattk (unrecorded ERAC
+      slice gap; attack struct uncommented in sftags + permonst.h
+      added to the ctags sweep in sys/unix/Makefile.utl SOURCE +
+      regenerated util/Makefile); generated sfdata.c/sfproto.h
+      diff verified limited to those additions + MAXMONSPELL/
+      NATTK per-element loops. Learning path: learnable_spells[]
+      whitelist/spell_is_learnable/mcan_learn_spell/
+      find_spellbook_recurse/mon_wants_spellbook (dead until pet
+      could_use_item - deferral note) + find_misc/use_misc
+      MUSE_SPELLBOOK reading state machine (3 turns/level,
+      blessed halved; blank-on-attempt semantics preserved;
+      mid-read continuation by otyp, depleted twin finishes
+      silently; hostile reads only at dist2>8). Casting:
+      MCAST_LEARNED_SPELL/MCAST_UNTAME_PET grafted into 5.0's
+      choose_monster_spell/mcast_data architecture (master's
+      dual-enum rewrite NOT transplanted); mknows_spell/
+      mlearn_spell/mcount/mchoose/mpick/cast_learned_spell/
+      mhas_castable_offensive_spell/mhas_useful_selfbuff_spell;
+      target_resists_learned_spell = single choke point,
+      NULL-tolerant probes, teleport-away wand-parity gates via
+      5.0 helpers (noteleport_level/mon_knows_traps/stairway_at),
+      deliberately NO mon_has_amulet(target); charm monster =
+      untame-unlock-only shape exact; NEW castmm (learned + untame
+      only; innate m-v-m TODO-EVILHACK -> bosses; mspec cost uses
+      branch 5.0 castmu formula (m_lev<8)?10-m_lev:2 not master
+      4-m_lev - DELIBERATE, in-tree consistency); mage_spells
+      decay + allmain hook (5000 know, -1/10 moves, silent
+      forget). Defensive: MUSE_SPE_TELEPORT_AWAY(_SELF) (SELF
+      inlined from branch m_tele step-for-step - m_tele's how
+      param would falsely makeknown; at-hero via
+      mcast_immediate_spell->mbhitm with gt.tbx + gb.buzzer);
+      mcast_ray_spell (BZ_M_SPELL ray mapping, 8-ray contiguity
+      re-verified vs branch objects.h)/mcast_immediate_spell/
+      mcast_nodir_spell + monster_uncurse_items; new mbhitm arms
+      FORCE_BOLT (death_inflicted_by attribution; knockback
+      TODO -> knockback slice)/POLYMORPH/TURN_UNDEAD (resist
+      class = otmp->oclass)/SLOW/DRAIN_LIFE/DISPEL_EVIL
+      (set_pet_killer TODOs x4 -> kill-attribution)/ENTANGLE.
+      Shared helpers: spell.c cast_reflection/barkskin/stoneskin/
+      entangle (+skill param on cast_protection; GRASS arms
+      TODO -> terrain slice) + hero spelleffects cases +
+      zap.c bhitm/zapyourself ENTANGLE arms; TT_ENTANGLED trap
+      type (append-only) + mentangled/mextrinsics/5 buff timers
+      activated across ~15 files (m_calcdistress expiry home,
+      mon_regen decrements, clone_mon/montraits/rloc/scatter/
+      detach clears); SKIN bodypart (enum append + 20th column
+      in all 12 polyself tables, reviewer-counted); new mondata.h
+      predicates (can_jump/can_levitate/can_fly/mon_underwater/
+      is_jumper/immune_death_magic, has_reflection/is_evil MR2).
+      REVIEWER BLOCKER FIXED: nh_timeout had NO expiry cases for
+      REFLECTING/BARKSKIN/STONESKIN - one stoneskin cast =
+      PERMANENT stone resistance (HStone_resistance I_SPECIAL
+      never cleared); master's three cases ported. CONCERNS
+      FIXED: find_ac Barkskin/Stoneskin AC arms + ureflects
+      HReflecting "magical shield" arm (spell was AC-inert +
+      reflection ignored at mcast_lightning/floating-eye sites);
+      defended(AD_MAGM) added to BOTH mbhitm force-bolt and
+      polymorph resist gates (master parity; gear-protected
+      monsters were polymorphable); zhitm msp_reading interrupt
+      (beam family bypassed damage_mon - read-through-fireballs;
+      interrupt-site census now 8:8 vs master); FIVE mentangled
+      consumer sites (find_defensive stair-flee gate, find_misc
+      polytrap gate, mhitu to-hit -2, mm_displacement forbid,
+      pager farlook ", entangled"); mbhit force-bolt terrain
+      parity (SPE_FORCE_BOLT joins WAN_STRIKING at drawbridge +
+      door smash + NEW IRONBARS blow-apart arm; mid-beam
+      DEADMONSTER/o_on revalidation stays deferred -> knockback
+      slice, branch's cached-otyp mitigates the read half;
+      temple_at_boundary arm TODO - helper has 24 master sites =
+      its own temple damage-repair sweep, NEW deferred item);
+      polyself SKIN cosmetics (skeleton bones, dragon scales).
+      NITs recorded: entangle terrain gate is picker-only in
+      MASTER TOO (announced-cast can no-op; parity kept, optional
+      improvement noted); resist-then-damage double-damage in
+      DRAIN_LIFE/DISPEL_EVIL arms = master parity (BUGFIXES
+      candidate with damage_mon core slice); montraits clears
+      buff timers but not paired mextrinsics bits (master parity,
+      one spurious expiry message on revival). DEFERRALS: innate
+      m-v-m casting/buzzmm/castum + hellfire + boss mspec resets
+      (bosses), knockback machinery, cancel_monst buff strip
+      (cancellation), damage_mon vuln/HPHDAM core, GRASS terrain,
+      set_pet_killer x4, pet could_use_item consumers
+      (mon_wants_spellbook, dothrow catch-deferral), entangle
+      flavor consumers (sounds x14/priest/steed/dokick/dog),
+      msicktime/mdiseasetime/msummoned/mbindtimer decrements
+      (their slices), TEMPLE DAMAGE-REPAIR SWEEP
+      (temple_at_boundary, 24 master sites, 13 files - NEW),
+      HERO SPELL PARITY (17 master spelleffects cases still
+      unwired: LIGHTNING/POISON_BLAST/ACID_BLAST/PSIONIC_WAVE/
+      POWER_WORD_KILL/DISPEL_EVIL/CRITICAL_HEALING/BURNING_HANDS/
+      SHOCKING_GRASP/REPAIR_ARMOR/CHANGE_METAL_TO_WOOD/
+      CREATE_GRASS/CREATE_TREES/ORB_OF_FIRE/ORB_OF_FROST/
+      SUMMON_ANIMAL/SUMMON_ELEMENTAL - default impossible();
+      NEW item, owns cast_metal_to_wood etc.). MASTER-PARITY
+      WARTS RECORDED: monster entangle scales off the PLAYER's
+      P_SKILL (project-monster-spell-skill follow-up; two sites);
+      master PWK hero arm ignores polymorph HP (u.uhp not u.mh -
+      fix master first policy, frozen). FOLLOW-UPS: sfctool
+      tempered sysconf parser rejects live EvilHack OPTIONS/
+      MSGTYPE lines (workaround = sanitized copy; small fix
+      candidate); generated exportascii lossy for simple-type
+      arrays generally (upstream-reportable; emsp/erac arrays
+      exempted via nah loops). PROCESS NOTE: the port subagent
+      ran an UNAUTHORIZED wizmode verification game (cleaned up
+      fully; save dir/sysconf/processes verified clean after;
+      its paniclog claim was a MISREAD of the prior slice's
+      staged artifact - no new worn-slot firing); future port
+      briefs must explicitly reserve game launches for the
+      coordinator. Its verification data (emsp save round-trip
+      byte-identical, sfctool -c emsp block, learned fireball +
+      slow monster cast live, decay tick, read-at-distance state
+      machine end-to-end) is folded into the battery plan.
+      BATTERY LIST (ASK MAINTAINER; #levelchange 30; sanity_check
+      on): (1) stoneskin expiry REGRESSION - learn+cast
+      stoneskin, gdb-tick or wait out HStoneskin, verify stone
+      resistance LOST + expiry message + find_ac drop (blocker
+      fix); barkskin/reflection expiry messages + AC/ureflects
+      arms live; (2) read-interruption - hostile mid-read zapped
+      by a beam stops reading (zhitm fix; melee half via
+      damage_mon already agent-verified); (3) entangle - cast at
+      pet near tree: held + can-still-attack + hero swap blocked
+      + farlook ", entangled" + to-hit -2 + release at timer;
+      (4) charm/untame castmm - hostile caster knowing charm
+      adjacent to pet: untame + set_malign resync, no direct-cast
+      of charm ever; (5) defended-gate - polymorph beam at a
+      gear-MR monster = shieldeff no poly; (6) force bolt vs
+      door/bars - door smashes (shop damage listed), bars blow
+      apart + bolt stops; (7) teleport-away defensive: wounded
+      caster self-teleports (shk/priest refuse), at-hero variant
+      beams via mbhitm with buzzer credit; (8) save/reload
+      mid-read monster + 8-spell monster + sfctool ascii
+      round-trip on that save; (9) decay: msp_know ticks -1/10
+      moves; (10) paniclog EMPTY (current two lines are the
+      documented prior-slice staging artifact - note before
+      install wipes them).
 - [ ] Zombie/were/Draugr mechanics (zombify, binding ritual)
 - [ ] Ice Queen branch bosses; Vecna; demon-lord behaviors
       (msummon mechanics memory)

@@ -658,6 +658,23 @@ nexttodoor(int sx, int sy)
 }
 
 boolean
+nexttotree(coordxy sx, coordxy sy)
+{
+    int dx, dy;
+    struct rm *lev;
+
+    for (dx = -1; dx <= 1; dx++)
+        for (dy = -1; dy <= 1; dy++) {
+            if (!isok(sx + dx, sy + dy))
+                continue;
+            lev = &levl[sx + dx][sy + dy];
+            if (IS_TREE(lev->typ))
+                return TRUE;
+        }
+    return FALSE;
+}
+
+boolean
 has_dnstairs(struct mkroom *sroom)
 {
     stairway *stway = gs.stairs;

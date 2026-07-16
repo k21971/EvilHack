@@ -89,7 +89,7 @@ void exportascii_sfo_##dtyp(NHFILE *, dtyp *d_##dtyp,                          \
                            const char *);                                      \
 void exportascii_sfi_##dtyp(NHFILE *, dtyp *d_##dtyp,                          \
                            const char *);
-                                                                               
+
 /*
 void exportascii_sfo_##dtyp(NHFILE *nhfp, dtyp *d_##dtyp,                      \
                            const char *myname UNUSED)                          \
@@ -114,7 +114,6 @@ void exportascii_sfi_##dtyp(NHFILE *nhfp UNUSED, keyw dtyp *d_##dtyp UNUSED,   \
                            const char *myname UNUSED)                          \
     SFI_BODY(dtyp)
 
-
 #define SF_X(xxx, dtyp) \
 void exportascii_sfo_##dtyp(NHFILE *, xxx *d_##dtyp,                           \
                            const char *);                                      \
@@ -129,13 +128,12 @@ void exportascii_sfi_##dtyp(NHFILE *nhfp, xxx *d_##dtyp,                       \
                            const char *myname UNUSED)                          \
     SFI_BODY(dtyp)
 
-
 #define SF_BF(xxx, dtyp) \
 void exportascii_sfo_##dtyp(NHFILE *, xxx *d_##dtyp,                           \
                            const char *, int);                                 \
 void exportascii_sfi_##dtyp(NHFILE *, xxx *d_##dtyp,                           \
                            const char *, int);
-                                                                          
+
 SF_C(struct, arti_info)
 SF_C(struct, nhrect)
 SF_C(struct, branch)
@@ -214,7 +212,6 @@ void exportascii_sfi_bitfield(NHFILE *nhfp, uint8_t *d_bitfield,
                         const char *myname UNUSED, int bflen UNUSED);
 int critical_members_count_core(NHFILE *nhfp);
 
-
 /*
  *----------------------------------------------------------------------------
  * Sfo_def_ routines
@@ -223,7 +220,6 @@ int critical_members_count_core(NHFILE *nhfp);
  *
  *----------------------------------------------------------------------------
  */
-
 
 void
 exportascii_sfo_any(NHFILE *nhfp, union any *d_any, const char *myname UNUSED)
@@ -473,7 +469,6 @@ exportascii_sfo_ulong(NHFILE *nhfp, unsigned long *d_ulong, const char *myname U
     d_ulong++;
 }
 
-
 void
 exportascii_sfo_ushort(NHFILE *nhfp, unsigned short *d_ushort, const char *myname UNUSED)
 {
@@ -500,7 +495,6 @@ exportascii_sfo_coordxy(NHFILE *nhfp, coordxy *d_coordxy, const char *myname UNU
     put_savefield(nhfp, outbuf, sizeof outbuf);
     d_coordxy++;
 }
-
 
 void
 exportascii_sfo_xint16(NHFILE *nhfp, xint16 *d_xint16, const char *myname UNUSED)
@@ -1040,7 +1034,6 @@ exportascii_sfi_short(NHFILE *nhfp, short *d_short, const char *myname UNUSED)
     d_short++;
 }
 
-
 void
 exportascii_sfi_char(NHFILE *nhfp, char *d_char, const char *myname UNUSED, int cnt)
 {
@@ -1118,7 +1111,7 @@ get_savefield(NHFILE *nhfp, char *inbuf, size_t inbufsz)
         sep = strchr(inbuf, '|');
         if (sep)
             sep++;
-        
+
         return sep;
     }
     inbuf[0] = '\0';
@@ -1131,7 +1124,7 @@ void
 report_problem_ascii(NHFILE *nhfp, const char *s1, const char *s2, const char *s3)
 {
     fprintf(nhfp->fpdebug, "faulty value preservation "
-            "(%ld, %s, %s, %s)\n", 
+            "(%ld, %s, %s, %s)\n",
             ((nhfp->mode & READING) != 0) ? nhfp->rcount : nhfp->wcount, s1, s2, s3);
 }
 #endif
@@ -1164,6 +1157,7 @@ struct sf_fieldlevel_procs exportascii_sfo_procs = {
         sfo_x_edog,
         sfo_x_egd,
         sfo_x_emin,
+        sfo_x_emsp,
         sfo_x_engr,
         sfo_x_epri,
         sfo_x_erac,
@@ -1241,6 +1235,7 @@ struct sf_fieldlevel_procs exportascii_sfi_procs = {
         sfi_x_edog,
         sfi_x_egd,
         sfi_x_emin,
+        sfi_x_emsp,
         sfi_x_engr,
         sfi_x_epri,
         sfi_x_erac,
@@ -1295,5 +1290,5 @@ struct sf_fieldlevel_procs exportascii_sfi_procs = {
         exportascii_sfi_xint8,
         exportascii_sfi_char,
         exportascii_sfi_bitfield,
-    } 
+    }
 };

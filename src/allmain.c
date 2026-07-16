@@ -366,6 +366,15 @@ moveloop_core(void)
                 do_storms();
                 gethungry();
                 age_spells();
+                /* decay monster spell knowledge every 10 turns */
+                if (!(svm.moves % 10)) {
+                    struct monst *mon;
+
+                    for (mon = fmon; mon; mon = mon->nmon) {
+                        if (!DEADMONSTER(mon) && has_emsp(mon))
+                            mage_spells(mon);
+                    }
+                }
                 exerchk();
                 invault();
                 if (u.uhave.amulet)
@@ -439,6 +448,17 @@ moveloop_core(void)
         /* when/if hero escapes from lava, he can't just stay there */
         else if (!u.umoved)
             (void) pooleffects(FALSE);
+        /* entanglement wears off passively over time */
+        if (u.utrap && u.utraptype == TT_ENTANGLED) {
+            if (--u.utrap == 0) {
+                if (nexttotree(u.ux, u.uy))
+                    pline_The("tree's %s release their grip on you.",
+                              rn2(2) ? "branches" : "roots");
+                else
+                    pline_The("vegetation releases you.");
+                reset_utrap(TRUE);
+            }
+        }
 
         /* vision while buried or underwater is updated here */
         if (Underwater)

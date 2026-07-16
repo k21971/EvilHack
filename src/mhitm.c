@@ -586,6 +586,31 @@ mattackm(
             }
             break;
 
+        case AT_MAGC:
+            /* monster-vs-monster spellcasting; currently only spells
+               learned from spellbooks plus the charm-monster untame
+               special are cast at monster targets */
+            /* TODO-EVILHACK: innate m-v-m casting and ranged elemental
+               buzzes (buzzmm) port with the boss behaviors slice */
+            if (mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) {
+                strike = (castmm(magr, mdef, mattk) == M_ATTK_MISS) ? 0 : 1;
+                /* we don't really know if we hit or not; pretend we did */
+                if (strike)
+                    res[i] |= M_ATTK_HIT;
+                if (DEADMONSTER(mdef)) {
+                    res[i] = M_ATTK_DEF_DIED;
+                    /* monster gains experience for a spell kill */
+                    if (!grow_up(magr, mdef))
+                        res[i] |= M_ATTK_AGR_DIED;
+                }
+                if (DEADMONSTER(magr))
+                    res[i] |= M_ATTK_AGR_DIED;
+            } else {
+                strike = 0;
+                attk = 0;
+            }
+            break;
+
         default: /* no attack */
             strike = 0;
             attk = 0;
@@ -827,6 +852,10 @@ engulf_target(struct monst *magr, struct monst *mdef)
 
     /* can't (move to) swallow if trapped. TODO: could do some? */
     if (mdef->mtrapped || magr->mtrapped)
+        return FALSE;
+
+    /* can't swallow entangled monsters */
+    if (mdef->mentangled)
         return FALSE;
 
     /* if attacker is phasing in solid rock and defender can't move there,
@@ -1089,6 +1118,61 @@ mdamagem(
 
     if (mhm.done)
         return mhm.hitflags;
+
+    /* burning hands spell - extra fire damage on unarmed touch attacks */
+    if (magr->mburnhands && !mwep && !DEADMONSTER(mdef)
+        && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
+            || mattk->aatyp == AT_WEAP)) {
+        int firedmg = rnd(6) + 2;
+
+        if (resists_fire(mdef) || defended(mdef, AD_FIRE)
+            || mon_underwater(mdef)) {
+            shieldeff(mdef->mx, mdef->my);
+            golemeffects(mdef, AD_FIRE, firedmg);
+            if (gv.vis && canseemon(magr))
+                pline("%s %s don't burn %s!", s_suffix(Monnam(magr)),
+                      makeplural(mbodypart(magr, HAND)), mon_nam(mdef));
+        } else {
+            if (gv.vis && canseemon(magr))
+                pline("%s burns %s with %s %s!", Monnam(magr),
+                      mon_nam(mdef), mhis(magr),
+                      makeplural(mbodypart(magr, HAND)));
+            mhm.damage += firedmg;
+            if (!rn2(4))
+                (void) destroy_items(mdef, AD_FIRE, firedmg);
+        }
+        magr->mburnhands--;
+        if (!magr->mburnhands && canseemon(magr))
+            pline("%s %s stop burning.", s_suffix(Monnam(magr)),
+                  makeplural(mbodypart(magr, HAND)));
+    }
+
+    /* shocking grasp spell - extra shock damage on unarmed touch attacks */
+    if (magr->mshockgrasp && !mwep && !DEADMONSTER(mdef)
+        && (mattk->aatyp == AT_CLAW || mattk->aatyp == AT_TUCH
+            || mattk->aatyp == AT_WEAP)) {
+        int elecdmg = rnd(6) + 2;
+
+        if (resists_elec(mdef) || defended(mdef, AD_ELEC)) {
+            shieldeff(mdef->mx, mdef->my);
+            golemeffects(mdef, AD_ELEC, elecdmg);
+            if (gv.vis && canseemon(magr))
+                pline("%s %s don't shock %s!", s_suffix(Monnam(magr)),
+                      makeplural(mbodypart(magr, HAND)), mon_nam(mdef));
+        } else {
+            if (gv.vis && canseemon(magr))
+                pline("%s %s %s with %s %s!", Monnam(magr),
+                      rn2(2) ? "jolts" : "shocks", mon_nam(mdef),
+                      mhis(magr), makeplural(mbodypart(magr, HAND)));
+            mhm.damage += elecdmg;
+            if (!rn2(4))
+                (void) destroy_items(mdef, AD_ELEC, elecdmg);
+        }
+        magr->mshockgrasp--;
+        if (!magr->mshockgrasp && canseemon(magr))
+            pline("%s %s stop shimmering.", s_suffix(Monnam(magr)),
+                  makeplural(mbodypart(magr, HAND)));
+    }
 
     if (!mhm.damage)
         return mhm.hitflags;

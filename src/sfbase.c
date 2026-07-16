@@ -599,7 +599,6 @@ char * sfvalue_xint16(xint16 *a)
 {
     static char buf[20];
 
-
     Snprintf(buf, sizeof buf, "%d", (int) *a);
     return buf;
 }
@@ -701,6 +700,7 @@ void norm_ptrs_ebones(struct ebones *d_ebones);
 void norm_ptrs_edog(struct edog *d_edog);
 void norm_ptrs_egd(struct egd *d_egd);
 void norm_ptrs_emin(struct emin *d_emin);
+void norm_ptrs_emsp(struct emsp *d_emsp);
 void norm_ptrs_engr(struct engr *d_engr);
 void norm_ptrs_epri(struct epri *d_epri);
 void norm_ptrs_erac(struct erac *d_erac);
@@ -896,6 +896,11 @@ norm_ptrs_egd(struct egd *d_egd UNUSED)
 
 void
 norm_ptrs_emin(struct emin *d_emin UNUSED)
+{
+}
+
+void
+norm_ptrs_emsp(struct emsp *d_emsp UNUSED)
 {
 }
 

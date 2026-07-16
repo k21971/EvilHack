@@ -542,6 +542,9 @@ bhitm(struct monst *mtmp, struct obj *otmp)
             }
         }
         break;
+    case SPE_ENTANGLE:
+        cast_entangle(mtmp, P_SKILL(spell_skilltype(SPE_ENTANGLE)));
+        break;
     case WAN_NOTHING:
         wake = FALSE;
         break;
@@ -807,6 +810,10 @@ montraits(
         mtmp2->mblinded = 0;
         mtmp2->mstun = 0;
         mtmp2->mconf = 0;
+        mtmp2->mentangled = 0;
+        mtmp2->mreflecttime = 0;
+        mtmp2->mbarkskintime = 0;
+        mtmp2->mstoneskintime = 0;
         /* when traits are for a shopkeeper, dummy monster 'mtmp' won't
            have necessary eshk data for replmon() -> replshk() */
         if (mtmp2->isshk) {
@@ -2950,6 +2957,9 @@ zapyourself(struct obj *obj, boolean ordinary)
         learn_it = TRUE;
         unturn_you();
         break;
+    case SPE_ENTANGLE:
+        cast_entangle(&gy.youmonst, P_SKILL(spell_skilltype(SPE_ENTANGLE)));
+        break;
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
         learn_it = TRUE; /* (no effect for spells...) */
@@ -3195,6 +3205,11 @@ boolean
 cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
              boolean allow_cancel_kill, boolean self_cancel)
 {
+    /* TODO-EVILHACK: the cancellation rework (dragon-scale immunities
+       plus immediate stripping of spell buffs such as reflection,
+       barkskin, stoneskin, burning hands, and shocking grasp) ports
+       with the cancellation slice; until then those buffs simply run
+       out via their own timers */
     static const char
         writing_vanishes[] = "Some writing vanishes from %s head!",
         your[] = "your"; /* should be extern */
@@ -4462,6 +4477,11 @@ zhitm(
     debugpline3("zapped monster hp = %d (= %d - %d)", mon->mhp - tmp,
                 mon->mhp, tmp);
     mon->mhp -= tmp;
+    /* interrupt spellbook reading - being zapped breaks concentration */
+    if (has_emsp(mon) && EMSP(mon)->msp_reading != 0) {
+        EMSP(mon)->msp_reading = 0;
+        EMSP(mon)->msp_read_turns = 0;
+    }
     return tmp;
 }
 
