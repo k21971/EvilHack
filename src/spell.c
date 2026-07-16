@@ -846,6 +846,8 @@ spelltypemnemonic(int skill)
         return "escape";
     case P_MATTER_SPELL:
         return "matter";
+    case P_EVOCATION_SPELL:
+        return "evocation";
     default:
         impossible("Unknown spell skill, %d;", skill);
         return "";

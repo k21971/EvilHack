@@ -1986,6 +1986,81 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       moves; (10) paniclog EMPTY (current two lines are the
       documented prior-slice staging artifact - note before
       install wipes them).
+      COMMITTED as 06310ad06 (41 files +2770/-92; bundle
+      evilhack-50_2026-07-16d cut+verified at that head).
+      WIZMODE BATTERY RUN + PASSED 2026-07-16 (no-install recipe,
+      two Wizard games - the first retired after the battery's
+      own catch, see BUG-1337; sanity_check on throughout;
+      paniclog at end = the 2 documented prior-slice artifact
+      lines + 3 "Unknown spell skill" impossibles from the
+      PRE-FIX first game = the caught bug's own trace; ZERO
+      other entries). BATTERY CATCH BUG-1337: casting ANY
+      evocation-school spell aborted with "Unknown spell skill,
+      33" - 5.0-native spelltypemnemonic() lacks the
+      P_EVOCATION_SPELL case; latent since the Phase 1 skills
+      port, unreachable until this slice wired the first
+      evocation hero spells; one-line master-parity fix +
+      rebuild MID-BATTERY (fixup commit rides with this record;
+      weapon.c PN_ plumbing was already correct). PASSED LIVE:
+      (1) BLOCKER regression - stoneskin cast "A thick layer of
+      stone covers your skin.", AC 9->6 (unskilled find_ac arm),
+      HStone_resistance I_SPECIAL set; gdb-shrunk timer ->
+      "The stone covering your skin completely disappears." +
+      AC restored + I_SPECIAL CLEARED (no more permanent stone
+      resistance); (2) barkskin AC 9->8 + expiry message;
+      reflection "A shimmering globe appears around you!" +
+      "flickers and vanishes" expiry; (3) ureflects arm - THE
+      FLOATING EYE'S GAZE "is reflected by your magical shield"
+      (intrinsic reflection now honored at the passive-gaze
+      site); (4) hero learn+cast of all four ported spells from
+      wished books; (5) entangle - "The roots from a nearby
+      tree ensnare the floating eye!" + mentangled=1/
+      mentangletime=3 by gdb + timer release during play;
+      (6) decay live (msp_know 5000->4999->4997 on the staged
+      caster); (7) zhitm read-interruption fix - gdb-staged
+      mid-read caster (msp_reading=450) hit by a hero fire ray:
+      msp_reading cleared to 0, hp damage applied; (8) ambient
+      regression net - prior slice visible ("The elven noble
+      wields a copper runed broadsword!" wield naming), two
+      wizard-mode deaths declined cleanly, heavy spawn churn
+      sanity-silent. DIAGNOSED NOT-A-BUG (breakpoint-proven):
+      a staged AD_SPEL+AD_MAGM caster spamming "points at you,
+      then curses" is 5.0-native buzzmu m_seenres frustration
+      (hero's magic resistance bounced its AD_MAGM ray once;
+      buzzmu then curses forever at range) - choose_monster_
+      spell was proven uninvolved via live breakpoint; ALSO
+      structural observation recorded: directed learned spells
+      vs the HERO fire only from castmu (adjacent), and the
+      dochug scan's AT_MAGC term is gated adtyp<=AD_LOUD
+      (MASTER PARITY - AD_SPEL casters enter m-v-m learned
+      casting only via the find_offensive/AT_WEAP scan terms
+      or adjacency; matches master, do not "fix"). NOT
+      LIVE-TESTED (reviewer + port-agent verification stands):
+      castmm m-v-m learned cast + MCAST_UNTAME_PET + the mbhit
+      IRONBARS/door force-bolt arms (three staging attempts
+      disrupted by spawn churn + the scan-gate structure above;
+      the port agent's unauthorized game did verify the
+      mcast_immediate/mbhitm beam family live vs hero),
+      defensive MUSE_SPE_TELEPORT_AWAY, farlook ", entangled"
+      text, defended-gate polymorph negative, sfctool ascii
+      round-trip (port agent covered -c/-u live). BATTERY
+      GOTCHAS (new): multi-line gdb while-loops DO work from
+      -x SCRIPT FILES (only inline -ex breaks); monster-chain
+      HEAD shifts with every spawn - re-find staged monsters
+      by walking for has_emsp/name before every write (a write
+      aimed at a stale head hit a lieutenant; gdb refused the
+      NULL-emsp deref so no corruption - verify reads-back
+      after every staged write); wished-item slot letters do
+      not map to gi.invent chain order (books/wands cluster) -
+      resolve otyps via an objects[] name scan from a gdb
+      script file (WAN_STRIKING=518, SPE_CHARM_MONSTER=473,
+      SPE_TELEPORT_AWAY=487, SPE_FORCE_BOLT=462 this build);
+      pkill -INT can need TWO rounds to pop a multi-continue
+      gdb (verify ps -C gdb empty before the next attach, else
+      the new attach fails with "No symbol table" garbage);
+      XL30 heroes attract heavy spawn churn - stage multi-step
+      m-v-m scenarios EARLY in a game, not at T:150+; a fire
+      ray kills your own pet in the line (check the path).
 - [ ] Zombie/were/Draugr mechanics (zombify, binding ritual)
 - [ ] Ice Queen branch bosses; Vecna; demon-lord behaviors
       (msummon mechanics memory)
