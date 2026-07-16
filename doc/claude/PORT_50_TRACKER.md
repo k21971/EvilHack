@@ -1950,8 +1950,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       master PWK hero arm ignores polymorph HP (u.uhp not u.mh -
       fix master first policy, frozen). FOLLOW-UPS: sfctool
       tempered sysconf parser rejects live EvilHack OPTIONS/
-      MSGTYPE lines (workaround = sanitized copy; small fix
-      candidate); generated exportascii lossy for simple-type
+      MSGTYPE lines - RESOLVED 2026-07-16 post-battery: the two
+      existing tolerance flags (ignore_errors_on_unmatched +
+      ignore_statement_errors) initialize TRUE under the sfctool
+      build only, rcfile_interface_options precedent; tool now
+      starts clean against the live sysconf, game validation
+      unchanged; archive entries BUG-1338..1341 written same
+      pass (defensive undead-turning stale aim, offhand
+      touch_artifact, scorer false-determinism, PWK polymorph
+      HP); generated exportascii lossy for simple-type
       arrays generally (upstream-reportable; emsp/erac arrays
       exempted via nah loops). PROCESS NOTE: the port subagent
       ran an UNAUTHORIZED wizmode verification game (cleaned up

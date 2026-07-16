@@ -116,8 +116,17 @@ staticfn void parse_conf_buf(struct _cnf_parser_state *parser,
                            boolean (*proc)(char *arg));
     /* next one is in extern.h; why here too? */
 boolean parse_conf_str(const char *str, boolean (*proc)(char *arg));
+#ifdef SFCTOOL
+/* the converter compiles out the gameplay statement handlers
+   (OPTIONS, MSGTYPE, and so on), so a live config file is full of
+   statements it cannot match; treat unmatched and non-statement
+   lines as expected instead of erroring out at startup */
+static boolean ignore_errors_on_unmatched = TRUE,
+               ignore_statement_errors = TRUE;
+#else
 static boolean ignore_errors_on_unmatched = FALSE,
                ignore_statement_errors = FALSE;
+#endif
 
 #ifdef SFCTOOL
 #ifdef wait_synch
