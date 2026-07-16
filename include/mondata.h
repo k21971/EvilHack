@@ -29,6 +29,27 @@
 #define immune_poisongas(ptr) ((ptr) == &mons[PM_HEZROU]        \
                                || (ptr) == &mons[PM_VROCK])
 
+#define ptr_resists_sick(ptr) \
+    ((ptr)->mlet == S_FUNGUS || nonliving(ptr)                            \
+     || is_ent(ptr) || is_plant(ptr)                                      \
+     || is_angel(ptr) || is_demon(ptr) || is_rider(ptr)                   \
+     || (ptr) == &mons[PM_BABY_GREEN_DRAGON]                              \
+     || (ptr) == &mons[PM_GREEN_DRAGON]                                   \
+     || (ptr) == &mons[PM_GIANT_LEECH]                                    \
+     || (ptr) == &mons[PM_GIANT_COCKROACH]                                \
+     || (ptr) == &mons[PM_LOCUST]                                         \
+     || (ptr) == &mons[PM_KATHRYN_THE_ICE_QUEEN]                          \
+     || (ptr) == &mons[PM_KATHRYN_THE_ENCHANTRESS]                        \
+     || (ptr) == &mons[PM_CONVICT]                                        \
+     || (ptr) == &mons[PM_AIR_ELEMENTAL]                                  \
+     || (ptr) == &mons[PM_EARTH_ELEMENTAL]                                \
+     || (ptr) == &mons[PM_FIRE_ELEMENTAL]                                 \
+     || (ptr) == &mons[PM_WATER_ELEMENTAL])
+
+#define resists_sick(mon) \
+    (ptr_resists_sick((mon)->data)                                       \
+     || (has_erac(mon) ? ptr_resists_sick(&mons[ERAC(mon)->rmnum]) : 0))
+
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 /* clinger: piercers, mimics, wumpus -- generally don't fall down holes */
@@ -258,6 +279,11 @@
 #define is_rider(ptr)                                      \
     ((ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_FAMINE] \
      || (ptr) == &mons[PM_PESTILENCE])
+#define is_support(ptr) \
+    ((ptr) == &mons[PM_GNOLL_CLERIC] || (ptr) == &mons[PM_KOBOLD_SHAMAN] \
+     || (ptr) == &mons[PM_GOBLIN_SHAMAN] || (ptr) == &mons[PM_ORC_SHAMAN] \
+     || (ptr) == &mons[PM_HILL_GIANT_SHAMAN]                              \
+     || (ptr) == &mons[PM_DROW_CLERIC] || (ptr) == &mons[PM_TORTLE_SHAMAN])
 /* note: placeholder monsters are used for corpses of zombies and mummies;
    PM_DWARF and PM_GNOME are normal monsters, not placeholders */
 #define is_placeholder(ptr)                             \

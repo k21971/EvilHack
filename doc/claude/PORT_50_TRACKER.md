@@ -144,6 +144,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       un-static mm_aggression + mtk_attk decay ticker + #tk command
       wiring + set_pet_killer credit + illithid-race gates
       (Race_if conjuncts marked TODO-EVILHACK in the file).
+      [CONSUMED 2026-07-16 by the Phase 2 telekinesis entry - all
+      wired except set_pet_killer credit (kill-attribution item)
+      and the mlined_up friendly-fire walk (monster-AI item)]
       CALIBRATION: the "cleanest" EvilHack-only file took ~1
       session incl. 3 pilot dependency slices; budget accordingly
       for Phase 2 files. Master source: git show
@@ -1414,16 +1417,77 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       "magic chest" rejected, wiz terrain + "magic chest
       object", "bearded axe" -> axe (parse regression), "iron
       safe" -> locked + 10 contents.
-- [ ] telekinesis.c + #tk command (pilot did the file; wire cmds)
+- [x] telekinesis.c + #tk command (pilot did the file; wire cmds)
+      DONE 2026-07-16 (commit pending; port subagent + reviewer +
+      coordinator fixes; clean rebuild zero-warning). Monster half
+      m_tk_push_obj/m_dotelekinesis into telekinesis.c; mfind_target
+      -> mthrowu.c; acceptable_pet_target -> dogmove.c (petstrat
+      fields pre-existed from Phase 1 mextra.h - reads inert until
+      #order ports); has_free_action (monst.h mon_resistancebits
+      family) + ptr_resists_sick/resists_sick + is_support
+      (mondata.h); mm_aggression un-static + 4 extern.h decls;
+      mon_regen mtk_attk tick; dochug mind-flayer hook at master's
+      position (after wield block); extcmdlist C('k') "telekinesis"
+      AUTOCOMPLETE (^K was free); hero-side illithid gates RESOLVED
+      (race live since Phase 1 roles port) + skill_init illithid
+      P_TELEKINESIS unlock + give_may_advance_msg telekinetic arm +
+      ECMD return conversion (OK/CANCEL/TIME). ADAPTATIONS:
+      STRAT_GOALX/Y -> mtmp->mgoal.x/.y (5.0 dedicated coord field,
+      strategy() maintains it); master mlined_up(mtmp, mtmp2, FALSE)
+      -> branch m_lined_up(mtmp2, mtmp) REVERSED ARGS (target
+      first); tbx/tby -> gt.tbx/gt.tby (contract: set on success,
+      zeroed on NULL - future muse/monster-AI consumers rely on it);
+      stoning killer via mons[].pmnames[NEUTRAL] (sex-split names).
+      Reviewer CONDITIONAL PASS: BUG-1336 found+fixed on branch
+      (m_tk_push_obj wakeup(target, FALSE) x2 - monster-caused hit
+      blamed the hero via setmangry; master frozen-unfixed, archive
+      entry); isok guard added on the mgoal m_at lookup
+      (branch-idiom parity with monmove/wizard covetous readers);
+      parity observation: dochug hook can return 0 with the caster
+      dead (master-identical, traced harmless - end-of-pass
+      dmonsfree + dochugw mdistu gate); reviewer's "port
+      #wiztelekinesis" REJECTED - upstream's wiz_telekinesis already
+      adopted (wizcmds.c). STILL DEFERRED with their subsystems:
+      set_pet_killer credit (kill-attribution item below; two
+      TODO-EVILHACK sites in telekinesis.c), dead-trees terrain
+      distinction, master mlined_up friendly-fire walk, master
+      monmove ranged-attack scan, muse/dogmove/weapon/mhitu
+      mfind_target+acceptable_pet_target consumers. NOTE for pet
+      slices: branch carries 5.0-NATIVE pet ranged AI
+      (score_targ/best_target/pet_ranged_attk in dogmove.c) parallel
+      to master's mfind_target pet path - RECONCILE per
+      adopt-upstream-then-re-add rule. Reviewer's 10-point battery
+      list in the review report; battery pending.
+- [ ] Kill-attribution/livelog architecture (player_killed +
+      pet_killer set/consume; memory kill-attribution-architecture):
+      producers = xkilled/monkilled callers, set_pet_killer sites in
+      artifact/mcastu/mhitm/explode/eat + the two telekinesis
+      TODO-EVILHACK sites; consumer = mondead/monstone entry
+      consumption driving livelog unique-boss credit. Port with the
+      Ice Queen/Vecna bosses + livelog reconciliation (setter
+      without consumer = never-cleared stale monst pointer - do NOT
+      port piecemeal)
 - [ ] Alignment-abuse subsystem (tiers, #conduct API - see memory
       alignment-abuse-subsystem)
 - [ ] Monster AI/equipment: dual-wield, artifact ranking, weapon
       selection (see weapon-selection-architecture memory)
+      (+ master monmove.c dochug ranged-attack scan block using
+      mfind_target - reconcile with branch's 5.0-native
+      ranged_attk_available gate; + master mlined_up tame
+      friendly-fire path walk vs branch m_lined_up; + muse.c
+      mfind_target offensive-item consumer)
 - [ ] Monster spellbook learning (struct emsp)
 - [ ] Zombie/were/Draugr mechanics (zombify, binding ritual)
 - [ ] Ice Queen branch bosses; Vecna; demon-lord behaviors
       (msummon mechanics memory)
 - [ ] Pet order system (P_PET_HANDLING, petstrat, #order)
+      (petstrat fields + PETSTRAT_* landed in Phase 1;
+      acceptable_pet_target reads them since the telekinesis slice.
+      Also: master dog_move ranged block + weapon.c oselect
+      acceptable_pet_target consumers; RECONCILE master's pet
+      mfind_target path with branch-native
+      score_targ/best_target/pet_ranged_attk; master skill_init
+      pet-handling role block)
 - [ ] Player races: giant, centaur, hobbit, illithid, tortle, drow
       (light/dark auras - litroom memory), vampire, aasimar (wings,
       light aura, seduction immunity, cross-faction hostility)
@@ -1438,6 +1502,9 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 - [ ] #shield, other added commands (sweep cmd.c delta)
 - [ ] Bag of treasure/devouring rules; #tip interactions
 - [ ] Steed/saddle/barding architecture (memory file)
+      (+ master mhitu.c steed-retaliation acceptable_pet_target
+      sites; + master skill_init centaur/tortle riding + tortle
+      trident racial blocks)
 - [ ] Shop pricing racial adjustments (shk_racial_adjustments)
 - [ ] Murder mechanic; Croesus AD_GOLD; seduction attacks table
 - [ ] Endgame randomized plane order + mkportal dlevel-1 semantics
@@ -1660,3 +1727,9 @@ trees, different content - Phase 0 rename).
 5. Endgame portals: EvilHack self-named + mkportal dlevel-1.
 6. The plan was verified 2026-07-02 against tip 219cfb687; the tree
    at adoption WILL be newer - trust the tree, then fix the plan.
+7. master weapon.c skill_init carries racial/role adjustment blocks
+   (centaur/tortle riding, knight/valkyrie shield, healer/druid/
+   knight pet handling, tortle trident, illithid telekinesis) and
+   give_may_advance_msg carries per-skill message arms - only the
+   illithid telekinesis pieces are on the branch; port each block
+   WITH its subsystem or the skill silently misbehaves.

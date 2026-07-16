@@ -87,7 +87,8 @@ give_may_advance_msg(int skill)
              (skill == P_NONE) ? ""
                  : (skill <= P_LAST_WEAPON) ? "weapon "
                      : (skill <= P_LAST_SPELL) ? "spell casting "
-                         : "fighting ");
+                         : (skill == P_TELEKINESIS) ? "telekinetic "
+                             : "fighting ");
     (void) handle_tip(TIP_ENHANCE);
 }
 
@@ -1955,6 +1956,14 @@ skill_init(const struct def_skill *class_skill)
     /* Roles that start with a horse know how to ride it */
     if (gu.urole.petnum == PM_PONY)
         P_SKILL(P_RIDING) = P_BASIC;
+
+    /* Illithids have innate telekinesis - start untrained, must
+       practice */
+    if (Race_if(PM_ILLITHID)) {
+        unrestrict_weapon_skill(P_TELEKINESIS);
+        P_SKILL(P_TELEKINESIS) = P_UNSKILLED;
+        P_MAX_SKILL(P_TELEKINESIS) = P_MASTER;
+    }
 
     /*
      * Make sure we haven't missed setting the max on a skill

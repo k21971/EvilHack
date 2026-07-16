@@ -885,6 +885,88 @@ best_target(struct monst *mtmp, boolean forced)   /* Pet */
     return best_targ;
 }
 
+boolean
+acceptable_pet_target(
+    struct monst *mtmp,  /* your pet */
+    struct monst *mtmp2, /* the potential target */
+    boolean ranged)
+{
+    /* from xNetHack...
+     * weigh the audacity of the pet to attack a differently-leveled
+     * foe based on its fraction of max HP:
+     *       100%:  up to level + 2
+     * 80% and up:  up to level + 1
+     * 60% to 80%:  up to same level
+     * 40% to 60%:  up to level - 1
+     * 25% to 40%:  up to level - 2
+     *  below 25%:  prevented from attacking at all by a different case
+     */
+    int balk = mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
+    boolean grudge = FALSE;
+    boolean attack_peacefuls = TRUE; /* default - pets attack peacefuls */
+    long petstrat = 0L;
+
+    /* Pets should never attack other pets unless under Conflict */
+    if (mtmp2->mtame && !Conflict)
+        return FALSE;
+
+    /* Check pet strategy flags if this is a tame pet with edog.
+       Note: Defensive pets (PETSTRAT_COWED) avoid melee via movement,
+       but are still willing to attack at range - no balk adjustment */
+    if (mtmp->mtame && has_edog(mtmp)) {
+        petstrat = EDOG(mtmp)->petstrat;
+        /* Pet ordered to avoid all monsters - never attack, overrides
+           grudges, but Conflict overrides this order */
+        if ((petstrat & PETSTRAT_NOATTACK) && !Conflict)
+            return FALSE;
+        /* Aggressive pets are more willing to attack higher level
+           foes */
+        if (petstrat & PETSTRAT_AGGRO)
+            balk += 5;
+        /* Check if pet is ordered to avoid peacefuls */
+        if (petstrat & PETSTRAT_AVOIDPEACE)
+            attack_peacefuls = FALSE;
+    }
+
+    /* Grudges override level checks */
+    if ((mm_aggression(mtmp, mtmp2) & ALLOW_M)
+        || mtmp->msummoned) {
+        grudge = TRUE;
+        balk = mtmp2->m_lev + 1;
+    }
+
+    return
+    !((!ranged && (int) mtmp2->m_lev >= balk
+       && !attacktype(mtmp->data, AT_EXPL))
+      /* passive counterattacks: free action protects against paralysis,
+         reflection blocks the floating eye's gaze, and slimeproof pets
+         cannot be slimed (see passivemm) */
+      || (!ranged && mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10)
+          && mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
+          && (mon_prop(mtmp, SEE_INVIS) || !mtmp2->minvis)
+          && !has_free_action(mtmp)
+          && !mon_reflects(mtmp, (char *) 0))
+      || (!ranged && mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10)
+          && !has_free_action(mtmp))
+      || (!ranged && mtmp2->data == &mons[PM_GREEN_SLIME] && rn2(10)
+          && !slimeproof(mtmp->data))
+      || (!ranged && max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
+      || (is_support(mtmp->data) && mtmp2->mpeaceful && !Conflict
+          && mtmp2->mhp > 0 && (mtmp2->mhpmax / mtmp2->mhp) < 4)
+      || ((mtmp->mhp * 4 < mtmp->mhpmax
+           || mtmp2->data->msound == MS_GUARDIAN
+           || mtmp2->data->msound == MS_LEADER)
+          && mtmp2->mpeaceful && !grudge && !Conflict)
+      || (mtmp2->mpeaceful && !attack_peacefuls && !Conflict)
+      || (!ranged && touch_petrifies(mtmp2->data)
+          && !(resists_ston(mtmp) || defended(mtmp, AD_STON)))
+      || (!ranged && mtmp2->data == &mons[PM_GRAY_FUNGUS]
+          && !(resists_sick(mtmp) || defended(mtmp, AD_DISE)))
+      || (!ranged && (mtmp2->data == &mons[PM_BLACK_DRAGON]
+                      || mtmp2->data == &mons[PM_ANTIMATTER_VORTEX])
+          && !(resists_disint(mtmp) || defended(mtmp, AD_DISN))));
+}
+
 /* Pet considers and maybe executes a ranged attack */
 int
 pet_ranged_attk(struct monst *mtmp, boolean forced)

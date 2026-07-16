@@ -837,6 +837,8 @@ extern int dog_nutrition(struct monst *, struct obj *) NONNULLPTRS;
 extern int dog_eat(struct monst *, struct obj *,
                    coordxy, coordxy, boolean) NONNULLPTRS;
 extern int pet_ranged_attk(struct monst *, boolean) NONNULLARG1;
+extern boolean acceptable_pet_target(struct monst *, struct monst *,
+                                     boolean) NONNULLARG12;
 extern int dog_move(struct monst *, int) NONNULLARG1;
 extern boolean could_reach_item(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern void finish_meating(struct monst *) NONNULLARG1;
@@ -1839,6 +1841,7 @@ extern int can_carry(struct monst *, struct obj *) NONNULLARG12;
 extern long mon_allowflags(struct monst *) NONNULLARG1;
 extern boolean m_in_air(struct monst *) NONNULLARG1;
 extern int mfndpos(struct monst *, struct mfndposdata *, long) NONNULLPTRS;
+extern long mm_aggression(struct monst *, struct monst *) NONNULLARG12;
 extern boolean monnear(struct monst *, coordxy, coordxy) NONNULLARG1;
 extern void dmonsfree(void);
 extern void elemental_clog(struct monst *) NONNULLARG1;
@@ -2094,6 +2097,7 @@ extern int *win32_cr_shellexecute(const char *);
 extern const char *rnd_hallublast(void);
 extern boolean m_has_launcher_and_ammo(struct monst *) NONNULLARG1;
 extern int thitu(int, int, struct obj **, const char *) NO_NNARGS;
+extern struct monst *mfind_target(struct monst *) NONNULLARG1;
 extern boolean ohitmon(struct monst *, struct obj *,
                        int, boolean) NONNULLARG12;
 extern void thrwmu(struct monst *) NONNULLARG1;
@@ -3271,6 +3275,7 @@ extern int tk_skill(void);
 extern int tk_range(void);
 extern int tk_pw_cost(void);
 extern int dotelekinesis(void);
+extern boolean m_dotelekinesis(struct monst *) NONNULLARG1;
 
 /* ### teleport.c ### */
 

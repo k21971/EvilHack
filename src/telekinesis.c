@@ -2,10 +2,9 @@
 /* Copyright (c) 2026 by Keith Simpson.  NetHack may be freely redistributed. */
 /* See license for details. */
 
-/* Hero-side telekinesis (EvilHack). The monster-side AI
-   (m_dotelekinesis and its m_tk_push_obj/mfind_target target-finder
-   cluster) ports with the Phase 2 monster-AI subsystem, together
-   with the mtk_attk cooldown ticker and the #tk command wiring */
+/* Telekinesis (EvilHack), hero side and monster side. Still
+   deferred: kill-attribution credit for a tame caster
+   (set_pet_killer) and the dead-trees terrain distinction */
 
 #include "hack.h"
 
@@ -15,6 +14,7 @@ staticfn void tk_pull_obj(struct obj *, int, int);
 staticfn boolean tk_impact(struct monst *, int, int, struct monst *);
 staticfn void tk_push_mon(struct monst *, int, int, int);
 staticfn void tk_pull_mon(struct monst *, int, int);
+staticfn void m_tk_push_obj(struct monst *, struct obj *, int, int, int);
 
 /*
  * Utility functions
@@ -44,8 +44,8 @@ tk_max_msize(int skill)
 boolean
 can_use_telekinesis(boolean verbose)
 {
-    /* TODO-EVILHACK: racial_illithid(&youmonst) check returns with
-       the illithid player race and the ERAC racial overlay */
+    if (racial_illithid(&gy.youmonst))
+        return TRUE;
     if (is_mind_flayer(gy.youmonst.data))
         return TRUE;
     if (Telekinesis)
@@ -61,11 +61,12 @@ tk_skill(void)
 {
     int skill;
 
-    /* TODO-EVILHACK: illithid-race heroes bypass this and train
-       P_TELEKINESIS (the P_SKILL fall-through below); until the race
-       ports, only the extrinsic and polymorph paths apply */
-    if (Telekinesis || is_mind_flayer(gy.youmonst.data))
-        return P_SKILLED;
+    if (!Race_if(PM_ILLITHID)) {
+        /* Non-illithids with extrinsic or polymorph get Skilled */
+        if (Telekinesis || is_mind_flayer(gy.youmonst.data))
+            return P_SKILLED;
+        return P_UNSKILLED;
+    }
     skill = P_SKILL(P_TELEKINESIS);
     if (skill < P_UNSKILLED)
         skill = P_UNSKILLED;
@@ -83,9 +84,9 @@ tk_range(void)
     if (skill < P_UNSKILLED || skill > P_MASTER)
         return 0;
     range = ranges[skill];
-    /* TODO-EVILHACK: master restricts the helm bonus to the
-       illithid race; re-add the race conjunct when it ports */
-    if (uarmh && uarmh->otyp == HELM_OF_TELEKINESIS)
+    /* Illithid wearing helm of telekinesis: +1 tile */
+    if (uarmh && uarmh->otyp == HELM_OF_TELEKINESIS
+        && Race_if(PM_ILLITHID))
         range += 1;
     return range;
 }
@@ -101,8 +102,9 @@ tk_pw_cost(void)
     if (skill < P_UNSKILLED || skill > P_MASTER)
         return 0;
     cost = costs[skill];
-    /* TODO-EVILHACK: illithid-race restriction as in tk_range() */
-    if (uarmh && uarmh->otyp == HELM_OF_TELEKINESIS)
+    /* Helm gives illithids 50% reduction */
+    if (uarmh && uarmh->otyp == HELM_OF_TELEKINESIS
+        && Race_if(PM_ILLITHID))
         cost /= 2;
     if (cost < 1)
         cost = 1;
@@ -366,30 +368,30 @@ dotelekinesis(void)
     char targetname[BUFSZ];
 
     if (!can_use_telekinesis(TRUE))
-        return 0;
+        return ECMD_OK;
 
     if (Confusion || Stunned) {
         You_cant("focus your telekinetic power while incapacitated.");
-        return 0;
+        return ECMD_OK;
     }
     if (u.uswallow) {
         pline("There's not enough room!");
-        return 0;
+        return ECMD_OK;
     }
     if (Underwater && !Amphibious) {
         You_cant("concentrate underwater.");
-        return 0;
+        return ECMD_OK;
     }
     if (ACURR(A_INT) < 6) {
         You_cant("muster the mental focus for telekinesis.");
-        return 0;
+        return ECMD_OK;
     }
     if (uarmh && is_heavy_metallic(uarmh)
         && uarmh->oartifact != ART_MITRE_OF_HOLINESS) {
         pline_The("%s of your %s blocks your telekinetic power.",
                   materialnm[uarmh->material],
                   helm_simple_name(uarmh));
-        return 0;
+        return ECMD_OK;
     }
 
     skill = tk_skill();
@@ -398,7 +400,7 @@ dotelekinesis(void)
 
     if (u.uen < cost) {
         You("lack the energy to use your telekinetic ability.");
-        return 0;
+        return ECMD_OK;
     }
 
     /* Push/Pull choice; Unskilled can only push */
@@ -424,7 +426,7 @@ dotelekinesis(void)
         n = select_menu(win, PICK_ONE, &selected);
         destroy_nhwindow(win);
         if (n <= 0)
-            return 0;
+            return ECMD_CANCEL;
         do_pull = (selected[0].item.a_int == 2);
         free((genericptr_t) selected);
     }
@@ -434,12 +436,12 @@ dotelekinesis(void)
     cc.y = u.uy;
     pline("Pick a target.");
     if (getpos(&cc, TRUE, "the target") < 0)
-        return 0;
+        return ECMD_CANCEL;
 
     /* Can't target self */
     if (cc.x == u.ux && cc.y == u.uy) {
         You_cant("target yourself.");
-        return 0;
+        return ECMD_OK;
     }
 
     /* Peek at target for descriptive error messages */
@@ -470,7 +472,7 @@ dotelekinesis(void)
             You("aren't lined up with %s.", targetname);
         else
             pline("That spot is not in a straight line.");
-        return 0;
+        return ECMD_OK;
     }
 
     /* Check range */
@@ -480,7 +482,7 @@ dotelekinesis(void)
             pline("%s is out of range.", upstart(targetname));
         else
             pline("That spot is out of range.");
-        return 0;
+        return ECMD_OK;
     }
 
     /* Normalize direction */
@@ -501,7 +503,7 @@ dotelekinesis(void)
             break;
         if (IS_STWALL(levl[px][py].typ) || closed_door(px, py)) {
             You_cant("see a clear path there.");
-            return 0;
+            return ECMD_OK;
         }
     }
 
@@ -518,7 +520,7 @@ dotelekinesis(void)
             if (max_msize < 0
                 || (int) mtmp->data->msize > max_msize) {
                 pline("%s is too large to move.", Monnam(mtmp));
-                return 0;
+                return ECMD_OK;
             }
             target_mon = mtmp;
         }
@@ -535,7 +537,7 @@ dotelekinesis(void)
                 continue;
             if (otmp->otyp == BOULDER && skill < P_MASTER) {
                 pline("That boulder is too heavy to move.");
-                return 0;
+                return ECMD_OK;
             }
             target_obj = otmp;
             break;
@@ -544,14 +546,14 @@ dotelekinesis(void)
 
     if (!target_obj && !target_mon) {
         pline("There's nothing there to move.");
-        return 0;
+        return ECMD_OK;
     }
 
     /* Deduct power and train skill */
     u.uen -= cost;
     disp.botl = TRUE;
-    /* TODO-EVILHACK: illithid-race heroes train the skill here:
-       use_skill(P_TELEKINESIS, 1) once the race ports */
+    if (Race_if(PM_ILLITHID))
+        use_skill(P_TELEKINESIS, 1);
 
     /* Execute push or pull */
     if (target_mon) {
@@ -568,7 +570,325 @@ dotelekinesis(void)
         }
     }
 
-    return 1;
+    return ECMD_TIME;
+}
+
+/*
+ * Monster telekinesis AI
+ */
+
+/* Monster pushes an object towards a target along (dx,dy) */
+staticfn void
+m_tk_push_obj(struct monst *mtmp, struct obj *obj, int dx, int dy, int range)
+{
+    int ox, oy, nx, ny, i;
+    boolean stopped;
+    struct monst *target;
+    int weight, dmg;
+
+    /* Split off one item from a stack */
+    if (obj->quan > 1L)
+        obj = splitobj(obj, 1L);
+
+    ox = obj->ox;
+    oy = obj->oy;
+    weight = (int) obj->owt;
+
+    remove_object(obj);
+    newsym(ox, oy);
+    stopped = FALSE;
+
+    for (i = 0; i < range && !stopped; i++) {
+        nx = ox + dx;
+        ny = oy + dy;
+
+        if (!isok(nx, ny)) {
+            stopped = TRUE;
+            break;
+        }
+        /* Solid terrain; TODO-EVILHACK: dead trees when the terrain
+           extensions port */
+        if (IS_STWALL(levl[nx][ny].typ) || IS_TREE(levl[nx][ny].typ)
+            || closed_door(nx, ny)
+            || levl[nx][ny].typ == IRONBARS) {
+            stopped = TRUE;
+            break;
+        }
+        /* Hits the player */
+        if (nx == u.ux && ny == u.uy) {
+            /* Potions shatter and splash -- potionhit handles
+               everything and destroys the object */
+            if (obj->oclass == POTION_CLASS) {
+                pline("%s telekinetically hurls %s at you!",
+                      Monnam(mtmp), an(xname(obj)));
+                potionhit(&gy.youmonst, obj, POTHIT_OTHER_THROW);
+                return;
+            }
+            if (weight >= 20 || obj->oclass == WEAPON_CLASS
+                || obj->otyp == CREAM_PIE
+                || (((obj->otyp == CORPSE || obj->otyp == EGG)
+                     && ismnum(obj->corpsenm)
+                     && touch_petrifies(&mons[obj->corpsenm])))) {
+                dmg = d(max(1, weight / 50), 4);
+                pline("%s telekinetically hurls %s at you!",
+                      Monnam(mtmp), an(xname(obj)));
+                if ((obj->otyp == CORPSE || obj->otyp == EGG)
+                    && ismnum(obj->corpsenm)
+                    && touch_petrifies(&mons[obj->corpsenm])) {
+                    if (!Stone_resistance
+                        && !(poly_when_stoned(gy.youmonst.data)
+                             && polymon(PM_STONE_GOLEM))) {
+                        svk.killer.format = KILLED_BY_AN;
+                        Sprintf(svk.killer.name,
+                                "telekinetically hurled %s %s",
+                                mons[obj->corpsenm].pmnames[NEUTRAL],
+                                obj->otyp == EGG ? "egg" : "corpse");
+                        done(STONING);
+                    }
+                } else if (obj->otyp == CREAM_PIE) {
+                    dmg = Maybe_Half_Phys(dmg);
+                    losehp(dmg,
+                           "telekinetically hurled cream pie",
+                           KILLED_BY_AN);
+                    if (can_blnd(mtmp, &gy.youmonst,
+                                 (uchar) AT_WEAP, obj)) {
+                        if (!Blind)
+                            pline("Yecch!  You've been creamed.");
+                        else
+                            pline("There's %s sticky all over your %s.",
+                                  something, body_part(FACE));
+                        make_blinded(Blinded + (long) rnd(25), FALSE);
+                    }
+                } else {
+                    dmg = Maybe_Half_Phys(dmg);
+                    losehp(dmg,
+                           "telekinetically hurled object",
+                           KILLED_BY_AN);
+                }
+            } else {
+                pline("%s telekinetically flings %s at you.",
+                      Monnam(mtmp), an(xname(obj)));
+            }
+            ox = nx;
+            oy = ny;
+            stopped = TRUE;
+            break;
+        }
+        /* Hits another monster */
+        target = m_at(nx, ny);
+        if (target) {
+            /* Potions shatter and splash */
+            if (obj->oclass == POTION_CLASS) {
+                potionhit(target, obj, POTHIT_OTHER_THROW);
+                return; /* obj destroyed */
+            }
+            if (weight >= 20 || obj->oclass == WEAPON_CLASS
+                || obj->otyp == CREAM_PIE
+                || (((obj->otyp == CORPSE || obj->otyp == EGG)
+                     && ismnum(obj->corpsenm)
+                     && touch_petrifies(&mons[obj->corpsenm])))) {
+                dmg = d(max(1, weight / 50), 4);
+                if (canseemon(target))
+                    pline("%s strikes %s!", An(xname(obj)),
+                          mon_nam(target));
+                if ((obj->otyp == CORPSE || obj->otyp == EGG)
+                    && ismnum(obj->corpsenm)
+                    && touch_petrifies(&mons[obj->corpsenm])
+                    && !resists_ston(target)) {
+                    minstapetrify(target, !svc.context.mon_moving);
+                } else {
+                    if (damage_mon(target, dmg, AD_PHYS, FALSE)) {
+                        /* TODO-EVILHACK: a tame mtmp should get kill
+                           credit via set_pet_killer when the
+                           kill-attribution subsystem ports */
+                        monkilled(target,
+                                  "telekinetically hurled object",
+                                  AD_PHYS);
+                    } else {
+                        /* the hurler is a monster; don't blame the
+                           hero for waking or angering the target */
+                        wakeup(target, FALSE);
+                    }
+                }
+            } else {
+                wakeup(target, FALSE);
+            }
+            ox = nx;
+            oy = ny;
+            stopped = TRUE;
+            break;
+        }
+        ox = nx;
+        oy = ny;
+    }
+
+    if (flooreffects(obj, ox, oy, "fall"))
+        return;
+    place_object(obj, ox, oy);
+    newsym(ox, oy);
+}
+
+/* Monster uses telekinesis against a target (player or monster).
+   Uses mfind_target() for target selection, which handles
+   hostile/tame/peaceful/conflict logic.
+   Returns TRUE if an action was taken */
+boolean
+m_dotelekinesis(struct monst *mtmp)
+{
+    struct monst *mdef;
+    int dx, dy;
+    int mx, my, tx, ty, dist, range, max_msize;
+    boolean is_master, target_is_you;
+    int x, y, i;
+    struct obj *push_obj;
+
+    /* Only mind flayers have TK */
+    if (!is_mind_flayer(mtmp->data))
+        return FALSE;
+    /* Cancelled monsters can't use the ability */
+    if (mtmp->mcan)
+        return FALSE;
+    /* Cooldown check */
+    if (mtmp->mtk_attk)
+        return FALSE;
+
+    mx = mtmp->mx;
+    my = mtmp->my;
+    is_master = (mtmp->data == &mons[PM_MASTER_MIND_FLAYER]
+                 || mtmp->data == &mons[PM_ALHOON]);
+    range = is_master ? 5 : 3;
+    max_msize = is_master ? MZ_LARGE : MZ_SMALL;
+
+    /* Find a target; mfind_target handles hostile vs tame vs
+       peaceful vs conflict, and checks line-of-sight */
+    mdef = mfind_target(mtmp);
+    if (!mdef || mdef == mtmp)
+        return FALSE;
+
+    target_is_you = (mdef == &gy.youmonst);
+    tx = target_is_you ? u.ux : mdef->mx;
+    ty = target_is_you ? u.uy : mdef->my;
+    dist = max(abs(mx - tx), abs(my - ty));
+
+    /* Must be within TK range */
+    if (dist > range || dist < 1)
+        return FALSE;
+
+    dx = sgn(tx - mx);
+    dy = sgn(ty - my);
+
+    /* Priority 1: Push an object at the target */
+    push_obj = (struct obj *) 0;
+    x = mx;
+    y = my;
+    for (i = 0; i < dist; i++) {
+        struct obj *otmp;
+
+        x += dx;
+        y += dy;
+        if (!isok(x, y))
+            break;
+        if (IS_STWALL(levl[x][y].typ) || closed_door(x, y))
+            break;
+        /* Don't scan past the target */
+        if (x == tx && y == ty)
+            break;
+        if (OBJ_AT(x, y)) {
+            for (otmp = svl.level.objects[x][y]; otmp;
+                 otmp = otmp->nexthere) {
+                if (otmp->otyp == BOULDER && is_master) {
+                    push_obj = otmp;
+                    break;
+                }
+                if (otmp->otyp == STATUE) {
+                    push_obj = otmp;
+                    break;
+                }
+                if (otmp->oclass == WEAPON_CLASS) {
+                    push_obj = otmp;
+                    break;
+                }
+                if ((otmp->otyp == CORPSE || otmp->otyp == EGG)
+                    && ismnum(otmp->corpsenm)
+                    && touch_petrifies(&mons[otmp->corpsenm])) {
+                    push_obj = otmp;
+                    break;
+                }
+                if (otmp->otyp == CREAM_PIE) {
+                    push_obj = otmp;
+                    break;
+                }
+                if (otmp->oclass == POTION_CLASS
+                    && (otmp->otyp == POT_PARALYSIS
+                        || otmp->otyp == POT_BLINDNESS
+                        || otmp->otyp == POT_CONFUSION
+                        || otmp->otyp == POT_SLEEPING
+                        || otmp->otyp == POT_ACID
+                        || otmp->otyp == POT_HALLUCINATION
+                        || otmp->otyp == POT_POLYMORPH
+                        || otmp->otyp == POT_OIL)) {
+                    push_obj = otmp;
+                    break;
+                }
+            }
+            if (push_obj)
+                break;
+        }
+    }
+
+    if (push_obj) {
+        m_tk_push_obj(mtmp, push_obj, dx, dy, range);
+        if (!DEADMONSTER(mtmp))
+            mtmp->mtk_attk = 6 + rn2(6);
+        return TRUE;
+    }
+
+    /* Pull the target towards the monster */
+    if (target_is_you) {
+        if ((int) gy.youmonst.data->msize <= max_msize && dist > 1) {
+            int pull_range = dist - 1;
+            int pdx = sgn(mx - u.ux);
+            int pdy = sgn(my - u.uy);
+
+            /* Chain on the floor stops the pull */
+            if (Punished && uball && !carried(uball)) {
+                if (canseemon(mtmp))
+                    pline("%s tries to pull you, but the chain holds"
+                          " you firm.", Monnam(mtmp));
+                mtmp->mtk_attk = 6 + rn2(6);
+                return TRUE;
+            }
+
+            pline("%s telekinetically pulls you towards %s!",
+                  Monnam(mtmp), mhim(mtmp));
+            hurtle(pdx, pdy, pull_range, FALSE);
+            /* hurtle's traps can fire dobuzz that kills the puller */
+            if (!DEADMONSTER(mtmp))
+                mtmp->mtk_attk = 6 + rn2(6);
+            return TRUE;
+        }
+    } else {
+        if ((int) mdef->data->msize <= max_msize && dist > 1) {
+            int pull_range = dist - 1;
+
+            if (canseemon(mtmp) || canseemon(mdef))
+                pline("%s telekinetically pulls %s towards %s!",
+                      Monnam(mtmp), mon_nam(mdef),
+                      mhim(mtmp));
+            mhurtle(mdef, -dx, -dy, pull_range);
+            if (!DEADMONSTER(mdef) && mdef->mleashed
+                && um_dist(mdef->mx, mdef->my, 5))
+                m_unleash(mdef, TRUE);
+            if (!DEADMONSTER(mdef))
+                (void) tk_impact(mdef, -dx, -dy, mtmp);
+            /* mhurtle's traps can fire dobuzz that kills the puller */
+            if (!DEADMONSTER(mtmp))
+                mtmp->mtk_attk = 6 + rn2(6);
+            return TRUE;
+        }
+    }
+
+    return FALSE;
 }
 
 /*telekinesis.c*/

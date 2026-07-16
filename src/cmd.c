@@ -1897,6 +1897,8 @@ struct ext_func_tab extcmdlist[] = {
               dotakeoff, 0, NULL },
     { 'A',    "takeoffall", "remove all armor",
               doddoremarm, 0, NULL },
+    { C('k'), "telekinesis", "use telekinetic powers",
+              dotelekinesis, AUTOCOMPLETE, NULL },
     { C('t'), "teleport", "teleport around the level",
               dotelecmd, IFBURIED | CMD_M_PREFIX, NULL },
     /* \177 == <del> aka <delete> aka <rubout>; some terminals have an

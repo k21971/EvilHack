@@ -312,6 +312,8 @@ mon_regen(struct monst *mon, boolean digest_meal)
         healmon(mon, 1, 0);
     if (mon->mspec_used)
         mon->mspec_used--;
+    if (mon->mtk_attk)
+        mon->mtk_attk--;
     if (digest_meal) {
         if (mon->meating) {
             mon->meating--;
@@ -859,6 +861,13 @@ dochug(struct monst *mtmp)
             if (mon_wield_item(mtmp) != 0)
                 return 0;
         }
+    }
+
+    /* Mind flayers may use telekinesis at range */
+    if (is_mind_flayer(mdat) && !mtmp->mtk_attk
+        && mtmp->mlstmv != svm.moves && rn2(3)) {
+        if (m_dotelekinesis(mtmp))
+            return 0;
     }
 
     /*
