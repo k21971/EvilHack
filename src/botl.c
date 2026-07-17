@@ -179,7 +179,7 @@ do_statusline2(void)
     if (Sick) {
         if (u.usick_type & SICK_VOMITABLE)
             Strcpy(nb = eos(nb), " FoodPois");
-        if (u.usick_type & SICK_NONVOMITABLE)
+        if (u.usick_type & (SICK_NONVOMITABLE | SICK_ZOMBIE))
             Strcpy(nb = eos(nb), " TermIll");
     }
     if (u.uhs != NOT_HUNGRY)
@@ -1150,7 +1150,8 @@ bot_via_windowport(void)
     condtests[bl_foodpois].test = condtests[bl_termill].test = FALSE;
     if (Sick) {
         test_if_enabled(bl_foodpois) = (u.usick_type & SICK_VOMITABLE) != 0;
-        test_if_enabled(bl_termill) = (u.usick_type & SICK_NONVOMITABLE) != 0;
+        test_if_enabled(bl_termill) =
+            (u.usick_type & (SICK_NONVOMITABLE | SICK_ZOMBIE)) != 0;
     }
     condtests[bl_inlava].test = condtests[bl_tethered].test
         = condtests[bl_trapped].test = FALSE;

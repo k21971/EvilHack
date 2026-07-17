@@ -2607,10 +2607,10 @@ breakobj(
         if (obj->otyp == POT_OIL && obj->lamplit) {
             explode_oil(obj, x, y);
         } else if (next2u(x, y)) {
-            if (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data)) {
+            if (!Breathless_nomagic || haseyes(gy.youmonst.data)) {
                 /* wet towel protects both eyes and breathing */
                 if (obj->otyp != POT_WATER && !Half_gas_damage) {
-                    if (!breathless(gy.youmonst.data)) {
+                    if (!Breathless_nomagic) {
                         /* [what about "familiar odor" when known?] */
                         You("smell a peculiar odor...");
                     } else {

@@ -812,6 +812,21 @@ mattacku(struct monst *mtmp)
             if (!range2 && (!MON_WEP(mtmp) || mtmp->mconf || Conflict
                             || !touch_petrifies(gy.youmonst.data))) {
                 if (foundyou) {
+                    /* if our hero is sized tiny or small and unencumbered,
+                       they have a decent chance of evading a zombie's
+                       bite attack */
+                    if (racial_zombie(mtmp) && mattk->aatyp == AT_BITE
+                        && gy.youmonst.data->msize <= MZ_SMALL
+                        && is_animal(gy.youmonst.data)
+                        && near_capacity() == UNENCUMBERED
+                        && !(Confusion || Stunned || Punished || gm.multi < 0
+                             || Wounded_legs || Stoned || Fumbling)
+                        && rn2(3)) {
+                        You("nimbly %s %s bite!",
+                            rn2(2) ? "dodge" : "evade",
+                            s_suffix(mon_nam(mtmp)));
+                        return 0; /* attack stops */
+                    }
                     if (tmp > (j = rnd(20 + i))) {
                         if (unsolid(gy.youmonst.data)
                             && failed_grab(mtmp, &gy.youmonst, mattk))
@@ -1065,14 +1080,15 @@ summonmu(struct monst *mtmp, boolean youseeit)
 }
 
 boolean
-diseasemu(struct permonst *mdat)
+diseasemu(struct monst *mtmp)
 {
     if (Sick_resistance) {
         You_feel("a slight illness.");
         return FALSE;
     } else {
         make_sick(Sick ? Sick / 3L + 1L : (long) rn1(ACURR(A_CON), 20),
-                  mdat->pmnames[NEUTRAL], TRUE, SICK_NONVOMITABLE);
+                  mtmp->data->pmnames[NEUTRAL], TRUE,
+                  racial_zombie(mtmp) ? SICK_ZOMBIE : SICK_NONVOMITABLE);
         return TRUE;
     }
 }
@@ -1102,7 +1118,9 @@ u_slip_free(
         && (!obj->cursed || rn2(3))) {
         pline_mon(mtmp, "%s %s your %s %s!", Monnam(mtmp),
               (mattk->adtyp == AD_WRAP) ? "slips off of"
-                                        : "grabs you, but cannot hold onto",
+                  : (mattk->adtyp == AD_DRIN && racial_zombie(mtmp))
+                      ? "bites you, but slips off of"
+                      : "grabs you, but cannot hold onto",
               obj->greased ? "greased" : "slippery",
               /* avoid "slippery slippery cloak"
                  for undiscovered oilskin cloak */
@@ -1635,7 +1653,7 @@ gulpmu(struct monst *mtmp, struct attack *mattk)
             tmp = 0;
         break;
     case AD_DISE:
-        if (!diseasemu(mtmp->data))
+        if (!diseasemu(mtmp))
             tmp = 0;
         break;
     case AD_DREN:

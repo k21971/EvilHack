@@ -314,6 +314,12 @@ mon_regen(struct monst *mon, boolean digest_meal)
         mon->mspec_used--;
     if (mon->mtk_attk)
         mon->mtk_attk--;
+    if (mon->mbindtimer)
+        mon->mbindtimer--;
+    if (mon->msicktime)
+        mon->msicktime--;
+    if (mon->mdiseasetime)
+        mon->mdiseasetime--;
     if (mon->mreflecttime)
         mon->mreflecttime--;
     if (mon->mbarkskintime)

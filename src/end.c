@@ -1086,22 +1086,41 @@ done(int how)
         /* assumes that only one type of item confers LifeSaved property */
         makeknown(AMULET_OF_LIFE_SAVING);
         Your("medallion %s!", !Blind ? "begins to glow" : "feels warm");
-        if (how == CHOKING)
-            You("vomit ...");
-        You_feel("much better!");
-        pline_The("medallion crumbles to dust!");
-        if (uamul)
-            useup(uamul);
-
-        (void) adjattrib(A_CON, -1, TRUE);
-        savelife(how);
-        if (how == GENOCIDED) {
-            pline("Unfortunately you are still genocided...");
+        if ((uamul && uamul->cursed)
+            || nonliving(gy.youmonst.data) || racial_zombie(&gy.youmonst)
+            || racial_vampire(&gy.youmonst)) {
+            /* the unliving have no life to save */
+            Your("medallion %s!", !Blind ? "glows white-hot"
+                                         : "sears your neck");
+            if (!Deaf)
+                You("hear manic laughter in the distance...");
+            Your("medallion turns to ash!");
+            u.uhp = 0;
+            disp.botl = TRUE;
+            if (uamul && uamul->cursed)
+                pline("It appears your luck has run out...");
+            else
+                pline("It appears you have no life to save...");
+            if (uamul)
+                useup(uamul);
         } else {
-            char killbuf[BUFSZ];
-            formatkiller(killbuf, BUFSZ, how, FALSE);
-            livelog_printf(LL_LIFESAVE, "averted death (%s)", killbuf);
-            survive = TRUE;
+            if (how == CHOKING)
+                You("vomit ...");
+            You_feel("much better!");
+            pline_The("medallion crumbles to dust!");
+            if (uamul)
+                useup(uamul);
+
+            (void) adjattrib(A_CON, -1, TRUE);
+            savelife(how);
+            if (how == GENOCIDED) {
+                pline("Unfortunately you are still genocided...");
+            } else {
+                char killbuf[BUFSZ];
+                formatkiller(killbuf, BUFSZ, how, FALSE);
+                livelog_printf(LL_LIFESAVE, "averted death (%s)", killbuf);
+                survive = TRUE;
+            }
         }
     }
     /* explore and wizard modes offer player the option to keep playing */
@@ -1217,6 +1236,8 @@ really_done(int how)
         u.ugrave_arise = (NON_PM - 2); /* leave no corpse */
     else if (how == STONING)
         u.ugrave_arise = LEAVESTATUE; /* statue instead of corpse */
+    else if (u.usick_type & SICK_ZOMBIE)
+        u.ugrave_arise = gu.urace.zombienum;
     else if (how == TURNED_SLIME
              /* it's possible to turn into slime even though green slimes
                 have been genocided:  genocide could occur after hero is

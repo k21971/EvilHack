@@ -82,7 +82,8 @@ set_uasmon(void)
     PROPSET(ANTIMAGIC, (dmgtype(mdat, AD_MAGM)
                         || mdat == &mons[PM_BABY_GRAY_DRAGON]
                         || dmgtype(mdat, AD_RBRE)));
-    PROPSET(SICK_RES, (mdat->mlet == S_FUNGUS || mdat == &mons[PM_GHOUL]));
+    PROPSET(SICK_RES, ptr_resists_sick(mdat));
+    PROPSET(WERE_RES, resists_lycan(mdat));
 
     PROPSET(STUNNED, (mdat == &mons[PM_STALKER] || is_bat(mdat)));
     PROPSET(HALLUC_RES, dmgtype(mdat, AD_HALU));
@@ -109,6 +110,13 @@ set_uasmon(void)
                        || dmgtype_fromattack(mdat, AD_BLND, AT_GAZE)));
 #undef PROPSET
 #undef resist_from_form
+
+    /* nonliving monster forms and the undead by race cannot wither */
+    if (nonliving(mdat) || racial_zombie(&gy.youmonst)
+        || racial_vampire(&gy.youmonst))
+        BWithering |= FROMFORM;
+    else
+        BWithering &= ~FROMFORM;
 
     /* whether the player is flying/floating depends on their steed,
        which won't be known during the restore process: but BFlying

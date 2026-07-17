@@ -759,6 +759,20 @@ eat_brains(
             if (*dmg_p >= mdef->mhp && visflag && canspotmon(mdef))
                 pline("%s last thought fades away...",
                       s_suffix(Monnam(mdef)));
+            /* a zombie chewing on brains can spread the sickness */
+            if (*dmg_p < mdef->mhp && racial_zombie(magr)) {
+                if (resists_sick(mdef) || defended(mdef, AD_DISE))
+                    return M_ATTK_MISS;
+                if (visflag && canspotmon(mdef))
+                    pline_mon(mdef, "%s looks %s.", Monnam(mdef),
+                              mdef->msick ? "much worse" : "rather ill");
+                if (mdef->msicktime)
+                    mdef->msicktime -= rnd(3);
+                else
+                    mdef->msicktime = rn1(9, 6);
+                mdef->msick = can_become_zombie(r_data(mdef)) ? 3 : 1;
+                mdef->msickbyu = FALSE;
+            }
         }
     }
 
@@ -1338,7 +1352,8 @@ cpostfx(int pm)
     } /* check_intrinsics */
 
     if (ismnum(catch_lycanthropy)) {
-        set_ulycn(catch_lycanthropy);
+        if (!Lycan_resistance)
+            set_ulycn(catch_lycanthropy);
         retouch_equipment(2);
     }
     return;
@@ -1910,31 +1925,64 @@ eatcorpse(struct obj *otmp)
     }
 
     /* 5.0: globs don't become tainted, they shrink away */
-    if (!glob && !stoneable && !slimeable && rotted > 5L) {
+    if ((!glob && !stoneable && !slimeable && rotted > 5L)
+        || otmp->zombie_corpse) {
         /* cannibalism is judged by the corpse's racial base */
         boolean cannibal = (has_omonst(otmp) && has_erac(OMONST(otmp)))
                            ? maybe_cannibal(ERAC(OMONST(otmp))->rmnum, FALSE)
                            : maybe_cannibal(mnum, FALSE);
 
         /* tp++; -- early return makes this unnecessary */
-        pline("Ulch - that %s was tainted%s!",
-              (mons[mnum].mlet == S_FUNGUS) ? "fungoid vegetation"
-              : vegetarian(&mons[mnum]) ? "protoplasm"
-                : "meat",
-              cannibal ? ", you cannibal" : "");
-        if (Sick_resistance) {
-            pline("It doesn't seem at all sickening, though...");
+        if (!Upolyd && Race_if(PM_DRAUGR)) {
+            /* rough estimate of the nutrition a rotted corpse would
+               give, based on the corpse's weight */
+            int rot_nut = mons[mnum].cwt >= 1500
+                            ? 300 : mons[mnum].cwt >= 1000
+                              ? 200 : mons[mnum].cwt >= 500
+                                ? 100 : mons[mnum].cwt >= 250
+                                  ? 50 : 10;
+
+            pline("Mmmm...  tainted meat!");
+            lesshungry(rot_nut);
+            if (wizard) /* test pline */
+                pline("Nutrition gained: %d.", rot_nut);
         } else {
-            long sick_time;
+            pline("Ulch - that %s was tainted%s!",
+                  (mons[mnum].mlet == S_FUNGUS) ? "fungoid vegetation"
+                  : vegetarian(&mons[mnum]) ? "protoplasm"
+                    : "meat",
+                  cannibal ? ", you cannibal" : "");
+            if (Sick_resistance && !otmp->zombie_corpse) {
+                pline("It doesn't seem at all sickening, though...");
+            } else if (!otmp->zombie_corpse) {
+                long sick_time;
 
-            sick_time = (long) rn1(10, 10);
-            /* make sure new ill doesn't result in improvement */
-            if (Sick && (sick_time > Sick))
-                sick_time = (Sick > 1L) ? Sick - 1L : 1L;
-            make_sick(sick_time, corpse_xname(otmp, "rotted", CXN_NORMAL),
-                      TRUE, SICK_VOMITABLE);
+                sick_time = (long) rn1(10, 10);
+                /* make sure new ill doesn't result in improvement */
+                if (Sick && (sick_time > Sick))
+                    sick_time = (Sick > 1L) ? Sick - 1L : 1L;
+                make_sick(sick_time,
+                          corpse_xname(otmp, "rotted", CXN_NORMAL),
+                          TRUE, SICK_VOMITABLE);
 
-            pline("(It must have died too long ago to be safe to eat.)");
+                pline("(It must have died too long ago to be safe to eat.)");
+            } else if (Sick_resistance) {
+                You_feel("an odd sensation for a brief moment, "
+                         "but it soon passes.");
+            } else {
+                long sick_time;
+
+                sick_time = (long) rn1(10, 10);
+                /* make sure new ill doesn't result in improvement */
+                if (Sick && (sick_time > Sick))
+                    sick_time = (Sick > 1L) ? Sick - 1L : 1L;
+                make_sick(sick_time,
+                          corpse_xname(otmp, "diseased", CXN_NORMAL),
+                          TRUE, SICK_ZOMBIE);
+
+                You_feel("a horrifying change starting within you.");
+                You("have an overwhelming urge to consume brains...");
+            }
         }
         if (carried(otmp))
             useup(otmp);
@@ -2694,7 +2742,8 @@ edibility_prompts(struct obj *otmp)
      * order from most detrimental to least detrimental.
      */
     buf[0] = '\0';
-    if (cadaver && rotted > 5L && !Sick_resistance) {
+    if (cadaver && (rotted > 5L || otmp->zombie_corpse)
+        && !Sick_resistance) {
         /* Tainted meat */
         Snprintf(buf, sizeof buf, "%s like %s could be tainted!",
                  foodsmell, it_or_they);
@@ -2702,7 +2751,8 @@ edibility_prompts(struct obj *otmp)
         Snprintf(buf, sizeof buf,
                  "%s like %s could be something very dangerous!",
                  foodsmell, it_or_they);
-    } else if (cadaver && rotted > 5L && Sick_resistance) {
+    } else if (cadaver && (rotted > 5L || otmp->zombie_corpse)
+               && Sick_resistance) {
         /* Tainted meat with Sick_resistance (testing for that is
            redundant; we don't get this far for !Sick_resistance)
            needs to be done now even though there is no danger because

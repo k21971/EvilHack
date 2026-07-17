@@ -1040,7 +1040,7 @@ domonnoise(struct monst *mtmp)
         /* Generic peaceful humanoid behavior. */
         if (mtmp->mflee)
             pline_msg = "wants nothing to do with you.";
-        else if (mtmp->mhp < mtmp->mhpmax / 4)
+        else if (mtmp->mhp < mtmp->mhpmax / 4 || mtmp->msick)
             pline_msg = "moans.";
         else if (mtmp->mconf || mtmp->mstun)
             verbl_msg = !rn2(3) ? "Huh?" : rn2(2) ? "What?" : "Eh?";
@@ -1412,6 +1412,57 @@ dochat(void)
               xresponse);
         return ECMD_OK;
     }
+
+    /* Draugr can perform a necromantic binding ritual on an adjacent
+       tame skeletal undead pet, costing Pw and on a per-pet cooldown,
+       to reinforce the necromantic bond (+1 tameness). Skeletal
+       pets don't eat, so this fills the role thrown food plays for
+       other races */
+    if (Race_if(PM_DRAUGR) && mtmp->mtame
+        && is_skeletal_animal(mtmp->data)) {
+        if (!canspotmon(mtmp))
+            map_invisible(mtmp->mx, mtmp->my);
+        if (mtmp->mtame >= 20) {
+            pline("%s is already wholly bound to your will.",
+                  Monnam(mtmp));
+            return ECMD_TIME;
+        }
+        if (mtmp->mbindtimer > 0) {
+            pline("%s is not yet ready to bend to your will.",
+                  Monnam(mtmp));
+            return ECMD_TIME;
+        }
+        if (u.uen < 5) {
+            You("lack the energy for the binding ritual.");
+            return ECMD_TIME;
+        }
+        u.uen -= 5;
+        disp.botl = TRUE;
+        You("chant a binding ritual over %s.", mon_nam(mtmp));
+        pline("%s rattles its bones in eerie resonance.",
+              Monnam(mtmp));
+        mtmp->mtame++;
+        mtmp->mbindtimer = 1500;
+        return ECMD_TIME;
+    }
+
+    /* Draugr may attempt to impose their will over hostile
+       mindless undead */
+    if (Race_if(PM_DRAUGR) && !mtmp->mpeaceful
+        && (is_zombie(mtmp->data) || is_skeletal_animal(mtmp->data))) {
+        if (!canspotmon(mtmp))
+            map_invisible(mtmp->mx, mtmp->my);
+        You("attempt to impose your will over the %s...",
+            l_monnam(mtmp));
+        if (rnl(10) < 1) {
+            /* a newly tamed monster also gets its usual chat response */
+            (void) tamedog(mtmp, (struct obj *) 0, TRUE);
+        } else {
+            pline("%s ignores you.", Monnam(mtmp));
+            return ECMD_TIME;
+        }
+    }
+
     return domonnoise(mtmp);
 }
 

@@ -1294,6 +1294,7 @@ staticfn boolean
 bane_applies(const struct artifact *oart, struct monst *mon)
 {
     struct artifact atmp;
+    boolean yours = (mon == &gy.youmonst);
 
     if (oart != &artilist[ART_NONARTIFACT]
             && (oart->spfx & SPFX_DBONUS) != 0) {
@@ -1302,6 +1303,27 @@ bane_applies(const struct artifact *oart, struct monst *mon)
         if (spec_applies(&atmp, mon))
             return TRUE;
     }
+
+    /* the undead may not handle sacred artifacts */
+    if (yours) {
+        if ((maybe_polyd(is_undead(gy.youmonst.data), Race_if(PM_DRAUGR))
+             || maybe_polyd(is_undead(gy.youmonst.data),
+                            Race_if(PM_VAMPIRE)))
+            && (oart == &artilist[ART_SUNSWORD]
+                || oart == &artilist[ART_HAMMER_OF_THE_GODS]
+                || oart == &artilist[ART_MITRE_OF_HOLINESS])) {
+            if (!wizard || y_n("Override?") != 'y')
+                return TRUE;
+        }
+    } else {
+        if ((racial_zombie(mon) || racial_vampire(mon))
+            && (oart == &artilist[ART_SUNSWORD]
+                || oart == &artilist[ART_HAMMER_OF_THE_GODS]
+                || oart == &artilist[ART_MITRE_OF_HOLINESS])) {
+            return TRUE;
+        }
+    }
+
     return FALSE;
 }
 
@@ -1358,6 +1380,8 @@ spec_applies(const struct artifact *weap, struct monst *mtmp)
             return !(yours ? Drain_resistance : resists_drli(mtmp));
         case AD_STON:
             return !(yours ? Stone_resistance : resists_ston(mtmp));
+        case AD_DISE:
+            return !(yours ? Sick_resistance : resists_sick(mtmp));
         default:
             impossible("Weird weapon special attack.");
         }
@@ -1419,7 +1443,11 @@ spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
             || (attacks(AD_DRST, otmp)
                 && (yours ? !Poison_resistance
                           : !(resists_poison(mon)
-                              || defended(mon, AD_DRST))))) {
+                              || defended(mon, AD_DRST))))
+            || (attacks(AD_DISE, otmp)
+                && (yours ? !Sick_resistance
+                          : !(resists_sick(mon)
+                              || defended(mon, AD_DISE))))) {
             gs.spec_dbon_applies = TRUE;
             /* the majority of ITEM_VENOM damage is handled in
                the poisoned-hit code */
@@ -1442,8 +1470,11 @@ spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
         gs.spec_dbon_applies = FALSE;
     else if (is_art(otmp, ART_GRIMTOOTH))
         /* Grimtooth has SPFX settings to warn against elves but we want its
-           damage bonus to apply to all targets, so bypass spec_applies() */
-        gs.spec_dbon_applies = TRUE;
+           damage bonus to apply to all targets that can sicken, so bypass
+           spec_applies() */
+        gs.spec_dbon_applies = !(yours ? Sick_resistance
+                                       : (resists_sick(mon)
+                                          || defended(mon, AD_DISE)));
     else
         gs.spec_dbon_applies = spec_applies(weap, mon);
 
@@ -1499,7 +1530,9 @@ score_artifact_weapon(
         applies = FALSE;
     else if (is_art(otmp, ART_GRIMTOOTH))
         /* spec_dbon() bypasses spec_applies() for Grimtooth */
-        applies = TRUE;
+        applies = !(yours ? Sick_resistance
+                          : (resists_sick(mdef)
+                             || defended(mdef, AD_DISE)));
     else
         applies = (spec_applies(weap, mdef) != 0);
 
@@ -2054,6 +2087,80 @@ artifact_hit(
         }
         if (youdefend && gs.spec_dbon_applies && !rn2(8))
             poisoned("blade", A_STR, "poisoned blade", 30, FALSE);
+        return realizes_damage;
+    }
+    /* disease */
+    if (attacks(AD_DISE, otmp)) {
+        boolean show_instakill = (youattack || youdefend || vis);
+        boolean elf = youdefend ? maybe_polyd(is_elf(gy.youmonst.data),
+                                              Race_if(PM_ELF))
+                                : racial_elf(mdef);
+        boolean drow = youdefend ? maybe_polyd(is_drow(gy.youmonst.data),
+                                               Race_if(PM_DROW))
+                                 : racial_drow(mdef);
+        boolean no_sick = youdefend ? Sick_resistance
+                                    : (resists_sick(mdef)
+                                       || defended(mdef, AD_DISE));
+
+        if (youattack) {
+            if (Role_if(PM_SAMURAI)) {
+                You("dishonorably use a diseased weapon!");
+                adjalign(-sgn(u.ualign.type));
+                record_abuse_event(-sgn(u.ualign.type), ABUSE_USE_DISEASE);
+            } else if (u.ualign.type == A_LAWFUL && u.ualign.record > -10) {
+                int penalty = Role_if(PM_KNIGHT) ? -10 : -1;
+
+                You_feel("like an evil coward for using a diseased weapon.");
+                adjalign(penalty);
+                record_abuse_event(penalty, ABUSE_USE_DISEASE);
+            }
+        }
+        if (realizes_damage) {
+            /* currently the only object that uses this is Grimtooth */
+            pline_The("filthy dagger %s %s%c",
+                      no_sick ? "hits"
+                              : rn2(2) ? "contaminates" : "infects",
+                      hittee, !gs.spec_dbon_applies ? '.' : '!');
+        }
+
+        if (!rn2(10) && (elf || drow)) {
+            if (!DEADMONSTER(mdef) && show_instakill)
+                pline_The(
+                     "cruel blade penetrates %s soft flesh, disemboweling %s!",
+                          youdefend ? "your" : s_suffix(mon_nam(mdef)),
+                          youdefend ? "you" : noit_mhim(mdef));
+            if (youdefend) {
+                losehp((Upolyd ? u.mh : u.uhp) + 1,
+                       "disemboweled by Grimtooth", NO_KILLER_PREFIX);
+            } else {
+                /* guard against mdef being killed twice should
+                   it die before we reach this point */
+                if (!DEADMONSTER(mdef)) {
+                    if (youattack) {
+                        xkilled(mdef, XKILL_NOMSG);
+                    } else {
+                        /* TODO-EVILHACK: pet kill credit via
+                           set_pet_killer when the kill-attribution
+                           subsystem lands */
+                        monkilled(mdef, (char *) 0, AD_DISE);
+                    }
+                }
+            }
+            return TRUE;
+        }
+
+        if (youdefend && magr && !rn2(5)) {
+            (void) diseasemu(magr);
+        } else if (!youdefend) {
+            mdef->mdiseasetime = rnd(10) + 5;
+            if (!no_sick && !rn2(5)) {
+                if (canseemon(mdef))
+                    pline_mon(mdef, "%s looks %s.", Monnam(mdef),
+                              mdef->mdiseased ? "even worse" : "diseased");
+                mdef->mdiseased = 1;
+                mdef->mdiseabyu = youattack ? TRUE : FALSE;
+            }
+        }
         return realizes_damage;
     }
     if (attacks(AD_MAGM, otmp)) {

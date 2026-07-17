@@ -667,6 +667,24 @@ mon_catchup_elapsed_time(
         else
             mtmp->mfleetim -= imv;
     }
+    if (mtmp->msicktime) {
+        if (imv >= mtmp->msicktime)
+            mtmp->msicktime = 1;
+        else
+            mtmp->msicktime -= imv;
+    }
+    if (mtmp->mdiseasetime) {
+        if (imv >= mtmp->mdiseasetime)
+            mtmp->mdiseasetime = 1;
+        else
+            mtmp->mdiseasetime -= imv;
+    }
+    if (mtmp->mbindtimer) {
+        if (imv >= mtmp->mbindtimer)
+            mtmp->mbindtimer = 1;
+        else
+            mtmp->mbindtimer -= imv;
+    }
 
     /* might recover from temporary trouble */
     if (mtmp->mtrapped && rn2(imv + 1) > 40 / 2)
@@ -1076,7 +1094,9 @@ dogfood(struct monst *mon, struct obj *obj)
                  && !(fx == PM_LIZARD || fx == PM_LICHEN)
                  && mptr->mlet != S_FUNGUS)
                 || (acidic(fptr) && !resists_acid(mon))
-                || (poisonous(fptr) && !resists_poison(mon)))
+                || (poisonous(fptr) && !resists_poison(mon))
+                || (obj->zombie_corpse && !(resists_sick(mon)
+                                            || defended(mon, AD_DISE))))
                 return POISON;
             /* avoid polymorph unless starving or abused (in which case the
                pet will consider it for a chance to become more powerful) */
@@ -1103,6 +1123,11 @@ dogfood(struct monst *mon, struct obj *obj)
                      : MANFOOD;
         case TIN:
             return metallivorous(mptr) ? ACCFOOD : MANFOOD;
+        case EUCALYPTUS_LEAF:
+            /* a sick pet will seek out the cure */
+            return (mon->msick || mon->mdiseased) ? DOGFOOD
+                   : (starving || herbi) ? ACCFOOD
+                     : MANFOOD;
         case APPLE:
             return herbi ? DOGFOOD : starving ? ACCFOOD : MANFOOD;
         case CARROT:

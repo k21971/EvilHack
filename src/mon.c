@@ -24,6 +24,7 @@ staticfn void anger_quest_guardians(struct monst *);
 staticfn boolean ok_to_obliterate(struct monst *);
 staticfn void m_respond_shrieker(struct monst *);
 staticfn void m_respond_medusa(struct monst *);
+staticfn void m_respond_zombie(struct monst *);
 staticfn void qst_guardians_respond(void);
 staticfn void peacefuls_respond(struct monst *, int);
 staticfn void wake_nearto_core(coordxy, coordxy, int, boolean);
@@ -363,26 +364,17 @@ m_poisongas_ok(struct monst *mtmp)
     return M_POISONGAS_BAD;
 }
 
-/* return True if mon is capable of converting other monsters into zombies */
+/* return True if mon is capable of converting other monsters into zombies;
+   true zombies by race (which covers racial overlays such as draugr
+   knights) and all liches qualify; ghouls and skeletons are Z-class but
+   not zombies by race, so they are excluded naturally */
 boolean
 zombie_maker(struct monst *mon)
 {
-    struct permonst *pm = mon->data;
-
     if (mon->mcan)
         return FALSE;
 
-    switch (pm->mlet) {
-    case S_ZOMBIE:
-        /* Z-class monsters that aren't actually zombies go here */
-        if (pm == &mons[PM_GHOUL] || pm == &mons[PM_SKELETON])
-            return FALSE;
-        return TRUE;
-    case S_LICH:
-        /* all liches will create zombies as well */
-        return TRUE;
-    }
-    return FALSE;
+    return (racial_zombie(mon) || mon->data->mlet == S_LICH);
 }
 
 /* Return monster index of zombie monster which this monster could
@@ -392,8 +384,6 @@ int
 zombie_form(struct permonst *pm)
 {
     switch (pm->mlet) {
-    case S_ZOMBIE: /* when already a zombie/ghoul/skeleton, will stay as is */
-        return NON_PM;
     case S_KOBOLD:
         return PM_KOBOLD_ZOMBIE;
     case S_ORC:
@@ -406,14 +396,36 @@ zombie_form(struct permonst *pm)
     case S_KOP:
         if (is_elf(pm))
             return PM_ELF_ZOMBIE;
+        if (is_drow(pm))
+            return PM_DROW_ZOMBIE;
+        if (is_dwarf(pm))
+            return PM_DWARF_ZOMBIE;
+        if (is_gnome(pm))
+            return PM_GNOME_ZOMBIE;
+        if (is_orc(pm))
+            return PM_ORC_ZOMBIE;
+        if (is_hobbit(pm))
+            return PM_HOBBIT_ZOMBIE;
+        if (is_giant(pm))
+            return PM_GIANT_ZOMBIE;
+        if (is_illithid(pm))
+            return NON_PM;
         return PM_HUMAN_ZOMBIE;
     case S_HUMANOID:
         if (is_dwarf(pm))
             return PM_DWARF_ZOMBIE;
+        if (is_hobbit(pm))
+            return PM_HOBBIT_ZOMBIE;
+        if (is_gnoll(pm))
+            return PM_GNOLL_WITHERLING;
         else
             break;
     case S_GNOME:
         return PM_GNOME_ZOMBIE;
+    case S_ZOMBIE:
+        /* draugr arise again as draugr; other zombies stay dead */
+        if (pm == &mons[PM_DRAUGR])
+            return PM_DRAUGR;
     }
     return NON_PM;
 }
@@ -442,6 +454,17 @@ undead_to_corpse(int mndx)
     case PM_ELF_ZOMBIE:
     case PM_ELF_MUMMY:
         mndx = PM_ELF;
+        break;
+    case PM_DROW_ZOMBIE:
+    case PM_DROW_MUMMY:
+        mndx = PM_DROW;
+        break;
+    case PM_HOBBIT_ZOMBIE:
+    case PM_HOBBIT_MUMMY:
+        mndx = PM_HOBBIT;
+        break;
+    case PM_GNOLL_WITHERLING:
+        mndx = PM_GNOLL;
         break;
     case PM_VAMPIRE:
     case PM_VAMPIRE_NOBLE:
@@ -530,6 +553,8 @@ genus(int mndx, int mode)
                 mndx = PM_GNOME;
             else if (is_orc(ptr))
                 mndx = PM_ORC;
+            else if (is_zombie(ptr))
+                mndx = PM_DRAUGR;
         }
         break;
     }
@@ -642,22 +667,31 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
         obj = mkcorpstat(CORPSE, mtmp, &mons[num], x, y, corpstatflags);
         obj->age -= (TAINT_AGE + 1); /* this is an *OLD* corpse */
         break;
-    case PM_KOBOLD_MUMMY:
-    case PM_DWARF_MUMMY:
-    case PM_GNOME_MUMMY:
-    case PM_ORC_MUMMY:
-    case PM_ELF_MUMMY:
-    case PM_HUMAN_MUMMY:
-    case PM_GIANT_MUMMY:
-    case PM_ETTIN_MUMMY:
     case PM_KOBOLD_ZOMBIE:
     case PM_DWARF_ZOMBIE:
     case PM_GNOME_ZOMBIE:
     case PM_ORC_ZOMBIE:
     case PM_ELF_ZOMBIE:
+    case PM_DROW_ZOMBIE:
+    case PM_HOBBIT_ZOMBIE:
     case PM_HUMAN_ZOMBIE:
     case PM_GIANT_ZOMBIE:
     case PM_ETTIN_ZOMBIE:
+    case PM_GNOLL_WITHERLING:
+    case PM_DRAUGR:
+        corpstatflags |= CORPSTAT_ZOMBIE;
+        FALLTHROUGH;
+        /*FALLTHRU*/
+    case PM_KOBOLD_MUMMY:
+    case PM_DWARF_MUMMY:
+    case PM_GNOME_MUMMY:
+    case PM_ORC_MUMMY:
+    case PM_ELF_MUMMY:
+    case PM_DROW_MUMMY:
+    case PM_HOBBIT_MUMMY:
+    case PM_HUMAN_MUMMY:
+    case PM_GIANT_MUMMY:
+    case PM_ETTIN_MUMMY:
         num = undead_to_corpse(mndx);
         corpstatflags |= CORPSTAT_INIT;
         obj = mkcorpstat(CORPSE, mtmp, &mons[num], x, y, corpstatflags);
@@ -834,7 +868,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_BOOJUM: case PM_VORPAL_JABBERWOCK: case PM_KEYSTONE_KOP:
     case PM_KOP_SERGEANT: case PM_KOP_LIEUTENANT: case PM_KOP_KAPTAIN:
     case PM_LICH: case PM_DEMILICH: case PM_MASTER_LICH: case PM_ARCH_LICH:
-    case PM_VECNA: case PM_HOBBIT_MUMMY: case PM_DROW_MUMMY:
+    case PM_VECNA:
     case PM_RED_NAGA_HATCHLING: case PM_BLACK_NAGA_HATCHLING:
     case PM_GOLDEN_NAGA_HATCHLING: case PM_GUARDIAN_NAGA_HATCHLING:
     case PM_RED_NAGA: case PM_BLACK_NAGA: case PM_GOLDEN_NAGA:
@@ -850,8 +884,7 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
     case PM_NAZGUL: case PM_XORN: case PM_MONKEY: case PM_BABY_OWLBEAR:
     case PM_APE: case PM_OWLBEAR: case PM_YETI: case PM_CARNIVOROUS_APE:
     case PM_SASQUATCH: case PM_ZRUTY: case PM_ABOMINABLE_SNOWMAN:
-    case PM_DRAUGR: case PM_HOBBIT_ZOMBIE: case PM_DROW_ZOMBIE: case PM_GHOUL:
-    case PM_GNOLL_WITHERLING: case PM_REVENANT: case PM_STRAW_GOLEM:
+    case PM_GHOUL: case PM_REVENANT: case PM_STRAW_GOLEM:
     case PM_FLESH_GOLEM: case PM_SNOW_GOLEM: case PM_HUMAN: case PM_AASIMAR:
     case PM_MINER: case PM_PRISON_GUARD: case PM_HUMAN_WERERAT:
     case PM_HUMAN_WEREJACKAL: case PM_HUMAN_WEREWOLF: case PM_CHAMPION:
@@ -915,9 +948,14 @@ make_corpse(struct monst *mtmp, unsigned int corpseflags)
             return (struct obj *) 0;
         } else {
             corpstatflags |= CORPSTAT_INIT;
+            /* zombies by racial overlay leave a revivable corpse too */
+            if (racial_zombie(mtmp))
+                corpstatflags |= CORPSTAT_ZOMBIE;
             /* preserve the unique traits of some creatures */
             obj = mkcorpstat(CORPSE, KEEPTRAITS(mtmp) ? mtmp : 0,
                              mdat, x, y, corpstatflags);
+            if (racial_zombie(mtmp) || racial_vampire(mtmp))
+                obj->age -= (TAINT_AGE + 1); /* this is an *OLD* corpse */
             if (burythem) {
                 boolean dealloc;
 
@@ -1221,6 +1259,54 @@ m_calcdistress(struct monst *mtmp)
     /* regenerate hit points */
     mon_regen(mtmp, FALSE);
 
+    /* sick monsters can die from their illness */
+    if (mtmp->msick && mtmp->msicktime <= 1) {
+        if (resists_sick(mtmp) || defended(mtmp, AD_DISE)) {
+            mtmp->msick = 0;
+        } else {
+            if (canseemon(mtmp))
+                pline_mon(mtmp, "%s dies from %s illness.",
+                          Monnam(mtmp), noit_mhis(mtmp));
+            if ((mtmp->msick & 2) && !nonliving(mtmp->data)
+                && can_become_zombie(r_data(mtmp))) {
+                gz.zombify = (zombie_form(r_data(mtmp)) != NON_PM);
+                mtmp->msick = 0;
+                mtmp->mhp = -1;
+                if (mtmp->msickbyu)
+                    xkilled(mtmp, XKILL_NOMSG);
+                else
+                    mondied(mtmp);
+                gz.zombify = FALSE; /* reset */
+            } else {
+                mtmp->msick = 0;
+                mtmp->mhp = -1;
+                if (mtmp->msickbyu)
+                    xkilled(mtmp, XKILL_NOMSG);
+                else
+                    mondied(mtmp);
+            }
+            return;
+        }
+    }
+
+    /* diseased monsters can die as well */
+    if (mtmp->mdiseased && mtmp->mdiseasetime <= 1) {
+        if (resists_sick(mtmp) || defended(mtmp, AD_DISE)) {
+            mtmp->mdiseased = 0;
+        } else {
+            if (canseemon(mtmp))
+                pline_mon(mtmp, "%s dies from %s infection.",
+                          Monnam(mtmp), noit_mhis(mtmp));
+            mtmp->mdiseased = 0;
+            mtmp->mhp = -1;
+            if (mtmp->mdiseabyu)
+                xkilled(mtmp, XKILL_GIVEMSG);
+            else
+                mondied(mtmp);
+        }
+        return;
+    }
+
     /* possibly polymorph shapechangers and lycanthropes */
     if (ismnum(mtmp->cham))
         decide_to_shapeshift(mtmp);
@@ -1519,7 +1605,7 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
     } else if (otmp == uchain) {
         unpunish(); /* frees uchain */
     } else {
-        boolean deadmimic, slimer;
+        boolean deadmimic, slimer, unsick;
         int poly, grow, heal, eyes, mstone, vis = canseemon(mtmp);
         int corpsenm = (otmp->otyp == CORPSE ? otmp->corpsenm : NON_PM);
 
@@ -1527,6 +1613,8 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
                                               || corpsenm == PM_LARGE_MIMIC
                                               || corpsenm == PM_GIANT_MIMIC));
         slimer = (otmp->otyp == GLOB_OF_GREEN_SLIME);
+        unsick = (otmp->otyp == EUCALYPTUS_LEAF
+                  && (mtmp->msick || mtmp->mdiseased));
         poly = polyfood(otmp);
         grow = mlevelgain(otmp);
         heal = mhealup(otmp);
@@ -1552,6 +1640,11 @@ m_consume_obj(struct monst *mtmp, struct obj *otmp)
                               Monnam(mtmp));
                 monstone(mtmp);
             }
+        }
+        if (unsick) {
+            mtmp->msick = mtmp->mdiseased = 0;
+            if (vis)
+                pline_mon(mtmp, "%s is no longer ill.", Monnam(mtmp));
         }
         if (heal)
             healmon(mtmp, mtmp->mhpmax, 0);
@@ -3612,6 +3705,8 @@ mondead(struct monst *mtmp)
         set_mon_data(mtmp, &mons[PM_HUMAN_WEREWOLF]);
     else if (mtmp->data == &mons[PM_WERERAT])
         set_mon_data(mtmp, &mons[PM_HUMAN_WERERAT]);
+    else if (mtmp->data == &mons[PM_WEREDEMON])
+        set_mon_data(mtmp, &mons[PM_DEMON_WEREDEMON]);
 
     /*
      * svm.mvitals[].died does double duty as total number of dead monsters
@@ -4120,7 +4215,7 @@ xkilled(
         if (!wasinside && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
             gz.zombify = (!gt.thrownobj && !gs.stoned && !uwep
                          && zombie_maker(&gy.youmonst)
-                         && zombie_form(mtmp->data) != NON_PM);
+                         && zombie_form(r_data(mtmp)) != NON_PM);
             cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
                                                    : CORPSTAT_NONE);
             gz.zombify = FALSE; /* reset */
@@ -4711,6 +4806,22 @@ m_respond_medusa(struct monst *mtmp)
         }
 }
 
+/* zombie special action: moan for brains */
+staticfn void
+m_respond_zombie(struct monst *mtmp)
+{
+    if (Deaf)
+        return;
+    if (canseemon(mtmp))
+        pline("%s %s.", Monnam(mtmp),
+              !rn2(8) ? "mumbles, \"BRAAAAAAAAINS...\""
+                      : !rn2(3) ? "groans" : "moans");
+    else if (!rn2(4))
+        You_hear("%s.",
+                 !rn2(8) ? "a low voice mumble \"UUUNNNNGGHH...\""
+                         : !rn2(3) ? "a low groaning" : "a low moaning");
+}
+
 /* monster responds to player action; not the same as a passive attack */
 void
 m_respond(struct monst *mtmp)
@@ -4719,6 +4830,8 @@ m_respond(struct monst *mtmp)
         m_respond_shrieker(mtmp);
     if (mtmp->data == &mons[PM_MEDUSA] && couldsee(mtmp->mx, mtmp->my))
         m_respond_medusa(mtmp);
+    if (is_zombie(mtmp->data) && !rn2(10))
+        m_respond_zombie(mtmp);
     /* Erinyes will inform surrounding monsters of your crimes */
     if (mtmp->data == &mons[PM_ERINYS] && !mtmp->mpeaceful && m_canseeu(mtmp))
         aggravate();
@@ -6612,9 +6725,11 @@ usmellmon(struct permonst *mdat)
         case PM_HUMAN_WEREJACKAL:
         case PM_HUMAN_WERERAT:
         case PM_HUMAN_WEREWOLF:
+        case PM_DEMON_WEREDEMON:
         case PM_WEREJACKAL:
         case PM_WERERAT:
         case PM_WEREWOLF:
+        case PM_WEREDEMON:
         case PM_OWLBEAR:
             You("detect an odor reminiscent of an animal's den.");
             msg_given = TRUE;

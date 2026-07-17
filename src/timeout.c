@@ -331,6 +331,15 @@ sickness_dialogue(void)
         /* change the message slightly for food poisoning */
         if ((u.usick_type & SICK_NONVOMITABLE) == 0)
             (void) strsubst(buf, "illness", "sickness");
+        /* change final message slightly for zombie sickness;
+           races whose urace.zombienum is NON_PM cannot zombify
+           on death and should see the standard message instead */
+        if ((u.usick_type & SICK_ZOMBIE) != 0
+            && !(Race_if(PM_CENTAUR) || Race_if(PM_ILLITHID)
+                 || Race_if(PM_TORTLE) || Race_if(PM_AASIMAR)
+                 || Race_if(PM_DRAUGR) || Race_if(PM_VAMPIRE)))
+            (void) strsubst(buf, "You are at Death's door",
+                            "You feel a horrifying change coming over you");
         if (Hallucination && strstri(buf, "Death's door")) {
             /* youmonst: for Hallucination, mhe()'s mon argument isn't used */
             Strcpy(pronounbuf, mhe(&gy.youmonst));
@@ -692,7 +701,7 @@ nh_timeout(void)
             case SICK:
                 /* hero might be able to bounce back from food poisoning,
                    but not other forms of illness */
-                if ((u.usick_type & SICK_NONVOMITABLE) == 0
+                if ((u.usick_type & (SICK_NONVOMITABLE | SICK_ZOMBIE)) == 0
                     && rn2(100) < ACURR(A_CON)) {
                     You("have recovered from your illness.");
                     make_sick(0, NULL, FALSE, SICK_ALL);
@@ -717,6 +726,23 @@ nh_timeout(void)
                     } else if (mons[m_idx].geno & G_UNIQ) {
                         Strcpy(svk.killer.name, the(svk.killer.name));
                         svk.killer.format = KILLED_BY;
+                    }
+                }
+                if ((u.usick_type & SICK_ZOMBIE) != 0) {
+                    /* races whose urace.zombienum is NON_PM cannot
+                       actually zombify; report disease instead */
+                    if (Race_if(PM_CENTAUR)
+                        || Race_if(PM_ILLITHID) || Race_if(PM_TORTLE)
+                        || Race_if(PM_AASIMAR) || Race_if(PM_DRAUGR)
+                        || Race_if(PM_VAMPIRE)) {
+                        svk.killer.format = NO_KILLER_PREFIX;
+                        Sprintf(svk.killer.name, "diseased by %s",
+                                an(svk.killer.name));
+                    } else {
+                        u.ugrave_arise = gu.urace.zombienum;
+                        svk.killer.format = NO_KILLER_PREFIX;
+                        Sprintf(svk.killer.name, "zombified by %s",
+                                an(svk.killer.name));
                     }
                 }
                 done_timeout(POISONING, SICK);

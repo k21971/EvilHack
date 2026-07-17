@@ -1616,7 +1616,7 @@ extern struct attack *getmattk(struct monst *, struct monst *, int, int *,
                                struct attack *) NONNULLARG12;
 extern boolean mtrapped_in_pit(struct monst *) NONNULLARG1;
 extern int mattacku(struct monst *) NONNULLARG1;
-boolean diseasemu(struct permonst *) NONNULLARG1;
+boolean diseasemu(struct monst *) NONNULLARG1;
 boolean u_slip_free(struct monst *, struct attack *) NONNULLARG12;
 extern int magic_negation(struct monst *) NONNULLARG1;
 extern boolean gulp_blnd_check(void);

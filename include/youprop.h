@@ -340,8 +340,12 @@
     (HMagical_breathing || EMagical_breathing || amphibious(gy.youmonst.data))
 /* Get wet, may go under surface */
 
+#define Breathless_nomagic \
+    (breathless(gy.youmonst.data) || racial_zombie(&gy.youmonst) \
+     || racial_vampire(&gy.youmonst))
+
 #define Breathless \
-    (HMagical_breathing || EMagical_breathing || breathless(gy.youmonst.data))
+    (HMagical_breathing || EMagical_breathing || Breathless_nomagic)
 
 #define Underwater (u.uinwater)
 /* Note that Underwater and u.uinwater are both used in code.

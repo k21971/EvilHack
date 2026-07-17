@@ -1916,7 +1916,7 @@ potionhit(struct monst *mon, struct obj *obj, int how)
 
     /* Note: potionbreathe() does its own docall() */
     if ((distance == 0 || (distance < 3 && !rn2((1+ACURR(A_DEX))/2)))
-        && (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data)))
+        && (!Breathless_nomagic || haseyes(gy.youmonst.data)))
         potionbreathe(obj);
     else if (obj->dknown && cansee(tx, ty))
         trycall(obj);
@@ -1961,7 +1961,7 @@ potionbreathe(struct obj *obj)
     case POT_RESTORE_ABILITY:
     case POT_GAIN_ABILITY:
         if (obj->cursed) {
-            if (!breathless(gy.youmonst.data)) {
+            if (!Breathless_nomagic) {
                 pline("Ulch!  That potion smells terrible!");
             } else if (haseyes(gy.youmonst.data)) {
                 const char *eyes = body_part(EYE);
@@ -2449,7 +2449,7 @@ dip_potion_explosion(struct obj *obj, int dmg)
         pline("%sThey explode!", !Deaf ? "BOOM!  " : "");
         wake_nearto(u.ux, u.uy, (BOLT_LIM + 1) * (BOLT_LIM + 1));
         exercise(A_STR, FALSE);
-        if (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data))
+        if (!Breathless_nomagic || haseyes(gy.youmonst.data))
             potionbreathe(obj);
         useupall(obj);
         losehp(dmg, /* not physical damage */

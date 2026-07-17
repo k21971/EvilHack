@@ -466,6 +466,19 @@ mattackm(
             /* KMH -- don't accumulate to-hit bonuses */
             if (mwep)
                 tmp -= hitval(mwep, mdef);
+            /* tiny or small animals have a chance to dodge a zombie's
+               bite attack due to zombies being mindless and slow */
+            if (strike && racial_zombie(magr) && mattk->aatyp == AT_BITE
+                && mdef->data->msize <= MZ_SMALL
+                && is_animal(mdef->data)
+                && !(mdef->mfrozen || mdef->mstone
+                     || mdef->mconf || mdef->mstun) && rn2(3)) {
+                if (gv.vis && canspotmon(mdef))
+                    pline_mon(mdef, "%s nimbly %s %s bite!", Monnam(mdef),
+                              rn2(2) ? "dodges" : "evades",
+                              s_suffix(mon_nam(magr)));
+                strike = 0;
+            }
             if (strike) {
                 /* for eel AT_TUCH+AD_WRAP attack: can't grab an unsolid
                    target; the unsolid test is redundant since failed_grab
@@ -1188,10 +1201,11 @@ mdamagem(
         if (mattk->aatyp == AT_WEAP || mattk->aatyp == AT_CLAW)
             gm.mkcorpstat_norevive = troll_baned(mdef, mwep) ? TRUE : FALSE;
         gz.zombify = (!mwep && zombie_maker(magr)
+                     && can_become_zombie(r_data(mdef))
                      && (mattk->aatyp == AT_TUCH
                          || mattk->aatyp == AT_CLAW
                          || mattk->aatyp == AT_BITE)
-                     && zombie_form(mdef->data) != NON_PM);
+                     && zombie_form(r_data(mdef)) != NON_PM);
         monkilled(mdef, "", (int) mattk->adtyp);
         gz.zombify = FALSE; /* reset */
         gm.mkcorpstat_norevive = FALSE;
@@ -1553,6 +1567,23 @@ passivemm(
                 pline_mon(magr, "%s is jolted with electricity!",
                           Monnam(magr));
             break;
+        case AD_DISE:
+            if (resists_sick(magr) || defended(magr, AD_DISE)) {
+                if (canseemon(magr))
+                    pline_mon(magr, "%s resists infection.", Monnam(magr));
+                tmp = 0;
+                break;
+            }
+            if (magr->mdiseasetime)
+                magr->mdiseasetime -= rnd(3);
+            else
+                magr->mdiseasetime = rn1(9, 6);
+            if (canseemon(magr))
+                pline_mon(magr, "%s looks %s.", Monnam(magr),
+                          magr->mdiseased ? "even worse" : "diseased");
+            magr->mdiseased = 1;
+            magr->mdiseabyu = FALSE;
+            break;
         default:
             tmp = 0;
             break;
@@ -1562,6 +1593,7 @@ passivemm(
 
  assess_dmg:
     if ((magr->mhp -= tmp) <= 0) {
+        gz.zombify = FALSE; /* attacker's corpse never zombifies */
         monkilled(magr, "", (int) mdattk[i].adtyp);
         return (mdead | mhit | M_ATTK_AGR_DIED);
     }

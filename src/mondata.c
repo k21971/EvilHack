@@ -655,6 +655,8 @@ boolean
 can_chant(struct monst *mtmp)
 {
     if ((mtmp == &gy.youmonst && Strangled)
+        /* zombies can only manage a mindless mumble */
+        || racial_zombie(mtmp)
         || is_silent(mtmp->data) || !has_head(mtmp->data)
         || mtmp->data->msound == MS_BUZZ || mtmp->data->msound == MS_BURBLE)
         return FALSE;

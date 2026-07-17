@@ -3125,7 +3125,12 @@ cant_revive(
     if (*mtype == PM_GUARD || (*mtype == PM_SHOPKEEPER && !revival)
         || *mtype == PM_HIGH_PRIEST || *mtype == PM_ALIGNED_PRIEST
         || *mtype == PM_ANGEL) {
-        *mtype = PM_HUMAN_ZOMBIE;
+        int typ = NON_PM;
+
+        /* honor a racial overlay so that the zombie matches the race */
+        if (from_obj && has_omonst(from_obj) && has_erac(OMONST(from_obj)))
+            typ = zombie_form(r_data(OMONST(from_obj)));
+        *mtype = ismnum(typ) ? typ : PM_HUMAN_ZOMBIE;
         return TRUE;
     } else if (*mtype == PM_LONG_WORM_TAIL) { /* for create_particular() */
         *mtype = PM_LONG_WORM;
@@ -3157,6 +3162,7 @@ create_particular_parse(
     d->randmonst = FALSE;
     d->maketame = d->makepeaceful = d->makehostile = FALSE;
     d->sleeping = d->saddled = d->invisible = d->hidden = FALSE;
+    d->sick = d->diseased = FALSE;
 
     /* quantity */
     if (digit(*bufp)) {
@@ -3189,6 +3195,14 @@ create_particular_parse(
     if ((tmpp = strstri(bufp, "hidden ")) != 0) {
         d->hidden = TRUE;
         (void) memset(tmpp, ' ', sizeof "hidden " - 1);
+    }
+    if ((tmpp = strstri(bufp, "sick ")) != 0) {
+        d->sick = TRUE;
+        (void) memset(tmpp, ' ', sizeof "sick " - 1);
+    }
+    if ((tmpp = strstri(bufp, "diseased ")) != 0) {
+        d->diseased = TRUE;
+        (void) memset(tmpp, ' ', sizeof "diseased " - 1);
     }
     /* check "female" before "male" to avoid false hit mid-word */
     if ((tmpp = strstri(bufp, "female ")) != 0) {
@@ -3339,6 +3353,16 @@ create_particular_creation(
             /* NULL obj arg means put_saddle_on_mon()
              * will create the saddle itself */
             put_saddle_on_mon((struct obj *) 0, mtmp);
+        }
+        if (d->sick
+            && !(resists_sick(mtmp) || defended(mtmp, AD_DISE))) {
+            mtmp->msick = 1;
+            mtmp->msicktime = rn1(9, 6);
+        }
+        if (d->diseased
+            && !(resists_sick(mtmp) || defended(mtmp, AD_DISE))) {
+            mtmp->mdiseased = 1;
+            mtmp->mdiseasetime = rn1(9, 6);
         }
         if (d->hidden
            && ((is_hider(mtmp->data) && mtmp->data->mlet != S_MIMIC)

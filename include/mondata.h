@@ -50,6 +50,8 @@
     (ptr_resists_sick((mon)->data)                                       \
      || (has_erac(mon) ? ptr_resists_sick(&mons[ERAC(mon)->rmnum]) : 0))
 
+#define resists_lycan(ptr) (is_undead(ptr))
+
 #define is_jumper(ptr) \
     ((ptr) == &mons[PM_JUMPING_SPIDER] || (ptr) == &mons[PM_ZRUTY]           \
      || (ptr) == &mons[PM_GIANT_CENTIPEDE] || (ptr) == &mons[PM_CAVE_LIZARD] \
@@ -195,6 +197,19 @@
 #define racial_drow(mon) mon_has_race(mon, MH_DROW)
 #define is_zombie(ptr) (((ptr)->mhflags & MH_ZOMBIE) != 0L)
 #define racial_zombie(mon) mon_has_race(mon, MH_ZOMBIE)
+#define can_become_zombie(ptr) \
+    ((ptr)->mlet == S_KOBOLD || (ptr)->mlet == S_GIANT   \
+     || (ptr)->mlet == S_HUMAN || (ptr)->mlet == S_KOP   \
+     || ((ptr)->mlet == S_HUMANOID && !is_illithid(ptr)) \
+     || (ptr)->mlet == S_GNOME || (ptr)->mlet == S_ORC)
+#define is_skeletal_animal(ptr) \
+    ((ptr) == &mons[PM_SMALL_SKELETAL_HOUND]    \
+     || (ptr) == &mons[PM_SKELETAL_HOUND]       \
+     || (ptr) == &mons[PM_LARGE_SKELETAL_HOUND] \
+     || (ptr) == &mons[PM_SKELETAL_PONY]        \
+     || (ptr) == &mons[PM_SKELETAL_HORSE]       \
+     || (ptr) == &mons[PM_SKELETAL_WARHORSE]    \
+     || (ptr) == &mons[PM_SKELETAL_DRAGON])
 #define racial_vampire(mon) mon_has_race(mon, MH_VAMPIRE)
 #define is_aasimar(ptr) (((ptr)->mhflags & MH_AASIMAR) != 0L)
 #define racial_aasimar(mon) mon_has_race(mon, MH_AASIMAR)

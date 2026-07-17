@@ -3228,6 +3228,23 @@ mhitm_ad_drin(
         /* uhitm */
         struct obj *helmet;
 
+        /* a zombie hero's bite infects rather than eats brains */
+        if (((!Upolyd && Race_if(PM_DRAUGR)) || is_zombie(gy.youmonst.data))
+            && rn2(5)) {
+            if (!(resists_sick(mdef) || defended(mdef, AD_DISE))) {
+                if (mdef->msicktime)
+                    mdef->msicktime -= rnd(3);
+                else
+                    mdef->msicktime = rn1(9, 6);
+                if (canseemon(mdef))
+                    pline_mon(mdef, "%s looks %s.", Monnam(mdef),
+                              mdef->msick ? "much worse" : "rather ill");
+                mdef->msick = can_become_zombie(r_data(mdef)) ? 3 : 1;
+                mdef->msickbyu = TRUE;
+            }
+            return; /* plus the normal damage */
+        }
+
         if (gn.notonhead || !has_head(pd)) {
             pline("%s doesn't seem harmed.", Monnam(mdef));
             /* hero should skip remaining AT_TENT+AD_DRIN attacks
@@ -3274,10 +3291,38 @@ mhitm_ad_drin(
         if (u_slip_free(magr, mattk))
             return;
 
-        if (uarmh && rn2(8)) {
+        /* the material of the helmet on your head determines how
+           effective it will be when deflecting tentacle/bite attacks;
+           harder material will do a better job than a soft cap */
+        if (uarmh && is_hard(uarmh) && rn2(4)) {
             /* not body_part(HEAD) */
-            Your("%s blocks the attack to your head.",
-                 helm_simple_name(uarmh));
+            Your("%s blocks the %s to your head.",
+                 helm_simple_name(uarmh),
+                 racial_zombie(magr) ? "bite" : "attack");
+            return;
+        }
+        if (uarmh && !is_hard(uarmh) && rn2(2)) {
+            Your("%s repels the %s to your head.",
+                 helm_simple_name(uarmh),
+                 racial_zombie(magr) ? "bite" : "attack");
+            return;
+        }
+        if (maybe_polyd(is_illithid(gy.youmonst.data),
+                        Race_if(PM_ILLITHID))
+            && !racial_zombie(magr)) {
+            Your("psionic abilities shield your brain.");
+            return;
+        }
+        /* a zombie's bite infects rather than eats brains */
+        if (racial_zombie(magr) && rn2(6)) {
+            if (!mhitm_mgc_atk_negated(magr, mdef, FALSE)) {
+                if (!Upolyd && Race_if(PM_DRAUGR))
+                    pline_mon(magr, "%s tries to eat your brains, but can't.",
+                              Monnam(magr));
+                else
+                    pline_mon(magr, "%s eats your brains!", Monnam(magr));
+                (void) diseasemu(magr);
+            }
             return;
         }
         /* negative armor class doesn't reduce this damage */
@@ -3301,15 +3346,24 @@ mhitm_ad_drin(
             if (mhitu == M_ATTK_MISS)
                 return;
         }
+        if (maybe_polyd(is_illithid(gy.youmonst.data),
+                        Race_if(PM_ILLITHID))) {
+            if (!rn2(3))
+                Your("psionic abilities shield your brain from memory loss.");
+            return;
+        }
         /* adjattrib gives dunce cap message when appropriate */
         (void) adjattrib(A_INT, -rnd(2), FALSE);
-        if (!rn2(5)) {
-            losespells();
-            gs.skipdrin = TRUE;
-        }
-        if (!rn2(5)) {
-            drain_weapon_skill(rnd(2));
-            gs.skipdrin = TRUE;
+        /* mindless zombies chew on brains but don't steal memories */
+        if (!racial_zombie(magr)) {
+            if (!rn2(5)) {
+                losespells();
+                gs.skipdrin = TRUE;
+            }
+            if (!rn2(5)) {
+                drain_weapon_skill(rnd(2));
+                gs.skipdrin = TRUE;
+            }
         }
     } else {
         /* mhitm */
@@ -3332,6 +3386,20 @@ mhitm_ad_drin(
                       s_suffix(mon_nam(magr)), mhis(mdef));
             }
             return;
+        }
+        /* a zombie's bite infects rather than eats brains */
+        if (racial_zombie(magr) && rn2(5)
+            && !(resists_sick(mdef) || defended(mdef, AD_DISE))) {
+            if (gv.vis && canspotmon(mdef))
+                pline_mon(mdef, "%s looks %s.", Monnam(mdef),
+                          mdef->msick ? "much worse" : "rather ill");
+            if (mdef->msicktime)
+                mdef->msicktime -= rnd(3);
+            else
+                mdef->msicktime = rn1(9, 6);
+            mdef->msick = can_become_zombie(r_data(mdef)) ? 3 : 1;
+            mdef->msickbyu = FALSE;
+            return; /* plus the normal damage */
         }
         amu = which_armor(mdef, W_AMUL);
         lifsav = amu && amu->otyp == AMULET_OF_LIFE_SAVING;
@@ -3848,12 +3916,9 @@ mhitm_ad_famn(
 
 void
 mhitm_ad_pest(
-    struct monst *magr, struct attack *mattk,
-    struct monst *mdef, struct mhitm_data *mhm)
+    struct monst *magr, struct attack *mattk UNUSED,
+    struct monst *mdef, struct mhitm_data *mhm UNUSED)
 {
-    struct attack alt_attk;
-    struct permonst *pa = magr->data;
-
     if (magr == &gy.youmonst) {
         /* uhitm; hero can't polymorph into anything with this attack
            so this won't happen; if it could, it would be the same as
@@ -3863,15 +3928,31 @@ mhitm_ad_pest(
         /* mhitu */
         pline_mon(magr, "%s reaches out, and you feel fever and chills.",
                   Monnam(magr));
-        (void) diseasemu(pa);
+        (void) diseasemu(magr);
         /* plus the normal damage */
     } else {
  mhitm_pest:
         /* mhitm; it's possible for Pestilence to hit another monster;
-           treat it the same as an attack for AD_DISE damage */
-        alt_attk = *mattk;
-        alt_attk.adtyp = AD_DISE;
-        mhitm_ad_dise(magr, &alt_attk, mdef, mhm);
+           halve its hit points and possibly leave it deathly sick */
+        if (gv.vis && canseemon(mdef))
+            pline_mon(mdef, "%s reaches out, and %s looks %s.",
+                      Monnam(magr), mon_nam(mdef),
+                      (resists_sick(mdef) || defended(mdef, AD_DISE))
+                          ? "unaffected" : "rather ill");
+        if (mdef->mhpmax > 3 && !resist(mdef, 0, 0, NOTELL))
+            mdef->mhpmax /= 2;
+        if (mdef->mhp > 2 && !resist(mdef, 0, 0, NOTELL))
+            mdef->mhp /= 2;
+        if (mdef->mhp > mdef->mhpmax)
+            mdef->mhp = mdef->mhpmax;
+        if (!(resists_sick(mdef) || defended(mdef, AD_DISE))) {
+            if (mdef->msicktime)
+                mdef->msicktime -= rnd(3);
+            else
+                mdef->msicktime = rn1(9, 6);
+            mdef->msick = can_become_zombie(r_data(mdef)) ? 3 : 1;
+            mdef->msickbyu = FALSE;
+        }
     }
 }
 
@@ -4323,11 +4404,16 @@ mhitm_ad_were(
         /* mhitu */
         hitmsg(magr, mattk);
         if (!rn2(4) && u.ulycn == NON_PM
-            && !Protection_from_shape_changers && !defends(AD_WERE, uwep)
+            && !Protection_from_shape_changers && !Lycan_resistance
+            && !defended(&gy.youmonst, AD_WERE)
             && !mhitm_mgc_atk_negated(magr, mdef, TRUE)) {
             urgent_pline("You feel feverish.");
             exercise(A_CON, FALSE);
-            set_ulycn(monsndx(pa));
+            /* the rat king passes ordinary wererat lycanthropy */
+            if (pa == &mons[PM_RAT_KING])
+                set_ulycn(PM_WERERAT);
+            else
+                set_ulycn(monsndx(pa));
             retouch_equipment(2);
         }
     } else {
@@ -4653,27 +4739,43 @@ mhitm_ad_dise(
     struct monst *magr, struct attack *mattk,
     struct monst *mdef, struct mhitm_data *mhm)
 {
-    struct permonst *pa = magr->data, *pd = mdef->data;
-
     if (magr == &gy.youmonst) {
-        /* uhitm; hero can't polymorph into anything with this attack so
-           this won't happen; if it could, it would be the same as the
-           mhitm case except for messaging */
-        goto mhitm_dise;
+        /* uhitm */
+        if (!(resists_sick(mdef) || defended(mdef, AD_DISE))) {
+            if (mdef->mdiseasetime)
+                mdef->mdiseasetime -= rnd(3);
+            else
+                mdef->mdiseasetime = rn1(9, 6);
+            if (canseemon(mdef))
+                pline_mon(mdef, "%s looks %s.", Monnam(mdef),
+                          mdef->mdiseased ? "even worse" : "diseased");
+            mdef->mdiseased = 1;
+            mdef->mdiseabyu = TRUE;
+        }
+        /* plus ordinary damage */
     } else if (mdef == &gy.youmonst) {
         /* mhitu */
         hitmsg(magr, mattk);
-        if (!diseasemu(pa))
+        if (!diseasemu(magr))
             mhm->damage = 0;
     } else {
- mhitm_dise:
-        /* mhitm; protected monsters use the same criteria as for poly'd
-           hero gaining sick resistance combined with any hero wielding a
-           weapon or wearing dragon scales/mail that guards against disease */
-        if (pd->mlet == S_FUNGUS || pd == &mons[PM_GHOUL]
-            || defended(mdef, AD_DISE))
+        /* mhitm */
+        if (resists_sick(mdef) || defended(mdef, AD_DISE)) {
+            if (gv.vis && canseemon(mdef))
+                pline_mon(mdef, "%s resists infection.", Monnam(mdef));
             mhm->damage = 0;
-        /* else does ordinary damage */
+        } else {
+            if (mdef->mdiseasetime)
+                mdef->mdiseasetime -= rnd(3);
+            else
+                mdef->mdiseasetime = rn1(9, 6);
+            if (gv.vis && canseemon(mdef))
+                pline_mon(mdef, "%s looks %s.", Monnam(mdef),
+                          mdef->mdiseased ? "even worse" : "diseased");
+            mdef->mdiseased = 1;
+            mdef->mdiseabyu = FALSE;
+            /* plus ordinary damage */
+        }
     }
 }
 
@@ -6202,6 +6304,9 @@ passive(
             monstunseesu(M_SEEN_ELEC);
             You("are jolted with electricity!");
             mdamageu(mon, tmp);
+            break;
+        case AD_DISE: /* specifically gray fungus */
+            (void) diseasemu(mon);
             break;
         default:
             break;

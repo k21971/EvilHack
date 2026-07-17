@@ -2068,7 +2068,92 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       XL30 heroes attract heavy spawn churn - stage multi-step
       m-v-m scenarios EARLY in a game, not at T:150+; a fire
       ray kills your own pet in the line (check the path).
-- [ ] Zombie/were/Draugr mechanics (zombify, binding ritual)
+- [~] Zombie/were/Draugr mechanics (zombify, binding ritual)
+      PORTED + REVIEWED + COORDINATOR-FIXED 2026-07-16 (port subagent
+      34 files +903/-151, reviewer CONDITIONAL PASS 2 blockers/6
+      concerns/6 nits -> all adjudicated + fixed same day; full make
+      clean rebuild zero-warning; COMMIT PENDING; wizmode battery
+      PENDING maintainer approval - consolidated 15-point list in
+      scratchpad zombie-battery.md). CONTENTS: zombie-sickness system
+      end to end (hero SICK_ZOMBIE arc: eatcorpse taint block,
+      diseasemu, timeout death -> ugrave_arise = zombienum with 6-race
+      immunity list, insight/botl/end display+death, SICK_ALL cures;
+      monster msick/mdiseased arcs: AD_DISE/AD_PEST/AD_DRIN re-expressed
+      in the 5.0 shared mhitm_ad_* handlers, m_calcdistress death
+      blocks, mon_regen + dog.c timer decay, muse cures incl. new
+      MUSE_EUCALYPTUS_LEAF + unicorn-horn sick arm, create_particular
+      sick/diseased flags); zombie spread (zombie_maker HYBRID per
+      Decisions log; zombie_form master species map incl.
+      gnoll->witherling + draugr-rises-as-self; CORPSTAT_ZOMBIE
+      re-valued 0x20 - master's 0x04 collides with 5.0
+      CORPSTAT_HISTORIC/SPE_VAL; ZOMBIE_REVIVE_CHANCE -> hack.h;
+      erac-aware zombify_mon/cant_revive); Draugr binding ritual
+      (dochat 5 Pw / +1 mtame cap 20 / mbindtimer 1500 + hostile
+      zombie/skeletal-animal taming rnl(10)<1 with master's
+      fall-through-to-domonnoise on success; mon_regen decrement;
+      dog.c catch-up = deliberate branch addition); WEREDEMON +
+      DEMON_WEREDEMON arms across all five were.c functions +
+      RAT_KING guards + wolf-cub variants; Grimtooth AD_DISE artifact
+      chain (also fixes live spec_abon impossible on DISE(5,6));
+      Breathless_nomagic split (8 master sites + fountain.c 5.0-only
+      sibling); gray fungus passive AD_DISE both directions
+      (reviewer catch - was completely inert); zombie moan ambience
+      as 5.0-idiom m_respond_zombie helper; mondata.h
+      can_become_zombie/is_skeletal_animal/resists_lycan.
+      REVIEWER BLOCKERS fixed: (B1) bones.c savebones arise chain was
+      ismnum-first so a draugr hero killed by a wraith/ghoul rose as
+      that monster in bones - reordered to master (statue -> draugr ->
+      vampire -> rise -> ghost) and master's VAMPIRE twin arm added
+      (same bug class, race live since Phase 1); (B2) find_defensive
+      selected MUSE_UNICORN_HORN for msick/mdiseased but use_defensive
+      lacked master's cure arm -> impossible() spam + monster wasting
+      every turn until death.
+      MASTER BUGS found, frozen-unfixed archive entries BUG-1342..1345:
+      eat_brains msick-without-msicktime next-turn death; AD_PEST
+      resist-only message inversion; Grimtooth mdiseabyu unconditional
+      hero credit; can_chant racial_zombie(&youmonst) hero-subject.
+      APPROVED deviations (reviewer-adjudicated): the four fixes above
+      on branch; SICK_ZOMBIE excluded from 5.0's CON bounce-back
+      (terminal by design); TAINT_AGE+1 for corpse age adjusts (NOTE
+      fresh racial-vampire corpse taint-on-eat ~35% master -> 0%
+      branch; raise with the vampire slice); mhitm zombie bite-dodge
+      gated on strike; death-ray Valley heal kept master's direct
+      field writes (healmon contract cannot express the 200-point
+      clamp-down); spell.c cure-sickness draugr backfire re-homed
+      from master zapyourself WITH the unconditional healup cure
+      (reviewer C2); draugr tainted-meat nutrition arm ported now
+      (reviewer C3 - live race would terminally die to its primary
+      food source).
+      DEFERRED with owners: steed.c/worn.c racial riding+barding
+      gates (steed slice); mbreath_attk/mbreathtyp system (NEW line
+      below); hack.c racial carrcap arm (player races - 5.0
+      weight_cap lacks the maxcarrcap framework); draugr death
+      cosmetics + sentient_arise + same_race zombie arm + hmonas
+      hero-bite gates + mon_slip_free zombie wording (player races);
+      AD_WTHR wither system (BWithering pre-wired at polyself);
+      disintegration-path zombify reset; AD_BHED mcan arms (no
+      mhitm_ad_bhed yet); hellfire soul-sear (mcastu); become_flayer
+      resets (illithid larva); boss msick resets (Ice Queen/Vecna/
+      Izchak/Ozzy); vampire-blood muse + bones vampire extras +
+      undead_to_corpse vampire tiers (vampire race); bane_applies
+      drow/demon arms + Sword of Kas (their slices); Convict-rat
+      pacify half (Convict role); salamander u_slip_free clause;
+      dogfood defended() additions (defended sweep); corpse_chance
+      Sunsword/Hammer zombie-corpse-dissolve (artifact behaviors -
+      Trollsbane sibling also absent); zap.c bhitm cure-sickness
+      monster arm (spell is self-only on branch; NOTE zap_steed
+      default list mentions SPE_CURE_SICKNESS -> would impossible()
+      if ever reachable, pre-existing).
+      STYLE NOTE: pline "Mmmm...  tainted meat!" keeps master's
+      double space byte-identical (player-facing text; the comment
+      style checker flags it - false positive).
+- [ ] mbreath_attk/mbreathtyp breath-spit cooldown decoupling
+      (master mthrowu.c setters/gates, mon_regen + dog.c decay,
+      mhitu.c neothelid arm, muse.c, wizard.c; monmove.c dochug scan
+      already reads mbreath_attk INERT since the monster-AI slice -
+      always 0, branch breath still gates on mspec_used = coherent
+      upstream behavior until this lands; mbreathtyp = skeletal
+      dragon fixed breath adtyp, fields landed Phase 1)
 - [ ] Ice Queen branch bosses; Vecna; demon-lord behaviors
       (msummon mechanics memory)
 - [ ] Pet order system (P_PET_HANDLING, petstrat, #order)
@@ -2289,6 +2374,7 @@ trees, different content - Phase 0 rename).
 
 | date | decision | by |
 |------|----------|----|
+| 2026-07-16 | zombie_maker() = HYBRID: `if (mon->mcan) return FALSE; return racial_zombie(mon) \|\| mlet == S_LICH;` - master's erac-aware racial semantics (draugr-raced Knights/Monks/Infidels spread zombification) PLUS both upstream 5.0 additions kept (liches raise zombies; cancelled makers do not). Ghoul/skeleton excluded naturally (not MH_ZOMBIE) | maintainer |
 | 2026-07-15 | xlogfile forging conduct token stays master's long-style `never_forged_an_artifact` (0.9.x scoreboard-parser continuity) rather than a 5.0 short-style token | maintainer |
 | 2026-07-15 | Item economy: v1.0.0 ships the RICH economy (branch keeps upstream `ptr == &mons[PM_SOLDIER]` m_initinv gate - every monster rolls the m_lev magic/gold tail). Master's 2021 `!=` slip stays branch-excluded AND master-unfixed (soldier gate NOT in the backport batch; the lean-economy years remain a master-only accident that dies at cutover) | maintainer |
 | 2026-07-15 | Elf/hobbit ELVEN_CHAIN_MAIL: branch stays master-exact (no civilian grant, dead mithril-upgrade check kept textually identical for re-derive ease); revisit as cleanup after v1.0.0 | maintainer |

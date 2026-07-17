@@ -571,7 +571,28 @@ savebones(int how, time_t when, struct obj *corpse)
 
     set_ghostly_objlist(gi.invent);
     /* dispose of your possessions, usually cursed */
-    if (ismnum(u.ugrave_arise)) {
+    if (u.ugrave_arise == LEAVESTATUE) {
+        struct obj *otmp;
+
+        /* embed your possessions in your statue */
+        otmp = mk_named_object(STATUE, &mons[u.umonnum], u.ux, u.uy,
+                               svp.plname);
+
+        drop_upon_death((struct monst *) 0, otmp, u.ux, u.uy);
+        if (!otmp)
+            return; /* couldn't make statue */
+        mtmp = (struct monst *) 0;
+    } else if (Race_if(PM_DRAUGR)) {
+        /* don't let draugr arise as some other monster */
+        drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
+        mtmp = (struct monst *) 0;
+        u.ugrave_arise = NON_PM;
+    } else if (Race_if(PM_VAMPIRE)) {
+        /* don't let vampires arise as some other monster */
+        drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
+        mtmp = (struct monst *) 0;
+        u.ugrave_arise = NON_PM;
+    } else if (ismnum(u.ugrave_arise)) {
         /* give your possessions to the monster you become */
         gi.in_mklev = TRUE; /* use <u.ux,u.uy> as-is */
         mtmp = makemon(&mons[u.ugrave_arise], u.ux, u.uy, NO_MINVENT);
@@ -594,18 +615,7 @@ savebones(int how, time_t when, struct obj *corpse)
         if (mtmp->data->mlet == S_MUMMY && !m_carrying(mtmp, MUMMY_WRAPPING))
             (void) mongets(mtmp, MUMMY_WRAPPING);
         m_dowear(mtmp, TRUE);
-    } else if (u.ugrave_arise == LEAVESTATUE) {
-        struct obj *otmp;
-
-        /* embed your possessions in your statue */
-        otmp = mk_named_object(STATUE, &mons[u.umonnum], u.ux, u.uy,
-                               svp.plname);
-
-        drop_upon_death((struct monst *) 0, otmp, u.ux, u.uy);
-        if (!otmp)
-            return; /* couldn't make statue */
-        mtmp = (struct monst *) 0;
-    } else { /* u.ugrave_arise < LEAVESTATUE */
+    } else { /* u.ugrave_arise == NON_PM */
         /* drop everything */
         drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
         /* trick makemon() into allowing monster creation

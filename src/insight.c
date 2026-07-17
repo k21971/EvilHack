@@ -1045,15 +1045,20 @@ status_enlightenment(int mode, int final)
            puts TermIll before FoodPois and death due to timeout reports
            terminal illness if both are in effect, so do the same here */
         if (final && (Sick & I_SPECIAL)) {
-            Sprintf(buf, " %sdied from %s.", You_, /* has trailing space */
-                    (u.usick_type & SICK_NONVOMITABLE)
-                    ? "terminal illness" : "food poisoning");
+            if (u.usick_type & SICK_ZOMBIE)
+                Sprintf(buf, " %sdied from being zombified.", You_);
+            else
+                Sprintf(buf, " %sdied from %s.", You_, /* trailing space */
+                        (u.usick_type & SICK_NONVOMITABLE)
+                        ? "terminal illness" : "food poisoning");
             enlght_out(buf);
         } else {
-            /* unlike death due to sickness, report the two cases separately
+            /* unlike death due to sickness, report the cases separately
                because it is possible to cure one without curing the other */
             if (u.usick_type & SICK_NONVOMITABLE)
                 you_are("terminally sick from illness", "");
+            if (u.usick_type & SICK_ZOMBIE)
+                you_are("turning into a zombie", "");
             if (u.usick_type & SICK_VOMITABLE)
                 you_are("terminally sick from food poisoning", "");
         }
@@ -3429,6 +3434,16 @@ mstatusline(struct monst *mtmp)
         Strcat(info, ", blind");
     if (mtmp->mstun)
         Strcat(info, ", stunned");
+    if (mtmp->msick & 2) {
+        if (can_become_zombie(mtmp->data))
+            Strcat(info, ", infected by a zombie");
+        else
+            Strcat(info, ", dying from illness");
+    } else if (mtmp->msick & 1) {
+        Strcat(info, ", dying from illness");
+    }
+    if (mtmp->mdiseased)
+        Strcat(info, ", dying from disease");
     if (mtmp->msleeping)
         Strcat(info, ", asleep");
 #if 0 /* unfortunately mfrozen covers temporary sleep and being busy
@@ -3509,13 +3524,17 @@ ustatusline(void)
 
     info[0] = '\0';
     if (Sick) {
-        Strcat(info, ", dying from");
-        if (u.usick_type & SICK_VOMITABLE)
-            Strcat(info, " food poisoning");
-        if (u.usick_type & SICK_NONVOMITABLE) {
+        if (u.usick_type & SICK_ZOMBIE) {
+            Strcat(info, ", turning into a zombie");
+        } else {
+            Strcat(info, ", dying from");
             if (u.usick_type & SICK_VOMITABLE)
-                Strcat(info, " and");
-            Strcat(info, " illness");
+                Strcat(info, " food poisoning");
+            if (u.usick_type & SICK_NONVOMITABLE) {
+                if (u.usick_type & SICK_VOMITABLE)
+                    Strcat(info, " and");
+                Strcat(info, " illness");
+            }
         }
     }
     if (Stoned)

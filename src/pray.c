@@ -2012,7 +2012,9 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
 
     /* same race or former pet results apply even if the corpse is
        too old (value==0) */
-    if (your_race(ptr)) {
+    if (your_race(ptr)
+        /* draugr consider all zombies to be their kin */
+        || (Race_if(PM_DRAUGR) && otmp->zombie_corpse)) {
         sacrifice_your_race(otmp, highaltar, altaralign);
         return;
     }

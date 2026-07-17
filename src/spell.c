@@ -1757,6 +1757,22 @@ spelleffects(int spell_otyp, boolean atme, boolean force)
     case SPE_CURE_SICKNESS: {
         boolean was_sick = !!Sick, was_slimed = !!Slimed;
 
+        /* the healing magic is anathema to an undead caster */
+        if (maybe_polyd(is_zombie(gy.youmonst.data), Race_if(PM_DRAUGR))) {
+            int sickness_skill = (P_SKILL(P_HEALING_SPELL) >= P_EXPERT)
+                                     ? 3
+                                     : (P_SKILL(P_HEALING_SPELL)
+                                        == P_SKILLED) ? 2 : 1;
+            char buf[BUFSZ];
+
+            You("shudder in agony!");
+            exercise(A_CON, FALSE);
+            /* the cure still takes effect even as it wracks the caster */
+            healup(0, 0, TRUE, FALSE);
+            Sprintf(buf, "zapped %sself with a spell", uhim());
+            losehp(d(sickness_skill, 8), buf, NO_KILLER_PREFIX);
+            break;
+        }
         /* cure conditions (which updates status) before feedback */
         healup(0, 0, TRUE, FALSE);
         /*

@@ -1541,6 +1541,15 @@ start_corpse_timeout(struct obj *body)
                 when = age;
                 break;
             }
+    /* corpse of an actual zombie */
+    } else if (body->zombie_corpse && !body->norevive) {
+        for (age = 2; age <= ROT_AGE; age++)
+            if (!rn2(ZOMBIE_REVIVE_CHANCE)) { /* zombie revives */
+                action = ZOMBIFY_MON; /* if buried, can dig itself out */
+                when = age;
+                break;
+            }
+    /* corpse of a monster a zombie just killed and could become one */
     } else if (gz.zombify && zombie_form(mptr) != NON_PM
                && !body->norevive) {
         action = ZOMBIFY_MON;
@@ -2270,6 +2279,8 @@ mkcorpstat(
     /* record gender and 'historic statue' in overloaded enchantment field */
     otmp->spe = (corpstatflags & CORPSTAT_SPE_VAL);
     otmp->norevive = gm.mkcorpstat_norevive; /* via envrmt rather than flags */
+    if ((corpstatflags & CORPSTAT_ZOMBIE) != 0)
+        otmp->zombie_corpse = 1;
 
     /* when 'mtmp' is non-null save the monster's details with the
        corpse or statue; it will also force the 'ptr' override below */
@@ -2293,7 +2304,8 @@ mkcorpstat(
         otmp->corpsenm = monsndx(ptr);
         otmp->owt = weight(otmp);
         if (otmp->otyp == CORPSE
-            && (gz.zombify || special_corpse(old_corpsenm)
+            && (gz.zombify || otmp->zombie_corpse
+                || special_corpse(old_corpsenm)
                 || special_corpse(otmp->corpsenm))) {
             obj_stop_timers(otmp);
             start_corpse_timeout(otmp);

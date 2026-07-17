@@ -11,7 +11,10 @@ were_change(struct monst *mon)
     if (!is_were(mon->data))
         return;
 
-    if (is_human(mon->data)) {
+    if (is_human(mon->data) || is_demon(mon->data)) {
+        /* the rat king is a were-creature that never changes form */
+        if (mon->data == &mons[PM_RAT_KING])
+            return;
         if (!Protection_from_shape_changers
             && !rn2(night() ? (flags.moonphase == FULL_MOON ? 3 : 30)
                             : (flags.moonphase == FULL_MOON ? 10 : 50))) {
@@ -26,6 +29,9 @@ were_change(struct monst *mon)
                     break;
                 case PM_WEREJACKAL:
                     howler = "jackal";
+                    break;
+                case PM_WEREDEMON:
+                    howler = "hell hound";
                     break;
                 default:
                     howler = (char *) 0;
@@ -60,6 +66,10 @@ counter_were(int pm)
         return PM_HUMAN_WERERAT;
     case PM_HUMAN_WERERAT:
         return PM_WERERAT;
+    case PM_WEREDEMON:
+        return PM_DEMON_WEREDEMON;
+    case PM_DEMON_WEREDEMON:
+        return PM_WEREDEMON;
     default:
         return NON_PM;
     }
@@ -74,18 +84,24 @@ were_beastie(int pm)
     case PM_SEWER_RAT:
     case PM_GIANT_RAT:
     case PM_RABID_RAT:
+    case PM_ENORMOUS_RAT:
         return PM_WERERAT;
     case PM_WEREJACKAL:
     case PM_JACKAL:
     case PM_FOX:
     case PM_COYOTE:
+    case PM_RABID_DOG:
         return PM_WEREJACKAL;
     case PM_WEREWOLF:
     case PM_WOLF:
+    case PM_WOLF_CUB:
     case PM_WARG:
     case PM_WINTER_WOLF:
     case PM_WINTER_WOLF_CUB:
         return PM_WEREWOLF;
+    case PM_WEREDEMON:
+    case PM_HELL_HOUND:
+        return PM_WEREDEMON;
     default:
         break;
     }
@@ -97,10 +113,15 @@ new_were(struct monst *mon)
 {
     int pm;
 
-    /* neither hero nor werecreature can change from human form to
+    /* neither hero nor werecreature can change from base form to
        critter form if hero has Protection_from_shape_changers extrinsic;
-       if already in critter form, always change to human form for that */
-    if (Protection_from_shape_changers && is_human(mon->data))
+       if already in critter form, always change to base form for that */
+    if (Protection_from_shape_changers
+        && (is_human(mon->data) || is_demon(mon->data)))
+        return;
+
+    /* the rat king is a were-creature that never changes form */
+    if (mon->data == &mons[PM_RAT_KING])
         return;
 
     pm = counter_were(monsndx(mon->data));
@@ -113,20 +134,28 @@ new_were(struct monst *mon)
     if (canseemon(mon) && !Hallucination)
         pline("%s changes into a %s.", Monnam(mon),
               is_human(&mons[pm]) ? "human"
-                                  /* pmname()+4: skip past "were" prefix */
-                                  : pmname(&mons[pm], Mgender(mon)) + 4);
+              : is_demon(&mons[pm]) ? "demon"
+                : (pm == PM_WEREDEMON) ? "hell hound"
+                  /* pmname()+4: skip past "were" prefix */
+                  : pmname(&mons[pm], Mgender(mon)) + 4);
 
     set_mon_data(mon, &mons[pm]);
     if (helpless(mon)) {
         /* transformation wakens and/or revitalizes */
         mon->msleeping = 0;
         mon->mfrozen = 0; /* not asleep or paralyzed */
-        mon->mcanmove = 1;
+        /* unless it is nearly petrified */
+        if (!mon->mstone || mon->mstone > 2)
+            mon->mcanmove = 1;
     }
     /* regenerate by 1/4 of the lost hit points */
     healmon(mon, (mon->mhpmax - mon->mhp) / 4, 0);
     newsym(mon->mx, mon->my);
     mon_break_armor(mon, FALSE);
+    /* mon_break_armor() can potentially kill if the monster
+       lands over water or lava or has nowhere to go */
+    if (DEADMONSTER(mon))
+        return;
     possibly_unwield(mon, FALSE);
 
     /* vision capability isn't changing so we don't call set_apparxy() to
@@ -156,14 +185,18 @@ were_summon(
         switch (pm) {
         case PM_WERERAT:
         case PM_HUMAN_WERERAT:
+        case PM_RAT_KING:
             typ = rn2(3) ? PM_SEWER_RAT
-                         : rn2(3) ? PM_GIANT_RAT : PM_RABID_RAT;
+                         : rn2(3) ? PM_GIANT_RAT
+                                  : rn2(2) ? PM_RABID_RAT : PM_ENORMOUS_RAT;
             if (genbuf)
                 Strcpy(genbuf, "rat");
             break;
         case PM_WEREJACKAL:
         case PM_HUMAN_WEREJACKAL:
-            typ = rn2(7) ? PM_JACKAL : rn2(3) ? PM_COYOTE : PM_FOX;
+            typ = rn2(7) ? PM_JACKAL
+                         : rn2(3) ? PM_COYOTE
+                                  : rn2(2) ? PM_FOX : PM_RABID_DOG;
             if (genbuf)
                 Strcpy(genbuf, "jackal");
             break;
@@ -172,6 +205,12 @@ were_summon(
             typ = rn2(5) ? PM_WOLF : rn2(2) ? PM_WARG : PM_WINTER_WOLF;
             if (genbuf)
                 Strcpy(genbuf, "wolf");
+            break;
+        case PM_WEREDEMON:
+        case PM_DEMON_WEREDEMON:
+            typ = PM_HELL_HOUND;
+            if (genbuf)
+                Strcpy(genbuf, "hell hound");
             break;
         default:
             continue;
@@ -196,6 +235,8 @@ you_were(void)
 
     if (Unchanging || u.umonnum == u.ulycn)
         return;
+    if (u.ulycn < LOW_PM)
+        return; /* not a lycanthrope */
     if (controllable_poly) {
         /* `+4' => skip "were" prefix to get name of beast */
         Sprintf(qbuf, "Do you want to change into %s?",

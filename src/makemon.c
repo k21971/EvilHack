@@ -2729,6 +2729,10 @@ clone_mon(
     m2->mtrapped = 0;
     /* clones start fresh: clear spell-conferred transient state that
        would otherwise never time out coherently on the clone */
+    m2->msick = 0;
+    m2->msicktime = 0;
+    m2->mdiseased = 0;
+    m2->mdiseasetime = 0;
     m2->mentangled = 0;
     m2->mentangletime = 0;
     m2->mextrinsics = 0L;

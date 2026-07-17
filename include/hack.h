@@ -330,6 +330,7 @@ struct _create_particular_data {
     boolean randmonst;
     boolean maketame, makepeaceful, makehostile;
     boolean sleeping, saddled, invisible, hidden;
+    boolean sick, diseased;
 };
 
 /* dig_check() results */
@@ -1216,6 +1217,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 #define CORPSTAT_SPE_VAL  0x07 /* 0x03 | 0x04 */
 #define CORPSTAT_INIT     0x08 /* pass init flag to mkcorpstat */
 #define CORPSTAT_BURIED   0x10 /* bury the corpse or statue */
+#define CORPSTAT_ZOMBIE   0x20 /* zombie corpse that can revive */
 /* note: gender flags have different values from those used for monsters
    so that 0 can be unspecified/random instead of male */
 #define CORPSTAT_RANDOM 0
@@ -1427,6 +1429,7 @@ typedef uint32_t mmflags_nht;     /* makemon MM_ flags */
 /* Corpse aging */
 #define TAINT_AGE (50L)        /* age when corpses go bad */
 #define TROLL_REVIVE_CHANCE 37 /* 1/37 chance for 50 turns ~ 75% chance */
+#define ZOMBIE_REVIVE_CHANCE 250 /* 1/250 chance for 250 turns ~ 65% chance */
 #define ROT_AGE (250L)         /* age when corpses rot away */
 
 /* Some misc definitions */

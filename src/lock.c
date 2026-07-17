@@ -1363,7 +1363,7 @@ chest_shatter_msg(struct obj *otmp)
 
     if (otmp->oclass == POTION_CLASS) {
         You("%s %s shatter!", Blind ? "hear" : "see", an(bottlename()));
-        if (!breathless(gy.youmonst.data) || haseyes(gy.youmonst.data))
+        if (!Breathless_nomagic || haseyes(gy.youmonst.data))
             potionbreathe(otmp);
         return;
     }

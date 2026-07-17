@@ -2298,6 +2298,9 @@ revive_mon(anything *arg, long timeout UNUSED)
         } else { /* rot this corpse away */
             if (!obj_has_timer(body, ROT_CORPSE))
                 You_feel("%sless hassled.", is_rider(mptr) ? "much " : "");
+            /* corpsenm was changed by zombify_mon; change it back since
+               the corpse is going to stick around */
+            set_corpsenm(body, undead_to_corpse(body->corpsenm));
             action = ROT_CORPSE;
             when = (long) d(5, 50) - (svm.moves - body->age);
             if (when < 1L)
@@ -2313,18 +2316,30 @@ void
 zombify_mon(anything *arg, long timeout)
 {
     struct obj *body = arg->a_obj;
-    int zmon = zombie_form(&mons[body->corpsenm]);
+    struct permonst *mptr = &safe_mons(body->corpsenm);
+    int zmon;
 
-    if (zmon != NON_PM && !(svm.mvitals[zmon].mvflags & G_GENOD)) {
-        if (has_omid(body))
-            free_omid(body);
-        if (has_omonst(body))
-            free_omonst(body);
-
-        set_corpsenm(body, zmon);
+    /* judge racial monsters by their race so the zombie matches it */
+    if (!body->zombie_corpse && has_omonst(body) && has_erac(OMONST(body)))
+        mptr = r_data(OMONST(body));
+    if (has_omonst(body) && has_erac(OMONST(body))
+        && ERAC(OMONST(body))->rmnum == PM_DRAUGR) {
+        /* draugr rise again as themselves, traits intact */
         revive_mon(arg, timeout);
     } else {
-        rot_corpse(arg, timeout);
+        zmon = zombie_form(mptr);
+
+        if (zmon != NON_PM && !(svm.mvitals[zmon].mvflags & G_GENOD)) {
+            if (has_omid(body))
+                free_omid(body);
+            if (has_omonst(body))
+                free_omonst(body);
+
+            set_corpsenm(body, zmon);
+            revive_mon(arg, timeout);
+        } else {
+            rot_corpse(arg, timeout);
+        }
     }
 }
 

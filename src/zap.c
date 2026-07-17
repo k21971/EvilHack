@@ -810,6 +810,8 @@ montraits(
         mtmp2->mblinded = 0;
         mtmp2->mstun = 0;
         mtmp2->mconf = 0;
+        mtmp2->msick = 0;
+        mtmp2->mdiseased = 0;
         mtmp2->mentangled = 0;
         mtmp2->mreflecttime = 0;
         mtmp2->mbarkskintime = 0;
@@ -4386,6 +4388,22 @@ zhitm(
                 tmp = 0;
                 break;
             }
+            if (is_undead(mon->data) || racial_zombie(mon)
+                || racial_vampire(mon)) {
+                /* the death ray acts like a potion of full healing
+                   for the undead, especially in the Valley of the Dead;
+                   healmon() cannot express the 200-point clamp-down, so
+                   adjust the fields directly */
+                sho_shieldeff = TRUE;
+                if (Is_valley(&u.uz)) {
+                    mon->mhpmax += mon->mhpmax / 6;
+                    if (mon->mhpmax > 200)
+                        mon->mhpmax = 200;
+                }
+                mon->mhp = mon->mhpmax;
+                tmp = 0;
+                break;
+            }
             if (nonliving(mon->data) || is_demon(mon->data)
                 || is_vampshifter(mon) || resists_magm(mon)) {
                 /* similar to player */
@@ -6005,7 +6023,7 @@ maybe_destroy_item(
         }
         if (u_carry) { /* effects that happen only to the player */
             if (osym == POTION_CLASS && dmgtyp != AD_COLD
-                && (!breathless(gy.youmonst.data)
+                && (!Breathless_nomagic
                     || haseyes(gy.youmonst.data))) {
                 potionbreathe(obj);
             }
