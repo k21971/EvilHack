@@ -2249,6 +2249,74 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       pure breathers; byte-identical quirk on master). The dochug
       m-v-m ranged scan gate went LIVE with this slice (read
       mbreath_attk inert since the monster-AI slice).
+      COMMITTED 2026-07-17 as c4aa6c019 (7 files +158/-30).
+      WIZMODE BATTERY PASSED same day (one human Valkyrie XL30
+      game, sanity_check on, T:163, save/reload cycle):
+      (1) DECOUPLING PROOF: red dragon vs hero at range 3 - after
+      several breaths mbreath_attk=11 (8+rn2(18) band) while
+      mspec_used stayed 0 the whole game for every breather.
+      (2) COOLDOWN CYCLE: gated dragon held breath (no breath
+      messages) while counter decremented exactly 1/turn via
+      mon_regen (11->8->...->0), breath resumed at 0; during the
+      cooldown the healthy dragon CLOSED to melee = the
+      m_balks_at_approaching fix live (no permanent kiting).
+      (3) M-V-M UNCONDITIONAL SETTER: red dragon breathed fire at
+      a staged mammoth (mm_aggression absent -> staged via
+      conflict ring + m_lev drop + frozen target on a vertical
+      lane) - cooldown SET after the m-v-m breath (mspec 0).
+      (4) AD_SLEE SURCHARGE: background-gdb breakpoint on the
+      += rnd(20) line HIT with pre=0 target-is-hero=1 (orange
+      dragon sleep breath vs unresistant hero; surcharge fires on
+      the no-set path exactly as ported; sleep-induced helpless
+      turns make value-sampling ambiguous - breakpoint is the
+      right instrument).
+      (5) SPIT GATE: cobra with forced mbreath_attk=6 never spat
+      while gated (counter decrementing), spat venom at 0, and the
+      field stayed 0 after (plain venom sets no cooldown - the
+      AD_WEBS setter is deferred with the spit-types item).
+      (6) ENGULF ARM: neothelid with forced mbreath_attk=40 and
+      mspec_used=0 - breakpoint on the 2d8 dice line HIT with
+      breath=38 aatyp=AT_CLAW adtyp=AD_PHYS = the new
+      breath-cooldown disjunct drove the substitution.
+      (7) MUNSLIME (partial): hero polyself green slime attacking
+      a hell hound; munslime-entry logging breakpoint captured 3
+      calls with breath=0 by_you=1 and the hound STAYED a hound =
+      fire-breath self-cure branch taken repeatedly (hound is
+      fire-resistant, survives its own blast). Self-cure PLINE is
+      unobservable (green slime hero is eyeless = blind) and the
+      1/3 rn1(10,5) setter + gate-block direction never sampled in
+      the swing budget - both are one-line field swaps
+      reviewer-verified, same pattern as the live-proven breamm
+      setters; accepted on review.
+      (8) NASTY TRIO: gdb call nasty(summoner) - all 4 spawned
+      nasties carried mspec/mbreath/mtk each rnd(4) (1..4).
+      (9) DOG.C CATCHUP: direct mon_catchup_elapsed_time calls -
+      nmv=50: 200/150/100 -> 150/100/50 (breath/mtk/mspec subtract
+      arms incl. the folded mtk gap); nmv=500: all zero-clamped.
+      (10) SAVE/RELOAD: staged barbed devil breath=17 mtk=9
+      restored as 16/8 = exact minus one normal post-restore
+      regen tick; whole-struct persistence clean.
+      PANICLOG: 8 entries, ALL one timestamp = ONE self-inflicted
+      staging incident, NOT a slice defect: a surcharge-round gdb
+      loop re-fetched the monlist head after an earth elemental
+      had spawned AND engulfed the hero - the head had CHANGED
+      IDENTITY, so rloc_to() relocated the swallowing engulfer
+      over the orange dragon ("placing earth elemental over orange
+      dragon", 3x "mon is not there", 2x off-map-steed detector,
+      "no monster to remove"); game self-recovered, zero entries
+      before or after, remainder of battery + save/reload clean.
+      Driving lessons -> gameplay memory: 5.0 blocks rest/search
+      next to a visible hostile without the m prefix ("Are you
+      waiting to get hit?" - use m. to burn turns); chain-head
+      staging loops must re-verify head IDENTITY every iteration
+      (spawn mid-loop = head is a different monster - this
+      battery's paniclog incident); maintainer tip: genesis 'test
+      monster' (9999 HP, stationary) or assassin vine for
+      stationary targets instead of freezing pets; gdb 'commands
+      ... continue' logging breakpoints observe silently across
+      multiple hits (munslime recipe); eyeless poly forms
+      (green slime) see no monster messages - instrument with
+      breakpoints, not plines.
 - [ ] Extended breath/spit weapon types + skeletal dragon fixed
       breath (mbreathtyp) - SPLIT from the cooldown slice
       2026-07-17 (maintainer decision; interlocking cluster):
