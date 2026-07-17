@@ -691,8 +691,11 @@ nasty(struct monst *summoner)
                         if (!difcap || difcap > tmp)
                             difcap = tmp; /* rest must be lower difficulty */
                     }
-                    /* delay first use of spell or breath attack */
+                    /* delay first use of spell, breath, or
+                       telekinesis attack */
                     mtmp->mspec_used = rnd(4);
+                    mtmp->mbreath_attk = rnd(4);
+                    mtmp->mtk_attk = rnd(4);
 
                     if (++count >= MAXNASTIES
                         || mtmp->data->maligntyp == 0

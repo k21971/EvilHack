@@ -371,25 +371,38 @@ getmattk(
 
     /* holders/engulfers who release the hero have mspec_used set to rnd(2)
        and can't re-hold/re-engulf until it has been decremented to zero;
-       likewise for transformation by genetic engineer */
-    } else if (magr->mspec_used && (attk->aatyp == AT_ENGL
-                                    || attk->aatyp == AT_HUGS
-                                    || attk->adtyp == AD_STCK
-                                    || attk->adtyp == AD_POLY)) {
+       likewise for transformation by genetic engineer; an engulfer whose
+       breath/spit attack is cooling down (mbreath_attk) can't engulf
+       either */
+    } else if ((magr->mspec_used && (attk->aatyp == AT_ENGL
+                                     || attk->aatyp == AT_HUGS
+                                     || attk->adtyp == AD_STCK
+                                     || attk->adtyp == AD_POLY))
+               || (magr->mbreath_attk && attk->aatyp == AT_ENGL)) {
         boolean wimpy = (attk->damd == 0); /* lichen, violet fungus */
 
         /* can't re-engulf or re-grab yet; switch to simpler attack */
         *alt_attk_buf = *attk;
         attk = alt_attk_buf;
         if (attk->adtyp == AD_ACID || attk->adtyp == AD_ELEC
-            || attk->adtyp == AD_COLD || attk->adtyp == AD_FIRE) {
+            || attk->adtyp == AD_COLD || attk->adtyp == AD_FIRE
+            || attk->adtyp == AD_DISE || attk->adtyp == AD_DISN) {
             attk->aatyp = AT_TUCH;
         } else {
-            attk->aatyp = AT_CLAW; /* attack message will be "<foo> hits" */
-            attk->adtyp = AD_PHYS;
+            /* neothelids have a breath attack (mbreath_attk) plus
+               multiple tentacle attacks which cause the engulf gate
+               above to virtually never allow the final engulfing
+               attack */
+            if (rn2(2) && magr->data == &mons[PM_NEOTHELID]) {
+                attk->aatyp = AT_ENGL;
+                attk->adtyp = AD_DGST;
+            } else {
+                attk->aatyp = AT_CLAW; /* attack message will be "<foo> hits" */
+                attk->adtyp = AD_PHYS;
+            }
         }
-        attk->damn = 1; /* relatively weak: 1d6 */
-        attk->damd = 6;
+        attk->damn = 2; /* not-so weak: 2d8 */
+        attk->damd = 8;
         if (wimpy && attk->aatyp == AT_CLAW) {
             attk->aatyp = AT_TUCH;
             attk->damn = attk->damd = 0;

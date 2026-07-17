@@ -4036,7 +4036,7 @@ munslime(struct monst *mon, boolean by_you)
        isn't able to cure itself of green slime with its own attack
        [possible extension: monst capable of casting high level clerical
        spells could toss pillar of fire at self--probably too suicidal] */
-    if (!mon->mcan && !mon->mspec_used
+    if (!mon->mcan && !mon->mbreath_attk
         && attacktype_fordmg(mptr, AT_BREA, AD_FIRE)) {
         odummy = cg.zeroobj; /* otyp == STRANGE_OBJECT */
         return muse_unslime(mon, &odummy, (struct trap *) 0, by_you);
@@ -4129,7 +4129,7 @@ muse_unslime(
             pline_mon(mon, "%s.",
                       monverbself(mon, Monnam(mon), "breath", "fire on"));
         if (!rn2(3))
-            mon->mspec_used = rn1(10, 5);
+            mon->mbreath_attk = rn1(10, 5);
         /* -21 => monster's fire breath; 1 => # of damage dice */
         dmg = zhitm(mon, by_you ? 21 : -21, 1, &odummyp);
     } else if (otyp == SCR_FIRE) {

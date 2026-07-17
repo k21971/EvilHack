@@ -706,6 +706,16 @@ mon_catchup_elapsed_time(
         mtmp->mspec_used = 0;
     else
         mtmp->mspec_used -= imv;
+    /* breath/spit cooldown */
+    if (imv > mtmp->mbreath_attk)
+        mtmp->mbreath_attk = 0;
+    else
+        mtmp->mbreath_attk -= imv;
+    /* telekinesis cooldown */
+    if (imv > mtmp->mtk_attk)
+        mtmp->mtk_attk = 0;
+    else
+        mtmp->mtk_attk -= imv;
 
     /* reduce tameness for every 150 moves you are separated */
     if (mtmp->mtame) {
@@ -714,8 +724,11 @@ mon_catchup_elapsed_time(
             mtmp->mtame -= wilder; /* less tame */
         else if (mtmp->mtame > rn2(wilder))
             mtmp->mtame = 0; /* untame */
-        else
+        else {
             mtmp->mtame = mtmp->mpeaceful = 0; /* hostile! */
+            set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* update display */
+        }
     }
     /* check to see if it would have died as a pet; if so, go wild instead
      * of dying the next time we call dog_move()
@@ -725,8 +738,11 @@ mon_catchup_elapsed_time(
         struct edog *edog = EDOG(mtmp);
 
         if ((svm.moves > edog->hungrytime + 500 && mtmp->mhp < 3)
-            || (svm.moves > edog->hungrytime + 750))
+            || (svm.moves > edog->hungrytime + 750)) {
             mtmp->mtame = mtmp->mpeaceful = 0;
+            set_malign(mtmp);
+            newsym(mtmp->mx, mtmp->my); /* update display */
+        }
     }
 
     if (!mtmp->mtame && mtmp->mleashed) {
@@ -1437,6 +1453,7 @@ wary_dog(struct monst *mtmp, boolean was_dead)
         if (edog->abuse >= 0 && edog->abuse < 10)
             if (!rn2(edog->abuse + 1))
                 mtmp->mpeaceful = 1;
+        newsym(mtmp->mx, mtmp->my); /* update display */
         if (!quietly && cansee(mtmp->mx, mtmp->my)) {
             if (haseyes(gy.youmonst.data)) {
                 if (haseyes(mtmp->data))
@@ -1456,6 +1473,9 @@ wary_dog(struct monst *mtmp, boolean was_dead)
     }
 
     if (!mtmp->mtame) {
+        /* mpeaceful may have just transitioned via either branch above;
+           recompute cached malign before any AI gate reads it */
+        set_malign(mtmp);
         if (!quietly && canspotmon(mtmp))
             pline_mon(mtmp, "%s %s.", Monnam(mtmp),
                   mtmp->mpeaceful ? "is no longer tame" : "has become feral");

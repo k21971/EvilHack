@@ -1620,7 +1620,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       angers her on next chat ("breaks out of reverie") - gdb-flip
       peaceful back + set_malign recovers; wished axes/helms come
       cursed often (welds) - wish blessed or plan around.
-- [ ] Monster AI/equipment: dual-wield, artifact ranking, weapon
+- [x] Monster AI/equipment: dual-wield, artifact ranking, weapon
       selection (see weapon-selection-architecture memory)
       (+ master monmove.c dochug ranged-attack scan block using
       mfind_target - reconcile with branch's 5.0-native
@@ -1834,7 +1834,7 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       merges stackables (spears rne(2)) - distinct otyps for
       separate gifts; ^G tame prefix silently fails on marilith
       (gdb newedog+initedog recipe works).
-- [ ] Monster spellbook learning (struct emsp)
+- [x] Monster spellbook learning (struct emsp)
       PORTED + REVIEWED 2026-07-16 (port subagent 38 files
       +2530/-84, reviewer CONDITIONAL PASS 1 blocker + 5 concerns
       -> ALL coordinator-verified and fixed same day; clean
@@ -2210,13 +2210,78 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       STYLE NOTE: pline "Mmmm...  tainted meat!" keeps master's
       double space byte-identical (player-facing text; the comment
       style checker flags it - false positive).
-- [ ] mbreath_attk/mbreathtyp breath-spit cooldown decoupling
-      (master mthrowu.c setters/gates, mon_regen + dog.c decay,
-      mhitu.c neothelid arm, muse.c, wizard.c; monmove.c dochug scan
-      already reads mbreath_attk INERT since the monster-AI slice -
-      always 0, branch breath still gates on mspec_used = coherent
-      upstream behavior until this lands; mbreathtyp = skeletal
-      dragon fixed breath adtyp, fields landed Phase 1)
+- [x] mbreath_attk breath-spit cooldown decoupling
+      PORTED + REVIEWED 2026-07-17 (coordinator hand-port, small
+      slice; reviewer CONDITIONAL PASS 1 concern -> coordinator
+      verified + fixed same day; zero-warning build; commit +
+      battery pending below). MAINTAINER DECISIONS: (1) mbreathtyp/
+      skeletal-dragon half SPLIT OUT to the new extended-breath item
+      below; (2) cooldown numbers keep 5.0's unified values
+      (8+rn2(18); set always m-v-m, 1/3 vs hero; AD_SLEE +=rnd(20)
+      surcharge) - master's 6+rn2(18)/10+rn2(20) split is 3.6
+      inheritance, field swap only; (3) getmattk engulf substitute
+      dice = master 2d8 with 5.0's wimpy zero-damage arm retained.
+      Contents: spitmm early gate (M_ATTK_MISS = master return 0),
+      breamm gate+setter field swap, mon_regen decrement (after
+      mspec_used, master order), dog.c mon_catchup decay arms for
+      mbreath_attk AND mtk_attk (the mtk arm was a telekinesis-slice
+      gap; mbreakboulder decay deferred - field verified dead on
+      branch, boulder-break still runs on mspec_used per 5.0 base),
+      getmattk AT_ENGL breath-block + AD_DISE/AD_DISN AT_TUCH arms +
+      neothelid rn2(2) forced-engulf, munslime/muse_unslime swaps,
+      nasty() arrival-delay trio (mtk_attk also a telekinesis-slice
+      gap). FOLDED IN: master 7ab677750 set_malign sibling sweep,
+      dog.c hunks only (mon_catchup wilder-hostile + starvation
+      flips get set_malign+newsym; wary_dog newsym in the
+      killed_by_u branch + set_malign at the !mtame post-transition
+      block; hunk-for-hunk reviewer-verified) - the commit's spell.c
+      Word of Power + mon.c mind-flayer-larva sites do not exist on
+      branch yet, travel with their subsystems. REVIEWER CONCERN
+      FIXED: m_balks_at_approaching() is a 5.0-ONLY consumer (no
+      master counterpart) whose `!mspec_used` readiness test would
+      have turned every pure breather into a permanent kiter once
+      breath stopped setting mspec_used - split per attack type
+      mirroring the dochug scan gate (AT_BREA/AT_SPIT ->
+      mbreath_attk, AT_MAGC/AT_GAZE -> mspec_used). Reviewer NIT
+      deferred to the extended-breath item: trap.c anti-magic +
+      mhitm.c xdrainenergym "seems lethargic" surcharge pads
+      mspec_used on AT_BREA attackers (no mechanical effect for
+      pure breathers; byte-identical quirk on master). The dochug
+      m-v-m ranged scan gate went LIVE with this slice (read
+      mbreath_attk inert since the monster-AI slice).
+- [ ] Extended breath/spit weapon types + skeletal dragon fixed
+      breath (mbreathtyp) - SPLIT from the cooldown slice
+      2026-07-17 (maintainer decision; interlocking cluster):
+      (a) AD_DRLI/AD_STUN rays onto the reserved AD_SPC1/AD_SPC2
+      buzz slots (monattk.h "for extension of buzz()") + zap.c
+      beam damage arms + breathwep[] names (master 11 entries:
+      "water"/"a dark energy blast"/"a disorienting blast"; branch
+      has "strange breath #8/#9" placeholders); shimmering dragon
+      AD_STUN breath currently hits impossible("Breath weapon %d
+      used") on branch - BZ_VALID_ADTYP is AD_MAGM..AD_SPC2 and
+      AD_STUN sits outside it; (b) spit-projectile content:
+      SNOWBALL/BALL_OF_WEBBING/BARBED_NEEDLE exist as object data
+      only, zero branch src consumers vs master's 5 (dothrow/
+      mondata/mthrowu/polyself/uhitm) + spitmm switch cases (snow
+      golem/spider/needle blight plines) + the AD_WEBS
+      mbreath_attk=rn2(4) setter; (c) skeletal dragon fixed breath:
+      sd_breathtypes[]/sd_random_breath/sd_breath_resist/
+      sd_assign_breath + breath_adtyp (master mthrowu.c ~1300-1370)
+      reconciled with branch get_atkdam_type (mondata.c), hooks at
+      makemon.c (~3300 BELL_OF_OPENING block), mon.c newcham
+      (~6274, before is_racialmon), polyself.c (polymon
+      mbreathtyp reroll; set_uasmon mintrinsics clear+set;
+      PROPSET(STUN_RES) - prop exists prop.h:103, never set for
+      poly forms); dobreathe/eat.c ubreatheu AD_RBRE resolution -
+      branch feeds AD_RBRE straight into BZ_OFS_AD today, hero
+      poly'd into skeletal dragon is broken; (d) resists_stun/
+      mon_resists_stun mondata.h macros + master's 18-site consumer
+      sweep (artifact/dothrow/mcastu/mhitm/mhitu/monmove/music/
+      polyself/trap/uhitm/zap - wire only sites whose subsystems
+      are live, defer the rest with named owners); (e) the "seems
+      lethargic" mspec_used surcharge NIT from the cooldown slice
+      (trap.c anti-magic trap + mhitm.c xdrainenergym key on
+      AT_BREA but pad mspec_used).
 - [ ] Ice Queen branch bosses; Vecna; demon-lord behaviors
       (msummon mechanics memory)
 - [x] Pet order system (P_PET_HANDLING, petstrat, #order)
@@ -2234,7 +2299,15 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       record below.
       Contents: doorder + find_commandable_pet appended to
       sounds.c (5.0 menu API with per-item color param replacing
-      master's menuitemcolor global; ECMD returns - master 1 ->
+      master's menuitemcolor global - KNOWN DISPLAY DIVERGENCE,
+      maintainer 2026-07-17: the 5.0 add_menu color paints the
+      WHOLE menu line; on master only the [active]/[inactive]
+      bracket text is colored because the window ports render the
+      programmatic item color bracket-scoped (win/curses
+      cursdial.c bracket_color "text inside [] only" + win/tty
+      twin). Fix rides the Phase 4 menuitemcolor/UI-extras sweep -
+      port the bracket-scoped rendering, then doorder inherits it;
+      ECMD returns - master 1 ->
       ECMD_TIME incl. "ignores you", refusals ECMD_OK, cancels
       ECMD_CANCEL; skill-gated menu breadth byte-parity with
       P_MASTER bypass; mutual-exclusion toggle arms; belay
@@ -2479,6 +2552,14 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 - [ ] HTML dumplog: NetHack50 DUMPHTML base + EvilHack enhancements
       (pet/peaceful highlighting, customcolor swatches, rider fix)
 - [ ] menuitemcolor / status branch-labels / UI extras sweep
+      (master menuitemcolor renders BRACKET-SCOPED: item color
+      applies only to text inside [] - win/curses cursdial.c
+      bracket_color + win/tty wintty.c twin. First consumer
+      already live: pet #order toggle rows currently color the
+      whole line via the 5.0 add_menu color param; maintainer
+      2026-07-17 - only [active]/[inactive] should be colored.
+      Port the bracket-scoped rendering into both 5.0 window
+      ports, then re-check doorder's rows)
 - [ ] Fuzzer input hook (curses_getch chokepoint) re-established
 
 ## Phase 5 - Bugfix triage sweep

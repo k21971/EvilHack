@@ -1212,6 +1212,8 @@ spitmm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
         }
         return M_ATTK_MISS;
     }
+    if (mtmp->mbreath_attk)
+        return M_ATTK_MISS;
     if (m_lined_up(mtarg, mtmp, FALSE)) {
         boolean utarg = (mtarg == &gy.youmonst);
         coordxy tx = utarg ? mtmp->mux : mtarg->mx;
@@ -1297,7 +1299,7 @@ breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
                         || m_seenres(mtmp, M_SEEN_REFL)))
             return M_ATTK_HIT;
 
-        if (!mtmp->mspec_used && rn2(3)) {
+        if (!mtmp->mbreath_attk && rn2(3)) {
             if (BZ_VALID_ADTYP(typ)) {
                 if (canseemon(mtmp))
                     pline("%s breathes %s!",
@@ -1312,9 +1314,9 @@ breamm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
                  * cunning; don't breath if the target fell asleep.
                  */
                 if (!utarget || !rn2(3))
-                    mtmp->mspec_used = 8 + rn2(18);
+                    mtmp->mbreath_attk = 8 + rn2(18);
                 if (utarget && typ == AD_SLEE && !Sleep_resistance)
-                    mtmp->mspec_used += rnd(20);
+                    mtmp->mbreath_attk += rnd(20);
 
                 /* If this is a pet, it'll get hungry. Minions and
                  * spell beings won't hunger */

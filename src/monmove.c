@@ -312,6 +312,8 @@ mon_regen(struct monst *mon, boolean digest_meal)
         healmon(mon, 1, 0);
     if (mon->mspec_used)
         mon->mspec_used--;
+    if (mon->mbreath_attk)
+        mon->mbreath_attk--;
     if (mon->mtk_attk)
         mon->mtk_attk--;
     if (mon->mbindtimer)
@@ -1288,10 +1290,17 @@ m_balks_at_approaching(int oldappr, struct monst *mtmp, int *pdistmin,
         return -2;
     }
 
-    /* can attack from distance, and hp loss or attack not used */
+    /* can attack from distance, and hp loss or attack not used;
+       breath/spit runs on its own cooldown, other distance attacks
+       on spellcast power */
     if (ranged_attk_available(mtmp)
         && ((mtmp->mhp < (mtmp->mhpmax+1) / 3)
-            || !mtmp->mspec_used))
+            || ((attacktype(mtmp->data, AT_BREA)
+                 || attacktype(mtmp->data, AT_SPIT))
+                && !mtmp->mbreath_attk)
+            || ((attacktype(mtmp->data, AT_MAGC)
+                 || attacktype(mtmp->data, AT_GAZE))
+                && !mtmp->mspec_used)))
         return -1;
 
     return oldappr; /* leaves appr unchanged */
