@@ -249,7 +249,11 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       appended 2026-07-12 (objects.h needed it); rest pending
 - [x] you.h DONE 2026-07-12b (u_achieve NOT ported: 5.0 enum
       achievements + 31-bit xlogfile mask full - MAINTAINER
-      DECISION achieve2 field needed for EvilHack's 8 extras)
+      DECISION achieve2 field needed for EvilHack's 8 extras;
+      2026-07-17 kill-attribution slice appended 8 once-gate
+      u.uevent bits killed_medusa..killed_michael = the game-state
+      source those achieve2 entries will read; defeat_icequeen
+      still pending with the Ice Queen slice)
 - [ ] skills.h (+88: P_PET_HANDLING etc. - saved weapon_skills)
       [~] P_EVOCATION_SPELL landed 2026-07-12 INSERTED at 35 to
       extend the contiguous spell block (P_BARE_HANDED..
@@ -272,6 +276,8 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
 |--------|--------|-----|
 | _example: forge heat state_ | sv? | survives save |
 | worn_slot_exempt (poly_obj/worn_slot_sanity) | gw | transient diagnostic exemption, Null between moves, never saved; g_init_w resets it per game (better than master's bare global) |
+| exploder (explode attribution) | ge | transient, save/restore bracketed per explode() call, m_detach clears; never saved (gb.buzzer precedent) |
+| thrower (missile attribution) | gt | transient, bracketed per m_throw/thrwmu flight, m_detach clears; never saved (gb.buzzer precedent) |
 
 ### Content data
 
@@ -1488,15 +1494,78 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       the fast lever for skill-gate testing; genesis'd master mind
       flayers drink !speed and brain-suck relentlessly - stage via
       gdb mcanmove=0/mfrozen, not in melee range.
-- [ ] Kill-attribution/livelog architecture (player_killed +
-      pet_killer set/consume; memory kill-attribution-architecture):
-      producers = xkilled/monkilled callers, set_pet_killer sites in
-      artifact/mcastu/mhitm/explode/eat + the two telekinesis
-      TODO-EVILHACK sites; consumer = mondead/monstone entry
-      consumption driving livelog unique-boss credit. Port with the
-      Ice Queen/Vecna bosses + livelog reconciliation (setter
-      without consumer = never-cleared stale monst pointer - do NOT
-      port piecemeal)
+- [x] Kill-attribution/livelog architecture (player_killed +
+      pet_killer set/consume; memory kill-attribution-architecture)
+      PORTED + REVIEWED + FIXED 2026-07-17 (port subagent 26 files
+      +481/-116; reviewer CONDITIONAL PASS 0 blockers/2 concerns/2
+      nits -> all coordinator-verified+fixed same day; zero-warning
+      make clean + make all green). COMMIT PENDING (message at
+      scratchpad commit-msg-kill-attribution.txt); WIZMODE BATTERY
+      PENDING maintainer approval - combined 10-item list = union of
+      port report + review report battery sections (pet beam/wand/
+      explosion/cloud/petrify credit, consume-on-entry staleness,
+      nested spore chains, thrower death naming, pre-slice save
+      load, Medusa/Death livelog arms).
+      Landed: mon.c statics + set_pet_killer + mondead
+      consume-on-entry (locals was_player_kill/pet_credit as FIRST
+      statements) + monstone vamp_stone-fail/lifesaved clears +
+      xkilled dispatch-point set + m_detach clear-if-equal x3 +
+      corpse_chance swallowed-spore credit; ge.exploder/gt.thrower
+      g-struct globals (transient, never saved) beside gb.buzzer;
+      explode() tame-exploder credit + master -AD_RBRE no-mutation
+      form (vanilla-5.0 bug, see upstream-reportable table) +
+      mon_explodes set-AFTER-mondead ordering; region creator_mid
+      threading (make/create_gas_cloud + selection variant + all 15
+      callers; inside_gas_cloud find_mid credit; rest_regions
+      zeroes - credit dropped across save BY DESIGN); zap.c buzzer
+      consumer reads x4 (cancel_monst/disintegrate_mon/dobuzz/
+      resist); mthrowu ohitmon magr param + potionhit set/clear
+      wrap + thitu mon_killer_name/weapon_killer death naming +
+      m_throw/thrwmu gt.thrower brackets incl. zero-damage spit
+      projectiles (extended-breath deferral CLOSED); producer sweep
+      at 5.0 dispatch homes (mdamagem central, mon_poly shock,
+      do_stone_mon, displacem/gazemm/protector stone, passivemm
+      assess_dmg, mbhitm x3 via otmp->ocarry tameness, annihilate,
+      monmove psychic blast, eat_brains petrify, artifact Grimtooth
+      disease, telekinesis x2) - ALL kill-attribution TODO-EVILHACK
+      markers consumed; makemon boss-flag setters (iscerberus/
+      isvecna/isvlad/istalgath/isgking/islucifer/ismichael - dead
+      Phase 1 data model now live); logdeadmon reconciliation =
+      5.0 cadence/shk/mrevived logic kept but attribution-driven
+      (non-hero non-pet unique kills NO LONGER livelogged = master
+      parity; 5.0's "has been killed" arm removed); 8 once-gate
+      u.uevent bits appended (same storage words, sizeof unchanged;
+      defeat_icequeen deliberately NOT added - Ice Queen slice).
+      REVIEWER CONCERNS FIXED: (1) Medusa arm double/wrong-credit
+      livelog - record_achievement's unconditional "killed Medusa"
+      line claimed hero credit on pet and m-v-m kills; fixed via
+      NEW insight.c record_achievement_quietly (record_achievement_
+      core + quietly flag: state + sound, no livelog) - hero kill
+      logs 5.0 achievement line, pet kill logs master's pet line
+      with LL_ACHIEVE restored + quiet state, other causes quiet
+      state only. (2) PM_DEATH nap arm was LL_UMONST-only while
+      Famine/Pestilence keep LL_ACHIEVE via the generic arm's
+      is_rider clause - nap arm now carries LL_ACHIEVE (branch
+      rider policy + master text). RATIFY QUEUE (maintainer): both
+      livelog decisions above; also non-hero unique kills going
+      silent is master parity but a 5.0 behavior change worth a
+      nod. NOT ported (master defers too): DoT/delayed-petrify/
+      gas-spore-chain-popper per-monster source attribution;
+      hero-reflected beam kills stay unlogged BY DESIGN. DEFERRED
+      with owners: trap.c nested trap-window buzzer save/zero/
+      restore -> trap subsystem (MAGIC_BEAM_TRAP_SET type absent
+      from branch trap.h, only the kit object exists); mb_trapped
+      exploder bracket -> door-trap rework (no explode() call on
+      branch); missmm blocker sear -> searing-deflection; AD_BHED/
+      AD_DISN-melee/AD_CNCL wraps + dragon-scale passive arms ->
+      monster attack-handler subsystems; mcastu castmm sites +
+      buzzmm -> innate m-v-m casting (boss slice); MUSE stinking
+      cloud -> muse offense; boss-death handlers (cerberusdead/
+      vecnadead/vladdead/talgathdead/goblinkingdead/luciferdead/
+      michaeldead/icequeenrevive) + Kathryn arms -> boss slice;
+      mon_xkilled uexp arms -> monster-exp. NOTE: u.uevent boss
+      bits = game-state source for the achieve2 xlog decision
+      (topten add_achieveX + cmd.c disclosure NOT ported).
 - [x] Alignment-abuse subsystem (tiers, #conduct API - see memory
       alignment-abuse-subsystem)
       DONE 2026-07-16 (commit pending; port subagent + reviewer
@@ -2790,6 +2859,7 @@ Statuses per file: C=converted, P=polished, W=wizmode-walked.
 | 2026-07-12 | util/sfctool.c validate() call missing the 4th arg added by the u.ustuck save/restore fixes (optional target, upstream CI never builds it); also two -DSFCTOOL -Wunused-function warnings in files.c (set_whereisfile/write_whereis) | validate fix on branch; warnings not chased |
 | 2026-07-13 | WIP-build false positive: shop_keeper()'s "untrustworthy null shkp" diagnostic (shk.c:1082) fires during throne-room generation - fill_zoo COURT chest fill -> add_to_container gold merge -> obfree's unconditional shop_keeper(*u.ushops) fallback (shk.c:1227) probes rmno '\0' while level_status.making. Repro: generate levels until a COURT spawns (4 merges = 4 reports at one newgame observed). Suggested fix: diagnostic should skip rmno < ROOMOFFSET - a no-room probe's NULL is definitionally correct | traced on branch (gdb bt); code byte-identical upstream; not yet sent |
 | 2026-07-15 | steal.c mdrop_obj() use-after-free: update_mon_extrinsics(mon, obj, ...) runs after flooreffects() may have destroyed obj (worn item dropped over lava/open air deallocates it, then the extrinsics update derefs the freed object). Verbatim in upstream 5.0 at adoption commit 74d1133c2 and in Official_nh50. Fixed on the branch (oprops slice) with master's saved-fields dummy-object pattern; the companion stackobj() merge in the safe path was reviewer-proven NOT to free the dropped obj (merged() keeps the potmp arg = the dropped obj, frees the pre-existing floor stack) so no further change needed | fixed on branch; not yet sent |
+| 2026-07-17 | explode.c monster-kill loop mutates its adtyp local (`adtyp = AD_RBRE; /* no corpse */` at explode.c:579, identical in NetHack50 and Official_nh50): after the first no-corpse victim, every later victim of the same blast and the post-loop hero-damage block see AD_RBRE instead of the real damage type. Master's non-mutating `xkflg ? -AD_RBRE : adtyp` inline form ported to the branch (kill-attribution slice) | fixed on branch; not yet sent |
 
 ## Master re-derive queue
 

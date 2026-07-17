@@ -400,7 +400,32 @@ touch_of_death(struct monst *mtmp)
     svk.killer.name[0] = '\0'; /* not killed if we get here... */
 }
 
-/* give a reason for death by some monster spells */
+/* articled species name of the monster responsible for a kill, for the
+   death-reason builders: "a goblin", "the Wizard of Yendor", "Asmodeus"
+   (plus " imitating <X>" for a shapeshifter); names by species, like
+   done_in_by() does for the simple cases */
+char *
+mon_killer_name(
+    char *outbuf, /* assumed big enough; pm_names are short */
+    struct monst *mtmp)
+{
+    struct permonst *mptr = mtmp->data,
+        *champtr = (ismnum(mtmp->cham)) ? &mons[mtmp->cham] : mptr;
+    const char *realnm = pmname(champtr, Mgender(mtmp)),
+        *fakenm = pmname(mptr, Mgender(mtmp));
+
+    /* greatly simplified extract from done_in_by(); names the real
+       species when a shapeshifter is disguised */
+    if (!type_is_pname(champtr) && !the_unique_pm(champtr))
+        realnm = an(realnm);
+    Sprintf(outbuf, "%s%s", the_unique_pm(champtr) ? "the " : "", realnm);
+    if (champtr != mptr)
+        Sprintf(eos(outbuf), " imitating %s", an(fakenm));
+    return outbuf;
+}
+
+/* append " inflicted by <monster>" to a death reason; the caller may then
+   strsubst("inflicted", verb) to get "zapped/cast/exhaled by <monster>" */
 char *
 death_inflicted_by(
     char *outbuf,            /* assumed big enough; pm_names are short */
@@ -409,21 +434,9 @@ death_inflicted_by(
 {
     Strcpy(outbuf, deathreason);
     if (mtmp) {
-        struct permonst *mptr = mtmp->data,
-            *champtr = (ismnum(mtmp->cham)) ? &mons[mtmp->cham] : mptr;
-        const char *realnm = pmname(champtr, Mgender(mtmp)),
-            *fakenm = pmname(mptr, Mgender(mtmp));
+        char nbuf[BUFSZ];
 
-        /* greatly simplified extract from done_in_by(), primarily for
-           reason for death due to 'touch of death' spell; if mtmp is
-           shape changed, it won't be a vampshifter or mimic since they
-           can't cast spells */
-        if (!type_is_pname(champtr) && !the_unique_pm(mptr))
-            realnm = an(realnm);
-        Sprintf(eos(outbuf), " inflicted by %s%s",
-                the_unique_pm(mptr) ? "the " : "", realnm);
-        if (champtr != mptr)
-            Sprintf(eos(outbuf), " imitating %s", an(fakenm));
+        Sprintf(eos(outbuf), " inflicted by %s", mon_killer_name(nbuf, mtmp));
     }
     return outbuf;
 }

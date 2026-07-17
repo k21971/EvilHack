@@ -60,6 +60,12 @@ typedef struct {
     int glyph;             /* Which glyph to use if visible */
     anything arg;          /* Optional user argument (Ex: strength of
                             * force field, damage of a fire zone, ...*/
+    unsigned int creator_mid; /* m_id of the monster that created this
+                               * region (0 = hero or environment), for
+                               * pet kill attribution; deliberately NOT
+                               * saved/restored (create_region and
+                               * rest_regions both zero it), so
+                               * attribution is dropped across reload */
 } NhRegion;
 
 #endif /* REGION_H */

@@ -3423,8 +3423,8 @@ launch_obj(
                     break;
                 }
             }
-            if (ohitmon(mtmp, singleobj, (style == ROLL) ? -1 : dist,
-                        FALSE)) {
+            if (ohitmon((struct monst *) 0, mtmp, singleobj,
+                        (style == ROLL) ? -1 : dist, FALSE)) {
                 used_up = TRUE;
                 launch_drop_spot((struct obj *) 0, 0, 0);
                 break;
@@ -6461,7 +6461,7 @@ chest_trap(
                 poisoned("gas cloud", A_STR, "cloud of poison gas", 15,
                          FALSE);
             else
-                create_gas_cloud(obj->ox, obj->oy, 1, 8);
+                create_gas_cloud(obj->ox, obj->oy, 1, 8, &gy.youmonst);
             exercise(A_CON, FALSE);
             break;
         case 16:

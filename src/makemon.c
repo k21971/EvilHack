@@ -3270,8 +3270,10 @@ makemon(
                          monst_to_any(mtmp));
     mitem = STRANGE_OBJECT; /* extra inventory item for this monster */
 
-    if (mndx == PM_VLAD_THE_IMPALER)
+    if (mndx == PM_VLAD_THE_IMPALER) {
+        mtmp->isvlad = TRUE;
         mitem = CANDELABRUM_OF_INVOCATION;
+    }
     mtmp->cham = NON_PM; /* default is "not a shapechanger" */
     if (!Protection_from_shape_changers
         && (mcham = pm_to_cham(mndx)) != NON_PM) {
@@ -3286,6 +3288,18 @@ makemon(
                Let newcham() pick the shape. */
             && newcham(mtmp, (struct permonst *) 0, NO_NC_FLAGS))
             allow_minvent = FALSE;
+    } else if (mndx == PM_CERBERUS) {
+        mtmp->iscerberus = TRUE;
+    } else if (mndx == PM_VECNA) {
+        mtmp->isvecna = TRUE;
+    } else if (mndx == PM_TAL_GATH) {
+        mtmp->istalgath = TRUE;
+    } else if (mndx == PM_GOBLIN_KING) {
+        mtmp->isgking = TRUE;
+    } else if (mndx == PM_LUCIFER) {
+        mtmp->islucifer = TRUE;
+    } else if (mndx == PM_SAINT_MICHAEL) {
+        mtmp->ismichael = TRUE;
     } else if (mndx == PM_WIZARD_OF_YENDOR) {
         mtmp->iswiz = TRUE;
         svc.context.no_of_wizards++;

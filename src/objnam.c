@@ -2261,6 +2261,29 @@ killer_xname(struct obj *obj)
     return buf;
 }
 
+/* possessive death reason for a monster's weapon kill:
+   "<possessor>'s <verb><weapon>", e.g. "a goblin's thrown dagger".
+   possessor already carries its article; verb is "" or "thrown "/"fired " */
+char *
+weapon_killer(
+    char *outbuf,
+    const char *possessor,
+    const char *verb,
+    struct obj *weapon)
+{
+    const char *wnm = killer_xname(weapon);
+
+    /* drop a leading article so it reads "<possessor>'s ..." */
+    if (!strncmpi(wnm, "a ", 2))
+        wnm += 2;
+    else if (!strncmpi(wnm, "an ", 3))
+        wnm += 3;
+    else if (!strncmpi(wnm, "the ", 4))
+        wnm += 4;
+    Sprintf(outbuf, "%s %s%s", s_suffix(possessor), verb, wnm);
+    return outbuf;
+}
+
 /* xname,doname,&c with long results reformatted to omit some stuff */
 char *
 short_oname(

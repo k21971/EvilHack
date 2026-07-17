@@ -364,6 +364,10 @@ struct instance_globals_e {
     /* eat.c */
     char *eatmbuf; /* set by cpostfx() */
 
+    /* explode.c */
+    struct monst *exploder; /* monst responsible for current explode();
+                             * transient kill attribution, never saved */
+
     /* mkmaze.c */
     struct bubble *ebubbles;
 
@@ -950,6 +954,10 @@ struct instance_globals_t {
     /* query objlist callback: return TRUE if obj type matches "this_type" */
     int this_type;
     const char *this_title; /* title for inventory list of specific type */
+
+    /* mthrowu.c */
+    struct monst *thrower; /* monst responsible for object in flight;
+                            * transient death attribution, never saved */
 
     /* muse.c */
     coordxy trapx;

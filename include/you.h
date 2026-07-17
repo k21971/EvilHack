@@ -85,7 +85,18 @@ struct u_event {
     Bitfield(ulearned_elbereth, 1); /* learned how to write Elbereth */
     Bitfield(ufallen_aasimar, 1);   /* aasimar stripped of celestial blood,
                                        permanently human (one-way) */
-    /* 26 free bits */
+
+    /* once-only gates for first-kill livelog entries; always set for
+       game state regardless of who or what made the kill */
+    Bitfield(killed_medusa, 1);
+    Bitfield(killed_cerberus, 1);
+    Bitfield(killed_vecna, 1);
+    Bitfield(killed_vlad, 1);
+    Bitfield(killed_talgath, 1);
+    Bitfield(killed_gking, 1);
+    Bitfield(killed_lucifer, 1);
+    Bitfield(killed_michael, 1);
+    /* 18 free bits */
 };
 
 /*

@@ -2141,9 +2141,8 @@ artifact_hit(
                     if (youattack) {
                         xkilled(mdef, XKILL_NOMSG);
                     } else {
-                        /* TODO-EVILHACK: pet kill credit via
-                           set_pet_killer when the kill-attribution
-                           subsystem lands */
+                        if (magr && magr->mtame)
+                            set_pet_killer(magr);
                         monkilled(mdef, (char *) 0, AD_DISE);
                     }
                 }

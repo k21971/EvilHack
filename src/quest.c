@@ -425,16 +425,13 @@ nemesis_speaks(void)
 void
 nemesis_stinks(coordxy mx, coordxy my)
 {
-    boolean save_mon_moving = svc.context.mon_moving;
-
     /*
      * Some nemeses (determined by caller) release a cloud of noxious
-     * gas when they die.  Don't make the hero be responsible for such
-     * a cloud even if hero has just killed nemesis.
+     * gas when they die. Don't make the hero be responsible for such
+     * a cloud even if hero has just killed nemesis; passing a Null
+     * creator marks the cloud as environmental.
      */
-    svc.context.mon_moving = TRUE;
-    create_gas_cloud(mx, my, 5, 8);
-    svc.context.mon_moving = save_mon_moving;
+    create_gas_cloud(mx, my, 5, 8, (struct monst *) 0);
 }
 
 staticfn void

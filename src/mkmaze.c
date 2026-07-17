@@ -1505,9 +1505,9 @@ fumaroles(void)
         coordxy y = rn1(ROWNO - 4, 3);
 
         if (levl[x][y].typ == LAVAPOOL) {
-            NhRegion *r = create_gas_cloud(x, y, rn1(10, sizemin), rn1(10, 5));
+            (void) create_gas_cloud(x, y, rn1(10, sizemin), rn1(10, 5),
+                                    (struct monst *) 0);
 
-            clear_heros_fault(r);
             snd = TRUE;
             if (distu(x, y) < 15)
                 loud = TRUE;

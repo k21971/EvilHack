@@ -234,6 +234,8 @@ mdisplacem(
                 }
                 pline_mon(magr, "%s turns to stone!", Monnam(magr));
             }
+            if (mdef->mtame)
+                set_pet_killer(mdef);
             monstone(magr);
             if (!DEADMONSTER(magr))
                 return M_ATTK_HIT; /* lifesaved */
@@ -829,6 +831,8 @@ gazemm(struct monst *magr, struct monst *mdef, struct attack *mattk)
             }
             if (canseemon(magr))
                 pline_mon(magr, "%s is turned to stone!", Monnam(magr));
+            if (mdef->mtame)
+                set_pet_killer(mdef);
             monstone(magr);
             if (!DEADMONSTER(magr))
                 return M_ATTK_MISS;
@@ -1112,6 +1116,8 @@ mdamagem(
             }
             if (gv.vis && canspotmon(magr))
                 pline_mon(magr, "%s turns to stone!", Monnam(magr));
+            if (mdef->mtame)
+                set_pet_killer(mdef);
             monstone(magr);
             if (!DEADMONSTER(magr))
                 return M_ATTK_HIT; /* lifesaved */
@@ -1206,6 +1212,8 @@ mdamagem(
                          || mattk->aatyp == AT_CLAW
                          || mattk->aatyp == AT_BITE)
                      && zombie_form(r_data(mdef)) != NON_PM);
+        if (magr->mtame)
+            set_pet_killer(magr);
         monkilled(mdef, "", (int) mattk->adtyp);
         gz.zombify = FALSE; /* reset */
         gm.mkcorpstat_norevive = FALSE;
@@ -1292,10 +1300,13 @@ mon_poly(struct monst *magr, struct monst *mdef, int dmg)
             mdef->mhp -= dmg;
             dmg = 0;
             if (DEADMONSTER(mdef)) {
-                if (magr == &gy.youmonst)
+                if (magr == &gy.youmonst) {
                     xkilled(mdef, XKILL_GIVEMSG | XKILL_NOCORPSE);
-                else
+                } else {
+                    if (magr->mtame)
+                        set_pet_killer(magr);
                     monkilled(mdef, "", AD_RBRE);
+                }
             }
         } else if (newcham(mdef, (struct permonst *) 0, NO_NC_FLAGS)) {
             if (gv.vis) { /* either seen or adjacent */
@@ -1601,6 +1612,8 @@ passivemm(
  assess_dmg:
     if ((magr->mhp -= tmp) <= 0) {
         gz.zombify = FALSE; /* attacker's corpse never zombifies */
+        if (mdef->mtame)
+            set_pet_killer(mdef);
         monkilled(magr, "", (int) mdattk[i].adtyp);
         return (mdead | mhit | M_ATTK_AGR_DIED);
     }

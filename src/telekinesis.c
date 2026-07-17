@@ -3,8 +3,7 @@
 /* See license for details. */
 
 /* Telekinesis (EvilHack), hero side and monster side. Still
-   deferred: kill-attribution credit for a tame caster
-   (set_pet_killer) and the dead-trees terrain distinction */
+   deferred: the dead-trees terrain distinction */
 
 #include "hack.h"
 
@@ -266,7 +265,9 @@ tk_pull_obj(struct obj *obj, int dx, int dy)
 /* Check if a monster slammed into an obstacle after hurtling
    and apply impact damage + feedback. hdx/hdy is the direction
    the monster was moving. magr is the caster (NULL = player cast,
-   so player gets the kill). Returns TRUE if monster died */
+   so player gets the kill); for monster casters, a tame magr's
+   kill is credited via set_pet_killer.
+   Returns TRUE if monster died */
 staticfn boolean
 tk_impact(struct monst *mtmp, int hdx, int hdy, struct monst *magr)
 {
@@ -312,9 +313,8 @@ tk_impact(struct monst *mtmp, int hdx, int hdy, struct monst *magr)
                 pline("%s is killed!", Monnam(mtmp));
             xkilled(mtmp, XKILL_NOMSG);
         } else {
-            /* TODO-EVILHACK: a tame magr should get kill credit via
-               set_pet_killer when the kill-attribution subsystem
-               ports */
+            if (magr->mtame)
+                set_pet_killer(magr);
             monkilled(mtmp, "telekinetic impact", AD_PHYS);
         }
         return TRUE;
@@ -698,9 +698,8 @@ m_tk_push_obj(struct monst *mtmp, struct obj *obj, int dx, int dy, int range)
                     minstapetrify(target, !svc.context.mon_moving);
                 } else {
                     if (damage_mon(target, dmg, AD_PHYS, FALSE)) {
-                        /* TODO-EVILHACK: a tame mtmp should get kill
-                           credit via set_pet_killer when the
-                           kill-attribution subsystem ports */
+                        if (mtmp->mtame)
+                            set_pet_killer(mtmp);
                         monkilled(target,
                                   "telekinetically hurled object",
                                   AD_PHYS);

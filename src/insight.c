@@ -33,6 +33,7 @@ staticfn void status_enlightenment(int, int);
 staticfn void weapon_insight(int);
 staticfn void attributes_enlightenment(int, int);
 staticfn void show_achievements(int);
+staticfn void record_achievement_core(schar, boolean);
 staticfn int QSORTCALLBACK vanqsort_cmp(const genericptr, const genericptr);
 staticfn int num_extinct(void);
 staticfn int num_gone(int, int *);
@@ -2513,6 +2514,20 @@ show_achievements(
 void
 record_achievement(schar achidx)
 {
+    record_achievement_core(achidx, FALSE);
+}
+
+/* record achievement state without emitting its livelog line; for
+   callers that log a more specific attribution line themselves */
+void
+record_achievement_quietly(schar achidx)
+{
+    record_achievement_core(achidx, TRUE);
+}
+
+staticfn void
+record_achievement_core(schar achidx, boolean quietly)
+{
     int i, absidx;
     int repeat_achievement = 0;
 
@@ -2551,7 +2566,7 @@ record_achievement(schar achidx)
     /* avoid livelog for achievements recorded during final disclosure:
        nudist and blind-from-birth; also ascension which is suppressed
        by this gets logged separately in really_done() */
-    if (program_state.gameover)
+    if (quietly || program_state.gameover)
         return;
 
     if (absidx >= ACH_RNK1 && absidx <= ACH_RNK8) {

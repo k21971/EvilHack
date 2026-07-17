@@ -657,6 +657,8 @@ eat_brains(
                mind flayers don't have those capabilities */
             if (visflag && canseemon(magr))
                 pline("%s turns to stone!", Monnam(magr));
+            if (mdef->mtame)
+                set_pet_killer(mdef);
             monstone(magr);
             if (!DEADMONSTER(magr)) {
                 /* life-saved; don't continue eating the brains */

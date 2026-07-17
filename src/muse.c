@@ -1906,8 +1906,8 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
                 }
                 mtmp->mhp = 0;
                 if (DEADMONSTER(mtmp)) {
-                    /* TODO-EVILHACK: set_pet_killer() for pet kill
-                       credit ports with the kill-attribution slice */
+                    if (mcarried(otmp) && otmp->ocarry->mtame)
+                        set_pet_killer(otmp->ocarry);
                     mondied(mtmp);
                 }
             } else if (newcham(mtmp, (struct permonst *) 0,
@@ -1989,8 +1989,8 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
                 mtmp->mhpmax -= dmg;
                 if (DEADMONSTER(mtmp) || mtmp->mhpmax <= 0
                     || mtmp->m_lev < 1) {
-                    /* TODO-EVILHACK: set_pet_killer() for pet kill
-                       credit ports with the kill-attribution slice */
+                    if (mcarried(otmp) && otmp->ocarry->mtame)
+                        set_pet_killer(otmp->ocarry);
                     monkilled(mtmp, "", AD_DRLI);
                 } else {
                     mtmp->m_lev--;
@@ -2027,8 +2027,8 @@ mbhitm(struct monst *mtmp, struct obj *otmp)
                               rn2(2) ? "withers" : "shudders",
                               rn2(2) ? "agony" : "pain");
                 if (DEADMONSTER(mtmp)) {
-                    /* TODO-EVILHACK: set_pet_killer() for pet kill
-                       credit ports with the kill-attribution slice */
+                    if (mcarried(otmp) && otmp->ocarry->mtame)
+                        set_pet_killer(otmp->ocarry);
                     monkilled(mtmp, "", AD_MAGM);
                 } else {
                     monflee(mtmp, 0, FALSE, TRUE);
@@ -2393,8 +2393,8 @@ mcast_nodir_spell(struct monst *caster, struct monst *target,
                         pline_mon(target, "%s is %s!", Monnam(target),
                                   rn2(2) ? "annihilated" : "obliterated");
                     target->mhp = 0;
-                    /* TODO-EVILHACK: set_pet_killer() for pet kill
-                       credit ports with the kill-attribution slice */
+                    if (caster->mtame)
+                        set_pet_killer(caster);
                     monkilled(target, (char *) 0, AD_DETH);
                 }
             } else {
@@ -4093,6 +4093,7 @@ muse_unslime(
     boolean by_you) /* true: if mon kills itself, hero gets credit/blame */
 {                   /* [by_you not honored if 'mon' triggers fire trap]. */
     struct obj *odummyp;
+    struct monst *save_exploder;
     int otyp = obj->otyp, dmg = 0;
     boolean vis = canseemon(mon), res = TRUE;
 
@@ -4145,11 +4146,14 @@ muse_unslime(
         } else {
             dmg = (2 * (rn1(3, 3) + 2 * bcsign(obj)) + 1) / 3;
             m_useup(mon, obj); /* before explode() */
+            save_exploder = ge.exploder;
+            ge.exploder = mon;
             /* BZ_M_SPELL(ZT_FIRE) => monster's fireball */
             explode(mon->mx, mon->my, BZ_M_SPELL(ZT_FIRE), dmg, SCROLL_CLASS,
                     /* by_you: override monster fireball for mon but
                        not others */
                     by_you ? -EXPL_FIERY : EXPL_FIERY);
+            ge.exploder = save_exploder;
             dmg = 0; /* damage has been applied by explode() */
         }
     } else if (otyp == POT_OIL) {

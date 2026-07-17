@@ -544,7 +544,7 @@ monflee(
 
         if (mtmp->data == &mons[PM_VROCK] && !mtmp->mspec_used) {
             mtmp->mspec_used = 75 + rn2(25);
-            (void) create_gas_cloud(mtmp->mx, mtmp->my, 5, 8);
+            (void) create_gas_cloud(mtmp->mx, mtmp->my, 5, 8, mtmp);
         }
 
         mtmp->mflee = 1;
@@ -662,8 +662,11 @@ mind_blast(struct monst *mtmp)
             if (cansee(m2->mx, m2->my))
                 pline("It locks on to %s.", mon_nam(m2));
             m2->mhp -= rnd(15);
-            if (DEADMONSTER(m2))
+            if (DEADMONSTER(m2)) {
+                if (mtmp->mtame)
+                    set_pet_killer(mtmp);
                 monkilled(m2, "", AD_DRIN);
+            }
         }
     }
 }
@@ -682,7 +685,7 @@ m_everyturn_effect(struct monst *mtmp)
            present, or when flowing under closed doors so that visibility
            changes aren't mixed with messages about doing such */
         if (!closed_door(x, y) && !visible_region_at(x, y))
-            create_gas_cloud(x, y, 1, 0); /* harmless vapor */
+            create_gas_cloud(x, y, 1, 0, mtmp); /* harmless vapor */
     }
 }
 
@@ -701,9 +704,9 @@ m_postmove_effect(struct monst *mtmp)
 
     /* Hezrous create clouds of stench. This does not cost a move. */
     if (mtmp->data == &mons[PM_HEZROU]) /* stench */
-        create_gas_cloud(x, y, 1, 8);
+        create_gas_cloud(x, y, 1, 8, mtmp);
     else if (mtmp->data == &mons[PM_STEAM_VORTEX] && !mtmp->mcan)
-        create_gas_cloud(x, y, 1, 0); /* harmless vapor */
+        create_gas_cloud(x, y, 1, 0, mtmp); /* harmless vapor */
 }
 
 /* returns 1 if monster died moving, 0 otherwise */

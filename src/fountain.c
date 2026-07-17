@@ -1927,7 +1927,7 @@ drinksink(void)
         break;
     case 13:
         pline("Ew, what a stench!");
-        create_gas_cloud(u.ux, u.uy, 1, 4);
+        create_gas_cloud(u.ux, u.uy, 1, 4, &gy.youmonst);
         break;
     case 19:
         if (Hallucination) {

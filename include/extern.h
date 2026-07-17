@@ -1334,6 +1334,7 @@ extern char *trap_predicament(char *, int, boolean) NONNULLARG1;
 extern int doconduct(void);
 extern void show_conduct(int);
 extern void record_achievement(schar);
+extern void record_achievement_quietly(schar);
 extern boolean remove_achievement(schar);
 extern int count_achievements(void);
 extern schar achieve_rank(int);
@@ -1573,6 +1574,7 @@ extern int castmm(struct monst *, struct monst *,
 extern void touch_of_death(struct monst *) NONNULLARG1;
 extern char *death_inflicted_by(char *, const char *,
                                 struct monst *) NONNULLARG12;
+extern char *mon_killer_name(char *, struct monst *) NONNULLARG12;
 extern int buzzmu(struct monst *, struct attack *) NONNULLARG12;
 extern boolean is_spellcaster(struct monst *) NONNULLARG1;
 extern boolean mknows_spell(struct monst *, int) NONNULLARG1;
@@ -1872,6 +1874,7 @@ extern void replmon(struct monst *, struct monst *) NONNULLARG12;
 extern void relmon(struct monst *, struct monst **) NONNULLARG1;
 extern struct obj *mlifesaver(struct monst *) NONNULLARG1;
 extern boolean corpse_chance(struct monst *, struct monst *, boolean) NONNULLARG1;
+extern void set_pet_killer(struct monst *);
 extern void mondead(struct monst *) NONNULLARG1;
 extern void mondied(struct monst *) NONNULLARG1;
 extern void mongone(struct monst *) NONNULLARG1;
@@ -2124,8 +2127,8 @@ extern const char *rnd_hallublast(void);
 extern boolean m_has_launcher_and_ammo(struct monst *) NONNULLARG1;
 extern int thitu(int, int, struct obj **, const char *) NO_NNARGS;
 extern struct monst *mfind_target(struct monst *) NONNULLARG1;
-extern boolean ohitmon(struct monst *, struct obj *,
-                       int, boolean) NONNULLARG12;
+extern boolean ohitmon(struct monst *, struct monst *, struct obj *,
+                       int, boolean) NONNULLARG23;
 extern boolean thrwmu(struct monst *) NONNULLARG1;
 extern int m_lined_up(struct monst *, struct monst *, boolean) NONNULLARG12;
 extern int spitmu(struct monst *, struct attack *) NONNULLPTRS;
@@ -2341,6 +2344,8 @@ extern char *corpse_xname(struct obj *, const char *, unsigned) NONNULLARG1;
 extern char *cxname(struct obj *) NONNULLARG1;
 extern char *cxname_singular(struct obj *) NONNULLARG1;
 extern char *killer_xname(struct obj *) NONNULLARG1;
+extern char *weapon_killer(char *, const char *, const char *,
+                           struct obj *) NONNULLPTRS;
 extern char *short_oname(struct obj *, char *(*)(struct obj *),
                          char *(*)(struct obj *), unsigned) NONNULLARG12;
 extern const char *singular(struct obj *, char *(*)(struct obj *)) NONNULLPTRS;
@@ -2804,8 +2809,10 @@ extern void show_region(NhRegion *, coordxy, coordxy) NONNULLARG1;
 extern void save_regions(NHFILE *) NONNULLARG1;
 extern void rest_regions(NHFILE *) NONNULLARG1;
 extern void region_stats(const char *, char *, long *, long *) NONNULLPTRS;
-extern NhRegion *create_gas_cloud(coordxy, coordxy, int, int);
-extern NhRegion *create_gas_cloud_selection(struct selectionvar *, int);
+extern NhRegion *create_gas_cloud(coordxy, coordxy, int, int,
+                                  struct monst *);
+extern NhRegion *create_gas_cloud_selection(struct selectionvar *, int,
+                                            struct monst *);
 extern boolean region_danger(void);
 extern void region_safety(void);
 

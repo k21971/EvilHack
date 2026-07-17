@@ -40,7 +40,8 @@ NhRegion *create_force_field(coordxy,coordxy,int,long);
 
 staticfn void reset_region_mids(NhRegion *);
 staticfn boolean is_hero_inside_gas_cloud(void);
-staticfn void make_gas_cloud(NhRegion *, int, boolean) NONNULLARG1;
+staticfn void make_gas_cloud(NhRegion *, int, boolean,
+                             struct monst *) NONNULLARG1;
 
 static const callback_proc callbacks[] = {
 #define INSIDE_GAS_CLOUD 0
@@ -865,6 +866,9 @@ rest_regions(NHFILE *nhfp)
             clear_hero_inside(r);
             clear_heros_fault(r);
         }
+        /* creator_mid is deliberately not saved; cloud kill attribution
+           is dropped across reload */
+        r->creator_mid = 0;
         Sfi_short(nhfp, &r->n_monst, "region-monster_count");
         if (r->n_monst > 0)
             r->monsters = (unsigned *) alloc(r->n_monst * sizeof (unsigned));
@@ -971,7 +975,6 @@ create_msg_region(
     reg->ttl = -1L;
     return reg;
 }
-
 
 /*--------------------------------------------------------------*
  *                                                              *
@@ -1151,10 +1154,17 @@ inside_gas_cloud(genericptr_t p1, genericptr_t p2)
                 return FALSE;
             mtmp->mhp -= rnd(dam) + 5;
             if (DEADMONSTER(mtmp)) {
-                if (heros_fault(reg))
+                if (heros_fault(reg)) {
                     killed(mtmp);
-                else
+                } else {
+                    struct monst *creator = reg->creator_mid
+                              ? find_mid(reg->creator_mid, FM_FMON)
+                              : (struct monst *) 0;
+
+                    if (creator && creator->mtame)
+                        set_pet_killer(creator);
                     monkilled(mtmp, "gas cloud", AD_DRST);
+                }
                 if (DEADMONSTER(mtmp)) { /* not lifesaved */
                     return TRUE;
                 }
@@ -1182,10 +1192,21 @@ staticfn void
 make_gas_cloud(
     NhRegion *cloud,
     int damage,
-    boolean inside_cloud)
+    boolean inside_cloud,
+    struct monst *creator) /* &gy.youmonst = hero, monster pointer = that
+                            * monster, NULL = environment or level
+                            * generation */
 {
-    if (!gi.in_mklev && !svc.context.mon_moving)
-        set_heros_fault(cloud); /* assume player has created it */
+    /* only hero-created clouds credit or blame the hero for their
+       kills; create_region() already starts regions as not the
+       hero's fault, so the else branch is belt-and-suspenders that
+       also keeps the intent explicit */
+    if (creator == &gy.youmonst)
+        set_heros_fault(cloud);
+    else
+        clear_heros_fault(cloud);
+    cloud->creator_mid = (creator && creator != &gy.youmonst)
+                             ? creator->m_id : 0;
     cloud->inside_f = INSIDE_GAS_CLOUD;
     cloud->expire_f = EXPIRE_GAS_CLOUD;
     cloud->arg = cg.zeroany;
@@ -1213,7 +1234,10 @@ NhRegion *
 create_gas_cloud(
     coordxy x, coordxy y,
     int cloudsize,
-    int damage)
+    int damage,
+    struct monst *creator) /* &gy.youmonst = hero, monster pointer = that
+                            * monster, NULL = environment or level
+                            * generation */
 {
     NhRegion *cloud;
     int i, j;
@@ -1304,7 +1328,7 @@ create_gas_cloud(
     /* If cloud was constrained in small space, give it more time to live. */
     cloud->ttl = (cloud->ttl * cloudsize) / newidx;
 
-    make_gas_cloud(cloud, damage, inside_cloud);
+    make_gas_cloud(cloud, damage, inside_cloud, creator);
     return cloud;
 }
 
@@ -1312,7 +1336,8 @@ create_gas_cloud(
 NhRegion *
 create_gas_cloud_selection(
     struct selectionvar *sel,
-    int damage)
+    int damage,
+    struct monst *creator)
 {
     NhRegion *cloud;
     NhRect tmprect;
@@ -1331,10 +1356,9 @@ create_gas_cloud_selection(
                 add_rect_to_reg(cloud, &tmprect);
             }
 
-    make_gas_cloud(cloud, damage, inside_cloud);
+    make_gas_cloud(cloud, damage, inside_cloud, creator);
     return cloud;
 }
-
 
 /* for checking troubles during prayer; is hero at risk? */
 boolean

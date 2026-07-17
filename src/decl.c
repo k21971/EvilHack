@@ -329,6 +329,8 @@ static const struct instance_globals_e g_init_e = {
     UNDEFINED_VALUE, /* ext_tlist */
     /* eat.c */
     NULL, /* eatmbuf */
+    /* explode.c */
+    NULL, /* exploder -- monst responsible for current explode() */
     /* mkmaze.c */
     UNDEFINED_PTR, /* ebubbles */
     /* new */
@@ -759,6 +761,8 @@ static const struct instance_globals_t g_init_t = {
     /* invent.c */
     0, /* this_type */
     NULL, /* this_title */
+    /* mthrowu.c */
+    NULL, /* thrower -- monst responsible for object in flight */
     /* muse.c */
     UNDEFINED_VALUE, /* trapx */
     UNDEFINED_VALUE, /* trapy */

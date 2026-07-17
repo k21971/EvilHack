@@ -3279,10 +3279,13 @@ cancel_monst(struct monst *mdef, struct obj *obj, boolean youattack,
             /* !allow_cancel_kill is for Magicbane, where clay golem
                will be killed somewhere back up the call/return chain... */
             if (allow_cancel_kill) {
-                if (youattack)
+                if (youattack) {
                     killed(mdef);
-                else
+                } else {
+                    if (gb.buzzer && gb.buzzer->mtame)
+                        set_pet_killer(gb.buzzer);
                     monkilled(mdef, "", AD_SPEL);
+                }
             }
         }
     }
@@ -4999,9 +5002,11 @@ disintegrate_mon(
 
 #undef oresist_disintegration
 
-    if (type < 0)
+    if (type < 0) {
+        if (gb.buzzer && gb.buzzer->mtame)
+            set_pet_killer(gb.buzzer);
         monkilled(mon, (char *) 0, -AD_RBRE);
-    else
+    } else
         xkilled(mon, XKILL_NOMSG | XKILL_NOCORPSE);
 }
 
@@ -5177,6 +5182,8 @@ dobuzz(
                     } else if (DEADMONSTER(mon)) {
                         if (type < 0) {
                             /* mon has just been killed by another monster */
+                            if (gb.buzzer && gb.buzzer->mtame)
+                                set_pet_killer(gb.buzzer);
                             monkilled(mon, flash_str(fltyp, FALSE), AD_RBRE);
                         } else {
                             int xkflags = XKILL_GIVEMSG; /* killed(mon); */
@@ -5471,7 +5478,10 @@ zap_over_floor(
             /* don't create steam clouds on Plane of Water; air bubble
                movement and gas regions don't understand each other */
             if (!on_water_level) {
-                create_gas_cloud(x, y, rnd(5), 0); /* 1..5, no damg */
+                /* 1..5, no damg */
+                create_gas_cloud(x, y, rnd(5), 0,
+                                 (!gi.in_mklev && !svc.context.mon_moving)
+                                     ? &gy.youmonst : gb.buzzer);
                 if (iflags.last_msg == PLNMSG_ENVELOPED_IN_GAS)
                     msggiven = TRUE;
             }
@@ -5515,7 +5525,10 @@ zap_over_floor(
                 }
             }
         } else if (IS_FOUNTAIN(lev->typ)) {
-            create_gas_cloud(x, y, rnd(3), 0); /* 1..3, no damage */
+            /* 1..3, no damage */
+            create_gas_cloud(x, y, rnd(3), 0,
+                             (!gi.in_mklev && !svc.context.mon_moving)
+                                 ? &gy.youmonst : gb.buzzer);
             if (see_it)
                 pline("Steam billows from the fountain.");
             rangemod -= 1;
@@ -5625,8 +5638,17 @@ zap_over_floor(
         /* poison gas with range 1: green dragon/iron golem breath (AD_DRST);
            caller is placing a series of 1x1 clouds along the zap's path;
            <x,y> for wall locations might be included--reject those */
-        if (ZAP_POS(lev->typ))
-            (void) create_gas_cloud(x, y, 1, 8);
+        if (ZAP_POS(lev->typ)) {
+            /* same hero predicate the old set_heros_fault() logic used
+               (covers hero beams, hero spell explosions arriving with
+               moncast set, and hero-triggered trap beams); during monster
+               movement the beam originator (gb.buzzer) gets the credit,
+               and a null buzzer means environment */
+            (void) create_gas_cloud(x, y, 1, 8,
+                                    (!gi.in_mklev
+                                     && !svc.context.mon_moving)
+                                        ? &gy.youmonst : gb.buzzer);
+        }
         break;
 
     case ZT_LIGHTNING:
@@ -6451,9 +6473,11 @@ resist(struct monst *mtmp, char oclass, int damage, int tell)
     if (damage) {
         mtmp->mhp -= damage;
         if (DEADMONSTER(mtmp)) {
-            if (gm.m_using)
+            if (gm.m_using) {
+                if (gb.buzzer && gb.buzzer->mtame)
+                    set_pet_killer(gb.buzzer);
                 monkilled(mtmp, "", AD_RBRE);
-            else
+            } else
                 killed(mtmp);
         }
     }

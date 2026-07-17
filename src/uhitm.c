@@ -4124,6 +4124,10 @@ do_stone_mon(
     if (!resists_ston(mdef)) {
         if (gv.vis && canseemon(mdef))
             pline_mon(mdef, "%s turns to stone!", Monnam(mdef));
+        /* both callers are on the monster-attacker path, so magr is
+           never the hero here */
+        if (magr->mtame)
+            set_pet_killer(magr);
         monstone(mdef);
  post_stone:
         if (!DEADMONSTER(mdef)) {

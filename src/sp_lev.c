@@ -4982,9 +4982,10 @@ lspo_gas_cloud(lua_State *L)
         damage = get_table_int_opt(L, "damage", 0);
         ttl = get_table_int_opt(L, "ttl", -2);
         if (!sel) {
-            reg = create_gas_cloud(x, y, 1, damage);
+            reg = create_gas_cloud(x, y, 1, damage, (struct monst *) 0);
         } else
-            reg = create_gas_cloud_selection(sel, damage);
+            reg = create_gas_cloud_selection(sel, damage,
+                                             (struct monst *) 0);
         if (ttl > -2)
             reg->ttl = ttl;
     } else {

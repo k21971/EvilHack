@@ -100,8 +100,39 @@ thitu(
             panic("thitu: name & obj both null?");
         name = strcpy(onmbuf,
                       (obj->quan > 1L) ? doname(obj) : mshot_xname(obj));
-        knm = strcpy(knmbuf, killer_xname(obj));
-        kprefix = KILLED_BY; /* killer_name supplies "an" if warranted */
+        if (gt.thrower) {
+            boolean disguised = (ismnum(gt.thrower->cham)
+                                 && &mons[gt.thrower->cham]
+                                    != gt.thrower->data);
+            boolean fired = (MON_WEP(gt.thrower)
+                             && ammo_and_launcher(obj, MON_WEP(gt.thrower)));
+
+            if (disguised || obj->oartifact) {
+                /* a possessive reads oddly on an "imitating X" name or a
+                   proper-noun artifact ("a Woodland-elf's Sting"), so fall
+                   back to the "by" form for a clean reading */
+                const char *verb = is_pole(obj) ? "wielded"
+                                   : fired ? "fired" : "thrown";
+
+                (void) death_inflicted_by(knmbuf, killer_xname(obj),
+                                          gt.thrower);
+                (void) strsubst(knmbuf, "inflicted", verb);
+            } else {
+                /* "a goblin's thrown dagger" / "an orc's fired arrow"; a
+                   polearm thrust is a wielded reach weapon, so no verb */
+                char nbuf[BUFSZ];
+                const char *verb = is_pole(obj) ? ""
+                                   : fired ? "fired " : "thrown ";
+
+                (void) weapon_killer(knmbuf,
+                                     mon_killer_name(nbuf, gt.thrower),
+                                     verb, obj);
+            }
+        } else {
+            (void) strcpy(knmbuf, killer_xname(obj));
+        }
+        knm = knmbuf;
+        kprefix = KILLED_BY; /* killer_xname supplies "an" if warranted */
     } else {
         knm = name;
         /* [perhaps ought to check for plural here too] */
@@ -496,6 +527,7 @@ mfind_target(struct monst *mtmp)
    bag of holding throwing the items) */
 boolean
 ohitmon(
+    struct monst *magr, /* monster that launched the missile, if any */
     struct monst *mtmp, /* accidental target, located at <gb.bhitpos.x,.y> */
     struct obj *otmp,   /* missile; might be destroyed by drop_throw */
     int range,          /* how much farther will object travel if it misses;
@@ -541,7 +573,11 @@ ohitmon(
         mtmp->msleeping = 0;
         /* probably thrown by a monster rather than 'other', but the
            distinction only matters when hitting the hero */
+        if (magr && magr->mtame)
+            set_pet_killer(magr);
         potionhit(mtmp, otmp, POTHIT_OTHER_THROW);
+        /* the potion may not have killed; clear leftover attribution */
+        set_pet_killer((struct monst *) 0);
         return 1;
     } else {
         boolean harmless = (stone_missile(otmp) && passes_rocks(mtmp->data));
@@ -652,10 +688,14 @@ ohitmon(
                            || !canspotmon(mtmp)) ? "destroyed" : "killed");
                 /* don't blame hero for unknown rolling boulder trap */
                 if (!svc.context.mon_moving
-                   && (otmp->otyp != BOULDER || range >= 0 || otmp->otrapped))
+                   && (otmp->otyp != BOULDER || range >= 0
+                       || otmp->otrapped)) {
                     xkilled(mtmp, XKILL_NOMSG);
-                else
+                } else {
+                    if (magr && magr->mtame)
+                        set_pet_killer(magr);
                     mondied(mtmp);
+                }
             }
         }
 
@@ -892,7 +932,7 @@ m_throw(
                give message and skip it in order to keep going */
             mtmp = (struct monst *) 0;
         } else if (mtmp) {
-            if (ohitmon(mtmp, singleobj, range, TRUE))
+            if (ohitmon(mon, mtmp, singleobj, range, TRUE))
                 break;
         } else if (u_at(gb.bhitpos.x, gb.bhitpos.y)) {
             if (gm.multi)
@@ -925,7 +965,9 @@ m_throw(
             case BLINDING_VENOM:
             case SNOWBALL:
             case BALL_OF_WEBBING:
+                gt.thrower = mon; /* for death attribution */
                 hitu = thitu(8, 0, &singleobj, (char *) 0);
+                gt.thrower = 0;
                 break;
             default:
                 {
@@ -964,7 +1006,10 @@ m_throw(
                         dam = 1;
                     if (singleobj->otyp != ACID_VENOM)
                         dam = Maybe_Half_Phys(dam);
+                    /* for death attribution -> thrown/fired by */
+                    gt.thrower = mon;
                     hitu = thitu(hitv, dam, &singleobj, (char *) 0);
+                    gt.thrower = 0;
                 }
             }
             if (hitu
@@ -1594,7 +1639,9 @@ thrwmu(struct monst *mtmp)
         if (dam < 1)
             dam = 1;
 
+        gt.thrower = mtmp; /* polearm thrust -> "wielded by" attribution */
         (void) thitu(hitv, Maybe_Half_Phys(dam), &otmp, (char *) 0);
+        gt.thrower = 0;
         stop_occupation();
         return TRUE;
     } else if ((arw = autoreturn_weapon(otmp)) != 0 && !mwelded(otmp)) {
