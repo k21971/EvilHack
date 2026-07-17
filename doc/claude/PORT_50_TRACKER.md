@@ -2219,14 +2219,101 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       dragon fixed breath adtyp, fields landed Phase 1)
 - [ ] Ice Queen branch bosses; Vecna; demon-lord behaviors
       (msummon mechanics memory)
-- [ ] Pet order system (P_PET_HANDLING, petstrat, #order)
-      (petstrat fields + PETSTRAT_* landed in Phase 1;
-      acceptable_pet_target reads them since the telekinesis slice.
-      Also: master dog_move ranged block + weapon.c oselect
-      acceptable_pet_target consumers; RECONCILE master's pet
-      mfind_target path with branch-native
-      score_targ/best_target/pet_ranged_attk; master skill_init
-      pet-handling role block)
+- [~] Pet order system (P_PET_HANDLING, petstrat, #order)
+      PORTED + REVIEWED 2026-07-17 (port subagent 13 files
+      +1006/-109; reviewer CONDITIONAL PASS 1 blocker/2 nits ->
+      blocker coordinator-verified+fixed same day; zero-warning
+      clean rebuild by subagent + post-fix make all; COMMIT
+      PENDING, message file in scratchpad; wizmode battery
+      pending maintainer approval - 29-point list in
+      scratchpad/pet-order-battery-list.md incl. the session-7
+      pick-drop oscillation regression + shield-don follow-up).
+      Contents: doorder + find_commandable_pet appended to
+      sounds.c (5.0 menu API with per-item color param replacing
+      master's menuitemcolor global; ECMD returns - master 1 ->
+      ECMD_TIME incl. "ignores you", refusals ECMD_OK, cancels
+      ECMD_CANCEL; skill-gated menu breadth byte-parity with
+      P_MASTER bypass; mutual-exclusion toggle arms; belay
+      oreserved release; use_skill only on old_petstrat change)
+      + cmd.c #order AUTOCOMPLETE entry; exchange_objects_with_mon
+      + loot_mon rewrite (pet redirect to #order, wizard-mode
+      loot arms, master's saddle-removal-block removal, looted_mon
+      -> mon_interact rewiring, 4-arg yn_function) in pickup.c;
+      oreserved lifecycle COMPLETE (set exchange-take, cleared
+      add_to_minv/extract_from_minvent/give/belay, honored in
+      m_dowear_type candidate scan - flat-scan adaptation since
+      branch has no find_best_armor_recurse; container recursion
+      stays with monster looting); dogmove.c petstrat weave
+      (droppables weapon-preference tail = the session-7 pet
+      pick-drop oscillation FIX; dog_invent NODROP/NOAPPORT;
+      dog_goal COME beeline/NOAPPORT/AGGRO-pursuit; score_targ
+      AVOIDPEACE; pet_ranged_attk acceptable_pet_target filter
+      incl. the cmd.c forced-attack caller falling through to
+      domonnoise; dog_move COME gates + arrival clear, STATIONARY
+      attack-in-place block, COWED safecnt, IGNORETRAPS bypass;
+      melee arm CONVERTED to acceptable_pet_target - reviewer
+      verified strict superset of the removed inline balk/
+      floating-eye/petrify checks, master parity at the same
+      seam) + the muse-ranged block at master's pre-movement seam
+      (find_offensive/defensive/misc + mfind_target natural-ranged
+      fallback, all COME-gated; branch-native score_targ/
+      best_target/pet_ranged_attk kept unchanged in place = the
+      RECONCILE ruling resolved - master itself keeps both paths;
+      no double-fire, every fallback action returns before
+      pet_ranged_attk); dog.c keepdogs PETSTRAT_STAY stays-behind
+      arm + thrown-treat use_skill + initedog petstrat reset (the
+      port brief wrongly listed the reset as already-live - only
+      newedog zeroing covered first taming; re-tamed ferals kept
+      stale orders); monmove.c undesirable_disp IGNORETRAPS
+      exception; mhitm.c pet-kill use_skill; trap.c reward_untrap
+      use_skill; weapon.c skill_init Healer/Druid/Knight P_BASIC
+      block + mon_melee_target apt consumer.
+      REVIEWER BLOCKER FIXED: all three muse arms collapsed
+      master's ret==0 fall-through into MMOVE_DONE (use_defensive
+      has 5 reachable return-0 sites - enexto-blocked create
+      monster, Is_botlevel trapdoor, stairway re-validations; a
+      cornered low-HP pet with a create-monster wand would burn
+      every turn doing nothing) -> ret captured, 0 falls through
+      to the normal move, comment corrected. Reviewer confirmed
+      the ret==2 -> MMOVE_DONE collapse itself is CORRECT for 5.0
+      (MMOVE_MOVED would run postmov/mintrap on an unmoved pet).
+      ADAPTATIONS: SUPPRESS_BARDING re-valued 0x80 (master 0x10 =
+      5.0 SUPPRESS_MAPPEARANCE; no consumer until the x_monnam
+      barding port - NOTE EXACT_NAME 0x1f does NOT cover 0x80,
+      reconcile + sweep master's ~28 SUPPRESS_BARDING call sites
+      with the steed/barding slice); propellor no-launcher
+      sentinel &zeroobj -> &hands_obj; update_mon_intrinsics ->
+      update_mon_extrinsics; loadstone exchange kludge tests raw
+      otmp->cursed (branch lacks master's silent 2-arg cursed()
+      with Infidel/Vecna-glove exemptions - port the helper with
+      the Infidel slice); give path freeinv = EXACT master parity
+      (both trees' obj_extract_self route OBJ_INVENT to freeinv;
+      the port report's "master stale-u.uhave bug" claim REFUTED
+      by coordinator and reviewer independently).
+      MASTER NOTES: booldroppables dead logic not transplanted
+      (set only in an unreachable-from-test branch); loot_mon
+      dropping saddle removal for NON-tame saddled monsters
+      entirely (outside wizard mode) is master behavior ported
+      as-is - possibly unintended on master, maintainer FYI;
+      master's dochug muse pre-pass + dog_move muse block double-
+      probe exists identically on master - battery watch item
+      (rare defensive-use + offensive-use same turn).
+      DEFERRALS (named owners): 3 PETSTRAT_COME gates travel with
+      their absent master blocks (vampire pet self-feed, grass
+      eating, pet helpful-actions) + dog_invent satiation/
+      intrinsic-corpse logic + pool/lava/open-air drop avoidance
+      -> pet feeding/behavior slice(s); could_use_item/
+      is_better_armor terms + find_best_armor_recurse container
+      recursion + m_stash_items -> monster looting; W_ARM
+      big_wings/dragon-scales/JACKET candidate restriction ->
+      monster armor (big_wings absent on branch); worn.c ring/
+      amulet candidate blocks -> monster ring/amulet; mhitu.c
+      steed-retaliation apt x3 + x_monnam "barded " adjective +
+      do_barding plumbing -> steed/saddle/barding; PETSTRAT_STAY
+      vs u.usteed coupling censused NONE on master (keepdogs STAY
+      arm unreachable for steeds by else-if order); Guidebook
+      #order entry ("Give orders to a pet.") -> coordinator doc
+      pass via the guidebook workflow.
 - [ ] Player races: giant, centaur, hobbit, illithid, tortle, drow
       (light/dark auras - litroom memory), vampire, aasimar (wings,
       light aura, seduction immunity, cross-faction hostility)

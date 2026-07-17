@@ -2359,9 +2359,18 @@ undesirable_disp(
     struct trap *trap = t_at(x, y);
 
     if (is_pet) {
-        /* Pets avoid a trap if you've seen it usually. */
-        if (trap && trap->tseen && rn2(40))
-            return TRUE;
+        /* Pets avoid a trap if you've seen it usually,
+           unless ordered to ignore harmless traps */
+        if (trap && trap->tseen && rn2(40)) {
+            boolean dominated = has_edog(mtmp)
+                && (EDOG(mtmp)->petstrat & PETSTRAT_IGNORETRAPS)
+                && (trap->ttyp == SQKY_BOARD
+                    || (trap->ttyp == RUST_TRAP_SET
+                        && mtmp->data != &mons[PM_IRON_GOLEM]));
+
+            if (!dominated)
+                return TRUE;
+        }
         /* Pets avoid cursed locations */
         if (cursed_object_at(x, y))
             return TRUE;

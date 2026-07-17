@@ -11,6 +11,7 @@ staticfn boolean zoo_mon_sound(struct monst *);
 staticfn boolean temple_priest_sound(struct monst *);
 staticfn boolean mon_is_gecko(struct monst *);
 staticfn int dochat(void);
+staticfn struct monst *find_commandable_pet(void);
 staticfn struct monst *responsive_mon_at(int, int);
 staticfn int mon_in_room(struct monst *, int);
 staticfn boolean oracle_sound(struct monst *);
@@ -2275,6 +2276,461 @@ sound_speak(const char *text SPEECHONLY)
                                    gv.voice.volume, gv.voice.moreinfo);
     }
 #endif
+}
+
+/* Find the single candidate pet if exactly one exists.
+   Candidates are tame pets with edog that the hero can communicate
+   with; temporary incapacitation does not disqualify, so a busy pet
+   is reported by the caller instead of being silently skipped in
+   favor of another one.
+   Returns the pet if exactly one candidate, NULL if zero or multiple */
+staticfn struct monst *
+find_commandable_pet(void)
+{
+    struct monst *mtmp, *found = (struct monst *) 0;
+
+    /* Check steed first - always a candidate if present */
+    if (u.usteed && u.usteed->mtame && has_edog(u.usteed))
+        found = u.usteed;
+
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        if (DEADMONSTER(mtmp) || mtmp == u.usteed)
+            continue;
+        if (!mtmp->mtame || !has_edog(mtmp))
+            continue;
+        /* Must be able to communicate: visible, adjacent,
+           or two-way telepathy */
+        if (!canseemon(mtmp) && distu(mtmp->mx, mtmp->my) > 2
+            && !(has_telepathy(mtmp) && (HTelepat || ETelepat)))
+            continue;
+        /* Found a valid pet */
+        if (found)
+            return (struct monst *) 0; /* more than one */
+        found = mtmp;
+    }
+    return found;
+}
+
+/* Give orders to a pet */
+int
+doorder(void)
+{
+    struct monst *mtmp;
+    coord cc;
+    char buf[BUFSZ];
+    int skill_level;
+    winid win;
+    menu_item *selected;
+    anything any;
+    int n, choice;
+    long old_petstrat;
+    boolean currently_set;
+
+    /* Player can't be incapacitated */
+    if (Confusion || Stunned) {
+        You_cant("give orders in your current state.");
+        return ECMD_OK;
+    }
+
+    /* If exactly one candidate pet exists, auto-select it */
+    mtmp = find_commandable_pet();
+
+    /* If not auto-selected, ask for a target and validate it */
+    if (!mtmp) {
+        /* Cursor-based targeting */
+        cc.x = u.ux;
+        cc.y = u.uy;
+        if (getpos(&cc, FALSE, "the monster you want to issue orders to") < 0
+            || !isok(cc.x, cc.y))
+            return ECMD_CANCEL;
+
+        /* Check for steed if targeting self */
+        if (u_at(cc.x, cc.y)) {
+            if (u.usteed) {
+                mtmp = u.usteed;
+            } else {
+                You("can't give orders to yourself.");
+                return ECMD_OK;
+            }
+        } else {
+            mtmp = m_at(cc.x, cc.y);
+        }
+
+        if (!mtmp || !canspotmon(mtmp)) {
+            pline("There's no one there to command.");
+            return ECMD_OK;
+        }
+
+        /* ESP lets you sense monsters, but you need to actually see them,
+         * be adjacent, or have two-way telepathy to communicate orders.
+         * Two-way telepathy: both you and the pet have ESP */
+        if (!canseemon(mtmp) && distu(mtmp->mx, mtmp->my) > 2
+            && !(has_telepathy(mtmp) && (HTelepat || ETelepat))) {
+            You("sense %s, but are too far away to communicate.",
+                mon_nam(mtmp));
+            return ECMD_OK;
+        }
+
+        if (!mtmp->mtame) {
+            pline_mon(mtmp, "%s is not your pet.", Monnam(mtmp));
+            return ECMD_OK;
+        }
+
+        if (!has_edog(mtmp)) {
+            pline_mon(mtmp, "%s doesn't respond to commands.", Monnam(mtmp));
+            return ECMD_OK;
+        }
+    }
+
+    /* Pet must be alert to receive orders, whether targeted
+       via cursor or auto-selected */
+    if (mtmp->msleeping) {
+        pline_mon(mtmp, "%s is asleep.", Monnam(mtmp));
+        return ECMD_OK;
+    }
+    /* Pet cannot be stunned/confused/paralyzed */
+    if (mtmp->mstun || mtmp->mconf || mtmp->mfrozen) {
+        pline_mon(mtmp, "%s is incapacitated.", Monnam(mtmp));
+        return ECMD_OK;
+    }
+
+    skill_level = P_SKILL(P_PET_HANDLING);
+
+    /* Build order menu */
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win, MENU_BEHAVE_STANDARD);
+
+    /* Orders available to everyone (Unskilled) */
+    any = cg.zeroany;
+    any.a_int = 1;
+    add_menu(win, &nul_glyphinfo, &any, 'a', 0, ATR_NONE, NO_COLOR,
+             "Belay orders (clear all)", MENU_ITEMFLAGS_NONE);
+
+    any.a_int = 2;
+    currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_STAY) != 0;
+    Sprintf(buf, "Stay on this level (toggle) [%s]",
+            currently_set ? "active" : "inactive");
+    add_menu(win, &nul_glyphinfo, &any, 'b', 0, ATR_NONE,
+             currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE, buf,
+             MENU_ITEMFLAGS_NONE);
+
+    any.a_int = 3;
+    currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_NOAPPORT) != 0;
+    Sprintf(buf, "Don't pick up items (toggle) [%s]",
+            currently_set ? "active" : "inactive");
+    add_menu(win, &nul_glyphinfo, &any, 'c', 0, ATR_NONE,
+             currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE, buf,
+             MENU_ITEMFLAGS_NONE);
+
+    any.a_int = 4;
+    currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_NODROP) != 0;
+    Sprintf(buf, "Don't drop items (toggle) [%s]",
+            currently_set ? "active" : "inactive");
+    add_menu(win, &nul_glyphinfo, &any, 'd', 0, ATR_NONE,
+             currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE, buf,
+             MENU_ITEMFLAGS_NONE);
+
+    any.a_int = 5;
+    add_menu(win, &nul_glyphinfo, &any, 'e', 0, ATR_NONE, NO_COLOR,
+             "Remove saddle", MENU_ITEMFLAGS_NONE);
+
+    any.a_int = 6;
+    add_menu(win, &nul_glyphinfo, &any, 'f', 0, ATR_NONE, NO_COLOR,
+             "Remove barding", MENU_ITEMFLAGS_NONE);
+
+    /* Orders requiring P_BASIC */
+    if (skill_level >= P_BASIC) {
+        any.a_int = 7;
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_AVOIDPEACE) != 0;
+        Sprintf(buf, "Avoid peacefuls (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, &nul_glyphinfo, &any, 'g', 0, ATR_NONE,
+                 currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE, buf,
+                 MENU_ITEMFLAGS_NONE);
+
+        any.a_int = 8;
+        add_menu(win, &nul_glyphinfo, &any, 'h', 0, ATR_NONE, NO_COLOR,
+                 "Give items to pet", MENU_ITEMFLAGS_NONE);
+
+        any.a_int = 9;
+        add_menu(win, &nul_glyphinfo, &any, 'i', 0, ATR_NONE, NO_COLOR,
+                 "Take items from pet", MENU_ITEMFLAGS_NONE);
+    }
+
+    /* Orders requiring P_SKILLED */
+    if (skill_level >= P_SKILLED) {
+        any.a_int = 10;
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_AGGRO) != 0;
+        Sprintf(buf, "Aggressive stance (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, &nul_glyphinfo, &any, 'j', 0, ATR_NONE,
+                 currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE, buf,
+                 MENU_ITEMFLAGS_NONE);
+
+        any.a_int = 11;
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_COWED) != 0;
+        Sprintf(buf, "Defensive stance (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, &nul_glyphinfo, &any, 'k', 0, ATR_NONE,
+                 currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE, buf,
+                 MENU_ITEMFLAGS_NONE);
+
+        any.a_int = 12;
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_IGNORETRAPS) != 0;
+        Sprintf(buf, "Ignore harmless traps (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, &nul_glyphinfo, &any, 'l', 0, ATR_NONE,
+                 currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE, buf,
+                 MENU_ITEMFLAGS_NONE);
+    }
+
+    /* Expert skill required for these advanced orders */
+    if (skill_level >= P_EXPERT) {
+        any.a_int = 13;
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_STATIONARY) != 0;
+        Sprintf(buf, "Stay here (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, &nul_glyphinfo, &any, 'm', 0, ATR_NONE,
+                 currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE, buf,
+                 MENU_ITEMFLAGS_NONE);
+
+        any.a_int = 14;
+        add_menu(win, &nul_glyphinfo, &any, 'n', 0, ATR_NONE, NO_COLOR,
+                 "Come to my location", MENU_ITEMFLAGS_NONE);
+
+        any.a_int = 15;
+        currently_set = (EDOG(mtmp)->petstrat & PETSTRAT_NOATTACK) != 0;
+        Sprintf(buf, "Avoid all monsters (toggle) [%s]",
+                currently_set ? "active" : "inactive");
+        add_menu(win, &nul_glyphinfo, &any, 'o', 0, ATR_NONE,
+                 currently_set ? CLR_BRIGHT_GREEN : CLR_ORANGE, buf,
+                 MENU_ITEMFLAGS_NONE);
+    }
+
+    Sprintf(buf, "What do you want %s to do?", mon_nam(mtmp));
+    end_menu(win, buf);
+
+    n = select_menu(win, PICK_ONE, &selected);
+    destroy_nhwindow(win);
+
+    if (n <= 0)
+        return ECMD_CANCEL;  /* cancelled */
+
+    choice = selected[0].item.a_int;
+    free((genericptr_t) selected);
+
+    /* Commands that require tameness check (unless Master skill).
+     * Skip check for: belay (1), remove saddle (5), remove barding (6),
+     * give items (8), take items (9) - physical handoffs always succeed
+     * at Basic+ since they require adjacency.
+     * Base rate: (tameness-1)/19, so tameness 1 = 0%, tameness 20 = 100%
+     * Skill bonuses: Unskilled +0%, Basic +10%, Skilled +20%, Expert +35%
+     * Master skill: all commands always succeed regardless of tameness
+     */
+    if (choice != 1 && choice != 5 && choice != 6 && choice != 8 && choice != 9
+        && skill_level != P_MASTER) {
+        int skill_bonus;
+        int effective_tameness;
+
+        switch (skill_level) {
+        case P_BASIC:
+            skill_bonus = 2;
+            break;
+        case P_SKILLED:
+            skill_bonus = 4;
+            break;
+        case P_EXPERT:
+            skill_bonus = 7;
+            break;
+        default:
+            skill_bonus = 0;
+            break;
+        }
+        effective_tameness = (mtmp->mtame - 1) + skill_bonus;
+
+        if (effective_tameness < 19 && rn2(19) >= effective_tameness) {
+            pline_mon(mtmp, "%s ignores you.", Monnam(mtmp));
+            return ECMD_TIME;  /* still uses a turn */
+        }
+    }
+
+    /* Physical actions (saddle/barding removal, give/take items) require
+     * adjacency. Behavioral orders can be shouted across the room.
+     * Note: when mounted, mtmp == u.usteed and shares player position,
+     * so distu() will be 0 which passes the check.
+     */
+    if (choice == 5 || choice == 6 || choice == 8 || choice == 9) {
+        if (distu(mtmp->mx, mtmp->my) > 2) {
+            You("need to be next to %s to do that.", mon_nam(mtmp));
+            return ECMD_OK;
+        }
+    }
+
+    /* Save old strategy to check if order actually changed anything */
+    old_petstrat = EDOG(mtmp)->petstrat;
+
+    /* Process selection */
+    switch (choice) {
+    case 1: /* Belay orders */
+        {
+            struct obj *otmp;
+
+            /* release any items held unworn for the hero */
+            for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
+                if (otmp->oreserved) {
+                    otmp->oreserved = 0;
+                    check_gear_next_turn(mtmp);
+                }
+            }
+        }
+        EDOG(mtmp)->petstrat = 0L;
+        You("leave the actions of %s up to %s own discretion.",
+            mon_nam(mtmp), noit_mhis(mtmp));
+        break;
+    case 2: /* Stay (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_STAY;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_STAY)
+            You("direct %s to stay on this level.", mon_nam(mtmp));
+        else
+            You("direct %s to follow you between levels.", mon_nam(mtmp));
+        break;
+    case 3: /* No apport (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_NOAPPORT;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_NOAPPORT)
+            You("direct %s to not pick up items.", mon_nam(mtmp));
+        else
+            You("direct %s to pick up items again.", mon_nam(mtmp));
+        break;
+    case 4: /* No drop (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_NODROP;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_NODROP)
+            You("direct %s to hold onto %s items.", mon_nam(mtmp),
+                noit_mhis(mtmp));
+        else
+            You("direct %s to drop unwanted items.", mon_nam(mtmp));
+        break;
+    case 5: /* Remove saddle - always succeeds */
+        {
+            struct obj *otmp = which_armor(mtmp, W_SADDLE);
+
+            if (!otmp) {
+                pline_mon(mtmp, "%s has no saddle to remove.", Monnam(mtmp));
+            } else {
+                You("remove %s from %s.", the(xname(otmp)),
+                    x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                             SUPPRESS_SADDLE, FALSE));
+                /* unwear the item */
+                update_mon_extrinsics(mtmp, otmp, FALSE, FALSE);
+                otmp->owornmask = 0L;
+                otmp->owt = weight(otmp);
+                mtmp->misc_worn_check &= ~W_SADDLE;
+                check_gear_next_turn(mtmp);
+                /* give to player */
+                extract_from_minvent(mtmp, otmp, FALSE, TRUE);
+                (void) hold_another_object(otmp, "You take, but drop, %s.",
+                                           doname(otmp), "You take: ");
+            }
+        }
+        break;
+    case 6: /* Remove barding - always succeeds */
+        {
+            struct obj *otmp = which_armor(mtmp, W_BARDING);
+
+            if (!otmp) {
+                pline_mon(mtmp, "%s has no barding to remove.", Monnam(mtmp));
+            } else {
+                You("remove %s from %s.", the(xname(otmp)),
+                    x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                             SUPPRESS_BARDING, FALSE));
+                /* unwear the item */
+                update_mon_extrinsics(mtmp, otmp, FALSE, FALSE);
+                otmp->owornmask = 0L;
+                otmp->owt = weight(otmp);
+                mtmp->misc_worn_check &= ~W_BARDING;
+                check_gear_next_turn(mtmp);
+                /* give to player */
+                extract_from_minvent(mtmp, otmp, FALSE, TRUE);
+                (void) hold_another_object(otmp, "You take, but drop, %s.",
+                                           doname(otmp), "You take: ");
+            }
+        }
+        break;
+    case 7: /* Avoid peacefuls (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_AVOIDPEACE;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_AVOIDPEACE)
+            You("direct %s to avoid peaceful creatures.", mon_nam(mtmp));
+        else
+            You("direct %s to attack peaceful creatures at will.",
+                mon_nam(mtmp));
+        break;
+    case 8: /* Give items to pet */
+        (void) exchange_objects_with_mon(mtmp, FALSE);
+        break;
+    case 9: /* Take items from pet */
+        (void) exchange_objects_with_mon(mtmp, TRUE);
+        break;
+    case 10: /* Aggressive (toggle) - mutually exclusive with
+                Defensive/NoAttack */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_AGGRO;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_AGGRO) {
+            EDOG(mtmp)->petstrat &= ~(PETSTRAT_COWED | PETSTRAT_NOATTACK);
+            You("direct %s to assume an aggressive posture.",
+                mon_nam(mtmp));
+        } else {
+            You("direct %s to no longer be aggressive.",
+                mon_nam(mtmp));
+        }
+        break;
+    case 11: /* Defensive (toggle) - mutually exclusive with
+                Aggressive/NoAttack */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_COWED;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_COWED) {
+            EDOG(mtmp)->petstrat &= ~(PETSTRAT_AGGRO | PETSTRAT_NOATTACK);
+            You("direct %s to assume a more defensive posture.",
+                mon_nam(mtmp));
+        } else {
+            You("direct %s to no longer be defensive.",
+                mon_nam(mtmp));
+        }
+        break;
+    case 12: /* Ignore harmless traps (toggle) */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_IGNORETRAPS;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_IGNORETRAPS)
+            You("direct %s to ignore harmless traps.", mon_nam(mtmp));
+        else
+            You("direct %s to avoid all traps.", mon_nam(mtmp));
+        break;
+    case 13: /* Stay here (toggle) - mutually exclusive with Come */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_STATIONARY;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_STATIONARY) {
+            EDOG(mtmp)->petstrat &= ~PETSTRAT_COME;
+            You("direct %s to stay right there.", mon_nam(mtmp));
+        } else {
+            You("direct %s to move freely again.", mon_nam(mtmp));
+        }
+        break;
+    case 14: /* Come (one-shot) - mutually exclusive with Stay here */
+        EDOG(mtmp)->petstrat &= ~PETSTRAT_STATIONARY;
+        EDOG(mtmp)->petstrat |= PETSTRAT_COME;
+        You("call %s to your side.", mon_nam(mtmp));
+        break;
+    case 15: /* Avoid all monsters (toggle) - mutually exclusive with
+                Aggressive/Defensive */
+        EDOG(mtmp)->petstrat ^= PETSTRAT_NOATTACK;
+        if (EDOG(mtmp)->petstrat & PETSTRAT_NOATTACK) {
+            EDOG(mtmp)->petstrat &= ~(PETSTRAT_AGGRO | PETSTRAT_COWED);
+            You("direct %s to avoid all monsters.", mon_nam(mtmp));
+        } else {
+            You("direct %s to engage monsters normally.", mon_nam(mtmp));
+        }
+        break;
+    }
+
+    /* Only train skill if the order actually changed the pet's behavior */
+    if (EDOG(mtmp)->petstrat != old_petstrat)
+        use_skill(P_PET_HANDLING, 1);
+
+    return ECMD_TIME;  /* action took a turn */
 }
 
 /*sounds.c*/

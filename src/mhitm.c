@@ -1214,6 +1214,11 @@ mdamagem(
         else if (mhm.hitflags == M_ATTK_AGR_DIED)
             return (M_ATTK_DEF_DIED | M_ATTK_AGR_DIED);
 
+        /* improve pet handling some of the time if we see pet
+           kill monsters */
+        if (!rn2(3) && magr->mtame && canseemon(magr))
+            use_skill(P_PET_HANDLING, 1);
+
         if (mattk->adtyp == AD_DGST) {
             /* various checks similar to dog_eat and meatobj.
              * after monkilled() to provide better message ordering */

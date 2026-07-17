@@ -2566,6 +2566,7 @@ extern boolean container_gone(int(*)(struct obj *)) NONNULLARG1;
 extern boolean u_handsy(void);
 extern int use_container(struct obj **, boolean, boolean) NONNULLARG1;
 extern int loot_mon(struct monst *, int *, boolean *) NO_NNARGS;
+extern int exchange_objects_with_mon(struct monst *, boolean) NONNULLARG1;
 extern int dotip(void);
 extern struct autopickup_exception *check_autopickup_exceptions(struct obj *) NONNULLARG1;
 extern boolean autopick_testobj(struct obj *, boolean) NONNULLARG1;
@@ -3124,6 +3125,7 @@ extern const char *maybe_gasp(struct monst *) NONNULLARG1;
 extern const char *cry_sound(struct monst *) NONNULLARG1;
 extern int domonnoise(struct monst *) NONNULLARG1;
 extern int dotalk(void);
+extern int doorder(void);
 extern int tiphat(void);
 #ifdef USER_SOUNDS
 extern int add_sound_mapping(const char *) NONNULLARG1;

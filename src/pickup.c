@@ -2223,7 +2223,7 @@ doloot_core(void)
     const char *dont_find_anything = "don't find anything";
     struct monst *mtmp;
     int prev_inquiry = 0;
-    boolean prev_loot = FALSE;
+    boolean mon_interact = FALSE;
     int num_conts = 0;
     int clr = NO_COLOR;
 
@@ -2348,7 +2348,6 @@ doloot_core(void)
      */
  lootmon:
     if (c != 'y' && (mon_beside(u.ux, u.uy) || iflags.menu_requested)) {
-        boolean looted_mon = FALSE;
         if (!get_adjacent_loc("Loot in what direction?",
                               "Invalid loot location", u.ux, u.uy, &cc))
             return ECMD_OK;
@@ -2361,11 +2360,8 @@ doloot_core(void)
             return ECMD_TIME;
         }
         mtmp = m_at(cc.x, cc.y);
-        if (mtmp) {
-            timepassed = loot_mon(mtmp, &prev_inquiry, &prev_loot);
-            if (timepassed)
-                looted_mon = TRUE;
-        }
+        if (mtmp)
+            timepassed = loot_mon(mtmp, &prev_inquiry, &mon_interact);
         /* always use a turn when choosing a direction is impaired,
            even if you've successfully targeted a saddled creature
            and then answered "no" to the "remove its saddle?" prompt */
@@ -2376,7 +2372,7 @@ doloot_core(void)
          * Adjust this if-block to allow container looting
          * from one square away to change that in the future.
          */
-        if (!looted_mon) {
+        if (!mon_interact) {
             if (!underfoot && container_at(cc.x, cc.y, FALSE)) {
                 if (mtmp) {
                     You_cant("loot anything %sthere with %s in the way.",
@@ -2387,7 +2383,7 @@ doloot_core(void)
                 }
             } else {
                 You("%s %s%shere to loot.", dont_find_anything,
-                    (prev_inquiry || prev_loot) ? "else " : "",
+                    prev_inquiry ? "else " : "",
                     !underfoot ? "t" : "");
                 return (timepassed ? ECMD_TIME : ECMD_OK);
             }
@@ -2480,57 +2476,267 @@ reverse_loot(void)
     return TRUE;
 }
 
+/* Give or take items from mtmp.
+ * Assumes the hero can see mtmp as a monster in its natural state.
+ * Return the amount of time passed */
+int
+exchange_objects_with_mon(struct monst *mtmp, boolean taking)
+{
+    int i, n, transferred = 0, time_taken = 1;
+    menu_item *pick_list;
+    const char *qstr = taking ? "Take what?" : "Give what?";
+
+    if (taking && !mtmp->minvent) {
+        pline_mon(mtmp, "%s isn't carrying anything.", Monnam(mtmp));
+        return 0;
+    } else if (!taking && !gi.invent) {
+        You("aren't carrying anything.");
+        return 0;
+    }
+    if (mtmp->msleeping || mtmp->mfrozen || !mtmp->mcanmove) {
+        pline_mon(mtmp, "%s doesn't respond.", Monnam(mtmp));
+        return 0;
+    }
+    if (mtmp->meating) {
+        pline_mon(mtmp, "%s is eating noisily.", Monnam(mtmp));
+        return 0;
+    }
+
+    n = query_objlist(qstr, taking ? &mtmp->minvent : &gi.invent,
+                      INVORDER_SORT | (taking ? 0 : USE_INVLET),
+                      &pick_list, PICK_ANY, allow_all);
+
+    for (i = 0; i < n; ++i) {
+        struct obj* otmp = pick_list[i].item.a_obj;
+        long maxquan = min(pick_list[i].count, otmp->quan);
+        long unwornmask = otmp->owornmask;
+        boolean petri = (otmp->otyp == CORPSE
+                         && safe_touch_petrifies(otmp->corpsenm));
+        boolean mtmp_would_ston = (!taking && petri
+                                   && !which_armor(mtmp, W_ARMG)
+                                   && !(resists_ston(mtmp)
+                                        || defended(mtmp, AD_STON)));
+
+        /* Clear inapplicable wornmask bits */
+        unwornmask &= ~(W_ART | W_ARTI | W_QUIVER);
+
+        if (!taking) {
+            int carryamt;
+            boolean nohands_full = FALSE;
+
+            if (welded(otmp)) {
+                weldmsg(otmp);
+                continue;
+            }
+            if (otmp->otyp == LOADSTONE && otmp->cursed
+                && maxquan < otmp->quan) {
+                /* kludge for canletgo() feedback, also used in getobj() */
+                otmp->corpsenm = maxquan;
+            }
+            if (!canletgo(otmp, "give away")) {
+                /* this prints its own messages */
+                continue;
+            }
+            if (!mindless(mtmp->data) && mtmp_would_ston) {
+                pline_mon(mtmp, "%s refuses to take %s%s.", Monnam(mtmp),
+                      maxquan < otmp->quan ? "any of " : "", yname(otmp));
+                continue;
+            }
+            if (otmp == uball || otmp == uchain) {
+                /* you can't give a monster your ball & chain, because it
+                 * causes problems elsewhere */
+                pline("%s shackled to your %s and cannot be given away.",
+                      Tobjnam(otmp, "are"), body_part(LEG));
+                continue;
+            }
+            carryamt = can_carry(mtmp, otmp);
+            if (carryamt > 0 && nohands(mtmp->data) && mtmp->minvent) {
+                struct obj *invobj;
+                /* this isn't a hard and fast rule, but dog_invent in practice
+                 * doesn't let monsters carry around multiple items */
+                for (invobj = mtmp->minvent; invobj; invobj = invobj->nobj) {
+                    /* count only things that aren't worn, so that being
+                     * saddled doesn't prevent mon from receiving an item */
+                    if (!(invobj->owornmask & ~(W_ART | W_ARTI | W_QUIVER))) {
+                        carryamt = 0;
+                        nohands_full = TRUE;
+                        break;
+                    }
+                }
+            }
+            if (carryamt == 0) {
+                if (nohands_full) {
+                    /* one-loose-item limit for handless monsters */
+                    pline_mon(mtmp, "%s already has something else to carry.",
+                          Monnam(mtmp));
+                } else {
+                    pline_mon(mtmp, "%s can't carry %s%s.", Monnam(mtmp),
+                          maxquan < otmp->quan ? "any of " : "",
+                          yname(otmp));
+                }
+                /* debatable whether to continue or break here; if the player
+                 * overloads the monster with too many items, breaking would be
+                 * preferable, but if they just can't take this one otmp for
+                 * whatever reason, we should continue instead. It remains to
+                 * be seen which is the more common scenario */
+                continue;
+            } else if (carryamt < maxquan) {
+                pline_mon(mtmp, "%s can only carry %s of %s.", Monnam(mtmp),
+                      carryamt > 1 ? "some" : "one", yname(otmp));
+                maxquan = carryamt;
+            }
+            if (maxquan < otmp->quan)
+                otmp = splitobj(otmp, maxquan);
+            pline("You give %s %s.", mon_nam(mtmp), yname(otmp));
+            if (otmp->owornmask)
+                setnotworn(otmp); /* reset quivered, wielded, etc, status */
+            freeinv(otmp);
+            otmp->oreserved = 0; /* a gift is free to be worn */
+            if (add_to_minv(mtmp, otmp))
+                otmp = (struct obj *) 0; /* merged with something in minvent */
+            transferred++;
+            /* Possible extension: if you give edible food to a pet, it should
+             * eat it directly. But that should probably go into the pet AI
+             * code, not here */
+        } else {
+            /* cursed weapons, armor, accessories, etc treated the same */
+            if ((otmp->cursed && (unwornmask & ~W_WEAPONS))
+                || (mwelded(otmp) && mtmp->data != &mons[PM_INFIDEL])) {
+                pline("%s won't come off!", Yname2(otmp));
+                otmp->bknown = 1;
+                continue;
+            }
+            if (unwornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE | W_BARDING)) {
+                int m_delay = objects[otmp->otyp].oc_delay;
+
+                if ((unwornmask & (W_ARM | W_ARMU)) != 0L
+                    && (mtmp->misc_worn_check & W_ARMC) != 0L) {
+                    /* extra delay for removing a cloak */
+                    m_delay += 2;
+                }
+                if ((unwornmask & (W_SADDLE | W_BARDING)) != 0L) {
+                    You("remove %s from %s.", the(xname(otmp)),
+                        x_monnam(mtmp, ARTICLE_THE, (char *) 0,
+                                 (unwornmask & W_SADDLE ? SUPPRESS_SADDLE
+                                                        : SUPPRESS_BARDING),
+                                 FALSE));
+                    /* unstrapping a saddle or barding takes additional time */
+                    time_taken += rn2(3);
+                } else {
+                    pline_mon(mtmp, "%s %s %s %s.", Monnam(mtmp),
+                          m_delay > 1 ? "begins removing" : "removes",
+                          mhis(mtmp), xname(otmp));
+                }
+                mtmp->mfrozen = m_delay;
+                /* unwear the item now */
+                update_mon_extrinsics(mtmp, otmp, FALSE, FALSE);
+                if (mtmp->mfrozen) { /* might be 0 */
+                    mtmp->mcanmove = 0;
+                    if (otmp->lamplit && artifact_light(otmp))
+                        end_burn(otmp, FALSE);
+                    /* if removing a weapon, clear the weapon pointer */
+                    if ((unwornmask & W_WEP) && MON_WEP(mtmp) == otmp)
+                        MON_NOWEP(mtmp);
+                    if ((unwornmask & W_SWAPWEP)
+                        && MON_WEP2(mtmp) == otmp)
+                        MON_NOWEP2(mtmp);
+                    otmp->owornmask = 0L;
+                    /* normally extract_from_minvent handles this stuff, but
+                     * since we are setting owornmask to 0 now we have to
+                     * do it here */
+                    otmp->owt = weight(otmp); /* reset armor weight */
+                    mtmp->misc_worn_check &= ~unwornmask;
+                    /* reserve the item for the hero: gear checks skip it,
+                     * so the monster won't re-wear it before a follow-up
+                     * take order can collect it. The reservation clears
+                     * when the item changes hands (extract_from_minvent,
+                     * add_to_minv) or when orders are belayed */
+                    otmp->oreserved = 1;
+                    check_gear_next_turn(mtmp);
+                    /* monster is now occupied, won't hand over other things */
+                    break;
+                }
+            }
+            if (maxquan < otmp->quan)
+                otmp = splitobj(otmp, maxquan);
+            /* don't call update_mon_extrinsics again if already done above */
+            extract_from_minvent(mtmp, otmp,
+                !(unwornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE | W_BARDING)),
+                TRUE);
+            if (costly_spot(mtmp->mx, mtmp->my))
+                addtobill(otmp, FALSE, FALSE, FALSE);
+            otmp = hold_another_object(otmp, "You take, but drop, %s.",
+                                       doname(otmp), "You take: ");
+            transferred++;
+        }
+        if (otmp && petri) {
+            if (taking && !uarmg && !Stone_resistance) {
+                instapetrify(corpse_xname(otmp, (const char *) 0,
+                             CXN_ARTICLE));
+                break; /* if life-saved, stop taking items */
+            } else if (mtmp_would_ston) {
+                minstapetrify(mtmp, TRUE);
+                break;
+            }
+        }
+    }
+    free((genericptr_t) pick_list);
+    if (transferred > 0 && !DEADMONSTER(mtmp)) {
+        /* They might have gained some gear they would want to wear, or lost
+         * some and now have a different option. Reassess next turn and see.
+         * Guard against mtmp having been petrified mid-give: minstapetrify()
+         * routes through xkilled()/m_detach(), zeroing mhp and unlinking from
+         * the level, but the struct survives until end-of-turn dmonsfree().
+         * Sibling: mselftouch() in trap.c uses the same DEADMONSTER guard
+         */
+        check_gear_next_turn(mtmp);
+    }
+    /* time_taken is 1 for normal item(s), rnd(3) if you removed saddle/barding */
+    return (n > 0 ? time_taken : 0);
+}
+
 /* loot_mon() returns amount of time passed.
  */
 int
-loot_mon(struct monst *mtmp, int *passed_info, boolean *prev_loot)
+loot_mon(struct monst *mtmp, int *passed_info, boolean *mon_interact)
 {
     int c = -1;
     int timepassed = 0;
-    struct obj *otmp;
     char qbuf[QBUFSZ];
 
-    /* 3.3.1 introduced the ability to remove saddle from a steed.
-     *  *passed_info is set to TRUE if a loot query was given.
-     *  *prev_loot is set to TRUE if something was actually acquired in here.
-     */
-    if (mtmp && mtmp != u.usteed && (otmp = which_armor(mtmp, W_SADDLE))) {
-        if (passed_info)
-            *passed_info = 1;
-        Sprintf(qbuf, "Do you want to remove the saddle from %s?",
-                x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                         SUPPRESS_SADDLE, FALSE));
-        if ((c = yn_function(qbuf, ynqchars, 'n', TRUE)) == 'y') {
-            if (nolimbs(gy.youmonst.data)) {
-                You_cant("do that without limbs."); /* not body_part(HAND) */
-                return 0;
-            }
-            if (otmp->cursed) {
-                You("can't.  The saddle seems to be stuck to %s.",
-                    x_monnam(mtmp, ARTICLE_THE, (char *) 0,
-                             SUPPRESS_SADDLE, FALSE));
-                /* the attempt costs you time */
-                return 1;
-            }
-            extract_from_minvent(mtmp, otmp, TRUE, FALSE);
-            if (flags.verbose)
-                You("take %s off of %s.",
-                    thesimpleoname(otmp), mon_nam(mtmp));
-            otmp = hold_another_object(otmp, "You drop %s!", doname(otmp),
-                                       (const char *) 0);
-            nhUse(otmp);
-            timepassed = rnd(3);
-            if (prev_loot)
-                *prev_loot = TRUE;
-        } else if (c == 'q') {
-            return 0;
-        }
-    }
     /* 3.4.0 introduced ability to pick things up from swallower's stomach */
     if (u.uswallow) {
         int count = passed_info ? *passed_info : 0;
 
         timepassed = pickup(count);
+    }
+    if (mtmp && mtmp->mtame && canspotmon(mtmp)
+        && !(mtmp->mundetected || M_AP_TYPE(mtmp))) {
+        /* Pet give/take moved to #order command */
+        pline("Use the #order command to exchange items with your pet.");
+        return 0;
+    }
+    if (mtmp && wizard && !mtmp->mtame && canspotmon(mtmp)
+        && !(mtmp->mundetected || M_AP_TYPE(mtmp))) {
+        /* Wizard mode: allow looting non-tame monsters */
+        if (passed_info)
+            *passed_info = 1;
+        Sprintf(qbuf, "Do you want to take something from %s?", mon_nam(mtmp));
+        if ((c = yn_function(qbuf, ynqchars, 'n', TRUE)) == 'y') {
+            if (mon_interact)
+                *mon_interact = TRUE;
+            return exchange_objects_with_mon(mtmp, TRUE);
+        } else if (c == 'q') {
+            return 0;
+        }
+        Sprintf(qbuf, "Do you want to give something to %s?", mon_nam(mtmp));
+        if ((c = yn_function(qbuf, ynqchars, 'n', TRUE)) == 'y') {
+            if (mon_interact)
+                *mon_interact = TRUE;
+            return exchange_objects_with_mon(mtmp, FALSE);
+        } else { /* 'n' or 'q' */
+            return 0;
+        }
     }
     return timepassed;
 }

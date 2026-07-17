@@ -37,16 +37,26 @@ droppables(struct monst *mon)
      * &dummy is never returned.  'static' is simplest way to shut it up.
      */
     static struct obj dummy;
-    struct obj *obj, *wep, *pickaxe, *unihorn, *key;
+    struct obj *obj, *wep, *pickaxe, *unihorn, *key, *hwep, *proj, *rwep;
+    boolean intelligent = TRUE;
 
     dummy = cg.zeroobj;
     dummy.otyp = GOLD_PIECE; /* not STRANGE_OBJECT or tools of interest */
     dummy.oartifact = 1; /* so real artifact won't override "don't keep it" */
     pickaxe = unihorn = key = (struct obj *) 0;
     wep = MON_WEP(mon);
+    hwep = attacktype(mon->data, AT_WEAP) ? select_hwep(mon)
+                                          : (struct obj *) 0;
+    proj = attacktype(mon->data, AT_WEAP) ? select_rwep(mon)
+                                          : (struct obj *) 0;
+    /* after select_rwep(), gp.propellor is the launcher the monster
+       wants to use, hands_obj if none is needed, or Null if it needs
+       one but has none */
+    rwep = attacktype(mon->data, AT_WEAP) ? gp.propellor : &hands_obj;
 
     if (is_animal(mon->data) || mindless(mon->data)) {
         /* won't hang on to any objects of these types */
+        intelligent = FALSE;
         pickaxe = unihorn = key = &dummy; /* act as if already have them */
     } else {
         /* don't hang on to pick-axe if can't use one or don't need one */
@@ -126,7 +136,15 @@ droppables(struct monst *mon)
             break;
         }
 
-        if (!obj->owornmask && obj != wep && obj != MON_WEP2(mon))
+        if (!obj->owornmask && obj != wep && obj != MON_WEP2(mon)
+            && (!intelligent
+                || (obj != rwep
+                    && obj != proj && obj != hwep
+                    && !would_prefer_hwep(mon, obj) /* cursed item in hand? */
+                    && !would_prefer_rwep(mon, obj)
+                    && (rwep != &hands_obj
+                        || (!is_ammo(obj) && !is_launcher(obj)))
+                    && (rwep == &hands_obj || !ammo_and_launcher(obj, rwep)))))
             return obj;
     }
 
@@ -409,8 +427,9 @@ dog_invent(struct monst *mtmp, struct edog *edog, int udist)
     /* If we are carrying something then we drop it (perhaps near @).
      * Note: if apport == 1 then our behavior is independent of udist.
      * Use udist+1 so steed won't cause divide by zero.
+     * Skip if pet has been ordered not to drop items.
      */
-    if (droppables(mtmp)) {
+    if (droppables(mtmp) && !(edog->petstrat & PETSTRAT_NODROP)) {
         assert(edog->apport > 0);
         if (!rn2(udist + 1) || !rn2(edog->apport))
             if (rn2(10) < edog->apport) {
@@ -420,7 +439,8 @@ dog_invent(struct monst *mtmp, struct edog *edog, int udist)
                 edog->dropdist = udist; /* hpscdi!jon */
                 edog->droptime = svm.moves;
             }
-    } else {
+    } else if (!(edog->petstrat & PETSTRAT_NOAPPORT)) {
+        /* only pick up items if pet hasn't been ordered not to */
         if ((obj = svl.level.objects[omx][omy]) != 0
             && !strchr(nofetch, obj->oclass)
             && obj->otyp != CRYSTAL_CHEST
@@ -440,6 +460,10 @@ dog_invent(struct monst *mtmp, struct edog *edog, int udist)
 
             carryamt = can_carry(mtmp, obj);
             if (carryamt > 0 && !obj->cursed && !obj->zombie_corpse
+                /* a handless pet (dog, cat, &c) can carry only one
+                   unworn/unwielded item; the 'don't drop items' order
+                   must not let it hoard more */
+                && !(nohands(mtmp->data) && droppables(mtmp))
                 && could_reach_item(mtmp, obj->ox, obj->oy)) {
                 if (rn2(20) < edog->apport + 3) {
                     if (rn2(udist) || !rn2(edog->apport)) {
@@ -499,6 +523,14 @@ dog_goal(
     in_masters_sight = couldsee(omx, omy);
     dog_has_minvent = (droppables(mtmp) != 0);
 
+    /* Come command: beeline to player, ignore everything else */
+    if (edog && (edog->petstrat & PETSTRAT_COME)) {
+        gg.gtyp = APPORT;
+        gg.gx = u.ux;
+        gg.gy = u.uy;
+        return 1;  /* always approach */
+    }
+
     if (!edog || mtmp->mleashed) { /* he's not going anywhere... */
         gg.gtyp = APPORT;
         gg.gx = u.ux;
@@ -546,6 +578,7 @@ dog_goal(
                         gg.gtyp = otyp;
                     }
                 } else if (gg.gtyp == UNDEF && in_masters_sight
+                           && !(edog->petstrat & PETSTRAT_NOAPPORT)
                            && !dog_has_minvent
                            && (!levl[omx][omy].lit || levl[u.ux][u.uy].lit)
                            && (otyp == MANFOOD || m_cansee(mtmp, nx, ny))
@@ -559,6 +592,29 @@ dog_goal(
         }
 #undef DDIST
 #undef SQSRCHRADIUS
+    }
+
+    /* Aggressive pets actively pursue visible enemies */
+    if (edog && (edog->petstrat & PETSTRAT_AGGRO) && mtmp->mcansee) {
+        struct monst *enemy;
+        int best_dist = COLNO * COLNO;  /* large initial value */
+
+        for (enemy = fmon; enemy; enemy = enemy->nmon) {
+            if (DEADMONSTER(enemy))
+                continue;
+            if (enemy->mtame || enemy->mpeaceful)
+                continue;
+            /* Can the pet see this enemy? */
+            if (!m_cansee(mtmp, enemy->mx, enemy->my))
+                continue;
+            /* Is this enemy closer than the current best? */
+            if (dist2(omx, omy, enemy->mx, enemy->my) < best_dist) {
+                best_dist = dist2(omx, omy, enemy->mx, enemy->my);
+                gg.gx = enemy->mx;
+                gg.gy = enemy->my;
+                gg.gtyp = APPORT;  /* treat as goal worth pursuing */
+            }
+        }
     }
 
     /* follow player if appropriate */
@@ -782,6 +838,13 @@ score_targ(struct monst *mtmp, struct monst *mtarg)
             score -= 3000L;
             return score;
         }
+        /* Respect "avoid peacefuls" order unless Conflict */
+        if (mtarg->mpeaceful && !Conflict
+            && mtmp->mtame && has_edog(mtmp)
+            && (EDOG(mtmp)->petstrat & PETSTRAT_AVOIDPEACE)) {
+            score -= 3000L;
+            return score;
+        }
         /* Is master/pet behind monster? Check up to 15 squares beyond pet. */
         if (find_friends(mtmp, mtarg, 15)) {
             score -= 3000L;
@@ -984,6 +1047,11 @@ pet_ranged_attk(struct monst *mtmp, boolean forced)
      */
     mtarg = best_target(mtmp, forced);
 
+    /* Check if pet is allowed to attack this target */
+    if (mtarg && mtarg != &gy.youmonst
+        && !acceptable_pet_target(mtmp, mtarg, TRUE))
+        mtarg = (struct monst *) 0;
+
     /* Hungry pets are unlikely to use breath/spit attacks */
     if (mtarg && (!hungry || !rn2(5))) {
         int mstatus = M_ATTK_MISS;
@@ -1066,10 +1134,10 @@ dog_move(
     struct obj *obj = (struct obj *) 0;
     xint16 otyp;
     boolean cursemsg[9], do_eat = FALSE;
-    boolean better_with_displacing = FALSE, ranged_only;
+    boolean better_with_displacing = FALSE, defensive;
     coordxy nix, niy;      /* position mtmp is (considering) moving to */
     coordxy nx, ny; /* temporary coordinates */
-    xint16 cnt, uncursedcnt, chcnt;
+    xint16 cnt, uncursedcnt, safecnt, chcnt;
     int chi = -1, nidist, ndist;
     long allowflags;
     struct mfndposdata mfp;
@@ -1105,16 +1173,26 @@ dog_move(
         return MMOVE_NOTHING;
     }
 
+    /* Pet ordered to come - check if arrived at player's side */
+    if (edog && (edog->petstrat & PETSTRAT_COME) && udist <= 2) {
+        edog->petstrat &= ~PETSTRAT_COME;
+        if (canseemon(mtmp))
+            pline_mon(mtmp, "%s arrives at your side.", Monnam(mtmp));
+    }
+
     nix = omx; /* set before newdogpos */
     niy = omy;
     cursemsg[0] = FALSE; /* lint suppression */
 
     if (edog) {
-        j = dog_invent(mtmp, edog, udist);
-        if (j == 2 || mon_offmap(mtmp))
-            return DEADMONSTER(mtmp) ? MMOVE_DIED : MMOVE_DONE;
-        else if (j == 1)
-            goto newdogpos; /* eating something */
+        /* Skip inventory eating if pet is ordered to come to player */
+        if (!(edog->petstrat & PETSTRAT_COME)) {
+            j = dog_invent(mtmp, edog, udist);
+            if (j == 2 || mon_offmap(mtmp))
+                return DEADMONSTER(mtmp) ? MMOVE_DIED : MMOVE_DONE;
+            else if (j == 1)
+                goto newdogpos; /* eating something */
+        }
 
         whappr = (svm.moves - edog->whistletime < 5);
     } else
@@ -1140,6 +1218,91 @@ dog_move(
         You("get released!");
     }
 #endif
+    /*
+     * We haven't moved yet, so search for monsters to attack from a
+     * distance and attack them if it's plausible.
+     * Skip all combat if pet is ordered to come to player.
+     * The use_* handlers return 1 if the monster died and 2 if it
+     * spent its turn using the item; 0 means the chosen item could
+     * not be used after all, so fall through and take a normal turn.
+     */
+    if (!edog || !(edog->petstrat & PETSTRAT_COME)) {
+        if (find_offensive(mtmp)) {
+            int ret = use_offensive(mtmp);
+
+            if (ret == 1)
+                return MMOVE_DIED; /* died */
+            if (ret == 2)
+                return MMOVE_DONE; /* did something */
+        } else if (find_defensive(mtmp, FALSE)) {
+            int ret = use_defensive(mtmp);
+
+            if (ret == 1)
+                return MMOVE_DIED; /* died */
+            if (ret == 2)
+                return MMOVE_DONE; /* did something */
+        } else if (find_misc(mtmp)) {
+            int ret = use_misc(mtmp);
+
+            if (ret == 1)
+                return MMOVE_DIED; /* died */
+            if (ret == 2)
+                return MMOVE_DONE; /* did something */
+        } else if ((attacktype(mtmp->data, AT_BREA)
+                    || attacktype(mtmp->data, AT_GAZE)
+                    || attacktype(mtmp->data, AT_SPIT)
+                    || (attacktype(mtmp->data, AT_MAGC)
+                        && ((attacktype_fordmg(mtmp->data, AT_MAGC,
+                                               AD_ANY))->adtyp <= AD_SPC2))
+                    || (attacktype(mtmp->data, AT_WEAP)
+                        && select_rwep(mtmp)))
+                   && mtmp->mlstmv != svm.moves) {
+            struct monst *mon = mfind_target(mtmp);
+
+            if (mon && (mon != &gy.youmonst)
+                && acceptable_pet_target(mtmp, mon, TRUE)) {
+                int res;
+
+                gb.bhitpos.x = mtmp->mx, gb.bhitpos.y = mtmp->my;
+                gn.notonhead = FALSE;
+                res = mattackm(mtmp, mon);
+
+                if (res & M_ATTK_AGR_DIED)
+                    return MMOVE_DIED; /* died */
+                return MMOVE_DONE; /* attacked */
+            }
+        }
+    }
+
+    /* Pet ordered to stay in place - can still attack adjacent enemies
+     * but won't move. Check is here (after ranged attacks) so pet can
+     * still use breath weapons, spells, wands, and ranged weapons.
+     */
+    if (edog && (edog->petstrat & PETSTRAT_STATIONARY)) {
+        int px, py;
+        struct monst *mtmp2;
+
+        /* Check all adjacent squares for attackable enemies */
+        for (px = omx - 1; px <= omx + 1; px++) {
+            for (py = omy - 1; py <= omy + 1; py++) {
+                if (!isok(px, py) || (px == omx && py == omy))
+                    continue;
+                mtmp2 = m_at(px, py);
+                if (mtmp2 && acceptable_pet_target(mtmp, mtmp2, FALSE)) {
+                    int mstatus;
+
+                    gb.bhitpos.x = px, gb.bhitpos.y = py;
+                    gn.notonhead = (mtmp2->mx != px || mtmp2->my != py);
+                    mstatus = mattackm(mtmp, mtmp2);
+                    if (mstatus & M_ATTK_AGR_DIED)
+                        return MMOVE_DIED;
+                    return MMOVE_DONE;  /* attacked, turn used */
+                }
+            }
+        }
+        return MMOVE_NOTHING;  /* no enemy to attack, just stay put */
+    }
+
     allowflags = mon_allowflags(mtmp);
     cnt = mfndpos(mtmp, &mfp, allowflags);
 
@@ -1156,6 +1319,42 @@ dog_move(
         if (cursed_object_at(nx, ny))
             continue;
         uncursedcnt++;
+    }
+
+    /* Defensive pets try to avoid squares within 2 tiles of hostile
+       monsters. Count how many candidate squares are "safe" (not near
+       enemies) */
+    safecnt = 0;
+    defensive = (edog && (edog->petstrat & PETSTRAT_COWED));
+    if (defensive) {
+        for (i = 0; i < cnt; i++) {
+            int px, py;
+            boolean enemy_nearby = FALSE;
+
+            nx = mfp.poss[i].x;
+            ny = mfp.poss[i].y;
+            if (MON_AT(nx, ny)
+                && !((mfp.info[i] & ALLOW_M) || (mfp.info[i] & ALLOW_MDISP)))
+                continue;
+            /* Check all squares within 2 tiles of this candidate position */
+            for (px = nx - 2; px <= nx + 2 && !enemy_nearby; px++) {
+                for (py = ny - 2; py <= ny + 2 && !enemy_nearby; py++) {
+                    struct monst *mtmp2;
+
+                    if (!isok(px, py) || (px == nx && py == ny))
+                        continue;
+                    mtmp2 = m_at(px, py);
+                    if (mtmp2 && !mtmp2->mtame && !mtmp2->mpeaceful
+                        && mtmp2->mcanmove && !mtmp2->msleeping
+                        && (!mtmp2->minvis || mon_prop(mtmp, SEE_INVIS))
+                        && !mtmp2->mundetected) {
+                        enemy_nearby = TRUE;
+                    }
+                }
+            }
+            if (!enemy_nearby)
+                safecnt++;
+        }
     }
 
     better_with_displacing = should_displace(mtmp, &mfp,
@@ -1178,50 +1377,39 @@ dog_move(
         if (!edog && (j = distu(nx, ny)) > 16 && j >= udist)
             continue;
 
-        ranged_only = FALSE;
+        /* Defensive pets avoid squares within 2 tiles of hostile
+           monsters if there are safe alternatives available */
+        if (defensive && safecnt > 0) {
+            int px, py;
+            boolean enemy_nearby = FALSE;
+
+            for (px = nx - 2; px <= nx + 2 && !enemy_nearby; px++) {
+                for (py = ny - 2; py <= ny + 2 && !enemy_nearby; py++) {
+                    struct monst *mtmp2;
+
+                    if (!isok(px, py) || (px == nx && py == ny))
+                        continue;
+                    mtmp2 = m_at(px, py);
+                    if (mtmp2 && !mtmp2->mtame && !mtmp2->mpeaceful
+                        && mtmp2->mcanmove && !mtmp2->msleeping
+                        && (!mtmp2->minvis || mon_prop(mtmp, SEE_INVIS))
+                        && !mtmp2->mundetected) {
+                        enemy_nearby = TRUE;
+                    }
+                }
+            }
+            if (enemy_nearby)
+                continue;
+        }
 
         if ((mfp.info[i] & ALLOW_M) && MON_AT(nx, ny)) {
             int mstatus;
             struct monst *mtmp2 = m_at(nx, ny);
-            /* weight the audacity of the pet to attack a differently-leveled
-             * foe based on its fraction of max HP:
-             *       100%: up to level + 2
-             * 80% and up: up to level + 1
-             * 60% to 80%: up to level
-             * 40% to 60%: up to level - 1
-             * 25% to 40%: up to level - 2
-             *  below 25%: won't attack peacefuls of any level (different case)
-             *  below 20%: up to level - 3
-             *
-             * note that balk's maximum value is +3, as it is the lowest level
-             * the pet will balk at attacking rather than the highest level
-             * they are willing to attack; note the >= used when comparing it.
-             */
-            int balk = mtmp->m_lev + ((5 * mtmp->mhp) / mtmp->mhpmax) - 2;
 
-            if ((int) mtmp2->m_lev >= balk
-                || (mtmp2->mtame && mtmp->mtame && !Conflict)
-                || (max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp)
-                || ((mtmp->mhp * 4 < mtmp->mhpmax
-                     || mtmp2->data->msound == MS_GUARDIAN
-                     || mtmp2->data->msound == MS_LEADER)
-                    && mtmp2->mpeaceful && !Conflict)) {
+            /* Skip attacking if pet is ordered to come to player */
+            if (edog && (edog->petstrat & PETSTRAT_COME))
                 continue;
-            }
-            if ((mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10)
-                 && mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
-                 && (!mtmp2->minvis || mon_prop(mtmp, SEE_INVIS))
-                 && !mon_reflects(mtmp, (char *) NULL))
-                || (mtmp2->data == &mons[PM_GELATINOUS_CUBE] && rn2(10))
-                || (touch_petrifies(mtmp2->data) && !resists_ston(mtmp))) {
-                /* only skip this foe if a ranged attack isn't viable */
-                if (dist2(mtmp->mx, mtmp->my, mtmp2->mx, mtmp2->my) <= 2
-                    || best_target(mtmp, FALSE) != mtmp2)
-                    continue;
-                ranged_only = TRUE;
-            }
-            /** FIXME: 'ranged_only' isn't used as intended yet **/
-            if (ranged_only)
+            if (!acceptable_pet_target(mtmp, mtmp2, FALSE))
                 continue;
 
             if (after)
@@ -1277,22 +1465,32 @@ dog_move(
             struct trap *trap;
 
             if ((mfp.info[i] & ALLOW_TRAPS) && (trap = t_at(nx, ny))) {
-                if (mtmp->mleashed) {
-                    if (!Deaf)
-                        whimper(mtmp);
-                } else {
-                    /* 1/40 chance of stepping on it anyway, in case
-                     * it has to pass one to follow the player...
-                     */
-                    if (trap->tseen && rn2(40))
-                        continue;
+                /* Check if pet should ignore harmless traps */
+                boolean bypass_trap = edog
+                    && (edog->petstrat & PETSTRAT_IGNORETRAPS)
+                    && (trap->ttyp == SQKY_BOARD
+                        || (trap->ttyp == RUST_TRAP_SET
+                            && mtmp->data != &mons[PM_IRON_GOLEM]));
+
+                if (!bypass_trap) {
+                    if (mtmp->mleashed) {
+                        if (!Deaf)
+                            whimper(mtmp);
+                    } else {
+                        /* 1/40 chance of stepping on it anyway, in case
+                         * it has to pass one to follow the player...
+                         */
+                        if (trap->tseen && rn2(40))
+                            continue;
+                    }
                 }
             }
         }
 
         /* dog eschews cursed objects, but likes dog food */
         /* (minion isn't interested; `cursemsg' stays FALSE) */
-        if (edog) {
+        /* Skip food detection if pet is ordered to come to player */
+        if (edog && !(edog->petstrat & PETSTRAT_COME)) {
             boolean can_reach_food = could_reach_item(mtmp, nx, ny);
 
             for (obj = svl.level.objects[nx][ny]; obj; obj = obj->nexthere) {

@@ -2604,6 +2604,12 @@ skill_init(const struct def_skill *class_skill)
     if (gu.urole.petnum == PM_PONY)
         P_SKILL(P_RIDING) = P_BASIC;
 
+    /* Healers, Druids and Knights start with basic pet handling
+       skill */
+    if (Role_if(PM_HEALER) || Role_if(PM_DRUID)
+        || Role_if(PM_KNIGHT))
+        P_SKILL(P_PET_HANDLING) = P_BASIC;
+
     /* Illithids have innate telekinesis - start untrained, must
        practice */
     if (Race_if(PM_ILLITHID)) {

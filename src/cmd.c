@@ -1792,6 +1792,8 @@ struct ext_func_tab extcmdlist[] = {
     /* 'm #optionsfull' runs doset_simple() */
     { '\0',   "optionsfull", "show all option settings, possibly change them",
               doset, IFBURIED | GENERALCMD | CMD_M_PREFIX, NULL },
+    { '\0',   "order", "give orders to a pet",
+              doorder, IFBURIED | AUTOCOMPLETE, NULL },
     /* #overview used to need autocomplete and has retained that even
        after being assigned to ^O [old wizard mode ^O is now #wizwhere];
        'm' prefix displays overview as a menu where player can choose a

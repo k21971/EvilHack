@@ -1033,6 +1033,10 @@ m_dowear_type(
         if (mon_hates_material(mon, obj->material))
             continue;
 
+        /* unworn at the hero's request; waiting to be collected */
+        if (obj->oreserved)
+            continue;
+
         switch (flag) {
         case W_AMUL:
             if (obj->oclass != AMULET_CLASS
@@ -1647,6 +1651,8 @@ extract_from_minvent(
         impossible("extract_from_minvent called on object not in minvent");
         return;
     }
+    /* leaving the monster's inventory releases any hero reservation */
+    obj->oreserved = 0;
     /* handle gold dragon scales/scale-mail (lit when worn) before clearing
        obj->owornmask because artifact_light() expects that to be W_ARM */
     if ((unwornmask & W_ARM) != 0 && obj->lamplit && artifact_light(obj))

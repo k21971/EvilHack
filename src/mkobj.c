@@ -2869,6 +2869,9 @@ add_to_minv(struct monst *mon, struct obj *obj)
     if (obj->where != OBJ_FREE)
         panic("add_to_minv: obj where=%d, not free", obj->where);
 
+    /* a newly acquired item carries no hero reservation */
+    obj->oreserved = 0;
+
     /* merge if possible */
     for (otmp = mon->minvent; otmp; otmp = otmp->nobj)
         if (merged(&otmp, &obj))

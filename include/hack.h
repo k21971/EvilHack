@@ -1041,6 +1041,7 @@ typedef struct nh_file NHFILE;
 #define EXACT_NAME             0x1F
 #define SUPPRESS_NAME 0x20
 #define AUGMENT_IT    0x40 /* use "someone" or "something" instead of "it" */
+#define SUPPRESS_BARDING 0x80
 
 /* pline (et al) for a single string argument (suppress compiler warning) */
 #define pline1(cstr) pline("%s", cstr)
