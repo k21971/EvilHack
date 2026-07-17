@@ -1298,15 +1298,18 @@ hmon_hitmon_misc_obj(
         break;
     case CREAM_PIE:
     case BLINDING_VENOM:
+    case SNOWBALL:
         mon->msleeping = 0;
         if (can_blnd(&gy.youmonst, mon,
-                     (uchar) ((obj->otyp == BLINDING_VENOM)
+                     (uchar) ((obj->otyp == BLINDING_VENOM
+                               || obj->otyp == SNOWBALL)
                               ? AT_SPIT
                               : AT_WEAP),
                      obj)) {
             if (Blind) {
                 pline(obj->otyp == CREAM_PIE ? "Splat!"
-                      : "Splash!");
+                      : obj->otyp == SNOWBALL ? "Thwap!"
+                                              : "Splash!");
             } else if (obj->otyp == BLINDING_VENOM) {
                 pline_The("venom blinds %s%s!", mon_nam(mon),
                           mon->mcansee ? "" : " further");
@@ -1322,7 +1325,9 @@ hmon_hitmon_misc_obj(
                     whom = strcat(strcat(s_suffix(whom), " "),
                                   mbodypart(mon, FACE));
                 pline("%s %s over %s!", what,
-                      vtense(what, "splash"), whom);
+                      vtense(what, (obj->otyp == SNOWBALL) ? "spread"
+                                                           : "splash"),
+                      whom);
             }
             setmangry(mon, TRUE);
             mon->mcansee = 0;
@@ -1332,7 +1337,8 @@ hmon_hitmon_misc_obj(
             else
                 mon->mblinded += hmd->dmg;
         } else {
-            pline(obj->otyp == CREAM_PIE ? "Splat!" : "Splash!");
+            pline(obj->otyp == CREAM_PIE ? "Splat!"
+                  : obj->otyp == SNOWBALL ? "Thwap!" : "Splash!");
             setmangry(mon, TRUE);
         }
         {
@@ -1371,6 +1377,39 @@ hmon_hitmon_misc_obj(
         }
         hmd->hittxt = TRUE;
         hmd->get_dmg_bonus = FALSE;
+        break;
+    case BARBED_NEEDLE: /* fired */
+        if (resists_poison(mon) || defended(mon, AD_DRCO)) {
+            Your("barbed needle hits %s harmlessly.", mon_nam(mon));
+            hmd->dmg = 0;
+        } else {
+            Your("barbed needle stings %s!", mon_nam(mon));
+            hmd->dmg = dmgval(obj, mon);
+        }
+        {
+            boolean more_than_1 = (obj->quan > 1L);
+
+            if (hmd->thrown)
+                obfree(obj, (struct obj *) 0);
+            else
+                useup(obj);
+
+            if (!more_than_1)
+                obj = (struct obj *) 0;
+        }
+        hmd->hittxt = TRUE;
+        hmd->get_dmg_bonus = FALSE;
+        break;
+    case BALL_OF_WEBBING:
+        /* webbing is a trap-laying tool, not a damage tool */
+        hmd->dmg = 0;
+        hmd->get_dmg_bonus = FALSE;
+        if (!t_at(mon->mx, mon->my)) {
+            struct trap *web = maketrap(mon->mx, mon->my, WEB);
+
+            if (web)
+                (void) mintrap(mon, NO_TRAP_FLAGS);
+        }
         break;
     default:
         if ((objects[obj->otyp].oc_material == VEGGY ||
@@ -4945,6 +4984,62 @@ mhitm_ad_ssex(struct monst *magr, struct attack *mattk, struct monst *mdef,
 }
 
 void
+mhitm_ad_webs(
+    struct monst *magr, struct attack *mattk,
+    struct monst *mdef, struct mhitm_data *mhm)
+{
+    if (magr == &gy.youmonst) {
+        /* uhitm */
+        if (mhitm_mgc_atk_negated(magr, mdef, FALSE))
+            return;
+        if (!t_at(mdef->mx, mdef->my)) {
+            struct trap *web = maketrap(mdef->mx, mdef->my, WEB);
+
+            if (web)
+                (void) mintrap(mdef, NO_TRAP_FLAGS);
+        }
+    } else if (mdef == &gy.youmonst) {
+        /* mhitu */
+        if (mhitm_mgc_atk_negated(magr, mdef, FALSE)) {
+            mhm->damage = 0;
+            return;
+        }
+        if (!t_at(u.ux, u.uy)) {
+            struct trap *web = maketrap(u.ux, u.uy, WEB);
+
+            if (web) {
+                hitmsg(magr, mattk);
+                pline("%s entangles you in a web%s", Monnam(magr),
+                      (is_pool_or_lava(u.ux, u.uy)
+                       || IS_AIR(levl[u.ux][u.uy].typ))
+                          ? ", but it has nothing to anchor to."
+                          : is_giant(gy.youmonst.data)
+                              ? ", but you rip through it!"
+                              : (webmaker(gy.youmonst.data)
+                                 || maybe_polyd(is_drow(gy.youmonst.data),
+                                                Race_if(PM_DROW)))
+                                  ? ", but you easily disentangle yourself."
+                                  : "!");
+                dotrap(web, NOWEBMSG);
+                if (u.usteed && u.utrap)
+                    dismount_steed(DISMOUNT_FELL);
+            }
+        }
+        mhm->damage = 0;
+    } else {
+        /* mhitm */
+        if (mhitm_mgc_atk_negated(magr, mdef, FALSE))
+            return;
+        if (!t_at(mdef->mx, mdef->my)) {
+            struct trap *web = maketrap(mdef->mx, mdef->my, WEB);
+
+            if (web)
+                (void) mintrap(mdef, NO_TRAP_FLAGS);
+        }
+    }
+}
+
+void
 mhitm_adtyping(
     struct monst *magr, struct attack *mattk,
     struct monst *mdef, struct mhitm_data *mhm)
@@ -4992,6 +5087,7 @@ mhitm_adtyping(
     case AD_FAMN: mhitm_ad_famn(magr, mattk, mdef, mhm); break;
     case AD_DGST: mhitm_ad_dgst(magr, mattk, mdef, mhm); break;
     case AD_HALU: mhitm_ad_halu(magr, mattk, mdef, mhm); break;
+    case AD_WEBS: mhitm_ad_webs(magr, mattk, mdef, mhm); break;
     default:
         mhm->damage = 0;
     }

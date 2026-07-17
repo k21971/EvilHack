@@ -1482,6 +1482,15 @@ dospit(void)
         case AD_DRST:
             otmp = mksobj(BLINDING_VENOM, TRUE, FALSE);
             break;
+        case AD_DRCO:
+            otmp = mksobj(BARBED_NEEDLE, TRUE, FALSE);
+            break;
+        case AD_COLD:
+            otmp = mksobj(SNOWBALL, TRUE, FALSE);
+            break;
+        case AD_WEBS:
+            otmp = mksobj(BALL_OF_WEBBING, TRUE, FALSE);
+            break;
         default:
             impossible("bad attack type in dospit");
             FALLTHROUGH;

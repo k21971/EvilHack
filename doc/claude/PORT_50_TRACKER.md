@@ -2318,7 +2318,68 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       (green slime) see no monster messages - instrument with
       breakpoints, not plines.
 - [ ] Extended breath/spit weapon types + skeletal dragon fixed
-      breath (mbreathtyp) - SPLIT from the cooldown slice
+      breath (mbreathtyp)
+      PORTED + REVIEWED 2026-07-17 as TWO commits (combined battery
+      pending): COMMIT A = 5e3874faf beam widening + skeletal dragon
+      + stun predicates (port subagent 28 files +499/-119 incl.
+      coordinator fixes; reviewer CONDITIONAL PASS 0 blockers,
+      2 concerns + 1 nit all coordinator-fixed: drain-breath
+      Reflecting mitigation restored - ubreatheu is a second zhitu
+      producer reachable while Reflecting; master's CENTRAL
+      make_stunned Stun_resistance gate ported ("a slight itch",
+      Tempest clause deferred) so hero STUN_RES covers ALL stun
+      sources; 5.0-only knockback stun gated as model sibling).
+      COMMIT B = spit projectiles + AD_WEBS arms (port subagent
+      7 files +240/-26; reviewer CONDITIONAL PASS 0 blockers;
+      coordinator folded the C3 same-function defended() parity
+      gaps in ohitmon acid/poison gates; C1 webbing thrown-obj leak
+      KEPT at master parity + C2 hmon freed-obj read class =
+      follow-up below). MAINTAINER DECISIONS: all THREE beams
+      (water/drain/stun - sea/shadow/shimmering dragons were ALL
+      broken, not one) with beam space widened to 11 via
+      MAX_ZT/BASE_ZT + explicit adtyp_to_zt translation (NO AD_*
+      renumbering); webbing = master WEB-trap semantics (mentangled
+      spell system untouched); 10 bare stun sites gated on
+      mon_resists_stun/defended, ART_TEMPEST clauses deferred with
+      artifact-behaviors. KEY PORT FACTS: eight hardcoded fireball
+      encodes OUTSIDE zap.c (11/-11/+10/+20/%10 literals in
+      explode/read/fountain/potion/dothrow/eat/mon/muse/uhitm/
+      spell/dogmove) were the real stride danger - all converted to
+      symbolic BZ_/ZT_ forms, reviewer hand-verified the arithmetic
+      round-trips (spell fire now 12/-12; monster wands -33..-43;
+      breath stun -32); branch 5.0 has ONE mhitm dispatch
+      (mhitm_adtyping) so mhitm_ad_webs = one function, three arms,
+      all three master gates map onto mhitm_mgc_atk_negated;
+      master's isneedle flag verified 100% dead on master = not
+      ported; zhitu Reflecting arms dropped EXCEPT drain (5.0
+      full-reflection model skips zhitu from dobuzz, but ubreatheu
+      path reaches it); tilemap zap_texts +3 regenerated tile.c
+      cleanly. NEW FOLLOW-UP (bugfix, next session candidate): hmon
+      caller-reads-freed-obj class - uhitm.c hmon_hitmon_misc_obj
+      frees thrown venoms but callers re-read obj (three read
+      sites; byte-identical in vanilla NH 5.0 = UPSTREAM-REPORTABLE,
+      add to the upstream table) + the hero-thrown BALL_OF_WEBBING
+      stranded-OBJ_FREE leak (master-parity wart) - one root-cause
+      fix via an hmd out-flag gives both. DEFERRALS RECORDED:
+      erid steed-dismount arms on webbing hits (separate_steed_
+      and_rider absent) -> steed/barding slice; shambler_init
+      damg_melee_types AD_WEBS -> shambling-horror slice;
+      break_glass_obj spit_object exemption -> glass/blocker combat
+      slice; thitu thrower-bracket for the new zero-damage
+      projectiles -> kill-attribution slice; puddle/sewage
+      no-anchor reachability (webbing "nothing to anchor to"
+      ternary is dead until that terrain ports - it is dead on
+      pool/lava/air even now) -> terrain slice; explode() BASE_ZT
+      water/drain/stun arms (unreachable until an exploder carries
+      those adtyps); flash_types wand/spell poison+acid slots stay
+      "" (no producers; master filled them). SKELETAL NOTES: hero
+      mbreathtyp not saved (youmonst unsaved; lazy reroll = master
+      parity; eventual u.mcham-style mirror); chameleon cycling
+      accumulates sd_breath_resist mintrinsics bits (master
+      parity); master reflection "aborbs" typo fixed on branch =
+      MASTER BACKPORT CANDIDATE #8. Original dependency map kept
+      below for reference:
+      SPLIT from the cooldown slice
       2026-07-17 (maintainer decision; interlocking cluster):
       (a) AD_DRLI/AD_STUN rays onto the reserved AD_SPC1/AD_SPC2
       buzz slots (monattk.h "for extension of buzz()") + zap.c

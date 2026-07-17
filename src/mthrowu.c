@@ -91,7 +91,7 @@ thitu(
 {
     struct obj *obj = objp ? *objp : 0;
     const char *onm, *knm;
-    boolean is_acid, named = (name != 0);
+    boolean is_acid, is_webbing, is_needle, named = (name != 0);
     int kprefix = KILLED_BY_AN, dieroll;
     char onmbuf[BUFSZ], knmbuf[BUFSZ];
 
@@ -113,6 +113,8 @@ thitu(
           : (obj && obj->quan > 1L) ? name
             : an(name);
     is_acid = (obj && obj->otyp == ACID_VENOM);
+    is_webbing = (obj && obj->otyp == BALL_OF_WEBBING);
+    is_needle = (obj && obj->otyp == BARBED_NEEDLE);
 
     if (u.uac + tlev <= (dieroll = rnd(20))) {
         ++gm.mesg_given;
@@ -144,6 +146,13 @@ thitu(
         if (is_acid && Acid_resistance) {
             pline("It doesn't seem to hurt you.");
             monstseesu(M_SEEN_ACID);
+        } else if (is_needle && Poison_resistance) {
+            pline("It doesn't seem to affect you.");
+            monstseesu(M_SEEN_POISON);
+        } else if (is_webbing && (is_pool_or_lava(u.ux, u.uy)
+                                  || IS_AIR(levl[u.ux][u.uy].typ))) {
+            /* webbing has nothing to anchor to over liquid or air */
+            You("easily disentangle yourself.");
         } else if (obj && stone_missile(obj)
                    && passes_rocks(gy.youmonst.data)) {
             /* use 'named' as an approximation for "hitting from above";
@@ -166,6 +175,10 @@ thitu(
             if (is_acid) {
                 pline("It burns!");
                 monstunseesu(M_SEEN_ACID);
+            }
+            if (is_needle) {
+                pline("Ow, that stings!");
+                monstunseesu(M_SEEN_POISON);
             }
             losehp(dam, knm, kprefix); /* acid damage */
             exercise(A_STR, FALSE);
@@ -534,7 +547,8 @@ ohitmon(
         boolean harmless = (stone_missile(otmp) && passes_rocks(mtmp->data));
 
         damage = dmgval(otmp, mtmp);
-        if (otmp->otyp == ACID_VENOM && resists_acid(mtmp))
+        if (otmp->otyp == ACID_VENOM
+            && (resists_acid(mtmp) || defended(mtmp, AD_ACID)))
             damage = 0;
 #if 0 /* can't use this because we don't have the attacker */
         if (is_orc(mtmp->data) && is_elf(?magr?))
@@ -564,7 +578,22 @@ ohitmon(
                   Monnam(mtmp), exclam(damage));
 
         if (otmp->opoisoned && is_poisonable(otmp)) {
-            if (resists_poison(mtmp)) {
+            if (resists_poison(mtmp) || defended(mtmp, AD_DRST)) {
+                if (vis)
+                    pline_The("poison doesn't seem to affect %s.",
+                              mon_nam(mtmp));
+            } else {
+                if (rn2(30)) {
+                    damage += rnd(6);
+                } else {
+                    if (vis)
+                        pline_The("poison was deadly...");
+                    damage = mtmp->mhp;
+                }
+            }
+        }
+        if (otmp->otyp == BARBED_NEEDLE) {
+            if (resists_poison(mtmp) || defended(mtmp, AD_DRCO)) {
                 if (vis)
                     pline_The("poison doesn't seem to affect %s.",
                               mon_nam(mtmp));
@@ -596,7 +625,7 @@ ohitmon(
             ammo_stack->oprops_known |= otmp->oprops_known;
 
         if (otmp->otyp == ACID_VENOM && cansee(mtmp->mx, mtmp->my)) {
-            if (resists_acid(mtmp)) {
+            if (resists_acid(mtmp) || defended(mtmp, AD_ACID)) {
                 if (vis || (verbose && !gm.mtarget))
                     pline("%s is unaffected.", Monnam(mtmp));
             } else {
@@ -634,8 +663,9 @@ ohitmon(
            that the target is still alive anyway */
         if (!DEADMONSTER(mtmp)
             && can_blnd((struct monst *) 0, mtmp,
-                        (uchar) ((otmp->otyp == BLINDING_VENOM) ? AT_SPIT
-                                                                : AT_WEAP),
+                        (uchar) ((otmp->otyp == BLINDING_VENOM
+                                  || otmp->otyp == SNOWBALL) ? AT_SPIT
+                                                             : AT_WEAP),
                         otmp)) {
             if (vis && mtmp->mcansee)
                 /* shorten object name to reduce redundancy in the
@@ -643,14 +673,23 @@ ohitmon(
                    "The {splash of venom,cream pie} hits <mon>."
                    "<Mon> is blinded by the {venom,pie}." */
                 pline("%s is blinded by %s.", Monnam(mtmp),
-                      the((otmp->oclass == VENOM_CLASS) ? "venom"
-                          : (otmp->otyp == CREAM_PIE) ? "pie"
-                            : xname(otmp))); /* catchall; not used */
+                      the((otmp->otyp == SNOWBALL) ? "snowball"
+                          : (otmp->oclass == VENOM_CLASS) ? "venom"
+                            : (otmp->otyp == CREAM_PIE) ? "pie"
+                              : xname(otmp))); /* catchall; not used */
             mtmp->mcansee = 0;
             tmp = (int) mtmp->mblinded + rnd(25) + 20;
             if (tmp > 127)
                 tmp = 127;
             mtmp->mblinded = tmp;
+        }
+
+        if (!DEADMONSTER(mtmp) && otmp->otyp == BALL_OF_WEBBING
+            && !t_at(mtmp->mx, mtmp->my)) {
+            struct trap *web = maketrap(mtmp->mx, mtmp->my, WEB);
+
+            if (web)
+                (void) mintrap(mtmp, NO_TRAP_FLAGS);
         }
 
         if (!DEADMONSTER(mtmp) && !svc.context.mon_moving)
@@ -884,6 +923,8 @@ m_throw(
                 /*FALLTHRU*/
             case CREAM_PIE:
             case BLINDING_VENOM:
+            case SNOWBALL:
+            case BALL_OF_WEBBING:
                 hitu = thitu(8, 0, &singleobj, (char *) 0);
                 break;
             default:
@@ -926,18 +967,23 @@ m_throw(
                     hitu = thitu(hitv, dam, &singleobj, (char *) 0);
                 }
             }
-            if (hitu && singleobj->opoisoned && is_poisonable(singleobj)) {
+            if (hitu
+                && ((singleobj->opoisoned && is_poisonable(singleobj))
+                    || singleobj->otyp == BARBED_NEEDLE)) {
                 char onmbuf[BUFSZ], knmbuf[BUFSZ];
 
                 Strcpy(onmbuf, xname(singleobj));
                 Strcpy(knmbuf, killer_xname(singleobj));
-                poisoned(onmbuf, A_STR, knmbuf,
+                poisoned(onmbuf,
+                         (singleobj->otyp == BARBED_NEEDLE) ? A_CON : A_STR,
+                         knmbuf,
                          /* if damage triggered life-saving,
                             poison is limited to attrib loss */
                          (u.umortality > oldumort) ? 0 : 10, TRUE);
             }
             if (hitu && can_blnd((struct monst *) 0, &gy.youmonst,
-                                 (uchar) ((singleobj->otyp == BLINDING_VENOM)
+                                 (uchar) ((singleobj->otyp == BLINDING_VENOM
+                                           || singleobj->otyp == SNOWBALL)
                                              ? AT_SPIT
                                              : AT_WEAP),
                                  singleobj)) {
@@ -948,16 +994,39 @@ m_throw(
                     else
                         pline("There's %s sticky all over your %s.",
                               something, body_part(FACE));
-                } else if (singleobj->otyp == BLINDING_VENOM) {
+                } else if (singleobj->otyp == BLINDING_VENOM
+                           || singleobj->otyp == SNOWBALL) {
                     const char *eyes = body_part(EYE);
 
                     if (eyecount(gy.youmonst.data) != 1)
                         eyes = makeplural(eyes);
-                    /* venom in the eyes */
-                    if (!Blind)
-                        pline_The("venom blinds you.");
-                    else
+                    /* venom (or snow) in the eyes */
+                    if (!Blind) {
+                        if (singleobj->otyp == SNOWBALL)
+                            pline_The("snowball blinds you.");
+                        else
+                            pline_The("venom blinds you.");
+                    } else
                         Your("%s %s.", eyes, vtense(eyes, "sting"));
+                }
+            }
+            if (hitu && singleobj->otyp == BALL_OF_WEBBING
+                && !t_at(u.ux, u.uy)) {
+                /* webbing will not form over liquid or air */
+                struct trap *web = maketrap(u.ux, u.uy, WEB);
+
+                if (web) {
+                    pline("%s entangles you in a web%s", Monnam(mon),
+                          is_giant(gy.youmonst.data)
+                              ? ", but you rip through it!"
+                              : (webmaker(gy.youmonst.data)
+                                 || maybe_polyd(is_drow(gy.youmonst.data),
+                                                Race_if(PM_DROW)))
+                                  ? ", but you easily disentangle yourself."
+                                  : "!");
+                    dotrap(web, NOWEBMSG);
+                    if (u.usteed && u.utrap)
+                        dismount_steed(DISMOUNT_FELL);
                 }
             }
             if (hitu && singleobj->otyp == EGG) {
@@ -1208,7 +1277,12 @@ spitmm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
     struct obj *otmp;
 
     if (mtmp->mcan) {
-        if (!Deaf && mdistu(mtmp) < BOLT_LIM * BOLT_LIM) {
+        /* the dry rattle is for venom spitters; snow golems, spiders,
+           and needle blights do not spit venom */
+        if (!Deaf && mdistu(mtmp) < BOLT_LIM * BOLT_LIM
+            && mtmp->data != &mons[PM_SNOW_GOLEM]
+            && mtmp->data->mlet != S_SPIDER
+            && mtmp->data != &mons[PM_NEEDLE_BLIGHT]) {
             if (canspotmon(mtmp)) {
                 pline("A dry rattle comes from %s throat.",
                       s_suffix(mon_nam(mtmp)));
@@ -1231,6 +1305,17 @@ spitmm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
         case AD_DRST:
             otmp = mksobj(BLINDING_VENOM, TRUE, FALSE);
             break;
+        case AD_DRCO:
+            otmp = mksobj(BARBED_NEEDLE, TRUE, FALSE);
+            break;
+        case AD_COLD:
+            otmp = mksobj(SNOWBALL, TRUE, FALSE);
+            break;
+        case AD_WEBS:
+            /* webbing spit takes a while to regenerate */
+            mtmp->mbreath_attk = rn2(4);
+            otmp = mksobj(BALL_OF_WEBBING, TRUE, FALSE);
+            break;
         default:
             impossible("bad attack type in spitmm");
             FALLTHROUGH;
@@ -1240,8 +1325,16 @@ spitmm(struct monst *mtmp, struct attack *mattk, struct monst *mtarg)
             break;
         }
         if (!rn2(BOLT_LIM-distmin(mtmp->mx,mtmp->my,tx,ty))) {
-            if (canseemon(mtmp))
-                pline("%s spits venom!", Monnam(mtmp));
+            if (canseemon(mtmp)) {
+                if (mtmp->data == &mons[PM_SNOW_GOLEM])
+                    pline("%s throws a snowball!", Monnam(mtmp));
+                else if (mtmp->data->mlet == S_SPIDER)
+                    pline("%s shoots a ball of webbing!", Monnam(mtmp));
+                else if (mtmp->data == &mons[PM_NEEDLE_BLIGHT])
+                    pline("%s fires a barbed needle!", Monnam(mtmp));
+                else
+                    pline("%s spits venom!", Monnam(mtmp));
+            }
             if (!utarg)
                 gm.mtarget = mtarg;
             m_throw(mtmp, mtmp->mx, mtmp->my, sgn(gt.tbx), sgn(gt.tby),

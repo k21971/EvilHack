@@ -1337,7 +1337,8 @@ toss_up(struct obj *obj, boolean hitsroof)
         int blindinc;
 
         /* need to check for blindness result prior to destroying obj */
-        blindinc = ((otyp == CREAM_PIE || otyp == BLINDING_VENOM)
+        blindinc = ((otyp == CREAM_PIE || otyp == BLINDING_VENOM
+                     || otyp == SNOWBALL)
                     /* AT_WEAP is ok here even if attack type was AT_SPIT */
                     && can_blnd(&gy.youmonst, &gy.youmonst, AT_WEAP, obj))
                        ? rnd(25)
@@ -1361,9 +1362,11 @@ toss_up(struct obj *obj, boolean hitsroof)
             /*FALLTHRU*/
         case CREAM_PIE:
         case BLINDING_VENOM:
-            pline("You've got it all over your %s!", body_part(FACE));
+        case SNOWBALL:
+            pline("You've got %s all over your %s!",
+                  (otyp == SNOWBALL) ? "snow" : "it", body_part(FACE));
             if (blindinc) {
-                if (otyp == BLINDING_VENOM && !Blind)
+                if ((otyp == BLINDING_VENOM || otyp == SNOWBALL) && !Blind)
                     pline("It blinds you!");
                 u.ucreamed += blindinc;
                 make_blinded(BlindedTimeout + (long) blindinc, FALSE);
@@ -2374,7 +2377,8 @@ thitmonst(
         }
 
     } else if ((otyp == EGG || otyp == CREAM_PIE || otyp == BLINDING_VENOM
-                || otyp == ACID_VENOM)
+                || otyp == ACID_VENOM || otyp == SNOWBALL
+                || otyp == BALL_OF_WEBBING || otyp == BARBED_NEEDLE)
                && (guaranteed_hit || ACURR(A_DEX) > rnd(25))) {
         (void) hmon(mon, obj, hmode, dieroll);
         return 1; /* hmon used it up */
@@ -2727,6 +2731,9 @@ breaktest(struct obj *obj)
     case MELON:
     case ACID_VENOM:
     case BLINDING_VENOM:
+    case SNOWBALL:
+    case BALL_OF_WEBBING:
+    case BARBED_NEEDLE:
         return TRUE;
     default:
         return FALSE;
@@ -2772,6 +2779,7 @@ breakmsg(struct obj *obj, boolean in_view)
         break;
     case EGG:
     case MELON:
+    case BALL_OF_WEBBING:
         pline("Splat!");
         break;
     case CREAM_PIE:
@@ -2781,6 +2789,12 @@ breakmsg(struct obj *obj, boolean in_view)
     case ACID_VENOM:
     case BLINDING_VENOM:
         pline("Splash!");
+        break;
+    case SNOWBALL:
+        pline("Thwap!");
+        break;
+    case BARBED_NEEDLE:
+        pline("Thwack!");
         break;
     }
 }
