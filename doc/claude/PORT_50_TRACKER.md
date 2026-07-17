@@ -2068,13 +2068,76 @@ delta, FEATURES_ARCHIVE.md, and the converter-tooling runs. Statuses:
       XL30 heroes attract heavy spawn churn - stage multi-step
       m-v-m scenarios EARLY in a game, not at T:150+; a fire
       ray kills your own pet in the line (check the path).
-- [~] Zombie/were/Draugr mechanics (zombify, binding ritual)
-      PORTED + REVIEWED + COORDINATOR-FIXED 2026-07-16 (port subagent
-      34 files +903/-151, reviewer CONDITIONAL PASS 2 blockers/6
-      concerns/6 nits -> all adjudicated + fixed same day; full make
-      clean rebuild zero-warning; COMMIT PENDING; wizmode battery
-      PENDING maintainer approval - consolidated 15-point list in
-      scratchpad zombie-battery.md). CONTENTS: zombie-sickness system
+- [x] Zombie/were/Draugr mechanics (zombify, binding ritual)
+      PORTED + REVIEWED + COORDINATOR-FIXED 2026-07-16, COMMITTED
+      2026-07-17 as 7b19b7ba8 (36 files +1094/-181; port subagent 34
+      files, reviewer CONDITIONAL PASS 2 blockers/6 concerns/6 nits ->
+      all adjudicated + fixed; full make clean rebuild zero-warning).
+      WIZMODE BATTERY PASSED 2026-07-17 (maintainer-approved; three
+      games - human Valkyrie XL30, draugr Dark Knight XL30, aasimar
+      Valkyrie; sanity_check on; PANICLOG NEVER CREATED). Verified
+      live: (1) mm bite infection msick=3/msicktime paired/msickbyu=0
+      by gdb + "brain is eaten"/"looks rather ill" + "dies from his
+      illness" m_calcdistress death; (2) witherling rise from wished
+      zombifying gnoll corpse + witherling re-infected a cured third
+      party + destroyed-zombie corpses re-rose via the 1/250 arm
+      (self-sustaining spread loop end to end); (3) create_particular
+      sick (msick=1 flat, no zombify - master-exact) + diseased flags
+      by gdb, both death messages; (4) hero SICK_ZOMBIE arc via
+      witherling/zombie bites - usick_type=4 by gdb, TermIll botl, ^X
+      "turning into a zombie", death "zombified by a human zombie" in
+      logfile+xlogfile, bones contain the risen christened human
+      zombie (found + fought when Game B loaded them, 187hp carried);
+      (5) cures - prayer, unicorn horn x2, muse eucalyptus leaf on a
+      staged sick watchman ("is no longer ill"), CON bounce-back
+      correctly excluded (code re-read; the one apparent "recovery"
+      was a blind-spaced wizard Die?-decline savelife, operator
+      error); (6) gray fungus passive BOTH directions - hero punch
+      "You feel deathly sick", pet melee "looks diseased"/"looks even
+      worse" escalation, pet died of the infection; (7) zombie moans
+      + BRAAAAAAAAINS ambience; (8) weredemon beast->demon form
+      change live (gdb mnum 34->435), bite pressure vs hero (no
+      lycanthropy in ~60 bites - rn2(4)+negation gates, form arms
+      reviewer-verified); (9) Grimtooth "The filthy dagger infects";
+      (10) death ray full-heal 26->31 by gdb; (11) binding ritual
+      full cycle - chant + rattle message, mtame 10->11, exactly 5
+      Pw, mbindtimer 1500 set/ticking, "not yet ready" cooldown gate
+      with ZERO Pw charge, "wholly bound" cap untested (mtame 20 too
+      far), mbindtimer PERSISTED across save/reload (1499->1498);
+      (12) draugr hostile imposition "attempt to impose your will" +
+      ignore arm; (13) draugr "tries to eat your brains, but can't"
+      + helm-blocks-bite arms; draugr zombie-corpse meal "Mmmm...
+      tainted meat!  Nutrition gained: 200" with NO infection (C3
+      carve-out); (14) draugr Sunsword wield REFUSED ("You can't
+      handle"); (15) draugr sickness death reclassified "diseased by"
+      wording arm hit by the AASIMAR game instead: at Death's door
+      dialogue + xlog "diseased by a human zombie", no arise; (16)
+      B1 REGRESSION: draugr hero killed by a wraith, bones saved,
+      reloaded in game 3 - chain scan shows ZERO christened monsters,
+      plain unnamed killer wraith present, no ghost (the old
+      ismnum-first order would have shipped a risen wraith named
+      wizard). NOT live-tested (code-verified, owners noted):
+      msickbyu->xkilled hero credit (two stagings eaten by pets; arm
+      is master-verbatim), weredemon kill-in-beast-form revert +
+      were_summon hell hounds (form is beast at night; dawn flip
+      unreachable in-session), pet-side eucalyptus dogfood eat (pet
+      died first; m_consume_obj cure is the same helper the muse
+      path proved), Samurai Grimtooth abuse event + pet-wielded
+      Grimtooth attribution, sleeping-gas/fountain Breathless gates
+      (one-line reviewer-verified swaps; trap KITS don't apply yet -
+      deferred trap-mechanics subsystem, "Sorry, I don't know how to
+      use that"). FINDINGS for other slices: draugr #polyself into
+      zombie form re-rolls "You feel like a new draugr" (player-races
+      slice - check master polyself draugr behavior); race menu shows
+      THREE 'd' letters (dwarf/drow/draugr collision - Phase 1 roles
+      follow-up; workaround -r draugr CLI); spell.c cure-sickness
+      draugr backfire arm is DORMANT on branch (rejectcasting
+      can_chant blocks zombie-race heroes from casting at all =
+      master hero-parity; master reached its zapyourself arm via
+      external casts - re-home when hero spell parity or
+      monster-cast-at-hero heals land); battery leftovers: draugr
+      bones bonD0.1.gz + logfile/xlogfile/livelog test entries in
+      the evilhack50dir playground (benign, left in place). CONTENTS: zombie-sickness system
       end to end (hero SICK_ZOMBIE arc: eatcorpse taint block,
       diseasemu, timeout death -> ugrave_arise = zombienum with 6-race
       immunity list, insight/botl/end display+death, SICK_ALL cures;
